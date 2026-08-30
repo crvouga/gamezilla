@@ -159,7 +159,7 @@ describe('AccountProvisioningService upgrade', () => {
       deviceId: DEVICE_ID,
     });
     const authServer: AuthServerPort = {
-      providerLabel: 'better-auth',
+      providerLabel: 'idp',
       verifySessionToken: async () => null,
       getUserProfile: async () => null,
       getUserSnapshot: async () => ({ id: 'ext_1' }),
@@ -192,11 +192,11 @@ describe('AccountProvisioningService upgrade', () => {
     const now = new Date(adapters.clock.now()).toISOString();
     await db.run(sql<void>`
       INSERT INTO auth_external_accounts (id, user_id, provider, external_id, metadata, created_at)
-      VALUES (${'better-auth:ext_existing'}, ${other.userId}, 'better-auth', 'ext_existing', '{}', ${now})
+      VALUES (${'idp:ext_existing'}, ${other.userId}, 'idp', 'ext_existing', '{}', ${now})
     `);
 
     const authServer: AuthServerPort = {
-      providerLabel: 'better-auth',
+      providerLabel: 'idp',
       verifySessionToken: async () => null,
       getUserProfile: async () => null,
       getUserSnapshot: async () => ({ id: 'ext_existing' }),

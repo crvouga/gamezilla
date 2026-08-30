@@ -22,7 +22,7 @@ import { createRepoTreeObjectStore } from '@pkgs/object-store/repo-tree-store';
 import { createScriptSecretStore } from '@pkgs/secret-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
 import { createPgPool, pingPostgres } from '@pkgs/sql-client/postgres/connect';
-import { readDevVar, readDevVarsDatabaseUrl } from '../scripts/dev-vars';
+import { readDevVarsDatabaseUrl } from '../scripts/dev-vars';
 import { fetchSecret } from '../shared/secret-io';
 import {
   isPostgresTransientMigrateError,
@@ -41,8 +41,6 @@ const MIGRATE_RETRY_DELAYS_MS = [
 ] as const;
 const WAIT_FOR_POSTGRES_MS = 60_000;
 const WAIT_FOR_POSTGRES_RETRY_MS = 1_000;
-/** Schema migrate only — Better Auth DDL does not call this origin. */
-const BETTER_AUTH_MIGRATE_BASE_URL = 'https://migrate.local';
 
 export type MigratePostgresAppOptions = {
   /** Wait until DATABASE_URL accepts connections (local embedded boot). */
@@ -150,32 +148,8 @@ async function waitForPostgresReachable(
   });
 }
 
-async function resolveBetterAuthMigrateSecrets(): Promise<{
-  readonly secret: string;
-  readonly baseURL: string;
-}> {
-  const fromDevVars = readDevVar('BETTER_AUTH_SECRET')?.trim() ?? '';
-  const fromEnvSecret = process.env['BETTER_AUTH_SECRET']?.trim() ?? '';
-  const fromEnvUrl =
-    readDevVar('API_URL')?.trim() || process.env['API_URL']?.trim() || '';
-  const store = createScriptSecretStore();
-  const secret =
-    fromDevVars.length >= 32
-      ? fromDevVars
-      : fromEnvSecret.length >= 32
-        ? fromEnvSecret
-        : (await store.getRequired('BETTER_AUTH_SECRET')).readSecretValue();
-  const baseURL =
-    fromEnvUrl.length > 0
-      ? fromEnvUrl.replace(/\/$/, '')
-      : BETTER_AUTH_MIGRATE_BASE_URL;
-  return { secret, baseURL };
-}
-
 async function runMigrateOnce(databaseUrl: string): Promise<void> {
   await assertMigrateDatabasePolicy(databaseUrl);
-  const { secret: betterAuthSecret, baseURL: betterAuthBaseURL } =
-    await resolveBetterAuthMigrateSecrets();
   const dbScope = appPostgresDbScope();
   const { pool, sqlClient } = createPgPool({
     connectionString: databaseUrl,
@@ -186,17 +160,14 @@ async function runMigrateOnce(databaseUrl: string): Promise<void> {
   try {
     await new PostgresMigrationRunner({
       sqlClient,
-      pool,
       logger: log,
       dbScope,
-      betterAuthSecret,
-      betterAuthBaseURL,
     }).run();
     log.info(
-      'postgres migrations finished (schema + kv + Better Auth; matchmaking self-migrates on first request)'
+      'postgres migrations finished (schema + kv + IdP; matchmaking self-migrates on first request)'
     );
     process.stdout.write(
-      '[api:db:migrate] completed (schema + kv + Better Auth; matchmaking self-migrates on first request)\n'
+      '[api:db:migrate] completed (schema + kv + IdP; matchmaking self-migrates on first request)\n'
     );
   } finally {
     await pool.end();

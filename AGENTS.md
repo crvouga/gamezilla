@@ -103,7 +103,7 @@ Production (`SECRETS_ENV=prd`) uses Infisical Neon + B2 (+ Railway EMQX) only.
 
 - **`bun run dev`** — `@sim/console` (Reports + Playground). Feature work happens here.
 - **`bun run dev:client`** — `@apps/client` product app only (no console chrome).
-- **Sign-in in the playground** — email/password against the in-process sim API.
+- **Sign-in in the playground** — Dev social against the in-process sim API.
 - **Optional clouds** — still degrade in the real API Worker when secrets are missing.
 - **`bun db:migrate`** — migrates `DATABASE_URL` (CI / after booting embedded Postgres). Not part of daily `bun dev`.
 - **`bun run db:wipe:dev`** — secrets env `dev` only; destructive on the resolved non-prod URL.
@@ -115,7 +115,7 @@ Server SQL migrations are expressed only as `DatabaseMigration` classes (interfa
 
 **Domain tables** are declared with `defineTable` in each feature lib’s `shared/schema/` (exported via `public/schema.ts`), composed by `registerTables` in `@libs/runtime/root/app-schema`, and applied only through `@pkgs/db-schema/postgres` / `@pkgs/db-schema/sqlite` migration classes (no public `reconcile` API). **Do not add raw `.sql` schema files** under `libs/` / `pkgs/` / `apps/`.
 
-**Framework / infra tables** (sync-engine, outbox, kv, entity-store, matchmaking, Better Auth) stay as package-owned TypeScript `DatabaseMigration` DDL units — they are not soft-delete domain sync tables and do not use `defineTable`.
+**Framework / infra tables** (sync-engine, outbox, kv, entity-store, matchmaking) stay as package-owned TypeScript `DatabaseMigration` DDL units — they are not soft-delete domain sync tables and do not use `defineTable`. **IdP tables** (`idp_*` in `@pkgs/auth`) use `defineTable` but are **not** registered in product `appSchema` (not synced); migrations use `AuthPostgresDatabaseMigration` / `AuthSqliteDatabaseMigration`.
 
 Do not add ad-hoc `migrateUp` / free-function DDL entrypoints for new **domain** schema — implement `defineTable` + register in app-schema (or a `DatabaseMigration` at the compose site for framework/infra). `@apps/server` owns URL/policy/retry orchestration (`migratePostgresApp` / `migrate-cli.ts`); tests/CI boot `@pkgs/postgres-embedded` then call api migrate/seed scripts. Root `db:migrate` / infra shell out to `apps/server/src/db/migrate-cli.ts` (apps must not import other `@apps/*` packages).
 

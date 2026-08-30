@@ -1,6 +1,6 @@
 /**
  * Install-local session capability in secure storage: bearer + expiry +
- * external user id. Steady-state chrome reads these; Better Auth only mints.
+ * external user id. Steady-state chrome reads these; IdP only mints.
  */
 
 import type { SecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';

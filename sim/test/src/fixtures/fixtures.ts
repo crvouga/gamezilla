@@ -1,27 +1,19 @@
 /** Canonical actors / credentials for `@sim/test` DST scenarios. */
 
 export const aliceCreds = {
-  email: 'alice@sim.local',
-  password: 'sim-password-123',
-  username: 'alice',
+  subject: 'alice',
 } as const;
 
 export const aliceUserCreds = {
-  email: 'alice-user@sim.local',
-  password: aliceCreds.password,
-  username: 'alice_user',
+  subject: 'alice_user',
 } as const;
 
 export const aliceAvatarCreds = {
-  email: 'alice-avatar@sim.local',
-  password: aliceCreds.password,
-  username: 'alice_avatar',
+  subject: 'alice_avatar',
 } as const;
 
 export const bobCreds = {
-  email: 'bob@sim.local',
-  password: aliceCreds.password,
-  username: 'bob',
+  subject: 'bob',
 } as const;
 
 /** Claimed usernames for the friends request/accept scenario. */

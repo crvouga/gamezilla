@@ -2,17 +2,16 @@ import { useLingui } from '@lingui/react/macro';
 import type { SignInCredentials } from '@pkgs/auth/shared/sign-in-strategy';
 import { ModalButton } from '@pkgs/ui';
 import type { ReactNode } from 'react';
-import { SignInEmailSignInBody } from './sign-in-email-sign-in-body';
-import { SignInEmailSignUpBody } from './sign-in-email-sign-up-body';
+import { SignInDevBody } from './sign-in-dev-body';
 import { SignInModalBody } from './sign-in-modal-body';
 
-export type SignInIdleStep = 'methods' | 'email-sign-in' | 'email-sign-up';
+export type SignInIdleStep = 'methods' | 'dev';
 
 export function titleForSignInIdleStep(
   step: SignInIdleStep,
   t: ReturnType<typeof useLingui>['t']
 ): string {
-  if (step === 'email-sign-up') return t`Create account`;
+  if (step === 'dev') return t`Dev sign-in`;
   return t`Sign in`;
 }
 
@@ -20,51 +19,34 @@ export function SignInIdleBody(props: {
   idleStep: SignInIdleStep;
   methodsLoading?: boolean;
   googleAvailable: boolean;
-  emailPasswordAvailable: boolean;
+  devOauthAvailable: boolean;
   signInUnavailableReason: string | null;
   onPressGoogle: () => void;
-  onPressEmail: () => void;
-  onSubmitEmail: (credentials: SignInCredentials) => void;
-  onGoToSignUp: () => void;
-  onGoToSignIn: () => void;
+  onPressDev: () => void;
+  onSubmitDev: (credentials: SignInCredentials) => void;
 }): ReactNode {
   const {
     idleStep,
     methodsLoading = false,
     googleAvailable,
-    emailPasswordAvailable,
+    devOauthAvailable,
     signInUnavailableReason,
     onPressGoogle,
-    onPressEmail,
-    onSubmitEmail,
-    onGoToSignUp,
-    onGoToSignIn,
+    onPressDev,
+    onSubmitDev,
   } = props;
 
-  if (idleStep === 'email-sign-in') {
-    return (
-      <SignInEmailSignInBody
-        onSubmit={onSubmitEmail}
-        onGoToSignUp={onGoToSignUp}
-      />
-    );
-  }
-  if (idleStep === 'email-sign-up') {
-    return (
-      <SignInEmailSignUpBody
-        onSubmit={onSubmitEmail}
-        onGoToSignIn={onGoToSignIn}
-      />
-    );
+  if (idleStep === 'dev') {
+    return <SignInDevBody onSubmit={onSubmitDev} />;
   }
   return (
     <SignInModalBody
       methodsLoading={methodsLoading}
       googleAvailable={googleAvailable}
-      emailPasswordAvailable={emailPasswordAvailable}
+      devOauthAvailable={devOauthAvailable}
       signInUnavailableReason={signInUnavailableReason}
       onPressGoogle={onPressGoogle}
-      onPressEmail={onPressEmail}
+      onPressDev={onPressDev}
     />
   );
 }

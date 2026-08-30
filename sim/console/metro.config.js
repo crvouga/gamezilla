@@ -296,13 +296,6 @@ const emptyNativeSqlStub = path.join(
   'metro-stubs',
   'empty-native-sql.js'
 );
-const nodeAsyncHooksStub = path.join(
-  __dirname,
-  'metro-stubs',
-  'node-async-hooks.js'
-);
-const nodeSqliteStub = path.join(__dirname, 'metro-stubs', 'node-sqlite.js');
-
 /**
  * Hermes classic scripts cannot parse `import.meta`. PGlite's ESM build
  * and `@sqlite.org/sqlite-wasm` both use it. On web:
@@ -311,20 +304,6 @@ const nodeSqliteStub = path.join(__dirname, 'metro-stubs', 'node-sqlite.js');
  * On native, stub Node engines so better-sqlite3 never enters the Hermes bundle.
  */
 function resolveUnavailableSqlEngines(moduleName, platform) {
-  if (platform === 'ios' || platform === 'android') {
-    if (moduleName === 'node:async_hooks' || moduleName === 'async_hooks') {
-      return {
-        filePath: metroResolvedPath(nodeAsyncHooksStub),
-        type: 'sourceFile',
-      };
-    }
-    if (moduleName === 'node:sqlite') {
-      return {
-        filePath: metroResolvedPath(nodeSqliteStub),
-        type: 'sourceFile',
-      };
-    }
-  }
   if (platform === 'web') {
     if (
       moduleName === '@electric-sql/pglite' ||

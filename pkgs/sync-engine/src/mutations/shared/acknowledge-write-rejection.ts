@@ -1,11 +1,40 @@
 import { sql } from '@pkgs/sql';
-import { z } from 'zod';
+import type { StandardSchemaV1 } from '@standard-schema/spec';
 import { defineMutation } from '../core/define-mutation';
+
+type AcknowledgeArgs = { readonly rejectionId: string };
+
+const acknowledgeArgsSchema: StandardSchemaV1<
+  AcknowledgeArgs,
+  AcknowledgeArgs
+> = {
+  '~standard': {
+    version: 1,
+    vendor: 'sync-engine',
+    validate(value) {
+      if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+        return { issues: [{ message: 'Expected an object' }] };
+      }
+      const rejectionId = (value as Record<string, unknown>)['rejectionId'];
+      if (typeof rejectionId !== 'string' || rejectionId.length < 1) {
+        return {
+          issues: [
+            {
+              message: 'rejectionId must be a non-empty string',
+              path: ['rejectionId'],
+            },
+          ],
+        };
+      }
+      return { value: { rejectionId } };
+    },
+  },
+};
 
 /** Mark a synced-down write rejection as acknowledged (dismissed) by this install. */
 export const acknowledgeWriteRejectionMutation = defineMutation({
   name: 'acknowledgeWriteRejection',
-  args: z.object({ rejectionId: z.string().min(1) }),
+  args: acknowledgeArgsSchema,
   async run({ tx, env }, { rejectionId }) {
     await tx.run(sql`
       UPDATE sync_engine_write_rejections

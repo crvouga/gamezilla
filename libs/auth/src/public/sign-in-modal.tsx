@@ -2,9 +2,9 @@
  * Hosted sign-in surface. Shown from the user menu / commands when the user
  * chooses Sign in.
  *
- * Idle flow is a method picker → dedicated email sign-in / create-account
- * steps. Google uses a durable pending marker across OAuth redirect;
- * email/password completes in-place via the same phase machine.
+ * Idle flow is a method picker → Dev subject step. Google uses a durable
+ * pending marker across OAuth redirect; Dev social completes in-place via
+ * the same phase machine.
  */
 
 import { Handles } from '@libs/dst-handles';
@@ -46,10 +46,10 @@ export type SignInModalProps = {
   /** True while synced sign-in method flags are still loading. */
   methodsLoading?: boolean;
   googleAvailable: boolean;
-  emailPasswordAvailable: boolean;
+  devOauthAvailable: boolean;
   signInUnavailableReason: string | null;
   onSignInWithGoogle: () => Promise<void>;
-  onSignInWithEmail: (credentials: SignInCredentials) => Promise<void>;
+  onSignInWithDev: (credentials: SignInCredentials) => Promise<void>;
   onError?: ((error: Error) => void) | undefined;
 };
 
@@ -85,7 +85,7 @@ export function SignInModal(props: SignInModalProps): ReactNode {
     resumePending,
     methodsLoading = false,
     googleAvailable,
-    emailPasswordAvailable,
+    devOauthAvailable,
     onError,
   } = props;
   const { phase, error, start, reset, dismiss } = useSignInModalLifecycle({
@@ -97,7 +97,7 @@ export function SignInModal(props: SignInModalProps): ReactNode {
 
   useResetOnClose(visible, phase, reset, resetStep);
 
-  const anyMethod = googleAvailable || emailPasswordAvailable;
+  const anyMethod = googleAvailable || devOauthAvailable;
   const trigger = useCallback(
     (runner: () => Promise<void>) => {
       if (!anyMethod || phase === 'loading') return;
@@ -135,15 +135,13 @@ export function SignInModal(props: SignInModalProps): ReactNode {
               idleStep={idleStep}
               methodsLoading={methodsLoading}
               googleAvailable={googleAvailable}
-              emailPasswordAvailable={emailPasswordAvailable}
+              devOauthAvailable={devOauthAvailable}
               signInUnavailableReason={props.signInUnavailableReason}
               onPressGoogle={() => trigger(props.onSignInWithGoogle)}
-              onPressEmail={() => setIdleStep('email-sign-in')}
-              onSubmitEmail={(credentials) => {
-                trigger(() => props.onSignInWithEmail(credentials));
+              onPressDev={() => setIdleStep('dev')}
+              onSubmitDev={(credentials) => {
+                trigger(() => props.onSignInWithDev(credentials));
               }}
-              onGoToSignUp={() => setIdleStep('email-sign-up')}
-              onGoToSignIn={() => setIdleStep('email-sign-in')}
             />
           }
           idleFooter={

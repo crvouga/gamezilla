@@ -1,6 +1,6 @@
 import type { Topic } from '@pkgs/pubsub/interface';
 import type { Sql } from '@pkgs/sql';
-import type { z } from 'zod';
+import type { StandardSchemaV1 } from '@standard-schema/spec';
 
 import type { AuthErrorBody, QueryResponse, QueryRow } from '../../protocol';
 import type { QueryChannelsCtx } from '../../shared/push-payload';
@@ -59,7 +59,7 @@ export type QueryDef<P = unknown> = {
    */
   readonly limitIsDefault?: boolean;
   /** Wire params; defaults to empty object schema at registry time. */
-  readonly params?: z.ZodType<P>;
+  readonly params?: StandardSchemaV1<unknown, P>;
   /** Real authz only — default deny-anon when omitted. */
   readonly authorize?: QueryAuthorize<P>;
   /** Opt out of default signed-in requirement. */

@@ -1,4 +1,5 @@
 import { AnimatedBox, Box, Text } from '@pkgs/ui';
+import { startTiming } from '@pkgs/ui/animation/run-timing';
 import { USE_NATIVE_DRIVER } from '@pkgs/ui/animation/use-native-driver';
 import { motion } from '@pkgs/ui/theme/motion';
 import { type ReactNode, useEffect, useRef } from 'react';
@@ -23,18 +24,21 @@ export function ChessPuzzleEloChip({
   useEffect(() => {
     if (pulseNonce === 0) return;
     scale.setValue(1);
-    Animated.sequence([
-      Animated.timing(scale, {
+    startTiming(
+      scale,
+      {
         toValue: 1.14,
         duration: motion.duration.fast,
         useNativeDriver: USE_NATIVE_DRIVER,
-      }),
-      Animated.timing(scale, {
-        toValue: 1,
-        duration: motion.duration.fast,
-        useNativeDriver: USE_NATIVE_DRIVER,
-      }),
-    ]).start();
+      },
+      () => {
+        startTiming(scale, {
+          toValue: 1,
+          duration: motion.duration.fast,
+          useNativeDriver: USE_NATIVE_DRIVER,
+        });
+      }
+    );
   }, [pulseNonce, scale]);
 
   return (

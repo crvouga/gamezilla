@@ -29,25 +29,31 @@ export function scopeHash(queryName: string, params: unknown): string {
   return sha256Hex(`${queryName}\0${canonicalJson(params)}`);
 }
 
-/** Content hash: tables by name → rows by id → columns stable order. */
+/**
+ * Content hash: tables by name → rows by id → columns stable order.
+ *
+ * Builds one string (sorted once per row) then a single sha256 — avoids the
+ * old path of allocating a full nested payload and re-sorting via
+ * {@link canonicalJson}. Algorithm is opaque on the wire (CONTRACTS Fork A).
+ */
 export function hashQueryTables(
   tables: Readonly<Record<string, readonly Record<string, unknown>[]>>
 ): string {
+  const parts: string[] = ['hqtv2'];
   const tableNames = Object.keys(tables).sort();
-  const payload: Record<string, unknown[]> = {};
   for (const name of tableNames) {
+    parts.push(name);
     const rows = [...(tables[name] ?? [])];
     rows.sort((a, b) => {
       const aid = String(a['id'] ?? '');
       const bid = String(b['id'] ?? '');
       return aid < bid ? -1 : aid > bid ? 1 : 0;
     });
-    payload[name] = rows.map((row) => {
-      const keys = Object.keys(row).sort();
-      const sorted: Record<string, unknown> = {};
-      for (const k of keys) sorted[k] = row[k];
-      return sorted;
-    });
+    parts.push(String(rows.length));
+    for (const row of rows) {
+      // sortValue once — do not run canonicalJson over a giant outer object.
+      parts.push(JSON.stringify(sortValue(row)));
+    }
   }
-  return sha256Hex(canonicalJson(payload));
+  return sha256Hex(parts.join('\0'));
 }

@@ -2,7 +2,6 @@ import type { PubSub, Topic } from '@pkgs/pubsub/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
 import type { Hono } from 'hono';
-import { z } from 'zod';
 
 import type { MutationEnv, MutationRegistry } from '../mutations/core/types';
 import { processMutationsBatch } from '../mutations/server/process-mutations-batch';
@@ -24,25 +23,13 @@ import type { WriteCaptureSnapshot } from '../sql-ast';
 import { allocateTopicPushSeqs } from './allocate-topic-push-seq';
 import { isAuthErrorBody } from './auth-error';
 import { publishPushMessages } from './notify-channels';
+import { parseMutationsBatchBody } from './parse-batch-body';
 import {
   resolveRequestSql,
   type SyncSqlVariables,
 } from './resolve-request-sql';
 import type { SyncAppAuth } from './sync-app-auth';
 import { assertSyncProtocol } from './sync-protocol-gate';
-
-const mutationRowSchema = z.object({
-  id: z.string().min(1),
-  name: z.string().min(1),
-  args: z.string(),
-  clientId: z.string().min(1),
-  seq: z.number().int().nonnegative(),
-  createdAt: z.string().min(1),
-});
-
-const mutationsBodySchema = z.object({
-  mutations: z.array(mutationRowSchema).max(MAX_MUTATIONS_BATCH),
-});
 
 function asNestedTxClient(tx: SqlClient): SqlClient {
   return {
@@ -262,14 +249,14 @@ export function mountMutationsRoute(
     if (isAuthErrorBody(auth)) {
       return c.json(auth, 401);
     }
-    const parsed = mutationsBodySchema.safeParse(await c.req.json());
-    if (!parsed.success) {
+    const parsed = parseMutationsBatchBody(await c.req.json());
+    if (parsed === null) {
       return c.json({ error: 'invalid_batch' }, 400);
     }
-    if (parsed.data.mutations.length > MAX_MUTATIONS_BATCH) {
+    if (parsed.mutations.length > MAX_MUTATIONS_BATCH) {
       return c.json({ error: 'batch_too_large' }, 413);
     }
-    const mutationRows: MutationRow[] = parsed.data.mutations.map((m) => ({
+    const mutationRows: MutationRow[] = parsed.mutations.map((m) => ({
       id: m.id,
       name: m.name,
       args: m.args,

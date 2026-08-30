@@ -40,7 +40,6 @@
     "@pkgs/async-local": "workspace:*",
     "@pkgs/attribute": "workspace:*",
     "@pkgs/auth": "workspace:*",
-    "@pkgs/auth-better-auth": "workspace:*",
     "@pkgs/billing": "workspace:*",
     "@pkgs/billing-stripe": "workspace:*",
     "@pkgs/clock": "workspace:*",

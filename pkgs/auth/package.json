@@ -21,12 +21,28 @@
   },
   "scripts": {
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test --pass-with-no-tests"
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@noble/hashes": "catalog:",
+    "@pkgs/assert": "workspace:*",
+    "@pkgs/clock": "workspace:*",
+    "@pkgs/db-migrate": "workspace:*",
+    "@pkgs/db-schema": "workspace:*",
+    "@pkgs/http-client": "workspace:*",
+    "@pkgs/logger": "workspace:*",
+    "@pkgs/sql": "workspace:*",
+    "@pkgs/sql-client": "workspace:*",
+    "@pkgs/uuid": "workspace:*",
+    "hono": "catalog:",
+    "react": "catalog:"
   },
   "devDependencies": {
+    "@pkgs/pbt": "workspace:*",
     "@types/bun": "catalog:",
     "@types/react": "catalog:",
     "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
     "typescript": "catalog:"
   },
   "peerDependencies": {

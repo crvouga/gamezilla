@@ -7,6 +7,6 @@ import { buildSignedInAlice } from './signed-in-alice';
 export async function buildSignedInPair(sim: OpenSimHandle): Promise<void> {
   await buildSignedInAlice(sim);
   const bob = await AppDriver.forActor(sim, 'bob');
-  await bob.auth.signUpWithEmail(bobCreds);
+  await bob.auth.signInWithDev(bobCreds);
   await bob.auth.returnToTabs();
 }

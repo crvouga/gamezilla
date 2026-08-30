@@ -1,13 +1,16 @@
 /**
  * Provider-neutral sign-in entry points. Adapters map each strategy to their
- * backend (OAuth redirect, email/password, etc.).
+ * backend (OAuth redirect, fake Dev social, etc.).
  */
-export type SignInStrategy = 'oauth-google' | 'email-password';
+export type SignInStrategy = 'oauth-google' | 'oauth-dev';
 
-/** Extra fields for strategies that need credentials (email/password). */
+/** Extra fields for strategies that need credentials (Dev social subject). */
 export type SignInCredentials = {
-  readonly email: string;
-  readonly password: string;
-  /** `sign-in` (default) or `sign-up` for email/password. */
+  /** Dev provider stable subject (maps 1:1 to an IdP user). */
+  readonly subject?: string;
+  readonly email?: string;
+  readonly name?: string;
+  /** @deprecated Email/password removed; kept optional for call-site migration. */
+  readonly password?: string;
   readonly mode?: 'sign-in' | 'sign-up';
 };

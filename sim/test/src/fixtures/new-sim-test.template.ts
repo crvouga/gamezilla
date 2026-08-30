@@ -16,7 +16,7 @@ describe('example journey', () => {
   test('alice signs up and opens spaces', async () => {
     await using sim = await openSim('example-journey');
     const app = await AppDriver.forActor(sim, 'alice');
-    await app.auth.signUpWithEmail(aliceCreds);
+    await app.auth.signInWithDev(aliceCreds);
     await app.auth.returnToTabs();
     await app.space.openTab();
   });

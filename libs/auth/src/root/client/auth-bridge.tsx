@@ -239,7 +239,7 @@ function useRefreshOnAppForeground(args: {
 
 /**
  * Reconciles local session capability (`sessionToken` + meta) with identity
- * refresh. Better Auth `useSession` is a ceremony/reconcile trigger only —
+ * refresh. IdP `useSession` is a ceremony/reconcile trigger only —
  * chrome reads secure storage.
  */
 export function AuthBridge(props: PropsWithChildren): ReactNode {

@@ -92,7 +92,7 @@ function requireBearerToken(header: string | null): string {
 }
 
 /**
- * Domain identity routes (outside Better Auth’s `/api/auth/*` namespace):
+ * Domain identity routes (outside IdP’s `/api/auth/*` namespace):
  * - `POST /identity/anon/ensure` — mint/bind anon `users` row for the install
  * - `POST /identity/refresh` — upgrade-or-switch on provider sign-in
  */

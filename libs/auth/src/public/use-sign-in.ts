@@ -6,11 +6,11 @@ import type { SignInTriggerResult } from './sign-in-trigger';
 
 /**
  * Triggers hosted sign-in via {@link AuthClientPort.signIn}.
- * Google uses OAuth redirect; email/password completes in-place.
+ * Google uses OAuth redirect; Dev social completes in-place via JSON POST.
  */
 export function useSignIn(): {
   signInWithGoogle: () => Promise<SignInTriggerResult>;
-  signInWithEmail: (
+  signInWithDev: (
     credentials: SignInCredentials
   ) => Promise<SignInTriggerResult>;
 } {
@@ -21,13 +21,13 @@ export function useSignIn(): {
     return 'completed' as const;
   }, [port]);
 
-  const signInWithEmail = useCallback(
+  const signInWithDev = useCallback(
     async (credentials: SignInCredentials) => {
-      await port.signIn('email-password', credentials);
+      await port.signIn('oauth-dev', credentials);
       return 'completed' as const;
     },
     [port]
   );
 
-  return { signInWithGoogle, signInWithEmail };
+  return { signInWithGoogle, signInWithDev };
 }

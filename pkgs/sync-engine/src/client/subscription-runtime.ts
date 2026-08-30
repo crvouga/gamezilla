@@ -1,5 +1,4 @@
 import { HttpNetworkError } from '@pkgs/http-client';
-import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { QueryRequestItem } from '../protocol';
 import type { QueryRegistry, QueryResponse } from '../queries/core/types';
@@ -12,6 +11,7 @@ import {
 import { computeLocalScopeHash } from './local-scope-hash';
 import { applyFullMerge, detachScope, type MergeApplierDeps } from './merge';
 import type { Timers } from './sim-ports';
+import { loadScopeBasis, requestCacheKeys } from './subscription-cache-keys';
 import {
   QUERY_COALESCE_MS,
   QUERY_RECONCILE_INTERVAL_MS,
@@ -125,55 +125,6 @@ function resolveWaiters(waiters: Array<() => void>): void {
   for (const resolve of pending) resolve();
 }
 
-async function loadBasis(
-  db: SqlClient,
-  scope: string
-): Promise<{ last_checkpoint: string | null; last_hash: string | null }> {
-  const rows = await db.query(sql<{
-    last_checkpoint: string | null;
-    last_hash: string | null;
-  }>`
-    SELECT last_checkpoint, last_hash
-    FROM sync_engine_scope_meta
-    WHERE scope_hash = ${scope}
-    LIMIT 1
-  `);
-  const meta = rows[0];
-  return {
-    last_checkpoint: meta?.last_checkpoint ?? null,
-    last_hash: meta?.last_hash ?? null,
-  };
-}
-
-async function requestCacheKeys(
-  db: SqlClient,
-  entry: Entry,
-  queryRegistry: QueryRegistry | undefined,
-  getMergeDeps: () => MergeApplierDeps
-): Promise<{ readonly lastHash?: string; readonly checkpoint?: string }> {
-  const basis = await loadBasis(db, entry.scope);
-  const checkpoint =
-    basis.last_checkpoint !== null ? { checkpoint: basis.last_checkpoint } : {};
-  if (basis.last_hash === null) return checkpoint;
-
-  const query = queryRegistry?.[entry.spec.name];
-  if (query === undefined) {
-    return { lastHash: basis.last_hash, ...checkpoint };
-  }
-
-  const localHash = await computeLocalScopeHash({
-    db,
-    query,
-    params: entry.spec.params,
-    env: getMergeDeps().env,
-  });
-  if (localHash !== basis.last_hash) {
-    // Local rows drifted from scope meta — omit lastHash to force full merge.
-    return checkpoint;
-  }
-  return { lastHash: basis.last_hash, ...checkpoint };
-}
-
 /** Owns event-driven query scopes; applies responses to local SQLite. */
 export class SubscriptionRuntime {
   private readonly entries = new Map<string, Entry>();
@@ -186,6 +137,7 @@ export class SubscriptionRuntime {
   private running = false;
   private foregrounded = true;
   private disposeLifecycle: (() => void) | null = null;
+  private disposeBus: (() => void) | null = null;
   private pending: PendingSweep | null = null;
   private coalesceTimer: unknown = null;
   private reconcileTimer: unknown = null;
@@ -193,6 +145,12 @@ export class SubscriptionRuntime {
   private flushWaiters: Array<() => void> = [];
   /** Resolves when the current in-flight sweep finishes after {@link stop}. */
   private inFlightDrain: Array<() => void> = [];
+  /**
+   * Scopes whose local content matches `sync_engine_scope_meta.last_hash`
+   * since the last successful full merge. Cleared on any table-change bus
+   * emit (local mutate, row images, peer merge of other scopes).
+   */
+  private readonly cleanScopes = new Set<string>();
 
   constructor(private readonly options: SubscriptionRuntimeOptions) {
     this.lifecycle = options.lifecycle ?? alwaysOnLifecycle();
@@ -210,8 +168,24 @@ export class SubscriptionRuntime {
     this.disposeLifecycle = this.lifecycle.subscribe((event) =>
       this.onLifecycle(event)
     );
+    this.ensureBusWatch();
     this.startReconcileTick();
     this.enqueue('all');
+  }
+
+  /**
+   * Watch the merge bus so local mutates / row images clear cleanScopes.
+   * Best-effort: unit tests may stub getMergeDeps to throw.
+   */
+  private ensureBusWatch(): void {
+    if (this.disposeBus !== null) return;
+    try {
+      this.disposeBus = this.options.getMergeDeps().bus.subscribe(() => {
+        this.cleanScopes.clear();
+      });
+    } catch {
+      // Host stubbed getMergeDeps — skip dirty tracking until a real merge deps exists.
+    }
   }
 
   stop(): void {
@@ -219,6 +193,9 @@ export class SubscriptionRuntime {
     this.clearCoalesceTimer();
     this.clearReconcileTick();
     this.pending = null;
+    this.cleanScopes.clear();
+    this.disposeBus?.();
+    this.disposeBus = null;
     this.disposeLifecycle?.();
     this.disposeLifecycle = null;
     for (const entry of this.entries.values()) entry.generation += 1;
@@ -476,14 +453,16 @@ export class SubscriptionRuntime {
   private async buildRequests(
     active: readonly Entry[]
   ): Promise<QueryRequest[]> {
+    this.ensureBusWatch();
     const requests: QueryRequest[] = [];
     for (const entry of active) {
-      const cache = await requestCacheKeys(
-        this.options.db,
+      const cache = await requestCacheKeys({
+        db: this.options.db,
         entry,
-        this.options.queryRegistry,
-        this.options.getMergeDeps
-      );
+        queryRegistry: this.options.queryRegistry,
+        getMergeDeps: this.options.getMergeDeps,
+        scopeClean: this.cleanScopes.has(entry.scope),
+      });
       requests.push({
         name: entry.spec.name,
         params: entry.spec.params,
@@ -498,32 +477,38 @@ export class SubscriptionRuntime {
     readonly gens: Map<string, number>;
     readonly responses: readonly QueryResponse[];
   }): Promise<void> {
+    const newlyClean: string[] = [];
     for (let i = 0; i < args.active.length; i += 1) {
       const entry = args.active[i]!;
       const response = args.responses[i];
       if (response === undefined) continue;
       if (args.gens.get(entry.scope) !== entry.generation) continue;
       if (!this.running || entry.stopped) continue;
-      await this.handleResponse(entry, response);
+      const clean = await this.handleResponse(entry, response);
+      if (clean) newlyClean.push(entry.scope);
     }
+    // Re-mark after the sweep: each applyFullMerge emits the bus and clears
+    // cleanScopes, so we defer until all scopes in this batch are done.
+    for (const scope of newlyClean) this.cleanScopes.add(scope);
   }
 
+  /** @returns true when local content now matches stored last_hash. */
   private async handleResponse(
     entry: Entry,
     response: QueryResponse
-  ): Promise<void> {
+  ): Promise<boolean> {
     if (response.status === 'denied') {
       await detachScope(this.options.getMergeDeps(), entry.scope);
       entry.stopped = true;
       markFirst(entry);
-      return;
+      return false;
     }
     if (response.status === 'not_modified') {
       const healed = await this.healNotModifiedIfDrifted(entry, response);
-      if (healed) return;
+      if (healed) return true;
       markFirst(entry);
       this.options.onSynced();
-      return;
+      return true;
     }
     await applyFullMerge(this.options.getMergeDeps(), {
       scopeHash: entry.scope,
@@ -533,6 +518,7 @@ export class SubscriptionRuntime {
     });
     markFirst(entry);
     this.options.onSynced();
+    return true;
   }
 
   /**
@@ -544,7 +530,7 @@ export class SubscriptionRuntime {
     response: QueryResponse
   ): Promise<boolean> {
     if (response.status !== 'not_modified') return false;
-    const basis = await loadBasis(this.options.db, entry.scope);
+    const basis = await loadScopeBasis(this.options.db, entry.scope);
     if (basis.last_hash === null) return false;
 
     const query = this.options.queryRegistry?.[entry.spec.name];

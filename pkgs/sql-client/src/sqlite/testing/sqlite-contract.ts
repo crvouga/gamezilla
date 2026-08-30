@@ -143,10 +143,10 @@ export function runSqliteContractTests(
     );
   });
 
-  test('INSERT RETURNING * (better-auth createUser shape)', async () => {
+  test('INSERT RETURNING * (IdP createUser shape)', async () => {
     await setup(client, [
       raw(
-        'CREATE TABLE better_auth_user (id TEXT PRIMARY KEY, name TEXT NOT NULL, email TEXT NOT NULL, emailVerified INTEGER NOT NULL, createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL)'
+        'CREATE TABLE sample_auth_user (id TEXT PRIMARY KEY, name TEXT NOT NULL, email TEXT NOT NULL, emailVerified INTEGER NOT NULL, createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL)'
       ),
     ]);
     await expectQuery(
@@ -158,7 +158,7 @@ export function runSqliteContractTests(
         emailVerified: number;
         createdAt: string;
         updatedAt: string;
-      }>`insert into "better_auth_user" ("name", "email", "emailVerified", "createdAt", "updatedAt", "id") values (${'Ada'}, ${'ada@ex.com'}, ${0}, ${'2026-01-01'}, ${'2026-01-01'}, ${'uid1'}) returning *`,
+      }>`insert into "sample_auth_user" ("name", "email", "emailVerified", "createdAt", "updatedAt", "id") values (${'Ada'}, ${'ada@ex.com'}, ${0}, ${'2026-01-01'}, ${'2026-01-01'}, ${'uid1'}) returning *`,
       [
         {
           id: 'uid1',
@@ -175,13 +175,13 @@ export function runSqliteContractTests(
   test('INSERT RETURNING partial columns', async () => {
     await setup(client, [
       raw(
-        'CREATE TABLE better_auth_user (id TEXT PRIMARY KEY, name TEXT NOT NULL, email TEXT NOT NULL)'
+        'CREATE TABLE sample_auth_user (id TEXT PRIMARY KEY, name TEXT NOT NULL, email TEXT NOT NULL)'
       ),
     ]);
     await expectQuery(
       client,
       sql<{ id: string; email: string }>`
-        INSERT INTO better_auth_user (id, name, email)
+        INSERT INTO sample_auth_user (id, name, email)
         VALUES (${'u1'}, ${'Ada'}, ${'a@b.co'})
         RETURNING id, email
       `,
@@ -257,19 +257,19 @@ export function runSqliteContractTests(
     );
   });
 
-  test('quotes better-auth primary subquery alias', async () => {
+  test('quotes primary subquery alias', async () => {
     await setup(client, [
       raw(
-        'CREATE TABLE better_auth_user (id TEXT PRIMARY KEY, email TEXT NOT NULL)'
+        'CREATE TABLE sample_auth_user (id TEXT PRIMARY KEY, email TEXT NOT NULL)'
       ),
-      sql<void>`INSERT INTO better_auth_user (id, email) VALUES (${'u1'}, ${'a@b.co'})`,
+      sql<void>`INSERT INTO sample_auth_user (id, email) VALUES (${'u1'}, ${'a@b.co'})`,
     ]);
     await expectQuery(
       client,
       sql<{
         id: string;
         email: string;
-      }>`select "primary".* from (select * from "better_auth_user" where "better_auth_user"."email" = ${'a@b.co'}) as "primary"`,
+      }>`select "primary".* from (select * from "sample_auth_user" where "sample_auth_user"."email" = ${'a@b.co'}) as "primary"`,
       [{ id: 'u1', email: 'a@b.co' }]
     );
   });
@@ -291,7 +291,7 @@ export function runSqliteContractTests(
         INSERT INTO auth_external_accounts (
           id, user_id, provider, external_id, metadata, updated_at
         ) VALUES (
-          ${'better-auth:ext1'}, ${'user-a'}, ${'better-auth'}, ${'ext1'},
+          ${'idp:ext1'}, ${'user-a'}, ${'idp'}, ${'ext1'},
           ${'{}'}, ${'t0'}
         )
       `,
@@ -300,7 +300,7 @@ export function runSqliteContractTests(
           id, user_id, provider, external_id, metadata, updated_at
         )
         VALUES (
-          ${'better-auth:ext1'}, ${'user-a'}, ${'better-auth'}, ${'ext1'},
+          ${'idp:ext1'}, ${'user-a'}, ${'idp'}, ${'ext1'},
           ${'{"email":"a@b.co"}'}, ${'t1'}
         )
         ON CONFLICT (provider, external_id) DO UPDATE SET

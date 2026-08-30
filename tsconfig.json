@@ -93,13 +93,6 @@
       "@pkgs/async-local/*": ["./pkgs/async-local/src/*"],
       "@pkgs/auth": ["./pkgs/auth/src/shared/index.ts"],
       "@pkgs/auth/*": ["./pkgs/auth/src/*"],
-      "@pkgs/auth-better-auth/client": [
-        "./pkgs/auth-better-auth/src/client/index.ts"
-      ],
-      "@pkgs/auth-better-auth/server": [
-        "./pkgs/auth-better-auth/src/server/index.ts"
-      ],
-      "@pkgs/auth-better-auth/*": ["./pkgs/auth-better-auth/src/*"],
       "@pkgs/logger": ["./pkgs/logger/src/index.ts"],
       "@pkgs/logger/*": ["./pkgs/logger/src/*"],
       "@pkgs/secrets-config": ["./pkgs/secrets-config/src/index.ts"],
@@ -257,8 +250,6 @@
     "pkgs/async-local/src/**/*.tsx",
     "pkgs/auth/src/**/*.ts",
     "pkgs/auth/src/**/*.tsx",
-    "pkgs/auth-better-auth/src/**/*.ts",
-    "pkgs/auth-better-auth/src/**/*.tsx",
     "pkgs/logger/src/**/*.ts",
     "pkgs/logger/src/**/*.tsx",
     "pkgs/secrets-config/src/**/*.ts",

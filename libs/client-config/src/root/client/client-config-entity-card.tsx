@@ -45,11 +45,8 @@ export function ClientConfigEntityCard() {
         />
       </Box>
       <Box sx={{ gap: 1 }}>
-        <Text variant="label" label={<Trans>Email / password</Trans>} />
-        <Text
-          variant="mono"
-          label={config.email_password_enabled ? 'on' : 'off'}
-        />
+        <Text variant="label" label={<Trans>Dev OAuth</Trans>} />
+        <Text variant="mono" label={config.dev_oauth_enabled ? 'on' : 'off'} />
       </Box>
       <Box sx={{ gap: 1 }}>
         <Text variant="label" label={<Trans>Billing / TTS / LLM</Trans>} />

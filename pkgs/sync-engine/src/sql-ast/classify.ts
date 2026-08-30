@@ -223,6 +223,42 @@ function classifyAst(ast: AstNode): ClassifiedStatement {
   return { kind: 'other', reason: `unsupported_${type || 'unknown'}` };
 }
 
+const AST_CACHE_MAX = 256;
+/** LRU (Map insertion order): sqlTextForAst → AST root. */
+const astCache = new Map<string, AstNode>();
+
+function touchCache(text: string, node: AstNode): void {
+  if (astCache.has(text)) astCache.delete(text);
+  else if (astCache.size >= AST_CACHE_MAX) {
+    const oldest = astCache.keys().next().value;
+    if (oldest !== undefined) astCache.delete(oldest);
+  }
+  astCache.set(text, node);
+}
+
+/**
+ * Parse mutation/query SQL to an AST node. Cached by {@link sqlTextForAst}
+ * (bound params replaced with NULL) so repeated templates hit once.
+ */
+export function parseSqlAst(query: Sql<unknown>): AstNode | undefined {
+  const text = sqlTextForAst(query);
+  const hit = astCache.get(text);
+  if (hit !== undefined) {
+    touchCache(text, hit);
+    return hit;
+  }
+  try {
+    const ast = parser.astify(text, { database: 'PostgreSQL' });
+    const first = asArray(ast)[0];
+    const node = asNode(first);
+    if (node === undefined) return undefined;
+    touchCache(text, node);
+    return node;
+  } catch {
+    return undefined;
+  }
+}
+
 /**
  * Classify a statement for mutation capture / query enforcement.
  * Parse with PostgreSQL — SQLite dialect rejects ON CONFLICT DO UPDATE.
@@ -232,6 +268,11 @@ export function classify(
   _dialect: SqlAstDialect = 'postgresql'
 ): ClassifiedStatement {
   const text = sqlTextForAst(query);
+  const cached = astCache.get(text);
+  if (cached !== undefined) {
+    touchCache(text, cached);
+    return classifyAst(cached);
+  }
   try {
     const ast = parser.astify(text, { database: 'PostgreSQL' });
     const first = asArray(ast)[0];
@@ -239,6 +280,7 @@ export function classify(
     if (node === undefined) {
       return { kind: 'other', reason: 'empty_ast' };
     }
+    touchCache(text, node);
     return classifyAst(node);
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);

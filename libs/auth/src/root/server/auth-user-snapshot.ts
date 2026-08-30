@@ -3,7 +3,7 @@
  * Not tied to any persistence table.
  */
 
-/** Primary email from a serialized Better Auth (or compatible) user payload. */
+/** Primary email from a serialized IdP (or compatible) user payload. */
 export function readPrimaryEmailFromAuthSnapshot(
   data: Record<string, unknown>
 ): string | null {

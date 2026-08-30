@@ -2,7 +2,7 @@
  * Inject snapshot auth KV into a Playwright page before hydrate.
  */
 
-import { BETTER_AUTH_BEARER_STORAGE_KEY } from '@pkgs/auth-better-auth/client';
+import { AUTH_BEARER_STORAGE_KEY } from '@pkgs/auth/client';
 import type { SimSystemSnapshot } from '@pkgs/sim-console/shared/sim-system-snapshot';
 import type { Page } from '@playwright/test';
 
@@ -26,7 +26,7 @@ export async function injectPlaywrightSnapshotAuth(args: {
     {
       ns: args.namespace,
       kv: slice.kv,
-      bearerKey: BETTER_AUTH_BEARER_STORAGE_KEY,
+      bearerKey: AUTH_BEARER_STORAGE_KEY,
     }
   );
 }

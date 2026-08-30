@@ -294,7 +294,7 @@ async function disposeOpenSim(args: {
     }
   }
   await args.sim.dispose();
-  // better-auth/react schedules a wall 10ms setTimeout after auth routes
+  // auth client schedules a wall 10ms setTimeout after auth routes
   // (session-signal flip). Nanostores STORE_UNMOUNT_DELAY (1000ms) is unref'd
   // in jest.setup-env so it does not keep Jest alive after this short drain.
   await new Promise<void>((resolve) => {

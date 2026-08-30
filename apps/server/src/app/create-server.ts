@@ -20,7 +20,7 @@ import { createSimConsoleApp } from '@pkgs/sim-console/server';
 import { createTtsAppFromBindings } from '@pkgs/tts/server';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
-import { createBetterAuthRoutes } from '../auth/better-auth-routes';
+import { createAuthRoutes } from '../auth/auth-routes';
 import { ApiSecretName } from '../config/secret-names';
 import { healthApp } from '../health/route';
 import { createMatchmakingSubApp } from '../matchmaking/route';
@@ -193,13 +193,13 @@ async function resolveEmqxWssUrlForClientConfig(args: {
 
 async function buildDesiredClientConfig(args: {
   readonly secretStore: SecretStore;
-  readonly betterAuth: ServerEnv['betterAuth'];
+  readonly auth: ServerEnv['auth'];
   readonly billingConfigured: boolean;
   readonly ttsConfigured: boolean;
   readonly llmConfigured: boolean;
   readonly apiUrlOverride?: string | null;
 }): Promise<DesiredClientConfig> {
-  const { betterAuth, secretStore } = args;
+  const { auth, secretStore } = args;
   const [emqxWssUrl, observabilityRaw] = await Promise.all([
     resolveEmqxWssUrlForClientConfig({
       secretStore,
@@ -213,12 +213,12 @@ async function buildDesiredClientConfig(args: {
     ),
   ]);
   return {
-    google: betterAuth.googleEnabled,
-    emailPassword: betterAuth.enableEmailPassword,
+    google: auth.googleEnabled,
+    devOauth: auth.enableDev,
     billing: args.billingConfigured,
     tts: args.ttsConfigured,
     llm: args.llmConfigured,
-    googleWebClientId: betterAuth.googleClientId,
+    googleWebClientId: null,
     emqxWssUrl,
     observabilityBackend: parseObservabilityBackend(observabilityRaw),
   };
@@ -233,7 +233,7 @@ function createServerRouter(args: {
   readonly log: ReturnType<typeof createAppLogger>;
 }) {
   const { env, desiredClientConfig, billing, tts, llm, log } = args;
-  const { secrets, observability, betterAuth, secretsEnv } = env;
+  const { secrets, observability, auth, secretsEnv } = env;
 
   const apiRouter = new Hono<ApiHonoEnv<AuthContext>>()
     .use(
@@ -245,7 +245,7 @@ function createServerRouter(args: {
     .use(
       '*',
       createRequestDbMiddleware(secrets, {
-        betterAuth,
+        auth,
         apiUrlOverride: env.serverUrl,
         secretsEnv,
         observability,
@@ -254,9 +254,6 @@ function createServerRouter(args: {
         createId: env.createId,
         desiredClientConfig,
         openSqlClient: env.openSqlClient,
-        ...(env.betterAuthDatabase !== undefined
-          ? { betterAuthDatabase: env.betterAuthDatabase }
-          : {}),
         ...(env.skipDatabaseUrlPolicy ? { skipDatabaseUrlPolicy: true } : {}),
       })
     )
@@ -264,9 +261,12 @@ function createServerRouter(args: {
     .route('/', healthApp)
     .route(
       '/',
-      createBetterAuthRoutes({
+      createAuthRoutes({
+        boot: auth,
+        http: { fetch: env.fetch },
+        clock: env.clock,
+        createId: env.createId,
         secretsEnv,
-        webClientOrigin: betterAuth.webClientOrigin,
       })
     )
     .route('/', new FriendsApp(env.clock).build())
@@ -331,7 +331,7 @@ async function createConsoleRouter(env: ServerEnv) {
  * Composes the server Worker app from mounted sub-apps (`app.route()`).
  */
 export async function createServer(env: ServerEnv) {
-  const { betterAuth } = env;
+  const { auth } = env;
   const log = createAppLogger(env);
 
   if (env.events !== null) {
@@ -346,7 +346,7 @@ export async function createServer(env: ServerEnv) {
 
   const desiredClientConfig = await buildDesiredClientConfig({
     secretStore: env.secrets,
-    betterAuth,
+    auth,
     billingConfigured: billing !== null,
     ttsConfigured: tts.configured,
     llmConfigured: llm.configured,

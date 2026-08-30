@@ -6,7 +6,7 @@
 import { join } from 'node:path';
 import {
   migrateSimPostgres,
-  SIM_BETTER_AUTH_SECRET,
+  SIM_AUTH_SECRET,
 } from '@apps/server/sim/migrate-sim-postgres';
 import type { Clock } from '@pkgs/clock';
 import { wallClock } from '@pkgs/clock';
@@ -50,7 +50,7 @@ async function fingerprintSource(): Promise<Buffer> {
     throw new Error(`missing migrate source: ${MIGRATE_SOURCE_KEY}`);
   }
   // Include auth secret constant so seed rebuilds if it changes.
-  return Buffer.from(`${text}\n${SIM_BETTER_AUTH_SECRET}`);
+  return Buffer.from(`${text}\n${SIM_AUTH_SECRET}`);
 }
 
 /** Fingerprint of migrate inputs — rebuild seed when this changes. */

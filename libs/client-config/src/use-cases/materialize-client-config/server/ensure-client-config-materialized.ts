@@ -11,7 +11,7 @@ import { ClientConfigRepository } from './client-config-repository';
 
 export type DesiredClientConfig = {
   readonly google: boolean;
-  readonly emailPassword: boolean;
+  readonly devOauth: boolean;
   readonly billing: boolean;
   readonly tts: boolean;
   readonly llm: boolean;
@@ -42,8 +42,8 @@ function buildDesiredRows(desired: DesiredClientConfig): readonly DesiredRow[] {
       value: trimOrNull(desired.googleWebClientId),
     },
     {
-      id: ClientConfigKey.emailPasswordEnabled,
-      value: desired.emailPassword,
+      id: ClientConfigKey.devOauthEnabled,
+      value: desired.devOauth,
     },
     {
       id: ClientConfigKey.billingEnabled,

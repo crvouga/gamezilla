@@ -106,7 +106,7 @@
     "@pkgs/assert": "workspace:*",
     "@pkgs/assistant": "workspace:*",
     "@pkgs/async": "workspace:*",
-    "@pkgs/auth-better-auth": "workspace:*",
+    "@pkgs/auth": "workspace:*",
     "@pkgs/browser": "workspace:*",
     "@pkgs/chess-board": "workspace:*",
     "@pkgs/clock": "workspace:*",

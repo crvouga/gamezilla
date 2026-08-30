@@ -1,5 +1,5 @@
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import type { z } from 'zod';
+import type { StandardSchemaV1 } from '@standard-schema/spec';
 
 /** What a mutation body sees: the transaction-scoped SqlClient, reads + writes. */
 export type MutationDb = Pick<SqlClient, 'query' | 'run'>;
@@ -56,7 +56,8 @@ type MutationRun<A> = {
 export type Mutation<A> = {
   /** Stable wire contract. */
   readonly name: string;
-  readonly args: z.ZodType<A>;
+  /** Standard Schema (Zod/Valibot/…). Output is `A` for typed `run` args. */
+  readonly args: StandardSchemaV1<unknown, A>;
   /** Map DB constraint violations to business rejections during replay. */
   readonly constraintErrors?: Readonly<
     Record<string, { readonly code: string; readonly message: string }>

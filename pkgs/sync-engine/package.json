@@ -9,6 +9,7 @@
     "./test": "./src/test/index.ts"
   },
   "scripts": {
+    "bench": "bun src/tests/bench/hot-paths.bench.ts",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test",
     "test:sim": "bun test src/tests/scenarios"
@@ -26,10 +27,10 @@
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/uuid": "workspace:*",
+    "@standard-schema/spec": "catalog:",
     "hono": "catalog:",
     "node-sql-parser": "catalog:",
-    "react": "catalog:",
-    "zod": "catalog:"
+    "react": "catalog:"
   },
   "devDependencies": {
     "@pkgs/pbt": "workspace:*",
@@ -37,6 +38,7 @@
     "@types/react": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "zod": "catalog:"
   }
 }

@@ -2,7 +2,7 @@
  * Namespaced web durable dumps for playground client checkpoints.
  */
 
-import { clearNamespacedAuthClientStorage } from '@pkgs/auth-better-auth/client';
+import { clearNamespacedAuthClientStorage } from '@pkgs/auth/client';
 import {
   clearNamespacedKvWeb,
   dumpNamespacedKvWeb,

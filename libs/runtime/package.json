@@ -33,7 +33,7 @@
     "@libs/profile": "workspace:*",
     "@libs/spaces": "workspace:*",
     "@pkgs/assert": "workspace:*",
-    "@pkgs/auth-better-auth": "workspace:*",
+    "@pkgs/auth": "workspace:*",
     "@pkgs/db-migrate": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
     "@pkgs/entity-store": "workspace:*",

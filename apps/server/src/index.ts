@@ -2,10 +2,9 @@ export { createServer } from './app/create-server';
 export { serveFetch } from './app/serve-fetch';
 export type { ServerEnv } from './app/server-env';
 export {
-  type BetterAuthBootConfig,
-  betterAuthConfigForDatabase,
-  loadBetterAuthBootConfig,
-} from './config/better-auth-boot';
+  type AuthBootConfig,
+  loadAuthBootConfig,
+} from './config/auth-boot';
 export {
   absolutizeWebAppLocation,
   resolveWebClientOrigin,

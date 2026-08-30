@@ -3,9 +3,7 @@ import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 import {
   Box,
-  Button,
   LoadingState,
-  MailIcon,
   ModalBody,
   SocialSignInButton,
   Text,
@@ -14,20 +12,20 @@ import {
 export function SignInModalBody(props: {
   methodsLoading?: boolean;
   googleAvailable: boolean;
-  emailPasswordAvailable: boolean;
+  devOauthAvailable: boolean;
   signInUnavailableReason: string | null;
   onPressGoogle: () => void;
-  onPressEmail: () => void;
+  onPressDev: () => void;
 }) {
   const {
     methodsLoading = false,
     googleAvailable,
-    emailPasswordAvailable,
+    devOauthAvailable,
     signInUnavailableReason,
     onPressGoogle,
-    onPressEmail,
+    onPressDev,
   } = props;
-  const anyMethod = googleAvailable || emailPasswordAvailable;
+  const anyMethod = googleAvailable || devOauthAvailable;
 
   return (
     <ModalBody>
@@ -53,14 +51,13 @@ export function SignInModalBody(props: {
           />
         ) : null}
 
-        {!methodsLoading && emailPasswordAvailable ? (
-          <Button
-            title={<Trans>Sign in with email</Trans>}
-            intent="neutral"
-            variant="outline"
-            startIcon={<MailIcon />}
-            onPress={onPressEmail}
-            testID={Handles.authMethodEmail}
+        {!methodsLoading && devOauthAvailable ? (
+          <SocialSignInButton
+            provider="dev"
+            action="signIn"
+            theme={'neutral' as const}
+            onPress={onPressDev}
+            testID={Handles.authMethodDev}
           />
         ) : null}
 

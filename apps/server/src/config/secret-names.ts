@@ -5,7 +5,7 @@
  * only via `createStripeBillingFromSecretStore` (not listed here).
  */
 export const ApiSecretName = {
-  betterAuthSecret: 'BETTER_AUTH_SECRET',
+  authSecret: 'AUTH_SECRET',
   webClientGoogleClientId: 'WEB_CLIENT_GOOGLE_CLIENT_ID',
   webClientGoogleClientSecret: 'WEB_CLIENT_GOOGLE_CLIENT_SECRET',
   dbUrl: 'DATABASE_URL',

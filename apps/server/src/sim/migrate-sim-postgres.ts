@@ -10,17 +10,15 @@ import { createLogger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { Pool } from '@pkgs/sql-client/postgres/pg-types';
 
-import { SIM_BETTER_AUTH_SECRET, SIM_SERVER_URL } from './sim-constants';
-
 /** Placeholder DATABASE_URL for secret-store / config (no TCP listener). */
 export const SIM_POSTGRES_MEM_DATABASE_URL = 'postgresql://postgres-mem/sim';
 
 export {
-  SIM_BETTER_AUTH_SECRET,
+  SIM_AUTH_SECRET,
   SIM_SERVER_URL,
 } from './sim-constants';
 
-/** Applies framework + domain + kv/entity/outbox + Better Auth (Postgres dialect). */
+/** Applies framework + domain + kv/entity/outbox + IdP (Postgres dialect). */
 export async function migrateSimPostgres(args: {
   readonly sqlClient: SqlClient;
   readonly pool: Pool;
@@ -34,12 +32,11 @@ export async function migrateSimPostgres(args: {
   const dbScope = appPostgresDbScope();
   await new PostgresMigrationRunner({
     sqlClient: args.sqlClient,
-    pool: args.pool,
     logger,
     dbScope,
-    betterAuthSecret: SIM_BETTER_AUTH_SECRET,
-    betterAuthBaseURL: SIM_SERVER_URL,
     skipAdvisoryLock: true,
     skipSqliteCompat: true,
   }).run();
+  // Call sites keep `pool` for connection lifecycle; IdP migrate uses SqlClient only.
+  void args.pool;
 }

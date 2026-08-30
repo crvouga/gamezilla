@@ -1,7 +1,7 @@
 import { assert } from '@pkgs/assert';
 import { type Sql, sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { ZodError } from 'zod';
+import { parseStandardSchema } from '../../shared/standard-schema';
 import { classify } from '../../sql-ast';
 import {
   DEFAULT_QUERY_LIMIT,
@@ -97,13 +97,11 @@ async function runDefinedQuery(
 ): Promise<QueryResponse> {
   const paramsSchema = def.params;
   assert.defined(paramsSchema, `Query ${def.name}: params schema missing`);
-  let params: unknown;
-  try {
-    params = paramsSchema.parse(input.params);
-  } catch (e) {
-    assert.ok(e instanceof ZodError, 'query params parse failed');
+  const parsedParams = await parseStandardSchema(paramsSchema, input.params);
+  if (!parsedParams.ok) {
     return { status: 'denied' };
   }
+  const params = parsedParams.value;
 
   const limit = def.limit ?? DEFAULT_QUERY_LIMIT;
 

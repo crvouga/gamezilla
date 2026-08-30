@@ -94,6 +94,8 @@ export const acmeAppSchemaExtraTable = registerTables([
       owner_id: 'text',
     },
     indexes: ['folder_id', 'owner_id', 'space_id'],
+    // Preserve-DB extraColumn → extraTable leaves notes.color on disk.
+    deprecations: [['color', 'pbt leftover from extraColumn variant']],
   }),
   defineTable({
     domain: 'tags',

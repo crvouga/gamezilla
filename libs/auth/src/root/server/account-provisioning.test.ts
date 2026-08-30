@@ -48,7 +48,7 @@ async function migrateAuthTables(db: SqlClient): Promise<void> {
 }
 
 const EXTERNAL_USER_ID = 'user_external_2';
-const PRIMARY_AUTH_PROVIDER = 'better-auth';
+const PRIMARY_AUTH_PROVIDER = 'idp';
 
 describe('AccountProvisioningService', () => {
   let sqlClient: SqlClient;

@@ -84,7 +84,7 @@ export function useIsSignedIn(): boolean {
 
 /**
  * Local-first provider session: hydrated secure storage has a bearer.
- * Does not wait on Better Auth `useSession`.
+ * Does not wait on IdP `useSession`.
  */
 export function useHasAuthSession(): boolean {
   const { value, isHydrated } = useHydratedSecureStorageItem(SESSION_TOKEN_KEY);

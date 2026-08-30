@@ -1,26 +1,22 @@
 import { Handles } from '@libs/dst-handles';
 import type { Driver } from '@pkgs/ui-testing';
 
-export type EmailCredentials = {
-  readonly email: string;
-  readonly password: string;
-  readonly username: string;
+export type DevCredentials = {
+  readonly subject: string;
 };
 
 export class AuthFlows {
   constructor(private readonly ui: Driver) {}
 
-  async signUpWithEmail(creds: EmailCredentials): Promise<void> {
+  async signInWithDev(creds: DevCredentials): Promise<void> {
     await this.ui.tap(Handles.statusCurrentUser);
     await this.ui.tap(Handles.accountSignIn);
-    await this.ui.tap(Handles.authMethodEmail);
-    await this.ui.tap(Handles.authGoToSignUp);
-    await this.ui.input(Handles.authEmailInput, creds.email);
-    await this.ui.input(Handles.authUsernameInput, creds.username);
-    await this.ui.input(Handles.authPasswordInput, creds.password);
-    await this.ui.input(Handles.authConfirmPasswordInput, creds.password);
-    await this.ui.tap(Handles.authSubmitCreate);
-    await this.ui.tap(Handles.authSignedInDone);
+    // Multi-actor: second client may still be hydrating client_config /
+    // paintReady before Dev shows (methodsLoading gate).
+    await this.ui.tap(Handles.authMethodDev, { timeoutMs: 15_000 });
+    await this.ui.input(Handles.authSubjectInput, creds.subject);
+    await this.ui.tap(Handles.authSubmitDev);
+    await this.ui.tap(Handles.authSignedInDone, { timeoutMs: 15_000 });
     // dismissModal can flash idle + Close before unmount; dismiss when present.
     // `tap` already waits for visibility — short timeout avoids hanging if gone.
     try {

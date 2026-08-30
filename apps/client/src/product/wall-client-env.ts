@@ -8,7 +8,7 @@ import {
   openMainSqlClient,
 } from '@apps/client/storage/open-main-sql-client';
 import { WebSocketRoomTransportFactory } from '@libs/spaces/root/client/room/room-transport-factory';
-import type { AuthClientStorage } from '@pkgs/auth-better-auth/client';
+import type { AuthClientStorage } from '@pkgs/auth/client';
 import { wallClock, wallTimers } from '@pkgs/clock';
 import {
   createHealthOriginAvailability,

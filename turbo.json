@@ -13,7 +13,6 @@
     "LOCAL_PREVIEW_API_ORIGIN",
     "DATABASE_URL",
     "AUTH_*",
-    "BETTER_AUTH_*",
     "LOCAL_SECRETS",
     "STRIPE_*",
     "CLOUDFLARE_*",

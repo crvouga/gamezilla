@@ -9,7 +9,7 @@ import {
 /**
  * ISO expiry of the auth provider session for the current install, or `null`
  * when the device is not the active signed-in install. Reads secure storage
- * (local-first), not Better Auth `useSession`.
+ * (local-first), not IdP `useSession`.
  */
 export function useDeviceLatestSessionExpiresAt(
   deviceId: string

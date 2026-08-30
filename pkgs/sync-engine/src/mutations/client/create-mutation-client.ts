@@ -1,14 +1,12 @@
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
-import { ZodError } from 'zod';
-
-import type { WriteCaptureSnapshot } from '../../sql-ast';
 import {
-  isMutationError,
-  mutationErrorToFailure,
-  zodFailures,
-} from '../core/failures';
+  parseStandardSchema,
+  schemaIssuesToFailures,
+} from '../../shared/standard-schema';
+import type { WriteCaptureSnapshot } from '../../sql-ast';
+import { isMutationError, mutationErrorToFailure } from '../core/failures';
 import type {
   MutateResult,
   Mutation,
@@ -81,7 +79,13 @@ export function createMutationClient(
 
       const mutationId = options.createId();
       try {
-        const parsed = m.args.parse(args);
+        const parsed = await parseStandardSchema(m.args, args);
+        if (!parsed.ok) {
+          return {
+            ok: false,
+            failures: schemaIssuesToFailures(parsed.issues, m.name),
+          };
+        }
         let capture: WriteCaptureSnapshot = {
           tables: [],
           ids: {},
@@ -91,7 +95,7 @@ export function createMutationClient(
           const seq = await nextMutationSeq(txc);
           const createdAt = env.now().toISOString();
           const wrapped = wrapMutationDb(txc, env);
-          await m.run({ tx: wrapped.tx, env }, parsed);
+          await m.run({ tx: wrapped.tx, env }, parsed.value);
           capture = wrapped.getCapture();
           await txc.run(sql`
             INSERT INTO sync_engine_mutations (
@@ -100,7 +104,7 @@ export function createMutationClient(
             VALUES (
               ${mutationId},
               ${m.name},
-              ${JSON.stringify(parsed)},
+              ${JSON.stringify(parsed.value)},
               ${ids.clientId},
               ${seq},
               ${createdAt}
@@ -110,7 +114,7 @@ export function createMutationClient(
         });
         options.onQueued?.({
           mutation: m as Mutation<unknown>,
-          args: parsed,
+          args: parsed.value,
           capture,
         });
         return { ok: true, mutationId };
@@ -120,9 +124,6 @@ export function createMutationClient(
             ok: false,
             failures: [mutationErrorToFailure(e, m.name)],
           };
-        }
-        if (e instanceof ZodError) {
-          return { ok: false, failures: zodFailures(e, m.name) };
         }
         throw e;
       }

@@ -106,7 +106,7 @@ function useSignInModalConnection(args: {
 }): SignInModalProps {
   const { signInModalOpen, openSignInModal, closeSignInModal } = args;
   const apiUrl = useConfigService().getApiUrl();
-  const { signInWithGoogle, signInWithEmail } = useSignIn();
+  const { signInWithGoogle, signInWithDev } = useSignIn();
   const capabilities = useSignInCapabilities();
   const signInLog = useLogger('auth-sign-in');
   const { pending, isHydrated } = useSignInPending();
@@ -127,9 +127,9 @@ function useSignInModalConnection(args: {
   const methodsLoading = !capabilities.ready;
   const googleAvailable =
     !methodsLoading && apiReachable && capabilities.google;
-  const emailPasswordAvailable =
-    !methodsLoading && apiReachable && capabilities.emailPassword;
-  const anyMethod = googleAvailable || emailPasswordAvailable;
+  const devOauthAvailable =
+    !methodsLoading && apiReachable && capabilities.devOauth;
+  const anyMethod = googleAvailable || devOauthAvailable;
   const signInModalVisible = signInModalOpen || resumePending;
   const signInUnavailableReason =
     methodsLoading || anyMethod
@@ -143,13 +143,13 @@ function useSignInModalConnection(args: {
     resumePending,
     methodsLoading,
     googleAvailable,
-    emailPasswordAvailable,
+    devOauthAvailable,
     signInUnavailableReason,
     onSignInWithGoogle: async () => {
       await signInWithGoogle();
     },
-    onSignInWithEmail: async (credentials) => {
-      await signInWithEmail(credentials);
+    onSignInWithDev: async (credentials) => {
+      await signInWithDev(credentials);
     },
     onError,
   };

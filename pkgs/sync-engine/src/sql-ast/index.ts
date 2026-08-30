@@ -4,6 +4,7 @@ export {
   type ClassifiedWrite,
   classify,
   hasReturningClause,
+  parseSqlAst,
   type SqlAstDialect,
   sqlTextForAst,
 } from './classify';

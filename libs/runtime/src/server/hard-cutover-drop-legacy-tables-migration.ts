@@ -5,8 +5,8 @@ import type {
 import { unsafe } from '@pkgs/sql';
 
 /**
- * Hard-cutover: drop pre-prefix domain, sync-engine, and Better Auth tables.
- * Idempotent; no data copy. Registered before framework/domain/BA migrate.
+ * Hard-cutover: drop pre-prefix domain, sync-engine, and legacy auth tables.
+ * Idempotent; no data copy. Registered before framework/domain/IdP migrate.
  */
 export const LEGACY_TABLES_TO_DROP = [
   // Domain (pre-prefix)
@@ -32,7 +32,7 @@ export const LEGACY_TABLES_TO_DROP = [
   '_peer_applied',
   '_peer_mutations',
   '_topic_applied',
-  // Better Auth defaults
+  // legacy auth defaults
   'user',
   'session',
   'account',

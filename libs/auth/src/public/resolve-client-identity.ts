@@ -47,7 +47,7 @@ export function shouldBindAnonUserAfterEnsure(
 }
 
 /**
- * When Better Auth reports signed-out: clear local capability only if there is
+ * When IdP reports signed-out: clear local capability only if there is
  * no stored bearer, or we observed a signed-in → signed-out transition (real
  * sign-out). A cold BA null with a persisted token keeps local-first chrome.
  */

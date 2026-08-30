@@ -2,7 +2,7 @@ import { createContext, type ReactNode, useContext } from 'react';
 
 export type SignInCapabilities = {
   readonly google: boolean;
-  readonly emailPassword: boolean;
+  readonly devOauth: boolean;
   /**
    * False while sync paint is not ready or the local `client_config` watch has
    * not hydrated. Callers must not treat missing methods as “server has none
@@ -13,7 +13,7 @@ export type SignInCapabilities = {
 
 const DEFAULT_SIGN_IN_CAPABILITIES: SignInCapabilities = {
   google: false,
-  emailPassword: false,
+  devOauth: false,
   ready: true,
 };
 

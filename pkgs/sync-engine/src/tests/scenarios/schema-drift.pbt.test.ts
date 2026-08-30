@@ -94,6 +94,37 @@ describe('schema drift PBT', () => {
     { timeout: 120_000 }
   );
 
+  test('extraColumn then extraTable remigrate converges (PBT shrink)', async () => {
+    const opened = await openPbtWorld({
+      app: acmeDstApp,
+      seed: 287086,
+      knobs: {
+        rowImageFanout: false,
+        liveResendOnReconnect: true,
+        bufferOutboundLive: true,
+        clientCount: 2,
+      },
+    });
+    try {
+      await replayActionsOnWorld(acmeDstApp, opened.world, [
+        {
+          kind: 'restartWithSchema',
+          clientId: 'c0',
+          variant: 'extraColumn',
+        },
+        {
+          kind: 'restartWithSchema',
+          clientId: 'c0',
+          variant: 'extraTable',
+        },
+        { kind: 'auth', clientId: 'c0', status: 'valid' },
+      ]);
+      await opened.world.assertConverged();
+    } finally {
+      await opened.world.dispose();
+    }
+  });
+
   test('mixed extraColumn without row images converges (PBT shrink)', async () => {
     const opened = await openPbtWorld({
       app: acmeDstApp,

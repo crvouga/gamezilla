@@ -1,12 +1,12 @@
 import { useTimers } from '@pkgs/clock';
 import * as Clipboard from 'expo-clipboard';
 import { Component, type ReactNode, useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { DevSettings, Platform, Pressable, Text, View } from 'react-native';
 
 type Props = { children: ReactNode };
 type State = { error: Error | null };
 
-const CRASH_TITLE = 'App failed to start';
+const CRASH_TITLE = 'App crashed!';
 const COPIED_RESET_MS = 2000;
 
 function formatCrashText(error: Error): string {
@@ -22,13 +22,62 @@ function crashMessage(error: Error): string {
   return message.length > 0 ? message : String(error);
 }
 
+function reloadApp(): void {
+  if (Platform.OS === 'web') {
+    globalThis.location.reload();
+    return;
+  }
+  DevSettings.reload();
+}
+
+type CrashButtonProps = {
+  label: string;
+  accessibilityLabel: string;
+  onPress: () => void;
+  primary?: boolean;
+};
+
+function CrashButton({
+  label,
+  accessibilityLabel,
+  onPress,
+  primary = false,
+}: CrashButtonProps): ReactNode {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
+      onPress={onPress}
+      style={({ pressed }) => ({
+        paddingVertical: 10,
+        paddingHorizontal: 14,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: primary ? '#ffb4b4' : '#ff8a8a',
+        backgroundColor: pressed
+          ? primary
+            ? '#4a2020'
+            : '#3a1a1a'
+          : primary
+            ? '#3a1818'
+            : '#2a1212',
+        opacity: pressed ? 0.85 : 1,
+      })}
+    >
+      <Text style={{ color: '#ff8a8a', fontSize: 14, fontWeight: '600' }}>
+        {label}
+      </Text>
+    </Pressable>
+  );
+}
+
 function CopyErrorButton({ error }: { error: Error }): ReactNode {
   const timers = useTimers();
   const [copied, setCopied] = useState(false);
 
   return (
-    <Pressable
-      accessibilityRole="button"
+    <CrashButton
+      label={copied ? 'Copied' : 'Copy error'}
       accessibilityLabel="Copy error"
       onPress={() => {
         void Clipboard.setStringAsync(formatCrashText(error)).then(() => {
@@ -36,20 +85,18 @@ function CopyErrorButton({ error }: { error: Error }): ReactNode {
           timers.setTimeout(() => setCopied(false), COPIED_RESET_MS);
         });
       }}
-      style={({ pressed }) => ({
-        paddingVertical: 10,
-        paddingHorizontal: 14,
-        borderRadius: 8,
-        borderWidth: 1,
-        borderColor: '#ff8a8a',
-        backgroundColor: pressed ? '#3a1a1a' : '#2a1212',
-        opacity: pressed ? 0.85 : 1,
-      })}
-    >
-      <Text style={{ color: '#ff8a8a', fontSize: 14, fontWeight: '600' }}>
-        {copied ? 'Copied' : 'Copy error'}
-      </Text>
-    </Pressable>
+    />
+  );
+}
+
+function RestartAppButton(): ReactNode {
+  return (
+    <CrashButton
+      label="Restart"
+      accessibilityLabel="Restart app"
+      primary
+      onPress={reloadApp}
+    />
   );
 }
 
@@ -106,7 +153,17 @@ export class RootErrorBoundary extends Component<Props, State> {
           >
             {crashMessage(error)}
           </Text>
-          <CopyErrorButton error={error} />
+          <View
+            style={{
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              gap: 10,
+              justifyContent: 'center',
+            }}
+          >
+            <RestartAppButton />
+            <CopyErrorButton error={error} />
+          </View>
         </View>
       </View>
     );

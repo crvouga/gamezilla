@@ -1,6 +1,4 @@
-// @sql-vendor-ok — local SQLite client uses PRAGMA table_info for merge.
-import { assert } from '@pkgs/assert';
-import { ident, join, sql, unsafe, type Value } from '@pkgs/sql';
+import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type {
@@ -11,6 +9,8 @@ import type {
 import { wrapMutationDb } from '../mutations/shared/wrap-mutation-db';
 import type { TableChangeBus } from '../queries/client/table-change-bus';
 import type { QueryRow } from '../queries/core/types';
+import { parseStandardSchema } from '../shared/standard-schema';
+import { isValidTableName, mergeTable } from './merge-upsert';
 import {
   clearOptimisticPeerRows,
   healOptimisticPeerOrphans,
@@ -56,127 +56,6 @@ export async function withMergeSingleFlight<T>(
     () => undefined
   );
   return run;
-}
-
-const TABLE_NAME_RE = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
-
-function assertTableName(table: string): void {
-  assert.ok(TABLE_NAME_RE.test(table), `bad table: ${table}`);
-}
-
-function isValidTableName(table: string): boolean {
-  return TABLE_NAME_RE.test(table);
-}
-
-function isValidRowId(id: unknown): id is string {
-  return typeof id === 'string' && id.length > 0;
-}
-
-/**
- * Postgres jsonb / JSON wire values arrive as objects or arrays. expo-sqlite
- * only accepts string | number | null | Uint8Array binds.
- */
-function sqliteWireValue(value: unknown): Value {
-  if (value === null || value === undefined) return null;
-  if (typeof value === 'string' || typeof value === 'number') return value;
-  if (typeof value === 'boolean') return value ? 1 : 0;
-  if (value instanceof Date) return value.toISOString();
-  if (typeof value === 'bigint') return value.toString();
-  if (typeof value === 'object') return JSON.stringify(value);
-  return String(value);
-}
-
-async function tableColumns(
-  tx: SqlClient,
-  table: string
-): Promise<readonly string[]> {
-  assertTableName(table);
-  const info = await tx.query(
-    unsafe<{ name: string }>(`PRAGMA table_info("${table}")`)
-  );
-  return info.map((c) => c.name);
-}
-
-function withManagedDefaults(
-  row: QueryRow,
-  localCols: readonly string[],
-  env: MutationEnv
-): QueryRow {
-  const filled: Record<string, unknown> = { ...row };
-  const nowIso = env.now().toISOString();
-  if (localCols.includes('id') && filled['id'] == null) {
-    filled['id'] = env.createId();
-  }
-  if (localCols.includes('created_at') && filled['created_at'] == null) {
-    filled['created_at'] = nowIso;
-  }
-  if (localCols.includes('updated_at') && filled['updated_at'] == null) {
-    filled['updated_at'] = nowIso;
-  }
-  return filled as QueryRow;
-}
-
-/** Upsert intersecting columns verbatim (including `deleted_at`). */
-async function upsertRowIntersect(args: {
-  readonly tx: SqlClient;
-  readonly table: string;
-  readonly row: QueryRow;
-  readonly localCols: readonly string[];
-  readonly env: MutationEnv;
-}): Promise<void> {
-  const { tx, table, row, localCols, env } = args;
-  assertTableName(table);
-  const filled = withManagedDefaults(row, localCols, env);
-  const cols = localCols.filter((c) =>
-    Object.prototype.hasOwnProperty.call(filled, c)
-  );
-  assert.ok(cols.includes('id'), `${table}: id required`);
-
-  const colIdents = cols.map((c) => ident(c));
-  const valueFrags = cols.map((c) => sql`${sqliteWireValue(filled[c])}`);
-  const assignments = cols
-    .filter((c) => c !== 'id')
-    .map((c) => sql`${ident(c)} = excluded.${ident(c)}`);
-
-  if (assignments.length === 0) {
-    await tx.run(sql`
-      INSERT INTO ${ident(table)} (${join(colIdents)})
-      VALUES (${join(valueFrags)})
-      ON CONFLICT (id) DO NOTHING
-    `);
-    return;
-  }
-
-  await tx.run(sql`
-    INSERT INTO ${ident(table)} (${join(colIdents)})
-    VALUES (${join(valueFrags)})
-    ON CONFLICT (id) DO UPDATE SET ${join(assignments)}
-  `);
-}
-
-async function mergeTable(args: {
-  readonly tx: SqlClient;
-  readonly table: string;
-  readonly rows: readonly QueryRow[];
-  readonly env: MutationEnv;
-  readonly skipInvalidIds?: boolean;
-}): Promise<boolean> {
-  const { tx, table, rows, env } = args;
-  const cols = await tableColumns(tx, table);
-  if (cols.length === 0) return false;
-  let wrote = false;
-  for (const row of rows) {
-    const id = row['id'];
-    if (!isValidRowId(id)) {
-      if (args.skipInvalidIds === true) continue;
-      // Throw (don't assert/crash): poison wire snapshots must roll back the
-      // merge tx and leave the engine recoverable via onError → online:false.
-      throw new Error(`${table}: row id required`);
-    }
-    await upsertRowIntersect({ tx, table, row, localCols: cols, env });
-    wrote = true;
-  }
-  return wrote;
 }
 
 async function isStale(
@@ -231,19 +110,21 @@ async function rebasePending(
   for (const row of pending) {
     const m = deps.registry[row.name] as Mutation<unknown> | undefined;
     if (m === undefined) continue;
-    let parsed: unknown;
+    let rawArgs: unknown;
     try {
-      parsed = m.args.parse(JSON.parse(row.args));
+      rawArgs = JSON.parse(row.args);
     } catch {
       continue;
     }
+    const parsed = await parseStandardSchema(m.args, rawArgs);
+    if (!parsed.ok) continue;
     try {
       const env = {
         ...deps.env,
         now: () => new Date(row.created_at),
       };
       const wrapped = wrapMutationDb(tx, env);
-      await m.run({ tx: wrapped.tx, env }, parsed);
+      await m.run({ tx: wrapped.tx, env }, parsed.value);
       for (const t of wrapped.getCapture().tables) changed.add(t);
     } catch {
       // Keep queued; hide optimistic effect until upload/reject.

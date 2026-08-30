@@ -38,7 +38,7 @@ describe('ExternalAccountRepository', () => {
   let sqlClient: SqlClient;
   let repo: ExternalAccountRepository;
   const userId = '11111111-1111-4111-8111-111111111111';
-  const primaryAuthProvider = 'better-auth';
+  const primaryAuthProvider = 'idp';
   const externalUserId = 'user_ext_1';
 
   beforeEach(async () => {

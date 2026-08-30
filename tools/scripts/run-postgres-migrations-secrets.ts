@@ -86,11 +86,8 @@ async function runPostgresMigrationsFromSecretsOnce(): Promise<void> {
   try {
     await new PostgresMigrationRunner({
       sqlClient,
-      pool,
       logger,
       dbScope,
-      betterAuthSecret: requireEnv('BETTER_AUTH_SECRET'),
-      betterAuthBaseURL: requireEnv('API_URL').replace(/\/$/, ''),
     }).run();
     process.stdout.write(
       '[postgres:migrate-secrets] schema + sync publication OK\n'

@@ -8,11 +8,7 @@ import {
 } from '@libs/db/public/database-url-policy';
 import type { OpenSqlClient } from '@libs/runtime/shared/env';
 import { assert } from '@pkgs/assert';
-import {
-  type BetterAuthInstance,
-  createBetterAuth,
-  createBetterAuthServerAdapter,
-} from '@pkgs/auth-better-auth/server';
+import { createAuthServerAdapter } from '@pkgs/auth/server';
 import type { Clock, Timers } from '@pkgs/clock';
 import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
 import { isObservabilityActive } from '@pkgs/observability/port/is-observability-active';
@@ -21,10 +17,7 @@ import type { SecretStore } from '@pkgs/secret-store';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
 import type { MiddlewareHandler } from 'hono';
-import {
-  type BetterAuthBootConfig,
-  betterAuthConfigForDatabase,
-} from '../config/better-auth-boot';
+import type { AuthBootConfig } from '../config/auth-boot';
 import { ApiSecretName } from '../config/secret-names';
 import { wrapSqlClientForObservability } from '../observability/wrap-sql-client';
 import { apiRequestAsyncLocalStorage } from '../request-scope';
@@ -60,7 +53,7 @@ async function ensureDevDatabasePolicy(
 }
 
 export type RequestDbMiddlewareOptions = {
-  readonly betterAuth: BetterAuthBootConfig;
+  readonly auth: AuthBootConfig;
   readonly apiUrlOverride?: string | null | undefined;
   readonly databaseUrlOverride?: string | null | undefined;
   readonly secretsEnv: string;
@@ -71,11 +64,6 @@ export type RequestDbMiddlewareOptions = {
   /** Public client_config rows derived from Worker secrets at boot. */
   readonly desiredClientConfig: DesiredClientConfig;
   readonly openSqlClient: OpenSqlClient;
-  /**
-   * Prefer Postgres-dialect Better Auth when a pool/DB handle is available
-   * (sim PGlite). Defaults to SqlClient-as-SQLite for postgres-mem / Worker.
-   */
-  readonly betterAuthDatabase?: import('@pkgs/auth-better-auth/server').BetterAuthDatabase;
   readonly skipDatabaseUrlPolicy?: boolean;
 };
 
@@ -118,24 +106,6 @@ async function openObservedSqlClient(
   });
 }
 
-function createRequestBetterAuth(
-  boot: BetterAuthBootConfig,
-  sqlClient: SqlClient,
-  betterAuthDatabase:
-    | import('@pkgs/auth-better-auth/server').BetterAuthDatabase
-    | undefined
-): BetterAuthInstance {
-  return createBetterAuth(
-    betterAuthConfigForDatabase(
-      boot,
-      betterAuthDatabase ?? {
-        kind: 'sql-client',
-        client: sqlClient,
-      }
-    )
-  );
-}
-
 async function materializeClientConfigIfNeeded(
   sqlClient: SqlClient,
   options: RequestDbMiddlewareOptions,
@@ -159,15 +129,15 @@ async function attachRequestDatabase(
   args: AttachRequestDatabaseArgs
 ): Promise<Response | void> {
   const { c, next, options, secretStore, clientConfigLatch } = args;
-  const { betterAuth: boot, observability, clock, timers, createId } = options;
+  const { auth: boot, observability, clock, timers, createId } = options;
   const raw = await openObservedSqlClient(observability, options.openSqlClient);
   const sqlClient = wrapSqlClientForObservability(observability, raw);
-  const betterAuth = createRequestBetterAuth(
-    boot,
-    sqlClient,
-    options.betterAuthDatabase
-  );
-  const authServer = createBetterAuthServerAdapter(betterAuth);
+  const authServer = createAuthServerAdapter({
+    getSql: () => sqlClient,
+    clock,
+    createId,
+    secret: boot.secret,
+  });
   const kv = new KvImplPostgres(sqlClient, clock.now);
   const sessionAuth = new SessionAuth(authServer, { clock, createId });
   const store = {
@@ -176,7 +146,6 @@ async function attachRequestDatabase(
     kv,
     observability,
     secretStore,
-    betterAuth,
     clock,
     timers,
     createId,
@@ -185,7 +154,6 @@ async function attachRequestDatabase(
     c.set('sqlClient', sqlClient);
     c.set('sessionAuth', sessionAuth);
     c.set('authServer', authServer);
-    c.set('betterAuth', betterAuth);
     try {
       await materializeClientConfigIfNeeded(
         sqlClient,

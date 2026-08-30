@@ -1,5 +1,5 @@
 /**
- * Helpers over Better Auth {@link AuthSessionState} for ceremony / reconcile
+ * Helpers over IdP {@link AuthSessionState} for ceremony / reconcile
  * (AuthBridge, sign-in modal). Steady-state chrome uses
  * {@link resolveHasAuthSession} / secure storage instead.
  */

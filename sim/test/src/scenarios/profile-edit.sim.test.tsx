@@ -44,7 +44,7 @@ describe('profile edit', () => {
 
   test('signed-in updates username', async () => {
     const app = await AppDriver.forActor(world, 'alice');
-    await app.auth.signUpWithEmail(aliceUserCreds);
+    await app.auth.signInWithDev(aliceUserCreds);
     await app.auth.returnToTabs();
     await app.profile.openEdit();
     await app.profile.setUsername('signed_alice_1');
@@ -53,7 +53,7 @@ describe('profile edit', () => {
 
   test('signed-in updates avatar', async () => {
     const app = await AppDriver.forActor(world, 'alice');
-    await app.auth.signUpWithEmail(aliceAvatarCreds);
+    await app.auth.signInWithDev(aliceAvatarCreds);
     await app.auth.returnToTabs();
     await app.profile.openEdit();
     await app.profile.openAvatarEditor();

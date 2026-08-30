@@ -2,14 +2,14 @@
 import { randomBytes } from 'node:crypto';
 import { requireNonEmpty, Secret, type SecretInput } from './secret';
 
-const MIN_BETTER_AUTH_SECRET_LENGTH = 32;
+const MIN_AUTH_SECRET_LENGTH = 32;
 
-async function validateBetterAuthSecret(input: SecretInput): Promise<void> {
+async function validateAuthSecret(input: SecretInput): Promise<void> {
   const v = input.secretValue.trim();
-  requireNonEmpty(v, 'BETTER_AUTH_SECRET');
-  if (v.length < MIN_BETTER_AUTH_SECRET_LENGTH) {
+  requireNonEmpty(v, 'AUTH_SECRET');
+  if (v.length < MIN_AUTH_SECRET_LENGTH) {
     throw new Error(
-      `BETTER_AUTH_SECRET must be at least ${String(MIN_BETTER_AUTH_SECRET_LENGTH)} characters`
+      `AUTH_SECRET must be at least ${String(MIN_AUTH_SECRET_LENGTH)} characters`
     );
   }
 }
@@ -22,12 +22,12 @@ async function validateGoogleClientSecret(input: SecretInput): Promise<void> {
   requireNonEmpty(input.secretValue, 'WEB_CLIENT_GOOGLE_CLIENT_SECRET');
 }
 
-export const BETTER_AUTH_SECRET = new Secret({
-  name: 'BETTER_AUTH_SECRET',
-  hint: 'Better Auth signing secret (≥32 chars)',
+export const AUTH_SECRET = new Secret({
+  name: 'AUTH_SECRET',
+  hint: 'IdP signing secret (≥32 chars)',
   pushToApiWorker: true,
   seedInAllEnvs: true,
-  validate: validateBetterAuthSecret,
+  validate: validateAuthSecret,
   seed: async () => randomBytes(32).toString('base64url'),
 });
 

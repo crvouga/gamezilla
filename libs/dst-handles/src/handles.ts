@@ -32,13 +32,9 @@ export const Handles = {
   accountSignOut: 'account-sign-out',
 
   // sign-in modal
-  authMethodEmail: 'auth-method-email',
-  authGoToSignUp: 'auth-go-to-sign-up',
-  authEmailInput: 'auth-email-input',
-  authUsernameInput: 'auth-username-input',
-  authPasswordInput: 'auth-password-input',
-  authConfirmPasswordInput: 'auth-confirm-password-input',
-  authSubmitCreate: 'auth-submit-create',
+  authMethodDev: 'auth-method-dev',
+  authSubjectInput: 'auth-subject-input',
+  authSubmitDev: 'auth-submit-dev',
   authSignedInDone: 'auth-signed-in-done',
   authModalClose: 'auth-modal-close',
 

@@ -119,24 +119,10 @@ async function main(): Promise<void> {
     await sqlClient.run(raw('DROP SCHEMA public CASCADE'));
     await sqlClient.run(raw('CREATE SCHEMA public'));
     log.info('public schema dropped and recreated; remigrating');
-    const betterAuthSecret = (
-      process.env['BETTER_AUTH_SECRET']?.trim() ??
-      (await fetchSecretFrom('dev', 'BETTER_AUTH_SECRET'))
-    ).trim();
-    assert.nonEmptyString(
-      betterAuthSecret,
-      'db:wipe:dev requires BETTER_AUTH_SECRET'
-    );
-    const betterAuthBaseURL = (
-      process.env['API_URL']?.trim() || 'https://migrate.local'
-    ).replace(/\/$/, '');
     await new PostgresMigrationRunner({
       sqlClient,
-      pool,
       logger: log,
       dbScope,
-      betterAuthSecret,
-      betterAuthBaseURL,
     }).run();
     log.info('wipe + remigrate finished');
     process.stdout.write(

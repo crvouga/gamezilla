@@ -19,7 +19,7 @@ export type ApiWorkerEnv = {
    */
   API_URL?: string;
   DATABASE_URL?: string;
-  BETTER_AUTH_SECRET?: string;
+  AUTH_SECRET?: string;
   WEB_CLIENT_GOOGLE_CLIENT_ID?: string;
   WEB_CLIENT_GOOGLE_CLIENT_SECRET?: string;
   ELEVEN_LABS_API_KEY?: string;

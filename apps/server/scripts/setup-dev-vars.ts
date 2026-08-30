@@ -96,17 +96,17 @@ function readApiUrlForDevVars(): string {
   return DEFAULT_LOCAL_PREVIEW_API_ORIGIN;
 }
 
-function ensureBetterAuthSecret(): string {
-  const existing = process.env['BETTER_AUTH_SECRET']?.trim() ?? '';
+function ensureAuthSecret(): string {
+  const existing = process.env['AUTH_SECRET']?.trim() ?? '';
   if (existing.length >= 32) return existing;
   const bytes = new Uint8Array(32);
   for (let i = 0; i < bytes.length; i++) {
     bytes[i] = Math.floor(Math.random() * 256);
   }
   const seeded = Buffer.from(bytes).toString('base64url');
-  process.env['BETTER_AUTH_SECRET'] = seeded;
+  process.env['AUTH_SECRET'] = seeded;
   process.stdout.write(
-    '[setup-dev-vars] BETTER_AUTH_SECRET missing; seeded local random secret.\n'
+    '[setup-dev-vars] AUTH_SECRET missing; seeded local random secret.\n'
   );
   return seeded;
 }
@@ -180,9 +180,9 @@ async function main(): Promise<void> {
     '[setup-dev-vars] EMQX_* → loopback EMQX (Infisical ignored).\n'
   );
 
-  const betterAuthSecret = ensureBetterAuthSecret();
-  lines.push(`BETTER_AUTH_SECRET=${encodeDevVarValue(betterAuthSecret)}`);
-  written.add('BETTER_AUTH_SECRET');
+  const authSecret = ensureAuthSecret();
+  lines.push(`AUTH_SECRET=${encodeDevVarValue(authSecret)}`);
+  written.add('AUTH_SECRET');
 
   // Only Worker-bound secrets belong in `.dev.vars`. Infra-only keys
   // (CLOUDFLARE_*, EXPO_TOKEN, TURBO_*, B2_MASTER_*, …) are skipped.

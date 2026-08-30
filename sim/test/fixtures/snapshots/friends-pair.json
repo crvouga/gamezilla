@@ -86,22 +86,22 @@
         ],
         "rows": [
           [
-            "better-auth:RczYFbjL9uDNp1MrlqEddJbVKio7lHe2",
+            "idp:RczYFbjL9uDNp1MrlqEddJbVKio7lHe2",
             "2024-06-01 00:00:01.2+00",
             "2024-06-01 00:00:06.7+00",
             null,
             "61dd9ce0-8367-4c0f-93d7-854e9c907f95",
-            "better-auth",
+            "idp",
             "RczYFbjL9uDNp1MrlqEddJbVKio7lHe2",
             "{\"email\": \"alice@sim.local\"}"
           ],
           [
-            "better-auth:QbaS4HkXi7QeD7dh98xgawk2tz4cf6Iz",
+            "idp:QbaS4HkXi7QeD7dh98xgawk2tz4cf6Iz",
             "2024-06-01 00:00:02.4+00",
             "2024-06-01 00:00:07.7+00",
             null,
             "65c5519b-f249-4f32-9406-cc740c243833",
-            "better-auth",
+            "idp",
             "QbaS4HkXi7QeD7dh98xgawk2tz4cf6Iz",
             "{\"email\": \"bob@sim.local\"}"
           ]
@@ -125,131 +125,6 @@
             false
           ]
         ]
-      },
-      "better_auth_account": {
-        "columns": [
-          "id",
-          "accountId",
-          "providerId",
-          "userId",
-          "accessToken",
-          "refreshToken",
-          "idToken",
-          "accessTokenExpiresAt",
-          "refreshTokenExpiresAt",
-          "scope",
-          "password",
-          "createdAt",
-          "updatedAt"
-        ],
-        "rows": [
-          [
-            "GM8116U5lLVRlV4m6gjC9IxOMXGnrJwh",
-            "RczYFbjL9uDNp1MrlqEddJbVKio7lHe2",
-            "credential",
-            "RczYFbjL9uDNp1MrlqEddJbVKio7lHe2",
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            "a71c99a91e0b6b38593ca1446dfb1b49:4faa50dc8531698e63eee34ee0a3533d7a5022e12b1adc6c5bb1a8597943330820f52bdef277ca893b323032908814eb90e2a37c319966ad7af27a1d64db090c",
-            "2026-08-26 17:46:57.503+00",
-            "2026-08-26 17:46:57.503+00"
-          ],
-          [
-            "DVzxTDXEnPJR0e52qGPYzbahWy8T1WeQ",
-            "QbaS4HkXi7QeD7dh98xgawk2tz4cf6Iz",
-            "credential",
-            "QbaS4HkXi7QeD7dh98xgawk2tz4cf6Iz",
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            "b2454048f5d5baca25cb8e976ef9c68e:d691060914e4ee9df494760ed40680d52215c62d5780a0a6e8fab3a20f46582bd762cb6a6103b1453f9bc450b0b7f0bb76ab8e0fe9aad63e0d7a7bdcc743e933",
-            "2026-08-26 17:46:58.267+00",
-            "2026-08-26 17:46:58.267+00"
-          ]
-        ]
-      },
-      "better_auth_session": {
-        "columns": [
-          "id",
-          "expiresAt",
-          "token",
-          "createdAt",
-          "updatedAt",
-          "ipAddress",
-          "userAgent",
-          "userId"
-        ],
-        "rows": [
-          [
-            "HMdwoqeQNtR2SBBvVKi2Cyjn5lO3nOMX",
-            "2026-09-02 17:46:57.503+00",
-            "iLJWUqKPQVfFjjFM5fq49vnedg5aCSnj",
-            "2026-08-26 17:46:57.503+00",
-            "2026-08-26 17:46:57.503+00",
-            "127.0.0.1",
-            "",
-            "RczYFbjL9uDNp1MrlqEddJbVKio7lHe2"
-          ],
-          [
-            "ddYnrgGSyNQmY9xU5vtO8HLthO7EcxFx",
-            "2026-09-02 17:46:58.268+00",
-            "WT9l1viSvgLrG5y7rAGQlCV7CgB2UeRn",
-            "2026-08-26 17:46:58.268+00",
-            "2026-08-26 17:46:58.268+00",
-            "127.0.0.1",
-            "",
-            "QbaS4HkXi7QeD7dh98xgawk2tz4cf6Iz"
-          ]
-        ]
-      },
-      "better_auth_user": {
-        "columns": [
-          "id",
-          "name",
-          "email",
-          "emailVerified",
-          "image",
-          "createdAt",
-          "updatedAt"
-        ],
-        "rows": [
-          [
-            "RczYFbjL9uDNp1MrlqEddJbVKio7lHe2",
-            "alice@sim.local",
-            "alice@sim.local",
-            false,
-            null,
-            "2026-08-26 17:46:57.502+00",
-            "2026-08-26 17:46:57.502+00"
-          ],
-          [
-            "QbaS4HkXi7QeD7dh98xgawk2tz4cf6Iz",
-            "bob@sim.local",
-            "bob@sim.local",
-            false,
-            null,
-            "2026-08-26 17:46:58.267+00",
-            "2026-08-26 17:46:58.267+00"
-          ]
-        ]
-      },
-      "better_auth_verification": {
-        "columns": [
-          "id",
-          "identifier",
-          "value",
-          "expiresAt",
-          "createdAt",
-          "updatedAt"
-        ],
-        "rows": []
       },
       "chess_puzzle_interactions": {
         "columns": [
@@ -331,7 +206,7 @@
             "null"
           ],
           [
-            "email_password_enabled",
+            "dev_oauth_enabled",
             "2024-06-01 00:00:01+00",
             "2024-06-01 00:00:01+00",
             null,
@@ -747,6 +622,121 @@
           "acknowledged"
         ],
         "rows": []
+      },
+      "idp_users": {
+        "columns": [
+          "id",
+          "created_at",
+          "updated_at",
+          "deleted_at",
+          "email",
+          "name",
+          "image"
+        ],
+        "rows": [
+          [
+            "RczYFbjL9uDNp1MrlqEddJbVKio7lHe2",
+            "2024-06-01 00:00:01.2+00",
+            "2024-06-01 00:00:01.2+00",
+            null,
+            "alice@sim.local",
+            "RczYFbjL9uDNp1MrlqEddJbVKio7lHe2",
+            null
+          ],
+          [
+            "QbaS4HkXi7QeD7dh98xgawk2tz4cf6Iz",
+            "2024-06-01 00:00:02.4+00",
+            "2024-06-01 00:00:02.4+00",
+            null,
+            "bob@sim.local",
+            "QbaS4HkXi7QeD7dh98xgawk2tz4cf6Iz",
+            null
+          ]
+        ]
+      },
+      "idp_accounts": {
+        "columns": [
+          "id",
+          "created_at",
+          "updated_at",
+          "deleted_at",
+          "user_id",
+          "provider",
+          "provider_user_id",
+          "access_token",
+          "refresh_token"
+        ],
+        "rows": [
+          [
+            "acct-RczYFbjL9uDNp1MrlqEddJbVKio7lHe2",
+            "2024-06-01 00:00:01.2+00",
+            "2024-06-01 00:00:01.2+00",
+            null,
+            "RczYFbjL9uDNp1MrlqEddJbVKio7lHe2",
+            "dev",
+            "RczYFbjL9uDNp1MrlqEddJbVKio7lHe2",
+            null,
+            null
+          ],
+          [
+            "acct-QbaS4HkXi7QeD7dh98xgawk2tz4cf6Iz",
+            "2024-06-01 00:00:02.4+00",
+            "2024-06-01 00:00:02.4+00",
+            null,
+            "QbaS4HkXi7QeD7dh98xgawk2tz4cf6Iz",
+            "dev",
+            "QbaS4HkXi7QeD7dh98xgawk2tz4cf6Iz",
+            null,
+            null
+          ]
+        ]
+      },
+      "idp_sessions": {
+        "columns": [
+          "id",
+          "created_at",
+          "updated_at",
+          "deleted_at",
+          "user_id",
+          "token_hash",
+          "expires_at"
+        ],
+        "rows": [
+          [
+            "sess-RczYFbjL9uDNp1MrlqEddJbVKio7lHe2",
+            "2024-06-01 00:00:01.2+00",
+            "2024-06-01 00:00:01.2+00",
+            null,
+            "RczYFbjL9uDNp1MrlqEddJbVKio7lHe2",
+            "hash-RczYFbjL9uDNp1MrlqEddJbVKio7lHe2",
+            "2099-01-01 00:00:00+00"
+          ],
+          [
+            "sess-QbaS4HkXi7QeD7dh98xgawk2tz4cf6Iz",
+            "2024-06-01 00:00:02.4+00",
+            "2024-06-01 00:00:02.4+00",
+            null,
+            "QbaS4HkXi7QeD7dh98xgawk2tz4cf6Iz",
+            "hash-QbaS4HkXi7QeD7dh98xgawk2tz4cf6Iz",
+            "2099-01-01 00:00:00+00"
+          ]
+        ]
+      },
+      "idp_oauth_states": {
+        "columns": [
+          "id",
+          "created_at",
+          "updated_at",
+          "deleted_at",
+          "provider",
+          "state",
+          "code_verifier",
+          "callback_url",
+          "exchange_code_hash",
+          "expires_at",
+          "user_id"
+        ],
+        "rows": []
       }
     }
   },
@@ -813,9 +803,9 @@
                 "2024-06-01 00:00:01.2+00",
                 null,
                 "RczYFbjL9uDNp1MrlqEddJbVKio7lHe2",
-                "better-auth:RczYFbjL9uDNp1MrlqEddJbVKio7lHe2",
+                "idp:RczYFbjL9uDNp1MrlqEddJbVKio7lHe2",
                 "{\"email\": \"alice@sim.local\"}",
-                "better-auth",
+                "idp",
                 "2024-06-01T00:00:02.200Z",
                 "61dd9ce0-8367-4c0f-93d7-854e9c907f95"
               ]
@@ -927,7 +917,7 @@
               [
                 "2024-06-01T00:00:01.100Z",
                 null,
-                "email_password_enabled",
+                "dev_oauth_enabled",
                 "2024-06-01T00:00:01.100Z",
                 "true"
               ],
@@ -1376,9 +1366,9 @@
                 "2024-06-01 00:00:02.4+00",
                 null,
                 "QbaS4HkXi7QeD7dh98xgawk2tz4cf6Iz",
-                "better-auth:QbaS4HkXi7QeD7dh98xgawk2tz4cf6Iz",
+                "idp:QbaS4HkXi7QeD7dh98xgawk2tz4cf6Iz",
                 "{\"email\": \"bob@sim.local\"}",
-                "better-auth",
+                "idp",
                 "2024-06-01T00:00:03.500Z",
                 "65c5519b-f249-4f32-9406-cc740c243833"
               ]
@@ -1490,7 +1480,7 @@
               [
                 "2024-06-01T00:00:02.300Z",
                 null,
-                "email_password_enabled",
+                "dev_oauth_enabled",
                 "2024-06-01T00:00:02.300Z",
                 "true"
               ],

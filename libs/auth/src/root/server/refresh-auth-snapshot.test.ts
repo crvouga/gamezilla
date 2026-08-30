@@ -10,7 +10,7 @@ import { AuthSnapshotRefresher } from './refresh-auth-snapshot';
 
 const adapters = createSimAdapters({ seed: 1 });
 
-const PRIMARY_AUTH_PROVIDER = 'better-auth';
+const PRIMARY_AUTH_PROVIDER = 'idp';
 
 function makeFakeAuthServer(args: {
   providerLabel?: string;

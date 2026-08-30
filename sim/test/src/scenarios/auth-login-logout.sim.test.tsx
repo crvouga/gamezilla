@@ -8,7 +8,7 @@ describe('auth login → logout', () => {
   test('first login → logout on the account screen', async () => {
     await using sim = await openSim('auth-login-logout');
     const app = await AppDriver.forActor(sim, 'alice');
-    await app.auth.signUpWithEmail(aliceCreds);
+    await app.auth.signInWithDev(aliceCreds);
     await app.auth.signOut();
   });
 });

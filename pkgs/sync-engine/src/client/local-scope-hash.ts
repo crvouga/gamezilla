@@ -9,6 +9,7 @@ import {
 } from '../queries/core/types';
 import { applyHardLimit } from '../queries/shared/apply-hard-limit';
 import { hashQueryTables } from '../queries/shared/canonical';
+import { parseStandardSchema } from '../shared/standard-schema';
 
 export async function computeLocalScopeHash(args: {
   readonly db: SqlClient;
@@ -18,12 +19,9 @@ export async function computeLocalScopeHash(args: {
 }): Promise<string | null> {
   const paramsSchema = args.query.params;
   if (paramsSchema === undefined) return null;
-  let parsed: unknown;
-  try {
-    parsed = paramsSchema.parse(args.params);
-  } catch {
-    return null;
-  }
+  const parsedResult = await parseStandardSchema(paramsSchema, args.params);
+  if (!parsedResult.ok) return null;
+  const parsed = parsedResult.value;
 
   const ctx: QueryCtx = {
     db: {

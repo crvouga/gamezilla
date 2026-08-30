@@ -1,6 +1,10 @@
 import { assert } from '@pkgs/assert';
-import { z } from 'zod';
 
+import {
+  emptyObjectSchema,
+  parseStandardSchema,
+  QUERY_PARAM_STUB,
+} from '../../shared/standard-schema';
 import {
   DEFAULT_QUERY_LIMIT,
   type QueryCtx,
@@ -8,8 +12,6 @@ import {
   type QueryDefInput,
   type QueryRow,
 } from './types';
-
-const emptyParams = z.object({});
 
 /**
  * Register a query. `hydrates` is derived from `run` return keys on first
@@ -27,7 +29,8 @@ export function defineQuery<P = Record<string, never>>(
   let resolvedHydrates: string[] | null = null;
 
   const baseParams =
-    q.params ?? (emptyParams as unknown as NonNullable<QueryDef<P>['params']>);
+    q.params ??
+    (emptyObjectSchema as unknown as NonNullable<QueryDef<P>['params']>);
 
   const def: QueryDef<P> = {
     ...q,
@@ -78,43 +81,15 @@ export async function resolveQueryHydrates(
   query: QueryDef<unknown>
 ): Promise<readonly string[]> {
   if (query.hydrates.length > 0) return query.hydrates;
-  const paramsSchema = query.params ?? emptyParams;
-  const parsed = paramsSchema.safeParse({});
-  const params = parsed.success
-    ? parsed.data
-    : // Non-empty required params: best-effort defaults for CI resolve.
-      (paramsSchema as z.ZodType<unknown>).parse(
-        inferLooseDefaults(paramsSchema)
-      );
-  await query.run(resolveStubCtx, params);
-  return query.hydrates;
-}
-
-function inferLooseDefaults(schema: z.ZodType<unknown>): unknown {
-  if (!(schema instanceof z.ZodObject)) return {};
-  const shape = schema.shape as Record<string, z.ZodTypeAny>;
-  const out: Record<string, unknown> = {};
-  for (const [key, field] of Object.entries(shape)) {
-    if (field instanceof z.ZodDefault) {
-      const defVal = field._def.defaultValue as unknown;
-      out[key] = typeof defVal === 'function' ? defVal() : defVal;
-      continue;
-    }
-    if (field instanceof z.ZodArray) {
-      out[key] = ['id_resolve'];
-      continue;
-    }
-    if (field instanceof z.ZodString) {
-      out[key] = 'id_resolve';
-      continue;
-    }
-    if (field instanceof z.ZodNumber) {
-      out[key] = 0;
-      continue;
-    }
-    if (field instanceof z.ZodOptional || field instanceof z.ZodNullable) {
-      continue;
-    }
+  const paramsSchema = query.params ?? emptyObjectSchema;
+  const empty = await parseStandardSchema(paramsSchema, {});
+  let resolved: unknown;
+  if (empty.ok) {
+    resolved = empty.value;
+  } else {
+    const stubbed = await parseStandardSchema(paramsSchema, QUERY_PARAM_STUB);
+    resolved = stubbed.ok ? stubbed.value : QUERY_PARAM_STUB;
   }
-  return out;
+  await query.run(resolveStubCtx, resolved);
+  return query.hydrates;
 }

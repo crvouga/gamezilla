@@ -1,3 +1,4 @@
+import { startTiming } from '@pkgs/ui/animation/run-timing';
 import { USE_NATIVE_DRIVER } from '@pkgs/ui/animation/use-native-driver';
 import { motion } from '@pkgs/ui/theme/motion';
 import { useEffect, useRef, useState } from 'react';
@@ -6,18 +7,21 @@ import { Animated, Easing } from 'react-native';
 const COUNT_UP_MS = 1200;
 
 function runCompletePulse(completePulse: Animated.Value): void {
-  Animated.sequence([
-    Animated.timing(completePulse, {
+  startTiming(
+    completePulse,
+    {
       toValue: 1.12,
       duration: motion.duration.fast,
       useNativeDriver: USE_NATIVE_DRIVER,
-    }),
-    Animated.timing(completePulse, {
-      toValue: 1,
-      duration: motion.duration.fast,
-      useNativeDriver: USE_NATIVE_DRIVER,
-    }),
-  ]).start();
+    },
+    () => {
+      startTiming(completePulse, {
+        toValue: 1,
+        duration: motion.duration.fast,
+        useNativeDriver: USE_NATIVE_DRIVER,
+      });
+    }
+  );
 }
 
 export function useChessPuzzleEloAnimation(args: {

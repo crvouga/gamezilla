@@ -7,7 +7,7 @@ import { SESSION_TOKEN_KEY } from './auth-storage-keys';
 /**
  * Reactive bearer token for the current session. Reads secure storage populated
  * by {@link AuthBridge} from ceremony mint / refresh. Local-first: does not wait
- * on Better Auth `useSession`. Suspends until `sessionToken` has been read.
+ * on IdP `useSession`. Suspends until `sessionToken` has been read.
  */
 export function useFreshAuthToken(): string | null {
   const { value } = useHydratedSecureStorageItem(SESSION_TOKEN_KEY);

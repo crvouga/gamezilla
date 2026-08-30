@@ -1,7 +1,6 @@
 import type { SessionAuth } from '@libs/auth/public/session-middleware';
 import { assert } from '@pkgs/assert';
 import { AsyncLocalStorage } from '@pkgs/async-local';
-import type { BetterAuthInstance } from '@pkgs/auth-better-auth/server';
 import type { Clock, Timers } from '@pkgs/clock';
 import type { Kv } from '@pkgs/kv/interface';
 import type { Observability } from '@pkgs/observability/port/observability';
@@ -18,7 +17,6 @@ export type ApiRequestAsyncStore = {
   readonly kv: Kv;
   readonly observability: Observability;
   readonly secretStore: SecretStore;
-  readonly betterAuth: BetterAuthInstance;
   readonly clock: Clock;
   readonly timers: Timers;
   readonly createId: CreateId;

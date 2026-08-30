@@ -411,36 +411,13 @@
       ]
     },
     {
-      "path": "./tools/biome-plugins/no-better-auth-sdk-imports.grit",
+      "path": "./tools/biome-plugins/forbid-removed-auth-sdk-imports.grit",
       "includes": [
         "**/apps/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
         "**/pkgs/**/*.{ts,tsx}",
-        "!**/pkgs/auth-better-auth/**"
-      ]
-    },
-    {
-      "path": "./tools/biome-plugins/no-auth-better-auth-imports.grit",
-      "includes": [
-        "**/apps/**/*.{ts,tsx}",
-        "**/libs/**/*.{ts,tsx}",
-        "**/pkgs/**/*.{ts,tsx}",
-        "!**/pkgs/auth-better-auth/**",
-        "!**/apps/client/src/providers/app-auth-provider.tsx",
-        "!**/apps/client/src/product/client-env.ts",
-        "!**/apps/client/src/product/wall-client-env.ts",
-        "!**/sim/console/src/sim/create-sim.ts",
-        "!**/sim/console/src/playground/playground-checkpoint-durable.ts",
-        "!**/apps/server/src/api.ts",
-        "!**/apps/server/src/app/request-db-middleware.ts",
-        "!**/apps/server/src/app/create-server.ts",
-        "!**/apps/server/src/auth/better-auth-routes.ts",
-        "!**/apps/server/src/config/better-auth-boot.ts",
-        "!**/apps/server/src/sim/migrate-sim-sqlite.ts",
-        "!**/libs/runtime/src/server/run-postgres-migrations.ts",
-        "!**/apps/server/src/db/migrate.ts",
-        "!**/apps/server/src/request-scope.ts",
-        "!**/libs/db/src/scripts/wipe-dev-db.ts"
+        "**/sim/**/*.{ts,tsx}",
+        "**/tools/**/*.{ts,tsx}"
       ]
     },
     {
@@ -449,6 +426,15 @@
         "**/apps/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
         "**/pkgs/**/*.{ts,tsx}"
+      ]
+    },
+    {
+      "path": "./tools/biome-plugins/no-zod-in-pkgs.grit",
+      "includes": [
+        "**/pkgs/**/*.{ts,tsx}",
+        "!**/pkgs/**/tests/**",
+        "!**/pkgs/**/test/**",
+        "!**/*.{test,spec}.{ts,tsx}"
       ]
     },
     {

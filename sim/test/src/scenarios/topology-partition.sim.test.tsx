@@ -23,7 +23,7 @@ describe('topology partition', () => {
     handle.sim.partition('alice', 'server');
     handle.sim.heal('alice', 'server');
 
-    await app.auth.signUpWithEmail(aliceCreds);
+    await app.auth.signInWithDev(aliceCreds);
     expect(handle.sim.clientIds().includes('alice')).toBe(true);
   });
 });

@@ -1,27 +1,16 @@
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { Hono } from 'hono';
-import { z } from 'zod';
 
 import type { AuthErrorBody, QueryRegistry } from '../queries/core/types';
 import { runQuery } from '../queries/server/run-query';
 import { isAuthErrorBody } from './auth-error';
+import { parseQueryBatchBody, type QueryBatchItem } from './parse-batch-body';
 import {
   resolveRequestSql,
   type SyncSqlVariables,
 } from './resolve-request-sql';
 import type { SyncAppAuth } from './sync-app-auth';
 import { assertSyncProtocol } from './sync-protocol-gate';
-
-const queryItemSchema = z.object({
-  name: z.string().min(1),
-  params: z.unknown().default({}),
-  lastHash: z.string().optional(),
-  checkpoint: z.string().optional(),
-});
-
-const queryBodySchema = z.object({
-  queries: z.array(queryItemSchema).min(1).max(64),
-});
 
 type RunQueryDeps = {
   readonly db: SqlClient;
@@ -31,10 +20,7 @@ type RunQueryDeps = {
   readonly strictQueryLimits?: boolean;
 };
 
-async function runOne(
-  deps: RunQueryDeps,
-  body: z.infer<typeof queryItemSchema>
-) {
+async function runOne(deps: RunQueryDeps, body: QueryBatchItem) {
   return runQuery(deps, {
     name: body.name,
     params: body.params,
@@ -68,8 +54,8 @@ export function mountQueryRoutes(
     if (isAuthErrorBody(auth)) {
       return c.json(auth, 401);
     }
-    const parsed = queryBodySchema.safeParse(await c.req.json());
-    if (!parsed.success) {
+    const parsed = parseQueryBatchBody(await c.req.json());
+    if (parsed === null) {
       return c.json({ status: 'denied' as const }, 400);
     }
     const runDeps: RunQueryDeps = {
@@ -80,7 +66,7 @@ export function mountQueryRoutes(
       ...(deps.strictQueryLimits === true ? { strictQueryLimits: true } : {}),
     };
     const responses = [];
-    for (const item of parsed.data.queries) {
+    for (const item of parsed.queries) {
       responses.push(await runOne(runDeps, item));
     }
     return c.json({ responses }, 200);

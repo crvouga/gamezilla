@@ -27,8 +27,7 @@
     "@pkgs/ui-testing": "workspace:*",
     "hono": "catalog:",
     "react": "catalog:",
-    "react-native": "catalog:",
-    "zod": "catalog:"
+    "react-native": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

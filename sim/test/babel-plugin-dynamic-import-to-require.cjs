@@ -1,7 +1,7 @@
 /**
  * Jest helper: rewrite `import(source)` → Promise that `require`s and
  * interops CJS/ESM default exports so named destructuring works
- * (e.g. better-auth's `const { createKyselyAdapter } = await import(...)`).
+ * (e.g. ESM packages that use `await import(...)`).
  */
 module.exports = function babelPluginDynamicImportToRequire({ types: t }) {
   return {

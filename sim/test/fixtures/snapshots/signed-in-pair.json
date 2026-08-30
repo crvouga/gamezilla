@@ -86,22 +86,22 @@
         ],
         "rows": [
           [
-            "better-auth:bsshg2TBqusM5VGQogcsbHRPenCJqmCy",
+            "idp:bsshg2TBqusM5VGQogcsbHRPenCJqmCy",
             "2024-06-01 00:00:01.2+00",
             "2024-06-01 00:00:01.2+00",
             null,
             "61dd9ce0-8367-4c0f-93d7-854e9c907f95",
-            "better-auth",
+            "idp",
             "bsshg2TBqusM5VGQogcsbHRPenCJqmCy",
             "{\"email\": \"alice@sim.local\"}"
           ],
           [
-            "better-auth:llEqSbMSEJ7RBQyZ6rLDga1YJvM6ChLV",
+            "idp:llEqSbMSEJ7RBQyZ6rLDga1YJvM6ChLV",
             "2024-06-01 00:00:02.3+00",
             "2024-06-01 00:00:02.3+00",
             null,
             "ff94b65d-a5f7-40a5-b5f3-9c45b88c2f0c",
-            "better-auth",
+            "idp",
             "llEqSbMSEJ7RBQyZ6rLDga1YJvM6ChLV",
             "{\"email\": \"bob@sim.local\"}"
           ]
@@ -125,131 +125,6 @@
             false
           ]
         ]
-      },
-      "better_auth_account": {
-        "columns": [
-          "id",
-          "accountId",
-          "providerId",
-          "userId",
-          "accessToken",
-          "refreshToken",
-          "idToken",
-          "accessTokenExpiresAt",
-          "refreshTokenExpiresAt",
-          "scope",
-          "password",
-          "createdAt",
-          "updatedAt"
-        ],
-        "rows": [
-          [
-            "vKCyC5HoFBv5qcwyI0yMCgRgYFYMsTym",
-            "bsshg2TBqusM5VGQogcsbHRPenCJqmCy",
-            "credential",
-            "bsshg2TBqusM5VGQogcsbHRPenCJqmCy",
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            "c99342f5941ab204fa433d38ccf7641f:4281e92baad39e4f88b96fc299787cf47ff7657493719c52d37e3a2317aa427d9a451a1efa07c47036b7d51817e3afffeb714ce2e40bbca2ea9001d1ec079dfc",
-            "2026-08-26 17:46:55.973+00",
-            "2026-08-26 17:46:55.973+00"
-          ],
-          [
-            "xTh6KpRuJhlQQd9ZRcZuV2wvtnYhKIXw",
-            "llEqSbMSEJ7RBQyZ6rLDga1YJvM6ChLV",
-            "credential",
-            "llEqSbMSEJ7RBQyZ6rLDga1YJvM6ChLV",
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            "a2139044c078fd4496d5b45d55450cd4:087747d1a791bc8d8f482a6affb4390a6dba3d2e56318d4c8da9c166f1ddd7ef7988ce3db16d8965b3d4e511984bb39e0f27364e8ea0b68b118d1e7f923db0dc",
-            "2026-08-26 17:46:56.742+00",
-            "2026-08-26 17:46:56.742+00"
-          ]
-        ]
-      },
-      "better_auth_session": {
-        "columns": [
-          "id",
-          "expiresAt",
-          "token",
-          "createdAt",
-          "updatedAt",
-          "ipAddress",
-          "userAgent",
-          "userId"
-        ],
-        "rows": [
-          [
-            "gUt26DD9ePIQmZLKUBVpSN9wgQARBFHL",
-            "2026-09-02 17:46:55.974+00",
-            "qVURgiHfBXtfx0CvsNpcNKHazLXyzupz",
-            "2026-08-26 17:46:55.974+00",
-            "2026-08-26 17:46:55.974+00",
-            "127.0.0.1",
-            "",
-            "bsshg2TBqusM5VGQogcsbHRPenCJqmCy"
-          ],
-          [
-            "iZZbw3r9bwR5Y9apLfoEd0nhPHdL5tJR",
-            "2026-09-02 17:46:56.742+00",
-            "Fvj1BDQVGn4c64ezFG2estmfHCF75xhk",
-            "2026-08-26 17:46:56.742+00",
-            "2026-08-26 17:46:56.742+00",
-            "127.0.0.1",
-            "",
-            "llEqSbMSEJ7RBQyZ6rLDga1YJvM6ChLV"
-          ]
-        ]
-      },
-      "better_auth_user": {
-        "columns": [
-          "id",
-          "name",
-          "email",
-          "emailVerified",
-          "image",
-          "createdAt",
-          "updatedAt"
-        ],
-        "rows": [
-          [
-            "bsshg2TBqusM5VGQogcsbHRPenCJqmCy",
-            "alice@sim.local",
-            "alice@sim.local",
-            false,
-            null,
-            "2026-08-26 17:46:55.973+00",
-            "2026-08-26 17:46:55.973+00"
-          ],
-          [
-            "llEqSbMSEJ7RBQyZ6rLDga1YJvM6ChLV",
-            "bob@sim.local",
-            "bob@sim.local",
-            false,
-            null,
-            "2026-08-26 17:46:56.741+00",
-            "2026-08-26 17:46:56.741+00"
-          ]
-        ]
-      },
-      "better_auth_verification": {
-        "columns": [
-          "id",
-          "identifier",
-          "value",
-          "expiresAt",
-          "createdAt",
-          "updatedAt"
-        ],
-        "rows": []
       },
       "chess_puzzle_interactions": {
         "columns": [
@@ -331,7 +206,7 @@
             "null"
           ],
           [
-            "email_password_enabled",
+            "dev_oauth_enabled",
             "2024-06-01 00:00:01+00",
             "2024-06-01 00:00:01+00",
             null,
@@ -601,6 +476,121 @@
           "acknowledged"
         ],
         "rows": []
+      },
+      "idp_users": {
+        "columns": [
+          "id",
+          "created_at",
+          "updated_at",
+          "deleted_at",
+          "email",
+          "name",
+          "image"
+        ],
+        "rows": [
+          [
+            "bsshg2TBqusM5VGQogcsbHRPenCJqmCy",
+            "2024-06-01 00:00:01.2+00",
+            "2024-06-01 00:00:01.2+00",
+            null,
+            "alice@sim.local",
+            "bsshg2TBqusM5VGQogcsbHRPenCJqmCy",
+            null
+          ],
+          [
+            "llEqSbMSEJ7RBQyZ6rLDga1YJvM6ChLV",
+            "2024-06-01 00:00:02.3+00",
+            "2024-06-01 00:00:02.3+00",
+            null,
+            "bob@sim.local",
+            "llEqSbMSEJ7RBQyZ6rLDga1YJvM6ChLV",
+            null
+          ]
+        ]
+      },
+      "idp_accounts": {
+        "columns": [
+          "id",
+          "created_at",
+          "updated_at",
+          "deleted_at",
+          "user_id",
+          "provider",
+          "provider_user_id",
+          "access_token",
+          "refresh_token"
+        ],
+        "rows": [
+          [
+            "acct-bsshg2TBqusM5VGQogcsbHRPenCJqmCy",
+            "2024-06-01 00:00:01.2+00",
+            "2024-06-01 00:00:01.2+00",
+            null,
+            "bsshg2TBqusM5VGQogcsbHRPenCJqmCy",
+            "dev",
+            "bsshg2TBqusM5VGQogcsbHRPenCJqmCy",
+            null,
+            null
+          ],
+          [
+            "acct-llEqSbMSEJ7RBQyZ6rLDga1YJvM6ChLV",
+            "2024-06-01 00:00:02.3+00",
+            "2024-06-01 00:00:02.3+00",
+            null,
+            "llEqSbMSEJ7RBQyZ6rLDga1YJvM6ChLV",
+            "dev",
+            "llEqSbMSEJ7RBQyZ6rLDga1YJvM6ChLV",
+            null,
+            null
+          ]
+        ]
+      },
+      "idp_sessions": {
+        "columns": [
+          "id",
+          "created_at",
+          "updated_at",
+          "deleted_at",
+          "user_id",
+          "token_hash",
+          "expires_at"
+        ],
+        "rows": [
+          [
+            "sess-bsshg2TBqusM5VGQogcsbHRPenCJqmCy",
+            "2024-06-01 00:00:01.2+00",
+            "2024-06-01 00:00:01.2+00",
+            null,
+            "bsshg2TBqusM5VGQogcsbHRPenCJqmCy",
+            "hash-bsshg2TBqusM5VGQogcsbHRPenCJqmCy",
+            "2099-01-01 00:00:00+00"
+          ],
+          [
+            "sess-llEqSbMSEJ7RBQyZ6rLDga1YJvM6ChLV",
+            "2024-06-01 00:00:02.3+00",
+            "2024-06-01 00:00:02.3+00",
+            null,
+            "llEqSbMSEJ7RBQyZ6rLDga1YJvM6ChLV",
+            "hash-llEqSbMSEJ7RBQyZ6rLDga1YJvM6ChLV",
+            "2099-01-01 00:00:00+00"
+          ]
+        ]
+      },
+      "idp_oauth_states": {
+        "columns": [
+          "id",
+          "created_at",
+          "updated_at",
+          "deleted_at",
+          "provider",
+          "state",
+          "code_verifier",
+          "callback_url",
+          "exchange_code_hash",
+          "expires_at",
+          "user_id"
+        ],
+        "rows": []
       }
     }
   },
@@ -667,9 +657,9 @@
                 "2024-06-01 00:00:01.2+00",
                 null,
                 "bsshg2TBqusM5VGQogcsbHRPenCJqmCy",
-                "better-auth:bsshg2TBqusM5VGQogcsbHRPenCJqmCy",
+                "idp:bsshg2TBqusM5VGQogcsbHRPenCJqmCy",
                 "{\"email\": \"alice@sim.local\"}",
-                "better-auth",
+                "idp",
                 "2024-06-01T00:00:02.200Z",
                 "61dd9ce0-8367-4c0f-93d7-854e9c907f95"
               ]
@@ -781,7 +771,7 @@
               [
                 "2024-06-01T00:00:01.100Z",
                 null,
-                "email_password_enabled",
+                "dev_oauth_enabled",
                 "2024-06-01T00:00:01.100Z",
                 "true"
               ],
@@ -1262,7 +1252,7 @@
               [
                 "2024-06-01T00:00:02.200Z",
                 null,
-                "email_password_enabled",
+                "dev_oauth_enabled",
                 "2024-06-01T00:00:02.200Z",
                 "true"
               ],

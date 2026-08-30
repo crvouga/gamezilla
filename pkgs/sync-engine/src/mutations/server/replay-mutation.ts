@@ -1,13 +1,12 @@
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
-import { ZodError } from 'zod';
-import type { WriteCaptureSnapshot } from '../../sql-ast';
 import {
-  isMutationError,
-  mutationErrorToFailure,
-  zodFailures,
-} from '../core/failures';
+  parseStandardSchema,
+  schemaIssuesToFailures,
+} from '../../shared/standard-schema';
+import type { WriteCaptureSnapshot } from '../../sql-ast';
+import { isMutationError, mutationErrorToFailure } from '../core/failures';
 import type {
   MutationEnv,
   MutationFailure,
@@ -81,20 +80,10 @@ export async function replayMutation(
         };
       }
 
-      let parsed: unknown;
+      let rawArgs: unknown;
       try {
-        parsed = mutation.args.parse(JSON.parse(m.args) as unknown);
+        rawArgs = JSON.parse(m.args) as unknown;
       } catch (e) {
-        if (e instanceof ZodError) {
-          const failures = zodFailures(e, m.name);
-          const failure = failures[0]!;
-          await recordRejectedInTxn(txc, m, failure, deps);
-          return {
-            status: 'rejected' as const,
-            code: failure.code,
-            message: failure.message,
-          };
-        }
         // Malformed JSON (SyntaxError) is a permanent client bug — not infra.
         if (e instanceof SyntaxError) {
           const failure = {
@@ -112,6 +101,17 @@ export async function replayMutation(
         throw e;
       }
 
+      const parsed = await parseStandardSchema(mutation.args, rawArgs);
+      if (!parsed.ok) {
+        const failure = schemaIssuesToFailures(parsed.issues, m.name)[0]!;
+        await recordRejectedInTxn(txc, m, failure, deps);
+        return {
+          status: 'rejected' as const,
+          code: failure.code,
+          message: failure.message,
+        };
+      }
+
       const env: MutationEnv = {
         actorId: deps.auth.actorId,
         deviceId: deps.auth.deviceId,
@@ -123,7 +123,7 @@ export async function replayMutation(
       };
 
       const wrapped = wrapMutationDb(txc, env);
-      await mutation.run({ tx: wrapped.tx, env }, parsed);
+      await mutation.run({ tx: wrapped.tx, env }, parsed.value);
       const capture = wrapped.getCapture();
 
       const appliedAt = new Date(deps.now()).toISOString();
@@ -136,12 +136,16 @@ export async function replayMutation(
   } catch (e) {
     const mutation = deps.registry[m.name];
     const mapped = mapConstraintError(e, mutation?.constraintErrors);
-    if (mapped !== undefined || isMutationError(e) || e instanceof ZodError) {
-      const failure =
-        mapped ??
-        (isMutationError(e)
-          ? mutationErrorToFailure(e, m.name)
-          : zodFailures(e as ZodError, m.name)[0]!);
+    if (mapped !== undefined) {
+      await recordMutationRejection(deps, m, mapped);
+      return {
+        status: 'rejected',
+        code: mapped.code,
+        message: mapped.message,
+      };
+    }
+    if (isMutationError(e)) {
+      const failure = mutationErrorToFailure(e, m.name);
       await recordMutationRejection(deps, m, failure);
       return {
         status: 'rejected',

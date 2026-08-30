@@ -2,13 +2,11 @@
  * Ensure domain writes supply managed columns from MutationEnv (no SQL defaults).
  */
 import { type RawValue, Sql } from '@pkgs/sql';
-import { Parser } from 'node-sql-parser';
 
-import { sqlTextForAst } from '../../sql-ast/classify';
+import { parseSqlAst } from '../../sql-ast/classify';
 import type { MutationEnv } from '../core/types';
 
 const MANAGED_INSERT = ['id', 'created_at', 'updated_at'] as const;
-const parser = new Parser();
 
 type AstNode = Record<string, unknown>;
 
@@ -17,10 +15,6 @@ function asNode(v: unknown): AstNode | undefined {
     return v as AstNode;
   }
   return undefined;
-}
-
-function asArray<T>(v: T | T[]): T[] {
-  return Array.isArray(v) ? v : [v];
 }
 
 /**
@@ -76,15 +70,6 @@ function setColumnNames(set: unknown): string[] {
     }
   }
   return names;
-}
-
-function parseAst(query: Sql<unknown>): AstNode | undefined {
-  try {
-    const ast = parser.astify(sqlTextForAst(query), { database: 'PostgreSQL' });
-    return asNode(asArray(ast)[0]);
-  } catch {
-    return undefined;
-  }
 }
 
 /** Build `Sql` from a `?`-placeholder string + bound values. */
@@ -173,13 +158,14 @@ function injectUpdate(
 
 /**
  * Rewrite domain INSERT/UPDATE so managed columns are bound from {@link MutationEnv}.
+ * Shares the AST cache with {@link classify} via {@link parseSqlAst}.
  */
 export function injectManagedColumns(
   query: Sql<unknown>,
   env: MutationEnv,
   op: 'insert' | 'upsert' | 'update'
 ): Sql<unknown> {
-  const ast = parseAst(query);
+  const ast = parseSqlAst(query);
   if (ast === undefined) return query;
   if (op === 'update') {
     return injectUpdate(query, env, setColumnNames(ast['set']));

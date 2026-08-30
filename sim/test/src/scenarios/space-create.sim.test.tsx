@@ -9,7 +9,7 @@ describe('space create', () => {
     await using sim = await openSim('space-create');
 
     const alice = await AppDriver.forActor(sim, 'alice');
-    await alice.auth.signUpWithEmail(aliceCreds);
+    await alice.auth.signInWithDev(aliceCreds);
     await alice.auth.returnToTabs();
     // Signup username matches aliceUsername — ensureProfile already claimed it.
 

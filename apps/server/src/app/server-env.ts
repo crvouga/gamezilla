@@ -1,5 +1,4 @@
 import type { OpenSqlClient } from '@libs/runtime/shared/env';
-import type { BetterAuthDatabase } from '@pkgs/auth-better-auth/server';
 import type { Billing } from '@pkgs/billing';
 import type { Clock, Timers } from '@pkgs/clock';
 import type { Kv } from '@pkgs/kv/interface';
@@ -10,7 +9,7 @@ import type { PubSub } from '@pkgs/pubsub/interface';
 import type { SecretStore } from '@pkgs/secret-store';
 import type { TtsProvider } from '@pkgs/tts/server';
 
-import type { BetterAuthBootConfig } from '../config/better-auth-boot';
+import type { AuthBootConfig } from '../config/auth-boot';
 
 export type ServerEnv = {
   readonly clock: Clock;
@@ -27,12 +26,7 @@ export type ServerEnv = {
   readonly llm: LlmProvider | null;
   readonly secrets: SecretStore;
   readonly observability: Observability;
-  readonly betterAuth: BetterAuthBootConfig;
-  /**
-   * When set (e.g. sim PGlite pool), Better Auth uses the Postgres dialect
-   * instead of SqlClient-as-SQLite — required for real boolean columns.
-   */
-  readonly betterAuthDatabase?: BetterAuthDatabase;
+  readonly auth: AuthBootConfig;
   readonly secretsEnv: string;
   readonly serverUrl: string | null;
   readonly skipDatabaseUrlPolicy: boolean;

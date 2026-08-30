@@ -15,7 +15,7 @@ export type ResolveSessionBearerTokenOptions = {
 };
 
 /**
- * Cookie sessions can hydrate before Better Auth captures `set-auth-token`.
+ * Cookie sessions can hydrate before IdP captures `set-auth-token`.
  * Prefer the cached bearer, then force a get-session mint, with short retries
  * so AuthBridge does not permanently skip writing product `sessionToken`.
  */

@@ -9,15 +9,15 @@ import {
 } from '@apps/room-server/app/create-room-server';
 import type { RoomServerEnv } from '@apps/room-server/app/room-server-env';
 import { createServer, type ServerEnv, serveFetch } from '@apps/server';
-import { loadBetterAuthBootConfig } from '@apps/server/config/better-auth-boot';
+import { loadAuthBootConfig } from '@apps/server/config/auth-boot';
 import {
   migrateSimPostgres,
-  SIM_BETTER_AUTH_SECRET,
+  SIM_AUTH_SECRET,
   SIM_POSTGRES_MEM_DATABASE_URL,
   SIM_SERVER_URL,
 } from '@apps/server/sim/migrate-sim-postgres';
 import { assert } from '@pkgs/assert';
-import { createNamespacedAuthClientStorage } from '@pkgs/auth-better-auth/client';
+import { createNamespacedAuthClientStorage } from '@pkgs/auth/client';
 import { InMemoryBilling } from '@pkgs/billing';
 import type { SimClock, Timers } from '@pkgs/clock';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
@@ -108,11 +108,11 @@ async function buildServerEnv(args: {
   const { adapters, timers, serverSql, pubSubBus } = args;
   const shared = sharedSqlClient(serverSql.sqlClient);
   const secrets = createRecordSecretStore({
-    BETTER_AUTH_SECRET: SIM_BETTER_AUTH_SECRET,
+    AUTH_SECRET: SIM_AUTH_SECRET,
     DATABASE_URL: SIM_POSTGRES_MEM_DATABASE_URL,
     API_URL: SIM_SERVER_URL,
   });
-  const betterAuth = await loadBetterAuthBootConfig({
+  const auth = await loadAuthBootConfig({
     secretStore: secrets,
     apiUrlOverride: SIM_SERVER_URL,
     secretsEnv: 'dev',
@@ -132,15 +132,7 @@ async function buildServerEnv(args: {
     llm: new InMemoryLlmProvider(),
     secrets,
     observability: createNoopObservability('sim-server'),
-    betterAuth,
-    ...(serverSql.pool !== undefined
-      ? {
-          betterAuthDatabase: {
-            kind: 'postgres' as const,
-            pool: serverSql.pool,
-          },
-        }
-      : {}),
+    auth,
     secretsEnv: 'dev',
     serverUrl: SIM_SERVER_URL,
     skipDatabaseUrlPolicy: true,

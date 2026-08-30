@@ -17,7 +17,7 @@ import { createServerObservability } from '@pkgs/observability/server/create-ser
 import { isSecretStoreError } from '@pkgs/secret-store';
 import { createServer } from './app/create-server';
 import type { ServerEnv } from './app/server-env';
-import { loadBetterAuthBootConfig } from './config/better-auth-boot';
+import { loadAuthBootConfig } from './config/auth-boot';
 import type { ApiWorkerEnv } from './config/env';
 import {
   assertSecretsEnvBinding,
@@ -141,7 +141,7 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
 
   const serverUrl = readOptionalApiUrlOverride(env);
   const databaseUrlOverride = readOptionalDatabaseUrlOverride(env);
-  const betterAuth = await loadBetterAuthBootConfig({
+  const auth = await loadAuthBootConfig({
     secretStore,
     apiUrlOverride: serverUrl,
     secretsEnv,
@@ -177,7 +177,7 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
     llm: null,
     secrets: secretStore,
     observability,
-    betterAuth,
+    auth,
     secretsEnv,
     serverUrl,
     skipDatabaseUrlPolicy: false,

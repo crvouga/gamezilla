@@ -23,8 +23,6 @@ function bunAwareTransformIgnorePatterns(extraAllow = []) {
     '@testing-library/react-native',
     '@gorhom/.*',
     'lucide-react-native',
-    'better-auth',
-    '@better-auth/.*',
     '@better-fetch/.*',
     'better-call',
     'kysely',

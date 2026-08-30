@@ -15,14 +15,14 @@ describe('friends request → decline', () => {
 
     const alice = await AppDriver.forActor(sim, 'alice');
 
-    await alice.auth.signUpWithEmail(aliceCreds);
+    await alice.auth.signInWithDev(aliceCreds);
     await alice.auth.returnToTabs();
     await alice.profile.openEdit();
     await alice.profile.setUsername(aliceUsername);
     await alice.profile.expectUsername(aliceUsername);
 
     const bob = await AppDriver.forActor(sim, 'bob');
-    await bob.auth.signUpWithEmail(bobCreds);
+    await bob.auth.signInWithDev(bobCreds);
     await bob.auth.returnToTabs();
     await bob.profile.openEdit();
     await bob.profile.setUsername(bobUsername);

@@ -137,7 +137,7 @@ try {
   // Spec may not resolve in every RN layout; NativeModules fallback above remains.
 }
 
-// better-auth/expo ExpoFocusManager listens to AppState; keep a stable stub so
+// Expo AppState stub for auth session focus listeners; keep stable so
 // session refresh after dispose cannot crash the Jest process.
 const ReactNative = require('react-native');
 const appStateStub = {

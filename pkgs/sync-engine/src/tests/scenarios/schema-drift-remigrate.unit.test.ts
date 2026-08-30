@@ -69,4 +69,31 @@ describe('preserveLocalDb remigrate after additive schema', () => {
     );
     await expectNotesMatchServer(b.db, world.server.db);
   });
+
+  test('extraColumn then extraTable remigrate drops color via deprecation', async () => {
+    await using world = await openSimWorld({
+      domain: acmeDomainPack,
+      seed: 44,
+    });
+    await world.addClient({ id: 'alice' });
+    await world.node('alice').restart(acmeRestartOptsForVariant('extraColumn'));
+    await world.clients
+      .get('alice')!
+      .mutate(setNote, { id: 'n1', body: 'keep' });
+    await world.assertConverged();
+
+    await world.node('alice').restart(acmeRestartOptsForVariant('extraTable'));
+
+    const db = world.clients.get('alice')!.db;
+    const cols = await db.query(sql<{ name: string }>`
+      SELECT name FROM pragma_table_info('notes')
+    `);
+    expect(cols.some((c) => c.name === 'color')).toBe(false);
+    const tags = await db.query(sql<{ name: string }>`
+      SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'tags'
+    `);
+    expect(tags.length).toBe(1);
+    await expectLiveNote(db, 'n1', { body: 'keep' });
+    await expectNotesMatchServer(db, world.server.db);
+  });
 });

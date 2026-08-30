@@ -56,7 +56,7 @@
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",
     "@pkgs/assert": "workspace:*",
-    "@pkgs/auth-better-auth": "workspace:*",
+    "@pkgs/auth": "workspace:*",
     "@pkgs/billing": "workspace:*",
     "@pkgs/browser": "workspace:*",
     "@pkgs/clock": "workspace:*",

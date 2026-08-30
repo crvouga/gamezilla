@@ -1,5 +1,5 @@
 import { appSchema } from '@libs/runtime/root/app-schema';
-import { BetterAuthDatabaseMigration } from '@pkgs/auth-better-auth/server';
+import { AuthPostgresDatabaseMigration } from '@pkgs/auth/server';
 import {
   ComposedDatabaseMigration,
   EnsurePostgresSchemaMigration,
@@ -11,9 +11,9 @@ import { KvPostgresDatabaseMigration } from '@pkgs/kv/postgres-database-migratio
 import type { Logger } from '@pkgs/logger';
 import { OutboxDatabaseMigration } from '@pkgs/outbox';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import type { Pool } from '@pkgs/sql-client/postgres/pg-types';
 import type { PostgresDbScope } from '@pkgs/sql-client/postgres/schema';
 import { SyncEngineDatabaseMigration } from '@pkgs/sync-engine/shared';
+import { CutoverLegacyAuthToIdpMigration } from './cutover-legacy-auth-to-idp-migration';
 import { DomainSchemaNullabilityMigration } from './domain-schema-nullability-migration';
 import { HardCutoverDropLegacyTablesMigration } from './hard-cutover-drop-legacy-tables-migration';
 import { PostgresSqliteCompatMigration } from './postgres-sqlite-compat-migration';
@@ -28,13 +28,8 @@ export const POSTGRES_MIGRATE_ADVISORY_LOCK_ID = '872014001234567890';
 
 export type PostgresMigrationRunnerDeps = {
   sqlClient: SqlClient;
-  /** Pinned pool for Better Auth Kysely migrations (same TCP session). */
-  pool: Pool;
   logger: Logger;
   dbScope: PostgresDbScope;
-  /** Used as Better Auth baseURL during migrate (placeholder OK). */
-  betterAuthBaseURL: string;
-  betterAuthSecret: string;
   /**
    * When true, skip `pg_advisory_xact_lock` + outer transaction (pg-mem / single-process
    * sims cannot nest SET LOCAL with DO-block DDL on one adapter pool).
@@ -54,11 +49,8 @@ export class PostgresMigrationRunner {
   async run(): Promise<void> {
     const {
       sqlClient,
-      pool,
       logger,
       dbScope,
-      betterAuthBaseURL,
-      betterAuthSecret,
       skipAdvisoryLock = false,
       skipSqliteCompat = false,
     } = this.deps;
@@ -93,12 +85,13 @@ export class PostgresMigrationRunner {
             })
       )
       .register(
-        new BetterAuthDatabaseMigration({
-          database: { kind: 'postgres', pool },
-          secret: betterAuthSecret,
-          baseURL: betterAuthBaseURL,
+        new AuthPostgresDatabaseMigration({
+          dbScope,
+          skipAdvisoryLock: true,
+          alreadyInTransaction: false,
         })
       )
+      .register(new CutoverLegacyAuthToIdpMigration())
       .register(new PurgeClerkExternalAccountsMigration());
 
     await databaseMigration.migrate({ sqlClient, logger });
