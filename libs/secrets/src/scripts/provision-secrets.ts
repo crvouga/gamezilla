@@ -60,6 +60,36 @@ async function migrateTurboCacheInAllEnvs(): Promise<void> {
   }
 }
 
+/**
+ * IdP rename: BETTER_AUTH_SECRET → AUTH_SECRET. Copy before orphan purge
+ * drops the legacy key; leave missing envs for seedInAllEnvs.
+ */
+async function migrateAuthSecretRenameInAllEnvs(): Promise<void> {
+  const active = activeSecretsEnv();
+  const legacyName = 'BETTER_AUTH_SECRET';
+
+  for (const env of SECRETS_ENVS) {
+    const stored = await exportSecretsMap(env);
+    const current = (stored.get('AUTH_SECRET') ?? '').trim();
+    if (current.length > 0) continue;
+
+    const legacy = (stored.get(legacyName) ?? '').trim();
+    if (legacy.length === 0) continue;
+
+    try {
+      await setSecretIn(env, 'AUTH_SECRET', legacy);
+      if (env === active) {
+        process.env['AUTH_SECRET'] = legacy;
+      }
+      ok('AUTH_SECRET', `renamed from ${legacyName} in secrets env ${env}`);
+    } catch (e) {
+      console.warn(
+        `AUTH_SECRET rename (${env}) failed: ${e instanceof Error ? e.message : String(e)}`
+      );
+    }
+  }
+}
+
 async function loadSecrets(): Promise<void> {
   const results = await loadSecretsIntoEnv();
   let loaded = 0;
@@ -106,6 +136,8 @@ async function seedSecrets(): Promise<void> {
       );
     }
   }
+
+  await migrateAuthSecretRenameInAllEnvs();
 
   try {
     const seededAllEnvs = await ensureSeedInAllEnvsSecrets();
