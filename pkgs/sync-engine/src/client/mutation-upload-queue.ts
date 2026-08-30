@@ -1,6 +1,7 @@
 import { HttpNetworkError } from '@pkgs/http-client';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import { clearOptimisticRowsForMutation } from '../mutations/client/optimistic-own-rows';
 import type {
   MutationBatchResponse,
   MutationRequestItem,
@@ -120,6 +121,7 @@ async function applyUploadResult(
         await storeRejection(tx, clientId, verdict, createdAt);
       } else {
         appliedAny = true;
+        await clearOptimisticRowsForMutation(tx, verdict.mutationId);
       }
       await tx.run(sql`
         DELETE FROM sync_engine_mutations WHERE id = ${verdict.mutationId}

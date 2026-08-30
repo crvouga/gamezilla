@@ -26,9 +26,11 @@ import {
 } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import type { ReactNode } from 'react';
+import { enableFreeze } from 'react-native-screens';
 
 import { ServerStatusScreen } from '../connection/server-status-screen';
 import { AboutScreen } from '../settings/about-screen';
+import { PerformanceSettingsScreen } from '../settings/performance-screen';
 import { SettingsScreen } from '../settings/settings-screen';
 import { ThemeSettingsScreen } from '../settings/theme-screen';
 import { SyncScreen } from '../sync/sync-screen';
@@ -39,6 +41,8 @@ import AccountProvidersScreen from './screens/account-providers';
 import ProfileTabScreen from './screens/profile-tab';
 import SsoCallbackScreen from './screens/sso-callback';
 import type { RootStackParamList, TabsParamList } from './types';
+
+enableFreeze(true);
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 const Tabs = createBottomTabNavigator<TabsParamList>();
@@ -114,6 +118,10 @@ export function RootNavigator(): ReactNode {
       <RootStack.Screen name="FriendUser" component={FriendUserScreen} />
       <RootStack.Screen name="MoreIndex" component={SettingsScreen} />
       <RootStack.Screen name="MoreTheme" component={ThemeSettingsScreen} />
+      <RootStack.Screen
+        name="MorePerformance"
+        component={PerformanceSettingsScreen}
+      />
       <RootStack.Screen name="MoreAbout" component={AboutScreen} />
       <RootStack.Screen name="MoreSync" component={SyncScreen} />
       <RootStack.Screen
@@ -145,7 +153,7 @@ export function RootNavigator(): ReactNode {
       <RootStack.Screen
         name="SsoCallback"
         component={SsoCallbackScreen}
-        options={{ headerShown: false, animation: 'fade' }}
+        options={{ headerShown: false, animation: 'none' }}
       />
     </RootStack.Navigator>
   );

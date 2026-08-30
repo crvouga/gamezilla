@@ -1,11 +1,11 @@
 import { FriendLiveSpaceBadge } from '@libs/spaces/public/friend-live-space-badge';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useSyncEngine } from '@pkgs/sync-engine/client';
+import { useSyncEngineActions } from '@pkgs/sync-engine/client';
 import {
   Box,
   Button,
   ScreenBase,
-  ScreenBodyFlatList,
+  ScreenBodyLegendList,
   Text,
   useRouter,
 } from '@pkgs/ui';
@@ -31,7 +31,7 @@ function FriendsListBody(): ReactNode {
   const router = useRouter();
   const nav = useBreadcrumbNav();
   const { friends, isLoading } = useFriends();
-  const { refreshQueries } = useSyncEngine();
+  const { refreshQueries } = useSyncEngineActions();
 
   const openUser = useCallback(
     (friend: Friend) => {
@@ -56,9 +56,11 @@ function FriendsListBody(): ReactNode {
       ]}
       content={({ sx }) => (
         <Box sx={sx}>
-          <ScreenBodyFlatList
+          <ScreenBodyLegendList
             data={friends}
             keyExtractor={(item) => item.userId}
+            estimatedItemSize={72}
+            drawDistance={200}
             onRefresh={() => refreshQueries()}
             sx={{ flexGrow: 1 }}
             ListEmptyComponent={isLoading ? null : <FriendsEmptyState />}

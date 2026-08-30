@@ -106,10 +106,6 @@ function withSolidSurface(
   return {
     ...base,
     backgroundColor: surface.backgroundColor,
-    gradient: {
-      top: surface.gradientTop,
-      bottom: surface.gradientBottom,
-    },
     surfaceShadow: surface.boxShadow,
     withElevation: false,
   };

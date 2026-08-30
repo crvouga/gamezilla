@@ -7,6 +7,7 @@ import {
   Platform,
 } from 'react-native';
 
+import { startTiming } from '../../animation/run-timing';
 import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
 import type { ComponentDataSet } from '../../component-id';
 import type { SxProps } from '../../theme';
@@ -38,13 +39,12 @@ function useTooltipEnterAnim(
       return;
     }
     progress.setValue(0);
-    const animation = Animated.timing(progress, {
+    const animation = startTiming(progress, {
       toValue: 1,
       duration: ENTER_DURATION_MS,
       easing: Easing.out(Easing.cubic),
       useNativeDriver: USE_NATIVE_DRIVER,
     });
-    animation.start();
     return () => {
       animation.stop();
     };

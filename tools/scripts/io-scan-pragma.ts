@@ -56,6 +56,14 @@ const ENTRY_BASENAMES = new Set([
   'root-app.tsx',
 ]);
 
+/** Strip RN platform suffixes so `wall.web.ts` matches `wall.ts`. */
+function normalizeEntryBasename(base: string): string {
+  return base.replace(
+    /\.(web|native|ios|android|macos|windows)\.(ts|tsx|js|jsx)$/u,
+    '.$2'
+  );
+}
+
 /**
  * Structural entry shape — scripts/, known entry basenames, explorer examples,
  * and the clock barrel that re-exports wall adapters.
@@ -67,7 +75,12 @@ export function isIoCompositionEntryPath(rel: string): boolean {
   // Expo crypto wall polyfill (RNG/UUID for RN).
   if (rel === 'pkgs/polyfill/src/crypto.ts') return true;
   const base = rel.split('/').pop() ?? '';
-  if (ENTRY_BASENAMES.has(base)) return true;
+  if (
+    ENTRY_BASENAMES.has(base) ||
+    ENTRY_BASENAMES.has(normalizeEntryBasename(base))
+  ) {
+    return true;
+  }
   // SharedWorker process roots (separate JS realm; still require `@io-wall-ok`).
   if (
     base.endsWith('-shared-worker.ts') ||

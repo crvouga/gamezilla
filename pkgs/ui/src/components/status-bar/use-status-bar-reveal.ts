@@ -10,7 +10,6 @@ import {
   runOnJS,
   type SharedValue,
   useSharedValue,
-  withSpring,
 } from 'react-native-reanimated';
 
 import { createStatusBarHandlePan } from './status-bar-dismiss-gesture';
@@ -19,7 +18,6 @@ import {
   progressVelocityFromPixels,
   STATUS_BAR_COMMIT_PROGRESS,
   STATUS_BAR_COMMIT_VELOCITY,
-  STATUS_BAR_REVEAL_SPRING,
   springProgressTo,
 } from './status-bar-reveal-shared';
 
@@ -74,21 +72,15 @@ function useRevealLifecycle(onOpened: () => void, onClosed: () => void) {
     setGrabbing(false);
     setInteractive(false);
     setActive(true);
-    progress.value = withSpring(1, STATUS_BAR_REVEAL_SPRING, (finished) => {
-      if (finished) {
-        runOnJS(handleOpened)();
-      }
-    });
+    progress.value = 1;
+    handleOpened();
   }, [handleOpened, progress]);
 
   const closeAnimated = useCallback(() => {
     setGrabbing(false);
     setInteractive(false);
-    progress.value = withSpring(0, STATUS_BAR_REVEAL_SPRING, (finished) => {
-      if (finished) {
-        runOnJS(handleClosed)();
-      }
-    });
+    progress.value = 0;
+    handleClosed();
   }, [handleClosed, progress]);
 
   return {

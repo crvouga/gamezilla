@@ -2,6 +2,7 @@ import type { Clock, Timers } from '@pkgs/clock';
 import type { CreateId } from '@pkgs/uuid';
 
 import { InMemoryClientStorage } from '../../client/adapters/storage/memory';
+import { LoopbackRoomTransport } from '../../client/adapters/transport/loopback';
 import { RoomClient } from '../../client/core/room-client';
 import { createTimerScheduleStack } from '../../effects/timer-schedule-stack';
 import { InMemoryRoomStorage } from '../../server/adapters/memory';
@@ -13,8 +14,6 @@ import type {
   RoomModule,
   RoomState,
 } from '../../types';
-
-import { LoopbackRoomTransport } from './loopback-transport';
 
 export type LoopbackRoomSystem<
   S extends RoomState,

@@ -83,9 +83,6 @@ export function isLikelyOpfsPoolExhaustedError(error: unknown): boolean {
  */
 export const WEB_OPFS_SOFT_RECOVERY_KEY = 'expo-sqlite.web-soft-recovered';
 
-/** @deprecated Use {@link WEB_OPFS_SOFT_RECOVERY_KEY}. */
-export const WEB_OPFS_RECOVERY_RELOAD_KEY = WEB_OPFS_SOFT_RECOVERY_KEY;
-
 export async function sleepMs(timers: Timers, ms: number): Promise<void> {
   await new Promise<void>((resolve) => {
     timers.setTimeout(() => resolve(), ms);

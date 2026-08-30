@@ -73,12 +73,11 @@ export function SimConsoleApp(props: {
       });
     }
     return createReportApiClient({
-      basePath: ports.reportApiBasePath ?? DEFAULT_BASE_PATH,
+      basePath: DEFAULT_BASE_PATH,
       fetch: (input, init) => ports.fetch(input, init),
     });
   }, [
     ports.fetch,
-    ports.reportApiBasePath,
     ports.reportsPublicBaseUrl,
     ports.reportsStore,
     ports.timers,

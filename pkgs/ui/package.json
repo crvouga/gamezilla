@@ -18,6 +18,7 @@
     "@dicebear/collection": "catalog:",
     "@dicebear/core": "catalog:",
     "@gorhom/bottom-sheet": "catalog:",
+    "@legendapp/list": "catalog:",
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",
     "@pkgs/assert": "workspace:*",

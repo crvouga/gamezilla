@@ -29,7 +29,9 @@
         "@apps/server": "workspace:*",
         "@expo-google-fonts/nunito": "catalog:",
         "@expo/metro-runtime": "catalog:",
+        "@fontsource/nunito": "catalog:",
         "@gorhom/bottom-sheet": "catalog:",
+        "@legendapp/list": "catalog:",
         "@libs/auth": "workspace:*",
         "@libs/chess": "workspace:*",
         "@libs/client-config": "workspace:*",
@@ -51,6 +53,7 @@
         "@pkgs/async": "workspace:*",
         "@pkgs/auth-better-auth": "workspace:*",
         "@pkgs/browser": "workspace:*",
+        "@pkgs/chess-board": "workspace:*",
         "@pkgs/clock": "workspace:*",
         "@pkgs/git": "workspace:*",
         "@pkgs/http-client": "workspace:*",
@@ -114,6 +117,7 @@
         "react-native-svg": "catalog:",
         "react-native-web": "catalog:",
         "react-native-worklets": "catalog:",
+        "web-vitals": "catalog:",
         "whatwg-fetch": "catalog:",
         "workbox-window": "catalog:",
         "zod": "catalog:",
@@ -126,6 +130,7 @@
         "@types/react": "catalog:",
         "@types/react-dom": "catalog:",
         "@typescript/native": "catalog:",
+        "@welldone-software/why-did-you-render": "catalog:",
         "babel-plugin-macros": "catalog:",
         "esbuild": "catalog:",
         "react-scan": "catalog:",
@@ -1676,6 +1681,7 @@
         "@dicebear/collection": "catalog:",
         "@dicebear/core": "catalog:",
         "@gorhom/bottom-sheet": "catalog:",
+        "@legendapp/list": "catalog:",
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
         "@pkgs/assert": "workspace:*",
@@ -1812,6 +1818,7 @@
         "@shopify/react-native-skia": "catalog:",
         "better-sqlite3": "catalog:",
         "expo": "catalog:",
+        "expo-constants": "catalog:",
         "expo-crypto": "catalog:",
         "expo-secure-store": "catalog:",
         "expo-sqlite": "catalog:",
@@ -1946,10 +1953,12 @@
     "@electric-sql/pglite": "^0.4.3",
     "@expo-google-fonts/nunito": "^0.4.2",
     "@expo/metro-runtime": "~55.0.12",
+    "@fontsource/nunito": "^5.2.7",
     "@gorhom/bottom-sheet": "^5.1.6",
     "@happy-dom/global-registrator": "^20.0.0",
     "@hono/zod-validator": "^0.7.6",
     "@jest/globals": "^29.7.0",
+    "@legendapp/list": "^2.0.19",
     "@lingui/babel-plugin-lingui-macro": "5.9.5",
     "@lingui/cli": "5.9.5",
     "@lingui/conf": "5.9.5",
@@ -1979,6 +1988,7 @@
     "@types/react-dom": "~19.2.0",
     "@types/react-test-renderer": "^19.1.0",
     "@typescript/native": "npm:typescript@~7.0.2",
+    "@welldone-software/why-did-you-render": "^10.0.1",
     "babel-jest": "^29.7.0",
     "babel-plugin-macros": "^3.1.0",
     "better-auth": "1.6.26",
@@ -2053,6 +2063,7 @@
     "turbo": "^2.10.11",
     "typescript": "~6.0.3",
     "unique-names-generator": "^4.7.1",
+    "web-vitals": "^5.1.0",
     "whatwg-fetch": "^3.6.20",
     "workbox-build": "^7.4.0",
     "workbox-window": "^7.4.0",
@@ -2666,6 +2677,8 @@
 
     "@expo/xcpretty": ["@expo/xcpretty@4.4.3", "", { "dependencies": { "@babel/code-frame": "^7.20.0", "chalk": "^4.1.0", "js-yaml": "^4.1.0" }, "bin": { "excpretty": "build/cli.js" } }, "sha512-wC562eD3gS6vO2tWHToFhlFnmHKfKHgF1oyvojeSkLK/ZYop1bMU+7cOMiF9Sq70CzcsLy/EMRy/uRc76QmNRw=="],
 
+    "@fontsource/nunito": ["@fontsource/nunito@5.3.0", "", {}, "sha512-vw9TaTQJ/zpEpKrsODuPmOvaVjXgdda6B+xXA4YqjrdeJ62MLgVoDerdRXFQHyBnSCt2yQ2nHKCHPP/Pv7Xq4Q=="],
+
     "@gorhom/bottom-sheet": ["@gorhom/bottom-sheet@5.2.13", "", { "dependencies": { "@gorhom/portal": "1.0.14", "invariant": "^2.2.4" }, "peerDependencies": { "@types/react": "*", "@types/react-native": "*", "react": "*", "react-native": "*", "react-native-gesture-handler": ">=2.16.1", "react-native-reanimated": ">=3.16.0 || >=4.0.0-" }, "optionalPeers": ["@types/react", "@types/react-native"] }, "sha512-cMxyd9kIowMME9kw2wwXAuWrXUQnPkJQz7rDbOSBBomZ+PpV/C/tlO1UozBrAe2zs3tp9th3JMW21FI/y0VeuQ=="],
 
     "@gorhom/portal": ["@gorhom/portal@1.0.14", "", { "dependencies": { "nanoid": "^3.3.1" }, "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-MXyL4xvCjmgaORr/rtryDNFy3kU4qUbKlwtQqqsygd0xX3mhKjOLn6mQK8wfu0RkoE0pBE0nAasRoHua+/QZ7A=="],
@@ -2797,6 +2810,8 @@
     "@jridgewell/sourcemap-codec": ["@jridgewell/sourcemap-codec@1.5.5", "", {}, "sha512-cYQ9310grqxueWbl+WuIUIaiUaDcj7WOq5fVhEljNVgRfOUhY9fy2zTvfoqWsnebh8Sl70VScFbICvJnLKB0Og=="],
 
     "@jridgewell/trace-mapping": ["@jridgewell/trace-mapping@0.3.31", "", { "dependencies": { "@jridgewell/resolve-uri": "^3.1.0", "@jridgewell/sourcemap-codec": "^1.4.14" } }, "sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw=="],
+
+    "@legendapp/list": ["@legendapp/list@2.0.19", "", { "dependencies": { "use-sync-external-store": "^1.5.0" }, "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-zDWg8yg0smKxxk+M7gwAbZAnf5uczohPA+IjqLSkImz7+e9ytxeT0Mq35RBO9RTKODOXfV/aIgm1uqUHLBEdmg=="],
 
     "@libs/auth": ["@libs/auth@workspace:libs/auth"],
 
@@ -3373,6 +3388,8 @@
     "@ungap/structured-clone": ["@ungap/structured-clone@1.3.0", "", {}, "sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g=="],
 
     "@webgpu/types": ["@webgpu/types@0.1.21", "", {}, "sha512-pUrWq3V5PiSGFLeLxoGqReTZmiiXwY3jRkIG5sLLKjyqNxrwm/04b4nw7LSmGWJcKk59XOM/YRTUwOzo4MMlow=="],
+
+    "@welldone-software/why-did-you-render": ["@welldone-software/why-did-you-render@10.0.1", "", { "dependencies": { "lodash": "^4" }, "peerDependencies": { "react": "^19" } }, "sha512-tMgGkt30iVYeLMUKExNmtm019QgyjLtA7lwB0QAizYNEuihlCG2eoAWBBaz/bDeI7LeqAJ9msC6hY3vX+JB97g=="],
 
     "@xmldom/xmldom": ["@xmldom/xmldom@0.8.13", "", {}, "sha512-KRYzxepc14G/CEpEGc3Yn+JKaAeT63smlDr+vjB8jRfgTBBI9wRj/nkQEO+ucV8p8I9bfKLWp37uHgFrbntPvw=="],
 
@@ -5079,6 +5096,8 @@
     "watskeburt": ["watskeburt@5.0.3", "", { "bin": { "watskeburt": "dist/run-cli.js" } }, "sha512-g9CXukMjazlJJVQ3OHzXsnG25KFYgSgKMIyoJrD8ggr0DbS9UNF7OzIqWmmKKBMedkxj3T01uqEaGnn+y7QhMA=="],
 
     "wcwidth": ["wcwidth@1.0.1", "", { "dependencies": { "defaults": "^1.0.3" } }, "sha512-XHPEwS0q6TaxcvG85+8EYkbiCux2XtWG2mkc47Ng2A77BQu9+DqIOJldST4HgPkuea7dvKSj5VgX3P1d4rW8Tg=="],
+
+    "web-vitals": ["web-vitals@5.3.0", "", {}, "sha512-q6LWsLatGYZp5VGBIOvbTj6JBV2nOmC8KvWztXBmwJcfFAzhwKwbOxhUH306XY3CcaZDUlSmSuNPBsCn0bFu+g=="],
 
     "webidl-conversions": ["webidl-conversions@4.0.2", "", {}, "sha512-YQ+BmxuTgd6UXZW3+ICGfyqRyHXVlD5GtQr5+qjiNW7bF0cqrzX500HVXPBOvgXb5YnzDd+h0zqyv61KUD7+Sg=="],
 

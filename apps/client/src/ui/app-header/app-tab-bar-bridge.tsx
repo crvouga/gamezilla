@@ -1,5 +1,6 @@
 /**
  * Tab bar slot for React Navigation's `Tabs` navigator.
+ * Miniplayer only mounts on the Spaces tab.
  */
 
 import { SpaceMiniplayer } from '@libs/spaces/root/client/miniplayer/space-miniplayer';
@@ -20,6 +21,7 @@ export function AppTabBarBridge(props: BottomTabBarProps): ReactNode {
     },
     [onHeightChange]
   );
+  const onSpaces = props.state.routes[props.state.index]?.name === 'Spaces';
 
   return (
     <Box
@@ -27,7 +29,7 @@ export function AppTabBarBridge(props: BottomTabBarProps): ReactNode {
         reportLayout(e.nativeEvent.layout.height);
       }}
     >
-      <SpaceMiniplayer />
+      {onSpaces ? <SpaceMiniplayer /> : null}
       <AppTabBar {...props} />
     </Box>
   );

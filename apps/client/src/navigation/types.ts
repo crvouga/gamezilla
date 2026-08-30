@@ -10,6 +10,7 @@ export type RootStackParamList = {
   FriendUser: { userId: string };
   MoreIndex: undefined;
   MoreTheme: undefined;
+  MorePerformance: undefined;
   MoreAbout: undefined;
   MoreSync: undefined;
   MoreServerStatus: undefined;
@@ -51,6 +52,7 @@ export const appLinking: LinkingOptions<RootStackParamList> = {
       FriendUser: 'profile/user/:userId',
       MoreIndex: 'more',
       MoreTheme: 'more/theme',
+      MorePerformance: 'more/performance',
       MoreAbout: 'more/about',
       MoreSync: 'more/sync',
       MoreServerStatus: 'more/server-status',

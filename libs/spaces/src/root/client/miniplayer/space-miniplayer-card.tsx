@@ -43,7 +43,6 @@ export function SpaceMiniplayerCard({
         alignItems: 'center',
         gap: 2,
         minHeight: 72,
-        elevation: 2,
       }}
     >
       <MiniplayerOpenSpacePressable spaceId={spaceId}>

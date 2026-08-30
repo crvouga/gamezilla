@@ -94,6 +94,35 @@ describe('schema drift PBT', () => {
     { timeout: 120_000 }
   );
 
+  test('mixed extraColumn without row images converges (PBT shrink)', async () => {
+    const opened = await openPbtWorld({
+      app: acmeDstApp,
+      seed: 1,
+      knobs: {
+        rowImageFanout: false,
+        liveResendOnReconnect: false,
+        bufferOutboundLive: false,
+        clientCount: 2,
+      },
+    });
+    try {
+      await replayActionsOnWorld(acmeDstApp, opened.world, [
+        {
+          kind: 'restartWithSchema',
+          clientId: 'c0',
+          variant: 'extraColumn',
+        },
+        TRIGGER,
+        TRIGGER_C1,
+        { kind: 'idle', ms: 40 },
+        { kind: 'heal' },
+      ]);
+      await opened.world.assertConverged();
+    } finally {
+      await opened.world.dispose();
+    }
+  });
+
   test(
     'protocolCut rejects without wiping then heal converges',
     async () => {

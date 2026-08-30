@@ -86,8 +86,19 @@ export {
   type TextCasing,
   textCasingToStyle,
 } from './text-casing';
-export type { Theme, ThemeLayout, ThemeProviderProps } from './theme-context';
-export { ThemeProvider, useTheme } from './theme-context';
+export type {
+  Theme,
+  ThemeLayout,
+  ThemeLayoutValue,
+  ThemeProviderProps,
+  ThemeTokens,
+} from './theme-context';
+export {
+  ThemeProvider,
+  useTheme,
+  useThemeLayout,
+  useThemeTokens,
+} from './theme-context';
 export {
   type ThemePreference,
   ThemePreferenceProvider,

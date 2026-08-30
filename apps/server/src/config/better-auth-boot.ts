@@ -4,7 +4,6 @@ import {
   type CreateBetterAuthConfig,
 } from '@pkgs/auth-better-auth/server';
 import type { SecretStore } from '@pkgs/secret-store';
-import type { Pool } from '@pkgs/sql-client/postgres/pg-types';
 
 import { ApiSecretName } from './secret-names';
 import { resolveWebClientOrigin } from './web-client-origin';
@@ -85,15 +84,4 @@ export function betterAuthConfigForDatabase(
     trustedOrigins: boot.trustedOrigins,
     enableEmailPassword: boot.enableEmailPassword,
   };
-}
-
-/** @deprecated Prefer {@link betterAuthConfigForDatabase}. */
-export function betterAuthConfigForPool(
-  boot: BetterAuthBootConfig,
-  database: Pool
-): CreateBetterAuthConfig {
-  return betterAuthConfigForDatabase(boot, {
-    kind: 'postgres',
-    pool: database,
-  });
 }

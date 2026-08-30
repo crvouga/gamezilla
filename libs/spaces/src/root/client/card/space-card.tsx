@@ -27,7 +27,6 @@ export function SpaceCard({ spaceId }: SpaceCardProps): ReactNode {
           borderRadius: SPACE_CARD_BORDER_RADIUS,
           p: 4,
           borderWidth: current ? 2 : 0,
-          elevation: 1,
           ...(current ? { borderColor: 'onPrimary' as const } : {}),
         }}
       >

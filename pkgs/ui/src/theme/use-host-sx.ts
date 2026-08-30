@@ -10,7 +10,7 @@ import {
 } from '../component-id';
 import type { ResolvedRnStyle } from './sx';
 import type { SxInput } from './sx-props';
-import { useTheme } from './theme-context';
+import { useThemeTokens } from './theme-context';
 
 /**
  * RN Web only polyfills `box-none` / `box-only` for StyleSheet.create
@@ -76,7 +76,7 @@ export function useHostSx(
   sx: SxInput,
   dataSet?: ComponentDataSet
 ): HostSx {
-  const theme = useTheme();
+  const theme = useThemeTokens();
   const style = sx ? toRnHostStyle(theme.sx(sx)) : undefined;
   const css = COMPONENT_IDS_ENABLED && sx ? theme.css(sx) : undefined;
   return {

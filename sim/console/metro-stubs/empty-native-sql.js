@@ -1,11 +1,9 @@
 /**
- * Metro web stub for Node-only SQL engines (better-sqlite3, bun:sqlite,
+ * Metro stub for Node-only SQL engines (better-sqlite3, bun:sqlite,
  * PGlite worker host, package `@sqlite.org/sqlite-wasm`).
- * Browser playground loads WASM via `/generated/...` native ESM instead.
+ * Native playground uses the mem fabric; do not throw at module load
+ * (Hermes `import()` probes would crash `[runtime not ready]`).
  */
 'use strict';
 
-throw new Error(
-  'Native / package SQL engine is not available in the Expo web bundle. ' +
-    'Use /generated/pglite and /generated/sqlite-wasm assets instead.'
-);
+module.exports = {};

@@ -1,14 +1,14 @@
 /**
- * Run the Expo dev server pinned to a project-dedicated iOS simulator.
+ * Run the Expo dev server pinned to a type+runtime iOS simulator.
  *
  * See `ios-dedicated-sim.ts` for simulator provisioning and dev-client install.
  *
  * Extra argv (`--web`, `--tunnel`, etc.) is forwarded to `expo start`.
  *
  * Configurable via env (all optional):
- *   EXPO_DEV_SIM_NAME         default `<slug>-dev`
+ *   EXPO_DEV_SIM_NAME         default kebab-case of device type + runtime
+ *                             (e.g. `iphone-17-pro-ios-26-0`)
  *   EXPO_DEV_SIM_DEVICE_TYPE  default iPhone 17 Pro
- *   EXPO_DEV_SIM_RUNTIME      default: highest-version available iOS runtime
  *   EXPO_DEV_SIM_RUNTIME      default: highest-version available iOS runtime
  *   EXPO_METRO_PORT           default 5173
  *   EXPO_DEV_AUTO_IOS         set `0` to skip auto-opening the sim
@@ -20,7 +20,7 @@ import {
   autoOpenDedicatedSim,
   isAutoOpenIosEnabled,
   isDevServerRunning,
-  SIM_NAME,
+  resolveSimName,
 } from './ios-dedicated-sim';
 import { maybeClearMetroCache } from './metro-dev-cache';
 
@@ -119,7 +119,7 @@ async function main(): Promise<void> {
     const msg = err instanceof Error ? err.message : String(err);
     log(msg);
     log(
-      `Metro keeps running — install manually: bunx expo run:ios --device "${SIM_NAME}"`
+      `Metro keeps running — install manually: bunx expo run:ios --device "${resolveSimName()}"`
     );
   }
 

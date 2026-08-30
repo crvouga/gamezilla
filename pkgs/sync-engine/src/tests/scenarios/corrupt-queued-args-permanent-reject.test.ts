@@ -4,6 +4,7 @@ import { openSimWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   expectLiveNote,
+  expectNoteNotLive,
   expectNotesMatchServer,
   setNote,
 } from '../apps/acme';
@@ -58,4 +59,37 @@ describe('corrupt queued args permanent reject', () => {
       await expectNotesMatchServer(alice.db, world.server.db);
     }
   );
+
+  test('brand-new note with corrupt queued args tombstones after reject', async () => {
+    await using world = await openSimWorld({
+      domain: acmeDomainPack,
+      seed: 2143,
+    });
+    const alice = await world.addClient({ id: 'alice' });
+    const bob = await world.addClient({ id: 'bob' });
+
+    await alice.disconnect();
+    const pending = await alice.mutate(setNote, {
+      id: 'orphan',
+      body: 'will-reject',
+    });
+    expect(pending.ok).toBe(true);
+    if (!pending.ok) return;
+
+    await alice.db.run(
+      unsafe(
+        `UPDATE sync_engine_mutations SET args = '__not_json__' WHERE id = '${pending.mutationId}'`
+      )
+    );
+
+    await alice.connect();
+    await world.until(alice.outcome(pending.mutationId), { budgetMs: 5_000 });
+    expect(await alice.outcome(pending.mutationId)).toBe('rejected');
+
+    await bob.mutate(setNote, { id: 'ok', body: 'healthy' });
+    await world.assertConverged();
+    await expectNoteNotLive(alice.db, 'orphan');
+    await expectLiveNote(alice.db, 'ok', { body: 'healthy' });
+    await expectNotesMatchServer(alice.db, world.server.db);
+  });
 });

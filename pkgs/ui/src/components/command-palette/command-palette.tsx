@@ -9,6 +9,7 @@ import {
 } from 'react';
 import { Animated, Platform, type FlatList as RNFlatList } from 'react-native';
 
+import { startTiming } from '../../animation/run-timing';
 import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
 import type { ComponentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
@@ -57,18 +58,16 @@ function useOpenAnimation(isOpen: boolean) {
   const translateY = useRef(new Animated.Value(-8)).current;
   useEffect(() => {
     if (isOpen) {
-      Animated.parallel([
-        Animated.timing(opacity, {
-          toValue: 1,
-          duration: motionDuration.fast,
-          useNativeDriver: USE_NATIVE_DRIVER,
-        }),
-        Animated.timing(translateY, {
-          toValue: 0,
-          duration: motionDuration.fast,
-          useNativeDriver: USE_NATIVE_DRIVER,
-        }),
-      ]).start();
+      startTiming(opacity, {
+        toValue: 1,
+        duration: motionDuration.fast,
+        useNativeDriver: USE_NATIVE_DRIVER,
+      });
+      startTiming(translateY, {
+        toValue: 0,
+        duration: motionDuration.fast,
+        useNativeDriver: USE_NATIVE_DRIVER,
+      });
     } else {
       opacity.setValue(0);
       translateY.setValue(-8);

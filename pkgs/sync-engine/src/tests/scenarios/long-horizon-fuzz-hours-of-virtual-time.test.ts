@@ -1,20 +1,20 @@
 import { describe, expect, test } from 'bun:test';
 
-import { runSeed, seedsFromEnv } from '../apps/acme';
+import { runAcmeSeed, seedsFromEnv } from '../apps/acme';
 
 /** Committed corpus — modest multi-client profiles that settle reliably. */
 const CORPUS = [1, 7, 11, 17, 31, 42, 99, 404] as const;
 
 describe('long horizon fuzz hours of virtual time', () => {
   test(
-    'larger runSeed profile + corpus seeds converge',
+    'larger runAcmeSeed profile + corpus seeds converge',
     async () => {
       const fromEnv = seedsFromEnv(
         process.env as { SYNC_SIM_SEED?: string; SYNC_SIM_SEEDS?: string }
       );
       const seeds = fromEnv.length > 0 ? fromEnv : [...CORPUS];
       for (const seed of seeds) {
-        const result = await runSeed({
+        const result = await runAcmeSeed({
           seed,
           steps: 36,
           clientCount: 3,
@@ -34,7 +34,7 @@ describe('long horizon fuzz hours of virtual time', () => {
   test(
     'skew/crash-friendly mid profile still settles',
     async () => {
-      const result = await runSeed({
+      const result = await runAcmeSeed({
         seed: 909,
         steps: 48,
         clientCount: 3,

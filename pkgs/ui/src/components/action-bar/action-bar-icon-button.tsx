@@ -7,7 +7,6 @@ import {
   useState,
 } from 'react';
 import { Animated } from 'react-native';
-import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
 import type { ColorTokens } from '../../theme';
 import { useTheme } from '../../theme';
 import { AnimatedBox } from '../animated-box';
@@ -23,19 +22,6 @@ const DEFAULT_FEEDBACK_RESET_MS = 2000;
 
 function runIconScaleAnimation(scale: Animated.Value): void {
   scale.setValue(1);
-  Animated.sequence([
-    Animated.timing(scale, {
-      toValue: 1.22,
-      duration: 90,
-      useNativeDriver: USE_NATIVE_DRIVER,
-    }),
-    Animated.spring(scale, {
-      toValue: 1,
-      friction: 5,
-      tension: 280,
-      useNativeDriver: USE_NATIVE_DRIVER,
-    }),
-  ]).start();
 }
 
 function usePressFeedbackReset(

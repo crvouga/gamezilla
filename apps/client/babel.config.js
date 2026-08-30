@@ -31,7 +31,7 @@ module.exports = function (api) {
     plugins: [
       // Keep `message` on descriptors in production. Lingui's default strips it
       // to shrink the bundle; missing catalog keys then render the hashed id
-      // (`iDNBZe`) instead of English.
+      // (`iDNBZe`) instead of English. Enforced by `//#ci:i18n`.
       ['@lingui/babel-plugin-lingui-macro', { stripMessageField: false }],
       path.resolve(__dirname, '../../pkgs/babel-plugins/jsx-source-attr.cjs'),
     ],

@@ -4,14 +4,31 @@ import {
   UserSearchSignInPrompt,
   useDebouncedUserSearchEffect,
 } from '@libs/user-search/public/use-user-search';
-import { USER_SEARCH_MIN_LENGTH } from '@libs/user-search/public/user-search-types';
+import {
+  USER_SEARCH_MIN_LENGTH,
+  type UserSearchResult,
+} from '@libs/user-search/public/user-search-types';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { Box, ScreenBase, Text, TextInput } from '@pkgs/ui';
-import { type ReactNode, useCallback, useState } from 'react';
+import {
+  Box,
+  ScreenBase,
+  ScreenBodyLegendList,
+  Text,
+  TextInput,
+} from '@pkgs/ui';
+import { memo, type ReactNode, useCallback, useState } from 'react';
 
 import { SearchRecentQueries } from './search-recent-queries';
 import { SearchUserResultRow } from './search-user-result-row';
 import { useSearchHistory } from './use-search-history';
+
+const MemoSearchUserResultRow = memo(function MemoSearchUserResultRow({
+  user,
+}: {
+  user: UserSearchResult;
+}) {
+  return <SearchUserResultRow user={user} />;
+});
 
 function SearchScreenBody(): ReactNode {
   const { t } = useLingui();
@@ -33,8 +50,15 @@ function SearchScreenBody(): ReactNode {
     !signedIn && trimmed.length >= USER_SEARCH_MIN_LENGTH;
   const showResults = signedIn && trimmed.length >= USER_SEARCH_MIN_LENGTH;
 
+  const renderItem = useCallback(
+    ({ item }: { item: UserSearchResult }) => (
+      <MemoSearchUserResultRow user={item} />
+    ),
+    []
+  );
+
   return (
-    <Box sx={{ gap: 2 }}>
+    <Box sx={{ flex: 1, minHeight: 0, gap: 2 }}>
       <TextInput
         label={<Trans>Search</Trans>}
         value={query}
@@ -57,11 +81,15 @@ function SearchScreenBody(): ReactNode {
       {showResults && searching ? (
         <Text variant="body" label={t`Searching…`} />
       ) : null}
-      {showResults
-        ? results.map((user) => (
-            <SearchUserResultRow key={user.userId} user={user} />
-          ))
-        : null}
+      {showResults && !searching && results.length > 0 ? (
+        <ScreenBodyLegendList
+          data={results}
+          keyExtractor={(user) => user.userId}
+          estimatedItemSize={72}
+          drawDistance={160}
+          renderItem={renderItem}
+        />
+      ) : null}
     </Box>
   );
 }

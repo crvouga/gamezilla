@@ -24,10 +24,12 @@ import {
 } from 'react';
 import { Animated } from 'react-native';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
+import { snapAnimatedValue, startTiming } from '../../animation/run-timing';
 import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
 import type { ComponentDataSet } from '../../component-id';
 import type { SxProps } from '../../theme';
 import { useTheme } from '../../theme';
+import { duration as motionDuration } from '../../theme/motion';
 import { AnimatedBox } from '../animated-box';
 import { Box } from '../box';
 import { Button } from '../button';
@@ -41,7 +43,7 @@ function useSafeAreaInsetsCompat() {
   return useContext(SafeAreaInsetsContext) ?? ZERO_INSETS;
 }
 
-const EXIT_MS = 220;
+const EXIT_MS = motionDuration.fast;
 const DEFAULT_SLIDE = 120;
 
 export type DismissibleBannerPosition = 'top' | 'bottom';
@@ -60,30 +62,29 @@ function useBannerSlide(
   useEffect(() => {
     if (visible) {
       translateY.setValue(offscreen);
-      Animated.spring(translateY, {
-        toValue: 0,
-        friction: 9,
-        tension: 80,
-        useNativeDriver: USE_NATIVE_DRIVER,
-      }).start();
+      snapAnimatedValue(translateY, 0);
     } else {
-      Animated.timing(translateY, {
+      startTiming(translateY, {
         toValue: offscreen,
         duration: EXIT_MS,
         useNativeDriver: USE_NATIVE_DRIVER,
-      }).start();
+      });
     }
   }, [visible, layoutHeight, offscreen, translateY]);
 
   const dismiss = useCallback(() => {
     const d = sign * Math.max(layoutHeight, DEFAULT_SLIDE);
-    Animated.timing(translateY, {
-      toValue: d,
-      duration: EXIT_MS,
-      useNativeDriver: USE_NATIVE_DRIVER,
-    }).start(({ finished }) => {
-      if (finished) onDismiss();
-    });
+    startTiming(
+      translateY,
+      {
+        toValue: d,
+        duration: EXIT_MS,
+        useNativeDriver: USE_NATIVE_DRIVER,
+      },
+      ({ finished }) => {
+        if (finished) onDismiss();
+      }
+    );
   }, [layoutHeight, onDismiss, sign, translateY]);
 
   return { translateY, dismiss };

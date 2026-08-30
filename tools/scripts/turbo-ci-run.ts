@@ -1,11 +1,12 @@
 /**
  * Shared Turbo flags for CI / `check:ci*` / local `check` / `deploy`.
  *
- * - Cache is always `local:rw,remote:rw` (Vercel Remote Cache). Local disk
- *   under `.turbo` is also persisted in CI via per-job `actions/cache`.
- *   `TURBO_CACHE` may tighten local/remote modes but cannot drop `remote:`.
- * - Requires `TURBO_TOKEN` + `TURBO_TEAM` so local warms upload and CI
- *   reuses the same remote artifacts.
+ * - Cache is `local:rw,remote:rw` (Vercel Remote Cache) when `TURBO_TOKEN` +
+ *   `TURBO_TEAM` are present. Local disk under `.turbo` is also persisted in
+ *   CI via per-job `actions/cache`. `TURBO_CACHE` may tighten local/remote
+ *   modes but cannot drop `remote:` when creds are present.
+ * - CI requires `TURBO_TOKEN` + `TURBO_TEAM`. Locally, missing creds (Infisical
+ *   login/network fallback) use `local:rw` so `bun check` still runs.
  * - Disables framework inference so only explicit `turbo.json` `env` /
  *   `globalEnv` enter the hash (avoids Expo `EXPO_PUBLIC_*` skew).
  * - Unsets orphan `TURBO_API` so a leftover self-hosted origin cannot
@@ -46,6 +47,7 @@ const DEPLOY_TASK = 'deploy';
 const TURBO_CACHE_RE = /^(local|remote):(r|rw|w)?(,(local|remote):(r|rw|w)?)?$/;
 const TURBO_UI_VALUES = new Set(['tui', 'stream']);
 const DEFAULT_CACHE = 'local:rw,remote:rw';
+const LOCAL_ONLY_CACHE = 'local:rw';
 const MAX_CHECK_CONCURRENCY = 32;
 const MIN_CHECK_CONCURRENCY = 10;
 const CACHE_WORKERS = 16;
@@ -56,7 +58,7 @@ function inCi(): boolean {
   );
 }
 
-function hasRemoteCreds(env: NodeJS.ProcessEnv): boolean {
+export function hasRemoteCreds(env: NodeJS.ProcessEnv): boolean {
   const token = env['TURBO_TOKEN']?.trim();
   const team = env['TURBO_TEAM']?.trim();
   return (
@@ -72,7 +74,11 @@ function ensureRemoteCache(cache: string): string {
   return `${cache},remote:rw`;
 }
 
-function resolveCacheFlag(env: NodeJS.ProcessEnv): string {
+export function resolveCacheFlag(
+  env: NodeJS.ProcessEnv,
+  hasRemote: boolean
+): string {
+  if (!hasRemote) return LOCAL_ONLY_CACHE;
   const fromEnv = env['TURBO_CACHE']?.trim();
   if (
     fromEnv !== undefined &&
@@ -183,17 +189,49 @@ async function ensureSecretsFingerprint(
   console.log('turbo-ci-run: secrets fingerprint ready.');
 }
 
-async function main(): Promise<void> {
-  const env = turboChildEnv();
-  if (!hasRemoteCreds(env)) {
+function requireRemoteCredsInCi(hasRemote: boolean): void {
+  if (hasRemote || !inCi()) return;
+  console.error(
+    'turbo-ci-run: TURBO_TOKEN and TURBO_TEAM are required for Vercel Remote Cache. ' +
+      'Run via secrets-run / secrets-auth (Infisical) so local warms upload and CI reuses them.'
+  );
+  process.exit(1);
+}
+
+function warnLocalCacheOnly(hasRemote: boolean): void {
+  if (hasRemote) return;
+  console.warn(
+    'turbo-ci-run: TURBO_TOKEN and TURBO_TEAM missing; using local cache only. ' +
+      'Run `infisical login` so local warms upload to Vercel Remote Cache.'
+  );
+}
+
+function applyOfflineTaskArgs(
+  taskArgs: readonly string[],
+  hasRemote: boolean
+): string[] {
+  if (hasRemote) return [...taskArgs];
+  if (taskArgs.includes(DEPLOY_TASK)) {
     console.error(
-      'turbo-ci-run: TURBO_TOKEN and TURBO_TEAM are required for Vercel Remote Cache. ' +
-        'Run via secrets-run / secrets-auth (Infisical) so local warms upload and CI reuses them.'
+      'turbo-ci-run: deploy requires TURBO_TOKEN and TURBO_TEAM from Infisical. ' +
+        'Run `infisical login` then retry via secrets-run.'
     );
     process.exit(1);
   }
+  if (!taskArgs.includes(SECRETS_CHECK_TASK)) return [...taskArgs];
+  console.warn(
+    'turbo-ci-run: skipping @libs/secrets#check (Infisical unavailable).'
+  );
+  return taskArgs.filter((arg) => arg !== SECRETS_CHECK_TASK);
+}
 
-  const cache = resolveCacheFlag(env);
+async function main(): Promise<void> {
+  const env = turboChildEnv();
+  const remote = hasRemoteCreds(env);
+  requireRemoteCredsInCi(remote);
+  warnLocalCacheOnly(remote);
+
+  const cache = resolveCacheFlag(env, remote);
   const concurrency = resolveConcurrency();
   const TURBO_OUTPUT_LOGS =
     process.env['TURBO_OUTPUT_LOGS']?.trim() || 'new-only';
@@ -220,7 +258,10 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  const taskArgs = flattenCheckAggregator(rawTaskArgs);
+  const taskArgs = applyOfflineTaskArgs(
+    flattenCheckAggregator(rawTaskArgs),
+    remote
+  );
   await ensureSecretsFingerprint(env, taskArgs);
 
   const affected = resolveAffectedFilter(taskArgs);
@@ -230,7 +271,7 @@ async function main(): Promise<void> {
   console.log(
     `turbo-ci-run: cache=${cache} concurrency=${concurrency} log-order=${TURBO_LOG_ORDER}` +
       (ui !== undefined ? ` ui=${ui}` : '') +
-      ' (remote creds present)'
+      (remote ? ' (remote creds present)' : ' (local cache only)')
   );
 
   const result = spawnSync(
@@ -247,4 +288,6 @@ async function main(): Promise<void> {
   process.exit(result.status ?? 1);
 }
 
-await main();
+if (import.meta.main) {
+  await main();
+}

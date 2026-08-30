@@ -49,9 +49,6 @@ export function hashString(value: string): string {
 export function stripSnapshots(data: SimulationReportData): unknown {
   return {
     meta: data.meta,
-    steps: data.steps.map((step) => {
-      const { snapshotHtml: _html, ...rest } = step;
-      return rest;
-    }),
+    steps: data.steps,
   };
 }

@@ -7,10 +7,12 @@ import { fileURLToPath } from 'node:url';
 import { APP_IDENTITY } from '@libs/auth/public/app-identity';
 import { wallClock } from '@pkgs/clock';
 import { ensurePodsMatchNodeModules } from './ios-pods';
+import { iosSimName } from './ios-sim-name';
 
 /**
- * Shared helpers for pinning Expo iOS dev to a project-dedicated simulator
- * and opening the installed `expo-dev-client` against a running Metro server.
+ * Shared helpers for pinning Expo iOS dev to a type+runtime simulator
+ * (no product slug — reusable across projects) and opening the installed
+ * `expo-dev-client` against a running Metro server.
  */
 
 /** Must match `expo.ios.bundleIdentifier` in `apps/client/app.json`. */
@@ -20,9 +22,6 @@ const scriptDir = dirname(fileURLToPath(import.meta.url));
 const clientRoot = join(scriptDir, '..');
 const expoBin = join(clientRoot, 'node_modules', '.bin', 'expo');
 
-export const SIM_NAME = String(
-  process.env['EXPO_DEV_SIM_NAME'] ?? `${APP_IDENTITY.slug}-dev`
-);
 const SIM_DEVICE_TYPE = String(
   process.env['EXPO_DEV_SIM_DEVICE_TYPE'] ??
     'com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro'
@@ -90,32 +89,44 @@ function pickLatestIosRuntime(): string {
   return ios[0]!.identifier;
 }
 
-export function provisionDedicatedSim(): string {
-  const existing = listDevices().find((d) => d.name === SIM_NAME);
+function resolvedRuntime(): string {
+  return SIM_RUNTIME_OVERRIDE ?? pickLatestIosRuntime();
+}
+
+/** Kebab-case device type + runtime, unless `EXPO_DEV_SIM_NAME` is set. */
+export function resolveSimName(): string {
+  const override = process.env['EXPO_DEV_SIM_NAME']?.trim();
+  if (override) return override;
+  return iosSimName(SIM_DEVICE_TYPE, resolvedRuntime());
+}
+
+export function provisionDedicatedSim(): { udid: string; name: string } {
+  const name = resolveSimName();
+  const existing = listDevices().find((d) => d.name === name);
   if (existing !== undefined) {
     log(
-      `Reusing simulator "${SIM_NAME}" (${existing.udid}, state=${existing.state}).`
+      `Reusing simulator "${name}" (${existing.udid}, state=${existing.state}).`
     );
-    return existing.udid;
+    return { udid: existing.udid, name };
   }
-  const runtime = SIM_RUNTIME_OVERRIDE ?? pickLatestIosRuntime();
-  log(`Creating simulator "${SIM_NAME}" (${SIM_DEVICE_TYPE} on ${runtime})…`);
+  const runtime = resolvedRuntime();
+  log(`Creating simulator "${name}" (${SIM_DEVICE_TYPE} on ${runtime})…`);
   const udid = execFileSync(
     'xcrun',
-    ['simctl', 'create', SIM_NAME, SIM_DEVICE_TYPE, runtime],
+    ['simctl', 'create', name, SIM_DEVICE_TYPE, runtime],
     { encoding: 'utf8' }
   ).trim();
   log(`Created (${udid}).`);
-  return udid;
+  return { udid, name };
 }
 
-export function bootSimIfNeeded(udid: string): void {
+export function bootSimIfNeeded(udid: string, simName: string): void {
   const dev = listDevices().find((d) => d.udid === udid);
   if (dev?.state === 'Booted') {
-    log(`Simulator "${SIM_NAME}" already booted.`);
+    log(`Simulator "${simName}" already booted.`);
     return;
   }
-  log(`Booting simulator "${SIM_NAME}"…`);
+  log(`Booting simulator "${simName}"…`);
   try {
     execFileSync('xcrun', ['simctl', 'boot', udid], { stdio: 'inherit' });
   } catch (err: unknown) {
@@ -227,12 +238,16 @@ export function devClientDeepLink(metroUrl: string): string {
   return `${APP_IDENTITY.urlScheme}://expo-development-client/?url=${encodeURIComponent(metroUrl)}`;
 }
 
-export function openDevClientOnSim(udid: string, metroUrl: string): void {
+export function openDevClientOnSim(
+  udid: string,
+  metroUrl: string,
+  simName: string
+): void {
   const url = devClientDeepLink(metroUrl);
   execFileSync('xcrun', ['simctl', 'openurl', udid, url], {
     stdio: 'inherit',
   });
-  log(`Opened ${url} on simulator "${SIM_NAME}" (${udid}).`);
+  log(`Opened ${url} on simulator "${simName}" (${udid}).`);
 }
 
 export interface AutoOpenIosOptions {
@@ -247,7 +262,7 @@ export async function autoOpenDedicatedSim(
 ): Promise<void> {
   if (process.platform !== 'darwin') return;
 
-  const udid = provisionDedicatedSim();
+  const { udid, name } = provisionDedicatedSim();
 
   const metro = new URL(options.metroUrl);
   const timeoutMs = options.devServerTimeoutMs ?? 120_000;
@@ -256,14 +271,14 @@ export async function autoOpenDedicatedSim(
   await waitForDevServer(metro, timeoutMs, options.abort);
   if (options.abort.aborted) return;
 
-  bootSimIfNeeded(udid);
+  bootSimIfNeeded(udid, name);
   openSimulatorApp();
 
   log('Metro is up — ensuring development build is installed…');
-  ensureDevClientInstalled(udid, SIM_NAME);
+  ensureDevClientInstalled(udid, name);
 
   if (options.abort.aborted) return;
-  openDevClientOnSim(udid, metro.href);
+  openDevClientOnSim(udid, metro.href, name);
 }
 
 export function isAutoOpenIosEnabled(): boolean {

@@ -194,6 +194,4 @@ export type SimConsolePorts = {
   readonly reportsStore?: ObjectStore;
   /** Public URL base for report assets (default `/reports`). */
   readonly reportsPublicBaseUrl?: string;
-  /** @deprecated Prefer `reportsStore` for the pure client-side console. */
-  readonly reportApiBasePath?: string;
 };

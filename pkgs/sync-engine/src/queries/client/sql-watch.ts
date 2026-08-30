@@ -1,5 +1,6 @@
 import type { Sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import { startTransition } from 'react';
 
 import type { TableChangeBus } from './table-change-bus';
 
@@ -38,7 +39,8 @@ function logWatchError(error: unknown): void {
 
 /**
  * Event-driven SQL watch. Reads once immediately, then only after a relevant
- * post-commit table notification.
+ * post-commit table notification. Listener notifies run inside
+ * `startTransition` so scroll/tap paint wins over snapshot apply (INP).
  */
 export function createSqlWatch<T extends Record<string, unknown>>(args: {
   readonly db: Pick<SqlClient, 'query'>;
@@ -53,6 +55,12 @@ export function createSqlWatch<T extends Record<string, unknown>>(args: {
   let reading = false;
   let pending = false;
 
+  const notify = (): void => {
+    startTransition(() => {
+      for (const listener of listeners) listener();
+    });
+  };
+
   const refresh = async (): Promise<void> => {
     if (closed) return;
     if (reading) {
@@ -63,7 +71,7 @@ export function createSqlWatch<T extends Record<string, unknown>>(args: {
     try {
       snapshot = await args.db.query(args.query);
       hydrated = true;
-      for (const listener of listeners) listener();
+      notify();
     } finally {
       reading = false;
       if (pending) {

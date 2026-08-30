@@ -22,6 +22,11 @@ function useMoreRows(): readonly MoreRow[] {
       href: '/more/theme',
     },
     {
+      title: t`Performance`,
+      caption: t`FPS / INP monitor overlay`,
+      href: '/more/performance',
+    },
+    {
       title: t`Connection`,
       caption: t`Network reachability and API server health`,
       href: '/more/server-status',

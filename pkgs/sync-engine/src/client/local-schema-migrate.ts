@@ -52,6 +52,9 @@ const MIGRATIONS: readonly Migration[] = [
     await migrateOutbox(db);
     await ensureDomainTables(db, schema);
   },
+  async (db) => {
+    await ensureFrameworkSchema(db);
+  },
 ];
 
 function quoteIdent(value: string): string {

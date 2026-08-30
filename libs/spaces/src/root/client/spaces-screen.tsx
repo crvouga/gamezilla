@@ -1,7 +1,7 @@
 import { useIsSignedIn } from '@libs/auth/public/use-current-user';
 import { Handles } from '@libs/dst-handles';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useSyncEngine } from '@pkgs/sync-engine/client';
+import { useSyncEngineActions } from '@pkgs/sync-engine/client';
 import {
   Box,
   EmptyState,
@@ -9,10 +9,10 @@ import {
   PlusIcon,
   ScreenBase,
   type ScreenBasePrimaryAction,
-  ScreenBodyScrollView,
+  ScreenBodyLegendList,
   useRouter,
 } from '@pkgs/ui';
-import { useMemo } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 import { openSpaceDetail } from '../../public/space-routes';
 import { useCreateSpace } from '../../use-cases/create-space/client/use-create-space';
 import { useOpenSpaceSessionIds } from '../../use-cases/list-open-sessions/client/use-open-space-session-ids';
@@ -30,7 +30,16 @@ function sortCurrentSpacesFirst(
   });
 }
 
-function SpacesListBody() {
+const MemoSpaceCard = memo(function MemoSpaceCard({
+  spaceId,
+}: {
+  spaceId: string;
+}) {
+  return <SpaceCard spaceId={spaceId} />;
+});
+
+function SpacesList() {
+  const { refreshQueries } = useSyncEngineActions();
   const { spaceIds } = useJoinableLiveSpaceIds();
   const { spaceIds: openSpaceIds } = useOpenSpaceSessionIds();
   const openSet = useMemo(() => new Set(openSpaceIds), [openSpaceIds]);
@@ -38,31 +47,28 @@ function SpacesListBody() {
     () => sortCurrentSpacesFirst(spaceIds, openSet),
     [spaceIds, openSet]
   );
+
+  const renderItem = useCallback(
+    ({ item }: { item: string }) => <MemoSpaceCard spaceId={item} />,
+    []
+  );
+
   if (orderedIds.length === 0) {
     return (
       <EmptyState icon={Gamepad2Icon} title={<Trans>No shared spaces</Trans>} />
     );
   }
-  return (
-    <Box sx={{ gap: 3 }}>
-      {orderedIds.map((spaceId) => (
-        <SpaceCard key={spaceId} spaceId={spaceId} />
-      ))}
-    </Box>
-  );
-}
 
-function SpacesList() {
-  const { refreshQueries } = useSyncEngine();
   return (
-    <Box sx={{ flex: 1, gap: 2 }}>
-      <ScreenBodyScrollView
-        sx={{ paddingBottom: 24, gap: 2 }}
-        onRefresh={() => refreshQueries()}
-      >
-        <SpacesListBody />
-      </ScreenBodyScrollView>
-    </Box>
+    <ScreenBodyLegendList
+      data={orderedIds}
+      keyExtractor={(id) => id}
+      estimatedItemSize={160}
+      drawDistance={200}
+      onRefresh={() => refreshQueries()}
+      sx={{ paddingBottom: 24, gap: 3 }}
+      renderItem={renderItem}
+    />
   );
 }
 

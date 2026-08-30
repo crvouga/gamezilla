@@ -11,8 +11,8 @@ export type DeviceAvatarProps = {
   size: number;
   /**
    * Empty placeholder only: frosted light plate + light person
-   * glyph for vivid backgrounds (e.g. space card gradient), matching other
-   * white-on-gradient chrome on that surface.
+   * glyph for vivid backgrounds (e.g. space card), matching other
+   * chrome on that surface.
    */
   vividBackdrop?: boolean;
 };

@@ -117,6 +117,44 @@ describe('acme world PBT / DST', () => {
     }
   });
 
+  test('serverCrash then corruptQueuedArgs of new note still converges', async () => {
+    const opened = await openPbtWorld({
+      app: acmeDstApp,
+      seed: 65161,
+      knobs: {
+        rowImageFanout: false,
+        liveResendOnReconnect: true,
+        bufferOutboundLive: true,
+        clientCount: 2,
+      },
+    });
+    try {
+      await replayActionsOnWorld(acmeDstApp, opened.world, [
+        { kind: 'serverCrash' },
+        {
+          kind: 'domain',
+          clientId: 'c0',
+          mutation: 'setNote',
+          args: { id: 'n0', body: '', title: '' },
+        },
+        {
+          kind: 'tamperLocalStorage',
+          clientId: 'c0',
+          tamper: 'corruptQueuedArgs',
+        },
+        {
+          kind: 'domain',
+          clientId: 'c0',
+          mutation: 'setNote',
+          args: { id: 'n2', body: 'pbt', title: '' },
+        },
+      ]);
+      await opened.world.assertConverged();
+    } finally {
+      await opened.world.dispose();
+    }
+  });
+
   test('serverCrash then pending setNote drains after client crash', async () => {
     const opened = await openPbtWorld({
       app: acmeDstApp,
@@ -355,10 +393,10 @@ describe('acme world PBT / DST', () => {
   });
 
   test(
-    'runSeed is deterministic for a generated seed',
+    'runAcmeSeed is deterministic for a generated seed',
     async () => {
       await assertDstProperty(
-        'runSeed determinism',
+        'runAcmeSeed determinism',
         fc.asyncProperty(fc.integer({ min: 1, max: 10_000 }), async (seed) => {
           const a = await runAcmeSeed({
             seed,
@@ -373,16 +411,16 @@ describe('acme world PBT / DST', () => {
             sampleFaults: false,
           });
           if (!a.ok) {
-            throw new Error(`runSeed failed: ${a.error}`);
+            throw new Error(`runAcmeSeed failed: ${a.error}`);
           }
           if (!b.ok) {
-            throw new Error(`runSeed failed: ${b.error}`);
+            throw new Error(`runAcmeSeed failed: ${b.error}`);
           }
           if (a.ok !== b.ok || a.steps !== b.steps) {
-            throw new Error('runSeed not deterministic');
+            throw new Error('runAcmeSeed not deterministic');
           }
           if (a.ok && b.ok && a.seed !== b.seed) {
-            throw new Error('runSeed seed mismatch');
+            throw new Error('runAcmeSeed seed mismatch');
           }
         }),
         { numRuns: 5 }

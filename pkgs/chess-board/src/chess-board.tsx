@@ -131,7 +131,7 @@ function useChessBoardCanvasProps(
     showCoordinates = true,
     highlightLastMove = true,
     highlightLegalMoves = true,
-    animations = true,
+    animations = false,
     cellFeedback,
     cellHighlights,
     arrows,

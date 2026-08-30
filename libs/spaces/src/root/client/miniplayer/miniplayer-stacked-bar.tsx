@@ -93,7 +93,6 @@ export function MiniplayerStackedBar({
               alignItems: 'center',
               gap: 2,
               minHeight: FRONT_HEIGHT,
-              elevation: 2,
               px: 3,
             }}
           >

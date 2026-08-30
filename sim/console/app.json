@@ -6,7 +6,16 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
-    "platforms": ["web"],
+    "scheme": "gamezilla-sim",
+    "platforms": ["ios", "android", "web"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "app.gamezilla.sim",
+      "deploymentTarget": "17.0"
+    },
+    "android": {
+      "package": "app.gamezilla.sim"
+    },
     "web": {
       "output": "single"
     },

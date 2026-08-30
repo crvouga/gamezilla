@@ -38,6 +38,7 @@ export {
   SyncEngineProvider,
   useQuery,
   useSyncEngine,
+  useSyncEngineActions,
   useSyncEngineInstance,
 } from './sync-engine-context';
 export { SyncEnginePaintGateContext } from './sync-engine-paint-gate';

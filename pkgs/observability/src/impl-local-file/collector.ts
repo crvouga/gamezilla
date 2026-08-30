@@ -10,8 +10,6 @@ export type CollectorOptions = {
   readonly host?: string;
   /** Injected store for NDJSON sinks. When omitted, uses cwd/.observability tree. */
   readonly store?: ObjectStore;
-  /** @deprecated Prefer {@link CollectorOptions.store}. */
-  readonly rootDir?: string;
   readonly now: () => number;
 };
 
@@ -43,9 +41,8 @@ function isExportedSpanRecord(v: unknown): v is ExportedSpanRecord {
 
 function resolveStore(options: CollectorOptions): ObjectStore {
   if (options.store !== undefined) return options.store;
-  const rootDir = options.rootDir ?? join(process.cwd(), '.observability');
   return createNodeFsObjectStore({
-    rootDir,
+    rootDir: join(process.cwd(), '.observability'),
     fs: wallNodeFs(),
     layout: 'tree',
   });

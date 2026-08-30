@@ -48,8 +48,9 @@ export async function clearOptimisticPeerRows(
 }
 
 /**
- * Soft-delete domain rows that only arrived via optimistic peer fanout and are
- * absent from a confirming snapshot (upsert-only merge cannot remove them).
+ * Soft-delete domain rows that only arrived via optimistic fanout / own
+ * pending writes and are absent from a confirming snapshot (upsert-only
+ * merge cannot remove them).
  */
 export async function healOptimisticPeerOrphans(
   tx: SqlClient,

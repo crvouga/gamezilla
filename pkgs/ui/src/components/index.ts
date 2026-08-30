@@ -260,6 +260,7 @@ export {
   useKeyboardShortcutsEnabled,
   type WebKeyboardEventLike,
 } from './keyboard-shortcuts';
+export { LegendList, type LegendListProps } from './legend-list';
 export { List, ListItem, type ListItemProps, type ListProps } from './list';
 export { LoadingState, type LoadingStateProps } from './loading-state';
 export * from './main-menu-screen';

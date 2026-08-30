@@ -17,7 +17,6 @@ import {
 } from 'react';
 import { Animated } from 'react-native';
 
-import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
 import type { ComponentDataSet } from '../../component-id';
 import type { SxInput } from '../../theme';
 import { useTheme } from '../../theme';
@@ -56,44 +55,12 @@ function runCopyAnimation(
 ): void {
   iconScale.setValue(1);
   rowScale.setValue(1);
-  Animated.parallel([
-    Animated.sequence([
-      Animated.timing(iconScale, {
-        toValue: 1.22,
-        duration: 90,
-        useNativeDriver: USE_NATIVE_DRIVER,
-      }),
-      Animated.spring(iconScale, {
-        toValue: 1,
-        friction: 5,
-        tension: 280,
-        useNativeDriver: USE_NATIVE_DRIVER,
-      }),
-    ]),
-    Animated.sequence([
-      Animated.timing(rowScale, {
-        toValue: 1.015,
-        duration: 90,
-        useNativeDriver: USE_NATIVE_DRIVER,
-      }),
-      Animated.spring(rowScale, {
-        toValue: 1,
-        friction: 6,
-        tension: 320,
-        useNativeDriver: USE_NATIVE_DRIVER,
-      }),
-    ]),
-  ]).start();
 }
 
 function useFeedbackOpacity(copied: boolean): Animated.Value {
   const opacity = useRef(new Animated.Value(0)).current;
   useEffect(() => {
-    Animated.timing(opacity, {
-      toValue: copied ? 1 : 0,
-      duration: copied ? 160 : 180,
-      useNativeDriver: USE_NATIVE_DRIVER,
-    }).start();
+    opacity.setValue(copied ? 1 : 0);
   }, [copied, opacity]);
   return opacity;
 }

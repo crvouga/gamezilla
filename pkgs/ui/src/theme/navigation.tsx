@@ -10,12 +10,14 @@ export function useStackProps(): {
     screenOptions: {
       headerShown: false,
       contentStyle: { backgroundColor: theme.colors.background },
+      animation: 'none',
     },
   };
 }
 
 /**
  * Tint colors + scene background for the bottom-tabs navigator.
+ * Inactive tabs freeze on blur; tabs mount eagerly (no route lazy).
  */
 export function useTabsProps(): {
   screenOptions: BottomTabNavigationOptions;
@@ -24,6 +26,8 @@ export function useTabsProps(): {
   return {
     screenOptions: {
       headerShown: false,
+      lazy: false,
+      freezeOnBlur: true,
       tabBarActiveTintColor: theme.colors.tint,
       tabBarInactiveTintColor: theme.colors.tabIconDefault,
       tabBarLabelPosition: 'below-icon',

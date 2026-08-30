@@ -47,10 +47,10 @@ describe('sxToCss', () => {
     expect(out).toContain('border-bottom-width:1px');
   });
 
-  test('maps box-none pointerEvents and elevation shadow', () => {
+  test('maps box-none pointerEvents; elevation emits no boxShadow', () => {
     const out = css({ pointerEvents: 'box-none', elevation: 1 });
     expect(out).toContain('pointer-events:none');
-    expect(out).toContain('box-shadow:');
+    expect(out).not.toContain('box-shadow:');
     expect(out).not.toContain('elevation:');
   });
 

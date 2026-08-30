@@ -1,10 +1,10 @@
 /**
  * Theme context and provider.
- * Resolves `colorScheme: 'system'` via React Native appearance; exposes
- * container layout metrics on the theme so apps avoid importing RN dimension
- * hooks. Width/height come from this provider's host `onLayout` (falling back
- * to the window until the first layout) so nested roots (e.g. playground
- * panels) get correct breakpoints and modal clamps.
+ * Resolves `colorScheme: 'system'` via React Native appearance.
+ *
+ * Nuclear overhaul: tokens (colors, sx, motion, elevation) live in a
+ * separate context from layout (width/height/breakpoint) so resize /
+ * orientation does not rebuild every `useThemeTokens()` consumer.
  */
 
 import { assert } from '@pkgs/assert';
@@ -45,7 +45,8 @@ export type ThemeLayout = {
   fontScale: number;
 };
 
-export type Theme = {
+/** Stable design tokens — does not change on resize. */
+export type ThemeTokens = {
   /** RN host compiler — only host adapters and tests should call this. */
   sx: ReturnType<typeof createSx>;
   /** CSS compiler for HTML reports / `dataSet.css` capture. */
@@ -55,20 +56,27 @@ export type Theme = {
   fonts: FontStacks;
   /** Global casing for {@link Text} (overridable per node via `sx` / `style`). */
   textCasing: TextCasing;
-  layout: ThemeLayout;
-  /** Current layout bucket from container (layout) width. */
-  breakpoint: BreakpointName;
   /** Motion design tokens (durations, easings). */
   motion: Motion;
   /**
-   * Scheme-aware elevation. In light mode returns shadow only; in dark mode
-   * also returns the recommended `backgroundColor` lift so cards stay
-   * legible without relying on shadow contrast.
+   * Scheme-aware elevation. Nuclear overhaul: no boxShadow; dark mode may
+   * return a surface lift `backgroundColor` only.
    */
   elevation: (level: ElevationLevel) => ElevationStyle;
 };
 
-const ThemeContext = createContext<Theme | null>(null);
+/** Layout metrics — changes on resize / orientation. */
+export type ThemeLayoutValue = {
+  layout: ThemeLayout;
+  /** Current layout bucket from container (layout) width. */
+  breakpoint: BreakpointName;
+};
+
+/** Combined theme for backwards-compatible {@link useTheme}. */
+export type Theme = ThemeTokens & ThemeLayoutValue;
+
+const ThemeTokensContext = createContext<ThemeTokens | null>(null);
+const ThemeLayoutContext = createContext<ThemeLayoutValue | null>(null);
 
 type MeasuredSize = {
   readonly width: number;
@@ -126,7 +134,7 @@ export function ThemeProvider({
     return systemFallback;
   }, [colorSchemeProp, systemScheme, systemFallback]);
 
-  const theme = useMemo(() => {
+  const tokens = useMemo((): ThemeTokens => {
     const base = COLOR_PALETTE[resolvedScheme];
     const overrides = colorOverrides?.[resolvedScheme];
     const colors: ColorTokens = overrides ? { ...base, ...overrides } : base;
@@ -135,15 +143,6 @@ export function ThemeProvider({
       : fonts;
     const textCasing = textCasingProp ?? defaultTextCasing;
     const elevation = makeElevation(colors, resolvedScheme);
-    const width =
-      measured !== null && measured.width > 0
-        ? measured.width
-        : windowLayout.width;
-    const height =
-      measured !== null && measured.height > 0
-        ? measured.height
-        : windowLayout.height;
-
     return {
       sx: createSx(colors, {
         elevation,
@@ -154,6 +153,21 @@ export function ThemeProvider({
       colorScheme: resolvedScheme,
       fonts: mergedFonts,
       textCasing,
+      motion,
+      elevation,
+    };
+  }, [resolvedScheme, colorOverrides, fontsProp, textCasingProp]);
+
+  const layoutValue = useMemo((): ThemeLayoutValue => {
+    const width =
+      measured !== null && measured.width > 0
+        ? measured.width
+        : windowLayout.width;
+    const height =
+      measured !== null && measured.height > 0
+        ? measured.height
+        : windowLayout.height;
+    return {
       layout: {
         width,
         height,
@@ -161,14 +175,8 @@ export function ThemeProvider({
         fontScale: windowLayout.fontScale,
       },
       breakpoint: getBreakpoint(width),
-      motion,
-      elevation,
     };
   }, [
-    resolvedScheme,
-    colorOverrides,
-    fontsProp,
-    textCasingProp,
     measured,
     windowLayout.height,
     windowLayout.width,
@@ -177,11 +185,13 @@ export function ThemeProvider({
   ]);
 
   return (
-    <ThemeContext.Provider value={theme}>
-      <View style={hostStyle} onLayout={onHostLayout}>
-        {children}
-      </View>
-    </ThemeContext.Provider>
+    <ThemeTokensContext.Provider value={tokens}>
+      <ThemeLayoutContext.Provider value={layoutValue}>
+        <View style={hostStyle} onLayout={onHostLayout}>
+          {children}
+        </View>
+      </ThemeLayoutContext.Provider>
+    </ThemeTokensContext.Provider>
   );
 }
 
@@ -191,8 +201,26 @@ const hostStyle = {
   minWidth: 0,
 } as const;
 
-export function useTheme(): Theme {
-  const ctx = useContext(ThemeContext);
-  assert.defined(ctx, 'ThemeContext must be defined');
+/** Design tokens only — does not re-render on container resize. */
+export function useThemeTokens(): ThemeTokens {
+  const ctx = useContext(ThemeTokensContext);
+  assert.defined(ctx, 'ThemeTokensContext must be defined');
   return ctx;
+}
+
+/** Layout metrics — changes on resize / orientation. */
+export function useThemeLayout(): ThemeLayoutValue {
+  const ctx = useContext(ThemeLayoutContext);
+  assert.defined(ctx, 'ThemeLayoutContext must be defined');
+  return ctx;
+}
+
+/**
+ * Combined theme. Prefer {@link useThemeTokens} when layout is unused so
+ * resize does not re-render the consumer.
+ */
+export function useTheme(): Theme {
+  const tokens = useThemeTokens();
+  const layout = useThemeLayout();
+  return useMemo(() => ({ ...tokens, ...layout }), [tokens, layout]);
 }

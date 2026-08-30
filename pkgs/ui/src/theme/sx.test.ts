@@ -72,11 +72,11 @@ describe('createSx', () => {
     });
   });
 
-  test('hairline border and elevation boxShadow', () => {
+  test('hairline border and elevation has no boxShadow', () => {
     const out = sx({ borderBottomWidth: 'hairline', elevation: 2 });
     expect(typeof out['borderBottomWidth']).toBe('number');
     expect(out['borderBottomWidth']).toBeGreaterThan(0);
-    expect(typeof out['boxShadow']).toBe('string');
+    expect(out['boxShadow']).toBeUndefined();
   });
 
   test('passes through web CSS transitions', () => {

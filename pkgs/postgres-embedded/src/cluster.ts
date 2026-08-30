@@ -76,11 +76,6 @@ export function clusterLooksHealthy(): boolean {
   return true;
 }
 
-/** @deprecated use {@link clusterLooksHealthy} */
-export function clusterAlreadyInitialised(): boolean {
-  return clusterLooksHealthy();
-}
-
 export function wipeClusterData(): void {
   if (!osFs.pathExists(DATABASE_DIR)) return;
   process.stdout.write(

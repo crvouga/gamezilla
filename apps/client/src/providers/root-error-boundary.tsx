@@ -1,7 +1,7 @@
 import { useTimers } from '@pkgs/clock';
 import * as Clipboard from 'expo-clipboard';
 import { Component, type ReactNode, useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
 type Props = { children: ReactNode };
 type State = { error: Error | null };
@@ -15,6 +15,11 @@ function formatCrashText(error: Error): string {
   return stack.length > 0
     ? `${CRASH_TITLE}\n\n${message}\n\n${stack}`
     : `${CRASH_TITLE}\n\n${message}`;
+}
+
+function crashMessage(error: Error): string {
+  const message = String(error.message ?? '').trim();
+  return message.length > 0 ? message : String(error);
 }
 
 function CopyErrorButton({ error }: { error: Error }): ReactNode {
@@ -32,14 +37,12 @@ function CopyErrorButton({ error }: { error: Error }): ReactNode {
         });
       }}
       style={({ pressed }) => ({
-        alignSelf: 'flex-start',
         paddingVertical: 10,
         paddingHorizontal: 14,
         borderRadius: 8,
         borderWidth: 1,
         borderColor: '#ff8a8a',
         backgroundColor: pressed ? '#3a1a1a' : '#2a1212',
-        marginBottom: 16,
         opacity: pressed ? 0.85 : 1,
       })}
     >
@@ -68,33 +71,44 @@ export class RootErrorBoundary extends Component<Props, State> {
     const { error } = this.state;
     if (error === null) return this.props.children;
     return (
-      <ScrollView
-        style={{ flex: 1, backgroundColor: '#1b0d0d' }}
-        contentContainerStyle={{ padding: 24, paddingTop: 72 }}
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: '#1b0d0d',
+          justifyContent: 'center',
+          alignItems: 'center',
+          paddingHorizontal: 32,
+          paddingVertical: 48,
+        }}
       >
-        <View>
+        <View style={{ alignItems: 'center', maxWidth: 420, width: '100%' }}>
           <Text
+            selectable
             style={{
               color: '#ff8a8a',
               fontSize: 20,
               fontWeight: '700',
+              textAlign: 'center',
               marginBottom: 12,
             }}
           >
             {CRASH_TITLE}
           </Text>
-          <CopyErrorButton error={error} />
           <Text
             selectable
-            style={{ color: '#ffffff', fontSize: 15, marginBottom: 16 }}
+            style={{
+              color: '#cdcdcd',
+              fontSize: 15,
+              textAlign: 'center',
+              marginBottom: 20,
+              lineHeight: 22,
+            }}
           >
-            {String(error?.message ?? error)}
+            {crashMessage(error)}
           </Text>
-          <Text selectable style={{ color: '#cdcdcd', fontSize: 12 }}>
-            {String(error?.stack ?? '')}
-          </Text>
+          <CopyErrorButton error={error} />
         </View>
-      </ScrollView>
+      </View>
     );
   }
 }

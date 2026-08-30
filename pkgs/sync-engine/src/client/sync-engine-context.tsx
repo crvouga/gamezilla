@@ -48,6 +48,27 @@ export function useSyncEngineInstance(): SyncEngine {
   return engine;
 }
 
+/**
+ * Stable engine methods without status subscription — use when you only need
+ * `refreshQueries` / `db` so ping/status patches do not re-render lists.
+ */
+export function useSyncEngineActions(): Pick<
+  SyncEngine,
+  'db' | 'refreshQueries' | 'watch' | 'clearLocalData' | 'wakeUploads'
+> {
+  const engine = useSyncEngineInstance();
+  return useMemo(
+    () => ({
+      db: engine.db,
+      refreshQueries: () => engine.refreshQueries(),
+      watch: engine.watch.bind(engine),
+      clearLocalData: (options) => engine.clearLocalData(options),
+      wakeUploads: engine.wakeUploads,
+    }),
+    [engine]
+  );
+}
+
 export function useSyncEngine(): SyncEngineApi {
   const engine = useSyncEngineInstance();
   const status = useSyncExternalStore(

@@ -1,3 +1,4 @@
+// @sql-vendor-ok — local SQLite framework DDL (PRAGMA table_info for additive columns).
 import { unsafe } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
@@ -50,6 +51,7 @@ CREATE INDEX IF NOT EXISTS sync_engine_write_rejections_mutation_id_idx
 CREATE TABLE IF NOT EXISTS ${SYNC_ENGINE_OPTIMISTIC_PEER_ROWS} (
   table_name TEXT NOT NULL,
   row_id TEXT NOT NULL,
+  mutation_id TEXT,
   PRIMARY KEY (table_name, row_id)
 );
 `;
@@ -75,6 +77,23 @@ export const RETIRED_LOCAL_TABLES = [
   'inbox_schema_state',
 ] as const;
 
+async function ensureOptimisticPeerMutationIdColumn(
+  db: SqlClient
+): Promise<void> {
+  const cols = await db.query(
+    unsafe<{ name: string }>(
+      `PRAGMA table_info("${SYNC_ENGINE_OPTIMISTIC_PEER_ROWS}")`
+    )
+  );
+  if (cols.some((c) => c.name === 'mutation_id')) return;
+  if (cols.length === 0) return;
+  await db.run(
+    unsafe(
+      `ALTER TABLE ${SYNC_ENGINE_OPTIMISTIC_PEER_ROWS} ADD COLUMN mutation_id TEXT`
+    )
+  );
+}
+
 export async function ensureFrameworkSchema(db: SqlClient): Promise<void> {
   const statements = FRAMEWORK_LOCAL_DDL.split(';')
     .map((s) => s.trim())
@@ -82,4 +101,5 @@ export async function ensureFrameworkSchema(db: SqlClient): Promise<void> {
   for (const stmt of statements) {
     await db.run(unsafe(stmt));
   }
+  await ensureOptimisticPeerMutationIdColumn(db);
 }

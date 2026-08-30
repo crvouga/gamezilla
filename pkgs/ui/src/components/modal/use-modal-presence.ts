@@ -1,51 +1,21 @@
 /**
- * Keep modal chrome mounted through a short fade-out after `visible` goes false.
+ * Keep modal chrome mounted while `visible` is true.
+ * Nuclear overhaul: no exit fade — mount/unmount is instant.
  *
- * Open is synchronous (opacity jumps to 1). Enter fades stall under Jest/RNTL
- * when `requestAnimationFrame` / timer faking races with real async I/O — the
- * surface stays at opacity 0, so role queries never see modal actions. Exit
- * fade still softens dismiss.
+ * Opacity stays at 1; do not call Animated.Value.setValue during render
+ * (React 19 forbids updating Animated(View) while rendering ModalRoot).
  */
 
-import { useEffect, useRef, useState } from 'react';
+import { useRef } from 'react';
 import { Animated } from 'react-native';
 
-const FADE_MS = 200;
-
 export type ModalPresence = {
-  /** True while the surface should stay registered (including exit fade). */
+  /** True while the surface should stay registered. */
   mounted: boolean;
   opacity: Animated.Value;
 };
 
 export function useModalPresence(visible: boolean): ModalPresence {
-  const opacity = useRef(new Animated.Value(visible ? 1 : 0)).current;
-  const [mounted, setMounted] = useState(visible);
-
-  // Open synchronously so the surface registers before paint at full opacity.
-  if (visible && !mounted) {
-    setMounted(true);
-    opacity.setValue(1);
-  }
-
-  useEffect(() => {
-    if (visible) {
-      // Re-open during an in-flight exit: cancel fade-out and show immediately.
-      opacity.setValue(1);
-      return;
-    }
-    const anim = Animated.timing(opacity, {
-      toValue: 0,
-      duration: FADE_MS,
-      useNativeDriver: false,
-    });
-    anim.start(({ finished }) => {
-      if (finished) setMounted(false);
-    });
-    return () => {
-      anim.stop();
-    };
-  }, [visible, opacity]);
-
-  return { mounted: visible || mounted, opacity };
+  const opacity = useRef(new Animated.Value(1)).current;
+  return { mounted: visible, opacity };
 }

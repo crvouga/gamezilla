@@ -70,6 +70,8 @@ module.exports = {
       paths: [path.join(repoRoot, 'apps/client')],
     }),
     '^@shopify/react-native-skia$': '<rootDir>/jest-skia-mock.cjs',
+    '^@legendapp/list$': '<rootDir>/jest-legend-list-mock.cjs',
+    '^@legendapp/list/(.*)$': '<rootDir>/jest-legend-list-mock.cjs',
     '^@apps/([^/]+)$': `${repoRoot}/apps/$1/src/index.ts`,
     '^@apps/([^/]+)/(.*)$': `${repoRoot}/apps/$1/src/$2`,
     '^@sim/([^/]+)$': `${repoRoot}/sim/$1/src/index.ts`,

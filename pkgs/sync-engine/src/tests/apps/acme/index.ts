@@ -29,6 +29,11 @@ export { acmeDomainPack } from './domain-pack';
 export { acmeDstApp } from './dst-app';
 export { insertCatalogNote } from './insert-catalog-note';
 export { createSimMembershipChannels } from './membership-channels';
+export {
+  type AcmeSchemaVariant,
+  acmeRestartOptsForVariant,
+  acmeSchemaForVariant,
+} from './schema-variants';
 export { befriend } from './shared/friendship-mutations';
 export {
   acmeLocalSchemaExtraColumn,
@@ -50,11 +55,6 @@ export {
   setTag,
   tagsWorldQuery,
 } from './shared/hardening-fixtures';
-export {
-  acmeRestartOptsForVariant,
-  acmeSchemaForVariant,
-  type AcmeSchemaVariant,
-} from './schema-variants';
 export {
   createSpace,
   endSpace,
@@ -122,6 +122,3 @@ export async function runAcmeSeed(
 }
 
 export { seedsFromEnv };
-
-/** @deprecated Alias for {@link runAcmeSeed}. */
-export const runSeed = runAcmeSeed;

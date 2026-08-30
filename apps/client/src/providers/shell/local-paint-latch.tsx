@@ -1,3 +1,4 @@
+import { preloadChessBoardCanvas } from '@pkgs/chess-board/chess-board-canvas-runtime';
 import { hideSplash } from '@pkgs/ui';
 import {
   createContext,
@@ -12,13 +13,16 @@ import {
 type LocalPaintLatchValue = {
   readonly markFontsReady: () => void;
   readonly markEngineReady: () => void;
+  /** True when fonts, local engine, and Skia/chess canvas are ready. */
+  readonly bootReady: boolean;
 };
 
 const LocalPaintLatchContext = createContext<LocalPaintLatchValue | null>(null);
 
 /**
- * Holds the native splash until fonts are loaded and the identity-scoped
- * local SQLite engine is mounted. Never waits on network first-sync.
+ * Holds the native splash until fonts, the identity-scoped local SQLite
+ * engine, and eagerly warmed Skia/chess canvas assets are ready. Never waits
+ * on network first-sync.
  */
 export function LocalPaintLatchProvider({
   children,
@@ -27,6 +31,8 @@ export function LocalPaintLatchProvider({
 }): ReactNode {
   const [fontsReady, setFontsReady] = useState(false);
   const [engineReady, setEngineReady] = useState(false);
+  const [assetsReady, setAssetsReady] = useState(false);
+
   const markFontsReady = useCallback(() => {
     setFontsReady(true);
   }, []);
@@ -35,13 +41,33 @@ export function LocalPaintLatchProvider({
   }, []);
 
   useEffect(() => {
-    if (!fontsReady || !engineReady) return;
+    let cancelled = false;
+    void preloadChessBoardCanvas()
+      .catch(() => {
+        // Still release the gate — chess bootstrap remains a safety net.
+      })
+      .finally(() => {
+        if (!cancelled) setAssetsReady(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const bootReady = fontsReady && engineReady && assetsReady;
+
+  useEffect(() => {
+    if (!bootReady) return;
     void hideSplash();
-  }, [fontsReady, engineReady]);
+  }, [bootReady]);
 
   const value = useMemo(
-    (): LocalPaintLatchValue => ({ markFontsReady, markEngineReady }),
-    [markFontsReady, markEngineReady]
+    (): LocalPaintLatchValue => ({
+      markFontsReady,
+      markEngineReady,
+      bootReady,
+    }),
+    [markFontsReady, markEngineReady, bootReady]
   );
 
   return (

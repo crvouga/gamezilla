@@ -4,7 +4,6 @@ export type { ServerEnv } from './app/server-env';
 export {
   type BetterAuthBootConfig,
   betterAuthConfigForDatabase,
-  betterAuthConfigForPool,
   loadBetterAuthBootConfig,
 } from './config/better-auth-boot';
 export {

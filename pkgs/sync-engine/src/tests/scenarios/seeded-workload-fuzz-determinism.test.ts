@@ -1,11 +1,16 @@
 import { describe, expect, test } from 'bun:test';
 import { openSimWorld } from '../../sim/world';
-import { acmeDomainPack, runSeed, seedsFromEnv, setNote } from '../apps/acme';
+import {
+  acmeDomainPack,
+  runAcmeSeed,
+  seedsFromEnv,
+  setNote,
+} from '../apps/acme';
 
 describe('seeded workload fuzz determinism', () => {
-  test('same seed runSeed is deterministic', async () => {
-    const first = await runSeed({ seed: 123, steps: 12, clientCount: 2 });
-    const second = await runSeed({ seed: 123, steps: 12, clientCount: 2 });
+  test('same seed runAcmeSeed is deterministic', async () => {
+    const first = await runAcmeSeed({ seed: 123, steps: 12, clientCount: 2 });
+    const second = await runAcmeSeed({ seed: 123, steps: 12, clientCount: 2 });
     expect(first.ok).toBe(true);
     expect(second.ok).toBe(true);
     expect(first).toEqual(second);
@@ -20,7 +25,7 @@ describe('seeded workload fuzz determinism', () => {
       );
       const seeds = fromEnv.length > 0 ? fromEnv : corpus;
       for (const seed of seeds) {
-        const result = await runSeed({
+        const result = await runAcmeSeed({
           seed,
           steps: 16,
           clientCount: 2,
@@ -40,7 +45,7 @@ describe('seeded workload fuzz determinism', () => {
   test(
     'three clients with longer skew/crash workload converge',
     async () => {
-      const result = await runSeed({
+      const result = await runAcmeSeed({
         seed: 404,
         steps: 32,
         clientCount: 3,
@@ -61,7 +66,7 @@ describe('seeded workload fuzz determinism', () => {
     async () => {
       const corpus = [101, 202, 404, 505];
       for (const seed of corpus) {
-        const result = await runSeed({
+        const result = await runAcmeSeed({
           seed,
           steps: 36,
           clientCount: 3,
@@ -81,7 +86,7 @@ describe('seeded workload fuzz determinism', () => {
   test(
     'lossy faults sample still settles (best-effort)',
     async () => {
-      const result = await runSeed({
+      const result = await runAcmeSeed({
         seed: 777,
         steps: 12,
         clientCount: 2,

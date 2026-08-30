@@ -8,6 +8,7 @@ import {
   applyRowImages,
   type MergeApplierDeps,
 } from '../../client/merge';
+import { recordOptimisticOwnRows } from '../../mutations/client/optimistic-own-rows';
 import { createTableChangeBus } from '../../queries/client/table-change-bus';
 import {
   acmeLocalSchema,
@@ -231,6 +232,61 @@ describe('merge snapshot and row images unit', () => {
       SELECT id, body FROM notes ORDER BY id ASC
     `);
     expect(rows).toEqual([{ id: 'good', body: 'ok' }]);
+    await db.disconnect();
+  });
+
+  test('own optimistic insert absent from snapshot is tombstoned', async () => {
+    const { db, deps } = await openMergeDb();
+    await applyFullMerge(deps, {
+      scopeHash: 's1',
+      checkpoint: '1',
+      hash: 'h1',
+      tables: {
+        notes: [
+          {
+            id: 'n0',
+            folder_id: null,
+            title: '',
+            body: 'orphan',
+            owner_id: 'actor',
+            deleted_at: null,
+          },
+        ],
+      },
+    });
+    await recordOptimisticOwnRows(db, 'm-n0', {
+      tables: ['notes'],
+      ids: { notes: ['n0'] },
+      images: {},
+    });
+    await applyFullMerge(deps, {
+      scopeHash: 's1',
+      checkpoint: '2',
+      hash: 'h2',
+      tables: {
+        notes: [
+          {
+            id: 'n2',
+            folder_id: null,
+            title: '',
+            body: 'kept',
+            owner_id: 'actor',
+            deleted_at: null,
+          },
+        ],
+      },
+    });
+    const rows = await db.query(sql<{
+      id: string;
+      body: string;
+      deleted_at: string | null;
+    }>`
+      SELECT id, body, deleted_at FROM notes ORDER BY id ASC
+    `);
+    expect(rows).toEqual([
+      { id: 'n0', body: 'orphan', deleted_at: '2020-01-01T00:00:00.000Z' },
+      { id: 'n2', body: 'kept', deleted_at: null },
+    ]);
     await db.disconnect();
   });
 });

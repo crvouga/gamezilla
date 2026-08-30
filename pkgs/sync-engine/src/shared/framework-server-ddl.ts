@@ -59,9 +59,6 @@ CREATE TABLE IF NOT EXISTS sync_engine_topic_seq (
 );
 `;
 
-/** @deprecated Alias — sim uses the same portable DDL as production. */
-export const FRAMEWORK_SIM_SERVER_DDL = FRAMEWORK_SERVER_DDL;
-
 /** Table names owned by framework DDL (server + local). */
 export const FRAMEWORK_TABLE_NAMES = [
   SYNC_ENGINE_MUTATIONS,

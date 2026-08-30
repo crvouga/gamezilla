@@ -2,10 +2,7 @@ import { describe, expect, test } from 'bun:test';
 
 import { applyPreviewIframeSrcdoc } from './apply-preview-iframe-srcdoc';
 import { formatMsStable } from './frames';
-import {
-  PREVIEW_IN_DOM_SHELL_CSS,
-  PREVIEW_STRETCH_SHELL_CSS,
-} from './preview-frame-css';
+import { PREVIEW_IN_DOM_SHELL_CSS } from './preview-frame-css';
 import {
   isBlankSnapshotBody,
   patchPreviewHtml,
@@ -72,21 +69,6 @@ describe('prepareSnapshotHtml', () => {
 });
 
 describe('patchPreviewHtml', () => {
-  test('PREVIEW_STRETCH_SHELL_CSS fits snapshots inside the iframe viewport', () => {
-    expect(PREVIEW_STRETCH_SHELL_CSS).toContain('min(calc(100vw /');
-    expect(PREVIEW_STRETCH_SHELL_CSS).toContain('390px');
-    expect(PREVIEW_STRETCH_SHELL_CSS).toContain('844px');
-    expect(PREVIEW_STRETCH_SHELL_CSS).toContain('transform:scale(min(');
-    expect(PREVIEW_STRETCH_SHELL_CSS).toContain(
-      'transform-origin:center center'
-    );
-    expect(PREVIEW_STRETCH_SHELL_CSS).toContain('position:absolute');
-    expect(PREVIEW_STRETCH_SHELL_CSS).toContain('inset:0;margin:auto');
-    expect(PREVIEW_STRETCH_SHELL_CSS).not.toContain('translate(-50%,-50%)');
-    expect(PREVIEW_STRETCH_SHELL_CSS).not.toContain('left:0;top:0');
-    expect(PREVIEW_STRETCH_SHELL_CSS).not.toMatch(/html,body\{[^}]*\d+px/);
-  });
-
   test('PREVIEW_IN_DOM_SHELL_CSS scales with container queries', () => {
     expect(PREVIEW_IN_DOM_SHELL_CSS).toContain('container-type:size');
     expect(PREVIEW_IN_DOM_SHELL_CSS).toContain('100cqw');
@@ -111,12 +93,12 @@ describe('patchPreviewHtml', () => {
     expect(out.bodyHtml).toContain('class="rn-root"');
   });
 
-  test('injects stretch shell CSS into preview documents', () => {
+  test('injects shell CSS into preview documents', () => {
     const html = '<body><div class="rn-root">ok</div></body>';
     const out = patchPreviewHtml(html, {
-      shellCss: PREVIEW_STRETCH_SHELL_CSS,
+      shellCss: PREVIEW_IN_DOM_SHELL_CSS,
     });
-    expect(out).toContain('min(calc(100vw /');
+    expect(out).toContain('100cqw');
     expect(out).toContain('class="rn-root"');
   });
 
@@ -164,10 +146,10 @@ describe('patchPreviewHtml', () => {
       '<body><div class="rn-root">ok</div></body>',
     ].join('');
     const out = patchPreviewHtml(html, {
-      shellCss: PREVIEW_STRETCH_SHELL_CSS,
+      shellCss: PREVIEW_IN_DOM_SHELL_CSS,
     });
     expect(out).not.toContain('html,body{width:390px;height:844px;margin:0}');
-    expect(out).toContain('min(calc(100vw /');
+    expect(out).toContain('100cqw');
   });
 });
 

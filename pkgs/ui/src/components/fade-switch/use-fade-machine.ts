@@ -141,6 +141,11 @@ function runFadeKeyChange(args: KeyChangeArgs): void {
     phaseRef.current = 'out';
     setPhase('out');
     setHeld(lastStableRef.current);
+    if (FADE_MS <= 0) {
+      opacity.value = 0;
+      swapAndFadeIn();
+      return;
+    }
     opacity.value = withTiming(
       0,
       { duration: FADE_MS, easing: EASE },
@@ -160,6 +165,11 @@ function runFadeKeyChange(args: KeyChangeArgs): void {
     opacity.value = 0;
     phaseRef.current = 'in';
     setPhase('in');
+    if (FADE_MS <= 0) {
+      opacity.value = 1;
+      onFadeInDone();
+      return;
+    }
     opacity.value = withTiming(
       1,
       { duration: FADE_MS, easing: EASE },

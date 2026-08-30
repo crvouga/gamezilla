@@ -11,11 +11,7 @@ function shortId(id: string): string {
  * Always `user_<shortUserId>` (anon and signed-in share one naming scheme).
  * Web tabs share that name; OPFS exclusivity is handled by the sql-client broker.
  */
-export function resolveSqliteDbName(args: {
-  readonly userId: string;
-  /** @deprecated Ignored — kept for call-site compatibility during migration. */
-  readonly webTabSuffix?: string;
-}): string {
+export function resolveSqliteDbName(args: { readonly userId: string }): string {
   const name = `user_${shortId(args.userId)}`;
   assertDatabaseName(name);
   return name;

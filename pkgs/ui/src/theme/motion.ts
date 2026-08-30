@@ -1,24 +1,20 @@
 /**
- * Motion design tokens shared across the design system. Mirrors Material 3 /
- * the modern web baseline: short, snappy interactions; longer, decelerated
- * entrances; instant feedback for the smallest gestures.
- *
- * Durations are milliseconds. Easings are CSS `cubic-bezier()` strings --
- * usable directly with web CSS / Animated `Easing.bezier()` (split the
- * control points) / `react-native-reanimated` `withTiming`.
+ * Motion design tokens. Nuclear overhaul: all durations are 0 so the app
+ * never pays for JS-thread animations on mobile web. Keys stay for call-site
+ * compatibility; easings remain usable if a caller still builds a bezier.
  */
 
 export const duration = {
   /** Immediate ack (focus rings, pressed tints). */
-  instant: 80,
+  instant: 0,
   /** Most micro-interactions (hover, press, switch thumb). */
-  fast: 150,
+  fast: 0,
   /** Default for layout-affecting transitions (menu open, tab change). */
-  normal: 200,
+  normal: 0,
   /** Modal / overlay entrance + dismissive transitions. */
-  slow: 300,
+  slow: 0,
   /** Splash / large-area shimmer cycles. */
-  slower: 500,
+  slower: 0,
 } as const;
 
 export type DurationKey = keyof typeof duration;

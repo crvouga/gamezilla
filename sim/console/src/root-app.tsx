@@ -19,10 +19,19 @@ import {
 } from '@sim/console/console-nav/console-chrome-context';
 import { useConsoleNav } from '@sim/console/console-nav/use-console-nav';
 import { bootPlaygroundSession } from '@sim/console/playground/boot-playground';
+import { reportsPublicBaseUrl } from '@sim/console/reports-public-base';
 import { type ReactNode, useMemo } from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import {
+  initialWindowMetrics,
+  SafeAreaProvider,
+} from 'react-native-safe-area-context';
 
-const REPORTS_PUBLIC_BASE = '/reports';
 const simConsoleBottomSheetHost = createPassthroughBottomSheetHost();
+const fallbackInitialMetrics = {
+  frame: { x: 0, y: 0, width: 390, height: 844 },
+  insets: { top: 0, left: 0, right: 0, bottom: 0 },
+} as const;
 
 function ConsoleBody(): ReactNode {
   const clock = useClock();
@@ -31,16 +40,17 @@ function ConsoleBody(): ReactNode {
   const ports = useMemo((): SimConsolePorts => {
     const fetchFn = (input: RequestInfo | URL, init?: RequestInit) =>
       globalThis.fetch(input, init);
+    const reportsBase = reportsPublicBaseUrl();
     return {
       bootPlayground: bootPlaygroundSession,
       clock,
       timers,
       fetch: fetchFn,
       reportsStore: createStaticObjectStore({
-        baseUrl: REPORTS_PUBLIC_BASE,
+        baseUrl: reportsBase,
         fetch: fetchFn,
       }),
-      reportsPublicBaseUrl: REPORTS_PUBLIC_BASE,
+      reportsPublicBaseUrl: reportsBase,
     };
   }, [clock, timers]);
   return (
@@ -68,19 +78,27 @@ export function RootApp(): ReactNode {
   const createId = useMemo(() => () => crypto.randomUUID(), []);
   const random = useMemo(() => () => Math.random(), []);
   return (
-    <ClockProvider clock={wallClock} timers={wallTimers}>
-      <IdProvider createId={createId} random={random}>
-        <AppThemeRoot>
-          <ConsoleChromeProvider value={consoleNav}>
-            <Box sx={rootSx}>
-              <ConsoleBody />
-            </Box>
-          </ConsoleChromeProvider>
-        </AppThemeRoot>
-      </IdProvider>
-    </ClockProvider>
+    <GestureHandlerRootView style={gestureRootStyle}>
+      <SafeAreaProvider
+        initialMetrics={initialWindowMetrics ?? fallbackInitialMetrics}
+      >
+        <ClockProvider clock={wallClock} timers={wallTimers}>
+          <IdProvider createId={createId} random={random}>
+            <AppThemeRoot>
+              <ConsoleChromeProvider value={consoleNav}>
+                <Box sx={rootSx}>
+                  <ConsoleBody />
+                </Box>
+              </ConsoleChromeProvider>
+            </AppThemeRoot>
+          </IdProvider>
+        </ClockProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
+
+const gestureRootStyle = { flex: 1 } as const;
 
 const rootSx = {
   flex: 1,

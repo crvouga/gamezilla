@@ -296,28 +296,51 @@ const emptyNativeSqlStub = path.join(
   'metro-stubs',
   'empty-native-sql.js'
 );
+const nodeAsyncHooksStub = path.join(
+  __dirname,
+  'metro-stubs',
+  'node-async-hooks.js'
+);
+const nodeSqliteStub = path.join(__dirname, 'metro-stubs', 'node-sqlite.js');
 
 /**
- * Hermes web classic scripts cannot parse `import.meta`. PGlite's ESM build
+ * Hermes classic scripts cannot parse `import.meta`. PGlite's ESM build
  * and `@sqlite.org/sqlite-wasm` both use it. On web:
  * - resolve PGlite to the CommonJS build (no import.meta)
  * - stub Node engines + the sqlite-wasm *package* (loaded via /generated/… ESM)
+ * On native, stub Node engines so better-sqlite3 never enters the Hermes bundle.
  */
-function resolveWebSqlEngines(moduleName) {
-  if (
-    moduleName === '@electric-sql/pglite' ||
-    moduleName === '@electric-sql/pglite/dist/index.js'
-  ) {
-    // Node's require condition → dist/index.cjs (no import.meta). Do not use
-    // package.json / dist subpaths — those are blocked by "exports".
-    const filePath = require.resolve('@electric-sql/pglite', {
-      paths: [
-        path.resolve(projectRoot, 'node_modules'),
-        path.resolve(monorepoRoot, 'pkgs/sql-client/node_modules'),
-        path.resolve(monorepoRoot, 'node_modules'),
-      ],
-    });
-    return { filePath: metroResolvedPath(filePath), type: 'sourceFile' };
+function resolveUnavailableSqlEngines(moduleName, platform) {
+  if (platform === 'ios' || platform === 'android') {
+    if (moduleName === 'node:async_hooks' || moduleName === 'async_hooks') {
+      return {
+        filePath: metroResolvedPath(nodeAsyncHooksStub),
+        type: 'sourceFile',
+      };
+    }
+    if (moduleName === 'node:sqlite') {
+      return {
+        filePath: metroResolvedPath(nodeSqliteStub),
+        type: 'sourceFile',
+      };
+    }
+  }
+  if (platform === 'web') {
+    if (
+      moduleName === '@electric-sql/pglite' ||
+      moduleName === '@electric-sql/pglite/dist/index.js'
+    ) {
+      // Node's require condition → dist/index.cjs (no import.meta). Do not use
+      // package.json / dist subpaths — those are blocked by "exports".
+      const filePath = require.resolve('@electric-sql/pglite', {
+        paths: [
+          path.resolve(projectRoot, 'node_modules'),
+          path.resolve(monorepoRoot, 'pkgs/sql-client/node_modules'),
+          path.resolve(monorepoRoot, 'node_modules'),
+        ],
+      });
+      return { filePath: metroResolvedPath(filePath), type: 'sourceFile' };
+    }
   }
   if (
     moduleName === 'better-sqlite3' ||
@@ -339,10 +362,8 @@ function resolveWebSqlEngines(moduleName) {
 
 // @ts-ignore
 config.resolver.resolveRequest = (context, moduleName, platform) => {
-  if (platform === 'web') {
-    const webSql = resolveWebSqlEngines(moduleName);
-    if (webSql !== null) return webSql;
-  }
+  const sql = resolveUnavailableSqlEngines(moduleName, platform);
+  if (sql !== null) return sql;
   const matchesDedupeAlias = dedupeAliasPrefixes.some(
     (prefix) => moduleName === prefix || moduleName.startsWith(prefix + '/')
   );
@@ -509,5 +530,12 @@ config.server.enhanceMiddleware = (
     middleware(req, res, next);
   };
 };
+
+process.env.GAMEZILLA_METRO_UPSTREAM_BABEL_TRANSFORMER =
+  config.transformer.babelTransformerPath;
+config.transformer.babelTransformerPath = path.join(
+  __dirname,
+  'metro-hermes-import-comments-transformer.cjs'
+);
 
 module.exports = config;

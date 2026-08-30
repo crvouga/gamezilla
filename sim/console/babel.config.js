@@ -11,6 +11,7 @@ module.exports = function (api) {
       [
         require.resolve('expo/internal/babel-preset'),
         {
+          unstable_transformImportMeta: true,
           web: {
             enableBabelRuntime: false,
             // Hermes classic scripts cannot parse `import.meta` (PGlite CJS

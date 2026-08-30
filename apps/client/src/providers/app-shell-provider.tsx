@@ -5,6 +5,7 @@ import { AudioPlaybackProvider } from '@pkgs/sounds/audio-playback/audio-playbac
 import { ComposeProviders, SpinnerProvider } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
+import { PerfRoot } from '../perf/perf-root';
 import { AppFontsProvider } from './shell/fonts';
 import { AppGestureHandler } from './shell/gesture-handler';
 import { AppI18n } from './shell/i18n';
@@ -33,6 +34,9 @@ export function AppShellProvider({
               AppFontsProvider,
               ({ children: inner }: { children: ReactNode }) => (
                 <KvProvider kv={env.kv}>{inner}</KvProvider>
+              ),
+              ({ children: inner }: { children: ReactNode }) => (
+                <PerfRoot>{inner}</PerfRoot>
               ),
               AppSoundsProvider,
               AppTheme,

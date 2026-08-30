@@ -5,11 +5,11 @@
 
 import type { Clock } from '@pkgs/clock';
 import type { SimCheckpointSqlFormat } from '@pkgs/sim-console/shared/sim-checkpoint';
-import { openSimPostgresMemFromSeed } from '@pkgs/sql-client/postgres/boot-sim-postgres-mem';
 import {
   adaptPostgresMemAsPool,
   SqlClientImplPostgresMem,
 } from '@pkgs/sql-client/postgres/impl-postgres-mem';
+import { openSimPostgresMemFromSeed } from '@pkgs/sql-client/postgres/open-sim-postgres-mem-from-seed';
 import type { Pool } from '@pkgs/sql-client/postgres/pg-types';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres/schema';
 import { SqlClientImplSqliteMem } from '@pkgs/sql-client/sqlite/impl-sqlite-mem';

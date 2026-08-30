@@ -23,9 +23,6 @@ export const DEFAULT_FILE_SINK_LIMITS: Omit<FileSinkOptions, 'now' | 'store'> =
     maxAgeMs: 72 * 60 * 60 * 1000,
   };
 
-/** @deprecated Use {@link DEFAULT_FILE_SINK_LIMITS} + an injected ObjectStore. */
-export const DEFAULT_FILE_SINK_OPTIONS = DEFAULT_FILE_SINK_LIMITS;
-
 type ActiveFile = {
   readonly key: string;
   bytes: number;

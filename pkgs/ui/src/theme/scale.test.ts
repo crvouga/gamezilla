@@ -4,23 +4,6 @@ import { borderRadius, type ElevationLevel, makeElevation } from './scale';
 
 const LEVELS: ReadonlyArray<ElevationLevel> = [0, 1, 2, 3, 4, 5];
 
-function extractAlphas(boxShadow: string | undefined): number[] {
-  if (!boxShadow) return [];
-  const out: number[] = [];
-  const re =
-    /(?:rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+|hsla\(\s*[\d.]+\s*,\s*[\d.]+%\s*,\s*[\d.]+%)\s*,\s*([\d.]+)\s*\)/g;
-  let m: RegExpExecArray | null;
-  while ((m = re.exec(boxShadow)) !== null) {
-    out.push(Number(m[1]));
-  }
-  return out;
-}
-
-function maxAlpha(boxShadow: string | undefined): number {
-  const alphas = extractAlphas(boxShadow);
-  return alphas.length > 0 ? Math.max(...alphas) : 0;
-}
-
 describe('borderRadius scale', () => {
   test('keys form an ascending scale', () => {
     expect(borderRadius.none).toBe(0);
@@ -42,32 +25,13 @@ describe('makeElevation', () => {
     expect(darkElev(0)).toEqual({});
   });
 
-  test('levels 1-5 return boxShadow + android elevation', () => {
+  test('levels 1-5 never emit boxShadow or android elevation', () => {
     for (const level of LEVELS) {
       if (level === 0) continue;
-      const light = lightElev(level);
-      expect(typeof light.boxShadow).toBe('string');
-      expect((light.boxShadow as string).length).toBeGreaterThan(0);
-      expect(typeof light.elevation).toBe('number');
-      expect(light.elevation as number).toBeGreaterThan(0);
-    }
-  });
-
-  test('android elevation is monotonically increasing across levels', () => {
-    let prev = -1;
-    for (const level of LEVELS) {
-      const cur = lightElev(level).elevation ?? 0;
-      expect(cur).toBeGreaterThanOrEqual(prev);
-      prev = cur;
-    }
-  });
-
-  test('shadow alpha is monotonically increasing across levels', () => {
-    let prev = -1;
-    for (const level of LEVELS) {
-      const cur = maxAlpha(lightElev(level).boxShadow);
-      expect(cur).toBeGreaterThanOrEqual(prev);
-      prev = cur;
+      expect(lightElev(level).boxShadow).toBeUndefined();
+      expect(lightElev(level).elevation).toBeUndefined();
+      expect(darkElev(level).boxShadow).toBeUndefined();
+      expect(darkElev(level).elevation).toBeUndefined();
     }
   });
 

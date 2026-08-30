@@ -20,7 +20,6 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Animated } from 'react-native';
-import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
 import type { ComponentDataSet } from '../../component-id';
 import { borderRadius } from '../../theme/scale';
 import { AnimatedBox } from '../animated-box';
@@ -58,23 +57,10 @@ function useSegmentIndicator(
   targetX: number,
   segmentWidth: number
 ) {
-  const hasMeasuredRef = useRef(false);
   useEffect(() => {
     if (segmentWidth <= 0) return;
-    if (!hasMeasuredRef.current) {
-      translateX.setValue(targetX);
-      hasMeasuredRef.current = true;
-      return;
-    }
-    const animation = Animated.spring(translateX, {
-      toValue: targetX,
-      useNativeDriver: USE_NATIVE_DRIVER,
-      stiffness: 260,
-      damping: 28,
-      mass: 1,
-    });
-    animation.start();
-    return () => animation.stop();
+    // Nuclear overhaul: snap — no spring.
+    translateX.setValue(targetX);
   }, [targetX, segmentWidth, translateX]);
 }
 

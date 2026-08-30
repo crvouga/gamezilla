@@ -1,6 +1,6 @@
 // @io-wall-ok
 /**
- * Foreground entry for `@sim/console` `dev`: Expo web only (pure client-side).
+ * Foreground entry for `@sim/console` `dev`: Expo (web + iOS/Android Expo Go).
  */
 
 import { type ChildProcess, spawn } from 'node:child_process';

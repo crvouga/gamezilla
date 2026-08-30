@@ -41,8 +41,6 @@ export type SimNetwork = {
   readonly healAll: () => void;
   /** World default fault profile (fallback when no per-node override). */
   readonly setDefaultFaults: (faults: SimFaultOptions) => void;
-  /** @deprecated Prefer {@link setDefaultFaults} / per-node world.setFaults. */
-  readonly setFaults: (faults: SimFaultOptions) => void;
   readonly faults: () => SimFaultOptions;
   readonly hold: (nodeId: string, traffic: SimTraffic) => void;
   readonly release: (nodeId: string, traffic: SimTraffic) => void;
@@ -111,9 +109,6 @@ export function createSimNetwork(args: {
       state.partitioned.clear();
     },
     setDefaultFaults(next) {
-      state.defaultFaults = next;
-    },
-    setFaults(next) {
       state.defaultFaults = next;
     },
     faults: () => state.defaultFaults,

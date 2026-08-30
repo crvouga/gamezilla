@@ -1,3 +1,4 @@
+import { startTransition } from 'react';
 import type { SharedValue } from 'react-native-reanimated';
 import type { DropOutcome } from './chess-board-drop-handler';
 import { squarePieceCenter } from './chess-board-geometry';
@@ -19,8 +20,12 @@ export type PanEndDeps = {
   legalMarkersOpacity: SharedValue<number>;
 };
 
+/**
+ * Defer React commit off the pointer-up stack so INP paints first.
+ * Prefer `startTransition` over a bare rAF so React can interrupt for input.
+ */
 function scheduleAfterPointer(fn: () => void): void {
-  requestAnimationFrame(fn);
+  startTransition(fn);
 }
 
 function cancelPan(deps: PanEndDeps): false {
@@ -52,7 +57,7 @@ function scheduleAppliedCommit(
   });
 }
 
-/** Sync pointer-up work: rules + SharedValue snap. React/UI deferred to rAF. */
+/** Sync pointer-up work: rules + SharedValue snap. React/UI deferred. */
 export function runPanEnd(
   deps: PanEndDeps,
   from: Square,

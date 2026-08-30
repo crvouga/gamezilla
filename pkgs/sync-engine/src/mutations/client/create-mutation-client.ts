@@ -16,6 +16,7 @@ import type {
   MutationRegistry,
 } from '../core/types';
 import { wrapMutationDb } from '../shared/wrap-mutation-db';
+import { recordOptimisticOwnRows } from './optimistic-own-rows';
 
 export type MutationClientIds = {
   readonly clientId: string;
@@ -105,6 +106,7 @@ export function createMutationClient(
               ${createdAt}
             )
           `);
+          await recordOptimisticOwnRows(txc, mutationId, capture);
         });
         options.onQueued?.({
           mutation: m as Mutation<unknown>,

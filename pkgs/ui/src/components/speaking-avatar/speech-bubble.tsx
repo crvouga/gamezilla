@@ -28,6 +28,7 @@
 
 import { type ReactNode, useEffect, useRef } from 'react';
 import { Animated, Easing } from 'react-native';
+import { startTiming } from '../../animation/run-timing';
 import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
 import { useTheme } from '../../theme';
 import { duration } from '../../theme/motion';
@@ -83,13 +84,12 @@ function useBubbleEnterAnim(text: string): {
   const progress = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     progress.setValue(0);
-    const animation = Animated.timing(progress, {
+    const animation = startTiming(progress, {
       toValue: 1,
       duration: ENTER_DURATION_MS,
       easing: Easing.out(Easing.cubic),
       useNativeDriver: USE_NATIVE_DRIVER,
     });
-    animation.start();
     return () => {
       animation.stop();
     };

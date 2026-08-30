@@ -12,6 +12,7 @@ import { AppShellProvider } from './app-shell-provider';
 import { AppSpaceRoomsProvider } from './app-space-rooms-provider';
 import { AppUiProvider } from './app-ui-provider';
 import { EmbeddedAppProvider } from './embedded-app-context';
+import { BootPaintGate } from './shell/boot-paint-gate';
 import { AppStatusBarRegistry } from './ui/status-bar-registry';
 
 void preventSplashAutoHide();
@@ -55,7 +56,9 @@ export function AppProviders({
   return (
     <EmbeddedAppProvider embedded={embedded}>
       {USE_REACT_SCAN_DEV ? <ReactScanDev /> : null}
-      <ComposeProviders providers={appProviders}>{children}</ComposeProviders>
+      <ComposeProviders providers={appProviders}>
+        <BootPaintGate>{children}</BootPaintGate>
+      </ComposeProviders>
     </EmbeddedAppProvider>
   );
 }

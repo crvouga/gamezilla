@@ -21,7 +21,7 @@ import { registerPieceLayout } from './chess-board-piece-layout-registry';
 
 export const PIECE_DRAW_SCALE = 1.06;
 /** Piece slide duration; keep capture ghost + capture SFX aligned with this. */
-export const CHESS_PIECE_MOVE_MS = 200;
+export const CHESS_PIECE_MOVE_MS = 0;
 /**
  * Local Y (fraction of pieceSize from top) pinned to the pointer tip while
  * dragging. Lower → piece sits lower on the tip. Cburnett feet sit well above
@@ -140,7 +140,8 @@ function usePieceLayoutMotion(args: LayoutArgs): void {
     }
     // Already snapped via layout registry on drop — skip redundant withTiming.
     if (topLeftX.value === nextX && topLeftY.value === nextY) return;
-    if (!animations) {
+    // Nuclear overhaul: never call withTiming(duration: 0) — can overflow on web.
+    if (!animations || MOVE_MS <= 0) {
       topLeftX.value = nextX;
       topLeftY.value = nextY;
       return;
@@ -226,7 +227,7 @@ function ChessBoardPieceSkiaImpl(props: ChessBoardPieceSkiaProps): ReactNode {
     pieceSize,
     targetCenterX,
     targetCenterY,
-    animations = true,
+    animations = false,
     hideWhileDragging = false,
     pieceKey,
     drag,

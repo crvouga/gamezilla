@@ -1,6 +1,7 @@
 import { AccountCommand } from './account-command';
 import { AppearanceCommands } from './appearance-commands';
 import { NavigationCommands } from './navigation-commands';
+import { PerformanceCommands } from './performance-commands';
 import { SpaceCommands } from './space-commands';
 import { UiComponentsCommands } from './ui-components-commands';
 import { WipeLocalDatabaseCommand } from './wipe-local-database-command';
@@ -15,6 +16,7 @@ export function AppCommands() {
       <SpaceCommands />
       <UiComponentsCommands />
       <AppearanceCommands />
+      <PerformanceCommands />
       <WipeLocalDatabaseCommand />
       <AccountCommand />
     </>

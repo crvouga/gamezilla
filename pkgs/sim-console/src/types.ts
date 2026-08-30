@@ -156,8 +156,6 @@ export type SimulationStep = {
   readonly endedAtMs: number;
   readonly durationMs: number;
   readonly error?: string;
-  /** @deprecated Prefer `frames`; retained only briefly during capture. */
-  readonly snapshotHtml?: string;
   /** Last / primary frame path (back-compat with older report consumers). */
   readonly snapshotFile?: string;
   readonly frames?: readonly SimulationFrame[];
