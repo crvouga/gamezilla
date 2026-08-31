@@ -1,4 +1,3 @@
-import { HttpNetworkError } from '@pkgs/http-client';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { QueryRequestItem } from '../protocol';
 import type { QueryRegistry, QueryResponse } from '../queries/core/types';
@@ -8,24 +7,20 @@ import {
   type AppLifecycleEvent,
   alwaysOnLifecycle,
 } from './app-lifecycle';
-import { computeLocalScopeHash } from './local-scope-hash';
-import { applyFullMerge, detachScope, type MergeApplierDeps } from './merge';
+import { detachScope, type MergeApplierDeps } from './merge';
 import type { Timers } from './sim-ports';
-import { loadScopeBasis, requestCacheKeys } from './subscription-cache-keys';
 import {
   QUERY_COALESCE_MS,
   QUERY_RECONCILE_INTERVAL_MS,
 } from './subscription-constants';
+import {
+  runSubscriptionSweep,
+  type SubscriptionSweepContext,
+  type SweepEntry,
+} from './subscription-runtime-sweep';
 
 /** Host/port alias of protocol {@link QueryRequestItem}. */
 export type QueryRequest = QueryRequestItem;
-
-function isHttpNetworkError(error: unknown): boolean {
-  return (
-    error instanceof HttpNetworkError ||
-    (error instanceof Error && error.name === 'HttpNetworkError')
-  );
-}
 
 export type QuerySubscriptionSpec = {
   readonly name: string;
@@ -43,16 +38,7 @@ export type ActiveSubscription = {
   readonly params: Readonly<Record<string, unknown>>;
 };
 
-type Entry = {
-  readonly spec: QuerySubscriptionSpec;
-  readonly scope: string;
-  firstSync: Promise<void>;
-  resolveFirst: () => void;
-  firstDone: boolean;
-  refs: number;
-  generation: number;
-  stopped: boolean;
-};
+type Entry = SweepEntry;
 
 /** `'all'` = every active scope; otherwise a scope subset. */
 type PendingSweep = 'all' | Set<string>;
@@ -93,12 +79,6 @@ function createEntry(spec: QuerySubscriptionSpec): Entry {
     generation: 0,
     stopped: false,
   };
-}
-
-function markFirst(entry: Entry): void {
-  if (entry.firstDone) return;
-  entry.firstDone = true;
-  entry.resolveFirst();
 }
 
 function resetFirst(entry: Entry): void {
@@ -161,6 +141,22 @@ export class SubscriptionRuntime {
     this.foregrounded = this.lifecycle.isForeground();
   }
 
+  private sweepContext(): SubscriptionSweepContext {
+    return {
+      db: this.options.db,
+      postQueries: this.options.postQueries,
+      getMergeDeps: this.options.getMergeDeps,
+      ...(this.options.queryRegistry !== undefined
+        ? { queryRegistry: this.options.queryRegistry }
+        : {}),
+      onError: this.options.onError,
+      onSynced: this.options.onSynced,
+      ensureBusWatch: () => this.ensureBusWatch(),
+      cleanScopes: this.cleanScopes,
+      isRunning: () => this.running,
+    };
+  }
+
   start(): void {
     if (this.running) return;
     this.running = true;
@@ -183,8 +179,9 @@ export class SubscriptionRuntime {
       this.disposeBus = this.options.getMergeDeps().bus.subscribe(() => {
         this.cleanScopes.clear();
       });
-    } catch {
-      // Host stubbed getMergeDeps — skip dirty tracking until a real merge deps exists.
+    } catch (error) {
+      // Host stubbed getMergeDeps — skip dirty tracking until merge deps exist.
+      this.options.onError(error);
     }
   }
 
@@ -230,10 +227,6 @@ export class SubscriptionRuntime {
    */
   bumpGenerations(): void {
     for (const entry of this.entries.values()) entry.generation += 1;
-    // Mutation ack intentionally invalidates in-flight sweeps. If first-sync
-    // gates are still open, re-enqueue those scopes — otherwise waitForFirstSync
-    // hangs forever when a topic-filtered wake omits a stale scope (playground
-    // snapshot mutation replay during boot).
     const needFirst = [...this.entries.values()]
       .filter((e) => !e.firstDone && !e.stopped && e.refs > 0)
       .map((e) => e.scope);
@@ -384,13 +377,13 @@ export class SubscriptionRuntime {
       void Promise.resolve().then(() => {
         if (this.coalesceTimer !== 'microtask') return;
         this.coalesceTimer = null;
-        void this.flushPending();
+        void this.flushPending().catch(this.options.onError);
       });
       return;
     }
     this.coalesceTimer = this.timers.setTimeout(() => {
       this.coalesceTimer = null;
-      void this.flushPending();
+      void this.flushPending().catch(this.options.onError);
     }, this.coalesceMs);
   }
 
@@ -416,7 +409,12 @@ export class SubscriptionRuntime {
     }
     this.inFlight = true;
     try {
-      await this.sweepEntries(active);
+      await runSubscriptionSweep(this.sweepContext(), active);
+      if (this.running) {
+        this.afterSweep?.(active.map((e) => e.scope));
+      }
+    } catch (error) {
+      this.options.onError(error);
     } finally {
       this.inFlight = false;
       resolveWaiters(this.inFlightDrain);
@@ -427,149 +425,6 @@ export class SubscriptionRuntime {
 
   private listSweepEntries(): Entry[] {
     return [...this.entries.values()].filter((e) => !e.stopped && e.refs > 0);
-  }
-
-  private async sweepEntries(active: readonly Entry[]): Promise<void> {
-    if (active.length === 0) return;
-    for (const entry of active) entry.generation += 1;
-    const gens = new Map(active.map((e) => [e.scope, e.generation]));
-    try {
-      const requests = await this.buildRequests(active);
-      if (!this.running) return;
-      const responses = await this.options.postQueries(requests);
-      if (!this.running) return;
-      await this.applySweepResponses({ active, gens, responses });
-      if (!this.running) return;
-      this.afterSweep?.(active.map((e) => e.scope));
-    } catch (error) {
-      if (isHttpNetworkError(error)) {
-        this.markFirstOnNetworkError(active, gens);
-      }
-      this.options.onError(error);
-    }
-  }
-
-  /** Offline / connection-refused: unblock waitForFirstSync; later wakes retry. */
-  private markFirstOnNetworkError(
-    active: readonly Entry[],
-    gens: Map<string, number>
-  ): void {
-    for (const entry of active) {
-      if (gens.get(entry.scope) !== entry.generation) continue;
-      if (!this.running || entry.stopped) continue;
-      markFirst(entry);
-    }
-  }
-
-  private async buildRequests(
-    active: readonly Entry[]
-  ): Promise<QueryRequest[]> {
-    this.ensureBusWatch();
-    const requests: QueryRequest[] = [];
-    for (const entry of active) {
-      const cache = await requestCacheKeys({
-        db: this.options.db,
-        entry,
-        queryRegistry: this.options.queryRegistry,
-        getMergeDeps: this.options.getMergeDeps,
-        scopeClean: this.cleanScopes.has(entry.scope),
-      });
-      requests.push({
-        name: entry.spec.name,
-        params: entry.spec.params,
-        ...cache,
-      });
-    }
-    return requests;
-  }
-
-  private async applySweepResponses(args: {
-    readonly active: readonly Entry[];
-    readonly gens: Map<string, number>;
-    readonly responses: readonly QueryResponse[];
-  }): Promise<void> {
-    const newlyClean: string[] = [];
-    for (let i = 0; i < args.active.length; i += 1) {
-      const entry = args.active[i]!;
-      const response = args.responses[i];
-      if (response === undefined) continue;
-      if (args.gens.get(entry.scope) !== entry.generation) continue;
-      if (!this.running || entry.stopped) continue;
-      const clean = await this.handleResponse(entry, response);
-      if (clean) newlyClean.push(entry.scope);
-    }
-    // Re-mark after the sweep: each applyFullMerge emits the bus and clears
-    // cleanScopes, so we defer until all scopes in this batch are done.
-    for (const scope of newlyClean) this.cleanScopes.add(scope);
-  }
-
-  /** @returns true when local content now matches stored last_hash. */
-  private async handleResponse(
-    entry: Entry,
-    response: QueryResponse
-  ): Promise<boolean> {
-    if (response.status === 'denied') {
-      await detachScope(this.options.getMergeDeps(), entry.scope);
-      entry.stopped = true;
-      markFirst(entry);
-      return false;
-    }
-    if (response.status === 'not_modified') {
-      const healed = await this.healNotModifiedIfDrifted(entry, response);
-      if (healed) return true;
-      markFirst(entry);
-      this.options.onSynced();
-      return true;
-    }
-    await applyFullMerge(this.options.getMergeDeps(), {
-      scopeHash: entry.scope,
-      checkpoint: response.checkpoint,
-      hash: response.hash,
-      tables: response.tables,
-    });
-    markFirst(entry);
-    this.options.onSynced();
-    return true;
-  }
-
-  /**
-   * Scope meta can outlive tampered local rows. If the server says
-   * `not_modified` but local content no longer matches `last_hash`, refetch.
-   */
-  private async healNotModifiedIfDrifted(
-    entry: Entry,
-    response: QueryResponse
-  ): Promise<boolean> {
-    if (response.status !== 'not_modified') return false;
-    const basis = await loadScopeBasis(this.options.db, entry.scope);
-    if (basis.last_hash === null) return false;
-
-    const query = this.options.queryRegistry?.[entry.spec.name];
-    if (query === undefined) return false;
-
-    const mergeDeps = this.options.getMergeDeps();
-    const localHash = await computeLocalScopeHash({
-      db: this.options.db,
-      query,
-      params: entry.spec.params,
-      env: mergeDeps.env,
-    });
-    if (localHash === basis.last_hash) return false;
-
-    const [full] = await this.options.postQueries([
-      { name: entry.spec.name, params: entry.spec.params },
-    ]);
-    if (full === undefined || full.status !== 'ok') return false;
-
-    await applyFullMerge(mergeDeps, {
-      scopeHash: entry.scope,
-      checkpoint: full.checkpoint,
-      hash: full.hash,
-      tables: full.tables,
-    });
-    markFirst(entry);
-    this.options.onSynced();
-    return true;
   }
 
   private emitSubscriptionsChange(): void {

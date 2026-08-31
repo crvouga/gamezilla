@@ -1,16 +1,19 @@
 // @io-wall-ok
 
-import { execFileSync, spawnSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 import { APP_IDENTITY } from '@libs/auth/public/app-identity';
 import { wallClock } from '@pkgs/clock';
-import { simSpecById } from '../../../tools/scripts/sims/sim-spec';
 import {
-  findDeviceByName,
-  listDevices,
-} from '../../../tools/scripts/sims/simctl';
+  bootSimIfNeeded,
+  isAppInstalled,
+  openSimulatorApp,
+  openUrlOnSim,
+} from '../../../tools/scripts/sims/sim-runtime';
+import { simSpecById } from '../../../tools/scripts/sims/sim-spec';
+import { findDeviceByName } from '../../../tools/scripts/sims/simctl';
 import { ensurePodsMatchNodeModules } from './ios-pods';
 
 /**
@@ -48,29 +51,6 @@ export function resolveDedicatedSim(): { udid: string; name: string } {
     `Using simulator "${spec.name}" (${existing.udid}, state=${existing.state}).`
   );
   return { udid: existing.udid, name: spec.name };
-}
-
-export function bootSimIfNeeded(udid: string, simName: string): void {
-  const dev = listDevices().find((d) => d.udid === udid);
-  if (dev?.state === 'Booted') {
-    log(`Simulator "${simName}" already booted.`);
-    return;
-  }
-  log(`Booting simulator "${simName}"…`);
-  try {
-    execFileSync('xcrun', ['simctl', 'boot', udid], { stdio: 'inherit' });
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
-    if (!/Booted/i.test(msg)) throw err;
-  }
-}
-
-export function openSimulatorApp(): void {
-  try {
-    execFileSync('open', ['-a', 'Simulator'], { stdio: 'inherit' });
-  } catch {
-    // Non-fatal — Simulator.app may already be running.
-  }
 }
 
 async function pingDevServer(url: URL, signal: AbortSignal): Promise<boolean> {
@@ -116,19 +96,6 @@ export async function waitForDevServer(
   );
 }
 
-export function isDevClientInstalled(udid: string): boolean {
-  try {
-    execFileSync(
-      'xcrun',
-      ['simctl', 'get_app_container', udid, DEV_CLIENT_BUNDLE_ID],
-      { stdio: 'pipe' }
-    );
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 export function installDevClientOnSim(simName: string): void {
   ensurePodsMatchNodeModules(clientRoot);
   log(
@@ -151,12 +118,12 @@ export function installDevClientOnSim(simName: string): void {
 }
 
 export function ensureDevClientInstalled(udid: string, simName: string): void {
-  if (isDevClientInstalled(udid)) {
+  if (isAppInstalled(udid, DEV_CLIENT_BUNDLE_ID)) {
     log(`Development build already installed on "${simName}".`);
     return;
   }
   installDevClientOnSim(simName);
-  if (!isDevClientInstalled(udid)) {
+  if (!isAppInstalled(udid, DEV_CLIENT_BUNDLE_ID)) {
     throw new Error(
       `Development build (${DEV_CLIENT_BUNDLE_ID}) still missing after expo run:ios.`
     );
@@ -174,9 +141,7 @@ export function openDevClientOnSim(
   simName: string
 ): void {
   const url = devClientDeepLink(metroUrl);
-  execFileSync('xcrun', ['simctl', 'openurl', udid, url], {
-    stdio: 'inherit',
-  });
+  openUrlOnSim(udid, url);
   log(`Opened ${url} on simulator "${simName}" (${udid}).`);
 }
 
@@ -201,7 +166,7 @@ export async function autoOpenDedicatedSim(
   await waitForDevServer(metro, timeoutMs, options.abort);
   if (options.abort.aborted) return;
 
-  bootSimIfNeeded(udid, name);
+  bootSimIfNeeded(udid, name, log);
   openSimulatorApp();
 
   log('Metro is up — ensuring development build is installed…');

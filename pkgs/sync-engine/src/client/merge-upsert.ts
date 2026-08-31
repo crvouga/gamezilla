@@ -159,7 +159,7 @@ export async function upsertRowsIntersect(args: {
     const id = row['id'];
     if (!isValidRowId(id)) {
       if (args.skipInvalidIds === true) continue;
-      throw new Error(`${table}: row id required`);
+      assert.fail(`${table}: row id required`);
     }
     const filled = withManagedDefaults(row, localCols, env);
     const cols = intersectCols(filled, localCols);

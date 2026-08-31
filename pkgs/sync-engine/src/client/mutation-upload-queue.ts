@@ -1,5 +1,6 @@
+import { assert } from '@pkgs/assert';
 import { HttpNetworkError } from '@pkgs/http-client';
-import { sql } from '@pkgs/sql';
+import { join, sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { clearOptimisticRowsForMutation } from '../mutations/client/optimistic-own-rows';
 import type {
@@ -14,6 +15,7 @@ import type { Timers } from './sim-ports';
 import { parseRateLimitRetryMs } from './sync-http-rate-limit-error';
 
 const BATCH_LIMIT = MAX_MUTATIONS_BATCH;
+const MAX_SQLITE_VARS = 999;
 /** Fallback poll when nothing is pending; wakes interrupt this wait. */
 const IDLE_DELAY_MS = 100;
 const ERROR_DELAY_MS = 2_000;
@@ -112,9 +114,24 @@ async function storeRejection(
  */
 async function applyUploadResult(
   options: MutationUploadQueueOptions,
+  pending: readonly StoredMutation[],
   result: MutationUploadResult,
   now: () => number
 ): Promise<void> {
+  if (result.verdicts.length !== pending.length) {
+    throw new Error(
+      `mutation upload verdict count mismatch: ${result.verdicts.length} verdicts for ${pending.length} pending`
+    );
+  }
+  const pendingIds = new Set(pending.map((row) => row.id));
+  for (const verdict of result.verdicts) {
+    if (!pendingIds.has(verdict.mutationId)) {
+      throw new Error(
+        `mutation upload verdict id not pending: ${verdict.mutationId}`
+      );
+    }
+  }
+
   const clientId = options.clientId();
   const createdAt = new Date(now()).toISOString();
   let appliedAny = false;
@@ -126,8 +143,14 @@ async function applyUploadResult(
         appliedAny = true;
         await clearOptimisticRowsForMutation(tx, verdict.mutationId);
       }
+    }
+    const ids = result.verdicts.map((v) => v.mutationId);
+    const maxIds = Math.max(1, MAX_SQLITE_VARS);
+    for (let offset = 0; offset < ids.length; offset += maxIds) {
+      const chunk = ids.slice(offset, offset + maxIds);
       await tx.run(sql`
-        DELETE FROM sync_engine_mutations WHERE id = ${verdict.mutationId}
+        DELETE FROM sync_engine_mutations
+        WHERE id IN (${join(chunk.map((id) => sql`${id}`))})
       `);
     }
   });
@@ -258,6 +281,10 @@ export class MutationUploadQueue {
 
   private async drainOnce(): Promise<boolean> {
     const pending = await readPending(this.options.db, this.options.clientId());
+    assert.ok(
+      pending.length <= BATCH_LIMIT,
+      'pending mutation batch read bound'
+    );
     if (!this.running || pending.length === 0) return false;
     await this.options.waitUntilAvailable?.(this.availabilityAbort?.signal);
     if (!this.running) return false;
@@ -266,13 +293,15 @@ export class MutationUploadQueue {
       this.availabilityAbort?.signal ?? null
     );
     if (result === null || !this.running) return false;
-    await applyUploadResult(this.options, result, this.now);
+    await applyUploadResult(this.options, pending, result, this.now);
     this.errorAttempts = 0;
     return true;
   }
 
   private async runLoop(): Promise<void> {
+    // Event loop: terminates when `stop()` clears `running`.
     while (this.running) {
+      assert.ok(this.running, 'upload queue event loop');
       try {
         // Consume the wake that started this attempt so a pre-drain wake
         // cannot skip the error backoff after a failed postBatch.

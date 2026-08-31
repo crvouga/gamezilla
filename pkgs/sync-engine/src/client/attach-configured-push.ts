@@ -129,12 +129,12 @@ function abandonPushAttach(state: PushAttachState): void {
   try {
     state.disposePush?.();
   } catch {
-    // ignore
+    // dispose during teardown — pubsub already torn down (operating).
   }
   try {
     state.pushPubSub?.close();
   } catch {
-    // ignore
+    // close during teardown — already closed (operating).
   }
   state.disposePush = null;
   state.pushPubSub = null;

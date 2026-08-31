@@ -1,3 +1,4 @@
+import { assert } from '@pkgs/assert';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { Hono } from 'hono';
 
@@ -69,6 +70,11 @@ export function mountQueryRoutes(
     for (const item of parsed.queries) {
       responses.push(await runOne(runDeps, item));
     }
+    assert.equals(
+      responses.length,
+      parsed.queries.length,
+      'query batch response count'
+    );
     return c.json({ responses }, 200);
   });
 }

@@ -36,10 +36,10 @@ describe('SubscriptionRuntime first sync', () => {
     });
     const runtime = new SubscriptionRuntime({
       db: stubDb(),
-      postQueries: async () => {
+      postQueries: async (requests) => {
         markStarted();
         await sweepGate;
-        return [];
+        return requests.map(() => ({ status: 'not_modified' as const }));
       },
       timers,
       coalesceMs: 0,

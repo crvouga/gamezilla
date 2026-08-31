@@ -61,7 +61,7 @@ function enforceReadSql(query: Sql<unknown>, limit: number): Sql<QueryRow> {
     return query as Sql<QueryRow>;
   }
   if (classified.hasDeletedAtPredicate) {
-    throw new Error(
+    assert.fail(
       'defineQuery.run must not filter on deleted_at (tombstones must sync)'
     );
   }
@@ -71,7 +71,7 @@ function enforceReadSql(query: Sql<unknown>, limit: number): Sql<QueryRow> {
     next = sql<QueryRow>`SELECT *, deleted_at FROM (${query}) AS _sync_q`;
   }
   if (classified.hasLimit) {
-    throw new Error(
+    assert.fail(
       'defineQuery.run must not include inline LIMIT; use the query limit field'
     );
   }
@@ -105,27 +105,38 @@ async function runDefinedQuery(
 
   const limit = def.limit ?? DEFAULT_QUERY_LIMIT;
 
-  const ctx = {
+  const env = {
+    actorId: deps.auth.actorId,
+    deviceId: deps.auth.deviceId,
+    accountId: deps.auth.accountId,
+    isAnon: deps.auth.isAnon,
+    now: deps.auth.now,
+  };
+
+  const runCtx = {
     db: {
       query: async (query: Sql<unknown>) => {
         const enforced = enforceReadSql(query, limit);
         return deps.db.query(enforced as Sql<Record<string, unknown>>);
       },
     },
-    env: {
-      actorId: deps.auth.actorId,
-      deviceId: deps.auth.deviceId,
-      accountId: deps.auth.accountId,
-      isAnon: deps.auth.isAnon,
-      now: deps.auth.now,
+    env,
+  };
+
+  // authorize may use auth-scoped reads (including deleted_at filters).
+  const authCtx = {
+    db: {
+      query: (query: Sql<unknown>) =>
+        deps.db.query(query as Sql<Record<string, unknown>>),
     },
+    env,
   };
 
   // Default deny-anon unless allowAnon or custom authorize.
   if (def.authorize !== undefined) {
     let ok: boolean;
     try {
-      ok = await def.authorize(ctx, params);
+      ok = await def.authorize(authCtx, params);
     } catch {
       return { status: 'denied' };
     }
@@ -134,7 +145,7 @@ async function runDefinedQuery(
     return { status: 'denied' };
   }
 
-  const tables = await def.run(ctx, params);
+  const tables = await def.run(runCtx, params);
   let total = 0;
   for (const rows of Object.values(tables)) {
     total += rows.length;

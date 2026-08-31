@@ -1,3 +1,5 @@
+import { MAX_MUTATIONS_BATCH, MAX_QUERY_BATCH } from '../protocol';
+
 export type QueryBatchItem = {
   readonly name: string;
   readonly params: unknown;
@@ -55,7 +57,11 @@ function parseQueryItem(value: unknown): QueryBatchItem | null {
 export function parseQueryBatchBody(value: unknown): QueryBatchBody | null {
   if (!isPlainObject(value)) return null;
   const queries = value['queries'];
-  if (!Array.isArray(queries) || queries.length < 1 || queries.length > 64) {
+  if (
+    !Array.isArray(queries) ||
+    queries.length < 1 ||
+    queries.length > MAX_QUERY_BATCH
+  ) {
     return null;
   }
   const items: QueryBatchItem[] = [];
@@ -84,16 +90,14 @@ function parseMutationItem(value: unknown): MutationBatchItem | null {
   return { id, name, args, clientId, seq, createdAt };
 }
 
-/**
- * Parse POST /mutations body. Returns null on invalid shape.
- * Batch size limits are enforced by the route (413).
- */
+/** Parse POST /mutations body. Returns null on invalid shape or oversize batch. */
 export function parseMutationsBatchBody(
   value: unknown
 ): MutationsBatchBody | null {
   if (!isPlainObject(value)) return null;
   const mutations = value['mutations'];
   if (!Array.isArray(mutations)) return null;
+  if (mutations.length > MAX_MUTATIONS_BATCH) return null;
   const items: MutationBatchItem[] = [];
   for (const m of mutations) {
     const item = parseMutationItem(m);

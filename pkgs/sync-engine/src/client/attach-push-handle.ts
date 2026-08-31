@@ -10,6 +10,7 @@ import {
   type PushBag,
   parsePush,
 } from './attach-push-bag';
+import { rowsWithinReceiveCap } from './attach-push-rows-cap';
 import { applyRowImages } from './merge';
 import {
   compareCheckpoint,
@@ -27,12 +28,14 @@ async function tryApplyOptimisticRows(
   if (bag.options.rowImageFanout !== true || payload.rows === undefined) {
     return true;
   }
+  const capped = rowsWithinReceiveCap(payload.rows);
+  if (capped === undefined) return true;
   const getMergeDeps = bag.options.getMergeDeps;
   if (getMergeDeps === undefined) return true;
   try {
     const rows = await dropRegressiveProfileImages(
       bag.options.db,
-      payload.rows as Record<string, readonly QueryRow[]>
+      capped as Record<string, readonly QueryRow[]>
     );
     if (Object.keys(rows).length === 0) return true;
     await applyRowImages(getMergeDeps(), rows, { optimistic: true });
@@ -86,6 +89,8 @@ async function tryApplyFanoutRows(
 ): Promise<boolean> {
   if (bag.options.rowImageFanout !== true) return false;
   if (payload.rows === undefined) return false;
+  const capped = rowsWithinReceiveCap(payload.rows);
+  if (capped === undefined) return false;
   const getMergeDeps = bag.options.getMergeDeps;
   if (getMergeDeps === undefined) return false;
 
@@ -95,7 +100,7 @@ async function tryApplyFanoutRows(
   try {
     await applyRowImages(
       getMergeDeps(),
-      payload.rows as Record<string, readonly QueryRow[]>
+      capped as Record<string, readonly QueryRow[]>
     );
     await recordPushApplied(bag.options.db, topic, payload.pushSeq);
     return true;
@@ -119,10 +124,12 @@ async function tryApplyExactEcho(
   ) {
     return false;
   }
+  const capped = rowsWithinReceiveCap(payload.rows);
+  if (capped === undefined) return false;
   try {
     await applyRowImages(
       bag.options.getMergeDeps(),
-      payload.rows as Record<string, readonly QueryRow[]>
+      capped as Record<string, readonly QueryRow[]>
     );
     return true;
   } catch (error) {

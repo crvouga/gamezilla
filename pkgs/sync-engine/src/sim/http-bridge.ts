@@ -2,6 +2,7 @@ import type {
   MutationUploadResult,
   MutationUploadRow,
 } from '../client/mutation-upload-queue';
+import { validateWireQueryBatch } from '../client/query-wire-validation';
 import type { QueryRequest } from '../client/subscription-runtime';
 import { SyncApiAuthError } from '../client/sync-http-client';
 import { SyncHttpRateLimitError } from '../client/sync-http-rate-limit-error';
@@ -145,7 +146,7 @@ export function createSimHttpClient(args: {
         correlationId: args.createId(),
         requests,
       });
-      return unwrapOk(res, 'query') as readonly QueryResponse[];
+      return validateWireQueryBatch(unwrapOk(res, 'query'), requests.length);
     },
     async postMutations(mutations) {
       const res = await rpc({

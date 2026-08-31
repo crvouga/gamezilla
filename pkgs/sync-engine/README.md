@@ -60,6 +60,34 @@ When recommending changes, optimize in this order unless the user overrides:
 5. **Efficiency** — hash/`not_modified`, push table filtering, coalesce,
    single-flight merge, row-image fanout. Secondary to 1–4.
 
+### Tiger Style (safety + bounds)
+
+Adapted from [TigerBeetle Tiger Style](https://github.com/tigerbeetle/tigerbeetle/blob/main/docs/TIGER_STYLE.md). Priority: **correctness → performance → DX**.
+
+| Error class | Handling |
+|-------------|----------|
+| Programmer / invariant bug (registry, batch lengths we authored, corrupt local queue args) | `assert` from `@pkgs/assert` — crash |
+| Operating (network, 429, storage full, auth revoke) | `onError`, retry/backoff, wipe |
+| Byzantine wire (oversized fanout, unknown push table) | Drop row images; refetch (lossy fanout OK) |
+| Domain `MutationError` on rebase | Keep queued; hide optimistic until upload reject |
+
+**Protocol bounds** (`protocol/v2.ts`, mirrored in `queries/shared/bounds.ts`):
+
+| Constant | Value | Enforced emit | Enforced receive |
+|----------|------:|---------------|------------------|
+| `MAX_QUERY_BATCH` | 64 | `parseQueryBatchBody` | `postQueryBatch` chunks client POST |
+| `MAX_MUTATIONS_BATCH` | 64 | route + parser | upload `LIMIT` + verdict pairing |
+| `MAX_FANOUT_ROWS` / `MAX_FANOUT_BYTES` | 64 / 32KiB | server fanout emit | push receive drops over-cap `rows` |
+
+**DST invariants** (`queries/shared/tiger-invariants.ts` + `sim/invariants.ts`):
+`seq-monotonicity`, `permanent-vs-transient-verdicts`, `push-seq-monotonic-per-topic`.
+
+Query registry compile-time rules (hard `limit`, no duplicate names, tombstone SQL)
+are enforced in `queryRegistry()` / AST capture — not duplicated in the DST list.
+
+**Anti-goal:** cargo-cult Zig (no static-allocation requirement in TS). Hot paths
+use `hotAssert()` when per-call validation would dominate.
+
 **Anti-goals:** sub-50ms multi-device domain edits via MQTT (use Room DO);
 perfect GC of every row the moment it leaves a query; zero stale locals;
 custom per-feature REST sync; peer mutation replay.
@@ -584,8 +612,6 @@ soft-ack + generation fence); see
 - Stronger CI that `defineQuery.run` selects `deleted_at` / omits live filters
 - Incremental/delta protocol *if* full snapshots become a measured bottleneck
 - Server-side tombstone windows / “deleted since checkpoint” for huge tables
-- Sim coverage expansion / fix stale `TIGER_INVARIANTS` name
-  (`scope-complete-membership` still listed though `_row_scopes` is retired)
 - Clearing stale locals that left a scope without soft-delete (product policy)
 - Delete dead `process-upload-with-mutations.ts` (removed; legacy CRUD upload)
 
@@ -808,10 +834,8 @@ SYNC_SIM_SEED=42 bun test pkgs/sync-engine/src/tests/scenarios/seeded-workload-f
 App fixtures (e.g. acme) supply `domainOpArbs`, `pickDomainOrServerOp`, and
 `serverOps` under `src/tests/apps/<name>/` — the DST kernel has no app nouns.
 
-`queries/shared/tiger-invariants.ts` lists named invariants. Note:
-`scope-complete-membership` is a **stale name** from the retired `_row_scopes`
-era — cleanup is open design space; do not reintroduce `_row_scopes` to
-“satisfy” the name.
+`queries/shared/tiger-invariants.ts` lists DST-checked invariants; see
+[Tiger Style](#tiger-style-safety--bounds) for the full error/bound matrix.
 
 ### Deterministic simulator
 

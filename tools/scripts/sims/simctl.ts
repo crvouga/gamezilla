@@ -2,6 +2,7 @@
 
 import { execFileSync } from 'node:child_process';
 import { reconcileAction } from './reconcile-sim';
+import { isProjectSimName } from './sim-project';
 import type { SimSpecEntry } from './sim-spec';
 
 export type SimDeviceRecord = {
@@ -114,6 +115,10 @@ export function assertSimSpecPrerequisites(
 
 export function findDeviceByName(name: string): SimDeviceRecord | undefined {
   return listDevices().find((device) => device.name === name);
+}
+
+export function listProjectDevices(): SimDeviceRecord[] {
+  return listDevices().filter((device) => isProjectSimName(device.name));
 }
 
 export function createDevice(

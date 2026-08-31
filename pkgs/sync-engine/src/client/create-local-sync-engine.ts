@@ -1,3 +1,4 @@
+import { assert } from '@pkgs/assert';
 import type { PubSub } from '@pkgs/pubsub/interface';
 import type { Sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
@@ -142,8 +143,7 @@ type LocalEngineState = {
 type LocalEngineStateRef = { current: LocalEngineState | null };
 
 function readState(ref: LocalEngineStateRef): LocalEngineState {
-  if (ref.current === null)
-    throw new Error('Local sync engine not initialized');
+  assert.defined(ref.current, 'Local sync engine not initialized');
   return ref.current;
 }
 
@@ -163,9 +163,11 @@ function mergeDeps(state: LocalEngineState) {
 
 function handleError(state: LocalEngineState, error: unknown): void {
   if (state.options.isAuthRevoked(error)) {
-    state.revokePromise ??= revokeDatabase(state).finally(() => {
-      state.revokePromise = null;
-    });
+    state.revokePromise ??= revokeDatabase(state)
+      .catch((error) => handleError(state, error))
+      .finally(() => {
+        state.revokePromise = null;
+      });
     void state.revokePromise;
     return;
   }
@@ -270,7 +272,7 @@ function flushOutboundLive(state: LocalEngineState): void {
   const pubsub = state.pushPubSub;
   const buf = state.outboundLive;
   if (pubsub === null || buf === null) return;
-  void buf.flush(pubsub);
+  void buf.flush(pubsub).catch((error) => handleError(state, error));
 }
 
 function detachPush(state: LocalEngineState): void {
@@ -297,15 +299,19 @@ function notifyLocalMutation(
   };
   const pubsub = state.pushPubSub;
   if (pubsub !== null && pubsub.status() === 'connected') {
-    void publishOptimisticFanout({ pubsub, ...fanoutArgs });
+    void publishOptimisticFanout({ pubsub, ...fanoutArgs }).catch((error) =>
+      handleError(state, error)
+    );
     return;
   }
   if (state.outboundLive === null) return;
-  void buildOptimisticFanout(fanoutArgs).then((items) => {
-    if (items.length === 0) return;
-    state.outboundLive?.enqueue(items);
-    flushOutboundLive(state);
-  });
+  void buildOptimisticFanout(fanoutArgs)
+    .then((items) => {
+      if (items.length === 0) return;
+      state.outboundLive?.enqueue(items);
+      flushOutboundLive(state);
+    })
+    .catch((error) => handleError(state, error));
 }
 
 async function connectState(state: LocalEngineState): Promise<void> {
@@ -404,7 +410,9 @@ function toEngine(state: LocalEngineState): SyncEngine {
       notifyLocalMutation(state, mutation, args, capture),
     ensurePush: () => {
       if (!state.connected) return;
-      void attachPushIfConfigured(state, () => mergeDeps(state));
+      void attachPushIfConfigured(state, () => mergeDeps(state)).catch(
+        (error) => handleError(state, error)
+      );
     },
   };
 }

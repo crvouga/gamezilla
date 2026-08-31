@@ -109,7 +109,10 @@ function clearTopicState(bag: PushBag): void {
 
 function subscribeTopic(bag: PushBag, topic: Topic): void {
   const unsub = bag.pubsub.subscribe(topic, (data) => {
-    void handlePush(bag, topic, data);
+    void handlePush(bag, topic, data).catch((error) => {
+      if (bag.disposed) return;
+      warnPush('[push] handlePush failed', topic, error);
+    });
   });
   bag.topicUnsubs.set(topic, unsub);
 }
@@ -228,7 +231,10 @@ function disposeBag(bag: PushBag): void {
 export function attachPush(options: AttachPushOptions): () => void {
   const bag = createPushBag(options);
   options.runtime.setAfterSweep((scopes) => {
-    void commitPendingPushSeqs(bag, scopes);
+    void commitPendingPushSeqs(bag, scopes).catch((error) => {
+      if (bag.disposed) return;
+      warnPush('[push] commitPendingPushSeqs failed', error);
+    });
   });
   options.onBindTopicRefresh?.(() => {
     if (!bag.disposed) scheduleTopicSync(bag);
@@ -248,7 +254,10 @@ export function attachPush(options: AttachPushOptions): () => void {
           scheduleTopicSync(bag);
         }
         if (tables.has('sync_engine_mutations')) {
-          void flushTopicSync(bag);
+          void flushTopicSync(bag).catch((error) => {
+            if (bag.disposed) return;
+            warnPush('[push] flushTopicSync failed', error);
+          });
         }
       })
     );

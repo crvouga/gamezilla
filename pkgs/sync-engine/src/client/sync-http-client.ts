@@ -4,6 +4,8 @@ import type {
   MutationUploadResult,
   MutationUploadRow,
 } from './mutation-upload-queue';
+import { postQueryBatch } from './post-query-batch';
+import { validateWireQueryBatch } from './query-wire-validation';
 import type { Timers } from './sim-ports';
 import type { QueryRequest } from './subscription-runtime';
 import { SyncHttpRateLimitError } from './sync-http-rate-limit-error';
@@ -274,12 +276,11 @@ async function postQueriesVia(
   path: string,
   requests: readonly QueryRequest[]
 ): Promise<readonly QueryResponse[]> {
-  const body = (await postAuthedJson(
-    path,
-    JSON.stringify({ queries: requests })
-  )) as { readonly responses?: unknown };
-  if (!Array.isArray(body.responses)) {
-    throw new Error(`${path} missing responses array`);
-  }
-  return body.responses as QueryResponse[];
+  return postQueryBatch(async (chunk) => {
+    const body = (await postAuthedJson(
+      path,
+      JSON.stringify({ queries: chunk })
+    )) as { readonly responses?: unknown };
+    return validateWireQueryBatch(body.responses, chunk.length);
+  }, requests);
 }

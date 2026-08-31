@@ -14,20 +14,14 @@ describe('friends request → decline', () => {
     await using sim = await openSim('friends-request-decline');
 
     const alice = await AppDriver.forActor(sim, 'alice');
-
     await alice.auth.signInWithDev(aliceCreds);
     await alice.auth.returnToTabs();
-    await alice.profile.openEdit();
-    await alice.profile.setUsername(aliceUsername);
-    await alice.profile.expectUsername(aliceUsername);
 
     const bob = await AppDriver.forActor(sim, 'bob');
     await bob.auth.signInWithDev(bobCreds);
     await bob.auth.returnToTabs();
-    await bob.profile.openEdit();
-    await bob.profile.setUsername(bobUsername);
-    await bob.profile.expectUsername(bobUsername);
 
+    // Dev sign-in subject → ensureProfile username (same as accept scenario).
     await alice.search.expectUserVisible(bobUsername);
     await alice.search.addFriend(bobUsername);
 

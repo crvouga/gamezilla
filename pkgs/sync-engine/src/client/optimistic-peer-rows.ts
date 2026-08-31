@@ -1,3 +1,4 @@
+import { assert } from '@pkgs/assert';
 import { bulk, ident, join, sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -7,9 +8,7 @@ import { SYNC_ENGINE_OPTIMISTIC_PEER_ROWS } from '../shared/framework-server-ddl
 const MAX_SQLITE_VARS = 999;
 
 function assertTableName(table: string): void {
-  if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-    throw new Error(`bad table: ${table}`);
-  }
+  assert.ok(/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table), `bad table: ${table}`);
 }
 
 function collectIds(rows: readonly QueryRow[]): string[] {
@@ -104,17 +103,22 @@ export async function healOptimisticPeerOrphans(
         `);
       }
     }
-    for (const rowId of orphans) {
-      // Speculative insert never confirmed — tombstone locally so live reads match server.
-      await tx.run(sql`
-        UPDATE ${ident(table)}
-        SET deleted_at = ${nowIso}
-        WHERE id = ${rowId} AND deleted_at IS NULL
-      `);
-      await tx.run(sql`
-        DELETE FROM ${ident(SYNC_ENGINE_OPTIMISTIC_PEER_ROWS)}
-        WHERE table_name = ${table} AND row_id = ${rowId}
-      `);
+    if (orphans.length > 0) {
+      const maxIds = Math.max(1, MAX_SQLITE_VARS - 1);
+      for (let offset = 0; offset < orphans.length; offset += maxIds) {
+        const chunk = orphans.slice(offset, offset + maxIds);
+        await tx.run(sql`
+          UPDATE ${ident(table)}
+          SET deleted_at = ${nowIso}
+          WHERE id IN (${join(chunk.map((id) => sql`${id}`))})
+            AND deleted_at IS NULL
+        `);
+        await tx.run(sql`
+          DELETE FROM ${ident(SYNC_ENGINE_OPTIMISTIC_PEER_ROWS)}
+          WHERE table_name = ${table}
+            AND row_id IN (${join(chunk.map((id) => sql`${id}`))})
+        `);
+      }
       if (!changed.includes(table)) changed.push(table);
     }
   }

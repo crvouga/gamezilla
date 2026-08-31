@@ -1,4 +1,4 @@
-import { iosSimName } from './ios-sim-name';
+import { projectSimName } from './sim-project';
 
 const IOS_26_0 = 'com.apple.CoreSimulator.SimRuntime.iOS-26-0';
 const IPHONE_17_PRO = 'com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro';
@@ -15,18 +15,18 @@ export type SimSpecEntry = {
   readonly runtime: string;
 };
 
-/** Pinned iOS simulators for local dev. Names derive from device type + runtime. */
+/** Pinned iOS simulators for local dev. Names are project-prefixed. */
 export const SIM_SPEC = [
   {
     id: 'iphone',
-    name: iosSimName(IPHONE_17_PRO, IOS_26_0),
+    name: projectSimName(IPHONE_17_PRO, IOS_26_0),
     platform: 'ios',
     deviceType: IPHONE_17_PRO,
     runtime: IOS_26_0,
   },
   {
     id: 'ipad',
-    name: iosSimName(IPAD_PRO_13_M4, IOS_26_0),
+    name: projectSimName(IPAD_PRO_13_M4, IOS_26_0),
     platform: 'ios',
     deviceType: IPAD_PRO_13_M4,
     runtime: IOS_26_0,

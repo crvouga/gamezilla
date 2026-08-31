@@ -1,5 +1,8 @@
+import { assert } from '@pkgs/assert';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
+
+import { MAX_MUTATIONS_BATCH } from '../../queries/shared/bounds';
 
 import type { WriteCaptureSnapshot } from '../../sql-ast';
 import type { MutationRegistry } from '../core/types';
@@ -55,6 +58,10 @@ export type ProcessMutationsBatchDeps = {
 export async function processMutationsBatch(
   deps: ProcessMutationsBatchDeps
 ): Promise<ProcessMutationsBatchResult> {
+  assert.ok(
+    deps.mutations.length <= MAX_MUTATIONS_BATCH,
+    'mutation batch size'
+  );
   const sorted = [...deps.mutations].sort((a, b) => a.seq - b.seq);
   const verdicts: MutationVerdict[] = [];
   const applied: AppliedMutationRef[] = [];
@@ -95,6 +102,8 @@ export async function processMutationsBatch(
     ackSeq = Math.max(ackSeq, row.seq);
     deps.onAfterMutation?.(index);
   }
+
+  assert.equals(verdicts.length, sorted.length, 'mutation verdict count');
 
   return { ok: true, verdicts, applied, ackSeq };
 }

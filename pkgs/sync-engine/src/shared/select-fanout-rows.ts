@@ -5,6 +5,8 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { QueryRow } from '../queries/core/types';
 import { MAX_FANOUT_BYTES, MAX_FANOUT_ROWS } from '../queries/shared/bounds';
 
+const MAX_SQLITE_VARS = 999;
+
 function assertTableName(table: string): void {
   assert.ok(/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table), `bad table: ${table}`);
 }
@@ -24,13 +26,19 @@ export async function selectFanoutRows(
     if (ids.length === 0) continue;
     assertTableName(table);
     const unique = [...new Set(ids)];
-    const idFrags = unique.map((id) => sql`${id}`);
-    // SELECT * so synced columns + `deleted_at` are included; no live filter.
-    const rows = await db.query(sql<QueryRow>`
-      SELECT * FROM ${ident(table)}
-      WHERE id IN (${join(idFrags)})
-    `);
-    if (rows.length > 0) out[table] = [...rows];
+    if (unique.length > MAX_FANOUT_ROWS) continue;
+    const maxIds = Math.max(1, MAX_SQLITE_VARS);
+    const rows: QueryRow[] = [];
+    for (let offset = 0; offset < unique.length; offset += maxIds) {
+      const chunk = unique.slice(offset, offset + maxIds);
+      const idFrags = chunk.map((id) => sql`${id}`);
+      const part = await db.query(sql<QueryRow>`
+        SELECT * FROM ${ident(table)}
+        WHERE id IN (${join(idFrags)})
+      `);
+      rows.push(...part);
+    }
+    if (rows.length > 0) out[table] = rows;
   }
   return out;
 }

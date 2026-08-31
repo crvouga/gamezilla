@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import { assert, ThrowingCrashHandler } from '@pkgs/assert';
 import { sql } from '@pkgs/sql';
 import { SqlClientImplSqliteMem } from '@pkgs/sql-client/sqlite/impl-sqlite-mem';
 
@@ -144,33 +145,38 @@ describe('merge snapshot and row images unit', () => {
         ],
       },
     });
-    await expect(
-      applyFullMerge(deps, {
-        scopeHash: 's1',
-        checkpoint: '2',
-        hash: 'h2',
-        tables: {
-          notes: [
-            {
-              id: 'kept',
-              folder_id: null,
-              title: '',
-              body: 'should-not-commit',
-              owner_id: 'actor',
-              deleted_at: null,
-            },
-            {
-              id: '',
-              folder_id: null,
-              title: '',
-              body: 'bad',
-              owner_id: 'actor',
-              deleted_at: null,
-            },
-          ],
-        },
-      })
-    ).rejects.toThrow();
+    const dispose = assert.registerCrashHandler(new ThrowingCrashHandler());
+    try {
+      await expect(
+        applyFullMerge(deps, {
+          scopeHash: 's1',
+          checkpoint: '2',
+          hash: 'h2',
+          tables: {
+            notes: [
+              {
+                id: 'kept',
+                folder_id: null,
+                title: '',
+                body: 'should-not-commit',
+                owner_id: 'actor',
+                deleted_at: null,
+              },
+              {
+                id: '',
+                folder_id: null,
+                title: '',
+                body: 'bad',
+                owner_id: 'actor',
+                deleted_at: null,
+              },
+            ],
+          },
+        })
+      ).rejects.toThrow(/row id required/i);
+    } finally {
+      dispose();
+    }
     const rows = await db.query(sql<{ id: string; body: string }>`
       SELECT id, body FROM notes ORDER BY id ASC
     `);

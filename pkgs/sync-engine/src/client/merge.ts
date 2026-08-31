@@ -1,5 +1,8 @@
+import { assert } from '@pkgs/assert';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+
+import { isMutationError } from '../mutations/core/failures';
 
 import type {
   Mutation,
@@ -109,12 +112,13 @@ async function rebasePending(
   `);
   for (const row of pending) {
     const m = deps.registry[row.name] as Mutation<unknown> | undefined;
+    // Unknown mutation name after a client upgrade: keep queued; upload rejects.
     if (m === undefined) continue;
     let rawArgs: unknown;
     try {
       rawArgs = JSON.parse(row.args);
     } catch {
-      continue;
+      assert.fail(`corrupt pending mutation args: ${row.id}`);
     }
     const parsed = await parseStandardSchema(m.args, rawArgs);
     if (!parsed.ok) continue;
@@ -126,8 +130,12 @@ async function rebasePending(
       const wrapped = wrapMutationDb(tx, env);
       await m.run({ tx: wrapped.tx, env }, parsed.value);
       for (const t of wrapped.getCapture().tables) changed.add(t);
-    } catch {
-      // Keep queued; hide optimistic effect until upload/reject.
+    } catch (error) {
+      if (isMutationError(error)) {
+        // Keep queued; hide optimistic effect until upload/reject.
+        continue;
+      }
+      throw error;
     }
   }
 }

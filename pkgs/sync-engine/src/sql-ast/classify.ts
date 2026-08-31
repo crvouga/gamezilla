@@ -1,3 +1,4 @@
+import { assert } from '@pkgs/assert';
 import type { Sql } from '@pkgs/sql';
 import { Parser } from 'node-sql-parser';
 
@@ -61,15 +62,16 @@ function asNode(v: unknown): AstNode | undefined {
   return undefined;
 }
 
-function tableNameFromNode(node: unknown): string | undefined {
+function tableNameFromNode(node: unknown, depth = 0): string | undefined {
+  assert.ok(depth <= MAX_AST_TABLE_WALK_DEPTH, 'AST table walk depth');
   if (node === null || node === undefined) return undefined;
   if (typeof node === 'string') return node;
-  if (Array.isArray(node)) return tableNameFromNode(node[0]);
+  if (Array.isArray(node)) return tableNameFromNode(node[0], depth + 1);
   const o = asNode(node);
   if (o === undefined) return undefined;
   const table = o['table'];
   if (typeof table === 'string') return table;
-  if (Array.isArray(table)) return tableNameFromNode(table);
+  if (Array.isArray(table)) return tableNameFromNode(table, depth + 1);
   return undefined;
 }
 
@@ -224,6 +226,7 @@ function classifyAst(ast: AstNode): ClassifiedStatement {
 }
 
 const AST_CACHE_MAX = 256;
+const MAX_AST_TABLE_WALK_DEPTH = 64;
 /** LRU (Map insertion order): sqlTextForAst → AST root. */
 const astCache = new Map<string, AstNode>();
 

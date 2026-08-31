@@ -2,12 +2,13 @@
  * Shared hot-path workloads for sync-engine microbenches.
  * Used by `hot-paths.bench.ts` (timed) and `hot-paths.bench.test.ts` (hang-only).
  */
-import { sql } from '@pkgs/sql';
+import { join, sql } from '@pkgs/sql';
 import { SqlClientImplSqliteMem } from '@pkgs/sql-client/sqlite/impl-sqlite-mem';
 
 import { migrateLocalSchema } from '../../client/local-schema-migrate';
 import { applyFullMerge, type MergeApplierDeps } from '../../client/merge';
 import { createMutationClient } from '../../mutations/client/create-mutation-client';
+import { recordOptimisticOwnRows } from '../../mutations/client/optimistic-own-rows';
 import { createTableChangeBus } from '../../queries/client/table-change-bus';
 import { hashQueryTables } from '../../queries/shared/canonical';
 import { classify } from '../../sql-ast';
@@ -76,6 +77,23 @@ export async function createHotPathCases(): Promise<readonly BenchCase[]> {
   const merge2000Deps = await openMergeDeps();
   const mutateDeps = await openMergeDeps();
   const rebaseDeps = await openMergeDeps();
+  const ownRowDeps = await openMergeDeps();
+  const ackDeps = await openMergeDeps();
+  for (let i = 0; i < 128; i += 1) {
+    await ackDeps.db.run(sql`
+      INSERT INTO sync_engine_mutations (
+        id, name, args, client_id, seq, created_at
+      )
+      VALUES (
+        ${`ack-${i}`},
+        ${'setNote'},
+        ${'{}'},
+        ${'c0'},
+        ${i + 1},
+        ${'2020-01-01T00:00:00.000Z'}
+      )
+    `);
+  }
 
   const mutateClient = createMutationClient({
     db: mutateDeps.db,
@@ -165,6 +183,50 @@ export async function createHotPathCases(): Promise<readonly BenchCase[]> {
           hash: `rh-${rebaseCp}`,
           tables: { notes: noteRows(50) },
         });
+      },
+    },
+    {
+      name: 'recordOptimisticOwnRows 64 ids',
+      run: async () => {
+        const ids = Array.from({ length: 64 }, (_, i) => `o${i}`);
+        await ownRowDeps.db.transaction(async (tx) => {
+          await recordOptimisticOwnRows(tx, 'bench-m', {
+            tables: ['notes'],
+            ids: { notes: ids },
+            images: {},
+          });
+        });
+      },
+    },
+    {
+      name: 'upload ack DELETE 128 ids chunked',
+      run: async () => {
+        const ids = Array.from({ length: 128 }, (_, i) => `ack-${i}`);
+        await ackDeps.db.transaction(async (tx) => {
+          const maxIds = 999;
+          for (let offset = 0; offset < ids.length; offset += maxIds) {
+            const chunk = ids.slice(offset, offset + maxIds);
+            await tx.run(sql`
+              DELETE FROM sync_engine_mutations
+              WHERE id IN (${join(chunk.map((id) => sql`${id}`))})
+            `);
+          }
+        });
+        for (let i = 0; i < 128; i += 1) {
+          await ackDeps.db.run(sql`
+            INSERT INTO sync_engine_mutations (
+              id, name, args, client_id, seq, created_at
+            )
+            VALUES (
+              ${`ack-${i}`},
+              ${'setNote'},
+              ${'{}'},
+              ${'c0'},
+              ${i + 1},
+              ${'2020-01-01T00:00:00.000Z'}
+            )
+          `);
+        }
       },
     },
   ];

@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 
 import { reconcileAction } from './reconcile-sim';
+import { isProjectSimName, SIM_PROJECT_SLUG } from './sim-project';
 import { SIM_SPEC } from './sim-spec';
 import type { SimDeviceRecord } from './simctl';
 
@@ -23,6 +24,25 @@ describe('SIM_SPEC', () => {
       );
       expect(row.runtime).toMatch(/^com\.apple\.CoreSimulator\.SimRuntime\./);
     }
+  });
+
+  test('names are project-prefixed', () => {
+    for (const row of SIM_SPEC) {
+      expect(row.name.startsWith(`${SIM_PROJECT_SLUG}-`)).toBe(true);
+      expect(isProjectSimName(row.name)).toBe(true);
+    }
+  });
+});
+
+describe('listProjectDevices', () => {
+  test('isProjectSimName filters foreign sims', () => {
+    const names = [
+      `${SIM_PROJECT_SLUG}-iphone-17-pro-ios-26-0`,
+      'foreign-iphone',
+    ];
+    expect(names.filter((name) => isProjectSimName(name))).toEqual([
+      `${SIM_PROJECT_SLUG}-iphone-17-pro-ios-26-0`,
+    ]);
   });
 });
 

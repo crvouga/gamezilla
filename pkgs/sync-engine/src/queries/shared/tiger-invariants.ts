@@ -4,25 +4,24 @@ import { assert } from '@pkgs/assert';
  * Named Tiger Style invariants for the local sync stack.
  * Importing this module asserts load-time resource bounds.
  */
-import { MAX_IN_FLIGHT_POLLS, MAX_MUTATIONS_BATCH } from './bounds';
+import {
+  MAX_IN_FLIGHT_POLLS,
+  MAX_MUTATIONS_BATCH,
+  MAX_QUERY_BATCH,
+} from './bounds';
 
 assert.ok(MAX_MUTATIONS_BATCH <= 128, 'Tiger: mutation batch upper bound');
+assert.ok(MAX_QUERY_BATCH <= 128, 'Tiger: query batch upper bound');
 assert.ok(
   MAX_IN_FLIGHT_POLLS <= 4,
   'Tiger: query batch concurrency upper bound'
 );
 
+/** Invariants checked by {@link checkClientFrameworkInvariants} in sim/DST. */
 export const TIGER_INVARIANTS = [
-  'actor-from-session-auth-only',
-  'mutation-log-atomicity',
   'seq-monotonicity',
-  'merge-single-flight',
-  'push-seq-monotonic-per-topic',
-  'fanout-lossy-ok',
-  'auth-wipe-revoked-only',
   'permanent-vs-transient-verdicts',
-  'query-hard-limit-required',
-  'registry-duplicate-names-crash',
+  'push-seq-monotonic-per-topic',
 ] as const;
 
 export type TigerInvariant = (typeof TIGER_INVARIANTS)[number];
