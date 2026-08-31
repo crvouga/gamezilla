@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test';
 import { assertDstProperty, fc } from '@pkgs/pbt';
+import { arbWorldKnobs, arbWorldSeed } from '../../sim/dst/knobs';
+import { openWorld } from '../../sim/world';
 import { expectLiveNote, readLiveNotes } from '../apps/acme/assert';
 import { acmeDstApp } from '../apps/acme/dst-app';
 import { deleteNote, setNote } from '../apps/acme/shared/mutations';
-import { openWorld } from '../../sim/world';
-import { arbWorldKnobs, arbWorldSeed } from '../../sim/dst/knobs';
 
 describe('authz graph PBT', () => {
   test(
@@ -24,31 +24,31 @@ describe('authz graph PBT', () => {
               seed,
               knobs,
             });
-              const owner = world.clientIds[0]!;
-              const peer = world.clientIds[1]!;
-              const ownerClient = world.clients.get(owner)!;
-              const peerClient = world.clients.get(peer)!;
+            const owner = world.clientIds[0]!;
+            const peer = world.clientIds[1]!;
+            const ownerClient = world.clients.get(owner)!;
+            const peerClient = world.clients.get(peer)!;
 
-              await ownerClient.mutate(setNote, {
-                id: noteId,
-                body,
-                title: '',
-              });
-              await world.assertConverged();
+            await ownerClient.mutate(setNote, {
+              id: noteId,
+              body,
+              title: '',
+            });
+            await world.assertConverged();
 
-              const denied = await peerClient.mutate(deleteNote, {
-                id: noteId,
-              });
-              if (denied.ok) {
-                throw new Error('non-owner delete unexpectedly succeeded');
-              }
-              expect(denied.failures.some((f) => f.code === 'FORBIDDEN')).toBe(
-                true
-              );
+            const denied = await peerClient.mutate(deleteNote, {
+              id: noteId,
+            });
+            if (denied.ok) {
+              throw new Error('non-owner delete unexpectedly succeeded');
+            }
+            expect(denied.failures.some((f) => f.code === 'FORBIDDEN')).toBe(
+              true
+            );
 
-              await world.assertConverged();
-              await expectLiveNote(ownerClient.db, noteId, { body });
-              await expectLiveNote(peerClient.db, noteId, { body });
+            await world.assertConverged();
+            await expectLiveNote(ownerClient.db, noteId, { body });
+            await expectLiveNote(peerClient.db, noteId, { body });
           }
         ),
         { numRuns: 8 }
@@ -83,20 +83,20 @@ describe('authz graph PBT', () => {
               seed,
               knobs,
             });
-              for (const w of writes) {
-                const client = world.clients.get('c0')!;
-                await client.mutate(setNote, {
-                  id: w.noteId,
-                  body: w.body,
-                  title: '',
-                });
-              }
-              await world.assertConverged();
-              const serverNotes = await readLiveNotes(world.server.db);
-              for (const client of world.clients.values()) {
-                const local = await readLiveNotes(client.db);
-                expect(local).toEqual([...serverNotes]);
-              }
+            for (const w of writes) {
+              const client = world.clients.get('c0')!;
+              await client.mutate(setNote, {
+                id: w.noteId,
+                body: w.body,
+                title: '',
+              });
+            }
+            await world.assertConverged();
+            const serverNotes = await readLiveNotes(world.server.db);
+            for (const client of world.clients.values()) {
+              const local = await readLiveNotes(client.db);
+              expect(local).toEqual([...serverNotes]);
+            }
           }
         ),
         { numRuns: 6 }

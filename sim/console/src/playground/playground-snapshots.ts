@@ -42,11 +42,9 @@ export const PLAYGROUND_STICKY_SNAPSHOT_ID = 'latest';
 const MANIFEST_VERSION = 2 as const;
 
 function slugLabel(label: string | undefined, now: number): string {
+  const trimmed = label?.trim() ?? '';
   const base =
-    label
-      ?.trim()
-      .replace(/[^a-zA-Z0-9_-]+/g, '-')
-      .replace(/^-+|-+$/g, '') || 'snap';
+    trimmed.replace(/[^a-zA-Z0-9_-]+/g, '-').replace(/^-+|-+$/g, '') || 'snap';
   return `${base}-${String(now)}`;
 }
 

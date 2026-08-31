@@ -1,16 +1,20 @@
 /**
  * CI Turbo check graphs (secrets-run wrappers in package.json).
  *
- * Modes:
- * - `all` — offline graph (same task set as root `bun check`; kept for callers)
- * - `ci` — turbo-only lanes including secrets validate (no static/api/browser)
+ * Prefer root `bun check` (fast: lint/tc/test) and `bun check:full` (CD gate
+ * leaves) — those expand via turbo-ci-run from `//#check` / `//#check:full`.
+ *
+ * Modes (legacy / subset callers):
+ * - `all` — same leaf set as flattened `check:full` without live secrets
+ *   fingerprint (static still included; secrets via separate mode)
+ * - `ci` — turbo-only lanes including secrets validate (no static/api)
  * - `gates` / `verify` / `build` — GHA job subsets
+ * - `verify` — same as fast `bun check` leaves (lint/tc/test)
  *
  * Builds use package-scoped entrypoints (`@apps/server#build` etc.) so
  * `@apps/client` still gets `tc`/`test` without Expo `build`, in one
  * `turbo run` (no second filtered pass).
- * Live-server checks (`check:api`) stay opt-in / CI-only.
- * Secrets validation stays CI / opt-in (`check:ci:gates`, `check:secrets`).
+ * Live-server checks (`check:api`) stay on `check:full` / deploy.
  */
 import { spawnSync } from 'node:child_process';
 
@@ -19,7 +23,12 @@ import {
   computeCheckSecretsFingerprint,
 } from '../../libs/secrets/src/shared/secrets/check-secrets-fingerprint';
 
-const CI_GATE_TASKS = ['ci:syncpack', 'ci:depcruise', 'ci:audit'] as const;
+const CI_GATE_TASKS = [
+  'ci:syncpack',
+  'ci:depcruise',
+  'ci:audit',
+  'ci:i18n',
+] as const;
 
 /** No-op app builds only — never `@apps/client#build` (Expo export). */
 const CHECK_BUILD_TASKS = [
@@ -60,14 +69,7 @@ function turboCiRun(args: readonly string[]): number {
 function mainTasks(mode: Mode): readonly string[] {
   switch (mode) {
     case 'all':
-      return [
-        'lint',
-        'tc',
-        'test',
-        ...CI_GATE_TASKS,
-        'check:static',
-        ...CHECK_BUILD_TASKS,
-      ];
+      return ['check:full'];
     case 'ci':
       return [
         'lint',
@@ -80,7 +82,7 @@ function mainTasks(mode: Mode): readonly string[] {
     case 'gates':
       return [...CI_GATE_TASKS, SECRETS_VALIDATE_TASK];
     case 'verify':
-      return ['lint', 'tc', 'test'];
+      return ['check'];
     case 'build':
       return [...CHECK_BUILD_TASKS];
   }

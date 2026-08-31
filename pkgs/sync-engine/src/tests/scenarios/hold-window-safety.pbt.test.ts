@@ -1,10 +1,10 @@
 import { describe, test } from 'bun:test';
 import { assertDstProperty, fc } from '@pkgs/pbt';
+import { arbWorldKnobs, arbWorldSeed } from '../../sim/dst/knobs';
+import { openWorld } from '../../sim/world';
 import { isLiveNote, readLiveNotes } from '../apps/acme/assert';
 import { acmeDstApp } from '../apps/acme/dst-app';
 import { setNote } from '../apps/acme/shared/mutations';
-import { arbWorldKnobs, arbWorldSeed } from '../../sim/dst/knobs';
-import { openWorld } from '../../sim/world';
 
 describe('hold window safety PBT', () => {
   test(

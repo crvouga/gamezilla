@@ -1,6 +1,6 @@
-import type { DstWorldSurface } from './world-surface';
 import type { DomainOp, DstAction, LibraryAction, ServerOp } from './actions';
 import type { DstApp } from './app';
+import type { DstWorldSurface } from './world-surface';
 
 const SUBS_KEY = Symbol('pbtSubs');
 

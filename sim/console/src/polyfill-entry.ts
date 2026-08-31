@@ -6,8 +6,12 @@ import { ExpoCrashHandler } from '@pkgs/assert/crash/crash-handler/crash-handler
 import { wallTimers } from '@pkgs/clock';
 import { polyfill } from '@pkgs/polyfill';
 import * as WebBrowser from 'expo-web-browser';
+import { polyfillNativeLocationReload } from './polyfill-native-location-reload';
+import { polyfillResponseBodyFromInit } from './polyfill-response-body';
 
 WebBrowser.maybeCompleteAuthSession();
+polyfillNativeLocationReload();
+polyfillResponseBodyFromInit();
 
 // Check / canary seam: lets a production-flavor build re-enable hot-path
 // asserts (per-dispatch keyword validation, per-routed-message envelope

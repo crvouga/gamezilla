@@ -16,7 +16,7 @@ export {
   modelAllowsAction,
   PUBSUB_FAULTS,
   SCHEMA_VARIANTS,
-  serverOp,
   STORAGE_TAMPERS,
+  serverOp,
   WORLD_PBT_CRASH_EVENTS,
 } from '../../sim/dst/world-model';

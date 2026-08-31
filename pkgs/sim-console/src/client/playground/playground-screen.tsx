@@ -47,13 +47,21 @@ export function PlaygroundScreen(props: {
   readonly onKindChange: (kind: SimChromeKind) => void;
   readonly onInstanceChange: (instance: string) => void;
   readonly onViewChange: (view: string) => void;
+  /** Retry boot after an error (Metro chunk / sim init). */
+  readonly onReload?: () => void;
 }) {
-  const { state, kind, instance, view } = props;
+  const { state, kind, instance, view, onReload } = props;
 
   if (state.status === 'error') {
     return (
       <Box sx={centerSx}>
-        <ErrorState title="Failed to boot playground" body={state.error} />
+        <ErrorState
+          title="Failed to boot playground"
+          body={state.error}
+          {...(onReload !== undefined
+            ? { retry: { label: 'Reload', onPress: onReload } }
+            : {})}
+        />
       </Box>
     );
   }

@@ -31,7 +31,11 @@ function showAssertionAlert(fullText: string, timers: Timers): void {
       {
         text: 'Reload',
         onPress: () => {
-          DevSettings.reload();
+          try {
+            DevSettings.reload();
+          } catch {
+            // DevSettings may be missing outside Expo Go.
+          }
         },
       },
     ],

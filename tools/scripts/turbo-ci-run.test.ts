@@ -1,6 +1,10 @@
 import { describe, expect, test } from 'bun:test';
 
-import { hasRemoteCreds, resolveCacheFlag } from './turbo-ci-run';
+import {
+  flattenCheckAggregators,
+  hasRemoteCreds,
+  resolveCacheFlag,
+} from './turbo-ci-run';
 
 describe('turbo-ci-run cache flags', () => {
   test('hasRemoteCreds requires both token and team', () => {
@@ -30,5 +34,44 @@ describe('turbo-ci-run cache flags', () => {
     expect(resolveCacheFlag({ TURBO_CACHE: 'remote:rw' }, true)).toBe(
       'local:rw,remote:rw'
     );
+  });
+});
+
+describe('turbo-ci-run aggregator flatten', () => {
+  const tasks = {
+    '//#check': { dependsOn: ['lint', 'tc', 'test'] },
+    '//#check:full': {
+      dependsOn: ['//#check', '//#ci:audit', '@libs/secrets#check'],
+    },
+  };
+
+  test('check expands to fast leaves', () => {
+    expect(flattenCheckAggregators(['check'], tasks)).toEqual([
+      'lint',
+      'tc',
+      'test',
+    ]);
+    expect(flattenCheckAggregators(['//#check'], tasks)).toEqual([
+      'lint',
+      'tc',
+      'test',
+    ]);
+  });
+
+  test('check:full recursively expands //#check', () => {
+    expect(flattenCheckAggregators(['check:full'], tasks)).toEqual([
+      'lint',
+      'tc',
+      'test',
+      '//#ci:audit',
+      '@libs/secrets#check',
+    ]);
+  });
+
+  test('non-aggregator args pass through', () => {
+    expect(flattenCheckAggregators(['lint', 'tc'], tasks)).toEqual([
+      'lint',
+      'tc',
+    ]);
   });
 });

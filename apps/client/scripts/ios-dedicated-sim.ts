@@ -6,118 +6,48 @@ import { setTimeout as sleep } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 import { APP_IDENTITY } from '@libs/auth/public/app-identity';
 import { wallClock } from '@pkgs/clock';
+import { simSpecById } from '../../../tools/scripts/sims/sim-spec';
+import {
+  findDeviceByName,
+  listDevices,
+} from '../../../tools/scripts/sims/simctl';
 import { ensurePodsMatchNodeModules } from './ios-pods';
-import { iosSimName } from './ios-sim-name';
 
 /**
- * Shared helpers for pinning Expo iOS dev to a type+runtime simulator
- * (no product slug — reusable across projects) and opening the installed
- * `expo-dev-client` against a running Metro server.
+ * Open the product `expo-dev-client` on the simulator provisioned by
+ * `bun setup:sims` (SIM_SPEC id `iphone`).
  */
 
 /** Must match `expo.ios.bundleIdentifier` in `apps/client/app.json`. */
 export const DEV_CLIENT_BUNDLE_ID = 'app.gamezilla';
 
+const CLIENT_IOS_SIM_ID = 'iphone' as const;
+
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const clientRoot = join(scriptDir, '..');
 const expoBin = join(clientRoot, 'node_modules', '.bin', 'expo');
-
-const SIM_DEVICE_TYPE = String(
-  process.env['EXPO_DEV_SIM_DEVICE_TYPE'] ??
-    'com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro'
-);
-const SIM_RUNTIME_OVERRIDE =
-  process.env['EXPO_DEV_SIM_RUNTIME']?.trim() || null;
-
-type SimDevice = { udid: string; name: string; state: string };
-type SimRuntime = {
-  identifier: string;
-  version: string;
-  platform: string;
-  isAvailable: boolean;
-};
 
 function log(message: string): void {
   process.stderr.write(`[ios-dev] ${message}\n`);
 }
 
-function captureJson<T>(cmd: string, args: string[]): T {
-  const raw = execFileSync(cmd, args, { encoding: 'utf8' });
-  return JSON.parse(raw) as T;
-}
-
-function listDevices(): SimDevice[] {
-  const json = captureJson<{ devices: Record<string, SimDevice[]> }>('xcrun', [
-    'simctl',
-    'list',
-    'devices',
-    'available',
-    '--json',
-  ]);
-  return Object.values(json.devices).flat();
-}
-
-function compareVersionDesc(a: string, b: string): number {
-  const pa = a.split('.').map((s) => Number(s));
-  const pb = b.split('.').map((s) => Number(s));
-  const len = Math.max(pa.length, pb.length);
-  for (let i = 0; i < len; i++) {
-    const x = pa[i] ?? 0;
-    const y = pb[i] ?? 0;
-    if (x !== y) return y - x;
-  }
-  return 0;
-}
-
-function pickLatestIosRuntime(): string {
-  const json = captureJson<{ runtimes: SimRuntime[] }>('xcrun', [
-    'simctl',
-    'list',
-    'runtimes',
-    'available',
-    '--json',
-  ]);
-  const ios = json.runtimes.filter(
-    (r) => r.platform === 'iOS' && r.isAvailable
-  );
-  if (ios.length === 0) {
-    throw new Error(
-      'No available iOS simulator runtimes found. Install one via Xcode → Settings → Platforms.'
-    );
-  }
-  ios.sort((a, b) => compareVersionDesc(a.version, b.version));
-  return ios[0]!.identifier;
-}
-
-function resolvedRuntime(): string {
-  return SIM_RUNTIME_OVERRIDE ?? pickLatestIosRuntime();
-}
-
-/** Kebab-case device type + runtime, unless `EXPO_DEV_SIM_NAME` is set. */
+/** Display name from SIM_SPEC for the product iPhone simulator. */
 export function resolveSimName(): string {
-  const override = process.env['EXPO_DEV_SIM_NAME']?.trim();
-  if (override) return override;
-  return iosSimName(SIM_DEVICE_TYPE, resolvedRuntime());
+  return simSpecById(CLIENT_IOS_SIM_ID).name;
 }
 
-export function provisionDedicatedSim(): { udid: string; name: string } {
-  const name = resolveSimName();
-  const existing = listDevices().find((d) => d.name === name);
-  if (existing !== undefined) {
-    log(
-      `Reusing simulator "${name}" (${existing.udid}, state=${existing.state}).`
+export function resolveDedicatedSim(): { udid: string; name: string } {
+  const spec = simSpecById(CLIENT_IOS_SIM_ID);
+  const existing = findDeviceByName(spec.name);
+  if (existing === undefined) {
+    throw new Error(
+      `Simulator "${spec.name}" is missing. Run \`bun setup:sims\` first.`
     );
-    return { udid: existing.udid, name };
   }
-  const runtime = resolvedRuntime();
-  log(`Creating simulator "${name}" (${SIM_DEVICE_TYPE} on ${runtime})…`);
-  const udid = execFileSync(
-    'xcrun',
-    ['simctl', 'create', name, SIM_DEVICE_TYPE, runtime],
-    { encoding: 'utf8' }
-  ).trim();
-  log(`Created (${udid}).`);
-  return { udid, name };
+  log(
+    `Using simulator "${spec.name}" (${existing.udid}, state=${existing.state}).`
+  );
+  return { udid: existing.udid, name: spec.name };
 }
 
 export function bootSimIfNeeded(udid: string, simName: string): void {
@@ -256,13 +186,13 @@ export interface AutoOpenIosOptions {
   readonly devServerTimeoutMs?: number;
 }
 
-/** Provision sim, ensure dev client, wait for Metro, open deep link. */
+/** Resolve sim from SIM_SPEC, ensure dev client, wait for Metro, open deep link. */
 export async function autoOpenDedicatedSim(
   options: AutoOpenIosOptions
 ): Promise<void> {
   if (process.platform !== 'darwin') return;
 
-  const { udid, name } = provisionDedicatedSim();
+  const { udid, name } = resolveDedicatedSim();
 
   const metro = new URL(options.metroUrl);
   const timeoutMs = options.devServerTimeoutMs ?? 120_000;

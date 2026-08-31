@@ -1,15 +1,12 @@
 /**
- * Run the Expo dev server pinned to a type+runtime iOS simulator.
+ * Run the Expo dev server and open the product dev client on the SIM_SPEC iPhone.
  *
- * See `ios-dedicated-sim.ts` for simulator provisioning and dev-client install.
+ * See `ios-dedicated-sim.ts` for boot / dev-client install. Simulators must
+ * exist (`bun setup:sims`) before auto-open runs.
  *
  * Extra argv (`--web`, `--tunnel`, etc.) is forwarded to `expo start`.
  *
- * Configurable via env (all optional):
- *   EXPO_DEV_SIM_NAME         default kebab-case of device type + runtime
- *                             (e.g. `iphone-17-pro-ios-26-0`)
- *   EXPO_DEV_SIM_DEVICE_TYPE  default iPhone 17 Pro
- *   EXPO_DEV_SIM_RUNTIME      default: highest-version available iOS runtime
+ * Configurable via env (optional):
  *   EXPO_METRO_PORT           default 5173
  *   EXPO_DEV_AUTO_IOS         set `0` to skip auto-opening the sim
  */

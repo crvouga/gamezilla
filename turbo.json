@@ -130,11 +130,42 @@
       "outputLogs": "new-only",
       "outputs": []
     },
+    "test:contract": {
+      "inputs": [
+        "**/*.ts",
+        "**/*.tsx",
+        "package.json",
+        "jest.config.*",
+        "*.cjs"
+      ],
+      "outputLogs": "new-only",
+      "outputs": []
+    },
+    "test:e2e": {
+      "inputs": [
+        "**/*.ts",
+        "**/*.tsx",
+        "**/*.mjs",
+        "package.json",
+        "e2e/**",
+        "jest.config.*",
+        "*.cjs"
+      ],
+      "outputLogs": "new-only",
+      "outputs": []
+    },
+    "billing:check": {
+      "inputs": ["**/*.ts", "**/*.tsx", "package.json", "scripts/**"],
+      "outputLogs": "new-only",
+      "outputs": []
+    },
     "lint": {
       "inputs": [
         "apps/**/*.{ts,tsx,js,jsx}",
         "libs/**/*.{ts,tsx,js,jsx}",
         "pkgs/**/*.{ts,tsx,js,jsx}",
+        "sim/**/*.{ts,tsx,js,jsx,cjs}",
+        "tools/**/*.{ts,tsx,js,cjs}",
         "biome.json",
         "tools/biome-plugins/**"
       ],
@@ -142,11 +173,25 @@
       "outputLogs": "new-only"
     },
     "//#check": {
+      "dependsOn": ["lint", "tc", "test"],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#check:full": {
       "dependsOn": [
+        "//#check",
         "//#ci:syncpack",
         "//#ci:depcruise",
         "//#ci:audit",
-        "//#ci:i18n"
+        "//#ci:i18n",
+        "@libs/secrets#check",
+        "@apps/server#build",
+        "@apps/room-server#build",
+        "test:contract",
+        "test:e2e",
+        "@libs/billing#billing:check",
+        "@tools#check:static",
+        "@apps/server#check:api"
       ],
       "outputs": [],
       "outputLogs": "new-only"
@@ -240,6 +285,9 @@
         "//#ci:depcruise",
         "//#ci:audit",
         "//#ci:i18n",
+        "test:contract",
+        "test:e2e",
+        "@libs/billing#billing:check",
         "@tools#check:static",
         "@apps/server#check:api",
         "@libs/secrets#check",

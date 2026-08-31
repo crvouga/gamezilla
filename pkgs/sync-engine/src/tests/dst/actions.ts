@@ -1,4 +1,6 @@
 /** Re-export DST action types from the sim harness. */
+
+export type { SimCorruptionVariant } from '../../sim/corruption-faults';
 export type {
   DomainOp,
   DstAction,
@@ -10,4 +12,3 @@ export {
   isLibraryAction,
   isServerOp,
 } from '../../sim/dst/actions';
-export type { SimCorruptionVariant } from '../../sim/corruption-faults';

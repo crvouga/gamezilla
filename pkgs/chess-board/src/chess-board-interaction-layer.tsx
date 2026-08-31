@@ -89,9 +89,16 @@ function trackDragPointer(x: number, y: number, a: PanFactoryArgs): void {
   hoverSquareIndex.value = hover ? indexFromSquare(hover) : HOVER_NONE;
 }
 
+/** Public pan gesture id for black-box tests (`getByGestureTestId`). */
+export const CHESS_BOARD_PAN_TEST_ID = 'chess-board-pan';
+
+/** Public tap gesture id for black-box tests (`getByGestureTestId`). */
+export const CHESS_BOARD_TAP_TEST_ID = 'chess-board-tap';
+
 function createBoardPanGesture(a: PanFactoryArgs) {
   const { drag, hoverSquareIndex, legalMarkersOpacity } = a;
   return Gesture.Pan()
+    .withTestId(CHESS_BOARD_PAN_TEST_ID)
     .manualActivation(true)
     .onTouchesDown((e, state) => {
       const t = e.allTouches[0];
@@ -101,6 +108,13 @@ function createBoardPanGesture(a: PanFactoryArgs) {
       }
       // Activate immediately so drag state is not deferred until movement.
       state.activate();
+    })
+    .onStart((e) => {
+      // Jest fireGestureHandler activates without onTouchesDown; seed drag
+      // from the start event so black-box pointer streams still work.
+      if (drag.pieceKey.value === DRAG_PIECE_NONE) {
+        beginDragAt(e.x, e.y, a);
+      }
     })
     .onTouchesMove((e) => {
       const t = e.allTouches[0];
@@ -168,11 +182,13 @@ function useBoardGestures(args: ChessBoardInteractionLayerProps) {
       endDrag,
       cancelDrag,
     });
-    const tap = Gesture.Tap().onEnd((e) => {
-      if (drag.pieceKey.value !== DRAG_PIECE_NONE) return;
-      const sq = xyToSquare(e.x, e.y, size, orientation);
-      if (sq) runOnJS(tapSquare)(sq);
-    });
+    const tap = Gesture.Tap()
+      .withTestId(CHESS_BOARD_TAP_TEST_ID)
+      .onEnd((e) => {
+        if (drag.pieceKey.value !== DRAG_PIECE_NONE) return;
+        const sq = xyToSquare(e.x, e.y, size, orientation);
+        if (sq) runOnJS(tapSquare)(sq);
+      });
     return Gesture.Exclusive(pan, tap);
   }, [
     cancelDrag,

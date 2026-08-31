@@ -73,7 +73,8 @@ export function createObservabilityMiddleware(
             try {
               res.headers.set(TRACEPARENT_HEADER, traceparent);
             } catch {
-              c.header(TRACEPARENT_HEADER, traceparent);
+              // Never `c.header()` after finalize: on React Native,
+              // `Response.body` is undefined and Hono recreates an empty body.
             }
           }
         }

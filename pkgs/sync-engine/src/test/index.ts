@@ -19,9 +19,9 @@ export {
   type InMemorySyncEngineOptions,
 } from './in-memory-sync-engine';
 export {
-  emptySimPushChannels,
   type DstAction,
   type DstApp,
+  emptySimPushChannels,
   type NeverOpts,
   type OpenWorldArgs,
   openWorld,
@@ -30,8 +30,8 @@ export {
   type SimClock,
   type SimDomainPack,
   type SimSessionQuery,
-  type World,
-  type WorldKnobs,
   type UntilOpts,
   type UntilTarget,
+  type World,
+  type WorldKnobs,
 } from './sim-exports';

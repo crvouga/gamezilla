@@ -1,5 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { assertDstProperty, fc } from '@pkgs/pbt';
+import { arbWorldKnobs, arbWorldSeed } from '../../sim/dst/knobs';
+import { openWorld } from '../../sim/world';
 import {
   expectLiveNote,
   expectNoteNotLive,
@@ -7,8 +9,6 @@ import {
 } from '../apps/acme/assert';
 import { acmeDstApp } from '../apps/acme/dst-app';
 import { deleteNote, setNote } from '../apps/acme/shared/mutations';
-import { arbWorldKnobs, arbWorldSeed } from '../../sim/dst/knobs';
-import { openWorld } from '../../sim/world';
 
 type TombstoneStep =
   | { readonly kind: 'set'; readonly body: string }

@@ -63,6 +63,11 @@ export async function ensureAnonAuth(
         : `auth/anon/ensure failed (${String(res.status)}): ${text}`
     );
   }
+  if (json === null || typeof json !== 'object' || Array.isArray(json)) {
+    throw new Error(
+      `auth/anon/ensure empty/non-object body (status ${String(res.status)}, bytes ${String(text.length)}): ${text}`
+    );
+  }
   assert.record(json, 'auth/anon/ensure success body');
   const resolvedUserId = json['userId'] ?? json['accountId'];
   assert.string(resolvedUserId, 'auth/anon/ensure userId');

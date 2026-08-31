@@ -11,7 +11,7 @@
   },
   "scripts": {
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test --pass-with-no-tests"
+    "test": "bun test src/chess-board-apply-external-fen.test.ts test/chess-board-squares.test.ts --pass-with-no-tests && bunx jest --config ./jest.config.cjs --runInBand"
   },
   "dependencies": {
     "@lingui/core": "catalog:",
@@ -32,9 +32,21 @@
     "react-native-svg": "catalog:"
   },
   "devDependencies": {
+    "@babel/runtime": "catalog:",
+    "@jest/globals": "catalog:",
+    "@lingui/babel-plugin-lingui-macro": "catalog:",
+    "@testing-library/react-native": "catalog:",
     "@types/bun": "catalog:",
+    "@types/jest": "catalog:",
     "@types/react": "catalog:",
+    "@types/react-test-renderer": "catalog:",
     "@typescript/native": "catalog:",
+    "babel-jest": "catalog:",
+    "expo": "catalog:",
+    "jest": "catalog:",
+    "jest-expo": "catalog:",
+    "react-native-worklets": "catalog:",
+    "react-test-renderer": "catalog:",
     "typescript": "catalog:"
   }
 }

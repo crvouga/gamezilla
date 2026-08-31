@@ -1,11 +1,11 @@
 import { describe, test } from 'bun:test';
 import { assertDstProperty, fc } from '@pkgs/pbt';
+import { arbWorldKnobs, arbWorldSeed } from '../../sim/dst/knobs';
+import { openWorld } from '../../sim/world';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
 import { acmeDstApp } from '../apps/acme/dst-app';
 import type { DstAction, LibraryAction } from '../dst/actions';
 import { SCHEMA_VARIANTS } from '../dst/commands';
-import { openWorld } from '../../sim/world';
-import { arbWorldKnobs, arbWorldSeed } from '../../sim/dst/knobs';
 
 const TRIGGER = acmeSetNoteOp('c0', 'n0', 'schema-drift');
 const TRIGGER_C1 = acmeSetNoteOp('c1', 'n1', 'schema-drift-peer');
@@ -35,8 +35,8 @@ describe('schema drift PBT', () => {
               seed,
               knobs,
             });
-              await world.playActions(schemaSequence(arm));
-              await world.assertConverged();
+            await world.playActions(schemaSequence(arm));
+            await world.assertConverged();
           }
         ),
         { numRuns: 6 }
@@ -73,8 +73,8 @@ describe('schema drift PBT', () => {
               seed,
               knobs: { ...knobs, clientCount: 2 },
             });
-              await world.playActions(actions);
-              await world.assertConverged();
+            await world.playActions(actions);
+            await world.assertConverged();
           }
         ),
         { numRuns: 6 }
@@ -94,20 +94,20 @@ describe('schema drift PBT', () => {
         clientCount: 2,
       },
     });
-      await world.playActions([
-        {
-          kind: 'restartWithSchema',
-          clientId: 'c0',
-          variant: 'extraColumn',
-        },
-        {
-          kind: 'restartWithSchema',
-          clientId: 'c0',
-          variant: 'extraTable',
-        },
-        { kind: 'auth', clientId: 'c0', status: 'valid' },
-      ]);
-      await world.assertConverged();
+    await world.playActions([
+      {
+        kind: 'restartWithSchema',
+        clientId: 'c0',
+        variant: 'extraColumn',
+      },
+      {
+        kind: 'restartWithSchema',
+        clientId: 'c0',
+        variant: 'extraTable',
+      },
+      { kind: 'auth', clientId: 'c0', status: 'valid' },
+    ]);
+    await world.assertConverged();
   });
 
   test('mixed extraColumn without row images converges (PBT shrink)', async () => {
@@ -121,18 +121,18 @@ describe('schema drift PBT', () => {
         clientCount: 2,
       },
     });
-      await world.playActions([
-        {
-          kind: 'restartWithSchema',
-          clientId: 'c0',
-          variant: 'extraColumn',
-        },
-        TRIGGER,
-        TRIGGER_C1,
-        { kind: 'idle', ms: 40 },
-        { kind: 'heal' },
-      ]);
-      await world.assertConverged();
+    await world.playActions([
+      {
+        kind: 'restartWithSchema',
+        clientId: 'c0',
+        variant: 'extraColumn',
+      },
+      TRIGGER,
+      TRIGGER_C1,
+      { kind: 'idle', ms: 40 },
+      { kind: 'heal' },
+    ]);
+    await world.assertConverged();
   });
 
   test(
@@ -156,8 +156,8 @@ describe('schema drift PBT', () => {
               seed,
               knobs,
             });
-              await world.playActions(actions);
-              await world.assertConverged();
+            await world.playActions(actions);
+            await world.assertConverged();
           }
         ),
         { numRuns: 6 }

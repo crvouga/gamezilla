@@ -1,7 +1,7 @@
+import type { LibraryAction } from '../../sim/dst/actions';
 import type { SimFaultOptions } from '../../sim/faults';
 import type { SeededRng } from '../../sim/rng';
 import type { SimTraffic } from '../../sim/traffic';
-import type { LibraryAction } from '../../sim/dst/actions';
 
 const SERVER_NODE = 'server';
 

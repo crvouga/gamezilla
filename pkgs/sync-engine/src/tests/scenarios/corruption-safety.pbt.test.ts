@@ -1,5 +1,7 @@
 import { describe, test } from 'bun:test';
 import { assertDstProperty, fc } from '@pkgs/pbt';
+import { arbWorldKnobs, arbWorldSeed } from '../../sim/dst/knobs';
+import { openWorld } from '../../sim/world';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
 import { acmeDstApp } from '../apps/acme/dst-app';
 import type { DstAction, LibraryAction } from '../dst/actions';
@@ -9,8 +11,6 @@ import {
   PUBSUB_FAULTS,
   STORAGE_TAMPERS,
 } from '../dst/commands';
-import { openWorld } from '../../sim/world';
-import { arbWorldKnobs, arbWorldSeed } from '../../sim/dst/knobs';
 
 const TRIGGER = acmeSetNoteOp('c0', 'n0', 'corruption');
 
@@ -45,9 +45,8 @@ describe('corruption safety PBT', () => {
               seed,
               knobs,
             });
-              await world.playActions(corruptionSequence(arm)
-              );
-              await world.assertConverged();
+            await world.playActions(corruptionSequence(arm));
+            await world.assertConverged();
           }
         ),
         { numRuns: 6 }
@@ -78,9 +77,8 @@ describe('corruption safety PBT', () => {
               seed,
               knobs,
             });
-              await world.playActions(corruptionSequence(arm)
-              );
-              await world.assertConverged();
+            await world.playActions(corruptionSequence(arm));
+            await world.assertConverged();
           }
         ),
         { numRuns: 6 }
@@ -104,14 +102,14 @@ describe('corruption safety PBT', () => {
               seed,
               knobs,
             });
-              await world.playActions([
-                TRIGGER,
-                { kind: 'tamperLocalStorage', clientId: 'c0', tamper },
-                { kind: 'restart', clientId: 'c0' },
-                { kind: 'idle', ms: 40 },
-                { kind: 'heal' },
-              ]);
-              await world.assertConverged();
+            await world.playActions([
+              TRIGGER,
+              { kind: 'tamperLocalStorage', clientId: 'c0', tamper },
+              { kind: 'restart', clientId: 'c0' },
+              { kind: 'idle', ms: 40 },
+              { kind: 'heal' },
+            ]);
+            await world.assertConverged();
           }
         ),
         { numRuns: 6 }

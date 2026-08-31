@@ -10,7 +10,8 @@
     ]
   },
   "scripts": {
-    "tc": "tsc --noEmit -p ./tsconfig.tc.json"
+    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
     "@lingui/core": "catalog:",

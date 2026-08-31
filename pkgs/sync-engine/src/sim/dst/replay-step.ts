@@ -1,7 +1,7 @@
-import type { DstWorldSurface } from './world-surface';
 import type { DstAction } from './actions';
 import type { DstApp } from './app';
 import { dispatchDstAction } from './dispatch';
+import type { DstWorldSurface } from './world-surface';
 
 /** Clear partitions/holds/faults so restart and sync can complete. */
 export function healNetworkForSettle(world: DstWorldSurface): void {

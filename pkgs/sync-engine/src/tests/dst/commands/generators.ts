@@ -1,6 +1,7 @@
 import fc from 'fast-check';
 
 import type { LibraryAction } from '../../../sim/dst/actions';
+import type { WorldCmd } from '../../../sim/dst/run-commands';
 import {
   AUTH_STATUSES,
   CLIENT_IDS,
@@ -12,7 +13,6 @@ import {
   STORAGE_TAMPERS,
   WORLD_PBT_CRASH_EVENTS,
 } from '../../../sim/dst/world-model';
-import type { WorldCmd } from '../../../sim/dst/run-commands';
 
 const trafficArb = fc.constantFrom(...HOLD_TRAFFIC);
 

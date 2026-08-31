@@ -6,7 +6,7 @@ export function kebabSimSegment(raw: string, prefix: string): string {
   const rest = raw.startsWith(prefix) ? raw.slice(prefix.length) : raw;
   return rest
     .trim()
-    .replaceAll(/[._\s]+/g, '-')
+    .replaceAll(/[._\s()]+/g, '-')
     .replaceAll(/-+/g, '-')
     .replaceAll(/^-|-$/g, '')
     .toLowerCase();

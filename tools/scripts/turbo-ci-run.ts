@@ -19,8 +19,9 @@
  *   7GB GitHub-hosted runner does not launch 10 Node heaps.
  * - Log order: `auto` locally; `stream` in CI (not `grouped` — grouped holds
  *   task stdout until completion, which looks like a hang). Override with
- *   `TURBO_LOG_ORDER`. `//#check` in argv is expanded to its `dependsOn` ci
- *   tasks so turbo does not nest them under a `//:check` prefix.
+ *   `TURBO_LOG_ORDER`. `check` / `check:full` (and `//#…` forms) are expanded
+ *   recursively to leaf `dependsOn` tasks so turbo never nests under a root
+ *   `check` script (would recurse).
  * - Output logs: `new-only` (cache misses stream). Override with
  *   `TURBO_OUTPUT_LOGS`. Do not default CI to `errors-only`: a silent pipe is
  *   SIGTERM'd (~10 min, exit 143) by GitHub Actions.
@@ -41,8 +42,19 @@ import {
 
 const REPO_ROOT = join(import.meta.dirname, '../..');
 const CHECK_AGGREGATOR = '//#check';
+const CHECK_FULL_AGGREGATOR = '//#check:full';
 const SECRETS_CHECK_TASK = '@libs/secrets#check';
 const DEPLOY_TASK = 'deploy';
+
+/** Root-package script names and turbo root-task aliases that are aggregators. */
+const AGGREGATOR_ALIASES: ReadonlyMap<string, string> = new Map([
+  ['check', CHECK_AGGREGATOR],
+  ['//#check', CHECK_AGGREGATOR],
+  ['//:check', CHECK_AGGREGATOR],
+  ['check:full', CHECK_FULL_AGGREGATOR],
+  ['//#check:full', CHECK_FULL_AGGREGATOR],
+  ['//:check:full', CHECK_FULL_AGGREGATOR],
+]);
 
 const TURBO_CACHE_RE = /^(local|remote):(r|rw|w)?(,(local|remote):(r|rw|w)?)?$/;
 const TURBO_UI_VALUES = new Set(['tui', 'stream']);
@@ -51,6 +63,8 @@ const LOCAL_ONLY_CACHE = 'local:rw';
 const MAX_CHECK_CONCURRENCY = 32;
 const MIN_CHECK_CONCURRENCY = 10;
 const CACHE_WORKERS = 16;
+
+type TurboTasks = Record<string, { dependsOn?: unknown }>;
 
 function inCi(): boolean {
   return (
@@ -135,39 +149,61 @@ function resolveAffectedFilter(taskArgs: readonly string[]): string[] {
   return [`--filter=...[${base}]`, '--filter=//'];
 }
 
-function loadCheckCiTasks(): string[] {
+function loadTurboTasks(): TurboTasks {
   const turboJson = JSON.parse(
     readFileSync(join(REPO_ROOT, 'turbo.json'), 'utf8')
-  ) as {
-    tasks?: Record<string, { dependsOn?: unknown }>;
-  };
-  const deps = turboJson.tasks?.[CHECK_AGGREGATOR]?.dependsOn;
+  ) as { tasks?: TurboTasks };
+  if (turboJson.tasks === undefined) {
+    throw new Error('turbo.json missing tasks');
+  }
+  return turboJson.tasks;
+}
+
+function taskDependsOn(tasks: TurboTasks, taskName: string): string[] {
+  const deps = tasks[taskName]?.dependsOn;
   if (!Array.isArray(deps)) {
-    throw new Error(`turbo.json missing ${CHECK_AGGREGATOR} dependsOn`);
+    throw new Error(`turbo.json missing ${taskName} dependsOn`);
   }
   return deps.filter((dep): dep is string => typeof dep === 'string');
 }
 
-function isCheckAggregator(arg: string): boolean {
-  return arg === CHECK_AGGREGATOR || arg === '//:check';
-}
-
-/** Flatten `//#check` so ci gates are root turbo tasks (avoids nested log prefixes). */
-function flattenCheckAggregator(taskArgs: readonly string[]): string[] {
-  const ciTasks = loadCheckCiTasks();
+/**
+ * Recursively expand check / check:full aggregators to leaf turbo tasks.
+ * Dedupes while preserving first-seen order.
+ */
+export function flattenCheckAggregators(
+  taskArgs: readonly string[],
+  tasks: TurboTasks = loadTurboTasks()
+): string[] {
   const out: string[] = [];
-  let expanded = false;
-  for (const arg of taskArgs) {
-    if (isCheckAggregator(arg)) {
-      expanded = true;
-      out.push(...ciTasks);
-    } else {
-      out.push(arg);
+  const seen = new Set<string>();
+  let expandedCount = 0;
+
+  function pushLeaf(leaf: string): void {
+    if (seen.has(leaf)) return;
+    seen.add(leaf);
+    out.push(leaf);
+  }
+
+  function expand(arg: string): void {
+    const canonical = AGGREGATOR_ALIASES.get(arg);
+    if (canonical === undefined) {
+      pushLeaf(arg);
+      return;
+    }
+    expandedCount += 1;
+    for (const dep of taskDependsOn(tasks, canonical)) {
+      expand(dep);
     }
   }
-  if (expanded) {
+
+  for (const arg of taskArgs) {
+    expand(arg);
+  }
+
+  if (expandedCount > 0) {
     console.log(
-      `turbo-ci-run: expanded ${CHECK_AGGREGATOR} to ${String(ciTasks.length)} root ci tasks`
+      `turbo-ci-run: expanded check aggregators to ${String(out.length)} leaf tasks`
     );
   }
   return out;
@@ -259,7 +295,7 @@ async function main(): Promise<void> {
   }
 
   const taskArgs = applyOfflineTaskArgs(
-    flattenCheckAggregator(rawTaskArgs),
+    flattenCheckAggregators(rawTaskArgs),
     remote
   );
   await ensureSecretsFingerprint(env, taskArgs);

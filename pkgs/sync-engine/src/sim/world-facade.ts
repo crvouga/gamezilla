@@ -1,9 +1,3 @@
-import { createNetEffectRegistry } from './net-effect';
-import { registerWorld } from './scenario-dispose-hook';
-import type { World } from './world-api';
-import { bindWorldMethods, createArmCrashHook } from './world-facade-parts';
-import { worldFaultApi } from './world-lifecycle';
-import type { BootedSimKernel } from './world-types';
 import type { DstApp } from './dst/app';
 import type { WorldKnobs } from './dst/knobs';
 import {
@@ -12,6 +6,12 @@ import {
   runWithInvariants,
 } from './dst/play';
 import { runCommandsOnWorld } from './dst/run-commands';
+import { createNetEffectRegistry } from './net-effect';
+import { registerWorld } from './scenario-dispose-hook';
+import type { World } from './world-api';
+import { bindWorldMethods, createArmCrashHook } from './world-facade-parts';
+import { worldFaultApi } from './world-lifecycle';
+import type { BootedSimKernel } from './world-types';
 
 export type BuildWorldFacadeOpts = {
   readonly dstApp?: DstApp;
@@ -59,8 +59,7 @@ export function buildWorldFacade(
     ...base,
     clientIds,
     knobs: opts.knobs ?? null,
-    playActions: (actions) =>
-      playActionsOnWorld(requireApp(), world, actions),
+    playActions: (actions) => playActionsOnWorld(requireApp(), world, actions),
     runCommands: async (cmds) => {
       await runCommandsOnWorld({ app: requireApp(), world, cmds });
     },

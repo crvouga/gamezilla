@@ -1,11 +1,11 @@
 import { describe, test } from 'bun:test';
 import { assertDstProperty, fc } from '@pkgs/pbt';
+import { arbWorldKnobs, arbWorldSeed } from '../../sim/dst/knobs';
+import { openWorld } from '../../sim/world';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
 import { acmeDstApp } from '../apps/acme/dst-app';
 import type { DomainOp, DstAction, LibraryAction } from '../dst/actions';
 import { HTTP_FAULTS } from '../dst/commands';
-import { openWorld } from '../../sim/world';
-import { arbWorldKnobs, arbWorldSeed } from '../../sim/dst/knobs';
 
 const TRIGGER: DomainOp = acmeSetNoteOp('c0', 'n0', 'boundary');
 
@@ -50,9 +50,8 @@ describe('boundary faults PBT', () => {
               seed,
               knobs,
             });
-              await world.playActions(boundarySequence(arm)
-              );
-              await world.assertConverged();
+            await world.playActions(boundarySequence(arm));
+            await world.assertConverged();
           }
         ),
         { numRuns: 8 }
@@ -77,9 +76,8 @@ describe('boundary faults PBT', () => {
               seed,
               knobs,
             });
-              await world.playActions(boundarySequence(arm)
-              );
-              await world.assertConverged();
+            await world.playActions(boundarySequence(arm));
+            await world.assertConverged();
           }
         ),
         { numRuns: 6 }
@@ -116,9 +114,8 @@ describe('boundary faults PBT', () => {
               seed,
               knobs,
             });
-              await world.playActions(crashBoundarySequence(arm)
-              );
-              await world.assertConverged();
+            await world.playActions(crashBoundarySequence(arm));
+            await world.assertConverged();
           }
         ),
         { numRuns: 6 }

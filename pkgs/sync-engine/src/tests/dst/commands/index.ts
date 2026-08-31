@@ -1,7 +1,11 @@
 import fc from 'fast-check';
 
 import type { DstApp } from '../../../sim/dst/app';
-import { arbWorldKnobs, arbWorldSeed, type WorldKnobs } from '../../../sim/dst/knobs';
+import {
+  arbWorldKnobs,
+  arbWorldSeed,
+  type WorldKnobs,
+} from '../../../sim/dst/knobs';
 import {
   initialWorldState,
   type WorldCmd,
@@ -55,6 +59,7 @@ export function worldPropertyInputs(
   });
 }
 
+export type { WorldModel, WorldReal };
 export {
   AUTH_STATUSES,
   applyActionToModel,
@@ -70,4 +75,3 @@ export {
   SCHEMA_VARIANTS,
   STORAGE_TAMPERS,
 };
-export type { WorldModel, WorldReal };

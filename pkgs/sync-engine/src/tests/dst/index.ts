@@ -15,9 +15,9 @@ export type {
   WorldReal,
 } from '../../sim/dst';
 export {
+  AUTH_STATUSES,
   arbWorldKnobs,
   arbWorldSeed,
-  AUTH_STATUSES,
   CLIENT_IDS,
   CORRUPTION_VARIANTS,
   CRASH_EVENTS,
@@ -30,5 +30,5 @@ export {
 } from '../../sim/dst';
 export { worldCommands, worldPropertyInputs } from './commands';
 export { pickDstAction, pickLibraryAction } from './pick-library-action';
-export { runDstSeed, seedsFromEnv } from './run-seed';
 export type { RunSeedOptions, RunSeedResult } from './run-seed';
+export { runDstSeed, seedsFromEnv } from './run-seed';

@@ -1,6 +1,11 @@
 // @ts-check
+const { EventEmitter } = require('events');
 const { getDefaultConfig } = require('expo/metro-config');
 const path = require('path');
+
+// Bun store fan-out registers many FileMap listeners; raise the cap so Watchman
+// SHA-1 of `node_modules/.bun` does not trip MaxListeners / corrupt deltas.
+EventEmitter.defaultMaxListeners = 0;
 
 const projectRoot =
   typeof process.env.EXPO_METRO_PROJECT_ROOT === 'string' &&
@@ -37,13 +42,14 @@ config.resolver = {
 };
 
 // Workspace sources for HMR. With Watchman, also include the Bun store so Metro
-// can SHA-1 deps resolved via `sim/console/node_modules` symlinks. Node crawl
-// must never watch `node_modules` directly (symlinks fan out into `.bun`).
+// can SHA-1 deps resolved via `sim/console/node_modules` symlinks (after
+// realpath). Node crawl must never watch `node_modules` directly.
 /** @type {string[]} */
 const watchFolders = [
   path.resolve(monorepoRoot, 'apps'),
   path.resolve(monorepoRoot, 'libs'),
   path.resolve(monorepoRoot, 'pkgs'),
+  path.resolve(monorepoRoot, 'sim'),
 ];
 if (process.env['EXPO_USE_WATCHMAN'] === '1') {
   watchFolders.push(path.resolve(monorepoRoot, 'node_modules/.bun'));

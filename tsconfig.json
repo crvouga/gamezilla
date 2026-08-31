@@ -203,6 +203,8 @@
     "libs/chess/scripts/**/*.ts",
     "pkgs/chess-board/src/**/*.ts",
     "pkgs/chess-board/src/**/*.tsx",
+    "pkgs/chess-board/test/**/*.ts",
+    "pkgs/chess-board/test/**/*.tsx",
     "pkgs/sounds/src/**/*.ts",
     "pkgs/sounds/src/**/*.tsx",
     "pkgs/sounds/scripts/**/*.ts",

@@ -87,7 +87,7 @@ export function SimConsoleApp(props: {
     if (section === 'playground') setPlaygroundPinned(true);
   }, [section]);
 
-  const { state: sessionState } = usePlaygroundSession(
+  const { state: sessionState, reboot } = usePlaygroundSession(
     ports.bootPlayground,
     playgroundPinned
   );
@@ -111,6 +111,7 @@ export function SimConsoleApp(props: {
             onKindChange={onKindChange}
             onInstanceChange={onInstanceChange}
             onViewChange={onViewChange}
+            onReload={reboot}
           />
         ) : null}
       </Box>

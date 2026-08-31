@@ -10,7 +10,12 @@ import {
   wallTimers,
 } from '@pkgs/clock';
 import { createStaticObjectStore } from '@pkgs/object-store/impl-static';
-import { SimConsoleApp, type SimConsolePorts } from '@pkgs/sim-console/client';
+import {
+  type BootPlaygroundOptions,
+  type PlaygroundSession,
+  SimConsoleApp,
+  type SimConsolePorts,
+} from '@pkgs/sim-console/client';
 import { AppThemeRoot, Box, createPassthroughBottomSheetHost } from '@pkgs/ui';
 import { IdProvider } from '@pkgs/uuid';
 import {
@@ -18,13 +23,13 @@ import {
   useConsoleChrome,
 } from '@sim/console/console-nav/console-chrome-context';
 import { useConsoleNav } from '@sim/console/console-nav/use-console-nav';
-import { bootPlaygroundSession } from '@sim/console/playground/boot-playground';
 import { reportsPublicBaseUrl } from '@sim/console/reports-public-base';
 import { type ReactNode, useMemo } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import {
   initialWindowMetrics,
   SafeAreaProvider,
+  useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 
 const simConsoleBottomSheetHost = createPassthroughBottomSheetHost();
@@ -32,6 +37,39 @@ const fallbackInitialMetrics = {
   frame: { x: 0, y: 0, width: 390, height: 844 },
   insets: { top: 0, left: 0, right: 0, bottom: 0 },
 } as const;
+
+/**
+ * Defer `@sim/console/sim/create-sim` until Playground boots. Eager import of
+ * that graph makes Metro's iOS delta bundler throw `nullthrows` and leaves
+ * Expo Go blank. Uses `import()` (async chunk) so the heavy graph stays out
+ * of the initial bundle — do not stub `location` on native or Expo builds
+ * chunk URLs against the wrong origin (`Could not load bundle`).
+ */
+async function bootPlaygroundLazy(
+  opts?: BootPlaygroundOptions
+): Promise<PlaygroundSession> {
+  try {
+    const { bootPlaygroundSession } = await import(
+      '@sim/console/playground/boot-playground'
+    );
+    return await bootPlaygroundSession(opts);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (
+      msg.includes('Could not load bundle') ||
+      msg.includes('LoadBundleFromServer') ||
+      msg.includes('Metro HMR disconnected') ||
+      msg.includes("property 'reload'") ||
+      msg.includes("property 'replace'") ||
+      msg.includes('reload of undefined')
+    ) {
+      throw new Error(
+        `Playground chunk failed to load from Metro (${msg}). Restart bun dev and hard-reload Expo Go.`
+      );
+    }
+    throw err;
+  }
+}
 
 function ConsoleBody(): ReactNode {
   const clock = useClock();
@@ -42,7 +80,7 @@ function ConsoleBody(): ReactNode {
       globalThis.fetch(input, init);
     const reportsBase = reportsPublicBaseUrl();
     return {
-      bootPlayground: bootPlaygroundSession,
+      bootPlayground: bootPlaygroundLazy,
       clock,
       timers,
       fetch: fetchFn,
@@ -72,9 +110,28 @@ function ConsoleBody(): ReactNode {
   );
 }
 
+function ConsoleSafeShell(): ReactNode {
+  const insets = useSafeAreaInsets();
+  const consoleNav = useConsoleNav();
+  return (
+    <ConsoleChromeProvider value={consoleNav}>
+      <Box
+        sx={{
+          ...rootSx,
+          paddingTop: insets.top,
+          paddingBottom: insets.bottom,
+          paddingLeft: insets.left,
+          paddingRight: insets.right,
+        }}
+      >
+        <ConsoleBody />
+      </Box>
+    </ConsoleChromeProvider>
+  );
+}
+
 /** Expo root: Sim Console only (no product Client|Sim host chrome). */
 export function RootApp(): ReactNode {
-  const consoleNav = useConsoleNav();
   const createId = useMemo(() => () => crypto.randomUUID(), []);
   const random = useMemo(() => () => Math.random(), []);
   return (
@@ -85,11 +142,7 @@ export function RootApp(): ReactNode {
         <ClockProvider clock={wallClock} timers={wallTimers}>
           <IdProvider createId={createId} random={random}>
             <AppThemeRoot>
-              <ConsoleChromeProvider value={consoleNav}>
-                <Box sx={rootSx}>
-                  <ConsoleBody />
-                </Box>
-              </ConsoleChromeProvider>
+              <ConsoleSafeShell />
             </AppThemeRoot>
           </IdProvider>
         </ClockProvider>

@@ -1,11 +1,11 @@
 import { describe, test } from 'bun:test';
 import { assertDstProperty, fc } from '@pkgs/pbt';
+import { arbWorldKnobs, arbWorldSeed } from '../../sim/dst/knobs';
+import { openWorld } from '../../sim/world';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
 import { acmeDstApp } from '../apps/acme/dst-app';
 import type { DstAction, LibraryAction } from '../dst/actions';
 import { PUBSUB_FAULTS } from '../dst/commands';
-import { openWorld } from '../../sim/world';
-import { arbWorldKnobs, arbWorldSeed } from '../../sim/dst/knobs';
 
 const TRIGGER = acmeSetNoteOp('c0', 'n0', 'broker-chaos');
 
@@ -27,20 +27,20 @@ describe('broker chaos PBT', () => {
           clientCount: 3,
         },
       });
-        await world.playActions([
-          { kind: 'brokerRestart' },
-          {
-            kind: 'setFaults',
-            nodeId: 'c1',
-            traffic: 'all',
-            faults: {
-              packetLossProbability: 0.05,
-              reorderWindow: 2,
-              partitionProbability: 0.02,
-            },
+      await world.playActions([
+        { kind: 'brokerRestart' },
+        {
+          kind: 'setFaults',
+          nodeId: 'c1',
+          traffic: 'all',
+          faults: {
+            packetLossProbability: 0.05,
+            reorderWindow: 2,
+            partitionProbability: 0.02,
           },
-        ]);
-        await world.assertConverged();
+        },
+      ]);
+      await world.assertConverged();
     },
     { timeout: 30_000 }
   );
@@ -61,9 +61,8 @@ describe('broker chaos PBT', () => {
               seed,
               knobs,
             });
-              await world.playActions(brokerSequence(arm)
-              );
-              await world.assertConverged();
+            await world.playActions(brokerSequence(arm));
+            await world.assertConverged();
           }
         ),
         { numRuns: 6 }
@@ -90,14 +89,14 @@ describe('broker chaos PBT', () => {
               seed,
               knobs,
             });
-              await world.playActions([
-                arm,
-                TRIGGER,
-                { kind: 'brokerRestart' },
-                { kind: 'idle', ms: 40 },
-                { kind: 'heal' },
-              ]);
-              await world.assertConverged();
+            await world.playActions([
+              arm,
+              TRIGGER,
+              { kind: 'brokerRestart' },
+              { kind: 'idle', ms: 40 },
+              { kind: 'heal' },
+            ]);
+            await world.assertConverged();
           }
         ),
         { numRuns: 6 }
