@@ -283,10 +283,11 @@ function libraryAllowsAction(m: WorldModel, action: LibraryAction): boolean {
       );
     case 'thaw':
       return !m.crashed.has(action.clientId);
+    // Generation derives the peer id from the booted client set, so the id
+    // is already guaranteed not to collide with a real client.
     case 'addPeerEngine':
       return (
         clientLive(m, action.shareWithClientId) &&
-        !m.clientIds.includes(action.clientId) &&
         !m.addedPeerEngines.has(action.clientId)
       );
     default:

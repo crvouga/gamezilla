@@ -1,3 +1,5 @@
+import type { AsyncCommand } from 'fast-check';
+
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '../../protocol/wire';
 import { ROOM_ERROR_TYPE } from '../../types';
 import { WORLD_PBT_CRASH_EVENTS } from '../boundary-faults';
@@ -24,6 +26,8 @@ export type WorldReal = {
   readonly clientIds: readonly string[];
   readonly actions: RoomDstAction[];
 };
+
+export type WorldCmd = AsyncCommand<WorldModel, WorldReal>;
 
 export const CLIENT_IDS = ['c0', 'c1', 'c2'] as const;
 

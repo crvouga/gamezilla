@@ -27,7 +27,11 @@ function startSimClockTick(sim: Sim): {
     const now = wallClock.now();
     const delta = now - lastWall;
     lastWall = now;
-    if (delta > 0) sim.clock.advance(delta);
+    if (delta > 0) {
+      void sim.scheduler.runFor(delta).catch(() => {
+        // ignore disposed sim
+      });
+    }
   }, 16);
   return {
     disposeTick: () => wallTimers.clearInterval(tickHandle),

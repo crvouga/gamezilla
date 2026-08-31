@@ -1,8 +1,8 @@
+import type { SimScheduler } from '@pkgs/dst';
 import { HttpNetworkError } from '@pkgs/http-client';
-
 import type { SimHttpRequestBody, SimHttpResponse } from './http-bridge-types';
+
 import type { SimEndpointId, SimNetwork } from './network';
-import type { SimScheduler } from './scheduler';
 
 export type SimHttpPending = Map<
   string,

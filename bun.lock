@@ -767,6 +767,7 @@
         "@pkgs/clock": "workspace:*",
         "@pkgs/db-migrate": "workspace:*",
         "@pkgs/db-schema": "workspace:*",
+        "@pkgs/dst": "workspace:*",
         "@pkgs/http-client": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/sql": "workspace:*",
@@ -960,6 +961,7 @@
       },
       "devDependencies": {
         "@electric-sql/pglite": "catalog:",
+        "@pkgs/dst": "workspace:*",
         "@pkgs/pbt": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
@@ -977,6 +979,22 @@
         "@pkgs/keyword": "workspace:*",
         "@pkgs/kv": "workspace:*",
         "@pkgs/uuid": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/dst": {
+      "name": "@pkgs/dst",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/clock": "workspace:*",
+        "@pkgs/http-client": "workspace:*",
+        "@pkgs/pbt": "workspace:*",
+        "@pkgs/uuid": "workspace:*",
+        "fast-check": "catalog:",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -1363,6 +1381,7 @@
         "@pkgs/assert": "workspace:*",
         "@pkgs/attribute": "workspace:*",
         "@pkgs/clock": "workspace:*",
+        "@pkgs/dst": "workspace:*",
         "@pkgs/keyword": "workspace:*",
         "@pkgs/kv": "workspace:*",
         "@pkgs/message": "workspace:*",
@@ -1606,6 +1625,7 @@
         "@pkgs/clock": "workspace:*",
         "@pkgs/db-migrate": "workspace:*",
         "@pkgs/db-schema": "workspace:*",
+        "@pkgs/dst": "workspace:*",
         "@pkgs/http-client": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/outbox": "workspace:*",
@@ -1784,6 +1804,7 @@
         "@pkgs/browser": "workspace:*",
         "@pkgs/clock": "workspace:*",
         "@pkgs/db-schema": "workspace:*",
+        "@pkgs/dst": "workspace:*",
         "@pkgs/emqx-server": "workspace:*",
         "@pkgs/entity-store": "workspace:*",
         "@pkgs/git": "workspace:*",
@@ -1856,6 +1877,7 @@
         "@libs/dst-handles": "workspace:*",
         "@lingui/core": "catalog:",
         "@pkgs/clock": "workspace:*",
+        "@pkgs/dst": "workspace:*",
         "@pkgs/emqx-server": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/minio-server": "workspace:*",
@@ -3020,6 +3042,8 @@
     "@pkgs/db-schema": ["@pkgs/db-schema@workspace:pkgs/db-schema"],
 
     "@pkgs/distributed-lock": ["@pkgs/distributed-lock@workspace:pkgs/distributed-lock"],
+
+    "@pkgs/dst": ["@pkgs/dst@workspace:pkgs/dst"],
 
     "@pkgs/emqx-server": ["@pkgs/emqx-server@workspace:pkgs/emqx-server"],
 

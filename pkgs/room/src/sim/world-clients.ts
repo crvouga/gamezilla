@@ -1,4 +1,5 @@
-import type { SimClock, Timers } from '@pkgs/clock';
+import type { Timers } from '@pkgs/clock';
+import type { SimClock, SimScheduler } from '@pkgs/dst';
 import type { CreateId, SeededRng } from '@pkgs/uuid';
 
 import { InMemoryClientStorage } from '../client/adapters/storage/memory';
@@ -16,6 +17,7 @@ import type {
 } from '../types';
 
 import type { RoomBoundaryFaultController } from './boundary-faults';
+import type { RoomSimClientHandle, RoomSimNodeHandle } from './handles';
 import type { SimRoomNetwork } from './network';
 import type { SerialQueue } from './serial-queue';
 import {
@@ -24,7 +26,6 @@ import {
   type RoomSimClientSlot,
 } from './settle';
 import { SimLoopbackRoomTransport } from './sim-loopback-transport';
-import type { RoomSimClientHandle, RoomSimNodeHandle } from './world-api';
 
 export type WorldKernel<
   S extends RoomState,
@@ -35,6 +36,7 @@ export type WorldKernel<
   readonly topic: string;
   readonly module: RoomModule<S, C, E, string>;
   readonly clock: SimClock;
+  readonly scheduler: SimScheduler;
   readonly timers: Timers;
   readonly createId: CreateId;
   readonly rng: SeededRng;
@@ -69,8 +71,8 @@ function drainKernel<
     seed: k.seed,
     now: () => k.clock.now(),
     network: k.network,
+    scheduler: k.scheduler,
     serverQueue: k.serverQueue,
-    clockAdvance: (ms) => k.clock.advance(ms),
     clients: k.slots,
   });
 }
@@ -115,6 +117,9 @@ export async function attachClient<
     onBoundaryCrash: (key) => {
       k.onBoundaryCrash?.(key);
     },
+  });
+  k.network.registerClient(slot.key, (payload) => {
+    transport.deliverToClientNow(payload);
   });
   unregisterActorPeers(k, slot);
   k.server.registerConnection(
@@ -248,6 +253,7 @@ export function crashClientSync<
   slot.crashed = true;
   room?.destroy();
   transport?.destroy();
+  k.network.unregisterClient(slot.key);
   if (connectionId.length > 0) {
     k.server.unregisterConnection(connectionId);
   }
@@ -309,6 +315,7 @@ export async function destroyClient<
   slot.crashed = true;
   room?.destroy();
   transport?.destroy();
+  k.network.unregisterClient(slot.key);
   if (connectionId.length > 0) {
     k.server.unregisterConnection(connectionId);
   }

@@ -26,6 +26,7 @@ export {
   checkClientDomainMatchServer,
 } from './converge';
 export { acmeDomainPack } from './domain-pack';
+export { acmeDst, acmeLargeCatalogDst } from './dst';
 export { acmeDstApp } from './dst-app';
 export { insertCatalogNote } from './insert-catalog-note';
 export { createSimMembershipChannels } from './membership-channels';

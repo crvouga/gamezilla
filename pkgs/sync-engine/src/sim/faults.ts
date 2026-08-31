@@ -48,11 +48,3 @@ export function sampleFaultOptions(rng: SeededRng): SimFaultOptions {
     unpartitionProbability: (1 + rng.int(10)) / 100,
   };
 }
-
-export function sampleDelayMs(faults: SimFaultOptions, rng: SeededRng): number {
-  const mean = faults.oneWayDelayMeanMs;
-  const jitter = faults.oneWayDelayJitterMs;
-  if (mean === 0 && jitter === 0) return 0;
-  const delta = jitter === 0 ? 0 : Math.floor((rng.random() * 2 - 1) * jitter);
-  return Math.max(0, mean + delta);
-}

@@ -13,7 +13,7 @@ import { createSimNodeHandle } from './node-handle';
 import { unregisterWorld } from './scenario-dispose-hook';
 import { tamperClientLocalStorage } from './storage-faults';
 import type { UntilContext } from './until';
-import { runWorldNever, runWorldUntil } from './until';
+import { never, until } from './until';
 import type { World } from './world-api';
 import {
   crashClientImpl,
@@ -179,16 +179,7 @@ export function bindWorldMethods(args: {
   readonly faultApi: WorldFaultApi;
   readonly worldRef: { current: World | null };
   readonly markDisposed: () => boolean;
-}): Omit<
-  World,
-  | typeof Symbol.asyncDispose
-  | 'clientIds'
-  | 'knobs'
-  | 'playActions'
-  | 'runCommands'
-  | 'resetClockSkews'
-  | 'runWithInvariants'
-> & {
+}): Omit<World, typeof Symbol.asyncDispose> & {
   [Symbol.asyncDispose](): Promise<void>;
 } {
   const { k, netEffects, armCrashHook, crashServer, faultApi } = args;
@@ -216,8 +207,8 @@ export function bindWorldMethods(args: {
     addClient: (clientArgs) => addClientImpl(k, clientArgs),
     net,
     node,
-    until: (target, opts) => runWorldUntil(ctx, target, opts),
-    never: (target, opts) => runWorldNever(ctx, target, opts),
+    until: (target, opts) => until(ctx, target, opts),
+    never: (target, opts) => never(ctx, target, opts),
     runFor: (ms) => scheduler.runFor(ms),
     runUntilIdle: (opts) => scheduler.runUntilIdle(opts),
     isSchedulerQuiescent: () => scheduler.pendingCount() === 0,

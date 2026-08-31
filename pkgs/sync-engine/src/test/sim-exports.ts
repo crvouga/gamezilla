@@ -3,8 +3,8 @@
  * (`@libs/sim`). Prefer this over deep imports into `src/sim/`.
  */
 
+export type { SimClock } from '@pkgs/dst';
 export type { SimClientHandle } from '../sim/client-handle';
-export type { SimClock } from '../sim/clock';
 export type { SimDomainPack, SimSessionQuery } from '../sim/domain-pack';
 export { emptySimPushChannels } from '../sim/domain-pack';
 export type { DstAction, DstApp, WorldKnobs } from '../sim/dst';

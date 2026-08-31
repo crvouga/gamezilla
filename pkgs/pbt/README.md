@@ -40,21 +40,26 @@ Env knobs:
 
 ## SimWorld DST properties
 
-For `@pkgs/sync-engine` (and similar sim-backed suites), use `assertDstProperty`
-instead of `assertProperty`. It caps `numRuns` and extends the interrupt budget
-so `test:pbt:random` cannot accidentally run hundreds of full-world opens.
+For sim-backed suites, DST helpers live in **`@pkgs/dst/pbt`**, not here.
+`assertDstProperty` caps `numRuns` and extends the interrupt budget so
+`test:pbt:random` cannot accidentally run hundreds of full-world opens;
+`assertDst` drives a whole `defineDst` system (seed + knobs + action pool +
+model) without any per-suite plumbing.
 
 ```ts
-import { assertDstProperty, fc } from '@pkgs/pbt';
-import { acmeDstApp } from '../apps/acme/dst-app';
-import { openWorld } from '../../sim/world';
-import { worldPropertyInputs } from '../dst/world-runner';
+import { assertDst, assertDstProperty } from '@pkgs/dst/pbt';
+import { fc } from '@pkgs/pbt';
+import { acmeDst } from '../apps/acme/dst';
 
+// Whole-system property: framework generates and replays everything.
+await assertDst(acmeDst, { numRuns: 12, maxCommands: 14 });
+
+// Hand-rolled property over a framework-owned world.
 await assertDstProperty(
   'app world converges',
-  fc.asyncProperty(worldPropertyInputs(acmeDstApp, 14), async ([seed, knobs, cmds]) => {
-    await using world = await openWorld({ app: acmeDstApp, seed, knobs });
-    await world.runCommands(cmds);
+  fc.asyncProperty(fc.integer(), async (seed) => {
+    await using world = await openDstWorld(acmeDst, { seed });
+    await world.assertConverged();
   })
 );
 ```

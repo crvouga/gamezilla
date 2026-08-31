@@ -1,10 +1,10 @@
 /**
  * Virtual-time drain pump for rntl sim waits.
- * Advances one-shot timers + microtasks without wall sleep.
+ * Advances scheduled work via {@link SimScheduler} without wall sleep.
  */
 
 import { setImmediate as nodeSetImmediate } from 'node:timers';
-import type { SimClock } from '@pkgs/clock';
+import type { SimScheduler } from '@pkgs/dst';
 import type { WaitPump } from '@pkgs/ui-testing';
 
 /**
@@ -24,34 +24,55 @@ function yieldEventLoop(): Promise<void> {
 }
 
 /**
- * Build a {@link WaitPump} that drains the sim clock (one-shots + due work)
- * without wall 50ms sleeps. Intervals (reconcile) do not block — each tick
- * advances at most {@link SIM_WAIT_STEP_MS} toward the next due timer.
+ * Serialize overlapping {@link SimScheduler.runFor} calls from the UI harness.
+ * Nested drain from a scheduled task still throws; concurrent mount / focus /
+ * wait-pump callers queue instead of racing the drain gate.
+ */
+export function createSerializedRunFor(
+  scheduler: SimScheduler
+): (durationMs: number) => Promise<void> {
+  let tail: Promise<void> = Promise.resolve();
+  return (durationMs: number): Promise<void> => {
+    const run = tail.then(() => scheduler.runFor(durationMs));
+    tail = run.then(
+      () => undefined,
+      () => undefined
+    );
+    return run;
+  };
+}
+
+/**
+ * Build a {@link WaitPump} that drains the sim scheduler (due tasks +
+ * microtasks) without wall 50ms sleeps.
  */
 export function createSimWaitPump(args: {
-  readonly clock: SimClock;
+  readonly scheduler: SimScheduler;
+  readonly runFor?: (durationMs: number) => Promise<void>;
 }): WaitPump {
+  const runFor =
+    args.runFor ?? ((durationMs) => args.scheduler.runFor(durationMs));
   return async () => {
     try {
-      args.clock.advance(0);
+      await runFor(0);
     } catch {
-      // clock may have been reset/disposed mid-wait
+      // scheduler may have been cleared/disposed mid-wait
     }
     await flushMicrotasks();
 
     const next = (() => {
       try {
-        return args.clock.nextDueAt();
+        return args.scheduler.nextDueAt();
       } catch {
         return null;
       }
     })();
     if (next !== null) {
-      const delta = Math.max(0, next - args.clock.now());
+      const delta = Math.max(0, next - args.scheduler.clock.now());
       const step = Math.min(delta, SIM_WAIT_STEP_MS);
       if (step > 0) {
         try {
-          args.clock.advance(step);
+          await runFor(step);
         } catch {
           // ignore disposed clock
         }

@@ -133,6 +133,20 @@ module.exports = {
         path: '(^pkgs/http-client/|^pkgs/pubsub/|^pkgs/pubsub-emqx/|/wall-io\\.ts$|/src/wall\\.ts$)',
       },
     },
+    {
+      name: 'product-no-sim-deps',
+      severity: 'error',
+      comment:
+        'SimDeps / @pkgs/dst is harness-only. Product apps and non-test product libs must receive unpacked clock/timers/createId/random/http. DST package tests and @sim/* may import @pkgs/dst.',
+      from: {
+        path: '^(apps/|libs/)',
+        pathNot:
+          '(\\.(test|spec|sim\\.test|dst\\.pbt\\.test)\\.|/(test|tests|testing|testkit|__tests__|sim)/)',
+      },
+      to: {
+        path: '^pkgs/dst/',
+      },
+    },
   ],
   options: {
     doNotFollow: {

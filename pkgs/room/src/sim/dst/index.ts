@@ -1,3 +1,8 @@
+/**
+ * Room DST kernel. Worlds and action replay are framework-owned:
+ * {@link defineRoomDst} + `assertDst` / `replayDst` from `@pkgs/dst`.
+ */
+
 export type {
   DomainOp,
   LibraryAction,
@@ -5,14 +10,21 @@ export type {
 } from './actions';
 export { isDomainOp, isLibraryAction } from './actions';
 export type { DomainModelHooks, RoomDstApp } from './app';
+export type {
+  DefineRoomDstOpts,
+  RoomDstDef,
+  RoomDstWorld,
+} from './define-room-dst';
+export { defineRoomDst, playRoomActions } from './define-room-dst';
 export { dispatchRoomDstAction } from './dispatch';
-export { arbWorldKnobs, arbWorldSeed, type RoomWorldKnobs } from './knobs';
-export { playActionsOnWorld, prepareClientsForConverge } from './play';
-export {
-  initialWorldState,
-  runCommandsOnWorld,
-  type WorldCmd,
-} from './run-commands';
+export type { RoomWorldKnobs } from './knobs';
+export { arbRoomKnobs, ROOM_DST_KNOBS } from './knobs';
+export { libraryActionArbs, MILD_NET_FAULTS } from './library-arbs';
+export { prepareClientsForConverge, prepareReplayAction } from './play';
+export type { ReplayRoomInputs } from './replay';
+export { replayRoomDst, replayRoomPin } from './replay';
+export type { RoomDstSystem } from './system';
+export { requireWorld as roomDstWorld } from './system';
 export {
   applyActionToModel,
   BYZANTINE_INJECT_KINDS,
@@ -28,3 +40,4 @@ export {
   type WorldModel,
   type WorldReal,
 } from './world-model';
+export type { RoomDstWorldSurface } from './world-surface';

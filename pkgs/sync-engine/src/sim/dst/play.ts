@@ -7,6 +7,7 @@ import {
   finishReplayStep,
   healNetworkForSettle,
   prepareReplayAction,
+  type ReplayRestartState,
   restartClientForConverge,
   restoreSettleAuth,
   trackRemovedClients,
@@ -14,22 +15,15 @@ import {
 } from './replay-step';
 import type { DstWorldSurface } from './world-surface';
 
+export type { ReplayRestartState };
+export { createReplayRestartState };
+
 /** Skew arms are fire-and-forget in replay — zero before settle. */
 export function resetClockSkews(world: DstWorldSurface): void {
   world.node('server').skewClock(0);
   for (const id of world.clients.keys()) {
     world.node(id).skewClock(0);
   }
-}
-
-async function assertStepInvariants(world: DstWorldSurface): Promise<void> {
-  const inv = await world.checkInvariants();
-  if (inv !== null) {
-    throw new Error(
-      `${inv.invariant} seed=${world.seed.toString(16)}: ${inv.detail}`
-    );
-  }
-  await world.runFor(10);
 }
 
 /** Revoked/crashed/protocol-cut clients — restore auth, restart before settle. */
@@ -58,33 +52,24 @@ export async function prepareClientsForConverge(
   }
 }
 
-/** Run recorded actions against a live world with per-step invariant checks. */
-export async function playActionsOnWorld(
-  app: DstApp,
-  world: DstWorldSurface,
-  actions: readonly DstAction[]
-): Promise<void> {
-  const state = createReplayRestartState();
-  for (const action of actions) {
-    const aliveBefore = new Set(world.clients.keys());
-    await prepareReplayAction(world, action, state);
-    await dispatchReplayAction(world, app, action);
-    trackRemovedClients(aliveBefore, world, state);
-    trackRestartFromAction(action, state);
-    await finishReplayStep(world, action, state, assertStepInvariants);
-  }
-  await prepareClientsForConverge(
-    app,
-    world,
-    state.needsRestart,
-    state.needsFreshRestart
-  );
-}
+/** Framework play loop owns invariants + idle after each step. */
+const NO_STEP_ASSERT = async (): Promise<void> => undefined;
 
-export async function runWithInvariants(
-  world: DstWorldSurface,
-  run: () => Promise<void>
-): Promise<void> {
-  await run();
-  await assertStepInvariants(world);
+/**
+ * One replay step: pre-heal for restart-shaped actions, dispatch, then track
+ * which clients owe a restart before converge.
+ */
+export async function replayStep(args: {
+  readonly world: DstWorldSurface;
+  readonly app: DstApp;
+  readonly action: DstAction;
+  readonly state: ReplayRestartState;
+}): Promise<void> {
+  const { world, app, action, state } = args;
+  const aliveBefore = new Set(world.clients.keys());
+  await prepareReplayAction(world, action, state);
+  await dispatchReplayAction(world, app, action);
+  trackRemovedClients(aliveBefore, world, state);
+  trackRestartFromAction(action, state);
+  await finishReplayStep(world, action, state, NO_STEP_ASSERT);
 }

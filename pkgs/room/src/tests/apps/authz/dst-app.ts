@@ -1,8 +1,7 @@
 import { fc } from '@pkgs/pbt';
 import type { SeededRng } from '@pkgs/uuid';
-import type { DomainOp } from '../../dst/actions';
-import type { RoomDstApp } from '../../dst/app';
-import { domainOp } from '../../dst/model';
+import type { DomainOp, RoomDstApp } from '../../../sim/dst';
+import { domainOp } from '../../../sim/dst';
 import { AuthzFixtureModule, Bump, Claim } from '../../fixtures/authz-module';
 
 export function authzDomainOpArbs(ctx: {

@@ -1,3 +1,5 @@
+import type { SimScheduler } from '@pkgs/dst';
+
 import type { InMemoryClientStorage } from '../client/adapters/storage/memory';
 import type { RoomClient } from '../client/core/room-client';
 import { RoomMetaAttr, roomAttrNamespace } from '../client/core/room-meta';
@@ -91,8 +93,8 @@ export type DrainCtx<
   readonly seed: bigint;
   readonly now: () => number;
   readonly network: SimRoomNetwork;
+  readonly scheduler: SimScheduler;
   readonly serverQueue: SerialQueue;
-  readonly clockAdvance: (ms: number) => void;
   readonly clients: ReadonlyMap<string, RoomSimClientSlot<S, C, E>>;
 };
 
@@ -123,7 +125,21 @@ async function flushClientIoOnly<
   }
 }
 
-/** Pump microtasks + net deliveries until idle (or cap). */
+/** Flush promise-chain IO outside the scheduler heap (safe under drain gate). */
+export async function flushRoomAux<
+  S extends RoomState,
+  C extends RoomCommandPayload,
+  E extends RoomEvent,
+>(ctx: Pick<DrainCtx<S, C, E>, 'clients' | 'serverQueue'>): Promise<void> {
+  await flushClientIoAndTransports(ctx.clients);
+  await ctx.serverQueue.flush();
+}
+
+/**
+ * Pump client/server IO + due scheduler work until idle (or cap).
+ * Advances virtual time only while network packets are in flight — not for
+ * unrelated timers (match-clock FlagFall, etc.).
+ */
 export async function drainRoomSim<
   S extends RoomState,
   C extends RoomCommandPayload,
@@ -131,26 +147,24 @@ export async function drainRoomSim<
 >(ctx: DrainCtx<S, C, E>): Promise<void> {
   for (let round = 0; round < MAX_DRAIN_ROUNDS; round += 1) {
     await Promise.resolve();
-    ctx.network.flushDue(ctx.now());
-    await flushClientIoAndTransports(ctx.clients);
-    await ctx.serverQueue.flush();
+    await flushRoomAux(ctx);
     await Promise.resolve();
-    const delivered = ctx.network.flushDue(ctx.now());
-    if (delivered === 0 && ctx.network.scheduledCount() === 0) {
-      // One more microtask wave for welcome IIFEs scheduled after flush.
+    await ctx.scheduler.runFor(0);
+    await flushRoomAux(ctx);
+    if (ctx.network.netPendingCount() === 0) {
       await Promise.resolve();
       await Promise.resolve();
-      ctx.network.flushDue(ctx.now());
-      // Drain client IO that welcome delivery may have enqueued.
       await flushClientIoOnly(ctx.clients);
-      if (ctx.network.scheduledCount() === 0) return;
+      await ctx.scheduler.runFor(0);
+      await flushRoomAux(ctx);
+      if (ctx.network.netPendingCount() === 0) return;
+      continue;
     }
-    if (ctx.network.scheduledCount() > 0) {
-      ctx.clockAdvance(1);
-    }
+    // Nudge 1ms so delayed frames become due (legacy SimRoomNetwork behavior).
+    await ctx.scheduler.runFor(1);
   }
   throw new Error(
-    `drain timeout seed=${ctx.seed.toString(16)} now=${String(ctx.now())} scheduled=${String(ctx.network.scheduledCount())} pending=${String(ctx.network.pendingCount())}`
+    `drain timeout seed=${ctx.seed.toString(16)} now=${String(ctx.now())} pending=${String(ctx.scheduler.pendingCount())} net=${String(ctx.network.netPendingCount())} held=${ctx.network.heldSummary().join(',')}`
   );
 }
 
@@ -189,7 +203,7 @@ async function nudgeUntilSynced<
   for (let attempt = 0; attempt < 8; attempt += 1) {
     await drainRoomSim(ctx);
     if (clientsAllSynced(ctx.clients)) return;
-    ctx.clockAdvance(25);
+    await ctx.scheduler.runFor(25);
   }
 }
 

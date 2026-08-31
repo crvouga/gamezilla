@@ -1,3 +1,6 @@
+import type { SimClock, SimScheduler } from '@pkgs/dst';
+import type { SeededRng } from '@pkgs/uuid';
+
 import type { LocalDomainSchema } from '../client/local-schema-migrate';
 import type { Timers } from '../client/sim-ports';
 import type { MutationRegistry } from '../mutations/core/types';
@@ -5,14 +8,11 @@ import type { QueryRegistry } from '../queries/core/types';
 import type { BoundaryFaultController } from './boundary-faults';
 import type { SimAuthStatus } from './client-factory-parts';
 import type { SimClientDbBundle, SimClientHandle } from './client-handle';
-import type { SimClock } from './clock';
 import type { ClockSkewTable } from './clock-skew';
 import type { SimDomainPack } from './domain-pack';
 import type { SimFaultOptions } from './faults';
 import type { SimNetwork } from './network';
 import type { SimPubSubBroker } from './pubsub-bridge';
-import type { SeededRng } from './rng';
-import type { SimScheduler } from './scheduler';
 import type { SimServer } from './server';
 
 export type ClientMeta = {

@@ -61,6 +61,7 @@
     "@pkgs/browser": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
+    "@pkgs/dst": "workspace:*",
     "@pkgs/emqx-server": "workspace:*",
     "@pkgs/entity-store": "workspace:*",
     "@pkgs/git": "workspace:*",

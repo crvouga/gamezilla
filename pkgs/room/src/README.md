@@ -108,7 +108,7 @@ pkgs/room/src/
 ├── protocol/             wire frames + ids
 ├── effects/              Schedule/CancelSchedule + RoomEffectHandler port
 ├── sim/                  private DST harness (world, net, settle, until)
-│   └── dst/              RoomDstAction + playActions / runCommands kernel
+│   └── dst/              RoomDstAction + defineRoomDst (`@pkgs/dst` node kinds)
 └── tests/
     ├── fixtures/         Counter, Deadline, Authz, MatchClock modules
     ├── harness/          openLoopbackRoom + LoopbackRoomTransport
@@ -282,8 +282,8 @@ replays are idempotent.
 | Tool | When to use |
 |------|-------------|
 | **`openLoopbackRoom`** (`@pkgs/room/tests`) | Fast in-process unit/integration with injected `Io`; real `RoomClient` + `RoomServer`, no net faults; Schedule via timers |
-| **`openWorld`** (`@pkgs/room/tests` → `sim/world`) | Multi-client DST: partitions, delays, soft disconnect, crash/restart, hash converge, seed replay, Schedule wakes |
-| **`tests/dst/` + `assertDstProperty`** | Shrinking `fc.commands` world search + fault-catalog slice PBTs (sync-engine-shaped kernel) |
+| **`openWorld`** (`@pkgs/room/tests` → `sim/world`) | Hand-wired multi-client kit world: partitions, delays, soft disconnect, crash/restart, hash converge, seed replay, Schedule wakes |
+| **`defineRoomDst` + `assertDst` / `replayDst`** | Framework-owned DST world (`room.server` / `room.client` node kinds): shrinking `fc.commands` search + fault-catalog slice PBTs |
 | **`runRoomSeed`** | Non-shrinking seeded fuzz (`ROOM_SIM_SEED` / `SIM_SEED`); determinism + long workloads |
 | **DO / adapter tests** | Hibernation, session take-over, per-key storage, alarms, WS heartbeat |
 | **`runModuleConformance`** | Game-module kit (purity, hash, totality, fold, fuzz) |
@@ -297,24 +297,30 @@ bun run test:pbt                       # all pkgs/libs *.pbt.test.ts (pinned FC_
 bun run test:pbt:random                # nightly random exploration
 ```
 
-### Shrinking DST kernel (`sim/dst/` + `tests/dst/`)
+### Shrinking DST kernel (`sim/dst/`)
 
-Mirrors `@pkgs/sync-engine`’s world DSL (no sync-engine import — room stays a leaf):
+Worlds and action replay are owned by `@pkgs/dst`. A room app becomes a DST
+system with `defineRoomDst`, which declares the `room.server` / `room.client`
+node kinds and the library + domain action pool:
 
 ```ts
-await using world = await openWorld({ app: counterDstApp, seed, knobs });
-await world.playActions([/* RoomDstAction */]);
-await world.assertConverged();
+// tests/apps/counter/dst.ts
+export const counterDst = defineRoomDst(counterDstApp, { id: 'room.counter' });
 
-// shrinking PBT
-await using world = await openWorld({ app: counterDstApp, seed, knobs });
-await world.runCommands(cmds);
+// shrinking PBT — framework generates seed, knobs, and fc.commands
+await assertDst(counterDst, { maxCommands: 14 });
+
+// scripted pin
+await replayRoomPin(counterDst, { seed, knobs, actions: [/* RoomDstAction */] });
 ```
 
 1. `RoomDstAction` union (domain + library chaos) under `sim/dst/`
 2. `WorldModel` + `modelAllowsAction` so shrinks stay legal
-3. `fc.commands` → `world.runCommands` (model-run + `playActions` + `assertConverged`)
+3. `libraryActionArbs` + `app.domainOpArbs` feed the framework command pool;
+   `armCrashAt` / wire injects stay out of it and are covered by slice PBTs
 4. Const fault catalogs (`NET_FAULT_PROFILES`, `BYZANTINE_INJECT_KINDS`, `WORLD_PBT_CRASH_EVENTS`) exhausted by slice PBTs
+5. `runRoomSeed` (`tests/dst/run-seed.ts`) boots the same topology on the kit
+   `openWorld({ module })` path for non-shrinking seeded fuzz
 
 On find: capture `FC_SEED` / `replayPath` → pin in `room-world.pbt.test.ts` or a named `.sim.test.ts` → log in [`PBT_FINDINGS.md`](../../../PBT_FINDINGS.md).
 

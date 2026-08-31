@@ -1,20 +1,16 @@
+import type { SimClock, SimScheduler } from '@pkgs/dst';
 import type { LocalDomainSchema } from '../client/local-schema-migrate';
 import type { MutationRegistry } from '../mutations/core/types';
 import type { QueryRegistry } from '../queries/core/types';
+
 import type { SimClientHandle } from './client-handle';
-import type { SimClock } from './clock';
 import type { SimDomainPack } from './domain-pack';
-import type { DstAction } from './dst/actions';
-import type { DstApp } from './dst/app';
-import type { WorldKnobs } from './dst/knobs';
-import type { WorldCmd } from './dst/run-commands';
 import type { SimFaultOptions } from './faults';
 import type { InvariantViolation } from './invariants';
 import type { SimNetHandle } from './net-effect';
 import type { SimNetwork } from './network';
 import type { SimNodeHandle } from './node-handle';
 import type { SeededRng } from './rng';
-import type { SimScheduler } from './scheduler';
 import type { SimServer } from './server';
 import type { LocalStorageTamper } from './storage-faults';
 import type { StoragePressureKind } from './storage-pressure';
@@ -34,9 +30,6 @@ export type World = {
   readonly network: SimNetwork;
   readonly server: SimServer;
   readonly clients: ReadonlyMap<string, SimClientHandle>;
-  /** Booted client ids when opened with `app` / `clientCount`; else empty. */
-  readonly clientIds: readonly string[];
-  readonly knobs: WorldKnobs | null;
   readonly nextId: () => string;
   readonly addClient: (args: AddClientArgs) => Promise<SimClientHandle>;
   readonly net: (nodeId: string, traffic?: SimTraffic) => SimNetHandle;
@@ -75,12 +68,6 @@ export type World = {
    * restarts (e.g. revoke → fresh DB migrate + onNextEngineOpenAfterCacheWipe).
    */
   readonly clearBoundaryFaults: () => void;
-  /** Replay DST actions (requires world opened with `app`). */
-  readonly playActions: (actions: readonly DstAction[]) => Promise<void>;
-  /** Model-check then replay shrinking commands (requires `app`). */
-  readonly runCommands: (cmds: Iterable<WorldCmd>) => Promise<void>;
-  readonly resetClockSkews: () => void;
-  readonly runWithInvariants: (run: () => Promise<void>) => Promise<void>;
   readonly dispose: () => Promise<void>;
   readonly [Symbol.asyncDispose]: () => Promise<void>;
 };
@@ -92,12 +79,8 @@ export type OpenWorldArgs = {
   readonly rowImageFanout?: boolean;
   readonly liveResendOnReconnect?: boolean;
   readonly bufferOutboundLive?: boolean;
-  /** Scenario path — domain pack only. */
-  readonly domain?: SimDomainPack;
-  /** PBT/DST path — implies domain = app.pack and boots clients. */
-  readonly app?: DstApp;
-  readonly knobs?: WorldKnobs;
-  readonly clientCount?: number;
+  /** Domain pack (schema, registries, converge). Required. */
+  readonly domain: SimDomainPack;
   readonly localSchema?: LocalDomainSchema;
   readonly mutationRegistry?: MutationRegistry;
   readonly queryRegistry?: QueryRegistry;

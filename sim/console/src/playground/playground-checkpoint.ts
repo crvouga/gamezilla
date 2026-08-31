@@ -68,7 +68,7 @@ export async function restoreCheckpoint(
       await importCheckpointSql(ctx, checkpoint);
       await restoreCheckpointRooms(ctx, checkpoint);
       applyCheckpointFaults(ctx.sim, checkpoint);
-      resetSimClock(ctx.clock, checkpoint.clockMs);
+      resetSimClock(ctx.clock, ctx.scheduler, checkpoint.clockMs);
       ctx.setClockPaused(checkpoint.clockPaused);
       ctx.endSnapshotRestoring();
     });

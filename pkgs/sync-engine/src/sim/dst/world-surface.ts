@@ -15,7 +15,6 @@ import type { AddClientArgs } from '../world-types';
  */
 export type DstWorldSurface = {
   readonly seed: bigint;
-  readonly clientIds: readonly string[];
   readonly clients: ReadonlyMap<string, SimClientHandle>;
   readonly server: SimServer;
   readonly network: SimNetwork;

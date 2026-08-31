@@ -1,25 +1,27 @@
-import type { SimClock } from '@pkgs/clock';
+import type { SimClock, SimDeps, SimScheduler } from '@pkgs/dst';
 import type { SeededRng } from '@pkgs/uuid';
-import type { RoomClient } from '../client/core/room-client';
 import type { InMemoryRoomStorage } from '../server/adapters/memory';
 import type { RoomServer } from '../server/core/room-server';
 import type {
   RoomCommand,
   RoomCommandPayload,
-  RoomError,
   RoomEvent,
   RoomModule,
   RoomState,
 } from '../types';
 
 import type { RoomCrashEvent } from './boundary-faults';
-import type { RoomDstAction } from './dst/actions';
-import type { RoomDstApp } from './dst/app';
-import type { RoomWorldKnobs } from './dst/knobs';
-import type { WorldCmd } from './dst/run-commands';
+import type { RoomSimClientHandle, RoomSimNodeHandle } from './handles';
 import type { RoomInvariantViolation } from './invariants';
-import type { RoomNetEffect, RoomNetSetArg, SimRoomNetHandle } from './network';
+import type {
+  RoomNetEffect,
+  RoomNetSetArg,
+  SimRoomNetHandle,
+  SimRoomNetwork,
+} from './network';
 import type { NeverOpts, UntilOpts, UntilTarget } from './until';
+
+export type { RoomSimClientHandle, RoomSimNodeHandle } from './handles';
 
 export type RoomSimAuthorize = (
   identity: string,
@@ -27,51 +29,10 @@ export type RoomSimAuthorize = (
   command: RoomCommand
 ) => Promise<{ ok: true } | { ok: false; reason: string }>;
 
-export type RoomSimClientHandle<
-  S extends RoomState = RoomState,
-  C extends RoomCommandPayload = RoomCommandPayload,
-  E extends RoomEvent = RoomEvent,
-> = {
-  readonly id: string;
-  readonly identity: string;
-  readonly clientId: string;
-  readonly dispatch: (payload: C) => void;
-  readonly snapshot: () => S;
-  readonly hash: () => string;
-  readonly isSynced: () => boolean;
-  readonly isConnected: () => boolean;
-  readonly isCrashed: () => boolean;
-  readonly room: () => RoomClient<S, C, E, string> | null;
-  readonly disconnect: () => Promise<void>;
-  readonly connect: () => Promise<void>;
-  /** Most recent RoomError from a rejected wire frame (or null). */
-  readonly lastRejection: () => RoomError | null;
-  /** Inject raw client→server frame (for adversarial / dedup scenarios). */
-  readonly injectToServer: (
-    raw: unknown,
-    opts?: { readonly direct?: boolean }
-  ) => void;
-  /** Inject raw server→client frame (bypasses net mesh). */
-  readonly injectFromServer: (raw: unknown) => void;
-};
-
-export type RoomSimNodeHandle = {
-  readonly disconnect: () => Promise<void>;
-  readonly reconnect: () => Promise<void>;
-  /**
-   * Replace the live socket for this client's `(identity, clientId)` without
-   * destroying the room client (session take-over).
-   */
-  readonly takeOver: () => Promise<void>;
-  /** Tear down Room + transport; keep local storage for restart. */
-  readonly crash: () => Promise<void>;
-  /** Recreate Room from persisted (or wiped) local storage. */
-  readonly restart: (opts?: {
-    readonly wipeStorage?: boolean;
-  }) => Promise<void>;
-  /** Wipe local storage and reattach if the client was live. */
-  readonly clearLocalData: () => Promise<void>;
-  readonly now: () => number;
+/** Framework-owned deps + network for DST worlds (`@pkgs/dst` node kinds). */
+export type InjectedRoomSimPorts = {
+  readonly deps: SimDeps;
+  readonly network: SimRoomNetwork;
 };
 
 export type World<
@@ -84,13 +45,11 @@ export type World<
   readonly module: RoomModule<S, C, E, string>;
   readonly rng: SeededRng;
   readonly clock: SimClock;
+  /** @internal Lab / harness — scenarios use runFor / until */
+  readonly scheduler: SimScheduler;
   readonly storage: InMemoryRoomStorage;
   readonly server: RoomServer<S, C, E, string>;
   readonly clients: ReadonlyMap<string, RoomSimClientHandle<S, C, E>>;
-  /** Booted DST client ids (`c0…`); empty on module-only open. */
-  readonly clientIds: readonly string[];
-  /** Knobs from `openWorld({ app, knobs })`; null on module-only open. */
-  readonly knobs: RoomWorldKnobs | null;
   readonly addClient: (args: {
     readonly id: string;
     readonly identity?: string;
@@ -113,18 +72,14 @@ export type World<
   readonly serverCrash: () => Promise<void>;
   readonly serverRestart: () => Promise<void>;
   readonly isServerCrashed: () => boolean;
-  /** Scripted DST replay (requires `openWorld({ app })`). */
-  readonly playActions: (actions: readonly RoomDstAction[]) => Promise<void>;
-  /** Model-check then replay shrinking commands (requires `app`). */
-  readonly runCommands: (cmds: Iterable<WorldCmd>) => Promise<void>;
   readonly dispose: () => Promise<void>;
   readonly [Symbol.asyncDispose]: () => Promise<void>;
 };
 
-export type OpenWorldModuleArgs<
-  S extends RoomState,
-  C extends RoomCommandPayload,
-  E extends RoomEvent,
+export type OpenWorldArgs<
+  S extends RoomState = RoomState,
+  C extends RoomCommandPayload = RoomCommandPayload,
+  E extends RoomEvent = RoomEvent,
 > = {
   readonly seed: number | bigint | string;
   readonly module: RoomModule<S, C, E, string>;
@@ -136,22 +91,9 @@ export type OpenWorldModuleArgs<
   readonly authorize?: RoomSimAuthorize;
   /** Share storage across worlds for multi-topic isolation tests. */
   readonly storage?: InMemoryRoomStorage;
+  /** DST only — framework-owned deps + network from `@pkgs/dst` node kinds. */
+  readonly injected?: InjectedRoomSimPorts;
 };
-
-export type OpenWorldAppArgs = {
-  readonly seed: number | bigint | string;
-  readonly app: RoomDstApp;
-  readonly knobs?: RoomWorldKnobs;
-  readonly topic?: string;
-  readonly startMs?: number;
-  readonly storage?: InMemoryRoomStorage;
-};
-
-export type OpenWorldArgs<
-  S extends RoomState = RoomState,
-  C extends RoomCommandPayload = RoomCommandPayload,
-  E extends RoomEvent = RoomEvent,
-> = OpenWorldModuleArgs<S, C, E> | OpenWorldAppArgs;
 
 export type { RoomCrashEvent } from './boundary-faults';
 export type { RoomInvariantViolation } from './invariants';

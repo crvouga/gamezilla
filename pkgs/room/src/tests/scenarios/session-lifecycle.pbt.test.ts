@@ -1,11 +1,28 @@
 import { describe, expect, test } from 'bun:test';
-import { assertDstProperty, fc } from '@pkgs/pbt';
+import { arbWorldSeed, assertDstProperty } from '@pkgs/dst/pbt';
+import { fc } from '@pkgs/pbt';
 
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '../../protocol/wire';
+import { arbRoomKnobs, replayRoomDst, roomDstWorld } from '../../sim/dst';
 import { openWorld } from '../../sim/world';
-import { counterDstApp } from '../apps/counter/dst-app';
-import { arbWorldKnobs, arbWorldSeed } from '../dst/world-config';
-import { counterValue, Increment } from '../fixtures/counter-module';
+import { counterDst } from '../apps/counter/dst';
+import {
+  counterValue,
+  Increment,
+  TestCounterModule,
+} from '../fixtures/counter-module';
+
+async function expectCounter(
+  world: Awaited<ReturnType<typeof replayRoomDst>>,
+  expected: number
+): Promise<void> {
+  try {
+    const snap = await roomDstWorld(world.system).serverSnapshot();
+    expect(counterValue(snap)).toBe(expected);
+  } finally {
+    await world.dispose();
+  }
+}
 
 describe('room session-lifecycle PBT', () => {
   test(
@@ -15,30 +32,28 @@ describe('room session-lifecycle PBT', () => {
         'takeOver sequences converge',
         fc.asyncProperty(
           arbWorldSeed(),
-          arbWorldKnobs(),
+          arbRoomKnobs(),
           async (seed, knobs) => {
-            await using world = await openWorld({
-              app: counterDstApp,
+            const world = await replayRoomDst(counterDst, {
               seed,
               knobs,
+              actions: [
+                {
+                  kind: 'domain',
+                  clientId: 'c0',
+                  command: 'increment',
+                  args: {},
+                },
+                { kind: 'takeOver', clientId: 'c0' },
+                {
+                  kind: 'domain',
+                  clientId: 'c0',
+                  command: 'increment',
+                  args: {},
+                },
+              ],
             });
-            await world.playActions([
-              {
-                kind: 'domain',
-                clientId: 'c0',
-                command: 'increment',
-                args: {},
-              },
-              { kind: 'takeOver', clientId: 'c0' },
-              {
-                kind: 'domain',
-                clientId: 'c0',
-                command: 'increment',
-                args: {},
-              },
-            ]);
-            await world.assertConverged();
-            expect(counterValue(await world.serverSnapshot())).toBe(2);
+            await expectCounter(world, 2);
           }
         ),
         { numRuns: 8 }
@@ -54,38 +69,37 @@ describe('room session-lifecycle PBT', () => {
         'lifecycle sequences converge',
         fc.asyncProperty(
           arbWorldSeed(),
-          arbWorldKnobs(),
+          arbRoomKnobs(),
           async (seed, knobs) => {
-            await using world = await openWorld({
-              app: counterDstApp,
+            const world = await replayRoomDst(counterDst, {
               seed,
               knobs,
+              actions: [
+                { kind: 'disconnect', clientId: 'c0' },
+                {
+                  kind: 'domain',
+                  clientId: 'c0',
+                  command: 'increment',
+                  args: {},
+                },
+                { kind: 'crash', clientId: 'c0' },
+                {
+                  kind: 'domain',
+                  clientId: 'c1',
+                  command: 'increment',
+                  args: {},
+                },
+                { kind: 'restart', clientId: 'c0' },
+                { kind: 'clearLocalData', clientId: 'c1' },
+                {
+                  kind: 'domain',
+                  clientId: 'c1',
+                  command: 'increment',
+                  args: {},
+                },
+              ],
             });
-            await world.playActions([
-              { kind: 'disconnect', clientId: 'c0' },
-              {
-                kind: 'domain',
-                clientId: 'c0',
-                command: 'increment',
-                args: {},
-              },
-              { kind: 'crash', clientId: 'c0' },
-              {
-                kind: 'domain',
-                clientId: 'c1',
-                command: 'increment',
-                args: {},
-              },
-              { kind: 'restart', clientId: 'c0' },
-              { kind: 'clearLocalData', clientId: 'c1' },
-              {
-                kind: 'domain',
-                clientId: 'c1',
-                command: 'increment',
-                args: {},
-              },
-            ]);
-            await world.assertConverged();
+            await world.dispose();
           }
         ),
         { numRuns: 8 }
@@ -100,29 +114,26 @@ describe('room session-lifecycle PBT', () => {
       await assertDstProperty(
         'server crash sequences converge',
         fc.asyncProperty(arbWorldSeed(), async (seed) => {
-          await using world = await openWorld({
-            app: counterDstApp,
+          const world = await replayRoomDst(counterDst, {
             seed,
-            knobs: { clientCount: 2, mildFaults: false },
+            actions: [
+              {
+                kind: 'domain',
+                clientId: 'c0',
+                command: 'increment',
+                args: {},
+              },
+              { kind: 'serverCrash' },
+              { kind: 'serverRestart' },
+              {
+                kind: 'domain',
+                clientId: 'c1',
+                command: 'increment',
+                args: {},
+              },
+            ],
           });
-          await world.playActions([
-            {
-              kind: 'domain',
-              clientId: 'c0',
-              command: 'increment',
-              args: {},
-            },
-            { kind: 'serverCrash' },
-            { kind: 'serverRestart' },
-            {
-              kind: 'domain',
-              clientId: 'c1',
-              command: 'increment',
-              args: {},
-            },
-          ]);
-          await world.assertConverged();
-          expect(counterValue(await world.serverSnapshot())).toBe(2);
+          await expectCounter(world, 2);
         }),
         { numRuns: 6 }
       );
@@ -131,32 +142,37 @@ describe('room session-lifecycle PBT', () => {
   );
 
   test('commandId replay across takeOver applies once', async () => {
-    await using world = await openWorld({
-      app: counterDstApp,
+    const world = await replayRoomDst(counterDst, {
       seed: 7,
-      knobs: { clientCount: 2, mildFaults: false },
+      settle: false,
+      actions: [],
     });
-    const c0 = world.clients.get('c0')!;
-    const frame = {
-      v: WIRE_VERSION,
-      kind: ROOM_WIRE_KIND.command,
-      id: 'same-cmd',
-      ts: world.clock.now(),
-      payload: Increment({}),
-    };
-    c0.injectToServer(frame, { direct: true });
-    await world.drain();
-    await world.node('c0').takeOver();
-    c0.injectToServer(frame, { direct: true });
-    await world.drain();
-    await world.assertConverged();
-    expect(counterValue(await world.serverSnapshot())).toBe(1);
+    const real = roomDstWorld(world.system);
+    try {
+      const c0 = real.clients.get('c0')!;
+      const frame = {
+        v: WIRE_VERSION,
+        kind: ROOM_WIRE_KIND.command,
+        id: 'same-cmd',
+        ts: real.clock.now(),
+        payload: Increment({}),
+      };
+      c0.injectToServer(frame, { direct: true });
+      await real.drain();
+      await real.node('c0').takeOver();
+      c0.injectToServer(frame, { direct: true });
+      await real.drain();
+      await real.assertConverged();
+      expect(counterValue(await real.serverSnapshot())).toBe(1);
+    } finally {
+      await world.dispose();
+    }
   });
 
   test('multi-tab same identity converges', async () => {
     await using world = await openWorld({
       seed: 11,
-      module: counterDstApp.module,
+      module: TestCounterModule,
     });
     await world.addClient({
       id: 'tab-a',

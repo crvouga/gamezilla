@@ -1,11 +1,21 @@
 import { describe, test } from 'bun:test';
-import { assertDstProperty, fc } from '@pkgs/pbt';
+import { arbWorldSeed, assertDstProperty } from '@pkgs/dst/pbt';
+import { fc } from '@pkgs/pbt';
 
-import { openWorld } from '../../sim/world';
-import { counterDstApp } from '../apps/counter/dst-app';
-import type { RoomDstAction } from '../dst/actions';
-import { NET_FAULT_PROFILES } from '../dst/commands';
-import { arbWorldKnobs, arbWorldSeed } from '../dst/world-config';
+import {
+  arbRoomKnobs,
+  NET_FAULT_PROFILES,
+  type RoomDstAction,
+  replayRoomPin,
+} from '../../sim/dst';
+import { counterDst } from '../apps/counter/dst';
+
+const INCREMENT_C0: RoomDstAction = {
+  kind: 'domain',
+  clientId: 'c0',
+  command: 'increment',
+  args: {},
+};
 
 describe('room net-faults PBT', () => {
   test(
@@ -15,26 +25,18 @@ describe('room net-faults PBT', () => {
         'hold sequences converge',
         fc.asyncProperty(
           arbWorldSeed(),
-          arbWorldKnobs(),
+          arbRoomKnobs(),
           async (seed, knobs) => {
-            await using world = await openWorld({
-              app: counterDstApp,
+            await replayRoomPin(counterDst, {
               seed,
               knobs,
+              actions: [
+                { kind: 'hold', clientId: 'c1' },
+                INCREMENT_C0,
+                { kind: 'idle', ms: 30 },
+                { kind: 'heal' },
+              ],
             });
-            const actions: RoomDstAction[] = [
-              { kind: 'hold', clientId: 'c1' },
-              {
-                kind: 'domain',
-                clientId: 'c0',
-                command: 'increment',
-                args: {},
-              },
-              { kind: 'idle', ms: 30 },
-              { kind: 'heal' },
-            ];
-            await world.playActions(actions);
-            await world.assertConverged();
           }
         ),
         { numRuns: 8 }
@@ -50,25 +52,18 @@ describe('room net-faults PBT', () => {
         'down sequences converge',
         fc.asyncProperty(
           arbWorldSeed(),
-          arbWorldKnobs(),
+          arbRoomKnobs(),
           async (seed, knobs) => {
-            await using world = await openWorld({
-              app: counterDstApp,
+            await replayRoomPin(counterDst, {
               seed,
               knobs,
+              actions: [
+                { kind: 'down', clientId: 'c1' },
+                INCREMENT_C0,
+                { kind: 'idle', ms: 20 },
+                { kind: 'heal' },
+              ],
             });
-            await world.playActions([
-              { kind: 'down', clientId: 'c1' },
-              {
-                kind: 'domain',
-                clientId: 'c0',
-                command: 'increment',
-                args: {},
-              },
-              { kind: 'idle', ms: 20 },
-              { kind: 'heal' },
-            ]);
-            await world.assertConverged();
           }
         ),
         { numRuns: 8 }
@@ -84,35 +79,28 @@ describe('room net-faults PBT', () => {
         'asymmetric sequences converge',
         fc.asyncProperty(
           arbWorldSeed(),
-          arbWorldKnobs(),
+          arbRoomKnobs(),
           async (seed, knobs) => {
-            await using world = await openWorld({
-              app: counterDstApp,
+            await replayRoomPin(counterDst, {
               seed,
               knobs,
+              actions: [
+                {
+                  kind: 'asymmetricLink',
+                  clientId: 'c1',
+                  link: { toClient: 'hold', toServer: 'ok' },
+                },
+                INCREMENT_C0,
+                {
+                  kind: 'domain',
+                  clientId: 'c1',
+                  command: 'increment',
+                  args: {},
+                },
+                { kind: 'idle', ms: 20 },
+                { kind: 'heal' },
+              ],
             });
-            await world.playActions([
-              {
-                kind: 'asymmetricLink',
-                clientId: 'c1',
-                link: { toClient: 'hold', toServer: 'ok' },
-              },
-              {
-                kind: 'domain',
-                clientId: 'c0',
-                command: 'increment',
-                args: {},
-              },
-              {
-                kind: 'domain',
-                clientId: 'c1',
-                command: 'increment',
-                args: {},
-              },
-              { kind: 'idle', ms: 20 },
-              { kind: 'heal' },
-            ]);
-            await world.assertConverged();
           }
         ),
         { numRuns: 8 }
@@ -128,33 +116,26 @@ describe('room net-faults PBT', () => {
         'fault profile sequences converge',
         fc.asyncProperty(
           arbWorldSeed(),
-          arbWorldKnobs(),
+          arbRoomKnobs(),
           fc.constantFrom(...NET_FAULT_PROFILES),
           async (seed, knobs, faults) => {
-            await using world = await openWorld({
-              app: counterDstApp,
+            await replayRoomPin(counterDst, {
               seed,
               knobs,
+              actions: [
+                { kind: 'setFaults', clientId: 'c0', faults },
+                { kind: 'setFaults', clientId: 'c1', faults },
+                INCREMENT_C0,
+                {
+                  kind: 'domain',
+                  clientId: 'c1',
+                  command: 'decrement',
+                  args: {},
+                },
+                { kind: 'idle', ms: 40 },
+                { kind: 'heal' },
+              ],
             });
-            await world.playActions([
-              { kind: 'setFaults', clientId: 'c0', faults },
-              { kind: 'setFaults', clientId: 'c1', faults },
-              {
-                kind: 'domain',
-                clientId: 'c0',
-                command: 'increment',
-                args: {},
-              },
-              {
-                kind: 'domain',
-                clientId: 'c1',
-                command: 'decrement',
-                args: {},
-              },
-              { kind: 'idle', ms: 40 },
-              { kind: 'heal' },
-            ]);
-            await world.assertConverged();
           }
         ),
         { numRuns: 8 }

@@ -19,7 +19,13 @@ import {
 import { assert } from '@pkgs/assert';
 import { createNamespacedAuthClientStorage } from '@pkgs/auth/client';
 import { InMemoryBilling } from '@pkgs/billing';
-import type { SimClock, Timers } from '@pkgs/clock';
+import type { Timers } from '@pkgs/clock';
+import {
+  createSimDeps,
+  type SimClock,
+  type SimDeps,
+  type SimScheduler,
+} from '@pkgs/dst';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
 import { KvImplWebNamespaced } from '@pkgs/kv/impl-kv-web-namespaced';
 import { InMemoryLlmProvider } from '@pkgs/llm/server';
@@ -36,7 +42,6 @@ import { createSecureStorageStore } from '@pkgs/secure-storage/secure-storage-st
 import { createInMemoryAudioPlaybackPort } from '@pkgs/sounds/audio-playback/in-memory-audio-playback-port';
 import { InMemoryTtsProvider } from '@pkgs/tts/server';
 import { createPassthroughBottomSheetHost } from '@pkgs/ui';
-import { createSimAdapters } from '@pkgs/uuid';
 import { serializeFetch } from './sim-fetch';
 import { createSimNet } from './sim-net';
 import {
@@ -71,6 +76,7 @@ export type Server = Awaited<ReturnType<typeof createServer>>;
 export type Sim = {
   readonly server: ServerEnv;
   readonly clock: SimClock;
+  readonly scheduler: SimScheduler;
   readonly pubSubBus: ReturnType<typeof createInMemoryBus>;
   client(id: string): ClientEnv;
   spawnServer(): Promise<Server>;
@@ -100,12 +106,12 @@ export function simClientNamespace(id: string): string {
 }
 
 async function buildServerEnv(args: {
-  readonly adapters: ReturnType<typeof createSimAdapters>;
+  readonly deps: SimDeps;
   readonly timers: Timers;
   readonly serverSql: SimSqlHandle;
   readonly pubSubBus: ReturnType<typeof createInMemoryBus>;
 }): Promise<ServerEnv> {
-  const { adapters, timers, serverSql, pubSubBus } = args;
+  const { deps, timers, serverSql, pubSubBus } = args;
   const shared = sharedSqlClient(serverSql.sqlClient);
   const secrets = createRecordSecretStore({
     AUTH_SECRET: SIM_AUTH_SECRET,
@@ -118,11 +124,11 @@ async function buildServerEnv(args: {
     secretsEnv: 'dev',
   });
   return {
-    clock: adapters.clock,
+    clock: deps.clock,
     timers,
-    createId: adapters.createId,
-    random: adapters.random,
-    seed: adapters.seed,
+    createId: deps.createId,
+    random: deps.random,
+    seed: deps.seed,
     openSqlClient: async () => shared,
     events: createInMemoryPubSub({ bus: pubSubBus }),
     kv: new KvImplInMemory(),
@@ -143,21 +149,21 @@ async function buildServerEnv(args: {
 }
 
 function buildRoomServerEnv(args: {
-  readonly adapters: ReturnType<typeof createSimAdapters>;
+  readonly deps: SimDeps;
   readonly timers: Timers;
 }): RoomServerEnv {
-  const { adapters, timers } = args;
+  const { deps, timers } = args;
   return {
-    clock: adapters.clock,
+    clock: deps.clock,
     timers,
-    createId: adapters.createId,
-    random: adapters.random,
-    seed: adapters.seed,
+    createId: deps.createId,
+    random: deps.random,
+    seed: deps.seed,
   };
 }
 
 type SimKernel = {
-  readonly adapters: ReturnType<typeof createSimAdapters>;
+  readonly deps: SimDeps;
   readonly timers: Timers;
   readonly net: ReturnType<typeof createSimNet>;
   readonly pubSubBus: ReturnType<typeof createInMemoryBus>;
@@ -167,11 +173,11 @@ type SimKernel = {
 };
 
 async function bootSimKernel(opts?: CreateSimOptions): Promise<SimKernel> {
-  const adapters = createSimAdapters({
+  const deps = createSimDeps({
     seed: opts?.seed ?? 1,
     startMs: opts?.startMs ?? 0,
   });
-  const timers = opts?.timers ?? adapters.timers;
+  const timers = opts?.timers ?? deps.timers;
   const net = createSimNet();
   const pubSubBus = createInMemoryBus();
   let serverSql: SimSqlHandle;
@@ -180,28 +186,28 @@ async function bootSimKernel(opts?: CreateSimOptions): Promise<SimKernel> {
   } else if (opts?.serverSqlSeedBytes !== undefined) {
     serverSql = await openSimServerSqlFromSeedBytes(
       'sim_server',
-      adapters.clock,
+      deps.clock,
       opts.serverSqlSeedBytes
     );
   } else {
-    serverSql = await openFreshSimServerSql('sim_server', adapters.clock);
+    serverSql = await openFreshSimServerSql('sim_server', deps.clock);
     const pool = serverSql.pool;
     assert.defined(pool, 'createSim: server handle requires pool for migrate');
     await migrateSimPostgres({
       sqlClient: serverSql.sqlClient,
       pool,
-      now: adapters.clock.now,
+      now: deps.clock.now,
     });
   }
-  const roomServerEnv = buildRoomServerEnv({ adapters, timers });
+  const roomServerEnv = buildRoomServerEnv({ deps, timers });
   const roomNode = createRoomServer(roomServerEnv);
   const serverEnv = await buildServerEnv({
-    adapters,
+    deps,
     timers,
     serverSql,
     pubSubBus,
   });
-  return { adapters, timers, net, pubSubBus, serverSql, roomNode, serverEnv };
+  return { deps, timers, net, pubSubBus, serverSql, roomNode, serverEnv };
 }
 
 function makeSimClientEnv(
@@ -212,7 +218,7 @@ function makeSimClientEnv(
     readonly clientSql: Map<string, SimSqlHandle>;
   }
 ): ClientEnv {
-  const { adapters, timers, net, pubSubBus, roomNode } = kernel;
+  const { deps, timers, net, pubSubBus, roomNode } = kernel;
   const { id, serverFetch, clientSql } = args;
   const ns = simClientNamespace(id);
   let liveEvents: ReturnType<typeof createInMemoryPubSub> | null = null;
@@ -223,11 +229,11 @@ function makeSimClientEnv(
   };
   liveEvents = createInMemoryPubSub({ bus: pubSubBus });
   return {
-    clock: adapters.clock,
+    clock: deps.clock,
     timers,
-    createId: adapters.createId,
-    random: adapters.random,
-    seed: adapters.seed,
+    createId: deps.createId,
+    random: deps.random,
+    seed: deps.seed,
     server: net.wrapServerHttp(id, serverFetch),
     get events() {
       assert.defined(liveEvents, 'sim client events');
@@ -237,10 +243,7 @@ function makeSimClientEnv(
     openSqlClient: async () => {
       let handle = clientSql.get(id);
       if (handle === undefined) {
-        handle = await openFreshSimClientSql(
-          `sim_client_${id}`,
-          adapters.clock
-        );
+        handle = await openFreshSimClientSql(`sim_client_${id}`, deps.clock);
         clientSql.set(id, handle);
       }
       return handleBoundSqlClient(handle);
@@ -296,7 +299,7 @@ async function disposeSim(args: {
 }
 
 function createSimHandle(kernel: SimKernel): Sim {
-  const { adapters, net, pubSubBus, serverSql, roomNode, serverEnv } = kernel;
+  const { deps, net, pubSubBus, serverSql, roomNode, serverEnv } = kernel;
   const clientSql = new Map<string, SimSqlHandle>();
   const liveClients = new Map<string, Client>();
   const disposed = { value: false };
@@ -313,7 +316,8 @@ function createSimHandle(kernel: SimKernel): Sim {
     makeSimClientEnv(kernel, { id, serverFetch, clientSql });
   return {
     server: serverEnv,
-    clock: adapters.clock,
+    clock: deps.clock,
+    scheduler: deps.scheduler,
     pubSubBus,
     client,
     async spawnServer() {

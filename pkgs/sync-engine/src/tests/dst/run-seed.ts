@@ -1,12 +1,18 @@
+import type { JsonValue, SimFailureArtifact } from '@pkgs/dst';
+
 import { isStorageFullError } from '../../client/storage-full-error';
 import type { DstAction } from '../../sim/dst/actions';
 import type { DstApp } from '../../sim/dst/app';
 import { dispatchDstAction } from '../../sim/dst/dispatch';
+import { RELIABLE_FAULTS } from '../../sim/faults';
 import { isClosedDatabaseError } from '../../sim/invariants';
+import { toKernelFaults } from '../../sim/network';
 import { bootClients, settleWorld } from '../../sim/replay-steps';
 import type { SeededRng } from '../../sim/rng';
 import { openWorld } from '../../sim/world';
 import { pickLibraryAction } from './pick-library-action';
+
+const WORLD_START_MS = 1_700_000_000_000;
 
 export type RunSeedResult =
   | { readonly ok: true; readonly seed: bigint; readonly steps: number }
@@ -15,6 +21,7 @@ export type RunSeedResult =
       readonly seed: bigint;
       readonly steps: number;
       readonly error: string;
+      readonly artifact: SimFailureArtifact;
     };
 
 export type RunSeedOptions = {
@@ -32,6 +39,7 @@ type WorkloadLoopFail = {
   readonly seed: bigint;
   readonly steps: number;
   readonly error: string;
+  readonly artifact: SimFailureArtifact;
 };
 
 function isTransientSimFault(error: unknown): boolean {
@@ -41,6 +49,33 @@ function isTransientSimFault(error: unknown): boolean {
   if (isStorageFullError(error)) return true;
   if (isClosedDatabaseError(error)) return true;
   return false;
+}
+
+function buildFailureArtifact(args: {
+  readonly seed: bigint;
+  readonly actions: readonly DstAction[];
+  readonly error: string;
+  readonly failureStep: number;
+}): SimFailureArtifact {
+  return {
+    scenario: {
+      version: 1,
+      inputs: {
+        seed: args.seed.toString(),
+        startMs: WORLD_START_MS,
+        knobs: {},
+        actions: args.actions as readonly JsonValue[],
+        networkDefaults: toKernelFaults(RELIABLE_FAULTS),
+      },
+      meta: {
+        error: args.error,
+        seedHex: args.seed.toString(16),
+        failureStep: args.failureStep,
+      },
+    },
+    trace: [],
+    error: args.error,
+  };
 }
 
 async function pickWorkloadAction(args: {
@@ -85,6 +120,7 @@ async function runWorkloadLoop(args: {
   readonly ids: readonly string[];
   readonly steps: number;
   domainModel: unknown | null;
+  readonly actions: DstAction[];
 }): Promise<{
   readonly done: number;
   readonly fail: WorkloadLoopFail | null;
@@ -101,6 +137,7 @@ async function runWorkloadLoop(args: {
     });
     domainModel = picked.domainModel;
     const action = picked.action;
+    args.actions.push(action);
     try {
       await dispatchDstAction(args.world, args.app, action);
     } catch (error) {
@@ -117,6 +154,12 @@ async function runWorkloadLoop(args: {
           seed: args.world.seed,
           steps: done,
           error: message,
+          artifact: buildFailureArtifact({
+            seed: args.world.seed,
+            actions: args.actions,
+            error: message,
+            failureStep: args.actions.length,
+          }),
         },
       };
     }
@@ -130,13 +173,20 @@ async function runWorkloadLoop(args: {
     done += 1;
     const inv = await args.world.checkInvariants();
     if (inv !== null) {
+      const message = `${inv.invariant}: ${inv.detail}`;
       return {
         done,
         fail: {
           ok: false,
           seed: args.world.seed,
           steps: done,
-          error: `${inv.invariant}: ${inv.detail}`,
+          error: message,
+          artifact: buildFailureArtifact({
+            seed: args.world.seed,
+            actions: args.actions,
+            error: message,
+            failureStep: args.actions.length,
+          }),
         },
       };
     }
@@ -147,7 +197,7 @@ async function runWorkloadLoop(args: {
 
 /**
  * Run one seeded universe: N clients, random workload, heal + converge.
- * On failure returns seed for exact replay.
+ * On failure returns seed + scenario artifact for exact replay.
  */
 export async function runDstSeed(opts: RunSeedOptions): Promise<RunSeedResult> {
   const clientCount = opts.clientCount ?? 2;
@@ -158,6 +208,7 @@ export async function runDstSeed(opts: RunSeedOptions): Promise<RunSeedResult> {
     domain: opts.app.pack,
     sampleFaults: false,
   });
+  const actions: DstAction[] = [];
   let done = 0;
   try {
     const ids = await bootClients({
@@ -172,6 +223,7 @@ export async function runDstSeed(opts: RunSeedOptions): Promise<RunSeedResult> {
       ids,
       steps,
       domainModel: opts.app.domainModel?.initial() ?? null,
+      actions,
     });
     done = loop.done;
     if (loop.fail !== null) return loop.fail;
@@ -192,6 +244,12 @@ export async function runDstSeed(opts: RunSeedOptions): Promise<RunSeedResult> {
       seed: world.seed,
       steps: done,
       error: message,
+      artifact: buildFailureArtifact({
+        seed: world.seed,
+        actions,
+        error: message,
+        failureStep: actions.length,
+      }),
     };
   }
 }

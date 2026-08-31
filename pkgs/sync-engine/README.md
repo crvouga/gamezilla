@@ -809,7 +809,8 @@ bun run lint
 
 **Two layers:** named scenarios document specific safety claims (`never`, authz,
 protocol cut, flicker). `*.pbt.test.ts` files explore the fault state space with
-`assertDstProperty` + `worldCommands({ app })` (see `src/tests/dst/`).
+`assertDst(acmeDst)` from `@pkgs/dst/pbt` (system declared via `defineSyncDst` —
+see `src/sim/dst/define-sync-dst.ts` and `pkgs/dst/CONTEXT.md`).
 When a property fails, capture `seed` / `path` / `replayPath`, pin `examples`,
 add a named scenario, and log in repo-root `PBT_FINDINGS.md`.
 
@@ -843,11 +844,13 @@ App fixtures (e.g. acme) supply `domainOpArbs`, `pickDomainOrServerOp`, and
 
 TigerBeetle-style DST in `src/sim/` (not a public export). **One seed →
 identical timeline.** The harness is domain-agnostic: callers inject a
-`SimDomainPack`. Scenarios compose `openWorld` with an app fixture from
-`src/tests/apps/acme/` (`acmeDomainPack`); PBT/DST use the same
-`openWorld({ app: acmeDstApp, knobs })` and call `world.playActions` /
-`world.runCommands`; fuzz calls `runDstSeed({ app: acmeDstApp })`. Assert
-**live domain rows only** — never framework tables or private modules.
+`SimDomainPack`. Imperative scenarios compose `openWorld` with an app fixture
+from `src/tests/apps/acme/` (`acmeDomainPack`). PBT/DST worlds are **owned by
+`@pkgs/dst`**: `defineSyncDst(acmeDstApp)` (exported as `acmeDst`) declares the
+broker/server/client topology, knobs, action pool, and model, and tests drive it
+with `assertDst(acmeDst)` / `replaySyncPin(acmeDst, …)` / `openDstWorld(acmeDst,
+…)`; fuzz calls `runDstSeed({ app: acmeDstApp })`. Assert **live domain rows
+only** — never framework tables or private modules.
 
 ```text
 seed ──► SeededRng ──► SimNetwork (delay/loss/reorder/replay)
@@ -928,14 +931,19 @@ describe('example', () => {
 });
 ```
 
-PBT / DST (same `World`, pass `app` to boot clients + enable `playActions`):
+PBT / DST (framework-owned world from `defineSyncDst`):
 
 ```ts
-import { acmeDstApp } from '../apps/acme/dst-app';
-import { openWorld } from '../../sim/world';
+import { assertDst } from '@pkgs/dst/pbt';
+import { replaySyncPin } from '../../sim/dst';
+import { acmeDst } from '../apps/acme/dst';
 
-await using world = await openWorld({
-  app: acmeDstApp,
+// Property test: framework generates seed + knobs + actions, runs the model,
+// replays on the real world, and settles.
+await assertDst(acmeDst, { numRuns: 12, actionsPerRun: 14 });
+
+// Scripted pin: fixed seed + knobs + action list, then converge + dispose.
+await replaySyncPin(acmeDst, {
   seed: 42,
   knobs: {
     rowImageFanout: true,
@@ -943,16 +951,30 @@ await using world = await openWorld({
     bufferOutboundLive: false,
     clientCount: 2,
   },
+  actions: [
+    {
+      kind: 'domain',
+      clientId: 'c0',
+      mutation: 'setNote',
+      args: { id: 'n0', body: 'x', title: '' },
+    },
+  ],
 });
-await world.playActions([
-  {
-    kind: 'domain',
-    clientId: 'c0',
-    mutation: 'setNote',
-    args: { id: 'n0', body: 'x', title: '' },
-  },
-]);
-await world.assertConverged();
+```
+
+When a pin also needs imperative client access, open the framework world and
+grab the sync facade:
+
+```ts
+import { openDstWorld } from '@pkgs/dst';
+import { playSyncActions, syncFacade } from '../../sim/dst';
+import { acmeDst } from '../apps/acme/dst';
+
+await using world = await openDstWorld(acmeDst, { seed: 42 });
+const facade = syncFacade(world.system);
+await playSyncActions(world, [{ kind: 'restart', clientId: 'c0' }]);
+await facade.clients.get('c0')!.mutate(setNote, { id: 'n0', body: 'x' });
+await facade.assertConverged();
 ```
 
 Scoped hold + latency budget + negative window:

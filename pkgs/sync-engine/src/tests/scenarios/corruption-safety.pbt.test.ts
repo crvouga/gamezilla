@@ -1,16 +1,17 @@
 import { describe, test } from 'bun:test';
-import { assertDstProperty, fc } from '@pkgs/pbt';
-import { arbWorldKnobs, arbWorldSeed } from '../../sim/dst/knobs';
-import { openWorld } from '../../sim/world';
-import { acmeSetNoteOp } from '../apps/acme/domain-model';
-import { acmeDstApp } from '../apps/acme/dst-app';
-import type { DstAction, LibraryAction } from '../dst/actions';
+import { assertDstProperty } from '@pkgs/dst/pbt';
+import { fc } from '@pkgs/pbt';
 import {
   CORRUPTION_VARIANTS,
   HTTP_FAULTS,
   PUBSUB_FAULTS,
+  replaySyncPin,
   STORAGE_TAMPERS,
-} from '../dst/commands';
+} from '../../sim/dst';
+import { arbWorldKnobs, arbWorldSeed } from '../../sim/dst/knobs';
+import { acmeSetNoteOp } from '../apps/acme/domain-model';
+import { acmeDst } from '../apps/acme/dst';
+import type { DstAction, LibraryAction } from '../dst/actions';
 
 const TRIGGER = acmeSetNoteOp('c0', 'n0', 'corruption');
 
@@ -35,18 +36,15 @@ describe('corruption safety PBT', () => {
                 f.kind === 'corruptQueryResponse'
             ),
           async (seed, knobs, fault) => {
-            const arm: LibraryAction = {
-              kind: 'armHttpFault',
-              clientId: 'c0',
-              fault,
-            };
-            await using world = await openWorld({
-              app: acmeDstApp,
+            await replaySyncPin(acmeDst, {
               seed,
               knobs,
+              actions: corruptionSequence({
+                kind: 'armHttpFault',
+                clientId: 'c0',
+                fault,
+              }),
             });
-            await world.playActions(corruptionSequence(arm));
-            await world.assertConverged();
           }
         ),
         { numRuns: 6 }
@@ -68,17 +66,14 @@ describe('corruption safety PBT', () => {
             .filter((f) => f.kind === 'corruptPubsubPayload'),
           fc.constantFrom(...CORRUPTION_VARIANTS),
           async (seed, knobs, _fault, variant) => {
-            const arm: LibraryAction = {
-              kind: 'armPubsubFault',
-              fault: { kind: 'corruptPubsubPayload', variant },
-            };
-            await using world = await openWorld({
-              app: acmeDstApp,
+            await replaySyncPin(acmeDst, {
               seed,
               knobs,
+              actions: corruptionSequence({
+                kind: 'armPubsubFault',
+                fault: { kind: 'corruptPubsubPayload', variant },
+              }),
             });
-            await world.playActions(corruptionSequence(arm));
-            await world.assertConverged();
           }
         ),
         { numRuns: 6 }
@@ -97,19 +92,17 @@ describe('corruption safety PBT', () => {
           arbWorldKnobs(),
           fc.constantFrom(...STORAGE_TAMPERS),
           async (seed, knobs, tamper) => {
-            await using world = await openWorld({
-              app: acmeDstApp,
+            await replaySyncPin(acmeDst, {
               seed,
               knobs,
+              actions: [
+                TRIGGER,
+                { kind: 'tamperLocalStorage', clientId: 'c0', tamper },
+                { kind: 'restart', clientId: 'c0' },
+                { kind: 'idle', ms: 40 },
+                { kind: 'heal' },
+              ],
             });
-            await world.playActions([
-              TRIGGER,
-              { kind: 'tamperLocalStorage', clientId: 'c0', tamper },
-              { kind: 'restart', clientId: 'c0' },
-              { kind: 'idle', ms: 40 },
-              { kind: 'heal' },
-            ]);
-            await world.assertConverged();
           }
         ),
         { numRuns: 6 }

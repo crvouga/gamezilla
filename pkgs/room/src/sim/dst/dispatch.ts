@@ -1,9 +1,9 @@
-import type { World } from '../world-api';
 import type { DomainOp, LibraryAction, RoomDstAction } from './actions';
 import type { RoomDstApp } from './app';
+import type { RoomDstWorldSurface } from './world-surface';
 
 async function dispatchDomainOp(
-  world: World,
+  world: RoomDstWorldSurface,
   app: RoomDstApp,
   op: DomainOp
 ): Promise<void> {
@@ -14,7 +14,7 @@ async function dispatchDomainOp(
 
 const LIBRARY_HANDLERS: {
   readonly [K in LibraryAction['kind']]: (
-    world: World,
+    world: RoomDstWorldSurface,
     action: Extract<LibraryAction, { kind: K }>
   ) => Promise<void>;
 } = {
@@ -108,7 +108,7 @@ const LIBRARY_HANDLERS: {
 };
 
 export async function dispatchRoomDstAction(
-  world: World,
+  world: RoomDstWorldSurface,
   app: RoomDstApp,
   action: RoomDstAction
 ): Promise<void> {
@@ -117,7 +117,7 @@ export async function dispatchRoomDstAction(
     return;
   }
   const handler = LIBRARY_HANDLERS[action.kind] as (
-    world: World,
+    world: RoomDstWorldSurface,
     action: LibraryAction
   ) => Promise<void>;
   await handler(world, action);

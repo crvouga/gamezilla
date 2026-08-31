@@ -1,7 +1,6 @@
 import type { SeededRng } from '@pkgs/uuid';
 
-import type { RoomDstAction } from './actions';
-import type { RoomDstApp } from './app';
+import type { RoomDstAction, RoomDstApp } from '../../sim/dst';
 
 type FuzzState = {
   sessionConnected: Set<string>;

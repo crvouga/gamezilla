@@ -1,13 +1,15 @@
 import { describe, expect, test } from 'bun:test';
-import { assertDstProperty, fc } from '@pkgs/pbt';
+import { openDstWorld } from '@pkgs/dst';
+import { assertDstProperty } from '@pkgs/dst/pbt';
+import { fc } from '@pkgs/pbt';
+import { syncFacade } from '../../sim/dst';
 import { arbWorldKnobs, arbWorldSeed } from '../../sim/dst/knobs';
-import { openWorld } from '../../sim/world';
 import {
   expectLiveNote,
   expectNoteNotLive,
   readNoteTombstone,
 } from '../apps/acme/assert';
-import { acmeDstApp } from '../apps/acme/dst-app';
+import { acmeDst } from '../apps/acme/dst';
 import { deleteNote, setNote } from '../apps/acme/shared/mutations';
 
 type TombstoneStep =
@@ -32,13 +34,10 @@ describe('tombstone revive PBT', () => {
             { minLength: 1, maxLength: 8 }
           ),
           async (seed, knobs, steps) => {
-            await using world = await openWorld({
-              app: acmeDstApp,
-              seed,
-              knobs,
-            });
+            await using world = await openDstWorld(acmeDst, { seed, knobs });
+            const facade = syncFacade(world.system);
             const noteId = 'n0';
-            const client = world.clients.get('c0')!;
+            const client = facade.clients.get('c0')!;
             let lastBody = '';
             let everSet = false;
             let deleted = false;
@@ -59,11 +58,11 @@ describe('tombstone revive PBT', () => {
               }
             }
 
-            await world.assertConverged();
+            await facade.assertConverged();
 
             if (!everSet) return;
 
-            const tomb = await readNoteTombstone(world.server.db, noteId);
+            const tomb = await readNoteTombstone(facade.server.db, noteId);
             if (deleted) {
               expect(tomb).not.toBeNull();
               await expectNoteNotLive(client.db, noteId);
@@ -90,13 +89,10 @@ describe('tombstone revive PBT', () => {
           fc.string({ maxLength: 8 }),
           fc.string({ maxLength: 8 }),
           async (seed, knobs, body1, body2) => {
-            await using world = await openWorld({
-              app: acmeDstApp,
-              seed,
-              knobs,
-            });
+            await using world = await openDstWorld(acmeDst, { seed, knobs });
+            const facade = syncFacade(world.system);
             const noteId = 'n0';
-            const client = world.clients.get('c0')!;
+            const client = facade.clients.get('c0')!;
             await client.mutate(setNote, {
               id: noteId,
               body: body1,
@@ -108,9 +104,9 @@ describe('tombstone revive PBT', () => {
               body: body2,
               title: '',
             });
-            await world.assertConverged();
+            await facade.assertConverged();
             await expectLiveNote(client.db, noteId, { body: body2 });
-            for (const peer of world.clients.values()) {
+            for (const peer of facade.clients.values()) {
               await expectLiveNote(peer.db, noteId, { body: body2 });
             }
           }

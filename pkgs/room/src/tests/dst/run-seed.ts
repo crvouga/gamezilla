@@ -1,7 +1,7 @@
-import type { RoomDstAction } from '../../sim/dst/actions';
-import type { RoomDstApp } from '../../sim/dst/app';
-import { dispatchRoomDstAction } from '../../sim/dst/dispatch';
+import type { RoomDstAction, RoomDstApp } from '../../sim/dst';
+import { dispatchRoomDstAction } from '../../sim/dst';
 import { openWorld } from '../../sim/world';
+import type { World } from '../../sim/world-api';
 import { createFuzzState, pickRoomDstAction } from './pick-library-action';
 
 export type RunSeedResult =
@@ -21,6 +21,30 @@ export type RunSeedOptions = {
   readonly mildFaults?: boolean;
 };
 
+function clientIdsFor(opts: RunSeedOptions): readonly string[] {
+  const count = opts.clientCount ?? 2;
+  return Array.from({ length: count }, (_, i) => `c${i}`);
+}
+
+/**
+ * Boot the same topology `defineRoomDst` does, without the framework world —
+ * seeded fuzz drives actions directly instead of shrinking `fc.commands`.
+ */
+async function openSeedWorld(opts: RunSeedOptions): Promise<World> {
+  const world = await openWorld({
+    seed: opts.seed,
+    module: opts.app.module,
+    mildFaults: opts.mildFaults === true,
+    ...(opts.app.authorize !== undefined
+      ? { authorize: opts.app.authorize }
+      : {}),
+  });
+  for (const id of clientIdsFor(opts)) {
+    await world.addClient({ id, identity: id, clientId: id });
+  }
+  return world;
+}
+
 /**
  * Run one seeded universe: N clients, random workload, heal + converge.
  * On failure returns seed for exact replay.
@@ -28,17 +52,9 @@ export type RunSeedOptions = {
 export async function runRoomSeed(
   opts: RunSeedOptions
 ): Promise<RunSeedResult> {
-  const clientCount = opts.clientCount ?? 2;
   const steps = opts.steps ?? 40;
-  await using world = await openWorld({
-    app: opts.app,
-    seed: opts.seed,
-    knobs: {
-      clientCount,
-      mildFaults: opts.mildFaults === true,
-    },
-  });
-  const ids = [...world.clientIds];
+  await using world = await openSeedWorld(opts);
+  const ids = clientIdsFor(opts);
   try {
     const workRng = world.rng.fork('workload');
     const fuzz = createFuzzState(ids);
@@ -90,17 +106,9 @@ export function seedsFromEnv(): string[] {
 export async function roomSeedFingerprint(
   opts: RunSeedOptions
 ): Promise<string> {
-  const clientCount = opts.clientCount ?? 2;
   const steps = opts.steps ?? 40;
-  await using world = await openWorld({
-    app: opts.app,
-    seed: opts.seed,
-    knobs: {
-      clientCount,
-      mildFaults: opts.mildFaults === true,
-    },
-  });
-  const ids = [...world.clientIds];
+  await using world = await openSeedWorld(opts);
+  const ids = clientIdsFor(opts);
   const workRng = world.rng.fork('workload');
   const fuzz = createFuzzState(ids);
   for (let i = 0; i < steps; i += 1) {

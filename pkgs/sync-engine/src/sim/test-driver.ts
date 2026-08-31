@@ -1,7 +1,12 @@
+import {
+  createSimClock,
+  createSimScheduler,
+  createSimTimers,
+  type SimClock,
+  type SimScheduler,
+} from '@pkgs/dst';
+
 import type { Timers } from '../client/sim-ports';
-import { createSimClock, type SimClock } from './clock';
-import { createSimScheduler, type SimScheduler } from './scheduler';
-import { createSimTimers } from './timers';
 
 export type SimTestDriver = {
   readonly clock: SimClock;

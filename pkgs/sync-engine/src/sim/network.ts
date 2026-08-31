@@ -1,31 +1,22 @@
-import type { SimFaultOptions } from './faults';
-import { RELIABLE_FAULTS } from './faults';
 import {
-  clearNodeFaults as clearStateNodeFaults,
-  clearNodeFaultsForTraffic as clearStateNodeFaultsForTraffic,
-  edgeKey,
-  faultKey,
-  getNodeFaults as getStateNodeFaults,
-  holdKey,
-  isPartitioned,
-  networkIsHeld,
-  networkRelease,
-  networkReleaseAll,
-  networkSend,
+  createSimNetwork as createDstNetwork,
+  type SimNetwork as DstNetwork,
   type SimDeliver,
   type SimEndpointId,
-  type SimNetworkState,
-  heldSummary as stateHeldSummary,
-} from './network-parts';
-import type { SeededRng } from './rng';
-import type { SimScheduler } from './scheduler';
-import type { SimTraffic } from './traffic';
+  type SimNetKey,
+  type SimScheduler,
+} from '@pkgs/dst';
+import type { SeededRng } from '@pkgs/uuid';
 
-export type { SimDeliver, SimEndpointId } from './network-parts';
+import type { SimFaultOptions } from './faults';
+import { RELIABLE_FAULTS } from './faults';
+import { type ClientTraffic, clientForHop, type SimTraffic } from './traffic';
+
+export type { SimDeliver, SimEndpointId };
 
 /**
- * Lossy point-to-point mesh. `send` schedules delivery and returns immediately
- * so the discrete-event drain loop is never blocked waiting on itself.
+ * Sync-domain network: hold/faults keyed by node + {@link SimTraffic}.
+ * Mechanics (delay/loss/dup/partition/hold queues) live in `@pkgs/dst`.
  */
 export type SimNetwork = {
   readonly register: (id: SimEndpointId, deliver: SimDeliver) => void;
@@ -64,20 +55,179 @@ export type SimNetwork = {
   readonly heldSummary: () => readonly string[];
 };
 
-function createNetworkState(args: {
-  readonly scheduler: SimScheduler;
-  readonly rng: SeededRng;
-  readonly faults?: SimFaultOptions;
-}): SimNetworkState {
+/** Opaque key: `nodeId\\0traffic` — never parsed by the kernel. */
+export function syncNetKey(nodeId: string, traffic: SimTraffic): SimNetKey {
+  return `${nodeId}\0${traffic}`;
+}
+
+/** Map sync fault field names → kernel profile. */
+export function toKernelFaults(f: SimFaultOptions) {
   return {
-    endpoints: new Map(),
-    partitioned: new Set(),
-    nodeFaults: new Map(),
-    heldKeys: new Set(),
-    holdQueues: new Map(),
-    scheduler: args.scheduler,
-    rng: args.rng,
-    defaultFaults: args.faults ?? RELIABLE_FAULTS,
+    oneWayDelayMeanMs: f.oneWayDelayMeanMs,
+    oneWayDelayJitterMs: f.oneWayDelayJitterMs,
+    packetLossProbability: f.packetLossProbability,
+    duplicateProbability: f.packetReplayProbability,
+    reorderWindowMs: f.reorderWindow,
+    partitionProbability: f.partitionProbability,
+    unpartitionProbability: f.unpartitionProbability,
+  };
+}
+
+/** Map kernel profile → sync fault field names. */
+export function fromKernelFaults(
+  p: ReturnType<DstNetwork['getDefaultFaults']>
+): SimFaultOptions {
+  return {
+    oneWayDelayMeanMs: p.oneWayDelayMeanMs,
+    oneWayDelayJitterMs: p.oneWayDelayJitterMs,
+    packetLossProbability: p.packetLossProbability,
+    packetReplayProbability: p.duplicateProbability,
+    reorderWindow: p.reorderWindowMs,
+    partitionProbability: p.partitionProbability,
+    unpartitionProbability: p.unpartitionProbability,
+  };
+}
+
+function resolveSendKey(
+  kernel: DstNetwork,
+  overrides: Map<SimNetKey, SimFaultOptions>,
+  nodeId: string,
+  traffic: ClientTraffic
+): SimNetKey {
+  const specific = syncNetKey(nodeId, traffic);
+  const all = syncNetKey(nodeId, 'all');
+  if (kernel.isHeld(specific)) return specific;
+  if (kernel.isHeld(all)) return all;
+  if (overrides.has(specific)) return specific;
+  if (overrides.has(all)) return all;
+  return specific;
+}
+
+function isHeldTraffic(
+  kernel: DstNetwork,
+  nodeId: string,
+  traffic: SimTraffic
+): boolean {
+  if (traffic === 'all') {
+    return (
+      kernel.isHeld(syncNetKey(nodeId, 'all')) ||
+      kernel.isHeld(syncNetKey(nodeId, 'live')) ||
+      kernel.isHeld(syncNetKey(nodeId, 'sync'))
+    );
+  }
+  return (
+    kernel.isHeld(syncNetKey(nodeId, traffic)) ||
+    kernel.isHeld(syncNetKey(nodeId, 'all'))
+  );
+}
+
+function holdTraffic(
+  kernel: DstNetwork,
+  nodeId: string,
+  traffic: SimTraffic
+): void {
+  if (traffic === 'all') {
+    kernel.hold(syncNetKey(nodeId, 'all'));
+    return;
+  }
+  kernel.hold(syncNetKey(nodeId, traffic));
+}
+
+function releaseTraffic(
+  kernel: DstNetwork,
+  nodeId: string,
+  traffic: SimTraffic
+): void {
+  if (traffic === 'all') {
+    kernel.release(syncNetKey(nodeId, 'all'));
+    kernel.release(syncNetKey(nodeId, 'live'));
+    kernel.release(syncNetKey(nodeId, 'sync'));
+    return;
+  }
+  kernel.release(syncNetKey(nodeId, traffic));
+}
+
+function clearNodeOverrides(
+  kernel: DstNetwork,
+  overrides: Map<SimNetKey, SimFaultOptions>,
+  nodeId?: string
+): void {
+  if (nodeId === undefined) {
+    overrides.clear();
+    kernel.clearKeyFaults();
+    return;
+  }
+  for (const key of [...overrides.keys()]) {
+    if (key.startsWith(`${nodeId}\0`)) {
+      overrides.delete(key);
+      kernel.clearKeyFaults(key);
+    }
+  }
+}
+
+/**
+ * Adapt a framework-owned `@pkgs/dst` network kernel to the sync-domain
+ * traffic-keyed surface. DST worlds pass `ctx.network`; `createSimNetwork`
+ * passes a kernel it just made.
+ */
+export function wrapDstNetwork(
+  kernel: DstNetwork,
+  initialFaults?: SimFaultOptions
+): SimNetwork {
+  if (initialFaults !== undefined) {
+    kernel.setDefaultFaults(toKernelFaults(initialFaults));
+  }
+  const overrides = new Map<SimNetKey, SimFaultOptions>();
+
+  return {
+    register: (id, deliver) => kernel.register(id, deliver),
+    unregister: (id) => kernel.unregister(id),
+    send(from, to, payload) {
+      const client = clientForHop(from, to);
+      if (client === null) {
+        kernel.send(from, to, payload);
+        return;
+      }
+      const key = resolveSendKey(
+        kernel,
+        overrides,
+        client.nodeId,
+        client.traffic
+      );
+      kernel.send(from, to, payload, { key });
+    },
+    partition: (a, b) => kernel.partition(a, b),
+    heal: (a, b) => kernel.heal(a, b),
+    healAll: () => kernel.healAll(),
+    setDefaultFaults(next) {
+      kernel.setDefaultFaults(toKernelFaults(next));
+    },
+    faults: () => fromKernelFaults(kernel.getDefaultFaults()),
+    hold: (nodeId, traffic) => holdTraffic(kernel, nodeId, traffic),
+    release: (nodeId, traffic) => releaseTraffic(kernel, nodeId, traffic),
+    releaseAll: () => kernel.releaseAll(),
+    setNodeFaults(nodeId, traffic, faults) {
+      const key = syncNetKey(nodeId, traffic);
+      overrides.set(key, faults);
+      kernel.setKeyFaults(key, toKernelFaults(faults));
+    },
+    clearNodeFaults: (nodeId) => clearNodeOverrides(kernel, overrides, nodeId),
+    clearNodeFaultsForTraffic(nodeId, traffic) {
+      const key = syncNetKey(nodeId, traffic);
+      overrides.delete(key);
+      kernel.clearKeyFaults(key);
+    },
+    getNodeFaults(nodeId, traffic) {
+      return overrides.get(syncNetKey(nodeId, traffic));
+    },
+    isHeld: (nodeId, traffic) => isHeldTraffic(kernel, nodeId, traffic),
+    isEdgePartitioned: (a, b) => kernel.isEdgePartitioned(a, b),
+    heldSummary() {
+      return kernel
+        .heldSummary()
+        .map((k) => k.replace('\0', ':'))
+        .sort();
+    },
   };
 }
 
@@ -86,59 +236,10 @@ export function createSimNetwork(args: {
   readonly rng: SeededRng;
   readonly faults?: SimFaultOptions;
 }): SimNetwork {
-  const state = createNetworkState(args);
-  return {
-    register(id, deliver) {
-      state.endpoints.set(id, deliver);
-    },
-    unregister(id) {
-      state.endpoints.delete(id);
-    },
-    send(from, to, payload) {
-      networkSend(state, from, to, payload);
-    },
-    partition(a, b) {
-      state.partitioned.add(edgeKey(a, b));
-      state.partitioned.add(edgeKey(b, a));
-    },
-    heal(a, b) {
-      state.partitioned.delete(edgeKey(a, b));
-      state.partitioned.delete(edgeKey(b, a));
-    },
-    healAll() {
-      state.partitioned.clear();
-    },
-    setDefaultFaults(next) {
-      state.defaultFaults = next;
-    },
-    faults: () => state.defaultFaults,
-    hold(nodeId, traffic) {
-      state.heldKeys.add(holdKey(nodeId, traffic));
-    },
-    release(nodeId, traffic) {
-      networkRelease(state, nodeId, traffic);
-    },
-    releaseAll() {
-      networkReleaseAll(state);
-    },
-    setNodeFaults(nodeId, traffic, faults) {
-      state.nodeFaults.set(faultKey(nodeId, traffic), faults);
-    },
-    clearNodeFaults(nodeId) {
-      clearStateNodeFaults(state, nodeId);
-    },
-    clearNodeFaultsForTraffic(nodeId, traffic) {
-      clearStateNodeFaultsForTraffic(state, nodeId, traffic);
-    },
-    getNodeFaults(nodeId, traffic) {
-      return getStateNodeFaults(state, nodeId, traffic);
-    },
-    isHeld(nodeId, traffic) {
-      return networkIsHeld(state, nodeId, traffic);
-    },
-    isEdgePartitioned(a, b) {
-      return isPartitioned(state, a, b);
-    },
-    heldSummary: () => stateHeldSummary(state),
-  };
+  const kernel = createDstNetwork({
+    scheduler: args.scheduler,
+    rng: args.rng,
+    faults: toKernelFaults(args.faults ?? RELIABLE_FAULTS),
+  });
+  return wrapDstNetwork(kernel);
 }

@@ -113,28 +113,13 @@ export class SimLoopbackRoomTransport<
 
   sendJson(payload: unknown): void {
     if (!this.linkUp) return;
-    this.network.enqueue(
-      this.clientKey,
-      () => {
-        this.sendChain = this.sendChain
-          .catch(() => undefined)
-          .then(() =>
-            this.serverQueue.enqueue(() =>
-              this.getServer().handleClientMessage(
-                this.connectionId,
-                this.identity,
-                payload
-              )
-            )
-          )
-          .catch((err: unknown) => {
-            for (const h of this.handlerSets) {
-              h.onError?.(err instanceof Error ? err : new Error(String(err)));
-            }
-          });
-      },
-      'toServer'
-    );
+    const connectionId = this.connectionId;
+    const identity = this.identity;
+    this.network.sendToServer(this.clientKey, {
+      connectionId,
+      identity,
+      payload,
+    });
   }
 
   /**
@@ -161,13 +146,7 @@ export class SimLoopbackRoomTransport<
 
   enqueueFromServer(payload: unknown): void {
     if (!this.linkUp) return;
-    this.network.enqueue(
-      this.clientKey,
-      () => {
-        this.deliverToClientNow(payload);
-      },
-      'toClient'
-    );
+    this.network.sendToClient(this.clientKey, payload);
   }
 
   /** Inject a server→client frame, bypassing the net mesh. */

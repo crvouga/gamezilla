@@ -3,12 +3,13 @@
  */
 
 import type { Client } from '@apps/client/product/create-client';
-import type { SimClock } from '@pkgs/clock';
+import type { SimClock, SimScheduler } from '@pkgs/dst';
 import { sql } from '@pkgs/sql';
 import type { SimSqlHandle } from '@sim/console/sim/sim-sql';
 
 type DrainCtx = {
   readonly clock: SimClock;
+  readonly scheduler: SimScheduler;
   readonly serverHandle: SimSqlHandle;
   readonly sim: { clientSql(id: string): SimSqlHandle | undefined };
   readonly clientSqlByAddress: Map<string, SimSqlHandle>;
@@ -57,7 +58,7 @@ export async function awaitPlaygroundMutationDrain(
   for (let i = 0; i < 200; i += 1) {
     wakeAllUploads(ctx);
     if ((await pendingMutationTotal(ctx, clientIds)) === 0) return;
-    ctx.clock.advance(25);
+    await ctx.scheduler.runFor(25);
     await Promise.resolve();
   }
 }

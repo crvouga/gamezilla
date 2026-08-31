@@ -1,6 +1,6 @@
 /**
- * PBT / DST test helpers (command arbs, seed runner).
- * World + playActions live on `openWorld` from the sim harness.
+ * PBT / DST test helpers. Worlds and action replay are framework-owned:
+ * `defineSyncDst` + `assertDst` / `replayDst` from `@pkgs/dst`.
  */
 
 export type {
@@ -9,7 +9,8 @@ export type {
   DstApp,
   LibraryAction,
   ServerOp,
-  WorldCmd,
+  SyncDstDef,
+  SyncDstWorld,
   WorldKnobs,
   WorldModel,
   WorldReal,
@@ -21,14 +22,15 @@ export {
   CLIENT_IDS,
   CORRUPTION_VARIANTS,
   CRASH_EVENTS,
+  defineSyncDst,
   HOLD_TRAFFIC,
   HTTP_FAULTS,
   PUBSUB_FAULTS,
+  playSyncActions,
   SCHEMA_VARIANTS,
   STORAGE_TAMPERS,
   WORLD_PBT_CRASH_EVENTS,
 } from '../../sim/dst';
-export { worldCommands, worldPropertyInputs } from './commands';
 export { pickDstAction, pickLibraryAction } from './pick-library-action';
 export type { RunSeedOptions, RunSeedResult } from './run-seed';
 export { runDstSeed, seedsFromEnv } from './run-seed';

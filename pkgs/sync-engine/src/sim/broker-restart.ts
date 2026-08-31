@@ -7,7 +7,7 @@ function createBroker(k: BootedSimKernel) {
     network: k.network,
     brokerId: BROKER,
     faults: k.faults,
-    rng: k.rng.fork(`broker-${k.rng.int(0xffff).toString(16)}`),
+    rng: k.rng.fork('broker-restart'),
     liveResendOnReconnect: k.worldArgs.liveResendOnReconnect === true,
   });
 }

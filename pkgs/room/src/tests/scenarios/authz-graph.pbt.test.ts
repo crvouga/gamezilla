@@ -1,10 +1,23 @@
 import { describe, expect, test } from 'bun:test';
-import { assertDstProperty, fc } from '@pkgs/pbt';
+import { arbWorldSeed, assertDstProperty } from '@pkgs/dst/pbt';
+import { fc } from '@pkgs/pbt';
 
-import { openWorld } from '../../sim/world';
-import { authzDstApp } from '../apps/authz/dst-app';
-import { arbWorldSeed } from '../dst/world-config';
+import { replayRoomDst, roomDstWorld } from '../../sim/dst';
+import { authzDst } from '../apps/authz/dst';
 import { authzCount, authzOwner } from '../fixtures/authz-module';
+
+async function expectAuthzState(
+  world: Awaited<ReturnType<typeof replayRoomDst>>,
+  expected: { readonly owner: string; readonly count: number }
+): Promise<void> {
+  try {
+    const snap = await roomDstWorld(world.system).serverSnapshot();
+    expect(authzOwner(snap)).toBe(expected.owner);
+    expect(authzCount(snap)).toBe(expected.count);
+  } finally {
+    await world.dispose();
+  }
+}
 
 describe('room authz-graph PBT', () => {
   test(
@@ -13,44 +26,39 @@ describe('room authz-graph PBT', () => {
       await assertDstProperty(
         'authz graph converges',
         fc.asyncProperty(arbWorldSeed(), async (seed) => {
-          await using world = await openWorld({
-            app: authzDstApp,
+          const world = await replayRoomDst(authzDst, {
             seed,
-            knobs: { clientCount: 2, mildFaults: false },
+            actions: [
+              {
+                kind: 'domain',
+                clientId: 'c0',
+                command: 'claim',
+                args: {},
+              },
+              { kind: 'idle', ms: 10 },
+              {
+                kind: 'domain',
+                clientId: 'c1',
+                command: 'bump',
+                args: {},
+              },
+              {
+                kind: 'domain',
+                clientId: 'c0',
+                command: 'bump',
+                args: {},
+              },
+              { kind: 'disconnect', clientId: 'c0' },
+              { kind: 'connect', clientId: 'c0' },
+              {
+                kind: 'domain',
+                clientId: 'c0',
+                command: 'bump',
+                args: {},
+              },
+            ],
           });
-          await world.playActions([
-            {
-              kind: 'domain',
-              clientId: 'c0',
-              command: 'claim',
-              args: {},
-            },
-            { kind: 'idle', ms: 10 },
-            {
-              kind: 'domain',
-              clientId: 'c1',
-              command: 'bump',
-              args: {},
-            },
-            {
-              kind: 'domain',
-              clientId: 'c0',
-              command: 'bump',
-              args: {},
-            },
-            { kind: 'disconnect', clientId: 'c0' },
-            { kind: 'connect', clientId: 'c0' },
-            {
-              kind: 'domain',
-              clientId: 'c0',
-              command: 'bump',
-              args: {},
-            },
-          ]);
-          await world.assertConverged();
-          const snap = await world.serverSnapshot();
-          expect(authzOwner(snap)).toBe('c0');
-          expect(authzCount(snap)).toBe(2);
+          await expectAuthzState(world, { owner: 'c0', count: 2 });
         }),
         { numRuns: 8 }
       );
@@ -59,29 +67,24 @@ describe('room authz-graph PBT', () => {
   );
 
   test('takeOver does not transfer ownership', async () => {
-    await using world = await openWorld({
-      app: authzDstApp,
+    const world = await replayRoomDst(authzDst, {
       seed: 21,
-      knobs: { clientCount: 2, mildFaults: false },
+      actions: [
+        {
+          kind: 'domain',
+          clientId: 'c0',
+          command: 'claim',
+          args: {},
+        },
+        { kind: 'takeOver', clientId: 'c1' },
+        {
+          kind: 'domain',
+          clientId: 'c1',
+          command: 'bump',
+          args: {},
+        },
+      ],
     });
-    await world.playActions([
-      {
-        kind: 'domain',
-        clientId: 'c0',
-        command: 'claim',
-        args: {},
-      },
-      { kind: 'takeOver', clientId: 'c1' },
-      {
-        kind: 'domain',
-        clientId: 'c1',
-        command: 'bump',
-        args: {},
-      },
-    ]);
-    await world.assertConverged();
-    const snap = await world.serverSnapshot();
-    expect(authzOwner(snap)).toBe('c0');
-    expect(authzCount(snap)).toBe(0);
+    await expectAuthzState(world, { owner: 'c0', count: 0 });
   });
 });

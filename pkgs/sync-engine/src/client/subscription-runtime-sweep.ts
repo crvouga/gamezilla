@@ -1,11 +1,11 @@
 import { HttpNetworkError } from '@pkgs/http-client';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { QueryRequestItem } from '../protocol';
 import type { QueryRegistry, QueryResponse } from '../queries/core/types';
 import { computeLocalScopeHash } from './local-scope-hash';
 import { applyFullMerge, detachScope, type MergeApplierDeps } from './merge';
 import { postQueryBatch } from './post-query-batch';
 import { loadScopeBasis, requestCacheKeys } from './subscription-cache-keys';
-import type { QueryRequest } from './subscription-runtime';
 
 export type SweepEntry = {
   readonly spec: {
@@ -24,7 +24,7 @@ export type SweepEntry = {
 export type SubscriptionSweepContext = {
   readonly db: SqlClient;
   readonly postQueries: (
-    requests: readonly QueryRequest[]
+    requests: readonly QueryRequestItem[]
   ) => Promise<readonly QueryResponse[]>;
   readonly getMergeDeps: () => MergeApplierDeps;
   readonly queryRegistry?: QueryRegistry;
@@ -63,9 +63,9 @@ export function markFirstOnNetworkError(
 export async function buildSweepRequests(
   ctx: SubscriptionSweepContext,
   active: readonly SweepEntry[]
-): Promise<QueryRequest[]> {
+): Promise<QueryRequestItem[]> {
   ctx.ensureBusWatch();
-  const requests: QueryRequest[] = [];
+  const requests: QueryRequestItem[] = [];
   for (const entry of active) {
     const cache = await requestCacheKeys({
       db: ctx.db,

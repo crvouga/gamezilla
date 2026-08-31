@@ -19,6 +19,7 @@
     "@libs/dst-handles": "workspace:*",
     "@lingui/core": "catalog:",
     "@pkgs/clock": "workspace:*",
+    "@pkgs/dst": "workspace:*",
     "@pkgs/emqx-server": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/minio-server": "workspace:*",

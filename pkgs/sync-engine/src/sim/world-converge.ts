@@ -1,5 +1,5 @@
+import type { SimScheduler } from '@pkgs/dst';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-
 import { reconcileOptimisticPeerMarkers } from '../client/optimistic-peer-rows';
 import type { SimClientHandle } from './client-factory';
 import type { SimDomainPack } from './domain-pack';
@@ -10,8 +10,8 @@ import {
   isClosedDatabaseError,
 } from './invariants';
 import type { NetEffectRegistry } from './net-effect';
+
 import type { SimNetwork } from './network';
-import type { SimScheduler } from './scheduler';
 import type { SimServer } from './server';
 
 export type AssertConvergedCtx = {

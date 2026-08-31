@@ -178,6 +178,7 @@ function makeSnapshotCtx(
     store: args.snapshotStore,
     sim: args.sim,
     clock: args.sim.clock,
+    scheduler: args.sim.scheduler,
     roomNode: args.sim.roomNode,
     serverHandle: args.sim.serverSql,
     clientSqlByAddress: new Map(),

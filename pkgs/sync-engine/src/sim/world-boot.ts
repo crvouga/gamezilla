@@ -1,12 +1,19 @@
-import { createBoundaryFaultController } from './boundary-faults';
+import type { SimDeps } from '@pkgs/dst';
+
+import {
+  type BoundaryFaultController,
+  createBoundaryFaultController,
+} from './boundary-faults';
 import type { SimAuthStatus } from './client-factory';
 import { bindSimHttpServer } from './http-bridge';
-import { createSeededRng } from './rng';
+import type { SimNetwork } from './network';
 import { openSimServer } from './server';
 import { createStoragePressureController } from './storage-pressure';
 import { SERVER_HTTP, SERVER_PUB } from './traffic';
 import {
+  type BootRuntime,
   createBootRuntime,
+  createWorldSimDeps,
   makeNextId,
   resolveAuthForDevice,
   resolveBootDomain,
@@ -21,14 +28,42 @@ import type {
 
 export type { BootedSimKernel } from './world-types';
 
-/** Clock, network, broker, and in-memory SQLite server for a sim world. */
-export async function bootSimKernel(args: {
+/** Deps + network + broker + boundary faults, before the server exists. */
+export type SimInfra = {
+  readonly deps: SimDeps;
+  readonly boundaryFaults: BoundaryFaultController;
+  readonly runtime: BootRuntime;
+};
+
+/** Framework-owned deps + network for DST worlds (`@pkgs/dst` node kinds). */
+export type InjectedSimPorts = {
+  readonly deps: SimDeps;
+  readonly network: SimNetwork;
+};
+
+export function bootSimInfra(args: {
   readonly seed: number | bigint | string;
   readonly worldArgs: WorldClientOpts;
-}): Promise<BootedSimKernel> {
-  const rng = createSeededRng(args.seed);
+  readonly injected?: InjectedSimPorts;
+}): SimInfra {
+  const deps = args.injected?.deps ?? createWorldSimDeps(args.seed);
   const boundaryFaults = createBoundaryFaultController();
-  const runtime = createBootRuntime(rng, args.worldArgs, boundaryFaults);
+  const runtime = createBootRuntime({
+    deps,
+    worldArgs: args.worldArgs,
+    boundaryFaults,
+    ...(args.injected !== undefined ? { network: args.injected.network } : {}),
+  });
+  return { deps, boundaryFaults, runtime };
+}
+
+/** In-memory SQLite server + HTTP bind on top of {@link bootSimInfra}. */
+export async function bootSimServer(args: {
+  readonly infra: SimInfra;
+  readonly worldArgs: WorldClientOpts;
+}): Promise<BootedSimKernel> {
+  const { runtime, boundaryFaults } = args.infra;
+  const rng = args.infra.deps.rng;
   const domain = resolveBootDomain(args.worldArgs);
   const authByDevice = new Map<string, ClientMeta>();
   const authStatusByDevice = new Map<string, SimAuthStatus>();
@@ -87,6 +122,18 @@ export async function bootSimKernel(args: {
   });
 
   return kernel;
+}
+
+/** Clock, network, broker, and in-memory SQLite server for a sim world. */
+export async function bootSimKernel(args: {
+  readonly seed: number | bigint | string;
+  readonly worldArgs: WorldClientOpts;
+  readonly injected?: InjectedSimPorts;
+}): Promise<BootedSimKernel> {
+  return bootSimServer({
+    infra: bootSimInfra(args),
+    worldArgs: args.worldArgs,
+  });
 }
 
 export { BROKER, SERVER_HTTP } from './traffic';

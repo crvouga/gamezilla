@@ -43,7 +43,7 @@ import { ensureNodeLocalStoragePolyfill } from './node-local-storage-polyfill';
 import { injectPlaywrightSnapshotAuth } from './playwright-snapshot-auth';
 import { simNodeTimers } from './sim-actor-overrides';
 import { readSimSystemSnapshot } from './sim-snapshot-fixture';
-import { createSimWaitPump } from './sim-wait-pump';
+import { createSerializedRunFor, createSimWaitPump } from './sim-wait-pump';
 import { simReportTopology } from './sim-world-snapshot';
 
 const reportFs = wallNodeFs();
@@ -114,6 +114,7 @@ function createClientDriver(args: {
   readonly sim: Sim;
   readonly id: string;
   readonly multiAppSession: ReturnType<typeof createMultiAppRntlSession>;
+  readonly runFor: (durationMs: number) => Promise<void>;
 }): Driver {
   const page = injectedPlaywrightPage();
   const baseUrl = process.env['PLAYWRIGHT_BASE_URL'];
@@ -124,7 +125,10 @@ function createClientDriver(args: {
   // Product keeps virtual sim timers (createSim default). Driver wait deadlines
   // use wall time as a fail-fast backstop; the drain pump advances the sim
   // clock (one-shots / reconcile) without wall 50ms sleeps.
-  const pump = createSimWaitPump({ clock: args.sim.clock });
+  const pump = createSimWaitPump({
+    scheduler: args.sim.scheduler,
+    runFor: args.runFor,
+  });
   const timers: Timers = simNodeTimers;
   return createDriver({
     kind: 'rntl',
@@ -137,7 +141,7 @@ function createClientDriver(args: {
           args.id,
           createElement(live.App, { embedded: true })
         );
-        args.sim.clock.advance(0);
+        await args.runFor(0);
         return app;
       },
     },
@@ -227,6 +231,7 @@ async function launchActor(args: {
   readonly id: string;
   readonly multiAppSession: ReturnType<typeof createMultiAppRntlSession>;
   readonly reporter: SimulationReporter | null;
+  readonly runFor: (durationMs: number) => Promise<void>;
   readonly snapshot?: SimSystemSnapshot;
 }): Promise<ActorEntry> {
   const raw = createClientDriver({
@@ -234,6 +239,7 @@ async function launchActor(args: {
     sim: args.sim,
     id: args.id,
     multiAppSession: args.multiAppSession,
+    runFor: args.runFor,
   });
   const page = injectedPlaywrightPage();
   const baseUrl = process.env['PLAYWRIGHT_BASE_URL'];
@@ -323,14 +329,13 @@ export async function openSim(
     await restoreSystemSnapshot(snapshotCtx, loadedSnapshot);
   }
   const actors = new Map<string, ActorEntry>();
+  const runFor = createSerializedRunFor(sim.scheduler);
   const multiAppSession = createMultiAppRntlSession({
     onActorFocus: () => {
       // Nudge product timers (upload idle / reconcile) after remount.
-      try {
-        sim.clock.advance(1_000);
-      } catch {
+      void runFor(1_000).catch(() => {
         // ignore disposed clock
-      }
+      });
     },
   });
   if (simReportEnabled()) {
@@ -352,6 +357,7 @@ export async function openSim(
         id,
         multiAppSession,
         reporter,
+        runFor,
         ...(loadedSnapshot !== undefined ? { snapshot: loadedSnapshot } : {}),
       });
       liveClients.set(id, sim.spawnClient(id));

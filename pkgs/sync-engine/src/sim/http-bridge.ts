@@ -1,3 +1,4 @@
+import type { SimScheduler } from '@pkgs/dst';
 import type {
   MutationUploadResult,
   MutationUploadRow,
@@ -20,8 +21,8 @@ import type {
   SimHttpResponse,
   SimHttpServerHandlers,
 } from './http-bridge-types';
+
 import type { SimEndpointId, SimNetwork } from './network';
-import type { SimScheduler } from './scheduler';
 import { classifyEndpoint } from './traffic';
 
 export type {

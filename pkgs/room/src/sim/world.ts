@@ -1,4 +1,5 @@
-import { createSimAdapters, type SeededRng } from '@pkgs/uuid';
+import { createSimDeps, type SimDeps } from '@pkgs/dst';
+import type { SeededRng } from '@pkgs/uuid';
 
 import { InMemoryClientStorage } from '../client/adapters/storage/memory';
 import { createTimerScheduleStack } from '../effects/timer-schedule-stack';
@@ -7,10 +8,12 @@ import { RoomServer } from '../server/core/room-server';
 import type { RoomCommandPayload, RoomEvent, RoomState } from '../types';
 
 import { createRoomBoundaryFaultController } from './boundary-faults';
-import type { RoomDstApp } from './dst/app';
-import type { RoomWorldKnobs } from './dst/knobs';
 import { checkRoomInvariants } from './invariants';
-import { MILD_ROOM_FAULTS, SimRoomNetwork } from './network';
+import {
+  createSimRoomNetwork,
+  MILD_ROOM_FAULTS,
+  type SimRoomNetwork,
+} from './network';
 import { SerialQueue } from './serial-queue';
 import {
   assertRoomConverged,
@@ -20,9 +23,7 @@ import {
   serverDomainHash,
 } from './settle';
 import type {
-  OpenWorldAppArgs,
   OpenWorldArgs,
-  OpenWorldModuleArgs,
   RoomSimAuthorize,
   RoomSimClientHandle,
   World,
@@ -40,27 +41,13 @@ import {
 } from './world-clients';
 import { assembleWorld } from './world-facade';
 
-function resolveSeed(seed: number | bigint | string): bigint {
-  if (typeof seed === 'bigint') return seed === 0n ? 1n : seed;
-  if (typeof seed === 'string') {
-    let h = 0xcbf29ce484222325n;
-    for (let i = 0; i < seed.length; i += 1) {
-      h ^= BigInt(seed.charCodeAt(i));
-      h = (h * 0x100000001b3n) & 0xffffffffffffffffn;
-    }
-    return h === 0n ? 1n : h;
-  }
-  const asInt = BigInt(Math.floor(Math.abs(seed))) & 0xffffffffffffffffn;
-  return asInt === 0n ? 1n : asInt;
-}
+const WORLD_START_MS = 1_700_000_000_000;
 
 type KernelBootArgs<
   S extends RoomState,
   C extends RoomCommandPayload,
   E extends RoomEvent,
-> = OpenWorldModuleArgs<S, C, E> & {
-  readonly authorize?: RoomSimAuthorize;
-};
+> = OpenWorldArgs<S, C, E>;
 
 type BoundSchedule = ReturnType<typeof createTimerScheduleStack>;
 
@@ -115,15 +102,38 @@ function createWorldServer<
 }
 
 function createWorldNetwork(
-  now: () => number,
+  scheduler: WorldKernel<RoomState, RoomCommandPayload, RoomEvent>['scheduler'],
   netRng: SeededRng,
   mildFaults?: boolean
 ): SimRoomNetwork {
-  const network = new SimRoomNetwork(now, netRng);
-  if (mildFaults === true) {
-    network.setDefaultFaults(MILD_ROOM_FAULTS);
-  }
-  return network;
+  return createSimRoomNetwork({
+    scheduler,
+    rng: netRng,
+    ...(mildFaults === true ? { faults: MILD_ROOM_FAULTS } : {}),
+  });
+}
+
+function resolveWorldPorts<
+  S extends RoomState,
+  C extends RoomCommandPayload,
+  E extends RoomEvent,
+>(
+  args: KernelBootArgs<S, C, E>
+): { readonly deps: SimDeps; readonly network: SimRoomNetwork } {
+  const injected = args.injected;
+  if (injected !== undefined) return injected;
+  const deps = createSimDeps({
+    seed: args.seed,
+    startMs: args.startMs ?? WORLD_START_MS,
+  });
+  return {
+    deps,
+    network: createWorldNetwork(
+      deps.scheduler,
+      deps.rng.fork('net'),
+      args.mildFaults
+    ),
+  };
 }
 
 function wireBoundaryCrash<
@@ -144,21 +154,17 @@ async function createWorldKernel<
   C extends RoomCommandPayload,
   E extends RoomEvent,
 >(args: KernelBootArgs<S, C, E>): Promise<WorldKernel<S, C, E>> {
-  const seed = resolveSeed(args.seed);
-  const adapters = createSimAdapters({
-    seed: args.seed,
-    startMs: args.startMs ?? 1_700_000_000_000,
-  });
-  const topic = args.topic ?? `sim:${adapters.createId()}`;
+  const { deps, network } = resolveWorldPorts(args);
+  const topic = args.topic ?? `sim:${deps.createId()}`;
   const storage = args.storage ?? new InMemoryRoomStorage();
   const serverQueue = new SerialQueue();
   const boundary = createRoomBoundaryFaultController();
   // Holder so schedule wake can see the kernel before assignment completes.
   const holder: { k: WorldKernel<S, C, E> | null } = { k: null };
   const schedule = createTimerScheduleStack({
-    clock: adapters.clock,
-    timers: adapters.timers,
-    createId: adapters.createId,
+    clock: deps.clock,
+    timers: deps.timers,
+    createId: deps.createId,
     topic,
     enqueueWake: (work) => {
       void serverQueue.enqueue(async () => {
@@ -171,26 +177,31 @@ async function createWorldKernel<
     topic,
     module: args.module,
     storage,
-    clock: adapters.clock,
+    clock: deps.clock,
     handler: schedule.handler,
     ...(args.authorize !== undefined ? { authorize: args.authorize } : {}),
   });
   const bindScheduleInject = bindScheduleInjectFor<S, C, E>(schedule);
   bindScheduleInject(server);
   await server.hydrateFromStorage();
-  const network = createWorldNetwork(
-    () => adapters.clock.now(),
-    adapters.rng.fork('net'),
-    args.mildFaults
-  );
+  network.registerServer(async (msg) => {
+    await serverQueue.enqueue(() =>
+      (holder.k?.server ?? server).handleClientMessage(
+        msg.connectionId,
+        msg.identity,
+        msg.payload
+      )
+    );
+  });
   const k: WorldKernel<S, C, E> = {
-    seed,
+    seed: deps.seed,
     topic,
     module: args.module,
-    clock: adapters.clock,
-    timers: adapters.timers,
-    createId: adapters.createId,
-    rng: adapters.rng,
+    clock: deps.clock,
+    scheduler: deps.scheduler,
+    timers: deps.timers,
+    createId: deps.createId,
+    rng: deps.rng,
     storage,
     server,
     network,
@@ -216,8 +227,8 @@ function makeDrainCtx<
     seed: k.seed,
     now: () => k.clock.now(),
     network: k.network,
+    scheduler: k.scheduler,
     serverQueue: k.serverQueue,
-    clockAdvance: (ms: number) => k.clock.advance(ms),
     clients: k.slots,
   });
 }
@@ -418,65 +429,24 @@ async function assertWorldConverged<
   });
 }
 
-function isAppArgs(args: OpenWorldArgs): args is {
-  readonly seed: number | bigint | string;
-  readonly app: RoomDstApp;
-  readonly knobs?: RoomWorldKnobs;
-  readonly topic?: string;
-  readonly startMs?: number;
-  readonly storage?: InMemoryRoomStorage;
-} {
-  return 'app' in args && args.app !== undefined;
-}
-
-function resolveModuleBoot(
-  args: OpenWorldArgs
-): OpenWorldModuleArgs<RoomState, RoomCommandPayload, RoomEvent> {
-  if (isAppArgs(args)) {
-    const knobs = args.knobs ?? { clientCount: 2, mildFaults: false };
-    return {
-      seed: args.seed,
-      module: args.app.module,
-      mildFaults: knobs.mildFaults,
-      ...(args.topic !== undefined ? { topic: args.topic } : {}),
-      ...(args.startMs !== undefined ? { startMs: args.startMs } : {}),
-      ...(args.storage !== undefined ? { storage: args.storage } : {}),
-      ...(args.app.authorize !== undefined
-        ? { authorize: args.app.authorize }
-        : {}),
-    };
-  }
-  if (!('module' in args) || args.module === undefined) {
-    throw new Error('openWorld requires module or app');
-  }
-  return args;
-}
-
 /**
  * Open a multi-client deterministic room world (TigerBeetle-style DST).
- * Pass `app` for PBT/DST (boots `c0…` + playActions / runCommands).
  * One seed → identical timeline. Use `await using` for cleanup.
+ *
+ * Clients are added explicitly via {@link World.addClient}. Generated DST
+ * topologies come from `defineRoomDst` (`sim/dst`), which boots `room.server`
+ * / `room.client` node kinds on top of this function.
  */
 export async function openWorld<
   S extends RoomState,
   C extends RoomCommandPayload,
   E extends RoomEvent,
->(args: OpenWorldModuleArgs<S, C, E>): Promise<World<S, C, E>>;
-export async function openWorld(args: OpenWorldAppArgs): Promise<World>;
-export async function openWorld(args: OpenWorldArgs): Promise<World> {
-  const boot = resolveModuleBoot(args);
-  const k = await createWorldKernel(boot);
-  const recreateServer = (): Promise<void> => recreateWorldServer(k, boot);
+>(args: OpenWorldArgs<S, C, E>): Promise<World<S, C, E>> {
+  const k = await createWorldKernel(args);
+  const recreateServer = (): Promise<void> => recreateWorldServer(k, args);
   const prepareForSettle = (): Promise<void> =>
     prepareWorldForSettle(k, recreateServer);
-  const clientIds: string[] = [];
-  const knobs: RoomWorldKnobs | null = isAppArgs(args)
-    ? (args.knobs ?? { clientCount: 2, mildFaults: false })
-    : null;
-  const world = assembleWorld(k, {
-    ...(isAppArgs(args) ? { dstApp: args.app } : {}),
-    knobs,
-    clientIds,
+  return assembleWorld(k, {
     addClient: (a) => addWorldClient(k, a),
     recreateServer,
     prepareForSettle,
@@ -486,13 +456,4 @@ export async function openWorld(args: OpenWorldArgs): Promise<World> {
     domainQueries: worldDomainQueries(k),
     drainCtx: makeDrainCtx(k),
   });
-  if (isAppArgs(args)) {
-    const count = knobs?.clientCount ?? 2;
-    for (let i = 0; i < count; i += 1) {
-      const id = `c${i}`;
-      await world.addClient({ id, identity: id, clientId: id });
-      clientIds.push(id);
-    }
-  }
-  return world;
 }

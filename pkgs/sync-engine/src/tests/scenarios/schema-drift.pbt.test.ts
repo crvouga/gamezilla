@@ -1,11 +1,11 @@
 import { describe, test } from 'bun:test';
-import { assertDstProperty, fc } from '@pkgs/pbt';
+import { assertDstProperty } from '@pkgs/dst/pbt';
+import { fc } from '@pkgs/pbt';
+import { replaySyncPin, SCHEMA_VARIANTS } from '../../sim/dst';
 import { arbWorldKnobs, arbWorldSeed } from '../../sim/dst/knobs';
-import { openWorld } from '../../sim/world';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
-import { acmeDstApp } from '../apps/acme/dst-app';
+import { acmeDst } from '../apps/acme/dst';
 import type { DstAction, LibraryAction } from '../dst/actions';
-import { SCHEMA_VARIANTS } from '../dst/commands';
 
 const TRIGGER = acmeSetNoteOp('c0', 'n0', 'schema-drift');
 const TRIGGER_C1 = acmeSetNoteOp('c1', 'n1', 'schema-drift-peer');
@@ -25,18 +25,15 @@ describe('schema drift PBT', () => {
           arbWorldKnobs(),
           fc.constantFrom(...SCHEMA_VARIANTS),
           async (seed, knobs, variant) => {
-            const arm: LibraryAction = {
-              kind: 'restartWithSchema',
-              clientId: 'c0',
-              variant,
-            };
-            await using world = await openWorld({
-              app: acmeDstApp,
+            await replaySyncPin(acmeDst, {
               seed,
               knobs,
+              actions: schemaSequence({
+                kind: 'restartWithSchema',
+                clientId: 'c0',
+                variant,
+              }),
             });
-            await world.playActions(schemaSequence(arm));
-            await world.assertConverged();
           }
         ),
         { numRuns: 6 }
@@ -57,24 +54,21 @@ describe('schema drift PBT', () => {
             'extraColumn' | 'extraTable'
           >,
           async (seed, knobs, variant) => {
-            const actions: DstAction[] = [
-              {
-                kind: 'restartWithSchema',
-                clientId: 'c0',
-                variant,
-              },
-              TRIGGER,
-              TRIGGER_C1,
-              { kind: 'idle', ms: 40 },
-              { kind: 'heal' },
-            ];
-            await using world = await openWorld({
-              app: acmeDstApp,
+            await replaySyncPin(acmeDst, {
               seed,
               knobs: { ...knobs, clientCount: 2 },
+              actions: [
+                {
+                  kind: 'restartWithSchema',
+                  clientId: 'c0',
+                  variant,
+                },
+                TRIGGER,
+                TRIGGER_C1,
+                { kind: 'idle', ms: 40 },
+                { kind: 'heal' },
+              ],
             });
-            await world.playActions(actions);
-            await world.assertConverged();
           }
         ),
         { numRuns: 6 }
@@ -84,55 +78,40 @@ describe('schema drift PBT', () => {
   );
 
   test('extraColumn then extraTable remigrate converges (PBT shrink)', async () => {
-    await using world = await openWorld({
-      app: acmeDstApp,
+    await replaySyncPin(acmeDst, {
       seed: 287086,
-      knobs: {
-        rowImageFanout: false,
-        liveResendOnReconnect: true,
-        bufferOutboundLive: true,
-        clientCount: 2,
-      },
+      knobs: { liveResendOnReconnect: true, bufferOutboundLive: true },
+      actions: [
+        {
+          kind: 'restartWithSchema',
+          clientId: 'c0',
+          variant: 'extraColumn',
+        },
+        {
+          kind: 'restartWithSchema',
+          clientId: 'c0',
+          variant: 'extraTable',
+        },
+        { kind: 'auth', clientId: 'c0', status: 'valid' },
+      ],
     });
-    await world.playActions([
-      {
-        kind: 'restartWithSchema',
-        clientId: 'c0',
-        variant: 'extraColumn',
-      },
-      {
-        kind: 'restartWithSchema',
-        clientId: 'c0',
-        variant: 'extraTable',
-      },
-      { kind: 'auth', clientId: 'c0', status: 'valid' },
-    ]);
-    await world.assertConverged();
   });
 
   test('mixed extraColumn without row images converges (PBT shrink)', async () => {
-    await using world = await openWorld({
-      app: acmeDstApp,
+    await replaySyncPin(acmeDst, {
       seed: 1,
-      knobs: {
-        rowImageFanout: false,
-        liveResendOnReconnect: false,
-        bufferOutboundLive: false,
-        clientCount: 2,
-      },
+      actions: [
+        {
+          kind: 'restartWithSchema',
+          clientId: 'c0',
+          variant: 'extraColumn',
+        },
+        TRIGGER,
+        TRIGGER_C1,
+        { kind: 'idle', ms: 40 },
+        { kind: 'heal' },
+      ],
     });
-    await world.playActions([
-      {
-        kind: 'restartWithSchema',
-        clientId: 'c0',
-        variant: 'extraColumn',
-      },
-      TRIGGER,
-      TRIGGER_C1,
-      { kind: 'idle', ms: 40 },
-      { kind: 'heal' },
-    ]);
-    await world.assertConverged();
   });
 
   test(
@@ -144,20 +123,17 @@ describe('schema drift PBT', () => {
           arbWorldSeed(),
           arbWorldKnobs(),
           async (seed, knobs) => {
-            const actions: DstAction[] = [
-              TRIGGER,
-              { kind: 'protocolCut', clientId: 'c0' },
-              { kind: 'idle', ms: 20 },
-              { kind: 'auth', clientId: 'c0', status: 'valid' },
-              { kind: 'heal' },
-            ];
-            await using world = await openWorld({
-              app: acmeDstApp,
+            await replaySyncPin(acmeDst, {
               seed,
               knobs,
+              actions: [
+                TRIGGER,
+                { kind: 'protocolCut', clientId: 'c0' },
+                { kind: 'idle', ms: 20 },
+                { kind: 'auth', clientId: 'c0', status: 'valid' },
+                { kind: 'heal' },
+              ],
             });
-            await world.playActions(actions);
-            await world.assertConverged();
           }
         ),
         { numRuns: 6 }

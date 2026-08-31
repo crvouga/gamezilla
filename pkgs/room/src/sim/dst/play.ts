@@ -1,16 +1,14 @@
-import type { World } from '../world-api';
-
 import type { RoomDstAction } from './actions';
-import type { RoomDstApp } from './app';
-import { dispatchRoomDstAction } from './dispatch';
+import type { RoomDstWorldSurface } from './world-surface';
 
-async function prepareReplayAction(
-  world: World,
+/**
+ * Make an action meaningful when the recorded/model state disagrees with the
+ * live world: a `restart` only observes recovery if the node is down first.
+ */
+export async function prepareReplayAction(
+  world: RoomDstWorldSurface,
   action: RoomDstAction
 ): Promise<void> {
-  if (action.kind === 'serverRestart' && world.isServerCrashed()) {
-    return;
-  }
   if (action.kind === 'restart') {
     const c = world.clients.get(action.clientId);
     if (c !== undefined && !c.isCrashed()) {
@@ -19,18 +17,10 @@ async function prepareReplayAction(
   }
 }
 
-async function finishReplayStep(world: World): Promise<void> {
-  const inv = await world.checkInvariants();
-  if (inv !== null) {
-    throw new Error(
-      `${inv.invariant} seed=${world.seed.toString(16)}: ${inv.detail}`
-    );
-  }
-  await world.runFor(10);
-}
-
 /** Restart crashed clients / server so settle is meaningful. */
-export async function prepareClientsForConverge(world: World): Promise<void> {
+export async function prepareClientsForConverge(
+  world: RoomDstWorldSurface
+): Promise<void> {
   world.clearBoundaryFaults();
   if (world.isServerCrashed()) {
     await world.serverRestart();
@@ -46,18 +36,4 @@ export async function prepareClientsForConverge(world: World): Promise<void> {
   if (world.clients.size > 0) {
     await world.runFor(50);
   }
-}
-
-/** Run recorded actions against a live world with per-step invariant checks. */
-export async function playActionsOnWorld(
-  app: RoomDstApp,
-  world: World,
-  actions: readonly RoomDstAction[]
-): Promise<void> {
-  for (const action of actions) {
-    await prepareReplayAction(world, action);
-    await dispatchRoomDstAction(world, app, action);
-    await finishReplayStep(world);
-  }
-  await prepareClientsForConverge(world);
 }
