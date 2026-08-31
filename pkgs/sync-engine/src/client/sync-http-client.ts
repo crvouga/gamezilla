@@ -225,6 +225,7 @@ async function postAuthedJson(
     });
   }
   if (response.status === 401) {
+    // Malformed 401 bodies still map to auth errors (operating, not programmer).
     const json = (await response.json().catch(() => ({}))) as {
       readonly reason?: unknown;
     };

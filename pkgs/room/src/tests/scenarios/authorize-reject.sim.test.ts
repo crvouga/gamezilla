@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openRoomSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import { ROOM_ERROR_TYPE } from '../../types';
 import {
   AuthzFixtureModule,
@@ -10,7 +10,7 @@ import {
 
 describe('room sim: authorize reject (E-D03)', () => {
   test('authorize hook denies without mutating', async () => {
-    await using world = await openRoomSimWorld({
+    await using world = await openWorld({
       seed: process.env['SIM_SEED'] ?? '42',
       module: AuthzFixtureModule,
       authorize: async (identity) => {

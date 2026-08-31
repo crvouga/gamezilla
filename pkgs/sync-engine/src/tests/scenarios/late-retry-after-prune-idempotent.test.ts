@@ -2,13 +2,10 @@ import { describe, expect, test } from 'bun:test';
 import { openWorld } from '../../sim/world';
 import { acmeDomainPack, expectLiveNote, setNote } from '../apps/acme';
 
-describe('late retry after prune window documented', () => {
+describe('late retry after prune window idempotent', () => {
   test.each([860, 861, 862])(
-    're-POST after prune double-applies (seed=%i)',
+    're-POST after prune is duplicate and does not double-apply (seed=%i)',
     async (seed) => {
-      // Known limitation: pruning idempotency rows lets a late retry with the
-      // same mutation id apply again (setNote upsert → last write wins).
-      // Retention jobs must keep the window longer than max client retry life.
       await using world = await openWorld({
         domain: acmeDomainPack,
         seed,
@@ -22,12 +19,8 @@ describe('late retry after prune window documented', () => {
       await world.assertConverged();
       await expectLiveNote(world.server.db, 'n1', { body: 'original' });
 
-      // Sim applied_at uses wall-clock SQLite datetime; sim now is 2023.
-      // Negative olderThanMs pushes cutoff into the future (keep it in the
-      // 4-digit year range so ISO string compares cleanly with SQLite text).
       await world.server.pruneArtifacts(-2_000_000_000_000);
 
-      // Direct server handler — same idempotency path as HTTP POST /mutations.
       world.server.setAuth({
         actorId: a.actorId,
         deviceId: a.deviceId,
@@ -45,14 +38,13 @@ describe('late retry after prune window documented', () => {
         },
       ]);
       expect(late.ok).toBe(true);
+      // Wire ack is `applied` for idempotent retries (duplicate replay path).
       expect(late.verdicts[0]?.status).toBe('applied');
 
-      // nudge: client must refetch server state after late double-apply
       await world.until(a.nudge());
       await world.assertConverged();
 
-      // Pinned: prune + late retry with different args double-applies.
-      await expectLiveNote(world.server.db, 'n1', { body: 'after-prune' });
+      await expectLiveNote(world.server.db, 'n1', { body: 'original' });
     }
   );
 });

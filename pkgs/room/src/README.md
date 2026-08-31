@@ -88,10 +88,10 @@ Core vs adapters stay split so callers opt into a runtime explicitly.
 | `@pkgs/room/client/adapters/storage/key-value` | `KeyValueClientRoomStorage` (async `Kv`) |
 | `@pkgs/room/server/adapters/memory` | `InMemoryRoomStorage` |
 | `@pkgs/room/server/adapters/durable-object` | `createDurableObjectAdapter`, DO storage + alarm schedule |
-| `@pkgs/room/tests` | `openLoopbackRoom`, **`openRoomSimWorld`**, kit (`runModuleConformance`, …), fixtures (counter / deadline / authz / match-clock) |
+| `@pkgs/room/tests` | `openLoopbackRoom`, **`openWorld`**, kit (`runModuleConformance`, …), fixtures (counter / deadline / authz / match-clock) |
 
 `src/sim/` implementation stays **private** (relative imports from package
-tests). Games should import `openRoomSimWorld` from `@pkgs/room/tests`, not deep
+tests). Games should import `openWorld` from `@pkgs/room/tests`, not deep
 `sim/` paths.
 
 ---
@@ -108,6 +108,7 @@ pkgs/room/src/
 ├── protocol/             wire frames + ids
 ├── effects/              Schedule/CancelSchedule + RoomEffectHandler port
 ├── sim/                  private DST harness (world, net, settle, until)
+│   └── dst/              RoomDstAction + playActions / runCommands kernel
 └── tests/
     ├── fixtures/         Counter, Deadline, Authz, MatchClock modules
     ├── harness/          openLoopbackRoom + LoopbackRoomTransport
@@ -281,7 +282,7 @@ replays are idempotent.
 | Tool | When to use |
 |------|-------------|
 | **`openLoopbackRoom`** (`@pkgs/room/tests`) | Fast in-process unit/integration with injected `Io`; real `RoomClient` + `RoomServer`, no net faults; Schedule via timers |
-| **`openRoomSimWorld`** (`@pkgs/room/tests` → `sim/world`) | Multi-client DST: partitions, delays, soft disconnect, crash/restart, hash converge, seed replay, Schedule wakes |
+| **`openWorld`** (`@pkgs/room/tests` → `sim/world`) | Multi-client DST: partitions, delays, soft disconnect, crash/restart, hash converge, seed replay, Schedule wakes |
 | **`tests/dst/` + `assertDstProperty`** | Shrinking `fc.commands` world search + fault-catalog slice PBTs (sync-engine-shaped kernel) |
 | **`runRoomSeed`** | Non-shrinking seeded fuzz (`ROOM_SIM_SEED` / `SIM_SEED`); determinism + long workloads |
 | **DO / adapter tests** | Hibernation, session take-over, per-key storage, alarms, WS heartbeat |
@@ -296,13 +297,23 @@ bun run test:pbt                       # all pkgs/libs *.pbt.test.ts (pinned FC_
 bun run test:pbt:random                # nightly random exploration
 ```
 
-### Shrinking DST kernel (`tests/dst/`)
+### Shrinking DST kernel (`sim/dst/` + `tests/dst/`)
 
-Mirrors `@pkgs/sync-engine`’s command/model loop (no sync-engine import — room stays a leaf):
+Mirrors `@pkgs/sync-engine`’s world DSL (no sync-engine import — room stays a leaf):
 
-1. `RoomDstAction` union (domain + library chaos)
+```ts
+await using world = await openWorld({ app: counterDstApp, seed, knobs });
+await world.playActions([/* RoomDstAction */]);
+await world.assertConverged();
+
+// shrinking PBT
+await using world = await openWorld({ app: counterDstApp, seed, knobs });
+await world.runCommands(cmds);
+```
+
+1. `RoomDstAction` union (domain + library chaos) under `sim/dst/`
 2. `WorldModel` + `modelAllowsAction` so shrinks stay legal
-3. `fc.commands` → `runShrunkWorldProperty` → replay + `assertConverged`
+3. `fc.commands` → `world.runCommands` (model-run + `playActions` + `assertConverged`)
 4. Const fault catalogs (`NET_FAULT_PROFILES`, `BYZANTINE_INJECT_KINDS`, `WORLD_PBT_CRASH_EVENTS`) exhausted by slice PBTs
 
 On find: capture `FC_SEED` / `replayPath` → pin in `room-world.pbt.test.ts` or a named `.sim.test.ts` → log in [`PBT_FINDINGS.md`](../../../PBT_FINDINGS.md).
@@ -316,8 +327,8 @@ On find: capture `FC_SEED` / `replayPath` → pin in `room-world.pbt.test.ts` or
 | Node | `disconnect` / `reconnect` / `takeOver` / `crash` / `restart` / `clearLocalData` | Soft session + hard crash with persisted client storage |
 | Client | `dispatch`, `snapshot`, `hash`, `isSynced`, `isConnected`, `isCrashed`, inject helpers | Black-box |
 | Server | `serverSnapshot()`, `serverHash()`, `serverCrash` / `serverRestart`, `storage` | Storage log fold (authority); hydrate on restart |
-| Settle | `assertConverged()` | Clear arms, revive crashed nodes, heal nets, soft-cycle, drain; hashes == log fold |
-| Invariants | `checkInvariants()` | Per-step: log seq contiguity + live committed == storage fold |
+| Settle | `assertConverged()` | Clear arms, revive crashed nodes, heal nets, soft-cycle, drain; hashes == log fold; queues drained; lastSeq == tip |
+| Invariants | `checkInvariants()` | Mid-chaos: seq contiguity, live-vs-log, dedup stable, durable≈memory queue |
 
 Connectivity triad — do not conflate:
 
@@ -345,11 +356,11 @@ import {
   TestCounterModule,
   counterValue,
 } from '../fixtures/counter-module';
-import { openRoomSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 
 describe('room sim', () => {
   test('partition then heal', async () => {
-    await using world = await openRoomSimWorld({
+    await using world = await openWorld({
       seed: 3,
       module: TestCounterModule,
     });
@@ -374,7 +385,7 @@ describe('room sim', () => {
 Games outside this package:
 
 ```ts
-import { openRoomSimWorld, runModuleConformance } from '@pkgs/room/tests';
+import { openWorld, runModuleConformance } from '@pkgs/room/tests';
 ```
 
 ---
@@ -407,8 +418,18 @@ When proposing a change, check:
 ## Tiger Style
 
 - Assert on hot paths where violation means impossible state.
-- No bare `catch` — surface via `onError` or disconnect.
+- No bare `catch` — surface via `onError` or disconnect (broadcast drops dead sockets).
 - Fail loudly on bad wire (unknown `kind` / version) and unhandled effects.
+- Named invariants (`TIGER_INVARIANTS` in `tiger-invariants.ts`):
+  - Mid-chaos: `log-seq-contiguity`, `live-vs-log`, `command-id-dedup-stable`,
+    `durable-queue-matches-memory`
+  - Post-converge: `healed-queue-drained`, `client-lastseq-equals-server-tip`
+- Static bounds (`bounds.ts`): `MAX_PENDING_OUTBOUND_COMMANDS`,
+  `MAX_WELCOME_ENTRIES_PER_FRAME`, `MAX_ROSTER_SIZE` — over-bound command
+  enqueue → `room.error/rate-limited`; welcome batches truncate and client
+  re-syncs; roster register throws when full.
+- Client durable queue + inbound welcome/committed/rejected share one IO
+  serial (no ghost queue when ack races ahead of `appendQueued`).
 
 ## Security posture
 
@@ -462,13 +483,14 @@ here when you add coverage. Paths are under `pkgs/room/src/` unless noted.
 
 | File | Asserts / use case |
 |------|--------------------|
-| `room-world.pbt.test.ts` | `fc.commands` over counter + library chaos → converge; pin slots |
+| `room-world.pbt.test.ts` | `fc.commands` over counter + library chaos → converge; pin slots (incl. ghost-queue) |
 | `net-faults.pbt.test.ts` | Exhaust hold/down/asymmetric/`NET_FAULT_PROFILES` → converge |
 | `byzantine-wire.pbt.test.ts` | Exhaust `BYZANTINE_INJECT_KINDS` → settle restores server hash |
 | `session-lifecycle.pbt.test.ts` | takeOver / crash / clearLocalData / serverCrash / commandId / multi-tab |
 | `schedule-anticheat.pbt.test.ts` | MatchClock start/move/flag under hold; early FlagFall; lagging move |
 | `authz-graph.pbt.test.ts` | Owner claim+bump; non-owner bump rejected across reconnect/takeOver |
 | `long-chaos.pbt.test.ts` | `runRoomSeed` determinism + converge (replaces ad-hoc chaos loop) |
+| `arm-crash-at.pbt.test.ts` | Scripted `armCrashAt` slice (out of random pool) → settle converges |
 
 ### Engine DST — identity / dedup / authz / adversarial
 
@@ -533,6 +555,7 @@ File: `tests/scenarios/match-clock-schedule.sim.test.ts` (`MatchClockFixtureModu
 | `room-roster.test.ts` | Loopback | Roster grow/shrink; multi-tab same actor; actor+ts stamped on log |
 | `client/core/room-offline-dispatch.test.ts` | Offline fake transport | `RoomClient.open` survives connect throw; optimistic queue while disconnected |
 | `client/core/room-server-reset.test.ts` | Loopback / reset | Ignore duplicate committed ≤ tip; recover short/stale welcome; idempotent re-welcome |
+| `client/core/room-ghost-queue.test.ts` | Ghost queue | Committed ack before `appendQueued` leaves durable queue empty |
 
 ### Server core
 
@@ -558,6 +581,10 @@ File: `tests/scenarios/match-clock-schedule.sim.test.ts` (`MatchClockFixtureModu
 | File | Kind | Asserts / use case |
 |------|------|--------------------|
 | `hash-room-state.test.ts` | Unit | Canonical JSON key sort; insertion-order-independent FNV hash |
+| `hash-room-state.pbt.test.ts` | PBT | Key-order + array significance + integer-like insertion independence |
+| `protocol/wire.pbt.test.ts` | PBT | Client/server wire JSON round-trip; garbage → null; rate-limited error |
+| `tests/client-storage.pbt.test.ts` | PBT | Memory/web/KV queue append/remove round-trip + serial remove |
+| `tests/bench/hot-paths.bench.test.ts` | Hang-only | Dispatch burst, welcome-256, hash nested state |
 
-Curated exports for games: `@pkgs/room/tests` (`openRoomSimWorld`, kit helpers,
+Curated exports for games: `@pkgs/room/tests` (`openWorld`, kit helpers,
 fixtures). Prefer adding a row above whenever you add coverage.

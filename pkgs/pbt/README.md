@@ -47,12 +47,14 @@ so `test:pbt:random` cannot accidentally run hundreds of full-world opens.
 ```ts
 import { assertDstProperty, fc } from '@pkgs/pbt';
 import { acmeDstApp } from '../apps/acme/dst-app';
-import { worldPropertyInputs, runShrunkWorldProperty } from '../dst/world-runner';
+import { openWorld } from '../../sim/world';
+import { worldPropertyInputs } from '../dst/world-runner';
 
 await assertDstProperty(
   'app world converges',
   fc.asyncProperty(worldPropertyInputs(acmeDstApp, 14), async ([seed, knobs, cmds]) => {
-    await runShrunkWorldProperty({ app: acmeDstApp, seed, knobs, cmds });
+    await using world = await openWorld({ app: acmeDstApp, seed, knobs });
+    await world.runCommands(cmds);
   })
 );
 ```

@@ -20,7 +20,7 @@ export function defaultClientIds(clientIds: readonly string[]): string[] {
   return clientIds.length > 0 ? [...clientIds] : ['c0', 'c1'];
 }
 
-/** Weighted command pool for shrinking DST over RoomSimWorld. */
+/** Weighted command pool for shrinking DST over World. */
 export function buildWorldCommandPool(
   app: RoomDstApp,
   clientIds: readonly string[]

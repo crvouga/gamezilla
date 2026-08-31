@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openRoomSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   counterValue,
   Increment,
@@ -8,7 +8,7 @@ import {
 
 describe('room sim: offline dispatch then sync', () => {
   test('optimistic increment flushes after reconnect', async () => {
-    await using world = await openRoomSimWorld({
+    await using world = await openWorld({
       seed: 4,
       module: TestCounterModule,
     });

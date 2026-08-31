@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openRoomSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   counterValue,
   Increment,
@@ -8,7 +8,7 @@ import {
 
 describe('room sim: n-client partition (E-A07)', () => {
   test('selective holds across four clients converge', async () => {
-    await using world = await openRoomSimWorld({
+    await using world = await openWorld({
       seed: process.env['SIM_SEED'] ?? '42',
       module: TestCounterModule,
     });

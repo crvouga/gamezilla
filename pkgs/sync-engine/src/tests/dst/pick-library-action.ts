@@ -17,6 +17,15 @@ import type { SimTraffic } from '../../sim/traffic';
 const SERVER_NODE = 'server';
 const HOLD_TRAFFIC: readonly SimTraffic[] = ['live', 'sync', 'all'];
 
+function nextPeerEngineId(clientIds: readonly string[]): string {
+  let max = -1;
+  for (const id of clientIds) {
+    const parsed = Number.parseInt(id.slice(1), 10);
+    if (Number.isFinite(parsed) && parsed > max) max = parsed;
+  }
+  return `c${max + 1}`;
+}
+
 type PickCtx = {
   readonly rng: SeededRng;
   readonly clientId: string;
@@ -148,6 +157,14 @@ const LIBRARY_ACTION_PICKERS: readonly WeightedPicker[] = [
       clientId,
       pressure: rng.pick([...STORAGE_PRESSURES]),
       afterStatements: 1 + rng.int(3),
+    }),
+  },
+  {
+    weight: 2,
+    pick: ({ rng, clientIds }) => ({
+      kind: 'addPeerEngine',
+      clientId: nextPeerEngineId(clientIds),
+      shareWithClientId: rng.pick(clientIds),
     }),
   },
   {

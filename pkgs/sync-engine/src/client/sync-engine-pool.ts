@@ -115,6 +115,7 @@ export function createSyncEnginePool(
             pool.pending.delete(databaseName);
             // releaseAll cleared this generation — do not resurrect a closed DB.
             if (generationAtStart !== releaseGeneration) {
+              // Best-effort teardown of aborted open — ignore disconnect rejections.
               void engine.disconnect().catch(() => undefined);
               void engine.db.disconnect().catch(() => undefined);
               throw new Error(

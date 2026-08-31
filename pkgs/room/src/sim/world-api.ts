@@ -13,6 +13,10 @@ import type {
 } from '../types';
 
 import type { RoomCrashEvent } from './boundary-faults';
+import type { RoomDstAction } from './dst/actions';
+import type { RoomDstApp } from './dst/app';
+import type { RoomWorldKnobs } from './dst/knobs';
+import type { WorldCmd } from './dst/run-commands';
 import type { RoomInvariantViolation } from './invariants';
 import type { RoomNetEffect, RoomNetSetArg, SimRoomNetHandle } from './network';
 import type { NeverOpts, UntilOpts, UntilTarget } from './until';
@@ -70,7 +74,7 @@ export type RoomSimNodeHandle = {
   readonly now: () => number;
 };
 
-export type RoomSimWorld<
+export type World<
   S extends RoomState = RoomState,
   C extends RoomCommandPayload = RoomCommandPayload,
   E extends RoomEvent = RoomEvent,
@@ -83,6 +87,10 @@ export type RoomSimWorld<
   readonly storage: InMemoryRoomStorage;
   readonly server: RoomServer<S, C, E, string>;
   readonly clients: ReadonlyMap<string, RoomSimClientHandle<S, C, E>>;
+  /** Booted DST client ids (`c0…`); empty on module-only open. */
+  readonly clientIds: readonly string[];
+  /** Knobs from `openWorld({ app, knobs })`; null on module-only open. */
+  readonly knobs: RoomWorldKnobs | null;
   readonly addClient: (args: {
     readonly id: string;
     readonly identity?: string;
@@ -105,11 +113,15 @@ export type RoomSimWorld<
   readonly serverCrash: () => Promise<void>;
   readonly serverRestart: () => Promise<void>;
   readonly isServerCrashed: () => boolean;
+  /** Scripted DST replay (requires `openWorld({ app })`). */
+  readonly playActions: (actions: readonly RoomDstAction[]) => Promise<void>;
+  /** Model-check then replay shrinking commands (requires `app`). */
+  readonly runCommands: (cmds: Iterable<WorldCmd>) => Promise<void>;
   readonly dispose: () => Promise<void>;
   readonly [Symbol.asyncDispose]: () => Promise<void>;
 };
 
-export type OpenRoomSimWorldArgs<
+export type OpenWorldModuleArgs<
   S extends RoomState,
   C extends RoomCommandPayload,
   E extends RoomEvent,
@@ -125,6 +137,21 @@ export type OpenRoomSimWorldArgs<
   /** Share storage across worlds for multi-topic isolation tests. */
   readonly storage?: InMemoryRoomStorage;
 };
+
+export type OpenWorldAppArgs = {
+  readonly seed: number | bigint | string;
+  readonly app: RoomDstApp;
+  readonly knobs?: RoomWorldKnobs;
+  readonly topic?: string;
+  readonly startMs?: number;
+  readonly storage?: InMemoryRoomStorage;
+};
+
+export type OpenWorldArgs<
+  S extends RoomState = RoomState,
+  C extends RoomCommandPayload = RoomCommandPayload,
+  E extends RoomEvent = RoomEvent,
+> = OpenWorldModuleArgs<S, C, E> | OpenWorldAppArgs;
 
 export type { RoomCrashEvent } from './boundary-faults';
 export type { RoomInvariantViolation } from './invariants';

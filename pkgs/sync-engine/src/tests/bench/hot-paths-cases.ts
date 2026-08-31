@@ -71,6 +71,77 @@ async function openMergeDeps(): Promise<MergeApplierDeps> {
   };
 }
 
+async function seedSyncMutations(
+  deps: MergeApplierDeps,
+  prefix: string,
+  count: number,
+  argsForIndex: (i: number) => string = () => '{}'
+): Promise<void> {
+  for (let i = 0; i < count; i += 1) {
+    await deps.db.run(sql`
+      INSERT INTO sync_engine_mutations (
+        id, name, args, client_id, seq, created_at
+      )
+      VALUES (
+        ${`${prefix}${i}`},
+        ${'setNote'},
+        ${argsForIndex(i)},
+        ${'c0'},
+        ${i + 1},
+        ${'2020-01-01T00:00:00.000Z'}
+      )
+    `);
+  }
+}
+
+function buildMergeBenchCases(deps: {
+  merge200: MergeApplierDeps;
+  merge2000: MergeApplierDeps;
+  rebase: MergeApplierDeps;
+}): BenchCase[] {
+  let merge200Cp = 0;
+  let merge2000Cp = 0;
+  let rebaseCp = 0;
+  return [
+    {
+      name: 'applyFullMerge 200 rows',
+      run: async () => {
+        merge200Cp += 1;
+        await applyFullMerge(deps.merge200, {
+          scopeHash: 'bench-200',
+          checkpoint: String(merge200Cp),
+          hash: `h-${merge200Cp}`,
+          tables: { notes: noteRows(200) },
+        });
+      },
+    },
+    {
+      name: 'applyFullMerge 2000 rows',
+      run: async () => {
+        merge2000Cp += 1;
+        await applyFullMerge(deps.merge2000, {
+          scopeHash: 'bench-2000',
+          checkpoint: String(merge2000Cp),
+          hash: `h-${merge2000Cp}`,
+          tables: { notes: noteRows(2000) },
+        });
+      },
+    },
+    {
+      name: 'rebasePending 32 after merge',
+      run: async () => {
+        rebaseCp += 1;
+        await applyFullMerge(deps.rebase, {
+          scopeHash: 'bench-rebase',
+          checkpoint: String(rebaseCp),
+          hash: `rh-${rebaseCp}`,
+          tables: { notes: noteRows(50) },
+        });
+      },
+    },
+  ];
+}
+
 /** Build the cases once fixtures are ready. */
 export async function createHotPathCases(): Promise<readonly BenchCase[]> {
   const merge200Deps = await openMergeDeps();
@@ -79,21 +150,10 @@ export async function createHotPathCases(): Promise<readonly BenchCase[]> {
   const rebaseDeps = await openMergeDeps();
   const ownRowDeps = await openMergeDeps();
   const ackDeps = await openMergeDeps();
-  for (let i = 0; i < 128; i += 1) {
-    await ackDeps.db.run(sql`
-      INSERT INTO sync_engine_mutations (
-        id, name, args, client_id, seq, created_at
-      )
-      VALUES (
-        ${`ack-${i}`},
-        ${'setNote'},
-        ${'{}'},
-        ${'c0'},
-        ${i + 1},
-        ${'2020-01-01T00:00:00.000Z'}
-      )
-    `);
-  }
+  await seedSyncMutations(ackDeps, 'ack-', 128);
+  await seedSyncMutations(rebaseDeps, 'm', 32, (i) =>
+    JSON.stringify({ id: `p${i}`, body: `pending-${i}` })
+  );
 
   const mutateClient = createMutationClient({
     db: mutateDeps.db,
@@ -103,27 +163,6 @@ export async function createHotPathCases(): Promise<readonly BenchCase[]> {
     connectivity: { isOnline: () => true },
     createId: mutateDeps.env.createId,
   });
-
-  // Seed pending mutations for rebase bench.
-  for (let i = 0; i < 32; i++) {
-    await rebaseDeps.db.run(sql`
-      INSERT INTO sync_engine_mutations (
-        id, name, args, client_id, seq, created_at
-      )
-      VALUES (
-        ${`m${i}`},
-        ${'setNote'},
-        ${JSON.stringify({ id: `p${i}`, body: `pending-${i}` })},
-        ${'c0'},
-        ${i + 1},
-        ${'2020-01-01T00:00:00.000Z'}
-      )
-    `);
-  }
-
-  let merge200Cp = 0;
-  let merge2000Cp = 0;
-  let rebaseCp = 0;
 
   return [
     {
@@ -140,48 +179,17 @@ export async function createHotPathCases(): Promise<readonly BenchCase[]> {
         }
       },
     },
-    {
-      name: 'applyFullMerge 200 rows',
-      run: async () => {
-        merge200Cp += 1;
-        await applyFullMerge(merge200Deps, {
-          scopeHash: 'bench-200',
-          checkpoint: String(merge200Cp),
-          hash: `h-${merge200Cp}`,
-          tables: { notes: noteRows(200) },
-        });
-      },
-    },
-    {
-      name: 'applyFullMerge 2000 rows',
-      run: async () => {
-        merge2000Cp += 1;
-        await applyFullMerge(merge2000Deps, {
-          scopeHash: 'bench-2000',
-          checkpoint: String(merge2000Cp),
-          hash: `h-${merge2000Cp}`,
-          tables: { notes: noteRows(2000) },
-        });
-      },
-    },
+    ...buildMergeBenchCases({
+      merge200: merge200Deps,
+      merge2000: merge2000Deps,
+      rebase: rebaseDeps,
+    }),
     {
       name: 'wrapMutationDb upsert mutate',
       run: async () => {
         await mutateClient.mutate(setNote, {
           id: 'bench-note',
           body: 'tap',
-        });
-      },
-    },
-    {
-      name: 'rebasePending 32 after merge',
-      run: async () => {
-        rebaseCp += 1;
-        await applyFullMerge(rebaseDeps, {
-          scopeHash: 'bench-rebase',
-          checkpoint: String(rebaseCp),
-          hash: `rh-${rebaseCp}`,
-          tables: { notes: noteRows(50) },
         });
       },
     },

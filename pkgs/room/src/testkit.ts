@@ -3,11 +3,11 @@ export {
   LoopbackRoomTransport,
   type LoopbackRoomTransportArgs,
 } from './client/adapters/transport/loopback';
-export { openRoomSimWorld } from './sim/world';
+export { openWorld } from './sim/world';
 export type {
-  OpenRoomSimWorldArgs,
+  OpenWorldArgs,
   RoomSimClientHandle,
-  RoomSimWorld,
+  World,
 } from './sim/world-api';
 export {
   AuthzFixtureModule,

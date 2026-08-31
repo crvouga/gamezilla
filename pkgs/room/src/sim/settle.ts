@@ -96,6 +96,33 @@ export type DrainCtx<
   readonly clients: ReadonlyMap<string, RoomSimClientSlot<S, C, E>>;
 };
 
+async function flushClientIoAndTransports<
+  S extends RoomState,
+  C extends RoomCommandPayload,
+  E extends RoomEvent,
+>(clients: ReadonlyMap<string, RoomSimClientSlot<S, C, E>>): Promise<void> {
+  const flushes: Promise<void>[] = [];
+  for (const slot of clients.values()) {
+    if (slot.transport !== null) {
+      flushes.push(slot.transport.flushSendChain());
+    }
+    if (slot.room !== null) {
+      flushes.push(slot.room.flushIo());
+    }
+  }
+  await Promise.all(flushes);
+}
+
+async function flushClientIoOnly<
+  S extends RoomState,
+  C extends RoomCommandPayload,
+  E extends RoomEvent,
+>(clients: ReadonlyMap<string, RoomSimClientSlot<S, C, E>>): Promise<void> {
+  for (const slot of clients.values()) {
+    if (slot.room !== null) await slot.room.flushIo();
+  }
+}
+
 /** Pump microtasks + net deliveries until idle (or cap). */
 export async function drainRoomSim<
   S extends RoomState,
@@ -105,13 +132,7 @@ export async function drainRoomSim<
   for (let round = 0; round < MAX_DRAIN_ROUNDS; round += 1) {
     await Promise.resolve();
     ctx.network.flushDue(ctx.now());
-    const flushes: Promise<void>[] = [];
-    for (const slot of ctx.clients.values()) {
-      if (slot.transport !== null) {
-        flushes.push(slot.transport.flushSendChain());
-      }
-    }
-    await Promise.all(flushes);
+    await flushClientIoAndTransports(ctx.clients);
     await ctx.serverQueue.flush();
     await Promise.resolve();
     const delivered = ctx.network.flushDue(ctx.now());
@@ -120,10 +141,11 @@ export async function drainRoomSim<
       await Promise.resolve();
       await Promise.resolve();
       ctx.network.flushDue(ctx.now());
+      // Drain client IO that welcome delivery may have enqueued.
+      await flushClientIoOnly(ctx.clients);
       if (ctx.network.scheduledCount() === 0) return;
     }
     if (ctx.network.scheduledCount() > 0) {
-      // Advance to next pending frame time if delayed.
       ctx.clockAdvance(1);
     }
   }
@@ -178,7 +200,8 @@ function assertSlotMatchesServer<
 >(
   ctx: ConvergeCtx<S, C, E>,
   slot: RoomSimClientSlot<S, C, E>,
-  serverHash: string
+  serverHash: string,
+  serverTip: number
 ): void {
   if (slot.room === null) {
     throw new Error(
@@ -194,6 +217,27 @@ function assertSlotMatchesServer<
   if (clientHash !== serverHash) {
     throw new Error(
       `assertConverged: hash mismatch key=${slot.key} client=${clientHash} server=${serverHash} seed=${ctx.seed.toString(16)} now=${String(ctx.now())}`
+    );
+  }
+  if (slot.room.getLastSeq() !== serverTip) {
+    throw new Error(
+      `assertConverged: client-lastseq-equals-server-tip key=${slot.key} client=${String(slot.room.getLastSeq())} tip=${String(serverTip)} seed=${ctx.seed.toString(16)}`
+    );
+  }
+}
+
+async function assertHealedQueueDrained<
+  S extends RoomState,
+  C extends RoomCommandPayload,
+  E extends RoomEvent,
+>(ctx: ConvergeCtx<S, C, E>, slot: RoomSimClientSlot<S, C, E>): Promise<void> {
+  if (slot.room === null) return;
+  await slot.room.flushIo();
+  const memory = slot.room.getPendingQueueIds();
+  const durable = await slot.clientStorage.loadQueued();
+  if (memory.length > 0 || durable.length > 0) {
+    throw new Error(
+      `assertConverged: healed-queue-drained key=${slot.key} memory=${String(memory.length)} durable=${String(durable.length)} seed=${ctx.seed.toString(16)}`
     );
   }
 }
@@ -229,7 +273,9 @@ export async function assertRoomConverged<
     );
   }
 
+  const serverTip = await ctx.storage.getLastSeq(ctx.topic);
   for (const slot of ctx.clients.values()) {
-    assertSlotMatchesServer(ctx, slot, serverHash);
+    assertSlotMatchesServer(ctx, slot, serverHash, serverTip);
+    await assertHealedQueueDrained(ctx, slot);
   }
 }

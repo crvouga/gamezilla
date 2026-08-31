@@ -6,6 +6,7 @@ import { homedir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
+import type { ReadableStream as NodeReadableStream } from 'node:stream/web';
 import { fileURLToPath } from 'node:url';
 import { SIM_PROJECT_SLUG } from '../../../tools/scripts/sims/sim-project';
 import {
@@ -81,7 +82,10 @@ async function downloadFile(url: string, destPath: string): Promise<void> {
     );
   }
   mkdirSync(dirname(destPath), { recursive: true });
-  await pipeline(Readable.fromWeb(res.body), createWriteStream(destPath));
+  await pipeline(
+    Readable.fromWeb(res.body as unknown as NodeReadableStream),
+    createWriteStream(destPath)
+  );
 }
 
 async function ensureExpoGoAppBundle(sdkVersion: string): Promise<string> {

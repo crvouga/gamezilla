@@ -1,6 +1,7 @@
-import { describe, test } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import { assertDstProperty, fc } from '@pkgs/pbt';
 import { openWorld } from '../../sim/world';
+import { setNote } from '../apps/acme';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
 import { acmeDstApp } from '../apps/acme/dst-app';
 import type { DomainOp, DstAction, LibraryAction } from '../dst/actions';
@@ -58,17 +59,14 @@ describe('fault permutation pins', () => {
 
   test('storage full then restart converges', async () => {
     await using world = await openWorld({ app: acmeDstApp, seed: 44002 });
-    await world.playActions([
-      {
-        kind: 'armStoragePressure',
-        clientId: 'c0',
-        pressure: 'sqliteFull',
-      },
-    ]);
-    try {
-      await world.playActions([acmeSetNoteOp('c0', 'n0', 'quota')]);
-    } catch {
-      // local mutate aborts under quota; queue must survive restart
+    const c0 = world.clients.get('c0');
+    expect(c0).toBeDefined();
+    if (c0 === undefined) return;
+    world.armStoragePressure('c0', 'sqliteFull');
+    const denied = await c0.mutate(setNote, { id: 'n0', body: 'quota' });
+    expect(denied.ok).toBe(false);
+    if (!denied.ok) {
+      expect(denied.failures.some((f) => f.code === 'STORAGE_FULL')).toBe(true);
     }
     await world.playActions([
       { kind: 'restart', clientId: 'c0' },

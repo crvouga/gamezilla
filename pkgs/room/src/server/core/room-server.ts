@@ -2,6 +2,7 @@ import { Assert } from '@pkgs/assert';
 import type { Clock } from '@pkgs/clock';
 import { isMessageEnvelope } from '@pkgs/message';
 
+import { MAX_ROSTER_SIZE } from '../../bounds';
 import {
   applyRoomEffects,
   type RoomEffectHandler,
@@ -23,6 +24,7 @@ import {
   type RoomModule,
   type RoomState,
 } from '../../types';
+import { broadcastToConnections, sendWelcomeFrame } from './room-server-fanout';
 import type { CommandDedupOutcome, RoomStorage } from './storage';
 
 const crash: Assert = Assert.crash();
@@ -41,9 +43,7 @@ export type RoomServerConfig<
     topic: string,
     command: RoomCommand<C>
   ) => Promise<{ ok: true } | { ok: false; reason: string }>;
-  /** Injectable clock (required — no wall default). */
   clock: Clock;
-  /** Effect handlers (e.g. built-in Schedule). Applied after successful commit. */
   effectHandlers?: readonly RoomEffectHandler[];
 };
 
@@ -57,6 +57,9 @@ export type RoomConnection = {
 
 /**
  * Single-threaded authoritative room (run inside one DO or one test harness).
+ *
+ * Welcome load/send shares {@link storageChain} with commits + inject so
+ * tip/entries come from one serialized snapshot (no dual getLastSeq race).
  */
 export class RoomServer<
   S extends RoomState,
@@ -71,10 +74,9 @@ export class RoomServer<
   private readonly clock: Clock;
   private readonly effectHandlers: readonly RoomEffectHandler[];
   private readonly connections = new Map<string, RoomConnection>();
-  /** Per-connection command serial — matches typical WS single-threaded drain. */
   private readonly commandChains = new Map<string, Promise<void>>();
-  /** Serializes injected (scheduled) commands with the same single-thread model. */
-  private injectChain: Promise<void> = Promise.resolve();
+  /** Serializes inject + welcome against the same single-thread model as commits. */
+  private storageChain: Promise<void> = Promise.resolve();
   private committedState: S;
 
   constructor(config: RoomServerConfig<S, C, E, Identity>) {
@@ -87,12 +89,10 @@ export class RoomServer<
     this.committedState = config.module.initialState();
   }
 
-  /** Authoritative in-memory fold (same state the next `handle` reads). */
   getCommittedState(): S {
     return this.committedState;
   }
 
-  /** Load log from storage and fold into committedState (call on DO wake). */
   async hydrateFromStorage(): Promise<void> {
     const entries = await this.storage.loadEventsAfter(this.topic, 0);
     let state = this.module.initialState();
@@ -120,21 +120,21 @@ export class RoomServer<
       'RoomActor.clientId must be non-empty',
       { actor }
     );
+    if (this.connections.size >= MAX_ROSTER_SIZE) {
+      throw new Error(
+        `Tiger: roster full (MAX_ROSTER_SIZE=${String(MAX_ROSTER_SIZE)})`
+      );
+    }
     this.connections.set(id, { id, send, actor });
     if (options?.silent !== true) {
       this.broadcastRoster();
     }
   }
 
-  /** True when `id` is already in the live connection map (hibernation restore). */
   hasConnection(id: string): boolean {
     return this.connections.has(id);
   }
 
-  /**
-   * Live connection ids for the same actor session (`id` + `clientId`).
-   * Used to supersede orphaned sockets when a client reconnects.
-   */
   connectionIdsForActor(actorId: string, clientId: string): readonly string[] {
     const out: string[] = [];
     for (const conn of this.connections.values()) {
@@ -151,15 +151,10 @@ export class RoomServer<
     this.broadcastRoster();
   }
 
-  /** Current connected clients (one entry per connection). */
   getRoster(): readonly RoomActor[] {
     return [...this.connections.values()].map((c) => c.actor);
   }
 
-  /**
-   * Re-broadcast the current roster without mutating connections.
-   * Used after hibernation restore once all sockets are re-attached.
-   */
   broadcastRoster(): void {
     this.broadcast({
       v: WIRE_VERSION,
@@ -169,58 +164,44 @@ export class RoomServer<
   }
 
   private broadcast(payload: unknown): void {
-    for (const conn of this.connections.values()) {
-      try {
-        conn.send(payload);
-      } catch (err) {
-        void err;
-      }
-    }
+    broadcastToConnections(this.connections, this.commandChains, payload);
   }
 
-  private sendWelcomeTo(connectionId: string, fromSeq: number): void {
+  private enqueueStorage(work: () => Promise<void>): Promise<void> {
+    const run = this.storageChain.catch(() => undefined).then(work);
+    this.storageChain = run.then(
+      () => undefined,
+      () => undefined
+    );
+    return run;
+  }
+
+  /**
+   * Load + send welcome on the storage serial so tip/entries share one
+   * snapshot with concurrent appends. Caps batch size; client re-syncs.
+   */
+  private async sendWelcomeTo(
+    connectionId: string,
+    fromSeq: number
+  ): Promise<void> {
+    await this.enqueueStorage(() =>
+      this.sendWelcomeSerial(connectionId, fromSeq)
+    );
+  }
+
+  private async sendWelcomeSerial(
+    connectionId: string,
+    fromSeq: number
+  ): Promise<void> {
     const conn = this.connections.get(connectionId);
     if (conn === undefined) return;
-    const send = conn.send;
-    void (async () => {
-      try {
-        const entries = await this.storage.loadEventsAfter(this.topic, fromSeq);
-        // `lastSeq` must match the seq of the last entry the client will apply
-        // after this frame (see client `onWelcomeWire`). Derive it from the
-        // same `entries` tail when non-empty so a buggy or racy `getLastSeq`
-        // cannot disagree with `loadEventsAfter` (e.g. two KV reads diverging).
-        const lastSeqFromBatch =
-          entries.length > 0 ? entries[entries.length - 1]!.seq : undefined;
-        const lastSeq =
-          lastSeqFromBatch !== undefined
-            ? lastSeqFromBatch
-            : await this.storage.getLastSeq(this.topic);
-        send({
-          v: WIRE_VERSION,
-          kind: ROOM_WIRE_KIND.welcome,
-          fromSeq,
-          lastSeq,
-          entries,
-        });
-        // Ephemeral roster snapshot alongside welcome so a freshly synced
-        // client immediately knows who else is connected.
-        send({
-          v: WIRE_VERSION,
-          kind: ROOM_WIRE_KIND.roster,
-          clients: this.getRoster(),
-        });
-      } catch (err: unknown) {
-        send({
-          v: WIRE_VERSION,
-          kind: ROOM_WIRE_KIND.rejected,
-          commandId: '__welcome__',
-          error: {
-            type: ROOM_ERROR_TYPE.internal,
-            reason: err instanceof Error ? err.message : String(err),
-          },
-        });
-      }
-    })();
+    await sendWelcomeFrame({
+      storage: this.storage,
+      topic: this.topic,
+      fromSeq,
+      send: conn.send,
+      roster: this.getRoster(),
+    });
   }
 
   private sendDedupReplay(
@@ -329,21 +310,12 @@ export class RoomServer<
     });
   }
 
-  /** Inject a command without a live socket (scheduled wakes). */
   async injectCommand(args: {
     readonly id: string;
     readonly payload: C;
     readonly identity: Identity;
   }): Promise<void> {
-    const prev = this.injectChain;
-    const run = prev
-      .catch(() => undefined)
-      .then(() => this.injectCommandSerial(args));
-    this.injectChain = run.then(
-      () => undefined,
-      () => undefined
-    );
-    await run;
+    await this.enqueueStorage(() => this.injectCommandSerial(args));
   }
 
   private async injectCommandSerial(args: {
@@ -502,10 +474,13 @@ export class RoomServer<
     }
 
     if (parsed.kind === ROOM_WIRE_KIND.sync) {
-      this.sendWelcomeTo(connectionId, parsed.fromSeq);
+      await this.sendWelcomeTo(connectionId, parsed.fromSeq);
       return;
     }
 
-    await this.handleParsedCommand(conn, identity, parsed);
+    // Commands also go through storageChain so they cannot interleave with welcome.
+    await this.enqueueStorage(() =>
+      this.handleParsedCommand(conn, identity, parsed)
+    );
   }
 }

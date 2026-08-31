@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openRoomSimWorld } from '@pkgs/room/tests';
+import { openWorld } from '@pkgs/room/tests';
 
 import { ChessModule } from '../chess-module';
 import {
@@ -15,7 +15,7 @@ const SHORT_MOVES = 'e8d7';
 
 describe('chess puzzle: solved monotonic (Gp-03)', () => {
   test('post-solved moves do not change terminal status', async () => {
-    await using world = await openRoomSimWorld({
+    await using world = await openWorld({
       seed: process.env['SIM_SEED'] ?? '42',
       module: ChessModule,
     });

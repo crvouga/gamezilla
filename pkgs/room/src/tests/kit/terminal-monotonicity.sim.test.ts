@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openRoomSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   ActBeforeDeadline,
   DeadlineFixtureModule,
@@ -11,7 +11,7 @@ import {
 
 describe('kit: terminal monotonicity (M-F06)', () => {
   test('schedule expire wins; late act / expire are no-ops', async () => {
-    await using world = await openRoomSimWorld({
+    await using world = await openWorld({
       seed: process.env['SIM_SEED'] ?? '42',
       module: DeadlineFixtureModule,
       startMs: 1_000,

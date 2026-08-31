@@ -22,6 +22,9 @@ export const TIGER_INVARIANTS = [
   'seq-monotonicity',
   'permanent-vs-transient-verdicts',
   'push-seq-monotonic-per-topic',
+  'checkpoint-monotonic-per-scope',
+  'optimistic-markers-healed-after-converge',
+  'healed-queue-drained',
 ] as const;
 
 export type TigerInvariant = (typeof TIGER_INVARIANTS)[number];

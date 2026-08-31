@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { ROOM_ERROR_TYPE } from '@pkgs/room';
-import { openRoomSimWorld } from '@pkgs/room/tests';
+import { openWorld } from '@pkgs/room/tests';
 
 import { ChessModule } from '../chess-module';
 import {
@@ -15,7 +15,7 @@ const VALID_MOVES = 'e8d7 e1f2 d7e6 f2e3';
 
 describe('chess puzzle: host auth under partition (Gp-02)', () => {
   test('non-host submit rejected; domain still converges', async () => {
-    await using world = await openRoomSimWorld({
+    await using world = await openWorld({
       seed: process.env['SIM_SEED'] ?? '42',
       module: ChessModule,
     });

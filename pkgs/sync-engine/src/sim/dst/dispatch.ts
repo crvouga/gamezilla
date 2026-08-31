@@ -1,3 +1,4 @@
+import { isStorageFullError } from '../../client/storage-full-error';
 import type { DomainOp, DstAction, LibraryAction, ServerOp } from './actions';
 import type { DstApp } from './app';
 import type { DstWorldSurface } from './world-surface';
@@ -229,11 +230,19 @@ export async function dispatchDstAction(
   app: DstApp,
   action: DstAction
 ): Promise<void> {
-  if (action.kind === 'domain') {
-    return dispatchDomainOp(world, app, action);
+  try {
+    if (action.kind === 'domain') {
+      await dispatchDomainOp(world, app, action);
+      return;
+    }
+    if (action.kind === 'server') {
+      await dispatchServerOp(world, app, action);
+      return;
+    }
+    await dispatchLibraryAction(world, app, action);
+  } catch (error) {
+    // SQLITE_FULL / torn txn: local write aborted; heal+converge later.
+    if (isStorageFullError(error)) return;
+    throw error;
   }
-  if (action.kind === 'server') {
-    return dispatchServerOp(world, app, action);
-  }
-  return dispatchLibraryAction(world, app, action);
 }

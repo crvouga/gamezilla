@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openRoomSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   counterValue,
   Decrement,
@@ -9,7 +9,7 @@ import {
 
 describe('room sim: inc-dec conflict order (E-B04)', () => {
   test('final count matches server fold under jitter', async () => {
-    await using world = await openRoomSimWorld({
+    await using world = await openWorld({
       seed: process.env['SIM_SEED'] ?? '42',
       module: TestCounterModule,
     });

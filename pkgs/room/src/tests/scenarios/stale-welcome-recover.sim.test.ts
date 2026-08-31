@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '../../protocol/wire';
-import { openRoomSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   counterValue,
   Increment,
@@ -9,7 +9,7 @@ import {
 
 describe('room sim: stale welcome recover (E-C02)', () => {
   test('soft disconnect storms + tip inject still converge', async () => {
-    await using world = await openRoomSimWorld({
+    await using world = await openWorld({
       seed: process.env['SIM_SEED'] ?? '42',
       module: TestCounterModule,
     });

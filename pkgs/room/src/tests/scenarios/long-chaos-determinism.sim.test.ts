@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openRoomSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   Decrement,
   Increment,
@@ -7,7 +7,7 @@ import {
 } from '../fixtures/counter-module';
 
 async function runChaos(seed: string): Promise<string> {
-  await using world = await openRoomSimWorld({
+  await using world = await openWorld({
     seed,
     module: TestCounterModule,
   });

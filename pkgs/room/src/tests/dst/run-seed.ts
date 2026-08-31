@@ -1,7 +1,7 @@
-import { openRoomSimWorld } from '../../sim/world';
-import type { RoomDstAction } from './actions';
-import type { RoomDstApp } from './app';
-import { dispatchRoomDstAction } from './dispatch';
+import type { RoomDstAction } from '../../sim/dst/actions';
+import type { RoomDstApp } from '../../sim/dst/app';
+import { dispatchRoomDstAction } from '../../sim/dst/dispatch';
+import { openWorld } from '../../sim/world';
 import { createFuzzState, pickRoomDstAction } from './pick-library-action';
 
 export type RunSeedResult =
@@ -30,21 +30,16 @@ export async function runRoomSeed(
 ): Promise<RunSeedResult> {
   const clientCount = opts.clientCount ?? 2;
   const steps = opts.steps ?? 40;
-  const world = await openRoomSimWorld({
+  await using world = await openWorld({
+    app: opts.app,
     seed: opts.seed,
-    module: opts.app.module,
-    mildFaults: opts.mildFaults === true,
-    ...(opts.app.authorize !== undefined
-      ? { authorize: opts.app.authorize }
-      : {}),
+    knobs: {
+      clientCount,
+      mildFaults: opts.mildFaults === true,
+    },
   });
-  const ids: string[] = [];
+  const ids = [...world.clientIds];
   try {
-    for (let i = 0; i < clientCount; i += 1) {
-      const id = `c${i}`;
-      await world.addClient({ id, identity: id, clientId: id });
-      ids.push(id);
-    }
     const workRng = world.rng.fork('workload');
     const fuzz = createFuzzState(ids);
     let done = 0;
@@ -79,8 +74,6 @@ export async function runRoomSeed(
       steps,
       error: err instanceof Error ? err.message : String(err),
     };
-  } finally {
-    await world.dispose();
   }
 }
 
@@ -99,43 +92,29 @@ export async function roomSeedFingerprint(
 ): Promise<string> {
   const clientCount = opts.clientCount ?? 2;
   const steps = opts.steps ?? 40;
-  const world = await openRoomSimWorld({
+  await using world = await openWorld({
+    app: opts.app,
     seed: opts.seed,
-    module: opts.app.module,
-    mildFaults: opts.mildFaults === true,
-    ...(opts.app.authorize !== undefined
-      ? { authorize: opts.app.authorize }
-      : {}),
+    knobs: {
+      clientCount,
+      mildFaults: opts.mildFaults === true,
+    },
   });
-  try {
-    const ids: string[] = [];
-    for (let i = 0; i < clientCount; i += 1) {
-      const id = `c${i}`;
-      await world.addClient({ id, identity: id, clientId: id });
-      ids.push(id);
-    }
-    const workRng = world.rng.fork('workload');
-    const fuzz = createFuzzState(ids);
-    for (let i = 0; i < steps; i += 1) {
-      const action = pickRoomDstAction(
-        workRng,
-        ids,
-        opts.app.pickDomainOp,
-        fuzz
-      );
-      await dispatchRoomDstAction(world, opts.app, action);
-      await world.runFor(20);
-    }
-    await world.assertConverged();
-    const parts = [await world.serverHash()];
-    for (const id of ids) {
-      const c = world.clients.get(id);
-      if (c !== undefined && !c.isCrashed()) {
-        parts.push(c.hash());
-      }
-    }
-    return parts.join(':');
-  } finally {
-    await world.dispose();
+  const ids = [...world.clientIds];
+  const workRng = world.rng.fork('workload');
+  const fuzz = createFuzzState(ids);
+  for (let i = 0; i < steps; i += 1) {
+    const action = pickRoomDstAction(workRng, ids, opts.app.pickDomainOp, fuzz);
+    await dispatchRoomDstAction(world, opts.app, action);
+    await world.runFor(20);
   }
+  await world.assertConverged();
+  const parts = [await world.serverHash()];
+  for (const id of ids) {
+    const c = world.clients.get(id);
+    if (c !== undefined && !c.isCrashed()) {
+      parts.push(c.hash());
+    }
+  }
+  return parts.join(':');
 }

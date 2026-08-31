@@ -119,6 +119,15 @@ function buildConnectivityCommandArbs(
   ];
 }
 
+function nextPeerEngineId(clientIds: readonly string[]): string {
+  let max = -1;
+  for (const id of clientIds) {
+    const parsed = Number.parseInt(id.slice(1), 10);
+    if (Number.isFinite(parsed) && parsed > max) max = parsed;
+  }
+  return `c${max + 1}`;
+}
+
 function buildLifecycleChaosCommandArbs(
   app: DstApp,
   clientIds: readonly string[]
@@ -188,5 +197,12 @@ function buildLifecycleChaosCommandArbs(
       }),
       failOpenCmd: (c) => actionCmd(app, { kind: 'failNextOpen', clientId: c }),
     }),
+    pickClient.map((donor) =>
+      actionCmd(app, {
+        kind: 'addPeerEngine',
+        clientId: nextPeerEngineId(ids),
+        shareWithClientId: donor,
+      })
+    ),
   ];
 }

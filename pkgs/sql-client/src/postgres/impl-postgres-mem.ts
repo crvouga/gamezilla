@@ -8,7 +8,7 @@
  * Snapshots are PGMM blobs wrapped in a JSON envelope (not `pg_dump`).
  */
 
-import { Database } from '@crvouga/postgres-mem';
+import { Database, Snapshot } from '@crvouga/postgres-mem';
 import { assert } from '@pkgs/assert';
 import { installPostgresMemSqliteCompat } from '@pkgs/postgres-sqlite-compat/install-postgres-mem';
 import type { Sql, Value } from '@pkgs/sql';
@@ -22,17 +22,14 @@ import { questionMarkParamsToDollarParams } from '../positional-params';
 import { readLastInsertRowid } from './impl-pg-shared';
 import type { Pool, PoolClient, QueryResult } from './pg-types';
 import {
+  encodePostgresMemSnapshotEnvelope,
+  parsePostgresMemSnapshotEnvelope,
+} from './postgres-mem-snapshot';
+import {
   createPostgresDbScope,
   type PostgresDbScope,
   quotePgIdent,
 } from './schema';
-
-const PGMM_MAGIC0 = 0x50; // P
-const PGMM_MAGIC1 = 0x47; // G
-const PGMM_MAGIC2 = 0x4d; // M
-const PGMM_MAGIC3 = 0x4d; // M
-
-const SNAPSHOT_KIND = 'postgres-mem';
 
 type PostgresMemBind =
   | string
@@ -103,63 +100,6 @@ function normalizeRows<T extends Record<string, unknown>>(
     }
     return out as T;
   });
-}
-
-function hasPgmmMagic(bytes: Uint8Array): boolean {
-  return (
-    bytes.length >= 4 &&
-    bytes[0] === PGMM_MAGIC0 &&
-    bytes[1] === PGMM_MAGIC1 &&
-    bytes[2] === PGMM_MAGIC2 &&
-    bytes[3] === PGMM_MAGIC3
-  );
-}
-
-function bytesToBase64(bytes: Uint8Array): string {
-  let binary = '';
-  for (let i = 0; i < bytes.length; i++) {
-    binary += String.fromCharCode(bytes[i]!);
-  }
-  return btoa(binary);
-}
-
-function base64ToBytes(b64: string): Uint8Array {
-  const binary = atob(b64);
-  const out = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) {
-    out[i] = binary.charCodeAt(i);
-  }
-  return out;
-}
-
-function parseSnapshotPayload(bytes: Uint8Array): Uint8Array {
-  let payload: {
-    v?: unknown;
-    kind?: unknown;
-    pgmmB64?: unknown;
-  };
-  try {
-    payload = JSON.parse(new TextDecoder().decode(bytes)) as typeof payload;
-  } catch {
-    throw new Error(
-      'SqlClientImplPostgresMem.importDatabaseBytes: expected JSON postgres-mem snapshot'
-    );
-  }
-  if (
-    payload.v !== 1 ||
-    payload.kind !== SNAPSHOT_KIND ||
-    typeof payload.pgmmB64 !== 'string'
-  ) {
-    throw new Error(
-      'SqlClientImplPostgresMem.importDatabaseBytes: unsupported snapshot format'
-    );
-  }
-  const pgmm = base64ToBytes(payload.pgmmB64);
-  assert.ok(
-    hasPgmmMagic(pgmm),
-    'SqlClientImplPostgresMem.importDatabaseBytes: missing PGMM magic'
-  );
-  return pgmm;
 }
 
 function execOnDb(
@@ -314,10 +254,14 @@ function createSessionClient(db: Database): SqlClient {
  * Minimal `pg.Pool` facade over a single postgres-mem {@link Database}.
  * Enough for Better Auth Kysely migrate (`pool.query` / `pool.connect`).
  */
-export function adaptPostgresMemAsPool(db: Database): Pool {
+export function adaptPostgresMemAsPool(getDb: () => Database): Pool {
   const runQuery = (text: string, values?: unknown[]): Promise<QueryResult> => {
     try {
-      const { rows, rowCount } = execOnDb(db, text, (values ?? []) as Value[]);
+      const { rows, rowCount } = execOnDb(
+        getDb(),
+        text,
+        (values ?? []) as Value[]
+      );
       return Promise.resolve({ rows, rowCount });
     } catch (err) {
       return Promise.reject(err);
@@ -377,26 +321,31 @@ export function adaptPostgresMemAsPool(db: Database): Pool {
   return poolAdapter as unknown as Pool;
 }
 
+function postgresMemEngineOptions(options?: PostgresMemOpenOptions) {
+  return {
+    seed: options?.seed ?? 1,
+    ...(options?.now !== undefined ? { now: options.now } : {}),
+  };
+}
+
 export class SqlClientImplPostgresMem implements PostgresSqlClient {
   private db: Database | null;
 
   private constructor(
     db: Database,
-    readonly dbScope: PostgresDbScope
+    readonly dbScope: PostgresDbScope,
+    private readonly openOptions: PostgresMemOpenOptions | undefined
   ) {
     this.db = db;
   }
 
   static open(options?: PostgresMemOpenOptions): SqlClientImplPostgresMem {
     const dbScope = options?.dbScope ?? createPostgresDbScope('public');
-    const db = new Database({
-      seed: options?.seed ?? 1,
-      ...(options?.now !== undefined ? { now: options.now } : {}),
-    });
+    const db = new Database(postgresMemEngineOptions(options));
     if (options?.installSqliteCompat !== false) {
       installPostgresMemSqliteCompat({ db });
     }
-    return new SqlClientImplPostgresMem(db, dbScope);
+    return new SqlClientImplPostgresMem(db, dbScope, options);
   }
 
   private requireDb(): Database {
@@ -434,25 +383,23 @@ export class SqlClientImplPostgresMem implements PostgresSqlClient {
     }
   }
 
-  /**
-   * JSON envelope around a PGMM snapshot.
-   */
   exportDatabaseBytes(): Uint8Array {
-    const db = this.requireDb();
-    const payload = {
-      v: 1 as const,
-      kind: SNAPSHOT_KIND,
-      pgmmB64: bytesToBase64(db.snapshot()),
-    };
-    return new TextEncoder().encode(JSON.stringify(payload));
+    return encodePostgresMemSnapshotEnvelope(
+      this.requireDb().snapshot().encode()
+    );
   }
 
-  /**
-   * Restore a prior {@link exportDatabaseBytes} payload into this connection.
-   */
   importDatabaseBytes(bytes: Uint8Array): void {
-    const pgmm = parseSnapshotPayload(bytes);
-    this.requireDb().restore(pgmm);
+    const pgmm = parsePostgresMemSnapshotEnvelope(bytes);
+    const next = Snapshot.decode(pgmm).open(
+      postgresMemEngineOptions(this.openOptions)
+    );
+    const prev = this.requireDb();
+    this.db = next;
+    prev.close();
+    if (this.dbScope.schema !== 'public') {
+      next.exec(`SET search_path TO ${quotePgIdent(this.dbScope.schema)}`);
+    }
   }
 
   query<T extends Record<string, unknown>>(query: Sql<T>): Promise<T[]> {
@@ -515,6 +462,6 @@ export function createPostgresMemSqlClient(
   options?: PostgresMemOpenOptions
 ): PostgresMemSqlClientBundle {
   const sqlClient = SqlClientImplPostgresMem.open(options);
-  const pool = adaptPostgresMemAsPool(sqlClient.rawDb);
+  const pool = adaptPostgresMemAsPool(() => sqlClient.rawDb);
   return { db: sqlClient.rawDb, sqlClient, pool };
 }

@@ -1,6 +1,6 @@
 import { createSimAdapters } from '@pkgs/uuid';
-import { openRoomSimWorld } from '../../sim/world';
-import type { RoomSimClientHandle, RoomSimWorld } from '../../sim/world-api';
+import { openWorld } from '../../sim/world';
+import type { RoomSimClientHandle, World } from '../../sim/world-api';
 import type {
   RoomCommand,
   RoomCommandPayload,
@@ -33,7 +33,7 @@ async function assertSettledDomain<
   C extends RoomCommandPayload,
   E extends RoomEvent,
 >(
-  world: RoomSimWorld<S, C, E>,
+  world: World<S, C, E>,
   client: RoomSimClientHandle<S, C, E>,
   args: ModuleConformanceArgs<S, C, E>
 ): Promise<void> {
@@ -73,7 +73,7 @@ export async function runModuleConformance<
   });
 
   // Engine fuzz: converge under mild faults (E1 + module).
-  await using world = await openRoomSimWorld({
+  await using world = await openWorld({
     seed: args.seed,
     module: args.module,
     mildFaults: args.mildFaults ?? true,

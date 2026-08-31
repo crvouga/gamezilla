@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '../../protocol/wire';
-import { openRoomSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   CounterIncremented,
   counterValue,
@@ -10,7 +10,7 @@ import {
 
 describe('room sim: byzantine committed inject (E-D05)', () => {
   test('fake committed on one client heals to server truth', async () => {
-    await using world = await openRoomSimWorld({
+    await using world = await openWorld({
       seed: process.env['SIM_SEED'] ?? '42',
       module: TestCounterModule,
     });

@@ -29,7 +29,7 @@ export type {
 export { openSimPostgresMemFromSeed } from './open-sim-postgres-mem-from-seed';
 
 /** Bump when seed format / restore semantics change outside migrate source. */
-export const SIM_POSTGRES_MEM_SEED_VERSION = 2;
+export const SIM_POSTGRES_MEM_SEED_VERSION = 3;
 
 export type SimPostgresMemMigrateHandle = {
   readonly sqlClient: SqlClient;
@@ -119,7 +119,7 @@ export async function ensureSimPostgresMemSeedBuffer(
     dbScope: createPostgresDbScope('public'),
   });
   await client.connect();
-  const pool = adaptPostgresMemAsPool(client.rawDb);
+  const pool = adaptPostgresMemAsPool(() => client.rawDb);
   try {
     await args.migrate({ sqlClient: client, pool });
     const seedBytes = client.exportDatabaseBytes();

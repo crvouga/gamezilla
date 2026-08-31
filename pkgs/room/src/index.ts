@@ -25,6 +25,11 @@
 
 export { createAttrNamespace } from '@pkgs/attribute';
 export { asKeyword, assertKeywordRecord } from '@pkgs/keyword';
+export {
+  MAX_PENDING_OUTBOUND_COMMANDS,
+  MAX_ROSTER_SIZE,
+  MAX_WELCOME_ENTRIES_PER_FRAME,
+} from './bounds';
 export type { RoomClientConfig } from './client/core/room-client';
 export { RoomClient } from './client/core/room-client';
 export { RoomMetaAttr, roomAttrNamespace } from './client/core/room-meta';
@@ -88,6 +93,12 @@ export {
   type ServerToClientWire,
   WIRE_VERSION,
 } from './protocol/wire';
+export {
+  TIGER_INVARIANTS,
+  TIGER_MID_CHAOS_INVARIANTS,
+  TIGER_POST_CONVERGE_INVARIANTS,
+  type TigerInvariant,
+} from './tiger-invariants';
 export type {
   HandleResult,
   Keyword,

@@ -80,7 +80,9 @@ Adapted from [TigerBeetle Tiger Style](https://github.com/tigerbeetle/tigerbeetl
 | `MAX_FANOUT_ROWS` / `MAX_FANOUT_BYTES` | 64 / 32KiB | server fanout emit | push receive drops over-cap `rows` |
 
 **DST invariants** (`queries/shared/tiger-invariants.ts` + `sim/invariants.ts`):
-`seq-monotonicity`, `permanent-vs-transient-verdicts`, `push-seq-monotonic-per-topic`.
+`seq-monotonicity`, `permanent-vs-transient-verdicts`,
+`push-seq-monotonic-per-topic`, `checkpoint-monotonic-per-scope`,
+`optimistic-markers-healed-after-converge`, `healed-queue-drained`.
 
 Query registry compile-time rules (hard `limit`, no duplicate names, tombstone SQL)
 are enforced in `queryRegistry()` / AST capture — not duplicated in the DST list.
@@ -573,6 +575,7 @@ don’t invent a second delete model without review.
 |-------|----------|
 | Offline mutate | Applies locally, queues `sync_engine_mutations`, UI updates via watch |
 | `requiresOnline` offline | Returns `{ ok: false, code: 'OFFLINE' }`; no queue |
+| Local SQLITE_FULL | Returns `{ ok: false, code: 'STORAGE_FULL' }`; txn rolls back; no queue |
 | Upload success | Delete queue row; sync gen bump drops in-flight pre-replay sweeps; peers learn via push → query |
 | Upload reject | Delete queue row + `sync_engine_write_rejections`; domain rolls back on later merge |
 | Merge while pending | Server snapshot applied, then pending mutations re-run |
@@ -656,11 +659,10 @@ Ordered by leverage for **simplicity + reliability** (not raw speed):
 8. **Inbox `active` filter vs tombstones** — inbox may filter `active = true`
    (not a `deleted_at` predicate); remaining product staleness risk if rows
    are soft-deleted without clearing `active`.
-9. **Prune retention window** — after `pruneMutationArtifacts` deletes an
-    `sync_engine_mutations_applied` row, a late retry of the same mutation id may
-    **double-apply** (pinned by `late-retry-after-prune-window-documented`).
-    Keep retention longer than max client offline/retry windows, or accept
-    double-apply as the documented failure mode.
+9. **Prune retention window** — `pruneMutationArtifacts` prunes acknowledged
+    `sync_engine_write_rejections` only; applied mutation ids stay in
+    `sync_engine_mutations_applied` so late retries remain idempotent (pinned by
+    `late-retry-after-prune-idempotent`).
 10. **Server DDL before client writers** — mixed app versions are safe for
     **reads** via column-intersect merge (extra server columns ignored; local-only
     columns not clobbered). Clients that **write** a new column/table before the
@@ -766,7 +768,7 @@ pkgs/sync-engine/src/
   sim/              # deterministic multi-client simulation (not public)
   test/             # in-memory engine
   tests/
-    scenarios/      # black-box correctness (112 files)
+    scenarios/      # black-box correctness (~140 files)
     harness/        # sim kernel self-tests
 ```
 
@@ -1301,7 +1303,7 @@ Three distinct monotonic sequences — do not conflate them:
 
 ## Scenario catalog
 
-Black-box correctness under `src/tests/scenarios/` (**112** files) plus harness
+Black-box correctness under `src/tests/scenarios/` (**~140** files) plus harness
 `src/tests/harness/kernel.test.ts`. Most scenarios compose `openWorld` with
 `acmeDomainPack` + domain asserts from `src/tests/apps/acme/`.
 Row-image fanout is on unless a test sets `rowImageFanout: false`. File names
@@ -1436,7 +1438,8 @@ rewrite-safe (public + sim world API + domain packs only).
 | `duplicate-mutation-id-different-args-first-wins.test.ts` | Same id different args → first wins |
 | `seq-restart-after-wipe-harmless.test.ts` | Local seq restart after wipe is harmless |
 | `server-500-mid-batch-full-retry-idempotent.test.ts` | In-txn fail rolls back; post-commit fail dedupes |
-| `late-retry-after-prune-window-documented.test.ts` | Re-POST after prune double-applies (retention pin) |
+| `late-retry-after-prune-idempotent.test.ts` | Re-POST after prune is duplicate; no double-apply |
+| `storage-full-mutate-denied.test.ts` | SQLITE_FULL returns STORAGE_FULL; no queue row |
 | `constraint-error-maps-to-business-code.test.ts` | Unique violation → business code on rejection surface |
 | `invalid-batch-400-no-retry-storm.test.ts` | 400 invalid batch; healthy mutates still drain |
 
@@ -1577,7 +1580,7 @@ interleaved-mutate-during-upload-inflight
 invalid-batch-400-no-retry-storm
 join-paints-peer-space-note-via-live
 late-join-hydrates-soft-deleted-tombstones
-late-retry-after-prune-window-documented
+late-retry-after-prune-idempotent
 leave-drops-room-topic-until-rejoin
 leave-join-topics-without-pubsub-remake
 live-fanout-peer-visibility-within-budget

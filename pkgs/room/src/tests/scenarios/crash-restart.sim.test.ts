@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 
-import { openRoomSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   counterValue,
   Increment,
@@ -9,7 +9,7 @@ import {
 
 describe('room sim: client/server crash restart', () => {
   test('client crash keeps local queue; restart + settle converges', async () => {
-    await using world = await openRoomSimWorld({
+    await using world = await openWorld({
       seed: 'crash-client-1',
       module: TestCounterModule,
     });
@@ -34,7 +34,7 @@ describe('room sim: client/server crash restart', () => {
   });
 
   test('server crash + restart hydrates log and converges', async () => {
-    await using world = await openRoomSimWorld({
+    await using world = await openWorld({
       seed: 'crash-server-1',
       module: TestCounterModule,
     });
@@ -56,7 +56,7 @@ describe('room sim: client/server crash restart', () => {
   });
 
   test('boundary afterNextCommitted crashes client; settle restores', async () => {
-    await using world = await openRoomSimWorld({
+    await using world = await openWorld({
       seed: 'boundary-committed-1',
       module: TestCounterModule,
     });
@@ -71,7 +71,7 @@ describe('room sim: client/server crash restart', () => {
   });
 
   test('checkInvariants passes on healthy world', async () => {
-    await using world = await openRoomSimWorld({
+    await using world = await openWorld({
       seed: 'inv-1',
       module: TestCounterModule,
     });

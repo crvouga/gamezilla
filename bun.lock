@@ -1941,8 +1941,8 @@
     "@babel/plugin-transform-explicit-resource-management": "^7.28.6",
     "@babel/runtime": "^7.29.7",
     "@biomejs/biome": "2.5.7",
-    "@crvouga/postgres-mem": "^1.0.1",
-    "@crvouga/sqlite-mem": "^1.9.0",
+    "@crvouga/postgres-mem": "^1.1.1",
+    "@crvouga/sqlite-mem": "^1.14.0",
     "@dicebear/collection": "^9.4.2",
     "@dicebear/core": "^9.4.2",
     "@electric-sql/pglite": "^0.4.3",
@@ -2421,9 +2421,9 @@
 
     "@cloudflare/workerd-windows-64": ["@cloudflare/workerd-windows-64@1.20260430.1", "", { "os": "win32", "cpu": "x64" }, "sha512-jS3ffixjb5USOwz4frw4WzCz0HrjVxkgyU3WiYb06N7hBAfN6eOrveAJ4QRef0+suK4V1vQFoB1oKdRBsXe9Dw=="],
 
-    "@crvouga/postgres-mem": ["@crvouga/postgres-mem@1.0.1", "", {}, "sha512-uC9PJ/GgBPXRYVCXZihiK1IrkfJts43VOWlaG4ypXd2Ny9ZY2qkej9shBeSkpxjmdTCFw+dqZ7+NPF+L1FpMTA=="],
+    "@crvouga/postgres-mem": ["@crvouga/postgres-mem@1.1.1", "", {}, "sha512-4VgFJYkGI38rxo7PeJjuyj4kDLhfGEQpypuHBQdVDi0mAnAHeg57Mx1itj76kKhQqRx1AlKskS09+3GTIsRLxw=="],
 
-    "@crvouga/sqlite-mem": ["@crvouga/sqlite-mem@1.9.0", "", {}, "sha512-ZcKBoH8bFzTAAfA4ubqKSV4bedEyVsRt1VkOBkW/KFGxlfguue1dF2DlwLIaC1jKx3ODCyL0fkHYcHmBLny9PQ=="],
+    "@crvouga/sqlite-mem": ["@crvouga/sqlite-mem@1.14.0", "", {}, "sha512-bVSWj6cpOOUU4waFyUeDcEiZqVU9BbrUfDzwzDPeWjev5kxDoHJIms+NuCs5H6X5KiTWb4jg5YQDlGurKDkTyA=="],
 
     "@cspotcode/source-map-support": ["@cspotcode/source-map-support@0.8.1", "", { "dependencies": { "@jridgewell/trace-mapping": "0.3.9" } }, "sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw=="],
 

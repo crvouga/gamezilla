@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openRoomSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import { ROOM_ERROR_TYPE } from '../../types';
 import {
   AuthzFixtureModule,
@@ -11,7 +11,7 @@ import {
 
 describe('kit: authz survives reconnect (M-F05)', () => {
   test('non-owner still unauthorized after soft reconnect', async () => {
-    await using world = await openRoomSimWorld({
+    await using world = await openWorld({
       seed: process.env['SIM_SEED'] ?? '42',
       module: AuthzFixtureModule,
     });

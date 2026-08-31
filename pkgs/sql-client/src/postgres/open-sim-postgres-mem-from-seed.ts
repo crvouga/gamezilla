@@ -38,7 +38,7 @@ export function openSimPostgresMemFromSeed(
     installSqliteCompat: false,
   });
   client.importDatabaseBytes(args.seedBytes);
-  const pool = adaptPostgresMemAsPool(client.rawDb);
+  const pool = adaptPostgresMemAsPool(() => client.rawDb);
   return {
     sqlClient: client,
     pool,

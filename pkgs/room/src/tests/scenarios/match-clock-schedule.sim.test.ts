@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 
-import { openRoomSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   FlagFall,
   MatchClockFixtureModule,
@@ -15,7 +15,7 @@ import {
 
 describe('match-clock schedule (MC-01..06)', () => {
   test('MC-01: runFor past flag → server FlagFall terminal; clients converge', async () => {
-    await using world = await openRoomSimWorld({
+    await using world = await openWorld({
       seed: process.env['SIM_SEED'] ?? 'mc-01',
       module: MatchClockFixtureModule,
       startMs: 10_000,
@@ -40,7 +40,7 @@ describe('match-clock schedule (MC-01..06)', () => {
   });
 
   test('MC-02: move before flag cancels; opponent clock active', async () => {
-    await using world = await openRoomSimWorld({
+    await using world = await openWorld({
       seed: process.env['SIM_SEED'] ?? 'mc-02',
       module: MatchClockFixtureModule,
       startMs: 20_000,
@@ -71,7 +71,7 @@ describe('match-clock schedule (MC-01..06)', () => {
   });
 
   test('MC-03: lagging held client cannot move after server flag', async () => {
-    await using world = await openRoomSimWorld({
+    await using world = await openWorld({
       seed: process.env['SIM_SEED'] ?? 'mc-03',
       module: MatchClockFixtureModule,
       startMs: 30_000,
@@ -99,7 +99,7 @@ describe('match-clock schedule (MC-01..06)', () => {
   });
 
   test('MC-04: early client FlagFall rejected; server still flags at at', async () => {
-    await using world = await openRoomSimWorld({
+    await using world = await openWorld({
       seed: process.env['SIM_SEED'] ?? 'mc-04',
       module: MatchClockFixtureModule,
       startMs: 40_000,
@@ -121,7 +121,7 @@ describe('match-clock schedule (MC-01..06)', () => {
   });
 
   test('MC-05: soft disconnect during tick; reconnect after flag', async () => {
-    await using world = await openRoomSimWorld({
+    await using world = await openWorld({
       seed: process.env['SIM_SEED'] ?? 'mc-05',
       module: MatchClockFixtureModule,
       startMs: 50_000,
@@ -144,7 +144,7 @@ describe('match-clock schedule (MC-01..06)', () => {
   test('MC-06: seeded clock workload ×2 identical serverHash', async () => {
     const seed = process.env['SIM_SEED'] ?? 'mc-06';
     const run = async (): Promise<string> => {
-      await using world = await openRoomSimWorld({
+      await using world = await openWorld({
         seed,
         module: MatchClockFixtureModule,
         startMs: 60_000,

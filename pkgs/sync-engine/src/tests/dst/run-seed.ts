@@ -1,3 +1,4 @@
+import { isStorageFullError } from '../../client/storage-full-error';
 import type { DstAction } from '../../sim/dst/actions';
 import type { DstApp } from '../../sim/dst/app';
 import { dispatchDstAction } from '../../sim/dst/dispatch';
@@ -36,10 +37,8 @@ type WorkloadLoopFail = {
 function isTransientSimFault(error: unknown): boolean {
   if (!(error instanceof Error)) return false;
   if (error.message.includes('sim: crash during epoch migrate')) return true;
-  if (error.message.includes('sim: torn transaction')) return true;
-  if (error.message.includes('sim: storage quota')) return true;
   if (error.message === 'sim: fail next open') return true;
-  if (error.name === 'SqliteStorageFullError') return true;
+  if (isStorageFullError(error)) return true;
   if (isClosedDatabaseError(error)) return true;
   return false;
 }

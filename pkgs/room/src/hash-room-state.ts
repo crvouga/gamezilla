@@ -20,7 +20,7 @@ function sortValue(value: unknown): unknown {
   return out;
 }
 
-/** FNV-1a 64-bit hex digest of UTF-8 text (pure; no crypto / Io). */
+/** FNV-1a 64-bit hex digest of JS string code units (UTF-16; pure; no crypto / Io). */
 export function fnv1a64Hex(text: string): string {
   let h = 0xcbf29ce484222325n;
   const prime = 0x100000001b3n;

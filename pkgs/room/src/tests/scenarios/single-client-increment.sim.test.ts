@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openRoomSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   counterValue,
   Increment,
@@ -8,7 +8,7 @@ import {
 
 describe('room sim: single client increment', () => {
   test('increment converges to server hash', async () => {
-    await using world = await openRoomSimWorld({
+    await using world = await openWorld({
       seed: 1,
       module: TestCounterModule,
     });

@@ -17,6 +17,8 @@ export type WorldModel = {
   held: Set<string>;
   crashed: Set<string>;
   authRevoked: Set<string>;
+  /** Peer engines added via addPeerEngine (share donor DB). */
+  addedPeerEngines: Set<string>;
   subscribed: number;
   mutations: number;
   domain: unknown;
@@ -118,6 +120,7 @@ export function initialWorldModel(
     held: new Set(),
     crashed: new Set(),
     authRevoked: new Set(),
+    addedPeerEngines: new Set(),
     subscribed: 0,
     mutations: 0,
     domain: app.domainModel?.initial() ?? null,
@@ -196,6 +199,11 @@ function applyLibraryToModel(m: WorldModel, action: LibraryAction): void {
       break;
     case 'clearLocalData':
       break;
+    case 'addPeerEngine':
+      m.addedPeerEngines.add(action.clientId);
+      m.online.add(action.clientId);
+      m.sessionConnected.add(action.clientId);
+      break;
     default:
       break;
   }
@@ -217,13 +225,11 @@ export function applyActionToModel(
   }
 }
 
-function libraryAllowsAction(m: WorldModel, action: LibraryAction): boolean {
+function allowsConnectivity(
+  m: WorldModel,
+  action: LibraryAction
+): boolean | null {
   switch (action.kind) {
-    case 'armHttpFault':
-    case 'armCrashAt':
-    case 'subscribe':
-    case 'clearLocalData':
-      return clientLive(m, action.clientId);
     case 'offline':
       return m.online.has(action.clientId) && !m.crashed.has(action.clientId);
     case 'online':
@@ -241,6 +247,25 @@ function libraryAllowsAction(m: WorldModel, action: LibraryAction): boolean {
     case 'background':
     case 'foreground':
       return !m.crashed.has(action.clientId);
+    default:
+      return null;
+  }
+}
+
+function libraryAllowsAction(m: WorldModel, action: LibraryAction): boolean {
+  const connectivity = allowsConnectivity(m, action);
+  if (connectivity !== null) return connectivity;
+  switch (action.kind) {
+    case 'armHttpFault':
+    case 'armCrashAt':
+    case 'subscribe':
+    case 'clearLocalData':
+    case 'tamperLocalStorage':
+    case 'protocolCut':
+    case 'freeze':
+    case 'armStoragePressure':
+    case 'failNextOpen':
+      return clientLive(m, action.clientId);
     case 'partition':
       return !m.partitioned.has(`${action.nodeId}:${action.traffic}`);
     case 'heal':
@@ -250,39 +275,20 @@ function libraryAllowsAction(m: WorldModel, action: LibraryAction): boolean {
     case 'release':
       return m.held.has(`${action.nodeId}:${action.traffic}`);
     case 'crash':
+    case 'restartWithSchema':
       return !m.crashed.has(action.clientId);
     case 'restart':
       return (
         m.crashed.has(action.clientId) || m.authRevoked.has(action.clientId)
       );
-    case 'restartWithSchema':
-      return !m.crashed.has(action.clientId);
-    case 'tamperLocalStorage':
-      return clientLive(m, action.clientId);
-    case 'protocolCut':
-      return clientLive(m, action.clientId);
-    case 'serverCrash':
-    case 'serverRestart':
-    case 'brokerCrash':
-    case 'brokerRestart':
-    case 'armPubsubFault':
-    case 'publishFault':
-    case 'idle':
-    case 'skew':
-    case 'setFaults':
-    case 'auth':
-      return true;
-    case 'freeze':
-      return clientLive(m, action.clientId);
     case 'thaw':
       return !m.crashed.has(action.clientId);
-    case 'armStoragePressure':
-    case 'failNextOpen':
-      return clientLive(m, action.clientId);
-    case 'pruneServerArtifacts':
-      return true;
     case 'addPeerEngine':
-      return clientLive(m, action.shareWithClientId);
+      return (
+        clientLive(m, action.shareWithClientId) &&
+        !m.clientIds.includes(action.clientId) &&
+        !m.addedPeerEngines.has(action.clientId)
+      );
     default:
       return true;
   }

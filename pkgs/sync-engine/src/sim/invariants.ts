@@ -1,13 +1,16 @@
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
-import { isLegacyWallClockCheckpoint } from '../client/push-applied';
 import type { TigerInvariant } from '../queries/shared/tiger-invariants';
+import {
+  checkCheckpointMonotonicPerScope,
+  checkHealedQueueDrained,
+  checkOptimisticMarkersHealed,
+  checkPushSeqMonotonicPerTopic,
+  type InvariantViolation,
+} from './invariant-tracker';
 
-export type InvariantViolation = {
-  readonly invariant: TigerInvariant | 'convergence';
-  readonly detail: string;
-};
+export type { InvariantViolation };
 
 /** Revoke / dispose close the handle; seq checks must skip those clients. */
 export function isClosedDatabaseError(error: unknown): boolean {
@@ -74,35 +77,6 @@ export async function checkRejectedNotPending(
   };
 }
 
-/** Stored push seq baselines must be valid monotonic integer strings. */
-export async function checkPushSeqMonotonicPerTopic(
-  db: SqlClient
-): Promise<InvariantViolation | null> {
-  const rows = await db.query(sql<{
-    topic: string;
-    last_push_seq: string;
-  }>`
-    SELECT topic, last_push_seq FROM sync_engine_push_applied
-  `);
-  for (const row of rows) {
-    if (isLegacyWallClockCheckpoint(row.last_push_seq)) {
-      return {
-        invariant: 'push-seq-monotonic-per-topic',
-        detail: `legacy push seq topic=${row.topic}`,
-      };
-    }
-    try {
-      BigInt(row.last_push_seq);
-    } catch {
-      return {
-        invariant: 'push-seq-monotonic-per-topic',
-        detail: `invalid push seq topic=${row.topic}`,
-      };
-    }
-  }
-  return null;
-}
-
 export async function checkClientFrameworkInvariants(
   db: SqlClient
 ): Promise<InvariantViolation | null> {
@@ -110,5 +84,21 @@ export async function checkClientFrameworkInvariants(
   if (seq !== null) return seq;
   const rejected = await checkRejectedNotPending(db);
   if (rejected !== null) return rejected;
-  return checkPushSeqMonotonicPerTopic(db);
+  const pushSeq = await checkPushSeqMonotonicPerTopic(db);
+  if (pushSeq !== null) return pushSeq;
+  return checkCheckpointMonotonicPerScope(db);
 }
+
+/** Post-settle checks — only after heal + domain convergence. */
+export async function checkPostConvergeInvariants(
+  db: SqlClient
+): Promise<InvariantViolation | null> {
+  const markers = await checkOptimisticMarkersHealed(db);
+  if (markers !== null) return markers;
+  return checkHealedQueueDrained(db);
+}
+
+export type PostConvergeInvariant = Extract<
+  TigerInvariant,
+  'optimistic-markers-healed-after-converge' | 'healed-queue-drained'
+>;

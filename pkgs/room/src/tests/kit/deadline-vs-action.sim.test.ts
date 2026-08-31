@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openRoomSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   ActBeforeDeadline,
   DeadlineFixtureModule,
@@ -10,7 +10,7 @@ import {
 
 describe('kit: deadline vs action (M-F07)', () => {
   test('partitioned lagging client cannot win after deadline', async () => {
-    await using world = await openRoomSimWorld({
+    await using world = await openWorld({
       seed: process.env['SIM_SEED'] ?? '42',
       module: DeadlineFixtureModule,
       startMs: 5_000,

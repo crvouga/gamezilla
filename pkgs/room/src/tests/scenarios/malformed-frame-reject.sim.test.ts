@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'bun:test';
-import { openRoomSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import { ROOM_ERROR_TYPE } from '../../types';
 import { counterValue, TestCounterModule } from '../fixtures/counter-module';
 
 describe('room sim: malformed frame reject (E-D02)', () => {
   test('non-Message command payload rejects without mutate', async () => {
-    await using world = await openRoomSimWorld({
+    await using world = await openWorld({
       seed: process.env['SIM_SEED'] ?? '42',
       module: TestCounterModule,
     });
@@ -37,7 +37,7 @@ describe('room sim: malformed frame reject (E-D02)', () => {
   });
 
   test('unknown wire kind is ignored without mutate', async () => {
-    await using world = await openRoomSimWorld({
+    await using world = await openWorld({
       seed: process.env['SIM_SEED'] ?? '43',
       module: TestCounterModule,
     });

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openRoomSimWorld } from '@pkgs/room/tests';
+import { openWorld } from '@pkgs/room/tests';
 
 import { ChessModule } from '../chess-module';
 import {
@@ -14,7 +14,7 @@ const VALID_MOVES = 'e8d7 e1f2 d7e6 f2e3';
 
 describe('chess puzzle: wrong vs solve race (Gp-04)', () => {
   test('two host tabs race moves → one consistent status', async () => {
-    await using world = await openRoomSimWorld({
+    await using world = await openWorld({
       seed: process.env['SIM_SEED'] ?? '42',
       module: ChessModule,
       mildFaults: true,

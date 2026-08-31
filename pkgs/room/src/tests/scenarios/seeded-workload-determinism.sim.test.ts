@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'bun:test';
-import { openRoomSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import { Increment, TestCounterModule } from '../fixtures/counter-module';
 
 async function runWorkload(seed: number | string): Promise<string> {
-  await using world = await openRoomSimWorld({
+  await using world = await openWorld({
     seed,
     module: TestCounterModule,
   });

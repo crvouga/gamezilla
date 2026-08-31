@@ -31,7 +31,7 @@ function openPostgresMem(clock: Clock): {
     now: () => new Date(clock.now()),
     dbScope: createPostgresDbScope('public'),
   });
-  return { client, pool: adaptPostgresMemAsPool(client.rawDb) };
+  return { client, pool: adaptPostgresMemAsPool(() => client.rawDb) };
 }
 
 export function openMemClientSql(

@@ -1,6 +1,7 @@
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
+import { isStorageFullError } from '../../client/storage-full-error';
 import {
   parseStandardSchema,
   schemaIssuesToFailures,
@@ -50,6 +51,31 @@ async function nextMutationSeq(tx: SqlClient): Promise<number> {
     SELECT COALESCE(MAX(seq), 0) + 1 AS next FROM sync_engine_mutations
   `);
   return Number(rows[0]?.next ?? 1);
+}
+
+function mutateCaughtResult(
+  error: unknown,
+  mutationName: string
+): MutateResult | null {
+  if (isMutationError(error)) {
+    return {
+      ok: false,
+      failures: [mutationErrorToFailure(error, mutationName)],
+    };
+  }
+  if (isStorageFullError(error)) {
+    return {
+      ok: false,
+      failures: [
+        {
+          rule: mutationName,
+          code: 'STORAGE_FULL',
+          message: 'Device storage is full.',
+        },
+      ],
+    };
+  }
+  return null;
 }
 
 /**
@@ -119,12 +145,8 @@ export function createMutationClient(
         });
         return { ok: true, mutationId };
       } catch (e) {
-        if (isMutationError(e)) {
-          return {
-            ok: false,
-            failures: [mutationErrorToFailure(e, m.name)],
-          };
-        }
+        const caught = mutateCaughtResult(e, m.name);
+        if (caught !== null) return caught;
         throw e;
       }
     },

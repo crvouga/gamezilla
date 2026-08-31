@@ -32,4 +32,30 @@ describe('hashRoomState properties', () => {
       )
     );
   });
+
+  test('integer-like string keys: insertion order does not change the digest', () => {
+    assertProperty(
+      'integer-like keys hash equal across insertion order',
+      fc.property(
+        fc.uniqueArray(fc.integer({ min: 0, max: 99 }), {
+          minLength: 2,
+          maxLength: 6,
+        }),
+        (nums) => {
+          const keys = nums.map(String);
+          const a: Record<string, unknown> = {};
+          const b: Record<string, unknown> = {};
+          for (const k of keys) a[k] = Number(k);
+          for (const k of [...keys].reverse()) b[k] = Number(k);
+          // JSON.stringify reorders integer-like keys in the output string;
+          // sorted-key copy still makes the digest insertion-order independent.
+          expect(hashRoomState(a as never)).toBe(hashRoomState(b as never));
+          expect(canonicalRoomJson(a)).toBe(canonicalRoomJson(b));
+        }
+      ),
+      {
+        examples: [[[2, 10, 1]]],
+      }
+    );
+  });
 });
