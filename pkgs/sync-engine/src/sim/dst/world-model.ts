@@ -41,6 +41,12 @@ export const CRASH_EVENTS: readonly SimCrashEvent[] = [
 export const WORLD_PBT_CRASH_EVENTS: readonly SimCrashEvent[] =
   CRASH_EVENTS.filter((e) => e !== 'afterNextSyncResponseDelivered');
 
+export const CORRUPTION_VARIANTS: readonly SimCorruptionVariant[] = [
+  'truncatedJson',
+  'garbageString',
+  'flipField',
+];
+
 export const HTTP_FAULTS: readonly SimHttpFault[] = [
   { kind: 'dropMutationsResponse' },
   { kind: 'dropQueryResponse' },
@@ -49,14 +55,17 @@ export const HTTP_FAULTS: readonly SimHttpFault[] = [
   { kind: 'invalidMutationsBody' },
   { kind: 'serverErrorOnNext', route: 'mutations' },
   { kind: 'serverErrorOnNext', route: 'query' },
-  { kind: 'corruptMutationsResponse', variant: 'truncatedJson' },
-  { kind: 'corruptQueryResponse', variant: 'garbageString' },
-];
-
-export const CORRUPTION_VARIANTS: readonly SimCorruptionVariant[] = [
-  'truncatedJson',
-  'garbageString',
-  'flipField',
+  ...CORRUPTION_VARIANTS.flatMap((variant) => [
+    { kind: 'corruptMutationsResponse' as const, variant },
+    { kind: 'corruptQueryResponse' as const, variant },
+  ]),
+  { kind: 'rateLimited', route: 'mutations', retryAfterMs: 2_000 },
+  { kind: 'rateLimited', route: 'query', retryAfterMs: 1_000 },
+  { kind: 'abortResponseBody', route: 'mutations' },
+  { kind: 'abortResponseBody', route: 'query' },
+  { kind: 'batchTooLarge' },
+  { kind: 'authExpiredInFlight', route: 'mutations' },
+  { kind: 'authExpiredInFlight', route: 'query' },
 ];
 
 export const PUBSUB_FAULTS: readonly SimPubsubFault[] = [
@@ -85,6 +94,15 @@ export const AUTH_STATUSES: readonly SimAuthStatus[] = [
   'expired',
   'revoked',
 ];
+
+export const STORAGE_PRESSURES = [
+  'sqliteFull',
+  'tornTxnAfterStatement',
+] as const;
+
+export const SKEW_MS_VALUES = [
+  -86_400_000, -3_600_000, -60_000, 0, 60_000, 3_600_000, 86_400_000,
+] as const;
 
 export const HOLD_TRAFFIC: readonly SimTraffic[] = ['live', 'sync', 'all'];
 
@@ -254,6 +272,17 @@ function libraryAllowsAction(m: WorldModel, action: LibraryAction): boolean {
     case 'setFaults':
     case 'auth':
       return true;
+    case 'freeze':
+      return clientLive(m, action.clientId);
+    case 'thaw':
+      return !m.crashed.has(action.clientId);
+    case 'armStoragePressure':
+    case 'failNextOpen':
+      return clientLive(m, action.clientId);
+    case 'pruneServerArtifacts':
+      return true;
+    case 'addPeerEngine':
+      return clientLive(m, action.shareWithClientId);
     default:
       return true;
   }

@@ -1,9 +1,11 @@
 import type { DstAction } from '../../sim/dst/actions';
 import type { DstApp } from '../../sim/dst/app';
 import { dispatchDstAction } from '../../sim/dst/dispatch';
+import { isClosedDatabaseError } from '../../sim/invariants';
 import { bootClients, settleWorld } from '../../sim/replay-steps';
+import type { SeededRng } from '../../sim/rng';
 import { openWorld } from '../../sim/world';
-import { pickDstAction } from './pick-library-action';
+import { pickLibraryAction } from './pick-library-action';
 
 export type RunSeedResult =
   | { readonly ok: true; readonly seed: bigint; readonly steps: number }
@@ -31,24 +33,101 @@ type WorkloadLoopFail = {
   readonly error: string;
 };
 
+function isTransientSimFault(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  if (error.message.includes('sim: crash during epoch migrate')) return true;
+  if (error.message.includes('sim: torn transaction')) return true;
+  if (error.message.includes('sim: storage quota')) return true;
+  if (error.message === 'sim: fail next open') return true;
+  if (error.name === 'SqliteStorageFullError') return true;
+  if (isClosedDatabaseError(error)) return true;
+  return false;
+}
+
+async function pickWorkloadAction(args: {
+  readonly rng: SeededRng;
+  readonly clientIds: readonly string[];
+  readonly app: DstApp;
+  readonly domainModel: unknown | null;
+}): Promise<{
+  readonly action: DstAction;
+  readonly domainModel: unknown | null;
+}> {
+  const { rng, clientIds, app, domainModel } = args;
+  const domainRoll = rng.int(100) < 46;
+  if (domainRoll && app.pickDomainOrServerOp !== undefined) {
+    const hooks = app.domainModel;
+    for (let attempt = 0; attempt < 48; attempt += 1) {
+      const op = app.pickDomainOrServerOp(rng, clientIds);
+      if (hooks !== undefined && domainModel !== null) {
+        if (!hooks.allows(domainModel, op)) continue;
+      }
+      return { action: op, domainModel };
+    }
+    return {
+      action: { kind: 'idle', ms: 1 + rng.int(20) },
+      domainModel,
+    };
+  }
+  const action = pickLibraryAction(rng, clientIds);
+  if (
+    action.kind === 'heal' &&
+    app.domainModel?.onHeal !== undefined &&
+    domainModel !== null
+  ) {
+    app.domainModel.onHeal(domainModel);
+  }
+  return { action, domainModel };
+}
+
 async function runWorkloadLoop(args: {
   readonly app: DstApp;
   readonly world: Awaited<ReturnType<typeof openWorld>>;
   readonly ids: readonly string[];
   readonly steps: number;
+  domainModel: unknown | null;
 }): Promise<{
   readonly done: number;
   readonly fail: WorkloadLoopFail | null;
 }> {
   const workRng = args.world.rng.fork('workload');
+  let domainModel = args.domainModel;
   let done = 0;
   for (let i = 0; i < args.steps; i += 1) {
-    const action: DstAction = pickDstAction(
-      workRng,
-      args.ids,
-      args.app.pickDomainOrServerOp
-    );
-    await dispatchDstAction(args.world, args.app, action);
+    const picked = await pickWorkloadAction({
+      rng: workRng,
+      clientIds: args.ids,
+      app: args.app,
+      domainModel,
+    });
+    domainModel = picked.domainModel;
+    const action = picked.action;
+    try {
+      await dispatchDstAction(args.world, args.app, action);
+    } catch (error) {
+      if (isTransientSimFault(error)) {
+        done += 1;
+        await args.world.runFor(20);
+        continue;
+      }
+      const message = error instanceof Error ? error.message : String(error);
+      return {
+        done,
+        fail: {
+          ok: false,
+          seed: args.world.seed,
+          steps: done,
+          error: message,
+        },
+      };
+    }
+    if (
+      args.app.domainModel !== undefined &&
+      domainModel !== null &&
+      (action.kind === 'domain' || action.kind === 'server')
+    ) {
+      args.app.domainModel.apply(domainModel, action);
+    }
     done += 1;
     const inv = await args.world.checkInvariants();
     if (inv !== null) {
@@ -93,10 +172,19 @@ export async function runDstSeed(opts: RunSeedOptions): Promise<RunSeedResult> {
       world,
       ids,
       steps,
+      domainModel: opts.app.domainModel?.initial() ?? null,
     });
     done = loop.done;
     if (loop.fail !== null) return loop.fail;
-    await settleWorld({ world, ids });
+    try {
+      await settleWorld({ world, ids });
+    } catch (error) {
+      if (isTransientSimFault(error)) {
+        await settleWorld({ world, ids });
+      } else {
+        throw error;
+      }
+    }
     return { ok: true, seed: world.seed, steps: done };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

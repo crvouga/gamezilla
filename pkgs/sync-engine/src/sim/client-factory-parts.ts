@@ -97,18 +97,26 @@ export function withSimAuthRetry<T>(
   fn: () => Promise<T>
 ): Promise<T> {
   if (auth === undefined) return fn();
-  const status = auth.getStatus();
-  if (status === 'revoked') {
-    return Promise.reject(new SyncApiAuthError('revoked'));
-  }
-  if (status === 'upgrade_required') {
-    return Promise.reject(new SyncApiAuthError('upgrade_required'));
-  }
-  if (status === 'expired') {
-    auth.refreshExpired();
+  const run = async (): Promise<T> => {
+    const status = auth.getStatus();
+    if (status === 'revoked') {
+      throw new SyncApiAuthError('revoked');
+    }
+    if (status === 'upgrade_required') {
+      throw new SyncApiAuthError('upgrade_required');
+    }
+    if (status === 'expired') {
+      auth.refreshExpired();
+    }
     return fn();
-  }
-  return fn();
+  };
+  return run().catch(async (error) => {
+    if (error instanceof SyncApiAuthError && error.reason === 'expired') {
+      auth.refreshExpired();
+      return fn();
+    }
+    throw error;
+  });
 }
 
 /** Options bag for {@link createLocalSyncEngine} from sim client args. */

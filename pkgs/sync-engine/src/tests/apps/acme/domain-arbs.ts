@@ -58,11 +58,26 @@ export function pickAcmeDomainOrServerOp(
 ): DomainOp | ServerOp {
   const roll = rng.int(100);
   const clientId = rng.pick(clientIds);
-  if (roll < 38) {
-    return acmeSetNoteOp(clientId, `n${rng.int(4)}`, `b${rng.int(1000)}`);
+  if (roll < 22) {
+    return acmeSetNoteOp(clientId, `n${rng.int(8)}`, `b${rng.int(1000)}`);
   }
-  if (roll < 46) {
-    return acmeSetFolderOp(clientId, `f${rng.int(3)}`, `t${rng.int(100)}`);
+  if (roll < 30) {
+    return acmeDeleteNoteOp(clientId, `n${rng.int(8)}`);
   }
-  return acmeSetNoteOp(clientId, `n${rng.int(4)}`, `b${rng.int(1000)}`);
+  if (roll < 36) {
+    return acmeSetFolderOp(clientId, `f${rng.int(4)}`, `t${rng.int(100)}`);
+  }
+  if (roll < 42) {
+    return acmeCreateSpaceOp(clientId, `s${rng.int(4)}`);
+  }
+  if (roll < 48) {
+    return acmeJoinSpaceOp(clientId, `s${rng.int(4)}`);
+  }
+  if (roll < 54) {
+    return acmeLeaveSpaceOp(clientId, `s${rng.int(4)}`);
+  }
+  if (roll < 62) {
+    return acmeWriteBodySilentOp(`n${rng.int(8)}`, `s${rng.int(1000)}`);
+  }
+  return acmeCatalogInsertSilentOp(`n${rng.int(8)}`, `c${rng.int(1000)}`);
 }

@@ -11,11 +11,13 @@ import type { TableChangeBus } from '../queries/client/table-change-bus';
 import { MAX_MUTATIONS_BATCH } from '../queries/shared/bounds';
 import { recordPushApplied } from './push-applied';
 import type { Timers } from './sim-ports';
+import { parseRateLimitRetryMs } from './sync-http-rate-limit-error';
 
 const BATCH_LIMIT = MAX_MUTATIONS_BATCH;
 /** Fallback poll when nothing is pending; wakes interrupt this wait. */
 const IDLE_DELAY_MS = 100;
 const ERROR_DELAY_MS = 2_000;
+const MAX_ERROR_DELAY_MS = 60_000;
 
 /** Host/port alias of protocol {@link MutationRequestItem}. */
 export type MutationUploadRow = MutationRequestItem;
@@ -50,6 +52,7 @@ export type MutationUploadQueueOptions = {
   readonly onAckFence?: (() => void) | undefined;
   readonly timers: Timers;
   readonly now: () => number;
+  readonly random?: () => number;
   readonly waitUntilAvailable?: (signal?: AbortSignal | null) => Promise<void>;
 };
 
@@ -189,12 +192,15 @@ export class MutationUploadQueue {
   /** Set by `wake()`; consumed before idle wait so mid-drain wakes are not lost. */
   private pendingWake = false;
   private availabilityAbort: AbortController | null = null;
+  private errorAttempts = 0;
   private readonly timers: Timers;
   private readonly now: () => number;
+  private readonly random: () => number;
 
   constructor(private readonly options: MutationUploadQueueOptions) {
     this.timers = options.timers;
     this.now = options.now;
+    this.random = options.random ?? (() => 0);
   }
 
   start(): void {
@@ -241,6 +247,15 @@ export class MutationUploadQueue {
     });
   }
 
+  private errorBackoffMs(error: unknown): number {
+    const rateMs = parseRateLimitRetryMs(error);
+    if (rateMs !== null) return rateMs;
+    const base = ERROR_DELAY_MS * 2 ** Math.min(this.errorAttempts, 5);
+    const capped = Math.min(MAX_ERROR_DELAY_MS, base);
+    const jitter = this.random() * capped * 0.2;
+    return Math.floor(capped + jitter);
+  }
+
   private async drainOnce(): Promise<boolean> {
     const pending = await readPending(this.options.db, this.options.clientId());
     if (!this.running || pending.length === 0) return false;
@@ -252,6 +267,7 @@ export class MutationUploadQueue {
     );
     if (result === null || !this.running) return false;
     await applyUploadResult(this.options, result, this.now);
+    this.errorAttempts = 0;
     return true;
   }
 
@@ -279,7 +295,8 @@ export class MutationUploadQueue {
           await this.options.waitUntilAvailable(this.availabilityAbort?.signal);
           continue;
         }
-        await this.wait(ERROR_DELAY_MS);
+        this.errorAttempts += 1;
+        await this.wait(this.errorBackoffMs(error));
       }
     }
   }

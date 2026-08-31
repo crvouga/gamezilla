@@ -285,7 +285,7 @@ Rules:
 
 `createLocalSyncEngine` owns:
 1. Local schema migrate (framework + domain via `@pkgs/db-schema/sqlite`;
-   `SCHEMA_EPOCH = 8`)
+   `SCHEMA_EPOCH = 11`)
 2. `SubscriptionRuntime` — coalesce → `POST /query` → merge
 3. `MutationUploadQueue` — drain `sync_engine_mutations` → `POST /mutations`
 4. Optional `attachPush` — MQTT topics from held-row topic-map ∪ entryChannel
@@ -587,7 +587,7 @@ soft-ack + generation fence); see
 - Sim coverage expansion / fix stale `TIGER_INVARIANTS` name
   (`scope-complete-membership` still listed though `_row_scopes` is retired)
 - Clearing stale locals that left a scope without soft-delete (product policy)
-- Delete dead `process-upload-with-mutations.ts` (zero importers; legacy CRUD)
+- Delete dead `process-upload-with-mutations.ts` (removed; legacy CRUD upload)
 
 ### Explicitly rejected for now
 
@@ -686,7 +686,7 @@ single-flight (it does) — mainly HTTP/server load then.
 
 - **Domain schema:** `@libs/runtime` `defineTable` / `registerTables` / `appSchema`; local reconcile via
   `@pkgs/db-schema/sqlite`; Postgres migrate separate.
-- **Framework local:** `FRAMEWORK_LOCAL_DDL` + `SCHEMA_EPOCH` (= 7) in
+- **Framework local:** `FRAMEWORK_LOCAL_DDL` + `SCHEMA_EPOCH` (= 11) in
   `queries/client/local-schema.ts`.
 - **Framework server:** `FRAMEWORK_SERVER_DDL` via `applyFrameworkServerDdl`.
 - **Query/mutation wire names:** breaking changes ship as a new `name`

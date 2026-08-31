@@ -41,6 +41,7 @@ export type SimHttpResponse =
       readonly correlationId: string;
       readonly ok: false;
       readonly message: string;
+      readonly retryAfterMs?: number;
     };
 
 export type SimHandleMutationsOpts = {

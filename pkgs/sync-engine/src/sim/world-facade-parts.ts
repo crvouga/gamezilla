@@ -3,7 +3,7 @@ import { crashBrokerImpl, restartBrokerImpl } from './broker-restart';
 import type { SimClientHandle } from './client-handle';
 import { SIM_SERVER_NODE_ID } from './clock-skew';
 import {
-  checkSeqMonotonicity,
+  checkClientFrameworkInvariants,
   type InvariantViolation,
   isClosedDatabaseError,
 } from './invariants';
@@ -33,9 +33,12 @@ export async function checkClientSeqs(
   for (const c of clients.values()) {
     let seq: InvariantViolation | null;
     try {
-      seq = await checkSeqMonotonicity(c.db);
+      seq = await checkClientFrameworkInvariants(c.db);
     } catch (error) {
       if (isClosedDatabaseError(error)) continue;
+      if (error instanceof Error && error.name === 'SqliteStorageFullError') {
+        continue;
+      }
       throw error;
     }
     if (seq !== null) {
@@ -115,6 +118,11 @@ function clearBoundaryFaults(faultApi: WorldFaultApi): void {
   faultApi.clearHttpFaults();
   faultApi.clearPublishFault();
   faultApi.clearPubsubFaults();
+}
+
+function clearFaultArms(k: BootedSimKernel, faultApi: WorldFaultApi): void {
+  clearBoundaryFaults(faultApi);
+  k.storagePressure.clear();
 }
 
 async function healInfraForSettle(k: BootedSimKernel): Promise<void> {
@@ -226,16 +234,32 @@ export function bindWorldMethods(args: {
         domain,
         netEffects,
         now: () => k.clock.now(),
-        clearBoundaryFaults: () => clearBoundaryFaults(faultApi),
+        clearBoundaryFaults: () => clearFaultArms(k, faultApi),
         healInfra: () => healInfraForSettle(k),
       }),
     tamperLocalStorage: (clientId, tamper) =>
       tamperClientLocalStorage(k, clientId, tamper),
+    armStoragePressure: (clientId, kind, afterStatements) => {
+      k.storagePressure.arm(clientId, kind, afterStatements);
+    },
+    clearStoragePressure: (clientId) => {
+      k.storagePressure.clear(clientId);
+    },
+    armFailNextOpen: (clientId) => {
+      k.failNextOpenClients.add(clientId);
+    },
+    clearFailNextOpen: (clientId) => {
+      if (clientId === undefined) {
+        k.failNextOpenClients.clear();
+        return;
+      }
+      k.failNextOpenClients.delete(clientId);
+    },
     brokerCrash: () => {
       crashBrokerImpl(k);
     },
     brokerRestart: () => restartBrokerImpl(k),
-    clearBoundaryFaults: () => clearBoundaryFaults(faultApi),
+    clearBoundaryFaults: () => clearFaultArms(k, faultApi),
     dispose,
     async [Symbol.asyncDispose]() {
       await dispose();

@@ -5,7 +5,9 @@ import type { SimNetwork } from '../network';
 import type { SimNodeHandle } from '../node-handle';
 import type { SimServer } from '../server';
 import type { LocalStorageTamper } from '../storage-faults';
+import type { StoragePressureKind } from '../storage-pressure';
 import type { SimTraffic } from '../traffic';
+import type { AddClientArgs } from '../world-types';
 
 /**
  * DST play/dispatch surface — structural subset of {@link World}.
@@ -27,6 +29,15 @@ export type DstWorldSurface = {
     clientId: string,
     tamper: LocalStorageTamper
   ) => Promise<void>;
+  readonly armStoragePressure: (
+    clientId: string,
+    kind: StoragePressureKind,
+    afterStatements?: number
+  ) => void;
+  readonly clearStoragePressure: (clientId?: string) => void;
+  readonly armFailNextOpen: (clientId: string) => void;
+  readonly clearFailNextOpen: (clientId?: string) => void;
+  readonly addClient: (args: AddClientArgs) => Promise<SimClientHandle>;
   readonly brokerCrash: () => void;
   readonly brokerRestart: () => Promise<void>;
 };

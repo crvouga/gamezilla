@@ -6,6 +6,7 @@ import type {
 } from './mutation-upload-queue';
 import type { Timers } from './sim-ports';
 import type { QueryRequest } from './subscription-runtime';
+import { SyncHttpRateLimitError } from './sync-http-rate-limit-error';
 
 export type SyncHttpFetch = (
   input: RequestInfo | URL,
@@ -231,6 +232,14 @@ async function postAuthedJson(
     throw new SyncApiAuthError(
       json.reason === 'revoked' ? 'revoked' : 'expired'
     );
+  }
+  if (response.status === 429) {
+    const retryHeader = response.headers.get('Retry-After');
+    const retryAfterMs =
+      retryHeader !== null && /^\d+$/.test(retryHeader)
+        ? Number(retryHeader) * 1_000
+        : 2_000;
+    throw new SyncHttpRateLimitError(retryAfterMs);
   }
   if (!response.ok) {
     const text = await response.text().catch(() => '');

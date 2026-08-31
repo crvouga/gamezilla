@@ -70,6 +70,7 @@ export type BuildSimClientArgs = {
   readonly authControl?: SimAuthControl;
   readonly schemaEpoch?: number;
   readonly faults?: BoundaryFaultController;
+  readonly storagePressure?: import('./storage-pressure').StoragePressureController;
   /** Reuse an existing serial SqlClient (preserveLocalDb restart). */
   readonly existingDb?: {
     readonly raw: SqlClient;
@@ -177,7 +178,16 @@ export async function buildSimClient(
   args: BuildSimClientArgs
 ): Promise<SimClientHandle> {
   const rawDb = args.existingDb?.raw ?? (await openMemoryDb());
-  const db = args.existingDb?.serial ?? createSerialSqlClient(rawDb);
+  let db: SqlClient;
+  if (args.existingDb !== undefined) {
+    db = args.existingDb.serial;
+  } else {
+    let serialInner = createSerialSqlClient(rawDb);
+    if (args.storagePressure !== undefined) {
+      serialInner = args.storagePressure.wrap(args.id, serialInner);
+    }
+    db = serialInner;
+  }
   const lifecycle = createControllableLifecycle({
     foreground: true,
     online: true,

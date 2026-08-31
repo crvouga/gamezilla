@@ -321,6 +321,17 @@ export class SubscriptionRuntime {
       this.foregrounded = false;
       this.clearCoalesceTimer();
       this.clearReconcileTick();
+      return;
+    }
+    if (event === 'online') {
+      if (this.foregrounded) {
+        this.startReconcileTick();
+        this.wakeAll();
+      }
+      return;
+    }
+    if (event === 'offline') {
+      this.clearCoalesceTimer();
     }
   }
 

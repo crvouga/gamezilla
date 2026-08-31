@@ -17,6 +17,7 @@ import type { SeededRng } from './rng';
 import type { SimScheduler } from './scheduler';
 import type { SimServer } from './server';
 import type { LocalStorageTamper } from './storage-faults';
+import type { StoragePressureKind } from './storage-pressure';
 import type { SimTraffic } from './traffic';
 import type { NeverOpts, UntilOpts, UntilTarget } from './until';
 import type { AddClientArgs } from './world-types';
@@ -58,6 +59,14 @@ export type World = {
     clientId: string,
     tamper: LocalStorageTamper
   ) => Promise<void>;
+  readonly armStoragePressure: (
+    clientId: string,
+    kind: StoragePressureKind,
+    afterStatements?: number
+  ) => void;
+  readonly clearStoragePressure: (clientId?: string) => void;
+  readonly armFailNextOpen: (clientId: string) => void;
+  readonly clearFailNextOpen: (clientId?: string) => void;
   readonly brokerCrash: () => void;
   readonly brokerRestart: () => Promise<void>;
   /**

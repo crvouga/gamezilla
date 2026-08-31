@@ -23,6 +23,8 @@ import {
   modelAllowsAction,
   PUBSUB_FAULTS,
   SCHEMA_VARIANTS,
+  SKEW_MS_VALUES,
+  STORAGE_PRESSURES,
   STORAGE_TAMPERS,
   type WorldModel,
   type WorldReal,
@@ -73,5 +75,7 @@ export {
   modelAllowsAction,
   PUBSUB_FAULTS,
   SCHEMA_VARIANTS,
+  SKEW_MS_VALUES,
+  STORAGE_PRESSURES,
   STORAGE_TAMPERS,
 };

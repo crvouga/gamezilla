@@ -13,6 +13,7 @@ import {
   defaultClientIds,
   faultCommandArbs,
   lifecycleCommandArbs,
+  MILD_NET_FAULTS,
   networkCommandArbs,
 } from './generators';
 
@@ -171,12 +172,21 @@ function buildLifecycleChaosCommandArbs(
           kind: 'setFaults',
           nodeId,
           traffic,
-          faults: {
-            packetLossProbability: 0.05,
-            reorderWindow: 2,
-            partitionProbability: 0.02,
-          },
+          faults: MILD_NET_FAULTS,
         }),
+      freezeCmd: (c) => actionCmd(app, { kind: 'freeze', clientId: c }),
+      thawCmd: (c) => actionCmd(app, { kind: 'thaw', clientId: c }),
+      pressureCmd: (c, pressure) =>
+        actionCmd(app, {
+          kind: 'armStoragePressure',
+          clientId: c,
+          pressure,
+        }),
+      pruneCmd: actionCmd(app, {
+        kind: 'pruneServerArtifacts',
+        olderThanMs: -1_000_000,
+      }),
+      failOpenCmd: (c) => actionCmd(app, { kind: 'failNextOpen', clientId: c }),
     }),
   ];
 }

@@ -10,10 +10,28 @@ import { HTTP_FAULTS } from '../dst/commands';
 const TRIGGER: DomainOp = acmeSetNoteOp('c0', 'n0', 'boundary');
 
 function boundarySequence(
+  arms: readonly LibraryAction[],
+  trigger: DomainOp = TRIGGER
+): DstAction[] {
+  return [...arms, trigger, { kind: 'idle', ms: 30 }, { kind: 'heal' }];
+}
+
+function richBoundarySequence(
   arm: LibraryAction,
   trigger: DomainOp = TRIGGER
 ): DstAction[] {
-  return [arm, trigger, { kind: 'idle', ms: 30 }, { kind: 'heal' }];
+  return [
+    arm,
+    { kind: 'idle', ms: 10 },
+    {
+      kind: 'armHttpFault',
+      clientId: 'c1',
+      fault: { kind: 'dropQueryResponse' },
+    },
+    trigger,
+    { kind: 'idle', ms: 30 },
+    { kind: 'heal' },
+  ];
 }
 
 function crashBoundarySequence(
@@ -50,7 +68,7 @@ describe('boundary faults PBT', () => {
               seed,
               knobs,
             });
-            await world.playActions(boundarySequence(arm));
+            await world.playActions(richBoundarySequence(arm));
             await world.assertConverged();
           }
         ),
@@ -76,7 +94,7 @@ describe('boundary faults PBT', () => {
               seed,
               knobs,
             });
-            await world.playActions(boundarySequence(arm));
+            await world.playActions(boundarySequence([arm]));
             await world.assertConverged();
           }
         ),

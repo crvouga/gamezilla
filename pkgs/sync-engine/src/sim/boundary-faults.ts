@@ -48,6 +48,20 @@ export type SimHttpFault =
   | {
       readonly kind: 'corruptQueryResponse';
       readonly variant: SimCorruptionVariant;
+    }
+  | {
+      readonly kind: 'rateLimited';
+      readonly route: 'mutations' | 'query';
+      readonly retryAfterMs: number;
+    }
+  | {
+      readonly kind: 'abortResponseBody';
+      readonly route: 'mutations' | 'query';
+    }
+  | { readonly kind: 'batchTooLarge' }
+  | {
+      readonly kind: 'authExpiredInFlight';
+      readonly route: 'mutations' | 'query';
     };
 
 export type BoundaryFaultController = {

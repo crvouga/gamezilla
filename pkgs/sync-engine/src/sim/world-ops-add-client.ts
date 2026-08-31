@@ -166,6 +166,7 @@ function simClientBuildArgs(
         }
       },
     },
+    storagePressure: ctx.storagePressure,
   };
 }
 

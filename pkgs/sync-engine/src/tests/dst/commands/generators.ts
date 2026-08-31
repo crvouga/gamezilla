@@ -10,6 +10,8 @@ import {
   HTTP_FAULTS,
   PUBSUB_FAULTS,
   SCHEMA_VARIANTS,
+  SKEW_MS_VALUES,
+  STORAGE_PRESSURES,
   STORAGE_TAMPERS,
   WORLD_PBT_CRASH_EVENTS,
 } from '../../../sim/dst/world-model';
@@ -117,11 +119,19 @@ export function lifecycleCommandArbs(args: {
     fc
       .tuple(
         fc.constantFrom(...args.ids, 'server'),
-        fc.constantFrom(-60_000, 0, 60_000)
+        fc.constantFrom(...SKEW_MS_VALUES)
       )
       .map(([nodeId, skewMs]) => args.skewCmd(nodeId, skewMs)),
   ];
 }
+
+const MILD_NET_FAULTS = {
+  packetLossProbability: 0.05,
+  reorderWindow: 2,
+  partitionProbability: 0.02,
+} as const;
+
+export { MILD_NET_FAULTS };
 
 export function chaosCommandArbs(args: {
   readonly pickClient: PickClient;
@@ -141,6 +151,14 @@ export function chaosCommandArbs(args: {
     nodeId: string,
     traffic: 'live' | 'sync' | 'all'
   ) => WorldCmd;
+  readonly freezeCmd: (c: string) => WorldCmd;
+  readonly thawCmd: (c: string) => WorldCmd;
+  readonly pressureCmd: (
+    c: string,
+    p: (typeof STORAGE_PRESSURES)[number]
+  ) => WorldCmd;
+  readonly pruneCmd: WorldCmd;
+  readonly failOpenCmd: (c: string) => WorldCmd;
 }): fc.Arbitrary<WorldCmd>[] {
   return [
     fc.constantFrom(...PUBSUB_FAULTS).map(args.pubsubFaultCmd),
@@ -148,11 +166,18 @@ export function chaosCommandArbs(args: {
       .tuple(args.pickClient, fc.constantFrom(...STORAGE_TAMPERS))
       .map(([c, t]) => args.tamperCmd(c, t)),
     fc
+      .tuple(args.pickClient, fc.constantFrom(...STORAGE_PRESSURES))
+      .map(([c, p]) => args.pressureCmd(c, p)),
+    fc
       .tuple(args.pickClient, fc.constantFrom(...SCHEMA_VARIANTS))
       .map(([c, v]) => args.schemaCmd(c, v)),
     args.pickClient.map(args.protocolCutCmd),
     fc.constant(args.brokerCrashCmd),
     fc.constant(args.brokerRestartCmd),
+    fc.constant(args.pruneCmd),
+    args.pickClient.map(args.failOpenCmd),
+    args.pickClient.map(args.freezeCmd),
+    args.pickClient.map(args.thawCmd),
     fc
       .tuple(args.pickClient, trafficArb)
       .map(([c, t]) => args.setFaultsCmd(c, t)),

@@ -3,6 +3,8 @@ import type {
   MutationUploadRow,
 } from '../client/mutation-upload-queue';
 import type { QueryRequest } from '../client/subscription-runtime';
+import { SyncApiAuthError } from '../client/sync-http-client';
+import { SyncHttpRateLimitError } from '../client/sync-http-rate-limit-error';
 import type { QueryResponse } from '../queries/core/types';
 import type { BoundaryFaultController } from './boundary-faults';
 import { dispatchSimHttpRequest } from './http-bridge-dispatch';
@@ -83,7 +85,17 @@ export type SimHttpClient = {
 const DEFAULT_RPC_TIMEOUT_MS = 5_000;
 
 function unwrapOk(res: SimHttpResponse, kind: 'query' | 'mutations'): unknown {
-  if (!res.ok) throw new Error(res.message);
+  if (!res.ok) {
+    if (res.message.startsWith('rate_limited:')) {
+      const ms =
+        res.retryAfterMs ?? Number(res.message.slice('rate_limited:'.length));
+      throw new SyncHttpRateLimitError(ms);
+    }
+    if (res.message === 'auth:expired') {
+      throw new SyncApiAuthError('expired');
+    }
+    throw new Error(res.message);
+  }
   if (res.kind !== kind) throw new Error('sim http: unexpected response');
   return res.body;
 }

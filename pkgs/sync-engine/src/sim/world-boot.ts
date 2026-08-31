@@ -3,6 +3,7 @@ import type { SimAuthStatus } from './client-factory';
 import { bindSimHttpServer } from './http-bridge';
 import { createSeededRng } from './rng';
 import { openSimServer } from './server';
+import { createStoragePressureController } from './storage-pressure';
 import { SERVER_HTTP, SERVER_PUB } from './traffic';
 import {
   createBootRuntime,
@@ -59,6 +60,9 @@ export async function bootSimKernel(args: {
     metas: new Map(),
     authByDevice,
     authStatusByDevice,
+    storagePressure: createStoragePressureController(),
+    frozenClients: new Set(),
+    failNextOpenClients: new Set(),
     worldArgs: args.worldArgs,
     domain,
     nowFor: runtime.nowFor,

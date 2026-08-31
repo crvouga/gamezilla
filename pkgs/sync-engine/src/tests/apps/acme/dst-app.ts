@@ -17,6 +17,7 @@ import {
   type AcmeSchemaVariant,
   acmeRestartOptsForVariant,
 } from './schema-variants';
+import { seedLargeCatalogNotes } from './seed-large-catalog';
 import { writeNoteBody } from './write-note-body';
 
 export const acmeDstApp: DstApp = {
@@ -42,6 +43,11 @@ export const acmeDstApp: DstApp = {
         body,
         notify: false,
       });
+    },
+    seedLargeCatalogSilent: async (world, args) => {
+      const count = args['count'];
+      if (typeof count !== 'number') return;
+      await seedLargeCatalogNotes(world.server, { count, notify: true });
     },
   },
   domainModel: {

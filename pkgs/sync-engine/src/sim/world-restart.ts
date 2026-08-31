@@ -115,6 +115,11 @@ export async function restartClientImpl(
   if (k.clients.has(id)) {
     await crashClientImpl(k, id, { keepDb: preserve });
   }
+  if (k.failNextOpenClients.has(id)) {
+    k.failNextOpenClients.delete(id);
+    throw new Error('sim: fail next open');
+  }
+  k.storagePressure.clear(id);
   k.authStatusByDevice.set(meta.deviceId, 'valid');
   const args: AddClientArgs = {
     id: meta.id,

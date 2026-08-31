@@ -188,6 +188,7 @@ function createUploadQueue(
     onError: (error) => handleError(readState(stateRef), error),
     timers: options.timers,
     now: options.now,
+    ...(options.random !== undefined ? { random: options.random } : {}),
     ...(options.waitUntilAvailable !== undefined
       ? { waitUntilAvailable: options.waitUntilAvailable }
       : {}),

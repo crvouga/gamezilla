@@ -83,6 +83,8 @@ const LIBRARY_HANDLERS: {
   },
   heal: async (world, _action, _app) => {
     disposeSubs(world);
+    world.clearStoragePressure();
+    world.clearFailNextOpen();
     for (const id of world.clients.keys()) {
       world.net(id, 'all').set('ok');
     }
@@ -174,6 +176,38 @@ const LIBRARY_HANDLERS: {
     const sub = client.subscribe(action.queryName, action.params);
     subs(world).add(sub);
   },
+  freeze: async (world, action, _app) => {
+    world.net(action.clientId, 'sync').set('hold');
+  },
+  thaw: async (world, action, _app) => {
+    world.net(action.clientId, 'sync').set('ok');
+    world.clients.get(action.clientId)?.nudge();
+  },
+  armStoragePressure: async (world, action, _app) => {
+    if (!world.clients.has(action.clientId)) return;
+    world.armStoragePressure(
+      action.clientId,
+      action.pressure,
+      action.afterStatements
+    );
+  },
+  failNextOpen: async (world, action, _app) => {
+    if (!world.clients.has(action.clientId)) return;
+    world.armFailNextOpen(action.clientId);
+  },
+  pruneServerArtifacts: async (world, action, _app) => {
+    await world.server.pruneArtifacts(action.olderThanMs);
+  },
+  addPeerEngine: async (world, action, _app) => {
+    const donor = world.clients.get(action.shareWithClientId);
+    if (donor === undefined) return;
+    if (world.clients.has(action.clientId)) return;
+    await world.addClient({
+      id: action.clientId,
+      actorId: donor.actorId,
+      existingDb: donor.dbBundle,
+    });
+  },
 };
 
 async function dispatchLibraryAction(
@@ -181,70 +215,12 @@ async function dispatchLibraryAction(
   app: DstApp,
   action: LibraryAction
 ): Promise<void> {
-  switch (action.kind) {
-    case 'offline':
-      return LIBRARY_HANDLERS.offline(world, action, app);
-    case 'online':
-      return LIBRARY_HANDLERS.online(world, action, app);
-    case 'disconnect':
-      return LIBRARY_HANDLERS.disconnect(world, action, app);
-    case 'connect':
-      return LIBRARY_HANDLERS.connect(world, action, app);
-    case 'background':
-      return LIBRARY_HANDLERS.background(world, action, app);
-    case 'foreground':
-      return LIBRARY_HANDLERS.foreground(world, action, app);
-    case 'partition':
-      return LIBRARY_HANDLERS.partition(world, action, app);
-    case 'heal':
-      return LIBRARY_HANDLERS.heal(world, action, app);
-    case 'idle':
-      return LIBRARY_HANDLERS.idle(world, action, app);
-    case 'skew':
-      return LIBRARY_HANDLERS.skew(world, action, app);
-    case 'crash':
-      return LIBRARY_HANDLERS.crash(world, action, app);
-    case 'restart':
-      return LIBRARY_HANDLERS.restart(world, action, app);
-    case 'hold':
-      return LIBRARY_HANDLERS.hold(world, action, app);
-    case 'release':
-      return LIBRARY_HANDLERS.release(world, action, app);
-    case 'setFaults':
-      return LIBRARY_HANDLERS.setFaults(world, action, app);
-    case 'armHttpFault':
-      return LIBRARY_HANDLERS.armHttpFault(world, action, app);
-    case 'armCrashAt':
-      return LIBRARY_HANDLERS.armCrashAt(world, action, app);
-    case 'publishFault':
-      return LIBRARY_HANDLERS.publishFault(world, action, app);
-    case 'armPubsubFault':
-      return LIBRARY_HANDLERS.armPubsubFault(world, action, app);
-    case 'brokerCrash':
-      return LIBRARY_HANDLERS.brokerCrash(world, action, app);
-    case 'brokerRestart':
-      return LIBRARY_HANDLERS.brokerRestart(world, action, app);
-    case 'tamperLocalStorage':
-      return LIBRARY_HANDLERS.tamperLocalStorage(world, action, app);
-    case 'restartWithSchema':
-      return LIBRARY_HANDLERS.restartWithSchema(world, action, app);
-    case 'protocolCut':
-      return LIBRARY_HANDLERS.protocolCut(world, action, app);
-    case 'serverCrash':
-      return LIBRARY_HANDLERS.serverCrash(world, action, app);
-    case 'serverRestart':
-      return LIBRARY_HANDLERS.serverRestart(world, action, app);
-    case 'auth':
-      return LIBRARY_HANDLERS.auth(world, action, app);
-    case 'clearLocalData':
-      return LIBRARY_HANDLERS.clearLocalData(world, action, app);
-    case 'subscribe':
-      return LIBRARY_HANDLERS.subscribe(world, action, app);
-    default: {
-      const _exhaustive: never = action;
-      void _exhaustive;
-    }
-  }
+  type Handler = (
+    w: DstWorldSurface,
+    a: LibraryAction,
+    dstApp: DstApp
+  ) => Promise<void>;
+  await (LIBRARY_HANDLERS[action.kind] as Handler)(world, action, app);
 }
 
 /** Dispatch one DST action (library, domain mutation, or server op). */

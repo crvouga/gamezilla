@@ -7,6 +7,7 @@ import type { SimAuthStatus } from '../client-factory';
 import type { SimCorruptionVariant } from '../corruption-faults';
 import type { SimFaultOptions } from '../faults';
 import type { LocalStorageTamper } from '../storage-faults';
+import type { StoragePressureKind } from '../storage-pressure';
 import type { SimTraffic } from '../traffic';
 
 export type DomainOp = {
@@ -101,6 +102,21 @@ export type LibraryAction =
       readonly clientId: string;
       readonly queryName: string;
       readonly params: Record<string, unknown>;
+    }
+  | { readonly kind: 'freeze'; readonly clientId: string }
+  | { readonly kind: 'thaw'; readonly clientId: string }
+  | {
+      readonly kind: 'armStoragePressure';
+      readonly clientId: string;
+      readonly pressure: StoragePressureKind;
+      readonly afterStatements?: number;
+    }
+  | { readonly kind: 'failNextOpen'; readonly clientId: string }
+  | { readonly kind: 'pruneServerArtifacts'; readonly olderThanMs: number }
+  | {
+      readonly kind: 'addPeerEngine';
+      readonly clientId: string;
+      readonly shareWithClientId: string;
     };
 
 export type DstAction = LibraryAction | DomainOp | ServerOp;

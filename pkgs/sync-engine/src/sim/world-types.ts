@@ -100,6 +100,10 @@ export type BootedSimKernel = {
   readonly authByDevice: Map<string, ClientMeta>;
   /** Per-device auth token status for expired/revoked scenarios. */
   readonly authStatusByDevice: Map<string, SimAuthStatus>;
+  readonly storagePressure: import('./storage-pressure').StoragePressureController;
+  /** Tab-freeze: sync traffic held while foreground stays true. */
+  readonly frozenClients: Set<string>;
+  readonly failNextOpenClients: Set<string>;
   readonly nextId: () => string;
   readonly worldArgs: WorldClientOpts;
   readonly domain: SimDomainPack;

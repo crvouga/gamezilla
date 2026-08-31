@@ -1,9 +1,18 @@
 import type { DomainOp, ServerOp } from '../../dst/actions';
 import { domainOp, serverOp } from '../../dst/model';
 
-export const NOTE_IDS = ['n0', 'n1', 'n2'] as const;
-export const FOLDER_IDS = ['f0', 'f1'] as const;
-export const SPACE_IDS = ['s0', 's1'] as const;
+export const NOTE_IDS = [
+  'n0',
+  'n1',
+  'n2',
+  'n3',
+  'n4',
+  'n5',
+  'n6',
+  'n7',
+] as const;
+export const FOLDER_IDS = ['f0', 'f1', 'f2', 'f3'] as const;
+export const SPACE_IDS = ['s0', 's1', 's2', 's3'] as const;
 
 export type AcmeDomainModel = {
   readonly knownEntityIds: Set<string>;
@@ -45,6 +54,9 @@ export function acmeDomainAllows(
     const id = op.args['noteId'];
     return typeof id === 'string' && model.knownEntityIds.has(id);
   }
+  if (op.name === 'seedLargeCatalogSilent') {
+    return !model.knownEntityIds.has('__large_catalog__');
+  }
   return true;
 }
 
@@ -70,6 +82,10 @@ export function acmeDomainApply(
   if (op.name === 'writeNoteBodySilent') {
     const id = op.args['noteId'];
     if (typeof id === 'string') model.knownEntityIds.add(id);
+    return;
+  }
+  if (op.name === 'seedLargeCatalogSilent') {
+    model.knownEntityIds.add('__large_catalog__');
   }
 }
 
@@ -118,4 +134,8 @@ export function acmeCatalogInsertSilentOp(
   body: string
 ): ServerOp {
   return serverOp('insertCatalogNoteSilent', { noteId, body });
+}
+
+export function acmeSeedLargeCatalogOp(count: number): ServerOp {
+  return serverOp('seedLargeCatalogSilent', { count });
 }

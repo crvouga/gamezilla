@@ -38,6 +38,7 @@ import { ensureProfileEmpty, setProfileUsername } from './profile-mutations';
 import {
   foldersOnlyQuery,
   notesDeniedQuery,
+  notesLargeWorldQuery,
   notesLimitedQuery,
   notesOnlyQuery,
   notesOwnedQuery,
@@ -75,6 +76,7 @@ export const acmeMutationRegistry = mutationRegistry([
 
 export const acmeQueryRegistry = queryRegistry([
   notesWorldQuery,
+  notesLargeWorldQuery,
   notesWorldV2Query,
   notesByFolderQuery,
   notesAuthorizeThrowQuery,

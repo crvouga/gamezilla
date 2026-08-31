@@ -39,6 +39,36 @@ export const notesWorldQuery = defineQuery({
   },
 });
 
+/** Chess-scale hydrate for large-snapshot DST pins (limit above default 2k). */
+export const notesLargeWorldQuery = defineQuery({
+  name: 'notesLargeWorld',
+  limit: 2_500,
+  entryChannel: () => [NOTES_WORLD_TOPIC],
+  async run({ db }) {
+    const folders = await db.query(sql<{
+      id: string;
+      title: string;
+      owner_id: string;
+      deleted_at: string | null;
+    }>`
+      SELECT id, title, owner_id, deleted_at FROM folders
+      ORDER BY id ASC
+`);
+    const notes = await db.query(sql<{
+      id: string;
+      folder_id: string | null;
+      title: string;
+      body: string;
+      owner_id: string;
+      deleted_at: string | null;
+    }>`
+      SELECT id, folder_id, title, body, owner_id, deleted_at FROM notes
+      ORDER BY id ASC
+`);
+    return { folders, notes };
+  },
+});
+
 /**
  * Always denied — used to exercise detachScope on query deny without wiping
  * domain rows hydrated by notesWorld.
