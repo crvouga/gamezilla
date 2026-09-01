@@ -1019,7 +1019,7 @@ world.node('alice').now(); // base + skew
 |------|---------|---------|
 | `seed` | required | Root RNG seed (`number \| bigint \| string`) |
 | `knobs.clientCount` | `2` | Booted `c0..` clients (`0` for scripted pins that `addClient`) |
-| `knobs.rowImageFanout` | `false` | Live pushes apply row images when `true` |
+| `knobs.rowImageFanout` | `true` | Live pushes apply row images when `true` (kit/`!== false` semantics) |
 | `knobs.liveResendOnReconnect` | `false` | Buffer last topics while peer closed; flush on re-subscribe |
 | `knobs.bufferOutboundLive` | `false` | Queue optimistic fanout while push detached |
 | `networkDefaults` | reliable | Pass `toKernelFaults({ … })` for custom delay/loss |

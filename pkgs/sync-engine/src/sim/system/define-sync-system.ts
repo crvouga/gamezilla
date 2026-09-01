@@ -48,7 +48,7 @@ export type SyncSystemDef = SystemDef<SyncSystem>;
 
 /** {@link WorldKnobs} as framework knob defs (id + default + arbitrary). */
 export const SYNC_SYSTEM_KNOBS: readonly SystemKnobDef[] = [
-  defineSystemKnob({ id: 'rowImageFanout', default: false, arb: fc.boolean() }),
+  defineSystemKnob({ id: 'rowImageFanout', default: true, arb: fc.boolean() }),
   defineSystemKnob({
     id: 'liveResendOnReconnect',
     default: false,

@@ -61,7 +61,9 @@ function resolveStickySchemaArgs(
     meta.lastMutationRegistry
   );
   const queryRegistry = pick(opts?.queryRegistry, meta.lastQueryRegistry);
-  const sessionQuery = pick(opts?.sessionQuery, meta.lastSessionQuery);
+  // Session query is client config (which scopes to hydrate), not DB content —
+  // stick across wipe restarts so cold hydrate still uses the same session.
+  const sessionQuery = opts?.sessionQuery ?? meta.lastSessionQuery;
   const schemaEpoch = pick(opts?.schemaEpoch, meta.lastSchemaEpoch);
   return {
     ...(localSchema !== undefined ? { localSchema } : {}),
@@ -87,8 +89,8 @@ function finalizeRestartMeta(
   if (opts?.localSchema === undefined) delete live.lastLocalSchema;
   if (opts?.mutationRegistry === undefined) delete live.lastMutationRegistry;
   if (opts?.queryRegistry === undefined) delete live.lastQueryRegistry;
-  if (opts?.sessionQuery === undefined) delete live.lastSessionQuery;
   if (opts?.schemaEpoch === undefined) delete live.lastSchemaEpoch;
+  // lastSessionQuery stays — carried via resolveStickySchemaArgs + registerClientMeta.
 }
 
 export async function restartClientImpl(
