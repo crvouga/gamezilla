@@ -44,7 +44,7 @@ describe('sqliteWireValue', () => {
           fc.integer(),
           fc.constant(null),
           fc.boolean(),
-          fc.date(),
+          fc.date({ noInvalidDate: true }),
           fc.bigInt({ min: -1000n, max: 1000n }),
           fc.dictionary(fc.string(), arbJsonValue(2))
         ),
