@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { openWorld } from '@pkgs/determinism';
+import { syncFacade } from '../../sim/system';
 import { expectLiveNote, setNote } from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 /** String ids that look like JS-unsafe bigints (stay exact as text). */
 const BIG_IDS = [

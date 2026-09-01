@@ -1,8 +1,14 @@
-import { openWorld } from '@pkgs/determinism';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { describe, expect, test } from 'bun:test';
-import { deleteNote, expectLiveNote, expectNoteNotLive, readNoteTombstone, setNote } from '../apps/acme';
+import { openWorld } from '@pkgs/determinism';
+import { syncFacade } from '../../sim/system';
+import {
+  deleteNote,
+  expectLiveNote,
+  expectNoteNotLive,
+  readNoteTombstone,
+  setNote,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('soft delete tombstone propagates and revives', () => {
   test('delete tombstones on peer after converge', async () => {

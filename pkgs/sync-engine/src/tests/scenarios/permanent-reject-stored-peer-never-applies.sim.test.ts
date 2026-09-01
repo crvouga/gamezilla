@@ -1,8 +1,14 @@
-import { openWorld } from '@pkgs/determinism';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { describe, expect, test } from 'bun:test';
-import { acknowledgeWriteRejectionMutation, expectLiveNote, expectNotesMatchServer, serverRejectNote, setNote } from '../apps/acme';
+import { openWorld } from '@pkgs/determinism';
+import { syncFacade } from '../../sim/system';
+import {
+  acknowledgeWriteRejectionMutation,
+  expectLiveNote,
+  expectNotesMatchServer,
+  serverRejectNote,
+  setNote,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('permanent reject stored peer never applies', () => {
   test('server reject stores write_rejection and merge restores domain', async () => {

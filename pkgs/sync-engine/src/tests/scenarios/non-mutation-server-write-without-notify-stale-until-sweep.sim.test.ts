@@ -1,8 +1,13 @@
 import { describe, test } from 'bun:test';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { openWorld } from '@pkgs/determinism';
-import { expectLiveNote, readLiveNotes, setNote, writeNoteBody } from '../apps/acme';
+import { syncFacade } from '../../sim/system';
+import {
+  expectLiveNote,
+  readLiveNotes,
+  setNote,
+  writeNoteBody,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('non mutation server write without notify stale until sweep', () => {
   // Domain write outside mutation replay should notify; missed notify heals

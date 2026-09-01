@@ -1,9 +1,16 @@
 import { describe, expect, test } from 'bun:test';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { openWorld } from '@pkgs/determinism';
 import { sql } from '@pkgs/sql';
-import { acmeLocalSchemaExtraColumn, acmeMutationRegistry, expectLiveNote, isLiveNote, setNote, setNoteColor } from '../apps/acme';
+import { syncFacade } from '../../sim/system';
+import {
+  acmeLocalSchemaExtraColumn,
+  acmeMutationRegistry,
+  expectLiveNote,
+  isLiveNote,
+  setNote,
+  setNoteColor,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('client ahead column mutation no wipe', () => {
   test.each([2130, 2131, 2132])(

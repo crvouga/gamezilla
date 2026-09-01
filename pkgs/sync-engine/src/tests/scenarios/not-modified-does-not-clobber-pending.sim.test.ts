@@ -1,8 +1,13 @@
-import { openWorld } from '@pkgs/determinism';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { describe, expect, test } from 'bun:test';
-import { expectLiveNote, expectNotesMatchServer, readLiveNotes, setNote } from '../apps/acme';
+import { openWorld } from '@pkgs/determinism';
+import { syncFacade } from '../../sim/system';
+import {
+  expectLiveNote,
+  expectNotesMatchServer,
+  readLiveNotes,
+  setNote,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('not modified does not clobber pending', () => {
   test('not_modified refetch does not clobber pending optimistic; later hash miss rebases', async () => {

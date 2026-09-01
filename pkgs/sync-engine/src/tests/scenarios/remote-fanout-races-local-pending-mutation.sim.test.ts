@@ -1,8 +1,8 @@
-import { openWorld } from '@pkgs/determinism';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { describe, test } from 'bun:test';
+import { openWorld } from '@pkgs/determinism';
+import { syncFacade } from '../../sim/system';
 import { setNote } from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('remote fanout races local pending mutation', () => {
   test('fanout races local pending mutation on same row then converges', async () => {

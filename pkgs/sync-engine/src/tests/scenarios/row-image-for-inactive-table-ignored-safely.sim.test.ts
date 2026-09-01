@@ -1,8 +1,13 @@
-import { openWorld } from '@pkgs/determinism';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { describe, expect, test } from 'bun:test';
-import { expectLiveNote, readLiveFolders, setFolder, setNote } from '../apps/acme';
+import { openWorld } from '@pkgs/determinism';
+import { syncFacade } from '../../sim/system';
+import {
+  expectLiveNote,
+  readLiveFolders,
+  setFolder,
+  setNote,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('row image for inactive table ignored safely', () => {
   test('server folders push ignored by notesOnly peer; later note push applies', async () => {

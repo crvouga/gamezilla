@@ -1,8 +1,14 @@
 import { describe, expect, test } from 'bun:test';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { openWorld } from '@pkgs/determinism';
-import { acmeMutationRegistry, expectLiveNote, expectNotesMatchServer, ghostMutation, setNote } from '../apps/acme';
+import { syncFacade } from '../../sim/system';
+import {
+  acmeMutationRegistry,
+  expectLiveNote,
+  expectNotesMatchServer,
+  ghostMutation,
+  setNote,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('unknown mutation name rejected and rolled back', () => {
   test.each([770, 771, 772])(

@@ -1,8 +1,13 @@
-import { openWorld } from '@pkgs/determinism';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { describe, expect, test } from 'bun:test';
-import { expectLiveNote, illegalHardDeleteNote, readLiveNotes, setNote } from '../apps/acme';
+import { openWorld } from '@pkgs/determinism';
+import { syncFacade } from '../../sim/system';
+import {
+  expectLiveNote,
+  illegalHardDeleteNote,
+  readLiveNotes,
+  setNote,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('domain hard delete rejected', () => {
   test('illegalHardDeleteNote fails with NO_HARD_DELETE; row stays live', async () => {

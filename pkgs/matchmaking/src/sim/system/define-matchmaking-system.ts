@@ -1,20 +1,17 @@
 import {
-  type SystemDef,
-  type World,
   defineLibrary,
   defineSystem,
   defineSystemKnob,
   openWorld,
+  type SystemDef,
+  type World,
 } from '@pkgs/determinism';
 import fc from 'fast-check';
 
 import type { MatchmakingTuning } from '../../interface/matchmaking';
 import type { MatchmakingSchema } from '../../interface/schema';
 import type { RadiusOptions } from '../../interface/types';
-import type {
-  MatchmakingSimBackend,
-  MatchmakingSimWorld,
-} from '../world-api';
+import type { MatchmakingSimBackend, MatchmakingSimWorld } from '../world-api';
 import './node-kinds';
 import { MM_REPLICA, MM_STORE, MM_WARMUP } from './node-kinds';
 import {

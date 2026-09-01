@@ -1,8 +1,14 @@
-import { openWorld } from '@pkgs/determinism';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { describe, expect, test } from 'bun:test';
-import { befriend, createSpace, expectLiveSpace, isLiveSpace, SPACE_MEMBERSHIP_SESSION } from '../apps/acme';
+import { openWorld } from '@pkgs/determinism';
+import { syncFacade } from '../../sim/system';
+import {
+  befriend,
+  createSpace,
+  expectLiveSpace,
+  isLiveSpace,
+  SPACE_MEMBERSHIP_SESSION,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('friend hosted space cold hydrate', () => {
   test('friend sees host space via push and again after wipe restart', async () => {

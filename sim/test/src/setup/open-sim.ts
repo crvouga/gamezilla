@@ -33,11 +33,7 @@ import '@apps/client/i18n/i18n';
 
 import type { SimSystemSnapshot } from '@pkgs/sim-console/shared/sim-system-snapshot';
 import { resolveSimSqlBackend } from '@sim/console/sim/sim-sql-backend';
-import {
-  defineProductSystem,
-  type ProductSystem,
-  requireSim,
-} from '../system';
+import { defineProductSystem, type ProductSystem, requireSim } from '../system';
 import { ensureSimPgliteSeed } from './boot-sim-pglite';
 import { ensureSimPostgresMemSeed } from './boot-sim-postgres-mem';
 import {

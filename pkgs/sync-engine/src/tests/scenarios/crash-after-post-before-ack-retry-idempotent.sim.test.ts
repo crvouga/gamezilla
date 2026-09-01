@@ -1,8 +1,13 @@
-import { openWorld } from '@pkgs/determinism';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { describe, expect, test } from 'bun:test';
-import { expectLiveNote, expectNotesMatchServer, readLiveNotes, setNote } from '../apps/acme';
+import { openWorld } from '@pkgs/determinism';
+import { syncFacade } from '../../sim/system';
+import {
+  expectLiveNote,
+  expectNotesMatchServer,
+  readLiveNotes,
+  setNote,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('crash after post before ack retry idempotent', () => {
   test('crash after mutations POST accepted; restart re-drains idempotently', async () => {

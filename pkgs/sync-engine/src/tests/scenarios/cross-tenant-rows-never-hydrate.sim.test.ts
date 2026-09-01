@@ -1,8 +1,16 @@
 import { describe, expect, test } from 'bun:test';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { openWorld } from '@pkgs/determinism';
-import { expectLiveNote, expectNoteNotLive, isLiveNote, NOTES_AUTH_GATE_FOLDER_ID, readLiveNotes, setFolder, setNote } from '../apps/acme';
+import { syncFacade } from '../../sim/system';
+import {
+  expectLiveNote,
+  expectNoteNotLive,
+  isLiveNote,
+  NOTES_AUTH_GATE_FOLDER_ID,
+  readLiveNotes,
+  setFolder,
+  setNote,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('cross tenant rows never hydrate', () => {
   test('denied notesOwned peer never hydrates owner private rows', async () => {

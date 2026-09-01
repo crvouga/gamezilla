@@ -9,10 +9,10 @@
 export {
   defineMatchmakingSystem,
   MATCHMAKING_SYSTEM,
-  openMatchmakingWorld,
-  requireMmWorld,
   type MatchmakingSystemDef,
   type OpenMatchmakingWorldArgs,
+  openMatchmakingWorld,
+  requireMmWorld,
 } from './sim/system';
 export type {
   MatchmakingSimBackend,

@@ -1,8 +1,13 @@
-import { openWorld } from '@pkgs/determinism';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { describe, test } from 'bun:test';
-import { expectLiveNote, NOTES_AUTH_GATE_FOLDER_ID, setFolder, setNote } from '../apps/acme';
+import { openWorld } from '@pkgs/determinism';
+import { syncFacade } from '../../sim/system';
+import {
+  expectLiveNote,
+  NOTES_AUTH_GATE_FOLDER_ID,
+  setFolder,
+  setNote,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('mid session authorize deny keeps domain rows', () => {
   test('ownership flip denies scope; domain rows remain; other scopes sync', async () => {

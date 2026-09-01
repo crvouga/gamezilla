@@ -1,8 +1,8 @@
 import { describe, test } from 'bun:test';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { openWorld } from '@pkgs/determinism';
+import { syncFacade } from '../../sim/system';
 import { expectLiveNote, expectNotesMatchServer, setNote } from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('unknown query name denied detaches scope', () => {
   test.each([780, 781, 782])(

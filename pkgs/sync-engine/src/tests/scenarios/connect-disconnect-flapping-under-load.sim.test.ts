@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { openWorld } from '@pkgs/determinism';
+import { syncFacade } from '../../sim/system';
 import { expectLiveNote, readLiveNotes, setNote } from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('connect disconnect flapping under load', () => {
   test('online/foreground flap under mutation storm still converges', async () => {

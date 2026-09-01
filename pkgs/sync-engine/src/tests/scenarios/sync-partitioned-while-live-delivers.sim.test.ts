@@ -1,8 +1,8 @@
-import { openWorld } from '@pkgs/determinism';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { describe, test } from 'bun:test';
+import { openWorld } from '@pkgs/determinism';
+import { syncFacade } from '../../sim/system';
 import { expectLiveNote, expectNotesMatchServer, setNote } from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('sync partitioned while live delivers', () => {
   test('partition sync then heal converges', async () => {

@@ -1,10 +1,17 @@
-import { openWorld } from '@pkgs/determinism';
-import { acmeSystem } from '../apps/acme/system';
 import { describe, expect, test } from 'bun:test';
-import { syncFacade, type SyncSystemFacade } from '../../sim/system';
-import { expectLiveNote, expectNotesMatchServer, readLiveNotes, setNote } from '../apps/acme';
+import { openWorld } from '@pkgs/determinism';
+import { type SyncSystemFacade, syncFacade } from '../../sim/system';
+import {
+  expectLiveNote,
+  expectNotesMatchServer,
+  readLiveNotes,
+  setNote,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
-async function expectClientsMatchServer(world: SyncSystemFacade): Promise<void> {
+async function expectClientsMatchServer(
+  world: SyncSystemFacade
+): Promise<void> {
   for (const client of world.clients.values()) {
     await expectNotesMatchServer(client.db, world.server.db);
   }

@@ -1,8 +1,8 @@
-import { openWorld } from '@pkgs/determinism';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { describe, expect, test } from 'bun:test';
+import { openWorld } from '@pkgs/determinism';
+import { syncFacade } from '../../sim/system';
 import { readLiveNotes, setNote } from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('two offline same id single winner', () => {
   test('two clients offline conflict then converge to one winner', async () => {

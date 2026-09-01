@@ -1,9 +1,17 @@
-import { openWorld } from '@pkgs/determinism';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { describe, expect, test } from 'bun:test';
+import { openWorld } from '@pkgs/determinism';
 import { topicsFromWriteCapture } from '@pkgs/sync-engine/shared';
-import { acmeTopicMap, createSpace, joinSpace, leaveSpace, roomTopic, SPACE_MEMBERSHIP_SESSION, userTopic } from '../apps/acme';
+import { syncFacade } from '../../sim/system';
+import {
+  acmeTopicMap,
+  createSpace,
+  joinSpace,
+  leaveSpace,
+  roomTopic,
+  SPACE_MEMBERSHIP_SESSION,
+  userTopic,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('tombstone membership wakes removed user topic', () => {
   test('spaces_users tombstone post-image still maps to removed user topic', async () => {

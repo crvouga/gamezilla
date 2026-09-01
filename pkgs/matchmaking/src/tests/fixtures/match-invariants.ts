@@ -4,7 +4,10 @@
 
 import { expect } from 'bun:test';
 import type { StatusResult } from '../../interface/types';
-import type { MatchmakingSimWorld, ParticipantHandle } from '../../sim/world-api';
+import type {
+  MatchmakingSimWorld,
+  ParticipantHandle,
+} from '../../sim/world-api';
 import { expectMatched } from './attrs';
 
 function statusEqual(a: StatusResult | null, b: StatusResult | null): boolean {

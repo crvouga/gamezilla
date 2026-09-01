@@ -1,8 +1,17 @@
-import { openWorld } from '@pkgs/determinism';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { describe, expect, test } from 'bun:test';
-import { deleteFolder, expectFoldersMatchServer, expectLiveNote, moveNote, readLiveFolders, readLiveNotes, setFolder, setNote } from '../apps/acme';
+import { openWorld } from '@pkgs/determinism';
+import { syncFacade } from '../../sim/system';
+import {
+  deleteFolder,
+  expectFoldersMatchServer,
+  expectLiveNote,
+  moveNote,
+  readLiveFolders,
+  readLiveNotes,
+  setFolder,
+  setNote,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('folders and notes multi table converge', () => {
   test('folder + note hydrate on peer', async () => {

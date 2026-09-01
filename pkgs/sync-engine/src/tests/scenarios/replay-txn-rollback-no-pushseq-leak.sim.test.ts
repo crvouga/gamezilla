@@ -1,8 +1,13 @@
 import { describe, expect, test } from 'bun:test';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { openWorld } from '@pkgs/determinism';
-import { expectLiveNote, expectNoteNotLive, readLiveNotes, setNote } from '../apps/acme';
+import { syncFacade } from '../../sim/system';
+import {
+  expectLiveNote,
+  expectNoteNotLive,
+  readLiveNotes,
+  setNote,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('replay txn rollback no pushseq leak', () => {
   test('in-txn fail rolls back; peer sees no push; retry applies once', async () => {

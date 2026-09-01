@@ -1,8 +1,15 @@
 import { describe, expect, test } from 'bun:test';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { openWorld } from '@pkgs/determinism';
-import { deleteNote, expectLiveNote, expectNoteNotLive, readLiveNotes, readNoteTombstone, setNote } from '../apps/acme';
+import { syncFacade } from '../../sim/system';
+import {
+  deleteNote,
+  expectLiveNote,
+  expectNoteNotLive,
+  readLiveNotes,
+  readNoteTombstone,
+  setNote,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 const TOMBSTONE_COUNT = 120;
 

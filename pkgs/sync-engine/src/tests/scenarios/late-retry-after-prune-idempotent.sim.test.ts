@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { openWorld } from '@pkgs/determinism';
+import { syncFacade } from '../../sim/system';
 import { expectLiveNote, setNote } from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('late retry after prune window idempotent', () => {
   test.each([860, 861, 862])(

@@ -1,9 +1,9 @@
 import { describe, test } from 'bun:test';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { openWorld } from '@pkgs/determinism';
 import { SCHEMA_EPOCH } from '@pkgs/sync-engine/test';
+import { syncFacade } from '../../sim/system';
 import { expectLiveNote, isLiveNote, setNote } from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('epoch bump mid offline session then drain', () => {
   test.each([720, 721, 722])(

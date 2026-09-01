@@ -1,10 +1,10 @@
-import { openWorld } from '@pkgs/determinism';
-import { toKernelFaults } from '../../sim/network';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { describe, test } from 'bun:test';
+import { openWorld } from '@pkgs/determinism';
 import { RELIABLE_FAULTS } from '../../sim/faults';
+import { toKernelFaults } from '../../sim/network';
+import { syncFacade } from '../../sim/system';
 import { expectLiveNote, setNote } from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('dropped live repaired by refetch', () => {
   test('dropped fanout converges via refetch after heal', async () => {

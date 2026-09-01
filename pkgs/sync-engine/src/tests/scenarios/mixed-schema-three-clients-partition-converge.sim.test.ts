@@ -1,8 +1,23 @@
 import { describe, expect, test } from 'bun:test';
-import { defineSyncSystem, syncFacade } from '../../sim/system';
 import { openWorld } from '@pkgs/determinism';
 import { sql } from '@pkgs/sql';
-import { acmeApp, acmeLocalSchema, acmeLocalSchemaExtraColumn, acmeLocalSchemaExtraColumnAndTable, acmeLocalSchemaExtraTable, acmeMutationRegistry, acmeQueryRegistry, expectLiveNote, expectNotesMatchServer, notesWorldWithColorQuery, setNote, setNoteColor, setTag, tagsWorldQuery  } from '../apps/acme';
+import { defineSyncSystem, syncFacade } from '../../sim/system';
+import {
+  acmeApp,
+  acmeLocalSchema,
+  acmeLocalSchemaExtraColumn,
+  acmeLocalSchemaExtraColumnAndTable,
+  acmeLocalSchemaExtraTable,
+  acmeMutationRegistry,
+  acmeQueryRegistry,
+  expectLiveNote,
+  expectNotesMatchServer,
+  notesWorldWithColorQuery,
+  setNote,
+  setNoteColor,
+  setTag,
+  tagsWorldQuery,
+} from '../apps/acme';
 
 const acmeMixedSchemaSystem = defineSyncSystem(acmeApp, {
   id: 'sync.acmeMixedSchemaSystem',

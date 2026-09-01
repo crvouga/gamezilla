@@ -1,8 +1,17 @@
-import { openWorld } from '@pkgs/determinism';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { describe, test } from 'bun:test';
-import { createSpace, expectLiveNote, isLiveNote, joinSpace, leaveSpace, roomTopic, SPACE_MEMBERSHIP_SESSION, setSpaceNote } from '../apps/acme';
+import { openWorld } from '@pkgs/determinism';
+import { syncFacade } from '../../sim/system';
+import {
+  createSpace,
+  expectLiveNote,
+  isLiveNote,
+  joinSpace,
+  leaveSpace,
+  roomTopic,
+  SPACE_MEMBERSHIP_SESSION,
+  setSpaceNote,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('push for just unsubscribed topic ignored', () => {
   test('leave races room push; ignored without error; engine stays healthy', async () => {

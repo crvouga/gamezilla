@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
-import { authzSystem } from '../apps/authz/system';
 import { roomWorld } from '../../sim/system';
 import { ROOM_ERROR_TYPE } from '../../types';
+import { authzSystem } from '../apps/authz/system';
 import { authzCount, authzOwner, Bump, Claim } from '../fixtures/authz-module';
 
 describe('kit: authz survives reconnect (M-F05)', () => {

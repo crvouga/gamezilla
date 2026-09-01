@@ -1,8 +1,14 @@
-import { openWorld } from '@pkgs/determinism';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { describe, expect, test } from 'bun:test';
-import { expectLiveNote, readLiveFolders, readLiveNotes, setFolder, setNote } from '../apps/acme';
+import { openWorld } from '@pkgs/determinism';
+import { syncFacade } from '../../sim/system';
+import {
+  expectLiveNote,
+  readLiveFolders,
+  readLiveNotes,
+  setFolder,
+  setNote,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('push tables filter wakes overlapping scopes', () => {
   test('folders-only push does not wake notesOnly peer; foldersOnly peer wakes', async () => {

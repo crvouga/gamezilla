@@ -1,10 +1,8 @@
-import { openWorld } from '@pkgs/determinism';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { describe, expect, test } from 'bun:test';
+import { openWorld } from '@pkgs/determinism';
 import { MAX_QUERY_BATCH } from '@pkgs/sync-engine/shared';
-
-
+import { syncFacade } from '../../sim/system';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('query POST chunking', () => {
   test(

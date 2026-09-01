@@ -1,9 +1,13 @@
 import { describe, expect, test } from 'bun:test';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { openWorld } from '@pkgs/determinism';
 import { sql } from '@pkgs/sql';
-import { acmeLocalSchemaExtraColumn, expectLiveNote, setNote } from '../apps/acme';
+import { syncFacade } from '../../sim/system';
+import {
+  acmeLocalSchemaExtraColumn,
+  expectLiveNote,
+  setNote,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('client column missing from server snapshot not clobbered', () => {
   test.each([740, 741, 742])(

@@ -1,8 +1,14 @@
-import { openWorld } from '@pkgs/determinism';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { describe, expect, test } from 'bun:test';
-import { deleteNote, expectLiveNote, expectNoteNotLive, readNoteTombstone, setNote } from '../apps/acme';
+import { openWorld } from '@pkgs/determinism';
+import { syncFacade } from '../../sim/system';
+import {
+  deleteNote,
+  expectLiveNote,
+  expectNoteNotLive,
+  readNoteTombstone,
+  setNote,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('replay pins now to mutation created at', () => {
   test('replay pins env.now to mutation createdAt under client clock skew', async () => {

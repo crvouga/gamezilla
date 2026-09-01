@@ -1,8 +1,18 @@
-import { openWorld } from '@pkgs/determinism';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { describe, expect, test } from 'bun:test';
-import { createSpace, endSpace, expectLiveNote, isLiveNote, joinSpace, leaveSpace, roomTopic, SPACE_MEMBERSHIP_SESSION, setSpaceNote } from '../apps/acme';
+import { openWorld } from '@pkgs/determinism';
+import { syncFacade } from '../../sim/system';
+import {
+  createSpace,
+  endSpace,
+  expectLiveNote,
+  isLiveNote,
+  joinSpace,
+  leaveSpace,
+  roomTopic,
+  SPACE_MEMBERSHIP_SESSION,
+  setSpaceNote,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('leave drops room topic until rejoin', () => {
   test('leave drops room topic; further live does not apply until rejoin', async () => {

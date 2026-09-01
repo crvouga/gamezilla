@@ -1,11 +1,11 @@
-import { openWorld } from '@pkgs/determinism';
-import { toKernelFaults } from '../../sim/network';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { describe, expect, test } from 'bun:test';
+import { openWorld } from '@pkgs/determinism';
 import { sql } from '@pkgs/sql';
 import { RELIABLE_FAULTS } from '../../sim/faults';
+import { toKernelFaults } from '../../sim/network';
+import { syncFacade } from '../../sim/system';
 import { setNote } from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 const IMMEDIATE_DRAIN_MS = 0;
 const REPLAY_PUBLISH_MS = 40;

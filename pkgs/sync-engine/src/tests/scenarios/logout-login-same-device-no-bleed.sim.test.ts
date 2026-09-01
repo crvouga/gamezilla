@@ -1,8 +1,14 @@
 import { describe, expect, test } from 'bun:test';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { openWorld } from '@pkgs/determinism';
-import { expectLiveNote, expectNoteNotLive, isLiveNote, readLiveNotes, setNote } from '../apps/acme';
+import { syncFacade } from '../../sim/system';
+import {
+  expectLiveNote,
+  expectNoteNotLive,
+  isLiveNote,
+  readLiveNotes,
+  setNote,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('logout login same device no bleed', () => {
   test('actor B on same device id never sees A unuploaded optimistic', async () => {

@@ -1,9 +1,15 @@
-import { openWorld } from '@pkgs/determinism';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { describe, expect, test } from 'bun:test';
+import { openWorld } from '@pkgs/determinism';
 import { MAX_FANOUT_ROWS } from '@pkgs/sync-engine/shared';
-import { expectLiveNote, expectNotesMatchServer, readLiveNotes, retouchNotes, setNote } from '../apps/acme';
+import { syncFacade } from '../../sim/system';
+import {
+  expectLiveNote,
+  expectNotesMatchServer,
+  readLiveNotes,
+  retouchNotes,
+  setNote,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 function noteIds(count: number): string[] {
   return Array.from(

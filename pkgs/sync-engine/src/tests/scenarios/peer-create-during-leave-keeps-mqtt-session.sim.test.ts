@@ -1,8 +1,16 @@
-import { openWorld } from '@pkgs/determinism';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { describe, expect, test } from 'bun:test';
-import { createSpace, expectLiveNote, joinSpace, leaveSpace, roomTopic, SPACE_MEMBERSHIP_SESSION, setSpaceNote } from '../apps/acme';
+import { openWorld } from '@pkgs/determinism';
+import { syncFacade } from '../../sim/system';
+import {
+  createSpace,
+  expectLiveNote,
+  joinSpace,
+  leaveSpace,
+  roomTopic,
+  SPACE_MEMBERSHIP_SESSION,
+  setSpaceNote,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('peer create during leave keeps mqtt session', () => {
   test('peer create during leave does not remake MQTT; rejoin hydrates', async () => {

@@ -1,9 +1,15 @@
-import { openWorld } from '@pkgs/determinism';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { describe, expect, test } from 'bun:test';
+import { openWorld } from '@pkgs/determinism';
 import { sql } from '@pkgs/sql';
-import { acmeLocalSchemaExtraColumn, acmeRestartOptsForVariant, expectLiveNote, expectNotesMatchServer, setNote } from '../apps/acme';
+import { syncFacade } from '../../sim/system';
+import {
+  acmeLocalSchemaExtraColumn,
+  acmeRestartOptsForVariant,
+  expectLiveNote,
+  expectNotesMatchServer,
+  setNote,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('preserveLocalDb remigrate after additive schema', () => {
   test('restart without localSchema keeps extra column (no drift fail)', async () => {

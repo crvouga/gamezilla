@@ -1,10 +1,15 @@
-import { openWorld } from '@pkgs/determinism';
-import { toKernelFaults } from '../../sim/network';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { describe, expect, test } from 'bun:test';
+import { openWorld } from '@pkgs/determinism';
 import { RELIABLE_FAULTS } from '../../sim/faults';
-import { expectLiveNote, expectNotesMatchServer, readLiveNotes, setNote } from '../apps/acme';
+import { toKernelFaults } from '../../sim/network';
+import { syncFacade } from '../../sim/system';
+import {
+  expectLiveNote,
+  expectNotesMatchServer,
+  readLiveNotes,
+  setNote,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('push during inflight merge queues single flight', () => {
   test('pushes during merge leave no torn intermediate; final converge', async () => {

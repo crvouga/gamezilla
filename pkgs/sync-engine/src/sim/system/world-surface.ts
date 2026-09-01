@@ -1,9 +1,9 @@
-import type { SeededRng } from '../rng';
 import type { SimClientHandle } from '../client-handle';
 import type { InvariantViolation } from '../invariants';
 import type { SimNetHandle } from '../net-effect';
 import type { SimNetwork } from '../network';
 import type { SimNodeHandle } from '../node-handle';
+import type { SeededRng } from '../rng';
 import type { SimServer } from '../server';
 import type { LocalStorageTamper } from '../storage-faults';
 import type { StoragePressureKind } from '../storage-pressure';

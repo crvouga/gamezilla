@@ -1,9 +1,14 @@
 import { describe, expect, test } from 'bun:test';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { openWorld } from '@pkgs/determinism';
 import { unsafe } from '@pkgs/sql';
-import { expectLiveNote, expectNoteNotLive, expectNotesMatchServer, setNote } from '../apps/acme';
+import { syncFacade } from '../../sim/system';
+import {
+  expectLiveNote,
+  expectNoteNotLive,
+  expectNotesMatchServer,
+  setNote,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('corrupt queued args permanent reject', () => {
   test.each([2140, 2141, 2142])(

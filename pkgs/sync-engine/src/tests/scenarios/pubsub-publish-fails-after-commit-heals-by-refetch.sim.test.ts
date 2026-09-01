@@ -1,8 +1,8 @@
 import { describe, test } from 'bun:test';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { openWorld } from '@pkgs/determinism';
+import { syncFacade } from '../../sim/system';
 import { expectLiveNote, isLiveNote, setNote } from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('pubsub publish fails after commit heals by refetch', () => {
   // Pins Consistency table “Push lost”: commit acks, fanout drop, heal via refetch.

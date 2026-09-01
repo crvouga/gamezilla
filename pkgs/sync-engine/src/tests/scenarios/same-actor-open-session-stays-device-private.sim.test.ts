@@ -1,9 +1,15 @@
-import { openWorld } from '@pkgs/determinism';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { describe, expect, test } from 'bun:test';
+import { openWorld } from '@pkgs/determinism';
 import { sql } from '@pkgs/sql';
-import { createSpace, expectNoForeignOpenSessions, expectOpenSession, readLiveOpenSessions, SPACE_MEMBERSHIP_SESSION } from '../apps/acme';
+import { syncFacade } from '../../sim/system';
+import {
+  createSpace,
+  expectNoForeignOpenSessions,
+  expectOpenSession,
+  readLiveOpenSessions,
+  SPACE_MEMBERSHIP_SESSION,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 /**
  * Replicates the product bug: createSpace writes spaces + spaces_users (user

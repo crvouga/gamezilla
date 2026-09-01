@@ -1,8 +1,14 @@
 import { describe, expect, test } from 'bun:test';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { openWorld } from '@pkgs/determinism';
-import { acmeMutationRegistry, expectLiveNote, expectNotesMatchServer, setNote, setNoteArgsLoose } from '../apps/acme';
+import { syncFacade } from '../../sim/system';
+import {
+  acmeMutationRegistry,
+  expectLiveNote,
+  expectNotesMatchServer,
+  setNote,
+  setNoteArgsLoose,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('args schema tightened server rejects stale args', () => {
   test.each([790, 791, 792])(

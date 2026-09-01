@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { openWorld } from '@pkgs/determinism';
+import { syncFacade } from '../../sim/system';
 import { expectLiveNote, setFolder, setNote } from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('scope hash stable under param key order', () => {
   test.each([800, 801, 802])(

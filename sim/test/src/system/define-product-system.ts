@@ -1,8 +1,8 @@
 import {
-  type SystemDef,
-  type World,
   defineSystem,
   defineSystemKnob,
+  type SystemDef,
+  type World,
 } from '@pkgs/determinism';
 import fc from 'fast-check';
 

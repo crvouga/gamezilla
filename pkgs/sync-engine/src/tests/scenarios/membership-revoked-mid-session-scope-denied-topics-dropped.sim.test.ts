@@ -1,8 +1,16 @@
 import { describe, expect, test } from 'bun:test';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { openWorld } from '@pkgs/determinism';
-import { createSpace, expectLiveNote, joinSpace, leaveSpace, roomTopic, SPACE_MEMBERSHIP_SESSION, setSpaceNote } from '../apps/acme';
+import { syncFacade } from '../../sim/system';
+import {
+  createSpace,
+  expectLiveNote,
+  joinSpace,
+  leaveSpace,
+  roomTopic,
+  SPACE_MEMBERSHIP_SESSION,
+  setSpaceNote,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('membership revoked mid session scope denied topics dropped', () => {
   test('leave drops room topic; previously hydrated domain rows retained', async () => {

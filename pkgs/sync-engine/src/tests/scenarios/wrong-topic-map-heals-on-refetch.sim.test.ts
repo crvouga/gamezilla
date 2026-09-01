@@ -1,8 +1,12 @@
 import { describe, test } from 'bun:test';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { openWorld } from '@pkgs/determinism';
-import { expectLiveNote, expectNoteNotLive, setNoteWrongTopic } from '../apps/acme';
+import { syncFacade } from '../../sim/system';
+import {
+  expectLiveNote,
+  expectNoteNotLive,
+  setNoteWrongTopic,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('wrong topic map heals on refetch', () => {
   // Companion to channel-exhaustiveness: wrong topic-map wake ⇒ silent staleness.

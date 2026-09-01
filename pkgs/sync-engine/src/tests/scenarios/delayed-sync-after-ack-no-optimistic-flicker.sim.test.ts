@@ -1,9 +1,9 @@
+import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
 import { toKernelFaults } from '../../sim/network';
-import { acmeSystem } from '../apps/acme/system';
 import { syncFacade } from '../../sim/system';
-import { describe, expect, test } from 'bun:test';
 import { expectLiveNote, readLiveNotes, setNote } from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('delayed sync after ack no optimistic flicker', () => {
   test('optimistic body never reverts under delayed sync after upload ack', async () => {

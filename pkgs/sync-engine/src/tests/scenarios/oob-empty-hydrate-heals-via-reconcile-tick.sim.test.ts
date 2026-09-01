@@ -1,8 +1,15 @@
-import { openWorld } from '@pkgs/determinism';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { describe, expect, test } from 'bun:test';
-import { expectLiveNote, insertCatalogNote, isLiveNote, readLiveNotes, setNote, writeNoteBody } from '../apps/acme';
+import { openWorld } from '@pkgs/determinism';
+import { syncFacade } from '../../sim/system';
+import {
+  expectLiveNote,
+  insertCatalogNote,
+  isLiveNote,
+  readLiveNotes,
+  setNote,
+  writeNoteBody,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('oob empty hydrate heals via reconcile tick', () => {
   // Chess-puzzle shaped: empty first sync, then silent catalog INSERT.

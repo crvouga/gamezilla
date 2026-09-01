@@ -11,11 +11,7 @@ export const MM_STORE = 'mm.store';
 export const MM_REPLICA = 'mm.replica';
 export const MM_WARMUP = 'mm.warmup';
 
-defineNodeKind<
-  { readonly store: SimStore },
-  unknown,
-  MatchmakingSystem
->({
+defineNodeKind<{ readonly store: SimStore }, unknown, MatchmakingSystem>({
   id: MM_STORE,
   boot: async (ctx) => {
     const backend = ctx.knobs.get('backend') as MatchmakingSimBackend;
@@ -50,7 +46,9 @@ defineNodeKind<{ readonly id: string }, unknown, MatchmakingSystem>({
         getMm: (replicaId) => {
           const r = system.replicas.get(replicaId);
           if (r === undefined) {
-            throw new Error(`MatchmakingSimWorld: unknown replica ${replicaId}`);
+            throw new Error(
+              `MatchmakingSimWorld: unknown replica ${replicaId}`
+            );
           }
           return r.mm;
         },

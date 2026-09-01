@@ -1,9 +1,18 @@
 import { describe, expect, test } from 'bun:test';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { openWorld } from '@pkgs/determinism';
 import { sql } from '@pkgs/sql';
-import { acmeLocalSchemaExtraColumn, acmeMutationRegistry, acmeQueryRegistry, expectLiveNote, expectNotesMatchServer, notesWorldWithColorQuery, setNote, setNoteColor } from '../apps/acme';
+import { syncFacade } from '../../sim/system';
+import {
+  acmeLocalSchemaExtraColumn,
+  acmeMutationRegistry,
+  acmeQueryRegistry,
+  expectLiveNote,
+  expectNotesMatchServer,
+  notesWorldWithColorQuery,
+  setNote,
+  setNoteColor,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('server schema upgrade mid session', () => {
   test.each([2120, 2121, 2122])(

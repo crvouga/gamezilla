@@ -1,9 +1,14 @@
 import { describe, expect, test } from 'bun:test';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { openWorld } from '@pkgs/determinism';
 import { createSyncEnginePool } from '@pkgs/sync-engine/client';
-import { expectLiveNote, expectNoteNotLive, isLiveNote, setNote } from '../apps/acme';
+import { syncFacade } from '../../sim/system';
+import {
+  expectLiveNote,
+  expectNoteNotLive,
+  isLiveNote,
+  setNote,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('account switch pool isolation', () => {
   test('createSyncEnginePool closes prior identity SQLite before next open', async () => {

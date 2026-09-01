@@ -1,9 +1,16 @@
-import { openWorld } from '@pkgs/determinism';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { describe, expect, test } from 'bun:test';
+import { openWorld } from '@pkgs/determinism';
 import { sql } from '@pkgs/sql';
-import { acmeLocalSchemaExtraColumn, deleteNote, expectLiveNote, expectNoteNotLive, readNoteTombstone, setNote } from '../apps/acme';
+import { syncFacade } from '../../sim/system';
+import {
+  acmeLocalSchemaExtraColumn,
+  deleteNote,
+  expectLiveNote,
+  expectNoteNotLive,
+  readNoteTombstone,
+  setNote,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 /**
  * Public-API / sim pins for merge semantics that bulk upsert must preserve:

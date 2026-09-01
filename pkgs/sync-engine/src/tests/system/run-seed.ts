@@ -1,6 +1,6 @@
 import {
-  openWorld,
   type JsonValue,
+  openWorld,
   type SimFailureArtifact,
 } from '@pkgs/determinism';
 
@@ -10,9 +10,9 @@ import { isClosedDatabaseError } from '../../sim/invariants';
 import { toKernelFaults } from '../../sim/network';
 import { bootClients, settleWorld } from '../../sim/replay-steps';
 import type { SeededRng } from '../../sim/rng';
+import { defineSyncSystem, syncFacade } from '../../sim/system';
 import type { SyncAction } from '../../sim/system/actions';
 import type { SyncApp } from '../../sim/system/app';
-import { defineSyncSystem, syncFacade } from '../../sim/system';
 import { dispatchSyncAction } from '../../sim/system/dispatch';
 import type { SyncSystemFacade } from '../../sim/system/system';
 import { pickLibraryAction } from './pick-library-action';

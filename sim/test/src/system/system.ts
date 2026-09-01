@@ -11,9 +11,7 @@ export type ProductSystem = {
 
 export type ProductSystemOpts = CreateSimOptions;
 
-export function createProductSystem(
-  opts?: ProductSystemOpts
-): ProductSystem {
+export function createProductSystem(opts?: ProductSystemOpts): ProductSystem {
   return {
     sim: null,
     createOpts: opts ?? {},

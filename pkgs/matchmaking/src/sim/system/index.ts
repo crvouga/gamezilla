@@ -4,14 +4,14 @@
  */
 
 export {
+  type DefineMatchmakingSystemOpts,
   defineMatchmakingSystem,
   MATCHMAKING_SYSTEM,
-  openMatchmakingWorld,
-  requireMmWorld,
-  type DefineMatchmakingSystemOpts,
   type MatchmakingSystemDef,
   type MatchmakingSystemWorld,
   type OpenMatchmakingWorldArgs,
+  openMatchmakingWorld,
+  requireMmWorld,
 } from './define-matchmaking-system';
 export { MM_REPLICA, MM_STORE, MM_WARMUP } from './node-kinds';
 export {

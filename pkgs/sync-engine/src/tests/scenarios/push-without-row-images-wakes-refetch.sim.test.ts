@@ -1,8 +1,8 @@
-import { openWorld } from '@pkgs/determinism';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { describe, test } from 'bun:test';
+import { openWorld } from '@pkgs/determinism';
+import { syncFacade } from '../../sim/system';
 import { expectLiveNote, setNoteNoFanout } from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('push without row images wakes refetch', () => {
   test('mutation without capture images converges via wake+refetch with rowImageFanout', async () => {

@@ -1,8 +1,15 @@
-import { openWorld } from '@pkgs/determinism';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { describe, expect, test } from 'bun:test';
-import { acmeMutationRegistry, expectLiveNote, expectNotesMatchServer, readLiveNotes, setNote, setNoteV2 } from '../apps/acme';
+import { openWorld } from '@pkgs/determinism';
+import { syncFacade } from '../../sim/system';
+import {
+  acmeMutationRegistry,
+  expectLiveNote,
+  expectNotesMatchServer,
+  readLiveNotes,
+  setNote,
+  setNoteV2,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 /** Old-client registry: setNoteV2 not registered locally (server still has both). */
 function mutationRegistryV1Only(): typeof acmeMutationRegistry {

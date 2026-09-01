@@ -11,11 +11,11 @@ import {
 import fc from 'fast-check';
 
 import type { LocalDomainSchema } from '../../client/local-schema-migrate';
+import type { MutationRegistry } from '../../mutations/core/types';
+import type { QueryRegistry } from '../../queries/core/types';
 import type { SimSessionQuery } from '../domain-pack';
 import { RELIABLE_FAULTS } from '../faults';
-import type { MutationRegistry } from '../../mutations/core/types';
 import { toKernelFaults } from '../network';
-import type { QueryRegistry } from '../../queries/core/types';
 import type { SyncAction } from './actions';
 import { isLibraryAction } from './actions';
 import type { SyncApp } from './app';

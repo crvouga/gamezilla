@@ -1,8 +1,14 @@
-import { openWorld } from '@pkgs/determinism';
-import { acmeSystem } from '../apps/acme/system';
 import { describe, expect, test } from 'bun:test';
-import { syncFacade, type SyncSystemFacade } from '../../sim/system';
-import { deleteNote, expectNotesMatchServer, readLiveNotes, readNoteTombstone, setNote } from '../apps/acme';
+import { openWorld } from '@pkgs/determinism';
+import { type SyncSystemFacade, syncFacade } from '../../sim/system';
+import {
+  deleteNote,
+  expectNotesMatchServer,
+  readLiveNotes,
+  readNoteTombstone,
+  setNote,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 const BEHIND = -60_000;
 const MID = 0;
@@ -33,7 +39,9 @@ function applyOrder(world: SyncSystemFacade, order: ClockOrder): void {
   world.node('server').skewClock(order.server);
 }
 
-async function expectClientsMatchServer(world: SyncSystemFacade): Promise<void> {
+async function expectClientsMatchServer(
+  world: SyncSystemFacade
+): Promise<void> {
   for (const client of world.clients.values()) {
     await expectNotesMatchServer(client.db, world.server.db);
   }

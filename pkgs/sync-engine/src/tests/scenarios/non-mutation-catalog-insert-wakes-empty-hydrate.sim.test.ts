@@ -1,8 +1,8 @@
-import { openWorld } from '@pkgs/determinism';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { describe, expect, test } from 'bun:test';
+import { openWorld } from '@pkgs/determinism';
+import { syncFacade } from '../../sim/system';
 import { expectLiveNote, insertCatalogNote, isLiveNote } from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('non mutation catalog insert wakes empty hydrate', () => {
   // Chess-puzzle shaped bug: empty first sync of a world/entryChannel query,

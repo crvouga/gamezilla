@@ -1,7 +1,7 @@
 import type { LocalDomainSchema } from '../../client/local-schema-migrate';
-import type { SimSessionQuery } from '../domain-pack';
 import type { MutationRegistry } from '../../mutations/core/types';
 import type { QueryRegistry } from '../../queries/core/types';
+import type { SimSessionQuery } from '../domain-pack';
 import type { SimInfra } from '../world-boot';
 import type { BootedSimKernel, WorldClientOpts } from '../world-types';
 import type { SyncApp } from './app';

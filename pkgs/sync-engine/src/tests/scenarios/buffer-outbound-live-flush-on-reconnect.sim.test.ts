@@ -1,9 +1,9 @@
-import { openWorld } from '@pkgs/determinism';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { describe, expect, test } from 'bun:test';
+import { openWorld } from '@pkgs/determinism';
 import { sql } from '@pkgs/sql';
+import { syncFacade } from '../../sim/system';
 import { expectLiveNote, expectNoteNotLive, setNote } from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 const PEER_VISIBLE_BUDGET_MS = 200;
 

@@ -1,8 +1,12 @@
 import { describe, expect, test } from 'bun:test';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { openWorld } from '@pkgs/determinism';
-import { expectLiveNote, readLiveFolders, setNoteUndeclaredFolderWrite } from '../apps/acme';
+import { syncFacade } from '../../sim/system';
+import {
+  expectLiveNote,
+  readLiveFolders,
+  setNoteUndeclaredFolderWrite,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('capture includes all written tables', () => {
   // Formerly "undeclared folder write misses table filter" — AST capture

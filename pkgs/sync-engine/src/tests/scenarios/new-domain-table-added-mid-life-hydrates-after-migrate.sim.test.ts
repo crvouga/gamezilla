@@ -1,8 +1,18 @@
 import { describe, expect, test } from 'bun:test';
-import { defineSyncSystem, syncFacade } from '../../sim/system';
 import { openWorld } from '@pkgs/determinism';
 import { sql } from '@pkgs/sql';
-import { acmeApp, acmeLocalSchema, acmeLocalSchemaExtraTable, acmeMutationRegistry, acmeQueryRegistry, expectLiveNote, setNote, setTag, tagsWorldQuery  } from '../apps/acme';
+import { defineSyncSystem, syncFacade } from '../../sim/system';
+import {
+  acmeApp,
+  acmeLocalSchema,
+  acmeLocalSchemaExtraTable,
+  acmeMutationRegistry,
+  acmeQueryRegistry,
+  expectLiveNote,
+  setNote,
+  setTag,
+  tagsWorldQuery,
+} from '../apps/acme';
 
 const acmeExtraTableSystem = defineSyncSystem(acmeApp, {
   id: 'sync.acmeExtraTableSystem',

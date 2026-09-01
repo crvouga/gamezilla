@@ -1,8 +1,13 @@
 import { describe, test } from 'bun:test';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { openWorld } from '@pkgs/determinism';
-import { expectLiveNote, expectNotesMatchServer, setNote, setNoteV2 } from '../apps/acme';
+import { syncFacade } from '../../sim/system';
+import {
+  expectLiveNote,
+  expectNotesMatchServer,
+  setNote,
+  setNoteV2,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('query v1 v2 mixed clients converge', () => {
   test.each([760, 761, 762])(

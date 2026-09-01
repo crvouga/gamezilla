@@ -1,9 +1,9 @@
 import { describe, test } from 'bun:test';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { openWorld } from '@pkgs/determinism';
 import { SCHEMA_EPOCH } from '@pkgs/sync-engine/test';
+import { syncFacade } from '../../sim/system';
 import { expectLiveNote, isLiveNote, setNote } from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('epoch bump wipes cache preserves pending uploads', () => {
   test.each([710, 711, 712])(

@@ -1,8 +1,13 @@
-import { openWorld } from '@pkgs/determinism';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { describe, expect, test } from 'bun:test';
-import { ensureProfileEmpty, OWN_PROFILE_SESSION, readProfileUsername, setProfileUsername } from '../apps/acme';
+import { openWorld } from '@pkgs/determinism';
+import { syncFacade } from '../../sim/system';
+import {
+  ensureProfileEmpty,
+  OWN_PROFILE_SESSION,
+  readProfileUsername,
+  setProfileUsername,
+} from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 /**
  * Replicates the product bug: ensureProfile-style empty username INSERT fans

@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'bun:test';
-import { acmeSystem } from '../apps/acme/system';
-import { syncFacade } from '../../sim/system';
 import { openWorld } from '@pkgs/determinism';
 import { RELIABLE_FAULTS } from '../../sim/faults';
+import { syncFacade } from '../../sim/system';
 import { expectLiveNote, readLiveNotes, setNote } from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('same batch posted twice verdicts stable', () => {
   test.each([820, 821, 822])(

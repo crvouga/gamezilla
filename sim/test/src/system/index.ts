@@ -5,17 +5,17 @@
  */
 
 export {
+  type DefineProductSystemOpts,
   defineProductSystem,
   PRODUCT_SYSTEM,
-  type DefineProductSystemOpts,
   type ProductSystemDef,
   type ProductSystemWorld,
 } from './define-product-system';
 export { PRODUCT_SIM, PRODUCT_WARMUP } from './node-kinds';
 export {
   createProductSystem,
-  productSim,
-  requireSim,
   type ProductSystem,
   type ProductSystemOpts,
+  productSim,
+  requireSim,
 } from './system';

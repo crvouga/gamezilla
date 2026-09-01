@@ -1,8 +1,21 @@
 import { describe, expect, test } from 'bun:test';
-import { defineSyncSystem, syncFacade } from '../../sim/system';
 import { openWorld } from '@pkgs/determinism';
 import { sql } from '@pkgs/sql';
-import { acmeApp, acmeLocalSchema, acmeLocalSchemaExtraColumn, acmeMutationRegistry, acmeQueryRegistry, deleteNote, expectLiveNote, expectNotesMatchServer, notesWorldWithColorQuery, readNoteTombstone, setNote, setNoteColor  } from '../apps/acme';
+import { defineSyncSystem, syncFacade } from '../../sim/system';
+import {
+  acmeApp,
+  acmeLocalSchema,
+  acmeLocalSchemaExtraColumn,
+  acmeMutationRegistry,
+  acmeQueryRegistry,
+  deleteNote,
+  expectLiveNote,
+  expectNotesMatchServer,
+  notesWorldWithColorQuery,
+  readNoteTombstone,
+  setNote,
+  setNoteColor,
+} from '../apps/acme';
 
 const acmeColorTombstoneSystem = defineSyncSystem(acmeApp, {
   id: 'sync.acmeColorTombstoneSystem',
