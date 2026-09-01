@@ -36,6 +36,70 @@ function pickCarry<T>(
   return undefined;
 }
 
+type StickySchemaArgs = Pick<
+  AddClientArgs,
+  | 'localSchema'
+  | 'mutationRegistry'
+  | 'queryRegistry'
+  | 'sessionQuery'
+  | 'schemaEpoch'
+>;
+
+/**
+ * Peer engines that share a donor DB must remigrate with the donor's sticky
+ * upgrade schema. Pack baseline rejects leftover extras (e.g. notes.color).
+ */
+function stickyFromSharedDb(
+  ctx: BootedSimKernel,
+  existingDb: AddClientArgs['existingDb']
+): StickySchemaArgs {
+  if (existingDb === undefined) return {};
+  for (const [id, handle] of ctx.clients) {
+    if (handle.dbBundle.serial !== existingDb.serial) continue;
+    const meta = ctx.metas.get(id);
+    if (meta === undefined) return {};
+    return {
+      ...(meta.lastLocalSchema !== undefined
+        ? { localSchema: meta.lastLocalSchema }
+        : {}),
+      ...(meta.lastMutationRegistry !== undefined
+        ? { mutationRegistry: meta.lastMutationRegistry }
+        : {}),
+      ...(meta.lastQueryRegistry !== undefined
+        ? { queryRegistry: meta.lastQueryRegistry }
+        : {}),
+      ...(meta.lastSessionQuery !== undefined
+        ? { sessionQuery: meta.lastSessionQuery }
+        : {}),
+      ...(meta.lastSchemaEpoch !== undefined
+        ? { schemaEpoch: meta.lastSchemaEpoch }
+        : {}),
+    };
+  }
+  return {};
+}
+
+function withSharedDbSticky(
+  ctx: BootedSimKernel,
+  clientArgs: AddClientArgs
+): AddClientArgs {
+  const sticky = stickyFromSharedDb(ctx, clientArgs.existingDb);
+  const localSchema = clientArgs.localSchema ?? sticky.localSchema;
+  const mutationRegistry =
+    clientArgs.mutationRegistry ?? sticky.mutationRegistry;
+  const queryRegistry = clientArgs.queryRegistry ?? sticky.queryRegistry;
+  const sessionQuery = clientArgs.sessionQuery ?? sticky.sessionQuery;
+  const schemaEpoch = clientArgs.schemaEpoch ?? sticky.schemaEpoch;
+  return {
+    ...clientArgs,
+    ...(localSchema !== undefined ? { localSchema } : {}),
+    ...(mutationRegistry !== undefined ? { mutationRegistry } : {}),
+    ...(queryRegistry !== undefined ? { queryRegistry } : {}),
+    ...(sessionQuery !== undefined ? { sessionQuery } : {}),
+    ...(schemaEpoch !== undefined ? { schemaEpoch } : {}),
+  };
+}
+
 function registerClientMeta(
   ctx: BootedSimKernel,
   clientArgs: AddClientArgs
@@ -178,8 +242,9 @@ export async function addClientImpl(
   if (ctx.clients.has(clientArgs.id)) {
     throw new Error(`World: client ${clientArgs.id} already exists`);
   }
-  const ids = registerClientMeta(ctx, clientArgs);
-  const handle = await buildSimClient(simClientBuildArgs(ctx, clientArgs, ids));
+  const args = withSharedDbSticky(ctx, clientArgs);
+  const ids = registerClientMeta(ctx, args);
+  const handle = await buildSimClient(simClientBuildArgs(ctx, args, ids));
   const wrapped = wireMutateCrashArm(ctx, handle);
   ctx.clients.set(clientArgs.id, wrapped);
   await waitForSessionSync(ctx.scheduler, wrapped, clientArgs.id);

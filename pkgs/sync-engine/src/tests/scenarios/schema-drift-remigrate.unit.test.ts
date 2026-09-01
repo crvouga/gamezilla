@@ -106,4 +106,26 @@ describe('preserveLocalDb remigrate after additive schema', () => {
     await expectLiveNote(db, 'n1', { body: 'keep' });
     await expectNotesMatchServer(db, world.server.db);
   });
+
+  test('addPeerEngine inherits sticky schema from shared extraColumn db', async () => {
+    await using host = await openWorld(acmeSystem, {
+      seed: 45,
+      knobs: { clientCount: 0 },
+    });
+    const world = syncFacade(host.system);
+    await world.addClient({ id: 'c1' });
+    await world.node('c1').restart(acmeRestartOptsForVariant('extraColumn'));
+    await world.clients.get('c1')!.mutate(setNote, { id: 'n1', body: 'peer' });
+    await world.assertConverged();
+
+    const donor = world.clients.get('c1')!;
+    await world.addClient({
+      id: 'c2',
+      actorId: donor.actorId,
+      existingDb: donor.dbBundle,
+    });
+
+    await expectLiveNote(world.clients.get('c2')!.db, 'n1', { body: 'peer' });
+    await world.assertConverged();
+  });
 });
