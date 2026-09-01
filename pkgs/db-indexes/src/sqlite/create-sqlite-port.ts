@@ -1,5 +1,6 @@
 import type { Database } from 'bun:sqlite';
 import { assert } from '@pkgs/assert';
+import { sortByName } from '../core/compare';
 import type { Config } from '../core/config';
 import { DEFAULT_CONFIG } from '../core/config';
 import { isOwnedName, ownedIndexName } from '../core/naming';
@@ -77,7 +78,7 @@ async function introspectIndexes(db: Database): Promise<IndexInfo[]> {
       `SELECT name, tbl_name, sql FROM sqlite_master WHERE type = 'index' AND name NOT LIKE 'sqlite_%'`
     )
     .all();
-  return rows.map(mapIndexRow);
+  return sortByName(rows.map(mapIndexRow));
 }
 
 async function introspectTables(db: Database): Promise<TableInfo[]> {
@@ -86,15 +87,17 @@ async function introspectTables(db: Database): Promise<TableInfo[]> {
       `SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' AND name != '${META_TABLE}'`
     )
     .all();
-  return tables.map((t) => {
-    const count = db
-      .query<{ c: number }, []>(`SELECT COUNT(*) AS c FROM "${t.name}"`)
-      .get();
-    return {
-      name: t.name,
-      estimatedRows: count?.c ?? 0,
-    };
-  });
+  return sortByName(
+    tables.map((t) => {
+      const count = db
+        .query<{ c: number }, []>(`SELECT COUNT(*) AS c FROM "${t.name}"`)
+        .get();
+      return {
+        name: t.name,
+        estimatedRows: count?.c ?? 0,
+      };
+    })
+  );
 }
 
 async function readOwnedMeta(db: Database): Promise<OwnedMeta[]> {
@@ -128,7 +131,7 @@ async function readOwnedMeta(db: Database): Promise<OwnedMeta[]> {
       });
     }
   }
-  return out;
+  return sortByName(out);
 }
 
 async function writeOwnedMeta(db: Database, m: OwnedMeta): Promise<void> {
@@ -244,9 +247,11 @@ export function createSqlitePort(
     introspectTables: () => introspectTables(db),
     async readIndexUsage(): Promise<UsageInfo[]> {
       const indexes = await introspectIndexes(db);
-      return indexes
-        .filter((i) => i.isOwned)
-        .map((i) => ({ name: i.name, scans: 0 }));
+      return sortByName(
+        indexes
+          .filter((i) => i.isOwned)
+          .map((i) => ({ name: i.name, scans: 0 }))
+      );
     },
     readOwnedMeta: () => readOwnedMeta(db),
     writeOwnedMeta: (m) => writeOwnedMeta(db, m),

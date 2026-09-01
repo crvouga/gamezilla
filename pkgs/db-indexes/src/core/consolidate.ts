@@ -1,5 +1,6 @@
 import { assert } from '@pkgs/assert';
 import type { Config } from './config';
+import { compareNames, compareSkipped } from './compare';
 import { assertWithinLimit, LIMITS } from './limits';
 import type { Candidate, Eval, SkippedItem, TableInfo } from './types';
 
@@ -192,6 +193,8 @@ export function consolidateCandidates(
     evalMap,
     config
   );
-  kept.sort((a, b) => a.name.localeCompare(b.name));
-  return { kept, skipped: [...filterSkipped, ...budgetSkipped] };
+  kept.sort((a, b) => compareNames(a.name, b.name));
+  const skipped = [...filterSkipped, ...budgetSkipped].sort(compareSkipped);
+  assert.ok(kept.every((c) => c.name.startsWith('autoidx_')), 'kept must be owned');
+  return { kept, skipped };
 }

@@ -2,6 +2,7 @@ import { assert } from '@pkgs/assert';
 import type { Clock } from '@pkgs/clock';
 import { unsafe } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import { sortByName } from '../core/compare';
 import type { Config } from '../core/config';
 import { DEFAULT_CONFIG } from '../core/config';
 import { isOwnedName, ownedIndexName } from '../core/naming';
@@ -90,28 +91,31 @@ async function introspectIndexes(client: SqlClient): Promise<IndexInfo[]> {
       JOIN pg_namespace n ON n.oid = t.relnamespace
       WHERE n.nspname = current_schema()
         AND t.relkind = 'r'
+      ORDER BY i.relname
     `)
   );
-  return rows.map((r) => {
-    const owned = isOwnedName(r.indexname);
-    const m = /\(([^)]+)\)/.exec(r.indexdef);
-    const columns =
-      m?.[1]
-        ?.split(',')
-        .map((c) => c.trim().replace(/"/g, '').split(' ')[0]!)
-        .filter(Boolean) ?? [];
-    return {
-      name: r.indexname,
-      table: r.tablename,
-      columns,
-      include: [],
-      predicate: null,
-      isUnique: r.indisunique,
-      isPrimary: r.indisprimary,
-      isValid: r.indisvalid,
-      isOwned: owned,
-    };
-  });
+  return sortByName(
+    rows.map((r) => {
+      const owned = isOwnedName(r.indexname);
+      const m = /\(([^)]+)\)/.exec(r.indexdef);
+      const columns =
+        m?.[1]
+          ?.split(',')
+          .map((c) => c.trim().replace(/"/g, '').split(' ')[0]!)
+          .filter(Boolean) ?? [];
+      return {
+        name: r.indexname,
+        table: r.tablename,
+        columns,
+        include: [],
+        predicate: null,
+        isUnique: r.indisunique,
+        isPrimary: r.indisprimary,
+        isValid: r.indisvalid,
+        isOwned: owned,
+      };
+    })
+  );
 }
 
 async function introspectTables(client: SqlClient): Promise<TableInfo[]> {
@@ -122,12 +126,15 @@ async function introspectTables(client: SqlClient): Promise<TableInfo[]> {
       JOIN pg_namespace n ON n.oid = c.relnamespace
       LEFT JOIN pg_stat_user_tables s ON s.relid = c.oid
       WHERE n.nspname = current_schema() AND c.relkind = 'r'
+      ORDER BY c.relname
     `)
   );
-  return rows.map((r) => ({
-    name: r.relname,
-    estimatedRows: Number(r.n_live_tup),
-  }));
+  return sortByName(
+    rows.map((r) => ({
+      name: r.relname,
+      estimatedRows: Number(r.n_live_tup),
+    }))
+  );
 }
 
 async function readIndexUsage(client: SqlClient): Promise<UsageInfo[]> {
@@ -135,12 +142,15 @@ async function readIndexUsage(client: SqlClient): Promise<UsageInfo[]> {
     unsafe<{ indexrelname: string; idx_scan: number }>(`
       SELECT indexrelname, COALESCE(idx_scan, 0)::bigint AS idx_scan
       FROM pg_stat_user_indexes
+      ORDER BY indexrelname
     `)
   );
-  return rows.map((r) => ({
-    name: r.indexrelname,
-    scans: Number(r.idx_scan),
-  }));
+  return sortByName(
+    rows.map((r) => ({
+      name: r.indexrelname,
+      scans: Number(r.idx_scan),
+    }))
+  );
 }
 
 async function readOwnedMeta(client: SqlClient): Promise<OwnedMeta[]> {
@@ -151,6 +161,7 @@ async function readOwnedMeta(client: SqlClient): Promise<OwnedMeta[]> {
       JOIN pg_index ix ON ix.indexrelid = i.oid
       LEFT JOIN pg_description d ON d.objoid = i.oid AND d.objsubid = 0
       WHERE i.relname LIKE 'autoidx_%'
+      ORDER BY i.relname
     `)
   );
   const out: OwnedMeta[] = [];
@@ -169,7 +180,7 @@ async function readOwnedMeta(client: SqlClient): Promise<OwnedMeta[]> {
       });
     }
   }
-  return out;
+  return sortByName(out);
 }
 
 async function writeOwnedMeta(client: SqlClient, m: OwnedMeta): Promise<void> {

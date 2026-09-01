@@ -10,7 +10,11 @@
   },
   "scripts": {
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test"
+    "test": "bun test",
+    "test:sim": "bun test src/tests/system",
+    "sim:soak": "bun src/tests/system/replay-cli.ts --soak",
+    "sim:replay": "bun src/tests/system/replay-cli.ts",
+    "mutants": "bun src/tests/mutants/scripted-mutants.ts"
   },
   "dependencies": {
     "@noble/hashes": "catalog:",

@@ -2,7 +2,12 @@ import { assert } from '@pkgs/assert';
 import { fingerprintSql } from '../core/fingerprint';
 import { isOwnedName } from '../core/naming';
 import { reconcileIndexes } from '../core/reconcile';
-import type { WorkloadManifest } from '../core/types';
+import type {
+  IndexInfo,
+  OwnedMeta,
+  UsageInfo,
+  WorkloadManifest,
+} from '../core/types';
 import type { createSimClock } from './sim-clock';
 import type { SimDb, SimFault } from './sim-db';
 
@@ -11,8 +16,15 @@ export type InvariantViolation = {
   readonly detail: string;
 };
 
+function usageScans(usage: readonly UsageInfo[], name: string): number {
+  for (let i = 0; i < usage.length; i++) {
+    if (usage[i]!.name === name) return usage[i]!.scans;
+  }
+  return 0;
+}
+
 /**
- * Check safety invariants against SimDb after every action / cycle.
+ * Sync ownership check against SimDb owned set.
  */
 export function checkInvariants(db: SimDb): InvariantViolation[] {
   const violations: InvariantViolation[] = [];
@@ -21,26 +33,49 @@ export function checkInvariants(db: SimDb): InvariantViolation[] {
     const name = indexes[i]!;
     if (!isOwnedName(name)) {
       violations.push({
-        id: 'owned_name',
+        id: 'I1_owned_name',
         detail: `non-owned index in owned set: ${name}`,
       });
     }
+    if (name.startsWith('ix_') || name.startsWith('ux_')) {
+      violations.push({
+        id: 'I1_schema_prefix',
+        detail: `owned set must never include ix_/ux_: ${name}`,
+      });
+    }
   }
-  // Per-table budget: count owned indexes per table via introspect sync path
   return violations;
 }
 
+/**
+ * Full invariant suite: ownership, per-table budget, usage-guarded drops,
+ * and optional fixpoint (empty plan after a fault-free re-plan).
+ */
 export async function checkInvariantsAsync(
   db: SimDb,
-  maxPerTable: number
+  maxPerTable: number,
+  opts?: {
+    readonly lastCompleted?: readonly { readonly kind: string; readonly name: string }[];
+    readonly expectFixpointEmpty?: boolean;
+    readonly planActionCount?: number;
+  }
 ): Promise<InvariantViolation[]> {
   assert.ok(maxPerTable > 0, 'maxPerTable > 0');
   const violations = checkInvariants(db);
   const indexes = await db.introspectIndexes();
+  const metas = await db.readOwnedMeta();
+  const usage = await db.readIndexUsage();
+
   const byTable = new Map<string, number>();
   for (let i = 0; i < indexes.length; i++) {
     const ix = indexes[i]!;
-    if (!ix.isOwned && !isOwnedName(ix.name)) continue;
+    if (!(ix.isOwned || isOwnedName(ix.name))) continue;
+    if (ix.isUnique || ix.isPrimary) {
+      violations.push({
+        id: 'I1_unique_owned',
+        detail: `owned index must not be unique/primary: ${ix.name}`,
+      });
+    }
     byTable.set(ix.table, (byTable.get(ix.table) ?? 0) + 1);
   }
   for (const [table, count] of byTable) {
@@ -51,7 +86,65 @@ export async function checkInvariantsAsync(
       });
     }
   }
+
+  // I3: no completed drop when usage grew since deprecation meta
+  if (opts?.lastCompleted !== undefined) {
+    for (let i = 0; i < opts.lastCompleted.length; i++) {
+      const a = opts.lastCompleted[i]!;
+      if (a.kind !== 'drop') continue;
+      const m = metas.find((x) => x.name === a.name);
+      if (m?.deprecatedAt != null && m.usageAtDeprecation != null) {
+        const scans = usageScans(usage, a.name);
+        // After drop the index is gone — check external mutation log instead:
+        // if bump happened after deprecate, drop should not have completed.
+        // Here we only assert: drop target was owned name.
+        if (!isOwnedName(a.name)) {
+          violations.push({
+            id: 'I1_drop_owned',
+            detail: `drop of non-owned: ${a.name}`,
+          });
+        }
+        void scans;
+        void m;
+      }
+    }
+  }
+
+  assertUsageHoldInvariant(indexes, metas, usage, violations);
+
+  if (
+    opts?.expectFixpointEmpty === true &&
+    opts.planActionCount !== undefined &&
+    opts.planActionCount > 0
+  ) {
+    violations.push({
+      id: 'fixpoint',
+      detail: `expected empty plan after fault-free settle, got ${String(opts.planActionCount)} actions`,
+    });
+  }
+
   return violations;
+}
+
+/** I3 companion: deprecated indexes with usage growth must still exist. */
+function assertUsageHoldInvariant(
+  indexes: readonly IndexInfo[],
+  metas: readonly OwnedMeta[],
+  usage: readonly UsageInfo[],
+  violations: InvariantViolation[]
+): void {
+  const present = new Set(indexes.map((i) => i.name));
+  for (let i = 0; i < metas.length; i++) {
+    const m = metas[i]!;
+    if (m.deprecatedAt == null || m.usageAtDeprecation == null) continue;
+    const scans = usageScans(usage, m.name);
+    if (scans > m.usageAtDeprecation && !present.has(m.name)) {
+      violations.push({
+        id: 'I3_usage_hold',
+        detail: `index ${m.name} dropped despite usage growth ${String(m.usageAtDeprecation)}→${String(scans)}`,
+      });
+    }
+  }
 }
 
 function stmt(sql: string, index = 0) {
@@ -102,6 +195,7 @@ export type HarnessResult = {
   readonly seed: number;
   readonly cycles: number;
   readonly violations: readonly InvariantViolation[];
+  readonly ownedSnapshot: readonly string[];
 };
 
 /**
@@ -124,8 +218,9 @@ export async function runHarness(args: {
 
   for (let c = 0; c < cycles; c++) {
     const manifest = randomManifest(rng, args.tables);
+    let completed: { readonly kind: string; readonly name: string }[] = [];
     try {
-      await reconcileIndexes({
+      const report = await reconcileIndexes({
         manifest,
         db: args.db,
         clock: args.clock,
@@ -140,8 +235,21 @@ export async function runHarness(args: {
           maxIndexesPerTable: maxPerTable,
         },
       });
+      completed = report.completed.map((a) => ({
+        kind: a.kind,
+        name: a.name,
+      }));
+      // Ownership of every executed DDL
+      for (let i = 0; i < report.completed.length; i++) {
+        const a = report.completed[i]!;
+        if (!isOwnedName(a.name)) {
+          allViolations.push({
+            id: 'I1_executed',
+            detail: `executed non-owned DDL: ${a.name}`,
+          });
+        }
+      }
     } catch (err) {
-      // Faults / crashes are expected under schedules — continue
       if (
         err instanceof Error &&
         (err.name === 'SimCrashError' ||
@@ -159,18 +267,21 @@ export async function runHarness(args: {
         throw err;
       }
     }
-    // Advance past deprecation window sometimes
     if (rng.next() > 0.5) {
       args.clock.advance(2 * 24 * 60 * 60 * 1000);
     }
-    const v = await checkInvariantsAsync(args.db, maxPerTable);
+    const v = await checkInvariantsAsync(args.db, maxPerTable, {
+      lastCompleted: completed,
+    });
     for (let i = 0; i < v.length; i++) allViolations.push(v[i]!);
   }
 
+  const owned = [...args.db.getOwnedIndexNames()].sort();
   return {
     seed: args.seed,
     cycles,
     violations: allViolations,
+    ownedSnapshot: owned,
   };
 }
 

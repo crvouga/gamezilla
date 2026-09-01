@@ -21,11 +21,16 @@ const plan = await planIndexes({ manifest, db, clock });
 // Analyze + execute within deadlineMs; resumable; crash-safe
 const report = await reconcileIndexes({
   manifest,
-  db: createPostgresPort(sqlClient),
+  db: createPostgresPort(sqlClient, { clock }),
   clock,
   deadlineMs: 120_000,
 });
 ```
+
+## Testing
+
+See [`TESTING.md`](./TESTING.md) for PBT / DST layers, seed replay, soak, and
+the invariant → assert / sim / property map.
 
 ## Ownership
 

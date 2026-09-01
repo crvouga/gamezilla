@@ -96,6 +96,33 @@ describe('fail next open', () => {
       ],
     });
   });
+
+  // Shrunk: failNextOpen then restartWithSchema must not leak `sim: fail next open`.
+  test('restartWithSchema survives failNextOpen arm', async () => {
+    await replaySyncPin(acmeSystem, {
+      seed: 55007,
+      knobs: {
+        rowImageFanout: false,
+        liveResendOnReconnect: true,
+        bufferOutboundLive: true,
+        clientCount: 3,
+      },
+      actions: [
+        { kind: 'failNextOpen', clientId: 'c0' },
+        {
+          kind: 'restartWithSchema',
+          clientId: 'c0',
+          variant: 'baseline',
+        },
+        {
+          kind: 'subscribe',
+          clientId: 'c0',
+          queryName: 'notesWorld',
+          params: {},
+        },
+      ],
+    });
+  });
 });
 
 describe('prune server artifacts interleaved', () => {

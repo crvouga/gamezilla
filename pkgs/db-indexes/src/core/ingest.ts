@@ -1,4 +1,5 @@
 import { assert } from '@pkgs/assert';
+import { compareNames } from './compare';
 import { fingerprintSql, normalizeSql } from './fingerprint';
 import { assertWithinLimit, LIMITS } from './limits';
 import type {
@@ -19,34 +20,51 @@ export type IngestedStatement = {
   readonly normalizedSql: string;
 };
 
-function validateStatement(
+function fingerprintSkip(
+  queryName: string,
+  index: number,
+  detail: string
+): SkippedItem {
+  return {
+    reason: 'fingerprint_divergence',
+    detail,
+    queryName,
+    statementIndex: index,
+  };
+}
+
+function tryIngestStatement(
   queryName: string,
   stmt: WorkloadStatement,
   index: number
-): WorkloadStatement {
+): IngestedStatement | SkippedItem {
   assert.ok(
     stmt.sql.length > 0,
     `query ${queryName} stmt ${String(index)}: empty sql`
   );
-  assert.ok(
-    stmt.fingerprint.length === 64,
-    `query ${queryName} stmt ${String(index)}: fingerprint must be sha256 hex`
-  );
-  assert.ok(
-    stmt.weight > 0,
-    `query ${queryName} stmt ${String(index)}: weight > 0`
-  );
+  const loc = `query ${queryName} stmt ${String(index)}`;
+  if (stmt.fingerprint.length !== 64) {
+    return fingerprintSkip(
+      queryName,
+      index,
+      `${loc}: fingerprint must be sha256 hex`
+    );
+  }
+  assert.ok(stmt.weight > 0, `${loc}: weight > 0`);
   const recomputed = fingerprintSql(stmt.sql);
-  assert.ok(
-    recomputed === stmt.fingerprint,
-    `query ${queryName} stmt ${String(index)}: fingerprint mismatch`
-  );
-  return stmt;
+  if (recomputed !== stmt.fingerprint) {
+    return fingerprintSkip(queryName, index, `${loc}: fingerprint mismatch`);
+  }
+  return {
+    queryName,
+    statement: stmt,
+    normalizedSql: normalizeSql(stmt.sql),
+  };
 }
 
 function sortQueries(queries: readonly WorkloadQuery[]): WorkloadQuery[] {
   assertWithinLimit(queries.length, LIMITS.maxStatements, 'manifest.queries');
-  const sorted = [...queries].sort((a, b) => a.name.localeCompare(b.name));
+  const sorted = [...queries].sort((a, b) => compareNames(a.name, b.name));
   let totalStmts = 0;
   for (let i = 0; i < sorted.length; i++) {
     const q = sorted[i]!;
@@ -92,14 +110,13 @@ export function ingestManifest(manifest: WorkloadManifest): IngestResult {
     }
     for (let si = 0; si < q.statements.length; si++) {
       const raw = q.statements[si]!;
-      const stmt = validateStatement(q.name, raw, si);
-      const normalizedSql = normalizeSql(stmt.sql);
+      const ingested = tryIngestStatement(q.name, raw, si);
+      if ('reason' in ingested) {
+        skipped.push(ingested);
+        continue;
+      }
       assert.ok(write < capacity, 'ingest write past capacity');
-      statements[write] = {
-        queryName: q.name,
-        statement: stmt,
-        normalizedSql,
-      };
+      statements[write] = ingested;
       write += 1;
     }
   }

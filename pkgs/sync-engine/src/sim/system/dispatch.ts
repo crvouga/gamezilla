@@ -5,10 +5,12 @@ import type { SystemWorldSurface } from './world-surface';
 
 const SUBS_KEY = Symbol('pbtSubs');
 
-/** Sim fault: epoch migrate throws after CACHE wipe; client is already torn down. */
-function isEpochMigrateCrash(error: unknown): boolean {
+/** Injected sim faults that tear the client down mid-restart; settle remakes it. */
+function isExpectedRestartFault(error: unknown): boolean {
   const msg = error instanceof Error ? error.message : String(error);
-  return msg.includes('crash during epoch migrate');
+  return (
+    msg.includes('crash during epoch migrate') || msg === 'sim: fail next open'
+  );
 }
 
 function subs(world: SystemWorldSurface): Set<Disposable> {
@@ -150,7 +152,7 @@ const LIBRARY_HANDLERS: {
     try {
       await world.node(action.clientId).restart(opts);
     } catch (error) {
-      if (!isEpochMigrateCrash(error)) throw error;
+      if (!isExpectedRestartFault(error)) throw error;
       // Client removed mid-restart; replay tracks needsRestart and heals at settle.
     }
   },

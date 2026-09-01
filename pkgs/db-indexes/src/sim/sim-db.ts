@@ -1,5 +1,6 @@
 import { assert } from '@pkgs/assert';
 import type { Clock } from '@pkgs/clock';
+import { sortByName } from '../core/compare';
 import { assertWithinLimit, LIMITS } from '../core/limits';
 import { isOwnedName, ownedIndexName } from '../core/naming';
 import { parseWithNodeSqlParser } from '../core/parse-node-sql';
@@ -126,12 +127,12 @@ export class SimDb implements DbPort {
 
   async introspectIndexes(): Promise<IndexInfo[]> {
     await this.applyFault('introspectIndexes');
-    return this.indexes.map((i) => ({ ...i }));
+    return sortByName(this.indexes.map((i) => ({ ...i })));
   }
 
   async introspectTables(): Promise<TableInfo[]> {
     await this.applyFault('introspectTables');
-    return this.tables.map((t) => ({ ...t }));
+    return sortByName(this.tables.map((t) => ({ ...t })));
   }
 
   async readIndexUsage(): Promise<UsageInfo[]> {
@@ -140,12 +141,12 @@ export class SimDb implements DbPort {
     for (const [name, scans] of this.scans) {
       out.push({ name, scans });
     }
-    return out;
+    return sortByName(out);
   }
 
   async readOwnedMeta(): Promise<OwnedMeta[]> {
     await this.applyFault('readOwnedMeta');
-    return [...this.metas.values()];
+    return sortByName([...this.metas.values()]);
   }
 
   async writeOwnedMeta(m: OwnedMeta): Promise<void> {
@@ -292,5 +293,27 @@ export class SimDb implements DbPort {
     return this.indexes
       .filter((i) => i.isOwned || isOwnedName(i.name))
       .map((i) => i.name);
+  }
+
+  /**
+   * Deep-ish fork for crash-convergence: fault-free reconcile from a snapshot.
+   * Call count resets; fault schedule cleared.
+   */
+  fork(clock: Clock = this.clock): SimDb {
+    return new SimDb({
+      clock,
+      tables: this.tables.map((t) => ({
+        name: t.name,
+        estimatedRows: t.estimatedRows,
+      })),
+      indexes: this.indexes.map((info) => ({
+        info: { ...info },
+        scans: this.scans.get(info.name) ?? 0,
+      })),
+      metas: [...this.metas.values()].map((m) => ({ ...m })),
+      improvements: new Map(this.improvements),
+      defaultImprovement: this.defaultImprovement,
+      faults: [],
+    });
   }
 }

@@ -1,12 +1,13 @@
 import { assert } from '@pkgs/assert';
 import type { Clock } from '@pkgs/clock';
 import { generateCandidates } from './candidates';
+import { compareNames } from './compare';
 import type { Config } from './config';
 import { resolveConfig } from './config';
 import { consolidateCandidates } from './consolidate';
 import { ingestManifest } from './ingest';
 import { assertWithinLimit, LIMITS } from './limits';
-import { isOwnedName } from './naming';
+import { assertIsOwnedName, isOwnedName } from './naming';
 import type {
   Candidate,
   DbPort,
@@ -70,8 +71,21 @@ function sortPlanActions(actions: PlanAction[]): void {
   actions.sort((a, b) => {
     const rk = actionKindRank(a.kind) - actionKindRank(b.kind);
     if (rk !== 0) return rk;
-    return b.priority - a.priority;
+    const pr = b.priority - a.priority;
+    if (pr !== 0) return pr;
+    const tn = compareNames(a.table, b.table);
+    if (tn !== 0) return tn;
+    return compareNames(a.name, b.name);
   });
+}
+
+function reservedIndexNames(indexes: readonly IndexInfo[]): Set<string> {
+  const names = new Set<string>();
+  for (let i = 0; i < indexes.length; i++) {
+    const ix = indexes[i]!;
+    if (ix.isUnique || ix.isPrimary) names.add(ix.name);
+  }
+  return names;
 }
 
 function pushRepairActions(
@@ -81,10 +95,6 @@ function pushRepairActions(
 ): void {
   for (let i = 0; i < ownedActual.length; i++) {
     const ix = ownedActual[i]!;
-    assert.ok(
-      !(isOwnedName(ix.name) && ix.isUnique),
-      'owned index must never be unique'
-    );
     if (!ix.isValid && isOwnedName(ix.name)) {
       actions.push({
         kind: 'repair_invalid',
@@ -101,6 +111,7 @@ function pushRepairActions(
 function pushCreateActions(args: {
   readonly desired: readonly Candidate[];
   readonly ownedActual: readonly IndexInfo[];
+  readonly reservedNames: ReadonlySet<string>;
   readonly metas: readonly OwnedMeta[];
   readonly tables: readonly TableInfo[];
   readonly actions: PlanAction[];
@@ -109,6 +120,7 @@ function pushCreateActions(args: {
 }): void {
   for (let i = 0; i < args.desired.length; i++) {
     const cand = args.desired[i]!;
+    if (args.reservedNames.has(cand.name)) continue;
     const existing = args.ownedActual.find((ix) => ix.name === cand.name);
     if (existing !== undefined && existing.isValid) {
       const m = metaFor(args.metas, cand.name);
@@ -165,6 +177,16 @@ function pushDeprecateDropActions(args: {
     const elapsed = args.now - m.deprecatedAt;
     const usageUnchanged = m.usageAtDeprecation === scans;
     if (elapsed >= windowMs && usageUnchanged) {
+      // I3: drop only when window elapsed AND usage unchanged
+      assert.ok(
+        usageUnchanged,
+        'I3: drop requires usage unchanged since deprecation'
+      );
+      assert.ok(
+        elapsed >= windowMs,
+        'I3: drop requires deprecation window elapsed'
+      );
+      assertIsOwnedName(ix.name);
       args.actions.push({
         kind: 'drop',
         name: asOwnedIndexName(ix.name),
@@ -200,12 +222,24 @@ export function diffOwnedIndexes(args: {
 
   const actions: PlanAction[] = [];
   const kept: string[] = [];
+  const reservedNames = reservedIndexNames(indexes);
+  // Unique / PK never enter owned planning — even if the name matches autoidx_*.
   const ownedActual = indexes.filter(
-    (ix) => ix.isOwned || isOwnedName(ix.name)
+    (ix) =>
+      (ix.isOwned || isOwnedName(ix.name)) && !reservedNames.has(ix.name)
   );
 
   pushRepairActions(ownedActual, actions, config);
-  pushCreateActions(desired, ownedActual, metas, tables, actions, kept, config);
+  pushCreateActions({
+    desired,
+    ownedActual,
+    reservedNames,
+    metas,
+    tables,
+    actions,
+    kept,
+    config,
+  });
   pushDeprecateDropActions({
     ownedActual,
     desiredByName,
@@ -218,6 +252,19 @@ export function diffOwnedIndexes(args: {
 
   assertWithinLimit(actions.length, LIMITS.maxPlanActions, 'plan actions');
   sortPlanActions(actions);
+  // I1: every planned action targets an owned non-unique name
+  for (let i = 0; i < actions.length; i++) {
+    const a = actions[i]!;
+    assertIsOwnedName(a.name);
+    assert.ok(
+      !a.name.startsWith('ix_') && !a.name.startsWith('ux_'),
+      'I1: plan must never target db-schema ix_/ux_ indexes'
+    );
+    assert.ok(
+      !reservedNames.has(a.name),
+      'I1: plan must never target unique/PK indexes'
+    );
+  }
   return { actions, kept };
 }
 
@@ -281,7 +328,7 @@ export async function planIndexes(args: {
     stmts.push(stmt);
   }
 
-  allCandidates.sort((a, b) => a.name.localeCompare(b.name));
+  allCandidates.sort((a, b) => compareNames(a.name, b.name));
 
   const evals = await args.db.evaluateCandidates(stmts, allCandidates);
   const consolidated = consolidateCandidates(

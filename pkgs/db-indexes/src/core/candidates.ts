@@ -140,11 +140,16 @@ export function generateCandidates(
     if (out.length >= LIMITS.maxCandidatesPerStatement) break;
     const path = parsed.paths[i]!;
     assert.ok(path.table.length > 0, 'path.table required');
+    const columns = buildKeyColumns(path);
     const cand = candidateFromPath(path, args);
     if (cand === null) {
+      const reason = columns.length === 0 ? 'empty_key' : 'pk_only';
       skipped.push({
-        reason: 'pk_only',
-        detail: `path on ${path.table} is pk-only or empty`,
+        reason,
+        detail:
+          reason === 'empty_key'
+            ? `path on ${path.table} has empty key`
+            : `path on ${path.table} is pk-only`,
         queryName: args.queryName,
         statementIndex: args.statementIndex,
       });

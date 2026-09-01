@@ -70,53 +70,56 @@ async function refreshUsageHolds(
   return usage;
 }
 
-async function applyMetaAction(
-  db: DbPort,
-  clock: Clock,
-  action: PlanAction,
-  usage: readonly UsageInfo[],
-  state: ExecState
-): Promise<boolean> {
-  if (action.kind === 'deprecate') {
-    const u = usage.find((x) => x.name === action.name);
-    await db.writeOwnedMeta({
-      name: asOwnedIndexName(action.name),
-      deprecatedAt: clock.now(),
+async function applyMetaAction(args: {
+  readonly db: DbPort;
+  readonly clock: Clock;
+  readonly action: PlanAction;
+  readonly usage: readonly UsageInfo[];
+  readonly state: ExecState;
+}): Promise<boolean> {
+  if (args.action.kind === 'deprecate') {
+    const u = args.usage.find((x) => x.name === args.action.name);
+    await args.db.writeOwnedMeta({
+      name: asOwnedIndexName(args.action.name),
+      deprecatedAt: args.clock.now(),
       usageAtDeprecation: u?.scans ?? 0,
-      payload: JSON.stringify({ deprecatedAt: clock.now() }),
+      payload: JSON.stringify({ deprecatedAt: args.clock.now() }),
     });
-    state.completed.push(action);
+    args.state.completed.push(args.action);
     return true;
   }
-  if (action.kind === 'clear_deprecation') {
-    await db.writeOwnedMeta({
-      name: asOwnedIndexName(action.name),
+  if (args.action.kind === 'clear_deprecation') {
+    await args.db.writeOwnedMeta({
+      name: asOwnedIndexName(args.action.name),
       deprecatedAt: null,
       usageAtDeprecation: null,
       payload: '{}',
     });
-    state.completed.push(action);
+    args.state.completed.push(args.action);
     return true;
   }
   return false;
 }
 
-async function applyExecuteResult(
-  db: DbPort,
-  action: PlanAction,
-  result: Awaited<ReturnType<DbPort['execute']>>,
-  state: ExecState,
-  actions: readonly PlanAction[],
-  index: number
-): Promise<'continue' | 'break'> {
-  if (result.status === 'ok') {
-    state.completed.push(action);
-    if (action.kind === 'create' || action.kind === 'repair_invalid') {
-      state.builds += 1;
+async function applyExecuteResult(args: {
+  readonly db: DbPort;
+  readonly action: PlanAction;
+  readonly result: Awaited<ReturnType<DbPort['execute']>>;
+  readonly state: ExecState;
+  readonly actions: readonly PlanAction[];
+  readonly index: number;
+}): Promise<'continue' | 'break'> {
+  if (args.result.status === 'ok') {
+    args.state.completed.push(args.action);
+    if (
+      args.action.kind === 'create' ||
+      args.action.kind === 'repair_invalid'
+    ) {
+      args.state.builds += 1;
     }
-    if (action.kind === 'drop') {
-      await db.writeOwnedMeta({
-        name: asOwnedIndexName(action.name),
+    if (args.action.kind === 'drop') {
+      await args.db.writeOwnedMeta({
+        name: asOwnedIndexName(args.action.name),
         deprecatedAt: null,
         usageAtDeprecation: null,
         payload: '',
@@ -124,18 +127,23 @@ async function applyExecuteResult(
     }
     return 'continue';
   }
-  if (result.status === 'deferred') {
-    state.deferred.push(action);
-    state.notes.push(`deferred ${action.name}: ${result.reason ?? 'unknown'}`);
+  if (args.result.status === 'deferred') {
+    args.state.deferred.push(args.action);
+    args.state.notes.push(
+      `deferred ${args.action.name}: ${args.result.reason ?? 'unknown'}`
+    );
     return 'continue';
   }
-  if (result.status === 'crashed') {
-    state.remaining.push(action);
-    appendTail(state.remaining, actions, index + 1);
-    state.notes.push(`crashed on ${action.name}`);
+  if (args.result.status === 'crashed') {
+    args.state.remaining.push(args.action);
+    appendTail(args.state.remaining, args.actions, args.index + 1);
+    args.state.notes.push(`crashed on ${args.action.name}`);
     return 'break';
   }
-  state.failed.push({ action, reason: result.reason ?? 'failed' });
+  args.state.failed.push({
+    action: args.action,
+    reason: args.result.reason ?? 'failed',
+  });
   return 'continue';
 }
 
@@ -167,19 +175,27 @@ async function runPlanActions(args: {
       return;
     }
 
-    if (await applyMetaAction(args.db, args.clock, action, args.usage, args.state)) {
+    if (
+      await applyMetaAction({
+        db: args.db,
+        clock: args.clock,
+        action,
+        usage: args.usage,
+        state: args.state,
+      })
+    ) {
       continue;
     }
 
     const result = await args.db.execute(action, args.deadline);
-    const next = await applyExecuteResult(
-      args.db,
+    const next = await applyExecuteResult({
+      db: args.db,
       action,
       result,
-      args.state,
-      args.actions,
-      i
-    );
+      state: args.state,
+      actions: args.actions,
+      index: i,
+    });
     if (next === 'break') return;
   }
 }

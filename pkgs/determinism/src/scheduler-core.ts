@@ -130,39 +130,63 @@ export async function fireDueEvents(ctx: DrainContext): Promise<number> {
   return steps;
 }
 
+/**
+ * Max macrotask probes before advancing virtual time to unblock tasks that
+ * await a future sim timer. High enough that multi-hop wall I/O (SQLite,
+ * Promise chains via setImmediate) finishes at the *same* virtual `now` on
+ * record and replay — advancing while that work is still pending makes
+ * `scheduleAfter` deadlines drift and breaks SimTrace replay.
+ */
+const MAX_WALL_SPINS_BEFORE_ADVANCE = 64;
+
+function throwIfInFlightError(ctx: DrainContext): void {
+  const err = firstInFlightError(ctx);
+  if (err !== undefined) throw err;
+}
+
+function inFlightPending(ctx: DrainContext): boolean {
+  return ctx.inFlight.some((t) => !t.settled);
+}
+
+/**
+ * Give unsettled tasks wall-clock macrotask turns (and fire any newly due
+ * sim events they schedule) before the drain advances virtual time.
+ * @returns true when no in-flight work remains
+ */
+async function drainInFlightWallWork(ctx: DrainContext): Promise<boolean> {
+  let spins = 0;
+  for (;;) {
+    pruneInFlight(ctx);
+    throwIfInFlightError(ctx);
+    if (!inFlightPending(ctx)) return true;
+
+    const due = dueAt(ctx.heap, ctx.clock.now());
+    if (due.length > 0) {
+      await fireOneDue(ctx);
+      spins = 0;
+      continue;
+    }
+
+    if (spins >= MAX_WALL_SPINS_BEFORE_ADVANCE) return false;
+    await waitQuiescence();
+    spins += 1;
+  }
+}
+
 async function settleOrDeadlock(
   ctx: DrainContext,
   end?: number
 ): Promise<void> {
   for (;;) {
-    pruneInFlight(ctx);
-    const err = firstInFlightError(ctx);
-    if (err !== undefined) throw err;
-    if (ctx.inFlight.every((t) => t.settled) || ctx.inFlight.length === 0) {
-      return;
-    }
-    const now = ctx.clock.now();
-    const due = dueAt(ctx.heap, now);
-    if (due.length > 0) {
-      await fireOneDue(ctx);
-      continue;
-    }
+    const settled = await drainInFlightWallWork(ctx);
+    if (settled) return;
+
     if (ctx.heap.length === 0) {
-      await waitQuiescence();
-      pruneInFlight(ctx);
-      if (ctx.inFlight.some((t) => !t.settled)) {
-        throw new Error(deadlockMessage(ctx));
-      }
-      return;
+      throw new Error(deadlockMessage(ctx));
     }
     const nextAt = ctx.heap[0]!.at;
     if (end !== undefined && nextAt > end) {
-      await waitQuiescence();
-      pruneInFlight(ctx);
-      if (ctx.inFlight.some((t) => !t.settled)) {
-        throw new Error(deadlockMessage(ctx));
-      }
-      return;
+      throw new Error(deadlockMessage(ctx));
     }
     ctx.clock.set(nextAt);
     await fireOneDue(ctx);
@@ -176,7 +200,7 @@ export async function runForDuration(
   const end = ctx.clock.now() + Math.max(0, durationMs);
   for (;;) {
     await fireDueEvents(ctx);
-    if (ctx.inFlight.some((t) => !t.settled)) {
+    if (inFlightPending(ctx)) {
       await settleOrDeadlock(ctx, end);
     }
     if (ctx.heap.length === 0) {
@@ -210,12 +234,8 @@ export async function runUntilIdleHeap(
     });
     pruneInFlight(ctx);
     if (ctx.heap.length === 0) {
-      if (ctx.inFlight.some((t) => !t.settled)) {
-        await waitQuiescence();
-        pruneInFlight(ctx);
-        if (ctx.inFlight.some((t) => !t.settled) && ctx.heap.length === 0) {
-          throw new Error(deadlockMessage(ctx));
-        }
+      if (inFlightPending(ctx)) {
+        await settleOrDeadlock(ctx);
         idleRounds = 0;
         continue;
       }
@@ -226,8 +246,14 @@ export async function runUntilIdleHeap(
       continue;
     }
     idleRounds = 0;
-    advanceToNextDue(ctx.heap, ctx.clock);
     steps += await fireDueEvents(ctx);
+    if (inFlightPending(ctx)) {
+      await settleOrDeadlock(ctx);
+      continue;
+    }
+    if (ctx.heap.length > 0 && ctx.heap[0]!.at > ctx.clock.now()) {
+      advanceToNextDue(ctx.heap, ctx.clock);
+    }
   }
 }
 
@@ -245,7 +271,7 @@ export async function runUntilPred(args: {
   const maxVirtualMs = opts?.maxVirtualMs ?? 86_400_000;
   const start = ctx.clock.now();
   let steps = 0;
-  while (ctx.heap.length > 0 || ctx.inFlight.some((t) => !t.settled)) {
+  while (ctx.heap.length > 0 || inFlightPending(ctx)) {
     if (
       !withinRunUntilBudget({
         steps,
@@ -257,13 +283,17 @@ export async function runUntilPred(args: {
     ) {
       return false;
     }
-    if (ctx.heap.length === 0) {
-      await settleOrDeadlock(ctx);
-      return await pred();
-    }
-    advanceToNextDue(ctx.heap, ctx.clock);
     steps += await fireDueEvents(ctx);
     if (await pred()) return true;
+    if (inFlightPending(ctx)) {
+      await settleOrDeadlock(ctx);
+      if (await pred()) return true;
+      continue;
+    }
+    if (ctx.heap.length === 0) return await pred();
+    if (ctx.heap[0]!.at > ctx.clock.now()) {
+      advanceToNextDue(ctx.heap, ctx.clock);
+    }
   }
   return await pred();
 }

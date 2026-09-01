@@ -42,6 +42,29 @@ describe('SimScheduler contract', () => {
     expect(aDone).toBe(true);
   });
 
+  test('runUntil does not advance clock while wall I/O still pending', async () => {
+    const clock = createSimClock(0);
+    const sched = createSimScheduler(clock);
+    let scheduledAt = -1;
+    let done = false;
+    sched.scheduleAt(0, async () => {
+      // Two macrotask hops before scheduleAfter — quiescence wins first.
+      await new Promise<void>((r) => {
+        setImmediate(r);
+      });
+      await new Promise<void>((r) => {
+        setImmediate(r);
+      });
+      sched.scheduleAfter(5_000, () => {});
+      scheduledAt = clock.now();
+      done = true;
+    });
+    sched.scheduleAt(100, () => {});
+    const ok = await sched.runUntil(() => done, { maxVirtualMs: 10_000 });
+    expect(ok).toBe(true);
+    expect(scheduledAt).toBe(0);
+  });
+
   test('seeded same-at pick is deterministic per seed', async () => {
     const run = async (seed: number) => {
       const deps = createSimDeps({ seed });

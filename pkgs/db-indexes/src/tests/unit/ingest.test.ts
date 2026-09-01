@@ -41,6 +41,28 @@ describe('ingest', () => {
     );
   });
 
+  test('bad fingerprint is skipped, not thrown', () => {
+    const sql = 'SELECT id FROM notes WHERE user_id = ?';
+    const result = ingestManifest({
+      version: 1,
+      queries: [
+        {
+          name: 'bad',
+          hydrates: ['notes'],
+          statements: [
+            { index: 0, sql, fingerprint: 'deadbeef', weight: 1 },
+            { index: 1, sql, fingerprint: '0'.repeat(64), weight: 1 },
+          ],
+        },
+      ],
+    });
+    expect(result.statements.length).toBe(0);
+    expect(
+      result.skipped.every((s) => s.reason === 'fingerprint_divergence')
+    ).toBe(true);
+    expect(result.skipped.length).toBe(2);
+  });
+
   test('exceeding maxStatements throws at boundary', () => {
     const queries: WorkloadManifest['queries'][number][] = [];
     for (let i = 0; i < LIMITS.maxStatements + 1; i++) {
