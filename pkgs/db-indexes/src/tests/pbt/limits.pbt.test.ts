@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { fingerprintSql } from '../../core/fingerprint';
-import { LimitExceededError, LIMITS } from '../../core/limits';
 import { ingestManifest } from '../../core/ingest';
+import { LIMITS, LimitExceededError } from '../../core/limits';
 
 describe('limits PBT', () => {
   test('over-limit statements throws LimitExceededError with zero partial', () => {

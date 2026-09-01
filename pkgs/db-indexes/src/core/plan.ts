@@ -225,8 +225,7 @@ export function diffOwnedIndexes(args: {
   const reservedNames = reservedIndexNames(indexes);
   // Unique / PK never enter owned planning — even if the name matches autoidx_*.
   const ownedActual = indexes.filter(
-    (ix) =>
-      (ix.isOwned || isOwnedName(ix.name)) && !reservedNames.has(ix.name)
+    (ix) => (ix.isOwned || isOwnedName(ix.name)) && !reservedNames.has(ix.name)
   );
 
   pushRepairActions(ownedActual, actions, config);

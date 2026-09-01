@@ -17,6 +17,13 @@ export function execMemorySql(
     }
     return { changes: 0, lastInsertRowid: 0 };
   }
+  // defineTable uniqueIndexes / indexes emit CREATE INDEX; the map store has no indexes.
+  if (
+    /^CREATE(?: UNIQUE)? INDEX/i.test(trimmed) ||
+    /^DROP INDEX/i.test(trimmed)
+  ) {
+    return { changes: 0, lastInsertRowid: 0 };
+  }
   if (/^INSERT INTO/i.test(trimmed)) {
     return insertRow(tables, trimmed, values);
   }

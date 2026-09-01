@@ -1,12 +1,12 @@
-export { genDbState, type GenDbState } from './db-state';
+export { type GenDbState, genDbState } from './db-state';
 export { genEvalResponses, genMinImprovementFactor } from './evals';
 export {
+  type FaultScheduleItem,
   genFaultSchedule,
   toSimFaults,
-  type FaultScheduleItem,
 } from './faults';
 export { genManifest, genSmallManifest } from './manifest';
-export { genSchema, type GenSchema, type GenTable } from './schema';
+export { type GenSchema, type GenTable, genSchema } from './schema';
 export {
   astToAccessPath,
   genStatement,

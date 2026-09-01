@@ -29,7 +29,10 @@ const notesSchema = registerTables([
 ]);
 
 function postgresDbScope(client: SqlClient): PostgresSqlClient['dbScope'] {
-  if ('dbScope' in client && (client as PostgresSqlClient).dbScope !== undefined) {
+  if (
+    'dbScope' in client &&
+    (client as PostgresSqlClient).dbScope !== undefined
+  ) {
     return (client as PostgresSqlClient).dbScope;
   }
   return createPostgresDbScope('public');

@@ -13,9 +13,7 @@ import {
   type IndexesSystem,
 } from './types';
 
-async function settleIndexes(
-  world: World<IndexesSystem>
-): Promise<void> {
+async function settleIndexes(world: World<IndexesSystem>): Promise<void> {
   await world.idle();
   // Fault-free fixpoint: re-plan should have no creates if steady
   const state = world.state;

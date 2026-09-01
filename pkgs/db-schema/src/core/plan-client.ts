@@ -106,7 +106,10 @@ function missingChecksOrFks(
     (catalog.foreignKeys ?? []).map((f) => `${f.table}.${f.column}`)
   );
   for (const [colName, col] of Object.entries(declared.tables[tableName]!)) {
-    if (col.references !== undefined && !existingFks.has(`${tableName}.${colName}`)) {
+    if (
+      col.references !== undefined &&
+      !existingFks.has(`${tableName}.${colName}`)
+    ) {
       return true;
     }
   }
@@ -414,11 +417,7 @@ export function planClient(
   }
 
   const declaredNames = new Set(Object.keys(declared.tables));
-  const tableOps = planTableOps(
-    declared,
-    catalog,
-    classified.deprecatedExtras
-  );
+  const tableOps = planTableOps(declared, catalog, classified.deprecatedExtras);
   const ops: ClientOperation[] = [
     ...planDropUnknownTables(declaredNames, catalog, ownership),
     ...tableOps,

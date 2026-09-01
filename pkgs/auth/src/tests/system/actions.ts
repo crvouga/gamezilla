@@ -1,30 +1,31 @@
 import { type ActionArbContext, defineAction } from '@pkgs/determinism';
 import fc from 'fast-check';
-import { AUTH_SESSION_TTL_MS } from '../../shared/auth-constants';
 import {
-  dispatchDevComplete,
-  dispatchGoogleApprove,
-  dispatchGoogleStart,
+  AUTH_SESSION_TTL_MS,
+  IDP_PROVIDER_DEV,
+  IDP_PROVIDER_GOOGLE,
+} from '../../shared/auth-constants';
+import {
+  dispatchOauthApprove,
+  dispatchOauthStart,
   dispatchSessionExchange,
   dispatchSignOut,
   dispatchStealBearer,
+  type OauthProvider,
 } from './dispatch';
 import type { AuthSystem } from './types';
 
 export type AuthDomainOp =
   | {
-      readonly kind: 'devComplete';
+      readonly kind: 'oauthStart';
       readonly clientId: string;
-      readonly subject: string;
-    }
-  | {
-      readonly kind: 'googleStart';
-      readonly clientId: string;
+      readonly provider: OauthProvider;
       readonly callbackUrl: string;
     }
   | {
-      readonly kind: 'googleApprove';
+      readonly kind: 'oauthApprove';
       readonly clientId: string;
+      readonly provider: OauthProvider;
       readonly subject: string;
     }
   | { readonly kind: 'sessionExchange'; readonly clientId: string }
@@ -50,6 +51,7 @@ export type AuthAction = AuthDomainOp | AdvanceClockAction | GoogleFaultAction;
 export type AuthModel = Record<string, never>;
 
 const SUBJECTS = ['alice', 'bob', 'carol'] as const;
+const PROVIDERS = [IDP_PROVIDER_GOOGLE, IDP_PROVIDER_DEV] as const;
 const CALLBACK_URLS = [
   'http://callback.test/sso',
   'gamezilla://sso-callback',
@@ -96,57 +98,51 @@ export const setGoogleFaultAction = defineAction<
   },
 });
 
-export const devCompleteAction = defineAction<
+export const oauthStartAction = defineAction<
   AuthSystem,
-  Extract<AuthDomainOp, { kind: 'devComplete' }>,
+  Extract<AuthDomainOp, { kind: 'oauthStart' }>,
   AuthModel
 >({
-  kind: 'devComplete',
+  kind: 'oauthStart',
   class: 'domain',
   arb: (ctx) =>
     fc.record({
-      kind: fc.constant('devComplete' as const),
+      kind: fc.constant('oauthStart' as const),
       clientId: clientArb(ctx),
-      subject: fc.constantFrom(...SUBJECTS),
-    }),
-  dispatch: async (world, action) => {
-    await dispatchDevComplete(world, action.clientId, action.subject);
-  },
-});
-
-export const googleStartAction = defineAction<
-  AuthSystem,
-  Extract<AuthDomainOp, { kind: 'googleStart' }>,
-  AuthModel
->({
-  kind: 'googleStart',
-  class: 'domain',
-  arb: (ctx) =>
-    fc.record({
-      kind: fc.constant('googleStart' as const),
-      clientId: clientArb(ctx),
+      provider: fc.constantFrom(...PROVIDERS),
       callbackUrl: fc.constantFrom(...CALLBACK_URLS),
     }),
   dispatch: async (world, action) => {
-    await dispatchGoogleStart(world, action.clientId, action.callbackUrl);
+    await dispatchOauthStart(
+      world,
+      action.clientId,
+      action.provider,
+      action.callbackUrl
+    );
   },
 });
 
-export const googleApproveAction = defineAction<
+export const oauthApproveAction = defineAction<
   AuthSystem,
-  Extract<AuthDomainOp, { kind: 'googleApprove' }>,
+  Extract<AuthDomainOp, { kind: 'oauthApprove' }>,
   AuthModel
 >({
-  kind: 'googleApprove',
+  kind: 'oauthApprove',
   class: 'domain',
   arb: (ctx) =>
     fc.record({
-      kind: fc.constant('googleApprove' as const),
+      kind: fc.constant('oauthApprove' as const),
       clientId: clientArb(ctx),
+      provider: fc.constantFrom(...PROVIDERS),
       subject: fc.constantFrom(...SUBJECTS),
     }),
   dispatch: async (world, action) => {
-    await dispatchGoogleApprove(world, action.clientId, action.subject);
+    await dispatchOauthApprove(
+      world,
+      action.clientId,
+      action.provider,
+      action.subject
+    );
   },
 });
 
@@ -207,9 +203,8 @@ export const stealBearerAction = defineAction<
 export const AUTH_ACTIONS = [
   advanceClockAction,
   setGoogleFaultAction,
-  devCompleteAction,
-  googleStartAction,
-  googleApproveAction,
+  oauthStartAction,
+  oauthApproveAction,
   sessionExchangeAction,
   signOutAction,
   stealBearerAction,
@@ -222,18 +217,15 @@ export function arbAuthAction(
   const client = fc.constantFrom(...clientIds);
   return fc.oneof(
     fc.record({
-      kind: fc.constant('devComplete' as const),
+      kind: fc.constant('oauthStart' as const),
       clientId: client,
-      subject: fc.constantFrom(...SUBJECTS),
-    }),
-    fc.record({
-      kind: fc.constant('googleStart' as const),
-      clientId: client,
+      provider: fc.constantFrom(...PROVIDERS),
       callbackUrl: fc.constantFrom(...CALLBACK_URLS),
     }),
     fc.record({
-      kind: fc.constant('googleApprove' as const),
+      kind: fc.constant('oauthApprove' as const),
       clientId: client,
+      provider: fc.constantFrom(...PROVIDERS),
       subject: fc.constantFrom(...SUBJECTS),
     }),
     fc.record({

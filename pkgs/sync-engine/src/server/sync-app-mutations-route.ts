@@ -199,7 +199,7 @@ async function prepareMutationNotify(
             db: nested,
           })
         : undefined;
-    const checkpoints = await allocateTopicPushSeqs(nested, topics);
+    const checkpoints = await allocateTopicPushSeqs(nested, topics, deps.now);
     return { result, tables, rows, rowsByTopic, checkpoints };
   });
 }

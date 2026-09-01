@@ -14,6 +14,7 @@ export async function notifyClientConfigChannels(label: string): Promise<void> {
     sql: store.sqlClient,
     topics: [clientConfigTopic()],
     label,
+    now: () => store.clock.now(),
     schedulePublish: (run) => {
       store.timers.setTimeout(run, 0);
     },

@@ -110,9 +110,7 @@ describe('postgres port contract', () => {
       },
     });
     expect(
-      report.deferred.length +
-        report.remaining.length +
-        report.completed.length
+      report.deferred.length + report.remaining.length + report.completed.length
     ).toBeGreaterThanOrEqual(0);
   });
 });

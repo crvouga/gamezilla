@@ -16,8 +16,19 @@ export {
 export {
   AUTH_NETWORK_ERROR,
   AUTH_SSO_CANCELLED_ERROR,
+  AUTH_SSO_POPUP_BLOCKED_ERROR,
   type AuthClientAdapterConfig,
   createAuthClientAdapter,
   type OpenAuthSession,
   type OpenAuthSessionResult,
 } from './create-auth-client-adapter';
+export {
+  buildOauthLaunchUrl,
+  isPopupBlockedError,
+  strategyToOauthProvider,
+} from './auth-client-http';
+export {
+  createInProcessOpenAuthSession,
+  type InProcessOpenAuthSessionConfig,
+  type InProcessOpenAuthSessionFault,
+} from './in-process-open-auth-session';

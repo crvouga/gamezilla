@@ -27,13 +27,22 @@ export function otherClientsShareRawDb(
   clients: ReadonlyMap<string, SimClientHandle>,
   id: string
 ): boolean {
+  return peerClientIdsSharingRawDb(clients, id).length > 0;
+}
+
+/** Peer engines from addPeerEngine that share the donor sqlite handle. */
+export function peerClientIdsSharingRawDb(
+  clients: ReadonlyMap<string, SimClientHandle>,
+  id: string
+): readonly string[] {
   const raw = clients.get(id)?.dbBundle.raw;
-  if (raw === undefined) return false;
+  if (raw === undefined) return [];
+  const peers: string[] = [];
   for (const [otherId, other] of clients) {
     if (otherId === id) continue;
-    if (other.dbBundle.raw === raw) return true;
+    if (other.dbBundle.raw === raw) peers.push(otherId);
   }
-  return false;
+  return peers;
 }
 
 export async function crashClientImpl(

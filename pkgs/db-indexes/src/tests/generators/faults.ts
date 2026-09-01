@@ -1,8 +1,12 @@
-import type { SimFault } from '../../sim/sim-db';
 import { fc } from '@pkgs/pbt';
+import type { SimFault } from '../../sim/sim-db';
 
 export type FaultScheduleItem = {
-  readonly kind: SimFault['kind'] | 'external_add_non_owned' | 'external_add_owned_named' | 'bump_usage';
+  readonly kind:
+    | SimFault['kind']
+    | 'external_add_non_owned'
+    | 'external_add_owned_named'
+    | 'bump_usage';
   readonly onCall: number;
   readonly latencyMs?: number;
 };

@@ -8,7 +8,7 @@ import {
   openMainSqlClient,
 } from '@apps/client/storage/open-main-sql-client';
 import { WebSocketRoomTransportFactory } from '@libs/spaces/root/client/room/room-transport-factory';
-import type { AuthClientStorage } from '@pkgs/auth/client';
+import type { AuthClientStorage, OpenAuthSession } from '@pkgs/auth/client';
 import { wallClock, wallTimers } from '@pkgs/clock';
 import {
   createHealthOriginAvailability,
@@ -21,6 +21,7 @@ import { createSecureStorage } from '@pkgs/secure-storage/create';
 import { createSecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
 import { createExpoAudioPlaybackPort } from '@pkgs/sounds/audio-playback/expo-audio-playback-port';
 import * as SecureStore from 'expo-secure-store';
+import * as WebBrowser from 'expo-web-browser';
 
 import type { ClientEnv } from './client-env';
 import { setOriginAvailability } from './origin-availability-for-env';
@@ -39,6 +40,25 @@ function mintWallSeed(): bigint {
 
 function apiHealthUrl(serverUrl: string): string {
   return `${serverUrl.replace(/\/+$/, '')}/api/health`;
+}
+
+function createWallOpenAuthSession(): OpenAuthSession {
+  return async (authorizationUrl, callbackUrl) => {
+    const result = await WebBrowser.openAuthSessionAsync(
+      authorizationUrl,
+      callbackUrl
+    );
+    if (result.type === 'success') {
+      return { type: 'success', url: result.url };
+    }
+    if (result.type === 'cancel') {
+      return { type: 'cancel' };
+    }
+    if (result.type === 'dismiss') {
+      return { type: 'dismiss' };
+    }
+    return { type: 'locked' };
+  };
 }
 
 /**
@@ -92,6 +112,7 @@ export function wallClientEnv(args?: {
     observability: createNoopObservability('gamezilla-client'),
     serverUrl,
     authBaseURL: serverUrl,
+    openAuthSession: createWallOpenAuthSession(),
     resolveDatabaseName: ({ userId }) => getMainSqliteDbName(userId, createId),
     mutationSuccessHoldMs: 900,
   };

@@ -65,6 +65,7 @@ export async function drainAndNotifyOutbox(args: {
     topics,
     tables: ['notifications'],
     label: 'outbox-drain',
+    now: () => store.clock.now(),
   });
   return result.processed;
 }

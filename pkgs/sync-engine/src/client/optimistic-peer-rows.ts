@@ -36,7 +36,14 @@ export async function recordOptimisticPeerRows(
       const chunk = ids.slice(offset, offset + maxRows);
       const data = chunk.map(
         (id) =>
-          [optimisticPeerRowId(table, id), table, id, nowIso, nowIso, null] as const
+          [
+            optimisticPeerRowId(table, id),
+            table,
+            id,
+            nowIso,
+            nowIso,
+            null,
+          ] as const
       );
       await tx.run(sql`
         INSERT INTO ${ident(SYNC_ENGINE_OPTIMISTIC_PEER_ROWS)} (

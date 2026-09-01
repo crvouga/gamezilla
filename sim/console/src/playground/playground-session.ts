@@ -113,6 +113,7 @@ async function runPlaygroundCommand(
           pubsub: publishPeer,
           sql: buildArgs.sim.serverSql.sqlClient,
           topics: wake.topics as Topic[],
+          now: () => buildArgs.sim.clock.now(),
           ...(wake.tables !== undefined && wake.tables.length > 0
             ? { tables: wake.tables }
             : {}),

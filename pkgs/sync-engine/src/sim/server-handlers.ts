@@ -161,7 +161,11 @@ async function notifyApplied(args: {
           db: args.ctx.db,
         })
       : undefined;
-  const checkpoints = await allocateTopicPushSeqs(args.ctx.db, topics);
+  const checkpoints = await allocateTopicPushSeqs(
+    args.ctx.db,
+    topics,
+    args.ctx.now
+  );
   if (args.ctx.shouldFailPublish?.() === true) {
     return checkpoints;
   }

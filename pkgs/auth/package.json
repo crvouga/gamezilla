@@ -21,7 +21,8 @@
   },
   "scripts": {
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test"
+    "test": "bun test src",
+    "test:e2e": "playwright test -c ./e2e/playwright.config.mjs"
   },
   "dependencies": {
     "@noble/hashes": "catalog:",
@@ -40,6 +41,7 @@
   },
   "devDependencies": {
     "@pkgs/pbt": "workspace:*",
+    "@playwright/test": "catalog:",
     "@types/bun": "catalog:",
     "@types/react": "catalog:",
     "@typescript/native": "catalog:",

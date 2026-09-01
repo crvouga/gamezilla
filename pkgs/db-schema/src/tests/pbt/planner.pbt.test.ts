@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
 import { assertProperty } from '@pkgs/pbt';
-import { emptyCatalog } from '../../test/fixtures';
-import { planClient, planServer } from '../../core/plan';
 import { SERVER_OPERATION_KINDS } from '../../core/operations';
+import { planClient, planServer } from '../../core/plan';
+import { emptyCatalog } from '../../test/fixtures';
 import { arbSchema, fc } from '../generators';
 
 const FRESH_KINDS = new Set([

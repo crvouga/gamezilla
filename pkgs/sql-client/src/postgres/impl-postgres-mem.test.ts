@@ -47,14 +47,18 @@ describe('SqlClientImplPostgresMem lifecycle', () => {
     await alice.run(
       sql<void>`INSERT INTO t (id, name) VALUES (${'1'}, ${'alice'})`
     );
-    await bob.run(sql<void>`INSERT INTO t (id, name) VALUES (${'1'}, ${'bob'})`);
+    await bob.run(
+      sql<void>`INSERT INTO t (id, name) VALUES (${'1'}, ${'bob'})`
+    );
     expect(
       await alice.query(
         raw<{ id: string; name: string }>('SELECT id, name FROM t')
       )
     ).toEqual([{ id: '1', name: 'alice' }]);
     expect(
-      await bob.query(raw<{ id: string; name: string }>('SELECT id, name FROM t'))
+      await bob.query(
+        raw<{ id: string; name: string }>('SELECT id, name FROM t')
+      )
     ).toEqual([{ id: '1', name: 'bob' }]);
   });
 
@@ -144,9 +148,9 @@ describe('SqlClientImplPostgresMem lifecycle', () => {
 
     const dest = await openMem();
     dest.importDatabaseBytes(bytes);
-    expect(
-      await dest.query(raw<{ id: string }>('SELECT id FROM t'))
-    ).toEqual([{ id: '7' }]);
+    expect(await dest.query(raw<{ id: string }>('SELECT id FROM t'))).toEqual([
+      { id: '7' },
+    ]);
   });
 
   test('json_extract shim works', async () => {

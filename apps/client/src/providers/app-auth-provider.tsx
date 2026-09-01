@@ -1,9 +1,12 @@
 import { useClientEnv } from '@apps/client/product/client-env-provider';
 import { AuthClientProvider } from '@libs/auth/public/auth-client-provider';
 import { AuthBridge } from '@libs/auth/root/client/auth-bridge';
-import { createAuthClientAdapter } from '@pkgs/auth/client';
+import {
+  AUTH_SSO_POPUP_BLOCKED_ERROR,
+  createAuthClientAdapter,
+  isPopupBlockedError,
+} from '@pkgs/auth/client';
 import { ComposeProviders } from '@pkgs/ui';
-import * as WebBrowser from 'expo-web-browser';
 import { type ReactNode, useMemo } from 'react';
 import { AppApiClient } from './auth/api-client';
 
@@ -16,22 +19,7 @@ function AuthStack({ children }: { children: ReactNode }): ReactNode {
         timers: env.timers,
         fetch: (input, init) => env.server(input, init),
         storage: env.authStorage,
-        openAuthSession: async (authorizationUrl, callbackUrl) => {
-          const result = await WebBrowser.openAuthSessionAsync(
-            authorizationUrl,
-            callbackUrl
-          );
-          if (result.type === 'success') {
-            return { type: 'success', url: result.url };
-          }
-          if (result.type === 'cancel') {
-            return { type: 'cancel' };
-          }
-          if (result.type === 'dismiss') {
-            return { type: 'dismiss' };
-          }
-          return { type: 'locked' };
-        },
+        openAuthSession: env.openAuthSession,
         callbackUrl: 'gamezilla://sso-callback',
       }),
     [env]
@@ -50,3 +38,5 @@ export function AppAuthProvider({
     <ComposeProviders providers={authProviders}>{children}</ComposeProviders>
   );
 }
+
+export { AUTH_SSO_POPUP_BLOCKED_ERROR, isPopupBlockedError };

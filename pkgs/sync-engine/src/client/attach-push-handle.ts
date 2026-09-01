@@ -15,6 +15,7 @@ import { applyRowImages } from './merge';
 import {
   compareCheckpoint,
   isContiguousNext,
+  type PushAppliedClock,
   readLastPushSeq,
   recordPushApplied,
 } from './push-applied';
@@ -94,7 +95,8 @@ async function tryApplyFanoutRows(
   const getMergeDeps = bag.options.getMergeDeps;
   if (getMergeDeps === undefined) return false;
 
-  const last = await readLastPushSeq(bag.options.db, topic);
+  const clock: PushAppliedClock = { now: bag.options.now };
+  const last = await readLastPushSeq(bag.options.db, topic, clock);
   if (!isContiguousNext(last, payload.pushSeq)) return false;
 
   try {
@@ -102,7 +104,7 @@ async function tryApplyFanoutRows(
       getMergeDeps(),
       capped as Record<string, readonly QueryRow[]>
     );
-    await recordPushApplied(bag.options.db, topic, payload.pushSeq);
+    await recordPushApplied(bag.options.db, topic, payload.pushSeq, clock);
     return true;
   } catch (error) {
     warnPush('[push] row fanout apply failed; falling back', topic, error);
@@ -110,32 +112,9 @@ async function tryApplyFanoutRows(
   }
 }
 
-async function tryApplyExactEcho(
-  bag: PushBag,
-  topic: Topic,
-  payload: PushMessage,
-  lastPushSeq: string
-): Promise<boolean> {
-  if (
-    compareCheckpoint(payload.pushSeq, lastPushSeq) !== 0 ||
-    payload.rows === undefined ||
-    bag.options.rowImageFanout !== true ||
-    bag.options.getMergeDeps === undefined
-  ) {
-    return false;
-  }
-  const capped = rowsWithinReceiveCap(payload.rows);
-  if (capped === undefined) return false;
-  try {
-    await applyRowImages(
-      bag.options.getMergeDeps(),
-      capped as Record<string, readonly QueryRow[]>
-    );
-    return true;
-  } catch (error) {
-    warnPush('[push] echo fanout apply failed; falling back', topic, error);
-    return false;
-  }
+/** pushSeq already recorded (fanout apply or upload ack floor) — consume without re-applying rows. */
+function isDuplicatePushSeq(lastPushSeq: string, pushSeq: string): boolean {
+  return compareCheckpoint(pushSeq, lastPushSeq) === 0;
 }
 
 function wakeRefetch(
@@ -165,8 +144,9 @@ export async function handlePush(
   if (await tryApplyOptimisticRows(bag, topic, payload)) return;
 
   let lastPushSeq: string | null;
+  const clock: PushAppliedClock = { now: bag.options.now };
   try {
-    lastPushSeq = await readLastPushSeq(bag.options.db, topic);
+    lastPushSeq = await readLastPushSeq(bag.options.db, topic, clock);
   } catch (error) {
     warnPush('[push] pushSeq check failed', topic, error);
     return;
@@ -174,7 +154,7 @@ export async function handlePush(
 
   if (
     lastPushSeq !== null &&
-    (await tryApplyExactEcho(bag, topic, payload, lastPushSeq))
+    isDuplicatePushSeq(lastPushSeq, payload.pushSeq)
   ) {
     return;
   }
@@ -212,7 +192,9 @@ export async function commitPendingPushSeqs(
     }
     if (!overlap) continue;
     try {
-      await recordPushApplied(bag.options.db, topic, pushSeq);
+      await recordPushApplied(bag.options.db, topic, pushSeq, {
+        now: bag.options.now,
+      });
     } catch (error) {
       warnPush('[push] recordPushApplied failed', topic, error);
     }

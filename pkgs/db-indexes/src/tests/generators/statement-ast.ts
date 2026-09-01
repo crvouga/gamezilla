@@ -41,51 +41,46 @@ export function genStatement(
   schema: GenSchema
 ): fc.Arbitrary<{ readonly ast: StatementAst; readonly sql: string }> {
   assert.ok(schema.tables.length > 0, 'schema tables required');
-  return fc
-    .integer({ min: 0, max: schema.tables.length - 1 })
-    .chain((ti) => {
-      const table = schema.tables[ti]!;
-      const cols = nonIdCols(table);
-      return fc
-        .tuple(
-          fc.integer({ min: 0, max: Math.min(3, cols.length) }),
-          fc.integer({ min: 0, max: Math.min(2, cols.length) }),
-          fc.integer({ min: 0, max: Math.min(2, cols.length) }),
-          fc.boolean(),
-          fc.boolean(),
-          fc.boolean()
-        )
-        .map(([eqN, rangeN, orderN, softDelete, orBranches, useIn]) => {
-          // Deterministic pick from seeded shuffle via sorted slice for shrink
-          const equality = cols.slice(0, eqN);
-          const rest = cols.slice(eqN);
-          const range = rest.slice(0, rangeN);
-          const orderBy = rest.slice(rangeN, rangeN + orderN);
-          const inCols = useIn && rest.length > 0 ? [rest[0]!] : [];
-          const selectList = ['id', ...equality.slice(0, 2)];
-          const ast: StatementAst = {
-            table: table.name,
-            equality,
-            range,
-            inCols,
-            orderBy,
-            selectList,
-            softDelete,
-            orBranches: orBranches && equality.length >= 2,
-          };
-          return { ast, sql: renderSql(ast) };
-        });
-    });
+  return fc.integer({ min: 0, max: schema.tables.length - 1 }).chain((ti) => {
+    const table = schema.tables[ti]!;
+    const cols = nonIdCols(table);
+    return fc
+      .tuple(
+        fc.integer({ min: 0, max: Math.min(3, cols.length) }),
+        fc.integer({ min: 0, max: Math.min(2, cols.length) }),
+        fc.integer({ min: 0, max: Math.min(2, cols.length) }),
+        fc.boolean(),
+        fc.boolean(),
+        fc.boolean()
+      )
+      .map(([eqN, rangeN, orderN, softDelete, orBranches, useIn]) => {
+        // Deterministic pick from seeded shuffle via sorted slice for shrink
+        const equality = cols.slice(0, eqN);
+        const rest = cols.slice(eqN);
+        const range = rest.slice(0, rangeN);
+        const orderBy = rest.slice(rangeN, rangeN + orderN);
+        const inCols = useIn && rest.length > 0 ? [rest[0]!] : [];
+        const selectList = ['id', ...equality.slice(0, 2)];
+        const ast: StatementAst = {
+          table: table.name,
+          equality,
+          range,
+          inCols,
+          orderBy,
+          selectList,
+          softDelete,
+          orBranches: orBranches && equality.length >= 2,
+        };
+        return { ast, sql: renderSql(ast) };
+      });
+  });
 }
 
 export function renderSql(ast: StatementAst): string {
-  const select =
-    ast.selectList.length > 0 ? ast.selectList.join(', ') : 'id';
+  const select = ast.selectList.length > 0 ? ast.selectList.join(', ') : 'id';
   const whereParts: string[] = [];
   if (ast.orBranches && ast.equality.length >= 2) {
-    whereParts.push(
-      `(${ast.equality[0]} = ? OR ${ast.equality[1]} = ?)`
-    );
+    whereParts.push(`(${ast.equality[0]} = ? OR ${ast.equality[1]} = ?)`);
   } else {
     for (let i = 0; i < ast.equality.length; i++) {
       whereParts.push(`${ast.equality[i]} = ?`);
@@ -103,9 +98,7 @@ export function renderSql(ast: StatementAst): string {
   const where =
     whereParts.length > 0 ? ` WHERE ${whereParts.join(' AND ')}` : '';
   const order =
-    ast.orderBy.length > 0
-      ? ` ORDER BY ${ast.orderBy.join(', ')}`
-      : '';
+    ast.orderBy.length > 0 ? ` ORDER BY ${ast.orderBy.join(', ')}` : '';
   return `SELECT ${select} FROM ${ast.table}${where}${order}`;
 }
 

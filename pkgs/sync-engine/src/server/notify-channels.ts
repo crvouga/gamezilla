@@ -17,6 +17,7 @@ export type NotifyChannelsOptions = {
   readonly rows?: Readonly<Record<string, readonly QueryRow[]>>;
   /** Included in warn logs when publish fails. */
   readonly label?: string;
+  readonly now: () => number;
   /**
    * When set, publish runs on this scheduler after allocate. Use a macrotask
    * (`timers.setTimeout(run, 0)`) so in-memory pubsub does not re-enter the
@@ -37,7 +38,11 @@ export async function notifyChannels(
 ): Promise<void> {
   const label = options.label ?? 'notifyChannels';
   try {
-    const pushSeqs = await allocateTopicPushSeqs(options.sql, options.topics);
+    const pushSeqs = await allocateTopicPushSeqs(
+      options.sql,
+      options.topics,
+      options.now
+    );
     const publish = (): void => {
       publishPushMessages({
         pubsub: options.pubsub,

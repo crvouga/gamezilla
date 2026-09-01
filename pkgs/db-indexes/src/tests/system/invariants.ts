@@ -1,12 +1,12 @@
+import type { InvariantViolation } from '@pkgs/determinism';
 import { fingerprintSql } from '../../core/fingerprint';
-import type { WorkloadManifest } from '../../core/types';
 import { isOwnedName } from '../../core/naming';
+import type { WorkloadManifest } from '../../core/types';
 import {
   checkInvariantsAsync,
   type InvariantViolation as HarnessViolation,
 } from '../../sim/harness';
 import type { IndexesSystem } from './types';
-import type { InvariantViolation } from '@pkgs/determinism';
 
 export async function checkIndexesInvariants(
   state: IndexesSystem
@@ -38,16 +38,11 @@ export async function checkIndexesInvariants(
   return null;
 }
 
-export function harnessToDeterminism(
-  v: HarnessViolation
-): InvariantViolation {
+export function harnessToDeterminism(v: HarnessViolation): InvariantViolation {
   return { invariant: v.id, detail: v.detail };
 }
 
-export function manifestForCol(
-  table: string,
-  col: string
-): WorkloadManifest {
+export function manifestForCol(table: string, col: string): WorkloadManifest {
   const sql = `SELECT id FROM ${table} WHERE ${col} = ?`;
   return {
     version: 1,

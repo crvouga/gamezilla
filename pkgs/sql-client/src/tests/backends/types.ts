@@ -12,7 +12,6 @@ export type BackendKind =
   | 'pg-client'
   | 'bun-postgres';
 
-
 export type MatrixBackend = {
   readonly kind: BackendKind;
   readonly name: string;

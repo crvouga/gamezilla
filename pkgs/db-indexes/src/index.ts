@@ -2,9 +2,9 @@ export type { Config } from './core/config';
 export { DEFAULT_CONFIG, resolveConfig } from './core/config';
 export { fingerprintSql, normalizeSql } from './core/fingerprint';
 export {
+  type AnalyzeIndexabilityArgs,
   analyzeIndexability,
   assertIndexableWorkload,
-  type AnalyzeIndexabilityArgs,
   type IndexabilityGap,
   type IndexabilityGapReason,
   type IndexabilityReport,
@@ -26,8 +26,8 @@ export {
   isPkOnlyPath,
   pathKeyColumns,
   pkSchemaIndexes,
-  schemaCoversPath,
   type SchemaIndex,
+  schemaCoversPath,
 } from './core/schema-coverage';
 export type {
   AccessPath,

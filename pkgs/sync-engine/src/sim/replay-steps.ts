@@ -1,23 +1,7 @@
 import { DST_FAULTS, RELIABLE_FAULTS, sampleFaultOptions } from './faults';
 import { isDbOpen } from './invariants';
 import type { SyncSystemFacade } from './system';
-
-async function restartClientWithRetry(
-  world: SyncSystemFacade,
-  id: string
-): Promise<void> {
-  for (let attempt = 0; attempt < 3; attempt += 1) {
-    try {
-      await world.node(id).restart({ preserveLocalDb: true });
-      return;
-    } catch (error) {
-      if (error instanceof Error && error.message === 'sim: fail next open') {
-        continue;
-      }
-      throw error;
-    }
-  }
-}
+import { restartClientWithRetry } from './system/replay-step';
 
 /** Add N clients and optionally enable DST / sampled network faults. */
 export async function bootClients(args: {

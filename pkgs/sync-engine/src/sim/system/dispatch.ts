@@ -111,8 +111,9 @@ const LIBRARY_HANDLERS: {
   restart: async (world, action, _app) => {
     try {
       await world.node(action.clientId).restart();
-    } catch {
-      // No meta yet (should not happen for boot clients).
+    } catch (error) {
+      if (!isExpectedRestartFault(error)) throw error;
+      // Client removed mid-restart; replay tracks needsRestart and heals at settle.
     }
   },
   hold: async (world, action, _app) => {
@@ -167,6 +168,12 @@ const LIBRARY_HANDLERS: {
   },
   auth: async (world, action, _app) => {
     world.node(action.clientId).auth(action.status);
+    if (action.status === 'revoked') {
+      const client = world.clients.get(action.clientId);
+      if (client !== undefined) {
+        await client.disconnect();
+      }
+    }
   },
   clearLocalData: async (world, action, _app) => {
     const client = world.clients.get(action.clientId);

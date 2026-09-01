@@ -1,3 +1,4 @@
+import { peerClientIdsSharingRawDb } from '../world-lifecycle';
 import type { SyncAction } from './actions';
 import type { SyncApp } from './app';
 import { dispatchSyncAction } from './dispatch';
@@ -18,6 +19,33 @@ async function ensureServerUp(world: SystemWorldSurface): Promise<void> {
   }
 }
 
+/** Injected sim faults that tear the client down mid-restart; heal retries. */
+function isExpectedRestartFault(error: unknown): boolean {
+  const msg = error instanceof Error ? error.message : String(error);
+  return (
+    msg.includes('crash during epoch migrate') || msg === 'sim: fail next open'
+  );
+}
+
+/** Remake a client; retry once when failNextOpen / epoch-migrate arms fire. */
+export async function restartClientWithRetry(
+  world: SystemWorldSurface,
+  clientId: string,
+  opts?: { readonly preserveLocalDb?: boolean }
+): Promise<void> {
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      await world.node(clientId).restart({
+        preserveLocalDb: opts?.preserveLocalDb !== false,
+      });
+      return;
+    } catch (error) {
+      if (isExpectedRestartFault(error)) continue;
+      throw error;
+    }
+  }
+}
+
 export async function restartClientForConverge(
   world: SystemWorldSurface,
   clientId: string,
@@ -29,9 +57,7 @@ export async function restartClientForConverge(
   world.clearBoundaryFaults();
   await ensureServerUp(world);
   world.node(clientId).auth('valid');
-  await world.node(clientId).restart({
-    preserveLocalDb: opts?.preserveLocalDb !== false,
-  });
+  await restartClientWithRetry(world, clientId, opts);
 }
 
 export type ReplayRestartState = {
@@ -82,11 +108,21 @@ export function trackRemovedClients(
 
 export function trackRestartFromAction(
   action: SyncAction,
-  state: ReplayRestartState
+  state: ReplayRestartState,
+  world?: SystemWorldSurface
 ): void {
   if (action.kind === 'auth' && action.status === 'revoked') {
     state.needsRestart.add(action.clientId);
     state.needsFreshRestart.add(action.clientId);
+    if (world !== undefined) {
+      for (const peerId of peerClientIdsSharingRawDb(
+        world.clients,
+        action.clientId
+      )) {
+        state.needsRestart.add(peerId);
+        state.needsFreshRestart.add(peerId);
+      }
+    }
   }
   if (action.kind === 'crash' || action.kind === 'tamperLocalStorage') {
     state.needsRestart.add(action.clientId);

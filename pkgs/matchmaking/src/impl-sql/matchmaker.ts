@@ -22,6 +22,7 @@ import {
   resolveJoinAttrs,
 } from '../interface/join-helpers';
 import type { JoinInputRaw } from '../interface/matchmaking';
+import { MATCHMAKING_MIN_GROUP_SIZE } from '../interface/payload-limits';
 import type {
   _MatchPassResult,
   DistanceFormula,
@@ -32,6 +33,7 @@ import type {
   StatusResult,
   UpdateFormulasResult,
 } from '../interface/types';
+import { activePartitionId } from '../schema/tables';
 import { runClaimedMatchPass } from './match-pass';
 import {
   partitionSignatureFor,
@@ -67,8 +69,6 @@ import {
   sweepExpiredWaitingQuery,
   sweepMatchedRowsQuery,
 } from './matchmaker-queries';
-import { MATCHMAKING_MIN_GROUP_SIZE } from '../interface/payload-limits';
-import { activePartitionId } from '../schema/tables';
 import { fingerprintForOptions, type MatchmakingSchema } from './migrate';
 import { parallelMap } from './parallel-map';
 

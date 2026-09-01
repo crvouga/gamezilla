@@ -2,14 +2,12 @@
  * Hosted sign-in surface. Shown from the user menu / commands when the user
  * chooses Sign in.
  *
- * Idle flow is a method picker → Dev subject step. Google uses a durable
- * pending marker across OAuth redirect; Dev social completes in-place via
- * the same phase machine.
+ * Idle flow is a method picker. Google and Dev both use OAuth auth-session
+ * with a durable pending marker across redirect/popup handoff.
  */
 
 import { Handles } from '@libs/dst-handles';
 import { useLingui } from '@lingui/react/macro';
-import type { SignInCredentials } from '@pkgs/auth/shared/sign-in-strategy';
 import {
   Box,
   ErrorState,
@@ -25,14 +23,8 @@ import {
   useCallback,
   useEffect,
   useRef,
-  useState,
 } from 'react';
-import {
-  SignInIdleBody,
-  SignInIdleFooter,
-  type SignInIdleStep,
-  titleForSignInIdleStep,
-} from './sign-in-idle-content';
+import { SignInIdleBody, SignInIdleFooter } from './sign-in-idle-content';
 import {
   type SignInPhase,
   useSignInModalLifecycle,
@@ -49,7 +41,7 @@ export type SignInModalProps = {
   devOauthAvailable: boolean;
   signInUnavailableReason: string | null;
   onSignInWithGoogle: () => Promise<void>;
-  onSignInWithDev: (credentials: SignInCredentials) => Promise<void>;
+  onSignInWithDev: () => Promise<void>;
   onError?: ((error: Error) => void) | undefined;
 };
 
@@ -59,7 +51,7 @@ function useResetOnClose(
   visible: boolean,
   phase: SignInPhase,
   reset: () => void,
-  resetStep: () => void
+  _resetStep: () => void
 ): void {
   const phaseRef = useRef<SignInPhase>(phase);
   phaseRef.current = phase;
@@ -73,8 +65,7 @@ function useResetOnClose(
     if (phaseRef.current === 'loading') return;
     if (phaseRef.current === 'success') return;
     reset();
-    resetStep();
-  }, [visible, reset, resetStep]);
+  }, [visible, reset]);
 }
 
 export function SignInModal(props: SignInModalProps): ReactNode {
@@ -92,10 +83,7 @@ export function SignInModal(props: SignInModalProps): ReactNode {
     resumePending,
     ...(onError !== undefined ? { onError } : {}),
   });
-  const [idleStep, setIdleStep] = useState<SignInIdleStep>('methods');
-  const resetStep = useCallback(() => setIdleStep('methods'), []);
-
-  useResetOnClose(visible, phase, reset, resetStep);
+  useResetOnClose(visible, phase, reset, () => undefined);
 
   const anyMethod = googleAvailable || devOauthAvailable;
   const trigger = useCallback(
@@ -108,9 +96,8 @@ export function SignInModal(props: SignInModalProps): ReactNode {
 
   const dismissModal = useCallback(() => {
     dismiss();
-    resetStep();
     onClose();
-  }, [dismiss, onClose, resetStep]);
+  }, [dismiss, onClose]);
 
   const surfaceClose =
     phase === 'loading' && !resumePending ? () => undefined : dismissModal;
@@ -119,7 +106,7 @@ export function SignInModal(props: SignInModalProps): ReactNode {
     <ResponsiveSurface
       visible={visible}
       onClose={surfaceClose}
-      title={titleForSignInIdleStep(idleStep, t)}
+      title={t`Sign in`}
       presentation="modal"
       closeTestID={Handles.authModalClose}
     >
@@ -132,25 +119,15 @@ export function SignInModal(props: SignInModalProps): ReactNode {
           onRetry={reset}
           idleBody={
             <SignInIdleBody
-              idleStep={idleStep}
               methodsLoading={methodsLoading}
               googleAvailable={googleAvailable}
               devOauthAvailable={devOauthAvailable}
               signInUnavailableReason={props.signInUnavailableReason}
               onPressGoogle={() => trigger(props.onSignInWithGoogle)}
-              onPressDev={() => setIdleStep('dev')}
-              onSubmitDev={(credentials) => {
-                trigger(() => props.onSignInWithDev(credentials));
-              }}
+              onPressDev={() => trigger(props.onSignInWithDev)}
             />
           }
-          idleFooter={
-            <SignInIdleFooter
-              idleStep={idleStep}
-              onClose={onClose}
-              onBackToMethods={resetStep}
-            />
-          }
+          idleFooter={<SignInIdleFooter onClose={onClose} />}
         />
       </MutationStateTransition>
     </ResponsiveSurface>

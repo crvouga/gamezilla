@@ -2,13 +2,13 @@ import type {
   DatabaseMigration,
   DatabaseMigrationContext,
 } from '@pkgs/db-migrate';
-import { applySqliteSchema } from '@pkgs/db-schema/sqlite';
 import { PostgresSchemaDatabaseMigration } from '@pkgs/db-schema/postgres';
+import { applySqliteSchema } from '@pkgs/db-schema/sqlite';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
   createPostgresDbScope,
   type PostgresDbScope,
 } from '@pkgs/sql-client/postgres/schema';
-import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import { OutboxCutoverMigration } from './cutover-migration';
 import { outboxSchema } from './schema/tables';

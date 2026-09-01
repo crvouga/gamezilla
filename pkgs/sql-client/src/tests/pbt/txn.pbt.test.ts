@@ -47,7 +47,7 @@ describe('txn.pbt', () => {
               );
               assertWireSafeRows(afterRollback, `${backend.name}:rollback`);
               expect(afterRollback.length).toBe(1);
-              expect(String(afterRollback[0]?.['id'])).toBe(String(keep.id));
+              expect(String(afterRollback[0]?.['id'])).toBe(String(keep['id']));
 
               await backend.client.transaction(async (tx) => {
                 await tx.run(renderInsert(table, rolled));

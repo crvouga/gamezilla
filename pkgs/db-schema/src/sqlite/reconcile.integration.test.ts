@@ -1,8 +1,8 @@
 import { Database } from 'bun:sqlite';
 import { describe, expect, test } from 'bun:test';
-import { raw } from '@pkgs/sql';
 import { defineTable, registerTables } from '@pkgs/db-schema';
 import { applySqliteSchema } from '@pkgs/db-schema/sqlite';
+import { raw } from '@pkgs/sql';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 import { defineSchema } from '../core/define-schema';
 import { createRecordingSqlClient } from '../test/fake-sql-client';

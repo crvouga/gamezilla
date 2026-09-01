@@ -231,9 +231,7 @@ describe.each(implementations)('$name', ({ createClient }) => {
     ]);
     try {
       await client.transaction(async (tx) => {
-        await tx.run(
-          sql<void>`INSERT INTO rollback_test (id) VALUES (${'1'})`
-        );
+        await tx.run(sql<void>`INSERT INTO rollback_test (id) VALUES (${'1'})`);
         throw new Error('abort');
       });
     } catch (e) {

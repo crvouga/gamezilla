@@ -242,7 +242,7 @@ function useSignInStart(args: {
       startInFlightRef.current = true;
       const returnHref = resolveSignInReturnHref(pathname);
       try {
-        await new SignInPendingStore(store).mark(now, {
+        void new SignInPendingStore(store).mark(now, {
           ...(returnHref !== undefined ? { returnHref } : {}),
         });
         await runner();

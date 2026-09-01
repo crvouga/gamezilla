@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import type { WorkloadManifest } from '../../core/types';
 import {
   analyzeIndexability,
   assertIndexableWorkload,
@@ -6,7 +7,6 @@ import {
   parseWithNodeSqlParser,
   pkSchemaIndexes,
 } from '../../index';
-import type { WorkloadManifest } from '../../core/types';
 
 function stmt(sql: string, index = 0) {
   return {

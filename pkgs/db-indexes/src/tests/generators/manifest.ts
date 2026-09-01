@@ -1,16 +1,17 @@
+import { fc } from '@pkgs/pbt';
 import { fingerprintSql } from '../../core/fingerprint';
 import type { WorkloadManifest, WorkloadQuery } from '../../core/types';
-import { fc } from '@pkgs/pbt';
 import type { GenSchema } from './schema';
 import { genStatement } from './statement-ast';
 
 function perturbSql(sql: string, kind: 0 | 1 | 2): string {
   if (kind === 0) return `  ${sql}  \n`;
-  if (kind === 1) return sql.replace(/\?/g, (_m, offset) => {
-    // crude $n replacement counting
-    void offset;
-    return '?';
-  });
+  if (kind === 1)
+    return sql.replace(/\?/g, (_m, offset) => {
+      // crude $n replacement counting
+      void offset;
+      return '?';
+    });
   return `${sql}\n-- pad`;
 }
 
@@ -18,9 +19,7 @@ function perturbSql(sql: string, kind: 0 | 1 | 2): string {
  * Manifest of 1–200 statements over schema; includes fingerprint-equal
  * whitespace/case perturbations of duplicate logical statements.
  */
-export function genManifest(
-  schema: GenSchema
-): fc.Arbitrary<WorkloadManifest> {
+export function genManifest(schema: GenSchema): fc.Arbitrary<WorkloadManifest> {
   return fc
     .integer({ min: 1, max: 40 })
     .chain((n) =>

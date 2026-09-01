@@ -33,7 +33,7 @@ async function replaySeed(seed: number): Promise<void> {
     tables: ['notes', 'users'],
     cycles: 5,
   });
-  console.log(JSON.stringify(result, null, 2));
+  process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
   if (result.violations.length > 0) {
     process.exitCode = 1;
   }
@@ -70,7 +70,9 @@ async function soak(): Promise<void> {
       console.error('FAIL seed', seed, result.violations);
     }
   }
-  console.log(`soak: ${String(n)} seeds, ${String(failures)} failures`);
+  process.stdout.write(
+    `soak: ${String(n)} seeds, ${String(failures)} failures\n`
+  );
   if (failures > 0) process.exitCode = 1;
 }
 

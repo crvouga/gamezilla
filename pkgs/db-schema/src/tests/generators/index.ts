@@ -1,1 +1,7 @@
-export { arbColumnType, arbSchema, arbSnakeIdent, fc, nextTableName } from './schema';
+export {
+  arbColumnType,
+  arbSchema,
+  arbSnakeIdent,
+  fc,
+  nextTableName,
+} from './schema';

@@ -52,18 +52,14 @@ async function needsCutover(sqlClient: SqlClient): Promise<boolean> {
   if (!anyPresent) return false;
   for (const table of MATCHMAKING_TABLES) {
     try {
-      await sqlClient.run(
-        unsafe(`SELECT deleted_at FROM ${table} WHERE 0`)
-      );
+      await sqlClient.run(unsafe(`SELECT deleted_at FROM ${table} WHERE 0`));
     } catch {
       return true;
     }
   }
   try {
     await sqlClient.run(
-      unsafe(
-        `SELECT id FROM ${MATCHMAKING_ACTIVE_PARTITIONS_TABLE} WHERE 0`
-      )
+      unsafe(`SELECT id FROM ${MATCHMAKING_ACTIVE_PARTITIONS_TABLE} WHERE 0`)
     );
   } catch {
     return true;

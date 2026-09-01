@@ -44,10 +44,10 @@ describe('ownership PBT', () => {
     assertProperty(
       'include order',
       fc.property(
-        fc.array(
-          fc.stringMatching(/^[a-z][a-z0-9_]{0,8}$/),
-          { minLength: 2, maxLength: 4 }
-        ),
+        fc.array(fc.stringMatching(/^[a-z][a-z0-9_]{0,8}$/), {
+          minLength: 2,
+          maxLength: 4,
+        }),
         (cols) => {
           const uniq = [...new Set(cols)];
           if (uniq.length < 2) return;

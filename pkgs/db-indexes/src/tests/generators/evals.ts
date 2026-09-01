@@ -1,6 +1,6 @@
+import { fc } from '@pkgs/pbt';
 import type { Candidate, Eval, OwnedIndexName } from '../../core/types';
 import { asOwnedIndexName } from '../../core/types';
-import { fc } from '@pkgs/pbt';
 
 /**
  * Adversarial eval responses: all equal, exactly minImprovementFactor, ±ε.
@@ -10,13 +10,7 @@ export function genEvalResponses(
   minImprovementFactor: number
 ): fc.Arbitrary<ReadonlyMap<string, Eval>> {
   return fc
-    .constantFrom(
-      'all_equal',
-      'exact_min',
-      'below_min',
-      'above_min',
-      'mixed'
-    )
+    .constantFrom('all_equal', 'exact_min', 'below_min', 'above_min', 'mixed')
     .map((mode) => {
       const map = new Map<string, Eval>();
       for (let i = 0; i < candidates.length; i++) {

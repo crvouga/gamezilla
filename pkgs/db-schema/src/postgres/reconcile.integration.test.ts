@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { raw, sql } from '@pkgs/sql';
 import { defineTable, registerTables } from '@pkgs/db-schema';
 import { applyPostgresSchema } from '@pkgs/db-schema/postgres';
+import { raw, sql } from '@pkgs/sql';
 import type { PostgresSqlClient } from '@pkgs/sql-client/interface';
 import { defineSchema } from '../core/define-schema';
 import { createRecordingSqlClient } from '../test/fake-sql-client';
@@ -192,9 +192,7 @@ describe('postgres reconcile integration', () => {
       sqlClient.dbScope
     );
     await sqlClient.run(
-      raw(
-        `ALTER TABLE legacy_puzzle_shape ALTER COLUMN rating SET NOT NULL`
-      )
+      raw(`ALTER TABLE legacy_puzzle_shape ALTER COLUMN rating SET NOT NULL`)
     );
     await sqlClient.run(
       raw(`ALTER TABLE legacy_puzzle_shape ALTER COLUMN body SET NOT NULL`)

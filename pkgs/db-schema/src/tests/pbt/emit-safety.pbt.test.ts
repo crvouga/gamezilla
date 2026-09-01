@@ -2,6 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { assertProperty, fc } from '@pkgs/pbt';
 import { defineSchema } from '../../core/define-schema';
 import { planClient, planServer } from '../../core/plan';
+import type { IntrospectedCatalog } from '../../core/types';
 import { emitServerOperation, FORBIDDEN_SERVER_DDL } from '../../postgres/emit';
 import {
   emptyCatalog,
@@ -9,7 +10,6 @@ import {
   sampleSchema,
   tableWithColumns,
 } from '../../test/fixtures';
-import type { IntrospectedCatalog } from '../../core/types';
 import { arbSchema } from '../generators';
 
 describe('db-schema emit safety PBT', () => {

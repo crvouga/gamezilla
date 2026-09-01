@@ -4,10 +4,7 @@ import type {
 } from '@pkgs/db-migrate';
 import { unsafe } from '@pkgs/sql';
 
-import {
-  OUTBOX_DELIVERIES_TABLE,
-  OUTBOX_EVENTS_TABLE,
-} from './schema/tables';
+import { OUTBOX_DELIVERIES_TABLE, OUTBOX_EVENTS_TABLE } from './schema/tables';
 
 /**
  * One-shot Postgres cutover from raw outbox DDL to defineTable shape:

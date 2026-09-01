@@ -2,10 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createSimClock, SimDb } from '../../sim';
-import {
-  faultScheduleFromSeed,
-  runHarness,
-} from '../../sim/harness';
+import { faultScheduleFromSeed, runHarness } from '../../sim/harness';
 
 const SEEDS_PATH = join(import.meta.dir, 'known-seeds.txt');
 

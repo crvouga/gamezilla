@@ -8,8 +8,8 @@ import { defineTable } from '../core/define-table';
 import { defineView } from '../core/define-view';
 import { registerSchema, registerTables } from '../core/register-tables';
 import type { Schema } from '../core/types';
-import { applySqliteSchema } from '../sqlite/apply-sqlite-schema';
 import { postgres } from '../postgres/driver';
+import { applySqliteSchema } from '../sqlite/apply-sqlite-schema';
 import { sqlite } from '../sqlite/driver';
 
 export type DbSchemaContractFactory = {

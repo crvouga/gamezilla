@@ -17,7 +17,10 @@ import {
   SIM_SERVER_URL,
 } from '@apps/server/sim/migrate-sim-postgres';
 import { assert } from '@pkgs/assert';
-import { createNamespacedAuthClientStorage } from '@pkgs/auth/client';
+import {
+  createInProcessOpenAuthSession,
+  createNamespacedAuthClientStorage,
+} from '@pkgs/auth/client';
 import { InMemoryBilling } from '@pkgs/billing';
 import type { Timers } from '@pkgs/clock';
 import {
@@ -277,6 +280,10 @@ function makeSimClientEnv(
     observability: createNoopObservability(`sim-client:${id}`),
     serverUrl: SIM_SERVER_URL,
     authBaseURL: SIM_SERVER_URL,
+    openAuthSession: createInProcessOpenAuthSession({
+      fetch: (input, init) => net.wrapServerHttp(id, serverFetch)(input, init),
+      subject: id,
+    }),
     resolveDatabaseName: () => ns,
     mutationSuccessHoldMs: 0,
   };

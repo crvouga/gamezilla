@@ -1,6 +1,6 @@
 export {
-  applySqliteSchema,
   type ApplySqliteSchemaOptions,
+  applySqliteSchema,
 } from './apply-sqlite-schema';
 export { emitSqliteCreateStatements } from './emit-sqlite-create';
 export {

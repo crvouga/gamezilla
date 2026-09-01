@@ -48,7 +48,8 @@ export class RecordingPort implements DbPort {
     this.usage = seed.usage.map((u) => ({ ...u }));
     this.metas = seed.metas.map((m) => ({ ...m }));
     this.evals = new Map(seed.evals ?? []);
-    this.defaultImprovement = opts?.mutable === true ? 10 : (seed.defaultImprovement ?? 10);
+    this.defaultImprovement =
+      opts?.mutable === true ? 10 : (seed.defaultImprovement ?? 10);
     this.mutable = opts?.mutable === true;
   }
 

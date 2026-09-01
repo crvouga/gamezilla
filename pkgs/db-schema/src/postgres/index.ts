@@ -1,6 +1,6 @@
 export {
-  applyPostgresSchema,
   type ApplyPostgresSchemaOptions,
+  applyPostgresSchema,
 } from './apply-postgres-schema';
 export {
   PostgresSchemaDatabaseMigration,

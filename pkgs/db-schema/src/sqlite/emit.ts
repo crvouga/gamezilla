@@ -31,9 +31,7 @@ function tableChecks(
     .map((c) => ({
       name: c.name,
       expression:
-        typeof c.sql === 'string'
-          ? c.sql
-          : (c.sql.sqlite ?? c.sql.sql),
+        typeof c.sql === 'string' ? c.sql : (c.sql.sqlite ?? c.sql.sql),
     }));
 }
 

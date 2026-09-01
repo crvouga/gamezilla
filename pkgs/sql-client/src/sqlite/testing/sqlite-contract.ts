@@ -699,7 +699,9 @@ export function runSqliteContractTests(
     ]);
     await expect(
       client.transaction(async (tx) => {
-        await tx.run(sql<void>`INSERT INTO items (id, n) VALUES (${'2'}, ${2})`);
+        await tx.run(
+          sql<void>`INSERT INTO items (id, n) VALUES (${'2'}, ${2})`
+        );
         throw new Error('abort');
       })
     ).rejects.toThrow('abort');
@@ -779,7 +781,9 @@ export function runSqliteContractTests(
     ]);
     await expect(
       client.transaction(async (tx) => {
-        await tx.run(sql<void>`INSERT INTO items (id, v) VALUES (${'k'}, ${'v2'})`);
+        await tx.run(
+          sql<void>`INSERT INTO items (id, v) VALUES (${'k'}, ${'v2'})`
+        );
       })
     ).rejects.toThrow();
     await expectQuery(

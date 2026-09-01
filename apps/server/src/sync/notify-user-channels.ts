@@ -35,6 +35,7 @@ export async function notifyUserChannels(
     topics,
     ...(tables !== undefined && tables.length > 0 ? { tables } : {}),
     label,
+    now: () => store.clock.now(),
     ...(deferPublish
       ? {
           schedulePublish: (run: () => void) => {

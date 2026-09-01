@@ -45,7 +45,8 @@ function columnNameValue(column: unknown): string | undefined {
   if (expr !== undefined && typeof expr['value'] === 'string') {
     return (expr['value'] as string).toLowerCase();
   }
-  if (typeof o['value'] === 'string') return (o['value'] as string).toLowerCase();
+  if (typeof o['value'] === 'string')
+    return (o['value'] as string).toLowerCase();
   return undefined;
 }
 

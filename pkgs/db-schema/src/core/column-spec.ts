@@ -180,6 +180,78 @@ function assertPhysicalOverrides(
   }
 }
 
+function validateLifecycleSource(args: {
+  readonly path: string;
+  readonly source: string;
+  readonly liveCols: ReadonlySet<string>;
+  readonly deprecatedCols: ReadonlySet<string>;
+}): void {
+  const { path, source, liveCols, deprecatedCols } = args;
+  if (MANAGED_IMPLICIT_SET.has(source)) {
+    throw new Error(`${path}: lifecycle source '${source}' is engine-owned`);
+  }
+  if (liveCols.has(source)) {
+    throw new Error(
+      `${path}: lifecycle source '${source}' is still declared — remove it and add a deprecation tombstone`
+    );
+  }
+  if (!deprecatedCols.has(source)) {
+    throw new Error(
+      `${path}: lifecycle source '${source}' requires a matching deprecation entry`
+    );
+  }
+}
+
+function validateBackfillFrom(args: {
+  readonly path: string;
+  readonly from: string;
+  readonly tableName: string;
+  readonly liveCols: ReadonlySet<string>;
+  readonly deprecatedCols: ReadonlySet<string>;
+}): void {
+  const { path, from, tableName, liveCols, deprecatedCols } = args;
+  if (MANAGED_IMPLICIT_SET.has(from)) {
+    throw new Error(`${path}.backfill.from: '${from}' is engine-owned`);
+  }
+  if (!liveCols.has(from) && !deprecatedCols.has(from)) {
+    throw new Error(
+      `${path}.backfill.from: unknown column '${from}' on table '${tableName}'`
+    );
+  }
+}
+
+function validateDeclaredColumnLifecycle(args: {
+  readonly tableName: string;
+  readonly colName: string;
+  readonly col: DeclaredColumn;
+  readonly liveCols: ReadonlySet<string>;
+  readonly deprecatedCols: ReadonlySet<string>;
+}): void {
+  const { tableName, colName, col, liveCols, deprecatedCols } = args;
+  const path = `tables.${tableName}.${colName}`;
+  if (col.renamedFrom !== undefined && col.widenedFrom !== undefined) {
+    throw new Error(`${path}: cannot declare both renamedFrom and widenedFrom`);
+  }
+  const source = col.renamedFrom ?? col.widenedFrom;
+  if (source !== undefined) {
+    validateLifecycleSource({ path, source, liveCols, deprecatedCols });
+  }
+  if (col.renamedFrom !== undefined && col.backfill !== undefined) {
+    throw new Error(
+      `${path}: renamedFrom implies copy backfill — do not declare backfill separately`
+    );
+  }
+  if (col.backfill !== undefined && 'from' in col.backfill) {
+    validateBackfillFrom({
+      path,
+      from: col.backfill.from,
+      tableName,
+      liveCols,
+      deprecatedCols,
+    });
+  }
+}
+
 /**
  * Validate lifecycle metadata against declared + deprecated columns.
  * Call after all columns and deprecations for a table are known.
@@ -199,46 +271,13 @@ export function validateColumnLifecycle(args: {
   const liveCols = new Set(Object.keys(columns));
 
   for (const [colName, col] of Object.entries(columns)) {
-    const path = `tables.${tableName}.${colName}`;
-    if (col.renamedFrom !== undefined && col.widenedFrom !== undefined) {
-      throw new Error(
-        `${path}: cannot declare both renamedFrom and widenedFrom`
-      );
-    }
-    const source = col.renamedFrom ?? col.widenedFrom;
-    if (source !== undefined) {
-      if (MANAGED_IMPLICIT_SET.has(source)) {
-        throw new Error(
-          `${path}: lifecycle source '${source}' is engine-owned`
-        );
-      }
-      if (liveCols.has(source)) {
-        throw new Error(
-          `${path}: lifecycle source '${source}' is still declared — remove it and add a deprecation tombstone`
-        );
-      }
-      if (!deprecatedCols.has(source)) {
-        throw new Error(
-          `${path}: lifecycle source '${source}' requires a matching deprecation entry`
-        );
-      }
-    }
-    if (col.renamedFrom !== undefined && col.backfill !== undefined) {
-      throw new Error(
-        `${path}: renamedFrom implies copy backfill — do not declare backfill separately`
-      );
-    }
-    if (col.backfill !== undefined && 'from' in col.backfill) {
-      const from = col.backfill.from;
-      if (MANAGED_IMPLICIT_SET.has(from)) {
-        throw new Error(`${path}.backfill.from: '${from}' is engine-owned`);
-      }
-      if (!liveCols.has(from) && !deprecatedCols.has(from)) {
-        throw new Error(
-          `${path}.backfill.from: unknown column '${from}' on table '${tableName}'`
-        );
-      }
-    }
+    validateDeclaredColumnLifecycle({
+      tableName,
+      colName,
+      col,
+      liveCols,
+      deprecatedCols,
+    });
   }
 }
 

@@ -148,8 +148,8 @@ function useSignInModalConnection(args: {
     onSignInWithGoogle: async () => {
       await signInWithGoogle();
     },
-    onSignInWithDev: async (credentials) => {
-      await signInWithDev(credentials);
+    onSignInWithDev: async () => {
+      await signInWithDev();
     },
     onError,
   };

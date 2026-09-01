@@ -11,80 +11,74 @@ import type {
   ReadonlyDeclaredSchema,
 } from '../core/types';
 
-export async function readPostgresCatalog(
+async function readDeclaredPostgresTables(
   client: PostgresSqlClient,
-  declared: ReadonlyDeclaredSchema
-): Promise<IntrospectedCatalog> {
-  const schemaName = client.dbScope.schema;
-  const declaredSet = new Set(Object.keys(declared.tables));
-
-  const allTables = await client.query<{ table_name: string }>(sql`
-    SELECT table_name
-    FROM information_schema.tables
-    WHERE table_schema = ${schemaName}
-      AND table_type = 'BASE TABLE'
-  `);
-  const allTableNames = new Set(allTables.map((r) => r.table_name));
-
+  schemaName: string,
+  declaredSet: ReadonlySet<string>
+): Promise<Map<string, IntrospectedTable>> {
   const tables = new Map<string, IntrospectedTable>();
+  if (declaredSet.size === 0) return tables;
 
-  if (declaredSet.size > 0) {
-    const colRows = await client.query<{
-      table_name: string;
-      column_name: string;
-      data_type: string;
-      udt_name: string;
-      is_nullable: string;
-    }>(sql`
-      SELECT table_name, column_name, data_type, udt_name, is_nullable
-      FROM information_schema.columns
-      WHERE table_schema = ${schemaName}
-      ORDER BY table_name, ordinal_position
-    `);
+  const colRows = await client.query<{
+    table_name: string;
+    column_name: string;
+    data_type: string;
+    udt_name: string;
+    is_nullable: string;
+  }>(sql`
+    SELECT table_name, column_name, data_type, udt_name, is_nullable
+    FROM information_schema.columns
+    WHERE table_schema = ${schemaName}
+    ORDER BY table_name, ordinal_position
+  `);
 
-    const pkRows = await client.query<{
-      table_name: string;
-      column_name: string;
-    }>(sql`
-      SELECT tc.table_name, kcu.column_name
-      FROM information_schema.table_constraints tc
-      JOIN information_schema.key_column_usage kcu
-        ON tc.constraint_name = kcu.constraint_name
-       AND tc.table_schema = kcu.table_schema
-      WHERE tc.table_schema = ${schemaName}
-        AND tc.constraint_type = 'PRIMARY KEY'
-    `);
-    const pkSet = new Set(
-      pkRows.map((r) => `${r.table_name}.${r.column_name}`)
-    );
+  const pkRows = await client.query<{
+    table_name: string;
+    column_name: string;
+  }>(sql`
+    SELECT tc.table_name, kcu.column_name
+    FROM information_schema.table_constraints tc
+    JOIN information_schema.key_column_usage kcu
+      ON tc.constraint_name = kcu.constraint_name
+     AND tc.table_schema = kcu.table_schema
+    WHERE tc.table_schema = ${schemaName}
+      AND tc.constraint_type = 'PRIMARY KEY'
+  `);
+  const pkSet = new Set(pkRows.map((r) => `${r.table_name}.${r.column_name}`));
 
-    const byTable = new Map<
-      string,
-      {
-        name: string;
-        type: string;
-        nullable: boolean;
-        isPrimaryKey: boolean;
-      }[]
-    >();
+  const byTable = new Map<
+    string,
+    {
+      name: string;
+      type: string;
+      nullable: boolean;
+      isPrimaryKey: boolean;
+    }[]
+  >();
 
-    for (const row of colRows) {
-      if (!declaredSet.has(row.table_name)) continue;
-      const token = pgTypeToToken(row.udt_name, row.data_type);
-      const cols = byTable.get(row.table_name) ?? [];
-      cols.push({
-        name: row.column_name,
-        type: token ?? row.udt_name,
-        nullable: row.is_nullable === 'YES',
-        isPrimaryKey: pkSet.has(`${row.table_name}.${row.column_name}`),
-      });
-      byTable.set(row.table_name, cols);
-    }
-    for (const [name, columns] of byTable) {
-      tables.set(name, { name, columns });
-    }
+  for (const row of colRows) {
+    if (!declaredSet.has(row.table_name)) continue;
+    const token = pgTypeToToken(row.udt_name, row.data_type);
+    const cols = byTable.get(row.table_name) ?? [];
+    cols.push({
+      name: row.column_name,
+      type: token ?? row.udt_name,
+      nullable: row.is_nullable === 'YES',
+      isPrimaryKey: pkSet.has(`${row.table_name}.${row.column_name}`),
+    });
+    byTable.set(row.table_name, cols);
   }
+  for (const [name, columns] of byTable) {
+    tables.set(name, { name, columns });
+  }
+  return tables;
+}
 
+async function readPostgresIndexes(
+  client: PostgresSqlClient,
+  schemaName: string,
+  declaredSet: ReadonlySet<string>
+): Promise<IntrospectedIndex[]> {
   const indexRows = await client.query<{
     indexname: string;
     tablename: string;
@@ -108,24 +102,14 @@ export async function readPostgresCatalog(
       columns,
     });
   }
+  return indexes;
+}
 
-  const checkRows = await client.query<{
-    table_name: string;
-    constraint_name: string;
-  }>(sql`
-    SELECT tc.table_name, tc.constraint_name
-    FROM information_schema.table_constraints tc
-    WHERE tc.table_schema = ${schemaName}
-      AND tc.constraint_type = 'CHECK'
-  `);
-  const checks = checkRows
-    .filter((r) => declaredSet.has(r.table_name))
-    .map((r) => ({
-      name: r.constraint_name,
-      table: r.table_name,
-    }));
-
-  let foreignKeys: IntrospectedCatalog['foreignKeys'] = [];
+async function readPostgresForeignKeys(
+  client: PostgresSqlClient,
+  schemaName: string,
+  declaredSet: ReadonlySet<string>
+): Promise<NonNullable<IntrospectedCatalog['foreignKeys']>> {
   try {
     const fkRows = await client.query<{
       constraint_name: string;
@@ -157,7 +141,7 @@ export async function readPostgresCatalog(
       WHERE c.contype = 'f'
         AND n.nspname = ${schemaName}
     `);
-    foreignKeys = fkRows
+    return fkRows
       .filter((r) => declaredSet.has(r.table_name))
       .map((r) => ({
         name: r.constraint_name,
@@ -167,22 +151,14 @@ export async function readPostgresCatalog(
         refColumn: r.foreign_column_name,
       }));
   } catch {
-    foreignKeys = [];
+    return [];
   }
+}
 
-  let views: IntrospectedCatalog['views'] = [];
-  try {
-    const viewRows = await client.query<{ table_name: string }>(sql`
-      SELECT table_name
-      FROM information_schema.views
-      WHERE table_schema = ${schemaName}
-    `);
-    views = viewRows.map((r) => ({ name: r.table_name }));
-  } catch {
-    views = [];
-  }
-
-  let enums: IntrospectedCatalog['enums'] = [];
+async function readPostgresEnums(
+  client: PostgresSqlClient,
+  schemaName: string
+): Promise<NonNullable<IntrospectedCatalog['enums']>> {
   try {
     const enumRows = await client.query<{
       typname: string;
@@ -201,13 +177,72 @@ export async function readPostgresCatalog(
       vals.push(row.enumlabel);
       enumMap.set(row.typname, vals);
     }
-    enums = [...enumMap.entries()].map(([name, values]) => ({
+    return [...enumMap.entries()].map(([name, values]) => ({
       name,
       values,
     }));
   } catch {
-    enums = [];
+    return [];
   }
+}
+
+export async function readPostgresCatalog(
+  client: PostgresSqlClient,
+  declared: ReadonlyDeclaredSchema
+): Promise<IntrospectedCatalog> {
+  const schemaName = client.dbScope.schema;
+  const declaredSet = new Set(Object.keys(declared.tables));
+
+  const allTables = await client.query<{ table_name: string }>(sql`
+    SELECT table_name
+    FROM information_schema.tables
+    WHERE table_schema = ${schemaName}
+      AND table_type = 'BASE TABLE'
+  `);
+  const allTableNames = new Set(allTables.map((r) => r.table_name));
+
+  const tables = await readDeclaredPostgresTables(
+    client,
+    schemaName,
+    declaredSet
+  );
+  const indexes = await readPostgresIndexes(client, schemaName, declaredSet);
+
+  const checkRows = await client.query<{
+    table_name: string;
+    constraint_name: string;
+  }>(sql`
+    SELECT tc.table_name, tc.constraint_name
+    FROM information_schema.table_constraints tc
+    WHERE tc.table_schema = ${schemaName}
+      AND tc.constraint_type = 'CHECK'
+  `);
+  const checks = checkRows
+    .filter((r) => declaredSet.has(r.table_name))
+    .map((r) => ({
+      name: r.constraint_name,
+      table: r.table_name,
+    }));
+
+  const foreignKeys = await readPostgresForeignKeys(
+    client,
+    schemaName,
+    declaredSet
+  );
+
+  let views: IntrospectedCatalog['views'] = [];
+  try {
+    const viewRows = await client.query<{ table_name: string }>(sql`
+      SELECT table_name
+      FROM information_schema.views
+      WHERE table_schema = ${schemaName}
+    `);
+    views = viewRows.map((r) => ({ name: r.table_name }));
+  } catch {
+    views = [];
+  }
+
+  const enums = await readPostgresEnums(client, schemaName);
 
   return {
     tables,

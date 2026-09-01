@@ -36,6 +36,93 @@ function parseChecksFromCreateSql(
   return out;
 }
 
+async function readTableIndexes(
+  client: SqlClient,
+  tableName: string
+): Promise<IntrospectedIndex[]> {
+  const q = quoteSqliteIdent(tableName);
+  const ixList = await client.query<{ name: string; origin: string }>(
+    raw(`PRAGMA index_list(${q})`)
+  );
+  const indexes: IntrospectedIndex[] = [];
+  for (const ix of ixList) {
+    if (ix.origin === 'pk') continue;
+    const ixInfo = await client.query<{ name: string }>(
+      raw(`PRAGMA index_info(${quoteSqliteIdent(ix.name)})`)
+    );
+    indexes.push({
+      name: ix.name,
+      table: tableName,
+      columns: ixInfo.map((r) => r.name),
+    });
+  }
+  return indexes;
+}
+
+async function introspectSqliteTable(args: {
+  readonly client: SqlClient;
+  readonly name: string;
+  readonly declaredSet: ReadonlySet<string>;
+}): Promise<{
+  readonly table: IntrospectedTable;
+  readonly indexes: readonly IntrospectedIndex[];
+  readonly checks: readonly IntrospectedCheck[];
+  readonly foreignKeys: readonly IntrospectedForeignKey[];
+}> {
+  const { client, name, declaredSet } = args;
+  const q = quoteSqliteIdent(name);
+  const colRows = await client.query<{
+    name: string;
+    type: string;
+    notnull: number;
+    pk: number;
+  }>(raw(`PRAGMA table_info(${q})`));
+
+  const table: IntrospectedTable = {
+    name,
+    columns: colRows.map((c) => ({
+      name: c.name,
+      type: normalizeSqliteType(c.type) ?? c.type,
+      nullable: c.notnull === 0,
+      isPrimaryKey: c.pk > 0,
+    })),
+  };
+
+  const checks: IntrospectedCheck[] = [];
+  const foreignKeys: IntrospectedForeignKey[] = [];
+  if (declaredSet.has(name)) {
+    const ddlRows = await client.query<{ sql: string | null }>(
+      raw(
+        `SELECT sql FROM sqlite_master WHERE type = 'table' AND name = '${name.replace(/'/g, "''")}'`
+      )
+    );
+    checks.push(...parseChecksFromCreateSql(name, ddlRows[0]?.sql ?? null));
+
+    const fkRows = await client.query<{
+      id: number;
+      seq: number;
+      table: string;
+      from: string;
+      to: string;
+      on_update: string;
+      on_delete: string;
+      match: string;
+    }>(raw(`PRAGMA foreign_key_list(${q})`));
+    for (const fk of fkRows) {
+      foreignKeys.push({
+        name: `fk_${name}_${fk.from}`,
+        table: name,
+        column: fk.from,
+        refTable: fk.table,
+        refColumn: fk.to,
+      });
+    }
+  }
+
+  const indexes = await readTableIndexes(client, name);
+  return { table, indexes, checks, foreignKeys };
+}
+
 /**
  * Introspect the SQLite database for schema reconciliation.
  */
@@ -56,69 +143,15 @@ export async function readSqliteCatalog(
   const foreignKeys: IntrospectedForeignKey[] = [];
 
   for (const { name } of tableRows) {
-    const q = quoteSqliteIdent(name);
-    const colRows = await client.query<{
-      name: string;
-      type: string;
-      notnull: number;
-      pk: number;
-    }>(raw(`PRAGMA table_info(${q})`));
-
-    tables.set(name, {
+    const part = await introspectSqliteTable({
+      client,
       name,
-      columns: colRows.map((c) => ({
-        name: c.name,
-        type: normalizeSqliteType(c.type) ?? c.type,
-        nullable: c.notnull === 0,
-        isPrimaryKey: c.pk > 0,
-      })),
+      declaredSet,
     });
-
-    if (declaredSet.has(name)) {
-      const ddlRows = await client.query<{ sql: string | null }>(
-        raw(
-          `SELECT sql FROM sqlite_master WHERE type = 'table' AND name = '${name.replace(/'/g, "''")}'`
-        )
-      );
-      checks.push(
-        ...parseChecksFromCreateSql(name, ddlRows[0]?.sql ?? null)
-      );
-
-      const fkRows = await client.query<{
-        id: number;
-        seq: number;
-        table: string;
-        from: string;
-        to: string;
-        on_update: string;
-        on_delete: string;
-        match: string;
-      }>(raw(`PRAGMA foreign_key_list(${q})`));
-      for (const fk of fkRows) {
-        foreignKeys.push({
-          name: `fk_${name}_${fk.from}`,
-          table: name,
-          column: fk.from,
-          refTable: fk.table,
-          refColumn: fk.to,
-        });
-      }
-    }
-
-    const ixList = await client.query<{ name: string; origin: string }>(
-      raw(`PRAGMA index_list(${q})`)
-    );
-    for (const ix of ixList) {
-      if (ix.origin === 'pk') continue;
-      const ixInfo = await client.query<{ name: string }>(
-        raw(`PRAGMA index_info(${quoteSqliteIdent(ix.name)})`)
-      );
-      indexes.push({
-        name: ix.name,
-        table: name,
-        columns: ixInfo.map((r) => r.name),
-      });
-    }
+    tables.set(name, part.table);
+    indexes.push(...part.indexes);
+    checks.push(...part.checks);
+    foreignKeys.push(...part.foreignKeys);
   }
 
   const viewRows = await client.query<{ name: string }>(

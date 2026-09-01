@@ -1,4 +1,8 @@
-import { type ColumnSpecInput, parseTableColumnMap, validateColumnLifecycle } from './column-spec';
+import {
+  type ColumnSpecInput,
+  parseTableColumnMap,
+  validateColumnLifecycle,
+} from './column-spec';
 import { assertDialectSqlShape, type DialectSql } from './dialect-sql';
 import { assertSnakeCaseIdent } from './snake-case';
 import type {

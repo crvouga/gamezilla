@@ -1,11 +1,11 @@
 import { Hono } from 'hono';
 
 import {
-  googleRedirectUri,
-  handleDevComplete,
+  handleDevAuthorize,
+  handleDevAuthorizeComplete,
   handleGetSession,
   handleOauthCallback,
-  handleOauthStart,
+  handleOauthLaunch,
   handleSessionExchange,
   handleSignOut,
 } from './auth-route-handlers';
@@ -22,19 +22,16 @@ export type { CreateAuthAppDeps, CreateAuthAppProviders };
  */
 export function createAuthApp(deps: CreateAuthAppDeps): Hono {
   const app = new Hono();
-  const publicPathPrefix = deps.publicPathPrefix ?? '';
-  const googleCallbackUri = googleRedirectUri(deps.baseURL, publicPathPrefix);
 
-  app.post('/auth/oauth/start', (c) =>
-    handleOauthStart(c, deps, googleCallbackUri)
+  app.get('/auth/oauth/launch', (c) => handleOauthLaunch(c, deps));
+  app.get('/auth/dev/authorize', (c) => handleDevAuthorize(c, deps));
+  app.post('/auth/dev/authorize/complete', (c) =>
+    handleDevAuthorizeComplete(c, deps)
   );
-  app.get('/auth/callback/:provider', (c) =>
-    handleOauthCallback(c, deps, googleCallbackUri)
-  );
+  app.get('/auth/callback/:provider', (c) => handleOauthCallback(c, deps));
   app.post('/auth/session', (c) => handleSessionExchange(c, deps));
   app.get('/auth/session', (c) => handleGetSession(c, deps));
   app.post('/auth/sign-out', (c) => handleSignOut(c, deps));
-  app.post('/auth/oauth/dev/complete', (c) => handleDevComplete(c, deps));
 
   return app;
 }

@@ -1,5 +1,5 @@
 import { fc } from '@pkgs/pbt';
-import { ident, join, raw, type Sql, sql } from '@pkgs/sql';
+import { ident, join, raw, type Sql, sql, type Value } from '@pkgs/sql';
 import type { SqlDialect } from '../backends/types';
 import {
   type LogicalColumnType,
@@ -54,11 +54,7 @@ export function renderCreateTable(
   return raw(`CREATE TABLE ${table.name} (${cols.join(', ')})`);
 }
 
-function bindColumnValue(
-  table: LogicalTable,
-  name: string,
-  v: unknown
-): string | number | boolean | null | undefined | Uint8Array {
+function bindColumnValue(table: LogicalTable, name: string, v: unknown): Value {
   const col = table.columns.find((c) => c.name === name);
   if (col?.type === 'json') {
     // Always emit valid JSON text — bare "" is invalid jsonb on Postgres.
@@ -67,7 +63,7 @@ function bindColumnValue(
   if (v !== null && typeof v === 'object' && !(v instanceof Uint8Array)) {
     return JSON.stringify(v);
   }
-  return v as string | number | boolean | null | undefined | Uint8Array;
+  return v as Value;
 }
 
 export function renderInsert(table: LogicalTable, row: RowValues): Sql<void> {
@@ -115,7 +111,7 @@ export const arbRowForTable = (
   const fields: Record<string, fc.Arbitrary<unknown>> = {};
   for (const col of table.columns) {
     if (col.name === 'id') {
-      fields.id = fc.uuid();
+      fields['id'] = fc.uuid();
       continue;
     }
     fields[col.name] = arbValueForType(col.type);
@@ -146,7 +142,7 @@ export const arbProgram = (
       return {
         kind: 'update',
         table: table.name,
-        id: String(row.id),
+        id: String(row['id']),
         patch: rest,
       };
     }),
@@ -154,7 +150,7 @@ export const arbProgram = (
       (row): ProgramStep => ({
         kind: 'soft_delete',
         table: table.name,
-        id: String(row.id),
+        id: String(row['id']),
         deletedAt: '2020-06-01T00:00:00.000Z',
       })
     ),

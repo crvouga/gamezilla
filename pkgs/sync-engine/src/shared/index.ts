@@ -65,10 +65,10 @@ export {
   findChannelExhaustivenessGaps,
 } from './channel-exhaustiveness';
 export {
+  type AssertQueryRegistryIndexableOpts,
+  assertQueryRegistryIndexable,
   type EnvFixture,
   extractWorkload,
-  assertQueryRegistryIndexable,
-  type AssertQueryRegistryIndexableOpts,
 } from './extract-workload';
 export {
   FRAMEWORK_CACHE_TABLE_NAMES,

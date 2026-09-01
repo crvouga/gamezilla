@@ -43,7 +43,11 @@ function mutantI3Disabled(_args: {
   return true;
 }
 
-function expectMutantKilled(label: string, mutantPasses: boolean, oracleFails: boolean): void {
+function expectMutantKilled(
+  label: string,
+  mutantPasses: boolean,
+  oracleFails: boolean
+): void {
   // Mutant is killed when mutant says ok but oracle rejects
   if (!(mutantPasses && oracleFails)) {
     throw new Error(`mutant ${label} was NOT killed — suite gap`);
@@ -66,5 +70,3 @@ const i3Args = {
   usageUnchanged: false,
 };
 expectMutantKilled('I3', mutantI3Disabled(i3Args), !checkI3(i3Args));
-
-console.log('scripted mutants: I1 and I3 oracles kill mutants (ok)');

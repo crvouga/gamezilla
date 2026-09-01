@@ -8,14 +8,12 @@ export type DevCredentials = {
 export class AuthFlows {
   constructor(private readonly ui: Driver) {}
 
-  async signInWithDev(creds: DevCredentials): Promise<void> {
+  async signInWithDev(_creds?: DevCredentials): Promise<void> {
     await this.ui.tap(Handles.statusCurrentUser);
     await this.ui.tap(Handles.accountSignIn);
     // Multi-actor: second client may still be hydrating client_config /
     // paintReady before Dev shows (methodsLoading gate).
     await this.ui.tap(Handles.authMethodDev, { timeoutMs: 15_000 });
-    await this.ui.input(Handles.authSubjectInput, creds.subject);
-    await this.ui.tap(Handles.authSubmitDev);
     await this.ui.tap(Handles.authSignedInDone, { timeoutMs: 15_000 });
     // dismissModal can flash idle + Close before unmount; dismiss when present.
     // `tap` already waits for visibility — short timeout avoids hanging if gone.

@@ -52,9 +52,11 @@ describe('normalizePgInt8Value', () => {
 
 describe('normalizePgInt8Rows', () => {
   test('coerces row fields so JSON.stringify and Math.max work', () => {
-    const rows = normalizePgInt8Rows([{ n: 5n, label: 'ok' }]);
-    expect(rows[0]?.n).toBe(5);
+    const rows = normalizePgInt8Rows<Record<string, unknown>>([
+      { n: 5n, label: 'ok' },
+    ]);
+    expect(rows[0]?.['n']).toBe(5);
     expect(() => JSON.stringify(rows)).not.toThrow();
-    expect(Math.max(0, rows[0]!.n as number)).toBe(5);
+    expect(Math.max(0, Number(rows[0]!['n']))).toBe(5);
   });
 });

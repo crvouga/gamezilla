@@ -96,14 +96,14 @@ export type ClientOperation =
       readonly kind: 'rebuild_table';
       readonly table: ValidatedIdent;
       /** Non-managed `_`-prefixed columns to preserve across rebuild. */
-  readonly preserveUnderscoreExtras: readonly import('./types').PhysicalIdent[];
-  /** Physical SQLite types for extras (from introspection). */
-  readonly preserveExtraTypes: Readonly<Record<string, string>>;
-  /** Columns copied from the old table into the new one. */
-  readonly copyColumns: readonly (
-    | import('./types').SchemaIdent
-    | import('./types').PhysicalIdent
-  )[];
+      readonly preserveUnderscoreExtras: readonly import('./types').PhysicalIdent[];
+      /** Physical SQLite types for extras (from introspection). */
+      readonly preserveExtraTypes: Readonly<Record<string, string>>;
+      /** Columns copied from the old table into the new one. */
+      readonly copyColumns: readonly (
+        | import('./types').SchemaIdent
+        | import('./types').PhysicalIdent
+      )[];
       /** Optional rename map: newCol → oldCol for copy during rebuild. */
       readonly copyAliases?: Readonly<Record<string, string>>;
       /** Backfill expressions for new columns after rebuild (column → expr). */

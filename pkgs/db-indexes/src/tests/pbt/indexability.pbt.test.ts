@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'bun:test';
 import { assertProperty, fc } from '@pkgs/pbt';
+import type { WorkloadManifest } from '../../core/types';
 import {
   analyzeIndexability,
   assertIndexableWorkload,
   fingerprintSql,
   pkSchemaIndexes,
 } from '../../index';
-import type { WorkloadManifest } from '../../core/types';
 
 function stmt(sql: string) {
   return {

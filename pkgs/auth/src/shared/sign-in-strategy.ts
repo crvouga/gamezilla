@@ -4,7 +4,7 @@
  */
 export type SignInStrategy = 'oauth-google' | 'oauth-dev';
 
-/** Extra fields for strategies that need credentials (Dev social subject). */
+/** Extra fields for strategies that need credentials (reserved for test harnesses). */
 export type SignInCredentials = {
   /** Dev provider stable subject (maps 1:1 to an IdP user). */
   readonly subject?: string;

@@ -2,7 +2,7 @@ import { assert } from '@pkgs/assert';
 import { generateCandidates } from './candidates';
 import { compareNames } from './compare';
 import { DEFAULT_CONFIG, resolveConfig } from './config';
-import { ingestManifest } from './ingest';
+import { type IngestedStatement, ingestManifest } from './ingest';
 import { parseWithNodeSqlParser } from './parse-node-sql';
 import {
   anySchemaCoversPath,
@@ -11,11 +11,7 @@ import {
   pathKeyColumns,
   type SchemaIndex,
 } from './schema-coverage';
-import type {
-  AccessPath,
-  ParsedStatement,
-  WorkloadManifest,
-} from './types';
+import type { AccessPath, ParsedStatement, WorkloadManifest } from './types';
 
 export type IndexabilityGapReason =
   | 'parse_failed'
@@ -97,14 +93,64 @@ function pathCovered(
   };
 }
 
-/**
- * Static indexability: every access path must be PK, schema leftmost-prefix,
- * an autoidx candidate, or a catalog full-scan. Does not require hypopg /
- * below_min_rows — only that a candidate *could* exist when the table grows.
- */
-export function analyzeIndexability(
-  args: AnalyzeIndexabilityArgs
-): IndexabilityReport {
+function gapsForPaths(
+  item: IngestedStatement,
+  parsed: ParsedStatement,
+  schemaIndexes: readonly SchemaIndex[],
+  catalogTables: ReadonlySet<string>
+): IndexabilityGap[] {
+  const gaps: IndexabilityGap[] = [];
+  for (let p = 0; p < parsed.paths.length; p++) {
+    const path = parsed.paths[p]!;
+    assert.ok(path.table.length > 0, 'path.table required');
+    const cover = pathCovered(path, schemaIndexes, catalogTables);
+    if (cover.ok) continue;
+    const hasFilter = path.equality.length > 0 || path.range.length > 0;
+    const reason: IndexabilityGapReason = !hasFilter
+      ? 'empty_key'
+      : 'uncovered_path';
+    gaps.push({
+      queryName: item.queryName,
+      statementIndex: item.statement.index,
+      reason,
+      detail: cover.detail,
+      table: path.table,
+    });
+  }
+  return gaps;
+}
+
+function classifyIngestedStatement(
+  item: IngestedStatement,
+  parse: (sql: string) => ParsedStatement,
+  schemaIndexes: readonly SchemaIndex[],
+  catalogTables: ReadonlySet<string>
+): IndexabilityGap[] {
+  const parsed = parse(item.normalizedSql);
+  if (!parsed.ok) {
+    return [
+      {
+        queryName: item.queryName,
+        statementIndex: item.statement.index,
+        reason: 'parse_failed',
+        detail: parsed.reason ?? 'parse failed',
+      },
+    ];
+  }
+  if (parsed.tables.length === 0 || parsed.paths.length === 0) {
+    return [
+      {
+        queryName: item.queryName,
+        statementIndex: item.statement.index,
+        reason: 'no_from',
+        detail: 'no from table / access paths',
+      },
+    ];
+  }
+  return gapsForPaths(item, parsed, schemaIndexes, catalogTables);
+}
+
+function assertIndexabilityInputs(args: AnalyzeIndexabilityArgs): void {
   assert.ok(args.manifest !== undefined, 'manifest required');
   assert.ok(Array.isArray(args.schemaIndexes), 'schemaIndexes array');
   assert.ok(args.catalogTables !== undefined, 'catalogTables required');
@@ -118,6 +164,28 @@ export function analyzeIndexability(
   for (const name of args.catalogTables) {
     assertSnakeCaseTable(name, 'catalogTables entry');
   }
+}
+
+function assertGapShape(gaps: readonly IndexabilityGap[]): void {
+  for (let g = 0; g < gaps.length; g++) {
+    const gap = gaps[g]!;
+    assert.ok(gap.queryName.length > 0, 'gap.queryName required');
+    assert.ok(
+      Number.isFinite(gap.statementIndex) && gap.statementIndex >= 0,
+      'gap.statementIndex >= 0'
+    );
+  }
+}
+
+/**
+ * Static indexability: every access path must be PK, schema leftmost-prefix,
+ * an autoidx candidate, or a catalog full-scan. Does not require hypopg /
+ * below_min_rows — only that a candidate *could* exist when the table grows.
+ */
+export function analyzeIndexability(
+  args: AnalyzeIndexabilityArgs
+): IndexabilityReport {
+  assertIndexabilityInputs(args);
 
   // Workload SQL is `?`-normalized; Sqlite dialect matches RecordingPort and
   // accepts product identifiers that Postgres treats as reserved (e.g. `at`).
@@ -127,64 +195,21 @@ export function analyzeIndexability(
 
   const ingested = ingestManifest(args.manifest);
   const gaps: IndexabilityGap[] = [];
-  let classified = 0;
 
   for (let i = 0; i < ingested.statements.length; i++) {
-    const item = ingested.statements[i]!;
-    classified += 1;
-    const parsed = parse(item.normalizedSql);
-    if (!parsed.ok) {
-      gaps.push({
-        queryName: item.queryName,
-        statementIndex: item.statement.index,
-        reason: 'parse_failed',
-        detail: parsed.reason ?? 'parse failed',
-      });
-      continue;
-    }
-    if (parsed.tables.length === 0 || parsed.paths.length === 0) {
-      gaps.push({
-        queryName: item.queryName,
-        statementIndex: item.statement.index,
-        reason: 'no_from',
-        detail: 'no from table / access paths',
-      });
-      continue;
-    }
-
-    for (let p = 0; p < parsed.paths.length; p++) {
-      const path = parsed.paths[p]!;
-      assert.ok(path.table.length > 0, 'path.table required');
-      const cover = pathCovered(path, args.schemaIndexes, args.catalogTables);
-      if (cover.ok) continue;
-      const hasFilter = path.equality.length > 0 || path.range.length > 0;
-      const reason: IndexabilityGapReason = !hasFilter
-        ? 'empty_key'
-        : 'uncovered_path';
-      gaps.push({
-        queryName: item.queryName,
-        statementIndex: item.statement.index,
-        reason,
-        detail: cover.detail,
-        table: path.table,
-      });
-    }
-  }
-
-  assert.ok(
-    classified === ingested.statements.length,
-    'every ingested statement must be classified exactly once'
-  );
-  for (let g = 0; g < gaps.length; g++) {
-    const gap = gaps[g]!;
-    assert.ok(gap.queryName.length > 0, 'gap.queryName required');
-    assert.ok(
-      Number.isFinite(gap.statementIndex) && gap.statementIndex >= 0,
-      'gap.statementIndex >= 0'
+    gaps.push(
+      ...classifyIngestedStatement(
+        ingested.statements[i]!,
+        parse,
+        args.schemaIndexes,
+        args.catalogTables
+      )
     );
   }
+
+  assertGapShape(gaps);
   gaps.sort(compareGaps);
-  return { gaps, classified };
+  return { gaps, classified: ingested.statements.length };
 }
 
 /**

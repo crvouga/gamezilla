@@ -1,13 +1,10 @@
 import { describe, expect, test } from 'bun:test';
 import { assertProperty, fc } from '@pkgs/pbt';
-import {
-  consolidateCandidates,
-  isPrefixCovered,
-} from '../../core/consolidate';
+import { resolveConfig } from '../../core/config';
+import { consolidateCandidates, isPrefixCovered } from '../../core/consolidate';
 import { ownedIndexName } from '../../core/naming';
 import type { Candidate, Eval } from '../../core/types';
 import { asOwnedIndexName } from '../../core/types';
-import { resolveConfig } from '../../core/config';
 
 function cand(
   table: string,

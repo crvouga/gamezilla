@@ -41,6 +41,7 @@ type PushAttachState = {
     readonly push?: SyncEnginePushOptions;
     readonly db: SqlClient;
     readonly timers: Timers;
+    readonly now: () => number;
   };
   readonly runtime: SubscriptionRuntime;
   readonly bus: {
@@ -101,6 +102,7 @@ function bindConfiguredPush(
     queryRegistry: push.queryRegistry,
     getChannelsCtx: push.getChannelsCtx,
     db: state.options.db,
+    now: state.options.now,
     getMergeDeps,
     ...(push.rowImageFanout === true ? { rowImageFanout: true } : {}),
     remakePubSub: () => {

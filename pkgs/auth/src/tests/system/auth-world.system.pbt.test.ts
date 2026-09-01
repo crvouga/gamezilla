@@ -8,7 +8,11 @@ import {
 } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
 
-import { AUTH_SESSION_TTL_MS } from '../../shared/auth-constants';
+import {
+  AUTH_SESSION_TTL_MS,
+  IDP_PROVIDER_DEV,
+  IDP_PROVIDER_GOOGLE,
+} from '../../shared/auth-constants';
 import { type AuthAction, arbAuthAction } from './actions';
 import { worldFingerprint } from './invariants';
 import { migrateAuthSchema } from './nodes';
@@ -49,13 +53,37 @@ async function withReplay(
 
 describe('auth system / PBT', () => {
   for (const fabric of AUTH_FABRICS) {
-    test(`dev complete same subject → same user (${fabric})`, async () => {
+    test(`dev oauth same subject → same user (${fabric})`, async () => {
       await withReplay(
         fabric,
         42,
         [
-          { kind: 'devComplete', clientId: 'c0', subject: 'alice' },
-          { kind: 'devComplete', clientId: 'c1', subject: 'alice' },
+          {
+            kind: 'oauthStart',
+            clientId: 'c0',
+            provider: IDP_PROVIDER_DEV,
+            callbackUrl: 'http://callback.test/sso',
+          },
+          {
+            kind: 'oauthApprove',
+            clientId: 'c0',
+            provider: IDP_PROVIDER_DEV,
+            subject: 'alice',
+          },
+          { kind: 'sessionExchange', clientId: 'c0' },
+          {
+            kind: 'oauthStart',
+            clientId: 'c1',
+            provider: IDP_PROVIDER_DEV,
+            callbackUrl: 'http://callback.test/sso',
+          },
+          {
+            kind: 'oauthApprove',
+            clientId: 'c1',
+            provider: IDP_PROVIDER_DEV,
+            subject: 'alice',
+          },
+          { kind: 'sessionExchange', clientId: 'c1' },
         ],
         async (world) => {
           const store = requireStore(world.state);
@@ -75,7 +103,21 @@ describe('auth system / PBT', () => {
       await withReplay(
         fabric,
         7,
-        [{ kind: 'devComplete', clientId: 'c0', subject: 'alice' }],
+        [
+          {
+            kind: 'oauthStart',
+            clientId: 'c0',
+            provider: IDP_PROVIDER_DEV,
+            callbackUrl: 'http://callback.test/sso',
+          },
+          {
+            kind: 'oauthApprove',
+            clientId: 'c0',
+            provider: IDP_PROVIDER_DEV,
+            subject: 'alice',
+          },
+          { kind: 'sessionExchange', clientId: 'c0' },
+        ],
         async (world) => {
           const store = requireStore(world.state);
           const bearer = requireActor(world.state, 'c0').bearer!;
@@ -91,8 +133,32 @@ describe('auth system / PBT', () => {
         fabric,
         9,
         [
-          { kind: 'devComplete', clientId: 'c0', subject: 'alice' },
-          { kind: 'devComplete', clientId: 'c1', subject: 'alice' },
+          {
+            kind: 'oauthStart',
+            clientId: 'c0',
+            provider: IDP_PROVIDER_DEV,
+            callbackUrl: 'http://callback.test/sso',
+          },
+          {
+            kind: 'oauthApprove',
+            clientId: 'c0',
+            provider: IDP_PROVIDER_DEV,
+            subject: 'alice',
+          },
+          { kind: 'sessionExchange', clientId: 'c0' },
+          {
+            kind: 'oauthStart',
+            clientId: 'c1',
+            provider: IDP_PROVIDER_DEV,
+            callbackUrl: 'http://callback.test/sso',
+          },
+          {
+            kind: 'oauthApprove',
+            clientId: 'c1',
+            provider: IDP_PROVIDER_DEV,
+            subject: 'alice',
+          },
+          { kind: 'sessionExchange', clientId: 'c1' },
           { kind: 'signOut', clientId: 'c0' },
         ],
         async (world) => {
@@ -110,11 +176,17 @@ describe('auth system / PBT', () => {
         11,
         [
           {
-            kind: 'googleStart',
+            kind: 'oauthStart',
             clientId: 'c0',
+            provider: IDP_PROVIDER_GOOGLE,
             callbackUrl: 'http://callback.test/sso',
           },
-          { kind: 'googleApprove', clientId: 'c0', subject: 'g-alice' },
+          {
+            kind: 'oauthApprove',
+            clientId: 'c0',
+            provider: IDP_PROVIDER_GOOGLE,
+            subject: 'g-alice',
+          },
           { kind: 'sessionExchange', clientId: 'c0' },
         ],
         async (world) => {
@@ -126,18 +198,14 @@ describe('auth system / PBT', () => {
       );
     }, 60_000);
 
-    test(`dev provider knob off returns 404 (${fabric})`, async () => {
+    test(`dev provider knob off returns 404 on launch (${fabric})`, async () => {
       await using world = await openWorld(AUTH_SYSTEM, {
         seed: 13,
         knobs: { ...knobsFor(fabric), devProvider: false },
       });
       const res = await requireStore(world.state).fetch(
-        '/auth/oauth/dev/complete',
-        {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ subject: 'alice' }),
-        }
+        '/auth/oauth/launch?provider=dev&callbackUrl=http%3A%2F%2Fcallback.test%2Fsso',
+        { method: 'GET', redirect: 'manual' }
       );
       expect(res.status).toBe(404);
     }, 60_000);

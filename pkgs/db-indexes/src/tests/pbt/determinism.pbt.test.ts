@@ -8,9 +8,7 @@ import { fixedClock, RecordingPort } from '../helpers/recording-port';
 function canonicalizePlan(plan: Awaited<ReturnType<typeof planIndexes>>) {
   return JSON.stringify({
     actions: plan.actions,
-    desired: [...plan.desired]
-      .map((d) => d.name)
-      .sort(compareNames),
+    desired: [...plan.desired].map((d) => d.name).sort(compareNames),
     kept: [...plan.kept].sort(compareNames),
     skipped: [...plan.skipped].sort((a, b) => {
       const r = compareNames(a.reason, b.reason);

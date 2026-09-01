@@ -1,3 +1,4 @@
+import { validateColumnLifecycle } from './column-spec';
 import {
   emptyPortableExtras,
   parseChecksLiteral,
@@ -7,7 +8,6 @@ import {
   parseTablesLiteral,
   parseViewsLiteral,
 } from './parse-schema-literal';
-import { validateColumnLifecycle } from './column-spec';
 import { assertSnakeCaseIdent } from './snake-case';
 import { buildSnapshot } from './snapshot';
 import type {

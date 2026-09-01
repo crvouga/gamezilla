@@ -39,9 +39,8 @@ export async function prepareClientsForConverge(
   world.clearBoundaryFaults();
   restoreSettleAuth(world, freshRestart);
   if (ids.length === 0) return;
-  await dispatchSyncAction(world, app, { kind: 'heal' });
-  healNetworkForSettle(world);
-  resetClockSkews(world);
+  // Remake revoked/crashed clients before heal so a shared-db peer is not
+  // wiped by revokeDatabase while heal nudges pending uploads.
   for (const id of ids) {
     await restartClientForConverge(world, id, {
       preserveLocalDb: !freshRestart.has(id),
@@ -50,6 +49,9 @@ export async function prepareClientsForConverge(
   if (world.clients.size > 0) {
     await world.runFor(50);
   }
+  await dispatchSyncAction(world, app, { kind: 'heal' });
+  healNetworkForSettle(world);
+  resetClockSkews(world);
 }
 
 /** Framework play loop owns invariants + idle after each step. */
@@ -70,6 +72,6 @@ export async function replayStep(args: {
   await prepareReplayAction(world, action, state);
   await dispatchReplayAction(world, app, action);
   trackRemovedClients(aliveBefore, world, state);
-  trackRestartFromAction(action, state);
+  trackRestartFromAction(action, state, world);
   await finishReplayStep(world, action, state, NO_STEP_ASSERT);
 }

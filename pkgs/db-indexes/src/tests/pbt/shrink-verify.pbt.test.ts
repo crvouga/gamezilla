@@ -17,10 +17,10 @@ describe('generator shrink verification', () => {
       assertProperty(
         'deliberate fail for shrink',
         fc.property(
-          fc.array(
-            fc.constantFrom('a', 'b', 'c', 'd'),
-            { minLength: 1, maxLength: 4 }
-          ),
+          fc.array(fc.constantFrom('a', 'b', 'c', 'd'), {
+            minLength: 1,
+            maxLength: 4,
+          }),
           (cols) => {
             const uniq = [...new Set(cols)];
             if (uniq.length < 2) return true;

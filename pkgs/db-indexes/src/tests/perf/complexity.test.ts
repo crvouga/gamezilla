@@ -47,20 +47,16 @@ async function timePlan(n: number): Promise<number> {
 }
 
 describe('perf gates', () => {
-  test(
-    'analyzer runtime ratios stay within O(C log C) band',
-    async () => {
-      const sizes = [64, 256] as const;
-      const times: number[] = [];
-      for (const n of sizes) {
-        times.push(await timePlan(n));
-      }
-      // 4× input should not be > ~20× time (generous soft band)
-      const ratio = times[1]! / Math.max(times[0]!, 0.1);
-      expect(ratio).toBeLessThan(40);
-    },
-    60_000
-  );
+  test('analyzer runtime ratios stay within O(C log C) band', async () => {
+    const sizes = [64, 256] as const;
+    const times: number[] = [];
+    for (const n of sizes) {
+      times.push(await timePlan(n));
+    }
+    // 4× input should not be > ~20× time (generous soft band)
+    const ratio = times[1]! / Math.max(times[0]!, 0.1);
+    expect(ratio).toBeLessThan(40);
+  }, 60_000);
 
   test('100× identical planIndexes: no unbounded growth', async () => {
     const clock = fixedClock(0);
@@ -84,13 +80,9 @@ describe('perf gates', () => {
     expect(true).toBe(true);
   });
 
-  test(
-    'max-limits case soft wall-clock with headroom',
-    async () => {
-      const ms = await timePlan(256);
-      // Soft bound: 30s with 2× headroom budget of 60s
-      expect(ms).toBeLessThan(60_000);
-    },
-    90_000
-  );
+  test('max-limits case soft wall-clock with headroom', async () => {
+    const ms = await timePlan(256);
+    // Soft bound: 30s with 2× headroom budget of 60s
+    expect(ms).toBeLessThan(60_000);
+  }, 90_000);
 });

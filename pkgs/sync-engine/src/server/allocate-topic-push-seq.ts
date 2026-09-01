@@ -2,6 +2,7 @@ import type { Topic } from '@pkgs/pubsub/interface';
 import { join, sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
+import { managedUpdatedAtIso } from '../mutations/shared/managed-columns';
 import { topicRowId } from '../shared/schema/tables';
 
 /**
@@ -15,9 +16,9 @@ import { topicRowId } from '../shared/schema/tables';
 export async function allocateTopicPushSeq(
   db: SqlClient,
   topic: Topic,
-  nowIso?: string
+  now: () => number
 ): Promise<string> {
-  const ts = nowIso ?? new Date().toISOString();
+  const ts = managedUpdatedAtIso(now);
   const rows = await db.query(sql<{ n: number | string | bigint }>`
     INSERT INTO sync_engine_topic_seq (
       id, topic, n, created_at, updated_at, deleted_at
@@ -61,21 +62,20 @@ function dedupeTopics(topics: readonly Topic[]): Topic[] {
 export async function allocateTopicPushSeqs(
   db: SqlClient,
   topics: readonly Topic[],
-  nowIso?: string
+  now: () => number
 ): Promise<ReadonlyMap<Topic, string>> {
   const unique = dedupeTopics(topics);
   const out = new Map<Topic, string>();
   if (unique.length === 0) return out;
   if (unique.length === 1) {
     const topic = unique[0]!;
-    out.set(topic, await allocateTopicPushSeq(db, topic, nowIso));
+    out.set(topic, await allocateTopicPushSeq(db, topic, now));
     return out;
   }
 
-  const ts = nowIso ?? new Date().toISOString();
+  const ts = managedUpdatedAtIso(now);
   const valueFrags = unique.map(
-    (topic) =>
-      sql`(${topicRowId(topic)}, ${topic}, 1, ${ts}, ${ts}, ${null})`
+    (topic) => sql`(${topicRowId(topic)}, ${topic}, 1, ${ts}, ${ts}, ${null})`
   );
   const rows = await db.query(sql<{
     topic: string;
@@ -96,7 +96,7 @@ export async function allocateTopicPushSeqs(
   }
   for (const topic of unique) {
     if (out.has(topic)) continue;
-    out.set(topic, await allocateTopicPushSeq(db, topic, ts));
+    out.set(topic, await allocateTopicPushSeq(db, topic, now));
   }
   return out;
 }

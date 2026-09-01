@@ -16,6 +16,7 @@ export type AttachPushOptions = {
   readonly remakePubSub: () => PubSub;
   readonly db: SqlClient;
   readonly timers: Timers;
+  readonly now: () => number;
   readonly rowImageFanout?: boolean;
   readonly getMergeDeps?: () => MergeApplierDeps;
   readonly onBindTopicRefresh?: (refresh: () => void) => void;

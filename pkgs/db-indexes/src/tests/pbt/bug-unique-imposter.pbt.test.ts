@@ -50,8 +50,8 @@ describe('BUG-1 unique autoidx imposter', () => {
       clock: fixedClock(0),
       config: { minTableRows: 1 },
     });
-    expect(
-      plan.actions.every((a) => a.name !== 'autoidx_notes_deadbeef')
-    ).toBe(true);
+    expect(plan.actions.every((a) => a.name !== 'autoidx_notes_deadbeef')).toBe(
+      true
+    );
   });
 });

@@ -244,7 +244,9 @@ async function cutoverTopicSeq(ctx: DatabaseMigrationContext): Promise<void> {
       FROM ${SYNC_ENGINE_TOPIC_SEQ}
     `)
   );
-  await ctx.sqlClient.run(unsafe(`DROP TABLE ${SYNC_ENGINE_TOPIC_SEQ} CASCADE`));
+  await ctx.sqlClient.run(
+    unsafe(`DROP TABLE ${SYNC_ENGINE_TOPIC_SEQ} CASCADE`)
+  );
   await ctx.sqlClient.run(
     unsafe(`ALTER TABLE ${next} RENAME TO ${SYNC_ENGINE_TOPIC_SEQ}`)
   );

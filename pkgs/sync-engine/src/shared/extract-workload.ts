@@ -8,8 +8,8 @@ import {
   type WorkloadStatement,
 } from '@pkgs/db-indexes';
 import type { Sql } from '@pkgs/sql';
-import { classify } from '../sql-ast';
 import type { QueryCtx, QueryDef, QueryRegistry } from '../queries/core/types';
+import { classify } from '../sql-ast';
 import {
   emptyObjectSchema,
   parseStandardSchema,

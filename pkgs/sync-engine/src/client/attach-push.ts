@@ -141,12 +141,12 @@ function remake(bag: PushBag, desired: Map<Topic, Set<string>>): void {
     bag.topicToScopes.set(topic, scopes);
     subscribeTopic(bag, topic);
   }
-  void clearRemovedPushApplied(bag.options.db, new Set(desired.keys())).catch(
-    (error) => {
-      if (bag.disposed) return;
-      warnPush('[push] clearRemovedPushApplied failed', error);
-    }
-  );
+  void clearRemovedPushApplied(bag.options.db, new Set(desired.keys()), {
+    now: bag.options.now,
+  }).catch((error) => {
+    if (bag.disposed) return;
+    warnPush('[push] clearRemovedPushApplied failed', error);
+  });
 }
 
 /**
@@ -175,12 +175,12 @@ function syncTopicsIncremental(
   }
 
   bag.lastTopicKey = topicKey(desired);
-  void clearRemovedPushApplied(bag.options.db, new Set(desired.keys())).catch(
-    (error) => {
-      if (bag.disposed) return;
-      warnPush('[push] clearRemovedPushApplied failed', error);
-    }
-  );
+  void clearRemovedPushApplied(bag.options.db, new Set(desired.keys()), {
+    now: bag.options.now,
+  }).catch((error) => {
+    if (bag.disposed) return;
+    warnPush('[push] clearRemovedPushApplied failed', error);
+  });
 
   // Heal any push lost in the tiny subscribe race without tearing down MQTT.
   if (changed) bag.options.runtime.wakeAll();

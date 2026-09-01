@@ -169,6 +169,7 @@ export async function openSimServer(
         topics: [...topics],
         tables: [...tables],
         label,
+        now: args.now,
       });
     },
     checkpointHighWater: checkpoints.highWater,

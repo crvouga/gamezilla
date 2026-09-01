@@ -52,11 +52,26 @@ export const idpOauthStates = defineTable({
   uniqueIndexes: ['state', 'exchange_code_hash'],
 });
 
+/** Short-lived provider authorization codes (Dev IdP chooser → callback). */
+export const idpProviderAuthCodes = defineTable({
+  domain: 'idp',
+  name: 'idp_provider_auth_codes',
+  columns: {
+    oauth_state_id: 'text',
+    code_hash: 'text',
+    provider_user_id: 'text',
+    expires_at: 'timestamp',
+  },
+  indexes: ['oauth_state_id'],
+  uniqueIndexes: ['code_hash'],
+});
+
 export const IDP_TABLES = [
   idpUsers,
   idpAccounts,
   idpSessions,
   idpOauthStates,
+  idpProviderAuthCodes,
 ] as const;
 
 export const idpSchema = registerTables(IDP_TABLES);

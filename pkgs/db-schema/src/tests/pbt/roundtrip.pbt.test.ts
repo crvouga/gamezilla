@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'bun:test';
 import { raw } from '@pkgs/sql';
-import { defineTable, registerTables } from '../../index';
 import { planClient } from '../../core/plan';
-import { readSqliteCatalog } from '../../sqlite/catalog';
-import { sqlite } from '../../sqlite/driver';
+import { defineTable, registerTables } from '../../index';
 import { readPostgresCatalog } from '../../postgres/catalog';
 import { postgres } from '../../postgres/driver';
+import { readSqliteCatalog } from '../../sqlite/catalog';
+import { sqlite } from '../../sqlite/driver';
 import { createPglitePostgresClient } from '../../test/pglite-postgres-client';
 
 describe('db-schema roundtrip PBT pins', () => {

@@ -6,13 +6,10 @@
 import { join } from 'node:path';
 import {
   migrateSimPostgres,
-  SIM_AUTH_SECRET,
 } from '@apps/server/sim/migrate-sim-postgres';
 import type { Clock } from '@pkgs/clock';
 import { wallClock } from '@pkgs/clock';
-import { readUtf8 } from '@pkgs/object-store/helpers';
 import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
-import type { ObjectStore } from '@pkgs/object-store/interface';
 import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';
 import {
   computeSimPostgresMemSeedFingerprint,
@@ -22,41 +19,18 @@ import {
 } from '@pkgs/sql-client/postgres/boot-sim-postgres-mem';
 import type { SimSqlHandle } from '@sim/console/sim/sim-sql';
 
+import { simPostgresSeedFingerprintSource } from './sim-postgres-seed-fingerprint';
+
 const CACHE_DIR = join(__dirname, '../../.cache');
 const SEED_KEY = 'sim-backend-seed.pgmm.json';
 export const SIM_SEED_PGMM_PATH = join(CACHE_DIR, SEED_KEY);
 
-const MIGRATE_SOURCE_KEY = 'migrate-sim-postgres.ts';
-
-function createSimPostgresMemCacheStore(): ObjectStore {
-  return createNodeFsObjectStore({
-    rootDir: CACHE_DIR,
-    fs: wallNodeFs(),
-    layout: 'tree',
-  });
-}
-
-function createMigrateSourceStore(): ObjectStore {
-  return createNodeFsObjectStore({
-    rootDir: join(__dirname, '../../../../apps/server/src/sim'),
-    fs: wallNodeFs(),
-    layout: 'tree',
-  });
-}
-
-async function fingerprintSource(): Promise<Buffer> {
-  const text = await readUtf8(createMigrateSourceStore(), MIGRATE_SOURCE_KEY);
-  if (text === null) {
-    throw new Error(`missing migrate source: ${MIGRATE_SOURCE_KEY}`);
-  }
-  // Include auth secret constant so seed rebuilds if it changes.
-  return Buffer.from(`${text}\n${SIM_AUTH_SECRET}`);
-}
+const REPO_ROOT = join(__dirname, '../../../..');
 
 /** Fingerprint of migrate inputs — rebuild seed when this changes. */
 export async function computeSimPostgresMemSeedFp(): Promise<string> {
   return computeSimPostgresMemSeedFingerprint({
-    fingerprintSource: await fingerprintSource(),
+    fingerprintSource: await simPostgresSeedFingerprintSource(REPO_ROOT),
   });
 }
 
@@ -69,9 +43,13 @@ export async function ensureSimPostgresMemSeed(): Promise<{
   readonly didMigrate: boolean;
 }> {
   return ensureSimPostgresMemSeedBuffer({
-    store: createSimPostgresMemCacheStore(),
+    store: createNodeFsObjectStore({
+      rootDir: CACHE_DIR,
+      fs: wallNodeFs(),
+      layout: 'tree',
+    }),
     seedKey: SEED_KEY,
-    fingerprintSource: await fingerprintSource(),
+    fingerprintSource: await simPostgresSeedFingerprintSource(REPO_ROOT),
     now: wallClock.now,
     migrate: async ({ sqlClient, pool }) => {
       await migrateSimPostgres({
