@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
 import { sql } from '@pkgs/sql';
-import { syncFacade } from '../../sim/system';
 import {
   acmeLocalSchemaExtraColumn,
   acmeMutationRegistry,
@@ -23,7 +22,7 @@ describe('client ahead column mutation no wipe', () => {
           clientCount: 0,
         },
       });
-      const world = syncFacade(host.state);
+      const world = host.facade;
       // Session stays on notesWorld (server knows it); only local DDL + mutation
       // registry are ahead of the server.
       const alice = await world.addClient({

@@ -29,7 +29,6 @@ export {
   type SyncAction,
   type SyncApp,
   type SyncSystemFacade,
-  syncFacade,
   type UntilOpts,
   type UntilTarget,
   type WorldKnobs,

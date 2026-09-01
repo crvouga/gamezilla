@@ -55,7 +55,8 @@
     "preview": "bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/boot-embedded-postgres.ts",
     "psql": "bun ./pkgs/postgres-embedded/scripts/psql.ts",
     "scaffold:game": "bun run tools/scripts/scaffold-game.ts",
-    "setup:sims": "bun run tools/scripts/sims/setup-sims.ts",
+    "sims:open": "bun run tools/scripts/sims/open-sims.ts",
+    "sims:setup": "bun run tools/scripts/sims/setup-sims.ts",
     "test:pbt": "bun test $(find pkgs libs -name \"*.pbt.test.ts\")",
     "test:pbt:random": "bun run tools/scripts/test-pbt-random.ts",
     "test:sim": "SIM_REPORT=0 turbo test -F @sim/test --force",
@@ -225,7 +226,8 @@
     "workbox-window": "^7.4.0",
     "wrangler": "^4.54.0",
     "zod": "^4.3.6",
-    "@biomejs/biome": "2.5.7"
+    "@biomejs/biome": "2.5.7",
+    "@clack/prompts": "^1.7.0"
   },
   "trustedDependencies": [
     "@shopify/react-native-skia",

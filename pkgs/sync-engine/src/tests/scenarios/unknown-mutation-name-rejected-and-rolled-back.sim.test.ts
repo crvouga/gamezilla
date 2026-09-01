@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
-import { syncFacade } from '../../sim/system';
 import {
   acmeMutationRegistry,
   expectLiveNote,
@@ -21,7 +20,7 @@ describe('unknown mutation name rejected and rolled back', () => {
           rowImageFanout: false,
         },
       });
-      const world = syncFacade(host.state);
+      const world = host.facade;
       const a = await world.addClient({
         id: 'alice',
         mutationRegistry: {

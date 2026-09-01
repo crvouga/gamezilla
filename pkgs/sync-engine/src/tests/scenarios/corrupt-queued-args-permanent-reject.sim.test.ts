@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
 import { unsafe } from '@pkgs/sql';
-import { syncFacade } from '../../sim/system';
 import {
   expectLiveNote,
   expectNoteNotLive,
@@ -20,7 +19,7 @@ describe('corrupt queued args permanent reject', () => {
           clientCount: 0,
         },
       });
-      const world = syncFacade(host.state);
+      const world = host.facade;
       const alice = await world.addClient({ id: 'alice' });
       const bob = await world.addClient({ id: 'bob' });
 
@@ -71,7 +70,7 @@ describe('corrupt queued args permanent reject', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const alice = await world.addClient({ id: 'alice' });
     const bob = await world.addClient({ id: 'bob' });
 

@@ -10,7 +10,6 @@ export const friendsRequests = defineTable({
     message: 'text',
     responded_at: 'timestamp',
   },
-  indexes: ['from_user_id', 'to_user_id'],
 });
 
 export const friendsFriendships = defineTable({
@@ -21,7 +20,6 @@ export const friendsFriendships = defineTable({
     user_high: 'text',
     source_request_id: 'text',
   },
-  indexes: ['user_low', 'user_high'],
   uniqueIndexes: [['user_low', 'user_high']],
 });
 
@@ -32,7 +30,6 @@ export const friendsBlocks = defineTable({
     blocker_id: 'text',
     blocked_id: 'text',
   },
-  indexes: ['blocked_id'],
   uniqueIndexes: [['blocker_id', 'blocked_id']],
 });
 

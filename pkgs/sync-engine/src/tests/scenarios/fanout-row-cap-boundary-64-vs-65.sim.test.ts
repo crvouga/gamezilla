@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
 import { MAX_FANOUT_ROWS } from '@pkgs/sync-engine/shared';
-import { syncFacade } from '../../sim/system';
 import {
   expectLiveNote,
   expectNotesMatchServer,
@@ -26,7 +25,7 @@ describe('fanout row cap boundary 64 vs 65', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     const ids = noteIds(MAX_FANOUT_ROWS);
@@ -57,7 +56,7 @@ describe('fanout row cap boundary 64 vs 65', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     const ids = noteIds(MAX_FANOUT_ROWS + 1);

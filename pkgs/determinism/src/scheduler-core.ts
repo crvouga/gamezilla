@@ -1,123 +1,268 @@
+import type { SeededRng } from '@pkgs/uuid';
 import type { SimClock } from './clock';
+import { waitQuiescence } from './quiescence';
+import { sample } from './sample';
 import {
   advanceToNextDue,
   assertIdleBudget,
   withinRunUntilBudget,
 } from './scheduler-limits';
-import type { Queued, SimTask } from './scheduler-types';
+import type { InFlightTask, Queued } from './scheduler-types';
 import type { SimTrace } from './trace';
 
-export type { Queued, SimTask };
+export type { InFlightTask, Queued, SimTask } from './scheduler-types';
+
+export type DrainContext = {
+  readonly heap: Queued[];
+  readonly clock: SimClock;
+  readonly schedRng?: SeededRng;
+  readonly trace?: SimTrace;
+  readonly inFlight: InFlightTask[];
+};
 
 export function pushQueued(heap: Queued[], item: Queued): void {
   heap.push(item);
   heap.sort((a, b) => a.at - b.at || a.seq - b.seq);
 }
 
-/** Exactly 32 microtask turns after each due-burst round. */
-export async function flushMicrotasks(): Promise<void> {
-  for (let i = 0; i < 32; i += 1) await Promise.resolve();
+/** All heap entries sharing the earliest due time, if that time is ≤ now. */
+function dueAt(heap: Queued[], now: number): Queued[] {
+  if (heap.length === 0 || heap[0]!.at > now) return [];
+  const at = heap[0]!.at;
+  const out: Queued[] = [];
+  for (const q of heap) {
+    if (q.at !== at) break;
+    out.push(q);
+  }
+  return out;
 }
 
-export async function fireDueEvents(
-  heap: Queued[],
-  clock: SimClock,
-  trace?: SimTrace
-): Promise<number> {
+function takeDue(heap: Queued[], picked: Queued): void {
+  const idx = heap.indexOf(picked);
+  if (idx >= 0) heap.splice(idx, 1);
+}
+
+function startTask(ctx: DrainContext, item: Queued): InFlightTask {
+  ctx.trace?.record({
+    type: 'timer_fire',
+    taskId: item.seq,
+    at: ctx.clock.now(),
+  });
+  const tracked: InFlightTask = {
+    taskId: item.seq,
+    label: item.label,
+    settled: false,
+    error: undefined,
+    promise: Promise.resolve()
+      .then(() => item.run())
+      .then(
+        () => {
+          tracked.settled = true;
+        },
+        (err: unknown) => {
+          tracked.settled = true;
+          tracked.error = err;
+        }
+      ),
+  };
+  ctx.inFlight.push(tracked);
+  return tracked;
+}
+
+function pruneInFlight(ctx: DrainContext): void {
+  for (let i = ctx.inFlight.length - 1; i >= 0; i -= 1) {
+    if (ctx.inFlight[i]!.settled) ctx.inFlight.splice(i, 1);
+  }
+}
+
+function firstInFlightError(ctx: DrainContext): unknown {
+  for (const t of ctx.inFlight) {
+    if (t.settled && t.error !== undefined) return t.error;
+  }
+  return undefined;
+}
+
+function deadlockMessage(ctx: DrainContext): string {
+  const names = ctx.inFlight
+    .filter((t) => !t.settled)
+    .map((t) => `${t.label}#${t.taskId}`)
+    .join(', ');
+  return (
+    `SimScheduler: deadlock — task(s) awaiting promise not managed by the ` +
+    `simulation: ${names || '(unknown)'}`
+  );
+}
+
+/**
+ * Fire one due event (entropy-picked among same-`at` ties), then wait until
+ * either the task settles or the microtask queue is quiescent. Unsettled
+ * tasks stay in-flight (suspended on unmanaged promises).
+ */
+export async function fireOneDue(ctx: DrainContext): Promise<boolean> {
+  const now = ctx.clock.now();
+  const due = dueAt(ctx.heap, now);
+  if (due.length === 0) return false;
+
+  const picked =
+    ctx.schedRng !== undefined
+      ? sample(ctx.schedRng, 'sched.pick', due, ctx.trace)
+      : due[0]!;
+  takeDue(ctx.heap, picked);
+  const tracked = startTask(ctx, picked);
+
+  await Promise.race([tracked.promise, waitQuiescence()]);
+
+  const err = firstInFlightError(ctx);
+  if (err !== undefined) throw err;
+  pruneInFlight(ctx);
+  return true;
+}
+
+/** Fire all currently-due events one-at-a-time with quiescence between. */
+export async function fireDueEvents(ctx: DrainContext): Promise<number> {
   let steps = 0;
   const burstLimit = 10_000;
-  for (let round = 0; round < 8; round += 1) {
-    let fired = 0;
-    while (
-      steps < burstLimit &&
-      heap.length > 0 &&
-      heap[0]!.at <= clock.now()
-    ) {
-      const next = heap.shift()!;
-      trace?.record({
-        now: clock.now(),
-        type: 'execute',
-        taskId: next.seq,
-      });
-      await next.run();
-      steps += 1;
-      fired += 1;
-    }
-    await flushMicrotasks();
-    if (fired === 0) break;
+  while (steps < burstLimit) {
+    const fired = await fireOneDue(ctx);
+    if (!fired) break;
+    steps += 1;
   }
   return steps;
 }
 
-export async function runForDuration(
-  heap: Queued[],
-  clock: SimClock,
-  durationMs: number,
-  trace?: SimTrace
+async function settleOrDeadlock(
+  ctx: DrainContext,
+  end?: number
 ): Promise<void> {
-  const end = clock.now() + Math.max(0, durationMs);
   for (;;) {
-    await fireDueEvents(heap, clock, trace);
-    if (heap.length === 0) {
-      clock.set(end);
+    pruneInFlight(ctx);
+    const err = firstInFlightError(ctx);
+    if (err !== undefined) throw err;
+    if (ctx.inFlight.every((t) => t.settled) || ctx.inFlight.length === 0) {
       return;
     }
-    if (heap[0]!.at > end) {
-      clock.set(end);
+    const now = ctx.clock.now();
+    const due = dueAt(ctx.heap, now);
+    if (due.length > 0) {
+      await fireOneDue(ctx);
+      continue;
+    }
+    if (ctx.heap.length === 0) {
+      await waitQuiescence();
+      pruneInFlight(ctx);
+      if (ctx.inFlight.some((t) => !t.settled)) {
+        throw new Error(deadlockMessage(ctx));
+      }
       return;
     }
-    clock.set(heap[0]!.at);
+    const nextAt = ctx.heap[0]!.at;
+    if (end !== undefined && nextAt > end) {
+      await waitQuiescence();
+      pruneInFlight(ctx);
+      if (ctx.inFlight.some((t) => !t.settled)) {
+        throw new Error(deadlockMessage(ctx));
+      }
+      return;
+    }
+    ctx.clock.set(nextAt);
+    await fireOneDue(ctx);
+  }
+}
+
+export async function runForDuration(
+  ctx: DrainContext,
+  durationMs: number
+): Promise<void> {
+  const end = ctx.clock.now() + Math.max(0, durationMs);
+  for (;;) {
+    await fireDueEvents(ctx);
+    if (ctx.inFlight.some((t) => !t.settled)) {
+      await settleOrDeadlock(ctx, end);
+    }
+    if (ctx.heap.length === 0) {
+      ctx.clock.set(end);
+      return;
+    }
+    if (ctx.heap[0]!.at > end) {
+      ctx.clock.set(end);
+      return;
+    }
+    ctx.clock.set(ctx.heap[0]!.at);
   }
 }
 
 export async function runUntilIdleHeap(
-  heap: Queued[],
-  clock: SimClock,
-  opts?: { readonly maxSteps?: number; readonly maxVirtualMs?: number },
-  trace?: SimTrace
+  ctx: DrainContext,
+  opts?: { readonly maxSteps?: number; readonly maxVirtualMs?: number }
 ): Promise<void> {
   const maxSteps = opts?.maxSteps ?? 100_000;
   const maxVirtualMs = opts?.maxVirtualMs ?? 86_400_000;
-  const start = clock.now();
+  const start = ctx.clock.now();
   let steps = 0;
   let idleRounds = 0;
   while (idleRounds < 3) {
-    assertIdleBudget({ steps, maxSteps, clock, start, maxVirtualMs });
-    if (heap.length === 0) {
-      await flushMicrotasks();
-      idleRounds = heap.length === 0 ? idleRounds + 1 : 0;
+    assertIdleBudget({
+      steps,
+      maxSteps,
+      clock: ctx.clock,
+      start,
+      maxVirtualMs,
+    });
+    pruneInFlight(ctx);
+    if (ctx.heap.length === 0) {
+      if (ctx.inFlight.some((t) => !t.settled)) {
+        await waitQuiescence();
+        pruneInFlight(ctx);
+        if (ctx.inFlight.some((t) => !t.settled) && ctx.heap.length === 0) {
+          throw new Error(deadlockMessage(ctx));
+        }
+        idleRounds = 0;
+        continue;
+      }
+      await waitQuiescence();
+      pruneInFlight(ctx);
+      idleRounds =
+        ctx.heap.length === 0 && ctx.inFlight.length === 0 ? idleRounds + 1 : 0;
       continue;
     }
     idleRounds = 0;
-    advanceToNextDue(heap, clock);
-    steps += await fireDueEvents(heap, clock, trace);
+    advanceToNextDue(ctx.heap, ctx.clock);
+    steps += await fireDueEvents(ctx);
   }
 }
 
 export async function runUntilPred(args: {
-  readonly heap: Queued[];
-  readonly clock: SimClock;
+  readonly ctx: DrainContext;
   readonly pred: () => boolean | Promise<boolean>;
   readonly opts?: {
     readonly maxVirtualMs?: number;
     readonly maxSteps?: number;
   };
-  readonly trace?: SimTrace;
 }): Promise<boolean> {
-  const { heap, clock, pred, opts, trace } = args;
+  const { ctx, pred, opts } = args;
   if (await pred()) return true;
   const maxSteps = opts?.maxSteps ?? 100_000;
   const maxVirtualMs = opts?.maxVirtualMs ?? 86_400_000;
-  const start = clock.now();
+  const start = ctx.clock.now();
   let steps = 0;
-  while (heap.length > 0) {
+  while (ctx.heap.length > 0 || ctx.inFlight.some((t) => !t.settled)) {
     if (
-      !withinRunUntilBudget({ steps, maxSteps, clock, start, maxVirtualMs })
+      !withinRunUntilBudget({
+        steps,
+        maxSteps,
+        clock: ctx.clock,
+        start,
+        maxVirtualMs,
+      })
     ) {
       return false;
     }
-    advanceToNextDue(heap, clock);
-    steps += await fireDueEvents(heap, clock, trace);
+    if (ctx.heap.length === 0) {
+      await settleOrDeadlock(ctx);
+      return await pred();
+    }
+    advanceToNextDue(ctx.heap, ctx.clock);
+    steps += await fireDueEvents(ctx);
     if (await pred()) return true;
   }
   return await pred();

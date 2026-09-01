@@ -65,14 +65,11 @@ export const ACME_KV_SYSTEM = defineSystem<AcmeKvSystem, PutModel>({
     {
       kind: acmeKvClientNode,
       role: 'client',
-      countFromKnob: 'clientCount',
+      count: { fromKnob: 'clientCount' },
       idFor: (i) => `c${i}`,
     },
   ],
-  actions: [
-    ...stdNetChaos<AcmeKvSystem>({ fromRole: 'client', toRole: 'server' }),
-    putAction,
-  ],
+  actions: [...stdNetChaos<AcmeKvSystem>(), putAction],
   model: {
     initial: (): PutModel => ({ map: {} }),
   },

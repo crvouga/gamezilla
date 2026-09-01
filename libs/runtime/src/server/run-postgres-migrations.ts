@@ -1,5 +1,6 @@
 import { appSchema } from '@libs/runtime/root/app-schema';
 import { AuthPostgresDatabaseMigration } from '@pkgs/auth/server';
+import type { Clock } from '@pkgs/clock';
 import {
   ComposedDatabaseMigration,
   EnsurePostgresSchemaMigration,
@@ -16,6 +17,7 @@ import { SyncEngineDatabaseMigration } from '@pkgs/sync-engine/shared';
 import { CutoverLegacyAuthToIdpMigration } from './cutover-legacy-auth-to-idp-migration';
 import { DomainSchemaNullabilityMigration } from './domain-schema-nullability-migration';
 import { HardCutoverDropLegacyTablesMigration } from './hard-cutover-drop-legacy-tables-migration';
+import { PostgresIndexesDatabaseMigration } from './postgres-indexes-database-migration';
 import { PostgresSqliteCompatMigration } from './postgres-sqlite-compat-migration';
 import { PurgeClerkExternalAccountsMigration } from './purge-clerk-external-accounts-migration';
 
@@ -41,6 +43,13 @@ export type PostgresMigrationRunnerDeps = {
    * `installPgMemSqliteCompat` at `createPgMemSqlClient` time.
    */
   skipSqliteCompat?: boolean;
+  /**
+   * When true, skip workload {@link PostgresIndexesDatabaseMigration}.
+   * Defaults to true when `skipAdvisoryLock` (sim / pg-mem).
+   */
+  skipIndexReconcile?: boolean;
+  /** Injected clock for index reconcile deadlines (required unless skipped). */
+  clock?: Clock;
 };
 
 export class PostgresMigrationRunner {
@@ -53,6 +62,8 @@ export class PostgresMigrationRunner {
       dbScope,
       skipAdvisoryLock = false,
       skipSqliteCompat = false,
+      skipIndexReconcile = skipAdvisoryLock,
+      clock,
     } = this.deps;
 
     const locked = new ComposedDatabaseMigration()
@@ -93,6 +104,17 @@ export class PostgresMigrationRunner {
       )
       .register(new CutoverLegacyAuthToIdpMigration())
       .register(new PurgeClerkExternalAccountsMigration());
+
+    if (!skipIndexReconcile) {
+      if (clock === undefined) {
+        throw new Error(
+          'PostgresMigrationRunner: clock required when index reconcile is enabled'
+        );
+      }
+      databaseMigration.register(
+        new PostgresIndexesDatabaseMigration({ clock })
+      );
+    }
 
     await databaseMigration.migrate({ sqlClient, logger });
   }

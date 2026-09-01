@@ -34,6 +34,8 @@
     "@libs/spaces": "workspace:*",
     "@pkgs/assert": "workspace:*",
     "@pkgs/auth": "workspace:*",
+    "@pkgs/clock": "workspace:*",
+    "@pkgs/db-indexes": "workspace:*",
     "@pkgs/db-migrate": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
     "@pkgs/entity-store": "workspace:*",

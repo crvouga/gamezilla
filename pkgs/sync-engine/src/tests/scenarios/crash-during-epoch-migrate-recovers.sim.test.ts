@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
 import { SCHEMA_EPOCH } from '@pkgs/sync-engine/test';
-import { syncFacade } from '../../sim/system';
 import {
   expectLiveNote,
   expectNoteNotLive,
@@ -18,7 +17,7 @@ describe('crash during epoch migrate recovers', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 

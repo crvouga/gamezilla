@@ -44,7 +44,7 @@ export const SCHEMA_SYSTEM = defineSystem<SchemaSystem, SchemaModel>({
     {
       kind: schemaClientNode,
       role: 'client',
-      countFromKnob: 'clientCount',
+      count: { fromKnob: 'clientCount' },
       idFor: (i) => `client-${i}`,
     },
   ],

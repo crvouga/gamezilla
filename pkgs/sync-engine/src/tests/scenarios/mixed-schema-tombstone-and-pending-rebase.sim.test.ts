@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
 import { sql } from '@pkgs/sql';
-import { defineSyncSystem, syncFacade } from '../../sim/system';
+import { defineSyncSystem } from '../../sim/system';
 import {
   acmeApp,
   acmeLocalSchema,
@@ -41,7 +41,7 @@ describe('mixed schema tombstone and pending rebase', () => {
           clientCount: 0,
         },
       });
-      const world = syncFacade(host.state);
+      const world = host.facade;
 
       const alice = await world.addClient({
         id: 'alice',

@@ -11,7 +11,6 @@ export {
   type MatchmakingSystemWorld,
   type OpenMatchmakingWorldArgs,
   openMatchmakingWorld,
-  requireMmWorld,
 } from './define-matchmaking-system';
 export { mmReplicaNode, mmStoreNode } from './node-kinds';
 export {

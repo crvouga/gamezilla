@@ -14,6 +14,9 @@ function peerId(actor: string, row: FriendshipRow): string {
   return row.user_low === actor ? row.user_high : row.user_low;
 }
 
+/** Sentinel so profile IN (...) always has one shape (join([]) throws). */
+const PROFILE_IN_SENTINEL = '__workload_sentinel__';
+
 export const friendships = defineQuery({
   name: 'friendships',
   async run(ctx) {
@@ -30,14 +33,16 @@ export const friendships = defineQuery({
           .filter((id) => id.length > 0 && id !== actor)
       ),
     ];
-    if (peerIds.length === 0) {
-      return { friends_friendships: rows, profile: [] };
-    }
+    // Always emit the profile query — one SQL shape per defineQuery (workload extract).
+    const idsForIn = peerIds.length > 0 ? peerIds : [PROFILE_IN_SENTINEL];
     const profiles = await ctx.db.query(sql`
       SELECT id, created_at, username, avatar_config, username_changed_at, deleted_at
       FROM profile
-      WHERE id IN (${join(peerIds)})
+      WHERE id IN (${join(idsForIn)})
 `);
-    return { friends_friendships: rows, profile: profiles };
+    return {
+      friends_friendships: rows,
+      profile: peerIds.length > 0 ? profiles : [],
+    };
   },
 });

@@ -33,7 +33,7 @@ import '@apps/client/i18n/i18n';
 
 import type { SimSystemSnapshot } from '@pkgs/sim-console/shared/sim-system-snapshot';
 import { resolveSimSqlBackend } from '@sim/console/sim/sim-sql-backend';
-import { defineProductSystem, type ProductSystem, requireSim } from '../system';
+import { defineProductSystem, type ProductSystem } from '../system';
 import { ensureSimPgliteSeed } from './boot-sim-pglite';
 import { ensureSimPostgresMemSeed } from './boot-sim-postgres-mem';
 import {
@@ -191,7 +191,7 @@ async function bootSim(fidelity: OpenSimFidelity): Promise<{
   };
   const system = defineProductSystem(createOpts);
   const host = await openWorld(system, { seed: 1, startMs });
-  return { sim: requireSim(host.state), host };
+  return { sim: host.facade, host };
 }
 
 function createSimReporter(

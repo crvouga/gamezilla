@@ -21,7 +21,6 @@ export const acmeAppSchemaExtraColumn = registerTables([
     domain: 'folders',
     name: 'folders',
     columns: { title: 'text', owner_id: 'text' },
-    indexes: ['owner_id'],
   }),
   defineTable({
     domain: 'notes',
@@ -34,19 +33,17 @@ export const acmeAppSchemaExtraColumn = registerTables([
       color: 'text',
       owner_id: 'text',
     },
-    indexes: ['folder_id', 'owner_id', 'space_id'],
   }),
   defineTable({
     domain: 'spaces',
     name: 'spaces',
     columns: { title: 'text', owner_id: 'text' },
-    indexes: ['owner_id'],
   }),
   defineTable({
     domain: 'spaces',
     name: 'spaces_users',
     columns: { space_id: 'text', user_id: 'text' },
-    indexes: ['space_id', 'user_id'],
+
     uniqueIndexes: [['space_id', 'user_id']],
   }),
   defineTable({
@@ -57,7 +54,7 @@ export const acmeAppSchemaExtraColumn = registerTables([
       device_id: 'text',
       opened_at: 'timestamp',
     },
-    indexes: ['device_id', 'space_id'],
+
     uniqueIndexes: [['device_id', 'space_id']],
   }),
 ]);
@@ -81,7 +78,6 @@ export const acmeAppSchemaExtraTable = registerTables([
     domain: 'folders',
     name: 'folders',
     columns: { title: 'text', owner_id: 'text' },
-    indexes: ['owner_id'],
   }),
   defineTable({
     domain: 'notes',
@@ -93,7 +89,7 @@ export const acmeAppSchemaExtraTable = registerTables([
       body: 'text',
       owner_id: 'text',
     },
-    indexes: ['folder_id', 'owner_id', 'space_id'],
+
     // Preserve-DB extraColumn → extraTable leaves notes.color on disk.
     deprecations: [['color', 'pbt leftover from extraColumn variant']],
   }),
@@ -101,19 +97,17 @@ export const acmeAppSchemaExtraTable = registerTables([
     domain: 'tags',
     name: 'tags',
     columns: { label: 'text', owner_id: 'text' },
-    indexes: ['owner_id'],
   }),
   defineTable({
     domain: 'spaces',
     name: 'spaces',
     columns: { title: 'text', owner_id: 'text' },
-    indexes: ['owner_id'],
   }),
   defineTable({
     domain: 'spaces',
     name: 'spaces_users',
     columns: { space_id: 'text', user_id: 'text' },
-    indexes: ['space_id', 'user_id'],
+
     uniqueIndexes: [['space_id', 'user_id']],
   }),
   defineTable({
@@ -124,7 +118,7 @@ export const acmeAppSchemaExtraTable = registerTables([
       device_id: 'text',
       opened_at: 'timestamp',
     },
-    indexes: ['device_id', 'space_id'],
+
     uniqueIndexes: [['device_id', 'space_id']],
   }),
 ]);
@@ -149,7 +143,6 @@ export const acmeAppSchemaExtraColumnAndTable = registerTables([
     domain: 'folders',
     name: 'folders',
     columns: { title: 'text', owner_id: 'text' },
-    indexes: ['owner_id'],
   }),
   defineTable({
     domain: 'notes',
@@ -162,25 +155,22 @@ export const acmeAppSchemaExtraColumnAndTable = registerTables([
       color: 'text',
       owner_id: 'text',
     },
-    indexes: ['folder_id', 'owner_id', 'space_id'],
   }),
   defineTable({
     domain: 'tags',
     name: 'tags',
     columns: { label: 'text', owner_id: 'text' },
-    indexes: ['owner_id'],
   }),
   defineTable({
     domain: 'spaces',
     name: 'spaces',
     columns: { title: 'text', owner_id: 'text' },
-    indexes: ['owner_id'],
   }),
   defineTable({
     domain: 'spaces',
     name: 'spaces_users',
     columns: { space_id: 'text', user_id: 'text' },
-    indexes: ['space_id', 'user_id'],
+
     uniqueIndexes: [['space_id', 'user_id']],
   }),
   defineTable({
@@ -191,7 +181,7 @@ export const acmeAppSchemaExtraColumnAndTable = registerTables([
       device_id: 'text',
       opened_at: 'timestamp',
     },
-    indexes: ['device_id', 'space_id'],
+
     uniqueIndexes: [['device_id', 'space_id']],
   }),
 ]);

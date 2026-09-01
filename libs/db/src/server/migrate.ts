@@ -162,6 +162,7 @@ async function runMigrateOnce(databaseUrl: string): Promise<void> {
       sqlClient,
       logger: log,
       dbScope,
+      clock: wallClock,
     }).run();
     log.info(
       'postgres migrations finished (schema + kv + IdP; matchmaking self-migrates on first request)'

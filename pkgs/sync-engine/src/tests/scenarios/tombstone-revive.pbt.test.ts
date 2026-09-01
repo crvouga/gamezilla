@@ -2,7 +2,6 @@ import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
 import { assertSampleProperty } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
-import { syncFacade } from '../../sim/system';
 import { arbWorldKnobs, arbWorldSeed } from '../../sim/system/knobs';
 import {
   expectLiveNote,
@@ -35,7 +34,7 @@ describe('tombstone revive PBT', () => {
           ),
           async (seed, knobs, steps) => {
             await using world = await openWorld(acmeSystem, { seed, knobs });
-            const facade = syncFacade(world.state);
+            const facade = world.facade;
             const noteId = 'n0';
             const client = facade.clients.get('c0')!;
             let lastBody = '';
@@ -90,7 +89,7 @@ describe('tombstone revive PBT', () => {
           fc.string({ maxLength: 8 }),
           async (seed, knobs, body1, body2) => {
             await using world = await openWorld(acmeSystem, { seed, knobs });
-            const facade = syncFacade(world.state);
+            const facade = world.facade;
             const noteId = 'n0';
             const client = facade.clients.get('c0')!;
             await client.mutate(setNote, {

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
-import { playSyncActions, replaySyncPin, syncFacade } from '../../sim/system';
+import { playSyncActions, replaySyncPin } from '../../sim/system';
 import { expectLiveNote, setNote } from '../apps/acme';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
 import { acmeLargeCatalogSystem, acmeSystem } from '../apps/acme/system';
@@ -8,7 +8,7 @@ import { acmeLargeCatalogSystem, acmeSystem } from '../apps/acme/system';
 describe('online lifecycle wakes query refetch', () => {
   test('online after offline triggers nudge path', async () => {
     await using world = await openWorld(acmeSystem, { seed: 55001 });
-    const facade = syncFacade(world.state);
+    const facade = world.facade;
     const a = facade.clients.get('c0');
     expect(a).toBeDefined();
     if (a === undefined) return;
@@ -24,7 +24,7 @@ describe('online lifecycle wakes query refetch', () => {
 describe('storage full merge abort', () => {
   test('quota arm aborts merge and queue survives restart', async () => {
     await using world = await openWorld(acmeSystem, { seed: 55002 });
-    const facade = syncFacade(world.state);
+    const facade = world.facade;
     const a = facade.clients.get('c0');
     expect(a).toBeDefined();
     if (a === undefined) return;

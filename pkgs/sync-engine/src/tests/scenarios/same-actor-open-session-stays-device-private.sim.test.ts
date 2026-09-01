@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
 import { sql } from '@pkgs/sql';
-import { syncFacade } from '../../sim/system';
 import {
   createSpace,
   expectNoForeignOpenSessions,
@@ -25,7 +24,7 @@ describe('same actor open session stays device private', () => {
         rowImageFanout: true,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const phone = await world.addClient({
       id: 'phone',
       actorId: 'user-1',

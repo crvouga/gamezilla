@@ -34,7 +34,7 @@ type SimDeviceTypeJson = {
 };
 
 function log(message: string): void {
-  process.stderr.write(`[setup:sims] ${message}\n`);
+  process.stderr.write(`[sims:setup] ${message}\n`);
 }
 
 function captureJson<T>(cmd: string, args: string[]): T {

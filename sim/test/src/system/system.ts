@@ -2,7 +2,7 @@ import type { CreateSimOptions, Sim } from '@sim/console/sim/create-sim';
 
 /**
  * Mutable bag shared by `product.*` node kinds. Filled during boot; scenarios
- * reach the live sim via {@link requireSim}.
+ * reach the live sim via framework `world.facade`.
  */
 export type ProductSystem = {
   sim: Sim | null;
@@ -19,12 +19,5 @@ export function createProductSystem(opts?: ProductSystemOpts): ProductSystem {
 }
 
 export function productSim(state: ProductSystem): Sim | null {
-  return state.sim;
-}
-
-export function requireSim(state: ProductSystem): Sim {
-  if (state.sim === null) {
-    throw new Error('product system: product.sim has not booted');
-  }
   return state.sim;
 }

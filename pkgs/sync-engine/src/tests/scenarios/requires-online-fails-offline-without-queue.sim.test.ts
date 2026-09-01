@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
-import { syncFacade } from '../../sim/system';
 import { expectLiveNote, requiresOnlineNote } from '../apps/acme';
 import { acmeSystem } from '../apps/acme/system';
 
@@ -12,7 +11,7 @@ describe('requires online fails offline without queue', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     a.online(false);
 

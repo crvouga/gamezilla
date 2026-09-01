@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
 import { sql } from '@pkgs/sql';
-import { syncFacade } from '../../sim/system';
 import {
   acmeLocalSchemaExtraColumn,
   acmeMutationRegistry,
@@ -24,7 +23,7 @@ describe('server schema upgrade mid session', () => {
           clientCount: 0,
         },
       });
-      const world = syncFacade(host.state);
+      const world = host.facade;
       const alice = await world.addClient({ id: 'alice' });
       const bob = await world.addClient({ id: 'bob' });
 

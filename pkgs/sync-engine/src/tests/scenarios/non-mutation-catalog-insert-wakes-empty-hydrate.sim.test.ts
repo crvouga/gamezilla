@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
-import { syncFacade } from '../../sim/system';
 import { expectLiveNote, insertCatalogNote, isLiveNote } from '../apps/acme';
 import { acmeSystem } from '../apps/acme/system';
 
@@ -16,7 +15,7 @@ describe('non mutation catalog insert wakes empty hydrate', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const client = await world.addClient({ id: 'alice' });
 
     expect(await isLiveNote(client.db, 'n-seed')).toBe(false);
@@ -40,7 +39,7 @@ describe('non mutation catalog insert wakes empty hydrate', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const client = await world.addClient({ id: 'alice' });
 
     expect(await isLiveNote(client.db, 'n-silent')).toBe(false);

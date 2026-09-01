@@ -12,7 +12,6 @@ export type {
 export {
   defineRoomSystem,
   domainOp,
-  roomWorld,
 } from './sim/system';
 export type {
   OpenWorldArgs,

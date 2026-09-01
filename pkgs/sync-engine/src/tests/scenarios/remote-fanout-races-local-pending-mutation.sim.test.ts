@@ -1,6 +1,5 @@
 import { describe, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
-import { syncFacade } from '../../sim/system';
 import { setNote } from '../apps/acme';
 import { acmeSystem } from '../apps/acme/system';
 
@@ -12,7 +11,7 @@ describe('remote fanout races local pending mutation', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 

@@ -5,7 +5,7 @@ import { createKnobCatalog, defineKnob } from './knobs';
 import { createNetEffect } from './net-effect';
 import { RELIABLE_NET_FAULTS } from './network';
 import { captureScenario, parseScenario } from './scenario';
-import { createSimTrace } from './trace';
+import { createReplayingTrace, createSimTrace } from './trace';
 
 describe('FaultCatalog', () => {
   test('queue FIFO + matcher', () => {
@@ -119,15 +119,20 @@ describe('Scenario', () => {
 describe('SimTrace', () => {
   test('disabled is no-op', () => {
     const t = createSimTrace(false);
-    t.record({ now: 0, type: 'lifecycle', phase: 'boot' });
+    t.record({ type: 'lifecycle', phase: 'boot', now: 0 });
     expect(t.events()).toEqual([]);
   });
 
-  test('monotonic seq', () => {
+  test('records in order; replay detects divergence', () => {
     const t = createSimTrace(true);
-    t.record({ now: 0, type: 'lifecycle', phase: 'boot' });
-    t.record({ now: 1, type: 'lifecycle', phase: 'settle' });
-    expect(t.events().map((e) => e.seq)).toEqual([0, 1]);
+    t.record({ type: 'lifecycle', phase: 'boot', now: 0 });
+    t.record({ type: 'lifecycle', phase: 'settle', now: 1 });
+    expect(t.events()).toHaveLength(2);
+    const replay = createReplayingTrace(t.getTrace());
+    replay.record({ type: 'lifecycle', phase: 'boot', now: 0 });
+    expect(() =>
+      replay.record({ type: 'lifecycle', phase: 'chaos', now: 1 })
+    ).toThrow(/divergence/);
   });
 });
 

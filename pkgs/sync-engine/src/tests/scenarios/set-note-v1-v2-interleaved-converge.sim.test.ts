@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
-import { syncFacade } from '../../sim/system';
 import {
   acmeMutationRegistry,
   expectLiveNote,
@@ -28,7 +27,7 @@ describe('set note v1 v2 interleaved converge', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
@@ -55,7 +54,7 @@ describe('set note v1 v2 interleaved converge', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({
       id: 'alice',
       mutationRegistry: mutationRegistryV1Only(),

@@ -1,27 +1,33 @@
 import { describe, expect, test } from 'bun:test';
+import { openWorld } from '@pkgs/determinism';
 import { InMemoryRoomStorage } from '../../server/adapters/memory';
-import { bootRoomKitWorld } from '../../sim/world';
-import {
-  counterValue,
-  Increment,
-  TestCounterModule,
-} from '../fixtures/counter-module';
+import { defineRoomSystem } from '../../sim/system';
+import { counterApp } from '../apps/counter/app';
+import { counterValue, Increment } from '../fixtures/counter-module';
 
 describe('room sim: two-topic shared storage (E-H01)', () => {
   test('faults on topic A do not affect topic B', async () => {
     const storage = new InMemoryRoomStorage();
-    await using worldA = await bootRoomKitWorld({
-      seed: process.env['SIM_SEED'] ?? '42',
-      module: TestCounterModule,
+    const systemA = defineRoomSystem(counterApp, {
+      id: 'room.topic-a',
       topic: 'topic-a',
       storage,
     });
-    await using worldB = await bootRoomKitWorld({
-      seed: '43',
-      module: TestCounterModule,
+    const systemB = defineRoomSystem(counterApp, {
+      id: 'room.topic-b',
       topic: 'topic-b',
       storage,
     });
+    await using hostA = await openWorld(systemA, {
+      seed: process.env['SIM_SEED'] ?? '42',
+      knobs: { clientCount: 0 },
+    });
+    await using hostB = await openWorld(systemB, {
+      seed: '43',
+      knobs: { clientCount: 0 },
+    });
+    const worldA = hostA.facade;
+    const worldB = hostB.facade;
 
     const a1 = await worldA.addClient({ id: 'alice' });
     const a2 = await worldA.addClient({ id: 'bob' });

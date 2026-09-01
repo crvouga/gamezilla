@@ -11,7 +11,7 @@ import type {
 
 /**
  * Mutable bag shared by `mm.*` node kinds. Filled during boot; scenarios
- * reach the facade via {@link requireMmWorld}.
+ * reach the facade via framework `world.facade`.
  */
 export type MatchmakingSystem = {
   readonly schema: MatchmakingSchema;
@@ -21,8 +21,6 @@ export type MatchmakingSystem = {
   replicas: Map<string, ReplicaHandle>;
   firstId: string | null;
   ops: WorldReplicaOps | null;
-  /** Built in system `prepare` after replicas boot. */
-  facade: MatchmakingSimWorld | null;
 };
 
 export type MatchmakingSystemOpts = {
@@ -42,7 +40,6 @@ export function createMatchmakingSystem(
     replicas: new Map(),
     firstId: null,
     ops: null,
-    facade: null,
   };
 }
 
@@ -53,11 +50,4 @@ export function requireStore(state: MatchmakingSystem): SimStore {
   return state.store;
 }
 
-export function requireMmWorld(state: MatchmakingSystem): MatchmakingSimWorld {
-  if (state.facade === null) {
-    throw new Error('matchmaking system: facade not ready (prepare not run)');
-  }
-  return state.facade;
-}
-
-export type { MatchmakingSimBackend };
+export type { MatchmakingSimBackend, MatchmakingSimWorld };

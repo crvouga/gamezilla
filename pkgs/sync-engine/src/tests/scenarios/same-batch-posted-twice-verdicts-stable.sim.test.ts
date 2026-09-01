@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
 import { RELIABLE_FAULTS } from '../../sim/faults';
-import { syncFacade } from '../../sim/system';
 import { expectLiveNote, readLiveNotes, setNote } from '../apps/acme';
 import { acmeSystem } from '../apps/acme/system';
 
@@ -15,7 +14,7 @@ describe('same batch posted twice verdicts stable', () => {
           clientCount: 0,
         },
       });
-      const world = syncFacade(host.state);
+      const world = host.facade;
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
 

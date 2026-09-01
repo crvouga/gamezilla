@@ -32,7 +32,6 @@ export {
 export type { ReplaySyncInputs } from './replay';
 export { replaySync, replaySyncPin } from './replay';
 export type { SyncSystem, SyncSystemFacade } from './system';
-export { requireFacade as syncFacade } from './system';
 export type { WorldModel, WorldReal } from './world-model';
 export {
   AUTH_STATUSES,

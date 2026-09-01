@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
-import { syncFacade } from '../../sim/system';
 import { expectLiveNote, readLiveNotes, setNote } from '../apps/acme';
 import { acmeSystem } from '../apps/acme/system';
 
@@ -12,7 +11,7 @@ describe('reupload idempotent no duplicate rows', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
@@ -39,7 +38,7 @@ describe('reupload idempotent no duplicate rows', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     await a.mutate(setNote, { id: 'n1', body: 'v1' });
     await a.mutate(setNote, { id: 'n1', body: 'v2' });

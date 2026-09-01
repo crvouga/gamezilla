@@ -1,5 +1,11 @@
 # All-quiescence scheduling: a simpler architecture, not (yet) adopted
 
+> Note: `@pkgs/determinism` adopted a **quiescence probe** for unmanaged-promise
+> detection and seeded same-`at` picks (see `CONTEXT.md`). It did **not** adopt
+> determined's full all-quiescence single-path scheduler or lower-bound timer
+> reordering. This write-up remains useful background for the Glide `determined`
+> package.
+
 This document writes up a simplification of the scheduler that came out of
 fixing cross-task promise sharing (a task awaiting a promise settled by
 another task used to hang the simulation silently). It describes the

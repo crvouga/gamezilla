@@ -1,4 +1,3 @@
-import { assert } from '@pkgs/assert';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -118,7 +117,8 @@ async function rebasePending(
     try {
       rawArgs = JSON.parse(row.args);
     } catch {
-      assert.fail(`corrupt pending mutation args: ${row.id}`);
+      // Keep queued; upload rejects as INVALID_ARGS (same as schema failure).
+      continue;
     }
     const parsed = await parseStandardSchema(m.args, rawArgs);
     if (!parsed.ok) continue;

@@ -7,7 +7,9 @@ import type {
 
 export type { NeverOpts, UntilOpts };
 
-/** Promise brand used by sync client.outcome() — polled each until step. */
+/** Promise brand used by sync client.outcome() — polled each until step.
+ * Kept: mutationOutcome is SQL-state polling, not a scheduler-settled promise;
+ * quiescence alone cannot resolve outcome() without this probe. */
 export type SimPollablePromise<T> = Promise<T> & {
   readonly __simPoll: () => Promise<boolean>;
 };

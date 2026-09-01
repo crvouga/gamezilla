@@ -1,14 +1,14 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
 import { sql } from '@pkgs/sql';
-import { playSyncActions, syncFacade } from '../../sim/system';
+import { playSyncActions } from '../../sim/system';
 import { setNote } from '../apps/acme';
 import { acmeSystem } from '../apps/acme/system';
 
 describe('storage full mutate denied', () => {
   test('SQLITE_FULL returns STORAGE_FULL and does not queue', async () => {
     await using world = await openWorld(acmeSystem, { seed: 55100 });
-    const facade = syncFacade(world.state);
+    const facade = world.facade;
     const c0 = facade.clients.get('c0');
     expect(c0).toBeDefined();
     if (c0 === undefined) return;

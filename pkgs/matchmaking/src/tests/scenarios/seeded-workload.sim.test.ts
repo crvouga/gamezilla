@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { openMatchmakingWorld, requireMmWorld } from '../../sim/system';
+import { openMatchmakingWorld } from '../../sim/system';
 import {
   expectMatched,
   RatingAttr,
@@ -13,7 +13,7 @@ async function runWorkload(seed: string): Promise<string> {
     seed,
     replicas: 3,
   });
-  const world = requireMmWorld(host.state);
+  const world = host.facade;
   const replicaIds = [...world.replicas.keys()];
   const participants = [];
   const rng = world.rng.fork('workload');

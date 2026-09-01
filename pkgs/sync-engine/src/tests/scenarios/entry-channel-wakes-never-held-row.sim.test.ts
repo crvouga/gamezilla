@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
-import { syncFacade } from '../../sim/system';
 import { expectLiveNote, isLiveNote, setNote } from '../apps/acme';
 import { acmeSystem } from '../apps/acme/system';
 
@@ -12,7 +11,7 @@ describe('entry channel wakes never-held row', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     // notesWorld entryChannel = NOTES_WORLD_TOPIC (no prior row for n-fresh).
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });

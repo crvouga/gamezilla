@@ -9,7 +9,6 @@ export const profile = defineTable({
     username_changed_at: 'timestamp',
     username_norm: 'text',
   },
-  indexes: ['username_norm'],
 });
 
 export const PROFILE_TABLES = [profile] as const;

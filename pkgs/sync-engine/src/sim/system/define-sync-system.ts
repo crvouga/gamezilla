@@ -30,7 +30,11 @@ import {
   replayStep,
   resetClockSkews,
 } from './play';
-import { requireFacade, type SyncSystem } from './system';
+import {
+  requireFacade,
+  type SyncSystem,
+  type SyncSystemFacade,
+} from './system';
 import {
   applyActionToModel,
   CLIENT_IDS,
@@ -44,10 +48,15 @@ const PLAY_STEP_MS = 10;
 /** Post-topology settle window so clients finish initial hydration. */
 const PREPARE_HYDRATION_MS = 200;
 
-export type SyncSystemWorld = World<SyncSystem>;
-export type SyncSystemDef = SystemDef<SyncSystem, WorldModel>;
+export type SyncSystemWorld = World<SyncSystem, SyncSystemFacade>;
+export type SyncSystemDef = SystemDef<SyncSystem, WorldModel, SyncSystemFacade>;
 
-type SyncActionDef = ActionDef<SyncSystem, SystemAction, WorldModel>;
+type SyncActionDef = ActionDef<
+  SyncSystem,
+  SystemAction,
+  WorldModel,
+  SyncSystemFacade
+>;
 
 /** {@link WorldKnobs} as framework knob defs (id + default + arbitrary). */
 export const SYNC_SYSTEM_KNOBS: readonly KnobDef[] = [
@@ -81,7 +90,7 @@ async function dispatchSync(
 ): Promise<void> {
   const system = world.state;
   await replayStep({
-    world: requireFacade(system),
+    world: world.facade,
     app: system.app,
     action: action as unknown as SyncAction,
     state: system.replay,
@@ -90,7 +99,7 @@ async function dispatchSync(
 
 async function syncPrepareConverge(world: SyncSystemWorld): Promise<void> {
   const system = world.state;
-  const facade = requireFacade(system);
+  const facade = world.facade;
   await prepareClientsForConverge(
     system.app,
     facade,
@@ -109,7 +118,7 @@ export async function playSyncActions(
   world: SyncSystemWorld,
   actions: readonly SyncAction[]
 ): Promise<void> {
-  const facade = requireFacade(world.state);
+  const facade = world.facade;
   for (const action of actions) {
     await dispatchSync(world, action as unknown as SystemAction);
     const inv = await facade.checkInvariants();
@@ -140,7 +149,7 @@ function libraryAction(
   entry: LibraryArbEntry,
   hooks: ModelHooks
 ): SyncActionDef {
-  return defineAction<SyncSystem, SystemAction, WorldModel>({
+  return defineAction<SyncSystem, SystemAction, WorldModel, SyncSystemFacade>({
     kind: entry.kind,
     class: 'library',
     arb: (ctx) =>
@@ -156,7 +165,7 @@ function libraryAction(
 }
 
 function domainAction(app: SyncApp, hooks: ModelHooks): SyncActionDef {
-  return defineAction<SyncSystem, SystemAction, WorldModel>({
+  return defineAction<SyncSystem, SystemAction, WorldModel, SyncSystemFacade>({
     kind: 'domain',
     class: 'domain',
     arb: (ctx) =>
@@ -173,7 +182,7 @@ function domainAction(app: SyncApp, hooks: ModelHooks): SyncActionDef {
 function serverAction(app: SyncApp, hooks: ModelHooks): SyncActionDef | null {
   const serverOpArbs = app.serverOpArbs;
   if (serverOpArbs === undefined) return null;
-  return defineAction<SyncSystem, SystemAction, WorldModel>({
+  return defineAction<SyncSystem, SystemAction, WorldModel, SyncSystemFacade>({
     kind: 'server',
     class: 'domain',
     arb: (ctx) =>
@@ -247,7 +256,7 @@ export function defineSyncSystem(
   opts?: DefineSyncSystemOpts
 ): SyncSystemDef {
   const sessionQuery = opts?.sessionQuery ?? app.pack.sessionQuery;
-  return defineSystem<SyncSystem, WorldModel>({
+  return defineSystem<SyncSystem, WorldModel, SyncSystemFacade>({
     id: opts?.id ?? 'sync.world',
     startMs: WORLD_START_MS,
     network: { defaults: toKernelFaults(RELIABLE_FAULTS) },
@@ -258,7 +267,7 @@ export function defineSyncSystem(
       {
         kind: SYNC_CLIENT,
         role: 'client',
-        countFromKnob: 'clientCount',
+        count: { fromKnob: 'clientCount' },
         idFor: (i) => `c${i}`,
       },
     ],
@@ -267,13 +276,15 @@ export function defineSyncSystem(
     model: {
       initial: (): WorldModel => initialWorldModel(app, CLIENT_IDS),
     },
-    prepare: async (world) => {
-      await requireFacade(world.state).runFor(PREPARE_HYDRATION_MS);
+    facade: async (world) => {
+      const facade = requireFacade(world.state);
+      await facade.runFor(PREPARE_HYDRATION_MS);
+      return facade;
     },
     settle: async (world) => {
       await syncPrepareConverge(world);
-      await requireFacade(world.state).assertConverged();
+      await world.facade.assertConverged();
     },
-    invariants: (world) => requireFacade(world.state).checkInvariants(),
+    invariants: (world) => world.facade.checkInvariants(),
   });
 }

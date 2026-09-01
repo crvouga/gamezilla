@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
-import { roomWorld } from '../../sim/system';
 import { counterSystem } from '../apps/counter/system';
 import { Decrement, Increment } from '../fixtures/counter-module';
 
@@ -9,7 +8,7 @@ async function runChaos(seed: string): Promise<string> {
     seed,
     knobs: { clientCount: 0 },
   });
-  const world = roomWorld(host.state);
+  const world = host.facade;
   const alice = await world.addClient({ id: 'alice' });
   const bob = await world.addClient({ id: 'bob' });
   const carol = await world.addClient({ id: 'carol' });

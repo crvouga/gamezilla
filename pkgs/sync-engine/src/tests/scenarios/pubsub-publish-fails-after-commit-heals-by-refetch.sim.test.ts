@@ -1,6 +1,5 @@
 import { describe, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
-import { syncFacade } from '../../sim/system';
 import { expectLiveNote, isLiveNote, setNote } from '../apps/acme';
 import { acmeSystem } from '../apps/acme/system';
 
@@ -15,7 +14,7 @@ describe('pubsub publish fails after commit heals by refetch', () => {
         rowImageFanout: false,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await a.mutate(setNote, { id: 'warm', body: 'w' });
@@ -51,7 +50,7 @@ describe('pubsub publish fails after commit heals by refetch', () => {
           rowImageFanout: false,
         },
       });
-      const world = syncFacade(host.state);
+      const world = host.facade;
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
       using _pub = world.node('server').publishFault('next');

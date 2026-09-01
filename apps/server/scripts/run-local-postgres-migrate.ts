@@ -28,6 +28,7 @@ export async function runLocalMigrate(): Promise<void> {
       sqlClient,
       logger,
       dbScope,
+      clock: wallClock,
     }).run();
   } finally {
     await pool.end();

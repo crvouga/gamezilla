@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 
 import { openWorld } from '@pkgs/determinism';
-import { roomWorld } from '../../sim/system';
 import { counterSystem } from '../apps/counter/system';
 import { counterValue, Increment } from '../fixtures/counter-module';
 
@@ -11,7 +10,7 @@ describe('room sim: client/server crash restart', () => {
       seed: 'crash-client-1',
       knobs: { clientCount: 0 },
     });
-    const world = roomWorld(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await world.assertConverged();
@@ -37,7 +36,7 @@ describe('room sim: client/server crash restart', () => {
       seed: 'crash-server-1',
       knobs: { clientCount: 0 },
     });
-    const world = roomWorld(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     await world.addClient({ id: 'bob' });
     a.dispatch(Increment({}));
@@ -60,7 +59,7 @@ describe('room sim: client/server crash restart', () => {
       seed: 'boundary-committed-1',
       knobs: { clientCount: 0 },
     });
-    const world = roomWorld(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     await world.addClient({ id: 'bob' });
     world.armCrashAt('alice', 'afterNextCommitted');
@@ -76,7 +75,7 @@ describe('room sim: client/server crash restart', () => {
       seed: 'inv-1',
       knobs: { clientCount: 0 },
     });
-    const world = roomWorld(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     a.dispatch(Increment({}));
     await world.drain();

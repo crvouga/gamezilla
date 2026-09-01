@@ -91,8 +91,11 @@ export type OpenWorldArgs<
   readonly authorize?: RoomSimAuthorize;
   /** Share storage across worlds for multi-topic isolation tests. */
   readonly storage?: InMemoryRoomStorage;
-  /** framework only — framework-owned deps + network from `@pkgs/determinism` node kinds. */
-  readonly injected?: InjectedRoomSimPorts;
+  /**
+   * Required — framework-owned deps + network from `@pkgs/determinism`
+   * (`ctx.deps` / `wrapRoomNetwork({ kernel: ctx.network })`).
+   */
+  readonly injected: InjectedRoomSimPorts;
 };
 
 export type { RoomCrashEvent } from './boundary-faults';

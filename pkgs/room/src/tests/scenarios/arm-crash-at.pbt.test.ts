@@ -3,7 +3,7 @@ import { arbWorldSeed, assertSampleProperty } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
 
 import { WORLD_PBT_CRASH_EVENTS } from '../../sim/boundary-faults';
-import { playRoomActions, replayRoom, roomWorld } from '../../sim/system';
+import { playRoomActions, replayRoom } from '../../sim/system';
 import { counterSystem } from '../apps/counter/system';
 
 /**
@@ -40,7 +40,7 @@ describe('room armCrashAt slice PBT', () => {
                 { kind: 'idle', ms: 30 },
               ],
             });
-            const real = roomWorld(world.state);
+            const real = world.facade;
             try {
               // Restart clears the node but a lingering afterNextWelcome arm
               // would crash again on the reconnect welcome — clear arms first.

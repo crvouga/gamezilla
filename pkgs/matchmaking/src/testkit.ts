@@ -12,7 +12,6 @@ export {
   type MatchmakingSystemDef,
   type OpenMatchmakingWorldArgs,
   openMatchmakingWorld,
-  requireMmWorld,
 } from './sim/system';
 export type {
   MatchmakingSimBackend,

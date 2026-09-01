@@ -5,7 +5,7 @@ import { createSimScheduler } from './scheduler';
 import { createSimTimers } from './timers';
 
 describe('SimScheduler contract', () => {
-  test('same-at events fire in insertion order', async () => {
+  test('same-at events fire in insertion order without schedRng', async () => {
     const clock = createSimClock(0);
     const sched = createSimScheduler(clock);
     const order: number[] = [];
@@ -21,6 +21,45 @@ describe('SimScheduler contract', () => {
     await sched.runFor(10);
     expect(order).toEqual([1, 2, 3]);
     expect(clock.now()).toBe(10);
+  });
+
+  test('cross-task promise does not hang (quiescence probe)', async () => {
+    const clock = createSimClock(0);
+    const sched = createSimScheduler(clock);
+    let resolveB!: () => void;
+    const bReady = new Promise<void>((r) => {
+      resolveB = r;
+    });
+    let aDone = false;
+    sched.scheduleAt(0, async () => {
+      await bReady;
+      aDone = true;
+    });
+    sched.scheduleAt(0, () => {
+      resolveB();
+    });
+    await sched.runUntilIdle();
+    expect(aDone).toBe(true);
+  });
+
+  test('seeded same-at pick is deterministic per seed', async () => {
+    const run = async (seed: number) => {
+      const deps = createSimDeps({ seed });
+      const order: number[] = [];
+      for (let i = 0; i < 5; i += 1) {
+        const n = i;
+        deps.scheduler.scheduleAt(0, () => {
+          order.push(n);
+        });
+      }
+      await deps.scheduler.runFor(0);
+      return order;
+    };
+    expect(await run(7)).toEqual(await run(7));
+    // Different seeds may diverge; same seed must match.
+    const a = await run(11);
+    const b = await run(11);
+    expect(a).toEqual(b);
   });
 
   test('scheduleAt past at>=0 is immediately due', async () => {

@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
-import { syncFacade } from '../../sim/system';
 import {
   expectLiveNote,
   expectNoteNotLive,
@@ -18,7 +17,7 @@ describe('logout login same device no bleed', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const phoneA = await world.addClient({
       id: 'phone',
       actorId: 'user-a',
@@ -69,7 +68,7 @@ describe('logout login same device no bleed', () => {
           clientCount: 0,
         },
       });
-      const world = syncFacade(host.state);
+      const world = host.facade;
       const phone = await world.addClient({
         id: 'phone',
         actorId: 'alice',

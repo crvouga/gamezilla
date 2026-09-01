@@ -2,7 +2,6 @@ import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
 import { assertSampleProperty } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
-import { syncFacade } from '../../sim/system';
 import { arbWorldKnobs, arbWorldSeed } from '../../sim/system/knobs';
 import { expectLiveNote, readLiveNotes } from '../apps/acme/assert';
 import { deleteNote, setNote } from '../apps/acme/shared/mutations';
@@ -22,7 +21,7 @@ describe('authz graph PBT', () => {
           async (seed, knobs, noteId, body) => {
             if (knobs.clientCount < 2) return;
             await using world = await openWorld(acmeSystem, { seed, knobs });
-            const facade = syncFacade(world.state);
+            const facade = world.facade;
             const [owner, peer] = world.roleIds('client');
             const ownerClient = facade.clients.get(owner!)!;
             const peerClient = facade.clients.get(peer!)!;
@@ -77,7 +76,7 @@ describe('authz graph PBT', () => {
           ),
           async (seed, knobs, writes) => {
             await using world = await openWorld(acmeSystem, { seed, knobs });
-            const facade = syncFacade(world.state);
+            const facade = world.facade;
             for (const w of writes) {
               const client = facade.clients.get('c0')!;
               await client.mutate(setNote, {

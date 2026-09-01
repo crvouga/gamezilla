@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
 import { sql } from '@pkgs/sql';
-import { syncFacade } from '../../sim/system';
 import {
   acmeLocalSchemaExtraColumn,
   expectLiveNote,
@@ -20,7 +19,7 @@ describe('client column missing from server snapshot not clobbered', () => {
           clientCount: 0,
         },
       });
-      const world = syncFacade(host.state);
+      const world = host.facade;
       const a = await world.addClient({
         id: 'alice',
         localSchema: acmeLocalSchemaExtraColumn,

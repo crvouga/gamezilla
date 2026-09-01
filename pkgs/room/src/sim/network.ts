@@ -1,7 +1,4 @@
 import {
-  createNetEffect,
-  createSimNetwork,
-  type NetEffect,
   RELIABLE_NET_FAULTS,
   type SimEndpointId,
   type SimNetFaultProfile,
@@ -9,7 +6,8 @@ import {
   type SimNetwork,
   type SimScheduler,
 } from '@pkgs/determinism';
-import type { SeededRng } from '@pkgs/uuid';
+
+import { createNetEffect, type NetEffect } from './net-effect';
 
 /** VOPR-style one-way link knobs for room loopback frames. */
 export type RoomFaultProfile = {
@@ -397,8 +395,7 @@ function buildRoomNetworkApi(args: {
 
 /**
  * Adapt a framework-owned `@pkgs/determinism` network kernel to the room-domain
- * client/direction-keyed surface. framework worlds pass `ctx.network`;
- * {@link createSimRoomNetwork} passes a kernel it just made.
+ * client/direction-keyed surface. Framework worlds pass `ctx.network`.
  */
 export function wrapRoomNetwork(args: {
   readonly kernel: SimNetwork;
@@ -416,20 +413,4 @@ export function wrapRoomNetwork(args: {
     nodeFaults: new Map(),
   };
   return buildRoomNetworkApi({ scheduler: args.scheduler, ctx });
-}
-
-export function createSimRoomNetwork(args: {
-  readonly scheduler: SimScheduler;
-  readonly rng: SeededRng;
-  readonly faults?: RoomFaultProfile;
-}): SimRoomNetwork {
-  const initial = args.faults ?? RELIABLE_ROOM_FAULTS;
-  return wrapRoomNetwork({
-    kernel: createSimNetwork({
-      scheduler: args.scheduler,
-      rng: args.rng,
-      faults: toKernelFaults(initial),
-    }),
-    scheduler: args.scheduler,
-  });
 }

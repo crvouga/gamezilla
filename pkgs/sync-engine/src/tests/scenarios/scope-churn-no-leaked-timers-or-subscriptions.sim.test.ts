@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
-import { syncFacade } from '../../sim/system';
 import { setFolder, setNote } from '../apps/acme';
 import { acmeSystem } from '../apps/acme/system';
 
@@ -12,7 +11,7 @@ describe('scope churn no leaked timers or subscriptions', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     await a.mutate(setFolder, { id: 'f1', title: 'A' });
     await a.mutate(setFolder, { id: 'f2', title: 'B' });
@@ -55,7 +54,7 @@ describe('scope churn no leaked timers or subscriptions', () => {
           clientCount: 0,
         },
       });
-      const world = syncFacade(host.state);
+      const world = host.facade;
       const a = await world.addClient({ id: 'alice' });
       const baseline = [...a.subscribedTopics()].sort();
       for (let i = 0; i < 6; i += 1) {

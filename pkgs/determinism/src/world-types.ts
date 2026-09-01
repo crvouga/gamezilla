@@ -17,13 +17,15 @@ export type WorldNodes = {
   readonly byId: ReadonlyMap<string, NodeInstance>;
 };
 
-export type World<S = unknown> = {
+export type World<S = unknown, F = unknown> = {
   readonly seed: bigint;
   readonly deps: SimDeps;
   readonly clock: SimClock;
   readonly network: SimNetwork;
   readonly nodes: WorldNodes;
   readonly state: S;
+  /** Typed system handle from SystemDef.facade (undefined when omitted). */
+  readonly facade: F;
   readonly knobs: KnobCatalog<Record<string, JsonValue>>;
   readonly faults: FaultCatalog;
   readonly networkDefaults: SimNetFaultProfile;
@@ -39,7 +41,7 @@ export type World<S = unknown> = {
   releaseAll(): void;
   /** Advance virtual time by `ms` (fires due tasks). */
   advance(ms: number): Promise<void>;
-  /** Drain the scheduler toward idle (framework-owned budget). */
+  /** Quiescence-aware drain until the scheduler is idle. */
   idle(): Promise<void>;
   until(
     pred: () => boolean | Promise<boolean>,

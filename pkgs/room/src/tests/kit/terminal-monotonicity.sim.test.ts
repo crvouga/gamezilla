@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
-import { roomWorld } from '../../sim/system';
 import { deadlineSystem } from '../apps/deadline/system';
 import {
   ActBeforeDeadline,
@@ -17,7 +16,7 @@ describe('kit: terminal monotonicity (M-F06)', () => {
       knobs: { clientCount: 0 },
       startMs: 1_000,
     });
-    const world = roomWorld(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await world.assertConverged();

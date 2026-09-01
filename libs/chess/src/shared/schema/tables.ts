@@ -14,7 +14,6 @@ export const chessPuzzles = defineTable({
     game_url: 'text',
     opening_tags: 'json',
   },
-  indexes: ['popularity', 'rating', ['rating', 'popularity']],
   deprecations: [['sync_pool', 'not needed anymore']],
 });
 
@@ -37,7 +36,6 @@ export const chessPuzzleProfiles = defineTable({
     rating_deviation: 'integer',
     last_interaction_at: 'timestamp',
   },
-  indexes: ['owner_id'],
 });
 
 export const chessPuzzleInteractions = defineTable({
@@ -55,7 +53,6 @@ export const chessPuzzleInteractions = defineTable({
     rating_after: 'integer',
     at: 'timestamp',
   },
-  indexes: ['at', 'owner_id', 'puzzle_id'],
 });
 
 export const CHESS_TABLES = [

@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
 import { sql } from '@pkgs/sql';
-import { syncFacade } from '../../sim/system';
 import {
   acmeLocalSchemaExtraColumn,
   deleteNote,
@@ -24,7 +23,7 @@ describe('public API: merge via openWorld', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({
       id: 'alice',
       localSchema: acmeLocalSchemaExtraColumn,
@@ -54,7 +53,7 @@ describe('public API: merge via openWorld', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 

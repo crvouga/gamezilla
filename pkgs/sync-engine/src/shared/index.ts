@@ -65,6 +65,10 @@ export {
   findChannelExhaustivenessGaps,
 } from './channel-exhaustiveness';
 export {
+  type EnvFixture,
+  extractWorkload,
+} from './extract-workload';
+export {
   FRAMEWORK_CACHE_TABLE_NAMES,
   FRAMEWORK_DURABLE_TABLE_NAMES,
   FRAMEWORK_TABLE_NAMES,

@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
 import { assertSample } from '@pkgs/determinism/pbt';
-import { playSyncActions, replaySyncPin, syncFacade } from '../../sim/system';
+import { playSyncActions, replaySyncPin } from '../../sim/system';
 import { setNote } from '../apps/acme';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
 import { acmeSystem } from '../apps/acme/system';
@@ -44,7 +44,7 @@ describe('fault permutation pins', () => {
 
   test('storage full then restart converges', async () => {
     await using world = await openWorld(acmeSystem, { seed: 44002 });
-    const facade = syncFacade(world.state);
+    const facade = world.facade;
     const c0 = facade.clients.get('c0');
     expect(c0).toBeDefined();
     if (c0 === undefined) return;

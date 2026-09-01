@@ -94,7 +94,7 @@ function armQueue(
   const q = store.queues.get(key) ?? [];
   q.push({ payload });
   store.queues.set(key, q);
-  store.trace?.record({ now: 0, type: 'fault_arm', id, target });
+  store.trace?.record({ type: 'fault', op: 'arm', id, target });
 }
 
 function armSet(args: {
@@ -114,7 +114,7 @@ function armSet(args: {
     list.push({ dedupeKey, payload });
     store.sets.set(key, list);
   }
-  store.trace?.record({ now: 0, type: 'fault_arm', id, target, dedupeKey });
+  store.trace?.record({ type: 'fault', op: 'arm', id, target, dedupeKey });
 }
 
 function takeFromList<T extends { readonly payload: unknown }>(
@@ -143,14 +143,14 @@ function takeFault(
   if (mode === 'queue') {
     const entry = takeFromList(store.queues.get(key), key, store.queues, match);
     if (entry === undefined) return undefined;
-    store.trace?.record({ now: 0, type: 'fault_take', id, target });
+    store.trace?.record({ type: 'fault', op: 'take', id, target });
     return entry.payload;
   }
   const entry = takeFromList(store.sets.get(key), key, store.sets, match);
   if (entry === undefined) return undefined;
   store.trace?.record({
-    now: 0,
-    type: 'fault_take',
+    type: 'fault',
+    op: 'take',
     id,
     target,
     dedupeKey: entry.dedupeKey,

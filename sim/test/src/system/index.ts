@@ -17,5 +17,4 @@ export {
   type ProductSystem,
   type ProductSystemOpts,
   productSim,
-  requireSim,
 } from './system';

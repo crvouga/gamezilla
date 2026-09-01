@@ -87,7 +87,7 @@ describe('defineSystem framework world', () => {
         {
           kind: fakeClient,
           role: 'client',
-          countFromKnob: 'clientCount',
+          count: { fromKnob: 'clientCount' },
           idFor: (i) => `c${i}`,
         },
       ],

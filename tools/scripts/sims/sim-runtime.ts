@@ -13,7 +13,7 @@ export function resolveProjectSim(id: SimSpecId): {
   const existing = findDeviceByName(spec.name);
   if (existing === undefined) {
     throw new Error(
-      `Simulator "${spec.name}" is missing. Run \`bun setup:sims\` first.`
+      `Simulator "${spec.name}" is missing. Run \`bun run sims:setup\` first.`
     );
   }
   return { udid: existing.udid, name: spec.name };

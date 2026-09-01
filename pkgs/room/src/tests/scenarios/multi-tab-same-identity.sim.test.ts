@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
-import { roomWorld } from '../../sim/system';
 import { counterSystem } from '../apps/counter/system';
 import { counterValue, Increment } from '../fixtures/counter-module';
 
@@ -10,7 +9,7 @@ describe('room sim: multi-tab same identity (E-C03)', () => {
       seed: process.env['SIM_SEED'] ?? '42',
       knobs: { clientCount: 0 },
     });
-    const world = roomWorld(host.state);
+    const world = host.facade;
     const t1 = await world.addClient({
       id: 'tab1',
       identity: 'alice',

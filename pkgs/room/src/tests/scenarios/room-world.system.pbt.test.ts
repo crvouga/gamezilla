@@ -1,7 +1,7 @@
 import { describe, test } from 'bun:test';
 import { assertSample } from '@pkgs/determinism/pbt';
 
-import { replayRoom, replayRoomPin, roomWorld } from '../../sim/system';
+import { replayRoom, replayRoomPin } from '../../sim/system';
 import { counterSystem } from '../apps/counter/system';
 
 describe('room world PBT', () => {
@@ -105,7 +105,7 @@ describe('room world PBT', () => {
       ],
     });
     try {
-      const inv = await roomWorld(world.state).checkInvariants();
+      const inv = await world.facade.checkInvariants();
       if (inv !== null) {
         throw new Error(`${inv.invariant}: ${inv.detail}`);
       }

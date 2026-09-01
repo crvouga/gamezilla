@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
-import { syncFacade } from '../../sim/system';
 import {
   befriend,
   createSpace,
@@ -18,7 +17,7 @@ describe('friend hosted space cold hydrate', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const alice = await world.addClient({
       id: 'alice',
       sessionQuery: SPACE_MEMBERSHIP_SESSION,

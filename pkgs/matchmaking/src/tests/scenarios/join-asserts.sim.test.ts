@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { AttributeState } from '@pkgs/attribute';
 import { MATCHMAKING_PAYLOAD_LIMITS } from '../../interface/payload-limits';
-import { openMatchmakingWorld, requireMmWorld } from '../../sim/system';
+import { openMatchmakingWorld } from '../../sim/system';
 import { NameAttr, RatingAttr, registerTestCrashHandler } from '../fixtures';
 
 const SimpleFormula = { numeric: [{ tag: RatingAttr, weight: 1 }] };
@@ -17,7 +17,7 @@ describe('matchmaking sim: join asserts', () => {
 
   test('throws on empty formulas array', async () => {
     await using host = await openMatchmakingWorld({ seed: 10 });
-    const world = requireMmWorld(host.state);
+    const world = host.facade;
     await expect(
       world.join({ data: RatingAttr(1000), formulas: [] })
     ).rejects.toThrow();
@@ -25,7 +25,7 @@ describe('matchmaking sim: join asserts', () => {
 
   test('throws on empty formula (no terms)', async () => {
     await using host = await openMatchmakingWorld({ seed: 11 });
-    const world = requireMmWorld(host.state);
+    const world = host.facade;
     await expect(
       world.join({ data: RatingAttr(1000), formulas: [{ numeric: [] }] })
     ).rejects.toThrow();
@@ -33,7 +33,7 @@ describe('matchmaking sim: join asserts', () => {
 
   test('throws on negative numeric weight', async () => {
     await using host = await openMatchmakingWorld({ seed: 12 });
-    const world = requireMmWorld(host.state);
+    const world = host.facade;
     await expect(
       world.join({
         data: RatingAttr(1000),
@@ -44,7 +44,7 @@ describe('matchmaking sim: join asserts', () => {
 
   test('throws when required numeric attr is missing', async () => {
     await using host = await openMatchmakingWorld({ seed: 13 });
-    const world = requireMmWorld(host.state);
+    const world = host.facade;
     await expect(
       world.join({ data: NameAttr('orphan'), formulas: [SimpleFormula] })
     ).rejects.toThrow();
@@ -52,7 +52,7 @@ describe('matchmaking sim: join asserts', () => {
 
   test('throws when data contains a non-keyword key', async () => {
     await using host = await openMatchmakingWorld({ seed: 14 });
-    const world = requireMmWorld(host.state);
+    const world = host.facade;
     await expect(
       world.join({
         data: { badkey: 1 } as unknown as AttributeState,
@@ -63,7 +63,7 @@ describe('matchmaking sim: join asserts', () => {
 
   test('rejects groupSize out of range', async () => {
     await using host = await openMatchmakingWorld({ seed: 15 });
-    const world = requireMmWorld(host.state);
+    const world = host.facade;
     await expect(
       world.join({
         data: RatingAttr(1000),
@@ -82,7 +82,7 @@ describe('matchmaking sim: join asserts', () => {
 
   test('rejects priority out of range', async () => {
     await using host = await openMatchmakingWorld({ seed: 16 });
-    const world = requireMmWorld(host.state);
+    const world = host.facade;
     await expect(
       world.join({
         data: RatingAttr(1000),

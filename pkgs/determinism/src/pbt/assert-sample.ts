@@ -1,10 +1,21 @@
 import type { AsyncCommand } from 'fast-check';
 import fc from 'fast-check';
 import type { SystemAction, SystemDef } from '../define-system';
+import { resolveNodeCount } from '../define-system';
 import type { JsonValue } from '../json';
 import { playActions } from '../play';
-import type { SimScenario, SimScenarioInputs } from '../scenario';
+import {
+  parseScenario,
+  type SimScenario,
+  type SimScenarioInputs,
+} from '../scenario';
+import type { TraceRecord } from '../trace';
 import { openWorld, type World } from '../world';
+import {
+  assertDeterministic,
+  failureArtifact,
+  formatFailureArtifact,
+} from './assert-deterministic';
 import {
   type AssertSamplePropertyParams,
   arbFromKnobDefs,
@@ -23,10 +34,7 @@ function roleIdsFromKnobs(
     const ids: string[] = [];
     for (const spec of system.nodes) {
       if (spec.role !== role) continue;
-      const count =
-        spec.countFromKnob !== undefined
-          ? Number(knobs[spec.countFromKnob] ?? 0)
-          : (spec.count ?? 1);
+      const count = resolveNodeCount(spec.count, (id) => knobs[id]);
       for (let i = 0; i < count; i += 1) {
         ids.push(spec.idFor?.(i) ?? (count === 1 ? role : `${role}${i}`));
       }
@@ -38,30 +46,39 @@ function roleIdsFromKnobs(
 
 type ActionReal = { actions: SystemAction[] };
 
+/** Weight library chaos lighter than domain so PBT spends more time on domain ops. */
+const CLASS_WEIGHT: Record<'library' | 'domain', number> = {
+  library: 1,
+  domain: 3,
+};
+
 function buildActionCommands(
   system: SystemDef,
   knobs: Record<string, JsonValue>
 ): fc.Arbitrary<AsyncCommand<object, ActionReal>>[] {
   const roleIds = roleIdsFromKnobs(system, knobs);
-  const ctx = { roleIds, knobs };
+  const edges = system.network?.edges ?? [];
+  const ctx = { roleIds, knobs, edges };
   const out: fc.Arbitrary<AsyncCommand<object, ActionReal>>[] = [];
 
   for (const actionDef of system.actions) {
     const allows = actionDef.allows ?? (() => true);
     const apply = actionDef.apply ?? (() => undefined);
-    out.push(
-      actionDef.arb(ctx).map((action) => {
-        const a = action as SystemAction;
-        return {
-          check: (m: object) => allows(m, a),
-          run: async (m: object, r: ActionReal) => {
-            apply(m, a);
-            r.actions.push(a);
-          },
-          toString: () => JSON.stringify(a),
-        };
-      })
-    );
+    const weight = CLASS_WEIGHT[actionDef.class];
+    const cmdArb = actionDef.arb(ctx).map((action) => {
+      const a = action as SystemAction;
+      return {
+        check: (m: object) => allows(m, a),
+        run: async (m: object, r: ActionReal) => {
+          apply(m, a);
+          r.actions.push(a);
+        },
+        toString: () => JSON.stringify(a),
+      };
+    });
+    for (let i = 0; i < weight; i += 1) {
+      out.push(cmdArb);
+    }
   }
 
   if (out.length === 0) {
@@ -88,8 +105,8 @@ export type AssertSampleOpts = AssertSamplePropertyParams & {
   readonly maxCommands?: number;
 };
 
-export async function assertSample<S, M extends object = object>(
-  system: SystemDef<S, M>,
+export async function assertSample<S, M extends object = object, F = unknown>(
+  system: SystemDef<S, M, F>,
   opts?: AssertSampleOpts
 ): Promise<void> {
   if (system.model === undefined) {
@@ -119,10 +136,12 @@ export async function assertSample<S, M extends object = object>(
         return fc.tuple(fc.constant(seed), fc.constant(knobs), cmds);
       }),
       async ([seed, knobs, cmds]) => {
-        await using world = await openWorld(system, { seed, knobs });
+        // Model phase first (no world boot) — collect the action list.
         const real: ActionReal = { actions: [] };
         const model = modelInitial() as object;
         await fc.asyncModelRun(() => ({ model, real }), cmds);
+
+        await using world = await openWorld(system, { seed, knobs });
         await playActions({
           advance: (ms) => world.advance(ms),
           actions: real.actions,
@@ -130,6 +149,13 @@ export async function assertSample<S, M extends object = object>(
             dispatchAction(sys, world as World, a as SystemAction),
         });
         await world.settle();
+
+        // Determinism gate on the collected scenario.
+        await assertDeterministic(system, {
+          seed,
+          knobs,
+          actions: real.actions,
+        });
       }
     ),
     opts
@@ -142,51 +168,105 @@ export type ReplayInputs = {
   readonly actions: readonly SystemAction[];
   readonly networkDefaults?: SimScenarioInputs['networkDefaults'];
   readonly settle?: boolean;
+  /** Optional recorded trace to validate against during the run. */
+  readonly trace?: readonly TraceRecord[];
 };
 
-export async function replay<S>(
-  system: SystemDef<S>,
-  inputs: ReplayInputs
+function isScenario(
+  inputs: ReplayInputs | SimScenario | string
+): inputs is SimScenario {
+  return (
+    typeof inputs === 'object' &&
+    inputs !== null &&
+    'version' in inputs &&
+    (inputs as SimScenario).version === 1
+  );
+}
+
+export async function replay<S, F = unknown>(
+  system: SystemDef<S, object, F>,
+  inputs: ReplayInputs | SimScenario | string
 ): Promise<{
-  readonly world: World<S>;
+  readonly world: World<S, F>;
   readonly scenario: SimScenario<SystemAction>;
+  readonly trace: readonly TraceRecord[];
 }> {
-  const sys = system as unknown as SystemDef;
-  const world = await openWorld(system, {
-    seed: inputs.seed,
-    ...(inputs.knobs !== undefined ? { knobs: inputs.knobs } : {}),
-    ...(inputs.networkDefaults !== undefined
-      ? { networkDefaults: inputs.networkDefaults }
-      : {}),
-  });
-  try {
-    await playActions({
-      advance: (ms) => world.advance(ms),
-      actions: inputs.actions,
-      dispatch: (a) => dispatchAction(sys, world as World, a as SystemAction),
-    });
-    if (inputs.settle !== false) {
-      await world.settle();
+  const resolved: ReplayInputs = (() => {
+    if (typeof inputs === 'string') {
+      const s = parseScenario(inputs);
+      return {
+        seed: s.inputs.seed,
+        knobs: s.inputs.knobs,
+        actions: s.inputs.actions as SystemAction[],
+        networkDefaults: s.inputs.networkDefaults,
+      };
     }
+    if (isScenario(inputs)) {
+      return {
+        seed: inputs.inputs.seed,
+        knobs: inputs.inputs.knobs,
+        actions: inputs.inputs.actions as SystemAction[],
+        networkDefaults: inputs.inputs.networkDefaults,
+      };
+    }
+    return inputs;
+  })();
+
+  try {
+    const { scenario, trace } = await assertDeterministic(system, resolved);
+    // Re-open for the caller to inspect (gate already disposed its worlds).
+    const world = await openWorld(system, {
+      seed: resolved.seed,
+      ...(resolved.knobs !== undefined ? { knobs: resolved.knobs } : {}),
+      ...(resolved.networkDefaults !== undefined
+        ? { networkDefaults: resolved.networkDefaults }
+        : {}),
+    });
+    try {
+      await playActions({
+        advance: (ms) => world.advance(ms),
+        actions: resolved.actions,
+        dispatch: (a) =>
+          dispatchAction(
+            system as unknown as SystemDef,
+            world as World,
+            a as SystemAction
+          ),
+      });
+      if (resolved.settle !== false) {
+        await world.settle();
+      }
+    } catch (e) {
+      await world.dispose().catch(() => undefined);
+      throw e;
+    }
+    return { world, scenario, trace };
   } catch (e) {
-    await world.dispose().catch(() => undefined);
-    throw e;
+    const scenario: SimScenario<SystemAction> = {
+      version: 1,
+      inputs: {
+        seed: String(resolved.seed),
+        startMs: 0,
+        knobs: (resolved.knobs ?? {}) as Record<string, JsonValue>,
+        actions: resolved.actions,
+        networkDefaults:
+          resolved.networkDefaults ??
+          ({
+            oneWayDelayMeanMs: 0,
+            oneWayDelayJitterMs: 0,
+            packetLossProbability: 0,
+            duplicateProbability: 0,
+            reorderWindowMs: 0,
+            partitionProbability: 0,
+            unpartitionProbability: 0,
+          } as SimScenarioInputs['networkDefaults']),
+      },
+      meta: { appId: system.id },
+    };
+    throw new Error(formatFailureArtifact(failureArtifact(scenario, [], e)), {
+      cause: e,
+    });
   }
-  const scenario: SimScenario<SystemAction> = {
-    version: 1,
-    inputs: {
-      seed: String(inputs.seed),
-      startMs: world.startMs,
-      knobs: world.knobs.toJSON() as Record<string, JsonValue>,
-      actions: inputs.actions,
-      networkDefaults: world.networkDefaults,
-    },
-    meta: {
-      appId: system.id,
-      seedHex: world.seed.toString(16),
-    },
-  };
-  return { world, scenario };
 }
 
 export type FaultPin = {
@@ -195,8 +275,8 @@ export type FaultPin = {
   readonly actions: readonly SystemAction[];
 };
 
-export async function assertFaultPins<S>(
-  system: SystemDef<S>,
+export async function assertFaultPins<S, F = unknown>(
+  system: SystemDef<S, object, F>,
   pins: readonly FaultPin[],
   opts?: AssertSamplePropertyParams
 ): Promise<void> {

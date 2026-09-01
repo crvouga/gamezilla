@@ -5,7 +5,7 @@ import {
   type JsonValue,
 } from './json';
 import type { SimNetFaultProfile } from './network';
-import type { SimTraceEvent } from './trace';
+import type { TraceRecord } from './trace';
 
 export type SimScenarioInputs<
   A extends JsonValue = JsonValue,
@@ -39,7 +39,7 @@ export type SimScenario<
 
 export type SimFailureArtifact = {
   readonly scenario: SimScenario;
-  readonly trace: readonly SimTraceEvent[];
+  readonly trace: readonly TraceRecord[];
   readonly error: string;
 };
 

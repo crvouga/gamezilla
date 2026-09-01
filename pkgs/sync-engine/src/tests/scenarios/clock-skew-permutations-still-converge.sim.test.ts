@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
-import { type SyncSystemFacade, syncFacade } from '../../sim/system';
+import type { SyncSystemFacade } from '../../sim/system';
 import {
   deleteNote,
   expectNotesMatchServer,
@@ -135,7 +135,7 @@ describe('clock skew permutations still converge', () => {
             clientCount: 0,
           },
         });
-        const world = syncFacade(host.state);
+        const world = host.facade;
         await offlineConflictThenConverge(world, order);
       },
       { timeout: 60_000 }
@@ -150,7 +150,7 @@ describe('clock skew permutations still converge', () => {
             clientCount: 0,
           },
         });
-        const world = syncFacade(host.state);
+        const world = host.facade;
         await onlineOptimisticRace(world, order);
       },
       { timeout: 60_000 }
@@ -165,7 +165,7 @@ describe('clock skew permutations still converge', () => {
             clientCount: 0,
           },
         });
-        const world = syncFacade(host.state);
+        const world = host.facade;
         await aheadDeleteBehindPending(world, order);
       },
       { timeout: 60_000 }

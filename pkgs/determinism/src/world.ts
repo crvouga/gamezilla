@@ -1,34 +1,18 @@
 import { createSimDeps } from './create-sim-deps';
-import type { SystemDef } from './define-system';
+import { resolveNodeCount, type SystemDef } from './define-system';
 import { createFaultCatalog } from './faults';
-import type { JsonValue } from './json';
 import { createKnobCatalog } from './knobs';
 import {
   createSimNetwork,
   RELIABLE_NET_FAULTS,
   type SimNetFaultProfile,
+  type SimNetwork,
   type SimNodeId,
 } from './network';
 import type { NodeInstance } from './node-kind';
 import { throwIfInvariant } from './play';
 import { never, until } from './until';
 import type { OpenWorldOpts, World } from './world-types';
-
-function resolveNodeCount(
-  spec: { count?: number; countFromKnob?: string },
-  knobs: { get: (id: string) => JsonValue }
-): number {
-  if (spec.countFromKnob !== undefined) {
-    const v = knobs.get(spec.countFromKnob);
-    if (typeof v !== 'number' || !Number.isFinite(v) || v < 0) {
-      throw new Error(
-        `openWorld: knob ${spec.countFromKnob} must be non-negative number`
-      );
-    }
-    return Math.floor(v);
-  }
-  return spec.count ?? 1;
-}
 
 function defaultNodeId(role: string, index: number, count: number): string {
   if (count === 1) return role;
@@ -40,15 +24,18 @@ type BootedNode = NodeInstance & {
   readonly endpointIds: readonly string[];
 };
 
+type BootArgs = {
+  readonly deps: ReturnType<typeof createSimDeps>;
+  readonly network: SimNetwork;
+  readonly knobs: ReturnType<typeof createKnobCatalog>;
+  readonly faults: ReturnType<typeof createFaultCatalog>;
+  readonly stateBag: unknown;
+  readonly endpointRoles: Map<string, string>;
+};
+
 async function bootTopology(
   system: SystemDef<unknown>,
-  args: {
-    readonly deps: ReturnType<typeof createSimDeps>;
-    readonly network: ReturnType<typeof createSimNetwork>;
-    readonly knobs: ReturnType<typeof createKnobCatalog>;
-    readonly faults: ReturnType<typeof createFaultCatalog>;
-    readonly stateBag: unknown;
-  }
+  args: BootArgs
 ): Promise<{
   readonly byRole: Record<string, NodeInstance[]>;
   readonly byId: Map<string, NodeInstance>;
@@ -59,7 +46,7 @@ async function bootTopology(
   const booted: BootedNode[] = [];
 
   for (const spec of system.nodes) {
-    const count = resolveNodeCount(spec, args.knobs);
+    const count = resolveNodeCount(spec.count, (id) => args.knobs.get(id));
     const kind = spec.kind;
     for (let index = 0; index < count; index += 1) {
       const nodeId =
@@ -83,6 +70,7 @@ async function bootTopology(
       const endpoints = kind.endpoints?.(handle) ?? [];
       for (const ep of endpoints) {
         args.network.register(ep.id, ep.deliver);
+        args.endpointRoles.set(ep.id, spec.role);
       }
       const view = kind.view?.(handle) ?? handle;
       const instance: NodeInstance = {
@@ -108,6 +96,38 @@ async function bootTopology(
     }
   }
   return { byRole, byId, booted };
+}
+
+function wrapNetworkWithEdges(
+  network: SimNetwork,
+  edges: readonly { readonly fromRole: string; readonly toRole: string }[],
+  endpointRoles: Map<string, string>
+): SimNetwork {
+  if (edges.length === 0) return network;
+  const allowed = new Set<string>();
+  for (const e of edges) {
+    allowed.add(`${e.fromRole}\0${e.toRole}`);
+    allowed.add(`${e.toRole}\0${e.fromRole}`);
+  }
+  return {
+    ...network,
+    send(from, to, payload, opts) {
+      if (from !== to) {
+        const fr = endpointRoles.get(from);
+        const tr = endpointRoles.get(to);
+        if (
+          fr !== undefined &&
+          tr !== undefined &&
+          !allowed.has(`${fr}\0${tr}`)
+        ) {
+          throw new Error(
+            `SimNetwork.send: undeclared edge ${fr}→${tr} (from=${from} to=${to})`
+          );
+        }
+      }
+      network.send(from, to, payload, opts);
+    },
+  };
 }
 
 function pickNode(
@@ -137,7 +157,7 @@ function pickNode(
 
 function makeDispose(
   booted: readonly BootedNode[],
-  network: ReturnType<typeof createSimNetwork>
+  network: SimNetwork
 ): () => Promise<void> {
   let disposed = false;
   return async () => {
@@ -175,23 +195,21 @@ function forEachEndpointPair(
   }
 }
 
-const IDLE_MAX_STEPS = 64;
-const IDLE_MIN_STEP_MS = 10;
-
-function assembleWorld<S>(args: {
-  readonly system: SystemDef<S>;
+function assembleWorld<S, F>(args: {
+  readonly system: SystemDef<S, object, F>;
   readonly deps: ReturnType<typeof createSimDeps>;
-  readonly network: ReturnType<typeof createSimNetwork>;
+  readonly network: SimNetwork;
   readonly knobs: ReturnType<typeof createKnobCatalog>;
   readonly faults: ReturnType<typeof createFaultCatalog>;
   readonly stateBag: S;
+  readonly facade: F;
   readonly networkDefaults: SimNetFaultProfile;
   readonly startMs: number;
   readonly byRole: Record<string, NodeInstance[]>;
   readonly byId: Map<string, NodeInstance>;
   readonly booted: BootedNode[];
   readonly dispose: () => Promise<void>;
-}): World<S> {
+}): World<S, F> {
   const { deps, network, system, stateBag, byRole, byId, booted } = args;
   const untilCtx = {
     clock: deps.clock,
@@ -199,13 +217,16 @@ function assembleWorld<S>(args: {
     seed: deps.seed,
     heldSummary: () => network.heldSummary(),
   };
-  let world!: World<S>;
+  let world!: World<S, F>;
   world = {
     seed: deps.seed,
     deps,
     clock: deps.clock,
     network,
     state: stateBag,
+    get facade() {
+      return args.facade;
+    },
     knobs: args.knobs,
     faults: args.faults,
     networkDefaults: args.networkDefaults,
@@ -235,13 +256,7 @@ function assembleWorld<S>(args: {
       await deps.scheduler.runFor(ms);
     },
     idle: async () => {
-      for (let i = 0; i < IDLE_MAX_STEPS; i += 1) {
-        const next = deps.scheduler.nextDueAt();
-        if (next === null) return;
-        const now = deps.clock.now();
-        const delta = Math.max(IDLE_MIN_STEP_MS, next - now);
-        await deps.scheduler.runFor(delta);
-      }
+      await deps.scheduler.runUntilIdle();
     },
     until: (pred, o) => until(untilCtx, pred, o),
     never: (pred, o) => never(untilCtx, pred, o),
@@ -257,13 +272,13 @@ function assembleWorld<S>(args: {
 }
 
 /**
- * Framework-owned world: deps + network + topology nodes.
- * Packages declare {@link defineSystem}; they do not mint SimDeps.
+ * Framework-owned world: deps + network + topology nodes + optional facade.
+ * Packages declare {@link defineSystem}; they do not mint SimDeps for worlds.
  */
-export async function openWorld<S = unknown, M = object>(
-  system: SystemDef<S, M>,
+export async function openWorld<S = unknown, M = object, F = unknown>(
+  system: SystemDef<S, M, F>,
   opts: OpenWorldOpts
-): Promise<World<S>> {
+): Promise<World<S, F>> {
   const startMs = opts.startMs ?? system.startMs ?? 0;
   const deps = createSimDeps({
     seed: opts.seed,
@@ -272,25 +287,33 @@ export async function openWorld<S = unknown, M = object>(
   });
   const networkDefaults: SimNetFaultProfile =
     opts.networkDefaults ?? system.network?.defaults ?? RELIABLE_NET_FAULTS;
-  const network = createSimNetwork({
+  const rawNetwork = createSimNetwork({
     scheduler: deps.scheduler,
     rng: deps.rng.fork('net'),
     faults: networkDefaults,
+    ...(deps.trace.enabled ? { trace: deps.trace } : {}),
   });
+  const endpointRoles = new Map<string, string>();
+  const edges = system.network?.edges ?? [];
+  const network = wrapNetworkWithEdges(rawNetwork, edges, endpointRoles);
   const knobs = createKnobCatalog(system.knobs, opts.knobs);
   const faults = createFaultCatalog(system.faults ?? []);
   const stateBag = (system.state?.() ?? {}) as S;
   const { byRole, byId, booted } = await bootTopology(
     system as SystemDef<unknown>,
-    { deps, network, knobs, faults, stateBag }
+    { deps, network, knobs, faults, stateBag, endpointRoles }
   );
+  const facadeSlot: { value: F } = { value: undefined as F };
   const world = assembleWorld({
-    system: system as SystemDef<S>,
+    system: system as SystemDef<S, object, F>,
     deps,
     network,
     knobs,
     faults,
     stateBag,
+    get facade() {
+      return facadeSlot.value;
+    },
     networkDefaults,
     startMs,
     byRole,
@@ -298,8 +321,8 @@ export async function openWorld<S = unknown, M = object>(
     booted,
     dispose: makeDispose(booted, network),
   });
-  if (system.prepare !== undefined) {
-    await system.prepare(world);
+  if (system.facade !== undefined) {
+    facadeSlot.value = await system.facade(world);
   }
   return world;
 }

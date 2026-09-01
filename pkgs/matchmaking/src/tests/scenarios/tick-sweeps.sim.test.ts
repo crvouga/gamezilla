@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { openMatchmakingWorld, requireMmWorld } from '../../sim/system';
+import { openMatchmakingWorld } from '../../sim/system';
 import { RatingAttr, registerTestCrashHandler } from '../fixtures';
 
 const SimpleFormula = { numeric: [{ tag: RatingAttr, weight: 1 }] };
@@ -18,7 +18,7 @@ describe('matchmaking sim: tick sweeps', () => {
       seed: 50,
       tuning: { maxWaitSeconds: 30 },
     });
-    const world = requireMmWorld(host.state);
+    const world = host.facade;
     const p = await world.join({
       data: RatingAttr(1000),
       formulas: [SimpleFormula],
@@ -34,7 +34,7 @@ describe('matchmaking sim: tick sweeps', () => {
       seed: 51,
       tuning: { matchedRetentionSeconds: 10 },
     });
-    const world = requireMmWorld(host.state);
+    const world = host.facade;
     const a = await world.join({
       data: RatingAttr(1000),
       formulas: [SimpleFormula],
@@ -52,7 +52,7 @@ describe('matchmaking sim: tick sweeps', () => {
 
   test('tick on an empty queue is a clean no-op', async () => {
     await using host = await openMatchmakingWorld({ seed: 52 });
-    const world = requireMmWorld(host.state);
+    const world = host.facade;
     expect(await world.tick()).toEqual({
       matches: 0,
       passes: 0,

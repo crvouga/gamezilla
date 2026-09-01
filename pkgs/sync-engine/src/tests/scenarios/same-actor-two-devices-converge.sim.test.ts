@@ -1,6 +1,5 @@
 import { describe, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
-import { syncFacade } from '../../sim/system';
 import { expectLiveNote, expectNotesMatchServer, setNote } from '../apps/acme';
 import { acmeSystem } from '../apps/acme/system';
 
@@ -12,7 +11,7 @@ describe('same actor two devices converge', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const phone = await world.addClient({
       id: 'phone',
       actorId: 'user-1',

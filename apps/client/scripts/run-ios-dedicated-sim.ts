@@ -2,7 +2,7 @@
  * Run the Expo dev server and open the product dev client on the SIM_SPEC iPhone.
  *
  * See `ios-dedicated-sim.ts` for boot / dev-client install. Simulators must
- * exist (`bun setup:sims`) before auto-open runs.
+ * exist (`bun run sims:setup`) before auto-open runs.
  *
  * Extra argv (`--web`, `--tunnel`, etc.) is forwarded to `expo start`.
  *

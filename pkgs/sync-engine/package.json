@@ -18,6 +18,7 @@
     "@noble/hashes": "catalog:",
     "@pkgs/assert": "workspace:*",
     "@pkgs/clock": "workspace:*",
+    "@pkgs/db-indexes": "workspace:*",
     "@pkgs/db-migrate": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
     "@pkgs/determinism": "workspace:*",

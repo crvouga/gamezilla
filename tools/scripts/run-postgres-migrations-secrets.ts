@@ -88,6 +88,7 @@ async function runPostgresMigrationsFromSecretsOnce(): Promise<void> {
       sqlClient,
       logger,
       dbScope,
+      clock: wallClock,
     }).run();
     process.stdout.write(
       '[postgres:migrate-secrets] schema + sync publication OK\n'

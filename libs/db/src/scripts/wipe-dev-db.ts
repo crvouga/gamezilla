@@ -123,6 +123,7 @@ async function main(): Promise<void> {
       sqlClient,
       logger: log,
       dbScope,
+      clock: wallClock,
     }).run();
     log.info('wipe + remigrate finished');
     process.stdout.write(

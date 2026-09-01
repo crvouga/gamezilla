@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { openMatchmakingWorld, requireMmWorld } from '../../sim/system';
+import { openMatchmakingWorld } from '../../sim/system';
 import {
   assertMatchInvariants,
   RatingAttr,
@@ -23,7 +23,7 @@ describe('matchmaking sim: concurrent replica ticks', () => {
       replicas: 3,
       backend: 'postgres',
     });
-    const world = requireMmWorld(host.state);
+    const world = host.facade;
     const participants = [];
     for (let i = 0; i < 12; i += 1) {
       world.clock.advance(1);

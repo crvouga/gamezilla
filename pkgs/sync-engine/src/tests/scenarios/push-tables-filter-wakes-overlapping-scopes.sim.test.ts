@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
-import { syncFacade } from '../../sim/system';
 import {
   expectLiveNote,
   readLiveFolders,
@@ -21,7 +20,7 @@ describe('push tables filter wakes overlapping scopes', () => {
         rowImageFanout: false,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     const notesPeer = await world.addClient({
       id: 'notesPeer',

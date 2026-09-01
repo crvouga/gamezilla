@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
-import { roomWorld } from '../../sim/system';
 import { counterSystem } from '../apps/counter/system';
 import { counterValue, Increment } from '../fixtures/counter-module';
 import { commandWire } from './wire-helpers';
@@ -11,7 +10,7 @@ describe('room sim: command-id replay dedup (E-B02)', () => {
       seed: process.env['SIM_SEED'] ?? '42',
       knobs: { clientCount: 0 },
     });
-    const world = roomWorld(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await world.assertConverged();

@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
-import { syncFacade } from '../../sim/system';
 import { expectLiveNote, isLiveNote, setNote } from '../apps/acme';
 import { acmeSystem } from '../apps/acme/system';
 
@@ -13,7 +12,7 @@ describe('background pauses sweeps foreground catches up', () => {
         rowImageFanout: false,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await a.mutate(setNote, { id: 'warm', body: 'w' });
@@ -36,7 +35,7 @@ describe('background pauses sweeps foreground catches up', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     a.foreground(false);
     const ok = await a.mutate(setNote, { id: 'local', body: 'bg-write' });

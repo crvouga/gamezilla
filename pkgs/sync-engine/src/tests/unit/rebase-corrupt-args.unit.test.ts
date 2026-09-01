@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { assert, ThrowingCrashHandler } from '@pkgs/assert';
 import { sql } from '@pkgs/sql';
 import { SqlClientImplSqliteMem } from '@pkgs/sql-client/sqlite/impl-sqlite-mem';
 
@@ -9,7 +8,7 @@ import { createTableChangeBus } from '../../queries/client/table-change-bus';
 import { acmeLocalSchema, acmeMutationRegistry } from '../apps/acme';
 
 describe('rebase corrupt pending args', () => {
-  test('crashes on JSON.parse failure in pending queue', async () => {
+  test('skips JSON.parse failure so merge still applies', async () => {
     const db = SqlClientImplSqliteMem.open();
     await db.connect();
     await migrateLocalSchema(db, acmeLocalSchema);
@@ -40,18 +39,18 @@ describe('rebase corrupt pending args', () => {
       bus: createTableChangeBus(),
       clientId: 'c0',
     };
-    const dispose = assert.registerCrashHandler(new ThrowingCrashHandler());
-    try {
-      await expect(
-        applyFullMerge(deps, {
-          scopeHash: 's',
-          checkpoint: '1',
-          hash: 'h',
-          tables: { notes: [] },
-        })
-      ).rejects.toThrow(/corrupt pending mutation args/i);
-    } finally {
-      dispose();
-    }
+    await expect(
+      applyFullMerge(deps, {
+        scopeHash: 's',
+        checkpoint: '1',
+        hash: 'h',
+        tables: { notes: [] },
+      })
+    ).resolves.toBe('applied');
+
+    const stillQueued = await db.query(sql<{ id: string }>`
+      SELECT id FROM sync_engine_mutations WHERE id = ${'bad'}
+    `);
+    expect(stillQueued).toEqual([{ id: 'bad' }]);
   });
 });

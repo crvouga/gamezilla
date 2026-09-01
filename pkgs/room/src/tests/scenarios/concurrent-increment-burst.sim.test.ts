@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
-import { roomWorld } from '../../sim/system';
 import { counterSystem } from '../apps/counter/system';
 import { counterValue, Increment } from '../fixtures/counter-module';
 
@@ -10,7 +9,7 @@ describe('room sim: concurrent increment burst (E-B01)', () => {
       seed: process.env['SIM_SEED'] ?? '42',
       knobs: { clientCount: 0, mildFaults: true },
     });
-    const world = roomWorld(host.state);
+    const world = host.facade;
     const clients = [
       await world.addClient({ id: 'alice' }),
       await world.addClient({ id: 'bob' }),

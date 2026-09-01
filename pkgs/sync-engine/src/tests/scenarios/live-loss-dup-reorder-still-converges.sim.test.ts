@@ -1,7 +1,7 @@
 import { describe, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
 import { RELIABLE_FAULTS } from '../../sim/faults';
-import { type SyncSystemFacade, syncFacade } from '../../sim/system';
+import type { SyncSystemFacade } from '../../sim/system';
 import { expectLiveNote, expectNotesMatchServer, setNote } from '../apps/acme';
 import { acmeSystem } from '../apps/acme/system';
 
@@ -21,7 +21,7 @@ describe('live loss dup reorder still converges', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await a.mutate(setNote, { id: 'warm', body: 'w' });
@@ -46,7 +46,7 @@ describe('live loss dup reorder still converges', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     using _fault = world.net('bob', 'live').set({ packetReplayProbability: 1 });
@@ -64,7 +64,7 @@ describe('live loss dup reorder still converges', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     using _fault = world.net('bob', 'live').set({
@@ -87,7 +87,7 @@ describe('live loss dup reorder still converges', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     {
@@ -115,7 +115,7 @@ describe('live loss dup reorder still converges', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await a.mutate(setNote, { id: 'warm', body: 'w' });

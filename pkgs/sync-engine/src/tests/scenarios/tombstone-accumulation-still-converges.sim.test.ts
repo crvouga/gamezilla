@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
-import { syncFacade } from '../../sim/system';
 import {
   deleteNote,
   expectLiveNote,
@@ -22,7 +21,7 @@ describe('tombstone accumulation still converges', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
@@ -52,7 +51,7 @@ describe('tombstone accumulation still converges', () => {
           clientCount: 0,
         },
       });
-      const world = syncFacade(host.state);
+      const world = host.facade;
       const a = await world.addClient({ id: 'alice' });
       await world.addClient({ id: 'bob' });
       for (let i = 0; i < 20; i += 1) {

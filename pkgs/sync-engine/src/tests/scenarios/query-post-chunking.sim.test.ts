@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
 import { MAX_QUERY_BATCH } from '@pkgs/sync-engine/shared';
-import { syncFacade } from '../../sim/system';
 import { acmeSystem } from '../apps/acme/system';
 
 describe('query POST chunking', () => {
@@ -14,7 +13,7 @@ describe('query POST chunking', () => {
           clientCount: 0,
         },
       });
-      const world = syncFacade(host.state);
+      const world = host.facade;
       const client = await world.addClient({ id: 'alice' });
       const subs = [];
       for (let i = 0; i < MAX_QUERY_BATCH + 1; i += 1) {

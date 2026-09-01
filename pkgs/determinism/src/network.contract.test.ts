@@ -213,11 +213,15 @@ describe('SimNetwork contract', () => {
     net.register('b', () => {});
     net.send('a', 'b', 'x');
     await sched.runFor(0);
-    const sends = trace.events().filter((e) => e.type === 'net_send');
-    const delivers = trace.events().filter((e) => e.type === 'net_deliver');
+    const sends = trace
+      .events()
+      .filter((e) => e.type === 'net' && e.op === 'send');
+    const delivers = trace
+      .events()
+      .filter((e) => e.type === 'net' && e.op === 'deliver');
     expect(sends).toHaveLength(1);
     expect(delivers).toHaveLength(2);
-    expect(delivers[0]).toMatchObject({ packetId: 0 });
-    expect(delivers[1]).toMatchObject({ packetId: 0 });
+    expect(delivers[0]).toMatchObject({ detail: 0 });
+    expect(delivers[1]).toMatchObject({ detail: 0 });
   });
 });

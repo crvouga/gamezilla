@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
 import { toKernelFaults } from '../../sim/network';
-import { syncFacade } from '../../sim/system';
 import { expectLiveNote, readLiveNotes, setNote } from '../apps/acme';
 import { acmeSystem } from '../apps/acme/system';
 
@@ -23,7 +22,7 @@ describe('delayed sync after ack no optimistic flicker', () => {
         unpartitionProbability: 0,
       }),
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     await world.addClient({ id: 'bob' });
 

@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
-import { roomWorld } from '@pkgs/room/tests';
 
 import {
   CHESS_PUZZLE_PLAY_STATUS,
@@ -20,7 +19,7 @@ describe('chess puzzle: solved monotonic (Gp-03)', () => {
       seed: process.env['SIM_SEED'] ?? '42',
       knobs: { clientCount: 0 },
     });
-    const world = roomWorld(host.state);
+    const world = host.facade;
     const hostClient = await world.addClient({
       id: 'host',
       identity: 'host-1',

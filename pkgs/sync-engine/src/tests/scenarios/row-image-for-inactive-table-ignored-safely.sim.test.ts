@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
-import { syncFacade } from '../../sim/system';
 import {
   expectLiveNote,
   readLiveFolders,
@@ -17,7 +16,7 @@ describe('row image for inactive table ignored safely', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     const notesPeer = await world.addClient({
       id: 'notesPeer',

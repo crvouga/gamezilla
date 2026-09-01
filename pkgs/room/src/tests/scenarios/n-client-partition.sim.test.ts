@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
-import { roomWorld } from '../../sim/system';
 import { counterSystem } from '../apps/counter/system';
 import { counterValue, Increment } from '../fixtures/counter-module';
 
@@ -10,7 +9,7 @@ describe('room sim: n-client partition (E-A07)', () => {
       seed: process.env['SIM_SEED'] ?? '42',
       knobs: { clientCount: 0 },
     });
-    const world = roomWorld(host.state);
+    const world = host.facade;
     const ids = ['a', 'b', 'c', 'd'] as const;
     const clients = [];
     for (const id of ids) {

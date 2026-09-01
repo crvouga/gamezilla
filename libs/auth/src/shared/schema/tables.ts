@@ -26,7 +26,6 @@ export const authDevices = defineTable({
     account_id: 'text',
     user_id: 'text',
   },
-  indexes: ['account_id', 'user_id'],
 });
 
 export const authExternalAccounts = defineTable({
@@ -38,7 +37,6 @@ export const authExternalAccounts = defineTable({
     external_id: 'text',
     metadata: 'json',
   },
-  indexes: ['user_id'],
   uniqueIndexes: [
     ['provider', 'external_id'],
     ['user_id', 'provider'],

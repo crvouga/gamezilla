@@ -12,20 +12,26 @@ import fc from 'fast-check';
 import type { MatchmakingTuning } from '../../interface/matchmaking';
 import type { MatchmakingSchema } from '../../interface/schema';
 import type { RadiusOptions } from '../../interface/types';
-import type { MatchmakingSimBackend } from '../world-api';
+import type { MatchmakingSimBackend, MatchmakingSimWorld } from '../world-api';
 import { buildMatchmakingFacade } from './facade';
 import { mmReplicaNode, mmStoreNode } from './node-kinds';
 import {
   createMatchmakingSystem,
   type MatchmakingSystem,
   type MatchmakingSystemOpts,
-  requireMmWorld,
 } from './system';
 
 const WORLD_START_MS = 1_700_000_000_000;
 
-export type MatchmakingSystemDef = SystemDef<MatchmakingSystem>;
-export type MatchmakingSystemWorld = World<MatchmakingSystem>;
+export type MatchmakingSystemDef = SystemDef<
+  MatchmakingSystem,
+  object,
+  MatchmakingSimWorld
+>;
+export type MatchmakingSystemWorld = World<
+  MatchmakingSystem,
+  MatchmakingSimWorld
+>;
 
 export type DefineMatchmakingSystemOpts = MatchmakingSystemOpts & {
   readonly id?: string;
@@ -33,24 +39,62 @@ export type DefineMatchmakingSystemOpts = MatchmakingSystemOpts & {
 
 const tickAllAction = defineAction<
   MatchmakingSystem,
-  { readonly kind: 'tickAll' }
+  { readonly kind: 'tickAll' },
+  object,
+  MatchmakingSimWorld
 >({
   kind: 'tickAll',
   class: 'library',
   arb: () => fc.constant({ kind: 'tickAll' as const }),
   dispatch: async (world) => {
-    await requireMmWorld(world.state).tickAll({ maxPassesPerPartition: 2 });
+    await world.facade.tickAll({ maxPassesPerPartition: 2 });
   },
 });
+
+async function checkReplicaAgreement(
+  world: MatchmakingSystemWorld
+): Promise<import('@pkgs/determinism').InvariantViolation | null> {
+  const facade = world.facade;
+  const replicaIds = [...facade.replicas.keys()];
+  if (replicaIds.length === 0) {
+    return {
+      invariant: 'matchmaking.no-replicas',
+      detail: 'facade has no replicas',
+    };
+  }
+  // Every replica port must answer status (shared-store agreement smoke).
+  const probeId = '00000000-0000-0000-0000-000000000000';
+  let first: unknown;
+  for (let i = 0; i < replicaIds.length; i += 1) {
+    const id = replicaIds[i]!;
+    const r = facade.replicas.get(id);
+    if (r === undefined) {
+      return {
+        invariant: 'matchmaking.missing-replica',
+        detail: `replica ${id} missing from map`,
+      };
+    }
+    const st = await r.mm.status(probeId);
+    if (i === 0) first = st;
+    else if (JSON.stringify(st) !== JSON.stringify(first)) {
+      return {
+        invariant: 'matchmaking.replica-diverge',
+        detail: `replica ${id} status disagrees with ${replicaIds[0]}`,
+      };
+    }
+  }
+  return null;
+}
 
 /**
  * Framework-owned matchmaking world: shared SQL store + N replicas.
  * Concurrent `tickAll` claim races need knob `backend: 'postgres'`.
+ * Kit surface is `world.facade`.
  */
 export function defineMatchmakingSystem(
   opts?: DefineMatchmakingSystemOpts
 ): MatchmakingSystemDef {
-  return defineSystem<MatchmakingSystem>({
+  return defineSystem<MatchmakingSystem, object, MatchmakingSimWorld>({
     id: opts?.id ?? 'matchmaking.replicas',
     startMs: WORLD_START_MS,
     knobs: [
@@ -74,7 +118,7 @@ export function defineMatchmakingSystem(
       {
         kind: mmReplicaNode,
         role: 'replica',
-        countFromKnob: 'replicaCount',
+        count: { fromKnob: 'replicaCount' },
         idFor: (i) => `r${String(i)}`,
       },
     ],
@@ -84,23 +128,25 @@ export function defineMatchmakingSystem(
         ...(opts?.radius !== undefined ? { radius: opts.radius } : {}),
         ...(opts?.tuning !== undefined ? { tuning: opts.tuning } : {}),
       }),
-    actions: [tickAllAction, stdAdvance<MatchmakingSystem>()],
+    actions: [
+      tickAllAction,
+      stdAdvance<MatchmakingSystem, MatchmakingSimWorld>(),
+    ],
     model: {
       initial: () => ({}),
     },
-    prepare: async (world) => {
-      world.state.facade = buildMatchmakingFacade({
+    facade: (world) =>
+      buildMatchmakingFacade({
         system: world.state,
         seed: world.seed,
         clock: world.clock,
         rng: world.deps.rng,
-      });
-    },
+      }),
     settle: async (world) => {
-      await requireMmWorld(world.state).tickAll({ maxPassesPerPartition: 4 });
+      await world.facade.tickAll({ maxPassesPerPartition: 4 });
       await world.idle();
     },
-    invariants: async () => null,
+    invariants: checkReplicaAgreement,
   });
 }
 
@@ -118,9 +164,8 @@ export type OpenMatchmakingWorldArgs = {
 
 /**
  * Thin opener over framework {@link openWorld}. Returns the framework World;
- * reach the matchmaking facade via {@link requireMmWorld}(`world.state`).
+ * reach the matchmaking facade via `world.facade`.
  */
-
 export async function openMatchmakingWorld(
   args: OpenMatchmakingWorldArgs
 ): Promise<MatchmakingSystemWorld> {
@@ -145,5 +190,3 @@ export async function openMatchmakingWorld(
     ...(args.startMs !== undefined ? { startMs: args.startMs } : {}),
   });
 }
-
-export { requireMmWorld };

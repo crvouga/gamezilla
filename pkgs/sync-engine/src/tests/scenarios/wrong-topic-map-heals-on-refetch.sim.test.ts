@@ -1,6 +1,5 @@
 import { describe, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
-import { syncFacade } from '../../sim/system';
 import {
   expectLiveNote,
   expectNoteNotLive,
@@ -18,7 +17,7 @@ describe('wrong topic map heals on refetch', () => {
         rowImageFanout: false,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await a.mutate(setNoteWrongTopic, { id: 'warm', body: 'w' });
@@ -56,7 +55,7 @@ describe('wrong topic map heals on refetch', () => {
           rowImageFanout: false,
         },
       });
-      const world = syncFacade(host.state);
+      const world = host.facade;
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
       await a.mutate(setNoteWrongTopic, {

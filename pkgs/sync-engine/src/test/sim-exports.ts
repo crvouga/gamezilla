@@ -14,5 +14,4 @@ export type {
   SyncSystemFacade,
   WorldKnobs,
 } from '../sim/system';
-export { syncFacade } from '../sim/system';
 export type { NeverOpts, UntilOpts, UntilTarget } from '../sim/until';

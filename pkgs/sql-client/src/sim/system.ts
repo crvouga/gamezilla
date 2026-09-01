@@ -113,7 +113,7 @@ export function defineSqlClientWebSystem(opts?: {
       {
         kind: sqlWebTabNode,
         role: 'tab',
-        countFromKnob: 'tabCount',
+        count: { fromKnob: 'tabCount' },
         idFor: (i) => `t${String(i)}`,
       },
     ],

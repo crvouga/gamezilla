@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { arbWorldSeed, assertSampleProperty } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
 
-import { replayRoom, replayRoomPin, roomWorld } from '../../sim/system';
+import { replayRoom, replayRoomPin } from '../../sim/system';
 import { matchClockSystem } from '../apps/match-clock/system';
 import {
   matchClockStatus,
@@ -64,7 +64,7 @@ describe('room schedule-anticheat PBT', () => {
         },
       ],
     });
-    const real = roomWorld(world.state);
+    const real = world.facade;
     try {
       expect(matchClockStatus(await real.serverSnapshot())).toBe('playing');
       await real.runFor(5_100);
@@ -99,7 +99,7 @@ describe('room schedule-anticheat PBT', () => {
       ],
     });
     try {
-      const end = await roomWorld(world.state).serverSnapshot();
+      const end = await world.facade.serverSnapshot();
       expect(matchClockStatus(end)).toBe('flagged');
     } finally {
       await world.dispose();

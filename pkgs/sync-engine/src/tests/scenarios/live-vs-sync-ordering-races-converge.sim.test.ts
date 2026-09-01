@@ -1,6 +1,6 @@
 import { describe, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
-import { type SyncSystemFacade, syncFacade } from '../../sim/system';
+import type { SyncSystemFacade } from '../../sim/system';
 import { expectLiveNote, expectNotesMatchServer, setNote } from '../apps/acme';
 import { acmeSystem } from '../apps/acme/system';
 
@@ -74,7 +74,7 @@ describe('live vs sync ordering races converge', () => {
         rowImageFanout: false,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     await liveBeforeSync(world);
   });
 
@@ -86,7 +86,7 @@ describe('live vs sync ordering races converge', () => {
         rowImageFanout: false,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     await syncBeforeLive(world);
   });
 
@@ -99,7 +99,7 @@ describe('live vs sync ordering races converge', () => {
           rowImageFanout: false,
         },
       });
-      const world = syncFacade(host.state);
+      const world = host.facade;
       using _sa = world.node('alice').skewClock(order.alice);
       using _sb = world.node('bob').skewClock(order.bob);
       using _ss = world.node('server').skewClock(order.server);
@@ -114,7 +114,7 @@ describe('live vs sync ordering races converge', () => {
           rowImageFanout: false,
         },
       });
-      const world = syncFacade(host.state);
+      const world = host.facade;
       using _sa = world.node('alice').skewClock(order.alice);
       using _sb = world.node('bob').skewClock(order.bob);
       using _ss = world.node('server').skewClock(order.server);
@@ -129,7 +129,7 @@ describe('live vs sync ordering races converge', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await a.mutate(setNote, { id: 'warm', body: 'w' });
@@ -152,7 +152,7 @@ describe('live vs sync ordering races converge', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await a.mutate(setNote, { id: 'n1', body: 'base' });
@@ -176,7 +176,7 @@ describe('live vs sync ordering races converge', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await a.mutate(setNote, { id: 'n1', body: 'base' });
@@ -199,7 +199,7 @@ describe('live vs sync ordering races converge', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await a.mutate(setNote, { id: 'warm', body: 'w' });

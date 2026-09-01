@@ -1,6 +1,12 @@
 import fc from 'fast-check';
 
 export {
+  assertDeterministic,
+  type DeterministicRunInputs,
+  failureArtifact,
+  formatFailureArtifact,
+} from './assert-deterministic';
+export {
   type AssertSamplePropertyParams,
   arbFromKnobDefs,
   arbWorldSeed,

@@ -10,7 +10,6 @@ import {
   playRoomActions,
   type RoomSystemAction,
   replayRoom,
-  roomWorld,
 } from '../../sim/system';
 import type { World } from '../../sim/world-api';
 import { counterSystem } from '../apps/counter/system';
@@ -61,7 +60,7 @@ describe('room byzantine-wire PBT', () => {
               settle: false,
               actions: [],
             });
-            const real = roomWorld(world.state);
+            const real = world.facade;
             try {
               const before = await real.serverHash();
               await playRoomActions(world, [

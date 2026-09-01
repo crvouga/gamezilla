@@ -1,0 +1,63 @@
+# `@pkgs/db-indexes`
+
+Dialect-agnostic, declarative index reconciler. Accepts a workload manifest of
+SQL statements, computes the minimal set of indexes that workload needs, and
+safely converges the database's owned `autoidx_*` indexes to that set.
+
+## Public API
+
+```ts
+import {
+  planIndexes,
+  reconcileIndexes,
+  renderPlanMarkdown,
+} from '@pkgs/db-indexes';
+import { createPostgresPort } from '@pkgs/db-indexes/postgres';
+import { createSqlitePort } from '@pkgs/db-indexes/sqlite';
+
+// Analyze only — no writes
+const plan = await planIndexes({ manifest, db, clock });
+
+// Analyze + execute within deadlineMs; resumable; crash-safe
+const report = await reconcileIndexes({
+  manifest,
+  db: createPostgresPort(sqlClient),
+  clock,
+  deadlineMs: 120_000,
+});
+```
+
+## Ownership
+
+Only indexes named `autoidx_<table>_<hash8>` are created or dropped. Never
+touches `ix_` / `ux_` (db-schema), PK, unique, or exclusion indexes.
+
+## Lifecycle
+
+Owned index not in desired set → deprecation metadata → drop only after
+`deprecationWindowDays` (default 30) **and** usage unchanged. Usage since
+deprecation refreshes the window.
+
+## Dialect contract (`DbPort`)
+
+Implement `introspectIndexes`, `introspectTables`, `readIndexUsage`,
+`readOwnedMeta`, `writeOwnedMeta`, `evaluateCandidates`, `execute`,
+`parseStatement`. Core is pure given these ports: same inputs + same responses
+⇒ byte-identical outputs.
+
+| Method | Postgres | SQLite |
+| --- | --- | --- |
+| evaluate | hypopg + EXPLAIN | copy DB / EXPLAIN QUERY PLAN |
+| execute create | CREATE INDEX CONCURRENTLY | CREATE INDEX (defer if large) |
+| meta | COMMENT ON INDEX | `_autoidx_meta` table |
+
+## Safety invariants
+
+1. No DDL targets a non-owned index.
+2. Crash between any two actions leaves a state from which a fresh run converges.
+3. Index with observed usage since deprecation is never dropped.
+
+## Non-goals
+
+No live-stats adaptive indexing. No unique/exclusion constraints (db-schema).
+No background daemons. No client-boot reconcile.

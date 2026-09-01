@@ -3,7 +3,6 @@ import { openWorld } from '@pkgs/determinism';
 import { sql } from '@pkgs/sql';
 import { RELIABLE_FAULTS } from '../../sim/faults';
 import { toKernelFaults } from '../../sim/network';
-import { syncFacade } from '../../sim/system';
 import { setNote } from '../apps/acme';
 import { acmeSystem } from '../apps/acme/system';
 
@@ -27,7 +26,7 @@ describe('peer visibility under 200ms sim budget', () => {
         oneWayDelayJitterMs: 0,
       }),
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await a.mutate(setNote, { id: 'warm', body: 'w' });

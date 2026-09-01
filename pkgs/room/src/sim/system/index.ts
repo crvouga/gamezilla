@@ -24,7 +24,6 @@ export { prepareClientsForConverge } from './play';
 export type { ReplayRoomInputs } from './replay';
 export { replayRoom, replayRoomPin } from './replay';
 export type { RoomSystem } from './system';
-export { requireWorld as roomWorld } from './system';
 export {
   applyActionToModel,
   BYZANTINE_INJECT_KINDS,

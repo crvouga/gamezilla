@@ -2,7 +2,6 @@ import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
 import { RELIABLE_FAULTS } from '../../sim/faults';
 import { toKernelFaults } from '../../sim/network';
-import { syncFacade } from '../../sim/system';
 import {
   expectLiveNote,
   expectNotesMatchServer,
@@ -25,7 +24,7 @@ describe('push during inflight merge queues single flight', () => {
         reorderWindow: 3,
       }),
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 

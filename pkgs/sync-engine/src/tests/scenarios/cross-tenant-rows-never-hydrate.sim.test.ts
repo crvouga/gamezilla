@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
-import { syncFacade } from '../../sim/system';
 import {
   expectLiveNote,
   expectNoteNotLive,
@@ -22,7 +21,7 @@ describe('cross tenant rows never hydrate', () => {
         rowImageFanout: false,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({
       id: 'alice',
       actorId: 'alice',
@@ -69,7 +68,7 @@ describe('cross tenant rows never hydrate', () => {
           rowImageFanout: false,
         },
       });
-      const world = syncFacade(host.state);
+      const world = host.facade;
       const a = await world.addClient({
         id: 'alice',
         sessionQuery: { name: 'notesOwned', params: {} },

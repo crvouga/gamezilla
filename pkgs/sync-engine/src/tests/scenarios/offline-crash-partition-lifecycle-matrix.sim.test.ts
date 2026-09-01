@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
-import { type SyncSystemFacade, syncFacade } from '../../sim/system';
+import type { SyncSystemFacade } from '../../sim/system';
 import {
   expectLiveNote,
   expectNotesMatchServer,
@@ -25,7 +25,7 @@ describe('offline crash partition lifecycle matrix', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     a.online(false);
@@ -44,7 +44,7 @@ describe('offline crash partition lifecycle matrix', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     b.online(false);
@@ -63,7 +63,7 @@ describe('offline crash partition lifecycle matrix', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     a.online(false);
@@ -86,7 +86,7 @@ describe('offline crash partition lifecycle matrix', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await b.mutate(setNote, { id: 'n1', body: 'from-b' });
@@ -104,7 +104,7 @@ describe('offline crash partition lifecycle matrix', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     await world.addClient({ id: 'bob' });
     await a.mutate(setNote, { id: 'n1', body: 'from-a' });
@@ -122,7 +122,7 @@ describe('offline crash partition lifecycle matrix', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     await world.addClient({ id: 'bob' });
     await a.mutate(setNote, { id: 'n1', body: 'shared' });
@@ -144,7 +144,7 @@ describe('offline crash partition lifecycle matrix', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await a.mutate(setNote, { id: 'warm', body: 'w' });
@@ -171,7 +171,7 @@ describe('offline crash partition lifecycle matrix', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await a.mutate(setNote, { id: 'warm', body: 'w' });
@@ -201,7 +201,7 @@ describe('offline crash partition lifecycle matrix', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 

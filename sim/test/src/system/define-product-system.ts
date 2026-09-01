@@ -4,6 +4,7 @@ import {
   type SystemDef,
   type World,
 } from '@pkgs/determinism';
+import type { Sim } from '@sim/console/sim/create-sim';
 import fc from 'fast-check';
 
 import { productSimNode } from './node-kinds';
@@ -11,11 +12,10 @@ import {
   createProductSystem,
   type ProductSystem,
   type ProductSystemOpts,
-  requireSim,
 } from './system';
 
-export type ProductSystemDef = SystemDef<ProductSystem>;
-export type ProductSystemWorld = World<ProductSystem>;
+export type ProductSystemDef = SystemDef<ProductSystem, object, Sim>;
+export type ProductSystemWorld = World<ProductSystem, Sim>;
 
 export type DefineProductSystemOpts = ProductSystemOpts & {
   readonly id?: string;
@@ -24,13 +24,13 @@ export type DefineProductSystemOpts = ProductSystemOpts & {
 /**
  * Product `@sim` topology: one `product.sim` (createSim + spawnServer).
  * UI actors spawn lazily via openSim — knob `clientCount` defaults to 0 so
- * topology does not pre-boot clients.
+ * topology does not pre-boot clients. Live sim is `world.facade`.
  */
 export function defineProductSystem(
   opts?: DefineProductSystemOpts
 ): ProductSystemDef {
   const { id: systemId, ...createOpts } = opts ?? {};
-  return defineSystem<ProductSystem>({
+  return defineSystem<ProductSystem, object, Sim>({
     id: systemId ?? 'sim.product',
     ...(createOpts.startMs !== undefined
       ? { startMs: createOpts.startMs }
@@ -45,8 +45,15 @@ export function defineProductSystem(
     nodes: [{ kind: productSimNode, role: 'sim', count: 1 }],
     state: () => createProductSystem(createOpts),
     actions: [],
+    facade: (world) => {
+      const sim = world.state.sim;
+      if (sim === null) {
+        throw new Error('product system: product.sim has not booted');
+      }
+      return sim;
+    },
     settle: async (world) => {
-      requireSim(world.state);
+      void world.facade;
       await world.idle();
     },
     invariants: async () => null,

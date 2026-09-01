@@ -105,7 +105,8 @@ Representativeness of production is **port contract matrices** (PGlite / real SQ
 
 Production (`SECRETS_ENV=prd`) uses Infisical Neon + B2 (+ Railway EMQX) only.
 
-- **`bun setup:sims`** — idempotent named iPhone + iPad simulators from `tools/scripts/sims/sim-spec.ts` (`SIM_SPEC`), prefixed with `gamezilla-` so they never collide with other repos. Run once (or when the spec changes). Re-run after upgrading sim naming.
+- **`bun run sims:setup`** — idempotent named iPhone + iPad simulators from `tools/scripts/sims/sim-spec.ts` (`SIM_SPEC`), prefixed with `gamezilla-` so they never collide with other repos. Also installs Expo Go on every project sim (`@sim/console`) and the product `expo-dev-client` on the iPhone (`bun run client:ios`). Run once (or when the spec / Expo SDK changes).
+- **`bun run sims:open`** — multiselect project sims and open Simulator.app.
 - **`bun run dev`** — `@sim/console` (Reports + Playground). Press **`i`** or **Shift+I** to open the project iPad in Expo Go (bypasses Expo's default simulator picker). Product iPhone dev client: **`bun run client:ios`**.
 - **`bun run dev:client`** — `@apps/client` product app only (no console chrome).
 - **Sign-in in the playground** — Dev social against the in-process sim API.

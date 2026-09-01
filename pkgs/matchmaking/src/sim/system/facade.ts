@@ -63,7 +63,6 @@ export function buildMatchmakingFacade(args: {
   async function dispose(): Promise<void> {
     if (disposed) return;
     disposed = true;
-    system.facade = null;
   }
 
   return {

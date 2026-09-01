@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
-import { defineRoomSystem, type RoomApp, roomWorld } from '../../sim/system';
+import { defineRoomSystem, type RoomApp } from '../../sim/system';
 import { ROOM_ERROR_TYPE } from '../../types';
 import { authzApp } from '../apps/authz/app';
 import { authzCount, Bump, Claim } from '../fixtures/authz-module';
@@ -25,7 +25,7 @@ describe('room sim: authorize reject (E-D03)', () => {
       seed: process.env['SIM_SEED'] ?? '42',
       knobs: { clientCount: 0 },
     });
-    const world = roomWorld(host.state);
+    const world = host.facade;
     const alice = await world.addClient({ id: 'alice' });
     const eve = await world.addClient({ id: 'eve' });
     await world.assertConverged();

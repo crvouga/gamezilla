@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
-import { syncFacade } from '../../sim/system';
 import { expectLiveNote, readLiveNotes, setNote } from '../apps/acme';
 import { acmeSystem } from '../apps/acme/system';
 
@@ -14,7 +13,7 @@ describe('server 500 mid batch full retry idempotent', () => {
           clientCount: 0,
         },
       });
-      const world = syncFacade(host.state);
+      const world = host.facade;
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
 
@@ -42,7 +41,7 @@ describe('server 500 mid batch full retry idempotent', () => {
           clientCount: 0,
         },
       });
-      const world = syncFacade(host.state);
+      const world = host.facade;
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
 

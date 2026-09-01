@@ -26,6 +26,8 @@ export const roomServerNode = defineNodeKind<
       ...(state.app.authorize !== undefined
         ? { authorize: state.app.authorize }
         : {}),
+      ...(state.topic !== undefined ? { topic: state.topic } : {}),
+      ...(state.storage !== undefined ? { storage: state.storage } : {}),
       injected: { deps: ctx.deps, network },
     });
     state.world = world;

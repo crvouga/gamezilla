@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { DistanceFormula } from '../../interface/types';
-import { openMatchmakingWorld, requireMmWorld } from '../../sim/system';
+import { openMatchmakingWorld } from '../../sim/system';
 import {
   assertStatusAgreesAcrossReplicas,
   RatingAttr,
@@ -25,7 +25,7 @@ describe('matchmaking sim: replicas share one DB', () => {
       seed: 200,
       replicas: 3,
     });
-    const world = requireMmWorld(host.state);
+    const world = host.facade;
     const p = await world.join(
       { data: RatingAttr(1000), formulas: [SimpleFormula] },
       'r0'
@@ -45,7 +45,7 @@ describe('matchmaking sim: replicas share one DB', () => {
       seed: 201,
       replicas: 2,
     });
-    const world = requireMmWorld(host.state);
+    const world = host.facade;
     const open: DistanceFormula = {
       numeric: [{ tag: RatingAttr, weight: 1 }],
       radius: {
@@ -78,7 +78,7 @@ describe('matchmaking sim: replicas share one DB', () => {
       seed: 202,
       replicas: 3,
     });
-    const world = requireMmWorld(host.state);
+    const world = host.facade;
     for (const r of world.replicas.values()) {
       await r.mm.ready();
       await r.mm.ready();

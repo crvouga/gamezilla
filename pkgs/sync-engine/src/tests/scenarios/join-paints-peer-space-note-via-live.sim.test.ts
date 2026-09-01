@@ -1,6 +1,5 @@
 import { describe, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
-import { syncFacade } from '../../sim/system';
 import {
   createSpace,
   expectLiveNote,
@@ -19,7 +18,7 @@ describe('join paints peer space note via live', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({
       id: 'alice',
       sessionQuery: SPACE_MEMBERSHIP_SESSION,

@@ -1,5 +1,7 @@
+import type { SeededRng } from '@pkgs/uuid';
 import type { SimClock } from './clock';
 import {
+  type DrainContext,
   pushQueued,
   type Queued,
   runForDuration,
@@ -12,18 +14,17 @@ import type { SimTrace } from './trace';
 export type { SimTask };
 
 /**
- * Discrete-event scheduler. Same-time events fire in insertion order.
- * Nested drain (any overlapping runFor / runUntilIdle / runUntil) throws
- * `SimScheduler: nested drain`.
+ * Discrete-event scheduler with quiescence-probe drains and seeded
+ * same-time tie-breaking. Nested drain throws `SimScheduler: nested drain`.
  */
 export type SimScheduler = {
   readonly clock: SimClock;
-  readonly scheduleAt: (at: number, run: SimTask) => void;
-  readonly scheduleAfter: (ms: number, run: SimTask) => void;
+  readonly scheduleAt: (at: number, run: SimTask, label?: string) => void;
+  readonly scheduleAfter: (ms: number, run: SimTask, label?: string) => void;
   readonly pendingCount: () => number;
   /** Absolute ms of the soonest pending task, or null if idle. */
   readonly nextDueAt: () => number | null;
-  /** Drop all pending tasks without running them (checkpoint restore). */
+  /** Drop all pending tasks without running them. */
   readonly clear: () => void;
   readonly runFor: (durationMs: number) => Promise<void>;
   readonly runUntilIdle: (opts?: {
@@ -38,6 +39,8 @@ export type SimScheduler = {
 
 export type CreateSimSchedulerOpts = {
   readonly trace?: SimTrace;
+  /** Seeded RNG for same-time tie-breaks (`fork('sched')`). */
+  readonly schedRng?: SeededRng;
 };
 
 export function createSimScheduler(
@@ -48,18 +51,28 @@ export function createSimScheduler(
   let seq = 0;
   let draining = false;
   const trace = opts?.trace;
+  const schedRng = opts?.schedRng;
+  const inFlight: DrainContext['inFlight'] = [];
 
-  const scheduleAt = (at: number, run: SimTask): void => {
+  const makeCtx = (): DrainContext => ({
+    heap,
+    clock,
+    inFlight,
+    ...(schedRng !== undefined ? { schedRng } : {}),
+    ...(trace !== undefined ? { trace } : {}),
+  });
+
+  const scheduleAt = (at: number, run: SimTask, label = 'task'): void => {
     if (!(at >= 0) || !Number.isFinite(at)) {
       throw new Error(`SimScheduler.scheduleAt: bad at ${at}`);
     }
     const taskId = seq++;
-    pushQueued(heap, { at, seq: taskId, run });
+    pushQueued(heap, { at, seq: taskId, run, label });
     trace?.record({
-      now: clock.now(),
-      type: 'schedule',
-      at,
+      type: 'timer_create',
       taskId,
+      at,
+      reason: label,
     });
   };
 
@@ -76,24 +89,23 @@ export function createSimScheduler(
   return {
     clock,
     scheduleAt,
-    scheduleAfter: (ms, run) => scheduleAt(clock.now() + Math.max(0, ms), run),
+    scheduleAfter: (ms, run, label) =>
+      scheduleAt(clock.now() + Math.max(0, ms), run, label),
     pendingCount: () => heap.length,
     nextDueAt: () => (heap.length === 0 ? null : heap[0]!.at),
     clear: () => {
       heap.length = 0;
     },
     runFor: (durationMs) =>
-      withDrainGate(() => runForDuration(heap, clock, durationMs, trace)),
+      withDrainGate(() => runForDuration(makeCtx(), durationMs)),
     runUntilIdle: (opts) =>
-      withDrainGate(() => runUntilIdleHeap(heap, clock, opts, trace)),
+      withDrainGate(() => runUntilIdleHeap(makeCtx(), opts)),
     runUntil: (pred, opts) =>
       withDrainGate(() =>
         runUntilPred({
-          heap,
-          clock,
+          ctx: makeCtx(),
           pred,
           ...(opts !== undefined ? { opts } : {}),
-          ...(trace !== undefined ? { trace } : {}),
         })
       ),
   };

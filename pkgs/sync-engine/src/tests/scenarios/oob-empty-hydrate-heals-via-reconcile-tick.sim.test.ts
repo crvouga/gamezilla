@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
-import { syncFacade } from '../../sim/system';
 import {
   expectLiveNote,
   insertCatalogNote,
@@ -22,7 +21,7 @@ describe('oob empty hydrate heals via reconcile tick', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const client = await world.addClient({ id: 'alice' });
 
     expect(await isLiveNote(client.db, 'n-seed')).toBe(false);
@@ -46,7 +45,7 @@ describe('oob empty hydrate heals via reconcile tick', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 

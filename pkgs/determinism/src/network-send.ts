@@ -26,34 +26,32 @@ function deliverCallback(
     try {
       if (isPartitioned(state, from, to)) {
         state.trace?.record({
-          now: state.scheduler.clock.now(),
-          type: 'net_drop',
-          reason: 'partition',
+          type: 'net',
+          op: 'drop.partition',
           from,
           to,
-          packetId,
+          detail: packetId,
         });
         return;
       }
       const dest = state.endpoints.get(to);
       if (dest === undefined) {
         state.trace?.record({
-          now: state.scheduler.clock.now(),
-          type: 'net_drop',
-          reason: 'unregistered',
+          type: 'net',
+          op: 'drop.unregistered',
           from,
           to,
-          packetId,
+          detail: packetId,
         });
         return;
       }
       await dest(payload);
       state.trace?.record({
-        now: state.scheduler.clock.now(),
-        type: 'net_deliver',
+        type: 'net',
+        op: 'deliver',
         from,
         to,
-        packetId,
+        detail: packetId,
       });
     } finally {
       state.inFlight = Math.max(0, state.inFlight - 1);
@@ -73,7 +71,8 @@ export function deliverNow(
   state.inFlight += 1;
   state.scheduler.scheduleAt(
     state.scheduler.clock.now(),
-    deliverCallback(state, args)
+    deliverCallback(state, args),
+    'net.deliver'
   );
 }
 
@@ -101,7 +100,8 @@ function scheduleDeliver(
       to: args.to,
       payload: args.payload,
       packetId: args.packetId,
-    })
+    }),
+    'net.deliver'
   );
 }
 
@@ -111,9 +111,8 @@ function dropPartition(
   to: SimEndpointId
 ): void {
   state.trace?.record({
-    now: state.scheduler.clock.now(),
-    type: 'net_drop',
-    reason: 'partition',
+    type: 'net',
+    op: 'drop.partition',
     from,
     to,
   });
@@ -145,11 +144,11 @@ function sendLocal(
   if (!state.endpoints.has(to)) return;
   const packetId = allocPacketId(state);
   state.trace?.record({
-    now: state.scheduler.clock.now(),
-    type: 'net_send',
+    type: 'net',
+    op: 'send',
     from: to,
     to,
-    packetId,
+    detail: packetId,
   });
   deliverNow(state, { from: to, to, payload, packetId });
 }
@@ -172,21 +171,19 @@ function enqueueHeld(
     packetId,
   });
   state.holdQueues.set(args.key, q);
-  const now = state.scheduler.clock.now();
   state.trace?.record({
-    now,
-    type: 'net_send',
+    type: 'net',
+    op: 'send',
     from: args.from,
     to: args.to,
-    key: args.key,
-    packetId,
+    detail: { key: args.key, packetId },
   });
   state.trace?.record({
-    now,
-    type: 'net_hold',
-    key: args.key,
-    op: 'enqueue',
-    packetId,
+    type: 'net',
+    op: 'hold.enqueue',
+    from: args.from,
+    to: args.to,
+    detail: { key: args.key, packetId },
   });
 }
 
@@ -219,9 +216,8 @@ function tryLoss(
       : false;
   if (!loss) return false;
   state.trace?.record({
-    now: state.scheduler.clock.now(),
-    type: 'net_drop',
-    reason: 'loss',
+    type: 'net',
+    op: 'drop.loss',
     from,
     to,
   });
@@ -253,12 +249,11 @@ export function networkSend(args: {
 
   const packetId = allocPacketId(state);
   state.trace?.record({
-    now: state.scheduler.clock.now(),
-    type: 'net_send',
+    type: 'net',
+    op: 'send',
     from,
     to,
-    ...(key !== undefined ? { key } : {}),
-    packetId,
+    detail: key !== undefined ? { key, packetId } : packetId,
   });
   scheduleDeliver(state, { from, to, payload, packetId, faults });
   if (
@@ -276,11 +271,11 @@ export function releaseHeldKey(state: SimNetworkState, key: SimNetKey): void {
   if (q === undefined) return;
   for (const packet of q) {
     state.trace?.record({
-      now: state.scheduler.clock.now(),
-      type: 'net_hold',
-      key,
-      op: 'release_flush',
-      packetId: packet.packetId,
+      type: 'net',
+      op: 'hold.release',
+      from: packet.from,
+      to: packet.to,
+      detail: { key, packetId: packet.packetId },
     });
     deliverNow(state, {
       from: packet.from,

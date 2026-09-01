@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { arbWorldSeed, assertSampleProperty } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
 
-import { replayRoom, roomWorld } from '../../sim/system';
+import { replayRoom } from '../../sim/system';
 import { authzSystem } from '../apps/authz/system';
 import { authzCount, authzOwner } from '../fixtures/authz-module';
 
@@ -11,7 +11,7 @@ async function expectAuthzState(
   expected: { readonly owner: string; readonly count: number }
 ): Promise<void> {
   try {
-    const snap = await roomWorld(world.state).serverSnapshot();
+    const snap = await world.facade.serverSnapshot();
     expect(authzOwner(snap)).toBe(expected.owner);
     expect(authzCount(snap)).toBe(expected.count);
   } finally {

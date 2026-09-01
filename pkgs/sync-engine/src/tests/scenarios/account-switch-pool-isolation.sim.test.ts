@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
 import { createSyncEnginePool } from '@pkgs/sync-engine/client';
-import { syncFacade } from '../../sim/system';
 import {
   expectLiveNote,
   expectNoteNotLive,
@@ -19,7 +18,7 @@ describe('account switch pool isolation', () => {
         rowImageFanout: false,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const acctA = await world.addClient({
       id: 'device-a',
       actorId: 'user-a',
@@ -92,7 +91,7 @@ describe('account switch pool isolation', () => {
         rowImageFanout: false,
       },
     });
-    const world = syncFacade(host.state);
+    const world = host.facade;
     const acctA = await world.addClient({
       id: 'device-a-race',
       actorId: 'user-a-race',
@@ -144,7 +143,7 @@ describe('account switch pool isolation', () => {
           rowImageFanout: false,
         },
       });
-      const world = syncFacade(host.state);
+      const world = host.facade;
       const a = await world.addClient({ id: 'a', actorId: 'ua' });
       const b = await world.addClient({ id: 'b', actorId: 'ub' });
       const pool = createSyncEnginePool({

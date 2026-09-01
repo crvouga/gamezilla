@@ -1,10 +1,6 @@
 import { openWorld } from '@pkgs/determinism';
 import type { RoomApp, RoomSystemAction } from '../../sim/system';
-import {
-  defineRoomSystem,
-  dispatchRoomSystemAction,
-  roomWorld,
-} from '../../sim/system';
+import { defineRoomSystem, dispatchRoomSystemAction } from '../../sim/system';
 import type { World } from '../../sim/world-api';
 import { createFuzzState, pickRoomSystemAction } from './pick-library-action';
 
@@ -46,7 +42,7 @@ async function openSeedWorld(
       mildFaults: opts.mildFaults === true,
     },
   });
-  return { host, world: roomWorld(host.state) };
+  return { host, world: host.facade };
 }
 
 /**

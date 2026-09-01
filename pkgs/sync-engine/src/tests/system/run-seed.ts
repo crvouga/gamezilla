@@ -10,7 +10,7 @@ import { isClosedDatabaseError } from '../../sim/invariants';
 import { toKernelFaults } from '../../sim/network';
 import { bootClients, settleWorld } from '../../sim/replay-steps';
 import type { SeededRng } from '../../sim/rng';
-import { defineSyncSystem, syncFacade } from '../../sim/system';
+import { defineSyncSystem } from '../../sim/system';
 import type { SyncAction } from '../../sim/system/actions';
 import type { SyncApp } from '../../sim/system/app';
 import { dispatchSyncAction } from '../../sim/system/dispatch';
@@ -212,7 +212,7 @@ export async function runSeed(opts: RunSeedOptions): Promise<RunSeedResult> {
     seed: opts.seed,
     knobs: { clientCount: 0 },
   });
-  const world = syncFacade(host.state);
+  const world = host.facade;
   const actions: SyncAction[] = [];
   let done = 0;
   try {

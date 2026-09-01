@@ -27,10 +27,6 @@ export const notifications = defineTable({
     dismissed_at: 'timestamp',
     active: 'boolean',
   },
-  indexes: [
-    'user_id',
-    ['user_id', 'active', 'archived_at', 'priority', 'created_at'],
-  ],
   uniqueIndexes: [['user_id', 'source_namespace', 'source_type', 'source_id']],
 });
 

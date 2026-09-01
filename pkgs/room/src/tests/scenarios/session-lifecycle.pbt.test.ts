@@ -4,7 +4,7 @@ import { arbWorldSeed, assertSampleProperty } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
 
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '../../protocol/wire';
-import { arbRoomKnobs, replayRoom, roomWorld } from '../../sim/system';
+import { arbRoomKnobs, replayRoom } from '../../sim/system';
 import { counterSystem } from '../apps/counter/system';
 import { counterValue, Increment } from '../fixtures/counter-module';
 
@@ -13,7 +13,7 @@ async function expectCounter(
   expected: number
 ): Promise<void> {
   try {
-    const snap = await roomWorld(world.state).serverSnapshot();
+    const snap = await world.facade.serverSnapshot();
     expect(counterValue(snap)).toBe(expected);
   } finally {
     await world.dispose();
@@ -143,7 +143,7 @@ describe('room session-lifecycle PBT', () => {
       settle: false,
       actions: [],
     });
-    const real = roomWorld(world.state);
+    const real = world.facade;
     try {
       const c0 = real.clients.get('c0')!;
       const frame = {
@@ -170,7 +170,7 @@ describe('room session-lifecycle PBT', () => {
       seed: 11,
       knobs: { clientCount: 0 },
     });
-    const world = roomWorld(host.state);
+    const world = host.facade;
     await world.addClient({
       id: 'tab-a',
       identity: 'user',

@@ -8,6 +8,9 @@ import type { World } from './world-types';
 
 export type { SystemAction } from './action';
 
+/** Replica count: literal or derived from a numeric knob. */
+export type NodeCount = number | { readonly fromKnob: string };
+
 export type NodeSpec<S = unknown> = {
   /**
    * Value from {@link defineNodeKind}. Handle/view params use `any` so concrete
@@ -16,9 +19,8 @@ export type NodeSpec<S = unknown> = {
   // biome-ignore lint/suspicious/noExplicitAny: heterogeneous node handles
   readonly kind: NodeKindDef<any, any, S>;
   readonly role: string;
-  readonly count?: number;
-  /** Knob id whose numeric value is the replica count. */
-  readonly countFromKnob?: string;
+  /** Default 1. Use `{ fromKnob }` to bind replica count to a knob. */
+  readonly count?: NodeCount;
   /** Default: `${role}` when count===1 else `${role}${i}`. */
   readonly idFor?: (index: number) => string;
 };
@@ -32,7 +34,7 @@ export type SystemModelDef<M = object> = {
   readonly initial: () => M;
 };
 
-export type SystemDef<S = unknown, M = object> = {
+export type SystemDef<S = unknown, M = object, F = unknown> = {
   readonly id: string;
   readonly knobs: readonly KnobDef[];
   readonly nodes: readonly NodeSpec<S>[];
@@ -40,29 +42,36 @@ export type SystemDef<S = unknown, M = object> = {
   readonly state?: () => S;
   readonly network?: {
     readonly defaults?: SimNetFaultProfile;
-    /** Declared role pairs for docs / std chaos helpers (optional). */
+    /**
+     * Declared role→role edges. When present, `network.send` between
+     * endpoints whose roles are not an allowed pair throws.
+     */
     readonly edges?: readonly NetworkEdgeSpec[];
   };
   readonly faults?: readonly FaultDef[];
   /**
    * Chaos + domain ops. May be empty when the system is openWorld-only.
-   * Action payloads / models are heterogeneous per kind; `any` keeps
-   * defineAction concrete types assignable into the system bag and across M.
+   * Prefer a homogeneous `as const` list so `ActionPayloadUnion` types the bag.
    */
   // biome-ignore lint/suspicious/noExplicitAny: heterogeneous action payloads
-  readonly actions: readonly ActionDef<S, any, any>[];
+  readonly actions: readonly ActionDef<S, any, any, any>[];
   /** Required by assertSample; optional for scripted openWorld / replay. */
   readonly model?: SystemModelDef<M>;
-  /** After topology boot, before play (replaces warmup nodes). */
-  readonly prepare?: (world: World<S>) => Promise<void>;
-  readonly settle: (world: World<S>) => Promise<void>;
-  readonly invariants: (world: World<S>) => Promise<InvariantViolation | null>;
+  /**
+   * Optional typed handle built after topology boot (replaces `prepare`).
+   * Exposed as `world.facade`. Hydration / warmup belongs here.
+   */
+  readonly facade?: (world: World<S, F>) => F | Promise<F>;
+  readonly settle: (world: World<S, F>) => Promise<void>;
+  readonly invariants: (
+    world: World<S, F>
+  ) => Promise<InvariantViolation | null>;
   readonly startMs?: number;
 };
 
-export function defineSystem<S = unknown, M = object>(
-  def: SystemDef<S, M>
-): SystemDef<S, M> {
+export function defineSystem<S = unknown, M = object, F = unknown>(
+  def: SystemDef<S, M, F>
+): SystemDef<S, M, F> {
   if (def.nodes.length === 0) {
     throw new Error(`defineSystem(${def.id}): nodes must be non-empty`);
   }
@@ -76,4 +85,25 @@ export function defineSystem<S = unknown, M = object>(
     kinds.add(action.kind);
   }
   return def;
+}
+
+/** Resolve a NodeSpec.count to a non-negative integer. */
+export function resolveNodeCount(
+  count: NodeCount | undefined,
+  getKnob: (id: string) => unknown
+): number {
+  if (count === undefined) return 1;
+  if (typeof count === 'number') {
+    if (!Number.isFinite(count) || count < 0) {
+      throw new Error(`resolveNodeCount: bad count ${count}`);
+    }
+    return Math.floor(count);
+  }
+  const v = getKnob(count.fromKnob);
+  if (typeof v !== 'number' || !Number.isFinite(v) || v < 0) {
+    throw new Error(
+      `resolveNodeCount: knob ${count.fromKnob} must be non-negative number`
+    );
+  }
+  return Math.floor(v);
 }

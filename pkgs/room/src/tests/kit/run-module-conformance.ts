@@ -1,5 +1,6 @@
+import { openWorld } from '@pkgs/determinism';
 import { createSimAdapters } from '@pkgs/uuid';
-import { bootRoomKitWorld } from '../../sim/world';
+import { defineRoomSystem, type RoomApp } from '../../sim/system';
 import type { RoomSimClientHandle, World } from '../../sim/world-api';
 import type {
   RoomCommand,
@@ -44,6 +45,23 @@ async function assertSettledDomain<
   }
 }
 
+function conformanceApp<
+  S extends RoomState,
+  C extends RoomCommandPayload,
+  E extends RoomEvent,
+>(module: ModuleConformanceArgs<S, C, E>['module']): RoomApp {
+  return {
+    module: module as RoomApp['module'],
+    domainOpArbs: () => [],
+    pickDomainOp: () => {
+      throw new Error('conformance: domain ops unused');
+    },
+    toPayload: () => {
+      throw new Error('conformance: domain ops unused');
+    },
+  };
+}
+
 /**
  * Parameterized module-contract suite (M1–M8 smoke via real engine + pure checks).
  */
@@ -73,11 +91,17 @@ export async function runModuleConformance<
   });
 
   // Engine fuzz: converge under mild faults (E1 + module).
-  await using world = await bootRoomKitWorld({
-    seed: args.seed,
-    module: args.module,
-    mildFaults: args.mildFaults ?? true,
+  const system = defineRoomSystem(conformanceApp(args.module), {
+    id: 'room.conformance',
   });
+  await using host = await openWorld(system, {
+    seed: args.seed,
+    knobs: {
+      clientCount: 0,
+      mildFaults: args.mildFaults ?? true,
+    },
+  });
+  const world = host.facade as unknown as World<S, C, E>;
   const clients = [];
   for (const id of identities.slice(0, 3)) {
     clients.push(await world.addClient({ id, identity: id }));

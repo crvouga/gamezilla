@@ -18,7 +18,7 @@ import { ensurePodsMatchNodeModules } from './ios-pods';
 
 /**
  * Open the product `expo-dev-client` on the simulator provisioned by
- * `bun setup:sims` (SIM_SPEC id `iphone`).
+ * `bun run sims:setup` (SIM_SPEC id `iphone`).
  */
 
 /** Must match `expo.ios.bundleIdentifier` in `apps/client/app.json`. */
@@ -44,7 +44,7 @@ export function resolveDedicatedSim(): { udid: string; name: string } {
   const existing = findDeviceByName(spec.name);
   if (existing === undefined) {
     throw new Error(
-      `Simulator "${spec.name}" is missing. Run \`bun setup:sims\` first.`
+      `Simulator "${spec.name}" is missing. Run \`bun run sims:setup\` first.`
     );
   }
   log(

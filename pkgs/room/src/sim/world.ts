@@ -1,5 +1,4 @@
-import { createSimDeps, type SimDeps } from '@pkgs/determinism';
-import type { SeededRng } from '@pkgs/uuid';
+import type { SimDeps } from '@pkgs/determinism';
 
 import { InMemoryClientStorage } from '../client/adapters/storage/memory';
 import { createTimerScheduleStack } from '../effects/timer-schedule-stack';
@@ -9,11 +8,7 @@ import type { RoomCommandPayload, RoomEvent, RoomState } from '../types';
 
 import { createRoomBoundaryFaultController } from './boundary-faults';
 import { checkRoomInvariants } from './invariants';
-import {
-  createSimRoomNetwork,
-  MILD_ROOM_FAULTS,
-  type SimRoomNetwork,
-} from './network';
+import type { SimRoomNetwork } from './network';
 import { SerialQueue } from './serial-queue';
 import {
   assertRoomConverged,
@@ -40,8 +35,6 @@ import {
   type WorldKernel,
 } from './world-clients';
 import { assembleWorld } from './world-facade';
-
-const WORLD_START_MS = 1_700_000_000_000;
 
 type KernelBootArgs<
   S extends RoomState,
@@ -101,18 +94,6 @@ function createWorldServer<
   });
 }
 
-function createWorldNetwork(
-  scheduler: WorldKernel<RoomState, RoomCommandPayload, RoomEvent>['scheduler'],
-  netRng: SeededRng,
-  mildFaults?: boolean
-): SimRoomNetwork {
-  return createSimRoomNetwork({
-    scheduler,
-    rng: netRng,
-    ...(mildFaults === true ? { faults: MILD_ROOM_FAULTS } : {}),
-  });
-}
-
 function resolveWorldPorts<
   S extends RoomState,
   C extends RoomCommandPayload,
@@ -121,19 +102,12 @@ function resolveWorldPorts<
   args: KernelBootArgs<S, C, E>
 ): { readonly deps: SimDeps; readonly network: SimRoomNetwork } {
   const injected = args.injected;
-  if (injected !== undefined) return injected;
-  const deps = createSimDeps({
-    seed: args.seed,
-    startMs: args.startMs ?? WORLD_START_MS,
-  });
-  return {
-    deps,
-    network: createWorldNetwork(
-      deps.scheduler,
-      deps.rng.fork('net'),
-      args.mildFaults
-    ),
-  };
+  if (injected === undefined) {
+    throw new Error(
+      'bootRoomKitWorld: injected deps+network required (use openWorld / ctx.network)'
+    );
+  }
+  return injected;
 }
 
 function wireBoundaryCrash<

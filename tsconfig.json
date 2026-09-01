@@ -125,6 +125,8 @@
       "@pkgs/http-client/*": ["./pkgs/http-client/src/*"],
       "@pkgs/db-schema": ["./pkgs/db-schema/src/index.ts"],
       "@pkgs/db-schema/*": ["./pkgs/db-schema/src/*"],
+      "@pkgs/db-indexes": ["./pkgs/db-indexes/src/index.ts"],
+      "@pkgs/db-indexes/*": ["./pkgs/db-indexes/src/*"],
       "@pkgs/db-migrate": ["./pkgs/db-migrate/src/index.ts"],
       "@pkgs/db-migrate/*": ["./pkgs/db-migrate/src/*"],
 
@@ -276,6 +278,7 @@
     "pkgs/http-client/src/**/*.ts",
     "pkgs/http-client/src/**/*.tsx",
     "pkgs/db-schema/src/**/*.ts",
+    "pkgs/db-indexes/src/**/*.ts",
     "pkgs/db-migrate/src/**/*.ts",
     "pkgs/sql/src/**/*.ts",
 

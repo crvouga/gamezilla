@@ -1,6 +1,5 @@
 import fc from 'fast-check';
 import type { ActionArbContext, ActionDef } from './action';
-import type { SystemAction } from './define-system';
 import type { World } from './world-types';
 
 export type StdPartitionRoles = {
@@ -8,27 +7,48 @@ export type StdPartitionRoles = {
   readonly toRole: string;
 };
 
+function rolePairFromCtx(
+  ctx: ActionArbContext,
+  fallback?: StdPartitionRoles
+): StdPartitionRoles {
+  if (fallback !== undefined) return fallback;
+  const edge = ctx.edges[0];
+  if (edge === undefined) {
+    throw new Error(
+      'stdNetChaos: no network.edges declared and no roles provided'
+    );
+  }
+  return { fromRole: edge.fromRole, toRole: edge.toRole };
+}
+
 /**
  * Partition one random node of `fromRole` from one random node of `toRole`
  * (by node id — World expands to endpoint pairs).
  */
-export function stdPartition<S>(
-  roles: StdPartitionRoles
+export function stdPartition<S, F = unknown>(
+  roles?: StdPartitionRoles
 ): ActionDef<
   S,
-  { readonly kind: 'std.partition'; readonly from: string; readonly to: string }
+  {
+    readonly kind: 'std.partition';
+    readonly from: string;
+    readonly to: string;
+  },
+  object,
+  F
 > {
   return {
     kind: 'std.partition',
     class: 'library',
     arb: (ctx: ActionArbContext) => {
-      const fromIds = ctx.roleIds(roles.fromRole);
-      const toIds = ctx.roleIds(roles.toRole);
+      const pair = rolePairFromCtx(ctx, roles);
+      const fromIds = ctx.roleIds(pair.fromRole);
+      const toIds = ctx.roleIds(pair.toRole);
       if (fromIds.length === 0 || toIds.length === 0) {
         return fc.constant({
           kind: 'std.partition' as const,
-          from: fromIds[0] ?? roles.fromRole,
-          to: toIds[0] ?? roles.toRole,
+          from: fromIds[0] ?? pair.fromRole,
+          to: toIds[0] ?? pair.toRole,
         });
       }
       return fc
@@ -48,23 +68,26 @@ export function stdPartition<S>(
 /**
  * Heal the edge between one random pair (same role pick as partition).
  */
-export function stdHeal<S>(
-  roles: StdPartitionRoles
+export function stdHeal<S, F = unknown>(
+  roles?: StdPartitionRoles
 ): ActionDef<
   S,
-  { readonly kind: 'std.heal'; readonly from: string; readonly to: string }
+  { readonly kind: 'std.heal'; readonly from: string; readonly to: string },
+  object,
+  F
 > {
   return {
     kind: 'std.heal',
     class: 'library',
     arb: (ctx: ActionArbContext) => {
-      const fromIds = ctx.roleIds(roles.fromRole);
-      const toIds = ctx.roleIds(roles.toRole);
+      const pair = rolePairFromCtx(ctx, roles);
+      const fromIds = ctx.roleIds(pair.fromRole);
+      const toIds = ctx.roleIds(pair.toRole);
       if (fromIds.length === 0 || toIds.length === 0) {
         return fc.constant({
           kind: 'std.heal' as const,
-          from: fromIds[0] ?? roles.fromRole,
-          to: toIds[0] ?? roles.toRole,
+          from: fromIds[0] ?? pair.fromRole,
+          to: toIds[0] ?? pair.toRole,
         });
       }
       return fc
@@ -81,9 +104,11 @@ export function stdHeal<S>(
   };
 }
 
-export function stdHealAll<S>(): ActionDef<
+export function stdHealAll<S, F = unknown>(): ActionDef<
   S,
-  { readonly kind: 'std.healAll' }
+  { readonly kind: 'std.healAll' },
+  object,
+  F
 > {
   return {
     kind: 'std.healAll',
@@ -100,9 +125,14 @@ export type StdAdvanceOpts = {
   readonly maxMs?: number;
 };
 
-export function stdAdvance<S>(
+export function stdAdvance<S, F = unknown>(
   opts?: StdAdvanceOpts
-): ActionDef<S, { readonly kind: 'std.advance'; readonly ms: number }> {
+): ActionDef<
+  S,
+  { readonly kind: 'std.advance'; readonly ms: number },
+  object,
+  F
+> {
   const minMs = opts?.minMs ?? 1;
   const maxMs = opts?.maxMs ?? 500;
   return {
@@ -113,19 +143,36 @@ export function stdAdvance<S>(
         kind: 'std.advance' as const,
         ms,
       })),
-    dispatch: async (world: World<S>, action) => {
+    dispatch: async (world: World<S, F>, action) => {
       await world.advance(action.ms);
     },
   };
 }
 
-/** Bundle of common chaos actions for a directed role pair. */
-export function stdNetChaos<S>(
-  roles: StdPartitionRoles
-): readonly ActionDef<S, SystemAction>[] {
-  return [
-    stdPartition<S>(roles) as unknown as ActionDef<S, SystemAction>,
-    stdHeal<S>(roles) as unknown as ActionDef<S, SystemAction>,
-    stdHealAll<S>() as unknown as ActionDef<S, SystemAction>,
-  ];
+/**
+ * Bundle of common chaos actions.
+ * When `roles` is omitted, derives the pair from `SystemDef.network.edges[0]`.
+ */
+export function stdNetChaos<S, F = unknown>(
+  roles?: StdPartitionRoles
+): readonly [
+  ActionDef<
+    S,
+    {
+      readonly kind: 'std.partition';
+      readonly from: string;
+      readonly to: string;
+    },
+    object,
+    F
+  >,
+  ActionDef<
+    S,
+    { readonly kind: 'std.heal'; readonly from: string; readonly to: string },
+    object,
+    F
+  >,
+  ActionDef<S, { readonly kind: 'std.healAll' }, object, F>,
+] {
+  return [stdPartition<S, F>(roles), stdHeal<S, F>(roles), stdHealAll<S, F>()];
 }

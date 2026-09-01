@@ -11,13 +11,6 @@ export const spaces = defineTable({
     host_account_id: 'text',
     host_member_id: 'text',
   },
-  indexes: [
-    'created_at',
-    'ended_at',
-    'host_id',
-    'host_account_id',
-    'host_member_id',
-  ],
 });
 
 export const spacesUsers = defineTable({
@@ -28,7 +21,6 @@ export const spacesUsers = defineTable({
     user_id: 'text',
     created_by_account_id: 'text',
   },
-  indexes: ['space_id', 'user_id'],
   uniqueIndexes: [['space_id', 'user_id']],
 });
 
@@ -41,7 +33,6 @@ export const spacesOpenSessions = defineTable({
     opened_at: 'timestamp',
     join_announced: 'boolean',
   },
-  indexes: ['device_id', 'space_id'],
   uniqueIndexes: [['device_id', 'space_id']],
 });
 

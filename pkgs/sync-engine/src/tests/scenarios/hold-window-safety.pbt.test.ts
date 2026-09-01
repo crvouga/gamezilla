@@ -2,7 +2,6 @@ import { describe, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
 import { assertSampleProperty } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
-import { syncFacade } from '../../sim/system';
 import { arbWorldKnobs, arbWorldSeed } from '../../sim/system/knobs';
 import { isLiveNote, readLiveNotes } from '../apps/acme/assert';
 import { setNote } from '../apps/acme/shared/mutations';
@@ -20,7 +19,7 @@ describe('hold window safety PBT', () => {
           fc.string({ minLength: 1, maxLength: 12 }),
           async (seed, knobs, body) => {
             await using world = await openWorld(acmeSystem, { seed, knobs });
-            const facade = syncFacade(world.state);
+            const facade = world.facade;
             const clientId = world.roleIds('client')[0]!;
             const noteId = 'n0';
             const client = facade.clients.get(clientId)!;

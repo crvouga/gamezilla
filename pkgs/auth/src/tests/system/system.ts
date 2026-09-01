@@ -47,7 +47,7 @@ export const AUTH_SYSTEM = defineSystem<AuthSystem, AuthModel>({
     {
       kind: authActorNode,
       role: 'client',
-      countFromKnob: 'clientCount',
+      count: { fromKnob: 'clientCount' },
       idFor: (i) => `c${i}`,
     },
   ],

@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
-import { roomWorld } from '../../sim/system';
 import { counterSystem } from '../apps/counter/system';
 import { Increment } from '../fixtures/counter-module';
 
@@ -9,7 +8,7 @@ async function runWorkload(seed: number | string): Promise<string> {
     seed,
     knobs: { clientCount: 0 },
   });
-  const world = roomWorld(host.state);
+  const world = host.facade;
   const a = await world.addClient({ id: 'alice' });
   const b = await world.addClient({ id: 'bob' });
   for (let i = 0; i < 7; i += 1) {

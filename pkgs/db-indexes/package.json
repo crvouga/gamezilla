@@ -1,0 +1,32 @@
+{
+  "name": "@pkgs/db-indexes",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./postgres": "./src/postgres/index.ts",
+    "./sqlite": "./src/sqlite/index.ts",
+    "./sim": "./src/sim/index.ts"
+  },
+  "scripts": {
+    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@noble/hashes": "catalog:",
+    "@pkgs/assert": "workspace:*",
+    "@pkgs/clock": "workspace:*",
+    "@pkgs/sql": "workspace:*",
+    "@pkgs/sql-client": "workspace:*",
+    "node-sql-parser": "catalog:"
+  },
+  "devDependencies": {
+    "@pkgs/determinism": "workspace:*",
+    "@pkgs/pbt": "workspace:*",
+    "@pkgs/postgres-embedded": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:"
+  }
+}
