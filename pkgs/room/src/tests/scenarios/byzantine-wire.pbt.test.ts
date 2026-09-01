@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { arbWorldSeed, assertDstProperty } from '@pkgs/dst/pbt';
+import { arbWorldSeed, assertSampleProperty } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
 
 import {
@@ -8,15 +8,18 @@ import {
   type ByzantineInjectKind,
   buildByzantineRaw,
   playRoomActions,
-  type RoomDstAction,
-  replayRoomDst,
-  roomDstWorld,
-} from '../../sim/dst';
+  type RoomSystemAction,
+  replayRoom,
+  roomWorld,
+} from '../../sim/system';
 import type { World } from '../../sim/world-api';
-import { counterDst } from '../apps/counter/dst';
+import { counterSystem } from '../apps/counter/system';
 import { counterValue } from '../fixtures/counter-module';
 
-function injectAction(kind: ByzantineInjectKind, now: number): RoomDstAction {
+function injectAction(
+  kind: ByzantineInjectKind,
+  now: number
+): RoomSystemAction {
   const raw = buildByzantineRaw(kind, now);
   if (raw.direction === 'toServer') {
     return {
@@ -45,20 +48,20 @@ describe('room byzantine-wire PBT', () => {
   test(
     'each inject catalog arm then settle restores server truth',
     async () => {
-      await assertDstProperty(
+      await assertSampleProperty(
         'byzantine inject converges to server',
         fc.asyncProperty(
           arbWorldSeed(),
           arbRoomKnobs(),
           fc.constantFrom(...BYZANTINE_INJECT_KINDS),
           async (seed, knobs, kind) => {
-            const world = await replayRoomDst(counterDst, {
+            const world = await replayRoom(counterSystem, {
               seed,
               knobs: { ...knobs, clientCount: 2 },
               settle: false,
               actions: [],
             });
-            const real = roomDstWorld(world.system);
+            const real = roomWorld(world.system);
             try {
               const before = await real.serverHash();
               await playRoomActions(world, [

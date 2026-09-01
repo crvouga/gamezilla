@@ -1,14 +1,14 @@
 import {
-  createSimNetwork as createDstNetwork,
   createNetEffect,
-  type SimNetwork as DstNetwork,
+  createSimNetwork,
   type NetEffect,
   RELIABLE_NET_FAULTS,
   type SimEndpointId,
   type SimNetFaultProfile,
   type SimNetKey,
+  type SimNetwork,
   type SimScheduler,
-} from '@pkgs/dst';
+} from '@pkgs/determinism';
 import type { SeededRng } from '@pkgs/uuid';
 
 /** VOPR-style one-way link knobs for room loopback frames. */
@@ -114,12 +114,12 @@ type RoomNetMaps = {
 };
 
 type RoomNetCtx = RoomNetMaps & {
-  readonly kernel: DstNetwork;
+  readonly kernel: SimNetwork;
 };
 
 /**
  * Room-domain network: hold/down/faults keyed by client + direction.
- * Mechanics (delay/loss/dup/hold queues) live in `@pkgs/dst`.
+ * Mechanics (delay/loss/dup/hold queues) live in `@pkgs/determinism`.
  */
 export type SimRoomNetwork = {
   readonly registerServer: (
@@ -396,12 +396,12 @@ function buildRoomNetworkApi(args: {
 }
 
 /**
- * Adapt a framework-owned `@pkgs/dst` network kernel to the room-domain
- * client/direction-keyed surface. DST worlds pass `ctx.network`;
+ * Adapt a framework-owned `@pkgs/determinism` network kernel to the room-domain
+ * client/direction-keyed surface. framework worlds pass `ctx.network`;
  * {@link createSimRoomNetwork} passes a kernel it just made.
  */
-export function wrapDstRoomNetwork(args: {
-  readonly kernel: DstNetwork;
+export function wrapRoomNetwork(args: {
+  readonly kernel: SimNetwork;
   readonly scheduler: SimScheduler;
   readonly faults?: RoomFaultProfile;
 }): SimRoomNetwork {
@@ -424,8 +424,8 @@ export function createSimRoomNetwork(args: {
   readonly faults?: RoomFaultProfile;
 }): SimRoomNetwork {
   const initial = args.faults ?? RELIABLE_ROOM_FAULTS;
-  return wrapDstRoomNetwork({
-    kernel: createDstNetwork({
+  return wrapRoomNetwork({
+    kernel: createSimNetwork({
       scheduler: args.scheduler,
       rng: args.rng,
       faults: toKernelFaults(initial),

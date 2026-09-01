@@ -1,18 +1,18 @@
 import { describe, expect, test } from 'bun:test';
-import { openDstWorld } from '@pkgs/dst';
-import { assertDstProperty } from '@pkgs/dst/pbt';
+import { openWorld } from '@pkgs/determinism';
+import { assertSampleProperty } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
-import { syncFacade } from '../../sim/dst';
-import { arbWorldKnobs, arbWorldSeed } from '../../sim/dst/knobs';
+import { syncFacade } from '../../sim/system';
+import { arbWorldKnobs, arbWorldSeed } from '../../sim/system/knobs';
 import { expectLiveNote, readLiveNotes } from '../apps/acme/assert';
-import { acmeDst } from '../apps/acme/dst';
 import { deleteNote, setNote } from '../apps/acme/shared/mutations';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('authz graph PBT', () => {
   test(
     'non-owner delete cannot remove owner note from live set',
     async () => {
-      await assertDstProperty(
+      await assertSampleProperty(
         'non-owner delete rejected',
         fc.asyncProperty(
           arbWorldSeed(),
@@ -21,7 +21,7 @@ describe('authz graph PBT', () => {
           fc.string({ maxLength: 12 }),
           async (seed, knobs, noteId, body) => {
             if (knobs.clientCount < 2) return;
-            await using world = await openDstWorld(acmeDst, { seed, knobs });
+            await using world = await openWorld(acmeSystem, { seed, knobs });
             const facade = syncFacade(world.system);
             const [owner, peer] = world.roleIds('client');
             const ownerClient = facade.clients.get(owner!)!;
@@ -58,7 +58,7 @@ describe('authz graph PBT', () => {
   test(
     'authorized mutates from multiple clients converge to one live row set',
     async () => {
-      await assertDstProperty(
+      await assertSampleProperty(
         'multi-client authorized converge',
         fc.asyncProperty(
           arbWorldSeed(),
@@ -76,7 +76,7 @@ describe('authz graph PBT', () => {
             { minLength: 1, maxLength: 6 }
           ),
           async (seed, knobs, writes) => {
-            await using world = await openDstWorld(acmeDst, { seed, knobs });
+            await using world = await openWorld(acmeSystem, { seed, knobs });
             const facade = syncFacade(world.system);
             for (const w of writes) {
               const client = facade.clients.get('c0')!;

@@ -1,20 +1,17 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '../../sim/world';
+import { openWorld } from '@pkgs/determinism';
+import { authzSystem } from '../apps/authz/system';
+import { roomWorld } from '../../sim/system';
 import { ROOM_ERROR_TYPE } from '../../types';
-import {
-  AuthzFixtureModule,
-  authzCount,
-  authzOwner,
-  Bump,
-  Claim,
-} from '../fixtures/authz-module';
+import { authzCount, authzOwner, Bump, Claim } from '../fixtures/authz-module';
 
 describe('kit: authz survives reconnect (M-F05)', () => {
   test('non-owner still unauthorized after soft reconnect', async () => {
-    await using world = await openWorld({
+    await using host = await openWorld(authzSystem, {
       seed: process.env['SIM_SEED'] ?? '42',
-      module: AuthzFixtureModule,
+      knobs: { clientCount: 0 },
     });
+    const world = roomWorld(host.system);
     const alice = await world.addClient({ id: 'alice' });
     const bob = await world.addClient({ id: 'bob' });
     await world.assertConverged();

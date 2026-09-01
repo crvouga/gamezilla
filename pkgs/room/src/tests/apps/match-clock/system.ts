@@ -1,0 +1,7 @@
+import { defineRoomSystem, type RoomSystemDef } from '../../../sim/system';
+import { matchClockApp } from './app';
+
+/** Framework-owned match-clock world: scheduled flag-fall under chaos. */
+export const matchClockSystem: RoomSystemDef = defineRoomSystem(matchClockApp, {
+  id: 'room.match-clock',
+});

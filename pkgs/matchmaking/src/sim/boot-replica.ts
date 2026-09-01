@@ -2,7 +2,6 @@
  * Build MatchmakingImplSql replicas sharing one store + sim clock.
  */
 
-import type { SimClock } from '@pkgs/clock';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { SeededRng } from '@pkgs/uuid';
 import { MatchmakingImplSql } from '../impl-sql';
@@ -11,6 +10,11 @@ import type { MatchmakingSchema } from '../interface/schema';
 import type { RadiusOptions } from '../interface/types';
 import { createSeededCreateId } from './create-id';
 import type { SimStore } from './store';
+
+/** Minimal clock — works with `@pkgs/determinism` and `@pkgs/clock` SimClock. */
+export type ReplicaClock = {
+  readonly now: () => number;
+};
 
 export type ReplicaBootConfig = {
   readonly schema: MatchmakingSchema;
@@ -40,7 +44,7 @@ function tuningFromPartial(
 
 export function buildReplicaMatchmaking(args: {
   readonly sqlClient: SqlClient;
-  readonly clock: SimClock;
+  readonly clock: ReplicaClock;
   readonly rng: SeededRng;
   readonly replicaId: string;
   readonly config: ReplicaBootConfig;
@@ -62,7 +66,7 @@ export function buildReplicaMatchmaking(args: {
 
 export async function bootReplicaOnStore(args: {
   readonly store: SimStore;
-  readonly clock: SimClock;
+  readonly clock: ReplicaClock;
   readonly rng: SeededRng;
   readonly replicaId: string;
   readonly config: ReplicaBootConfig;

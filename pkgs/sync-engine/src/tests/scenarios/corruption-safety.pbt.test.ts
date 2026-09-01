@@ -1,5 +1,5 @@
 import { describe, test } from 'bun:test';
-import { assertDstProperty } from '@pkgs/dst/pbt';
+import { assertSampleProperty } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
 import {
   CORRUPTION_VARIANTS,
@@ -7,15 +7,15 @@ import {
   PUBSUB_FAULTS,
   replaySyncPin,
   STORAGE_TAMPERS,
-} from '../../sim/dst';
-import { arbWorldKnobs, arbWorldSeed } from '../../sim/dst/knobs';
+} from '../../sim/system';
+import { arbWorldKnobs, arbWorldSeed } from '../../sim/system/knobs';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
-import { acmeDst } from '../apps/acme/dst';
-import type { DstAction, LibraryAction } from '../dst/actions';
+import { acmeSystem } from '../apps/acme/system';
+import type { LibraryAction, SyncAction } from '../system/actions';
 
 const TRIGGER = acmeSetNoteOp('c0', 'n0', 'corruption');
 
-function corruptionSequence(arm: LibraryAction): DstAction[] {
+function corruptionSequence(arm: LibraryAction): SyncAction[] {
   return [arm, TRIGGER, { kind: 'idle', ms: 40 }, { kind: 'heal' }];
 }
 
@@ -23,7 +23,7 @@ describe('corruption safety PBT', () => {
   test(
     'HTTP response corruption then mutate converges',
     async () => {
-      await assertDstProperty(
+      await assertSampleProperty(
         'http corruption sequences converge',
         fc.asyncProperty(
           arbWorldSeed(),
@@ -36,7 +36,7 @@ describe('corruption safety PBT', () => {
                 f.kind === 'corruptQueryResponse'
             ),
           async (seed, knobs, fault) => {
-            await replaySyncPin(acmeDst, {
+            await replaySyncPin(acmeSystem, {
               seed,
               knobs,
               actions: corruptionSequence({
@@ -56,7 +56,7 @@ describe('corruption safety PBT', () => {
   test(
     'pubsub corruption then mutate converges',
     async () => {
-      await assertDstProperty(
+      await assertSampleProperty(
         'pubsub corruption sequences converge',
         fc.asyncProperty(
           arbWorldSeed(),
@@ -66,7 +66,7 @@ describe('corruption safety PBT', () => {
             .filter((f) => f.kind === 'corruptPubsubPayload'),
           fc.constantFrom(...CORRUPTION_VARIANTS),
           async (seed, knobs, _fault, variant) => {
-            await replaySyncPin(acmeDst, {
+            await replaySyncPin(acmeSystem, {
               seed,
               knobs,
               actions: corruptionSequence({
@@ -85,14 +85,14 @@ describe('corruption safety PBT', () => {
   test(
     'local storage tamper then restart converges',
     async () => {
-      await assertDstProperty(
+      await assertSampleProperty(
         'storage tamper sequences converge',
         fc.asyncProperty(
           arbWorldSeed(),
           arbWorldKnobs(),
           fc.constantFrom(...STORAGE_TAMPERS),
           async (seed, knobs, tamper) => {
-            await replaySyncPin(acmeDst, {
+            await replaySyncPin(acmeSystem, {
               seed,
               knobs,
               actions: [

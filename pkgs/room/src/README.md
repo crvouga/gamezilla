@@ -88,10 +88,11 @@ Core vs adapters stay split so callers opt into a runtime explicitly.
 | `@pkgs/room/client/adapters/storage/key-value` | `KeyValueClientRoomStorage` (async `Kv`) |
 | `@pkgs/room/server/adapters/memory` | `InMemoryRoomStorage` |
 | `@pkgs/room/server/adapters/durable-object` | `createDurableObjectAdapter`, DO storage + alarm schedule |
-| `@pkgs/room/tests` | `openLoopbackRoom`, **`openWorld`**, kit (`runModuleConformance`, …), fixtures (counter / deadline / authz / match-clock) |
+| `@pkgs/room/tests` | `openLoopbackRoom`, **`roomWorld`** / **`defineRoomSystem`**, kit (`runModuleConformance`, …), fixtures (counter / deadline / authz / match-clock) |
 
 `src/sim/` implementation stays **private** (relative imports from package
-tests). Games should import `openWorld` from `@pkgs/room/tests`, not deep
+tests). Games should import `roomWorld` / `defineRoomSystem` from
+`@pkgs/room/tests` and boot with `openWorld` from `@pkgs/determinism`, not deep
 `sim/` paths.
 
 ---
@@ -107,13 +108,13 @@ pkgs/room/src/
 ├── server/adapters/      memory + durable-object (alarms, KV schedules)
 ├── protocol/             wire frames + ids
 ├── effects/              Schedule/CancelSchedule + RoomEffectHandler port
-├── sim/                  private DST harness (world, net, settle, until)
-│   └── dst/              RoomDstAction + defineRoomDst (`@pkgs/dst` node kinds)
+├── sim/                  private sim harness (world, net, settle, until)
+│   └── system/           RoomSystemAction + defineRoomSystem (`@pkgs/determinism` node kinds)
 └── tests/
     ├── fixtures/         Counter, Deadline, Authz, MatchClock modules
     ├── harness/          openLoopbackRoom + LoopbackRoomTransport
-    ├── kit/              Module-conformance API + M1–M8 DST
-    └── scenarios/        Engine DST *.sim.test.ts
+    ├── kit/              Module-conformance API + M1–M8 scenarios
+    └── scenarios/        Engine scenarios *.sim.test.ts
 ```
 
 Facade: [`testkit.ts`](./testkit.ts) → package export `@pkgs/room/tests`.
@@ -282,8 +283,8 @@ replays are idempotent.
 | Tool | When to use |
 |------|-------------|
 | **`openLoopbackRoom`** (`@pkgs/room/tests`) | Fast in-process unit/integration with injected `Io`; real `RoomClient` + `RoomServer`, no net faults; Schedule via timers |
-| **`openWorld`** (`@pkgs/room/tests` → `sim/world`) | Hand-wired multi-client kit world: partitions, delays, soft disconnect, crash/restart, hash converge, seed replay, Schedule wakes |
-| **`defineRoomDst` + `assertDst` / `replayDst`** | Framework-owned DST world (`room.server` / `room.client` node kinds): shrinking `fc.commands` search + fault-catalog slice PBTs |
+| **`openWorld` + `roomWorld`** (`@pkgs/determinism` + `@pkgs/room/tests`) | Framework multi-client world: partitions, delays, soft disconnect, crash/restart, hash converge, seed replay, Schedule wakes |
+| **`defineRoomSystem` + `assertSample` / `replay`** | Framework-owned world (`room.server` / `room.client` node kinds): shrinking `fc.commands` search + fault-catalog slice PBTs |
 | **`runRoomSeed`** | Non-shrinking seeded fuzz (`ROOM_SIM_SEED` / `SIM_SEED`); determinism + long workloads |
 | **DO / adapter tests** | Hibernation, session take-over, per-key storage, alarms, WS heartbeat |
 | **`runModuleConformance`** | Game-module kit (purity, hash, totality, fold, fuzz) |
@@ -292,39 +293,40 @@ Scripts:
 
 ```bash
 bun run --filter @pkgs/room test       # all package tests
-bun run --filter @pkgs/room test:sim   # DST scenarios + kit only
+bun run --filter @pkgs/room test:sim   # system scenarios + kit only
 bun run test:pbt                       # all pkgs/libs *.pbt.test.ts (pinned FC_SEED)
 bun run test:pbt:random                # nightly random exploration
 ```
 
-### Shrinking DST kernel (`sim/dst/`)
+### Shrinking system kernel (`sim/system/`)
 
-Worlds and action replay are owned by `@pkgs/dst`. A room app becomes a DST
-system with `defineRoomDst`, which declares the `room.server` / `room.client`
+Worlds and action replay are owned by `@pkgs/determinism`. A room app becomes a
+system with `defineRoomSystem`, which declares the `room.server` / `room.client`
 node kinds and the library + domain action pool:
 
 ```ts
-// tests/apps/counter/dst.ts
-export const counterDst = defineRoomDst(counterDstApp, { id: 'room.counter' });
+// tests/apps/counter/system.ts
+export const counterSystem = defineRoomSystem(counterApp, { id: 'room.counter' });
 
 // shrinking PBT — framework generates seed, knobs, and fc.commands
-await assertDst(counterDst, { maxCommands: 14 });
+await assertSample(counterSystem, { maxCommands: 14 });
 
 // scripted pin
-await replayRoomPin(counterDst, { seed, knobs, actions: [/* RoomDstAction */] });
+await replayRoomPin(counterSystem, { seed, knobs, actions: [/* RoomSystemAction */] });
 ```
 
-1. `RoomDstAction` union (domain + library chaos) under `sim/dst/`
+1. `RoomSystemAction` union (domain + library chaos) under `sim/system/`
 2. `WorldModel` + `modelAllowsAction` so shrinks stay legal
 3. `libraryActionArbs` + `app.domainOpArbs` feed the framework command pool;
    `armCrashAt` / wire injects stay out of it and are covered by slice PBTs
 4. Const fault catalogs (`NET_FAULT_PROFILES`, `BYZANTINE_INJECT_KINDS`, `WORLD_PBT_CRASH_EVENTS`) exhausted by slice PBTs
-5. `runRoomSeed` (`tests/dst/run-seed.ts`) boots the same topology on the kit
-   `openWorld({ module })` path for non-shrinking seeded fuzz
+5. `runRoomSeed` (`tests/system/run-seed.ts`) boots the same topology via
+   framework `openWorld(defineRoomSystem(app), …)` + `roomWorld` for
+   non-shrinking seeded fuzz
 
 On find: capture `FC_SEED` / `replayPath` → pin in `room-world.pbt.test.ts` or a named `.sim.test.ts` → log in [`PBT_FINDINGS.md`](../../../PBT_FINDINGS.md).
 
-### DST five concepts (room-shaped)
+### System five concepts (room-shaped)
 
 | Concept | API | Notes |
 |---------|-----|-------|
@@ -353,23 +355,22 @@ Connectivity triad — do not conflate:
 | `MatchClockFixtureModule` | Dual banks; Move reschedules; FlagFall terminal (MC-01..06) |
 | `AuthzFixtureModule` | Claim/Bump owner authz across reconnect (M5) |
 
-### Quick start (DST)
+### Quick start (framework world)
 
 ```ts
 import { describe, expect, test } from 'bun:test';
-import {
-  Increment,
-  TestCounterModule,
-  counterValue,
-} from '../fixtures/counter-module';
-import { openWorld } from '../../sim/world';
+import { openWorld } from '@pkgs/determinism';
+import { roomWorld } from '../../sim/system';
+import { counterSystem } from '../apps/counter/system';
+import { Increment, counterValue } from '../fixtures/counter-module';
 
 describe('room sim', () => {
   test('partition then heal', async () => {
-    await using world = await openWorld({
+    await using host = await openWorld(counterSystem, {
       seed: 3,
-      module: TestCounterModule,
+      knobs: { clientCount: 0 },
     });
+    const world = roomWorld(host.system);
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     {
@@ -391,7 +392,8 @@ describe('room sim', () => {
 Games outside this package:
 
 ```ts
-import { openWorld, runModuleConformance } from '@pkgs/room/tests';
+import { openWorld } from '@pkgs/determinism';
+import { defineRoomSystem, roomWorld, runModuleConformance } from '@pkgs/room/tests';
 ```
 
 ---
@@ -592,5 +594,5 @@ File: `tests/scenarios/match-clock-schedule.sim.test.ts` (`MatchClockFixtureModu
 | `tests/client-storage.pbt.test.ts` | PBT | Memory/web/KV queue append/remove round-trip + serial remove |
 | `tests/bench/hot-paths.bench.test.ts` | Hang-only | Dispatch burst, welcome-256, hash nested state |
 
-Curated exports for games: `@pkgs/room/tests` (`openWorld`, kit helpers,
-fixtures). Prefer adding a row above whenever you add coverage.
+Curated exports for games: `@pkgs/room/tests` (`roomWorld`, `defineRoomSystem`,
+kit helpers, fixtures). Prefer adding a row above whenever you add coverage.

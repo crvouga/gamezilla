@@ -1,17 +1,16 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '../../sim/world';
-import {
-  counterValue,
-  Increment,
-  TestCounterModule,
-} from '../fixtures/counter-module';
+import { openWorld } from '@pkgs/determinism';
+import { roomWorld } from '../../sim/system';
+import { counterSystem } from '../apps/counter/system';
+import { counterValue, Increment } from '../fixtures/counter-module';
 
 describe('room sim: n-client partition (E-A07)', () => {
   test('selective holds across four clients converge', async () => {
-    await using world = await openWorld({
+    await using host = await openWorld(counterSystem, {
       seed: process.env['SIM_SEED'] ?? '42',
-      module: TestCounterModule,
+      knobs: { clientCount: 0 },
     });
+    const world = roomWorld(host.system);
     const ids = ['a', 'b', 'c', 'd'] as const;
     const clients = [];
     for (const id of ids) {

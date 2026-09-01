@@ -2,38 +2,23 @@
  * Public types for the matchmaking deterministic simulator.
  */
 
-import type { SimClock } from '@pkgs/clock';
+import type { SimClock } from '@pkgs/determinism';
 import type { SeededRng } from '@pkgs/uuid';
 import type {
   Matchmaking,
-  MatchmakingTuning,
   TickOptions,
   TickResult,
 } from '../interface/matchmaking';
-import type { MatchmakingSchema } from '../interface/schema';
 import type {
   DistanceFormula,
   JoinInput,
   LeaveResult,
-  RadiusOptions,
   StatusResult,
   UpdateFormulasResult,
 } from '../interface/types';
 import type { NeverOpts, UntilOpts, UntilTarget } from './until';
 
 export type MatchmakingSimBackend = 'sqlite' | 'postgres';
-
-export type OpenMatchmakingSimWorldArgs = {
-  readonly seed: number | bigint | string;
-  /** Number of replicas sharing one DB. Default 1. */
-  readonly replicas?: number;
-  /** Default sqlite. Use postgres for concurrent tickAll claim races. */
-  readonly backend?: MatchmakingSimBackend;
-  readonly schema?: MatchmakingSchema;
-  readonly radius?: RadiusOptions;
-  readonly tuning?: Partial<MatchmakingTuning>;
-  readonly startMs?: number;
-};
 
 export type ParticipantHandle = {
   readonly participantId: string;

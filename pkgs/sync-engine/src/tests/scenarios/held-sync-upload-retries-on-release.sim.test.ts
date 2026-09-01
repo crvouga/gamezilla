@@ -1,0 +1,37 @@
+import { openWorld } from '@pkgs/determinism';
+import { acmeSystem } from '../apps/acme/system';
+import { syncFacade } from '../../sim/system';
+import { describe, expect, test } from 'bun:test';
+import { expectLiveNote, setNote } from '../apps/acme';
+
+describe('held sync upload retries on release', () => {
+  test('held sync keeps queue pending then confirms after release', async () => {
+    await using host = await openWorld(acmeSystem, {
+      seed: 502,
+      knobs: {
+        clientCount: 0,
+      },
+    });
+    const world = syncFacade(host.system);
+    const a = await world.addClient({ id: 'alice' });
+    const b = await world.addClient({ id: 'bob' });
+
+    let mutationId = '';
+    {
+      using _hold = world.net('alice', 'sync').set('hold');
+      const queued = await a.mutate(setNote, {
+        id: 'n1',
+        body: 'transient',
+      });
+      expect(queued.ok).toBe(true);
+      if (!queued.ok) return;
+      mutationId = queued.mutationId;
+
+      await world.never(a.outcome(mutationId), { forMs: 300 });
+    }
+    await world.until(a.outcome(mutationId), { budgetMs: 5_000 });
+    expect(await a.outcome(mutationId)).toBe('confirmed');
+    await world.assertConverged();
+    await expectLiveNote(b.db, 'n1', { body: 'transient' });
+  });
+});

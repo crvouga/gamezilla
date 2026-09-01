@@ -1,9 +1,10 @@
 import { describe, expect, test } from 'bun:test';
 
-import { openWorld } from '../../sim/world';
+import { openWorld } from '@pkgs/determinism';
+import { roomWorld } from '../../sim/system';
+import { matchClockSystem } from '../apps/match-clock/system';
 import {
   FlagFall,
-  MatchClockFixtureModule,
   Move,
   matchClockBlackMs,
   matchClockStatus,
@@ -15,11 +16,12 @@ import {
 
 describe('match-clock schedule (MC-01..06)', () => {
   test('MC-01: runFor past flag → server FlagFall terminal; clients converge', async () => {
-    await using world = await openWorld({
+    await using host = await openWorld(matchClockSystem, {
       seed: process.env['SIM_SEED'] ?? 'mc-01',
-      module: MatchClockFixtureModule,
+      knobs: { clientCount: 0 },
       startMs: 10_000,
     });
+    const world = roomWorld(host.system);
     const a = await world.addClient({ id: 'white', identity: 'white' });
     const b = await world.addClient({ id: 'black', identity: 'black' });
     await world.assertConverged();
@@ -40,11 +42,12 @@ describe('match-clock schedule (MC-01..06)', () => {
   });
 
   test('MC-02: move before flag cancels; opponent clock active', async () => {
-    await using world = await openWorld({
+    await using host = await openWorld(matchClockSystem, {
       seed: process.env['SIM_SEED'] ?? 'mc-02',
-      module: MatchClockFixtureModule,
+      knobs: { clientCount: 0 },
       startMs: 20_000,
     });
+    const world = roomWorld(host.system);
     const white = await world.addClient({ id: 'white', identity: 'white' });
     await world.addClient({ id: 'black', identity: 'black' });
     await world.assertConverged();
@@ -71,11 +74,12 @@ describe('match-clock schedule (MC-01..06)', () => {
   });
 
   test('MC-03: lagging held client cannot move after server flag', async () => {
-    await using world = await openWorld({
+    await using host = await openWorld(matchClockSystem, {
       seed: process.env['SIM_SEED'] ?? 'mc-03',
-      module: MatchClockFixtureModule,
+      knobs: { clientCount: 0 },
       startMs: 30_000,
     });
+    const world = roomWorld(host.system);
     const white = await world.addClient({ id: 'white', identity: 'white' });
     const black = await world.addClient({ id: 'black', identity: 'black' });
     await world.assertConverged();
@@ -99,11 +103,12 @@ describe('match-clock schedule (MC-01..06)', () => {
   });
 
   test('MC-04: early client FlagFall rejected; server still flags at at', async () => {
-    await using world = await openWorld({
+    await using host = await openWorld(matchClockSystem, {
       seed: process.env['SIM_SEED'] ?? 'mc-04',
-      module: MatchClockFixtureModule,
+      knobs: { clientCount: 0 },
       startMs: 40_000,
     });
+    const world = roomWorld(host.system);
     const white = await world.addClient({ id: 'white', identity: 'white' });
     await world.addClient({ id: 'black', identity: 'black' });
     await world.assertConverged();
@@ -121,11 +126,12 @@ describe('match-clock schedule (MC-01..06)', () => {
   });
 
   test('MC-05: soft disconnect during tick; reconnect after flag', async () => {
-    await using world = await openWorld({
+    await using host = await openWorld(matchClockSystem, {
       seed: process.env['SIM_SEED'] ?? 'mc-05',
-      module: MatchClockFixtureModule,
+      knobs: { clientCount: 0 },
       startMs: 50_000,
     });
+    const world = roomWorld(host.system);
     const white = await world.addClient({ id: 'white', identity: 'white' });
     await world.addClient({ id: 'black', identity: 'black' });
     await world.assertConverged();
@@ -144,11 +150,12 @@ describe('match-clock schedule (MC-01..06)', () => {
   test('MC-06: seeded clock workload ×2 identical serverHash', async () => {
     const seed = process.env['SIM_SEED'] ?? 'mc-06';
     const run = async (): Promise<string> => {
-      await using world = await openWorld({
+      await using host = await openWorld(matchClockSystem, {
         seed,
-        module: MatchClockFixtureModule,
+        knobs: { clientCount: 0 },
         startMs: 60_000,
       });
+      const world = roomWorld(host.system);
       const white = await world.addClient({ id: 'white', identity: 'white' });
       const black = await world.addClient({ id: 'black', identity: 'black' });
       await world.assertConverged();

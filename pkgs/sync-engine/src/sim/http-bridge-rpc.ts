@@ -1,4 +1,4 @@
-import type { SimScheduler } from '@pkgs/dst';
+import type { SimScheduler } from '@pkgs/determinism';
 import { HttpNetworkError } from '@pkgs/http-client';
 import type { SimHttpRequestBody, SimHttpResponse } from './http-bridge-types';
 

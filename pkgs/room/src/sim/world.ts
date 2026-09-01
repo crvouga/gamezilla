@@ -1,4 +1,4 @@
-import { createSimDeps, type SimDeps } from '@pkgs/dst';
+import { createSimDeps, type SimDeps } from '@pkgs/determinism';
 import type { SeededRng } from '@pkgs/uuid';
 
 import { InMemoryClientStorage } from '../client/adapters/storage/memory';
@@ -430,14 +430,15 @@ async function assertWorldConverged<
 }
 
 /**
- * Open a multi-client deterministic room world (TigerBeetle-style DST).
- * One seed → identical timeline. Use `await using` for cleanup.
+ * Boot the multi-client kit room world (TigerBeetle-style deterministic sim).
+ * Internal — framework worlds use `openWorld` from `@pkgs/determinism` +
+ * {@link defineRoomSystem}; node kinds and module conformance call this.
  *
- * Clients are added explicitly via {@link World.addClient}. Generated DST
- * topologies come from `defineRoomDst` (`sim/dst`), which boots `room.server`
+ * Clients are added explicitly via {@link World.addClient}. Generated system
+ * topologies come from `defineRoomSystem` (`sim/system`), which boots `room.server`
  * / `room.client` node kinds on top of this function.
  */
-export async function openWorld<
+export async function bootRoomKitWorld<
   S extends RoomState,
   C extends RoomCommandPayload,
   E extends RoomEvent,

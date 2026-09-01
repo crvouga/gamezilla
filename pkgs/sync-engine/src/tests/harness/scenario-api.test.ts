@@ -1,18 +1,18 @@
+import { openWorld } from '@pkgs/determinism';
+import { acmeSystem } from '../apps/acme/system';
+import { syncFacade } from '../../sim/system';
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '../../sim/world';
-import {
-  acmeDomainPack,
-  expectLiveNote,
-  isLiveNote,
-  setNote,
-} from '../apps/acme';
+import { expectLiveNote, isLiveNote, setNote } from '../apps/acme';
 
 describe('sim scenario API', () => {
   test('await using + net hold restore', async () => {
-    await using world = await openWorld({
-      domain: acmeDomainPack,
+    await using host = await openWorld(acmeSystem, {
       seed: 2,
+      knobs: {
+        clientCount: 0,
+      },
     });
+    const world = syncFacade(host.system);
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     {
@@ -28,10 +28,13 @@ describe('sim scenario API', () => {
   });
 
   test('until drives outcome promise', async () => {
-    await using world = await openWorld({
-      domain: acmeDomainPack,
+    await using host = await openWorld(acmeSystem, {
       seed: 3,
+      knobs: {
+        clientCount: 0,
+      },
     });
+    const world = syncFacade(host.system);
     const a = await world.addClient({ id: 'alice' });
     const queued = await a.mutate(setNote, { id: 'n1', body: 'y' });
     expect(queued.ok).toBe(true);
@@ -42,10 +45,13 @@ describe('sim scenario API', () => {
   });
 
   test('never holds for negative window', async () => {
-    await using world = await openWorld({
-      domain: acmeDomainPack,
+    await using host = await openWorld(acmeSystem, {
       seed: 7,
+      knobs: {
+        clientCount: 0,
+      },
     });
+    const world = syncFacade(host.system);
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     {
@@ -59,10 +65,13 @@ describe('sim scenario API', () => {
   });
 
   test('never fails when target becomes true', async () => {
-    await using world = await openWorld({
-      domain: acmeDomainPack,
+    await using host = await openWorld(acmeSystem, {
       seed: 8,
+      knobs: {
+        clientCount: 0,
+      },
     });
+    const world = syncFacade(host.system);
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await a.mutate(setNote, { id: 'n-seen', body: 'visible' });
@@ -72,10 +81,13 @@ describe('sim scenario API', () => {
   });
 
   test('assertConverged neutralizes net effects', async () => {
-    await using world = await openWorld({
-      domain: acmeDomainPack,
+    await using host = await openWorld(acmeSystem, {
       seed: 4,
+      knobs: {
+        clientCount: 0,
+      },
     });
+    const world = syncFacade(host.system);
     await world.addClient({ id: 'alice' });
     await world.addClient({ id: 'bob' });
     using hold = world.net('bob', 'sync').set('hold');
@@ -87,10 +99,13 @@ describe('sim scenario API', () => {
   });
 
   test('skewClock restores prior', async () => {
-    await using world = await openWorld({
-      domain: acmeDomainPack,
+    await using host = await openWorld(acmeSystem, {
       seed: 5,
+      knobs: {
+        clientCount: 0,
+      },
     });
+    const world = syncFacade(host.system);
     await world.addClient({ id: 'alice' });
     const base = world.node('alice').now();
     {
@@ -101,10 +116,13 @@ describe('sim scenario API', () => {
   });
 
   test('nested net set restore-prior LIFO', async () => {
-    await using world = await openWorld({
-      domain: acmeDomainPack,
+    await using host = await openWorld(acmeSystem, {
       seed: 6,
+      knobs: {
+        clientCount: 0,
+      },
     });
+    const world = syncFacade(host.system);
     await world.addClient({ id: 'alice' });
     using outer = world.net('alice', 'sync').set('hold');
     using inner = world.net('alice', 'sync').set({

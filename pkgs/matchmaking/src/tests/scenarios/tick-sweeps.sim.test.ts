@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { openMatchmakingSimWorld } from '../../sim/world';
+import { openMatchmakingWorld } from '../../sim/system';
 import { RatingAttr, registerTestCrashHandler } from '../fixtures';
 
 const SimpleFormula = { numeric: [{ tag: RatingAttr, weight: 1 }] };
@@ -14,7 +14,7 @@ describe('matchmaking sim: tick sweeps', () => {
   });
 
   test('expiredRemoved reaps waiters older than maxWaitSeconds', async () => {
-    await using world = await openMatchmakingSimWorld({
+    await using world = await openMatchmakingWorld({
       seed: 50,
       tuning: { maxWaitSeconds: 30 },
     });
@@ -29,7 +29,7 @@ describe('matchmaking sim: tick sweeps', () => {
   });
 
   test('matchedRemoved reaps matched rows older than matchedRetentionSeconds', async () => {
-    await using world = await openMatchmakingSimWorld({
+    await using world = await openMatchmakingWorld({
       seed: 51,
       tuning: { matchedRetentionSeconds: 10 },
     });
@@ -49,7 +49,7 @@ describe('matchmaking sim: tick sweeps', () => {
   });
 
   test('tick on an empty queue is a clean no-op', async () => {
-    await using world = await openMatchmakingSimWorld({ seed: 52 });
+    await using world = await openMatchmakingWorld({ seed: 52 });
     expect(await world.tick()).toEqual({
       matches: 0,
       passes: 0,

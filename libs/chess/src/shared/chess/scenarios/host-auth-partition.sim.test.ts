@@ -1,32 +1,37 @@
 import { describe, expect, test } from 'bun:test';
+import { openWorld } from '@pkgs/determinism';
 import { ROOM_ERROR_TYPE } from '@pkgs/room';
-import { openWorld } from '@pkgs/room/tests';
+import { roomWorld } from '@pkgs/room/tests';
 
-import { ChessModule } from '../chess-module';
 import {
   CHESS_PUZZLE_PLAY_STATUS,
   ChessPuzzlePlayAttr,
   StartChessPuzzlePlay,
   SubmitChessPuzzleMove,
 } from '../chess-puzzle-play';
+import { chessSystem } from './chess-system';
 
 const VALID_FEN = '4k3/8/8/8/8/8/4P3/4K2R b - - 0 1';
 const VALID_MOVES = 'e8d7 e1f2 d7e6 f2e3';
 
 describe('chess puzzle: host auth under partition (Gp-02)', () => {
   test('non-host submit rejected; domain still converges', async () => {
-    await using world = await openWorld({
+    await using host = await openWorld(chessSystem, {
       seed: process.env['SIM_SEED'] ?? '42',
-      module: ChessModule,
+      knobs: { clientCount: 0 },
     });
-    const host = await world.addClient({ id: 'host', identity: 'host-1' });
+    const world = roomWorld(host.system);
+    const hostClient = await world.addClient({
+      id: 'host',
+      identity: 'host-1',
+    });
     const spectator = await world.addClient({
       id: 'spec',
       identity: 'guest-1',
     });
     await world.assertConverged();
 
-    host.dispatch(
+    hostClient.dispatch(
       StartChessPuzzlePlay({
         puzzleId: 'p1',
         fen: VALID_FEN,
@@ -37,7 +42,7 @@ describe('chess puzzle: host auth under partition (Gp-02)', () => {
     expect(ChessPuzzlePlayAttr.status.from(await world.serverSnapshot())).toBe(
       CHESS_PUZZLE_PLAY_STATUS.solving
     );
-    expect(ChessPuzzlePlayAttr.status.from(host.snapshot())).toBe(
+    expect(ChessPuzzlePlayAttr.status.from(hostClient.snapshot())).toBe(
       CHESS_PUZZLE_PLAY_STATUS.solving
     );
 
@@ -52,10 +57,10 @@ describe('chess puzzle: host auth under partition (Gp-02)', () => {
     expect(ChessPuzzlePlayAttr.status.from(await world.serverSnapshot())).toBe(
       CHESS_PUZZLE_PLAY_STATUS.solving
     );
-    expect(ChessPuzzlePlayAttr.status.from(host.snapshot())).toBe(
+    expect(ChessPuzzlePlayAttr.status.from(hostClient.snapshot())).toBe(
       CHESS_PUZZLE_PLAY_STATUS.solving
     );
-    expect(host.hash()).toBe(await world.serverHash());
-    expect(host.hash()).toBe(spectator.hash());
+    expect(hostClient.hash()).toBe(await world.serverHash());
+    expect(hostClient.hash()).toBe(spectator.hash());
   });
 });

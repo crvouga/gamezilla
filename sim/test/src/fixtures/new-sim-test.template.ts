@@ -1,5 +1,5 @@
 /**
- * Template for new DST scenarios (`AppDriver` + `openSim`).
+ * Template for new system scenarios (`AppDriver` + `openSim`).
  *
  * Scenarios stay intent-only: `openSim` + `AppDriver.forActor`. No `by.*` selectors.
  * Committed snapshots exist under `fixtures/snapshots/`; wire them via

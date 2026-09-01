@@ -1,4 +1,4 @@
-/** Canonical actors / credentials for `@sim/test` DST scenarios. */
+/** Canonical actors / credentials for `@sim/test` system scenarios. */
 
 export const aliceCreds = {
   subject: 'alice',

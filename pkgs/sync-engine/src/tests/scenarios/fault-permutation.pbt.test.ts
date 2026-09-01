@@ -1,17 +1,17 @@
 import { describe, expect, test } from 'bun:test';
-import { openDstWorld } from '@pkgs/dst';
-import { assertDst } from '@pkgs/dst/pbt';
-import { playSyncActions, replaySyncPin, syncFacade } from '../../sim/dst';
+import { openWorld } from '@pkgs/determinism';
+import { assertSample } from '@pkgs/determinism/pbt';
+import { playSyncActions, replaySyncPin, syncFacade } from '../../sim/system';
 import { setNote } from '../apps/acme';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
-import { acmeDst } from '../apps/acme/dst';
-import type { DomainOp, DstAction, LibraryAction } from '../dst/actions';
+import { acmeSystem } from '../apps/acme/system';
+import type { DomainOp, LibraryAction, SyncAction } from '../system/actions';
 
 describe('fault permutation PBT', () => {
   test(
     'full fault pool interleaves and converges',
     async () => {
-      await assertDst(acmeDst, { maxCommands: 20, numRuns: 6 });
+      await assertSample(acmeSystem, { maxCommands: 20, numRuns: 6 });
     },
     { timeout: 180_000 }
   );
@@ -20,13 +20,13 @@ describe('fault permutation PBT', () => {
 function multiFaultSequence(
   arms: readonly LibraryAction[],
   trigger: DomainOp = acmeSetNoteOp('c0', 'n0', 'perm')
-): DstAction[] {
+): SyncAction[] {
   return [...arms, trigger, { kind: 'idle', ms: 40 }, { kind: 'heal' }];
 }
 
 describe('fault permutation pins', () => {
   test('rate limit then mutate converges', async () => {
-    await replaySyncPin(acmeDst, {
+    await replaySyncPin(acmeSystem, {
       seed: 44001,
       actions: multiFaultSequence([
         {
@@ -43,7 +43,7 @@ describe('fault permutation pins', () => {
   });
 
   test('storage full then restart converges', async () => {
-    await using world = await openDstWorld(acmeDst, { seed: 44002 });
+    await using world = await openWorld(acmeSystem, { seed: 44002 });
     const facade = syncFacade(world.system);
     const c0 = facade.clients.get('c0');
     expect(c0).toBeDefined();
@@ -63,7 +63,7 @@ describe('fault permutation pins', () => {
   });
 
   test('freeze sync then thaw catches up', async () => {
-    await replaySyncPin(acmeDst, {
+    await replaySyncPin(acmeSystem, {
       seed: 44003,
       actions: [
         { kind: 'freeze', clientId: 'c0' },
@@ -76,7 +76,7 @@ describe('fault permutation pins', () => {
   });
 
   test('auth expired in flight refreshes', async () => {
-    await replaySyncPin(acmeDst, {
+    await replaySyncPin(acmeSystem, {
       seed: 44004,
       actions: multiFaultSequence([
         {

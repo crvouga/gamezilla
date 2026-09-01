@@ -1,7 +1,11 @@
 # Sim tests (DST)
 
 Product system graph lives in `@libs/runtime`. Open a world with `openSim` from
-`sim/test/src/setup/open-sim.ts`.
+`sim/test/src/setup/open-sim.ts` — a thin wrapper over framework
+`openWorld(defineProductSystem(…))` (`sim/test/src/system/`). Playground still
+calls `createSim` directly as a wall composition root; `createSim` accepts
+injected `deps` from `@pkgs/determinism` so the same boot path works inside the
+`product.sim` node kind.
 
 **SQL fabric** (`SIM_SQL_BACKEND=real|mem`, default **`real`**):
 

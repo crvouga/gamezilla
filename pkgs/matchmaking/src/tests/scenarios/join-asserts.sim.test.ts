@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { AttributeState } from '@pkgs/attribute';
 import { MATCHMAKING_PAYLOAD_LIMITS } from '../../interface/payload-limits';
-import { openMatchmakingSimWorld } from '../../sim/world';
+import { openMatchmakingWorld } from '../../sim/system';
 import { NameAttr, RatingAttr, registerTestCrashHandler } from '../fixtures';
 
 const SimpleFormula = { numeric: [{ tag: RatingAttr, weight: 1 }] };
@@ -16,21 +16,21 @@ describe('matchmaking sim: join asserts', () => {
   });
 
   test('throws on empty formulas array', async () => {
-    await using world = await openMatchmakingSimWorld({ seed: 10 });
+    await using world = await openMatchmakingWorld({ seed: 10 });
     await expect(
       world.join({ data: RatingAttr(1000), formulas: [] })
     ).rejects.toThrow();
   });
 
   test('throws on empty formula (no terms)', async () => {
-    await using world = await openMatchmakingSimWorld({ seed: 11 });
+    await using world = await openMatchmakingWorld({ seed: 11 });
     await expect(
       world.join({ data: RatingAttr(1000), formulas: [{ numeric: [] }] })
     ).rejects.toThrow();
   });
 
   test('throws on negative numeric weight', async () => {
-    await using world = await openMatchmakingSimWorld({ seed: 12 });
+    await using world = await openMatchmakingWorld({ seed: 12 });
     await expect(
       world.join({
         data: RatingAttr(1000),
@@ -40,14 +40,14 @@ describe('matchmaking sim: join asserts', () => {
   });
 
   test('throws when required numeric attr is missing', async () => {
-    await using world = await openMatchmakingSimWorld({ seed: 13 });
+    await using world = await openMatchmakingWorld({ seed: 13 });
     await expect(
       world.join({ data: NameAttr('orphan'), formulas: [SimpleFormula] })
     ).rejects.toThrow();
   });
 
   test('throws when data contains a non-keyword key', async () => {
-    await using world = await openMatchmakingSimWorld({ seed: 14 });
+    await using world = await openMatchmakingWorld({ seed: 14 });
     await expect(
       world.join({
         data: { badkey: 1 } as unknown as AttributeState,
@@ -57,7 +57,7 @@ describe('matchmaking sim: join asserts', () => {
   });
 
   test('rejects groupSize out of range', async () => {
-    await using world = await openMatchmakingSimWorld({ seed: 15 });
+    await using world = await openMatchmakingWorld({ seed: 15 });
     await expect(
       world.join({
         data: RatingAttr(1000),
@@ -75,7 +75,7 @@ describe('matchmaking sim: join asserts', () => {
   });
 
   test('rejects priority out of range', async () => {
-    await using world = await openMatchmakingSimWorld({ seed: 16 });
+    await using world = await openMatchmakingWorld({ seed: 16 });
     await expect(
       world.join({
         data: RatingAttr(1000),

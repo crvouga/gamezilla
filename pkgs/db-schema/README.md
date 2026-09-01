@@ -120,4 +120,4 @@ new SqliteSchemaDatabaseMigration(appSchema, { ownership: 'declared-only' });
 
 - Contract matrix: `interface.contract.test.ts` (postgres-mem × sqlite-mem)
 - PBT: `*.pbt.test.ts` (compatible / forbidden deltas, type-map totality)
-- DST: `tests/dst/` (N sqlite clients + 1 postgres server, mixed versions)
+- System worlds: `tests/system/` (N sqlite clients + 1 postgres server, mixed versions)

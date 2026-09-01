@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { openMatchmakingSimWorld } from '../../sim/world';
+import { openMatchmakingWorld } from '../../sim/system';
 import {
   assertMatchInvariants,
   RatingAttr,
@@ -18,7 +18,7 @@ describe('matchmaking sim: concurrent replica ticks', () => {
   });
 
   test('tickAll never double-matches a participant', async () => {
-    await using world = await openMatchmakingSimWorld({
+    await using world = await openMatchmakingWorld({
       seed: 210,
       replicas: 3,
       backend: 'postgres',

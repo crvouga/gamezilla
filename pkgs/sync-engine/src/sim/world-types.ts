@@ -1,4 +1,4 @@
-import type { SimClock, SimScheduler } from '@pkgs/dst';
+import type { SimClock, SimScheduler } from '@pkgs/determinism';
 import type { SeededRng } from '@pkgs/uuid';
 
 import type { LocalDomainSchema } from '../client/local-schema-migrate';

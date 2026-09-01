@@ -1,6 +1,6 @@
 import fc from 'fast-check';
 import type { SeededRng } from '../../../sim/rng';
-import type { DomainOp, ServerOp } from '../../dst/actions';
+import type { DomainOp, ServerOp } from '../../system/actions';
 import {
   acmeCatalogInsertSilentOp,
   acmeCreateSpaceOp,

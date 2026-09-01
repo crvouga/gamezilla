@@ -25,7 +25,7 @@ import {
   type SimClock,
   type SimDeps,
   type SimScheduler,
-} from '@pkgs/dst';
+} from '@pkgs/determinism';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
 import { KvImplWebNamespaced } from '@pkgs/kv/impl-kv-web-namespaced';
 import { InMemoryLlmProvider } from '@pkgs/llm/server';
@@ -60,6 +60,12 @@ function hasWebLocalStorage(): boolean {
 export type CreateSimOptions = {
   readonly seed?: number | bigint | string;
   readonly startMs?: number;
+  /**
+   * Framework {@link openWorld} injects shared deps. When set, skips
+   * {@link createSimDeps} so the node kind shares the world clock/scheduler.
+   * Playground omits this and creates deps from seed/startMs.
+   */
+  readonly deps?: SimDeps;
   /** Override virtual timers (openSim injects node timers for RNTL). */
   readonly timers?: Timers;
   /** Max-fidelity host injects embedded Postgres; playground uses fabric server SQL. */
@@ -173,10 +179,12 @@ type SimKernel = {
 };
 
 async function bootSimKernel(opts?: CreateSimOptions): Promise<SimKernel> {
-  const deps = createSimDeps({
-    seed: opts?.seed ?? 1,
-    startMs: opts?.startMs ?? 0,
-  });
+  const deps =
+    opts?.deps ??
+    createSimDeps({
+      seed: opts?.seed ?? 1,
+      startMs: opts?.startMs ?? 0,
+    });
   const timers = opts?.timers ?? deps.timers;
   const net = createSimNet();
   const pubSubBus = createInMemoryBus();

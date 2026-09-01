@@ -1,17 +1,16 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '../../sim/world';
-import {
-  counterValue,
-  Increment,
-  TestCounterModule,
-} from '../fixtures/counter-module';
+import { openWorld } from '@pkgs/determinism';
+import { roomWorld } from '../../sim/system';
+import { counterSystem } from '../apps/counter/system';
+import { counterValue, Increment } from '../fixtures/counter-module';
 
 describe('room sim: hold during flush (E-A01)', () => {
   test('offline queue + peer hold still converges after heal', async () => {
-    await using world = await openWorld({
+    await using host = await openWorld(counterSystem, {
       seed: process.env['SIM_SEED'] ?? '42',
-      module: TestCounterModule,
+      knobs: { clientCount: 0 },
     });
+    const world = roomWorld(host.system);
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await world.assertConverged();

@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { openMatchmakingSimWorld } from '../../sim/world';
+import { openMatchmakingWorld } from '../../sim/system';
 import {
   expectMatched,
   KindAttr,
@@ -19,7 +19,7 @@ describe('matchmaking sim: partitions', () => {
   });
 
   test('declared partitionKeys isolate participants across shards', async () => {
-    await using world = await openMatchmakingSimWorld({
+    await using world = await openMatchmakingWorld({
       seed: 40,
       schema: { partitionKeys: [KindAttr.key] },
     });

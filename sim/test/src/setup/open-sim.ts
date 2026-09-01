@@ -1,8 +1,9 @@
 /**
- * Open a client UI simulation on createSim.
+ * Open a client UI simulation via framework `openWorld(defineProductSystem)`.
  */
 
 import { type Timers, wallClock } from '@pkgs/clock';
+import { openWorld, type World } from '@pkgs/determinism';
 import { writeUtf8 } from '@pkgs/object-store/helpers';
 import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';
@@ -17,7 +18,7 @@ import type { Driver } from '@pkgs/ui-testing';
 import { createDriver, createMultiAppRntlSession } from '@pkgs/ui-testing';
 import type { Page } from '@playwright/test';
 import {
-  createSim,
+  type CreateSimOptions,
   type Sim,
   simClientNamespace,
 } from '@sim/console/sim/create-sim';
@@ -32,6 +33,11 @@ import '@apps/client/i18n/i18n';
 
 import type { SimSystemSnapshot } from '@pkgs/sim-console/shared/sim-system-snapshot';
 import { resolveSimSqlBackend } from '@sim/console/sim/sim-sql-backend';
+import {
+  defineProductSystem,
+  type ProductSystem,
+  requireSim,
+} from '../system';
 import { ensureSimPgliteSeed } from './boot-sim-pglite';
 import { ensureSimPostgresMemSeed } from './boot-sim-postgres-mem';
 import {
@@ -166,17 +172,18 @@ async function postgresServerSql(): Promise<SimSqlHandle> {
   };
 }
 
-async function bootSim(
-  fidelity: OpenSimFidelity
-): Promise<{ readonly sim: Sim }> {
+async function bootSim(fidelity: OpenSimFidelity): Promise<{
+  readonly sim: Sim;
+  readonly host: World<ProductSystem>;
+}> {
   const startMs = Date.parse('2024-06-01T00:00:00.000Z');
   const backend = resolveSimSqlBackend();
-  const sim = await createSim({
+  // Keep virtual sim timers on the product — wall timers here stick RNTL
+  // `act` on product setIntervals (reconcile / ping). Driver waits use wall
+  // time in createClientDriver and advance this clock while sleeping.
+  const createOpts: CreateSimOptions = {
     seed: 1,
     startMs,
-    // Keep virtual sim timers on the product — wall timers here stick RNTL
-    // `act` on product setIntervals (reconcile / ping). Driver waits use wall
-    // time in createClientDriver and advance this clock while sleeping.
     ...(fidelity === 'max'
       ? { serverSql: await postgresServerSql() }
       : {
@@ -185,9 +192,10 @@ async function bootSim(
               ? (await ensureSimPostgresMemSeed()).seedBytes
               : (await ensureSimPgliteSeed()).seedBytes,
         }),
-  });
-  await sim.spawnServer();
-  return { sim };
+  };
+  const system = defineProductSystem(createOpts);
+  const host = await openWorld(system, { seed: 1, startMs });
+  return { sim: requireSim(host.system), host };
 }
 
 function createSimReporter(
@@ -279,7 +287,7 @@ async function disposeOpenSim(args: {
   readonly actors: Map<string, ActorEntry>;
   readonly multiAppSession: ReturnType<typeof createMultiAppRntlSession>;
   readonly reporter: SimulationReporter | null;
-  readonly sim: Sim;
+  readonly host: World<ProductSystem>;
 }): Promise<void> {
   for (const a of args.actors.values()) {
     await closeActorEntry(a);
@@ -299,7 +307,9 @@ async function disposeOpenSim(args: {
       );
     }
   }
-  await args.sim.dispose();
+  // Framework world dispose → product.sim node dispose → sim.dispose().
+  // Host + sim dispose are both idempotent (safe if called twice).
+  await args.host.dispose();
   // auth client schedules a wall 10ms setTimeout after auth routes
   // (session-signal flip). Nanostores STORE_UNMOUNT_DELAY (1000ms) is unref'd
   // in jest.setup-env so it does not keep Jest alive after this short drain.
@@ -314,7 +324,7 @@ export async function openSim(
 ): Promise<OpenSimHandle> {
   ensureNodeLocalStoragePolyfill();
   const fidelity = resolveOpenSimFidelity(options);
-  const { sim } = await bootSim(fidelity);
+  const { sim, host } = await bootSim(fidelity);
   const clientSqlByAddress = new Map<string, SimSqlHandle>();
   const liveClients = new Map<string, ReturnType<Sim['spawnClient']>>();
   let loadedSnapshot: SimSystemSnapshot | undefined;
@@ -381,7 +391,7 @@ export async function openSim(
     async dispose() {
       if (disposed) return;
       disposed = true;
-      await disposeOpenSim({ actors, multiAppSession, reporter, sim });
+      await disposeOpenSim({ actors, multiAppSession, reporter, host });
     },
     async [Symbol.asyncDispose]() {
       await handle.dispose();

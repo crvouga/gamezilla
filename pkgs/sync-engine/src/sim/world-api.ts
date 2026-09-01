@@ -1,11 +1,6 @@
-import type { SimClock, SimScheduler } from '@pkgs/dst';
-import type { LocalDomainSchema } from '../client/local-schema-migrate';
-import type { MutationRegistry } from '../mutations/core/types';
-import type { QueryRegistry } from '../queries/core/types';
+import type { SimClock, SimScheduler } from '@pkgs/determinism';
 
 import type { SimClientHandle } from './client-handle';
-import type { SimDomainPack } from './domain-pack';
-import type { SimFaultOptions } from './faults';
 import type { InvariantViolation } from './invariants';
 import type { SimNetHandle } from './net-effect';
 import type { SimNetwork } from './network';
@@ -70,22 +65,4 @@ export type World = {
   readonly clearBoundaryFaults: () => void;
   readonly dispose: () => Promise<void>;
   readonly [Symbol.asyncDispose]: () => Promise<void>;
-};
-
-export type OpenWorldArgs = {
-  readonly seed: number | bigint | string;
-  readonly faults?: SimFaultOptions;
-  readonly sampleFaults?: boolean;
-  readonly rowImageFanout?: boolean;
-  readonly liveResendOnReconnect?: boolean;
-  readonly bufferOutboundLive?: boolean;
-  /** Domain pack (schema, registries, converge). Required. */
-  readonly domain: SimDomainPack;
-  readonly localSchema?: LocalDomainSchema;
-  readonly mutationRegistry?: MutationRegistry;
-  readonly queryRegistry?: QueryRegistry;
-  readonly sessionQuery?: {
-    readonly name: string;
-    readonly params: Readonly<Record<string, unknown>>;
-  };
 };

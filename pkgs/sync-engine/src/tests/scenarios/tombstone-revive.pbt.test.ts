@@ -1,16 +1,16 @@
 import { describe, expect, test } from 'bun:test';
-import { openDstWorld } from '@pkgs/dst';
-import { assertDstProperty } from '@pkgs/dst/pbt';
+import { openWorld } from '@pkgs/determinism';
+import { assertSampleProperty } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
-import { syncFacade } from '../../sim/dst';
-import { arbWorldKnobs, arbWorldSeed } from '../../sim/dst/knobs';
+import { syncFacade } from '../../sim/system';
+import { arbWorldKnobs, arbWorldSeed } from '../../sim/system/knobs';
 import {
   expectLiveNote,
   expectNoteNotLive,
   readNoteTombstone,
 } from '../apps/acme/assert';
-import { acmeDst } from '../apps/acme/dst';
 import { deleteNote, setNote } from '../apps/acme/shared/mutations';
+import { acmeSystem } from '../apps/acme/system';
 
 type TombstoneStep =
   | { readonly kind: 'set'; readonly body: string }
@@ -20,7 +20,7 @@ describe('tombstone revive PBT', () => {
   test(
     'set/delete interleave converges with consistent live vs tombstone state',
     async () => {
-      await assertDstProperty(
+      await assertSampleProperty(
         'tombstone interleave',
         fc.asyncProperty(
           arbWorldSeed(),
@@ -34,7 +34,7 @@ describe('tombstone revive PBT', () => {
             { minLength: 1, maxLength: 8 }
           ),
           async (seed, knobs, steps) => {
-            await using world = await openDstWorld(acmeDst, { seed, knobs });
+            await using world = await openWorld(acmeSystem, { seed, knobs });
             const facade = syncFacade(world.system);
             const noteId = 'n0';
             const client = facade.clients.get('c0')!;
@@ -81,7 +81,7 @@ describe('tombstone revive PBT', () => {
   test(
     'revive after delete restores live row on all clients',
     async () => {
-      await assertDstProperty(
+      await assertSampleProperty(
         'tombstone revive',
         fc.asyncProperty(
           arbWorldSeed(),
@@ -89,7 +89,7 @@ describe('tombstone revive PBT', () => {
           fc.string({ maxLength: 8 }),
           fc.string({ maxLength: 8 }),
           async (seed, knobs, body1, body2) => {
-            await using world = await openDstWorld(acmeDst, { seed, knobs });
+            await using world = await openWorld(acmeSystem, { seed, knobs });
             const facade = syncFacade(world.system);
             const noteId = 'n0';
             const client = facade.clients.get('c0')!;

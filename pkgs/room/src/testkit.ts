@@ -3,7 +3,17 @@ export {
   LoopbackRoomTransport,
   type LoopbackRoomTransportArgs,
 } from './client/adapters/transport/loopback';
-export { openWorld } from './sim/world';
+export type {
+  DomainOp,
+  RoomApp,
+  RoomSystemDef,
+  RoomSystemWorld,
+} from './sim/system';
+export {
+  defineRoomSystem,
+  domainOp,
+  roomWorld,
+} from './sim/system';
 export type {
   OpenWorldArgs,
   RoomSimClientHandle,

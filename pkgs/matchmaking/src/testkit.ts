@@ -6,11 +6,17 @@
  * so depcruise `no-test-from-prod` allows it to reach `tests/` + `sim/`.
  */
 
-export { openMatchmakingSimWorld } from './sim/world';
+export {
+  defineMatchmakingSystem,
+  MATCHMAKING_SYSTEM,
+  openMatchmakingWorld,
+  requireMmWorld,
+  type MatchmakingSystemDef,
+  type OpenMatchmakingWorldArgs,
+} from './sim/system';
 export type {
   MatchmakingSimBackend,
   MatchmakingSimWorld,
-  OpenMatchmakingSimWorldArgs,
   ParticipantHandle,
   ReplicaHandle,
 } from './sim/world-api';

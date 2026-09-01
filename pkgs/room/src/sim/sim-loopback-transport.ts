@@ -36,7 +36,7 @@ function wireKind(payload: unknown): string | null {
 
 /**
  * Loopback transport that routes C→S and S→C frames through {@link SimRoomNetwork}
- * so DST scenarios can hold / partition / delay the link.
+ * so system scenarios can hold / partition / delay the link.
  */
 export class SimLoopbackRoomTransport<
   S extends RoomState,

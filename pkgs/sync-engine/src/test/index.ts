@@ -19,19 +19,18 @@ export {
   type InMemorySyncEngineOptions,
 } from './in-memory-sync-engine';
 export {
-  type DstAction,
-  type DstApp,
   emptySimPushChannels,
   type NeverOpts,
-  type OpenWorldArgs,
-  openWorld,
   type SeededRng,
   type SimClientHandle,
   type SimClock,
   type SimDomainPack,
   type SimSessionQuery,
+  syncFacade,
+  type SyncAction,
+  type SyncApp,
+  type SyncSystemFacade,
   type UntilOpts,
   type UntilTarget,
-  type World,
   type WorldKnobs,
 } from './sim-exports';

@@ -1,4 +1,4 @@
-import type { SimScheduler } from '@pkgs/dst';
+import type { SimScheduler } from '@pkgs/determinism';
 
 import type { InMemoryClientStorage } from '../client/adapters/storage/memory';
 import type { RoomClient } from '../client/core/room-client';

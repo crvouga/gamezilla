@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
 import { assertProperty, fc } from '@pkgs/pbt';
 
-import { counterDstApp } from '../apps/counter/dst-app';
-import { roomSeedFingerprint, runRoomSeed } from '../dst/run-seed';
+import { counterApp } from '../apps/counter/app';
+import { roomSeedFingerprint, runRoomSeed } from '../system/run-seed';
 
 describe('room seeded chaos PBT', () => {
   test('same generated seed → identical chaos fingerprint', async () => {
@@ -13,13 +13,13 @@ describe('room seeded chaos PBT', () => {
         fc.integer({ min: 8, max: 24 }),
         async (seed, steps) => {
           const once = await roomSeedFingerprint({
-            app: counterDstApp,
+            app: counterApp,
             seed,
             steps,
             clientCount: 2,
           });
           const twice = await roomSeedFingerprint({
-            app: counterDstApp,
+            app: counterApp,
             seed,
             steps,
             clientCount: 2,
@@ -36,7 +36,7 @@ describe('room seeded chaos PBT', () => {
       'room seed converges',
       fc.asyncProperty(fc.integer({ min: 1, max: 10_000 }), async (seed) => {
         const result = await runRoomSeed({
-          app: counterDstApp,
+          app: counterApp,
           seed,
           steps: 20,
           clientCount: 2,

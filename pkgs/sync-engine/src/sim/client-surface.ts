@@ -1,4 +1,4 @@
-import type { SimPollablePromise } from '@pkgs/dst';
+import type { SimPollablePromise } from '@pkgs/determinism';
 import type {
   SimClientHandle,
   SimRejection,

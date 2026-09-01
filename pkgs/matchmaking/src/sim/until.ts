@@ -2,8 +2,6 @@
  * Virtual-time until / never helpers for the matchmaking sim world.
  */
 
-import type { SimClock } from '@pkgs/clock';
-
 export type UntilOpts = {
   readonly budgetMs?: number;
   readonly stepMs?: number;
@@ -17,7 +15,7 @@ export type NeverOpts = {
 export type UntilTarget = () => boolean | Promise<boolean>;
 
 export type MatchmakingUntilContext = {
-  readonly clock: SimClock;
+  readonly clock: { readonly now: () => number };
   readonly seed: bigint;
   readonly step: (ms: number) => Promise<void>;
 };

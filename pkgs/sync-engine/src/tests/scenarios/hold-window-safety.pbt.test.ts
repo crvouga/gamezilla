@@ -1,25 +1,25 @@
 import { describe, test } from 'bun:test';
-import { openDstWorld } from '@pkgs/dst';
-import { assertDstProperty } from '@pkgs/dst/pbt';
+import { openWorld } from '@pkgs/determinism';
+import { assertSampleProperty } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
-import { syncFacade } from '../../sim/dst';
-import { arbWorldKnobs, arbWorldSeed } from '../../sim/dst/knobs';
+import { syncFacade } from '../../sim/system';
+import { arbWorldKnobs, arbWorldSeed } from '../../sim/system/knobs';
 import { isLiveNote, readLiveNotes } from '../apps/acme/assert';
-import { acmeDst } from '../apps/acme/dst';
 import { setNote } from '../apps/acme/shared/mutations';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('hold window safety PBT', () => {
   test(
     'optimistic body never reverts while sync is held after local mutate',
     async () => {
-      await assertDstProperty(
+      await assertSampleProperty(
         'hold window no flicker',
         fc.asyncProperty(
           arbWorldSeed(),
           arbWorldKnobs(),
           fc.string({ minLength: 1, maxLength: 12 }),
           async (seed, knobs, body) => {
-            await using world = await openDstWorld(acmeDst, { seed, knobs });
+            await using world = await openWorld(acmeSystem, { seed, knobs });
             const facade = syncFacade(world.system);
             const clientId = world.roleIds('client')[0]!;
             const noteId = 'n0';

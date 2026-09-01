@@ -97,7 +97,7 @@ The following patterns are **outdated** — do not copy them:
 | `ApiRequestContainer` eagerly holding repos/services | Request ALS carries `sqlClient` + `clock` / `createId`; `new SomeUseCase(db, clock).execute(…)` |
 | `constructor(private readonly db: SqlClient)` on a repository/service/publisher | `constructor(private readonly tx: SqlTx, private readonly clock: Clock)` |
 | An `Io` bag (`wallIo` / `createSimIo` / `getIo`) | Pass `clock` / `createId` / `timers` / HTTP from `ClientEnv` / `ServerEnv` / `RoomServerEnv` |
-| Product code holding `SimDeps` / importing `@pkgs/dst` | Harness-only: `createSimDeps` in `@sim/*` / package DST worlds; unpack into product env fields |
+| Product code holding `SimDeps` / importing `@pkgs/determinism` | Harness-only: `createSimDeps` in `@sim/*` / package determinism worlds; unpack into product env fields |
 | Wiring new server classes into a central container | Construct Layer C at the point of use inside the use case |
 
 Do not reintroduce a container/registry class. Factory functions are the only wiring escape hatch.

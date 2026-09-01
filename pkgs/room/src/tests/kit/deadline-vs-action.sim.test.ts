@@ -1,8 +1,9 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '../../sim/world';
+import { openWorld } from '@pkgs/determinism';
+import { deadlineSystem } from '../apps/deadline/system';
+import { roomWorld } from '../../sim/system';
 import {
   ActBeforeDeadline,
-  DeadlineFixtureModule,
   deadlineAt,
   deadlineOutcome,
   StartDeadline,
@@ -10,11 +11,12 @@ import {
 
 describe('kit: deadline vs action (M-F07)', () => {
   test('partitioned lagging client cannot win after deadline', async () => {
-    await using world = await openWorld({
+    await using host = await openWorld(deadlineSystem, {
       seed: process.env['SIM_SEED'] ?? '42',
-      module: DeadlineFixtureModule,
+      knobs: { clientCount: 0 },
       startMs: 5_000,
     });
+    const world = roomWorld(host.system);
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await world.assertConverged();

@@ -1,0 +1,72 @@
+import { openWorld } from '@pkgs/determinism';
+import { toKernelFaults } from '../../sim/network';
+import { acmeSystem } from '../apps/acme/system';
+import { syncFacade } from '../../sim/system';
+import { describe, test } from 'bun:test';
+import { RELIABLE_FAULTS } from '../../sim/faults';
+import { expectLiveNote, setNote } from '../apps/acme';
+
+describe('dropped live repaired by refetch', () => {
+  test('dropped fanout converges via refetch after heal', async () => {
+    await using host = await openWorld(acmeSystem, {
+      seed: 11,
+      knobs: {
+        clientCount: 0,
+      },
+    });
+    const world = syncFacade(host.system);
+    const a = await world.addClient({ id: 'alice' });
+    const b = await world.addClient({ id: 'bob' });
+
+    {
+      using _loss = world.net('bob', 'live').set({ packetLossProbability: 1 });
+      await a.mutate(setNote, { id: 'n1', body: 'lost' });
+      await world.runFor(50);
+    }
+    await world.assertConverged();
+
+    await expectLiveNote(b.db, 'n1', { body: 'lost' });
+  });
+
+  test('reorder window still converges', async () => {
+    await using host = await openWorld(acmeSystem, {
+      seed: 12,
+      knobs: {
+        clientCount: 0,
+      },
+      networkDefaults: toKernelFaults({
+        ...RELIABLE_FAULTS,
+        oneWayDelayMeanMs: 20,
+        oneWayDelayJitterMs: 40,
+        reorderWindow: 5,
+      }),
+    });
+    const world = syncFacade(host.system);
+    const a = await world.addClient({ id: 'alice' });
+    const b = await world.addClient({ id: 'bob' });
+    await a.mutate(setNote, { id: 'n1', body: 'a' });
+    await a.mutate(setNote, { id: 'n2', body: 'b' });
+    await a.mutate(setNote, { id: 'n3', body: 'c' });
+    await world.assertConverged();
+    await expectLiveNote(b.db, 'n2', { body: 'b' });
+  });
+
+  test('duplicate delivery still converges', async () => {
+    await using host = await openWorld(acmeSystem, {
+      seed: 15,
+      knobs: {
+        clientCount: 0,
+      },
+      networkDefaults: toKernelFaults({
+        ...RELIABLE_FAULTS,
+        packetReplayProbability: 0.8,
+      }),
+    });
+    const world = syncFacade(host.system);
+    const a = await world.addClient({ id: 'alice' });
+    const b = await world.addClient({ id: 'bob' });
+    await a.mutate(setNote, { id: 'n1', body: 'dup' });
+    await world.assertConverged();
+    await expectLiveNote(b.db, 'n1', { body: 'dup' });
+  });
+});

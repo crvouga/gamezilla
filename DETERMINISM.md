@@ -14,24 +14,24 @@ game/social state must match bit-for-bit across clients and runs.
 
 Inject clock, timers, ids, RNG, and HTTP from a composition root
 (`createClient(env)` / `createServer(env)` / `createSim` via harness-only
-`createSimDeps` from `@pkgs/dst` / `createSimAdapters` for thin adapters /
+`createSimDeps` from `@pkgs/determinism` / `createSimAdapters` for thin adapters /
 wall adapters at process entry):
 
 | Port | Use |
 | --- | --- |
-| `clock` / `timers` (`@pkgs/clock` types; sim uses bare `@pkgs/dst` `SimClock` + `SimScheduler`) | Time and scheduling |
+| `clock` / `timers` (`@pkgs/clock` types; sim uses bare `@pkgs/determinism` `SimClock` + `SimScheduler`) | Time and scheduling |
 | `createId` (`@pkgs/uuid`) | UUIDs / ids |
 | `random` (`@pkgs/uuid`) | RNG |
 | HTTP (`@pkgs/http-client`) | Network |
 
 **`SimDeps` is harness-only.** Product `ClientEnv` / `ServerEnv` receive unpacked
-ports — never the `SimDeps` bag. Shared DST mechanics (scheduler, network mesh,
-fault/knob catalogs, scenario JSON, `until`/`never`, play helpers) live in
-`@pkgs/dst`. **DST worlds are framework-owned:** packages declare `defineNodeKind`
-+ `defineDst` (nodes topology, knobs, library/domain, settle); tests call
-`assertDst` / `replayDst` / `assertDstFaultPins` from `@pkgs/dst/pbt` — not
-package-local `openWorld` / `worldPropertyInputs` / `runCommands`. See
-[`pkgs/dst/CONTEXT.md`](pkgs/dst/CONTEXT.md).
+ports — never the `SimDeps` bag. Shared simulation mechanics (scheduler, network
+mesh, fault/knob catalogs, scenario JSON, `until`/`never`, play helpers) live in
+`@pkgs/determinism`. **Worlds are framework-owned:** packages declare `defineNodeKind`
++ `defineSystem` (nodes topology, knobs, library/domain, settle); tests call
+`assertSample` / `replay` / `assertFaultPins` from `@pkgs/determinism/pbt` — not
+package-local World openers / `worldPropertyInputs` / `runCommands`. See
+[`pkgs/determinism/CONTEXT.md`](pkgs/determinism/CONTEXT.md).
 
 Domain and game-logic code take required `clock` / `createId` (or `now` slices).
 Never default to wall implementations inside libraries. Never construct an `Io` bag.

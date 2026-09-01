@@ -1,21 +1,19 @@
+import { openWorld } from '@pkgs/determinism';
+import { acmeSystem } from '../apps/acme/system';
+import { syncFacade } from '../../sim/system';
 import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
-import { openWorld } from '../../sim/world';
-import {
-  acmeDomainPack,
-  acmeLocalSchemaExtraColumn,
-  acmeRestartOptsForVariant,
-  expectLiveNote,
-  expectNotesMatchServer,
-  setNote,
-} from '../apps/acme';
+import { acmeLocalSchemaExtraColumn, acmeRestartOptsForVariant, expectLiveNote, expectNotesMatchServer, setNote } from '../apps/acme';
 
 describe('preserveLocalDb remigrate after additive schema', () => {
   test('restart without localSchema keeps extra column (no drift fail)', async () => {
-    await using world = await openWorld({
-      domain: acmeDomainPack,
+    await using host = await openWorld(acmeSystem, {
       seed: 42,
+      knobs: {
+        clientCount: 0,
+      },
     });
+    const world = syncFacade(host.system);
     await world.addClient({
       id: 'alice',
       localSchema: acmeLocalSchemaExtraColumn,
@@ -43,13 +41,16 @@ describe('preserveLocalDb remigrate after additive schema', () => {
   });
 
   test('restartWithSchema then crash+preserve remigrate converges', async () => {
-    await using world = await openWorld({
-      domain: acmeDomainPack,
+    await using host = await openWorld(acmeSystem, {
       seed: 43,
-      rowImageFanout: false,
-      liveResendOnReconnect: false,
-      bufferOutboundLive: false,
+      knobs: {
+        clientCount: 0,
+        rowImageFanout: false,
+        liveResendOnReconnect: false,
+        bufferOutboundLive: false,
+      },
     });
+    const world = syncFacade(host.system);
     await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
@@ -71,10 +72,13 @@ describe('preserveLocalDb remigrate after additive schema', () => {
   });
 
   test('extraColumn then extraTable remigrate drops color via deprecation', async () => {
-    await using world = await openWorld({
-      domain: acmeDomainPack,
+    await using host = await openWorld(acmeSystem, {
       seed: 44,
+      knobs: {
+        clientCount: 0,
+      },
     });
+    const world = syncFacade(host.system);
     await world.addClient({ id: 'alice' });
     await world.node('alice').restart(acmeRestartOptsForVariant('extraColumn'));
     await world.clients

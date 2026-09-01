@@ -1,19 +1,21 @@
 import { describe, expect, test } from 'bun:test';
+import { openWorld } from '@pkgs/determinism';
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '../../protocol/wire';
-import { openWorld } from '../../sim/world';
+import { roomWorld } from '../../sim/system';
+import { counterSystem } from '../apps/counter/system';
 import {
   CounterIncremented,
   counterValue,
   Increment,
-  TestCounterModule,
 } from '../fixtures/counter-module';
 
 describe('room sim: byzantine committed inject (E-D05)', () => {
   test('fake committed on one client heals to server truth', async () => {
-    await using world = await openWorld({
+    await using host = await openWorld(counterSystem, {
       seed: process.env['SIM_SEED'] ?? '42',
-      module: TestCounterModule,
+      knobs: { clientCount: 0 },
     });
+    const world = roomWorld(host.system);
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await world.assertConverged();

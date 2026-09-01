@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { DistanceFormula } from '../../interface/types';
-import { openMatchmakingSimWorld } from '../../sim/world';
+import { openMatchmakingWorld } from '../../sim/system';
 import {
   assertStatusAgreesAcrossReplicas,
   RatingAttr,
@@ -21,7 +21,7 @@ describe('matchmaking sim: replicas share one DB', () => {
   });
 
   test('join r0 / status r1 / leave r2 see the same store', async () => {
-    await using world = await openMatchmakingSimWorld({
+    await using world = await openMatchmakingWorld({
       seed: 200,
       replicas: 3,
     });
@@ -40,7 +40,7 @@ describe('matchmaking sim: replicas share one DB', () => {
   });
 
   test('updateFormulas on a different replica than join', async () => {
-    await using world = await openMatchmakingSimWorld({
+    await using world = await openMatchmakingWorld({
       seed: 201,
       replicas: 2,
     });
@@ -72,7 +72,7 @@ describe('matchmaking sim: replicas share one DB', () => {
   });
 
   test('ready() is idempotent on every replica', async () => {
-    await using world = await openMatchmakingSimWorld({
+    await using world = await openMatchmakingWorld({
       seed: 202,
       replicas: 3,
     });

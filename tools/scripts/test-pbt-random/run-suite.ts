@@ -10,7 +10,7 @@ export type RunSuiteArgs = {
   readonly concurrency: number;
   readonly seed: number;
   readonly numRuns: number;
-  readonly dstInterruptMs: number;
+  readonly sampleInterruptMs: number;
   readonly ui: PbtSessionUi;
 };
 
@@ -32,7 +32,7 @@ export async function runPbtSuite(args: RunSuiteArgs): Promise<RunSuiteResult> {
         file,
         seed: args.seed,
         numRuns: args.numRuns,
-        dstInterruptMs: args.dstInterruptMs,
+        sampleInterruptMs: args.sampleInterruptMs,
       });
       args.ui.markDone(result);
       return result;
@@ -49,4 +49,4 @@ export async function runPbtSuite(args: RunSuiteArgs): Promise<RunSuiteResult> {
 
 export const REPO_ROOT = join(import.meta.dirname, '../../..');
 export const DEFAULT_NUM_RUNS = 200;
-export const DEFAULT_DST_INTERRUPT_MS = 120_000;
+export const DEFAULT_SAMPLE_INTERRUPT_MS = 120_000;

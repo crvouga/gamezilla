@@ -1,16 +1,15 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '../../sim/world';
-import {
-  Decrement,
-  Increment,
-  TestCounterModule,
-} from '../fixtures/counter-module';
+import { openWorld } from '@pkgs/determinism';
+import { roomWorld } from '../../sim/system';
+import { counterSystem } from '../apps/counter/system';
+import { Decrement, Increment } from '../fixtures/counter-module';
 
 async function runChaos(seed: string): Promise<string> {
-  await using world = await openWorld({
+  await using host = await openWorld(counterSystem, {
     seed,
-    module: TestCounterModule,
+    knobs: { clientCount: 0 },
   });
+  const world = roomWorld(host.system);
   const alice = await world.addClient({ id: 'alice' });
   const bob = await world.addClient({ id: 'bob' });
   const carol = await world.addClient({ id: 'carol' });

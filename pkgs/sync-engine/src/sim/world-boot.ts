@@ -1,4 +1,4 @@
-import type { SimDeps } from '@pkgs/dst';
+import type { SimDeps } from '@pkgs/determinism';
 
 import {
   type BoundaryFaultController,
@@ -35,7 +35,7 @@ export type SimInfra = {
   readonly runtime: BootRuntime;
 };
 
-/** Framework-owned deps + network for DST worlds (`@pkgs/dst` node kinds). */
+/** Framework-owned deps + network for framework worlds (`@pkgs/determinism` node kinds). */
 export type InjectedSimPorts = {
   readonly deps: SimDeps;
   readonly network: SimNetwork;

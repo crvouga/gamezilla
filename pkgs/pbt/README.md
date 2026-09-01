@@ -30,35 +30,35 @@ bun run test:pbt:random --concurrency 8
 Env knobs:
 
 - `PBT_NUM_RUNS` — override `numRuns` (default `10` local / `40` when `CI=true`)
-- `PBT_DST_RUNS` — override DST world run count (default `6` local / `12` in CI)
-- `PBT_DST_INTERRUPT_MS` — override DST fast-check interrupt (default `120000` when `PBT_RANDOM=1`, else `60000`)
+- `PBT_SAMPLE_RUNS` — override world-sample run count (default `6` local / `12` in CI)
+- `PBT_SAMPLE_INTERRUPT_MS` — override world-sample fast-check interrupt (default `120000` when `PBT_RANDOM=1`, else `60000`)
 - `PBT_CONCURRENCY` — parallel file workers for `test:pbt:random` (default `min(6, CPU count)`)
 - `FC_SEED` — pin seed
 - `PBT_RANDOM=1` — omit pinned seed
 
 `test:pbt:random` discovers every `*.pbt.test.ts` under `pkgs/` and `libs/`, runs each file in its own `bun test` subprocess (bounded worker pool), and shows a compact live dashboard (attempt, seed, workers, progress). Full output is shown only for failures. Each attempt gets a random `FC_SEED` you can replay.
 
-## SimWorld DST properties
+## World sample properties
 
-For sim-backed suites, DST helpers live in **`@pkgs/dst/pbt`**, not here.
-`assertDstProperty` caps `numRuns` and extends the interrupt budget so
+For sim-backed suites, world helpers live in **`@pkgs/determinism/pbt`**, not here.
+`assertSampleProperty` caps `numRuns` and extends the interrupt budget so
 `test:pbt:random` cannot accidentally run hundreds of full-world opens;
-`assertDst` drives a whole `defineDst` system (seed + knobs + action pool +
+`assertSample` drives a whole `defineSystem` system (seed + knobs + action pool +
 model) without any per-suite plumbing.
 
 ```ts
-import { assertDst, assertDstProperty } from '@pkgs/dst/pbt';
+import { assertSample, assertSampleProperty } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
-import { acmeDst } from '../apps/acme/dst';
+import { acmeSystem } from '../apps/acme/system';
 
 // Whole-system property: framework generates and replays everything.
-await assertDst(acmeDst, { numRuns: 12, maxCommands: 14 });
+await assertSample(acmeSystem, { numRuns: 12, maxCommands: 14 });
 
 // Hand-rolled property over a framework-owned world.
-await assertDstProperty(
+await assertSampleProperty(
   'app world converges',
   fc.asyncProperty(fc.integer(), async (seed) => {
-    await using world = await openDstWorld(acmeDst, { seed });
+    await using world = await openWorld(acmeSystem, { seed });
     await world.assertConverged();
   })
 );

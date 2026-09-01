@@ -1,4 +1,4 @@
-import type { SimClock, SimDeps, SimScheduler } from '@pkgs/dst';
+import type { SimClock, SimDeps, SimScheduler } from '@pkgs/determinism';
 import type { SeededRng } from '@pkgs/uuid';
 import type { InMemoryRoomStorage } from '../server/adapters/memory';
 import type { RoomServer } from '../server/core/room-server';
@@ -29,7 +29,7 @@ export type RoomSimAuthorize = (
   command: RoomCommand
 ) => Promise<{ ok: true } | { ok: false; reason: string }>;
 
-/** Framework-owned deps + network for DST worlds (`@pkgs/dst` node kinds). */
+/** Framework-owned deps + network for framework worlds (`@pkgs/determinism` node kinds). */
 export type InjectedRoomSimPorts = {
   readonly deps: SimDeps;
   readonly network: SimRoomNetwork;
@@ -91,7 +91,7 @@ export type OpenWorldArgs<
   readonly authorize?: RoomSimAuthorize;
   /** Share storage across worlds for multi-topic isolation tests. */
   readonly storage?: InMemoryRoomStorage;
-  /** DST only — framework-owned deps + network from `@pkgs/dst` node kinds. */
+  /** framework only — framework-owned deps + network from `@pkgs/determinism` node kinds. */
   readonly injected?: InjectedRoomSimPorts;
 };
 

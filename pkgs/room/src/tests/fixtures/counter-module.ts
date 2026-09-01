@@ -100,7 +100,7 @@ export const TestCounterModule: RoomModule<
 
 export { CounterDecremented, CounterIncremented, Decrement, Increment };
 
-/** Read counter count from flat room state (tests / DST scenarios). */
+/** Read counter count from flat room state (tests / system scenarios). */
 export function counterValue(state: RoomState): number {
   return readCount(state);
 }

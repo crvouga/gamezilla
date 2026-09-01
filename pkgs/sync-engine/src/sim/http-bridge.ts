@@ -1,4 +1,4 @@
-import type { SimScheduler } from '@pkgs/dst';
+import type { SimScheduler } from '@pkgs/determinism';
 import type {
   MutationUploadResult,
   MutationUploadRow,

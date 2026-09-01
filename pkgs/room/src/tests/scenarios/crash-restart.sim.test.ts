@@ -1,18 +1,17 @@
 import { describe, expect, test } from 'bun:test';
 
-import { openWorld } from '../../sim/world';
-import {
-  counterValue,
-  Increment,
-  TestCounterModule,
-} from '../fixtures/counter-module';
+import { openWorld } from '@pkgs/determinism';
+import { roomWorld } from '../../sim/system';
+import { counterSystem } from '../apps/counter/system';
+import { counterValue, Increment } from '../fixtures/counter-module';
 
 describe('room sim: client/server crash restart', () => {
   test('client crash keeps local queue; restart + settle converges', async () => {
-    await using world = await openWorld({
+    await using host = await openWorld(counterSystem, {
       seed: 'crash-client-1',
-      module: TestCounterModule,
+      knobs: { clientCount: 0 },
     });
+    const world = roomWorld(host.system);
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await world.assertConverged();
@@ -34,10 +33,11 @@ describe('room sim: client/server crash restart', () => {
   });
 
   test('server crash + restart hydrates log and converges', async () => {
-    await using world = await openWorld({
+    await using host = await openWorld(counterSystem, {
       seed: 'crash-server-1',
-      module: TestCounterModule,
+      knobs: { clientCount: 0 },
     });
+    const world = roomWorld(host.system);
     const a = await world.addClient({ id: 'alice' });
     await world.addClient({ id: 'bob' });
     a.dispatch(Increment({}));
@@ -56,10 +56,11 @@ describe('room sim: client/server crash restart', () => {
   });
 
   test('boundary afterNextCommitted crashes client; settle restores', async () => {
-    await using world = await openWorld({
+    await using host = await openWorld(counterSystem, {
       seed: 'boundary-committed-1',
-      module: TestCounterModule,
+      knobs: { clientCount: 0 },
     });
+    const world = roomWorld(host.system);
     const a = await world.addClient({ id: 'alice' });
     await world.addClient({ id: 'bob' });
     world.armCrashAt('alice', 'afterNextCommitted');
@@ -71,10 +72,11 @@ describe('room sim: client/server crash restart', () => {
   });
 
   test('checkInvariants passes on healthy world', async () => {
-    await using world = await openWorld({
+    await using host = await openWorld(counterSystem, {
       seed: 'inv-1',
-      module: TestCounterModule,
+      knobs: { clientCount: 0 },
     });
+    const world = roomWorld(host.system);
     const a = await world.addClient({ id: 'alice' });
     a.dispatch(Increment({}));
     await world.drain();

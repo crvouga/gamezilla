@@ -7,7 +7,7 @@ import type { RoomServerApp } from '@apps/room-server/app/create-room-server';
 import { migrateSimPostgres } from '@apps/server/sim/migrate-sim-postgres';
 import { migrateSimClientSqlite } from '@apps/server/sim/migrate-sim-sqlite';
 import { assert } from '@pkgs/assert';
-import type { SimClock, SimScheduler } from '@pkgs/dst';
+import type { SimClock, SimScheduler } from '@pkgs/determinism';
 import type {
   SimCheckpoint,
   SimCheckpointRoomDump,

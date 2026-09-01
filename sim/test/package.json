@@ -19,7 +19,7 @@
     "@libs/dst-handles": "workspace:*",
     "@lingui/core": "catalog:",
     "@pkgs/clock": "workspace:*",
-    "@pkgs/dst": "workspace:*",
+    "@pkgs/determinism": "workspace:*",
     "@pkgs/emqx-server": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/minio-server": "workspace:*",
@@ -52,6 +52,7 @@
     "@types/react-test-renderer": "catalog:",
     "babel-jest": "catalog:",
     "babel-plugin-macros": "catalog:",
+    "fast-check": "catalog:",
     "jest": "catalog:",
     "jest-expo": "catalog:",
     "typescript": "catalog:"

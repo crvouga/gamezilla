@@ -53,31 +53,31 @@ const { participantId } = await mm.join({
 | `@pkgs/matchmaking/impl-sql` | `MatchmakingImplSql`, `MatchmakingDatabaseMigration` |
 | `@pkgs/matchmaking/wire` | `FormulaWire` types for HTTP / RPC |
 | `@pkgs/matchmaking/client` | `MatchmakingClient` |
-| `@pkgs/matchmaking/testing` | Sim world + fixtures (`openMatchmakingSimWorld`) |
+| `@pkgs/matchmaking/testing` | Framework sim (`openMatchmakingWorld` / `MATCHMAKING_SYSTEM`) + fixtures |
 
 Anything outside these subpaths is internal.
 
 ## Testing
 
 All tests live under `src/tests/`. Deterministic scenarios use a seeded
-sim world that boots **N Matchmaking replicas sharing one DB** — the
-horizontal-scale composition root.
+framework world (`@pkgs/determinism`) that boots **N Matchmaking replicas
+sharing one DB** — the horizontal-scale composition root.
 
 ```text
 pkgs/matchmaking/src/
-  sim/                          # private DST harness
+  sim/system/                   # defineMatchmakingSystem + node kinds
   testkit.ts                    # @pkgs/matchmaking/testing facade
   tests/
     fixtures/
     hygiene/
     adapter/
-    scenarios/
+    scenarios/                  # *.sim.test.ts + *.system.pbt.test.ts
 ```
 
 ```ts
-import { openMatchmakingSimWorld, RatingAttr } from '@pkgs/matchmaking/testing';
+import { openMatchmakingWorld, RatingAttr } from '@pkgs/matchmaking/testing';
 
-await using world = await openMatchmakingSimWorld({
+await using world = await openMatchmakingWorld({
   seed: 3,
   replicas: 3,
   // backend: 'postgres', // required for concurrent tickAll claim races

@@ -1,14 +1,17 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '../../sim/world';
+import { openWorld } from '@pkgs/determinism';
+import { roomWorld } from '../../sim/system';
 import { ROOM_ERROR_TYPE } from '../../types';
-import { counterValue, TestCounterModule } from '../fixtures/counter-module';
+import { counterSystem } from '../apps/counter/system';
+import { counterValue } from '../fixtures/counter-module';
 
 describe('room sim: malformed frame reject (E-D02)', () => {
   test('non-Message command payload rejects without mutate', async () => {
-    await using world = await openWorld({
+    await using host = await openWorld(counterSystem, {
       seed: process.env['SIM_SEED'] ?? '42',
-      module: TestCounterModule,
+      knobs: { clientCount: 0 },
     });
+    const world = roomWorld(host.system);
     const a = await world.addClient({ id: 'alice' });
     await world.assertConverged();
     const before = a.hash();
@@ -37,10 +40,11 @@ describe('room sim: malformed frame reject (E-D02)', () => {
   });
 
   test('unknown wire kind is ignored without mutate', async () => {
-    await using world = await openWorld({
+    await using host = await openWorld(counterSystem, {
       seed: process.env['SIM_SEED'] ?? '43',
-      module: TestCounterModule,
+      knobs: { clientCount: 0 },
     });
+    const world = roomWorld(host.system);
     const a = await world.addClient({ id: 'alice' });
     await world.assertConverged();
     const before = a.hash();

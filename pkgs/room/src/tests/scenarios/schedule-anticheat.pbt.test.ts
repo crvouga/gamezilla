@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'bun:test';
-import { arbWorldSeed, assertDstProperty } from '@pkgs/dst/pbt';
+import { arbWorldSeed, assertSampleProperty } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
 
-import { replayRoomDst, replayRoomPin, roomDstWorld } from '../../sim/dst';
-import { matchClockDst } from '../apps/match-clock/dst';
+import { replayRoom, replayRoomPin, roomWorld } from '../../sim/system';
+import { matchClockSystem } from '../apps/match-clock/system';
 import {
   matchClockStatus,
   matchClockWinner,
@@ -13,10 +13,10 @@ describe('room schedule-anticheat PBT', () => {
   test(
     'start move flag interleaved with hold converges',
     async () => {
-      await assertDstProperty(
+      await assertSampleProperty(
         'match-clock chaos converges',
         fc.asyncProperty(arbWorldSeed(), async (seed) => {
-          await replayRoomPin(matchClockDst, {
+          await replayRoomPin(matchClockSystem, {
             seed,
             actions: [
               {
@@ -45,7 +45,7 @@ describe('room schedule-anticheat PBT', () => {
   );
 
   test('early FlagFall rejected; server still flags at true at', async () => {
-    const world = await replayRoomDst(matchClockDst, {
+    const world = await replayRoom(matchClockSystem, {
       seed: 3,
       settle: false,
       actions: [
@@ -64,7 +64,7 @@ describe('room schedule-anticheat PBT', () => {
         },
       ],
     });
-    const real = roomDstWorld(world.system);
+    const real = roomWorld(world.system);
     try {
       expect(matchClockStatus(await real.serverSnapshot())).toBe('playing');
       await real.runFor(5_100);
@@ -78,7 +78,7 @@ describe('room schedule-anticheat PBT', () => {
   });
 
   test('lagging held client cannot move after server flag', async () => {
-    const world = await replayRoomDst(matchClockDst, {
+    const world = await replayRoom(matchClockSystem, {
       seed: 5,
       actions: [
         {
@@ -99,7 +99,7 @@ describe('room schedule-anticheat PBT', () => {
       ],
     });
     try {
-      const end = await roomDstWorld(world.system).serverSnapshot();
+      const end = await roomWorld(world.system).serverSnapshot();
       expect(matchClockStatus(end)).toBe('flagged');
     } finally {
       await world.dispose();

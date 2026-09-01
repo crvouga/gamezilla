@@ -1,11 +1,11 @@
 import {
-  createSimNetwork as createDstNetwork,
-  type SimNetwork as DstNetwork,
+  createSimNetwork as createKernelNetwork,
+  type SimNetwork as KernelNetwork,
   type SimDeliver,
   type SimEndpointId,
   type SimNetKey,
   type SimScheduler,
-} from '@pkgs/dst';
+} from '@pkgs/determinism';
 import type { SeededRng } from '@pkgs/uuid';
 
 import type { SimFaultOptions } from './faults';
@@ -16,7 +16,7 @@ export type { SimDeliver, SimEndpointId };
 
 /**
  * Sync-domain network: hold/faults keyed by node + {@link SimTraffic}.
- * Mechanics (delay/loss/dup/partition/hold queues) live in `@pkgs/dst`.
+ * Mechanics (delay/loss/dup/partition/hold queues) live in `@pkgs/determinism`.
  */
 export type SimNetwork = {
   readonly register: (id: SimEndpointId, deliver: SimDeliver) => void;
@@ -75,7 +75,7 @@ export function toKernelFaults(f: SimFaultOptions) {
 
 /** Map kernel profile → sync fault field names. */
 export function fromKernelFaults(
-  p: ReturnType<DstNetwork['getDefaultFaults']>
+  p: ReturnType<KernelNetwork['getDefaultFaults']>
 ): SimFaultOptions {
   return {
     oneWayDelayMeanMs: p.oneWayDelayMeanMs,
@@ -89,7 +89,7 @@ export function fromKernelFaults(
 }
 
 function resolveSendKey(
-  kernel: DstNetwork,
+  kernel: KernelNetwork,
   overrides: Map<SimNetKey, SimFaultOptions>,
   nodeId: string,
   traffic: ClientTraffic
@@ -104,7 +104,7 @@ function resolveSendKey(
 }
 
 function isHeldTraffic(
-  kernel: DstNetwork,
+  kernel: KernelNetwork,
   nodeId: string,
   traffic: SimTraffic
 ): boolean {
@@ -122,7 +122,7 @@ function isHeldTraffic(
 }
 
 function holdTraffic(
-  kernel: DstNetwork,
+  kernel: KernelNetwork,
   nodeId: string,
   traffic: SimTraffic
 ): void {
@@ -134,7 +134,7 @@ function holdTraffic(
 }
 
 function releaseTraffic(
-  kernel: DstNetwork,
+  kernel: KernelNetwork,
   nodeId: string,
   traffic: SimTraffic
 ): void {
@@ -148,7 +148,7 @@ function releaseTraffic(
 }
 
 function clearNodeOverrides(
-  kernel: DstNetwork,
+  kernel: KernelNetwork,
   overrides: Map<SimNetKey, SimFaultOptions>,
   nodeId?: string
 ): void {
@@ -166,12 +166,12 @@ function clearNodeOverrides(
 }
 
 /**
- * Adapt a framework-owned `@pkgs/dst` network kernel to the sync-domain
- * traffic-keyed surface. DST worlds pass `ctx.network`; `createSimNetwork`
+ * Adapt a framework-owned `@pkgs/determinism` network kernel to the sync-domain
+ * traffic-keyed surface. Framework worlds pass `ctx.network`; `createSimNetwork`
  * passes a kernel it just made.
  */
-export function wrapDstNetwork(
-  kernel: DstNetwork,
+export function wrapSimNetwork(
+  kernel: KernelNetwork,
   initialFaults?: SimFaultOptions
 ): SimNetwork {
   if (initialFaults !== undefined) {
@@ -236,10 +236,10 @@ export function createSimNetwork(args: {
   readonly rng: SeededRng;
   readonly faults?: SimFaultOptions;
 }): SimNetwork {
-  const kernel = createDstNetwork({
+  const kernel = createKernelNetwork({
     scheduler: args.scheduler,
     rng: args.rng,
     faults: toKernelFaults(args.faults ?? RELIABLE_FAULTS),
   });
-  return wrapDstNetwork(kernel);
+  return wrapSimNetwork(kernel);
 }

@@ -1,23 +1,19 @@
 import { describe, expect, test } from 'bun:test';
-import { arbWorldSeed, assertDstProperty } from '@pkgs/dst/pbt';
+import { openWorld } from '@pkgs/determinism';
+import { arbWorldSeed, assertSampleProperty } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
 
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '../../protocol/wire';
-import { arbRoomKnobs, replayRoomDst, roomDstWorld } from '../../sim/dst';
-import { openWorld } from '../../sim/world';
-import { counterDst } from '../apps/counter/dst';
-import {
-  counterValue,
-  Increment,
-  TestCounterModule,
-} from '../fixtures/counter-module';
+import { arbRoomKnobs, replayRoom, roomWorld } from '../../sim/system';
+import { counterSystem } from '../apps/counter/system';
+import { counterValue, Increment } from '../fixtures/counter-module';
 
 async function expectCounter(
-  world: Awaited<ReturnType<typeof replayRoomDst>>,
+  world: Awaited<ReturnType<typeof replayRoom>>,
   expected: number
 ): Promise<void> {
   try {
-    const snap = await roomDstWorld(world.system).serverSnapshot();
+    const snap = await roomWorld(world.system).serverSnapshot();
     expect(counterValue(snap)).toBe(expected);
   } finally {
     await world.dispose();
@@ -28,13 +24,13 @@ describe('room session-lifecycle PBT', () => {
   test(
     'takeOver mid-flight converges',
     async () => {
-      await assertDstProperty(
+      await assertSampleProperty(
         'takeOver sequences converge',
         fc.asyncProperty(
           arbWorldSeed(),
           arbRoomKnobs(),
           async (seed, knobs) => {
-            const world = await replayRoomDst(counterDst, {
+            const world = await replayRoom(counterSystem, {
               seed,
               knobs,
               actions: [
@@ -65,13 +61,13 @@ describe('room session-lifecycle PBT', () => {
   test(
     'crash restart clearLocalData converge',
     async () => {
-      await assertDstProperty(
+      await assertSampleProperty(
         'lifecycle sequences converge',
         fc.asyncProperty(
           arbWorldSeed(),
           arbRoomKnobs(),
           async (seed, knobs) => {
-            const world = await replayRoomDst(counterDst, {
+            const world = await replayRoom(counterSystem, {
               seed,
               knobs,
               actions: [
@@ -111,10 +107,10 @@ describe('room session-lifecycle PBT', () => {
   test(
     'serverCrash restart drains pending',
     async () => {
-      await assertDstProperty(
+      await assertSampleProperty(
         'server crash sequences converge',
         fc.asyncProperty(arbWorldSeed(), async (seed) => {
-          const world = await replayRoomDst(counterDst, {
+          const world = await replayRoom(counterSystem, {
             seed,
             actions: [
               {
@@ -142,12 +138,12 @@ describe('room session-lifecycle PBT', () => {
   );
 
   test('commandId replay across takeOver applies once', async () => {
-    const world = await replayRoomDst(counterDst, {
+    const world = await replayRoom(counterSystem, {
       seed: 7,
       settle: false,
       actions: [],
     });
-    const real = roomDstWorld(world.system);
+    const real = roomWorld(world.system);
     try {
       const c0 = real.clients.get('c0')!;
       const frame = {
@@ -170,10 +166,11 @@ describe('room session-lifecycle PBT', () => {
   });
 
   test('multi-tab same identity converges', async () => {
-    await using world = await openWorld({
+    await using host = await openWorld(counterSystem, {
       seed: 11,
-      module: TestCounterModule,
+      knobs: { clientCount: 0 },
     });
+    const world = roomWorld(host.system);
     await world.addClient({
       id: 'tab-a',
       identity: 'user',

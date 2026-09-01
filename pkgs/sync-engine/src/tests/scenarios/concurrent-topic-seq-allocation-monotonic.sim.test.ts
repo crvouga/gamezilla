@@ -1,0 +1,65 @@
+import { describe, expect, test } from 'bun:test';
+import { acmeSystem } from '../apps/acme/system';
+import { syncFacade } from '../../sim/system';
+import { openWorld } from '@pkgs/determinism';
+import { expectLiveNote, readLiveNotes, setNote } from '../apps/acme';
+
+describe('concurrent topic seq allocation monotonic', () => {
+  test('overlapping mutates on shared topic converge without torn state', async () => {
+    await using host = await openWorld(acmeSystem, {
+      seed: 920,
+      knobs: {
+        clientCount: 0,
+      },
+    });
+    const world = syncFacade(host.system);
+    const a = await world.addClient({ id: 'alice' });
+    const b = await world.addClient({ id: 'bob' });
+
+    const writes: Promise<unknown>[] = [];
+    for (let i = 0; i < 12; i += 1) {
+      writes.push(
+        a.mutate(setNote, {
+          id: `a-${String(i).padStart(2, '0')}`,
+          body: `a${i}`,
+        })
+      );
+      writes.push(
+        b.mutate(setNote, {
+          id: `b-${String(i).padStart(2, '0')}`,
+          body: `b${i}`,
+        })
+      );
+      if (i % 3 === 0) await world.runFor(5);
+    }
+    await Promise.all(writes);
+    await world.assertConverged();
+
+    expect(await world.checkInvariants()).toBeNull();
+    const server = await readLiveNotes(world.server.db);
+    expect(server.length).toBe(24);
+    await expectLiveNote(a.db, 'a-00', { body: 'a0' });
+    await expectLiveNote(b.db, 'b-11', { body: 'b11' });
+  });
+
+  test.each([921, 922, 923])(
+    'seed sweep concurrent writers converge (seed=%i)',
+    async (seed) => {
+      await using host = await openWorld(acmeSystem, {
+        seed: seed,
+        knobs: {
+          clientCount: 0,
+        },
+      });
+      const world = syncFacade(host.system);
+      const a = await world.addClient({ id: 'alice' });
+      const b = await world.addClient({ id: 'bob' });
+      await Promise.all([
+        a.mutate(setNote, { id: `a-${seed}`, body: 'x' }),
+        b.mutate(setNote, { id: `b-${seed}`, body: 'y' }),
+      ]);
+      await world.assertConverged();
+      expect(await world.checkInvariants()).toBeNull();
+    }
+  );
+});

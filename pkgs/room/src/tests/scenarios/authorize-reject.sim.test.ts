@@ -1,25 +1,31 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '../../sim/world';
+import { openWorld } from '@pkgs/determinism';
+import { defineRoomSystem, type RoomApp, roomWorld } from '../../sim/system';
 import { ROOM_ERROR_TYPE } from '../../types';
-import {
-  AuthzFixtureModule,
-  authzCount,
-  Bump,
-  Claim,
-} from '../fixtures/authz-module';
+import { authzApp } from '../apps/authz/app';
+import { authzCount, Bump, Claim } from '../fixtures/authz-module';
+
+const denyEveApp: RoomApp = {
+  ...authzApp,
+  authorize: async (identity) => {
+    if (identity === 'eve') {
+      return { ok: false, reason: 'banned' };
+    }
+    return { ok: true };
+  },
+};
+
+const denyEveSystem = defineRoomSystem(denyEveApp, {
+  id: 'room.authz-deny-eve',
+});
 
 describe('room sim: authorize reject (E-D03)', () => {
   test('authorize hook denies without mutating', async () => {
-    await using world = await openWorld({
+    await using host = await openWorld(denyEveSystem, {
       seed: process.env['SIM_SEED'] ?? '42',
-      module: AuthzFixtureModule,
-      authorize: async (identity) => {
-        if (identity === 'eve') {
-          return { ok: false, reason: 'banned' };
-        }
-        return { ok: true };
-      },
+      knobs: { clientCount: 0 },
     });
+    const world = roomWorld(host.system);
     const alice = await world.addClient({ id: 'alice' });
     const eve = await world.addClient({ id: 'eve' });
     await world.assertConverged();

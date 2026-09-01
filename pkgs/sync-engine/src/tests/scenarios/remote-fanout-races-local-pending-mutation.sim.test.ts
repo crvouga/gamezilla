@@ -1,0 +1,29 @@
+import { openWorld } from '@pkgs/determinism';
+import { acmeSystem } from '../apps/acme/system';
+import { syncFacade } from '../../sim/system';
+import { describe, test } from 'bun:test';
+import { setNote } from '../apps/acme';
+
+describe('remote fanout races local pending mutation', () => {
+  test('fanout races local pending mutation on same row then converges', async () => {
+    await using host = await openWorld(acmeSystem, {
+      seed: 29,
+      knobs: {
+        clientCount: 0,
+      },
+    });
+    const world = syncFacade(host.system);
+    const a = await world.addClient({ id: 'alice' });
+    const b = await world.addClient({ id: 'bob' });
+
+    await a.mutate(setNote, { id: 'n1', body: 'from-a' });
+    await world.assertConverged();
+
+    b.online(false);
+    await b.mutate(setNote, { id: 'n1', body: 'from-b-pending' });
+    b.online(true);
+    await a.mutate(setNote, { id: 'n1', body: 'from-a-2' });
+    await world.runFor(500);
+    await world.assertConverged();
+  });
+});

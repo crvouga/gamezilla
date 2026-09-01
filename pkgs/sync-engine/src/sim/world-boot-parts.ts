@@ -1,4 +1,4 @@
-import { createSimDeps, type SimClock, type SimDeps } from '@pkgs/dst';
+import { createSimDeps, type SimClock, type SimDeps } from '@pkgs/determinism';
 import type { SeededRng } from '@pkgs/uuid';
 
 import type { BoundaryFaultController } from './boundary-faults';
@@ -34,7 +34,7 @@ export type CreateBootRuntimeArgs = {
   readonly worldArgs: WorldClientOpts;
   readonly boundaryFaults?: BoundaryFaultController;
   /**
-   * Framework-owned network (DST worlds wrap `@pkgs/dst`'s kernel). When
+   * Framework-owned network (framework worlds wrap `@pkgs/determinism`'s kernel). When
    * absent a kernel is created from `deps`.
    */
   readonly network?: SimNetwork;
@@ -54,16 +54,20 @@ export function createBootRuntime(args: CreateBootRuntimeArgs) {
   const clockSkew = createClockSkewTable();
   const nowFor = (nodeId: string): number =>
     clockSkew.nowFor(nodeId, deps.clock.now());
-  const faults = resolveWorldFaults(args);
   let network = args.network;
   if (network === undefined) {
     network = createSimNetwork({
       scheduler: deps.scheduler,
       rng: deps.rng.fork('net'),
-      faults,
+      faults: resolveWorldFaults(args),
     });
-  } else {
-    network.setDefaultFaults(faults);
+  } else if (
+    worldArgs.sampleFaults === true ||
+    worldArgs.faults !== undefined ||
+    worldArgs.dstFaults === true
+  ) {
+    // Kit / explicit worldArgs win; otherwise keep framework networkDefaults.
+    network.setDefaultFaults(resolveWorldFaults(args));
   }
   const broker = createSimPubSubBroker({
     network,

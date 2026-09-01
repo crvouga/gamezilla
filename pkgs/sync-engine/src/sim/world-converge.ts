@@ -1,4 +1,4 @@
-import type { SimScheduler } from '@pkgs/dst';
+import type { SimScheduler } from '@pkgs/determinism';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { reconcileOptimisticPeerMarkers } from '../client/optimistic-peer-rows';
 import type { SimClientHandle } from './client-factory';

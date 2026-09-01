@@ -10,8 +10,8 @@ import { availableParallelism } from 'node:os';
 
 import { discoverPbtTests } from './test-pbt-random/discover';
 import {
-  DEFAULT_DST_INTERRUPT_MS,
   DEFAULT_NUM_RUNS,
+  DEFAULT_SAMPLE_INTERRUPT_MS,
   REPO_ROOT,
   runPbtSuite,
 } from './test-pbt-random/run-suite';
@@ -115,7 +115,7 @@ async function main(): Promise<void> {
       concurrency: cli.concurrency,
       seed,
       numRuns: DEFAULT_NUM_RUNS,
-      dstInterruptMs: DEFAULT_DST_INTERRUPT_MS,
+      sampleInterruptMs: DEFAULT_SAMPLE_INTERRUPT_MS,
       ui,
     });
     if (!result.ok) {

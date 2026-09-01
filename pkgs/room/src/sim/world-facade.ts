@@ -1,4 +1,4 @@
-import type { UntilContext, UntilTarget } from '@pkgs/dst';
+import type { UntilContext, UntilTarget } from '@pkgs/determinism';
 import type { RoomCommandPayload, RoomEvent, RoomState } from '../types';
 
 import type { RoomCrashEvent } from './boundary-faults';

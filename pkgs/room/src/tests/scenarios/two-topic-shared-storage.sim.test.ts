@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { InMemoryRoomStorage } from '../../server/adapters/memory';
-import { openWorld } from '../../sim/world';
+import { bootRoomKitWorld } from '../../sim/world';
 import {
   counterValue,
   Increment,
@@ -10,13 +10,13 @@ import {
 describe('room sim: two-topic shared storage (E-H01)', () => {
   test('faults on topic A do not affect topic B', async () => {
     const storage = new InMemoryRoomStorage();
-    await using worldA = await openWorld({
+    await using worldA = await bootRoomKitWorld({
       seed: process.env['SIM_SEED'] ?? '42',
       module: TestCounterModule,
       topic: 'topic-a',
       storage,
     });
-    await using worldB = await openWorld({
+    await using worldB = await bootRoomKitWorld({
       seed: '43',
       module: TestCounterModule,
       topic: 'topic-b',

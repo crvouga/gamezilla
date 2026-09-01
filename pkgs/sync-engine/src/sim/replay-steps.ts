@@ -1,8 +1,11 @@
 import { DST_FAULTS, RELIABLE_FAULTS, sampleFaultOptions } from './faults';
 import { isDbOpen } from './invariants';
-import type { World } from './world-api';
+import type { SyncSystemFacade } from './system';
 
-async function restartClientWithRetry(world: World, id: string): Promise<void> {
+async function restartClientWithRetry(
+  world: SyncSystemFacade,
+  id: string
+): Promise<void> {
   for (let attempt = 0; attempt < 3; attempt += 1) {
     try {
       await world.node(id).restart({ preserveLocalDb: true });
@@ -18,7 +21,7 @@ async function restartClientWithRetry(world: World, id: string): Promise<void> {
 
 /** Add N clients and optionally enable DST / sampled network faults. */
 export async function bootClients(args: {
-  readonly world: World;
+  readonly world: SyncSystemFacade;
   readonly clientCount: number;
   readonly sampleFaults: boolean;
   /** Mild fixed reorder/loss faults (ignored when sampleFaults is true). */
@@ -42,7 +45,7 @@ export async function bootClients(args: {
 
 /** Heal partitions, clear holds/faults, bring clients online, assert converge. */
 export async function settleWorld(args: {
-  readonly world: World;
+  readonly world: SyncSystemFacade;
   readonly ids: readonly string[];
 }): Promise<void> {
   args.world.clearFailNextOpen();

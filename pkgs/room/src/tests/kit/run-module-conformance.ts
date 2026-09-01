@@ -1,5 +1,5 @@
 import { createSimAdapters } from '@pkgs/uuid';
-import { openWorld } from '../../sim/world';
+import { bootRoomKitWorld } from '../../sim/world';
 import type { RoomSimClientHandle, World } from '../../sim/world-api';
 import type {
   RoomCommand,
@@ -73,7 +73,7 @@ export async function runModuleConformance<
   });
 
   // Engine fuzz: converge under mild faults (E1 + module).
-  await using world = await openWorld({
+  await using world = await bootRoomKitWorld({
     seed: args.seed,
     module: args.module,
     mildFaults: args.mildFaults ?? true,

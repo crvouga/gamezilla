@@ -1,5 +1,5 @@
-import type { DomainOp, ServerOp } from '../../dst/actions';
-import { domainOp, serverOp } from '../../dst/model';
+import type { DomainOp, ServerOp } from '../../system/actions';
+import { domainOp, serverOp } from '../../system/model';
 
 export const NOTE_IDS = [
   'n0',

@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { openMatchmakingSimWorld } from '../../sim/world';
+import { openMatchmakingWorld } from '../../sim/system';
 import {
   expectMatched,
   RatingAttr,
@@ -18,7 +18,7 @@ describe('matchmaking sim: groupSize', () => {
   });
 
   test('groupSize: 3 forms one match', async () => {
-    await using world = await openMatchmakingSimWorld({ seed: 60 });
+    await using world = await openMatchmakingWorld({ seed: 60 });
     const a = await world.join({
       data: RatingAttr(1000),
       formulas: [SimpleFormula],
@@ -44,7 +44,7 @@ describe('matchmaking sim: groupSize', () => {
   });
 
   test('mixed groupSize never cross-matches', async () => {
-    await using world = await openMatchmakingSimWorld({ seed: 61 });
+    await using world = await openMatchmakingWorld({ seed: 61 });
     await world.join({
       data: RatingAttr(1000),
       formulas: [SimpleFormula],

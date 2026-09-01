@@ -1,0 +1,45 @@
+import type {
+  SystemAction as FrameworkAction,
+  JsonValue,
+} from '@pkgs/determinism';
+import { replay } from '@pkgs/determinism/pbt';
+
+import type { SyncAction } from './actions';
+import type { SyncSystemDef, SyncSystemWorld } from './define-sync-system';
+import type { WorldKnobs } from './knobs';
+
+export type ReplaySyncInputs = {
+  readonly seed: number | bigint | string;
+  readonly knobs?: Partial<WorldKnobs>;
+  readonly actions: readonly SyncAction[];
+  /** Default true — run the system settle (converge) assertion. */
+  readonly settle?: boolean;
+};
+
+/**
+ * `replay` with sync-typed actions and knobs. Sync actions carry
+ * `args: Record<string, unknown>`, so the wire cast lives here once.
+ */
+export async function replaySync(
+  def: SyncSystemDef,
+  inputs: ReplaySyncInputs
+): Promise<SyncSystemWorld> {
+  const { world } = await replay(def, {
+    seed: inputs.seed,
+    actions: inputs.actions as unknown as readonly FrameworkAction[],
+    ...(inputs.knobs !== undefined
+      ? { knobs: inputs.knobs as Partial<Record<string, JsonValue>> }
+      : {}),
+    ...(inputs.settle !== undefined ? { settle: inputs.settle } : {}),
+  });
+  return world;
+}
+
+/** Replay a scripted pin, then dispose. */
+export async function replaySyncPin(
+  def: SyncSystemDef,
+  inputs: ReplaySyncInputs
+): Promise<void> {
+  const world = await replaySync(def, inputs);
+  await world.dispose();
+}

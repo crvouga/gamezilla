@@ -1,0 +1,40 @@
+import { describe, test } from 'bun:test';
+import { acmeSystem } from '../apps/acme/system';
+import { syncFacade } from '../../sim/system';
+import { openWorld } from '@pkgs/determinism';
+import { SCHEMA_EPOCH } from '@pkgs/sync-engine/test';
+import { expectLiveNote, isLiveNote, setNote } from '../apps/acme';
+
+describe('epoch bump mid offline session then drain', () => {
+  test.each([720, 721, 722])(
+    'offline upgrade drains after later connect (seed=%i)',
+    async (seed) => {
+      await using host = await openWorld(acmeSystem, {
+        seed: seed,
+        knobs: {
+          clientCount: 0,
+        },
+      });
+      const world = syncFacade(host.system);
+      const a = await world.addClient({ id: 'alice' });
+      const b = await world.addClient({ id: 'bob' });
+
+      // Disconnect so mutate queues without upload (lifecycle online alone
+      // still allows HTTP in this sim).
+      await a.disconnect();
+      await a.mutate(setNote, { id: 'n1', body: 'mid-offline' });
+      await world.never(() => isLiveNote(world.server.db, 'n1'), { forMs: 50 });
+
+      // Restart applies epoch wipe on preserved DB; engine reconnects for
+      // session sync (sim always boots online). Pending durable uploads drain.
+      const alice2 = await world.node('alice').restart({
+        preserveLocalDb: true,
+        schemaEpoch: SCHEMA_EPOCH + 1,
+      });
+      await world.assertConverged();
+
+      await expectLiveNote(alice2!.db, 'n1', { body: 'mid-offline' });
+      await expectLiveNote(b.db, 'n1', { body: 'mid-offline' });
+    }
+  );
+});

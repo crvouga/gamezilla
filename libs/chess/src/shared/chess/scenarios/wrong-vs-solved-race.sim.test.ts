@@ -1,24 +1,25 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/room/tests';
+import { openWorld } from '@pkgs/determinism';
+import { roomWorld } from '@pkgs/room/tests';
 
-import { ChessModule } from '../chess-module';
 import {
   CHESS_PUZZLE_PLAY_STATUS,
   ChessPuzzlePlayAttr,
   StartChessPuzzlePlay,
   SubmitChessPuzzleMove,
 } from '../chess-puzzle-play';
+import { chessSystem } from './chess-system';
 
 const VALID_FEN = '4k3/8/8/8/8/8/4P3/4K2R b - - 0 1';
 const VALID_MOVES = 'e8d7 e1f2 d7e6 f2e3';
 
 describe('chess puzzle: wrong vs solve race (Gp-04)', () => {
   test('two host tabs race moves → one consistent status', async () => {
-    await using world = await openWorld({
+    await using host = await openWorld(chessSystem, {
       seed: process.env['SIM_SEED'] ?? '42',
-      module: ChessModule,
-      mildFaults: true,
+      knobs: { clientCount: 0, mildFaults: true },
     });
+    const world = roomWorld(host.system);
     const tab1 = await world.addClient({
       id: 'tab1',
       identity: 'host-1',

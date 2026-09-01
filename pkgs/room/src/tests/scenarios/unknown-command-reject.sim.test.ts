@@ -1,15 +1,18 @@
 import { describe, expect, test } from 'bun:test';
+import { openWorld } from '@pkgs/determinism';
 import { asKeyword } from '@pkgs/keyword';
-import { openWorld } from '../../sim/world';
+import { roomWorld } from '../../sim/system';
 import { ROOM_ERROR_TYPE } from '../../types';
-import { counterValue, TestCounterModule } from '../fixtures/counter-module';
+import { counterSystem } from '../apps/counter/system';
+import { counterValue } from '../fixtures/counter-module';
 
 describe('room sim: unknown command reject (E-D04)', () => {
   test('unknown message type rejects without mutate', async () => {
-    await using world = await openWorld({
+    await using host = await openWorld(counterSystem, {
       seed: process.env['SIM_SEED'] ?? '42',
-      module: TestCounterModule,
+      knobs: { clientCount: 0 },
     });
+    const world = roomWorld(host.system);
     const a = await world.addClient({ id: 'alice' });
     await world.assertConverged();
 

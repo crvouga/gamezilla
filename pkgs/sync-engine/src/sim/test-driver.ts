@@ -4,7 +4,7 @@ import {
   createSimTimers,
   type SimClock,
   type SimScheduler,
-} from '@pkgs/dst';
+} from '@pkgs/determinism';
 
 import type { Timers } from '../client/sim-ports';
 

@@ -1,5 +1,5 @@
-import type { UntilTarget } from '@pkgs/dst';
-import { isSimPollable } from '@pkgs/dst';
+import type { UntilTarget } from '@pkgs/determinism';
+import { isSimPollable } from '@pkgs/determinism';
 
 export type {
   NeverOpts,
@@ -7,8 +7,8 @@ export type {
   UntilContext,
   UntilOpts,
   UntilTarget,
-} from '@pkgs/dst';
-export { isSimPollable, never, until } from '@pkgs/dst';
+} from '@pkgs/determinism';
+export { isSimPollable, never, until } from '@pkgs/determinism';
 
 async function targetReady(target: UntilTarget): Promise<boolean> {
   if (typeof target === 'function') {

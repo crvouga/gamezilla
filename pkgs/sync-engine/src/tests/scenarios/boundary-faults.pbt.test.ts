@@ -1,25 +1,25 @@
 import { describe, test } from 'bun:test';
-import { assertDstProperty } from '@pkgs/dst/pbt';
+import { assertSampleProperty } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
-import { HTTP_FAULTS, replaySyncPin } from '../../sim/dst';
-import { arbWorldKnobs, arbWorldSeed } from '../../sim/dst/knobs';
+import { HTTP_FAULTS, replaySyncPin } from '../../sim/system';
+import { arbWorldKnobs, arbWorldSeed } from '../../sim/system/knobs';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
-import { acmeDst } from '../apps/acme/dst';
-import type { DomainOp, DstAction, LibraryAction } from '../dst/actions';
+import { acmeSystem } from '../apps/acme/system';
+import type { DomainOp, LibraryAction, SyncAction } from '../system/actions';
 
 const TRIGGER: DomainOp = acmeSetNoteOp('c0', 'n0', 'boundary');
 
 function boundarySequence(
   arms: readonly LibraryAction[],
   trigger: DomainOp = TRIGGER
-): DstAction[] {
+): SyncAction[] {
   return [...arms, trigger, { kind: 'idle', ms: 30 }, { kind: 'heal' }];
 }
 
 function richBoundarySequence(
   arm: LibraryAction,
   trigger: DomainOp = TRIGGER
-): DstAction[] {
+): SyncAction[] {
   return [
     arm,
     { kind: 'idle', ms: 10 },
@@ -37,7 +37,7 @@ function richBoundarySequence(
 function crashBoundarySequence(
   arm: LibraryAction,
   trigger: DomainOp = TRIGGER
-): DstAction[] {
+): SyncAction[] {
   return [
     arm,
     trigger,
@@ -51,14 +51,14 @@ describe('boundary faults PBT', () => {
   test(
     'HTTP fault arm then mutate converges',
     async () => {
-      await assertDstProperty(
+      await assertSampleProperty(
         'http fault sequences converge',
         fc.asyncProperty(
           arbWorldSeed(),
           arbWorldKnobs(),
           fc.constantFrom(...HTTP_FAULTS),
           async (seed, knobs, fault) => {
-            await replaySyncPin(acmeDst, {
+            await replaySyncPin(acmeSystem, {
               seed,
               knobs,
               actions: richBoundarySequence({
@@ -78,14 +78,14 @@ describe('boundary faults PBT', () => {
   test(
     'publishFault then mutate converges',
     async () => {
-      await assertDstProperty(
+      await assertSampleProperty(
         'publish fault sequences converge',
         fc.asyncProperty(
           arbWorldSeed(),
           arbWorldKnobs(),
           fc.constantFrom(1, 2, 'next' as const),
           async (seed, knobs, count) => {
-            await replaySyncPin(acmeDst, {
+            await replaySyncPin(acmeSystem, {
               seed,
               knobs,
               actions: boundarySequence([{ kind: 'publishFault', count }]),
@@ -101,7 +101,7 @@ describe('boundary faults PBT', () => {
   test(
     'crash arm then mutate converges',
     async () => {
-      await assertDstProperty(
+      await assertSampleProperty(
         'crash arm sequences converge',
         fc.asyncProperty(
           arbWorldSeed(),
@@ -115,7 +115,7 @@ describe('boundary faults PBT', () => {
             'afterNextMutationsPostAccepted' as const
           ),
           async (seed, knobs, event) => {
-            await replaySyncPin(acmeDst, {
+            await replaySyncPin(acmeSystem, {
               seed,
               knobs: { ...knobs, clientCount: 1 },
               actions: crashBoundarySequence({

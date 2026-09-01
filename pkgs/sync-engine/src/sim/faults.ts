@@ -22,7 +22,7 @@ export const RELIABLE_FAULTS: SimFaultOptions = {
 };
 
 /**
- * Mild fixed faults for DST scenarios that should exercise reorder/loss
+ * Mild fixed faults for system scenarios that should exercise reorder/loss
  * without sampling (still fully deterministic for a given seed stream on
  * delay draws). Prefer {@link sampleFaultOptions} for fuzz corpora.
  */

@@ -801,16 +801,16 @@ bun run lint
 
 | Suite | Path | Role |
 |-------|------|------|
-| Scenarios | `src/tests/scenarios/*.test.ts` | Black-box multi-client correctness via `openWorld` (named regression pins) |
-| Property / DST | `src/tests/scenarios/*.pbt.test.ts` | Shrinking `fc.commands` over `World` — hostile fault exploration |
+| Scenarios | `src/tests/scenarios/*.sim.test.ts` | Black-box multi-client pins via framework `openWorld(acmeSystem)` + `syncFacade` |
+| Property / system | `src/tests/scenarios/*.system.pbt.test.ts` / `*.pbt.test.ts` | Shrinking `assertSample` / `replaySyncPin` over `acmeSystem` |
 | Unit PBT | `src/tests/unit/*.pbt.test.ts` | Pure helpers (checkpoints, topic map, …) |
 | Kernel harness | `src/tests/harness/*.test.ts` | RNG / scheduler / timers; membership topic sync |
 | Public unit helper | `@pkgs/sync-engine/test` | `createInMemorySyncEngine` (no full world) |
 
 **Two layers:** named scenarios document specific safety claims (`never`, authz,
 protocol cut, flicker). `*.pbt.test.ts` files explore the fault state space with
-`assertDst(acmeDst)` from `@pkgs/dst/pbt` (system declared via `defineSyncDst` —
-see `src/sim/dst/define-sync-dst.ts` and `pkgs/dst/CONTEXT.md`).
+`assertSample(acmeSystem)` from `@pkgs/determinism/pbt` (system declared via `defineSyncSystem` —
+see `src/sim/system/define-sync-system.ts` and `pkgs/determinism/CONTEXT.md`).
 When a property fails, capture `seed` / `path` / `replayPath`, pin `examples`,
 add a named scenario, and log in repo-root `PBT_FINDINGS.md`.
 
@@ -819,37 +819,35 @@ add a named scenario, and log in repo-root `PBT_FINDINGS.md`.
 bun test pkgs/sync-engine/src/tests/scenarios/*.pbt.test.ts
 
 # replay one failure
-FC_SEED=<n> bun test pkgs/sync-engine/src/tests/scenarios/acme-world.pbt.test.ts
+FC_SEED=<n> bun test pkgs/sync-engine/src/tests/scenarios/acme-world.system.pbt.test.ts
 
 # seeded fuzz harness (non-shrinking corpus)
-SYNC_SIM_SEED=42 bun test pkgs/sync-engine/src/tests/scenarios/seeded-workload-fuzz-determinism.test.ts
+SYNC_SIM_SEED=42 bun test pkgs/sync-engine/src/tests/scenarios/seeded-workload-fuzz-determinism.sim.test.ts
 ```
 
 | Action layer | Kinds (library kernel) |
 |--------------|------------------------|
-| Domain (injected `DstApp`) | `{ kind: 'domain', mutation, args }` — wire mutation name + JSON args |
-| Server OOB (injected `DstApp.serverOps`) | `{ kind: 'server', name, args }` |
+| Domain (injected `SyncApp`) | `{ kind: 'domain', mutation, args }` — wire mutation name + JSON args |
+| Server OOB (injected `SyncApp.serverOps`) | `{ kind: 'server', name, args }` |
 | Connectivity triad | `online`, `offline`, `connect`, `disconnect`, `background`, `foreground` |
 | Network | `partition`, `heal`, `hold`, `release`, `setFaults`, `idle` |
 | Boundary faults | `armHttpFault`, `armCrashAt`, `publishFault`, `auth` |
 | Lifecycle | `crash`, `restart`, `clearLocalData`, `subscribe`, `skew` |
 
 App fixtures (e.g. acme) supply `domainOpArbs`, `pickDomainOrServerOp`, and
-`serverOps` under `src/tests/apps/<name>/` — the DST kernel has no app nouns.
+`serverOps` under `src/tests/apps/<name>/` — the system kernel has no app nouns.
 
 `queries/shared/tiger-invariants.ts` lists DST-checked invariants; see
 [Tiger Style](#tiger-style-safety--bounds) for the full error/bound matrix.
 
 ### Deterministic simulator
 
-TigerBeetle-style DST in `src/sim/` (not a public export). **One seed →
-identical timeline.** The harness is domain-agnostic: callers inject a
-`SimDomainPack`. Imperative scenarios compose `openWorld` with an app fixture
-from `src/tests/apps/acme/` (`acmeDomainPack`). PBT/DST worlds are **owned by
-`@pkgs/dst`**: `defineSyncDst(acmeDstApp)` (exported as `acmeDst`) declares the
+TigerBeetle-style deterministic simulation in `src/sim/` (not a public export). **One seed →
+identical timeline.** Worlds are **owned by `@pkgs/determinism`**:
+`defineSyncSystem(acmeApp)` (exported as `acmeSystem`) declares the
 broker/server/client topology, knobs, action pool, and model, and tests drive it
-with `assertDst(acmeDst)` / `replaySyncPin(acmeDst, …)` / `openDstWorld(acmeDst,
-…)`; fuzz calls `runDstSeed({ app: acmeDstApp })`. Assert **live domain rows
+with `assertSample(acmeSystem)` / `replaySyncPin(acmeSystem, …)` / `openWorld(acmeSystem,
+…)`; fuzz calls `runSeed({ app: acmeApp })`. Assert **live domain rows
 only** — never framework tables or private modules.
 
 ```text
@@ -918,12 +916,18 @@ embed `seed=<hex>` and virtual `now=` for replay.
 
 ```ts
 import { describe, test } from 'bun:test';
-import { acmeDomainPack, setNote } from '../apps/acme';
-import { openWorld } from '../../sim/world';
+import { openWorld } from '@pkgs/determinism';
+import { syncFacade } from '../../sim/system';
+import { setNote } from '../apps/acme';
+import { acmeSystem } from '../apps/acme/system';
 
 describe('example', () => {
   test('mutate converges', async () => {
-    await using world = await openWorld({ seed: 42, domain: acmeDomainPack });
+    await using host = await openWorld(acmeSystem, {
+      seed: 42,
+      knobs: { clientCount: 0 },
+    });
+    const world = syncFacade(host.system);
     const a = await world.addClient({ id: 'alice' });
     await a.mutate(setNote, { id: 'n1', body: 'hi' });
     await world.assertConverged();
@@ -931,19 +935,16 @@ describe('example', () => {
 });
 ```
 
-PBT / DST (framework-owned world from `defineSyncDst`):
+PBT / system pins (`defineSyncSystem` → `assertSample` / `replaySyncPin`):
 
 ```ts
-import { assertDst } from '@pkgs/dst/pbt';
-import { replaySyncPin } from '../../sim/dst';
-import { acmeDst } from '../apps/acme/dst';
+import { assertSample } from '@pkgs/determinism/pbt';
+import { replaySyncPin } from '../../sim/system';
+import { acmeSystem } from '../apps/acme/system';
 
-// Property test: framework generates seed + knobs + actions, runs the model,
-// replays on the real world, and settles.
-await assertDst(acmeDst, { numRuns: 12, actionsPerRun: 14 });
+await assertSample(acmeSystem, { numRuns: 12, actionsPerRun: 14 });
 
-// Scripted pin: fixed seed + knobs + action list, then converge + dispose.
-await replaySyncPin(acmeDst, {
+await replaySyncPin(acmeSystem, {
   seed: 42,
   knobs: {
     rowImageFanout: true,
@@ -960,21 +961,6 @@ await replaySyncPin(acmeDst, {
     },
   ],
 });
-```
-
-When a pin also needs imperative client access, open the framework world and
-grab the sync facade:
-
-```ts
-import { openDstWorld } from '@pkgs/dst';
-import { playSyncActions, syncFacade } from '../../sim/dst';
-import { acmeDst } from '../apps/acme/dst';
-
-await using world = await openDstWorld(acmeDst, { seed: 42 });
-const facade = syncFacade(world.system);
-await playSyncActions(world, [{ kind: 'restart', clientId: 'c0' }]);
-await facade.clients.get('c0')!.mutate(setNote, { id: 'n0', body: 'x' });
-await facade.assertConverged();
 ```
 
 Scoped hold + latency budget + negative window:
@@ -1027,23 +1013,18 @@ world.node('alice').now(); // base + skew
 
 #### Knobs
 
-**World open** (`OpenWorldArgs` on `openWorld`):
+**World open** — framework `openWorld(acmeSystem, opts)` from `@pkgs/determinism`:
 
 | Knob | Default | Meaning |
 |------|---------|---------|
 | `seed` | required | Root RNG seed (`number \| bigint \| string`) |
-| `domain` | — | Scenario path: domain pack (`acmeDomainPack`) |
-| `app` | — | PBT/DST path: `DstApp` (implies `domain = app.pack`, boots `c0..`) |
-| `knobs` | — | PBT knobs (`rowImageFanout`, reconnect/buffer, `clientCount`) |
-| `clientCount` | `2` when `app` set | Booted clients when opening with `app` |
-| `faults` | `RELIABLE_FAULTS` | Omit unless customizing — bare `faults: RELIABLE_FAULTS` is banned by CI |
-| `sampleFaults` | `false` | Ignore `faults`; sample lossy profile from `rng.fork('faults')` |
-| `rowImageFanout` | `true` | Live pushes apply row images; `false` → wake query refetch |
-| `liveResendOnReconnect` | `false` | Drop live while peer closed; `true` buffers last topics and flushes on re-subscribe |
-| `bufferOutboundLive` | `false` | Skip optimistic fanout while push detached; `true` queues and flushes on reconnect |
-| `localSchema` / `mutationRegistry` / `queryRegistry` / `sessionQuery` | domain pack | Override server+default client registries/schema for drift scenarios |
+| `knobs.clientCount` | `2` | Booted `c0..` clients (`0` for scripted pins that `addClient`) |
+| `knobs.rowImageFanout` | `false` | Live pushes apply row images when `true` |
+| `knobs.liveResendOnReconnect` | `false` | Buffer last topics while peer closed; flush on re-subscribe |
+| `knobs.bufferOutboundLive` | `false` | Queue optimistic fanout while push detached |
+| `networkDefaults` | reliable | Pass `toKernelFaults({ … })` for custom delay/loss |
 
-Custom faults: `faults: { ...RELIABLE_FAULTS, oneWayDelayMeanMs: 30 }` (spread OK).
+Custom faults: `networkDefaults: toKernelFaults({ ...RELIABLE_FAULTS, oneWayDelayMeanMs: 30 })`.
 
 **Network faults** (`SimFaultOptions` in `faults.ts`):
 `oneWayDelayMeanMs` / `oneWayDelayJitterMs`, `packetLossProbability`,
@@ -1081,7 +1062,7 @@ non-mutation path; reconcile tick heals).
 duplicate-mutation-id). Optional combinators `untilAll` / `untilAny` stay
 exported but are not core concepts.
 
-**Fuzz / replay** (`runDstSeed({ app: acmeDstApp })` or `runAcmeSeed` shorthand):
+**Fuzz / replay** (`runSeed({ app: acmeApp })` or `runAcmeSeed` shorthand):
 
 | Knob | Default | Meaning |
 |------|---------|---------|
@@ -1099,9 +1080,9 @@ SYNC_SIM_SEED=42 bun test pkgs/sync-engine/src/tests/scenarios/seeded-workload-f
 ```
 
 ```ts
-import { acmeDstApp } from '../apps/acme/dst-app';
-import { runDstSeed } from '../dst/run-seed';
-await runDstSeed({ app: acmeDstApp, seed: 0x2a, steps: 16 });
+import { acmeApp } from '../apps/acme/app';
+import { runSeed } from '../system/run-seed';
+await runSeed({ app: acmeApp, seed: 0x2a, steps: 16 });
 ```
 
 #### Scenario-writing guide (patterns, not primitives)
@@ -1201,9 +1182,9 @@ src/sim/                             # domain-agnostic DST harness (not public)
   test-driver.ts
 
 src/tests/
-  dst/                               # app-agnostic PBT/DST kernel (LibraryAction + DstApp)
+  dst/                               # app-agnostic PBT/system kernel (LibraryAction + SyncApp)
   apps/
-    acme/                            # acme fixture: pack, asserts, acmeDstApp
+    acme/                            # acme fixture: pack, asserts, acmeApp
 
   scenarios/                         # black-box correctness suite
   harness/                           # sim kernel self-tests + scenario-api
@@ -1325,13 +1306,10 @@ Three distinct monotonic sequences — do not conflate them:
 
 ## Scenario catalog
 
-Black-box correctness under `src/tests/scenarios/` (**~140** files) plus harness
-`src/tests/harness/kernel.test.ts`. Most scenarios compose `openWorld` with
-`acmeDomainPack` + domain asserts from `src/tests/apps/acme/`.
-Row-image fanout is on unless a test sets `rowImageFanout: false`. File names
-describe the behavior under test. Production-hardening phases (schema drift
-through channel drift) extend the original suite; all scenarios stay
-rewrite-safe (public + sim world API + domain packs only).
+Black-box correctness under `src/tests/scenarios/` (`*.sim.test.ts` +
+`*.system.pbt.test.ts`) plus harness `src/tests/harness/kernel.test.ts`.
+Most pins use `openWorld(acmeSystem, { knobs: { clientCount: 0, … } })` +
+`syncFacade` and domain asserts from `src/tests/apps/acme/`.
 
 ### Happy path / multi-client (10)
 

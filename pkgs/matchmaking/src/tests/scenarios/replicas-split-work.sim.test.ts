@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { openMatchmakingSimWorld } from '../../sim/world';
+import { openMatchmakingWorld } from '../../sim/system';
 import {
   assertMatchInvariants,
   RatingAttr,
@@ -18,7 +18,7 @@ describe('matchmaking sim: replica split work', () => {
   });
 
   test('maxPairsPerPass:1 still pairs everyone across concurrent workers', async () => {
-    await using world = await openMatchmakingSimWorld({
+    await using world = await openMatchmakingWorld({
       seed: 220,
       replicas: 2,
       backend: 'postgres',

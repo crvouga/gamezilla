@@ -1,5 +1,6 @@
 /** Framework mutation — merged by createLocalSyncEngine / createSyncApp. */
 export { acknowledgeWriteRejectionMutation } from '../../../mutations/shared/acknowledge-write-rejection';
+export { acmeApp } from './app';
 export {
   expectFoldersMatchServer,
   expectLiveNote,
@@ -26,8 +27,6 @@ export {
   checkClientDomainMatchServer,
 } from './converge';
 export { acmeDomainPack } from './domain-pack';
-export { acmeDst, acmeLargeCatalogDst } from './dst';
-export { acmeDstApp } from './dst-app';
 export { insertCatalogNote } from './insert-catalog-note';
 export { createSimMembershipChannels } from './membership-channels';
 export {
@@ -110,16 +109,17 @@ export {
   roomTopic,
   userTopic,
 } from './shared/topics';
+export { acmeLargeCatalogSystem, acmeSystem } from './system';
 export { writeNoteBody } from './write-note-body';
 
-import { runDstSeed, seedsFromEnv } from '../../dst/run-seed';
-import { acmeDstApp } from './dst-app';
+import { runSeed, seedsFromEnv } from '../../system/run-seed';
+import { acmeApp } from './app';
 
 /** Seeded fuzz entrypoint bound to the acme fixture. */
 export async function runAcmeSeed(
-  opts: Omit<import('../../dst/run-seed').RunSeedOptions, 'app'>
-): Promise<import('../../dst/run-seed').RunSeedResult> {
-  return runDstSeed({ ...opts, app: acmeDstApp });
+  opts: Omit<import('../../system/run-seed').RunSeedOptions, 'app'>
+): Promise<import('../../system/run-seed').RunSeedResult> {
+  return runSeed({ ...opts, app: acmeApp });
 }
 
 export { seedsFromEnv };

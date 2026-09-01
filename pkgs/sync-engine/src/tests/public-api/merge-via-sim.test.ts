@@ -1,16 +1,9 @@
+import { openWorld } from '@pkgs/determinism';
+import { acmeSystem } from '../apps/acme/system';
+import { syncFacade } from '../../sim/system';
 import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
-import { openWorld } from '@pkgs/sync-engine/test';
-
-import {
-  acmeDomainPack,
-  acmeLocalSchemaExtraColumn,
-  deleteNote,
-  expectLiveNote,
-  expectNoteNotLive,
-  readNoteTombstone,
-  setNote,
-} from '../apps/acme';
+import { acmeLocalSchemaExtraColumn, deleteNote, expectLiveNote, expectNoteNotLive, readNoteTombstone, setNote } from '../apps/acme';
 
 /**
  * Public-API / sim pins for merge semantics that bulk upsert must preserve:
@@ -18,10 +11,13 @@ import {
  */
 describe('public API: merge via openWorld', () => {
   test('missing server keys do not null local-only columns', async () => {
-    await using world = await openWorld({
-      domain: acmeDomainPack,
+    await using host = await openWorld(acmeSystem, {
       seed: 9001,
+      knobs: {
+        clientCount: 0,
+      },
     });
+    const world = syncFacade(host.system);
     const a = await world.addClient({
       id: 'alice',
       localSchema: acmeLocalSchemaExtraColumn,
@@ -45,10 +41,13 @@ describe('public API: merge via openWorld', () => {
   });
 
   test('tombstone upsert removes live peer row; pending rebase wins after disconnect', async () => {
-    await using world = await openWorld({
-      domain: acmeDomainPack,
+    await using host = await openWorld(acmeSystem, {
       seed: 9002,
+      knobs: {
+        clientCount: 0,
+      },
     });
+    const world = syncFacade(host.system);
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 

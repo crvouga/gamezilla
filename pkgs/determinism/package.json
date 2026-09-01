@@ -1,0 +1,30 @@
+{
+  "name": "@pkgs/determinism",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./pbt": "./src/pbt/index.ts",
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*/index.ts"
+    ]
+  },
+  "scripts": {
+    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@pkgs/clock": "workspace:*",
+    "@pkgs/http-client": "workspace:*",
+    "@pkgs/pbt": "workspace:*",
+    "@pkgs/uuid": "workspace:*",
+    "fast-check": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  }
+}

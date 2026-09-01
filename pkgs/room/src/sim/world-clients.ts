@@ -1,5 +1,5 @@
 import type { Timers } from '@pkgs/clock';
-import type { SimClock, SimScheduler } from '@pkgs/dst';
+import type { SimClock, SimScheduler } from '@pkgs/determinism';
 import type { CreateId, SeededRng } from '@pkgs/uuid';
 
 import { InMemoryClientStorage } from '../client/adapters/storage/memory';

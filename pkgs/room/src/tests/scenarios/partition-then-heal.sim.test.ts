@@ -1,17 +1,16 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '../../sim/world';
-import {
-  counterValue,
-  Increment,
-  TestCounterModule,
-} from '../fixtures/counter-module';
+import { openWorld } from '@pkgs/determinism';
+import { roomWorld } from '../../sim/system';
+import { counterSystem } from '../apps/counter/system';
+import { counterValue, Increment } from '../fixtures/counter-module';
 
 describe('room sim: partition then heal', () => {
   test('held peer never sees write until heal + converge', async () => {
-    await using world = await openWorld({
+    await using host = await openWorld(counterSystem, {
       seed: 3,
-      module: TestCounterModule,
+      knobs: { clientCount: 0 },
     });
+    const world = roomWorld(host.system);
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await world.assertConverged();

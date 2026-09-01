@@ -1,17 +1,17 @@
 import { describe, expect, test } from 'bun:test';
-import { arbWorldSeed, assertDstProperty } from '@pkgs/dst/pbt';
+import { arbWorldSeed, assertSampleProperty } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
 
-import { replayRoomDst, roomDstWorld } from '../../sim/dst';
-import { authzDst } from '../apps/authz/dst';
+import { replayRoom, roomWorld } from '../../sim/system';
+import { authzSystem } from '../apps/authz/system';
 import { authzCount, authzOwner } from '../fixtures/authz-module';
 
 async function expectAuthzState(
-  world: Awaited<ReturnType<typeof replayRoomDst>>,
+  world: Awaited<ReturnType<typeof replayRoom>>,
   expected: { readonly owner: string; readonly count: number }
 ): Promise<void> {
   try {
-    const snap = await roomDstWorld(world.system).serverSnapshot();
+    const snap = await roomWorld(world.system).serverSnapshot();
     expect(authzOwner(snap)).toBe(expected.owner);
     expect(authzCount(snap)).toBe(expected.count);
   } finally {
@@ -23,10 +23,10 @@ describe('room authz-graph PBT', () => {
   test(
     'owner claim+bump; non-owner bump never mutates',
     async () => {
-      await assertDstProperty(
+      await assertSampleProperty(
         'authz graph converges',
         fc.asyncProperty(arbWorldSeed(), async (seed) => {
-          const world = await replayRoomDst(authzDst, {
+          const world = await replayRoom(authzSystem, {
             seed,
             actions: [
               {
@@ -67,7 +67,7 @@ describe('room authz-graph PBT', () => {
   );
 
   test('takeOver does not transfer ownership', async () => {
-    const world = await replayRoomDst(authzDst, {
+    const world = await replayRoom(authzSystem, {
       seed: 21,
       actions: [
         {

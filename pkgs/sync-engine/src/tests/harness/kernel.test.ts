@@ -1,5 +1,9 @@
 import { describe, expect, test } from 'bun:test';
-import { createSimClock, createSimScheduler, createSimTimers } from '@pkgs/dst';
+import {
+  createSimClock,
+  createSimScheduler,
+  createSimTimers,
+} from '@pkgs/determinism';
 
 import { createSeededRng } from '../../sim/rng';
 

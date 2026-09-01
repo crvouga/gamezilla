@@ -1,8 +1,9 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '../../sim/world';
+import { openWorld } from '@pkgs/determinism';
+import { deadlineSystem } from '../apps/deadline/system';
+import { roomWorld } from '../../sim/system';
 import {
   ActBeforeDeadline,
-  DeadlineFixtureModule,
   deadlineOutcome,
   deadlineStatus,
   ExpireDeadline,
@@ -11,11 +12,12 @@ import {
 
 describe('kit: terminal monotonicity (M-F06)', () => {
   test('schedule expire wins; late act / expire are no-ops', async () => {
-    await using world = await openWorld({
+    await using host = await openWorld(deadlineSystem, {
       seed: process.env['SIM_SEED'] ?? '42',
-      module: DeadlineFixtureModule,
+      knobs: { clientCount: 0 },
       startMs: 1_000,
     });
+    const world = roomWorld(host.system);
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await world.assertConverged();
