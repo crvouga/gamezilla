@@ -1,9 +1,23 @@
+import { defineTable, registerTables } from '@pkgs/db-schema';
+import { applySqliteSchema } from '@pkgs/db-schema/sqlite';
 import { raw, sql } from '@pkgs/sql';
 import type { SqlClient } from '../interface';
 import type { SqlClientWebState } from './types';
 
 /** `user_version = epoch * STRIDE + migrationIndex`, same shape as product. */
 export const VERSION_STRIDE = 1_000;
+
+const toyKvTable = defineTable({
+  domain: 'toy_kv',
+  name: 'toy_kv',
+  columns: {
+    k: 'text',
+    v: 'text',
+  },
+  uniqueIndexes: ['k'],
+});
+
+const toyKvSchema = registerTables([toyKvTable]);
 
 export async function readUserVersion(client: SqlClient): Promise<number> {
   const rows = await client.query(
@@ -26,9 +40,7 @@ export async function migrateToyKv(
     await client.run(raw('DROP TABLE IF EXISTS toy_kv'));
     state.expected.clear();
   }
-  await client.run(
-    raw('CREATE TABLE IF NOT EXISTS toy_kv (k TEXT PRIMARY KEY, v TEXT) STRICT')
-  );
+  await applySqliteSchema(client, toyKvSchema, { ownership: 'declared-only' });
   await client.run(raw(`PRAGMA user_version = ${epoch * VERSION_STRIDE + 1}`));
   state.appliedEpoch = epoch;
 }
@@ -48,7 +60,9 @@ export async function writeToyRow(
   value: string
 ): Promise<void> {
   await client.run(sql`DELETE FROM toy_kv WHERE k = ${key}`);
-  await client.run(sql`INSERT INTO toy_kv (k, v) VALUES (${key}, ${value})`);
+  await client.run(
+    sql`INSERT INTO toy_kv (id, k, v) VALUES (${key}, ${key}, ${value})`
+  );
 }
 
 export async function readToyRow(

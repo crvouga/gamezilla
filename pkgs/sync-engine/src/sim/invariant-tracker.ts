@@ -63,6 +63,7 @@ export async function checkPushSeqMonotonicPerTopic(
     last_push_seq: string;
   }>`
     SELECT topic, last_push_seq FROM sync_engine_push_applied
+    WHERE deleted_at IS NULL
   `);
   for (const row of rows) {
     if (isLegacyWallClockCheckpoint(row.last_push_seq)) {
@@ -101,6 +102,7 @@ export async function checkCheckpointMonotonicPerScope(
     last_checkpoint: string | null;
   }>`
     SELECT scope_hash, last_checkpoint FROM sync_engine_scope_meta
+    WHERE deleted_at IS NULL
   `);
   for (const row of rows) {
     const checkpoint = row.last_checkpoint;
@@ -127,6 +129,7 @@ export async function checkOptimisticMarkersHealed(
 ): Promise<InvariantViolation | null> {
   const rows = await db.query(sql<{ c: number | string }>`
     SELECT COUNT(*) AS c FROM sync_engine_optimistic_peer_rows
+    WHERE deleted_at IS NULL
   `);
   const count = Number(rows[0]?.c ?? 0);
   if (count === 0) return null;
@@ -142,6 +145,7 @@ export async function checkHealedQueueDrained(
 ): Promise<InvariantViolation | null> {
   const rows = await db.query(sql<{ c: number | string }>`
     SELECT COUNT(*) AS c FROM sync_engine_mutations
+    WHERE deleted_at IS NULL
   `);
   const count = Number(rows[0]?.c ?? 0);
   if (count === 0) return null;

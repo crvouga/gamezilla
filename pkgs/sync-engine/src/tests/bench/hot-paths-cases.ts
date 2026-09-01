@@ -80,7 +80,8 @@ async function seedSyncMutations(
   for (let i = 0; i < count; i += 1) {
     await deps.db.run(sql`
       INSERT INTO sync_engine_mutations (
-        id, name, args, client_id, seq, created_at
+        id, name, args, client_id, seq,
+        created_at, updated_at, deleted_at
       )
       VALUES (
         ${`${prefix}${i}`},
@@ -88,7 +89,9 @@ async function seedSyncMutations(
         ${argsForIndex(i)},
         ${'c0'},
         ${i + 1},
-        ${'2020-01-01T00:00:00.000Z'}
+        ${'2020-01-01T00:00:00.000Z'},
+        ${'2020-01-01T00:00:00.000Z'},
+        ${null}
       )
     `);
   }
@@ -198,32 +201,41 @@ export async function createHotPathCases(): Promise<readonly BenchCase[]> {
       run: async () => {
         const ids = Array.from({ length: 64 }, (_, i) => `o${i}`);
         await ownRowDeps.db.transaction(async (tx) => {
-          await recordOptimisticOwnRows(tx, 'bench-m', {
-            tables: ['notes'],
-            ids: { notes: ids },
-            images: {},
-          });
+          await recordOptimisticOwnRows(
+            tx,
+            'bench-m',
+            {
+              tables: ['notes'],
+              ids: { notes: ids },
+              images: {},
+            },
+            '2020-01-01T00:00:00.000Z'
+          );
         });
       },
     },
     {
-      name: 'upload ack DELETE 128 ids chunked',
+      name: 'upload ack soft-delete 128 ids chunked',
       run: async () => {
         const ids = Array.from({ length: 128 }, (_, i) => `ack-${i}`);
+        const nowIso = '2020-01-01T00:00:00.000Z';
         await ackDeps.db.transaction(async (tx) => {
           const maxIds = 999;
           for (let offset = 0; offset < ids.length; offset += maxIds) {
             const chunk = ids.slice(offset, offset + maxIds);
             await tx.run(sql`
-              DELETE FROM sync_engine_mutations
+              UPDATE sync_engine_mutations
+              SET deleted_at = ${nowIso}, updated_at = ${nowIso}
               WHERE id IN (${join(chunk.map((id) => sql`${id}`))})
+                AND deleted_at IS NULL
             `);
           }
         });
         for (let i = 0; i < 128; i += 1) {
           await ackDeps.db.run(sql`
             INSERT INTO sync_engine_mutations (
-              id, name, args, client_id, seq, created_at
+              id, name, args, client_id, seq,
+              created_at, updated_at, deleted_at
             )
             VALUES (
               ${`ack-${i}`},
@@ -231,8 +243,13 @@ export async function createHotPathCases(): Promise<readonly BenchCase[]> {
               ${'{}'},
               ${'c0'},
               ${i + 1},
-              ${'2020-01-01T00:00:00.000Z'}
+              ${nowIso},
+              ${nowIso},
+              ${null}
             )
+            ON CONFLICT (id) DO UPDATE SET
+              deleted_at = NULL,
+              updated_at = excluded.updated_at
           `);
         }
       },

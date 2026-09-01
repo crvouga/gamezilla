@@ -2,15 +2,37 @@ import type {
   DatabaseMigration,
   DatabaseMigrationContext,
 } from '@pkgs/db-migrate';
+import { PostgresSchemaDatabaseMigration } from '@pkgs/db-schema/postgres';
+import {
+  createPostgresDbScope,
+  type PostgresDbScope,
+} from '@pkgs/sql-client/postgres/schema';
 
-import { EntityStoreImplPostgres } from './impl-postgres';
+import { EntityStoreNullabilityCutoverMigration } from './nullability-cutover-migration';
+import { entityStoreSchema } from './schema/tables';
 
-/** Idempotent Postgres DDL for the `entity_store` table. */
+export type EntityStorePostgresDatabaseMigrationOptions = {
+  readonly dbScope?: PostgresDbScope;
+  readonly skipAdvisoryLock?: boolean;
+  readonly alreadyInTransaction?: boolean;
+};
+
+/** Applies `entity_store` via defineTable reconcile (after nullability cutover). */
 export class EntityStorePostgresDatabaseMigration implements DatabaseMigration {
+  private readonly options: EntityStorePostgresDatabaseMigrationOptions;
+
+  constructor(options?: EntityStorePostgresDatabaseMigrationOptions) {
+    this.options = options ?? {};
+  }
+
   async migrate(ctx: DatabaseMigrationContext): Promise<void> {
-    await EntityStoreImplPostgres.migrateUp({
-      sqlClient: ctx.sqlClient,
-      logger: ctx.logger,
-    });
+    const dbScope = this.options.dbScope ?? createPostgresDbScope('public');
+    ctx.logger.info('applying entity_store schema (postgres)');
+    await new EntityStoreNullabilityCutoverMigration().migrate(ctx);
+    await new PostgresSchemaDatabaseMigration(entityStoreSchema, dbScope, {
+      skipAdvisoryLock: this.options.skipAdvisoryLock ?? true,
+      alreadyInTransaction: this.options.alreadyInTransaction ?? true,
+    }).migrate(ctx);
+    ctx.logger.info('entity_store schema applied (postgres)');
   }
 }

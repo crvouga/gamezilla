@@ -4,6 +4,7 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { QueryRow } from '../queries/core/types';
 import { SYNC_ENGINE_OPTIMISTIC_PEER_ROWS } from '../shared/framework-server-ddl';
+import { optimisticPeerRowId } from '../shared/schema/tables';
 
 const MAX_SQLITE_VARS = 999;
 
@@ -23,21 +24,28 @@ function collectIds(rows: readonly QueryRow[]): string[] {
 /** Record peer-applied optimistic row images so a later snapshot can heal orphans. */
 export async function recordOptimisticPeerRows(
   tx: SqlClient,
-  tables: Readonly<Record<string, readonly QueryRow[]>>
+  tables: Readonly<Record<string, readonly QueryRow[]>>,
+  nowIso: string
 ): Promise<void> {
   for (const [table, rows] of Object.entries(tables)) {
     assertTableName(table);
     const ids = collectIds(rows);
     if (ids.length === 0) continue;
-    // 2 binds per row (table_name, row_id).
-    const maxRows = Math.max(1, Math.floor(MAX_SQLITE_VARS / 2));
+    const maxRows = Math.max(1, Math.floor(MAX_SQLITE_VARS / 6));
     for (let offset = 0; offset < ids.length; offset += maxRows) {
       const chunk = ids.slice(offset, offset + maxRows);
-      const data = chunk.map((id) => [table, id] as const);
+      const data = chunk.map(
+        (id) =>
+          [optimisticPeerRowId(table, id), table, id, nowIso, nowIso, null] as const
+      );
       await tx.run(sql`
-        INSERT INTO ${ident(SYNC_ENGINE_OPTIMISTIC_PEER_ROWS)} (table_name, row_id)
+        INSERT INTO ${ident(SYNC_ENGINE_OPTIMISTIC_PEER_ROWS)} (
+          id, table_name, row_id, created_at, updated_at, deleted_at
+        )
         VALUES ${bulk(data)}
-        ON CONFLICT (table_name, row_id) DO NOTHING
+        ON CONFLICT (id) DO UPDATE SET
+          updated_at = excluded.updated_at,
+          deleted_at = NULL
       `);
     }
   }
@@ -46,7 +54,8 @@ export async function recordOptimisticPeerRows(
 /** Authoritative apply confirmed these ids — drop speculative markers. */
 export async function clearOptimisticPeerRows(
   tx: SqlClient,
-  tables: Readonly<Record<string, readonly QueryRow[]>>
+  tables: Readonly<Record<string, readonly QueryRow[]>>,
+  nowIso: string
 ): Promise<void> {
   for (const [table, rows] of Object.entries(tables)) {
     assertTableName(table);
@@ -56,9 +65,11 @@ export async function clearOptimisticPeerRows(
     for (let offset = 0; offset < ids.length; offset += maxIds) {
       const chunk = ids.slice(offset, offset + maxIds);
       await tx.run(sql`
-        DELETE FROM ${ident(SYNC_ENGINE_OPTIMISTIC_PEER_ROWS)}
+        UPDATE ${ident(SYNC_ENGINE_OPTIMISTIC_PEER_ROWS)}
+        SET deleted_at = ${nowIso}, updated_at = ${nowIso}
         WHERE table_name = ${table}
           AND row_id IN (${join(chunk.map((id) => sql`${id}`))})
+          AND deleted_at IS NULL
       `);
     }
   }
@@ -86,19 +97,22 @@ function partitionPeerMarkers(
   return { confirmed, orphans };
 }
 
-async function deletePeerRowsChunked(
+async function softDeletePeerRowsChunked(
   tx: SqlClient,
   table: string,
-  ids: readonly string[]
+  ids: readonly string[],
+  nowIso: string
 ): Promise<void> {
   if (ids.length === 0) return;
   const maxIds = Math.max(1, MAX_SQLITE_VARS - 1);
   for (let offset = 0; offset < ids.length; offset += maxIds) {
     const chunk = ids.slice(offset, offset + maxIds);
     await tx.run(sql`
-      DELETE FROM ${ident(SYNC_ENGINE_OPTIMISTIC_PEER_ROWS)}
+      UPDATE ${ident(SYNC_ENGINE_OPTIMISTIC_PEER_ROWS)}
+      SET deleted_at = ${nowIso}, updated_at = ${nowIso}
       WHERE table_name = ${table}
         AND row_id IN (${join(chunk.map((id) => sql`${id}`))})
+        AND deleted_at IS NULL
     `);
   }
 }
@@ -119,7 +133,7 @@ async function softDeleteOrphanRows(
       WHERE id IN (${join(chunk.map((id) => sql`${id}`))})
         AND deleted_at IS NULL
     `);
-    await deletePeerRowsChunked(tx, table, chunk);
+    await softDeletePeerRowsChunked(tx, table, chunk, nowIso);
   }
 }
 
@@ -134,9 +148,10 @@ async function healOrphansForTable(
   const markers = await tx.query(sql<{ row_id: string }>`
     SELECT row_id FROM ${ident(SYNC_ENGINE_OPTIMISTIC_PEER_ROWS)}
     WHERE table_name = ${table}
+      AND deleted_at IS NULL
   `);
   const { confirmed, orphans } = partitionPeerMarkers(markers, present);
-  await deletePeerRowsChunked(tx, table, confirmed);
+  await softDeletePeerRowsChunked(tx, table, confirmed, nowIso);
   await softDeleteOrphanRows(tx, table, orphans, nowIso);
   return orphans.length > 0;
 }
@@ -153,6 +168,7 @@ export async function healOptimisticPeerOrphans(
 ): Promise<readonly string[]> {
   const markerRows = await tx.query(sql<{ c: number | string }>`
     SELECT COUNT(*) AS c FROM ${ident(SYNC_ENGINE_OPTIMISTIC_PEER_ROWS)}
+    WHERE deleted_at IS NULL
   `);
   if (Number(markerRows[0]?.c ?? 0) === 0) return [];
 
@@ -172,6 +188,7 @@ async function loadMarkedRowsForTable(
   const markers = await tx.query(sql<{ row_id: string }>`
     SELECT row_id FROM ${ident(SYNC_ENGINE_OPTIMISTIC_PEER_ROWS)}
     WHERE table_name = ${table}
+      AND deleted_at IS NULL
   `);
   if (markers.length === 0) return [];
   const rows: QueryRow[] = [];
@@ -197,11 +214,13 @@ export async function reconcileOptimisticPeerMarkers(
 ): Promise<readonly string[]> {
   const markerRows = await tx.query(sql<{ c: number | string }>`
     SELECT COUNT(*) AS c FROM ${ident(SYNC_ENGINE_OPTIMISTIC_PEER_ROWS)}
+    WHERE deleted_at IS NULL
   `);
   if (Number(markerRows[0]?.c ?? 0) === 0) return [];
 
   const tables = await tx.query(sql<{ table_name: string }>`
     SELECT DISTINCT table_name FROM ${ident(SYNC_ENGINE_OPTIMISTIC_PEER_ROWS)}
+    WHERE deleted_at IS NULL
   `);
   const changed: string[] = [];
   for (const row of tables) {

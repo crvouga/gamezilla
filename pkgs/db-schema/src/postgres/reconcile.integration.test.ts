@@ -1,5 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { raw, sql } from '@pkgs/sql';
+import { defineTable, registerTables } from '@pkgs/db-schema';
+import { applyPostgresSchema } from '@pkgs/db-schema/postgres';
 import type { PostgresSqlClient } from '@pkgs/sql-client/interface';
 import { defineSchema } from '../core/define-schema';
 import { createRecordingSqlClient } from '../test/fake-sql-client';
@@ -102,8 +104,16 @@ describe('postgres reconcile integration', () => {
   });
 
   test('undeclared table blindness', async () => {
-    await sqlClient.run(
-      raw(`CREATE TABLE IF NOT EXISTS foreign_billing (id uuid primary key)`)
+    await applyPostgresSchema(
+      sqlClient,
+      registerTables([
+        defineTable({
+          domain: 'foreign',
+          name: 'foreign_billing',
+          columns: {},
+        }),
+      ]),
+      sqlClient.dbScope
     );
     const schema = defineSchema({
       tables: { widgets: { name: 'text' } },
@@ -119,10 +129,19 @@ describe('postgres reconcile integration', () => {
   });
 
   test('collision with mismatched shape is drift and leaves catalog unchanged', async () => {
+    await applyPostgresSchema(
+      sqlClient,
+      registerTables([
+        defineTable({
+          domain: 'clash',
+          name: 'clash',
+          columns: { weird: 'integer' },
+        }),
+      ]),
+      sqlClient.dbScope
+    );
     await sqlClient.run(
-      raw(
-        `CREATE TABLE IF NOT EXISTS clash (id text primary key, weird integer not null)`
-      )
+      raw(`ALTER TABLE clash ALTER COLUMN weird SET NOT NULL`)
     );
     const before = await sqlClient.query<{ column_name: string }>(sql`
       SELECT column_name FROM information_schema.columns
@@ -161,15 +180,25 @@ describe('postgres reconcile integration', () => {
   });
 
   test('legacy NOT NULL and int4 columns reconcile after nullability fix', async () => {
-    await sqlClient.run(
-      raw(`
-CREATE TABLE IF NOT EXISTS legacy_puzzle_shape (
-  id text primary key,
-  rating integer not null,
-  body text not null
-)`)
+    await applyPostgresSchema(
+      sqlClient,
+      registerTables([
+        defineTable({
+          domain: 'legacy_puzzle_shape',
+          name: 'legacy_puzzle_shape',
+          columns: { rating: 'integer', body: 'text' },
+        }),
+      ]),
+      sqlClient.dbScope
     );
-
+    await sqlClient.run(
+      raw(
+        `ALTER TABLE legacy_puzzle_shape ALTER COLUMN rating SET NOT NULL`
+      )
+    );
+    await sqlClient.run(
+      raw(`ALTER TABLE legacy_puzzle_shape ALTER COLUMN body SET NOT NULL`)
+    );
     await sqlClient.run(
       raw(`ALTER TABLE legacy_puzzle_shape ALTER COLUMN rating DROP NOT NULL`)
     );

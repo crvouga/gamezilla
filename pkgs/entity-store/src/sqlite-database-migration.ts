@@ -2,27 +2,17 @@ import type {
   DatabaseMigration,
   DatabaseMigrationContext,
 } from '@pkgs/db-migrate';
-import { raw } from '@pkgs/sql';
+import { SqliteSchemaDatabaseMigration } from '@pkgs/db-schema/sqlite';
 
-import {
-  ENTITY_STORE_CREATE_INDEX_DDL,
-  ENTITY_STORE_CREATE_TABLE_DDL,
-  ENTITY_STORE_TABLE,
-} from './schema-ddl';
+import { entityStoreSchema } from './schema/tables';
 
-/** Idempotent portable DDL for the `entity_store` table (SQLite / sim). */
+/** Applies `entity_store` to SQLite without dropping undeclared tables. */
 export class EntityStoreSqliteDatabaseMigration implements DatabaseMigration {
   async migrate(ctx: DatabaseMigrationContext): Promise<void> {
-    const log = ctx.logger.child({ migration: 'entity-store-sqlite' });
-    log.info('entity_store sqlite migrate: applying ddl', {
-      table: ENTITY_STORE_TABLE,
-    });
-    await ctx.sqlClient.run(raw(ENTITY_STORE_CREATE_TABLE_DDL));
-    for (const stmt of ENTITY_STORE_CREATE_INDEX_DDL) {
-      await ctx.sqlClient.run(raw(stmt));
-    }
-    log.info('entity_store sqlite migrate: complete', {
-      table: ENTITY_STORE_TABLE,
-    });
+    ctx.logger.info('applying entity_store schema (sqlite)');
+    await new SqliteSchemaDatabaseMigration(entityStoreSchema, {
+      ownership: 'declared-only',
+    }).migrate(ctx);
+    ctx.logger.info('entity_store schema applied (sqlite)');
   }
 }

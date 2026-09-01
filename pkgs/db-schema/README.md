@@ -19,15 +19,16 @@ desired catalog  +  introspected catalog
 | Dialect | Policy |
 | --- | --- |
 | **Postgres** | Refuse anything non-backwards-compatible. Never `DROP TABLE/COLUMN`, `ALTER TYPE`, `RENAME`, `DROP VIEW/TYPE`. Extra columns require a deprecation tombstone or reconcile fails. |
-| **SQLite** | Schema ships with the app binary. Non-deprecated extras **fail** (same as server). Deprecated objects **may** be dropped. Physical rewrite via `rebuild_table` is allowed for legal plans. |
+| **SQLite** | Same extra-column rule as Postgres. **In-place type/nullability change is forbidden** (same as server). Rebuild only for deprecated extras, lifecycle copy (`renamedFrom`/`widenedFrom`), and CHECK/FK shape SQLite cannot `ALTER`. Row-preserving rebuild: rename old → create new → copy → drop old. |
 
-`ownership: 'declared-only'` (product clients) leaves undeclared tables alone so
-sync-engine framework tables can share the file. `whole-db` drops undeclared
-tables (test / wholly-owned DBs).
+`ownership: 'declared-only'` (**default** for SQLite) leaves undeclared tables alone so
+package-local infra schemas (sync-engine, outbox, …) can share the SQLite file
+via their own `applySqliteSchema` / `SqliteSchemaDatabaseMigration` passes.
+`whole-db` drops undeclared tables (test / wholly-owned DBs only).
 
 ## Lifecycle recipes (expand / contract)
 
-Never rename or change types in place on the server.
+Never rename or change types in place on **either dialect**.
 
 ### Deprecate a column
 
@@ -97,12 +98,28 @@ proven for the rest.
 Managed implicits on every table: `id`, `created_at`, `updated_at`,
 `deleted_at` (no engine `DEFAULT now()` / `gen_random_uuid()`).
 
+## Identifiers
+
+All table/column/check/view/enum **names** must be `snake_case` (lowercase start;
+letters, digits, underscore; no `__`; no trailing `_`; ≤63 UTF-8 bytes). Reserved
+SQL keywords (`table`, `index`, `user`, …) are rejected. Enum **values** are data,
+not identifiers — any string is allowed.
+
+Physical type overrides (`postgres:` / `sqlite:` on column specs) are allowlisted
+to known mappings from `type-map.ts` — raw DDL injection is not permitted.
+
 ## Product entry points
 
 ```ts
 import { defineTable, registerTables } from '@pkgs/db-schema';
-import { PostgresSchemaDatabaseMigration } from '@pkgs/db-schema/postgres';
-import { SqliteSchemaDatabaseMigration } from '@pkgs/db-schema/sqlite';
+import {
+  applyPostgresSchema,
+  PostgresSchemaDatabaseMigration,
+} from '@pkgs/db-schema/postgres';
+import {
+  applySqliteSchema,
+  SqliteSchemaDatabaseMigration,
+} from '@pkgs/db-schema/sqlite';
 
 export const appSchema = registerTables([...TABLES]);
 
@@ -112,12 +129,21 @@ new PostgresSchemaDatabaseMigration(appSchema, dbScope, {
   alreadyInTransaction: true,
 });
 
-// client local migrate
+// client local migrate / tests
 new SqliteSchemaDatabaseMigration(appSchema, { ownership: 'declared-only' });
+// or: await applySqliteSchema(client, appSchema, { ownership: 'declared-only' });
 ```
+
+**Infra packages** (sync-engine, kv, outbox, …) use the same `defineTable` API with
+a package-local schema — never register those tables in product `appSchema`.
+Never author `CREATE TABLE` strings; Biome grit `no-raw-create-table` bans them
+outside `@pkgs/db-schema` emit.
 
 ## Tests
 
+See [`TESTING.md`](TESTING.md). Summary:
+
 - Contract matrix: `interface.contract.test.ts` (postgres-mem × sqlite-mem)
-- PBT: `*.pbt.test.ts` (compatible / forbidden deltas, type-map totality)
+- PBT: `src/tests/pbt/` + `src/core/*.pbt.test.ts` (conventions, planner, emit safety, round-trip, data-loss)
 - System worlds: `tests/system/` (N sqlite clients + 1 postgres server, mixed versions)
+- Findings: [`src/tests/bugs-found.md`](src/tests/bugs-found.md)

@@ -66,10 +66,18 @@ export const MANAGED_IMPLICIT_SET: ReadonlySet<string> = new Set(
   MANAGED_IMPLICIT_COLUMN_NAMES
 );
 
-/** Branded identifier that has passed snake_case + length validation. */
-export type ValidatedIdent = string & {
-  readonly __brand: 'ValidatedIdent';
+/** Declared schema identifier (snake_case + length + keyword checks). */
+export type SchemaIdent = string & {
+  readonly __brand: 'SchemaIdent';
 };
+
+/** Catalog / rebuild identifier (may include `_`-prefixed physical extras). */
+export type PhysicalIdent = string & {
+  readonly __brand: 'PhysicalIdent';
+};
+
+/** @deprecated Use {@link SchemaIdent} — kept as alias for operation types. */
+export type ValidatedIdent = SchemaIdent;
 
 /** Package-owned index name (`ix_<table>_<hash>`). */
 export type PackagePrefixedIndexName = string & {

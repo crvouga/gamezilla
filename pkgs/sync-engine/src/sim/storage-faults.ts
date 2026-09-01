@@ -24,7 +24,11 @@ export async function tamperClientLocalStorage(
   }
   switch (tamper) {
     case 'corruptCheckpoint':
-      await db.run(unsafe(`DELETE FROM sync_engine_scope_meta`));
+      await db.run(
+        unsafe(
+          `UPDATE sync_engine_scope_meta SET deleted_at = '1970-01-01T00:00:00.000Z' WHERE deleted_at IS NULL`
+        )
+      );
       break;
     case 'flipDomainRow':
       await db.run(
@@ -36,14 +40,14 @@ export async function tamperClientLocalStorage(
     case 'corruptQueuedArgs':
       await db.run(
         unsafe(
-          `UPDATE sync_engine_mutations SET args = '__not_json__' WHERE id IN (SELECT id FROM sync_engine_mutations LIMIT 1)`
+          `UPDATE sync_engine_mutations SET args = '__not_json__' WHERE deleted_at IS NULL AND id IN (SELECT id FROM sync_engine_mutations WHERE deleted_at IS NULL LIMIT 1)`
         )
       );
       break;
     case 'corruptLastHash':
       await db.run(
         unsafe(
-          `UPDATE sync_engine_scope_meta SET last_hash = '__sim_corrupt_hash__'`
+          `UPDATE sync_engine_scope_meta SET last_hash = '__sim_corrupt_hash__' WHERE deleted_at IS NULL`
         )
       );
       break;

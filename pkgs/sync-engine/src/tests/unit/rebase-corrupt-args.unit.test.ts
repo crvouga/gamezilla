@@ -14,7 +14,8 @@ describe('rebase corrupt pending args', () => {
     await migrateLocalSchema(db, acmeLocalSchema);
     await db.run(sql`
       INSERT INTO sync_engine_mutations (
-        id, name, args, client_id, seq, created_at
+        id, name, args, client_id, seq,
+        created_at, updated_at, deleted_at
       )
       VALUES (
         ${'bad'},
@@ -22,7 +23,9 @@ describe('rebase corrupt pending args', () => {
         ${'{not-json'},
         ${'c0'},
         ${1},
-        ${'2020-01-01T00:00:00.000Z'}
+        ${'2020-01-01T00:00:00.000Z'},
+        ${'2020-01-01T00:00:00.000Z'},
+        ${null}
       )
     `);
     const deps = {
@@ -49,7 +52,9 @@ describe('rebase corrupt pending args', () => {
     ).resolves.toBe('applied');
 
     const stillQueued = await db.query(sql<{ id: string }>`
-      SELECT id FROM sync_engine_mutations WHERE id = ${'bad'}
+      SELECT id FROM sync_engine_mutations
+      WHERE id = ${'bad'}
+        AND deleted_at IS NULL
     `);
     expect(stillQueued).toEqual([{ id: 'bad' }]);
   });

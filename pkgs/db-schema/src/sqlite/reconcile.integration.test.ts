@@ -1,6 +1,8 @@
 import { Database } from 'bun:sqlite';
 import { describe, expect, test } from 'bun:test';
 import { raw } from '@pkgs/sql';
+import { defineTable, registerTables } from '@pkgs/db-schema';
+import { applySqliteSchema } from '@pkgs/db-schema/sqlite';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 import { defineSchema } from '../core/define-schema';
 import { createRecordingSqlClient } from '../test/fake-sql-client';
@@ -49,18 +51,26 @@ describe('sqlite reconcile integration', () => {
 
   test('extra column without deprecation fails; ghost table still drops', async () => {
     const { client } = openMemoryClient();
-    await client.run(raw(`CREATE TABLE ghost (id TEXT PRIMARY KEY) STRICT`));
-    await client.run(
-      raw(
-        `CREATE TABLE notes (
-          id TEXT PRIMARY KEY,
-          created_at TEXT,
-          updated_at TEXT,
-          deleted_at TEXT,
-          body TEXT,
-          extra TEXT
-        ) STRICT`
-      )
+    await applySqliteSchema(
+      client,
+      registerTables([
+        defineTable({
+          domain: 'ghost',
+          name: 'ghost',
+          columns: {},
+        }),
+      ]),
+      { ownership: 'declared-only' }
+    );
+    await applySqliteSchema(
+      client,
+      registerTables([
+        defineTable({
+          domain: 'notes',
+          name: 'notes',
+          columns: { body: 'text', extra: 'text' },
+        }),
+      ])
     );
 
     const schema = defineSchema({
@@ -73,25 +83,33 @@ describe('sqlite reconcile integration', () => {
 
   test('converge: drop unknown table; deprecate then drop extra column', async () => {
     const { client } = openMemoryClient();
-    await client.run(raw(`CREATE TABLE ghost (id TEXT PRIMARY KEY) STRICT`));
-    await client.run(
-      raw(
-        `CREATE TABLE notes (
-          id TEXT PRIMARY KEY,
-          created_at TEXT,
-          updated_at TEXT,
-          deleted_at TEXT,
-          body TEXT,
-          extra TEXT
-        ) STRICT`
-      )
+    await applySqliteSchema(
+      client,
+      registerTables([
+        defineTable({
+          domain: 'ghost',
+          name: 'ghost',
+          columns: {},
+        }),
+      ]),
+      { ownership: 'declared-only' }
+    );
+    await applySqliteSchema(
+      client,
+      registerTables([
+        defineTable({
+          domain: 'notes',
+          name: 'notes',
+          columns: { body: 'text', extra: 'text' },
+        }),
+      ])
     );
 
     const schema = defineSchema({
       tables: { notes: { body: 'text' } },
       deprecations: [['notes', 'extra', 'unused']],
     });
-    await sqlite(schema, client).reconcile();
+    await sqlite(schema, client, { ownership: 'whole-db' }).reconcile();
 
     const catalog = await readSqliteCatalog(client, schema._declared);
     expect(catalog.allTableNames.has('ghost')).toBe(false);
@@ -105,19 +123,17 @@ describe('sqlite reconcile integration', () => {
 
   test('preserves _meta across rebuild', async () => {
     const { client } = openMemoryClient();
-    await client.run(
-      raw(
-        `CREATE TABLE notes (
-          id TEXT PRIMARY KEY,
-          created_at TEXT,
-          updated_at TEXT,
-          deleted_at TEXT,
-          body TEXT,
-          extra TEXT,
-          _meta TEXT
-        ) STRICT`
-      )
+    await applySqliteSchema(
+      client,
+      registerTables([
+        defineTable({
+          domain: 'notes',
+          name: 'notes',
+          columns: { body: 'text', extra: 'text' },
+        }),
+      ])
     );
+    await client.run(raw(`ALTER TABLE notes ADD COLUMN _meta TEXT`));
     await client.run(
       raw(
         `INSERT INTO notes (id, body, extra, _meta) VALUES ('1', 'hi', 'x', 'keep')`
@@ -182,8 +198,16 @@ describe('sqlite reconcile integration', () => {
 
   test('declared-only leaves undeclared tables alone', async () => {
     const { client } = openMemoryClient();
-    await client.run(
-      raw(`CREATE TABLE sync_engine_mutations (id TEXT PRIMARY KEY) STRICT`)
+    await applySqliteSchema(
+      client,
+      registerTables([
+        defineTable({
+          domain: 'sync_engine',
+          name: 'sync_engine_mutations',
+          columns: {},
+        }),
+      ]),
+      { ownership: 'declared-only' }
     );
     const schema = defineSchema({
       tables: { notes: { body: 'text' } },

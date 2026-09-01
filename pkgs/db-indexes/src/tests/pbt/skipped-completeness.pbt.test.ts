@@ -12,6 +12,7 @@ const KNOWN = new Set<SkipReason>([
   'below_min_rows',
   'over_budget',
   'pk_only',
+  'empty_key',
   'unsupported',
   'zero_statements',
   'fingerprint_divergence',

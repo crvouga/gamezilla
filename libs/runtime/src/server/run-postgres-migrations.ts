@@ -33,19 +33,18 @@ export type PostgresMigrationRunnerDeps = {
   logger: Logger;
   dbScope: PostgresDbScope;
   /**
-   * When true, skip `pg_advisory_xact_lock` + outer transaction (pg-mem / single-process
-   * sims cannot nest SET LOCAL with DO-block DDL on one adapter pool).
+   * When true, skip `pg_advisory_xact_lock` + outer transaction (postgres-mem /
+   * single-process sims cannot nest SET LOCAL with DO-block DDL on one adapter pool).
    */
   skipAdvisoryLock?: boolean;
   /**
    * When true, skip PL/pgSQL {@link PostgresSqliteCompatMigration}.
-   * Use for pg-mem where JSON1 shims are installed via
-   * `installPgMemSqliteCompat` at `createPgMemSqlClient` time.
+   * Use when JSON1 shims are installed at SqlClient open time (postgres-mem).
    */
   skipSqliteCompat?: boolean;
   /**
    * When true, skip workload {@link PostgresIndexesDatabaseMigration}.
-   * Defaults to true when `skipAdvisoryLock` (sim / pg-mem).
+   * Defaults to true when `skipAdvisoryLock` (sim / postgres-mem).
    */
   skipIndexReconcile?: boolean;
   /** Injected clock for index reconcile deadlines (required unless skipped). */

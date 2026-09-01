@@ -38,7 +38,9 @@ export async function checkSeqMonotonicity(
     client_id: string;
     seq: number;
   }>`
-    SELECT client_id, seq FROM sync_engine_mutations ORDER BY client_id ASC, seq ASC
+    SELECT client_id, seq FROM sync_engine_mutations
+    WHERE deleted_at IS NULL
+    ORDER BY client_id ASC, seq ASC
   `);
   let lastClient = '';
   let lastSeq = -1;
@@ -67,6 +69,8 @@ export async function checkRejectedNotPending(
     SELECT r.mutation_id
     FROM sync_engine_write_rejections r
     INNER JOIN sync_engine_mutations m ON m.id = r.mutation_id
+    WHERE r.deleted_at IS NULL
+      AND m.deleted_at IS NULL
     LIMIT 1
   `);
   const row = rows[0];

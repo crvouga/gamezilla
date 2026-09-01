@@ -1,4 +1,4 @@
-import { type ColumnSpecInput, parseTableColumnMap } from './column-spec';
+import { type ColumnSpecInput, parseTableColumnMap, validateColumnLifecycle } from './column-spec';
 import { assertDialectSqlShape, type DialectSql } from './dialect-sql';
 import { assertSnakeCaseIdent } from './snake-case';
 import type {
@@ -158,6 +158,11 @@ export function defineTable(input: TableDefInput): TableDef {
   );
   const deprecations = normalizeDeprecations(input.name, input.deprecations);
   const checks = normalizeChecks(input.name, input.checks);
+  validateColumnLifecycle({
+    tableName: input.name,
+    columns,
+    deprecations,
+  });
   return Object.freeze({
     kind: 'table' as const,
     domain: input.domain,

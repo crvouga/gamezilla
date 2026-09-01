@@ -4,6 +4,11 @@ Dialect-agnostic, declarative index reconciler. Accepts a workload manifest of
 SQL statements, computes the minimal set of indexes that workload needs, and
 safely converges the database's owned `autoidx_*` indexes to that set.
 
+CI (`assertIndexableWorkload` / `assertQueryRegistryIndexable`) fails if any
+`defineQuery` statement is unindexable (not PK, schema leftmost, autoidx
+candidate, or catalog allowlist). Reconcile itself still skip-not-throw for
+`below_min_rows` / `low_improvement` at migrate time.
+
 ## Public API
 
 ```ts
@@ -54,7 +59,7 @@ Implement `introspectIndexes`, `introspectTables`, `readIndexUsage`,
 | --- | --- | --- |
 | evaluate | hypopg + EXPLAIN | copy DB / EXPLAIN QUERY PLAN |
 | execute create | CREATE INDEX CONCURRENTLY | CREATE INDEX (defer if large) |
-| meta | COMMENT ON INDEX | `_autoidx_meta` table |
+| meta | COMMENT ON INDEX | `autoidx_meta` table |
 
 ## Safety invariants
 

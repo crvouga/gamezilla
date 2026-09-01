@@ -1,4 +1,5 @@
 import { expect, type Page, test } from '@playwright/test';
+import { kvDdl } from '../helpers/kv-schema';
 
 declare global {
   interface Window {
@@ -23,6 +24,12 @@ async function call<T>(page: Page, fn: string, ...args: unknown[]): Promise<T> {
   );
 }
 
+async function migrateKv(page: Page, dbName: string): Promise<void> {
+  for (const stmt of kvDdl) {
+    await call(page, 'run', dbName, stmt);
+  }
+}
+
 test.describe('multi-tab sql-client', () => {
   test('two tabs share one db: write in A readable in B + change notify', async ({
     browser,
@@ -39,18 +46,13 @@ test.describe('multi-tab sql-client', () => {
     const roleB = await call<{ role: string }>(tabB, 'connect', 'db_shared');
     expect([roleA.role, roleB.role].sort().join(',')).toBe('owner,proxy');
 
+    await migrateKv(tabA, 'db_shared');
     await call(
       tabA,
       'run',
       'db_shared',
-      'CREATE TABLE IF NOT EXISTS kv (k TEXT, v TEXT)'
-    );
-    await call(
-      tabA,
-      'run',
-      'db_shared',
-      'INSERT INTO kv (k, v) VALUES (?, ?)',
-      ['a', '1']
+      'INSERT INTO kv (id, k, v) VALUES (?, ?, ?)',
+      ['1', 'a', '1']
     );
 
     await expect
@@ -78,26 +80,22 @@ test.describe('multi-tab sql-client', () => {
 
     await call(tabA, 'connect', 'db_one');
     await call(tabB, 'connect', 'db_two');
+    await migrateKv(tabA, 'db_one');
+    await migrateKv(tabB, 'db_two');
     await call(
       tabA,
       'run',
       'db_one',
-      'CREATE TABLE IF NOT EXISTS kv (k TEXT, v TEXT)'
+      'INSERT INTO kv (id, k, v) VALUES (?, ?, ?)',
+      ['1', 'x', '1']
     );
     await call(
       tabB,
       'run',
       'db_two',
-      'CREATE TABLE IF NOT EXISTS kv (k TEXT, v TEXT)'
+      'INSERT INTO kv (id, k, v) VALUES (?, ?, ?)',
+      ['2', 'y', '2']
     );
-    await call(tabA, 'run', 'db_one', 'INSERT INTO kv (k, v) VALUES (?, ?)', [
-      'x',
-      '1',
-    ]);
-    await call(tabB, 'run', 'db_two', 'INSERT INTO kv (k, v) VALUES (?, ?)', [
-      'y',
-      '2',
-    ]);
 
     const aRows = await call<Array<{ k: string }>>(
       tabA,
@@ -129,12 +127,7 @@ test.describe('multi-tab sql-client', () => {
 
     await call(tabA, 'connect', 'db_failover_sw');
     await call(tabB, 'connect', 'db_failover_sw');
-    await call(
-      tabA,
-      'run',
-      'db_failover_sw',
-      'CREATE TABLE IF NOT EXISTS kv (k TEXT, v TEXT)'
-    );
+    await migrateKv(tabA, 'db_failover_sw');
 
     await call(tabA, 'disconnect');
     await tabA.close();
@@ -147,8 +140,8 @@ test.describe('multi-tab sql-client', () => {
               tabB,
               'run',
               'db_failover_sw',
-              'INSERT INTO kv (k, v) VALUES (?, ?)',
-              ['after', '1']
+              'INSERT INTO kv (id, k, v) VALUES (?, ?, ?)',
+              ['1', 'after', '1']
             );
             return true;
           } catch {
@@ -180,12 +173,7 @@ test.describe('multi-tab sql-client', () => {
 
     await call(tabA, 'connect', 'db_failover');
     await call(tabB, 'connect', 'db_failover');
-    await call(
-      tabA,
-      'run',
-      'db_failover',
-      'CREATE TABLE IF NOT EXISTS kv (k TEXT, v TEXT)'
-    );
+    await migrateKv(tabA, 'db_failover');
 
     await call(tabA, 'disconnect');
     await tabA.close();
@@ -198,8 +186,8 @@ test.describe('multi-tab sql-client', () => {
               tabB,
               'run',
               'db_failover',
-              'INSERT INTO kv (k, v) VALUES (?, ?)',
-              ['after', '1']
+              'INSERT INTO kv (id, k, v) VALUES (?, ?, ?)',
+              ['1', 'after', '1']
             );
             return true;
           } catch {
@@ -257,12 +245,7 @@ test.describe('multi-tab sql-client', () => {
       await page.goto('/');
       await page.waitForFunction(() => window.__sqlHarness !== undefined);
       await call(page, 'connect', 'db_refresh');
-      await call(
-        page,
-        'run',
-        'db_refresh',
-        'CREATE TABLE IF NOT EXISTS kv (k TEXT, v TEXT)'
-      );
+      await migrateKv(page, 'db_refresh');
       await call(page, 'disconnect');
     }
     await context.close();
@@ -281,12 +264,7 @@ test.describe('multi-tab sql-client', () => {
 
     await call(tabA, 'connect', 'db_tx');
     await call(tabB, 'connect', 'db_tx');
-    await call(
-      tabA,
-      'run',
-      'db_tx',
-      'CREATE TABLE IF NOT EXISTS kv (k TEXT, v TEXT)'
-    );
+    await migrateKv(tabA, 'db_tx');
     await call(tabA, 'beginAbandonedTx', 'db_tx');
     // pagehide → disconnect releases broker refs / rolls back owner tx.
     await call(tabA, 'disconnect');
@@ -300,8 +278,8 @@ test.describe('multi-tab sql-client', () => {
               tabB,
               'run',
               'db_tx',
-              'INSERT INTO kv (k, v) VALUES (?, ?)',
-              ['ok', '1']
+              'INSERT INTO kv (id, k, v) VALUES (?, ?, ?)',
+              ['1', 'ok', '1']
             );
             return true;
           } catch {

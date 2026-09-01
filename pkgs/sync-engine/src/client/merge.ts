@@ -67,7 +67,9 @@ async function isStale(
 ): Promise<boolean> {
   const meta = await tx.query(sql<{ last_checkpoint: string | null }>`
     SELECT last_checkpoint FROM sync_engine_scope_meta
-    WHERE scope_hash = ${scopeHash} LIMIT 1
+    WHERE scope_hash = ${scopeHash}
+      AND deleted_at IS NULL
+    LIMIT 1
   `);
   const prev = meta[0]?.last_checkpoint ?? null;
   if (prev === null) return false;
@@ -81,12 +83,26 @@ async function touchScopeMeta(
 ): Promise<void> {
   const nowIso = now().toISOString();
   await tx.run(sql`
-    INSERT INTO sync_engine_scope_meta (scope_hash, last_active_at, last_checkpoint, last_hash)
-    VALUES (${input.scopeHash}, ${nowIso}, ${input.checkpoint}, ${input.hash})
-    ON CONFLICT (scope_hash) DO UPDATE SET
+    INSERT INTO sync_engine_scope_meta (
+      id, scope_hash, last_active_at, last_checkpoint, last_hash,
+      created_at, updated_at, deleted_at
+    )
+    VALUES (
+      ${input.scopeHash},
+      ${input.scopeHash},
+      ${nowIso},
+      ${input.checkpoint},
+      ${input.hash},
+      ${nowIso},
+      ${nowIso},
+      ${null}
+    )
+    ON CONFLICT (id) DO UPDATE SET
       last_checkpoint = excluded.last_checkpoint,
       last_hash = excluded.last_hash,
-      last_active_at = excluded.last_active_at
+      last_active_at = excluded.last_active_at,
+      updated_at = excluded.updated_at,
+      deleted_at = NULL
   `);
 }
 
@@ -107,6 +123,7 @@ async function rebasePending(
     SELECT id, name, args, created_at
     FROM sync_engine_mutations
     WHERE client_id = ${deps.clientId}
+      AND deleted_at IS NULL
     ORDER BY seq ASC
   `);
   for (const row of pending) {
@@ -238,9 +255,17 @@ export async function applyRowImages(
         if (ok) changed.add(table);
       }
       if (opts?.optimistic === true) {
-        await recordOptimisticPeerRows(tx, filtered);
+        await recordOptimisticPeerRows(
+          tx,
+          filtered,
+          deps.env.now().toISOString()
+        );
       } else {
-        await clearOptimisticPeerRows(tx, filtered);
+        await clearOptimisticPeerRows(
+          tx,
+          filtered,
+          deps.env.now().toISOString()
+        );
       }
       await rebasePending(tx, deps, changed);
     });
@@ -252,12 +277,16 @@ export async function applyRowImages(
  * Drop scope checkpoint/hash only. Domain rows stay (unsubscribe / denied).
  */
 export async function detachScope(
-  deps: Pick<MergeApplierDeps, 'db' | 'bus'>,
+  deps: Pick<MergeApplierDeps, 'db' | 'bus' | 'env'>,
   scopeHash: string
 ): Promise<void> {
+  const nowIso = deps.env.now().toISOString();
   await withMergeSingleFlight(deps.db, async () => {
     await deps.db.run(sql`
-      DELETE FROM sync_engine_scope_meta WHERE scope_hash = ${scopeHash}
+      UPDATE sync_engine_scope_meta
+      SET deleted_at = ${nowIso}, updated_at = ${nowIso}
+      WHERE scope_hash = ${scopeHash}
+        AND deleted_at IS NULL
     `);
     deps.bus.emit(['sync_engine_scope_meta']);
   });

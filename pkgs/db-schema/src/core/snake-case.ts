@@ -88,8 +88,48 @@ const SNAKE_CASE_RE = /^[a-z][a-z0-9]*(_[a-z0-9]+)*$/;
 const MAX_IDENT_BYTES = 63;
 const encoder = new TextEncoder();
 
+/** Reserved SQL keywords that must not be used as schema identifiers. */
+export const RESERVED_SCHEMA_KEYWORDS: ReadonlySet<string> = new Set([
+  'all',
+  'alter',
+  'and',
+  'as',
+  'by',
+  'check',
+  'column',
+  'create',
+  'default',
+  'delete',
+  'drop',
+  'from',
+  'group',
+  'index',
+  'insert',
+  'into',
+  'join',
+  'not',
+  'null',
+  'on',
+  'or',
+  'order',
+  'primary',
+  'references',
+  'select',
+  'set',
+  'table',
+  'update',
+  'user',
+  'values',
+  'view',
+  'where',
+]);
+
+export function isReservedSchemaKeyword(value: string): boolean {
+  return RESERVED_SCHEMA_KEYWORDS.has(value.toLowerCase());
+}
+
 export function isSnakeCase(value: string): boolean {
-  return SNAKE_CASE_RE.test(value);
+  return SNAKE_CASE_RE.test(value) && !isReservedSchemaKeyword(value);
 }
 
 export function identByteLength(value: string): number {
@@ -100,9 +140,14 @@ export function assertSnakeCaseIdent(
   value: string,
   path: string
 ): asserts value is string {
-  if (!isSnakeCase(value)) {
+  if (!SNAKE_CASE_RE.test(value)) {
     throw new Error(
       `${path}: identifier '${value}' must be snake_case (lowercase letter start; lowercase/digits/underscore; no leading/trailing '_'; no '__')`
+    );
+  }
+  if (isReservedSchemaKeyword(value)) {
+    throw new Error(
+      `${path}: identifier '${value}' is a reserved SQL keyword and cannot be used`
     );
   }
   if (identByteLength(value) > MAX_IDENT_BYTES) {

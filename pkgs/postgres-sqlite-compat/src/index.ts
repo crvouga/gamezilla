@@ -8,9 +8,6 @@
  * `json-functions-sql.ts`).
  * postgres-mem: {@link installPostgresMemSqliteCompat} (same statement list,
  * mem-safe `json_valid` — also applied by SqlClientImplPostgresMem.open).
- * pg-mem: JS `registerFunction` lives in
- * `@pkgs/sql-client/postgres/pg-mem-sqlite-compat` (avoids pulling `pg-mem`
- * into every compat consumer; applied by createPgMemSqlClient).
  */
 
 export {

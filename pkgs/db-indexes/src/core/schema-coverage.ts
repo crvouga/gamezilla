@@ -39,10 +39,18 @@ export function pathKeyColumns(path: AccessPath): readonly string[] {
   return cols;
 }
 
-/** True when the path is only PK equality / IN / ORDER BY id. */
+/** True when the path is PK equality / IN on id (ORDER BY id alone is not scoped). */
 export function isPkOnlyPath(path: AccessPath): boolean {
-  const cols = pathKeyColumns(path);
-  return cols.length === 1 && cols[0] === PK_COL;
+  if (path.equality.length === 0) return false;
+  const eqs = [...new Set(path.equality)];
+  if (eqs.length !== 1 || eqs[0] !== PK_COL) return false;
+  for (let i = 0; i < path.range.length; i++) {
+    if (path.range[i] !== PK_COL) return false;
+  }
+  for (let i = 0; i < path.orderBy.length; i++) {
+    if (path.orderBy[i] !== PK_COL) return false;
+  }
+  return true;
 }
 
 /**

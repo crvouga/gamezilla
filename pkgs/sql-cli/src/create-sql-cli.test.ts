@@ -1,4 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import { defineTable, registerTables } from '@pkgs/db-schema';
+import { applySqliteSchema } from '@pkgs/db-schema/sqlite';
 import { raw } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
@@ -6,16 +8,24 @@ import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite'
 import { attachToGlobal } from './attach-to-global';
 import { createSqlCli } from './create-sql-cli';
 
+const usersSchema = registerTables([
+  defineTable({
+    domain: 'users',
+    name: 'users',
+    columns: { name: 'text' },
+  }),
+]);
+
 describe('createSqlCli', () => {
   let client: SqlClient;
 
   beforeEach(async () => {
     client = SqlClientImplBunSqlite.open(':memory:');
     await client.connect();
+    await applySqliteSchema(client, usersSchema);
     await client.run(
-      raw('CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT NOT NULL)')
+      raw(`INSERT INTO users (id, name) VALUES ('u1', 'alice')`)
     );
-    await client.run(raw(`INSERT INTO users (name) VALUES ('alice')`));
   });
 
   afterEach(async () => {
@@ -58,7 +68,13 @@ describe('createSqlCli', () => {
     if (result.kind !== 'rows') return;
     expect(result.rows.length).toBeGreaterThanOrEqual(2);
     expect(result.rows.map((row) => row['name'])).toEqual(
-      expect.arrayContaining(['id', 'name'])
+      expect.arrayContaining([
+        'id',
+        'name',
+        'created_at',
+        'updated_at',
+        'deleted_at',
+      ])
     );
   });
 
@@ -82,7 +98,9 @@ describe('createSqlCli', () => {
 
   test('INSERT returns run result', async () => {
     const { evaluate } = createSqlCli({ client, print: false });
-    const result = await evaluate(`INSERT INTO users (name) VALUES ('bob')`);
+    const result = await evaluate(
+      `INSERT INTO users (id, name) VALUES ('u2', 'bob')`
+    );
     expect(result.kind).toBe('run');
     if (result.kind !== 'run') return;
     expect(result.result.changes).toBe(1);

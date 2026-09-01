@@ -1,6 +1,14 @@
 export type { Config } from './core/config';
 export { DEFAULT_CONFIG, resolveConfig } from './core/config';
 export { fingerprintSql, normalizeSql } from './core/fingerprint';
+export {
+  analyzeIndexability,
+  assertIndexableWorkload,
+  type AnalyzeIndexabilityArgs,
+  type IndexabilityGap,
+  type IndexabilityGapReason,
+  type IndexabilityReport,
+} from './core/indexability';
 export { LIMITS } from './core/limits';
 export {
   assertIsOwnedName,
@@ -9,9 +17,18 @@ export {
   isOwnedName,
   ownedIndexName,
 } from './core/naming';
+export { parseWithNodeSqlParser } from './core/parse-node-sql';
 export { planIndexes } from './core/plan';
 export { reconcileIndexes } from './core/reconcile';
 export { renderPlanMarkdown } from './core/render';
+export {
+  anySchemaCoversPath,
+  isPkOnlyPath,
+  pathKeyColumns,
+  pkSchemaIndexes,
+  schemaCoversPath,
+  type SchemaIndex,
+} from './core/schema-coverage';
 export type {
   AccessPath,
   ActionResult,

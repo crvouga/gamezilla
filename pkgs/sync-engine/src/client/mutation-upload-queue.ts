@@ -77,6 +77,7 @@ async function readPending(
     SELECT id, name, args, client_id, seq, created_at
     FROM sync_engine_mutations
     WHERE client_id = ${clientId}
+      AND deleted_at IS NULL
     ORDER BY seq ASC
     LIMIT ${BATCH_LIMIT}
   `);
@@ -88,23 +89,29 @@ async function storeRejection(
   verdict: Extract<MutationUploadVerdict, { status: 'rejected' }>,
   createdAt: string
 ): Promise<void> {
+  const rejectionId = `local:${verdict.mutationId}`;
   await tx.run(sql`
     INSERT INTO sync_engine_write_rejections (
-      id, mutation_id, client_id, code, message, meta, created_at, acknowledged
+      id, mutation_id, client_id, code, message, meta,
+      created_at, updated_at, deleted_at, acknowledged
     )
     VALUES (
-      ${`local:${verdict.mutationId}`},
+      ${rejectionId},
       ${verdict.mutationId},
       ${clientId},
       ${verdict.code},
       ${verdict.message},
       ${null},
       ${createdAt},
+      ${createdAt},
+      ${null},
       ${0}
     )
     ON CONFLICT (id) DO UPDATE SET
       code = excluded.code,
-      message = excluded.message
+      message = excluded.message,
+      updated_at = excluded.updated_at,
+      deleted_at = NULL
   `);
 }
 
@@ -133,15 +140,15 @@ async function applyUploadResult(
   }
 
   const clientId = options.clientId();
-  const createdAt = new Date(now()).toISOString();
+  const nowIso = new Date(now()).toISOString();
   let appliedAny = false;
   await options.db.transaction(async (tx) => {
     for (const verdict of result.verdicts) {
       if (verdict.status === 'rejected') {
-        await storeRejection(tx, clientId, verdict, createdAt);
+        await storeRejection(tx, clientId, verdict, nowIso);
       } else {
         appliedAny = true;
-        await clearOptimisticRowsForMutation(tx, verdict.mutationId);
+        await clearOptimisticRowsForMutation(tx, verdict.mutationId, nowIso);
       }
     }
     const ids = result.verdicts.map((v) => v.mutationId);
@@ -149,8 +156,10 @@ async function applyUploadResult(
     for (let offset = 0; offset < ids.length; offset += maxIds) {
       const chunk = ids.slice(offset, offset + maxIds);
       await tx.run(sql`
-        DELETE FROM sync_engine_mutations
+        UPDATE sync_engine_mutations
+        SET deleted_at = ${nowIso}, updated_at = ${nowIso}
         WHERE id IN (${join(chunk.map((id) => sql`${id}`))})
+          AND deleted_at IS NULL
       `);
     }
   });

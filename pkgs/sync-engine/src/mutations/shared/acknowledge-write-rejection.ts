@@ -36,12 +36,14 @@ export const acknowledgeWriteRejectionMutation = defineMutation({
   name: 'acknowledgeWriteRejection',
   args: acknowledgeArgsSchema,
   async run({ tx, env }, { rejectionId }) {
+    const updatedAt = env.now().toISOString();
     await tx.run(sql`
       UPDATE sync_engine_write_rejections
-      SET acknowledged = ${1}
+      SET acknowledged = ${1}, updated_at = ${updatedAt}
       WHERE id = ${rejectionId}
         AND client_id = ${env.deviceId}
         AND acknowledged = ${0}
+        AND deleted_at IS NULL
     `);
   },
 });

@@ -2,16 +2,17 @@ import type {
   DatabaseMigration,
   DatabaseMigrationContext,
 } from '@pkgs/db-migrate';
-import { raw } from '@pkgs/sql';
+import { SqliteSchemaDatabaseMigration } from '@pkgs/db-schema/sqlite';
 
-import { KV_CREATE_TABLE_DDL, KV_TABLE } from './schema-ddl';
+import { kvSchema } from './schema/tables';
 
-/** Idempotent portable DDL for the `kv` table (SQLite / sim). */
+/** Applies `kv` to SQLite without dropping undeclared tables. */
 export class KvSqliteDatabaseMigration implements DatabaseMigration {
   async migrate(ctx: DatabaseMigrationContext): Promise<void> {
-    const log = ctx.logger.child({ migration: 'kv-sqlite' });
-    log.info('kv sqlite migrate: applying ddl', { table: KV_TABLE });
-    await ctx.sqlClient.run(raw(KV_CREATE_TABLE_DDL));
-    log.info('kv sqlite migrate: complete', { table: KV_TABLE });
+    ctx.logger.info('applying kv schema (sqlite)');
+    await new SqliteSchemaDatabaseMigration(kvSchema, {
+      ownership: 'declared-only',
+    }).migrate(ctx);
+    ctx.logger.info('kv schema applied (sqlite)');
   }
 }

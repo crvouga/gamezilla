@@ -8,6 +8,7 @@ import { defineTable } from '../core/define-table';
 import { defineView } from '../core/define-view';
 import { registerSchema, registerTables } from '../core/register-tables';
 import type { Schema } from '../core/types';
+import { applySqliteSchema } from '../sqlite/apply-sqlite-schema';
 import { postgres } from '../postgres/driver';
 import { sqlite } from '../sqlite/driver';
 
@@ -252,8 +253,7 @@ export function runDbSchemaContractTests(
         if (factory.dialect === 'postgres') {
           await expect(reconcile(bad)).rejects.toThrow(/type mismatch/i);
         } else {
-          // SQLite rebuilds physical mismatch for declared columns.
-          await reconcile(bad);
+          await expect(reconcile(bad)).rejects.toThrow(/type mismatch/i);
         }
         void v2;
       } finally {
@@ -265,8 +265,16 @@ export function runDbSchemaContractTests(
       if (factory.dialect !== 'sqlite') return;
       const { client, reconcile, close } = await factory.open();
       try {
-        await client.run(
-          raw(`CREATE TABLE sync_engine_mutations (id TEXT PRIMARY KEY) STRICT`)
+        await applySqliteSchema(
+          client,
+          registerTables([
+            defineTable({
+              domain: 'sync_engine',
+              name: 'sync_engine_mutations',
+              columns: {},
+            }),
+          ]),
+          { ownership: 'declared-only' }
         );
         const schema = registerTables([
           defineTable({

@@ -5,6 +5,7 @@ import {
   parseStandardSchema,
   schemaIssuesToFailures,
 } from '../../shared/standard-schema';
+import { mutationAppliedId } from '../../shared/schema/tables';
 import type { WriteCaptureSnapshot } from '../../sql-ast';
 import { isMutationError, mutationErrorToFailure } from '../core/failures';
 import type {
@@ -12,6 +13,7 @@ import type {
   MutationFailure,
   MutationRegistry,
 } from '../core/types';
+import { managedInsertColumns } from '../shared/managed-columns';
 import { wrapMutationDb } from '../shared/wrap-mutation-db';
 import { mapConstraintError } from './map-constraint-error';
 
@@ -61,7 +63,9 @@ export async function replayMutation(
   try {
     return await deps.serverDb.transaction(async (txc) => {
       const seen = await txc.query(sql<{ one: number }>`
-        SELECT 1 AS one FROM sync_engine_mutations_applied WHERE mutation_id = ${m.id}
+        SELECT 1 AS one FROM sync_engine_mutations_applied
+        WHERE mutation_id = ${m.id}
+          AND deleted_at IS NULL
       `);
       if (seen.length > 0) return { status: 'duplicate' as const };
 
@@ -84,7 +88,6 @@ export async function replayMutation(
       try {
         rawArgs = JSON.parse(m.args) as unknown;
       } catch (e) {
-        // Malformed JSON (SyntaxError) is a permanent client bug — not infra.
         if (e instanceof SyntaxError) {
           const failure = {
             rule: m.name,
@@ -126,10 +129,26 @@ export async function replayMutation(
       await mutation.run({ tx: wrapped.tx, env }, parsed.value);
       const capture = wrapped.getCapture();
 
-      const appliedAt = new Date(deps.now()).toISOString();
+      const managed = managedInsertColumns(
+        deps.createId,
+        deps.now,
+        mutationAppliedId(m.id)
+      );
       await txc.run(sql`
-        INSERT INTO sync_engine_mutations_applied (mutation_id, client_id, seq, status, applied_at)
-        VALUES (${m.id}, ${m.clientId}, ${m.seq}, ${'applied'}, ${appliedAt})
+        INSERT INTO sync_engine_mutations_applied (
+          id, mutation_id, client_id, seq, status,
+          created_at, updated_at, deleted_at
+        )
+        VALUES (
+          ${managed.id},
+          ${m.id},
+          ${m.clientId},
+          ${m.seq},
+          ${'applied'},
+          ${managed.created_at},
+          ${managed.updated_at},
+          ${null}
+        )
       `);
       return { status: 'applied' as const, capture };
     });
@@ -174,29 +193,51 @@ async function recordRejectedInTxn(
   deps: Pick<ReplayMutationDeps, 'now' | 'createId'>
 ): Promise<void> {
   const seen = await txc.query(sql<{ one: number }>`
-    SELECT 1 AS one FROM sync_engine_mutations_applied WHERE mutation_id = ${m.id}
+    SELECT 1 AS one FROM sync_engine_mutations_applied
+    WHERE mutation_id = ${m.id}
+      AND deleted_at IS NULL
   `);
   if (seen.length > 0) return;
 
-  const appliedAt = new Date(deps.now()).toISOString();
+  const applied = managedInsertColumns(
+    deps.createId,
+    deps.now,
+    mutationAppliedId(m.id)
+  );
   await txc.run(sql`
-    INSERT INTO sync_engine_mutations_applied (mutation_id, client_id, seq, status, applied_at)
-    VALUES (${m.id}, ${m.clientId}, ${m.seq}, ${'rejected'}, ${appliedAt})
+    INSERT INTO sync_engine_mutations_applied (
+      id, mutation_id, client_id, seq, status,
+      created_at, updated_at, deleted_at
+    )
+    VALUES (
+      ${applied.id},
+      ${m.id},
+      ${m.clientId},
+      ${m.seq},
+      ${'rejected'},
+      ${applied.created_at},
+      ${applied.updated_at},
+      ${null}
+    )
   `);
 
+  const rejection = managedInsertColumns(deps.createId, deps.now);
   const metaJson =
     failure.meta !== undefined ? JSON.stringify(failure.meta) : null;
   await txc.run(sql`
     INSERT INTO sync_engine_write_rejections (
-      id, mutation_id, client_id, code, message, meta, created_at, acknowledged
+      id, mutation_id, client_id, code, message, meta,
+      created_at, updated_at, deleted_at, acknowledged
     ) VALUES (
-      ${deps.createId()},
+      ${rejection.id},
       ${m.id},
       ${m.clientId},
       ${failure.code},
       ${failure.message},
       ${metaJson},
-      ${new Date(deps.now()).toISOString()},
+      ${rejection.created_at},
+      ${rejection.updated_at},
+      ${null},
       ${0}
     )
   `);

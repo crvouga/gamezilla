@@ -32,7 +32,6 @@ function bunAwareTransformIgnorePatterns(extraAllow = []) {
     'zod',
     'jose',
     'hono',
-    'pg-mem',
     '@crvouga/sqlite-mem',
     '@crvouga/postgres-mem',
     '@noble/.*',

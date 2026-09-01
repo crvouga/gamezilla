@@ -15,6 +15,7 @@ import { PGlite } from '@electric-sql/pglite';
 import type { Sql, Value } from '@pkgs/sql';
 import type { PreparedStatement, RunResult, SqlClient } from '../interface';
 import { questionMarkParamsToDollarParams } from '../positional-params';
+import { normalizePgInt8Rows } from './normalize-pg-int8';
 import type { Pool, PoolClient, QueryResult } from './pg-types';
 
 type PgliteQueryResult<T> = {
@@ -57,7 +58,7 @@ function prepareFor<T extends Record<string, unknown>>(
   return {
     query: async (params?: Value[]) => {
       const result = await execQuery<T>(queryable, statementSql, params ?? []);
-      return [...result.rows];
+      return normalizePgInt8Rows([...result.rows]);
     },
     run: async (params?: Value[]) => {
       const result = await execQuery(queryable, statementSql, params ?? []);
@@ -78,7 +79,7 @@ function wrap(queryable: PgliteQueryable): SqlClient {
       query: Sql<T>
     ): Promise<T[]> {
       const result = await execQuery<T>(queryable, query.sql, query.values);
-      return [...result.rows];
+      return normalizePgInt8Rows([...result.rows]);
     },
     async run(query: Sql<unknown>): Promise<RunResult> {
       const result = await execQuery(queryable, query.sql, query.values);
@@ -118,7 +119,9 @@ export function adaptPgliteAsPool(db: PgliteQueryable): Pool {
   ): Promise<QueryResult> => {
     const result = await db.query(text, values ?? []);
     return {
-      rows: [...result.rows] as QueryResult['rows'],
+      rows: normalizePgInt8Rows(
+        result.rows as Record<string, unknown>[]
+      ) as QueryResult['rows'],
       rowCount: result.affectedRows ?? result.rows.length,
     };
   };

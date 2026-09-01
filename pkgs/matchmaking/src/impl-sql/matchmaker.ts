@@ -67,8 +67,9 @@ import {
   sweepExpiredWaitingQuery,
   sweepMatchedRowsQuery,
 } from './matchmaker-queries';
+import { MATCHMAKING_MIN_GROUP_SIZE } from '../interface/payload-limits';
+import { activePartitionId } from '../schema/tables';
 import { fingerprintForOptions, type MatchmakingSchema } from './migrate';
-import { MATCHMAKING_MIN_GROUP_SIZE } from './migrate-sql';
 import { parallelMap } from './parallel-map';
 
 export type { FormulaWire } from '../interface/formula-wire';
@@ -222,14 +223,17 @@ export class Matchmaker {
       attrs.metadata === null ? null : JSON.stringify(attrs.metadata);
     const participantId = this.createId();
     const joinedAt = this.now();
+    const nowIso = new Date(joinedAt).toISOString();
     const rating = primaryRating(data, this.schema?.primaryNumericKey);
     const bucket = primaryBucket(rating, this.bucketWidth);
+    const partitionId = activePartitionId(signature, attrs.groupSize);
     await this.sqlClient.transaction(async (tx) => {
       await tx.run(
         sql<void>`
           INSERT INTO matchmaking_waiting (
             id, joined_at, data, formulas, partition_signature,
-            group_size, priority, metadata, primary_rating, primary_bucket
+            group_size, priority, metadata, primary_rating, primary_bucket,
+            created_at, updated_at, deleted_at
           )
           VALUES (
             ${participantId},
@@ -241,16 +245,30 @@ export class Matchmaker {
             ${attrs.priority},
             ${metadata},
             ${rating},
-            ${bucket}
+            ${bucket},
+            ${nowIso},
+            ${nowIso},
+            ${null}
           )`
       );
       await tx.run(
         sql<void>`
           INSERT INTO matchmaking_active_partitions (
-            partition_signature, group_size, first_seen_at
+            id, partition_signature, group_size, first_seen_at,
+            created_at, updated_at, deleted_at
           )
-          VALUES (${signature}, ${attrs.groupSize}, ${joinedAt})
-          ON CONFLICT (partition_signature, group_size) DO NOTHING`
+          VALUES (
+            ${partitionId},
+            ${signature},
+            ${attrs.groupSize},
+            ${joinedAt},
+            ${nowIso},
+            ${nowIso},
+            ${null}
+          )
+          ON CONFLICT (partition_signature, group_size) DO UPDATE SET
+            deleted_at = NULL,
+            updated_at = excluded.updated_at`
       );
     });
     return { participantId };
@@ -288,11 +306,14 @@ export class Matchmaker {
     participantId: string,
     formulas: readonly FormulaWire[]
   ): Promise<UpdateFormulasResult> {
+    const nowIso = new Date(this.now()).toISOString();
     const rows = await this.sqlClient.query(
       sql<{ id: string }>`
         UPDATE matchmaking_waiting
-           SET formulas = ${JSON.stringify(formulas)}
+           SET formulas = ${JSON.stringify(formulas)},
+               updated_at = ${nowIso}
          WHERE id = ${participantId}
+           AND deleted_at IS NULL
         RETURNING id`
     );
     return { updated: rows.length > 0 };
@@ -303,10 +324,14 @@ export class Matchmaker {
       participantId,
       'Matchmaker.leave: participantId must be a non-empty string'
     );
+    const nowIso = new Date(this.now()).toISOString();
     const rows = await this.sqlClient.query(
       sql<{ id: string }>`
-        DELETE FROM matchmaking_waiting
+        UPDATE matchmaking_waiting
+           SET deleted_at = ${nowIso},
+               updated_at = ${nowIso}
          WHERE id = ${participantId}
+           AND deleted_at IS NULL
         RETURNING id`
     );
     return { removed: rows.length > 0 };
@@ -423,7 +448,9 @@ export class Matchmaker {
       matches += r.matches;
       passes += r.passes;
     }
-    await this.sqlClient.run(prunePartitionsQuery());
+    await this.sqlClient.run(
+      prunePartitionsQuery(new Date(this.now()).toISOString())
+    );
     return { matches, passes, partitions: pairs.length };
   }
 
@@ -432,9 +459,14 @@ export class Matchmaker {
     if (this.maxWaitSeconds === undefined || this.maxWaitSeconds <= 0) {
       return { removed: 0 };
     }
-    const cutoffMs = this.now() - this.maxWaitSeconds * 1000;
+    const nowMs = this.now();
+    const cutoffMs = nowMs - this.maxWaitSeconds * 1000;
     const result = await this.sqlClient.run(
-      sweepExpiredWaitingQuery({ partitionSignature, cutoffMs })
+      sweepExpiredWaitingQuery({
+        partitionSignature,
+        cutoffMs,
+        nowIso: new Date(nowMs).toISOString(),
+      })
     );
     return { removed: result.changes };
   }
@@ -457,15 +489,23 @@ export class Matchmaker {
 
   async sweepMatched(): Promise<SweepMatchedResult> {
     if (this.matchedRetentionSeconds <= 0) return { removed: 0 };
-    const cutoffMs = this.now() - this.matchedRetentionSeconds * 1000;
-    const result = await this.sqlClient.run(sweepMatchedRowsQuery(cutoffMs));
+    const nowMs = this.now();
+    const cutoffMs = nowMs - this.matchedRetentionSeconds * 1000;
+    const result = await this.sqlClient.run(
+      sweepMatchedRowsQuery({
+        cutoffMs,
+        nowIso: new Date(nowMs).toISOString(),
+      })
+    );
     return { removed: result.changes };
   }
 
   async releaseStaleClaims(): Promise<void> {
+    const nowMs = this.now();
     await this.sqlClient.run(
       releaseStaleClaimsQuery({
-        nowMs: this.now(),
+        nowMs,
+        nowIso: new Date(nowMs).toISOString(),
         claimTtlMs: this.claimTtlMs,
       })
     );

@@ -4,12 +4,13 @@ export {
   resolveRetryPolicy,
 } from './define-consumer';
 export { type DrainOutboxDeps, drainOutbox } from './drain';
-export {
-  migrateOutbox,
-  OutboxDatabaseMigration,
-} from './migrate';
+export { migrateOutbox, OutboxDatabaseMigration } from './migrate';
 export { insertOutboxEvent, Outbox } from './outbox';
-export { OUTBOX_DDL_STATEMENTS } from './schema';
+export {
+  OUTBOX_DELIVERIES_TABLE,
+  OUTBOX_EVENTS_TABLE,
+  outboxSchema,
+} from './schema/tables';
 export type {
   OutboxConsumerCtx,
   OutboxConsumerDef,

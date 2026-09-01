@@ -1,5 +1,7 @@
 import type { Database } from 'bun:sqlite';
 import { assert } from '@pkgs/assert';
+import { defineTable, registerTables } from '@pkgs/db-schema';
+import { emitSqliteCreateStatements } from '@pkgs/db-schema/sqlite';
 import { sortByName } from '../core/compare';
 import type { Config } from '../core/config';
 import { DEFAULT_CONFIG } from '../core/config';
@@ -21,7 +23,16 @@ import type {
 } from '../core/types';
 import { asOwnedIndexName } from '../core/types';
 
-const META_TABLE = '_autoidx_meta';
+const META_TABLE = 'autoidx_meta';
+
+const AUTOIDX_META_SCHEMA = registerTables([
+  defineTable({
+    domain: 'autoidx',
+    name: 'autoidx_meta',
+    columns: { name: 'text', payload: 'text' },
+    uniqueIndexes: ['name'],
+  }),
+]);
 
 function renderCreateIndexSql(def: IndexDefinition, name: string): string {
   assert.ok(isOwnedName(name), 'render: owned name');
@@ -42,9 +53,9 @@ export type SqlitePortHandle = {
 };
 
 function ensureMeta(db: Database): void {
-  db.run(
-    `CREATE TABLE IF NOT EXISTS ${META_TABLE} (name TEXT PRIMARY KEY, payload TEXT NOT NULL)`
-  );
+  for (const stmt of emitSqliteCreateStatements(AUTOIDX_META_SCHEMA)) {
+    db.run(stmt);
+  }
 }
 
 function mapIndexRow(r: {
@@ -146,9 +157,9 @@ async function writeOwnedMeta(db: Database, m: OwnedMeta): Promise<void> {
     usageAtDeprecation: m.usageAtDeprecation,
   });
   db.run(
-    `INSERT INTO ${META_TABLE} (name, payload) VALUES (?, ?)
+    `INSERT INTO ${META_TABLE} (id, name, payload) VALUES (?, ?, ?)
      ON CONFLICT(name) DO UPDATE SET payload = excluded.payload`,
-    [m.name, payload]
+    [m.name, m.name, payload]
   );
 }
 
@@ -229,7 +240,7 @@ async function executeAction(
 
 /**
  * SQLite DbPort. Eval via EXPLAIN QUERY PLAN (copy-eval when path + size allow).
- * Meta in `_autoidx_meta`. Defers large online builds.
+ * Meta in `autoidx_meta`. Defers large online builds.
  */
 export function createSqlitePort(
   handle: SqlitePortHandle,

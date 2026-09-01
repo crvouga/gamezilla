@@ -8,6 +8,7 @@ import type {
   SqlClient,
 } from '../interface';
 import { questionMarkParamsToDollarParams } from '../positional-params';
+import { bigintToJsonSafe } from './normalize-pg-int8';
 import { sanitizePostgresUrlForBunSql } from './sanitize-url-for-bun-sql';
 import type { PostgresDbScope } from './schema';
 import { quotePgIdent } from './schema';
@@ -238,7 +239,10 @@ function readIdFromFirstRow(first: unknown): number {
 
 function coerceToNumber(value: unknown): number | undefined {
   if (typeof value === 'number' && Number.isInteger(value)) return value;
-  if (typeof value === 'bigint') return Number(value);
+  if (typeof value === 'bigint') {
+    const n = bigintToJsonSafe(value);
+    return typeof n === 'number' ? n : 0;
+  }
   if (typeof value === 'string') return parseInt(value, 10) || 0;
   return undefined;
 }

@@ -20,6 +20,7 @@ import type {
 } from '../interface';
 import { questionMarkParamsToDollarParams } from '../positional-params';
 import { readLastInsertRowid } from './impl-pg-shared';
+import { normalizePgInt8Rows } from './normalize-pg-int8';
 import type { Pool, PoolClient, QueryResult } from './pg-types';
 import {
   encodePostgresMemSnapshotEnvelope,
@@ -74,34 +75,6 @@ function toBinds(values: readonly Value[]): PostgresMemBind[] {
   });
 }
 
-/**
- * postgres-mem returns int8 as bigint (like node-pg with parseInt8). Wire/JSON
- * responses and many app paths expect number|string — coerce for SqlClient
- * parity with typical node-pg defaults (string) / SQLite (number).
- */
-function normalizeRowValue(value: unknown): unknown {
-  if (typeof value === 'bigint') {
-    const asNumber = Number(value);
-    if (Number.isSafeInteger(asNumber) && BigInt(asNumber) === value) {
-      return asNumber;
-    }
-    return value.toString();
-  }
-  return value;
-}
-
-function normalizeRows<T extends Record<string, unknown>>(
-  rows: readonly T[]
-): T[] {
-  return rows.map((row) => {
-    const out: Record<string, unknown> = {};
-    for (const [key, value] of Object.entries(row)) {
-      out[key] = normalizeRowValue(value);
-    }
-    return out as T;
-  });
-}
-
 function execOnDb(
   db: Database,
   sqlText: string,
@@ -122,7 +95,7 @@ function execOnDb(
       text,
       toBinds(vals as Value[])
     );
-    return { rows: normalizeRows(rows), rowCount: rows.length };
+    return { rows: normalizePgInt8Rows(rows), rowCount: rows.length };
   }
   if (vals.length === 0 && /;\s*\S/.test(trimmed)) {
     // Multi-statement DDL scripts (no binds) — postgres-mem `exec`.
@@ -134,7 +107,7 @@ function execOnDb(
 }
 
 /**
- * Storage / UNLOGGED tweaks are real-Postgres only. Mirror pg-mem intercepts so
+ * Storage / UNLOGGED tweaks are real-Postgres only. Mirror postgres-mem intercepts so
  * package migrates succeed on the dialect emulator.
  */
 function tryPostgresMemNoop(

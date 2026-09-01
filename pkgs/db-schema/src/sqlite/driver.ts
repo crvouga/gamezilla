@@ -9,8 +9,8 @@ export type SqliteOwnership = 'whole-db' | 'declared-only';
 
 export type SqliteDriverOptions = {
   /**
-   * `whole-db` (default): drop undeclared tables — the bound DB is wholly owned.
-   * `declared-only`: leave undeclared tables alone (coexist with framework tables).
+   * `declared-only` (default): leave undeclared tables alone (coexist with framework tables).
+   * `whole-db`: drop undeclared tables — the bound DB is wholly owned.
    */
   readonly ownership?: SqliteOwnership;
 };
@@ -40,7 +40,7 @@ export function sqlite(
   client: SqlClient,
   options?: SqliteDriverOptions
 ): SqliteDriver {
-  const ownership = options?.ownership ?? 'whole-db';
+  const ownership = options?.ownership ?? 'declared-only';
   return {
     async reconcile(): Promise<void> {
       const declared = schema._declared;

@@ -101,21 +101,26 @@ async function ensureDeliveries(
       SELECT e.id
         FROM outbox_events e
        WHERE e.type = ${consumer.on.type}
+         AND e.deleted_at IS NULL
          AND NOT EXISTS (
            SELECT 1
              FROM outbox_deliveries d
             WHERE d.event_id = e.id
               AND d.consumer_id = ${consumer.id}
+              AND d.deleted_at IS NULL
          )
        LIMIT 200
     `);
     for (const row of missing) {
+      const deliveryId = `${row.id}:${consumer.id}`;
       await tx.run(sql`
         INSERT INTO outbox_deliveries (
-          event_id, consumer_id, attempts, available_at, processed_at, last_error
+          id, event_id, consumer_id, attempts, available_at, processed_at,
+          last_error, created_at, updated_at, deleted_at
         )
         VALUES (
-          ${row.id}, ${consumer.id}, ${0}, ${nowIso}, ${null}, ${null}
+          ${deliveryId}, ${row.id}, ${consumer.id}, ${0}, ${nowIso}, ${null},
+          ${null}, ${nowIso}, ${nowIso}, ${null}
         )
         ON CONFLICT (event_id, consumer_id) DO NOTHING
       `);
@@ -134,6 +139,7 @@ async function claimDueDeliveries(
     SELECT event_id, consumer_id, attempts
       FROM outbox_deliveries
      WHERE processed_at IS NULL
+       AND deleted_at IS NULL
        AND available_at <= ${nowIso}
      ORDER BY available_at ASC
      LIMIT ${limit}
@@ -149,6 +155,7 @@ async function loadEvent(
     SELECT id, type, payload
       FROM outbox_events
      WHERE id = ${eventId}
+       AND deleted_at IS NULL
      LIMIT 1
   `);
   return rows[0] ?? null;

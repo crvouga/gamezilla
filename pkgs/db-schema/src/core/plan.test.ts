@@ -367,7 +367,9 @@ describe('planClient', () => {
       indexes: [],
       allTableNames: new Set(['todos', 'ghost']),
     };
-    const plan = planClient(schema._declared, catalog);
+    const plan = planClient(schema._declared, catalog, {
+      ownership: 'whole-db',
+    });
     expect(plan.ok).toBe(true);
     if (!plan.ok) return;
     expect(
@@ -429,7 +431,7 @@ describe('planClient', () => {
     expect([...rebuild.copyColumns] as string[]).toContain('_meta');
   });
 
-  test('managed id physical mismatch converges via rebuild', () => {
+  test('managed id physical mismatch is drift on client', () => {
     const catalog: IntrospectedCatalog = {
       tables: new Map([
         [
@@ -456,9 +458,9 @@ describe('planClient', () => {
       allTableNames: new Set(['todos']),
     };
     const plan = planClient(sampleSchema._declared, catalog);
-    expect(plan.ok).toBe(true);
-    if (!plan.ok) return;
-    expect(plan.operations.some((o) => o.kind === 'rebuild_table')).toBe(true);
+    expect(plan.ok).toBe(false);
+    if (plan.ok) return;
+    expect(plan.drift.some((d) => d.path === 'todos.id')).toBe(true);
   });
 
   test('additive missing column without rebuild', () => {

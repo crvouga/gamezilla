@@ -271,6 +271,7 @@ export function parseViewsLiteral(value: unknown): {
     ) {
       throw new Error(`${path}: domain and name are required`);
     }
+    assertSnakeCaseIdent(entry['domain'], `${path}.domain`);
     assertSnakeCaseIdent(entry['name'], `${path}.name`);
     if (seen.has(entry['name'])) {
       throw new Error(`${path}: duplicate view '${entry['name']}'`);
@@ -315,6 +316,7 @@ export function parseEnumsLiteral(value: unknown): {
     ) {
       throw new Error(`${path}: domain, name, and values are required`);
     }
+    assertSnakeCaseIdent(entry['domain'], `${path}.domain`);
     assertSnakeCaseIdent(entry['name'], `${path}.name`);
     if (seen.has(entry['name'])) {
       throw new Error(`${path}: duplicate enum '${entry['name']}'`);

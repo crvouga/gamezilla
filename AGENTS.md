@@ -121,9 +121,11 @@ Server SQL migrations are expressed only as `DatabaseMigration` classes (interfa
 
 **Domain tables** are declared with `defineTable` in each feature lib’s `shared/schema/` (exported via `public/schema.ts`), composed by `registerTables` in `@libs/runtime/root/app-schema`, and applied only through `@pkgs/db-schema/postgres` / `@pkgs/db-schema/sqlite` migration classes (no public `reconcile` API). **Do not add raw `.sql` schema files** under `libs/` / `pkgs/` / `apps/`.
 
-**Framework / infra tables** (sync-engine, outbox, kv, entity-store, matchmaking) stay as package-owned TypeScript `DatabaseMigration` DDL units — they are not soft-delete domain sync tables and do not use `defineTable`. **IdP tables** (`idp_*` in `@pkgs/auth`) use `defineTable` but are **not** registered in product `appSchema` (not synced); migrations use `AuthPostgresDatabaseMigration` / `AuthSqliteDatabaseMigration`.
+**Framework / infra tables** (sync-engine, outbox, kv, entity-store, matchmaking) are also declared with `defineTable` + package-local `registerTables`, then applied via package `*DatabaseMigration` wrappers (`PostgresSchemaDatabaseMigration` / `SqliteSchemaDatabaseMigration` / `applySqliteSchema`). They are **not** registered in product `appSchema` (not synced). Soft-delete + managed `id` / timestamps apply; former custom PKs become `uniqueIndexes`. One-shot cutover migrations may rebuild legacy shapes before reconcile. **IdP tables** (`idp_*` in `@pkgs/auth`) use the same `defineTable` pattern and are also **not** in `appSchema`.
 
-Do not add ad-hoc `migrateUp` / free-function DDL entrypoints for new **domain** schema — implement `defineTable` + register in app-schema (or a `DatabaseMigration` at the compose site for framework/infra). `@apps/server` owns URL/policy/retry orchestration (`migratePostgresApp` / `migrate-cli.ts`); tests/CI boot `@pkgs/postgres-embedded` then call api migrate/seed scripts. Root `db:migrate` / infra shell out to `apps/server/src/db/migrate-cli.ts` (apps must not import other `@apps/*` packages).
+**Never author `CREATE TABLE` strings** in product or test code — use `defineTable` + `applySqliteSchema` / `applyPostgresSchema` / `*SchemaDatabaseMigration`. The only DDL emitters are `@pkgs/db-schema` `emit.ts`. Biome grit `no-raw-create-table` enforces this.
+
+Do not add ad-hoc `migrateUp` / free-function DDL entrypoints for new schema — implement `defineTable` + register (app-schema for synced domain; package-local schema for infra). `@apps/server` owns URL/policy/retry orchestration (`migratePostgresApp` / `migrate-cli.ts`); tests/CI boot `@pkgs/postgres-embedded` then call api migrate/seed scripts. Root `db:migrate` / infra shell out to `apps/server/src/db/migrate-cli.ts` (apps must not import other `@apps/*` packages).
 
 ### Database safety (Tiger policy)
 
@@ -190,7 +192,7 @@ Feature-specific scripts (seeders, dev refreshers, migration runners) live in `<
 
 ### Current feature packages
 
-- `@libs/runtime` — product composition hub: `defineTable` tables from feature libs composed via `registerTables` in `root/app-schema.ts`; sync topic map in `root/app-topic-map.ts`; Postgres migrate runner in `server/run-postgres-migrations.ts`. **`@libs/runtime` is the sole lib allowed to import other `@libs/*`.** Framework tables (`sync_engine_mutations`, `sync_engine_write_rejections`, …) are owned by `@pkgs/sync-engine` (`SyncEngineDatabaseMigration` / `FRAMEWORK_SERVER_DDL`) and applied at migrate time. Domain mutations validate and apply their own authorized SQL against declared table names.
+- `@libs/runtime` — product composition hub: `defineTable` tables from feature libs composed via `registerTables` in `root/app-schema.ts`; sync topic map in `root/app-topic-map.ts`; Postgres migrate runner in `server/run-postgres-migrations.ts`. **`@libs/runtime` is the sole lib allowed to import other `@libs/*`.** Framework tables (`sync_engine_*`, outbox, kv, …) are owned by their packages via package-local `defineTable` schemas + `*DatabaseMigration` (not in `appSchema`). Domain mutations validate and apply their own authorized SQL against declared table names.
 
 - `@libs/auth` — sign-in flows, sessions, devices, account-scoped local SQLite, auth port/adapters + Postgres migrations runner.
 - `@libs/chess` — chess board UI, puzzle play / picker, settings. The chess puzzle seeding script lives in `libs/chess/scripts/seed-chess-puzzles.ts` (run via `bun run chess:puzzles:seed`); it assumes the schema has already been migrated by `bun run db:migrate`.

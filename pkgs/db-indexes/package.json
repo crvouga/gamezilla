@@ -20,6 +20,7 @@
     "@noble/hashes": "catalog:",
     "@pkgs/assert": "workspace:*",
     "@pkgs/clock": "workspace:*",
+    "@pkgs/db-schema": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "node-sql-parser": "catalog:"

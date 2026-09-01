@@ -109,7 +109,115 @@ export async function readPostgresCatalog(
     });
   }
 
-  return { tables, indexes, allTableNames };
+  const checkRows = await client.query<{
+    table_name: string;
+    constraint_name: string;
+  }>(sql`
+    SELECT tc.table_name, tc.constraint_name
+    FROM information_schema.table_constraints tc
+    WHERE tc.table_schema = ${schemaName}
+      AND tc.constraint_type = 'CHECK'
+  `);
+  const checks = checkRows
+    .filter((r) => declaredSet.has(r.table_name))
+    .map((r) => ({
+      name: r.constraint_name,
+      table: r.table_name,
+    }));
+
+  let foreignKeys: IntrospectedCatalog['foreignKeys'] = [];
+  try {
+    const fkRows = await client.query<{
+      constraint_name: string;
+      table_name: string;
+      column_name: string;
+      foreign_table_name: string;
+      foreign_column_name: string;
+    }>(sql`
+      SELECT
+        c.conname AS constraint_name,
+        t.relname AS table_name,
+        a.attname AS column_name,
+        ft.relname AS foreign_table_name,
+        fa.attname AS foreign_column_name
+      FROM pg_constraint c
+      JOIN pg_class t ON c.conrelid = t.oid
+      JOIN pg_namespace n ON t.relnamespace = n.oid
+      JOIN pg_attribute a
+        ON a.attrelid = t.oid
+       AND a.attnum = ANY(c.conkey)
+       AND a.attnum > 0
+       AND NOT a.attisdropped
+      JOIN pg_class ft ON c.confrelid = ft.oid
+      JOIN pg_attribute fa
+        ON fa.attrelid = ft.oid
+       AND fa.attnum = ANY(c.confkey)
+       AND fa.attnum > 0
+       AND NOT fa.attisdropped
+      WHERE c.contype = 'f'
+        AND n.nspname = ${schemaName}
+    `);
+    foreignKeys = fkRows
+      .filter((r) => declaredSet.has(r.table_name))
+      .map((r) => ({
+        name: r.constraint_name,
+        table: r.table_name,
+        column: r.column_name,
+        refTable: r.foreign_table_name,
+        refColumn: r.foreign_column_name,
+      }));
+  } catch {
+    foreignKeys = [];
+  }
+
+  let views: IntrospectedCatalog['views'] = [];
+  try {
+    const viewRows = await client.query<{ table_name: string }>(sql`
+      SELECT table_name
+      FROM information_schema.views
+      WHERE table_schema = ${schemaName}
+    `);
+    views = viewRows.map((r) => ({ name: r.table_name }));
+  } catch {
+    views = [];
+  }
+
+  let enums: IntrospectedCatalog['enums'] = [];
+  try {
+    const enumRows = await client.query<{
+      typname: string;
+      enumlabel: string;
+    }>(sql`
+      SELECT t.typname, e.enumlabel
+      FROM pg_type t
+      JOIN pg_enum e ON t.oid = e.enumtypid
+      JOIN pg_namespace n ON n.oid = t.typnamespace
+      WHERE n.nspname = ${schemaName}
+      ORDER BY t.typname, e.enumsortorder
+    `);
+    const enumMap = new Map<string, string[]>();
+    for (const row of enumRows) {
+      const vals = enumMap.get(row.typname) ?? [];
+      vals.push(row.enumlabel);
+      enumMap.set(row.typname, vals);
+    }
+    enums = [...enumMap.entries()].map(([name, values]) => ({
+      name,
+      values,
+    }));
+  } catch {
+    enums = [];
+  }
+
+  return {
+    tables,
+    indexes,
+    allTableNames,
+    checks,
+    foreignKeys,
+    views,
+    enums,
+  };
 }
 
 export function createSchemaSql(schemaName: string): Sql<unknown> {

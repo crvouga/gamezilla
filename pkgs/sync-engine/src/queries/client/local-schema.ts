@@ -1,63 +1,14 @@
-// @sql-vendor-ok — local SQLite framework DDL (PRAGMA table_info for additive columns).
+import { applySqliteSchema } from '@pkgs/db-schema/sqlite';
 import { unsafe } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+
 import {
   SYNC_ENGINE_MUTATIONS,
-  SYNC_ENGINE_OPTIMISTIC_PEER_ROWS,
-  SYNC_ENGINE_PUSH_APPLIED,
-  SYNC_ENGINE_SCOPE_META,
-  SYNC_ENGINE_WRITE_REJECTIONS,
-} from '../../shared/framework-server-ddl';
-
-/**
- * Framework local tables for defineQuery sync.
- * Domain hydration is soft-delete only: merge upserts rows (including
- * `deleted_at`) verbatim from server snapshots. Scope membership tags and
- * peer mutation logs are gone — `sync_engine_scope_meta` is the only cache metadata.
- */
-export const FRAMEWORK_LOCAL_DDL = `
-CREATE TABLE IF NOT EXISTS ${SYNC_ENGINE_MUTATIONS} (
-  id TEXT PRIMARY KEY,
-  name TEXT NOT NULL,
-  args TEXT NOT NULL,
-  client_id TEXT NOT NULL,
-  seq INTEGER NOT NULL,
-  created_at TEXT NOT NULL
-);
-CREATE TABLE IF NOT EXISTS ${SYNC_ENGINE_SCOPE_META} (
-  scope_hash TEXT PRIMARY KEY,
-  last_active_at TEXT NOT NULL,
-  last_checkpoint TEXT,
-  last_hash TEXT
-);
-CREATE TABLE IF NOT EXISTS ${SYNC_ENGINE_PUSH_APPLIED} (
-  topic TEXT PRIMARY KEY,
-  last_push_seq TEXT NOT NULL
-);
-CREATE TABLE IF NOT EXISTS ${SYNC_ENGINE_WRITE_REJECTIONS} (
-  id TEXT PRIMARY KEY,
-  mutation_id TEXT NOT NULL,
-  client_id TEXT NOT NULL,
-  code TEXT NOT NULL,
-  message TEXT NOT NULL,
-  meta TEXT,
-  created_at TEXT NOT NULL,
-  acknowledged INTEGER NOT NULL DEFAULT 0
-);
-CREATE INDEX IF NOT EXISTS sync_engine_write_rejections_client_id_idx
-  ON ${SYNC_ENGINE_WRITE_REJECTIONS} (client_id);
-CREATE INDEX IF NOT EXISTS sync_engine_write_rejections_mutation_id_idx
-  ON ${SYNC_ENGINE_WRITE_REJECTIONS} (mutation_id);
-CREATE TABLE IF NOT EXISTS ${SYNC_ENGINE_OPTIMISTIC_PEER_ROWS} (
-  table_name TEXT NOT NULL,
-  row_id TEXT NOT NULL,
-  mutation_id TEXT,
-  PRIMARY KEY (table_name, row_id)
-);
-`;
+  syncEngineLocalSchema,
+} from '../../shared/schema/tables';
 
 /** Bump to wipe CACHE tables on next open (hard-cutoff schema change). */
-export const SCHEMA_EPOCH = 11;
+export const SCHEMA_EPOCH = 12;
 
 /** Retired local tables dropped on epoch migrate (legacy + pre-prefix names). */
 export const RETIRED_LOCAL_TABLES = [
@@ -77,29 +28,27 @@ export const RETIRED_LOCAL_TABLES = [
   'inbox_schema_state',
 ] as const;
 
-async function ensureOptimisticPeerMutationIdColumn(
-  db: SqlClient
-): Promise<void> {
+async function backfillLocalMutationColumns(db: SqlClient): Promise<void> {
   const cols = await db.query(
-    unsafe<{ name: string }>(
-      `PRAGMA table_info("${SYNC_ENGINE_OPTIMISTIC_PEER_ROWS}")`
-    )
+    unsafe<{ name: string }>(`PRAGMA table_info("${SYNC_ENGINE_MUTATIONS}")`)
   );
-  if (cols.some((c) => c.name === 'mutation_id')) return;
   if (cols.length === 0) return;
-  await db.run(
-    unsafe(
-      `ALTER TABLE ${SYNC_ENGINE_OPTIMISTIC_PEER_ROWS} ADD COLUMN mutation_id TEXT`
-    )
-  );
+  const names = new Set(cols.map((c) => c.name));
+  if (names.has('updated_at')) {
+    await db.run(
+      unsafe(`
+        UPDATE ${SYNC_ENGINE_MUTATIONS}
+        SET updated_at = created_at
+        WHERE updated_at IS NULL AND created_at IS NOT NULL
+      `)
+    );
+  }
 }
 
+/** Apply local framework defineTable schema (declared-only ownership). */
 export async function ensureFrameworkSchema(db: SqlClient): Promise<void> {
-  const statements = FRAMEWORK_LOCAL_DDL.split(';')
-    .map((s) => s.trim())
-    .filter((s) => s.length > 0);
-  for (const stmt of statements) {
-    await db.run(unsafe(stmt));
-  }
-  await ensureOptimisticPeerMutationIdColumn(db);
+  await applySqliteSchema(db, syncEngineLocalSchema, {
+    ownership: 'declared-only',
+  });
+  await backfillLocalMutationColumns(db);
 }

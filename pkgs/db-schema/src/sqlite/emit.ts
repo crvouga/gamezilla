@@ -1,6 +1,10 @@
 import type { Sql } from '@pkgs/sql';
 import { ident, join, raw, sql } from '@pkgs/sql';
-import { asValidatedIdent } from '../core/index-fingerprint';
+import {
+  asPhysicalIdent,
+  asSchemaIdent,
+  rebuildOldTableIdent,
+} from '../core/index-fingerprint';
 import type { ClientOperation, CreateTableColumn } from '../core/operations';
 import { SQLITE_TYPE_SQL } from '../core/type-map';
 import {
@@ -18,6 +22,21 @@ function sqliteTypeOf(col: {
   return SQLITE_TYPE_SQL[col.type];
 }
 
+function tableChecks(
+  declared: ReadonlyDeclaredSchema,
+  table: string
+): { name: string; expression: string }[] {
+  return declared.checks
+    .filter((c) => c.table === table)
+    .map((c) => ({
+      name: c.name,
+      expression:
+        typeof c.sql === 'string'
+          ? c.sql
+          : (c.sql.sqlite ?? c.sql.sql),
+    }));
+}
+
 function columnDdl(col: CreateTableColumn): Sql<void> {
   const typeSql = raw(sqliteTypeOf(col));
   if (col.isPrimaryKey) {
@@ -29,6 +48,10 @@ function columnDdl(col: CreateTableColumn): Sql<void> {
   return sql`${ident(col.name)} ${typeSql}`;
 }
 
+function checkDdl(name: string, expression: string): Sql<void> {
+  return sql`CONSTRAINT ${ident(name)} CHECK (${raw(expression)})`;
+}
+
 type RebuildArgs = {
   readonly table: string;
   readonly declared: ReadonlyDeclaredSchema;
@@ -36,6 +59,7 @@ type RebuildArgs = {
   readonly extraTypes: Readonly<Record<string, string>>;
   readonly copyColumns: readonly string[];
   readonly copyAliases?: Readonly<Record<string, string>>;
+  readonly backfills?: Readonly<Record<string, string>>;
 };
 
 /**
@@ -48,7 +72,7 @@ export function emitClientOperation(
 ): Sql<unknown>[] {
   switch (op.kind) {
     case 'create_table': {
-      const cols = op.columns.map((c) => columnDdl(c));
+      const cols = buildTableColumnDdls(op.table, op.columns, declared);
       return [
         sql`CREATE TABLE IF NOT EXISTS ${ident(op.table)} (${join(cols, ', ')}) STRICT`,
       ];
@@ -77,15 +101,6 @@ export function emitClientOperation(
     case 'drop_table': {
       return [sql`DROP TABLE IF EXISTS ${ident(op.table)}`];
     }
-    case 'drop_column': {
-      return emitRebuild({
-        table: op.table,
-        declared,
-        extras: [],
-        extraTypes: {},
-        copyColumns: [],
-      });
-    }
     case 'rebuild_table': {
       return emitRebuild({
         table: op.table,
@@ -96,13 +111,13 @@ export function emitClientOperation(
         ...(op.copyAliases !== undefined
           ? { copyAliases: op.copyAliases }
           : {}),
+        ...(op.backfills !== undefined ? { backfills: op.backfills } : {}),
       });
     }
     case 'add_check':
     case 'add_foreign_key':
     case 'create_enum':
     case 'add_enum_value': {
-      // Applied via rebuild_table when SQLite cannot ALTER.
       return [];
     }
     case 'create_view': {
@@ -122,52 +137,64 @@ export function emitClientOperation(
   }
 }
 
+function buildTableColumnDdls(
+  table: string,
+  columns: readonly CreateTableColumn[],
+  declared: ReadonlyDeclaredSchema
+): Sql<void>[] {
+  const cols = columns.map((c) => columnDdl(c));
+  for (const check of tableChecks(declared, table)) {
+    cols.push(checkDdl(check.name, check.expression));
+  }
+  return cols;
+}
+
 function rebuildColumnDdl(args: RebuildArgs): Sql<void>[] {
-  const cols: Sql<void>[] = [];
+  const table = args.table;
+  const declaredCols = args.declared.tables[table]!;
+  const createCols: CreateTableColumn[] = [];
   for (const name of MANAGED_IMPLICIT_COLUMN_NAMES) {
-    cols.push(
-      columnDdl({
-        name: asValidatedIdent(name),
-        type: MANAGED_IMPLICIT_COLUMNS[name],
-        isPrimaryKey: name === 'id',
-      })
-    );
+    createCols.push({
+      name: asSchemaIdent(name),
+      type: MANAGED_IMPLICIT_COLUMNS[name],
+      isPrimaryKey: name === 'id',
+    });
   }
-  for (const [name, col] of Object.entries(args.declared.tables[args.table]!)) {
-    cols.push(
-      columnDdl({
-        name: asValidatedIdent(name),
-        type: col.type,
-        isPrimaryKey: false,
-        ...(col.physicalSqlite !== undefined
-          ? { physicalSqlite: col.physicalSqlite }
-          : {}),
-        ...(col.references !== undefined
-          ? {
-              references: {
-                table: asValidatedIdent(col.references.table),
-                column: asValidatedIdent(col.references.column),
-              },
-            }
-          : {}),
-      })
-    );
+  for (const [name, col] of Object.entries(declaredCols)) {
+    createCols.push({
+      name: asSchemaIdent(name),
+      type: col.type,
+      isPrimaryKey: false,
+      ...(col.physicalSqlite !== undefined
+        ? { physicalSqlite: col.physicalSqlite }
+        : {}),
+      ...(col.references !== undefined
+        ? {
+            references: {
+              table: asSchemaIdent(col.references.table),
+              column: asSchemaIdent(col.references.column),
+            },
+          }
+        : {}),
+    });
   }
+  const cols = buildTableColumnDdls(table, createCols, args.declared);
   for (const name of args.extras) {
     const phys = args.extraTypes[name] ?? 'TEXT';
     const typeSql = raw(
       phys === 'INTEGER' || phys === 'REAL' || phys === 'BLOB' ? phys : 'TEXT'
     );
-    cols.push(sql`${ident(name)} ${typeSql}`);
+    cols.push(sql`${ident(asPhysicalIdent(name))} ${typeSql}`);
   }
   return cols;
 }
 
 function emitRebuild(args: RebuildArgs): Sql<unknown>[] {
-  const tmp = asValidatedIdent(`_tmp_${args.table}`);
+  const oldTable = rebuildOldTableIdent(args.table);
   const cols = rebuildColumnDdl(args);
   const stmts: Sql<unknown>[] = [
-    sql`CREATE TABLE ${ident(tmp)} (${join(cols, ', ')}) STRICT`,
+    sql`ALTER TABLE ${ident(args.table)} RENAME TO ${ident(oldTable)}`,
+    sql`CREATE TABLE ${ident(args.table)} (${join(cols, ', ')}) STRICT`,
   ];
   if (args.copyColumns.length > 0) {
     const destCols = args.copyColumns.map((n) => ident(n));
@@ -176,12 +203,15 @@ function emitRebuild(args: RebuildArgs): Sql<unknown>[] {
       return ident(alias ?? n);
     });
     stmts.push(
-      sql`INSERT INTO ${ident(tmp)} (${join(destCols, ', ')}) SELECT ${join(srcCols, ', ')} FROM ${ident(args.table)}`
+      sql`INSERT INTO ${ident(args.table)} (${join(destCols, ', ')}) SELECT ${join(srcCols, ', ')} FROM ${ident(oldTable)}`
     );
   }
-  stmts.push(
-    sql`DROP TABLE ${ident(args.table)}`,
-    sql`ALTER TABLE ${ident(tmp)} RENAME TO ${ident(args.table)}`
-  );
+  for (const [column, expression] of Object.entries(args.backfills ?? {})) {
+    if (args.copyColumns.includes(column)) continue;
+    stmts.push(
+      sql`UPDATE ${ident(args.table)} SET ${ident(asSchemaIdent(column))} = ${raw(expression)} WHERE ${ident(asSchemaIdent(column))} IS NULL`
+    );
+  }
+  stmts.push(sql`DROP TABLE ${ident(oldTable)}`);
   return stmts;
 }

@@ -20,7 +20,9 @@ export class KvImplPostgresTx implements Kv {
   async get(key: Keyword): Promise<KvRecord | null> {
     assertKvKey(key);
     const rows = await this.db.query(
-      sql<{ value: unknown }>`SELECT value FROM kv WHERE key = ${key}`
+      sql<{ value: unknown }>`
+        SELECT value FROM kv
+        WHERE key = ${key} AND deleted_at IS NULL`
     );
     const first = rows[0];
     if (first === null || first === undefined) return null;
@@ -37,17 +39,24 @@ export class KvImplPostgresTx implements Kv {
     const iso = new Date(this.now()).toISOString();
     await this.db.run(
       sql<void>`
-        INSERT INTO kv (key, value, last_modified_at)
-        VALUES (${key}, ${JSON.stringify(value)}, ${iso})
+        INSERT INTO kv (id, key, value, created_at, updated_at, deleted_at)
+        VALUES (${key}, ${key}, ${JSON.stringify(value)}, ${iso}, ${iso}, ${null})
         ON CONFLICT (key) DO UPDATE SET
           value = excluded.value,
-          last_modified_at = excluded.last_modified_at`
+          updated_at = excluded.updated_at,
+          deleted_at = NULL`
     );
   }
 
   async zap(key: Keyword): Promise<void> {
     assertKvKey(key);
-    await this.db.run(sql<void>`DELETE FROM kv WHERE key = ${key}`);
+    const iso = new Date(this.now()).toISOString();
+    await this.db.run(
+      sql<void>`
+        UPDATE kv
+        SET deleted_at = ${iso}, updated_at = ${iso}
+        WHERE key = ${key} AND deleted_at IS NULL`
+    );
   }
 
   async tx<T>(_fn: (tx: Kv) => Promise<T>): Promise<T> {

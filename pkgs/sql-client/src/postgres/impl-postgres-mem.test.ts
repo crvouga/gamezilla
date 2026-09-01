@@ -1,5 +1,8 @@
 import { afterEach, describe, expect, test } from 'bun:test';
+import { defineTable, registerTables, type TableDef } from '@pkgs/db-schema';
+import { applyPostgresSchema } from '@pkgs/db-schema/postgres';
 import { raw, sql } from '@pkgs/sql';
+import type { PostgresSqlClient } from '../interface';
 import { runSqlDataSnapshotContractTests } from '../sql-data-snapshot/contract';
 import {
   createPostgresMemSqlClient,
@@ -22,33 +25,54 @@ async function openMem(): Promise<SqlClientImplPostgresMem> {
   return client;
 }
 
+async function applyTables(
+  client: PostgresSqlClient,
+  tables: readonly TableDef[]
+): Promise<void> {
+  await applyPostgresSchema(client, registerTables(tables), client.dbScope, {
+    skipAdvisoryLock: true,
+  });
+}
+
 describe('SqlClientImplPostgresMem lifecycle', () => {
   test('instances are isolated', async () => {
     const alice = await openMem();
     const bob = await openMem();
-    await alice.run(raw('CREATE TABLE t (id int, name text)'));
-    await bob.run(raw('CREATE TABLE t (id int, name text)'));
-    await alice.run(sql<void>`INSERT INTO t VALUES (${1}, ${'alice'})`);
-    await bob.run(sql<void>`INSERT INTO t VALUES (${1}, ${'bob'})`);
+    await applyTables(alice, [
+      defineTable({ domain: 't', name: 't', columns: { name: 'text' } }),
+    ]);
+    await applyTables(bob, [
+      defineTable({ domain: 't', name: 't', columns: { name: 'text' } }),
+    ]);
+    await alice.run(
+      sql<void>`INSERT INTO t (id, name) VALUES (${'1'}, ${'alice'})`
+    );
+    await bob.run(sql<void>`INSERT INTO t (id, name) VALUES (${'1'}, ${'bob'})`);
     expect(
-      await alice.query(raw<{ id: number; name: string }>('SELECT * FROM t'))
-    ).toEqual([{ id: 1, name: 'alice' }]);
+      await alice.query(
+        raw<{ id: string; name: string }>('SELECT id, name FROM t')
+      )
+    ).toEqual([{ id: '1', name: 'alice' }]);
     expect(
-      await bob.query(raw<{ id: number; name: string }>('SELECT * FROM t'))
-    ).toEqual([{ id: 1, name: 'bob' }]);
+      await bob.query(raw<{ id: string; name: string }>('SELECT id, name FROM t'))
+    ).toEqual([{ id: '1', name: 'bob' }]);
   });
 
-  test('parameterized query + gen_random_uuid', async () => {
+  test('parameterized query + explicit uuid id', async () => {
     const { sqlClient } = createPostgresMemSqlClient({ seed: 1 });
     openClients.push(sqlClient);
     await sqlClient.connect();
-    await sqlClient.run(sql`
-      CREATE TABLE items (
-        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-        name text NOT NULL
-      )
-    `);
-    await sqlClient.run(sql`INSERT INTO items (name) VALUES (${'alpha'})`);
+    await applyTables(sqlClient, [
+      defineTable({
+        domain: 'items',
+        name: 'items',
+        columns: { name: 'text' },
+      }),
+    ]);
+    const itemId = '00000000-0000-4000-8000-000000000001';
+    await sqlClient.run(
+      sql`INSERT INTO items (id, name) VALUES (${itemId}, ${'alpha'})`
+    );
     const rows = await sqlClient.query<{ id: string; name: string }>(sql`
       SELECT id, name FROM items WHERE name = ${'alpha'}
     `);
@@ -61,11 +85,22 @@ describe('SqlClientImplPostgresMem lifecycle', () => {
 
   test('transaction rolls back on error', async () => {
     const client = await openMem();
-    await client.run(raw('CREATE TABLE kv (k text PRIMARY KEY, v int)'));
-    await client.run(sql`INSERT INTO kv (k, v) VALUES (${'a'}, ${1})`);
+    await applyTables(client, [
+      defineTable({
+        domain: 'kv',
+        name: 'kv',
+        columns: { k: 'text', v: 'integer' },
+        uniqueIndexes: ['k'],
+      }),
+    ]);
+    await client.run(
+      sql`INSERT INTO kv (id, k, v) VALUES (${'a-id'}, ${'a'}, ${1})`
+    );
     await expect(
       client.transaction(async (tx) => {
-        await tx.run(sql`INSERT INTO kv (k, v) VALUES (${'b'}, ${2})`);
+        await tx.run(
+          sql`INSERT INTO kv (id, k, v) VALUES (${'b-id'}, ${'b'}, ${2})`
+        );
         throw new Error('force rollback');
       })
     ).rejects.toThrow('force rollback');
@@ -77,10 +112,21 @@ describe('SqlClientImplPostgresMem lifecycle', () => {
 
   test('transaction commits on success', async () => {
     const client = await openMem();
-    await client.run(raw('CREATE TABLE kv (k text PRIMARY KEY, v int)'));
+    await applyTables(client, [
+      defineTable({
+        domain: 'kv',
+        name: 'kv',
+        columns: { k: 'text', v: 'integer' },
+        uniqueIndexes: ['k'],
+      }),
+    ]);
     await client.transaction(async (tx) => {
-      await tx.run(sql`INSERT INTO kv (k, v) VALUES (${'a'}, ${1})`);
-      await tx.run(sql`INSERT INTO kv (k, v) VALUES (${'b'}, ${2})`);
+      await tx.run(
+        sql`INSERT INTO kv (id, k, v) VALUES (${'a-id'}, ${'a'}, ${1})`
+      );
+      await tx.run(
+        sql`INSERT INTO kv (id, k, v) VALUES (${'b-id'}, ${'b'}, ${2})`
+      );
     });
     const rows = await client.query<{ k: string }>(sql`
       SELECT k FROM kv ORDER BY k
@@ -90,15 +136,17 @@ describe('SqlClientImplPostgresMem lifecycle', () => {
 
   test('snapshot round-trips rows', async () => {
     const source = await openMem();
-    await source.run(raw('CREATE TABLE t (id int)'));
-    await source.run(sql<void>`INSERT INTO t VALUES (${7})`);
+    await applyTables(source, [
+      defineTable({ domain: 't', name: 't', columns: {} }),
+    ]);
+    await source.run(sql<void>`INSERT INTO t (id) VALUES (${'7'})`);
     const bytes = source.exportDatabaseBytes();
 
     const dest = await openMem();
     dest.importDatabaseBytes(bytes);
-    expect(await dest.query(raw<{ id: number }>('SELECT id FROM t'))).toEqual([
-      { id: 7 },
-    ]);
+    expect(
+      await dest.query(raw<{ id: string }>('SELECT id FROM t'))
+    ).toEqual([{ id: '7' }]);
   });
 
   test('json_extract shim works', async () => {

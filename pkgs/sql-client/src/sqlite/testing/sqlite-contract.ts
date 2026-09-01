@@ -1,6 +1,15 @@
 import { afterEach, beforeEach, expect, test } from 'bun:test';
+import { defineTable, registerTables, type TableDef } from '@pkgs/db-schema';
+import { applySqliteSchema } from '@pkgs/db-schema/sqlite';
 import { raw, type Sql, sql } from '@pkgs/sql';
 import type { SqlClient } from '../../interface';
+
+async function applySchema(
+  client: SqlClient,
+  tables: readonly TableDef[]
+): Promise<void> {
+  await applySqliteSchema(client, registerTables(tables));
+}
 
 async function setup(
   client: SqlClient,
@@ -62,13 +71,14 @@ export function runSqliteContractTests(
   });
 
   test('STRICT / INDEX IF NOT EXISTS / table_info / sqlite_master', async () => {
-    await setup(client, [
-      raw(
-        'CREATE TABLE IF NOT EXISTS notes (id TEXT PRIMARY KEY, body TEXT) STRICT'
-      ),
-      raw('CREATE INDEX IF NOT EXISTS notes_body_idx ON notes (body)'),
-      raw('CREATE INDEX IF NOT EXISTS notes_body_idx ON notes (body)'),
-    ]);
+    const notesTable = defineTable({
+      domain: 'notes',
+      name: 'notes',
+      columns: { body: 'text' },
+      indexes: ['body'],
+    });
+    await applySchema(client, [notesTable]);
+    await applySchema(client, [notesTable]);
 
     await expectQuery(
       client,
@@ -90,11 +100,12 @@ export function runSqliteContractTests(
     }>('PRAGMA table_info("notes")');
     expect(mapInfo(await client.query(infoQ))).toEqual([
       { name: 'id', type: 'TEXT', notnull: 1, pk: 1 },
+      { name: 'created_at', type: 'TEXT', notnull: 0, pk: 0 },
+      { name: 'updated_at', type: 'TEXT', notnull: 0, pk: 0 },
+      { name: 'deleted_at', type: 'TEXT', notnull: 0, pk: 0 },
       { name: 'body', type: 'TEXT', notnull: 0, pk: 0 },
     ]);
 
-    // Native SQLite synthesizes sqlite_autoindex_* for PRIMARY KEY.
-    // Compare user indexes only.
     const mapIx = (rows: { name: string; origin: string }[]) =>
       rows
         .filter((r) => !r.name.startsWith('sqlite_autoindex_'))
@@ -102,38 +113,52 @@ export function runSqliteContractTests(
     const ixListQ = raw<{ name: string; origin: string }>(
       'PRAGMA index_list("notes")'
     );
-    expect(mapIx(await client.query(ixListQ))).toEqual([
-      { name: 'notes_body_idx', origin: 'c' },
-    ]);
+    const userIndexes = mapIx(await client.query(ixListQ));
+    expect(userIndexes).toHaveLength(1);
+    expect(userIndexes[0]?.origin).toBe('c');
+    expect(userIndexes[0]?.name.startsWith('ix_notes_')).toBe(true);
 
     const mapIxInfo = (rows: { name: string }[]) =>
       rows.map(({ name }) => ({ name }));
     const ixInfoQ = raw<{ name: string }>(
-      'PRAGMA index_info("notes_body_idx")'
+      `PRAGMA index_info("${userIndexes[0]!.name}")`
     );
     expect(mapIxInfo(await client.query(ixInfoQ))).toEqual([{ name: 'body' }]);
   });
 
   test('DROP TABLE clears user indexes from catalog', async () => {
-    await setup(client, [
-      raw('CREATE TABLE notes (id TEXT PRIMARY KEY, body TEXT) STRICT'),
-      raw('CREATE INDEX IF NOT EXISTS notes_body_idx ON notes (body)'),
-      raw('DROP TABLE notes'),
-      raw('CREATE TABLE notes (id TEXT PRIMARY KEY, body TEXT) STRICT'),
-    ]);
-    const userIx = (rows: { name: string }[]) =>
+    const notesTable = defineTable({
+      domain: 'notes',
+      name: 'notes',
+      columns: { body: 'text' },
+      indexes: ['body'],
+    });
+    await applySchema(client, [notesTable]);
+    await setup(client, [raw('DROP TABLE notes')]);
+    await applySchema(client, [notesTable]);
+
+    const userIx = (rows: { name: string; origin: string }[]) =>
       rows
         .filter((r) => !r.name.startsWith('sqlite_autoindex_'))
-        .map(({ name }) => ({ name }));
-    const ixListQ = raw<{ name: string }>('PRAGMA index_list("notes")');
-    expect(userIx(await client.query(ixListQ))).toEqual([]);
+        .map(({ name, origin }) => ({ name, origin }));
+    const ixListQ = raw<{ name: string; origin: string }>(
+      'PRAGMA index_list("notes")'
+    );
+    const indexes = userIx(await client.query(ixListQ));
+    expect(indexes).toHaveLength(1);
+    expect(indexes[0]?.origin).toBe('c');
+    expect(indexes[0]?.name.startsWith('ix_notes_')).toBe(true);
   });
 
   test('quotes reserved column names (cursor, value)', async () => {
+    await applySchema(client, [
+      defineTable({
+        domain: 'inbox',
+        name: 'inbox',
+        columns: { cursor: 'text', value: 'text' },
+      }),
+    ]);
     await setup(client, [
-      raw(
-        'CREATE TABLE IF NOT EXISTS inbox (id TEXT PRIMARY KEY, cursor TEXT, value TEXT) STRICT'
-      ),
       sql<void>`INSERT INTO inbox (id, cursor, value) VALUES (${'1'}, ${'c'}, ${'v'})`,
     ]);
     await expectQuery(
@@ -144,10 +169,16 @@ export function runSqliteContractTests(
   });
 
   test('INSERT RETURNING * (IdP createUser shape)', async () => {
-    await setup(client, [
-      raw(
-        'CREATE TABLE sample_auth_user (id TEXT PRIMARY KEY, name TEXT NOT NULL, email TEXT NOT NULL, emailVerified INTEGER NOT NULL, createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL)'
-      ),
+    await applySchema(client, [
+      defineTable({
+        domain: 'sample_auth_user',
+        name: 'sample_auth_user',
+        columns: {
+          name: 'text',
+          email: 'text',
+          email_verified: 'integer',
+        },
+      }),
     ]);
     await expectQuery(
       client,
@@ -155,28 +186,32 @@ export function runSqliteContractTests(
         id: string;
         name: string;
         email: string;
-        emailVerified: number;
-        createdAt: string;
-        updatedAt: string;
-      }>`insert into "sample_auth_user" ("name", "email", "emailVerified", "createdAt", "updatedAt", "id") values (${'Ada'}, ${'ada@ex.com'}, ${0}, ${'2026-01-01'}, ${'2026-01-01'}, ${'uid1'}) returning *`,
+        email_verified: number;
+        created_at: string;
+        updated_at: string;
+        deleted_at: string | null;
+      }>`insert into "sample_auth_user" ("name", "email", "email_verified", "created_at", "updated_at", "id") values (${'Ada'}, ${'ada@ex.com'}, ${0}, ${'2026-01-01'}, ${'2026-01-01'}, ${'uid1'}) returning *`,
       [
         {
           id: 'uid1',
           name: 'Ada',
           email: 'ada@ex.com',
-          emailVerified: 0,
-          createdAt: '2026-01-01',
-          updatedAt: '2026-01-01',
+          email_verified: 0,
+          created_at: '2026-01-01',
+          updated_at: '2026-01-01',
+          deleted_at: null,
         },
       ]
     );
   });
 
   test('INSERT RETURNING partial columns', async () => {
-    await setup(client, [
-      raw(
-        'CREATE TABLE sample_auth_user (id TEXT PRIMARY KEY, name TEXT NOT NULL, email TEXT NOT NULL)'
-      ),
+    await applySchema(client, [
+      defineTable({
+        domain: 'sample_auth_user',
+        name: 'sample_auth_user',
+        columns: { name: 'text', email: 'text' },
+      }),
     ]);
     await expectQuery(
       client,
@@ -190,10 +225,14 @@ export function runSqliteContractTests(
   });
 
   test('UPDATE RETURNING * (mutation write-capture shape)', async () => {
+    await applySchema(client, [
+      defineTable({
+        domain: 'profile',
+        name: 'profile',
+        columns: { username: 'text', username_norm: 'text' },
+      }),
+    ]);
     await setup(client, [
-      raw(
-        'CREATE TABLE profile (id TEXT PRIMARY KEY, username TEXT NOT NULL, username_norm TEXT NOT NULL)'
-      ),
       sql<void>`
         INSERT INTO profile (id, username, username_norm)
         VALUES (${'u1'}, ${'old'}, ${'old'})
@@ -201,21 +240,41 @@ export function runSqliteContractTests(
     ]);
     await expectQuery(
       client,
-      sql<{ id: string; username: string; username_norm: string }>`
+      sql<{
+        id: string;
+        username: string;
+        username_norm: string;
+        created_at: string | null;
+        updated_at: string | null;
+        deleted_at: string | null;
+      }>`
         UPDATE profile
         SET username = ${'new_name'}, username_norm = ${'new_name'}
         WHERE id = ${'u1'}
         RETURNING *
       `,
-      [{ id: 'u1', username: 'new_name', username_norm: 'new_name' }]
+      [
+        {
+          id: 'u1',
+          username: 'new_name',
+          username_norm: 'new_name',
+          created_at: null,
+          updated_at: null,
+          deleted_at: null,
+        },
+      ]
     );
   });
 
   test('UPDATE RETURNING with predicate on mutated column (endSpace shape)', async () => {
+    await applySchema(client, [
+      defineTable({
+        domain: 'spaces',
+        name: 'spaces',
+        columns: { ended_at: 'timestamp', host_id: 'text' },
+      }),
+    ]);
     await setup(client, [
-      raw(
-        'CREATE TABLE spaces (id TEXT PRIMARY KEY, ended_at TEXT, host_id TEXT)'
-      ),
       sql<void>`
         INSERT INTO spaces (id, ended_at, host_id)
         VALUES (${'s1'}, ${null}, ${'d1'})
@@ -224,44 +283,82 @@ export function runSqliteContractTests(
     const now = '2026-08-16T18:00:00.000Z';
     await expectQuery(
       client,
-      sql<{ id: string; ended_at: string | null; host_id: string }>`
+      sql<{
+        id: string;
+        ended_at: string | null;
+        host_id: string;
+        created_at: string | null;
+        updated_at: string | null;
+        deleted_at: string | null;
+      }>`
         UPDATE spaces
         SET ended_at = ${now}, host_id = ${'d1'}
         WHERE id = ${'s1'} AND ended_at IS NULL
         RETURNING *
       `,
-      [{ id: 's1', ended_at: now, host_id: 'd1' }]
+      [
+        {
+          id: 's1',
+          ended_at: now,
+          host_id: 'd1',
+          created_at: null,
+          updated_at: null,
+          deleted_at: null,
+        },
+      ]
     );
   });
 
   test('UPDATE RETURNING soft-delete WHERE deleted_at IS NULL', async () => {
+    await applySchema(client, [
+      defineTable({
+        domain: 'spaces',
+        name: 'spaces_open_sessions',
+        columns: { space_id: 'text' },
+      }),
+    ]);
     await setup(client, [
-      raw(
-        'CREATE TABLE spaces_open_sessions (id TEXT PRIMARY KEY, space_id TEXT, deleted_at TEXT)'
-      ),
       sql<void>`
-        INSERT INTO spaces_open_sessions (id, space_id, deleted_at)
-        VALUES (${'sess1'}, ${'s1'}, ${null})
+        INSERT INTO spaces_open_sessions (id, space_id)
+        VALUES (${'sess1'}, ${'s1'})
       `,
     ]);
     const now = '2026-08-16T18:00:00.000Z';
     await expectQuery(
       client,
-      sql<{ id: string; space_id: string; deleted_at: string | null }>`
+      sql<{
+        id: string;
+        space_id: string;
+        deleted_at: string | null;
+        created_at: string | null;
+        updated_at: string | null;
+      }>`
         UPDATE spaces_open_sessions
         SET deleted_at = ${now}
         WHERE space_id = ${'s1'} AND deleted_at IS NULL
         RETURNING *
       `,
-      [{ id: 'sess1', space_id: 's1', deleted_at: now }]
+      [
+        {
+          id: 'sess1',
+          space_id: 's1',
+          deleted_at: now,
+          created_at: null,
+          updated_at: null,
+        },
+      ]
     );
   });
 
   test('quotes primary subquery alias', async () => {
+    await applySchema(client, [
+      defineTable({
+        domain: 'sample_auth_user',
+        name: 'sample_auth_user',
+        columns: { email: 'text' },
+      }),
+    ]);
     await setup(client, [
-      raw(
-        'CREATE TABLE sample_auth_user (id TEXT PRIMARY KEY, email TEXT NOT NULL)'
-      ),
       sql<void>`INSERT INTO sample_auth_user (id, email) VALUES (${'u1'}, ${'a@b.co'})`,
     ]);
     await expectQuery(
@@ -269,24 +366,37 @@ export function runSqliteContractTests(
       sql<{
         id: string;
         email: string;
+        created_at: string | null;
+        updated_at: string | null;
+        deleted_at: string | null;
       }>`select "primary".* from (select * from "sample_auth_user" where "sample_auth_user"."email" = ${'a@b.co'}) as "primary"`,
-      [{ id: 'u1', email: 'a@b.co' }]
+      [
+        {
+          id: 'u1',
+          email: 'a@b.co',
+          created_at: null,
+          updated_at: null,
+          deleted_at: null,
+        },
+      ]
     );
   });
 
   test('ON CONFLICT DO UPDATE WHERE', async () => {
+    await applySchema(client, [
+      defineTable({
+        domain: 'auth',
+        name: 'auth_external_accounts',
+        columns: {
+          user_id: 'text',
+          provider: 'text',
+          external_id: 'text',
+          metadata: 'text',
+        },
+        uniqueIndexes: [['provider', 'external_id']],
+      }),
+    ]);
     await setup(client, [
-      raw(`
-        CREATE TABLE auth_external_accounts (
-          id TEXT PRIMARY KEY,
-          user_id TEXT NOT NULL,
-          provider TEXT NOT NULL,
-          external_id TEXT NOT NULL,
-          metadata TEXT,
-          updated_at TEXT,
-          UNIQUE (provider, external_id)
-        )
-      `),
       sql<void>`
         INSERT INTO auth_external_accounts (
           id, user_id, provider, external_id, metadata, updated_at
@@ -319,16 +429,14 @@ export function runSqliteContractTests(
   });
 
   test('ON CONFLICT DO UPDATE with reserved col value', async () => {
+    await applySchema(client, [
+      defineTable({
+        domain: 'client_config',
+        name: 'client_config',
+        columns: { value: 'text' },
+      }),
+    ]);
     await setup(client, [
-      raw(`
-        CREATE TABLE client_config (
-          id TEXT PRIMARY KEY,
-          created_at TEXT NOT NULL,
-          updated_at TEXT NOT NULL,
-          deleted_at TEXT,
-          value TEXT NOT NULL
-        )
-      `),
       sql<void>`
         INSERT INTO client_config (id, created_at, updated_at, deleted_at, value)
         VALUES (${'k'}, ${'t0'}, ${'t0'}, NULL, ${'"old"'})
@@ -352,14 +460,17 @@ export function runSqliteContractTests(
   });
 
   test('ON CONFLICT upsert increments and RETURNING', async () => {
-    await setup(client, [
-      raw(
-        'CREATE TABLE sync_engine_topic_seq (topic TEXT PRIMARY KEY, n INTEGER NOT NULL)'
-      ),
+    await applySchema(client, [
+      defineTable({
+        domain: 'sync_engine',
+        name: 'sync_engine_topic_seq',
+        columns: { topic: 'text', n: 'integer' },
+        uniqueIndexes: ['topic'],
+      }),
     ]);
     const upsert = sql<{ n: number }>`
-      INSERT INTO sync_engine_topic_seq (topic, n)
-      VALUES (${'system:client_config'}, 1)
+      INSERT INTO sync_engine_topic_seq (id, topic, n)
+      VALUES (${'system:client_config'}, ${'system:client_config'}, 1)
       ON CONFLICT (topic) DO UPDATE
         SET n = sync_engine_topic_seq.n + 1
       RETURNING n
@@ -369,14 +480,17 @@ export function runSqliteContractTests(
   });
 
   test('multi-row ON CONFLICT upsert RETURNING (allocateTopicPushSeqs)', async () => {
-    await setup(client, [
-      raw(
-        'CREATE TABLE sync_engine_topic_seq (topic TEXT PRIMARY KEY, n INTEGER NOT NULL)'
-      ),
+    await applySchema(client, [
+      defineTable({
+        domain: 'sync_engine',
+        name: 'sync_engine_topic_seq',
+        columns: { topic: 'text', n: 'integer' },
+        uniqueIndexes: ['topic'],
+      }),
     ]);
     const multi = sql<{ topic: string; n: number }>`
-      INSERT INTO sync_engine_topic_seq (topic, n)
-      VALUES (${'t1'}, 1), (${'t2'}, 1)
+      INSERT INTO sync_engine_topic_seq (id, topic, n)
+      VALUES (${'t1'}, ${'t1'}, 1), (${'t2'}, ${'t2'}, 1)
       ON CONFLICT (topic) DO UPDATE
         SET n = sync_engine_topic_seq.n + 1
       RETURNING topic, n
@@ -392,8 +506,14 @@ export function runSqliteContractTests(
   });
 
   test('ON CONFLICT DO NOTHING leaves existing row', async () => {
+    await applySchema(client, [
+      defineTable({
+        domain: 'kv',
+        name: 'kv',
+        columns: { v: 'text' },
+      }),
+    ]);
     await setup(client, [
-      raw('CREATE TABLE kv (id TEXT PRIMARY KEY, v TEXT NOT NULL)'),
       sql<void>`INSERT INTO kv (id, v) VALUES (${'k'}, ${'old'})`,
       sql<void>`
         INSERT INTO kv (id, v) VALUES (${'k'}, ${'new'})
@@ -408,27 +528,43 @@ export function runSqliteContractTests(
   });
 
   test('parameterized LIMIT / OFFSET', async () => {
+    await applySchema(client, [
+      defineTable({
+        domain: 'items',
+        name: 'items',
+        columns: { n: 'integer' },
+      }),
+    ]);
     await setup(client, [
-      raw('CREATE TABLE t (id INTEGER PRIMARY KEY)'),
-      sql<void>`INSERT INTO t (id) VALUES (${1})`,
-      sql<void>`INSERT INTO t (id) VALUES (${2})`,
-      sql<void>`INSERT INTO t (id) VALUES (${3})`,
-      sql<void>`INSERT INTO t (id) VALUES (${4})`,
-      sql<void>`INSERT INTO t (id) VALUES (${5})`,
+      sql<void>`INSERT INTO items (id, n) VALUES (${'1'}, ${1})`,
+      sql<void>`INSERT INTO items (id, n) VALUES (${'2'}, ${2})`,
+      sql<void>`INSERT INTO items (id, n) VALUES (${'3'}, ${3})`,
+      sql<void>`INSERT INTO items (id, n) VALUES (${'4'}, ${4})`,
+      sql<void>`INSERT INTO items (id, n) VALUES (${'5'}, ${5})`,
     ]);
     await expectQuery(
       client,
-      sql<{ id: number }>`
-        SELECT id FROM t WHERE id > ${0} ORDER BY id LIMIT ${2} OFFSET ${1}
+      sql<{ n: number }>`
+        SELECT n FROM items WHERE n > ${0} ORDER BY n LIMIT ${2} OFFSET ${1}
       `,
-      [{ id: 2 }, { id: 3 }]
+      [{ n: 2 }, { n: 3 }]
     );
   });
 
   test('nested subquery IN (SELECT …)', async () => {
+    await applySchema(client, [
+      defineTable({
+        domain: 'spaces',
+        name: 'spaces',
+        columns: { host_member_id: 'text' },
+      }),
+      defineTable({
+        domain: 'spaces',
+        name: 'spaces_users',
+        columns: { space_id: 'text', user_id: 'text' },
+      }),
+    ]);
     await setup(client, [
-      raw('CREATE TABLE spaces (id TEXT, host_member_id TEXT)'),
-      raw('CREATE TABLE spaces_users (id TEXT, space_id TEXT, user_id TEXT)'),
       sql<void>`INSERT INTO spaces (id, host_member_id) VALUES (${'s1'}, ${'u'})`,
       sql<void>`INSERT INTO spaces_users (id, space_id, user_id) VALUES (${'su1'}, ${'s1'}, ${'u2'})`,
     ]);
@@ -445,9 +581,19 @@ export function runSqliteContractTests(
   });
 
   test('join + ORDER BY', async () => {
+    await applySchema(client, [
+      defineTable({
+        domain: 'a',
+        name: 'a',
+        columns: { n: 'integer' },
+      }),
+      defineTable({
+        domain: 'b',
+        name: 'b',
+        columns: { a_id: 'text', label: 'text' },
+      }),
+    ]);
     await setup(client, [
-      raw('CREATE TABLE a (id TEXT PRIMARY KEY, n INTEGER)'),
-      raw('CREATE TABLE b (id TEXT PRIMARY KEY, a_id TEXT, label TEXT)'),
       sql<void>`INSERT INTO a (id, n) VALUES (${'a1'}, ${1})`,
       sql<void>`INSERT INTO a (id, n) VALUES (${'a2'}, ${2})`,
       sql<void>`INSERT INTO b (id, a_id, label) VALUES (${'b1'}, ${'a1'}, ${'x'})`,
@@ -469,10 +615,20 @@ export function runSqliteContractTests(
   });
 
   test('COUNT(*) AS count', async () => {
+    await applySchema(client, [
+      defineTable({
+        domain: 'inbox_interactions',
+        name: 'inbox_interactions',
+        columns: {
+          user_id: 'text',
+          active: 'integer',
+          read_at: 'integer',
+          archived_at: 'integer',
+          dismissed_at: 'integer',
+        },
+      }),
+    ]);
     await setup(client, [
-      raw(
-        'CREATE TABLE inbox_interactions (id TEXT, user_id TEXT, active INT, read_at INT, archived_at INT, dismissed_at INT)'
-      ),
       sql<void>`INSERT INTO inbox_interactions (id, user_id, active) VALUES (${'1'}, ${'u'}, ${1})`,
     ]);
     await expectQuery(
@@ -489,79 +645,103 @@ export function runSqliteContractTests(
   });
 
   test('schema_ prefix columns + ON CONFLICT', async () => {
+    await applySchema(client, [
+      defineTable({
+        domain: 'inbox_schema_state',
+        name: 'inbox_schema_state',
+        columns: { schema_fingerprint: 'text' },
+      }),
+    ]);
     await setup(client, [
-      raw(
-        'CREATE TABLE inbox_schema_state (id INT PRIMARY KEY, schema_fingerprint TEXT NOT NULL)'
-      ),
       sql<void>`
         INSERT INTO inbox_schema_state (id, schema_fingerprint)
-        VALUES (1, ${'fp-v1'})
+        VALUES (${'1'}, ${'fp-v1'})
         ON CONFLICT (id) DO UPDATE SET schema_fingerprint = EXCLUDED.schema_fingerprint
       `,
     ]);
     await expectQuery(
       client,
       raw<{ schema_fingerprint: string }>(
-        'SELECT schema_fingerprint FROM inbox_schema_state WHERE id = 1'
+        `SELECT schema_fingerprint FROM inbox_schema_state WHERE id = '1'`
       ),
       [{ schema_fingerprint: 'fp-v1' }]
     );
   });
 
   test('transaction commit persists', async () => {
-    await setup(client, [raw('CREATE TABLE items (id INTEGER PRIMARY KEY)')]);
+    await applySchema(client, [
+      defineTable({
+        domain: 'items',
+        name: 'items',
+        columns: { n: 'integer' },
+      }),
+    ]);
     await client.transaction(async (tx) => {
-      await tx.run(sql<void>`INSERT INTO items (id) VALUES (${1})`);
+      await tx.run(sql<void>`INSERT INTO items (id, n) VALUES (${'1'}, ${1})`);
     });
     await expectQuery(
       client,
-      raw<{ id: number }>('SELECT id FROM items ORDER BY id'),
-      [{ id: 1 }]
+      raw<{ id: string }>('SELECT id FROM items ORDER BY id'),
+      [{ id: '1' }]
     );
   });
 
   test('transaction rollback restores rows', async () => {
+    await applySchema(client, [
+      defineTable({
+        domain: 'items',
+        name: 'items',
+        columns: { n: 'integer' },
+      }),
+    ]);
     await setup(client, [
-      raw('CREATE TABLE items (id INTEGER PRIMARY KEY)'),
-      sql<void>`INSERT INTO items (id) VALUES (${1})`,
+      sql<void>`INSERT INTO items (id, n) VALUES (${'1'}, ${1})`,
     ]);
     await expect(
       client.transaction(async (tx) => {
-        await tx.run(sql<void>`INSERT INTO items (id) VALUES (${2})`);
+        await tx.run(sql<void>`INSERT INTO items (id, n) VALUES (${'2'}, ${2})`);
         throw new Error('abort');
       })
     ).rejects.toThrow('abort');
     await expectQuery(
       client,
-      raw<{ id: number }>('SELECT id FROM items ORDER BY id'),
-      [{ id: 1 }]
+      raw<{ id: string }>('SELECT id FROM items ORDER BY id'),
+      [{ id: '1' }]
     );
   });
 
   test('prepare + repeated query/run', async () => {
-    await setup(client, [
-      raw('CREATE TABLE t (id INTEGER PRIMARY KEY, name TEXT)'),
+    await applySchema(client, [
+      defineTable({
+        domain: 'items',
+        name: 'items',
+        columns: { name: 'text' },
+      }),
     ]);
     const insertSql = raw<Record<string, never>>(
-      'INSERT INTO t (id, name) VALUES (?, ?)'
+      'INSERT INTO items (id, name) VALUES (?, ?)'
     );
     const preparedInsert = client.prepare(insertSql);
-    await preparedInsert.run([1, 'a']);
-    await preparedInsert.run([2, 'b']);
+    await preparedInsert.run(['1', 'a']);
+    await preparedInsert.run(['2', 'b']);
 
-    const selectSql = sql<{ id: number; name: string }>`
-      SELECT id, name FROM t WHERE id = ?
+    const selectSql = sql<{ id: string; name: string }>`
+      SELECT id, name FROM items WHERE id = ?
     `;
     const preparedSelect = client.prepare(selectSql);
-    expect(await preparedSelect.query([1])).toEqual([{ id: 1, name: 'a' }]);
-    expect(await preparedSelect.query([2])).toEqual([{ id: 2, name: 'b' }]);
+    expect(await preparedSelect.query(['1'])).toEqual([{ id: '1', name: 'a' }]);
+    expect(await preparedSelect.query(['2'])).toEqual([{ id: '2', name: 'b' }]);
   });
 
   test('NULL / soft-delete IS NULL filter', async () => {
+    await applySchema(client, [
+      defineTable({
+        domain: 'domain_rows',
+        name: 'domain_rows',
+        columns: { body: 'text' },
+      }),
+    ]);
     await setup(client, [
-      raw(
-        'CREATE TABLE domain_rows (id TEXT PRIMARY KEY, deleted_at TEXT, body TEXT)'
-      ),
       sql<void>`INSERT INTO domain_rows (id, deleted_at, body) VALUES (${'alive'}, NULL, ${'a'})`,
       sql<void>`INSERT INTO domain_rows (id, deleted_at, body) VALUES (${'gone'}, ${'t1'}, ${'b'})`,
     ]);
@@ -587,39 +767,51 @@ export function runSqliteContractTests(
   });
 
   test('UNIQUE conflict in transaction leaves prior state', async () => {
+    await applySchema(client, [
+      defineTable({
+        domain: 'items',
+        name: 'items',
+        columns: { v: 'text' },
+      }),
+    ]);
     await setup(client, [
-      raw('CREATE TABLE t (id TEXT PRIMARY KEY, v TEXT)'),
-      sql<void>`INSERT INTO t (id, v) VALUES (${'k'}, ${'v1'})`,
+      sql<void>`INSERT INTO items (id, v) VALUES (${'k'}, ${'v1'})`,
     ]);
     await expect(
       client.transaction(async (tx) => {
-        await tx.run(sql<void>`INSERT INTO t (id, v) VALUES (${'k'}, ${'v2'})`);
+        await tx.run(sql<void>`INSERT INTO items (id, v) VALUES (${'k'}, ${'v2'})`);
       })
     ).rejects.toThrow();
     await expectQuery(
       client,
-      raw<{ id: string; v: string }>('SELECT id, v FROM t'),
+      raw<{ id: string; v: string }>('SELECT id, v FROM items'),
       [{ id: 'k', v: 'v1' }]
     );
   });
 
   test('UPDATE changes count matches', async () => {
+    await applySchema(client, [
+      defineTable({
+        domain: 'counters',
+        name: 'counters',
+        columns: { n: 'integer' },
+      }),
+    ]);
     await setup(client, [
-      raw('CREATE TABLE counters (id INTEGER, n INTEGER)'),
-      raw('INSERT INTO counters VALUES (1, 0)'),
-      raw('INSERT INTO counters VALUES (2, 0)'),
+      sql<void>`INSERT INTO counters (id, n) VALUES (${'1'}, ${0})`,
+      sql<void>`INSERT INTO counters (id, n) VALUES (${'2'}, ${0})`,
     ]);
     await expectRun(
       client,
-      sql<void>`UPDATE counters SET n = 1 WHERE id = ${1}`,
+      sql<void>`UPDATE counters SET n = 1 WHERE id = ${'1'}`,
       1
     );
     await expectQuery(
       client,
-      raw<{ id: number; n: number }>('SELECT id, n FROM counters ORDER BY id'),
+      raw<{ id: string; n: number }>('SELECT id, n FROM counters ORDER BY id'),
       [
-        { id: 1, n: 1 },
-        { id: 2, n: 0 },
+        { id: '1', n: 1 },
+        { id: '2', n: 0 },
       ]
     );
   });

@@ -67,6 +67,8 @@ export {
 export {
   type EnvFixture,
   extractWorkload,
+  assertQueryRegistryIndexable,
+  type AssertQueryRegistryIndexableOpts,
 } from './extract-workload';
 export {
   FRAMEWORK_CACHE_TABLE_NAMES,

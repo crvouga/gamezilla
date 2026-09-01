@@ -1,5 +1,7 @@
 import { Database } from 'bun:sqlite';
 import { describe, expect, test } from 'bun:test';
+import { defineTable, registerTables } from '@pkgs/db-schema';
+import { emitSqliteCreateStatements } from '@pkgs/db-schema/sqlite';
 import { fingerprintSql } from '../../core/fingerprint';
 import { reconcileIndexes } from '../../core/reconcile';
 import type { WorkloadManifest } from '../../core/types';
@@ -15,17 +17,23 @@ function stmt(sql: string) {
   };
 }
 
+function plantNotesTable(db: Database): void {
+  const schema = registerTables([
+    defineTable({
+      domain: 'notes',
+      name: 'notes',
+      columns: { user_id: 'text', title: 'text' },
+    }),
+  ]);
+  for (const ddl of emitSqliteCreateStatements(schema)) {
+    db.run(ddl);
+  }
+}
+
 describe('sqlite port integration', () => {
   test('create → deprecate → drop cycle', async () => {
     const raw = new Database(':memory:');
-    raw.run(
-      `CREATE TABLE notes (
-        id TEXT PRIMARY KEY,
-        user_id TEXT,
-        title TEXT,
-        deleted_at TEXT
-      )`
-    );
+    plantNotesTable(raw);
     for (let i = 0; i < 100; i++) {
       raw.run(`INSERT INTO notes (id, user_id, title) VALUES (?, ?, ?)`, [
         `n${String(i)}`,

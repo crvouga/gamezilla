@@ -1,12 +1,15 @@
 import { sha256 } from '@noble/hashes/sha2.js';
 import { bytesToHex, utf8ToBytes } from '@noble/hashes/utils.js';
+import { assertSnakeCaseIdent } from './snake-case';
 import type {
   IndexDef,
   PackagePrefixedIndexName,
-  ValidatedIdent,
+  PhysicalIdent,
+  SchemaIdent,
 } from './types';
 
 const INDEX_NAME_RE = /^(?:ix|ux)_[a-z][a-z0-9_]{0,39}_[0-9a-f]{16}$/;
+const PHYSICAL_IDENT_RE = /^[a-z_][a-z0-9_]*$/i;
 
 export function indexFingerprintName(
   table: string,
@@ -45,6 +48,29 @@ export function fingerprintForIndexDef(
   return indexFingerprintName(table, columns, unique);
 }
 
-export function asValidatedIdent(name: string): ValidatedIdent {
-  return name as ValidatedIdent;
+/** Assert snake_case schema identifier at planner boundaries. */
+export function asSchemaIdent(name: string, path = 'ident'): SchemaIdent {
+  assertSnakeCaseIdent(name, path);
+  return name as SchemaIdent;
+}
+
+/** Physical catalog name (introspected extras, rebuild staging tables). */
+export function asPhysicalIdent(name: string): PhysicalIdent {
+  if (!PHYSICAL_IDENT_RE.test(name)) {
+    throw new Error(`unsafe physical identifier: ${name}`);
+  }
+  if (name.length > 63) {
+    throw new Error(`physical identifier exceeds 63 bytes: ${name}`);
+  }
+  return name as PhysicalIdent;
+}
+
+/** Reserved rebuild staging table name — never a user-declared table. */
+export function rebuildOldTableIdent(table: string): PhysicalIdent {
+  return asPhysicalIdent(`_old_${table}`);
+}
+
+/** @deprecated Prefer {@link asSchemaIdent}. */
+export function asValidatedIdent(name: string): SchemaIdent {
+  return asSchemaIdent(name);
 }

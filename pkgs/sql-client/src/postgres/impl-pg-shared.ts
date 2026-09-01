@@ -6,6 +6,7 @@
 import type { Sql, Value } from '@pkgs/sql';
 import type { PreparedStatement, RunResult, SqlClient } from '../interface';
 import { questionMarkParamsToDollarParams } from '../positional-params';
+import { bigintToJsonSafe, normalizePgInt8Rows } from './normalize-pg-int8';
 import type { Pool, PoolClient, QueryResult } from './pg-types';
 import type { PostgresDbScope } from './schema';
 import { quotePgIdent } from './schema';
@@ -17,7 +18,10 @@ export function readLastInsertRowid(
   if (first !== undefined && first !== null && 'id' in first) {
     const id = first['id'];
     if (typeof id === 'number') return id;
-    if (typeof id === 'bigint') return Number(id);
+    if (typeof id === 'bigint') {
+      const n = bigintToJsonSafe(id);
+      return typeof n === 'number' ? n : 0;
+    }
     if (typeof id === 'string') return parseInt(id, 10) || 0;
   }
   return 0;
@@ -27,7 +31,9 @@ export function readLastInsertRowid(
 export function pgQueryRows<T = Record<string, unknown>>(
   res: QueryResult
 ): T[] {
-  return (res.rows ?? []) as T[];
+  return normalizePgInt8Rows(
+    (res.rows ?? []) as Record<string, unknown>[]
+  ) as T[];
 }
 
 export function pgRunResultFromQuery(res: QueryResult): RunResult {

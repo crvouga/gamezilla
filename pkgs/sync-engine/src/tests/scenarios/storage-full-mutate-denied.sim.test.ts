@@ -22,6 +22,7 @@ describe('storage full mutate denied', () => {
 
     const pending = await c0.db.query(sql<{ c: number | string }>`
       SELECT COUNT(*) AS c FROM sync_engine_mutations
+      WHERE deleted_at IS NULL
     `);
     expect(Number(pending[0]?.c ?? 0)).toBe(0);
 

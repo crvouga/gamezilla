@@ -24,6 +24,7 @@ export async function loadScopeBasis(
     SELECT last_checkpoint, last_hash
     FROM sync_engine_scope_meta
     WHERE scope_hash = ${scope}
+      AND deleted_at IS NULL
     LIMIT 1
   `);
   const meta = rows[0];

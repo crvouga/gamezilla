@@ -14,12 +14,18 @@ export async function mutationStatus(
   mutationId: string
 ): Promise<MutationStatus> {
   const rejections = await db.query(sql<{ id: string }>`
-    SELECT id FROM sync_engine_write_rejections WHERE mutation_id = ${mutationId} LIMIT 1
+    SELECT id FROM sync_engine_write_rejections
+    WHERE mutation_id = ${mutationId}
+      AND deleted_at IS NULL
+    LIMIT 1
   `);
   if (rejections.length > 0) return 'rejected';
 
   const pending = await db.query(sql<{ id: string }>`
-    SELECT id FROM sync_engine_mutations WHERE id = ${mutationId} LIMIT 1
+    SELECT id FROM sync_engine_mutations
+    WHERE id = ${mutationId}
+      AND deleted_at IS NULL
+    LIMIT 1
   `);
   if (pending.length > 0) return 'pending';
   return 'confirmed';
@@ -48,6 +54,7 @@ export async function listUnackedWriteRejections(
     FROM sync_engine_write_rejections wr
     WHERE wr.client_id = ${clientId}
       AND wr.acknowledged = ${0}
+      AND wr.deleted_at IS NULL
   `);
 }
 
@@ -57,7 +64,9 @@ export async function pendingMutationCount(
   clientId: string
 ): Promise<number> {
   const rows = await db.query(sql<{ c: number | string | bigint }>`
-    SELECT COUNT(*) AS c FROM sync_engine_mutations WHERE client_id = ${clientId}
+    SELECT COUNT(*) AS c FROM sync_engine_mutations
+    WHERE client_id = ${clientId}
+      AND deleted_at IS NULL
   `);
   return Number(rows[0]?.c ?? 0);
 }

@@ -146,4 +146,42 @@ describe.skipIf(!HAS_DB)('postgres-connect (DATABASE_URL contract)', () => {
     },
     { timeout: REMOTE_DB_TIMEOUT_MS }
   );
+
+  test(
+    'int8 rows are JSON-safe (no bigint) on pool + client',
+    async () => {
+      const { pool, sqlClient } = createPgPool({
+        connectionString: DATABASE_URL,
+        dbScope,
+        max: 1,
+      });
+      try {
+        await ensurePostgresSchema(sqlClient, dbScope);
+        const rows = await sqlClient.query<{ n: number | string }>(
+          raw(`SELECT 42::int8 AS n`)
+        );
+        expect(typeof rows[0]?.n).not.toBe('bigint');
+        expect(() => JSON.stringify(rows)).not.toThrow();
+        expect(Math.max(0, Number(rows[0]?.n))).toBe(42);
+
+        const { client, sqlClient: oneShot } = await openPgClient({
+          connectionString: DATABASE_URL,
+          dbScope,
+          ensureSchema: true,
+        });
+        try {
+          const again = await oneShot.query<{ n: number | string }>(
+            raw(`SELECT 42::int8 AS n`)
+          );
+          expect(typeof again[0]?.n).not.toBe('bigint');
+          expect(() => JSON.stringify(again)).not.toThrow();
+        } finally {
+          await client.end();
+        }
+      } finally {
+        await pool.end();
+      }
+    },
+    { timeout: REMOTE_DB_TIMEOUT_MS }
+  );
 });

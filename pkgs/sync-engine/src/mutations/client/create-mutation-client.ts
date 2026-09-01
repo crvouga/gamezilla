@@ -125,7 +125,8 @@ export function createMutationClient(
           capture = wrapped.getCapture();
           await txc.run(sql`
             INSERT INTO sync_engine_mutations (
-              id, name, args, client_id, seq, created_at
+              id, name, args, client_id, seq,
+              created_at, updated_at, deleted_at
             )
             VALUES (
               ${mutationId},
@@ -133,10 +134,12 @@ export function createMutationClient(
               ${JSON.stringify(parsed.value)},
               ${ids.clientId},
               ${seq},
-              ${createdAt}
+              ${createdAt},
+              ${createdAt},
+              ${null}
             )
           `);
-          await recordOptimisticOwnRows(txc, mutationId, capture);
+          await recordOptimisticOwnRows(txc, mutationId, capture, createdAt);
         });
         options.onQueued?.({
           mutation: m as Mutation<unknown>,

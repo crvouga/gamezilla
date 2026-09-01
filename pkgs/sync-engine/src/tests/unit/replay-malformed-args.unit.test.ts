@@ -1,20 +1,19 @@
 import { describe, expect, test } from 'bun:test';
-import { sql, unsafe } from '@pkgs/sql';
+import { applySqliteSchema } from '@pkgs/db-schema/sqlite';
+import { sql } from '@pkgs/sql';
 import { SqlClientImplSqliteMem } from '@pkgs/sql-client/sqlite/impl-sqlite-mem';
 
 import { migrateLocalSchema } from '../../client/local-schema-migrate';
 import { replayMutation } from '../../mutations/server/replay-mutation';
-import { FRAMEWORK_SERVER_DDL } from '../../shared/framework-server-ddl';
+import { syncEngineServerSchema } from '../../shared/schema/tables';
 import { acmeLocalSchema, setNote } from '../apps/acme';
 
 async function openReplayDb() {
   const db = SqlClientImplSqliteMem.open();
   await db.connect();
-  for (const stmt of FRAMEWORK_SERVER_DDL.split(';')
-    .map((s) => s.trim())
-    .filter((s) => s.length > 0 && !s.toUpperCase().startsWith('DROP'))) {
-    await db.run(unsafe(stmt));
-  }
+  await applySqliteSchema(db, syncEngineServerSchema, {
+    ownership: 'declared-only',
+  });
   await migrateLocalSchema(db, acmeLocalSchema);
   return db;
 }
@@ -54,6 +53,7 @@ describe('replay malformed args unit', () => {
       const applied = await db.query(sql<{ status: string }>`
         SELECT status FROM sync_engine_mutations_applied
         WHERE mutation_id = ${'m1'}
+          AND deleted_at IS NULL
       `);
       expect(applied[0]?.status).toBe('rejected');
       const notes = await db.query(sql<{ n: number }>`

@@ -1,11 +1,14 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import type { VerifiedSession } from '@pkgs/auth/shared/verified-session';
+import { registerTables } from '@pkgs/db-schema';
+import { applySqliteSchema } from '@pkgs/db-schema/sqlite';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 import { createSimAdapters } from '@pkgs/uuid';
 
+import { AUTH_TABLES } from '../../public/schema';
 import { AuthSnapshotRefresher } from './refresh-auth-snapshot';
 
 const adapters = createSimAdapters({ seed: 1 });
@@ -41,40 +44,7 @@ function makeFakeAuthServer(args: {
 }
 
 async function migrateAuthTables(db: SqlClient): Promise<void> {
-  await db.run(sql<void>`
-    CREATE TABLE auth_devices (
-      id TEXT PRIMARY KEY,
-      created_at TEXT,
-      updated_at TEXT,
-      deleted_at TEXT,
-      user_id TEXT,
-      platform TEXT,
-      os_name TEXT,
-      os_version TEXT,
-      device_model_name TEXT,
-      device_brand TEXT,
-      device_name TEXT,
-      app_version TEXT,
-      app_build_number TEXT,
-      user_agent TEXT,
-      first_seen_at TEXT,
-      last_seen_at TEXT
-    )
-  `);
-  await db.run(sql<void>`
-    CREATE TABLE auth_external_accounts (
-      id TEXT PRIMARY KEY,
-      created_at TEXT,
-      updated_at TEXT,
-      deleted_at TEXT,
-      user_id TEXT NOT NULL,
-      provider TEXT NOT NULL,
-      external_id TEXT NOT NULL,
-      metadata TEXT NOT NULL DEFAULT '{}',
-      UNIQUE (provider, external_id),
-      UNIQUE (user_id, provider)
-    )
-  `);
+  await applySqliteSchema(db, registerTables([...AUTH_TABLES]));
 }
 
 async function readPrimaryAuthExternalAccount(

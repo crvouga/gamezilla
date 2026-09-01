@@ -7,6 +7,7 @@ type AstNode = Record<string, unknown>;
 type Dialect = 'PostgreSQL' | 'Sqlite';
 
 const parser = new Parser();
+const MAX_WALK_DEPTH = 64;
 
 function asNode(v: unknown): AstNode | undefined {
   if (v !== null && typeof v === 'object' && !Array.isArray(v)) {
@@ -16,7 +17,7 @@ function asNode(v: unknown): AstNode | undefined {
 }
 
 function tableNameFromNode(node: unknown, depth = 0): string | undefined {
-  assert.ok(depth <= 64, 'table walk depth');
+  assert.ok(depth <= MAX_WALK_DEPTH, 'table walk depth');
   if (node === null || node === undefined) return undefined;
   if (typeof node === 'string') return node.toLowerCase();
   if (Array.isArray(node)) return tableNameFromNode(node[0], depth + 1);
@@ -35,15 +36,36 @@ function collectFromTables(from: unknown, out: Set<string>): void {
   }
 }
 
+function columnNameValue(column: unknown): string | undefined {
+  if (typeof column === 'string') return column.toLowerCase();
+  const o = asNode(column);
+  if (o === undefined) return undefined;
+  // Postgres dialect: { expr: { type: 'default', value: 'col' } }
+  const expr = asNode(o['expr']);
+  if (expr !== undefined && typeof expr['value'] === 'string') {
+    return (expr['value'] as string).toLowerCase();
+  }
+  if (typeof o['value'] === 'string') return (o['value'] as string).toLowerCase();
+  return undefined;
+}
+
 function columnRef(expr: unknown): string | undefined {
   const o = asNode(expr);
   if (o === undefined) return undefined;
-  if (o['type'] === 'column_ref' && typeof o['column'] === 'string') {
-    return (o['column'] as string).toLowerCase();
+  if (o['type'] === 'column_ref') {
+    return columnNameValue(o['column']);
   }
-  if (typeof o['column'] === 'string')
-    return (o['column'] as string).toLowerCase();
-  return undefined;
+  return columnNameValue(o['column']);
+}
+
+/** Workload SQL uses `?`; node-sql-parser Postgres dialect requires `$n`. */
+function rewritePlaceholdersForDialect(sql: string, dialect: Dialect): string {
+  if (dialect !== 'PostgreSQL') return sql;
+  let n = 0;
+  return sql.replace(/\?/g, () => {
+    n += 1;
+    return `$${String(n)}`;
+  });
 }
 
 function selectListColumns(columns: unknown): string[] {
@@ -97,7 +119,6 @@ function recordComparison(op: string, o: AstNode, acc: PredAccum): void {
     acc.range.push(leftCol);
     return;
   }
-  // deleted_at IS NULL → partial
   if (op === 'IS' && leftCol === 'deleted_at') {
     const right = asNode(o['right']);
     if (right?.['type'] === 'null' || right?.['value'] === null) {
@@ -110,9 +131,14 @@ function recordComparison(op: string, o: AstNode, acc: PredAccum): void {
 }
 
 function walkWhere(where: unknown, acc: PredAccum, depth = 0): void {
-  assert.ok(depth <= 64, 'where walk depth');
+  assert.ok(depth <= MAX_WALK_DEPTH, 'where walk depth');
   const o = asNode(where);
-  if (o === undefined || o['type'] !== 'binary_expr') return;
+  if (o === undefined) return;
+  if (o['type'] === 'unary_expr') {
+    walkWhere(o['expr'], acc, depth + 1);
+    return;
+  }
+  if (o['type'] !== 'binary_expr') return;
   const op = String(o['operator'] ?? '').toUpperCase();
   if (op === 'AND') {
     walkWhere(o['left'], acc, depth + 1);
@@ -156,8 +182,62 @@ function pathsFromPred(
   return paths;
 }
 
+function isSelectNode(node: AstNode): boolean {
+  return node['type'] === 'select';
+}
+
 /**
- * Parse SELECT with node-sql-parser. Used by SQLite port and SimDb.
+ * Recursively find SELECT AST nodes that are subqueries (IN / EXISTS / FROM).
+ */
+function collectSelectSubqueries(
+  node: unknown,
+  out: AstNode[],
+  depth = 0
+): void {
+  assert.ok(depth <= MAX_WALK_DEPTH, 'subquery walk depth');
+  if (node === null || node === undefined) return;
+  if (Array.isArray(node)) {
+    for (let i = 0; i < node.length; i++) {
+      collectSelectSubqueries(node[i], out, depth + 1);
+    }
+    return;
+  }
+  const o = asNode(node);
+  if (o === undefined) return;
+  if (isSelectNode(o) && depth > 0) {
+    out.push(o);
+  }
+  for (const key of Object.keys(o)) {
+    // Avoid re-entering the same select's own body as a nested "from" root
+    // when we're already at that select — children still walked.
+    collectSelectSubqueries(o[key], out, depth + 1);
+  }
+}
+
+function pathsFromSelectRoot(root: AstNode): {
+  readonly tables: string[];
+  readonly paths: AccessPath[];
+} {
+  const tables = new Set<string>();
+  collectFromTables(root['from'], tables);
+  const tableList = [...tables];
+  const selectList = selectListColumns(root['columns']);
+  const orderBy = orderByColumns(root['orderby']);
+  const pred = emptyPred();
+  walkWhere(root['where'], pred);
+  const primary = tableList[0] ?? '';
+  if (primary.length === 0) {
+    return { tables: tableList, paths: [] };
+  }
+  return {
+    tables: tableList,
+    paths: pathsFromPred(primary, pred, selectList, orderBy),
+  };
+}
+
+/**
+ * Parse SELECT with node-sql-parser. Walks IN/EXISTS/FROM subqueries and
+ * emits an AccessPath per inner table (bounded).
  */
 export function parseWithNodeSqlParser(
   sql: string,
@@ -165,7 +245,8 @@ export function parseWithNodeSqlParser(
 ): ParsedStatement {
   assert.ok(sql.length > 0, 'sql required');
   try {
-    const ast = parser.astify(sql, { database: dialect });
+    const forAst = rewritePlaceholdersForDialect(sql, dialect);
+    const ast = parser.astify(forAst, { database: dialect });
     const stmts = Array.isArray(ast) ? ast : [ast];
     assert.ok(stmts.length >= 1, 'at least one statement');
     const root = asNode(stmts[0]);
@@ -177,20 +258,42 @@ export function parseWithNodeSqlParser(
         paths: [],
       };
     }
-    const tables = new Set<string>();
-    collectFromTables(root['from'], tables);
-    const tableList = [...tables];
+
+    const allTables = new Set<string>();
+    const allPaths: AccessPath[] = [];
+
+    const outer = pathsFromSelectRoot(root);
+    for (let i = 0; i < outer.tables.length; i++) {
+      allTables.add(outer.tables[i]!);
+    }
+    for (let i = 0; i < outer.paths.length; i++) {
+      allPaths.push(outer.paths[i]!);
+    }
+
+    const subselects: AstNode[] = [];
+    collectSelectSubqueries(root, subselects, 0);
+    assertWithinLimit(
+      subselects.length + 1,
+      LIMITS.maxTablesPerStatement * 2,
+      'select nodes'
+    );
+    for (let s = 0; s < subselects.length; s++) {
+      const inner = pathsFromSelectRoot(subselects[s]!);
+      for (let t = 0; t < inner.tables.length; t++) {
+        allTables.add(inner.tables[t]!);
+      }
+      for (let p = 0; p < inner.paths.length; p++) {
+        allPaths.push(inner.paths[p]!);
+      }
+    }
+
+    const tableList = [...allTables];
     assertWithinLimit(
       tableList.length,
       LIMITS.maxTablesPerStatement,
       'parsed tables'
     );
-    const selectList = selectListColumns(root['columns']);
-    const orderBy = orderByColumns(root['orderby']);
-    const pred = emptyPred();
-    walkWhere(root['where'], pred);
-    const primary = tableList[0] ?? '';
-    if (primary.length === 0) {
+    if (tableList.length === 0 || allPaths.length === 0) {
       return {
         ok: false,
         reason: 'no from table',
@@ -198,11 +301,15 @@ export function parseWithNodeSqlParser(
         paths: [],
       };
     }
-    const paths = pathsFromPred(primary, pred, selectList, orderBy);
+    assertWithinLimit(
+      allPaths.length,
+      LIMITS.maxCandidatesPerStatement,
+      'access paths'
+    );
     return {
       ok: true,
       tables: tableList,
-      paths,
+      paths: allPaths,
     };
   } catch (err) {
     return {

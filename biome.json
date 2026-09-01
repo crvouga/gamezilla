@@ -519,7 +519,6 @@
         "!**/export-chess-puzzles-load.ts",
         "!**/serve-harness.ts",
         "!**/example-root.tsx",
-        "!**/impl-pg-mem.ts",
         "!**/impl-pglite.ts",
         "!**/app.tsx",
         "!**/boot-playground.ts",
@@ -592,7 +591,6 @@
         "!**/export-chess-puzzles-load.ts",
         "!**/serve-harness.ts",
         "!**/example-root.tsx",
-        "!**/impl-pg-mem.ts",
         "!**/impl-pglite.ts",
         "!**/app.tsx",
         "!**/boot-playground.ts",
@@ -657,6 +655,25 @@
       "includes": [
         "**/sim/test/src/scenarios/**/*.{ts,tsx}",
         "**/sim/test/src/drivers/**/*.{ts,tsx}"
+      ]
+    },
+    {
+      "path": "./tools/biome-plugins/no-raw-create-table.grit",
+      "includes": [
+        "**/apps/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "**/pkgs/**/*.{ts,tsx}",
+        "**/sim/**/*.{ts,tsx}",
+        "!**/pkgs/db-schema/src/postgres/emit.ts",
+        "!**/pkgs/db-schema/src/sqlite/emit.ts",
+        "!**/pkgs/sql-client/src/agnostic-sql.test.ts",
+        "!**/pkgs/sql-client/e2e/harness/memory-sql.ts",
+        "!**/pkgs/sql-client/src/tests/generators/program.ts",
+        "!**/pkgs/**/cutover-migration.ts",
+        "!**/pkgs/db-schema/src/postgres/executor.test.ts",
+        "!**/pkgs/db-schema/src/postgres/reconcile.integration.test.ts",
+        "!**/dist/**",
+        "!**/build/**"
       ]
     }
   ],

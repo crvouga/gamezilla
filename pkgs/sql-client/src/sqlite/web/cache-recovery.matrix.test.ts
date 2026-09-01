@@ -1,4 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import { defineTable, registerTables } from '@pkgs/db-schema';
+import { applySqliteSchema } from '@pkgs/db-schema/sqlite';
 import { wallTimers } from '@pkgs/clock';
 import { raw, sql } from '@pkgs/sql';
 import type { SqlClient } from '../../interface';
@@ -47,6 +49,15 @@ const backends: Backend[] = [
 
 const VERSION_STRIDE = 1_000;
 
+const toyKvSchema = registerTables([
+  defineTable({
+    domain: 'toy_kv',
+    name: 'toy_kv',
+    columns: { k: 'text', v: 'text' },
+    uniqueIndexes: ['k'],
+  }),
+]);
+
 async function readUserVersion(client: SqlClient): Promise<number> {
   const rows = await client.query(
     raw<{ user_version: number }>('PRAGMA user_version')
@@ -61,9 +72,7 @@ async function migrateToyKv(client: SqlClient, epoch: number): Promise<void> {
   if (previousEpoch < epoch) {
     await client.run(raw('DROP TABLE IF EXISTS toy_kv'));
   }
-  await client.run(
-    raw('CREATE TABLE IF NOT EXISTS toy_kv (k TEXT PRIMARY KEY, v TEXT) STRICT')
-  );
+  await applySqliteSchema(client, toyKvSchema, { ownership: 'declared-only' });
   await client.run(raw(`PRAGMA user_version = ${target}`));
 }
 
@@ -91,7 +100,9 @@ describe.each(backends)(
         notifyPeers: false,
         migrate: (c) => migrateToyKv(c, 1),
       });
-      await client.run(sql`INSERT INTO toy_kv (k, v) VALUES (${'a'}, ${'1'})`);
+      await client.run(
+        sql`INSERT INTO toy_kv (id, k, v) VALUES (${'a'}, ${'a'}, ${'1'})`
+      );
       const rows = await client.query(
         sql<{ k: string; v: string }>`SELECT k, v FROM toy_kv`
       );
@@ -106,7 +117,9 @@ describe.each(backends)(
         notifyPeers: false,
         migrate: (c) => migrateToyKv(c, 1),
       });
-      await client.run(sql`INSERT INTO toy_kv (k, v) VALUES (${'a'}, ${'1'})`);
+      await client.run(
+        sql`INSERT INTO toy_kv (id, k, v) VALUES (${'a'}, ${'a'}, ${'1'})`
+      );
       await owner.close();
       await owner.resetStore();
       const next = await openSqlOwnerWithRecovery({
@@ -127,7 +140,7 @@ describe.each(backends)(
         migrate: (c) => migrateToyKv(c, 1),
       });
       await client.run(
-        sql`INSERT INTO toy_kv (k, v) VALUES (${'old'}, ${'x'})`
+        sql`INSERT INTO toy_kv (id, k, v) VALUES (${'old'}, ${'old'}, ${'x'})`
       );
       await owner.close();
       const next = await openSqlOwnerWithRecovery({
@@ -152,7 +165,7 @@ describe.each(backends)(
           migrate: (c) => migrateToyKv(c, 1),
         });
         await client.run(
-          sql`INSERT INTO toy_kv (k, v) VALUES (${'ok'}, ${'1'})`
+          sql`INSERT INTO toy_kv (id, k, v) VALUES (${'ok'}, ${'ok'}, ${'1'})`
         );
         const rows =
           await client.query(sql<{ k: string }>`SELECT k FROM toy_kv`);

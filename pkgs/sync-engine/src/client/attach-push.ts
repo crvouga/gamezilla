@@ -17,6 +17,7 @@ export type { AttachPushOptions } from './attach-push-bag';
 async function countPendingMutations(db: SqlClient): Promise<number> {
   const rows = await db.query(sql<{ c: number | string }>`
     SELECT COUNT(*) AS c FROM sync_engine_mutations
+    WHERE deleted_at IS NULL
   `);
   return Number(rows[0]?.c ?? 0);
 }

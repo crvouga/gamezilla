@@ -149,18 +149,8 @@ function classifyTypeMismatch(args: {
   caps: DialectCaps;
   out: MutableClassified;
 }): void {
-  const { tableName, col, expected, caps, out } = args;
-  if (caps.tableRebuild) {
-    out.columnDeltas.push({
-      table: tableName,
-      column: col.name,
-      kind: 'contract_client',
-      reason: 'physical type mismatch → rebuild',
-      declared: expected,
-      existing: col,
-    });
-    return;
-  }
+  const { tableName, col, expected, out } = args;
+  void args.caps;
   const hint = hasLifecycleSource(expected)
     ? ` (use a new column + widenedFrom/renamedFrom + deprecate the old one; never ALTER TYPE)`
     : '';
@@ -187,18 +177,8 @@ function classifyNullability(args: {
   caps: DialectCaps;
   out: MutableClassified;
 }): void {
-  const { tableName, col, expected, caps, out } = args;
-  if (caps.tableRebuild) {
-    out.columnDeltas.push({
-      table: tableName,
-      column: col.name,
-      kind: 'contract_client',
-      reason: 'nullability mismatch → rebuild',
-      declared: expected,
-      existing: col,
-    });
-    return;
-  }
+  const { tableName, col, expected, out } = args;
+  void args.caps;
   out.drift.push({
     path: `${tableName}.${col.name}`,
     message: `column nullability mismatch (non-PK columns must be nullable; id must be NOT NULL)`,

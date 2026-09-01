@@ -5,6 +5,7 @@
 import type { Sql, Value } from '@pkgs/sql';
 import type { PreparedStatement, RunResult, SqlClient } from '../interface';
 import { questionMarkParamsToDollarParams } from '../positional-params';
+import { normalizePgInt8Rows } from './normalize-pg-int8';
 import type { Pool, PoolClient, QueryResult } from './pg-types';
 import type { PgliteWorkerTransport } from './pglite-worker-transport';
 
@@ -32,7 +33,7 @@ export function createPgliteWorkerSqlClient(
       query: Sql<T>
     ): Promise<T[]> {
       const result = await runWorkerQuery(call, query.sql, query.values);
-      return result.rows as T[];
+      return normalizePgInt8Rows(result.rows as T[]);
     },
     async run(query: Sql<unknown>): Promise<RunResult> {
       const result = await runWorkerQuery(call, query.sql, query.values);
@@ -45,7 +46,7 @@ export function createPgliteWorkerSqlClient(
       return {
         query: async (params?: Value[]) => {
           const result = await runWorkerQuery(call, statementSql, params ?? []);
-          return result.rows as T[];
+          return normalizePgInt8Rows(result.rows as T[]);
         },
         run: async (params?: Value[]) => {
           const result = await runWorkerQuery(call, statementSql, params ?? []);
@@ -80,7 +81,12 @@ export function createPgliteWorkerPool(
       sql: text,
       params: values ?? [],
     })) as { rows: QueryResult['rows']; affectedRows: number };
-    return { rows: result.rows, rowCount: result.affectedRows };
+    return {
+      rows: normalizePgInt8Rows(
+        result.rows as Record<string, unknown>[]
+      ) as QueryResult['rows'],
+      rowCount: result.affectedRows,
+    };
   };
 
   const checkoutClient = (): PoolClient => ({

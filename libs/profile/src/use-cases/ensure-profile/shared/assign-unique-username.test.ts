@@ -1,8 +1,11 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import { registerTables } from '@pkgs/db-schema';
+import { applySqliteSchema } from '@pkgs/db-schema/sqlite';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 import { MutationError } from '@pkgs/sync-engine/shared';
+import { PROFILE_TABLES } from '../../../public/schema';
 import { assignUniqueUsernameIfEmpty } from '../../../shared/profile/assign-unique-username';
 import { generateRandomUsername } from '../../../shared/profile/username-generator';
 import { ensureProfileMutation } from './ensure-profile-mutation';
@@ -23,16 +26,7 @@ function mutationEnv(myId: string) {
 }
 
 async function migrate(db: SqlClient): Promise<void> {
-  await db.run(sql<void>`
-    CREATE TABLE profile (
-      id TEXT PRIMARY KEY,
-      created_at TEXT NOT NULL,
-      username TEXT NOT NULL DEFAULT '',
-      username_norm TEXT NOT NULL DEFAULT '',
-      username_changed_at TEXT,
-      avatar_config TEXT
-    )
-  `);
+  await applySqliteSchema(db, registerTables([...PROFILE_TABLES]));
 }
 
 describe('assignUniqueUsernameIfEmpty', () => {

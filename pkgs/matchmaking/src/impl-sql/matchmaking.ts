@@ -68,6 +68,7 @@ export class MatchmakingImplSql implements Matchmaking {
       schema: this.schema,
       ...(resolved.radius !== undefined ? { radius: resolved.radius } : {}),
       tuning: MatchmakingImplSql.tuningForMigrate(resolved.tuning),
+      now: this.now,
     };
     this.bootPromise = undefined;
   }

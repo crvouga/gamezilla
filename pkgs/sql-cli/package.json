@@ -19,6 +19,7 @@
     "@pkgs/sql-client": "workspace:*"
   },
   "devDependencies": {
+    "@pkgs/db-schema": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"

@@ -17,12 +17,16 @@ export class Outbox {
     const nowIso = this.ctx.env.now().toISOString();
     const payloadJson = JSON.stringify(input.message.payload);
     await this.ctx.tx.run(sql`
-      INSERT INTO outbox_events (id, type, payload, created_at, available_at)
+      INSERT INTO outbox_events (
+        id, type, payload, created_at, updated_at, deleted_at, available_at
+      )
       VALUES (
         ${input.id},
         ${input.message.type},
         ${payloadJson},
         ${nowIso},
+        ${nowIso},
+        ${null},
         ${nowIso}
       )
       ON CONFLICT (id) DO NOTHING

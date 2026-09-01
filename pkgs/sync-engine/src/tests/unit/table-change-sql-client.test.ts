@@ -1,17 +1,25 @@
 import { describe, expect, test } from 'bun:test';
+import { defineTable, registerTables } from '@pkgs/db-schema';
+import { applySqliteSchema } from '@pkgs/db-schema/sqlite';
 import { raw, sql } from '@pkgs/sql';
 import { SqlClientImplSqliteMem } from '@pkgs/sql-client/sqlite/impl-sqlite-mem';
 
 import { createTableChangeSqlClient } from '../../client/table-change-sql-client';
 import { createTableChangeBus } from '../../queries/client/table-change-bus';
 
+const spacesSchema = registerTables([
+  defineTable({
+    domain: 'spaces',
+    name: 'spaces',
+    columns: { title: 'text' },
+  }),
+]);
+
 describe('createTableChangeSqlClient', () => {
   test('emits tables for INSERT via query(RETURNING *) inside a transaction', async () => {
     const rawClient = SqlClientImplSqliteMem.open();
     await rawClient.connect();
-    await rawClient.run(
-      raw('CREATE TABLE spaces (id TEXT PRIMARY KEY, title TEXT)')
-    );
+    await applySqliteSchema(rawClient, spacesSchema);
     const bus = createTableChangeBus();
     const emitted: string[][] = [];
     bus.subscribe((tables) => {

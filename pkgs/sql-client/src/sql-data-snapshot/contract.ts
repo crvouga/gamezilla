@@ -1,7 +1,28 @@
 import { afterEach, beforeEach, expect, test } from 'bun:test';
+import { defineTable, registerTables, type TableDef } from '@pkgs/db-schema';
+import { applyPostgresSchema } from '@pkgs/db-schema/postgres';
+import { applySqliteSchema } from '@pkgs/db-schema/sqlite';
 import { raw, sql } from '@pkgs/sql';
-import type { SqlClient } from '../interface';
+import type { PostgresSqlClient, SqlClient } from '../interface';
 import { dumpData, loadData } from './port';
+
+function isPostgresSqlClient(client: SqlClient): client is PostgresSqlClient {
+  return 'dbScope' in client;
+}
+
+async function applySchema(
+  client: SqlClient,
+  tables: readonly TableDef[]
+): Promise<void> {
+  const schema = registerTables(tables);
+  if (isPostgresSqlClient(client)) {
+    await applyPostgresSchema(client, schema, client.dbScope, {
+      skipAdvisoryLock: true,
+    });
+    return;
+  }
+  await applySqliteSchema(client, schema);
+}
 
 /** Shared dump→load round-trip — run against every SqlClient adapter. */
 export function runSqlDataSnapshotContractTests(
@@ -23,11 +44,13 @@ export function runSqlDataSnapshotContractTests(
   });
 
   test('dumpData → loadData round-trip preserves rows', async () => {
-    await client.run(
-      raw(
-        'CREATE TABLE IF NOT EXISTS snap_demo (id TEXT PRIMARY KEY, n INTEGER, body TEXT)'
-      )
-    );
+    await applySchema(client, [
+      defineTable({
+        domain: 'snap_demo',
+        name: 'snap_demo',
+        columns: { n: 'integer', body: 'text' },
+      }),
+    ]);
     await client.run(
       sql`INSERT INTO snap_demo (id, n, body) VALUES (${'a'}, ${1}, ${'hello'})`
     );
@@ -53,30 +76,29 @@ export function runSqlDataSnapshotContractTests(
     ]);
   });
 
-  test('dumpData → loadData preserves camelCase column names on Postgres', async () => {
-    await client.run(
-      raw(
-        'CREATE TABLE IF NOT EXISTS snap_camel ("accountId" TEXT PRIMARY KEY, "createdAt" TEXT)'
-      )
-    );
-    await client.run(
-      raw(
-        `INSERT INTO snap_camel ("accountId", "createdAt") VALUES ('acct-1', '2024-01-01')`
-      )
-    );
-
-    const dump = await dumpData(client, { tables: ['snap_camel'] });
-    expect(dump.tables['snap_camel']?.columns).toEqual([
-      'accountId',
-      'createdAt',
+  test('dumpData → loadData preserves snake_case column names', async () => {
+    await applySchema(client, [
+      defineTable({
+        domain: 'snap_snake',
+        name: 'snap_snake',
+        columns: { account_id: 'text' },
+      }),
     ]);
+    await client.run(
+      sql`INSERT INTO snap_snake (id, account_id) VALUES (${'row-1'}, ${'acct-1'})`
+    );
 
-    await client.run(raw('DELETE FROM snap_camel'));
+    const dump = await dumpData(client, { tables: ['snap_snake'] });
+    expect([...(dump.tables['snap_snake']?.columns ?? [])].sort()).toEqual(
+      ['account_id', 'created_at', 'deleted_at', 'id', 'updated_at'].sort()
+    );
+
+    await client.run(raw('DELETE FROM snap_snake'));
     await loadData(client, dump);
 
-    const rows = await client.query<{ accountId: string; createdAt: string }>(
-      raw('SELECT "accountId", "createdAt" FROM snap_camel')
+    const rows = await client.query<{ account_id: string; id: string }>(
+      raw('SELECT id, account_id FROM snap_snake')
     );
-    expect(rows).toEqual([{ accountId: 'acct-1', createdAt: '2024-01-01' }]);
+    expect(rows).toEqual([{ id: 'row-1', account_id: 'acct-1' }]);
   });
 }

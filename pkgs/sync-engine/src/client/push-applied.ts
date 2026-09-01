@@ -1,6 +1,8 @@
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
+import { topicRowId } from '../shared/schema/tables';
+
 /**
  * Pre-Phase-2 REST pushes used `${Date.now()}000000` (~1e18). Monotonic
  * allocateTopicPushSeq values stay small integers. Anything at/above this
@@ -58,14 +60,19 @@ export async function readLastPushSeq(
   const rows = await db.query(sql<{ last_push_seq: string }>`
     SELECT last_push_seq FROM sync_engine_push_applied
     WHERE topic = ${topic}
+      AND deleted_at IS NULL
     LIMIT 1
   `);
   const raw = rows[0]?.last_push_seq ?? null;
   if (raw === null) return null;
   if (!isLegacyWallClockCheckpoint(raw)) return raw;
   // Heal poisoned rows so own-ack floor / seq pushes can advance again.
+  const nowIso = new Date().toISOString();
   await db.run(sql`
-    DELETE FROM sync_engine_push_applied WHERE topic = ${topic}
+    UPDATE sync_engine_push_applied
+    SET deleted_at = ${nowIso}, updated_at = ${nowIso}
+    WHERE topic = ${topic}
+      AND deleted_at IS NULL
   `);
   return null;
 }
@@ -87,34 +94,52 @@ export async function isPushSeqStale(
 export async function recordPushApplied(
   db: SqlClient,
   topic: string,
-  pushSeq: string
+  pushSeq: string,
+  nowIso?: string
 ): Promise<void> {
   if (isLegacyWallClockCheckpoint(pushSeq)) {
-    // Never persist wall-clock sequences into the pushSeq tracker.
     return;
   }
   const prev = await readLastPushSeq(db, topic);
   if (prev !== null && compareCheckpoint(pushSeq, prev) <= 0) return;
+  const ts = nowIso ?? new Date().toISOString();
   await db.run(sql`
-    INSERT INTO sync_engine_push_applied (topic, last_push_seq)
-    VALUES (${topic}, ${pushSeq})
-    ON CONFLICT (topic) DO UPDATE SET
-      last_push_seq = excluded.last_push_seq
+    INSERT INTO sync_engine_push_applied (
+      id, topic, last_push_seq, created_at, updated_at, deleted_at
+    )
+    VALUES (
+      ${topicRowId(topic)},
+      ${topic},
+      ${pushSeq},
+      ${ts},
+      ${ts},
+      ${null}
+    )
+    ON CONFLICT (id) DO UPDATE SET
+      last_push_seq = excluded.last_push_seq,
+      updated_at = excluded.updated_at,
+      deleted_at = NULL
   `);
 }
 
 /** Drop tracking for topics no longer subscribed (membership remake). */
 export async function clearRemovedPushApplied(
   db: SqlClient,
-  retainedTopics: ReadonlySet<string>
+  retainedTopics: ReadonlySet<string>,
+  nowIso?: string
 ): Promise<void> {
+  const ts = nowIso ?? new Date().toISOString();
   const rows = await db.query(sql<{ topic: string }>`
     SELECT topic FROM sync_engine_push_applied
+    WHERE deleted_at IS NULL
   `);
   for (const row of rows) {
     if (retainedTopics.has(row.topic)) continue;
     await db.run(sql`
-      DELETE FROM sync_engine_push_applied WHERE topic = ${row.topic}
+      UPDATE sync_engine_push_applied
+      SET deleted_at = ${ts}, updated_at = ${ts}
+      WHERE topic = ${row.topic}
+        AND deleted_at IS NULL
     `);
   }
 }

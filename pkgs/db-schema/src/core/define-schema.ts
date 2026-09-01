@@ -7,6 +7,7 @@ import {
   parseTablesLiteral,
   parseViewsLiteral,
 } from './parse-schema-literal';
+import { validateColumnLifecycle } from './column-spec';
 import { assertSnakeCaseIdent } from './snake-case';
 import { buildSnapshot } from './snapshot';
 import type {
@@ -111,6 +112,16 @@ export function validateRuntime(
   assertAllTablesMatchPolicy(tables, options?.tableNamePolicy);
   const { deprecations, deprecatedTables, deprecatedColumns } =
     parseDeprecationsLiteral(literal['deprecations'], tables);
+  for (const [tableName, cols] of Object.entries(tables)) {
+    const tableDeps = deprecations.filter(
+      (d) => d[0] === tableName && d.length === 3
+    );
+    validateColumnLifecycle({
+      tableName,
+      columns: cols,
+      deprecations: tableDeps,
+    });
+  }
   const indexCtx = { tables, deprecatedTables, deprecatedColumns };
   const crossSeen = new Set<string>();
   const indexes = parseIndexesLiteral({

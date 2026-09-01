@@ -35,6 +35,8 @@ INDEXES_SOAK_MS=60000 bun run --filter @pkgs/db-indexes sim:soak
 | I1 owned-only DDL | `diffOwnedIndexes` + `reconcile` execute | `checkInvariantsAsync` + harness | `ownership.pbt` |
 | I2 crash-converge | n/a (executor returns crashed) | fork + fault-free reconcile | system actions |
 | I3 usage-hold drop | `pushDeprecateDropActions` | usage-hold in harness | known-seeds / usage test |
+| I4 indexable workload | `assertIndexableWorkload` (CI on APP_QUERIES) | n/a (authoring) | `indexability.pbt` |
+| I5 scoped unless catalog | unfiltered path → catalog allowlist only | n/a (authoring) | `indexability.pbt` |
 | Fixpoint | n/a | harness + settle | `idempotence.pbt` |
 | Budget | consolidate | `checkInvariantsAsync` | `budget-gates.pbt` |
 | Determinism | sort canonicalize | seed replay | `determinism.pbt` |

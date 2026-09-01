@@ -18,6 +18,7 @@
     "@pkgs/assert": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/db-migrate": "workspace:*",
+    "@pkgs/db-schema": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/message": "workspace:*",
     "@pkgs/sql": "workspace:*",

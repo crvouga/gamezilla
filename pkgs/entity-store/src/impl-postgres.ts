@@ -1,14 +1,13 @@
 /**
- * Postgres-backed {@link EntityStore}. Table layout and DDL are private to
- * this module — owned by `@pkgs/entity-store`, not `@libs/runtime` / sync.
- *
- * Schema is applied via {@link EntityStoreImplPostgres.migrateUp} during
- * `db:migrate` (same pattern as `@pkgs/kv`).
+ * Postgres-backed {@link EntityStore}. Schema owned by defineTable
+ * (`entityStoreSchema`) — not product appSchema / sync.
  */
 
 import type { Logger } from '@pkgs/logger';
-import { raw, sql } from '@pkgs/sql';
+import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import { createPostgresDbScope } from '@pkgs/sql-client/postgres/schema';
+
 import { entityStoreId } from './entity-id';
 import type {
   EntityStore,
@@ -16,48 +15,18 @@ import type {
   EntityStoreRow,
   EntityStoreUpsertArgs,
 } from './interface';
-import {
-  ENTITY_STORE_CREATE_INDEX_DDL as CREATE_INDEXES,
-  ENTITY_STORE_CREATE_TABLE_DDL as CREATE_TABLE,
-  ENTITY_STORE_TABLE as TABLE,
-} from './schema-ddl';
+import { EntityStorePostgresDatabaseMigration } from './postgres-database-migration';
 
-/** Idempotent: strip wall DEFAULT now() left by older CREATE TABLE. */
-async function dropEntityStoreWallDefaults(
-  sqlClient: SqlClient
-): Promise<void> {
-  await sqlClient.run(
-    raw(`ALTER TABLE ${TABLE} ALTER COLUMN created_at DROP DEFAULT`)
-  );
-  await sqlClient.run(
-    raw(`ALTER TABLE ${TABLE} ALTER COLUMN updated_at DROP DEFAULT`)
-  );
-}
-
-async function runEntityStoreMigrations(
-  sqlClient: SqlClient,
-  log: Logger
-): Promise<void> {
-  const existing = await sqlClient.query(sql<{ tablename: string }>`
-    SELECT tablename FROM pg_tables
-     WHERE schemaname = current_schema() AND tablename = ${TABLE}`);
-  if (existing.length === 0) {
-    log.info('entity_store postgres migrate: applying ddl', { table: TABLE });
-    await sqlClient.run(raw(CREATE_TABLE));
-    for (const stmt of CREATE_INDEXES) {
-      await sqlClient.run(raw(stmt));
-    }
-    log.info('entity_store postgres migrate: ddl applied', { table: TABLE });
-  } else {
-    log.info('entity_store postgres migrate: table exists (skipping create)', {
-      table: TABLE,
-    });
-    for (const stmt of CREATE_INDEXES) {
-      await sqlClient.run(raw(stmt));
-    }
-  }
-  await dropEntityStoreWallDefaults(sqlClient);
-}
+type Row = {
+  id: string;
+  namespace: string;
+  type: string;
+  external_id: string;
+  owner_id: string | null;
+  data: unknown;
+  created_at: string | Date;
+  updated_at: string | Date;
+};
 
 function parseData(value: unknown): Record<string, unknown> | null {
   if (value === null || value === undefined) return null;
@@ -73,17 +42,6 @@ function parseData(value: unknown): Record<string, unknown> | null {
   }
   return null;
 }
-
-type Row = {
-  id: string;
-  namespace: string;
-  type: string;
-  external_id: string;
-  owner_id: string | null;
-  data: unknown;
-  created_at: string | Date;
-  updated_at: string | Date;
-};
 
 function toIso(value: string | Date): string {
   return value instanceof Date ? value.toISOString() : String(value);
@@ -119,22 +77,19 @@ export class EntityStoreImplPostgres implements EntityStore {
     return new EntityStoreImplPostgres(args.sqlClient, args.now);
   }
 
-  /** Idempotent Postgres DDL for the `entity_store` table. */
+  /** Idempotent Postgres schema apply for the `entity_store` table. */
   static async migrateUp(args: {
     sqlClient: SqlClient;
     logger: Logger;
   }): Promise<void> {
-    const log = args.logger.child({ migration: 'entity-store-postgres' });
-    log.info('entity_store postgres migrate: start');
-    try {
-      await runEntityStoreMigrations(args.sqlClient, log);
-      log.info('entity_store postgres migrate: complete');
-    } catch (error) {
-      log.error('entity_store postgres migrate: failed', {
-        error: error instanceof Error ? error.message : String(error),
-      });
-      throw error;
-    }
+    await new EntityStorePostgresDatabaseMigration({
+      dbScope: createPostgresDbScope('public'),
+      skipAdvisoryLock: true,
+      alreadyInTransaction: false,
+    }).migrate({
+      sqlClient: args.sqlClient,
+      logger: args.logger,
+    });
   }
 
   async upsert(args: EntityStoreUpsertArgs): Promise<void> {
@@ -144,7 +99,8 @@ export class EntityStoreImplPostgres implements EntityStore {
     const iso = new Date(this.now()).toISOString();
     await this.sqlClient.run(sql<void>`
       INSERT INTO entity_store (
-        id, namespace, type, external_id, owner_id, data, created_at, updated_at
+        id, namespace, type, external_id, owner_id, data,
+        created_at, updated_at, deleted_at
       )
       VALUES (
         ${id},
@@ -154,12 +110,14 @@ export class EntityStoreImplPostgres implements EntityStore {
         ${ownerId},
         ${dataJson},
         ${iso},
-        ${iso}
+        ${iso},
+        ${null}
       )
       ON CONFLICT (namespace, type, external_id) DO UPDATE SET
         owner_id = COALESCE(excluded.owner_id, entity_store.owner_id),
         data = excluded.data,
-        updated_at = excluded.updated_at
+        updated_at = excluded.updated_at,
+        deleted_at = NULL
     `);
   }
 
@@ -170,6 +128,7 @@ export class EntityStoreImplPostgres implements EntityStore {
       WHERE namespace = ${key.namespace}
         AND type = ${key.type}
         AND external_id = ${key.externalId}
+        AND deleted_at IS NULL
       LIMIT 1
     `);
     const first = rows[0];
@@ -178,11 +137,14 @@ export class EntityStoreImplPostgres implements EntityStore {
   }
 
   async delete(key: EntityStoreKey): Promise<void> {
+    const iso = new Date(this.now()).toISOString();
     await this.sqlClient.run(sql<void>`
-      DELETE FROM entity_store
+      UPDATE entity_store
+      SET deleted_at = ${iso}, updated_at = ${iso}
       WHERE namespace = ${key.namespace}
         AND type = ${key.type}
         AND external_id = ${key.externalId}
+        AND deleted_at IS NULL
     `);
   }
 }

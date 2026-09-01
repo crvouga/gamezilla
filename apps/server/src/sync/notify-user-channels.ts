@@ -7,7 +7,7 @@ export type NotifyUserChannelsOptions = {
   readonly tables?: readonly string[];
   /**
    * When true, publish on the request timers after allocate (avoids re-entering
-   * an open Hono/pg-mem request). Prefer false for OOB paths that already
+   * an open Hono/postgres-mem request). Prefer false for OOB paths that already
    * finished their write txn — DST sims need the push before the next tick.
    */
   readonly deferPublish?: boolean;

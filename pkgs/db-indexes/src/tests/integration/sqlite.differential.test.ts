@@ -1,5 +1,7 @@
 import { Database } from 'bun:sqlite';
 import { describe, expect, test } from 'bun:test';
+import { defineTable, registerTables } from '@pkgs/db-schema';
+import { emitSqliteCreateStatements } from '@pkgs/db-schema/sqlite';
 import { fingerprintSql } from '../../core/fingerprint';
 import { reconcileIndexes } from '../../core/reconcile';
 import type { WorkloadManifest } from '../../core/types';
@@ -13,6 +15,22 @@ function stmt(sql: string) {
     fingerprint: fingerprintSql(sql),
     weight: 1,
   };
+}
+
+function plantNotesTable(
+  db: Database,
+  columns: Record<string, 'text'> = { user_id: 'text', title: 'text' }
+): void {
+  const schema = registerTables([
+    defineTable({
+      domain: 'notes',
+      name: 'notes',
+      columns,
+    }),
+  ]);
+  for (const ddl of emitSqliteCreateStatements(schema)) {
+    db.run(ddl);
+  }
 }
 
 const MANIFEST: WorkloadManifest = {
@@ -37,9 +55,7 @@ const CFG = {
 describe('sqlite differential + faults', () => {
   test('SimDb owned names ⊆ sqlite_master after reconcile', async () => {
     const raw = new Database(':memory:');
-    raw.run(
-      `CREATE TABLE notes (id TEXT PRIMARY KEY, user_id TEXT, title TEXT)`
-    );
+    plantNotesTable(raw);
     for (let i = 0; i < 200; i++) {
       raw.run(`INSERT INTO notes (id, user_id, title) VALUES (?, ?, ?)`, [
         `n${String(i)}`,
@@ -85,7 +101,7 @@ describe('sqlite differential + faults', () => {
 
   test('readIndexUsage returns zeros (observable behavior)', async () => {
     const raw = new Database(':memory:');
-    raw.run(`CREATE TABLE notes (id TEXT PRIMARY KEY, user_id TEXT)`);
+    plantNotesTable(raw, { user_id: 'text' });
     const db = createSqlitePort({ db: raw, idleWindow: true });
     const usage = await db.readIndexUsage();
     for (const u of usage) {
@@ -96,7 +112,7 @@ describe('sqlite differential + faults', () => {
 
   test('large table defer / lowConfidence path does not throw', async () => {
     const raw = new Database(':memory:');
-    raw.run(`CREATE TABLE notes (id TEXT PRIMARY KEY, user_id TEXT)`);
+    plantNotesTable(raw, { user_id: 'text' });
     const clock = createSimClock(0);
     const db = createSqlitePort(
       { db: raw, idleWindow: false },
@@ -128,9 +144,9 @@ describe('sqlite differential + faults', () => {
     raw.close();
   });
 
-  test('_autoidx_meta round-trip', async () => {
+  test('autoidx_meta round-trip', async () => {
     const raw = new Database(':memory:');
-    raw.run(`CREATE TABLE notes (id TEXT PRIMARY KEY, user_id TEXT)`);
+    plantNotesTable(raw, { user_id: 'text' });
     for (let i = 0; i < 30; i++) {
       raw.run(`INSERT INTO notes (id, user_id) VALUES (?, ?)`, [
         `n${String(i)}`,

@@ -160,7 +160,7 @@ while `sql` is connected; allocates pushSeqs then fire-and-forgets publish),
 `isAuthErrorBody`, `SyncAppAuth`, `pruneMutationArtifacts`.
 
 **shared:** `defineQuery`, `defineMutation`, registries, `MutationError`,
-`LIVE_ROW_SQL`, `softDeleteById`, `applyFrameworkServerDdl` (opaque),
+`LIVE_ROW_SQL`, `softDeleteById`, framework schema migrate helpers (opaque),
 protocol types + `MAX_*` + `SYNC_PROTOCOL_VERSION`,
 `defineTopicMap`, `assertChannelExhaustiveness`, `assertDomainTablesAvoidFrameworkNames`.
 
@@ -408,14 +408,15 @@ Domain tables come from the host’s `LocalDomainSchema.domainSchema` (e.g.
 
 ### Server Postgres (framework)
 
-Applied by `applyFrameworkServerDdl` at migrate time (not domain
-`defineTable` / `registerTables`):
+Applied by package-local `defineTable` schema (`syncEngineServerSchema`) via
+`SyncEngineDatabaseMigration` (cutover + `PostgresSchemaDatabaseMigration`).
+Not registered in product `appSchema`:
 
 | Table | Purpose |
 |-------|---------|
-| `sync_engine_mutations_applied` | Idempotency + audit (`applied` / `rejected`) |
+| `sync_engine_mutations_applied` | Idempotency + audit (`applied` / `rejected`); `id = mutation_id` |
 | `sync_engine_write_rejections` | Permanent failures keyed by `client_id` (= device id) |
-| `sync_engine_topic_seq` | Per-topic monotonic push sequences (`n` bigint) |
+| `sync_engine_topic_seq` | Per-topic monotonic push sequences (`n`); `id = topic` |
 
 `public.sync_engine_mutations` is **dropped**. Uploads are JSON to `POST /mutations`, not
 row sync of a `sync_engine_mutations` table.
@@ -562,7 +563,7 @@ in-flight pre-replay query sweeps (reject-only batches do not fence).
 | `defineQuery.run` | **Include** tombstones (`SELECT …, deleted_at`, no live filter) |
 | UI / `useQuery` SQL | Filter `deleted_at IS NULL` (or `LIVE_ROW_SQL`) |
 | Merge | Upsert `deleted_at` as a normal column |
-| Framework tables | May hard-delete |
+| Framework tables | Soft-delete too (`defineTable` managed cols); revive on unique-key upsert |
 
 Inbox is slightly different product-wise (`active` flag) but still a sync query;
 don’t invent a second delete model without review.
@@ -714,9 +715,9 @@ single-flight (it does) — mainly HTTP/server load then.
 
 - **Domain schema:** `@libs/runtime` `defineTable` / `registerTables` / `appSchema`; local reconcile via
   `@pkgs/db-schema/sqlite`; Postgres migrate separate.
-- **Framework local:** `FRAMEWORK_LOCAL_DDL` + `SCHEMA_EPOCH` (= 11) in
-  `queries/client/local-schema.ts`.
-- **Framework server:** `FRAMEWORK_SERVER_DDL` via `applyFrameworkServerDdl`.
+- **Framework local:** package-local `syncEngineLocalSchema` via `applySqliteSchema`; `SCHEMA_EPOCH` (= 12)
+  in `queries/client/local-schema.ts`.
+- **Framework server:** `syncEngineServerSchema` via `SyncEngineDatabaseMigration` (cutover + Postgres reconcile).
 - **Query/mutation wire names:** breaking changes ship as a new `name`
   (e.g. `joinSpaceV2`). Protocol cutover for clients is `upgrade_required`
   (no wipe) + pending-queue preserve-and-drain — see CONTRACTS cutover runbook.
@@ -739,7 +740,7 @@ single-flight (it does) — mainly HTTP/server load then.
 
 **API** (`apps/server/src/sync/sync-app.ts`)
 
-1. `applyFrameworkServerDdl` during migrate (opaque; no DDL text import)
+1. `SyncEngineDatabaseMigration` during migrate (package-local `defineTable` schema)
 2. `createSyncApp({ resolveAuth, getSql, queries, mutations, pubsub,
    rowImageFanout: true })`
 3. Non-mutation DOMAIN writes must `notifyChannels({ pubsub, sql, topics, … })`

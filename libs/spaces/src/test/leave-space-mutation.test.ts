@@ -1,7 +1,10 @@
 import { beforeEach, describe, expect, test } from 'bun:test';
+import { registerTables } from '@pkgs/db-schema';
+import { applySqliteSchema } from '@pkgs/db-schema/sqlite';
 import { sql } from '@pkgs/sql';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 import type { MutationEnv } from '@pkgs/sync-engine/shared';
+import { SPACES_TABLES } from '../public/schema';
 import { spaceOpenSessionEntityId } from '../shared/space/participation/participation-ids';
 import { createSpaceMutation } from '../use-cases/create-space/shared/create-space-mutation';
 import { joinSpaceMutation } from '../use-cases/join-space/shared/join-space-mutation';
@@ -26,37 +29,7 @@ function env(args: { deviceId: string; accountId: string }): MutationEnv {
 }
 
 async function migrate(db: SqlClientImplBunSqlite): Promise<void> {
-  await db.run(sql`
-    CREATE TABLE spaces (
-      id TEXT PRIMARY KEY,
-      host_id TEXT,
-      host_member_id TEXT,
-      host_account_id TEXT,
-      visibility TEXT,
-      created_at TEXT,
-      ended_at TEXT
-    )
-  `);
-  await db.run(sql`
-    CREATE TABLE spaces_users (
-      id TEXT PRIMARY KEY,
-      space_id TEXT,
-      user_id TEXT,
-      created_at TEXT,
-      created_by_account_id TEXT,
-      deleted_at TEXT
-    )
-  `);
-  await db.run(sql`
-    CREATE TABLE spaces_open_sessions (
-      id TEXT PRIMARY KEY,
-      space_id TEXT,
-      device_id TEXT,
-      opened_at TEXT,
-      join_announced INTEGER,
-      deleted_at TEXT
-    )
-  `);
+  await applySqliteSchema(db, registerTables([...SPACES_TABLES]));
 }
 
 describe('leaveSpaceMutation', () => {

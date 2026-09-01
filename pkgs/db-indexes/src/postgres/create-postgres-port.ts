@@ -339,7 +339,11 @@ export function createPostgresPort(
 
   return {
     parseStatement(sqlText: string): ParsedStatement {
-      return parseWithNodeSqlParser(sqlText, 'PostgreSQL');
+      // Normalized workload SQL uses `?`. Prefer Postgres after rewrite; fall
+      // back to Sqlite when product identifiers are Postgres-reserved (e.g. `at`).
+      const pg = parseWithNodeSqlParser(sqlText, 'PostgreSQL');
+      if (pg.ok) return pg;
+      return parseWithNodeSqlParser(sqlText, 'Sqlite');
     },
     introspectIndexes: () => introspectIndexes(client),
     introspectTables: () => introspectTables(client),

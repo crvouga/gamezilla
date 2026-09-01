@@ -8,8 +8,8 @@ import { type SqliteOwnership, sqlite } from './driver';
 
 export type SqliteSchemaDatabaseMigrationOptions = {
   /**
-   * `whole-db` (default): drop undeclared tables — the bound DB is wholly owned.
-   * `declared-only`: leave undeclared tables alone (coexist with framework tables).
+   * `declared-only` (default): leave undeclared tables alone (coexist with framework tables).
+   * `whole-db`: drop undeclared tables — the bound DB is wholly owned.
    */
   readonly ownership?: SqliteOwnership;
 };

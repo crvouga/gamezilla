@@ -3,12 +3,12 @@ import {
   columnVisibleForDrift,
   desiredColumns,
   findColumn,
-  logicalTypeMatch,
 } from './compatibility';
 import { SQLITE_CAPS } from './dialect-caps';
 import {
   asPackageIndexName,
-  asValidatedIdent,
+  asPhysicalIdent,
+  asSchemaIdent,
   fingerprintForIndexDef,
 } from './index-fingerprint';
 import { resolveBackfillSql } from './lifecycle';
@@ -41,7 +41,7 @@ function createTableColumns(
   const columns: CreateTableColumn[] = [];
   for (const name of MANAGED_IMPLICIT_COLUMN_NAMES) {
     columns.push({
-      name: asValidatedIdent(name),
+      name: asSchemaIdent(name),
       type: MANAGED_IMPLICIT_COLUMNS[name],
       isPrimaryKey: name === 'id',
     });
@@ -54,7 +54,7 @@ function createTableColumns(
 
 function toCreateColumn(name: string, col: DeclaredColumn): CreateTableColumn {
   return {
-    name: asValidatedIdent(name),
+    name: asSchemaIdent(name),
     type: col.type,
     isPrimaryKey: false,
     ...(col.physicalSqlite !== undefined
@@ -63,31 +63,12 @@ function toCreateColumn(name: string, col: DeclaredColumn): CreateTableColumn {
     ...(col.references !== undefined
       ? {
           references: {
-            table: asValidatedIdent(col.references.table),
-            column: asValidatedIdent(col.references.column),
+            table: asSchemaIdent(col.references.table),
+            column: asSchemaIdent(col.references.column),
           },
         }
       : {}),
   };
-}
-
-function needsRebuild(
-  existing: IntrospectedTable,
-  desired: Map<string, DeclaredColumn>
-): boolean {
-  for (const col of existing.columns) {
-    if (!columnVisibleForDrift(col.name)) continue;
-    const expected = desired.get(col.name);
-    if (expected === undefined) continue;
-    if (!logicalTypeMatch(expected.type, col.type, 'sqlite', expected)) {
-      return true;
-    }
-    if (col.name === 'id' && col.nullable) return true;
-    if (col.name !== 'id' && !col.nullable && desired.has(col.name)) {
-      return true;
-    }
-  }
-  return false;
 }
 
 function underscoreExtras(existing: IntrospectedTable): {
@@ -105,6 +86,42 @@ function underscoreExtras(existing: IntrospectedTable): {
   return { names, types };
 }
 
+function missingChecksOrFks(
+  tableName: string,
+  declared: ReadonlyDeclaredSchema,
+  catalog: IntrospectedCatalog
+): boolean {
+  const existingChecks = new Set(
+    (catalog.checks ?? []).map((c) => `${c.table}.${c.name}`)
+  );
+  for (const check of declared.checks) {
+    if (
+      check.table === tableName &&
+      !existingChecks.has(`${check.table}.${check.name}`)
+    ) {
+      return true;
+    }
+  }
+  const existingFks = new Set(
+    (catalog.foreignKeys ?? []).map((f) => `${f.table}.${f.column}`)
+  );
+  for (const [colName, col] of Object.entries(declared.tables[tableName]!)) {
+    if (col.references !== undefined && !existingFks.has(`${tableName}.${colName}`)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function columnCopyRef(
+  name: string
+): import('./types').SchemaIdent | import('./types').PhysicalIdent {
+  if (name.startsWith('_') && !MANAGED_IMPLICIT_SET.has(name)) {
+    return asPhysicalIdent(name);
+  }
+  return asSchemaIdent(name);
+}
+
 function planDropUnknownTables(
   declaredNames: Set<string>,
   catalog: IntrospectedCatalog,
@@ -114,7 +131,7 @@ function planDropUnknownTables(
   const ops: ClientOperation[] = [];
   for (const name of catalog.allTableNames) {
     if (declaredNames.has(name) || name.startsWith('sqlite_')) continue;
-    ops.push({ kind: 'drop_table', table: asValidatedIdent(name) });
+    ops.push({ kind: 'drop_table', table: asSchemaIdent(name) });
   }
   return ops;
 }
@@ -140,6 +157,23 @@ function collectCopyAliases(
   return copyAliases;
 }
 
+function collectRebuildBackfills(
+  desired: Map<string, DeclaredColumn>,
+  existing: IntrospectedTable,
+  copyAliases: Record<string, string>
+): Record<string, string> {
+  const backfills: Record<string, string> = {};
+  for (const [colName, col] of desired) {
+    if (findColumn(existing, colName)) continue;
+    if (copyAliases[colName] !== undefined) continue;
+    const expr = resolveBackfillSql(col, 'sqlite');
+    if (expr !== null) {
+      backfills[colName] = expr;
+    }
+  }
+  return backfills;
+}
+
 function planAdditiveColumns(
   tableName: string,
   desired: Map<string, DeclaredColumn>,
@@ -150,8 +184,8 @@ function planAdditiveColumns(
     if (findColumn(existing, colName)) continue;
     ops.push({
       kind: 'add_column',
-      table: asValidatedIdent(tableName),
-      column: asValidatedIdent(colName),
+      table: asSchemaIdent(tableName),
+      column: asSchemaIdent(colName),
       type: col.type,
       ...(col.physicalSqlite !== undefined
         ? { physicalSqlite: col.physicalSqlite }
@@ -161,8 +195,8 @@ function planAdditiveColumns(
     if (expr !== null) {
       ops.push({
         kind: 'backfill',
-        table: asValidatedIdent(tableName),
-        column: asValidatedIdent(colName),
+        table: asSchemaIdent(tableName),
+        column: asSchemaIdent(colName),
         expression: expr,
       });
     }
@@ -182,7 +216,7 @@ function planOneTable(
     return [
       {
         kind: 'create_table',
-        table: asValidatedIdent(tableName),
+        table: asSchemaIdent(tableName),
         columns: createTableColumns(declared, tableName),
       },
     ];
@@ -192,22 +226,25 @@ function planOneTable(
     (c) => columnVisibleForDrift(c.name) && depCols.has(c.name)
   );
   const copyAliases = collectCopyAliases(desired, existing);
-  if (
-    needsRebuild(existing, desired) ||
+  const needsShapeRebuild =
     hasDeprecatedExtras ||
-    Object.keys(copyAliases).length > 0
-  ) {
+    Object.keys(copyAliases).length > 0 ||
+    missingChecksOrFks(tableName, declared, catalog);
+
+  if (needsShapeRebuild) {
     const copyColumns = [...desired.keys(), ...extras.names].filter(
       (n) => findColumn(existing, n) || copyAliases[n] !== undefined
     );
+    const backfills = collectRebuildBackfills(desired, existing, copyAliases);
     return [
       {
         kind: 'rebuild_table',
-        table: asValidatedIdent(tableName),
-        preserveUnderscoreExtras: extras.names.map(asValidatedIdent),
+        table: asSchemaIdent(tableName),
+        preserveUnderscoreExtras: extras.names.map(asPhysicalIdent),
         preserveExtraTypes: extras.types,
-        copyColumns: copyColumns.map(asValidatedIdent),
+        copyColumns: copyColumns.map(columnCopyRef),
         ...(Object.keys(copyAliases).length > 0 ? { copyAliases } : {}),
+        ...(Object.keys(backfills).length > 0 ? { backfills } : {}),
       },
     ];
   }
@@ -239,6 +276,18 @@ function planTableOps(
   return ops;
 }
 
+function tablesNeedingIndexRecreate(
+  priorOps: readonly ClientOperation[]
+): ReadonlySet<string> {
+  const rebuilt = new Set<string>();
+  for (const op of priorOps) {
+    if (op.kind === 'rebuild_table' || op.kind === 'drop_table') {
+      rebuilt.add(op.table);
+    }
+  }
+  return rebuilt;
+}
+
 function planIndexOps(
   declared: ReadonlyDeclaredSchema,
   catalog: IntrospectedCatalog,
@@ -247,11 +296,11 @@ function planIndexOps(
 ): ClientOperation[] {
   const ops: ClientOperation[] = [];
   const desiredIndexNames = new Set<string>();
+  const rebuiltTables = tablesNeedingIndexRecreate(priorOps);
 
   const pushCreate = (def: IndexDef, unique: boolean): void => {
     const name = fingerprintForIndexDef(def, unique);
     desiredIndexNames.add(name);
-    if (catalog.indexes.some((ix) => ix.name === name)) return;
     const [table, ...columns] = def;
     if (
       !declaredNames.has(table) ||
@@ -259,11 +308,15 @@ function planIndexOps(
     ) {
       return;
     }
+    const indexExists =
+      catalog.indexes.some((ix) => ix.name === name) &&
+      !rebuiltTables.has(table);
+    if (indexExists) return;
     ops.push({
       kind: 'create_index',
       name,
-      table: asValidatedIdent(table),
-      columns: columns.map(asValidatedIdent),
+      table: asSchemaIdent(table),
+      columns: columns.map((c) => asSchemaIdent(c)),
       unique,
     });
   };
@@ -292,7 +345,7 @@ function planViewOps(
   for (const view of declared.views) {
     if (declared.deprecatedViews.has(view.name)) {
       if (existingViews.has(view.name)) {
-        ops.push({ kind: 'drop_view', name: asValidatedIdent(view.name) });
+        ops.push({ kind: 'drop_view', name: asSchemaIdent(view.name) });
       }
       continue;
     }
@@ -302,9 +355,27 @@ function planViewOps(
         : (view.sql.sqlite ?? view.sql.sql);
     ops.push({
       kind: existingViews.has(view.name) ? 'replace_view' : 'create_view',
-      name: asValidatedIdent(view.name),
+      name: asSchemaIdent(view.name),
       expression: expr,
     });
+  }
+  return ops;
+}
+
+function planRebuildBackfillOps(
+  priorOps: readonly ClientOperation[]
+): ClientOperation[] {
+  const ops: ClientOperation[] = [];
+  for (const op of priorOps) {
+    if (op.kind !== 'rebuild_table' || op.backfills === undefined) continue;
+    for (const [column, expression] of Object.entries(op.backfills)) {
+      ops.push({
+        kind: 'backfill',
+        table: op.table,
+        column: asSchemaIdent(column),
+        expression,
+      });
+    }
   }
   return ops;
 }
@@ -312,19 +383,18 @@ function planViewOps(
 const CLIENT_OP_ORDER: Record<ClientOperation['kind'], number> = {
   drop_table: 0,
   drop_view: 1,
-  drop_column: 2,
-  rebuild_table: 3,
-  create_table: 4,
-  add_column: 5,
-  backfill: 6,
-  drop_index: 7,
-  create_index: 8,
-  add_check: 9,
-  add_foreign_key: 10,
-  create_view: 11,
-  replace_view: 12,
-  create_enum: 13,
-  add_enum_value: 14,
+  rebuild_table: 2,
+  create_table: 3,
+  add_column: 4,
+  backfill: 5,
+  drop_index: 6,
+  create_index: 7,
+  add_check: 8,
+  add_foreign_key: 9,
+  create_view: 10,
+  replace_view: 11,
+  create_enum: 12,
+  add_enum_value: 13,
 };
 
 export function planClient(
@@ -332,7 +402,7 @@ export function planClient(
   catalog: IntrospectedCatalog,
   options?: PlanClientOptions
 ): PlanClientResult {
-  const ownership = options?.ownership ?? 'whole-db';
+  const ownership = options?.ownership ?? 'declared-only';
   const classified = classifyDelta({
     declared,
     catalog,
@@ -344,12 +414,18 @@ export function planClient(
   }
 
   const declaredNames = new Set(Object.keys(declared.tables));
+  const tableOps = planTableOps(
+    declared,
+    catalog,
+    classified.deprecatedExtras
+  );
   const ops: ClientOperation[] = [
     ...planDropUnknownTables(declaredNames, catalog, ownership),
-    ...planTableOps(declared, catalog, classified.deprecatedExtras),
+    ...tableOps,
     ...planViewOps(declared, catalog),
   ];
   ops.push(...planIndexOps(declared, catalog, declaredNames, ops));
+  ops.push(...planRebuildBackfillOps(tableOps));
   ops.sort((a, b) => CLIENT_OP_ORDER[a.kind] - CLIENT_OP_ORDER[b.kind]);
   return { ok: true, operations: ops };
 }

@@ -39,8 +39,12 @@ describe('healOptimisticPeerOrphans', () => {
       )
     `);
     await db.run(sql`
-      INSERT INTO sync_engine_optimistic_peer_rows (table_name, row_id)
-      VALUES (${'notes'}, ${'live'}), (${'notes'}, ${'orphan'})
+      INSERT INTO sync_engine_optimistic_peer_rows (
+        id, table_name, row_id, created_at, updated_at, deleted_at
+      )
+      VALUES
+        (${'notes:live'}, ${'notes'}, ${'live'}, ${'2020-01-01T00:00:00.000Z'}, ${'2020-01-01T00:00:00.000Z'}, ${null}),
+        (${'notes:orphan'}, ${'notes'}, ${'orphan'}, ${'2020-01-01T00:00:00.000Z'}, ${'2020-01-01T00:00:00.000Z'}, ${null})
     `);
 
     await db.transaction(async (tx) => {
@@ -66,6 +70,7 @@ describe('healOptimisticPeerOrphans', () => {
 
     const markers = await db.query(sql<{ c: number | string }>`
       SELECT COUNT(*) AS c FROM sync_engine_optimistic_peer_rows
+      WHERE deleted_at IS NULL
     `);
     expect(Number(markers[0]?.c ?? 0)).toBe(0);
 

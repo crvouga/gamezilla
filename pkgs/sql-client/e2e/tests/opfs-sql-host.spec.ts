@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { kvDdl } from '../helpers/kv-schema';
 
 /**
  * Real Chromium OPFS pins — do not duplicate Happy DOM / DST protocol coverage.
@@ -9,13 +10,17 @@ test.describe('expo-sqlite OPFS via sql-host iframe', () => {
   test('open user_* db, write, read', async ({ page }) => {
     await page.goto('/sql-workers/sql-host.html');
     await page.waitForFunction(() => window.__sqlHost !== undefined);
-    await page.evaluate(async () => {
+    await page.evaluate(async (ddl) => {
       const host = window.__sqlHost!;
       await host.open('user_6b3822ef08e0');
-      await host.run('CREATE TABLE IF NOT EXISTS kv (k TEXT, v TEXT)');
+      for (const stmt of ddl) await host.run(stmt);
       await host.run('DELETE FROM kv');
-      await host.run('INSERT INTO kv (k, v) VALUES (?, ?)', ['a', '1']);
-    });
+      await host.run('INSERT INTO kv (id, k, v) VALUES (?, ?, ?)', [
+        '1',
+        'a',
+        '1',
+      ]);
+    }, kvDdl);
     const rows = await page.evaluate(async () => {
       return window.__sqlHost!.query('SELECT k, v FROM kv');
     });
@@ -25,13 +30,13 @@ test.describe('expo-sqlite OPFS via sql-host iframe', () => {
   test('resetStore clears OPFS; remount reopen is empty', async ({ page }) => {
     await page.goto('/sql-workers/sql-host.html');
     await page.waitForFunction(() => window.__sqlHost !== undefined);
-    await page.evaluate(async () => {
+    await page.evaluate(async (ddl) => {
       const host = window.__sqlHost!;
       await host.open('user_deadbeef0001');
-      await host.run('CREATE TABLE IF NOT EXISTS kv (k TEXT)');
-      await host.run('INSERT INTO kv (k) VALUES (?)', ['x']);
+      for (const stmt of ddl) await host.run(stmt);
+      await host.run('INSERT INTO kv (id, k) VALUES (?, ?)', ['1', 'x']);
       await host.resetStore();
-    });
+    }, kvDdl);
     // Remount required: expo-sqlite's Worker singleton dies with terminate.
     await page.reload();
     await page.waitForFunction(() => window.__sqlHost !== undefined);
@@ -50,63 +55,66 @@ test.describe('expo-sqlite OPFS via sql-host iframe', () => {
     page,
   }) => {
     await page.goto('/');
-    const result = await page.evaluate(async () => {
-      async function mount(): Promise<{
-        open: (n: string) => Promise<void>;
-        run: (s: string, v?: unknown[]) => Promise<unknown>;
-        query: (s: string) => Promise<unknown>;
-        destroy: () => void;
-      }> {
-        const frame = document.createElement('iframe');
-        frame.src = '/sql-workers/sql-host.html';
-        document.body.appendChild(frame);
-        await new Promise<void>((resolve, reject) => {
-          const onMessage = (event: MessageEvent) => {
-            if (event.source !== frame.contentWindow) return;
-            const data = event.data as { type?: string; source?: string };
-            if (data?.type === 'ready' && data.source === 'sql-host') {
-              window.removeEventListener('message', onMessage);
-              resolve();
-            }
-          };
-          window.addEventListener('message', onMessage);
-          frame.addEventListener('error', () =>
-            reject(new Error('iframe load failed'))
-          );
-        });
-        const host = (
-          frame.contentWindow as Window & {
-            __sqlHost: {
-              open: (n: string) => Promise<void>;
-              run: (s: string, v?: unknown[]) => Promise<unknown>;
-              query: (s: string) => Promise<unknown>;
+    const result = await page.evaluate(
+      async (ddl) => {
+        async function mount(): Promise<{
+          open: (n: string) => Promise<void>;
+          run: (s: string, v?: unknown[]) => Promise<unknown>;
+          query: (s: string) => Promise<unknown>;
+          destroy: () => void;
+        }> {
+          const frame = document.createElement('iframe');
+          frame.src = '/sql-workers/sql-host.html';
+          document.body.appendChild(frame);
+          await new Promise<void>((resolve, reject) => {
+            const onMessage = (event: MessageEvent) => {
+              if (event.source !== frame.contentWindow) return;
+              const data = event.data as { type?: string; source?: string };
+              if (data?.type === 'ready' && data.source === 'sql-host') {
+                window.removeEventListener('message', onMessage);
+                resolve();
+              }
             };
-          }
-        ).__sqlHost;
-        return {
-          open: (n) => host.open(n),
-          run: (s, v) => host.run(s, v),
-          query: (s) => host.query(s),
-          destroy: () => {
-            frame.remove();
-          },
-        };
-      }
+            window.addEventListener('message', onMessage);
+            frame.addEventListener('error', () =>
+              reject(new Error('iframe load failed'))
+            );
+          });
+          const host = (
+            frame.contentWindow as Window & {
+              __sqlHost: {
+                open: (n: string) => Promise<void>;
+                run: (s: string, v?: unknown[]) => Promise<unknown>;
+                query: (s: string) => Promise<unknown>;
+              };
+            }
+          ).__sqlHost;
+          return {
+            open: (n) => host.open(n),
+            run: (s, v) => host.run(s, v),
+            query: (s) => host.query(s),
+            destroy: () => {
+              frame.remove();
+            },
+          };
+        }
 
-      const first = await mount();
-      await first.open('user_recycle00001');
-      await first.run('CREATE TABLE IF NOT EXISTS kv (k TEXT)');
-      await first.run('INSERT INTO kv (k) VALUES (?)', ['1']);
-      first.destroy();
+        const first = await mount();
+        await first.open('user_recycle00001');
+        for (const stmt of ddl) await first.run(stmt);
+        await first.run('INSERT INTO kv (id, k) VALUES (?, ?)', ['1', '1']);
+        first.destroy();
 
-      const second = await mount();
-      await second.open('user_recycle00001');
-      const rows = (await second.query('SELECT k FROM kv')) as Array<{
-        k: string;
-      }>;
-      second.destroy();
-      return rows;
-    });
+        const second = await mount();
+        await second.open('user_recycle00001');
+        const rows = (await second.query('SELECT k FROM kv')) as Array<{
+          k: string;
+        }>;
+        second.destroy();
+        return rows;
+      },
+      kvDdl
+    );
     expect(result).toEqual([{ k: '1' }]);
   });
 

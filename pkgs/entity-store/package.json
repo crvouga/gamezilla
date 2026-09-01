@@ -16,6 +16,7 @@
   "dependencies": {
     "@pkgs/assert": "workspace:*",
     "@pkgs/db-migrate": "workspace:*",
+    "@pkgs/db-schema": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*"

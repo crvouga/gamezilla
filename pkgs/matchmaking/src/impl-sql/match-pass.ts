@@ -160,11 +160,13 @@ export async function runClaimedMatchPass(
   const claimLimit = args.maxPairsPerPass * args.groupSize * 4;
   const staleBeforeMs = args.nowMs - args.claimTtlMs;
 
+  const nowIso = new Date(args.nowMs).toISOString();
   return args.sqlClient.transaction(async (tx) => {
     await tx.run(
       claimWaitingBatchQuery({
         claimToken,
         nowMs: args.nowMs,
+        nowIso,
         partitionSignature: args.partitionSignature,
         groupSize: args.groupSize,
         limit: claimLimit,
@@ -173,7 +175,7 @@ export async function runClaimedMatchPass(
     );
     const claimedRows = await tx.query(selectClaimedWaitingQuery(claimToken));
     if (claimedRows.length < args.groupSize) {
-      await tx.run(clearClaimQuery(claimToken));
+      await tx.run(clearClaimQuery({ claimToken, nowIso }));
       return 0;
     }
     const snapshot = claimedRows.map(toWaitingSnapshot);
@@ -186,7 +188,7 @@ export async function runClaimedMatchPass(
       bucketWidth: args.bucketWidth,
     });
     if (groups.length === 0) {
-      await tx.run(clearClaimQuery(claimToken));
+      await tx.run(clearClaimQuery({ claimToken, nowIso }));
       return 0;
     }
     const matchedIds: string[] = [];
@@ -203,12 +205,13 @@ export async function runClaimedMatchPass(
             dataJson: JSON.stringify(member.data),
             metadataJson:
               member.metadata === null ? null : JSON.stringify(member.metadata),
+            nowIso,
           })
         );
       }
     }
-    await tx.run(deleteWaitingIdsQuery(matchedIds));
-    await tx.run(clearClaimQuery(claimToken));
+    await tx.run(deleteWaitingIdsQuery({ ids: matchedIds, nowIso }));
+    await tx.run(clearClaimQuery({ claimToken, nowIso }));
     return groups.length;
   });
 }

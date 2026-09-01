@@ -3,7 +3,7 @@ import { POSTGRES_CAPS } from './dialect-caps';
 import { resolveDialectSql } from './dialect-sql';
 import {
   asPackageIndexName,
-  asValidatedIdent,
+  asSchemaIdent,
   fingerprintForIndexDef,
 } from './index-fingerprint';
 import { resolveBackfillSql } from './lifecycle';
@@ -30,7 +30,7 @@ function createTableColumns(
   const columns: CreateTableColumn[] = [];
   for (const name of MANAGED_IMPLICIT_COLUMN_NAMES) {
     columns.push({
-      name: asValidatedIdent(name),
+      name: asSchemaIdent(name),
       type: MANAGED_IMPLICIT_COLUMNS[name],
       isPrimaryKey: name === 'id',
     });
@@ -43,7 +43,7 @@ function createTableColumns(
 
 function toCreateColumn(name: string, col: DeclaredColumn): CreateTableColumn {
   return {
-    name: asValidatedIdent(name),
+    name: asSchemaIdent(name),
     type: col.type,
     isPrimaryKey: false,
     ...(col.physicalPostgres !== undefined
@@ -61,8 +61,8 @@ function toCreateColumn(name: string, col: DeclaredColumn): CreateTableColumn {
     ...(col.references !== undefined
       ? {
           references: {
-            table: asValidatedIdent(col.references.table),
-            column: asValidatedIdent(col.references.column),
+            table: asSchemaIdent(col.references.table),
+            column: asSchemaIdent(col.references.column),
           },
         }
       : {}),
@@ -84,8 +84,8 @@ function planIndexOps(
     ops.push({
       kind: 'create_index',
       name,
-      table: asValidatedIdent(table),
-      columns: columns.map(asValidatedIdent),
+      table: asSchemaIdent(table),
+      columns: columns.map((c) => asSchemaIdent(c)),
       unique,
     });
   };
@@ -115,7 +115,7 @@ function planColumnAdds(
     if (!existing) {
       ops.push({
         kind: 'create_table',
-        table: asValidatedIdent(tableName),
+        table: asSchemaIdent(tableName),
         columns: createTableColumns(declared, tableName),
       });
       continue;
@@ -125,8 +125,8 @@ function planColumnAdds(
       if (findColumn(existing, colName)) continue;
       ops.push({
         kind: 'add_column',
-        table: asValidatedIdent(tableName),
-        column: asValidatedIdent(colName),
+        table: asSchemaIdent(tableName),
+        column: asSchemaIdent(colName),
         type: col.type,
         ...(col.physicalPostgres !== undefined
           ? { physicalPostgres: col.physicalPostgres }
@@ -136,8 +136,8 @@ function planColumnAdds(
       if (expr !== null) {
         ops.push({
           kind: 'backfill',
-          table: asValidatedIdent(tableName),
-          column: asValidatedIdent(colName),
+          table: asSchemaIdent(tableName),
+          column: asSchemaIdent(colName),
           expression: expr,
         });
       }
@@ -162,8 +162,8 @@ function planChecksAndFks(
         : (check.sql.postgres ?? check.sql.sql);
     ops.push({
       kind: 'add_check',
-      name: asValidatedIdent(check.name),
-      table: asValidatedIdent(check.table),
+      name: asSchemaIdent(check.name),
+      table: asSchemaIdent(check.table),
       expression: expr,
     });
   }
@@ -179,11 +179,11 @@ function planChecksAndFks(
       if (existingFks.has(key)) continue;
       ops.push({
         kind: 'add_foreign_key',
-        name: asValidatedIdent(`fk_${tableName}_${colName}`.slice(0, 63)),
-        table: asValidatedIdent(tableName),
-        column: asValidatedIdent(colName),
-        refTable: asValidatedIdent(col.references.table),
-        refColumn: asValidatedIdent(col.references.column),
+        name: asSchemaIdent(`fk_${tableName}_${colName}`.slice(0, 63)),
+        table: asSchemaIdent(tableName),
+        column: asSchemaIdent(colName),
+        refTable: asSchemaIdent(col.references.table),
+        refColumn: asSchemaIdent(col.references.column),
       });
     }
   }
@@ -204,7 +204,7 @@ function planViews(
         : (view.sql.postgres ?? view.sql.sql);
     ops.push({
       kind: existingViews.has(view.name) ? 'replace_view' : 'create_view',
-      name: asValidatedIdent(view.name),
+      name: asSchemaIdent(view.name),
       expression: expr,
     });
   }
@@ -225,7 +225,7 @@ function planEnums(
     if (!existing) {
       ops.push({
         kind: 'create_enum',
-        name: asValidatedIdent(en.name),
+        name: asSchemaIdent(en.name),
         values: en.values,
         nativePostgres: en.nativePostgres === true,
       });
@@ -235,7 +235,7 @@ function planEnums(
       if (existing.includes(value)) continue;
       ops.push({
         kind: 'add_enum_value',
-        name: asValidatedIdent(en.name),
+        name: asSchemaIdent(en.name),
         value,
       });
     }

@@ -6,7 +6,9 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { GlobalRegistrator } from '@happy-dom/global-registrator';
 import { wallTimers } from '@pkgs/clock';
-import { raw, sql } from '@pkgs/sql';
+import { sql } from '@pkgs/sql';
+import { migrateToyKv } from '../../sim/toy-kv';
+import { createSqlClientWebState } from '../../sim/types';
 import {
   createSimOpfsSqlOwner,
   createSimOpfsStore,
@@ -50,19 +52,16 @@ describe('happy-dom sql-owner recovery', () => {
     const store = createSimOpfsStore({ capacity: 6 });
     fillSimOpfsPool(store);
     const owner = createSimOpfsSqlOwner({ dbName: 'user_abcd1234ef01', store });
+    const state = createSqlClientWebState();
     const client = await openSqlOwnerWithRecovery({
       owner,
       timers: wallTimers,
       notifyPeers: false,
-      migrate: async (c) => {
-        await c.run(
-          raw(
-            'CREATE TABLE IF NOT EXISTS toy_kv (k TEXT PRIMARY KEY, v TEXT) STRICT'
-          )
-        );
-      },
+      migrate: (c) => migrateToyKv(c, state),
     });
-    await client.run(sql`INSERT INTO toy_kv (k, v) VALUES (${'a'}, ${'1'})`);
+    await client.run(
+      sql`INSERT INTO toy_kv (id, k, v) VALUES (${'a'}, ${'a'}, ${'1'})`
+    );
     const rows = await client.query(
       sql<{ k: string; v: string }>`SELECT k, v FROM toy_kv`
     );
