@@ -22,9 +22,6 @@ import {
   type AuthSystem,
 } from './types';
 
-export const AUTH_STORE_KIND = 'auth.store';
-export const AUTH_ACTOR_KIND = 'auth.actor';
-
 function openSql(fabric: AuthFabric, seed: bigint): SqlClient {
   const seedNum = Number(seed & 0xffffffffn) || 1;
   return fabric === 'sqlite-mem'
@@ -52,18 +49,18 @@ type StoreArgs = {
   readonly fabric: AuthFabric;
   readonly sql: SqlClient;
   readonly deps: SimDeps;
-  readonly system: AuthSystem;
+  readonly state: AuthSystem;
   readonly enableDev: boolean;
   readonly enableGoogle: boolean;
 };
 
 function buildStore(args: StoreArgs): AuthStore {
-  const { fabric, sql, deps, system } = args;
+  const { fabric, sql, deps, state } = args;
   const app = createAuthApp({
     getSql: () => sql,
     clock: deps.clock,
     createId: deps.createId,
-    http: createFakeGoogleHttp(system),
+    http: createFakeGoogleHttp(state),
     secret: AUTH_SYSTEM_SECRET,
     baseURL: AUTH_SYSTEM_BASE_URL,
     trustedOrigins: AUTH_SYSTEM_TRUSTED_ORIGINS,
@@ -91,7 +88,7 @@ function buildStore(args: StoreArgs): AuthStore {
 
 /** SQL fabric + IdP Hono app + fake Google, one per system. */
 export const authStoreNode = defineNodeKind<AuthStore, AuthStore, AuthSystem>({
-  id: AUTH_STORE_KIND,
+  id: 'auth.store',
   boot: async (ctx) => {
     const fabric = ctx.knobs.get('fabric') as AuthFabric;
     const sql = openSql(fabric, ctx.deps.seed);
@@ -100,11 +97,11 @@ export const authStoreNode = defineNodeKind<AuthStore, AuthStore, AuthSystem>({
       fabric,
       sql,
       deps: ctx.deps,
-      system: ctx.system,
+      state: ctx.state,
       enableDev: ctx.knobs.get('devProvider') !== false,
       enableGoogle: ctx.knobs.get('googleProvider') !== false,
     });
-    ctx.system.store = store;
+    ctx.state.store = store;
     return store;
   },
   dispose: async (store) => {
@@ -115,14 +112,14 @@ export const authStoreNode = defineNodeKind<AuthStore, AuthStore, AuthSystem>({
 /** Client-side session bag. Zero endpoints — actors drive the store by fetch. */
 export const authActorNode = defineNodeKind<ActorState, ActorState, AuthSystem>(
   {
-    id: AUTH_ACTOR_KIND,
+    id: 'auth.actor',
     boot: (ctx) => {
       const state: ActorState = {
         bearer: null,
         pendingAuthUrl: null,
         pendingCode: null,
       };
-      ctx.system.actors.set(ctx.nodeId, state);
+      ctx.state.actors.set(ctx.nodeId, state);
       return state;
     },
   }

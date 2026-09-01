@@ -10,7 +10,7 @@ describe('room sim: two client converge', () => {
       seed: 2,
       knobs: { clientCount: 0 },
     });
-    const world = roomWorld(host.system);
+    const world = roomWorld(host.state);
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     a.dispatch(Increment({}));

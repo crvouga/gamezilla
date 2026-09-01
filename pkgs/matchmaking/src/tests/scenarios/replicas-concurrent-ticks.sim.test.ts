@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { openMatchmakingWorld } from '../../sim/system';
+import { openMatchmakingWorld, requireMmWorld } from '../../sim/system';
 import {
   assertMatchInvariants,
   RatingAttr,
@@ -18,11 +18,12 @@ describe('matchmaking sim: concurrent replica ticks', () => {
   });
 
   test('tickAll never double-matches a participant', async () => {
-    await using world = await openMatchmakingWorld({
+    await using host = await openMatchmakingWorld({
       seed: 210,
       replicas: 3,
       backend: 'postgres',
     });
+    const world = requireMmWorld(host.state);
     const participants = [];
     for (let i = 0; i < 12; i += 1) {
       world.clock.advance(1);

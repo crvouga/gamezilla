@@ -10,7 +10,7 @@ describe('room sim: concurrent increment burst (E-B01)', () => {
       seed: process.env['SIM_SEED'] ?? '42',
       knobs: { clientCount: 0, mildFaults: true },
     });
-    const world = roomWorld(host.system);
+    const world = roomWorld(host.state);
     const clients = [
       await world.addClient({ id: 'alice' }),
       await world.addClient({ id: 'bob' }),

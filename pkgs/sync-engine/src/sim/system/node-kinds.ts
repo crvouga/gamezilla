@@ -15,11 +15,6 @@ import {
   type SyncSystemFacade,
 } from './system';
 
-export const SYNC_BROKER = 'sync.broker';
-export const SYNC_SERVER = 'sync.server';
-export const SYNC_CLIENT = 'sync.client';
-export const SYNC_WARMUP = 'sync.warmup';
-
 function worldArgsFromKnobs(
   system: SyncSystem,
   knobs: KnobCatalog<Record<string, JsonValue>>
@@ -45,14 +40,17 @@ function worldArgsFromKnobs(
 }
 
 /** Wrap the framework network kernel, then boot clock-skew table + broker. */
-defineNodeKind<{ readonly id: string }, unknown, SyncSystem>({
-  id: SYNC_BROKER,
+export const SYNC_BROKER = defineNodeKind<
+  { readonly id: string },
+  unknown,
+  SyncSystem
+>({
+  id: 'sync.broker',
   boot: (ctx) => {
-    const system = ctx.system;
+    const system = ctx.state;
     const worldArgs = worldArgsFromKnobs(system, ctx.knobs);
     system.worldArgs = worldArgs;
     system.infra = bootSimInfra({
-      seed: ctx.deps.seed,
       worldArgs,
       injected: {
         deps: ctx.deps,
@@ -64,10 +62,14 @@ defineNodeKind<{ readonly id: string }, unknown, SyncSystem>({
 });
 
 /** In-memory SQLite server + HTTP bind, then the World facade. */
-defineNodeKind<{ readonly facade: SyncSystemFacade }, unknown, SyncSystem>({
-  id: SYNC_SERVER,
+export const SYNC_SERVER = defineNodeKind<
+  { readonly facade: SyncSystemFacade },
+  unknown,
+  SyncSystem
+>({
+  id: 'sync.server',
   boot: async (ctx) => {
-    const system = ctx.system;
+    const system = ctx.state;
     const { infra, worldArgs } = requireInfra(system);
     const kernel = await bootSimServer({ infra, worldArgs });
     system.kernel = kernel;
@@ -80,25 +82,17 @@ defineNodeKind<{ readonly facade: SyncSystemFacade }, unknown, SyncSystem>({
   },
 });
 
-defineNodeKind<{ readonly id: string }, unknown, SyncSystem>({
-  id: SYNC_CLIENT,
+export const SYNC_CLIENT = defineNodeKind<
+  { readonly id: string },
+  unknown,
+  SyncSystem
+>({
+  id: 'sync.client',
   boot: async (ctx) => {
-    await requireFacade(ctx.system).addClient({
+    await requireFacade(ctx.state).addClient({
       id: ctx.nodeId,
       actorId: ctx.nodeId,
     });
-    return { id: ctx.nodeId };
-  },
-});
-
-/**
- * Post-topology settle window so clients finish initial hydration before the
- * first generated action lands (the old `bootClients` tail).
- */
-defineNodeKind<{ readonly id: string }, unknown, SyncSystem>({
-  id: SYNC_WARMUP,
-  boot: async (ctx) => {
-    await requireFacade(ctx.system).runFor(200);
     return { id: ctx.nodeId };
   },
 });

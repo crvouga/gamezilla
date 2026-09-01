@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { DistanceFormula } from '../../interface/types';
-import { openMatchmakingWorld } from '../../sim/system';
+import { openMatchmakingWorld, requireMmWorld } from '../../sim/system';
 import {
   expectMatched,
   KindAttr,
@@ -20,7 +20,8 @@ describe('matchmaking sim: formulas', () => {
   });
 
   test('combined numeric formula respects summed distance', async () => {
-    await using world = await openMatchmakingWorld({ seed: 30 });
+    await using host = await openMatchmakingWorld({ seed: 30 });
+    const world = requireMmWorld(host.state);
     const closeFormula: DistanceFormula = {
       numeric: [
         { tag: RatingAttr, weight: 1 },
@@ -39,7 +40,8 @@ describe('matchmaking sim: formulas', () => {
   });
 
   test('categorical penalty needs wait across regions', async () => {
-    await using world = await openMatchmakingWorld({ seed: 31 });
+    await using host = await openMatchmakingWorld({ seed: 31 });
+    const world = requireMmWorld(host.state);
     const regionFormula: DistanceFormula = {
       numeric: [{ tag: RatingAttr, weight: 1 }],
       categorical: [{ tag: RegionAttr, penalty: 75 }],
@@ -58,7 +60,8 @@ describe('matchmaking sim: formulas', () => {
   });
 
   test('partition hard-equality never crosses even at max wait', async () => {
-    await using world = await openMatchmakingWorld({ seed: 32 });
+    await using host = await openMatchmakingWorld({ seed: 32 });
+    const world = requireMmWorld(host.state);
     const kindFormula: DistanceFormula = {
       numeric: [{ tag: RatingAttr, weight: 1 }],
       partition: [{ tag: KindAttr }],
@@ -80,7 +83,8 @@ describe('matchmaking sim: formulas', () => {
   });
 
   test('OR-of-formulas pairs when any pair is mutually accepted', async () => {
-    await using world = await openMatchmakingWorld({ seed: 33 });
+    await using host = await openMatchmakingWorld({ seed: 33 });
+    const world = requireMmWorld(host.state);
     const alpha: DistanceFormula = {
       numeric: [{ tag: RatingAttr, weight: 1 }],
       partition: [{ tag: KindAttr }],

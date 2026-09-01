@@ -1,9 +1,6 @@
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useTimers } from '@pkgs/clock';
-import { WEB_OPFS_SOFT_RECOVERY_KEY } from '@pkgs/sql-client/sqlite/expo-sqlite-core';
-import { isRecoverableExpoSqliteWebRuntimeError } from '@pkgs/sql-client/sqlite/expo-web-recovery';
 import { isExpoSqliteWebSessionLockError } from '@pkgs/sql-client/sqlite/expo-web-session-lock';
-import { RESET_DB_QUERY_PARAM } from '@pkgs/sql-client/sqlite/impl-expo-sqlite';
 import {
   isLeaderLostError,
   runWebOpfsRecoveryAndReload,
@@ -22,6 +19,7 @@ function isMultiTabOwnerLostError(error: Error): boolean {
 }
 
 function bootErrorBody(error: Error): ReactNode {
+  const fallbackMessage = error.message;
   if (isMultiTabOwnerLostError(error)) {
     return (
       <Trans>
@@ -30,15 +28,7 @@ function bootErrorBody(error: Error): ReactNode {
       </Trans>
     );
   }
-  if (isRecoverableExpoSqliteWebRuntimeError(error)) {
-    return (
-      <Trans>
-        Local storage hit a browser error. Reset local data below to start fresh
-        — your account on the server is unchanged.
-      </Trans>
-    );
-  }
-  // Legacy exclusive session-lock path (pre multi-tab broker); keep for old builds.
+  // Legacy exclusive session-lock path (pre multi-tab broker).
   if (isExpoSqliteWebSessionLockError(error)) {
     return (
       <Trans>
@@ -47,11 +37,7 @@ function bootErrorBody(error: Error): ReactNode {
       </Trans>
     );
   }
-  return errorMessage(error);
-}
-
-function errorMessage(error: Error): string {
-  return error.message;
+  return fallbackMessage;
 }
 
 /** Full-bleed themed shell so boot screens never flash the default canvas. */
@@ -73,9 +59,7 @@ export function LocalDatabaseBootErrorScreen({
   const timers = useTimers();
   const isOwnerLost = isMultiTabOwnerLostError(error);
   const canResetLocalData =
-    isOwnerLost ||
-    isRecoverableExpoSqliteWebRuntimeError(error) ||
-    isExpoSqliteWebSessionLockError(error);
+    isOwnerLost || isExpoSqliteWebSessionLockError(error);
 
   return (
     <ThemedBootShell>
@@ -97,28 +81,14 @@ export function LocalDatabaseBootErrorScreen({
           onPress: () => {
             if (typeof window === 'undefined') return;
             if (canResetLocalData) {
-              try {
-                sessionStorage.removeItem(WEB_OPFS_SOFT_RECOVERY_KEY);
-              } catch {
-                // ignore
-              }
-              const url = new URL(window.location.href);
-              url.searchParams.delete(RESET_DB_QUERY_PARAM);
-              const returnTo =
-                url.pathname +
-                (url.searchParams.toString()
-                  ? `?${url.searchParams.toString()}`
-                  : '') +
-                url.hash;
-              void runWebOpfsRecoveryAndReload({
-                timers,
-                returnTo: returnTo || '/',
-              }).catch((wipeError: unknown) => {
-                console.error(
-                  '[LocalDatabaseBootErrorScreen] OPFS recovery failed',
-                  wipeError
-                );
-              });
+              void runWebOpfsRecoveryAndReload({ timers }).catch(
+                (wipeError: unknown) => {
+                  console.error(
+                    '[LocalDatabaseBootErrorScreen] local wipe failed',
+                    wipeError
+                  );
+                }
+              );
               return;
             }
             window.location.reload();
@@ -131,9 +101,6 @@ export function LocalDatabaseBootErrorScreen({
 
 export function isRecoverableLocalDatabaseBootError(error: Error): boolean {
   return (
-    isMultiTabOwnerLostError(error) ||
-    isRecoverableExpoSqliteWebRuntimeError(error) ||
-    isExpoSqliteWebSessionLockError(error) ||
-    errorMessage(error).includes(RESET_DB_QUERY_PARAM)
+    isMultiTabOwnerLostError(error) || isExpoSqliteWebSessionLockError(error)
   );
 }

@@ -13,7 +13,7 @@ export {
   openMatchmakingWorld,
   requireMmWorld,
 } from './define-matchmaking-system';
-export { MM_REPLICA, MM_STORE, MM_WARMUP } from './node-kinds';
+export { mmReplicaNode, mmStoreNode } from './node-kinds';
 export {
   createMatchmakingSystem,
   type MatchmakingSystem,

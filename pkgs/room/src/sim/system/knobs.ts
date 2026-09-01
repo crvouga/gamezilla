@@ -1,4 +1,4 @@
-import { defineSystemKnob, type SystemKnobDef } from '@pkgs/determinism';
+import { defineKnob, type KnobDef } from '@pkgs/determinism';
 import { arbFromKnobDefs } from '@pkgs/determinism/pbt';
 import fc from 'fast-check';
 
@@ -8,13 +8,13 @@ export type RoomWorldKnobs = {
 };
 
 /** {@link RoomWorldKnobs} as framework knob defs (id + default + arbitrary). */
-export const ROOM_SYSTEM_KNOBS: readonly SystemKnobDef[] = [
-  defineSystemKnob({
+export const ROOM_SYSTEM_KNOBS: readonly KnobDef[] = [
+  defineKnob({
     id: 'clientCount',
     default: 2,
     arb: fc.integer({ min: 2, max: 3 }),
   }),
-  defineSystemKnob({ id: 'mildFaults', default: false, arb: fc.boolean() }),
+  defineKnob({ id: 'mildFaults', default: false, arb: fc.boolean() }),
 ];
 
 /** Knob arbitrary for scripted PBTs that vary topology around a pin. */

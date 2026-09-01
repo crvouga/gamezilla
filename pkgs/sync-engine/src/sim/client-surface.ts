@@ -1,10 +1,10 @@
-import type { SimPollablePromise } from '@pkgs/determinism';
 import type {
   SimClientHandle,
   SimRejection,
   SimSubscription,
 } from './client-handle';
 import type { SimHttpClient } from './http-bridge';
+import type { SimPollablePromise } from './until';
 
 function createOutcomePromise(
   engine: SimClientHandle['engine'],

@@ -1,11 +1,12 @@
 import { describe, expect, test } from 'bun:test';
-import {
-  createSimClock,
-  createSimScheduler,
-  createSimTimers,
-} from '@pkgs/determinism';
+import { createSimDeps } from '@pkgs/determinism';
 
 import { createSeededRng } from '../../sim/rng';
+
+/** Fresh clock (startMs 0) + scheduler + timers from the harness deps mint. */
+function kernelParts(): ReturnType<typeof createSimDeps> {
+  return createSimDeps({ seed: 1, startMs: 0 });
+}
 
 describe('sim kernel', () => {
   test('rng same seed identical stream', () => {
@@ -32,8 +33,7 @@ describe('sim kernel', () => {
   });
 
   test('scheduler fires in time then insertion order', async () => {
-    const clock = createSimClock(0);
-    const sched = createSimScheduler(clock);
+    const { clock, scheduler: sched } = kernelParts();
     const order: string[] = [];
     sched.scheduleAt(10, () => {
       order.push('a');
@@ -50,9 +50,7 @@ describe('sim kernel', () => {
   });
 
   test('sim timers drive via scheduler', async () => {
-    const clock = createSimClock(0);
-    const sched = createSimScheduler(clock);
-    const timers = createSimTimers(sched);
+    const { clock, scheduler: sched, timers } = kernelParts();
     let fired = 0;
     timers.setTimeout(() => {
       fired += 1;
@@ -67,8 +65,7 @@ describe('sim kernel', () => {
   });
 
   test('runUntilIdle drains nested schedules', async () => {
-    const clock = createSimClock(0);
-    const sched = createSimScheduler(clock);
+    const { scheduler: sched } = kernelParts();
     let n = 0;
     const chain = (): void => {
       n += 1;

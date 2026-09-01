@@ -12,7 +12,7 @@ describe('sim scenario API', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     {
@@ -34,7 +34,7 @@ describe('sim scenario API', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const a = await world.addClient({ id: 'alice' });
     const queued = await a.mutate(setNote, { id: 'n1', body: 'y' });
     expect(queued.ok).toBe(true);
@@ -51,7 +51,7 @@ describe('sim scenario API', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     {
@@ -71,7 +71,7 @@ describe('sim scenario API', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await a.mutate(setNote, { id: 'n-seen', body: 'visible' });
@@ -87,7 +87,7 @@ describe('sim scenario API', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     await world.addClient({ id: 'alice' });
     await world.addClient({ id: 'bob' });
     using hold = world.net('bob', 'sync').set('hold');
@@ -105,7 +105,7 @@ describe('sim scenario API', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     await world.addClient({ id: 'alice' });
     const base = world.node('alice').now();
     {
@@ -122,7 +122,7 @@ describe('sim scenario API', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     await world.addClient({ id: 'alice' });
     using outer = world.net('alice', 'sync').set('hold');
     using inner = world.net('alice', 'sync').set({

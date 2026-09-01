@@ -1,6 +1,5 @@
-import type { JsonValue, World } from '@pkgs/determinism';
+import type { World } from '@pkgs/determinism';
 import { AUTH_SET_TOKEN_HEADER } from '../../shared/auth-constants';
-import type { AuthDomainOp } from './actions';
 import {
   type ActorState,
   type AuthStore,
@@ -17,6 +16,10 @@ async function readToken(res: Response): Promise<string | null> {
   return typeof body.token === 'string'
     ? body.token
     : res.headers.get(AUTH_SET_TOKEN_HEADER);
+}
+
+function actorOf(world: AuthWorld, clientId: string): ActorState | null {
+  return world.state.actors.get(clientId) ?? null;
 }
 
 async function devComplete(
@@ -57,10 +60,10 @@ async function googleApprove(
   subject: string
 ): Promise<void> {
   if (actor.pendingAuthUrl === null) return;
-  const store = requireStore(world.system);
+  const store = requireStore(world.state);
   const state = new URL(actor.pendingAuthUrl).searchParams.get('state') ?? '';
   const code = world.deps.createId();
-  world.system.googleSubjects.set(code, subject);
+  world.state.googleSubjects.set(code, subject);
   const query = `code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`;
   const res = await store.fetch(`/auth/callback/google?${query}`, {
     method: 'GET',
@@ -103,44 +106,61 @@ async function signOut(store: AuthStore, actor: ActorState): Promise<void> {
   actor.bearer = null;
 }
 
-function stealBearer(world: AuthWorld, from: string, to: string): void {
-  const src = world.system.actors.get(from);
-  const dst = world.system.actors.get(to);
-  if (src === undefined || dst === undefined) return;
-  dst.bearer = src.bearer;
+export async function dispatchDevComplete(
+  world: AuthWorld,
+  clientId: string,
+  subject: string
+): Promise<void> {
+  const actor = actorOf(world, clientId);
+  if (actor === null) return;
+  await devComplete(requireStore(world.state), actor, subject);
 }
 
-export async function dispatchAuthDomainOp(
+export async function dispatchGoogleStart(
   world: AuthWorld,
-  op: JsonValue
+  clientId: string,
+  callbackUrl: string
 ): Promise<void> {
-  const action = op as AuthDomainOp;
-  if (action.kind === 'stealBearer') {
-    stealBearer(world, action.from, action.to);
-    return;
-  }
-  const store = requireStore(world.system);
-  const actor = world.system.actors.get(action.clientId);
-  if (actor === undefined) return;
-  switch (action.kind) {
-    case 'devComplete':
-      await devComplete(store, actor, action.subject);
-      return;
-    case 'googleStart':
-      await googleStart(store, actor, action.callbackUrl);
-      return;
-    case 'googleApprove':
-      await googleApprove(world, actor, action.subject);
-      return;
-    case 'sessionExchange':
-      await sessionExchange(store, actor);
-      return;
-    case 'signOut':
-      await signOut(store, actor);
-      return;
-    default: {
-      const _exhaustive: never = action;
-      void _exhaustive;
-    }
-  }
+  const actor = actorOf(world, clientId);
+  if (actor === null) return;
+  await googleStart(requireStore(world.state), actor, callbackUrl);
+}
+
+export async function dispatchGoogleApprove(
+  world: AuthWorld,
+  clientId: string,
+  subject: string
+): Promise<void> {
+  const actor = actorOf(world, clientId);
+  if (actor === null) return;
+  await googleApprove(world, actor, subject);
+}
+
+export async function dispatchSessionExchange(
+  world: AuthWorld,
+  clientId: string
+): Promise<void> {
+  const actor = actorOf(world, clientId);
+  if (actor === null) return;
+  await sessionExchange(requireStore(world.state), actor);
+}
+
+export async function dispatchSignOut(
+  world: AuthWorld,
+  clientId: string
+): Promise<void> {
+  const actor = actorOf(world, clientId);
+  if (actor === null) return;
+  await signOut(requireStore(world.state), actor);
+}
+
+export function dispatchStealBearer(
+  world: AuthWorld,
+  from: string,
+  to: string
+): void {
+  const src = world.state.actors.get(from);
+  const dst = world.state.actors.get(to);
+  if (src === undefined || dst === undefined) return;
+  dst.bearer = src.bearer;
 }

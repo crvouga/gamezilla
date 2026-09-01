@@ -8,7 +8,7 @@ import { acmeLargeCatalogSystem, acmeSystem } from '../apps/acme/system';
 describe('online lifecycle wakes query refetch', () => {
   test('online after offline triggers nudge path', async () => {
     await using world = await openWorld(acmeSystem, { seed: 55001 });
-    const facade = syncFacade(world.system);
+    const facade = syncFacade(world.state);
     const a = facade.clients.get('c0');
     expect(a).toBeDefined();
     if (a === undefined) return;
@@ -24,7 +24,7 @@ describe('online lifecycle wakes query refetch', () => {
 describe('storage full merge abort', () => {
   test('quota arm aborts merge and queue survives restart', async () => {
     await using world = await openWorld(acmeSystem, { seed: 55002 });
-    const facade = syncFacade(world.system);
+    const facade = syncFacade(world.state);
     const a = facade.clients.get('c0');
     expect(a).toBeDefined();
     if (a === undefined) return;
@@ -61,6 +61,22 @@ describe('shared db peer engine', () => {
         acmeSetNoteOp('c0', 'n0', 'shared'),
         { kind: 'idle', ms: 30 },
         { kind: 'heal' },
+      ],
+    });
+  });
+
+  // runAcmeSeed 5230: restart donor must not close sqlite still held by c2.
+  test('restart donor after addPeerEngine still converges', async () => {
+    await replaySyncPin(acmeSystem, {
+      seed: 5230,
+      actions: [
+        acmeSetNoteOp('c0', 'n6', 'b947'),
+        {
+          kind: 'addPeerEngine',
+          clientId: 'c2',
+          shareWithClientId: 'c0',
+        },
+        { kind: 'restart', clientId: 'c0' },
       ],
     });
   });

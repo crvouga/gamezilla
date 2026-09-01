@@ -23,7 +23,7 @@ describe('client ahead column mutation no wipe', () => {
           clientCount: 0,
         },
       });
-      const world = syncFacade(host.system);
+      const world = syncFacade(host.state);
       // Session stays on notesWorld (server knows it); only local DDL + mutation
       // registry are ahead of the server.
       const alice = await world.addClient({

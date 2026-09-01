@@ -13,6 +13,10 @@ import {
   type RpcResponse,
   settleRpcResponse,
 } from './rpc';
+import {
+  SQL_DB_HOST_PROTOCOL_VERSION,
+  sqlDbHostSharedWorkerName,
+} from './sql-db-host-protocol';
 
 export type WebSqlTransport = {
   connect: () => Promise<ConnectResult>;
@@ -31,6 +35,7 @@ class SharedWorkerTransport implements WebSqlTransport {
   private readonly dbName: string;
   private readonly timers: Timers;
   private readonly workerUrl: string;
+  private readonly protocolVersion: number;
   private readonly createOwnerRuntimeFn: typeof createOwnerRuntime;
   private readonly nextId = createRpcIdFactory('sw');
   private readonly pending = new Map<string, PendingRpc>();
@@ -50,11 +55,13 @@ class SharedWorkerTransport implements WebSqlTransport {
     readonly timers: Timers;
     readonly workerUrl: string;
     readonly createOwnerRuntimeFn: typeof createOwnerRuntime;
+    readonly protocolVersion?: number;
   }) {
     this.dbName = args.dbName;
     this.timers = args.timers;
     this.workerUrl = args.workerUrl;
     this.createOwnerRuntimeFn = args.createOwnerRuntimeFn;
+    this.protocolVersion = args.protocolVersion ?? SQL_DB_HOST_PROTOCOL_VERSION;
   }
 
   private post(message: BrokerToTabMessage): void {
@@ -145,7 +152,7 @@ class SharedWorkerTransport implements WebSqlTransport {
   async connect(): Promise<ConnectResult> {
     if (this.connected && this.role !== null) return { role: this.role };
     this.worker = new SharedWorker(this.workerUrl, {
-      name: 'sql-db-host',
+      name: sqlDbHostSharedWorkerName(this.protocolVersion),
       type: 'module',
     });
     this.port = this.worker.port;
@@ -276,6 +283,7 @@ export function createSharedWorkerTransport(args: {
   readonly timers: Timers;
   readonly workerUrl: string;
   readonly createOwnerRuntimeFn: typeof createOwnerRuntime;
+  readonly protocolVersion?: number;
 }): WebSqlTransport {
   return new SharedWorkerTransport(args);
 }

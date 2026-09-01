@@ -11,7 +11,7 @@ async function expectAuthzState(
   expected: { readonly owner: string; readonly count: number }
 ): Promise<void> {
   try {
-    const snap = await roomWorld(world.system).serverSnapshot();
+    const snap = await roomWorld(world.state).serverSnapshot();
     expect(authzOwner(snap)).toBe(expected.owner);
     expect(authzCount(snap)).toBe(expected.count);
   } finally {

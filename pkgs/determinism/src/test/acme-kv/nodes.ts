@@ -2,8 +2,6 @@ import { isPlainObject } from '../../json';
 import type { SimNetwork } from '../../network';
 import { defineNodeKind } from '../../node-kind';
 import {
-  ACME_KV_CLIENT_KIND,
-  ACME_KV_SERVER_KIND,
   type AcmeKvEntry,
   type AcmeKvSystem,
   applyLww,
@@ -14,14 +12,14 @@ import {
 export type AcmeKvServerHandle = {
   readonly id: string;
   readonly endpointId: string;
-  readonly system: AcmeKvSystem;
+  readonly state: AcmeKvSystem;
   readonly network: SimNetwork;
 };
 
 export type AcmeKvClientHandle = {
   readonly id: string;
   readonly endpointId: string;
-  readonly system: AcmeKvSystem;
+  readonly state: AcmeKvSystem;
   readonly network: SimNetwork;
   readonly cache: Map<string, AcmeKvEntry>;
 };
@@ -80,7 +78,7 @@ function fanoutReplicate(
   writeId: number
 ): void {
   const msg: ReplicateMsg = { type: 'replicate', key, value, writeId };
-  for (const to of handle.system.clientEndpoints) {
+  for (const to of handle.state.clientEndpoints) {
     handle.network.send(handle.endpointId, to, msg);
   }
 }
@@ -89,7 +87,7 @@ function onServerDeliver(handle: AcmeKvServerHandle, payload: unknown): void {
   const put = asPut(payload);
   if (put === null) return;
   const applied = applyLww(
-    handle.system.serverStore,
+    handle.state.serverStore,
     put.key,
     put.value,
     put.writeId
@@ -105,35 +103,35 @@ function onClientDeliver(handle: AcmeKvClientHandle, payload: unknown): void {
 }
 
 /** Re-send every server entry to every client (catch-up after partition). */
-export function rebroadcastStore(system: AcmeKvSystem): void {
-  const network = system.network;
+export function rebroadcastStore(state: AcmeKvSystem): void {
+  const network = state.network;
   if (network === null) return;
   const from = serverEndpointId();
-  for (const [key, entry] of system.serverStore) {
+  for (const [key, entry] of state.serverStore) {
     const msg: ReplicateMsg = {
       type: 'replicate',
       key,
       value: entry.value,
       writeId: entry.writeId,
     };
-    for (const to of system.clientEndpoints) {
+    for (const to of state.clientEndpoints) {
       network.send(from, to, msg);
     }
   }
 }
 
 export function sendPut(args: {
-  readonly system: AcmeKvSystem;
+  readonly state: AcmeKvSystem;
   readonly clientId: string;
   readonly key: string;
   readonly value: string;
 }): void {
-  const network = args.system.network;
+  const network = args.state.network;
   if (network === null) {
     throw new Error('acme-kv: network not ready');
   }
-  args.system.nextWriteId += 1;
-  const writeId = args.system.nextWriteId;
+  args.state.nextWriteId += 1;
+  const writeId = args.state.nextWriteId;
   const msg: PutMsg = {
     type: 'put',
     clientId: args.clientId,
@@ -149,13 +147,13 @@ export const acmeKvServerNode = defineNodeKind<
   AcmeKvServerHandle,
   AcmeKvSystem
 >({
-  id: ACME_KV_SERVER_KIND,
+  id: 'acme-kv.server',
   boot: (ctx) => {
-    ctx.system.network = ctx.network;
+    ctx.state.network = ctx.network;
     const handle: AcmeKvServerHandle = {
       id: ctx.nodeId,
       endpointId: serverEndpointId(),
-      system: ctx.system,
+      state: ctx.state,
       network: ctx.network,
     };
     return handle;
@@ -176,19 +174,19 @@ export const acmeKvClientNode = defineNodeKind<
   AcmeKvClientHandle,
   AcmeKvSystem
 >({
-  id: ACME_KV_CLIENT_KIND,
+  id: 'acme-kv.client',
   boot: (ctx) => {
     const cache = new Map<string, AcmeKvEntry>();
-    ctx.system.clientCaches.set(ctx.nodeId, cache);
+    ctx.state.clientCaches.set(ctx.nodeId, cache);
     const endpointId = clientEndpointId(ctx.nodeId);
-    ctx.system.clientEndpoints.push(endpointId);
-    if (ctx.system.network === null) {
-      ctx.system.network = ctx.network;
+    ctx.state.clientEndpoints.push(endpointId);
+    if (ctx.state.network === null) {
+      ctx.state.network = ctx.network;
     }
     const handle: AcmeKvClientHandle = {
       id: ctx.nodeId,
       endpointId,
-      system: ctx.system,
+      state: ctx.state,
       network: ctx.network,
       cache,
     };
@@ -204,9 +202,3 @@ export const acmeKvClientNode = defineNodeKind<
   ],
   view: (h) => h,
 });
-
-/** Re-register after {@link clearNodeKindRegistry} (contract tests). */
-export function registerAcmeKvNodeKinds(): void {
-  defineNodeKind(acmeKvServerNode);
-  defineNodeKind(acmeKvClientNode);
-}

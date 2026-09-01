@@ -22,10 +22,10 @@ describe('db-schema framework world', () => {
       ],
     });
     try {
-      expect(requireServer(world.system).version).toBe(2);
+      expect(requireServer(world.state).version).toBe(2);
       // settle catches the lagging client up to the server version.
-      expect(resolvePeer(world.system, 'client-0').version).toBe(2);
-      expect(resolvePeer(world.system, 'client-1').version).toBe(2);
+      expect(resolvePeer(world.state, 'client-0').version).toBe(2);
+      expect(resolvePeer(world.state, 'client-1').version).toBe(2);
     } finally {
       await world.dispose();
     }
@@ -41,7 +41,7 @@ describe('db-schema framework world', () => {
       ],
     });
     try {
-      expect(requireServer(world.system).planKinds).toEqual(['v1']);
+      expect(requireServer(world.state).planKinds).toEqual(['v1']);
     } finally {
       await world.dispose();
     }
@@ -58,8 +58,8 @@ describe('db-schema framework world', () => {
       'client-1',
       'client-2',
     ]);
-    expect(requireServer(world.system).version).toBe(0);
-    expect(world.system.clients).toHaveLength(3);
+    expect(requireServer(world.state).version).toBe(0);
+    expect(world.state.clients).toHaveLength(3);
   }, 60_000);
 
   test('surface coverage: schema snapshot exports checks/views/enums arrays', () => {

@@ -4,47 +4,60 @@ import { bootReplicaOnStore } from '../boot-replica';
 import { buildReplicaHandle } from '../handles';
 import { openSimStore, type SimStore } from '../store';
 import type { MatchmakingSimBackend } from '../world-api';
-import { buildMatchmakingFacade } from './facade';
 import { type MatchmakingSystem, requireStore } from './system';
 
-export const MM_STORE = 'mm.store';
-export const MM_REPLICA = 'mm.replica';
-export const MM_WARMUP = 'mm.warmup';
+type StoreHandle = { readonly store: SimStore };
+type ReplicaHandle = { readonly id: string };
 
-defineNodeKind<{ readonly store: SimStore }, unknown, MatchmakingSystem>({
-  id: MM_STORE,
+/**
+ * Shared SQL store for all replicas. Backend from knob `backend`.
+ */
+export const mmStoreNode = defineNodeKind<
+  StoreHandle,
+  StoreHandle,
+  MatchmakingSystem
+>({
+  id: 'mm.store',
   boot: async (ctx) => {
     const backend = ctx.knobs.get('backend') as MatchmakingSimBackend;
     const store = await openSimStore(backend);
-    ctx.system.store = store;
+    ctx.state.store = store;
     return { store };
   },
   dispose: async (handle) => {
     await handle.store.close();
   },
+  view: (h) => h,
 });
 
-defineNodeKind<{ readonly id: string }, unknown, MatchmakingSystem>({
-  id: MM_REPLICA,
+/**
+ * One matchmaking replica on the shared store.
+ */
+export const mmReplicaNode = defineNodeKind<
+  ReplicaHandle,
+  ReplicaHandle,
+  MatchmakingSystem
+>({
+  id: 'mm.replica',
   boot: async (ctx) => {
-    const system = ctx.system;
-    const store = requireStore(system);
+    const state = ctx.state;
+    const store = requireStore(state);
     const mm = await bootReplicaOnStore({
       store,
       clock: ctx.deps.clock,
       rng: ctx.deps.rng,
       replicaId: ctx.nodeId,
       config: {
-        schema: system.schema,
-        radius: system.radius,
-        tuning: system.tuning,
+        schema: state.schema,
+        radius: state.radius,
+        tuning: state.tuning,
       },
     });
-    if (system.firstId === null) {
-      system.firstId = ctx.nodeId;
-      system.ops = {
+    if (state.firstId === null) {
+      state.firstId = ctx.nodeId;
+      state.ops = {
         getMm: (replicaId) => {
-          const r = system.replicas.get(replicaId);
+          const r = state.replicas.get(replicaId);
           if (r === undefined) {
             throw new Error(
               `MatchmakingSimWorld: unknown replica ${replicaId}`
@@ -55,27 +68,13 @@ defineNodeKind<{ readonly id: string }, unknown, MatchmakingSystem>({
         defaultReplicaId: ctx.nodeId,
       };
     }
-    const ops = system.ops;
+    const ops = state.ops;
     if (ops === null) {
       throw new Error('mm.replica: ops missing');
     }
     const handle = buildReplicaHandle(ops, ctx.nodeId, mm);
-    system.replicas.set(ctx.nodeId, handle);
+    state.replicas.set(ctx.nodeId, handle);
     return { id: ctx.nodeId };
   },
-});
-
-/** Assemble the scenario facade after all replicas are up. */
-defineNodeKind<{ readonly id: string }, unknown, MatchmakingSystem>({
-  id: MM_WARMUP,
-  boot: (ctx) => {
-    const facade = buildMatchmakingFacade({
-      system: ctx.system,
-      seed: ctx.deps.seed,
-      clock: ctx.deps.clock,
-      rng: ctx.deps.rng,
-    });
-    ctx.system.facade = facade;
-    return { id: ctx.nodeId };
-  },
+  view: (h) => h,
 });

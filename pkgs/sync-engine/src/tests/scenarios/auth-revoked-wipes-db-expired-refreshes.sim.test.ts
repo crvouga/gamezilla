@@ -18,7 +18,7 @@ describe('auth revoked wipes db expired refreshes', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
@@ -43,7 +43,7 @@ describe('auth revoked wipes db expired refreshes', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const a = await world.addClient({ id: 'alice' });
     await world.addClient({ id: 'bob' });
 
@@ -77,7 +77,7 @@ describe('auth revoked wipes db expired refreshes', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
@@ -109,7 +109,7 @@ describe('auth revoked wipes db expired refreshes', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
@@ -145,7 +145,7 @@ describe('auth revoked wipes db expired refreshes', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const a = await world.addClient({ id: 'alice' });
 
     await a.mutate(setNote, { id: 'n-keep', body: 'local-and-server' });
@@ -175,7 +175,7 @@ describe('auth revoked wipes db expired refreshes', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const a = await world.addClient({ id: 'c0' });
     await world.addClient({ id: 'c1' });
     world.node('c0').auth('revoked');

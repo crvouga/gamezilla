@@ -21,7 +21,7 @@ describe('live loss dup reorder still converges', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await a.mutate(setNote, { id: 'warm', body: 'w' });
@@ -46,7 +46,7 @@ describe('live loss dup reorder still converges', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     using _fault = world.net('bob', 'live').set({ packetReplayProbability: 1 });
@@ -64,7 +64,7 @@ describe('live loss dup reorder still converges', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     using _fault = world.net('bob', 'live').set({
@@ -87,7 +87,7 @@ describe('live loss dup reorder still converges', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     {
@@ -115,7 +115,7 @@ describe('live loss dup reorder still converges', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await a.mutate(setNote, { id: 'warm', body: 'w' });

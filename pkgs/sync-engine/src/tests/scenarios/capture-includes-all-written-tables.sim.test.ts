@@ -19,7 +19,7 @@ describe('capture includes all written tables', () => {
         rowImageFanout: true,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const a = await world.addClient({ id: 'alice' });
     const notesPeer = await world.addClient({
       id: 'notesPeer',
@@ -53,7 +53,7 @@ describe('capture includes all written tables', () => {
           rowImageFanout: true,
         },
       });
-      const world = syncFacade(host.system);
+      const world = syncFacade(host.state);
       const a = await world.addClient({ id: 'alice' });
       const foldersPeer = await world.addClient({
         id: 'foldersPeer',

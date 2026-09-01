@@ -53,7 +53,7 @@ const { participantId } = await mm.join({
 | `@pkgs/matchmaking/impl-sql` | `MatchmakingImplSql`, `MatchmakingDatabaseMigration` |
 | `@pkgs/matchmaking/wire` | `FormulaWire` types for HTTP / RPC |
 | `@pkgs/matchmaking/client` | `MatchmakingClient` |
-| `@pkgs/matchmaking/testing` | Framework sim (`openMatchmakingWorld` / `MATCHMAKING_SYSTEM`) + fixtures |
+| `@pkgs/matchmaking/testing` | Framework sim (`openMatchmakingWorld` → World / `MATCHMAKING_SYSTEM`) + fixtures |
 
 Anything outside these subpaths is internal.
 
@@ -75,13 +75,18 @@ pkgs/matchmaking/src/
 ```
 
 ```ts
-import { openMatchmakingWorld, RatingAttr } from '@pkgs/matchmaking/testing';
+import {
+  openMatchmakingWorld,
+  RatingAttr,
+  requireMmWorld,
+} from '@pkgs/matchmaking/testing';
 
-await using world = await openMatchmakingWorld({
+await using host = await openMatchmakingWorld({
   seed: 3,
   replicas: 3,
   // backend: 'postgres', // required for concurrent tickAll claim races
 });
+const world = requireMmWorld(host.state);
 
 const a = await world.join(
   { data: RatingAttr(1000), formulas: [{ numeric: [{ tag: RatingAttr, weight: 1 }] }] },

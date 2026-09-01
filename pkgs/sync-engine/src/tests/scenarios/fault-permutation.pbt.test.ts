@@ -44,7 +44,7 @@ describe('fault permutation pins', () => {
 
   test('storage full then restart converges', async () => {
     await using world = await openWorld(acmeSystem, { seed: 44002 });
-    const facade = syncFacade(world.system);
+    const facade = syncFacade(world.state);
     const c0 = facade.clients.get('c0');
     expect(c0).toBeDefined();
     if (c0 === undefined) return;

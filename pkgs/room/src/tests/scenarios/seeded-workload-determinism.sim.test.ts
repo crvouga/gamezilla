@@ -9,7 +9,7 @@ async function runWorkload(seed: number | string): Promise<string> {
     seed,
     knobs: { clientCount: 0 },
   });
-  const world = roomWorld(host.system);
+  const world = roomWorld(host.state);
   const a = await world.addClient({ id: 'alice' });
   const b = await world.addClient({ id: 'bob' });
   for (let i = 0; i < 7; i += 1) {

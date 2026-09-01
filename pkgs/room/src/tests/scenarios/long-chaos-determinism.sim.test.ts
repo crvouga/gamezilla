@@ -9,7 +9,7 @@ async function runChaos(seed: string): Promise<string> {
     seed,
     knobs: { clientCount: 0 },
   });
-  const world = roomWorld(host.system);
+  const world = roomWorld(host.state);
   const alice = await world.addClient({ id: 'alice' });
   const bob = await world.addClient({ id: 'bob' });
   const carol = await world.addClient({ id: 'carol' });

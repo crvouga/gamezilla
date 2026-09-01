@@ -58,9 +58,9 @@ describe('auth system / PBT', () => {
           { kind: 'devComplete', clientId: 'c1', subject: 'alice' },
         ],
         async (world) => {
-          const store = requireStore(world.system);
-          const c0 = requireActor(world.system, 'c0');
-          const c1 = requireActor(world.system, 'c1');
+          const store = requireStore(world.state);
+          const c0 = requireActor(world.state, 'c0');
+          const c1 = requireActor(world.state, 'c1');
           expect(c0.bearer).not.toBeNull();
           expect(c1.bearer).not.toBeNull();
           expect(c0.bearer).not.toBe(c1.bearer);
@@ -77,10 +77,10 @@ describe('auth system / PBT', () => {
         7,
         [{ kind: 'devComplete', clientId: 'c0', subject: 'alice' }],
         async (world) => {
-          const store = requireStore(world.system);
-          const bearer = requireActor(world.system, 'c0').bearer!;
+          const store = requireStore(world.state);
+          const bearer = requireActor(world.state, 'c0').bearer!;
           expect(await store.server.verifySessionToken(bearer)).not.toBeNull();
-          await world.runFor(AUTH_SESSION_TTL_MS + 1);
+          await world.advance(AUTH_SESSION_TTL_MS + 1);
           expect(await store.server.verifySessionToken(bearer)).toBeNull();
         }
       );
@@ -96,9 +96,9 @@ describe('auth system / PBT', () => {
           { kind: 'signOut', clientId: 'c0' },
         ],
         async (world) => {
-          const store = requireStore(world.system);
-          expect(requireActor(world.system, 'c0').bearer).toBeNull();
-          const b1 = requireActor(world.system, 'c1').bearer!;
+          const store = requireStore(world.state);
+          expect(requireActor(world.state, 'c0').bearer).toBeNull();
+          const b1 = requireActor(world.state, 'c1').bearer!;
           expect(await store.server.verifySessionToken(b1)).not.toBeNull();
         }
       );
@@ -118,8 +118,8 @@ describe('auth system / PBT', () => {
           { kind: 'sessionExchange', clientId: 'c0' },
         ],
         async (world) => {
-          const store = requireStore(world.system);
-          const bearer = requireActor(world.system, 'c0').bearer;
+          const store = requireStore(world.state);
+          const bearer = requireActor(world.state, 'c0').bearer;
           expect(bearer).not.toBeNull();
           expect(await store.server.verifySessionToken(bearer!)).not.toBeNull();
         }
@@ -131,7 +131,7 @@ describe('auth system / PBT', () => {
         seed: 13,
         knobs: { ...knobsFor(fabric), devProvider: false },
       });
-      const res = await requireStore(world.system).fetch(
+      const res = await requireStore(world.state).fetch(
         '/auth/oauth/dev/complete',
         {
           method: 'POST',
@@ -156,10 +156,8 @@ describe('auth system / PBT', () => {
             const a = await replay(AUTH_SYSTEM, { seed, knobs, actions });
             const b = await replay(AUTH_SYSTEM, { seed, knobs, actions });
             try {
-              expect(a.world.system.fingerprint).not.toBeNull();
-              expect(a.world.system.fingerprint).toBe(
-                b.world.system.fingerprint
-              );
+              expect(a.world.state.fingerprint).not.toBeNull();
+              expect(a.world.state.fingerprint).toBe(b.world.state.fingerprint);
             } finally {
               await a.world.dispose();
               await b.world.dispose();
@@ -174,7 +172,7 @@ describe('auth system / PBT', () => {
         seed: 1,
         knobs: knobsFor(fabric),
       });
-      const store = requireStore(world.system);
+      const store = requireStore(world.state);
       const before = await worldFingerprint(world);
       await migrateAuthSchema(store.fabric, store.sql);
       expect(await worldFingerprint(world)).toBe(before);

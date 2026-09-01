@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, test } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import fc from 'fast-check';
 import {
   arbWorldSeed,
@@ -7,13 +7,8 @@ import {
   replay,
 } from '../../pbt';
 import { openWorld } from '../../world';
-import { registerAcmeKvNodeKinds } from './nodes';
 import { ACME_KV_SYSTEM, acmeKvServerFingerprint } from './system';
 import { storeFingerprint } from './types';
-
-beforeAll(() => {
-  registerAcmeKvNodeKinds();
-});
 
 describe('acme-kv system PBT', () => {
   test('assertSample explores knobs + partition/heal + put', async () => {
@@ -26,9 +21,9 @@ describe('acme-kv system PBT', () => {
       fc.asyncProperty(arbWorldSeed(), async (seed) => {
         const actions = [
           { kind: 'put', clientId: 'c0', key: 'a', value: 'x' },
-          { kind: 'partition', clientId: 'c1' },
+          { kind: 'std.partition', from: 'c1', to: 'server' },
           { kind: 'put', clientId: 'c0', key: 'b', value: 'y' },
-          { kind: 'heal' },
+          { kind: 'std.healAll' },
           { kind: 'put', clientId: 'c1', key: 'a', value: 'z' },
         ] as const;
         const knobs = { clientCount: 2 };
@@ -43,8 +38,8 @@ describe('acme-kv system PBT', () => {
           actions: [...actions],
         });
         try {
-          expect(acmeKvServerFingerprint(a.world.system)).toBe(
-            acmeKvServerFingerprint(b.world.system)
+          expect(acmeKvServerFingerprint(a.world.state)).toBe(
+            acmeKvServerFingerprint(b.world.state)
           );
         } finally {
           await a.world.dispose();
@@ -62,6 +57,6 @@ describe('acme-kv system PBT', () => {
     });
     expect(world.node('server').kind).toBe('acme-kv.server');
     expect(world.roleIds('client')).toEqual(['c0', 'c1']);
-    expect(storeFingerprint(world.system.serverStore)).toBe('{}');
+    expect(storeFingerprint(world.state.serverStore)).toBe('{}');
   });
 });

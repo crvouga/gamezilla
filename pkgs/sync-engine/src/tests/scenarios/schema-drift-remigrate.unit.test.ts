@@ -19,7 +19,7 @@ describe('preserveLocalDb remigrate after additive schema', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     await world.addClient({
       id: 'alice',
       localSchema: acmeLocalSchemaExtraColumn,
@@ -56,7 +56,7 @@ describe('preserveLocalDb remigrate after additive schema', () => {
         bufferOutboundLive: false,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
@@ -84,7 +84,7 @@ describe('preserveLocalDb remigrate after additive schema', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     await world.addClient({ id: 'alice' });
     await world.node('alice').restart(acmeRestartOptsForVariant('extraColumn'));
     await world.clients
@@ -112,7 +112,7 @@ describe('preserveLocalDb remigrate after additive schema', () => {
       seed: 45,
       knobs: { clientCount: 0 },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     await world.addClient({ id: 'c1' });
     await world.node('c1').restart(acmeRestartOptsForVariant('extraColumn'));
     await world.clients.get('c1')!.mutate(setNote, { id: 'n1', body: 'peer' });

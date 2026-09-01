@@ -19,7 +19,7 @@ import type {
   SimRoomNetHandle,
   SimRoomNetwork,
 } from './network';
-import type { NeverOpts, UntilOpts, UntilTarget } from './until';
+import type { NeverOpts, UntilOpts, UntilPredicate } from './until';
 
 export type { RoomSimClientHandle, RoomSimNodeHandle } from './handles';
 
@@ -58,8 +58,8 @@ export type World<
   readonly net: (clientId: string) => SimRoomNetHandle;
   readonly node: (clientId: string) => RoomSimNodeHandle;
   readonly runFor: (ms: number) => Promise<void>;
-  readonly until: (target: UntilTarget, opts?: UntilOpts) => Promise<number>;
-  readonly never: (target: UntilTarget, opts: NeverOpts) => Promise<void>;
+  readonly until: (pred: UntilPredicate, opts?: UntilOpts) => Promise<number>;
+  readonly never: (pred: UntilPredicate, opts: NeverOpts) => Promise<void>;
   /** Domain state folded from the committed storage log (authority). */
   readonly serverSnapshot: () => Promise<S>;
   /** `module.hash` of {@link serverSnapshot}. */

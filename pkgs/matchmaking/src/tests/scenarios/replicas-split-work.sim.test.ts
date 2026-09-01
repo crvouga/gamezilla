@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { openMatchmakingWorld } from '../../sim/system';
+import { openMatchmakingWorld, requireMmWorld } from '../../sim/system';
 import {
   assertMatchInvariants,
   RatingAttr,
@@ -18,12 +18,13 @@ describe('matchmaking sim: replica split work', () => {
   });
 
   test('maxPairsPerPass:1 still pairs everyone across concurrent workers', async () => {
-    await using world = await openMatchmakingWorld({
+    await using host = await openMatchmakingWorld({
       seed: 220,
       replicas: 2,
       backend: 'postgres',
       tuning: { maxPairsPerPass: 1 },
     });
+    const world = requireMmWorld(host.state);
     const participants = [];
     for (let i = 0; i < 8; i += 1) {
       world.clock.advance(1);

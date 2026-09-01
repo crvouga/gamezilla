@@ -1,5 +1,3 @@
-import { Platform } from 'react-native';
-
 export type ClearExpoSqliteWebOpfsResult =
   | { readonly ok: true; readonly skipped: boolean }
   | { readonly ok: false; readonly error: unknown };
@@ -14,11 +12,11 @@ export type ClearExpoSqliteWebOpfsResult =
  * Returns an explicit success/failure so callers can avoid setting a "we already
  * recovered" flag when the wipe silently failed (e.g. `NoModificationAllowedError`
  * because another tab/worker still holds a `FileSystemSyncAccessHandle`).
+ *
+ * The OPFS feature check doubles as the platform check, so this module stays
+ * free of `react-native` and remains importable from Bun / worker contexts.
  */
 export async function clearExpoSqliteWebOpfsBestEffort(): Promise<ClearExpoSqliteWebOpfsResult> {
-  if (Platform.OS !== 'web') {
-    return { ok: true, skipped: true };
-  }
   if (
     typeof navigator === 'undefined' ||
     navigator.storage?.getDirectory === undefined

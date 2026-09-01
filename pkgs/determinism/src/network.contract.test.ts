@@ -1,12 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 import { createSeededRng } from '@pkgs/uuid';
-import {
-  createSimClock,
-  createSimNetwork,
-  createSimScheduler,
-  createSimTrace,
-  RELIABLE_NET_FAULTS,
-} from '../src/index';
+import { createSimClock } from './clock';
+import { createSimNetwork, RELIABLE_NET_FAULTS } from './network';
+import { createSimScheduler } from './scheduler';
+import { createSimTrace } from './trace';
 
 describe('SimNetwork contract', () => {
   test('local send delivers without RNG', async () => {

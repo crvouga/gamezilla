@@ -1,21 +1,26 @@
 import {
-  defineLibrary,
+  type ActionArbContext,
+  type ActionDef,
+  defineAction,
   defineSystem,
-  type JsonValue,
-  playActionsOnWorld,
+  type SystemAction,
   type SystemDef,
   type World,
 } from '@pkgs/determinism';
 import fc from 'fast-check';
 
 import type { RoomSystemAction } from './actions';
-import { isLibraryAction } from './actions';
 import type { RoomApp } from './app';
 import { dispatchRoomSystemAction } from './dispatch';
 import { ROOM_SYSTEM_KNOBS } from './knobs';
-import { defaultClientIds, libraryActionArbs } from './library-arbs';
-import { ROOM_CLIENT, ROOM_SERVER } from './node-kinds';
-import { prepareClientsForConverge, prepareReplayAction } from './play';
+import {
+  defaultClientIds,
+  type LibraryArbEntry,
+  SAMPLED_LIBRARY_ARBS,
+  SCRIPTED_LIBRARY_ARBS,
+} from './library-arbs';
+import { roomClientNode, roomServerNode } from './node-kinds';
+import { prepareClientsForConverge } from './play';
 import { type RoomSystem, requireWorld } from './system';
 import {
   applyActionToModel,
@@ -27,26 +32,30 @@ import {
 
 const WORLD_START_MS = 1_700_000_000_000;
 
-export type RoomSystemWorld = World<RoomSystem>;
-export type RoomSystemDef = SystemDef<RoomSystem>;
+/** Fixed post-step quantum after each played action (mirrors framework play). */
+const PLAY_STEP_MS = 10;
 
-function asJsonArb<T>(arb: fc.Arbitrary<T>): fc.Arbitrary<JsonValue> {
-  return arb as unknown as fc.Arbitrary<JsonValue>;
+export type RoomSystemWorld = World<RoomSystem>;
+export type RoomSystemDef = SystemDef<RoomSystem, WorldModel>;
+
+type RoomActionDef = ActionDef<RoomSystem, SystemAction, WorldModel>;
+
+function asSystemArb(
+  arb: fc.Arbitrary<RoomSystemAction>
+): fc.Arbitrary<SystemAction> {
+  return arb as unknown as fc.Arbitrary<SystemAction>;
 }
 
 async function dispatchRoom(
   world: RoomSystemWorld,
-  action: JsonValue
+  action: SystemAction
 ): Promise<void> {
-  const system = world.system;
-  const real = requireWorld(system);
-  const roomAction = action as unknown as RoomSystemAction;
-  await prepareReplayAction(real, roomAction);
-  await dispatchRoomSystemAction(real, system.app, roomAction);
-}
-
-async function roomPrepareConverge(world: RoomSystemWorld): Promise<void> {
-  await prepareClientsForConverge(requireWorld(world.system));
+  const state = world.state;
+  await dispatchRoomSystemAction(
+    requireWorld(state),
+    state.app,
+    action as unknown as RoomSystemAction
+  );
 }
 
 /**
@@ -57,54 +66,63 @@ export async function playRoomActions(
   world: RoomSystemWorld,
   actions: readonly RoomSystemAction[]
 ): Promise<void> {
-  await playActionsOnWorld<JsonValue>({
-    host: world,
-    actions: actions as unknown as readonly JsonValue[],
-    dispatch: (action) => dispatchRoom(world, action),
-    prepareConverge: () => roomPrepareConverge(world),
+  for (const action of actions) {
+    await dispatchRoom(world, action as unknown as SystemAction);
+    await world.advance(PLAY_STEP_MS);
+  }
+  await prepareClientsForConverge(requireWorld(world.state));
+}
+
+function pickClient(ctx: ActionArbContext): fc.Arbitrary<string> {
+  return fc.constantFrom(...defaultClientIds(ctx.roleIds('client')));
+}
+
+function libraryAction(
+  app: RoomApp,
+  entry: LibraryArbEntry,
+  sampled: boolean
+): RoomActionDef {
+  return defineAction<RoomSystem, SystemAction, WorldModel>({
+    kind: entry.kind,
+    class: 'library',
+    arb: (ctx) => asSystemArb(entry.arb(pickClient(ctx))),
+    dispatch: dispatchRoom,
+    // Scripted-only kinds never enter generated command runs (allows false);
+    // replay still dispatches them by kind.
+    allows: sampled
+      ? (m, a) => modelAllowsAction(app, m, a as unknown as RoomSystemAction)
+      : () => false,
+    apply: (m, a) =>
+      applyActionToModel(app, m, a as unknown as RoomSystemAction),
   });
 }
 
-function roomLibrary() {
-  return defineLibrary<RoomSystem>({
-    kind: 'library',
-    match: (action) => isLibraryAction(action as unknown as RoomSystemAction),
+function domainAction(app: RoomApp): RoomActionDef {
+  return defineAction<RoomSystem, SystemAction, WorldModel>({
+    kind: 'domain',
+    class: 'domain',
     arb: (ctx) =>
-      fc.oneof(
-        ...libraryActionArbs({ clientIds: ctx.roleIds('client') }).map(
-          asJsonArb
+      asSystemArb(
+        fc.oneof(
+          ...app.domainOpArbs({
+            clientIds: defaultClientIds(ctx.roleIds('client')),
+          })
         )
       ),
     dispatch: dispatchRoom,
+    allows: (m, a) =>
+      modelAllowsAction(app, m, a as unknown as RoomSystemAction),
+    apply: (m, a) =>
+      applyActionToModel(app, m, a as unknown as RoomSystemAction),
   });
 }
 
-function roomDomainArbs(
-  app: RoomApp,
-  clientIds: readonly string[]
-): readonly fc.Arbitrary<JsonValue>[] {
-  return app
-    .domainOpArbs({ clientIds: defaultClientIds(clientIds) })
-    .map(asJsonArb);
-}
-
-function roomModel(app: RoomApp) {
-  return {
-    initial: (): object => initialWorldModel(app, CLIENT_IDS),
-    allows: (model: object, action: JsonValue): boolean =>
-      modelAllowsAction(
-        app,
-        model as WorldModel,
-        action as unknown as RoomSystemAction
-      ),
-    apply: (model: object, action: JsonValue): void => {
-      applyActionToModel(
-        app,
-        model as WorldModel,
-        action as unknown as RoomSystemAction
-      );
-    },
-  };
+function roomActions(app: RoomApp): readonly RoomActionDef[] {
+  return [
+    domainAction(app),
+    ...SAMPLED_LIBRARY_ARBS.map((entry) => libraryAction(app, entry, true)),
+    ...SCRIPTED_LIBRARY_ARBS.map((entry) => libraryAction(app, entry, false)),
+  ];
 }
 
 export type DefineRoomSystemOpts = {
@@ -113,36 +131,35 @@ export type DefineRoomSystemOpts = {
 
 /**
  * Framework-owned room world: one server + `clientCount` clients booted by
- * `@pkgs/determinism` node kinds, with the full library/domain action pool.
+ * `@pkgs/determinism` node kinds, with per-kind library/domain actions.
  */
 export function defineRoomSystem(
   app: RoomApp,
   opts?: DefineRoomSystemOpts
 ): RoomSystemDef {
-  return defineSystem<RoomSystem>({
+  return defineSystem<RoomSystem, WorldModel>({
     id: opts?.id ?? 'room.world',
     startMs: WORLD_START_MS,
     knobs: ROOM_SYSTEM_KNOBS,
     nodes: [
-      { kind: ROOM_SERVER, role: 'server', count: 1 },
+      { kind: roomServerNode, role: 'server', count: 1 },
       {
-        kind: ROOM_CLIENT,
+        kind: roomClientNode,
         role: 'client',
         countFromKnob: 'clientCount',
         idFor: (i) => `c${i}`,
       },
     ],
-    system: (): RoomSystem => ({ app, world: null }),
-    library: [roomLibrary()],
-    domain: {
-      arbs: (ctx) => roomDomainArbs(app, ctx.roleIds('client')),
-      dispatch: dispatchRoom,
+    state: (): RoomSystem => ({ app, world: null }),
+    actions: roomActions(app),
+    model: {
+      initial: (): WorldModel => initialWorldModel(app, CLIENT_IDS),
     },
-    model: roomModel(app),
-    checkInvariants: (world) => requireWorld(world.system).checkInvariants(),
-    prepareConverge: roomPrepareConverge,
     settle: async (world) => {
-      await requireWorld(world.system).assertConverged();
+      const real = requireWorld(world.state);
+      await prepareClientsForConverge(real);
+      await real.assertConverged();
     },
+    invariants: async (world) => requireWorld(world.state).checkInvariants(),
   });
 }

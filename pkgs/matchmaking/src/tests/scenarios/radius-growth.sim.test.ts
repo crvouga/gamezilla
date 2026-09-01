@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { openMatchmakingWorld } from '../../sim/system';
+import { openMatchmakingWorld, requireMmWorld } from '../../sim/system';
 import { RatingAttr, registerTestCrashHandler } from '../fixtures';
 
 describe('matchmaking sim: radius growth', () => {
@@ -12,7 +12,7 @@ describe('matchmaking sim: radius growth', () => {
   });
 
   test('far pair never matches at t=0; until matched after wait', async () => {
-    await using world = await openMatchmakingWorld({
+    await using host = await openMatchmakingWorld({
       seed: 70,
       radius: {
         baseRadius: 10,
@@ -20,6 +20,7 @@ describe('matchmaking sim: radius growth', () => {
         maxRadius: 400,
       },
     });
+    const world = requireMmWorld(host.state);
     const formula = { numeric: [{ tag: RatingAttr, weight: 1 }] };
     const a = await world.join({
       data: RatingAttr(1000),
@@ -41,7 +42,8 @@ describe('matchmaking sim: radius growth', () => {
   });
 
   test('stricter per-formula radius bounds the match', async () => {
-    await using world = await openMatchmakingWorld({ seed: 71 });
+    await using host = await openMatchmakingWorld({ seed: 71 });
+    const world = requireMmWorld(host.state);
     await world.join({
       data: RatingAttr(1000),
       formulas: [{ numeric: [{ tag: RatingAttr, weight: 1 }] }],
@@ -63,7 +65,8 @@ describe('matchmaking sim: radius growth', () => {
   });
 
   test('looser per-formula radius lets pair match', async () => {
-    await using world = await openMatchmakingWorld({ seed: 72 });
+    await using host = await openMatchmakingWorld({ seed: 72 });
+    const world = requireMmWorld(host.state);
     await world.join({
       data: RatingAttr(1000),
       formulas: [

@@ -20,7 +20,7 @@ describe('chess puzzle: solved monotonic (Gp-03)', () => {
       seed: process.env['SIM_SEED'] ?? '42',
       knobs: { clientCount: 0 },
     });
-    const world = roomWorld(host.system);
+    const world = roomWorld(host.state);
     const hostClient = await world.addClient({
       id: 'host',
       identity: 'host-1',

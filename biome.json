@@ -533,7 +533,8 @@
         "!**/*.example.ts",
         "!**/*.example.tsx",
         "!**/e2e/harness/tab-app.ts",
-        "!**/e2e/harness/harness-client.ts"
+        "!**/e2e/harness/harness-client.ts",
+        "!**/sql-host-entry.ts"
       ]
     },
     {

@@ -1,15 +1,11 @@
-import {
-  createSimNetwork as createKernelNetwork,
-  type SimNetwork as KernelNetwork,
-  type SimDeliver,
-  type SimEndpointId,
-  type SimNetKey,
-  type SimScheduler,
+import type {
+  SimNetwork as KernelNetwork,
+  SimDeliver,
+  SimEndpointId,
+  SimNetKey,
 } from '@pkgs/determinism';
-import type { SeededRng } from '@pkgs/uuid';
 
 import type { SimFaultOptions } from './faults';
-import { RELIABLE_FAULTS } from './faults';
 import { type ClientTraffic, clientForHop, type SimTraffic } from './traffic';
 
 export type { SimDeliver, SimEndpointId };
@@ -167,8 +163,7 @@ function clearNodeOverrides(
 
 /**
  * Adapt a framework-owned `@pkgs/determinism` network kernel to the sync-domain
- * traffic-keyed surface. Framework worlds pass `ctx.network`; `createSimNetwork`
- * passes a kernel it just made.
+ * traffic-keyed surface. Framework worlds pass `ctx.network`.
  */
 export function wrapSimNetwork(
   kernel: KernelNetwork,
@@ -229,17 +224,4 @@ export function wrapSimNetwork(
         .sort();
     },
   };
-}
-
-export function createSimNetwork(args: {
-  readonly scheduler: SimScheduler;
-  readonly rng: SeededRng;
-  readonly faults?: SimFaultOptions;
-}): SimNetwork {
-  const kernel = createKernelNetwork({
-    scheduler: args.scheduler,
-    rng: args.rng,
-    faults: toKernelFaults(args.faults ?? RELIABLE_FAULTS),
-  });
-  return wrapSimNetwork(kernel);
 }

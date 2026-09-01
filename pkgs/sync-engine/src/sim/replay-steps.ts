@@ -43,6 +43,17 @@ export async function bootClients(args: {
   return ids;
 }
 
+function settleClientIds(
+  world: SyncSystemFacade,
+  bootIds: readonly string[]
+): string[] {
+  const ids = [...bootIds];
+  for (const id of world.clients.keys()) {
+    if (!ids.includes(id)) ids.push(id);
+  }
+  return ids;
+}
+
 /** Heal partitions, clear holds/faults, bring clients online, assert converge. */
 export async function settleWorld(args: {
   readonly world: SyncSystemFacade;
@@ -51,11 +62,12 @@ export async function settleWorld(args: {
   args.world.clearFailNextOpen();
   args.world.clearStoragePressure();
   args.world.clearBoundaryFaults();
-  for (const id of args.ids) {
+  const ids = settleClientIds(args.world, args.ids);
+  for (const id of ids) {
     args.world.net(id, 'all').set('ok');
   }
   args.world.network.setDefaultFaults(RELIABLE_FAULTS);
-  for (const id of args.ids) {
+  for (const id of ids) {
     const client = args.world.clients.get(id);
     const needsRestart = client === undefined || !(await isDbOpen(client.db));
     if (needsRestart) {

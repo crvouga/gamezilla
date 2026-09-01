@@ -1,15 +1,11 @@
 import { describe, expect, test } from 'bun:test';
-import {
-  captureScenario,
-  createFaultCatalog,
-  createKnobCatalog,
-  createNetEffect,
-  createSimTrace,
-  defineFault,
-  defineKnob,
-  parseScenario,
-  RELIABLE_NET_FAULTS,
-} from '../src/index';
+import fc from 'fast-check';
+import { createFaultCatalog, defineFault } from './faults';
+import { createKnobCatalog, defineKnob } from './knobs';
+import { createNetEffect } from './net-effect';
+import { RELIABLE_NET_FAULTS } from './network';
+import { captureScenario, parseScenario } from './scenario';
+import { createSimTrace } from './trace';
 
 describe('FaultCatalog', () => {
   test('queue FIFO + matcher', () => {
@@ -56,8 +52,8 @@ describe('KnobCatalog', () => {
   test('defaults, overrides, sorted toJSON', () => {
     const cat = createKnobCatalog<{ a: number; b: boolean }>(
       [
-        defineKnob({ id: 'b', default: false }),
-        defineKnob({ id: 'a', default: 1 }),
+        defineKnob({ id: 'b', default: false, arb: fc.boolean() }),
+        defineKnob({ id: 'a', default: 1, arb: fc.integer() }),
       ],
       { a: 2 }
     );
@@ -69,14 +65,17 @@ describe('KnobCatalog', () => {
   test('duplicate id / unknown override throw', () => {
     expect(() =>
       createKnobCatalog([
-        defineKnob({ id: 'x', default: 1 }),
-        defineKnob({ id: 'x', default: 2 }),
+        defineKnob({ id: 'x', default: 1, arb: fc.constant(1) }),
+        defineKnob({ id: 'x', default: 2, arb: fc.constant(2) }),
       ])
     ).toThrow(/duplicate/);
     expect(() =>
-      createKnobCatalog([defineKnob({ id: 'x', default: 1 })], {
-        y: 2,
-      } as never)
+      createKnobCatalog(
+        [defineKnob({ id: 'x', default: 1, arb: fc.constant(1) })],
+        {
+          y: 2,
+        } as never
+      )
     ).toThrow(/unknown/);
   });
 });

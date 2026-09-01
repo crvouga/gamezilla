@@ -21,7 +21,7 @@ describe('push tables filter wakes overlapping scopes', () => {
         rowImageFanout: false,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const a = await world.addClient({ id: 'alice' });
     const notesPeer = await world.addClient({
       id: 'notesPeer',

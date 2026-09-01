@@ -18,7 +18,7 @@ describe('wrong topic map heals on refetch', () => {
         rowImageFanout: false,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await a.mutate(setNoteWrongTopic, { id: 'warm', body: 'w' });
@@ -56,7 +56,7 @@ describe('wrong topic map heals on refetch', () => {
           rowImageFanout: false,
         },
       });
-      const world = syncFacade(host.system);
+      const world = syncFacade(host.state);
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
       await a.mutate(setNoteWrongTopic, {

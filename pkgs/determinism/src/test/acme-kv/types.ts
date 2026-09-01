@@ -1,9 +1,6 @@
 import { canonicalJsonStringify, type JsonValue } from '../../json';
 import type { SimNetwork } from '../../network';
 
-export const ACME_KV_SERVER_KIND = 'acme-kv.server';
-export const ACME_KV_CLIENT_KIND = 'acme-kv.client';
-
 export type AcmeKvEntry = {
   readonly value: string;
   readonly writeId: number;

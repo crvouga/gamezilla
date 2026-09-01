@@ -1,20 +1,17 @@
 import type { Timers } from '@pkgs/clock';
-import type { Sql } from '@pkgs/sql';
 import type { PreparedStatement, SqlClient } from '../../interface';
 import { applySqliteConnectionPragmas } from '../connection-pragmas';
-import {
-  isLikelyOpfsLockError,
-  isLikelyOpfsPoolExhaustedError,
-  openWithWaitRetry,
-  sleepMs,
-} from '../expo-sqlite-core';
-import { publishExpoSqliteWebFatalError } from '../expo-web-recovery';
-import { coerceSqliteDbBytes, isNotADatabaseError } from '../sqlite-db-bytes';
+import { isLikelyOpfsLockError, openWithWaitRetry } from '../expo-sqlite-core';
 import {
   type ActiveTx,
   handleOwnerRequest,
   type OwnerHandlerDeps,
 } from './owner-handlers';
+import { createExpoIframeSqlOwner } from './owners/expo-iframe-sql-owner';
+import {
+  openSqlOwnerWithRecovery,
+  recoverSqlOwnerInProcess,
+} from './recover-in-process';
 import {
   createRpcIdFactory,
   type DbChangedNotify,
@@ -24,6 +21,8 @@ import {
   type RpcResponse,
   TX_IDLE_TIMEOUT_MS,
 } from './rpc';
+import type { SqlOwner } from './sql-owner';
+import { isSqlOwnerWipeWorthyError } from './sql-owner';
 import { sqlFromWire } from './sql-wire';
 
 export { sqlFromWire } from './sql-wire';
@@ -39,22 +38,15 @@ export type OwnerRuntime = {
   hasActiveTx: () => boolean;
 };
 
-type ExpoSqliteClient = SqlClient & {
-  getSqliteDatabase: () => {
-    getAllAsync: (
-      sql: string,
-      values: never
-    ) => Promise<Record<string, unknown>[]>;
-    runAsync: (
-      sql: string,
-      values: never
-    ) => Promise<{ changes: number; lastInsertRowId: number }>;
-    serializeAsync: (databaseName?: string) => Promise<Uint8Array>;
-    closeAsync: () => Promise<void>;
-  };
-  prepare: <T extends Record<string, unknown>>(
-    query: Sql<T>
-  ) => PreparedStatement<T>;
+export type CreateOwnerRuntimeArgs = {
+  readonly dbName: string;
+  readonly timers: Timers;
+  /** Override backing owner (tests / DST). Default: expo iframe. */
+  readonly createOwner?: (args: { readonly dbName: string }) => SqlOwner;
+  /** Post-open migrate (sync-engine). Wipe-worthy failures recover in-process. */
+  readonly migrate?: (client: SqlClient) => Promise<void>;
+  readonly sharedWorkerUrl?: string;
+  readonly notifyPeersOnRecover?: boolean;
 };
 
 function txError(code: string, message: string): Error {
@@ -77,120 +69,18 @@ function createAsyncMutex() {
   };
 }
 
-function createBypassClient(owner: ExpoSqliteClient): SqlClient {
-  const db = owner.getSqliteDatabase();
-  const tx: SqlClient = {
-    connect: () => Promise.resolve(),
-    disconnect: () => Promise.resolve(),
-    query: <T extends Record<string, unknown>>(query: {
-      sql: string;
-      values: readonly unknown[];
-    }) => db.getAllAsync(query.sql, query.values as never) as Promise<T[]>,
-    run: async (query) => {
-      const result = await db.runAsync(query.sql, query.values as never);
-      return {
-        changes: result.changes,
-        lastInsertRowid: result.lastInsertRowId,
-      };
-    },
-    prepare: (query) => owner.prepare(query),
-    transaction: async (fn) => fn(tx),
-  };
-  return tx;
-}
-
-async function recoverOwnerOpfsPool(
-  databaseName: string,
-  timers: Timers,
-  cause: unknown
-): Promise<never> {
-  const { WEB_OPFS_SOFT_RECOVERY_KEY } = await import('../expo-sqlite-core');
-  const { forceReleaseSharedWorkerOwners } = await import('./opfs-recover');
-  const causeMessage = cause instanceof Error ? cause.message : String(cause);
-  // Soft recovery once per tab: force-release + reload (preserves OPFS).
-  // Auto-wipe caused wipe↔boot loops; user Reset owns destructive wipe.
-  try {
-    if (sessionStorage.getItem(WEB_OPFS_SOFT_RECOVERY_KEY) === '1') {
-      const err = new Error(
-        `SQLite could not open "${databaseName}" after soft recovery (${causeMessage}). Use Reset local data or reload with ?reset-db=1.`
-      );
-      publishExpoSqliteWebFatalError(err);
-      throw err;
-    }
-    sessionStorage.setItem(WEB_OPFS_SOFT_RECOVERY_KEY, '1');
-  } catch (error: unknown) {
-    if (
-      error instanceof Error &&
-      error.message.includes('after soft recovery')
-    ) {
-      throw error;
-    }
-    // sessionStorage may be unavailable
-  }
-  await forceReleaseSharedWorkerOwners(timers);
-  if (typeof window !== 'undefined') {
-    window.location.reload();
-    return await new Promise<never>(() => {});
-  }
-  const err = new Error(
-    `SQLite could not open "${databaseName}" after soft recovery (${causeMessage}). Use Reset local data or reload with ?reset-db=1.`
-  );
-  publishExpoSqliteWebFatalError(err);
-  throw err;
-}
-
-async function openExpoSqliteForOwner(
-  databaseName: string,
-  timers: Timers
-): Promise<ExpoSqliteClient> {
-  const { SqlClientImplExpoSqlite } = await import('../impl-expo-sqlite');
-  // Uses delete-and-retry with useNewConnection on corruption — do not call
-  // openDatabaseAsync raw (that skips recovery and leaves AccessHandle stale).
-  return SqlClientImplExpoSqlite.open(databaseName, timers);
-}
-
-async function deleteDatabaseFile(databaseName: string): Promise<void> {
-  const SQLite = await import('expo-sqlite');
-  try {
-    await SQLite.deleteDatabaseAsync(databaseName);
-  } catch {
-    // missing file is fine
-  }
-}
-
-async function openOwnerClient(args: {
-  readonly databaseName: string;
-  readonly timers: Timers;
-}): Promise<ExpoSqliteClient> {
-  try {
-    return await openWithWaitRetry({
-      databaseName: args.databaseName,
-      timers: args.timers,
-      // Lock retries: SqlClientImplExpoSqlite.open ignores useNewConnection on
-      // the first attempt; its own recovery path sets it after delete.
-      openOnce: () => openExpoSqliteForOwner(args.databaseName, args.timers),
-    });
-  } catch (error: unknown) {
-    // In-page delete could not clear a corrupt OPFS file (handle still held).
-    // Full wipe is the only reliable recovery — same as Reset local data.
-    if (!isNotADatabaseError(error)) throw error;
-    const { runWebOpfsRecoveryAndReload } = await import('./opfs-recover');
-    const returnTo =
-      typeof window !== 'undefined'
-        ? `${window.location.pathname}${window.location.search}${window.location.hash}`
-        : undefined;
-    await runWebOpfsRecoveryAndReload({
-      timers: args.timers,
-      ...(returnTo !== undefined && returnTo.length > 0 ? { returnTo } : {}),
-    });
-    throw error;
-  }
+function createBypassClient(owner: SqlClient): SqlClient {
+  return owner;
 }
 
 class OwnerRuntimeImpl implements OwnerRuntime {
   readonly dbName: string;
   private readonly timers: Timers;
-  private client: ExpoSqliteClient | null = null;
+  private readonly owner: SqlOwner;
+  private readonly migrate: ((client: SqlClient) => Promise<void>) | undefined;
+  private readonly sharedWorkerUrl: string | undefined;
+  private readonly notifyPeersOnRecover: boolean;
+  private client: SqlClient | null = null;
   private openPromise: Promise<void> | null = null;
   private readonly stmts = new Map<
     string,
@@ -205,9 +95,14 @@ class OwnerRuntimeImpl implements OwnerRuntime {
   private activeTx: ActiveTx | null = null;
   private txGate: Promise<void> | null = null;
 
-  constructor(args: { readonly dbName: string; readonly timers: Timers }) {
+  constructor(args: CreateOwnerRuntimeArgs) {
     this.dbName = args.dbName;
     this.timers = args.timers;
+    this.migrate = args.migrate;
+    this.sharedWorkerUrl = args.sharedWorkerUrl;
+    this.notifyPeersOnRecover = args.notifyPeersOnRecover !== false;
+    const factory = args.createOwner ?? createExpoIframeSqlOwner;
+    this.owner = factory({ dbName: args.dbName });
   }
 
   private emitChanged(txId?: string): void {
@@ -248,26 +143,73 @@ class OwnerRuntimeImpl implements OwnerRuntime {
     this.txGate = null;
   }
 
-  private async ensureOpen(): Promise<ExpoSqliteClient> {
+  private recoverOpts() {
+    return {
+      timers: this.timers,
+      closeLocal: () => this.owner.close(),
+      resetStore: () => this.owner.resetStore(),
+      notifyPeers: this.notifyPeersOnRecover,
+      ...(this.sharedWorkerUrl !== undefined
+        ? { sharedWorkerUrl: this.sharedWorkerUrl }
+        : {}),
+    };
+  }
+
+  private async openOnce(): Promise<SqlClient> {
+    const client = await this.owner.open();
+    if (this.migrate !== undefined) {
+      await this.migrate(client);
+    }
+    await applySqliteConnectionPragmas(client);
+    return client;
+  }
+
+  private async openOwnerClient(): Promise<SqlClient> {
+    try {
+      return await openWithWaitRetry({
+        databaseName: this.dbName,
+        timers: this.timers,
+        openOnce: () => this.openOnce(),
+      });
+    } catch (error: unknown) {
+      if (!isSqlOwnerWipeWorthyError(error) && !isLikelyOpfsLockError(error)) {
+        throw error;
+      }
+      // Lock exhausted or pool/corrupt: wipe in-process (no navigation) and reopen.
+      await recoverSqlOwnerInProcess(this.recoverOpts());
+      return openSqlOwnerWithRecovery({
+        owner: this.owner,
+        timers: this.timers,
+        notifyPeers: false,
+        ...(this.sharedWorkerUrl !== undefined
+          ? { sharedWorkerUrl: this.sharedWorkerUrl }
+          : {}),
+        ...(this.migrate !== undefined
+          ? {
+              migrate: async (c) => {
+                await this.migrate?.(c);
+                await applySqliteConnectionPragmas(c);
+              },
+            }
+          : {
+              migrate: async (c) => {
+                await applySqliteConnectionPragmas(c);
+              },
+            }),
+      });
+    }
+  }
+
+  private async ensureOpen(): Promise<SqlClient> {
     if (this.client !== null) return this.client;
     if (this.openPromise === null) {
       this.openPromise = (async () => {
         try {
-          this.client = await openOwnerClient({
-            databaseName: this.dbName,
-            timers: this.timers,
-          });
+          this.client = await this.openOwnerClient();
         } catch (error: unknown) {
           this.openPromise = null;
-          if (
-            isLikelyOpfsPoolExhaustedError(error) ||
-            isLikelyOpfsLockError(error)
-          ) {
-            await recoverOwnerOpfsPool(this.dbName, this.timers, error);
-          }
           throw error;
         }
-        await applySqliteConnectionPragmas(this.client);
       })();
     }
     await this.openPromise;
@@ -287,8 +229,7 @@ class OwnerRuntimeImpl implements OwnerRuntime {
       nextStmtId: this.nextStmtId,
       nextTxId: this.nextTxId,
       touchTxIdle: (tx) => this.touchTxIdle(tx),
-      createBypassClient: (owner) =>
-        createBypassClient(owner as ExpoSqliteClient),
+      createBypassClient,
       resetDatabase: () => this.resetDatabase(),
       exportBytes: () => this.exportBytes(),
       importBytes: (bytes) => this.importBytes(bytes),
@@ -314,11 +255,9 @@ class OwnerRuntimeImpl implements OwnerRuntime {
       );
     }
     this.stmts.clear();
-    if (this.client !== null) {
-      await this.client.disconnect();
-      this.client = null;
-      this.openPromise = null;
-    }
+    this.client = null;
+    this.openPromise = null;
+    await this.owner.close();
   }
 
   getClient(): SqlClient {
@@ -339,24 +278,33 @@ class OwnerRuntimeImpl implements OwnerRuntime {
     };
   }
 
-  /**
-   * Drop the named OPFS DB after releasing the owner connection.
-   * Product full-OPFS wipe stays on {@link runWebOpfsRecoveryAndReload}
-   * (Reset local data / `?reset-db=1`) — not this path.
-   */
   async resetDatabase(): Promise<void> {
     if (this.activeTx !== null) {
       await this.abortActiveTx(
         txError(RPC_ERROR_TX_ABORTED, 'Transaction aborted by resetDatabase')
       );
     }
-    await this.closeAndDeleteFile();
+    this.stmts.clear();
+    this.client = null;
+    this.openPromise = null;
+    await recoverSqlOwnerInProcess(this.recoverOpts());
   }
 
   async exportBytes(): Promise<Uint8Array> {
     const client = await this.ensureOpen();
-    const raw = await client.getSqliteDatabase().serializeAsync('main');
-    return coerceSqliteDbBytes(raw);
+    const withExport = client as SqlClient & {
+      exportDatabaseBytes?: () => Uint8Array;
+      getSqliteDatabase?: () => {
+        serializeAsync: (name?: string) => Promise<Uint8Array>;
+      };
+    };
+    if (typeof withExport.exportDatabaseBytes === 'function') {
+      return withExport.exportDatabaseBytes();
+    }
+    if (typeof withExport.getSqliteDatabase === 'function') {
+      return withExport.getSqliteDatabase().serializeAsync('main');
+    }
+    throw new Error('exportBytes is not supported by this SqlOwner');
   }
 
   async importBytes(bytes: Uint8Array): Promise<void> {
@@ -365,59 +313,16 @@ class OwnerRuntimeImpl implements OwnerRuntime {
         txError(RPC_ERROR_TX_ABORTED, 'Transaction aborted by importBytes')
       );
     }
-    const payload = coerceSqliteDbBytes(bytes);
-    await this.closeAndDeleteFile();
-    const SQLite = await import('expo-sqlite');
-    const mem = await SQLite.deserializeDatabaseAsync(payload);
-    let dest: Awaited<ReturnType<typeof SQLite.openDatabaseAsync>> | null =
-      null;
-    try {
-      dest = await this.openDestForImport(SQLite);
-      await SQLite.backupDatabaseAsync({
-        sourceDatabase: mem,
-        destDatabase: dest,
-      });
-    } finally {
-      await mem.closeAsync();
-      if (dest !== null) await dest.closeAsync();
+    await this.resetDatabase();
+    const client = await this.ensureOpen();
+    const withImport = client as SqlClient & {
+      importDatabaseBytes?: (b: Uint8Array) => void;
+    };
+    if (typeof withImport.importDatabaseBytes === 'function') {
+      withImport.importDatabaseBytes(bytes);
+      return;
     }
-    // AccessHandlePoolVFS can briefly keep the just-closed dest file locked.
-    await sleepMs(this.timers, 50);
-    await this.ensureOpen();
-  }
-
-  private async openDestForImport(
-    SQLite: typeof import('expo-sqlite')
-  ): Promise<Awaited<ReturnType<typeof SQLite.openDatabaseAsync>>> {
-    let last: unknown;
-    for (let attempt = 0; attempt < 4; attempt++) {
-      try {
-        return await SQLite.openDatabaseAsync(this.dbName, {
-          useNewConnection: true,
-        });
-      } catch (error: unknown) {
-        last = error;
-        if (!isNotADatabaseError(error) && !isLikelyOpfsLockError(error)) {
-          throw error;
-        }
-        await deleteDatabaseFile(this.dbName);
-        await sleepMs(this.timers, 50 * (attempt + 1));
-      }
-    }
-    throw last instanceof Error ? last : new Error(String(last));
-  }
-
-  private async closeAndDeleteFile(): Promise<void> {
-    this.stmts.clear();
-    if (this.client !== null) {
-      await this.client.disconnect();
-      this.client = null;
-      this.openPromise = null;
-    }
-    for (let attempt = 0; attempt < 3; attempt++) {
-      await deleteDatabaseFile(this.dbName);
-      if (attempt < 2) await sleepMs(this.timers, 30 * (attempt + 1));
-    }
+    throw new Error('importBytes is not supported by this SqlOwner');
   }
 
   hasActiveTx(): boolean {
@@ -426,12 +331,9 @@ class OwnerRuntimeImpl implements OwnerRuntime {
 }
 
 /**
- * Owner-tab runtime: opens expo-sqlite with wait-retry (never auto-wipe),
- * serializes transactions, and serves proxied RPC from the broker.
+ * Owner-tab runtime: opens via {@link SqlOwner} with in-process wipe recovery
+ * (never navigates / reloads). Serializes transactions and serves broker RPC.
  */
-export function createOwnerRuntime(args: {
-  readonly dbName: string;
-  readonly timers: Timers;
-}): OwnerRuntime {
+export function createOwnerRuntime(args: CreateOwnerRuntimeArgs): OwnerRuntime {
   return new OwnerRuntimeImpl(args);
 }

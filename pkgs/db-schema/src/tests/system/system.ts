@@ -1,33 +1,34 @@
-import { defineSystem, defineSystemKnob } from '@pkgs/determinism';
+import { defineKnob, defineSystem } from '@pkgs/determinism';
 import fc from 'fast-check';
 
-import { arbSchemaActions } from './actions';
-import { dispatchSchemaAction } from './dispatch';
+import { SCHEMA_ACTIONS, type SchemaModel } from './actions';
 import {
   assertClientAlignedWithServer,
   assertServerLiveColumns,
   checkServerLiveColumns,
 } from './invariants';
-import { SCHEMA_CLIENT_KIND, SCHEMA_SERVER_KIND } from './nodes';
+import { schemaClientNode, schemaServerNode } from './nodes';
 import {
   createSchemaSystem,
   planKindHash,
   requireServer,
+  SCHEMA_SERVER_ID,
   type SchemaSystem,
 } from './peers';
 
-export const SCHEMA_SERVER_ID = 'server';
+export { SCHEMA_SERVER_ID };
+
 const PLAN_HASH_HEX_LENGTH = 64;
 
 /**
  * One `schema.server` (postgres-mem) plus N `schema.client` (sqlite-mem) peers
  * walking a compatible expand/contract chain at independent versions.
  */
-export const SCHEMA_SYSTEM = defineSystem<SchemaSystem>({
+export const SCHEMA_SYSTEM = defineSystem<SchemaSystem, SchemaModel>({
   id: 'db-schema.reconcile',
-  system: createSchemaSystem,
+  state: createSchemaSystem,
   knobs: [
-    defineSystemKnob<number>({
+    defineKnob({
       id: 'clientCount',
       default: 2,
       arb: fc.integer({ min: 1, max: 3 }),
@@ -35,29 +36,28 @@ export const SCHEMA_SYSTEM = defineSystem<SchemaSystem>({
   ],
   nodes: [
     {
-      kind: SCHEMA_SERVER_KIND,
+      kind: schemaServerNode,
       role: 'server',
       count: 1,
       idFor: () => SCHEMA_SERVER_ID,
     },
     {
-      kind: SCHEMA_CLIENT_KIND,
+      kind: schemaClientNode,
       role: 'client',
       countFromKnob: 'clientCount',
       idFor: (i) => `client-${i}`,
     },
   ],
-  domain: {
-    arbs: (ctx) =>
-      arbSchemaActions([SCHEMA_SERVER_ID, ...ctx.roleIds('client')]),
-    dispatch: dispatchSchemaAction,
+  actions: [...SCHEMA_ACTIONS],
+  model: {
+    initial: (): SchemaModel => ({}),
   },
-  checkInvariants: async (world) =>
-    checkServerLiveColumns(requireServer(world.system)),
+  invariants: async (world) =>
+    checkServerLiveColumns(requireServer(world.state)),
   settle: async (world) => {
-    const server = requireServer(world.system);
+    const server = requireServer(world.state);
     await assertServerLiveColumns(server);
-    for (const client of world.system.clients) {
+    for (const client of world.state.clients) {
       await assertClientAlignedWithServer(client, server);
     }
     if (planKindHash(server).length !== PLAN_HASH_HEX_LENGTH) {

@@ -61,7 +61,7 @@ describe('room byzantine-wire PBT', () => {
               settle: false,
               actions: [],
             });
-            const real = roomWorld(world.system);
+            const real = roomWorld(world.state);
             try {
               const before = await real.serverHash();
               await playRoomActions(world, [

@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { openMatchmakingWorld } from '../../sim/system';
+import { openMatchmakingWorld, requireMmWorld } from '../../sim/system';
 import { NameAttr, RatingAttr, registerTestCrashHandler } from '../fixtures';
 
 const SimpleFormula = { numeric: [{ tag: RatingAttr, weight: 1 }] };
@@ -14,7 +14,8 @@ describe('matchmaking sim: join / status / leave', () => {
   });
 
   test('round-trips participant data through status while waiting', async () => {
-    await using world = await openMatchmakingWorld({ seed: 1 });
+    await using host = await openMatchmakingWorld({ seed: 1 });
+    const world = requireMmWorld(host.state);
     const joined = await world.join({
       data: { ...RatingAttr(1500), ...NameAttr('alice') },
       formulas: [SimpleFormula],
@@ -30,14 +31,16 @@ describe('matchmaking sim: join / status / leave', () => {
   });
 
   test('status returns null for unknown id', async () => {
-    await using world = await openMatchmakingWorld({ seed: 2 });
+    await using host = await openMatchmakingWorld({ seed: 2 });
+    const world = requireMmWorld(host.state);
     expect(
       await world.mm.status('00000000-0000-0000-0000-000000000000')
     ).toBeNull();
   });
 
   test('leave removes the row', async () => {
-    await using world = await openMatchmakingWorld({ seed: 3 });
+    await using host = await openMatchmakingWorld({ seed: 3 });
+    const world = requireMmWorld(host.state);
     const p = await world.join({
       data: RatingAttr(1000),
       formulas: [SimpleFormula],
@@ -47,7 +50,8 @@ describe('matchmaking sim: join / status / leave', () => {
   });
 
   test('ready() is idempotent', async () => {
-    await using world = await openMatchmakingWorld({ seed: 4 });
+    await using host = await openMatchmakingWorld({ seed: 4 });
+    const world = requireMmWorld(host.state);
     await world.mm.ready();
     await world.mm.ready();
     const joined = await world.join({
@@ -58,14 +62,16 @@ describe('matchmaking sim: join / status / leave', () => {
   });
 
   test('leave on unknown id returns removed:false', async () => {
-    await using world = await openMatchmakingWorld({ seed: 5 });
+    await using host = await openMatchmakingWorld({ seed: 5 });
+    const world = requireMmWorld(host.state);
     expect(
       (await world.mm.leave('00000000-0000-0000-0000-000000000000')).removed
     ).toBe(false);
   });
 
   test('leave on matched participant returns removed:false', async () => {
-    await using world = await openMatchmakingWorld({ seed: 6 });
+    await using host = await openMatchmakingWorld({ seed: 6 });
+    const world = requireMmWorld(host.state);
     const a = await world.join({
       data: RatingAttr(1000),
       formulas: [SimpleFormula],

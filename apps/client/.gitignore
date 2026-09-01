@@ -14,3 +14,7 @@ public/sql-workers/**/*.js
 playwright-report/
 test-results/
 .check-dist-prodcheck
+
+# @pkgs/sql-client build-web-workers outputs (extensionless classic worker + wasm)
+public/sql-workers/worker
+public/sql-workers/*.wasm

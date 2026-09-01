@@ -7,9 +7,10 @@ import {
   createSimNetwork,
   RELIABLE_NET_FAULTS,
   type SimNetFaultProfile,
+  type SimNodeId,
 } from './network';
-import { type NodeInstance, requireNodeKind } from './node-kind';
-import type { InvariantViolation } from './play';
+import type { NodeInstance } from './node-kind';
+import { throwIfInvariant } from './play';
 import { never, until } from './until';
 import type { OpenWorldOpts, World } from './world-types';
 
@@ -46,7 +47,7 @@ async function bootTopology(
     readonly network: ReturnType<typeof createSimNetwork>;
     readonly knobs: ReturnType<typeof createKnobCatalog>;
     readonly faults: ReturnType<typeof createFaultCatalog>;
-    readonly systemBag: unknown;
+    readonly stateBag: unknown;
   }
 ): Promise<{
   readonly byRole: Record<string, NodeInstance[]>;
@@ -59,7 +60,7 @@ async function bootTopology(
 
   for (const spec of system.nodes) {
     const count = resolveNodeCount(spec, args.knobs);
-    const kind = requireNodeKind(spec.kind);
+    const kind = spec.kind;
     for (let index = 0; index < count; index += 1) {
       const nodeId =
         spec.idFor?.(index) ?? defaultNodeId(spec.role, index, count);
@@ -75,7 +76,7 @@ async function bootTopology(
         network: args.network,
         knobs: args.knobs,
         faults: args.faults,
-        system: args.systemBag,
+        state: args.stateBag,
         nodesByRole: byRole,
         nodesById: byId,
       });
@@ -87,7 +88,7 @@ async function bootTopology(
       const instance: NodeInstance = {
         id: nodeId,
         role: spec.role,
-        kind: spec.kind,
+        kind: kind.id,
         handle,
         view,
       };
@@ -150,20 +151,48 @@ function makeDispose(
   };
 }
 
+function endpointsForNode(
+  booted: readonly BootedNode[],
+  nodeId: SimNodeId
+): readonly string[] {
+  const n = booted.find((b) => b.id === nodeId);
+  if (n === undefined) {
+    throw new Error(`World: unknown node id ${nodeId}`);
+  }
+  return n.endpointIds;
+}
+
+function forEachEndpointPair(
+  aEps: readonly string[],
+  bEps: readonly string[],
+  fn: (a: string, b: string) => void
+): void {
+  for (const a of aEps) {
+    for (const b of bEps) {
+      if (a === b) continue;
+      fn(a, b);
+    }
+  }
+}
+
+const IDLE_MAX_STEPS = 64;
+const IDLE_MIN_STEP_MS = 10;
+
 function assembleWorld<S>(args: {
   readonly system: SystemDef<S>;
   readonly deps: ReturnType<typeof createSimDeps>;
   readonly network: ReturnType<typeof createSimNetwork>;
   readonly knobs: ReturnType<typeof createKnobCatalog>;
   readonly faults: ReturnType<typeof createFaultCatalog>;
-  readonly systemBag: S;
+  readonly stateBag: S;
   readonly networkDefaults: SimNetFaultProfile;
   readonly startMs: number;
   readonly byRole: Record<string, NodeInstance[]>;
   readonly byId: Map<string, NodeInstance>;
+  readonly booted: BootedNode[];
   readonly dispose: () => Promise<void>;
 }): World<S> {
-  const { deps, network, system, systemBag, byRole, byId } = args;
+  const { deps, network, system, stateBag, byRole, byId, booted } = args;
   const untilCtx = {
     clock: deps.clock,
     scheduler: deps.scheduler,
@@ -175,9 +204,8 @@ function assembleWorld<S>(args: {
     seed: deps.seed,
     deps,
     clock: deps.clock,
-    scheduler: deps.scheduler,
     network,
-    system: systemBag,
+    state: stateBag,
     knobs: args.knobs,
     faults: args.faults,
     networkDefaults: args.networkDefaults,
@@ -185,32 +213,42 @@ function assembleWorld<S>(args: {
     nodes: { byRole, byId },
     node: (role, id) => pickNode(byRole, byId, role, id),
     roleIds: (role) => (byRole[role] ?? []).map((n) => n.id),
-    partition: (a, b) => network.partition(a, b),
-    heal: (a, b) => network.heal(a, b),
+    partition: (a, b) => {
+      forEachEndpointPair(
+        endpointsForNode(booted, a),
+        endpointsForNode(booted, b),
+        (x, y) => network.partition(x, y)
+      );
+    },
+    heal: (a, b) => {
+      forEachEndpointPair(
+        endpointsForNode(booted, a),
+        endpointsForNode(booted, b),
+        (x, y) => network.heal(x, y)
+      );
+    },
     healAll: () => network.healAll(),
     hold: (key) => network.hold(key),
     release: (key) => network.release(key),
     releaseAll: () => network.releaseAll(),
-    runFor: async (ms) => {
+    advance: async (ms) => {
       await deps.scheduler.runFor(ms);
     },
-    runUntilIdle: async (stepMs = 10) => {
-      for (let i = 0; i < 64; i += 1) {
+    idle: async () => {
+      for (let i = 0; i < IDLE_MAX_STEPS; i += 1) {
         const next = deps.scheduler.nextDueAt();
         if (next === null) return;
         const now = deps.clock.now();
-        const delta = Math.max(stepMs, next - now);
+        const delta = Math.max(IDLE_MIN_STEP_MS, next - now);
         await deps.scheduler.runFor(delta);
       }
     },
-    until: (target, o) => until(untilCtx, target, o),
-    never: (target, o) => never(untilCtx, target, o),
-    checkInvariants: async (): Promise<InvariantViolation | null> => {
-      if (system.checkInvariants === undefined) return null;
-      return system.checkInvariants(world);
-    },
-    assertConverged: async () => {
+    until: (pred, o) => until(untilCtx, pred, o),
+    never: (pred, o) => never(untilCtx, pred, o),
+    settle: async () => {
       await system.settle(world);
+      const inv = await system.invariants(world);
+      throwIfInvariant(inv, deps.seed);
     },
     dispose: args.dispose,
     [Symbol.asyncDispose]: args.dispose,
@@ -219,11 +257,11 @@ function assembleWorld<S>(args: {
 }
 
 /**
- * Framework-owned world: deps + network + topology nodes. Packages do not
- * supply openWorld for systems — they declare {@link defineSystem} systems.
+ * Framework-owned world: deps + network + topology nodes.
+ * Packages declare {@link defineSystem}; they do not mint SimDeps.
  */
-export async function openWorld<S = unknown>(
-  system: SystemDef<S>,
+export async function openWorld<S = unknown, M = object>(
+  system: SystemDef<S, M>,
   opts: OpenWorldOpts
 ): Promise<World<S>> {
   const startMs = opts.startMs ?? system.startMs ?? 0;
@@ -241,24 +279,29 @@ export async function openWorld<S = unknown>(
   });
   const knobs = createKnobCatalog(system.knobs, opts.knobs);
   const faults = createFaultCatalog(system.faults ?? []);
-  const systemBag = (system.system?.() ?? {}) as S;
+  const stateBag = (system.state?.() ?? {}) as S;
   const { byRole, byId, booted } = await bootTopology(
     system as SystemDef<unknown>,
-    { deps, network, knobs, faults, systemBag }
+    { deps, network, knobs, faults, stateBag }
   );
-  return assembleWorld({
-    system,
+  const world = assembleWorld({
+    system: system as SystemDef<S>,
     deps,
     network,
     knobs,
     faults,
-    systemBag,
+    stateBag,
     networkDefaults,
     startMs,
     byRole,
     byId,
+    booted,
     dispose: makeDispose(booted, network),
   });
+  if (system.prepare !== undefined) {
+    await system.prepare(world);
+  }
+  return world;
 }
 
 export type { OpenWorldOpts, World } from './world-types';

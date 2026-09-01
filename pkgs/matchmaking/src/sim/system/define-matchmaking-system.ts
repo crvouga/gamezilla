@@ -1,9 +1,10 @@
 import {
-  defineLibrary,
+  defineAction,
+  defineKnob,
   defineSystem,
-  defineSystemKnob,
   openWorld,
   type SystemDef,
+  stdAdvance,
   type World,
 } from '@pkgs/determinism';
 import fc from 'fast-check';
@@ -11,9 +12,9 @@ import fc from 'fast-check';
 import type { MatchmakingTuning } from '../../interface/matchmaking';
 import type { MatchmakingSchema } from '../../interface/schema';
 import type { RadiusOptions } from '../../interface/types';
-import type { MatchmakingSimBackend, MatchmakingSimWorld } from '../world-api';
-import './node-kinds';
-import { MM_REPLICA, MM_STORE, MM_WARMUP } from './node-kinds';
+import type { MatchmakingSimBackend } from '../world-api';
+import { buildMatchmakingFacade } from './facade';
+import { mmReplicaNode, mmStoreNode } from './node-kinds';
 import {
   createMatchmakingSystem,
   type MatchmakingSystem,
@@ -30,24 +31,15 @@ export type DefineMatchmakingSystemOpts = MatchmakingSystemOpts & {
   readonly id?: string;
 };
 
-const tickAllLibrary = defineLibrary<MatchmakingSystem>({
+const tickAllAction = defineAction<
+  MatchmakingSystem,
+  { readonly kind: 'tickAll' }
+>({
   kind: 'tickAll',
+  class: 'library',
   arb: () => fc.constant({ kind: 'tickAll' as const }),
   dispatch: async (world) => {
-    await requireMmWorld(world.system).tickAll({ maxPassesPerPartition: 2 });
-  },
-});
-
-const advanceClockLibrary = defineLibrary<MatchmakingSystem>({
-  kind: 'advanceClock',
-  arb: () =>
-    fc.integer({ min: 1, max: 500 }).map((ms) => ({
-      kind: 'advanceClock' as const,
-      ms,
-    })),
-  dispatch: async (world, action) => {
-    const ms = (action as { readonly ms: number }).ms;
-    await requireMmWorld(world.system).runFor(ms);
+    await requireMmWorld(world.state).tickAll({ maxPassesPerPartition: 2 });
   },
 });
 
@@ -62,38 +54,53 @@ export function defineMatchmakingSystem(
     id: opts?.id ?? 'matchmaking.replicas',
     startMs: WORLD_START_MS,
     knobs: [
-      defineSystemKnob<number>({
+      defineKnob({
         id: 'replicaCount',
         default: 1,
         arb: fc.integer({ min: 1, max: 3 }),
       }),
-      defineSystemKnob<MatchmakingSimBackend>({
+      defineKnob({
         id: 'backend',
-        default: 'sqlite',
+        default: 'sqlite' as MatchmakingSimBackend,
         arb: fc.constant('sqlite' as MatchmakingSimBackend),
       }),
     ],
     nodes: [
-      { kind: MM_STORE, role: 'store', count: 1 },
       {
-        kind: MM_REPLICA,
+        kind: mmStoreNode,
+        role: 'store',
+        count: 1,
+      },
+      {
+        kind: mmReplicaNode,
         role: 'replica',
         countFromKnob: 'replicaCount',
         idFor: (i) => `r${String(i)}`,
       },
-      { kind: MM_WARMUP, role: 'warmup', count: 1 },
     ],
-    system: () =>
+    state: () =>
       createMatchmakingSystem({
         ...(opts?.schema !== undefined ? { schema: opts.schema } : {}),
         ...(opts?.radius !== undefined ? { radius: opts.radius } : {}),
         ...(opts?.tuning !== undefined ? { tuning: opts.tuning } : {}),
       }),
-    library: [tickAllLibrary, advanceClockLibrary],
-    settle: async (world) => {
-      await requireMmWorld(world.system).tickAll({ maxPassesPerPartition: 4 });
-      await world.runUntilIdle();
+    actions: [tickAllAction, stdAdvance<MatchmakingSystem>()],
+    model: {
+      initial: () => ({}),
     },
+    prepare: async (world) => {
+      world.state.facade = buildMatchmakingFacade({
+        system: world.state,
+        seed: world.seed,
+        clock: world.clock,
+        rng: world.deps.rng,
+      });
+    },
+    settle: async (world) => {
+      await requireMmWorld(world.state).tickAll({ maxPassesPerPartition: 4 });
+      await world.idle();
+    },
+    invariants: async () => null,
   });
 }
 
@@ -110,12 +117,13 @@ export type OpenMatchmakingWorldArgs = {
 };
 
 /**
- * Thin opener over framework {@link openWorld}. Returns the matchmaking
- * facade; disposing it disposes the framework world (and closes the store).
+ * Thin opener over framework {@link openWorld}. Returns the framework World;
+ * reach the matchmaking facade via {@link requireMmWorld}(`world.state`).
  */
+
 export async function openMatchmakingWorld(
   args: OpenMatchmakingWorldArgs
-): Promise<MatchmakingSimWorld> {
+): Promise<MatchmakingSystemWorld> {
   const needsCustom =
     args.schema !== undefined ||
     args.radius !== undefined ||
@@ -128,29 +136,13 @@ export async function openMatchmakingWorld(
       })
     : MATCHMAKING_SYSTEM;
 
-  const fw = await openWorld(system, {
+  return openWorld(system, {
     seed: args.seed,
     knobs: {
       replicaCount: args.replicas ?? 1,
       backend: args.backend ?? 'sqlite',
     },
     ...(args.startMs !== undefined ? { startMs: args.startMs } : {}),
-  });
-
-  const facade = requireMmWorld(fw.system);
-  let disposed = false;
-  const dispose = async (): Promise<void> => {
-    if (disposed) return;
-    disposed = true;
-    await fw.dispose();
-  };
-  return new Proxy(facade, {
-    get(target, prop, receiver) {
-      if (prop === 'dispose' || prop === Symbol.asyncDispose) {
-        return dispose;
-      }
-      return Reflect.get(target, prop, receiver);
-    },
   });
 }
 

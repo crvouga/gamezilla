@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { openMatchmakingWorld } from '../../sim/system';
+import { openMatchmakingWorld, requireMmWorld } from '../../sim/system';
 import {
   expectMatched,
   RatingAttr,
@@ -18,7 +18,8 @@ describe('matchmaking sim: metadata', () => {
   });
 
   test('metadata round-trips through waiting and matched status', async () => {
-    await using world = await openMatchmakingWorld({ seed: 90 });
+    await using host = await openMatchmakingWorld({ seed: 90 });
+    const world = requireMmWorld(host.state);
     const meta = { route: 'vip', n: 1 };
     const a = await world.join({
       data: RatingAttr(1000),
@@ -38,7 +39,8 @@ describe('matchmaking sim: metadata', () => {
   });
 
   test('metadata cap enforced', async () => {
-    await using world = await openMatchmakingWorld({ seed: 91 });
+    await using host = await openMatchmakingWorld({ seed: 91 });
+    const world = requireMmWorld(host.state);
     await expect(
       world.join({
         data: RatingAttr(1000),

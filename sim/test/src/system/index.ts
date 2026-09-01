@@ -11,7 +11,7 @@ export {
   type ProductSystemDef,
   type ProductSystemWorld,
 } from './define-product-system';
-export { PRODUCT_SIM, PRODUCT_WARMUP } from './node-kinds';
+export { productSimNode } from './node-kinds';
 export {
   createProductSystem,
   type ProductSystem,

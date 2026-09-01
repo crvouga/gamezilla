@@ -1,10 +1,8 @@
 import { describe, expect, test } from 'bun:test';
-import {
-  createSimClock,
-  createSimDeps,
-  createSimScheduler,
-  createSimTimers,
-} from '../src/index';
+import { createSimClock } from './clock';
+import { createSimDeps } from './create-sim-deps';
+import { createSimScheduler } from './scheduler';
+import { createSimTimers } from './timers';
 
 describe('SimScheduler contract', () => {
   test('same-at events fire in insertion order', async () => {

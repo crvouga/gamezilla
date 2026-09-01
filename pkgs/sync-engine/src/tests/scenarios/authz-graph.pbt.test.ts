@@ -22,7 +22,7 @@ describe('authz graph PBT', () => {
           async (seed, knobs, noteId, body) => {
             if (knobs.clientCount < 2) return;
             await using world = await openWorld(acmeSystem, { seed, knobs });
-            const facade = syncFacade(world.system);
+            const facade = syncFacade(world.state);
             const [owner, peer] = world.roleIds('client');
             const ownerClient = facade.clients.get(owner!)!;
             const peerClient = facade.clients.get(peer!)!;
@@ -77,7 +77,7 @@ describe('authz graph PBT', () => {
           ),
           async (seed, knobs, writes) => {
             await using world = await openWorld(acmeSystem, { seed, knobs });
-            const facade = syncFacade(world.system);
+            const facade = syncFacade(world.state);
             for (const w of writes) {
               const client = facade.clients.get('c0')!;
               await client.mutate(setNote, {

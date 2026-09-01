@@ -17,7 +17,7 @@ describe('cache clear preserves pending mutations', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
@@ -47,7 +47,7 @@ describe('cache clear preserves pending mutations', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const a = await world.addClient({ id: 'alice' });
     using _down = world.net('alice', 'sync').set('down');
     await a.mutate(setNote, { id: 'n1', body: 'queued-while-down' });

@@ -2,21 +2,22 @@ import type { Timers } from '@pkgs/clock';
 import type { Sql, Value } from '@pkgs/sql';
 import type { PreparedStatement, RunResult, SqlClient } from '../../interface';
 import { createLeaderTransport } from './db-host-leader';
-import {
-  buildWebOpfsWipePageUrl,
-  consumeResetDbQueryParamAndRecover,
-  DEFAULT_DB_HOST_SHARED_WORKER_URL,
-  OPFS_WIPE_INITIATOR_SESSION_KEY,
-  sanitizeWebOpfsReturnTo,
-} from './opfs-recover';
 import { OPFS_WIPE_CHANNEL, type OpfsWipeMessage } from './opfs-wipe-channel';
-import { createOwnerRuntime } from './owner-runtime';
+import {
+  type CreateOwnerRuntimeArgs,
+  createOwnerRuntime,
+} from './owner-runtime';
+import {
+  DEFAULT_DB_HOST_SHARED_WORKER_URL,
+  recoverSqlOwnerInProcess,
+} from './recover-in-process';
 import type { DbChangedNotify } from './rpc';
 import { serializeSql } from './rpc';
 import {
   createSharedWorkerTransport,
   type WebSqlTransport,
 } from './shared-worker-transport';
+import type { SqlOwner } from './sql-owner';
 
 export type ExpoWebSqlClientOptions = {
   readonly timers: Timers;
@@ -25,8 +26,14 @@ export type ExpoWebSqlClientOptions = {
   /** Force leader-election path (tests / no SharedWorker). */
   readonly forceLeaderElection?: boolean;
   readonly tabId?: string;
-  /** Override owner runtime factory (e2e harness / tests). */
+  /** Override owner runtime factory (e2e harness / tests / DST). */
   readonly createOwnerRuntime?: typeof createOwnerRuntime;
+  /** Override {@link SqlOwner} factory passed into the default owner runtime. */
+  readonly createOwner?: (args: { readonly dbName: string }) => SqlOwner;
+  /** Post-open migrate (sync-engine). Failures wipe cache in-process. */
+  readonly migrate?: (client: SqlClient) => Promise<void>;
+  /** Protocol generation for SharedWorker deploy drift (optional). */
+  readonly protocolVersion?: number;
 };
 
 export type ExpoWebSqlClient = SqlClient & {
@@ -43,12 +50,35 @@ function newTabId(): string {
   return `tab_${++tabSeq}`;
 }
 
+function buildOwnerRuntimeFactory(
+  options: ExpoWebSqlClientOptions
+): (args: {
+  readonly dbName: string;
+  readonly timers: Timers;
+}) => ReturnType<typeof createOwnerRuntime> {
+  const base = options.createOwnerRuntime ?? createOwnerRuntime;
+  return (args) => {
+    const ownerArgs: CreateOwnerRuntimeArgs = {
+      dbName: args.dbName,
+      timers: args.timers,
+      ...(options.createOwner !== undefined
+        ? { createOwner: options.createOwner }
+        : {}),
+      ...(options.migrate !== undefined ? { migrate: options.migrate } : {}),
+      ...(options.sharedWorkerUrl !== undefined
+        ? { sharedWorkerUrl: options.sharedWorkerUrl }
+        : {}),
+    };
+    return base(ownerArgs);
+  };
+}
+
 function pickTransport(
   dbName: string,
   options: ExpoWebSqlClientOptions
 ): WebSqlTransport {
   const forceLeader = options.forceLeaderElection === true;
-  const createOwnerRuntimeFn = options.createOwnerRuntime ?? createOwnerRuntime;
+  const createOwnerRuntimeFn = buildOwnerRuntimeFactory(options);
   const hasSharedWorker = !forceLeader && typeof SharedWorker !== 'undefined';
   if (hasSharedWorker) {
     try {
@@ -57,6 +87,9 @@ function pickTransport(
         timers: options.timers,
         workerUrl: options.sharedWorkerUrl ?? DEFAULT_DB_HOST_SHARED_WORKER_URL,
         createOwnerRuntimeFn,
+        ...(options.protocolVersion !== undefined
+          ? { protocolVersion: options.protocolVersion }
+          : {}),
       });
     } catch (error: unknown) {
       console.warn(
@@ -81,54 +114,18 @@ function pickTransport(
   };
 }
 
-function isWipeOrParkDocumentPath(path: string): boolean {
-  return path.includes('/sql-workers/opfs-wipe') || path.includes('opfs-wipe');
-}
-
-function isOpfsWipeInitiator(): boolean {
-  try {
-    return sessionStorage.getItem(OPFS_WIPE_INITIATOR_SESSION_KEY) === '1';
-  } catch {
-    return false;
-  }
-}
-
-function parkPeerOnWipeDocument(): void {
-  const returnTo = sanitizeWebOpfsReturnTo(
-    window.location.pathname + window.location.search + window.location.hash
-  );
-  window.location.replace(buildWebOpfsWipePageUrl({ returnTo, parked: true }));
-}
-
 function onPrepareWipeMessage(
   client: ExpoWebSqlClient,
   wipeChannel: BroadcastChannel,
   data: Extract<OpfsWipeMessage, { type: 'prepare-wipe' }>
 ): void {
-  // closeAsync alone does not drop Chrome AccessHandlePoolVFS handles —
-  // peer tabs must unload expo-sqlite (park on the wipe document).
-  // The recovery initiator skips park via sessionStorage and navigates
-  // itself to the wipe executor after prepare/force-release.
+  // Drop the iframe owner (releases AccessHandlePoolVFS). Stay on this document.
   void client.disconnect().finally(() => {
     wipeChannel.postMessage({
       type: 'wipe-ready',
       requestId: data.requestId,
     } satisfies OpfsWipeMessage);
-    if (isOpfsWipeInitiator()) return;
-    parkPeerOnWipeDocument();
   });
-}
-
-function onWipeDoneMessage(): void {
-  // Wipe / park documents navigate themselves; reloading them re-enters
-  // the wipe bootstrap and loops (seen in Cursor's embedded browser).
-  try {
-    const path = window.location.pathname + window.location.search;
-    if (isWipeOrParkDocumentPath(path)) return;
-  } catch {
-    // ignore
-  }
-  window.location.reload();
 }
 
 function attachWipeChannelLifecycle(client: ExpoWebSqlClient): void {
@@ -139,11 +136,8 @@ function attachWipeChannelLifecycle(client: ExpoWebSqlClient): void {
     if (data === null || typeof data !== 'object') return;
     if (data.type === 'prepare-wipe') {
       onPrepareWipeMessage(client, wipeChannel, data);
-      return;
     }
-    if (data.type === 'wipe-done') {
-      onWipeDoneMessage();
-    }
+    // wipe-done: no navigation — initiator reopens via resetDatabase / connect.
   };
 }
 
@@ -154,8 +148,6 @@ function attachLifecycle(client: ExpoWebSqlClient): void {
     });
     attachWipeChannelLifecycle(client);
   }
-  // Metro HMR: use CommonJS `module.hot` — never `import.meta.hot`
-  // (Hermes web classic script: "Cannot use 'import.meta' outside a module").
   const metroHot =
     typeof module !== 'undefined'
       ? (
@@ -252,9 +244,10 @@ async function runTransaction<T>(
 }
 
 /**
- * Multi-tab-safe web {@link SqlClient} backed by expo-sqlite (wa-sqlite + OPFS).
- * Exactly one tab owns the OPFS handles; peers proxy over SharedWorker or
- * BroadcastChannel leader election.
+ * Multi-tab-safe web {@link SqlClient} backed by expo-sqlite in a disposable
+ * iframe (wa-sqlite + OPFS). Exactly one tab owns the OPFS handles; peers
+ * proxy over SharedWorker or BroadcastChannel leader election.
+ * Open failures wipe the cache in-process — never navigate away.
  */
 export function createExpoWebSqlClient(
   dbName: string,
@@ -268,19 +261,9 @@ export function createExpoWebSqlClient(
     { readonly sql: string; ready: Promise<string>; stmtId: string | null }
   >();
   let prepSeq = 0;
-  /** After first connect, skip re-parsing `?reset-db=` on every query. */
-  let resetDbChecked = false;
 
   const ensureConnected = async () => {
     disconnected = false;
-    if (!resetDbChecked) {
-      resetDbChecked = true;
-      await consumeResetDbQueryParamAndRecover(
-        options.timers,
-        `createExpoWebSqlClient("${dbName}")`,
-        () => transport.disconnect()
-      );
-    }
     if (connectPromise === null) {
       connectPromise = transport.connect().then(() => undefined);
     }
@@ -292,6 +275,14 @@ export function createExpoWebSqlClient(
     isOwner: () => transport.isOwner(),
     onChanged: (listener) => transport.onChanged(listener),
     resetDatabase: async () => {
+      await transport.disconnect();
+      connectPromise = null;
+      await recoverSqlOwnerInProcess({
+        timers: options.timers,
+        sharedWorkerUrl:
+          options.sharedWorkerUrl ?? DEFAULT_DB_HOST_SHARED_WORKER_URL,
+        notifyPeers: true,
+      });
       await ensureConnected();
       await transport.request('resetDatabase', {});
     },

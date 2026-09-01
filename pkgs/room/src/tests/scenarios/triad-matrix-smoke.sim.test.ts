@@ -10,7 +10,7 @@ describe('room sim: triad matrix smoke (E-A06)', () => {
       seed: process.env['SIM_SEED'] ?? '42',
       knobs: { clientCount: 0 },
     });
-    const world = roomWorld(host.system);
+    const world = roomWorld(host.state);
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     const c = await world.addClient({ id: 'carol' });

@@ -1,21 +1,22 @@
-export { createSimClock, type SimClock } from './clock';
+export type { ActionArbContext, ActionClass, ActionDef } from './action';
+export { defineAction } from './action';
+export type { SimClock } from './clock';
+/** SimDeps shape for node boot / product env unpacking (not a constructor). */
+export type { SimDeps } from './create-sim-deps';
+/**
+ * Harness-only deps mint (playground `createSim`, package worlds that have not
+ * yet moved to {@link openWorld}). Node boots must use `ctx.deps` instead.
+ */
+export { createSimDeps } from './create-sim-deps';
 export {
-  type CreateSimDepsArgs,
-  createSimDeps,
-  type SimDeps,
-} from './create-sim-deps';
-export {
-  type DomainDef,
   defineSystem,
-  defineSystemKnob,
+  type NetworkEdgeSpec,
   type NodeSpec,
   type SystemAction,
   type SystemDef,
-  type SystemKnobDef,
+  type SystemModelDef,
 } from './define-system';
 export {
-  type CreateFaultCatalogOpts,
-  createFaultCatalog,
   defineFault,
   type FaultArmOptions,
   type FaultCatalog,
@@ -28,20 +29,9 @@ export {
   type JsonPrimitive,
   type JsonValue,
 } from './json';
-export {
-  createKnobCatalog,
-  defineKnob,
-  type KnobCatalog,
-  type KnobDef,
-} from './knobs';
-export {
-  defineLibrary,
-  type LibraryArbContext,
-  type LibraryDef,
-} from './library';
+export { defineKnob, type KnobCatalog, type KnobDef } from './knobs';
 export { createNetEffect, type NetEffect } from './net-effect';
 export {
-  type CreateSimNetworkArgs,
   createSimNetwork,
   RELIABLE_NET_FAULTS,
   type SimDeliver,
@@ -52,22 +42,13 @@ export {
   type SimNodeId,
 } from './network';
 export {
-  clearNodeKindRegistry,
   defineNodeKind,
   type NodeBootContext,
   type NodeEndpoint,
   type NodeInstance,
   type NodeKindDef,
-  requireNodeKind,
 } from './node-kind';
-export {
-  type DomainModelHooks,
-  type InvariantViolation,
-  type PlayActionsOnWorldArgs,
-  playActionsOnWorld,
-  type SimPlayHost,
-  type WorldReal,
-} from './play';
+export type { InvariantViolation } from './play';
 export {
   captureScenario,
   parseScenario,
@@ -76,28 +57,17 @@ export {
   type SimScenarioInputs,
   type SimScenarioMeta,
 } from './scenario';
+export type { SimScheduler, SimTask } from './scheduler';
 export {
-  type CreateSimSchedulerOpts,
-  createSimScheduler,
-  type SimScheduler,
-  type SimTask,
-} from './scheduler';
-export { createSimTimers } from './timers';
-export {
-  createSimTrace,
-  type SimTrace,
-  type SimTraceEvent,
-  type SimTraceEventInput,
-} from './trace';
-export {
-  isSimPollable,
-  type NeverOpts,
-  never,
-  type SimPollablePromise,
-  type UntilContext,
-  type UntilOpts,
-  type UntilTarget,
-  until,
-} from './until';
+  type StdAdvanceOpts,
+  type StdPartitionRoles,
+  stdAdvance,
+  stdHeal,
+  stdHealAll,
+  stdNetChaos,
+  stdPartition,
+} from './std-actions';
+export type { SimTrace, SimTraceEvent, SimTraceEventInput } from './trace';
+export type { NeverOpts, UntilOpts } from './until';
 export { openWorld } from './world';
 export type { OpenWorldOpts, World, WorldNodes } from './world-types';

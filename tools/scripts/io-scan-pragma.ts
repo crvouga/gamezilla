@@ -104,6 +104,10 @@ export function isIoCompositionEntryPath(rel: string): boolean {
   ) {
     return true;
   }
+  // Browser iframe entry for expo-sqlite OPFS owner (bundled sql-host page).
+  if (base === 'sql-host-entry.ts') {
+    return true;
+  }
   return false;
 }
 

@@ -18,13 +18,13 @@ export function createProductSystem(opts?: ProductSystemOpts): ProductSystem {
   };
 }
 
-export function productSim(system: ProductSystem): Sim | null {
-  return system.sim;
+export function productSim(state: ProductSystem): Sim | null {
+  return state.sim;
 }
 
-export function requireSim(system: ProductSystem): Sim {
-  if (system.sim === null) {
+export function requireSim(state: ProductSystem): Sim {
+  if (state.sim === null) {
     throw new Error('product system: product.sim has not booted');
   }
-  return system.sim;
+  return state.sim;
 }

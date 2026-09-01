@@ -17,7 +17,7 @@ describe('kit: terminal monotonicity (M-F06)', () => {
       knobs: { clientCount: 0 },
       startMs: 1_000,
     });
-    const world = roomWorld(host.system);
+    const world = roomWorld(host.state);
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await world.assertConverged();

@@ -15,7 +15,7 @@ describe('epoch bump mid offline session then drain', () => {
           clientCount: 0,
         },
       });
-      const world = syncFacade(host.system);
+      const world = syncFacade(host.state);
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
 

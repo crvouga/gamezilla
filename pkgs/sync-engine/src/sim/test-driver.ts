@@ -1,7 +1,5 @@
 import {
-  createSimClock,
-  createSimScheduler,
-  createSimTimers,
+  createSimDeps,
   type SimClock,
   type SimScheduler,
 } from '@pkgs/determinism';
@@ -23,9 +21,7 @@ export type SimTestDriver = {
 
 /** Lightweight driver for unit tests that inject timers into runtime/push. */
 export function createSimTestDriver(): SimTestDriver {
-  const clock = createSimClock(0);
-  const scheduler = createSimScheduler(clock);
-  const timers = createSimTimers(scheduler);
+  const { clock, scheduler, timers } = createSimDeps({ seed: 1, startMs: 0 });
   return {
     clock,
     scheduler,

@@ -5,9 +5,6 @@ import { SqlClientImplSqliteMem } from '@pkgs/sql-client/sqlite/impl-sqlite-mem'
 import { reconcilePeer, type SchemaPeer, type SchemaSystem } from './peers';
 import { schemaAt } from './schemas';
 
-export const SCHEMA_SERVER_KIND = 'schema.server';
-export const SCHEMA_CLIENT_KIND = 'schema.client';
-
 function seedOf(seed: bigint, index: number): number {
   return (Number(seed & 0xffffffffn) || 1) + index;
 }
@@ -18,7 +15,7 @@ export const schemaServerNode = defineNodeKind<
   SchemaPeer,
   SchemaSystem
 >({
-  id: SCHEMA_SERVER_KIND,
+  id: 'schema.server',
   boot: async (ctx) => {
     const client = SqlClientImplPostgresMem.open({
       seed: seedOf(ctx.deps.seed, 0),
@@ -33,7 +30,7 @@ export const schemaServerNode = defineNodeKind<
       planKinds: [],
     };
     await reconcilePeer(peer, schemaAt(0));
-    ctx.system.server = peer;
+    ctx.state.server = peer;
     return peer;
   },
   dispose: async (peer) => {
@@ -47,7 +44,7 @@ export const schemaClientNode = defineNodeKind<
   SchemaPeer,
   SchemaSystem
 >({
-  id: SCHEMA_CLIENT_KIND,
+  id: 'schema.client',
   boot: async (ctx) => {
     const client = SqlClientImplSqliteMem.open({
       seed: seedOf(ctx.deps.seed, ctx.index + 1),
@@ -61,7 +58,7 @@ export const schemaClientNode = defineNodeKind<
       planKinds: [],
     };
     await reconcilePeer(peer, schemaAt(0));
-    ctx.system.clients.push(peer);
+    ctx.state.clients.push(peer);
     return peer;
   },
   dispose: async (peer) => {

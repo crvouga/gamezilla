@@ -1,13 +1,12 @@
 import {
+  defineKnob,
   defineSystem,
-  defineSystemKnob,
   type SystemDef,
   type World,
 } from '@pkgs/determinism';
 import fc from 'fast-check';
 
-import './node-kinds';
-import { PRODUCT_SIM, PRODUCT_WARMUP } from './node-kinds';
+import { productSimNode } from './node-kinds';
 import {
   createProductSystem,
   type ProductSystem,
@@ -23,9 +22,9 @@ export type DefineProductSystemOpts = ProductSystemOpts & {
 };
 
 /**
- * Product `@sim` topology: one `product.sim` (createSim + spawnServer) plus a
- * no-op warmup. UI actors spawn lazily via openSim — knob `clientCount`
- * defaults to 0 so topology does not pre-boot clients.
+ * Product `@sim` topology: one `product.sim` (createSim + spawnServer).
+ * UI actors spawn lazily via openSim — knob `clientCount` defaults to 0 so
+ * topology does not pre-boot clients.
  */
 export function defineProductSystem(
   opts?: DefineProductSystemOpts
@@ -37,21 +36,20 @@ export function defineProductSystem(
       ? { startMs: createOpts.startMs }
       : {}),
     knobs: [
-      defineSystemKnob<number>({
+      defineKnob({
         id: 'clientCount',
         default: 0,
         arb: fc.constant(0),
       }),
     ],
-    nodes: [
-      { kind: PRODUCT_SIM, role: 'sim', count: 1 },
-      { kind: PRODUCT_WARMUP, role: 'warmup', count: 1 },
-    ],
-    system: () => createProductSystem(createOpts),
+    nodes: [{ kind: productSimNode, role: 'sim', count: 1 }],
+    state: () => createProductSystem(createOpts),
+    actions: [],
     settle: async (world) => {
-      requireSim(world.system);
-      await world.runUntilIdle();
+      requireSim(world.state);
+      await world.idle();
     },
+    invariants: async () => null,
   });
 }
 

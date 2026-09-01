@@ -10,7 +10,7 @@ describe('room sim: spectator fanout (E-H03)', () => {
       seed: process.env['SIM_SEED'] ?? '42',
       knobs: { clientCount: 0 },
     });
-    const world = roomWorld(host.system);
+    const world = roomWorld(host.state);
     const a = await world.addClient({ id: 'alice' });
     a.dispatch(Increment({}));
     await world.drain();

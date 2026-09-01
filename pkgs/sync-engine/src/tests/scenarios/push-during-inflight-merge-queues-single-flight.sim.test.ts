@@ -25,7 +25,7 @@ describe('push during inflight merge queues single flight', () => {
         reorderWindow: 3,
       }),
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 

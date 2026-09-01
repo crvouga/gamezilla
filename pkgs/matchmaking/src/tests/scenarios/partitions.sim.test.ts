@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { openMatchmakingWorld } from '../../sim/system';
+import { openMatchmakingWorld, requireMmWorld } from '../../sim/system';
 import {
   expectMatched,
   KindAttr,
@@ -19,10 +19,11 @@ describe('matchmaking sim: partitions', () => {
   });
 
   test('declared partitionKeys isolate participants across shards', async () => {
-    await using world = await openMatchmakingWorld({
+    await using host = await openMatchmakingWorld({
       seed: 40,
       schema: { partitionKeys: [KindAttr.key] },
     });
+    const world = requireMmWorld(host.state);
     const formulas = [SimpleFormula];
     const a1 = await world.join({
       data: { ...RatingAttr(1000), ...KindAttr('alpha') },

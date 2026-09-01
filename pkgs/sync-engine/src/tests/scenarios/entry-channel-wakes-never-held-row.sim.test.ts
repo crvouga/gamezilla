@@ -12,7 +12,7 @@ describe('entry channel wakes never-held row', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     // notesWorld entryChannel = NOTES_WORLD_TOPIC (no prior row for n-fresh).
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });

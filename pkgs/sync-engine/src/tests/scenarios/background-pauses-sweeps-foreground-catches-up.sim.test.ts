@@ -13,7 +13,7 @@ describe('background pauses sweeps foreground catches up', () => {
         rowImageFanout: false,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await a.mutate(setNote, { id: 'warm', body: 'w' });
@@ -36,7 +36,7 @@ describe('background pauses sweeps foreground catches up', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const a = await world.addClient({ id: 'alice' });
     a.foreground(false);
     const ok = await a.mutate(setNote, { id: 'local', body: 'bg-write' });

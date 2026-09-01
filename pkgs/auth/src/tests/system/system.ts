@@ -1,92 +1,64 @@
-import {
-  defineLibrary,
-  defineSystem,
-  defineSystemKnob,
-} from '@pkgs/determinism';
+import { defineKnob, defineSystem } from '@pkgs/determinism';
 import fc from 'fast-check';
 
-import {
-  type AdvanceClockAction,
-  arbAdvanceClock,
-  arbAuthDomainOps,
-  arbGoogleFault,
-  type GoogleFaultAction,
-} from './actions';
-import { dispatchAuthDomainOp } from './dispatch';
+import { AUTH_ACTIONS, type AuthModel } from './actions';
 import {
   assertAuthInvariants,
   checkAuthInvariants,
   worldFingerprint,
 } from './invariants';
-import { AUTH_ACTOR_KIND, AUTH_STORE_KIND } from './nodes';
+import { authActorNode, authStoreNode } from './nodes';
 import { type AuthFabric, type AuthSystem, createAuthSystem } from './types';
 
 const AUTH_SYSTEM_START_MS = 1_700_000_000_000;
-
-const advanceClockLibrary = defineLibrary<AuthSystem>({
-  kind: 'advanceClock',
-  arb: () => arbAdvanceClock(),
-  dispatch: async (world, action) => {
-    await world.runFor((action as AdvanceClockAction).ms);
-  },
-});
-
-const googleFaultLibrary = defineLibrary<AuthSystem>({
-  kind: 'setGoogleFault',
-  arb: () => arbGoogleFault(),
-  dispatch: async (world, action) => {
-    world.system.googleFault = (action as GoogleFaultAction).fault;
-  },
-});
 
 /**
  * `auth.store` (SQL + Hono IdP + fake Google) plus N zero-endpoint
  * `auth.actor` session bags. Framework owns the world via openWorld.
  */
-export const AUTH_SYSTEM = defineSystem<AuthSystem>({
+export const AUTH_SYSTEM = defineSystem<AuthSystem, AuthModel>({
   id: 'auth.idp',
-  system: createAuthSystem,
+  state: createAuthSystem,
   startMs: AUTH_SYSTEM_START_MS,
   knobs: [
-    defineSystemKnob<AuthFabric>({
+    defineKnob({
       id: 'fabric',
-      default: 'sqlite-mem',
-      arb: fc.constantFrom<AuthFabric[]>('sqlite-mem', 'postgres-mem'),
+      default: 'sqlite-mem' satisfies AuthFabric,
+      arb: fc.constantFrom<AuthFabric>('sqlite-mem', 'postgres-mem'),
     }),
-    defineSystemKnob<number>({
+    defineKnob({
       id: 'clientCount',
       default: 2,
       arb: fc.integer({ min: 1, max: 3 }),
     }),
-    defineSystemKnob<boolean>({
+    defineKnob({
       id: 'devProvider',
       default: true,
       arb: fc.constant(true),
     }),
-    defineSystemKnob<boolean>({
+    defineKnob({
       id: 'googleProvider',
       default: true,
       arb: fc.constant(true),
     }),
   ],
   nodes: [
-    { kind: AUTH_STORE_KIND, role: 'store', count: 1 },
+    { kind: authStoreNode, role: 'store', count: 1 },
     {
-      kind: AUTH_ACTOR_KIND,
+      kind: authActorNode,
       role: 'client',
       countFromKnob: 'clientCount',
       idFor: (i) => `c${i}`,
     },
   ],
-  library: [advanceClockLibrary, googleFaultLibrary],
-  domain: {
-    arbs: (ctx) => arbAuthDomainOps(ctx.roleIds('client')),
-    dispatch: dispatchAuthDomainOp,
+  actions: [...AUTH_ACTIONS],
+  model: {
+    initial: (): AuthModel => ({}),
   },
-  checkInvariants: checkAuthInvariants,
+  invariants: checkAuthInvariants,
   settle: async (world) => {
-    await world.runUntilIdle();
+    await world.idle();
     await assertAuthInvariants(world);
-    world.system.fingerprint = await worldFingerprint(world);
+    world.state.fingerprint = await worldFingerprint(world);
   },
 });

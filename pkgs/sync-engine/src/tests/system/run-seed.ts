@@ -212,7 +212,7 @@ export async function runSeed(opts: RunSeedOptions): Promise<RunSeedResult> {
     seed: opts.seed,
     knobs: { clientCount: 0 },
   });
-  const world = syncFacade(host.system);
+  const world = syncFacade(host.state);
   const actions: SyncAction[] = [];
   let done = 0;
   try {

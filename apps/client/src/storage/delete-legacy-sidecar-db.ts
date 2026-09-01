@@ -4,7 +4,7 @@ import { Platform } from 'react-native';
 /**
  * Best-effort cleanup of a leftover `${databaseName}.db` from prior local SDKs.
  * Skipped on web: `deleteDatabaseAsync` can hang forever when AccessHandlePoolVFS
- * is wedged; web recovery clears OPFS via `/?opfs-wipe=1` instead.
+ * is wedged; web recovery clears OPFS via in-process wipe + reload instead.
  */
 export async function deleteLegacySidecarDb(
   databaseName: string

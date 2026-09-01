@@ -1185,10 +1185,6 @@ msgstr "Local database needs a reset"
 msgid "Local database wiped"
 msgstr "Local database wiped"
 
-#: apps/client/src/providers/local-database/boot-screens.tsx
-msgid "Local storage hit a browser error. Reset local data below to start fresh — your account on the server is unchanged."
-msgstr "Local storage hit a browser error. Reset local data below to start fresh — your account on the server is unchanged."
-
 #: libs/client-config/src/root/client/client-config-entity-card.tsx
 msgid "Local sync (client_config)"
 msgstr "Local sync (client_config)"

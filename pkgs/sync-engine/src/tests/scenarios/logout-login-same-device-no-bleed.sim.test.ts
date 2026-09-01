@@ -18,7 +18,7 @@ describe('logout login same device no bleed', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const phoneA = await world.addClient({
       id: 'phone',
       actorId: 'user-a',
@@ -69,7 +69,7 @@ describe('logout login same device no bleed', () => {
           clientCount: 0,
         },
       });
-      const world = syncFacade(host.system);
+      const world = syncFacade(host.state);
       const phone = await world.addClient({
         id: 'phone',
         actorId: 'alice',

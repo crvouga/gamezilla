@@ -19,7 +19,7 @@ describe('live fanout peer visibility within budget', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
@@ -40,7 +40,7 @@ describe('live fanout peer visibility within budget', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const a = await world.addClient({ id: 'alice' });
     await world.addClient({ id: 'bob' });
     await a.mutate(setNote, { id: 'n1', body: 'x' });

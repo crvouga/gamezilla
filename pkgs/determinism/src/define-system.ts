@@ -1,65 +1,79 @@
-import type { Arbitrary } from 'fast-check';
+import type { ActionDef } from './action';
 import type { FaultDef } from './faults';
-import type { JsonValue } from './json';
 import type { KnobDef } from './knobs';
-import type { LibraryDef } from './library';
 import type { SimNetFaultProfile } from './network';
-import type { DomainModelHooks, InvariantViolation } from './play';
+import type { NodeKindDef } from './node-kind';
+import type { InvariantViolation } from './play';
 import type { World } from './world-types';
 
-export type SystemKnobDef<T extends JsonValue = JsonValue> = KnobDef<T> & {
-  readonly arb: Arbitrary<T>;
-};
+export type { SystemAction } from './action';
 
-export function defineSystemKnob<T extends JsonValue>(
-  def: SystemKnobDef<T>
-): SystemKnobDef<T> {
-  return def;
-}
-
-export type NodeSpec = {
-  readonly kind: string;
+export type NodeSpec<S = unknown> = {
+  /**
+   * Value from {@link defineNodeKind}. Handle/view params use `any` so concrete
+   * kinds remain assignable (dispose is contravariant in the handle type).
+   */
+  // biome-ignore lint/suspicious/noExplicitAny: heterogeneous node handles
+  readonly kind: NodeKindDef<any, any, S>;
   readonly role: string;
   readonly count?: number;
+  /** Knob id whose numeric value is the replica count. */
   readonly countFromKnob?: string;
-  /** Default: `${role}` when count===1 else `${role}${i}`; clients often `c${i}`. */
+  /** Default: `${role}` when count===1 else `${role}${i}`. */
   readonly idFor?: (index: number) => string;
 };
 
-export type DomainDef<S = unknown> = {
-  readonly arbs: (ctx: {
-    readonly roleIds: (role: string) => readonly string[];
-    readonly knobs: Readonly<Record<string, JsonValue>>;
-  }) => readonly Arbitrary<JsonValue>[];
-  readonly dispatch: (world: World<S>, op: JsonValue) => Promise<void>;
-  readonly model?: DomainModelHooks<object, JsonValue>;
+export type NetworkEdgeSpec = {
+  readonly fromRole: string;
+  readonly toRole: string;
 };
 
-export type SystemAction = JsonValue & { readonly kind: string };
+export type SystemModelDef<M = object> = {
+  readonly initial: () => M;
+};
 
-export type SystemDef<S = unknown> = {
+export type SystemDef<S = unknown, M = object> = {
   readonly id: string;
-  readonly knobs: readonly SystemKnobDef[];
-  readonly nodes: readonly NodeSpec[];
-  /** Initial mutable system bag shared across node boots + dispatch. */
-  readonly system?: () => S;
-  readonly network?: { readonly defaults?: SimNetFaultProfile };
+  readonly knobs: readonly KnobDef[];
+  readonly nodes: readonly NodeSpec<S>[];
+  /** Initial mutable package board shared across node boots + dispatch. */
+  readonly state?: () => S;
+  readonly network?: {
+    readonly defaults?: SimNetFaultProfile;
+    /** Declared role pairs for docs / std chaos helpers (optional). */
+    readonly edges?: readonly NetworkEdgeSpec[];
+  };
   readonly faults?: readonly FaultDef[];
-  readonly library?: readonly LibraryDef<S>[];
-  readonly domain?: DomainDef<S>;
-  /** Unified model for all actions (library + domain). */
-  readonly model?: DomainModelHooks<object, JsonValue>;
+  /**
+   * Chaos + domain ops. May be empty when the system is openWorld-only.
+   * Action payloads / models are heterogeneous per kind; `any` keeps
+   * defineAction concrete types assignable into the system bag and across M.
+   */
+  // biome-ignore lint/suspicious/noExplicitAny: heterogeneous action payloads
+  readonly actions: readonly ActionDef<S, any, any>[];
+  /** Required by assertSample; optional for scripted openWorld / replay. */
+  readonly model?: SystemModelDef<M>;
+  /** After topology boot, before play (replaces warmup nodes). */
+  readonly prepare?: (world: World<S>) => Promise<void>;
   readonly settle: (world: World<S>) => Promise<void>;
-  readonly checkInvariants?: (
-    world: World<S>
-  ) => Promise<InvariantViolation | null>;
-  readonly prepareConverge?: (world: World<S>) => Promise<void>;
+  readonly invariants: (world: World<S>) => Promise<InvariantViolation | null>;
   readonly startMs?: number;
 };
 
-export function defineSystem<S = unknown>(def: SystemDef<S>): SystemDef<S> {
+export function defineSystem<S = unknown, M = object>(
+  def: SystemDef<S, M>
+): SystemDef<S, M> {
   if (def.nodes.length === 0) {
     throw new Error(`defineSystem(${def.id}): nodes must be non-empty`);
+  }
+  const kinds = new Set<string>();
+  for (const action of def.actions) {
+    if (kinds.has(action.kind)) {
+      throw new Error(
+        `defineSystem(${def.id}): duplicate action kind ${action.kind}`
+      );
+    }
+    kinds.add(action.kind);
   }
   return def;
 }

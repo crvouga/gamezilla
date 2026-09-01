@@ -19,8 +19,8 @@ export type NodeBootContext<S = unknown> = {
   readonly network: SimNetwork;
   readonly knobs: KnobCatalog<Record<string, JsonValue>>;
   readonly faults: FaultCatalog;
-  /** Mutable system bag from {@link defineSystem} `system()`. */
-  readonly system: S;
+  /** Mutable package board from {@link defineSystem} `state()`. */
+  readonly state: S;
   /** Already-booted nodes by role (declaration order). */
   readonly nodesByRole: Readonly<Record<string, readonly NodeInstance[]>>;
   readonly nodesById: ReadonlyMap<string, NodeInstance>;
@@ -42,24 +42,9 @@ export type NodeKindDef<H = unknown, V = unknown, S = unknown> = {
   readonly view?: (handle: H) => V;
 };
 
-const KIND_REGISTRY = new Map<string, NodeKindDef>();
-
+/** Value-identity node kind — pass the returned object into SystemDef.nodes. */
 export function defineNodeKind<H = unknown, V = unknown, S = unknown>(
   def: NodeKindDef<H, V, S>
 ): NodeKindDef<H, V, S> {
-  KIND_REGISTRY.set(def.id, def as NodeKindDef);
   return def;
-}
-
-export function requireNodeKind(id: string): NodeKindDef {
-  const kind = KIND_REGISTRY.get(id);
-  if (kind === undefined) {
-    throw new Error(`defineNodeKind: unknown kind ${id}`);
-  }
-  return kind;
-}
-
-/** Test-only: clear registry between contract suites. */
-export function clearNodeKindRegistry(): void {
-  KIND_REGISTRY.clear();
 }

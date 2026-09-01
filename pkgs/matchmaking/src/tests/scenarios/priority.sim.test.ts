@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { openMatchmakingWorld } from '../../sim/system';
+import { openMatchmakingWorld, requireMmWorld } from '../../sim/system';
 import {
   expectMatched,
   RatingAttr,
@@ -18,7 +18,8 @@ describe('matchmaking sim: priority', () => {
   });
 
   test('high-priority joiner is matched before same-bucket FIFO peer', async () => {
-    await using world = await openMatchmakingWorld({ seed: 80 });
+    await using host = await openMatchmakingWorld({ seed: 80 });
+    const world = requireMmWorld(host.state);
     const a = await world.join({
       data: RatingAttr(1000),
       formulas: [

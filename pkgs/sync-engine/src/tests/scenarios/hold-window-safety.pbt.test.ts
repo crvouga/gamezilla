@@ -20,7 +20,7 @@ describe('hold window safety PBT', () => {
           fc.string({ minLength: 1, maxLength: 12 }),
           async (seed, knobs, body) => {
             await using world = await openWorld(acmeSystem, { seed, knobs });
-            const facade = syncFacade(world.system);
+            const facade = syncFacade(world.state);
             const clientId = world.roleIds('client')[0]!;
             const noteId = 'n0';
             const client = facade.clients.get(clientId)!;

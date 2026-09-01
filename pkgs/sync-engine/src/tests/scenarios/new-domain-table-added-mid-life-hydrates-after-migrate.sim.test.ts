@@ -37,7 +37,7 @@ describe('new domain table added mid life hydrates after migrate', () => {
           clientCount: 0,
         },
       });
-      const world = syncFacade(host.system);
+      const world = syncFacade(host.state);
       const a = await world.addClient({
         id: 'alice',
         localSchema: acmeLocalSchema,

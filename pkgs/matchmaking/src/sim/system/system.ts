@@ -21,7 +21,7 @@ export type MatchmakingSystem = {
   replicas: Map<string, ReplicaHandle>;
   firstId: string | null;
   ops: WorldReplicaOps | null;
-  /** Built after replicas boot — dispose closes the shared store. */
+  /** Built in system `prepare` after replicas boot. */
   facade: MatchmakingSimWorld | null;
 };
 
@@ -46,18 +46,18 @@ export function createMatchmakingSystem(
   };
 }
 
-export function requireStore(system: MatchmakingSystem): SimStore {
-  if (system.store === null) {
+export function requireStore(state: MatchmakingSystem): SimStore {
+  if (state.store === null) {
     throw new Error('matchmaking system: mm.store has not booted');
   }
-  return system.store;
+  return state.store;
 }
 
-export function requireMmWorld(system: MatchmakingSystem): MatchmakingSimWorld {
-  if (system.facade === null) {
-    throw new Error('matchmaking system: facade not ready (warmup not booted)');
+export function requireMmWorld(state: MatchmakingSystem): MatchmakingSimWorld {
+  if (state.facade === null) {
+    throw new Error('matchmaking system: facade not ready (prepare not run)');
   }
-  return system.facade;
+  return state.facade;
 }
 
 export type { MatchmakingSimBackend };

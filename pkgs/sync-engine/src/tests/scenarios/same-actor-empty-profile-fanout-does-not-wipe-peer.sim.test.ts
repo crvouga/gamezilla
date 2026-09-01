@@ -23,7 +23,7 @@ describe('same actor empty profile fanout does not wipe peer', () => {
         rowImageFanout: true,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const phone = await world.addClient({
       id: 'phone',
       actorId: 'user-1',

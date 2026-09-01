@@ -27,7 +27,7 @@ export async function clearLocalDatabaseAndReloadWithDeps(
     if (typeof window !== 'undefined') {
       await clearWebClientPersistentState();
     }
-    // Wipe document tears down expo-sqlite; in-page OPFS delete is unreliable.
+    // In-process OPFS wipe (iframe teardown + directory clear), then reload.
     await d.wipeWebOpfsAndReload();
     return;
   }

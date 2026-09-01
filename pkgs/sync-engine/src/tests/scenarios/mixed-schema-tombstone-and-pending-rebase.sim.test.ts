@@ -41,7 +41,7 @@ describe('mixed schema tombstone and pending rebase', () => {
           clientCount: 0,
         },
       });
-      const world = syncFacade(host.system);
+      const world = syncFacade(host.state);
 
       const alice = await world.addClient({
         id: 'alice',

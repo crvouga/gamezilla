@@ -5,14 +5,15 @@ import { bootRoomKitWorld } from '../world';
 import type { World } from '../world-api';
 import { type RoomSystem, requireWorld } from './system';
 
-export const ROOM_SERVER = 'room.server';
-export const ROOM_CLIENT = 'room.client';
-
 /** Wrap the framework network kernel, then boot the room server + world. */
-defineNodeKind<{ readonly world: World }, unknown, RoomSystem>({
-  id: ROOM_SERVER,
+export const roomServerNode = defineNodeKind<
+  { readonly world: World },
+  unknown,
+  RoomSystem
+>({
+  id: 'room.server',
   boot: async (ctx) => {
-    const system = ctx.system;
+    const state = ctx.state;
     const mildFaults = ctx.knobs.get('mildFaults') === true;
     const network = wrapRoomNetwork({
       kernel: ctx.network,
@@ -21,13 +22,13 @@ defineNodeKind<{ readonly world: World }, unknown, RoomSystem>({
     });
     const world = await bootRoomKitWorld({
       seed: ctx.deps.seed,
-      module: system.app.module,
-      ...(system.app.authorize !== undefined
-        ? { authorize: system.app.authorize }
+      module: state.app.module,
+      ...(state.app.authorize !== undefined
+        ? { authorize: state.app.authorize }
         : {}),
       injected: { deps: ctx.deps, network },
     });
-    system.world = world;
+    state.world = world;
     return { world };
   },
   dispose: async (handle) => {
@@ -35,10 +36,14 @@ defineNodeKind<{ readonly world: World }, unknown, RoomSystem>({
   },
 });
 
-defineNodeKind<{ readonly id: string }, unknown, RoomSystem>({
-  id: ROOM_CLIENT,
+export const roomClientNode = defineNodeKind<
+  { readonly id: string },
+  unknown,
+  RoomSystem
+>({
+  id: 'room.client',
   boot: async (ctx) => {
-    await requireWorld(ctx.system).addClient({
+    await requireWorld(ctx.state).addClient({
       id: ctx.nodeId,
       identity: ctx.nodeId,
       clientId: ctx.nodeId,

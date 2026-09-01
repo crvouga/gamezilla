@@ -19,7 +19,7 @@ describe('chess puzzle: wrong vs solve race (Gp-04)', () => {
       seed: process.env['SIM_SEED'] ?? '42',
       knobs: { clientCount: 0, mildFaults: true },
     });
-    const world = roomWorld(host.system);
+    const world = roomWorld(host.state);
     const tab1 = await world.addClient({
       id: 'tab1',
       identity: 'host-1',

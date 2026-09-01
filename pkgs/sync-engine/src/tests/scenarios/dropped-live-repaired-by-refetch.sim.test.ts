@@ -14,7 +14,7 @@ describe('dropped live repaired by refetch', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
@@ -41,7 +41,7 @@ describe('dropped live repaired by refetch', () => {
         reorderWindow: 5,
       }),
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await a.mutate(setNote, { id: 'n1', body: 'a' });
@@ -62,7 +62,7 @@ describe('dropped live repaired by refetch', () => {
         packetReplayProbability: 0.8,
       }),
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await a.mutate(setNote, { id: 'n1', body: 'dup' });

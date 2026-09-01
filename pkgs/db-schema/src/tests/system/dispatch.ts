@@ -1,5 +1,4 @@
-import type { JsonValue, World } from '@pkgs/determinism';
-import type { AdvanceAction, SchemaAction } from './actions';
+import type { World } from '@pkgs/determinism';
 import {
   advancePeer,
   planKindHash,
@@ -12,13 +11,14 @@ import { forbiddenSchema, type SchemaVersion } from './schemas';
 
 type SchemaWorld = World<SchemaSystem>;
 
-async function applyAdvance(
+export async function applyAdvance(
   world: SchemaWorld,
-  action: AdvanceAction
+  target: string,
+  to: SchemaVersion
 ): Promise<void> {
-  const server = requireServer(world.system);
-  const peer = resolvePeer(world.system, action.target);
-  const wanted = Math.max(peer.version, action.to) as SchemaVersion;
+  const server = requireServer(world.state);
+  const peer = resolvePeer(world.state, target);
+  const wanted = Math.max(peer.version, to) as SchemaVersion;
   // Clients never run ahead of the server they sync against.
   const capped =
     peer.kind === 'client'
@@ -29,8 +29,8 @@ async function applyAdvance(
   }
 }
 
-async function applyForbidden(world: SchemaWorld): Promise<void> {
-  const server = requireServer(world.system);
+export async function applyForbidden(world: SchemaWorld): Promise<void> {
+  const server = requireServer(world.state);
   const before = planKindHash(server);
   let refused = false;
   try {
@@ -44,16 +44,4 @@ async function applyForbidden(world: SchemaWorld): Promise<void> {
   if (planKindHash(server) !== before) {
     throw new Error('refused reconcile mutated the server plan history');
   }
-}
-
-export async function dispatchSchemaAction(
-  world: SchemaWorld,
-  op: JsonValue
-): Promise<void> {
-  const action = op as SchemaAction;
-  if (action.kind === 'advance') {
-    await applyAdvance(world, action);
-    return;
-  }
-  await applyForbidden(world);
 }

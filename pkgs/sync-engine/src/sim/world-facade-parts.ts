@@ -163,7 +163,12 @@ function createWorldDispose(args: {
     if (markDisposed()) return;
     const world = worldRef.current;
     if (world !== null) unregisterWorld(world);
-    for (const c of [...k.clients.values()]) await c.dispose();
+    const closedRaw = new Set<SimClientHandle['dbBundle']['raw']>();
+    for (const c of [...k.clients.values()]) {
+      const raw = c.dbBundle.raw;
+      await c.dispose({ keepDb: closedRaw.has(raw) });
+      closedRaw.add(raw);
+    }
     k.clients.clear();
     k.unbindHttp();
     k.broker.dispose();

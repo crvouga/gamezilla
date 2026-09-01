@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { assertProperty, fc } from '@pkgs/pbt';
 
-import { openMatchmakingWorld } from '../../sim/system';
+import { openMatchmakingWorld, requireMmWorld } from '../../sim/system';
 import {
   expectMatched,
   RatingAttr,
@@ -11,10 +11,11 @@ import {
 const SimpleFormula = { numeric: [{ tag: RatingAttr, weight: 1 }] };
 
 async function runShortWorkload(seed: string): Promise<string> {
-  await using world = await openMatchmakingWorld({
+  await using host = await openMatchmakingWorld({
     seed,
     replicas: 2,
   });
+  const world = requireMmWorld(host.state);
   const replicaIds = [...world.replicas.keys()];
   const participants = [];
   const rng = world.rng.fork('workload');

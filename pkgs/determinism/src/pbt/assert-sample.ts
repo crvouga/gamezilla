@@ -2,7 +2,7 @@ import type { AsyncCommand } from 'fast-check';
 import fc from 'fast-check';
 import type { SystemAction, SystemDef } from '../define-system';
 import type { JsonValue } from '../json';
-import { playActionsOnWorld, type WorldReal } from '../play';
+import { playActions } from '../play';
 import type { SimScenario, SimScenarioInputs } from '../scenario';
 import { openWorld, type World } from '../world';
 import {
@@ -36,64 +36,36 @@ function roleIdsFromKnobs(
   };
 }
 
-function taggedAction(kind: string, body: JsonValue): SystemAction {
-  if (
-    typeof body === 'object' &&
-    body !== null &&
-    !Array.isArray(body) &&
-    'kind' in body
-  ) {
-    return body as SystemAction;
-  }
-  return { kind, ...(body as object) } as SystemAction;
-}
+type ActionReal = { actions: SystemAction[] };
 
 function buildActionCommands(
   system: SystemDef,
   knobs: Record<string, JsonValue>
-): fc.Arbitrary<AsyncCommand<object, WorldReal<SystemAction>>>[] {
+): fc.Arbitrary<AsyncCommand<object, ActionReal>>[] {
   const roleIds = roleIdsFromKnobs(system, knobs);
   const ctx = { roleIds, knobs };
-  const modelHooks = system.model;
-  const out: fc.Arbitrary<AsyncCommand<object, WorldReal<SystemAction>>>[] = [];
+  const out: fc.Arbitrary<AsyncCommand<object, ActionReal>>[] = [];
 
-  const toCmd = (
-    action: SystemAction,
-    allows: (m: object, a: JsonValue) => boolean,
-    apply: (m: object, a: JsonValue) => void
-  ): AsyncCommand<object, WorldReal<SystemAction>> => ({
-    check: (m) => allows(m, action),
-    run: async (m, r) => {
-      apply(m, action);
-      r.actions.push(action);
-    },
-    toString: () => JSON.stringify(action),
-  });
-
-  for (const lib of system.library ?? []) {
-    const allows = lib.allows ?? modelHooks?.allows ?? (() => true);
-    const apply = lib.apply ?? modelHooks?.apply ?? (() => undefined);
+  for (const actionDef of system.actions) {
+    const allows = actionDef.allows ?? (() => true);
+    const apply = actionDef.apply ?? (() => undefined);
     out.push(
-      lib
-        .arb(ctx)
-        .map((body) => toCmd(taggedAction(lib.kind, body), allows, apply))
+      actionDef.arb(ctx).map((action) => {
+        const a = action as SystemAction;
+        return {
+          check: (m: object) => allows(m, a),
+          run: async (m: object, r: ActionReal) => {
+            apply(m, a);
+            r.actions.push(a);
+          },
+          toString: () => JSON.stringify(a),
+        };
+      })
     );
   }
 
-  if (system.domain !== undefined) {
-    const allows =
-      system.domain.model?.allows ?? modelHooks?.allows ?? (() => true);
-    const apply =
-      system.domain.model?.apply ?? modelHooks?.apply ?? (() => undefined);
-    for (const arb of system.domain.arbs(ctx)) {
-      out.push(
-        arb.map((op) => toCmd(taggedAction('domain', op), allows, apply))
-      );
-    }
-  }
-
   if (out.length === 0) {
-    throw new Error(`assertSample(${system.id}): no library or domain arbs`);
+    throw new Error(`assertSample(${system.id}): actions must be non-empty`);
   }
   return out;
 }
@@ -103,17 +75,11 @@ async function dispatchAction(
   world: World,
   action: SystemAction
 ): Promise<void> {
-  for (const lib of system.library ?? []) {
-    const hit =
-      lib.match !== undefined ? lib.match(action) : action.kind === lib.kind;
-    if (hit) {
-      await lib.dispatch(world, action);
+  for (const def of system.actions) {
+    if (action.kind === def.kind) {
+      await def.dispatch(world, action);
       return;
     }
-  }
-  if (system.domain !== undefined) {
-    await system.domain.dispatch(world, action);
-    return;
   }
   throw new Error(`dispatch: unknown action kind ${action.kind}`);
 }
@@ -122,10 +88,16 @@ export type AssertSampleOpts = AssertSamplePropertyParams & {
   readonly maxCommands?: number;
 };
 
-export async function assertSample<S>(
-  system: SystemDef<S>,
+export async function assertSample<S, M extends object = object>(
+  system: SystemDef<S, M>,
   opts?: AssertSampleOpts
 ): Promise<void> {
+  if (system.model === undefined) {
+    throw new Error(`assertSample(${system.id}): model is required`);
+  }
+  if (system.actions.length === 0) {
+    throw new Error(`assertSample(${system.id}): actions must be non-empty`);
+  }
   const maxCommands = opts?.maxCommands ?? 14;
   const sys = system as unknown as SystemDef;
   const knobArbs = arbFromKnobDefs(
@@ -134,6 +106,7 @@ export async function assertSample<S>(
       arb: k.arb as fc.Arbitrary<JsonValue>,
     }))
   );
+  const modelInitial = system.model.initial;
 
   await assertSampleProperty(
     system.id,
@@ -147,25 +120,16 @@ export async function assertSample<S>(
       }),
       async ([seed, knobs, cmds]) => {
         await using world = await openWorld(system, { seed, knobs });
-        const real: WorldReal<SystemAction> = {
-          clientIds: world.roleIds('client'),
-          actions: [],
-        };
-        const initial =
-          system.model?.initial ??
-          system.domain?.model?.initial ??
-          (() => ({}));
-        const model = initial();
+        const real: ActionReal = { actions: [] };
+        const model = modelInitial() as object;
         await fc.asyncModelRun(() => ({ model, real }), cmds);
-        await playActionsOnWorld({
-          host: world,
+        await playActions({
+          advance: (ms) => world.advance(ms),
           actions: real.actions,
-          dispatch: (a) => dispatchAction(sys, world as World, a),
-          ...(system.prepareConverge !== undefined
-            ? { prepareConverge: () => system.prepareConverge!(world) }
-            : {}),
+          dispatch: (a) =>
+            dispatchAction(sys, world as World, a as SystemAction),
         });
-        await system.settle(world);
+        await world.settle();
       }
     ),
     opts
@@ -196,20 +160,15 @@ export async function replay<S>(
       : {}),
   });
   try {
-    await playActionsOnWorld({
-      host: world,
+    await playActions({
+      advance: (ms) => world.advance(ms),
       actions: inputs.actions,
-      dispatch: (a) => dispatchAction(sys, world as World, a),
-      ...(system.prepareConverge !== undefined
-        ? { prepareConverge: () => system.prepareConverge!(world) }
-        : {}),
+      dispatch: (a) => dispatchAction(sys, world as World, a as SystemAction),
     });
     if (inputs.settle !== false) {
-      await system.settle(world);
+      await world.settle();
     }
   } catch (e) {
-    // Dispose drains the sim, which can fail too — never let that mask the
-    // failure the caller actually needs to see.
     await world.dispose().catch(() => undefined);
     throw e;
   }

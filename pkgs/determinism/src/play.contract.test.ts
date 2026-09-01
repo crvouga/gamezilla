@@ -1,13 +1,8 @@
 import { describe, expect, test } from 'bun:test';
-import {
-  createSimClock,
-  createSimScheduler,
-  isSimPollable,
-  never,
-  playActionsOnWorld,
-  type SimPlayHost,
-  until,
-} from '../src/index';
+import { createSimClock } from './clock';
+import { playActions } from './play';
+import { createSimScheduler } from './scheduler';
+import { never, until } from './until';
 
 describe('until / never / play', () => {
   test('until returns now when predicate already true', async () => {
@@ -52,33 +47,18 @@ describe('until / never / play', () => {
     expect(clock.now()).toBeGreaterThanOrEqual(50);
   });
 
-  test('isSimPollable detects brand', () => {
-    const p = Object.assign(Promise.resolve(1), {
-      __simPoll: async () => true,
-    });
-    expect(isSimPollable(p)).toBe(true);
-    expect(isSimPollable(Promise.resolve(1))).toBe(false);
-  });
-
-  test('playActionsOnWorld order + invariant seed', async () => {
+  test('playActions dispatches in order then advances', async () => {
     const clock = createSimClock(0);
     const scheduler = createSimScheduler(clock);
-    const seen: number[] = [];
-    const host: SimPlayHost = {
-      seed: 0x42n,
-      runFor: (ms) => scheduler.runFor(ms),
-      checkInvariants: async () =>
-        seen.length > 1 ? { invariant: 'too-many', detail: 'boom' } : null,
-    };
-    await expect(
-      playActionsOnWorld({
-        host,
-        actions: [{ n: 1 }, { n: 2 }],
-        dispatch: async (a) => {
-          seen.push(a.n);
-        },
-      })
-    ).rejects.toThrow(/too-many seed=42/);
-    expect(seen).toEqual([1, 2]);
+    const seen: string[] = [];
+    await playActions({
+      advance: (ms) => scheduler.runFor(ms),
+      actions: [{ kind: 'a' }, { kind: 'b' }],
+      dispatch: async (a) => {
+        seen.push(a.kind);
+      },
+    });
+    expect(seen).toEqual(['a', 'b']);
+    expect(clock.now()).toBeGreaterThanOrEqual(20);
   });
 });

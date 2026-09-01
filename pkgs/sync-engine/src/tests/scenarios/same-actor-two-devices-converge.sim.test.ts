@@ -12,7 +12,7 @@ describe('same actor two devices converge', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const phone = await world.addClient({
       id: 'phone',
       actorId: 'user-1',

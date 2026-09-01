@@ -22,7 +22,7 @@ describe('oob empty hydrate heals via reconcile tick', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const client = await world.addClient({ id: 'alice' });
 
     expect(await isLiveNote(client.db, 'n-seed')).toBe(false);
@@ -46,7 +46,7 @@ describe('oob empty hydrate heals via reconcile tick', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 

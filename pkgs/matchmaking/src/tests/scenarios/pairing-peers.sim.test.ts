@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { openMatchmakingWorld } from '../../sim/system';
+import { openMatchmakingWorld, requireMmWorld } from '../../sim/system';
 import {
   expectMatched,
   NameAttr,
@@ -20,7 +20,8 @@ describe('matchmaking sim: pairing / peers', () => {
   });
 
   test('paired participants see the same matchId and each other as peers', async () => {
-    await using world = await openMatchmakingWorld({ seed: 20 });
+    await using host = await openMatchmakingWorld({ seed: 20 });
+    const world = requireMmWorld(host.state);
     const a = await world.join({
       data: { ...RatingAttr(1000), ...NameAttr('a') },
       formulas: [SimpleFormula],
@@ -43,7 +44,8 @@ describe('matchmaking sim: pairing / peers', () => {
   });
 
   test('three participants — only the closest pair matches', async () => {
-    await using world = await openMatchmakingWorld({ seed: 21 });
+    await using host = await openMatchmakingWorld({ seed: 21 });
+    const world = requireMmWorld(host.state);
     const a = await world.join({
       data: RatingAttr(1000),
       formulas: [SimpleFormula],

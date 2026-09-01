@@ -19,7 +19,7 @@ describe('account switch pool isolation', () => {
         rowImageFanout: false,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const acctA = await world.addClient({
       id: 'device-a',
       actorId: 'user-a',
@@ -92,7 +92,7 @@ describe('account switch pool isolation', () => {
         rowImageFanout: false,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const acctA = await world.addClient({
       id: 'device-a-race',
       actorId: 'user-a-race',
@@ -144,7 +144,7 @@ describe('account switch pool isolation', () => {
           rowImageFanout: false,
         },
       });
-      const world = syncFacade(host.system);
+      const world = syncFacade(host.state);
       const a = await world.addClient({ id: 'a', actorId: 'ua' });
       const b = await world.addClient({ id: 'b', actorId: 'ub' });
       const pool = createSyncEnginePool({

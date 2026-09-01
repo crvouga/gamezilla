@@ -10,38 +10,44 @@ import type {
   SimNodeId,
 } from './network';
 import type { NodeInstance } from './node-kind';
-import type { SimPlayHost } from './play';
-import type { SimScheduler } from './scheduler';
-import type { SimTrace } from './trace';
-import type { NeverOpts, UntilOpts, UntilTarget } from './until';
+import type { NeverOpts, UntilOpts } from './until';
 
 export type WorldNodes = {
   readonly byRole: Readonly<Record<string, readonly NodeInstance[]>>;
   readonly byId: ReadonlyMap<string, NodeInstance>;
 };
 
-export type World<S = unknown> = SimPlayHost & {
+export type World<S = unknown> = {
+  readonly seed: bigint;
   readonly deps: SimDeps;
   readonly clock: SimClock;
-  readonly scheduler: SimScheduler;
   readonly network: SimNetwork;
   readonly nodes: WorldNodes;
-  readonly system: S;
+  readonly state: S;
   readonly knobs: KnobCatalog<Record<string, JsonValue>>;
   readonly faults: FaultCatalog;
   readonly networkDefaults: SimNetFaultProfile;
   readonly startMs: number;
   node(role: string, id?: string): NodeInstance;
   roleIds(role: string): readonly string[];
+  /** Partition all endpoint pairs between two nodes. */
   partition(a: SimNodeId, b: SimNodeId): void;
   heal(a: SimNodeId, b: SimNodeId): void;
   healAll(): void;
   hold(key: SimNetKey): void;
   release(key: SimNetKey): void;
   releaseAll(): void;
-  runUntilIdle(stepMs?: number): Promise<void>;
-  until(target: UntilTarget, opts?: UntilOpts): Promise<number>;
-  never(target: UntilTarget, opts: NeverOpts): Promise<void>;
+  /** Advance virtual time by `ms` (fires due tasks). */
+  advance(ms: number): Promise<void>;
+  /** Drain the scheduler toward idle (framework-owned budget). */
+  idle(): Promise<void>;
+  until(
+    pred: () => boolean | Promise<boolean>,
+    opts?: UntilOpts
+  ): Promise<number>;
+  never(pred: () => boolean | Promise<boolean>, opts: NeverOpts): Promise<void>;
+  /** Run system.settle then system.invariants (throws on violation). */
+  settle(): Promise<void>;
   dispose(): Promise<void>;
   [Symbol.asyncDispose](): Promise<void>;
 };
@@ -51,5 +57,5 @@ export type OpenWorldOpts = {
   readonly knobs?: Partial<Record<string, JsonValue>>;
   readonly startMs?: number;
   readonly networkDefaults?: SimNetFaultProfile;
-  readonly trace?: boolean | SimTrace;
+  readonly trace?: boolean | import('./trace').SimTrace;
 };

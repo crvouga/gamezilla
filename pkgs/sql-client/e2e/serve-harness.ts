@@ -43,7 +43,19 @@ const mime: Record<string, string> = {
   '.html': 'text/html',
   '.js': 'text/javascript',
   '.css': 'text/css',
+  '.wasm': 'application/wasm',
 };
+
+/**
+ * expo-sqlite resolves its worker as `./worker` (no extension), so bare paths
+ * under `sql-workers/` must still be served with a script content type.
+ */
+function contentTypeFor(path: string): string {
+  const base = path.slice(path.lastIndexOf('/') + 1);
+  const dot = base.lastIndexOf('.');
+  if (dot < 0) return 'text/javascript';
+  return mime[base.slice(dot)] ?? 'application/octet-stream';
+}
 
 createServer((req, res) => {
   const url = new URL(req.url ?? '/', `http://127.0.0.1:${PORT}`);
@@ -55,9 +67,8 @@ createServer((req, res) => {
   }
   try {
     const file = readFileSync(join(outDir, path));
-    const ext = path.slice(path.lastIndexOf('.'));
     res.writeHead(200, {
-      'content-type': mime[ext] ?? 'application/octet-stream',
+      'content-type': contentTypeFor(path),
       'cross-origin-opener-policy': 'same-origin',
       'cross-origin-embedder-policy': 'require-corp',
     });

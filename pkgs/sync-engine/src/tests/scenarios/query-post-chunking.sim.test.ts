@@ -14,7 +14,7 @@ describe('query POST chunking', () => {
           clientCount: 0,
         },
       });
-      const world = syncFacade(host.system);
+      const world = syncFacade(host.state);
       const client = await world.addClient({ id: 'alice' });
       const subs = [];
       for (let i = 0; i < MAX_QUERY_BATCH + 1; i += 1) {

@@ -14,7 +14,7 @@ describe('scope hash stable under param key order', () => {
           clientCount: 0,
         },
       });
-      const world = syncFacade(host.system);
+      const world = syncFacade(host.state);
       const a = await world.addClient({ id: 'alice' });
       await a.mutate(setFolder, { id: 'f1', title: 'Folder' });
       await a.mutate(setNote, {

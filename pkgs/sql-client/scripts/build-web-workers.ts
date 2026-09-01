@@ -2,47 +2,56 @@
 
 import { copyFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import * as esbuild from 'esbuild';
+import {
+  expoSqliteWorkerEntry,
+  pkgRoot,
+  SQL_WORKERS_PUBLIC_PATH,
+  sqlHostEntry,
+  sqlHostHtml,
+  sqlHostSharedOptions,
+} from './sql-host-build';
 
-const here = dirname(fileURLToPath(import.meta.url));
-const pkgRoot = join(here, '..');
 const entry = join(pkgRoot, 'src/sqlite/web/db-host-shared-worker.ts');
-const wipeHtml = join(pkgRoot, 'src/sqlite/web/opfs-wipe.html');
-const wipeBoot = join(pkgRoot, 'src/sqlite/web/opfs-wipe-boot.js');
-const wipeEntry = join(pkgRoot, 'src/sqlite/web/opfs-wipe-entry.js');
 
-const workerTargets = [
-  join(
-    pkgRoot,
-    '../../apps/client/public/sql-workers/db-host-shared-worker.js'
-  ),
-  join(pkgRoot, 'e2e/public/sql-workers/db-host-shared-worker.js'),
+/** Every `sql-workers/` directory the built assets are published into. */
+export const sqlWorkerDirs = [
+  join(pkgRoot, '../../apps/client/public/sql-workers'),
+  join(pkgRoot, 'e2e/public/sql-workers'),
 ];
 
-const staticTargets = [
-  {
-    from: wipeHtml,
-    to: [
-      join(pkgRoot, '../../apps/client/public/sql-workers/opfs-wipe.html'),
-      join(pkgRoot, 'e2e/public/sql-workers/opfs-wipe.html'),
-    ],
-  },
-  {
-    from: wipeBoot,
-    to: [
-      join(pkgRoot, '../../apps/client/public/sql-workers/opfs-wipe-boot.js'),
-      join(pkgRoot, 'e2e/public/sql-workers/opfs-wipe-boot.js'),
-    ],
-  },
-  {
-    from: wipeEntry,
-    to: [
-      join(pkgRoot, '../../apps/client/public/sql-workers/opfs-wipe-entry.js'),
-      join(pkgRoot, 'e2e/public/sql-workers/opfs-wipe-entry.js'),
-    ],
-  },
-];
+const workerTargets = sqlWorkerDirs.map((dir) =>
+  join(dir, 'db-host-shared-worker.js')
+);
+
+const staticTargets = [{ from: sqlHostHtml, name: 'sql-host.html' }];
+
+/**
+ * expo-sqlite's web module hard-codes `new Worker(new URL('./worker', href))`,
+ * so the classic worker bundle must land at `<dir>/worker` (extensionless).
+ * The `.wasm` file loader also emits `wa-sqlite.wasm` into the same directory.
+ */
+async function buildExpoSqliteWorker(outDir: string): Promise<void> {
+  await esbuild.build({
+    ...sqlHostSharedOptions(),
+    entryPoints: [{ in: expoSqliteWorkerEntry, out: 'worker' }],
+    outdir: outDir,
+    format: 'iife',
+    loader: { '.wasm': 'file' },
+    assetNames: '[name]',
+    publicPath: SQL_WORKERS_PUBLIC_PATH,
+  });
+  copyFileSync(join(outDir, 'worker.js'), join(outDir, 'worker'));
+}
+
+async function buildSqlHost(outDir: string): Promise<void> {
+  await esbuild.build({
+    ...sqlHostSharedOptions(),
+    entryPoints: [sqlHostEntry],
+    outfile: join(outDir, 'sql-host.js'),
+    format: 'esm',
+  });
+}
 
 async function main(): Promise<void> {
   for (const outfile of workerTargets) {
@@ -58,9 +67,18 @@ async function main(): Promise<void> {
     });
     console.log(`wrote ${outfile}`);
   }
-  for (const { from, to } of staticTargets) {
-    for (const outfile of to) {
-      mkdirSync(dirname(outfile), { recursive: true });
+  for (const outDir of sqlWorkerDirs) {
+    mkdirSync(outDir, { recursive: true });
+    await buildSqlHost(outDir);
+    await buildExpoSqliteWorker(outDir);
+    console.log(
+      `wrote ${outDir}/{sql-host.js,worker,worker.js,wa-sqlite.wasm}`
+    );
+  }
+  for (const { from, name } of staticTargets) {
+    for (const outDir of sqlWorkerDirs) {
+      const outfile = join(outDir, name);
+      mkdirSync(outDir, { recursive: true });
       copyFileSync(from, outfile);
       console.log(`wrote ${outfile}`);
     }

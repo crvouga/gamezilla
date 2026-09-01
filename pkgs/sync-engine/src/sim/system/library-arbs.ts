@@ -24,7 +24,23 @@ export const MILD_NET_FAULTS = {
 } as const;
 
 type Arb = fc.Arbitrary<LibraryAction>;
-type PickClient = fc.Arbitrary<string>;
+
+export type LibraryArbCtx = {
+  readonly clientIds: readonly string[];
+  readonly sessionQuery: SimSessionQuery;
+};
+
+/** Resolved per-world inputs shared by every library-action arbitrary. */
+type ArbInputs = {
+  readonly ids: readonly string[];
+  readonly pick: fc.Arbitrary<string>;
+  readonly sessionQuery: SimSessionQuery;
+};
+
+export type LibraryArbEntry = {
+  readonly kind: LibraryAction['kind'];
+  readonly make: (inputs: ArbInputs) => Arb;
+};
 
 const trafficArb = fc.constantFrom(...HOLD_TRAFFIC);
 
@@ -52,184 +68,307 @@ const CONNECTIVITY_KINDS = [
   'foreground',
 ] as const;
 
-function connectivityArbs(pick: PickClient): Arb[] {
-  return CONNECTIVITY_KINDS.map((kind) =>
-    pick.map((clientId): LibraryAction => ({ kind, clientId }))
-  );
+const CONNECTIVITY_ENTRIES: readonly LibraryArbEntry[] = CONNECTIVITY_KINDS.map(
+  (kind) => ({
+    kind,
+    make: ({ pick }) =>
+      pick.map((clientId): LibraryAction => ({ kind, clientId })),
+  })
+);
+
+function nodeAndTraffic({ pick }: ArbInputs) {
+  return fc.tuple(pick, trafficArb);
 }
 
-function networkArbs(pick: PickClient): Arb[] {
-  const nodeAndTraffic = fc.tuple(pick, trafficArb);
-  return [
-    nodeAndTraffic.map(
-      ([nodeId, traffic]): LibraryAction => ({
-        kind: 'partition',
-        nodeId,
-        traffic,
-      })
-    ),
-    nodeAndTraffic.map(
-      ([nodeId, traffic]): LibraryAction => ({ kind: 'hold', nodeId, traffic })
-    ),
-    nodeAndTraffic.map(
-      ([nodeId, traffic]): LibraryAction => ({
-        kind: 'release',
-        nodeId,
-        traffic,
-      })
-    ),
-    fc.constant<LibraryAction>({ kind: 'heal' }),
-    fc.integer({ min: 1, max: 40 }).map(
-      (ms): LibraryAction => ({
-        kind: 'idle',
-        ms,
-      })
-    ),
-    nodeAndTraffic.map(
-      ([nodeId, traffic]): LibraryAction => ({
-        kind: 'setFaults',
-        nodeId,
-        traffic,
-        faults: MILD_NET_FAULTS,
-      })
-    ),
-  ];
-}
-
-function boundaryFaultArbs(pick: PickClient): Arb[] {
-  return [
-    fc.tuple(pick, fc.constantFrom(...HTTP_FAULTS)).map(
-      ([clientId, fault]): LibraryAction => ({
-        kind: 'armHttpFault',
-        clientId,
-        fault,
-      })
-    ),
-    fc.tuple(pick, fc.constantFrom(...WORLD_PBT_CRASH_EVENTS)).map(
-      ([clientId, event]): LibraryAction => ({
-        kind: 'armCrashAt',
-        clientId,
-        event,
-      })
-    ),
-    fc
-      .constantFrom(1, 2, 'next' as const)
-      .map((count): LibraryAction => ({ kind: 'publishFault', count })),
-    fc.tuple(pick, fc.constantFrom(...AUTH_STATUSES)).map(
-      ([clientId, status]): LibraryAction => ({
-        kind: 'auth',
-        clientId,
-        status,
-      })
-    ),
-    fc
-      .constantFrom(...PUBSUB_FAULTS)
-      .map((fault): LibraryAction => ({ kind: 'armPubsubFault', fault })),
-    fc.constantFrom(...CORRUPTION_VARIANTS).map(
-      (variant): LibraryAction => ({
-        kind: 'armPubsubFault',
-        fault: { kind: 'corruptPubsubPayload', variant },
-      })
-    ),
-  ];
-}
-
-function lifecycleArbs(args: {
-  readonly ids: readonly string[];
-  readonly pick: PickClient;
-  readonly sessionQuery: SimSessionQuery;
-}): Arb[] {
-  const { ids, pick, sessionQuery } = args;
-  return [
-    pick.map((clientId): LibraryAction => ({ kind: 'crash', clientId })),
-    pick.map((clientId): LibraryAction => ({ kind: 'restart', clientId })),
-    pick.map(
-      (clientId): LibraryAction => ({
-        kind: 'clearLocalData',
-        clientId,
-        reason: 'pbt',
-      })
-    ),
-    pick.map(
-      (clientId): LibraryAction => ({
-        kind: 'subscribe',
-        clientId,
-        queryName: sessionQuery.name,
-        params: sessionQuery.params,
-      })
-    ),
-    fc.constant<LibraryAction>({ kind: 'serverCrash' }),
-    fc.constant<LibraryAction>({ kind: 'serverRestart' }),
-    fc
-      .tuple(
-        fc.constantFrom(...ids, 'server'),
-        fc.constantFrom(...SKEW_MS_VALUES)
-      )
-      .map(
-        ([nodeId, skewMs]): LibraryAction => ({
-          kind: 'skew',
+const NETWORK_ENTRIES: readonly LibraryArbEntry[] = [
+  {
+    kind: 'partition',
+    make: (inputs) =>
+      nodeAndTraffic(inputs).map(
+        ([nodeId, traffic]): LibraryAction => ({
+          kind: 'partition',
           nodeId,
-          skewMs,
+          traffic,
         })
       ),
-  ];
+  },
+  {
+    kind: 'hold',
+    make: (inputs) =>
+      nodeAndTraffic(inputs).map(
+        ([nodeId, traffic]): LibraryAction => ({
+          kind: 'hold',
+          nodeId,
+          traffic,
+        })
+      ),
+  },
+  {
+    kind: 'release',
+    make: (inputs) =>
+      nodeAndTraffic(inputs).map(
+        ([nodeId, traffic]): LibraryAction => ({
+          kind: 'release',
+          nodeId,
+          traffic,
+        })
+      ),
+  },
+  { kind: 'heal', make: () => fc.constant<LibraryAction>({ kind: 'heal' }) },
+  {
+    kind: 'idle',
+    make: () =>
+      fc
+        .integer({ min: 1, max: 40 })
+        .map((ms): LibraryAction => ({ kind: 'idle', ms })),
+  },
+  {
+    kind: 'setFaults',
+    make: (inputs) =>
+      nodeAndTraffic(inputs).map(
+        ([nodeId, traffic]): LibraryAction => ({
+          kind: 'setFaults',
+          nodeId,
+          traffic,
+          faults: MILD_NET_FAULTS,
+        })
+      ),
+  },
+];
+
+const BOUNDARY_FAULT_ENTRIES: readonly LibraryArbEntry[] = [
+  {
+    kind: 'armHttpFault',
+    make: ({ pick }) =>
+      fc.tuple(pick, fc.constantFrom(...HTTP_FAULTS)).map(
+        ([clientId, fault]): LibraryAction => ({
+          kind: 'armHttpFault',
+          clientId,
+          fault,
+        })
+      ),
+  },
+  {
+    kind: 'armCrashAt',
+    make: ({ pick }) =>
+      fc.tuple(pick, fc.constantFrom(...WORLD_PBT_CRASH_EVENTS)).map(
+        ([clientId, event]): LibraryAction => ({
+          kind: 'armCrashAt',
+          clientId,
+          event,
+        })
+      ),
+  },
+  {
+    kind: 'publishFault',
+    make: () =>
+      fc
+        .constantFrom(1, 2, 'next' as const)
+        .map((count): LibraryAction => ({ kind: 'publishFault', count })),
+  },
+  {
+    kind: 'auth',
+    make: ({ pick }) =>
+      fc.tuple(pick, fc.constantFrom(...AUTH_STATUSES)).map(
+        ([clientId, status]): LibraryAction => ({
+          kind: 'auth',
+          clientId,
+          status,
+        })
+      ),
+  },
+  {
+    kind: 'armPubsubFault',
+    make: () =>
+      fc.oneof(
+        fc
+          .constantFrom(...PUBSUB_FAULTS)
+          .map((fault): LibraryAction => ({ kind: 'armPubsubFault', fault })),
+        fc.constantFrom(...CORRUPTION_VARIANTS).map(
+          (variant): LibraryAction => ({
+            kind: 'armPubsubFault',
+            fault: { kind: 'corruptPubsubPayload', variant },
+          })
+        )
+      ),
+  },
+];
+
+const LIFECYCLE_ENTRIES: readonly LibraryArbEntry[] = [
+  {
+    kind: 'crash',
+    make: ({ pick }) =>
+      pick.map((clientId): LibraryAction => ({ kind: 'crash', clientId })),
+  },
+  {
+    kind: 'restart',
+    make: ({ pick }) =>
+      pick.map((clientId): LibraryAction => ({ kind: 'restart', clientId })),
+  },
+  {
+    kind: 'clearLocalData',
+    make: ({ pick }) =>
+      pick.map(
+        (clientId): LibraryAction => ({
+          kind: 'clearLocalData',
+          clientId,
+          reason: 'pbt',
+        })
+      ),
+  },
+  {
+    kind: 'subscribe',
+    make: ({ pick, sessionQuery }) =>
+      pick.map(
+        (clientId): LibraryAction => ({
+          kind: 'subscribe',
+          clientId,
+          queryName: sessionQuery.name,
+          params: sessionQuery.params,
+        })
+      ),
+  },
+  {
+    kind: 'serverCrash',
+    make: () => fc.constant<LibraryAction>({ kind: 'serverCrash' }),
+  },
+  {
+    kind: 'serverRestart',
+    make: () => fc.constant<LibraryAction>({ kind: 'serverRestart' }),
+  },
+  {
+    kind: 'skew',
+    make: ({ ids }) =>
+      fc
+        .tuple(
+          fc.constantFrom(...ids, 'server'),
+          fc.constantFrom(...SKEW_MS_VALUES)
+        )
+        .map(
+          ([nodeId, skewMs]): LibraryAction => ({
+            kind: 'skew',
+            nodeId,
+            skewMs,
+          })
+        ),
+  },
+];
+
+const CHAOS_ENTRIES: readonly LibraryArbEntry[] = [
+  {
+    kind: 'tamperLocalStorage',
+    make: ({ pick }) =>
+      fc.tuple(pick, fc.constantFrom(...STORAGE_TAMPERS)).map(
+        ([clientId, tamper]): LibraryAction => ({
+          kind: 'tamperLocalStorage',
+          clientId,
+          tamper,
+        })
+      ),
+  },
+  {
+    kind: 'armStoragePressure',
+    make: ({ pick }) =>
+      fc.tuple(pick, fc.constantFrom(...STORAGE_PRESSURES)).map(
+        ([clientId, pressure]): LibraryAction => ({
+          kind: 'armStoragePressure',
+          clientId,
+          pressure,
+        })
+      ),
+  },
+  {
+    kind: 'restartWithSchema',
+    make: ({ pick }) =>
+      fc.tuple(pick, fc.constantFrom(...SCHEMA_VARIANTS)).map(
+        ([clientId, variant]): LibraryAction => ({
+          kind: 'restartWithSchema',
+          clientId,
+          variant,
+        })
+      ),
+  },
+  {
+    kind: 'protocolCut',
+    make: ({ pick }) =>
+      pick.map(
+        (clientId): LibraryAction => ({ kind: 'protocolCut', clientId })
+      ),
+  },
+  {
+    kind: 'brokerCrash',
+    make: () => fc.constant<LibraryAction>({ kind: 'brokerCrash' }),
+  },
+  {
+    kind: 'brokerRestart',
+    make: () => fc.constant<LibraryAction>({ kind: 'brokerRestart' }),
+  },
+  {
+    kind: 'pruneServerArtifacts',
+    make: () =>
+      fc.constant<LibraryAction>({
+        kind: 'pruneServerArtifacts',
+        olderThanMs: -1_000_000,
+      }),
+  },
+  {
+    kind: 'failNextOpen',
+    make: ({ pick }) =>
+      pick.map(
+        (clientId): LibraryAction => ({ kind: 'failNextOpen', clientId })
+      ),
+  },
+  {
+    kind: 'freeze',
+    make: ({ pick }) =>
+      pick.map((clientId): LibraryAction => ({ kind: 'freeze', clientId })),
+  },
+  {
+    kind: 'thaw',
+    make: ({ pick }) =>
+      pick.map((clientId): LibraryAction => ({ kind: 'thaw', clientId })),
+  },
+  {
+    kind: 'addPeerEngine',
+    make: ({ ids, pick }) =>
+      pick.map(
+        (donor): LibraryAction => ({
+          kind: 'addPeerEngine',
+          clientId: nextPeerEngineId(ids),
+          shareWithClientId: donor,
+        })
+      ),
+  },
+];
+
+/** One entry per {@link LibraryAction} kind — framework actions map 1:1. */
+export const LIBRARY_ARB_ENTRIES: readonly LibraryArbEntry[] = [
+  ...CONNECTIVITY_ENTRIES,
+  ...NETWORK_ENTRIES,
+  ...BOUNDARY_FAULT_ENTRIES,
+  ...LIFECYCLE_ENTRIES,
+  ...CHAOS_ENTRIES,
+];
+
+function resolveArbInputs(ctx: LibraryArbCtx): ArbInputs {
+  const ids = defaultClientIds(ctx.clientIds);
+  return {
+    ids,
+    pick: fc.constantFrom(...ids),
+    sessionQuery: ctx.sessionQuery,
+  };
 }
 
-function chaosArbs(ids: readonly string[], pick: PickClient): Arb[] {
-  return [
-    fc.tuple(pick, fc.constantFrom(...STORAGE_TAMPERS)).map(
-      ([clientId, tamper]): LibraryAction => ({
-        kind: 'tamperLocalStorage',
-        clientId,
-        tamper,
-      })
-    ),
-    fc.tuple(pick, fc.constantFrom(...STORAGE_PRESSURES)).map(
-      ([clientId, pressure]): LibraryAction => ({
-        kind: 'armStoragePressure',
-        clientId,
-        pressure,
-      })
-    ),
-    fc.tuple(pick, fc.constantFrom(...SCHEMA_VARIANTS)).map(
-      ([clientId, variant]): LibraryAction => ({
-        kind: 'restartWithSchema',
-        clientId,
-        variant,
-      })
-    ),
-    pick.map((clientId): LibraryAction => ({ kind: 'protocolCut', clientId })),
-    fc.constant<LibraryAction>({ kind: 'brokerCrash' }),
-    fc.constant<LibraryAction>({ kind: 'brokerRestart' }),
-    fc.constant<LibraryAction>({
-      kind: 'pruneServerArtifacts',
-      olderThanMs: -1_000_000,
-    }),
-    pick.map((clientId): LibraryAction => ({ kind: 'failNextOpen', clientId })),
-    pick.map((clientId): LibraryAction => ({ kind: 'freeze', clientId })),
-    pick.map((clientId): LibraryAction => ({ kind: 'thaw', clientId })),
-    pick.map(
-      (donor): LibraryAction => ({
-        kind: 'addPeerEngine',
-        clientId: nextPeerEngineId(ids),
-        shareWithClientId: donor,
-      })
-    ),
-  ];
+/** Arbitrary for one library-action kind. */
+export function libraryActionArb(
+  entry: LibraryArbEntry,
+  ctx: LibraryArbCtx
+): Arb {
+  return entry.make(resolveArbInputs(ctx));
 }
 
 /** Every {@link LibraryAction} shape, one arbitrary per shape. */
-export function libraryActionArbs(ctx: {
-  readonly clientIds: readonly string[];
-  readonly sessionQuery: SimSessionQuery;
-}): Arb[] {
-  const ids = defaultClientIds(ctx.clientIds);
-  const pick = fc.constantFrom(...ids);
-  return [
-    ...connectivityArbs(pick),
-    ...networkArbs(pick),
-    ...boundaryFaultArbs(pick),
-    ...lifecycleArbs({ ids, pick, sessionQuery: ctx.sessionQuery }),
-    ...chaosArbs(ids, pick),
-  ];
+export function libraryActionArbs(ctx: LibraryArbCtx): Arb[] {
+  const inputs = resolveArbInputs(ctx);
+  return LIBRARY_ARB_ENTRIES.map((entry) => entry.make(inputs));
 }

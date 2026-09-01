@@ -40,7 +40,7 @@ describe('room armCrashAt slice PBT', () => {
                 { kind: 'idle', ms: 30 },
               ],
             });
-            const real = roomWorld(world.system);
+            const real = roomWorld(world.state);
             try {
               // Restart clears the node but a lingering afterNextWelcome arm
               // would crash again on the reconnect welcome — clear arms first.

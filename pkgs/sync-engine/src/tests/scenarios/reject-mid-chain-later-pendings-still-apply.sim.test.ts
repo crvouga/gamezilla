@@ -18,7 +18,7 @@ describe('reject mid chain later pendings still apply', () => {
         rowImageFanout: false,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 

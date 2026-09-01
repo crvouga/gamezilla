@@ -5,6 +5,8 @@ import { postgres } from '../../postgres/driver';
 import { sqlite } from '../../sqlite/driver';
 import { type SchemaVersion, schemaAt } from './schemas';
 
+export const SCHEMA_SERVER_ID = 'server';
+
 export type PeerKind = 'server' | 'client';
 
 export type SchemaPeer = {

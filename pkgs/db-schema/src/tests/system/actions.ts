@@ -1,4 +1,7 @@
+import { type ActionArbContext, defineAction } from '@pkgs/determinism';
 import fc from 'fast-check';
+import { applyAdvance, applyForbidden } from './dispatch';
+import { SCHEMA_SERVER_ID, type SchemaSystem } from './peers';
 import { MAX_SCHEMA_VERSION, type SchemaVersion } from './schemas';
 
 export type AdvanceAction = {
@@ -12,25 +15,50 @@ export type ForbiddenAction = { readonly kind: 'forbidden' };
 
 export type SchemaAction = AdvanceAction | ForbiddenAction;
 
-export function arbAdvance(
-  peerIds: readonly string[]
-): fc.Arbitrary<AdvanceAction> {
-  return fc.record({
-    kind: fc.constant('advance' as const),
-    target: fc.constantFrom(...peerIds),
-    to: fc.integer({
-      min: 0,
-      max: MAX_SCHEMA_VERSION,
-    }) as fc.Arbitrary<SchemaVersion>,
-  });
+export type SchemaModel = Record<string, never>;
+
+function peerIds(ctx: ActionArbContext): readonly string[] {
+  return [SCHEMA_SERVER_ID, ...ctx.roleIds('client')];
 }
 
-export function arbForbidden(): fc.Arbitrary<ForbiddenAction> {
-  return fc.constant({ kind: 'forbidden' as const });
-}
+export const advanceAction = defineAction<
+  SchemaSystem,
+  AdvanceAction,
+  SchemaModel
+>({
+  kind: 'advance',
+  class: 'domain',
+  arb: (ctx) => {
+    const ids = peerIds(ctx);
+    const target =
+      ids.length === 0
+        ? fc.constant(SCHEMA_SERVER_ID)
+        : fc.constantFrom(...ids);
+    return fc.record({
+      kind: fc.constant('advance' as const),
+      target,
+      to: fc.integer({
+        min: 0,
+        max: MAX_SCHEMA_VERSION,
+      }) as fc.Arbitrary<SchemaVersion>,
+    });
+  },
+  dispatch: async (world, action) => {
+    await applyAdvance(world, action.target, action.to);
+  },
+});
 
-export function arbSchemaActions(
-  peerIds: readonly string[]
-): readonly fc.Arbitrary<SchemaAction>[] {
-  return [arbAdvance(peerIds), arbForbidden()];
-}
+export const forbiddenAction = defineAction<
+  SchemaSystem,
+  ForbiddenAction,
+  SchemaModel
+>({
+  kind: 'forbidden',
+  class: 'domain',
+  arb: () => fc.constant({ kind: 'forbidden' as const }),
+  dispatch: async (world) => {
+    await applyForbidden(world);
+  },
+});
+
+export const SCHEMA_ACTIONS = [advanceAction, forbiddenAction] as const;

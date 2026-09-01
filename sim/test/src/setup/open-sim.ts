@@ -191,7 +191,7 @@ async function bootSim(fidelity: OpenSimFidelity): Promise<{
   };
   const system = defineProductSystem(createOpts);
   const host = await openWorld(system, { seed: 1, startMs });
-  return { sim: requireSim(host.system), host };
+  return { sim: requireSim(host.state), host };
 }
 
 function createSimReporter(

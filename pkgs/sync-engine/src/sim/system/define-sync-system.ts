@@ -1,11 +1,11 @@
 import {
-  defineLibrary,
+  type ActionDef,
+  defineAction,
+  defineKnob,
   defineSystem,
-  defineSystemKnob,
-  type JsonValue,
-  playActionsOnWorld,
+  type KnobDef,
+  type SystemAction,
   type SystemDef,
-  type SystemKnobDef,
   type World,
 } from '@pkgs/determinism';
 import fc from 'fast-check';
@@ -17,15 +17,13 @@ import type { SimSessionQuery } from '../domain-pack';
 import { RELIABLE_FAULTS } from '../faults';
 import { toKernelFaults } from '../network';
 import type { SyncAction } from './actions';
-import { isLibraryAction } from './actions';
 import type { SyncApp } from './app';
-import { libraryActionArbs } from './library-arbs';
 import {
-  SYNC_BROKER,
-  SYNC_CLIENT,
-  SYNC_SERVER,
-  SYNC_WARMUP,
-} from './node-kinds';
+  LIBRARY_ARB_ENTRIES,
+  type LibraryArbEntry,
+  libraryActionArb,
+} from './library-arbs';
+import { SYNC_BROKER, SYNC_CLIENT, SYNC_SERVER } from './node-kinds';
 import {
   createReplayRestartState,
   prepareClientsForConverge,
@@ -42,39 +40,46 @@ import {
 } from './world-model';
 
 const WORLD_START_MS = 1_700_000_000_000;
+const PLAY_STEP_MS = 10;
+/** Post-topology settle window so clients finish initial hydration. */
+const PREPARE_HYDRATION_MS = 200;
 
 export type SyncSystemWorld = World<SyncSystem>;
-export type SyncSystemDef = SystemDef<SyncSystem>;
+export type SyncSystemDef = SystemDef<SyncSystem, WorldModel>;
+
+type SyncActionDef = ActionDef<SyncSystem, SystemAction, WorldModel>;
 
 /** {@link WorldKnobs} as framework knob defs (id + default + arbitrary). */
-export const SYNC_SYSTEM_KNOBS: readonly SystemKnobDef[] = [
-  defineSystemKnob({ id: 'rowImageFanout', default: true, arb: fc.boolean() }),
-  defineSystemKnob({
+export const SYNC_SYSTEM_KNOBS: readonly KnobDef[] = [
+  defineKnob({ id: 'rowImageFanout', default: true, arb: fc.boolean() }),
+  defineKnob({
     id: 'liveResendOnReconnect',
     default: false,
     arb: fc.boolean(),
   }),
-  defineSystemKnob({
+  defineKnob({
     id: 'bufferOutboundLive',
     default: false,
     arb: fc.boolean(),
   }),
-  defineSystemKnob({
+  defineKnob({
     id: 'clientCount',
     default: 2,
     arb: fc.integer({ min: 2, max: 3 }),
   }),
 ];
 
-function asJsonArb<T>(arb: fc.Arbitrary<T>): fc.Arbitrary<JsonValue> {
-  return arb as unknown as fc.Arbitrary<JsonValue>;
+function asSystemActionArb<T>(
+  arb: fc.Arbitrary<T>
+): fc.Arbitrary<SystemAction> {
+  return arb as unknown as fc.Arbitrary<SystemAction>;
 }
 
 async function dispatchSync(
   world: SyncSystemWorld,
-  action: JsonValue
+  action: SystemAction
 ): Promise<void> {
-  const system = world.system;
+  const system = world.state;
   await replayStep({
     world: requireFacade(system),
     app: system.app,
@@ -84,7 +89,7 @@ async function dispatchSync(
 }
 
 async function syncPrepareConverge(world: SyncSystemWorld): Promise<void> {
-  const system = world.system;
+  const system = world.state;
   const facade = requireFacade(system);
   await prepareClientsForConverge(
     system.app,
@@ -96,67 +101,105 @@ async function syncPrepareConverge(world: SyncSystemWorld): Promise<void> {
 }
 
 /**
- * Replay DST actions against an already-open sync world. Scripted pins that
- * also poke clients imperatively use this; pure scripts use `replay`.
+ * Replay DST actions against an already-open sync world (dispatch, invariant
+ * check, small step advance, then converge prep). Scripted pins that also
+ * poke clients imperatively use this; pure scripts use `replaySync`.
  */
 export async function playSyncActions(
   world: SyncSystemWorld,
   actions: readonly SyncAction[]
 ): Promise<void> {
-  await playActionsOnWorld<JsonValue>({
-    host: world,
-    actions: actions as unknown as readonly JsonValue[],
-    dispatch: (action) => dispatchSync(world, action),
-    prepareConverge: () => syncPrepareConverge(world),
-  });
-}
-
-function syncLibrary(app: SyncApp) {
-  return defineLibrary<SyncSystem>({
-    kind: 'library',
-    match: (action) => isLibraryAction(action as unknown as SyncAction),
-    arb: (ctx) =>
-      fc.oneof(
-        ...libraryActionArbs({
-          clientIds: ctx.roleIds('client'),
-          sessionQuery: app.pack.sessionQuery,
-        }).map(asJsonArb)
-      ),
-    dispatch: dispatchSync,
-  });
-}
-
-function syncDomainArbs(
-  app: SyncApp,
-  clientIds: readonly string[]
-): readonly fc.Arbitrary<JsonValue>[] {
-  const domain = app
-    .domainOpArbs({ clientIds })
-    .map((arbitrary) => ({ arbitrary: asJsonArb(arbitrary), weight: 2 }));
-  const server = (app.serverOpArbs?.({ clientIds }) ?? []).map((arbitrary) => ({
-    arbitrary: asJsonArb(arbitrary),
-    weight: 1,
-  }));
-  return [fc.oneof(...domain, ...server)];
-}
-
-function syncModel(app: SyncApp) {
-  return {
-    initial: (): object => initialWorldModel(app, CLIENT_IDS),
-    allows: (model: object, action: JsonValue): boolean =>
-      modelAllowsAction(
-        app,
-        model as WorldModel,
-        action as unknown as SyncAction
-      ),
-    apply: (model: object, action: JsonValue): void => {
-      applyActionToModel(
-        app,
-        model as WorldModel,
-        action as unknown as SyncAction
+  const facade = requireFacade(world.state);
+  for (const action of actions) {
+    await dispatchSync(world, action as unknown as SystemAction);
+    const inv = await facade.checkInvariants();
+    if (inv !== null) {
+      throw new Error(
+        `${inv.invariant} seed=${world.seed.toString(16)}: ${inv.detail}`
       );
+    }
+    await facade.runFor(PLAY_STEP_MS);
+  }
+  await syncPrepareConverge(world);
+}
+
+type ModelHooks = Pick<SyncActionDef, 'allows' | 'apply'>;
+
+function modelHooks(app: SyncApp): ModelHooks {
+  return {
+    allows: (model, action) =>
+      modelAllowsAction(app, model, action as unknown as SyncAction),
+    apply: (model, action) => {
+      applyActionToModel(app, model, action as unknown as SyncAction);
     },
   };
+}
+
+function libraryAction(
+  sessionQuery: SimSessionQuery,
+  entry: LibraryArbEntry,
+  hooks: ModelHooks
+): SyncActionDef {
+  return defineAction<SyncSystem, SystemAction, WorldModel>({
+    kind: entry.kind,
+    class: 'library',
+    arb: (ctx) =>
+      asSystemActionArb(
+        libraryActionArb(entry, {
+          clientIds: ctx.roleIds('client'),
+          sessionQuery,
+        })
+      ),
+    dispatch: dispatchSync,
+    ...hooks,
+  });
+}
+
+function domainAction(app: SyncApp, hooks: ModelHooks): SyncActionDef {
+  return defineAction<SyncSystem, SystemAction, WorldModel>({
+    kind: 'domain',
+    class: 'domain',
+    arb: (ctx) =>
+      fc.oneof(
+        ...app
+          .domainOpArbs({ clientIds: ctx.roleIds('client') })
+          .map(asSystemActionArb)
+      ),
+    dispatch: dispatchSync,
+    ...hooks,
+  });
+}
+
+function serverAction(app: SyncApp, hooks: ModelHooks): SyncActionDef | null {
+  const serverOpArbs = app.serverOpArbs;
+  if (serverOpArbs === undefined) return null;
+  return defineAction<SyncSystem, SystemAction, WorldModel>({
+    kind: 'server',
+    class: 'domain',
+    arb: (ctx) =>
+      fc.oneof(
+        ...serverOpArbs({ clientIds: ctx.roleIds('client') }).map(
+          asSystemActionArb
+        )
+      ),
+    dispatch: dispatchSync,
+    ...hooks,
+  });
+}
+
+function syncActions(
+  app: SyncApp,
+  sessionQuery: SimSessionQuery
+): readonly SyncActionDef[] {
+  const hooks = modelHooks(app);
+  const server = serverAction(app, hooks);
+  return [
+    ...LIBRARY_ARB_ENTRIES.map((entry) =>
+      libraryAction(sessionQuery, entry, hooks)
+    ),
+    domainAction(app, hooks),
+    ...(server !== null ? [server] : []),
+  ];
 }
 
 export type DefineSyncSystemOpts = {
@@ -169,6 +212,32 @@ export type DefineSyncSystemOpts = {
   readonly queryRegistry?: QueryRegistry;
 };
 
+function initialSyncSystem(
+  app: SyncApp,
+  opts?: DefineSyncSystemOpts
+): SyncSystem {
+  return {
+    app,
+    ...(opts?.sessionQuery !== undefined
+      ? { sessionQuery: opts.sessionQuery }
+      : {}),
+    ...(opts?.localSchema !== undefined
+      ? { localSchema: opts.localSchema }
+      : {}),
+    ...(opts?.mutationRegistry !== undefined
+      ? { mutationRegistry: opts.mutationRegistry }
+      : {}),
+    ...(opts?.queryRegistry !== undefined
+      ? { queryRegistry: opts.queryRegistry }
+      : {}),
+    replay: createReplayRestartState(),
+    worldArgs: null,
+    infra: null,
+    kernel: null,
+    facade: null,
+  };
+}
+
 /**
  * Framework-owned sync world: broker + server + N clients booted by
  * `@pkgs/determinism` node kinds, with the full library/domain action pool.
@@ -177,7 +246,8 @@ export function defineSyncSystem(
   app: SyncApp,
   opts?: DefineSyncSystemOpts
 ): SyncSystemDef {
-  return defineSystem<SyncSystem>({
+  const sessionQuery = opts?.sessionQuery ?? app.pack.sessionQuery;
+  return defineSystem<SyncSystem, WorldModel>({
     id: opts?.id ?? 'sync.world',
     startMs: WORLD_START_MS,
     network: { defaults: toKernelFaults(RELIABLE_FAULTS) },
@@ -191,38 +261,19 @@ export function defineSyncSystem(
         countFromKnob: 'clientCount',
         idFor: (i) => `c${i}`,
       },
-      { kind: SYNC_WARMUP, role: 'warmup', count: 1 },
     ],
-    system: (): SyncSystem => ({
-      app,
-      ...(opts?.sessionQuery !== undefined
-        ? { sessionQuery: opts.sessionQuery }
-        : {}),
-      ...(opts?.localSchema !== undefined
-        ? { localSchema: opts.localSchema }
-        : {}),
-      ...(opts?.mutationRegistry !== undefined
-        ? { mutationRegistry: opts.mutationRegistry }
-        : {}),
-      ...(opts?.queryRegistry !== undefined
-        ? { queryRegistry: opts.queryRegistry }
-        : {}),
-      replay: createReplayRestartState(),
-      worldArgs: null,
-      infra: null,
-      kernel: null,
-      facade: null,
-    }),
-    library: [syncLibrary(app)],
-    domain: {
-      arbs: (ctx) => syncDomainArbs(app, ctx.roleIds('client')),
-      dispatch: dispatchSync,
+    state: () => initialSyncSystem(app, opts),
+    actions: syncActions(app, sessionQuery),
+    model: {
+      initial: (): WorldModel => initialWorldModel(app, CLIENT_IDS),
     },
-    model: syncModel(app),
-    checkInvariants: (world) => requireFacade(world.system).checkInvariants(),
-    prepareConverge: syncPrepareConverge,
+    prepare: async (world) => {
+      await requireFacade(world.state).runFor(PREPARE_HYDRATION_MS);
+    },
     settle: async (world) => {
-      await requireFacade(world.system).assertConverged();
+      await syncPrepareConverge(world);
+      await requireFacade(world.state).assertConverged();
     },
+    invariants: (world) => requireFacade(world.state).checkInvariants(),
   });
 }

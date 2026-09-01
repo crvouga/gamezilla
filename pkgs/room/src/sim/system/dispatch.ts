@@ -52,6 +52,12 @@ const LIBRARY_HANDLERS: {
     await world.node(action.clientId).crash();
   },
   restart: async (world, action) => {
+    // A replayed `restart` only observes recovery if the node is down first
+    // (recorded/model state may disagree with the live world).
+    const c = world.clients.get(action.clientId);
+    if (c !== undefined && !c.isCrashed()) {
+      await world.node(action.clientId).crash();
+    }
     await world.node(action.clientId).restart();
   },
   serverCrash: async (world) => {

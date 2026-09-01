@@ -18,7 +18,7 @@ describe('optimistic push rejected server side heals', () => {
         bufferOutboundLive: true,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 

@@ -11,16 +11,6 @@ export type NeverOpts = {
   readonly stepMs?: number;
 };
 
-/** Promise brand used by sync client.outcome() — polled each until step. */
-export type SimPollablePromise<T> = Promise<T> & {
-  readonly __simPoll: () => Promise<boolean>;
-};
-
-export type UntilTarget =
-  | (() => boolean | Promise<boolean>)
-  | Promise<unknown>
-  | SimPollablePromise<unknown>;
-
 export type UntilContext = {
   readonly clock: SimClock;
   readonly scheduler: SimScheduler;
@@ -28,88 +18,26 @@ export type UntilContext = {
   readonly heldSummary?: () => readonly string[];
 };
 
-export function isSimPollable(
-  value: unknown
-): value is SimPollablePromise<unknown> {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    typeof (value as SimPollablePromise<unknown>).__simPoll === 'function'
-  );
-}
-
-async function targetReady(target: UntilTarget): Promise<boolean> {
-  if (typeof target === 'function') {
-    return Boolean(await target());
-  }
-  if (isSimPollable(target)) {
-    return target.__simPoll();
-  }
-  return false;
-}
-
-function promiseSettledFlag(target: Promise<unknown>): {
-  readonly done: () => boolean;
-  readonly settled: Promise<unknown>;
-} {
-  let done = false;
-  const settled = Promise.resolve(target).finally(() => {
-    done = true;
-  });
-  return { done: () => done, settled };
-}
-
-type TargetWatch = {
-  readonly ready: () => Promise<boolean>;
-  readonly settle: () => Promise<void>;
-};
-
-function watchTarget(target: UntilTarget): TargetWatch {
-  let awaitable: Promise<unknown> | null = null;
-  let plainDone: (() => boolean) | null = null;
-  if (typeof target !== 'function' && !isSimPollable(target)) {
-    const flag = promiseSettledFlag(target);
-    awaitable = flag.settled;
-    plainDone = flag.done;
-  } else if (typeof target !== 'function') {
-    awaitable = target;
-  }
-
-  return {
-    ready: async () => {
-      if (plainDone !== null) return plainDone();
-      return targetReady(target);
-    },
-    settle: (): Promise<void> => {
-      if (awaitable === null) return Promise.resolve();
-      return awaitable.then(() => undefined);
-    },
-  };
-}
-
 /**
- * Advance virtual time until `target` is satisfied. Returns completion timestamp.
+ * Advance virtual time until `pred` is true. Returns completion timestamp.
  */
 export async function until(
   ctx: UntilContext,
-  target: UntilTarget,
+  pred: () => boolean | Promise<boolean>,
   opts?: UntilOpts
 ): Promise<number> {
   const budgetMs = opts?.budgetMs ?? 2_000;
   const stepMs = opts?.stepMs ?? 25;
   const start = ctx.clock.now();
-  const watch = watchTarget(target);
 
-  if (await watch.ready()) {
-    await watch.settle();
+  if (await pred()) {
     return ctx.clock.now();
   }
 
   const steps = Math.max(1, Math.ceil(budgetMs / stepMs));
   for (let i = 0; i < steps; i += 1) {
     await ctx.scheduler.runFor(stepMs);
-    if (await watch.ready()) {
-      await watch.settle();
+    if (await pred()) {
       return ctx.clock.now();
     }
     if (ctx.clock.now() - start >= budgetMs) break;
@@ -124,20 +52,18 @@ export async function until(
 }
 
 /**
- * Advance virtual time for `forMs` and fail if `target` becomes true.
+ * Advance virtual time for `forMs` and fail if `pred` becomes true.
  */
 export async function never(
   ctx: UntilContext,
-  target: UntilTarget,
+  pred: () => boolean | Promise<boolean>,
   opts: NeverOpts
 ): Promise<void> {
   const forMs = opts.forMs;
   const stepMs = opts.stepMs ?? 25;
   const start = ctx.clock.now();
-  const watch = watchTarget(target);
 
-  if (await watch.ready()) {
-    await watch.settle();
+  if (await pred()) {
     throw new Error(
       `never violated seed=${ctx.seed.toString(16)} now=${ctx.clock.now()} ` +
         `forMs=${forMs} (target true before window)`
@@ -147,8 +73,7 @@ export async function never(
   const steps = Math.max(1, Math.ceil(forMs / stepMs));
   for (let i = 0; i < steps; i += 1) {
     await ctx.scheduler.runFor(stepMs);
-    if (await watch.ready()) {
-      await watch.settle();
+    if (await pred()) {
       const held = ctx.heldSummary?.() ?? [];
       throw new Error(
         `never violated seed=${ctx.seed.toString(16)} now=${ctx.clock.now()} ` +

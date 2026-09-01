@@ -1,11 +1,17 @@
-import type { UntilContext, UntilTarget } from '@pkgs/determinism';
 import type { RoomCommandPayload, RoomEvent, RoomState } from '../types';
 
 import type { RoomCrashEvent } from './boundary-faults';
 import type { RoomSimClientHandle } from './handles';
 import type { RoomNetSetArg, SimRoomNetHandle } from './network';
 import { type DrainCtx, drainRoomSim, flushRoomAux } from './settle';
-import { type NeverOpts, never, type UntilOpts, until } from './until';
+import {
+  type NeverOpts,
+  never,
+  type UntilContext,
+  type UntilOpts,
+  type UntilPredicate,
+  until,
+} from './until';
 import type { World } from './world-api';
 import type { WorldKernel } from './world-clients';
 import { buildNodeHandle } from './world-clients';
@@ -50,11 +56,10 @@ export function assembleWorld<
   };
 
   /** Flush room IO before polling so until/never see post-delivery state. */
-  const withAuxFlush = (target: UntilTarget): UntilTarget => {
+  const withAuxFlush = (pred: UntilPredicate): UntilPredicate => {
     return async () => {
       await flushRoomAux(opts.drainCtx());
-      if (typeof target === 'function') return Boolean(await target());
-      return false;
+      return Boolean(await pred());
     };
   };
 

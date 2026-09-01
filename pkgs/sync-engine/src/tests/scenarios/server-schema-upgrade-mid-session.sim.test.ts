@@ -24,7 +24,7 @@ describe('server schema upgrade mid session', () => {
           clientCount: 0,
         },
       });
-      const world = syncFacade(host.system);
+      const world = syncFacade(host.state);
       const alice = await world.addClient({ id: 'alice' });
       const bob = await world.addClient({ id: 'bob' });
 

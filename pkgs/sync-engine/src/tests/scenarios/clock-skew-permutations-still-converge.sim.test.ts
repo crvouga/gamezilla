@@ -135,7 +135,7 @@ describe('clock skew permutations still converge', () => {
             clientCount: 0,
           },
         });
-        const world = syncFacade(host.system);
+        const world = syncFacade(host.state);
         await offlineConflictThenConverge(world, order);
       },
       { timeout: 60_000 }
@@ -150,7 +150,7 @@ describe('clock skew permutations still converge', () => {
             clientCount: 0,
           },
         });
-        const world = syncFacade(host.system);
+        const world = syncFacade(host.state);
         await onlineOptimisticRace(world, order);
       },
       { timeout: 60_000 }
@@ -165,7 +165,7 @@ describe('clock skew permutations still converge', () => {
             clientCount: 0,
           },
         });
-        const world = syncFacade(host.system);
+        const world = syncFacade(host.state);
         await aheadDeleteBehindPending(world, order);
       },
       { timeout: 60_000 }

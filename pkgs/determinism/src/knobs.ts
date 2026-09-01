@@ -1,3 +1,4 @@
+import type { Arbitrary } from 'fast-check';
 import {
   assertJsonValue,
   canonicalJsonStringify,
@@ -7,6 +8,7 @@ import {
 export type KnobDef<T extends JsonValue = JsonValue> = {
   readonly id: string;
   readonly default: T;
+  readonly arb: Arbitrary<T>;
   readonly description?: string;
 };
 

@@ -20,7 +20,7 @@ describe('membership revoked mid session scope denied topics dropped', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const a = await world.addClient({
       id: 'alice',
       sessionQuery: SPACE_MEMBERSHIP_SESSION,
@@ -75,7 +75,7 @@ describe('membership revoked mid session scope denied topics dropped', () => {
           clientCount: 0,
         },
       });
-      const world = syncFacade(host.system);
+      const world = syncFacade(host.state);
       const a = await world.addClient({
         id: 'alice',
         sessionQuery: SPACE_MEMBERSHIP_SESSION,

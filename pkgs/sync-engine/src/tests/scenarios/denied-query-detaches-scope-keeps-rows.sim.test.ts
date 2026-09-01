@@ -12,7 +12,7 @@ describe('denied query detaches scope keeps rows', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const a = await world.addClient({ id: 'alice' });
     await a.mutate(setNote, { id: 'n1', body: 'keep-me' });
     await world.assertConverged();

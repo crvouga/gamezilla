@@ -13,7 +13,7 @@ async function expectCounter(
   expected: number
 ): Promise<void> {
   try {
-    const snap = await roomWorld(world.system).serverSnapshot();
+    const snap = await roomWorld(world.state).serverSnapshot();
     expect(counterValue(snap)).toBe(expected);
   } finally {
     await world.dispose();
@@ -143,7 +143,7 @@ describe('room session-lifecycle PBT', () => {
       settle: false,
       actions: [],
     });
-    const real = roomWorld(world.system);
+    const real = roomWorld(world.state);
     try {
       const c0 = real.clients.get('c0')!;
       const frame = {
@@ -170,7 +170,7 @@ describe('room session-lifecycle PBT', () => {
       seed: 11,
       knobs: { clientCount: 0 },
     });
-    const world = roomWorld(host.system);
+    const world = roomWorld(host.state);
     await world.addClient({
       id: 'tab-a',
       identity: 'user',

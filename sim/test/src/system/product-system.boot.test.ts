@@ -2,7 +2,7 @@
  * Smoke: defineProductSystem wiring (no SQL boot — openWorld would migrate).
  */
 
-import { defineProductSystem, PRODUCT_SYSTEM } from './index';
+import { defineProductSystem, PRODUCT_SYSTEM, productSimNode } from './index';
 
 describe('sim.product system', () => {
   it('registers id sim.product', () => {
@@ -14,11 +14,8 @@ describe('sim.product system', () => {
     const system = defineProductSystem({ seed: 1, startMs });
     expect(system.id).toBe('sim.product');
     expect(system.startMs).toBe(startMs);
-    expect(system.nodes.map((n) => n.kind)).toEqual([
-      'product.sim',
-      'product.warmup',
-    ]);
-    const bag = system.system?.();
+    expect(system.nodes.map((n) => n.kind)).toEqual([productSimNode]);
+    const bag = system.state?.();
     expect(bag?.createOpts.startMs).toBe(startMs);
     expect(bag?.sim).toBeNull();
   });

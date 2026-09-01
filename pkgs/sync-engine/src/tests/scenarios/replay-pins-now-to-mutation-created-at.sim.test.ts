@@ -18,7 +18,7 @@ describe('replay pins now to mutation created at', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     using _sa = world.node('alice').skewClock(-60_000);
     using _sb = world.node('bob').skewClock(0);
     using _ss = world.node('server').skewClock(60_000);
@@ -55,7 +55,7 @@ describe('replay pins now to mutation created at', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     using _sa = world.node('alice').skewClock(-120_000);
     using _sb = world.node('bob').skewClock(0);
     using _ss = world.node('server').skewClock(90_000);

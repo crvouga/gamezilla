@@ -1,31 +1,31 @@
 import { describe, expect, test } from 'bun:test';
 import fc from 'fast-check';
-import { defineSystem, defineSystemKnob } from './define-system';
-import type { JsonValue } from './json';
-import { defineLibrary } from './library';
-import { clearNodeKindRegistry, defineNodeKind } from './node-kind';
+import { defineAction } from './action';
+import { defineSystem } from './define-system';
+import { defineKnob } from './knobs';
+import { defineNodeKind } from './node-kind';
 import { assertSample, replay } from './pbt/assert-sample';
 import { openWorld } from './world';
 
-type FakeSystem = {
+type FakeState = {
   serverEchoes: number;
   clientHits: Map<string, number>;
 };
 
 type PingModel = { pings: number };
 
-function asRecord(v: JsonValue): Record<string, unknown> {
-  return v as Record<string, unknown>;
-}
+type PingAction = {
+  readonly kind: 'ping';
+  readonly clientId: string;
+};
 
 describe('defineSystem framework world', () => {
-  test('boots topology, library dispatch, settle', async () => {
-    clearNodeKindRegistry();
-    defineNodeKind({
+  test('boots topology, action dispatch, settle', async () => {
+    const fakeServer = defineNodeKind({
       id: 'fake.server',
       boot: (ctx) => {
-        const sys = ctx.system as FakeSystem;
-        sys.serverEchoes = 0;
+        const state = ctx.state as FakeState;
+        state.serverEchoes = 0;
         return { id: ctx.nodeId };
       },
       endpoints: (h) => [
@@ -37,11 +37,11 @@ describe('defineSystem framework world', () => {
         },
       ],
     });
-    defineNodeKind({
+    const fakeClient = defineNodeKind({
       id: 'fake.client',
       boot: (ctx) => {
-        const sys = ctx.system as FakeSystem;
-        sys.clientHits.set(ctx.nodeId, 0);
+        const state = ctx.state as FakeState;
+        state.clientHits.set(ctx.nodeId, 0);
         return { id: ctx.nodeId };
       },
       endpoints: (h) => [
@@ -54,74 +54,52 @@ describe('defineSystem framework world', () => {
       ],
     });
 
-    const system = defineSystem<FakeSystem>({
+    const ping = defineAction<FakeState, PingAction, PingModel>({
+      kind: 'ping',
+      class: 'domain',
+      arb: (ctx) =>
+        fc.constantFrom(...ctx.roleIds('client')).map((clientId) => ({
+          kind: 'ping' as const,
+          clientId,
+        })),
+      dispatch: async (world, action) => {
+        const hits = world.state.clientHits.get(action.clientId) ?? 0;
+        world.state.clientHits.set(action.clientId, hits + 1);
+        world.state.serverEchoes += 1;
+      },
+      apply: (m) => {
+        m.pings += 1;
+      },
+    });
+
+    const system = defineSystem<FakeState, PingModel>({
       id: 'fake.demo',
-      system: () => ({ serverEchoes: 0, clientHits: new Map() }),
+      state: () => ({ serverEchoes: 0, clientHits: new Map() }),
       knobs: [
-        defineSystemKnob({
+        defineKnob({
           id: 'clientCount',
           default: 2,
           arb: fc.integer({ min: 1, max: 3 }),
         }),
       ],
       nodes: [
-        { kind: 'fake.server', role: 'server', count: 1 },
+        { kind: fakeServer, role: 'server', count: 1 },
         {
-          kind: 'fake.client',
+          kind: fakeClient,
           role: 'client',
           countFromKnob: 'clientCount',
           idFor: (i) => `c${i}`,
         },
       ],
-      library: [
-        defineLibrary<FakeSystem>({
-          kind: 'partition',
-          arb: (ctx) =>
-            fc.constantFrom(...ctx.roleIds('client')).map((clientId) => ({
-              kind: 'partition',
-              clientId,
-            })),
-          dispatch: async (world, action) => {
-            const a = asRecord(action);
-            world.partition(`cli:${String(a['clientId'])}`, 'srv:server');
-          },
-        }),
-        defineLibrary<FakeSystem>({
-          kind: 'heal',
-          arb: () => fc.constant({ kind: 'heal' }),
-          dispatch: async (world) => {
-            world.healAll();
-          },
-        }),
-      ],
-      domain: {
-        arbs: (ctx) => [
-          fc.constantFrom(...ctx.roleIds('client')).map((clientId) => ({
-            kind: 'ping',
-            clientId,
-          })),
-        ],
-        dispatch: async (world, op) => {
-          const a = asRecord(op);
-          if (a['kind'] !== 'ping') return;
-          const clientId = String(a['clientId']);
-          const hits = world.system.clientHits.get(clientId) ?? 0;
-          world.system.clientHits.set(clientId, hits + 1);
-          world.system.serverEchoes += 1;
-        },
-      },
+      actions: [ping],
       model: {
         initial: (): PingModel => ({ pings: 0 }),
-        allows: () => true,
-        apply: (m, a) => {
-          const op = asRecord(a);
-          if (op['kind'] === 'ping') (m as PingModel).pings += 1;
-        },
       },
       settle: async (world) => {
         world.healAll();
-        await world.runUntilIdle();
+        await world.idle();
       },
+      invariants: async () => null,
     });
 
     await using world = await openWorld(system, {
@@ -130,52 +108,49 @@ describe('defineSystem framework world', () => {
     });
     expect(world.roleIds('client')).toEqual(['c0', 'c1']);
     expect(world.node('server').id).toBe('server');
-    world.partition('cli:c0', 'srv:server');
+    world.partition('c0', 'server');
     expect(world.network.isEdgePartitioned('cli:c0', 'srv:server')).toBe(true);
     world.healAll();
 
     const { world: w2 } = await replay(system, {
       seed: 7,
       knobs: { clientCount: 2 },
-      actions: [
-        { kind: 'ping', clientId: 'c0' },
-        { kind: 'partition', clientId: 'c1' },
-        { kind: 'heal' },
-      ],
+      actions: [{ kind: 'ping', clientId: 'c0' }],
     });
-    expect(w2.system.serverEchoes).toBe(1);
-    expect(w2.system.clientHits.get('c0')).toBe(1);
+    expect(w2.state.serverEchoes).toBe(1);
+    expect(w2.state.clientHits.get('c0')).toBe(1);
     await w2.dispose();
   });
 
   test('assertSample runs joint knob + action pool', async () => {
-    clearNodeKindRegistry();
-    defineNodeKind({
+    const solo = defineNodeKind({
       id: 'fake.solo',
       boot: (ctx) => ({ id: ctx.nodeId }),
+    });
+    const tick = defineAction({
+      kind: 'tick',
+      class: 'library',
+      arb: () => fc.constant({ kind: 'tick' as const }),
+      dispatch: async () => {
+        /* noop */
+      },
     });
     const system = defineSystem({
       id: 'fake.solo',
       knobs: [
-        defineSystemKnob({
+        defineKnob({
           id: 'n',
           default: 1,
           arb: fc.constant(1),
         }),
       ],
-      nodes: [{ kind: 'fake.solo', role: 'peer', count: 1 }],
-      library: [
-        defineLibrary({
-          kind: 'tick',
-          arb: () => fc.constant({ kind: 'tick' }),
-          dispatch: async () => {
-            /* noop */
-          },
-        }),
-      ],
+      nodes: [{ kind: solo, role: 'peer', count: 1 }],
+      actions: [tick],
+      model: { initial: () => ({}) },
       settle: async () => {
         /* noop */
       },
+      invariants: async () => null,
     });
     await assertSample(system, { maxCommands: 3, numRuns: 2 });
   });

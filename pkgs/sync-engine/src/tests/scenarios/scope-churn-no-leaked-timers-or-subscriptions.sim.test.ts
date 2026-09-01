@@ -12,7 +12,7 @@ describe('scope churn no leaked timers or subscriptions', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const a = await world.addClient({ id: 'alice' });
     await a.mutate(setFolder, { id: 'f1', title: 'A' });
     await a.mutate(setFolder, { id: 'f2', title: 'B' });
@@ -55,7 +55,7 @@ describe('scope churn no leaked timers or subscriptions', () => {
           clientCount: 0,
         },
       });
-      const world = syncFacade(host.system);
+      const world = syncFacade(host.state);
       const a = await world.addClient({ id: 'alice' });
       const baseline = [...a.subscribedTopics()].sort();
       for (let i = 0; i < 6; i += 1) {

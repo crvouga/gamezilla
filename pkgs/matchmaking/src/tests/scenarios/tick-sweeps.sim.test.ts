@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { openMatchmakingWorld } from '../../sim/system';
+import { openMatchmakingWorld, requireMmWorld } from '../../sim/system';
 import { RatingAttr, registerTestCrashHandler } from '../fixtures';
 
 const SimpleFormula = { numeric: [{ tag: RatingAttr, weight: 1 }] };
@@ -14,10 +14,11 @@ describe('matchmaking sim: tick sweeps', () => {
   });
 
   test('expiredRemoved reaps waiters older than maxWaitSeconds', async () => {
-    await using world = await openMatchmakingWorld({
+    await using host = await openMatchmakingWorld({
       seed: 50,
       tuning: { maxWaitSeconds: 30 },
     });
+    const world = requireMmWorld(host.state);
     const p = await world.join({
       data: RatingAttr(1000),
       formulas: [SimpleFormula],
@@ -29,10 +30,11 @@ describe('matchmaking sim: tick sweeps', () => {
   });
 
   test('matchedRemoved reaps matched rows older than matchedRetentionSeconds', async () => {
-    await using world = await openMatchmakingWorld({
+    await using host = await openMatchmakingWorld({
       seed: 51,
       tuning: { matchedRetentionSeconds: 10 },
     });
+    const world = requireMmWorld(host.state);
     const a = await world.join({
       data: RatingAttr(1000),
       formulas: [SimpleFormula],
@@ -49,7 +51,8 @@ describe('matchmaking sim: tick sweeps', () => {
   });
 
   test('tick on an empty queue is a clean no-op', async () => {
-    await using world = await openMatchmakingWorld({ seed: 52 });
+    await using host = await openMatchmakingWorld({ seed: 52 });
+    const world = requireMmWorld(host.state);
     expect(await world.tick()).toEqual({
       matches: 0,
       passes: 0,

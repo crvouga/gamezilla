@@ -46,7 +46,7 @@ async function openSeedWorld(
       mildFaults: opts.mildFaults === true,
     },
   });
-  return { host, world: roomWorld(host.system) };
+  return { host, world: roomWorld(host.state) };
 }
 
 /**

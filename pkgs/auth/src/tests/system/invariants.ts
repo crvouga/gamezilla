@@ -7,8 +7,8 @@ type AuthWorld = World<AuthSystem>;
 export async function checkAuthInvariants(
   world: AuthWorld
 ): Promise<InvariantViolation | null> {
-  const store = requireStore(world.system);
-  for (const [id, actor] of world.system.actors) {
+  const store = requireStore(world.state);
+  for (const [id, actor] of world.state.actors) {
     if (actor.bearer === null) continue;
     const verified = await store.server.verifySessionToken(actor.bearer);
     if (verified === null) continue;
@@ -31,7 +31,7 @@ export async function assertAuthInvariants(world: AuthWorld): Promise<void> {
 
 /** Canonical dump of IdP state + actor bearers — the determinism fingerprint. */
 export async function worldFingerprint(world: AuthWorld): Promise<string> {
-  const store = requireStore(world.system);
+  const store = requireStore(world.state);
   const users = await store.sql.query(
     sql<{
       id: string;
@@ -54,7 +54,7 @@ export async function worldFingerprint(world: AuthWorld): Promise<string> {
   }>`
     SELECT user_id, token_hash FROM idp_sessions ORDER BY token_hash
   `);
-  const bearers = [...world.system.actors.entries()]
+  const bearers = [...world.state.actors.entries()]
     .map(([id, actor]) => `${id}:${actor.bearer ?? ''}`)
     .sort();
   return JSON.stringify({ users, accounts, sessions, bearers });

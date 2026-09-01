@@ -19,7 +19,7 @@ describe('bigint ids and float precision stable', () => {
         clientCount: 0,
       },
     });
-    const world = syncFacade(host.system);
+    const world = syncFacade(host.state);
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
@@ -52,7 +52,7 @@ describe('bigint ids and float precision stable', () => {
           clientCount: 0,
         },
       });
-      const world = syncFacade(host.system);
+      const world = syncFacade(host.state);
       const a = await world.addClient({ id: 'alice' });
       await world.addClient({ id: 'bob' });
       const id = `${BIG_IDS[0]}-${seed}`;

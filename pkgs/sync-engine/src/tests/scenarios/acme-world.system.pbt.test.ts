@@ -290,6 +290,56 @@ describe('acme world PBT', () => {
     });
   });
 
+  // FC_SEED=14836507 counterexample [5230]: addPeerEngine then restart
+  // donor must not close sqlite still held by the peer (settle closed-db).
+  test('addPeerEngine then restart donor still session-syncs', async () => {
+    await replaySyncPin(acmeSystem, {
+      seed: 5230,
+      actions: [
+        {
+          kind: 'domain',
+          clientId: 'c0',
+          mutation: 'setNote',
+          args: { id: 'n6', body: 'b947', title: '' },
+        },
+        {
+          kind: 'server',
+          name: 'insertCatalogNoteSilent',
+          args: { noteId: 'n4', body: 'c125' },
+        },
+        {
+          kind: 'server',
+          name: 'insertCatalogNoteSilent',
+          args: { noteId: 'n1', body: 'c658' },
+        },
+        {
+          kind: 'addPeerEngine',
+          clientId: 'c2',
+          shareWithClientId: 'c0',
+        },
+        { kind: 'restart', clientId: 'c0' },
+        {
+          kind: 'armStoragePressure',
+          clientId: 'c1',
+          pressure: 'sqliteFull',
+          afterStatements: 2,
+        },
+        {
+          kind: 'domain',
+          clientId: 'c0',
+          mutation: 'deleteNote',
+          args: { id: 'n5' },
+        },
+        {
+          kind: 'domain',
+          clientId: 'c1',
+          mutation: 'setFolder',
+          args: { id: 'f3', title: 't70' },
+        },
+      ],
+    });
+  });
+
   test(
     'runAcmeSeed is deterministic for a generated seed',
     async () => {

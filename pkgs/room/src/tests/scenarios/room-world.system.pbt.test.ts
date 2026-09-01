@@ -105,7 +105,7 @@ describe('room world PBT', () => {
       ],
     });
     try {
-      const inv = await roomWorld(world.system).checkInvariants();
+      const inv = await roomWorld(world.state).checkInvariants();
       if (inv !== null) {
         throw new Error(`${inv.invariant}: ${inv.detail}`);
       }

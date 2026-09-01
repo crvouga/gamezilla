@@ -64,7 +64,7 @@ describe('room schedule-anticheat PBT', () => {
         },
       ],
     });
-    const real = roomWorld(world.system);
+    const real = roomWorld(world.state);
     try {
       expect(matchClockStatus(await real.serverSnapshot())).toBe('playing');
       await real.runFor(5_100);
@@ -99,7 +99,7 @@ describe('room schedule-anticheat PBT', () => {
       ],
     });
     try {
-      const end = await roomWorld(world.system).serverSnapshot();
+      const end = await roomWorld(world.state).serverSnapshot();
       expect(matchClockStatus(end)).toBe('flagged');
     } finally {
       await world.dispose();

@@ -1,4 +1,4 @@
-import { createSimDeps, type SimClock, type SimDeps } from '@pkgs/determinism';
+import type { SimClock, SimDeps } from '@pkgs/determinism';
 import type { SeededRng } from '@pkgs/uuid';
 
 import type { BoundaryFaultController } from './boundary-faults';
@@ -7,7 +7,7 @@ import { createClockSkewTable, SIM_SERVER_NODE_ID } from './clock-skew';
 import type { SimDomainPack } from './domain-pack';
 import type { SimFaultOptions } from './faults';
 import { DST_FAULTS, RELIABLE_FAULTS, sampleFaultOptions } from './faults';
-import { createSimNetwork, type SimNetwork } from './network';
+import type { SimNetwork } from './network';
 import { createSimPubSubBroker } from './pubsub-bridge';
 import { BROKER } from './traffic';
 import type { ClientMeta, WorldClientOpts } from './world-types';
@@ -33,11 +33,8 @@ export type CreateBootRuntimeArgs = {
   readonly deps: BootRuntimeDeps;
   readonly worldArgs: WorldClientOpts;
   readonly boundaryFaults?: BoundaryFaultController;
-  /**
-   * Framework-owned network (framework worlds wrap `@pkgs/determinism`'s kernel). When
-   * absent a kernel is created from `deps`.
-   */
-  readonly network?: SimNetwork;
+  /** Framework-owned network (framework worlds wrap `@pkgs/determinism`'s kernel). */
+  readonly network: SimNetwork;
 };
 
 function resolveWorldFaults(args: CreateBootRuntimeArgs): SimFaultOptions {
@@ -54,19 +51,13 @@ export function createBootRuntime(args: CreateBootRuntimeArgs) {
   const clockSkew = createClockSkewTable();
   const nowFor = (nodeId: string): number =>
     clockSkew.nowFor(nodeId, deps.clock.now());
-  let network = args.network;
-  if (network === undefined) {
-    network = createSimNetwork({
-      scheduler: deps.scheduler,
-      rng: deps.rng.fork('net'),
-      faults: resolveWorldFaults(args),
-    });
-  } else if (
+  const network = args.network;
+  if (
     worldArgs.sampleFaults === true ||
     worldArgs.faults !== undefined ||
     worldArgs.dstFaults === true
   ) {
-    // Kit / explicit worldArgs win; otherwise keep framework networkDefaults.
+    // Explicit worldArgs win; otherwise keep framework networkDefaults.
     network.setDefaultFaults(resolveWorldFaults(args));
   }
   const broker = createSimPubSubBroker({
@@ -88,11 +79,6 @@ export function createBootRuntime(args: CreateBootRuntimeArgs) {
 }
 
 export type BootRuntime = ReturnType<typeof createBootRuntime>;
-
-/** Boot harness deps: root → io/ids; callers fork('net') for the mesh. */
-export function createWorldSimDeps(seed: number | bigint | string): SimDeps {
-  return createSimDeps({ seed, startMs: 1_700_000_000_000 });
-}
 
 export function resolveAuthForDevice(
   authByDevice: Map<string, ClientMeta>,

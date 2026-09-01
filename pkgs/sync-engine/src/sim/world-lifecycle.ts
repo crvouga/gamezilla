@@ -22,6 +22,20 @@ export type RestartClientOpts = {
   };
 };
 
+/** True when another live engine still holds the same sqlite handle. */
+export function otherClientsShareRawDb(
+  clients: ReadonlyMap<string, SimClientHandle>,
+  id: string
+): boolean {
+  const raw = clients.get(id)?.dbBundle.raw;
+  if (raw === undefined) return false;
+  for (const [otherId, other] of clients) {
+    if (otherId === id) continue;
+    if (other.dbBundle.raw === raw) return true;
+  }
+  return false;
+}
+
 export async function crashClientImpl(
   k: BootedSimKernel,
   id: string,
@@ -33,7 +47,10 @@ export async function crashClientImpl(
     const meta = k.metas.get(id);
     if (meta !== undefined) meta.lastDbBundle = handle.dbBundle;
   }
-  await handle.dispose({ keepDb: opts?.keepDb === true });
+  // addPeerEngine shares the donor sqlite; closing it here kills the peer.
+  const keepSqlite =
+    opts?.keepDb === true || otherClientsShareRawDb(k.clients, id);
+  await handle.dispose({ keepDb: keepSqlite });
   k.clients.delete(id);
 }
 

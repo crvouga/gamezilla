@@ -4,17 +4,31 @@ export {
   type ExpoWebSqlClientOptions,
 } from './impl-expo-web-client';
 export {
-  buildWebOpfsWipePageUrl,
   consumeResetDbQueryParamAndRecover,
   DEFAULT_DB_HOST_SHARED_WORKER_URL,
-  DEFAULT_OPFS_WIPE_PAGE_URL,
   forceReleaseSharedWorkerOwners,
-  OPFS_WIPE_INITIATOR_SESSION_KEY,
-  RESET_DB_QUERY_PARAM,
   type RunWebOpfsRecoveryOptions,
+  recoverSqlOwnerInProcess,
   runWebOpfsRecoveryAndReload,
-  sanitizeWebOpfsReturnTo,
 } from './opfs-recover';
+export { RESET_DB_QUERY_PARAM } from './opfs-recover-url';
+export {
+  type CreateOwnerRuntimeArgs,
+  createOwnerRuntime,
+  type OwnerRuntime,
+} from './owner-runtime';
+export {
+  createExpoIframeSqlOwner,
+  DEFAULT_SQL_HOST_URL,
+} from './owners/expo-iframe-sql-owner';
+export { createMemorySqlOwner } from './owners/memory-sql-owner';
+export {
+  corruptSimOpfsStore,
+  createSimOpfsSqlOwner,
+  createSimOpfsStore,
+  fillSimOpfsPool,
+  type SimOpfsStore,
+} from './owners/sim-opfs-sql-owner';
 export type { DbChangedNotify, SqlWire } from './rpc';
 export {
   isLeaderLostError,
@@ -25,3 +39,9 @@ export {
   serializeError,
   serializeSql,
 } from './rpc';
+export {
+  SQL_DB_HOST_PROTOCOL_VERSION,
+  sqlDbHostSharedWorkerName,
+} from './sql-db-host-protocol';
+export type { SqlOwner, SqlOwnerFactory } from './sql-owner';
+export { isSqlOwnerWipeWorthyError } from './sql-owner';

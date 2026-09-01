@@ -10,7 +10,7 @@ describe('room sim: multi-tab same identity (E-C03)', () => {
       seed: process.env['SIM_SEED'] ?? '42',
       knobs: { clientCount: 0 },
     });
-    const world = roomWorld(host.system);
+    const world = roomWorld(host.state);
     const t1 = await world.addClient({
       id: 'tab1',
       identity: 'alice',

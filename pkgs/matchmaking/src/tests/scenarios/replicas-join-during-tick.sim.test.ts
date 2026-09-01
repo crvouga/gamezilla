@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { openMatchmakingWorld } from '../../sim/system';
+import { openMatchmakingWorld, requireMmWorld } from '../../sim/system';
 import {
   assertMatchInvariants,
   RatingAttr,
@@ -18,11 +18,12 @@ describe('matchmaking sim: join during tick', () => {
   });
 
   test('joins on r0/r1 while r2 ticks; settle with tickAll', async () => {
-    await using world = await openMatchmakingWorld({
+    await using host = await openMatchmakingWorld({
       seed: 230,
       replicas: 3,
       backend: 'postgres',
     });
+    const world = requireMmWorld(host.state);
     const warm = [];
     for (let i = 0; i < 4; i += 1) {
       world.clock.advance(1);

@@ -12,7 +12,7 @@ describe('room sim: unknown command reject (E-D04)', () => {
       seed: process.env['SIM_SEED'] ?? '42',
       knobs: { clientCount: 0 },
     });
-    const world = roomWorld(host.system);
+    const world = roomWorld(host.state);
     const a = await world.addClient({ id: 'alice' });
     await world.assertConverged();
 
