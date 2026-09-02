@@ -1,6 +1,6 @@
 import { describe, test } from 'bun:test';
 import type { AnyScenarioDef } from '@pkgs/dst';
-import { runProperty, runScenario } from '@pkgs/dst/pbt';
+import { check, runProperty } from '@pkgs/dst/pbt';
 import { fc } from '@pkgs/pbt';
 import { replaySyncPin } from '../../sim/scenario';
 import { runAcmeSeed } from '../apps/acme';
@@ -10,8 +10,8 @@ describe('acme world PBT', () => {
   test(
     'fc.commands sequences replay on World and converge',
     async () => {
-      await runScenario(acmeSystem as unknown as AnyScenarioDef, {
-        maxCommands: 14,
+      await check(acmeSystem as unknown as AnyScenarioDef, {
+        episodeLength: 14,
       });
     },
     { timeout: 120_000 }
@@ -21,7 +21,7 @@ describe('acme world PBT', () => {
     await replaySyncPin(acmeSystem, {
       seed: 999992,
       knobs: { rowImageFanout: true },
-      commands: [
+      actions: [
         {
           kind: 'armCrashAt',
           clientId: 'c1',
@@ -53,7 +53,7 @@ describe('acme world PBT', () => {
     await replaySyncPin(acmeSystem, {
       seed: 11,
       knobs: { rowImageFanout: true, liveResendOnReconnect: true },
-      commands: [
+      actions: [
         {
           kind: 'domain',
           clientId: 'c0',
@@ -85,7 +85,7 @@ describe('acme world PBT', () => {
     await replaySyncPin(acmeSystem, {
       seed: 65161,
       knobs: { liveResendOnReconnect: true, bufferOutboundLive: true },
-      commands: [
+      actions: [
         { kind: 'serverCrash' },
         {
           kind: 'domain',
@@ -112,7 +112,7 @@ describe('acme world PBT', () => {
     await replaySyncPin(acmeSystem, {
       seed: 420184,
       knobs: { rowImageFanout: true },
-      commands: [
+      actions: [
         { kind: 'serverCrash' },
         {
           kind: 'domain',
@@ -128,7 +128,7 @@ describe('acme world PBT', () => {
   test('serverCrash then restartWithSchema waits for HTTP again', async () => {
     await replaySyncPin(acmeSystem, {
       seed: 1,
-      commands: [
+      actions: [
         { kind: 'serverCrash' },
         {
           kind: 'restartWithSchema',
@@ -144,7 +144,7 @@ describe('acme world PBT', () => {
     await replaySyncPin(acmeSystem, {
       seed: 410988,
       knobs: { liveResendOnReconnect: true, bufferOutboundLive: true },
-      commands: [
+      actions: [
         { kind: 'protocolCut', clientId: 'c0' },
         {
           kind: 'domain',
@@ -163,7 +163,7 @@ describe('acme world PBT', () => {
     await replaySyncPin(acmeSystem, {
       seed: 892161,
       knobs: { liveResendOnReconnect: true },
-      commands: [
+      actions: [
         {
           kind: 'armCrashAt',
           clientId: 'c0',
@@ -198,7 +198,7 @@ describe('acme world PBT', () => {
         liveResendOnReconnect: true,
         clientCount: 3,
       },
-      commands: [
+      actions: [
         { kind: 'auth', clientId: 'c0', status: 'revoked' },
         { kind: 'serverRestart' },
       ],
@@ -209,7 +209,7 @@ describe('acme world PBT', () => {
     await replaySyncPin(acmeSystem, {
       seed: 1037633887,
       knobs: { rowImageFanout: true },
-      commands: [
+      actions: [
         {
           kind: 'armHttpFault',
           clientId: 'c1',
@@ -231,7 +231,7 @@ describe('acme world PBT', () => {
     await replaySyncPin(acmeSystem, {
       seed: 956276660,
       knobs: { liveResendOnReconnect: true, bufferOutboundLive: true },
-      commands: [
+      actions: [
         { kind: 'auth', clientId: 'c0', status: 'revoked' },
         {
           kind: 'domain',
@@ -252,7 +252,7 @@ describe('acme world PBT', () => {
     await replaySyncPin(acmeSystem, {
       seed: 6593,
       knobs: { liveResendOnReconnect: true, bufferOutboundLive: true },
-      commands: [
+      actions: [
         {
           kind: 'domain',
           clientId: 'c1',
@@ -275,7 +275,7 @@ describe('acme world PBT', () => {
     await replaySyncPin(acmeSystem, {
       seed: 3,
       knobs: { bufferOutboundLive: true },
-      commands: [
+      actions: [
         { kind: 'skew', nodeId: 'server', skewMs: 60_000 },
         {
           kind: 'domain',
@@ -298,7 +298,7 @@ describe('acme world PBT', () => {
   test('addPeerEngine then restart donor still session-syncs', async () => {
     await replaySyncPin(acmeSystem, {
       seed: 5230,
-      commands: [
+      actions: [
         {
           kind: 'domain',
           clientId: 'c0',

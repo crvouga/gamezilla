@@ -1,4 +1,12 @@
-import { defineScenario } from '@pkgs/dst';
+import {
+  type ActionCatalog,
+  defineScenario,
+  nodeCount,
+  properties,
+  property,
+  std,
+  type World,
+} from '@pkgs/dst';
 import { SQL_CLIENT_WEB_ACTIONS } from './actions';
 import {
   SQL_BACKEND,
@@ -14,12 +22,32 @@ import { boardOf, kvFingerprint } from './types';
 
 const WORLD_START_MS = 1_700_000_000_000;
 
-type SqlWebWorld = import('@pkgs/dst').World<
-  Record<string, import('@pkgs/dst').KnobDef>,
-  Record<string, import('@pkgs/dst').NodeEntry>
+type SqlWebKnobs = {
+  readonly tabCount: typeof SQL_TAB_COUNT;
+  readonly poolCapacity: typeof SQL_POOL_CAPACITY;
+  readonly schemaEpoch: typeof SQL_SCHEMA_EPOCH;
+  readonly backend: typeof SQL_BACKEND;
+};
+
+type SqlWebNodes = {
+  readonly store: typeof sqlWebStoreNode;
+  readonly tab: typeof sqlWebTabNode & {
+    readonly count: (
+      knobs: import('@pkgs/dst').KnobValues<SqlWebKnobs>
+    ) => number;
+    readonly id: (index: number) => string;
+  };
+};
+
+export type SqlClientWebSurface = World<
+  SqlWebKnobs,
+  SqlWebNodes,
+  Record<string, never>
 >;
 
-async function settleSqlClientWeb(world: SqlWebWorld): Promise<void> {
+async function settleSqlClientWeb(
+  world: World<SqlWebKnobs, SqlWebNodes>
+): Promise<void> {
   const state = boardOf(world);
   await world.quiesce();
   if (state.appliedEpoch !== state.epoch) {
@@ -35,7 +63,9 @@ async function settleSqlClientWeb(world: SqlWebWorld): Promise<void> {
   await readToyRows(client);
 }
 
-async function assertSqlClientWebConverged(world: SqlWebWorld): Promise<void> {
+async function assertSqlClientWebConverged(
+  world: World<SqlWebKnobs, SqlWebNodes>
+): Promise<void> {
   const state = boardOf(world);
   const stale = state.mismatches[0];
   if (stale !== undefined) {
@@ -82,23 +112,26 @@ export function defineSqlClientWebSystem(opts?: { readonly id?: string }) {
       store: sqlWebStoreNode,
       tab: {
         ...sqlWebTabNode,
-        count: (k) => k['tabCount'] as number,
+        count: nodeCount<SqlWebKnobs>((k) => k.tabCount),
         id: (i) => `t${String(i)}`,
       },
     },
-    commands: SQL_CLIENT_WEB_ACTIONS,
-    referenceModel: { initial: () => ({}) },
+    actions: {
+      ...std.time(),
+      ...SQL_CLIENT_WEB_ACTIONS,
+    } as unknown as ActionCatalog<SqlClientWebSurface>,
+    properties: properties<SqlClientWebSurface>()({
+      converged: property.always(async () => true, { at: 'converge' }),
+    }),
     converge: async (world) => {
-      await settleSqlClientWeb(world);
-      await assertSqlClientWebConverged(world);
+      const sqlWorld = world as World<SqlWebKnobs, SqlWebNodes>;
+      await settleSqlClientWeb(sqlWorld);
+      await assertSqlClientWebConverged(sqlWorld);
     },
-    always: async () => {
-      /* convergence checked in settle */
-    },
-  });
+  } as import('@pkgs/dst').AnyScenarioDef);
 }
 
 export const SQL_CLIENT_WEB_SYSTEM = defineSqlClientWebSystem();
 
 export type SqlClientWebSystemDef = typeof SQL_CLIENT_WEB_SYSTEM;
-export type SqlClientWebWorld = SqlWebWorld;
+export type SqlClientWebWorld = SqlClientWebSurface;

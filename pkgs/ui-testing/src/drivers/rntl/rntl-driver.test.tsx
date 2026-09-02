@@ -1,10 +1,40 @@
 import { afterEach, describe, expect, it } from '@jest/globals';
 import { wallClock, wallTimers } from '@pkgs/clock';
+import { createElement, type ReactElement } from 'react';
+import { Pressable, Text, View } from 'react-native';
+import type { AppHarness } from '../../bootstrap/app-harness';
 import { createDriver } from '../../driver/create-driver';
 import { demoHarness } from './demo-app';
 import { RntlDriver } from './rntl-driver';
 
 const clockOpts = { now: wallClock.now, timers: wallTimers };
+
+function nestedHarness(): AppHarness {
+  const NestedApp = (): ReactElement =>
+    createElement(
+      View,
+      null,
+      createElement(
+        View,
+        { testID: 'parent-a' },
+        createElement(
+          Pressable,
+          { testID: 'action' },
+          createElement(Text, null, 'A')
+        )
+      ),
+      createElement(
+        View,
+        { testID: 'parent-b' },
+        createElement(
+          Pressable,
+          { testID: 'action' },
+          createElement(Text, null, 'B')
+        )
+      )
+    );
+  return { createRoot: () => createElement(NestedApp) };
+}
 
 describe('RntlDriver', () => {
   let driver: RntlDriver;
@@ -22,23 +52,23 @@ describe('RntlDriver', () => {
 
     await driver.launch();
 
-    await driver.expect.visible('email');
-    await driver.expect.visible('password');
-    await driver.expect.visible('submit');
+    await driver.get('email').expect.visible();
+    await driver.get('password').expect.visible();
+    await driver.get('submit').expect.visible();
 
-    await driver.input('email', 'ada@example.com');
-    await driver.input('password', 'secret');
-    await driver.expect.text('email', 'ada@example.com');
+    await driver.get('email').input('ada@example.com');
+    await driver.get('password').input('secret');
+    await driver.get('email').expect.text('ada@example.com');
 
-    await driver.clear('email');
-    await driver.expect.text('email', '');
+    await driver.get('email').clear();
+    await driver.get('email').expect.text('');
 
-    await driver.input('email', 'ada@example.com');
-    await driver.tap('submit');
+    await driver.get('email').input('ada@example.com');
+    await driver.get('submit').tap();
 
-    await driver.expect.visible('home');
-    await driver.expect.hidden('email');
-    await driver.expect.text('welcome', 'Welcome ada@example.com');
+    await driver.get('home').expect.visible();
+    await driver.get('email').expect.hidden();
+    await driver.get('welcome').expect.text('Welcome ada@example.com');
 
     const html = await driver.snapshotHtml();
     expect(html).toContain('data-testid="home"');
@@ -49,23 +79,34 @@ describe('RntlDriver', () => {
     driver = new RntlDriver({ harness: demoHarness, ...clockOpts });
     await driver.launch();
 
-    expect(await driver.isVisible('count')).toBe(true);
-    expect(await driver.isVisible('missing')).toBe(false);
+    expect(await driver.get('count').isVisible()).toBe(true);
+    expect(await driver.get('missing').isVisible()).toBe(false);
 
-    await driver.tap('inc');
-    await driver.expect.text('count', '1');
+    await driver.get('inc').tap();
+    await driver.get('count').expect.text('1');
+  });
+
+  it('scopes nested get to the parent subtree', async () => {
+    driver = new RntlDriver({ harness: nestedHarness(), ...clockOpts });
+    await driver.launch();
+
+    await driver.get('parent-a').get('action').tap();
+    expect(await driver.get('parent-a').get('action').text()).toBe('A');
+
+    await driver.get('parent-b').get('action').tap();
+    expect(await driver.get('parent-b').get('action').text()).toBe('B');
   });
 
   it('scrolls without throwing', async () => {
     driver = new RntlDriver({ harness: demoHarness, ...clockOpts });
     await driver.launch();
-    await driver.scroll('login-scroll', 'down', 40);
+    await driver.get('login-scroll').scroll('down', 40);
   });
 
   it('pressKey does not throw when focus is on an input', async () => {
     driver = new RntlDriver({ harness: demoHarness, ...clockOpts });
     await driver.launch();
-    await driver.tap('email');
+    await driver.get('email').tap();
     await driver.key('tab');
   });
 
@@ -78,6 +119,7 @@ describe('RntlDriver', () => {
     const harness = {
       mount: async () => ({
         query: () => ({}) as never,
+        queryWithin: () => null,
         isVisible: () => true,
         getText: () => committed,
         tap: async () => undefined,
@@ -103,7 +145,7 @@ describe('RntlDriver', () => {
       },
     });
     await driver.launch();
-    await driver.wait('label', { text: 'after' }, { timeoutMs: 500 });
+    await driver.get('label').wait({ text: 'after' }, { timeoutMs: 500 });
 
     expect(committed).toBe('after');
     expect(activates).toBe(2);

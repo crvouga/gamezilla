@@ -12,6 +12,7 @@ export {
 export type { DomainModelHooks, SyncApp } from './app';
 export type {
   DefineSyncSystemOpts,
+  SyncSurface,
   SyncSystemDef,
   SyncSystemFacade,
   SyncSystemWorld,

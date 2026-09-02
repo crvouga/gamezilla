@@ -5,64 +5,66 @@ export class ProfileFlows {
   constructor(private readonly ui: Driver) {}
 
   async openEdit(): Promise<void> {
-    await this.ui.tap(Handles.tabProfile);
-    await this.ui.tap(Handles.profileEdit);
-    await this.ui.expect.visible(Handles.profileEditUsername);
-    await this.ui.expect.visible(Handles.profileEditAvatar);
+    await this.ui.get(Handles.tabProfile).tap();
+    await this.ui.get(Handles.profileEdit).tap();
+    await this.ui.get(Handles.profileEditUsername).expect.visible();
+    await this.ui.get(Handles.profileEditAvatar).expect.visible();
   }
 
   async setUsername(username: string): Promise<void> {
-    await this.ui.tap(Handles.profileEditUsername);
-    await this.ui.input(Handles.profileUsernameInput, username);
-    await this.ui.tap(Handles.profileUsernameSave);
-    await this.ui.expect.text(Handles.profileUsernameSave, 'Saved');
-    await this.ui.tap(Handles.profileUsernameCancel);
-    await this.ui.expect.visible(Handles.profileEditUsername);
-    await this.ui.tap(Handles.navBack);
-    await this.ui.expect.visible(Handles.profileEdit);
+    await this.ui.get(Handles.profileEditUsername).tap();
+    await this.ui.get(Handles.profileUsernameInput).input(username);
+    await this.ui.get(Handles.profileUsernameSave).tap();
+    await this.ui.get(Handles.profileUsernameSave).expect.text('Saved');
+    await this.ui.get(Handles.profileUsernameCancel).tap();
+    await this.ui.get(Handles.profileEditUsername).expect.visible();
+    await this.ui.get(Handles.navBack).tap();
+    await this.ui.get(Handles.profileEdit).expect.visible();
   }
 
   async expectUsername(username: string): Promise<void> {
-    await this.ui.expect.text(Handles.profileDisplayUsername, `@${username}`);
+    await this.ui
+      .get(Handles.profileDisplayUsername)
+      .expect.text(`@${username}`);
   }
 
   async openAvatarEditor(): Promise<void> {
-    await this.ui.tap(Handles.profileEditAvatar);
-    await this.ui.expect.visible(Handles.profileAvatarSeed);
-    await this.ui.expect.visible(Handles.profileAvatarStyle);
+    await this.ui.get(Handles.profileEditAvatar).tap();
+    await this.ui.get(Handles.profileAvatarSeed).expect.visible();
+    await this.ui.get(Handles.profileAvatarStyle).expect.visible();
   }
 
   async setAvatarSeed(seed: string): Promise<void> {
-    await this.ui.input(Handles.profileAvatarSeed, seed);
+    await this.ui.get(Handles.profileAvatarSeed).input(seed);
   }
 
   async setAvatarStyle(styleOptionHandle: Handle): Promise<void> {
-    await this.ui.tap(Handles.profileAvatarStyle);
-    await this.ui.tap(styleOptionHandle);
-    await this.ui.expect.visible(Handles.profileAvatarStyle);
+    await this.ui.get(Handles.profileAvatarStyle).tap();
+    await this.ui.get(styleOptionHandle).tap();
+    await this.ui.get(Handles.profileAvatarStyle).expect.visible();
   }
 
   async expectAvatarStyleLabel(label: string): Promise<void> {
-    await this.ui.expect.text(Handles.profileAvatarStyle, label, {
+    await this.ui.get(Handles.profileAvatarStyle).expect.text(label, {
       exact: false,
     });
   }
 
   async expectAvatarTraitVisible(): Promise<void> {
-    await this.ui.expect.visible(Handles.profileAvatarTrait);
+    await this.ui.get(Handles.profileAvatarTrait).expect.visible();
   }
 
   async saveAvatar(): Promise<void> {
-    await this.ui.tap(Handles.profileAvatarSave);
-    await this.ui.expect.text(Handles.profileAvatarSave, 'Saved');
+    await this.ui.get(Handles.profileAvatarSave).tap();
+    await this.ui.get(Handles.profileAvatarSave).expect.text('Saved');
   }
 
   async leaveAvatarEditor(): Promise<void> {
-    await this.ui.tap(Handles.profileAvatarCancel);
-    await this.ui.expect.visible(Handles.profileEditAvatar);
+    await this.ui.get(Handles.profileAvatarCancel).tap();
+    await this.ui.get(Handles.profileEditAvatar).expect.visible();
   }
 
   async expectAvatarSeed(seed: string): Promise<void> {
-    await this.ui.expect.text(Handles.profileAvatarSeed, seed);
+    await this.ui.get(Handles.profileAvatarSeed).expect.text(seed);
   }
 }

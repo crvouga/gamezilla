@@ -1019,6 +1019,7 @@
       "dependencies": {
         "@pkgs/clock": "workspace:*",
         "@pkgs/http-client": "workspace:*",
+        "@pkgs/invariants": "workspace:*",
         "@pkgs/pbt": "workspace:*",
         "@pkgs/uuid": "workspace:*",
         "fast-check": "catalog:",
@@ -1103,6 +1104,15 @@
     },
     "pkgs/i18n": {
       "name": "@pkgs/i18n",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/invariants": {
+      "name": "@pkgs/invariants",
       "version": "0.0.0",
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -1918,6 +1928,7 @@
         "@pkgs/clock": "workspace:*",
         "@pkgs/dst": "workspace:*",
         "@pkgs/emqx-server": "workspace:*",
+        "@pkgs/invariants": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/minio-server": "workspace:*",
         "@pkgs/object-store": "workspace:*",
@@ -2006,8 +2017,8 @@
     "@babel/runtime": "^7.29.7",
     "@biomejs/biome": "2.5.7",
     "@clack/prompts": "^1.7.0",
-    "@crvouga/postgres-mem": "^1.1.2",
-    "@crvouga/sqlite-mem": "^1.15.0",
+    "@crvouga/postgres-mem": "^1.1.1",
+    "@crvouga/sqlite-mem": "^1.14.0",
     "@dicebear/collection": "^9.4.2",
     "@dicebear/core": "^9.4.2",
     "@electric-sql/pglite": "^0.4.3",
@@ -3103,6 +3114,8 @@
     "@pkgs/http-client": ["@pkgs/http-client@workspace:pkgs/http-client"],
 
     "@pkgs/i18n": ["@pkgs/i18n@workspace:pkgs/i18n"],
+
+    "@pkgs/invariants": ["@pkgs/invariants@workspace:pkgs/invariants"],
 
     "@pkgs/keyword": ["@pkgs/keyword@workspace:pkgs/keyword"],
 

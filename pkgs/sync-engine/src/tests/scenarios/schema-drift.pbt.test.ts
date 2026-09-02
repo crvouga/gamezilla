@@ -28,7 +28,7 @@ describe('schema drift PBT', () => {
             await replaySyncPin(acmeSystem, {
               seed,
               knobs,
-              commands: schemaSequence({
+              actions: schemaSequence({
                 kind: 'restartWithSchema',
                 clientId: 'c0',
                 variant,
@@ -57,7 +57,7 @@ describe('schema drift PBT', () => {
             await replaySyncPin(acmeSystem, {
               seed,
               knobs: { ...knobs, clientCount: 2 },
-              commands: [
+              actions: [
                 {
                   kind: 'restartWithSchema',
                   clientId: 'c0',
@@ -81,7 +81,7 @@ describe('schema drift PBT', () => {
     await replaySyncPin(acmeSystem, {
       seed: 287086,
       knobs: { liveResendOnReconnect: true, bufferOutboundLive: true },
-      commands: [
+      actions: [
         {
           kind: 'restartWithSchema',
           clientId: 'c0',
@@ -100,7 +100,7 @@ describe('schema drift PBT', () => {
   test('mixed extraColumn without row images converges (PBT shrink)', async () => {
     await replaySyncPin(acmeSystem, {
       seed: 1,
-      commands: [
+      actions: [
         {
           kind: 'restartWithSchema',
           clientId: 'c0',
@@ -123,7 +123,7 @@ describe('schema drift PBT', () => {
           await replaySyncPin(acmeSystem, {
             seed,
             knobs,
-            commands: [
+            actions: [
               TRIGGER,
               { kind: 'protocolCut', clientId: 'c0' },
               { kind: 'idle', ms: 20 },

@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 import { createVirtualClock } from '../kernel/clock';
 import { createScheduler } from '../kernel/scheduler';
-import { applyCommands } from './apply-commands';
+import { applyActions } from './apply-actions';
 
-describe('runUntil / applyCommands', () => {
+describe('runUntil / applyActions', () => {
   test('runUntil returns immediately when predicate already true', async () => {
     const clock = createVirtualClock(10);
     const scheduler = createScheduler(clock);
@@ -41,13 +41,13 @@ describe('runUntil / applyCommands', () => {
     expect(clock.now()).toBeGreaterThanOrEqual(50);
   });
 
-  test('applyCommands applies in order then advances', async () => {
+  test('applyActions applies in order then advances', async () => {
     const clock = createVirtualClock(0);
     const scheduler = createScheduler(clock);
     const seen: string[] = [];
-    await applyCommands({
+    await applyActions({
       advance: (ms) => scheduler.runFor(ms),
-      commands: [{ kind: 'a' }, { kind: 'b' }],
+      actions: [{ kind: 'a' }, { kind: 'b' }],
       apply: async (c) => {
         seen.push(c.kind);
       },

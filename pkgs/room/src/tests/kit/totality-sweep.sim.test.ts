@@ -38,7 +38,7 @@ describe('kit: totality sweep (M-F03)', () => {
     assertTotality({
       module: TestCounterModule,
       states,
-      commands,
+      actions: commands,
       identities: ['alice', 'bob'],
     });
   });

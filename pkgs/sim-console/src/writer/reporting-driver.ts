@@ -2,19 +2,20 @@ import type {
   AssertionOptions,
   Driver,
   DriverKey,
+  DriverNode,
   DriverWaitOptions,
   ScrollDirection,
   UiWaitOptions,
   WaitState,
   WaitTextCondition,
 } from '@pkgs/ui-testing';
-import { formatTestId } from '@pkgs/ui-testing';
+import { formatTestIdPath } from '@pkgs/ui-testing';
 
 import type { SimulationStepKind } from '../types';
 import type { SimulationReporter } from './reporter';
 
 type RecordMeta = {
-  readonly testId?: string;
+  readonly testIdPath?: readonly string[];
   readonly detail?: string;
   readonly snapshotBefore?: boolean;
   readonly pollFrames?: boolean;
@@ -29,7 +30,7 @@ type Recorder = (
 
 /**
  * Proxy that records mutating / wait driver ops into a {@link SimulationReporter}.
- * Does not record `isVisible` / `getText` (avoids poll flooding).
+ * Does not record `isVisible` / `text` (avoids poll flooding).
  */
 export function createReportingDriver(
   driver: Driver,
@@ -44,97 +45,101 @@ export function createReportingDriver(
     launch: () => record('launch', 'launch', () => driver.launch()),
     close: () =>
       record('close', 'close', () => driver.close(), { snapshotBefore: true }),
-    tap: (testId, options?: UiWaitOptions) =>
-      record(
-        'tap',
-        `tap ${formatTestId(testId)}`,
-        () => driver.tap(testId, options),
-        { testId }
-      ),
-    tapAt: (testId, position) =>
-      record(
-        'tapAt',
-        `tapAt ${formatTestId(testId)}`,
-        () => driver.tapAt(testId, position),
-        {
-          testId,
-          detail: `xRatio=${position.xRatio}, yRatio=${position.yRatio}`,
-        }
-      ),
-    input: (testId, text, options?: UiWaitOptions) =>
-      record(
-        'typeText',
-        `typeText ${formatTestId(testId)}`,
-        () => driver.input(testId, text, options),
-        {
-          testId,
-          detail: `text=${JSON.stringify(text)}`,
-        }
-      ),
-    clear: (testId) =>
-      record(
-        'clearText',
-        `clearText ${formatTestId(testId)}`,
-        () => driver.clear(testId),
-        { testId }
-      ),
+    get: (testId) => wrapNode(driver.get(testId), [testId], record),
     key: (key: DriverKey) =>
       record('pressKey', `pressKey ${key}`, () => driver.key(key), {
         detail: key,
       }),
-    scroll: (testId, direction: ScrollDirection, amount?) =>
-      recordScroll({ record, driver, testId, direction, amount }),
-    wait: (
-      testId,
-      state: WaitState | WaitTextCondition,
-      options?: DriverWaitOptions
-    ) => {
-      // Short probe waits (search/space hit loops) are caught and retried by
-      // product drivers. Recording each miss as a failed step marks the whole
-      // report FAILED while Jest still passes — skip probes in the timeline.
-      if ((options?.timeoutMs ?? Number.POSITIVE_INFINITY) <= 150) {
-        return driver.wait(testId, state, options);
-      }
-      return record(
-        'waitFor',
-        `waitFor ${waitDetail(state)} ${formatTestId(testId)}`,
-        () => driver.wait(testId, state, options),
-        { testId, detail: waitDetail(state), pollFrames: true }
-      );
-    },
-    expect: createExpectRecorder(driver, record),
-    isVisible: (testId) => driver.isVisible(testId),
-    getText: (testId) => driver.getText(testId),
     snapshotHtml: (options) => driver.snapshotHtml(options),
   };
 }
 
-function createExpectRecorder(
-  driver: Driver,
+function wrapNode(
+  node: DriverNode,
+  path: readonly string[],
   record: Recorder
-): Driver['expect'] {
+): DriverNode {
+  const selector = formatTestIdPath(path);
   return {
-    visible: (testId, options?: AssertionOptions) =>
+    get: (testId) => wrapNode(node.get(testId), [...path, testId], record),
+    tap: (options?: UiWaitOptions) =>
+      record('tap', `tap ${selector}`, () => node.tap(options), {
+        testIdPath: path,
+      }),
+    tapAt: (position) =>
+      record('tapAt', `tapAt ${selector}`, () => node.tapAt(position), {
+        testIdPath: path,
+        detail: `xRatio=${position.xRatio}, yRatio=${position.yRatio}`,
+      }),
+    input: (text, options?: UiWaitOptions) =>
       record(
-        'waitFor',
-        `expect.visible ${formatTestId(testId)}`,
-        () => driver.expect.visible(testId, options),
-        { testId, detail: 'visible', pollFrames: true }
-      ),
-    hidden: (testId, options?: AssertionOptions) =>
-      record(
-        'waitFor',
-        `expect.hidden ${formatTestId(testId)}`,
-        () => driver.expect.hidden(testId, options),
-        { testId, detail: 'hidden', pollFrames: true }
-      ),
-    text: (testId, expected, options?) =>
-      record(
-        'waitFor',
-        `expect.text ${formatTestId(testId)}`,
-        () => driver.expect.text(testId, expected, options),
+        'typeText',
+        `typeText ${selector}`,
+        () => node.input(text, options),
         {
-          testId,
+          testIdPath: path,
+          detail: `text=${JSON.stringify(text)}`,
+        }
+      ),
+    clear: () =>
+      record('clearText', `clearText ${selector}`, () => node.clear(), {
+        testIdPath: path,
+      }),
+    key: (key: DriverKey) =>
+      record('pressKey', `pressKey ${key}`, () => node.key(key), {
+        testIdPath: path,
+        detail: key,
+      }),
+    scroll: (direction: ScrollDirection, amount?) =>
+      recordScroll({ record, node, path, direction, amount }),
+    wait: (
+      state: WaitState | WaitTextCondition,
+      options?: DriverWaitOptions
+    ) => {
+      if ((options?.timeoutMs ?? Number.POSITIVE_INFINITY) <= 150) {
+        return node.wait(state, options);
+      }
+      return record(
+        'waitFor',
+        `waitFor ${waitDetail(state)} ${selector}`,
+        () => node.wait(state, options),
+        { testIdPath: path, detail: waitDetail(state), pollFrames: true }
+      );
+    },
+    expect: createExpectRecorder(node, path, record),
+    isVisible: () => node.isVisible(),
+    text: () => node.text(),
+  };
+}
+
+function createExpectRecorder(
+  node: DriverNode,
+  path: readonly string[],
+  record: Recorder
+): DriverNode['expect'] {
+  const selector = formatTestIdPath(path);
+  return {
+    visible: (options?: AssertionOptions) =>
+      record(
+        'waitFor',
+        `expect.visible ${selector}`,
+        () => node.expect.visible(options),
+        { testIdPath: path, detail: 'visible', pollFrames: true }
+      ),
+    hidden: (options?: AssertionOptions) =>
+      record(
+        'waitFor',
+        `expect.hidden ${selector}`,
+        () => node.expect.hidden(options),
+        { testIdPath: path, detail: 'hidden', pollFrames: true }
+      ),
+    text: (expected, options?) =>
+      record(
+        'waitFor',
+        `expect.text ${selector}`,
+        () => node.expect.text(expected, options),
+        {
+          testIdPath: path,
           detail: `text=${JSON.stringify(expected)}`,
           pollFrames: true,
         }
@@ -152,8 +157,8 @@ function makeRecorder(
       actorId,
       kind,
       title,
-      ...(meta?.testId !== undefined
-        ? { selector: formatTestId(meta.testId) }
+      ...(meta?.testIdPath !== undefined
+        ? { selector: formatTestIdPath(meta.testIdPath) }
         : {}),
       ...(meta?.detail !== undefined ? { detail: meta.detail } : {}),
       ...(meta?.snapshotBefore === true ? { snapshotBefore: true } : {}),
@@ -168,21 +173,22 @@ function makeRecorder(
 
 function recordScroll(args: {
   readonly record: Recorder;
-  readonly driver: Driver;
-  readonly testId: string;
+  readonly node: DriverNode;
+  readonly path: readonly string[];
   readonly direction: ScrollDirection;
   readonly amount: number | undefined;
 }): Promise<void> {
-  const { record, driver, testId, direction, amount } = args;
+  const { record, node, path, direction, amount } = args;
+  const selector = formatTestIdPath(path);
   const detail =
     amount !== undefined
       ? `direction=${direction}, amount=${amount}`
       : `direction=${direction}`;
   return record(
     'scroll',
-    `scroll ${formatTestId(testId)} ${direction}`,
-    () => driver.scroll(testId, direction, amount),
-    { testId, detail }
+    `scroll ${selector} ${direction}`,
+    () => node.scroll(direction, amount),
+    { testIdPath: path, detail }
   );
 }
 

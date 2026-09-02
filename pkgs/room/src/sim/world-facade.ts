@@ -5,9 +5,9 @@ import type { RoomSimClientHandle } from './handles';
 import type { RoomNetSetArg, SimRoomNetHandle } from './network';
 import { type DrainCtx, drainRoomSim, flushRoomAux } from './settle';
 import {
-  type EventuallyOptions,
   type NeverOptions,
   type UntilPredicate,
+  type WaitUntilOptions,
   waitNever,
   waitUntil,
 } from './wait-until';
@@ -87,7 +87,7 @@ export function assembleWorld<
     }),
     node: (clientId: string) => buildNodeHandle(k, clientId),
     runFor,
-    until: (target, optsUntil?: EventuallyOptions) =>
+    until: (target, optsUntil?: WaitUntilOptions) =>
       waitUntil(waitWorld(), withAuxFlush(target), optsUntil),
     never: (target, optsNever: NeverOptions) =>
       waitNever(waitWorld(), withAuxFlush(target), optsNever),

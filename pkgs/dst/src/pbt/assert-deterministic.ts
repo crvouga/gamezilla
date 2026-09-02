@@ -1,35 +1,26 @@
-import type { Command } from '../harness/command';
+import type { Action } from '../harness/actions';
 import type { AnyScenarioDef } from '../harness/define-scenario';
-import {
-  REPRO_VERSION,
-  type Repro,
-  type ReproInputs,
-  stringifyRepro,
-} from '../harness/repro';
+import { REPRO_VERSION, type Repro, type ReproInputs } from '../harness/repro';
 import { openWorld } from '../harness/world';
 import type { World } from '../harness/world-types';
 import type { JsonValue } from '../kernel/json';
-import {
-  createTraceRecorder,
-  createTraceResolver,
-  type TraceRecord,
-} from '../kernel/trace';
+import type { TraceRecord } from '../kernel/trace';
+import { createTraceRecorder, createTraceResolver } from '../kernel/trace';
 
-/** Inputs for one reproducible run (shared by `assertDeterministic` and `replay`). */
 export type RunInputs = {
   readonly seed: number | bigint | string;
   readonly knobs?: Partial<Record<string, JsonValue>>;
-  readonly commands: readonly Command[];
+  readonly actions: readonly Action[];
   readonly networkFaults?: ReproInputs['networkFaults'];
   readonly converge?: boolean;
 };
 
 async function applyOnWorld(
   world: World,
-  commands: readonly Command[],
+  actions: readonly Action[],
   converge: boolean
 ): Promise<void> {
-  await world.apply(commands);
+  await world.apply(actions);
   if (converge) await world.converge();
 }
 
@@ -37,14 +28,14 @@ function buildRepro(
   scenario: AnyScenarioDef,
   world: World,
   inputs: RunInputs
-): Repro<Command> {
+): Repro<Action> {
   return {
     version: REPRO_VERSION,
     inputs: {
       seed: String(inputs.seed),
       startTime: world.startTime,
       knobs: world.knobs as Record<string, JsonValue>,
-      commands: inputs.commands,
+      actions: inputs.actions,
       networkFaults: world.networkFaults,
     },
     meta: {
@@ -64,27 +55,29 @@ function worldOptions(inputs: RunInputs) {
   };
 }
 
-/**
- * Record → replay → fresh: run the Commands three times on the same Seed,
- * fail at the first Trace divergence, and hand back the third World.
- */
 export async function assertDeterministic(
   scenario: AnyScenarioDef,
   inputs: RunInputs
 ): Promise<{
-  readonly repro: Repro<Command>;
+  readonly repro: Repro<Action>;
   readonly trace: readonly TraceRecord[];
   readonly world: World;
 }> {
   const converge = inputs.converge !== false;
   const recorder = createTraceRecorder();
-  await using world1 = await openWorld(scenario as never, {
+  const world1 = await openWorld(scenario as never, {
     ...worldOptions(inputs),
     trace: recorder,
   });
-  await applyOnWorld(world1 as World, inputs.commands, converge);
-  const trace = recorder.records();
-  const repro = buildRepro(scenario, world1 as World, inputs);
+  let repro: Repro<Action>;
+  let trace: readonly TraceRecord[];
+  try {
+    await applyOnWorld(world1 as World, inputs.actions, converge);
+    trace = recorder.records();
+    repro = buildRepro(scenario, world1 as World, inputs);
+  } finally {
+    await world1.dispose();
+  }
 
   const resolver = createTraceResolver(trace);
   const world2 = await openWorld(scenario as never, {
@@ -92,11 +85,11 @@ export async function assertDeterministic(
     trace: resolver,
   });
   try {
-    await applyOnWorld(world2 as World, inputs.commands, converge);
+    await applyOnWorld(world2 as World, inputs.actions, converge);
     resolver.assertFullyConsumed();
     await world2.dispose().catch(() => undefined);
     const world = await openWorld(scenario as never, worldOptions(inputs));
-    await applyOnWorld(world as World, inputs.commands, converge);
+    await applyOnWorld(world as World, inputs.actions, converge);
     return { repro, trace, world: world as World };
   } catch (e) {
     await world2.dispose().catch(() => undefined);
@@ -104,7 +97,6 @@ export async function assertDeterministic(
   }
 }
 
-/** @internal */
 export function formatDeterminismFailure(
   repro: Repro,
   trace: readonly TraceRecord[],
@@ -112,7 +104,7 @@ export function formatDeterminismFailure(
 ): string {
   return (
     `determinism failure: ${error instanceof Error ? error.message : String(error)}\n` +
-    `repro:\n${stringifyRepro(repro)}\n` +
-    `trace records: ${trace.length}`
+    `trace records: ${trace.length}\n` +
+    `scenario: ${repro.meta.scenarioId ?? 'unknown'}`
   );
 }

@@ -9,7 +9,7 @@
     "test": "bunx jest --config ./jest.config.cjs --runInBand",
     "test:debug-handles": "bunx jest --config ./jest.config.cjs --runInBand --detectOpenHandles",
     "test:fuzz": "bun run scripts/test-fuzz.ts",
-    "test:max": "SIM_FIDELITY=max bunx jest --config ./jest.config.cjs --runInBand"
+    "test:max": "playwright test -c ./playwright.config.mjs"
   },
   "dependencies": {
     "@apps/client": "workspace:*",
@@ -18,9 +18,12 @@
     "@libs/db": "workspace:*",
     "@libs/dst-handles": "workspace:*",
     "@lingui/core": "catalog:",
+    "@pkgs/assert": "workspace:*",
+    "@pkgs/async-local": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/dst": "workspace:*",
     "@pkgs/emqx-server": "workspace:*",
+    "@pkgs/invariants": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/minio-server": "workspace:*",
     "@pkgs/object-store": "workspace:*",

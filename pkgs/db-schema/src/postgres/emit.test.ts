@@ -39,6 +39,17 @@ describe('postgres emitter safety', () => {
     }
   });
 
+  test('column names containing forbidden substrings do not false-positive', () => {
+    const schema = defineSchema({ tables: { t_94: { arename: 'uuid' } } });
+    const plan = planServer(schema._declared, emptyCatalog());
+    expect(plan.ok).toBe(true);
+    if (!plan.ok) return;
+    for (const op of plan.operations) {
+      const stmt = emitServerOperation(op);
+      expect(FORBIDDEN_SERVER_DDL.test(stmt.sql)).toBe(false);
+    }
+  });
+
   test('create_index uses CONCURRENTLY', () => {
     const plan = planServer(sampleSchema._declared, emptyCatalog());
     expect(plan.ok).toBe(true);

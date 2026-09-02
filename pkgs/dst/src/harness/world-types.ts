@@ -21,10 +21,13 @@ export type NodeHandles<N extends Record<string, NodeEntry>> = {
   [P in keyof N]: StartReturn<N[P]>;
 };
 
-/** Virtual-time bound for `eventually`. */
-export type EventuallyOptions = { readonly withinMs?: number };
-/** Virtual-time window for `never`. */
+export type WaitUntilOptions = { readonly withinMs?: number };
 export type NeverOptions = { readonly forMs: number };
+
+export type NetworkEdge = {
+  readonly fromRole: string;
+  readonly toRole: string;
+};
 
 export type WorldControls = {
   readonly seed: bigint;
@@ -32,25 +35,19 @@ export type WorldControls = {
   readonly ports: WorldPorts;
   readonly network: Network;
   readonly networkFaults: NetworkFaults;
+  readonly edges: readonly NetworkEdge[];
   nodeIds(role: string): readonly string[];
   now(): number;
   advance(ms: number): Promise<void>;
-  /** Run until Quiescence (no runnable Tasks, only timers remain). */
   quiesce(): Promise<void>;
-  /** Bounded liveness: `p` holds within `withinMs` of virtual time. */
-  eventually(
+  waitUntil(
     pred: () => boolean | Promise<boolean>,
-    opts?: EventuallyOptions
+    opts?: WaitUntilOptions
   ): Promise<number>;
-  /**
-   * `p` never holds for `forMs` of virtual time.
-   * TODO(dst-audit): becomes `always(() => !p(), { forMs })` in Phase 4 (D11).
-   */
   never(
     pred: () => boolean | Promise<boolean>,
     opts: NeverOptions
   ): Promise<void>;
-  /** Drive the Scheduler until a host promise settles; rethrows its rejection. */
   resolve<T>(promise: Promise<T>): Promise<T>;
   partition(a: NodeId, b: NodeId): Disposable;
   heal(a: NodeId, b: NodeId): void;
@@ -58,10 +55,9 @@ export type WorldControls = {
   hold(key: FlowKey): Disposable;
   release(key: FlowKey): void;
   releaseAll(): void;
-  /** Apply serialized Commands in order, stepping and checking `always` after each. */
-  apply(commands: readonly JsonValue[]): Promise<void>;
-  /** Run the Scenario's `converge`, then its `always` Properties. */
+  apply(actions: readonly JsonValue[]): Promise<void>;
   converge(): Promise<void>;
+  propertyCoverage(): ReadonlyMap<string, number>;
   dispose(): Promise<void>;
   [Symbol.asyncDispose](): Promise<void>;
 };

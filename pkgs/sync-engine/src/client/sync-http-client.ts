@@ -64,10 +64,14 @@ const DEFAULT_PATHS: SyncHttpClientPaths = {
   mutations: '/api/mutations',
 };
 
-/** True when JWT `exp` is missing/unparseable or still valid beyond skew. */
+/**
+ * True when the bearer can be sent without a proactive refresh race.
+ * Opaque IdP tokens (`createId()` strings, not JWTs) are always valid here —
+ * only JWT `exp` past skew forces a fresh-token race before the POST.
+ */
 function sessionTokenLikelyValid(token: string, now: () => number): boolean {
   const parts = token.split('.');
-  if (parts.length < 2) return false;
+  if (parts.length < 2) return true;
   try {
     const b64 = parts[1]!.replace(/-/g, '+').replace(/_/g, '/');
     const json = globalThis.atob(b64);
@@ -75,7 +79,7 @@ function sessionTokenLikelyValid(token: string, now: () => number): boolean {
     if (typeof payload.exp !== 'number') return true;
     return payload.exp * 1000 > now() + TOKEN_EXPIRY_SKEW_MS;
   } catch {
-    return false;
+    return true;
   }
 }
 const DEFAULT_ANON_ID_HEADER = 'x-anon-id';

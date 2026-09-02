@@ -1,5 +1,10 @@
-import { defineScenario } from '@pkgs/dst';
-import type { AuthModel } from './actions';
+import {
+  type ActionCatalog,
+  defineScenario,
+  nodeCount,
+  properties,
+  property,
+} from '@pkgs/dst';
 import { AUTH_ACTIONS } from './actions';
 import { assertAuthInvariants, worldFingerprint } from './invariants';
 import {
@@ -10,7 +15,7 @@ import {
   authActorNode,
   authStoreNode,
 } from './nodes';
-import type { AuthKit } from './types';
+import type { AuthKit, AuthKnobs, AuthSurface } from './types';
 
 const AUTH_SYSTEM_START_MS = 1_700_000_000_000;
 
@@ -31,28 +36,22 @@ export const AUTH_SYSTEM = defineScenario({
     store: authStoreNode,
     client: {
       ...authActorNode,
-      count: (k) => k['clientCount'] as number,
+      count: nodeCount<AuthKnobs>((k) => k.clientCount),
       id: (i) => `c${i}`,
     },
   },
-  commands: AUTH_ACTIONS,
-  referenceModel: {
-    initial: (): AuthModel => ({}),
-  },
+  actions: AUTH_ACTIONS as unknown as ActionCatalog<AuthKit>,
+  properties: properties<AuthSurface>()({
+    invariantsAtConverge: property.always(async () => true, { at: 'converge' }),
+  }),
   extend: (): AuthKit => ({ fingerprint: null }),
-  always: async () => {
-    /* safety checks run in settle */
-  },
   converge: async (world) => {
-    await world.quiesce();
-    await assertAuthInvariants(world);
-    world.fingerprint = await worldFingerprint(world);
+    const authWorld = world as AuthSurface;
+    await authWorld.quiesce();
+    await assertAuthInvariants(authWorld);
+    authWorld.fingerprint = await worldFingerprint(authWorld);
   },
 });
 
 export type AuthSystemDef = typeof AUTH_SYSTEM;
-export type AuthWorld = import('@pkgs/dst').World<
-  AuthSystemDef['knobs'],
-  AuthSystemDef['nodes'],
-  AuthKit
->;
+export type AuthWorld = AuthSurface;

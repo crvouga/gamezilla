@@ -23,23 +23,23 @@ exercise timing and network faults miss others.
 **VirtualClock** and in-process **Network** model. You describe:
 
 - **Nodes** (clients, servers, brokers…)
-- **Commands** (domain actions + network/time admin)
-- **Properties** (`converge`, `always`)
+- **Actions** (domain stimuli + `std.network` / `std.time` admin)
+- **Properties** (`property.always` / `.eventually` / `.sometimes`, plus scenario `converge`)
 
-The framework owns composition (`openWorld`, `runScenario`, `replay`). You plug
-in behavior — no package-local World DSLs, no second `WorldPorts` minted inside
-node starts, no mega-libraries with `match` catch-alls.
+The framework owns composition (`openWorld`, `check`, `replay`, `runExamples`). You plug
+in behavior via a declared **Surface** — no package-local World DSLs, no second
+`WorldPorts` minted inside node starts, no reference models or `precondition` gates.
 
 ### Benefits
 
 | Benefit | What you get |
 | --- | --- |
-| **Reproducible runs** | One `Repro` v2 JSON (seed + knobs + commands) replays identically |
+| **Reproducible runs** | One Repro v3 JSON (seed + knobs + actions) replays identically |
 | **Proven determinism** | `assertDeterministic` records a Trace, replays it, and fails on the first divergence |
-| **Shrinkable chaos** | `runScenario` uses `fc.commands` with reference-model filters; fast-check shrinks to minimal failing sequences |
+| **Shrinkable chaos** | `check` online-walks actions with weight gating; ddmin shrinks failing sequences |
 | **Network fault injection** | Partitions, holds, latency, drops, duplicates — all seeded and replayable |
-| **Virtual time** | Quiescence-driven scheduler; `advance`, `eventually`, `never` without real waits |
-| **Typed kit surfaces** | `extend` merges domain helpers onto `World<K, N, X>` with full inference |
+| **Virtual time** | Quiescence-driven scheduler; `advance`, `waitUntil`, `never` without real waits |
+| **Surface-typed catalogs** | `actions<S>()` / `properties<S>()` + `extend` implements `S` on `World` |
 | **Harness isolation** | `WorldPorts` never leaks into product `ClientEnv` / `ServerEnv` (depcruise enforced) |
 
 ### When to use it
@@ -67,43 +67,57 @@ tests only.
 ```ts
 import fc from 'fast-check';
 import {
-  advanceCommand,
-  command,
+  actions,
   defineScenario,
   knob,
-  networkCommands,
   node,
+  nodeCount,
   openWorld,
+  properties,
+  property,
+  std,
 } from '@pkgs/dst';
-import { runScenario } from '@pkgs/dst/pbt';
+import { check } from '@pkgs/dst/pbt';
 
-// 1. Declare nodes, knobs, commands
-const serverNode = node({ start: (ctx) => { /* … */ } });
-const CLIENT_COUNT = knob(2, fc.integer({ min: 2, max: 3 }));
-const netCommands = networkCommands({ fromRole: 'client', toRole: 'server' });
+interface MySurface {
+  put(key: string, value: string): Promise<void>;
+  knownKeys(): readonly string[];
+}
 
-// 2. Define a scenario
-const scenario = defineScenario({
-  id: 'my-system',
-  knobs: { clientCount: CLIENT_COUNT },
-  nodes: {
-    server: serverNode,
-    client: { ...clientNode, count: (k) => k['clientCount'] as number, id: (i) => `c${i}` },
+const myActions = actions<MySurface>()({
+  put: {
+    weight: 1,
+    generate: (ctx) =>
+      fc.record({ key: fc.constantFrom('a', 'b'), value: fc.string() }),
+    apply: async (surface, { key, value }) => surface.put(key, value),
   },
-  network: { edges: [{ fromRole: 'client', toRole: 'server' }] },
-  commands: { ...netCommands, 'time.advance': advanceCommand(), myAction: myCommand },
-  referenceModel: { initial: () => ({}) },
-  converge: async (world) => { world.healAll(); await world.quiesce(); },
-  always: async () => { /* safety checks */ },
 });
 
-// 3. Open a World (deterministic sim)
-await using world = await openWorld(scenario, { seed: 42, knobs: { clientCount: 2 } });
-await world.apply([{ kind: 'time.advance', ms: 100 }]);
-await world.converge();
+const myProps = properties<MySurface>()({
+  keysStable: property.always((s) => s.knownKeys().length >= 0),
+});
 
-// 4. Run PBT (reference model + determinism gate)
-await runScenario(scenario, { maxCommands: 14 });
+const scenario = defineScenario({
+  id: 'my-system',
+  knobs: { clientCount: knob(2, fc.integer({ min: 2, max: 3 })) },
+  nodes: { server: serverNode, client: { ...clientNode, count: nodeCount((k) => k.clientCount), id: (i) => `c${i}` } },
+  network: { edges: [{ fromRole: 'client', toRole: 'server' }] },
+  actions: { ...std.network(), ...std.time(), ...myActions },
+  properties: myProps,
+  extend: async (world) => ({ /* kit-only methods — not Base controls */ }),
+  converge: async (world) => { world.healAll(); await world.quiesce(); },
+});
+
+const world = await openWorld(scenario, { seed: 42, knobs: { clientCount: 2 } });
+try {
+  await world.apply([{ kind: 'put', key: 'a', value: 'hello' }]);
+  await world.converge();
+} finally {
+  await world.dispose();
+}
+
+const report = await check(scenario, { episodeLength: 14, episodes: 8 });
+// report.coverage on success; CheckFailedError carries report on failure
 ```
 
 Canonical toy fixture: [`src/test/acme-kv/`](src/test/acme-kv/) — LWW KV over
@@ -114,22 +128,23 @@ real `network.send`. **Test fixture only**, not a reusable library.
 ## Core concepts
 
 ```text
-node + knob + command + networkCommands
-  → defineScenario (+ optional extend)
-  → openWorld / runScenario / replay / runPins
+Surface + node + knob + actions<S>() + properties<S>() + std.*
+  → defineScenario (+ extend implements Surface)
+  → openWorld / check / replay / runExamples
   → assertDeterministic (Trace record → replay-validate)
 ```
 
 | Term | Meaning |
 | --- | --- |
-| **Seed** | Root of a forked RNG tree (`io`, `ids`, `sched`, `net`) — drives ids, random picks, same-time task order, network faults |
-| **Scenario** | Named config: topology, knobs, commands, network edges/faults, `converge` / `always`, optional `extend` |
-| **World** | Live sim instance: virtual time, nodes, network, controls (`advance`, `partition`, `apply`, …) |
-| **Command** | External stimulus with `generate` (PBT), `apply` (World), optional `precondition` / `applyToModel` (reference model) |
-| **Knob** | Scenario parameter with default + fast-check arbitrary (e.g. client count) |
-| **Node** | Role participant started by the harness; receives `NodeContext` with ports, network, peers |
-| **Repro** | Serialized inputs (v2): seed, startTime, knobs, commands, networkFaults |
-| **Trace** | Typed record of choices, task creates/fires, network events — replayed to detect divergence |
+| **Surface** | Declared interface (`Base` + kit methods). Catalogs typed with `actions<S>()` / `properties<S>()`; `extend` returns kit-only fields merged onto `World`. |
+| **Seed** | Root of a forked RNG tree — drives ids, random picks, same-time task order, network faults |
+| **Scenario** | Named config: topology, knobs, actions, properties, network edges/faults, `converge` |
+| **World** | Live sim: virtual time, nodes, network, framework controls + merged Surface |
+| **Action** | External stimulus: `weight(surface)`, `generate({ surface, knobs, … })`, total `apply(surface, payload)` |
+| **Property** | `property.always` (step or `{ at: 'converge' }`), `.eventually`, `.sometimes` — coverage + vacuity |
+| **Knob** | Scenario parameter with default + fast-check arbitrary; `KnobValues<K>` inferred (no casts) |
+| **Repro** | Serialized inputs (v3): optional seed, startTime, knobs, actions, networkFaults |
+| **CampaignReport** | `check` success payload: episodes, coverage, failures |
 
 ---
 

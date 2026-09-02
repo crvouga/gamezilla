@@ -1,13 +1,13 @@
 import type {
-  EventuallyOptions,
   Network,
   NeverOptions,
+  WaitUntilOptions,
   WorldPorts,
 } from '@pkgs/dst';
 
 import type { SimPollablePromise } from './client-surface';
 
-export type { EventuallyOptions, NeverOptions };
+export type { NeverOptions, WaitUntilOptions };
 
 export type UntilTarget =
   | (() => boolean | Promise<boolean>)
@@ -20,7 +20,7 @@ type WaitWorld = {
   readonly network: Network;
 };
 
-type WaitUntilOpts = EventuallyOptions & {
+type WaitUntilOpts = WaitUntilOptions & {
   readonly budgetMs?: number;
   readonly stepMs?: number;
 };

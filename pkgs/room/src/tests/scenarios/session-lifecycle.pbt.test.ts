@@ -30,7 +30,7 @@ describe('room session-lifecycle PBT', () => {
           const world = await replayRoom(counterSystem, {
             seed,
             knobs,
-            commands: [
+            actions: [
               {
                 kind: 'domain',
                 clientId: 'c0',
@@ -63,7 +63,7 @@ describe('room session-lifecycle PBT', () => {
           const world = await replayRoom(counterSystem, {
             seed,
             knobs,
-            commands: [
+            actions: [
               { kind: 'disconnect', clientId: 'c0' },
               {
                 kind: 'domain',
@@ -104,7 +104,7 @@ describe('room session-lifecycle PBT', () => {
         fc.asyncProperty(arbSeed(), async (seed) => {
           const world = await replayRoom(counterSystem, {
             seed,
-            commands: [
+            actions: [
               {
                 kind: 'domain',
                 clientId: 'c0',
@@ -133,7 +133,7 @@ describe('room session-lifecycle PBT', () => {
     const world = await replayRoom(counterSystem, {
       seed: 7,
       converge: false,
-      commands: [],
+      actions: [],
     });
     const real = world;
     try {

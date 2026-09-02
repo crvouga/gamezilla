@@ -14,8 +14,8 @@ import {
   SimulationReporter,
   wallPathExists,
 } from '@pkgs/sim-console';
-import type { Driver } from '@pkgs/ui-testing';
-import { createDriver, createMultiAppRntlSession } from '@pkgs/ui-testing';
+import type { Driver, UiTestCtx } from '@pkgs/ui-testing';
+import { createDriver, getUiTestBrowser } from '@pkgs/ui-testing';
 import type { Page } from '@playwright/test';
 import {
   type CreateSimOptions,
@@ -27,7 +27,6 @@ import {
   restoreSystemSnapshot,
   type SystemSnapshotCtx,
 } from '@sim/console/sim/system-snapshot';
-import { createElement } from 'react';
 
 import '@apps/client/i18n/i18n';
 
@@ -44,6 +43,7 @@ import {
 import { ensureNodeLocalStoragePolyfill } from './node-local-storage-polyfill';
 import { injectPlaywrightSnapshotAuth } from './playwright-snapshot-auth';
 import { simNodeTimers } from './sim-actor-overrides';
+import { listenSimHttpServer, type SimHttpListener } from './sim-http-listener';
 import { readSimSystemSnapshot } from './sim-snapshot-fixture';
 import { createSerializedRunFor, createSimWaitPump } from './sim-wait-pump';
 import { simReportTopology } from './sim-world-snapshot';
@@ -60,18 +60,9 @@ const reportStore = createNodeFsObjectStore({
   layout: 'tree',
 });
 
-/**
- * Fixed on-disk run id for the static console dump. Must not be the SPA alias
- * `latest` — sanitizeRunId remaps that reserved id to `latest_run`.
- * Wipe happens once in `jest.global-setup.cjs` when `SIM_REPORT` is on
- * (not per openSim / test file; skipped when reports are off).
- */
 const STATIC_REPORT_RUN_ID = 'latest_run';
-
-/** Relative to `tests/<id>/frames/` → run `snapshot-shell.css`. */
 const FRAME_STYLESHEET_HREF = '../../snapshot-shell.css';
 
-/** HTML dumps for sim console. Off only when `SIM_REPORT=0`. */
 function simReportEnabled(): boolean {
   return process.env['SIM_REPORT'] !== '0';
 }
@@ -94,39 +85,67 @@ export type SimActorHandle = {
 export type OpenSimHandle = {
   readonly sim: Sim;
   readonly fidelity: OpenSimFidelity;
+  readonly driverKind: UiTestCtx['driverKind'];
   actor(id: string): Promise<SimActorHandle>;
-  /** Drop the RNTL focus without closing sim clients. */
   clearUiFocus(): void;
-  /**
-   * Close UI + client for `id` and bump durable client epoch so the next
-   * {@link actor} call mounts a fresh client SQL namespace (shared server).
-   */
   resetActor(id: string): Promise<void>;
   dispose(): Promise<void>;
   [Symbol.asyncDispose](): Promise<void>;
 };
 
-function injectedPlaywrightPage(): Page | undefined {
-  const holder = globalThis as { readonly __PLAYWRIGHT_PAGE__?: Page };
-  return holder.__PLAYWRIGHT_PAGE__;
+type ResolvedOpenSimArgs = {
+  readonly testId: string;
+  readonly ctx: UiTestCtx | undefined;
+  readonly options: OpenSimOptions | undefined;
+  readonly fidelity: OpenSimFidelity;
+  readonly driverKind: UiTestCtx['driverKind'];
+};
+
+function isUiTestCtx(value: unknown): value is UiTestCtx {
+  if (typeof value !== 'object' || value === null) return false;
+  const record = value as Record<string, unknown>;
+  return (
+    typeof record['fidelity'] === 'string' &&
+    typeof record['driverKind'] === 'string' &&
+    typeof record['test'] === 'function'
+  );
 }
 
-function createClientDriver(args: {
-  readonly fidelity: OpenSimFidelity;
+function resolveOpenSimArgs(
+  testId: string,
+  ctxOrOptions?: UiTestCtx | OpenSimOptions,
+  maybeOptions?: OpenSimOptions
+): ResolvedOpenSimArgs {
+  const ctx =
+    ctxOrOptions !== undefined && isUiTestCtx(ctxOrOptions)
+      ? ctxOrOptions
+      : undefined;
+  const options =
+    ctx !== undefined
+      ? maybeOptions
+      : (ctxOrOptions as OpenSimOptions | undefined);
+  const fidelity = ctx?.fidelity ?? resolveOpenSimFidelity(options);
+  const driverKind =
+    ctx?.driverKind ?? (fidelity === 'max' ? 'playwright' : 'rntl');
+  return { testId, ctx, options, fidelity, driverKind };
+}
+
+type MultiAppRntlSession = ReturnType<
+  typeof import('@pkgs/ui-testing')['createMultiAppRntlSession']
+>;
+
+function loadRntlSessionFactory(): typeof import('@pkgs/ui-testing')['createMultiAppRntlSession'] {
+  return require('@pkgs/ui-testing').createMultiAppRntlSession;
+}
+
+function createRntlClientDriver(args: {
   readonly sim: Sim;
   readonly id: string;
-  readonly multiAppSession: ReturnType<typeof createMultiAppRntlSession>;
+  readonly multiAppSession: MultiAppRntlSession;
   readonly runFor: (durationMs: number) => Promise<void>;
 }): Driver {
-  const page = injectedPlaywrightPage();
-  const baseUrl = process.env['PLAYWRIGHT_BASE_URL'];
-  if (args.fidelity === 'max' && page !== undefined && baseUrl !== undefined) {
-    return createDriver({ kind: 'playwright', page, baseUrl });
-  }
+  const { createElement } = require('react') as typeof import('react');
   const live = args.sim.spawnClient(args.id);
-  // Product keeps virtual sim timers (createSim default). Driver wait deadlines
-  // use wall time as a fail-fast backstop; the drain pump advances the sim
-  // clock (one-shots / reconcile) without wall 50ms sleeps.
   const pump = createSimWaitPump({
     scheduler: args.sim.scheduler,
     runFor: args.runFor,
@@ -148,6 +167,51 @@ function createClientDriver(args: {
       },
     },
   });
+}
+
+async function createPlaywrightClientDriver(args: {
+  readonly id: string;
+  readonly snapshot?: SimSystemSnapshot;
+}): Promise<{
+  readonly driver: Driver;
+  readonly page: Page;
+  close: () => Promise<void>;
+}> {
+  const browser = getUiTestBrowser() as
+    | import('@playwright/test').Browser
+    | undefined;
+  if (browser === undefined) {
+    throw new Error(
+      'openSim max: Playwright browser unavailable — run scenarios via test:max'
+    );
+  }
+  const baseUrl = process.env['PLAYWRIGHT_BASE_URL'] ?? 'http://127.0.0.1:5173';
+
+  const context = await browser.newContext();
+  const page = await context.newPage();
+
+  if (args.snapshot !== undefined) {
+    await injectPlaywrightSnapshotAuth({
+      page,
+      actorId: args.id,
+      snapshot: args.snapshot,
+      namespace: simClientNamespace(args.id),
+    });
+  }
+
+  const driver = createDriver({
+    kind: 'playwright',
+    page,
+    baseUrl,
+  });
+
+  return {
+    driver,
+    page,
+    close: async () => {
+      await context.close();
+    },
+  };
 }
 
 async function postgresServerSql(): Promise<SimSqlHandle> {
@@ -174,9 +238,6 @@ async function bootSim(fidelity: OpenSimFidelity): Promise<{
 }> {
   const startTime = Date.parse('2024-06-01T00:00:00.000Z');
   const backend = resolveSimSqlBackend();
-  // Keep virtual sim timers on the product — wall timers here stick RNTL
-  // `act` on product setIntervals (reconcile / ping). Driver waits use wall
-  // time in createClientDriver and advance this clock while sleeping.
   const createOpts: CreateSimOptions = {
     seed: 1,
     startTime,
@@ -194,26 +255,28 @@ async function bootSim(fidelity: OpenSimFidelity): Promise<{
   return { sim: host.sim, host };
 }
 
-function createSimReporter(
-  testId: string,
-  sim: Sim,
-  multiAppSession: ReturnType<typeof createMultiAppRntlSession>
-): SimulationReporter | null {
+function createSimReporter(args: {
+  readonly testId: string;
+  readonly sim: Sim;
+  readonly driverKind: UiTestCtx['driverKind'];
+  readonly multiAppSession: MultiAppRntlSession | null;
+}): SimulationReporter | null {
   if (!simReportEnabled()) return null;
   return new SimulationReporter({
     seed: '1',
     store: reportStore,
     runId: STATIC_REPORT_RUN_ID,
-    testId,
+    testId: args.testId,
     now: () => wallClock.now(),
     maxFramesPerStep: 1,
     frameIntervalMs: 250,
-    // Flush / failure only — Jest has no live report SSE watchers.
     publishThrottleMs: Number.POSITIVE_INFINITY,
-    ui: process.env['PLAYWRIGHT_BASE_URL'] ? 'playwright' : 'rntl',
-    snapshotTopology: () => projectReportTopology(simReportTopology(sim), '1'),
+    ui: args.driverKind,
+    snapshotTopology: () =>
+      projectReportTopology(simReportTopology(args.sim), '1'),
     snapshotViews: async () => {
-      const snapshots = await multiAppSession.snapshotAllActors({
+      if (args.multiAppSession === null) return [];
+      const snapshots = await args.multiAppSession.snapshotAllActors({
         stylesheetHref: FRAME_STYLESHEET_HREF,
       });
       return [...snapshots.entries()].map(([nodeId, html]) => ({
@@ -227,39 +290,40 @@ function createSimReporter(
 type ActorEntry = {
   readonly handle: SimActorHandle;
   readonly raw: Driver;
+  readonly closeResources: () => Promise<void>;
 };
 
 async function launchActor(args: {
-  readonly fidelity: OpenSimFidelity;
+  readonly driverKind: UiTestCtx['driverKind'];
   readonly sim: Sim;
   readonly id: string;
-  readonly multiAppSession: ReturnType<typeof createMultiAppRntlSession>;
+  readonly multiAppSession: MultiAppRntlSession | null;
   readonly reporter: SimulationReporter | null;
   readonly runFor: (durationMs: number) => Promise<void>;
   readonly snapshot?: SimSystemSnapshot;
 }): Promise<ActorEntry> {
-  const raw = createClientDriver({
-    fidelity: args.fidelity,
-    sim: args.sim,
-    id: args.id,
-    multiAppSession: args.multiAppSession,
-    runFor: args.runFor,
-  });
-  const page = injectedPlaywrightPage();
-  const baseUrl = process.env['PLAYWRIGHT_BASE_URL'];
-  if (
-    args.snapshot !== undefined &&
-    args.fidelity === 'max' &&
-    page !== undefined &&
-    baseUrl !== undefined
-  ) {
-    await injectPlaywrightSnapshotAuth({
-      page,
-      actorId: args.id,
-      snapshot: args.snapshot,
-      namespace: simClientNamespace(args.id),
+  let raw: Driver;
+  let closeResources: () => Promise<void> = async () => undefined;
+
+  if (args.driverKind === 'playwright') {
+    const pw = await createPlaywrightClientDriver({
+      id: args.id,
+      ...(args.snapshot !== undefined ? { snapshot: args.snapshot } : {}),
+    });
+    raw = pw.driver;
+    closeResources = pw.close;
+  } else {
+    if (args.multiAppSession === null) {
+      throw new Error('openSim rntl: multi-app session required');
+    }
+    raw = createRntlClientDriver({
+      sim: args.sim,
+      id: args.id,
+      multiAppSession: args.multiAppSession,
+      runFor: args.runFor,
     });
   }
+
   const ui =
     args.reporter === null
       ? raw
@@ -268,7 +332,11 @@ async function launchActor(args: {
           reporter: args.reporter,
         });
   await ui.launch();
-  return { handle: { id: args.id, ui }, raw };
+  return {
+    handle: { id: args.id, ui },
+    raw,
+    closeResources,
+  };
 }
 
 async function closeActorEntry(entry: ActorEntry): Promise<void> {
@@ -277,50 +345,70 @@ async function closeActorEntry(entry: ActorEntry): Promise<void> {
   } catch {
     // ignore teardown races
   }
+  try {
+    await entry.closeResources();
+  } catch {
+    // ignore teardown races
+  }
 }
 
 async function disposeOpenSim(args: {
   readonly actors: Map<string, ActorEntry>;
-  readonly multiAppSession: ReturnType<typeof createMultiAppRntlSession>;
+  readonly multiAppSession: MultiAppRntlSession | null;
   readonly reporter: SimulationReporter | null;
   readonly host: ProductSystemWorld;
+  readonly httpListener: SimHttpListener | null;
 }): Promise<void> {
   for (const a of args.actors.values()) {
     await closeActorEntry(a);
   }
   args.actors.clear();
-  args.multiAppSession.dispose();
+  args.multiAppSession?.dispose();
+  if (args.httpListener !== null) {
+    await args.httpListener.stop();
+  }
   if (args.reporter !== null) {
     try {
       await args.reporter.flush();
       await writeKeysIndex();
     } catch (err) {
-      // Report flush should not mask sim teardown, but silent loss leaves the
-      // console showing a prior FAILED run after a green Jest pass.
       console.error(
         '[openSim] report flush failed:',
         err instanceof Error ? err.message : err
       );
     }
   }
-  // Framework world dispose → product.sim node dispose → sim.dispose().
-  // Host + sim dispose are both idempotent (safe if called twice).
   await args.host.dispose();
-  // auth client schedules a wall 10ms setTimeout after auth routes
-  // (session-signal flip). Nanostores STORE_UNMOUNT_DELAY (1000ms) is unref'd
-  // in jest.setup-env so it does not keep Jest alive after this short drain.
   await new Promise<void>((resolve) => {
     simNodeTimers.setTimeout(resolve, 50);
   });
 }
 
-export async function openSim(
-  testId: string,
-  options?: OpenSimOptions
-): Promise<OpenSimHandle> {
-  ensureNodeLocalStoragePolyfill();
-  const fidelity = resolveOpenSimFidelity(options);
+type OpenSimContext = {
+  readonly sim: Sim;
+  readonly host: ProductSystemWorld;
+  readonly fidelity: OpenSimFidelity;
+  readonly driverKind: UiTestCtx['driverKind'];
+  readonly httpListener: SimHttpListener | null;
+  readonly actors: Map<string, ActorEntry>;
+  readonly liveClients: Map<string, ReturnType<Sim['spawnClient']>>;
+  readonly multiAppSession: MultiAppRntlSession | null;
+  readonly reporter: SimulationReporter | null;
+  readonly runFor: (durationMs: number) => Promise<void>;
+  readonly loadedSnapshot: SimSystemSnapshot | undefined;
+};
+
+async function createOpenSimContext(
+  resolved: ResolvedOpenSimArgs
+): Promise<OpenSimContext> {
+  const { fidelity, driverKind, options } = resolved;
   const { sim, host } = await bootSim(fidelity);
+
+  let httpListener: SimHttpListener | null = null;
+  if (driverKind === 'playwright') {
+    httpListener = await listenSimHttpServer(sim);
+  }
+
   const clientSqlByAddress = new Map<string, SimSqlHandle>();
   const liveClients = new Map<string, ReturnType<Sim['spawnClient']>>();
   let loadedSnapshot: SimSystemSnapshot | undefined;
@@ -334,64 +422,111 @@ export async function openSim(
     };
     await restoreSystemSnapshot(snapshotCtx, loadedSnapshot);
   }
+
   const actors = new Map<string, ActorEntry>();
   const runFor = createSerializedRunFor(sim.scheduler);
-  const multiAppSession = createMultiAppRntlSession({
-    onActorFocus: () => {
-      // Nudge product timers (upload idle / reconcile) after remount.
-      void runFor(1_000).catch(() => {
-        // ignore disposed clock
-      });
-    },
-  });
+
+  let multiAppSession: MultiAppRntlSession | null = null;
+  if (driverKind === 'rntl') {
+    multiAppSession = loadRntlSessionFactory()({
+      onActorFocus: () => {
+        void runFor(1_000).catch(() => undefined);
+      },
+    });
+  }
+
   if (simReportEnabled()) {
     await reportFs.mkdir(reportDataDir, { recursive: true });
   }
-  const reporter = createSimReporter(testId, sim, multiAppSession);
+  const reporter = createSimReporter({
+    testId: resolved.testId,
+    sim,
+    driverKind,
+    multiAppSession,
+  });
+
+  return {
+    sim,
+    host,
+    fidelity,
+    driverKind,
+    httpListener,
+    actors,
+    liveClients,
+    multiAppSession,
+    reporter,
+    runFor,
+    loadedSnapshot,
+  };
+}
+
+function buildOpenSimHandle(ctx: OpenSimContext): OpenSimHandle {
   let disposed = false;
 
   const handle: OpenSimHandle = {
-    sim,
-    fidelity,
+    sim: ctx.sim,
+    fidelity: ctx.fidelity,
+    driverKind: ctx.driverKind,
     async actor(id: string) {
       if (disposed) throw new Error('openSim: already disposed');
-      const existing = actors.get(id);
+      const existing = ctx.actors.get(id);
       if (existing) return existing.handle;
       const entry = await launchActor({
-        fidelity,
-        sim,
+        driverKind: ctx.driverKind,
+        sim: ctx.sim,
         id,
-        multiAppSession,
-        reporter,
-        runFor,
-        ...(loadedSnapshot !== undefined ? { snapshot: loadedSnapshot } : {}),
+        multiAppSession: ctx.multiAppSession,
+        reporter: ctx.reporter,
+        runFor: ctx.runFor,
+        ...(ctx.loadedSnapshot !== undefined
+          ? { snapshot: ctx.loadedSnapshot }
+          : {}),
       });
-      liveClients.set(id, sim.spawnClient(id));
-      actors.set(id, entry);
+      if (ctx.driverKind === 'rntl') {
+        ctx.liveClients.set(id, ctx.sim.spawnClient(id));
+      }
+      ctx.actors.set(id, entry);
       return entry.handle;
     },
     clearUiFocus() {
-      multiAppSession.clearFocus();
+      ctx.multiAppSession?.clearFocus();
     },
     async resetActor(id: string) {
       if (disposed) return;
-      const existing = actors.get(id);
+      const existing = ctx.actors.get(id);
       if (existing !== undefined) {
         await closeActorEntry(existing);
-        actors.delete(id);
+        ctx.actors.delete(id);
       }
-      await sim.dropClient(id);
-      liveClients.delete(id);
-      sim.bumpClientEpoch();
+      await ctx.sim.dropClient(id);
+      ctx.liveClients.delete(id);
+      ctx.sim.bumpClientEpoch();
     },
     async dispose() {
       if (disposed) return;
       disposed = true;
-      await disposeOpenSim({ actors, multiAppSession, reporter, host });
+      await disposeOpenSim({
+        actors: ctx.actors,
+        multiAppSession: ctx.multiAppSession,
+        reporter: ctx.reporter,
+        host: ctx.host,
+        httpListener: ctx.httpListener,
+      });
     },
     async [Symbol.asyncDispose]() {
       await handle.dispose();
     },
   };
   return handle;
+}
+
+export async function openSim(
+  testId: string,
+  ctxOrOptions?: UiTestCtx | OpenSimOptions,
+  maybeOptions?: OpenSimOptions
+): Promise<OpenSimHandle> {
+  const resolved = resolveOpenSimArgs(testId, ctxOrOptions, maybeOptions);
+  ensureNodeLocalStoragePolyfill();
+  const ctx = await createOpenSimContext(resolved);
+  return buildOpenSimHandle(ctx);
 }

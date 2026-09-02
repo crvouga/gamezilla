@@ -1,20 +1,30 @@
+import type { World } from '@pkgs/dst';
+
 import type { ReconcileReport, WorkloadManifest } from '../../core/types';
 import type { SimDb } from '../../sim/sim-db';
-import type { IndexesReconcilerHandle } from './nodes';
+import type { IndexesReconcilerHandle, indexesReconcilerNode } from './nodes';
+
+export type IndexesKnobs = Record<string, never>;
+
+export type IndexesNodes = {
+  readonly reconciler: typeof indexesReconcilerNode & {
+    readonly id: () => 'reconciler';
+  };
+};
+
+export type IndexesSurface = World<IndexesKnobs, IndexesNodes>;
 
 export type IndexesModel = {
   cycleCount: number;
 };
 
-export type { IndexesReconcilerHandle };
-
-export function reconcilerOf(
-  world: import('@pkgs/dst').World<
-    Record<string, import('@pkgs/dst').KnobDef>,
-    Record<string, import('@pkgs/dst').NodeEntry>
-  >
-): IndexesReconcilerHandle {
+export function reconcilerOf(world: IndexesSurface): IndexesReconcilerHandle {
   return world.nodes['reconciler'] as IndexesReconcilerHandle;
 }
 
-export type { ReconcileReport, SimDb, WorkloadManifest };
+export type {
+  IndexesReconcilerHandle,
+  ReconcileReport,
+  SimDb,
+  WorkloadManifest,
+};

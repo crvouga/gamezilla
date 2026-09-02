@@ -653,6 +653,10 @@
       ]
     },
     {
+      "path": "./tools/biome-plugins/invariant-id-literal.grit",
+      "includes": ["**/pkgs/invariants/**/*.ts"]
+    },
+    {
       "path": "./tools/biome-plugins/no-dst-raw-selectors.grit",
       "includes": [
         "**/sim/test/src/scenarios/**/*.{ts,tsx}",
@@ -853,7 +857,15 @@
               "options": {
                 "paths": {
                   "@pkgs/ui-testing": {
-                    "message": "Scenarios must use AppDriver / openSim (see sim/test/src/setup/TESTING.md). Do not import @pkgs/ui-testing."
+                    "importNames": [
+                      "createDriver",
+                      "Driver",
+                      "RntlDriver",
+                      "PlaywrightDriver",
+                      "DetoxDriver",
+                      "createMultiAppRntlSession"
+                    ],
+                    "message": "Scenarios must use AppDriver / openSim (see sim/test/src/setup/TESTING.md). Import only describe from @pkgs/ui-testing."
                   }
                 }
               }

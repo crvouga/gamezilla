@@ -9,14 +9,17 @@ export class SearchFlows {
   constructor(private readonly ui: Driver) {}
 
   async openTab(): Promise<void> {
-    await this.ui.tap(Handles.tabSearch);
-    await this.ui.expect.visible(Handles.searchInput, { timeoutMs: WAIT_MS });
+    await this.ui.get(Handles.tabSearch).tap();
+    await this.ui
+      .get(Handles.searchInput)
+      .expect.visible({ timeoutMs: WAIT_MS });
   }
 
   async searchUsername(username: string): Promise<void> {
     await this.openTab();
-    await this.ui.clear(Handles.searchInput);
-    await this.ui.input(Handles.searchInput, username);
+    const input = this.ui.get(Handles.searchInput);
+    await input.clear();
+    await input.input(username);
   }
 
   /**
@@ -37,7 +40,7 @@ export class SearchFlows {
         queried = true;
       }
       for (const handle of handles) {
-        if (await this.ui.isVisible(handle)) {
+        if (await this.ui.get(handle).isVisible()) {
           return handle;
         }
       }
@@ -47,7 +50,7 @@ export class SearchFlows {
       }
       try {
         // Short wait drives the drain pump (virtual time), not a 1.2s wall burn.
-        await this.ui.wait(primary, 'visible', { timeoutMs: 100 });
+        await this.ui.get(primary).wait('visible', { timeoutMs: 100 });
         return primary;
       } catch (error) {
         lastError = error;
@@ -81,7 +84,7 @@ export class SearchFlows {
       timeoutMs: WAIT_MS,
       description: handle,
     });
-    await this.ui.tap(handle);
+    await this.ui.get(handle).tap();
   }
 
   async expectIncomingRequest(username: string): Promise<void> {
@@ -93,12 +96,12 @@ export class SearchFlows {
 
   async confirmFriend(username: string): Promise<void> {
     await this.expectIncomingRequest(username);
-    await this.ui.tap(Handles.friendConfirm(username));
+    await this.ui.get(Handles.friendConfirm(username)).tap();
   }
 
   async expectFriendsStatus(username: string): Promise<void> {
     await this.searchUsername(username);
-    await this.ui.expect.visible(Handles.friendStatusFriends(username), {
+    await this.ui.get(Handles.friendStatusFriends(username)).expect.visible({
       timeoutMs: WAIT_MS,
     });
   }

@@ -4,6 +4,7 @@ import {
   type RenderResult,
   render,
   userEvent,
+  within,
 } from '@testing-library/react-native';
 import type { ReactElement } from 'react';
 import type { ReactTestInstance } from 'react-test-renderer';
@@ -65,6 +66,8 @@ export function createRenderedAppFromQueryScope(
   const user = options.user ?? userEvent.setup({ delay: 0 });
   const app: RenderedApp = {
     query: options.query,
+    queryWithin: (parent, testId) =>
+      within(asInstance(parent)).queryByTestId(testId),
     isVisible: (element) => {
       try {
         return isHostVisible(asInstance(element));

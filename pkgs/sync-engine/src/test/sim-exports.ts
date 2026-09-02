@@ -14,7 +14,7 @@ export type {
   WorldKnobs,
 } from '../sim/scenario';
 export type {
-  EventuallyOptions,
   NeverOptions,
   UntilTarget,
+  WaitUntilOptions,
 } from '../sim/wait-until';

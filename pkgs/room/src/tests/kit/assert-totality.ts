@@ -16,11 +16,11 @@ export function assertTotality<
 >(args: {
   readonly module: RoomModule<S, C, E, string>;
   readonly states: readonly S[];
-  readonly commands: readonly RoomCommand<C>[];
+  readonly actions: readonly RoomCommand<C>[];
   readonly identities: readonly string[];
 }): void {
   for (const state of args.states) {
-    for (const command of args.commands) {
+    for (const command of args.actions) {
       for (const identity of args.identities) {
         let result: ReturnType<typeof args.module.handle>;
         try {

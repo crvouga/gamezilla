@@ -5,8 +5,8 @@ export type ScrollDirection = 'up' | 'down' | 'left' | 'right';
 export type WaitState = 'visible' | 'hidden';
 
 /**
- * Wait until `testId` shows (or contains) this text.
- * Passed as the second argument to {@link Driver.wait}.
+ * Wait until the node shows (or contains) this text.
+ * Passed as the argument to {@link DriverNode.wait}.
  */
 export type WaitTextCondition = {
   readonly text: string;
@@ -15,7 +15,7 @@ export type WaitTextCondition = {
 
 /**
  * Wall fail-fast + error copy only.
- * No interval / pump / onPoll — each driver uses its host’s fastest wait.
+ * No interval / pump / onPoll — each driver uses its host's fastest wait.
  */
 export type DriverWaitOptions = {
   readonly timeoutMs?: number;
@@ -43,11 +43,11 @@ export function isWaitTextCondition(
  * User-intent driver. Models what a person does with an app, not Playwright /
  * Detox / DOM primitives. Every concrete driver must satisfy this interface.
  *
- * All targets are `testId` strings. Assertions live on nested `expect`.
- * `tap` / `input` auto-wait until the target is visible before acting.
+ * Targets are resolved via {@link Driver.get} → {@link DriverNode}.
+ * `tap` / `input` on a node auto-wait until visible before acting.
  *
- * {@link Driver.wait} is the sole waiting API — each implementation uses the
- * host framework’s fastest mechanism (Playwright auto-wait, rntl virtual
+ * {@link DriverNode.wait} is the sole waiting API — each implementation uses
+ * the host framework's fastest mechanism (Playwright auto-wait, rntl virtual
  * pump, Detox `waitFor`, …). Do not reintroduce shared poll intervals here.
  */
 export interface Driver {
@@ -60,62 +60,14 @@ export interface Driver {
   /** Tear down the session and release resources. */
   close(): Promise<void>;
 
-  /** Wait until visible, then tap / click. */
-  tap(testId: string, options?: UiWaitOptions): Promise<void>;
-
   /**
-   * Tap at a relative position within the element.
-   * Useful for canvases / boards where the hit target is a region, not a node.
+   * Resolve a testId to a locator node. Sync and never null — missing elements
+   * fail on action / assert, not on get.
    */
-  tapAt(testId: string, position: TapPosition): Promise<void>;
+  get(testId: string): DriverNode;
 
-  /** Wait until visible, then type `text` (appends by default). */
-  input(testId: string, text: string, options?: UiWaitOptions): Promise<void>;
-
-  /** Clear the current value of the element. */
-  clear(testId: string): Promise<void>;
-
-  /** Press a portable key (enter, escape, …). */
+  /** Press a portable key (enter, escape, …) at page / app scope. */
   key(key: DriverKey): Promise<void>;
-
-  /**
-   * Scroll within (or toward) the element.
-   * `amount` is driver-defined; typically pixels or a relative fraction.
-   */
-  scroll(
-    testId: string,
-    direction: ScrollDirection,
-    amount?: number
-  ): Promise<void>;
-
-  /**
-   * Wait until `testId` satisfies `state` (visible / hidden / text).
-   * Host-native — not a shared poller. Throws {@link TimeoutError} on failure.
-   */
-  wait(
-    testId: string,
-    state: WaitState | WaitTextCondition,
-    options?: DriverWaitOptions
-  ): Promise<void>;
-
-  readonly expect: {
-    visible(testId: string, options?: AssertionOptions): Promise<void>;
-    hidden(testId: string, options?: AssertionOptions): Promise<void>;
-    text(
-      testId: string,
-      expected: string,
-      options?: AssertionOptions & { exact?: boolean }
-    ): Promise<void>;
-  };
-
-  /** Snapshot whether `testId` is currently visible (no waiting). */
-  isVisible(testId: string): Promise<boolean>;
-
-  /**
-   * Read the accessible / displayed text of `testId`.
-   * Drivers that cannot read text throw {@link NotImplementedError}.
-   */
-  getText(testId: string): Promise<string | null>;
 
   /**
    * Capture a readable HTML preview of the current UI for reporting.
@@ -125,3 +77,60 @@ export interface Driver {
     readonly stylesheetHref?: string;
   }): Promise<string | null>;
 }
+
+/** Locator node scoped to a testId path (root or nested via {@link get}). */
+export type DriverNode = {
+  /** Narrow to a descendant testId within this node. */
+  get(testId: string): DriverNode;
+
+  /** Wait until visible, then tap / click. */
+  tap(options?: UiWaitOptions): Promise<void>;
+
+  /**
+   * Tap at a relative position within the element.
+   * Useful for canvases / boards where the hit target is a region, not a node.
+   */
+  tapAt(position: TapPosition): Promise<void>;
+
+  /** Wait until visible, then type `text` (appends by default). */
+  input(text: string, options?: UiWaitOptions): Promise<void>;
+
+  /** Clear the current value of the element. */
+  clear(): Promise<void>;
+
+  /** Press a portable key (enter, escape, …) while focused on this node. */
+  key(key: DriverKey): Promise<void>;
+
+  /**
+   * Scroll within (or toward) the element.
+   * `amount` is driver-defined; typically pixels or a relative fraction.
+   */
+  scroll(direction: ScrollDirection, amount?: number): Promise<void>;
+
+  /**
+   * Wait until this node satisfies `state` (visible / hidden / text).
+   * Host-native — not a shared poller. Throws {@link TimeoutError} on failure.
+   */
+  wait(
+    state: WaitState | WaitTextCondition,
+    options?: DriverWaitOptions
+  ): Promise<void>;
+
+  readonly expect: {
+    visible(options?: AssertionOptions): Promise<void>;
+    hidden(options?: AssertionOptions): Promise<void>;
+    text(
+      expected: string,
+      options?: AssertionOptions & { exact?: boolean }
+    ): Promise<void>;
+  };
+
+  /** Snapshot whether this node is currently visible (no waiting). */
+  isVisible(): Promise<boolean>;
+
+  /**
+   * Read the accessible / displayed text of this node.
+   * Drivers that cannot read text throw {@link NotImplementedError}.
+   */
+  text(): Promise<string | null>;
+};

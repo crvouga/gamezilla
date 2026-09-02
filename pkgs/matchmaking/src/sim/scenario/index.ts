@@ -1,6 +1,6 @@
 /**
  * Matchmaking system kernel. Worlds are framework-owned:
- * {@link defineMatchmakingSystem} + `runScenario` / `replay` / {@link openMatchmakingWorld}.
+ * {@link defineMatchmakingSystem} + `check` / `replay` / {@link openMatchmakingWorld}.
  */
 
 export {

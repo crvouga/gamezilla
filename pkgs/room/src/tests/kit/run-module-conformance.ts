@@ -90,7 +90,7 @@ export async function runModuleConformance<
   assertTotality({
     module: args.module,
     states: corpus.states,
-    commands: corpus.commands,
+    actions: corpus.actions,
     identities,
   });
 
@@ -188,11 +188,11 @@ function collectStates<
   args: ModuleConformanceArgs<S, C, E>,
   identity: string,
   steps: number
-): { states: S[]; commands: RoomCommand<C>[] } {
+): { states: S[]; actions: RoomCommand<C>[] } {
   const adapters = createSimAdapters({ seed: args.seed, startMs: 1_000 });
   let state = args.module.initialState();
   const states: S[] = [state];
-  const commands: RoomCommand<C>[] = [];
+  const actions: RoomCommand<C>[] = [];
   const rng = adapters.rng.fork('corpus');
   for (let step = 0; step < steps; step += 1) {
     const payload = args.generateCommand({
@@ -208,7 +208,7 @@ function collectStates<
       ts: adapters.clock.now(),
       payload,
     };
-    commands.push(command);
+    actions.push(command);
     const result = args.module.handle(state, command, identity);
     if (result.ok) {
       for (const ev of result.events) {
@@ -218,5 +218,5 @@ function collectStates<
     }
     adapters.clock.advance(10);
   }
-  return { states, commands };
+  return { states, actions };
 }

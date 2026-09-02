@@ -24,7 +24,7 @@ describe('broker chaos PBT', () => {
           bufferOutboundLive: true,
           clientCount: 3,
         },
-        commands: [
+        actions: [
           { kind: 'brokerRestart' },
           {
             kind: 'setFaults',
@@ -55,7 +55,7 @@ describe('broker chaos PBT', () => {
             await replaySyncPin(acmeSystem, {
               seed,
               knobs,
-              commands: brokerSequence({ kind: 'armPubsubFault', fault }),
+              actions: brokerSequence({ kind: 'armPubsubFault', fault }),
             });
           }
         ),
@@ -81,7 +81,7 @@ describe('broker chaos PBT', () => {
             await replaySyncPin(acmeSystem, {
               seed,
               knobs,
-              commands: [
+              actions: [
                 arm,
                 TRIGGER,
                 { kind: 'brokerRestart' },

@@ -12,9 +12,9 @@ export type { SyncAction, SyncApp, WorldKnobs } from './scenario';
 export { arbKnobs, arbSeed } from './scenario';
 export type { SimTraffic } from './traffic';
 export type {
-  EventuallyOptions,
   NeverOptions,
   UntilTarget,
+  WaitUntilOptions,
 } from './wait-until';
 export type { World } from './world-api';
 export type { RestartClientOpts } from './world-lifecycle';

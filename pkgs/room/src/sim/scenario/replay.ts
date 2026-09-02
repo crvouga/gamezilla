@@ -1,4 +1,4 @@
-import type { AnyScenarioDef, Command, JsonValue } from '@pkgs/dst';
+import type { Action, AnyScenarioDef, JsonValue } from '@pkgs/dst';
 import { replay } from '@pkgs/dst/pbt';
 
 import type { RoomSystemAction } from './actions';
@@ -8,7 +8,7 @@ import type { RoomWorldKnobs } from './knobs';
 export type ReplayRoomInputs = {
   readonly seed: number | bigint | string;
   readonly knobs?: Partial<RoomWorldKnobs>;
-  readonly commands: readonly RoomSystemAction[];
+  readonly actions: readonly RoomSystemAction[];
   /** Default true — run the scenario converge assertion. */
   readonly converge?: boolean;
 };
@@ -23,7 +23,7 @@ export async function replayRoom(
 ): Promise<RoomSystemWorld> {
   const { world } = await replay(def as unknown as AnyScenarioDef, {
     seed: inputs.seed,
-    commands: inputs.commands as unknown as readonly Command[],
+    actions: inputs.actions as unknown as readonly Action[],
     ...(inputs.knobs !== undefined
       ? { knobs: inputs.knobs as Partial<Record<string, JsonValue>> }
       : {}),

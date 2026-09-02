@@ -1,7 +1,8 @@
 import type { Network, NodeId } from '../models/network';
-import { applyCommands } from './apply-commands';
-import type { CommandDef } from './command';
+import type { ActionCatalog, ActionDef } from './actions';
+import { applyActions } from './apply-actions';
 import type { ScenarioDef } from './define-scenario';
+import type { createPropertyRunner } from './property-runner';
 import type { World, WorldControls } from './world-types';
 
 type StartedNode = {
@@ -16,6 +17,7 @@ type ControlContext = {
   readonly started: readonly StartedNode[];
   readonly startTime: number;
   readonly networkFaults: WorldControls['networkFaults'];
+  readonly edges: WorldControls['edges'];
   readonly dispose: () => Promise<void>;
 };
 
@@ -52,7 +54,7 @@ function timingControls(
   ctx: ControlContext
 ): Pick<
   WorldControls,
-  'now' | 'advance' | 'quiesce' | 'eventually' | 'never' | 'resolve'
+  'now' | 'advance' | 'quiesce' | 'waitUntil' | 'never' | 'resolve'
 > {
   const clock = ctx.ports.scheduler.clock;
   const scheduler = ctx.ports.scheduler;
@@ -64,7 +66,7 @@ function timingControls(
     quiesce: async () => {
       await scheduler.runUntilQuiescent();
     },
-    eventually: async (pred, opts) => {
+    waitUntil: async (pred, opts) => {
       const withinMs = opts?.withinMs ?? 2_000;
       const start = clock.now();
       if (await pred()) return clock.now();
@@ -72,7 +74,7 @@ function timingControls(
       if (ok) return clock.now();
       const held = ctx.network.held();
       throw new Error(
-        `eventually timed out seed=${ctx.ports.seed.toString(16)} now=${clock.now()} ` +
+        `waitUntil timed out seed=${ctx.ports.seed.toString(16)} now=${clock.now()} ` +
           `withinMs=${withinMs} pendingTasks=${scheduler.pendingTaskCount()} ` +
           `held=${held.length > 0 ? held.join(',') : 'none'} elapsed=${clock.now() - start}`
       );
@@ -165,17 +167,33 @@ function networkControls(
 export function buildWorldControls<
   K extends ScenarioDef['knobs'],
   N extends ScenarioDef['nodes'],
-  X,
+  S,
+  X extends S,
 >(args: {
-  readonly scenario: ScenarioDef<K, N, object, X>;
-  readonly boundCommands: CommandDef[];
+  readonly scenario: ScenarioDef<
+    K,
+    N,
+    S,
+    X,
+    ActionCatalog<S>,
+    import('./property').PropertyCatalog<S>
+  >;
+  readonly boundActions: ActionDef[];
   readonly ctx: ControlContext;
   readonly worldRef: { current: World<K, N, X> | null };
+  readonly propertyRunner: ReturnType<typeof createPropertyRunner<S>>;
 }): WorldControls {
-  const { scenario, boundCommands, ctx, worldRef } = args;
+  const { scenario, boundActions, ctx, worldRef, propertyRunner } = args;
   const world = (): World<K, N, X> => worldRef.current as World<K, N, X>;
-  const checkAlways = async (): Promise<void> => {
-    await scenario.always(world());
+  const surface = (): S => world() as unknown as S;
+
+  const checkStep = async (): Promise<void> => {
+    await propertyRunner.runAt(surface(), 'step');
+  };
+
+  const checkConverge = async (): Promise<void> => {
+    await propertyRunner.runAt(surface(), 'converge');
+    await propertyRunner.finalizeEventually(surface());
   };
 
   return {
@@ -184,29 +202,31 @@ export function buildWorldControls<
     ports: ctx.ports,
     network: ctx.network,
     networkFaults: ctx.networkFaults,
+    edges: ctx.edges,
     nodeIds: (role) => nodeIdsFromStarted(ctx.started, role),
     ...timingControls(ctx),
     ...networkControls(ctx),
-    apply: async (commands) => {
-      await applyCommands({
+    apply: async (actions) => {
+      await applyActions({
         advance: (ms) => ctx.ports.scheduler.runFor(ms),
-        commands: commands as { readonly kind: string }[],
-        apply: async (command) => {
-          for (const def of boundCommands) {
-            if (command.kind === def.kind) {
-              await def.apply(world(), command as never);
+        actions: actions as { readonly kind: string }[],
+        apply: async (action) => {
+          for (const def of boundActions) {
+            if (action.kind === def.kind) {
+              await def.apply(surface(), action as never);
               return;
             }
           }
-          throw new Error(`World.apply: unknown command kind ${command.kind}`);
+          throw new Error(`World.apply: unknown action kind ${action.kind}`);
         },
-        checkAlways,
+        checkStep,
       });
     },
     converge: async () => {
       await scenario.converge(world());
-      await checkAlways();
+      await checkConverge();
     },
+    propertyCoverage: () => new Map(propertyRunner.sometimesHits),
     dispose: ctx.dispose,
     [Symbol.asyncDispose]: ctx.dispose,
   };

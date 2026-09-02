@@ -4,12 +4,10 @@ import type {
   WaitState,
   WaitTextCondition,
 } from '../driver/driver';
-import { formatTestId } from '../selector/format';
 
 /** Minimal host for shared expect wrappers — only {@link wait}. */
 type ExpectHost = {
   wait(
-    testId: string,
     state: WaitState | WaitTextCondition,
     options?: DriverWaitOptions
   ): Promise<void>;
@@ -17,40 +15,36 @@ type ExpectHost = {
 
 /** Shared expect implementations — thin wrappers over {@link ExpectHost.wait}. */
 export async function runExpectVisible(
-  driver: ExpectHost,
-  testId: string,
+  node: ExpectHost,
   options?: AssertionOptions
 ): Promise<void> {
-  await driver.wait(testId, 'visible', {
+  await node.wait('visible', {
     ...options,
-    description: options?.description ?? `visible ${formatTestId(testId)}`,
+    description: options?.description ?? 'visible',
   });
 }
 
 export async function runExpectHidden(
-  driver: ExpectHost,
-  testId: string,
+  node: ExpectHost,
   options?: AssertionOptions
 ): Promise<void> {
-  await driver.wait(testId, 'hidden', {
+  await node.wait('hidden', {
     ...options,
-    description: options?.description ?? `hidden ${formatTestId(testId)}`,
+    description: options?.description ?? 'hidden',
   });
 }
 
 export async function runExpectText(
-  driver: ExpectHost,
-  testId: string,
+  node: ExpectHost,
   expected: string,
   options?: AssertionOptions & { exact?: boolean }
 ): Promise<void> {
   const exact = options?.exact !== false;
   const description =
     options?.description ??
-    `text ${exact ? 'equals' : 'contains'} "${expected}" on ${formatTestId(testId)}`;
+    `text ${exact ? 'equals' : 'contains'} "${expected}"`;
 
-  await driver.wait(
-    testId,
+  await node.wait(
     { text: expected, ...(options?.exact !== undefined ? { exact } : {}) },
     {
       ...(options?.timeoutMs !== undefined

@@ -1,5 +1,14 @@
+import type { KnobValues, World } from '@pkgs/dst';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { createAuthServerAdapter } from '../../server/create-auth-server-adapter';
+import type {
+  AUTH_CLIENT_COUNT,
+  AUTH_DEV_PROVIDER,
+  AUTH_FABRIC,
+  AUTH_GOOGLE_PROVIDER,
+  authActorNode,
+  authStoreNode,
+} from './nodes';
 
 export type AuthFabric = 'sqlite-mem' | 'postgres-mem';
 
@@ -58,7 +67,26 @@ export type AuthWorldNodes = {
   readonly client: ReadonlyMap<string, ActorState>;
 };
 
+export type AuthKnobs = {
+  readonly fabric: typeof AUTH_FABRIC;
+  readonly clientCount: typeof AUTH_CLIENT_COUNT;
+  readonly devProvider: typeof AUTH_DEV_PROVIDER;
+  readonly googleProvider: typeof AUTH_GOOGLE_PROVIDER;
+};
+
+export type AuthNodeEntries = {
+  readonly store: typeof authStoreNode;
+  readonly client: typeof authActorNode & {
+    readonly count: (knobs: KnobValues<AuthKnobs>) => number;
+    readonly id: (index: number) => string;
+  };
+};
+
 export type AuthKit = {
   /** Recorded by `settle` so dual-open runs can compare determinism. */
   fingerprint: string | null;
+};
+
+export type AuthSurface = World<AuthKnobs, AuthNodeEntries, AuthKit> & {
+  readonly nodes: AuthWorldNodes;
 };

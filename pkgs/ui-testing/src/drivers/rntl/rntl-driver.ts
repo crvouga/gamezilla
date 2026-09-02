@@ -1,31 +1,14 @@
 import type { Timers } from '@pkgs/clock';
-import {
-  runExpectHidden,
-  runExpectText,
-  runExpectVisible,
-} from '../../assertions/driver-expect';
 import type { AppHarness } from '../../bootstrap/app-harness';
 import type {
-  HostNode,
   RenderAdapter,
   RenderedApp,
 } from '../../bootstrap/render-adapter';
-import { ElementNotFoundError, UiTestError } from '../../core/errors';
 import { DRIVER_KEY_TO_DOM, type DriverKey } from '../../core/keys';
-import { type WaitPump, waitUntil } from '../../core/wait';
-import type {
-  AssertionOptions,
-  Driver,
-  DriverWaitOptions,
-  ScrollDirection,
-  TapPosition,
-  UiWaitOptions,
-  WaitState,
-  WaitTextCondition,
-} from '../../driver/driver';
-import { isWaitTextCondition } from '../../driver/driver';
-import { formatTestId } from '../../selector/format';
+import type { WaitPump } from '../../core/wait';
+import type { Driver, DriverNode } from '../../driver/driver';
 import { createRntlRenderAdapter } from './renderer-rntl';
+import { RntlDriverNode } from './rntl-driver-node';
 
 export type RntlDriverOptions<TContext = void> = {
   harness: AppHarness<TContext>;
@@ -35,7 +18,7 @@ export type RntlDriverOptions<TContext = void> = {
   readonly timers: Timers;
   /**
    * Virtual-time / event drain between wait checks. When set, replaces the
-   * default wall 50ms sleep. Constructor-only — not a {@link Driver.wait} option.
+   * default wall 50ms sleep. Constructor-only — not a {@link DriverNode.wait} option.
    */
   readonly pump?: WaitPump;
 };
@@ -58,13 +41,6 @@ export class RntlDriver<TContext = void> implements Driver {
   readonly pump: WaitPump | undefined;
   private context: TContext | undefined;
   private app: RenderedApp | undefined;
-
-  readonly expect: Driver['expect'] = {
-    visible: (testId, options) => this.expectVisible(testId, options),
-    hidden: (testId, options) => this.expectHidden(testId, options),
-    text: (testId, expected, options) =>
-      this.expectText(testId, expected, options),
-  };
 
   constructor(options: RntlDriverOptions<TContext>) {
     this.harness = options.harness;
@@ -100,73 +76,13 @@ export class RntlDriver<TContext = void> implements Driver {
     this.context = undefined;
   }
 
-  async tap(testId: string, options?: UiWaitOptions): Promise<void> {
-    // wait() already flushed React; skip a spare activate before fireEvent.
-    await this.waitVisible(testId, options);
-    await this.requireApp().tap(await this.requireElement(testId));
-  }
-
-  async tapAt(testId: string, position: TapPosition): Promise<void> {
-    await this.waitVisible(testId);
-    await this.requireApp().tapAt(await this.requireElement(testId), position);
-  }
-
-  async input(
-    testId: string,
-    text: string,
-    options?: UiWaitOptions
-  ): Promise<void> {
-    await this.waitVisible(testId, options);
-    await this.requireApp().typeText(await this.requireElement(testId), text);
-  }
-
-  async clear(testId: string): Promise<void> {
-    await this.activate();
-    await this.requireApp().clearText(await this.requireElement(testId));
+  get(testId: string): DriverNode {
+    return new RntlDriverNode(this, [testId]);
   }
 
   async key(key: DriverKey): Promise<void> {
     await this.activate();
     await this.requireApp().pressKey(DRIVER_KEY_TO_DOM[key]);
-  }
-
-  async scroll(
-    testId: string,
-    direction: ScrollDirection,
-    amount = 100
-  ): Promise<void> {
-    await this.activate();
-    await this.requireApp().scroll(
-      await this.requireElement(testId),
-      direction,
-      amount
-    );
-  }
-
-  async wait(
-    testId: string,
-    state: WaitState | WaitTextCondition,
-    options?: DriverWaitOptions
-  ): Promise<void> {
-    if (isWaitTextCondition(state)) {
-      await this.waitText(testId, state, options);
-      return;
-    }
-    await this.waitVisibility(testId, state, options);
-  }
-
-  async isVisible(testId: string): Promise<boolean> {
-    const app = this.requireApp();
-    const element = app.query(testId);
-    if (!element) {
-      return false;
-    }
-    return app.isVisible(element);
-  }
-
-  async getText(testId: string): Promise<string | null> {
-    const app = this.requireApp();
-    return app.getText(await this.requireElement(testId));
   }
 
   async snapshotHtml(options?: {
@@ -183,132 +99,7 @@ export class RntlDriver<TContext = void> implements Driver {
     );
   }
 
-  private async waitVisibility(
-    testId: string,
-    state: WaitState,
-    options?: DriverWaitOptions
-  ): Promise<void> {
-    const description =
-      options?.description ?? `${state} ${formatTestId(testId)}`;
-    const pump = this.pump;
-    // With a drain pump: one activate up front, then read-only checks; pump
-    // runs clock then activate between misses. Without a pump: flush only
-    // inside the predicate so an already-true first check is one act.
-    if (pump !== undefined) {
-      await this.activate();
-    }
-    await waitUntil(
-      async () => {
-        if (pump === undefined) {
-          await this.activate();
-        }
-        const visible = await this.isVisible(testId);
-        return state === 'visible' ? visible : !visible;
-      },
-      {
-        ...(options?.timeoutMs !== undefined
-          ? { timeoutMs: options.timeoutMs }
-          : {}),
-        description,
-        now: this.now,
-        timers: this.timers,
-        ...(pump !== undefined
-          ? {
-              pump: async () => {
-                await pump();
-                await this.activate();
-              },
-            }
-          : {}),
-      }
-    );
-  }
-
-  private async waitText(
-    testId: string,
-    state: WaitTextCondition,
-    options?: DriverWaitOptions
-  ): Promise<void> {
-    const exact = state.exact !== false;
-    const description =
-      options?.description ??
-      `text ${exact ? 'equals' : 'contains'} "${state.text}" on ${formatTestId(testId)}`;
-    const pump = this.pump;
-    if (pump !== undefined) {
-      await this.activate();
-    }
-
-    let lastActual: string | null = null;
-    try {
-      await waitUntil(
-        async () => {
-          if (pump === undefined) {
-            await this.activate();
-          }
-          lastActual = await this.getText(testId);
-          return textMatches(lastActual, state.text, exact) ? true : null;
-        },
-        {
-          ...(options?.timeoutMs !== undefined
-            ? { timeoutMs: options.timeoutMs }
-            : {}),
-          description,
-          now: this.now,
-          timers: this.timers,
-          ...(pump !== undefined
-            ? {
-                pump: async () => {
-                  await pump();
-                  await this.activate();
-                },
-              }
-            : {}),
-        }
-      );
-    } catch (error) {
-      throw new UiTestError(
-        `Expected text ${exact ? 'equals' : 'contains'} "${state.text}" on ${formatTestId(testId)}, got ${JSON.stringify(lastActual)}`,
-        { cause: error }
-      );
-    }
-  }
-
-  private async expectVisible(
-    testId: string,
-    options?: AssertionOptions
-  ): Promise<void> {
-    await runExpectVisible(this, testId, options);
-  }
-
-  private async expectHidden(
-    testId: string,
-    options?: AssertionOptions
-  ): Promise<void> {
-    await runExpectHidden(this, testId, options);
-  }
-
-  private async expectText(
-    testId: string,
-    expected: string,
-    options?: AssertionOptions & { exact?: boolean }
-  ): Promise<void> {
-    await runExpectText(this, testId, expected, options);
-  }
-
-  private async waitVisible(
-    testId: string,
-    options?: UiWaitOptions
-  ): Promise<void> {
-    await this.wait(
-      testId,
-      'visible',
-      options?.timeoutMs !== undefined
-        ? { timeoutMs: options.timeoutMs }
-        : undefined
-    );
-  }
-
-  private requireApp(): RenderedApp {
+  requireApp(): RenderedApp {
     if (!this.app) {
       throw new Error('Driver not launched. Call launch() first.');
     }
@@ -319,20 +110,4 @@ export class RntlDriver<TContext = void> implements Driver {
   async activate(): Promise<void> {
     await this.requireApp().activate?.();
   }
-
-  private async requireElement(testId: string): Promise<HostNode> {
-    const element = this.requireApp().query(testId);
-    if (!element) {
-      throw new ElementNotFoundError(formatTestId(testId));
-    }
-    return element;
-  }
-}
-
-function textMatches(
-  actual: string | null,
-  expected: string,
-  exact: boolean
-): boolean {
-  return exact ? actual === expected : (actual?.includes(expected) ?? false);
 }

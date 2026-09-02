@@ -1,3 +1,4 @@
+import type { KnobDef, KnobValues } from '../harness/knobs';
 import type { JsonValue } from '../kernel/json';
 import type { Deliver, EndpointId, Network } from './network';
 
@@ -38,6 +39,13 @@ export type CountedNodeDef<H = unknown, Ports = any> = NodeDef<H, Ports> & {
   readonly count: (knobs: Record<string, JsonValue>) => number;
   readonly id?: (index: number) => string;
 };
+
+/** Typed knob reader for counted nodes — use `k.clientCount`, not bracket access. */
+export function nodeCount<K extends Record<string, KnobDef>>(
+  fn: (knobs: KnobValues<K>) => number
+): (knobs: Record<string, JsonValue>) => number {
+  return fn as (knobs: Record<string, JsonValue>) => number;
+}
 
 export type NodeEntry = NodeDef | CountedNodeDef;
 

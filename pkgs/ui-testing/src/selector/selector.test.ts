@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test';
-import { formatTestId } from './format';
+import { formatTestId, formatTestIdPath } from './format';
 import { testIdSelector } from './selector';
 
 describe('testId helpers', () => {
@@ -12,5 +12,11 @@ describe('testId helpers', () => {
 
   it('formats testIds for errors', () => {
     expect(formatTestId('x')).toBe('testId("x")');
+  });
+
+  it('formats nested testId paths', () => {
+    expect(formatTestIdPath(['modal', 'ok'])).toBe(
+      'testId("modal") >> testId("ok")'
+    );
   });
 });

@@ -1,11 +1,13 @@
 import {
-  advanceCommand,
-  command,
+  actions,
   defineScenario,
+  type KnobValues,
   knob,
   openWorld,
+  properties,
+  property,
   type ScenarioDef,
-  type World,
+  std,
 } from '@pkgs/dst';
 import fc from 'fast-check';
 import type { MatchmakingSimBackend, MatchmakingSimKit } from '../world-api';
@@ -29,22 +31,24 @@ type MatchmakingKnobs = {
 type MatchmakingNodeEntries = {
   readonly store: typeof mmStoreNode;
   readonly replica: ReturnType<typeof mmReplicaNode> & {
-    readonly count: (knobs: Record<string, unknown>) => number;
+    readonly count: (knobs: KnobValues<MatchmakingKnobs>) => number;
     readonly id: (index: number) => string;
   };
 };
 
+export type MatchmakingSurface = MatchmakingSimKit;
+
 export type MatchmakingSystemDef = ScenarioDef<
   MatchmakingKnobs,
   MatchmakingNodeEntries,
-  object,
-  MatchmakingSimKit
+  MatchmakingSurface,
+  MatchmakingSurface
 >;
 
-export type MatchmakingSystemWorld = World<
+export type MatchmakingSystemWorld = import('@pkgs/dst').World<
   MatchmakingKnobs,
   Record<string, import('@pkgs/dst').NodeEntry>,
-  MatchmakingSimKit
+  MatchmakingSurface
 >;
 
 export type DefineMatchmakingSystemOpts = MatchmakingSystemOpts & {
@@ -55,16 +59,15 @@ function defineMatchmakingSystemInner(
   config: MatchmakingSystemConfig,
   opts?: DefineMatchmakingSystemOpts
 ): MatchmakingSystemDef {
-  const tickAllAction = command<
-    { readonly kind: 'tickAll' },
-    object,
-    MatchmakingSystemWorld
-  >({
-    weight: 1,
-    generate: () => fc.constant({ kind: 'tickAll' as const }),
-    apply: async (world) => {
-      await world.tickAll({ maxPassesPerPartition: 2 });
+  const matchmakingActions = actions<MatchmakingSurface>()({
+    tickAll: {
+      weight: 1,
+      generate: () => fc.constant({ kind: 'tickAll' as const }),
+      apply: async (surface) => {
+        await surface.tickAll({ maxPassesPerPartition: 2 });
+      },
     },
+    ...std.time(),
   });
 
   return defineScenario({
@@ -78,17 +81,15 @@ function defineMatchmakingSystemInner(
       store: mmStoreNode,
       replica: {
         ...mmReplicaNode(config),
-        count: (k) => k['replicaCount'] as number,
+        count: (k: KnobValues<MatchmakingKnobs>) => k.replicaCount,
         id: (i) => `r${String(i)}`,
       },
     },
-    commands: {
-      tickAll: tickAllAction,
-      'time.advance': advanceCommand(),
-    },
-    referenceModel: {
-      initial: () => ({}),
-    },
+    actions:
+      matchmakingActions as import('@pkgs/dst').ActionCatalog<MatchmakingSurface>,
+    properties: properties<MatchmakingSurface>()({
+      converged: property.always(async () => true, { at: 'converge' }),
+    }),
     extend: (world) =>
       buildMatchmakingKit({
         world,
@@ -99,9 +100,6 @@ function defineMatchmakingSystemInner(
       await world.tickAll({ maxPassesPerPartition: 4 });
       await world.quiesce();
       await assertReplicaAgreement(world);
-    },
-    always: async () => {
-      /* convergence checked in settle */
     },
   });
 }

@@ -3,7 +3,7 @@
  *
  * Primary surface:
  * - {@link Driver} / {@link createDriver}
- * - Nested `driver.expect.visible` / `hidden` / `text` (testId strings)
+ * - {@link Driver.get} → {@link DriverNode} (`tap`, `wait`, nested `expect.*`)
  * - {@link AppHarness} bootstrap port
  *
  * Drivers live under `@pkgs/ui-testing/drivers/...` for direct construction
@@ -38,6 +38,7 @@ export {
 export type {
   AssertionOptions,
   Driver,
+  DriverNode,
   DriverWaitOptions,
   ScrollDirection,
   TapPosition,
@@ -83,7 +84,39 @@ export {
   SNAPSHOT_SHELL_CSS,
   serializeHostTreeHtml,
 } from './drivers/rntl/serialize-host-tree-html';
-export { formatTestId } from './selector/format';
+export { describe } from './runner/describe';
+export {
+  createDetoxUiTestRunner,
+  installDetoxUiTestRunner,
+} from './runner/detox';
+export {
+  getUiTestBrowser,
+  getUiTestHostState,
+  runWithUiTestHostState,
+  runWithUiTestHostStateAsync,
+  type UiTestHostState,
+} from './runner/host-state';
+export {
+  getUiTestRunner,
+  installUiTestRunner,
+} from './runner/install';
+export {
+  createJestUiTestRunner,
+  installJestUiTestRunner,
+} from './runner/jest';
+export {
+  createPlaywrightUiTestRunner,
+  installPlaywrightUiTestRunner,
+} from './runner/playwright';
+export type {
+  UiDriverKind,
+  UiTestCtx,
+  UiTestFidelity,
+  UiTestHostHooks,
+  UiTestRunner,
+  UiTestRunnerConfig,
+} from './runner/types';
+export { formatTestId, formatTestIdPath } from './selector/format';
 export {
   type TestIdSelector,
   testIdSelector,

@@ -1,9 +1,12 @@
 import {
-  type Command,
-  command,
+  type Action,
+  actions,
   defineScenario,
+  properties,
+  property,
   type ScenarioDef,
-  type UnboundCommandDef,
+  STEP_MS,
+  type UnboundActionDef,
   type World,
 } from '@pkgs/dst';
 import fc from 'fast-check';
@@ -16,10 +19,17 @@ import { RELIABLE_FAULTS } from '../faults';
 import { toKernelFaults } from '../network';
 import { type UntilTarget, waitNever, waitUntil } from '../wait-until';
 import type { World as KitWorld } from '../world-api';
+import {
+  type ActionShadow,
+  applyActionToShadow,
+  clientLive,
+  createActionShadow,
+} from './action-shadow';
 import type { SyncAction } from './actions';
 import type { SyncApp } from './app';
 import { SYNC_SYSTEM_KNOBS, type SyncKnobDefs } from './knobs';
 import {
+  defaultClientIds,
   LIBRARY_ARB_ENTRIES,
   type LibraryArbEntry,
   libraryActionArb,
@@ -33,16 +43,8 @@ import {
   resetReplayRestartState,
 } from './play';
 import { requireKit, type SyncRuntime } from './system';
-import {
-  applyActionToModel,
-  CLIENT_IDS,
-  initialWorldModel,
-  modelAllowsAction,
-  type WorldModel,
-} from './world-model';
 
 const WORLD_START_MS = 1_700_000_000_000;
-const COMMAND_STEP_MS = 10;
 /** Post-topology settle window so clients finish initial hydration. */
 const PREPARE_HYDRATION_MS = 200;
 
@@ -53,6 +55,7 @@ type BaseSyncWorld = World<SyncKnobDefs, SyncNodes, Record<string, never>>;
 export type SyncWorldExtension = {
   readonly kit: KitWorld;
   readonly runtime: SyncRuntime;
+  readonly shadow: ActionShadow;
   readonly rng: KitWorld['rng'];
   readonly clients: KitWorld['clients'];
   readonly server: KitWorld['server'];
@@ -86,37 +89,32 @@ export type SyncWorldExtension = {
   ) => Promise<void>;
 };
 
-export type SyncSystemWorld = World<
-  SyncKnobDefs,
-  SyncNodes,
-  SyncWorldExtension
->;
+export type SyncSurface = SyncWorldExtension;
+export type SyncSystemWorld = World<SyncKnobDefs, SyncNodes, SyncSurface>;
 export type SyncSystemDef = ScenarioDef<
   SyncKnobDefs,
   SyncNodes,
-  WorldModel,
-  SyncWorldExtension
+  SyncSurface,
+  SyncSurface
 >;
 
-type ModelHooks = Pick<
-  UnboundCommandDef<Command, WorldModel, SyncSystemWorld>,
-  'precondition' | 'applyToModel'
->;
-
-function asSystemActionArb<T>(arb: fc.Arbitrary<T>): fc.Arbitrary<Command> {
-  return arb as unknown as fc.Arbitrary<Command>;
+function asSystemActionArb<T>(arb: fc.Arbitrary<T>): fc.Arbitrary<Action> {
+  return arb as unknown as fc.Arbitrary<Action>;
 }
 
-async function dispatchSync(
-  world: SyncSystemWorld,
-  action: Command
-): Promise<void> {
+async function dispatchSync(world: SyncSurface, action: Action): Promise<void> {
+  const full = world as unknown as SyncSystemWorld;
   await replayStep({
-    world,
+    world: full,
     app: world.runtime.app,
     action: action as unknown as SyncAction,
     state: world.runtime.replay,
   });
+  applyActionToShadow(
+    world.runtime.app,
+    world.shadow,
+    action as unknown as SyncAction
+  );
 }
 
 async function syncPrepareConverge(world: SyncSystemWorld): Promise<void> {
@@ -128,11 +126,13 @@ async function syncPrepareConverge(world: SyncSystemWorld): Promise<void> {
 function kitExtension(
   world: BaseSyncWorld,
   kit: KitWorld,
-  runtime: SyncRuntime
+  runtime: SyncRuntime,
+  shadow: ActionShadow
 ): SyncWorldExtension {
   return {
     kit,
     runtime,
+    shadow,
     rng: kit.rng,
     clients: kit.clients,
     server: kit.server,
@@ -169,92 +169,104 @@ function kitExtension(
  */
 export async function playSyncActions(
   world: SyncSystemWorld,
-  actions: readonly SyncAction[]
+  actionList: readonly SyncAction[]
 ): Promise<void> {
-  for (const action of actions) {
-    await dispatchSync(world, action as unknown as Command);
+  for (const action of actionList) {
+    await dispatchSync(world, action as unknown as Action);
     await world.checkInvariants();
-    await world.advance(COMMAND_STEP_MS);
+    await world.advance(STEP_MS);
   }
   await syncPrepareConverge(world);
 }
 
-function modelHooks(app: SyncApp): ModelHooks {
-  return {
-    precondition: (model, action) =>
-      modelAllowsAction(app, model, action as unknown as SyncAction),
-    applyToModel: (model, action) => {
-      applyActionToModel(app, model, action as unknown as SyncAction);
-    },
-  };
+function libraryActionWeight(
+  surface: SyncSurface,
+  entry: LibraryArbEntry
+): number {
+  if (entry.kind === 'heal') {
+    return surface.shadow.partitioned.size > 0 || surface.shadow.held.size > 0
+      ? 1
+      : 0;
+  }
+  return 1;
 }
 
 function libraryAction(
   sessionQuery: SimSessionQuery,
-  entry: LibraryArbEntry,
-  hooks: ModelHooks
-): UnboundCommandDef<Command, WorldModel, SyncSystemWorld> {
-  return command({
-    generate: (ctx) =>
-      asSystemActionArb(
-        libraryActionArb(entry, {
-          clientIds: ctx.nodeIds('client'),
-          sessionQuery,
-        })
-      ),
-    apply: (world, act) => dispatchSync(world, act),
-    ...hooks,
-  });
+  entry: LibraryArbEntry
+): UnboundActionDef<unknown, SyncSurface> {
+  return {
+    weight: (surface) => libraryActionWeight(surface, entry),
+    generate: (ctx) => {
+      const surface = ctx.surface as SyncSurface;
+      const live = surface.shadow.clientIds.filter((id) =>
+        clientLive(surface.shadow, id)
+      );
+      return libraryActionArb(entry, {
+        clientIds: defaultClientIds(
+          live.length > 0 ? live : ctx.nodeIds('client')
+        ),
+        sessionQuery,
+      }) as fc.Arbitrary<Action>;
+    },
+    apply: (surface, act) => dispatchSync(surface, act as Action),
+  };
 }
 
-function domainAction(
-  app: SyncApp,
-  hooks: ModelHooks
-): UnboundCommandDef<Command, WorldModel, SyncSystemWorld> {
-  return command({
-    generate: (ctx) =>
-      fc.oneof(
+function domainAction(app: SyncApp): UnboundActionDef<unknown, SyncSurface> {
+  return {
+    weight: (surface) => {
+      for (const id of surface.shadow.clientIds) {
+        if (clientLive(surface.shadow, id)) return 1;
+      }
+      return 0;
+    },
+    generate: (ctx) => {
+      const surface = ctx.surface as SyncSurface;
+      const live = surface.shadow.clientIds.filter((id) =>
+        clientLive(surface.shadow, id)
+      );
+      return fc.oneof(
         ...app
-          .domainOpArbs({ clientIds: ctx.nodeIds('client') })
+          .domainOpArbs({
+            clientIds: defaultClientIds(
+              live.length > 0 ? live : ctx.nodeIds('client')
+            ),
+          })
           .map(asSystemActionArb)
-      ),
-    apply: (world, act) => dispatchSync(world, act),
-    ...hooks,
-  });
+      ) as fc.Arbitrary<Action>;
+    },
+    apply: (surface, act) => dispatchSync(surface, act as Action),
+  };
 }
 
 function serverAction(
-  app: SyncApp,
-  hooks: ModelHooks
-): UnboundCommandDef<Command, WorldModel, SyncSystemWorld> | null {
+  app: SyncApp
+): UnboundActionDef<unknown, SyncSurface> | null {
   const serverOpArbs = app.serverOpArbs;
   if (serverOpArbs === undefined) return null;
-  return command({
+  return {
+    weight: 1,
     generate: (ctx) =>
       fc.oneof(
         ...serverOpArbs({ clientIds: ctx.nodeIds('client') }).map(
           asSystemActionArb
         )
       ),
-    apply: (world, act) => dispatchSync(world, act),
-    ...hooks,
-  });
+    apply: (surface, act) => dispatchSync(surface, act as Action),
+  };
 }
 
-function syncActions(
+function syncActionCatalog(
   app: SyncApp,
   sessionQuery: SimSessionQuery
-): Record<string, UnboundCommandDef<Command, WorldModel, SyncSystemWorld>> {
-  const hooks = modelHooks(app);
-  const server = serverAction(app, hooks);
-  const out: Record<
-    string,
-    UnboundCommandDef<Command, WorldModel, SyncSystemWorld>
-  > = {};
+): Record<string, UnboundActionDef<unknown, SyncSurface>> {
+  const out: Record<string, UnboundActionDef<unknown, SyncSurface>> = {};
   for (const entry of LIBRARY_ARB_ENTRIES) {
-    out[entry.kind] = libraryAction(sessionQuery, entry, hooks);
+    out[entry.kind] = libraryAction(sessionQuery, entry);
   }
-  out['domain'] = domainAction(app, hooks);
+  out['domain'] = domainAction(app);
+  const server = serverAction(app);
   if (server !== null) {
     out['server'] = server;
   }
@@ -311,6 +323,7 @@ export function defineSyncSystem(
   const sessionQuery = opts?.sessionQuery ?? app.pack.sessionQuery;
   const runtime = initialSyncRuntime(app, opts);
   const nodes = createSyncNodes(runtime);
+  const catalog = syncActionCatalog(app, sessionQuery);
 
   return defineScenario({
     id: opts?.id ?? 'sync.world',
@@ -318,22 +331,37 @@ export function defineSyncSystem(
     network: { faults: toKernelFaults(RELIABLE_FAULTS) },
     knobs: SYNC_SYSTEM_KNOBS,
     nodes,
-    commands: syncActions(app, sessionQuery),
-    referenceModel: {
-      initial: (): WorldModel => initialWorldModel(app, CLIENT_IDS),
-    },
+    actions: actions<SyncSurface>()(
+      catalog
+    ) as import('@pkgs/dst').ActionCatalog<SyncSurface>,
+    properties: properties<SyncSurface>()({
+      invariants: property.always(async (surface) => {
+        await surface.checkInvariants();
+        return true;
+      }),
+      converged: property.always(
+        async (surface) => {
+          await surface.assertConverged();
+          return true;
+        },
+        { at: 'converge' }
+      ),
+    }),
     extend: async (world) => {
       resetReplayRestartState(runtime.replay);
       const kit = requireKit(runtime);
+      const shadow = createActionShadow(app, world.nodeIds('client'));
       await world.advance(PREPARE_HYDRATION_MS);
-      return kitExtension(world as unknown as BaseSyncWorld, kit, runtime);
+      return kitExtension(
+        world as unknown as BaseSyncWorld,
+        kit,
+        runtime,
+        shadow
+      );
     },
     converge: async (world) => {
       await syncPrepareConverge(world);
       await world.assertConverged();
-    },
-    always: async (world) => {
-      await world.checkInvariants();
     },
   });
 }

@@ -27,7 +27,7 @@ describe('room net-faults PBT', () => {
           await replayRoomPin(counterSystem, {
             seed,
             knobs,
-            commands: [
+            actions: [
               { kind: 'hold', clientId: 'c1' },
               INCREMENT_C0,
               { kind: 'idle', ms: 30 },
@@ -50,7 +50,7 @@ describe('room net-faults PBT', () => {
           await replayRoomPin(counterSystem, {
             seed,
             knobs,
-            commands: [
+            actions: [
               { kind: 'down', clientId: 'c1' },
               INCREMENT_C0,
               { kind: 'idle', ms: 20 },
@@ -73,7 +73,7 @@ describe('room net-faults PBT', () => {
           await replayRoomPin(counterSystem, {
             seed,
             knobs,
-            commands: [
+            actions: [
               {
                 kind: 'asymmetricLink',
                 clientId: 'c1',
@@ -110,7 +110,7 @@ describe('room net-faults PBT', () => {
             await replayRoomPin(counterSystem, {
               seed,
               knobs,
-              commands: [
+              actions: [
                 { kind: 'setFaults', clientId: 'c0', faults },
                 { kind: 'setFaults', clientId: 'c1', faults },
                 INCREMENT_C0,

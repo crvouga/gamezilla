@@ -57,7 +57,7 @@ describe('room byzantine-wire PBT', () => {
               seed,
               knobs: { ...knobs, clientCount: 2 },
               converge: false,
-              commands: [],
+              actions: [],
             });
             const real = world;
             try {

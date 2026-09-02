@@ -23,7 +23,7 @@ module.exports = {
     '<rootDir>/src/scenario/**/*.test.ts',
   ],
   setupFiles: ['<rootDir>/jest.setup-env.cjs'],
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.cjs'],
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   // UI waits default to 2–5s fail-fast ceilings; keep headroom for boot.
   testTimeout: 30_000,
   // Narrow allowlist (shared with @pkgs/ui-testing): transform RN/Expo/Bun-nested

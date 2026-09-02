@@ -106,4 +106,4 @@ export function emitServerOperations(
 
 /** Destructive DDL patterns that must never appear in server output. */
 export const FORBIDDEN_SERVER_DDL =
-  /DROP TABLE|DROP COLUMN|ALTER (TABLE .+ )?ALTER COLUMN .+ TYPE|RENAME|DROP VIEW|DROP TYPE|TRUNCATE/i;
+  /\bDROP TABLE\b|\bDROP COLUMN\b|ALTER (TABLE .+ )?ALTER COLUMN .+ TYPE|\bRENAME\b|\bDROP VIEW\b|\bDROP TYPE\b|\bTRUNCATE\b/i;

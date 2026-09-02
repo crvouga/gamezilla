@@ -1,6 +1,6 @@
 import { describe, test } from 'bun:test';
 import type { AnyScenarioDef } from '@pkgs/dst';
-import { runScenario } from '@pkgs/dst/pbt';
+import { check } from '@pkgs/dst/pbt';
 
 import { replayRoom, replayRoomPin } from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
@@ -9,8 +9,8 @@ describe('room world PBT', () => {
   test(
     'fc.commands sequences replay on World and converge',
     async () => {
-      await runScenario(counterSystem as unknown as AnyScenarioDef, {
-        maxCommands: 14,
+      await check(counterSystem as unknown as AnyScenarioDef, {
+        episodeLength: 14,
       });
     },
     { timeout: 180_000 }
@@ -19,7 +19,7 @@ describe('room world PBT', () => {
   test('hold then increment then heal converges (pin)', async () => {
     await replayRoomPin(counterSystem, {
       seed: 42,
-      commands: [
+      actions: [
         { kind: 'hold', clientId: 'c1' },
         {
           kind: 'domain',
@@ -36,7 +36,7 @@ describe('room world PBT', () => {
   test('crash then restart with pending offline queue converges (pin)', async () => {
     await replayRoomPin(counterSystem, {
       seed: 99,
-      commands: [
+      actions: [
         { kind: 'disconnect', clientId: 'c0' },
         {
           kind: 'domain',
@@ -59,7 +59,7 @@ describe('room world PBT', () => {
   test('armCrashAt afterNextCommitted then settle (pin FC_SEED=665742204)', async () => {
     await replayRoomPin(counterSystem, {
       seed: 706975,
-      commands: [
+      actions: [
         {
           kind: 'armCrashAt',
           clientId: 'c1',
@@ -91,7 +91,7 @@ describe('room world PBT', () => {
   test('ghost durable queue: dispatch then settle leaves queues empty (pin)', async () => {
     const world = await replayRoom(counterSystem, {
       seed: 4242,
-      commands: [
+      actions: [
         {
           kind: 'domain',
           clientId: 'c0',

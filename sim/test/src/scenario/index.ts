@@ -1,6 +1,6 @@
 /**
  * Product sim system. Worlds are framework-owned:
- * {@link defineProductSystem} + `openWorld` / `runScenario` / `replay`.
+ * {@link defineProductSystem} + `openWorld` / `check` / `replay`.
  * {@link openSim} is a thin wrapper that opens this system and exposes actors.
  */
 

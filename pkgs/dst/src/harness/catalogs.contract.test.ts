@@ -44,7 +44,7 @@ describe('Repro', () => {
         seed: '42',
         startTime: 0,
         knobs: { n: 1 },
-        commands: [{ kind: 'inc' }],
+        actions: [{ kind: 'inc' }],
         networkFaults: RELIABLE_NETWORK,
       },
       meta: { scenarioId: 'test' },
@@ -59,14 +59,14 @@ describe('Repro', () => {
     );
     expect(() =>
       parseRepro(
-        '{"version":2,"inputs":{"seed":"1","startTime":0,"knobs":{},"commands":[],"networkFaults":{}},"meta":{},"extra":1}'
+        '{"version":3,"inputs":{"seed":"1","startTime":0,"knobs":{},"actions":[],"networkFaults":{}},"meta":{},"extra":1}'
       )
     ).toThrow(/unknown top-level/);
   });
 
   test('meta extras allowed', () => {
     const faults = JSON.stringify(RELIABLE_NETWORK);
-    const json = `{"version":2,"inputs":{"seed":"1","startTime":0,"knobs":{},"commands":[],"networkFaults":${faults}},"meta":{"customDiag":"x"}}`;
+    const json = `{"version":3,"inputs":{"seed":"1","startTime":0,"knobs":{},"actions":[],"networkFaults":${faults}},"meta":{"customDiag":"x"}}`;
     const r = parseRepro(json);
     expect(r.meta['customDiag']).toBe('x');
   });

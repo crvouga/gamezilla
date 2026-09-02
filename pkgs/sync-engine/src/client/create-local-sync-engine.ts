@@ -56,6 +56,7 @@ import {
   SubscriptionRuntime,
 } from './subscription-runtime';
 import type { SyncEngine } from './sync-engine-port';
+import { SyncApiAuthError } from './sync-http-client';
 import { createTableChangeSqlClient } from './table-change-sql-client';
 
 export type { SyncEnginePushOptions };
@@ -169,6 +170,10 @@ function handleError(state: LocalEngineState, error: unknown): void {
         state.revokePromise = null;
       });
     void state.revokePromise;
+    return;
+  }
+  // Expired is refresh-and-retry only — never sticky lastError / offline.
+  if (error instanceof SyncApiAuthError && error.reason === 'expired') {
     return;
   }
   state.status.patch({ online: false, lastError: errorMessage(error) });

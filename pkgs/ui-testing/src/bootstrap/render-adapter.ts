@@ -21,6 +21,9 @@ export interface RenderedApp {
   /** Resolve `testId` to a host element, or `null` if none match. */
   query(testId: string): HostNode | null;
 
+  /** Resolve `testId` within `parent`, or `null` if none match. */
+  queryWithin(parent: HostNode, testId: string): HostNode | null;
+
   /** True when the element is considered visible to a user. */
   isVisible(element: HostNode): boolean;
 

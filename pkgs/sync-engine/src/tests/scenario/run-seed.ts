@@ -59,7 +59,7 @@ function isTransientSimFault(error: unknown): boolean {
 
 function buildFailureArtifact(args: {
   readonly seed: bigint;
-  readonly commands: readonly SyncAction[];
+  readonly actions: readonly SyncAction[];
   readonly error: string;
   readonly failureStep: number;
 }): FailureReport {
@@ -70,7 +70,7 @@ function buildFailureArtifact(args: {
         seed: args.seed.toString(),
         startTime: WORLD_START_MS,
         knobs: {},
-        commands: args.commands as readonly JsonValue[],
+        actions: args.actions as readonly JsonValue[],
         networkFaults: toKernelFaults(RELIABLE_FAULTS),
       },
       meta: {
@@ -162,7 +162,7 @@ async function runWorkloadLoop(args: {
           error: message,
           artifact: buildFailureArtifact({
             seed: args.world.seed,
-            commands: args.actions,
+            actions: args.actions,
             error: message,
             failureStep: args.actions.length,
           }),
@@ -190,7 +190,7 @@ async function runWorkloadLoop(args: {
           error: message,
           artifact: buildFailureArtifact({
             seed: args.world.seed,
-            commands: args.actions,
+            actions: args.actions,
             error: message,
             failureStep: args.actions.length,
           }),
@@ -209,7 +209,7 @@ async function runWorkloadLoop(args: {
 export async function runSeed(opts: RunSeedOptions): Promise<RunSeedResult> {
   const clientCount = opts.clientCount ?? 2;
   const steps = opts.steps ?? 40;
-  await using world = (await openWorld(defineSyncSystem(opts.app), {
+  const world = (await openWorld(defineSyncSystem(opts.app), {
     seed: opts.seed,
     knobs: { clientCount: 0 },
   })) as SyncSystemWorld;
@@ -252,11 +252,13 @@ export async function runSeed(opts: RunSeedOptions): Promise<RunSeedResult> {
       error: message,
       artifact: buildFailureArtifact({
         seed: world.seed,
-        commands: actions,
+        actions: actions,
         error: message,
         failureStep: actions.length,
       }),
     };
+  } finally {
+    await world.dispose();
   }
 }
 

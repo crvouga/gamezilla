@@ -1,4 +1,4 @@
-import type { Command } from '../harness/command';
+import type { Action } from '../harness/actions';
 import type { AnyScenarioDef } from '../harness/define-scenario';
 import {
   parseRepro,
@@ -26,10 +26,13 @@ function isRepro(inputs: RunInputs | Repro | string): inputs is Repro {
 }
 
 function fromRepro(r: Repro): RunInputs {
+  if (r.inputs.seed === undefined) {
+    throw new Error('replay: repro.inputs.seed is required');
+  }
   return {
     seed: r.inputs.seed,
     knobs: r.inputs.knobs,
-    commands: r.inputs.commands as Command[],
+    actions: r.inputs.actions as Action[],
     networkFaults: r.inputs.networkFaults,
   };
 }
@@ -40,29 +43,25 @@ function resolveRunInputs(inputs: RunInputs | Repro | string): RunInputs {
   return inputs;
 }
 
-/**
- * Replay mode: re-run a Repro (object, JSON string, or raw inputs) with
- * divergence detection on, and format a failure report on mismatch.
- */
 export async function replay(
   scenario: AnyScenarioDef,
   inputs: RunInputs | Repro | string
 ): Promise<{
   readonly world: World;
-  readonly repro: Repro<Command>;
+  readonly repro: Repro<Action>;
   readonly trace: readonly TraceRecord[];
 }> {
   const resolved = resolveRunInputs(inputs);
   try {
     return await assertDeterministic(scenario, resolved);
   } catch (e) {
-    const repro: Repro<Command> = {
+    const repro: Repro<Action> = {
       version: REPRO_VERSION,
       inputs: {
         seed: String(resolved.seed),
         startTime: 0,
         knobs: (resolved.knobs ?? {}) as Record<string, JsonValue>,
-        commands: resolved.commands,
+        actions: resolved.actions,
         networkFaults:
           resolved.networkFaults ??
           (RELIABLE_NETWORK as ReproInputs['networkFaults']),
@@ -72,3 +71,5 @@ export async function replay(
     throw new Error(formatDeterminismFailure(repro, [], e), { cause: e });
   }
 }
+
+export type { RunInputs };

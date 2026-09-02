@@ -43,42 +43,37 @@ Env knobs:
 For sim-backed suites, world helpers live in **`@pkgs/dst/pbt`**, not here.
 `runProperty` caps `numRuns` and extends the interrupt budget so
 `test:pbt:random` cannot accidentally run hundreds of full-world opens;
-`runScenario` drives a whole `defineScenario` Scenario (seed + knobs + Command pool +
-reference model) without any per-suite plumbing. Use `runWorldProperty` for custom
-arbitraries over an opened World, and `runPins` for named replay matrices.
+`check` drives a whole `defineScenario` scenario (seed + knobs + action pool +
+online walk + property coverage) without per-suite plumbing. Use `runProperty` for custom
+arbitraries; `runExamples` for named replay matrices.
 
 ```ts
 import fc from 'fast-check';
 import {
-  arbKnobs,
   arbSeed,
-  runPins,
+  check,
+  runExamples,
   runProperty,
-  runScenario,
-  runWorldProperty,
 } from '@pkgs/dst/pbt';
 import { openWorld } from '@pkgs/dst';
 import { acmeSystem } from '../apps/acme/system';
 
-// Whole-scenario property: framework generates and replays everything.
-await runScenario(acmeSystem, { numRuns: 12, maxCommands: 14 });
+const report = await check(acmeSystem, { episodes: 12, episodeLength: 14 });
+// report.coverage on success
 
-// Custom property over a framework-owned world.
-await runWorldProperty(acmeSystem, [fc.constant(null)], async (world) => {
-  await world.converge();
-});
-
-// Named pin matrix (wraps replay + determinism gate).
-await runPins(acmeSystem, [
-  { name: 'baseline', commands: [{ kind: 'domain', mutation: 'setNote', args: {} }] },
+await runExamples(acmeSystem, [
+  { name: 'baseline', inputs: { actions: [{ kind: 'domain', mutation: 'setNote', args: {} }] } },
 ]);
 
-// Hand-rolled property over a framework-owned world.
 await runProperty(
   'app world converges',
   fc.asyncProperty(arbSeed(), async (seed) => {
-    await using world = await openWorld(acmeSystem, { seed });
-    await world.converge();
+    const world = await openWorld(acmeSystem, { seed });
+    try {
+      await world.converge();
+    } finally {
+      await world.dispose();
+    }
   })
 );
 ```

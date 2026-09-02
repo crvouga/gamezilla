@@ -39,7 +39,7 @@ describe('corruption safety PBT', () => {
             await replaySyncPin(acmeSystem, {
               seed,
               knobs,
-              commands: corruptionSequence({
+              actions: corruptionSequence({
                 kind: 'armHttpFault',
                 clientId: 'c0',
                 fault,
@@ -69,7 +69,7 @@ describe('corruption safety PBT', () => {
             await replaySyncPin(acmeSystem, {
               seed,
               knobs,
-              commands: corruptionSequence({
+              actions: corruptionSequence({
                 kind: 'armPubsubFault',
                 fault: { kind: 'corruptPubsubPayload', variant },
               }),
@@ -95,7 +95,7 @@ describe('corruption safety PBT', () => {
             await replaySyncPin(acmeSystem, {
               seed,
               knobs,
-              commands: [
+              actions: [
                 TRIGGER,
                 { kind: 'tamperLocalStorage', clientId: 'c0', tamper },
                 { kind: 'restart', clientId: 'c0' },

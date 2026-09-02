@@ -13,6 +13,8 @@ export type NodeDef<H = any> = ModelNodeDef<H, WorldPorts>;
 export type CountedNodeDef<H = unknown> = ModelCountedNodeDef<H, WorldPorts>;
 export type NodeEntry = NodeDef | CountedNodeDef;
 
+export { nodeCount } from '../models/node';
+
 /** Declare a Node kind: `start(ctx)` returns its handle; optional `stop`. */
 export function node<H>(def: NodeDef<H>): NodeDef<H> {
   return def;

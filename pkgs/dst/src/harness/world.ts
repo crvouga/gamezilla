@@ -1,3 +1,4 @@
+import { bindInvariantSink, unbindInvariantSink } from '@pkgs/invariants';
 import type { JsonValue } from '../kernel/json';
 import {
   createNetwork,
@@ -12,10 +13,11 @@ import {
   resolveNodeCount,
 } from '../models/node';
 import {
-  bindCommandKind,
-  type CommandDef,
-  type UnboundCommandDef,
-} from './command';
+  type ActionCatalog,
+  type ActionDef,
+  bindActionKind,
+  type UnboundActionDef,
+} from './actions';
 import type { ScenarioDef } from './define-scenario';
 import {
   createKnobCatalog,
@@ -24,9 +26,15 @@ import {
   resolveKnobDefs,
 } from './knobs';
 import type { NodeEntry } from './node';
+import { createPropertyRunner } from './property-runner';
 import { buildWorldControls } from './world-controls';
 import { createWorldPorts, type WorldPorts } from './world-ports';
-import type { NodeHandles, OpenWorldOptions, World } from './world-types';
+import type {
+  NetworkEdge,
+  NodeHandles,
+  OpenWorldOptions,
+  World,
+} from './world-types';
 
 type StartedNode = {
   readonly id: string;
@@ -120,7 +128,7 @@ async function startTopology(args: {
 
 function wrapNetworkWithEdges(
   network: Network,
-  edges: readonly { readonly fromRole: string; readonly toRole: string }[],
+  edges: readonly NetworkEdge[],
   endpointRoles: Map<string, string>
 ): Network {
   if (edges.length === 0) return network;
@@ -150,12 +158,12 @@ function wrapNetworkWithEdges(
   };
 }
 
-function bindCommands(
-  commands: Record<string, UnboundCommandDef>
-): CommandDef[] {
-  return Object.entries(commands).map(([kind, def]) =>
-    bindCommandKind(kind, def)
-  ) as CommandDef[];
+function bindActions<S>(
+  actions: ActionCatalog<S>
+): ActionDef<unknown, unknown>[] {
+  return Object.entries(actions).map(([kind, def]) =>
+    bindActionKind(kind, def as UnboundActionDef<unknown, S>)
+  ) as ActionDef<unknown, unknown>[];
 }
 
 function makeDispose(
@@ -166,52 +174,13 @@ function makeDispose(
   return async () => {
     if (disposed) return;
     disposed = true;
+    unbindInvariantSink();
     for (let i = started.length - 1; i >= 0; i -= 1) {
       const n = started[i]!;
       for (const ep of n.endpointIds) network.unregister(ep);
       if (n.stop !== undefined) await n.stop();
     }
   };
-}
-
-function assembleWorld<
-  K extends Record<string, KnobDef>,
-  N extends Record<string, NodeEntry>,
-  X,
->(args: {
-  readonly scenario: ScenarioDef<K, N, object, X>;
-  readonly boundCommands: CommandDef[];
-  readonly ports: WorldPorts;
-  readonly network: Network;
-  readonly knobs: KnobValues<K>;
-  readonly nodes: NodeHandles<N>;
-  readonly networkFaults: NetworkFaults;
-  readonly startTime: number;
-  readonly started: StartedNode[];
-  readonly dispose: () => Promise<void>;
-  readonly extension: X;
-}): World<K, N, X> {
-  const worldRef: { current: World<K, N, X> | null } = { current: null };
-  const controls = buildWorldControls({
-    scenario: args.scenario,
-    boundCommands: args.boundCommands,
-    ctx: {
-      ports: args.ports,
-      network: args.network,
-      started: args.started,
-      startTime: args.startTime,
-      networkFaults: args.networkFaults,
-      dispose: args.dispose,
-    },
-    worldRef,
-  });
-  const world = Object.assign(controls, {
-    knobs: args.knobs,
-    nodes: args.nodes,
-    ...args.extension,
-  }) as World<K, N, X>;
-  worldRef.current = world;
-  return world;
 }
 
 function knobReader<K extends Record<string, KnobDef>>(
@@ -231,86 +200,128 @@ function knobReader<K extends Record<string, KnobDef>>(
   };
 }
 
+const EXTEND_OVERRIDABLE_KEYS = new Set(['waitUntil']);
+
+function assertExtendKeys(
+  scenarioId: string,
+  baseWorld: object,
+  extension: object
+): void {
+  for (const key of Object.keys(extension)) {
+    if (key in baseWorld && !EXTEND_OVERRIDABLE_KEYS.has(key)) {
+      throw new Error(
+        `openWorld(${scenarioId}): extend key collides with framework control ${key}`
+      );
+    }
+  }
+}
+
+async function abortOpenWorld(
+  dispose: (() => Promise<void>) | undefined,
+  started: readonly StartedNode[]
+): Promise<void> {
+  if (dispose !== undefined) {
+    await dispose();
+    return;
+  }
+  unbindInvariantSink();
+  for (let i = started.length - 1; i >= 0; i -= 1) {
+    const n = started[i]!;
+    if (n.stop !== undefined) await n.stop();
+  }
+}
+
 /**
  * Build a World from a Scenario: derive all ports from `seed`, create the
- * Network model, start every Node, bind Commands, then run `extend`.
+ * Network model, start every Node, bind Actions, then run `extend`.
  */
 export async function openWorld<
   K extends Record<string, KnobDef>,
   N extends Record<string, NodeEntry>,
-  M extends object = object,
-  X = Record<string, never>,
+  S,
+  X extends S,
 >(
-  scenario: ScenarioDef<K, N, M, X>,
+  scenario: ScenarioDef<K, N, S, X>,
   opts: OpenWorldOptions<K>
 ): Promise<World<K, N, X>> {
-  const startTime = opts.startTime ?? scenario.startTime ?? 0;
-  const ports = createWorldPorts({
-    seed: opts.seed,
-    startTime,
-    ...(opts.trace !== undefined ? { trace: opts.trace } : {}),
-  });
-  const networkFaults: NetworkFaults =
-    opts.networkFaults ?? scenario.network?.faults ?? RELIABLE_NETWORK;
-  const rawNetwork = createNetwork({
-    scheduler: ports.scheduler,
-    rng: ports.rng.fork('net'),
-    faults: networkFaults,
-    ...(ports.trace.enabled ? { trace: ports.trace } : {}),
-  });
-  const endpointRoles = new Map<string, string>();
-  const network = wrapNetworkWithEdges(
-    rawNetwork,
-    scenario.network?.edges ?? [],
-    endpointRoles
-  );
+  bindInvariantSink();
+  let dispose: (() => Promise<void>) | undefined;
+  let started: StartedNode[] = [];
+  try {
+    const startTime = opts.startTime ?? scenario.startTime ?? 0;
+    const edges = scenario.network?.edges ?? [];
+    const ports = createWorldPorts({
+      seed: opts.seed,
+      startTime,
+      ...(opts.trace !== undefined ? { trace: opts.trace } : {}),
+    });
+    const networkFaults: NetworkFaults =
+      opts.networkFaults ?? scenario.network?.faults ?? RELIABLE_NETWORK;
+    const rawNetwork = createNetwork({
+      scheduler: ports.scheduler,
+      rng: ports.rng.fork('net'),
+      faults: networkFaults,
+      ...(ports.trace.enabled ? { trace: ports.trace } : {}),
+    });
+    const endpointRoles = new Map<string, string>();
+    const network = wrapNetworkWithEdges(rawNetwork, edges, endpointRoles);
 
-  const catalog = createKnobCatalog(
-    resolveKnobDefs(scenario.knobs),
-    opts.knobs as Partial<KnobValues<K>> | undefined
-  );
-  const knobValues = catalog.toJSON() as Record<string, JsonValue>;
+    const catalog = createKnobCatalog(
+      resolveKnobDefs(scenario.knobs),
+      opts.knobs as Partial<KnobValues<K>> | undefined
+    );
 
-  const handlesOut: Record<string, unknown> = {};
-  const { started } = await startTopology({
-    ports,
-    network,
-    knobValues,
-    knobGet: knobReader(scenario.knobs, catalog),
-    endpointRoles,
-    nodeEntries: scenario.nodes,
-    handlesByRole: new Map(),
-    handlesOut,
-  });
+    const handlesOut: Record<string, unknown> = {};
+    ({ started } = await startTopology({
+      ports,
+      network,
+      knobValues: catalog.toJSON() as Record<string, JsonValue>,
+      knobGet: knobReader(scenario.knobs, catalog),
+      endpointRoles,
+      nodeEntries: scenario.nodes,
+      handlesByRole: new Map(),
+      handlesOut,
+    }));
 
-  const baseWorld = assembleWorld({
-    scenario: scenario as ScenarioDef<K, N, object, X>,
-    boundCommands: bindCommands(scenario.commands),
-    ports,
-    network,
-    knobs: catalog.values as KnobValues<K>,
-    nodes: handlesOut as NodeHandles<N>,
-    networkFaults,
-    startTime,
-    started,
-    dispose: makeDispose(started, network),
-    extension: {} as X,
-  });
+    dispose = makeDispose(started, network);
+    const propertyRunner = createPropertyRunner<S>(scenario.properties);
+    const boundActions = bindActions(scenario.actions);
 
-  const extension =
-    scenario.extend !== undefined
-      ? await scenario.extend(baseWorld)
-      : ({} as X);
+    const worldRef: { current: World<K, N, X> | null } = { current: null };
+    const controls = buildWorldControls({
+      scenario,
+      boundActions,
+      ctx: {
+        ports,
+        network,
+        started,
+        startTime,
+        networkFaults,
+        edges,
+        dispose,
+      },
+      worldRef,
+      propertyRunner,
+    });
 
-  if (typeof extension === 'object' && extension !== null) {
-    for (const key of Object.keys(extension as object)) {
-      if (key in baseWorld) {
-        throw new Error(
-          `openWorld(${scenario.id}): extend key collides with framework control ${key}`
-        );
-      }
+    const baseWorld = Object.assign(controls, {
+      knobs: catalog.values as KnobValues<K>,
+      nodes: handlesOut as NodeHandles<N>,
+    }) as World<K, N, X>;
+    worldRef.current = baseWorld;
+
+    const extension =
+      scenario.extend !== undefined
+        ? await scenario.extend(baseWorld)
+        : ({} as X);
+
+    if (typeof extension === 'object' && extension !== null) {
+      assertExtendKeys(scenario.id, baseWorld, extension as object);
     }
-  }
 
-  return Object.assign(baseWorld, extension) as World<K, N, X>;
+    return Object.assign(baseWorld, extension) as World<K, N, X>;
+  } catch (error) {
+    await abortOpenWorld(dispose, started);
+    throw error;
+  }
 }

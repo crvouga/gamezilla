@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/dst';
-import { replay, runScenario } from '@pkgs/dst/pbt';
+import { check, replay } from '@pkgs/dst/pbt';
 
 import type { SchemaPeer } from './peers';
 import { schemaAt } from './schemas';
@@ -8,10 +8,10 @@ import { SCHEMA_SERVER_ID, SCHEMA_SYSTEM } from './system';
 
 describe('db-schema framework world', () => {
   test('compatible schema chain + mixed clients + forbidden refuse', async () => {
-    await runScenario(
-      SCHEMA_SYSTEM as unknown as Parameters<typeof runScenario>[0],
-      { maxCommands: 10, numRuns: 6 }
-    );
+    await check(SCHEMA_SYSTEM as unknown as Parameters<typeof check>[0], {
+      episodeLength: 10,
+      episodes: 6,
+    });
   }, 120_000);
 
   test('scripted: server ahead of lagging client stays valid', async () => {
@@ -20,7 +20,7 @@ describe('db-schema framework world', () => {
       {
         seed: 42,
         knobs: { clientCount: 2 },
-        commands: [
+        actions: [
           { kind: 'advance', target: SCHEMA_SERVER_ID, to: 2 },
           { kind: 'advance', target: 'client-0', to: 1 },
           { kind: 'advance', target: 'client-1', to: 2 },
@@ -50,7 +50,7 @@ describe('db-schema framework world', () => {
       {
         seed: 7,
         knobs: { clientCount: 1 },
-        commands: [
+        actions: [
           { kind: 'advance', target: SCHEMA_SERVER_ID, to: 1 },
           { kind: 'forbidden' },
         ],

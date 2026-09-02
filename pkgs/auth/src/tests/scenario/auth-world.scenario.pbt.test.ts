@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/dst';
-import { replay, runScenario, runWorldProperty } from '@pkgs/dst/pbt';
+import { check, replay, runProperty } from '@pkgs/dst/pbt';
 import fc from 'fast-check';
 
 import {
@@ -39,7 +39,7 @@ async function withReplay(
     {
       seed,
       knobs: knobsFor(fabric),
-      commands: actions,
+      actions: actions,
     }
   );
   try {
@@ -239,11 +239,9 @@ describe('auth system / PBT', () => {
     }, 60_000);
 
     test(`dual-open runs share a fingerprint (${fabric})`, async () => {
-      await runWorldProperty(
-        AUTH_SYSTEM as unknown as Parameters<typeof runWorldProperty>[0],
-        [fc.constant(null)],
-        async (world, _null) => {
-          void _null;
+      await runProperty(
+        'auth.dual-open',
+        fc.asyncProperty(fc.integer({ min: 1, max: 999_999 }), async (seed) => {
           const knobs = knobsFor(fabric);
           const actions = [
             {
@@ -262,22 +260,22 @@ describe('auth system / PBT', () => {
           ] as const;
           const a = await replay(
             AUTH_SYSTEM as unknown as Parameters<typeof replay>[0],
-            { seed: world.seed, knobs, commands: [...actions] }
+            { seed, knobs, actions: [...actions] }
           );
+          const fpA = (a.world as unknown as AuthWorld).fingerprint;
+          await a.world.dispose();
           const b = await replay(
             AUTH_SYSTEM as unknown as Parameters<typeof replay>[0],
-            { seed: world.seed, knobs, commands: [...actions] }
+            { seed, knobs, actions: [...actions] }
           );
           try {
-            const aw = a.world as unknown as AuthWorld;
             const bw = b.world as unknown as AuthWorld;
-            expect(aw.fingerprint).not.toBeNull();
-            expect(aw.fingerprint).toBe(bw.fingerprint);
+            expect(fpA).not.toBeNull();
+            expect(fpA).toBe(bw.fingerprint);
           } finally {
-            await a.world.dispose();
             await b.world.dispose();
           }
-        },
+        }),
         { numRuns: 4 }
       );
     }, 120_000);
@@ -296,10 +294,9 @@ describe('auth system / PBT', () => {
     }, 60_000);
   }
 
-  test('runScenario explores knobs + library + domain actions', async () => {
-    await runScenario(
-      AUTH_SYSTEM as unknown as Parameters<typeof runScenario>[0],
-      { maxCommands: 10 }
-    );
+  test('check explores knobs + library + domain actions', async () => {
+    await check(AUTH_SYSTEM as unknown as Parameters<typeof check>[0], {
+      episodeLength: 10,
+    });
   }, 180_000);
 });

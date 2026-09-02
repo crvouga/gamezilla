@@ -1,6 +1,6 @@
 /**
  * Room system kernel. Worlds and action replay are framework-owned:
- * {@link defineRoomSystem} + `runScenario` / `replay` from `@pkgs/dst`.
+ * {@link defineRoomSystem} + `check` / `replay` from `@pkgs/dst`.
  */
 
 export type {
@@ -12,6 +12,7 @@ export { isDomainOp, isLibraryAction } from './actions';
 export type { DomainModelHooks, RoomApp } from './app';
 export type {
   DefineRoomSystemOpts,
+  RoomSurface,
   RoomSystemDef,
   RoomSystemWorld,
 } from './define-room-system';

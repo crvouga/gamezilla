@@ -10,6 +10,7 @@ export type AcmeKvServerHandle = {
   readonly store: Map<string, AcmeKvEntry>;
   readonly clientEndpoints: string[];
   nextWriteId: number;
+  sawTiebreak: boolean;
   readonly network: Network;
   registerClient(ep: string): void;
 };
@@ -70,13 +71,19 @@ function asReplicate(payload: unknown): ReplicateMsg | null {
 
 function applyLww(
   store: Map<string, AcmeKvEntry>,
-  key: string,
-  value: string,
-  writeId: number
+  entry: {
+    readonly key: string;
+    readonly value: string;
+    readonly writeId: number;
+  },
+  onTie?: () => void
 ): boolean {
-  const prev = store.get(key);
-  if (prev !== undefined && prev.writeId >= writeId) return false;
-  store.set(key, { value, writeId });
+  const prev = store.get(entry.key);
+  if (prev !== undefined && prev.writeId >= entry.writeId) {
+    if (prev.writeId === entry.writeId) onTie?.();
+    return false;
+  }
+  store.set(entry.key, { value: entry.value, writeId: entry.writeId });
   return true;
 }
 
@@ -95,7 +102,13 @@ function fanoutReplicate(
 function onServerDeliver(handle: AcmeKvServerHandle, payload: unknown): void {
   const put = asPut(payload);
   if (put === null) return;
-  const applied = applyLww(handle.store, put.key, put.value, put.writeId);
+  const applied = applyLww(
+    handle.store,
+    { key: put.key, value: put.value, writeId: put.writeId },
+    () => {
+      handle.sawTiebreak = true;
+    }
+  );
   if (!applied) return;
   fanoutReplicate(handle, put.key, put.value, put.writeId);
 }
@@ -103,7 +116,11 @@ function onServerDeliver(handle: AcmeKvServerHandle, payload: unknown): void {
 function onClientDeliver(handle: AcmeKvClientHandle, payload: unknown): void {
   const rep = asReplicate(payload);
   if (rep === null) return;
-  applyLww(handle.cache, rep.key, rep.value, rep.writeId);
+  applyLww(handle.cache, {
+    key: rep.key,
+    value: rep.value,
+    writeId: rep.writeId,
+  });
 }
 
 /** Re-send every server entry to every client (catch-up after partition). */
@@ -118,9 +135,14 @@ export function sendPut(args: {
   readonly client: AcmeKvClientHandle;
   readonly key: string;
   readonly value: string;
+  readonly writeId?: number;
 }): void {
-  args.server.nextWriteId += 1;
-  const writeId = args.server.nextWriteId;
+  const writeId =
+    args.writeId ??
+    (() => {
+      args.server.nextWriteId += 1;
+      return args.server.nextWriteId;
+    })();
   const msg: PutMsg = {
     type: 'put',
     clientId: args.client.id,
@@ -139,6 +161,7 @@ export const acmeKvServerNode = node({
       store: new Map(),
       clientEndpoints: [],
       nextWriteId: 0,
+      sawTiebreak: false,
       network: ctx.network,
       registerClient(ep) {
         this.clientEndpoints.push(ep);

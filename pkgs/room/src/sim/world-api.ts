@@ -21,9 +21,9 @@ import type {
   SimRoomNetwork,
 } from './network';
 import type {
-  EventuallyOptions,
   NeverOptions,
   UntilPredicate,
+  WaitUntilOptions,
 } from './wait-until';
 
 export type { RoomSimClientHandle, RoomSimNodeHandle } from './handles';
@@ -65,7 +65,7 @@ export type World<
   readonly runFor: (ms: number) => Promise<void>;
   readonly until: (
     pred: UntilPredicate,
-    opts?: EventuallyOptions
+    opts?: WaitUntilOptions
   ) => Promise<number>;
   readonly never: (pred: UntilPredicate, opts: NeverOptions) => Promise<void>;
   /** Domain state folded from the committed storage log (authority). */

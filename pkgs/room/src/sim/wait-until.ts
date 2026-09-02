@@ -1,9 +1,9 @@
-import type { EventuallyOptions, NeverOptions, Scheduler } from '@pkgs/dst';
+import type { NeverOptions, Scheduler, WaitUntilOptions } from '@pkgs/dst';
 
 /** Poll target for room kit wait helpers — predicates only. */
 export type UntilPredicate = () => boolean | Promise<boolean>;
 
-export type { EventuallyOptions, NeverOptions };
+export type { NeverOptions, WaitUntilOptions };
 
 type WaitWorld = {
   readonly seed: bigint;
@@ -30,7 +30,7 @@ function withFlush(world: WaitWorld, pred: UntilPredicate): UntilPredicate {
 export async function waitUntil(
   world: WaitWorld,
   pred: UntilPredicate,
-  opts?: EventuallyOptions & {
+  opts?: WaitUntilOptions & {
     readonly budgetMs?: number;
     readonly stepMs?: number;
   }

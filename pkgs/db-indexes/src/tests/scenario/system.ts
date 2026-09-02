@@ -1,17 +1,17 @@
-import { defineScenario } from '@pkgs/dst';
+import {
+  type ActionCatalog,
+  defineScenario,
+  properties,
+  property,
+} from '@pkgs/dst';
 import { planIndexes } from '../../core/plan';
 import { INDEXES_ACTIONS } from './actions';
 import { checkIndexesInvariants } from './invariants';
 import { indexesReconcilerNode } from './nodes';
-import type { IndexesModel } from './types';
+import type { IndexesSurface } from './types';
 import { reconcilerOf } from './types';
 
-async function settleIndexes(
-  world: import('@pkgs/dst').World<
-    Record<string, import('@pkgs/dst').KnobDef>,
-    Record<string, import('@pkgs/dst').NodeEntry>
-  >
-): Promise<void> {
+async function settleIndexes(world: IndexesSurface): Promise<void> {
   await world.quiesce();
   const state = reconcilerOf(world);
   const plan = await planIndexes({
@@ -35,15 +35,15 @@ export const INDEXES_SYSTEM = defineScenario({
   nodes: {
     reconciler: {
       ...indexesReconcilerNode,
-      id: () => 'reconciler',
+      id: (): 'reconciler' => 'reconciler',
     },
   },
-  commands: INDEXES_ACTIONS,
-  referenceModel: {
-    initial: (): IndexesModel => ({ cycleCount: 0 }),
-  },
+  actions: INDEXES_ACTIONS as unknown as ActionCatalog<IndexesSurface>,
+  properties: properties<IndexesSurface>()({
+    invariants: property.always(async (surface: IndexesSurface) => {
+      await checkIndexesInvariants(reconcilerOf(surface));
+      return true;
+    }),
+  }),
   converge: settleIndexes,
-  always: async (world) => {
-    await checkIndexesInvariants(reconcilerOf(world));
-  },
-});
+} as unknown as import('@pkgs/dst').AnyScenarioDef);

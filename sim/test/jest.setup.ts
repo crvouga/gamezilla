@@ -2,7 +2,12 @@
  * Jest setupAfterEnv for @sim/test product simulations.
  * Real timers: renderRouter enables fake timers; we need wall async for I/O.
  */
+import { i18n } from '@lingui/core';
+import { installJestUiTestRunner } from '@pkgs/ui-testing/runner/jest';
+
 jest.useRealTimers();
+
+installJestUiTestRunner({ fidelity: 'sim', driverKind: 'rntl' });
 
 // Official Reanimated Jest matchers (after real timers so product sims keep
 // wall async for Hono/SQLite). Use the same `/mock` entry expo-router loads.
@@ -11,7 +16,6 @@ require('react-native-reanimated/mock').setUpTests();
 // Lingui macros compile to `@lingui/core` `i18n._(...)`. Bun can nest two
 // core copies; activate `en` on the instance Jest resolves so `t` / `Trans`
 // work without a race against AppI18nProvider's side-effect import.
-const { i18n } = require('@lingui/core');
 if (i18n.locale == null || i18n.locale === '') {
   i18n.loadAndActivate({ locale: 'en', messages: {} });
 }

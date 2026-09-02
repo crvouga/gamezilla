@@ -18,7 +18,7 @@ describe('room schedule-anticheat PBT', () => {
         fc.asyncProperty(arbSeed(), async (seed) => {
           await replayRoomPin(matchClockSystem, {
             seed,
-            commands: [
+            actions: [
               {
                 kind: 'domain',
                 clientId: 'c0',
@@ -48,7 +48,7 @@ describe('room schedule-anticheat PBT', () => {
     const world = await replayRoom(matchClockSystem, {
       seed: 3,
       converge: false,
-      commands: [
+      actions: [
         {
           kind: 'domain',
           clientId: 'c0',
@@ -80,7 +80,7 @@ describe('room schedule-anticheat PBT', () => {
   test('lagging held client cannot move after server flag', async () => {
     const world = await replayRoom(matchClockSystem, {
       seed: 5,
-      commands: [
+      actions: [
         {
           kind: 'domain',
           clientId: 'c0',

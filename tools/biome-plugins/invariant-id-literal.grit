@@ -1,0 +1,6 @@
+language js
+
+`always($id, $args)` as $call where {
+  not $id <: r"^\"[^\"]+\"$",
+  register_diagnostic(span=$id, message="Invariant id must be a string literal.", severity="error")
+}

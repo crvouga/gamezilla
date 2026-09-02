@@ -1,4 +1,4 @@
-import { command } from '@pkgs/dst';
+import { type ActionGeneratorContext, actions } from '@pkgs/dst';
 import fc from 'fast-check';
 import {
   AUTH_SESSION_TTL_MS,
@@ -13,7 +13,7 @@ import {
   dispatchStealBearer,
   type OauthProvider,
 } from './dispatch';
-import type { AuthKit } from './types';
+import type { AuthSurface } from './types';
 
 export type AuthDomainOp =
   | {
@@ -48,14 +48,6 @@ export type GoogleFaultAction = {
 
 export type AuthAction = AuthDomainOp | AdvanceClockAction | GoogleFaultAction;
 
-export type AuthModel = Record<string, never>;
-
-type AuthWorld = import('@pkgs/dst').World<
-  Record<string, import('@pkgs/dst').KnobDef>,
-  Record<string, import('@pkgs/dst').NodeEntry>,
-  AuthKit
->;
-
 const SUBJECTS = ['alice', 'bob', 'carol'] as const;
 const PROVIDERS = [IDP_PROVIDER_GOOGLE, IDP_PROVIDER_DEV] as const;
 const CALLBACK_URLS = [
@@ -65,149 +57,117 @@ const CALLBACK_URLS = [
 ] as const;
 
 function clientArb(
-  ctx: import('@pkgs/dst').CommandGeneratorContext
+  ctx: ActionGeneratorContext<AuthSurface>
 ): fc.Arbitrary<string> {
   const clients = ctx.nodeIds('client');
   if (clients.length === 0) return fc.constant('c0');
   return fc.constantFrom(...clients);
 }
 
-export const advanceClockAction = command<
-  AdvanceClockAction,
-  AuthModel,
-  AuthWorld
->({
-  weight: 1,
-  generate: () =>
-    fc.record({
-      kind: fc.constant('advanceClock' as const),
-      ms: fc.constantFrom(1_000, AUTH_SESSION_TTL_MS + 1),
-    }),
-  apply: async (world, action) => {
-    await world.advance(action.ms);
+export const AUTH_ACTIONS = actions<AuthSurface>()({
+  advanceClock: {
+    weight: 1,
+    generate: () =>
+      fc.record({
+        kind: fc.constant('advanceClock' as const),
+        ms: fc.constantFrom(1_000, AUTH_SESSION_TTL_MS + 1),
+      }),
+    apply: async (surface, payload) => {
+      const action = payload as AdvanceClockAction;
+      await surface.advance(action.ms);
+    },
+  },
+  setGoogleFault: {
+    weight: 1,
+    generate: () =>
+      fc.record({
+        kind: fc.constant('setGoogleFault' as const),
+        fault: fc.boolean(),
+      }),
+    apply: async (surface, payload) => {
+      const action = payload as GoogleFaultAction;
+      (surface.nodes['store'] as import('./types').AuthStore).sim.googleFault =
+        action.fault;
+    },
+  },
+  oauthStart: {
+    weight: 3,
+    generate: (ctx) =>
+      fc.record({
+        kind: fc.constant('oauthStart' as const),
+        clientId: clientArb(ctx),
+        provider: fc.constantFrom(...PROVIDERS),
+        callbackUrl: fc.constantFrom(...CALLBACK_URLS),
+      }),
+    apply: async (surface, payload) => {
+      const action = payload as Extract<AuthDomainOp, { kind: 'oauthStart' }>;
+      await dispatchOauthStart(
+        surface,
+        action.clientId,
+        action.provider,
+        action.callbackUrl
+      );
+    },
+  },
+  oauthApprove: {
+    weight: 3,
+    generate: (ctx) =>
+      fc.record({
+        kind: fc.constant('oauthApprove' as const),
+        clientId: clientArb(ctx),
+        provider: fc.constantFrom(...PROVIDERS),
+        subject: fc.constantFrom(...SUBJECTS),
+      }),
+    apply: async (surface, payload) => {
+      const action = payload as Extract<AuthDomainOp, { kind: 'oauthApprove' }>;
+      await dispatchOauthApprove(
+        surface,
+        action.clientId,
+        action.provider,
+        action.subject
+      );
+    },
+  },
+  sessionExchange: {
+    weight: 3,
+    generate: (ctx) =>
+      fc.record({
+        kind: fc.constant('sessionExchange' as const),
+        clientId: clientArb(ctx),
+      }),
+    apply: async (surface, payload) => {
+      const action = payload as Extract<
+        AuthDomainOp,
+        { kind: 'sessionExchange' }
+      >;
+      await dispatchSessionExchange(surface, action.clientId);
+    },
+  },
+  signOut: {
+    weight: 3,
+    generate: (ctx) =>
+      fc.record({
+        kind: fc.constant('signOut' as const),
+        clientId: clientArb(ctx),
+      }),
+    apply: async (surface, payload) => {
+      const action = payload as Extract<AuthDomainOp, { kind: 'signOut' }>;
+      await dispatchSignOut(surface, action.clientId);
+    },
+  },
+  stealBearer: {
+    weight: 3,
+    generate: (ctx) => {
+      const client = clientArb(ctx);
+      return fc.record({
+        kind: fc.constant('stealBearer' as const),
+        from: client,
+        to: client,
+      });
+    },
+    apply: async (surface, payload) => {
+      const action = payload as Extract<AuthDomainOp, { kind: 'stealBearer' }>;
+      dispatchStealBearer(surface, action.from, action.to);
+    },
   },
 });
-
-export const setGoogleFaultAction = command<
-  GoogleFaultAction,
-  AuthModel,
-  AuthWorld
->({
-  weight: 1,
-  generate: () =>
-    fc.record({
-      kind: fc.constant('setGoogleFault' as const),
-      fault: fc.boolean(),
-    }),
-  apply: async (world, action) => {
-    (world.nodes['store'] as import('./types').AuthStore).sim.googleFault =
-      action.fault;
-  },
-});
-
-export const oauthStartAction = command<
-  Extract<AuthDomainOp, { kind: 'oauthStart' }>,
-  AuthModel,
-  AuthWorld
->({
-  weight: 3,
-  generate: (ctx) =>
-    fc.record({
-      kind: fc.constant('oauthStart' as const),
-      clientId: clientArb(ctx),
-      provider: fc.constantFrom(...PROVIDERS),
-      callbackUrl: fc.constantFrom(...CALLBACK_URLS),
-    }),
-  apply: async (world, action) => {
-    await dispatchOauthStart(
-      world,
-      action.clientId,
-      action.provider,
-      action.callbackUrl
-    );
-  },
-});
-
-export const oauthApproveAction = command<
-  Extract<AuthDomainOp, { kind: 'oauthApprove' }>,
-  AuthModel,
-  AuthWorld
->({
-  weight: 3,
-  generate: (ctx) =>
-    fc.record({
-      kind: fc.constant('oauthApprove' as const),
-      clientId: clientArb(ctx),
-      provider: fc.constantFrom(...PROVIDERS),
-      subject: fc.constantFrom(...SUBJECTS),
-    }),
-  apply: async (world, action) => {
-    await dispatchOauthApprove(
-      world,
-      action.clientId,
-      action.provider,
-      action.subject
-    );
-  },
-});
-
-export const sessionExchangeAction = command<
-  Extract<AuthDomainOp, { kind: 'sessionExchange' }>,
-  AuthModel,
-  AuthWorld
->({
-  weight: 3,
-  generate: (ctx) =>
-    fc.record({
-      kind: fc.constant('sessionExchange' as const),
-      clientId: clientArb(ctx),
-    }),
-  apply: async (world, action) => {
-    await dispatchSessionExchange(world, action.clientId);
-  },
-});
-
-export const signOutAction = command<
-  Extract<AuthDomainOp, { kind: 'signOut' }>,
-  AuthModel,
-  AuthWorld
->({
-  weight: 3,
-  generate: (ctx) =>
-    fc.record({
-      kind: fc.constant('signOut' as const),
-      clientId: clientArb(ctx),
-    }),
-  apply: async (world, action) => {
-    await dispatchSignOut(world, action.clientId);
-  },
-});
-
-export const stealBearerAction = command<
-  Extract<AuthDomainOp, { kind: 'stealBearer' }>,
-  AuthModel,
-  AuthWorld
->({
-  weight: 3,
-  generate: (ctx) => {
-    const client = clientArb(ctx);
-    return fc.record({
-      kind: fc.constant('stealBearer' as const),
-      from: client,
-      to: client,
-    });
-  },
-  apply: async (world, action) => {
-    dispatchStealBearer(world, action.from, action.to);
-  },
-});
-
-export const AUTH_ACTIONS = {
-  advanceClock: advanceClockAction,
-  setGoogleFault: setGoogleFaultAction,
-  oauthStart: oauthStartAction,
-  oauthApprove: oauthApproveAction,
-  sessionExchange: sessionExchangeAction,
-  signOut: signOutAction,
-  stealBearer: stealBearerAction,
-} as const;

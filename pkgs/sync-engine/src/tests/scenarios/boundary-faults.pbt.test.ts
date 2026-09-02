@@ -61,7 +61,7 @@ describe('boundary faults PBT', () => {
             await replaySyncPin(acmeSystem, {
               seed,
               knobs,
-              commands: richBoundarySequence({
+              actions: richBoundarySequence({
                 kind: 'armHttpFault',
                 clientId: 'c0',
                 fault,
@@ -88,7 +88,7 @@ describe('boundary faults PBT', () => {
             await replaySyncPin(acmeSystem, {
               seed,
               knobs,
-              commands: boundarySequence([{ kind: 'publishFault', count }]),
+              actions: boundarySequence([{ kind: 'publishFault', count }]),
             });
           }
         ),
@@ -118,7 +118,7 @@ describe('boundary faults PBT', () => {
             await replaySyncPin(acmeSystem, {
               seed,
               knobs: { ...knobs, clientCount: 1 },
-              commands: crashBoundarySequence({
+              actions: crashBoundarySequence({
                 kind: 'armCrashAt',
                 clientId: 'c0',
                 event,

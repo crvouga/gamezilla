@@ -23,17 +23,24 @@ The package is a workspace member. Depend on it from a consuming package:
 ```ts
 import {
   createDriver,
+  describe,
   type Driver,
+  type DriverNode,
+  type UiTestCtx,
   type AppHarness,
 } from '@pkgs/ui-testing';
 ```
 
 | Surface | Purpose |
 | --- | --- |
-| `Driver` | Portable user-intent ops + nested `expect.*` |
+| `describe` / `UiTestCtx` | Host-agnostic scenario registration (Jest, Playwright, Detox) |
+| `Driver` | Portable user-intent ops via locator nodes |
+| `DriverNode` | Element-scoped tap / wait / expect / text |
 | `createDriver(config)` | Factory over a discriminated `DriverConfig` |
-| `driver.tap` / `input` / … | Actions take plain `testId` strings |
-| `driver.expect.visible` / `hidden` / `text` | Nested assertions |
+| `driver.get(testId)` | Sync locator — never null; fails on action |
+| `node.tap` / `input` / … | Actions on the resolved node |
+| `node.expect.visible` / `hidden` / `text` | Nested assertions |
+| `node.get(childTestId)` | Scope to a descendant |
 | `AppHarness` | App-supplied bootstrap port (rntl only) |
 
 Direct driver constructors are also available under deep imports, e.g.
@@ -62,16 +69,18 @@ hand-rolled module stubs in this package.
 
 ## Targeting elements
 
-Every action and assertion takes a **`testId` string** (mapped to
-`testID` / `data-testid` / Detox `by.id`). There is no public
-`by.text` / `by.role` / `by.label` selection API.
+Resolve targets with `driver.get(testId)` — a sync locator that chains for
+nested scope:
 
 ```ts
-await driver.tap('submit');
-await driver.input('email', 'ada@example.com');
-await driver.expect.visible('home');
-await driver.expect.text('welcome', 'Welcome ada@example.com');
+await driver.get('submit').tap();
+await driver.get('email').input('ada@example.com');
+await driver.get('home').expect.visible();
+await driver.get('modal').get('ok').expect.visible();
 ```
+
+Every action and assertion maps to `testID` / `data-testid` / Detox `by.id`.
+There is no public `by.text` / `by.role` / `by.label` selection API.
 
 `tap` and `input` auto-wait until the target is visible before acting
 (optional `timeoutMs` via `UiWaitOptions`).
@@ -87,9 +96,9 @@ class LoginPage {
   constructor(private driver: Driver) {}
 
   async login(email: string, password: string) {
-    await this.driver.input('email', email);
-    await this.driver.input('password', password);
-    await this.driver.tap('submit');
+    await this.driver.get('email').input(email);
+    await this.driver.get('password').input(password);
+    await this.driver.get('submit').tap();
   }
 }
 ```
@@ -142,7 +151,7 @@ const driver = createDriver({
   timers,
 });
 await driver.launch();
-await driver.expect.visible('home');
+await driver.get('home').expect.visible();
 await driver.close();
 ```
 
@@ -166,7 +175,7 @@ test('home loads', async ({ page }) => {
     baseUrl: 'http://localhost:5173',
   });
   await driver.launch();
-  await driver.expect.visible('app-root');
+  await driver.get('app-root').expect.visible();
 });
 ```
 
@@ -175,24 +184,25 @@ test('home loads', async ({ page }) => {
 `DetoxDriver` satisfies the `Driver` interface and documents the Detox mapping
 for every operation, but throws `NotImplementedError` until a consumer that
 owns the `detox` dependency completes the integration. Classic Detox has no
-first-class text read-back — `getText` remains unsupported by design.
+first-class text read-back — `text()` remains unsupported by design.
 
 ## Driver capability matrix
 
 | Operation | RNTL | Playwright | Detox (stub) |
 | --- | --- | --- | --- |
 | `launch` / `close` | yes | yes (`baseUrl` optional) | stub → `device.launchApp` / `terminateApp` |
+| `get` / nested `get` | yes | yes | stub → `by.id` / `withDescendant` |
 | `tap` / `input` (auto-wait) | yes | yes | stub → `element().tap()` / `typeText` |
 | `tapAt` | yes | yes | stub → `element().tap({ x, y })` |
 | `clear` | yes | yes | stub → `clearText` |
-| `key` | yes (no-op host) | yes | stub (platform-limited) |
+| `key` (driver + node) | yes (no-op host) | yes | stub (platform-limited) |
 | `scroll` | yes | yes | stub → `element().scroll` |
-| `wait` / `isVisible` | virtual pump + query | `locator.waitFor` / `waitForFunction` | stub → native `waitFor` |
+| `wait` / `isVisible` | virtual pump + query | `locator.waitFor` / filter | stub → native `waitFor` |
 | `expect.visible` / `hidden` / `text` | thin wrappers over `wait` | same | stub |
-| `getText` | yes | yes | unsupported in Detox |
+| `text()` | yes | yes | unsupported in Detox |
 | `snapshotHtml` | RN host → HTML | `page.content()` | returns `null` |
 
-`Driver.wait` is host-native for speed: Playwright uses event-driven waits;
+`DriverNode.wait` is host-native for speed: Playwright uses event-driven waits;
 rntl uses a constructor `pump` (sim virtual clock) instead of RNTL
 `findBy` / wall 50ms sleeps. Public options are only `timeoutMs` /
 `description` — no shared poll interval.
@@ -216,22 +226,45 @@ Driver poll hook).
 
 ## Test runner independence
 
+Scenario files import `describe` from `@pkgs/ui-testing` and register tests
+via `ctx.test`. A host adapter is installed once per process:
+
+| Fidelity | Host | Driver | Install |
+| --- | --- | --- | --- |
+| `sim` | Jest + jest-expo | `RntlDriver` | `installJestUiTestRunner()` in sim/test `jest.setup.ts` |
+| `max` | Playwright Test | `PlaywrightDriver` (one browser context per actor) | `installPlaywrightUiTestRunner()` in sim/test `playwright.setup.ts` |
+| native (future) | Jest / Detox | `DetoxDriver` stub | `installDetoxUiTestRunner()` |
+
+```ts
+import { describe } from '@pkgs/ui-testing';
+
+describe('space create', (ctx) => {
+  ctx.test('host creates a space', async () => {
+    await using sim = await openSim('space-create', ctx);
+    // …
+  }, 30_000);
+});
+```
+
+`openSim(testId, ctx)` reads `ctx.fidelity` / `ctx.driverKind` to pick RNTL
+in-process mounting vs Playwright browser tabs + loopback HTTP.
+
 Assertions throw plain `Error` subclasses (`TimeoutError`, `UiTestError`, …).
 RNTL may use an internal `waitUntil` helper; Playwright / Detox must not.
-There is no dependency on Vitest, Jest, or Bun's `expect` — use whatever
-runner you prefer.
+There is no dependency on Vitest, Jest, or Bun's `expect` for driver assertions.
 
 ## Package layout
 
 ```text
 pkgs/ui-testing/src/
   core/           errors, waitUntil, DriverKey
-  selector/       formatTestId + thin internal testId helper
+  selector/       formatTestId + formatTestIdPath + thin internal testId helper
   driver/         Driver interface + createDriver
-  assertions/     shared expect* helpers for Driver implementations
+  runner/         describe / UiTestCtx + Jest / Playwright / Detox adapters
+  assertions/     shared expect* helpers for DriverNode implementations
   bootstrap/      AppHarness + RenderAdapter ports
   drivers/
-    rntl/         RntlDriver + RNTL renderer
-    playwright/   PlaywrightDriver
+    rntl/         RntlDriver + RNTL renderer + RntlDriverNode
+    playwright/   PlaywrightDriver + PlaywrightDriverNode
     detox/        DetoxDriver stub
 ```

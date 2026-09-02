@@ -28,7 +28,7 @@ describe('room authz-graph PBT', () => {
         fc.asyncProperty(arbSeed(), async (seed) => {
           const world = await replayRoom(authzSystem, {
             seed,
-            commands: [
+            actions: [
               {
                 kind: 'domain',
                 clientId: 'c0',
@@ -69,7 +69,7 @@ describe('room authz-graph PBT', () => {
   test('takeOver does not transfer ownership', async () => {
     const world = await replayRoom(authzSystem, {
       seed: 21,
-      commands: [
+      actions: [
         {
           kind: 'domain',
           clientId: 'c0',

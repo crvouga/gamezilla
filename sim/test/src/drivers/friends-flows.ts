@@ -9,26 +9,26 @@ export class FriendsFlows {
 
   /** Open Profile tab (needed once before a second rntl actor mounts). */
   async openTab(): Promise<void> {
-    await this.ui.tap(Handles.tabProfile);
-    await this.ui.expect.visible(Handles.profileFriendsStats, {
+    await this.ui.get(Handles.tabProfile).tap();
+    await this.ui.get(Handles.profileFriendsStats).expect.visible({
       timeoutMs: WAIT_MS,
     });
   }
 
   async openList(): Promise<void> {
     await this.openTab();
-    await this.ui.tap(Handles.profileFriendsStats);
+    await this.ui.get(Handles.profileFriendsStats).tap();
   }
 
   async expectFriend(username: string): Promise<void> {
-    await this.ui.expect.visible(Handles.friendsListRow(username), {
+    await this.ui.get(Handles.friendsListRow(username)).expect.visible({
       timeoutMs: WAIT_MS,
     });
   }
 
   async expectNotFriend(username: string): Promise<void> {
     await this.openList();
-    await this.ui.expect.hidden(Handles.friendsListRow(username), {
+    await this.ui.get(Handles.friendsListRow(username)).expect.hidden({
       timeoutMs: HIDDEN_MS,
     });
   }

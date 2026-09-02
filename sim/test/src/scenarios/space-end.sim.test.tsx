@@ -1,4 +1,4 @@
-import { describe, test } from '@jest/globals';
+import { describe } from '@pkgs/ui-testing';
 
 import { aliceUsername } from '../fixtures/fixtures';
 import { setupFriendsPair } from '../fixtures/setup-friends-pair';
@@ -22,14 +22,18 @@ async function setupBothInActiveSpace(
   return { alice, bob };
 }
 
-describe('space end', () => {
-  test('host ends; guest sees ended state', async () => {
-    await using sim = await openSim('space-end');
-    const { alice, bob } = await setupBothInActiveSpace(sim);
+describe('space end', (ctx) => {
+  ctx.test(
+    'host ends; guest sees ended state',
+    async () => {
+      await using sim = await openSim('space-end', ctx);
+      const { alice, bob } = await setupBothInActiveSpace(sim);
 
-    await alice.space.reenterActiveSpace(aliceUsername);
-    await alice.space.endSpace();
+      await alice.space.reenterActiveSpace(aliceUsername);
+      await alice.space.endSpace();
 
-    await bob.space.expectLobbyCardGone(aliceUsername);
-  }, 30_000);
+      await bob.space.expectLobbyCardGone(aliceUsername);
+    },
+    30_000
+  );
 });

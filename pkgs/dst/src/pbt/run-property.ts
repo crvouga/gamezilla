@@ -28,7 +28,7 @@ function defaultInterruptMs(): number {
 
 /**
  * Low-level Runner: `fc.assert` with the shared run budget. Prefer
- * {@link runScenario} when the property is "a Scenario holds under a Workload".
+ * {@link check} when the property is "a Scenario holds under a Workload".
  */
 export async function runProperty<Ts>(
   _name: string,
@@ -39,12 +39,7 @@ export async function runProperty<Ts>(
   const numRuns = params?.numRuns ?? defaultNumRuns();
   const interruptAfterTimeLimit =
     params?.interruptAfterTimeLimit ?? defaultInterruptMs();
-  const {
-    numRuns: _drop,
-    interruptAfterTimeLimit: _drop2,
-    ...rest
-  } = params ?? {};
-  void _drop;
+  const { interruptAfterTimeLimit: _drop2, ...rest } = params ?? {};
   void _drop2;
   return fc.assert(property, {
     ...rest,

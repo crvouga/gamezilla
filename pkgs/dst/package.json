@@ -13,6 +13,7 @@
   "dependencies": {
     "@pkgs/clock": "workspace:*",
     "@pkgs/http-client": "workspace:*",
+    "@pkgs/invariants": "workspace:*",
     "@pkgs/pbt": "workspace:*",
     "@pkgs/uuid": "workspace:*",
     "fast-check": "catalog:"

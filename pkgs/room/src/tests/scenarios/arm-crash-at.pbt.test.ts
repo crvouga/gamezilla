@@ -25,7 +25,7 @@ describe('room armCrashAt slice PBT', () => {
               seed,
               knobs: { clientCount: 2, mildFaults: false },
               converge: false,
-              commands: [
+              actions: [
                 {
                   kind: 'armCrashAt',
                   clientId: 'c1',

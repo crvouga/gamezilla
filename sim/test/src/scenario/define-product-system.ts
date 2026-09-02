@@ -1,4 +1,12 @@
-import { defineScenario, knob, type ScenarioDef, type World } from '@pkgs/dst';
+import {
+  type ActionCatalog,
+  defineScenario,
+  knob,
+  properties,
+  property,
+  type ScenarioDef,
+  std,
+} from '@pkgs/dst';
 import type { Sim } from '@sim/console/sim/create-sim';
 import fc from 'fast-check';
 
@@ -17,17 +25,19 @@ type ProductNodes = {
 
 export type ProductSimExtension = { readonly sim: Sim };
 
+export type ProductSurface = ProductSimExtension;
+
 export type ProductSystemDef = ScenarioDef<
   ProductKnobs,
   ProductNodes,
-  object,
-  ProductSimExtension
+  ProductSurface,
+  ProductSurface
 >;
 
-export type ProductSystemWorld = World<
+export type ProductSystemWorld = import('@pkgs/dst').World<
   ProductKnobs,
   ProductNodes,
-  ProductSimExtension
+  ProductSurface
 >;
 
 export type DefineProductSystemOpts = ProductSystemOpts & {
@@ -51,17 +61,17 @@ export function defineProductSystem(
       : {}),
     knobs: PRODUCT_KNOBS,
     nodes: { sim: simNode },
-    commands: {},
+    actions: std.time() as unknown as ActionCatalog<ProductSurface>,
     extend: (world) => {
       const handle = world.nodes.sim as ProductSimHandle;
       return { sim: handle.sim };
     },
+    properties: properties<ProductSurface>()({
+      converged: property.always(async () => true, { at: 'converge' }),
+    }),
     converge: async (world) => {
       void world.sim;
       await world.quiesce();
-    },
-    always: async () => {
-      /* noop */
     },
   });
 }

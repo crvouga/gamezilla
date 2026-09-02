@@ -7,16 +7,17 @@ import {
 import type { TraceRecord } from '../kernel/trace';
 import type { NetworkFaults } from '../models/network';
 
-/** Everything needed to re-run one World execution: seed + knobs + Commands. */
+/** Everything needed to re-run one World execution: seed + knobs + Actions. */
 export type ReproInputs<
-  C extends JsonValue = JsonValue,
+  A extends JsonValue = JsonValue,
   K extends Record<string, JsonValue> = Record<string, JsonValue>,
 > = {
-  readonly seed: string;
+  readonly seed?: string;
   readonly startTime: number;
   readonly knobs: K;
-  readonly commands: readonly C[];
+  readonly actions: readonly A[];
   readonly networkFaults: NetworkFaults;
+  readonly swarm?: readonly string[];
 };
 
 export type ReproMeta = {
@@ -29,29 +30,32 @@ export type ReproMeta = {
   readonly [k: string]: JsonValue | undefined;
 };
 
-export const REPRO_VERSION = 2 as const;
+export const REPRO_VERSION = 3 as const;
 
-/**
- * A serialized, reproducible input instance (schema v2). Older versions are
- * rejected loudly by `parseRepro`.
- */
 export type Repro<
-  C extends JsonValue = JsonValue,
+  A extends JsonValue = JsonValue,
   K extends Record<string, JsonValue> = Record<string, JsonValue>,
 > = {
   readonly version: typeof REPRO_VERSION;
-  readonly inputs: ReproInputs<C, K>;
+  readonly inputs: ReproInputs<A, K>;
   readonly meta: ReproMeta;
 };
 
-/**
- * What a failing run leaves behind.
- * TODO(dst-audit): add `firstDivergentStep` and minimal repro in Phase 4.
- */
+export type Example = {
+  readonly name: string;
+  readonly inputs: ReproInputs;
+};
+
 export type FailureReport = {
   readonly repro: Repro;
   readonly trace: readonly TraceRecord[];
   readonly error: string;
+  readonly coverage?: CoverageReport;
+};
+
+export type CoverageReport = {
+  readonly properties: Readonly<Record<string, number>>;
+  readonly invariants: Readonly<Record<string, number>>;
 };
 
 const FAULT_KEYS = [
@@ -80,10 +84,12 @@ function parseFaults(value: unknown, path: string): NetworkFaults {
 }
 
 export function stringifyRepro(r: Repro): string {
-  assertJsonValue(r.inputs.seed, 'inputs.seed');
+  if (r.inputs.seed !== undefined) {
+    assertJsonValue(r.inputs.seed, 'inputs.seed');
+  }
   assertJsonValue(r.inputs.startTime, 'inputs.startTime');
   assertJsonValue(r.inputs.knobs, 'inputs.knobs');
-  assertJsonValue(r.inputs.commands as JsonValue, 'inputs.commands');
+  assertJsonValue(r.inputs.actions as JsonValue, 'inputs.actions');
   assertJsonValue(
     r.inputs.networkFaults as unknown as JsonValue,
     'inputs.networkFaults'
@@ -94,15 +100,18 @@ export function stringifyRepro(r: Repro): string {
     ),
     'meta'
   );
+  const inputs: Record<string, JsonValue> = {
+    startTime: r.inputs.startTime,
+    knobs: r.inputs.knobs,
+    actions: r.inputs.actions as JsonValue,
+    networkFaults: r.inputs.networkFaults as unknown as JsonValue,
+  };
+  if (r.inputs.seed !== undefined) inputs['seed'] = r.inputs.seed;
+  if (r.inputs.swarm !== undefined)
+    inputs['swarm'] = r.inputs.swarm as JsonValue;
   const body: JsonValue = {
     version: REPRO_VERSION,
-    inputs: {
-      seed: r.inputs.seed,
-      startTime: r.inputs.startTime,
-      knobs: r.inputs.knobs,
-      commands: r.inputs.commands as JsonValue,
-      networkFaults: r.inputs.networkFaults as unknown as JsonValue,
-    },
+    inputs,
     meta: metaJson,
   };
   return canonicalJsonStringify(body);
@@ -125,9 +134,10 @@ function parseRoot(json: string): Record<string, unknown> {
       throw new Error(`Repro: unknown top-level key ${k}`);
     }
   }
-  if (raw['version'] !== REPRO_VERSION) {
+  const version = raw['version'];
+  if (version !== REPRO_VERSION) {
     throw new Error(
-      `Repro: unsupported version ${String(raw['version'])} (expected ${REPRO_VERSION})`
+      `Repro: unsupported version ${String(version)} (expected ${REPRO_VERSION})`
     );
   }
   return raw;
@@ -138,20 +148,24 @@ function parseInputs(inputs: unknown): ReproInputs {
     throw new Error('Repro: inputs must be object');
   }
   for (const req of [
-    'seed',
     'startTime',
     'knobs',
-    'commands',
+    'actions',
     'networkFaults',
   ] as const) {
     if (!(req in inputs)) {
       throw new Error(`Repro: missing inputs.${req}`);
     }
   }
-  const seed = inputs['seed'];
-  if (typeof seed !== 'string') {
-    throw new Error('Repro: inputs.seed must be string');
-  }
+  const seedRaw = inputs['seed'];
+  const seed =
+    seedRaw === undefined
+      ? undefined
+      : typeof seedRaw === 'string'
+        ? seedRaw
+        : (() => {
+            throw new Error('Repro: inputs.seed must be string when present');
+          })();
   const startTime = inputs['startTime'];
   if (typeof startTime !== 'number' || !Number.isFinite(startTime)) {
     throw new Error('Repro: inputs.startTime must be finite number');
@@ -160,16 +174,28 @@ function parseInputs(inputs: unknown): ReproInputs {
   if (!isPlainObject(knobs)) {
     throw new Error('Repro: inputs.knobs must be object');
   }
-  const commands = assertJsonValue(inputs['commands'], 'inputs.commands');
-  if (!Array.isArray(commands)) {
-    throw new Error('Repro: inputs.commands must be array');
+  const actions = assertJsonValue(inputs['actions'], 'inputs.actions');
+  if (!Array.isArray(actions)) {
+    throw new Error('Repro: inputs.actions must be array');
+  }
+  const swarmRaw = inputs['swarm'];
+  let swarm: readonly string[] | undefined;
+  if (swarmRaw !== undefined) {
+    if (
+      !Array.isArray(swarmRaw) ||
+      !swarmRaw.every((x) => typeof x === 'string')
+    ) {
+      throw new Error('Repro: inputs.swarm must be string[]');
+    }
+    swarm = swarmRaw as string[];
   }
   return {
-    seed,
+    ...(seed !== undefined ? { seed } : {}),
     startTime,
     knobs: knobs as Record<string, JsonValue>,
-    commands: commands as JsonValue[],
+    actions: actions as JsonValue[],
     networkFaults: parseFaults(inputs['networkFaults'], 'inputs.networkFaults'),
+    ...(swarm !== undefined ? { swarm } : {}),
   };
 }
 

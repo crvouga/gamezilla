@@ -1,9 +1,12 @@
 import {
-  type Command,
-  command,
+  type Action,
+  actions,
   defineScenario,
+  properties,
+  property,
   type ScenarioDef,
-  type UnboundCommandDef,
+  STEP_MS,
+  type UnboundActionDef,
   type World,
 } from '@pkgs/dst';
 import fc from 'fast-check';
@@ -12,6 +15,13 @@ import type { InMemoryRoomStorage } from '../../server/adapters/memory';
 import { toKernelFaults } from '../network';
 import { type UntilPredicate, waitNever, waitUntil } from '../wait-until';
 import type { World as KitWorld } from '../world-api';
+import {
+  type ActionShadow,
+  applyActionToShadow,
+  clientLive,
+  createActionShadow,
+  validClientIdsForLibrary,
+} from './action-shadow';
 import type { RoomSystemAction } from './actions';
 import type { RoomApp } from './app';
 import { dispatchRoomSystemAction } from './dispatch';
@@ -25,22 +35,15 @@ import {
 import { createRoomNodes } from './node-kinds';
 import { prepareClientsForConverge } from './play';
 import { type RoomRuntime, requireKit } from './system';
-import {
-  applyActionToModel,
-  CLIENT_IDS,
-  initialWorldModel,
-  modelAllowsAction,
-  type WorldModel,
-} from './world-model';
 
 const WORLD_START_MS = 1_700_000_000_000;
-const COMMAND_STEP_MS = 10;
 
 type RoomNodes = ReturnType<typeof createRoomNodes>;
 
 export type RoomWorldExtension = {
   readonly kit: KitWorld;
   readonly runtime: RoomRuntime;
+  readonly shadow: ActionShadow;
   readonly topic: KitWorld['topic'];
   readonly module: KitWorld['module'];
   readonly rng: KitWorld['rng'];
@@ -73,31 +76,19 @@ export type RoomWorldExtension = {
   ) => Promise<void>;
 };
 
-export type RoomSystemWorld = World<
-  RoomKnobDefs,
-  RoomNodes,
-  RoomWorldExtension
->;
+export type RoomSurface = RoomWorldExtension;
+export type RoomSystemWorld = World<RoomKnobDefs, RoomNodes, RoomSurface>;
 export type RoomSystemDef = ScenarioDef<
   RoomKnobDefs,
   RoomNodes,
-  WorldModel,
-  RoomWorldExtension
+  RoomSurface,
+  RoomSurface
 >;
-
-type ModelHooks = {
-  precondition: (model: WorldModel, action: Command) => boolean;
-  applyToModel: (model: WorldModel, action: Command) => void;
-};
 
 function asSystemArb(
   arb: fc.Arbitrary<RoomSystemAction>
-): fc.Arbitrary<Command> {
-  return arb as unknown as fc.Arbitrary<Command>;
-}
-
-function pickClient(ctx: { nodeIds: (role: string) => readonly string[] }) {
-  return fc.constantFrom(...defaultClientIds(ctx.nodeIds('client')));
+): fc.Arbitrary<Action> {
+  return arb as unknown as fc.Arbitrary<Action>;
 }
 
 function roomWaitWorld(kit: KitWorld) {
@@ -111,22 +102,30 @@ function roomWaitWorld(kit: KitWorld) {
   };
 }
 
-async function dispatchRoom(
-  world: RoomSystemWorld,
-  act: Command
-): Promise<void> {
+async function dispatchRoom(surface: RoomSurface, act: Action): Promise<void> {
+  const world = surface as unknown as RoomSystemWorld;
   await dispatchRoomSystemAction(
     world,
-    world.runtime.app,
+    surface.runtime.app,
+    act as unknown as RoomSystemAction
+  );
+  applyActionToShadow(
+    surface.runtime.app,
+    surface.shadow,
     act as unknown as RoomSystemAction
   );
 }
 
-function kitExtension(kit: KitWorld, runtime: RoomRuntime): RoomWorldExtension {
+function kitExtension(
+  kit: KitWorld,
+  runtime: RoomRuntime,
+  shadow: ActionShadow
+): RoomWorldExtension {
   const wait = roomWaitWorld(kit);
   return {
     kit,
     runtime,
+    shadow,
     topic: kit.topic,
     module: kit.module,
     rng: kit.rng,
@@ -165,67 +164,107 @@ function kitExtension(kit: KitWorld, runtime: RoomRuntime): RoomWorldExtension {
  */
 export async function playRoomActions(
   world: RoomSystemWorld,
-  actions: readonly RoomSystemAction[]
+  actionList: readonly RoomSystemAction[]
 ): Promise<void> {
-  for (const action of actions) {
-    await dispatchRoom(world, action as unknown as Command);
-    await world.runFor(COMMAND_STEP_MS);
+  for (const action of actionList) {
+    await dispatchRoom(world, action as unknown as Action);
+    await world.runFor(STEP_MS);
   }
   await prepareClientsForConverge(world);
 }
 
+function libraryActionWeight(
+  surface: RoomSurface,
+  entry: LibraryArbEntry,
+  sampledWeight: number
+): number {
+  if (sampledWeight === 0) return 0;
+  if (entry.kind === 'heal') {
+    return surface.shadow.held.size > 0 || surface.shadow.down.size > 0 ? 1 : 0;
+  }
+  return sampledWeight;
+}
+
+function libraryActionWeightForSurface(
+  surface: RoomSurface,
+  entry: LibraryArbEntry,
+  sampledWeight: number
+): number {
+  const base = libraryActionWeight(surface, entry, sampledWeight);
+  if (base === 0) return 0;
+  switch (entry.kind) {
+    case 'heal':
+      return surface.shadow.held.size > 0 || surface.shadow.down.size > 0
+        ? base
+        : 0;
+    case 'addSpectator':
+      return surface.shadow.spectatorCount < 2 ? base : 0;
+    case 'serverCrash':
+      return surface.shadow.serverCrashed ? 0 : base;
+    case 'serverRestart':
+      return surface.shadow.serverCrashed ? base : 0;
+    case 'idle':
+      return base;
+    default:
+      return validClientIdsForLibrary(surface.shadow, entry.kind).length > 0
+        ? base
+        : 0;
+  }
+}
+
 function libraryAction(
   entry: LibraryArbEntry,
-  weight: number,
-  hooks: ModelHooks
-): UnboundCommandDef<Command, WorldModel, RoomSystemWorld> {
-  return command({
-    weight,
-    generate: (ctx) => asSystemArb(entry.arb(pickClient(ctx))),
-    apply: (world, act) => dispatchRoom(world, act),
-    precondition: hooks.precondition,
-    applyToModel: hooks.applyToModel,
-  });
-}
-
-function domainAction(
-  app: RoomApp,
-  hooks: ModelHooks
-): UnboundCommandDef<Command, WorldModel, RoomSystemWorld> {
-  return command({
-    generate: (ctx) =>
-      asSystemArb(
-        fc.oneof(
-          ...app.domainOpArbs({
-            clientIds: defaultClientIds(ctx.nodeIds('client')),
-          })
-        )
-      ),
-    apply: (world, act) => dispatchRoom(world, act),
-    ...hooks,
-  });
-}
-
-function roomActions(
-  app: RoomApp
-): Record<string, UnboundCommandDef<Command, WorldModel, RoomSystemWorld>> {
-  const hooks: ModelHooks = {
-    precondition: (model, act) =>
-      modelAllowsAction(app, model, act as unknown as RoomSystemAction),
-    applyToModel: (model, act) =>
-      applyActionToModel(app, model, act as unknown as RoomSystemAction),
+  sampledWeight: number
+): UnboundActionDef<unknown, RoomSurface> {
+  return {
+    weight: (surface) =>
+      libraryActionWeightForSurface(surface, entry, sampledWeight),
+    generate: (ctx) => {
+      const surface = ctx.surface as RoomSurface;
+      const valid = validClientIdsForLibrary(surface.shadow, entry.kind);
+      const pick = fc.constantFrom(
+        ...defaultClientIds(valid.length > 0 ? valid : ctx.nodeIds('client'))
+      );
+      return entry.arb(pick) as fc.Arbitrary<Action>;
+    },
+    apply: (surface, act) => dispatchRoom(surface, act as Action),
   };
-  const out: Record<
-    string,
-    UnboundCommandDef<Command, WorldModel, RoomSystemWorld>
-  > = {
-    domain: domainAction(app, hooks),
+}
+
+function domainAction(app: RoomApp): UnboundActionDef<unknown, RoomSurface> {
+  return {
+    weight: (surface) => {
+      for (const id of surface.shadow.clientIds) {
+        if (clientLive(surface.shadow, id)) return 1;
+      }
+      return 0;
+    },
+    generate: (ctx) => {
+      const surface = ctx.surface as RoomSurface;
+      const live = surface.shadow.clientIds.filter((id) =>
+        clientLive(surface.shadow, id)
+      );
+      return fc.oneof(
+        ...app
+          .domainOpArbs({ clientIds: defaultClientIds(live) })
+          .map(asSystemArb)
+      ) as fc.Arbitrary<Action>;
+    },
+    apply: (surface, act) => dispatchRoom(surface, act as Action),
+  };
+}
+
+function roomActionCatalog(
+  app: RoomApp
+): Record<string, UnboundActionDef<unknown, RoomSurface>> {
+  const out: Record<string, UnboundActionDef<unknown, RoomSurface>> = {
+    domain: domainAction(app),
   };
   for (const entry of SAMPLED_LIBRARY_ARBS) {
-    out[entry.kind] = libraryAction(entry, 1, hooks);
+    out[entry.kind] = libraryAction(entry, 1);
   }
   for (const entry of SCRIPTED_LIBRARY_ARBS) {
-    out[entry.kind] = libraryAction(entry, 0, hooks);
+    out[entry.kind] = libraryAction(entry, 0);
   }
   return out;
 }
@@ -254,7 +293,6 @@ export { ROOM_SYSTEM_KNOBS };
 /**
  * Framework-owned room world: one server + `clientCount` clients booted by
  * `@pkgs/dst` node kinds, with per-kind library/domain actions.
- * Kit surface is merged via {@link defineScenario.extend}.
  */
 export function defineRoomSystem(
   app: RoomApp,
@@ -262,6 +300,7 @@ export function defineRoomSystem(
 ): RoomSystemDef {
   const runtime = initialRoomRuntime(app, opts);
   const nodes = createRoomNodes(runtime, app);
+  const catalog = roomActionCatalog(app);
 
   return defineScenario({
     id: opts?.id ?? 'room.world',
@@ -276,18 +315,30 @@ export function defineRoomSystem(
     },
     knobs: ROOM_SYSTEM_KNOBS,
     nodes,
-    commands: roomActions(app),
-    referenceModel: {
-      initial: (): WorldModel => initialWorldModel(app, CLIENT_IDS),
+    actions: actions<RoomSurface>()(
+      catalog
+    ) as import('@pkgs/dst').ActionCatalog<RoomSurface>,
+    properties: properties<RoomSurface>()({
+      invariants: property.always(async (surface) => {
+        await surface.checkInvariants();
+        return true;
+      }),
+      converged: property.always(
+        async (surface) => {
+          await surface.assertConverged();
+          return true;
+        },
+        { at: 'converge' }
+      ),
+    }),
+    extend: async (world: RoomSystemWorld) => {
+      const kit = requireKit(runtime);
+      const shadow = createActionShadow(app, world.nodeIds('client'));
+      return kitExtension(kit, runtime, shadow);
     },
-    extend: async (_world: RoomSystemWorld) =>
-      kitExtension(requireKit(runtime), runtime),
     converge: async (world: RoomSystemWorld) => {
       await prepareClientsForConverge(world);
       await world.assertConverged();
-    },
-    always: async (world: RoomSystemWorld) => {
-      await world.checkInvariants();
     },
   });
 }

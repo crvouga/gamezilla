@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import type { AnyScenarioDef } from '@pkgs/dst';
-import { runScenario } from '@pkgs/dst/pbt';
+import { check } from '@pkgs/dst/pbt';
 import { playSyncActions, replaySyncPin } from '../../sim/scenario';
 import { setNote } from '../apps/acme';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
@@ -11,9 +11,9 @@ describe('fault permutation PBT', () => {
   test(
     'full fault pool interleaves and converges',
     async () => {
-      await runScenario(acmeSystem as unknown as AnyScenarioDef, {
-        maxCommands: 20,
-        numRuns: 6,
+      await check(acmeSystem as unknown as AnyScenarioDef, {
+        episodeLength: 20,
+        episodes: 6,
       });
     },
     { timeout: 180_000 }
@@ -31,7 +31,7 @@ describe('fault permutation pins', () => {
   test('rate limit then mutate converges', async () => {
     await replaySyncPin(acmeSystem, {
       seed: 44001,
-      commands: multiFaultSequence([
+      actions: multiFaultSequence([
         {
           kind: 'armHttpFault',
           clientId: 'c0',
@@ -68,7 +68,7 @@ describe('fault permutation pins', () => {
   test('freeze sync then thaw catches up', async () => {
     await replaySyncPin(acmeSystem, {
       seed: 44003,
-      commands: [
+      actions: [
         { kind: 'freeze', clientId: 'c0' },
         acmeSetNoteOp('c0', 'n1', 'frozen'),
         { kind: 'thaw', clientId: 'c0' },
@@ -81,7 +81,7 @@ describe('fault permutation pins', () => {
   test('auth expired in flight refreshes', async () => {
     await replaySyncPin(acmeSystem, {
       seed: 44004,
-      commands: multiFaultSequence([
+      actions: multiFaultSequence([
         {
           kind: 'armHttpFault',
           clientId: 'c0',

@@ -5,6 +5,7 @@ import type { PlaywrightDriver } from './playwright-driver';
 
 type FakeLocator = {
   click: ReturnType<typeof mock>;
+  press: ReturnType<typeof mock>;
   pressSequentially: ReturnType<typeof mock>;
   fill: ReturnType<typeof mock>;
   waitFor: ReturnType<typeof mock>;
@@ -14,11 +15,14 @@ type FakeLocator = {
   innerText: ReturnType<typeof mock>;
   evaluate: ReturnType<typeof mock>;
   boundingBox: ReturnType<typeof mock>;
+  getByTestId: ReturnType<typeof mock>;
+  filter: ReturnType<typeof mock>;
 };
 
 function createFakeLocator(overrides: Partial<FakeLocator> = {}): FakeLocator {
   const locator: FakeLocator = {
     click: mock(() => Promise.resolve()),
+    press: mock(() => Promise.resolve()),
     pressSequentially: mock(() => Promise.resolve()),
     fill: mock(() => Promise.resolve()),
     waitFor: mock(() => Promise.resolve()),
@@ -30,8 +34,25 @@ function createFakeLocator(overrides: Partial<FakeLocator> = {}): FakeLocator {
     boundingBox: mock(() =>
       Promise.resolve({ x: 0, y: 0, width: 100, height: 100 })
     ),
+    getByTestId: mock(function (this: FakeLocator, testId: string) {
+      const child = createFakeLocator();
+      child.getByTestId = mock(() => child as unknown as Locator);
+      child.filter = mock(() => child as unknown as Locator);
+      void testId;
+      return child as unknown as Locator;
+    }),
+    filter: mock(function (this: FakeLocator) {
+      return this as unknown as Locator;
+    }),
     ...overrides,
   };
+  locator.getByTestId = mock((testId: string) => {
+    const child = createFakeLocator();
+    child.getByTestId = mock(() => child as unknown as Locator);
+    void testId;
+    return child as unknown as Locator;
+  });
+  locator.filter = mock(() => locator as unknown as Locator);
   return locator;
 }
 
@@ -58,42 +79,55 @@ describe('PlaywrightDriver', () => {
     await driver.launch();
     expect(page.goto).toHaveBeenCalledWith('http://localhost:3000');
 
-    await driver.tap('submit');
+    await driver.get('submit').tap();
     expect(page.getByTestId).toHaveBeenCalledWith('submit');
     expect(locator.waitFor).toHaveBeenCalledWith({ state: 'visible' });
     expect(locator.click).toHaveBeenCalled();
 
-    await driver.tapAt('board', { xRatio: 0.5, yRatio: 0.25 });
+    await driver.get('board').tapAt({ xRatio: 0.5, yRatio: 0.25 });
     expect(locator.boundingBox).toHaveBeenCalled();
     expect(locator.click).toHaveBeenCalledWith({
       position: { x: 50, y: 25 },
     });
 
-    await driver.input('email', 'a@b.c');
+    await driver.get('email').input('a@b.c');
     expect(page.getByTestId).toHaveBeenCalledWith('email');
     expect(locator.pressSequentially).toHaveBeenCalledWith('a@b.c');
 
-    await driver.clear('email');
+    await driver.get('email').clear();
     expect(locator.fill).toHaveBeenCalledWith('');
 
     await driver.key('enter');
     expect(page.keyboard.press).toHaveBeenCalledWith('Enter');
 
-    await driver.scroll('list', 'down', 50);
+    await driver.get('list').scroll('down', 50);
     expect(locator.evaluate).toHaveBeenCalled();
 
-    await driver.wait('go', 'visible');
+    await driver.get('go').wait('visible');
     expect(page.getByTestId).toHaveBeenCalledWith('go');
     expect(locator.waitFor).toHaveBeenCalledWith({ state: 'visible' });
 
-    await driver.wait('label', { text: 'hello' });
-    expect(page.waitForFunction).toHaveBeenCalled();
+    await driver.get('label').wait({ text: 'hello' });
+    expect(locator.filter).toHaveBeenCalled();
 
-    expect(await driver.isVisible('hi')).toBe(true);
-    expect(await driver.getText('email')).toBe('typed');
+    expect(await driver.get('hi').isVisible()).toBe(true);
+    expect(await driver.get('email').text()).toBe('typed');
     expect(await driver.snapshotHtml()).toBe('<html><body>ok</body></html>');
     expect(page.content).toHaveBeenCalled();
 
     await driver.close();
+  });
+
+  it('chains nested get via locator.getByTestId', async () => {
+    const locator = createFakeLocator();
+    const page = createFakePage(locator);
+    const driver = createDriver({
+      kind: 'playwright',
+      page,
+    }) as PlaywrightDriver;
+
+    await driver.get('parent').get('child').tap();
+    expect(page.getByTestId).toHaveBeenCalledWith('parent');
+    expect(locator.getByTestId).toHaveBeenCalledWith('child');
   });
 });

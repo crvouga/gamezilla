@@ -1,7 +1,8 @@
 import { describe, expect, test } from 'bun:test';
+
 import type { AnyScenarioDef } from '../../harness/define-scenario';
 import { openWorld } from '../../harness/world';
-import { replay, runPins } from '../../pbt';
+import { replay, runExamples } from '../../pbt';
 import type { AcmeKvClientHandle, AcmeKvServerHandle } from './nodes';
 import { sendPut } from './nodes';
 import { ACME_KV_SCENARIO, acmeKvServerFingerprint } from './scenario';
@@ -23,7 +24,7 @@ describe('acme-kv sim pins', () => {
       {
         seed: 42,
         knobs: { clientCount: 2 },
-        commands: [
+        actions: [
           { kind: 'put', clientId: 'c0', key: 'a', value: 'hello' },
           { kind: 'put', clientId: 'c1', key: 'b', value: 'world' },
         ],
@@ -81,7 +82,7 @@ describe('acme-kv sim pins', () => {
       {
         seed: 99,
         knobs: { clientCount: 2 },
-        commands: [
+        actions: [
           { kind: 'put', clientId: 'c0', key: 'k', value: 'first' },
           { kind: 'put', clientId: 'c1', key: 'k', value: 'second' },
         ],
@@ -96,7 +97,7 @@ describe('acme-kv sim pins', () => {
   });
 
   test('same seed replay is deterministic', async () => {
-    const commands = [
+    const actions = [
       { kind: 'put', clientId: 'c0', key: 'a', value: 'x' },
       { kind: 'network.partition', from: 'c1', to: 'server' },
       { kind: 'put', clientId: 'c0', key: 'a', value: 'y' },
@@ -106,35 +107,50 @@ describe('acme-kv sim pins', () => {
     const a = await replay(ACME_KV_SCENARIO as unknown as AnyScenarioDef, {
       seed: 12345,
       knobs: { clientCount: 2 },
-      commands: [...commands],
+      actions: [...actions],
     });
+    const fpA = acmeKvServerFingerprint(nodes(a.world).server);
+    await a.world.dispose();
     const b = await replay(ACME_KV_SCENARIO as unknown as AnyScenarioDef, {
       seed: 12345,
       knobs: { clientCount: 2 },
-      commands: [...commands],
+      actions: [...actions],
     });
     try {
-      expect(acmeKvServerFingerprint(nodes(a.world).server)).toBe(
-        acmeKvServerFingerprint(nodes(b.world).server)
-      );
+      expect(fpA).toBe(acmeKvServerFingerprint(nodes(b.world).server));
     } finally {
-      await a.world.dispose();
       await b.world.dispose();
     }
   });
 
-  test('runPins named matrices', async () => {
-    await runPins(ACME_KV_SCENARIO as unknown as AnyScenarioDef, [
-      {
-        name: 'partition-then-heal',
-        knobs: { clientCount: 2 },
-        commands: [
-          { kind: 'put', clientId: 'c0', key: 'a', value: 'x' },
-          { kind: 'network.partition', from: 'c1', to: 'server' },
-          { kind: 'put', clientId: 'c0', key: 'a', value: 'y' },
-          { kind: 'network.healAll' },
-        ],
-      },
-    ]);
+  test('runExamples named matrices', async () => {
+    await runExamples(
+      ACME_KV_SCENARIO as unknown as AnyScenarioDef,
+      [
+        {
+          name: 'partition-then-heal',
+          inputs: {
+            startTime: 0,
+            knobs: { clientCount: 2 },
+            actions: [
+              { kind: 'put', clientId: 'c0', key: 'a', value: 'x' },
+              { kind: 'network.partition', from: 'c1', to: 'server' },
+              { kind: 'put', clientId: 'c0', key: 'a', value: 'y' },
+              { kind: 'network.healAll' },
+            ],
+            networkFaults: {
+              latencyMeanMs: 0,
+              latencyJitterMs: 0,
+              dropProbability: 0,
+              duplicateProbability: 0,
+              reorderWindowMs: 0,
+              partitionProbability: 0,
+              healProbability: 0,
+            },
+          },
+        },
+      ],
+      { seeds: [1, 2, 3] }
+    );
   });
 });

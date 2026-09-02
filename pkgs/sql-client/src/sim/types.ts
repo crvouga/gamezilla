@@ -50,7 +50,8 @@ export function createSqlClientWebState(): SqlClientWebState {
 export function boardOf(
   world: import('@pkgs/dst').World<
     Record<string, import('@pkgs/dst').KnobDef>,
-    Record<string, import('@pkgs/dst').NodeEntry>
+    Record<string, import('@pkgs/dst').NodeEntry>,
+    unknown
   >
 ): SqlClientWebState {
   return (world.nodes['store'] as { board: SqlClientWebState }).board;

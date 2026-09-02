@@ -14,13 +14,13 @@ export class SpaceFlows {
   constructor(private readonly ui: Driver) {}
 
   async openTab(): Promise<void> {
-    await this.ui.tap(Handles.tabSpaces, { timeoutMs: WAIT_MS });
-    await this.ui.expect.visible(SCREEN_SPACES, { timeoutMs: WAIT_MS });
+    await this.ui.get(Handles.tabSpaces).tap({ timeoutMs: WAIT_MS });
+    await this.ui.get(SCREEN_SPACES).expect.visible({ timeoutMs: WAIT_MS });
   }
 
   async createSpace(): Promise<void> {
     await this.openTab();
-    await this.ui.tap(Handles.spaceCreate, { timeoutMs: WAIT_MS });
+    await this.ui.get(Handles.spaceCreate).tap({ timeoutMs: WAIT_MS });
     await this.expectActiveSpace();
   }
 
@@ -35,14 +35,16 @@ export class SpaceFlows {
     const handle = await this.waitForLobbyCard(hostUsername, {
       timeoutMs: WAIT_MS,
     });
-    await this.ui.tap(handle, { timeoutMs: WAIT_MS });
+    await this.ui.get(handle).tap({ timeoutMs: WAIT_MS });
     if (opts?.expectJoinPrompt !== false) {
-      await this.ui.expect.visible(SCREEN_SPACE_JOIN, { timeoutMs: WAIT_MS });
+      await this.ui
+        .get(SCREEN_SPACE_JOIN)
+        .expect.visible({ timeoutMs: WAIT_MS });
     }
   }
 
   async reenterActiveSpace(hostUsername: string): Promise<void> {
-    if (await this.ui.isVisible(Handles.spaceClose)) {
+    if (await this.ui.get(Handles.spaceClose).isVisible()) {
       await this.expectActiveSpace();
       return;
     }
@@ -52,35 +54,37 @@ export class SpaceFlows {
   }
 
   async joinFromPrompt(): Promise<void> {
-    await this.ui.tap(Handles.spaceJoin, { timeoutMs: WAIT_MS });
+    await this.ui.get(Handles.spaceJoin).tap({ timeoutMs: WAIT_MS });
     await this.expectActiveSpace();
   }
 
   async expectActiveSpace(): Promise<void> {
-    await this.ui.expect.visible(Handles.spaceClose, { timeoutMs: WAIT_MS });
+    await this.ui
+      .get(Handles.spaceClose)
+      .expect.visible({ timeoutMs: WAIT_MS });
   }
 
   async returnToLobby(): Promise<void> {
-    await this.ui.tap(Handles.spaceClose, { timeoutMs: WAIT_MS });
-    await this.ui.expect.visible(SCREEN_SPACES, { timeoutMs: WAIT_MS });
+    await this.ui.get(Handles.spaceClose).tap({ timeoutMs: WAIT_MS });
+    await this.ui.get(SCREEN_SPACES).expect.visible({ timeoutMs: WAIT_MS });
   }
 
   async ensureLobby(): Promise<void> {
-    if (await this.ui.isVisible(Handles.spaceClose)) {
+    if (await this.ui.get(Handles.spaceClose).isVisible()) {
       await this.returnToLobby();
       return;
     }
-    if (!(await this.ui.isVisible(SCREEN_SPACES))) {
+    if (!(await this.ui.get(SCREEN_SPACES).isVisible())) {
       await this.openTab();
     }
   }
 
   async expectNotInActiveSpace(): Promise<void> {
-    await this.ui.expect.hidden(Handles.spaceMiniplayer, {
+    await this.ui.get(Handles.spaceMiniplayer).expect.hidden({
       timeoutMs: HIDDEN_MS,
     });
-    await this.ui.expect.hidden(Handles.spaceLeave, { timeoutMs: WAIT_MS });
-    await this.ui.expect.hidden(Handles.spaceClose, { timeoutMs: WAIT_MS });
+    await this.ui.get(Handles.spaceLeave).expect.hidden({ timeoutMs: WAIT_MS });
+    await this.ui.get(Handles.spaceClose).expect.hidden({ timeoutMs: WAIT_MS });
   }
 
   async leaveSpace(): Promise<void> {
@@ -91,34 +95,38 @@ export class SpaceFlows {
   async endSpace(): Promise<void> {
     await this.tapChromeAction(Handles.spaceEnd);
     await this.confirmMutation(Handles.spaceEndConfirm);
-    await this.ui.expect.visible(SCREEN_SPACE_ENDED, { timeoutMs: WAIT_MS });
+    await this.ui
+      .get(SCREEN_SPACE_ENDED)
+      .expect.visible({ timeoutMs: WAIT_MS });
   }
 
   async expectEndedSpace(): Promise<void> {
-    await this.ui.expect.visible(SCREEN_SPACE_ENDED, { timeoutMs: WAIT_MS });
+    await this.ui
+      .get(SCREEN_SPACE_ENDED)
+      .expect.visible({ timeoutMs: WAIT_MS });
   }
 
   async expectJoinPrompt(): Promise<void> {
-    await this.ui.expect.visible(SCREEN_SPACE_JOIN, { timeoutMs: WAIT_MS });
+    await this.ui.get(SCREEN_SPACE_JOIN).expect.visible({ timeoutMs: WAIT_MS });
   }
 
   async expectLobbyCardGone(hostUsername: string): Promise<void> {
     await this.openTab();
-    await this.ui.expect.hidden(Handles.spaceCard(hostUsername), {
+    await this.ui.get(Handles.spaceCard(hostUsername)).expect.hidden({
       timeoutMs: HIDDEN_MS,
     });
   }
 
   private async tapChromeAction(handle: string): Promise<void> {
-    await this.ui.expect.visible(handle, { timeoutMs: WAIT_MS });
-    await this.ui.tap(handle, { timeoutMs: WAIT_MS });
+    await this.ui.get(handle).expect.visible({ timeoutMs: WAIT_MS });
+    await this.ui.get(handle).tap({ timeoutMs: WAIT_MS });
   }
 
   private async confirmMutation(submitHandle: string): Promise<void> {
-    await this.ui.tap(submitHandle, { timeoutMs: WAIT_MS });
-    await this.ui.expect.hidden(submitHandle, { timeoutMs: HIDDEN_MS });
-    await this.ui.tap(Handles.spaceMutationDismiss, { timeoutMs: WAIT_MS });
-    await this.ui.expect.hidden(Handles.spaceMutationDismiss, {
+    await this.ui.get(submitHandle).tap({ timeoutMs: WAIT_MS });
+    await this.ui.get(submitHandle).expect.hidden({ timeoutMs: HIDDEN_MS });
+    await this.ui.get(Handles.spaceMutationDismiss).tap({ timeoutMs: WAIT_MS });
+    await this.ui.get(Handles.spaceMutationDismiss).expect.hidden({
       timeoutMs: HIDDEN_MS,
     });
   }
@@ -136,11 +144,11 @@ export class SpaceFlows {
         await this.openTab();
         opened = true;
       }
-      if (await this.ui.isVisible(handle)) {
+      if (await this.ui.get(handle).isVisible()) {
         return handle;
       }
       try {
-        await this.ui.wait(handle, 'visible', { timeoutMs: 100 });
+        await this.ui.get(handle).wait('visible', { timeoutMs: 100 });
         return handle;
       } catch (error) {
         lastError = error;
