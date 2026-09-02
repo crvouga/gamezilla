@@ -138,8 +138,8 @@ function tryPostgresMemNoop(
 }
 
 /**
- * postgres-mem rejects PL/pgSQL `DO` blocks. Expand the known migrate DO that
- * drops engine defaults on id/created_at/updated_at into plain ALTER statements.
+ * postgres-mem rejects PL/pgSQL `DO` blocks. Expand known migrate DO loops
+ * (DROP DEFAULT / DROP NOT NULL) into plain ALTER statements.
  */
 function execDoBlock(
   db: Database,
@@ -150,25 +150,71 @@ function execDoBlock(
     /information_schema\.columns/i.test(doSql) &&
     /created_at/i.test(doSql)
   ) {
-    const rows = db.query<{ table_name: string; column_name: string }>(`
-      SELECT c.table_name, c.column_name
-      FROM information_schema.columns c
-      WHERE c.table_schema = current_schema()
-        AND c.column_name IN ('id', 'created_at', 'updated_at')
-        AND c.column_default IS NOT NULL
-    `);
-    let changes = 0;
-    for (const row of rows) {
-      const table = quotePgIdent(row.table_name);
-      const column = quotePgIdent(row.column_name);
-      db.exec(`ALTER TABLE ${table} ALTER COLUMN ${column} DROP DEFAULT`);
-      changes += 1;
-    }
-    return { rows: [], rowCount: changes };
+    return execDropDefaultDo(db);
+  }
+  if (
+    /DROP NOT NULL/i.test(doSql) &&
+    /information_schema\.columns/i.test(doSql)
+  ) {
+    return execDropNotNullDo(db, doSql);
   }
   throw new Error(
     `SqlClientImplPostgresMem: unsupported DO $$ block (PL/pgSQL). Rewrite as plain SQL or expand in the adapter.\n${doSql.slice(0, 200)}`
   );
+}
+
+function execDropDefaultDo(db: Database): {
+  rows: Record<string, unknown>[];
+  rowCount: number;
+} {
+  const rows = db.query<{ table_name: string; column_name: string }>(`
+    SELECT c.table_name, c.column_name
+    FROM information_schema.columns c
+    WHERE c.table_schema = current_schema()
+      AND c.column_name IN ('id', 'created_at', 'updated_at')
+      AND c.column_default IS NOT NULL
+  `);
+  let changes = 0;
+  for (const row of rows) {
+    db.exec(
+      `ALTER TABLE ${quotePgIdent(row.table_name)} ALTER COLUMN ${quotePgIdent(
+        row.column_name
+      )} DROP DEFAULT`
+    );
+    changes += 1;
+  }
+  return { rows: [], rowCount: changes };
+}
+
+function execDropNotNullDo(
+  db: Database,
+  doSql: string
+): { rows: Record<string, unknown>[]; rowCount: number } {
+  const tableMatch = /c\.table_name = '([a-z0-9_]+)'/.exec(doSql);
+  if (tableMatch === null) {
+    throw new Error(
+      `SqlClientImplPostgresMem: DROP NOT NULL DO missing table_name\n${doSql.slice(0, 200)}`
+    );
+  }
+  const table = tableMatch[1]!;
+  const rows = db.query<{ column_name: string }>(`
+    SELECT c.column_name
+    FROM information_schema.columns c
+    WHERE c.table_schema = current_schema()
+      AND c.table_name = '${table}'
+      AND c.is_nullable = 'NO'
+      AND c.column_name <> 'id'
+  `);
+  let changes = 0;
+  for (const row of rows) {
+    db.exec(
+      `ALTER TABLE ${quotePgIdent(table)} ALTER COLUMN ${quotePgIdent(
+        row.column_name
+      )} DROP NOT NULL`
+    );
+    changes += 1;
+  }
+  return { rows: [], rowCount: changes };
 }
 
 function createSessionClient(db: Database): SqlClient {

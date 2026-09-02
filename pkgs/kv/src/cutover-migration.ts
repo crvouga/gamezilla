@@ -7,93 +7,128 @@ import { unsafe } from '@pkgs/sql';
 import { KV_TABLE } from './schema/tables';
 
 /**
- * Rebuild `kv` from PK `key` to managed `id` (+ timestamps/`deleted_at`).
- * No-op when table missing or already has managed `id`.
+ * Rebuild `kv` from PK `key` / TEXT `value` to managed `id` + jsonb `value`.
+ * No-op when table missing or already defineTable-typed.
  */
 export class KvCutoverMigration implements DatabaseMigration {
   async migrate(ctx: DatabaseMigrationContext): Promise<void> {
-    const existing = await ctx.sqlClient.query<{ one: number }>(
-      unsafe(`
-        SELECT 1 AS one
-        FROM information_schema.tables
-        WHERE table_schema = current_schema()
-          AND table_name = '${KV_TABLE}'
-        LIMIT 1
-      `)
-    );
-    if (existing.length === 0) {
+    if (!(await tableExists(ctx))) {
       ctx.logger.info('kv cutover: table missing (fresh)');
       return;
     }
-
-    const hasId = await ctx.sqlClient.query<{ one: number }>(
-      unsafe(`
-        SELECT 1 AS one
-        FROM information_schema.columns
-        WHERE table_schema = current_schema()
-          AND table_name = '${KV_TABLE}'
-          AND column_name = 'id'
-        LIMIT 1
-      `)
-    );
-    if (hasId.length > 0) {
+    if (!(await kvNeedsRebuild(ctx))) {
       await dropNotNull(ctx);
-      ctx.logger.info('kv cutover: already has id');
+      ctx.logger.info('kv cutover: already typed');
       return;
     }
-
-    const next = `${KV_TABLE}_next`;
-    await ctx.sqlClient.run(unsafe(`DROP TABLE IF EXISTS ${next}`));
-    await ctx.sqlClient.run(
-      unsafe(`
-        CREATE TABLE ${next} (
-          id text PRIMARY KEY,
-          key text,
-          value text,
-          created_at timestamptz,
-          updated_at timestamptz,
-          deleted_at timestamptz
-        )
-      `)
-    );
-    const hasLastMod = await ctx.sqlClient.query<{ one: number }>(
-      unsafe(`
-        SELECT 1 AS one
-        FROM information_schema.columns
-        WHERE table_schema = current_schema()
-          AND table_name = '${KV_TABLE}'
-          AND column_name = 'last_modified_at'
-        LIMIT 1
-      `)
-    );
-    if (hasLastMod.length > 0) {
-      await ctx.sqlClient.run(
-        unsafe(`
-          INSERT INTO ${next} (id, key, value, created_at, updated_at, deleted_at)
-          SELECT
-            key,
-            key,
-            value,
-            last_modified_at::timestamptz,
-            last_modified_at::timestamptz,
-            NULL
-          FROM ${KV_TABLE}
-        `)
-      );
-    } else {
-      await ctx.sqlClient.run(
-        unsafe(`
-          INSERT INTO ${next} (id, key, value, created_at, updated_at, deleted_at)
-          SELECT key, key, value, NULL, NULL, NULL FROM ${KV_TABLE}
-        `)
-      );
-    }
-    await ctx.sqlClient.run(unsafe(`DROP TABLE ${KV_TABLE} CASCADE`));
-    await ctx.sqlClient.run(
-      unsafe(`ALTER TABLE ${next} RENAME TO ${KV_TABLE}`)
-    );
-    ctx.logger.info('kv cutover: rebuilt with id PK');
+    await rebuildKv(ctx);
   }
+}
+
+async function tableExists(ctx: DatabaseMigrationContext): Promise<boolean> {
+  const rows = await ctx.sqlClient.query<{ one: number }>(
+    unsafe(`
+      SELECT 1 AS one
+      FROM information_schema.tables
+      WHERE table_schema = current_schema()
+        AND table_name = '${KV_TABLE}'
+      LIMIT 1
+    `)
+  );
+  return rows.length > 0;
+}
+
+async function columnUdt(
+  ctx: DatabaseMigrationContext,
+  column: string
+): Promise<string | null> {
+  const rows = await ctx.sqlClient.query<{ udt_name: string }>(
+    unsafe(`
+      SELECT udt_name
+      FROM information_schema.columns
+      WHERE table_schema = current_schema()
+        AND table_name = '${KV_TABLE}'
+        AND column_name = '${column}'
+      LIMIT 1
+    `)
+  );
+  return rows[0]?.udt_name ?? null;
+}
+
+async function kvNeedsRebuild(ctx: DatabaseMigrationContext): Promise<boolean> {
+  const hasId = (await columnUdt(ctx, 'id')) !== null;
+  const value = await columnUdt(ctx, 'value');
+  return !hasId || value !== 'jsonb';
+}
+
+async function rebuildKv(ctx: DatabaseMigrationContext): Promise<void> {
+  const next = `${KV_TABLE}_next`;
+  await ctx.sqlClient.run(unsafe(`DROP TABLE IF EXISTS ${next}`));
+  await ctx.sqlClient.run(
+    unsafe(`
+      CREATE TABLE ${next} (
+        id text PRIMARY KEY,
+        key text,
+        value jsonb,
+        created_at timestamptz,
+        updated_at timestamptz,
+        deleted_at timestamptz
+      )
+    `)
+  );
+  await copyKvRows(ctx, next);
+  await ctx.sqlClient.run(unsafe(`DROP TABLE ${KV_TABLE} CASCADE`));
+  await ctx.sqlClient.run(unsafe(`ALTER TABLE ${next} RENAME TO ${KV_TABLE}`));
+  ctx.logger.info('kv cutover: rebuilt with id PK + jsonb value');
+}
+
+async function copyKvRows(
+  ctx: DatabaseMigrationContext,
+  next: string
+): Promise<void> {
+  const hasId = (await columnUdt(ctx, 'id')) !== null;
+  const idExpr = hasId ? 'id' : 'key';
+  const createdAt = await timestampCopyExpr(
+    ctx,
+    'created_at',
+    'last_modified_at'
+  );
+  const updatedAt = await timestampCopyExpr(
+    ctx,
+    'updated_at',
+    'last_modified_at'
+  );
+  const deletedAt =
+    (await columnUdt(ctx, 'deleted_at')) !== null
+      ? 'deleted_at::timestamptz'
+      : 'NULL';
+  await ctx.sqlClient.run(
+    unsafe(`
+      INSERT INTO ${next} (id, key, value, created_at, updated_at, deleted_at)
+      SELECT
+        ${idExpr},
+        key,
+        NULLIF(value, '')::jsonb,
+        ${createdAt},
+        ${updatedAt},
+        ${deletedAt}
+      FROM ${KV_TABLE}
+    `)
+  );
+}
+
+async function timestampCopyExpr(
+  ctx: DatabaseMigrationContext,
+  column: string,
+  fallback: string
+): Promise<string> {
+  if ((await columnUdt(ctx, column)) !== null) {
+    return `${column}::timestamptz`;
+  }
+  if ((await columnUdt(ctx, fallback)) !== null) {
+    return `${fallback}::timestamptz`;
+  }
+  return 'NULL';
 }
 
 async function dropNotNull(ctx: DatabaseMigrationContext): Promise<void> {
