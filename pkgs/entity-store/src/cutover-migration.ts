@@ -111,7 +111,10 @@ async function copyEntityStoreRows(
       )
       SELECT
         id, namespace, type, external_id, owner_id,
-        NULLIF(data, '')::jsonb,
+        CASE
+          WHEN btrim(COALESCE(data, '')) = '' THEN NULL
+          ELSE data::jsonb
+        END,
         created_at::timestamptz,
         ${updatedAt},
         ${deletedAt}

@@ -46,9 +46,11 @@ describe('kv cutover', () => {
       await client.run(unsafe(LEGACY_DDL));
       await client.run(
         unsafe(`
-          INSERT INTO kv (key, value, last_modified_at) VALUES (
-            'ns:k1', '{"a":1}', '2020-01-01T00:00:00.000Z'
-          )
+          INSERT INTO kv (key, value, last_modified_at) VALUES
+            ('ns:k1', '{"a":1}', '2020-01-01T00:00:00.000Z'),
+            ('ns:empty', '', '2020-01-01T00:00:00.000Z'),
+            ('ns:ws', '   ', '2020-01-01T00:00:00.000Z'),
+            ('ns:trunc', '{', '2020-01-01T00:00:00.000Z')
         `)
       );
 
@@ -65,10 +67,20 @@ describe('kv cutover', () => {
       expect(types['created_at']).toBe('timestamptz');
       expect(types['id']).toBe('text');
 
-      const rows = await client.query<{ key: string }>(
-        unsafe(`SELECT key FROM kv WHERE id = 'ns:k1'`)
+      const rows = await client.query<{ key: string; value: unknown }>(
+        unsafe(
+          `SELECT key, value FROM kv WHERE id IN ('ns:k1', 'ns:empty', 'ns:ws', 'ns:trunc')`
+        )
       );
-      expect(rows[0]?.key).toBe('ns:k1');
+      const byKey = Object.fromEntries(rows.map((r) => [r.key, r.value]));
+      const k1 = byKey['ns:k1'];
+      const parsed =
+        typeof k1 === 'string' ? (JSON.parse(k1) as { a: number }) : k1;
+      expect(parsed).toEqual({ a: 1 });
+      expect(byKey['ns:empty']).toBeNull();
+      expect(byKey['ns:ws']).toBeNull();
+      expect(byKey['ns:trunc']).toBeDefined();
+      expect(byKey['ns:trunc']).not.toBeNull();
     } finally {
       await client.disconnect();
     }

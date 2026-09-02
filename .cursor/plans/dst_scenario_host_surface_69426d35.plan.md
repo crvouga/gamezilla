@@ -9,7 +9,7 @@ todos:
     content: "`defineHost({ caps, open })` + `Host.with(session => extra)`; `Session` with `fork(name)`; `Capability` / `CapabilityError`; `std.host.virtual()` / `std.host.wall()`"
     status: pending
   - id: system
-    content: "`defineSystem({ id, knobs?: Arbitrary<K>, boot(session, knobs) → S, converge? })` returning `System` with bound `defineObservation` / `defineAction` / `defineProperty`; systems nest via `session.fork`; delete `defineScenario` / `node` / `knob` / `extend` / `nodes` / `edges` / `faults`"
+    content: "`defineSystem({ id, knobs?: Gen<K>, boot(session, knobs) → S, converge? })` returning `System` with bound `defineObservation` / `defineAction` / `defineProperty`; systems nest via `session.fork`; delete `defineScenario` / `node` / `knob` / `extend` / `nodes` / `edges` / `faults`"
     status: pending
   - id: observation
     content: "`defineObservation({ id, read(world) → Promise<T> })` + `Observation.map(f)`; per-checkpoint memo keyed by observation id; only observations referenced by attached properties / the action being generated run; observed values are the recorded state"
@@ -18,7 +18,10 @@ todos:
     content: "`Formula<S>` LTL progression evaluator: `now(observations, f)`, `next / always / eventually / sometimes / not`, `.and / .or / .implies / .within(ms)`; finite-trace semantics at episode end; `sometimes` = campaign coverage obligation"
     status: pending
   - id: action-property
-    content: "`defineAction({ id, weight?, requires?, from: observations, generate(...values) → Arbitrary<P> | null, apply(world, p) })`; `weighted([[w, action], …])`; `defineProperty({ id, requires?, formula })`; `std.action.network()` / `std.action.time()`"
+    content: "`defineAction({ id, weight?, requires?, from?: observations, generate?(...values) → Gen<P> | null, apply(world, p) })` (no `generate` = no payload, always enabled); `weighted([[w, action], …])`; `defineProperty({ id, requires?, formula })`; `std.action.network()` / `std.action.time()`"
+    status: pending
+  - id: gen
+    content: "`Gen<T> = (rng: Rng) => T` is the only randomness interface (`knobs`, `generate`); `@pkgs/dst`, `/pbt`, `/kernel` import no PBT library (depcruise rule + contract test; `fast-check` → optional peer + dev dep); new entrypoint `@pkgs/dst/fast-check` with `gen(arbitrary) → Gen<T>` (drives fc via a pure-rand `RandomGenerator` over our `Rng`) and `arbitrary(gen) → fc.Arbitrary<T>`; delete `arbSeed` / `runProperty` / `arbs.ts`"
     status: pending
   - id: open-world
     content: "`openWorld(system, { host, seed, knobs?, properties? })`: knobs default from seed; `World<S>` = `{ seed, knobs, caps, session, surface, observe(o), apply(action, p?), check(), now, advance, quiesce, waitUntil, never, converge, walk, dispose }`; `apply` / `advance` / `quiesce` / `converge` / `check` are checkpoints (observe → progress → record); violations throw by default"
@@ -27,7 +30,7 @@ todos:
     content: "`walk(world, { actions, steps? | budgetMs?, settle?, stopOnViolation? })` → `Walk { transitions, violations, coverage, choices }`; loop = checkpoint → pick enabled leaf by weight (running only that action's `from` observations) → apply → settle; scripted `world.apply` is the same step"
     status: pending
   - id: pbt
-    content: "`check(system, { properties, actions, … })` = episodes × (openWorld + walk + converge) + shrink over choices; `replay(system, repro | walk, …)` re-walks choices and diffs observed-state fingerprints; Repro v3 = `{ seed, knobs, choices, meta }`"
+    content: "`check(system, { properties, actions, … })` = episodes × (openWorld + walk + converge) + native shrink over recorded choices (drop steps, then minimise draws toward 0, re-running `Gen`s on the shrunk draws — no library shrinkers); `replay(system, repro | walk, …)` re-walks choices and diffs observed-state fingerprints; Repro v3 = `{ seed, knobs, choices: [{ action, draws }], meta }`"
     status: pending
   - id: ui-explore
     content: "`@pkgs/ui-testing/explore`: `Driver.inventory()` + observations `std.ui.inventory(actor)` / `std.ui.screen(actor)` / `std.ui.errors(actor)`, actions `std.ui.tap / type / back / scroll`, properties `std.ui.noErrorBoundary / noConsoleError`; RNTL and Playwright"
@@ -73,7 +76,7 @@ The current `@pkgs/dst` has the right seed but hard-codes non-primitives and lac
 
 ## The algebra
 
-Six sorts. Each has exactly one constructor (`defineX`) or is produced by a verb, and each has closed composition operators. Nothing else is public.
+Six sorts. Each has exactly one constructor (`defineX`) or is produced by a verb, and each has closed composition operators. Two plain function types carry the rest: `Formula<S>` (properties over time) and `Gen<T>` (randomness). Nothing else is public, and no third-party PBT library appears in any signature.
 
 ```mermaid
 flowchart LR
@@ -85,8 +88,11 @@ flowchart LR
     Property["Property — defineProperty · Formula algebra"]
     World["World — openWorld · checkpoints · walk"]
   end
+  Gen["Gen T = (rng) => T · adapters: @pkgs/dst/fast-check"]
   Host -->|"open(seed)"| Session["Session · fork(name)"]
   System -->|"boot(session)"| Surface["Surface S"]
+  Gen -->|"knobs"| System
+  Gen -->|"generate(...values)"| Action
   Session --> World
   Surface --> World
   World -->|"read(world), memo per checkpoint"| Observation
@@ -102,7 +108,8 @@ flowchart LR
 - **Session** (opened Host). Kernel (`Clock`, `Scheduler`, `Rng`) + derived (`Timers`, `Network`, `Trace?`) + `caps`. Operator `session.fork(name)`: child Rng stream + network address `name`, shared scheduler / network / trace. Laws: forks are independent streams; adding a fork never perturbs siblings; deterministic per seed.
 - **System** (recipe). `defineSystem({ id, knobs?, boot(session, knobs) → S, converge? })`. Composes by nesting: `boot` may call another System's `boot` on `session.fork(name)`.
 - **Observation** (a named read of live state). `defineObservation({ id, read(world: World<S>) → Promise<T> })`, `T` JSON. Reads the real surface — a `SELECT count(*)`, one actor's screen name, one client's pending count — never a whole-state dump. Operator `observation.map(f) → Observation<S, U>` (pure, derived). Laws: memoised per checkpoint (one read per id per step however many formulas reference it); only observations referenced by attached properties or by the action being generated run at all; `o.map(f).map(g) ≡ o.map(g ∘ f)`. The observed values at a checkpoint are the recorded state, so `fingerprint`, transitions, coverage and replay divergence work on exactly the slice that was needed — Bombadil's `State` captured per step, with observations as the cells.
-- **Action** (stimulus). `defineAction({ id, weight?, requires?, from: [o1, o2], generate(v1, v2) → Arbitrary<P> | null, apply(world, p) })`. `null` = not enabled in this state. Operator `weighted([[w, a], …]) → Action`. Laws: associative up to weight normalisation; `weighted([[1, a]]) ≡ a`; disabled leaves vanish. Observation and Action are duals: one looks at the world, the other acts on it.
+- **Gen** (randomness). `type Gen<T> = (rng: Rng) => T` — a deterministic function of draws from the session's `Rng` (`next(): number` in [0, 1), `fork(name)`). It is the only randomness interface the framework knows: `knobs` is a `Gen<K>`, `generate` returns a `Gen<P>`. Composition is function composition; a library is a `Gen` factory behind an adapter (`gen(fcArbitrary)` in `@pkgs/dst/fast-check`; a `@pkgs/dst/<lib>` adapter for any other). Laws: same draws ⇒ same value; `gen(fc.constant(x)) ≡ () => x`. Because every draw a `Gen` makes is recorded as a **choice**, shrinking is done by the framework over the draw sequence (Hypothesis-style internal shrinking) and re-running the `Gen`s — adapted libraries' own shrinkers are never used, so nothing is lost by adapting.
+- **Action** (stimulus). `defineAction({ id, weight?, requires?, from?: [o1, o2], generate?(v1, v2) → Gen<P> | null, apply(world, p) })`. `null` = not enabled in this state; omitting `generate` = no payload, always enabled. Operator `weighted([[w, a], …]) → Action`. Laws: associative up to weight normalisation; `weighted([[1, a]]) ≡ a`; disabled leaves vanish. Observation and Action are duals: one looks at the world, the other acts on it.
 - **Property** (observations over time). `defineProperty({ id, requires?, formula })`. `Formula<S>` algebra: `now(o | [o…], (…values) => boolean | Formula)`, `next(f)`, `always(f)`, `eventually(f)`, `sometimes(f)`, `not(f)`; methods `.and`, `.or`, `.implies`, `.within(ms)`. Laws: LTL progression `always(f) ≡ f ∧ next(always(f))`, `eventually(f) ≡ f ∨ next(eventually(f))`; at episode end pending `eventually` = violation, unmet `sometimes` across the campaign = vacuity failure.
 - **World** (opened System, with properties attached). Every state-changing control is a **checkpoint**: `apply(action, payload?)`, `advance(ms)`, `quiesce()`, `converge()`, and explicit `check()`. A checkpoint runs the observations the attached properties need, progresses every formula, records a transition into `world.walk`, and throws `PropertyViolation` (default) or collects it. This is what makes properties a force multiplier: a scripted sync test, a `@sim/test` chess flow, a random walk and a replay are all just different ways of choosing actions; the properties are checked identically in all of them.
 - **Verbs**. `openWorld(system, { host, seed, knobs?, properties? })`, `walk(world, { actions, … }) → Walk`, `check(system, …) → Report`, `replay(system, repro | walk, …) → Report`. `check ≡ shrink ∘ episodes ∘ (walk ∘ openWorld)`; `replay(walk(w)) ≡ walk(w)` up to fingerprints of observed state.
@@ -113,7 +120,8 @@ flowchart LR
 - **Bare lowercase operators and verbs**: `weighted`, `now`, `next`, `always`, `eventually`, `sometimes`, `not`, `openWorld`, `walk`, `check`, `replay`, `parseRepro`, `stringifyRepro`.
 - **`std.<sort>.<name>`** for ready-made values: `std.host.virtual()`, `std.host.wall()`, `std.action.network()`, `std.action.time()`, and in `@pkgs/ui-testing/explore`: observations `std.ui.inventory()`, `std.ui.screen()`, `std.ui.errors()`; actions `std.ui.tap()`, `std.ui.type()`, `std.ui.back()`, `std.ui.scroll()`; properties `std.ui.noErrorBoundary()`, `std.ui.noConsoleError()`.
 - **Bound spec constructors**: `System` exposes `defineObservation` / `defineAction` / `defineProperty` with `S` fixed; specs destructure them once (`const { defineObservation, defineAction, defineProperty } = kv`) and write no type arguments. The bare exports remain for library code generic over `S`.
-- **Noun types only**: `Host`, `Session`, `System`, `World`, `Observation`, `Action`, `Property`, `Formula`, `Walk`, `Report`, `Repro`, `Capability`, `CapabilityError`, `PropertyViolation`, `Ports`, `Clock`, `Scheduler`, `Rng`. No plurals, no `Extractor` / `Cell`, no `*Def`, `*Catalog`, `*Extension`, `*Kit`, `*Controls`, `Base`, `Unbound*`, `Node*`, `Knob*`.
+- **Library adapters**: one entrypoint per library, named after it, exporting a lowercase constructor into our type and one back: `@pkgs/dst/fast-check` → `gen(arbitrary): Gen<T>`, `arbitrary(gen): fc.Arbitrary<T>`. The core entrypoints never import a PBT library.
+- **Noun types only**: `Host`, `Session`, `System`, `World`, `Observation`, `Action`, `Property`, `Formula`, `Gen`, `Walk`, `Report`, `Repro`, `Choice`, `Capability`, `CapabilityError`, `PropertyViolation`, `Ports`, `Clock`, `Scheduler`, `Rng`. No plurals, no `Extractor` / `Cell` / `Arbitrary`, no `*Def`, `*Catalog`, `*Extension`, `*Kit`, `*Controls`, `Base`, `Unbound*`, `Node*`, `Knob*`.
 
 ## Public API (the whole thing)
 
@@ -123,16 +131,17 @@ flowchart LR
 // kernel interfaces (impls in @pkgs/dst/kernel; hosts pick them)
 type Clock = { now(): number }
 type Scheduler = { schedule(task, atMs?): Disposable; advance(ms): Promise<void>; quiesce(): Promise<void>; virtual: boolean }
-type Rng = { next(): number; fork(name: string): Rng }
+type Rng = { next(): number; fork(name: string): Rng }                     // next(): uniform in [0, 1). The one draw primitive.
+type Gen<T> = (rng: Rng) => T                                              // randomness: a deterministic function of draws. No library type anywhere below.
 type Ports = { clock; timers; rng; createId(); random(); network: Endpoint }
 type Session<P extends Ports = Ports> = { ports: P; scheduler; network: Network; trace?: Trace; caps: ReadonlySet<Capability>; fork(name): Session<P>; dispose() }
 type Capability = 'virtualTime' | 'partition' | 'trace'
 
 // constructors — one per sort
 defineHost<P>({ caps, open(seed): Promise<Session<P>> })                                                     → Host<P>
-defineSystem<S, K = {}>({ id, knobs?: fc.Arbitrary<K>, boot(session, knobs): Promise<S>, converge?(world) })  → System<S, K>     // S inferred from boot
+defineSystem<S, K = {}>({ id, knobs?: Gen<K>, boot(session, knobs): Promise<S>, converge?(world) })           → System<S, K>     // S inferred from boot
 defineObservation<S, T extends JsonValue>({ id, read(world: World<S>): Promise<T> })                          → Observation<S, T>
-defineAction<S, O extends Observation<S>[], P>({ id, weight?, requires?, from: O, generate(...values: ValuesOf<O>): fc.Arbitrary<P> | null, apply(world: World<S>, p: P) }) → Action<S>
+defineAction<S, O extends Observation<S>[] = [], P = void>({ id, weight?, requires?, from?: O, generate?(...values: ValuesOf<O>): Gen<P> | null, apply(world: World<S>, p: P) }) → Action<S>
 defineProperty<S>({ id, requires?, formula: Formula<S> })                                                      → Property<S>
 
 // System carries the three spec constructors pre-bound to its S — the same functions, S fixed:
@@ -163,7 +172,8 @@ type World<S> = {
   apply(action, payload?), advance(ms), quiesce(), converge(), check(),   // checkpoints
   now(), waitUntil(pred, { withinMs }), never(pred, { forMs }), dispose(), [Symbol.asyncDispose]
 }
-type Walk = { transitions: readonly { t; before: Record<observationId, JsonValue>; action: { id; payload }; after: Record<observationId, JsonValue> }[]; violations: readonly { property; at; witness }[]; coverage: { states; actions: Record<string, number>; sometimes: Record<string, number> }; choices }
+type Choice = { action: string; draws: readonly number[] }                 // one step: which leaf, and every rng.next() its Gen consumed
+type Walk = { transitions: readonly { t; before: Record<observationId, JsonValue>; action: { id; payload }; after: Record<observationId, JsonValue> }[]; violations: readonly { property; at; witness }[]; coverage: { states; actions: Record<string, number>; sometimes: Record<string, number> }; choices: readonly Choice[] }
 
 // verbs
 openWorld(system, { host, seed, knobs?, properties?: readonly Property<S>[], onViolation?: 'throw' | 'collect' }) → World<S>
@@ -171,7 +181,16 @@ walk(world, { actions: readonly Action<S>[], steps? | budgetMs?, settle?, stopOn
 parseRepro / stringifyRepro                                                                                    // Repro v3: { seed, knobs, choices, meta: { system, host } }
 ```
 
-Removed: `defineScenario`, `node`, `knob`, `nodeCount`, `extend`, `nodes`, `edges`, `faults`, whole-state `observe(world) → O` on the system, `actions<S>()`, `properties<S>()`, `property.*` namespace, `std.network` / `std.time` bags, `WorldPorts`, `createWorldPorts`, `applyActions`, `STEP_MS`, `bindActionKind`, `Base`, `ScenarioDef`, `NodeDef`, `CountedNodeDef`, `NodeEntry`, `KnobDef`, `ActionCatalog`, `UnboundActionDef`, `PropertyCatalog`, `PropertyDef`, `WorldControls`, `world.ports`, `world.nodes`, `world.nodeIds`, `world.partition`, `world.heal*`, `world.hold`, `world.release*`, `world.network*`, `world.edges`, `world.startTime`, `world.resolve`, `world.propertyCoverage`.
+### `@pkgs/dst/fast-check` — the only module that imports `fast-check`
+
+```ts
+gen<T>(arbitrary: fc.Arbitrary<T>): Gen<T>          // rng => arbitrary.generate(new fc.Random(randomGeneratorOver(rng)), undefined).value
+arbitrary<T>(g: Gen<T>): fc.Arbitrary<T>            // for code that still runs fc.assert / @pkgs/pbt with our generators; no shrink (shrinking is ours)
+```
+
+`randomGeneratorOver(rng)` is a pure-rand `RandomGenerator` (`clone`, `next`, `unsafeNext` → int32 from `rng.next()`), so every value fast-check produces is a function of recorded draws and replays / shrinks exactly like a hand-written `Gen`. fast-check's shrinkers are ignored by construction. Any other library gets the same shape of adapter in its own entrypoint; the core never grows a dependency for it.
+
+Removed: `defineScenario`, `node`, `knob`, `nodeCount`, `extend`, `nodes`, `edges`, `faults`, whole-state `observe(world) → O` on the system, `actions<S>()`, `properties<S>()`, `property.*` namespace, `std.network` / `std.time` bags, `WorldPorts`, `createWorldPorts`, `applyActions`, `STEP_MS`, `bindActionKind`, `Base`, `ScenarioDef`, `NodeDef`, `CountedNodeDef`, `NodeEntry`, `KnobDef`, `ActionCatalog`, `UnboundActionDef`, `PropertyCatalog`, `PropertyDef`, `WorldControls`, `world.ports`, `world.nodes`, `world.nodeIds`, `world.partition`, `world.heal*`, `world.hold`, `world.release*`, `world.network*`, `world.edges`, `world.startTime`, `world.resolve`, `world.propertyCoverage`; every `fc.Arbitrary` in a signature, `arbSeed`, `arbKnobs`, `runProperty`, `arbs.ts`, and the `@pkgs/pbt` dependency of `@pkgs/dst`.
 
 ### `@pkgs/dst/kernel` — host authors and `sim/console` only
 
@@ -180,10 +199,11 @@ Removed: `defineScenario`, `node`, `knob`, `nodeCount`, `extend`, `nodes`, `edge
 ### `@pkgs/dst/pbt`
 
 ```ts
-check(system, { host?, properties, actions, knobs?, episodes?, steps?, shrink?, swarm?, budgetMs?, stopOnViolation? }) → Report   // throws CheckFailedError
-replay(system, repro | walk | readonly repro[], { host?, properties, actions })                                          → Report   // re-walk; diffs fingerprint(observed) per step; trace gate when caps has trace
-arbSeed(), runProperty(name, property, params?)
+check(system, { host?, properties, actions, seed?, knobs?, episodes?, steps?, shrink?, swarm?, budgetMs?, stopOnViolation? }) → Report   // throws CheckFailedError
+replay(system, repro | walk | readonly repro[], { host?, properties, actions })                                                → Report   // re-walk; diffs fingerprint(observed) per step; trace gate when caps has trace
 ```
+
+`check` owns episodes and shrinking natively: the campaign `seed` (default from `PBT_SEED` / wall entropy at the test entry) forks one `Rng` per episode; `knobs` are `system.knobs(episodeRng)`; each step's leaf pick and payload draws are recorded as `Choice`s. Shrinking on a failure is (1) delta-debug over steps (drop blocks of `Choice`s), then (2) per-draw minimisation toward 0 (binary search on each `draws[i]`), re-running the affected `Gen` on the shrunk draws and re-walking — the same replaying `Rng` `replay` uses. Fewer steps and smaller payloads fall out of one mechanism for every library or hand-written `Gen`.
 
 ### `@pkgs/ui-testing/explore` — Bombadil browser defaults for our drivers
 
@@ -196,10 +216,15 @@ std.ui.noErrorBoundary(actor) / std.ui.noConsoleError(actor)             → Pro
 
 ## A complete spec
 
+Specs are free to use fast-check for payload generation through the `gen` adapter; the framework only ever sees `Gen<T>`.
+
 ```ts
+import fc from 'fast-check';
+import { gen } from '@pkgs/dst/fast-check';
+
 const kv = defineSystem({
   id: 'kv',
-  knobs: fc.record({ clients: fc.integer({ min: 1, max: 4 }) }),
+  knobs: gen(fc.record({ clients: fc.integer({ min: 1, max: 4 }) })),          // Gen<{ clients: number }>; equivalently: rng => ({ clients: 1 + Math.floor(rng.next() * 4) })
   boot: async (session, { clients }) => {
     const server = startServer(session.fork('server'));
     return { server, clients: range(clients).map(i => startClient(session.fork(`client:${i}`), 'server')) };
@@ -217,8 +242,14 @@ const quiet      = pending.map(p => p.every(n => n === 0));                     
 const put = defineAction({            // `apply` receives World<Kv>
   id: 'put',
   from: [clientIds],
-  generate: ids => ids.length === 0 ? null : fc.record({ client: fc.constantFrom(...ids), key: fc.string(), value: fc.string() }),
+  generate: ids => ids.length === 0 ? null : gen(fc.record({ client: fc.constantFrom(...ids), key: fc.string(), value: fc.string() })),
   apply: ({ surface }, { client, key, value }) => surface.clients.find(c => c.id === client)!.put(key, value),
+});
+const restartAny = defineAction({     // hand-written Gen — no library at all
+  id: 'restartAny',
+  from: [clientIds],
+  generate: ids => ids.length === 0 ? null : rng => ids[Math.floor(rng.next() * ids.length)]!,
+  apply: ({ surface }, client) => surface.clients.find(c => c.id === client)!.restart(),
 });
 const faults = weighted([
   [3, std.action.network({ groups: clientIds.map(ids => [['server'], ids.map(id => `client:${id}`)]) })],
@@ -242,12 +273,12 @@ await world.converge();                                     // throws PropertyVi
 expect(await world.observe(serverHash)).toBe(await world.observe(clientHash).then(h => h[0]));
 
 // 2. exploration
-await check(kv, { properties: KV_PROPERTIES, actions: [put, faults], episodes: 50, steps: 40 });
+await check(kv, { properties: KV_PROPERTIES, actions: [put, restartAny, faults], episodes: 50, steps: 40 });
 
 // 3. same system, wall host, headless walk + replay
 await using wall = await openWorld(kv, { host: std.host.wall({ network: 'model' }), seed: 7, properties: KV_PROPERTIES, onViolation: 'collect' });
-const run = await walk(wall, { actions: [put, faults], budgetMs: 10_000 });
-await replay(kv, run, { host: std.host.wall({ network: 'model' }), properties: KV_PROPERTIES, actions: [put, faults] });
+const run = await walk(wall, { actions: [put, restartAny, faults], budgetMs: 10_000 });
+await replay(kv, run, { host: std.host.wall({ network: 'model' }), properties: KV_PROPERTIES, actions: [put, restartAny, faults] });
 ```
 
 ## A second spec: SQL observations, SQL actions (sync-engine shape)
@@ -257,7 +288,7 @@ Observations are queries — aggregates and hashes, never row dumps. Actions are
 ```ts
 const sync = defineSystem({
   id: 'sync',
-  knobs: fc.record({ clients: fc.integer({ min: 1, max: 3 }) }),
+  knobs: gen(fc.record({ clients: fc.integer({ min: 1, max: 3 }) })),
   boot: async (session, { clients }) => {
     const server = await startSyncServer(session.fork('server'));                       // Postgres (pglite / embedded) via session.ports.sql
     const clientList = await Promise.all(range(clients).map(i => startSyncClient(session.fork(`client:${i}`), server)));   // local SQLite each
@@ -282,7 +313,7 @@ const quiet       = pending.map(p => p.every(n => n === 0));
 const createNote = defineAction({
   id: 'createNote',
   from: [clientIds],
-  generate: ids => ids.length === 0 ? null : fc.record({ client: fc.constantFrom(...ids), body: fc.string({ maxLength: 20 }) }),
+  generate: ids => ids.length === 0 ? null : gen(fc.record({ client: fc.constantFrom(...ids), body: fc.string({ maxLength: 20 }) })),
   apply: async ({ surface, session }, { client, body }) =>
     surface.clients.find(c => c.id === client)!.mutate(createNoteMutation, { id: session.ports.createId(), body }),
 });
@@ -290,19 +321,19 @@ const editNote = defineAction({
   id: 'editNote',
   from: [clientIds, liveNoteIds],
   generate: (ids, notes) => ids.length === 0 || notes.length === 0 ? null
-    : fc.record({ client: fc.constantFrom(...ids), id: fc.constantFrom(...notes), body: fc.string({ maxLength: 20 }) }),
+    : gen(fc.record({ client: fc.constantFrom(...ids), id: fc.constantFrom(...notes), body: fc.string({ maxLength: 20 }) })),
   apply: async ({ surface }, { client, id, body }) => surface.clients.find(c => c.id === client)!.mutate(editNoteMutation, { id, body }),
 });
 const deleteNote = defineAction({
   id: 'deleteNote',
   from: [clientIds, liveNoteIds],
-  generate: (ids, notes) => ids.length === 0 || notes.length === 0 ? null : fc.record({ client: fc.constantFrom(...ids), id: fc.constantFrom(...notes) }),
+  generate: (ids, notes) => ids.length === 0 || notes.length === 0 ? null : gen(fc.record({ client: fc.constantFrom(...ids), id: fc.constantFrom(...notes) })),
   apply: async ({ surface }, { client, id }) => surface.clients.find(c => c.id === client)!.mutate(deleteNoteMutation, { id }),   // soft delete
 });
 const serverEdit = defineAction({                    // server-initiated write: raw SQL in one tx + notifyChannels (the rule the sim must enforce)
   id: 'serverEdit',
   from: [liveNoteIds],
-  generate: notes => notes.length === 0 ? null : fc.record({ id: fc.constantFrom(...notes), body: fc.string({ maxLength: 20 }) }),
+  generate: notes => notes.length === 0 ? null : gen(fc.record({ id: fc.constantFrom(...notes), body: fc.string({ maxLength: 20 }) })),
   apply: async ({ surface, session }, { id, body }) => surface.server.db.transaction(async tx => {
     await tx.run(sql`update notes set body = ${body}, updated_at = ${session.ports.clock.now()} where id = ${id}`);
     await notifyChannels(tx, ['notes']);
@@ -369,9 +400,9 @@ const errors = std.ui.errors(actor);                                            
 const inventory = std.ui.inventory(actor);                                                // fingerprinted clickables / inputs — only runs when std.ui.tap is generating
 
 // --- actions: DOM interactions ------------------------------------------------------------------
-const increment = defineAction({ id: 'increment', from: [], generate: () => fc.constant(null), apply: ({ surface }) => surface.page.click('#increment') });
-const decrement = defineAction({ id: 'decrement', from: [], generate: () => fc.constant(null), apply: ({ surface }) => surface.page.click('#decrement') });
-const reload    = defineAction({ id: 'reload',    from: [], generate: () => fc.constant(null), apply: ({ surface }) => surface.page.reload() });
+const increment = defineAction({ id: 'increment', apply: ({ surface }) => surface.page.click('#increment') });   // no `generate`: no payload, always enabled
+const decrement = defineAction({ id: 'decrement', apply: ({ surface }) => surface.page.click('#decrement') });
+const reload    = defineAction({ id: 'reload',    apply: ({ surface }) => surface.page.reload() });
 const anyClick  = std.ui.tap(actor);                                                      // Bombadil `clicks`: pick any clickable from `inventory`
 const typing    = std.ui.type(actor);                                                     // Bombadil `inputs`: disabled here (no inputs) — generate returns null
 
@@ -401,7 +432,7 @@ expect(run.violations).toEqual([]);
 await replay(counter, run, { host: browserHost, properties: COUNTER_PROPERTIES, actions: [increment, decrement, reload, anyClick, typing] });   // diffs `count`/`title`/`errors` fingerprints per step
 ```
 
-Same algebra, different sort instances: the "network" is a static file server, the "surface" is one Playwright page, and the only property that needs anything beyond `now` is the state machine. The same spec runs on `std.host.virtual().with(jsdom)` if a jsdom `Driver` is added later, at which point `check` with shrinking becomes available with no spec change.
+Same algebra, different sort instances: the "network" is a static file server, the "surface" is one Playwright page, the only property that needs anything beyond `now` is the state machine, and this spec imports no PBT library at all — its only randomness is the walk's leaf pick. The same spec runs on `std.host.virtual().with(jsdom)` if a jsdom `Driver` is added later, at which point `check` with shrinking becomes available with no spec change.
 
 The product spec is the same shape: `simHost = std.host.virtual().with(s => ({ sql: pglite(s), ui: rntl(s), http: hono(s) }))`; observations `std.ui.screen(actorA)`, `std.ui.inventory(actorA)`, `std.ui.errors(actorA)` plus domain ones like `defineObservation({ id: 'spaceMembers', read: w => w.session.ports.sql.query('select count(*) …') })`; `openSim` attaches `PRODUCT_PROPERTIES` so every existing chess / auth / spaces scenario checks `std.ui.noErrorBoundary(actorA)` and domain invariants on every `actor.tap` that goes through `world.apply(std.ui.tap(actorA), { fingerprint })`.
 
@@ -418,9 +449,12 @@ checkpoint(world, action?):
 walk(world, { actions }):
   loop until steps / budget / stopOnViolation:
     leaves = flatten(actions).filter(a => caps ⊇ a.requires)
-    enabled = leaves.map(a => [a, a.generate(...observe(a.from))]).filter(gen != null)   // only these observations run
-    pick (a, payload) by weight via session.ports.rng
+    enabled = leaves.map(a => [a, a.generate?.(...observe(a.from)) ?? CONST_VOID]).filter(gen != null)   // only these observations run
+    pick a by weight via walkRng; payload = gen(recordingRng)            // every rng.next() the Gen makes is captured
+    world.walk.choices.push({ action: a.id, draws: recordingRng.drawn })
     checkpoint(world, { a, payload })
+
+replay / shrink: same loop with a replayingRng that serves the recorded (or shrunk) `draws` for that step, so the same Gen yields the same payload.
 ```
 
 Headless and headful differ only in which observations, actions and properties are in the lists.
@@ -433,28 +467,32 @@ Headless and headful differ only in which observations, actions and properties a
 4. **Surface is domain-only by construction.** `World` keeps `surface` and `session` separate.
 5. **No runtime bags.** `bindSyncRuntime` / `bindRoomRuntime` deleted; `boot` returns handles.
 6. **Capabilities, not fidelity strings.** `requires` filters leaves in `walk`; `advance` on a wall scheduler is a real wait; `partition` without the capability throws `CapabilityError`.
-7. **Knobs are an arbitrary.** `check` samples `system.knobs`; `openWorld` derives from `seed` when omitted.
+7. **Knobs are a `Gen`.** `check` samples `system.knobs(episodeRng)`; `openWorld` derives from `seed` when omitted.
 8. **Hierarchical determinism via `session.fork`.** Names are network addresses; systems nest by forking.
 9. **`checkpoint` is the only step; `walk` is the only loop.** `apply`, `check`, `replay` compose them.
-10. **The export list is a test.** `public-api.contract.test.ts` snapshots `@pkgs/dst`, `@pkgs/dst/pbt`, `@pkgs/dst/kernel`, `@pkgs/ui-testing/explore`.
+10. **The export list is a test.** `public-api.contract.test.ts` snapshots `@pkgs/dst`, `@pkgs/dst/pbt`, `@pkgs/dst/kernel`, `@pkgs/dst/fast-check`, `@pkgs/ui-testing/explore`.
+11. **Randomness is one function type; libraries are adapters.** `Gen<T> = (rng: Rng) => T` is the only thing `knobs` and `generate` speak. `@pkgs/dst`, `/pbt`, `/kernel` import no PBT library (depcruise `dst-core-no-pbt-library` + `no-pbt-library.contract.test.ts` walking the module graph). Shrinking works on recorded draws, so an adapted library contributes generation only — swapping fast-check for anything else, or for hand-written `Gen`s, changes no framework code and loses no shrinking.
 
 ## Package layout after
 
 ```
 pkgs/dst/src/
-  index.ts        define* + operators + std + types + openWorld + walk + repro (≈28 exports)
-  kernel/         clock.ts, scheduler.ts (virtual + wall), rng.ts, timers.ts, network.ts, trace.ts, fingerprint.ts, json.ts → @pkgs/dst/kernel
+  index.ts        define* + operators + std + types + openWorld + walk + repro (≈29 exports)
+  kernel/         clock.ts, scheduler.ts (virtual + wall), rng.ts (Rng + recording / replaying Rng), timers.ts, network.ts, trace.ts, fingerprint.ts, json.ts → @pkgs/dst/kernel
   host/           host.ts (Host/Session/Capability/CapabilityError), define-host.ts, std-host.ts
-  system/         define-system.ts, define-observation.ts, define-action.ts, weighted.ts, define-property.ts, formula.ts (progression), std-action.ts, repro.ts
+  system/         define-system.ts, define-observation.ts, define-action.ts, gen.ts (Gen type), weighted.ts, define-property.ts, formula.ts (progression), std-action.ts, repro.ts
   world/          open-world.ts, checkpoint.ts (observation memo + progress + record), controls.ts, walk.ts
-  pbt/            check.ts, shrink.ts, replay.ts, arbs.ts, run-property.ts
+  pbt/            check.ts, shrink.ts (steps delta-debug + draw minimisation), replay.ts
+  fast-check/     index.ts (gen, arbitrary, randomGeneratorOver) → @pkgs/dst/fast-check — the only file importing fast-check
   test/acme-kv/   the spec above, as fixture + contract tests
 pkgs/ui-testing/src/explore/   inventory.ts (Driver.inventory), std-ui.ts
 ```
 
+`pkgs/dst/package.json`: `exports` gain `./kernel` and `./fast-check`; `fast-check` moves from `dependencies` to `peerDependencies` (`optional: true`) + `devDependencies`; `@pkgs/pbt` is dropped. Consumers that use `gen(fc.…)` already depend on `fast-check` via the catalog.
+
 ## Migration (all in one change)
 
-Codemod-able: `defineScenario` → `defineSystem`; `extend:` → `boot` return; `node({ start })` → function called in `boot` with `session.fork(name)`; `knob(d, arb)` → entry in `knobs: fc.record({...})`; each key of `actions<S>()({ k: { generate(ctx), apply(surface, p) } })` → `defineAction({ id: 'k', from: [...], generate(...values), apply(world, p) })` with the reads `generate` did on `ctx.surface` turned into observations; each key of `properties<S>()({ k: property.always(check) })` → `defineProperty({ id: 'k', formula: always(now([...], f)) })` with `check`'s reads turned into observations; `world.<surfaceKey>` → `world.surface.<key>`; `world.ports.X` → `world.session.ports.X`; `world.partition(a, b)` → `world.session.network.partition(a, b)`; `std.network()` / `std.time()` → `std.action.network()` / `std.action.time()`; `runExamples` / `assertDeterministic` → `replay`.
+Codemod-able: `defineScenario` → `defineSystem`; `extend:` → `boot` return; `node({ start })` → function called in `boot` with `session.fork(name)`; `knob(d, arb)` → entry in `knobs: gen(fc.record({...}))`; each key of `actions<S>()({ k: { generate(ctx), apply(surface, p) } })` → `defineAction({ id: 'k', from: [...], generate(...values), apply(world, p) })` with the reads `generate` did on `ctx.surface` turned into observations and the returned `fc.Arbitrary` wrapped in `gen(…)` (or dropped when it was `fc.constant(null)`); each key of `properties<S>()({ k: property.always(check) })` → `defineProperty({ id: 'k', formula: always(now([...], f)) })` with `check`'s reads turned into observations; `world.<surfaceKey>` → `world.surface.<key>`; `world.ports.X` → `world.session.ports.X`; `world.partition(a, b)` → `world.session.network.partition(a, b)`; `std.network()` / `std.time()` → `std.action.network()` / `std.action.time()`; `runExamples` / `assertDeterministic` → `replay`.
 
 - **acme-kv**: the spec above.
 - **sync-engine** ([define-sync-system.ts](pkgs/sync-engine/src/sim/scenario/define-sync-system.ts), `system.ts`, `node-kinds.ts`, `world-boot*.ts`): `defineSyncSystem(opts)` returns `defineSystem(...)`; `sync-observations.ts` = `clientIds`, `pending`, `online`, `serverHash`, `clientHash`, `invariantViolations` (today's `checkInvariants` as a query returning `string[]`); `sync-actions.ts` one `defineAction` per stimulus (`mutate`, `addClient`, `crash`, `reconnect`); `sync-properties.ts` one `defineProperty` per invariant, exported as `SYNC_PROPERTIES`. Every sim test opens with `properties: SYNC_PROPERTIES` — the ~126 scripted scenarios become invariant monitors. WeakMap runtime + aliases deleted.
@@ -464,14 +502,15 @@ Codemod-able: `defineScenario` → `defineSystem`; `extend:` → `boot` return; 
 - **@sim/test**: replace [open-sim.ts](sim/test/src/setup/open-sim.ts) with `sim/test/src/host/{sim-host,max-host}.ts` built with `.with`; `defineProductSystem` → `defineSystem`; `openSim(testId, ctx)` attaches `PRODUCT_PROPERTIES` and returns the World; driver helpers (`chess-flows.ts` etc.) go through `world.apply(std.ui.tap(actor), …)` so each interaction is a checkpoint; add `product-walk.sim.test.tsx` (`walk` with `std.ui.*` + `std.action.network`, `steps: 40`) on both tiers; `topology-partition.sim.test.tsx` uses `requires` / `world.caps`.
 - **@pkgs/ui-testing**: add `inventory()` to the `Driver` contract (RNTL from the host tree; Playwright from the DOM; same fingerprint shape: `testId`, `role`, `accessibleName`, `text`, `structuralPath`), plus `explore/std-ui.ts`.
 - **sim/console**: `createSim` takes a `Session`; Reports get a transitions view over `Walk` (observed state before / action / after) — the Bombadil `inspect` analog on the existing reporting UI.
-- **Repro fixtures**: v3 `{ seed, knobs, choices, meta: { system, host } }`; parse rejects v<3.
+- **Repro fixtures**: v3 `{ seed, knobs, choices: [{ action, draws }], meta: { system, host } }`; parse rejects v<3.
+- **fast-check call sites**: every `fc.Arbitrary` returned from an action `generate` or passed as a knob (sync-engine, room, matchmaking, auth, db-schema, db-indexes, sql-client, acme-kv) is wrapped in `gen(…)` from `@pkgs/dst/fast-check`; `runProperty` / `arbSeed` callers move to `check` (seed via its `seed` option). `@pkgs/pbt` stays as-is for plain unit PBT that never touches a World.
 
 ## Docs and guards
 
 - Rewrite [pkgs/dst/README.md](pkgs/dst/README.md): algebra table (sort · constructor · operator · laws), the checkpoint / explore loop, the full spec above; add `pkgs/dst/CONTEXT.md`.
 - Update [DETERMINISM.md](DETERMINISM.md), AGENTS.md DST paragraph (`node` / `knob` / `command` / `defineScenario` / `runScenario` / `runPins` / `createWorldPorts` → `defineSystem` / `session.fork` / `defineObservation` / `defineAction` / `defineProperty` / `walk` / `check` / `replay` / `std.host.virtual`), [sim/test/src/setup/TESTING.md](sim/test/src/setup/TESTING.md).
-- Depcruise: only `pkgs/dst/**`, `sim/**`, `**/sim/**` may import `@pkgs/dst/kernel`.
-- Contract tests: `types` (tsd-style: a spec written with `const { defineObservation, defineAction, defineProperty } = kv` needs no type arguments; a `Property<RoomSurface>` passed to `openWorld(kvSystem, …)` is a compile error), `observation` (memo per checkpoint, laziness — unreferenced observations never run, `map` laws), `formula` (progression incl. `next`, `within`, end-of-trace, `sometimes`), `weighted` (laws), `checkpoint` (throw vs collect, transitions recorded from scripted `apply`), `walk` (enablement, weights, coverage, stopOnViolation), `fork`, `knobs-from-seed`, `wall-host`, `capability`, `public-api`; `apply-commands.contract.test.ts` folds into `checkpoint.contract.test.ts`.
+- Depcruise: only `pkgs/dst/**`, `sim/**`, `**/sim/**` may import `@pkgs/dst/kernel`; `pkgs/dst/src/**` except `pkgs/dst/src/fast-check/**` and `*.test.ts` may not import `fast-check` or `@pkgs/pbt` (`dst-core-no-pbt-library`).
+- Contract tests: `types` (tsd-style: a spec written with `const { defineObservation, defineAction, defineProperty } = kv` needs no type arguments; a `Property<RoomSurface>` passed to `openWorld(kvSystem, …)` is a compile error; an action without `generate` has `P = void`), `observation` (memo per checkpoint, laziness — unreferenced observations never run, `map` laws), `formula` (progression incl. `next`, `within`, end-of-trace, `sometimes`), `gen` (determinism: same draws ⇒ same value for a hand-written `Gen` and for `gen(fc.record(…))`; recording / replaying `Rng` round-trip; `gen(fc.constant(x))` law; `arbitrary(gen)` round-trip), `shrink` (a failing walk shrinks to fewer steps and smaller payloads for a fast-check-generated and a hand-written payload alike), `weighted` (laws), `checkpoint` (throw vs collect, transitions recorded from scripted `apply`), `walk` (enablement, weights, coverage, stopOnViolation, choices recorded), `fork`, `knobs-from-seed`, `wall-host`, `capability`, `no-pbt-library` (module graph of the three core entrypoints), `public-api`; `apply-commands.contract.test.ts` folds into `checkpoint.contract.test.ts`.
 
 ## Verification
 

@@ -76,7 +76,26 @@ async function rebuildKv(ctx: DatabaseMigrationContext): Promise<void> {
       )
     `)
   );
+  await ctx.sqlClient.run(
+    unsafe(`
+      CREATE OR REPLACE FUNCTION _kv_cutover_jsonb(src text) RETURNS jsonb
+      LANGUAGE plpgsql IMMUTABLE AS $fn$
+      BEGIN
+        IF src IS NULL OR btrim(src) = '' THEN
+          RETURN NULL;
+        END IF;
+        RETURN src::jsonb;
+      EXCEPTION
+        WHEN OTHERS THEN
+          RETURN to_jsonb(src);
+      END;
+      $fn$
+    `)
+  );
   await copyKvRows(ctx, next);
+  await ctx.sqlClient.run(
+    unsafe('DROP FUNCTION IF EXISTS _kv_cutover_jsonb(text)')
+  );
   await ctx.sqlClient.run(unsafe(`DROP TABLE ${KV_TABLE} CASCADE`));
   await ctx.sqlClient.run(unsafe(`ALTER TABLE ${next} RENAME TO ${KV_TABLE}`));
   ctx.logger.info('kv cutover: rebuilt with id PK + jsonb value');
@@ -108,7 +127,7 @@ async function copyKvRows(
       SELECT
         ${idExpr},
         key,
-        NULLIF(value, '')::jsonb,
+        _kv_cutover_jsonb(value),
         ${createdAt},
         ${updatedAt},
         ${deletedAt}

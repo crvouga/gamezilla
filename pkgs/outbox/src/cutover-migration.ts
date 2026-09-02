@@ -157,7 +157,10 @@ async function copyOutboxEventRows(
       )
       SELECT
         id, type,
-        NULLIF(payload, '')::jsonb,
+        CASE
+          WHEN btrim(COALESCE(payload, '')) = '' THEN NULL
+          ELSE payload::jsonb
+        END,
         available_at::timestamptz,
         created_at::timestamptz,
         ${updatedAt},

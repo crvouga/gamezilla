@@ -262,7 +262,10 @@ async function copyWriteRejectionsRows(
       )
       SELECT
         id, mutation_id, client_id, code, message,
-        NULLIF(meta, '')::jsonb,
+        CASE
+          WHEN btrim(COALESCE(meta, '')) = '' THEN NULL
+          ELSE meta::jsonb
+        END,
         acknowledged,
         created_at::timestamptz,
         ${updatedAt},
