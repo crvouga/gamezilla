@@ -1,7 +1,11 @@
 import { describe, expect, spyOn, test } from 'bun:test';
 import { PubSubClosedError } from '@pkgs/pubsub/pubsub-closed-error';
 
-import { isPubSubClosedError, warnPush } from './is-pubsub-closed-error';
+import {
+  isPubSubClosedError,
+  isSqliteClosedError,
+  warnPush,
+} from './is-pubsub-closed-error';
 
 describe('warnPush', () => {
   test('isPubSubClosedError matches class and name', () => {
@@ -10,6 +14,17 @@ describe('warnPush', () => {
     named.name = 'PubSubClosedError';
     expect(isPubSubClosedError(named)).toBe(true);
     expect(isPubSubClosedError(new Error('boom'))).toBe(false);
+  });
+
+  test('isSqliteClosedError matches wrapped dropCacheTables errors', () => {
+    const cause = new RangeError('Cannot use a closed database');
+    expect(isSqliteClosedError(cause)).toBe(true);
+    expect(
+      isSqliteClosedError(
+        new Error('dropCacheTables: Cannot use a closed database', { cause })
+      )
+    ).toBe(true);
+    expect(isSqliteClosedError(new Error('boom'))).toBe(false);
   });
 
   test('skips closed-broker noise', () => {

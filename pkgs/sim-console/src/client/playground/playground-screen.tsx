@@ -25,14 +25,19 @@ import type {
 import type { SimChromeKind } from '../../shared/sim-node';
 import { DebuggerColumn } from '../debugger/debugger-columns';
 import { DebuggerShell } from '../debugger/debugger-shell';
-import type { DebuggerChromeNav } from '../debugger-chrome';
+import type {
+  DebuggerChromeNav,
+  PaneNavPatch,
+  PaneNavValue,
+} from '../debugger-chrome';
 import { PlaygroundAppearanceCommands } from './playground-appearance-commands';
 import {
   PlaygroundKindPane,
   playgroundInstancesForKind,
-  playgroundViewForKind,
+  playgroundPaneKey,
   playgroundViewsForKind,
   resolvePlaygroundInstanceId,
+  resolvePlaygroundPane,
 } from './playground-kind-pane';
 import { PlaygroundSnapshotChrome } from './playground-snapshot-chrome';
 import type { PlaygroundSessionState } from './use-playground-session';
@@ -43,14 +48,18 @@ export function PlaygroundScreen(props: {
   readonly state: PlaygroundSessionState;
   readonly kind: SimChromeKind;
   readonly instance: string;
-  readonly view: string;
+  readonly panes: Readonly<Record<string, PaneNavValue>>;
   readonly onKindChange: (kind: SimChromeKind) => void;
   readonly onInstanceChange: (instance: string) => void;
-  readonly onViewChange: (view: string) => void;
+  readonly onPanePatch: (
+    id: string,
+    patch: PaneNavPatch,
+    mode?: 'push' | 'replace'
+  ) => void;
   /** Retry boot after an error (Metro chunk / sim init). */
   readonly onReload?: () => void;
 }) {
-  const { state, kind, instance, view, onReload } = props;
+  const { state, kind, instance, panes, onReload } = props;
 
   if (state.status === 'error') {
     return (
@@ -81,10 +90,10 @@ export function PlaygroundScreen(props: {
           chrome={{
             kind,
             instance,
-            view,
+            panes,
             onKindChange: props.onKindChange,
             onInstanceChange: props.onInstanceChange,
-            onViewChange: props.onViewChange,
+            onPanePatch: props.onPanePatch,
           }}
         />
       </SurfaceStackProvider>
@@ -150,13 +159,15 @@ function ReadyPlaygroundScreen(props: {
   );
   void tick;
   const kind = chrome.kind;
-  const view = playgroundViewForKind(kind, chrome.view);
-  const views = playgroundViewsForKind(kind);
   const clients = session.snapshotRestoring
     ? []
     : [...session.clients.values()];
   const instances = playgroundInstancesForKind(session, kind, clients);
   const instanceId = resolvePlaygroundInstanceId(chrome.instance, instances);
+  const shellPaneKey = playgroundPaneKey(kind, instanceId);
+  const shellPane = resolvePlaygroundPane(chrome.panes, shellPaneKey, kind);
+  // Client columns own their view strips; shell strip only for non-client.
+  const views = kind === 'client' ? [] : playgroundViewsForKind(kind);
   const paletteCommands = useMemo(
     () => session.listPaletteCommands(),
     [session, tick]
@@ -192,18 +203,21 @@ function ReadyPlaygroundScreen(props: {
           if (kind === 'client') onFocusedClientIdChange(id);
         }}
         views={views}
-        view={view}
-        onViewChange={(next) => chrome.onViewChange(next)}
+        view={shellPane.view}
+        onViewChange={(next) =>
+          chrome.onPanePatch(shellPaneKey, { view: next })
+        }
       >
         <PlaygroundKindPane
           session={session}
           kind={kind}
-          view={view}
+          panes={chrome.panes}
           instanceId={instanceId}
           clients={clients}
           snapshotEpoch={snapshotEpoch}
           focusedClientId={focusedClientId}
           onFocusedClientIdChange={onFocusedClientIdChange}
+          onPanePatch={chrome.onPanePatch}
           onClientColumnsOutsidePointerDown={clearClientFocus}
           clientColumnShell={playgroundClientColumnShell}
         />

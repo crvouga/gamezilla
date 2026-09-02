@@ -42,7 +42,7 @@ import {
   resetClockSkews,
   resetReplayRestartState,
 } from './play';
-import { requireKit, type SyncRuntime } from './system';
+import { bindSyncRuntime, requireKit, type SyncRuntime } from './system';
 
 const WORLD_START_MS = 1_700_000_000_000;
 /** Post-topology settle window so clients finish initial hydration. */
@@ -321,8 +321,8 @@ export function defineSyncSystem(
   opts?: DefineSyncSystemOpts
 ): SyncSystemDef {
   const sessionQuery = opts?.sessionQuery ?? app.pack.sessionQuery;
-  const runtime = initialSyncRuntime(app, opts);
-  const nodes = createSyncNodes(runtime);
+  const runtimeOf = bindSyncRuntime(() => initialSyncRuntime(app, opts));
+  const nodes = createSyncNodes(runtimeOf);
   const catalog = syncActionCatalog(app, sessionQuery);
 
   return defineScenario({
@@ -348,6 +348,7 @@ export function defineSyncSystem(
       ),
     }),
     extend: async (world) => {
+      const runtime = runtimeOf(world.ports);
       resetReplayRestartState(runtime.replay);
       const kit = requireKit(runtime);
       const shadow = createActionShadow(app, world.nodeIds('client'));

@@ -19,6 +19,7 @@ import { createTableChangeBus } from '../queries/client/table-change-bus';
 import type { QueryResponse } from '../queries/core/types';
 import '../queries/shared/tiger-invariants';
 import { withFrameworkTopicMap } from '../shared/framework-topic-map';
+import { isSqliteClosedError } from '../shared/is-pubsub-closed-error';
 import type { WriteCaptureSnapshot } from '../sql-ast';
 import type { AppLifecycle } from './app-lifecycle';
 import {
@@ -375,7 +376,13 @@ async function clearState(
   }
   const reconnect = state.connected;
   await disconnectState(state);
-  await clearLocalCache(state.options.db, state.options.localSchema);
+  try {
+    await clearLocalCache(state.options.db, state.options.localSchema);
+  } catch (error) {
+    // Revoke / dispose already closed the handle — cache is gone.
+    if (isSqliteClosedError(error)) return;
+    throw error;
+  }
   state.runtime.reset();
   state.bus.emit([
     ...state.options.localSchema.cacheTableNames,

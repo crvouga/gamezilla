@@ -3,6 +3,7 @@ import { always, reachable, sometimes, unreachable } from './assertions';
 import {
   bindInvariantSink,
   currentInvariantSink,
+  isInvariantSinkBound,
   unbindInvariantSink,
 } from './sink';
 
@@ -14,7 +15,9 @@ describe('@pkgs/invariants', () => {
   });
 
   test('recording sink binds exclusively', () => {
+    expect(isInvariantSinkBound()).toBe(false);
     bindInvariantSink();
+    expect(isInvariantSinkBound()).toBe(true);
     expect(() => bindInvariantSink()).toThrow(/already bound/);
     always('test.always', true, 10);
     sometimes('test.sometimes', true, 20);
@@ -26,6 +29,7 @@ describe('@pkgs/invariants', () => {
       1
     );
     unbindInvariantSink();
+    expect(isInvariantSinkBound()).toBe(false);
   });
 
   test('unreachable throws', () => {

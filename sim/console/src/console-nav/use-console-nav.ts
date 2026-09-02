@@ -52,7 +52,7 @@ export function useConsoleNav(): UseConsoleNavResult {
     return subscribeConsoleNavPopState((event) => {
       const fromState = readConsoleNavFromPopState(event);
       if (fromState !== null) {
-        setState(applyConsoleNavPatch(DEFAULT_CONSOLE_NAV, fromState));
+        setState(fromState);
         return;
       }
       setState(parseConsoleNav(readConsoleNavSearch()));

@@ -19,13 +19,28 @@ import {
 } from '../shared/sim-node';
 import { simNodeIcon } from './sim-node-chrome';
 
+export type PaneNavValue = {
+  readonly view: DebuggerViewId;
+  readonly table: string | null;
+};
+
+export type PaneNavPatch = {
+  readonly view?: string;
+  readonly table?: string | null;
+};
+
 export type DebuggerChromeNav = {
   readonly kind: SimChromeKind;
   readonly instance: string;
-  readonly view: string;
+  readonly panes: Readonly<Record<string, PaneNavValue>>;
   readonly onKindChange: (kind: SimChromeKind) => void;
   readonly onInstanceChange: (instance: string) => void;
-  readonly onViewChange: (view: string) => void;
+  /** Patch one node's pane; `replace` for high-frequency table selection. */
+  readonly onPanePatch: (
+    id: string,
+    patch: PaneNavPatch,
+    mode?: 'push' | 'replace'
+  ) => void;
 };
 
 const VIEW_CHROME: Readonly<

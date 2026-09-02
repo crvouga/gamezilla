@@ -12,7 +12,6 @@ import type {
   Candidate,
   DbPort,
   Eval,
-  IndexDefinition,
   IndexInfo,
   OwnedMeta,
   ParsedStatement,
@@ -22,19 +21,17 @@ import type {
   UsageInfo,
 } from '../core/types';
 import { asOwnedIndexName } from '../core/types';
+import {
+  isConcurrentlyUnsupportedError,
+  renderCreateIndexSql,
+  renderDropIndexSql,
+} from './render-ddl';
 
-function renderCreateIndexSql(def: IndexDefinition, name: string): string {
-  assert.ok(isOwnedName(name), 'render: owned name');
-  const cols = def.columns
-    .map((c) => `"${c.name}" ${c.order.toUpperCase()}`)
-    .join(', ');
-  const include =
-    def.include.length > 0
-      ? ` INCLUDE (${def.include.map((c) => `"${c}"`).join(', ')})`
-      : '';
-  const pred = def.predicate != null ? ` WHERE ${def.predicate}` : '';
-  return `CREATE INDEX CONCURRENTLY IF NOT EXISTS "${name}" ON "${def.table}" (${cols})${include}${pred}`;
-}
+export {
+  isConcurrentlyUnsupportedError,
+  renderCreateIndexSql,
+  renderDropIndexSql,
+} from './render-ddl';
 
 function parseCommentMeta(comment: string | null): OwnedMeta | null {
   if (comment == null || comment.length === 0) return null;
@@ -199,6 +196,16 @@ async function writeOwnedMeta(client: SqlClient, m: OwnedMeta): Promise<void> {
   );
 }
 
+function lowConfidenceEval(cand: Candidate): Eval {
+  return {
+    candidateName: cand.name,
+    improvement: 1,
+    baselineCost: 1,
+    withIndexCost: 1,
+    lowConfidence: true,
+  };
+}
+
 async function evaluateOne(
   client: SqlClient,
   cand: Candidate,
@@ -212,9 +219,11 @@ async function evaluateOne(
     const baselineRows = await client.query(
       unsafe<{ ['QUERY PLAN']: unknown }>(`EXPLAIN (FORMAT JSON) ${explainSql}`)
     );
-    const hypoDdl = renderCreateIndexSql(cand.definition, cand.name)
-      .replace(/CONCURRENTLY IF NOT EXISTS /, '')
-      .replace(/'/g, "''");
+    const hypoDdl = renderCreateIndexSql(
+      cand.definition,
+      cand.name,
+      false
+    ).replace(/'/g, "''");
     await client.run(unsafe(`SELECT hypopg_create_index('${hypoDdl}')`));
     const withRows = await client.query(
       unsafe<{ ['QUERY PLAN']: unknown }>(`EXPLAIN (FORMAT JSON) ${explainSql}`)
@@ -232,28 +241,61 @@ async function evaluateOne(
     };
   } catch {
     await client.run(unsafe('SELECT hypopg_reset()')).catch(() => {});
-    return {
-      candidateName: cand.name,
-      improvement: 1,
-      baselineCost: 1,
-      withIndexCost: 1,
-      lowConfidence: true,
-    };
+    return lowConfidenceEval(cand);
   }
 }
 
 async function evaluateCandidates(
   client: SqlClient,
-  ensureHypopg: () => Promise<void>,
+  ensureHypopg: () => Promise<boolean>,
   stmts: readonly Stmt[],
   cands: readonly Candidate[]
 ): Promise<Eval[]> {
-  await ensureHypopg();
+  const hypopgOk = await ensureHypopg();
   const out: Eval[] = [];
+  if (!hypopgOk) {
+    for (let i = 0; i < cands.length; i++) {
+      out.push(lowConfidenceEval(cands[i]!));
+    }
+    return out;
+  }
   for (let i = 0; i < cands.length; i++) {
     out.push(await evaluateOne(client, cands[i]!, stmts));
   }
   return out;
+}
+
+async function runCreateOrDrop(
+  client: SqlClient,
+  action: PlanAction
+): Promise<void> {
+  switch (action.kind) {
+    case 'create': {
+      const def = action.definition!;
+      const name = ownedIndexName(def);
+      assert.ok(name === action.name, 'name matches definition');
+      try {
+        await client.run(unsafe(renderCreateIndexSql(def, name, true)));
+      } catch (err) {
+        if (!isConcurrentlyUnsupportedError(err)) throw err;
+        await client.run(unsafe(renderCreateIndexSql(def, name, false)));
+      }
+      return;
+    }
+    case 'drop':
+    case 'repair_invalid': {
+      try {
+        await client.run(unsafe(renderDropIndexSql(action.name, true)));
+      } catch (err) {
+        if (!isConcurrentlyUnsupportedError(err)) throw err;
+        await client.run(unsafe(renderDropIndexSql(action.name, false)));
+      }
+      return;
+    }
+    case 'deprecate':
+    case 'clear_deprecation':
+      return;
+  }
 }
 
 async function executeAction(
@@ -271,25 +313,8 @@ async function executeAction(
   try {
     await client.run(unsafe(`SET lock_timeout = '2s'`));
     await client.run(unsafe(`SET statement_timeout = '${String(remaining)}'`));
-    switch (action.kind) {
-      case 'create': {
-        const def = action.definition!;
-        const name = ownedIndexName(def);
-        assert.ok(name === action.name, 'name matches definition');
-        await client.run(unsafe(renderCreateIndexSql(def, name)));
-        return { status: 'ok' };
-      }
-      case 'drop':
-      case 'repair_invalid': {
-        await client.run(
-          unsafe(`DROP INDEX CONCURRENTLY IF EXISTS "${action.name}"`)
-        );
-        return { status: 'ok' };
-      }
-      case 'deprecate':
-      case 'clear_deprecation':
-        return { status: 'ok' };
-    }
+    await runCreateOrDrop(client, action);
+    return { status: 'ok' };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     if (/lock_timeout|canceling statement|timeout/i.test(msg)) {
@@ -303,8 +328,10 @@ async function executeAction(
 }
 
 /**
- * Postgres DbPort: hypopg + EXPLAIN for eval; CREATE INDEX CONCURRENTLY for builds.
- * Meta via COMMENT ON INDEX JSON. Inject {@link Clock} for statement_timeout.
+ * Postgres DbPort: hypopg + EXPLAIN for eval; CREATE INDEX CONCURRENTLY for builds
+ * (falls back without CONCURRENTLY on pooler/transaction errors). Meta via
+ * COMMENT ON INDEX JSON. hypopg is optional — missing extension yields
+ * low-confidence evals so migrate-complete can still create indexes.
  */
 export function createPostgresPort(
   client: SqlClient,
@@ -318,21 +345,22 @@ export function createPostgresPort(
   const clock = options.clock;
   const _config = { ...DEFAULT_CONFIG, ...options.config };
   void _config;
-  let hypopgReady: Promise<void> | null = null;
+  let hypopgReady: Promise<boolean> | null = null;
 
-  async function ensureHypopg(): Promise<void> {
+  async function ensureHypopg(): Promise<boolean> {
     if (hypopgReady != null) return hypopgReady;
     hypopgReady = (async () => {
-      await client.run(unsafe('CREATE EXTENSION IF NOT EXISTS hypopg'));
-      const rows = await client.query(
-        unsafe<{ extname: string }>(
-          `SELECT extname FROM pg_extension WHERE extname = 'hypopg'`
-        )
-      );
-      assert.ok(
-        rows.length === 1,
-        'hypopg extension required but not available'
-      );
+      try {
+        await client.run(unsafe('CREATE EXTENSION IF NOT EXISTS hypopg'));
+        const rows = await client.query(
+          unsafe<{ extname: string }>(
+            `SELECT extname FROM pg_extension WHERE extname = 'hypopg'`
+          )
+        );
+        return rows.length === 1;
+      } catch {
+        return false;
+      }
     })();
     return hypopgReady;
   }

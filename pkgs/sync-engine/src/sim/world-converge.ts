@@ -8,6 +8,7 @@ import {
   checkPostConvergeInvariants,
   type InvariantViolation,
   isClosedDatabaseError,
+  isDbOpen,
 } from './invariants';
 import type { NetEffectRegistry } from './net-effect';
 
@@ -29,13 +30,15 @@ export type AssertConvergedCtx = {
   readonly clearBoundaryFaults?: () => void;
 };
 
-function clientSnapshots(
+async function openClientSnapshots(
   clients: ReadonlyMap<string, SimClientHandle>
-): readonly { readonly label: string; readonly db: SqlClient }[] {
-  return [...clients.values()].map((c) => ({
-    label: c.id,
-    db: c.db,
-  }));
+): Promise<readonly { readonly label: string; readonly db: SqlClient }[]> {
+  const out: { label: string; db: SqlClient }[] = [];
+  for (const c of clients.values()) {
+    // Auth revoke / wipe closes the handle; seq checks already skip these.
+    if (await isDbOpen(c.db)) out.push({ label: c.id, db: c.db });
+  }
+  return out;
 }
 
 function nudgeClients(clients: ReadonlyMap<string, SimClientHandle>): void {
@@ -50,10 +53,20 @@ function nudgeClients(clients: ReadonlyMap<string, SimClientHandle>): void {
 async function checkDomainConverged(
   ctx: AssertConvergedCtx
 ): Promise<InvariantViolation | null> {
-  return ctx.domain.checkAllConverged({
-    clients: clientSnapshots(ctx.clients),
-    serverDb: ctx.server.db,
-  });
+  try {
+    return await ctx.domain.checkAllConverged({
+      clients: await openClientSnapshots(ctx.clients),
+      serverDb: ctx.server.db,
+    });
+  } catch (error) {
+    if (isClosedDatabaseError(error)) {
+      return {
+        invariant: 'convergence',
+        detail: 'closed database during domain check',
+      };
+    }
+    throw error;
+  }
 }
 
 async function drainScheduler(ctx: AssertConvergedCtx): Promise<void> {

@@ -1,7 +1,8 @@
 // @io-wall-ok — browser location / history adapter for console nav.
 import {
+  applyConsoleNavPatch,
   type ConsoleNavState,
-  coerceKind,
+  DEFAULT_CONSOLE_NAV,
 } from '@sim/console/console-nav/console-nav';
 
 export type ConsoleNavHistoryMode = 'push' | 'replace';
@@ -31,30 +32,10 @@ export function readConsoleNavFromPopState(
 ): ConsoleNavState | null {
   const raw = event.state;
   if (raw === null || typeof raw !== 'object') return null;
-  const consoleNav =
-    (raw as { consoleNav?: unknown; hostNav?: unknown }).consoleNav ??
-    (raw as { hostNav?: unknown }).hostNav;
+  const bag = raw as Record<string, unknown>;
+  const consoleNav = bag['consoleNav'] ?? bag['hostNav'];
   if (consoleNav === null || typeof consoleNav !== 'object') return null;
-  const h = consoleNav as Partial<ConsoleNavState> & {
-    readonly clientViews?: unknown;
-  };
-  if (
-    typeof h.section !== 'string' ||
-    typeof h.kind !== 'string' ||
-    typeof h.view !== 'string'
-  ) {
-    return null;
-  }
-  const instance =
-    typeof h.instance === 'string'
-      ? h.instance
-      : firstLegacyClientId(h.clientViews);
-  return {
-    section: h.section as ConsoleNavState['section'],
-    kind: coerceKind(h.kind),
-    instance,
-    view: h.view as ConsoleNavState['view'],
-  };
+  return coerceHistoryNav(consoleNav);
 }
 
 export function subscribeConsoleNavPopState(
@@ -67,6 +48,43 @@ export function subscribeConsoleNavPopState(
 
 export function isConsoleNavWeb(): boolean {
   return typeof window !== 'undefined';
+}
+
+function coerceHistoryNav(raw: unknown): ConsoleNavState | null {
+  if (raw === null || typeof raw !== 'object') return null;
+  const h = raw as Record<string, unknown>;
+
+  // Nested shape (current).
+  if (
+    typeof h['section'] === 'string' &&
+    h['playground'] !== null &&
+    typeof h['playground'] === 'object' &&
+    h['reports'] !== null &&
+    typeof h['reports'] === 'object'
+  ) {
+    return applyConsoleNavPatch(DEFAULT_CONSOLE_NAV, {
+      section: h['section'] as ConsoleNavState['section'],
+      playground: h['playground'] as ConsoleNavState['playground'],
+      reports: h['reports'] as ConsoleNavState['reports'],
+    });
+  }
+
+  // Flat legacy shape: { section, kind, instance, view }.
+  if (typeof h['section'] === 'string' && typeof h['kind'] === 'string') {
+    const instance =
+      typeof h['instance'] === 'string'
+        ? h['instance']
+        : firstLegacyClientId(h['clientViews']);
+    const view = typeof h['view'] === 'string' ? h['view'] : undefined;
+    return applyConsoleNavPatch(DEFAULT_CONSOLE_NAV, {
+      section: h['section'] as ConsoleNavState['section'],
+      kind: h['kind'] as ConsoleNavState['playground']['kind'],
+      instance,
+      ...(view !== undefined ? { view } : {}),
+    });
+  }
+
+  return null;
 }
 
 function firstLegacyClientId(clientViews: unknown): string {

@@ -41,10 +41,10 @@ const oneQuery = [{ name: 'notesWorld', params: {} }] as const;
 describe('sync http client opaque IdP tokens', () => {
   test('opaque non-JWT bearer is sent without calling getFreshAuthToken', async () => {
     let freshCalls = 0;
-    let authorization: string | null = null;
+    const captured: { authorization: string | null } = { authorization: null };
     const fetchFn: SyncHttpFetch = async (_input, init) => {
       const headers = new Headers(init?.headers);
-      authorization = headers.get('Authorization');
+      captured.authorization = headers.get('Authorization');
       return okQueryResponse();
     };
     const client = createSyncHttpClient({
@@ -64,17 +64,17 @@ describe('sync http client opaque IdP tokens', () => {
     });
     await client.postQueries(oneQuery);
     expect(freshCalls).toBe(0);
-    expect(authorization).toBe('Bearer opaque-createId-token');
+    expect(captured.authorization).toBe('Bearer opaque-createId-token');
   });
 
   test('JWT past exp races getFreshAuthToken before POST', async () => {
     let freshCalls = 0;
-    let authorization: string | null = null;
+    const captured: { authorization: string | null } = { authorization: null };
     const nowMs = 1_000_000_000;
     const expiredJwt = encodeJwtExp(Math.floor(nowMs / 1000) - 60);
     const fetchFn: SyncHttpFetch = async (_input, init) => {
       const headers = new Headers(init?.headers);
-      authorization = headers.get('Authorization');
+      captured.authorization = headers.get('Authorization');
       return okQueryResponse();
     };
     const client = createSyncHttpClient({
@@ -94,6 +94,45 @@ describe('sync http client opaque IdP tokens', () => {
     });
     await client.postQueries(oneQuery);
     expect(freshCalls).toBe(1);
-    expect(authorization).toBe('Bearer fresh-after-exp');
+    expect(captured.authorization).toBe('Bearer fresh-after-exp');
+  });
+
+  test('401 with unchanged dead fresh token retries anon-only', async () => {
+    const auths: Array<string | null> = [];
+    const anonIds: Array<string | null> = [];
+    let calls = 0;
+    const fetchFn: SyncHttpFetch = async (_input, init) => {
+      calls += 1;
+      const headers = new Headers(init?.headers);
+      auths.push(headers.get('Authorization'));
+      anonIds.push(headers.get('x-anon-id'));
+      if (calls === 1) {
+        return new Response(
+          JSON.stringify({ error: 'auth', reason: 'expired' }),
+          {
+            status: 401,
+            headers: { 'content-type': 'application/json' },
+          }
+        );
+      }
+      return okQueryResponse();
+    };
+    const client = createSyncHttpClient({
+      getBaseUrl: () => 'http://example.test',
+      fetchFn,
+      auth: {
+        getAccountId: () => 'acct-1',
+        getDeviceId: () => 'dev-1',
+        getSessionToken: () => 'dead-opaque',
+      },
+      getFreshAuthToken: async () => 'dead-opaque',
+      timers,
+      now: () => 1_000_000,
+    });
+    await client.postQueries(oneQuery);
+    expect(calls).toBe(2);
+    expect(auths[0]).toBe('Bearer dead-opaque');
+    expect(auths[1]).toBeNull();
+    expect(anonIds[1]).toBe('dev-1');
   });
 });

@@ -30,45 +30,94 @@ export type DbState =
 export function usePlaygroundDbSchema(args: {
   readonly sqlClient: SqlClient;
   readonly reloadToken: number;
+  /** When false, pause schema soft-poll (pane is CSS-hidden). */
+  readonly active: boolean;
+  /** Controlled selection from navigation state. */
+  readonly selectedTable: string | null;
+  /** Notify parent when the resolved table differs (e.g. first-table default). */
+  readonly onSelectTable: (name: string) => void;
 }): {
   readonly state: DbState;
   readonly selectTable: (name: string) => void;
 } {
-  const { sqlClient, reloadToken } = args;
+  const { sqlClient, reloadToken, active, selectedTable, onSelectTable } = args;
   const timers = useTimers();
   const [state, setState] = useState<DbState>({ status: 'loading' });
-  const selectedRef = useRef<string | null>(null);
+  const selectedRef = useRef<string | null>(selectedTable);
+  selectedRef.current = selectedTable;
+  const onSelectTableRef = useRef(onSelectTable);
+  onSelectTableRef.current = onSelectTable;
 
-  useEffect(() => {
-    if (state.status === 'ready') {
-      selectedRef.current = state.selected;
-    }
-  }, [state]);
-
-  useSchemaSoftPoll(sqlClient, timers, selectedRef, setState);
-  useReloadTokenEffect(sqlClient, reloadToken, selectedRef, setState);
+  useSchemaSoftPoll({
+    sqlClient,
+    timers,
+    active,
+    selectedRef,
+    setState,
+  });
+  useReloadTokenEffect({
+    sqlClient,
+    reloadToken,
+    active,
+    selectedRef,
+    setState,
+  });
+  useSyncControlledSelection(sqlClient, selectedTable, state, setState);
+  useDefaultTableSelection(state, selectedTable, onSelectTableRef);
 
   const selectTable = (name: string) => {
     selectedRef.current = name;
+    onSelectTable(name);
     void loadSelectedTable(sqlClient, name, setState);
   };
 
   return { state, selectTable };
 }
 
-function useSchemaSoftPoll(
+function useDefaultTableSelection(
+  state: DbState,
+  selectedTable: string | null,
+  onSelectTableRef: MutableRefObject<(name: string) => void>
+) {
+  useEffect(() => {
+    if (state.status !== 'ready') return;
+    if (selectedTable != null) return;
+    const first = state.tables[0]?.name;
+    if (first == null) return;
+    onSelectTableRef.current(first);
+  }, [state, selectedTable, onSelectTableRef]);
+}
+
+function useSyncControlledSelection(
   sqlClient: SqlClient,
-  timers: ReturnType<typeof useTimers>,
-  selectedRef: MutableRefObject<string | null>,
+  selectedTable: string | null,
+  state: DbState,
   setState: Dispatch<SetStateAction<DbState>>
 ) {
   useEffect(() => {
+    if (state.status !== 'ready') return;
+    if (selectedTable == null) return;
+    if (state.selected === selectedTable) return;
+    if (!state.tables.some((t) => t.name === selectedTable)) return;
+    void loadSelectedTable(sqlClient, selectedTable, setState);
+  }, [sqlClient, selectedTable, state, setState]);
+}
+
+function useSchemaSoftPoll(args: {
+  readonly sqlClient: SqlClient;
+  readonly timers: ReturnType<typeof useTimers>;
+  readonly active: boolean;
+  readonly selectedRef: MutableRefObject<string | null>;
+  readonly setState: Dispatch<SetStateAction<DbState>>;
+}) {
+  const { sqlClient, timers, active, selectedRef, setState } = args;
+  useEffect(() => {
+    if (!active) return;
     let cancelled = false;
     const softReload = async () => {
       try {
         const next = await fetchSchemaState(sqlClient, selectedRef.current);
         if (!cancelled) {
-          selectedRef.current = next.selected;
           setState(next);
         }
       } catch (err) {
@@ -80,7 +129,9 @@ function useSchemaSoftPoll(
         }
       }
     };
-    setState({ status: 'loading' });
+    setState((prev) =>
+      prev.status === 'ready' ? prev : { status: 'loading' }
+    );
     void softReload();
     const handle = timers.setInterval(() => {
       void softReload();
@@ -89,29 +140,29 @@ function useSchemaSoftPoll(
       cancelled = true;
       timers.clearInterval(handle);
     };
-  }, [sqlClient, timers, selectedRef, setState]);
+  }, [sqlClient, timers, active, selectedRef, setState]);
 }
 
-function useReloadTokenEffect(
-  sqlClient: SqlClient,
-  reloadToken: number,
-  selectedRef: MutableRefObject<string | null>,
-  setState: Dispatch<SetStateAction<DbState>>
-) {
+function useReloadTokenEffect(args: {
+  readonly sqlClient: SqlClient;
+  readonly reloadToken: number;
+  readonly active: boolean;
+  readonly selectedRef: MutableRefObject<string | null>;
+  readonly setState: Dispatch<SetStateAction<DbState>>;
+}) {
+  const { sqlClient, reloadToken, active, selectedRef, setState } = args;
   const ready = useRef(false);
   useEffect(() => {
     if (!ready.current) {
       ready.current = true;
       return;
     }
+    if (!active) return;
     let cancelled = false;
     void (async () => {
       try {
         const next = await fetchSchemaState(sqlClient, selectedRef.current);
-        if (!cancelled) {
-          selectedRef.current = next.selected;
-          setState(next);
-        }
+        if (!cancelled) setState(next);
       } catch (err) {
         if (!cancelled) {
           setState({
@@ -124,7 +175,7 @@ function useReloadTokenEffect(
     return () => {
       cancelled = true;
     };
-  }, [reloadToken, sqlClient, selectedRef, setState]);
+  }, [reloadToken, sqlClient, active, selectedRef, setState]);
 }
 
 async function fetchSchemaState(

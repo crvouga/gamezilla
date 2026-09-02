@@ -97,13 +97,17 @@ function ConsoleBody(): ReactNode {
         <SimConsoleApp
           ports={ports}
           section={state.section}
-          kind={state.kind}
-          view={state.view}
-          instance={state.instance}
+          kind={state.playground.kind}
+          instance={state.playground.instance}
+          panes={state.playground.panes}
+          reports={state.reports}
           onSectionChange={(section) => patch({ section })}
-          onKindChange={(kind) => patch({ kind })}
-          onInstanceChange={(instance) => patch({ instance })}
-          onViewChange={(view) => patch({ view })}
+          onKindChange={(kind) => patch({ playground: { kind } })}
+          onInstanceChange={(instance) => patch({ playground: { instance } })}
+          onPanePatch={(id, panePatch, mode = 'push') =>
+            patch({ playground: { pane: { id, patch: panePatch } } }, mode)
+          }
+          onReportsNav={(reports, mode = 'push') => patch({ reports }, mode)}
         />
       </AppUiPortals>
     </AppI18nProvider>

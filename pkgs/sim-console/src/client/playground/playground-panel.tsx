@@ -1,5 +1,10 @@
-import { Box } from '@pkgs/ui';
-import { aliasDebuggerView } from '../../shared/debugger-views';
+import { Box, TabStrip } from '@pkgs/ui';
+import {
+  coerceDebuggerView,
+  type DebuggerViewId,
+  defaultViewForKind,
+  viewsForKind,
+} from '../../shared/debugger-views';
 import type {
   PlaygroundActor,
   PlaygroundPubSubNode,
@@ -7,6 +12,8 @@ import type {
   PlaygroundSession,
   PlaygroundSqlNode,
 } from '../../shared/ports';
+import type { PaneNavPatch, PaneNavValue } from '../debugger-chrome';
+import { debuggerViewTabItem } from '../debugger-chrome';
 import { PlaygroundCommandsPane } from './playground-commands-pane';
 import { PlaygroundDbPane } from './playground-db-pane';
 import { PlaygroundLogsPane } from './playground-logs-pane';
@@ -19,6 +26,7 @@ const panelSx = {
   minHeight: 0,
   overflow: 'hidden',
   background: 'surface',
+  flexDirection: 'column',
 } as const;
 
 const uiBodySx = {
@@ -29,19 +37,58 @@ const uiBodySx = {
   background: 'surface',
 } as const;
 
+const fillSx = {
+  flex: 1,
+  minHeight: 0,
+  minWidth: 0,
+} as const;
+
+function hiddenWhen(active: boolean) {
+  return {
+    ...fillSx,
+    display: active ? ('flex' as const) : ('none' as const),
+    pointerEvents: active ? ('auto' as const) : ('none' as const),
+  };
+}
+
+function resolvePane(
+  pane: PaneNavValue | undefined,
+  kind: 'client' | 'server' | 'events' | 'room'
+): PaneNavValue {
+  if (pane !== undefined) {
+    return {
+      view: coerceDebuggerView(kind, pane.view),
+      table: pane.table,
+    };
+  }
+  return { view: defaultViewForKind(kind), table: null };
+}
+
 export function ClientPlaygroundPanel(props: {
   readonly actor: PlaygroundActor;
   readonly snapshotEpoch?: number;
   readonly reloadToken?: number;
-  readonly view: string;
+  readonly pane: PaneNavValue | undefined;
+  readonly onPanePatch: (
+    patch: PaneNavPatch,
+    mode?: 'push' | 'replace'
+  ) => void;
 }) {
-  const { actor, snapshotEpoch, reloadToken, view } = props;
-  const tab = aliasDebuggerView(view);
+  const { actor, snapshotEpoch, reloadToken, onPanePatch } = props;
+  const pane = resolvePane(props.pane, 'client');
+  const tab = pane.view;
   const productKey = `${actor.id}:${snapshotEpoch ?? 0}`;
   const ActorApp = actor.App;
+  const views = viewsForKind('client');
 
   return (
     <Box sx={panelSx} dataSet={{ debuggerClient: actor.address }}>
+      <TabStrip
+        accessibilityLabel="Client views"
+        items={views.map((v) => debuggerViewTabItem(v))}
+        selectedId={tab}
+        onSelect={(id) => onPanePatch({ view: id })}
+      />
       <Box
         sx={{
           ...uiBodySx,
@@ -51,13 +98,18 @@ export function ClientPlaygroundPanel(props: {
       >
         <ActorApp key={productKey} embedded />
       </Box>
-      {tab === 'db' ? (
+      <Box sx={hiddenWhen(tab === 'db')}>
         <PlaygroundDbPane
           sqlClient={actor.sqlClient}
+          active={tab === 'db'}
+          selectedTable={pane.table}
+          onSelectTable={(table) => onPanePatch({ table }, 'replace')}
           {...(reloadToken !== undefined ? { reloadToken } : {})}
         />
-      ) : null}
-      {tab === 'events' ? <PlaygroundLogsPane logs={actor.logs} /> : null}
+      </Box>
+      <Box sx={hiddenWhen(tab === 'events')}>
+        <PlaygroundLogsPane logs={actor.logs} />
+      </Box>
     </Box>
   );
 }
@@ -65,20 +117,32 @@ export function ClientPlaygroundPanel(props: {
 export function ServerPlaygroundPanel(props: {
   readonly session: PlaygroundSession;
   readonly node: PlaygroundSqlNode;
-  readonly view: string;
+  readonly pane: PaneNavValue | undefined;
+  readonly onPanePatch: (
+    patch: PaneNavPatch,
+    mode?: 'push' | 'replace'
+  ) => void;
 }) {
-  const { session, node, view } = props;
-  const tab = aliasDebuggerView(view);
+  const { session, node, onPanePatch } = props;
+  const pane = resolvePane(props.pane, 'server');
+  const tab = pane.view;
   return (
     <Box sx={panelSx}>
-      {tab === 'db' ? (
+      <Box sx={hiddenWhen(tab === 'db')}>
         <PlaygroundDbPane
           sqlClient={node.sqlClient}
+          active={tab === 'db'}
+          selectedTable={pane.table}
+          onSelectTable={(table) => onPanePatch({ table }, 'replace')}
           reloadToken={session.revision}
         />
-      ) : null}
-      {tab === 'events' ? <PlaygroundLogsPane logs={node.logs} /> : null}
-      {tab === 'commands' ? <PlaygroundCommandsPane session={session} /> : null}
+      </Box>
+      <Box sx={hiddenWhen(tab === 'events')}>
+        <PlaygroundLogsPane logs={node.logs} />
+      </Box>
+      <Box sx={hiddenWhen(tab === 'commands')}>
+        <PlaygroundCommandsPane session={session} />
+      </Box>
     </Box>
   );
 }
@@ -86,19 +150,22 @@ export function ServerPlaygroundPanel(props: {
 export function PubSubPlaygroundPanel(props: {
   readonly session: PlaygroundSession;
   readonly pubsub: PlaygroundPubSubNode;
-  readonly view: string;
+  readonly pane: PaneNavValue | undefined;
 }) {
-  const { session, pubsub, view } = props;
-  const tab = aliasDebuggerView(view);
+  const { session, pubsub } = props;
+  const pane = resolvePane(props.pane, 'events');
+  const tab = pane.view;
   return (
     <Box sx={panelSx}>
-      {tab === 'events' ? <PlaygroundLogsPane logs={pubsub.logs} /> : null}
-      {tab === 'topics' ? (
+      <Box sx={hiddenWhen(tab === 'events')}>
+        <PlaygroundLogsPane logs={pubsub.logs} />
+      </Box>
+      <Box sx={hiddenWhen(tab === 'topics')}>
         <PlaygroundPubSubTopicsPane
           pubsub={pubsub}
           subscribe={session.subscribe}
         />
-      ) : null}
+      </Box>
     </Box>
   );
 }
@@ -106,16 +173,21 @@ export function PubSubPlaygroundPanel(props: {
 export function RoomPlaygroundPanel(props: {
   readonly session: PlaygroundSession;
   readonly room: PlaygroundRoomNode;
-  readonly view: string;
+  readonly pane: PaneNavValue | undefined;
 }) {
-  const { session, room, view } = props;
-  const tab = aliasDebuggerView(view);
+  const { session, room } = props;
+  const pane = resolvePane(props.pane, 'room');
+  const tab = pane.view;
   return (
     <Box sx={panelSx}>
-      {tab === 'db' ? (
+      <Box sx={hiddenWhen(tab === 'db')}>
         <PlaygroundRoomDbPane room={room} subscribe={session.subscribe} />
-      ) : null}
-      {tab === 'events' ? <PlaygroundLogsPane logs={room.logs} /> : null}
+      </Box>
+      <Box sx={hiddenWhen(tab === 'events')}>
+        <PlaygroundLogsPane logs={room.logs} />
+      </Box>
     </Box>
   );
 }
+
+export type { DebuggerViewId };

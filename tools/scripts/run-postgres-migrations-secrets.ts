@@ -91,7 +91,7 @@ async function runPostgresMigrationsFromSecretsOnce(): Promise<void> {
       clock: wallClock,
     }).run();
     process.stdout.write(
-      '[postgres:migrate-secrets] schema + sync publication OK\n'
+      '[postgres:migrate-secrets] schema + sync publication + autoidx OK\n'
     );
   } finally {
     await pool.end();

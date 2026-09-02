@@ -43,7 +43,7 @@ export function TestPage(props: {
   readonly nav: ReportNavState;
   readonly bucketId: string;
   readonly runId: string;
-  readonly onNav: (nav: ReportNavState) => void;
+  readonly onNav: (nav: ReportNavState, mode?: 'push' | 'replace') => void;
   readonly api: ReportApiClient;
 }) {
   const { data, tests, nav, bucketId, runId, onNav, api } = props;
@@ -64,7 +64,7 @@ export function TestPage(props: {
   const instances = instancesForKind(nodes, 'client');
   const selected =
     findNodeForInstance(nodes, 'client', nav.node) ?? instances[0] ?? null;
-  const reportView: DebuggerViewId = 'ui';
+  const reportView: DebuggerViewId = nav.view ?? 'ui';
 
   useDefaultNav({
     framesLen: frames.length,
@@ -89,6 +89,7 @@ export function TestPage(props: {
         bucketId={bucketId}
         runId={runId}
         frame={frame}
+        reportView={reportView}
       />
     </Box>
   );
@@ -102,22 +103,22 @@ type ReportDebuggerShellProps = {
   readonly instances: readonly TopologyNodeInfo[];
   readonly selected: TopologyNodeInfo | null;
   readonly tests: readonly SuiteTestSummary[];
-  readonly onNav: (nav: ReportNavState) => void;
+  readonly onNav: (nav: ReportNavState, mode?: 'push' | 'replace') => void;
   readonly api: ReportApiClient;
   readonly bucketId: string;
   readonly runId: string;
   readonly frame: ReturnType<typeof flattenFrames>[number] | null;
+  readonly reportView: DebuggerViewId;
 };
 
 function ReportDebuggerShell(props: ReportDebuggerShellProps) {
-  const { nav, onNav } = props;
+  const { nav, onNav, reportView } = props;
   const onSelectFrame = useCallback(
     (index: number) => {
-      onNav(navigateReport(nav, { frame: index + 1 }));
+      onNav(navigateReport(nav, { frame: index + 1 }), 'replace');
     },
     [nav, onNav]
   );
-  const reportView = 'ui' as const;
   return (
     <DebuggerShell
       header={<ReportTestHeader {...props} />}
@@ -134,7 +135,9 @@ function ReportDebuggerShell(props: ReportDebuggerShellProps) {
       }}
       views={[reportView]}
       view={reportView}
-      onViewChange={() => undefined}
+      onViewChange={(view) => {
+        onNav(navigateReport(nav, { view }));
+      }}
     >
       <ReportKindPane
         kind="client"
@@ -216,7 +219,7 @@ function TestNeighborButtons(props: {
 
 function goToNeighborTest(args: {
   readonly nav: ReportNavState;
-  readonly onNav: (nav: ReportNavState) => void;
+  readonly onNav: (nav: ReportNavState, mode?: 'push' | 'replace') => void;
   readonly testId: string | null;
 }): void {
   if (args.testId == null) return;
@@ -261,23 +264,23 @@ function useTopology(
 function useDefaultNav(args: {
   readonly framesLen: number;
   readonly nav: ReportNavState;
-  readonly onNav: (nav: ReportNavState) => void;
+  readonly onNav: (nav: ReportNavState, mode?: 'push' | 'replace') => void;
   readonly fallbackNode: string | null;
   readonly view: DebuggerViewId | null;
 }): void {
   const { framesLen, nav, onNav, fallbackNode, view } = args;
   useEffect(() => {
     if (nav.frame != null || framesLen === 0) return;
-    onNav(navigateReport(nav, { frame: 1 }, 'replace'));
+    onNav(navigateReport(nav, { frame: 1 }), 'replace');
   }, [framesLen, nav, onNav]);
 
   useEffect(() => {
     if (nav.node != null || fallbackNode == null) return;
-    onNav(navigateReport(nav, { node: fallbackNode }, 'replace'));
+    onNav(navigateReport(nav, { node: fallbackNode }), 'replace');
   }, [fallbackNode, nav, onNav]);
 
   useEffect(() => {
     if (view == null || nav.view === view) return;
-    onNav(navigateReport(nav, { view }, 'replace'));
+    onNav(navigateReport(nav, { view }), 'replace');
   }, [view, nav, onNav]);
 }

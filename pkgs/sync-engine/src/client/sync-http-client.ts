@@ -213,12 +213,24 @@ async function postAuthedJson(
     deviceId,
   });
   if (response.status === 401 && options.getFreshAuthToken !== undefined) {
+    const previous = bearer;
     bearer = await resolveBearerToken(
       options.auth,
       options.getFreshAuthToken,
       deps,
       { skipCache: true }
     );
+    // Same dead IdP bearer after "refresh" — retry with anon headers only so
+    // public system topics (client_config) can hydrate and unblock sign-in.
+    if (
+      previous !== null &&
+      bearer !== null &&
+      previous === bearer &&
+      deviceId !== null &&
+      deviceId.length > 0
+    ) {
+      bearer = null;
+    }
     response = await postJson({
       options,
       anonIdHeader,

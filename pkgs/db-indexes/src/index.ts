@@ -1,5 +1,9 @@
 export type { Config } from './core/config';
-export { DEFAULT_CONFIG, resolveConfig } from './core/config';
+export {
+  DEFAULT_CONFIG,
+  MIGRATE_RECONCILE_CONFIG,
+  resolveConfig,
+} from './core/config';
 export { fingerprintSql, normalizeSql } from './core/fingerprint';
 export {
   type AnalyzeIndexabilityArgs,

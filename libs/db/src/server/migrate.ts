@@ -165,10 +165,10 @@ async function runMigrateOnce(databaseUrl: string): Promise<void> {
       clock: wallClock,
     }).run();
     log.info(
-      'postgres migrations finished (schema + kv + IdP; matchmaking self-migrates on first request)'
+      'postgres migrations finished (schema + kv + IdP + autoidx; matchmaking self-migrates on first request)'
     );
     process.stdout.write(
-      '[api:db:migrate] completed (schema + kv + IdP; matchmaking self-migrates on first request)\n'
+      '[api:db:migrate] completed (schema + kv + IdP + autoidx; matchmaking self-migrates on first request)\n'
     );
   } finally {
     await pool.end();

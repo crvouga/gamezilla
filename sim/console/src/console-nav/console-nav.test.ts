@@ -4,7 +4,9 @@ import {
   buildConsoleSearch,
   coerceView,
   DEFAULT_CONSOLE_NAV,
+  DEFAULT_PLAYGROUND_NAV,
   parseConsoleNav,
+  resolvePaneNav,
 } from '@sim/console/console-nav/console-nav';
 
 describe('parseConsoleNav', () => {
@@ -13,56 +15,121 @@ describe('parseConsoleNav', () => {
     expect(parseConsoleNav('?')).toEqual(DEFAULT_CONSOLE_NAV);
   });
 
-  test('parses playground chrome', () => {
+  test('parses playground chrome into nested slice', () => {
     expect(
       parseConsoleNav('?section=playground&kind=server&view=commands')
     ).toEqual({
       section: 'playground',
-      kind: 'server',
-      instance: '',
-      view: 'commands',
+      playground: {
+        kind: 'server',
+        instance: '',
+        panes: { server: { view: 'commands', table: null } },
+      },
+      reports: DEFAULT_CONSOLE_NAV.reports,
     });
   });
 
-  test('legacy cv becomes instance and view', () => {
+  test('cv becomes full per-node pane map', () => {
     expect(parseConsoleNav('?kind=client&cv=alice:db,bob:logs')).toEqual({
       section: 'reports',
-      kind: 'client',
-      instance: 'alice',
-      view: 'db',
+      playground: {
+        kind: 'client',
+        instance: 'alice',
+        panes: {
+          alice: { view: 'db', table: null },
+          bob: { view: 'events', table: null },
+        },
+      },
+      reports: DEFAULT_CONSOLE_NAV.reports,
     });
   });
 
-  test('instance query wins over legacy cv', () => {
+  test('cv with table selection', () => {
+    const state = parseConsoleNav(
+      '?section=playground&cv=alice:db:auth_devices,bob:ui'
+    );
+    expect(state.playground.panes['alice']).toEqual({
+      view: 'db',
+      table: 'auth_devices',
+    });
+    expect(state.playground.panes['bob']).toEqual({
+      view: 'ui',
+      table: null,
+    });
+  });
+
+  test('instance query wins over first cv id', () => {
     expect(parseConsoleNav('?kind=client&instance=bob&cv=alice:db')).toEqual({
       section: 'reports',
-      kind: 'client',
-      instance: 'bob',
-      view: 'ui',
+      playground: {
+        kind: 'client',
+        instance: 'bob',
+        panes: {
+          alice: { view: 'db', table: null },
+        },
+      },
+      reports: DEFAULT_CONSOLE_NAV.reports,
     });
   });
 
   test('aliases html/sqlite/logs views', () => {
-    expect(parseConsoleNav('?kind=client&view=html').view).toBe('ui');
-    expect(parseConsoleNav('?kind=server&view=sqlite').view).toBe('db');
-    expect(parseConsoleNav('?kind=events&view=logs').view).toBe('events');
+    expect(
+      resolvePaneNav(parseConsoleNav('?kind=client&view=html').playground, '')
+        .view
+    ).toBe('ui');
+    expect(
+      resolvePaneNav(
+        parseConsoleNav('?kind=server&view=sqlite').playground,
+        'server'
+      ).view
+    ).toBe('db');
+    expect(
+      resolvePaneNav(
+        parseConsoleNav('?kind=events&view=logs').playground,
+        'events'
+      ).view
+    ).toBe('events');
   });
 
   test('ignores unknown enum values', () => {
     expect(parseConsoleNav('?section=x&kind=y&view=z')).toEqual({
       section: 'reports',
-      kind: 'client',
-      instance: '',
-      view: 'ui',
+      playground: DEFAULT_PLAYGROUND_NAV,
+      reports: DEFAULT_CONSOLE_NAV.reports,
     });
   });
 
-  test('coerces illegal view for kind', () => {
+  test('coerces illegal view for kind to default (omitted from panes)', () => {
     expect(parseConsoleNav('?kind=server&view=ui')).toEqual({
       section: 'reports',
-      kind: 'server',
-      instance: '',
-      view: 'db',
+      playground: {
+        kind: 'server',
+        instance: '',
+        panes: {},
+      },
+      reports: DEFAULT_CONSOLE_NAV.reports,
+    });
+    expect(
+      resolvePaneNav(
+        parseConsoleNav('?kind=server&view=ui').playground,
+        'server'
+      ).view
+    ).toBe('db');
+  });
+
+  test('parses reports slice independently', () => {
+    const state = parseConsoleNav(
+      '?section=playground&kind=server&bucket=local&run=latest&test=auth&frame=3&node=alice&rview=ui'
+    );
+    expect(state.section).toBe('playground');
+    expect(state.playground.kind).toBe('server');
+    expect(state.reports).toEqual({
+      bucketId: 'local',
+      runId: 'latest',
+      testId: 'auth',
+      frame: 3,
+      node: 'alice',
+      view: 'ui',
     });
   });
 
@@ -71,21 +138,24 @@ describe('parseConsoleNav', () => {
       '?section=playground&kind=pubsub&view=topics&resetDb=1'
     );
     expect(buildConsoleSearch(state, '?resetDb=1&junk=2')).toBe(
-      '?resetDb=1&junk=2&section=playground&kind=events&view=topics'
+      '?resetDb=1&junk=2&section=playground&kind=events&cv=events%3Atopics'
     );
   });
 
-  test('round-trips instance', () => {
-    const state = parseConsoleNav('?kind=client&instance=bob&view=events');
-    expect(buildConsoleSearch(state)).toBe('?instance=bob&view=events');
+  test('round-trips instance and panes via cv', () => {
+    const state = parseConsoleNav(
+      '?kind=client&instance=bob&cv=bob:events,alice:db:auth_users'
+    );
+    expect(buildConsoleSearch(state)).toBe(
+      '?instance=bob&cv=alice%3Adb%3Aauth_users%2Cbob%3Aevents'
+    );
   });
 
   test('ignores legacy host query', () => {
     expect(parseConsoleNav('?host=console&section=playground')).toEqual({
       section: 'playground',
-      kind: 'client',
-      instance: '',
-      view: 'ui',
+      playground: DEFAULT_PLAYGROUND_NAV,
+      reports: DEFAULT_CONSOLE_NAV.reports,
     });
   });
 });
@@ -95,13 +165,12 @@ describe('buildConsoleSearch', () => {
     expect(buildConsoleSearch(DEFAULT_CONSOLE_NAV)).toBe('');
   });
 
-  test('omits default section/kind/view', () => {
+  test('omits default section/kind with empty panes', () => {
     expect(
       buildConsoleSearch({
         section: 'reports',
-        kind: 'client',
-        instance: '',
-        view: 'ui',
+        playground: DEFAULT_PLAYGROUND_NAV,
+        reports: DEFAULT_CONSOLE_NAV.reports,
       })
     ).toBe('');
   });
@@ -110,9 +179,30 @@ describe('buildConsoleSearch', () => {
     expect(
       buildConsoleSearch(
         DEFAULT_CONSOLE_NAV,
-        '?host=console&section=playground&cv=alice:db&instance=bob&x=1'
+        '?host=console&section=playground&cv=alice:db&instance=bob&bucket=local&x=1'
       )
     ).toBe('?x=1');
+  });
+
+  test('round-trips reports without clobbering playground', () => {
+    const state = applyConsoleNavPatch(DEFAULT_CONSOLE_NAV, {
+      section: 'reports',
+      playground: {
+        kind: 'client',
+        instance: 'alice',
+        panes: { alice: { view: 'db' } },
+      },
+      reports: {
+        bucketId: 'local',
+        runId: 'latest',
+        testId: 'space-end',
+        frame: 2,
+        node: 'alice',
+        view: 'ui',
+      },
+    });
+    const search = buildConsoleSearch(state);
+    expect(parseConsoleNav(search)).toEqual(state);
   });
 });
 
@@ -125,65 +215,115 @@ describe('coerceView / applyConsoleNavPatch', () => {
   });
 
   test('legacy kind=api/pubsub map to server/events', () => {
-    expect(parseConsoleNav('?kind=api&view=commands')).toEqual({
-      section: 'reports',
+    expect(parseConsoleNav('?kind=api&view=commands').playground).toEqual({
       kind: 'server',
       instance: '',
-      view: 'commands',
+      panes: { server: { view: 'commands', table: null } },
     });
-    expect(parseConsoleNav('?kind=pubsub&view=topics')).toEqual({
-      section: 'reports',
+    expect(parseConsoleNav('?kind=pubsub&view=topics').playground).toEqual({
       kind: 'events',
       instance: '',
-      view: 'topics',
+      panes: { events: { view: 'topics', table: null } },
     });
     expect(
       buildConsoleSearch({
         section: 'playground',
-        kind: 'server',
-        instance: '',
-        view: 'commands',
+        playground: {
+          kind: 'server',
+          instance: '',
+          panes: { server: { view: 'commands', table: null } },
+        },
+        reports: DEFAULT_CONSOLE_NAV.reports,
       })
-    ).toBe('?section=playground&kind=server&view=commands');
+    ).toBe('?section=playground&kind=server&cv=server%3Acommands');
   });
 
   test('legacy kind=actor maps to room', () => {
-    expect(parseConsoleNav('?kind=actor')).toEqual({
-      section: 'reports',
+    expect(parseConsoleNav('?kind=actor').playground).toEqual({
       kind: 'room',
       instance: '',
-      view: 'db',
+      panes: {},
     });
   });
 
-  test('kind change coerces view and clears singleton instance', () => {
+  test('kind change clears singleton instance and keeps panes', () => {
     const next = applyConsoleNavPatch(
       {
         section: 'playground',
-        kind: 'client',
-        instance: 'alice',
-        view: 'ui',
+        playground: {
+          kind: 'client',
+          instance: 'alice',
+          panes: { alice: { view: 'ui', table: null } },
+        },
+        reports: DEFAULT_CONSOLE_NAV.reports,
       },
       { kind: 'server' }
     );
-    expect(next).toEqual({
-      section: 'playground',
+    expect(next.playground).toEqual({
       kind: 'server',
       instance: '',
-      view: 'db',
+      panes: { alice: { view: 'ui', table: null } },
     });
+    expect(resolvePaneNav(next.playground, 'server').view).toBe('db');
   });
 
   test('explicit view wins when legal for new kind', () => {
     const next = applyConsoleNavPatch(
       {
         section: 'playground',
-        kind: 'client',
-        instance: '',
-        view: 'ui',
+        playground: {
+          kind: 'client',
+          instance: '',
+          panes: {},
+        },
+        reports: DEFAULT_CONSOLE_NAV.reports,
       },
       { kind: 'server', view: 'logs' }
     );
-    expect(next.view).toBe('events');
+    expect(resolvePaneNav(next.playground, 'server').view).toBe('events');
+  });
+
+  test('pane patch updates only that node', () => {
+    const next = applyConsoleNavPatch(
+      {
+        section: 'playground',
+        playground: {
+          kind: 'client',
+          instance: 'alice',
+          panes: {
+            alice: { view: 'ui', table: null },
+            bob: { view: 'ui', table: null },
+          },
+        },
+        reports: DEFAULT_CONSOLE_NAV.reports,
+      },
+      {
+        playground: {
+          pane: { id: 'bob', patch: { view: 'db', table: 'auth_devices' } },
+        },
+      }
+    );
+    expect(next.playground.panes['alice']).toEqual({
+      view: 'ui',
+      table: null,
+    });
+    expect(next.playground.panes['bob']).toEqual({
+      view: 'db',
+      table: 'auth_devices',
+    });
+  });
+
+  test('section change leaves playground and reports intact', () => {
+    const current = applyConsoleNavPatch(DEFAULT_CONSOLE_NAV, {
+      playground: {
+        kind: 'server',
+        panes: { server: { view: 'commands' } },
+      },
+      reports: { bucketId: 'local', testId: 'demo' },
+    });
+    const next = applyConsoleNavPatch(current, { section: 'playground' });
+    expect(next.section).toBe('playground');
+    expect(next.playground).toEqual(current.playground);
+    expect(next.reports).toEqual(current.reports);
   });
 });

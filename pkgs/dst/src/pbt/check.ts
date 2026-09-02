@@ -125,7 +125,7 @@ export async function check(
           episodesRun += 1;
           const swarm =
             opts?.swarm === true ? swarmMask(kinds, episodeIndex) : undefined;
-          let walked;
+          let walked: Awaited<ReturnType<typeof walkEpisode>> | undefined;
           try {
             walked = await walkEpisode({
               scenario,
@@ -147,6 +147,7 @@ export async function check(
             });
           }
 
+          if (walked === undefined) return;
           propertySometimes = mergeCoverageMaps(
             propertySometimes,
             new Map(walked.sometimesHits)

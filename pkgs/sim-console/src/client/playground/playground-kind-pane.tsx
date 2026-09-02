@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import {
   coerceDebuggerView,
   type DebuggerViewId,
+  defaultViewForKind,
   viewsForKind,
 } from '../../shared/debugger-views';
 import type {
@@ -13,12 +14,27 @@ import type {
 import type { SimChromeKind } from '../../shared/sim-node';
 import { DebuggerColumn, DebuggerColumns } from '../debugger/debugger-columns';
 import { useSimConsoleLayout } from '../debugger/use-sim-console-layout';
+import type { PaneNavPatch, PaneNavValue } from '../debugger-chrome';
 import {
   ClientPlaygroundPanel,
   PubSubPlaygroundPanel,
   RoomPlaygroundPanel,
   ServerPlaygroundPanel,
 } from './playground-panel';
+
+const kindFillSx = {
+  flex: 1,
+  minWidth: 0,
+  minHeight: 0,
+} as const;
+
+function kindVisibilitySx(active: boolean) {
+  return {
+    ...kindFillSx,
+    display: active ? ('flex' as const) : ('none' as const),
+    pointerEvents: active ? ('auto' as const) : ('none' as const),
+  };
+}
 
 export function playgroundInstancesForKind(
   session: PlaygroundSession,
@@ -50,15 +66,50 @@ export function resolvePlaygroundInstanceId(
   return instances[0]?.id ?? null;
 }
 
+export function resolvePlaygroundPane(
+  panes: Readonly<Record<string, PaneNavValue>>,
+  paneId: string,
+  kind: SimChromeKind
+): PaneNavValue {
+  const direct = panes[paneId];
+  if (direct !== undefined) {
+    return {
+      view: coerceDebuggerView(kind, direct.view),
+      table: direct.table,
+    };
+  }
+  if ((kind === 'server' || kind === 'events') && panes[kind] !== undefined) {
+    const byKind = panes[kind]!;
+    return {
+      view: coerceDebuggerView(kind, byKind.view),
+      table: byKind.table,
+    };
+  }
+  return { view: defaultViewForKind(kind), table: null };
+}
+
+export function playgroundPaneKey(
+  kind: SimChromeKind,
+  instanceId: string | null
+): string {
+  if (kind === 'server' || kind === 'events') return kind;
+  return instanceId ?? '';
+}
+
 export function PlaygroundKindPane(props: {
   readonly session: PlaygroundSession;
   readonly kind: SimChromeKind;
-  readonly view: DebuggerViewId;
+  readonly panes: Readonly<Record<string, PaneNavValue>>;
   readonly instanceId: string | null;
   readonly clients: readonly PlaygroundActor[];
   readonly snapshotEpoch: number;
   readonly focusedClientId: string | null;
   readonly onFocusedClientIdChange: (id: string | null) => void;
+  readonly onPanePatch: (
+    id: string,
+    patch: PaneNavPatch,
+    mode?: 'push' | 'replace'
+  ) => void;
   readonly onClientColumnsOutsidePointerDown?: () => void;
   readonly clientColumnShell?: (args: {
     readonly actor: PlaygroundActor;
@@ -70,56 +121,69 @@ export function PlaygroundKindPane(props: {
   const {
     session,
     kind,
-    view,
+    panes,
     instanceId,
     clients,
     snapshotEpoch,
     focusedClientId,
     onFocusedClientIdChange,
+    onPanePatch,
     onClientColumnsOutsidePointerDown,
     clientColumnShell,
   } = props;
 
-  if (kind === 'client') {
-    return (
-      <ClientLiveColumns
-        session={session}
-        clients={clients}
-        view={view}
-        instanceId={instanceId}
-        snapshotEpoch={snapshotEpoch}
-        focusedClientId={focusedClientId}
-        onFocusedClientIdChange={onFocusedClientIdChange}
-        {...(onClientColumnsOutsidePointerDown !== undefined
-          ? { onOutsidePointerDown: onClientColumnsOutsidePointerDown }
-          : {})}
-        {...(clientColumnShell !== undefined ? { clientColumnShell } : {})}
-      />
-    );
-  }
-  if (kind === 'server') {
-    return (
-      <ServerPlaygroundPanel
-        session={session}
-        node={session.server}
-        view={view}
-      />
-    );
-  }
-  if (kind === 'events') {
-    return (
-      <PubSubPlaygroundPanel
-        session={session}
-        pubsub={session.pubsub}
-        view={view}
-      />
-    );
-  }
   const room = resolveRoom(session, instanceId);
-  if (room === null) {
-    return <EmptyKind body="No room instances in this session." />;
-  }
-  return <RoomPlaygroundPanel session={session} room={room} view={view} />;
+  const serverPaneKey = playgroundPaneKey('server', session.server.id);
+  const eventsPaneKey = playgroundPaneKey('events', session.pubsub.id);
+  const roomPaneKey =
+    room !== null ? playgroundPaneKey('room', room.id) : 'room';
+
+  return (
+    <>
+      <Box sx={kindVisibilitySx(kind === 'client')}>
+        <ClientLiveColumns
+          session={session}
+          clients={clients}
+          panes={panes}
+          instanceId={instanceId}
+          snapshotEpoch={snapshotEpoch}
+          focusedClientId={focusedClientId}
+          onFocusedClientIdChange={onFocusedClientIdChange}
+          onPanePatch={onPanePatch}
+          {...(onClientColumnsOutsidePointerDown !== undefined
+            ? { onOutsidePointerDown: onClientColumnsOutsidePointerDown }
+            : {})}
+          {...(clientColumnShell !== undefined ? { clientColumnShell } : {})}
+        />
+      </Box>
+      <Box sx={kindVisibilitySx(kind === 'server')}>
+        <ServerPlaygroundPanel
+          session={session}
+          node={session.server}
+          pane={resolvePlaygroundPane(panes, serverPaneKey, 'server')}
+          onPanePatch={(patch, mode) => onPanePatch(serverPaneKey, patch, mode)}
+        />
+      </Box>
+      <Box sx={kindVisibilitySx(kind === 'events')}>
+        <PubSubPlaygroundPanel
+          session={session}
+          pubsub={session.pubsub}
+          pane={resolvePlaygroundPane(panes, eventsPaneKey, 'events')}
+        />
+      </Box>
+      <Box sx={kindVisibilitySx(kind === 'room')}>
+        {room === null ? (
+          <EmptyKind body="No room instances in this session." />
+        ) : (
+          <RoomPlaygroundPanel
+            session={session}
+            room={room}
+            pane={resolvePlaygroundPane(panes, roomPaneKey, 'room')}
+          />
+        )}
+      </Box>
+    </>
+  );
 }
 
 export function playgroundViewsForKind(
@@ -148,11 +212,16 @@ function resolveRoom(
 function ClientLiveColumns(props: {
   readonly session: PlaygroundSession;
   readonly clients: readonly PlaygroundActor[];
-  readonly view: DebuggerViewId;
+  readonly panes: Readonly<Record<string, PaneNavValue>>;
   readonly instanceId: string | null;
   readonly snapshotEpoch: number;
   readonly focusedClientId: string | null;
   readonly onFocusedClientIdChange: (id: string | null) => void;
+  readonly onPanePatch: (
+    id: string,
+    patch: PaneNavPatch,
+    mode?: 'push' | 'replace'
+  ) => void;
   readonly onOutsidePointerDown?: () => void;
   readonly clientColumnShell?: (args: {
     readonly actor: PlaygroundActor;
@@ -164,11 +233,12 @@ function ClientLiveColumns(props: {
   const {
     session,
     clients,
-    view,
+    panes,
     instanceId,
     snapshotEpoch,
     focusedClientId,
     onFocusedClientIdChange,
+    onPanePatch,
     onOutsidePointerDown,
     clientColumnShell,
   } = props;
@@ -194,7 +264,8 @@ function ClientLiveColumns(props: {
             actor={actor}
             snapshotEpoch={snapshotEpoch}
             reloadToken={session.revision}
-            view={view}
+            pane={resolvePlaygroundPane(panes, actor.id, 'client')}
+            onPanePatch={(patch, mode) => onPanePatch(actor.id, patch, mode)}
           />
         );
         const body =

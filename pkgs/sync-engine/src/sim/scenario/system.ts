@@ -1,3 +1,4 @@
+import type { WorldPorts } from '@pkgs/dst';
 import type { LocalDomainSchema } from '../../client/local-schema-migrate';
 import type { MutationRegistry } from '../../mutations/core/types';
 import type { QueryRegistry } from '../../queries/core/types';
@@ -10,7 +11,7 @@ import type { ReplayRestartState } from './play';
 
 /**
  * Mutable runtime bag shared by sync node kinds and action dispatch.
- * Built once per `defineSyncSystem` call and closed over by node boot fns.
+ * One instance per `openWorld` (keyed by that world's ports).
  */
 export type SyncRuntime = {
   readonly app: SyncApp;
@@ -45,4 +46,17 @@ export function requireInfra(runtime: SyncRuntime): {
     throw new Error('sync DST: sync.broker node has not booted');
   }
   return { infra, worldArgs };
+}
+
+/** Resolve the per-world runtime for this `openWorld` (ports are unique). */
+export function bindSyncRuntime(create: () => SyncRuntime) {
+  const byPorts = new WeakMap<WorldPorts, SyncRuntime>();
+  return (ports: WorldPorts): SyncRuntime => {
+    let runtime = byPorts.get(ports);
+    if (runtime === undefined) {
+      runtime = create();
+      byPorts.set(ports, runtime);
+    }
+    return runtime;
+  };
 }

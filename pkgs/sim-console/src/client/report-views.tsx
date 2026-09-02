@@ -1,5 +1,5 @@
 import { Box, ScrollView, Text } from '@pkgs/ui';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { isLatestRunId, LATEST_RUN_ID } from '../types';
 import type { ReportApiClient } from './api-client';
 import type { ReportNavState } from './router';
@@ -16,15 +16,34 @@ import type { ReportDataApi } from './use-report-data';
 
 const LOCAL_BUCKET = 'local';
 
+const fillSx = {
+  flex: 1,
+  minHeight: 0,
+  minWidth: 0,
+} as const;
+
+function visibilitySx(active: boolean) {
+  return {
+    ...fillSx,
+    display: active ? ('flex' as const) : ('none' as const),
+    pointerEvents: active ? ('auto' as const) : ('none' as const),
+  };
+}
+
 export function ReportViews(props: {
   readonly nav: ReportNavState;
   readonly data: ReportDataApi;
   readonly generation: number;
-  readonly onNav: (nav: ReportNavState) => void;
+  readonly onNav: (nav: ReportNavState, mode?: 'push' | 'replace') => void;
   readonly api: ReportApiClient;
 }) {
   const { nav, data, onNav, api } = props;
   const concreteRunId = data.resolvedRunId;
+  const [testVisited, setTestVisited] = useState(() => nav.testId != null);
+
+  useEffect(() => {
+    if (nav.testId != null) setTestVisited(true);
+  }, [nav.testId]);
 
   useEffect(() => {
     if (nav.bucketId) return;
@@ -32,16 +51,17 @@ export function ReportViews(props: {
     onNav(
       navigateReport(
         nav,
-        clearPlayerNav({ bucketId: LOCAL_BUCKET, runId: LATEST_RUN_ID }),
-        'replace'
-      )
+        clearPlayerNav({ bucketId: LOCAL_BUCKET, runId: LATEST_RUN_ID })
+      ),
+      'replace'
     );
   }, [data.buckets, nav, onNav]);
 
   useEffect(() => {
     if (!nav.bucketId || nav.runId) return;
     onNav(
-      navigateReport(nav, clearPlayerNav({ runId: LATEST_RUN_ID }), 'replace')
+      navigateReport(nav, clearPlayerNav({ runId: LATEST_RUN_ID })),
+      'replace'
     );
   }, [nav, onNav]);
 
@@ -65,19 +85,11 @@ export function ReportViews(props: {
       : 'latest'
     : nav.runId;
 
-  if (nav.testId) {
-    return (
-      <TestOrLoading
-        nav={nav}
-        data={data}
-        concreteRunId={concreteRunId}
-        onNav={onNav}
-        api={api}
-      />
-    );
-  }
+  const showTest = nav.testId != null;
+  const emptySuite =
+    !showTest && data.runs.length === 0 && data.tests.length === 0;
 
-  if (data.runs.length === 0 && data.tests.length === 0) {
+  if (emptySuite) {
     return (
       <Box sx={appShellSx}>
         <Box sx={appBodyFrameSx}>
@@ -91,27 +103,44 @@ export function ReportViews(props: {
   }
 
   return (
-    <SuitePage
-      bucketId={nav.bucketId}
-      runId={runLabel}
-      tests={data.tests}
-      updatedAtMs={data.suiteUpdatedAtMs}
-      onOpenTest={(testId) => {
-        onNav(navigateReport(nav, clearPlayerNav({ testId })));
-      }}
-    />
+    <Box sx={fillSx}>
+      <Box sx={visibilitySx(!showTest)}>
+        <SuitePage
+          bucketId={nav.bucketId}
+          runId={runLabel}
+          tests={data.tests}
+          updatedAtMs={data.suiteUpdatedAtMs}
+          onOpenTest={(testId) => {
+            onNav(navigateReport(nav, clearPlayerNav({ testId })));
+          }}
+        />
+      </Box>
+      {testVisited ? (
+        <Box sx={visibilitySx(showTest)}>
+          <TestOrLoading
+            nav={nav}
+            data={data}
+            concreteRunId={concreteRunId}
+            onNav={onNav}
+            api={api}
+          />
+        </Box>
+      ) : null}
+    </Box>
   );
 }
-
 function TestOrLoading(props: {
   readonly nav: ReportNavState;
   readonly data: ReportDataApi;
   readonly concreteRunId: string | null;
-  readonly onNav: (nav: ReportNavState) => void;
+  readonly onNav: (nav: ReportNavState, mode?: 'push' | 'replace') => void;
   readonly api: ReportApiClient;
 }) {
   const { nav, data, concreteRunId, onNav, api } = props;
   const bodySx = useAppBodyContentSx();
+  if (nav.testId == null) {
+    return <Box sx={fillSx} />;
+  }
   if (!concreteRunId) {
     return (
       <Box sx={appShellSx}>

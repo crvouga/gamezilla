@@ -34,7 +34,7 @@ import {
 } from './library-arbs';
 import { createRoomNodes } from './node-kinds';
 import { prepareClientsForConverge } from './play';
-import { type RoomRuntime, requireKit } from './system';
+import { bindRoomRuntime, type RoomRuntime, requireKit } from './system';
 
 const WORLD_START_MS = 1_700_000_000_000;
 
@@ -298,8 +298,8 @@ export function defineRoomSystem(
   app: RoomApp,
   opts?: DefineRoomSystemOpts
 ): RoomSystemDef {
-  const runtime = initialRoomRuntime(app, opts);
-  const nodes = createRoomNodes(runtime, app);
+  const runtimeOf = bindRoomRuntime(() => initialRoomRuntime(app, opts));
+  const nodes = createRoomNodes(runtimeOf, app);
   const catalog = roomActionCatalog(app);
 
   return defineScenario({
@@ -332,6 +332,7 @@ export function defineRoomSystem(
       ),
     }),
     extend: async (world: RoomSystemWorld) => {
+      const runtime = runtimeOf(world.ports);
       const kit = requireKit(runtime);
       const shadow = createActionShadow(app, world.nodeIds('client'));
       return kitExtension(kit, runtime, shadow);

@@ -1,4 +1,8 @@
-import { bindInvariantSink, unbindInvariantSink } from '@pkgs/invariants';
+import {
+  bindInvariantSink,
+  isInvariantSinkBound,
+  unbindInvariantSink,
+} from '@pkgs/invariants';
 import type { JsonValue } from '../kernel/json';
 import {
   createNetwork,
@@ -166,15 +170,32 @@ function bindActions<S>(
   ) as ActionDef<unknown, unknown>[];
 }
 
+/** Process-wide: overlapping `openWorld`s share one sink; last dispose unbinds. */
+let liveOpenWorldSinks = 0;
+
+function acquireOpenWorldSink(): boolean {
+  if (isInvariantSinkBound() && liveOpenWorldSinks === 0) return false;
+  if (liveOpenWorldSinks === 0) bindInvariantSink();
+  liveOpenWorldSinks += 1;
+  return true;
+}
+
+function releaseOpenWorldSink(acquired: boolean): void {
+  if (!acquired) return;
+  liveOpenWorldSinks -= 1;
+  if (liveOpenWorldSinks === 0) unbindInvariantSink();
+}
+
 function makeDispose(
   started: readonly StartedNode[],
-  network: Network
+  network: Network,
+  acquiredSink: boolean
 ): () => Promise<void> {
   let disposed = false;
   return async () => {
     if (disposed) return;
     disposed = true;
-    unbindInvariantSink();
+    releaseOpenWorldSink(acquiredSink);
     for (let i = started.length - 1; i >= 0; i -= 1) {
       const n = started[i]!;
       for (const ep of n.endpointIds) network.unregister(ep);
@@ -218,13 +239,14 @@ function assertExtendKeys(
 
 async function abortOpenWorld(
   dispose: (() => Promise<void>) | undefined,
-  started: readonly StartedNode[]
+  started: readonly StartedNode[],
+  acquiredSink: boolean
 ): Promise<void> {
   if (dispose !== undefined) {
     await dispose();
     return;
   }
-  unbindInvariantSink();
+  releaseOpenWorldSink(acquiredSink);
   for (let i = started.length - 1; i >= 0; i -= 1) {
     const n = started[i]!;
     if (n.stop !== undefined) await n.stop();
@@ -244,7 +266,7 @@ export async function openWorld<
   scenario: ScenarioDef<K, N, S, X>,
   opts: OpenWorldOptions<K>
 ): Promise<World<K, N, X>> {
-  bindInvariantSink();
+  const acquiredSink = acquireOpenWorldSink();
   let dispose: (() => Promise<void>) | undefined;
   let started: StartedNode[] = [];
   try {
@@ -283,7 +305,7 @@ export async function openWorld<
       handlesOut,
     }));
 
-    dispose = makeDispose(started, network);
+    dispose = makeDispose(started, network, acquiredSink);
     const propertyRunner = createPropertyRunner<S>(scenario.properties);
     const boundActions = bindActions(scenario.actions);
 
@@ -321,7 +343,7 @@ export async function openWorld<
 
     return Object.assign(baseWorld, extension) as World<K, N, X>;
   } catch (error) {
-    await abortOpenWorld(dispose, started);
+    await abortOpenWorld(dispose, started, acquiredSink);
     throw error;
   }
 }

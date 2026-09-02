@@ -11,11 +11,12 @@ import type { SimConsolePorts } from '../shared/ports';
 import type { SimChromeKind } from '../shared/sim-node';
 import type { ReportApiClient } from './api-client';
 import { createReportApiClient } from './api-client';
+import type { PaneNavPatch, PaneNavValue } from './debugger-chrome';
 import { createObjectStoreReportApiClient } from './object-store-report-api';
 import { PlaygroundScreen } from './playground/playground-screen';
 import { usePlaygroundSession } from './playground/use-playground-session';
 import { ReportViews } from './report-views';
-import { DEFAULT_NAV, type ReportNavState } from './router';
+import type { ReportNavState } from './router';
 import { appShellSx } from './tokens';
 import { useReportData } from './use-report-data';
 
@@ -29,38 +30,66 @@ const SECTIONS = [
 const DEFAULT_BASE_PATH = '/sim-console';
 const DEFAULT_REPORTS_PUBLIC_BASE = '/reports';
 
+const sectionFillSx = {
+  flex: 1,
+  minHeight: 0,
+  background: 'background',
+} as const;
+
+function sectionVisibilitySx(active: boolean) {
+  return {
+    ...sectionFillSx,
+    display: active ? ('flex' as const) : ('none' as const),
+    pointerEvents: active ? ('auto' as const) : ('none' as const),
+  };
+}
+
 /**
  * Root console screen. Injects everything product-specific through `ports`
  * so `@pkgs/sim-console` never imports apps/libs/test.
  *
- * Section / playground kind / panel view are controlled by the host so they
- * can sync to browser history.
+ * Section / playground / reports nav are controlled by the host so they can
+ * sync to browser history.
  */
 export function SimConsoleApp(props: {
   readonly ports: SimConsolePorts;
   readonly section: ConsoleSection;
   readonly kind: SimChromeKind;
   readonly instance: string;
-  readonly view: string;
+  readonly panes: Readonly<Record<string, PaneNavValue>>;
+  readonly reports: ReportNavState;
   readonly onSectionChange: (section: ConsoleSection) => void;
   readonly onKindChange: (kind: SimChromeKind) => void;
   readonly onInstanceChange: (instance: string) => void;
-  readonly onViewChange: (view: string) => void;
+  readonly onPanePatch: (
+    id: string,
+    patch: PaneNavPatch,
+    mode?: 'push' | 'replace'
+  ) => void;
+  readonly onReportsNav: (
+    next: ReportNavState,
+    mode?: 'push' | 'replace'
+  ) => void;
 }): ReactNode {
   const {
     ports,
     section,
     kind,
     instance,
-    view,
+    panes,
+    reports,
     onSectionChange,
     onKindChange,
     onInstanceChange,
-    onViewChange,
+    onPanePatch,
+    onReportsNav,
   } = props;
   // Keep the playground session alive across Reports ↔ Playground; dispose only
   // when this console root unmounts (live state is lost; snapshots remain).
   const [playgroundPinned, setPlaygroundPinned] = useState(false);
+  const [reportsVisited, setReportsVisited] = useState(
+    () => section === 'reports'
+  );
 
   const api = useMemo((): ReportApiClient => {
     if (ports.reportsStore) {
@@ -85,6 +114,7 @@ export function SimConsoleApp(props: {
 
   useEffect(() => {
     if (section === 'playground') setPlaygroundPinned(true);
+    if (section === 'reports') setReportsVisited(true);
   }, [section]);
 
   const { state: sessionState, reboot } = usePlaygroundSession(
@@ -101,35 +131,55 @@ export function SimConsoleApp(props: {
         onSelect={(id) => onSectionChange(id as ConsoleSection)}
       />
       <Box sx={{ flex: 1, minHeight: 0, background: 'background' }}>
-        {section === 'reports' ? <ReportsSection api={api} /> : null}
-        {section === 'playground' ? (
-          <PlaygroundScreen
-            state={sessionState}
-            kind={kind}
-            instance={instance}
-            view={view}
-            onKindChange={onKindChange}
-            onInstanceChange={onInstanceChange}
-            onViewChange={onViewChange}
-            onReload={reboot}
-          />
+        {reportsVisited ? (
+          <Box sx={sectionVisibilitySx(section === 'reports')}>
+            <ReportsSection api={api} nav={reports} onNav={onReportsNav} />
+          </Box>
+        ) : null}
+        {playgroundPinned ? (
+          <Box sx={sectionVisibilitySx(section === 'playground')}>
+            <PlaygroundScreen
+              state={sessionState}
+              kind={kind}
+              instance={instance}
+              panes={panes}
+              onKindChange={onKindChange}
+              onInstanceChange={onInstanceChange}
+              onPanePatch={onPanePatch}
+              onReload={reboot}
+            />
+          </Box>
         ) : null}
       </Box>
     </Box>
   );
 }
 
-function ReportsSection(props: { readonly api: ReportApiClient }) {
-  const { api } = props;
-  const [nav, setNav] = useState<ReportNavState>(DEFAULT_NAV);
-  const onNav = useCallback((next: ReportNavState) => setNav(next), []);
-  const data = useReportData(nav, onNav, api);
+function ReportsSection(props: {
+  readonly api: ReportApiClient;
+  readonly nav: ReportNavState;
+  readonly onNav: (next: ReportNavState, mode?: 'push' | 'replace') => void;
+}) {
+  const { api, nav, onNav } = props;
+  const handleNav = useCallback(
+    (next: ReportNavState, mode: 'push' | 'replace' = 'push') => {
+      onNav(next, mode);
+    },
+    [onNav]
+  );
+  const setNav = useCallback(
+    (next: ReportNavState) => {
+      onNav(next, 'push');
+    },
+    [onNav]
+  );
+  const data = useReportData(nav, setNav, api);
   return (
     <ReportViews
       nav={nav}
       data={data}
       generation={data.generation}
-      onNav={onNav}
+      onNav={handleNav}
       api={api}
     />
   );

@@ -19,17 +19,31 @@ import { usePlaygroundDbSchema } from './use-playground-db-schema';
 
 /**
  * Live SQL browser for a playground node: TabStrip table picker + DataTable
- * grid. Soft-polls schema (table list); row pages load via DataTable.loadPage.
+ * grid. Soft-polls schema (table list) while `active`; row pages load via
+ * DataTable.loadPage. Table selection is controlled by navigation state.
  */
 export function PlaygroundDbPane(props: {
   readonly sqlClient: SqlClient;
   /** Bump to force a schema reload (e.g. after snapshot restore). */
   readonly reloadToken?: number;
+  /** When false, pause schema soft-poll (CSS-hidden). */
+  readonly active?: boolean;
+  readonly selectedTable: string | null;
+  readonly onSelectTable: (name: string) => void;
 }) {
-  const { sqlClient, reloadToken = 0 } = props;
+  const {
+    sqlClient,
+    reloadToken = 0,
+    active = true,
+    selectedTable,
+    onSelectTable,
+  } = props;
   const { state, selectTable } = usePlaygroundDbSchema({
     sqlClient,
     reloadToken,
+    active,
+    selectedTable,
+    onSelectTable,
   });
 
   if (state.status === 'loading') {

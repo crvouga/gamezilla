@@ -23,6 +23,7 @@ export {
   AUTH_SSO_CANCELLED_ERROR,
   AUTH_SSO_POPUP_BLOCKED_ERROR,
   type AuthClientAdapterConfig,
+  clearBearerOnUnauthorizedSession,
   createAuthClientAdapter,
   type OpenAuthSession,
   type OpenAuthSessionResult,

@@ -5,6 +5,12 @@ export type Config = {
   readonly maxIndexesPerTable: number;
   readonly minImprovementFactor: number;
   readonly minTableRows: number;
+  /**
+   * When true (default), candidates whose hypopg/EXPLAIN improvement is below
+   * {@link minImprovementFactor} are skipped. Migrate-complete mode sets this
+   * false so empty/fresh DBs still get the desired autoidx set.
+   */
+  readonly requireEvalImprovement: boolean;
   readonly deprecationWindowDays: number;
   readonly maxBuildsPerRun: number;
   readonly maxIncludeColumns: number;
@@ -20,6 +26,7 @@ export const DEFAULT_CONFIG: Config = Object.freeze({
   maxIndexesPerTable: 6,
   minImprovementFactor: 3,
   minTableRows: 10_000,
+  requireEvalImprovement: true,
   deprecationWindowDays: 30,
   maxBuildsPerRun: 3,
   maxIncludeColumns: 3,
@@ -29,6 +36,18 @@ export const DEFAULT_CONFIG: Config = Object.freeze({
   metaEstimatedMs: 100,
   sqliteMaxOnlineBuildRows: 100_000,
   sqliteMaxCopyBytes: 512 * 1024 * 1024,
+});
+
+/**
+ * Migrate-complete preset: apply the full desired autoidx set (after prefix
+ * consolidation + per-table budget) regardless of row count or EXPLAIN
+ * improvement. Used only by {@link PostgresIndexesDatabaseMigration}.
+ */
+export const MIGRATE_RECONCILE_CONFIG: Partial<Config> = Object.freeze({
+  minTableRows: 0,
+  requireEvalImprovement: false,
+  maxBuildsPerRun: LIMITS.maxPlanActions,
+  defaultDeadlineMs: 30 * 60 * 1000,
 });
 
 export function resolveConfig(partial?: Partial<Config>): Config {
@@ -47,6 +66,10 @@ export function resolveConfig(partial?: Partial<Config>): Config {
     'config.minImprovementFactor must be >= 1'
   );
   assert.ok(merged.minTableRows >= 0, 'config.minTableRows must be >= 0');
+  assert.ok(
+    typeof merged.requireEvalImprovement === 'boolean',
+    'config.requireEvalImprovement must be boolean'
+  );
   assert.ok(
     merged.deprecationWindowDays >= 0,
     'config.deprecationWindowDays must be >= 0'

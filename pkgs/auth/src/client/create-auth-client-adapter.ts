@@ -109,6 +109,7 @@ function useAuthSessionState(args: {
         }
       );
       if (!res.ok) {
+        await clearBearerOnUnauthorizedSession(args.bearerStore, res.status);
         setState({ session: null, isHydrated: true, error: null });
         return;
       }
@@ -139,6 +140,20 @@ function useAuthSessionState(args: {
   }, [refresh, tick]);
 
   return state;
+}
+
+/**
+ * Drop a dead IdP bearer after `/auth/session` rejects it. Sync
+ * {@link AuthClientPort.getFreshToken} reads this store — leaving a 401'd token
+ * poisons `/api/query` and blocks `client_config` hydrate (sign-in methods).
+ */
+export async function clearBearerOnUnauthorizedSession(
+  bearerStore: BearerTokenStore,
+  status: number
+): Promise<void> {
+  if (status === 401 || status === 403) {
+    await bearerStore.clear();
+  }
 }
 
 type SignInCtx = {

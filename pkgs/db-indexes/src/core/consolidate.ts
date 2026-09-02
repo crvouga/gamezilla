@@ -89,7 +89,10 @@ function filterCandidates(
       });
       continue;
     }
-    if (ev === undefined || ev.improvement < config.minImprovementFactor) {
+    if (
+      config.requireEvalImprovement &&
+      (ev === undefined || ev.improvement < config.minImprovementFactor)
+    ) {
       skipped.push({
         reason: 'low_improvement',
         detail: `improvement ${String(ev?.improvement ?? 0)}`,

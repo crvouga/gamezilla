@@ -1,7 +1,7 @@
 import { SignInCapabilitiesProvider } from '@libs/auth/public/sign-in-capabilities-context';
 import { useClientConfig } from '@libs/client-config/public/use-client-config';
-import { useSyncEngine } from '@pkgs/sync-engine/client';
 import type { ReactNode } from 'react';
+import { resolveSignInCapabilitiesReady } from './resolve-sign-in-capabilities-ready';
 
 /** Bridges synced `client_config` into auth sign-in method gating. */
 export function AppSignInCapabilities({
@@ -9,19 +9,21 @@ export function AppSignInCapabilities({
 }: {
   children: ReactNode;
 }): ReactNode {
-  const { paintReady } = useSyncEngine();
-  const { config, isLoading } = useClientConfig();
+  const { config, isLoading, rows } = useClientConfig();
   const methodsKnown = config.dev_oauth_enabled || config.google_enabled;
   return (
     <SignInCapabilitiesProvider
       value={{
         google: config.google_enabled,
         devOauth: config.dev_oauth_enabled,
-        // Local watch can hydrate empty rows before session queries finish —
-        // do not treat that as “server has no methods configured”. Once synced
-        // rows enable a method, unlock the picker without waiting on full
-        // paintReady (second sim actors often lag behind).
-        ready: !isLoading && (paintReady || methodsKnown),
+        // Unlock when methods appear in synced rows, or when any client_config
+        // rows have hydrated (definitive empty/disabled). Never unlock on bare
+        // paintReady + empty defaults — that is the pre-hydrate stuck state.
+        ready: resolveSignInCapabilitiesReady({
+          isLoading,
+          methodsKnown,
+          configRowCount: rows.length,
+        }),
       }}
     >
       {children}

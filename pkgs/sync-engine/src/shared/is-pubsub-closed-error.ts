@@ -10,11 +10,17 @@ export function isPubSubClosedError(error: unknown): boolean {
 
 /** Sim/client restart can close SQLite while push teardown is in flight. */
 export function isSqliteClosedError(error: unknown): boolean {
-  return (
-    error instanceof RangeError &&
-    (error.message.includes('closed database') ||
-      error.message.includes('database is locked'))
-  );
+  const message = error instanceof Error ? error.message : String(error);
+  if (
+    /closed database|database has closed|already closed|database is closed|database is locked/i.test(
+      message
+    )
+  ) {
+    return true;
+  }
+  return error instanceof Error && error.cause !== undefined
+    ? isSqliteClosedError(error.cause)
+    : false;
 }
 
 /** Skip expected closed-broker / closed-db noise; still surface unexpected push failures. */

@@ -1,4 +1,4 @@
-import { type JsonValue, type KnobDef, node } from '@pkgs/dst';
+import { type JsonValue, type KnobDef, node, type WorldPorts } from '@pkgs/dst';
 
 import { wrapSimNetwork } from '../network';
 import { bootSimInfra, bootSimServer } from '../world-boot';
@@ -11,6 +11,12 @@ import {
   ROW_IMAGE_FANOUT,
 } from './knobs';
 import { requireInfra, requireKit, type SyncRuntime } from './system';
+
+type SyncServerHandle = {
+  readonly id: string;
+  readonly kit: NonNullable<SyncRuntime['kit']>;
+  readonly runtime: SyncRuntime;
+};
 
 function worldArgsFromKnobs(
   runtime: SyncRuntime,
@@ -36,9 +42,12 @@ function worldArgsFromKnobs(
   };
 }
 
-export function createSyncNodes(runtime: SyncRuntime) {
+export function createSyncNodes(
+  runtimeOf: (ports: WorldPorts) => SyncRuntime
+) {
   const broker = node({
     start: (ctx) => {
+      const runtime = runtimeOf(ctx.ports);
       const worldArgs = worldArgsFromKnobs(runtime, ctx.knob);
       runtime.worldArgs = worldArgs;
       runtime.infra = bootSimInfra({
@@ -54,21 +63,26 @@ export function createSyncNodes(runtime: SyncRuntime) {
 
   const server = node({
     start: async (ctx) => {
+      const runtime = runtimeOf(ctx.ports);
       const { infra, worldArgs } = requireInfra(runtime);
       const kernel = await bootSimServer({ infra, worldArgs });
       runtime.kernel = kernel;
-      runtime.kit = buildWorldFacade(kernel);
-      return { id: ctx.id };
+      const kit = buildWorldFacade(kernel);
+      runtime.kit = kit;
+      return { id: ctx.id, kit, runtime } satisfies SyncServerHandle;
     },
-    stop: async () => {
-      await runtime.kit?.dispose();
+    stop: async (handle: SyncServerHandle) => {
+      await handle.kit.dispose();
+      if (handle.runtime.kit === handle.kit) {
+        handle.runtime.kit = null;
+      }
     },
   });
 
   const client = {
     ...node({
       start: async (ctx) => {
-        await requireKit(runtime).addClient({
+        await requireKit(runtimeOf(ctx.ports)).addClient({
           id: ctx.id,
           actorId: ctx.id,
         });

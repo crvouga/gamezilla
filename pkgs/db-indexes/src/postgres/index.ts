@@ -1,1 +1,6 @@
-export { createPostgresPort } from './create-postgres-port';
+export {
+  createPostgresPort,
+  isConcurrentlyUnsupportedError,
+  renderCreateIndexSql,
+  renderDropIndexSql,
+} from './create-postgres-port';

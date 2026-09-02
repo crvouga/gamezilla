@@ -1,4 +1,4 @@
-import { type JsonValue, node } from '@pkgs/dst';
+import { type JsonValue, node, type WorldPorts } from '@pkgs/dst';
 
 import { MILD_ROOM_FAULTS, wrapRoomNetwork } from '../network';
 import { bootRoomKitWorld } from '../world';
@@ -7,11 +7,19 @@ import type { RoomApp } from './app';
 import { MILD_FAULTS } from './knobs';
 import { type RoomRuntime, requireKit } from './system';
 
-type RoomServerHandle = { readonly id: string; readonly kit: World };
+type RoomServerHandle = {
+  readonly id: string;
+  readonly kit: World;
+  readonly runtime: RoomRuntime;
+};
 
-export function createRoomNodes(runtime: RoomRuntime, app: RoomApp) {
+export function createRoomNodes(
+  runtimeOf: (ports: WorldPorts) => RoomRuntime,
+  app: RoomApp
+) {
   const server = node({
     start: async (ctx) => {
+      const runtime = runtimeOf(ctx.ports);
       const mildFaults = ctx.knob(MILD_FAULTS) === true;
       const network = wrapRoomNetwork({
         kernel: ctx.network,
@@ -27,12 +35,12 @@ export function createRoomNodes(runtime: RoomRuntime, app: RoomApp) {
         injected: { deps: ctx.ports, network },
       });
       runtime.kit = kit;
-      return { id: ctx.id, kit } satisfies RoomServerHandle;
+      return { id: ctx.id, kit, runtime } satisfies RoomServerHandle;
     },
     stop: async (handle: RoomServerHandle) => {
       await handle.kit.dispose();
-      if (runtime.kit === handle.kit) {
-        runtime.kit = null;
+      if (handle.runtime.kit === handle.kit) {
+        handle.runtime.kit = null;
       }
     },
   });
@@ -40,7 +48,7 @@ export function createRoomNodes(runtime: RoomRuntime, app: RoomApp) {
   const client = {
     ...node({
       start: async (ctx) => {
-        await requireKit(runtime).addClient({
+        await requireKit(runtimeOf(ctx.ports)).addClient({
           id: ctx.id,
           identity: ctx.id,
           clientId: ctx.id,

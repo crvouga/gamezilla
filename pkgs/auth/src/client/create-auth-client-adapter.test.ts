@@ -4,7 +4,9 @@ import { wallTimers } from '@pkgs/clock';
 import {
   AUTH_SSO_CANCELLED_ERROR,
   AUTH_SSO_POPUP_BLOCKED_ERROR,
+  clearBearerOnUnauthorizedSession,
   createAuthClientAdapter,
+  createBearerTokenStore,
   createInMemoryAuthClientStorage,
   type OpenAuthSession,
 } from './index';
@@ -123,5 +125,29 @@ describe('createAuthClientAdapter / oauth', () => {
     await expect(port.signIn('oauth-dev')).rejects.toThrow(
       AUTH_SSO_CANCELLED_ERROR
     );
+  });
+});
+
+describe('clearBearerOnUnauthorizedSession', () => {
+  test('401/403 clear dead IdP bearer so sync can fall back to anon', async () => {
+    const storage = createInMemoryAuthClientStorage();
+    const bearerStore = createBearerTokenStore({ storage });
+    await bearerStore.write('dead-idp-token');
+
+    await clearBearerOnUnauthorizedSession(bearerStore, 401);
+    expect(await bearerStore.read()).toBeNull();
+
+    await bearerStore.write('still-dead');
+    await clearBearerOnUnauthorizedSession(bearerStore, 403);
+    expect(await bearerStore.read()).toBeNull();
+  });
+
+  test('non-auth session failures keep the bearer (offline / 5xx)', async () => {
+    const storage = createInMemoryAuthClientStorage();
+    const bearerStore = createBearerTokenStore({ storage });
+    await bearerStore.write('maybe-live');
+
+    await clearBearerOnUnauthorizedSession(bearerStore, 503);
+    expect(await bearerStore.read()).toBe('maybe-live');
   });
 });

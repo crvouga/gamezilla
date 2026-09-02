@@ -87,7 +87,14 @@ export class SessionAuth {
       this.authServer,
       this.time
     ).buildAppAuthContext(token, anonRaw);
-    return ctx ?? UNAUTH_CLIENT_CONTEXT;
+    if (ctx !== null) return ctx;
+    // Invalid/expired bearer must not block a bound anon device — otherwise
+    // stale IdP tokens poison sync and client_config (sign-in methods) never
+    // hydrates (chicken/egg: cannot sign in without methods from config).
+    return (
+      (await buildAnonAppAuthContext(sql, anonRaw, this.time)) ??
+      UNAUTH_CLIENT_CONTEXT
+    );
   }
 
   /**
