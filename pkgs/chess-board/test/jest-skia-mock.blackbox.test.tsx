@@ -67,11 +67,18 @@ describe('jest-skia-mock report serialization', () => {
     const svg = Skia.SVG.MakeFromString(
       '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><circle cx="8" cy="8" r="6" fill="#111"/></svg>'
     );
+    expect(svg).not.toBeNull();
+    if (svg === null) {
+      throw new Error('expected svg');
+    }
     const surface = Skia.Surface.Make(16, 16);
     expect(surface).not.toBeNull();
-    surface?.getCanvas().drawSvg(svg);
-    const image = surface?.makeImageSnapshot();
-    surface?.dispose();
+    if (surface === null) {
+      throw new Error('expected surface');
+    }
+    surface.getCanvas().drawSvg(svg);
+    const image = surface.makeImageSnapshot();
+    surface.dispose();
     expect(image).toMatchObject({
       uri: expect.stringContaining('data:image/svg+xml'),
     });
