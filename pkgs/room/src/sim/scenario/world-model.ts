@@ -6,7 +6,7 @@ import { WORLD_PBT_CRASH_EVENTS } from '../boundary-faults';
 import type { RoomFaultProfile } from '../network';
 import type { RoomSystemAction } from './actions';
 
-export const CLIENT_IDS = ['c0', 'c1', 'c2'] as const;
+export { CLIENT_IDS } from './client-ids';
 
 export { WORLD_PBT_CRASH_EVENTS };
 

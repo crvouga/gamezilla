@@ -1,10 +1,15 @@
 import { assert } from '@pkgs/assert';
-import { Box, useTheme } from '@pkgs/ui';
+import { Box, Text, useTheme } from '@pkgs/ui';
 import { assertSkiaWebLoaded } from '@pkgs/ui/components/skia-web-root';
 import { memo, type ReactNode, useCallback, useMemo, useState } from 'react';
 import type { LayoutChangeEvent } from 'react-native';
 import type { ChessBoardCanvasProps } from './chess-board-canvas';
 import { useChessBoardCanvas } from './chess-board-canvas-runtime';
+import {
+  buildChessBoardProbe,
+  chessBoardProbeTestId,
+  DEFAULT_CHESS_BOARD_TEST_ID,
+} from './chess-board-probe';
 import type {
   BoardArrowPalette,
   BoardPromotionPalette,
@@ -119,7 +124,8 @@ function mergeBoardTheme(
 function useChessBoardCanvasProps(
   props: ChessBoardProps,
   boardSize: number,
-  theme: BoardTheme
+  theme: BoardTheme,
+  boardTestId: string
 ): ChessBoardCanvasProps {
   const {
     fen,
@@ -158,6 +164,7 @@ function useChessBoardCanvasProps(
       enableUserArrows,
       animations,
       theme,
+      boardTestId,
     }),
     [
       fen,
@@ -177,6 +184,7 @@ function useChessBoardCanvasProps(
       enableUserArrows,
       onUserArrowsChange,
       theme,
+      boardTestId,
     ]
   );
 }
@@ -198,7 +206,14 @@ function explicitSizeStyle(size: number) {
 function ChessBoardImpl(props: ChessBoardProps): ReactNode {
   assertSkiaWebLoaded();
 
-  const { size, testID, theme: themeOverride } = props;
+  const {
+    size,
+    testID,
+    theme: themeOverride,
+    fen,
+    orientation = 'white',
+  } = props;
+  const boardTestId = testID ?? DEFAULT_CHESS_BOARD_TEST_ID;
 
   const appTheme = useTheme();
   const theme = useMemo(
@@ -223,7 +238,23 @@ function ChessBoardImpl(props: ChessBoardProps): ReactNode {
     [measured, size]
   );
 
-  const canvasProps = useChessBoardCanvasProps(props, boardSize, theme);
+  const canvasProps = useChessBoardCanvasProps(
+    props,
+    boardSize,
+    theme,
+    boardTestId
+  );
+
+  const probeJson = useMemo(() => {
+    if (boardSize <= 0) return null;
+    return JSON.stringify(
+      buildChessBoardProbe({
+        ...(fen !== undefined ? { fen } : {}),
+        size: boardSize,
+        orientation,
+      })
+    );
+  }, [boardSize, fen, orientation]);
 
   /**
    * Canvas component is loaded ONCE inside `ChessBoardCanvasBootstrap`
@@ -260,7 +291,7 @@ function ChessBoardImpl(props: ChessBoardProps): ReactNode {
 
   return (
     <Box
-      testID={testID}
+      testID={boardTestId}
       onLayout={onLayout}
       sx={[
         { alignSelf: 'center' },
@@ -270,6 +301,21 @@ function ChessBoardImpl(props: ChessBoardProps): ReactNode {
       {canvasReady ? (
         // see hook call above
         <ChessBoardCanvas {...canvasProps} />
+      ) : null}
+      {probeJson !== null ? (
+        <Text
+          testID={chessBoardProbeTestId(boardTestId)}
+          label={probeJson}
+          sx={{
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            width: 1,
+            height: 1,
+            opacity: 0.01,
+            overflow: 'hidden',
+          }}
+        />
       ) : null}
     </Box>
   );

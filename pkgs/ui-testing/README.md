@@ -193,7 +193,9 @@ first-class text read-back — `text()` remains unsupported by design.
 | `launch` / `close` | yes | yes (`baseUrl` optional) | stub → `device.launchApp` / `terminateApp` |
 | `get` / nested `get` | yes | yes | stub → `by.id` / `withDescendant` |
 | `tap` / `input` (auto-wait) | yes | yes | stub → `element().tap()` / `typeText` |
-| `tapAt` | yes | yes | stub → `element().tap({ x, y })` |
+| `tapAt` | yes (RNGH / press+location) | yes | stub → `element().tap({ x, y })` |
+| `drag` | yes (RNGH pan stream) | yes (mouse down/move/up) | stub → `longPressAndDrag` |
+| `layout` | yes (style / synthetic onLayout) | yes (`boundingBox`) | stub → `getAttributes` |
 | `clear` | yes | yes | stub → `clearText` |
 | `key` (driver + node) | yes (no-op host) | yes | stub (platform-limited) |
 | `scroll` | yes | yes | stub → `element().scroll` |

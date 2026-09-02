@@ -97,6 +97,45 @@ describe('RntlDriver', () => {
     expect(await driver.get('parent-b').get('action').text()).toBe('B');
   });
 
+  it('reports layout from explicit style size', async () => {
+    const SizedApp = (): ReactElement =>
+      createElement(View, {
+        testID: 'board',
+        style: { width: 200, height: 200 },
+      });
+    driver = new RntlDriver({
+      harness: { createRoot: () => createElement(SizedApp) },
+      ...clockOpts,
+    });
+    await driver.launch();
+    expect(await driver.get('board').layout()).toEqual({
+      x: 0,
+      y: 0,
+      width: 200,
+      height: 200,
+    });
+  });
+
+  it('synthesizes onLayout when style has no size', async () => {
+    let laidOut = 0;
+    const MeasuredApp = (): ReactElement =>
+      createElement(View, {
+        testID: 'board',
+        onLayout: () => {
+          laidOut += 1;
+        },
+      });
+    driver = new RntlDriver({
+      harness: { createRoot: () => createElement(MeasuredApp) },
+      ...clockOpts,
+    });
+    await driver.launch();
+    const layout = await driver.get('board').layout();
+    expect(layout?.width).toBe(390);
+    expect(layout?.height).toBe(390);
+    expect(laidOut).toBe(1);
+  });
+
   it('scrolls without throwing', async () => {
     driver = new RntlDriver({ harness: demoHarness, ...clockOpts });
     await driver.launch();
@@ -124,6 +163,8 @@ describe('RntlDriver', () => {
         getText: () => committed,
         tap: async () => undefined,
         tapAt: async () => undefined,
+        drag: async () => undefined,
+        layout: async () => null,
         typeText: async () => undefined,
         clearText: async () => undefined,
         pressKey: async () => undefined,

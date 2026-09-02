@@ -27,6 +27,7 @@ function createAuthSchemaStore(repoRoot: string) {
 /**
  * Inputs hashed into postgres sim seed fingerprints. Include IdP schema so
  * new `defineTable` auth migrations invalidate stale PGMM/PGlite seeds.
+ * Chess DST puzzles are live-inserted in openSim (not in this dump).
  */
 export async function simPostgresSeedFingerprintSource(
   repoRoot: string

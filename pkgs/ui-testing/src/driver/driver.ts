@@ -33,6 +33,14 @@ export type TapPosition = {
   yRatio: number;
 };
 
+/** Element bounding box in host coordinates (pixels). */
+export type ElementLayout = {
+  readonly x: number;
+  readonly y: number;
+  readonly width: number;
+  readonly height: number;
+};
+
 export function isWaitTextCondition(
   state: WaitState | WaitTextCondition
 ): state is WaitTextCondition {
@@ -91,6 +99,18 @@ export type DriverNode = {
    * Useful for canvases / boards where the hit target is a region, not a node.
    */
   tapAt(position: TapPosition): Promise<void>;
+
+  /**
+   * Drag from one relative position to another within the element.
+   * Useful for canvases / boards that use pan gestures.
+   */
+  drag(from: TapPosition, to: TapPosition): Promise<void>;
+
+  /**
+   * Read the element's bounding box, or `null` when the host cannot measure.
+   * May synthesize layout (RNTL) so measured canvases become interactive.
+   */
+  layout(): Promise<ElementLayout | null>;
 
   /** Wait until visible, then type `text` (appends by default). */
   input(text: string, options?: UiWaitOptions): Promise<void>;

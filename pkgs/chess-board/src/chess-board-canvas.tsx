@@ -7,6 +7,7 @@ import {
   type ChessPieceRow,
   useChessPieceRows,
 } from './chess-board-piece-identities';
+import { chessBoardPanTestId, chessBoardTapTestId } from './chess-board-probe';
 import { useChessBoardSounds } from './chess-board-sounds';
 import type {
   BoardArrow,
@@ -48,6 +49,8 @@ export type ChessBoardCanvasProps = Required<
   fenSyncKey?: number;
   size: number;
   theme: BoardTheme;
+  /** Outer board testID — drives RNGH pan/tap ids (`${id}-pan` / `${id}-tap`). */
+  boardTestId: string;
   cellFeedback?: ChessBoardProps['cellFeedback'];
   cellHighlights?: ChessBoardProps['cellHighlights'];
   arrows?: readonly BoardArrow[];
@@ -237,6 +240,8 @@ function useInteractionLayerProps(
     interactionProps: {
       size: props.size,
       orientation: props.orientation,
+      panTestId: chessBoardPanTestId(props.boardTestId),
+      tapTestId: chessBoardTapTestId(props.boardTestId),
       hoverSquareIndex: ix.hoverSquareIndex,
       legalMarkersOpacity: ix.legalMarkersOpacity,
       drag: ix.drag,

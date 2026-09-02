@@ -3,6 +3,7 @@ import type {
   AssertionOptions,
   DriverNode,
   DriverWaitOptions,
+  ElementLayout,
   ScrollDirection,
   TapPosition,
   UiWaitOptions,
@@ -37,6 +38,17 @@ export class DetoxDriverNode implements DriverNode {
 
   async tapAt(_position: TapPosition): Promise<void> {
     this.driver.unsupported('tapAt', 'element(matcher).tap({ x, y })');
+  }
+
+  async drag(_from: TapPosition, _to: TapPosition): Promise<void> {
+    this.driver.unsupported(
+      'drag',
+      'element(matcher).longPressAndDrag(duration, x, y, target)'
+    );
+  }
+
+  async layout(): Promise<ElementLayout | null> {
+    this.driver.unsupported('layout', 'element(matcher).getAttributes()');
   }
 
   async input(_text: string, _options?: UiWaitOptions): Promise<void> {

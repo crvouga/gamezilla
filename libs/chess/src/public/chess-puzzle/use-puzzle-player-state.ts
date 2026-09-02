@@ -160,6 +160,7 @@ function usePuzzlePlayerModel(
     wrongToSquare,
     expectedFromSquare,
     expectedToSquare,
+    solutionUci,
     solutionRevealed,
     opponentAnimating,
   } = usePuzzleSolver({ puzzleId });
@@ -190,6 +191,7 @@ function usePuzzlePlayerModel(
     wrongToSquare,
     expectedFromSquare,
     expectedToSquare,
+    solutionUci,
     appendUsedHint,
     appendAbandoned,
     setLastUci,
@@ -238,6 +240,9 @@ function frozenPlayerModel(args: {
     onNext: controls.onNext,
     expectedFromSquare: m.expectedFromSquare,
     expectedToSquare: m.expectedToSquare,
+    solutionUci: m.solutionUci,
+    solveIdx: m.solveIdx,
+    movesStr: m.movesStr,
   };
 }
 

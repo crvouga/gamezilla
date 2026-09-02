@@ -2,6 +2,7 @@ import type { Driver } from '@pkgs/ui-testing';
 
 import type { openSim } from '../setup/open-sim';
 import { AuthFlows } from './auth-flows';
+import { ChessFlows } from './chess-flows';
 import { FriendsFlows } from './friends-flows';
 import { NotificationsFlows } from './notifications-flows';
 import { ProfileFlows } from './profile-flows';
@@ -18,6 +19,7 @@ export class AppDriver {
   readonly notifications: NotificationsFlows;
   readonly friends: FriendsFlows;
   readonly space: SpaceFlows;
+  readonly chess: ChessFlows;
 
   private constructor(ui: Driver) {
     this.auth = new AuthFlows(ui);
@@ -26,6 +28,7 @@ export class AppDriver {
     this.notifications = new NotificationsFlows(ui);
     this.friends = new FriendsFlows(ui);
     this.space = new SpaceFlows(ui);
+    this.chess = new ChessFlows(ui, this.space);
   }
 
   static async forActor(

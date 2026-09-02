@@ -73,6 +73,7 @@ function buildLeadingItems(args: {
       onPress: onPressBack,
       overflow: 'never',
       priority: 95,
+      testID: Handles.navBack,
     },
   ];
 }

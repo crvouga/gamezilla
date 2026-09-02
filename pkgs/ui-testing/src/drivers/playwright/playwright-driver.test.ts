@@ -61,6 +61,11 @@ function createFakePage(locator: FakeLocator): Page {
     goto: mock(() => Promise.resolve()),
     content: mock(() => Promise.resolve('<html><body>ok</body></html>')),
     keyboard: { press: mock(() => Promise.resolve()) },
+    mouse: {
+      move: mock(() => Promise.resolve()),
+      down: mock(() => Promise.resolve()),
+      up: mock(() => Promise.resolve()),
+    },
     getByTestId: mock(() => locator as unknown as Locator),
     waitForFunction: mock(() => Promise.resolve()),
   } as unknown as Page;
@@ -88,6 +93,21 @@ describe('PlaywrightDriver', () => {
     expect(locator.boundingBox).toHaveBeenCalled();
     expect(locator.click).toHaveBeenCalledWith({
       position: { x: 50, y: 25 },
+    });
+
+    await driver
+      .get('board')
+      .drag({ xRatio: 0.1, yRatio: 0.1 }, { xRatio: 0.9, yRatio: 0.9 });
+    expect(page.mouse.move).toHaveBeenCalledWith(10, 10);
+    expect(page.mouse.down).toHaveBeenCalled();
+    expect(page.mouse.move).toHaveBeenCalledWith(90, 90);
+    expect(page.mouse.up).toHaveBeenCalled();
+
+    expect(await driver.get('board').layout()).toEqual({
+      x: 0,
+      y: 0,
+      width: 100,
+      height: 100,
     });
 
     await driver.get('email').input('a@b.c');

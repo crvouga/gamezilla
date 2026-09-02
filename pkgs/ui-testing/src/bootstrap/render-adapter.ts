@@ -1,5 +1,7 @@
 import type { ReactElement } from 'react';
 
+import type { ElementLayout, TapPosition } from '../driver/driver';
+
 /**
  * Host-agnostic node handle returned by a {@link RenderAdapter}.
  * DOM adapters use `Element`; RNTL uses `ReactTestInstance`.
@@ -34,10 +36,16 @@ export interface RenderedApp {
   tap(element: HostNode): Promise<void>;
 
   /** Tap at a relative position within the element. */
-  tapAt(
-    element: HostNode,
-    position: { xRatio: number; yRatio: number }
-  ): Promise<void>;
+  tapAt(element: HostNode, position: TapPosition): Promise<void>;
+
+  /** Drag from one relative position to another within the element. */
+  drag(element: HostNode, from: TapPosition, to: TapPosition): Promise<void>;
+
+  /**
+   * Read (or synthesize) the element's layout box.
+   * Returns `null` when the host cannot measure.
+   */
+  layout(element: HostNode): Promise<ElementLayout | null>;
 
   /** Type into the element (focuses first when needed). */
   typeText(element: HostNode, text: string): Promise<void>;

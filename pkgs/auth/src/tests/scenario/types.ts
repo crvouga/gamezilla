@@ -1,14 +1,6 @@
-import type { KnobValues, World } from '@pkgs/dst';
+import type { KnobDef, NodeEntry, World } from '@pkgs/dst';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { createAuthServerAdapter } from '../../server/create-auth-server-adapter';
-import type {
-  AUTH_CLIENT_COUNT,
-  AUTH_DEV_PROVIDER,
-  AUTH_FABRIC,
-  AUTH_GOOGLE_PROVIDER,
-  authActorNode,
-  authStoreNode,
-} from './nodes';
 
 export type AuthFabric = 'sqlite-mem' | 'postgres-mem';
 
@@ -68,18 +60,15 @@ export type AuthWorldNodes = {
 };
 
 export type AuthKnobs = {
-  readonly fabric: typeof AUTH_FABRIC;
-  readonly clientCount: typeof AUTH_CLIENT_COUNT;
-  readonly devProvider: typeof AUTH_DEV_PROVIDER;
-  readonly googleProvider: typeof AUTH_GOOGLE_PROVIDER;
+  readonly fabric: KnobDef<AuthFabric>;
+  readonly clientCount: KnobDef<number>;
+  readonly devProvider: KnobDef<boolean>;
+  readonly googleProvider: KnobDef<boolean>;
 };
 
 export type AuthNodeEntries = {
-  readonly store: typeof authStoreNode;
-  readonly client: typeof authActorNode & {
-    readonly count: (knobs: KnobValues<AuthKnobs>) => number;
-    readonly id: (index: number) => string;
-  };
+  readonly store: NodeEntry;
+  readonly client: NodeEntry;
 };
 
 export type AuthKit = {

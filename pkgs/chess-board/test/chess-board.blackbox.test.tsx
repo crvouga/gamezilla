@@ -34,7 +34,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { dragPiece, tapSquare } from '../src/chess-board-gestures';
 
 const BOARD_SIZE = 320;
-const BOARD_TEST_ID = 'board';
+const BOARD_TEST_ID = 'chess-board';
 
 const ROOT_STYLE = { flex: 1 } as const;
 

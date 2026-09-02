@@ -26,6 +26,7 @@
     "@testing-library/react-native": "catalog:",
     "react": "catalog:",
     "react-native": "catalog:",
+    "react-native-gesture-handler": "catalog:",
     "react-test-renderer": "catalog:"
   },
   "devDependencies": {

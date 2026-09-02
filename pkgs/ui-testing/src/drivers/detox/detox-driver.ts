@@ -12,6 +12,8 @@ import { createDetoxDriverNode } from './detox-driver-node';
  * - nested get → `element(by.id(parent)).withDescendant(by.id(child))`
  * - tap → `element(matcher).tap()` (after wait-until-visible)
  * - tapAt → `element(matcher).tap({ x, y })` (absolute coords from ratios)
+ * - drag → `element(matcher).longPressAndDrag(...)` (absolute coords from ratios)
+ * - layout → `element(matcher).getAttributes()` (frame)
  * - typeText → `element(matcher).typeText(text)` (after wait-until-visible)
  * - clearText → `element(matcher).clearText()`
  * - pressKey → platform key APIs (limited)

@@ -12,6 +12,11 @@ import { topicRowId } from '../shared/schema/tables';
  * so concurrent replays on the same topic serialize correctly. The wire value
  * is the decimal string of `n` (not Date.now()+ackSeq) so peers can detect gaps
  * with exact-next contiguous checks.
+ *
+ * Use `+ CAST(1 AS BIGINT)` (not bare `+ 1`): domain `integer` is physical
+ * Postgres `bigint`, and postgres-mem `toI8` can leave JS numbers in int8
+ * slots so `number + bigint` throws in V8. `CAST` is portable (SQLite +
+ * Postgres); `1::bigint` is Postgres-only and fails on sim SQLite servers.
  */
 export async function allocateTopicPushSeq(
   db: SqlClient,
@@ -32,7 +37,7 @@ export async function allocateTopicPushSeq(
       ${null}
     )
     ON CONFLICT (id) DO UPDATE
-      SET n = sync_engine_topic_seq.n + 1,
+      SET n = sync_engine_topic_seq.n + CAST(1 AS BIGINT),
           updated_at = ${ts},
           deleted_at = NULL
     RETURNING n
@@ -86,7 +91,7 @@ export async function allocateTopicPushSeqs(
     )
     VALUES ${join(valueFrags)}
     ON CONFLICT (id) DO UPDATE
-      SET n = sync_engine_topic_seq.n + 1,
+      SET n = sync_engine_topic_seq.n + CAST(1 AS BIGINT),
           updated_at = ${ts},
           deleted_at = NULL
     RETURNING topic, n

@@ -47,6 +47,7 @@ export function ChessPuzzleBoardFrame({
 
   return (
     <Box
+      testID="chess-puzzle-board-frame"
       sx={{
         flex: 1,
         minHeight: 0,

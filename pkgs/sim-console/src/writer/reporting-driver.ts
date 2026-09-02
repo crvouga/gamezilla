@@ -71,6 +71,12 @@ function wrapNode(
         testIdPath: path,
         detail: `xRatio=${position.xRatio}, yRatio=${position.yRatio}`,
       }),
+    drag: (from, to) =>
+      record('drag', `drag ${selector}`, () => node.drag(from, to), {
+        testIdPath: path,
+        detail: `from=${from.xRatio},${from.yRatio} to=${to.xRatio},${to.yRatio}`,
+      }),
+    layout: () => node.layout(),
     input: (text, options?: UiWaitOptions) =>
       record(
         'typeText',

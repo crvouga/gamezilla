@@ -42,6 +42,7 @@ import {
 } from './fidelity';
 import { ensureNodeLocalStoragePolyfill } from './node-local-storage-polyfill';
 import { injectPlaywrightSnapshotAuth } from './playwright-snapshot-auth';
+import { seedSimChessPuzzles } from './seed-sim-chess-puzzles';
 import { simNodeTimers } from './sim-actor-overrides';
 import { listenSimHttpServer, type SimHttpListener } from './sim-http-listener';
 import { readSimSystemSnapshot } from './sim-snapshot-fixture';
@@ -252,6 +253,9 @@ async function bootSim(fidelity: OpenSimFidelity): Promise<{
   };
   const system = defineProductSystem(createOpts);
   const host = await openWorld(system, { seed: 1, startTime });
+  // Live insert (not dump): postgres-mem PGMM round-trip corrupts int8 so
+  // `WHERE rating …` on dump-seeded chess_puzzles fails. Three rows are cheap.
+  await seedSimChessPuzzles({ sqlClient: host.sim.serverSql.sqlClient });
   return { sim: host.sim, host };
 }
 

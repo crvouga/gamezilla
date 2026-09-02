@@ -10,6 +10,7 @@ import { type WaitPump, waitUntil } from '../../core/wait';
 import type {
   DriverNode,
   DriverWaitOptions,
+  ElementLayout,
   ScrollDirection,
   TapPosition,
   UiWaitOptions,
@@ -52,6 +53,16 @@ export class RntlDriverNode implements DriverNode {
   async tapAt(position: TapPosition): Promise<void> {
     await this.waitVisible();
     await this.host.requireApp().tapAt(await this.requireElement(), position);
+  }
+
+  async drag(from: TapPosition, to: TapPosition): Promise<void> {
+    await this.waitVisible();
+    await this.host.requireApp().drag(await this.requireElement(), from, to);
+  }
+
+  async layout(): Promise<ElementLayout | null> {
+    await this.host.activate();
+    return this.host.requireApp().layout(await this.requireElement());
   }
 
   async input(text: string, options?: UiWaitOptions): Promise<void> {

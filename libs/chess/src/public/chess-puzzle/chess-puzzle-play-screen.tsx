@@ -197,6 +197,13 @@ function PuzzlePlayerChrome(
       e2eHints={
         <ChessPuzzleE2EHints
           orientation={p.orientation}
+          status={p.status}
+          solveIdx={p.solveIdx}
+          moves={p.movesStr}
+          interactive={
+            p.status === 'solving' && p.atFrontier && !p.opponentAnimating
+          }
+          solutionUci={p.solutionUci}
           expectedFromSquare={p.expectedFromSquare}
           expectedToSquare={p.expectedToSquare}
         />

@@ -835,6 +835,7 @@
         "@pkgs/http-client": "workspace:*",
         "@pkgs/sounds": "workspace:*",
         "@pkgs/ui": "workspace:*",
+        "@pkgs/ui-testing": "workspace:*",
         "@shopify/react-native-skia": "catalog:",
         "chess.js": "catalog:",
         "expo-haptics": "catalog:",
@@ -1791,10 +1792,12 @@
       "version": "0.0.0",
       "dependencies": {
         "@babel/runtime": "catalog:",
+        "@pkgs/async-local": "workspace:*",
         "@pkgs/clock": "workspace:*",
         "@testing-library/react-native": "catalog:",
         "react": "catalog:",
         "react-native": "catalog:",
+        "react-native-gesture-handler": "catalog:",
         "react-test-renderer": "catalog:",
       },
       "devDependencies": {
@@ -1922,9 +1925,12 @@
         "@apps/client": "workspace:*",
         "@apps/room-server": "workspace:*",
         "@apps/server": "workspace:*",
+        "@libs/chess": "workspace:*",
         "@libs/db": "workspace:*",
         "@libs/dst-handles": "workspace:*",
         "@lingui/core": "catalog:",
+        "@pkgs/assert": "workspace:*",
+        "@pkgs/async-local": "workspace:*",
         "@pkgs/clock": "workspace:*",
         "@pkgs/dst": "workspace:*",
         "@pkgs/emqx-server": "workspace:*",
@@ -1936,6 +1942,7 @@
         "@pkgs/sim-console": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/ui-testing": "workspace:*",
+        "@pkgs/uuid": "workspace:*",
         "@sim/console": "workspace:*",
         "@testing-library/react-native": "catalog:",
         "better-sqlite3": "catalog:",
@@ -1999,7 +2006,7 @@
     "brace-expansion": "5.0.9",
     "browserslist": "4.28.8",
     "esbuild": "^0.28.1",
-    "fast-uri": "^3.1.5",
+    "fast-uri": "^3.1.6",
     "ip-address": "^10.3.1",
     "js-cookie": "^3.0.7",
     "js-yaml": "^4.3.1",
@@ -3939,7 +3946,7 @@
 
     "fast-unique-numbers": ["fast-unique-numbers@9.0.27", "", { "dependencies": { "@babel/runtime": "^7.29.2", "tslib": "^2.8.1" } }, "sha512-nDA9ADeINN8SA2u2wCtU+siWFTTDqQR37XvgPIDDmboWQeExz7X0mImxuaN+kJddliIqy2FpVRmnvRZ+j8i1/A=="],
 
-    "fast-uri": ["fast-uri@3.1.5", "", {}, "sha512-gHwA1O9LDIcKunMKhObS/HimwtehO1nPUECKAu5TpKgaO19fcWEl4bliWe1jWxVFvIXztJjjQ4L8XQ1EU9f7Jw=="],
+    "fast-uri": ["fast-uri@3.1.7", "", {}, "sha512-dOvZVzjdZdz7phd9v6jCbwxrBW3fK6n8Rc0CtdmM4bumzMnxywBYhuph6J819RRw/ku+rLbelwfMunktuzVVHg=="],
 
     "fast-wrap-ansi": ["fast-wrap-ansi@0.2.2", "", { "dependencies": { "fast-string-width": "^3.0.2" } }, "sha512-7F2Fl+TjRSenLqlU3UjSH0iyqopqoZIu7eZVpEirP2g1GtWa2G/ecEmBdgz31+Mxr+ELclgg6sokpSFIQiZ02Q=="],
 

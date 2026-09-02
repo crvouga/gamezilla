@@ -1,0 +1,4 @@
+id,fen,moves,rating,rating_deviation,popularity,nb_plays,themes,game_url,opening_tags
+007hv,6k1/5p1p/1p4p1/p1bN1p2/2Pq1P2/1P5P/1P1Q2P1/7K w - - 1 32,d2c3 d4g1,1275,112,100,43,"[""endgame"",""master"",""mate"",""mateIn1"",""oneMove""]",https://lichess.org/i64FoDh8#63,[]
+01zsb,3n3k/pp4rp/2p3q1/2p2p1n/PP6/1QN1PN1P/5PP1/2R3K1 w - - 0 28,c1d1 g6g2,1220,286,100,26,"[""kingsideAttack"",""mate"",""mateIn1"",""middlegame"",""oneMove""]",https://lichess.org/Yjn3v2Vi#55,[]
+01Xbe,8/3R3p/6pk/3p4/2p1b1P1/6KP/r7/4R3 w - - 0 41,g3h4 g6g5 h4g3 a2g2,1190,76,100,220,"[""endgame"",""mate"",""mateIn2"",""short""]",https://lichess.org/MFtff6Yc#81,[]

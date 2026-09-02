@@ -4,11 +4,14 @@ import {
 } from '@libs/spaces/public/room/use-space-room-selector';
 import type { Move } from '@pkgs/chess-board/chess-board-types';
 import { useCallback } from 'react';
+
+
 import {
   CHESS_PUZZLE_PLAY_STATUS,
   ChessPuzzlePlayAttr,
   SubmitChessPuzzleMove,
 } from '../chess-puzzle-play';
+import { tokenize } from '../chess-puzzle-fsm';
 import { uciFromMove } from './chess-puzzle-play-chess-utils';
 import type { SolveStatus } from './solve-status';
 import { usePuzzleOpponentMoveStage } from './use-puzzle-opponent-move-stage';
@@ -82,6 +85,16 @@ function countMoveTokens(roomMoves: string): number {
   return trimmed.split(/\s+/).length;
 }
 
+function nextSolutionUci(
+  status: SolveStatus,
+  roomMoves: string,
+  solveIdx: number
+): string | null {
+  if (status !== 'solving') return null;
+  const token = tokenize(roomMoves)[solveIdx];
+  return token !== undefined && token.length >= 4 ? token : null;
+}
+
 /**
  * Bridges the puzzle play screen to the server-authoritative FSM in
  * {@link ChessPuzzlePlayAttr}. `onMove` dispatches `SubmitChessPuzzleMove`;
@@ -106,6 +119,8 @@ export function usePuzzleSolver(args: { puzzleId: string }): {
   wrongToSquare: string | null;
   expectedFromSquare: string | null;
   expectedToSquare: string | null;
+  /** Next human solution UCI from room moves[solveIdx], or null. */
+  solutionUci: string | null;
   solutionRevealed: boolean;
   /** True while opponent opening/reply is staged on the board. */
   opponentAnimating: boolean;
@@ -150,6 +165,7 @@ export function usePuzzleSolver(args: { puzzleId: string }): {
     wrongToSquare: room.wrongToSquare,
     expectedFromSquare: room.expectedFromSquare,
     expectedToSquare: room.expectedToSquare,
+    solutionUci: nextSolutionUci(status, room.roomMoves, room.solveIdx),
     solutionRevealed: room.solutionRevealed,
     opponentAnimating,
   };

@@ -40,6 +40,7 @@ export type {
   Driver,
   DriverNode,
   DriverWaitOptions,
+  ElementLayout,
   ScrollDirection,
   TapPosition,
   UiWaitOptions,

@@ -6,12 +6,12 @@ import {
   getByGestureTestId,
 } from 'react-native-gesture-handler/jest-utils';
 
+import {
+  chessBoardPanTestId,
+  chessBoardTapTestId,
+  DEFAULT_CHESS_BOARD_TEST_ID,
+} from './chess-board-probe';
 import { squareCenter } from './chess-board-squares';
-
-/** Matches Gesture.Pan().withTestId in production. */
-export const CHESS_BOARD_PAN_TEST_ID = 'chess-board-pan';
-/** Matches Gesture.Tap().withTestId in production. */
-export const CHESS_BOARD_TAP_TEST_ID = 'chess-board-tap';
 
 export type PointerUp = 'end' | 'cancel';
 
@@ -118,14 +118,16 @@ export function dragPiece(
     pointerUp?: PointerUp;
     size?: number;
     orientation?: BoardOrientation;
+    boardTestId?: string;
   }
 ): void {
   const size = opts?.size ?? DEFAULT_BOARD_SIZE;
   const orientation = opts?.orientation ?? 'white';
   const pointerUp = opts?.pointerUp ?? 'end';
+  const boardTestId = opts?.boardTestId ?? DEFAULT_CHESS_BOARD_TEST_ID;
   const from = squareCenter(fromSquare, size, orientation);
   const to = squareCenter(toSquare, size, orientation);
-  const pan = getByGestureTestId(CHESS_BOARD_PAN_TEST_ID);
+  const pan = getByGestureTestId(chessBoardPanTestId(boardTestId));
   if (pointerUp === 'cancel') {
     firePanCancelWithoutEnd(
       (pan as { handlerTag: number }).handlerTag,
@@ -139,12 +141,17 @@ export function dragPiece(
 
 export function tapSquare(
   square: string,
-  opts?: { size?: number; orientation?: BoardOrientation }
+  opts?: {
+    size?: number;
+    orientation?: BoardOrientation;
+    boardTestId?: string;
+  }
 ): void {
   const size = opts?.size ?? DEFAULT_BOARD_SIZE;
   const orientation = opts?.orientation ?? 'white';
+  const boardTestId = opts?.boardTestId ?? DEFAULT_CHESS_BOARD_TEST_ID;
   const { x, y } = squareCenter(square, size, orientation);
-  const tap = getByGestureTestId(CHESS_BOARD_TAP_TEST_ID);
+  const tap = getByGestureTestId(chessBoardTapTestId(boardTestId));
   fireGestureHandler(tap, [
     {
       oldState: State.UNDETERMINED,

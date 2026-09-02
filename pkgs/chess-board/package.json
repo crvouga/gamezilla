@@ -11,7 +11,7 @@
   },
   "scripts": {
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test src/chess-board-apply-external-fen.test.ts test/chess-board-squares.test.ts --pass-with-no-tests && bunx jest --config ./jest.config.cjs --runInBand"
+    "test": "bun test src/chess-board-apply-external-fen.test.ts src/chess-board-probe.test.ts test/chess-board-squares.test.ts --pass-with-no-tests && bunx jest --config ./jest.config.cjs --runInBand"
   },
   "dependencies": {
     "@lingui/core": "catalog:",
@@ -21,6 +21,7 @@
     "@pkgs/http-client": "workspace:*",
     "@pkgs/sounds": "workspace:*",
     "@pkgs/ui": "workspace:*",
+    "@pkgs/ui-testing": "workspace:*",
     "@shopify/react-native-skia": "catalog:",
     "chess.js": "catalog:",
     "expo-haptics": "catalog:",

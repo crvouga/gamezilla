@@ -68,7 +68,7 @@ export function ChessGameLogRow({
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      testID="chess-game-log-row"
+      testID={`chess-game-log-row-${entry.puzzleId}`}
     >
       <Box
         sx={{

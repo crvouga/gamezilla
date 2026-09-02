@@ -77,6 +77,28 @@ export const Handles = {
   /** Notifications Decline for an incoming friend-request modal (fromUsername). */
   notificationsFriendRequestDecline: (fromUsername: string) =>
     `notifications-friend-request-decline-${fromUsername}`,
+
+  // chess / spaces games
+  gameMenuChess: 'game-menu-chess',
+  chessMenuPuzzle: 'chess-menu-puzzle',
+  chessMenuStats: 'chess-menu-stats',
+  chessPuzzlePlayScreen: 'chess-puzzle-play-screen',
+  chessPuzzleBoardFrame: 'chess-puzzle-board-frame',
+  chessPuzzleBoard: 'chess-puzzle-board',
+  chessPuzzleBoardElo: 'chess-puzzle-board-elo',
+  chessPuzzleExpectedUci: 'chess-puzzle-expected-uci',
+  chessPuzzleE2eDebug: 'chess-puzzle-e2e-debug',
+  chessPuzzleSummary: 'chess-puzzle-summary',
+  chessPuzzleMoveHistory: 'chess-puzzle-move-history',
+  chessPuzzleActionHint: 'chess-puzzle-action-hint',
+  chessPuzzleActionNext: 'chess-puzzle-action-next',
+  chessPuzzleActionRetry: 'chess-puzzle-action-retry',
+  chessPuzzleActionBack: 'chess-puzzle-action-back',
+  chessPuzzleActionForward: 'chess-puzzle-action-forward',
+  chessStatsElo: 'chess-stats-elo',
+  chessPuzzleReviewBoard: 'chess-puzzle-review-board',
+  /** Career game-log row scoped by puzzle id. */
+  chessGameLogRow: (puzzleId: string) => `chess-game-log-row-${puzzleId}`,
 } as const;
 
 export type Handle = {

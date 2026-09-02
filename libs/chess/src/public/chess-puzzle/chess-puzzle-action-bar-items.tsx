@@ -49,6 +49,7 @@ function mapHintSlot(
     icon: LightbulbIcon,
     disabled: slot.disabled,
     onPress: onHint,
+    testID: 'chess-puzzle-action-hint',
   };
 }
 
@@ -66,6 +67,7 @@ function mapNavAction(args: {
     icon: args.icon,
     disabled: args.disabled,
     onPress: args.onPress,
+    testID: `chess-puzzle-action-${args.id}`,
   };
 }
 
@@ -109,6 +111,7 @@ function mapSlot(
       intent: 'danger',
       startIcon: <RotateCcwIcon />,
       onPress: p.onRetry,
+      testID: 'chess-puzzle-action-retry',
     };
   }
   if (slot.id === 'retry') {
@@ -128,6 +131,7 @@ function mapSlot(
       intent: 'success',
       endIcon: <ChevronRightIcon />,
       onPress: p.onNext,
+      testID: 'chess-puzzle-action-next',
     };
   }
   return mapNavAction({

@@ -30,6 +30,8 @@ require('@pkgs/logger').setDefaultLogLevel('error');
 // Product sims unmount in `sim.dispose()`. RNTL afterEach `cleanup()` would
 // call the same async `act(unmount)` again and hang (180s hook timeout).
 process.env.RNTL_SKIP_AUTO_CLEANUP = 'true';
+// Enable chess puzzle E2E probes (expected UCI / orientation).
+process.env.EXPO_PUBLIC_E2E = '1';
 // Reports write HTML frames under sim/console/public/reports. Default off for
 // speed; set SIM_REPORT=1 (or any non-"0") to enable console dumps.
 if (process.env.SIM_REPORT === undefined) {

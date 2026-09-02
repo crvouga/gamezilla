@@ -42,9 +42,7 @@ function worldArgsFromKnobs(
   };
 }
 
-export function createSyncNodes(
-  runtimeOf: (ports: WorldPorts) => SyncRuntime
-) {
+export function createSyncNodes(runtimeOf: (ports: WorldPorts) => SyncRuntime) {
   const broker = node({
     start: (ctx) => {
       const runtime = runtimeOf(ctx.ports);

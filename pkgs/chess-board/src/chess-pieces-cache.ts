@@ -92,7 +92,9 @@ async function loadPieceCaches(): Promise<PieceCaches> {
     }
     return { images };
   } finally {
-    for (const svg of svgs) svg.dispose();
+    for (const svg of svgs) {
+      if (typeof svg.dispose === 'function') svg.dispose();
+    }
   }
 }
 

@@ -24,6 +24,10 @@ import { useStableHandler } from './use-stable-handler';
 export type ChessBoardInteractionLayerProps = {
   size: number;
   orientation: BoardOrientation;
+  /** RNGH pan gesture test id (`${boardTestId}-pan`). */
+  panTestId: string;
+  /** RNGH tap gesture test id (`${boardTestId}-tap`). */
+  tapTestId: string;
   hoverSquareIndex: SharedValue<number>;
   legalMarkersOpacity: SharedValue<number>;
   drag: ChessBoardDragMotion;
@@ -37,6 +41,7 @@ export type ChessBoardInteractionLayerProps = {
 type PanFactoryArgs = {
   size: number;
   orientation: BoardOrientation;
+  panTestId: string;
   hoverSquareIndex: SharedValue<number>;
   legalMarkersOpacity: SharedValue<number>;
   drag: ChessBoardDragMotion;
@@ -89,16 +94,16 @@ function trackDragPointer(x: number, y: number, a: PanFactoryArgs): void {
   hoverSquareIndex.value = hover ? indexFromSquare(hover) : HOVER_NONE;
 }
 
-/** Public pan gesture id for black-box tests (`getByGestureTestId`). */
-export const CHESS_BOARD_PAN_TEST_ID = 'chess-board-pan';
-
-/** Public tap gesture id for black-box tests (`getByGestureTestId`). */
-export const CHESS_BOARD_TAP_TEST_ID = 'chess-board-tap';
+/** Re-export gesture id helpers used by black-box tests. */
+export {
+  chessBoardPanTestId,
+  chessBoardTapTestId,
+} from './chess-board-probe';
 
 function createBoardPanGesture(a: PanFactoryArgs) {
-  const { drag, hoverSquareIndex, legalMarkersOpacity } = a;
+  const { drag, hoverSquareIndex, legalMarkersOpacity, panTestId } = a;
   return Gesture.Pan()
-    .withTestId(CHESS_BOARD_PAN_TEST_ID)
+    .withTestId(panTestId)
     .manualActivation(true)
     .onTouchesDown((e, state) => {
       const t = e.allTouches[0];
@@ -163,6 +168,8 @@ function useBoardGestures(args: ChessBoardInteractionLayerProps) {
   const {
     size,
     orientation,
+    panTestId,
+    tapTestId,
     hoverSquareIndex,
     legalMarkersOpacity,
     drag,
@@ -173,6 +180,7 @@ function useBoardGestures(args: ChessBoardInteractionLayerProps) {
     const pan = createBoardPanGesture({
       size,
       orientation,
+      panTestId,
       hoverSquareIndex,
       legalMarkersOpacity,
       drag,
@@ -183,7 +191,7 @@ function useBoardGestures(args: ChessBoardInteractionLayerProps) {
       cancelDrag,
     });
     const tap = Gesture.Tap()
-      .withTestId(CHESS_BOARD_TAP_TEST_ID)
+      .withTestId(tapTestId)
       .onEnd((e) => {
         if (drag.pieceKey.value !== DRAG_PIECE_NONE) return;
         const sq = xyToSquare(e.x, e.y, size, orientation);
@@ -199,9 +207,11 @@ function useBoardGestures(args: ChessBoardInteractionLayerProps) {
     legalMarkersOpacity,
     orientation,
     panSettled,
+    panTestId,
     size,
     startDrag,
     tapSquare,
+    tapTestId,
   ]);
 }
 

@@ -1,4 +1,4 @@
-import { type ActionGeneratorContext, actions } from '@pkgs/dst';
+import { type ActionGeneratorContext, actions, type World } from '@pkgs/dst';
 import fc from 'fast-check';
 import {
   corruptSimOpfsStore,
@@ -6,9 +6,10 @@ import {
 } from '../sqlite/web/owners/sim-opfs-sql-owner';
 import { persistImage } from './owners';
 import { connectTab, disconnectTab, killTab } from './ownership';
-import type { SqlClientWebSurface } from './system';
 import { readToyRow, writeToyRow } from './toy-kv';
 import { boardOf, requireStore } from './types';
+
+type SqlWebActionSurface = World;
 
 const KEYS = ['a', 'b', 'c'] as const;
 const VALUES = ['1', '2', ''] as const;
@@ -19,7 +20,7 @@ type TabAction<K extends string> = {
 };
 
 function arbTabId(
-  ctx: ActionGeneratorContext<SqlClientWebSurface>
+  ctx: ActionGeneratorContext<SqlWebActionSurface>
 ): fc.Arbitrary<string> {
   const tabs = ctx.nodeIds('tab');
   return tabs.length === 0 ? fc.constant('t0') : fc.constantFrom(...tabs);
@@ -27,7 +28,7 @@ function arbTabId(
 
 function arbTabAction<K extends string>(
   kind: K,
-  ctx: ActionGeneratorContext<SqlClientWebSurface>
+  ctx: ActionGeneratorContext<SqlWebActionSurface>
 ): fc.Arbitrary<TabAction<K>> {
   return arbTabId(ctx).map((tabId) => ({ kind, tabId }));
 }
@@ -45,7 +46,7 @@ export type GetAction = {
   readonly key: string;
 };
 
-export const SQL_CLIENT_WEB_ACTIONS = actions<SqlClientWebSurface>()({
+export const SQL_CLIENT_WEB_ACTIONS = actions<SqlWebActionSurface>()({
   connect: {
     weight: 3,
     generate: (ctx) => arbTabAction('connect', ctx),

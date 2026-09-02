@@ -7,6 +7,7 @@ export type SimulationStepKind =
   | 'close'
   | 'tap'
   | 'tapAt'
+  | 'drag'
   | 'typeText'
   | 'clearText'
   | 'pressKey'

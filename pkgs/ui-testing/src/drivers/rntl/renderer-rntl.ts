@@ -14,6 +14,8 @@ import type {
   RenderAdapter,
   RenderedApp,
 } from '../../bootstrap/render-adapter';
+import type { TapPosition } from '../../driver/driver';
+import { ensureElementLayout, fireDrag, fireTapAt } from './rntl-gestures';
 import { serializeHostTreeHtml } from './serialize-host-tree-html';
 
 type RntlUser = ReturnType<typeof userEvent.setup>;
@@ -84,9 +86,13 @@ export function createRenderedAppFromQueryScope(
       // updates are flushed by Driver.activate() before tap/input.
       fireEvent.press(asInstance(element));
     },
-    tapAt: async (element) => {
-      fireEvent.press(asInstance(element));
+    tapAt: async (element, position: TapPosition) => {
+      fireTapAt(asInstance(element), position);
     },
+    drag: async (element, from: TapPosition, to: TapPosition) => {
+      fireDrag(asInstance(element), from, to);
+    },
+    layout: async (element) => ensureElementLayout(asInstance(element)),
     typeText: async (element, text) => {
       // Paste-shaped event sequence without user.paste's timer wait (can stall
       // ~15s under Jest). Includes `change` + `changeText` like RNTL paste.

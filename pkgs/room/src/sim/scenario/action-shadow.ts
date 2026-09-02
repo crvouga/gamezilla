@@ -1,6 +1,6 @@
 import type { DomainOp, LibraryAction, RoomSystemAction } from './actions';
 import type { RoomApp } from './app';
-import { defaultClientIds } from './library-arbs';
+import { defaultClientIds } from './client-ids';
 
 export type ActionShadow = {
   readonly clientIds: readonly string[];

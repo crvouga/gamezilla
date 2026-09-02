@@ -2,7 +2,8 @@ import fc from 'fast-check';
 
 import { WORLD_PBT_CRASH_EVENTS } from '../boundary-faults';
 import type { LibraryAction } from './actions';
-import { CLIENT_IDS } from './world-model';
+
+export { defaultClientIds } from './client-ids';
 
 /** Mild fixed loss/reorder so `setFaults` perturbs without stalling sync. */
 export const MILD_NET_FAULTS = {
@@ -19,12 +20,6 @@ export type LibraryArbEntry = {
   readonly kind: LibraryAction['kind'];
   readonly arb: (pick: PickClient) => Arb;
 };
-
-export function defaultClientIds(
-  clientIds: readonly string[]
-): readonly string[] {
-  return clientIds.length > 0 ? clientIds : [...CLIENT_IDS].slice(0, 2);
-}
 
 /**
  * Randomly generated {@link LibraryAction} shapes — one entry per kind, one

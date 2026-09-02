@@ -53,8 +53,8 @@ function pendingAnimatePlan(args: {
 }
 
 /**
- * Hold `fromFen` until after the first paint, then slide to `toFen`.
- * Double-rAF waits for layout/Skia mount so the opening ply is not mid-lag.
+ * Hold `fromFen` briefly, then slide to `toFen`. Uses injected timers only
+ * (no requestAnimationFrame) so sim pumps unlock the board deterministically.
  */
 function applyPlanTimers(
   plan: AnimatePlan,
@@ -65,20 +65,17 @@ function applyPlanTimers(
   const moveMs = PUZZLE_PIECE_MOVE_MS + PUZZLE_OPPONENT_UNLOCK_BUFFER_MS;
   let t1: unknown;
   let t2: unknown;
-  let raf2 = 0;
-  const raf1 = requestAnimationFrame(() => {
-    raf2 = requestAnimationFrame(() => {
-      t1 = timers.setTimeout(() => {
-        setPhase({ fen: plan.toFen, locked: true });
-      }, plan.holdMs);
-      t2 = timers.setTimeout(() => {
-        setPhase(null);
-      }, plan.holdMs + moveMs);
-    });
-  });
+  // One 0ms tick approximates "after mount" without wall rAF.
+  const t0 = timers.setTimeout(() => {
+    t1 = timers.setTimeout(() => {
+      setPhase({ fen: plan.toFen, locked: true });
+    }, plan.holdMs);
+    t2 = timers.setTimeout(() => {
+      setPhase(null);
+    }, plan.holdMs + moveMs);
+  }, 0);
   return () => {
-    cancelAnimationFrame(raf1);
-    cancelAnimationFrame(raf2);
+    timers.clearTimeout(t0);
     if (t1 !== undefined) timers.clearTimeout(t1);
     if (t2 !== undefined) timers.clearTimeout(t2);
   };

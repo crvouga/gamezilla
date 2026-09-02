@@ -30,9 +30,15 @@ const noopPath = () => ({
 
 const Skia = {
   Font: () => ({}),
-  Path: { Make: noopPath },
+  Path: {
+    Make: noopPath,
+    MakeFromSVGString: () => noopPath(),
+  },
   SVG: {
-    MakeFromString: () => ({ ref: {} }),
+    MakeFromString: () => ({
+      ref: {},
+      dispose: () => undefined,
+    }),
   },
   Surface: {
     Make: () => ({

@@ -9,6 +9,7 @@ import { DRIVER_KEY_TO_DOM, type DriverKey } from '../../core/keys';
 import type {
   DriverNode,
   DriverWaitOptions,
+  ElementLayout,
   ScrollDirection,
   TapPosition,
   UiWaitOptions,
@@ -51,19 +52,41 @@ export class PlaywrightDriverNode implements DriverNode {
 
   async tapAt(position: TapPosition): Promise<void> {
     await this.waitVisible();
-    const box = await this.locator.boundingBox();
-    if (!box) {
-      throw new ElementNotFoundError(
-        formatTestIdPath(this.path),
-        'no bounding box'
-      );
-    }
+    const box = await this.requireBox();
     await this.locator.click({
       position: {
         x: box.width * position.xRatio,
         y: box.height * position.yRatio,
       },
     });
+  }
+
+  async drag(from: TapPosition, to: TapPosition): Promise<void> {
+    await this.waitVisible();
+    const box = await this.requireBox();
+    const start = {
+      x: box.x + box.width * from.xRatio,
+      y: box.y + box.height * from.yRatio,
+    };
+    const end = {
+      x: box.x + box.width * to.xRatio,
+      y: box.y + box.height * to.yRatio,
+    };
+    await this.host.page.mouse.move(start.x, start.y);
+    await this.host.page.mouse.down();
+    await this.host.page.mouse.move(end.x, end.y);
+    await this.host.page.mouse.up();
+  }
+
+  async layout(): Promise<ElementLayout | null> {
+    const box = await this.locator.boundingBox();
+    if (!box) return null;
+    return {
+      x: box.x,
+      y: box.y,
+      width: box.width,
+      height: box.height,
+    };
   }
 
   async input(text: string, options?: UiWaitOptions): Promise<void> {
@@ -145,6 +168,22 @@ export class PlaywrightDriverNode implements DriverNode {
         ? { timeoutMs: options.timeoutMs }
         : undefined
     );
+  }
+
+  private async requireBox(): Promise<{
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  }> {
+    const box = await this.locator.boundingBox();
+    if (!box) {
+      throw new ElementNotFoundError(
+        formatTestIdPath(this.path),
+        'no bounding box'
+      );
+    }
+    return box;
   }
 }
 
