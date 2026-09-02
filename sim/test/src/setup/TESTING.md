@@ -6,7 +6,7 @@ Product system graph lives in `@libs/runtime`. Open a world with `openSim` from
 uses `defineScenario` with `node` / `knob` / `command` + optional `extend` (kit
 surface merged onto the opened world). Playground still calls `createSim`
 directly as a wall composition root; `createSim` accepts injected `ports` from
-`@pkgs/determinism` (`createWorldPorts`: clock, scheduler, timers, rng, trace) so
+`@pkgs/dst` (`createWorldPorts`: clock, scheduler, timers, rng, trace) so
 the same boot path works inside the `product.sim` node kind.
 
 **SQL fabric** (`SIM_SQL_BACKEND=real|mem`, default **`real`**):

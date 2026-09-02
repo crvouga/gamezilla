@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
+import { openWorld } from '@pkgs/dst';
 import { defineRoomSystem, type RoomApp } from '../../sim/scenario';
 import { ROOM_ERROR_TYPE } from '../../types';
 import { authzApp } from '../apps/authz/app';

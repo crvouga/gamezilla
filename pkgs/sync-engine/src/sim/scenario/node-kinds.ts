@@ -1,4 +1,4 @@
-import { type JsonValue, type KnobDef, node } from '@pkgs/determinism';
+import { type JsonValue, type KnobDef, node } from '@pkgs/dst';
 
 import { wrapSimNetwork } from '../network';
 import { bootSimInfra, bootSimServer } from '../world-boot';

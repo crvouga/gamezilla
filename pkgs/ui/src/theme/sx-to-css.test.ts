@@ -153,6 +153,12 @@ describe('sxToCss', () => {
     );
   });
 
+  test('does not quote a CSS font stack as a single family name', () => {
+    expect(css({ fontFamily: 'Nunito, system-ui, sans-serif' })).toContain(
+      'font-family:Nunito,system-ui,sans-serif'
+    );
+  });
+
   test('skips box-only pointerEvents and animationName', () => {
     const out = css({ pointerEvents: 'box-only', animationName: {} });
     expect(out).not.toContain('pointer-events');

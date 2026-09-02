@@ -136,6 +136,10 @@ for (const origin of skiaResolveOrigins) {
 }
 const skiaPinnedPrefixes = ['canvaskit-wasm'];
 const fs = require('fs');
+const {
+  redirectRnScreensScreenWebShim,
+  tryResolveRnScreensScreenWebShim,
+} = require('../../tools/scripts/metro-rn-screens-screen-web-shim.js');
 const useWatchman = process.env['EXPO_USE_WATCHMAN'] === '1';
 const previousResolveRequest = config.resolver.resolveRequest;
 
@@ -232,8 +236,12 @@ function moduleNameFromBunStorePath(filePath) {
   return rel.split(path.sep).join('/');
 }
 
-function normalizeResolvedPath(resolved) {
+function normalizeResolvedPath(resolved, platform) {
   if (resolved?.filePath == null) return resolved;
+  const shimmed = redirectRnScreensScreenWebShim({}, resolved, platform);
+  if (shimmed != null) {
+    resolved = shimmed;
+  }
   if (resolved.filePath.includes(`${path.sep}canvaskit-wasm${path.sep}`)) {
     return resolved;
   }
@@ -347,6 +355,12 @@ function resolveUnavailableSqlEngines(moduleName, platform) {
 
 // @ts-ignore
 config.resolver.resolveRequest = (context, moduleName, platform) => {
+  const rnScreensShim = tryResolveRnScreensScreenWebShim(
+    context,
+    moduleName,
+    platform
+  );
+  if (rnScreensShim !== null) return rnScreensShim;
   const sql = resolveUnavailableSqlEngines(moduleName, platform);
   if (sql !== null) return sql;
   const matchesDedupeAlias = dedupeAliasPrefixes.some(
@@ -368,7 +382,7 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
           platform
         );
       }
-      if (resolved != null) return normalizeResolvedPath(resolved);
+      if (resolved != null) return normalizeResolvedPath(resolved, platform);
     } catch (err) {
       const nodeResult = resolveWithNodeRequire(aliasContext, moduleName);
       if (nodeResult !== null) return nodeResult;
@@ -394,7 +408,7 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
         platform
       );
     }
-    if (resolved != null) return normalizeResolvedPath(resolved);
+    if (resolved != null) return normalizeResolvedPath(resolved, platform);
     return resolved;
   }
   try {
@@ -404,7 +418,7 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
     } else {
       resolved = context.resolveRequest(context, moduleName, platform);
     }
-    if (resolved != null) return normalizeResolvedPath(resolved);
+    if (resolved != null) return normalizeResolvedPath(resolved, platform);
   } catch (err) {
     const nodeResult = resolveWithNodeRequire(context, moduleName);
     if (nodeResult !== null) return nodeResult;

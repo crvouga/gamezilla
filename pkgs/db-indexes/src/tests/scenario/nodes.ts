@@ -1,4 +1,4 @@
-import { node } from '@pkgs/determinism';
+import { node } from '@pkgs/dst';
 import { fingerprintSql } from '../../core/fingerprint';
 import type { ReconcileReport, WorkloadManifest } from '../../core/types';
 import { createSimClock, SimDb } from '../../sim';

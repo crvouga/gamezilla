@@ -2,7 +2,7 @@
  * Kit methods merged onto the framework world via `extend`.
  */
 
-import type { World } from '@pkgs/determinism';
+import type { World } from '@pkgs/dst';
 import type { SeededRng } from '@pkgs/uuid';
 
 import { bootReplicaOnStore } from '../boot-replica';
@@ -28,8 +28,8 @@ import type { MmReplicaBootHandle, MmStoreHandle } from './node-kinds';
 import type { MatchmakingSystemConfig } from './system';
 
 type MatchmakingFrameworkWorld = World<
-  Record<string, import('@pkgs/determinism').KnobDef>,
-  Record<string, import('@pkgs/determinism').NodeEntry>,
+  Record<string, import('@pkgs/dst').KnobDef>,
+  Record<string, import('@pkgs/dst').NodeEntry>,
   MatchmakingSimKit
 >;
 

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
+import { openWorld } from '@pkgs/dst';
 import { InMemoryRoomStorage } from '../../server/adapters/memory';
 import { defineRoomSystem } from '../../sim/scenario';
 import { counterApp } from '../apps/counter/app';

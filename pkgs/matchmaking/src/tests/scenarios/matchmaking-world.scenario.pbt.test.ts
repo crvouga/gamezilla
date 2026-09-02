@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, test } from 'bun:test';
-import { runScenario } from '@pkgs/determinism/pbt';
+import { runScenario } from '@pkgs/dst/pbt';
 
 import { MATCHMAKING_SYSTEM } from '../../sim/scenario';
 import { registerTestCrashHandler } from '../fixtures';

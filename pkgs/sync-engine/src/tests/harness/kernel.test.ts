@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { createWorldPorts } from '@pkgs/determinism';
+import { createWorldPorts } from '@pkgs/dst';
 
 import { createSeededRng } from '../../sim/rng';
 

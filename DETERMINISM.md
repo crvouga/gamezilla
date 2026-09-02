@@ -14,12 +14,12 @@ game/social state must match bit-for-bit across clients and runs.
 
 Inject clock, timers, ids, RNG, and HTTP from a composition root
 (`createClient(env)` / `createServer(env)` / `createSim` via harness-only
-`createWorldPorts` from `@pkgs/determinism` / `createSimAdapters` for thin adapters /
+`createWorldPorts` from `@pkgs/dst` / `createSimAdapters` for thin adapters /
 wall adapters at process entry):
 
 | Port | Use |
 | --- | --- |
-| `clock` / `timers` (`@pkgs/clock` types; sim uses bare `@pkgs/determinism` `VirtualClock` + `Scheduler`) | Time and scheduling |
+| `clock` / `timers` (`@pkgs/clock` types; sim uses bare `@pkgs/dst` `VirtualClock` + `Scheduler`) | Time and scheduling |
 | `createId` (`@pkgs/uuid`) | UUIDs / ids |
 | `random` (`@pkgs/uuid`) | RNG |
 | HTTP (`@pkgs/http-client`) | Network |
@@ -27,11 +27,11 @@ wall adapters at process entry):
 **`WorldPorts` is harness-only.** Product `ClientEnv` / `ServerEnv` receive unpacked
 ports — never the `WorldPorts` bag. Shared simulation mechanics (scheduler, network
 mesh, fault/knob catalogs, scenario JSON, `eventually`/`never`, apply helpers) live in
-`@pkgs/determinism`. **Worlds are framework-owned:** packages declare `node` /
+`@pkgs/dst`. **Worlds are framework-owned:** packages declare `node` /
 `knob` / `command` + `networkCommands` / `advanceCommand` + `defineScenario` (topology, knobs, commands, converge,
 optional `extend`); tests call `runScenario` / `replay` / `runPins` from
-`@pkgs/determinism/pbt` — not package-local World openers / `worldPropertyInputs` /
-`runCommands`. See [`pkgs/determinism/CONTEXT.md`](pkgs/determinism/CONTEXT.md).
+`@pkgs/dst/pbt` — not package-local World openers / `worldPropertyInputs` /
+`runCommands`. See [`pkgs/dst/CONTEXT.md`](pkgs/dst/CONTEXT.md).
 
 Domain and game-logic code take required `clock` / `createId` (or `now` slices).
 Never default to wall implementations inside libraries. Never construct an `Io` bag.

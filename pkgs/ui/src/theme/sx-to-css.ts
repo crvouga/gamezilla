@@ -6,6 +6,7 @@
  */
 
 import type { ColorTokens } from './colors';
+import { parseExpoFontFamily } from './expo-font-family';
 import type { ElevationLevel } from './scale';
 import {
   flattenSx,
@@ -32,9 +33,6 @@ type Ctx = {
 };
 
 type Writer = (value: unknown, ctx: Ctx) => void;
-
-const EXPO_FONT_RE =
-  /^(.+)_(\d{3})(Regular|Medium|SemiBold|Bold|Light|Thin|Black|ExtraBold|ExtraLight)?$/;
 
 const TRANSFORM_PX: Record<string, 1 | undefined> = {
   translateX: 1,
@@ -147,15 +145,21 @@ function quoteFamily(name: string): string {
 
 function writeFontFamily(value: unknown, ctx: Ctx): void {
   if (typeof value !== 'string') return;
-  const match = EXPO_FONT_RE.exec(value);
-  const family = match?.[1];
-  const weight = match?.[2];
-  if (family !== undefined && weight !== undefined) {
-    ctx.d.push('font-family:' + quoteFamily(family));
-    ctx.d.push('font-weight:' + weight);
+  const parsed = parseExpoFontFamily(value);
+  if (parsed !== null) {
+    ctx.d.push('font-family:' + quoteFamily(parsed.family));
+    ctx.d.push('font-weight:' + parsed.weight);
     return;
   }
-  ctx.d.push('font-family:' + quoteFamily(value));
+  ctx.d.push('font-family:' + quoteCssFontFamily(value));
+}
+
+/** Quote a CSS font-family list; do not wrap a comma-separated stack as one name. */
+function quoteCssFontFamily(value: string): string {
+  return value
+    .split(',')
+    .map((part) => quoteFamily(part.trim()))
+    .join(',');
 }
 
 function writeFontSize(value: unknown, ctx: Ctx): void {

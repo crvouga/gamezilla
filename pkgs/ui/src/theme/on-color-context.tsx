@@ -49,6 +49,11 @@ export type OnColorProviderProps = {
    * foreground set from this color. Ignored when `value` is supplied.
    */
   background?: string;
+  /**
+   * When `background` is translucent, composite over this color before
+   * picking foreground contrast (e.g. glass tiles on a frosted overlay).
+   */
+  backdrop?: string;
   /** Explicit foreground set, overriding `background`-based derivation. */
   value?: OnColorSet;
   children: ReactNode;
@@ -60,14 +65,20 @@ export type OnColorProviderProps = {
  */
 export function OnColorProvider({
   background,
+  backdrop,
   value,
   children,
 }: OnColorProviderProps): ReactNode {
   const resolved = useMemo<OnColorSet | null>(() => {
     if (value) return value;
-    if (background !== undefined) return bestOnColor(background);
+    if (background !== undefined) {
+      return bestOnColor(
+        background,
+        backdrop !== undefined ? { backdrop } : undefined
+      );
+    }
     return null;
-  }, [value, background]);
+  }, [value, background, backdrop]);
 
   return (
     <OnColorContext.Provider value={resolved}>

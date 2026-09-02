@@ -1,4 +1,4 @@
-import type { WorldPorts } from '@pkgs/determinism';
+import type { WorldPorts } from '@pkgs/dst';
 import type { SeededRng } from '@pkgs/uuid';
 import type { BoundaryFaultController } from './boundary-faults';
 import type { SimAuthStatus } from './client-factory';
@@ -32,7 +32,7 @@ export type CreateBootRuntimeArgs = {
   readonly deps: BootRuntimeDeps;
   readonly worldArgs: WorldClientOpts;
   readonly boundaryFaults?: BoundaryFaultController;
-  /** Framework-owned network (framework worlds wrap `@pkgs/determinism`'s kernel). */
+  /** Framework-owned network (framework worlds wrap `@pkgs/dst`'s kernel). */
   readonly network: SyncNetwork;
 };
 

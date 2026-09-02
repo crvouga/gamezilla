@@ -1,8 +1,4 @@
-import type {
-  EventuallyOptions,
-  NeverOptions,
-  Scheduler,
-} from '@pkgs/determinism';
+import type { EventuallyOptions, NeverOptions, Scheduler } from '@pkgs/dst';
 
 /** Poll target for room kit wait helpers — predicates only. */
 export type UntilPredicate = () => boolean | Promise<boolean>;

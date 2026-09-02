@@ -22,6 +22,11 @@ function useMoreRows(): readonly MoreRow[] {
       href: '/more/theme',
     },
     {
+      title: t`Sound`,
+      caption: t`In-app sound effects`,
+      href: '/more/sound',
+    },
+    {
       title: t`Performance`,
       caption: t`FPS / INP monitor overlay`,
       href: '/more/performance',

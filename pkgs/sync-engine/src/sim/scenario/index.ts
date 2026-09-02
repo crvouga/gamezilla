@@ -13,6 +13,7 @@ export type { DomainModelHooks, SyncApp } from './app';
 export type {
   DefineSyncSystemOpts,
   SyncSystemDef,
+  SyncSystemFacade,
   SyncSystemWorld,
   SyncWorldExtension,
 } from './define-sync-system';
@@ -32,7 +33,7 @@ export {
 } from './play';
 export type { ReplaySyncInputs } from './replay';
 export { replaySync, replaySyncPin } from './replay';
-export type { SyncRuntime, SyncSystem, SyncSystemFacade } from './system';
+export type { SyncRuntime, SyncSystem } from './system';
 export type { WorldModel, WorldReal } from './world-model';
 export {
   AUTH_STATUSES,

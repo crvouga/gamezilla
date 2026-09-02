@@ -1,4 +1,4 @@
-import { command } from '@pkgs/determinism';
+import { command } from '@pkgs/dst';
 import fc from 'fast-check';
 import { reconcileIndexes } from '../../core/reconcile';
 import type { WorkloadManifest } from '../../core/types';
@@ -42,9 +42,9 @@ const CFG = {
   maxIndexesPerTable: 6,
 } as const;
 
-type IndexesWorld = import('@pkgs/determinism').World<
-  Record<string, import('@pkgs/determinism').KnobDef>,
-  Record<string, import('@pkgs/determinism').NodeEntry>
+type IndexesWorld = import('@pkgs/dst').World<
+  Record<string, import('@pkgs/dst').KnobDef>,
+  Record<string, import('@pkgs/dst').NodeEntry>
 >;
 
 export const reconcileAction = command<

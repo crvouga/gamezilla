@@ -8,7 +8,7 @@ import { migrateSimPostgres } from '@apps/server/sim/migrate-sim-postgres';
 import { migrateSimClientSqlite } from '@apps/server/sim/migrate-sim-sqlite';
 import { assert } from '@pkgs/assert';
 import type { Clock } from '@pkgs/clock';
-import type { Scheduler } from '@pkgs/determinism';
+import type { Scheduler } from '@pkgs/dst';
 import type {
   SimCheckpoint,
   SimCheckpointRoomDump,

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
+import { openWorld } from '@pkgs/dst';
 import { deadlineSystem } from '../apps/deadline/system';
 import {
   ActBeforeDeadline,

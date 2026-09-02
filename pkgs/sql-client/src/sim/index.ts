@@ -1,6 +1,6 @@
 /**
  * Harness-only DST surface for multi-tab web SQL. Tests and sim consoles only —
- * product code must never import this (it would pull `@pkgs/determinism` in).
+ * product code must never import this (it would pull `@pkgs/dst` in).
  */
 export { SQL_CLIENT_WEB_ACTIONS } from './actions';
 export { sqlWebStoreNode, sqlWebTabNode } from './nodes';

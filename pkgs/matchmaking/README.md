@@ -60,7 +60,7 @@ Anything outside these subpaths is internal.
 ## Testing
 
 All tests live under `src/tests/`. Deterministic scenarios use a seeded
-framework world (`@pkgs/determinism`) that boots **N Matchmaking replicas
+framework world (`@pkgs/dst`) that boots **N Matchmaking replicas
 sharing one DB** — the horizontal-scale composition root.
 
 ```text

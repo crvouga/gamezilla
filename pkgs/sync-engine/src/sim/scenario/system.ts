@@ -6,7 +6,6 @@ import type { World } from '../world-api';
 import type { SimInfra } from '../world-boot';
 import type { BootedSimKernel, WorldClientOpts } from '../world-types';
 import type { SyncApp } from './app';
-import type { SyncWorldExtension } from './define-sync-system';
 import type { ReplayRestartState } from './play';
 
 /**
@@ -28,8 +27,6 @@ export type SyncRuntime = {
 
 /** @deprecated alias — prefer {@link SyncRuntime} in new code. */
 export type SyncSystem = SyncRuntime;
-
-export type SyncSystemFacade = SyncWorldExtension;
 
 export function requireKit(runtime: SyncRuntime): World {
   const kit = runtime.kit;

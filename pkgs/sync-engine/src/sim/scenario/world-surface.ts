@@ -1,4 +1,4 @@
-import type { NeverOptions } from '@pkgs/determinism';
+import type { NeverOptions } from '@pkgs/dst';
 
 import type { SimClientHandle } from '../client-handle';
 import type { SimNetHandle } from '../net-effect';

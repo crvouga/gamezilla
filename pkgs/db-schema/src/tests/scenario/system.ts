@@ -1,4 +1,4 @@
-import { defineScenario } from '@pkgs/determinism';
+import { defineScenario } from '@pkgs/dst';
 
 import { SCHEMA_ACTIONS, type SchemaModel } from './actions';
 import {
@@ -60,7 +60,7 @@ export const SCHEMA_SYSTEM = defineScenario({
   },
 });
 
-export type SchemaWorld = import('@pkgs/determinism').World<
+export type SchemaWorld = import('@pkgs/dst').World<
   typeof SCHEMA_SYSTEM.knobs,
   typeof SCHEMA_SYSTEM.nodes
 >;

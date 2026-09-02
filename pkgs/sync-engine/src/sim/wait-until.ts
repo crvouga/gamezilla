@@ -3,7 +3,7 @@ import type {
   Network,
   NeverOptions,
   WorldPorts,
-} from '@pkgs/determinism';
+} from '@pkgs/dst';
 
 import type { SimPollablePromise } from './client-surface';
 

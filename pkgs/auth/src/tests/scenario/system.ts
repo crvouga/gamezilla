@@ -1,4 +1,4 @@
-import { defineScenario } from '@pkgs/determinism';
+import { defineScenario } from '@pkgs/dst';
 import type { AuthModel } from './actions';
 import { AUTH_ACTIONS } from './actions';
 import { assertAuthInvariants, worldFingerprint } from './invariants';
@@ -51,7 +51,7 @@ export const AUTH_SYSTEM = defineScenario({
 });
 
 export type AuthSystemDef = typeof AUTH_SYSTEM;
-export type AuthWorld = import('@pkgs/determinism').World<
+export type AuthWorld = import('@pkgs/dst').World<
   AuthSystemDef['knobs'],
   AuthSystemDef['nodes'],
   AuthKit

@@ -92,7 +92,7 @@ Core vs adapters stay split so callers opt into a runtime explicitly.
 
 `src/sim/` implementation stays **private** (relative imports from package
 tests). Games should import `defineRoomSystem` from
-`@pkgs/room/tests` and boot with `openWorld` from `@pkgs/determinism`, not deep
+`@pkgs/room/tests` and boot with `openWorld` from `@pkgs/dst`, not deep
 `sim/` paths.
 
 ---
@@ -109,7 +109,7 @@ pkgs/room/src/
 ├── protocol/             wire frames + ids
 ├── effects/              Schedule/CancelSchedule + RoomEffectHandler port
 ├── sim/                  private sim harness (world, net, settle, until)
-│   └── system/           RoomSystemAction + defineRoomSystem (`@pkgs/determinism` node kinds)
+│   └── system/           RoomSystemAction + defineRoomSystem (`@pkgs/dst` node kinds)
 └── tests/
     ├── fixtures/         Counter, Deadline, Authz, MatchClock modules
     ├── harness/          openLoopbackRoom + LoopbackRoomTransport
@@ -283,7 +283,7 @@ replays are idempotent.
 | Tool | When to use |
 |------|-------------|
 | **`openLoopbackRoom`** (`@pkgs/room/tests`) | Fast in-process unit/integration with injected `Io`; real `RoomClient` + `RoomServer`, no net faults; Schedule via timers |
-| **`openWorld`** (`@pkgs/determinism` + `@pkgs/room/tests`) | Framework multi-client world (kit merged via `extend`): partitions, delays, soft disconnect, crash/restart, hash converge, seed replay, Schedule wakes |
+| **`openWorld`** (`@pkgs/dst` + `@pkgs/room/tests`) | Framework multi-client world (kit merged via `extend`): partitions, delays, soft disconnect, crash/restart, hash converge, seed replay, Schedule wakes |
 | **`defineRoomSystem` + `runScenario` / `replay`** | Framework-owned world (`room.server` / `room.client` node kinds): shrinking `fc.commands` search + fault-catalog slice PBTs |
 | **`runRoomSeed`** | Non-shrinking seeded fuzz (`ROOM_SIM_SEED` / `SIM_SEED`); determinism + long workloads |
 | **DO / adapter tests** | Hibernation, session take-over, per-key storage, alarms, WS heartbeat |
@@ -300,7 +300,7 @@ bun run test:pbt:random                # nightly random exploration
 
 ### Shrinking system kernel (`sim/scenario/`)
 
-Worlds and action replay are owned by `@pkgs/determinism`. A room app becomes a
+Worlds and action replay are owned by `@pkgs/dst`. A room app becomes a
 system with `defineRoomSystem`, which declares the `room.server` / `room.client`
 node kinds and the library + domain action pool:
 
@@ -358,7 +358,7 @@ Connectivity triad — do not conflate:
 
 ```ts
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
+import { openWorld } from '@pkgs/dst';
 import { counterSystem } from '../apps/counter/system';
 import { Increment, counterValue } from '../fixtures/counter-module';
 
@@ -389,7 +389,7 @@ describe('room sim', () => {
 Games outside this package:
 
 ```ts
-import { openWorld } from '@pkgs/determinism';
+import { openWorld } from '@pkgs/dst';
 import { defineRoomSystem, runModuleConformance } from '@pkgs/room/tests';
 ```
 

@@ -3,7 +3,7 @@ import {
   type JsonValue,
   openWorld,
   REPRO_VERSION,
-} from '@pkgs/determinism';
+} from '@pkgs/dst';
 
 import { isStorageFullError } from '../../client/storage-full-error';
 import { RELIABLE_FAULTS } from '../../sim/faults';

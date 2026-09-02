@@ -5,7 +5,7 @@ import {
   type ScenarioDef,
   type UnboundCommandDef,
   type World,
-} from '@pkgs/determinism';
+} from '@pkgs/dst';
 import fc from 'fast-check';
 
 import type { InMemoryRoomStorage } from '../../server/adapters/memory';
@@ -253,7 +253,7 @@ export { ROOM_SYSTEM_KNOBS };
 
 /**
  * Framework-owned room world: one server + `clientCount` clients booted by
- * `@pkgs/determinism` node kinds, with per-kind library/domain actions.
+ * `@pkgs/dst` node kinds, with per-kind library/domain actions.
  * Kit surface is merged via {@link defineScenario.extend}.
  */
 export function defineRoomSystem(

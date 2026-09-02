@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
-import { replay, runScenario } from '@pkgs/determinism/pbt';
+import { openWorld } from '@pkgs/dst';
+import { replay, runScenario } from '@pkgs/dst/pbt';
 
 import type { SchemaPeer } from './peers';
 import { schemaAt } from './schemas';

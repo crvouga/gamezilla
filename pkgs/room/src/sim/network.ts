@@ -5,7 +5,7 @@ import {
   type NetworkFaults,
   RELIABLE_NETWORK,
   type Scheduler,
-} from '@pkgs/determinism';
+} from '@pkgs/dst';
 
 import { createNetEffect, type NetEffect } from './net-effect';
 
@@ -117,7 +117,7 @@ type RoomNetCtx = RoomNetMaps & {
 
 /**
  * Room-domain network: hold/down/faults keyed by client + direction.
- * Mechanics (delay/loss/dup/hold queues) live in `@pkgs/determinism`.
+ * Mechanics (delay/loss/dup/hold queues) live in `@pkgs/dst`.
  */
 export type SimRoomNetwork = {
   readonly registerServer: (
@@ -394,7 +394,7 @@ function buildRoomNetworkApi(args: {
 }
 
 /**
- * Adapt a framework-owned `@pkgs/determinism` network kernel to the room-domain
+ * Adapt a framework-owned `@pkgs/dst` network kernel to the room-domain
  * client/direction-keyed surface. Framework worlds pass `ctx.network`.
  */
 export function wrapRoomNetwork(args: {

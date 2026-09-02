@@ -23,7 +23,7 @@
     "@pkgs/assert": "workspace:*",
     "@pkgs/attribute": "workspace:*",
     "@pkgs/clock": "workspace:*",
-    "@pkgs/determinism": "workspace:*",
+    "@pkgs/dst": "workspace:*",
     "@pkgs/keyword": "workspace:*",
     "@pkgs/kv": "workspace:*",
     "@pkgs/message": "workspace:*",

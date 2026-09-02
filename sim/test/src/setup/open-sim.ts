@@ -3,7 +3,7 @@
  */
 
 import { type Timers, wallClock } from '@pkgs/clock';
-import { openWorld } from '@pkgs/determinism';
+import { openWorld } from '@pkgs/dst';
 import { writeUtf8 } from '@pkgs/object-store/helpers';
 import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';

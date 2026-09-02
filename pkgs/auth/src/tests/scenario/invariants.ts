@@ -1,4 +1,4 @@
-import type { World } from '@pkgs/determinism';
+import type { World } from '@pkgs/dst';
 import { sql } from '@pkgs/sql';
 import {
   AUTH_SET_TOKEN_HEADER,
@@ -13,8 +13,8 @@ import {
 } from './types';
 
 type AuthWorld = World<
-  Record<string, import('@pkgs/determinism').KnobDef>,
-  Record<string, import('@pkgs/determinism').NodeEntry>,
+  Record<string, import('@pkgs/dst').KnobDef>,
+  Record<string, import('@pkgs/dst').NodeEntry>,
   AuthKit
 >;
 

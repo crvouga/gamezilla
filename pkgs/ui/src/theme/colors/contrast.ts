@@ -6,8 +6,11 @@
  */
 
 import {
+  clamp01,
   contrastRatio as contrastRatioUnit,
+  type Rgba,
   relativeLuminance as relativeLuminanceUnit,
+  rgba,
 } from '@pkgs/colors';
 
 import {
@@ -64,7 +67,37 @@ export function contrastRatio(a: CssRgb8, b: CssRgb8): number {
 export type BestOnColorOptions = {
   light?: OnColorSet;
   dark?: OnColorSet;
+  /** When `background` is translucent, composite over this color first. */
+  backdrop?: string;
 };
+
+/** Porter-Duff source-over: `fg` painted on top of `backdrop`. */
+export function compositeOver(fg: Rgba, backdrop: Rgba): Rgba {
+  const fgA = clamp01(fg.a);
+  const bgA = clamp01(backdrop.a);
+  const outA = fgA + bgA * (1 - fgA);
+  if (outA === 0) return rgba(0, 0, 0, 0);
+  const inv = 1 - fgA;
+  return rgba(
+    (fg.r * fgA + backdrop.r * bgA * inv) / outA,
+    (fg.g * fgA + backdrop.g * bgA * inv) / outA,
+    (fg.b * fgA + backdrop.b * bgA * inv) / outA,
+    outA
+  );
+}
+
+function effectiveBackgroundRgb(
+  background: string,
+  backdrop?: string
+): CssRgb8 | null {
+  const fg = parseCssColor(background);
+  if (!fg) return null;
+  if (backdrop !== undefined && fg.a < 1) {
+    const bg = parseCssColor(backdrop);
+    if (bg) return rgbaToRgb8(compositeOver(fg, bg));
+  }
+  return rgbaToRgb8(fg);
+}
 
 /**
  * Pick the foreground set (`ON_DARK` white family vs `ON_LIGHT` near-black
@@ -78,7 +111,7 @@ export function bestOnColor(
 ): OnColorSet {
   const onDark = options?.dark ?? ON_DARK;
   const onLight = options?.light ?? ON_LIGHT;
-  const bg = parseColor(background);
+  const bg = effectiveBackgroundRgb(background, options?.backdrop);
   if (!bg) return onDark;
   const whiteRgb = parseColor(onDark.fg);
   const blackRgb = parseColor(onLight.fg);

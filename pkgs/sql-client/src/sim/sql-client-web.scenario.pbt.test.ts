@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
-import { runPins, runScenario } from '@pkgs/determinism/pbt';
+import { openWorld } from '@pkgs/dst';
+import { runPins, runScenario } from '@pkgs/dst/pbt';
 import { ownerTabId } from './ownership';
 import { SQL_CLIENT_WEB_SYSTEM } from './system';
 import { readToyRows } from './toy-kv';

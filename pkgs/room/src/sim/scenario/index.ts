@@ -1,6 +1,6 @@
 /**
  * Room system kernel. Worlds and action replay are framework-owned:
- * {@link defineRoomSystem} + `runScenario` / `replay` from `@pkgs/determinism`.
+ * {@link defineRoomSystem} + `runScenario` / `replay` from `@pkgs/dst`.
  */
 
 export type {

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 
-import { openWorld } from '@pkgs/determinism';
+import { openWorld } from '@pkgs/dst';
 import { matchClockSystem } from '../apps/match-clock/system';
 import {
   FlagFall,

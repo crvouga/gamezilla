@@ -1,6 +1,6 @@
 import { describe, test } from 'bun:test';
-import type { AnyScenarioDef } from '@pkgs/determinism';
-import { runScenario } from '@pkgs/determinism/pbt';
+import type { AnyScenarioDef } from '@pkgs/dst';
+import { runScenario } from '@pkgs/dst/pbt';
 
 import { replayRoom, replayRoomPin } from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';

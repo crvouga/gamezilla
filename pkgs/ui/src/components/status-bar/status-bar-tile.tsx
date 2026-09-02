@@ -10,6 +10,7 @@ import { borderRadius, OnColorProvider, useTheme } from '../../theme';
 import { Box } from '../box';
 import { Pressable } from '../pressable';
 import { Text } from '../text';
+import { STATUS_BAR_FROST_TINT } from './status-bar-frost-backdrop';
 
 const TILE_MIN_HEIGHT = 112;
 const ICON_WELL_SIZE = 40;
@@ -43,6 +44,7 @@ export function StatusBarTile({
       : 'hsla(240, 10%, 4%, 0.06)';
   const backgroundColor = active ? theme.colors.tint : glass;
   const wellFill = active ? 'hsla(0, 0%, 100%, 0.22)' : glass;
+  const frostBackdrop = STATUS_BAR_FROST_TINT[theme.colorScheme];
 
   const body = (
     <Box
@@ -58,7 +60,10 @@ export function StatusBarTile({
       }}
       dataSet={{ component: 'StatusBarTile', ...dataSet }}
     >
-      <OnColorProvider background={backgroundColor}>
+      <OnColorProvider
+        background={backgroundColor}
+        {...(!active ? { backdrop: frostBackdrop } : {})}
+      >
         {leading !== undefined ? (
           <Box
             sx={{

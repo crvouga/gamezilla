@@ -1,4 +1,4 @@
-import type { Scheduler } from '@pkgs/determinism';
+import type { Scheduler } from '@pkgs/dst';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { reconcileOptimisticPeerMarkers } from '../client/optimistic-peer-rows';
 import type { SimClientHandle } from './client-factory';
@@ -47,15 +47,28 @@ function nudgeClients(clients: ReadonlyMap<string, SimClientHandle>): void {
   }
 }
 
+async function checkDomainConverged(
+  ctx: AssertConvergedCtx
+): Promise<InvariantViolation | null> {
+  return ctx.domain.checkAllConverged({
+    clients: clientSnapshots(ctx.clients),
+    serverDb: ctx.server.db,
+  });
+}
+
+async function drainScheduler(ctx: AssertConvergedCtx): Promise<void> {
+  for (let i = 0; i < 8; i += 1) {
+    if (ctx.scheduler.pendingTaskCount() === 0) return;
+    await ctx.scheduler.runFor(250);
+  }
+}
+
 async function settleOnce(
   ctx: AssertConvergedCtx
 ): Promise<InvariantViolation | null> {
   nudgeClients(ctx.clients);
-  await ctx.scheduler.runFor(250);
-  const domain = await ctx.domain.checkAllConverged({
-    clients: clientSnapshots(ctx.clients),
-    serverDb: ctx.server.db,
-  });
+  await drainScheduler(ctx);
+  let domain = await checkDomainConverged(ctx);
   if (domain !== null) return domain;
   const nowIso = new Date(ctx.now()).toISOString();
   for (const client of ctx.clients.values()) {
@@ -68,6 +81,8 @@ async function settleOnce(
       throw error;
     }
   }
+  domain = await checkDomainConverged(ctx);
+  if (domain !== null) return domain;
   for (const client of ctx.clients.values()) {
     let post: InvariantViolation | null;
     try {
@@ -83,7 +98,8 @@ async function settleOnce(
       };
     }
   }
-  return null;
+  await drainScheduler(ctx);
+  return checkDomainConverged(ctx);
 }
 
 /** Heal and settle until all clients match server domain (or throw). */

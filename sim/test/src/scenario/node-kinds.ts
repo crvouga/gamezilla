@@ -1,4 +1,4 @@
-import { node } from '@pkgs/determinism';
+import { node } from '@pkgs/dst';
 import {
   type CreateSimOptions,
   createSim,

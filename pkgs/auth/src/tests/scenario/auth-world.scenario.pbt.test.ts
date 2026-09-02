@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
-import { replay, runScenario, runWorldProperty } from '@pkgs/determinism/pbt';
+import { openWorld } from '@pkgs/dst';
+import { replay, runScenario, runWorldProperty } from '@pkgs/dst/pbt';
 import fc from 'fast-check';
 
 import {

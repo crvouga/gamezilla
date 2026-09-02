@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { createWorldPorts } from '@pkgs/determinism';
+import { createWorldPorts } from '@pkgs/dst';
 import { createNoopLogger } from '@pkgs/logger';
 import { SqlClientImplSqliteMem } from '@pkgs/sql-client/sqlite/impl-sqlite-mem';
 

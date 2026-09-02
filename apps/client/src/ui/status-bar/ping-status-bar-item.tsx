@@ -2,19 +2,27 @@ import { useServerStatus } from '@apps/client/connection/use-server-status';
 import { useLingui } from '@lingui/react/macro';
 import { useTimers } from '@pkgs/clock';
 import { useOptionalOriginAvailability } from '@pkgs/http-client';
-import { Box, RegisterStatusBarItem, Text, useTheme, WifiIcon } from '@pkgs/ui';
+import {
+  Box,
+  RegisterStatusBarItem,
+  Text,
+  useOnColor,
+  useRouter,
+  useStatusBar,
+  WifiIcon,
+} from '@pkgs/ui';
 import { type ReactNode, useCallback, useEffect } from 'react';
 
 const REFRESH_INTERVAL_MS = 15_000;
 
 function PingIndicator({ latencyMs }: { latencyMs: number | null }): ReactNode {
-  const theme = useTheme();
+  const onColor = useOnColor();
   const label =
     latencyMs === null ? '—' : `${latencyMs}${String.fromCharCode(160)}ms`;
   return (
     <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 1 }}>
-      <WifiIcon size={12} color={theme.colors.textSecondary} />
-      <Text variant="caption" sx={{ color: 'textSecondary' }} label={label} />
+      <WifiIcon size={12} color={onColor.icon} />
+      <Text variant="caption" sx={{ color: onColor.fgMuted }} label={label} />
     </Box>
   );
 }
@@ -24,6 +32,8 @@ function PingIndicator({ latencyMs }: { latencyMs: number | null }): ReactNode {
  */
 export function PingStatusBarItem(): ReactNode {
   const { t } = useLingui();
+  const router = useRouter();
+  const { close } = useStatusBar();
   const timers = useTimers();
   const availability = useOptionalOriginAvailability();
   const { health, aggregateStatus, refresh } = useServerStatus();
@@ -38,8 +48,9 @@ export function PingStatusBarItem(): ReactNode {
   const caption =
     health.latencyMs === null ? t`Checking…` : t`${health.latencyMs} ms`;
   const onPress = useCallback(() => {
-    refresh();
-  }, [refresh]);
+    close();
+    router.push('/more/server-status');
+  }, [close, router]);
 
   return (
     <RegisterStatusBarItem

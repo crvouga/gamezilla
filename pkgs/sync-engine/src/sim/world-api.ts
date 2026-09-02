@@ -1,4 +1,4 @@
-import type { Scheduler } from '@pkgs/determinism';
+import type { Scheduler } from '@pkgs/dst';
 
 import type { SimClientHandle } from './client-handle';
 import type { InvariantViolation } from './invariants';

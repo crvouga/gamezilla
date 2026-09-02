@@ -1,4 +1,4 @@
-import { command } from '@pkgs/determinism';
+import { command } from '@pkgs/dst';
 import fc from 'fast-check';
 import {
   corruptSimOpfsStore,
@@ -18,7 +18,7 @@ type TabAction<K extends string> = {
 };
 
 function arbTabId(
-  ctx: import('@pkgs/determinism').CommandGeneratorContext
+  ctx: import('@pkgs/dst').CommandGeneratorContext
 ): fc.Arbitrary<string> {
   const tabs = ctx.nodeIds('tab');
   return tabs.length === 0 ? fc.constant('t0') : fc.constantFrom(...tabs);
@@ -26,14 +26,14 @@ function arbTabId(
 
 function arbTabAction<K extends string>(
   kind: K,
-  ctx: import('@pkgs/determinism').CommandGeneratorContext
+  ctx: import('@pkgs/dst').CommandGeneratorContext
 ): fc.Arbitrary<TabAction<K>> {
   return arbTabId(ctx).map((tabId) => ({ kind, tabId }));
 }
 
-type SqlWebWorld = import('@pkgs/determinism').World<
-  Record<string, import('@pkgs/determinism').KnobDef>,
-  Record<string, import('@pkgs/determinism').NodeEntry>
+type SqlWebWorld = import('@pkgs/dst').World<
+  Record<string, import('@pkgs/dst').KnobDef>,
+  Record<string, import('@pkgs/dst').NodeEntry>
 >;
 
 export const connectAction = command<TabAction<'connect'>, object, SqlWebWorld>(

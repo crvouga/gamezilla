@@ -48,9 +48,9 @@ export function createSqlClientWebState(): SqlClientWebState {
 }
 
 export function boardOf(
-  world: import('@pkgs/determinism').World<
-    Record<string, import('@pkgs/determinism').KnobDef>,
-    Record<string, import('@pkgs/determinism').NodeEntry>
+  world: import('@pkgs/dst').World<
+    Record<string, import('@pkgs/dst').KnobDef>,
+    Record<string, import('@pkgs/dst').NodeEntry>
   >
 ): SqlClientWebState {
   return (world.nodes['store'] as { board: SqlClientWebState }).board;

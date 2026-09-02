@@ -1,5 +1,5 @@
 import { describe, test } from 'bun:test';
-import { runProperty } from '@pkgs/determinism/pbt';
+import { runProperty } from '@pkgs/dst/pbt';
 import { fc } from '@pkgs/pbt';
 import { HTTP_FAULTS, replaySyncPin } from '../../sim/scenario';
 import { arbKnobs, arbSeed } from '../../sim/scenario/knobs';

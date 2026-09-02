@@ -4,7 +4,7 @@
  */
 
 import { setImmediate as nodeSetImmediate } from 'node:timers';
-import type { Scheduler } from '@pkgs/determinism';
+import type { Scheduler } from '@pkgs/dst';
 import type { WaitPump } from '@pkgs/ui-testing';
 
 /**

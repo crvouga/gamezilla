@@ -32,6 +32,7 @@ import { ServerStatusScreen } from '../connection/server-status-screen';
 import { AboutScreen } from '../settings/about-screen';
 import { PerformanceSettingsScreen } from '../settings/performance-screen';
 import { SettingsScreen } from '../settings/settings-screen';
+import { SoundSettingsScreen } from '../settings/sound-screen';
 import { ThemeSettingsScreen } from '../settings/theme-screen';
 import { SyncScreen } from '../sync/sync-screen';
 import { UiExplorerDetailScreen } from '../ui/explorer/ui-explorer-detail-screen';
@@ -122,6 +123,7 @@ export function RootNavigator(): ReactNode {
         name="MorePerformance"
         component={PerformanceSettingsScreen}
       />
+      <RootStack.Screen name="MoreSound" component={SoundSettingsScreen} />
       <RootStack.Screen name="MoreAbout" component={AboutScreen} />
       <RootStack.Screen name="MoreSync" component={SyncScreen} />
       <RootStack.Screen

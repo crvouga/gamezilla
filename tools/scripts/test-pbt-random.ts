@@ -5,10 +5,14 @@
  *   bun run test:pbt:random                  # single suite run (200 runs/property)
  *   bun run test:pbt:random 100              # up to 100 attempts; stop on first fail
  *   bun run test:pbt:random --concurrency 8  # cap parallel file workers
+ *
+ * On failure (local only): plays a sound + shows a system dialog. Disable with
+ * PBT_FAIL_LOUD=0. Skipped automatically when CI=true.
  */
 import { availableParallelism } from 'node:os';
 
 import { discoverPbtTests } from './test-pbt-random/discover';
+import { notifyPbtFailure } from './test-pbt-random/notify-failure';
 import {
   DEFAULT_NUM_RUNS,
   DEFAULT_SAMPLE_INTERRUPT_MS,
@@ -120,6 +124,12 @@ async function main(): Promise<void> {
     });
     if (!result.ok) {
       ui.stopSession();
+      notifyPbtFailure({
+        seed,
+        failedFiles: result.results
+          .filter((r) => r.code !== 0)
+          .map((r) => r.file),
+      });
       process.exit(1);
     }
   }
@@ -129,5 +139,6 @@ async function main(): Promise<void> {
 
 main().catch((error) => {
   console.error(error);
+  notifyPbtFailure({ seed: 0, failedFiles: [] });
   process.exit(1);
 });

@@ -1,4 +1,4 @@
-import { command } from '@pkgs/determinism';
+import { command } from '@pkgs/dst';
 import fc from 'fast-check';
 import {
   AUTH_SESSION_TTL_MS,
@@ -50,9 +50,9 @@ export type AuthAction = AuthDomainOp | AdvanceClockAction | GoogleFaultAction;
 
 export type AuthModel = Record<string, never>;
 
-type AuthWorld = import('@pkgs/determinism').World<
-  Record<string, import('@pkgs/determinism').KnobDef>,
-  Record<string, import('@pkgs/determinism').NodeEntry>,
+type AuthWorld = import('@pkgs/dst').World<
+  Record<string, import('@pkgs/dst').KnobDef>,
+  Record<string, import('@pkgs/dst').NodeEntry>,
   AuthKit
 >;
 
@@ -65,7 +65,7 @@ const CALLBACK_URLS = [
 ] as const;
 
 function clientArb(
-  ctx: import('@pkgs/determinism').CommandGeneratorContext
+  ctx: import('@pkgs/dst').CommandGeneratorContext
 ): fc.Arbitrary<string> {
   const clients = ctx.nodeIds('client');
   if (clients.length === 0) return fc.constant('c0');

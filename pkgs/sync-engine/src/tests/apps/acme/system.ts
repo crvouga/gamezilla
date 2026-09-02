@@ -1,5 +1,5 @@
-import type { OpenWorldOptions } from '@pkgs/determinism';
-import { openWorld } from '@pkgs/determinism';
+import type { OpenWorldOptions } from '@pkgs/dst';
+import { openWorld } from '@pkgs/dst';
 
 import {
   defineSyncSystem,

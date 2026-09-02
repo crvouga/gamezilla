@@ -1,4 +1,4 @@
-import { knob, node } from '@pkgs/determinism';
+import { knob, node } from '@pkgs/dst';
 import { SqlClientImplPostgresMem } from '@pkgs/sql-client/postgres/impl-postgres-mem';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres/schema';
 import { SqlClientImplSqliteMem } from '@pkgs/sql-client/sqlite/impl-sqlite-mem';

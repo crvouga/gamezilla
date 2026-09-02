@@ -6,7 +6,7 @@ import {
   openWorld,
   type ScenarioDef,
   type World,
-} from '@pkgs/determinism';
+} from '@pkgs/dst';
 import fc from 'fast-check';
 import type { MatchmakingSimBackend, MatchmakingSimKit } from '../world-api';
 import { assertReplicaAgreement, buildMatchmakingKit } from './facade';
@@ -43,7 +43,7 @@ export type MatchmakingSystemDef = ScenarioDef<
 
 export type MatchmakingSystemWorld = World<
   MatchmakingKnobs,
-  Record<string, import('@pkgs/determinism').NodeEntry>,
+  Record<string, import('@pkgs/dst').NodeEntry>,
   MatchmakingSimKit
 >;
 

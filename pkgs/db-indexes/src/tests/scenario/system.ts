@@ -1,4 +1,4 @@
-import { defineScenario } from '@pkgs/determinism';
+import { defineScenario } from '@pkgs/dst';
 import { planIndexes } from '../../core/plan';
 import { INDEXES_ACTIONS } from './actions';
 import { checkIndexesInvariants } from './invariants';
@@ -7,9 +7,9 @@ import type { IndexesModel } from './types';
 import { reconcilerOf } from './types';
 
 async function settleIndexes(
-  world: import('@pkgs/determinism').World<
-    Record<string, import('@pkgs/determinism').KnobDef>,
-    Record<string, import('@pkgs/determinism').NodeEntry>
+  world: import('@pkgs/dst').World<
+    Record<string, import('@pkgs/dst').KnobDef>,
+    Record<string, import('@pkgs/dst').NodeEntry>
   >
 ): Promise<void> {
   await world.quiesce();

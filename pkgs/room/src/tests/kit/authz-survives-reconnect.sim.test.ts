@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
+import { openWorld } from '@pkgs/dst';
 import { ROOM_ERROR_TYPE } from '../../types';
 import { authzSystem } from '../apps/authz/system';
 import { authzCount, authzOwner, Bump, Claim } from '../fixtures/authz-module';

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
+import { openWorld } from '@pkgs/dst';
 import { asKeyword } from '@pkgs/keyword';
 import { ROOM_ERROR_TYPE } from '../../types';
 import { counterSystem } from '../apps/counter/system';

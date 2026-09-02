@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { replay, runScenario } from '@pkgs/determinism/pbt';
+import { replay, runScenario } from '@pkgs/dst/pbt';
 import { INDEXES_SYSTEM } from './system';
 
 describe('indexes-world system PBT', () => {

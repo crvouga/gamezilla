@@ -213,7 +213,6 @@
     "react-scan": "^0.5.7",
     "web-vitals": "^5.1.0",
     "@legendapp/list": "^2.0.19",
-    "@fontsource/nunito": "^5.2.7",
     "@welldone-software/why-did-you-render": "^10.0.1",
     "react-test-renderer": "19.2.0",
     "sort-package-json": "^3.6.1",

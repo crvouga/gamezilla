@@ -1,4 +1,4 @@
-import { knob, node } from '@pkgs/determinism';
+import { knob, node } from '@pkgs/dst';
 import fc from 'fast-check';
 import { type BrokerCore, createBrokerCore } from '../sqlite/web/broker-core';
 import {

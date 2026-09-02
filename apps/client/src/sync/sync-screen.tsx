@@ -1,8 +1,8 @@
 import { useBreadcrumbNav } from '@apps/client/ui/use-breadcrumb-nav';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useSyncEngine } from '@pkgs/sync-engine/client';
-import { Box, ScreenBase, Text } from '@pkgs/ui';
-import type { ReactNode } from 'react';
+import { Box, Button, Card, ScreenBase, Text } from '@pkgs/ui';
+import { type ReactNode, useCallback } from 'react';
 
 function StatusRow({ label, value }: { label: string; value: ReactNode }) {
   return (
@@ -34,7 +34,7 @@ function StatusRow({ label, value }: { label: string; value: ReactNode }) {
 export function SyncScreen() {
   const nav = useBreadcrumbNav();
   const { t } = useLingui();
-  const { status } = useSyncEngine();
+  const { status, refreshQueries } = useSyncEngine();
 
   const connectionLabel =
     status.connection === 'disconnected'
@@ -45,6 +45,15 @@ export function SyncScreen() {
           ? t`Syncing`
           : t`Connected`;
 
+  const onRetry = useCallback(() => {
+    void refreshQueries();
+  }, [refreshQueries]);
+
+  const lastError =
+    status.lastError !== null && status.lastError.length > 0
+      ? status.lastError
+      : null;
+
   return (
     <ScreenBase
       screenId="sync"
@@ -53,8 +62,9 @@ export function SyncScreen() {
         { name: <Trans>Settings</Trans>, onPress: nav('/more') },
         { name: <Trans>Sync status</Trans> },
       ]}
+      scroll
       content={({ sx }) => (
-        <Box sx={sx}>
+        <Box sx={[sx, { gap: 3 }]}>
           <StatusRow label={t`Connection`} value={connectionLabel} />
           <StatusRow label={t`Online`} value={status.online ? t`Yes` : t`No`} />
           <StatusRow
@@ -65,10 +75,20 @@ export function SyncScreen() {
             label={t`Has ever synced`}
             value={status.hasEverSynced ? t`Yes` : t`No`}
           />
-          <StatusRow
-            label={t`Last error`}
-            value={status.lastError ?? t`None`}
-          />
+          {lastError !== null ? (
+            <Card elevation={1} sx={{ p: 4, gap: 2 }}>
+              <Text variant="bodyBold" label={<Trans>Last error</Trans>} />
+              <Text
+                variant="caption"
+                selectable
+                sx={{ color: 'destructive' }}
+                label={lastError}
+              />
+            </Card>
+          ) : (
+            <StatusRow label={t`Last error`} value={t`None`} />
+          )}
+          <Button title={t`Retry sync`} onPress={onRetry} />
         </Box>
       )}
     />

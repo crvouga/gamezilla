@@ -9,9 +9,9 @@ export type IndexesModel = {
 export type { IndexesReconcilerHandle };
 
 export function reconcilerOf(
-  world: import('@pkgs/determinism').World<
-    Record<string, import('@pkgs/determinism').KnobDef>,
-    Record<string, import('@pkgs/determinism').NodeEntry>
+  world: import('@pkgs/dst').World<
+    Record<string, import('@pkgs/dst').KnobDef>,
+    Record<string, import('@pkgs/dst').NodeEntry>
   >
 ): IndexesReconcilerHandle {
   return world.nodes['reconciler'] as IndexesReconcilerHandle;

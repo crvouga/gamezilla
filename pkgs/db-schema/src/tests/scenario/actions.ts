@@ -1,4 +1,4 @@
-import { command } from '@pkgs/determinism';
+import { command } from '@pkgs/dst';
 import fc from 'fast-check';
 import { applyAdvance, applyForbidden } from './dispatch';
 import { SCHEMA_SERVER_ID } from './peers';
@@ -17,13 +17,13 @@ export type SchemaAction = AdvanceAction | ForbiddenAction;
 
 export type SchemaModel = Record<string, never>;
 
-type SchemaWorld = import('@pkgs/determinism').World<
-  Record<string, import('@pkgs/determinism').KnobDef>,
-  Record<string, import('@pkgs/determinism').NodeEntry>
+type SchemaWorld = import('@pkgs/dst').World<
+  Record<string, import('@pkgs/dst').KnobDef>,
+  Record<string, import('@pkgs/dst').NodeEntry>
 >;
 
 function peerIds(
-  ctx: import('@pkgs/determinism').CommandGeneratorContext
+  ctx: import('@pkgs/dst').CommandGeneratorContext
 ): readonly string[] {
   return [SCHEMA_SERVER_ID, ...ctx.nodeIds('client')];
 }

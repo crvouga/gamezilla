@@ -15,7 +15,7 @@ Two public canonicalizers exist for “same bytes for the same logical object”
 | `canonicalRoomJson` / `hashRoomState` | `@pkgs/room` | `Object.keys(obj).sort()` then `JSON.stringify` | FNV-1a 64-bit of UTF-16 code units |
 | `canonicalJson` / `scopeHash` / `hashQueryTables` | `@pkgs/sync-engine` | Identical `sortValue` | SHA-256 of UTF-8 |
 
-A third cousin, `canonicalJsonStringify` in `@pkgs/determinism`, also uses `Object.keys(value).sort()`.
+A third cousin, `canonicalJsonStringify` in `@pkgs/dst`, also uses `Object.keys(value).sort()`.
 
 Default `Array.sort()` is **lexicographic** UTF-16 (`"10" < "2"`). JS **enumeration** of integer-like keys is **numeric** (`"2"` then `"10"`). Both room and sync re-sort, so they **currently agree with each other** and **disagree with raw `Object.keys` order**.
 
@@ -33,7 +33,7 @@ Antithesis value is not “run a unit test.” It is: under real engines (Hermes
 |---|---|
 | `pkgs/room/src/hash-room-state.ts` `sortValue` / `canonicalRoomJson` / `fnv1a64Hex` | Room reconnect / anti-cheat / `RoomModule.hash`. |
 | `pkgs/sync-engine/src/queries/shared/canonical.ts` `sortValue` / `canonicalJson` / `hashQueryTables` | Scope hash, snapshot content hash. Row ids sorted with `String` compare, not numeric. |
-| `pkgs/determinism/src/json.ts` `canonicalJsonStringify` | Sim traces / knobs — third copy. |
+| `pkgs/dst/src/json.ts` `canonicalJsonStringify` | Sim traces / knobs — third copy. |
 | `libs/spaces/src/shared/space/space-members/space-members-messages.ts` | Seats map hashed as part of `RoomState`. |
 | `PBT_AUDIT.md` rows 1–2 | Explicit risk: integer-like keys; align room vs sync sort. |
 | `DETERMINISM.md` “Object key ordering” | Enumeration is numeric-first; hashing must sort. |

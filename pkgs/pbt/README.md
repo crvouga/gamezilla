@@ -40,7 +40,7 @@ Env knobs:
 
 ## World sample properties
 
-For sim-backed suites, world helpers live in **`@pkgs/determinism/pbt`**, not here.
+For sim-backed suites, world helpers live in **`@pkgs/dst/pbt`**, not here.
 `runProperty` caps `numRuns` and extends the interrupt budget so
 `test:pbt:random` cannot accidentally run hundreds of full-world opens;
 `runScenario` drives a whole `defineScenario` Scenario (seed + knobs + Command pool +
@@ -56,8 +56,8 @@ import {
   runProperty,
   runScenario,
   runWorldProperty,
-} from '@pkgs/determinism/pbt';
-import { openWorld } from '@pkgs/determinism';
+} from '@pkgs/dst/pbt';
+import { openWorld } from '@pkgs/dst';
 import { acmeSystem } from '../apps/acme/system';
 
 // Whole-scenario property: framework generates and replays everything.

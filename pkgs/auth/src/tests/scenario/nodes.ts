@@ -1,4 +1,4 @@
-import { knob, node } from '@pkgs/determinism';
+import { knob, node } from '@pkgs/dst';
 import { createNoopLogger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplPostgresMem } from '@pkgs/sql-client/postgres/impl-postgres-mem';
@@ -56,7 +56,7 @@ export async function migrateAuthSchema(
 function buildStore(args: {
   readonly fabric: AuthFabric;
   readonly sql: SqlClient;
-  readonly deps: import('@pkgs/determinism').WorldPorts;
+  readonly deps: import('@pkgs/dst').WorldPorts;
   readonly enableDev: boolean;
   readonly enableGoogle: boolean;
 }): AuthStore {

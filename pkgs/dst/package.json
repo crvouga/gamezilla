@@ -1,5 +1,5 @@
 {
-  "name": "@pkgs/determinism",
+  "name": "@pkgs/dst",
   "version": "0.0.0",
   "private": true,
   "exports": {

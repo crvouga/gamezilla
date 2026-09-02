@@ -170,6 +170,11 @@ function pushFontDecls(
 }
 
 function cssFontFamily(name: string): string {
+  return name.split(',').map(quoteCssFamilyName).join(',');
+}
+
+function quoteCssFamilyName(part: string): string {
+  const name = part.trim();
   if (/^[A-Za-z0-9-]+$/.test(name)) return name;
   return `"${name.replace(/"/g, '')}"`;
 }

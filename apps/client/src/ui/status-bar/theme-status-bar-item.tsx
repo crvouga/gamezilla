@@ -2,25 +2,20 @@ import { useLingui } from '@lingui/react/macro';
 import {
   PaintbrushIcon,
   RegisterStatusBarItem,
-  type ThemePreference,
+  useRouter,
+  useStatusBar,
   useThemePreference,
 } from '@pkgs/ui';
 import { type ReactNode, useCallback } from 'react';
-
-const THEME_CYCLE: readonly ThemePreference[] = ['light', 'dark', 'system'];
-
-function nextThemePreference(current: ThemePreference): ThemePreference {
-  const index = THEME_CYCLE.indexOf(current);
-  const safeIndex = index < 0 ? 0 : index;
-  return THEME_CYCLE[(safeIndex + 1) % THEME_CYCLE.length] ?? 'system';
-}
 
 /**
  * Registers theme preference into the global status bar.
  */
 export function ThemeStatusBarItem(): ReactNode {
   const { t } = useLingui();
-  const { preference, setPreference } = useThemePreference();
+  const router = useRouter();
+  const { close } = useStatusBar();
+  const { preference } = useThemePreference();
   const caption =
     preference === 'light'
       ? t`Light`
@@ -28,8 +23,9 @@ export function ThemeStatusBarItem(): ReactNode {
         ? t`Dark`
         : t`System`;
   const onPress = useCallback(() => {
-    setPreference(nextThemePreference(preference));
-  }, [preference, setPreference]);
+    close();
+    router.push('/more/theme');
+  }, [close, router]);
 
   return (
     <RegisterStatusBarItem

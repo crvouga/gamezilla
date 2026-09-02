@@ -1,4 +1,4 @@
-import type { NeverOptions } from '@pkgs/determinism';
+import type { NeverOptions } from '@pkgs/dst';
 
 import type { RoomCommandPayload, RoomEvent, RoomState } from '../../types';
 import type { RoomCrashEvent } from '../boundary-faults';

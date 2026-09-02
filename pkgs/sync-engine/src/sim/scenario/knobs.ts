@@ -1,4 +1,4 @@
-import { type KnobDef, knob } from '@pkgs/determinism';
+import { type KnobDef, knob } from '@pkgs/dst';
 import fc from 'fast-check';
 
 export type WorldKnobs = {

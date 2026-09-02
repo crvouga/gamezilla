@@ -1,6 +1,12 @@
 import { useLingui } from '@lingui/react/macro';
 import { useSoundsPreference } from '@pkgs/sounds';
-import { RegisterStatusBarItem, SoundIndicator, useTheme } from '@pkgs/ui';
+import {
+  RegisterStatusBarItem,
+  SoundIndicator,
+  useRouter,
+  useStatusBar,
+  useTheme,
+} from '@pkgs/ui';
 import { type ReactNode, useCallback } from 'react';
 
 /**
@@ -8,12 +14,15 @@ import { type ReactNode, useCallback } from 'react';
  */
 export function SoundStatusBarItem(): ReactNode {
   const { t } = useLingui();
+  const router = useRouter();
+  const { close } = useStatusBar();
   const theme = useTheme();
-  const { muted, setMuted } = useSoundsPreference();
+  const { muted } = useSoundsPreference();
   const caption = muted ? t`Muted` : t`On`;
   const onPress = useCallback(() => {
-    setMuted(!muted);
-  }, [muted, setMuted]);
+    close();
+    router.push('/more/sound');
+  }, [close, router]);
   const active = !muted;
   const glyphColor = active ? theme.colors.onPrimary : undefined;
 

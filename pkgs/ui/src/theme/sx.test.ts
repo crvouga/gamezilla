@@ -72,6 +72,15 @@ describe('createSx', () => {
     });
   });
 
+  test('maps Expo font faces to the loaded weight and drops fontWeight', () => {
+    const out = sx({
+      fontFamily: 'Nunito_400Regular',
+      fontWeight: '800',
+    });
+    expect(out['fontFamily']).toBe('Nunito_800ExtraBold');
+    expect(out['fontWeight']).toBeUndefined();
+  });
+
   test('hairline border and elevation has no boxShadow', () => {
     const out = sx({ borderBottomWidth: 'hairline', elevation: 2 });
     expect(typeof out['borderBottomWidth']).toBe('number');

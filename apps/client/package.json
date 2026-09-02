@@ -84,7 +84,6 @@
     "@apps/server": "workspace:*",
     "@expo-google-fonts/nunito": "catalog:",
     "@expo/metro-runtime": "catalog:",
-    "@fontsource/nunito": "catalog:",
     "@gorhom/bottom-sheet": "catalog:",
     "@legendapp/list": "catalog:",
     "@libs/auth": "workspace:*",

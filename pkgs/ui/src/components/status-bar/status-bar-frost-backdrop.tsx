@@ -8,7 +8,7 @@ import type { ReactNode } from 'react';
 import type { ColorScheme } from '../../theme';
 import { Box } from '../box';
 
-const GLASS_TINT = {
+export const STATUS_BAR_FROST_TINT = {
   light: 'hsla(0, 0%, 100%, 0.92)',
   dark: 'hsla(240, 5%, 13%, 0.92)',
 } as const;
@@ -25,7 +25,7 @@ export function StatusBarFrostBackdrop({
       pointerEvents="none"
       sx={{
         absoluteFill: true,
-        backgroundColor: GLASS_TINT[colorScheme],
+        backgroundColor: STATUS_BAR_FROST_TINT[colorScheme],
       }}
     />
   );

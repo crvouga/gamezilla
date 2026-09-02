@@ -1,6 +1,11 @@
 import { useLingui } from '@lingui/react/macro';
 import { useSyncEngine } from '@pkgs/sync-engine/client';
-import { RegisterStatusBarItem, StatusDot } from '@pkgs/ui';
+import {
+  RegisterStatusBarItem,
+  StatusDot,
+  useRouter,
+  useStatusBar,
+} from '@pkgs/ui';
 import { type ReactNode, useCallback, useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 
@@ -31,7 +36,9 @@ function useBrowserOnline(): boolean {
  */
 export function ConnectivityStatusBarItem(): ReactNode {
   const { t } = useLingui();
-  const { status: syncStatus, refreshQueries } = useSyncEngine();
+  const router = useRouter();
+  const { close } = useStatusBar();
+  const { status: syncStatus } = useSyncEngine();
   const browserOnline = useBrowserOnline();
   const syncError =
     syncStatus.lastError !== null && syncStatus.lastError.length > 0;
@@ -51,14 +58,17 @@ export function ConnectivityStatusBarItem(): ReactNode {
           ? t`Syncing`
           : t`Sync issue`;
   const caption =
-    status === 'pending' || status === 'online'
+    status === 'online'
       ? syncStatus.connection
-      : syncError && syncStatus.lastError !== null
-        ? syncStatus.lastError
-        : label;
+      : status === 'pending'
+        ? syncStatus.connection
+        : status === 'warning'
+          ? t`Error`
+          : label;
   const onPress = useCallback(() => {
-    void refreshQueries();
-  }, [refreshQueries]);
+    close();
+    router.push('/more/sync');
+  }, [close, router]);
 
   return (
     <RegisterStatusBarItem

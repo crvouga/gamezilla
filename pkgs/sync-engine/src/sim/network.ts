@@ -3,7 +3,7 @@ import type {
   EndpointId,
   FlowKey,
   Network as KernelNetwork,
-} from '@pkgs/determinism';
+} from '@pkgs/dst';
 
 import type { SimFaultOptions } from './faults';
 import { type ClientTraffic, clientForHop, type SimTraffic } from './traffic';
@@ -12,7 +12,7 @@ export type { Deliver, EndpointId };
 
 /**
  * Sync-domain network: hold/faults keyed by node + {@link SimTraffic}.
- * Mechanics (delay/loss/dup/partition/hold queues) live in `@pkgs/determinism`.
+ * Mechanics (delay/loss/dup/partition/hold queues) live in `@pkgs/dst`.
  */
 export type SyncNetwork = {
   readonly register: (id: EndpointId, deliver: Deliver) => void;
@@ -158,7 +158,7 @@ function clearNodeOverrides(
 }
 
 /**
- * Adapt a framework-owned `@pkgs/determinism` network kernel to the sync-domain
+ * Adapt a framework-owned `@pkgs/dst` network kernel to the sync-domain
  * traffic-keyed surface. Framework worlds pass `ctx.network`.
  */
 export function wrapSimNetwork(

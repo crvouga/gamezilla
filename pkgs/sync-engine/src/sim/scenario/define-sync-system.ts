@@ -5,7 +5,7 @@ import {
   type ScenarioDef,
   type UnboundCommandDef,
   type World,
-} from '@pkgs/determinism';
+} from '@pkgs/dst';
 import fc from 'fast-check';
 
 import type { LocalDomainSchema } from '../../client/local-schema-migrate';
@@ -302,7 +302,7 @@ export { SYNC_SYSTEM_KNOBS };
 
 /**
  * Framework-owned sync world: broker + server + N clients booted by
- * `@pkgs/determinism` node kinds, with the full library/domain action pool.
+ * `@pkgs/dst` node kinds, with the full library/domain action pool.
  */
 export function defineSyncSystem(
   app: SyncApp,

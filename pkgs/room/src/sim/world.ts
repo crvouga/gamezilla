@@ -1,4 +1,4 @@
-import type { WorldPorts } from '@pkgs/determinism';
+import type { WorldPorts } from '@pkgs/dst';
 
 import { InMemoryClientStorage } from '../client/adapters/storage/memory';
 import { createTimerScheduleStack } from '../effects/timer-schedule-stack';
@@ -405,7 +405,7 @@ async function assertWorldConverged<
 
 /**
  * Boot the multi-client kit room world (TigerBeetle-style deterministic sim).
- * Internal — framework worlds use `openWorld` from `@pkgs/determinism` +
+ * Internal — framework worlds use `openWorld` from `@pkgs/dst` +
  * {@link defineRoomSystem}; node kinds and module conformance call this.
  *
  * Clients are added explicitly via {@link World.addClient}. Generated system

@@ -1,4 +1,4 @@
-import { type JsonValue, node } from '@pkgs/determinism';
+import { type JsonValue, node } from '@pkgs/dst';
 
 import { MILD_ROOM_FAULTS, wrapRoomNetwork } from '../network';
 import { bootRoomKitWorld } from '../world';

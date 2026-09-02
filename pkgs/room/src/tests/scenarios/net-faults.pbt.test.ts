@@ -1,5 +1,5 @@
 import { describe, test } from 'bun:test';
-import { arbSeed, runProperty } from '@pkgs/determinism/pbt';
+import { arbSeed, runProperty } from '@pkgs/dst/pbt';
 import { fc } from '@pkgs/pbt';
 
 import {

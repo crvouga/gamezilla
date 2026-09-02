@@ -1,4 +1,4 @@
-import { openWorld } from '@pkgs/determinism';
+import { openWorld } from '@pkgs/dst';
 import { createSimAdapters } from '@pkgs/uuid';
 import {
   defineRoomSystem,

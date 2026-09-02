@@ -810,8 +810,8 @@ bun run lint
 
 **Two layers:** named scenarios document specific safety claims (`never`, authz,
 protocol cut, flicker). `*.pbt.test.ts` files explore the fault state space with
-`runScenario(acmeSystem)` from `@pkgs/determinism/pbt` (system declared via `defineSyncSystem` —
-see `src/sim/scenario/define-sync-system.ts` and `pkgs/determinism/CONTEXT.md`).
+`runScenario(acmeSystem)` from `@pkgs/dst/pbt` (system declared via `defineSyncSystem` —
+see `src/sim/scenario/define-sync-system.ts` and `pkgs/dst/CONTEXT.md`).
 When a property fails, capture `seed` / `path` / `replayPath`, pin `examples`,
 add a named scenario, and log in repo-root `PBT_FINDINGS.md`.
 
@@ -844,7 +844,7 @@ App fixtures (e.g. acme) supply `domainOpArbs`, `pickDomainOrServerOp`, and
 ### Deterministic simulator
 
 TigerBeetle-style deterministic simulation in `src/sim/` (not a public export). **One seed →
-identical timeline.** Worlds are **owned by `@pkgs/determinism`**:
+identical timeline.** Worlds are **owned by `@pkgs/dst`**:
 `defineSyncSystem(acmeApp)` (exported as `acmeSystem`) declares the
 broker/server/client topology, knobs, action pool, and model, and tests drive it
 with `runScenario(acmeSystem)` / `replaySyncPin(acmeSystem, …)` / `openAcmeWorld(…)`; fuzz calls `runSeed({ app: acmeApp })`. Assert **live domain rows
@@ -936,7 +936,7 @@ describe('example', () => {
 PBT / system pins (`defineSyncSystem` → `runScenario` / `replaySyncPin`):
 
 ```ts
-import { runScenario } from '@pkgs/determinism/pbt';
+import { runScenario } from '@pkgs/dst/pbt';
 import { replaySyncPin } from '../../sim/scenario';
 import { acmeSystem } from '../apps/acme/system';
 
@@ -1011,7 +1011,7 @@ world.node('alice').now(); // base + skew
 
 #### Knobs
 
-**World open** — framework `openWorld(acmeSystem, opts)` from `@pkgs/determinism`:
+**World open** — framework `openWorld(acmeSystem, opts)` from `@pkgs/dst`:
 
 | Knob | Default | Meaning |
 |------|---------|---------|

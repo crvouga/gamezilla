@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import type { AnyScenarioDef } from '@pkgs/determinism';
-import { runScenario } from '@pkgs/determinism/pbt';
+import type { AnyScenarioDef } from '@pkgs/dst';
+import { runScenario } from '@pkgs/dst/pbt';
 import { playSyncActions, replaySyncPin } from '../../sim/scenario';
 import { setNote } from '../apps/acme';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';

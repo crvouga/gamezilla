@@ -1,4 +1,4 @@
-import { defineScenario } from '@pkgs/determinism';
+import { defineScenario } from '@pkgs/dst';
 import { SQL_CLIENT_WEB_ACTIONS } from './actions';
 import {
   SQL_BACKEND,
@@ -14,9 +14,9 @@ import { boardOf, kvFingerprint } from './types';
 
 const WORLD_START_MS = 1_700_000_000_000;
 
-type SqlWebWorld = import('@pkgs/determinism').World<
-  Record<string, import('@pkgs/determinism').KnobDef>,
-  Record<string, import('@pkgs/determinism').NodeEntry>
+type SqlWebWorld = import('@pkgs/dst').World<
+  Record<string, import('@pkgs/dst').KnobDef>,
+  Record<string, import('@pkgs/dst').NodeEntry>
 >;
 
 async function settleSqlClientWeb(world: SqlWebWorld): Promise<void> {

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
-import { arbSeed, runProperty } from '@pkgs/determinism/pbt';
+import { openWorld } from '@pkgs/dst';
+import { arbSeed, runProperty } from '@pkgs/dst/pbt';
 import { fc } from '@pkgs/pbt';
 
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '../../protocol/wire';

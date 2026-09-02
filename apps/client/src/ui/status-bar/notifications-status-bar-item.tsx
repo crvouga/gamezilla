@@ -7,9 +7,9 @@ import {
   Badge,
   BellIcon,
   RegisterStatusBarItem,
+  useOnColor,
   useRouter,
   useStatusBar,
-  useTheme,
 } from '@pkgs/ui';
 import { type ReactNode, useCallback } from 'react';
 
@@ -18,7 +18,7 @@ function NotificationsIndicator({
 }: {
   readonly unread: number;
 }): ReactNode {
-  const theme = useTheme();
+  const onColor = useOnColor();
   if (unread > 0) {
     return (
       <Badge
@@ -30,7 +30,7 @@ function NotificationsIndicator({
       />
     );
   }
-  return <BellIcon size={12} color={theme.colors.textSecondary} />;
+  return <BellIcon size={12} color={onColor.icon} />;
 }
 
 /**

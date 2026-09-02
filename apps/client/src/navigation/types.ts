@@ -11,6 +11,7 @@ export type RootStackParamList = {
   MoreIndex: undefined;
   MoreTheme: undefined;
   MorePerformance: undefined;
+  MoreSound: undefined;
   MoreAbout: undefined;
   MoreSync: undefined;
   MoreServerStatus: undefined;
@@ -53,6 +54,7 @@ export const appLinking: LinkingOptions<RootStackParamList> = {
       MoreIndex: 'more',
       MoreTheme: 'more/theme',
       MorePerformance: 'more/performance',
+      MoreSound: 'more/sound',
       MoreAbout: 'more/about',
       MoreSync: 'more/sync',
       MoreServerStatus: 'more/server-status',

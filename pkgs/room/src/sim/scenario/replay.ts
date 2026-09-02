@@ -1,5 +1,5 @@
-import type { AnyScenarioDef, Command, JsonValue } from '@pkgs/determinism';
-import { replay } from '@pkgs/determinism/pbt';
+import type { AnyScenarioDef, Command, JsonValue } from '@pkgs/dst';
+import { replay } from '@pkgs/dst/pbt';
 
 import type { RoomSystemAction } from './actions';
 import type { RoomSystemDef, RoomSystemWorld } from './define-room-system';

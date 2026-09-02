@@ -1,6 +1,6 @@
 /**
  * PBT / system test helpers. Worlds and action replay are framework-owned:
- * `defineSyncSystem` + `runScenario` / `replay` from `@pkgs/determinism`.
+ * `defineSyncSystem` + `runScenario` / `replay` from `@pkgs/dst`.
  */
 
 export type {

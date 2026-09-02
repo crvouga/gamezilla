@@ -1,6 +1,6 @@
 import { describe, test } from 'bun:test';
-import type { AnyScenarioDef } from '@pkgs/determinism';
-import { runProperty, runScenario } from '@pkgs/determinism/pbt';
+import type { AnyScenarioDef } from '@pkgs/dst';
+import { runProperty, runScenario } from '@pkgs/dst/pbt';
 import { fc } from '@pkgs/pbt';
 import { replaySyncPin } from '../../sim/scenario';
 import { runAcmeSeed } from '../apps/acme';

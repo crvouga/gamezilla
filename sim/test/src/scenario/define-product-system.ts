@@ -1,9 +1,4 @@
-import {
-  defineScenario,
-  knob,
-  type ScenarioDef,
-  type World,
-} from '@pkgs/determinism';
+import { defineScenario, knob, type ScenarioDef, type World } from '@pkgs/dst';
 import type { Sim } from '@sim/console/sim/create-sim';
 import fc from 'fast-check';
 

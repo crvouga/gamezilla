@@ -21,7 +21,7 @@
     "@pkgs/db-indexes": "workspace:*",
     "@pkgs/db-migrate": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
-    "@pkgs/determinism": "workspace:*",
+    "@pkgs/dst": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/outbox": "workspace:*",

@@ -1,5 +1,5 @@
-import { type KnobDef, knob } from '@pkgs/determinism';
-import { arbSeed } from '@pkgs/determinism/pbt';
+import { type KnobDef, knob } from '@pkgs/dst';
+import { arbSeed } from '@pkgs/dst/pbt';
 import fc from 'fast-check';
 
 export type RoomWorldKnobs = {

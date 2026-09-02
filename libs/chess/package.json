@@ -32,7 +32,7 @@
     "@pkgs/database-url-policy": "workspace:*",
     "@pkgs/db-migrate": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
-    "@pkgs/determinism": "workspace:*",
+    "@pkgs/dst": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/i18n": "workspace:*",
     "@pkgs/keyword": "workspace:*",

@@ -24,11 +24,7 @@ import {
 } from '@pkgs/auth/client';
 import { InMemoryBilling } from '@pkgs/billing';
 import type { Clock, Timers } from '@pkgs/clock';
-import {
-  createWorldPorts,
-  type Scheduler,
-  type WorldPorts,
-} from '@pkgs/determinism';
+import { createWorldPorts, type Scheduler, type WorldPorts } from '@pkgs/dst';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
 import { KvImplWebNamespaced } from '@pkgs/kv/impl-kv-web-namespaced';
 import { InMemoryLlmProvider } from '@pkgs/llm/server';

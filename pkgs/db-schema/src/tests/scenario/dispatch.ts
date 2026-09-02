@@ -1,4 +1,4 @@
-import type { World } from '@pkgs/determinism';
+import type { World } from '@pkgs/dst';
 import {
   advancePeer,
   planKindHash,
@@ -10,8 +10,8 @@ import {
 import { forbiddenSchema, type SchemaVersion } from './schemas';
 
 type SchemaWorld = World<
-  Record<string, import('@pkgs/determinism').KnobDef>,
-  Record<string, import('@pkgs/determinism').NodeEntry>
+  Record<string, import('@pkgs/dst').KnobDef>,
+  Record<string, import('@pkgs/dst').NodeEntry>
 >;
 
 function peersOf(world: SchemaWorld): {

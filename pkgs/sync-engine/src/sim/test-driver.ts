@@ -1,4 +1,4 @@
-import { createWorldPorts, type Scheduler } from '@pkgs/determinism';
+import { createWorldPorts, type Scheduler } from '@pkgs/dst';
 
 import type { Timers } from '../client/sim-ports';
 

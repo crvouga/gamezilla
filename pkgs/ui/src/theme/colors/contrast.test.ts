@@ -2,12 +2,14 @@ import { describe, expect, test } from 'bun:test';
 import { PALETTE } from './color-palette';
 import {
   bestOnColor,
+  compositeOver,
   contrastRatio,
   ON_DARK,
   ON_LIGHT,
   parseColor,
   relativeLuminance,
 } from './contrast';
+import { parseCssColor, rgbaToRgb8 } from './css-color';
 import type { ColorScheme, ColorTokens } from './types';
 
 const AA_NORMAL = 4.5;
@@ -81,6 +83,32 @@ describe('bestOnColor', () => {
   test('near-black family on a light fill', () => {
     expect(bestOnColor('#ffffff')).toEqual(ON_LIGHT);
     expect(bestOnColor('hsla(43, 96%, 56%, 1)')).toEqual(ON_LIGHT);
+  });
+
+  test('translucent glass over dark frost picks ON_DARK', () => {
+    const glass = 'hsla(0, 0%, 100%, 0.12)';
+    const frost = 'hsla(240, 5%, 13%, 0.92)';
+    expect(bestOnColor(glass, { backdrop: frost })).toEqual(ON_DARK);
+  });
+
+  test('translucent glass over light frost picks ON_LIGHT', () => {
+    const glass = 'hsla(240, 10%, 4%, 0.06)';
+    const frost = 'hsla(0, 0%, 100%, 0.92)';
+    expect(bestOnColor(glass, { backdrop: frost })).toEqual(ON_LIGHT);
+  });
+
+  test('glass over dark frost clears AA with chosen foreground', () => {
+    const glass = 'hsla(0, 0%, 100%, 0.12)';
+    const frost = 'hsla(240, 5%, 13%, 0.92)';
+    const onColor = bestOnColor(glass, { backdrop: frost });
+    const fgRgb = parseColor(onColor.fg);
+    const fgParsed = parseCssColor(glass);
+    const frostParsed = parseCssColor(frost);
+    if (!fgRgb || !fgParsed || !frostParsed) {
+      throw new Error('unparseable glass/frost/fg');
+    }
+    const effectiveBg = rgbaToRgb8(compositeOver(fgParsed, frostParsed));
+    expect(contrastRatio(fgRgb, effectiveBg)).toBeGreaterThanOrEqual(AA_NORMAL);
   });
 
   test('chosen foreground always clears AA against the fill', () => {
