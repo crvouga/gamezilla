@@ -1,4 +1,4 @@
-import { action } from '@pkgs/determinism';
+import { command } from '@pkgs/determinism';
 import fc from 'fast-check';
 import {
   corruptSimOpfsStore,
@@ -18,40 +18,42 @@ type TabAction<K extends string> = {
 };
 
 function arbTabId(
-  ctx: import('@pkgs/determinism').ActionArbContext
+  ctx: import('@pkgs/determinism').CommandGeneratorContext
 ): fc.Arbitrary<string> {
-  const tabs = ctx.ids('tab');
+  const tabs = ctx.nodeIds('tab');
   return tabs.length === 0 ? fc.constant('t0') : fc.constantFrom(...tabs);
 }
 
 function arbTabAction<K extends string>(
   kind: K,
-  ctx: import('@pkgs/determinism').ActionArbContext
+  ctx: import('@pkgs/determinism').CommandGeneratorContext
 ): fc.Arbitrary<TabAction<K>> {
   return arbTabId(ctx).map((tabId) => ({ kind, tabId }));
 }
 
 type SqlWebWorld = import('@pkgs/determinism').World<
   Record<string, import('@pkgs/determinism').KnobDef>,
-  Record<string, import('@pkgs/determinism').NodeSpecEntry>
+  Record<string, import('@pkgs/determinism').NodeEntry>
 >;
 
-export const connectAction = action<TabAction<'connect'>, object, SqlWebWorld>({
-  weight: 3,
-  arb: (ctx) => arbTabAction('connect', ctx),
-  dispatch: async (world, action) => {
-    await connectTab(boardOf(world), action.tabId);
-  },
-});
+export const connectAction = command<TabAction<'connect'>, object, SqlWebWorld>(
+  {
+    weight: 3,
+    generate: (ctx) => arbTabAction('connect', ctx),
+    apply: async (world, action) => {
+      await connectTab(boardOf(world), action.tabId);
+    },
+  }
+);
 
-export const disconnectAction = action<
+export const disconnectAction = command<
   TabAction<'disconnect'>,
   object,
   SqlWebWorld
 >({
   weight: 3,
-  arb: (ctx) => arbTabAction('disconnect', ctx),
-  dispatch: async (world, action) => {
+  generate: (ctx) => arbTabAction('disconnect', ctx),
+  apply: async (world, action) => {
     await disconnectTab(boardOf(world), action.tabId);
   },
 });
@@ -63,16 +65,16 @@ export type PutAction = {
   readonly value: string;
 };
 
-export const putAction = action<PutAction, object, SqlWebWorld>({
+export const putAction = command<PutAction, object, SqlWebWorld>({
   weight: 3,
-  arb: (ctx) =>
+  generate: (ctx) =>
     fc.record({
       kind: fc.constant('put' as const),
       tabId: arbTabId(ctx),
       key: fc.constantFrom(...KEYS),
       value: fc.constantFrom(...VALUES),
     }),
-  dispatch: async (world, action) => {
+  apply: async (world, action) => {
     const state = boardOf(world);
     const client = await connectTab(state, action.tabId);
     if (client === null) return;
@@ -88,15 +90,15 @@ export type GetAction = {
   readonly key: string;
 };
 
-export const getAction = action<GetAction, object, SqlWebWorld>({
+export const getAction = command<GetAction, object, SqlWebWorld>({
   weight: 3,
-  arb: (ctx) =>
+  generate: (ctx) =>
     fc.record({
       kind: fc.constant('get' as const),
       tabId: arbTabId(ctx),
       key: fc.constantFrom(...KEYS),
     }),
-  dispatch: async (world, action) => {
+  apply: async (world, action) => {
     const state = boardOf(world);
     const client = await connectTab(state, action.tabId);
     if (client === null) return;
@@ -110,46 +112,48 @@ export const getAction = action<GetAction, object, SqlWebWorld>({
   },
 });
 
-export const killTabAction = action<TabAction<'killTab'>, object, SqlWebWorld>({
-  weight: 1,
-  arb: (ctx) => arbTabAction('killTab', ctx),
-  dispatch: async (world, action) => {
-    await killTab(boardOf(world), action.tabId);
-  },
-});
+export const killTabAction = command<TabAction<'killTab'>, object, SqlWebWorld>(
+  {
+    weight: 1,
+    generate: (ctx) => arbTabAction('killTab', ctx),
+    apply: async (world, action) => {
+      await killTab(boardOf(world), action.tabId);
+    },
+  }
+);
 
-export const fillPoolAction = action<
+export const fillPoolAction = command<
   { readonly kind: 'fillPool' },
   object,
   SqlWebWorld
 >({
   weight: 1,
-  arb: () => fc.constant({ kind: 'fillPool' as const }),
-  dispatch: async (world) => {
+  generate: () => fc.constant({ kind: 'fillPool' as const }),
+  apply: async (world) => {
     fillSimOpfsPool(requireStore(boardOf(world)));
   },
 });
 
-export const corruptStoreAction = action<
+export const corruptStoreAction = command<
   { readonly kind: 'corruptStore' },
   object,
   SqlWebWorld
 >({
   weight: 1,
-  arb: () => fc.constant({ kind: 'corruptStore' as const }),
-  dispatch: async (world) => {
+  generate: () => fc.constant({ kind: 'corruptStore' as const }),
+  apply: async (world) => {
     corruptSimOpfsStore(requireStore(boardOf(world)));
   },
 });
 
-export const bumpEpochAction = action<
+export const bumpEpochAction = command<
   { readonly kind: 'bumpEpoch' },
   object,
   SqlWebWorld
 >({
   weight: 1,
-  arb: () => fc.constant({ kind: 'bumpEpoch' as const }),
-  dispatch: async (world) => {
+  generate: () => fc.constant({ kind: 'bumpEpoch' as const }),
+  apply: async (world) => {
     boardOf(world).epoch += 1;
   },
 });

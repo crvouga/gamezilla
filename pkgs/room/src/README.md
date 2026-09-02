@@ -284,7 +284,7 @@ replays are idempotent.
 |------|-------------|
 | **`openLoopbackRoom`** (`@pkgs/room/tests`) | Fast in-process unit/integration with injected `Io`; real `RoomClient` + `RoomServer`, no net faults; Schedule via timers |
 | **`openWorld`** (`@pkgs/determinism` + `@pkgs/room/tests`) | Framework multi-client world (kit merged via `extend`): partitions, delays, soft disconnect, crash/restart, hash converge, seed replay, Schedule wakes |
-| **`defineRoomSystem` + `assertSample` / `replay`** | Framework-owned world (`room.server` / `room.client` node kinds): shrinking `fc.commands` search + fault-catalog slice PBTs |
+| **`defineRoomSystem` + `runScenario` / `replay`** | Framework-owned world (`room.server` / `room.client` node kinds): shrinking `fc.commands` search + fault-catalog slice PBTs |
 | **`runRoomSeed`** | Non-shrinking seeded fuzz (`ROOM_SIM_SEED` / `SIM_SEED`); determinism + long workloads |
 | **DO / adapter tests** | Hibernation, session take-over, per-key storage, alarms, WS heartbeat |
 | **`runModuleConformance`** | Game-module kit (purity, hash, totality, fold, fuzz) |
@@ -298,7 +298,7 @@ bun run test:pbt                       # all pkgs/libs *.pbt.test.ts (pinned FC_
 bun run test:pbt:random                # nightly random exploration
 ```
 
-### Shrinking system kernel (`sim/system/`)
+### Shrinking system kernel (`sim/scenario/`)
 
 Worlds and action replay are owned by `@pkgs/determinism`. A room app becomes a
 system with `defineRoomSystem`, which declares the `room.server` / `room.client`
@@ -309,18 +309,18 @@ node kinds and the library + domain action pool:
 export const counterSystem = defineRoomSystem(counterApp, { id: 'room.counter' });
 
 // shrinking PBT — framework generates seed, knobs, and fc.commands
-await assertSample(counterSystem, { maxCommands: 14 });
+await runScenario(counterSystem, { maxCommands: 14 });
 
 // scripted pin
 await replayRoomPin(counterSystem, { seed, knobs, actions: [/* RoomSystemAction */] });
 ```
 
-1. `RoomSystemAction` union (domain + library chaos) under `sim/system/`
+1. `RoomSystemAction` union (domain + library chaos) under `sim/scenario/`
 2. `WorldModel` + `modelAllowsAction` so shrinks stay legal
 3. `libraryActionArbs` + `app.domainOpArbs` feed the framework command pool;
    `armCrashAt` / wire injects stay out of it and are covered by slice PBTs
 4. Const fault catalogs (`NET_FAULT_PROFILES`, `BYZANTINE_INJECT_KINDS`, `WORLD_PBT_CRASH_EVENTS`) exhausted by slice PBTs
-5. `runRoomSeed` (`tests/system/run-seed.ts`) boots the same topology via
+5. `runRoomSeed` (`tests/scenario/run-seed.ts`) boots the same topology via
    framework `openWorld(defineRoomSystem(app), …)` for non-shrinking seeded fuzz
 
 On find: capture `FC_SEED` / `replayPath` → pin in `room-world.pbt.test.ts` or a named `.sim.test.ts` → log in [`PBT_FINDINGS.md`](../../../PBT_FINDINGS.md).

@@ -2,11 +2,12 @@
 
 Fresh-agent brief. Read this before proposing API or architecture changes.
 Product apps/libs must not import this package (depcruise: `product-no-sim-deps`).
-Allowed consumers: `@sim/*`, package `sim/` / `tests/system/` / scenario tests.
+Allowed consumers: `@sim/*`, package `sim/` / `tests/scenario/` / scenario tests.
 
 Hard-determinism for *product* code (floats, key order, locale sorts, room
 `hash(state)`, LWW sync columns) lives in [`DETERMINISM.md`](../../DETERMINISM.md).
-This doc is about the **World framework** itself.
+This doc is about the **World framework** itself. Vocabulary is the DST glossary
+in [`AUDIT.md`](AUDIT.md) — Kernel / Models / Harness.
 
 ---
 
@@ -14,27 +15,28 @@ This doc is about the **World framework** itself.
 
 A **harness-only deterministic simulation + PBT framework** for multi-node systems.
 
-**Same seed → same timeline.** Virtual clock, discrete-event scheduler with
-quiescence probes, seeded RNG/IDs (including same-time scheduling picks), and
-an in-process network mesh replace wall time, `setTimeout`, `Math.random`, and
-real sockets.
+**Same Seed → same timeline.** A `VirtualClock` owned by the `Scheduler`,
+quiescence-driven time advancement, a seeded RNG tree for ids and same-time
+Task picks, and an in-process `Network` Model replace wall time, `setTimeout`,
+`Math.random`, and real sockets.
 
 **The framework owns the World.** Packages declare:
 
-1. **Node kinds** — values from `node()` (boot/dispose via `listen`)
-2. **Knobs** — `knob(default, arb)` entries keyed in `defineSystem.knobs`
-3. **Actions** — `action({ arb, dispatch, … })` entries keyed in `defineSystem.actions`
-4. **Chaos** — `chaos.network()` / `chaos.advance()` spread into `actions`
-5. **System** — topology, knobs, actions, optional `extend`, settle, invariants
+1. **Nodes** — values from `node({ start, stop? })` (register endpoints via `listen`)
+2. **Knobs** — `knob(default, arb)` entries keyed in `defineScenario.knobs`
+3. **Commands** — `command({ generate, apply, precondition?, applyToModel? })`
+   keyed in `defineScenario.commands`
+4. **Network Commands** — `networkCommands()` / `advanceCommand()` spread into `commands`
+5. **Scenario** — topology, knobs, commands, optional `extend`, `converge`, `always`
 
-They do **not** invent package-local World DSLs, dual `SimDeps` mints inside
-node boot, or mega-libraries with `match` catch-alls.
+They do **not** invent package-local World DSLs, mint a second `WorldPorts`
+inside node start, or build mega-libraries with `match` catch-alls.
 
 ```text
-node + knob + action + chaos
-  → defineSystem (+ optional extend)
-  → openWorld / assertSample / replay / assertPins
-  → assertDeterministic (trace record → replay-validate)
+node + knob + command + networkCommands
+  → defineScenario (+ optional extend)
+  → openWorld / runScenario / replay / runPins
+  → assertDeterministic (Trace record → replay-validate)
 ```
 
 `acme-kv` under `src/test/acme-kv/` is the **canonical toy** (LWW client/server
@@ -46,24 +48,24 @@ over real `network.send`). It is a **test fixture**, not a reusable KV library.
 
 | Goal | Meaning |
 | --- | --- |
-| Deterministic replay | One seed + knobs + action list → identical outcomes |
+| Deterministic replay | One Seed + knobs + Command list → identical outcomes |
 | Proven determinism | Trace record/replay detects consumer nondeterminism |
-| Framework-owned World | One composition path; packages plug kinds + actions + extend |
-| Shrinkable PBT | `fc.commands` over weighted actions; model filters; real replay + settle |
-| Failure artifacts | Scenario v1 JSON + recorded trace |
-| Harness isolation | `SimDeps` never leaks into product `ClientEnv` / `ServerEnv` |
+| Framework-owned World | One composition path; packages plug Nodes + Commands + extend |
+| Shrinkable PBT | `fc.commands` over weighted Commands; reference-model filters; real replay + converge |
+| Failure reports | Repro v2 JSON + recorded Trace |
+| Harness isolation | `WorldPorts` never leaks into product `ClientEnv` / `ServerEnv` |
 | Opinionated protocol | High buy-in; one authorship school; no optional soup |
 
 ## Non-goals
 
 - Not a product runtime, DI container, or CRDT library
 - Not a substitute for product hard-determinism rules in `DETERMINISM.md`
-- Not determined-style `checkpoint()` / `failpoint()` in product code — deps stay injected
-- Settle does **not** magically guarantee convergence — packages define it
-- Model hooks are a **command filter / shrink aid**, not a live oracle under loss
+- Not determined-style `checkpoint()` / `failpoint()` in product code — ports stay injected
+- `converge` does **not** magically guarantee convergence — packages define it
+- Reference-model hooks are a **Command filter / shrink aid**, not a live oracle under loss
 - Timer *deadline reordering* (determined's "any pending timer may fire") is
-  **deferred** — same-`at` ties are entropy-picked; earlier deadlines still fire
-  first when `at` differs. See `docs/determined-new-arch.md` for related notes.
+  **deferred** — same-`at` ties are Choices; earlier deadlines still fire first
+  when `at` differs. See `docs/determined-new-arch.md` for related notes.
 
 ---
 
@@ -71,28 +73,31 @@ over real `network.send`). It is a **test fixture**, not a reusable KV library.
 
 ```text
 ┌──────────────────────────────────────────────────────────┐
-│ PBT  @pkgs/determinism/pbt                             │
-│   assertSample / assertWorldProperty / replay / assertPins│
-│   assertDeterministic (gate) / assertSampleProperty / fc │
+│ Harness / PBT  @pkgs/determinism/pbt                     │
+│   runScenario / runWorldProperty / replay / runPins      │
+│   assertDeterministic (gate) / runProperty               │
 ├──────────────────────────────────────────────────────────┤
-│ World / System                                           │
-│   defineSystem + openWorld → World<K, N, X>              │
-│   typed nodes/knobs + actions + extend / settle / inv.   │
+│ Harness / World + Scenario                               │
+│   defineScenario + openWorld → World<K, N, X>            │
+│   typed nodes/knobs + commands + extend / converge / always │
+│   Catalogs: knob() / command() / networkCommands() / advanceCommand() │
+│   createWorldPorts → WorldPorts (clock, scheduler, timers, rng, createId, http, trace) │
 ├──────────────────────────────────────────────────────────┤
-│ Catalogs                                                 │
-│   knob() / action() / chaos.network() / chaos.advance()  │
+│ Models (src/models)                                      │
+│   createNetwork (partition / hold / faults / inFlight)   │
+│   NodeDef / NodeContext (start / stop)                   │
 ├──────────────────────────────────────────────────────────┤
-│ Kernel (in-package; not a second public API)             │
-│   createSimDeps → SimClock, SimScheduler, Timers,        │
-│     SeededRng forks (io / ids / sched), createId, trace  │
+│ Kernel (src/kernel)                                      │
+│   VirtualClock, Scheduler, Timers, choose(), TraceRecorder │
 │   Quiescence-probe drain + seeded same-time picks        │
-│   createSimNetwork (partition / hold / faults / inFlight)│
-│   Trace record/replay, scenario v1                       │
 └──────────────────────────────────────────────────────────┘
 ```
 
-Boot order = `SystemDef.nodes` declaration order. Later nodes see earlier ones via
-`NodeBootContext.peers` (`single`, `get`, `ids`).
+Layering rule: Kernel imports nothing above it; Models import only Kernel;
+Harness imports Kernel + Models. `TODO(dst-audit)`: enforce with depcruise (Phase 3.1).
+
+Start order = `ScenarioDef.nodes` declaration order. Later nodes see earlier ones
+via `NodeContext.peers` (`single`, `get`, `nodeIds`).
 
 ---
 
@@ -101,148 +106,146 @@ Boot order = `SystemDef.nodes` declaration order. Later nodes see earlier ones v
 ### 1. `node()` (value)
 
 ```ts
-const serverKind = node({
-  boot: async (ctx) => {
-    // ctx.deps, ctx.network, ctx.knob, ctx.peers, ctx.listen(…)
+const serverNode = node({
+  start: async (ctx) => {
+    // ctx.ports, ctx.network, ctx.knob, ctx.peers, ctx.listen(…)
   },
-  dispose?: async (handle) => { … },
+  stop?: async (handle) => { … },
 });
 ```
 
-Kinds are **values** passed into `SystemDef.nodes` keyed by **role** — there is
+Nodes are **values** passed into `ScenarioDef.nodes` keyed by **role** — there is
 no process-global registry. Register endpoints with `ctx.listen(deliver, endpointId?)`.
 
-Counted roles spread the kind and add `count` + optional `id`:
+Counted roles spread the node and add `count` + optional `id`:
 
 ```ts
 client: {
-  ...clientKind,
+  ...clientNode,
   count: (knobs) => knobs['clientCount'] as number,
   id: (i) => `c${i}`,
 },
 ```
 
-### 2. `knob()` + `action()`
+### 2. `knob()` + `command()`
 
 ```ts
 const CLIENT_COUNT = knob(2, fc.integer({ min: 2, max: 3 }));
 
-const putAction = action({
-  weight: 3,                      // PBT sampling weight (default 1)
-  arb: (ctx) => fc.record({ … }), // ctx.ids, ctx.knobs, ctx.edges
-  dispatch: async (world, action) => { … },
-  allows?: (model, action) => boolean,
-  apply?: (model, action) => void,
+const putCommand = command({
+  weight: 3,                           // PBT sampling weight (default 1)
+  generate: (ctx) => fc.record({ … }), // ctx.nodeIds, ctx.knobs, ctx.edges
+  apply: async (world, cmd) => { … },
+  precondition?: (model, cmd) => boolean,
+  applyToModel?: (model, cmd) => void,
 });
 ```
 
-Action **keys** in `defineSystem.actions` become the wire `kind` string
-(e.g. `'chaos.partition'`, `'put'`).
+Command **keys** in `defineScenario.commands` become the wire `kind` string
+(e.g. `'network.partition'`, `'put'`).
 
-### 3. `chaos`
+### 3. Network Commands
 
-Standard network chaos helpers (derive role pair from `network.edges[0]` when omitted):
+Standard Network Commands (derive role pair from `network.edges[0]` when omitted):
 
 ```ts
-const netChaos = chaos.network({ fromRole: 'client', toRole: 'server' });
-// → { 'chaos.partition', 'chaos.heal', 'chaos.healAll' }
+const netCommands = networkCommands({ fromRole: 'client', toRole: 'server' });
+// → { 'network.partition', 'network.heal', 'network.healAll' }
 
-chaos.advance({ minMs: 1, maxMs: 500 }) // → 'chaos.advance' action
+advanceCommand({ minMs: 1, maxMs: 500 }) // → 'time.advance' Command
 ```
 
-Spread into `actions`:
+Spread into `commands`:
 
 ```ts
-actions: {
-  ...netChaos,
-  put: putAction,
-  'chaos.advance': chaos.advance(),
+commands: {
+  ...netCommands,
+  put: putCommand,
+  'time.advance': advanceCommand(),
 },
 ```
 
-### 4. `defineSystem`
+### 4. `defineScenario`
 
 ```ts
-defineSystem({
+defineScenario({
   id: 'acme-kv',
-  startMs?: number,
+  startTime?: number,
   knobs: { clientCount: CLIENT_COUNT },
   nodes: {
-    server: serverKind,
-    client: { …clientKind, count: (k) => k['clientCount'] as number, id: (i) => `c${i}` },
+    server: serverNode,
+    client: { …clientNode, count: (k) => k['clientCount'] as number, id: (i) => `c${i}` },
   },
   network: {
-    faults?: SimNetFaultProfile,
+    faults?: NetworkFaults,
     edges: [{ fromRole: 'client', toRole: 'server' }],
   },
-  actions: { …netChaos, put: putAction },
-  model?: { initial: () => ({ map: {} }) },  // required by assertSample
+  commands: { …netCommands, put: putCommand },
+  referenceModel?: { initial: () => ({ map: {} }) },  // required by runScenario
   extend?: async (world) => ({ …kitMethods }), // merged onto World<K, N, X>
-  settle: async (world) => { … },
-  invariants: async (world) => { … },
+  converge: async (world) => { … },
+  always: async (world) => { … },
 });
 ```
 
-- **Actions** live in one keyed record. No `match` escape hatch.
+- **Commands** live in one keyed record. No `match` escape hatch.
 - **`network.edges`** enforced: `send` across undeclared role pairs throws.
-- **`extend`**: post-boot kit surface merged onto the opened world (replaces the
-  old separate `facade` / `host.facade` pattern). Keys must not collide with
-  framework controls (`advance`, `nodes`, `settle`, …).
-- **`settle`** runs before **`invariants`** on every `world.settle()` call.
+- **`extend`**: post-start kit surface merged onto the opened World. Keys must
+  not collide with framework controls (`advance`, `nodes`, `converge`, …).
+- **`converge`** runs before **`always`** on every `world.converge()` call.
 
 ### 5. World (`openWorld`)
 
 ```ts
-await using world = await openWorld(system, { seed, knobs });
+await using world = await openWorld(scenario, { seed, knobs });
 await world.advance(10);
-await world.idle();
-await world.play(actions);
-await world.settle();
+await world.quiesce();
+await world.apply(commands);
+await world.converge();
 // kit methods from extend are on `world` directly
 ```
 
-Control ports on every `World`:
+Controls on every `World`:
 
-| Port | Role |
+| Control | Role |
 | --- | --- |
-| `seed`, `startMs`, `deps`, `knobs`, `nodes`, `network`, `networkDefaults` | Boot state |
-| `ids(role)` | Node ids for a role |
-| `now()` | Virtual clock |
-| `advance(ms)` / `idle()` | Scheduler drains |
-| `until(pred, { withinMs? })` | Wait until predicate (throws on timeout) |
+| `seed`, `startTime`, `ports`, `knobs`, `nodes`, `network`, `networkFaults` | Start state |
+| `nodeIds(role)` | Node ids for a role |
+| `now()` | Virtual time |
+| `advance(ms)` / `quiesce()` | Scheduler drains |
+| `eventually(pred, { withinMs? })` | Bounded liveness (throws on timeout) |
 | `never(pred, { forMs })` | Fail if predicate becomes true within window |
-| `run(promise)` | Drain until an unmanaged promise settles |
+| `resolve(promise)` | Drain until a host promise settles |
 | `partition(a, b)` | Returns `Disposable` — heal on dispose |
 | `heal(a, b)` / `healAll()` | Clear partitions |
 | `hold(key)` | Returns `Disposable` — release on dispose |
 | `release(key)` / `releaseAll()` | Release held packets |
-| `play(actions)` | Dispatch action list + `PLAY_STEP_MS` (10 ms) steps |
-| `settle()` | `system.settle` then `system.invariants` |
-| `dispose()` / `[Symbol.asyncDispose]` | Tear down nodes + unregister endpoints |
+| `apply(commands)` | Apply Command list + `COMMAND_STEP_MS` (10 ms) steps |
+| `converge()` | `scenario.converge` then `scenario.always` |
+| `dispose()` / `[Symbol.asyncDispose]` | Stop nodes + unregister endpoints |
 
-Also: `OpenWorldOpts.trace` enables recording trace via `createSimDeps`.
+Also: `OpenWorldOptions.trace` enables a `TraceRecorder` via `createWorldPorts`.
 
 ### 6. PBT (`@pkgs/determinism/pbt`)
 
 | API | Role |
 | --- | --- |
-| `assertSample(system, { maxCommands?, numRuns? })` | Requires `model` + non-empty `actions`; runs determinism gate |
-| `assertWorldProperty(system, arbs, run, params?)` | Property over `openWorld` + custom arbitraries |
-| `replay(system, inputs \| scenario \| json)` | Fixed action list; gate + open world for inspection |
-| `assertPins(system, pins)` | Named pin matrices over `replay` |
-| `assertDeterministic(system, inputs)` | Double-run: record trace, replay-validate |
-| `assertSampleProperty(name, property, params?)` | Low-level `fc.assert` wrapper |
-| `arbSeed()` / `arbKnobs(system)` / `arbAction(system, knobs)` | Shared arbitraries |
-| `fc` | Re-export for convenience |
+| `runScenario(scenario, { maxCommands?, numRuns? })` | Requires `referenceModel` + non-empty `commands`; runs determinism gate |
+| `runWorldProperty(scenario, arbs, run, params?)` | Property over `openWorld` + custom arbitraries |
+| `replay(scenario, inputs \| repro \| json)` | Fixed Command list; gate + open World for inspection |
+| `runPins(scenario, pins)` | Named pin matrices over `replay` |
+| `assertDeterministic(scenario, inputs)` | Double-run: record Trace, replay-validate |
+| `runProperty(name, property, params?)` | Low-level `fc.assert` wrapper |
+| `arbSeed()` / `arbKnobs(scenario)` / `arbCommand(scenario, knobs)` | Shared arbitraries |
 
-Flow inside `assertSample`:
+Flow inside `runScenario`:
 
-1. Model: `fc.asyncModelRun` — per-action `allows` / `apply` (**before** world boot)
-2. Play: `openWorld` → `world.play(actions)` → `world.settle()`
-3. Determinism gate on the collected scenario (`assertDeterministic`)
+1. Reference model: `fc.asyncModelRun` — per-Command `precondition` / `applyToModel` (**before** World start)
+2. Apply: `openWorld` → `world.apply(commands)` → `world.converge()`
+3. Determinism gate on the collected Repro (`assertDeterministic`)
 
-Action sampling uses each action's `weight` (default 1). Spread multiple copies
-into the command pool by repeating entries or raising `weight`.
+Command sampling uses each Command's `weight` (default 1). Spread multiple copies
+into the pool by repeating entries or raising `weight`.
 
 Env: `PBT_SAMPLE_RUNS`, `PBT_SAMPLE_INTERRUPT_MS`.
 
@@ -250,62 +253,67 @@ Env: `PBT_SAMPLE_RUNS`, `PBT_SAMPLE_INTERRUPT_MS`.
 
 ## Kernel contracts (load-bearing)
 
-### `createSimDeps`
+### `createWorldPorts`
 
 Harness-only mint called by `openWorld` (and playground `createSim` when injected):
 
 ```ts
-createSimDeps({ seed, startMs?, http?, trace? }): SimDeps
+createWorldPorts({ seed, startTime?, http?, trace? }): WorldPorts
 ```
 
-`SimDeps` fields: `seed`, `clock`, `scheduler`, `timers`, `rng`, `random`,
+`WorldPorts` fields: `seed`, `clock`, `scheduler`, `timers`, `rng`, `random`,
 `createId`, `http`, `trace`.
 
-- **`scheduler.reset(atMs)`** — drop pending tasks and reset virtual clock (used
-  by kit crash/restart flows; not a public World port).
-- **`trace`** — `createDisabledTrace()` by default; `true` → `createRecordingTrace()`.
+- **`scheduler.reset(atMs)`** — drop pending Tasks and reset virtual time (used
+  by kit crash/restart flows; not a public World control).
+  `TODO(dst-audit)`: replace with Task ownership + cancel (Phase 3.3).
+- **`trace`** — `NOOP_TRACE_RECORDER` by default; `true` → `createTraceRecorder()`.
 
-Node boots receive `ctx.deps`. Do **not** mint a second `createSimDeps` inside boot.
+Node starts receive `ctx.ports`. Do **not** mint a second `createWorldPorts` inside start.
 
 ### Seed fork tree
 
 ```text
 root(seed) → fork('io') → random
            → fork('ids') → createId
-           → fork('sched') → same-time picks
-openWorld  → deps.rng.fork('net') → mesh
+           → fork('sched') → same-time Task picks
+openWorld  → ports.rng.fork('net') → Network Model
 ```
+
+(`'sched'` / `'net'` labels are kept until structural ChoiceIds land in Phase 3.2 —
+renaming them shifts every seeded stream.)
 
 ### Scheduler
 
-- Heap ordered by `(at, seq)`; **same-`at` ties** are entropy-picked via
-  `rng.fork('sched')` + `sample()` (forced choice of size 1 consumes **no** entropy)
-- **Quiescence probe**: after starting a task, wait for settle **or** a macrotask
-  (`setImmediate`). A still-unsettled task is suspended on an unmanaged promise;
-  other due events may fire to unblock it. Empty heap + stuck tasks → named deadlock.
-- Nested drain → throws `SimScheduler: nested drain`
-- `SimClock` does not go backwards; advance only via scheduler drains
+- Heap ordered by `(at, seq)`; **same-`at` ties** are a Choice via
+  `rng.fork('sched')` + `choose()` (forced choice of size 1 consumes **no** entropy)
+- **Quiescence probe**: after starting a Task, wait for settle **or** a macrotask
+  (`setImmediate`). A still-unsettled Task is suspended on an unmanaged promise;
+  other due Tasks may fire to unblock it. Empty heap + stuck Tasks → named deadlock.
+- Nested drain → throws `Scheduler: nested drain`
+- `VirtualClock` does not go backwards; advances only via Scheduler drains
 
 ### Network
 
-- Opaque `SimNetKey` for per-edge fault overlays and hold queues
-- **Heal-before-drop:** if partitioned, sample `unpartitionProbability` before drop
+- Opaque `FlowKey` for per-edge fault overlays and hold queues
+- **Heal-before-drop:** if partitioned, sample `healProbability` before drop
 - **`inFlightCount()`:** scheduled deliveries. **Held** packets are *not* in-flight
 - Declared `network.edges` enforced on role pairs (undirected)
 
 ### Trace
 
-Typed sequence of `sample` / `entropy` / `timer_*` / `net` / `lifecycle` /
-`step` / `invariant` records. `createRecordingTrace` / `createReplayingTrace` with
-positioned divergence errors and `assertFullyConsumed()`.
+Typed sequence of `choice` / `task_create` / `task_fire` / `network` records.
+`createTraceRecorder` / `createTraceResolver` with positioned divergence errors
+and `assertFullyConsumed()`.
+`TODO(dst-audit)`: versioned envelope + checksums (Phase 3.4 / 4).
 
-### Scenario v1
+### Repro v2
 
 ```ts
-{ version: 1, inputs: { seed, startMs, knobs, actions, networkDefaults }, meta }
+{ version: 2, inputs: { seed, startTime, knobs, commands, networkFaults }, meta }
 ```
 
-Failure artifacts bundle `scenario + trace + error`.
+v1 documents are rejected loudly. Failure reports bundle `repro + trace + error`.
 
 ---
 
@@ -315,38 +323,38 @@ Failure artifacts bundle `scenario + trace + error`.
 
 | Concern | Exports |
 | --- | --- |
-| Authoring | `defineSystem`, `node`, `knob`, `action`, `chaos` |
-| World | `openWorld`, `World`, `OpenWorldOpts`, `UntilOpts`, `NeverOpts` |
-| Network types | `SimNetwork`, `SimNetKey`, `RELIABLE_NET_FAULTS`, … |
-| Scenario / JSON | `captureScenario`, `parseScenario`, `JsonValue`, `canonicalJsonStringify` |
-| Trace | `createRecordingTrace`, `createReplayingTrace`, `SimTrace`, `TraceRecord` |
-| Entropy | `sample` (forced-choice-safe pick) |
-| Deps | `createSimDeps`, `SimDeps` |
-| Play constant | `PLAY_STEP_MS` |
+| Authoring | `defineScenario`, `node`, `knob`, `command`, `networkCommands`, `advanceCommand` |
+| World | `openWorld`, `World`, `OpenWorldOptions`, `EventuallyOptions`, `NeverOptions` |
+| Network types | `Network`, `FlowKey`, `NetworkFaults`, `RELIABLE_NETWORK`, … |
+| Repro / JSON | `stringifyRepro`, `parseRepro`, `REPRO_VERSION`, `JsonValue`, `canonicalJsonStringify` |
+| Trace | `createTraceRecorder`, `createTraceResolver`, `TraceRecorder`, `TraceRecord` |
+| Choice | `choose` (forced-choice-safe pick) |
+| Ports | `createWorldPorts`, `WorldPorts` |
+| Step constant | `COMMAND_STEP_MS` |
 
-**Not public:** `createSimNetwork`, scheduler/clock/timers factories,
-`playActions`, global kind registry, wildcard `./*`.
+**Not public:** `createNetwork`, scheduler/clock/timers factories,
+`applyCommands`, global node registry, wildcard `./*`.
 
-**`@pkgs/determinism/pbt`:** `assertSample`, `assertWorldProperty`, `replay`,
-`assertPins`, `assertDeterministic`, `assertSampleProperty`, `arbSeed`, `arbKnobs`,
-`arbAction`, `fc`.
+**`@pkgs/determinism/pbt`:** `runScenario`, `runWorldProperty`, `replay`,
+`runPins`, `assertDeterministic`, `runProperty`, `arbSeed`, `arbKnobs`,
+`arbCommand`. Import `fc` from `fast-check` directly.
 
 ---
 
 ## Consumers
 
-| SystemDef.id | Where | Notes |
+| ScenarioDef.id | Where | Notes |
 | --- | --- | --- |
-| `acme-kv` | `src/test/acme-kv/` | Canonical; `chaos.network()` + put; settle = heal + rebroadcast |
-| `sync.acme` | sync-engine `defineSyncSystem` | Kit via `extend`; `openAcmeWorld` types the merged world |
-| `room.world` | room `defineRoomSystem` | Same pattern; kit methods on opened world |
-| `auth.idp` | auth `tests/system` | Framework-native |
-| `db-schema.reconcile` | db-schema `tests/system` | Framework-native |
-| `matchmaking.replicas` | matchmaking `sim/system` | `extend` builds kit; `chaos.advance` |
+| `acme-kv` | `src/test/acme-kv/` | Canonical; `networkCommands()` + put; converge = heal + rebroadcast |
+| `sync.acme` | sync-engine `defineSyncSystem` | Kit via `extend`; `openAcmeWorld` types the merged World |
+| `room.world` | room `defineRoomSystem` | Same pattern; kit methods on opened World |
+| `auth.idp` | auth `tests/scenario` | Framework-native |
+| `db-schema.reconcile` | db-schema `tests/scenario` | Framework-native |
+| `matchmaking.replicas` | matchmaking `sim/scenario` | `extend` builds kit; `advanceCommand` |
 | `sim.product` | `@sim/test` | `extend` returns `Sim` |
 
-Convention: factories in `**/sim/system/`; standalone systems in `**/tests/system/`;
-shrinking suites `*.system.pbt.test.ts`; pins `*.sim.test.ts`.
+Convention: factories in `**/sim/scenario/`; standalone scenarios in `**/tests/scenario/`;
+shrinking suites `*.scenario.pbt.test.ts`; pins `*.sim.test.ts`.
 
 ```ts
 await using world = await openAcmeWorld({ seed, knobs: { clientCount: 0 } });
@@ -367,30 +375,30 @@ clients --put--> server --replicate--> clients
 | --- | --- |
 | Nodes | `server` singleton + `client` (`count` from knob, ids `c0…`) |
 | Domain | `{ kind: 'put', clientId, key, value }` via `network.send` |
-| Chaos | `chaos.network()` from declared edges |
-| Settle | `healAll` → rebroadcast store → `idle` |
-| Invariants | caches == server (checked after settle) |
+| Network Commands | `networkCommands()` from declared edges |
+| Converge | `healAll` → rebroadcast store → `quiesce` |
+| Always | caches == server (checked after converge) |
 
 ---
 
 ## Sharp edges (design-review checklist)
 
-1. **Kinds are values** — import the kind object into `nodes`; no ambient registry.
-2. **One action record** — unique action keys; no `match` routing.
-3. **Model ≠ live under loss** — settle must heal/catch up; mid-play may diverge.
-4. **Settle is product policy** — acme-kv rebroadcasts; sync reconnects; not CRDT magic.
-5. **Nested drain** — do not re-enter scheduler drain from inside a scheduled task.
-6. **`World.idle`** — only public drain; quiescence-aware.
+1. **Nodes are values** — import the node object into `nodes`; no ambient registry.
+2. **One Command record** — unique Command keys; no `match` routing.
+3. **Reference model ≠ live under loss** — converge must heal/catch up; mid-apply may diverge.
+4. **Converge is product policy** — acme-kv rebroadcasts; sync reconnects; not CRDT magic.
+5. **Nested drain** — do not re-enter Scheduler drain from inside a scheduled Task.
+6. **`World.quiesce`** — only public drain; quiescence-aware.
 7. **Held vs inFlight** — waiting on `inFlightCount()===0` while keys are held can hang.
-8. **Harness-only** — never put `SimDeps` on product env; depcruise enforces no product→determinism.
-9. **One SimDeps per World** — node boots use `ctx.deps`; kit surface is `extend`.
+8. **Harness-only** — never put `WorldPorts` on product env; depcruise enforces no product→determinism.
+9. **One `WorldPorts` per World** — node starts use `ctx.ports`; kit surface is `extend`.
 10. **Roles, not clients** — topology is roles; never hardcode `'client'` in the framework.
 11. **Trace divergence** — a gate failure means consumer nondeterminism, not a flaky test.
 12. **`extend` collisions** — kit keys must not shadow framework controls.
 
-When proposing changes, say which layer you touch (kernel / catalogs / world /
+When proposing changes, say which layer you touch (Kernel / Models / Harness /
 PBT), what contracts you preserve or break, and how `acme-kv` + one product
-system would migrate. **No shims / `@deprecated` aliases.**
+scenario would migrate. **No shims / `@deprecated` aliases.**
 
 ---
 
@@ -398,19 +406,21 @@ system would migrate. **No shims / `@deprecated` aliases.**
 
 | Path | Role |
 | --- | --- |
-| `src/create-sim-deps.ts` | `SimDeps` + fork tree |
-| `src/clock.ts` / `scheduler*.ts` / `timers.ts` / `quiescence.ts` | Kernel time |
-| `src/sample.ts` | Forced-choice-safe entropy pick |
-| `src/network*.ts` | Mesh, partition, hold, faults |
-| `src/action.ts` / `knobs.ts` / `chaos.ts` | Catalogs |
-| `src/node.ts` | Kind values (no global registry) |
-| `src/define-system.ts` | `SystemDef` / `defineSystem` |
-| `src/world.ts` / `world-types.ts` | `openWorld` / `World` |
-| `src/play.ts` | Private play loop (`PLAY_STEP_MS`) |
-| `src/scenario.ts` / `json.ts` / `trace.ts` | Scenario v1, JSON, trace |
-| `src/pbt/assert-sample.ts` | `assertSample` / `assertWorldProperty` / `assertPins` |
+| `src/kernel/clock.ts` / `scheduler*.ts` / `timers.ts` / `quiescence.ts` | Kernel time |
+| `src/kernel/choice.ts` | `choose` — forced-choice-safe pick |
+| `src/kernel/trace.ts` / `json.ts` | Trace record/resolve, canonical JSON |
+| `src/models/network*.ts` | Network Model: partition, hold, faults |
+| `src/models/node.ts` | `NodeDef` / `NodeContext` (no global registry) |
+| `src/harness/world-ports.ts` | `WorldPorts` + fork tree |
+| `src/harness/command.ts` / `knobs.ts` / `network-commands.ts` | Catalogs |
+| `src/harness/node.ts` | `node()` bound to `WorldPorts` |
+| `src/harness/define-scenario.ts` | `ScenarioDef` / `defineScenario` |
+| `src/harness/world.ts` / `world-types.ts` / `world-controls.ts` | `openWorld` / `World` |
+| `src/harness/apply-commands.ts` | Private apply loop (`COMMAND_STEP_MS`) |
+| `src/harness/repro.ts` | Repro v2 + `FailureReport` |
+| `src/pbt/run-scenario.ts` | `runScenario` / `runWorldProperty` / `runPins` |
 | `src/pbt/assert-deterministic.ts` | Determinism gate |
-| `src/pbt/arbs.ts` | `arbSeed` / `arbKnobs` / `arbAction` |
+| `src/pbt/arbs.ts` | `arbSeed` / `arbKnobs` / `arbCommand` |
 | `src/test/acme-kv/` | Canonical multi-node fixture |
 
 ---
@@ -421,8 +431,8 @@ system would migrate. **No shims / `@deprecated` aliases.**
 bun run --filter @pkgs/determinism tc
 bun test pkgs/determinism
 bun test pkgs/determinism/src/test/acme-kv
-PBT_SAMPLE_RUNS=1 bun test pkgs/sync-engine/src/tests/scenarios/acme-world.system.pbt.test.ts
-PBT_SAMPLE_RUNS=1 bun test pkgs/room/src/tests/scenarios/room-world.system.pbt.test.ts
-bun test pkgs/auth/src/tests/system pkgs/db-schema/src/tests/system
+PBT_SAMPLE_RUNS=1 bun test pkgs/sync-engine/src/tests/scenarios/acme-world.scenario.pbt.test.ts
+PBT_SAMPLE_RUNS=1 bun test pkgs/room/src/tests/scenarios/room-world.scenario.pbt.test.ts
+bun test pkgs/auth/src/tests/scenario pkgs/db-schema/src/tests/scenario
 bun test pkgs/matchmaking/src/tests
 ```

@@ -2,12 +2,12 @@
  * Virtual-time until / never helpers for the matchmaking sim world.
  */
 
-export type UntilOpts = {
+export type EventuallyOptions = {
   readonly budgetMs?: number;
   readonly stepMs?: number;
 };
 
-export type NeverOpts = {
+export type NeverOptions = {
   readonly forMs: number;
   readonly stepMs?: number;
 };
@@ -38,7 +38,7 @@ function failMsg(
 export async function runWorldUntil(
   ctx: MatchmakingUntilContext,
   target: UntilTarget,
-  opts?: UntilOpts
+  opts?: EventuallyOptions
 ): Promise<number> {
   const budgetMs = opts?.budgetMs ?? 2_000;
   const stepMs = opts?.stepMs ?? 25;
@@ -56,7 +56,7 @@ export async function runWorldUntil(
 export async function runWorldNever(
   ctx: MatchmakingUntilContext,
   target: UntilTarget,
-  opts: NeverOpts
+  opts: NeverOptions
 ): Promise<void> {
   const stepMs = opts.stepMs ?? 25;
   const start = ctx.clock.now();

@@ -12,5 +12,9 @@ export type {
   SyncApp,
   SyncSystemFacade,
   WorldKnobs,
-} from '../sim/system';
-export type { NeverOpts, UntilOpts, UntilTarget } from '../sim/wait-until';
+} from '../sim/scenario';
+export type {
+  EventuallyOptions,
+  NeverOptions,
+  UntilTarget,
+} from '../sim/wait-until';

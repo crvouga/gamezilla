@@ -1,4 +1,4 @@
-import type { SimDeps } from '@pkgs/determinism';
+import type { WorldPorts } from '@pkgs/determinism';
 import type { SeededRng } from '@pkgs/uuid';
 import type { BoundaryFaultController } from './boundary-faults';
 import type { SimAuthStatus } from './client-factory';
@@ -6,7 +6,7 @@ import { createClockSkewTable, SIM_SERVER_NODE_ID } from './clock-skew';
 import type { SimDomainPack } from './domain-pack';
 import type { SimFaultOptions } from './faults';
 import { DST_FAULTS, RELIABLE_FAULTS, sampleFaultOptions } from './faults';
-import type { SimNetwork } from './network';
+import type { SyncNetwork } from './network';
 import { createSimPubSubBroker } from './pubsub-bridge';
 import { BROKER } from './traffic';
 import type { ClientMeta, SimClock, WorldClientOpts } from './world-types';
@@ -24,7 +24,7 @@ export function resolveBootDomain(worldArgs: WorldClientOpts): SimDomainPack {
 }
 
 export type BootRuntimeDeps = Pick<
-  SimDeps,
+  WorldPorts,
   'clock' | 'scheduler' | 'timers' | 'rng'
 >;
 
@@ -33,7 +33,7 @@ export type CreateBootRuntimeArgs = {
   readonly worldArgs: WorldClientOpts;
   readonly boundaryFaults?: BoundaryFaultController;
   /** Framework-owned network (framework worlds wrap `@pkgs/determinism`'s kernel). */
-  readonly network: SimNetwork;
+  readonly network: SyncNetwork;
 };
 
 function resolveWorldFaults(args: CreateBootRuntimeArgs): SimFaultOptions {
@@ -56,7 +56,7 @@ export function createBootRuntime(args: CreateBootRuntimeArgs) {
     worldArgs.faults !== undefined ||
     worldArgs.dstFaults === true
   ) {
-    // Explicit worldArgs win; otherwise keep framework networkDefaults.
+    // Explicit worldArgs win; otherwise keep framework networkFaults.
     network.setDefaultFaults(resolveWorldFaults(args));
   }
   const broker = createSimPubSubBroker({

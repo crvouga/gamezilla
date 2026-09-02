@@ -1,14 +1,12 @@
-export { arbAction, arbKnobs, arbSeed, fc } from './arbs';
+export { arbCommand, arbKnobs, arbSeed } from './arbs';
+export { assertDeterministic, type RunInputs } from './assert-deterministic';
+export { replay } from './replay';
+export { type RunPropertyOptions, runProperty } from './run-property';
 export {
-  assertDeterministic,
-  type DeterministicRunInputs,
-} from './assert-deterministic';
-export { assertSampleProperty } from './assert-property';
-export {
-  type AssertSampleOpts,
-  assertPins,
-  assertSample,
-  assertWorldProperty,
-  type FaultPin,
-} from './assert-sample';
-export { type ReplayInputs, replay } from './replay';
+  type Pin,
+  type RunScenarioOptions,
+  type RunWorldPropertyOptions,
+  runPins,
+  runScenario,
+  runWorldProperty,
+} from './run-scenario';

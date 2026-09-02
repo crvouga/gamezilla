@@ -17,8 +17,8 @@ describe('reordered http responses stale checkpoint dropped', () => {
     await world.assertConverged();
 
     using _fault = world.net('bob', 'sync').set({
-      oneWayDelayMeanMs: 20,
-      oneWayDelayJitterMs: 40,
+      latencyMeanMs: 20,
+      latencyJitterMs: 40,
       reorderWindow: 6,
     });
 

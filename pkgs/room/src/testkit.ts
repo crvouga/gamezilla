@@ -8,11 +8,11 @@ export type {
   RoomApp,
   RoomSystemDef,
   RoomSystemWorld,
-} from './sim/system';
+} from './sim/scenario';
 export {
   defineRoomSystem,
   domainOp,
-} from './sim/system';
+} from './sim/scenario';
 export type {
   OpenWorldArgs,
   RoomSimClientHandle,

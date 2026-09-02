@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { Hono } from 'hono';
 import type { FormulaWire } from '../../interface/formula-wire';
 import type { StatusResult } from '../../interface/types';
-import { openMatchmakingWorld } from '../../sim/system';
+import { openMatchmakingWorld } from '../../sim/scenario';
 import {
   defaultStubAuth,
   expectMatched,

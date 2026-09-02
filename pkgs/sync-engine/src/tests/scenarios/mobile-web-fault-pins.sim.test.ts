@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { playSyncActions, replaySyncPin } from '../../sim/system';
+import { playSyncActions, replaySyncPin } from '../../sim/scenario';
 import { expectLiveNote, setNote } from '../apps/acme';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
 import {
@@ -55,7 +55,7 @@ describe('shared db peer engine', () => {
         bufferOutboundLive: false,
         clientCount: 2,
       },
-      actions: [
+      commands: [
         {
           kind: 'addPeerEngine',
           clientId: 'c2',
@@ -72,7 +72,7 @@ describe('shared db peer engine', () => {
   test('restart donor after addPeerEngine still converges', async () => {
     await replaySyncPin(acmeSystem, {
       seed: 5230,
-      actions: [
+      commands: [
         acmeSetNoteOp('c0', 'n6', 'b947'),
         {
           kind: 'addPeerEngine',
@@ -89,7 +89,7 @@ describe('fail next open', () => {
   test('restart survives failNextOpen arm', async () => {
     await replaySyncPin(acmeSystem, {
       seed: 55004,
-      actions: [
+      commands: [
         acmeSetNoteOp('c0', 'n0', 'before'),
         { kind: 'crash', clientId: 'c0' },
         { kind: 'failNextOpen', clientId: 'c0' },
@@ -110,7 +110,7 @@ describe('fail next open', () => {
         bufferOutboundLive: true,
         clientCount: 3,
       },
-      actions: [
+      commands: [
         { kind: 'failNextOpen', clientId: 'c0' },
         {
           kind: 'restartWithSchema',
@@ -132,7 +132,7 @@ describe('prune server artifacts interleaved', () => {
   test('prune during session then mutate converges', async () => {
     await replaySyncPin(acmeSystem, {
       seed: 55005,
-      actions: [
+      commands: [
         acmeSetNoteOp('c0', 'n0', 'keep'),
         { kind: 'pruneServerArtifacts', olderThanMs: -2_000_000_000_000 },
         acmeSetNoteOp('c1', 'n1', 'after-prune'),
@@ -146,7 +146,7 @@ describe('large snapshot hydrate', () => {
   test('~2k row catalog seed converges after heal', async () => {
     await replaySyncPin(acmeLargeCatalogSystem, {
       seed: 55006,
-      actions: [
+      commands: [
         {
           kind: 'server',
           name: 'seedLargeCatalogSilent',

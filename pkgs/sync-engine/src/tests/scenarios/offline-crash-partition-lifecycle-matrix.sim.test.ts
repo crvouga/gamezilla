@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import type { SyncSystemFacade } from '../../sim/system';
+import type { SyncSystemFacade } from '../../sim/scenario';
 import {
   expectLiveNote,
   expectNotesMatchServer,

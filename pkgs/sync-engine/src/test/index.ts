@@ -20,8 +20,9 @@ export {
   type InMemorySyncEngineOptions,
 } from './in-memory-sync-engine';
 export {
+  type EventuallyOptions,
   emptySimPushChannels,
-  type NeverOpts,
+  type NeverOptions,
   type SeededRng,
   type SimClientHandle,
   type SimDomainPack,
@@ -29,7 +30,6 @@ export {
   type SyncAction,
   type SyncApp,
   type SyncSystemFacade,
-  type UntilOpts,
   type UntilTarget,
   type WorldKnobs,
 } from './sim-exports';

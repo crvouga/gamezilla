@@ -1,30 +1,26 @@
 import type {
-  SimNetwork as KernelNetwork,
-  SimDeliver,
-  SimEndpointId,
-  SimNetKey,
+  Deliver,
+  EndpointId,
+  FlowKey,
+  Network as KernelNetwork,
 } from '@pkgs/determinism';
 
 import type { SimFaultOptions } from './faults';
 import { type ClientTraffic, clientForHop, type SimTraffic } from './traffic';
 
-export type { SimDeliver, SimEndpointId };
+export type { Deliver, EndpointId };
 
 /**
  * Sync-domain network: hold/faults keyed by node + {@link SimTraffic}.
  * Mechanics (delay/loss/dup/partition/hold queues) live in `@pkgs/determinism`.
  */
-export type SimNetwork = {
-  readonly register: (id: SimEndpointId, deliver: SimDeliver) => void;
-  readonly unregister: (id: SimEndpointId) => void;
+export type SyncNetwork = {
+  readonly register: (id: EndpointId, deliver: Deliver) => void;
+  readonly unregister: (id: EndpointId) => void;
   /** Schedule delivery (fire-and-forget). Drops when partitioned / lost. */
-  readonly send: (
-    from: SimEndpointId,
-    to: SimEndpointId,
-    payload: unknown
-  ) => void;
-  readonly partition: (a: SimEndpointId, b: SimEndpointId) => void;
-  readonly heal: (a: SimEndpointId, b: SimEndpointId) => void;
+  readonly send: (from: EndpointId, to: EndpointId, payload: unknown) => void;
+  readonly partition: (a: EndpointId, b: EndpointId) => void;
+  readonly heal: (a: EndpointId, b: EndpointId) => void;
   readonly healAll: () => void;
   /** World default fault profile (fallback when no per-node override). */
   readonly setDefaultFaults: (faults: SimFaultOptions) => void;
@@ -47,25 +43,25 @@ export type SimNetwork = {
     traffic: SimTraffic
   ) => SimFaultOptions | undefined;
   readonly isHeld: (nodeId: string, traffic: SimTraffic) => boolean;
-  readonly isEdgePartitioned: (a: SimEndpointId, b: SimEndpointId) => boolean;
+  readonly isEdgePartitioned: (a: EndpointId, b: EndpointId) => boolean;
   readonly heldSummary: () => readonly string[];
 };
 
 /** Opaque key: `nodeId\\0traffic` — never parsed by the kernel. */
-export function syncNetKey(nodeId: string, traffic: SimTraffic): SimNetKey {
+export function syncNetKey(nodeId: string, traffic: SimTraffic): FlowKey {
   return `${nodeId}\0${traffic}`;
 }
 
 /** Map sync fault field names → kernel profile. */
 export function toKernelFaults(f: SimFaultOptions) {
   return {
-    oneWayDelayMeanMs: f.oneWayDelayMeanMs,
-    oneWayDelayJitterMs: f.oneWayDelayJitterMs,
-    packetLossProbability: f.packetLossProbability,
+    latencyMeanMs: f.latencyMeanMs,
+    latencyJitterMs: f.latencyJitterMs,
+    dropProbability: f.dropProbability,
     duplicateProbability: f.packetReplayProbability,
     reorderWindowMs: f.reorderWindow,
     partitionProbability: f.partitionProbability,
-    unpartitionProbability: f.unpartitionProbability,
+    healProbability: f.healProbability,
   };
 }
 
@@ -74,22 +70,22 @@ export function fromKernelFaults(
   p: ReturnType<KernelNetwork['faults']>
 ): SimFaultOptions {
   return {
-    oneWayDelayMeanMs: p.oneWayDelayMeanMs,
-    oneWayDelayJitterMs: p.oneWayDelayJitterMs,
-    packetLossProbability: p.packetLossProbability,
+    latencyMeanMs: p.latencyMeanMs,
+    latencyJitterMs: p.latencyJitterMs,
+    dropProbability: p.dropProbability,
     packetReplayProbability: p.duplicateProbability,
     reorderWindow: p.reorderWindowMs,
     partitionProbability: p.partitionProbability,
-    unpartitionProbability: p.unpartitionProbability,
+    healProbability: p.healProbability,
   };
 }
 
 function resolveSendKey(
   kernel: KernelNetwork,
-  overrides: Map<SimNetKey, SimFaultOptions>,
+  overrides: Map<FlowKey, SimFaultOptions>,
   nodeId: string,
   traffic: ClientTraffic
-): SimNetKey {
+): FlowKey {
   const specific = syncNetKey(nodeId, traffic);
   const all = syncNetKey(nodeId, 'all');
   if (kernel.isHeld(specific)) return specific;
@@ -145,7 +141,7 @@ function releaseTraffic(
 
 function clearNodeOverrides(
   kernel: KernelNetwork,
-  overrides: Map<SimNetKey, SimFaultOptions>,
+  overrides: Map<FlowKey, SimFaultOptions>,
   nodeId?: string
 ): void {
   if (nodeId === undefined) {
@@ -168,11 +164,11 @@ function clearNodeOverrides(
 export function wrapSimNetwork(
   kernel: KernelNetwork,
   initialFaults?: SimFaultOptions
-): SimNetwork {
+): SyncNetwork {
   if (initialFaults !== undefined) {
     kernel.setFaults(toKernelFaults(initialFaults));
   }
-  const overrides = new Map<SimNetKey, SimFaultOptions>();
+  const overrides = new Map<FlowKey, SimFaultOptions>();
 
   return {
     register: (id, deliver) => kernel.register(id, deliver),

@@ -192,8 +192,8 @@ export function bindWorldMethods(args: {
     addClient: (clientArgs) => addClientImpl(k, clientArgs),
     net,
     node,
-    isSchedulerQuiescent: () => scheduler.pendingCount() === 0,
-    pendingEventCount: () => scheduler.pendingCount(),
+    isSchedulerQuiescent: () => scheduler.pendingTaskCount() === 0,
+    pendingEventCount: () => scheduler.pendingTaskCount(),
     checkInvariants: () =>
       checkClientSeqs(clients, rng.seed, () => k.clock.now()),
     assertConverged: () =>

@@ -1,4 +1,4 @@
-import type { SimScheduler } from '@pkgs/determinism';
+import type { Scheduler } from '@pkgs/determinism';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { reconcileOptimisticPeerMarkers } from '../client/optimistic-peer-rows';
 import type { SimClientHandle } from './client-factory';
@@ -11,12 +11,12 @@ import {
 } from './invariants';
 import type { NetEffectRegistry } from './net-effect';
 
-import type { SimNetwork } from './network';
+import type { SyncNetwork } from './network';
 import type { SimServer } from './server';
 
 export type AssertConvergedCtx = {
-  readonly network: SimNetwork;
-  readonly scheduler: SimScheduler;
+  readonly network: SyncNetwork;
+  readonly scheduler: Scheduler;
   readonly clients: ReadonlyMap<string, SimClientHandle>;
   readonly server: SimServer;
   readonly seed: bigint;

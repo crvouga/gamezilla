@@ -11,7 +11,7 @@
 | Live round-trip | `src/tests/pbt/roundtrip.pbt.test.ts` | `bun test` |
 | Contract matrix | `src/interface.contract.test.ts` | `bun test` |
 | Integration | `src/*/reconcile.integration.test.ts` | `bun test` |
-| System world | `src/tests/system/*.pbt.test.ts` | `bun test` |
+| System world | `src/tests/scenario/*.pbt.test.ts` | `bun test` |
 
 ## Invariants (oracles)
 

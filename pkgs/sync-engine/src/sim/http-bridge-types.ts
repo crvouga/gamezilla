@@ -4,7 +4,7 @@ import type {
 } from '../client/mutation-upload-queue';
 import type { QueryRequest } from '../client/subscription-runtime';
 import type { QueryResponse } from '../queries/core/types';
-import type { SimEndpointId } from './network';
+import type { EndpointId } from './network';
 
 /** Request body without routing metadata (client fills `replyTo`). */
 export type SimHttpRequestBody =
@@ -20,7 +20,7 @@ export type SimHttpRequestBody =
     };
 
 export type SimHttpRequest = SimHttpRequestBody & {
-  readonly replyTo: SimEndpointId;
+  readonly replyTo: EndpointId;
 };
 
 export type SimHttpResponse =

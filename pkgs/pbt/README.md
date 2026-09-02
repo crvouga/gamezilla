@@ -41,44 +41,44 @@ Env knobs:
 ## World sample properties
 
 For sim-backed suites, world helpers live in **`@pkgs/determinism/pbt`**, not here.
-`assertSampleProperty` caps `numRuns` and extends the interrupt budget so
+`runProperty` caps `numRuns` and extends the interrupt budget so
 `test:pbt:random` cannot accidentally run hundreds of full-world opens;
-`assertSample` drives a whole `defineSystem` system (seed + knobs + action pool +
-model) without any per-suite plumbing. Use `assertWorldProperty` for custom
-arbitraries over an opened world, and `assertPins` for named replay matrices.
+`runScenario` drives a whole `defineScenario` Scenario (seed + knobs + Command pool +
+reference model) without any per-suite plumbing. Use `runWorldProperty` for custom
+arbitraries over an opened World, and `runPins` for named replay matrices.
 
 ```ts
+import fc from 'fast-check';
 import {
-  assertSample,
-  assertSampleProperty,
-  assertWorldProperty,
-  assertPins,
-  arbSeed,
   arbKnobs,
-  fc,
+  arbSeed,
+  runPins,
+  runProperty,
+  runScenario,
+  runWorldProperty,
 } from '@pkgs/determinism/pbt';
 import { openWorld } from '@pkgs/determinism';
 import { acmeSystem } from '../apps/acme/system';
 
-// Whole-system property: framework generates and replays everything.
-await assertSample(acmeSystem, { numRuns: 12, maxCommands: 14 });
+// Whole-scenario property: framework generates and replays everything.
+await runScenario(acmeSystem, { numRuns: 12, maxCommands: 14 });
 
 // Custom property over a framework-owned world.
-await assertWorldProperty(acmeSystem, [fc.constant(null)], async (world) => {
-  await world.settle();
+await runWorldProperty(acmeSystem, [fc.constant(null)], async (world) => {
+  await world.converge();
 });
 
 // Named pin matrix (wraps replay + determinism gate).
-await assertPins(acmeSystem, [
-  { name: 'baseline', actions: [{ kind: 'domain', mutation: 'setNote', args: {} }] },
+await runPins(acmeSystem, [
+  { name: 'baseline', commands: [{ kind: 'domain', mutation: 'setNote', args: {} }] },
 ]);
 
 // Hand-rolled property over a framework-owned world.
-await assertSampleProperty(
+await runProperty(
   'app world converges',
   fc.asyncProperty(arbSeed(), async (seed) => {
     await using world = await openWorld(acmeSystem, { seed });
-    await world.settle();
+    await world.converge();
   })
 );
 ```
@@ -126,7 +126,7 @@ Log the seed + path + minimal case in repo-root `PBT_FINDINGS.md`.
 ## Model-based / commands
 
 Use `fc.commands` + `fc.asyncModelRun` (or `fc.modelRun`) to shrink action
-sequences. Keep the product `SimClock` / `createSimAdapters` — do **not**
+sequences. Keep the product `VirtualClock` / `createSimAdapters` — do **not**
 replace the virtual clock with `fc.scheduler`.
 
 Replay for commands also needs `replayPath` from the failure output:

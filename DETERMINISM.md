@@ -6,7 +6,7 @@ identical logic. Hidden nondeterminism is a production correctness bug.
 
 ## Core rule
 
-**Same seed → same path.** Given the same `createSimDeps` / `createSimAdapters`
+**Same seed → same path.** Given the same `createWorldPorts` / `createSimAdapters`
 seed (and the same command / mutation inputs), reducers, merges, and derived
 game/social state must match bit-for-bit across clients and runs.
 
@@ -14,22 +14,22 @@ game/social state must match bit-for-bit across clients and runs.
 
 Inject clock, timers, ids, RNG, and HTTP from a composition root
 (`createClient(env)` / `createServer(env)` / `createSim` via harness-only
-`createSimDeps` from `@pkgs/determinism` / `createSimAdapters` for thin adapters /
+`createWorldPorts` from `@pkgs/determinism` / `createSimAdapters` for thin adapters /
 wall adapters at process entry):
 
 | Port | Use |
 | --- | --- |
-| `clock` / `timers` (`@pkgs/clock` types; sim uses bare `@pkgs/determinism` `SimClock` + `SimScheduler`) | Time and scheduling |
+| `clock` / `timers` (`@pkgs/clock` types; sim uses bare `@pkgs/determinism` `VirtualClock` + `Scheduler`) | Time and scheduling |
 | `createId` (`@pkgs/uuid`) | UUIDs / ids |
 | `random` (`@pkgs/uuid`) | RNG |
 | HTTP (`@pkgs/http-client`) | Network |
 
-**`SimDeps` is harness-only.** Product `ClientEnv` / `ServerEnv` receive unpacked
-ports — never the `SimDeps` bag. Shared simulation mechanics (scheduler, network
-mesh, fault/knob catalogs, scenario JSON, `until`/`never`, play helpers) live in
+**`WorldPorts` is harness-only.** Product `ClientEnv` / `ServerEnv` receive unpacked
+ports — never the `WorldPorts` bag. Shared simulation mechanics (scheduler, network
+mesh, fault/knob catalogs, scenario JSON, `eventually`/`never`, apply helpers) live in
 `@pkgs/determinism`. **Worlds are framework-owned:** packages declare `node` /
-`knob` / `action` + `chaos` + `defineSystem` (topology, knobs, actions, settle,
-optional `extend`); tests call `assertSample` / `replay` / `assertPins` from
+`knob` / `command` + `networkCommands` / `advanceCommand` + `defineScenario` (topology, knobs, commands, converge,
+optional `extend`); tests call `runScenario` / `replay` / `runPins` from
 `@pkgs/determinism/pbt` — not package-local World openers / `worldPropertyInputs` /
 `runCommands`. See [`pkgs/determinism/CONTEXT.md`](pkgs/determinism/CONTEXT.md).
 

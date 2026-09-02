@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'bun:test';
-import { createSimDeps } from '@pkgs/determinism';
+import { createWorldPorts } from '@pkgs/determinism';
 
 import { createSeededRng } from '../../sim/rng';
 
-/** Fresh clock (startMs 0) + scheduler + timers from the harness deps mint. */
-function kernelParts(): ReturnType<typeof createSimDeps> {
-  return createSimDeps({ seed: 1, startMs: 0 });
+/** Fresh clock (startTime 0) + scheduler + timers from the harness deps mint. */
+function kernelParts(): ReturnType<typeof createWorldPorts> {
+  return createWorldPorts({ seed: 1, startTime: 0 });
 }
 
 describe('sim kernel', () => {
@@ -65,7 +65,7 @@ describe('sim kernel', () => {
     expect(clock.now()).toBe(200);
   });
 
-  test('runUntilIdle drains nested schedules', async () => {
+  test('runUntilQuiescent drains nested schedules', async () => {
     const { scheduler: sched } = kernelParts();
     let n = 0;
     const chain = (): void => {
@@ -73,8 +73,8 @@ describe('sim kernel', () => {
       if (n < 5) sched.scheduleAfter(1, chain);
     };
     sched.scheduleAfter(0, chain);
-    await sched.runUntilIdle();
+    await sched.runUntilQuiescent();
     expect(n).toBe(5);
-    expect(sched.pendingCount()).toBe(0);
+    expect(sched.pendingTaskCount()).toBe(0);
   });
 });

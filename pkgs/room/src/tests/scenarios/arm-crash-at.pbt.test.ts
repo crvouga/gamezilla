@@ -1,9 +1,9 @@
 import { describe, test } from 'bun:test';
-import { arbSeed, assertSampleProperty } from '@pkgs/determinism/pbt';
+import { arbSeed, runProperty } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
 
 import { WORLD_PBT_CRASH_EVENTS } from '../../sim/boundary-faults';
-import { playRoomActions, replayRoom } from '../../sim/system';
+import { playRoomActions, replayRoom } from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
 
 /**
@@ -15,7 +15,7 @@ describe('room armCrashAt slice PBT', () => {
   test(
     'each armCrashAt event then settle converges',
     async () => {
-      await assertSampleProperty(
+      await runProperty(
         'armCrashAt slice converges',
         fc.asyncProperty(
           arbSeed(),
@@ -24,8 +24,8 @@ describe('room armCrashAt slice PBT', () => {
             const world = await replayRoom(counterSystem, {
               seed,
               knobs: { clientCount: 2, mildFaults: false },
-              settle: false,
-              actions: [
+              converge: false,
+              commands: [
                 {
                   kind: 'armCrashAt',
                   clientId: 'c1',

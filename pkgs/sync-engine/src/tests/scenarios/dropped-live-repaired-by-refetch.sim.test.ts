@@ -17,7 +17,7 @@ describe('dropped live repaired by refetch', () => {
     const b = await world.addClient({ id: 'bob' });
 
     {
-      using _loss = world.net('bob', 'live').set({ packetLossProbability: 1 });
+      using _loss = world.net('bob', 'live').set({ dropProbability: 1 });
       await a.mutate(setNote, { id: 'n1', body: 'lost' });
       await world.advance(50);
     }
@@ -32,10 +32,10 @@ describe('dropped live repaired by refetch', () => {
       knobs: {
         clientCount: 0,
       },
-      networkDefaults: toKernelFaults({
+      networkFaults: toKernelFaults({
         ...RELIABLE_FAULTS,
-        oneWayDelayMeanMs: 20,
-        oneWayDelayJitterMs: 40,
+        latencyMeanMs: 20,
+        latencyJitterMs: 40,
         reorderWindow: 5,
       }),
     });
@@ -55,7 +55,7 @@ describe('dropped live repaired by refetch', () => {
       knobs: {
         clientCount: 0,
       },
-      networkDefaults: toKernelFaults({
+      networkFaults: toKernelFaults({
         ...RELIABLE_FAULTS,
         packetReplayProbability: 0.8,
       }),

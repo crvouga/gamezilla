@@ -1,7 +1,7 @@
 import { fc } from '@pkgs/pbt';
 import type { SeededRng } from '@pkgs/uuid';
-import type { DomainOp, RoomApp } from '../../../sim/system';
-import { domainOp } from '../../../sim/system';
+import type { DomainOp, RoomApp } from '../../../sim/scenario';
+import { domainOp } from '../../../sim/scenario';
 import {
   Decrement,
   Increment,

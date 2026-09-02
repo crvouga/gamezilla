@@ -65,13 +65,13 @@ sharing one DB** — the horizontal-scale composition root.
 
 ```text
 pkgs/matchmaking/src/
-  sim/system/                   # defineMatchmakingSystem + node kinds
+  sim/scenario/                   # defineMatchmakingSystem + node kinds
   testkit.ts                    # @pkgs/matchmaking/testing facade
   tests/
     fixtures/
     hygiene/
     adapter/
-    scenarios/                  # *.sim.test.ts + *.system.pbt.test.ts
+    scenarios/                  # *.sim.test.ts + *.scenario.pbt.test.ts
 ```
 
 ```ts

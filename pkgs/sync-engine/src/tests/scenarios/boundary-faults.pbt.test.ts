@@ -1,11 +1,11 @@
 import { describe, test } from 'bun:test';
-import { assertSampleProperty } from '@pkgs/determinism/pbt';
+import { runProperty } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
-import { HTTP_FAULTS, replaySyncPin } from '../../sim/system';
-import { arbKnobs, arbSeed } from '../../sim/system/knobs';
+import { HTTP_FAULTS, replaySyncPin } from '../../sim/scenario';
+import { arbKnobs, arbSeed } from '../../sim/scenario/knobs';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
 import { acmeSystem } from '../apps/acme/system';
-import type { DomainOp, LibraryAction, SyncAction } from '../system/actions';
+import type { DomainOp, LibraryAction, SyncAction } from '../scenario/actions';
 
 const TRIGGER: DomainOp = acmeSetNoteOp('c0', 'n0', 'boundary');
 
@@ -51,7 +51,7 @@ describe('boundary faults PBT', () => {
   test(
     'HTTP fault arm then mutate converges',
     async () => {
-      await assertSampleProperty(
+      await runProperty(
         'http fault sequences converge',
         fc.asyncProperty(
           arbSeed(),
@@ -61,7 +61,7 @@ describe('boundary faults PBT', () => {
             await replaySyncPin(acmeSystem, {
               seed,
               knobs,
-              actions: richBoundarySequence({
+              commands: richBoundarySequence({
                 kind: 'armHttpFault',
                 clientId: 'c0',
                 fault,
@@ -78,7 +78,7 @@ describe('boundary faults PBT', () => {
   test(
     'publishFault then mutate converges',
     async () => {
-      await assertSampleProperty(
+      await runProperty(
         'publish fault sequences converge',
         fc.asyncProperty(
           arbSeed(),
@@ -88,7 +88,7 @@ describe('boundary faults PBT', () => {
             await replaySyncPin(acmeSystem, {
               seed,
               knobs,
-              actions: boundarySequence([{ kind: 'publishFault', count }]),
+              commands: boundarySequence([{ kind: 'publishFault', count }]),
             });
           }
         ),
@@ -101,7 +101,7 @@ describe('boundary faults PBT', () => {
   test(
     'crash arm then mutate converges',
     async () => {
-      await assertSampleProperty(
+      await runProperty(
         'crash arm sequences converge',
         fc.asyncProperty(
           arbSeed(),
@@ -118,7 +118,7 @@ describe('boundary faults PBT', () => {
             await replaySyncPin(acmeSystem, {
               seed,
               knobs: { ...knobs, clientCount: 1 },
-              actions: crashBoundarySequence({
+              commands: crashBoundarySequence({
                 kind: 'armCrashAt',
                 clientId: 'c0',
                 event,

@@ -33,7 +33,7 @@ import '@apps/client/i18n/i18n';
 
 import type { SimSystemSnapshot } from '@pkgs/sim-console/shared/sim-system-snapshot';
 import { resolveSimSqlBackend } from '@sim/console/sim/sim-sql-backend';
-import { defineProductSystem, type ProductSystemWorld } from '../system';
+import { defineProductSystem, type ProductSystemWorld } from '../scenario';
 import { ensureSimPgliteSeed } from './boot-sim-pglite';
 import { ensureSimPostgresMemSeed } from './boot-sim-postgres-mem';
 import {
@@ -172,14 +172,14 @@ async function bootSim(fidelity: OpenSimFidelity): Promise<{
   readonly sim: Sim;
   readonly host: ProductSystemWorld;
 }> {
-  const startMs = Date.parse('2024-06-01T00:00:00.000Z');
+  const startTime = Date.parse('2024-06-01T00:00:00.000Z');
   const backend = resolveSimSqlBackend();
   // Keep virtual sim timers on the product — wall timers here stick RNTL
   // `act` on product setIntervals (reconcile / ping). Driver waits use wall
   // time in createClientDriver and advance this clock while sleeping.
   const createOpts: CreateSimOptions = {
     seed: 1,
-    startMs,
+    startTime,
     ...(fidelity === 'max'
       ? { serverSql: await postgresServerSql() }
       : {
@@ -190,7 +190,7 @@ async function bootSim(fidelity: OpenSimFidelity): Promise<{
         }),
   };
   const system = defineProductSystem(createOpts);
-  const host = await openWorld(system, { seed: 1, startMs });
+  const host = await openWorld(system, { seed: 1, startTime });
   return { sim: host.sim, host };
 }
 

@@ -5,7 +5,7 @@ import type {
   SimHttpResponse,
   SimHttpServerHandlers,
 } from './http-bridge-types';
-import type { SimEndpointId, SimNetwork } from './network';
+import type { EndpointId, SyncNetwork } from './network';
 import { classifyEndpoint } from './traffic';
 
 function httpFaultRoute(
@@ -21,8 +21,8 @@ function clientNodeFromReplyTo(replyTo: string): string | undefined {
 }
 
 function sendError(args: {
-  readonly network: SimNetwork;
-  readonly serverId: SimEndpointId;
+  readonly network: SyncNetwork;
+  readonly serverId: EndpointId;
   readonly replyTo: string;
   readonly correlationId: string;
   readonly message: string;
@@ -55,8 +55,8 @@ function takeMatchingRouteFault(
 function applyPreRouteFaults(args: {
   readonly route: 'mutations' | 'query';
   readonly payload: SimHttpRequest;
-  readonly serverId: SimEndpointId;
-  readonly network: SimNetwork;
+  readonly serverId: EndpointId;
+  readonly network: SyncNetwork;
   readonly faults?: BoundaryFaultController;
   readonly clientNode: string | undefined;
 }): 'continue' | 'done' {
@@ -119,8 +119,8 @@ function applyPreRouteFaults(args: {
 
 async function dispatchQuery(args: {
   readonly payload: Extract<SimHttpRequest, { kind: 'query' }>;
-  readonly serverId: SimEndpointId;
-  readonly network: SimNetwork;
+  readonly serverId: EndpointId;
+  readonly network: SyncNetwork;
   readonly handlers: SimHttpServerHandlers;
   readonly faults?: BoundaryFaultController;
   readonly clientNode: string | undefined;
@@ -183,8 +183,8 @@ async function dispatchQuery(args: {
 
 function applyMutationsPreHandlerFaults(args: {
   readonly payload: Extract<SimHttpRequest, { kind: 'mutations' }>;
-  readonly serverId: SimEndpointId;
-  readonly network: SimNetwork;
+  readonly serverId: EndpointId;
+  readonly network: SyncNetwork;
   readonly faults?: BoundaryFaultController;
   readonly clientNode: string | undefined;
 }): 'continue' | 'done' {
@@ -286,8 +286,8 @@ function wireMutationsBody(
 
 async function dispatchMutations(args: {
   readonly payload: Extract<SimHttpRequest, { kind: 'mutations' }>;
-  readonly serverId: SimEndpointId;
-  readonly network: SimNetwork;
+  readonly serverId: EndpointId;
+  readonly network: SyncNetwork;
   readonly handlers: SimHttpServerHandlers;
   readonly faults?: BoundaryFaultController;
   readonly clientNode: string | undefined;
@@ -345,8 +345,8 @@ async function dispatchMutations(args: {
 /** Dispatch one HTTP request with optional response-loss / error faults. */
 export async function dispatchSimHttpRequest(args: {
   readonly payload: SimHttpRequest;
-  readonly serverId: SimEndpointId;
-  readonly network: SimNetwork;
+  readonly serverId: EndpointId;
+  readonly network: SyncNetwork;
   readonly handlers: SimHttpServerHandlers;
   readonly faults?: BoundaryFaultController;
   readonly onMutationsAccepted?: (clientNodeId: string) => void | Promise<void>;

@@ -1,17 +1,17 @@
 import { describe, expect, test } from 'bun:test';
-import type { AnySystemDef } from '@pkgs/determinism';
-import { assertSample } from '@pkgs/determinism/pbt';
-import { playSyncActions, replaySyncPin } from '../../sim/system';
+import type { AnyScenarioDef } from '@pkgs/determinism';
+import { runScenario } from '@pkgs/determinism/pbt';
+import { playSyncActions, replaySyncPin } from '../../sim/scenario';
 import { setNote } from '../apps/acme';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
 import { acmeSystem, openAcmeWorld } from '../apps/acme/system';
-import type { DomainOp, LibraryAction, SyncAction } from '../system/actions';
+import type { DomainOp, LibraryAction, SyncAction } from '../scenario/actions';
 
 describe('fault permutation PBT', () => {
   test(
     'full fault pool interleaves and converges',
     async () => {
-      await assertSample(acmeSystem as unknown as AnySystemDef, {
+      await runScenario(acmeSystem as unknown as AnyScenarioDef, {
         maxCommands: 20,
         numRuns: 6,
       });
@@ -31,7 +31,7 @@ describe('fault permutation pins', () => {
   test('rate limit then mutate converges', async () => {
     await replaySyncPin(acmeSystem, {
       seed: 44001,
-      actions: multiFaultSequence([
+      commands: multiFaultSequence([
         {
           kind: 'armHttpFault',
           clientId: 'c0',
@@ -68,7 +68,7 @@ describe('fault permutation pins', () => {
   test('freeze sync then thaw catches up', async () => {
     await replaySyncPin(acmeSystem, {
       seed: 44003,
-      actions: [
+      commands: [
         { kind: 'freeze', clientId: 'c0' },
         acmeSetNoteOp('c0', 'n1', 'frozen'),
         { kind: 'thaw', clientId: 'c0' },
@@ -81,7 +81,7 @@ describe('fault permutation pins', () => {
   test('auth expired in flight refreshes', async () => {
     await replaySyncPin(acmeSystem, {
       seed: 44004,
-      actions: multiFaultSequence([
+      commands: multiFaultSequence([
         {
           kind: 'armHttpFault',
           clientId: 'c0',

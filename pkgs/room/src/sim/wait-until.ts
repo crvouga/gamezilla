@@ -1,13 +1,17 @@
-import type { NeverOpts, SimScheduler, UntilOpts } from '@pkgs/determinism';
+import type {
+  EventuallyOptions,
+  NeverOptions,
+  Scheduler,
+} from '@pkgs/determinism';
 
 /** Poll target for room kit wait helpers — predicates only. */
 export type UntilPredicate = () => boolean | Promise<boolean>;
 
-export type { NeverOpts, UntilOpts };
+export type { EventuallyOptions, NeverOptions };
 
 type WaitWorld = {
   readonly seed: bigint;
-  readonly deps: { readonly scheduler: SimScheduler };
+  readonly ports: { readonly scheduler: Scheduler };
   readonly advance: (ms: number) => Promise<void>;
   readonly now: () => number;
   readonly flushBeforePoll?: () => Promise<void>;
@@ -30,12 +34,15 @@ function withFlush(world: WaitWorld, pred: UntilPredicate): UntilPredicate {
 export async function waitUntil(
   world: WaitWorld,
   pred: UntilPredicate,
-  opts?: UntilOpts & { readonly budgetMs?: number; readonly stepMs?: number }
+  opts?: EventuallyOptions & {
+    readonly budgetMs?: number;
+    readonly stepMs?: number;
+  }
 ): Promise<number> {
   const withinMs = opts?.withinMs ?? opts?.budgetMs ?? 2_000;
   const stepMs = opts?.stepMs ?? 25;
-  const simClock = world.deps.scheduler.clock;
-  const { scheduler } = world.deps;
+  const simClock = world.ports.scheduler.clock;
+  const { scheduler } = world.ports;
   const start = simClock.now();
   const target = withFlush(world, pred);
 
@@ -55,7 +62,7 @@ export async function waitUntil(
   const held = world.heldSummary?.() ?? [];
   throw new Error(
     `waitUntil timed out seed=${world.seed.toString(16)} now=${simClock.now()} ` +
-      `withinMs=${withinMs} pendingEvents=${scheduler.pendingCount()} ` +
+      `withinMs=${withinMs} pendingEvents=${scheduler.pendingTaskCount()} ` +
       `held=${held.length > 0 ? held.join(',') : 'none'}`
   );
 }
@@ -64,12 +71,12 @@ export async function waitUntil(
 export async function waitNever(
   world: WaitWorld,
   pred: UntilPredicate,
-  opts: NeverOpts & { readonly stepMs?: number }
+  opts: NeverOptions & { readonly stepMs?: number }
 ): Promise<void> {
   const forMs = opts.forMs;
   const stepMs = opts.stepMs ?? 25;
-  const simClock = world.deps.scheduler.clock;
-  const { scheduler } = world.deps;
+  const simClock = world.ports.scheduler.clock;
+  const { scheduler } = world.ports;
   const start = simClock.now();
   const target = withFlush(world, pred);
 
@@ -87,7 +94,7 @@ export async function waitNever(
       const held = world.heldSummary?.() ?? [];
       throw new Error(
         `waitNever violated seed=${world.seed.toString(16)} now=${simClock.now()} ` +
-          `forMs=${forMs} pendingEvents=${scheduler.pendingCount()} ` +
+          `forMs=${forMs} pendingEvents=${scheduler.pendingTaskCount()} ` +
           `held=${held.length > 0 ? held.join(',') : 'none'}`
       );
     }

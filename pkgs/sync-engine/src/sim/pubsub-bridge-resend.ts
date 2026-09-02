@@ -1,6 +1,6 @@
 import type { Topic } from '@pkgs/pubsub/topic';
 
-import type { SimEndpointId } from './network';
+import type { EndpointId } from './network';
 import type { PubSubPeer } from './pubsub-peer';
 
 /** Cap buffered offline delivers per endpoint (Tiger bound). */
@@ -31,17 +31,17 @@ export type OfflineBuffers = {
     data: unknown
   ) => void;
   readonly bufferHardOffline: (
-    source: SimEndpointId,
-    peers: ReadonlyMap<SimEndpointId, PubSubPeer>,
+    source: EndpointId,
+    peers: ReadonlyMap<EndpointId, PubSubPeer>,
     topic: Topic,
     data: unknown
   ) => void;
   readonly onPeerClose: (
-    endpointId: SimEndpointId,
+    endpointId: EndpointId,
     topics: readonly Topic[]
   ) => void;
   readonly flushOnSubscribe: (
-    endpointId: SimEndpointId,
+    endpointId: EndpointId,
     topic: Topic,
     deliver: (topic: Topic, data: unknown) => void
   ) => void;
@@ -49,8 +49,8 @@ export type OfflineBuffers = {
 };
 
 function ensureOffline(
-  offline: Map<SimEndpointId, OfflineBuffer>,
-  endpointId: SimEndpointId,
+  offline: Map<EndpointId, OfflineBuffer>,
+  endpointId: EndpointId,
   topics: ReadonlySet<Topic>
 ): OfflineBuffer {
   let entry = offline.get(endpointId);
@@ -66,7 +66,7 @@ function ensureOffline(
  * `liveResendOnReconnect` is enabled. No-ops when disabled.
  */
 export function createOfflineBuffers(resendOn: boolean): OfflineBuffers {
-  const offline = new Map<SimEndpointId, OfflineBuffer>();
+  const offline = new Map<EndpointId, OfflineBuffer>();
 
   return {
     bufferSoftOffline(peer, topic, data) {

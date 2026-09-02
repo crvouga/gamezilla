@@ -1,11 +1,11 @@
 import { describe, test } from 'bun:test';
-import { assertSampleProperty } from '@pkgs/determinism/pbt';
+import { runProperty } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
-import { PUBSUB_FAULTS, replaySyncPin } from '../../sim/system';
-import { arbKnobs, arbSeed } from '../../sim/system/knobs';
+import { PUBSUB_FAULTS, replaySyncPin } from '../../sim/scenario';
+import { arbKnobs, arbSeed } from '../../sim/scenario/knobs';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
 import { acmeSystem } from '../apps/acme/system';
-import type { LibraryAction, SyncAction } from '../system/actions';
+import type { LibraryAction, SyncAction } from '../scenario/actions';
 
 const TRIGGER = acmeSetNoteOp('c0', 'n0', 'broker-chaos');
 
@@ -24,14 +24,14 @@ describe('broker chaos PBT', () => {
           bufferOutboundLive: true,
           clientCount: 3,
         },
-        actions: [
+        commands: [
           { kind: 'brokerRestart' },
           {
             kind: 'setFaults',
             nodeId: 'c1',
             traffic: 'all',
             faults: {
-              packetLossProbability: 0.05,
+              dropProbability: 0.05,
               reorderWindow: 2,
               partitionProbability: 0.02,
             },
@@ -45,7 +45,7 @@ describe('broker chaos PBT', () => {
   test(
     'pubsub fault arms then mutate converges',
     async () => {
-      await assertSampleProperty(
+      await runProperty(
         'pubsub fault sequences converge',
         fc.asyncProperty(
           arbSeed(),
@@ -55,7 +55,7 @@ describe('broker chaos PBT', () => {
             await replaySyncPin(acmeSystem, {
               seed,
               knobs,
-              actions: brokerSequence({ kind: 'armPubsubFault', fault }),
+              commands: brokerSequence({ kind: 'armPubsubFault', fault }),
             });
           }
         ),
@@ -68,7 +68,7 @@ describe('broker chaos PBT', () => {
   test(
     'broker crash/restart then mutate converges',
     async () => {
-      await assertSampleProperty(
+      await runProperty(
         'broker restart sequences converge',
         fc.asyncProperty(
           arbSeed(),
@@ -81,7 +81,7 @@ describe('broker chaos PBT', () => {
             await replaySyncPin(acmeSystem, {
               seed,
               knobs,
-              actions: [
+              commands: [
                 arm,
                 TRIGGER,
                 { kind: 'brokerRestart' },

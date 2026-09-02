@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
-import { arbSeed, assertSampleProperty } from '@pkgs/determinism/pbt';
+import { arbSeed, runProperty } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
 
-import { replayRoom } from '../../sim/system';
+import { replayRoom } from '../../sim/scenario';
 import { authzSystem } from '../apps/authz/system';
 import { authzCount, authzOwner } from '../fixtures/authz-module';
 
@@ -23,12 +23,12 @@ describe('room authz-graph PBT', () => {
   test(
     'owner claim+bump; non-owner bump never mutates',
     async () => {
-      await assertSampleProperty(
+      await runProperty(
         'authz graph converges',
         fc.asyncProperty(arbSeed(), async (seed) => {
           const world = await replayRoom(authzSystem, {
             seed,
-            actions: [
+            commands: [
               {
                 kind: 'domain',
                 clientId: 'c0',
@@ -69,7 +69,7 @@ describe('room authz-graph PBT', () => {
   test('takeOver does not transfer ownership', async () => {
     const world = await replayRoom(authzSystem, {
       seed: 21,
-      actions: [
+      commands: [
         {
           kind: 'domain',
           clientId: 'c0',

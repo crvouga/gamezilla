@@ -141,7 +141,7 @@ module.exports = {
       name: 'product-no-sim-deps',
       severity: 'error',
       comment:
-        'SimDeps / @pkgs/determinism is harness-only. Product apps and non-test product libs must receive unpacked clock/timers/createId/random/http. Determinism package tests and @sim/* may import @pkgs/determinism.',
+        'WorldPorts / @pkgs/determinism is harness-only. Product apps and non-test product libs must receive unpacked clock/timers/createId/random/http. Determinism package tests and @sim/* may import @pkgs/determinism.',
       from: {
         path: '^(apps/|libs/)',
         pathNot:

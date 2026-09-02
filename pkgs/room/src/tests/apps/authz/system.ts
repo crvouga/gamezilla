@@ -1,4 +1,4 @@
-import { defineRoomSystem, type RoomSystemDef } from '../../../sim/system';
+import { defineRoomSystem, type RoomSystemDef } from '../../../sim/scenario';
 import { authzApp } from './app';
 
 /** Framework-owned authz world: owner-gated domain ops. */

@@ -5,8 +5,8 @@ import type { RoomSimClientHandle } from './handles';
 import type { RoomNetSetArg, SimRoomNetHandle } from './network';
 import { type DrainCtx, drainRoomSim, flushRoomAux } from './settle';
 import {
-  type NeverOpts,
-  type UntilOpts,
+  type EventuallyOptions,
+  type NeverOptions,
   type UntilPredicate,
   waitNever,
   waitUntil,
@@ -46,7 +46,7 @@ export function assembleWorld<
   const drainCtx = () => opts.drainCtx();
   const waitWorld = () => ({
     seed: k.seed,
-    deps: { scheduler: k.scheduler } as never,
+    ports: { scheduler: k.scheduler } as never,
     advance: async (ms: number) => {
       await k.scheduler.runFor(ms);
       await drainRoomSim(drainCtx());
@@ -87,9 +87,9 @@ export function assembleWorld<
     }),
     node: (clientId: string) => buildNodeHandle(k, clientId),
     runFor,
-    until: (target, optsUntil?: UntilOpts) =>
+    until: (target, optsUntil?: EventuallyOptions) =>
       waitUntil(waitWorld(), withAuxFlush(target), optsUntil),
-    never: (target, optsNever: NeverOpts) =>
+    never: (target, optsNever: NeverOptions) =>
       waitNever(waitWorld(), withAuxFlush(target), optsNever),
     drain: async () => {
       await drainRoomSim(drainCtx());

@@ -1,6 +1,6 @@
 import type { SimFaultOptions } from './faults';
 import { RELIABLE_FAULTS } from './faults';
-import type { SimNetwork } from './network';
+import type { SyncNetwork } from './network';
 import {
   BROKER,
   liveEndpoint,
@@ -32,7 +32,7 @@ export type NetEffectRegistry = {
 };
 
 function readPartitioned(
-  network: SimNetwork,
+  network: SyncNetwork,
   nodeId: string,
   traffic: SimTraffic
 ): { sync: boolean; live: boolean } {
@@ -48,7 +48,7 @@ function readPartitioned(
 }
 
 function snapshot(
-  network: SimNetwork,
+  network: SyncNetwork,
   nodeId: string,
   traffic: SimTraffic
 ): NetSnapshot {
@@ -62,7 +62,7 @@ function snapshot(
 }
 
 function applyPartition(args: {
-  readonly network: SimNetwork;
+  readonly network: SyncNetwork;
   readonly nodeId: string;
   readonly traffic: SimTraffic;
   readonly sync: boolean;
@@ -80,7 +80,7 @@ function applyPartition(args: {
 }
 
 function restoreSnapshot(
-  network: SimNetwork,
+  network: SyncNetwork,
   nodeId: string,
   traffic: SimTraffic,
   prior: NetSnapshot
@@ -102,7 +102,7 @@ function restoreSnapshot(
 }
 
 function applyState(
-  network: SimNetwork,
+  network: SyncNetwork,
   nodeId: string,
   traffic: SimTraffic,
   state: NetState
@@ -153,7 +153,7 @@ export type SimNetHandle = {
 };
 
 export function createSimNetHandle(args: {
-  readonly network: SimNetwork;
+  readonly network: SyncNetwork;
   readonly nodeId: string;
   readonly traffic: SimTraffic;
   readonly registry: NetEffectRegistry;

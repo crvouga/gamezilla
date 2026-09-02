@@ -1,4 +1,4 @@
-import type { SimScheduler } from '@pkgs/determinism';
+import type { Scheduler } from '@pkgs/determinism';
 
 import type { InMemoryClientStorage } from '../client/adapters/storage/memory';
 import type { RoomClient } from '../client/core/room-client';
@@ -93,7 +93,7 @@ export type DrainCtx<
   readonly seed: bigint;
   readonly now: () => number;
   readonly network: SimRoomNetwork;
-  readonly scheduler: SimScheduler;
+  readonly scheduler: Scheduler;
   readonly serverQueue: SerialQueue;
   readonly clients: ReadonlyMap<string, RoomSimClientSlot<S, C, E>>;
 };
@@ -164,7 +164,7 @@ export async function drainRoomSim<
     await ctx.scheduler.runFor(1);
   }
   throw new Error(
-    `drain timeout seed=${ctx.seed.toString(16)} now=${String(ctx.now())} pending=${String(ctx.scheduler.pendingCount())} net=${String(ctx.network.netPendingCount())} held=${ctx.network.heldSummary().join(',')}`
+    `drain timeout seed=${ctx.seed.toString(16)} now=${String(ctx.now())} pending=${String(ctx.scheduler.pendingTaskCount())} net=${String(ctx.network.netPendingCount())} held=${ctx.network.heldSummary().join(',')}`
   );
 }
 

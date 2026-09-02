@@ -118,7 +118,7 @@ describe('sim scenario API', () => {
     await world.addClient({ id: 'alice' });
     using outer = world.net('alice', 'sync').set('hold');
     using inner = world.net('alice', 'sync').set({
-      packetLossProbability: 1,
+      dropProbability: 1,
     });
     expect(world.kit.network.isHeld('alice', 'sync')).toBe(true);
     inner.restore();

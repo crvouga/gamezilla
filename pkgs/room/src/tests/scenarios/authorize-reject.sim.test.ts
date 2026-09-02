@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
-import { defineRoomSystem, type RoomApp } from '../../sim/system';
+import { defineRoomSystem, type RoomApp } from '../../sim/scenario';
 import { ROOM_ERROR_TYPE } from '../../types';
 import { authzApp } from '../apps/authz/app';
 import { authzCount, Bump, Claim } from '../fixtures/authz-module';

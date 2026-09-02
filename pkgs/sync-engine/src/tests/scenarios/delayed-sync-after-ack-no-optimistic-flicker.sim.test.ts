@@ -11,14 +11,14 @@ describe('delayed sync after ack no optimistic flicker', () => {
         clientCount: 0,
         rowImageFanout: false,
       },
-      networkDefaults: toKernelFaults({
-        oneWayDelayMeanMs: 50,
-        oneWayDelayJitterMs: 20,
-        packetLossProbability: 0,
+      networkFaults: toKernelFaults({
+        latencyMeanMs: 50,
+        latencyJitterMs: 20,
+        dropProbability: 0,
         packetReplayProbability: 0,
         reorderWindow: 2,
         partitionProbability: 0,
-        unpartitionProbability: 0,
+        healProbability: 0,
       }),
     });
 

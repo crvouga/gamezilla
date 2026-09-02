@@ -1,19 +1,19 @@
 import {
-  RELIABLE_NET_FAULTS,
-  type SimEndpointId,
-  type SimNetFaultProfile,
-  type SimNetKey,
-  type SimNetwork,
-  type SimScheduler,
+  type EndpointId,
+  type FlowKey,
+  type Network,
+  type NetworkFaults,
+  RELIABLE_NETWORK,
+  type Scheduler,
 } from '@pkgs/determinism';
 
 import { createNetEffect, type NetEffect } from './net-effect';
 
 /** VOPR-style one-way link knobs for room loopback frames. */
 export type RoomFaultProfile = {
-  readonly oneWayDelayMeanMs: number;
-  readonly oneWayDelayJitterMs: number;
-  readonly packetLossProbability: number;
+  readonly latencyMeanMs: number;
+  readonly latencyJitterMs: number;
+  readonly dropProbability: number;
   /** Probability a frame is delivered out of FIFO order (extra delay). */
   readonly reorderProbability?: number;
   /** Probability a frame is delivered twice. */
@@ -21,16 +21,16 @@ export type RoomFaultProfile = {
 };
 
 export const RELIABLE_ROOM_FAULTS: RoomFaultProfile = {
-  oneWayDelayMeanMs: 0,
-  oneWayDelayJitterMs: 0,
-  packetLossProbability: 0,
+  latencyMeanMs: 0,
+  latencyJitterMs: 0,
+  dropProbability: 0,
 };
 
 /** Mild fixed delay/loss for deterministic fault scenarios. */
 export const MILD_ROOM_FAULTS: RoomFaultProfile = {
-  oneWayDelayMeanMs: 5,
-  oneWayDelayJitterMs: 5,
-  packetLossProbability: 0.02,
+  latencyMeanMs: 5,
+  latencyJitterMs: 5,
+  dropProbability: 0.02,
 };
 
 export type RoomNetLinkState = 'ok' | 'hold' | 'down';
@@ -60,40 +60,40 @@ export type RoomServerIngress = {
 export function roomNetKey(
   clientKey: string,
   direction: RoomNetDirection
-): SimNetKey {
+): FlowKey {
   return `${clientKey}\0${direction}`;
 }
 
-export const ROOM_SERVER_ENDPOINT: SimEndpointId = 'room:server';
+export const ROOM_SERVER_ENDPOINT: EndpointId = 'room:server';
 
-export function roomClientEndpoint(clientKey: string): SimEndpointId {
+export function roomClientEndpoint(clientKey: string): EndpointId {
   return `room:client:${clientKey}`;
 }
 
 function isFaultProfile(v: RoomNetSetArg): v is RoomFaultProfile {
-  return typeof v === 'object' && v !== null && 'oneWayDelayMeanMs' in v;
+  return typeof v === 'object' && v !== null && 'latencyMeanMs' in v;
 }
 
 function isDirectional(v: RoomNetSetArg): v is RoomNetDirectionalState {
   return (
     typeof v === 'object' &&
     v !== null &&
-    !('oneWayDelayMeanMs' in v) &&
+    !('latencyMeanMs' in v) &&
     ('toServer' in v || 'toClient' in v)
   );
 }
 
 /** Map room fault fields → kernel profile. */
-export function toKernelFaults(f: RoomFaultProfile): SimNetFaultProfile {
+export function toKernelFaults(f: RoomFaultProfile): NetworkFaults {
   const reorderP = f.reorderProbability ?? 0;
   return {
-    oneWayDelayMeanMs: f.oneWayDelayMeanMs,
-    oneWayDelayJitterMs: f.oneWayDelayJitterMs,
-    packetLossProbability: f.packetLossProbability,
+    latencyMeanMs: f.latencyMeanMs,
+    latencyJitterMs: f.latencyJitterMs,
+    dropProbability: f.dropProbability,
     duplicateProbability: f.duplicateProbability ?? 0,
     reorderWindowMs: reorderP > 0 ? 20 : 0,
     partitionProbability: 0,
-    unpartitionProbability: 0,
+    healProbability: 0,
   };
 }
 
@@ -112,7 +112,7 @@ type RoomNetMaps = {
 };
 
 type RoomNetCtx = RoomNetMaps & {
-  readonly kernel: SimNetwork;
+  readonly kernel: Network;
 };
 
 /**
@@ -308,7 +308,7 @@ function applySet(
 }
 
 function buildRoomNetworkApi(args: {
-  readonly scheduler: SimScheduler;
+  readonly scheduler: Scheduler;
   readonly ctx: RoomNetCtx;
 }): SimRoomNetwork {
   const { scheduler, ctx } = args;
@@ -371,7 +371,7 @@ function buildRoomNetworkApi(args: {
       kernel.releaseAll();
       kernel.healAll();
       kernel.clearFaults();
-      kernel.setFaults(RELIABLE_NET_FAULTS);
+      kernel.setFaults(RELIABLE_NETWORK);
       ctx.link.clear();
       ctx.dirToServer.clear();
       ctx.dirToClient.clear();
@@ -385,7 +385,7 @@ function buildRoomNetworkApi(args: {
         .sort();
     },
     pendingCount() {
-      return scheduler.pendingCount();
+      return scheduler.pendingTaskCount();
     },
     netPendingCount() {
       return kernel.inFlight();
@@ -398,8 +398,8 @@ function buildRoomNetworkApi(args: {
  * client/direction-keyed surface. Framework worlds pass `ctx.network`.
  */
 export function wrapRoomNetwork(args: {
-  readonly kernel: SimNetwork;
-  readonly scheduler: SimScheduler;
+  readonly kernel: Network;
+  readonly scheduler: Scheduler;
   readonly faults?: RoomFaultProfile;
 }): SimRoomNetwork {
   if (args.faults !== undefined) {

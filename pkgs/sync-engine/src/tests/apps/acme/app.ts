@@ -1,4 +1,4 @@
-import type { SyncApp } from '../../../sim/system/app';
+import type { SyncApp } from '../../../sim/scenario/app';
 import {
   acmeDomainOpArbs,
   acmeServerOpArbs,

@@ -1,122 +1,103 @@
-import { bindActionKind, type UnboundActionDef } from '../action';
-import type { AnySystemDef, SystemAction } from '../define-system';
-import type { JsonValue } from '../json';
-import { playActions } from '../play';
+import type { Command } from '../harness/command';
+import type { AnyScenarioDef } from '../harness/define-scenario';
 import {
-  captureScenario,
-  type SimScenario,
-  type SimScenarioInputs,
-} from '../scenario';
+  REPRO_VERSION,
+  type Repro,
+  type ReproInputs,
+  stringifyRepro,
+} from '../harness/repro';
+import { openWorld } from '../harness/world';
+import type { World } from '../harness/world-types';
+import type { JsonValue } from '../kernel/json';
 import {
-  createRecordingTrace,
-  createReplayingTrace,
+  createTraceRecorder,
+  createTraceResolver,
   type TraceRecord,
-} from '../trace';
-import { openWorld, type World } from '../world';
+} from '../kernel/trace';
 
-export type DeterministicRunInputs = {
+/** Inputs for one reproducible run (shared by `assertDeterministic` and `replay`). */
+export type RunInputs = {
   readonly seed: number | bigint | string;
   readonly knobs?: Partial<Record<string, JsonValue>>;
-  readonly actions: readonly SystemAction[];
-  readonly networkDefaults?: SimScenarioInputs['networkDefaults'];
-  readonly settle?: boolean;
+  readonly commands: readonly Command[];
+  readonly networkFaults?: ReproInputs['networkFaults'];
+  readonly converge?: boolean;
 };
 
-function boundActions(system: AnySystemDef) {
-  return Object.entries(system.actions).map(([kind, def]) =>
-    bindActionKind(kind, def as UnboundActionDef)
-  );
-}
-
-async function playOnWorld(
-  system: AnySystemDef,
+async function applyOnWorld(
   world: World,
-  actions: readonly SystemAction[],
-  settle: boolean
+  commands: readonly Command[],
+  converge: boolean
 ): Promise<void> {
-  const defs = boundActions(system);
-  await playActions({
-    advance: (ms) => world.advance(ms),
-    actions,
-    dispatch: async (action) => {
-      for (const def of defs) {
-        if (action.kind === def.kind) {
-          await def.dispatch(world, action as never);
-          return;
-        }
-      }
-      throw new Error(`dispatch: unknown action kind ${action.kind}`);
-    },
-    runInvariants: () => system.invariants(world as never),
-  });
-  if (settle) await world.settle();
+  await world.apply(commands);
+  if (converge) await world.converge();
 }
 
-function buildScenario(
-  system: AnySystemDef,
+function buildRepro(
+  scenario: AnyScenarioDef,
   world: World,
-  inputs: DeterministicRunInputs
-): SimScenario<SystemAction> {
+  inputs: RunInputs
+): Repro<Command> {
   return {
-    version: 1,
+    version: REPRO_VERSION,
     inputs: {
       seed: String(inputs.seed),
-      startMs: world.startMs,
+      startTime: world.startTime,
       knobs: world.knobs as Record<string, JsonValue>,
-      actions: inputs.actions,
-      networkDefaults: world.networkDefaults,
+      commands: inputs.commands,
+      networkFaults: world.networkFaults,
     },
     meta: {
-      appId: system.id,
+      scenarioId: scenario.id,
       seedHex: world.seed.toString(16),
     },
   };
 }
 
+function worldOptions(inputs: RunInputs) {
+  return {
+    seed: inputs.seed,
+    ...(inputs.knobs !== undefined ? { knobs: inputs.knobs } : {}),
+    ...(inputs.networkFaults !== undefined
+      ? { networkFaults: inputs.networkFaults }
+      : {}),
+  };
+}
+
+/**
+ * Record → replay → fresh: run the Commands three times on the same Seed,
+ * fail at the first Trace divergence, and hand back the third World.
+ */
 export async function assertDeterministic(
-  system: AnySystemDef,
-  inputs: DeterministicRunInputs
+  scenario: AnyScenarioDef,
+  inputs: RunInputs
 ): Promise<{
-  readonly scenario: SimScenario<SystemAction>;
+  readonly repro: Repro<Command>;
   readonly trace: readonly TraceRecord[];
   readonly world: World;
 }> {
-  const settle = inputs.settle !== false;
-  const recording = createRecordingTrace();
-  await using world1 = await openWorld(system as never, {
-    seed: inputs.seed,
-    ...(inputs.knobs !== undefined ? { knobs: inputs.knobs } : {}),
-    ...(inputs.networkDefaults !== undefined
-      ? { networkDefaults: inputs.networkDefaults }
-      : {}),
-    trace: recording,
+  const converge = inputs.converge !== false;
+  const recorder = createTraceRecorder();
+  await using world1 = await openWorld(scenario as never, {
+    ...worldOptions(inputs),
+    trace: recorder,
   });
-  await playOnWorld(system, world1 as World, inputs.actions, settle);
-  const trace = recording.events();
-  const scenario = buildScenario(system, world1 as World, inputs);
+  await applyOnWorld(world1 as World, inputs.commands, converge);
+  const trace = recorder.records();
+  const repro = buildRepro(scenario, world1 as World, inputs);
 
-  const replaying = createReplayingTrace(trace);
-  const world2 = await openWorld(system as never, {
-    seed: inputs.seed,
-    ...(inputs.knobs !== undefined ? { knobs: inputs.knobs } : {}),
-    ...(inputs.networkDefaults !== undefined
-      ? { networkDefaults: inputs.networkDefaults }
-      : {}),
-    trace: replaying,
+  const resolver = createTraceResolver(trace);
+  const world2 = await openWorld(scenario as never, {
+    ...worldOptions(inputs),
+    trace: resolver,
   });
   try {
-    await playOnWorld(system, world2 as World, inputs.actions, settle);
-    replaying.assertFullyConsumed();
+    await applyOnWorld(world2 as World, inputs.commands, converge);
+    resolver.assertFullyConsumed();
     await world2.dispose().catch(() => undefined);
-    const world = await openWorld(system as never, {
-      seed: inputs.seed,
-      ...(inputs.knobs !== undefined ? { knobs: inputs.knobs } : {}),
-      ...(inputs.networkDefaults !== undefined
-        ? { networkDefaults: inputs.networkDefaults }
-        : {}),
-    });
-    await playOnWorld(system, world as World, inputs.actions, settle);
-    return { scenario, trace, world: world as World };
+    const world = await openWorld(scenario as never, worldOptions(inputs));
+    await applyOnWorld(world as World, inputs.commands, converge);
+    return { repro, trace, world: world as World };
   } catch (e) {
     await world2.dispose().catch(() => undefined);
     throw e;
@@ -125,13 +106,13 @@ export async function assertDeterministic(
 
 /** @internal */
 export function formatDeterminismFailure(
-  scenario: SimScenario,
+  repro: Repro,
   trace: readonly TraceRecord[],
   error: unknown
 ): string {
   return (
     `determinism failure: ${error instanceof Error ? error.message : String(error)}\n` +
-    `scenario:\n${captureScenario(scenario)}\n` +
-    `trace events: ${trace.length}`
+    `repro:\n${stringifyRepro(repro)}\n` +
+    `trace records: ${trace.length}`
   );
 }

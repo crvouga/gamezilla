@@ -1,6 +1,6 @@
-import { isPlainObject } from '../../json';
-import type { SimNetwork } from '../../network';
-import { node } from '../../node';
+import { node } from '../../harness/node';
+import { isPlainObject } from '../../kernel/json';
+import type { Network } from '../../models/network';
 import type { AcmeKvEntry } from './types';
 import { clientEndpointId, serverEndpointId } from './types';
 
@@ -10,7 +10,7 @@ export type AcmeKvServerHandle = {
   readonly store: Map<string, AcmeKvEntry>;
   readonly clientEndpoints: string[];
   nextWriteId: number;
-  readonly network: SimNetwork;
+  readonly network: Network;
   registerClient(ep: string): void;
 };
 
@@ -18,7 +18,7 @@ export type AcmeKvClientHandle = {
   readonly id: string;
   readonly endpointId: string;
   readonly cache: Map<string, AcmeKvEntry>;
-  readonly network: SimNetwork;
+  readonly network: Network;
 };
 
 type PutMsg = {
@@ -132,7 +132,7 @@ export function sendPut(args: {
 }
 
 export const acmeKvServerNode = node({
-  boot: (ctx) => {
+  start: (ctx) => {
     const handle: AcmeKvServerHandle = {
       id: ctx.id,
       endpointId: serverEndpointId(),
@@ -153,7 +153,7 @@ export const acmeKvServerNode = node({
 });
 
 export const acmeKvClientNode = node({
-  boot: (ctx) => {
+  start: (ctx) => {
     const server = ctx.peers.single('server') as AcmeKvServerHandle;
     const endpointId = clientEndpointId(ctx.id);
     const cache = new Map<string, AcmeKvEntry>();

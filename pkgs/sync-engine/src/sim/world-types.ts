@@ -1,4 +1,4 @@
-import type { SimScheduler } from '@pkgs/determinism';
+import type { Scheduler } from '@pkgs/determinism';
 import type { SeededRng } from '@pkgs/uuid';
 
 import type { LocalDomainSchema } from '../client/local-schema-migrate';
@@ -11,7 +11,7 @@ import type { SimClientDbBundle, SimClientHandle } from './client-handle';
 import type { ClockSkewTable } from './clock-skew';
 import type { SimDomainPack } from './domain-pack';
 import type { SimFaultOptions } from './faults';
-import type { SimNetwork } from './network';
+import type { SyncNetwork } from './network';
 import type { SimPubSubBroker } from './pubsub-bridge';
 import type { SimServer } from './server';
 
@@ -85,17 +85,17 @@ export type AddClientArgs = {
   readonly existingDb?: SimClientDbBundle;
 };
 
-/** Virtual clock used by the sim scheduler (see `@pkgs/determinism` `SimClock`). */
-export type SimClock = SimScheduler['clock'];
+/** Virtual clock used by the sim scheduler (see `@pkgs/determinism` `VirtualClock`). */
+export type SimClock = Scheduler['clock'];
 
 /** Clock, network, broker, and in-memory SQLite server for a sim world. */
 export type BootedSimKernel = {
   readonly rng: SeededRng;
   readonly clock: SimClock;
   readonly clockSkew: ClockSkewTable;
-  readonly scheduler: SimScheduler;
+  readonly scheduler: Scheduler;
   readonly timers: Timers;
-  readonly network: SimNetwork;
+  readonly network: SyncNetwork;
   server: SimServer;
   broker: SimPubSubBroker;
   readonly clients: Map<string, SimClientHandle>;

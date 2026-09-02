@@ -8,7 +8,7 @@ import { migrateSimPostgres } from '@apps/server/sim/migrate-sim-postgres';
 import { migrateSimClientSqlite } from '@apps/server/sim/migrate-sim-sqlite';
 import { assert } from '@pkgs/assert';
 import type { Clock } from '@pkgs/clock';
-import type { SimScheduler } from '@pkgs/determinism';
+import type { Scheduler } from '@pkgs/determinism';
 import type {
   SimCheckpoint,
   SimCheckpointRoomDump,
@@ -39,7 +39,7 @@ export type CheckpointSessionMaps = {
 export type CheckpointSessionCtx = {
   readonly sim: Sim;
   readonly clock: Clock;
-  readonly scheduler: SimScheduler;
+  readonly scheduler: Scheduler;
   readonly roomNode: RoomServerApp;
   readonly serverHandle: SimSqlHandle;
   readonly clientSqlByAddress: Map<string, SimSqlHandle>;
@@ -53,7 +53,7 @@ export type CheckpointSessionCtx = {
   readonly runQuiet: <T>(fn: () => Promise<T>) => Promise<T>;
 };
 
-export function resetSimClock(scheduler: SimScheduler, ms: number): void {
+export function resetSimClock(scheduler: Scheduler, ms: number): void {
   scheduler.reset(ms);
 }
 

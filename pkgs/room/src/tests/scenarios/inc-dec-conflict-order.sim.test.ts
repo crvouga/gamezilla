@@ -16,14 +16,14 @@ describe('room sim: inc-dec conflict order (E-B04)', () => {
 
     {
       using _j = world.net('alice').set({
-        oneWayDelayMeanMs: 5,
-        oneWayDelayJitterMs: 8,
-        packetLossProbability: 0,
+        latencyMeanMs: 5,
+        latencyJitterMs: 8,
+        dropProbability: 0,
       });
       using _j2 = world.net('bob').set({
-        oneWayDelayMeanMs: 5,
-        oneWayDelayJitterMs: 8,
-        packetLossProbability: 0,
+        latencyMeanMs: 5,
+        latencyJitterMs: 8,
+        dropProbability: 0,
       });
       for (let i = 0; i < 6; i += 1) {
         a.dispatch(Increment({}));

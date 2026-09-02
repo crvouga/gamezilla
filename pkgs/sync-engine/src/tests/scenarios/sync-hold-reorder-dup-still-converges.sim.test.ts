@@ -1,5 +1,5 @@
 import { describe, test } from 'bun:test';
-import type { SyncSystemFacade } from '../../sim/system';
+import type { SyncSystemFacade } from '../../sim/scenario';
 import { expectLiveNote, expectNotesMatchServer, setNote } from '../apps/acme';
 import { openAcmeWorld } from '../apps/acme/system';
 
@@ -47,8 +47,8 @@ describe('sync hold reorder dup still converges', () => {
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     using _faults = world.net('bob', 'sync').set({
-      oneWayDelayMeanMs: 20,
-      oneWayDelayJitterMs: 40,
+      latencyMeanMs: 20,
+      latencyJitterMs: 40,
       reorderWindow: 5,
     });
     await a.mutate(setNote, { id: 'n1', body: 'a' });

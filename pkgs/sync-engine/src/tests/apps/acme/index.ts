@@ -112,13 +112,13 @@ export {
 export { acmeLargeCatalogSystem, acmeSystem } from './system';
 export { writeNoteBody } from './write-note-body';
 
-import { runSeed, seedsFromEnv } from '../../system/run-seed';
+import { runSeed, seedsFromEnv } from '../../scenario/run-seed';
 import { acmeApp } from './app';
 
 /** Seeded fuzz entrypoint bound to the acme fixture. */
 export async function runAcmeSeed(
-  opts: Omit<import('../../system/run-seed').RunSeedOptions, 'app'>
-): Promise<import('../../system/run-seed').RunSeedResult> {
+  opts: Omit<import('../../scenario/run-seed').RunSeedOptions, 'app'>
+): Promise<import('../../scenario/run-seed').RunSeedResult> {
   return runSeed({ ...opts, app: acmeApp });
 }
 

@@ -9,7 +9,7 @@
 | Algebraic PBT | `src/tests/pbt/*.pbt.test.ts` | `bun test` / `bun run test:pbt` |
 | SQLite contract | `src/sqlite/sqlite-matrix.test.ts` | `bun test` |
 | Live Postgres | `src/postgres/postgres.contract.test.ts` | `bun run test:contract` (needs `DATABASE_URL`) |
-| Web system PBT | `src/sim/sql-client-web.system.pbt.test.ts` | `bun test` |
+| Web system PBT | `src/sim/sql-client-web.scenario.pbt.test.ts` | `bun test` |
 | E2E | `e2e/` | `bun run test:e2e` |
 
 ## Portable PBT matrix

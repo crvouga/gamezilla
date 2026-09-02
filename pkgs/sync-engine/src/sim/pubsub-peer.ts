@@ -2,12 +2,12 @@ import type { PubSub, PubSubStatus } from '@pkgs/pubsub/interface';
 import { PubSubClosedError } from '@pkgs/pubsub/pubsub-closed-error';
 import { assertValidTopic, type Topic } from '@pkgs/pubsub/topic';
 
-import type { SimEndpointId, SimNetwork } from './network';
+import type { EndpointId, SyncNetwork } from './network';
 
 export type PeerHandler = (data: unknown) => void;
 
 export type PubSubPeer = {
-  readonly endpointId: SimEndpointId;
+  readonly endpointId: EndpointId;
   readonly handlers: Map<Topic, Set<PeerHandler>>;
   /** Topics this instance subscribed to (kept after unsubscribe-before-close). */
   readonly interestedTopics: Set<Topic>;
@@ -26,7 +26,7 @@ type PubWire = {
   readonly kind: 'pubsub';
   readonly topic: Topic;
   readonly data: unknown;
-  readonly source: SimEndpointId;
+  readonly source: EndpointId;
 };
 
 function isDeliverWire(value: unknown): value is DeliverWire {
@@ -36,10 +36,10 @@ function isDeliverWire(value: unknown): value is DeliverWire {
 }
 
 export type CreatePeerPubSubArgs = {
-  readonly network: SimNetwork;
-  readonly brokerId: SimEndpointId;
-  readonly clientEndpointId: SimEndpointId;
-  readonly peers: Map<SimEndpointId, PubSubPeer>;
+  readonly network: SyncNetwork;
+  readonly brokerId: EndpointId;
+  readonly clientEndpointId: EndpointId;
+  readonly peers: Map<EndpointId, PubSubPeer>;
   /** Snapshot subscribed topics before close (for optional offline buffer). */
   readonly onClose?: (topics: readonly Topic[]) => void;
   /** After a handler is registered — flush buffered delivers for this topic. */

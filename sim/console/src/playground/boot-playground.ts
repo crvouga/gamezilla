@@ -45,7 +45,7 @@ function startSimClockTick(sim: Sim): {
 export async function bootPlaygroundSession(
   opts?: BootPlaygroundOptions
 ): Promise<PlaygroundSession> {
-  const sim = await createSim({ seed: 1, startMs: wallClock.now() });
+  const sim = await createSim({ seed: 1, startTime: wallClock.now() });
   await sim.spawnServer();
   const clock = startSimClockTick(sim);
   const domainWake: { fire: (label: string) => void } = {

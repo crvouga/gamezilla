@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
-import { playSyncActions } from '../../sim/system';
+import { playSyncActions } from '../../sim/scenario';
 import { setNote } from '../apps/acme';
 import { openAcmeWorld } from '../apps/acme/system';
 

@@ -19,9 +19,9 @@ describe('room sim: lossy profile converge (E-A04)', () => {
 
     {
       using _f = world.net('bob').set({
-        oneWayDelayMeanMs: 3,
-        oneWayDelayJitterMs: 4,
-        packetLossProbability: 0.05,
+        latencyMeanMs: 3,
+        latencyJitterMs: 4,
+        dropProbability: 0.05,
         reorderProbability: 0.2,
         duplicateProbability: 0.1,
       });

@@ -12,7 +12,7 @@ export {
   type MatchmakingSystemDef,
   type OpenMatchmakingWorldArgs,
   openMatchmakingWorld,
-} from './sim/system';
+} from './sim/scenario';
 export type {
   MatchmakingSimBackend,
   MatchmakingSimWorld,

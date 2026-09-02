@@ -17,10 +17,10 @@
 ```bash
 bun run --filter @pkgs/db-indexes sim:replay 42
 # or
-INDEXES_SIM_SEED=42 bun test src/tests/system/known-seeds.sim.test.ts
+INDEXES_SIM_SEED=42 bun test src/tests/scenario/known-seeds.sim.test.ts
 ```
 
-Persist new failure seeds in `src/tests/system/known-seeds.txt` (always run first).
+Persist new failure seeds in `src/tests/scenario/known-seeds.txt` (always run first).
 
 ## Soak
 

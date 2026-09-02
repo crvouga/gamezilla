@@ -4,7 +4,7 @@ import {
   defineRoomSystem,
   type RoomApp,
   type RoomSystemWorld,
-} from '../../sim/system';
+} from '../../sim/scenario';
 import type { RoomSimClientHandle } from '../../sim/world-api';
 import type {
   RoomCommand,

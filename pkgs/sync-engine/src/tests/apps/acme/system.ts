@@ -1,12 +1,12 @@
-import type { OpenWorldOpts } from '@pkgs/determinism';
+import type { OpenWorldOptions } from '@pkgs/determinism';
 import { openWorld } from '@pkgs/determinism';
 
 import {
   defineSyncSystem,
   type SyncSystemDef,
   type SyncSystemWorld,
-} from '../../../sim/system';
-import type { SyncKnobDefs } from '../../../sim/system/knobs';
+} from '../../../sim/scenario';
+import type { SyncKnobDefs } from '../../../sim/scenario/knobs';
 import { acmeApp } from './app';
 
 /** Framework-owned acme world: broker + server + `clientCount` clients. */
@@ -21,13 +21,13 @@ export const acmeLargeCatalogSystem: SyncSystemDef = defineSyncSystem(acmeApp, {
 });
 
 export async function openAcmeWorld(
-  opts: OpenWorldOpts<SyncKnobDefs>
+  opts: OpenWorldOptions<SyncKnobDefs>
 ): Promise<SyncSystemWorld> {
   return openWorld(acmeSystem, opts);
 }
 
 export async function openAcmeLargeCatalogWorld(
-  opts: OpenWorldOpts<SyncKnobDefs>
+  opts: OpenWorldOptions<SyncKnobDefs>
 ): Promise<SyncSystemWorld> {
   return openWorld(acmeLargeCatalogSystem, opts);
 }

@@ -1,7 +1,7 @@
 import { DST_FAULTS, RELIABLE_FAULTS, sampleFaultOptions } from './faults';
 import { isDbOpen } from './invariants';
-import type { SyncSystemWorld } from './system/define-sync-system';
-import { restartClientWithRetry } from './system/replay-step';
+import type { SyncSystemWorld } from './scenario/define-sync-system';
+import { restartClientWithRetry } from './scenario/replay-step';
 
 /** Add N clients and optionally enable DST / sampled network faults. */
 export async function bootClients(args: {

@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
-import { assertSampleProperty } from '@pkgs/determinism/pbt';
+import { runProperty } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
-import { arbKnobs, arbSeed } from '../../sim/system/knobs';
+import { arbKnobs, arbSeed } from '../../sim/scenario/knobs';
 import {
   expectLiveNote,
   expectNoteNotLive,
@@ -18,7 +18,7 @@ describe('tombstone revive PBT', () => {
   test(
     'set/delete interleave converges with consistent live vs tombstone state',
     async () => {
-      await assertSampleProperty(
+      await runProperty(
         'tombstone interleave',
         fc.asyncProperty(
           arbSeed(),
@@ -79,7 +79,7 @@ describe('tombstone revive PBT', () => {
   test(
     'revive after delete restores live row on all clients',
     async () => {
-      await assertSampleProperty(
+      await runProperty(
         'tombstone revive',
         fc.asyncProperty(
           arbSeed(),

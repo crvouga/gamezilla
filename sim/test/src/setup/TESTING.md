@@ -2,11 +2,11 @@
 
 Product system graph lives in `@libs/runtime`. Open a world with `openSim` from
 `sim/test/src/setup/open-sim.ts` — a thin wrapper over framework
-`openWorld(defineProductSystem(…))` (`sim/test/src/system/`). The product system
-uses `defineSystem` with `node` / `knob` / `action` + optional `extend` (kit
+`openWorld(defineProductSystem(…))` (`sim/test/src/scenario/`). The product system
+uses `defineScenario` with `node` / `knob` / `command` + optional `extend` (kit
 surface merged onto the opened world). Playground still calls `createSim`
-directly as a wall composition root; `createSim` accepts injected `deps` from
-`@pkgs/determinism` (`createSimDeps`: clock, scheduler, timers, rng, trace) so
+directly as a wall composition root; `createSim` accepts injected `ports` from
+`@pkgs/determinism` (`createWorldPorts`: clock, scheduler, timers, rng, trace) so
 the same boot path works inside the `product.sim` node kind.
 
 **SQL fabric** (`SIM_SQL_BACKEND=real|mem`, default **`real`**):

@@ -1,7 +1,7 @@
 import { describe, test } from 'bun:test';
-import { assertSampleProperty } from '@pkgs/determinism/pbt';
+import { runProperty } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
-import { arbKnobs, arbSeed } from '../../sim/system/knobs';
+import { arbKnobs, arbSeed } from '../../sim/scenario/knobs';
 import { isLiveNote, readLiveNotes } from '../apps/acme/assert';
 import { setNote } from '../apps/acme/shared/mutations';
 import { openAcmeWorld } from '../apps/acme/system';
@@ -10,7 +10,7 @@ describe('hold window safety PBT', () => {
   test(
     'optimistic body never reverts while sync is held after local mutate',
     async () => {
-      await assertSampleProperty(
+      await runProperty(
         'hold window no flicker',
         fc.asyncProperty(
           arbSeed(),
@@ -19,7 +19,7 @@ describe('hold window safety PBT', () => {
           async (seed, knobs, body) => {
             await using world = await openAcmeWorld({ seed, knobs });
 
-            const clientId = world.ids('client')[0]!;
+            const clientId = world.nodeIds('client')[0]!;
             const noteId = 'n0';
             const client = world.clients.get(clientId)!;
             using _hold = world.net(clientId, 'sync').set('hold');

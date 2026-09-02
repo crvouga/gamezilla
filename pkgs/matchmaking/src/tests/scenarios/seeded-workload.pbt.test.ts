@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { assertProperty, fc } from '@pkgs/pbt';
 
-import { openMatchmakingWorld } from '../../sim/system';
+import { openMatchmakingWorld } from '../../sim/scenario';
 import {
   expectMatched,
   RatingAttr,
@@ -17,7 +17,7 @@ async function runShortWorkload(seed: string): Promise<string> {
   });
   const replicaIds = [...world.replicas.keys()];
   const participants = [];
-  const rng = world.deps.rng.fork('workload');
+  const rng = world.ports.rng.fork('workload');
   for (let i = 0; i < 6; i += 1) {
     await world.advance(1);
     const rid = replicaIds[i % replicaIds.length]!;

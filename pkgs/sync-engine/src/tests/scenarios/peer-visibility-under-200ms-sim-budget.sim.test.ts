@@ -19,10 +19,10 @@ describe('peer visibility under 200ms sim budget', () => {
       knobs: {
         clientCount: 0,
       },
-      networkDefaults: toKernelFaults({
+      networkFaults: toKernelFaults({
         ...RELIABLE_FAULTS,
-        oneWayDelayMeanMs: PUBSUB_HOP_MS,
-        oneWayDelayJitterMs: 0,
+        latencyMeanMs: PUBSUB_HOP_MS,
+        latencyJitterMs: 0,
       }),
     });
 

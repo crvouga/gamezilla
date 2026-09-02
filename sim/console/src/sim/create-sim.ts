@@ -25,9 +25,9 @@ import {
 import { InMemoryBilling } from '@pkgs/billing';
 import type { Clock, Timers } from '@pkgs/clock';
 import {
-  createSimDeps,
-  type SimDeps,
-  type SimScheduler,
+  createWorldPorts,
+  type Scheduler,
+  type WorldPorts,
 } from '@pkgs/determinism';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
 import { KvImplWebNamespaced } from '@pkgs/kv/impl-kv-web-namespaced';
@@ -62,13 +62,13 @@ function hasWebLocalStorage(): boolean {
 
 export type CreateSimOptions = {
   readonly seed?: number | bigint | string;
-  readonly startMs?: number;
+  readonly startTime?: number;
   /**
    * Framework {@link openWorld} injects shared deps. When set, skips
-   * {@link createSimDeps} so the node kind shares the world clock/scheduler.
-   * Playground omits this and creates deps from seed/startMs.
+   * {@link createWorldPorts} so the node kind shares the world clock/scheduler.
+   * Playground omits this and creates deps from seed/startTime.
    */
-  readonly deps?: SimDeps;
+  readonly deps?: WorldPorts;
   /** Override virtual timers (openSim injects node timers for RNTL). */
   readonly timers?: Timers;
   /** Max-fidelity host injects embedded Postgres; playground uses fabric server SQL. */
@@ -85,7 +85,7 @@ export type Server = Awaited<ReturnType<typeof createServer>>;
 export type Sim = {
   readonly server: ServerEnv;
   readonly clock: Clock;
-  readonly scheduler: SimScheduler;
+  readonly scheduler: Scheduler;
   readonly pubSubBus: ReturnType<typeof createInMemoryBus>;
   client(id: string): ClientEnv;
   spawnServer(): Promise<Server>;
@@ -115,7 +115,7 @@ export function simClientNamespace(id: string): string {
 }
 
 async function buildServerEnv(args: {
-  readonly deps: SimDeps;
+  readonly deps: WorldPorts;
   readonly timers: Timers;
   readonly serverSql: SimSqlHandle;
   readonly pubSubBus: ReturnType<typeof createInMemoryBus>;
@@ -158,7 +158,7 @@ async function buildServerEnv(args: {
 }
 
 function buildRoomServerEnv(args: {
-  readonly deps: SimDeps;
+  readonly deps: WorldPorts;
   readonly timers: Timers;
 }): RoomServerEnv {
   const { deps, timers } = args;
@@ -172,7 +172,7 @@ function buildRoomServerEnv(args: {
 }
 
 type SimKernel = {
-  readonly deps: SimDeps;
+  readonly deps: WorldPorts;
   readonly timers: Timers;
   readonly net: ReturnType<typeof createSimNet>;
   readonly pubSubBus: ReturnType<typeof createInMemoryBus>;
@@ -184,9 +184,9 @@ type SimKernel = {
 async function bootSimKernel(opts?: CreateSimOptions): Promise<SimKernel> {
   const deps =
     opts?.deps ??
-    createSimDeps({
+    createWorldPorts({
       seed: opts?.seed ?? 1,
-      startMs: opts?.startMs ?? 0,
+      startTime: opts?.startTime ?? 0,
     });
   const timers = opts?.timers ?? deps.timers;
   const net = createSimNet();
@@ -282,7 +282,8 @@ function makeSimClientEnv(
     authBaseURL: SIM_SERVER_URL,
     openAuthSession: (() => {
       const completeDevAuth = createInProcessOpenAuthSession({
-        fetch: (input, init) => net.wrapServerHttp(id, serverFetch)(input, init),
+        fetch: (input, init) =>
+          net.wrapServerHttp(id, serverFetch)(input, init),
         subject: id,
       });
       return async (authorizationUrl, callbackUrl) => {

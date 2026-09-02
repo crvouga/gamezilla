@@ -14,7 +14,7 @@ Harness-only fixes during that expansion (not engine defects):
   checkpoint) rather than a bogus checkpoint string, which exercises re-hydrate
   without a known merge edge case on invalid checkpoint payloads.
 
-Room system kernel expansion (`pkgs/room/src/tests/system/`):
+Room system kernel expansion (`pkgs/room/src/tests/scenario/`):
 
 - **Settle after takeOver under `down`** — soft-cycle all clients after `healAll`
   so a welcome is resent when frames were dropped mid take-over (harness settle,

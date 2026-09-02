@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
-import { arbSeed, assertSampleProperty } from '@pkgs/determinism/pbt';
+import { arbSeed, runProperty } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
-import type { RoomSystemWorld } from '../../sim/system';
+import type { RoomSystemWorld } from '../../sim/scenario';
 import {
   arbRoomKnobs,
   BYZANTINE_INJECT_KINDS,
@@ -10,7 +10,7 @@ import {
   playRoomActions,
   type RoomSystemAction,
   replayRoom,
-} from '../../sim/system';
+} from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
 import { counterValue } from '../fixtures/counter-module';
 
@@ -46,7 +46,7 @@ describe('room byzantine-wire PBT', () => {
   test(
     'each inject catalog arm then settle restores server truth',
     async () => {
-      await assertSampleProperty(
+      await runProperty(
         'byzantine inject converges to server',
         fc.asyncProperty(
           arbSeed(),
@@ -56,8 +56,8 @@ describe('room byzantine-wire PBT', () => {
             const world = await replayRoom(counterSystem, {
               seed,
               knobs: { ...knobs, clientCount: 2 },
-              settle: false,
-              actions: [],
+              converge: false,
+              commands: [],
             });
             const real = world;
             try {

@@ -803,15 +803,15 @@ bun run lint
 | Suite | Path | Role |
 |-------|------|------|
 | Scenarios | `src/tests/scenarios/*.sim.test.ts` | Black-box multi-client pins via `openAcmeWorld` (kit merged via `extend`) |
-| Property / system | `src/tests/scenarios/*.system.pbt.test.ts` / `*.pbt.test.ts` | Shrinking `assertSample` / `replaySyncPin` over `acmeSystem` |
+| Property / system | `src/tests/scenarios/*.scenario.pbt.test.ts` / `*.pbt.test.ts` | Shrinking `runScenario` / `replaySyncPin` over `acmeSystem` |
 | Unit PBT | `src/tests/unit/*.pbt.test.ts` | Pure helpers (checkpoints, topic map, …) |
 | Kernel harness | `src/tests/harness/*.test.ts` | RNG / scheduler / timers; membership topic sync |
 | Public unit helper | `@pkgs/sync-engine/test` | `createInMemorySyncEngine` (no full world) |
 
 **Two layers:** named scenarios document specific safety claims (`never`, authz,
 protocol cut, flicker). `*.pbt.test.ts` files explore the fault state space with
-`assertSample(acmeSystem)` from `@pkgs/determinism/pbt` (system declared via `defineSyncSystem` —
-see `src/sim/system/define-sync-system.ts` and `pkgs/determinism/CONTEXT.md`).
+`runScenario(acmeSystem)` from `@pkgs/determinism/pbt` (system declared via `defineSyncSystem` —
+see `src/sim/scenario/define-sync-system.ts` and `pkgs/determinism/CONTEXT.md`).
 When a property fails, capture `seed` / `path` / `replayPath`, pin `examples`,
 add a named scenario, and log in repo-root `PBT_FINDINGS.md`.
 
@@ -820,7 +820,7 @@ add a named scenario, and log in repo-root `PBT_FINDINGS.md`.
 bun test pkgs/sync-engine/src/tests/scenarios/*.pbt.test.ts
 
 # replay one failure
-FC_SEED=<n> bun test pkgs/sync-engine/src/tests/scenarios/acme-world.system.pbt.test.ts
+FC_SEED=<n> bun test pkgs/sync-engine/src/tests/scenarios/acme-world.scenario.pbt.test.ts
 
 # seeded fuzz harness (non-shrinking corpus)
 SYNC_SIM_SEED=42 bun test pkgs/sync-engine/src/tests/scenarios/seeded-workload-fuzz-determinism.sim.test.ts
@@ -847,13 +847,13 @@ TigerBeetle-style deterministic simulation in `src/sim/` (not a public export). 
 identical timeline.** Worlds are **owned by `@pkgs/determinism`**:
 `defineSyncSystem(acmeApp)` (exported as `acmeSystem`) declares the
 broker/server/client topology, knobs, action pool, and model, and tests drive it
-with `assertSample(acmeSystem)` / `replaySyncPin(acmeSystem, …)` / `openAcmeWorld(…)`; fuzz calls `runSeed({ app: acmeApp })`. Assert **live domain rows
+with `runScenario(acmeSystem)` / `replaySyncPin(acmeSystem, …)` / `openAcmeWorld(…)`; fuzz calls `runSeed({ app: acmeApp })`. Assert **live domain rows
 only** — never framework tables or private modules.
 
 ```text
-seed ──► SeededRng ──► SimNetwork (delay/loss/reorder/replay)
+seed ──► SeededRng ──► Network (delay/loss/reorder/replay)
   │                         │
-  └──► SimClock ──► SimScheduler ──► timers + delayed deliveries
+  └──► VirtualClock ──► Scheduler ──► timers + delayed deliveries
                                     │
                     ┌───────────────┼───────────────┐
                     ▼               ▼               ▼
@@ -866,9 +866,9 @@ seed ──► SeededRng ──► SimNetwork (delay/loss/reorder/replay)
 
 | Boundary | Implementation |
 |----------|----------------|
-| Time | `runFor` / `until` / `never` over `SimClock` + `SimScheduler` |
+| Time | `runFor` / `until` / `never` over `VirtualClock` + `Scheduler` |
 | Wall clocks | `world.node(id).skewClock(ms)` / `.now()` (scheduler stays on base clock) |
-| Timers | `createSimTimers` implements the production `Timers` port |
+| Timers | `createTimers` implements the production `Timers` port |
 | RNG | `createSeededRng` (splitmix64); `fork(label)` for independent streams |
 | Network | `world.net(nodeId, traffic?).set(state)` — hold / down / fault profiles |
 | HTTP | `createSimHttpClient` / `bindSimHttpServer` over the mesh (`sync` traffic) |
@@ -887,8 +887,8 @@ embed `seed=<hex>` and virtual `now=` for replay.
 **Five concepts:**
 
 1. **Time** — `world.runFor(ms)` (documented grains / flicker loops),
-   `world.until(target, { budgetMs?, stepMs? })` (positive wait; returns
-   completion timestamp), `world.never(target, { forMs, stepMs? })` (fail if
+   `world.waitUntil(target, { budgetMs?, stepMs? })` (positive wait; returns
+   completion timestamp), `world.waitNever(target, { forMs, stepMs? })` (fail if
    target becomes true within the window). All scheduler-driven — never
    wall-clock.
 2. **Network** — `using _ = world.net(nodeId, traffic?).set('hold' \| 'down' \|
@@ -933,14 +933,14 @@ describe('example', () => {
 });
 ```
 
-PBT / system pins (`defineSyncSystem` → `assertSample` / `replaySyncPin`):
+PBT / system pins (`defineSyncSystem` → `runScenario` / `replaySyncPin`):
 
 ```ts
-import { assertSample } from '@pkgs/determinism/pbt';
-import { replaySyncPin } from '../../sim/system';
+import { runScenario } from '@pkgs/determinism/pbt';
+import { replaySyncPin } from '../../sim/scenario';
 import { acmeSystem } from '../apps/acme/system';
 
-await assertSample(acmeSystem, { numRuns: 12, maxCommands: 14 });
+await runScenario(acmeSystem, { numRuns: 12, maxCommands: 14 });
 
 await replaySyncPin(acmeSystem, {
   seed: 42,
@@ -968,8 +968,8 @@ Scoped hold + latency budget + negative window:
   using _hold = world.net('bob', 'sync').set('hold');
   const t0 = world.node('bob').now();
   await a.mutate(setNote, { id: 'n1', body: 'x' });
-  await world.never(() => isLiveNote(b.db, 'n1'), { forMs: 200 });
-  const at = await world.until(() => isLiveNote(b.db, 'n1'), { budgetMs: 400 });
+  await world.waitNever(() => isLiveNote(b.db, 'n1'), { forMs: 200 });
+  const at = await world.waitUntil(() => isLiveNote(b.db, 'n1'), { budgetMs: 400 });
   // … after hold released
   expect(at - t0).toBeLessThan(200);
 }
@@ -995,7 +995,7 @@ await sim.runFor(150);
 ```ts
 using _hold = world.net('bob', 'sync').set('hold');
 using _down = world.net('bob', 'live').set('down');
-using _loss = world.net('bob', 'live').set({ packetLossProbability: 1 });
+using _loss = world.net('bob', 'live').set({ dropProbability: 1 });
 ```
 
 **Live is unreliable by design.** Named tests assert domain convergence after
@@ -1022,10 +1022,10 @@ world.node('alice').now(); // base + skew
 | `knobs.bufferOutboundLive` | `false` | Queue optimistic fanout while push detached |
 | `networkDefaults` | reliable | Pass `toKernelFaults({ … })` for custom delay/loss |
 
-Custom faults: `networkDefaults: toKernelFaults({ ...RELIABLE_FAULTS, oneWayDelayMeanMs: 30 })`.
+Custom faults: `networkDefaults: toKernelFaults({ ...RELIABLE_FAULTS, latencyMeanMs: 30 })`.
 
 **Network faults** (`SimFaultOptions` in `faults.ts`):
-`oneWayDelayMeanMs` / `oneWayDelayJitterMs`, `packetLossProbability`,
+`latencyMeanMs` / `latencyJitterMs`, `dropProbability`,
 `packetReplayProbability`, `reorderWindow`, plus unused partition probability
 fields for fuzz profiles.
 
@@ -1055,7 +1055,7 @@ fields for fuzz profiles.
 non-mutation path; reconcile tick heals).
 
 **Demoted / internal (lab + harness; CI-banned in scenarios):** `world.clock`,
-`world.rng`, `world.scheduler`, `world.network`, `runUntilIdle`,
+`world.rng`, `world.scheduler`, `world.network`, `runUntilQuiescent`,
 `getSyncEngine` (except account-switch pool), `postMutations` (except
 duplicate-mutation-id). Optional combinators `untilAll` / `untilAny` stay
 exported but are not core concepts.
@@ -1079,7 +1079,7 @@ SYNC_SIM_SEED=42 bun test pkgs/sync-engine/src/tests/scenarios/seeded-workload-f
 
 ```ts
 import { acmeApp } from '../apps/acme/app';
-import { runSeed } from '../system/run-seed';
+import { runSeed } from '../scenario/run-seed';
 await runSeed({ app: acmeApp, seed: 0x2a, steps: 16 });
 ```
 
@@ -1099,7 +1099,7 @@ await world.assertConverged();
 ```ts
 a.online(false);
 await a.mutate(setNote, { id: 'n1', body: 'queued' });
-await world.never(() => isLiveNote(world.server.db, 'n1'), { forMs: 50 });
+await world.waitNever(() => isLiveNote(world.server.db, 'n1'), { forMs: 50 });
 a.online(true);
 await world.assertConverged();
 ```
@@ -1119,7 +1119,7 @@ await world.assertConverged();
 {
   using _hold = world.net('bob', 'sync').set('hold');
   await a.mutate(setNote, { id: 'n1', body: 'x' });
-  await world.never(() => isLiveNote(b.db, 'n1'), { forMs: 300 });
+  await world.waitNever(() => isLiveNote(b.db, 'n1'), { forMs: 300 });
 }
 await world.assertConverged();
 ```
@@ -1147,7 +1147,7 @@ await world.assertConverged();
 ```ts
 {
   using sub = a.subscribe('notesDenied', {});
-  await world.until(sub.ready);
+  await world.waitUntil(sub.ready);
   // … asserts …
 } // dispose unsubscribes
 ```
@@ -1165,7 +1165,7 @@ for (let i = 0; i < 8; i += 1) {
 
 ```ts
 // nudge: reason under test
-await world.until(b.nudge());
+await world.waitUntil(b.nudge());
 ```
 
 #### Sim layout
@@ -1305,7 +1305,7 @@ Three distinct monotonic sequences — do not conflate them:
 ## Scenario catalog
 
 Black-box correctness under `src/tests/scenarios/` (`*.sim.test.ts` +
-`*.system.pbt.test.ts`) plus harness `src/tests/harness/kernel.test.ts`.
+`*.scenario.pbt.test.ts`) plus harness `src/tests/harness/kernel.test.ts`.
 Most pins use `openAcmeWorld({ knobs: { clientCount: 0, … } })` and domain
 asserts from `src/tests/apps/acme/`.
 

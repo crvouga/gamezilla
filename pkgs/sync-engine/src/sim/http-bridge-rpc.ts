@@ -1,8 +1,8 @@
-import type { SimScheduler } from '@pkgs/determinism';
+import type { Scheduler } from '@pkgs/determinism';
 import { HttpNetworkError } from '@pkgs/http-client';
 import type { SimHttpRequestBody, SimHttpResponse } from './http-bridge-types';
 
-import type { SimEndpointId, SimNetwork } from './network';
+import type { EndpointId, SyncNetwork } from './network';
 
 export type SimHttpPending = Map<
   string,
@@ -13,15 +13,15 @@ export type SimHttpPending = Map<
 >;
 
 export type CreateSimHttpRpcArgs = {
-  readonly network: SimNetwork;
-  readonly clientId: SimEndpointId;
-  readonly serverId: SimEndpointId;
-  readonly scheduler: SimScheduler;
+  readonly network: SyncNetwork;
+  readonly clientId: EndpointId;
+  readonly serverId: EndpointId;
+  readonly scheduler: Scheduler;
   readonly timeoutMs: number;
   readonly pending: SimHttpPending;
 };
 
-/** One-shot request/response over {@link SimNetwork} with timeout. */
+/** One-shot request/response over {@link SyncNetwork} with timeout. */
 export function createSimHttpRpc(
   args: CreateSimHttpRpcArgs
 ): (req: SimHttpRequestBody) => Promise<SimHttpResponse> {

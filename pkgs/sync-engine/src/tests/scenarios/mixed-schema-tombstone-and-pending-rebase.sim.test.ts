@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
 import { sql } from '@pkgs/sql';
-import { defineSyncSystem } from '../../sim/system';
+import { defineSyncSystem } from '../../sim/scenario';
 import {
   acmeApp,
   acmeLocalSchema,

@@ -1,13 +1,13 @@
 import type {
-  NeverOpts,
-  SimDeps,
-  SimNetwork,
-  UntilOpts,
+  EventuallyOptions,
+  Network,
+  NeverOptions,
+  WorldPorts,
 } from '@pkgs/determinism';
 
 import type { SimPollablePromise } from './client-surface';
 
-export type { NeverOpts, UntilOpts };
+export type { EventuallyOptions, NeverOptions };
 
 export type UntilTarget =
   | (() => boolean | Promise<boolean>)
@@ -16,11 +16,11 @@ export type UntilTarget =
 
 type WaitWorld = {
   readonly seed: bigint;
-  readonly deps: SimDeps;
-  readonly network: SimNetwork;
+  readonly ports: WorldPorts;
+  readonly network: Network;
 };
 
-type WaitUntilOpts = UntilOpts & {
+type WaitUntilOpts = EventuallyOptions & {
   readonly budgetMs?: number;
   readonly stepMs?: number;
 };
@@ -97,8 +97,8 @@ export async function waitUntil(
 ): Promise<number> {
   const withinMs = opts?.withinMs ?? opts?.budgetMs ?? 2_000;
   const stepMs = opts?.stepMs ?? 25;
-  const simClock = world.deps.scheduler.clock;
-  const { scheduler } = world.deps;
+  const simClock = world.ports.scheduler.clock;
+  const { scheduler } = world.ports;
   const start = simClock.now();
   const watch = watchTarget(target);
 
@@ -120,7 +120,7 @@ export async function waitUntil(
   const held = heldSummary(world);
   throw new Error(
     `waitUntil timed out seed=${world.seed.toString(16)} now=${simClock.now()} ` +
-      `withinMs=${withinMs} pendingEvents=${scheduler.pendingCount()} ` +
+      `withinMs=${withinMs} pendingEvents=${scheduler.pendingTaskCount()} ` +
       `held=${held.length > 0 ? held.join(',') : 'none'}`
   );
 }
@@ -129,12 +129,12 @@ export async function waitUntil(
 export async function waitNever(
   world: WaitWorld,
   target: UntilTarget,
-  opts: NeverOpts
+  opts: NeverOptions
 ): Promise<void> {
   const forMs = opts.forMs;
   const stepMs = 25;
-  const simClock = world.deps.scheduler.clock;
-  const { scheduler } = world.deps;
+  const simClock = world.ports.scheduler.clock;
+  const { scheduler } = world.ports;
   const start = simClock.now();
   const watch = watchTarget(target);
 
@@ -154,7 +154,7 @@ export async function waitNever(
       const held = heldSummary(world);
       throw new Error(
         `waitNever violated seed=${world.seed.toString(16)} now=${simClock.now()} ` +
-          `forMs=${forMs} pendingEvents=${scheduler.pendingCount()} ` +
+          `forMs=${forMs} pendingEvents=${scheduler.pendingTaskCount()} ` +
           `held=${held.length > 0 ? held.join(',') : 'none'}`
       );
     }

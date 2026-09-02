@@ -14,7 +14,7 @@ describe('kit: terminal monotonicity (M-F06)', () => {
     await using host = await openWorld(deadlineSystem, {
       seed: process.env['SIM_SEED'] ?? '42',
       knobs: { clientCount: 0 },
-      startMs: 1_000,
+      startTime: 1_000,
     });
     const world = host;
     const a = await world.addClient({ id: 'alice' });

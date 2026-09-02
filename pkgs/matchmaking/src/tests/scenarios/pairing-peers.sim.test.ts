@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { openMatchmakingWorld } from '../../sim/system';
+import { openMatchmakingWorld } from '../../sim/scenario';
 import {
   expectMatched,
   NameAttr,

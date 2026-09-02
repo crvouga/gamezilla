@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
-import { arbSeed, assertSampleProperty } from '@pkgs/determinism/pbt';
+import { arbSeed, runProperty } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
 
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '../../protocol/wire';
-import { arbRoomKnobs, replayRoom } from '../../sim/system';
+import { arbRoomKnobs, replayRoom } from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
 import { counterValue, Increment } from '../fixtures/counter-module';
 
@@ -24,13 +24,13 @@ describe('room session-lifecycle PBT', () => {
   test(
     'takeOver mid-flight converges',
     async () => {
-      await assertSampleProperty(
+      await runProperty(
         'takeOver sequences converge',
         fc.asyncProperty(arbSeed(), arbRoomKnobs(), async (seed, knobs) => {
           const world = await replayRoom(counterSystem, {
             seed,
             knobs,
-            actions: [
+            commands: [
               {
                 kind: 'domain',
                 clientId: 'c0',
@@ -57,13 +57,13 @@ describe('room session-lifecycle PBT', () => {
   test(
     'crash restart clearLocalData converge',
     async () => {
-      await assertSampleProperty(
+      await runProperty(
         'lifecycle sequences converge',
         fc.asyncProperty(arbSeed(), arbRoomKnobs(), async (seed, knobs) => {
           const world = await replayRoom(counterSystem, {
             seed,
             knobs,
-            actions: [
+            commands: [
               { kind: 'disconnect', clientId: 'c0' },
               {
                 kind: 'domain',
@@ -99,12 +99,12 @@ describe('room session-lifecycle PBT', () => {
   test(
     'serverCrash restart drains pending',
     async () => {
-      await assertSampleProperty(
+      await runProperty(
         'server crash sequences converge',
         fc.asyncProperty(arbSeed(), async (seed) => {
           const world = await replayRoom(counterSystem, {
             seed,
-            actions: [
+            commands: [
               {
                 kind: 'domain',
                 clientId: 'c0',
@@ -132,8 +132,8 @@ describe('room session-lifecycle PBT', () => {
   test('commandId replay across takeOver applies once', async () => {
     const world = await replayRoom(counterSystem, {
       seed: 7,
-      settle: false,
-      actions: [],
+      converge: false,
+      commands: [],
     });
     const real = world;
     try {

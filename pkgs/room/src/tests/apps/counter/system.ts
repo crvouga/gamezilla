@@ -1,4 +1,4 @@
-import { defineRoomSystem, type RoomSystemDef } from '../../../sim/system';
+import { defineRoomSystem, type RoomSystemDef } from '../../../sim/scenario';
 import { counterApp } from './app';
 
 /** Framework-owned counter world: server + `clientCount` clients. */

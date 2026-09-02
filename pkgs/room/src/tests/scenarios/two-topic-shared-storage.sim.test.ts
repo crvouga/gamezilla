@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
 import { InMemoryRoomStorage } from '../../server/adapters/memory';
-import { defineRoomSystem } from '../../sim/system';
+import { defineRoomSystem } from '../../sim/scenario';
 import { counterApp } from '../apps/counter/app';
 import { counterValue, Increment } from '../fixtures/counter-module';
 

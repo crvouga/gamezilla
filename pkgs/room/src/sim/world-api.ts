@@ -1,5 +1,5 @@
 import type { Clock } from '@pkgs/clock';
-import type { SimDeps, SimScheduler } from '@pkgs/determinism';
+import type { Scheduler, WorldPorts } from '@pkgs/determinism';
 import type { SeededRng } from '@pkgs/uuid';
 import type { InMemoryRoomStorage } from '../server/adapters/memory';
 import type { RoomServer } from '../server/core/room-server';
@@ -20,7 +20,11 @@ import type {
   SimRoomNetHandle,
   SimRoomNetwork,
 } from './network';
-import type { NeverOpts, UntilOpts, UntilPredicate } from './wait-until';
+import type {
+  EventuallyOptions,
+  NeverOptions,
+  UntilPredicate,
+} from './wait-until';
 
 export type { RoomSimClientHandle, RoomSimNodeHandle } from './handles';
 
@@ -32,7 +36,7 @@ export type RoomSimAuthorize = (
 
 /** Framework-owned deps + network for framework worlds (`@pkgs/determinism` node kinds). */
 export type InjectedRoomSimPorts = {
-  readonly deps: SimDeps;
+  readonly deps: WorldPorts;
   readonly network: SimRoomNetwork;
 };
 
@@ -47,7 +51,7 @@ export type World<
   readonly rng: SeededRng;
   readonly clock: Clock;
   /** @internal Lab / harness — scenarios use runFor / until */
-  readonly scheduler: SimScheduler;
+  readonly scheduler: Scheduler;
   readonly storage: InMemoryRoomStorage;
   readonly server: RoomServer<S, C, E, string>;
   readonly clients: ReadonlyMap<string, RoomSimClientHandle<S, C, E>>;
@@ -59,8 +63,11 @@ export type World<
   readonly net: (clientId: string) => SimRoomNetHandle;
   readonly node: (clientId: string) => RoomSimNodeHandle;
   readonly runFor: (ms: number) => Promise<void>;
-  readonly until: (pred: UntilPredicate, opts?: UntilOpts) => Promise<number>;
-  readonly never: (pred: UntilPredicate, opts: NeverOpts) => Promise<void>;
+  readonly until: (
+    pred: UntilPredicate,
+    opts?: EventuallyOptions
+  ) => Promise<number>;
+  readonly never: (pred: UntilPredicate, opts: NeverOptions) => Promise<void>;
   /** Domain state folded from the committed storage log (authority). */
   readonly serverSnapshot: () => Promise<S>;
   /** `module.hash` of {@link serverSnapshot}. */
@@ -85,7 +92,7 @@ export type OpenWorldArgs<
   readonly seed: number | bigint | string;
   readonly module: RoomModule<S, C, E, string>;
   readonly topic?: string;
-  readonly startMs?: number;
+  readonly startTime?: number;
   /** When true, boot with {@link MILD_ROOM_FAULTS}. */
   readonly mildFaults?: boolean;
   /** Optional per-command authorize hook (RoomServer). */
@@ -94,7 +101,7 @@ export type OpenWorldArgs<
   readonly storage?: InMemoryRoomStorage;
   /**
    * Required — framework-owned deps + network from `@pkgs/determinism`
-   * (`ctx.deps` / `wrapRoomNetwork({ kernel: ctx.network })`).
+   * (`ctx.ports` / `wrapRoomNetwork({ kernel: ctx.network })`).
    */
   readonly injected: InjectedRoomSimPorts;
 };

@@ -145,5 +145,5 @@ See [`TESTING.md`](TESTING.md). Summary:
 
 - Contract matrix: `interface.contract.test.ts` (postgres-mem × sqlite-mem)
 - PBT: `src/tests/pbt/` + `src/core/*.pbt.test.ts` (conventions, planner, emit safety, round-trip, data-loss)
-- System worlds: `tests/system/` (N sqlite clients + 1 postgres server, mixed versions)
+- System worlds: `tests/scenario/` (N sqlite clients + 1 postgres server, mixed versions)
 - Findings: [`src/tests/bugs-found.md`](src/tests/bugs-found.md)

@@ -1,4 +1,4 @@
-import { defineSystem } from '@pkgs/determinism';
+import { defineScenario } from '@pkgs/determinism';
 import { SQL_CLIENT_WEB_ACTIONS } from './actions';
 import {
   SQL_BACKEND,
@@ -16,16 +16,16 @@ const WORLD_START_MS = 1_700_000_000_000;
 
 type SqlWebWorld = import('@pkgs/determinism').World<
   Record<string, import('@pkgs/determinism').KnobDef>,
-  Record<string, import('@pkgs/determinism').NodeSpecEntry>
+  Record<string, import('@pkgs/determinism').NodeEntry>
 >;
 
 async function settleSqlClientWeb(world: SqlWebWorld): Promise<void> {
   const state = boardOf(world);
-  await world.idle();
+  await world.quiesce();
   if (state.appliedEpoch !== state.epoch) {
     await closeAllRuntimes(state);
   }
-  for (const tabId of world.ids('tab')) {
+  for (const tabId of world.nodeIds('tab')) {
     await connectTab(state, tabId);
   }
   const client = await ensureOwnerClient(state);
@@ -69,9 +69,9 @@ async function assertSqlClientWebConverged(world: SqlWebWorld): Promise<void> {
  * corrupts the image, kills tabs, or bumps the schema epoch.
  */
 export function defineSqlClientWebSystem(opts?: { readonly id?: string }) {
-  return defineSystem({
+  return defineScenario({
     id: opts?.id ?? 'sql-client.web',
-    startMs: WORLD_START_MS,
+    startTime: WORLD_START_MS,
     knobs: {
       tabCount: SQL_TAB_COUNT,
       poolCapacity: SQL_POOL_CAPACITY,
@@ -86,13 +86,13 @@ export function defineSqlClientWebSystem(opts?: { readonly id?: string }) {
         id: (i) => `t${String(i)}`,
       },
     },
-    actions: SQL_CLIENT_WEB_ACTIONS,
-    model: { initial: () => ({}) },
-    settle: async (world) => {
+    commands: SQL_CLIENT_WEB_ACTIONS,
+    referenceModel: { initial: () => ({}) },
+    converge: async (world) => {
       await settleSqlClientWeb(world);
       await assertSqlClientWebConverged(world);
     },
-    invariants: async () => {
+    always: async () => {
       /* convergence checked in settle */
     },
   });

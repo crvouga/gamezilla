@@ -1,6 +1,6 @@
 import { describe, test } from 'bun:test';
 import { RELIABLE_FAULTS } from '../../sim/faults';
-import type { SyncSystemFacade } from '../../sim/system';
+import type { SyncSystemFacade } from '../../sim/scenario';
 import { expectLiveNote, expectNotesMatchServer, setNote } from '../apps/acme';
 import { openAcmeWorld } from '../apps/acme/system';
 
@@ -27,7 +27,7 @@ describe('live loss dup reorder still converges', () => {
     await world.assertConverged();
 
     {
-      using _fault = world.net('bob', 'live').set({ packetLossProbability: 1 });
+      using _fault = world.net('bob', 'live').set({ dropProbability: 1 });
       await a.mutate(setNote, { id: 'n1', body: 'lost-live' });
       await world.advance(80);
     }
@@ -67,8 +67,8 @@ describe('live loss dup reorder still converges', () => {
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     using _fault = world.net('bob', 'live').set({
-      oneWayDelayMeanMs: 30,
-      oneWayDelayJitterMs: 40,
+      latencyMeanMs: 30,
+      latencyJitterMs: 40,
       reorderWindow: 8,
     });
     await a.mutate(setNote, { id: 'n1', body: 'a' });
@@ -92,11 +92,11 @@ describe('live loss dup reorder still converges', () => {
     {
       using _af = world.net('alice', 'live').set(RELIABLE_FAULTS);
       using _bf = world.net('bob', 'live').set({
-        packetLossProbability: 0.4,
+        dropProbability: 0.4,
         packetReplayProbability: 0.5,
         reorderWindow: 5,
-        oneWayDelayMeanMs: 15,
-        oneWayDelayJitterMs: 25,
+        latencyMeanMs: 15,
+        latencyJitterMs: 25,
       });
       await a.mutate(setNote, { id: 'n1', body: 'one' });
       await b.mutate(setNote, { id: 'n2', body: 'two' });
@@ -121,7 +121,7 @@ describe('live loss dup reorder still converges', () => {
     await world.assertConverged();
 
     {
-      using _fault = world.net('bob', 'live').set({ packetLossProbability: 1 });
+      using _fault = world.net('bob', 'live').set({ dropProbability: 1 });
       using _hold = world.net('bob', 'sync').set('hold');
       await a.mutate(setNote, { id: 'n1', body: 'held' });
       await world.advance(60);

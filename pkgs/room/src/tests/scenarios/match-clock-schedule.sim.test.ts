@@ -18,7 +18,7 @@ describe('match-clock schedule (MC-01..06)', () => {
     await using host = await openWorld(matchClockSystem, {
       seed: process.env['SIM_SEED'] ?? 'mc-01',
       knobs: { clientCount: 0 },
-      startMs: 10_000,
+      startTime: 10_000,
     });
     const world = host;
     const a = await world.addClient({ id: 'white', identity: 'white' });
@@ -44,7 +44,7 @@ describe('match-clock schedule (MC-01..06)', () => {
     await using host = await openWorld(matchClockSystem, {
       seed: process.env['SIM_SEED'] ?? 'mc-02',
       knobs: { clientCount: 0 },
-      startMs: 20_000,
+      startTime: 20_000,
     });
     const world = host;
     const white = await world.addClient({ id: 'white', identity: 'white' });
@@ -76,7 +76,7 @@ describe('match-clock schedule (MC-01..06)', () => {
     await using host = await openWorld(matchClockSystem, {
       seed: process.env['SIM_SEED'] ?? 'mc-03',
       knobs: { clientCount: 0 },
-      startMs: 30_000,
+      startTime: 30_000,
     });
     const world = host;
     const white = await world.addClient({ id: 'white', identity: 'white' });
@@ -105,7 +105,7 @@ describe('match-clock schedule (MC-01..06)', () => {
     await using host = await openWorld(matchClockSystem, {
       seed: process.env['SIM_SEED'] ?? 'mc-04',
       knobs: { clientCount: 0 },
-      startMs: 40_000,
+      startTime: 40_000,
     });
     const world = host;
     const white = await world.addClient({ id: 'white', identity: 'white' });
@@ -128,7 +128,7 @@ describe('match-clock schedule (MC-01..06)', () => {
     await using host = await openWorld(matchClockSystem, {
       seed: process.env['SIM_SEED'] ?? 'mc-05',
       knobs: { clientCount: 0 },
-      startMs: 50_000,
+      startTime: 50_000,
     });
     const world = host;
     const white = await world.addClient({ id: 'white', identity: 'white' });
@@ -152,7 +152,7 @@ describe('match-clock schedule (MC-01..06)', () => {
       await using host = await openWorld(matchClockSystem, {
         seed,
         knobs: { clientCount: 0 },
-        startMs: 60_000,
+        startTime: 60_000,
       });
       const world = host;
       const white = await world.addClient({ id: 'white', identity: 'white' });

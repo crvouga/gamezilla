@@ -13,7 +13,7 @@ describe('kit: deadline vs action (M-F07)', () => {
     await using host = await openWorld(deadlineSystem, {
       seed: process.env['SIM_SEED'] ?? '42',
       knobs: { clientCount: 0 },
-      startMs: 5_000,
+      startTime: 5_000,
     });
     const world = host;
     const a = await world.addClient({ id: 'alice' });

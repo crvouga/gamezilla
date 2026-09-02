@@ -1,5 +1,5 @@
 import { describe, test } from 'bun:test';
-import type { SyncSystemWorld } from '../../sim/system';
+import type { SyncSystemWorld } from '../../sim/scenario';
 import { expectLiveNote, expectNotesMatchServer, setNote } from '../apps/acme';
 import { openAcmeWorld } from '../apps/acme/system';
 

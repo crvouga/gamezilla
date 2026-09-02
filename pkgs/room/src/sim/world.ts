@@ -1,4 +1,4 @@
-import type { SimDeps } from '@pkgs/determinism';
+import type { WorldPorts } from '@pkgs/determinism';
 
 import { InMemoryClientStorage } from '../client/adapters/storage/memory';
 import { createTimerScheduleStack } from '../effects/timer-schedule-stack';
@@ -100,7 +100,7 @@ function resolveWorldPorts<
   E extends RoomEvent,
 >(
   args: KernelBootArgs<S, C, E>
-): { readonly deps: SimDeps; readonly network: SimRoomNetwork } {
+): { readonly deps: WorldPorts; readonly network: SimRoomNetwork } {
   const injected = args.injected;
   if (injected === undefined) {
     throw new Error(

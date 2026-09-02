@@ -81,6 +81,7 @@
     "ws": "^8.21.0"
   },
   "devDependencies": {
+    "@antithesishq/bombadil": "^0.7.2",
     "@biomejs/biome": "catalog:",
     "@lingui/cli": "catalog:",
     "@lingui/conf": "catalog:",

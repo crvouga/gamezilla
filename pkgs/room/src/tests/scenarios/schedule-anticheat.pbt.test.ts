@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
-import { arbSeed, assertSampleProperty } from '@pkgs/determinism/pbt';
+import { arbSeed, runProperty } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
 
-import { replayRoom, replayRoomPin } from '../../sim/system';
+import { replayRoom, replayRoomPin } from '../../sim/scenario';
 import { matchClockSystem } from '../apps/match-clock/system';
 import {
   matchClockStatus,
@@ -13,12 +13,12 @@ describe('room schedule-anticheat PBT', () => {
   test(
     'start move flag interleaved with hold converges',
     async () => {
-      await assertSampleProperty(
+      await runProperty(
         'match-clock chaos converges',
         fc.asyncProperty(arbSeed(), async (seed) => {
           await replayRoomPin(matchClockSystem, {
             seed,
-            actions: [
+            commands: [
               {
                 kind: 'domain',
                 clientId: 'c0',
@@ -47,8 +47,8 @@ describe('room schedule-anticheat PBT', () => {
   test('early FlagFall rejected; server still flags at true at', async () => {
     const world = await replayRoom(matchClockSystem, {
       seed: 3,
-      settle: false,
-      actions: [
+      converge: false,
+      commands: [
         {
           kind: 'domain',
           clientId: 'c0',
@@ -80,7 +80,7 @@ describe('room schedule-anticheat PBT', () => {
   test('lagging held client cannot move after server flag', async () => {
     const world = await replayRoom(matchClockSystem, {
       seed: 5,
-      actions: [
+      commands: [
         {
           kind: 'domain',
           clientId: 'c0',

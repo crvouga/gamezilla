@@ -3,7 +3,7 @@ import type { Topic } from '@pkgs/pubsub/topic';
 
 import type { BoundaryFaultController } from './boundary-faults';
 import { corruptUnknownPayload } from './corruption-faults';
-import type { SimEndpointId, SimNetwork } from './network';
+import type { EndpointId, SyncNetwork } from './network';
 import {
   createOfflineBuffers,
   type OfflineBuffers,
@@ -15,7 +15,7 @@ type PubWire = {
   readonly kind: 'pubsub';
   readonly topic: Topic;
   readonly data: unknown;
-  readonly source: SimEndpointId;
+  readonly source: EndpointId;
 };
 
 type DeliverWire = {
@@ -31,21 +31,19 @@ function isPubWire(value: unknown): value is PubWire {
 }
 
 /**
- * PubSub instances that deliver through {@link SimNetwork} (lossy, delayed).
+ * PubSub instances that deliver through {@link SyncNetwork} (lossy, delayed).
  * Use distinct endpoint ids from HTTP clients (e.g. `pubsub:alice`).
  */
 export type SimPubSubBroker = {
-  readonly createPubSub: (clientEndpointId: SimEndpointId) => PubSub;
+  readonly createPubSub: (clientEndpointId: EndpointId) => PubSub;
   /** Topics with active handlers for a peer (empty if closed / unknown). */
-  readonly subscribedTopics: (
-    clientEndpointId: SimEndpointId
-  ) => readonly Topic[];
+  readonly subscribedTopics: (clientEndpointId: EndpointId) => readonly Topic[];
   readonly dispose: () => void;
 };
 
 export type CreateSimPubSubBrokerArgs = {
-  readonly network: SimNetwork;
-  readonly brokerId: SimEndpointId;
+  readonly network: SyncNetwork;
+  readonly brokerId: EndpointId;
   readonly faults?: BoundaryFaultController;
   readonly rng?: SeededRng;
   /**
@@ -56,9 +54,9 @@ export type CreateSimPubSubBrokerArgs = {
 };
 
 function deliverTo(args: {
-  readonly network: SimNetwork;
-  readonly brokerId: SimEndpointId;
-  readonly endpointId: SimEndpointId;
+  readonly network: SyncNetwork;
+  readonly brokerId: EndpointId;
+  readonly endpointId: EndpointId;
   readonly topic: Topic;
   readonly data: unknown;
 }): void {
@@ -84,10 +82,10 @@ function wireDataForDelivery(args: {
 }
 
 function fanoutPublish(args: {
-  readonly peers: Map<SimEndpointId, PubSubPeer>;
+  readonly peers: Map<EndpointId, PubSubPeer>;
   readonly buffers: OfflineBuffers;
-  readonly network: SimNetwork;
-  readonly brokerId: SimEndpointId;
+  readonly network: SyncNetwork;
+  readonly brokerId: EndpointId;
   readonly faults?: BoundaryFaultController;
   readonly rng?: SeededRng;
   readonly wire: PubWire;
@@ -122,10 +120,10 @@ function fanoutPublish(args: {
 
 /** Build one peer with optional offline snapshot / flush hooks. */
 function createBrokerPeer(args: {
-  readonly network: SimNetwork;
-  readonly brokerId: SimEndpointId;
-  readonly clientEndpointId: SimEndpointId;
-  readonly peers: Map<SimEndpointId, PubSubPeer>;
+  readonly network: SyncNetwork;
+  readonly brokerId: EndpointId;
+  readonly clientEndpointId: EndpointId;
+  readonly peers: Map<EndpointId, PubSubPeer>;
   readonly buffers: OfflineBuffers;
 }): PubSub {
   const { clientEndpointId, buffers } = args;
@@ -154,7 +152,7 @@ function createBrokerPeer(args: {
 export function createSimPubSubBroker(
   args: CreateSimPubSubBrokerArgs
 ): SimPubSubBroker {
-  const peers = new Map<SimEndpointId, PubSubPeer>();
+  const peers = new Map<EndpointId, PubSubPeer>();
   const buffers = createOfflineBuffers(args.liveResendOnReconnect === true);
 
   args.network.register(args.brokerId, (payload) => {

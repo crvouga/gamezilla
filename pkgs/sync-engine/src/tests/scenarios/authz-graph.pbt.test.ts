@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
-import { assertSampleProperty } from '@pkgs/determinism/pbt';
+import { runProperty } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
-import { arbKnobs, arbSeed } from '../../sim/system/knobs';
+import { arbKnobs, arbSeed } from '../../sim/scenario/knobs';
 import { expectLiveNote, readLiveNotes } from '../apps/acme/assert';
 import { deleteNote, setNote } from '../apps/acme/shared/mutations';
 import { openAcmeWorld } from '../apps/acme/system';
@@ -10,7 +10,7 @@ describe('authz graph PBT', () => {
   test(
     'non-owner delete cannot remove owner note from live set',
     async () => {
-      await assertSampleProperty(
+      await runProperty(
         'non-owner delete rejected',
         fc.asyncProperty(
           arbSeed(),
@@ -21,7 +21,7 @@ describe('authz graph PBT', () => {
             if (knobs.clientCount < 2) return;
             await using world = await openAcmeWorld({ seed, knobs });
 
-            const [owner, peer] = world.ids('client');
+            const [owner, peer] = world.nodeIds('client');
             const ownerClient = world.clients.get(owner!)!;
             const peerClient = world.clients.get(peer!)!;
 
@@ -56,7 +56,7 @@ describe('authz graph PBT', () => {
   test(
     'authorized mutates from multiple clients converge to one live row set',
     async () => {
-      await assertSampleProperty(
+      await runProperty(
         'multi-client authorized converge',
         fc.asyncProperty(
           arbSeed(),

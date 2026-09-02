@@ -16,10 +16,10 @@ describe('push during inflight merge queues single flight', () => {
       knobs: {
         clientCount: 0,
       },
-      networkDefaults: toKernelFaults({
+      networkFaults: toKernelFaults({
         ...RELIABLE_FAULTS,
-        oneWayDelayMeanMs: 30,
-        oneWayDelayJitterMs: 20,
+        latencyMeanMs: 30,
+        latencyJitterMs: 20,
         reorderWindow: 3,
       }),
     });

@@ -5,9 +5,10 @@ DstAction
 DstApp
 emptySimPushChannels
 ensureFrameworkSchema
+EventuallyOptions
 InMemorySyncEngineOptions
 LocalMigratePhase
-NeverOpts
+NeverOptions
 openWorld
 OpenWorldArgs
 pruneMutationArtifacts
@@ -17,7 +18,6 @@ SimClientHandle
 SimClock
 SimDomainPack
 SimSessionQuery
-UntilOpts
 UntilTarget
 withFrameworkMutations
 World

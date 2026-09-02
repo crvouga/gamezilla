@@ -1,9 +1,9 @@
-import type { SimScheduler } from '@pkgs/determinism';
+import type { Scheduler } from '@pkgs/determinism';
 
 import type { SimClientHandle } from './client-handle';
 import type { InvariantViolation } from './invariants';
 import type { SimNetHandle } from './net-effect';
-import type { SimNetwork } from './network';
+import type { SyncNetwork } from './network';
 import type { SimNodeHandle } from './node-handle';
 import type { SeededRng } from './rng';
 import type { SimServer } from './server';
@@ -20,9 +20,9 @@ export type World = {
   /** @internal Lab / fuzz */
   readonly rng: SeededRng;
   /** @internal Lab / harness */
-  readonly scheduler: SimScheduler;
+  readonly scheduler: Scheduler;
   /** @internal Lab / harness */
-  readonly network: SimNetwork;
+  readonly network: SyncNetwork;
   readonly server: SimServer;
   readonly clients: ReadonlyMap<string, SimClientHandle>;
   readonly nextId: () => string;

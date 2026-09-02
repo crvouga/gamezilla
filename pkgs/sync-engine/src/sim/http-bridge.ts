@@ -1,4 +1,4 @@
-import type { SimScheduler } from '@pkgs/determinism';
+import type { Scheduler } from '@pkgs/determinism';
 import type {
   MutationUploadResult,
   MutationUploadRow,
@@ -22,7 +22,7 @@ import type {
   SimHttpServerHandlers,
 } from './http-bridge-types';
 
-import type { SimEndpointId, SimNetwork } from './network';
+import type { EndpointId, SyncNetwork } from './network';
 import { classifyEndpoint } from './traffic';
 
 export type {
@@ -49,8 +49,8 @@ function isHttpResponse(value: unknown): value is SimHttpResponse {
 }
 
 export function bindSimHttpServer(args: {
-  readonly network: SimNetwork;
-  readonly serverId: SimEndpointId;
+  readonly network: SyncNetwork;
+  readonly serverId: EndpointId;
   readonly handlers: SimHttpServerHandlers;
   readonly faults?: BoundaryFaultController;
   readonly onMutationsAccepted?: (clientNodeId: string) => void | Promise<void>;
@@ -102,13 +102,13 @@ function unwrapOk(res: SimHttpResponse, kind: 'query' | 'mutations'): unknown {
   return res.body;
 }
 
-/** Client-side HTTP over {@link SimNetwork}. */
+/** Client-side HTTP over {@link SyncNetwork}. */
 export function createSimHttpClient(args: {
-  readonly network: SimNetwork;
-  readonly clientId: SimEndpointId;
-  readonly serverId: SimEndpointId;
+  readonly network: SyncNetwork;
+  readonly clientId: EndpointId;
+  readonly serverId: EndpointId;
   readonly createId: () => string;
-  readonly scheduler: SimScheduler;
+  readonly scheduler: Scheduler;
   readonly rpcTimeoutMs?: number;
   /** Fired when a sync response is delivered to this client (before resolve). */
   readonly onSyncResponseDelivered?: () => void | Promise<void>;

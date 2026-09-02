@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { DistanceFormula } from '../../interface/types';
-import { openMatchmakingWorld } from '../../sim/system';
+import { openMatchmakingWorld } from '../../sim/scenario';
 import { RatingAttr, registerTestCrashHandler } from '../fixtures';
 
 const SimpleFormula = { numeric: [{ tag: RatingAttr, weight: 1 }] };

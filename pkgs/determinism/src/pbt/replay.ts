@@ -1,92 +1,74 @@
-import type { AnySystemDef, SystemAction } from '../define-system';
-import type { JsonValue } from '../json';
+import type { Command } from '../harness/command';
+import type { AnyScenarioDef } from '../harness/define-scenario';
 import {
-  parseScenario,
-  type SimScenario,
-  type SimScenarioInputs,
-} from '../scenario';
-import type { TraceRecord } from '../trace';
-import type { World } from '../world';
+  parseRepro,
+  REPRO_VERSION,
+  type Repro,
+  type ReproInputs,
+} from '../harness/repro';
+import type { World } from '../harness/world-types';
+import type { JsonValue } from '../kernel/json';
+import type { TraceRecord } from '../kernel/trace';
+import { RELIABLE_NETWORK } from '../models/network';
 import {
   assertDeterministic,
   formatDeterminismFailure,
+  type RunInputs,
 } from './assert-deterministic';
 
-export type ReplayInputs = {
-  readonly seed: number | bigint | string;
-  readonly knobs?: Partial<Record<string, JsonValue>>;
-  readonly actions: readonly SystemAction[];
-  readonly networkDefaults?: SimScenarioInputs['networkDefaults'];
-  readonly settle?: boolean;
-};
-
-function isScenario(
-  inputs: ReplayInputs | SimScenario | string
-): inputs is SimScenario {
+function isRepro(inputs: RunInputs | Repro | string): inputs is Repro {
   return (
     typeof inputs === 'object' &&
     inputs !== null &&
     'version' in inputs &&
-    (inputs as SimScenario).version === 1
+    (inputs as Repro).version === REPRO_VERSION
   );
 }
 
-function resolveReplayInputs(
-  inputs: ReplayInputs | SimScenario | string
-): ReplayInputs {
-  if (typeof inputs === 'string') {
-    const s = parseScenario(inputs);
-    return {
-      seed: s.inputs.seed,
-      knobs: s.inputs.knobs,
-      actions: s.inputs.actions as SystemAction[],
-      networkDefaults: s.inputs.networkDefaults,
-    };
-  }
-  if (isScenario(inputs)) {
-    return {
-      seed: inputs.inputs.seed,
-      knobs: inputs.inputs.knobs,
-      actions: inputs.inputs.actions as SystemAction[],
-      networkDefaults: inputs.inputs.networkDefaults,
-    };
-  }
+function fromRepro(r: Repro): RunInputs {
+  return {
+    seed: r.inputs.seed,
+    knobs: r.inputs.knobs,
+    commands: r.inputs.commands as Command[],
+    networkFaults: r.inputs.networkFaults,
+  };
+}
+
+function resolveRunInputs(inputs: RunInputs | Repro | string): RunInputs {
+  if (typeof inputs === 'string') return fromRepro(parseRepro(inputs));
+  if (isRepro(inputs)) return fromRepro(inputs);
   return inputs;
 }
 
+/**
+ * Replay mode: re-run a Repro (object, JSON string, or raw inputs) with
+ * divergence detection on, and format a failure report on mismatch.
+ */
 export async function replay(
-  system: AnySystemDef,
-  inputs: ReplayInputs | SimScenario | string
+  scenario: AnyScenarioDef,
+  inputs: RunInputs | Repro | string
 ): Promise<{
   readonly world: World;
-  readonly scenario: SimScenario<SystemAction>;
+  readonly repro: Repro<Command>;
   readonly trace: readonly TraceRecord[];
 }> {
-  const resolved = resolveReplayInputs(inputs);
+  const resolved = resolveRunInputs(inputs);
   try {
-    return await assertDeterministic(system, resolved);
+    return await assertDeterministic(scenario, resolved);
   } catch (e) {
-    const scenario: SimScenario<SystemAction> = {
-      version: 1,
+    const repro: Repro<Command> = {
+      version: REPRO_VERSION,
       inputs: {
         seed: String(resolved.seed),
-        startMs: 0,
+        startTime: 0,
         knobs: (resolved.knobs ?? {}) as Record<string, JsonValue>,
-        actions: resolved.actions,
-        networkDefaults:
-          resolved.networkDefaults ??
-          ({
-            oneWayDelayMeanMs: 0,
-            oneWayDelayJitterMs: 0,
-            packetLossProbability: 0,
-            duplicateProbability: 0,
-            reorderWindowMs: 0,
-            partitionProbability: 0,
-            unpartitionProbability: 0,
-          } as SimScenarioInputs['networkDefaults']),
+        commands: resolved.commands,
+        networkFaults:
+          resolved.networkFaults ??
+          (RELIABLE_NETWORK as ReproInputs['networkFaults']),
       },
-      meta: { appId: system.id },
+      meta: { scenarioId: scenario.id },
     };
-    throw new Error(formatDeterminismFailure(scenario, [], e), { cause: e });
+    throw new Error(formatDeterminismFailure(repro, [], e), { cause: e });
   }
 }

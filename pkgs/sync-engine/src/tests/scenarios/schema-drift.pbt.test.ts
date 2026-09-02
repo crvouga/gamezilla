@@ -1,11 +1,11 @@
 import { describe, test } from 'bun:test';
-import { assertSampleProperty } from '@pkgs/determinism/pbt';
+import { runProperty } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
-import { replaySyncPin, SCHEMA_VARIANTS } from '../../sim/system';
-import { arbKnobs, arbSeed } from '../../sim/system/knobs';
+import { replaySyncPin, SCHEMA_VARIANTS } from '../../sim/scenario';
+import { arbKnobs, arbSeed } from '../../sim/scenario/knobs';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
 import { acmeSystem } from '../apps/acme/system';
-import type { LibraryAction, SyncAction } from '../system/actions';
+import type { LibraryAction, SyncAction } from '../scenario/actions';
 
 const TRIGGER = acmeSetNoteOp('c0', 'n0', 'schema-drift');
 const TRIGGER_C1 = acmeSetNoteOp('c1', 'n1', 'schema-drift-peer');
@@ -18,7 +18,7 @@ describe('schema drift PBT', () => {
   test(
     'restartWithSchema then mutate converges among healthy clients',
     async () => {
-      await assertSampleProperty(
+      await runProperty(
         'schema drift sequences converge',
         fc.asyncProperty(
           arbSeed(),
@@ -28,7 +28,7 @@ describe('schema drift PBT', () => {
             await replaySyncPin(acmeSystem, {
               seed,
               knobs,
-              actions: schemaSequence({
+              commands: schemaSequence({
                 kind: 'restartWithSchema',
                 clientId: 'c0',
                 variant,
@@ -45,7 +45,7 @@ describe('schema drift PBT', () => {
   test(
     'mixed-schema clients both mutate then converge',
     async () => {
-      await assertSampleProperty(
+      await runProperty(
         'mixed schema drift sequences converge',
         fc.asyncProperty(
           arbSeed(),
@@ -57,7 +57,7 @@ describe('schema drift PBT', () => {
             await replaySyncPin(acmeSystem, {
               seed,
               knobs: { ...knobs, clientCount: 2 },
-              actions: [
+              commands: [
                 {
                   kind: 'restartWithSchema',
                   clientId: 'c0',
@@ -81,7 +81,7 @@ describe('schema drift PBT', () => {
     await replaySyncPin(acmeSystem, {
       seed: 287086,
       knobs: { liveResendOnReconnect: true, bufferOutboundLive: true },
-      actions: [
+      commands: [
         {
           kind: 'restartWithSchema',
           clientId: 'c0',
@@ -100,7 +100,7 @@ describe('schema drift PBT', () => {
   test('mixed extraColumn without row images converges (PBT shrink)', async () => {
     await replaySyncPin(acmeSystem, {
       seed: 1,
-      actions: [
+      commands: [
         {
           kind: 'restartWithSchema',
           clientId: 'c0',
@@ -117,13 +117,13 @@ describe('schema drift PBT', () => {
   test(
     'protocolCut rejects without wiping then heal converges',
     async () => {
-      await assertSampleProperty(
+      await runProperty(
         'protocol cut sequences converge',
         fc.asyncProperty(arbSeed(), arbKnobs(), async (seed, knobs) => {
           await replaySyncPin(acmeSystem, {
             seed,
             knobs,
-            actions: [
+            commands: [
               TRIGGER,
               { kind: 'protocolCut', clientId: 'c0' },
               { kind: 'idle', ms: 20 },

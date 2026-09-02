@@ -20,7 +20,7 @@ module.exports = {
   testMatch: [
     '<rootDir>/src/scenarios/**/*.sim.test.ts',
     '<rootDir>/src/scenarios/**/*.sim.test.tsx',
-    '<rootDir>/src/system/**/*.test.ts',
+    '<rootDir>/src/scenario/**/*.test.ts',
   ],
   setupFiles: ['<rootDir>/jest.setup-env.cjs'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.cjs'],

@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { createSimDeps } from '@pkgs/determinism';
+import { createWorldPorts } from '@pkgs/determinism';
 import { createNoopLogger } from '@pkgs/logger';
 import { SqlClientImplSqliteMem } from '@pkgs/sql-client/sqlite/impl-sqlite-mem';
 
@@ -22,7 +22,7 @@ const authState = {
   googleFault: false,
 };
 
-const deps = createSimDeps({ seed: 1 });
+const deps = createWorldPorts({ seed: 1 });
 const sql = SqlClientImplSqliteMem.open({ seed: 1 });
 await new AuthSqliteDatabaseMigration().migrate({
   sqlClient: sql,

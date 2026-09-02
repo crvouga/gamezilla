@@ -19,7 +19,7 @@ describe('push seq gap forces refetch not image apply', () => {
 
     // Drop the next live fanout (gap), keep sync so repair can refetch.
     {
-      using _loss = world.net('bob', 'live').set({ packetLossProbability: 1 });
+      using _loss = world.net('bob', 'live').set({ dropProbability: 1 });
       await a.mutate(setNote, { id: 'n1', body: 'lost-push' });
       await world.advance(80);
     }

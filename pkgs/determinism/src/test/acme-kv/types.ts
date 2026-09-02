@@ -1,4 +1,4 @@
-import { canonicalJsonStringify, type JsonValue } from '../../json';
+import { canonicalJsonStringify, type JsonValue } from '../../kernel/json';
 
 export type AcmeKvEntry = {
   readonly value: string;

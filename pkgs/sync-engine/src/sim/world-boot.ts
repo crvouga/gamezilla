@@ -1,4 +1,4 @@
-import type { SimDeps } from '@pkgs/determinism';
+import type { WorldPorts } from '@pkgs/determinism';
 
 import {
   type BoundaryFaultController,
@@ -6,7 +6,7 @@ import {
 } from './boundary-faults';
 import type { SimAuthStatus } from './client-factory';
 import { bindSimHttpServer } from './http-bridge';
-import type { SimNetwork } from './network';
+import type { SyncNetwork } from './network';
 import { openSimServer } from './server';
 import { createStoragePressureController } from './storage-pressure';
 import { SERVER_HTTP, SERVER_PUB } from './traffic';
@@ -29,15 +29,15 @@ export type { BootedSimKernel } from './world-types';
 
 /** Deps + network + broker + boundary faults, before the server exists. */
 export type SimInfra = {
-  readonly deps: SimDeps;
+  readonly deps: WorldPorts;
   readonly boundaryFaults: BoundaryFaultController;
   readonly runtime: BootRuntime;
 };
 
 /** Framework-owned deps + network for framework worlds (`@pkgs/determinism` node kinds). */
 export type InjectedSimPorts = {
-  readonly deps: SimDeps;
-  readonly network: SimNetwork;
+  readonly deps: WorldPorts;
+  readonly network: SyncNetwork;
 };
 
 export function bootSimInfra(args: {
