@@ -74,6 +74,30 @@ describe('SqlClientImplSqliteMem lifecycle', () => {
     );
   });
 
+  test('overlapping transactions serialize without nested BEGIN', async () => {
+    const client = await openMem();
+    await applyTables(client, [
+      defineTable({ domain: 't', name: 't', columns: { n: 'integer' } }),
+    ]);
+    let release!: () => void;
+    const held = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const first = client.transaction(async (tx) => {
+      await tx.run(sql<void>`INSERT INTO t (id, n) VALUES (${'1'}, ${1})`);
+      await held;
+    });
+    const second = client.transaction(async (tx) => {
+      await tx.run(sql<void>`INSERT INTO t (id, n) VALUES (${'2'}, ${2})`);
+    });
+    release();
+    await Promise.all([first, second]);
+    const rows = await client.query(
+      raw<{ id: string }>('SELECT id FROM t ORDER BY id')
+    );
+    expect(rows.map((row) => row.id)).toEqual(['1', '2']);
+  });
+
   test('snapshot round-trips rows and user_version', async () => {
     const source = await openMem();
     await applyTables(source, [

@@ -152,9 +152,23 @@ function applyImportedSqliteMemPragmas(
   db.prepare('PRAGMA user_version = ?').run(userVersion);
 }
 
+/** sqlite-mem rejects nested BEGIN; overlap (merge + push) must serialize. */
+function createPromiseChain(): <T>(fn: () => Promise<T>) => Promise<T> {
+  let chain: Promise<unknown> = Promise.resolve();
+  return <T>(fn: () => Promise<T>): Promise<T> => {
+    const next = chain.then(fn, fn);
+    chain = next.then(
+      () => undefined,
+      () => undefined
+    );
+    return next;
+  };
+}
+
 export class SqlClientImplSqliteMem implements SqlClient {
   private db: Database | null;
   private readonly openOptions: SqliteMemOpenOptions | undefined;
+  private readonly enqueueTxn = createPromiseChain();
 
   private constructor(db: Database, openOptions?: SqliteMemOpenOptions) {
     this.db = db;
@@ -247,6 +261,12 @@ export class SqlClientImplSqliteMem implements SqlClient {
   }
 
   async transaction<T>(fn: (tx: SqlClient) => Promise<T>): Promise<T> {
+    return this.enqueueTxn(() => this.execTransaction(fn));
+  }
+
+  private async execTransaction<T>(
+    fn: (tx: SqlClient) => Promise<T>
+  ): Promise<T> {
     const db = this.requireDb();
     db.exec('BEGIN');
     try {
