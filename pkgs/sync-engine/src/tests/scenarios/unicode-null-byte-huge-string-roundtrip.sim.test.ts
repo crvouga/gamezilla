@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import { expectLiveNote, setNote } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 const EMOJI_RTL = 'hello 👋 مرحبا \u202Ertl';
 const WITH_NULL = `before\u0000after-${'x'.repeat(32)}`;
@@ -9,13 +8,13 @@ const HUGE = `${'🚀'.repeat(50)}${'a'.repeat(100_000)}`;
 
 describe('unicode null byte huge string roundtrip', () => {
   test('emoji RTL null-byte and huge body round-trip across peers', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 990,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
@@ -34,13 +33,13 @@ describe('unicode null byte huge string roundtrip', () => {
   test.each([991, 992, 993])(
     'seed sweep unicode bodies hash-stable converge (seed=%i)',
     async (seed) => {
-      await using host = await openWorld(acmeSystem, {
+      await using world = await openAcmeWorld({
         seed: seed,
         knobs: {
           clientCount: 0,
         },
       });
-      const world = host.facade;
+
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
       const body = `${EMOJI_RTL}-${seed}-\u0000`;

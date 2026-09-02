@@ -6,12 +6,11 @@ import type { RoomNetSetArg, SimRoomNetHandle } from './network';
 import { type DrainCtx, drainRoomSim, flushRoomAux } from './settle';
 import {
   type NeverOpts,
-  never,
-  type UntilContext,
   type UntilOpts,
   type UntilPredicate,
-  until,
-} from './until';
+  waitNever,
+  waitUntil,
+} from './wait-until';
 import type { World } from './world-api';
 import type { WorldKernel } from './world-clients';
 import { buildNodeHandle } from './world-clients';
@@ -44,21 +43,28 @@ export function assembleWorld<
   C extends RoomCommandPayload,
   E extends RoomEvent,
 >(k: WorldKernel<S, C, E>, opts: AssembleWorldOpts<S, C, E>): World<S, C, E> {
-  const untilCtx: UntilContext = {
-    clock: k.clock,
-    scheduler: k.scheduler,
+  const drainCtx = () => opts.drainCtx();
+  const waitWorld = () => ({
     seed: k.seed,
+    deps: { scheduler: k.scheduler } as never,
+    advance: async (ms: number) => {
+      await k.scheduler.runFor(ms);
+      await drainRoomSim(drainCtx());
+    },
+    now: () => k.clock.now(),
+    until: (() => Promise.resolve(0)) as never,
+    never: (() => Promise.resolve()) as never,
+    flushBeforePoll: () => flushRoomAux(drainCtx()),
     heldSummary: () => k.network.heldSummary(),
-  };
+  });
   const runFor = async (ms: number): Promise<void> => {
     await k.scheduler.runFor(ms);
-    await drainRoomSim(opts.drainCtx());
+    await drainRoomSim(drainCtx());
   };
 
-  /** Flush room IO before polling so until/never see post-delivery state. */
   const withAuxFlush = (pred: UntilPredicate): UntilPredicate => {
     return async () => {
-      await flushRoomAux(opts.drainCtx());
+      await flushRoomAux(drainCtx());
       return Boolean(await pred());
     };
   };
@@ -82,11 +88,11 @@ export function assembleWorld<
     node: (clientId: string) => buildNodeHandle(k, clientId),
     runFor,
     until: (target, optsUntil?: UntilOpts) =>
-      until(untilCtx, withAuxFlush(target), optsUntil),
+      waitUntil(waitWorld(), withAuxFlush(target), optsUntil),
     never: (target, optsNever: NeverOpts) =>
-      never(untilCtx, withAuxFlush(target), optsNever),
+      waitNever(waitWorld(), withAuxFlush(target), optsNever),
     drain: async () => {
-      await drainRoomSim(opts.drainCtx());
+      await drainRoomSim(drainCtx());
     },
     ...opts.domainQueries,
     armCrashAt: (clientId: string, event: RoomCrashEvent) => {
@@ -98,7 +104,7 @@ export function assembleWorld<
     serverCrash: opts.serverCrash,
     serverRestart: async () => {
       await opts.recreateServer();
-      await drainRoomSim(opts.drainCtx());
+      await drainRoomSim(drainCtx());
     },
     isServerCrashed: () => k.serverCrashed,
     assertConverged: opts.assertConverged,

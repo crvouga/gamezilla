@@ -1,5 +1,5 @@
-import type { Timers } from '@pkgs/clock';
-import type { SimClock, SimScheduler } from '@pkgs/determinism';
+import type { Clock, Timers } from '@pkgs/clock';
+import type { SimScheduler } from '@pkgs/determinism';
 import type { CreateId, SeededRng } from '@pkgs/uuid';
 
 import { InMemoryClientStorage } from '../client/adapters/storage/memory';
@@ -35,7 +35,7 @@ export type WorldKernel<
   readonly seed: bigint;
   readonly topic: string;
   readonly module: RoomModule<S, C, E, string>;
-  readonly clock: SimClock;
+  readonly clock: Clock;
   readonly scheduler: SimScheduler;
   readonly timers: Timers;
   readonly createId: CreateId;

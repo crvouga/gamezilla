@@ -1,10 +1,9 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import { sql } from '@pkgs/sql';
 import { RELIABLE_FAULTS } from '../../sim/faults';
 import { toKernelFaults } from '../../sim/network';
 import { setNote } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 const IMMEDIATE_DRAIN_MS = 0;
 const REPLAY_PUBLISH_MS = 40;
@@ -15,7 +14,7 @@ const PEER_VISIBLE_BUDGET_MS =
 describe('peer visibility under 200ms sim budget', () => {
   test('peer visibility under 200ms sim time', async () => {
     expect(PEER_VISIBLE_BUDGET_MS).toBeLessThan(200);
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 19,
       knobs: {
         clientCount: 0,
@@ -26,7 +25,7 @@ describe('peer visibility under 200ms sim budget', () => {
         oneWayDelayJitterMs: 0,
       }),
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await a.mutate(setNote, { id: 'warm', body: 'w' });
@@ -34,14 +33,14 @@ describe('peer visibility under 200ms sim budget', () => {
 
     const t0 = world.node('bob').now();
     await a.mutate(setNote, { id: 'fast', body: 'y' });
-    const at = await world.until(
+    const at = await world.waitUntil(
       async () => {
         const rows = await b.db.query(sql<{ body: string }>`
           SELECT body FROM notes WHERE id = 'fast' AND deleted_at IS NULL
         `);
         return rows[0]?.body === 'y';
       },
-      { budgetMs: 400, stepMs: 10 }
+      { withinMs: 400, stepMs: 10 }
     );
     expect(at - t0).toBeLessThan(200);
   });

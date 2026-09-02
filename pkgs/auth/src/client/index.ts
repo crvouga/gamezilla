@@ -1,3 +1,8 @@
+export {
+  buildOauthLaunchUrl,
+  isPopupBlockedError,
+  strategyToOauthProvider,
+} from './auth-client-http';
 export type { AuthClientPort, GetFreshTokenOptions } from './auth-client-port';
 export type {
   AuthClientPortContextValue,
@@ -22,11 +27,6 @@ export {
   type OpenAuthSession,
   type OpenAuthSessionResult,
 } from './create-auth-client-adapter';
-export {
-  buildOauthLaunchUrl,
-  isPopupBlockedError,
-  strategyToOauthProvider,
-} from './auth-client-http';
 export {
   createInProcessOpenAuthSession,
   type InProcessOpenAuthSessionConfig,

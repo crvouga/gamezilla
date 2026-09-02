@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import {
   acmeMutationRegistry,
   expectLiveNote,
@@ -8,7 +7,7 @@ import {
   setNote,
   setNoteV2,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 /** Old-client registry: setNoteV2 not registered locally (server still has both). */
 function mutationRegistryV1Only(): typeof acmeMutationRegistry {
@@ -21,13 +20,13 @@ function mutationRegistryV1Only(): typeof acmeMutationRegistry {
 
 describe('set note v1 v2 interleaved converge', () => {
   test('setNote and setNoteV2 interleaved writes converge', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 660,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
@@ -48,13 +47,13 @@ describe('set note v1 v2 interleaved converge', () => {
   });
 
   test('mutation-v2-rollout-old-client-still-replays-v1', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 661,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({
       id: 'alice',
       mutationRegistry: mutationRegistryV1Only(),

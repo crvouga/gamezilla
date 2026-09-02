@@ -1,9 +1,9 @@
-import type { SystemAction, SystemDef } from '../define-system';
+import { bindActionKind, type UnboundActionDef } from '../action';
+import type { AnySystemDef, SystemAction } from '../define-system';
 import type { JsonValue } from '../json';
 import { playActions } from '../play';
 import {
   captureScenario,
-  type SimFailureArtifact,
   type SimScenario,
   type SimScenarioInputs,
 } from '../scenario';
@@ -22,31 +22,39 @@ export type DeterministicRunInputs = {
   readonly settle?: boolean;
 };
 
-async function playOnWorld<S, F>(
-  system: SystemDef<S, object, F>,
-  world: World<S, F>,
+function boundActions(system: AnySystemDef) {
+  return Object.entries(system.actions).map(([kind, def]) =>
+    bindActionKind(kind, def as UnboundActionDef)
+  );
+}
+
+async function playOnWorld(
+  system: AnySystemDef,
+  world: World,
   actions: readonly SystemAction[],
   settle: boolean
 ): Promise<void> {
+  const defs = boundActions(system);
   await playActions({
     advance: (ms) => world.advance(ms),
     actions,
-    dispatch: async (a) => {
-      for (const def of system.actions) {
-        if (a.kind === def.kind) {
-          await def.dispatch(world, a);
+    dispatch: async (action) => {
+      for (const def of defs) {
+        if (action.kind === def.kind) {
+          await def.dispatch(world, action as never);
           return;
         }
       }
-      throw new Error(`dispatch: unknown action kind ${a.kind}`);
+      throw new Error(`dispatch: unknown action kind ${action.kind}`);
     },
+    runInvariants: () => system.invariants(world as never),
   });
   if (settle) await world.settle();
 }
 
-function buildScenario<S, F>(
-  system: SystemDef<S, object, F>,
-  world: World<S, F>,
+function buildScenario(
+  system: AnySystemDef,
+  world: World,
   inputs: DeterministicRunInputs
 ): SimScenario<SystemAction> {
   return {
@@ -54,7 +62,7 @@ function buildScenario<S, F>(
     inputs: {
       seed: String(inputs.seed),
       startMs: world.startMs,
-      knobs: world.knobs.toJSON() as Record<string, JsonValue>,
+      knobs: world.knobs as Record<string, JsonValue>,
       actions: inputs.actions,
       networkDefaults: world.networkDefaults,
     },
@@ -65,20 +73,17 @@ function buildScenario<S, F>(
   };
 }
 
-/**
- * Run the scenario twice: record a trace, then replay-validate it.
- * A divergence means consumer code is not a pure function of (seed, knobs, actions).
- */
-export async function assertDeterministic<S, M extends object, F>(
-  system: SystemDef<S, M, F>,
+export async function assertDeterministic(
+  system: AnySystemDef,
   inputs: DeterministicRunInputs
 ): Promise<{
   readonly scenario: SimScenario<SystemAction>;
   readonly trace: readonly TraceRecord[];
+  readonly world: World;
 }> {
   const settle = inputs.settle !== false;
   const recording = createRecordingTrace();
-  await using world1 = await openWorld(system, {
+  await using world1 = await openWorld(system as never, {
     seed: inputs.seed,
     ...(inputs.knobs !== undefined ? { knobs: inputs.knobs } : {}),
     ...(inputs.networkDefaults !== undefined
@@ -86,12 +91,12 @@ export async function assertDeterministic<S, M extends object, F>(
       : {}),
     trace: recording,
   });
-  await playOnWorld(system, world1, inputs.actions, settle);
-  const trace = recording.getTrace();
-  const scenario = buildScenario(system, world1, inputs);
+  await playOnWorld(system, world1 as World, inputs.actions, settle);
+  const trace = recording.events();
+  const scenario = buildScenario(system, world1 as World, inputs);
 
   const replaying = createReplayingTrace(trace);
-  await using world2 = await openWorld(system, {
+  const world2 = await openWorld(system as never, {
     seed: inputs.seed,
     ...(inputs.knobs !== undefined ? { knobs: inputs.knobs } : {}),
     ...(inputs.networkDefaults !== undefined
@@ -99,27 +104,34 @@ export async function assertDeterministic<S, M extends object, F>(
       : {}),
     trace: replaying,
   });
-  await playOnWorld(system, world2, inputs.actions, settle);
-  replaying.assertFullyConsumed();
-  return { scenario, trace };
+  try {
+    await playOnWorld(system, world2 as World, inputs.actions, settle);
+    replaying.assertFullyConsumed();
+    await world2.dispose().catch(() => undefined);
+    const world = await openWorld(system as never, {
+      seed: inputs.seed,
+      ...(inputs.knobs !== undefined ? { knobs: inputs.knobs } : {}),
+      ...(inputs.networkDefaults !== undefined
+        ? { networkDefaults: inputs.networkDefaults }
+        : {}),
+    });
+    await playOnWorld(system, world as World, inputs.actions, settle);
+    return { scenario, trace, world: world as World };
+  } catch (e) {
+    await world2.dispose().catch(() => undefined);
+    throw e;
+  }
 }
 
-export function failureArtifact(
+/** @internal */
+export function formatDeterminismFailure(
   scenario: SimScenario,
   trace: readonly TraceRecord[],
   error: unknown
-): SimFailureArtifact {
-  return {
-    scenario,
-    trace,
-    error: error instanceof Error ? error.message : String(error),
-  };
-}
-
-export function formatFailureArtifact(artifact: SimFailureArtifact): string {
+): string {
   return (
-    `determinism failure: ${artifact.error}\n` +
-    `scenario:\n${captureScenario(artifact.scenario)}\n` +
-    `trace events: ${artifact.trace.length}`
+    `determinism failure: ${error instanceof Error ? error.message : String(error)}\n` +
+    `scenario:\n${captureScenario(scenario)}\n` +
+    `trace events: ${trace.length}`
   );
 }

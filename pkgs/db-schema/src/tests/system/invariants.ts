@@ -1,4 +1,3 @@
-import type { InvariantViolation } from '@pkgs/determinism';
 import { raw } from '@pkgs/sql';
 import { advancePeer, type SchemaPeer } from './peers';
 import { liveColumns } from './schemas';
@@ -13,25 +12,14 @@ async function hasColumn(peer: SchemaPeer, column: string): Promise<boolean> {
   return found.length > 0;
 }
 
-export async function checkServerLiveColumns(
-  server: SchemaPeer
-): Promise<InvariantViolation | null> {
-  for (const column of liveColumns(server.version)) {
-    if (await hasColumn(server, column)) continue;
-    return {
-      invariant: 'server_keeps_live_columns',
-      detail: `server lost live column '${column}' at version ${server.version}`,
-    };
-  }
-  return null;
-}
-
 export async function assertServerLiveColumns(
   server: SchemaPeer
 ): Promise<void> {
-  const violation = await checkServerLiveColumns(server);
-  if (violation !== null) {
-    throw new Error(`${violation.invariant}: ${violation.detail}`);
+  for (const column of liveColumns(server.version)) {
+    if (await hasColumn(server, column)) continue;
+    throw new Error(
+      `server_keeps_live_columns: server lost live column '${column}' at version ${server.version}`
+    );
   }
 }
 

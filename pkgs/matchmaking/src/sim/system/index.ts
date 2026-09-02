@@ -12,9 +12,9 @@ export {
   type OpenMatchmakingWorldArgs,
   openMatchmakingWorld,
 } from './define-matchmaking-system';
-export { mmReplicaNode, mmStoreNode } from './node-kinds';
+export { MM_BACKEND, mmReplicaNode, mmStoreNode } from './node-kinds';
 export {
-  createMatchmakingSystem,
-  type MatchmakingSystem,
+  createMatchmakingSystemConfig,
+  type MatchmakingSystemConfig,
   type MatchmakingSystemOpts,
 } from './system';

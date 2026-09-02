@@ -1,17 +1,16 @@
 import { describe, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import { expectLiveNote, expectNotesMatchServer, setNote } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('server crash mid request client retries', () => {
   test('server dies mid traffic; restart; clients retry and converge', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 833,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
@@ -21,9 +20,9 @@ describe('server crash mid request client retries', () => {
     {
       using _hold = world.net('alice', 'sync').set('hold');
       const pending = a.mutate(setNote, { id: 'n1', body: 'during-crash' });
-      await world.runFor(20);
+      await world.advance(20);
       await world.node('server').crash();
-      await world.runFor(50);
+      await world.advance(50);
       await world.node('server').restart({ preserveLocalDb: true });
       void pending;
     }

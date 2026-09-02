@@ -4,8 +4,8 @@ import { wallTimers } from '@pkgs/clock';
 import {
   AUTH_SSO_CANCELLED_ERROR,
   AUTH_SSO_POPUP_BLOCKED_ERROR,
-  createInMemoryAuthClientStorage,
   createAuthClientAdapter,
+  createInMemoryAuthClientStorage,
   type OpenAuthSession,
 } from './index';
 

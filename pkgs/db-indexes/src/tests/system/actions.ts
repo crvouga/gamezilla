@@ -1,9 +1,10 @@
-import { defineAction } from '@pkgs/determinism';
+import { action } from '@pkgs/determinism';
 import fc from 'fast-check';
 import { reconcileIndexes } from '../../core/reconcile';
 import type { WorkloadManifest } from '../../core/types';
 import { manifestForCol } from './invariants';
-import type { IndexesModel, IndexesSystem } from './types';
+import type { IndexesModel } from './types';
+import { reconcilerOf } from './types';
 
 function emptyManifest(): WorkloadManifest {
   return { version: 1, queries: [] };
@@ -41,16 +42,20 @@ const CFG = {
   maxIndexesPerTable: 6,
 } as const;
 
-export const reconcileAction = defineAction<
-  IndexesSystem,
+type IndexesWorld = import('@pkgs/determinism').World<
+  Record<string, import('@pkgs/determinism').KnobDef>,
+  Record<string, import('@pkgs/determinism').NodeSpecEntry>
+>;
+
+export const reconcileAction = action<
   ReconcileAction,
-  IndexesModel
+  IndexesModel,
+  IndexesWorld
 >({
-  kind: 'reconcile',
-  class: 'domain',
+  weight: 3,
   arb: () => fc.constant({ kind: 'reconcile' as const }),
   dispatch: async (world) => {
-    const state = world.state;
+    const state = reconcilerOf(world);
     try {
       const report = await reconcileIndexes({
         manifest: state.manifest,
@@ -67,7 +72,6 @@ export const reconcileAction = defineAction<
         report.failed.some((f) => f.reason?.includes('crash')) ||
         report.notes.some((n) => n.includes('crash'))
       ) {
-        // Crash-convergence: fork and fault-free settle
         const fork = state.db.fork(state.clock);
         await reconcileIndexes({
           manifest: state.manifest,
@@ -102,71 +106,69 @@ export const reconcileAction = defineAction<
   },
 });
 
-export const advanceClockAction = defineAction<
-  IndexesSystem,
+export const advanceClockAction = action<
   AdvanceClockAction,
-  IndexesModel
+  IndexesModel,
+  IndexesWorld
 >({
-  kind: 'advanceClock',
-  class: 'library',
+  weight: 1,
   arb: () =>
     fc.record({
       kind: fc.constant('advanceClock' as const),
       days: fc.constantFrom(1, 2, 40),
     }),
   dispatch: async (world, action) => {
-    world.state.clock.advance(action.days * 24 * 60 * 60 * 1000);
+    reconcilerOf(world).clock.advance(action.days * 24 * 60 * 60 * 1000);
   },
 });
 
-export const setManifestAction = defineAction<
-  IndexesSystem,
+export const setManifestAction = action<
   SetManifestAction,
-  IndexesModel
+  IndexesModel,
+  IndexesWorld
 >({
-  kind: 'setManifest',
-  class: 'domain',
+  weight: 3,
   arb: () =>
     fc.record({
       kind: fc.constant('setManifest' as const),
       mode: fc.constantFrom('user', 'owner', 'empty'),
     }),
   dispatch: async (world, action) => {
+    const state = reconcilerOf(world);
     if (action.mode === 'empty') {
-      world.state.manifest = emptyManifest();
+      state.manifest = emptyManifest();
       return;
     }
     const col = action.mode === 'user' ? 'user_id' : 'owner_id';
-    world.state.manifest = manifestForCol('notes', col);
+    state.manifest = manifestForCol('notes', col);
   },
 });
 
-export const bumpUsageAction = defineAction<
-  IndexesSystem,
+export const bumpUsageAction = action<
   BumpUsageAction,
-  IndexesModel
+  IndexesModel,
+  IndexesWorld
 >({
-  kind: 'bumpUsage',
-  class: 'library',
+  weight: 1,
   arb: () => fc.constant({ kind: 'bumpUsage' as const }),
   dispatch: async (world) => {
-    const names = world.state.db.getOwnedIndexNames();
+    const state = reconcilerOf(world);
+    const names = state.db.getOwnedIndexNames();
     if (names.length > 0) {
-      world.state.db.bumpScans(names[0]!, 1);
+      state.db.bumpScans(names[0]!, 1);
     }
   },
 });
 
-export const externalAddAction = defineAction<
-  IndexesSystem,
+export const externalAddAction = action<
   ExternalAddAction,
-  IndexesModel
+  IndexesModel,
+  IndexesWorld
 >({
-  kind: 'externalAdd',
-  class: 'library',
+  weight: 1,
   arb: () => fc.constant({ kind: 'externalAdd' as const }),
   dispatch: async (world) => {
-    world.state.db.externalAddIndex({
+    reconcilerOf(world).db.externalAddIndex({
       name: 'ix_notes_title',
       table: 'notes',
       columns: ['title'],
@@ -180,10 +182,10 @@ export const externalAddAction = defineAction<
   },
 });
 
-export const INDEXES_ACTIONS = [
-  reconcileAction,
-  advanceClockAction,
-  setManifestAction,
-  bumpUsageAction,
-  externalAddAction,
-] as const;
+export const INDEXES_ACTIONS = {
+  reconcile: reconcileAction,
+  advanceClock: advanceClockAction,
+  setManifest: setManifestAction,
+  bumpUsage: bumpUsageAction,
+  externalAdd: externalAddAction,
+} as const;

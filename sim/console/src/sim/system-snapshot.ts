@@ -206,7 +206,7 @@ export async function restoreSystemSnapshot(
   await reconcileServerProfilesFromClients(drainCtx(ctx), snapshot.clientIds);
 
   await restoreSystemSnapshotRooms(ctx, snapshot);
-  resetSimClock(ctx.sim.clock, ctx.sim.scheduler, snapshot.clockMs);
+  resetSimClock(ctx.sim.scheduler, snapshot.clockMs);
   ctx.setClockPaused?.(snapshot.clockPaused);
   applyCheckpointFaults(ctx.sim, {
     label: '',

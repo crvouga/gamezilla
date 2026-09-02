@@ -44,22 +44,41 @@ For sim-backed suites, world helpers live in **`@pkgs/determinism/pbt`**, not he
 `assertSampleProperty` caps `numRuns` and extends the interrupt budget so
 `test:pbt:random` cannot accidentally run hundreds of full-world opens;
 `assertSample` drives a whole `defineSystem` system (seed + knobs + action pool +
-model) without any per-suite plumbing.
+model) without any per-suite plumbing. Use `assertWorldProperty` for custom
+arbitraries over an opened world, and `assertPins` for named replay matrices.
 
 ```ts
-import { assertSample, assertSampleProperty } from '@pkgs/determinism/pbt';
-import { fc } from '@pkgs/pbt';
+import {
+  assertSample,
+  assertSampleProperty,
+  assertWorldProperty,
+  assertPins,
+  arbSeed,
+  arbKnobs,
+  fc,
+} from '@pkgs/determinism/pbt';
+import { openWorld } from '@pkgs/determinism';
 import { acmeSystem } from '../apps/acme/system';
 
 // Whole-system property: framework generates and replays everything.
 await assertSample(acmeSystem, { numRuns: 12, maxCommands: 14 });
 
+// Custom property over a framework-owned world.
+await assertWorldProperty(acmeSystem, [fc.constant(null)], async (world) => {
+  await world.settle();
+});
+
+// Named pin matrix (wraps replay + determinism gate).
+await assertPins(acmeSystem, [
+  { name: 'baseline', actions: [{ kind: 'domain', mutation: 'setNote', args: {} }] },
+]);
+
 // Hand-rolled property over a framework-owned world.
 await assertSampleProperty(
   'app world converges',
-  fc.asyncProperty(fc.integer(), async (seed) => {
+  fc.asyncProperty(arbSeed(), async (seed) => {
     await using world = await openWorld(acmeSystem, { seed });
-    await world.assertConverged();
+    await world.settle();
   })
 );
 ```

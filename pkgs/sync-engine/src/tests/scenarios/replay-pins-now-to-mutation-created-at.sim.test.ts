@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import {
   deleteNote,
   expectLiveNote,
@@ -7,17 +6,17 @@ import {
   readNoteTombstone,
   setNote,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('replay pins now to mutation created at', () => {
   test('replay pins env.now to mutation createdAt under client clock skew', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 720,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     using _sa = world.node('alice').skewClock(-60_000);
     using _sb = world.node('bob').skewClock(0);
     using _ss = world.node('server').skewClock(60_000);
@@ -48,13 +47,13 @@ describe('replay pins now to mutation created at', () => {
 
   test('rebase env.now pinned to createdAt under skew before upload', async () => {
     // Offline pending delete + peer merge before upload: rebase uses createdAt.
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 721,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     using _sa = world.node('alice').skewClock(-120_000);
     using _sb = world.node('bob').skewClock(0);
     using _ss = world.node('server').skewClock(90_000);
@@ -75,10 +74,10 @@ describe('replay pins now to mutation created at', () => {
 
     // Peer write forces alice merge+rebase on reconnect before upload.
     await b.mutate(setNote, { id: 'n2', body: 'peer' });
-    await world.runFor(200);
+    await world.advance(200);
 
     await a.connect();
-    await world.runFor(100);
+    await world.advance(100);
     // Rebase must keep tombstone stamped with mutation createdAt, not wall now.
     expect(await readNoteTombstone(a.db, 'n1')).toBe(expectedIso);
 

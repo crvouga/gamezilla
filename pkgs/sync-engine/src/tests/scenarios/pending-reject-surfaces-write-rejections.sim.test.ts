@@ -1,24 +1,23 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import {
   expectLiveNote,
   expectNotesMatchServer,
   serverRejectNote,
   setNote,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('pending reject surfaces write rejections', () => {
   test('pending rejectable mutate uploads after reconnect, surfaces write_rejection, domain rolls back', async () => {
     // rowImageFanout off: rejected optimistic must not poison peers via images.
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 711,
       knobs: {
         clientCount: 0,
         rowImageFanout: false,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
@@ -35,7 +34,7 @@ describe('pending reject surfaces write rejections', () => {
     await expectLiveNote(a.db, 'n1', { body: 'bad-optimistic' });
 
     await a.connect();
-    await world.until(a.outcome(rejected.mutationId));
+    await world.waitUntil(a.outcome(rejected.mutationId));
     expect(await a.outcome(rejected.mutationId)).toBe('rejected');
 
     const unacked = await a.rejections();

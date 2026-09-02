@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import {
   acknowledgeWriteRejectionMutation,
   expectLiveNote,
@@ -7,19 +6,19 @@ import {
   serverRejectNote,
   setNote,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('permanent reject stored peer never applies', () => {
   test('server reject stores write_rejection and merge restores domain', async () => {
     // rowImageFanout off: rejected optimistic body must not poison peers.
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 501,
       knobs: {
         clientCount: 0,
         rowImageFanout: false,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
@@ -33,7 +32,7 @@ describe('permanent reject stored peer never applies', () => {
     expect(rejected.ok).toBe(true);
     if (!rejected.ok) return;
 
-    await world.until(a.outcome(rejected.mutationId));
+    await world.waitUntil(a.outcome(rejected.mutationId));
     expect(await a.outcome(rejected.mutationId)).toBe('rejected');
 
     const unacked = await a.rejections();
@@ -56,7 +55,7 @@ describe('permanent reject stored peer never applies', () => {
     });
     expect(ack.ok).toBe(true);
     if (!ack.ok) return;
-    await world.until(a.outcome(ack.mutationId));
+    await world.waitUntil(a.outcome(ack.mutationId));
     expect(await a.outcome(ack.mutationId)).toBe('confirmed');
     expect(await a.rejections()).toEqual([]);
   });

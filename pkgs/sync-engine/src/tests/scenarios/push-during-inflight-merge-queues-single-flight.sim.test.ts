@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import { RELIABLE_FAULTS } from '../../sim/faults';
 import { toKernelFaults } from '../../sim/network';
 import {
@@ -8,11 +7,11 @@ import {
   readLiveNotes,
   setNote,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('push during inflight merge queues single flight', () => {
   test('pushes during merge leave no torn intermediate; final converge', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 811,
       knobs: {
         clientCount: 0,
@@ -24,7 +23,7 @@ describe('push during inflight merge queues single flight', () => {
         reorderWindow: 3,
       }),
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
@@ -39,7 +38,7 @@ describe('push during inflight merge queues single flight', () => {
     await a.mutate(setNote, { id: 'n1', body: 'burst-final' });
 
     for (let i = 0; i < 12; i += 1) {
-      await world.runFor(25);
+      await world.advance(25);
       const rows = await readLiveNotes(b.db);
       // Single-flight: never a torn mix where only one of the seeded pair is gone.
       expect(rows.length).toBeGreaterThanOrEqual(2);

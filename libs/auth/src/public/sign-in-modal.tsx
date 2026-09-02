@@ -18,12 +18,7 @@ import {
   ResponsiveSurface,
   SuccessState,
 } from '@pkgs/ui';
-import {
-  type ReactNode,
-  useCallback,
-  useEffect,
-  useRef,
-} from 'react';
+import { type ReactNode, useCallback, useEffect, useRef } from 'react';
 import { SignInIdleBody, SignInIdleFooter } from './sign-in-idle-content';
 import {
   type SignInPhase,

@@ -1,9 +1,10 @@
-import { defineNodeKind, type SimDeps } from '@pkgs/determinism';
+import { knob, node } from '@pkgs/determinism';
 import { createNoopLogger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplPostgresMem } from '@pkgs/sql-client/postgres/impl-postgres-mem';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres/schema';
 import { SqlClientImplSqliteMem } from '@pkgs/sql-client/sqlite/impl-sqlite-mem';
+import fc from 'fast-check';
 
 import {
   AuthPostgresDatabaseMigration,
@@ -11,7 +12,7 @@ import {
 } from '../../server/auth-database-migration';
 import { createAuthApp } from '../../server/create-auth-app';
 import { createAuthServerAdapter } from '../../server/create-auth-server-adapter';
-import { createFakeGoogleHttp } from './fake-google';
+import { createFakeGoogleHttp } from '../../testing/fake-google';
 import {
   type ActorState,
   AUTH_SYSTEM_BASE_URL,
@@ -19,8 +20,15 @@ import {
   AUTH_SYSTEM_TRUSTED_ORIGINS,
   type AuthFabric,
   type AuthStore,
-  type AuthSystem,
 } from './types';
+
+export const AUTH_FABRIC = knob(
+  'sqlite-mem' satisfies AuthFabric,
+  fc.constantFrom<AuthFabric>('sqlite-mem', 'postgres-mem')
+);
+export const AUTH_DEV_PROVIDER = knob(true, fc.boolean());
+export const AUTH_GOOGLE_PROVIDER = knob(true, fc.boolean());
+export const AUTH_CLIENT_COUNT = knob(2, fc.integer({ min: 1, max: 3 }));
 
 function openSql(fabric: AuthFabric, seed: bigint): SqlClient {
   const seedNum = Number(seed & 0xffffffffn) || 1;
@@ -45,22 +53,20 @@ export async function migrateAuthSchema(
   }).migrate({ sqlClient, logger });
 }
 
-type StoreArgs = {
+function buildStore(args: {
   readonly fabric: AuthFabric;
   readonly sql: SqlClient;
-  readonly deps: SimDeps;
-  readonly state: AuthSystem;
+  readonly deps: import('@pkgs/determinism').SimDeps;
   readonly enableDev: boolean;
   readonly enableGoogle: boolean;
-};
-
-function buildStore(args: StoreArgs): AuthStore {
-  const { fabric, sql, deps, state } = args;
+}): AuthStore {
+  const { fabric, sql, deps } = args;
+  const sim = { googleFault: false, googleSubjects: new Map<string, string>() };
   const app = createAuthApp({
     getSql: () => sql,
     clock: deps.clock,
     createId: deps.createId,
-    http: createFakeGoogleHttp(state),
+    http: createFakeGoogleHttp(sim),
     secret: AUTH_SYSTEM_SECRET,
     baseURL: AUTH_SYSTEM_BASE_URL,
     trustedOrigins: AUTH_SYSTEM_TRUSTED_ORIGINS,
@@ -81,28 +87,25 @@ function buildStore(args: StoreArgs): AuthStore {
     fabric,
     sql,
     server,
+    sim,
     fetch: async (path, init) =>
       app.request(`${AUTH_SYSTEM_BASE_URL}${path}`, init),
   };
 }
 
 /** SQL fabric + IdP Hono app + fake Google, one per system. */
-export const authStoreNode = defineNodeKind<AuthStore, AuthStore, AuthSystem>({
-  id: 'auth.store',
+export const authStoreNode = node({
   boot: async (ctx) => {
-    const fabric = ctx.knobs.get('fabric') as AuthFabric;
+    const fabric = ctx.knob(AUTH_FABRIC);
     const sql = openSql(fabric, ctx.deps.seed);
     await migrateAuthSchema(fabric, sql);
-    const store = buildStore({
+    return buildStore({
       fabric,
       sql,
       deps: ctx.deps,
-      state: ctx.state,
-      enableDev: ctx.knobs.get('devProvider') !== false,
-      enableGoogle: ctx.knobs.get('googleProvider') !== false,
+      enableDev: ctx.knob(AUTH_DEV_PROVIDER),
+      enableGoogle: ctx.knob(AUTH_GOOGLE_PROVIDER),
     });
-    ctx.state.store = store;
-    return store;
   },
   dispose: async (store) => {
     await store.sql.disconnect();
@@ -110,17 +113,13 @@ export const authStoreNode = defineNodeKind<AuthStore, AuthStore, AuthSystem>({
 });
 
 /** Client-side session bag. Zero endpoints — actors drive the store by fetch. */
-export const authActorNode = defineNodeKind<ActorState, ActorState, AuthSystem>(
-  {
-    id: 'auth.actor',
-    boot: (ctx) => {
-      const state: ActorState = {
-        bearer: null,
-        pendingAuthUrl: null,
-        pendingCode: null,
-      };
-      ctx.state.actors.set(ctx.nodeId, state);
-      return state;
-    },
-  }
-);
+export const authActorNode = node({
+  boot: () => {
+    const state: ActorState = {
+      bearer: null,
+      pendingAuthUrl: null,
+      pendingCode: null,
+    };
+    return state;
+  },
+});

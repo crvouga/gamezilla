@@ -1,19 +1,20 @@
 import type { World } from '@pkgs/determinism';
 import {
   AUTH_SET_TOKEN_HEADER,
-  IDP_PROVIDER_DEV,
+  type IDP_PROVIDER_DEV,
   IDP_PROVIDER_GOOGLE,
 } from '../../shared/auth-constants';
-import {
-  type ActorState,
-  type AuthStore,
-  type AuthSystem,
-  requireStore,
-} from './types';
+import type { ActorState, AuthKit, AuthStore } from './types';
 
-type AuthWorld = World<AuthSystem>;
+type AuthWorld = World<
+  Record<string, import('@pkgs/determinism').KnobDef>,
+  Record<string, import('@pkgs/determinism').NodeSpecEntry>,
+  AuthKit
+>;
 
-export type OauthProvider = typeof IDP_PROVIDER_GOOGLE | typeof IDP_PROVIDER_DEV;
+export type OauthProvider =
+  | typeof IDP_PROVIDER_GOOGLE
+  | typeof IDP_PROVIDER_DEV;
 
 const JSON_HEADERS = { 'content-type': 'application/json' };
 
@@ -25,7 +26,11 @@ async function readToken(res: Response): Promise<string | null> {
 }
 
 function actorOf(world: AuthWorld, clientId: string): ActorState | null {
-  return world.state.actors.get(clientId) ?? null;
+  return world.nodes['client'].get(clientId) ?? null;
+}
+
+function storeOf(world: AuthWorld): AuthStore {
+  return world.nodes['store'] as AuthStore;
 }
 
 async function oauthStart(
@@ -49,10 +54,10 @@ async function googleApprove(
   subject: string
 ): Promise<void> {
   if (actor.pendingAuthUrl === null) return;
-  const store = requireStore(world.state);
+  const store = storeOf(world);
   const state = new URL(actor.pendingAuthUrl).searchParams.get('state') ?? '';
   const code = world.deps.createId();
-  world.state.googleSubjects.set(code, subject);
+  store.sim.googleSubjects.set(code, subject);
   const query = `code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`;
   const res = await store.fetch(`/auth/callback/google?${query}`, {
     method: 'GET',
@@ -73,7 +78,7 @@ async function devApprove(
   subject: string
 ): Promise<void> {
   if (actor.pendingAuthUrl === null) return;
-  const store = requireStore(world.state);
+  const store = storeOf(world);
   const authorizeUrl = new URL(actor.pendingAuthUrl);
   const state = authorizeUrl.searchParams.get('state') ?? '';
   const completeRes = await store.fetch('/auth/dev/authorize/complete', {
@@ -136,7 +141,7 @@ export async function dispatchOauthStart(
 ): Promise<void> {
   const actor = actorOf(world, clientId);
   if (actor === null) return;
-  await oauthStart(requireStore(world.state), actor, provider, callbackUrl);
+  await oauthStart(storeOf(world), actor, provider, callbackUrl);
 }
 
 export async function dispatchOauthApprove(
@@ -160,7 +165,7 @@ export async function dispatchSessionExchange(
 ): Promise<void> {
   const actor = actorOf(world, clientId);
   if (actor === null) return;
-  await sessionExchange(requireStore(world.state), actor);
+  await sessionExchange(storeOf(world), actor);
 }
 
 export async function dispatchSignOut(
@@ -169,7 +174,7 @@ export async function dispatchSignOut(
 ): Promise<void> {
   const actor = actorOf(world, clientId);
   if (actor === null) return;
-  await signOut(requireStore(world.state), actor);
+  await signOut(storeOf(world), actor);
 }
 
 export function dispatchStealBearer(
@@ -177,8 +182,9 @@ export function dispatchStealBearer(
   from: string,
   to: string
 ): void {
-  const src = world.state.actors.get(from);
-  const dst = world.state.actors.get(to);
+  const actors = world.nodes['client'] as ReadonlyMap<string, ActorState>;
+  const src = actors.get(from);
+  const dst = actors.get(to);
   if (src === undefined || dst === undefined) return;
   dst.bearer = src.bearer;
 }

@@ -10,23 +10,16 @@ import { SqlClientImplSqliteMem } from '@pkgs/sql-client/sqlite/impl-sqlite-mem'
 
 import { AuthSqliteDatabaseMigration } from '../src/server/auth-database-migration';
 import { createAuthApp } from '../src/server/create-auth-app';
-import { createFakeGoogleHttp } from '../src/tests/system/fake-google';
-import type { AuthSystem } from '../src/tests/system/types';
-import {
-  AUTH_SYSTEM_SECRET,
-  AUTH_SYSTEM_TRUSTED_ORIGINS,
-} from '../src/tests/system/types';
+import { createFakeGoogleHttp } from '../src/testing/fake-google';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const PORT = 4178;
 const API_ORIGIN = `http://127.0.0.1:${PORT}`;
+const AUTH_SECRET = 'auth-system-secret-0123456789abcdef';
 
-const authState: AuthSystem = {
-  store: null,
-  actors: new Map(),
-  googleSubjects: new Map(),
+const authState = {
+  googleSubjects: new Map<string, string>(),
   googleFault: false,
-  fingerprint: null,
 };
 
 const deps = createSimDeps({ seed: 1 });
@@ -41,12 +34,14 @@ const app = createAuthApp({
   clock: deps.clock,
   createId: deps.createId,
   http: createFakeGoogleHttp(authState),
-  secret: AUTH_SYSTEM_SECRET,
+  secret: AUTH_SECRET,
   baseURL: API_ORIGIN,
   trustedOrigins: [
-    ...AUTH_SYSTEM_TRUSTED_ORIGINS,
     API_ORIGIN,
     `${API_ORIGIN}/oauth-callback`,
+    'gamezilla://',
+    'http://localhost:5173',
+    'http://callback.test',
   ],
   providers: {
     google: { clientId: 'cid', clientSecret: 'csecret' },

@@ -185,7 +185,9 @@ function createUploadQueue(
     clientId: options.getClientId,
     postBatch: options.postMutations,
     onAckFence: () => {
-      readState(stateRef).runtime.bumpGenerations();
+      const state = readState(stateRef);
+      state.runtime.bumpGenerations();
+      state.refreshTopics?.();
     },
     onError: (error) => handleError(readState(stateRef), error),
     timers: options.timers,

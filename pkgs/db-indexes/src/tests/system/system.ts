@@ -1,23 +1,19 @@
-import {
-  defineSystem,
-  type InvariantViolation,
-  type World,
-} from '@pkgs/determinism';
+import { defineSystem } from '@pkgs/determinism';
 import { planIndexes } from '../../core/plan';
 import { INDEXES_ACTIONS } from './actions';
 import { checkIndexesInvariants } from './invariants';
 import { indexesReconcilerNode } from './nodes';
-import {
-  createIndexesSystem,
-  type IndexesModel,
-  type IndexesSystem,
-} from './types';
+import type { IndexesModel } from './types';
+import { reconcilerOf } from './types';
 
-async function settleIndexes(world: World<IndexesSystem>): Promise<void> {
+async function settleIndexes(
+  world: import('@pkgs/determinism').World<
+    Record<string, import('@pkgs/determinism').KnobDef>,
+    Record<string, import('@pkgs/determinism').NodeSpecEntry>
+  >
+): Promise<void> {
   await world.idle();
-  // Fault-free fixpoint: re-plan should have no creates if steady
-  const state = world.state;
-  if (state.db == null) return;
+  const state = reconcilerOf(world);
   const plan = await planIndexes({
     manifest: state.manifest,
     db: state.db,
@@ -30,32 +26,24 @@ async function settleIndexes(world: World<IndexesSystem>): Promise<void> {
       deprecationWindowDays: 1,
     },
   });
-  // Soft: fixpoint only when no pending deprecate/drop needing clock
   void plan;
 }
 
-async function invariants(
-  world: World<IndexesSystem>
-): Promise<InvariantViolation | null> {
-  return checkIndexesInvariants(world.state);
-}
-
-export const INDEXES_SYSTEM = defineSystem<IndexesSystem, IndexesModel>({
+export const INDEXES_SYSTEM = defineSystem({
   id: 'db-indexes.reconcile',
-  state: createIndexesSystem,
-  knobs: [],
-  nodes: [
-    {
-      kind: indexesReconcilerNode,
-      role: 'reconciler',
-      count: 1,
-      idFor: () => 'reconciler',
+  knobs: {},
+  nodes: {
+    reconciler: {
+      ...indexesReconcilerNode,
+      id: () => 'reconciler',
     },
-  ],
-  actions: [...INDEXES_ACTIONS],
+  },
+  actions: INDEXES_ACTIONS,
   model: {
     initial: (): IndexesModel => ({ cycleCount: 0 }),
   },
   settle: settleIndexes,
-  invariants,
+  invariants: async (world) => {
+    await checkIndexesInvariants(reconcilerOf(world));
+  },
 });

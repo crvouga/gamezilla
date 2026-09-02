@@ -14,9 +14,7 @@ export function SignInIdleBody(props: {
   return <SignInModalBody {...props} />;
 }
 
-export function SignInIdleFooter(props: {
-  onClose: () => void;
-}): ReactNode {
+export function SignInIdleFooter(props: { onClose: () => void }): ReactNode {
   const { t } = useLingui();
   return (
     <ModalButton label={t`Close`} variant="cancel" onPress={props.onClose} />

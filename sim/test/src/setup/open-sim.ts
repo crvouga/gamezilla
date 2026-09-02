@@ -3,7 +3,7 @@
  */
 
 import { type Timers, wallClock } from '@pkgs/clock';
-import { openWorld, type World } from '@pkgs/determinism';
+import { openWorld } from '@pkgs/determinism';
 import { writeUtf8 } from '@pkgs/object-store/helpers';
 import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';
@@ -33,7 +33,7 @@ import '@apps/client/i18n/i18n';
 
 import type { SimSystemSnapshot } from '@pkgs/sim-console/shared/sim-system-snapshot';
 import { resolveSimSqlBackend } from '@sim/console/sim/sim-sql-backend';
-import { defineProductSystem, type ProductSystem } from '../system';
+import { defineProductSystem, type ProductSystemWorld } from '../system';
 import { ensureSimPgliteSeed } from './boot-sim-pglite';
 import { ensureSimPostgresMemSeed } from './boot-sim-postgres-mem';
 import {
@@ -170,7 +170,7 @@ async function postgresServerSql(): Promise<SimSqlHandle> {
 
 async function bootSim(fidelity: OpenSimFidelity): Promise<{
   readonly sim: Sim;
-  readonly host: World<ProductSystem>;
+  readonly host: ProductSystemWorld;
 }> {
   const startMs = Date.parse('2024-06-01T00:00:00.000Z');
   const backend = resolveSimSqlBackend();
@@ -191,7 +191,7 @@ async function bootSim(fidelity: OpenSimFidelity): Promise<{
   };
   const system = defineProductSystem(createOpts);
   const host = await openWorld(system, { seed: 1, startMs });
-  return { sim: host.facade, host };
+  return { sim: host.sim, host };
 }
 
 function createSimReporter(
@@ -283,7 +283,7 @@ async function disposeOpenSim(args: {
   readonly actors: Map<string, ActorEntry>;
   readonly multiAppSession: ReturnType<typeof createMultiAppRntlSession>;
   readonly reporter: SimulationReporter | null;
-  readonly host: World<ProductSystem>;
+  readonly host: ProductSystemWorld;
 }): Promise<void> {
   for (const a of args.actors.values()) {
     await closeActorEntry(a);

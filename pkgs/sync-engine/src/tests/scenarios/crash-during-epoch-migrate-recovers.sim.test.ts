@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import { SCHEMA_EPOCH } from '@pkgs/sync-engine/test';
 import {
   expectLiveNote,
@@ -7,17 +6,17 @@ import {
   expectNotesMatchServer,
   setNote,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('crash during epoch migrate recovers', () => {
   test('crash after cache wipe mid migrate; next boot drains pending', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 834,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
@@ -26,7 +25,7 @@ describe('crash during epoch migrate recovers', () => {
 
     await a.disconnect();
     await a.mutate(setNote, { id: 'pending', body: 'durable' });
-    await world.runFor(50);
+    await world.advance(50);
     await expectLiveNote(a.db, 'pending', { body: 'durable' });
     await expectNoteNotLive(world.server.db, 'pending');
 

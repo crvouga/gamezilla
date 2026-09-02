@@ -2,46 +2,62 @@ import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
 import { assertSample, replay } from '@pkgs/determinism/pbt';
 
-import { requireServer, resolvePeer } from './peers';
+import type { SchemaPeer } from './peers';
 import { schemaAt } from './schemas';
 import { SCHEMA_SERVER_ID, SCHEMA_SYSTEM } from './system';
 
 describe('db-schema framework world', () => {
   test('compatible schema chain + mixed clients + forbidden refuse', async () => {
-    await assertSample(SCHEMA_SYSTEM, { maxCommands: 10, numRuns: 6 });
+    await assertSample(
+      SCHEMA_SYSTEM as unknown as Parameters<typeof assertSample>[0],
+      { maxCommands: 10, numRuns: 6 }
+    );
   }, 120_000);
 
   test('scripted: server ahead of lagging client stays valid', async () => {
-    const { world } = await replay(SCHEMA_SYSTEM, {
-      seed: 42,
-      knobs: { clientCount: 2 },
-      actions: [
-        { kind: 'advance', target: SCHEMA_SERVER_ID, to: 2 },
-        { kind: 'advance', target: 'client-0', to: 1 },
-        { kind: 'advance', target: 'client-1', to: 2 },
-      ],
-    });
+    const { world } = await replay(
+      SCHEMA_SYSTEM as unknown as Parameters<typeof replay>[0],
+      {
+        seed: 42,
+        knobs: { clientCount: 2 },
+        actions: [
+          { kind: 'advance', target: SCHEMA_SERVER_ID, to: 2 },
+          { kind: 'advance', target: 'client-0', to: 1 },
+          { kind: 'advance', target: 'client-1', to: 2 },
+        ],
+      }
+    );
     try {
-      expect(requireServer(world.state).version).toBe(2);
-      // settle catches the lagging client up to the server version.
-      expect(resolvePeer(world.state, 'client-0').version).toBe(2);
-      expect(resolvePeer(world.state, 'client-1').version).toBe(2);
+      expect((world.nodes['server'] as SchemaPeer).version).toBe(2);
+      expect(
+        (
+          world.nodes['client'] as unknown as ReadonlyMap<string, SchemaPeer>
+        ).get('client-0')!.version
+      ).toBe(2);
+      expect(
+        (
+          world.nodes['client'] as unknown as ReadonlyMap<string, SchemaPeer>
+        ).get('client-1')!.version
+      ).toBe(2);
     } finally {
       await world.dispose();
     }
   }, 60_000);
 
   test('forbidden in-place type change is refused without plan drift', async () => {
-    const { world } = await replay(SCHEMA_SYSTEM, {
-      seed: 7,
-      knobs: { clientCount: 1 },
-      actions: [
-        { kind: 'advance', target: SCHEMA_SERVER_ID, to: 1 },
-        { kind: 'forbidden' },
-      ],
-    });
+    const { world } = await replay(
+      SCHEMA_SYSTEM as unknown as Parameters<typeof replay>[0],
+      {
+        seed: 7,
+        knobs: { clientCount: 1 },
+        actions: [
+          { kind: 'advance', target: SCHEMA_SERVER_ID, to: 1 },
+          { kind: 'forbidden' },
+        ],
+      }
+    );
     try {
-      expect(requireServer(world.state).planKinds).toEqual(['v1']);
+      expect((world.nodes['server'] as SchemaPeer).planKinds).toEqual(['v1']);
     } finally {
       await world.dispose();
     }
@@ -52,14 +68,12 @@ describe('db-schema framework world', () => {
       seed: 3,
       knobs: { clientCount: 3 },
     });
-    expect(world.roleIds('server')).toEqual([SCHEMA_SERVER_ID]);
-    expect(world.roleIds('client')).toEqual([
-      'client-0',
-      'client-1',
-      'client-2',
-    ]);
-    expect(requireServer(world.state).version).toBe(0);
-    expect(world.state.clients).toHaveLength(3);
+    expect(world.ids('server')).toEqual([SCHEMA_SERVER_ID]);
+    expect(world.ids('client')).toEqual(['client-0', 'client-1', 'client-2']);
+    expect((world.nodes['server'] as SchemaPeer).version).toBe(0);
+    expect(
+      (world.nodes['client'] as unknown as ReadonlyMap<string, SchemaPeer>).size
+    ).toBe(3);
   }, 60_000);
 
   test('surface coverage: schema snapshot exports checks/views/enums arrays', () => {

@@ -101,6 +101,7 @@ export class InfisicalCliDep {
     } else {
       this.install();
     }
+    this.verify();
   }
 
   verify(): void {

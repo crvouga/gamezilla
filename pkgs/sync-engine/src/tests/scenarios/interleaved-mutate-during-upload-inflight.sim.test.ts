@@ -1,17 +1,16 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import { expectLiveNote, expectNotesMatchServer, setNote } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('interleaved mutate during upload inflight', () => {
   test('mutates while drain in flight join next batch; no loss', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 823,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
@@ -24,7 +23,7 @@ describe('interleaved mutate during upload inflight', () => {
     // Hold sync so the first upload stays in flight while more mutates land.
     using _hold = world.net('alice', 'sync').set('hold');
     await a.connect();
-    await world.runFor(50);
+    await world.advance(50);
 
     const third = await a.mutate(setNote, { id: 'n3', body: 'third' });
     const fourth = await a.mutate(setNote, { id: 'n1', body: 'first-v2' });
@@ -32,7 +31,7 @@ describe('interleaved mutate during upload inflight', () => {
     if (!third.ok || !fourth.ok) return;
 
     _hold.restore();
-    await world.until(a.outcome(fourth.mutationId), { budgetMs: 5_000 });
+    await world.waitUntil(a.outcome(fourth.mutationId), { withinMs: 5_000 });
     expect(await a.outcome(fourth.mutationId)).toBe('confirmed');
     await world.assertConverged();
 

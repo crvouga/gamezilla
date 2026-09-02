@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import {
   deleteNote,
   expectLiveNote,
@@ -8,20 +7,20 @@ import {
   readNoteTombstone,
   setNote,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 const TOMBSTONE_COUNT = 120;
 
 describe('tombstone accumulation still converges', () => {
   // README known limitation 1 SQLite growth — soft-delete catalogs accumulate.
   test('hundreds of tombstones; live queries stay correct and converge', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 1040,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
@@ -31,6 +30,7 @@ describe('tombstone accumulation still converges', () => {
       await a.mutate(deleteNote, { id });
     }
     await a.mutate(setNote, { id: 'live-final', body: 'survivor' });
+    await world.advance(5_000);
     await world.assertConverged();
 
     await expectLiveNote(b.db, 'live-final', { body: 'survivor' });
@@ -45,13 +45,13 @@ describe('tombstone accumulation still converges', () => {
   test.each([1041, 1042, 1043])(
     'seed sweep modest tombstone piles converge (seed=%i)',
     async (seed) => {
-      await using host = await openWorld(acmeSystem, {
+      await using world = await openAcmeWorld({
         seed: seed,
         knobs: {
           clientCount: 0,
         },
       });
-      const world = host.facade;
+
       const a = await world.addClient({ id: 'alice' });
       await world.addClient({ id: 'bob' });
       for (let i = 0; i < 20; i += 1) {
@@ -60,6 +60,7 @@ describe('tombstone accumulation still converges', () => {
         await a.mutate(deleteNote, { id });
       }
       await a.mutate(setNote, { id: `live-${seed}`, body: 'ok' });
+      await world.advance(1_000);
       await world.assertConverged();
       await expectLiveNote(world.server.db, `live-${seed}`, { body: 'ok' });
     }

@@ -1,153 +1,122 @@
 import {
-  defineAction,
-  defineKnob,
+  action,
+  chaos,
   defineSystem,
+  knob,
   openWorld,
   type SystemDef,
-  stdAdvance,
   type World,
 } from '@pkgs/determinism';
 import fc from 'fast-check';
-
-import type { MatchmakingTuning } from '../../interface/matchmaking';
-import type { MatchmakingSchema } from '../../interface/schema';
-import type { RadiusOptions } from '../../interface/types';
-import type { MatchmakingSimBackend, MatchmakingSimWorld } from '../world-api';
-import { buildMatchmakingFacade } from './facade';
-import { mmReplicaNode, mmStoreNode } from './node-kinds';
+import type { MatchmakingSimBackend, MatchmakingSimKit } from '../world-api';
+import { assertReplicaAgreement, buildMatchmakingKit } from './facade';
+import { MM_BACKEND, mmReplicaNode, mmStoreNode } from './node-kinds';
 import {
-  createMatchmakingSystem,
-  type MatchmakingSystem,
+  createMatchmakingSystemConfig,
+  type MatchmakingSystemConfig,
   type MatchmakingSystemOpts,
 } from './system';
 
 const WORLD_START_MS = 1_700_000_000_000;
 
+const REPLICA_COUNT = knob(1, fc.integer({ min: 1, max: 3 }));
+
+type MatchmakingKnobs = {
+  readonly replicaCount: typeof REPLICA_COUNT;
+  readonly backend: typeof MM_BACKEND;
+};
+
+type MatchmakingNodeEntries = {
+  readonly store: typeof mmStoreNode;
+  readonly replica: ReturnType<typeof mmReplicaNode> & {
+    readonly count: (knobs: Record<string, unknown>) => number;
+    readonly id: (index: number) => string;
+  };
+};
+
 export type MatchmakingSystemDef = SystemDef<
-  MatchmakingSystem,
+  MatchmakingKnobs,
+  MatchmakingNodeEntries,
   object,
-  MatchmakingSimWorld
+  MatchmakingSimKit
 >;
+
 export type MatchmakingSystemWorld = World<
-  MatchmakingSystem,
-  MatchmakingSimWorld
+  MatchmakingKnobs,
+  Record<string, import('@pkgs/determinism').NodeSpecEntry>,
+  MatchmakingSimKit
 >;
 
 export type DefineMatchmakingSystemOpts = MatchmakingSystemOpts & {
   readonly id?: string;
 };
 
-const tickAllAction = defineAction<
-  MatchmakingSystem,
-  { readonly kind: 'tickAll' },
-  object,
-  MatchmakingSimWorld
->({
-  kind: 'tickAll',
-  class: 'library',
-  arb: () => fc.constant({ kind: 'tickAll' as const }),
-  dispatch: async (world) => {
-    await world.facade.tickAll({ maxPassesPerPartition: 2 });
-  },
-});
+function defineMatchmakingSystemInner(
+  config: MatchmakingSystemConfig,
+  opts?: DefineMatchmakingSystemOpts
+): MatchmakingSystemDef {
+  const tickAllAction = action<
+    { readonly kind: 'tickAll' },
+    object,
+    MatchmakingSystemWorld
+  >({
+    weight: 1,
+    arb: () => fc.constant({ kind: 'tickAll' as const }),
+    dispatch: async (world) => {
+      await world.tickAll({ maxPassesPerPartition: 2 });
+    },
+  });
 
-async function checkReplicaAgreement(
-  world: MatchmakingSystemWorld
-): Promise<import('@pkgs/determinism').InvariantViolation | null> {
-  const facade = world.facade;
-  const replicaIds = [...facade.replicas.keys()];
-  if (replicaIds.length === 0) {
-    return {
-      invariant: 'matchmaking.no-replicas',
-      detail: 'facade has no replicas',
-    };
-  }
-  // Every replica port must answer status (shared-store agreement smoke).
-  const probeId = '00000000-0000-0000-0000-000000000000';
-  let first: unknown;
-  for (let i = 0; i < replicaIds.length; i += 1) {
-    const id = replicaIds[i]!;
-    const r = facade.replicas.get(id);
-    if (r === undefined) {
-      return {
-        invariant: 'matchmaking.missing-replica',
-        detail: `replica ${id} missing from map`,
-      };
-    }
-    const st = await r.mm.status(probeId);
-    if (i === 0) first = st;
-    else if (JSON.stringify(st) !== JSON.stringify(first)) {
-      return {
-        invariant: 'matchmaking.replica-diverge',
-        detail: `replica ${id} status disagrees with ${replicaIds[0]}`,
-      };
-    }
-  }
-  return null;
+  return defineSystem({
+    id: opts?.id ?? 'matchmaking.replicas',
+    startMs: WORLD_START_MS,
+    knobs: {
+      replicaCount: REPLICA_COUNT,
+      backend: MM_BACKEND,
+    },
+    nodes: {
+      store: mmStoreNode,
+      replica: {
+        ...mmReplicaNode(config),
+        count: (k) => k['replicaCount'] as number,
+        id: (i) => `r${String(i)}`,
+      },
+    },
+    actions: {
+      tickAll: tickAllAction,
+      'chaos.advance': chaos.advance(),
+    },
+    model: {
+      initial: () => ({}),
+    },
+    extend: (world) =>
+      buildMatchmakingKit({
+        world,
+        config,
+        rng: world.deps.rng,
+      }),
+    settle: async (world) => {
+      await world.tickAll({ maxPassesPerPartition: 4 });
+      await world.idle();
+      await assertReplicaAgreement(world);
+    },
+    invariants: async () => {
+      /* convergence checked in settle */
+    },
+  });
 }
 
 /**
  * Framework-owned matchmaking world: shared SQL store + N replicas.
- * Concurrent `tickAll` claim races need knob `backend: 'postgres'`.
- * Kit surface is `world.facade`.
+ * Kit surface is merged onto the opened world via `extend`.
  */
 export function defineMatchmakingSystem(
   opts?: DefineMatchmakingSystemOpts
 ): MatchmakingSystemDef {
-  return defineSystem<MatchmakingSystem, object, MatchmakingSimWorld>({
-    id: opts?.id ?? 'matchmaking.replicas',
-    startMs: WORLD_START_MS,
-    knobs: [
-      defineKnob({
-        id: 'replicaCount',
-        default: 1,
-        arb: fc.integer({ min: 1, max: 3 }),
-      }),
-      defineKnob({
-        id: 'backend',
-        default: 'sqlite' as MatchmakingSimBackend,
-        arb: fc.constant('sqlite' as MatchmakingSimBackend),
-      }),
-    ],
-    nodes: [
-      {
-        kind: mmStoreNode,
-        role: 'store',
-        count: 1,
-      },
-      {
-        kind: mmReplicaNode,
-        role: 'replica',
-        count: { fromKnob: 'replicaCount' },
-        idFor: (i) => `r${String(i)}`,
-      },
-    ],
-    state: () =>
-      createMatchmakingSystem({
-        ...(opts?.schema !== undefined ? { schema: opts.schema } : {}),
-        ...(opts?.radius !== undefined ? { radius: opts.radius } : {}),
-        ...(opts?.tuning !== undefined ? { tuning: opts.tuning } : {}),
-      }),
-    actions: [
-      tickAllAction,
-      stdAdvance<MatchmakingSystem, MatchmakingSimWorld>(),
-    ],
-    model: {
-      initial: () => ({}),
-    },
-    facade: (world) =>
-      buildMatchmakingFacade({
-        system: world.state,
-        seed: world.seed,
-        clock: world.clock,
-        rng: world.deps.rng,
-      }),
-    settle: async (world) => {
-      await world.facade.tickAll({ maxPassesPerPartition: 4 });
-      await world.idle();
-    },
-    invariants: checkReplicaAgreement,
-  });
+  return defineMatchmakingSystemInner(
+    createMatchmakingSystemConfig(opts),
+    opts
+  );
 }
 
 export const MATCHMAKING_SYSTEM = defineMatchmakingSystem();
@@ -156,15 +125,17 @@ export type OpenMatchmakingWorldArgs = {
   readonly seed: number | bigint | string;
   readonly replicas?: number;
   readonly backend?: MatchmakingSimBackend;
-  readonly schema?: MatchmakingSchema;
-  readonly radius?: RadiusOptions;
-  readonly tuning?: Partial<MatchmakingTuning>;
+  readonly schema?: import('../../interface/schema').MatchmakingSchema;
+  readonly radius?: import('../../interface/types').RadiusOptions;
+  readonly tuning?: Partial<
+    import('../../interface/matchmaking').MatchmakingTuning
+  >;
   readonly startMs?: number;
 };
 
 /**
- * Thin opener over framework {@link openWorld}. Returns the framework World;
- * reach the matchmaking facade via `world.facade`.
+ * Thin opener over framework {@link openWorld}. Returns the framework World
+ * with matchmaking kit methods merged via `extend`.
  */
 export async function openMatchmakingWorld(
   args: OpenMatchmakingWorldArgs

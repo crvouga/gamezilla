@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import { sql } from '@pkgs/sql';
 import {
   createSpace,
@@ -8,7 +7,7 @@ import {
   readLiveOpenSessions,
   SPACE_MEMBERSHIP_SESSION,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 /**
  * Replicates the product bug: createSpace writes spaces + spaces_users (user
@@ -17,14 +16,14 @@ import { acmeSystem } from '../apps/acme/system';
  */
 describe('same actor open session stays device private', () => {
   test('createSpace open-session row images do not land on peer device', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 1401,
       knobs: {
         clientCount: 0,
         rowImageFanout: true,
       },
     });
-    const world = host.facade;
+
     const phone = await world.addClient({
       id: 'phone',
       actorId: 'user-1',
@@ -40,7 +39,7 @@ describe('same actor open session stays device private', () => {
 
     await phone.mutate(createSpace, { id: 'room-1', title: 'Private open' });
     await world.assertConverged();
-    await world.runFor(200);
+    await world.advance(200);
 
     await expectOpenSession(phone.db, phone.deviceId, 'room-1');
     await expectNoForeignOpenSessions(tablet.db, tablet.deviceId);

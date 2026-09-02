@@ -15,11 +15,10 @@ const SHORT_MOVES = 'e8d7';
 
 describe('chess puzzle: solved monotonic (Gp-03)', () => {
   test('post-solved moves do not change terminal status', async () => {
-    await using host = await openWorld(chessSystem, {
+    await using world = await openWorld(chessSystem, {
       seed: process.env['SIM_SEED'] ?? '42',
       knobs: { clientCount: 0 },
     });
-    const world = host.facade;
     const hostClient = await world.addClient({
       id: 'host',
       identity: 'host-1',

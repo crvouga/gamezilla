@@ -1,7 +1,4 @@
-import type {
-  SystemAction as FrameworkAction,
-  JsonValue,
-} from '@pkgs/determinism';
+import type { AnySystemDef, JsonValue, SystemAction } from '@pkgs/determinism';
 import { replay } from '@pkgs/determinism/pbt';
 
 import type { SyncAction } from './actions';
@@ -24,15 +21,15 @@ export async function replaySync(
   def: SyncSystemDef,
   inputs: ReplaySyncInputs
 ): Promise<SyncSystemWorld> {
-  const { world } = await replay(def, {
+  const { world } = await replay(def as unknown as AnySystemDef, {
     seed: inputs.seed,
-    actions: inputs.actions as unknown as readonly FrameworkAction[],
+    actions: inputs.actions as unknown as readonly SystemAction[],
     ...(inputs.knobs !== undefined
       ? { knobs: inputs.knobs as Partial<Record<string, JsonValue>> }
       : {}),
     ...(inputs.settle !== undefined ? { settle: inputs.settle } : {}),
   });
-  return world;
+  return world as unknown as SyncSystemWorld;
 }
 
 /** Replay a scripted pin, then dispose. */

@@ -1,17 +1,16 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import { expectLiveNote, readLiveNotes, setNote } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('connect disconnect flapping under load', () => {
   test('online/foreground flap under mutation storm still converges', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 1050,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
@@ -22,19 +21,19 @@ describe('connect disconnect flapping under load', () => {
       });
       if (i % 4 === 0) {
         b.online(false);
-        await world.runFor(25);
+        await world.advance(25);
         b.online(true);
       }
       if (i % 5 === 0) {
         a.foreground(false);
         b.foreground(false);
-        await world.runFor(25);
+        await world.advance(25);
         a.foreground(true);
         b.foreground(true);
       }
       if (i % 6 === 0) {
         a.online(false);
-        await world.runFor(25);
+        await world.advance(25);
         a.online(true);
       }
     }
@@ -52,19 +51,19 @@ describe('connect disconnect flapping under load', () => {
   test.each([1051, 1052, 1053])(
     'seed sweep flap + mutate converges (seed=%i)',
     async (seed) => {
-      await using host = await openWorld(acmeSystem, {
+      await using world = await openAcmeWorld({
         seed: seed,
         knobs: {
           clientCount: 0,
         },
       });
-      const world = host.facade;
+
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
       for (let i = 0; i < 8; i += 1) {
         await a.mutate(setNote, { id: `n-${seed}-${i}`, body: `x${i}` });
         b.online(i % 2 === 0);
-        await world.runFor(10);
+        await world.advance(10);
         b.online(true);
       }
       await world.assertConverged();

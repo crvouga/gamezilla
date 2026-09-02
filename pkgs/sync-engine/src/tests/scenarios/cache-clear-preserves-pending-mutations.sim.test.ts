@@ -1,29 +1,28 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import {
   expectLiveNote,
   expectNoteNotLive,
   readLiveNotes,
   setNote,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('cache clear preserves pending mutations', () => {
   test('cache clear wipes domain but durable queue uploads on reconnect', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 610,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
     // Disconnect so mutate queues without upload.
     await a.disconnect();
     await a.mutate(setNote, { id: 'n1', body: 'durable-queued' });
-    await world.runFor(50);
+    await world.advance(50);
     await expectLiveNote(a.db, 'n1', { body: 'durable-queued' });
     await expectNoteNotLive(world.server.db, 'n1');
 
@@ -40,13 +39,13 @@ describe('cache clear preserves pending mutations', () => {
   });
 
   test('cache clear during sync partition does not hang on in-flight upload', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 611,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     using _down = world.net('alice', 'sync').set('down');
     await a.mutate(setNote, { id: 'n1', body: 'queued-while-down' });

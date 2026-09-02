@@ -1,19 +1,18 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import { sql } from '@pkgs/sql';
 import { playSyncActions } from '../../sim/system';
 import { setNote } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('storage full mutate denied', () => {
   test('SQLITE_FULL returns STORAGE_FULL and does not queue', async () => {
-    await using world = await openWorld(acmeSystem, { seed: 55100 });
-    const facade = world.facade;
-    const c0 = facade.clients.get('c0');
+    await using world = await openAcmeWorld({ seed: 55100 });
+
+    const c0 = world.clients.get('c0');
     expect(c0).toBeDefined();
     if (c0 === undefined) return;
 
-    facade.armStoragePressure('c0', 'sqliteFull');
+    world.armStoragePressure('c0', 'sqliteFull');
     const denied = await c0.mutate(setNote, { id: 'n0', body: 'quota' });
     expect(denied.ok).toBe(false);
     if (!denied.ok) {
@@ -30,6 +29,6 @@ describe('storage full mutate denied', () => {
       { kind: 'restart', clientId: 'c0' },
       { kind: 'heal' },
     ]);
-    await facade.assertConverged();
+    await world.assertConverged();
   });
 });

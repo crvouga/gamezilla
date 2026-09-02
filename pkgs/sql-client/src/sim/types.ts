@@ -23,16 +23,12 @@ export type SqlClientWebState = {
   backend: SqlClientWebBackend;
   store: SimOpfsStore | null;
   broker: BrokerCore | null;
-  /** Schema epoch the world wants. Applied on the next owner open. */
   epoch: number;
-  /** Schema epoch the last successful migrate actually wrote. */
   appliedEpoch: number;
-  /** Count of in-process store wipes (recovery paths). */
   wipes: number;
   rpcSeq: number;
   readonly tabs: Map<string, SqlWebTab>;
   readonly expected: Map<string, string>;
-  /** Reads that disagreed with `expected`; surfaced by invariants. */
   readonly mismatches: string[];
 };
 
@@ -49,6 +45,15 @@ export function createSqlClientWebState(): SqlClientWebState {
     expected: new Map(),
     mismatches: [],
   };
+}
+
+export function boardOf(
+  world: import('@pkgs/determinism').World<
+    Record<string, import('@pkgs/determinism').KnobDef>,
+    Record<string, import('@pkgs/determinism').NodeSpecEntry>
+  >
+): SqlClientWebState {
+  return (world.nodes['store'] as { board: SqlClientWebState }).board;
 }
 
 export function requireStore(state: SqlClientWebState): SimOpfsStore {
@@ -78,7 +83,6 @@ export function nextRpcId(state: SqlClientWebState, prefix: string): string {
   return `${prefix}_${state.rpcSeq}`;
 }
 
-/** Order-independent fingerprint of a key/value map. */
 export function kvFingerprint(rows: ReadonlyMap<string, string>): string {
   const pairs = [...rows].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
   return JSON.stringify(pairs);

@@ -28,39 +28,37 @@ export type AuthStore = {
   readonly fabric: AuthFabric;
   readonly sql: SqlClient;
   readonly server: ReturnType<typeof createAuthServerAdapter>;
+  readonly sim: {
+    googleFault: boolean;
+    googleSubjects: Map<string, string>;
+  };
   readonly fetch: (path: string, init?: RequestInit) => Promise<Response>;
 };
 
-export type AuthSystem = {
-  store: AuthStore | null;
-  readonly actors: Map<string, ActorState>;
-  readonly googleSubjects: Map<string, string>;
-  googleFault: boolean;
-  /** Recorded by `settle` so dual-open runs can compare determinism. */
-  fingerprint: string | null;
-};
-
-export function createAuthSystem(): AuthSystem {
-  return {
-    store: null,
-    actors: new Map(),
-    googleSubjects: new Map(),
-    googleFault: false,
-    fingerprint: null,
-  };
-}
-
-export function requireStore(system: AuthSystem): AuthStore {
-  if (system.store === null) {
+export function requireStore(store: AuthStore | undefined): AuthStore {
+  if (store === undefined) {
     throw new Error('auth system: auth.store node is not booted');
   }
-  return system.store;
+  return store;
 }
 
-export function requireActor(system: AuthSystem, id: string): ActorState {
-  const actor = system.actors.get(id);
+export function requireActor(
+  actors: ReadonlyMap<string, ActorState>,
+  id: string
+): ActorState {
+  const actor = actors.get(id);
   if (actor === undefined) {
     throw new Error(`auth system: no auth.actor node ${id}`);
   }
   return actor;
 }
+
+export type AuthWorldNodes = {
+  readonly store: AuthStore;
+  readonly client: ReadonlyMap<string, ActorState>;
+};
+
+export type AuthKit = {
+  /** Recorded by `settle` so dual-open runs can compare determinism. */
+  fingerprint: string | null;
+};

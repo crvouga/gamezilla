@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import {
   createSpace,
   endSpace,
@@ -11,17 +10,17 @@ import {
   SPACE_MEMBERSHIP_SESSION,
   setSpaceNote,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('leave drops room topic until rejoin', () => {
   test('leave drops room topic; further live does not apply until rejoin', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 806,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({
       id: 'alice',
       sessionQuery: SPACE_MEMBERSHIP_SESSION,
@@ -32,15 +31,22 @@ describe('leave drops room topic until rejoin', () => {
     });
 
     await a.mutate(createSpace, { id: 'end-room', title: 'E' });
-    await b.mutate(joinSpace, { spaceId: 'end-room' });
     await world.assertConverged();
-    await world.until(() =>
+    await world.waitUntil(() =>
+      a.subscribedTopics().includes(roomTopic('end-room'))
+    );
+    await b.mutate(joinSpace, { spaceId: 'end-room' });
+    await world.waitUntil(() =>
+      b.subscribedTopics().includes(roomTopic('end-room'))
+    );
+    await world.assertConverged();
+    await world.waitUntil(() =>
       a.subscribedTopics().includes(roomTopic('end-room'))
     );
     const remakes = a.pubsubRemakeCount();
 
     await a.mutate(leaveSpace, { spaceId: 'end-room' });
-    await world.until(
+    await world.waitUntil(
       () => !a.subscribedTopics().includes(roomTopic('end-room'))
     );
     expect(a.pubsubRemakeCount()).toBe(remakes);
@@ -52,7 +58,9 @@ describe('leave drops room topic until rejoin', () => {
         spaceId: 'end-room',
         body: 'miss-me',
       });
-      await world.never(() => isLiveNote(a.db, 'after-leave'), { forMs: 300 });
+      await world.waitNever(() => isLiveNote(a.db, 'after-leave'), {
+        forMs: 300,
+      });
       await expectLiveNote(b.db, 'after-leave', { body: 'miss-me' });
       expect(a.pubsubRemakeCount()).toBe(remakes);
     }
@@ -62,24 +70,28 @@ describe('leave drops room topic until rejoin', () => {
   });
 
   test('endSpace drops room topic without remake', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 807,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({
       id: 'alice',
       sessionQuery: SPACE_MEMBERSHIP_SESSION,
     });
     await a.mutate(createSpace, { id: 'ended', title: 'X' });
     await world.assertConverged();
-    await world.until(() => a.subscribedTopics().includes(roomTopic('ended')));
+    await world.waitUntil(() =>
+      a.subscribedTopics().includes(roomTopic('ended'))
+    );
     const remakes = a.pubsubRemakeCount();
 
     await a.mutate(endSpace, { spaceId: 'ended' });
-    await world.until(() => !a.subscribedTopics().includes(roomTopic('ended')));
+    await world.waitUntil(
+      () => !a.subscribedTopics().includes(roomTopic('ended'))
+    );
     expect(a.subscribedTopics()).not.toContain(roomTopic('ended'));
     expect(a.pubsubRemakeCount()).toBe(remakes);
     await world.assertConverged();

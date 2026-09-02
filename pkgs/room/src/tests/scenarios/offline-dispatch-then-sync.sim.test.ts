@@ -9,7 +9,7 @@ describe('room sim: offline dispatch then sync', () => {
       seed: 4,
       knobs: { clientCount: 0 },
     });
-    const world = host.facade;
+    const world = host;
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await world.assertConverged();
@@ -20,7 +20,9 @@ describe('room sim: offline dispatch then sync', () => {
     expect(counterValue(a.snapshot())).toBe(1);
     expect(a.isSynced()).toBe(false);
 
-    await world.never(() => counterValue(b.snapshot()) === 1, { forMs: 100 });
+    await world.waitNever(() => counterValue(b.snapshot()) === 1, {
+      forMs: 100,
+    });
 
     await a.connect();
     await world.assertConverged();

@@ -38,13 +38,12 @@ describe('mixed schema three clients partition converge', () => {
   test.each([2100, 2101, 2102])(
     'baseline + color + tags under partition then heal (seed=%i)',
     async (seed) => {
-      await using host = await openWorld(acmeMixedSchemaSystem, {
+      await using world = await openWorld(acmeMixedSchemaSystem, {
         seed: seed,
         knobs: {
           clientCount: 0,
         },
       });
-      const world = host.facade;
 
       const alice = await world.addClient({
         id: 'alice',
@@ -95,7 +94,7 @@ describe('mixed schema three clients partition converge', () => {
       }
 
       using tagsSub = carol.subscribe('tagsWorld', {});
-      await world.until(tagsSub.ready);
+      await world.waitUntil(tagsSub.ready);
       await world.assertConverged();
 
       await expectLiveNote(alice.db, 'carol-only', { body: 'c-note' });

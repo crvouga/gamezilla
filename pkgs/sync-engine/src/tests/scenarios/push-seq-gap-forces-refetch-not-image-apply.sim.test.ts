@@ -1,17 +1,16 @@
 import { describe, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import { expectLiveNote, expectNotesMatchServer, setNote } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('push seq gap forces refetch not image apply', () => {
   test('lost live push creates gap; later push still converges via refetch', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 804,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
@@ -22,14 +21,14 @@ describe('push seq gap forces refetch not image apply', () => {
     {
       using _loss = world.net('bob', 'live').set({ packetLossProbability: 1 });
       await a.mutate(setNote, { id: 'n1', body: 'lost-push' });
-      await world.runFor(80);
+      await world.advance(80);
     }
 
     // Contiguous-looking later push must not image-apply across the gap.
     {
       using _hold = world.net('bob', 'sync').set('hold');
       await a.mutate(setNote, { id: 'n2', body: 'after-gap' });
-      await world.runFor(200);
+      await world.advance(200);
     }
     await world.assertConverged();
 

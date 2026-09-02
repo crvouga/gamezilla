@@ -1,24 +1,23 @@
 import { describe, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import {
   expectLiveNote,
   readLiveNotes,
   setNote,
   writeNoteBody,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('non mutation server write without notify stale until sweep', () => {
   // Domain write outside mutation replay should notify; missed notify heals
   // via the reconcile tick (safety net), not forever-stale.
   test('writeNoteBody notify false heals via reconcile tick', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 1090,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
@@ -34,7 +33,7 @@ describe('non mutation server write without notify stale until sweep', () => {
     // No notify → no instant wake; reconcile tick heals below.
     await expectLiveNote(b.db, 'n1', { body: 'v1' });
 
-    await world.until(async () =>
+    await world.waitUntil(async () =>
       (await readLiveNotes(b.db)).some(
         (n) => n.id === 'n1' && n.body === 'v2-silent'
       )
@@ -47,13 +46,13 @@ describe('non mutation server write without notify stale until sweep', () => {
   test.each([1091, 1092, 1093])(
     'silent write heals on reconcile tick (seed=%i)',
     async (seed) => {
-      await using host = await openWorld(acmeSystem, {
+      await using world = await openAcmeWorld({
         seed: seed,
         knobs: {
           clientCount: 0,
         },
       });
-      const world = host.facade;
+
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
       await a.mutate(setNote, { id: `n-${seed}`, body: 'old' });
@@ -63,7 +62,7 @@ describe('non mutation server write without notify stale until sweep', () => {
         body: 'new',
         notify: false,
       });
-      await world.until(async () =>
+      await world.waitUntil(async () =>
         (await readLiveNotes(b.db)).some(
           (n) => n.id === `n-${seed}` && n.body === 'new'
         )

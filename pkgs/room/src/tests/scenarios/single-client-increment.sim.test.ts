@@ -9,7 +9,7 @@ describe('room sim: single client increment', () => {
       seed: 1,
       knobs: { clientCount: 0 },
     });
-    const world = host.facade;
+    const world = host;
     const a = await world.addClient({ id: 'alice' });
     expect(a.isSynced()).toBe(true);
     a.dispatch(Increment({}));

@@ -1,5 +1,6 @@
+import type { NeverOpts } from '@pkgs/determinism';
+
 import type { SimClientHandle } from '../client-handle';
-import type { InvariantViolation } from '../invariants';
 import type { SimNetHandle } from '../net-effect';
 import type { SimNetwork } from '../network';
 import type { SimNodeHandle } from '../node-handle';
@@ -8,27 +9,33 @@ import type { SimServer } from '../server';
 import type { LocalStorageTamper } from '../storage-faults';
 import type { StoragePressureKind } from '../storage-pressure';
 import type { SimTraffic } from '../traffic';
-import type { NeverOpts, UntilOpts, UntilTarget } from '../until';
+import type { UntilTarget } from '../wait-until';
 import type { AddClientArgs } from '../world-types';
 
 /**
- * Scripted-pin / dispatch surface — structural subset of kit {@link World}.
- * Kept separate so `sim/system/*` does not import `world-api` (no cycles).
+ * Scripted-pin / dispatch surface — sync extension merged onto framework World.
  */
 export type SystemWorldSurface = {
   readonly seed: bigint;
   readonly rng: SeededRng;
   readonly clients: ReadonlyMap<string, SimClientHandle>;
   readonly server: SimServer;
-  readonly network: SimNetwork;
+  readonly kit: { readonly network: SimNetwork };
   readonly net: (nodeId: string, traffic?: SimTraffic) => SimNetHandle;
   readonly node: (id: string) => SimNodeHandle;
-  readonly runFor: (ms: number) => Promise<void>;
-  readonly until: (target: UntilTarget, opts?: UntilOpts) => Promise<number>;
-  readonly never: (target: UntilTarget, opts: NeverOpts) => Promise<void>;
+  readonly advance: (ms: number) => Promise<void>;
+  readonly waitUntil: (
+    target: UntilTarget,
+    opts?: {
+      readonly withinMs?: number;
+      readonly budgetMs?: number;
+      readonly stepMs?: number;
+    }
+  ) => Promise<number>;
+  readonly waitNever: (target: UntilTarget, opts: NeverOpts) => Promise<void>;
   readonly pendingEventCount: () => number;
   readonly isSchedulerQuiescent: () => boolean;
-  readonly checkInvariants: () => Promise<InvariantViolation | null>;
+  readonly checkInvariants: () => Promise<void>;
   readonly assertConverged: () => Promise<void>;
   readonly clearBoundaryFaults: () => void;
   readonly tamperLocalStorage: (

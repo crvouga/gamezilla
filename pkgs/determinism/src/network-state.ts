@@ -39,26 +39,19 @@ export type SimNetwork = {
   readonly partition: (a: SimEndpointId, b: SimEndpointId) => void;
   readonly heal: (a: SimEndpointId, b: SimEndpointId) => void;
   readonly healAll: () => void;
-  readonly isEdgePartitioned: (a: SimEndpointId, b: SimEndpointId) => boolean;
+  readonly isPartitioned: (a: SimEndpointId, b: SimEndpointId) => boolean;
   readonly hold: (key: SimNetKey) => void;
   readonly release: (key: SimNetKey) => void;
   readonly releaseAll: () => void;
   readonly isHeld: (key: SimNetKey) => boolean;
-  readonly heldSummary: () => readonly string[];
-  readonly setDefaultFaults: (profile: SimNetFaultProfile) => void;
-  readonly setKeyFaults: (
-    key: SimNetKey,
-    overrides: Partial<SimNetFaultProfile>
+  readonly held: () => readonly string[];
+  readonly faults: (key?: SimNetKey) => SimNetFaultProfile;
+  readonly setFaults: (
+    partial: Partial<SimNetFaultProfile>,
+    key?: SimNetKey
   ) => void;
-  readonly getKeyFaults: (key: SimNetKey) => SimNetFaultProfile;
-  readonly getDefaultFaults: () => SimNetFaultProfile;
-  readonly clearKeyFaults: (key?: SimNetKey) => void;
-  /**
-   * Scheduled frames not yet resolved (delivered, or dropped at delivery time).
-   * Excludes held queues and unrelated scheduler timers, so drain loops can
-   * wait on network quiescence without chasing intentionally parked frames.
-   */
-  readonly inFlightCount: () => number;
+  readonly clearFaults: (key?: SimNetKey) => void;
+  readonly inFlight: () => number;
 };
 
 export type HeldPacket = {

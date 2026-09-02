@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import { sql } from '@pkgs/sql';
 import {
   acmeLocalSchemaExtraColumn,
@@ -9,20 +8,20 @@ import {
   setNote,
   setNoteColor,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('client ahead column mutation no wipe', () => {
   test.each([2130, 2131, 2132])(
     'client writes color before server DDL: no wipe, no hot loop (seed=%i)',
     async (seed) => {
       // Unsupported deploy order — pin that the engine stays healthy.
-      await using host = await openWorld(acmeSystem, {
+      await using world = await openAcmeWorld({
         seed: seed,
         knobs: {
           clientCount: 0,
         },
       });
-      const world = host.facade;
+
       // Session stays on notesWorld (server knows it); only local DDL + mutation
       // registry are ahead of the server.
       const alice = await world.addClient({
@@ -36,7 +35,7 @@ describe('client ahead column mutation no wipe', () => {
       const bob = await world.addClient({ id: 'bob' });
 
       await bob.mutate(setNote, { id: 'ok', body: 'healthy' });
-      await world.runFor(400);
+      await world.advance(400);
       await expectLiveNote(alice.db, 'ok', { body: 'healthy' });
 
       const ahead = await alice.mutate(setNoteColor, {
@@ -47,7 +46,7 @@ describe('client ahead column mutation no wipe', () => {
       expect(ahead.ok).toBe(true);
 
       // Give uploads time to fail/retry; must not wipe local DB or hot-loop.
-      await world.runFor(2_000);
+      await world.advance(2_000);
 
       expect(await isLiveNote(world.server.db, 'ahead')).toBe(false);
       expect(await isLiveNote(bob.db, 'ahead')).toBe(false);
@@ -64,7 +63,7 @@ describe('client ahead column mutation no wipe', () => {
 
       // Healthy mutate from peer still paints; alice was not wiped.
       await bob.mutate(setNote, { id: 'ok2', body: 'still-works' });
-      await world.runFor(800);
+      await world.advance(800);
       await expectLiveNote(alice.db, 'ok2', { body: 'still-works' });
       await expectLiveNote(alice.db, 'ok', { body: 'healthy' });
     }

@@ -20,7 +20,7 @@ describe('match-clock schedule (MC-01..06)', () => {
       knobs: { clientCount: 0 },
       startMs: 10_000,
     });
-    const world = host.facade;
+    const world = host;
     const a = await world.addClient({ id: 'white', identity: 'white' });
     const b = await world.addClient({ id: 'black', identity: 'black' });
     await world.assertConverged();
@@ -46,7 +46,7 @@ describe('match-clock schedule (MC-01..06)', () => {
       knobs: { clientCount: 0 },
       startMs: 20_000,
     });
-    const world = host.facade;
+    const world = host;
     const white = await world.addClient({ id: 'white', identity: 'white' });
     await world.addClient({ id: 'black', identity: 'black' });
     await world.assertConverged();
@@ -78,7 +78,7 @@ describe('match-clock schedule (MC-01..06)', () => {
       knobs: { clientCount: 0 },
       startMs: 30_000,
     });
-    const world = host.facade;
+    const world = host;
     const white = await world.addClient({ id: 'white', identity: 'white' });
     const black = await world.addClient({ id: 'black', identity: 'black' });
     await world.assertConverged();
@@ -107,7 +107,7 @@ describe('match-clock schedule (MC-01..06)', () => {
       knobs: { clientCount: 0 },
       startMs: 40_000,
     });
-    const world = host.facade;
+    const world = host;
     const white = await world.addClient({ id: 'white', identity: 'white' });
     await world.addClient({ id: 'black', identity: 'black' });
     await world.assertConverged();
@@ -130,7 +130,7 @@ describe('match-clock schedule (MC-01..06)', () => {
       knobs: { clientCount: 0 },
       startMs: 50_000,
     });
-    const world = host.facade;
+    const world = host;
     const white = await world.addClient({ id: 'white', identity: 'white' });
     await world.addClient({ id: 'black', identity: 'black' });
     await world.assertConverged();
@@ -154,7 +154,7 @@ describe('match-clock schedule (MC-01..06)', () => {
         knobs: { clientCount: 0 },
         startMs: 60_000,
       });
-      const world = host.facade;
+      const world = host;
       const white = await world.addClient({ id: 'white', identity: 'white' });
       const black = await world.addClient({ id: 'black', identity: 'black' });
       await world.assertConverged();

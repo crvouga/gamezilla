@@ -9,7 +9,7 @@ describe('room sim: hold during flush (E-A01)', () => {
       seed: process.env['SIM_SEED'] ?? '42',
       knobs: { clientCount: 0 },
     });
-    const world = host.facade;
+    const world = host;
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await world.assertConverged();
@@ -22,7 +22,7 @@ describe('room sim: hold during flush (E-A01)', () => {
       using _hold = world.net('bob').set('hold');
       await a.connect();
       await world.drain();
-      await world.never(() => counterValue(b.snapshot()) === 1, {
+      await world.waitNever(() => counterValue(b.snapshot()) === 1, {
         forMs: 150,
       });
     }

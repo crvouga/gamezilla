@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
-import { arbWorldSeed, assertSampleProperty } from '@pkgs/determinism/pbt';
+import { arbSeed, assertSampleProperty } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
 
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '../../protocol/wire';
@@ -13,7 +13,7 @@ async function expectCounter(
   expected: number
 ): Promise<void> {
   try {
-    const snap = await world.facade.serverSnapshot();
+    const snap = await world.serverSnapshot();
     expect(counterValue(snap)).toBe(expected);
   } finally {
     await world.dispose();
@@ -26,32 +26,28 @@ describe('room session-lifecycle PBT', () => {
     async () => {
       await assertSampleProperty(
         'takeOver sequences converge',
-        fc.asyncProperty(
-          arbWorldSeed(),
-          arbRoomKnobs(),
-          async (seed, knobs) => {
-            const world = await replayRoom(counterSystem, {
-              seed,
-              knobs,
-              actions: [
-                {
-                  kind: 'domain',
-                  clientId: 'c0',
-                  command: 'increment',
-                  args: {},
-                },
-                { kind: 'takeOver', clientId: 'c0' },
-                {
-                  kind: 'domain',
-                  clientId: 'c0',
-                  command: 'increment',
-                  args: {},
-                },
-              ],
-            });
-            await expectCounter(world, 2);
-          }
-        ),
+        fc.asyncProperty(arbSeed(), arbRoomKnobs(), async (seed, knobs) => {
+          const world = await replayRoom(counterSystem, {
+            seed,
+            knobs,
+            actions: [
+              {
+                kind: 'domain',
+                clientId: 'c0',
+                command: 'increment',
+                args: {},
+              },
+              { kind: 'takeOver', clientId: 'c0' },
+              {
+                kind: 'domain',
+                clientId: 'c0',
+                command: 'increment',
+                args: {},
+              },
+            ],
+          });
+          await expectCounter(world, 2);
+        }),
         { numRuns: 8 }
       );
     },
@@ -63,41 +59,37 @@ describe('room session-lifecycle PBT', () => {
     async () => {
       await assertSampleProperty(
         'lifecycle sequences converge',
-        fc.asyncProperty(
-          arbWorldSeed(),
-          arbRoomKnobs(),
-          async (seed, knobs) => {
-            const world = await replayRoom(counterSystem, {
-              seed,
-              knobs,
-              actions: [
-                { kind: 'disconnect', clientId: 'c0' },
-                {
-                  kind: 'domain',
-                  clientId: 'c0',
-                  command: 'increment',
-                  args: {},
-                },
-                { kind: 'crash', clientId: 'c0' },
-                {
-                  kind: 'domain',
-                  clientId: 'c1',
-                  command: 'increment',
-                  args: {},
-                },
-                { kind: 'restart', clientId: 'c0' },
-                { kind: 'clearLocalData', clientId: 'c1' },
-                {
-                  kind: 'domain',
-                  clientId: 'c1',
-                  command: 'increment',
-                  args: {},
-                },
-              ],
-            });
-            await world.dispose();
-          }
-        ),
+        fc.asyncProperty(arbSeed(), arbRoomKnobs(), async (seed, knobs) => {
+          const world = await replayRoom(counterSystem, {
+            seed,
+            knobs,
+            actions: [
+              { kind: 'disconnect', clientId: 'c0' },
+              {
+                kind: 'domain',
+                clientId: 'c0',
+                command: 'increment',
+                args: {},
+              },
+              { kind: 'crash', clientId: 'c0' },
+              {
+                kind: 'domain',
+                clientId: 'c1',
+                command: 'increment',
+                args: {},
+              },
+              { kind: 'restart', clientId: 'c0' },
+              { kind: 'clearLocalData', clientId: 'c1' },
+              {
+                kind: 'domain',
+                clientId: 'c1',
+                command: 'increment',
+                args: {},
+              },
+            ],
+          });
+          await world.dispose();
+        }),
         { numRuns: 8 }
       );
     },
@@ -109,7 +101,7 @@ describe('room session-lifecycle PBT', () => {
     async () => {
       await assertSampleProperty(
         'server crash sequences converge',
-        fc.asyncProperty(arbWorldSeed(), async (seed) => {
+        fc.asyncProperty(arbSeed(), async (seed) => {
           const world = await replayRoom(counterSystem, {
             seed,
             actions: [
@@ -143,7 +135,7 @@ describe('room session-lifecycle PBT', () => {
       settle: false,
       actions: [],
     });
-    const real = world.facade;
+    const real = world;
     try {
       const c0 = real.clients.get('c0')!;
       const frame = {
@@ -170,7 +162,7 @@ describe('room session-lifecycle PBT', () => {
       seed: 11,
       knobs: { clientCount: 0 },
     });
-    const world = host.facade;
+    const world = host;
     await world.addClient({
       id: 'tab-a',
       identity: 'user',

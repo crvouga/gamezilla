@@ -1,17 +1,20 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
+import type { AnySystemDef } from '@pkgs/determinism';
 import { assertSample } from '@pkgs/determinism/pbt';
 import { playSyncActions, replaySyncPin } from '../../sim/system';
 import { setNote } from '../apps/acme';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
-import { acmeSystem } from '../apps/acme/system';
+import { acmeSystem, openAcmeWorld } from '../apps/acme/system';
 import type { DomainOp, LibraryAction, SyncAction } from '../system/actions';
 
 describe('fault permutation PBT', () => {
   test(
     'full fault pool interleaves and converges',
     async () => {
-      await assertSample(acmeSystem, { maxCommands: 20, numRuns: 6 });
+      await assertSample(acmeSystem as unknown as AnySystemDef, {
+        maxCommands: 20,
+        numRuns: 6,
+      });
     },
     { timeout: 180_000 }
   );
@@ -43,12 +46,12 @@ describe('fault permutation pins', () => {
   });
 
   test('storage full then restart converges', async () => {
-    await using world = await openWorld(acmeSystem, { seed: 44002 });
-    const facade = world.facade;
-    const c0 = facade.clients.get('c0');
+    await using world = await openAcmeWorld({ seed: 44002 });
+
+    const c0 = world.clients.get('c0');
     expect(c0).toBeDefined();
     if (c0 === undefined) return;
-    facade.armStoragePressure('c0', 'sqliteFull');
+    world.armStoragePressure('c0', 'sqliteFull');
     const denied = await c0.mutate(setNote, { id: 'n0', body: 'quota' });
     expect(denied.ok).toBe(false);
     if (!denied.ok) {
@@ -59,7 +62,7 @@ describe('fault permutation pins', () => {
       acmeSetNoteOp('c0', 'n0', 'after-restart'),
       { kind: 'heal' },
     ]);
-    await facade.assertConverged();
+    await world.assertConverged();
   });
 
   test('freeze sync then thaw catches up', async () => {

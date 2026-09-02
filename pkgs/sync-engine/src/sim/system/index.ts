@@ -14,6 +14,7 @@ export type {
   DefineSyncSystemOpts,
   SyncSystemDef,
   SyncSystemWorld,
+  SyncWorldExtension,
 } from './define-sync-system';
 export {
   defineSyncSystem,
@@ -22,7 +23,7 @@ export {
 } from './define-sync-system';
 export { dispatchSyncAction } from './dispatch';
 export type { WorldKnobs } from './knobs';
-export { arbWorldKnobs, arbWorldSeed } from './knobs';
+export { arbKnobs, arbSeed } from './knobs';
 export { libraryActionArbs, MILD_NET_FAULTS } from './library-arbs';
 export {
   prepareClientsForConverge,
@@ -31,7 +32,7 @@ export {
 } from './play';
 export type { ReplaySyncInputs } from './replay';
 export { replaySync, replaySyncPin } from './replay';
-export type { SyncSystem, SyncSystemFacade } from './system';
+export type { SyncRuntime, SyncSystem, SyncSystemFacade } from './system';
 export type { WorldModel, WorldReal } from './world-model';
 export {
   AUTH_STATUSES,

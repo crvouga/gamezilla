@@ -17,26 +17,20 @@ export type SchemaPeer = {
   readonly planKinds: string[];
 };
 
-export type SchemaSystem = {
-  server: SchemaPeer | null;
-  readonly clients: SchemaPeer[];
-};
-
-export function createSchemaSystem(): SchemaSystem {
-  return { server: null, clients: [] };
-}
-
-export function requireServer(system: SchemaSystem): SchemaPeer {
-  if (system.server === null) {
+export function requireServer(server: SchemaPeer | undefined): SchemaPeer {
+  if (server === undefined) {
     throw new Error('db-schema DST: schema.server node is not booted');
   }
-  return system.server;
+  return server;
 }
 
-export function resolvePeer(system: SchemaSystem, id: string): SchemaPeer {
-  const server = requireServer(system);
+export function resolvePeer(
+  server: SchemaPeer,
+  clients: ReadonlyMap<string, SchemaPeer>,
+  id: string
+): SchemaPeer {
   if (id === server.id) return server;
-  const client = system.clients.find((c) => c.id === id);
+  const client = clients.get(id);
   if (client === undefined) {
     throw new Error(`db-schema DST: no peer ${id}`);
   }

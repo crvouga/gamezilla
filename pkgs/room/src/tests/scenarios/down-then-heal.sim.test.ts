@@ -9,7 +9,7 @@ describe('room sim: down then heal (E-A02)', () => {
       seed: process.env['SIM_SEED'] ?? '42',
       knobs: { clientCount: 0 },
     });
-    const world = host.facade;
+    const world = host;
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await world.assertConverged();
@@ -19,7 +19,7 @@ describe('room sim: down then heal (E-A02)', () => {
       using _down = world.net('bob').set('down');
       a.dispatch(Increment({}));
       await world.drain();
-      await world.never(() => counterValue(b.snapshot()) === 1, {
+      await world.waitNever(() => counterValue(b.snapshot()) === 1, {
         forMs: 200,
       });
       expect(b.hash()).toBe(bobBefore);

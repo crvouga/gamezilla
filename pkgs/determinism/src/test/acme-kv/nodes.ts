@@ -1,27 +1,24 @@
 import { isPlainObject } from '../../json';
 import type { SimNetwork } from '../../network';
-import { defineNodeKind } from '../../node-kind';
-import {
-  type AcmeKvEntry,
-  type AcmeKvSystem,
-  applyLww,
-  clientEndpointId,
-  serverEndpointId,
-} from './types';
+import { node } from '../../node';
+import type { AcmeKvEntry } from './types';
+import { clientEndpointId, serverEndpointId } from './types';
 
 export type AcmeKvServerHandle = {
   readonly id: string;
   readonly endpointId: string;
-  readonly state: AcmeKvSystem;
+  readonly store: Map<string, AcmeKvEntry>;
+  readonly clientEndpoints: string[];
+  nextWriteId: number;
   readonly network: SimNetwork;
+  registerClient(ep: string): void;
 };
 
 export type AcmeKvClientHandle = {
   readonly id: string;
   readonly endpointId: string;
-  readonly state: AcmeKvSystem;
-  readonly network: SimNetwork;
   readonly cache: Map<string, AcmeKvEntry>;
+  readonly network: SimNetwork;
 };
 
 type PutMsg = {
@@ -71,6 +68,18 @@ function asReplicate(payload: unknown): ReplicateMsg | null {
   return { type: 'replicate', key, value, writeId };
 }
 
+function applyLww(
+  store: Map<string, AcmeKvEntry>,
+  key: string,
+  value: string,
+  writeId: number
+): boolean {
+  const prev = store.get(key);
+  if (prev !== undefined && prev.writeId >= writeId) return false;
+  store.set(key, { value, writeId });
+  return true;
+}
+
 function fanoutReplicate(
   handle: AcmeKvServerHandle,
   key: string,
@@ -78,7 +87,7 @@ function fanoutReplicate(
   writeId: number
 ): void {
   const msg: ReplicateMsg = { type: 'replicate', key, value, writeId };
-  for (const to of handle.state.clientEndpoints) {
+  for (const to of handle.clientEndpoints) {
     handle.network.send(handle.endpointId, to, msg);
   }
 }
@@ -86,12 +95,7 @@ function fanoutReplicate(
 function onServerDeliver(handle: AcmeKvServerHandle, payload: unknown): void {
   const put = asPut(payload);
   if (put === null) return;
-  const applied = applyLww(
-    handle.state.serverStore,
-    put.key,
-    put.value,
-    put.writeId
-  );
+  const applied = applyLww(handle.store, put.key, put.value, put.writeId);
   if (!applied) return;
   fanoutReplicate(handle, put.key, put.value, put.writeId);
 }
@@ -103,102 +107,64 @@ function onClientDeliver(handle: AcmeKvClientHandle, payload: unknown): void {
 }
 
 /** Re-send every server entry to every client (catch-up after partition). */
-export function rebroadcastStore(state: AcmeKvSystem): void {
-  const network = state.network;
-  if (network === null) return;
-  const from = serverEndpointId();
-  for (const [key, entry] of state.serverStore) {
-    const msg: ReplicateMsg = {
-      type: 'replicate',
-      key,
-      value: entry.value,
-      writeId: entry.writeId,
-    };
-    for (const to of state.clientEndpoints) {
-      network.send(from, to, msg);
-    }
+export function rebroadcastStore(server: AcmeKvServerHandle): void {
+  for (const [key, entry] of server.store) {
+    fanoutReplicate(server, key, entry.value, entry.writeId);
   }
 }
 
 export function sendPut(args: {
-  readonly state: AcmeKvSystem;
-  readonly clientId: string;
+  readonly server: AcmeKvServerHandle;
+  readonly client: AcmeKvClientHandle;
   readonly key: string;
   readonly value: string;
 }): void {
-  const network = args.state.network;
-  if (network === null) {
-    throw new Error('acme-kv: network not ready');
-  }
-  args.state.nextWriteId += 1;
-  const writeId = args.state.nextWriteId;
+  args.server.nextWriteId += 1;
+  const writeId = args.server.nextWriteId;
   const msg: PutMsg = {
     type: 'put',
-    clientId: args.clientId,
+    clientId: args.client.id,
     key: args.key,
     value: args.value,
     writeId,
   };
-  network.send(clientEndpointId(args.clientId), serverEndpointId(), msg);
+  args.client.network.send(args.client.endpointId, args.server.endpointId, msg);
 }
 
-export const acmeKvServerNode = defineNodeKind<
-  AcmeKvServerHandle,
-  AcmeKvServerHandle,
-  AcmeKvSystem
->({
-  id: 'acme-kv.server',
+export const acmeKvServerNode = node({
   boot: (ctx) => {
-    ctx.state.network = ctx.network;
     const handle: AcmeKvServerHandle = {
-      id: ctx.nodeId,
+      id: ctx.id,
       endpointId: serverEndpointId(),
-      state: ctx.state,
+      store: new Map(),
+      clientEndpoints: [],
+      nextWriteId: 0,
       network: ctx.network,
+      registerClient(ep) {
+        this.clientEndpoints.push(ep);
+      },
     };
+    ctx.listen(
+      (payload) => onServerDeliver(handle, payload),
+      handle.endpointId
+    );
     return handle;
   },
-  endpoints: (handle) => [
-    {
-      id: handle.endpointId,
-      deliver: async (payload) => {
-        onServerDeliver(handle, payload);
-      },
-    },
-  ],
-  view: (h) => h,
 });
 
-export const acmeKvClientNode = defineNodeKind<
-  AcmeKvClientHandle,
-  AcmeKvClientHandle,
-  AcmeKvSystem
->({
-  id: 'acme-kv.client',
+export const acmeKvClientNode = node({
   boot: (ctx) => {
+    const server = ctx.peers.single('server') as AcmeKvServerHandle;
+    const endpointId = clientEndpointId(ctx.id);
     const cache = new Map<string, AcmeKvEntry>();
-    ctx.state.clientCaches.set(ctx.nodeId, cache);
-    const endpointId = clientEndpointId(ctx.nodeId);
-    ctx.state.clientEndpoints.push(endpointId);
-    if (ctx.state.network === null) {
-      ctx.state.network = ctx.network;
-    }
     const handle: AcmeKvClientHandle = {
-      id: ctx.nodeId,
+      id: ctx.id,
       endpointId,
-      state: ctx.state,
-      network: ctx.network,
       cache,
+      network: ctx.network,
     };
+    ctx.listen((payload) => onClientDeliver(handle, payload), endpointId);
+    server.registerClient(endpointId);
     return handle;
   },
-  endpoints: (handle) => [
-    {
-      id: handle.endpointId,
-      deliver: async (payload) => {
-        onClientDeliver(handle, payload);
-      },
-    },
-  ],
-  view: (h) => h,
 });

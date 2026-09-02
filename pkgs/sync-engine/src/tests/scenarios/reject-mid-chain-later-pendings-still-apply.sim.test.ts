@@ -1,23 +1,22 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import {
   expectLiveNote,
   expectNotesMatchServer,
   serverRejectNote,
   setNote,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('reject mid chain later pendings still apply', () => {
   test('applied/rejected/applied batch: reject rolls back; later survive', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 824,
       knobs: {
         clientCount: 0,
         rowImageFanout: false,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
@@ -35,8 +34,8 @@ describe('reject mid chain later pendings still apply', () => {
     if (!ok1.ok || !bad.ok || !ok2.ok) return;
 
     await a.connect();
-    await world.until(a.outcome(bad.mutationId));
-    await world.until(a.outcome(ok2.mutationId));
+    await world.waitUntil(a.outcome(bad.mutationId));
+    await world.waitUntil(a.outcome(ok2.mutationId));
     expect(await a.outcome(bad.mutationId)).toBe('rejected');
     expect(await a.outcome(ok2.mutationId)).toBe('confirmed');
 

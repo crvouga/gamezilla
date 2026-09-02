@@ -1,20 +1,19 @@
 import { describe, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import { SCHEMA_EPOCH } from '@pkgs/sync-engine/test';
 import { expectLiveNote, isLiveNote, setNote } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('epoch bump wipes cache preserves pending uploads', () => {
   test.each([710, 711, 712])(
     'offline pending survives epoch bump (seed=%i)',
     async (seed) => {
-      await using host = await openWorld(acmeSystem, {
+      await using world = await openAcmeWorld({
         seed: seed,
         knobs: {
           clientCount: 0,
         },
       });
-      const world = host.facade;
+
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
 
@@ -23,7 +22,9 @@ describe('epoch bump wipes cache preserves pending uploads', () => {
 
       await a.disconnect();
       await a.mutate(setNote, { id: 'n1', body: 'queued' });
-      await world.never(() => isLiveNote(world.server.db, 'n1'), { forMs: 50 });
+      await world.waitNever(() => isLiveNote(world.server.db, 'n1'), {
+        forMs: 50,
+      });
 
       const alice2 = await world.node('alice').restart({
         preserveLocalDb: true,

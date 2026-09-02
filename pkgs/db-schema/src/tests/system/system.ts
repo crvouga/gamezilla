@@ -1,20 +1,17 @@
-import { defineKnob, defineSystem } from '@pkgs/determinism';
-import fc from 'fast-check';
+import { defineSystem } from '@pkgs/determinism';
 
 import { SCHEMA_ACTIONS, type SchemaModel } from './actions';
 import {
   assertClientAlignedWithServer,
   assertServerLiveColumns,
-  checkServerLiveColumns,
 } from './invariants';
-import { schemaClientNode, schemaServerNode } from './nodes';
 import {
-  createSchemaSystem,
-  planKindHash,
-  requireServer,
-  SCHEMA_SERVER_ID,
-  type SchemaSystem,
-} from './peers';
+  SCHEMA_CLIENT_COUNT,
+  schemaClientNode,
+  schemaServerNode,
+} from './nodes';
+import type { SchemaPeer } from './peers';
+import { planKindHash, requireServer, SCHEMA_SERVER_ID } from './peers';
 
 export { SCHEMA_SERVER_ID };
 
@@ -24,40 +21,37 @@ const PLAN_HASH_HEX_LENGTH = 64;
  * One `schema.server` (postgres-mem) plus N `schema.client` (sqlite-mem) peers
  * walking a compatible expand/contract chain at independent versions.
  */
-export const SCHEMA_SYSTEM = defineSystem<SchemaSystem, SchemaModel>({
+export const SCHEMA_SYSTEM = defineSystem({
   id: 'db-schema.reconcile',
-  state: createSchemaSystem,
-  knobs: [
-    defineKnob({
-      id: 'clientCount',
-      default: 2,
-      arb: fc.integer({ min: 1, max: 3 }),
-    }),
-  ],
-  nodes: [
-    {
-      kind: schemaServerNode,
-      role: 'server',
-      count: 1,
-      idFor: () => SCHEMA_SERVER_ID,
+  knobs: {
+    clientCount: SCHEMA_CLIENT_COUNT,
+  },
+  nodes: {
+    server: {
+      ...schemaServerNode,
+      id: () => SCHEMA_SERVER_ID,
     },
-    {
-      kind: schemaClientNode,
-      role: 'client',
-      count: { fromKnob: 'clientCount' },
-      idFor: (i) => `client-${i}`,
+    client: {
+      ...schemaClientNode,
+      count: (k) => k['clientCount'] as number,
+      id: (i) => `client-${i}`,
     },
-  ],
-  actions: [...SCHEMA_ACTIONS],
+  },
+  actions: SCHEMA_ACTIONS,
   model: {
     initial: (): SchemaModel => ({}),
   },
-  invariants: async (world) =>
-    checkServerLiveColumns(requireServer(world.state)),
+  invariants: async () => {
+    /* safety checks run in settle */
+  },
   settle: async (world) => {
-    const server = requireServer(world.state);
+    const server = requireServer(world.nodes['server'] as SchemaPeer);
     await assertServerLiveColumns(server);
-    for (const client of world.state.clients) {
+    const clients = world.nodes['client'] as unknown as ReadonlyMap<
+      string,
+      SchemaPeer
+    >;
+    for (const client of clients.values()) {
       await assertClientAlignedWithServer(client, server);
     }
     if (planKindHash(server).length !== PLAN_HASH_HEX_LENGTH) {
@@ -65,3 +59,8 @@ export const SCHEMA_SYSTEM = defineSystem<SchemaSystem, SchemaModel>({
     }
   },
 });
+
+export type SchemaWorld = import('@pkgs/determinism').World<
+  typeof SCHEMA_SYSTEM.knobs,
+  typeof SCHEMA_SYSTEM.nodes
+>;

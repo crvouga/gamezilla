@@ -14,11 +14,10 @@ const VALID_MOVES = 'e8d7 e1f2 d7e6 f2e3';
 
 describe('chess puzzle: wrong vs solve race (Gp-04)', () => {
   test('two host tabs race moves → one consistent status', async () => {
-    await using host = await openWorld(chessSystem, {
+    await using world = await openWorld(chessSystem, {
       seed: process.env['SIM_SEED'] ?? '42',
       knobs: { clientCount: 0, mildFaults: true },
     });
-    const world = host.facade;
     const tab1 = await world.addClient({
       id: 'tab1',
       identity: 'host-1',

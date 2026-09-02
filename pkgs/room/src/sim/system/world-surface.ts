@@ -1,12 +1,13 @@
+import type { NeverOpts } from '@pkgs/determinism';
+
 import type { RoomCommandPayload, RoomEvent, RoomState } from '../../types';
 import type { RoomCrashEvent } from '../boundary-faults';
 import type { RoomSimClientHandle, RoomSimNodeHandle } from '../handles';
-import type { RoomInvariantViolation } from '../invariants';
 import type { SimRoomNetHandle } from '../network';
+import type { UntilPredicate } from '../wait-until';
 
 /**
- * DST play/dispatch surface — structural subset of World.
- * Kept separate so `sim/system/*` does not import `world-api` (no cycles).
+ * DST play/dispatch surface — room extension merged onto framework World.
  */
 export type RoomSystemWorldSurface<
   S extends RoomState = RoomState,
@@ -18,7 +19,12 @@ export type RoomSystemWorldSurface<
   readonly net: (clientId: string) => SimRoomNetHandle;
   readonly node: (clientId: string) => RoomSimNodeHandle;
   readonly runFor: (ms: number) => Promise<void>;
-  readonly checkInvariants: () => Promise<RoomInvariantViolation | null>;
+  readonly waitUntil: (
+    pred: UntilPredicate,
+    opts?: { readonly withinMs?: number; readonly budgetMs?: number }
+  ) => Promise<number>;
+  readonly waitNever: (pred: UntilPredicate, opts: NeverOpts) => Promise<void>;
+  readonly checkInvariants: () => Promise<void>;
   readonly assertConverged: () => Promise<void>;
   readonly clearBoundaryFaults: () => void;
   readonly armCrashAt: (clientId: string, event: RoomCrashEvent) => void;

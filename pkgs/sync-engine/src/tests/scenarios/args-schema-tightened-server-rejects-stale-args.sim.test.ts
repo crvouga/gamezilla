@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import {
   acmeMutationRegistry,
   expectLiveNote,
@@ -7,20 +6,20 @@ import {
   setNote,
   setNoteArgsLoose,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('args schema tightened server rejects stale args', () => {
   test.each([790, 791, 792])(
     'loose client args rejected by tight server (seed=%i)',
     async (seed) => {
-      await using host = await openWorld(acmeSystem, {
+      await using world = await openAcmeWorld({
         seed: seed,
         knobs: {
           clientCount: 0,
           rowImageFanout: false,
         },
       });
-      const world = host.facade;
+
       const a = await world.addClient({
         id: 'alice',
         mutationRegistry: {
@@ -44,7 +43,9 @@ describe('args schema tightened server rejects stale args', () => {
       if (!rejected.ok) return;
 
       await a.connect();
-      await world.until(a.outcome(rejected.mutationId), { budgetMs: 5_000 });
+      await world.waitUntil(a.outcome(rejected.mutationId), {
+        withinMs: 5_000,
+      });
       expect(await a.outcome(rejected.mutationId)).toBe('rejected');
 
       const unacked = await a.rejections();

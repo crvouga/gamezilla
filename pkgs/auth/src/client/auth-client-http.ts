@@ -1,10 +1,9 @@
 import type { HttpFetch } from '@pkgs/http-client';
-
-import type { VerifiedSession } from '../shared/verified-session';
 import {
   IDP_PROVIDER_DEV,
   IDP_PROVIDER_GOOGLE,
 } from '../shared/auth-constants';
+import type { VerifiedSession } from '../shared/verified-session';
 
 export const AUTH_SSO_CANCELLED_ERROR =
   "Sign-in was cancelled or didn't finish.";

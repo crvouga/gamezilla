@@ -1,8 +1,7 @@
 import { describe, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import { MAX_FANOUT_ROWS } from '@pkgs/sync-engine/shared';
 import { expectNotesMatchServer, retouchNotes, setNote } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 function noteIds(count: number): string[] {
   return Array.from(
@@ -13,13 +12,13 @@ function noteIds(count: number): string[] {
 
 describe('fanout receive cap on push', () => {
   test('oversized push row images are dropped; refetch converges', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 9402,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     const ids = noteIds(MAX_FANOUT_ROWS + 1);
@@ -30,7 +29,7 @@ describe('fanout receive cap on push', () => {
     await world.assertConverged();
 
     await a.mutate(retouchNotes, { ids, body: 'over-cap' });
-    await world.runFor(500);
+    await world.advance(500);
     await world.assertConverged();
     await expectNotesMatchServer(b.db, world.server.db);
   });

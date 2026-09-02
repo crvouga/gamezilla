@@ -1,7 +1,10 @@
 import type { HttpFetch } from '@pkgs/http-client';
 
 import { AUTH_SSO_POPUP_BLOCKED_ERROR } from './auth-client-http';
-import type { OpenAuthSession, OpenAuthSessionResult } from './create-auth-client-adapter';
+import type {
+  OpenAuthSession,
+  OpenAuthSessionResult,
+} from './create-auth-client-adapter';
 
 export type InProcessOpenAuthSessionFault =
   | 'cancel'

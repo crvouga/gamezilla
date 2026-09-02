@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import { sql } from '@pkgs/sql';
 import {
   acmeLocalSchemaExtraColumn,
@@ -9,7 +8,7 @@ import {
   readNoteTombstone,
   setNote,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 /**
  * Public-API / sim pins for merge semantics that bulk upsert must preserve:
@@ -17,13 +16,13 @@ import { acmeSystem } from '../apps/acme/system';
  */
 describe('public API: merge via openWorld', () => {
   test('missing server keys do not null local-only columns', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 9001,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({
       id: 'alice',
       localSchema: acmeLocalSchemaExtraColumn,
@@ -47,13 +46,13 @@ describe('public API: merge via openWorld', () => {
   });
 
   test('tombstone upsert removes live peer row; pending rebase wins after disconnect', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 9002,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
@@ -70,7 +69,7 @@ describe('public API: merge via openWorld', () => {
     await expectLiveNote(a.db, 'n1', { body: 'optimistic-pending' });
 
     await a.connect();
-    await world.runFor(500);
+    await world.advance(500);
     await expectLiveNote(a.db, 'n1', { body: 'optimistic-pending' });
     await world.assertConverged();
     await expectLiveNote(b.db, 'n1', { body: 'optimistic-pending' });

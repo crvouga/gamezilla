@@ -1,4 +1,5 @@
 import { describe, test } from 'bun:test';
+import type { AnySystemDef } from '@pkgs/determinism';
 import { assertSample, assertSampleProperty } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
 import { replaySyncPin } from '../../sim/system';
@@ -9,7 +10,9 @@ describe('acme world PBT', () => {
   test(
     'fc.commands sequences replay on World and converge',
     async () => {
-      await assertSample(acmeSystem, { maxCommands: 14 });
+      await assertSample(acmeSystem as unknown as AnySystemDef, {
+        maxCommands: 14,
+      });
     },
     { timeout: 120_000 }
   );

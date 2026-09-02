@@ -6,26 +6,43 @@ import {
 } from './json';
 
 export type KnobDef<T extends JsonValue = JsonValue> = {
-  readonly id: string;
   readonly default: T;
   readonly arb: Arbitrary<T>;
   readonly description?: string;
 };
 
-export function defineKnob<T extends JsonValue>(def: KnobDef<T>): KnobDef<T> {
-  return def;
+export type KnobDefWithId<T extends JsonValue = JsonValue> = KnobDef<T> & {
+  readonly id: string;
+};
+
+export function knob<T extends JsonValue>(
+  defaultValue: T,
+  arb: Arbitrary<T>,
+  description?: string
+): KnobDef<T> {
+  return description !== undefined
+    ? { default: defaultValue, arb, description }
+    : { default: defaultValue, arb };
 }
 
-export type KnobCatalog<V extends Record<string, JsonValue>> = {
+export type KnobValues<K extends Record<string, KnobDef>> = {
+  [P in keyof K]: K[P] extends KnobDef<infer V> ? V : JsonValue;
+};
+
+export function resolveKnobDefs(
+  knobs: Record<string, KnobDef>
+): readonly KnobDefWithId[] {
+  return Object.entries(knobs).map(([id, def]) => ({ ...def, id }));
+}
+
+export function createKnobCatalog<V extends Record<string, JsonValue>>(
+  defs: readonly KnobDefWithId[],
+  overrides?: Partial<V>
+): {
   readonly values: Readonly<V>;
   readonly get: <K extends keyof V & string>(id: K) => V[K];
   readonly toJSON: () => V;
-};
-
-export function createKnobCatalog<V extends Record<string, JsonValue>>(
-  defs: readonly KnobDef[],
-  overrides?: Partial<V>
-): KnobCatalog<V> {
+} {
   const seen = new Set<string>();
   const values: Record<string, JsonValue> = {};
   for (const def of defs) {

@@ -35,13 +35,12 @@ describe('mixed schema tombstone and pending rebase', () => {
   test.each([2110, 2111, 2112])(
     'pending setNoteColor revives peer tombstone; color kept (seed=%i)',
     async (seed) => {
-      await using host = await openWorld(acmeColorTombstoneSystem, {
+      await using world = await openWorld(acmeColorTombstoneSystem, {
         seed: seed,
         knobs: {
           clientCount: 0,
         },
       });
-      const world = host.facade;
 
       const alice = await world.addClient({
         id: 'alice',
@@ -76,7 +75,7 @@ describe('mixed schema tombstone and pending rebase', () => {
 
       const del = await bob.mutate(deleteNote, { id: 'n1' });
       expect(del.ok).toBe(true);
-      await world.runFor(400);
+      await world.advance(400);
       expect(await readNoteTombstone(world.server.db, 'n1')).not.toBeNull();
 
       await alice.connect();

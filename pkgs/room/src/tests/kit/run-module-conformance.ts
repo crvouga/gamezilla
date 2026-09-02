@@ -1,7 +1,11 @@
 import { openWorld } from '@pkgs/determinism';
 import { createSimAdapters } from '@pkgs/uuid';
-import { defineRoomSystem, type RoomApp } from '../../sim/system';
-import type { RoomSimClientHandle, World } from '../../sim/world-api';
+import {
+  defineRoomSystem,
+  type RoomApp,
+  type RoomSystemWorld,
+} from '../../sim/system';
+import type { RoomSimClientHandle } from '../../sim/world-api';
 import type {
   RoomCommand,
   RoomCommandPayload,
@@ -34,11 +38,11 @@ async function assertSettledDomain<
   C extends RoomCommandPayload,
   E extends RoomEvent,
 >(
-  world: World<S, C, E>,
+  world: RoomSystemWorld,
   client: RoomSimClientHandle<S, C, E>,
   args: ModuleConformanceArgs<S, C, E>
 ): Promise<void> {
-  assertDomainValid('server fold', await world.serverSnapshot(), args);
+  assertDomainValid('server fold', (await world.serverSnapshot()) as S, args);
   assertDomainValid('client fold', client.snapshot(), args);
   if ((await world.serverHash()) !== client.hash()) {
     throw new Error('E1: client hash diverged from serverHash after settle');
@@ -101,7 +105,7 @@ export async function runModuleConformance<
       mildFaults: args.mildFaults ?? true,
     },
   });
-  const world = host.facade as unknown as World<S, C, E>;
+  const world = host as unknown as RoomSystemWorld;
   const clients = [];
   for (const id of identities.slice(0, 3)) {
     clients.push(await world.addClient({ id, identity: id }));
@@ -113,7 +117,7 @@ export async function runModuleConformance<
     const client = clients[rng.int(clients.length)]!;
     const payload = args.generateCommand({
       rng,
-      state: client.snapshot(),
+      state: client.snapshot() as S,
       identity: client.identity,
       now: world.clock.now(),
       step,
@@ -132,7 +136,11 @@ export async function runModuleConformance<
     await c.connect();
   }
   await world.assertConverged();
-  await assertSettledDomain(world, clients[0]!, args);
+  await assertSettledDomain(
+    world,
+    clients[0]!,
+    args as unknown as ModuleConformanceArgs<RoomState, C, E>
+  );
 }
 
 function purePlay<

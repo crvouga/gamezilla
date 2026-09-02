@@ -13,8 +13,8 @@ import type { SeededRng } from '../../sim/rng';
 import { defineSyncSystem } from '../../sim/system';
 import type { SyncAction } from '../../sim/system/actions';
 import type { SyncApp } from '../../sim/system/app';
+import type { SyncSystemWorld } from '../../sim/system/define-sync-system';
 import { dispatchSyncAction } from '../../sim/system/dispatch';
-import type { SyncSystemFacade } from '../../sim/system/system';
 import { pickLibraryAction } from './pick-library-action';
 
 const WORLD_START_MS = 1_700_000_000_000;
@@ -121,7 +121,7 @@ async function pickWorkloadAction(args: {
 
 async function runWorkloadLoop(args: {
   readonly app: SyncApp;
-  readonly world: SyncSystemFacade;
+  readonly world: SyncSystemWorld;
   readonly ids: readonly string[];
   readonly steps: number;
   domainModel: unknown | null;
@@ -148,7 +148,7 @@ async function runWorkloadLoop(args: {
     } catch (error) {
       if (isTransientSimFault(error)) {
         done += 1;
-        await args.world.runFor(20);
+        await args.world.advance(20);
         continue;
       }
       const message = error instanceof Error ? error.message : String(error);
@@ -176,9 +176,10 @@ async function runWorkloadLoop(args: {
       args.app.domainModel.apply(domainModel, action);
     }
     done += 1;
-    const inv = await args.world.checkInvariants();
-    if (inv !== null) {
-      const message = `${inv.invariant}: ${inv.detail}`;
+    try {
+      await args.world.checkInvariants();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
       return {
         done,
         fail: {
@@ -195,7 +196,7 @@ async function runWorkloadLoop(args: {
         },
       };
     }
-    await args.world.runFor(20);
+    await args.world.advance(20);
   }
   return { done, fail: null };
 }
@@ -207,12 +208,11 @@ async function runWorkloadLoop(args: {
 export async function runSeed(opts: RunSeedOptions): Promise<RunSeedResult> {
   const clientCount = opts.clientCount ?? 2;
   const steps = opts.steps ?? 40;
-  // clientCount: 0 so bootClients owns ids + optional fault sampling.
-  await using host = await openWorld(defineSyncSystem(opts.app), {
+  await using world = (await openWorld(defineSyncSystem(opts.app), {
     seed: opts.seed,
     knobs: { clientCount: 0 },
-  });
-  const world = host.facade;
+  })) as SyncSystemWorld;
+
   const actions: SyncAction[] = [];
   let done = 0;
   try {

@@ -164,8 +164,8 @@ function applyKeyFaults(
 ): void {
   for (const direction of ['toServer', 'toClient'] as const) {
     const key = roomNetKey(clientKey, direction);
-    if (faults === undefined) ctx.kernel.clearKeyFaults(key);
-    else ctx.kernel.setKeyFaults(key, toKernelFaults(faults));
+    if (faults === undefined) ctx.kernel.clearFaults(key);
+    else ctx.kernel.setFaults(toKernelFaults(faults), key);
   }
 }
 
@@ -351,7 +351,7 @@ function buildRoomNetworkApi(args: {
       );
     },
     setDefaultFaults(faults) {
-      kernel.setDefaultFaults(toKernelFaults(faults));
+      kernel.setFaults(toKernelFaults(faults));
     },
     set(clientKey, next) {
       const prior = snapshotOf(ctx, clientKey);
@@ -370,8 +370,8 @@ function buildRoomNetworkApi(args: {
     healAll() {
       kernel.releaseAll();
       kernel.healAll();
-      kernel.clearKeyFaults();
-      kernel.setDefaultFaults(RELIABLE_NET_FAULTS);
+      kernel.clearFaults();
+      kernel.setFaults(RELIABLE_NET_FAULTS);
       ctx.link.clear();
       ctx.dirToServer.clear();
       ctx.dirToClient.clear();
@@ -380,15 +380,15 @@ function buildRoomNetworkApi(args: {
     linkState: (clientKey) => linkStateOf(ctx, clientKey),
     heldSummary() {
       return kernel
-        .heldSummary()
-        .map((k) => k.replace('\0', ':'))
+        .held()
+        .map((k: string) => k.replace('\0', ':'))
         .sort();
     },
     pendingCount() {
       return scheduler.pendingCount();
     },
     netPendingCount() {
-      return kernel.inFlightCount();
+      return kernel.inFlight();
     },
   };
 }
@@ -403,7 +403,7 @@ export function wrapRoomNetwork(args: {
   readonly faults?: RoomFaultProfile;
 }): SimRoomNetwork {
   if (args.faults !== undefined) {
-    args.kernel.setDefaultFaults(toKernelFaults(args.faults));
+    args.kernel.setFaults(toKernelFaults(args.faults));
   }
   const ctx: RoomNetCtx = {
     kernel: args.kernel,

@@ -53,7 +53,8 @@ export type SimHandleMutationsOpts = {
 
 export type SimHttpServerHandlers = {
   readonly handleQuery: (
-    requests: readonly QueryRequest[]
+    requests: readonly QueryRequest[],
+    clientNode?: string
   ) => Promise<readonly QueryResponse[]>;
   readonly handleMutations: (
     mutations: readonly MutationUploadRow[],

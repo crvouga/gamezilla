@@ -14,10 +14,10 @@ module.exports = {
       severity: 'error',
       from: {
         pathNot:
-          '(\\.(test|spec)\\.|/(__tests__|testkit|fixtures?|tests?)/|(apps|libs|pkgs)/[^/]+/src/(simulator|testkit)\\.ts)',
+          '(\\.(test|spec)\\.|/(__tests__|testkit|fixtures?|tests?|e2e)/|(apps|libs|pkgs)/[^/]+/src/(simulator|testkit)\\.ts)',
       },
       to: {
-        path: '(\\.(test|spec)\\.|/(__tests__|testkit|fixtures?|tests?)/)',
+        path: '(\\.(test|spec)\\.|/(__tests__|testkit|fixtures?|tests?|e2e)/)',
         pathNot: 'smoke-tests',
       },
     },
@@ -36,7 +36,11 @@ module.exports = {
     {
       name: 'client-not-server',
       severity: 'error',
-      from: { path: '/client/' },
+      from: {
+        path: '/client/',
+        pathNot:
+          '(\\.(test|spec)\\.|/(__tests__|testkit|fixtures?|tests?|e2e)/)',
+      },
       to: { path: '/server/' },
     },
     {

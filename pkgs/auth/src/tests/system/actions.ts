@@ -1,4 +1,4 @@
-import { type ActionArbContext, defineAction } from '@pkgs/determinism';
+import { action } from '@pkgs/determinism';
 import fc from 'fast-check';
 import {
   AUTH_SESSION_TTL_MS,
@@ -13,7 +13,7 @@ import {
   dispatchStealBearer,
   type OauthProvider,
 } from './dispatch';
-import type { AuthSystem } from './types';
+import type { AuthKit } from './types';
 
 export type AuthDomainOp =
   | {
@@ -50,6 +50,12 @@ export type AuthAction = AuthDomainOp | AdvanceClockAction | GoogleFaultAction;
 
 export type AuthModel = Record<string, never>;
 
+type AuthWorld = import('@pkgs/determinism').World<
+  Record<string, import('@pkgs/determinism').KnobDef>,
+  Record<string, import('@pkgs/determinism').NodeSpecEntry>,
+  AuthKit
+>;
+
 const SUBJECTS = ['alice', 'bob', 'carol'] as const;
 const PROVIDERS = [IDP_PROVIDER_GOOGLE, IDP_PROVIDER_DEV] as const;
 const CALLBACK_URLS = [
@@ -58,19 +64,20 @@ const CALLBACK_URLS = [
   'https://evil.example/sso',
 ] as const;
 
-function clientArb(ctx: ActionArbContext): fc.Arbitrary<string> {
-  const clients = ctx.roleIds('client');
+function clientArb(
+  ctx: import('@pkgs/determinism').ActionArbContext
+): fc.Arbitrary<string> {
+  const clients = ctx.ids('client');
   if (clients.length === 0) return fc.constant('c0');
   return fc.constantFrom(...clients);
 }
 
-export const advanceClockAction = defineAction<
-  AuthSystem,
+export const advanceClockAction = action<
   AdvanceClockAction,
-  AuthModel
+  AuthModel,
+  AuthWorld
 >({
-  kind: 'advanceClock',
-  class: 'library',
+  weight: 1,
   arb: () =>
     fc.record({
       kind: fc.constant('advanceClock' as const),
@@ -81,30 +88,29 @@ export const advanceClockAction = defineAction<
   },
 });
 
-export const setGoogleFaultAction = defineAction<
-  AuthSystem,
+export const setGoogleFaultAction = action<
   GoogleFaultAction,
-  AuthModel
+  AuthModel,
+  AuthWorld
 >({
-  kind: 'setGoogleFault',
-  class: 'library',
+  weight: 1,
   arb: () =>
     fc.record({
       kind: fc.constant('setGoogleFault' as const),
       fault: fc.boolean(),
     }),
   dispatch: async (world, action) => {
-    world.state.googleFault = action.fault;
+    (world.nodes['store'] as import('./types').AuthStore).sim.googleFault =
+      action.fault;
   },
 });
 
-export const oauthStartAction = defineAction<
-  AuthSystem,
+export const oauthStartAction = action<
   Extract<AuthDomainOp, { kind: 'oauthStart' }>,
-  AuthModel
+  AuthModel,
+  AuthWorld
 >({
-  kind: 'oauthStart',
-  class: 'domain',
+  weight: 3,
   arb: (ctx) =>
     fc.record({
       kind: fc.constant('oauthStart' as const),
@@ -122,13 +128,12 @@ export const oauthStartAction = defineAction<
   },
 });
 
-export const oauthApproveAction = defineAction<
-  AuthSystem,
+export const oauthApproveAction = action<
   Extract<AuthDomainOp, { kind: 'oauthApprove' }>,
-  AuthModel
+  AuthModel,
+  AuthWorld
 >({
-  kind: 'oauthApprove',
-  class: 'domain',
+  weight: 3,
   arb: (ctx) =>
     fc.record({
       kind: fc.constant('oauthApprove' as const),
@@ -146,13 +151,12 @@ export const oauthApproveAction = defineAction<
   },
 });
 
-export const sessionExchangeAction = defineAction<
-  AuthSystem,
+export const sessionExchangeAction = action<
   Extract<AuthDomainOp, { kind: 'sessionExchange' }>,
-  AuthModel
+  AuthModel,
+  AuthWorld
 >({
-  kind: 'sessionExchange',
-  class: 'domain',
+  weight: 3,
   arb: (ctx) =>
     fc.record({
       kind: fc.constant('sessionExchange' as const),
@@ -163,13 +167,12 @@ export const sessionExchangeAction = defineAction<
   },
 });
 
-export const signOutAction = defineAction<
-  AuthSystem,
+export const signOutAction = action<
   Extract<AuthDomainOp, { kind: 'signOut' }>,
-  AuthModel
+  AuthModel,
+  AuthWorld
 >({
-  kind: 'signOut',
-  class: 'domain',
+  weight: 3,
   arb: (ctx) =>
     fc.record({
       kind: fc.constant('signOut' as const),
@@ -180,13 +183,12 @@ export const signOutAction = defineAction<
   },
 });
 
-export const stealBearerAction = defineAction<
-  AuthSystem,
+export const stealBearerAction = action<
   Extract<AuthDomainOp, { kind: 'stealBearer' }>,
-  AuthModel
+  AuthModel,
+  AuthWorld
 >({
-  kind: 'stealBearer',
-  class: 'domain',
+  weight: 3,
   arb: (ctx) => {
     const client = clientArb(ctx);
     return fc.record({
@@ -200,51 +202,12 @@ export const stealBearerAction = defineAction<
   },
 });
 
-export const AUTH_ACTIONS = [
-  advanceClockAction,
-  setGoogleFaultAction,
-  oauthStartAction,
-  oauthApproveAction,
-  sessionExchangeAction,
-  signOutAction,
-  stealBearerAction,
-] as const;
-
-/** Full pool (domain + library) — used by the dual-open determinism test. */
-export function arbAuthAction(
-  clientIds: readonly string[]
-): fc.Arbitrary<AuthAction> {
-  const client = fc.constantFrom(...clientIds);
-  return fc.oneof(
-    fc.record({
-      kind: fc.constant('oauthStart' as const),
-      clientId: client,
-      provider: fc.constantFrom(...PROVIDERS),
-      callbackUrl: fc.constantFrom(...CALLBACK_URLS),
-    }),
-    fc.record({
-      kind: fc.constant('oauthApprove' as const),
-      clientId: client,
-      provider: fc.constantFrom(...PROVIDERS),
-      subject: fc.constantFrom(...SUBJECTS),
-    }),
-    fc.record({
-      kind: fc.constant('sessionExchange' as const),
-      clientId: client,
-    }),
-    fc.record({ kind: fc.constant('signOut' as const), clientId: client }),
-    fc.record({
-      kind: fc.constant('stealBearer' as const),
-      from: client,
-      to: client,
-    }),
-    fc.record({
-      kind: fc.constant('advanceClock' as const),
-      ms: fc.constantFrom(1_000, AUTH_SESSION_TTL_MS + 1),
-    }),
-    fc.record({
-      kind: fc.constant('setGoogleFault' as const),
-      fault: fc.boolean(),
-    })
-  );
-}
+export const AUTH_ACTIONS = {
+  advanceClock: advanceClockAction,
+  setGoogleFault: setGoogleFaultAction,
+  oauthStart: oauthStartAction,
+  oauthApprove: oauthApproveAction,
+  sessionExchange: sessionExchangeAction,
+  signOut: signOutAction,
+  stealBearer: stealBearerAction,
+} as const;

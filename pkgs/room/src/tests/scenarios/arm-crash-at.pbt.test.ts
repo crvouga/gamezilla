@@ -1,5 +1,5 @@
 import { describe, test } from 'bun:test';
-import { arbWorldSeed, assertSampleProperty } from '@pkgs/determinism/pbt';
+import { arbSeed, assertSampleProperty } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
 
 import { WORLD_PBT_CRASH_EVENTS } from '../../sim/boundary-faults';
@@ -18,7 +18,7 @@ describe('room armCrashAt slice PBT', () => {
       await assertSampleProperty(
         'armCrashAt slice converges',
         fc.asyncProperty(
-          arbWorldSeed(),
+          arbSeed(),
           fc.constantFrom(...WORLD_PBT_CRASH_EVENTS),
           async (seed, event) => {
             const world = await replayRoom(counterSystem, {
@@ -40,7 +40,7 @@ describe('room armCrashAt slice PBT', () => {
                 { kind: 'idle', ms: 30 },
               ],
             });
-            const real = world.facade;
+            const real = world;
             try {
               // Restart clears the node but a lingering afterNextWelcome arm
               // would crash again on the reconnect welcome — clear arms first.

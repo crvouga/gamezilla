@@ -802,7 +802,7 @@ bun run lint
 
 | Suite | Path | Role |
 |-------|------|------|
-| Scenarios | `src/tests/scenarios/*.sim.test.ts` | Black-box multi-client pins via framework `openWorld(acmeSystem)` + `syncFacade` |
+| Scenarios | `src/tests/scenarios/*.sim.test.ts` | Black-box multi-client pins via `openAcmeWorld` (kit merged via `extend`) |
 | Property / system | `src/tests/scenarios/*.system.pbt.test.ts` / `*.pbt.test.ts` | Shrinking `assertSample` / `replaySyncPin` over `acmeSystem` |
 | Unit PBT | `src/tests/unit/*.pbt.test.ts` | Pure helpers (checkpoints, topic map, …) |
 | Kernel harness | `src/tests/harness/*.test.ts` | RNG / scheduler / timers; membership topic sync |
@@ -847,8 +847,7 @@ TigerBeetle-style deterministic simulation in `src/sim/` (not a public export). 
 identical timeline.** Worlds are **owned by `@pkgs/determinism`**:
 `defineSyncSystem(acmeApp)` (exported as `acmeSystem`) declares the
 broker/server/client topology, knobs, action pool, and model, and tests drive it
-with `assertSample(acmeSystem)` / `replaySyncPin(acmeSystem, …)` / `openWorld(acmeSystem,
-…)`; fuzz calls `runSeed({ app: acmeApp })`. Assert **live domain rows
+with `assertSample(acmeSystem)` / `replaySyncPin(acmeSystem, …)` / `openAcmeWorld(…)`; fuzz calls `runSeed({ app: acmeApp })`. Assert **live domain rows
 only** — never framework tables or private modules.
 
 ```text
@@ -917,21 +916,19 @@ embed `seed=<hex>` and virtual `now=` for replay.
 
 ```ts
 import { describe, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
-import { syncFacade } from '../../sim/system';
-import { setNote } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { expectLiveNote, setNote } from '../apps/acme';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('example', () => {
   test('mutate converges', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 42,
       knobs: { clientCount: 0 },
     });
-    const world = syncFacade(host.system);
     const a = await world.addClient({ id: 'alice' });
     await a.mutate(setNote, { id: 'n1', body: 'hi' });
     await world.assertConverged();
+    await expectLiveNote(a.db, 'n1', { body: 'hi' });
   });
 });
 ```
@@ -943,7 +940,7 @@ import { assertSample } from '@pkgs/determinism/pbt';
 import { replaySyncPin } from '../../sim/system';
 import { acmeSystem } from '../apps/acme/system';
 
-await assertSample(acmeSystem, { numRuns: 12, actionsPerRun: 14 });
+await assertSample(acmeSystem, { numRuns: 12, maxCommands: 14 });
 
 await replaySyncPin(acmeSystem, {
   seed: 42,
@@ -1309,8 +1306,8 @@ Three distinct monotonic sequences — do not conflate them:
 
 Black-box correctness under `src/tests/scenarios/` (`*.sim.test.ts` +
 `*.system.pbt.test.ts`) plus harness `src/tests/harness/kernel.test.ts`.
-Most pins use `openWorld(acmeSystem, { knobs: { clientCount: 0, … } })` +
-`syncFacade` and domain asserts from `src/tests/apps/acme/`.
+Most pins use `openAcmeWorld({ knobs: { clientCount: 0, … } })` and domain
+asserts from `src/tests/apps/acme/`.
 
 ### Happy path / multi-client (10)
 

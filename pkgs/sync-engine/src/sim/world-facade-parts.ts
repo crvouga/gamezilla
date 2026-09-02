@@ -12,8 +12,6 @@ import { createSimNetHandle } from './net-effect';
 import { createSimNodeHandle } from './node-handle';
 import { unregisterWorld } from './scenario-dispose-hook';
 import { tamperClientLocalStorage } from './storage-faults';
-import type { UntilContext } from './until';
-import { never, until } from './until';
 import type { World } from './world-api';
 import {
   crashClientImpl,
@@ -73,15 +71,6 @@ export function createArmCrashHook(
   };
 }
 
-function untilCtx(k: BootedSimKernel): UntilContext {
-  return {
-    clock: k.clock,
-    scheduler: k.scheduler,
-    seed: k.rng.seed,
-    heldSummary: () => k.network.heldSummary(),
-  };
-}
-
 function bindNodeAndNet(args: {
   readonly k: BootedSimKernel;
   readonly netEffects: NetEffectRegistry;
@@ -103,7 +92,6 @@ function bindNodeAndNet(args: {
       }),
     node: (id) =>
       createSimNodeHandle(k, id, {
-        // Process crash keeps sqlite so settle can drain pending mutations.
         crashClient: (cid) => crashClientImpl(k, cid, { keepDb: true }),
         restartClient: (cid, opts) => restartClientImpl(k, cid, opts),
         crashServer,
@@ -126,9 +114,6 @@ function clearFaultArms(k: BootedSimKernel, faultApi: WorldFaultApi): void {
 }
 
 async function healInfraForSettle(k: BootedSimKernel): Promise<void> {
-  // Query checkpoints embed server `now()`. Prefer the live allocator's
-  // high-water mark: prepareClientsForConverge may already have cleared
-  // forward skew, so clock-based floor alone underestimates what clients hold.
   const fromAllocator = k.server.checkpointHighWater();
   const fromClock = BigInt(
     formatCheckpoint(k.nowFor(SIM_SERVER_NODE_ID), 999_999)
@@ -146,10 +131,6 @@ async function healInfraForSettle(k: BootedSimKernel): Promise<void> {
   } catch {
     // already running
   }
-  // Do not restart a healthy broker here — that remakes every client's MQTT
-  // session and drops in-flight row-image fanout (breaks partial-query peers
-  // and remake-count assertions). DST `heal` / prepareClientsForConverge
-  // still call brokerRestart after chaos.
   restoreNonRevokedAuth(k);
 }
 
@@ -189,7 +170,6 @@ export function bindWorldMethods(args: {
 } {
   const { k, netEffects, armCrashHook, crashServer, faultApi } = args;
   const { clients, scheduler, network, rng, domain } = k;
-  const ctx = untilCtx(k);
   const { net, node } = bindNodeAndNet({
     k,
     netEffects,
@@ -212,10 +192,6 @@ export function bindWorldMethods(args: {
     addClient: (clientArgs) => addClientImpl(k, clientArgs),
     net,
     node,
-    until: (target, opts) => until(ctx, target, opts),
-    never: (target, opts) => never(ctx, target, opts),
-    runFor: (ms) => scheduler.runFor(ms),
-    runUntilIdle: (opts) => scheduler.runUntilIdle(opts),
     isSchedulerQuiescent: () => scheduler.pendingCount() === 0,
     pendingEventCount: () => scheduler.pendingCount(),
     checkInvariants: () =>

@@ -1,17 +1,16 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import { expectLiveNote, readLiveNotes, setNote } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('concurrent topic seq allocation monotonic', () => {
   test('overlapping mutates on shared topic converge without torn state', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 920,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
@@ -29,12 +28,12 @@ describe('concurrent topic seq allocation monotonic', () => {
           body: `b${i}`,
         })
       );
-      if (i % 3 === 0) await world.runFor(5);
+      if (i % 3 === 0) await world.advance(5);
     }
     await Promise.all(writes);
     await world.assertConverged();
 
-    expect(await world.checkInvariants()).toBeNull();
+    await world.checkInvariants();
     const server = await readLiveNotes(world.server.db);
     expect(server.length).toBe(24);
     await expectLiveNote(a.db, 'a-00', { body: 'a0' });
@@ -44,13 +43,13 @@ describe('concurrent topic seq allocation monotonic', () => {
   test.each([921, 922, 923])(
     'seed sweep concurrent writers converge (seed=%i)',
     async (seed) => {
-      await using host = await openWorld(acmeSystem, {
+      await using world = await openAcmeWorld({
         seed: seed,
         knobs: {
           clientCount: 0,
         },
       });
-      const world = host.facade;
+
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
       await Promise.all([
@@ -58,7 +57,7 @@ describe('concurrent topic seq allocation monotonic', () => {
         b.mutate(setNote, { id: `b-${seed}`, body: 'y' }),
       ]);
       await world.assertConverged();
-      expect(await world.checkInvariants()).toBeNull();
+      await world.checkInvariants();
     }
   );
 });

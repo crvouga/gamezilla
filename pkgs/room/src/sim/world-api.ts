@@ -1,4 +1,5 @@
-import type { SimClock, SimDeps, SimScheduler } from '@pkgs/determinism';
+import type { Clock } from '@pkgs/clock';
+import type { SimDeps, SimScheduler } from '@pkgs/determinism';
 import type { SeededRng } from '@pkgs/uuid';
 import type { InMemoryRoomStorage } from '../server/adapters/memory';
 import type { RoomServer } from '../server/core/room-server';
@@ -19,7 +20,7 @@ import type {
   SimRoomNetHandle,
   SimRoomNetwork,
 } from './network';
-import type { NeverOpts, UntilOpts, UntilPredicate } from './until';
+import type { NeverOpts, UntilOpts, UntilPredicate } from './wait-until';
 
 export type { RoomSimClientHandle, RoomSimNodeHandle } from './handles';
 
@@ -44,7 +45,7 @@ export type World<
   readonly topic: string;
   readonly module: RoomModule<S, C, E, string>;
   readonly rng: SeededRng;
-  readonly clock: SimClock;
+  readonly clock: Clock;
   /** @internal Lab / harness — scenarios use runFor / until */
   readonly scheduler: SimScheduler;
   readonly storage: InMemoryRoomStorage;

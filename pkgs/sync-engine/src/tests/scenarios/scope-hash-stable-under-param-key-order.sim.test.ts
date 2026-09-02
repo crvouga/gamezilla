@@ -1,19 +1,18 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import { expectLiveNote, setFolder, setNote } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('scope hash stable under param key order', () => {
   test.each([800, 801, 802])(
     'reordered params share one scope (seed=%i)',
     async (seed) => {
-      await using host = await openWorld(acmeSystem, {
+      await using world = await openAcmeWorld({
         seed: seed,
         knobs: {
           clientCount: 0,
         },
       });
-      const world = host.facade;
+
       const a = await world.addClient({ id: 'alice' });
       await a.mutate(setFolder, { id: 'f1', title: 'Folder' });
       await a.mutate(setNote, {
@@ -29,14 +28,14 @@ describe('scope hash stable under param key order', () => {
         folderId: 'f1',
         includeArchived: true,
       });
-      await world.until(s1.ready);
+      await world.waitUntil(s1.ready);
       const topicsAfterFirst = a.subscribedTopics().length;
 
       using s2 = a.subscribe('notesByFolder', {
         includeArchived: true,
         folderId: 'f1',
       });
-      await world.until(s2.ready);
+      await world.waitUntil(s2.ready);
       const topicsAfterSecond = a.subscribedTopics().length;
 
       // Same canonical params → no extra topic churn from second subscribe.

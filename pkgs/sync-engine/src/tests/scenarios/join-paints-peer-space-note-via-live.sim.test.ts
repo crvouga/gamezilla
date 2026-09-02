@@ -1,5 +1,4 @@
 import { describe, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import {
   createSpace,
   expectLiveNote,
@@ -8,17 +7,17 @@ import {
   SPACE_MEMBERSHIP_SESSION,
   setSpaceNote,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('join paints peer space note via live', () => {
   test('after join, peer space note paints via live while sync held', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 805,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({
       id: 'alice',
       sessionQuery: SPACE_MEMBERSHIP_SESSION,
@@ -30,12 +29,12 @@ describe('join paints peer space note via live', () => {
 
     await a.mutate(createSpace, { id: 'live-room', title: 'L' });
     await world.assertConverged();
-    await world.until(() =>
+    await world.waitUntil(() =>
       a.subscribedTopics().includes(roomTopic('live-room'))
     );
 
     await b.mutate(joinSpace, { spaceId: 'live-room' });
-    await world.until(() =>
+    await world.waitUntil(() =>
       b.subscribedTopics().includes(roomTopic('live-room'))
     );
 
@@ -46,7 +45,7 @@ describe('join paints peer space note via live', () => {
         spaceId: 'live-room',
         body: 'from-bob',
       });
-      await world.runFor(300);
+      await world.advance(300);
       await expectLiveNote(a.db, 'via-live', { body: 'from-bob' });
     }
     await world.assertConverged();

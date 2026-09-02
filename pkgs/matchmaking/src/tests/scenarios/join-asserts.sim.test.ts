@@ -16,24 +16,21 @@ describe('matchmaking sim: join asserts', () => {
   });
 
   test('throws on empty formulas array', async () => {
-    await using host = await openMatchmakingWorld({ seed: 10 });
-    const world = host.facade;
+    await using world = await openMatchmakingWorld({ seed: 10 });
     await expect(
       world.join({ data: RatingAttr(1000), formulas: [] })
     ).rejects.toThrow();
   });
 
   test('throws on empty formula (no terms)', async () => {
-    await using host = await openMatchmakingWorld({ seed: 11 });
-    const world = host.facade;
+    await using world = await openMatchmakingWorld({ seed: 11 });
     await expect(
       world.join({ data: RatingAttr(1000), formulas: [{ numeric: [] }] })
     ).rejects.toThrow();
   });
 
   test('throws on negative numeric weight', async () => {
-    await using host = await openMatchmakingWorld({ seed: 12 });
-    const world = host.facade;
+    await using world = await openMatchmakingWorld({ seed: 12 });
     await expect(
       world.join({
         data: RatingAttr(1000),
@@ -43,16 +40,14 @@ describe('matchmaking sim: join asserts', () => {
   });
 
   test('throws when required numeric attr is missing', async () => {
-    await using host = await openMatchmakingWorld({ seed: 13 });
-    const world = host.facade;
+    await using world = await openMatchmakingWorld({ seed: 13 });
     await expect(
       world.join({ data: NameAttr('orphan'), formulas: [SimpleFormula] })
     ).rejects.toThrow();
   });
 
   test('throws when data contains a non-keyword key', async () => {
-    await using host = await openMatchmakingWorld({ seed: 14 });
-    const world = host.facade;
+    await using world = await openMatchmakingWorld({ seed: 14 });
     await expect(
       world.join({
         data: { badkey: 1 } as unknown as AttributeState,
@@ -62,8 +57,7 @@ describe('matchmaking sim: join asserts', () => {
   });
 
   test('rejects groupSize out of range', async () => {
-    await using host = await openMatchmakingWorld({ seed: 15 });
-    const world = host.facade;
+    await using world = await openMatchmakingWorld({ seed: 15 });
     await expect(
       world.join({
         data: RatingAttr(1000),
@@ -81,8 +75,7 @@ describe('matchmaking sim: join asserts', () => {
   });
 
   test('rejects priority out of range', async () => {
-    await using host = await openMatchmakingWorld({ seed: 16 });
-    const world = host.facade;
+    await using world = await openMatchmakingWorld({ seed: 16 });
     await expect(
       world.join({
         data: RatingAttr(1000),

@@ -1,15 +1,14 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import { assertSampleProperty } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
-import { arbWorldKnobs, arbWorldSeed } from '../../sim/system/knobs';
+import { arbKnobs, arbSeed } from '../../sim/system/knobs';
 import {
   expectLiveNote,
   expectNoteNotLive,
   readNoteTombstone,
 } from '../apps/acme/assert';
 import { deleteNote, setNote } from '../apps/acme/shared/mutations';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 type TombstoneStep =
   | { readonly kind: 'set'; readonly body: string }
@@ -22,8 +21,8 @@ describe('tombstone revive PBT', () => {
       await assertSampleProperty(
         'tombstone interleave',
         fc.asyncProperty(
-          arbWorldSeed(),
-          arbWorldKnobs(),
+          arbSeed(),
+          arbKnobs(),
           fc.array(
             fc.constantFrom(
               { kind: 'set' as const, body: 'a' },
@@ -33,10 +32,10 @@ describe('tombstone revive PBT', () => {
             { minLength: 1, maxLength: 8 }
           ),
           async (seed, knobs, steps) => {
-            await using world = await openWorld(acmeSystem, { seed, knobs });
-            const facade = world.facade;
+            await using world = await openAcmeWorld({ seed, knobs });
+
             const noteId = 'n0';
-            const client = facade.clients.get('c0')!;
+            const client = world.clients.get('c0')!;
             let lastBody = '';
             let everSet = false;
             let deleted = false;
@@ -57,11 +56,11 @@ describe('tombstone revive PBT', () => {
               }
             }
 
-            await facade.assertConverged();
+            await world.assertConverged();
 
             if (!everSet) return;
 
-            const tomb = await readNoteTombstone(facade.server.db, noteId);
+            const tomb = await readNoteTombstone(world.server.db, noteId);
             if (deleted) {
               expect(tomb).not.toBeNull();
               await expectNoteNotLive(client.db, noteId);
@@ -83,15 +82,15 @@ describe('tombstone revive PBT', () => {
       await assertSampleProperty(
         'tombstone revive',
         fc.asyncProperty(
-          arbWorldSeed(),
-          arbWorldKnobs(),
+          arbSeed(),
+          arbKnobs(),
           fc.string({ maxLength: 8 }),
           fc.string({ maxLength: 8 }),
           async (seed, knobs, body1, body2) => {
-            await using world = await openWorld(acmeSystem, { seed, knobs });
-            const facade = world.facade;
+            await using world = await openAcmeWorld({ seed, knobs });
+
             const noteId = 'n0';
-            const client = facade.clients.get('c0')!;
+            const client = world.clients.get('c0')!;
             await client.mutate(setNote, {
               id: noteId,
               body: body1,
@@ -103,9 +102,9 @@ describe('tombstone revive PBT', () => {
               body: body2,
               title: '',
             });
-            await facade.assertConverged();
+            await world.assertConverged();
             await expectLiveNote(client.db, noteId, { body: body2 });
-            for (const peer of facade.clients.values()) {
+            for (const peer of world.clients.values()) {
               await expectLiveNote(peer.db, noteId, { body: body2 });
             }
           }

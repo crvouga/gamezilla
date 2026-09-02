@@ -4,9 +4,7 @@
  */
 
 import { join } from 'node:path';
-import {
-  migrateSimPostgres,
-} from '@apps/server/sim/migrate-sim-postgres';
+import { migrateSimPostgres } from '@apps/server/sim/migrate-sim-postgres';
 import type { Clock } from '@pkgs/clock';
 import { wallClock } from '@pkgs/clock';
 import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';

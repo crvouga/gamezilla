@@ -18,8 +18,7 @@ describe('matchmaking sim: metadata', () => {
   });
 
   test('metadata round-trips through waiting and matched status', async () => {
-    await using host = await openMatchmakingWorld({ seed: 90 });
-    const world = host.facade;
+    await using world = await openMatchmakingWorld({ seed: 90 });
     const meta = { route: 'vip', n: 1 };
     const a = await world.join({
       data: RatingAttr(1000),
@@ -39,8 +38,7 @@ describe('matchmaking sim: metadata', () => {
   });
 
   test('metadata cap enforced', async () => {
-    await using host = await openMatchmakingWorld({ seed: 91 });
-    const world = host.facade;
+    await using world = await openMatchmakingWorld({ seed: 91 });
     await expect(
       world.join({
         data: RatingAttr(1000),

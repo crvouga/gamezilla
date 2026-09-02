@@ -246,14 +246,14 @@ export function createHandleMutations(
 /** Build query HTTP handler for the sim server. */
 export function createHandleQuery(
   ctx: SimServerHandlerCtx
-): (request: QueryRequest) => Promise<QueryResponse> {
-  return (request) =>
+): (request: QueryRequest, auth: SimServerAuth) => Promise<QueryResponse> {
+  return (request, auth) =>
     runQuery(
       {
         db: ctx.db,
         registry: ctx.queries,
         auth: {
-          ...ctx.getAuth(),
+          ...auth,
           now: () => new Date(ctx.now()),
         },
         nextCheckpoint: ctx.nextCheckpoint,

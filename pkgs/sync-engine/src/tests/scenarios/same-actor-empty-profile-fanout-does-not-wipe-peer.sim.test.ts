@@ -1,12 +1,11 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import {
   ensureProfileEmpty,
   OWN_PROFILE_SESSION,
   readProfileUsername,
   setProfileUsername,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 /**
  * Replicates the product bug: ensureProfile-style empty username INSERT fans
@@ -15,14 +14,14 @@ import { acmeSystem } from '../apps/acme/system';
  */
 describe('same actor empty profile fanout does not wipe peer', () => {
   test('empty ensureProfile seed does not blank peer username', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 1501,
       knobs: {
         clientCount: 0,
         rowImageFanout: true,
       },
     });
-    const world = host.facade;
+
     const phone = await world.addClient({
       id: 'phone',
       actorId: 'user-1',
@@ -42,7 +41,7 @@ describe('same actor empty profile fanout does not wipe peer', () => {
     expect(await readProfileUsername(tablet.db, 'user-1')).toBe('AliceHandle');
 
     await tablet.mutate(ensureProfileEmpty, {});
-    await world.runFor(200);
+    await world.advance(200);
 
     expect(await readProfileUsername(phone.db, 'user-1')).toBe('AliceHandle');
 

@@ -1,4 +1,4 @@
-import { type ActionArbContext, defineAction } from '@pkgs/determinism';
+import { action } from '@pkgs/determinism';
 import fc from 'fast-check';
 import {
   corruptSimOpfsStore,
@@ -7,7 +7,7 @@ import {
 import { persistImage } from './owners';
 import { connectTab, disconnectTab, killTab } from './ownership';
 import { readToyRow, writeToyRow } from './toy-kv';
-import { requireStore, type SqlClientWebState } from './types';
+import { boardOf, requireStore } from './types';
 
 const KEYS = ['a', 'b', 'c'] as const;
 const VALUES = ['1', '2', ''] as const;
@@ -17,39 +17,42 @@ type TabAction<K extends string> = {
   readonly tabId: string;
 };
 
-function arbTabId(ctx: ActionArbContext): fc.Arbitrary<string> {
-  const tabs = ctx.roleIds('tab');
+function arbTabId(
+  ctx: import('@pkgs/determinism').ActionArbContext
+): fc.Arbitrary<string> {
+  const tabs = ctx.ids('tab');
   return tabs.length === 0 ? fc.constant('t0') : fc.constantFrom(...tabs);
 }
 
 function arbTabAction<K extends string>(
   kind: K,
-  ctx: ActionArbContext
+  ctx: import('@pkgs/determinism').ActionArbContext
 ): fc.Arbitrary<TabAction<K>> {
   return arbTabId(ctx).map((tabId) => ({ kind, tabId }));
 }
 
-export const connectAction = defineAction<
-  SqlClientWebState,
-  TabAction<'connect'>
->({
-  kind: 'connect',
-  class: 'domain',
+type SqlWebWorld = import('@pkgs/determinism').World<
+  Record<string, import('@pkgs/determinism').KnobDef>,
+  Record<string, import('@pkgs/determinism').NodeSpecEntry>
+>;
+
+export const connectAction = action<TabAction<'connect'>, object, SqlWebWorld>({
+  weight: 3,
   arb: (ctx) => arbTabAction('connect', ctx),
   dispatch: async (world, action) => {
-    await connectTab(world.state, action.tabId);
+    await connectTab(boardOf(world), action.tabId);
   },
 });
 
-export const disconnectAction = defineAction<
-  SqlClientWebState,
-  TabAction<'disconnect'>
+export const disconnectAction = action<
+  TabAction<'disconnect'>,
+  object,
+  SqlWebWorld
 >({
-  kind: 'disconnect',
-  class: 'domain',
+  weight: 3,
   arb: (ctx) => arbTabAction('disconnect', ctx),
   dispatch: async (world, action) => {
-    await disconnectTab(world.state, action.tabId);
+    await disconnectTab(boardOf(world), action.tabId);
   },
 });
 
@@ -60,9 +63,8 @@ export type PutAction = {
   readonly value: string;
 };
 
-export const putAction = defineAction<SqlClientWebState, PutAction>({
-  kind: 'put',
-  class: 'domain',
+export const putAction = action<PutAction, object, SqlWebWorld>({
+  weight: 3,
   arb: (ctx) =>
     fc.record({
       kind: fc.constant('put' as const),
@@ -71,7 +73,7 @@ export const putAction = defineAction<SqlClientWebState, PutAction>({
       value: fc.constantFrom(...VALUES),
     }),
   dispatch: async (world, action) => {
-    const state = world.state;
+    const state = boardOf(world);
     const client = await connectTab(state, action.tabId);
     if (client === null) return;
     await writeToyRow(client, action.key, action.value);
@@ -86,9 +88,8 @@ export type GetAction = {
   readonly key: string;
 };
 
-export const getAction = defineAction<SqlClientWebState, GetAction>({
-  kind: 'get',
-  class: 'domain',
+export const getAction = action<GetAction, object, SqlWebWorld>({
+  weight: 3,
   arb: (ctx) =>
     fc.record({
       kind: fc.constant('get' as const),
@@ -96,7 +97,7 @@ export const getAction = defineAction<SqlClientWebState, GetAction>({
       key: fc.constantFrom(...KEYS),
     }),
   dispatch: async (world, action) => {
-    const state = world.state;
+    const state = boardOf(world);
     const client = await connectTab(state, action.tabId);
     if (client === null) return;
     const got = await readToyRow(client, action.key);
@@ -109,62 +110,57 @@ export const getAction = defineAction<SqlClientWebState, GetAction>({
   },
 });
 
-export const killTabAction = defineAction<
-  SqlClientWebState,
-  TabAction<'killTab'>
->({
-  kind: 'killTab',
-  class: 'library',
+export const killTabAction = action<TabAction<'killTab'>, object, SqlWebWorld>({
+  weight: 1,
   arb: (ctx) => arbTabAction('killTab', ctx),
   dispatch: async (world, action) => {
-    await killTab(world.state, action.tabId);
+    await killTab(boardOf(world), action.tabId);
   },
 });
 
-export const fillPoolAction = defineAction<
-  SqlClientWebState,
-  { readonly kind: 'fillPool' }
+export const fillPoolAction = action<
+  { readonly kind: 'fillPool' },
+  object,
+  SqlWebWorld
 >({
-  kind: 'fillPool',
-  class: 'library',
+  weight: 1,
   arb: () => fc.constant({ kind: 'fillPool' as const }),
   dispatch: async (world) => {
-    fillSimOpfsPool(requireStore(world.state));
+    fillSimOpfsPool(requireStore(boardOf(world)));
   },
 });
 
-export const corruptStoreAction = defineAction<
-  SqlClientWebState,
-  { readonly kind: 'corruptStore' }
+export const corruptStoreAction = action<
+  { readonly kind: 'corruptStore' },
+  object,
+  SqlWebWorld
 >({
-  kind: 'corruptStore',
-  class: 'library',
+  weight: 1,
   arb: () => fc.constant({ kind: 'corruptStore' as const }),
   dispatch: async (world) => {
-    corruptSimOpfsStore(requireStore(world.state));
+    corruptSimOpfsStore(requireStore(boardOf(world)));
   },
 });
 
-/** Takes effect on the next owner open, like a deployed schema bump. */
-export const bumpEpochAction = defineAction<
-  SqlClientWebState,
-  { readonly kind: 'bumpEpoch' }
+export const bumpEpochAction = action<
+  { readonly kind: 'bumpEpoch' },
+  object,
+  SqlWebWorld
 >({
-  kind: 'bumpEpoch',
-  class: 'library',
+  weight: 1,
   arb: () => fc.constant({ kind: 'bumpEpoch' as const }),
   dispatch: async (world) => {
-    world.state.epoch += 1;
+    boardOf(world).epoch += 1;
   },
 });
 
-export const SQL_CLIENT_WEB_ACTIONS = [
-  connectAction,
-  disconnectAction,
-  putAction,
-  getAction,
-  killTabAction,
-  fillPoolAction,
-  corruptStoreAction,
-  bumpEpochAction,
-];
+export const SQL_CLIENT_WEB_ACTIONS = {
+  connect: connectAction,
+  disconnect: disconnectAction,
+  put: putAction,
+  get: getAction,
+  killTab: killTabAction,
+  fillPool: fillPoolAction,
+  corruptStore: corruptStoreAction,
+  bumpEpoch: bumpEpochAction,
+} as const;

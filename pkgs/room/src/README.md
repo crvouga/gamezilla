@@ -88,10 +88,10 @@ Core vs adapters stay split so callers opt into a runtime explicitly.
 | `@pkgs/room/client/adapters/storage/key-value` | `KeyValueClientRoomStorage` (async `Kv`) |
 | `@pkgs/room/server/adapters/memory` | `InMemoryRoomStorage` |
 | `@pkgs/room/server/adapters/durable-object` | `createDurableObjectAdapter`, DO storage + alarm schedule |
-| `@pkgs/room/tests` | `openLoopbackRoom`, **`roomWorld`** / **`defineRoomSystem`**, kit (`runModuleConformance`, …), fixtures (counter / deadline / authz / match-clock) |
+| `@pkgs/room/tests` | `openLoopbackRoom`, **`defineRoomSystem`**, kit (`runModuleConformance`, …), fixtures (counter / deadline / authz / match-clock) |
 
 `src/sim/` implementation stays **private** (relative imports from package
-tests). Games should import `roomWorld` / `defineRoomSystem` from
+tests). Games should import `defineRoomSystem` from
 `@pkgs/room/tests` and boot with `openWorld` from `@pkgs/determinism`, not deep
 `sim/` paths.
 
@@ -283,7 +283,7 @@ replays are idempotent.
 | Tool | When to use |
 |------|-------------|
 | **`openLoopbackRoom`** (`@pkgs/room/tests`) | Fast in-process unit/integration with injected `Io`; real `RoomClient` + `RoomServer`, no net faults; Schedule via timers |
-| **`openWorld` + `roomWorld`** (`@pkgs/determinism` + `@pkgs/room/tests`) | Framework multi-client world: partitions, delays, soft disconnect, crash/restart, hash converge, seed replay, Schedule wakes |
+| **`openWorld`** (`@pkgs/determinism` + `@pkgs/room/tests`) | Framework multi-client world (kit merged via `extend`): partitions, delays, soft disconnect, crash/restart, hash converge, seed replay, Schedule wakes |
 | **`defineRoomSystem` + `assertSample` / `replay`** | Framework-owned world (`room.server` / `room.client` node kinds): shrinking `fc.commands` search + fault-catalog slice PBTs |
 | **`runRoomSeed`** | Non-shrinking seeded fuzz (`ROOM_SIM_SEED` / `SIM_SEED`); determinism + long workloads |
 | **DO / adapter tests** | Hibernation, session take-over, per-key storage, alarms, WS heartbeat |
@@ -321,8 +321,7 @@ await replayRoomPin(counterSystem, { seed, knobs, actions: [/* RoomSystemAction 
    `armCrashAt` / wire injects stay out of it and are covered by slice PBTs
 4. Const fault catalogs (`NET_FAULT_PROFILES`, `BYZANTINE_INJECT_KINDS`, `WORLD_PBT_CRASH_EVENTS`) exhausted by slice PBTs
 5. `runRoomSeed` (`tests/system/run-seed.ts`) boots the same topology via
-   framework `openWorld(defineRoomSystem(app), …)` + `roomWorld` for
-   non-shrinking seeded fuzz
+   framework `openWorld(defineRoomSystem(app), …)` for non-shrinking seeded fuzz
 
 On find: capture `FC_SEED` / `replayPath` → pin in `room-world.pbt.test.ts` or a named `.sim.test.ts` → log in [`PBT_FINDINGS.md`](../../../PBT_FINDINGS.md).
 
@@ -360,17 +359,15 @@ Connectivity triad — do not conflate:
 ```ts
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
-import { roomWorld } from '../../sim/system';
 import { counterSystem } from '../apps/counter/system';
 import { Increment, counterValue } from '../fixtures/counter-module';
 
 describe('room sim', () => {
   test('partition then heal', async () => {
-    await using host = await openWorld(counterSystem, {
+    await using world = await openWorld(counterSystem, {
       seed: 3,
       knobs: { clientCount: 0 },
     });
-    const world = roomWorld(host.system);
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     {
@@ -393,7 +390,7 @@ Games outside this package:
 
 ```ts
 import { openWorld } from '@pkgs/determinism';
-import { defineRoomSystem, roomWorld, runModuleConformance } from '@pkgs/room/tests';
+import { defineRoomSystem, runModuleConformance } from '@pkgs/room/tests';
 ```
 
 ---
@@ -594,5 +591,5 @@ File: `tests/scenarios/match-clock-schedule.sim.test.ts` (`MatchClockFixtureModu
 | `tests/client-storage.pbt.test.ts` | PBT | Memory/web/KV queue append/remove round-trip + serial remove |
 | `tests/bench/hot-paths.bench.test.ts` | Hang-only | Dispatch burst, welcome-256, hash nested state |
 
-Curated exports for games: `@pkgs/room/tests` (`roomWorld`, `defineRoomSystem`,
+Curated exports for games: `@pkgs/room/tests` (`defineRoomSystem`,
 kit helpers, fixtures). Prefer adding a row above whenever you add coverage.

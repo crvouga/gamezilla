@@ -8,7 +8,7 @@ import {
   replaySyncPin,
   STORAGE_TAMPERS,
 } from '../../sim/system';
-import { arbWorldKnobs, arbWorldSeed } from '../../sim/system/knobs';
+import { arbKnobs, arbSeed } from '../../sim/system/knobs';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
 import { acmeSystem } from '../apps/acme/system';
 import type { LibraryAction, SyncAction } from '../system/actions';
@@ -26,8 +26,8 @@ describe('corruption safety PBT', () => {
       await assertSampleProperty(
         'http corruption sequences converge',
         fc.asyncProperty(
-          arbWorldSeed(),
-          arbWorldKnobs(),
+          arbSeed(),
+          arbKnobs(),
           fc
             .constantFrom(...HTTP_FAULTS)
             .filter(
@@ -59,8 +59,8 @@ describe('corruption safety PBT', () => {
       await assertSampleProperty(
         'pubsub corruption sequences converge',
         fc.asyncProperty(
-          arbWorldSeed(),
-          arbWorldKnobs(),
+          arbSeed(),
+          arbKnobs(),
           fc
             .constantFrom(...PUBSUB_FAULTS)
             .filter((f) => f.kind === 'corruptPubsubPayload'),
@@ -88,8 +88,8 @@ describe('corruption safety PBT', () => {
       await assertSampleProperty(
         'storage tamper sequences converge',
         fc.asyncProperty(
-          arbWorldSeed(),
-          arbWorldKnobs(),
+          arbSeed(),
+          arbKnobs(),
           fc.constantFrom(...STORAGE_TAMPERS),
           async (seed, knobs, tamper) => {
             await replaySyncPin(acmeSystem, {

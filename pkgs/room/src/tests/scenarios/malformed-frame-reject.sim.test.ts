@@ -10,7 +10,7 @@ describe('room sim: malformed frame reject (E-D02)', () => {
       seed: process.env['SIM_SEED'] ?? '42',
       knobs: { clientCount: 0 },
     });
-    const world = host.facade;
+    const world = host;
     const a = await world.addClient({ id: 'alice' });
     await world.assertConverged();
     const before = a.hash();
@@ -43,7 +43,7 @@ describe('room sim: malformed frame reject (E-D02)', () => {
       seed: process.env['SIM_SEED'] ?? '43',
       knobs: { clientCount: 0 },
     });
-    const world = host.facade;
+    const world = host;
     const a = await world.addClient({ id: 'alice' });
     await world.assertConverged();
     const before = a.hash();

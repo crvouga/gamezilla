@@ -1,23 +1,22 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import {
   expectLiveNote,
   expectNotesMatchServer,
   serverRejectNote,
   setNote,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('optimistic push rejected server side heals', () => {
   test('optimistic live paint on peer heals to server truth after reject', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 810,
       knobs: {
         clientCount: 0,
         bufferOutboundLive: true,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
@@ -34,11 +33,11 @@ describe('optimistic push rejected server side heals', () => {
     expect(rejected.ok).toBe(true);
     if (!rejected.ok) return;
 
-    await world.runFor(300);
+    await world.advance(300);
     await expectLiveNote(b.db, 'n1', { body: 'bad-optimistic' });
 
     holdAlice.restore();
-    await world.until(a.outcome(rejected.mutationId));
+    await world.waitUntil(a.outcome(rejected.mutationId));
     expect((await a.rejections()).length).toBe(1);
 
     holdBob.restore();

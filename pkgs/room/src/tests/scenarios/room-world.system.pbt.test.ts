@@ -1,4 +1,5 @@
 import { describe, test } from 'bun:test';
+import type { AnySystemDef } from '@pkgs/determinism';
 import { assertSample } from '@pkgs/determinism/pbt';
 
 import { replayRoom, replayRoomPin } from '../../sim/system';
@@ -8,7 +9,9 @@ describe('room world PBT', () => {
   test(
     'fc.commands sequences replay on World and converge',
     async () => {
-      await assertSample(counterSystem, { maxCommands: 14 });
+      await assertSample(counterSystem as unknown as AnySystemDef, {
+        maxCommands: 14,
+      });
     },
     { timeout: 180_000 }
   );
@@ -105,10 +108,7 @@ describe('room world PBT', () => {
       ],
     });
     try {
-      const inv = await world.facade.checkInvariants();
-      if (inv !== null) {
-        throw new Error(`${inv.invariant}: ${inv.detail}`);
-      }
+      await world.checkInvariants();
     } finally {
       await world.dispose();
     }

@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import { topicsFromWriteCapture } from '@pkgs/sync-engine/shared';
 import {
   acmeTopicMap,
@@ -10,7 +9,7 @@ import {
   SPACE_MEMBERSHIP_SESSION,
   userTopic,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('tombstone membership wakes removed user topic', () => {
   test('spaces_users tombstone post-image still maps to removed user topic', async () => {
@@ -42,13 +41,13 @@ describe('tombstone membership wakes removed user topic', () => {
   });
 
   test('leave soft-delete converges peers and drops leaver room topic', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 1201,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({
       id: 'alice',
       sessionQuery: SPACE_MEMBERSHIP_SESSION,
@@ -61,12 +60,12 @@ describe('tombstone membership wakes removed user topic', () => {
     await a.mutate(createSpace, { id: 'tomb-room', title: 'T' });
     await b.mutate(joinSpace, { spaceId: 'tomb-room' });
     await world.assertConverged();
-    await world.until(() =>
+    await world.waitUntil(() =>
       b.subscribedTopics().includes(roomTopic('tomb-room'))
     );
 
     await b.mutate(leaveSpace, { spaceId: 'tomb-room' });
-    await world.until(
+    await world.waitUntil(
       () => !b.subscribedTopics().includes(roomTopic('tomb-room'))
     );
     await world.assertConverged();

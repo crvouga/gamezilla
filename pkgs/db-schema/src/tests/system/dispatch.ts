@@ -5,21 +5,33 @@ import {
   reconcilePeer,
   requireServer,
   resolvePeer,
-  type SchemaSystem,
+  type SchemaPeer,
 } from './peers';
 import { forbiddenSchema, type SchemaVersion } from './schemas';
 
-type SchemaWorld = World<SchemaSystem>;
+type SchemaWorld = World<
+  Record<string, import('@pkgs/determinism').KnobDef>,
+  Record<string, import('@pkgs/determinism').NodeSpecEntry>
+>;
+
+function peersOf(world: SchemaWorld): {
+  readonly server: SchemaPeer;
+  readonly clients: ReadonlyMap<string, SchemaPeer>;
+} {
+  return {
+    server: requireServer(world.nodes['server'] as SchemaPeer),
+    clients: world.nodes['client'] as ReadonlyMap<string, SchemaPeer>,
+  };
+}
 
 export async function applyAdvance(
   world: SchemaWorld,
   target: string,
   to: SchemaVersion
 ): Promise<void> {
-  const server = requireServer(world.state);
-  const peer = resolvePeer(world.state, target);
+  const { server, clients } = peersOf(world);
+  const peer = resolvePeer(server, clients, target);
   const wanted = Math.max(peer.version, to) as SchemaVersion;
-  // Clients never run ahead of the server they sync against.
   const capped =
     peer.kind === 'client'
       ? (Math.min(wanted, server.version) as SchemaVersion)
@@ -30,7 +42,7 @@ export async function applyAdvance(
 }
 
 export async function applyForbidden(world: SchemaWorld): Promise<void> {
-  const server = requireServer(world.state);
+  const server = peersOf(world).server;
   const before = planKindHash(server);
   let refused = false;
   try {

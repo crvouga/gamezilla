@@ -3,21 +3,26 @@ import type { World } from '../world-api';
 import type { RoomApp } from './app';
 
 /**
- * Mutable system bag shared by `room.*` node kinds and action dispatch.
- * Built once per framework `openWorld` call by `defineRoomSystem`.
- * Kit world is exposed as framework `world.facade` after topology boot.
+ * Mutable runtime bag shared by room node kinds and action dispatch.
+ * Built once per `defineRoomSystem` call and closed over by node boot fns.
  */
-export type RoomSystem = {
+export type RoomRuntime = {
   readonly app: RoomApp;
   readonly topic?: string;
   readonly storage?: InMemoryRoomStorage;
-  world: World | null;
+  kit: World | null;
 };
 
-export function requireWorld(system: RoomSystem): World {
-  const world = system.world;
-  if (world === null) {
+/** @deprecated alias — prefer {@link RoomRuntime}. */
+export type RoomSystem = RoomRuntime;
+
+export function requireKit(runtime: RoomRuntime): World {
+  const kit = runtime.kit;
+  if (kit === null) {
     throw new Error('room DST: room.server node has not booted');
   }
-  return world;
+  return kit;
 }
+
+/** @deprecated alias — prefer {@link requireKit}. */
+export const requireWorld = requireKit;

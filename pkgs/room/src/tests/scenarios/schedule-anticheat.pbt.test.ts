@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { arbWorldSeed, assertSampleProperty } from '@pkgs/determinism/pbt';
+import { arbSeed, assertSampleProperty } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
 
 import { replayRoom, replayRoomPin } from '../../sim/system';
@@ -15,7 +15,7 @@ describe('room schedule-anticheat PBT', () => {
     async () => {
       await assertSampleProperty(
         'match-clock chaos converges',
-        fc.asyncProperty(arbWorldSeed(), async (seed) => {
+        fc.asyncProperty(arbSeed(), async (seed) => {
           await replayRoomPin(matchClockSystem, {
             seed,
             actions: [
@@ -64,7 +64,7 @@ describe('room schedule-anticheat PBT', () => {
         },
       ],
     });
-    const real = world.facade;
+    const real = world;
     try {
       expect(matchClockStatus(await real.serverSnapshot())).toBe('playing');
       await real.runFor(5_100);
@@ -99,7 +99,7 @@ describe('room schedule-anticheat PBT', () => {
       ],
     });
     try {
-      const end = await world.facade.serverSnapshot();
+      const end = await world.serverSnapshot();
       expect(matchClockStatus(end)).toBe('flagged');
     } finally {
       await world.dispose();

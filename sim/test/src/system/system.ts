@@ -1,23 +1,4 @@
-import type { CreateSimOptions, Sim } from '@sim/console/sim/create-sim';
+import type { CreateSimOptions } from '@sim/console/sim/create-sim';
 
-/**
- * Mutable bag shared by `product.*` node kinds. Filled during boot; scenarios
- * reach the live sim via framework `world.facade`.
- */
-export type ProductSystem = {
-  sim: Sim | null;
-  readonly createOpts: CreateSimOptions;
-};
-
+/** Options forwarded to {@link createSim} inside the product sim node. */
 export type ProductSystemOpts = CreateSimOptions;
-
-export function createProductSystem(opts?: ProductSystemOpts): ProductSystem {
-  return {
-    sim: null,
-    createOpts: opts ?? {},
-  };
-}
-
-export function productSim(state: ProductSystem): Sim | null {
-  return state.sim;
-}

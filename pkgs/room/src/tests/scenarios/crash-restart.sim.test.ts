@@ -10,7 +10,7 @@ describe('room sim: client/server crash restart', () => {
       seed: 'crash-client-1',
       knobs: { clientCount: 0 },
     });
-    const world = host.facade;
+    const world = host;
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await world.assertConverged();
@@ -36,7 +36,7 @@ describe('room sim: client/server crash restart', () => {
       seed: 'crash-server-1',
       knobs: { clientCount: 0 },
     });
-    const world = host.facade;
+    const world = host;
     const a = await world.addClient({ id: 'alice' });
     await world.addClient({ id: 'bob' });
     a.dispatch(Increment({}));
@@ -59,7 +59,7 @@ describe('room sim: client/server crash restart', () => {
       seed: 'boundary-committed-1',
       knobs: { clientCount: 0 },
     });
-    const world = host.facade;
+    const world = host;
     const a = await world.addClient({ id: 'alice' });
     await world.addClient({ id: 'bob' });
     world.armCrashAt('alice', 'afterNextCommitted');
@@ -75,11 +75,10 @@ describe('room sim: client/server crash restart', () => {
       seed: 'inv-1',
       knobs: { clientCount: 0 },
     });
-    const world = host.facade;
+    const world = host;
     const a = await world.addClient({ id: 'alice' });
     a.dispatch(Increment({}));
     await world.drain();
-    const inv = await world.checkInvariants();
-    expect(inv).toBeNull();
+    await world.checkInvariants();
   });
 });

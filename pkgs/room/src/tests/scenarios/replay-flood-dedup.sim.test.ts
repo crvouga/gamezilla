@@ -10,7 +10,7 @@ describe('room sim: replay flood dedup (E-D01)', () => {
       seed: process.env['SIM_SEED'] ?? '42',
       knobs: { clientCount: 0 },
     });
-    const world = host.facade;
+    const world = host;
     const a = await world.addClient({ id: 'alice' });
     await world.assertConverged();
 

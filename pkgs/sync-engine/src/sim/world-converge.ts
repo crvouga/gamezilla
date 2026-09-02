@@ -41,7 +41,6 @@ function clientSnapshots(
 function nudgeClients(clients: ReadonlyMap<string, SimClientHandle>): void {
   for (const client of clients.values()) {
     client.engine.wakeUploads();
-    // Must not await: refresh needs the sim scheduler to advance (runFor below).
     void client.engine.refreshQueries().catch(() => {
       // revoke / disconnect paths may reject refresh
     });

@@ -15,11 +15,10 @@ const VALID_MOVES = 'e8d7 e1f2 d7e6 f2e3';
 
 describe('chess puzzle: host auth under partition (Gp-02)', () => {
   test('non-host submit rejected; domain still converges', async () => {
-    await using host = await openWorld(chessSystem, {
+    await using world = await openWorld(chessSystem, {
       seed: process.env['SIM_SEED'] ?? '42',
       knobs: { clientCount: 0 },
     });
-    const world = host.facade;
     const hostClient = await world.addClient({
       id: 'host',
       identity: 'host-1',

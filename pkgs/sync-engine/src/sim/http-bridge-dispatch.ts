@@ -153,14 +153,14 @@ async function dispatchQuery(args: {
     clientNode !== undefined &&
     faults?.takeHttpFault(clientNode, 'dropQueryResponse')
   ) {
-    await handlers.handleQuery(payload.requests);
+    await handlers.handleQuery(payload.requests, clientNode);
     return;
   }
   const abortBody =
     clientNode !== undefined &&
     httpFaultRoute(faults?.peekHttpFault(clientNode, 'abortResponseBody')) ===
       'query';
-  const body = await handlers.handleQuery(payload.requests);
+  const body = await handlers.handleQuery(payload.requests, clientNode);
   if (abortBody && clientNode !== undefined) {
     faults?.takeHttpFault(clientNode, 'abortResponseBody');
     return;

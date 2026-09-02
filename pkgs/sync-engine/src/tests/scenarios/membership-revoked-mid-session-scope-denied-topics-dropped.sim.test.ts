@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import {
   createSpace,
   expectLiveNote,
@@ -9,17 +8,17 @@ import {
   SPACE_MEMBERSHIP_SESSION,
   setSpaceNote,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('membership revoked mid session scope denied topics dropped', () => {
   test('leave drops room topic; previously hydrated domain rows retained', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 970,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({
       id: 'alice',
       sessionQuery: SPACE_MEMBERSHIP_SESSION,
@@ -30,11 +29,15 @@ describe('membership revoked mid session scope denied topics dropped', () => {
     });
 
     await a.mutate(createSpace, { id: 'revoked-room', title: 'R' });
-    await b.mutate(joinSpace, { spaceId: 'revoked-room' });
     await world.assertConverged();
-    await world.until(() =>
+    await world.waitUntil(() =>
+      a.subscribedTopics().includes(roomTopic('revoked-room'))
+    );
+    await b.mutate(joinSpace, { spaceId: 'revoked-room' });
+    await world.waitUntil(() =>
       b.subscribedTopics().includes(roomTopic('revoked-room'))
     );
+    await world.assertConverged();
 
     await b.mutate(setSpaceNote, {
       id: 'kept-local',
@@ -45,11 +48,11 @@ describe('membership revoked mid session scope denied topics dropped', () => {
     await expectLiveNote(b.db, 'kept-local', { body: 'retain-me' });
 
     await b.mutate(leaveSpace, { spaceId: 'revoked-room' });
-    await world.until(
+    await world.waitUntil(
       () => !b.subscribedTopics().includes(roomTopic('revoked-room'))
     );
     // nudge: confirm leave detach keeps domain rows after refetch
-    await world.until(b.nudge());
+    await world.waitUntil(b.nudge());
 
     expect(b.subscribedTopics()).not.toContain(roomTopic('revoked-room'));
     // Domain rows retained after membership detach (no wipe on deny/leave).
@@ -60,7 +63,7 @@ describe('membership revoked mid session scope denied topics dropped', () => {
       spaceId: 'revoked-room',
       body: 'miss',
     });
-    await world.runFor(300);
+    await world.advance(300);
     // Intentionally not assertConverged: bob is out of room scope.
     await expectLiveNote(a.db, 'after-leave', { body: 'miss' });
   });
@@ -68,23 +71,23 @@ describe('membership revoked mid session scope denied topics dropped', () => {
   test.each([971, 972, 973])(
     'seed sweep leave drops room topic (seed=%i)',
     async (seed) => {
-      await using host = await openWorld(acmeSystem, {
+      await using world = await openAcmeWorld({
         seed: seed,
         knobs: {
           clientCount: 0,
         },
       });
-      const world = host.facade;
+
       const a = await world.addClient({
         id: 'alice',
         sessionQuery: SPACE_MEMBERSHIP_SESSION,
       });
       await a.mutate(createSpace, { id: `r-${seed}`, title: 'T' });
-      await world.until(() =>
+      await world.waitUntil(() =>
         a.subscribedTopics().includes(roomTopic(`r-${seed}`))
       );
       await a.mutate(leaveSpace, { spaceId: `r-${seed}` });
-      await world.until(
+      await world.waitUntil(
         () => !a.subscribedTopics().includes(roomTopic(`r-${seed}`))
       );
       expect(a.subscribedTopics()).not.toContain(roomTopic(`r-${seed}`));

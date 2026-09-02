@@ -1,4 +1,3 @@
-import type { InvariantViolation } from '@pkgs/determinism';
 import { fingerprintSql } from '../../core/fingerprint';
 import { isOwnedName } from '../../core/naming';
 import type { WorkloadManifest } from '../../core/types';
@@ -6,12 +5,11 @@ import {
   checkInvariantsAsync,
   type InvariantViolation as HarnessViolation,
 } from '../../sim/harness';
-import type { IndexesSystem } from './types';
+import type { IndexesReconcilerHandle } from './nodes';
 
 export async function checkIndexesInvariants(
-  state: IndexesSystem
-): Promise<InvariantViolation | null> {
-  if (state.db == null) return null;
+  state: IndexesReconcilerHandle
+): Promise<void> {
   const opts =
     state.lastReport !== null
       ? {
@@ -23,22 +21,21 @@ export async function checkIndexesInvariants(
       : {};
   const v = await checkInvariantsAsync(state.db, state.maxPerTable, opts);
   if (v.length > 0) {
-    return { invariant: v[0]!.id, detail: v[0]!.detail };
+    throw new Error(`${v[0]!.id}: ${v[0]!.detail}`);
   }
   if (state.lastReport !== null) {
     for (const a of state.lastReport.completed) {
       if (!isOwnedName(a.name)) {
-        return {
-          invariant: 'I1_executed',
-          detail: `executed non-owned ${a.name}`,
-        };
+        throw new Error(`I1_executed: executed non-owned ${a.name}`);
       }
     }
   }
-  return null;
 }
 
-export function harnessToDeterminism(v: HarnessViolation): InvariantViolation {
+export function harnessToDeterminism(v: HarnessViolation): {
+  invariant: string;
+  detail: string;
+} {
   return { invariant: v.id, detail: v.detail };
 }
 

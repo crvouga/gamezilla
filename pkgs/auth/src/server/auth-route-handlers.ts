@@ -90,10 +90,7 @@ function isSupportedProvider(provider: string): boolean {
   return provider === IDP_PROVIDER_GOOGLE || provider === IDP_PROVIDER_DEV;
 }
 
-function providerEnabled(
-  deps: CreateAuthAppDeps,
-  provider: string
-): boolean {
+function providerEnabled(deps: CreateAuthAppDeps, provider: string): boolean {
   if (provider === IDP_PROVIDER_GOOGLE) {
     return deps.providers.google !== undefined;
   }
@@ -197,8 +194,7 @@ export async function handleDevAuthorizeComplete(
     return c.json({ error: 'provider_disabled' }, 404);
   }
   const body = await c.req.parseBody();
-  const state =
-    typeof body['state'] === 'string' ? body['state'].trim() : '';
+  const state = typeof body['state'] === 'string' ? body['state'].trim() : '';
   const subject =
     typeof body['subject'] === 'string' ? body['subject'].trim() : '';
   if (state.length === 0 || subject.length === 0) {

@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import {
   deleteNote,
   expectLiveNote,
@@ -7,17 +6,17 @@ import {
   readNoteTombstone,
   setNote,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('tombstone row image deletes live row', () => {
   test('delete row image removes live peer row without waiting on sync', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 806,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
@@ -29,7 +28,7 @@ describe('tombstone row image deletes live row', () => {
       using _hold = world.net('bob', 'sync').set('hold');
       const del = await a.mutate(deleteNote, { id: 'n1' });
       expect(del.ok).toBe(true);
-      await world.runFor(300);
+      await world.advance(300);
 
       await expectNoteNotLive(b.db, 'n1');
       expect(await readNoteTombstone(b.db, 'n1')).not.toBeNull();

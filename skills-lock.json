@@ -16,6 +16,72 @@
       "sourceType": "github",
       "computedHash": "cb669fba9289d500872584ea0daab1c5114f1c8f12a991f90871431d3fadbf3c"
     },
+    "antithesis-agent-browser": {
+      "source": "antithesishq/antithesis-skills",
+      "sourceType": "github",
+      "skillPath": "antithesis-agent-browser/SKILL.md",
+      "computedHash": "e2628612c34580fe781ca27fc56c5f710367f8e307d27fc3a8abb5ce00427fd5"
+    },
+    "antithesis-debug": {
+      "source": "antithesishq/antithesis-skills",
+      "sourceType": "github",
+      "skillPath": "antithesis-debug/SKILL.md",
+      "computedHash": "90aa9df91a2101724f5750beee215ea191e84ab9f842736267f8e4c6224704b5"
+    },
+    "antithesis-documentation": {
+      "source": "antithesishq/antithesis-skills",
+      "sourceType": "github",
+      "skillPath": "antithesis-documentation/SKILL.md",
+      "computedHash": "7d95904d3bdfbfb4986757bd261406fabe36992b226db076a37a657a0767a234"
+    },
+    "antithesis-launch": {
+      "source": "antithesishq/antithesis-skills",
+      "sourceType": "github",
+      "skillPath": "antithesis-launch/SKILL.md",
+      "computedHash": "5e2ce9c05d790b4ec5ae11bf137514ef665ef63e166b09c96f6a22a3e7219a78"
+    },
+    "antithesis-query-logs": {
+      "source": "antithesishq/antithesis-skills",
+      "sourceType": "github",
+      "skillPath": "antithesis-query-logs/SKILL.md",
+      "computedHash": "e7c49b19f487dd71703f77a4cfd5656631d1d19e88526cdeeb5c8e06b8a669b3"
+    },
+    "antithesis-research": {
+      "source": "antithesishq/antithesis-skills",
+      "sourceType": "github",
+      "skillPath": "antithesis-research/SKILL.md",
+      "computedHash": "c2699a6a094e592613119819666b5db94acaf90a6ce01f3e1ed0a52518d4b08d"
+    },
+    "antithesis-setup": {
+      "source": "antithesishq/antithesis-skills",
+      "sourceType": "github",
+      "skillPath": "antithesis-setup/SKILL.md",
+      "computedHash": "e0819d74e1a3a7c168d9d9dde4718e94a8241bf9712bae671119af1788d4c475"
+    },
+    "antithesis-setup-k8s": {
+      "source": "antithesishq/antithesis-skills",
+      "sourceType": "github",
+      "skillPath": "antithesis-setup-k8s/SKILL.md",
+      "computedHash": "35ab4c9716cd3bb62c25aaf2b8548f6c5f4927f765627128d97269ca57cb5951"
+    },
+    "antithesis-skills-feedback": {
+      "source": "antithesishq/antithesis-skills",
+      "sourceType": "github",
+      "skillPath": "antithesis-skills-feedback/SKILL.md",
+      "computedHash": "00ac2e8a4001b5987403ea97cbac88d6d51004c8b23c55d72a6e33482ef2fe2e"
+    },
+    "antithesis-triage": {
+      "source": "antithesishq/antithesis-skills",
+      "sourceType": "github",
+      "skillPath": "antithesis-triage/SKILL.md",
+      "computedHash": "3b8f18a3ad6e5d599815fc5ae7cdbfece789f7d474fb0f7183e0f3936faa637e"
+    },
+    "antithesis-workload": {
+      "source": "antithesishq/antithesis-skills",
+      "sourceType": "github",
+      "skillPath": "antithesis-workload/SKILL.md",
+      "computedHash": "30c28c34ade0c160b1d029db6a1211d0273501f647aea5e8f51532721348b4eb"
+    },
     "building-native-ui": {
       "source": "expo/skills",
       "sourceType": "github",
@@ -101,6 +167,12 @@
       "sourceType": "github",
       "computedHash": "d39e806942fe880347f161056729b588a3cb0f1796270eebf52633fe11cfdce1"
     },
+    "hegel": {
+      "source": "hegeldev/hegel-skill",
+      "sourceType": "github",
+      "skillPath": "skills/hegel/SKILL.md",
+      "computedHash": "910eaf31932ca55a8370e88939db01f57880582bfa3928d0c4d4a44f097e204d"
+    },
     "native-data-fetching": {
       "source": "expo/skills",
       "sourceType": "github",
@@ -122,6 +194,12 @@
       "source": "cloudflare/skills",
       "sourceType": "github",
       "computedHash": "e44cceebe7e47d815034027c303315139d35c1d92a3ee287dc6d3e9a02f0667b"
+    },
+    "test:triage": {
+      "source": "antithesishq/antithesis-skills",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/test-triage/SKILL.md",
+      "computedHash": "c8b699368b1e4d434b7b2df9d7d6d2c167280e176a53020a88f98507c1844fb8"
     },
     "upgrading-expo": {
       "source": "expo/skills",

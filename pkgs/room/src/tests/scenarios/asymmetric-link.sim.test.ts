@@ -9,7 +9,7 @@ describe('room sim: asymmetric link (P2)', () => {
       seed: process.env['SIM_SEED'] ?? '42',
       knobs: { clientCount: 0 },
     });
-    const world = host.facade;
+    const world = host;
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await world.assertConverged();
@@ -23,7 +23,7 @@ describe('room sim: asymmetric link (P2)', () => {
       // Alice's commits do not reach bob while toClient held.
       a.dispatch(Increment({}));
       await world.drain();
-      await world.never(() => counterValue(b.snapshot()) === 2, {
+      await world.waitNever(() => counterValue(b.snapshot()) === 2, {
         forMs: 120,
       });
     }

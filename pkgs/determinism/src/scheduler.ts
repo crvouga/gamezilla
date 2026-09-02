@@ -24,8 +24,8 @@ export type SimScheduler = {
   readonly pendingCount: () => number;
   /** Absolute ms of the soonest pending task, or null if idle. */
   readonly nextDueAt: () => number | null;
-  /** Drop all pending tasks without running them. */
-  readonly clear: () => void;
+  /** Drop all pending tasks and reset virtual time to `atMs`. */
+  readonly reset: (atMs: number) => void;
   readonly runFor: (durationMs: number) => Promise<void>;
   readonly runUntilIdle: (opts?: {
     readonly maxSteps?: number;
@@ -93,8 +93,9 @@ export function createSimScheduler(
       scheduleAt(clock.now() + Math.max(0, ms), run, label),
     pendingCount: () => heap.length,
     nextDueAt: () => (heap.length === 0 ? null : heap[0]!.at),
-    clear: () => {
+    reset(atMs) {
       heap.length = 0;
+      clock.reset(atMs);
     },
     runFor: (durationMs) =>
       withDrainGate(() => runForDuration(makeCtx(), durationMs)),

@@ -82,7 +82,7 @@ export async function bootSimServer(args: {
 
   const kernel: BootedSimKernel = {
     rng,
-    clock: runtime.clock,
+    clock: runtime.scheduler.clock,
     clockSkew: runtime.clockSkew,
     scheduler: runtime.scheduler,
     timers: runtime.timers,

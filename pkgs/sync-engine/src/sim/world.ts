@@ -1,4 +1,4 @@
-import { untilAll, untilAny } from './until';
+import { untilAll, untilAny } from './wait-until';
 
 export type {
   SimCrashEvent,
@@ -9,9 +9,9 @@ export type { SimDomainPack } from './domain-pack';
 export type { NetEffect, NetState, SimNetHandle } from './net-effect';
 export type { SimNodeHandle } from './node-handle';
 export type { SyncAction, SyncApp, WorldKnobs } from './system';
-export { arbWorldKnobs, arbWorldSeed } from './system';
+export { arbKnobs, arbSeed } from './system';
 export type { SimTraffic } from './traffic';
-export type { NeverOpts, UntilOpts, UntilTarget } from './until';
+export type { NeverOpts, UntilOpts, UntilTarget } from './wait-until';
 export type { World } from './world-api';
 export type { RestartClientOpts } from './world-lifecycle';
 /** Optional combinators — not core scenario concepts. */

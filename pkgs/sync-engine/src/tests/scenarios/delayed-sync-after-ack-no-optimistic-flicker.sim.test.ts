@@ -1,12 +1,11 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import { toKernelFaults } from '../../sim/network';
 import { expectLiveNote, readLiveNotes, setNote } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('delayed sync after ack no optimistic flicker', () => {
   test('optimistic body never reverts under delayed sync after upload ack', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 701,
       knobs: {
         clientCount: 0,
@@ -22,7 +21,7 @@ describe('delayed sync after ack no optimistic flicker', () => {
         unpartitionProbability: 0,
       }),
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     await world.addClient({ id: 'bob' });
 
@@ -35,7 +34,7 @@ describe('delayed sync after ack no optimistic flicker', () => {
     // nudge: race post-ack sweeps with delayed sync
     void a.nudge();
     for (let i = 0; i < 16; i += 1) {
-      await world.runFor(25);
+      await world.advance(25);
       const rows = await readLiveNotes(a.db);
       const note = rows.find((r) => r.id === 'n1');
       expect(note?.body).toBe('optimistic-final');

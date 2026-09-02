@@ -1,22 +1,21 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import {
   expectLiveNote,
   expectNotesMatchServer,
   readLiveNotes,
   setNote,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('not modified does not clobber pending', () => {
   test('not_modified refetch does not clobber pending optimistic; later hash miss rebases', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 640,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
@@ -32,7 +31,7 @@ describe('not modified does not clobber pending', () => {
     // Reconnect: session sync sees unchanged server hash → not_modified;
     // pending mutation rebases on top so optimistic body must survive.
     await a.connect();
-    await world.runFor(500);
+    await world.advance(500);
     await expectLiveNote(a.db, 'n1', { body: 'optimistic-pending' });
 
     await b.mutate(setNote, { id: 'n1', body: 'from-bob' });

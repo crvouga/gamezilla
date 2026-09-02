@@ -16,16 +16,16 @@ import {
   SIM_POSTGRES_MEM_DATABASE_URL,
   SIM_SERVER_URL,
 } from '@apps/server/sim/migrate-sim-postgres';
+import { setPendingSignupUsername } from '@libs/auth/public/pending-signup-username';
 import { assert } from '@pkgs/assert';
 import {
   createInProcessOpenAuthSession,
   createNamespacedAuthClientStorage,
 } from '@pkgs/auth/client';
 import { InMemoryBilling } from '@pkgs/billing';
-import type { Timers } from '@pkgs/clock';
+import type { Clock, Timers } from '@pkgs/clock';
 import {
   createSimDeps,
-  type SimClock,
   type SimDeps,
   type SimScheduler,
 } from '@pkgs/determinism';
@@ -84,7 +84,7 @@ export type Server = Awaited<ReturnType<typeof createServer>>;
 
 export type Sim = {
   readonly server: ServerEnv;
-  readonly clock: SimClock;
+  readonly clock: Clock;
   readonly scheduler: SimScheduler;
   readonly pubSubBus: ReturnType<typeof createInMemoryBus>;
   client(id: string): ClientEnv;
@@ -280,10 +280,20 @@ function makeSimClientEnv(
     observability: createNoopObservability(`sim-client:${id}`),
     serverUrl: SIM_SERVER_URL,
     authBaseURL: SIM_SERVER_URL,
-    openAuthSession: createInProcessOpenAuthSession({
-      fetch: (input, init) => net.wrapServerHttp(id, serverFetch)(input, init),
-      subject: id,
-    }),
+    openAuthSession: (() => {
+      const completeDevAuth = createInProcessOpenAuthSession({
+        fetch: (input, init) => net.wrapServerHttp(id, serverFetch)(input, init),
+        subject: id,
+      });
+      return async (authorizationUrl, callbackUrl) => {
+        const result = await completeDevAuth(authorizationUrl, callbackUrl);
+        if (result.type === 'success') {
+          // Dev IdP subject doubles as the sim actor username (alice/bob).
+          setPendingSignupUsername(id);
+        }
+        return result;
+      };
+    })(),
     resolveDatabaseName: () => ns,
     mutationSuccessHoldMs: 0,
   };

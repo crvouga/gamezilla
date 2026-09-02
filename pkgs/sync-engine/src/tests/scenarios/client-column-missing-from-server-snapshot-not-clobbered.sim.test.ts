@@ -1,25 +1,24 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import { sql } from '@pkgs/sql';
 import {
   acmeLocalSchemaExtraColumn,
   expectLiveNote,
   setNote,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('client column missing from server snapshot not clobbered', () => {
   test.each([740, 741, 742])(
     'local color survives peer body update (seed=%i)',
     async (seed) => {
       // Server stays on base schema (no color). Client has extra column.
-      await using host = await openWorld(acmeSystem, {
+      await using world = await openAcmeWorld({
         seed: seed,
         knobs: {
           clientCount: 0,
         },
       });
-      const world = host.facade;
+
       const a = await world.addClient({
         id: 'alice',
         localSchema: acmeLocalSchemaExtraColumn,

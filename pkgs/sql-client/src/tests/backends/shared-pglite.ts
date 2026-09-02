@@ -3,6 +3,7 @@
  * Opening WASM per sample is too slow — reuse + DROP TABLE instead.
  */
 
+import { afterAll } from 'bun:test';
 import { PGlite } from '@electric-sql/pglite';
 import { installPostgresSqliteCompat } from '@pkgs/postgres-sqlite-compat';
 import type { SqlClient } from '../../interface';
@@ -17,6 +18,7 @@ type SharedPglite = {
 
 let shared: SharedPglite | null = null;
 let sharedPromise: Promise<SharedPglite> | null = null;
+let closing: Promise<void> | null = null;
 
 async function bootSharedPglite(): Promise<SharedPglite> {
   const db = await PGlite.create();
@@ -50,11 +52,27 @@ export async function openSharedPgliteBackend(): Promise<MatrixBackend> {
   };
 }
 
-/** Test teardown: close the shared PGlite (optional; process exit also works). */
+/** Test teardown: close the shared PGlite. Idempotent; WASM close may throw. */
 export async function closeSharedPglite(): Promise<void> {
+  if (closing !== null) {
+    await closing;
+    return;
+  }
   if (shared === null && sharedPromise === null) return;
-  const live = await getSharedPglite();
-  shared = null;
-  sharedPromise = null;
-  await live.db.close();
+  closing = (async () => {
+    try {
+      const live = await getSharedPglite();
+      shared = null;
+      sharedPromise = null;
+      await live.db.close();
+    } catch {
+      shared = null;
+      sharedPromise = null;
+    }
+  })();
+  await closing;
 }
+
+afterAll(async () => {
+  await closeSharedPglite();
+}, 30_000);

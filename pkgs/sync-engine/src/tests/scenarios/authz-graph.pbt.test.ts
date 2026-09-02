@@ -1,11 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import { assertSampleProperty } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
-import { arbWorldKnobs, arbWorldSeed } from '../../sim/system/knobs';
+import { arbKnobs, arbSeed } from '../../sim/system/knobs';
 import { expectLiveNote, readLiveNotes } from '../apps/acme/assert';
 import { deleteNote, setNote } from '../apps/acme/shared/mutations';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('authz graph PBT', () => {
   test(
@@ -14,24 +13,24 @@ describe('authz graph PBT', () => {
       await assertSampleProperty(
         'non-owner delete rejected',
         fc.asyncProperty(
-          arbWorldSeed(),
-          arbWorldKnobs(),
+          arbSeed(),
+          arbKnobs(),
           fc.constantFrom('n0', 'n1'),
           fc.string({ maxLength: 12 }),
           async (seed, knobs, noteId, body) => {
             if (knobs.clientCount < 2) return;
-            await using world = await openWorld(acmeSystem, { seed, knobs });
-            const facade = world.facade;
-            const [owner, peer] = world.roleIds('client');
-            const ownerClient = facade.clients.get(owner!)!;
-            const peerClient = facade.clients.get(peer!)!;
+            await using world = await openAcmeWorld({ seed, knobs });
+
+            const [owner, peer] = world.ids('client');
+            const ownerClient = world.clients.get(owner!)!;
+            const peerClient = world.clients.get(peer!)!;
 
             await ownerClient.mutate(setNote, {
               id: noteId,
               body,
               title: '',
             });
-            await facade.assertConverged();
+            await world.assertConverged();
 
             const denied = await peerClient.mutate(deleteNote, {
               id: noteId,
@@ -43,7 +42,7 @@ describe('authz graph PBT', () => {
               true
             );
 
-            await facade.assertConverged();
+            await world.assertConverged();
             await expectLiveNote(ownerClient.db, noteId, { body });
             await expectLiveNote(peerClient.db, noteId, { body });
           }
@@ -60,7 +59,7 @@ describe('authz graph PBT', () => {
       await assertSampleProperty(
         'multi-client authorized converge',
         fc.asyncProperty(
-          arbWorldSeed(),
+          arbSeed(),
           fc.record({
             rowImageFanout: fc.boolean(),
             liveResendOnReconnect: fc.boolean(),
@@ -75,19 +74,19 @@ describe('authz graph PBT', () => {
             { minLength: 1, maxLength: 6 }
           ),
           async (seed, knobs, writes) => {
-            await using world = await openWorld(acmeSystem, { seed, knobs });
-            const facade = world.facade;
+            await using world = await openAcmeWorld({ seed, knobs });
+
             for (const w of writes) {
-              const client = facade.clients.get('c0')!;
+              const client = world.clients.get('c0')!;
               await client.mutate(setNote, {
                 id: w.noteId,
                 body: w.body,
                 title: '',
               });
             }
-            await facade.assertConverged();
-            const serverNotes = await readLiveNotes(facade.server.db);
-            for (const client of facade.clients.values()) {
+            await world.assertConverged();
+            const serverNotes = await readLiveNotes(world.server.db);
+            for (const client of world.clients.values()) {
               const local = await readLiveNotes(client.db);
               expect(local).toEqual([...serverNotes]);
             }

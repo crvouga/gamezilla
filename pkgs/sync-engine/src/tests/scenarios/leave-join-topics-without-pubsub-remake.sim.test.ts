@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import {
   createSpace,
   joinSpace,
@@ -8,17 +7,17 @@ import {
   SPACE_MEMBERSHIP_SESSION,
   userTopic,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('leave join topics without pubsub remake', () => {
   test('leave then join different room without pubsub remake', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 801,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({
       id: 'alice',
       sessionQuery: SPACE_MEMBERSHIP_SESSION,
@@ -32,7 +31,7 @@ describe('leave join topics without pubsub remake', () => {
     await b.mutate(joinSpace, { spaceId: 'space-a' });
     await world.assertConverged();
 
-    await world.until(() =>
+    await world.waitUntil(() =>
       a.subscribedTopics().includes(roomTopic('space-a'))
     );
     const topicsA = a.subscribedTopics();
@@ -41,16 +40,16 @@ describe('leave join topics without pubsub remake', () => {
     const remakesAfterJoin = a.pubsubRemakeCount();
 
     await a.mutate(leaveSpace, { spaceId: 'space-a' });
-    await world.runFor(200);
-    await world.until(
+    await world.advance(200);
+    await world.waitUntil(
       () => !a.subscribedTopics().includes(roomTopic('space-a'))
     );
     expect(a.subscribedTopics()).not.toContain(roomTopic('space-a'));
     expect(a.pubsubRemakeCount()).toBe(remakesAfterJoin);
 
     await a.mutate(createSpace, { id: 'space-b', title: 'B' });
-    await world.runFor(200);
-    await world.until(() =>
+    await world.advance(200);
+    await world.waitUntil(() =>
       a.subscribedTopics().includes(roomTopic('space-b'))
     );
     const topicsB = a.subscribedTopics();

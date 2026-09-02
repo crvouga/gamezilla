@@ -47,6 +47,7 @@ export type PushBag = {
   lastTopicKey: string;
   membershipRemakePending: boolean;
   remakeFlushInFlight: boolean;
+  remakeFlushQueued: boolean;
 };
 
 export function createPushBag(options: AttachPushOptions): PushBag {
@@ -65,6 +66,7 @@ export function createPushBag(options: AttachPushOptions): PushBag {
     lastTopicKey: '',
     membershipRemakePending: false,
     remakeFlushInFlight: false,
+    remakeFlushQueued: false,
   };
 }
 

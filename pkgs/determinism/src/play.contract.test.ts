@@ -2,14 +2,13 @@ import { describe, expect, test } from 'bun:test';
 import { createSimClock } from './clock';
 import { playActions } from './play';
 import { createSimScheduler } from './scheduler';
-import { never, until } from './until';
 
 describe('until / never / play', () => {
   test('until returns now when predicate already true', async () => {
     const clock = createSimClock(10);
     const scheduler = createSimScheduler(clock);
-    const now = await until({ clock, scheduler, seed: 1n }, () => true);
-    expect(now).toBe(10);
+    expect(await scheduler.runUntil(() => true)).toBe(true);
+    expect(clock.now()).toBe(10);
   });
 
   test('until advances via scheduler and returns completion time', async () => {
@@ -19,31 +18,26 @@ describe('until / never / play', () => {
     scheduler.scheduleAt(50, () => {
       ready = true;
     });
-    const now = await until({ clock, scheduler, seed: 1n }, () => ready, {
-      budgetMs: 200,
-      stepMs: 25,
-    });
-    expect(now).toBeGreaterThanOrEqual(50);
+    const ok = await scheduler.runUntil(() => ready, { maxVirtualMs: 200 });
+    expect(ok).toBe(true);
+    expect(clock.now()).toBeGreaterThanOrEqual(50);
   });
 
-  test('until timeout includes seed diagnostics', async () => {
+  test('until timeout returns false under budget', async () => {
     const clock = createSimClock(0);
     const scheduler = createSimScheduler(clock);
-    await expect(
-      until({ clock, scheduler, seed: 0xabcn }, () => false, {
-        budgetMs: 50,
-        stepMs: 25,
-      })
-    ).rejects.toThrow(/seed=abc/);
+    const ok = await scheduler.runUntil(() => false, { maxVirtualMs: 50 });
+    expect(ok).toBe(false);
   });
 
-  test('never succeeds when target stays false', async () => {
+  test('never path stays false within window', async () => {
     const clock = createSimClock(0);
     const scheduler = createSimScheduler(clock);
-    await never({ clock, scheduler, seed: 1n }, () => false, {
-      forMs: 50,
-      stepMs: 25,
+    scheduler.scheduleAt(50, () => {
+      /* noop */
     });
+    const ok = await scheduler.runUntil(() => false, { maxVirtualMs: 50 });
+    expect(ok).toBe(false);
     expect(clock.now()).toBeGreaterThanOrEqual(50);
   });
 

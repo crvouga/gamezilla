@@ -1,14 +1,16 @@
-import { defineKnob, defineSystem } from '@pkgs/determinism';
-import fc from 'fast-check';
-
-import { AUTH_ACTIONS, type AuthModel } from './actions';
+import { defineSystem } from '@pkgs/determinism';
+import type { AuthModel } from './actions';
+import { AUTH_ACTIONS } from './actions';
+import { assertAuthInvariants, worldFingerprint } from './invariants';
 import {
-  assertAuthInvariants,
-  checkAuthInvariants,
-  worldFingerprint,
-} from './invariants';
-import { authActorNode, authStoreNode } from './nodes';
-import { type AuthFabric, type AuthSystem, createAuthSystem } from './types';
+  AUTH_CLIENT_COUNT,
+  AUTH_DEV_PROVIDER,
+  AUTH_FABRIC,
+  AUTH_GOOGLE_PROVIDER,
+  authActorNode,
+  authStoreNode,
+} from './nodes';
+import type { AuthKit } from './types';
 
 const AUTH_SYSTEM_START_MS = 1_700_000_000_000;
 
@@ -16,49 +18,41 @@ const AUTH_SYSTEM_START_MS = 1_700_000_000_000;
  * `auth.store` (SQL + Hono IdP + fake Google) plus N zero-endpoint
  * `auth.actor` session bags. Framework owns the world via openWorld.
  */
-export const AUTH_SYSTEM = defineSystem<AuthSystem, AuthModel>({
+export const AUTH_SYSTEM = defineSystem({
   id: 'auth.idp',
-  state: createAuthSystem,
   startMs: AUTH_SYSTEM_START_MS,
-  knobs: [
-    defineKnob({
-      id: 'fabric',
-      default: 'sqlite-mem' satisfies AuthFabric,
-      arb: fc.constantFrom<AuthFabric>('sqlite-mem', 'postgres-mem'),
-    }),
-    defineKnob({
-      id: 'clientCount',
-      default: 2,
-      arb: fc.integer({ min: 1, max: 3 }),
-    }),
-    defineKnob({
-      id: 'devProvider',
-      default: true,
-      arb: fc.constant(true),
-    }),
-    defineKnob({
-      id: 'googleProvider',
-      default: true,
-      arb: fc.constant(true),
-    }),
-  ],
-  nodes: [
-    { kind: authStoreNode, role: 'store', count: 1 },
-    {
-      kind: authActorNode,
-      role: 'client',
-      count: { fromKnob: 'clientCount' },
-      idFor: (i) => `c${i}`,
+  knobs: {
+    fabric: AUTH_FABRIC,
+    clientCount: AUTH_CLIENT_COUNT,
+    devProvider: AUTH_DEV_PROVIDER,
+    googleProvider: AUTH_GOOGLE_PROVIDER,
+  },
+  nodes: {
+    store: authStoreNode,
+    client: {
+      ...authActorNode,
+      count: (k) => k['clientCount'] as number,
+      id: (i) => `c${i}`,
     },
-  ],
-  actions: [...AUTH_ACTIONS],
+  },
+  actions: AUTH_ACTIONS,
   model: {
     initial: (): AuthModel => ({}),
   },
-  invariants: checkAuthInvariants,
+  extend: (): AuthKit => ({ fingerprint: null }),
+  invariants: async () => {
+    /* safety checks run in settle */
+  },
   settle: async (world) => {
     await world.idle();
     await assertAuthInvariants(world);
-    world.state.fingerprint = await worldFingerprint(world);
+    world.fingerprint = await worldFingerprint(world);
   },
 });
+
+export type AuthSystemDef = typeof AUTH_SYSTEM;
+export type AuthWorld = import('@pkgs/determinism').World<
+  AuthSystemDef['knobs'],
+  AuthSystemDef['nodes'],
+  AuthKit
+>;

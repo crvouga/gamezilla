@@ -47,7 +47,7 @@ export async function prepareClientsForConverge(
     });
   }
   if (world.clients.size > 0) {
-    await world.runFor(50);
+    await world.advance(50);
   }
   await dispatchSyncAction(world, app, { kind: 'heal' });
   healNetworkForSettle(world);

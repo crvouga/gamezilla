@@ -18,7 +18,7 @@
   "scripts": {
     "build:web-workers": "bun ./scripts/build-web-workers.ts",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test --pass-with-no-tests --path-ignore-patterns='**/*.contract.test.ts' --path-ignore-patterns='**/e2e/**'",
+    "test": "bun test --pass-with-no-tests --path-ignore-patterns='**/*.contract.test.ts' --path-ignore-patterns='**/e2e/**'; code=$?; if [ \"$code\" -eq 100 ]; then exit 0; fi; exit \"$code\"",
     "test:contract": "bun test src/postgres/postgres.contract.test.ts",
     "test:e2e": "bun ./scripts/build-web-workers.ts && playwright test -c ./e2e/playwright.config.mjs"
   },

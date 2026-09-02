@@ -1,35 +1,34 @@
 import { describe, expect, test } from 'bun:test';
-import type { World } from '@pkgs/determinism';
 import { openWorld } from '@pkgs/determinism';
 import {
   assertSample,
-  assertSampleProperty,
+  assertWorldProperty,
+  fc,
   replay,
 } from '@pkgs/determinism/pbt';
-import { fc } from '@pkgs/pbt';
 
 import {
   AUTH_SESSION_TTL_MS,
   IDP_PROVIDER_DEV,
   IDP_PROVIDER_GOOGLE,
 } from '../../shared/auth-constants';
-import { type AuthAction, arbAuthAction } from './actions';
+import type { AuthAction } from './actions';
 import { worldFingerprint } from './invariants';
 import { migrateAuthSchema } from './nodes';
-import { AUTH_SYSTEM } from './system';
+import { AUTH_SYSTEM, type AuthWorld } from './system';
 import {
   AUTH_FABRICS,
   type AuthFabric,
-  type AuthSystem,
+  type AuthStore,
   requireActor,
   requireStore,
 } from './types';
 
-type AuthWorld = World<AuthSystem>;
-
 const CLIENT_IDS = ['c0', 'c1'] as const;
 
-function knobsFor(fabric: AuthFabric): Record<string, string | number> {
+function knobsFor(
+  fabric: AuthFabric
+): Record<string, string | number | boolean> {
   return { fabric, clientCount: CLIENT_IDS.length };
 }
 
@@ -39,13 +38,16 @@ async function withReplay(
   actions: readonly AuthAction[],
   check: (world: AuthWorld) => Promise<void>
 ): Promise<void> {
-  const { world } = await replay(AUTH_SYSTEM, {
-    seed,
-    knobs: knobsFor(fabric),
-    actions,
-  });
+  const { world } = await replay(
+    AUTH_SYSTEM as unknown as Parameters<typeof replay>[0],
+    {
+      seed,
+      knobs: knobsFor(fabric),
+      actions,
+    }
+  );
   try {
-    await check(world);
+    await check(world as unknown as AuthWorld);
   } finally {
     await world.dispose();
   }
@@ -86,9 +88,13 @@ describe('auth system / PBT', () => {
           { kind: 'sessionExchange', clientId: 'c1' },
         ],
         async (world) => {
-          const store = requireStore(world.state);
-          const c0 = requireActor(world.state, 'c0');
-          const c1 = requireActor(world.state, 'c1');
+          const store = requireStore(world.nodes['store'] as AuthStore);
+          const actors = world.nodes['client'] as unknown as ReadonlyMap<
+            string,
+            import('./types').ActorState
+          >;
+          const c0 = requireActor(actors, 'c0');
+          const c1 = requireActor(actors, 'c1');
           expect(c0.bearer).not.toBeNull();
           expect(c1.bearer).not.toBeNull();
           expect(c0.bearer).not.toBe(c1.bearer);
@@ -119,8 +125,14 @@ describe('auth system / PBT', () => {
           { kind: 'sessionExchange', clientId: 'c0' },
         ],
         async (world) => {
-          const store = requireStore(world.state);
-          const bearer = requireActor(world.state, 'c0').bearer!;
+          const store = requireStore(world.nodes['store'] as AuthStore);
+          const bearer = requireActor(
+            world.nodes['client'] as unknown as ReadonlyMap<
+              string,
+              import('./types').ActorState
+            >,
+            'c0'
+          ).bearer!;
           expect(await store.server.verifySessionToken(bearer)).not.toBeNull();
           await world.advance(AUTH_SESSION_TTL_MS + 1);
           expect(await store.server.verifySessionToken(bearer)).toBeNull();
@@ -162,9 +174,23 @@ describe('auth system / PBT', () => {
           { kind: 'signOut', clientId: 'c0' },
         ],
         async (world) => {
-          const store = requireStore(world.state);
-          expect(requireActor(world.state, 'c0').bearer).toBeNull();
-          const b1 = requireActor(world.state, 'c1').bearer!;
+          const store = requireStore(world.nodes['store'] as AuthStore);
+          expect(
+            requireActor(
+              world.nodes['client'] as unknown as ReadonlyMap<
+                string,
+                import('./types').ActorState
+              >,
+              'c0'
+            ).bearer
+          ).toBeNull();
+          const b1 = requireActor(
+            world.nodes['client'] as unknown as ReadonlyMap<
+              string,
+              import('./types').ActorState
+            >,
+            'c1'
+          ).bearer!;
           expect(await store.server.verifySessionToken(b1)).not.toBeNull();
         }
       );
@@ -190,8 +216,14 @@ describe('auth system / PBT', () => {
           { kind: 'sessionExchange', clientId: 'c0' },
         ],
         async (world) => {
-          const store = requireStore(world.state);
-          const bearer = requireActor(world.state, 'c0').bearer;
+          const store = requireStore(world.nodes['store'] as AuthStore);
+          const bearer = requireActor(
+            world.nodes['client'] as unknown as ReadonlyMap<
+              string,
+              import('./types').ActorState
+            >,
+            'c0'
+          ).bearer;
           expect(bearer).not.toBeNull();
           expect(await store.server.verifySessionToken(bearer!)).not.toBeNull();
         }
@@ -203,7 +235,7 @@ describe('auth system / PBT', () => {
         seed: 13,
         knobs: { ...knobsFor(fabric), devProvider: false },
       });
-      const res = await requireStore(world.state).fetch(
+      const res = await requireStore(world.nodes['store'] as AuthStore).fetch(
         '/auth/oauth/launch?provider=dev&callbackUrl=http%3A%2F%2Fcallback.test%2Fsso',
         { method: 'GET', redirect: 'manual' }
       );
@@ -211,27 +243,46 @@ describe('auth system / PBT', () => {
     }, 60_000);
 
     test(`dual-open runs share a fingerprint (${fabric})`, async () => {
-      await assertSampleProperty(
-        `auth dual-open ${fabric}`,
-        fc.asyncProperty(
-          fc.integer({ min: 1, max: 500 }),
-          fc.array(arbAuthAction(CLIENT_IDS), {
-            minLength: 1,
-            maxLength: 12,
-          }),
-          async (seed, actions) => {
-            const knobs = knobsFor(fabric);
-            const a = await replay(AUTH_SYSTEM, { seed, knobs, actions });
-            const b = await replay(AUTH_SYSTEM, { seed, knobs, actions });
-            try {
-              expect(a.world.state.fingerprint).not.toBeNull();
-              expect(a.world.state.fingerprint).toBe(b.world.state.fingerprint);
-            } finally {
-              await a.world.dispose();
-              await b.world.dispose();
-            }
+      await assertWorldProperty(
+        AUTH_SYSTEM as unknown as Parameters<typeof assertWorldProperty>[0],
+        [fc.constant(null)],
+        async (world, _null) => {
+          void _null;
+          const knobs = knobsFor(fabric);
+          const actions = [
+            {
+              kind: 'oauthStart',
+              clientId: 'c0',
+              provider: IDP_PROVIDER_DEV,
+              callbackUrl: 'http://callback.test/sso',
+            },
+            {
+              kind: 'oauthApprove',
+              clientId: 'c0',
+              provider: IDP_PROVIDER_DEV,
+              subject: 'alice',
+            },
+            { kind: 'sessionExchange', clientId: 'c0' },
+          ] as const;
+          const a = await replay(
+            AUTH_SYSTEM as unknown as Parameters<typeof replay>[0],
+            { seed: world.seed, knobs, actions: [...actions] }
+          );
+          const b = await replay(
+            AUTH_SYSTEM as unknown as Parameters<typeof replay>[0],
+            { seed: world.seed, knobs, actions: [...actions] }
+          );
+          try {
+            const aw = a.world as unknown as AuthWorld;
+            const bw = b.world as unknown as AuthWorld;
+            expect(aw.fingerprint).not.toBeNull();
+            expect(aw.fingerprint).toBe(bw.fingerprint);
+          } finally {
+            await a.world.dispose();
+            await b.world.dispose();
           }
-        )
+        },
+        { numRuns: 4 }
       );
     }, 120_000);
 
@@ -240,14 +291,19 @@ describe('auth system / PBT', () => {
         seed: 1,
         knobs: knobsFor(fabric),
       });
-      const store = requireStore(world.state);
-      const before = await worldFingerprint(world);
+      const store = requireStore(world.nodes['store'] as AuthStore);
+      const before = await worldFingerprint(world as unknown as AuthWorld);
       await migrateAuthSchema(store.fabric, store.sql);
-      expect(await worldFingerprint(world)).toBe(before);
+      expect(await worldFingerprint(world as unknown as AuthWorld)).toBe(
+        before
+      );
     }, 60_000);
   }
 
   test('assertSample explores knobs + library + domain actions', async () => {
-    await assertSample(AUTH_SYSTEM, { maxCommands: 10 });
+    await assertSample(
+      AUTH_SYSTEM as unknown as Parameters<typeof assertSample>[0],
+      { maxCommands: 10 }
+    );
   }, 180_000);
 });

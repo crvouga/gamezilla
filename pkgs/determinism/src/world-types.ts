@@ -1,62 +1,70 @@
-import type { SimClock } from './clock';
 import type { SimDeps } from './create-sim-deps';
-import type { FaultCatalog } from './faults';
 import type { JsonValue } from './json';
-import type { KnobCatalog } from './knobs';
+import type { KnobDef, KnobValues } from './knobs';
 import type {
   SimNetFaultProfile,
   SimNetKey,
   SimNetwork,
   SimNodeId,
 } from './network';
-import type { NodeInstance } from './node-kind';
-import type { NeverOpts, UntilOpts } from './until';
+import type { CountedNodeSpec, NodeKindDef, NodeSpecEntry } from './node';
 
-export type WorldNodes = {
-  readonly byRole: Readonly<Record<string, readonly NodeInstance[]>>;
-  readonly byId: ReadonlyMap<string, NodeInstance>;
+type BootReturn<S extends NodeSpecEntry> =
+  S extends NodeKindDef<infer H>
+    ? H
+    : S extends CountedNodeSpec<infer H>
+      ? ReadonlyMap<string, H>
+      : unknown;
+
+export type NodeHandles<N extends Record<string, NodeSpecEntry>> = {
+  [P in keyof N]: BootReturn<N[P]>;
 };
 
-export type World<S = unknown, F = unknown> = {
+export type UntilOpts = { readonly withinMs?: number };
+export type NeverOpts = { readonly forMs: number };
+
+export type WorldControls = {
   readonly seed: bigint;
-  readonly deps: SimDeps;
-  readonly clock: SimClock;
-  readonly network: SimNetwork;
-  readonly nodes: WorldNodes;
-  readonly state: S;
-  /** Typed system handle from SystemDef.facade (undefined when omitted). */
-  readonly facade: F;
-  readonly knobs: KnobCatalog<Record<string, JsonValue>>;
-  readonly faults: FaultCatalog;
-  readonly networkDefaults: SimNetFaultProfile;
   readonly startMs: number;
-  node(role: string, id?: string): NodeInstance;
-  roleIds(role: string): readonly string[];
-  /** Partition all endpoint pairs between two nodes. */
-  partition(a: SimNodeId, b: SimNodeId): void;
-  heal(a: SimNodeId, b: SimNodeId): void;
-  healAll(): void;
-  hold(key: SimNetKey): void;
-  release(key: SimNetKey): void;
-  releaseAll(): void;
-  /** Advance virtual time by `ms` (fires due tasks). */
+  readonly deps: SimDeps;
+  readonly network: SimNetwork;
+  readonly networkDefaults: SimNetFaultProfile;
+  ids(role: string): readonly string[];
+  now(): number;
   advance(ms: number): Promise<void>;
-  /** Quiescence-aware drain until the scheduler is idle. */
   idle(): Promise<void>;
   until(
     pred: () => boolean | Promise<boolean>,
     opts?: UntilOpts
   ): Promise<number>;
   never(pred: () => boolean | Promise<boolean>, opts: NeverOpts): Promise<void>;
-  /** Run system.settle then system.invariants (throws on violation). */
+  run<T>(promise: Promise<T>): Promise<T>;
+  partition(a: SimNodeId, b: SimNodeId): Disposable;
+  heal(a: SimNodeId, b: SimNodeId): void;
+  healAll(): void;
+  hold(key: SimNetKey): Disposable;
+  release(key: SimNetKey): void;
+  releaseAll(): void;
+  play(actions: readonly JsonValue[]): Promise<void>;
   settle(): Promise<void>;
   dispose(): Promise<void>;
   [Symbol.asyncDispose](): Promise<void>;
 };
 
-export type OpenWorldOpts = {
+export type World<
+  K extends Record<string, KnobDef> = Record<string, KnobDef>,
+  N extends Record<string, NodeSpecEntry> = Record<string, NodeSpecEntry>,
+  X = Record<string, never>,
+> = WorldControls & {
+  readonly knobs: KnobValues<K>;
+  readonly nodes: NodeHandles<N>;
+} & X;
+
+export type OpenWorldOpts<
+  K extends Record<string, KnobDef> = Record<string, KnobDef>,
+> = {
   readonly seed: number | bigint | string;
-  readonly knobs?: Partial<Record<string, JsonValue>>;
+  readonly knobs?: Partial<KnobValues<K>>;
   readonly startMs?: number;
   readonly networkDefaults?: SimNetFaultProfile;
   readonly trace?: boolean | import('./trace').SimTrace;

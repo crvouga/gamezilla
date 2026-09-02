@@ -1,17 +1,16 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import { expectLiveNote, requiresOnlineNote } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('requires online fails offline without queue', () => {
   test('offline mutate fails with OFFLINE and does not queue', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 510,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     a.online(false);
 
@@ -32,7 +31,7 @@ describe('requires online fails offline without queue', () => {
     expect(ok.ok).toBe(true);
     if (!ok.ok) return;
 
-    await world.until(a.outcome(ok.mutationId), { budgetMs: 5_000 });
+    await world.waitUntil(a.outcome(ok.mutationId), { withinMs: 5_000 });
     expect(await a.outcome(ok.mutationId)).toBe('confirmed');
     await world.assertConverged();
     await expectLiveNote(a.db, 'n1', { body: 'online-ok' });

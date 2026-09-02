@@ -1,8 +1,8 @@
 /**
- * Build the matchmaking facade once store + replicas are up.
+ * Kit methods merged onto the framework world via `extend`.
  */
 
-import type { SimClock } from '@pkgs/determinism';
+import type { World } from '@pkgs/determinism';
 import type { SeededRng } from '@pkgs/uuid';
 
 import { bootReplicaOnStore } from '../boot-replica';
@@ -19,56 +19,75 @@ import {
   type UntilOpts,
   type UntilTarget,
 } from '../until';
-import type { MatchmakingSimWorld, ReplicaHandle } from '../world-api';
-import type { MatchmakingSystem } from './system';
+import type {
+  MatchmakingSimKit,
+  MatchmakingSimWorld,
+  ReplicaHandle,
+} from '../world-api';
+import type { MmReplicaBootHandle, MmStoreHandle } from './node-kinds';
+import type { MatchmakingSystemConfig } from './system';
 
-export function buildMatchmakingFacade(args: {
-  readonly system: MatchmakingSystem;
-  readonly seed: bigint;
-  readonly clock: SimClock;
-  readonly rng: SeededRng;
-}): MatchmakingSimWorld {
-  const { system, seed, clock, rng } = args;
-  const store = system.store;
-  if (store === null) {
-    throw new Error('buildMatchmakingFacade: store missing');
+type MatchmakingFrameworkWorld = World<
+  Record<string, import('@pkgs/determinism').KnobDef>,
+  Record<string, import('@pkgs/determinism').NodeSpecEntry>,
+  MatchmakingSimKit
+>;
+
+function buildReplicaMap(
+  world: MatchmakingFrameworkWorld
+): Map<string, ReplicaHandle> {
+  const bootMap = world.nodes['replica'] as ReadonlyMap<
+    string,
+    MmReplicaBootHandle
+  >;
+  const replicaIds = world.ids('replica');
+  const firstId = replicaIds[0];
+  if (firstId === undefined) {
+    throw new Error('buildMatchmakingKit: no replicas booted');
   }
-  const replicas = system.replicas;
-  const firstId = system.firstId;
-  if (firstId === null) {
-    throw new Error('buildMatchmakingFacade: no replicas');
-  }
+  const replicas = new Map<string, ReplicaHandle>();
   const ops: WorldReplicaOps = {
     getMm: (replicaId) => resolveReplica(replicas, replicaId).mm,
     defaultReplicaId: firstId,
   };
-  system.ops = ops;
+  for (const id of replicaIds) {
+    const boot = bootMap.get(id);
+    if (boot === undefined) {
+      throw new Error(`buildMatchmakingKit: missing replica ${id}`);
+    }
+    replicas.set(id, buildReplicaHandle(ops, id, boot.mm));
+  }
+  return replicas;
+}
 
-  const config = {
-    schema: system.schema,
-    radius: system.radius,
-    tuning: system.tuning,
+export function buildMatchmakingKit(args: {
+  readonly world: MatchmakingFrameworkWorld;
+  readonly config: MatchmakingSystemConfig;
+  readonly rng: SeededRng;
+}): MatchmakingSimKit {
+  const { world, config, rng } = args;
+  const store = (world.nodes['store'] as MmStoreHandle).store;
+  const replicas = buildReplicaMap(world);
+  const firstId = world.ids('replica')[0]!;
+  const ops: WorldReplicaOps = {
+    getMm: (replicaId) => resolveReplica(replicas, replicaId).mm,
+    defaultReplicaId: firstId,
   };
 
   async function step(ms: number): Promise<void> {
-    clock.advance(ms);
+    await world.advance(ms);
     await Promise.all(
       [...replicas.values()].map((r) => r.tick({ maxPassesPerPartition: 4 }))
     );
   }
 
-  const untilCtx = { clock, seed, step };
-
-  let disposed = false;
-  async function dispose(): Promise<void> {
-    if (disposed) return;
-    disposed = true;
-  }
+  const untilCtx = {
+    clock: { now: () => world.now() },
+    seed: world.seed,
+    step,
+  };
 
   return {
-    seed,
-    rng,
-    clock,
     replicas,
     replica: (id) => resolveReplica(replicas, id),
     addReplica: async (id) => {
@@ -77,7 +96,7 @@ export function buildMatchmakingFacade(args: {
       }
       const mm = await bootReplicaOnStore({
         store,
-        clock,
+        clock: world.deps.clock,
         rng,
         replicaId: id,
         config,
@@ -95,16 +114,36 @@ export function buildMatchmakingFacade(args: {
       resolveReplica(replicas, replicaId ?? firstId).tick(opts),
     tickAll: (opts) =>
       Promise.all([...replicas.values()].map((r) => r.tick(opts))),
-    runFor: async (ms) => {
-      clock.advance(ms);
-    },
-    until: (target: UntilTarget, opts?: UntilOpts) =>
+    waitUntil: (target: UntilTarget, opts?: UntilOpts) =>
       runWorldUntil(untilCtx, target, opts),
-    never: (target: UntilTarget, opts: NeverOpts) =>
+    waitNever: (target: UntilTarget, opts: NeverOpts) =>
       runWorldNever(untilCtx, target, opts),
-    dispose,
-    [Symbol.asyncDispose]: dispose,
   };
+}
+
+export async function assertReplicaAgreement(
+  world: MatchmakingSimWorld
+): Promise<void> {
+  const replicaIds = [...world.replicas.keys()];
+  if (replicaIds.length === 0) {
+    throw new Error('matchmaking.no-replicas: kit has no replicas');
+  }
+  const probeId = '00000000-0000-0000-0000-000000000000';
+  let first: unknown;
+  for (let i = 0; i < replicaIds.length; i += 1) {
+    const id = replicaIds[i]!;
+    const r = world.replicas.get(id);
+    if (r === undefined) {
+      throw new Error(`matchmaking.missing-replica: replica ${id} missing`);
+    }
+    const st = await r.mm.status(probeId);
+    if (i === 0) first = st;
+    else if (JSON.stringify(st) !== JSON.stringify(first)) {
+      throw new Error(
+        `matchmaking.replica-diverge: replica ${id} status disagrees with ${replicaIds[0]}`
+      );
+    }
+  }
 }
 
 export type { ReplicaHandle };

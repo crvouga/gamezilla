@@ -1,6 +1,5 @@
-import type { SimClock, SimDeps } from '@pkgs/determinism';
+import type { SimDeps } from '@pkgs/determinism';
 import type { SeededRng } from '@pkgs/uuid';
-
 import type { BoundaryFaultController } from './boundary-faults';
 import type { SimAuthStatus } from './client-factory';
 import { createClockSkewTable, SIM_SERVER_NODE_ID } from './clock-skew';
@@ -10,7 +9,7 @@ import { DST_FAULTS, RELIABLE_FAULTS, sampleFaultOptions } from './faults';
 import type { SimNetwork } from './network';
 import { createSimPubSubBroker } from './pubsub-bridge';
 import { BROKER } from './traffic';
-import type { ClientMeta, WorldClientOpts } from './world-types';
+import type { ClientMeta, SimClock, WorldClientOpts } from './world-types';
 
 export function resolveBootDomain(worldArgs: WorldClientOpts): SimDomainPack {
   const baseDomain = worldArgs.domain;
@@ -80,11 +79,23 @@ export function createBootRuntime(args: CreateBootRuntimeArgs) {
 
 export type BootRuntime = ReturnType<typeof createBootRuntime>;
 
+function lookupClientMeta(
+  authByDevice: Map<string, ClientMeta>,
+  clientId: string
+): ClientMeta | undefined {
+  const direct = authByDevice.get(clientId);
+  if (direct !== undefined) return direct;
+  for (const meta of authByDevice.values()) {
+    if (meta.id === clientId || meta.deviceId === clientId) return meta;
+  }
+  return undefined;
+}
+
 export function resolveAuthForDevice(
   authByDevice: Map<string, ClientMeta>,
   clientId: string
 ) {
-  const meta = authByDevice.get(clientId);
+  const meta = lookupClientMeta(authByDevice, clientId);
   if (meta === undefined) {
     return {
       actorId: clientId,

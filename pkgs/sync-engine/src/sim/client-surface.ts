@@ -4,7 +4,11 @@ import type {
   SimSubscription,
 } from './client-handle';
 import type { SimHttpClient } from './http-bridge';
-import type { SimPollablePromise } from './until';
+
+/** Promise brand used by sync client.outcome() — polled by {@link waitUntil}. */
+export type SimPollablePromise<T> = Promise<T> & {
+  readonly __simPoll: () => Promise<boolean>;
+};
 
 function createOutcomePromise(
   engine: SimClientHandle['engine'],

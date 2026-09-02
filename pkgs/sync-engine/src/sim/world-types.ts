@@ -1,4 +1,4 @@
-import type { SimClock, SimScheduler } from '@pkgs/determinism';
+import type { SimScheduler } from '@pkgs/determinism';
 import type { SeededRng } from '@pkgs/uuid';
 
 import type { LocalDomainSchema } from '../client/local-schema-migrate';
@@ -84,6 +84,9 @@ export type AddClientArgs = {
   readonly schemaEpoch?: number;
   readonly existingDb?: SimClientDbBundle;
 };
+
+/** Virtual clock used by the sim scheduler (see `@pkgs/determinism` `SimClock`). */
+export type SimClock = SimScheduler['clock'];
 
 /** Clock, network, broker, and in-memory SQLite server for a sim world. */
 export type BootedSimKernel = {

@@ -26,8 +26,8 @@ describe('room sim: two-topic shared storage (E-H01)', () => {
       seed: '43',
       knobs: { clientCount: 0 },
     });
-    const worldA = hostA.facade;
-    const worldB = hostB.facade;
+    const worldA = hostA;
+    const worldB = hostB;
 
     const a1 = await worldA.addClient({ id: 'alice' });
     const a2 = await worldA.addClient({ id: 'bob' });

@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import { expectLiveNote, setNote } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 /** String ids that look like JS-unsafe bigints (stay exact as text). */
 const BIG_IDS = [
@@ -12,13 +11,13 @@ const BIG_IDS = [
 
 describe('bigint ids and float precision stable', () => {
   test('string bigint ids and float JSON body round-trip stable', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 1010,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
@@ -45,13 +44,13 @@ describe('bigint ids and float precision stable', () => {
   test.each([1011, 1012, 1013])(
     'seed sweep bigint-looking ids converge (seed=%i)',
     async (seed) => {
-      await using host = await openWorld(acmeSystem, {
+      await using world = await openAcmeWorld({
         seed: seed,
         knobs: {
           clientCount: 0,
         },
       });
-      const world = host.facade;
+
       const a = await world.addClient({ id: 'alice' });
       await world.addClient({ id: 'bob' });
       const id = `${BIG_IDS[0]}-${seed}`;

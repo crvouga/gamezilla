@@ -3,7 +3,7 @@ import { createSeededRng } from '@pkgs/uuid';
 import { createSimClock } from './clock';
 import { createSimNetwork, RELIABLE_NET_FAULTS } from './network';
 import { createSimScheduler } from './scheduler';
-import { createSimTrace } from './trace';
+import { createRecordingTrace } from './trace';
 
 describe('SimNetwork contract', () => {
   test('local send delivers without RNG', async () => {
@@ -23,7 +23,6 @@ describe('SimNetwork contract', () => {
     net.send('a', 'a', { x: 1 });
     await sched.runFor(0);
     expect(got).toEqual([{ x: 1 }]);
-    // independent rng unused by local path — golden uses separate instance
     void before;
   });
 
@@ -69,7 +68,7 @@ describe('SimNetwork contract', () => {
     net.send('a', 'b', 'healed');
     await sched.runFor(0);
     expect(got).toEqual(['healed']);
-    expect(net.isEdgePartitioned('a', 'b')).toBe(false);
+    expect(net.isPartitioned('a', 'b')).toBe(false);
   });
 
   test('hold/release FIFO without re-faulting', async () => {
@@ -105,15 +104,15 @@ describe('SimNetwork contract', () => {
       scheduler: sched,
       rng: createSeededRng(1),
     });
-    net.setDefaultFaults({
+    net.setFaults({
       ...RELIABLE_NET_FAULTS,
       packetLossProbability: 0.5,
     });
-    net.setKeyFaults('k', { packetLossProbability: 0.1 });
-    const eff = net.getKeyFaults('k');
+    net.setFaults({ packetLossProbability: 0.1 }, 'k');
+    const eff = net.faults('k');
     expect(eff.packetLossProbability).toBe(0.1);
     (eff as { packetLossProbability: number }).packetLossProbability = 0.9;
-    expect(net.getKeyFaults('k').packetLossProbability).toBe(0.1);
+    expect(net.faults('k').packetLossProbability).toBe(0.1);
   });
 
   test('invalid profile throws', () => {
@@ -124,7 +123,7 @@ describe('SimNetwork contract', () => {
       rng: createSeededRng(1),
     });
     expect(() =>
-      net.setDefaultFaults({
+      net.setFaults({
         ...RELIABLE_NET_FAULTS,
         packetLossProbability: 2,
       })
@@ -135,7 +134,7 @@ describe('SimNetwork contract', () => {
     const run = async (seed: number) => {
       const clock = createSimClock(0);
       const sched = createSimScheduler(clock);
-      const trace = createSimTrace(true);
+      const trace = createRecordingTrace();
       const net = createSimNetwork({
         scheduler: sched,
         rng: createSeededRng(seed).fork('net'),
@@ -164,7 +163,7 @@ describe('SimNetwork contract', () => {
     expect(a).toEqual(b);
   });
 
-  test('inFlightCount excludes held and settles to zero on drops', async () => {
+  test('inFlight excludes held and settles to zero on drops', async () => {
     const clock = createSimClock(0);
     const sched = createSimScheduler(clock);
     const net = createSimNetwork({
@@ -173,33 +172,32 @@ describe('SimNetwork contract', () => {
     });
     net.register('a', () => {});
     net.register('b', () => {});
-    expect(net.inFlightCount()).toBe(0);
+    expect(net.inFlight()).toBe(0);
 
     net.hold('k');
     net.send('a', 'b', 1, { key: 'k' });
-    expect(net.inFlightCount()).toBe(0);
+    expect(net.inFlight()).toBe(0);
     net.release('k');
-    expect(net.inFlightCount()).toBe(1);
+    expect(net.inFlight()).toBe(1);
     await sched.runFor(0);
-    expect(net.inFlightCount()).toBe(0);
+    expect(net.inFlight()).toBe(0);
 
-    // Dropped at delivery time: partitioned after the send, and unregistered.
     net.send('a', 'b', 2);
     net.partition('a', 'b');
     await sched.runFor(0);
-    expect(net.inFlightCount()).toBe(0);
+    expect(net.inFlight()).toBe(0);
 
     net.heal('a', 'b');
     net.send('a', 'b', 3);
     net.unregister('b');
     await sched.runFor(0);
-    expect(net.inFlightCount()).toBe(0);
+    expect(net.inFlight()).toBe(0);
   });
 
   test('duplicate reuses packetId', async () => {
     const clock = createSimClock(0);
     const sched = createSimScheduler(clock);
-    const trace = createSimTrace(true);
+    const trace = createRecordingTrace();
     const net = createSimNetwork({
       scheduler: sched,
       rng: createSeededRng(1),

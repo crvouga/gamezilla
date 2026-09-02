@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import {
   deleteNote,
   expectLiveNote,
@@ -8,18 +7,18 @@ import {
   setNote,
   setNoteStrictExists,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('rebase throw hidden until upload reject', () => {
   test('strict update hidden after peer delete; upload rejects; converge', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 821,
       knobs: {
         clientCount: 0,
         rowImageFanout: false,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
@@ -38,12 +37,12 @@ describe('rebase throw hidden until upload reject', () => {
 
     const del = await b.mutate(deleteNote, { id: 'n1' });
     expect(del.ok).toBe(true);
-    await world.runFor(400);
+    await world.advance(400);
     await expectNoteNotLive(world.server.db, 'n1');
 
     await a.connect();
     // Merge+rebase throws → optimistic effect hidden (tombstone wins locally).
-    await world.until(async () => {
+    await world.waitUntil(async () => {
       try {
         await expectNoteNotLive(a.db, 'n1');
         return true;
@@ -53,7 +52,7 @@ describe('rebase throw hidden until upload reject', () => {
     });
     await expectNoteNotLive(a.db, 'n1');
 
-    await world.until(a.outcome(pending.mutationId));
+    await world.waitUntil(a.outcome(pending.mutationId));
     expect(await a.outcome(pending.mutationId)).toBe('rejected');
     const unacked = await a.rejections();
     expect(unacked.length).toBe(1);

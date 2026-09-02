@@ -203,10 +203,6 @@ msgstr "Add hex (6 chars, no #)"
 msgid "Add people"
 msgstr "Add people"
 
-#: libs/auth/src/public/sign-in-dev-body.tsx
-msgid "alice"
-msgstr "alice"
-
 #: libs/notifications/src/root/client/notifications-filter-bar.tsx
 msgid "All"
 msgstr "All"
@@ -291,7 +287,6 @@ msgstr "Auto · {effectiveRating}"
 msgid "Avatar"
 msgstr "Avatar"
 
-#: libs/auth/src/public/sign-in-idle-content.tsx
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-action-bar-items.tsx
 #: libs/spaces/src/root/client/active-space/space-chrome-action-bar.tsx
 #: pkgs/ui/src/components/back-icon-button/back-icon-button.tsx
@@ -515,10 +510,6 @@ msgstr "Connection"
 #: pkgs/room-widgets/src/pages/playground-page.tsx
 msgid "Connection {id}"
 msgstr "Connection {id}"
-
-#: libs/auth/src/public/sign-in-dev-body.tsx
-msgid "Continue"
-msgstr "Continue"
 
 #: pkgs/ui/src/components/social-sign-in-button/social-provider-config.ts
 msgid "Continue with dev IDP"
@@ -1809,6 +1800,7 @@ msgid "sign in"
 msgstr "sign in"
 
 #: apps/client/src/ui/app-commands/account-command.tsx
+#: libs/auth/src/public/sign-in-modal.tsx
 #: libs/auth/src/root/client/account-actions-row.tsx
 #: libs/friends/src/root/client/friends-signed-in-gate.tsx
 #: libs/notifications/src/root/client/notifications-screen.tsx
@@ -2054,11 +2046,6 @@ msgstr "Straight and knight L-shape arrows, dashed plan lines, and color overrid
 #: libs/profile/src/use-cases/patch-avatar/client/avatar-editor-screen.tsx
 msgid "Style"
 msgstr "Style"
-
-#: libs/auth/src/public/sign-in-dev-body.tsx
-#: libs/auth/src/public/sign-in-dev-body.tsx
-msgid "Subject"
-msgstr "Subject"
 
 #: apps/client/src/connection/offline-indicator.tsx
 #: apps/client/src/ui/status-bar/connectivity-status-bar-item.tsx

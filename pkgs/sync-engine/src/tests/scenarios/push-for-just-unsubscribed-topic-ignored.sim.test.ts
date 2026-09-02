@@ -1,5 +1,4 @@
 import { describe, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import {
   createSpace,
   expectLiveNote,
@@ -10,17 +9,17 @@ import {
   SPACE_MEMBERSHIP_SESSION,
   setSpaceNote,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('push for just unsubscribed topic ignored', () => {
   test('leave races room push; ignored without error; engine stays healthy', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 812,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({
       id: 'alice',
       sessionQuery: SPACE_MEMBERSHIP_SESSION,
@@ -31,14 +30,21 @@ describe('push for just unsubscribed topic ignored', () => {
     });
 
     await a.mutate(createSpace, { id: 'race-room', title: 'R' });
-    await b.mutate(joinSpace, { spaceId: 'race-room' });
     await world.assertConverged();
-    await world.until(() =>
+    await world.waitUntil(() =>
+      a.subscribedTopics().includes(roomTopic('race-room'))
+    );
+    await b.mutate(joinSpace, { spaceId: 'race-room' });
+    await world.waitUntil(() =>
+      b.subscribedTopics().includes(roomTopic('race-room'))
+    );
+    await world.assertConverged();
+    await world.waitUntil(() =>
       a.subscribedTopics().includes(roomTopic('race-room'))
     );
 
     await a.mutate(leaveSpace, { spaceId: 'race-room' });
-    await world.until(
+    await world.waitUntil(
       () => !a.subscribedTopics().includes(roomTopic('race-room'))
     );
 
@@ -49,7 +55,9 @@ describe('push for just unsubscribed topic ignored', () => {
         spaceId: 'race-room',
         body: 'missed',
       });
-      await world.never(() => isLiveNote(a.db, 'late-push'), { forMs: 300 });
+      await world.waitNever(() => isLiveNote(a.db, 'late-push'), {
+        forMs: 300,
+      });
       await expectLiveNote(b.db, 'late-push', { body: 'missed' });
     }
     await a.mutate(joinSpace, { spaceId: 'race-room' });

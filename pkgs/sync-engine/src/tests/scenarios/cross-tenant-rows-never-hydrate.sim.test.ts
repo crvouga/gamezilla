@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import {
   expectLiveNote,
   expectNoteNotLive,
@@ -9,19 +8,19 @@ import {
   setFolder,
   setNote,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('cross tenant rows never hydrate', () => {
   test('denied notesOwned peer never hydrates owner private rows', async () => {
     // rowImageFanout false: authorize deny must not be bypassed by images.
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 980,
       knobs: {
         clientCount: 0,
         rowImageFanout: false,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({
       id: 'alice',
       actorId: 'alice',
@@ -38,9 +37,9 @@ describe('cross tenant rows never hydrate', () => {
       title: 'alice-gate',
     });
     // nudge: re-authorize after gate folder
-    await world.until(a.nudge());
+    await world.waitUntil(a.nudge());
     await a.mutate(setNote, { id: 'alice-private', body: 'secret-a' });
-    await world.never(
+    await world.waitNever(
       async () => {
         // nudge: stranger refresh must still deny across the negative window
         await b.nudge();
@@ -61,14 +60,14 @@ describe('cross tenant rows never hydrate', () => {
   test.each([981, 982, 983])(
     'seed sweep authorize filter keeps stranger rows out (seed=%i)',
     async (seed) => {
-      await using host = await openWorld(acmeSystem, {
+      await using world = await openAcmeWorld({
         seed: seed,
         knobs: {
           clientCount: 0,
           rowImageFanout: false,
         },
       });
-      const world = host.facade;
+
       const a = await world.addClient({
         id: 'alice',
         sessionQuery: { name: 'notesOwned', params: {} },
@@ -82,7 +81,7 @@ describe('cross tenant rows never hydrate', () => {
         title: 'g',
       });
       await a.mutate(setNote, { id: `priv-${seed}`, body: 'x' });
-      await world.never(
+      await world.waitNever(
         async () => {
           // nudge: stranger refresh must still deny across the negative window
           await stranger.nudge();

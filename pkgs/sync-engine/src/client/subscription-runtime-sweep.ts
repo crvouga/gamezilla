@@ -86,8 +86,10 @@ export async function buildSweepRequests(
 async function handleSweepResponse(
   ctx: SubscriptionSweepContext,
   entry: SweepEntry,
-  response: QueryResponse
+  response: QueryResponse,
+  capturedGen: number
 ): Promise<boolean> {
+  if (capturedGen !== entry.generation) return false;
   if (response.status === 'denied') {
     await detachScope(ctx.getMergeDeps(), entry.scope);
     entry.stopped = true;
@@ -101,6 +103,7 @@ async function handleSweepResponse(
     ctx.onSynced();
     return true;
   }
+  if (capturedGen !== entry.generation) return false;
   await applyFullMerge(ctx.getMergeDeps(), {
     scopeHash: entry.scope,
     checkpoint: response.checkpoint,
@@ -167,7 +170,12 @@ export async function applySweepResponses(args: {
     if (response === undefined) continue;
     if (args.gens.get(entry.scope) !== entry.generation) continue;
     if (!args.ctx.isRunning() || entry.stopped) continue;
-    const clean = await handleSweepResponse(args.ctx, entry, response);
+    const clean = await handleSweepResponse(
+      args.ctx,
+      entry,
+      response,
+      args.gens.get(entry.scope) ?? -1
+    );
     if (clean) newlyClean.push(entry.scope);
   }
   for (const scope of newlyClean) args.ctx.cleanScopes.add(scope);

@@ -1,62 +1,45 @@
 import type { Arbitrary } from 'fast-check';
+
 import type { JsonValue } from './json';
-import type { World } from './world-types';
 
 export type ActionArbContext = {
-  readonly roleIds: (role: string) => readonly string[];
-  readonly knobs: Readonly<Record<string, JsonValue>>;
-  /** Declared network edges from SystemDef (empty when undeclared). */
+  readonly ids: (role: string) => readonly string[];
+  readonly knobs: Readonly<Record<string, unknown>>;
   readonly edges: readonly {
     readonly fromRole: string;
     readonly toRole: string;
   }[];
 };
 
-export type ActionClass = 'library' | 'domain';
-
-/**
- * One chaos or domain op. `kind` must be unique within a system.
- * `class` weights command sampling in assertSample (library vs domain).
- */
-export type ActionDef<
-  S = unknown,
-  A extends JsonValue & { readonly kind: string } = JsonValue & {
-    readonly kind: string;
-  },
-  M = object,
-  F = unknown,
-> = {
+// biome-ignore lint/suspicious/noExplicitAny: heterogeneous action payloads and worlds
+export type ActionDef<P = any, M = object, W = any> = {
   readonly kind: string;
-  readonly class: ActionClass;
-  readonly arb: (ctx: ActionArbContext) => Arbitrary<A>;
-  readonly dispatch: (world: World<S, F>, action: A) => Promise<void>;
-  readonly allows?: (model: M, action: A) => boolean;
-  readonly apply?: (model: M, action: A) => void;
+  readonly arb: (ctx: ActionArbContext) => Arbitrary<P>;
+  readonly dispatch: (world: W, action: P) => Promise<void>;
+  readonly allows?: (model: M, action: P) => boolean;
+  readonly apply?: (model: M, action: P) => void;
+  readonly weight?: number;
 };
 
-export function defineAction<
-  S = unknown,
-  A extends JsonValue & { readonly kind: string } = JsonValue & {
-    readonly kind: string;
-  },
-  M = object,
-  F = unknown,
->(def: ActionDef<S, A, M, F>): ActionDef<S, A, M, F> {
+// biome-ignore lint/suspicious/noExplicitAny: heterogeneous action payloads and worlds
+export type UnboundActionDef<P = any, M = object, W = any> = Omit<
+  ActionDef<P, M, W>,
+  'kind'
+>;
+
+// biome-ignore lint/suspicious/noExplicitAny: heterogeneous action payloads and worlds
+export function action<P = any, M = object, W = any>(
+  def: UnboundActionDef<P, M, W>
+): UnboundActionDef<P, M, W> {
   return def;
 }
 
-export type SystemAction = JsonValue & { readonly kind: string };
+// biome-ignore lint/suspicious/noExplicitAny: heterogeneous action payloads and worlds
+export function bindActionKind<P = any, M = object, W = any>(
+  kind: string,
+  def: UnboundActionDef<P, M, W>
+): ActionDef<P, M, W> {
+  return { kind, ...def };
+}
 
-/** Extract the action payload union from a readonly ActionDef list. */
-export type ActionPayloadUnion<T> = T extends readonly ActionDef<
-  never,
-  infer A,
-  never,
-  never
->[]
-  ? A
-  : T extends readonly (infer U)[]
-    ? U extends ActionDef<never, infer A, never, never>
-      ? A
-      : never
-    : never;
+export type SystemAction = JsonValue & { readonly kind: string };

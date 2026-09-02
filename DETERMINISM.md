@@ -27,11 +27,11 @@ wall adapters at process entry):
 **`SimDeps` is harness-only.** Product `ClientEnv` / `ServerEnv` receive unpacked
 ports — never the `SimDeps` bag. Shared simulation mechanics (scheduler, network
 mesh, fault/knob catalogs, scenario JSON, `until`/`never`, play helpers) live in
-`@pkgs/determinism`. **Worlds are framework-owned:** packages declare `defineNodeKind`
-+ `defineSystem` (nodes topology, knobs, library/domain, settle); tests call
-`assertSample` / `replay` / `assertFaultPins` from `@pkgs/determinism/pbt` — not
-package-local World openers / `worldPropertyInputs` / `runCommands`. See
-[`pkgs/determinism/CONTEXT.md`](pkgs/determinism/CONTEXT.md).
+`@pkgs/determinism`. **Worlds are framework-owned:** packages declare `node` /
+`knob` / `action` + `chaos` + `defineSystem` (topology, knobs, actions, settle,
+optional `extend`); tests call `assertSample` / `replay` / `assertPins` from
+`@pkgs/determinism/pbt` — not package-local World openers / `worldPropertyInputs` /
+`runCommands`. See [`pkgs/determinism/CONTEXT.md`](pkgs/determinism/CONTEXT.md).
 
 Domain and game-logic code take required `clock` / `createId` (or `now` slices).
 Never default to wall implementations inside libraries. Never construct an `Io` bag.

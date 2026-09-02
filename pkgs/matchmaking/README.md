@@ -78,15 +78,13 @@ pkgs/matchmaking/src/
 import {
   openMatchmakingWorld,
   RatingAttr,
-  requireMmWorld,
 } from '@pkgs/matchmaking/testing';
 
-await using host = await openMatchmakingWorld({
+await using world = await openMatchmakingWorld({
   seed: 3,
   replicas: 3,
   // backend: 'postgres', // required for concurrent tickAll claim races
 });
-const world = requireMmWorld(host.state);
 
 const a = await world.join(
   { data: RatingAttr(1000), formulas: [{ numeric: [{ tag: RatingAttr, weight: 1 }] }] },

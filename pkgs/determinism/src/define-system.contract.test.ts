@@ -1,16 +1,12 @@
 import { describe, expect, test } from 'bun:test';
 import fc from 'fast-check';
-import { defineAction } from './action';
+import { action } from './action';
+import type { AnySystemDef } from './define-system';
 import { defineSystem } from './define-system';
-import { defineKnob } from './knobs';
-import { defineNodeKind } from './node-kind';
-import { assertSample, replay } from './pbt/assert-sample';
+import { knob } from './knobs';
+import { node } from './node';
+import { assertSample, replay } from './pbt';
 import { openWorld } from './world';
-
-type FakeState = {
-  serverEchoes: number;
-  clientHits: Map<string, number>;
-};
 
 type PingModel = { pings: number };
 
@@ -19,117 +15,111 @@ type PingAction = {
   readonly clientId: string;
 };
 
+type FakeServerHandle = { readonly id: string };
+type FakeClientHandle = { readonly id: string };
+
+type DemoWorld = {
+  readonly nodes: {
+    readonly server: FakeServerHandle;
+    readonly client: ReadonlyMap<string, FakeClientHandle>;
+  };
+  serverEchoes: number;
+  clientHits: Map<string, number>;
+};
+
 describe('defineSystem framework world', () => {
   test('boots topology, action dispatch, settle', async () => {
-    const fakeServer = defineNodeKind({
-      id: 'fake.server',
+    const fakeServer = node({
       boot: (ctx) => {
-        const state = ctx.state as FakeState;
-        state.serverEchoes = 0;
-        return { id: ctx.nodeId };
+        ctx.listen(async () => {
+          /* noop */
+        }, `srv:${ctx.id}`);
+        return { id: ctx.id };
       },
-      endpoints: (h) => [
-        {
-          id: `srv:${(h as { id: string }).id}`,
-          deliver: async () => {
-            /* noop */
-          },
-        },
-      ],
     });
-    const fakeClient = defineNodeKind({
-      id: 'fake.client',
+    const fakeClient = node({
       boot: (ctx) => {
-        const state = ctx.state as FakeState;
-        state.clientHits.set(ctx.nodeId, 0);
-        return { id: ctx.nodeId };
+        ctx.listen(async () => {
+          /* noop */
+        }, `cli:${ctx.id}`);
+        return { id: ctx.id };
       },
-      endpoints: (h) => [
-        {
-          id: `cli:${(h as { id: string }).id}`,
-          deliver: async () => {
-            /* noop */
-          },
-        },
-      ],
     });
 
-    const ping = defineAction<FakeState, PingAction, PingModel>({
-      kind: 'ping',
-      class: 'domain',
+    const ping = action<PingAction, PingModel, DemoWorld>({
       arb: (ctx) =>
-        fc.constantFrom(...ctx.roleIds('client')).map((clientId) => ({
+        fc.constantFrom(...ctx.ids('client')).map((clientId) => ({
           kind: 'ping' as const,
           clientId,
         })),
-      dispatch: async (world, action) => {
-        const hits = world.state.clientHits.get(action.clientId) ?? 0;
-        world.state.clientHits.set(action.clientId, hits + 1);
-        world.state.serverEchoes += 1;
+      dispatch: async (world, a) => {
+        const hits = world.clientHits.get(a.clientId) ?? 0;
+        world.clientHits.set(a.clientId, hits + 1);
+        world.serverEchoes += 1;
       },
       apply: (m) => {
         m.pings += 1;
       },
     });
 
-    const system = defineSystem<FakeState, PingModel>({
+    const system = defineSystem({
       id: 'fake.demo',
-      state: () => ({ serverEchoes: 0, clientHits: new Map() }),
-      knobs: [
-        defineKnob({
-          id: 'clientCount',
-          default: 2,
-          arb: fc.integer({ min: 1, max: 3 }),
-        }),
-      ],
-      nodes: [
-        { kind: fakeServer, role: 'server', count: 1 },
-        {
-          kind: fakeClient,
-          role: 'client',
-          count: { fromKnob: 'clientCount' },
-          idFor: (i) => `c${i}`,
+      knobs: {
+        clientCount: knob(2, fc.integer({ min: 1, max: 3 })),
+      },
+      nodes: {
+        server: fakeServer,
+        client: {
+          ...fakeClient,
+          count: (k) => k['clientCount'] as number,
+          id: (i) => `c${i}`,
         },
-      ],
-      actions: [ping],
+      },
+      actions: { ping },
       model: {
         initial: (): PingModel => ({ pings: 0 }),
       },
+      extend: () => ({
+        serverEchoes: 0,
+        clientHits: new Map<string, number>(),
+      }),
       settle: async (world) => {
         world.healAll();
         await world.idle();
       },
-      invariants: async () => null,
+      invariants: async () => {
+        /* noop */
+      },
     });
 
     await using world = await openWorld(system, {
       seed: 42,
       knobs: { clientCount: 2 },
     });
-    expect(world.roleIds('client')).toEqual(['c0', 'c1']);
-    expect(world.node('server').id).toBe('server');
+    expect(world.ids('client')).toEqual(['c0', 'c1']);
+    expect((world.nodes as unknown as DemoWorld['nodes']).server.id).toBe(
+      'server'
+    );
     world.partition('c0', 'server');
-    expect(world.network.isEdgePartitioned('cli:c0', 'srv:server')).toBe(true);
+    expect(world.network.isPartitioned('cli:c0', 'srv:server')).toBe(true);
     world.healAll();
 
-    const { world: w2 } = await replay(system, {
+    const { world: w2 } = await replay(system as unknown as AnySystemDef, {
       seed: 7,
       knobs: { clientCount: 2 },
       actions: [{ kind: 'ping', clientId: 'c0' }],
     });
-    expect(w2.state.serverEchoes).toBe(1);
-    expect(w2.state.clientHits.get('c0')).toBe(1);
+    const demo = w2 as unknown as DemoWorld;
+    expect(demo.serverEchoes).toBe(1);
+    expect(demo.clientHits.get('c0')).toBe(1);
     await w2.dispose();
   });
 
   test('assertSample runs joint knob + action pool', async () => {
-    const solo = defineNodeKind({
-      id: 'fake.solo',
-      boot: (ctx) => ({ id: ctx.nodeId }),
+    const solo = node({
+      boot: (ctx) => ({ id: ctx.id }),
     });
-    const tick = defineAction({
-      kind: 'tick',
-      class: 'library',
+    const tick = action({
       arb: () => fc.constant({ kind: 'tick' as const }),
       dispatch: async () => {
         /* noop */
@@ -137,21 +127,22 @@ describe('defineSystem framework world', () => {
     });
     const system = defineSystem({
       id: 'fake.solo',
-      knobs: [
-        defineKnob({
-          id: 'n',
-          default: 1,
-          arb: fc.constant(1),
-        }),
-      ],
-      nodes: [{ kind: solo, role: 'peer', count: 1 }],
-      actions: [tick],
+      knobs: {
+        n: knob(1, fc.constant(1)),
+      },
+      nodes: { peer: solo },
+      actions: { tick },
       model: { initial: () => ({}) },
       settle: async () => {
         /* noop */
       },
-      invariants: async () => null,
+      invariants: async () => {
+        /* noop */
+      },
     });
-    await assertSample(system, { maxCommands: 3, numRuns: 2 });
+    await assertSample(system as unknown as AnySystemDef, {
+      maxCommands: 3,
+      numRuns: 2,
+    });
   });
 });

@@ -1,22 +1,21 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import {
   expectLiveNote,
   readLiveFolders,
   setFolder,
   setNote,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('row image for inactive table ignored safely', () => {
   test('server folders push ignored by notesOnly peer; later note push applies', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 807,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const notesPeer = await world.addClient({
       id: 'notesPeer',
@@ -24,7 +23,7 @@ describe('row image for inactive table ignored safely', () => {
     });
 
     await a.mutate(setNote, { id: 'n1', body: 'seed' });
-    await world.runFor(400);
+    await world.advance(400);
     await expectLiveNote(notesPeer.db, 'n1', { body: 'seed' });
     expect(await readLiveFolders(notesPeer.db)).toEqual([]);
 
@@ -34,13 +33,13 @@ describe('row image for inactive table ignored safely', () => {
     {
       using _hold = world.net('notesPeer', 'sync').set('hold');
       await a.connect();
-      await world.runFor(400);
+      await world.advance(400);
 
       expect(await readLiveFolders(notesPeer.db)).toEqual([]);
       await expectLiveNote(notesPeer.db, 'n1', { body: 'seed' });
 
       await a.mutate(setNote, { id: 'n1', body: 'after-ignore' });
-      await world.runFor(300);
+      await world.advance(300);
       await expectLiveNote(notesPeer.db, 'n1', { body: 'after-ignore' });
     }
     await world.node('notesPeer').crash();

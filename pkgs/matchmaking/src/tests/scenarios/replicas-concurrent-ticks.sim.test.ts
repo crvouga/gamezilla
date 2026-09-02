@@ -18,15 +18,14 @@ describe('matchmaking sim: concurrent replica ticks', () => {
   });
 
   test('tickAll never double-matches a participant', async () => {
-    await using host = await openMatchmakingWorld({
+    await using world = await openMatchmakingWorld({
       seed: 210,
       replicas: 3,
       backend: 'postgres',
     });
-    const world = host.facade;
     const participants = [];
     for (let i = 0; i < 12; i += 1) {
-      world.clock.advance(1);
+      await world.advance(1);
       participants.push(
         await world.join({
           data: RatingAttr(1500 + i),

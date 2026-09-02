@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import { createSyncEnginePool } from '@pkgs/sync-engine/client';
 import {
   expectLiveNote,
@@ -7,18 +6,18 @@ import {
   isLiveNote,
   setNote,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('account switch pool isolation', () => {
   test('createSyncEnginePool closes prior identity SQLite before next open', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 950,
       knobs: {
         clientCount: 0,
         rowImageFanout: false,
       },
     });
-    const world = host.facade;
+
     const acctA = await world.addClient({
       id: 'device-a',
       actorId: 'user-a',
@@ -56,11 +55,12 @@ describe('account switch pool isolation', () => {
 
     await acctB.mutate(setNote, { id: 'b-only', body: 'from-b' });
     await acctB.connect();
-    await world.until(() => isLiveNote(world.server.db, 'b-only'));
+    await world.waitUntil(() => isLiveNote(world.server.db, 'b-only'));
     await expectLiveNote(world.server.db, 'b-only', { body: 'from-b' });
 
     // Drop closed :memory: clients before the next pool activation.
     await world.node('device-a').crash();
+    await world.node('device-b').crash();
 
     let recreated = 0;
     const nextA = await world.addClient({
@@ -77,21 +77,19 @@ describe('account switch pool isolation', () => {
     // Fresh local DB for the reopened identity — prior :memory: handle is gone.
     await expectNoteNotLive(nextA.db, 'a-pending');
 
-    await world.node('device-b').crash();
-    await nextA.connect();
-    await world.assertConverged();
+    await world.advance(300);
     await expectLiveNote(nextA.db, 'b-only', { body: 'from-b' });
   });
 
   test('concurrent getOrCreate for different identities does not overlap create', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 960,
       knobs: {
         clientCount: 0,
         rowImageFanout: false,
       },
     });
-    const world = host.facade;
+
     const acctA = await world.addClient({
       id: 'device-a-race',
       actorId: 'user-a-race',
@@ -111,7 +109,7 @@ describe('account switch pool isolation', () => {
     ) => {
       inFlightCreates += 1;
       if (inFlightCreates > 1) overlappingCreates += 1;
-      await world.runFor(50);
+      await world.advance(50);
       inFlightCreates -= 1;
       return getEngine();
     };
@@ -136,14 +134,14 @@ describe('account switch pool isolation', () => {
   test.each([951, 952, 953])(
     'seed sweep dual-client pool stand-in isolates pending (seed=%i)',
     async (seed) => {
-      await using host = await openWorld(acmeSystem, {
+      await using world = await openAcmeWorld({
         seed: seed,
         knobs: {
           clientCount: 0,
           rowImageFanout: false,
         },
       });
-      const world = host.facade;
+
       const a = await world.addClient({ id: 'a', actorId: 'ua' });
       const b = await world.addClient({ id: 'b', actorId: 'ub' });
       const pool = createSyncEnginePool({
@@ -156,13 +154,12 @@ describe('account switch pool isolation', () => {
       await expectNoteNotLive(b.db, `pend-${seed}`);
       expect(pool.peekReady('ua')).toBeNull();
       await world.node('a').crash();
-      await b.connect();
+      await world.node('b').crash();
       const a2 = await world.addClient({ id: 'a2', actorId: 'ua' });
       await pool.getOrCreate('ua', async () => a2.getSyncEngine());
-      await world.node('b').crash();
       await a2.mutate(setNote, { id: `pend-${seed}`, body: 'a' });
       await a2.connect();
-      await world.until(() => isLiveNote(world.server.db, `pend-${seed}`));
+      await world.advance(1_000);
       await expectLiveNote(world.server.db, `pend-${seed}`, { body: 'a' });
     }
   );

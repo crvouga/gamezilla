@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import {
   acmeMutationRegistry,
   expectLiveNote,
@@ -7,20 +6,20 @@ import {
   ghostMutation,
   setNote,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('unknown mutation name rejected and rolled back', () => {
   test.each([770, 771, 772])(
     'ghostMutation rejected; merge heals (seed=%i)',
     async (seed) => {
-      await using host = await openWorld(acmeSystem, {
+      await using world = await openAcmeWorld({
         seed: seed,
         knobs: {
           clientCount: 0,
           rowImageFanout: false,
         },
       });
-      const world = host.facade;
+
       const a = await world.addClient({
         id: 'alice',
         mutationRegistry: {
@@ -40,7 +39,7 @@ describe('unknown mutation name rejected and rolled back', () => {
       expect(rejected.ok).toBe(true);
       if (!rejected.ok) return;
 
-      await world.until(a.outcome(rejected.mutationId));
+      await world.waitUntil(a.outcome(rejected.mutationId));
       expect(await a.outcome(rejected.mutationId)).toBe('rejected');
 
       const unacked = await a.rejections();

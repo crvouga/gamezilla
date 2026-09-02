@@ -27,27 +27,34 @@ function scheduleTopicSync(bag: PushBag): void {
   void flushTopicSync(bag);
 }
 
+async function runHeldRowTopicRefresh(bag: PushBag): Promise<void> {
+  if (bag.disposed) return;
+  const pending = await countPendingMutations(bag.options.db);
+  if (bag.disposed) return;
+  if (pending > 0) return;
+  await refreshHeldRowTopics(bag);
+  if (bag.disposed) return;
+  bag.membershipRemakePending = false;
+  syncTopics(bag);
+}
+
 async function flushTopicSync(bag: PushBag): Promise<void> {
-  if (bag.disposed || !bag.membershipRemakePending || bag.remakeFlushInFlight) {
+  if (bag.disposed || !bag.membershipRemakePending) return;
+  if (bag.remakeFlushInFlight) {
+    bag.remakeFlushQueued = true;
     return;
   }
   bag.remakeFlushInFlight = true;
   try {
-    if (bag.disposed) return;
-    const pending = await countPendingMutations(bag.options.db);
-    if (bag.disposed) return;
-    if (pending > 0) {
-      // Stay pending; retry only when `sync_engine_mutations` bus fires (do not recurse).
-      return;
-    }
-    await refreshHeldRowTopics(bag);
-    if (bag.disposed) return;
-    bag.membershipRemakePending = false;
-    syncTopics(bag);
+    await runHeldRowTopicRefresh(bag);
   } catch (error) {
     warnPush('[push] held-row topic refresh failed', error);
   } finally {
     bag.remakeFlushInFlight = false;
+    if (!bag.disposed && bag.membershipRemakePending && bag.remakeFlushQueued) {
+      bag.remakeFlushQueued = false;
+      void flushTopicSync(bag);
+    }
   }
 }
 

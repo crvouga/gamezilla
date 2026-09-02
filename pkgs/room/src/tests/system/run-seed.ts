@@ -1,7 +1,10 @@
 import { openWorld } from '@pkgs/determinism';
 import type { RoomApp, RoomSystemAction } from '../../sim/system';
-import { defineRoomSystem, dispatchRoomSystemAction } from '../../sim/system';
-import type { World } from '../../sim/world-api';
+import {
+  defineRoomSystem,
+  dispatchRoomSystemAction,
+  type RoomSystemWorld,
+} from '../../sim/system';
 import { createFuzzState, pickRoomSystemAction } from './pick-library-action';
 
 export type RunSeedResult =
@@ -26,14 +29,14 @@ function clientIdsFor(opts: RunSeedOptions): readonly string[] {
   return Array.from({ length: count }, (_, i) => `c${i}`);
 }
 
-type SeedHost = Awaited<ReturnType<typeof openWorld>>;
+type SeedHost = RoomSystemWorld;
 
 /**
  * Boot the same topology `defineRoomSystem` does via framework `openWorld`.
  */
 async function openSeedWorld(
   opts: RunSeedOptions
-): Promise<{ readonly host: SeedHost; readonly world: World }> {
+): Promise<{ readonly host: SeedHost; readonly world: RoomSystemWorld }> {
   const system = defineRoomSystem(opts.app, { id: 'room.seed' });
   const host = await openWorld(system, {
     seed: opts.seed,
@@ -42,7 +45,7 @@ async function openSeedWorld(
       mildFaults: opts.mildFaults === true,
     },
   });
-  return { host, world: host.facade };
+  return { host, world: host };
 }
 
 /**
@@ -70,13 +73,14 @@ export async function runRoomSeed(
       await dispatchRoomSystemAction(world, opts.app, action);
       done += 1;
       if (!world.isServerCrashed()) {
-        const inv = await world.checkInvariants();
-        if (inv !== null) {
+        try {
+          await world.checkInvariants();
+        } catch (err) {
           return {
             ok: false,
             seed: world.seed,
             steps: done,
-            error: `${inv.invariant}: ${inv.detail}`,
+            error: err instanceof Error ? err.message : String(err),
           };
         }
       }

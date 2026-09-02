@@ -2,7 +2,7 @@ import { describe, test } from 'bun:test';
 import { assertSampleProperty } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
 import { HTTP_FAULTS, replaySyncPin } from '../../sim/system';
-import { arbWorldKnobs, arbWorldSeed } from '../../sim/system/knobs';
+import { arbKnobs, arbSeed } from '../../sim/system/knobs';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
 import { acmeSystem } from '../apps/acme/system';
 import type { DomainOp, LibraryAction, SyncAction } from '../system/actions';
@@ -54,8 +54,8 @@ describe('boundary faults PBT', () => {
       await assertSampleProperty(
         'http fault sequences converge',
         fc.asyncProperty(
-          arbWorldSeed(),
-          arbWorldKnobs(),
+          arbSeed(),
+          arbKnobs(),
           fc.constantFrom(...HTTP_FAULTS),
           async (seed, knobs, fault) => {
             await replaySyncPin(acmeSystem, {
@@ -81,8 +81,8 @@ describe('boundary faults PBT', () => {
       await assertSampleProperty(
         'publish fault sequences converge',
         fc.asyncProperty(
-          arbWorldSeed(),
-          arbWorldKnobs(),
+          arbSeed(),
+          arbKnobs(),
           fc.constantFrom(1, 2, 'next' as const),
           async (seed, knobs, count) => {
             await replaySyncPin(acmeSystem, {
@@ -104,7 +104,7 @@ describe('boundary faults PBT', () => {
       await assertSampleProperty(
         'crash arm sequences converge',
         fc.asyncProperty(
-          arbWorldSeed(),
+          arbSeed(),
           fc.record({
             rowImageFanout: fc.boolean(),
             liveResendOnReconnect: fc.boolean(),

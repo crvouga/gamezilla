@@ -1,5 +1,5 @@
 import { join } from 'node:path';
-import { capture, run } from './command';
+import { capture, run, runOk } from './command';
 import { currentOs } from './current-os';
 import type { Installer } from './installer';
 import type { Os } from './os';
@@ -76,7 +76,14 @@ export class GithubReleaseTarballInstaller implements Installer {
       os.platform === 'win32' ? `${this.opts.binName}.exe` : this.opts.binName
     );
     if (os.platform !== 'win32') osFs.chmodSync(binPath, 0o755);
+    if (os.platform === 'darwin') allowMacUnsignedBinary(binPath);
   }
+}
+
+/** GitHub tarballs are unsigned; macOS Gatekeeper SIGKILLs them on exec. */
+function allowMacUnsignedBinary(binPath: string): void {
+  runOk('xattr', ['-c', binPath]);
+  runOk('codesign', ['--sign', '-', '--force', binPath]);
 }
 
 function extractTo(
@@ -87,19 +94,25 @@ function extractTo(
 ): void {
   const dir = shellQuote(installDir);
   const u = shellQuote(url);
-  if (archive.format === 'tar.gz') {
-    run('bash', [
-      '-lc',
-      `curl -fsSL ${u} | tar -xz -C ${dir} ${shellQuote(binName)}`,
-    ]);
-    return;
-  }
-  // zip: download to a temp file, unzip the target binary, drop the temp file.
-  const tmp = `${installDir}/.${binName}.download.zip`;
-  const t = shellQuote(tmp);
+  const bin = shellQuote(binName);
+  const stage = shellQuote(`${installDir}/.${binName}.stage`);
+  const pack = shellQuote(`${installDir}/.${binName}.archive`);
+  const unpack =
+    archive.format === 'tar.gz'
+      ? `tar -xzf ${pack} -C ${stage} ${bin}`
+      : `unzip -o ${pack} ${bin} -d ${stage}`;
+  // Download fully, then extract to a staging dir, then mv into place so a
+  // killed install cannot leave a truncated binary on PATH.
   run('bash', [
     '-lc',
-    `curl -fsSL -o ${t} ${u} && unzip -o ${t} ${shellQuote(binName)} -d ${dir} && rm -f ${t}`,
+    `set -euo pipefail
+rm -rf ${stage} ${pack}
+mkdir -p ${stage}
+curl -fsSL -o ${pack} ${u}
+${unpack}
+rm -f ${pack}
+mv -f ${stage}/${bin} ${dir}/${bin}
+rmdir ${stage}`,
   ]);
 }
 

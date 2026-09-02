@@ -9,7 +9,7 @@ describe('room sim: offline queues interleave (E-B03)', () => {
       seed: process.env['SIM_SEED'] ?? '42',
       knobs: { clientCount: 0 },
     });
-    const world = host.facade;
+    const world = host;
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     const c = await world.addClient({ id: 'carol' });

@@ -77,7 +77,7 @@ function buildSimNetworkApi(state: SimNetworkState): SimNetwork {
     healAll() {
       state.partitioned.clear();
     },
-    isEdgePartitioned(a, b) {
+    isPartitioned(a, b) {
       return isPartitioned(state, a, b);
     },
     hold(key) {
@@ -92,29 +92,28 @@ function buildSimNetworkApi(state: SimNetworkState): SimNetwork {
     isHeld(key) {
       return state.heldKeys.has(key);
     },
-    heldSummary() {
+    held() {
       return [...state.heldKeys].sort();
     },
-    setDefaultFaults(profile) {
-      validateProfile(profile, 'defaults');
-      state.defaults = { ...profile };
+    faults(key) {
+      if (key === undefined) return { ...state.defaults };
+      return effectiveFaults(state, key);
     },
-    setKeyFaults(key, partial) {
+    setFaults(partial, key) {
+      if (key === undefined) {
+        validateProfile({ ...state.defaults, ...partial }, 'defaults');
+        state.defaults = { ...state.defaults, ...partial };
+        return;
+      }
       validatePartial(partial, `key:${key}`);
       const prev = state.overrides.get(key) ?? {};
       state.overrides.set(key, { ...prev, ...partial });
     },
-    getKeyFaults(key) {
-      return effectiveFaults(state, key);
-    },
-    getDefaultFaults() {
-      return { ...state.defaults };
-    },
-    clearKeyFaults(key) {
+    clearFaults(key) {
       if (key === undefined) state.overrides.clear();
       else state.overrides.delete(key);
     },
-    inFlightCount() {
+    inFlight() {
       return state.inFlight;
     },
   };

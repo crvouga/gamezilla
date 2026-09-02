@@ -20,8 +20,7 @@ describe('matchmaking sim: formulas', () => {
   });
 
   test('combined numeric formula respects summed distance', async () => {
-    await using host = await openMatchmakingWorld({ seed: 30 });
-    const world = host.facade;
+    await using world = await openMatchmakingWorld({ seed: 30 });
     const closeFormula: DistanceFormula = {
       numeric: [
         { tag: RatingAttr, weight: 1 },
@@ -40,8 +39,7 @@ describe('matchmaking sim: formulas', () => {
   });
 
   test('categorical penalty needs wait across regions', async () => {
-    await using host = await openMatchmakingWorld({ seed: 31 });
-    const world = host.facade;
+    await using world = await openMatchmakingWorld({ seed: 31 });
     const regionFormula: DistanceFormula = {
       numeric: [{ tag: RatingAttr, weight: 1 }],
       categorical: [{ tag: RegionAttr, penalty: 75 }],
@@ -55,13 +53,12 @@ describe('matchmaking sim: formulas', () => {
       formulas: [regionFormula],
     });
     expect((await world.tick({ maxPassesPerPartition: 1 })).matches).toBe(0);
-    await world.runFor(30_000);
+    await world.advance(30_000);
     expect((await world.tick({ maxPassesPerPartition: 1 })).matches).toBe(1);
   });
 
   test('partition hard-equality never crosses even at max wait', async () => {
-    await using host = await openMatchmakingWorld({ seed: 32 });
-    const world = host.facade;
+    await using world = await openMatchmakingWorld({ seed: 32 });
     const kindFormula: DistanceFormula = {
       numeric: [{ tag: RatingAttr, weight: 1 }],
       partition: [{ tag: KindAttr }],
@@ -74,7 +71,7 @@ describe('matchmaking sim: formulas', () => {
       data: { ...RatingAttr(1000), ...KindAttr('beta') },
       formulas: [kindFormula],
     });
-    await world.never(
+    await world.waitNever(
       async () =>
         (await a.status())?.status === 'matched' ||
         (await b.status())?.status === 'matched',
@@ -83,8 +80,7 @@ describe('matchmaking sim: formulas', () => {
   });
 
   test('OR-of-formulas pairs when any pair is mutually accepted', async () => {
-    await using host = await openMatchmakingWorld({ seed: 33 });
-    const world = host.facade;
+    await using world = await openMatchmakingWorld({ seed: 33 });
     const alpha: DistanceFormula = {
       numeric: [{ tag: RatingAttr, weight: 1 }],
       partition: [{ tag: KindAttr }],

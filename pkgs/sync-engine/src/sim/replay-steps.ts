@@ -1,11 +1,11 @@
 import { DST_FAULTS, RELIABLE_FAULTS, sampleFaultOptions } from './faults';
 import { isDbOpen } from './invariants';
-import type { SyncSystemFacade } from './system';
+import type { SyncSystemWorld } from './system/define-sync-system';
 import { restartClientWithRetry } from './system/replay-step';
 
 /** Add N clients and optionally enable DST / sampled network faults. */
 export async function bootClients(args: {
-  readonly world: SyncSystemFacade;
+  readonly world: SyncSystemWorld;
   readonly clientCount: number;
   readonly sampleFaults: boolean;
   /** Mild fixed reorder/loss faults (ignored when sampleFaults is true). */
@@ -19,16 +19,16 @@ export async function bootClients(args: {
   }
   if (args.sampleFaults) {
     const sampled = sampleFaultOptions(args.world.rng.fork('faults'));
-    args.world.network.setDefaultFaults(sampled);
+    args.world.kit.network.setDefaultFaults(sampled);
   } else if (args.dstFaults === true) {
-    args.world.network.setDefaultFaults(DST_FAULTS);
+    args.world.kit.network.setDefaultFaults(DST_FAULTS);
   }
-  await args.world.runFor(200);
+  await args.world.advance(200);
   return ids;
 }
 
 function settleClientIds(
-  world: SyncSystemFacade,
+  world: SyncSystemWorld,
   bootIds: readonly string[]
 ): string[] {
   const ids = [...bootIds];
@@ -40,7 +40,7 @@ function settleClientIds(
 
 /** Heal partitions, clear holds/faults, bring clients online, assert converge. */
 export async function settleWorld(args: {
-  readonly world: SyncSystemFacade;
+  readonly world: SyncSystemWorld;
   readonly ids: readonly string[];
 }): Promise<void> {
   args.world.clearFailNextOpen();
@@ -50,7 +50,7 @@ export async function settleWorld(args: {
   for (const id of ids) {
     args.world.net(id, 'all').set('ok');
   }
-  args.world.network.setDefaultFaults(RELIABLE_FAULTS);
+  args.world.kit.network.setDefaultFaults(RELIABLE_FAULTS);
   for (const id of ids) {
     const client = args.world.clients.get(id);
     const needsRestart = client === undefined || !(await isDbOpen(client.db));

@@ -97,6 +97,20 @@ function buildHandlerCtx(args: {
   };
 }
 
+function authForQuery(
+  ctx: Pick<SimServerHandlerCtx, 'resolveAuth' | 'getAuth'>,
+  clientNode: string | undefined
+): SimServerAuth {
+  if (clientNode === undefined || clientNode.length === 0) {
+    return ctx.getAuth();
+  }
+  const byDevice = ctx.resolveAuth(`device:${clientNode}`);
+  if (!byDevice.isAnon) return byDevice;
+  const byNode = ctx.resolveAuth(clientNode);
+  if (!byNode.isAnon) return byNode;
+  return ctx.getAuth();
+}
+
 /** In-memory Bun SQLite server for sim HTTP bridge. */
 export async function openSimServer(
   args: OpenSimServerArgs
@@ -157,7 +171,10 @@ export async function openSimServer(
       stickyAuth = auth;
     },
     handlers: {
-      handleQuery: (reqs) => Promise.all(reqs.map((r) => handleOneQuery(r))),
+      handleQuery: (reqs, clientNode) => {
+        const auth = authForQuery(ctx, clientNode);
+        return Promise.all(reqs.map((r) => handleOneQuery(r, auth)));
+      },
       handleMutations,
     },
     pruneArtifacts: (olderThanMs) =>

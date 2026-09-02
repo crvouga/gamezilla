@@ -1,7 +1,7 @@
-import { type ActionArbContext, defineAction } from '@pkgs/determinism';
+import { action } from '@pkgs/determinism';
 import fc from 'fast-check';
 import { applyAdvance, applyForbidden } from './dispatch';
-import { SCHEMA_SERVER_ID, type SchemaSystem } from './peers';
+import { SCHEMA_SERVER_ID } from './peers';
 import { MAX_SCHEMA_VERSION, type SchemaVersion } from './schemas';
 
 export type AdvanceAction = {
@@ -17,17 +17,19 @@ export type SchemaAction = AdvanceAction | ForbiddenAction;
 
 export type SchemaModel = Record<string, never>;
 
-function peerIds(ctx: ActionArbContext): readonly string[] {
-  return [SCHEMA_SERVER_ID, ...ctx.roleIds('client')];
+type SchemaWorld = import('@pkgs/determinism').World<
+  Record<string, import('@pkgs/determinism').KnobDef>,
+  Record<string, import('@pkgs/determinism').NodeSpecEntry>
+>;
+
+function peerIds(
+  ctx: import('@pkgs/determinism').ActionArbContext
+): readonly string[] {
+  return [SCHEMA_SERVER_ID, ...ctx.ids('client')];
 }
 
-export const advanceAction = defineAction<
-  SchemaSystem,
-  AdvanceAction,
-  SchemaModel
->({
-  kind: 'advance',
-  class: 'domain',
+export const advanceAction = action<AdvanceAction, SchemaModel, SchemaWorld>({
+  weight: 3,
   arb: (ctx) => {
     const ids = peerIds(ctx);
     const target =
@@ -48,17 +50,19 @@ export const advanceAction = defineAction<
   },
 });
 
-export const forbiddenAction = defineAction<
-  SchemaSystem,
+export const forbiddenAction = action<
   ForbiddenAction,
-  SchemaModel
+  SchemaModel,
+  SchemaWorld
 >({
-  kind: 'forbidden',
-  class: 'domain',
+  weight: 3,
   arb: () => fc.constant({ kind: 'forbidden' as const }),
   dispatch: async (world) => {
     await applyForbidden(world);
   },
 });
 
-export const SCHEMA_ACTIONS = [advanceAction, forbiddenAction] as const;
+export const SCHEMA_ACTIONS = {
+  advance: advanceAction,
+  forbidden: forbiddenAction,
+} as const;

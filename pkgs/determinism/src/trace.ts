@@ -1,6 +1,5 @@
 import { canonicalJsonStringify, type JsonValue } from './json';
 
-/** Typed entropy / timer / network decision records for divergence detection. */
 export type TraceRecord =
   | {
       readonly type: 'sample';
@@ -52,38 +51,20 @@ export type TraceRecord =
       readonly invariant: string;
       readonly detail: string;
       readonly now: number;
-    }
-  | {
-      readonly type: 'fault';
-      readonly op: 'arm' | 'take';
-      readonly id: string;
-      readonly target: string;
-      readonly dedupeKey?: string;
     };
 
-export type EntropyTrace = {
-  readonly recordSample: (args: {
-    readonly reason: string;
-    readonly index: number;
-    readonly size: number;
-    readonly consumed: boolean;
-  }) => void;
-  readonly recordEntropy: (reason: string, value: number) => void;
-};
-
-export type SimTrace = EntropyTrace & {
+export type SimTrace = {
   readonly enabled: boolean;
   readonly record: (e: TraceRecord) => void;
   readonly events: () => readonly TraceRecord[];
-  readonly clear: () => void;
-  readonly getTrace: () => readonly TraceRecord[];
 };
-
-export type SimTraceEvent = TraceRecord & { readonly seq: number };
-export type SimTraceEventInput = TraceRecord;
 
 function formatRecord(r: TraceRecord): string {
   return canonicalJsonStringify(r as unknown as JsonValue);
+}
+
+export function createDisabledTrace(): SimTrace {
+  return { enabled: false, record() {}, events: () => [] };
 }
 
 export function createRecordingTrace(): SimTrace {
@@ -93,17 +74,7 @@ export function createRecordingTrace(): SimTrace {
     record(e) {
       buf.push(e);
     },
-    recordSample(args) {
-      buf.push({ type: 'sample', ...args });
-    },
-    recordEntropy(reason, value) {
-      buf.push({ type: 'entropy', reason, value });
-    },
     events: () => buf.slice(),
-    getTrace: () => buf.slice(),
-    clear() {
-      buf.length = 0;
-    },
   };
 }
 
@@ -130,17 +101,7 @@ export function createReplayingTrace(
   return {
     enabled: true,
     record: check,
-    recordSample(args) {
-      check({ type: 'sample', ...args });
-    },
-    recordEntropy(reason, value) {
-      check({ type: 'entropy', reason, value });
-    },
     events: () => recorded.slice(0, pos),
-    getTrace: () => recorded.slice(),
-    clear() {
-      pos = 0;
-    },
     assertFullyConsumed() {
       if (pos !== recorded.length) {
         throw new Error(
@@ -149,20 +110,4 @@ export function createReplayingTrace(
       }
     },
   };
-}
-
-/** Diagnostic / optional no-op when tracing is off. */
-export function createSimTrace(enabled = false): SimTrace {
-  if (!enabled) {
-    return {
-      enabled: false,
-      record() {},
-      recordSample() {},
-      recordEntropy() {},
-      events: () => [],
-      getTrace: () => [],
-      clear() {},
-    };
-  }
-  return createRecordingTrace();
 }

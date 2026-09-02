@@ -14,27 +14,25 @@ describe('matchmaking sim: tick sweeps', () => {
   });
 
   test('expiredRemoved reaps waiters older than maxWaitSeconds', async () => {
-    await using host = await openMatchmakingWorld({
+    await using world = await openMatchmakingWorld({
       seed: 50,
       tuning: { maxWaitSeconds: 30 },
     });
-    const world = host.facade;
     const p = await world.join({
       data: RatingAttr(1000),
       formulas: [SimpleFormula],
     });
     expect((await world.tick()).expiredRemoved).toBe(0);
-    await world.runFor(120_000);
+    await world.advance(120_000);
     expect((await world.tick()).expiredRemoved).toBe(1);
     expect(await p.status()).toBeNull();
   });
 
   test('matchedRemoved reaps matched rows older than matchedRetentionSeconds', async () => {
-    await using host = await openMatchmakingWorld({
+    await using world = await openMatchmakingWorld({
       seed: 51,
       tuning: { matchedRetentionSeconds: 10 },
     });
-    const world = host.facade;
     const a = await world.join({
       data: RatingAttr(1000),
       formulas: [SimpleFormula],
@@ -44,15 +42,14 @@ describe('matchmaking sim: tick sweeps', () => {
       formulas: [SimpleFormula],
     });
     expect((await world.tick({ maxPassesPerPartition: 1 })).matches).toBe(1);
-    await world.runFor(60_000);
+    await world.advance(60_000);
     expect((await world.tick()).matchedRemoved).toBe(2);
     expect(await a.status()).toBeNull();
     expect(await b.status()).toBeNull();
   });
 
   test('tick on an empty queue is a clean no-op', async () => {
-    await using host = await openMatchmakingWorld({ seed: 52 });
-    const world = host.facade;
+    await using world = await openMatchmakingWorld({ seed: 52 });
     expect(await world.tick()).toEqual({
       matches: 0,
       passes: 0,

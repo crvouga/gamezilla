@@ -15,7 +15,7 @@ describe('kit: deadline vs action (M-F07)', () => {
       knobs: { clientCount: 0 },
       startMs: 5_000,
     });
-    const world = host.facade;
+    const world = host;
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await world.assertConverged();

@@ -45,15 +45,29 @@ export const acmeTopicMap = defineTopicMap({
           : [];
       return [NOTES_WORLD_TOPIC, userTopic(ctx.actorId), ...room];
     },
+    subscribeTopics(row, ctx) {
+      const spaceId = row['space_id'];
+      const room =
+        typeof spaceId === 'string' && spaceId.length > 0
+          ? [roomTopic(spaceId)]
+          : [];
+      return [userTopic(ctx.actorId), ...room];
+    },
   },
   folders: {
     topics(_row, ctx) {
       return [NOTES_WORLD_TOPIC, userTopic(ctx.actorId)];
     },
+    subscribeTopics(_row, ctx) {
+      return [userTopic(ctx.actorId)];
+    },
   },
   tags: {
     topics(_row, ctx) {
       return [NOTES_WORLD_TOPIC, userTopic(ctx.actorId)];
+    },
+    subscribeTopics(_row, ctx) {
+      return [userTopic(ctx.actorId)];
     },
   },
   spaces: {

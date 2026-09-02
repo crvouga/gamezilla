@@ -51,24 +51,21 @@ describe('matchmaking sim: http app', () => {
   });
 
   test('rejects requests without the auth header', async () => {
-    await using host = await openMatchmakingWorld({ seed: 110 });
-    const world = host.facade;
+    await using world = await openMatchmakingWorld({ seed: 110 });
     const app = world.mm.app({ requireAuth: defaultStubAuth });
     const res = await app.request('/status/x', { method: 'GET' });
     expect(res.status).toBe(401);
   });
 
   test('400 on missing data', async () => {
-    await using host = await openMatchmakingWorld({ seed: 111 });
-    const world = host.facade;
+    await using world = await openMatchmakingWorld({ seed: 111 });
     const app = world.mm.app({ requireAuth: defaultStubAuth });
     const res = await postJson(app, '/join', { formulas: [RatingFormula] });
     expect(res.status).toBe(400);
   });
 
   test('400 on non-keyword key in data', async () => {
-    await using host = await openMatchmakingWorld({ seed: 112 });
-    const world = host.facade;
+    await using world = await openMatchmakingWorld({ seed: 112 });
     const app = world.mm.app({ requireAuth: defaultStubAuth });
     const res = await postJson(app, '/join', {
       data: { badkey: 1 },
@@ -78,8 +75,7 @@ describe('matchmaking sim: http app', () => {
   });
 
   test('400 on empty formulas array', async () => {
-    await using host = await openMatchmakingWorld({ seed: 113 });
-    const world = host.facade;
+    await using world = await openMatchmakingWorld({ seed: 113 });
     const app = world.mm.app({ requireAuth: defaultStubAuth });
     const res = await postJson(app, '/join', {
       data: { 'mmtest/rating': 1000 },
@@ -89,8 +85,7 @@ describe('matchmaking sim: http app', () => {
   });
 
   test('400 on negative numeric weight', async () => {
-    await using host = await openMatchmakingWorld({ seed: 114 });
-    const world = host.facade;
+    await using world = await openMatchmakingWorld({ seed: 114 });
     const app = world.mm.app({ requireAuth: defaultStubAuth });
     const res = await postJson(app, '/join', {
       data: { 'mmtest/rating': 1000 },
@@ -100,8 +95,7 @@ describe('matchmaking sim: http app', () => {
   });
 
   test('paired participants see the same matchId over HTTP', async () => {
-    await using host = await openMatchmakingWorld({ seed: 115 });
-    const world = host.facade;
+    await using world = await openMatchmakingWorld({ seed: 115 });
     const app = world.mm.app({ requireAuth: defaultStubAuth });
     const a = await postJson(app, '/join', {
       data: { 'mmtest/rating': 1000, 'mmtest/name': 'a' },
@@ -129,8 +123,7 @@ describe('matchmaking sim: http app', () => {
   });
 
   test('leave removes a waiting participant', async () => {
-    await using host = await openMatchmakingWorld({ seed: 116 });
-    const world = host.facade;
+    await using world = await openMatchmakingWorld({ seed: 116 });
     const app = world.mm.app({ requireAuth: defaultStubAuth });
     const a = await postJson(app, '/join', {
       data: { 'mmtest/rating': 1000 },
@@ -144,8 +137,7 @@ describe('matchmaking sim: http app', () => {
   });
 
   test('update-formulas 404 when unknown; updates when waiting', async () => {
-    await using host = await openMatchmakingWorld({ seed: 117 });
-    const world = host.facade;
+    await using world = await openMatchmakingWorld({ seed: 117 });
     const app = world.mm.app({ requireAuth: defaultStubAuth });
     const missing = await postJson(
       app,
@@ -166,8 +158,7 @@ describe('matchmaking sim: http app', () => {
   });
 
   test('accepts groupSize 3 over HTTP', async () => {
-    await using host = await openMatchmakingWorld({ seed: 118 });
-    const world = host.facade;
+    await using world = await openMatchmakingWorld({ seed: 118 });
     const app = world.mm.app({ requireAuth: defaultStubAuth });
     const res = await postJson(app, '/join', {
       data: { 'mmtest/rating': 1000 },

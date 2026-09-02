@@ -21,6 +21,15 @@ export type TopicMapEntry = {
     ctx: TopicMapCtx,
     db?: MutationDb
   ) => readonly Topic[] | Promise<readonly Topic[]>;
+  /**
+   * Subscribe projection for held-row topic sync. Defaults to `topics`.
+   * Use this to omit publish-only firehose channels (entryChannel still
+   * subscribes clients that should hear them).
+   */
+  readonly subscribeTopics?: (
+    row: QueryRow,
+    ctx: TopicMapCtx
+  ) => readonly Topic[];
   /** Used when the table was touched but no row images/ids were captured. */
   readonly fallbackTopics?: (ctx: TopicMapCtx) => readonly Topic[];
 };
@@ -104,7 +113,8 @@ export function topicsFromHeldRows(args: {
     const entry = args.topicMap[table];
     if (entry === undefined) continue;
     for (const row of rows) {
-      const result = entry.topics(row, args.ctx);
+      const result =
+        entry.subscribeTopics?.(row, args.ctx) ?? entry.topics(row, args.ctx);
       if (result instanceof Promise) {
         // Channel derivation is sync — async maps are mutation-only.
         continue;

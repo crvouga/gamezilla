@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import { expectLiveNote, insertCatalogNote, isLiveNote } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('non mutation catalog insert wakes empty hydrate', () => {
   // Chess-puzzle shaped bug: empty first sync of a world/entryChannel query,
@@ -9,13 +8,13 @@ describe('non mutation catalog insert wakes empty hydrate', () => {
   // the client fast; without notify the reconcile tick still heals.
 
   test('insertCatalogNote notify true wakes client after empty hydrate', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 1401,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const client = await world.addClient({ id: 'alice' });
 
     expect(await isLiveNote(client.db, 'n-seed')).toBe(false);
@@ -27,19 +26,19 @@ describe('non mutation catalog insert wakes empty hydrate', () => {
     });
     await expectLiveNote(world.server.db, 'n-seed', { body: 'seeded' });
 
-    await world.until(async () => isLiveNote(client.db, 'n-seed'));
+    await world.waitUntil(async () => isLiveNote(client.db, 'n-seed'));
     await expectLiveNote(client.db, 'n-seed', { body: 'seeded' });
     await world.assertConverged();
   });
 
   test('insertCatalogNote notify false heals via reconcile tick', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 1402,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const client = await world.addClient({ id: 'alice' });
 
     expect(await isLiveNote(client.db, 'n-silent')).toBe(false);
@@ -56,7 +55,7 @@ describe('non mutation catalog insert wakes empty hydrate', () => {
     // No notify → no instant wake; reconcile tick heals below.
     expect(await isLiveNote(client.db, 'n-silent')).toBe(false);
 
-    await world.until(async () => isLiveNote(client.db, 'n-silent'));
+    await world.waitUntil(async () => isLiveNote(client.db, 'n-silent'));
     await expectLiveNote(client.db, 'n-silent', { body: 'seeded-silent' });
     await world.assertConverged();
   });

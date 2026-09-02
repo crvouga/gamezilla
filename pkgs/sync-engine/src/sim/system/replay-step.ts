@@ -6,9 +6,10 @@ import type { SystemWorldSurface } from './world-surface';
 
 /** Clear partitions/holds/faults so restart and sync can complete. */
 export function healNetworkForSettle(world: SystemWorldSurface): void {
-  world.network.releaseAll();
-  world.network.healAll();
-  world.network.clearNodeFaults();
+  const network = world.kit.network;
+  network.releaseAll();
+  network.healAll();
+  network.clearNodeFaults();
 }
 
 async function ensureServerUp(world: SystemWorldSurface): Promise<void> {

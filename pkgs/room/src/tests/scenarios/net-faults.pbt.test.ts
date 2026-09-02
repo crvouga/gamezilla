@@ -1,5 +1,5 @@
 import { describe, test } from 'bun:test';
-import { arbWorldSeed, assertSampleProperty } from '@pkgs/determinism/pbt';
+import { arbSeed, assertSampleProperty } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
 
 import {
@@ -23,22 +23,18 @@ describe('room net-faults PBT', () => {
     async () => {
       await assertSampleProperty(
         'hold sequences converge',
-        fc.asyncProperty(
-          arbWorldSeed(),
-          arbRoomKnobs(),
-          async (seed, knobs) => {
-            await replayRoomPin(counterSystem, {
-              seed,
-              knobs,
-              actions: [
-                { kind: 'hold', clientId: 'c1' },
-                INCREMENT_C0,
-                { kind: 'idle', ms: 30 },
-                { kind: 'heal' },
-              ],
-            });
-          }
-        ),
+        fc.asyncProperty(arbSeed(), arbRoomKnobs(), async (seed, knobs) => {
+          await replayRoomPin(counterSystem, {
+            seed,
+            knobs,
+            actions: [
+              { kind: 'hold', clientId: 'c1' },
+              INCREMENT_C0,
+              { kind: 'idle', ms: 30 },
+              { kind: 'heal' },
+            ],
+          });
+        }),
         { numRuns: 8 }
       );
     },
@@ -50,22 +46,18 @@ describe('room net-faults PBT', () => {
     async () => {
       await assertSampleProperty(
         'down sequences converge',
-        fc.asyncProperty(
-          arbWorldSeed(),
-          arbRoomKnobs(),
-          async (seed, knobs) => {
-            await replayRoomPin(counterSystem, {
-              seed,
-              knobs,
-              actions: [
-                { kind: 'down', clientId: 'c1' },
-                INCREMENT_C0,
-                { kind: 'idle', ms: 20 },
-                { kind: 'heal' },
-              ],
-            });
-          }
-        ),
+        fc.asyncProperty(arbSeed(), arbRoomKnobs(), async (seed, knobs) => {
+          await replayRoomPin(counterSystem, {
+            seed,
+            knobs,
+            actions: [
+              { kind: 'down', clientId: 'c1' },
+              INCREMENT_C0,
+              { kind: 'idle', ms: 20 },
+              { kind: 'heal' },
+            ],
+          });
+        }),
         { numRuns: 8 }
       );
     },
@@ -77,32 +69,28 @@ describe('room net-faults PBT', () => {
     async () => {
       await assertSampleProperty(
         'asymmetric sequences converge',
-        fc.asyncProperty(
-          arbWorldSeed(),
-          arbRoomKnobs(),
-          async (seed, knobs) => {
-            await replayRoomPin(counterSystem, {
-              seed,
-              knobs,
-              actions: [
-                {
-                  kind: 'asymmetricLink',
-                  clientId: 'c1',
-                  link: { toClient: 'hold', toServer: 'ok' },
-                },
-                INCREMENT_C0,
-                {
-                  kind: 'domain',
-                  clientId: 'c1',
-                  command: 'increment',
-                  args: {},
-                },
-                { kind: 'idle', ms: 20 },
-                { kind: 'heal' },
-              ],
-            });
-          }
-        ),
+        fc.asyncProperty(arbSeed(), arbRoomKnobs(), async (seed, knobs) => {
+          await replayRoomPin(counterSystem, {
+            seed,
+            knobs,
+            actions: [
+              {
+                kind: 'asymmetricLink',
+                clientId: 'c1',
+                link: { toClient: 'hold', toServer: 'ok' },
+              },
+              INCREMENT_C0,
+              {
+                kind: 'domain',
+                clientId: 'c1',
+                command: 'increment',
+                args: {},
+              },
+              { kind: 'idle', ms: 20 },
+              { kind: 'heal' },
+            ],
+          });
+        }),
         { numRuns: 8 }
       );
     },
@@ -115,7 +103,7 @@ describe('room net-faults PBT', () => {
       await assertSampleProperty(
         'fault profile sequences converge',
         fc.asyncProperty(
-          arbWorldSeed(),
+          arbSeed(),
           arbRoomKnobs(),
           fc.constantFrom(...NET_FAULT_PROFILES),
           async (seed, knobs, faults) => {

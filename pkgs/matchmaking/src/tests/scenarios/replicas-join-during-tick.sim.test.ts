@@ -18,15 +18,14 @@ describe('matchmaking sim: join during tick', () => {
   });
 
   test('joins on r0/r1 while r2 ticks; settle with tickAll', async () => {
-    await using host = await openMatchmakingWorld({
+    await using world = await openMatchmakingWorld({
       seed: 230,
       replicas: 3,
       backend: 'postgres',
     });
-    const world = host.facade;
     const warm = [];
     for (let i = 0; i < 4; i += 1) {
-      world.clock.advance(1);
+      await world.advance(1);
       warm.push(
         await world.join({
           data: RatingAttr(1100 + i),
@@ -39,7 +38,7 @@ describe('matchmaking sim: join during tick', () => {
       world.replica('r2').tick({ maxPassesPerPartition: 4 }),
       (async () => {
         for (let i = 0; i < 4; i += 1) {
-          world.clock.advance(1);
+          await world.advance(1);
           late.push(
             await world.join(
               {

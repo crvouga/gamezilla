@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import { runAcmeSeed, seedsFromEnv, setNote } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('seeded workload fuzz determinism', () => {
   test('same seed runAcmeSeed is deterministic', async () => {
@@ -98,13 +97,13 @@ describe('seeded workload fuzz determinism', () => {
   );
 
   test('single mutate then fuzz-style settle', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 88,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     await a.mutate(setNote, { id: 'n1', body: 'ok' });
     await world.assertConverged();

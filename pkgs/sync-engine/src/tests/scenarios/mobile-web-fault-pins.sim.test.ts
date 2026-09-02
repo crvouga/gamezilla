@@ -1,31 +1,34 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import { playSyncActions, replaySyncPin } from '../../sim/system';
 import { expectLiveNote, setNote } from '../apps/acme';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
-import { acmeLargeCatalogSystem, acmeSystem } from '../apps/acme/system';
+import {
+  acmeLargeCatalogSystem,
+  acmeSystem,
+  openAcmeWorld,
+} from '../apps/acme/system';
 
 describe('online lifecycle wakes query refetch', () => {
   test('online after offline triggers nudge path', async () => {
-    await using world = await openWorld(acmeSystem, { seed: 55001 });
-    const facade = world.facade;
-    const a = facade.clients.get('c0');
+    await using world = await openAcmeWorld({ seed: 55001 });
+
+    const a = world.clients.get('c0');
     expect(a).toBeDefined();
     if (a === undefined) return;
     a.online(false);
     await a.mutate(setNote, { id: 'n0', body: 'offline-local' });
     a.online(true);
-    await facade.runFor(100);
-    await facade.assertConverged();
-    await expectLiveNote(facade.server.db, 'n0', { body: 'offline-local' });
+    await world.advance(100);
+    await world.assertConverged();
+    await expectLiveNote(world.server.db, 'n0', { body: 'offline-local' });
   });
 });
 
 describe('storage full merge abort', () => {
   test('quota arm aborts merge and queue survives restart', async () => {
-    await using world = await openWorld(acmeSystem, { seed: 55002 });
-    const facade = world.facade;
-    const a = facade.clients.get('c0');
+    await using world = await openAcmeWorld({ seed: 55002 });
+
+    const a = world.clients.get('c0');
     expect(a).toBeDefined();
     if (a === undefined) return;
     await playSyncActions(world, [
@@ -37,8 +40,8 @@ describe('storage full merge abort', () => {
     ]);
     const result = await a.mutate(setNote, { id: 'n2', body: 'queued' });
     expect(result.ok).toBe(true);
-    await facade.node('c0').restart();
-    await facade.assertConverged();
+    await world.node('c0').restart();
+    await world.assertConverged();
   });
 });
 

@@ -41,7 +41,5 @@ export async function simPostgresSeedFingerprintSource(
   if (authTables === null) {
     throw new Error(`missing auth schema: ${AUTH_SCHEMA_TABLES_KEY}`);
   }
-  return Buffer.from(
-    [migrate, SIM_AUTH_SECRET, authTables].join('\n---\n')
-  );
+  return Buffer.from([migrate, SIM_AUTH_SECRET, authTables].join('\n---\n'));
 }

@@ -71,7 +71,7 @@ export function toKernelFaults(f: SimFaultOptions) {
 
 /** Map kernel profile → sync fault field names. */
 export function fromKernelFaults(
-  p: ReturnType<KernelNetwork['getDefaultFaults']>
+  p: ReturnType<KernelNetwork['faults']>
 ): SimFaultOptions {
   return {
     oneWayDelayMeanMs: p.oneWayDelayMeanMs,
@@ -150,13 +150,13 @@ function clearNodeOverrides(
 ): void {
   if (nodeId === undefined) {
     overrides.clear();
-    kernel.clearKeyFaults();
+    kernel.clearFaults();
     return;
   }
   for (const key of [...overrides.keys()]) {
     if (key.startsWith(`${nodeId}\0`)) {
       overrides.delete(key);
-      kernel.clearKeyFaults(key);
+      kernel.clearFaults(key);
     }
   }
 }
@@ -170,7 +170,7 @@ export function wrapSimNetwork(
   initialFaults?: SimFaultOptions
 ): SimNetwork {
   if (initialFaults !== undefined) {
-    kernel.setDefaultFaults(toKernelFaults(initialFaults));
+    kernel.setFaults(toKernelFaults(initialFaults));
   }
   const overrides = new Map<SimNetKey, SimFaultOptions>();
 
@@ -195,32 +195,32 @@ export function wrapSimNetwork(
     heal: (a, b) => kernel.heal(a, b),
     healAll: () => kernel.healAll(),
     setDefaultFaults(next) {
-      kernel.setDefaultFaults(toKernelFaults(next));
+      kernel.setFaults(toKernelFaults(next));
     },
-    faults: () => fromKernelFaults(kernel.getDefaultFaults()),
+    faults: () => fromKernelFaults(kernel.faults()),
     hold: (nodeId, traffic) => holdTraffic(kernel, nodeId, traffic),
     release: (nodeId, traffic) => releaseTraffic(kernel, nodeId, traffic),
     releaseAll: () => kernel.releaseAll(),
     setNodeFaults(nodeId, traffic, faults) {
       const key = syncNetKey(nodeId, traffic);
       overrides.set(key, faults);
-      kernel.setKeyFaults(key, toKernelFaults(faults));
+      kernel.setFaults(toKernelFaults(faults), key);
     },
     clearNodeFaults: (nodeId) => clearNodeOverrides(kernel, overrides, nodeId),
     clearNodeFaultsForTraffic(nodeId, traffic) {
       const key = syncNetKey(nodeId, traffic);
       overrides.delete(key);
-      kernel.clearKeyFaults(key);
+      kernel.clearFaults(key);
     },
     getNodeFaults(nodeId, traffic) {
       return overrides.get(syncNetKey(nodeId, traffic));
     },
     isHeld: (nodeId, traffic) => isHeldTraffic(kernel, nodeId, traffic),
-    isEdgePartitioned: (a, b) => kernel.isEdgePartitioned(a, b),
+    isEdgePartitioned: (a, b) => kernel.isPartitioned(a, b),
     heldSummary() {
       return kernel
-        .heldSummary()
-        .map((k) => k.replace('\0', ':'))
+        .held()
+        .map((k: string) => k.replace('\0', ':'))
         .sort();
     },
   };

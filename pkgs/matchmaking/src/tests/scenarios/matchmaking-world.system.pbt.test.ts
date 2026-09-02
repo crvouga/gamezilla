@@ -16,7 +16,10 @@ describe('matchmaking world system PBT', () => {
   test(
     'assertSample explores knobs + tick/advance library',
     async () => {
-      await assertSample(MATCHMAKING_SYSTEM, { maxCommands: 6, numRuns: 2 });
+      await assertSample(
+        MATCHMAKING_SYSTEM as unknown as Parameters<typeof assertSample>[0],
+        { maxCommands: 6, numRuns: 2 }
+      );
     },
     { timeout: 120_000 }
   );

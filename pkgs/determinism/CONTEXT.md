@@ -21,17 +21,19 @@ real sockets.
 
 **The framework owns the World.** Packages declare:
 
-1. **Node kinds** — values from `defineNodeKind` (boot/dispose/endpoints/view)
-2. **Actions** — one `defineAction` per chaos or domain op (`class: 'library' | 'domain'`)
-3. **System** — topology, knobs, actions, optional facade, settle, invariants
+1. **Node kinds** — values from `node()` (boot/dispose via `listen`)
+2. **Knobs** — `knob(default, arb)` entries keyed in `defineSystem.knobs`
+3. **Actions** — `action({ arb, dispatch, … })` entries keyed in `defineSystem.actions`
+4. **Chaos** — `chaos.network()` / `chaos.advance()` spread into `actions`
+5. **System** — topology, knobs, actions, optional `extend`, settle, invariants
 
 They do **not** invent package-local World DSLs, dual `SimDeps` mints inside
 node boot, or mega-libraries with `match` catch-alls.
 
 ```text
-defineNodeKind + defineAction + defineKnob
-  → defineSystem (+ optional facade)
-  → openWorld / assertSample / replay / assertFaultPins
+node + knob + action + chaos
+  → defineSystem (+ optional extend)
+  → openWorld / assertSample / replay / assertPins
   → assertDeterministic (trace record → replay-validate)
 ```
 
@@ -46,7 +48,7 @@ over real `network.send`). It is a **test fixture**, not a reusable KV library.
 | --- | --- |
 | Deterministic replay | One seed + knobs + action list → identical outcomes |
 | Proven determinism | Trace record/replay detects consumer nondeterminism |
-| Framework-owned World | One composition path; packages plug kinds + actions + facade |
+| Framework-owned World | One composition path; packages plug kinds + actions + extend |
 | Shrinkable PBT | `fc.commands` over weighted actions; model filters; real replay + settle |
 | Failure artifacts | Scenario v1 JSON + recorded trace |
 | Harness isolation | `SimDeps` never leaks into product `ClientEnv` / `ServerEnv` |
@@ -69,143 +71,210 @@ over real `network.send`). It is a **test fixture**, not a reusable KV library.
 
 ```text
 ┌──────────────────────────────────────────────────────────┐
-│ PBT  @pkgs/determinism/pbt                               │
-│   assertSample / replay / assertFaultPins                │
+│ PBT  @pkgs/determinism/pbt                             │
+│   assertSample / assertWorldProperty / replay / assertPins│
 │   assertDeterministic (gate) / assertSampleProperty / fc │
 ├──────────────────────────────────────────────────────────┤
 │ World / System                                           │
-│   defineSystem + openWorld → World<S, F>                 │
-│   kinds-as-values + actions + facade / settle / inv.     │
+│   defineSystem + openWorld → World<K, N, X>              │
+│   typed nodes/knobs + actions + extend / settle / inv.   │
 ├──────────────────────────────────────────────────────────┤
 │ Catalogs                                                 │
-│   defineKnob (+ arb) / defineFault / defineAction        │
-│   std.partition / std.heal / std.healAll / std.advance   │
+│   knob() / action() / chaos.network() / chaos.advance()  │
 ├──────────────────────────────────────────────────────────┤
 │ Kernel (in-package; not a second public API)             │
 │   createSimDeps → SimClock, SimScheduler, Timers,        │
-│     SeededRng forks (io / ids / sched), createId         │
+│     SeededRng forks (io / ids / sched), createId, trace  │
 │   Quiescence-probe drain + seeded same-time picks        │
 │   createSimNetwork (partition / hold / faults / inFlight)│
-│   Trace v2 record/replay, scenario v1                    │
+│   Trace record/replay, scenario v1                       │
 └──────────────────────────────────────────────────────────┘
 ```
 
 Boot order = `SystemDef.nodes` declaration order. Later nodes see earlier ones via
-`NodeBootContext.nodesByRole` / `nodesById`.
+`NodeBootContext.peers` (`single`, `get`, `ids`).
 
 ---
 
 ## Authoring path (API)
 
-### 1. `defineNodeKind` (value)
+### 1. `node()` (value)
 
 ```ts
-const clientKind = defineNodeKind({
-  id: 'acme-kv.client',
-  boot: async (ctx) => { /* ctx.deps, ctx.network, ctx.state, … */ },
-  dispose: async (handle) => { … },
-  endpoints: (handle) => [{ id: `…`, deliver }],
-  view: (handle) => handle,
+const serverKind = node({
+  boot: async (ctx) => {
+    // ctx.deps, ctx.network, ctx.knob, ctx.peers, ctx.listen(…)
+  },
+  dispose?: async (handle) => { … },
 });
 ```
 
-Kinds are **values** passed into `SystemDef.nodes` — there is no process-global
-registry. `NodeBootContext.state` is the package board from `defineSystem.state()`.
+Kinds are **values** passed into `SystemDef.nodes` keyed by **role** — there is
+no process-global registry. Register endpoints with `ctx.listen(deliver, endpointId?)`.
 
-### 2. `defineAction` + `defineKnob`
+Counted roles spread the kind and add `count` + optional `id`:
 
 ```ts
-defineAction({
-  kind: 'put',                    // unique within the system
-  class: 'domain',                // or 'library' (weights PBT sampling)
-  arb: (ctx) => fc.record({ … }), // ctx.edges from SystemDef.network.edges
+client: {
+  ...clientKind,
+  count: (knobs) => knobs['clientCount'] as number,
+  id: (i) => `c${i}`,
+},
+```
+
+### 2. `knob()` + `action()`
+
+```ts
+const CLIENT_COUNT = knob(2, fc.integer({ min: 2, max: 3 }));
+
+const putAction = action({
+  weight: 3,                      // PBT sampling weight (default 1)
+  arb: (ctx) => fc.record({ … }), // ctx.ids, ctx.knobs, ctx.edges
   dispatch: async (world, action) => { … },
   allows?: (model, action) => boolean,
   apply?: (model, action) => void,
 });
-
-defineKnob({ id: 'clientCount', default: 2, arb: fc.integer({ min: 2, max: 3 }) });
 ```
 
-Standard chaos helpers (derive role pair from `network.edges[0]` when omitted):
+Action **keys** in `defineSystem.actions` become the wire `kind` string
+(e.g. `'chaos.partition'`, `'put'`).
+
+### 3. `chaos`
+
+Standard network chaos helpers (derive role pair from `network.edges[0]` when omitted):
 
 ```ts
-stdNetChaos() // or stdNetChaos({ fromRole: 'client', toRole: 'server' })
-stdAdvance({ minMs, maxMs })
+const netChaos = chaos.network({ fromRole: 'client', toRole: 'server' });
+// → { 'chaos.partition', 'chaos.heal', 'chaos.healAll' }
+
+chaos.advance({ minMs: 1, maxMs: 500 }) // → 'chaos.advance' action
 ```
 
-### 3. `defineSystem`
+Spread into `actions`:
+
+```ts
+actions: {
+  ...netChaos,
+  put: putAction,
+  'chaos.advance': chaos.advance(),
+},
+```
+
+### 4. `defineSystem`
 
 ```ts
 defineSystem({
   id: 'acme-kv',
-  state: () => ({ /* mutable board */ }),
-  knobs: […],
-  nodes: [
-    { kind: serverKind, role: 'server', count: 1 },
-    { kind: clientKind, role: 'client', count: { fromKnob: 'clientCount' }, idFor: (i) => `c${i}` },
-  ],
-  network: { defaults: RELIABLE_NET_FAULTS, edges: [{ fromRole: 'client', toRole: 'server' }] },
-  actions: […stdNetChaos(), putAction],
-  model: { initial: () => ({ map: {} }) },  // required by assertSample
-  facade?: async (world) => kitHandle,      // optional typed world.facade
-  settle: async (world) => { /* heal / catch-up */ },
-  invariants: async (world) => null | { invariant, detail },
+  startMs?: number,
+  knobs: { clientCount: CLIENT_COUNT },
+  nodes: {
+    server: serverKind,
+    client: { …clientKind, count: (k) => k['clientCount'] as number, id: (i) => `c${i}` },
+  },
+  network: {
+    faults?: SimNetFaultProfile,
+    edges: [{ fromRole: 'client', toRole: 'server' }],
+  },
+  actions: { …netChaos, put: putAction },
+  model?: { initial: () => ({ map: {} }) },  // required by assertSample
+  extend?: async (world) => ({ …kitMethods }), // merged onto World<K, N, X>
+  settle: async (world) => { … },
+  invariants: async (world) => { … },
 });
 ```
 
-- **Actions** = library + domain in one list. No `match` escape hatch.
+- **Actions** live in one keyed record. No `match` escape hatch.
 - **`network.edges`** enforced: `send` across undeclared role pairs throws.
-- **`count`**: `number | { fromKnob: string }` (no parallel `countFromKnob`).
-- **`facade`**: post-boot handle builder (replaces `prepare`). Use for kit
-  facades / hydration warmup. Exposed as `world.facade`.
-- **`settle`** / **`invariants`**: required; invariants run after settle only.
+- **`extend`**: post-boot kit surface merged onto the opened world (replaces the
+  old separate `facade` / `host.facade` pattern). Keys must not collide with
+  framework controls (`advance`, `nodes`, `settle`, …).
+- **`settle`** runs before **`invariants`** on every `world.settle()` call.
 
-### 4. World (`openWorld`)
+### 5. World (`openWorld`)
 
 ```ts
-await using host = await openWorld(system, { seed, knobs });
-const kit = host.facade; // typed F from SystemDef
-await host.advance(10);
-await host.idle();
+await using world = await openWorld(system, { seed, knobs });
+await world.advance(10);
+await world.idle();
+await world.play(actions);
+await world.settle();
+// kit methods from extend are on `world` directly
 ```
 
-Control ports:
+Control ports on every `World`:
 
-`advance` / `idle` / `until(pred)` / `never(pred)` /
-`partition` / `heal` / `healAll` / `hold` / `release` / `releaseAll` /
-`node(role, id?)` / `roleIds` / `settle` / `dispose` / `Symbol.asyncDispose`
+| Port | Role |
+| --- | --- |
+| `seed`, `startMs`, `deps`, `knobs`, `nodes`, `network`, `networkDefaults` | Boot state |
+| `ids(role)` | Node ids for a role |
+| `now()` | Virtual clock |
+| `advance(ms)` / `idle()` | Scheduler drains |
+| `until(pred, { withinMs? })` | Wait until predicate (throws on timeout) |
+| `never(pred, { forMs })` | Fail if predicate becomes true within window |
+| `run(promise)` | Drain until an unmanaged promise settles |
+| `partition(a, b)` | Returns `Disposable` — heal on dispose |
+| `heal(a, b)` / `healAll()` | Clear partitions |
+| `hold(key)` | Returns `Disposable` — release on dispose |
+| `release(key)` / `releaseAll()` | Release held packets |
+| `play(actions)` | Dispatch action list + `PLAY_STEP_MS` (10 ms) steps |
+| `settle()` | `system.settle` then `system.invariants` |
+| `dispose()` / `[Symbol.asyncDispose]` | Tear down nodes + unregister endpoints |
 
-Also exposes: `deps`, `clock`, `network`, `nodes`, `state`, `facade`, `knobs`,
-`faults`, `networkDefaults`, `startMs`, `seed`.
+Also: `OpenWorldOpts.trace` enables recording trace via `createSimDeps`.
 
-- **`partition` / `heal` take node ids** — framework expands to endpoint pairs.
-- **`idle()`** is the quiescence-aware public drain (`scheduler.runUntilIdle`).
-
-### 5. PBT (`@pkgs/determinism/pbt`)
+### 6. PBT (`@pkgs/determinism/pbt`)
 
 | API | Role |
 | --- | --- |
-| `assertSample(system, { maxCommands, numRuns? })` | Requires `model` + non-empty `actions`; runs determinism gate |
+| `assertSample(system, { maxCommands?, numRuns? })` | Requires `model` + non-empty `actions`; runs determinism gate |
+| `assertWorldProperty(system, arbs, run, params?)` | Property over `openWorld` + custom arbitraries |
 | `replay(system, inputs \| scenario \| json)` | Fixed action list; gate + open world for inspection |
-| `assertFaultPins(system, pins)` | Named pin matrices over `replay` |
+| `assertPins(system, pins)` | Named pin matrices over `replay` |
 | `assertDeterministic(system, inputs)` | Double-run: record trace, replay-validate |
-| `assertSampleProperty(name, property, params?)` | Low-level `fc.assert` |
+| `assertSampleProperty(name, property, params?)` | Low-level `fc.assert` wrapper |
+| `arbSeed()` / `arbKnobs(system)` / `arbAction(system, knobs)` | Shared arbitraries |
+| `fc` | Re-export for convenience |
 
 Flow inside `assertSample`:
 
 1. Model: `fc.asyncModelRun` — per-action `allows` / `apply` (**before** world boot)
-2. Play: openWorld → dispatch each action → `advance(PLAY_STEP_MS)` (10 ms)
-3. `world.settle()` → system.settle → system.invariants
-4. Determinism gate on the collected scenario
+2. Play: `openWorld` → `world.play(actions)` → `world.settle()`
+3. Determinism gate on the collected scenario (`assertDeterministic`)
 
-Library actions are sampled at weight 1; domain at weight 3.
+Action sampling uses each action's `weight` (default 1). Spread multiple copies
+into the command pool by repeating entries or raising `weight`.
 
 Env: `PBT_SAMPLE_RUNS`, `PBT_SAMPLE_INTERRUPT_MS`.
 
 ---
 
 ## Kernel contracts (load-bearing)
+
+### `createSimDeps`
+
+Harness-only mint called by `openWorld` (and playground `createSim` when injected):
+
+```ts
+createSimDeps({ seed, startMs?, http?, trace? }): SimDeps
+```
+
+`SimDeps` fields: `seed`, `clock`, `scheduler`, `timers`, `rng`, `random`,
+`createId`, `http`, `trace`.
+
+- **`scheduler.reset(atMs)`** — drop pending tasks and reset virtual clock (used
+  by kit crash/restart flows; not a public World port).
+- **`trace`** — `createDisabledTrace()` by default; `true` → `createRecordingTrace()`.
+
+Node boots receive `ctx.deps`. Do **not** mint a second `createSimDeps` inside boot.
+
+### Seed fork tree
+
+```text
+root(seed) → fork('io') → random
+           → fork('ids') → createId
+           → fork('sched') → same-time picks
+openWorld  → deps.rng.fork('net') → mesh
+```
 
 ### Scheduler
 
@@ -224,20 +293,9 @@ Env: `PBT_SAMPLE_RUNS`, `PBT_SAMPLE_INTERRUPT_MS`.
 - **`inFlightCount()`:** scheduled deliveries. **Held** packets are *not* in-flight
 - Declared `network.edges` enforced on role pairs (undirected)
 
-### Seed fork tree (`createSimDeps` — called by `openWorld` / playground)
+### Trace
 
-```text
-root(seed) → fork('io') → random
-           → fork('ids') → createId
-           → fork('sched') → same-time picks
-openWorld  → deps.rng.fork('net') → mesh
-```
-
-Node boots receive `ctx.deps`. Do **not** mint a second `createSimDeps` inside boot.
-
-### Trace v2
-
-Typed sequence of `sample` / `entropy` / `timer_*` / `net` / `fault` / `lifecycle` /
+Typed sequence of `sample` / `entropy` / `timer_*` / `net` / `lifecycle` /
 `step` / `invariant` records. `createRecordingTrace` / `createReplayingTrace` with
 positioned divergence errors and `assertFullyConsumed()`.
 
@@ -257,20 +315,21 @@ Failure artifacts bundle `scenario + trace + error`.
 
 | Concern | Exports |
 | --- | --- |
-| Authoring | `defineNodeKind`, `defineSystem`, `defineKnob`, `defineAction`, `defineFault` |
-| Std actions | `stdPartition`, `stdHeal`, `stdHealAll`, `stdAdvance`, `stdNetChaos` |
-| World | `openWorld`, `World`, `OpenWorldOpts` |
+| Authoring | `defineSystem`, `node`, `knob`, `action`, `chaos` |
+| World | `openWorld`, `World`, `OpenWorldOpts`, `UntilOpts`, `NeverOpts` |
 | Network types | `SimNetwork`, `SimNetKey`, `RELIABLE_NET_FAULTS`, … |
 | Scenario / JSON | `captureScenario`, `parseScenario`, `JsonValue`, `canonicalJsonStringify` |
-| Trace | `createRecordingTrace`, `createReplayingTrace`, `createSimTrace`, `TraceRecord` |
+| Trace | `createRecordingTrace`, `createReplayingTrace`, `SimTrace`, `TraceRecord` |
 | Entropy | `sample` (forced-choice-safe pick) |
-| Deps | `createSimDeps`, `SimDeps`, `SimClock`, `SimScheduler` (types) |
+| Deps | `createSimDeps`, `SimDeps` |
+| Play constant | `PLAY_STEP_MS` |
 
-**Not public:** `createSimNetwork`, `createNetEffect`, scheduler/clock/timers factories,
-`playActions`, global kind registry, free `until`/`never`, wildcard `./*`.
+**Not public:** `createSimNetwork`, scheduler/clock/timers factories,
+`playActions`, global kind registry, wildcard `./*`.
 
-**`@pkgs/determinism/pbt`:** `assertSample`, `replay`, `assertFaultPins`,
-`assertDeterministic`, `assertSampleProperty`, `arbWorldSeed`, `arbFromKnobDefs`, `fc`.
+**`@pkgs/determinism/pbt`:** `assertSample`, `assertWorldProperty`, `replay`,
+`assertPins`, `assertDeterministic`, `assertSampleProperty`, `arbSeed`, `arbKnobs`,
+`arbAction`, `fc`.
 
 ---
 
@@ -278,20 +337,20 @@ Failure artifacts bundle `scenario + trace + error`.
 
 | SystemDef.id | Where | Notes |
 | --- | --- | --- |
-| `acme-kv` | `src/test/acme-kv/` | Canonical; `stdNetChaos()` + put; settle = heal + rebroadcast |
-| `sync.world` | sync-engine `defineSyncSystem` | Kit facade via `facade:`; `host.facade` in scenarios |
-| `room.world` | room `defineRoomSystem` | Same pattern |
+| `acme-kv` | `src/test/acme-kv/` | Canonical; `chaos.network()` + put; settle = heal + rebroadcast |
+| `sync.acme` | sync-engine `defineSyncSystem` | Kit via `extend`; `openAcmeWorld` types the merged world |
+| `room.world` | room `defineRoomSystem` | Same pattern; kit methods on opened world |
 | `auth.idp` | auth `tests/system` | Framework-native |
 | `db-schema.reconcile` | db-schema `tests/system` | Framework-native |
-| `matchmaking.replicas` | matchmaking `sim/system` | `facade` builds handle; `stdAdvance` |
-| `sim.product` | `@sim/test` | `facade` returns `Sim` |
+| `matchmaking.replicas` | matchmaking `sim/system` | `extend` builds kit; `chaos.advance` |
+| `sim.product` | `@sim/test` | `extend` returns `Sim` |
 
 Convention: factories in `**/sim/system/`; standalone systems in `**/tests/system/`;
 shrinking suites `*.system.pbt.test.ts`; pins `*.sim.test.ts`.
 
 ```ts
-await using host = await openWorld(system, { seed, knobs });
-await host.facade.runFor(50); // kit API on the typed facade
+await using world = await openAcmeWorld({ seed, knobs: { clientCount: 0 } });
+await world.runFor(50); // kit API merged via extend
 ```
 
 ---
@@ -306,9 +365,9 @@ clients --put--> server --replicate--> clients
 
 | Piece | Detail |
 | --- | --- |
-| Nodes | server + client (`count: { fromKnob: 'clientCount' }`, `c0…`) |
+| Nodes | `server` singleton + `client` (`count` from knob, ids `c0…`) |
 | Domain | `{ kind: 'put', clientId, key, value }` via `network.send` |
-| Library | `stdNetChaos()` from declared edges |
+| Chaos | `chaos.network()` from declared edges |
 | Settle | `healAll` → rebroadcast store → `idle` |
 | Invariants | caches == server (checked after settle) |
 
@@ -317,16 +376,17 @@ clients --put--> server --replicate--> clients
 ## Sharp edges (design-review checklist)
 
 1. **Kinds are values** — import the kind object into `nodes`; no ambient registry.
-2. **One action list** — unique `kind` strings; no `match` routing.
+2. **One action record** — unique action keys; no `match` routing.
 3. **Model ≠ live under loss** — settle must heal/catch up; mid-play may diverge.
 4. **Settle is product policy** — acme-kv rebroadcasts; sync reconnects; not CRDT magic.
 5. **Nested drain** — do not re-enter scheduler drain from inside a scheduled task.
 6. **`World.idle`** — only public drain; quiescence-aware.
 7. **Held vs inFlight** — waiting on `inFlightCount()===0` while keys are held can hang.
 8. **Harness-only** — never put `SimDeps` on product env; depcruise enforces no product→determinism.
-9. **One SimDeps per World** — node boots use `ctx.deps`; kit facades are `world.facade`.
+9. **One SimDeps per World** — node boots use `ctx.deps`; kit surface is `extend`.
 10. **Roles, not clients** — topology is roles; never hardcode `'client'` in the framework.
 11. **Trace divergence** — a gate failure means consumer nondeterminism, not a flaky test.
+12. **`extend` collisions** — kit keys must not shadow framework controls.
 
 When proposing changes, say which layer you touch (kernel / catalogs / world /
 PBT), what contracts you preserve or break, and how `acme-kv` + one product
@@ -342,16 +402,15 @@ system would migrate. **No shims / `@deprecated` aliases.**
 | `src/clock.ts` / `scheduler*.ts` / `timers.ts` / `quiescence.ts` | Kernel time |
 | `src/sample.ts` | Forced-choice-safe entropy pick |
 | `src/network*.ts` | Mesh, partition, hold, faults |
-| `src/action.ts` / `knobs.ts` / `faults.ts` | Catalogs |
-| `src/std-actions.ts` | `std.*` chaos helpers |
-| `src/node-kind.ts` | Kind values (no global registry) |
+| `src/action.ts` / `knobs.ts` / `chaos.ts` | Catalogs |
+| `src/node.ts` | Kind values (no global registry) |
 | `src/define-system.ts` | `SystemDef` / `defineSystem` |
 | `src/world.ts` / `world-types.ts` | `openWorld` / `World` |
 | `src/play.ts` | Private play loop (`PLAY_STEP_MS`) |
-| `src/scenario.ts` / `json.ts` / `trace.ts` | Scenario v1, JSON, Trace v2 |
-| `src/until.ts` | Predicate `until` / `never` (used by World) |
-| `src/pbt/assert-sample.ts` | `assertSample` / `replay` / pins |
+| `src/scenario.ts` / `json.ts` / `trace.ts` | Scenario v1, JSON, trace |
+| `src/pbt/assert-sample.ts` | `assertSample` / `assertWorldProperty` / `assertPins` |
 | `src/pbt/assert-deterministic.ts` | Determinism gate |
+| `src/pbt/arbs.ts` | `arbSeed` / `arbKnobs` / `arbAction` |
 | `src/test/acme-kv/` | Canonical multi-node fixture |
 
 ---

@@ -1,26 +1,25 @@
 import { describe, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import { RELIABLE_FAULTS } from '../../sim/faults';
 import { toKernelFaults } from '../../sim/network';
 import { expectLiveNote, setNote } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('dropped live repaired by refetch', () => {
   test('dropped fanout converges via refetch after heal', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 11,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
     {
       using _loss = world.net('bob', 'live').set({ packetLossProbability: 1 });
       await a.mutate(setNote, { id: 'n1', body: 'lost' });
-      await world.runFor(50);
+      await world.advance(50);
     }
     await world.assertConverged();
 
@@ -28,7 +27,7 @@ describe('dropped live repaired by refetch', () => {
   });
 
   test('reorder window still converges', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 12,
       knobs: {
         clientCount: 0,
@@ -40,7 +39,7 @@ describe('dropped live repaired by refetch', () => {
         reorderWindow: 5,
       }),
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await a.mutate(setNote, { id: 'n1', body: 'a' });
@@ -51,7 +50,7 @@ describe('dropped live repaired by refetch', () => {
   });
 
   test('duplicate delivery still converges', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 15,
       knobs: {
         clientCount: 0,
@@ -61,7 +60,7 @@ describe('dropped live repaired by refetch', () => {
         packetReplayProbability: 0.8,
       }),
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await a.mutate(setNote, { id: 'n1', body: 'dup' });

@@ -1,88 +1,80 @@
 import fc from 'fast-check';
+import { chaos } from '../../chaos';
 import { defineSystem } from '../../define-system';
 import type { JsonValue } from '../../json';
-import { defineKnob } from '../../knobs';
+import { knob } from '../../knobs';
 import { RELIABLE_NET_FAULTS } from '../../network';
-import type { InvariantViolation } from '../../play';
-import { stdNetChaos } from '../../std-actions';
-import type { World } from '../../world-types';
 import { type PutModel, putAction } from './actions';
-import { acmeKvClientNode, acmeKvServerNode, rebroadcastStore } from './nodes';
 import {
-  type AcmeKvSystem,
-  createAcmeKvSystem,
-  storeFingerprint,
-  storeSnapshot,
-} from './types';
+  type AcmeKvClientHandle,
+  type AcmeKvServerHandle,
+  acmeKvClientNode,
+  acmeKvServerNode,
+  rebroadcastStore,
+} from './nodes';
+import { storeFingerprint, storeSnapshot } from './types';
 
-function checkConverged(world: World<AcmeKvSystem>): InvariantViolation | null {
-  const serverFp = storeFingerprint(world.state.serverStore);
-  for (const clientId of world.roleIds('client')) {
-    const cache = world.state.clientCaches.get(clientId);
-    if (cache === undefined) {
-      return {
-        invariant: 'acme-kv.missing-cache',
-        detail: `no cache for ${clientId}`,
-      };
-    }
-    const clientFp = storeFingerprint(cache);
+const CLIENT_COUNT = knob(2, fc.integer({ min: 2, max: 3 }));
+
+const netChaos = chaos.network({ fromRole: 'client', toRole: 'server' });
+
+function assertConverged(world: {
+  readonly nodes: {
+    readonly server: AcmeKvServerHandle;
+    readonly client: ReadonlyMap<string, AcmeKvClientHandle>;
+  };
+}): void {
+  const serverFp = storeFingerprint(world.nodes.server.store);
+  for (const [clientId, client] of world.nodes.client) {
+    const clientFp = storeFingerprint(client.cache);
     if (clientFp !== serverFp) {
-      return {
-        invariant: 'acme-kv.diverge',
-        detail: `client ${clientId} ${clientFp} !== server ${serverFp}`,
-      };
+      throw new Error(
+        `acme-kv.diverge: client ${clientId} ${clientFp} !== server ${serverFp}`
+      );
     }
   }
-  return null;
 }
 
-async function settleAcmeKv(world: World<AcmeKvSystem>): Promise<void> {
-  world.healAll();
-  rebroadcastStore(world.state);
-  await world.idle();
-}
-
-/**
- * Test-fixture LWW KV over SimNetwork — not a generic store.
- * SystemDef.id `acme-kv`.
- */
-export const ACME_KV_SYSTEM = defineSystem<AcmeKvSystem, PutModel>({
+/** Test-fixture LWW KV over SimNetwork — not a generic store. */
+export const ACME_KV_SYSTEM = defineSystem({
   id: 'acme-kv',
-  state: createAcmeKvSystem,
   network: {
-    defaults: RELIABLE_NET_FAULTS,
+    faults: RELIABLE_NET_FAULTS,
     edges: [{ fromRole: 'client', toRole: 'server' }],
   },
-  knobs: [
-    defineKnob({
-      id: 'clientCount',
-      default: 2,
-      arb: fc.integer({ min: 2, max: 3 }),
-    }),
-  ],
-  nodes: [
-    { kind: acmeKvServerNode, role: 'server', count: 1 },
-    {
-      kind: acmeKvClientNode,
-      role: 'client',
-      count: { fromKnob: 'clientCount' },
-      idFor: (i) => `c${i}`,
+  knobs: { clientCount: CLIENT_COUNT },
+  nodes: {
+    server: acmeKvServerNode,
+    client: {
+      ...acmeKvClientNode,
+      count: (k) => k['clientCount'] as number,
+      id: (i) => `c${i}`,
     },
-  ],
-  actions: [...stdNetChaos<AcmeKvSystem>(), putAction],
+  },
+  actions: {
+    ...netChaos,
+    put: putAction,
+  },
   model: {
     initial: (): PutModel => ({ map: {} }),
   },
-  settle: settleAcmeKv,
-  invariants: async (world) => checkConverged(world),
+  settle: async (world) => {
+    world.healAll();
+    rebroadcastStore((world.nodes as { server: AcmeKvServerHandle }).server);
+    await world.idle();
+    assertConverged(world as unknown as Parameters<typeof assertConverged>[0]);
+  },
+  invariants: async () => {
+    /* safety checks live in settle convergence */
+  },
 });
 
-export function acmeKvServerFingerprint(state: AcmeKvSystem): string {
-  return storeFingerprint(state.serverStore);
+export function acmeKvServerFingerprint(server: AcmeKvServerHandle): string {
+  return storeFingerprint(server.store);
 }
 
 export function acmeKvServerSnapshot(
-  state: AcmeKvSystem
+  server: AcmeKvServerHandle
 ): Record<string, JsonValue> {
-  return storeSnapshot(state.serverStore);
+  return storeSnapshot(server.store);
 }

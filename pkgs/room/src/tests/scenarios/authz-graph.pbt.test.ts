@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { arbWorldSeed, assertSampleProperty } from '@pkgs/determinism/pbt';
+import { arbSeed, assertSampleProperty } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
 
 import { replayRoom } from '../../sim/system';
@@ -11,7 +11,7 @@ async function expectAuthzState(
   expected: { readonly owner: string; readonly count: number }
 ): Promise<void> {
   try {
-    const snap = await world.facade.serverSnapshot();
+    const snap = await world.serverSnapshot();
     expect(authzOwner(snap)).toBe(expected.owner);
     expect(authzCount(snap)).toBe(expected.count);
   } finally {
@@ -25,7 +25,7 @@ describe('room authz-graph PBT', () => {
     async () => {
       await assertSampleProperty(
         'authz graph converges',
-        fc.asyncProperty(arbWorldSeed(), async (seed) => {
+        fc.asyncProperty(arbSeed(), async (seed) => {
           const world = await replayRoom(authzSystem, {
             seed,
             actions: [

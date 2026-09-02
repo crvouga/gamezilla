@@ -10,6 +10,7 @@ import { bindSimHttpServer } from './http-bridge';
 import { isDbOpen } from './invariants';
 import { openSimServer } from './server';
 import { SERVER_HTTP } from './traffic';
+import { resolveAuthForDevice } from './world-boot-parts';
 import {
   crashClientImpl,
   fireCrashIfArmed,
@@ -170,23 +171,7 @@ export async function restartServerImpl(
     now: () => k.nowFor(SIM_SERVER_NODE_ID),
     createId: k.nextId,
     pubsub: k.serverPub,
-    resolveAuth: (clientId) => {
-      const meta = k.authByDevice.get(clientId);
-      if (meta === undefined) {
-        return {
-          actorId: clientId,
-          deviceId: clientId,
-          accountId: null,
-          isAnon: true,
-        };
-      }
-      return {
-        actorId: meta.actorId,
-        deviceId: meta.deviceId,
-        accountId: `acct:${meta.actorId}`,
-        isAnon: false,
-      };
-    },
+    resolveAuth: (clientId) => resolveAuthForDevice(k.authByDevice, clientId),
     rowImageFanout: k.worldArgs.rowImageFanout !== false,
     localSchema,
     mutationRegistry,

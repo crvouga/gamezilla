@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import type { SyncSystemFacade } from '../../sim/system';
 import {
   expectLiveNote,
@@ -7,7 +6,7 @@ import {
   readLiveNotes,
   setNote,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 async function expectClientsMatchServer(
   world: SyncSystemFacade
@@ -19,18 +18,18 @@ async function expectClientsMatchServer(
 
 describe('offline crash partition lifecycle matrix', () => {
   test('A offline while B writes; A online matches', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 201,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     a.online(false);
     await b.mutate(setNote, { id: 'n1', body: 'from-b' });
-    await world.runFor(100);
+    await world.advance(100);
     a.online(true);
     await world.assertConverged();
     await expectLiveNote(a.db, 'n1', { body: 'from-b' });
@@ -38,18 +37,18 @@ describe('offline crash partition lifecycle matrix', () => {
   });
 
   test('B offline while A writes; B online matches', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 202,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     b.online(false);
     await a.mutate(setNote, { id: 'n1', body: 'from-a' });
-    await world.runFor(100);
+    await world.advance(100);
     b.online(true);
     await world.assertConverged();
     await expectLiveNote(b.db, 'n1', { body: 'from-a' });
@@ -57,13 +56,13 @@ describe('offline crash partition lifecycle matrix', () => {
   });
 
   test('both offline divergent writes then online converge', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 203,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     a.online(false);
@@ -80,13 +79,13 @@ describe('offline crash partition lifecycle matrix', () => {
   });
 
   test('A crash+restart after B wrote rehydrates', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 204,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await b.mutate(setNote, { id: 'n1', body: 'from-b' });
@@ -98,13 +97,13 @@ describe('offline crash partition lifecycle matrix', () => {
   });
 
   test('B crash+restart after A wrote rehydrates', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 205,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     await world.addClient({ id: 'bob' });
     await a.mutate(setNote, { id: 'n1', body: 'from-a' });
@@ -116,13 +115,13 @@ describe('offline crash partition lifecycle matrix', () => {
   });
 
   test('sequential A then B crash/restart after shared state', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 206,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     await world.addClient({ id: 'bob' });
     await a.mutate(setNote, { id: 'n1', body: 'shared' });
@@ -138,13 +137,13 @@ describe('offline crash partition lifecycle matrix', () => {
   });
 
   test('server unreachable: both mutate locally then heal converges', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 207,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await a.mutate(setNote, { id: 'warm', body: 'w' });
@@ -156,7 +155,7 @@ describe('offline crash partition lifecycle matrix', () => {
       using _b = world.net('bob').set('down');
       await a.mutate(setNote, { id: 'n1', body: 'a-local' });
       await b.mutate(setNote, { id: 'n2', body: 'b-local' });
-      await world.runFor(100);
+      await world.advance(100);
     }
     await world.assertConverged();
     await expectLiveNote(a.db, 'n1', { body: 'a-local' });
@@ -165,13 +164,13 @@ describe('offline crash partition lifecycle matrix', () => {
   });
 
   test('staggered: A partitioned, B writes; heal A; B offline writes', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 208,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await a.mutate(setNote, { id: 'warm', body: 'w' });
@@ -180,14 +179,14 @@ describe('offline crash partition lifecycle matrix', () => {
     {
       using _down = world.net('alice').set('down');
       await b.mutate(setNote, { id: 'n1', body: 'from-b' });
-      await world.runFor(80);
+      await world.advance(80);
     }
     await world.assertConverged();
     await expectLiveNote(a.db, 'n1', { body: 'from-b' });
 
     b.online(false);
     await b.mutate(setNote, { id: 'n2', body: 'b-queued' });
-    await world.runFor(40);
+    await world.advance(40);
     b.online(true);
     await world.assertConverged();
     await expectLiveNote(a.db, 'n2', { body: 'b-queued' });
@@ -195,26 +194,26 @@ describe('offline crash partition lifecycle matrix', () => {
   });
 
   test('flip-flop offline and partition around contested note', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 209,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
     a.online(false);
     await a.mutate(setNote, { id: 'flip', body: 'a1' });
     a.online(true);
-    await world.runFor(40);
+    await world.advance(40);
 
     {
       using _down = world.net('bob').set('down');
       await b.mutate(setNote, { id: 'flip', body: 'b1' });
     }
-    await world.runFor(40);
+    await world.advance(40);
 
     b.online(false);
     await a.mutate(setNote, { id: 'flip', body: 'a2' });

@@ -1,5 +1,5 @@
-import { defineKnob, type KnobDef } from '@pkgs/determinism';
-import { arbFromKnobDefs } from '@pkgs/determinism/pbt';
+import { type KnobDef, knob } from '@pkgs/determinism';
+import { arbSeed } from '@pkgs/determinism/pbt';
 import fc from 'fast-check';
 
 export type RoomWorldKnobs = {
@@ -7,19 +7,30 @@ export type RoomWorldKnobs = {
   readonly mildFaults: boolean;
 };
 
-/** {@link RoomWorldKnobs} as framework knob defs (id + default + arbitrary). */
-export const ROOM_SYSTEM_KNOBS: readonly KnobDef[] = [
-  defineKnob({
-    id: 'clientCount',
-    default: 2,
-    arb: fc.integer({ min: 2, max: 3 }),
-  }),
-  defineKnob({ id: 'mildFaults', default: false, arb: fc.boolean() }),
-];
+export const CLIENT_COUNT = knob(2, fc.integer({ min: 2, max: 3 }));
+export const MILD_FAULTS = knob(false, fc.boolean());
 
-/** Knob arbitrary for scripted PBTs that vary topology around a pin. */
+export const ROOM_SYSTEM_KNOBS = {
+  clientCount: CLIENT_COUNT,
+  mildFaults: MILD_FAULTS,
+} as const;
+
+export type RoomKnobDefs = typeof ROOM_SYSTEM_KNOBS;
+
+export { arbSeed };
+
 export function arbRoomKnobs(): fc.Arbitrary<RoomWorldKnobs> {
-  return arbFromKnobDefs(
-    ROOM_SYSTEM_KNOBS.map((knob) => ({ id: knob.id, arb: knob.arb }))
-  ) as unknown as fc.Arbitrary<RoomWorldKnobs>;
+  return fc.record({
+    clientCount: fc.integer({ min: 2, max: 3 }),
+    mildFaults: fc.boolean(),
+  });
+}
+
+export function knobValuesFromCatalog(
+  knobGet: <T extends boolean | number>(def: KnobDef<T>) => T
+): RoomWorldKnobs {
+  return {
+    clientCount: knobGet(CLIENT_COUNT),
+    mildFaults: knobGet(MILD_FAULTS),
+  };
 }

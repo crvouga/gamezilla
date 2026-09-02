@@ -99,7 +99,7 @@ const LIBRARY_HANDLERS: {
     }
   },
   idle: async (world, action, _app) => {
-    await world.runFor(action.ms);
+    await world.advance(action.ms);
   },
   skew: async (world, action, _app) => {
     world.node(action.nodeId).skewClock(action.skewMs);

@@ -2,8 +2,6 @@
  * Public types for the matchmaking deterministic simulator.
  */
 
-import type { SimClock } from '@pkgs/determinism';
-import type { SeededRng } from '@pkgs/uuid';
 import type {
   Matchmaking,
   TickOptions,
@@ -38,10 +36,8 @@ export type ReplicaHandle = {
   readonly tick: (opts?: TickOptions) => Promise<TickResult>;
 };
 
-export type MatchmakingSimWorld = {
-  readonly seed: bigint;
-  readonly rng: SeededRng;
-  readonly clock: SimClock;
+/** Kit methods merged onto the framework world via `extend`. */
+export type MatchmakingSimKit = {
   readonly replicas: ReadonlyMap<string, ReplicaHandle>;
   readonly replica: (id: string) => ReplicaHandle;
   readonly addReplica: (id: string) => Promise<ReplicaHandle>;
@@ -56,9 +52,12 @@ export type MatchmakingSimWorld = {
     replicaId?: string
   ) => Promise<TickResult>;
   readonly tickAll: (opts?: TickOptions) => Promise<readonly TickResult[]>;
-  readonly runFor: (ms: number) => Promise<void>;
-  readonly until: (target: UntilTarget, opts?: UntilOpts) => Promise<number>;
-  readonly never: (target: UntilTarget, opts: NeverOpts) => Promise<void>;
-  readonly dispose: () => Promise<void>;
-  readonly [Symbol.asyncDispose]: () => Promise<void>;
+  readonly waitUntil: (
+    target: UntilTarget,
+    opts?: UntilOpts
+  ) => Promise<number>;
+  readonly waitNever: (target: UntilTarget, opts: NeverOpts) => Promise<void>;
 };
+
+/** Opened matchmaking world: framework controls + {@link MatchmakingSimKit}. */
+export type MatchmakingSimWorld = MatchmakingSimKit;

@@ -1,23 +1,22 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import {
   expectLiveNote,
   expectNotesMatchServer,
   readLiveNotes,
   setNote,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('crash mid merge restart rehydrates', () => {
   test('crash after sync delivery; restart never torn across tables', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 830,
       knobs: {
         clientCount: 0,
         rowImageFanout: false,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     await world.addClient({ id: 'bob' });
 
@@ -30,7 +29,7 @@ describe('crash mid merge restart rehydrates', () => {
     });
     await a.mutate(setNote, { id: 'n1', body: 'updated' });
     await a.mutate(setNote, { id: 'n3', body: 'three' });
-    await world.runFor(800);
+    await world.advance(800);
 
     expect(world.clients.has('bob')).toBe(false);
     const bob = await world.node('bob').restart({ preserveLocalDb: true });

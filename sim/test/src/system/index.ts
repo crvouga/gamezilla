@@ -8,13 +8,13 @@ export {
   type DefineProductSystemOpts,
   defineProductSystem,
   PRODUCT_SYSTEM,
+  type ProductSimExtension,
   type ProductSystemDef,
   type ProductSystemWorld,
 } from './define-product-system';
-export { productSimNode } from './node-kinds';
 export {
-  createProductSystem,
-  type ProductSystem,
-  type ProductSystemOpts,
-  productSim,
-} from './system';
+  createProductSimNode,
+  type ProductSimHandle,
+  productSimNode,
+} from './node-kinds';
+export { type ProductSystemOpts } from './system';

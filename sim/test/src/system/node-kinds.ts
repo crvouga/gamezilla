@@ -1,9 +1,11 @@
-import { defineNodeKind } from '@pkgs/determinism';
-import { createSim, type Sim } from '@sim/console/sim/create-sim';
+import { node } from '@pkgs/determinism';
+import {
+  type CreateSimOptions,
+  createSim,
+  type Sim,
+} from '@sim/console/sim/create-sim';
 
-import type { ProductSystem } from './system';
-
-type ProductSimHandle = {
+export type ProductSimHandle = {
   readonly sim: Sim;
 };
 
@@ -11,24 +13,21 @@ type ProductSimHandle = {
  * Boots {@link createSim} with framework-injected deps, then spawns the Hono
  * server. Actors / RNTL clients stay lazy via openSim.
  */
-export const productSimNode = defineNodeKind<
-  ProductSimHandle,
-  ProductSimHandle,
-  ProductSystem
->({
-  id: 'product.sim',
-  boot: async (ctx) => {
-    const { createOpts } = ctx.state;
-    const sim = await createSim({
-      ...createOpts,
-      deps: ctx.deps,
-    });
-    await sim.spawnServer();
-    ctx.state.sim = sim;
-    return { sim };
-  },
-  dispose: async (handle) => {
-    await handle.sim.dispose();
-  },
-  view: (h) => h,
-});
+export function createProductSimNode(createOpts: CreateSimOptions) {
+  return node({
+    boot: async (ctx) => {
+      const sim = await createSim({
+        ...createOpts,
+        deps: ctx.deps,
+      });
+      await sim.spawnServer();
+      return { sim };
+    },
+    dispose: async (handle) => {
+      await handle.sim.dispose();
+    },
+  });
+}
+
+/** Default node kind (no SQL seed overrides). */
+export const productSimNode = createProductSimNode({});

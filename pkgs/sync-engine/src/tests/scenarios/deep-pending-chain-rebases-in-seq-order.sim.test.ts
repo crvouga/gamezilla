@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import {
   expectLiveNote,
   expectNotesMatchServer,
@@ -8,19 +7,19 @@ import {
   setFolder,
   setNote,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 const CHAIN = 60;
 
 describe('deep pending chain rebases in seq order', () => {
   test('50+ pending folders+notes rebase in seq order to server truth', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 822,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
@@ -37,7 +36,7 @@ describe('deep pending chain rebases in seq order', () => {
         });
       }
     }
-    await world.runFor(50);
+    await world.advance(50);
 
     await a.connect();
     await world.assertConverged();

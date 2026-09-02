@@ -18,8 +18,7 @@ describe('matchmaking sim: priority', () => {
   });
 
   test('high-priority joiner is matched before same-bucket FIFO peer', async () => {
-    await using host = await openMatchmakingWorld({ seed: 80 });
-    const world = host.facade;
+    await using world = await openMatchmakingWorld({ seed: 80 });
     const a = await world.join({
       data: RatingAttr(1000),
       formulas: [
@@ -33,13 +32,13 @@ describe('matchmaking sim: priority', () => {
         },
       ],
     });
-    world.clock.advance(1);
+    await world.advance(1);
     const b = await world.join({
       data: RatingAttr(1005),
       formulas: [SimpleFormula],
       priority: 100,
     });
-    world.clock.advance(1);
+    await world.advance(1);
     const c = await world.join({
       data: RatingAttr(1010),
       formulas: [SimpleFormula],

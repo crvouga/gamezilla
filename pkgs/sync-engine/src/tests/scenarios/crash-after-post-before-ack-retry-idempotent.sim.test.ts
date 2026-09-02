@@ -1,22 +1,21 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import {
   expectLiveNote,
   expectNotesMatchServer,
   readLiveNotes,
   setNote,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('crash after post before ack retry idempotent', () => {
   test('crash after mutations POST accepted; restart re-drains idempotently', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 832,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
@@ -31,7 +30,7 @@ describe('crash after post before ack retry idempotent', () => {
       body: 'post-accepted',
     });
     expect(queued.ok).toBe(true);
-    await world.runFor(500);
+    await world.advance(500);
 
     expect(world.clients.has('alice')).toBe(false);
     // Server applied before crash; client may re-upload on restart.

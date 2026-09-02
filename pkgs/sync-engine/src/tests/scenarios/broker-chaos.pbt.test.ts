@@ -2,7 +2,7 @@ import { describe, test } from 'bun:test';
 import { assertSampleProperty } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
 import { PUBSUB_FAULTS, replaySyncPin } from '../../sim/system';
-import { arbWorldKnobs, arbWorldSeed } from '../../sim/system/knobs';
+import { arbKnobs, arbSeed } from '../../sim/system/knobs';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
 import { acmeSystem } from '../apps/acme/system';
 import type { LibraryAction, SyncAction } from '../system/actions';
@@ -48,8 +48,8 @@ describe('broker chaos PBT', () => {
       await assertSampleProperty(
         'pubsub fault sequences converge',
         fc.asyncProperty(
-          arbWorldSeed(),
-          arbWorldKnobs(),
+          arbSeed(),
+          arbKnobs(),
           fc.constantFrom(...PUBSUB_FAULTS),
           async (seed, knobs, fault) => {
             await replaySyncPin(acmeSystem, {
@@ -71,8 +71,8 @@ describe('broker chaos PBT', () => {
       await assertSampleProperty(
         'broker restart sequences converge',
         fc.asyncProperty(
-          arbWorldSeed(),
-          arbWorldKnobs(),
+          arbSeed(),
+          arbKnobs(),
           fc.constantFrom(
             { kind: 'brokerCrash' } as const,
             { kind: 'brokerRestart' } as const

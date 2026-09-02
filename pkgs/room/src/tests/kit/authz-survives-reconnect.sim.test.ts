@@ -10,7 +10,7 @@ describe('kit: authz survives reconnect (M-F05)', () => {
       seed: process.env['SIM_SEED'] ?? '42',
       knobs: { clientCount: 0 },
     });
-    const world = host.facade;
+    const world = host;
     const alice = await world.addClient({ id: 'alice' });
     const bob = await world.addClient({ id: 'bob' });
     await world.assertConverged();

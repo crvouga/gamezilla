@@ -1,17 +1,16 @@
 import { describe, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import { expectLiveNote, expectNotesMatchServer, setNote } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('same actor two devices converge', () => {
   test('two devices same actor converge concurrent writes', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 509,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const phone = await world.addClient({
       id: 'phone',
       actorId: 'user-1',

@@ -1,8 +1,7 @@
 import { describe, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import type { SyncSystemFacade } from '../../sim/system';
 import { expectLiveNote, expectNotesMatchServer, setNote } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 async function expectClientsMatchServer(
   world: SyncSystemFacade
@@ -14,14 +13,14 @@ async function expectClientsMatchServer(
 
 describe('sync hold reorder dup still converges', () => {
   test('held sync still converges after release', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 503,
       knobs: {
         clientCount: 0,
         rowImageFanout: false,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await a.mutate(setNote, { id: 'warm', body: 'w' });
@@ -30,7 +29,7 @@ describe('sync hold reorder dup still converges', () => {
     {
       using _hold = world.net('bob', 'sync').set('hold');
       await a.mutate(setNote, { id: 'n1', body: 'held-sync' });
-      await world.runFor(80);
+      await world.advance(80);
     }
     await world.assertConverged();
     await expectLiveNote(b.db, 'n1', { body: 'held-sync' });
@@ -38,13 +37,13 @@ describe('sync hold reorder dup still converges', () => {
   });
 
   test('reordered sync still converges', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 504,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     using _faults = world.net('bob', 'sync').set({
@@ -61,13 +60,13 @@ describe('sync hold reorder dup still converges', () => {
   });
 
   test('duplicate sync still converges', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 505,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     using _faults = world

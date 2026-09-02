@@ -1,20 +1,19 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import { expectLiveNote, setNoteUniqueSlug } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('constraint error maps to business code', () => {
   test.each([870, 871, 872])(
     'unique conflict surfaces SLUG_TAKEN (seed=%i)',
     async (seed) => {
-      await using host = await openWorld(acmeSystem, {
+      await using world = await openAcmeWorld({
         seed: seed,
         knobs: {
           clientCount: 0,
           rowImageFanout: false,
         },
       });
-      const world = host.facade;
+
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
 
@@ -25,7 +24,7 @@ describe('constraint error maps to business code', () => {
         slug: 'taken',
         body: 'owner',
       });
-      await world.runFor(500);
+      await world.advance(500);
       await expectLiveNote(world.server.db, 'n1', {
         body: 'owner',
         title: 'taken',
@@ -40,7 +39,9 @@ describe('constraint error maps to business code', () => {
       if (!rejected.ok) return;
 
       await b.connect();
-      await world.until(b.outcome(rejected.mutationId), { budgetMs: 5_000 });
+      await world.waitUntil(b.outcome(rejected.mutationId), {
+        withinMs: 5_000,
+      });
       expect(await b.outcome(rejected.mutationId)).toBe('rejected');
       const unacked = await b.rejections();
       expect(unacked.some((r) => r.code === 'SLUG_TAKEN')).toBe(true);

@@ -1,18 +1,17 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import { expectLiveNote, isLiveNote, setNote } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('background pauses sweeps foreground catches up', () => {
   test('background pauses query sweeps until foreground', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 507,
       knobs: {
         clientCount: 0,
         rowImageFanout: false,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     await a.mutate(setNote, { id: 'warm', body: 'w' });
@@ -20,22 +19,22 @@ describe('background pauses sweeps foreground catches up', () => {
 
     b.foreground(false);
     await a.mutate(setNote, { id: 'n1', body: 'while-bg' });
-    await world.never(() => isLiveNote(b.db, 'n1'), { forMs: 300 });
+    await world.waitNever(() => isLiveNote(b.db, 'n1'), { forMs: 300 });
 
     b.foreground(true);
-    await world.until(async () => isLiveNote(b.db, 'n1'));
+    await world.waitUntil(async () => isLiveNote(b.db, 'n1'));
     await world.assertConverged();
     await expectLiveNote(b.db, 'n1', { body: 'while-bg' });
   });
 
   test('background does not block local mutate visibility', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 508,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     a.foreground(false);
     const ok = await a.mutate(setNote, { id: 'local', body: 'bg-write' });
@@ -43,6 +42,6 @@ describe('background pauses sweeps foreground catches up', () => {
     await expectLiveNote(a.db, 'local', { body: 'bg-write' });
     // Drain upload while pumping sim time (dispose awaits upload stop).
     a.foreground(true);
-    await world.runFor(200);
+    await world.advance(200);
   });
 });

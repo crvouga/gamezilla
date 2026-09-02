@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import { unsafe } from '@pkgs/sql';
 import {
   expectLiveNote,
@@ -7,19 +6,19 @@ import {
   expectNotesMatchServer,
   setNote,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('corrupt queued args permanent reject', () => {
   test.each([2140, 2141, 2142])(
     'non-json queued args reject permanently; healthy mutate drains (seed=%i)',
     async (seed) => {
-      await using host = await openWorld(acmeSystem, {
+      await using world = await openAcmeWorld({
         seed: seed,
         knobs: {
           clientCount: 0,
         },
       });
-      const world = host.facade;
+
       const alice = await world.addClient({ id: 'alice' });
       const bob = await world.addClient({ id: 'bob' });
 
@@ -42,7 +41,9 @@ describe('corrupt queued args permanent reject', () => {
       );
 
       await alice.connect();
-      await world.until(alice.outcome(pending.mutationId), { budgetMs: 5_000 });
+      await world.waitUntil(alice.outcome(pending.mutationId), {
+        withinMs: 5_000,
+      });
       expect(await alice.outcome(pending.mutationId)).toBe('rejected');
 
       const unacked = await alice.rejections();
@@ -64,13 +65,13 @@ describe('corrupt queued args permanent reject', () => {
   );
 
   test('brand-new note with corrupt queued args tombstones after reject', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 2143,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const alice = await world.addClient({ id: 'alice' });
     const bob = await world.addClient({ id: 'bob' });
 
@@ -89,7 +90,9 @@ describe('corrupt queued args permanent reject', () => {
     );
 
     await alice.connect();
-    await world.until(alice.outcome(pending.mutationId), { budgetMs: 5_000 });
+    await world.waitUntil(alice.outcome(pending.mutationId), {
+      withinMs: 5_000,
+    });
     expect(await alice.outcome(pending.mutationId)).toBe('rejected');
 
     await bob.mutate(setNote, { id: 'ok', body: 'healthy' });

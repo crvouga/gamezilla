@@ -2,7 +2,7 @@ import { describe, test } from 'bun:test';
 import { assertSampleProperty } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
 import { replaySyncPin, SCHEMA_VARIANTS } from '../../sim/system';
-import { arbWorldKnobs, arbWorldSeed } from '../../sim/system/knobs';
+import { arbKnobs, arbSeed } from '../../sim/system/knobs';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
 import { acmeSystem } from '../apps/acme/system';
 import type { LibraryAction, SyncAction } from '../system/actions';
@@ -21,8 +21,8 @@ describe('schema drift PBT', () => {
       await assertSampleProperty(
         'schema drift sequences converge',
         fc.asyncProperty(
-          arbWorldSeed(),
-          arbWorldKnobs(),
+          arbSeed(),
+          arbKnobs(),
           fc.constantFrom(...SCHEMA_VARIANTS),
           async (seed, knobs, variant) => {
             await replaySyncPin(acmeSystem, {
@@ -48,8 +48,8 @@ describe('schema drift PBT', () => {
       await assertSampleProperty(
         'mixed schema drift sequences converge',
         fc.asyncProperty(
-          arbWorldSeed(),
-          arbWorldKnobs(),
+          arbSeed(),
+          arbKnobs(),
           fc.constantFrom('extraColumn', 'extraTable') as fc.Arbitrary<
             'extraColumn' | 'extraTable'
           >,
@@ -119,23 +119,19 @@ describe('schema drift PBT', () => {
     async () => {
       await assertSampleProperty(
         'protocol cut sequences converge',
-        fc.asyncProperty(
-          arbWorldSeed(),
-          arbWorldKnobs(),
-          async (seed, knobs) => {
-            await replaySyncPin(acmeSystem, {
-              seed,
-              knobs,
-              actions: [
-                TRIGGER,
-                { kind: 'protocolCut', clientId: 'c0' },
-                { kind: 'idle', ms: 20 },
-                { kind: 'auth', clientId: 'c0', status: 'valid' },
-                { kind: 'heal' },
-              ],
-            });
-          }
-        ),
+        fc.asyncProperty(arbSeed(), arbKnobs(), async (seed, knobs) => {
+          await replaySyncPin(acmeSystem, {
+            seed,
+            knobs,
+            actions: [
+              TRIGGER,
+              { kind: 'protocolCut', clientId: 'c0' },
+              { kind: 'idle', ms: 20 },
+              { kind: 'auth', clientId: 'c0', status: 'valid' },
+              { kind: 'heal' },
+            ],
+          });
+        }),
         { numRuns: 6 }
       );
     },

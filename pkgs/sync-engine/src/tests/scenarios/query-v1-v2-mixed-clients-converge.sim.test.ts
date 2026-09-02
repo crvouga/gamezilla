@@ -1,24 +1,23 @@
 import { describe, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import {
   expectLiveNote,
   expectNotesMatchServer,
   setNote,
   setNoteV2,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('query v1 v2 mixed clients converge', () => {
   test.each([760, 761, 762])(
     'notesWorld + notesWorldV2 clients match (seed=%i)',
     async (seed) => {
-      await using host = await openWorld(acmeSystem, {
+      await using world = await openAcmeWorld({
         seed: seed,
         knobs: {
           clientCount: 0,
         },
       });
-      const world = host.facade;
+
       const a = await world.addClient({
         id: 'alice',
         sessionQuery: { name: 'notesWorld', params: {} },

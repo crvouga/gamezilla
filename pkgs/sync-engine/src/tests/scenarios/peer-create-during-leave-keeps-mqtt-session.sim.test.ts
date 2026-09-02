@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import {
   createSpace,
   expectLiveNote,
@@ -9,17 +8,17 @@ import {
   SPACE_MEMBERSHIP_SESSION,
   setSpaceNote,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('peer create during leave keeps mqtt session', () => {
   test('peer create during leave does not remake MQTT; rejoin hydrates', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 802,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({
       id: 'alice',
       sessionQuery: SPACE_MEMBERSHIP_SESSION,
@@ -30,9 +29,18 @@ describe('peer create during leave keeps mqtt session', () => {
     });
 
     await a.mutate(createSpace, { id: 'room-1', title: 'R' });
-    await b.mutate(joinSpace, { spaceId: 'room-1' });
     await world.assertConverged();
-    await world.until(() => a.subscribedTopics().includes(roomTopic('room-1')));
+    await world.waitUntil(() =>
+      a.subscribedTopics().includes(roomTopic('room-1'))
+    );
+    await b.mutate(joinSpace, { spaceId: 'room-1' });
+    await world.waitUntil(() =>
+      b.subscribedTopics().includes(roomTopic('room-1'))
+    );
+    await world.assertConverged();
+    await world.waitUntil(() =>
+      a.subscribedTopics().includes(roomTopic('room-1'))
+    );
     const remakes = a.pubsubRemakeCount();
 
     await a.mutate(leaveSpace, { spaceId: 'room-1' });
@@ -41,7 +49,7 @@ describe('peer create during leave keeps mqtt session', () => {
       spaceId: 'room-1',
       body: 'created-while-leave',
     });
-    await world.runFor(300);
+    await world.advance(300);
 
     expect(a.pubsubRemakeCount()).toBe(remakes);
     await expectLiveNote(b.db, 'n-during-leave', {

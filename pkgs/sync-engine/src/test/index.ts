@@ -14,6 +14,7 @@ export {
   ensureFrameworkSchema,
   SCHEMA_EPOCH,
 } from '../queries/client/local-schema';
+export type { SimClock } from '../sim/world-types';
 export {
   createInMemorySyncEngine,
   type InMemorySyncEngineOptions,
@@ -23,7 +24,6 @@ export {
   type NeverOpts,
   type SeededRng,
   type SimClientHandle,
-  type SimClock,
   type SimDomainPack,
   type SimSessionQuery,
   type SyncAction,

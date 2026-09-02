@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import { sql } from '@pkgs/sql';
 import {
   acmeLocalSchemaExtraColumn,
@@ -11,19 +10,19 @@ import {
   setNote,
   setNoteColor,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('server schema upgrade mid session', () => {
   test.each([2120, 2121, 2122])(
     'server adds color mid-life; old clients ignore; new client stores (seed=%i)',
     async (seed) => {
-      await using host = await openWorld(acmeSystem, {
+      await using world = await openAcmeWorld({
         seed: seed,
         knobs: {
           clientCount: 0,
         },
       });
-      const world = host.facade;
+
       const alice = await world.addClient({ id: 'alice' });
       const bob = await world.addClient({ id: 'bob' });
 

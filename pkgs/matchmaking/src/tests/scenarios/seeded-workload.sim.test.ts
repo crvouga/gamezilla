@@ -9,16 +9,15 @@ import {
 const SimpleFormula = { numeric: [{ tag: RatingAttr, weight: 1 }] };
 
 async function runWorkload(seed: string): Promise<string> {
-  await using host = await openMatchmakingWorld({
+  await using world = await openMatchmakingWorld({
     seed,
     replicas: 3,
   });
-  const world = host.facade;
   const replicaIds = [...world.replicas.keys()];
   const participants = [];
-  const rng = world.rng.fork('workload');
+  const rng = world.deps.rng.fork('workload');
   for (let i = 0; i < 10; i += 1) {
-    world.clock.advance(1);
+    await world.advance(1);
     const rid = replicaIds[i % replicaIds.length]!;
     participants.push(
       await world.join(

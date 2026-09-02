@@ -25,7 +25,7 @@ describe('room sim: authorize reject (E-D03)', () => {
       seed: process.env['SIM_SEED'] ?? '42',
       knobs: { clientCount: 0 },
     });
-    const world = host.facade;
+    const world = host;
     const alice = await world.addClient({ id: 'alice' });
     const eve = await world.addClient({ id: 'eve' });
     await world.assertConverged();

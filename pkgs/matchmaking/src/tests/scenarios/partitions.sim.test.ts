@@ -19,11 +19,10 @@ describe('matchmaking sim: partitions', () => {
   });
 
   test('declared partitionKeys isolate participants across shards', async () => {
-    await using host = await openMatchmakingWorld({
+    await using world = await openMatchmakingWorld({
       seed: 40,
       schema: { partitionKeys: [KindAttr.key] },
     });
-    const world = host.facade;
     const formulas = [SimpleFormula];
     const a1 = await world.join({
       data: { ...RatingAttr(1000), ...KindAttr('alpha') },

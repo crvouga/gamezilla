@@ -18,8 +18,7 @@ describe('matchmaking sim: groupSize', () => {
   });
 
   test('groupSize: 3 forms one match', async () => {
-    await using host = await openMatchmakingWorld({ seed: 60 });
-    const world = host.facade;
+    await using world = await openMatchmakingWorld({ seed: 60 });
     const a = await world.join({
       data: RatingAttr(1000),
       formulas: [SimpleFormula],
@@ -45,8 +44,7 @@ describe('matchmaking sim: groupSize', () => {
   });
 
   test('mixed groupSize never cross-matches', async () => {
-    await using host = await openMatchmakingWorld({ seed: 61 });
-    const world = host.facade;
+    await using world = await openMatchmakingWorld({ seed: 61 });
     await world.join({
       data: RatingAttr(1000),
       formulas: [SimpleFormula],

@@ -97,6 +97,8 @@ export function captureScenario(s: SimScenario): string {
   return canonicalJsonStringify(body);
 }
 
+export const stringifyScenario = captureScenario;
+
 export function parseScenario(json: string): SimScenario {
   let raw: unknown;
   try {

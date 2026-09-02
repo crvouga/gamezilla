@@ -1,20 +1,25 @@
-import { defineNodeKind } from '@pkgs/determinism';
+import { node } from '@pkgs/determinism';
 import { fingerprintSql } from '../../core/fingerprint';
+import type { ReconcileReport, WorkloadManifest } from '../../core/types';
 import { createSimClock, SimDb } from '../../sim';
-import type { IndexesSystem } from './types';
 
 const SEED_SQL = 'SELECT id FROM notes WHERE user_id = ?';
+
+export type IndexesReconcilerHandle = {
+  db: SimDb;
+  clock: ReturnType<typeof createSimClock>;
+  manifest: WorkloadManifest;
+  lastReport: ReconcileReport | null;
+  lastCrash: boolean;
+  readonly tables: readonly string[];
+  readonly maxPerTable: number;
+};
 
 /**
  * Single reconciler peer holding SimDb + sim clock.
  */
-export const indexesReconcilerNode = defineNodeKind<
-  IndexesSystem,
-  IndexesSystem,
-  IndexesSystem
->({
-  id: 'indexes.reconciler',
-  boot: async (ctx) => {
+export const indexesReconcilerNode = node({
+  boot: async () => {
     const clock = createSimClock(0);
     const db = new SimDb({
       clock,
@@ -24,28 +29,31 @@ export const indexesReconcilerNode = defineNodeKind<
       ],
       defaultImprovement: 10,
     });
-    ctx.state.clock = clock;
-    ctx.state.db = db;
-    ctx.state.tables = ['notes', 'users'];
-    ctx.state.maxPerTable = 6;
-    ctx.state.manifest = {
-      version: 1,
-      queries: [
-        {
-          name: 'notesByUser',
-          hydrates: ['notes'],
-          statements: [
-            {
-              index: 0,
-              sql: SEED_SQL,
-              fingerprint: fingerprintSql(SEED_SQL),
-              weight: 1,
-            },
-          ],
-        },
-      ],
-    };
-    return ctx.state;
+    return {
+      db,
+      clock,
+      manifest: {
+        version: 1,
+        queries: [
+          {
+            name: 'notesByUser',
+            hydrates: ['notes'],
+            statements: [
+              {
+                index: 0,
+                sql: SEED_SQL,
+                fingerprint: fingerprintSql(SEED_SQL),
+                weight: 1,
+              },
+            ],
+          },
+        ],
+      },
+      lastReport: null,
+      lastCrash: false,
+      tables: ['notes', 'users'],
+      maxPerTable: 6,
+    } satisfies IndexesReconcilerHandle;
   },
   dispose: async () => {
     // in-memory

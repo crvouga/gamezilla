@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import {
   expectLiveNote,
   expectNoteNotLive,
@@ -7,17 +6,17 @@ import {
   readLiveNotes,
   setNote,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('logout login same device no bleed', () => {
   test('actor B on same device id never sees A unuploaded optimistic', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 960,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const phoneA = await world.addClient({
       id: 'phone',
       actorId: 'user-a',
@@ -32,7 +31,7 @@ describe('logout login same device no bleed', () => {
       id: 'a-pending',
       body: 'never-upload-as-b',
     });
-    await world.never(() => isLiveNote(world.server.db, 'a-pending'), {
+    await world.waitNever(() => isLiveNote(world.server.db, 'a-pending'), {
       forMs: 50,
     });
 
@@ -62,13 +61,13 @@ describe('logout login same device no bleed', () => {
   test.each([961, 962, 963])(
     'seed sweep logout/login same device id (seed=%i)',
     async (seed) => {
-      await using host = await openWorld(acmeSystem, {
+      await using world = await openAcmeWorld({
         seed: seed,
         knobs: {
           clientCount: 0,
         },
       });
-      const world = host.facade;
+
       const phone = await world.addClient({
         id: 'phone',
         actorId: 'alice',

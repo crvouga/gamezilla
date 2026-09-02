@@ -9,7 +9,7 @@ describe('room sim: lossy profile converge (E-A04)', () => {
       seed: process.env['SIM_SEED'] ?? '42',
       knobs: { clientCount: 0, mildFaults: true },
     });
-    const world = host.facade;
+    const world = host;
     const clients = [
       await world.addClient({ id: 'alice' }),
       await world.addClient({ id: 'bob' }),

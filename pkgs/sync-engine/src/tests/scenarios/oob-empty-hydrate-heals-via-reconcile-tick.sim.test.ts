@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import {
   expectLiveNote,
   insertCatalogNote,
@@ -8,20 +7,20 @@ import {
   setNote,
   writeNoteBody,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('oob empty hydrate heals via reconcile tick', () => {
   // Chess-puzzle shaped: empty first sync, then silent catalog INSERT.
   // Missed notifyChannels must still heal via the reconcile tick (no nudge).
 
   test('silent catalog insert after empty hydrate heals without nudge', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 1501,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const client = await world.addClient({ id: 'alice' });
 
     expect(await isLiveNote(client.db, 'n-seed')).toBe(false);
@@ -33,19 +32,19 @@ describe('oob empty hydrate heals via reconcile tick', () => {
     });
     await expectLiveNote(world.server.db, 'n-seed', { body: 'seeded' });
 
-    await world.until(async () => isLiveNote(client.db, 'n-seed'));
+    await world.waitUntil(async () => isLiveNote(client.db, 'n-seed'));
     await expectLiveNote(client.db, 'n-seed', { body: 'seeded' });
     await world.assertConverged();
   });
 
   test('silent catalog update heals without nudge', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 1502,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
@@ -59,7 +58,7 @@ describe('oob empty hydrate heals via reconcile tick', () => {
     });
     await expectLiveNote(world.server.db, 'n1', { body: 'v2-silent' });
 
-    await world.until(async () =>
+    await world.waitUntil(async () =>
       (await readLiveNotes(b.db)).some(
         (n) => n.id === 'n1' && n.body === 'v2-silent'
       )

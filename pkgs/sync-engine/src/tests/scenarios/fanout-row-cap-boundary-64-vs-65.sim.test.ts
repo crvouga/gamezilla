@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import { MAX_FANOUT_ROWS } from '@pkgs/sync-engine/shared';
 import {
   expectLiveNote,
@@ -8,7 +7,7 @@ import {
   retouchNotes,
   setNote,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 function noteIds(count: number): string[] {
   return Array.from(
@@ -19,13 +18,13 @@ function noteIds(count: number): string[] {
 
 describe('fanout row cap boundary 64 vs 65', () => {
   test('exactly MAX_FANOUT_ROWS applies via images while sync held', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 808,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     const ids = noteIds(MAX_FANOUT_ROWS);
@@ -38,7 +37,7 @@ describe('fanout row cap boundary 64 vs 65', () => {
     {
       using _hold = world.net('bob', 'sync').set('hold');
       await a.mutate(retouchNotes, { ids, body: 'at-cap' });
-      await world.runFor(500);
+      await world.advance(500);
 
       for (const id of ids) {
         await expectLiveNote(b.db, id, { body: 'at-cap' });
@@ -50,13 +49,13 @@ describe('fanout row cap boundary 64 vs 65', () => {
   });
 
   test('MAX_FANOUT_ROWS+1 falls back to pushSeq-only; peers still converge', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 809,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
     const ids = noteIds(MAX_FANOUT_ROWS + 1);
@@ -69,7 +68,7 @@ describe('fanout row cap boundary 64 vs 65', () => {
     {
       using _hold = world.net('bob', 'sync').set('hold');
       await a.mutate(retouchNotes, { ids, body: 'over-cap' });
-      await world.runFor(200);
+      await world.advance(200);
       // Over-cap omits images; peer waits for sync refetch.
     }
     await world.assertConverged();

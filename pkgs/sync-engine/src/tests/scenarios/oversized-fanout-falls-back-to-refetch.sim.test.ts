@@ -1,7 +1,6 @@
 import { describe, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import { expectLiveNote, setNote } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 /** Over MAX_FANOUT_BYTES (32KiB) so fanoutRowsWithinCap drops row images. */
 const HUGE_BODY = 'x'.repeat(33 * 1024);
@@ -9,13 +8,13 @@ const HUGE_BODY = 'x'.repeat(33 * 1024);
 describe('oversized fanout falls back to refetch', () => {
   test('oversized row images fall back to pushSeq-only; peers still converge', async () => {
     // rowImageFanout true (default): cap drops images; wake+refetch still converges.
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 670,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 

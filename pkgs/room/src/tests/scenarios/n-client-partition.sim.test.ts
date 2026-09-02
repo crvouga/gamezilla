@@ -9,7 +9,7 @@ describe('room sim: n-client partition (E-A07)', () => {
       seed: process.env['SIM_SEED'] ?? '42',
       knobs: { clientCount: 0 },
     });
-    const world = host.facade;
+    const world = host;
     const ids = ['a', 'b', 'c', 'd'] as const;
     const clients = [];
     for (const id of ids) {

@@ -1,20 +1,24 @@
 import { describe, expect, test } from 'bun:test';
 import { openWorld } from '@pkgs/determinism';
-import { assertFaultPins, assertSample } from '@pkgs/determinism/pbt';
+import { assertPins, assertSample } from '@pkgs/determinism/pbt';
 import { ownerTabId } from './ownership';
 import { SQL_CLIENT_WEB_SYSTEM } from './system';
 import { readToyRows } from './toy-kv';
+import { boardOf } from './types';
 
 const OPFS = { tabCount: 2, backend: 'web-sim-opfs' } as const;
+const SYSTEM = SQL_CLIENT_WEB_SYSTEM as unknown as Parameters<
+  typeof assertSample
+>[0];
 
 describe('sql-client web multi-tab system PBT', () => {
   test('assertSample explores tabs, pool exhaustion, corruption, epochs', async () => {
-    await assertSample(SQL_CLIENT_WEB_SYSTEM, { maxCommands: 10, numRuns: 4 });
+    await assertSample(SYSTEM, { maxCommands: 10, numRuns: 4 });
   }, 180_000);
 
   test('named fault pins recover to a usable cache', async () => {
-    await assertFaultPins(
-      SQL_CLIENT_WEB_SYSTEM,
+    await assertPins(
+      SYSTEM,
       [
         {
           name: 'fill-pool-then-connect',
@@ -69,15 +73,14 @@ describe('sql-client web multi-tab system PBT', () => {
       seed: 7,
       knobs: OPFS,
     });
-    expect(world.node('store').kind).toBe('sql-client.web.store');
-    expect(world.roleIds('tab')).toEqual(['t0', 't1']);
-    expect(ownerTabId(world.state)).toBeNull();
+    expect(world.ids('tab')).toEqual(['t0', 't1']);
+    expect(ownerTabId(boardOf(world))).toBeNull();
 
     await world.settle();
 
-    const elected = ownerTabId(world.state);
+    const elected = ownerTabId(boardOf(world));
     expect(elected).toBe('t0');
-    const owner = world.state.tabs.get('t0');
+    const owner = boardOf(world).tabs.get('t0');
     if (owner === undefined) throw new Error('missing tab t0');
     expect(await readToyRows(owner.runtime.getClient())).toEqual(new Map());
   });

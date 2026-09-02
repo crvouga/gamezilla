@@ -1,101 +1,116 @@
+import { type ActionDef, bindActionKind } from './action';
 import { createSimDeps } from './create-sim-deps';
-import { resolveNodeCount, type SystemDef } from './define-system';
-import { createFaultCatalog } from './faults';
-import { createKnobCatalog } from './knobs';
+import type { SystemDef } from './define-system';
+import type { JsonValue } from './json';
+import {
+  createKnobCatalog,
+  type KnobDef,
+  type KnobValues,
+  resolveKnobDefs,
+} from './knobs';
 import {
   createSimNetwork,
   RELIABLE_NET_FAULTS,
   type SimNetFaultProfile,
   type SimNetwork,
-  type SimNodeId,
 } from './network';
-import type { NodeInstance } from './node-kind';
-import { throwIfInvariant } from './play';
-import { never, until } from './until';
-import type { OpenWorldOpts, World } from './world-types';
+import {
+  defaultNodeId,
+  isCountedNode,
+  type NodeSpecEntry,
+  resolveNodeCount,
+} from './node';
+import { buildWorldControls } from './world-controls';
+import type { NodeHandles, OpenWorldOpts, World } from './world-types';
 
-function defaultNodeId(role: string, index: number, count: number): string {
-  if (count === 1) return role;
-  return `${role}${index}`;
-}
-
-type BootedNode = NodeInstance & {
-  readonly dispose?: () => void | Promise<void>;
+type BootedNode = {
+  readonly id: string;
+  readonly role: string;
   readonly endpointIds: readonly string[];
+  readonly dispose?: () => void | Promise<void>;
 };
 
-type BootArgs = {
+async function bootTopology(args: {
   readonly deps: ReturnType<typeof createSimDeps>;
   readonly network: SimNetwork;
-  readonly knobs: ReturnType<typeof createKnobCatalog>;
-  readonly faults: ReturnType<typeof createFaultCatalog>;
-  readonly stateBag: unknown;
+  readonly knobValues: Record<string, JsonValue>;
+  readonly knobGet: <T extends JsonValue>(def: KnobDef<T>) => T;
   readonly endpointRoles: Map<string, string>;
-};
-
-async function bootTopology(
-  system: SystemDef<unknown>,
-  args: BootArgs
-): Promise<{
-  readonly byRole: Record<string, NodeInstance[]>;
-  readonly byId: Map<string, NodeInstance>;
-  readonly booted: BootedNode[];
-}> {
-  const byRole: Record<string, NodeInstance[]> = {};
-  const byId = new Map<string, NodeInstance>();
+  readonly nodeEntries: Record<string, NodeSpecEntry>;
+  readonly handlesByRole: Map<string, Map<string, unknown>>;
+  readonly handlesOut: Record<string, unknown>;
+}): Promise<{ readonly booted: BootedNode[] }> {
   const booted: BootedNode[] = [];
 
-  for (const spec of system.nodes) {
-    const count = resolveNodeCount(spec.count, (id) => args.knobs.get(id));
-    const kind = spec.kind;
+  for (const [role, spec] of Object.entries(args.nodeEntries)) {
+    const count = resolveNodeCount(spec, args.knobValues);
+    const map = new Map<string, unknown>();
+    args.handlesByRole.set(role, map);
+
     for (let index = 0; index < count; index += 1) {
-      const nodeId =
-        spec.idFor?.(index) ?? defaultNodeId(spec.role, index, count);
-      if (byId.has(nodeId)) {
-        throw new Error(`openWorld: duplicate node id ${nodeId}`);
-      }
-      const handle = await kind.boot({
-        nodeId,
-        role: spec.role,
+      const nodeId = defaultNodeId(
+        role,
+        index,
+        count,
+        isCountedNode(spec) ? spec.id : undefined
+      );
+
+      const peers = {
+        single: (r: string) => {
+          const m = args.handlesByRole.get(r);
+          if (m === undefined || m.size !== 1) {
+            throw new Error(`peers.single: role ${r} is not a singleton`);
+          }
+          return [...m.values()][0];
+        },
+        get: (r: string, id: string) => {
+          const h = args.handlesByRole.get(r)?.get(id);
+          if (h === undefined) {
+            throw new Error(`peers.get: no ${r} with id ${id}`);
+          }
+          return h;
+        },
+        ids: (r: string) => [...(args.handlesByRole.get(r)?.keys() ?? [])],
+      };
+
+      const eps: string[] = [];
+      const listen = (
+        deliver: (payload: unknown) => void | Promise<void>,
+        endpointId = nodeId
+      ) => {
+        args.network.register(endpointId, deliver);
+        args.endpointRoles.set(endpointId, role);
+        eps.push(endpointId);
+      };
+
+      const handle = await spec.boot({
+        id: nodeId,
+        role,
         index,
         deps: args.deps,
-        scheduler: args.deps.scheduler,
         network: args.network,
-        knobs: args.knobs,
-        faults: args.faults,
-        state: args.stateBag,
-        nodesByRole: byRole,
-        nodesById: byId,
+        knob: args.knobGet,
+        peers,
+        listen,
       });
-      const endpoints = kind.endpoints?.(handle) ?? [];
-      for (const ep of endpoints) {
-        args.network.register(ep.id, ep.deliver);
-        args.endpointRoles.set(ep.id, spec.role);
-      }
-      const view = kind.view?.(handle) ?? handle;
-      const instance: NodeInstance = {
-        id: nodeId,
-        role: spec.role,
-        kind: kind.id,
-        handle,
-        view,
-      };
-      const list = byRole[spec.role] ?? [];
-      list.push(instance);
-      byRole[spec.role] = list;
-      byId.set(nodeId, instance);
+
+      map.set(nodeId, handle);
       booted.push({
-        ...instance,
-        endpointIds: endpoints.map((e) => e.id),
-        ...(kind.dispose !== undefined
-          ? {
-              dispose: () => kind.dispose!(handle),
-            }
+        id: nodeId,
+        role,
+        endpointIds: eps,
+        ...(spec.dispose !== undefined
+          ? { dispose: () => spec.dispose!(handle) }
           : {}),
       });
     }
+
+    args.handlesOut[role] = isCountedNode(spec)
+      ? (map as ReadonlyMap<string, unknown>)
+      : map.values().next().value;
   }
-  return { byRole, byId, booted };
+
+  return { booted };
 }
 
 function wrapNetworkWithEdges(
@@ -130,29 +145,12 @@ function wrapNetworkWithEdges(
   };
 }
 
-function pickNode(
-  byRole: Record<string, readonly NodeInstance[]>,
-  byId: ReadonlyMap<string, NodeInstance>,
-  role: string,
-  id?: string
-): NodeInstance {
-  if (id !== undefined) {
-    const n = byId.get(id);
-    if (n === undefined || n.role !== role) {
-      throw new Error(`World.node: no ${role} with id ${id}`);
-    }
-    return n;
-  }
-  const list = byRole[role];
-  if (list === undefined || list.length === 0) {
-    throw new Error(`World.node: no nodes for role ${role}`);
-  }
-  if (list.length !== 1) {
-    throw new Error(
-      `World.node: role ${role} has ${list.length} nodes; pass id`
-    );
-  }
-  return list[0]!;
+function bindActions(
+  actions: Record<string, import('./action').UnboundActionDef>
+): ActionDef[] {
+  return Object.entries(actions).map(([kind, def]) =>
+    bindActionKind(kind, def)
+  ) as ActionDef[];
 }
 
 function makeDispose(
@@ -171,114 +169,55 @@ function makeDispose(
   };
 }
 
-function endpointsForNode(
-  booted: readonly BootedNode[],
-  nodeId: SimNodeId
-): readonly string[] {
-  const n = booted.find((b) => b.id === nodeId);
-  if (n === undefined) {
-    throw new Error(`World: unknown node id ${nodeId}`);
-  }
-  return n.endpointIds;
-}
-
-function forEachEndpointPair(
-  aEps: readonly string[],
-  bEps: readonly string[],
-  fn: (a: string, b: string) => void
-): void {
-  for (const a of aEps) {
-    for (const b of bEps) {
-      if (a === b) continue;
-      fn(a, b);
-    }
-  }
-}
-
-function assembleWorld<S, F>(args: {
-  readonly system: SystemDef<S, object, F>;
+function assembleWorld<
+  K extends Record<string, KnobDef>,
+  N extends Record<string, NodeSpecEntry>,
+  X,
+>(args: {
+  readonly system: SystemDef<K, N, object, X>;
+  readonly boundActions: ActionDef[];
   readonly deps: ReturnType<typeof createSimDeps>;
   readonly network: SimNetwork;
-  readonly knobs: ReturnType<typeof createKnobCatalog>;
-  readonly faults: ReturnType<typeof createFaultCatalog>;
-  readonly stateBag: S;
-  readonly facade: F;
+  readonly knobs: KnobValues<K>;
+  readonly nodes: NodeHandles<N>;
   readonly networkDefaults: SimNetFaultProfile;
   readonly startMs: number;
-  readonly byRole: Record<string, NodeInstance[]>;
-  readonly byId: Map<string, NodeInstance>;
   readonly booted: BootedNode[];
   readonly dispose: () => Promise<void>;
-}): World<S, F> {
-  const { deps, network, system, stateBag, byRole, byId, booted } = args;
-  const untilCtx = {
-    clock: deps.clock,
-    scheduler: deps.scheduler,
-    seed: deps.seed,
-    heldSummary: () => network.heldSummary(),
-  };
-  let world!: World<S, F>;
-  world = {
-    seed: deps.seed,
-    deps,
-    clock: deps.clock,
-    network,
-    state: stateBag,
-    get facade() {
-      return args.facade;
+  readonly extension: X;
+}): World<K, N, X> {
+  const worldRef: { current: World<K, N, X> | null } = { current: null };
+  const controls = buildWorldControls({
+    system: args.system,
+    boundActions: args.boundActions,
+    ctx: {
+      deps: args.deps,
+      network: args.network,
+      booted: args.booted,
+      startMs: args.startMs,
+      networkDefaults: args.networkDefaults,
+      dispose: args.dispose,
     },
+    worldRef,
+  });
+  const world = Object.assign(controls, {
     knobs: args.knobs,
-    faults: args.faults,
-    networkDefaults: args.networkDefaults,
-    startMs: args.startMs,
-    nodes: { byRole, byId },
-    node: (role, id) => pickNode(byRole, byId, role, id),
-    roleIds: (role) => (byRole[role] ?? []).map((n) => n.id),
-    partition: (a, b) => {
-      forEachEndpointPair(
-        endpointsForNode(booted, a),
-        endpointsForNode(booted, b),
-        (x, y) => network.partition(x, y)
-      );
-    },
-    heal: (a, b) => {
-      forEachEndpointPair(
-        endpointsForNode(booted, a),
-        endpointsForNode(booted, b),
-        (x, y) => network.heal(x, y)
-      );
-    },
-    healAll: () => network.healAll(),
-    hold: (key) => network.hold(key),
-    release: (key) => network.release(key),
-    releaseAll: () => network.releaseAll(),
-    advance: async (ms) => {
-      await deps.scheduler.runFor(ms);
-    },
-    idle: async () => {
-      await deps.scheduler.runUntilIdle();
-    },
-    until: (pred, o) => until(untilCtx, pred, o),
-    never: (pred, o) => never(untilCtx, pred, o),
-    settle: async () => {
-      await system.settle(world);
-      const inv = await system.invariants(world);
-      throwIfInvariant(inv, deps.seed);
-    },
-    dispose: args.dispose,
-    [Symbol.asyncDispose]: args.dispose,
-  };
+    nodes: args.nodes,
+    ...args.extension,
+  }) as World<K, N, X>;
+  worldRef.current = world;
   return world;
 }
 
-/**
- * Framework-owned world: deps + network + topology nodes + optional facade.
- * Packages declare {@link defineSystem}; they do not mint SimDeps for worlds.
- */
-export async function openWorld<S = unknown, M = object, F = unknown>(
-  system: SystemDef<S, M, F>,
-  opts: OpenWorldOpts
-): Promise<World<S, F>> {
+export async function openWorld<
+  K extends Record<string, KnobDef>,
+  N extends Record<string, NodeSpecEntry>,
+  M extends object = object,
+  X = Record<string, never>,
+>(
+  system: SystemDef<K, N, M, X>,
+  opts: OpenWorldOpts<K>
+): Promise<World<K, N, X>> {
   const startMs = opts.startMs ?? system.startMs ?? 0;
   const deps = createSimDeps({
     seed: opts.seed,
@@ -286,7 +225,7 @@ export async function openWorld<S = unknown, M = object, F = unknown>(
     ...(opts.trace !== undefined ? { trace: opts.trace } : {}),
   });
   const networkDefaults: SimNetFaultProfile =
-    opts.networkDefaults ?? system.network?.defaults ?? RELIABLE_NET_FAULTS;
+    opts.networkDefaults ?? system.network?.faults ?? RELIABLE_NET_FAULTS;
   const rawNetwork = createSimNetwork({
     scheduler: deps.scheduler,
     rng: deps.rng.fork('net'),
@@ -294,37 +233,71 @@ export async function openWorld<S = unknown, M = object, F = unknown>(
     ...(deps.trace.enabled ? { trace: deps.trace } : {}),
   });
   const endpointRoles = new Map<string, string>();
-  const edges = system.network?.edges ?? [];
-  const network = wrapNetworkWithEdges(rawNetwork, edges, endpointRoles);
-  const knobs = createKnobCatalog(system.knobs, opts.knobs);
-  const faults = createFaultCatalog(system.faults ?? []);
-  const stateBag = (system.state?.() ?? {}) as S;
-  const { byRole, byId, booted } = await bootTopology(
-    system as SystemDef<unknown>,
-    { deps, network, knobs, faults, stateBag, endpointRoles }
+  const network = wrapNetworkWithEdges(
+    rawNetwork,
+    system.network?.edges ?? [],
+    endpointRoles
   );
-  const facadeSlot: { value: F } = { value: undefined as F };
-  const world = assembleWorld({
-    system: system as SystemDef<S, object, F>,
+
+  const knobDefs = resolveKnobDefs(system.knobs);
+  const catalog = createKnobCatalog(
+    knobDefs,
+    opts.knobs as Partial<KnobValues<K>> | undefined
+  );
+  const knobValues = catalog.toJSON() as Record<string, JsonValue>;
+  const defToId = new Map<KnobDef, string>();
+  for (const [id, def] of Object.entries(system.knobs)) {
+    defToId.set(def, id);
+  }
+  const knobGet = <T extends JsonValue>(def: KnobDef<T>): T => {
+    const id = defToId.get(def);
+    if (id === undefined) {
+      throw new Error('ctx.knob: unknown KnobDef');
+    }
+    return catalog.get(id as keyof KnobValues<K> & string) as unknown as T;
+  };
+
+  const handlesOut: Record<string, unknown> = {};
+  const { booted } = await bootTopology({
     deps,
     network,
-    knobs,
-    faults,
-    stateBag,
-    get facade() {
-      return facadeSlot.value;
-    },
+    knobValues,
+    knobGet,
+    endpointRoles,
+    nodeEntries: system.nodes,
+    handlesByRole: new Map(),
+    handlesOut,
+  });
+
+  const boundActions = bindActions(system.actions);
+  const baseWorld = assembleWorld({
+    system: system as SystemDef<K, N, object, X>,
+    boundActions,
+    deps,
+    network,
+    knobs: catalog.values as KnobValues<K>,
+    nodes: handlesOut as NodeHandles<N>,
     networkDefaults,
     startMs,
-    byRole,
-    byId,
     booted,
     dispose: makeDispose(booted, network),
+    extension: {} as X,
   });
-  if (system.facade !== undefined) {
-    facadeSlot.value = await system.facade(world);
+
+  const extension =
+    system.extend !== undefined ? await system.extend(baseWorld) : ({} as X);
+
+  if (typeof extension === 'object' && extension !== null) {
+    for (const key of Object.keys(extension as object)) {
+      if (key in baseWorld) {
+        throw new Error(
+          `openWorld(${system.id}): extend key collides with framework control ${key}`
+        );
+      }
+    }
   }
-  return world;
+
+  return Object.assign(baseWorld, extension) as World<K, N, X>;
 }
 
 export type { OpenWorldOpts, World } from './world-types';

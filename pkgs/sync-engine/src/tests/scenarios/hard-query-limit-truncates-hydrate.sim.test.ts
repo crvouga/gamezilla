@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import {
   deleteNote,
   expectLiveNote,
@@ -8,17 +7,17 @@ import {
   setFolder,
   setNote,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('hard query limit truncates hydrate', () => {
   test('hard limit truncates hydrate; engine stays healthy and world converges', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 630,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     await world.addClient({ id: 'bob' });
 
@@ -47,13 +46,13 @@ describe('hard query limit truncates hydrate', () => {
   });
 
   test('multi-table truncate then shrink below limit eventually consistent', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 631,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     await world.addClient({ id: 'bob' });
 
@@ -86,7 +85,7 @@ describe('hard query limit truncates hydrate', () => {
       sessionQuery: { name: 'notesLimited', params: {} },
     });
     // nudge: limited session refetch after shrink below hard limit
-    await world.until(lim2.nudge());
+    await world.waitUntil(lim2.nudge());
     const after = await readLiveNotes(lim2.db);
     expect(after.length).toBe(5);
     expect(after.map((n) => n.id).sort()).toEqual([

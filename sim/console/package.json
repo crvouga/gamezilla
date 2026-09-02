@@ -45,6 +45,7 @@
     "@apps/room-server": "workspace:*",
     "@apps/server": "workspace:*",
     "@expo/metro-runtime": "catalog:",
+    "@libs/auth": "workspace:*",
     "@libs/chess": "workspace:*",
     "@libs/db": "workspace:*",
     "@libs/dst-handles": "workspace:*",

@@ -1,11 +1,10 @@
 import { describe, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import { assertSampleProperty } from '@pkgs/determinism/pbt';
 import { fc } from '@pkgs/pbt';
-import { arbWorldKnobs, arbWorldSeed } from '../../sim/system/knobs';
+import { arbKnobs, arbSeed } from '../../sim/system/knobs';
 import { isLiveNote, readLiveNotes } from '../apps/acme/assert';
 import { setNote } from '../apps/acme/shared/mutations';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('hold window safety PBT', () => {
   test(
@@ -14,23 +13,23 @@ describe('hold window safety PBT', () => {
       await assertSampleProperty(
         'hold window no flicker',
         fc.asyncProperty(
-          arbWorldSeed(),
-          arbWorldKnobs(),
+          arbSeed(),
+          arbKnobs(),
           fc.string({ minLength: 1, maxLength: 12 }),
           async (seed, knobs, body) => {
-            await using world = await openWorld(acmeSystem, { seed, knobs });
-            const facade = world.facade;
-            const clientId = world.roleIds('client')[0]!;
+            await using world = await openAcmeWorld({ seed, knobs });
+
+            const clientId = world.ids('client')[0]!;
             const noteId = 'n0';
-            const client = facade.clients.get(clientId)!;
-            using _hold = facade.net(clientId, 'sync').set('hold');
+            const client = world.clients.get(clientId)!;
+            using _hold = world.net(clientId, 'sync').set('hold');
             await client.mutate(setNote, { id: noteId, body, title: '' });
 
             for (let i = 0; i < 8; i += 1) {
               const live = await isLiveNote(client.db, noteId);
               if (!live) {
                 throw new Error(
-                  `note missing during hold seed=${facade.seed.toString(16)}`
+                  `note missing during hold seed=${world.seed.toString(16)}`
                 );
               }
               const rows = await readLiveNotes(client.db);
@@ -40,11 +39,11 @@ describe('hold window safety PBT', () => {
                   `body reverted during hold: expected ${body}, got ${current}`
                 );
               }
-              await facade.runFor(25);
+              await world.advance(25);
             }
 
-            facade.net(clientId, 'sync').set('ok');
-            await facade.assertConverged();
+            world.net(clientId, 'sync').set('ok');
+            await world.assertConverged();
           }
         ),
         { numRuns: 6 }

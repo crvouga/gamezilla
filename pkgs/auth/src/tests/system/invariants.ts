@@ -1,37 +1,42 @@
-import type { InvariantViolation, World } from '@pkgs/determinism';
+import type { World } from '@pkgs/determinism';
 import { sql } from '@pkgs/sql';
-import { type AuthSystem, requireStore } from './types';
+import {
+  AUTH_SET_TOKEN_HEADER,
+  IDP_PROVIDER_DEV,
+  IDP_PROVIDER_GOOGLE,
+} from '../../shared/auth-constants';
+import {
+  type ActorState,
+  type AuthKit,
+  type AuthStore,
+  requireStore,
+} from './types';
 
-type AuthWorld = World<AuthSystem>;
+type AuthWorld = World<
+  Record<string, import('@pkgs/determinism').KnobDef>,
+  Record<string, import('@pkgs/determinism').NodeSpecEntry>,
+  AuthKit
+>;
 
-export async function checkAuthInvariants(
-  world: AuthWorld
-): Promise<InvariantViolation | null> {
-  const store = requireStore(world.state);
-  for (const [id, actor] of world.state.actors) {
+export async function assertAuthInvariants(world: AuthWorld): Promise<void> {
+  const store = requireStore(world.nodes['store'] as AuthStore);
+  const actors = world.nodes['client'] as ReadonlyMap<string, ActorState>;
+  for (const [id, actor] of actors) {
     if (actor.bearer === null) continue;
     const verified = await store.server.verifySessionToken(actor.bearer);
     if (verified === null) continue;
     if (verified.externalUserId.length === 0) {
-      return {
-        invariant: 'session_has_external_user_id',
-        detail: `actor ${id} verified session missing externalUserId`,
-      };
+      throw new Error(
+        `session_has_external_user_id: actor ${id} verified session missing externalUserId`
+      );
     }
-  }
-  return null;
-}
-
-export async function assertAuthInvariants(world: AuthWorld): Promise<void> {
-  const violation = await checkAuthInvariants(world);
-  if (violation !== null) {
-    throw new Error(`${violation.invariant}: ${violation.detail}`);
   }
 }
 
 /** Canonical dump of IdP state + actor bearers — the determinism fingerprint. */
 export async function worldFingerprint(world: AuthWorld): Promise<string> {
-  const store = requireStore(world.state);
+  const store = requireStore(world.nodes['store'] as AuthStore);
+  const actors = world.nodes['client'] as ReadonlyMap<string, ActorState>;
   const users = await store.sql.query(
     sql<{
       id: string;
@@ -54,8 +59,14 @@ export async function worldFingerprint(world: AuthWorld): Promise<string> {
   }>`
     SELECT user_id, token_hash FROM idp_sessions ORDER BY token_hash
   `);
-  const bearers = [...world.state.actors.entries()]
+  const bearers = [...actors.entries()]
     .map(([id, actor]) => `${id}:${actor.bearer ?? ''}`)
     .sort();
   return JSON.stringify({ users, accounts, sessions, bearers });
 }
+
+export type OauthProvider =
+  | typeof IDP_PROVIDER_GOOGLE
+  | typeof IDP_PROVIDER_DEV;
+
+export { AUTH_SET_TOKEN_HEADER, IDP_PROVIDER_DEV, IDP_PROVIDER_GOOGLE };

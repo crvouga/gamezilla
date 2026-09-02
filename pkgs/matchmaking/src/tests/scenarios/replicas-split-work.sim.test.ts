@@ -18,16 +18,15 @@ describe('matchmaking sim: replica split work', () => {
   });
 
   test('maxPairsPerPass:1 still pairs everyone across concurrent workers', async () => {
-    await using host = await openMatchmakingWorld({
+    await using world = await openMatchmakingWorld({
       seed: 220,
       replicas: 2,
       backend: 'postgres',
       tuning: { maxPairsPerPass: 1 },
     });
-    const world = host.facade;
     const participants = [];
     for (let i = 0; i < 8; i += 1) {
-      world.clock.advance(1);
+      await world.advance(1);
       participants.push(
         await world.join({
           data: RatingAttr(1000 + i),

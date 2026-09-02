@@ -17,8 +17,8 @@ export type {
 } from '../../sim/system';
 export {
   AUTH_STATUSES,
-  arbWorldKnobs,
-  arbWorldSeed,
+  arbKnobs,
+  arbSeed,
   CLIENT_IDS,
   CORRUPTION_VARIANTS,
   CRASH_EVENTS,

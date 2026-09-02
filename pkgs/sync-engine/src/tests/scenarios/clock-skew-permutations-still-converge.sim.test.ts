@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
-import type { SyncSystemFacade } from '../../sim/system';
+import type { SyncSystemWorld } from '../../sim/system';
 import {
   deleteNote,
   expectNotesMatchServer,
@@ -8,7 +7,7 @@ import {
   readNoteTombstone,
   setNote,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 const BEHIND = -60_000;
 const MID = 0;
@@ -33,28 +32,26 @@ const CLOCK_ORDERS: readonly ClockOrder[] = [
   { label: 'S < B < A', alice: AHEAD, bob: MID, server: BEHIND },
 ];
 
-function applyOrder(world: SyncSystemFacade, order: ClockOrder): void {
+function applyOrder(world: SyncSystemWorld, order: ClockOrder): void {
   world.node('alice').skewClock(order.alice);
   world.node('bob').skewClock(order.bob);
   world.node('server').skewClock(order.server);
 }
 
-async function expectClientsMatchServer(
-  world: SyncSystemFacade
-): Promise<void> {
+async function expectClientsMatchServer(world: SyncSystemWorld): Promise<void> {
   for (const client of world.clients.values()) {
     await expectNotesMatchServer(client.db, world.server.db);
   }
 }
 
 async function offlineConflictThenConverge(
-  world: SyncSystemFacade,
+  world: SyncSystemWorld,
   order: ClockOrder
 ): Promise<void> {
   applyOrder(world, order);
   const a = await world.addClient({ id: 'alice' });
   const b = await world.addClient({ id: 'bob' });
-  await world.runFor(50);
+  await world.advance(50);
 
   a.online(false);
   b.online(false);
@@ -72,7 +69,7 @@ async function offlineConflictThenConverge(
 }
 
 async function onlineOptimisticRace(
-  world: SyncSystemFacade,
+  world: SyncSystemWorld,
   order: ClockOrder
 ): Promise<void> {
   applyOrder(world, order);
@@ -85,13 +82,13 @@ async function onlineOptimisticRace(
   // local apply can race fanout rebase past settle budget).
   await a.mutate(setNote, { id: 'race', body: 'a-online' });
   await b.mutate(setNote, { id: 'race', body: 'b-online' });
-  await world.runFor(200);
+  await world.advance(200);
   await world.assertConverged();
   await expectClientsMatchServer(world);
 }
 
 async function aheadDeleteBehindPending(
-  world: SyncSystemFacade,
+  world: SyncSystemWorld,
   order: ClockOrder
 ): Promise<void> {
   applyOrder(world, order);
@@ -129,13 +126,13 @@ describe('clock skew permutations still converge', () => {
     test(
       `offline conflict converges (${order.label})`,
       async () => {
-        await using host = await openWorld(acmeSystem, {
+        await using world = await openAcmeWorld({
           seed: 101,
           knobs: {
             clientCount: 0,
           },
         });
-        const world = host.facade;
+
         await offlineConflictThenConverge(world, order);
       },
       { timeout: 60_000 }
@@ -144,13 +141,13 @@ describe('clock skew permutations still converge', () => {
     test(
       `online optimistic race converges (${order.label})`,
       async () => {
-        await using host = await openWorld(acmeSystem, {
+        await using world = await openAcmeWorld({
           seed: 102,
           knobs: {
             clientCount: 0,
           },
         });
-        const world = host.facade;
+
         await onlineOptimisticRace(world, order);
       },
       { timeout: 60_000 }
@@ -159,13 +156,13 @@ describe('clock skew permutations still converge', () => {
     test(
       `ahead delete vs behind pending converges (${order.label})`,
       async () => {
-        await using host = await openWorld(acmeSystem, {
+        await using world = await openAcmeWorld({
           seed: 103,
           knobs: {
             clientCount: 0,
           },
         });
-        const world = host.facade;
+
         await aheadDeleteBehindPending(world, order);
       },
       { timeout: 60_000 }

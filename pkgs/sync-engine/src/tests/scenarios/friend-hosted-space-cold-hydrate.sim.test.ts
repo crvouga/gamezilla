@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import {
   befriend,
   createSpace,
@@ -7,17 +6,17 @@ import {
   isLiveSpace,
   SPACE_MEMBERSHIP_SESSION,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('friend hosted space cold hydrate', () => {
   test('friend sees host space via push and again after wipe restart', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 910,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const alice = await world.addClient({
       id: 'alice',
       sessionQuery: SPACE_MEMBERSHIP_SESSION,
@@ -36,7 +35,7 @@ describe('friend hosted space cold hydrate', () => {
     });
 
     // Phase A — live push via friend topic wake (product: new space appears).
-    await world.until(() => isLiveSpace(bob.db, 'friend-space'));
+    await world.waitUntil(() => isLiveSpace(bob.db, 'friend-space'));
     await expectLiveSpace(bob.db, 'friend-space', {
       title: 'Alice lobby',
       owner_id: 'alice',
@@ -46,7 +45,7 @@ describe('friend hosted space cold hydrate', () => {
     await world.node('bob').crash();
     const bob2 = await world.node('bob').restart();
     expect(bob2).toBeDefined();
-    await world.until(() => isLiveSpace(bob2!.db, 'friend-space'));
+    await world.waitUntil(() => isLiveSpace(bob2!.db, 'friend-space'));
     await expectLiveSpace(bob2!.db, 'friend-space', {
       title: 'Alice lobby',
       owner_id: 'alice',

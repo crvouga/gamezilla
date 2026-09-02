@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import {
   expectLiveNote,
   expectNoteNotLive,
@@ -7,23 +6,23 @@ import {
   readLiveNotes,
   setNote,
 } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('auth revoked wipes db expired refreshes', () => {
   test('expired token refreshes; held queue drains and converges', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 601,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
     await a.disconnect();
     await a.mutate(setNote, { id: 'n-exp', body: 'queued-through-refresh' });
-    await world.never(() => isLiveNote(world.server.db, 'n-exp'), {
+    await world.waitNever(() => isLiveNote(world.server.db, 'n-exp'), {
       forMs: 50,
     });
 
@@ -36,13 +35,13 @@ describe('auth revoked wipes db expired refreshes', () => {
   });
 
   test('revoked wipe drops unuploaded optimistic edit; restart rehydrates server only', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 602,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     await world.addClient({ id: 'bob' });
 
@@ -51,13 +50,13 @@ describe('auth revoked wipes db expired refreshes', () => {
 
     await a.disconnect();
     await a.mutate(setNote, { id: 'n-lost', body: 'never-uploaded' });
-    await world.never(() => isLiveNote(world.server.db, 'n-lost'), {
+    await world.waitNever(() => isLiveNote(world.server.db, 'n-lost'), {
       forMs: 50,
     });
 
     world.node('alice').auth('revoked');
     await a.connect();
-    await world.never(() => isLiveNote(world.server.db, 'n-lost'), {
+    await world.waitNever(() => isLiveNote(world.server.db, 'n-lost'), {
       forMs: 500,
     });
 
@@ -70,13 +69,13 @@ describe('auth revoked wipes db expired refreshes', () => {
   });
 
   test('expired during multi-mutation drain refreshes without loss', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 603,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
@@ -87,7 +86,7 @@ describe('auth revoked wipes db expired refreshes', () => {
         body: `d${i}`,
       });
     }
-    await world.never(() => isLiveNote(world.server.db, 'drain-0'), {
+    await world.waitNever(() => isLiveNote(world.server.db, 'drain-0'), {
       forMs: 50,
     });
 
@@ -102,13 +101,13 @@ describe('auth revoked wipes db expired refreshes', () => {
   });
 
   test('revoked mid-push session wipes and detaches topics', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 604,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
@@ -119,9 +118,9 @@ describe('auth revoked wipes db expired refreshes', () => {
     world.node('alice').auth('revoked');
     await b.mutate(setNote, { id: 'n-late', body: 'after-revoke' });
     // nudge: revoke path may reject refresh — drive until settle/timeout
-    await world.until(a.nudge().catch(() => undefined));
-    await world.until(() => a.subscribedTopics().length === 0, {
-      budgetMs: 2_000,
+    await world.waitUntil(a.nudge().catch(() => undefined));
+    await world.waitUntil(() => a.subscribedTopics().length === 0, {
+      withinMs: 2_000,
     });
 
     expect(a.subscribedTopics()).toEqual([]);
@@ -138,13 +137,13 @@ describe('auth revoked wipes db expired refreshes', () => {
   });
 
   test('upgrade_required rejects without wiping local rows', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 605,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'alice' });
 
     await a.mutate(setNote, { id: 'n-keep', body: 'local-and-server' });
@@ -153,10 +152,10 @@ describe('auth revoked wipes db expired refreshes', () => {
     world.node('alice').auth('upgrade_required');
     await a.disconnect();
     await a.connect();
-    await world.until(
+    await world.waitUntil(
       () => (a.lastError() ?? '').includes('upgrade_required'),
       {
-        budgetMs: 2_000,
+        withinMs: 2_000,
       }
     );
 
@@ -168,18 +167,18 @@ describe('auth revoked wipes db expired refreshes', () => {
   });
 
   test('seq invariants skip a revoked client after server restart', async () => {
-    await using host = await openWorld(acmeSystem, {
+    await using world = await openAcmeWorld({
       seed: 606,
       knobs: {
         clientCount: 0,
       },
     });
-    const world = host.facade;
+
     const a = await world.addClient({ id: 'c0' });
     await world.addClient({ id: 'c1' });
     world.node('c0').auth('revoked');
     await a.connect();
     await world.node('server').restart({ preserveLocalDb: true });
-    expect(await world.checkInvariants()).toBeNull();
+    await world.checkInvariants();
   });
 });

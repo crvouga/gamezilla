@@ -21,11 +21,10 @@ describe('matchmaking sim: replicas share one DB', () => {
   });
 
   test('join r0 / status r1 / leave r2 see the same store', async () => {
-    await using host = await openMatchmakingWorld({
+    await using world = await openMatchmakingWorld({
       seed: 200,
       replicas: 3,
     });
-    const world = host.facade;
     const p = await world.join(
       { data: RatingAttr(1000), formulas: [SimpleFormula] },
       'r0'
@@ -41,11 +40,10 @@ describe('matchmaking sim: replicas share one DB', () => {
   });
 
   test('updateFormulas on a different replica than join', async () => {
-    await using host = await openMatchmakingWorld({
+    await using world = await openMatchmakingWorld({
       seed: 201,
       replicas: 2,
     });
-    const world = host.facade;
     const open: DistanceFormula = {
       numeric: [{ tag: RatingAttr, weight: 1 }],
       radius: {
@@ -74,11 +72,10 @@ describe('matchmaking sim: replicas share one DB', () => {
   });
 
   test('ready() is idempotent on every replica', async () => {
-    await using host = await openMatchmakingWorld({
+    await using world = await openMatchmakingWorld({
       seed: 202,
       replicas: 3,
     });
-    const world = host.facade;
     for (const r of world.replicas.values()) {
       await r.mm.ready();
       await r.mm.ready();

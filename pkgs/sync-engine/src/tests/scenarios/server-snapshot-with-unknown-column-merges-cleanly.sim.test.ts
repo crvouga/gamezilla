@@ -32,13 +32,13 @@ describe('server snapshot with unknown column merges cleanly', () => {
   test.each([730, 731, 732])(
     'client without color ignores server color key (seed=%i)',
     async (seed) => {
-      await using host = await openWorld(acmeColorServerSystem, {
+      await using world = await openWorld(acmeColorServerSystem, {
         seed: seed,
         knobs: {
           clientCount: 0,
         },
       });
-      const world = host.facade;
+
       const a = await world.addClient({
         id: 'alice',
         localSchema: acmeLocalSchema,

@@ -1,13 +1,24 @@
 import { describe, expect, test } from 'bun:test';
-import { assertFaultPins, replay } from '../../pbt';
+import type { AnySystemDef } from '../../define-system';
+import { assertPins, replay } from '../../pbt';
 import { openWorld } from '../../world';
+import type { AcmeKvClientHandle, AcmeKvServerHandle } from './nodes';
 import { sendPut } from './nodes';
 import { ACME_KV_SYSTEM, acmeKvServerFingerprint } from './system';
 import { storeFingerprint } from './types';
 
+type AcmeNodes = {
+  server: AcmeKvServerHandle;
+  client: ReadonlyMap<string, AcmeKvClientHandle>;
+};
+
+function nodes(world: { nodes: unknown }): AcmeNodes {
+  return world.nodes as AcmeNodes;
+}
+
 describe('acme-kv sim pins', () => {
   test('put converges across clients after settle', async () => {
-    const { world } = await replay(ACME_KV_SYSTEM, {
+    const { world } = await replay(ACME_KV_SYSTEM as unknown as AnySystemDef, {
       seed: 42,
       knobs: { clientCount: 2 },
       actions: [
@@ -16,14 +27,15 @@ describe('acme-kv sim pins', () => {
       ],
     });
     try {
-      expect(storeFingerprint(world.state.serverStore)).toBe(
-        storeFingerprint(world.state.clientCaches.get('c0')!)
+      const n = nodes(world);
+      expect(storeFingerprint(n.server.store)).toBe(
+        storeFingerprint(n.client.get('c0')!.cache)
       );
-      expect(storeFingerprint(world.state.serverStore)).toBe(
-        storeFingerprint(world.state.clientCaches.get('c1')!)
+      expect(storeFingerprint(n.server.store)).toBe(
+        storeFingerprint(n.client.get('c1')!.cache)
       );
-      expect(world.state.serverStore.get('a')?.value).toBe('hello');
-      expect(world.state.serverStore.get('b')?.value).toBe('world');
+      expect(n.server.store.get('a')?.value).toBe('hello');
+      expect(n.server.store.get('b')?.value).toBe('world');
     } finally {
       await world.dispose();
     }
@@ -34,33 +46,34 @@ describe('acme-kv sim pins', () => {
       seed: 7,
       knobs: { clientCount: 2 },
     });
+    const n = nodes(world);
     sendPut({
-      state: world.state,
-      clientId: 'c0',
+      server: n.server,
+      client: n.client.get('c0')!,
       key: 'a',
       value: 'v1',
     });
     await world.idle();
-    expect(world.state.clientCaches.get('c1')?.get('a')?.value).toBe('v1');
+    expect(n.client.get('c1')?.cache.get('a')?.value).toBe('v1');
 
     world.partition('c1', 'server');
     sendPut({
-      state: world.state,
-      clientId: 'c0',
+      server: n.server,
+      client: n.client.get('c0')!,
       key: 'a',
       value: 'v2',
     });
     await world.idle();
-    expect(world.state.serverStore.get('a')?.value).toBe('v2');
-    expect(world.state.clientCaches.get('c0')?.get('a')?.value).toBe('v2');
-    expect(world.state.clientCaches.get('c1')?.get('a')?.value).toBe('v1');
+    expect(n.server.store.get('a')?.value).toBe('v2');
+    expect(n.client.get('c0')?.cache.get('a')?.value).toBe('v2');
+    expect(n.client.get('c1')?.cache.get('a')?.value).toBe('v1');
 
     await world.settle();
-    expect(world.state.clientCaches.get('c1')?.get('a')?.value).toBe('v2');
+    expect(n.client.get('c1')?.cache.get('a')?.value).toBe('v2');
   });
 
   test('LWW: higher writeId wins', async () => {
-    const { world } = await replay(ACME_KV_SYSTEM, {
+    const { world } = await replay(ACME_KV_SYSTEM as unknown as AnySystemDef, {
       seed: 99,
       knobs: { clientCount: 2 },
       actions: [
@@ -69,8 +82,8 @@ describe('acme-kv sim pins', () => {
       ],
     });
     try {
-      expect(world.state.serverStore.get('k')?.value).toBe('second');
-      expect(world.state.serverStore.get('k')?.writeId).toBe(2);
+      expect(nodes(world).server.store.get('k')?.value).toBe('second');
+      expect(nodes(world).server.store.get('k')?.writeId).toBe(2);
     } finally {
       await world.dispose();
     }
@@ -79,24 +92,24 @@ describe('acme-kv sim pins', () => {
   test('same seed replay is deterministic', async () => {
     const actions = [
       { kind: 'put', clientId: 'c0', key: 'a', value: 'x' },
-      { kind: 'std.partition', from: 'c1', to: 'server' },
+      { kind: 'chaos.partition', from: 'c1', to: 'server' },
       { kind: 'put', clientId: 'c0', key: 'a', value: 'y' },
-      { kind: 'std.healAll' },
+      { kind: 'chaos.healAll' },
       { kind: 'put', clientId: 'c1', key: 'b', value: 'z' },
     ] as const;
-    const a = await replay(ACME_KV_SYSTEM, {
+    const a = await replay(ACME_KV_SYSTEM as unknown as AnySystemDef, {
       seed: 12345,
       knobs: { clientCount: 2 },
       actions: [...actions],
     });
-    const b = await replay(ACME_KV_SYSTEM, {
+    const b = await replay(ACME_KV_SYSTEM as unknown as AnySystemDef, {
       seed: 12345,
       knobs: { clientCount: 2 },
       actions: [...actions],
     });
     try {
-      expect(acmeKvServerFingerprint(a.world.state)).toBe(
-        acmeKvServerFingerprint(b.world.state)
+      expect(acmeKvServerFingerprint(nodes(a.world).server)).toBe(
+        acmeKvServerFingerprint(nodes(b.world).server)
       );
     } finally {
       await a.world.dispose();
@@ -104,16 +117,16 @@ describe('acme-kv sim pins', () => {
     }
   });
 
-  test('assertFaultPins named matrices', async () => {
-    await assertFaultPins(ACME_KV_SYSTEM, [
+  test('assertPins named matrices', async () => {
+    await assertPins(ACME_KV_SYSTEM as unknown as AnySystemDef, [
       {
         name: 'partition-then-heal',
         knobs: { clientCount: 2 },
         actions: [
           { kind: 'put', clientId: 'c0', key: 'a', value: 'x' },
-          { kind: 'std.partition', from: 'c1', to: 'server' },
+          { kind: 'chaos.partition', from: 'c1', to: 'server' },
           { kind: 'put', clientId: 'c0', key: 'a', value: 'y' },
-          { kind: 'std.healAll' },
+          { kind: 'chaos.healAll' },
         ],
       },
     ]);

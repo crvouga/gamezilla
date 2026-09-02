@@ -47,6 +47,20 @@ import { type Sim, simClientNamespace } from '@sim/console/sim/create-sim';
 
 const DEFAULT_CLIENT_IDS = ['alice', 'bob'] as const;
 
+function playgroundClock(sim: Sim): PlaygroundSession['clock'] {
+  return {
+    now: () => sim.clock.now(),
+    advance: (ms: number) => {
+      void sim.scheduler.runFor(ms).catch(() => {
+        // ignore disposed sim
+      });
+    },
+    reset: (ms: number) => {
+      sim.scheduler.reset(ms);
+    },
+  };
+}
+
 export type BootPlaygroundOptions = {
   readonly skipSnapshotLoad?: boolean;
 };
@@ -232,7 +246,7 @@ async function deleteStickySnapshot(store: ObjectStore): Promise<void> {
 function attachSessionApi(api: SessionApiAttachArgs): PlaygroundSession {
   const { args: buildArgs, maps, commands, server, disposed } = api;
   const session: PlaygroundSession = {
-    clock: buildArgs.sim.clock,
+    clock: playgroundClock(buildArgs.sim),
     crash: (id) => buildArgs.sim.crash(id),
     restart: (id) => buildArgs.sim.restart(id),
     partition: (a, b) => buildArgs.sim.partition(a, b),

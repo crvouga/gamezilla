@@ -9,7 +9,7 @@ describe('room sim: down during welcome (E-A03)', () => {
       seed: process.env['SIM_SEED'] ?? '42',
       knobs: { clientCount: 0 },
     });
-    const world = host.facade;
+    const world = host;
     const a = await world.addClient({ id: 'alice' });
     a.dispatch(Increment({}));
     a.dispatch(Increment({}));

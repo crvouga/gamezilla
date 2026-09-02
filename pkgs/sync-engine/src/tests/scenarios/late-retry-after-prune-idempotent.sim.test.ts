@@ -1,19 +1,18 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/determinism';
 import { expectLiveNote, setNote } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { openAcmeWorld } from '../apps/acme/system';
 
 describe('late retry after prune window idempotent', () => {
   test.each([860, 861, 862])(
     're-POST after prune is duplicate and does not double-apply (seed=%i)',
     async (seed) => {
-      await using host = await openWorld(acmeSystem, {
+      await using world = await openAcmeWorld({
         seed: seed,
         knobs: {
           clientCount: 0,
         },
       });
-      const world = host.facade;
+
       const a = await world.addClient({ id: 'alice' });
       await world.addClient({ id: 'bob' });
 
@@ -45,7 +44,7 @@ describe('late retry after prune window idempotent', () => {
       // Wire ack is `applied` for idempotent retries (duplicate replay path).
       expect(late.verdicts[0]?.status).toBe('applied');
 
-      await world.until(a.nudge());
+      await world.waitUntil(a.nudge());
       await world.assertConverged();
 
       await expectLiveNote(world.server.db, 'n1', { body: 'original' });

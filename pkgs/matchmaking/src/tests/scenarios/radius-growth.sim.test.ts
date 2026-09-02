@@ -12,7 +12,7 @@ describe('matchmaking sim: radius growth', () => {
   });
 
   test('far pair never matches at t=0; until matched after wait', async () => {
-    await using host = await openMatchmakingWorld({
+    await using world = await openMatchmakingWorld({
       seed: 70,
       radius: {
         baseRadius: 10,
@@ -20,7 +20,6 @@ describe('matchmaking sim: radius growth', () => {
         maxRadius: 400,
       },
     });
-    const world = host.facade;
     const formula = { numeric: [{ tag: RatingAttr, weight: 1 }] };
     const a = await world.join({
       data: RatingAttr(1000),
@@ -30,20 +29,25 @@ describe('matchmaking sim: radius growth', () => {
       data: RatingAttr(1080),
       formulas: [formula],
     });
-    await world.never(async () => (await a.status())?.status === 'matched', {
-      forMs: 500,
-      stepMs: 100,
-    });
-    await world.until(async () => (await a.status())?.status === 'matched', {
-      budgetMs: 30_000,
-      stepMs: 1_000,
-    });
+    await world.waitNever(
+      async () => (await a.status())?.status === 'matched',
+      {
+        forMs: 500,
+        stepMs: 100,
+      }
+    );
+    await world.waitUntil(
+      async () => (await a.status())?.status === 'matched',
+      {
+        budgetMs: 30_000,
+        stepMs: 1_000,
+      }
+    );
     expect((await b.status())?.status).toBe('matched');
   });
 
   test('stricter per-formula radius bounds the match', async () => {
-    await using host = await openMatchmakingWorld({ seed: 71 });
-    const world = host.facade;
+    await using world = await openMatchmakingWorld({ seed: 71 });
     await world.join({
       data: RatingAttr(1000),
       formulas: [{ numeric: [{ tag: RatingAttr, weight: 1 }] }],
@@ -65,8 +69,7 @@ describe('matchmaking sim: radius growth', () => {
   });
 
   test('looser per-formula radius lets pair match', async () => {
-    await using host = await openMatchmakingWorld({ seed: 72 });
-    const world = host.facade;
+    await using world = await openMatchmakingWorld({ seed: 72 });
     await world.join({
       data: RatingAttr(1000),
       formulas: [
