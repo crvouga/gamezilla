@@ -71,6 +71,28 @@ describe('consolidation PBT', () => {
     );
   });
 
+  test('merged include recomputes owned name', () => {
+    const a = cand('notes', ['user_id'], ['title']);
+    const b = cand('notes', ['user_id'], ['body']);
+    const config = resolveConfig({
+      minImprovementFactor: 1,
+      minTableRows: 0,
+      requireEvalImprovement: false,
+      maxIndexesPerTable: 6,
+    });
+    const kept = consolidateCandidates(
+      [a, b],
+      [evalOf(a, 10), evalOf(b, 10)],
+      [{ name: 'notes', estimatedRows: 50_000 }],
+      config
+    ).kept;
+    expect(kept.length).toBe(1);
+    expect(kept[0]!.definition.include).toEqual(['body', 'title']);
+    expect(kept[0]!.name).toBe(ownedIndexName(kept[0]!.definition));
+    expect(kept[0]!.name).not.toBe(a.name);
+    expect(kept[0]!.name).not.toBe(b.name);
+  });
+
   test('budget gate drops excess per table', () => {
     const config = resolveConfig({
       minImprovementFactor: 1,

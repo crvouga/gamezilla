@@ -263,8 +263,8 @@ async function copyWriteRejectionsRows(
       SELECT
         id, mutation_id, client_id, code, message,
         CASE
-          WHEN btrim(COALESCE(meta, '')) = '' THEN NULL
-          ELSE meta::jsonb
+          WHEN btrim(COALESCE(meta::text, '')) = '' THEN NULL
+          ELSE meta::text::jsonb
         END,
         acknowledged,
         created_at::timestamptz,

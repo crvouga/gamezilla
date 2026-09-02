@@ -112,8 +112,8 @@ async function copyEntityStoreRows(
       SELECT
         id, namespace, type, external_id, owner_id,
         CASE
-          WHEN btrim(COALESCE(data, '')) = '' THEN NULL
-          ELSE data::jsonb
+          WHEN btrim(COALESCE(data::text, '')) = '' THEN NULL
+          ELSE data::text::jsonb
         END,
         created_at::timestamptz,
         ${updatedAt},

@@ -85,4 +85,49 @@ describe('kv cutover', () => {
       await client.disconnect();
     }
   });
+
+  test('rebuilds key-PK table whose value is already jsonb', async () => {
+    const client = SqlClientImplPostgresMem.open({
+      seed: 2,
+      now: () => new Date('2020-01-01T00:00:00.000Z'),
+      dbScope: createPostgresDbScope('public'),
+    });
+    await client.connect();
+    try {
+      await client.run(
+        unsafe(
+          [
+            'CREATE',
+            'TABLE',
+            'kv (',
+            '  key text PRIMARY KEY,',
+            '  value jsonb,',
+            '  last_modified_at timestamptz',
+            ')',
+          ].join(' ')
+        )
+      );
+      await client.run(
+        unsafe(`
+          INSERT INTO kv (key, value, last_modified_at) VALUES
+            ('ns:k1', '{"a":1}', '2020-01-01T00:00:00.000Z')
+        `)
+      );
+
+      await new KvPostgresDatabaseMigration({
+        skipAdvisoryLock: true,
+        alreadyInTransaction: true,
+      }).migrate({ sqlClient: client, logger: createNoopLogger() });
+
+      const types = await columnUdts(client);
+      expect(types['value']).toBe('jsonb');
+      expect(types['id']).toBe('text');
+      const rows = await client.query<{ key: string }>(
+        unsafe(`SELECT key FROM kv WHERE id = 'ns:k1'`)
+      );
+      expect(rows[0]?.key).toBe('ns:k1');
+    } finally {
+      await client.disconnect();
+    }
+  });
 });

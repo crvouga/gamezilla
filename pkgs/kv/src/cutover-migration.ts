@@ -7,8 +7,8 @@ import { unsafe } from '@pkgs/sql';
 import { KV_TABLE } from './schema/tables';
 
 /**
- * Rebuild `kv` from PK `key` / TEXT `value` to managed `id` + jsonb `value`.
- * No-op when table missing or already defineTable-typed.
+ * Rebuild `kv` from PK `key` to managed `id` + jsonb `value`.
+ * Source `value` may be text or jsonb; copy always goes through `value::text`.
  */
 export class KvCutoverMigration implements DatabaseMigration {
   async migrate(ctx: DatabaseMigrationContext): Promise<void> {
@@ -127,7 +127,7 @@ async function copyKvRows(
       SELECT
         ${idExpr},
         key,
-        _kv_cutover_jsonb(value),
+        _kv_cutover_jsonb(value::text),
         ${createdAt},
         ${updatedAt},
         ${deletedAt}

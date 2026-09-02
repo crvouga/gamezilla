@@ -2,6 +2,7 @@ import { assert } from '@pkgs/assert';
 import { compareNames, compareSkipped } from './compare';
 import type { Config } from './config';
 import { assertWithinLimit, LIMITS } from './limits';
+import { ownedIndexName } from './naming';
 import type { Candidate, Eval, SkippedItem, TableInfo } from './types';
 
 /**
@@ -38,9 +39,11 @@ function mergeInclude(a: Candidate, b: Candidate): Candidate {
   const set = new Set([...a.definition.include, ...b.definition.include]);
   const include = [...set].sort();
   assertWithinLimit(include.length, LIMITS.maxIncludeColumns, 'merged include');
+  const definition = { ...a.definition, include };
   return {
     ...a,
-    definition: { ...a.definition, include },
+    name: ownedIndexName(definition),
+    definition,
     weight: Math.max(a.weight, b.weight),
   };
 }
@@ -198,9 +201,13 @@ export function consolidateCandidates(
   );
   kept.sort((a, b) => compareNames(a.name, b.name));
   const skipped = [...filterSkipped, ...budgetSkipped].sort(compareSkipped);
-  assert.ok(
-    kept.every((c) => c.name.startsWith('autoidx_')),
-    'kept must be owned'
-  );
+  for (let i = 0; i < kept.length; i++) {
+    const c = kept[i]!;
+    assert.ok(c.name.startsWith('autoidx_'), 'kept must be owned');
+    assert.ok(
+      c.name === ownedIndexName(c.definition),
+      'kept name matches definition'
+    );
+  }
   return { kept, skipped };
 }
