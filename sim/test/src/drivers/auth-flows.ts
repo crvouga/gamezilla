@@ -15,12 +15,10 @@ export class AuthFlows {
     // paintReady before Dev shows (methodsLoading gate).
     await this.ui.tap(Handles.authMethodDev, { timeoutMs: 15_000 });
     await this.ui.tap(Handles.authSignedInDone, { timeoutMs: 15_000 });
-    // dismissModal can flash idle + Close before unmount; dismiss when present.
-    // `tap` already waits for visibility — short timeout avoids hanging if gone.
-    try {
+    // dismissModal can flash idle + Close before unmount; only tap when present
+    // so the reporting driver does not record a failed step after Done unmounts.
+    if (await this.ui.isVisible(Handles.authModalClose)) {
       await this.ui.tap(Handles.authModalClose, { timeoutMs: 1000 });
-    } catch {
-      // Modal already unmounted after Done.
     }
   }
 

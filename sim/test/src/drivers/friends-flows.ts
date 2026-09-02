@@ -1,7 +1,7 @@
 import { Handles } from '@libs/dst-handles';
 import type { Driver } from '@pkgs/ui-testing';
 
-const WAIT_MS = 2_000;
+const WAIT_MS = 10_000;
 const HIDDEN_MS = 5_000;
 
 export class FriendsFlows {

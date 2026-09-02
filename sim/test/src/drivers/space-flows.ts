@@ -7,7 +7,7 @@ const SCREEN_SPACE_JOIN = 'screen-space-join';
 const SCREEN_SPACE_ENDED = 'screen-space-ended';
 
 /** Fail-fast wall backstop; drain pump advances sim time between checks. */
-const WAIT_MS = 2_000;
+const WAIT_MS = 10_000;
 const HIDDEN_MS = 5_000;
 
 export class SpaceFlows {

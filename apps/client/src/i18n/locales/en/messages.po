@@ -519,6 +519,10 @@ msgstr "Continue with dev IDP"
 msgid "Continue with Google"
 msgstr "Continue with Google"
 
+#: apps/client/src/settings/sound-screen.tsx
+msgid "Control in-app sound effects. This does not change your device volume."
+msgstr "Control in-app sound effects. This does not change your device volume."
+
 #: libs/profile/src/use-cases/patch-avatar/client/avatar-editor-seed-field.tsx
 #: libs/profile/src/use-cases/patch-avatar/client/avatar-editor-seed-field.tsx
 #: libs/spaces/src/root/client/space-users/space-share-link-section.tsx
@@ -843,6 +847,10 @@ msgstr "Ending space…"
 msgid "Enter at least {USER_SEARCH_MIN_LENGTH} characters"
 msgstr "Enter at least {USER_SEARCH_MIN_LENGTH} characters"
 
+#: apps/client/src/ui/status-bar/connectivity-status-bar-item.tsx
+msgid "Error"
+msgstr "Error"
+
 #: pkgs/ui/src/components/text-input/text-input.example.tsx
 msgid "Error state"
 msgstr "Error state"
@@ -1007,6 +1015,10 @@ msgstr "host"
 msgid "Host"
 msgstr "Host"
 
+#: apps/client/src/settings/settings-screen.tsx
+msgid "In-app sound effects"
+msgstr "In-app sound effects"
+
 #: pkgs/room-widgets/src/pages/playground-page.tsx
 msgid "In-memory server; each client dispatches commands through loopback transport."
 msgstr "In-memory server; each client dispatches commands through loopback transport."
@@ -1073,6 +1085,7 @@ msgstr "just now"
 msgid "Key/value scalar rows from sync. Worker materializes these from secrets on first API request."
 msgstr "Key/value scalar rows from sync. Worker materializes these from secrets on first API request."
 
+#: apps/client/src/sync/sync-screen.tsx
 #: apps/client/src/sync/sync-screen.tsx
 msgid "Last error"
 msgstr "Last error"
@@ -1659,6 +1672,10 @@ msgstr "Reset position"
 msgid "Retry"
 msgstr "Retry"
 
+#: apps/client/src/sync/sync-screen.tsx
+msgid "Retry sync"
+msgstr "Retry sync"
+
 #: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Right-click + drag to draw arrows. Hold Shift (red), Alt (blue), Ctrl/Cmd (yellow). Right-click the same arrow to erase."
 msgstr "Right-click + drag to draw arrows. Hold Shift (red), Alt (blue), Ctrl/Cmd (yellow). Right-click the same arrow to erase."
@@ -1758,6 +1775,7 @@ msgstr "Server health"
 #: apps/client/src/settings/about-screen.tsx
 #: apps/client/src/settings/performance-screen.tsx
 #: apps/client/src/settings/settings-screen.tsx
+#: apps/client/src/settings/sound-screen.tsx
 #: apps/client/src/settings/theme-screen.tsx
 #: apps/client/src/sync/sync-screen.tsx
 #: apps/client/src/ui/explorer/ui-explorer-detail-screen.tsx
@@ -1925,9 +1943,15 @@ msgstr "Solved · {puzzleRating}"
 msgid "Something went wrong"
 msgstr "Something went wrong"
 
+#: apps/client/src/settings/settings-screen.tsx
+#: apps/client/src/settings/sound-screen.tsx
 #: apps/client/src/ui/status-bar/sound-status-bar-item.tsx
 msgid "Sound"
 msgstr "Sound"
+
+#: apps/client/src/settings/sound-screen.tsx
+msgid "Sound effects"
+msgstr "Sound effects"
 
 #: apps/client/src/ui/status-bar/sound-status-bar-item.tsx
 msgid "Sound muted"
@@ -1974,6 +1998,7 @@ msgstr "Space renamed"
 #: apps/client/src/settings/about-screen.tsx
 #: apps/client/src/settings/performance-screen.tsx
 #: apps/client/src/settings/settings-screen.tsx
+#: apps/client/src/settings/sound-screen.tsx
 #: apps/client/src/settings/theme-screen.tsx
 #: apps/client/src/sync/sync-screen.tsx
 #: apps/client/src/ui/app-commands/space-commands.tsx

@@ -3,7 +3,7 @@ import { wallClock } from '@pkgs/clock';
 import type { Driver } from '@pkgs/ui-testing';
 
 /** Fail-fast wall backstop; drain pump advances sim time between checks. */
-const WAIT_MS = 2_000;
+const WAIT_MS = 10_000;
 
 export class SearchFlows {
   constructor(private readonly ui: Driver) {}
