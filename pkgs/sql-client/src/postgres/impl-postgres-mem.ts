@@ -26,6 +26,7 @@ import {
   encodePostgresMemSnapshotEnvelope,
   parsePostgresMemSnapshotEnvelope,
 } from './postgres-mem-snapshot';
+import { repairPostgresMemPgmmBigintSlots } from './repair-pgmm-bigint-slots';
 import {
   createPostgresDbScope,
   type PostgresDbScope,
@@ -367,6 +368,7 @@ export class SqlClientImplPostgresMem implements PostgresSqlClient {
     const next = Snapshot.decode(pgmm).open(
       postgresMemEngineOptions(this.openOptions)
     );
+    repairPostgresMemPgmmBigintSlots(next);
     const prev = this.requireDb();
     this.db = next;
     prev.close();

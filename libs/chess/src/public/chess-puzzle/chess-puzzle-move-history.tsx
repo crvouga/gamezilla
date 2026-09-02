@@ -167,8 +167,10 @@ function MoveHistoryScroll(p: {
         ref={p.scrollRef}
         horizontal
         showsHorizontalScrollIndicator={false}
+        frameSx={{ flex: 1, minWidth: 0 }}
         sx={{
           flexDirection: 'row',
+          flexWrap: 'nowrap',
           alignItems: 'center',
           px: 3,
           gap: 2,

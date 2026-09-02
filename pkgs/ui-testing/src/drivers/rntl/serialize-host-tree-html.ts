@@ -6,16 +6,19 @@ import {
   withRnScreenHiddenCss,
 } from './serialize-rn-screen';
 import {
+  isRnsvgGradientHost,
   isRnsvgHost,
   isSvgGeometryTag,
   isSvgVoidTag,
   mapRnsvgTag,
   pushRnsvgAttrs,
+  serializeRnsvgGradientStops,
 } from './serialize-rnsvg';
 import {
   collectFontsFromCss,
   ensureAbsoluteFillSizing,
   rewriteFlexZero,
+  rewritePlatformFontsInCss,
   stripBrokenTransform,
   styleToCss,
 } from './serialize-style-css';
@@ -199,9 +202,14 @@ function serializeJson(
     ...(hideNode ? { ancestorHidden: true } : {}),
   };
   const attrs = buildAttrs({ typeName, props, tag, ctx, hideScreen: hideNode });
-  const childrenHtml = isRnScreenStackHost(typeName)
+  let childrenHtml = isRnScreenStackHost(typeName)
     ? serializeScreenStackChildren(node.children, ctx, childOpts)
     : serializeJsonChildren(node.children, ctx, childOpts);
+  // RNSVG LinearGradient/RadialGradient flatten stops into `gradient` prop
+  // (`Stop` renders null) — synthesize real `<stop>` elements for reports.
+  if (isRnsvgGradientHost(typeName) && childrenHtml.length === 0) {
+    childrenHtml = serializeRnsvgGradientStops(props['gradient'], escapeAttr);
+  }
 
   if (
     tag === 'input' ||
@@ -324,6 +332,8 @@ function buildAttrs(args: {
     typeName,
     tag,
     style: props['style'],
+    contentContainerStyle: props['contentContainerStyle'],
+    horizontal: props['horizontal'] === true,
     capturedCss: dataSet?.['css'],
     ctx,
     hideScreen,
@@ -347,21 +357,44 @@ function pushStyleAttr(args: {
   readonly typeName: string;
   readonly tag: string;
   readonly style: unknown;
+  readonly contentContainerStyle: unknown;
+  readonly horizontal: boolean;
   readonly capturedCss: string | undefined;
   readonly ctx: SerializeCtx;
   readonly hideScreen: boolean;
 }): void {
-  const { parts, typeName, tag, style, capturedCss, ctx, hideScreen } = args;
+  const {
+    parts,
+    typeName,
+    tag,
+    style,
+    contentContainerStyle,
+    horizontal,
+    capturedCss,
+    ctx,
+    hideScreen,
+  } = args;
   let styleCss =
     capturedCss !== undefined && capturedCss.length > 0
-      ? (collectFontsFromCss(capturedCss, ctx), capturedCss)
+      ? rewritePlatformFontsInCss(capturedCss, ctx)
       : styleToCss(style, ctx);
+  if (capturedCss !== undefined && capturedCss.length > 0) {
+    collectFontsFromCss(styleCss, ctx);
+  }
   // Animated transforms in dataSet.css stringify as `[object Object]`.
   if (styleCss.includes('[object Object]')) {
     styleCss = stripBrokenTransform(styleCss);
     const fromStyle = styleToCss(style, ctx);
     if (fromStyle.length > 0) {
       styleCss = styleCss ? `${styleCss};${fromStyle}` : fromStyle;
+    }
+  }
+  // ScrollView puts row layout on contentContainerStyle; merge so report HTML
+  // does not stack horizontal strips as a column (VIEW_DEFAULTS).
+  if (isScrollHost(typeName) && contentContainerStyle != null) {
+    const contentCss = styleToCss(contentContainerStyle, ctx);
+    if (contentCss.length > 0) {
+      styleCss = styleCss ? `${styleCss};${contentCss}` : contentCss;
     }
   }
   styleCss = rewriteFlexZero(styleCss);
@@ -372,7 +405,13 @@ function pushStyleAttr(args: {
     css = css ? `${css};${styleCss}` : styleCss;
   }
   if (isScrollHost(typeName)) {
-    css = css ? `${css};overflow:auto` : 'overflow:auto';
+    if (horizontal) {
+      css = css
+        ? `${css};flex-direction:row;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden`
+        : 'flex-direction:row;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden';
+    } else {
+      css = css ? `${css};overflow:auto` : 'overflow:auto';
+    }
   }
   css = withRnScreenHiddenCss(css, hideScreen);
   if (css) {

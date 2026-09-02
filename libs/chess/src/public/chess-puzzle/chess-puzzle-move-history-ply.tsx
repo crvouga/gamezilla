@@ -92,7 +92,13 @@ export function HistoryPlyCluster(p: {
   return (
     <Box
       ref={selectedRef}
-      sx={{ flexDirection: 'row', alignItems: 'center', gap: 1 }}
+      sx={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 1,
+        flexShrink: 0,
+        flexGrow: 0,
+      }}
       onLayout={handleLayout}
     >
       {prefix !== null ? (

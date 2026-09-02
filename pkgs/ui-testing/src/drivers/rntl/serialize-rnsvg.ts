@@ -36,6 +36,12 @@ export function mapRnsvgTag(typeName: string): string | null {
       return 'mask';
     case 'RNSVGDefs':
       return 'defs';
+    case 'RNSVGLinearGradient':
+      return 'linearGradient';
+    case 'RNSVGRadialGradient':
+      return 'radialGradient';
+    case 'RNSVGStop':
+      return 'stop';
     default:
       return null;
   }
@@ -66,8 +72,39 @@ export function isSvgGeometryTag(tag: string): boolean {
     tag === 'line' ||
     tag === 'polyline' ||
     tag === 'polygon' ||
-    tag === 'ellipse'
+    tag === 'ellipse' ||
+    tag === 'linearGradient' ||
+    tag === 'radialGradient' ||
+    tag === 'stop'
   );
+}
+
+/** Gradient hosts flatten stops into a `gradient` prop — synthesize `<stop>` HTML. */
+export function isRnsvgGradientHost(typeName: string): boolean {
+  return (
+    typeName === 'RNSVGLinearGradient' || typeName === 'RNSVGRadialGradient'
+  );
+}
+
+/**
+ * Build `<stop …/>` markup from RNSVG's flat `[offset, argb, …]` gradient array.
+ * Stops are not separate Fabric hosts (`Stop` renders null).
+ */
+export function serializeRnsvgGradientStops(
+  gradient: unknown,
+  escapeAttr: (value: string) => string
+): string {
+  if (!Array.isArray(gradient) || gradient.length < 2) return '';
+  const parts: string[] = [];
+  for (let i = 0; i + 1 < gradient.length; i += 2) {
+    const offset = num(gradient[i]);
+    const color = gradient[i + 1];
+    if (offset === undefined || typeof color !== 'number') continue;
+    parts.push(
+      `<stop offset="${escapeAttr(String(offset))}" stop-color="${escapeAttr(argbToCss(color))}" />`
+    );
+  }
+  return parts.join('');
 }
 
 /**
@@ -130,10 +167,53 @@ export function pushRnsvgAttrs(
       escapeAttr
     );
   }
+  if (tag === 'linearGradient' || tag === 'radialGradient') {
+    pushGradientAttrs(parts, tag, props, escapeAttr);
+  }
+  if (tag === 'stop') {
+    pushLengthAttr(parts, 'offset', props['offset'], escapeAttr);
+    const stopColor = brushToCss(props['stopColor'] ?? props['fill']);
+    if (stopColor !== undefined) {
+      parts.push(` stop-color="${escapeAttr(stopColor)}"`);
+    }
+    pushNumericAttr(parts, 'stop-opacity', props['stopOpacity'], escapeAttr);
+  }
 
   pushMaskRef(parts, props['mask'], escapeAttr);
   pushMatrixTransform(parts, props['matrix'], escapeAttr);
   pushPaintAttrs(parts, props, escapeAttr);
+}
+
+function pushGradientAttrs(
+  parts: string[],
+  tag: 'linearGradient' | 'radialGradient',
+  props: Record<string, unknown>,
+  escapeAttr: (value: string) => string
+): void {
+  const name = props['name'];
+  if (typeof name === 'string' && name.length > 0) {
+    parts.push(` id="${escapeAttr(name)}"`);
+  }
+  pushUnitAttr(parts, 'gradientUnits', props['gradientUnits'], escapeAttr);
+  if (tag === 'linearGradient') {
+    pushLengthAttr(parts, 'x1', props['x1'], escapeAttr);
+    pushLengthAttr(parts, 'y1', props['y1'], escapeAttr);
+    pushLengthAttr(parts, 'x2', props['x2'], escapeAttr);
+    pushLengthAttr(parts, 'y2', props['y2'], escapeAttr);
+  } else {
+    pushLengthAttr(parts, 'cx', props['cx'], escapeAttr);
+    pushLengthAttr(parts, 'cy', props['cy'], escapeAttr);
+    pushLengthAttr(parts, 'r', props['r'] ?? props['rx'], escapeAttr);
+    pushLengthAttr(parts, 'fx', props['fx'], escapeAttr);
+    pushLengthAttr(parts, 'fy', props['fy'], escapeAttr);
+  }
+  if (Array.isArray(props['gradientTransform'])) {
+    const value = props['gradientTransform'];
+    if (value.length >= 6) {
+      const nums = value.slice(0, 6).map(String).join(' ');
+      parts.push(` gradientTransform="${escapeAttr(`matrix(${nums})`)}"`);
+    }
+  }
 }
 
 function pushSvgRootAttrs(
@@ -235,8 +315,16 @@ function brushToCss(value: unknown): string | undefined {
   if (value === undefined) return undefined;
   if (typeof value === 'string') return value;
   if (typeof value !== 'object') return undefined;
-  const brush = value as { type?: unknown; payload?: unknown };
+  const brush = value as {
+    type?: unknown;
+    payload?: unknown;
+    brushRef?: unknown;
+  };
+  // extractBrush: 0=solid, 1=url(#id), 2=currentColor
   if (brush.type === 2) return 'currentColor';
+  if (brush.type === 1 && typeof brush.brushRef === 'string') {
+    return `url(#${brush.brushRef})`;
+  }
   if (brush.type === 0 && typeof brush.payload === 'number') {
     return argbToCss(brush.payload);
   }

@@ -123,7 +123,11 @@ export async function loadColumnNames(
 export function formatPlaygroundDbCell(value: unknown): string {
   if (value == null) return 'NULL';
   if (typeof value === 'string') return value;
-  if (typeof value === 'number' || typeof value === 'boolean') {
+  if (
+    typeof value === 'number' ||
+    typeof value === 'boolean' ||
+    typeof value === 'bigint'
+  ) {
     return String(value);
   }
   try {

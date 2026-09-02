@@ -196,6 +196,56 @@ describe('serializeHostTreeHtml', () => {
     expect(html).toContain('padding:8px');
   });
 
+  it('maps horizontal RCTScrollView + contentContainerStyle to a single row', () => {
+    const html = serializeHostTreeHtml({
+      type: 'RCTScrollView',
+      props: {
+        horizontal: true,
+        style: { height: 28 },
+        contentContainerStyle: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 8,
+        },
+      },
+      children: [
+        {
+          type: 'View',
+          props: { style: { flexShrink: 0 } },
+          children: ['41. Kh4'],
+        },
+        {
+          type: 'View',
+          props: { style: { flexShrink: 0 } },
+          children: ['g5+'],
+        },
+      ],
+    });
+    expect(html).toContain('flex-direction:row');
+    expect(html).toContain('flex-wrap:nowrap');
+    expect(html).toContain('overflow-x:auto');
+    expect(html).toContain('overflow-y:hidden');
+    expect(html).toContain('align-items:center');
+    expect(html).not.toMatch(/overflow:auto(?!-)/);
+  });
+
+  it('rewrites capturedCss Platform fonts so reports do not fall back to Times', () => {
+    const html = serializeHostTreeHtml({
+      type: 'Text',
+      props: {
+        style: { fontSize: 12 },
+        dataSet: {
+          component: 'Text',
+          css: 'font-family:ui-rounded;font-size:12px;font-weight:600',
+        },
+      },
+      children: ['41.'],
+    });
+    expect(html).toContain('font-family:Nunito');
+    expect(html).not.toContain('ui-rounded');
+    expect(html).toContain('fonts.googleapis.com/css2?family=Nunito');
+  });
+
   it('rewrites Expo font families and injects Google Fonts', () => {
     const result = render(
       createElement(
@@ -446,6 +496,71 @@ describe('serializeHostTreeHtml', () => {
     expect(html).toContain('mask="url(#clipA)"');
     expect(html).not.toMatch(/<div data-component="RNSVGMask"/);
     expect(html).not.toMatch(/<div data-component="RNSVGRect"/);
+  });
+
+  it('maps RNSVGLinearGradient + url(#) fills (DiceBear glasses lenses)', () => {
+    // extractBrush type 1 = url(#id); stops are flattened into `gradient`
+    // as [offset, argb, …] because Stop renders null.
+    const html = serializeHostTreeHtml({
+      type: 'RNSVGSvgView',
+      props: {
+        minX: 0,
+        minY: 0,
+        vbWidth: 100,
+        vbHeight: 100,
+        bbWidth: 80,
+        bbHeight: 80,
+      },
+      children: [
+        {
+          type: 'RNSVGDefs',
+          props: {},
+          children: [
+            {
+              type: 'RNSVGLinearGradient',
+              props: {
+                name: 'eyesGlasses-a',
+                x1: 0,
+                y1: 0,
+                x2: 1,
+                y2: 1,
+                gradientUnits: 0,
+                gradient: [
+                  0,
+                  0x4d_ff_ff_ff, // rgba(255,255,255,0.3)
+                  1,
+                  0x33_ff_ff_ff, // rgba(255,255,255,0.2)
+                ],
+              },
+              children: null,
+            },
+          ],
+        },
+        {
+          type: 'RNSVGGroup',
+          props: {
+            fill: { type: 0, payload: 0xff_00_00_00 },
+          },
+          children: [
+            {
+              type: 'RNSVGPath',
+              props: {
+                d: 'M10 20h30v20H10z',
+                fill: { type: 1, brushRef: 'eyesGlasses-a' },
+              },
+              children: null,
+            },
+          ],
+        },
+      ],
+    });
+    expect(html).toContain('<linearGradient');
+    expect(html).toContain('id="eyesGlasses-a"');
+    expect(html).toContain('<stop ');
+    expect(html).toContain('stop-color="rgba(255,255,255,0.302)"');
+    expect(html).toContain('fill="url(#eyesGlasses-a)"');
+    expect(html).not.toMatch(/<div data-component="RNSVGLinearGradient"/);
+    expect(html).not.toMatch(/<svg[^>]*>[\s\S]*<div/);
   });
 
   it('emits stroke-dasharray for spinner arcs', () => {

@@ -48,6 +48,32 @@ export function collectFontsFromCss(
   }
 }
 
+/**
+ * Rewrite Platform font names (`ui-rounded`, `ui-monospace`, …) in a CSS
+ * declaration string to Nunito so report iframes do not fall back to Times.
+ * Prefer this over verbatim `dataSet.css` from `theme.css()`.
+ */
+export function rewritePlatformFontsInCss(
+  css: string,
+  ctx: StyleSerializeFonts
+): string {
+  if (!css.includes('font-family')) return css;
+  return css
+    .split(';')
+    .map((part) => {
+      const trimmed = part.trim();
+      if (!trimmed.startsWith('font-family:')) return trimmed;
+      const raw = trimmed.slice('font-family:'.length).trim();
+      const family = raw.replace(/^["']|["']$/g, '');
+      const platformWeight = PLATFORM_FONT_TO_NUNITO[family];
+      if (platformWeight === undefined) return trimmed;
+      ctx.fonts.add('Nunito');
+      return `font-family:Nunito;font-weight:${platformWeight}`;
+    })
+    .filter((part) => part.length > 0)
+    .join(';');
+}
+
 /** RN `flex:0`/`-1` → CSS `0 1 auto` (see styleToCss / sxToCss). */
 export function rewriteFlexZero(css: string): string {
   if (!css.includes('flex:')) return css;
