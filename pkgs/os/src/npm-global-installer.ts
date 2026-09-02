@@ -1,11 +1,11 @@
 import { join } from 'node:path';
 import { capture, run, whichPath } from './command';
 import type { Installer } from './installer';
-import type { PathExists } from './os-fs';
+import type { OsFs } from './os-fs';
 
 export interface NpmGlobalInstallerOptions {
   readonly pkg: string;
-  readonly pathExists?: PathExists;
+  readonly osFs?: OsFs;
   /** npm dist-tag or version (default `latest`). */
   readonly tag?: string;
   /**
@@ -13,6 +13,35 @@ export interface NpmGlobalInstallerOptions {
    * that owns that binary (bun global vs npm global) so PATH stays in sync.
    */
   readonly bin?: string;
+}
+
+/**
+ * npm's failed global rename leaves `.<pkg>-<random>` next to the package
+ * (`ENOTEMPTY` on the next `npm install -g`).
+ */
+export function npmGlobalRenameLeftovers(
+  entries: readonly string[],
+  pkg: string
+): string[] {
+  const prefix = `.${pkg}-`;
+  return entries.filter((name) => name.startsWith(prefix));
+}
+
+/** Remove leftover npm rename dirs under a global `node_modules` root. */
+export function pruneNpmGlobalRenameLeftovers(opts: {
+  readonly osFs: OsFs;
+  readonly nodeModulesRoot: string;
+  readonly pkg: string;
+}): readonly string[] {
+  if (!opts.osFs.pathExists(opts.nodeModulesRoot)) return [];
+  const leftovers = npmGlobalRenameLeftovers(
+    opts.osFs.readdirSync(opts.nodeModulesRoot),
+    opts.pkg
+  );
+  for (const name of leftovers) {
+    opts.osFs.rmrfSync(join(opts.nodeModulesRoot, name));
+  }
+  return leftovers;
 }
 
 type NpmListGlobalJson = {
@@ -67,7 +96,7 @@ export class NpmGlobalInstaller implements Installer {
   }
 
   private pathExists(path: string): boolean {
-    return this.opts.pathExists?.(path) ?? false;
+    return this.opts.osFs?.pathExists(path) ?? false;
   }
 
   private installViaPreferredManager(): void {
@@ -98,7 +127,36 @@ export class NpmGlobalInstaller implements Installer {
   }
 
   private runNpm(): void {
-    run('npm', ['install', '-g', this.packageSpec()]);
+    this.pruneNpmRenameLeftovers();
+    try {
+      run('npm', ['install', '-g', this.packageSpec()]);
+    } catch {
+      this.pruneNpmRenameLeftovers();
+      run('npm', ['install', '-g', this.packageSpec()]);
+    }
+  }
+
+  private globalNodeModules(): string | null {
+    const r = capture('npm', ['root', '-g']);
+    if (r.status !== 0) return null;
+    const root = r.stdout.trim();
+    return root.length > 0 ? root : null;
+  }
+
+  private pruneNpmRenameLeftovers(): void {
+    const osFs = this.opts.osFs;
+    if (osFs === undefined) return;
+    const root = this.globalNodeModules();
+    if (root === null) return;
+    const leftovers = pruneNpmGlobalRenameLeftovers({
+      osFs,
+      nodeModulesRoot: root,
+      pkg: this.opts.pkg,
+    });
+    if (leftovers.length === 0) return;
+    console.warn(
+      `pruned npm global rename leftovers for ${this.opts.pkg}: ${leftovers.join(', ')}`
+    );
   }
 
   private runBun(): void {

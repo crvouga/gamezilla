@@ -6,7 +6,7 @@ function installOrUpgradeNpmGlobal(pkg: string, bin: string): void {
     pkg,
     bin,
     tag: 'latest',
-    pathExists: wallOsFs().pathExists,
+    osFs: wallOsFs(),
   });
   if (which(bin)) {
     installer.upgrade();

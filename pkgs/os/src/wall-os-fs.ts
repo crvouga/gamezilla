@@ -1,5 +1,5 @@
 // @io-wall-ok
-import { chmodSync, existsSync, mkdirSync, rmSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, readdirSync, rmSync } from 'node:fs';
 import type { OsFs } from './os-fs';
 
 export function wallOsFs(): OsFs {
@@ -9,6 +9,7 @@ export function wallOsFs(): OsFs {
       mkdirSync(absolutePath, { recursive: true });
     },
     chmodSync,
+    readdirSync: (absolutePath) => readdirSync(absolutePath),
     rmrfSync: (absolutePath) => {
       rmSync(absolutePath, { recursive: true, force: true });
     },
