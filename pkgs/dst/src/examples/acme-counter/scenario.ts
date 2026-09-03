@@ -1,4 +1,10 @@
-import { defineSystem, draw, observe, virtualHost, wallHost } from '../../index';
+import {
+  defineSystem,
+  draw,
+  observe,
+  virtualHost,
+  wallHost,
+} from '../../index';
 import type { Page } from './page';
 
 export type CounterPorts = {
@@ -80,9 +86,7 @@ export const setStep = defineAction({
   *generate() {
     const [r, cur] = yield* observe(route, step);
     if (r !== 'settings') return;
-    const n = yield* draw(
-      (rng) => [1, 5, 10][Math.floor(rng.next() * 3)]!
-    );
+    const n = yield* draw((rng) => [1, 5, 10][Math.floor(rng.next() * 3)]!);
     yield {
       weight: n === cur ? 0 : 2,
       act: (s: CounterSurface) => s.page.click(`#step-${n}`),

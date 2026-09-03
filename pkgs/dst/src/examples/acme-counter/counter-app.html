@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>acme-counter</title>
+</head>
+
+<body>
+  <div id="app" data-screen="home">
+    <span id="count">0</span>
+    <span id="step">1</span>
+    <section id="home">
+      <button type="button" id="increment">+</button>
+      <button type="button" id="decrement" disabled>-</button>
+      <button type="button" id="to-settings">Settings</button>
+      <button type="button" id="reset" disabled>Reset</button>
+    </section>
+    <section id="settings" hidden>
+      <label><input type="radio" name="step" id="step-1" value="1" checked />1</label>
+      <label><input type="radio" name="step" id="step-5" value="5" />5</label>
+      <label><input type="radio" name="step" id="step-10" value="10" />10</label>
+      <button type="button" id="back">Back</button>
+    </section>
+    <section id="confirm-reset" hidden>
+      <button type="button" id="confirm">Confirm</button>
+      <button type="button" id="cancel">Cancel</button>
+    </section>
+  </div>
+  <script>
+    (() => {
+      let count = 0;
+      let step = 1;
+      const app = document.getElementById('app');
+      const countEl = document.getElementById('count');
+      const stepEl = document.getElementById('step');
+      const home = document.getElementById('home');
+      const settings = document.getElementById('settings');
+      const confirm = document.getElementById('confirm-reset');
+      const decBtn = document.getElementById('decrement');
+      const resetBtn = document.getElementById('reset');
+
+      const show = (screen) => {
+        app.setAttribute('data-screen', screen);
+        home.hidden = screen !== 'home';
+        settings.hidden = screen !== 'settings';
+        confirm.hidden = screen !== 'confirm-reset';
+      };
+
+      const render = () => {
+        countEl.textContent = String(count);
+        stepEl.textContent = String(step);
+        decBtn.disabled = count === 0;
+        resetBtn.disabled = count === 0;
+      };
+
+      document.getElementById('increment').onclick = () => {
+        count += step;
+        render();
+      };
+      document.getElementById('decrement').onclick = () => {
+        if (count === 0) return;
+        count = Math.max(0, count - step);
+        render();
+      };
+      document.getElementById('to-settings').onclick = () => show('settings');
+      document.getElementById('back').onclick = () => show('home');
+      document.getElementById('reset').onclick = () => show('confirm-reset');
+      document.getElementById('confirm').onclick = () => {
+        count = 0;
+        render();
+        show('home');
+      };
+      document.getElementById('cancel').onclick = () => show('home');
+      for (const id of ['step-1', 'step-5', 'step-10']) {
+        document.getElementById(id).onchange = (e) => {
+          if (e.target.checked) {
+            step = Number(e.target.value);
+            render();
+          }
+        };
+      }
+      show('home');
+      render();
+    })();
+  </script>
+</body>
+
+</html>

@@ -339,5 +339,8 @@
       ".github/actions/**/action.{yml,yaml}"
     ]
   },
-  "github-actions.workflows.pinned.workflows": []
+  "github-actions.workflows.pinned.workflows": [],
+  "[html]": {
+    "editor.defaultFormatter": "vscode.html-language-features"
+  }
 }

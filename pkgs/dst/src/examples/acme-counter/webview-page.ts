@@ -1,4 +1,4 @@
-import { counterDocumentHtml } from './html';
+import { counterAppHtml } from './counter-app-html';
 import type { Page } from './page';
 
 type WebViewLike = {
@@ -41,7 +41,7 @@ export async function openWebViewPage(): Promise<Page> {
     throw new Error('Bun.WebView unavailable in this environment');
   }
   const errors: string[] = [];
-  const html = counterDocumentHtml();
+  const html = counterAppHtml;
   const server = Bun.serve({
     port: 0,
     fetch() {

@@ -65,11 +65,7 @@ function asReplicate(payload: unknown): ReplicateMsg | null {
   return { type: 'replicate', note: { id, body } };
 }
 
-function fanout(
-  server: SyncServerHandle,
-  note: Note,
-  except?: string
-): void {
+function fanout(server: SyncServerHandle, note: Note, except?: string): void {
   const msg: ReplicateMsg = { type: 'replicate', note };
   for (const to of server.clientEndpoints) {
     if (to === except) continue;
@@ -133,11 +129,7 @@ export function createNoteOnClient(args: {
     note,
     from: args.client.endpointId,
   };
-  args.client.network.send(
-    args.client.endpointId,
-    args.server.endpointId,
-    msg
-  );
+  args.client.network.send(args.client.endpointId, args.server.endpointId, msg);
 }
 
 export function startServer(session: Session): SyncServerHandle {
