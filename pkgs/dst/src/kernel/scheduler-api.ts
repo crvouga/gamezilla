@@ -70,5 +70,3 @@ export function createVirtualScheduler(
     },
   };
 }
-
-export { createWallScheduler } from './wall-scheduler';

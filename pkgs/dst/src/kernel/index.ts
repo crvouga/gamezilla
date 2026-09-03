@@ -37,7 +37,6 @@ export {
 export {
   type CreateVirtualSchedulerOpts,
   createVirtualScheduler,
-  createWallScheduler,
   type Scheduler,
   type TaskBody,
 } from './scheduler-api';
@@ -50,3 +49,4 @@ export {
   type TraceRecord,
   type TraceRecorder,
 } from './trace';
+export { createWallScheduler } from './wall-scheduler';

@@ -811,7 +811,7 @@ bun run lint
 **Two layers:** named scenarios document specific safety claims (`never`, authz,
 protocol cut, flicker). `*.pbt.test.ts` files explore the fault state space with
 `check(acmeSystem)` from `@pkgs/dst/pbt` (system declared via `defineSyncSystem` —
-see `src/sim/scenario/define-sync-system.ts` and `pkgs/dst/CONTEXT.md`).
+see `src/sim/scenario/define-sync-system.ts` and `pkgs/dst/README.md`).
 When a property fails, capture `seed` / `path` / `replayPath`, pin `examples`,
 add a named scenario, and log in repo-root `PBT_FINDINGS.md`.
 

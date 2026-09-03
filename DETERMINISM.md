@@ -29,7 +29,7 @@ ports — never the Session bag. Shared simulation mechanics live in
 `defineSystem` / `defineObservation` / `defineAction` / `defineProperty` (topology via
 `session.fork` + `draw`, converge as actions/properties); tests call `start` /
 `walk` / `check` / `replay` from `@pkgs/dst` / `@pkgs/dst/pbt` — not package-local
-World openers. See [`pkgs/dst/CONTEXT.md`](pkgs/dst/CONTEXT.md).
+World openers. See [`pkgs/dst/README.md`](pkgs/dst/README.md).
 
 Domain and game-logic code take required `clock` / `createId` (or `now` slices).
 Never default to wall implementations inside libraries. Never construct an `Io` bag.
