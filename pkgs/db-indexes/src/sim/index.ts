@@ -1,13 +1,8 @@
 export {
   checkInvariants,
   checkInvariantsAsync,
-  createRng,
-  faultScheduleFromSeed,
-  type HarnessResult,
   type InvariantViolation,
-  randomManifest,
-  runHarness,
-} from './harness';
+} from './invariants';
 export { createSimClock } from './sim-clock';
 export { SimCrashError } from './sim-crash-error';
 export {

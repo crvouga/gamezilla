@@ -18,7 +18,7 @@ export type SimPushChannels = {
 };
 
 /**
- * Pluggable domain for a sim world (schema + registries + converge check).
+ * Pluggable domain for a sim system (schema + registries + converge check).
  * Injected by callers (fixtures / lab); sim has no built-in packs.
  */
 export type SimDomainPack = {

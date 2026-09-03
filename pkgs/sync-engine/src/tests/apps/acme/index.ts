@@ -1,5 +1,87 @@
 /** Framework mutation — merged by createLocalSyncEngine / createSyncApp. */
 export { acknowledgeWriteRejectionMutation } from '../../../mutations/shared/acknowledge-write-rejection';
+/**
+ * Scripted-pin vocabulary for acme scenarios. Tests drive the run with
+ * `start` + `run.apply` / `run.observe` — see `./system.ts` for the shape.
+ */
+export {
+  actorId,
+  addClient,
+  addPeerEngine,
+  armStoragePressure,
+  assertConverged,
+  auth,
+  brokerCrash,
+  brokerRestart,
+  caps,
+  clearLocalData,
+  clearStoragePressure,
+  clientIds,
+  clock,
+  connect,
+  connection,
+  converge,
+  converged,
+  crash,
+  crashAt,
+  defineSyncSystem,
+  deviceId,
+  disconnect,
+  execSql,
+  failNextOpen,
+  foreground,
+  hasSynced,
+  heal,
+  hold,
+  httpFault,
+  invariantViolations,
+  lastError,
+  lastMutationFailures,
+  lastMutationId,
+  lastMutationOk,
+  liveNote,
+  liveSpace,
+  mutate,
+  net,
+  netHeld,
+  nodeNow,
+  nudge,
+  online,
+  outcome,
+  partition,
+  partitioned,
+  passTime,
+  pending,
+  pendingEventCount,
+  playActions,
+  postMutations,
+  postOutcome,
+  publishFault,
+  pubsubFault,
+  pubsubRemakeCount,
+  quiet,
+  rejections,
+  release,
+  restart,
+  restartWithSchema,
+  rows,
+  runSql,
+  SYNC_PIN_ACTIONS,
+  SYNC_PROPERTIES,
+  SYNC_STEP_MS,
+  schedulerQuiescent,
+  serverOp,
+  serverPrune,
+  serverReplay,
+  settle,
+  skewClock,
+  subscribe,
+  subscribeAll,
+  subscribedTopics,
+  syncVirtualHost,
+  tamperLocalStorage,
+  unsubscribe,
+} from '../../../sim/scenario';
 export { acmeApp } from './app';
 export {
   expectFoldersMatchServer,
@@ -29,6 +111,49 @@ export {
 export { acmeDomainPack } from './domain-pack';
 export { insertCatalogNote } from './insert-catalog-note';
 export { createSimMembershipChannels } from './membership-channels';
+export { type PlayAcmePinOpts, playAcmePin } from './play-pin';
+export {
+  type PoolActivation,
+  poolActivate,
+  poolActivateConcurrently,
+  poolMatched,
+  poolOverlappingCreates,
+} from './pool-actions';
+export {
+  expectAllNotesAgree,
+  expectEveryClientNotesAgree,
+  expectFoldersAgree,
+  expectLiveNoteAt,
+  expectLiveSpaceAt,
+  expectNoForeignOpenSessionsAt,
+  expectNoteNotLiveAt,
+  expectNotesAgree,
+  expectOpenSessionAt,
+  expectSpaceNotLiveAt,
+  type FolderRow,
+  hasLocalTable,
+  hasTopic,
+  isNoteLiveAt,
+  isSpaceLiveAt,
+  lacksTopic,
+  liveFolders,
+  liveNotes,
+  liveOpenSessions,
+  liveTags,
+  localTable,
+  type NoteRow,
+  noteBodyIs,
+  noteColor,
+  noteColumns,
+  noteLive,
+  noteNotLive,
+  type OpenSessionRow,
+  profileUsername,
+  readLiveNoteIds,
+  readNoteTombstoneAt,
+  readProfileUsernameAt,
+  type TagRow,
+} from './reads';
 export {
   type AcmeSchemaVariant,
   acmeRestartOptsForVariant,
@@ -40,10 +165,10 @@ export {
   acmeLocalSchemaExtraColumnAndTable,
   acmeLocalSchemaExtraTable,
   ghostMutation,
+  notesAllV2Query,
+  notesAllWithColorQuery,
   notesAuthorizeThrowQuery,
   notesByFolderQuery,
-  notesWorldV2Query,
-  notesWorldWithColorQuery,
   retouchNotes,
   setNoteArgsLoose,
   setNoteArgsTight,
@@ -53,7 +178,7 @@ export {
   setNoteUniqueSlug,
   setNoteWrongTopic,
   setTag,
-  tagsWorldQuery,
+  tagsAllQuery,
 } from './shared/hardening-fixtures';
 export {
   createSpace,
@@ -87,11 +212,11 @@ export {
 export {
   foldersOnlyQuery,
   NOTES_AUTH_GATE_FOLDER_ID,
+  notesAllQuery,
   notesDeniedQuery,
   notesLimitedQuery,
   notesOnlyQuery,
   notesOwnedQuery,
-  notesWorldQuery,
   OWN_PROFILE_SESSION,
   ownProfileQuery,
 } from './shared/queries';
@@ -105,11 +230,22 @@ export {
   acmeTopicMap,
 } from './shared/topic-map';
 export {
-  NOTES_WORLD_TOPIC,
+  NOTES_ALL_TOPIC,
   roomTopic,
   userTopic,
 } from './shared/topics';
-export { acmeLargeCatalogSystem, acmeSystem } from './system';
+export {
+  acmeDraws,
+  acmeLargeCatalogSystem,
+  acmeSystem,
+  type SyncSurface,
+} from './system';
+export {
+  type NeverAcmeOpts,
+  neverAcme,
+  type UntilAcmeOpts,
+  untilAcme,
+} from './until';
 export { writeNoteBody } from './write-note-body';
 
 import { runSeed, seedsFromEnv } from '../../scenario/run-seed';

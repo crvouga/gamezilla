@@ -1,59 +1,69 @@
 import { describe, expect, test } from 'bun:test';
+import { start } from '@pkgs/dst';
 import {
-  expectLiveNote,
-  expectNoteNotLive,
-  isLiveNote,
-  readLiveNotes,
+  acmeDraws,
+  acmeSystem,
+  actorId,
+  addClient,
+  converge,
+  crash,
+  deviceId,
+  disconnect,
+  liveNote,
+  liveNotes,
+  mutate,
+  neverAcme,
+  noteLive,
   setNote,
+  syncVirtualHost,
 } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
 
 describe('logout login same device no bleed', () => {
   test('actor B on same device id never sees A unuploaded optimistic', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 960,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const phoneA = await world.addClient({
-      id: 'phone',
-      actorId: 'user-a',
+    await run.apply(addClient, { id: 'phone', actorId: 'user-a' });
+    await run.apply(addClient, { id: 'bob', actorId: 'user-b-peer' });
+
+    await run.apply(mutate, 'phone', setNote, {
+      id: 'a-uploaded',
+      body: 'on-server',
     });
-    await world.addClient({ id: 'bob', actorId: 'user-b-peer' });
+    await run.apply(converge);
 
-    await phoneA.mutate(setNote, { id: 'a-uploaded', body: 'on-server' });
-    await world.assertConverged();
-
-    await phoneA.disconnect();
-    await phoneA.mutate(setNote, {
+    await run.apply(disconnect, 'phone');
+    await run.apply(mutate, 'phone', setNote, {
       id: 'a-pending',
       body: 'never-upload-as-b',
     });
-    await world.waitNever(() => isLiveNote(world.server.db, 'a-pending'), {
+    await neverAcme(run, liveNote('server', 'a-pending'), {
       forMs: 50,
+      pred: noteLive,
     });
 
     // Logout: dispose without preserving local DB (fresh login DB).
-    await world.node('phone').crash();
-    const phoneB = await world.addClient({
-      id: 'phone',
-      actorId: 'user-b',
-    });
-    expect(phoneB.deviceId).toBe('device:phone');
-    expect(phoneB.actorId).toBe('user-b');
+    await run.apply(crash, 'phone');
+    await run.apply(addClient, { id: 'phone', actorId: 'user-b' });
+    expect(await run.observe(deviceId('phone'))).toBe('device:phone');
+    expect(await run.observe(actorId('phone'))).toBe('user-b');
 
-    await expectNoteNotLive(phoneB.db, 'a-pending');
+    expect(await run.observe(liveNote('phone', 'a-pending'))).toBeNull();
     expect(
-      (await readLiveNotes(phoneB.db)).some((n) => n.id === 'a-pending')
+      (await run.observe(liveNotes('phone'))).some((n) => n.id === 'a-pending')
     ).toBe(false);
 
-    await phoneB.mutate(setNote, { id: 'b-note', body: 'from-b' });
-    await world.assertConverged();
-    await expectLiveNote(phoneB.db, 'b-note', { body: 'from-b' });
-    await expectNoteNotLive(world.server.db, 'a-pending');
-    await expectLiveNote(world.server.db, 'a-uploaded', {
+    await run.apply(mutate, 'phone', setNote, { id: 'b-note', body: 'from-b' });
+    await run.apply(converge);
+    expect(await run.observe(liveNote('phone', 'b-note'))).toMatchObject({
+      body: 'from-b',
+    });
+    expect(await run.observe(liveNote('server', 'a-pending'))).toBeNull();
+    expect(await run.observe(liveNote('server', 'a-uploaded'))).toMatchObject({
       body: 'on-server',
     });
   });
@@ -61,31 +71,32 @@ describe('logout login same device no bleed', () => {
   test.each([961, 962, 963])(
     'seed sweep logout/login same device id (seed=%i)',
     async (seed) => {
-      await using world = await openAcmeWorld({
+      await using run = await start(acmeSystem, {
         seed: seed,
-        knobs: {
-          clientCount: 0,
-        },
+        host: syncVirtualHost(),
+        draws: acmeDraws({ clientCount: 0 }),
+        properties: [],
       });
 
-      const phone = await world.addClient({
-        id: 'phone',
-        actorId: 'alice',
-      });
-      await phone.disconnect();
-      await phone.mutate(setNote, {
+      await run.apply(addClient, { id: 'phone', actorId: 'alice' });
+      await run.apply(disconnect, 'phone');
+      await run.apply(mutate, 'phone', setNote, {
         id: `pending-${seed}`,
         body: 'lost',
       });
-      await world.node('phone').crash();
-      const next = await world.addClient({
-        id: 'phone',
-        actorId: 'carol',
+      await run.apply(crash, 'phone');
+      await run.apply(addClient, { id: 'phone', actorId: 'carol' });
+      expect(
+        await run.observe(liveNote('phone', `pending-${seed}`))
+      ).toBeNull();
+      await run.apply(mutate, 'phone', setNote, {
+        id: `ok-${seed}`,
+        body: 'c',
       });
-      await expectNoteNotLive(next.db, `pending-${seed}`);
-      await next.mutate(setNote, { id: `ok-${seed}`, body: 'c' });
-      await world.assertConverged();
-      await expectNoteNotLive(world.server.db, `pending-${seed}`);
+      await run.apply(converge);
+      expect(
+        await run.observe(liveNote('server', `pending-${seed}`))
+      ).toBeNull();
     }
   );
 });

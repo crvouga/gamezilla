@@ -9,7 +9,7 @@ export const acmeDomainPack: SimDomainPack = {
   localSchema: acmeLocalSchema,
   mutationRegistry: acmeMutationRegistry,
   queryRegistry: acmeQueryRegistry,
-  sessionQuery: { name: 'notesWorld', params: {} },
+  sessionQuery: { name: 'notesAll', params: {} },
   checkAllConverged: checkAllClientsConverged,
   createPushChannels: createSimMembershipChannels,
   topicMap: acmeTopicMap,

@@ -1,8 +1,9 @@
-import { createSimAdapters } from '@pkgs/uuid';
+import { createSeededRng, createSimAdapters } from '@pkgs/uuid';
 import {
   addClient,
   clientHash,
   clientState,
+  clock,
   connect,
   converge,
   defineRoomSystem,
@@ -12,6 +13,7 @@ import {
   passTime,
   type RoomApp,
   release,
+  seed as seedOf,
   serverHash,
   serverState,
   startRoom,
@@ -112,7 +114,7 @@ async function engineFuzz<
   }
   await run.apply(converge);
 
-  const rng = run._internal.surface.world.rng.fork('kit-fuzz');
+  const rng = createSeededRng(await run.observe(seedOf)).fork('kit-fuzz');
   for (let step = 0; step < steps; step += 1) {
     const id = ids[rng.int(ids.length)]!;
     const states = (await run.observe(clientState)) as Record<string, S>;
@@ -120,7 +122,7 @@ async function engineFuzz<
       rng,
       state: states[id] as S,
       identity: id,
-      now: run._internal.surface.world.clock.now(),
+      now: await run.observe(clock),
       step,
     });
     if (payload === null) continue;

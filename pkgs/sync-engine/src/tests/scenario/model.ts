@@ -1,7 +1,7 @@
 /**
- * Model helpers and PBT constants — canonical copy lives in `sim/scenario/world-model`.
+ * Model helpers and PBT constants — canonical copy lives in `sim/scenario/model`.
  */
-export type { WorldModel, WorldReal } from '../../sim/scenario/world-model';
+export type { SyncModel, SyncReal } from '../../sim/scenario/model';
 export {
   AUTH_STATUSES,
   applyActionToModel,
@@ -12,11 +12,11 @@ export {
   domainOp,
   HOLD_TRAFFIC,
   HTTP_FAULTS,
-  initialWorldModel,
+  initialSyncModel,
   modelAllowsAction,
   PUBSUB_FAULTS,
   SCHEMA_VARIANTS,
+  SIM_PBT_CRASH_EVENTS,
   STORAGE_TAMPERS,
   serverOp,
-  WORLD_PBT_CRASH_EVENTS,
-} from '../../sim/scenario/world-model';
+} from '../../sim/scenario/model';

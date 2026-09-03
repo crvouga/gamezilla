@@ -1,75 +1,80 @@
 import { describe, expect, test } from 'bun:test';
+import { start } from '@pkgs/dst';
 import {
-  expectLiveNote,
-  readLiveFolders,
-  readLiveNotes,
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  assertConverged,
+  mutate,
+  nudge,
   setNote,
+  subscribe,
+  syncVirtualHost,
+  unsubscribe,
 } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import { expectLiveNoteAt, liveFolders, liveNotes } from '../apps/acme/reads';
 
 describe('empty tables and zero row snapshot', () => {
-  test('zero-row world converges; not_modified refresh stays empty', async () => {
-    await using world = await openAcmeWorld({
+  test('zero-row system converges; not_modified refresh stays empty', async () => {
+    await using run = await start(acmeSystem, {
       seed: 1020,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
-    await world.assertConverged();
-    expect(await readLiveNotes(a.db)).toEqual([]);
-    expect(await readLiveFolders(a.db)).toEqual([]);
-    expect(await readLiveNotes(b.db)).toEqual([]);
+    await run.apply(addClient, 'alice');
+    await run.apply(addClient, 'bob');
+    await run.apply(assertConverged);
+    expect(await run.observe(liveNotes('alice'))).toEqual([]);
+    expect(await run.observe(liveFolders('alice'))).toEqual([]);
+    expect(await run.observe(liveNotes('bob'))).toEqual([]);
 
-    // nudge: verify not_modified refresh stays empty
-    await world.waitUntil(a.nudge());
-    // nudge: peer not_modified refresh stays empty
-    await world.waitUntil(b.nudge());
-    expect(await readLiveNotes(a.db)).toEqual([]);
-    await world.assertConverged();
+    // Verify not_modified refresh stays empty on both sides.
+    await run.apply(nudge, 'alice');
+    await run.apply(nudge, 'bob');
+    expect(await run.observe(liveNotes('alice'))).toEqual([]);
+    await run.apply(assertConverged);
   });
 
   test('absence in snapshot does not delete unrelated live rows outside scope', async () => {
     // Pin upsert contract: empty secondary scope refresh must not wipe domain.
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 1021,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    await world.addClient({ id: 'bob' });
-    await a.mutate(setNote, { id: 'keep', body: 'seed' });
-    await world.assertConverged();
+    await run.apply(addClient, 'alice');
+    await run.apply(addClient, 'bob');
+    await run.apply(mutate, 'alice', setNote, { id: 'keep', body: 'seed' });
+    await run.apply(assertConverged);
 
-    {
-      using denied = a.subscribe('notesDenied', {});
-      await world.waitUntil(denied.ready);
-      await expectLiveNote(a.db, 'keep', { body: 'seed' });
-    }
-    // nudge: post-unsubscribe refresh must keep unrelated live rows
-    await world.waitUntil(a.nudge());
-    await expectLiveNote(a.db, 'keep', { body: 'seed' });
-    await world.assertConverged();
+    await run.apply(subscribe, 'alice', 'notesDenied', {});
+    await expectLiveNoteAt(run, 'alice', 'keep', { body: 'seed' });
+    await run.apply(unsubscribe, 'alice', 'notesDenied');
+
+    // Post-unsubscribe refresh must keep unrelated live rows.
+    await run.apply(nudge, 'alice');
+    await expectLiveNoteAt(run, 'alice', 'keep', { body: 'seed' });
+    await run.apply(assertConverged);
   });
 
   test.each([1022, 1023, 1024])(
     'seed sweep empty converge (seed=%i)',
     async (seed) => {
-      await using world = await openAcmeWorld({
-        seed: seed,
-        knobs: {
-          clientCount: 0,
-        },
+      await using run = await start(acmeSystem, {
+        seed,
+        host: syncVirtualHost(),
+        draws: acmeDraws({ clientCount: 0 }),
+        properties: [],
       });
 
-      await world.addClient({ id: 'alice' });
-      await world.addClient({ id: 'bob' });
-      await world.assertConverged();
-      expect(await readLiveNotes(world.server.db)).toEqual([]);
+      await run.apply(addClient, 'alice');
+      await run.apply(addClient, 'bob');
+      await run.apply(assertConverged);
+      expect(await run.observe(liveNotes('server'))).toEqual([]);
     }
   );
 });

@@ -1,47 +1,60 @@
 import { describe, test } from 'bun:test';
-import { expectLiveNote, setNote } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import { start } from '@pkgs/dst';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  assertConverged,
+  crash,
+  mutate,
+  online,
+  passTime,
+  restart,
+  setNote,
+  syncVirtualHost,
+} from '../apps/acme';
+import { expectLiveNoteAt } from '../apps/acme/reads';
 
 describe('crash restart rehydrates and drains queue', () => {
   test('offline queue drains after reconnect', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 40,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
+    await run.apply(addClient, 'alice');
+    await run.apply(addClient, 'bob');
 
     // AppLifecycle offline: requiresOnline gate; upload may still run.
-    a.online(false);
-    await a.mutate(setNote, { id: 'n1', body: 'queued' });
-    await world.advance(50);
+    await run.apply(online, 'alice', false);
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'queued' });
+    await run.apply(passTime, 50);
 
-    a.online(true);
-    await world.assertConverged();
-    await expectLiveNote(b.db, 'n1', { body: 'queued' });
+    await run.apply(online, 'alice', true);
+    await run.apply(assertConverged);
+    await expectLiveNoteAt(run, 'bob', 'n1', { body: 'queued' });
   });
 
   test('restart after crash rehydrates all live notes', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 41,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    await world.addClient({ id: 'bob' });
-    await a.mutate(setNote, { id: 'n1', body: 'one' });
-    await a.mutate(setNote, { id: 'n2', body: 'two' });
-    await world.assertConverged();
+    await run.apply(addClient, 'alice');
+    await run.apply(addClient, 'bob');
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'one' });
+    await run.apply(mutate, 'alice', setNote, { id: 'n2', body: 'two' });
+    await run.apply(assertConverged);
 
-    await world.node('bob').crash();
-    const bob = await world.node('bob').restart();
-    await world.assertConverged();
-    await expectLiveNote(bob!.db, 'n1', { body: 'one' });
-    await expectLiveNote(bob!.db, 'n2', { body: 'two' });
+    await run.apply(crash, 'bob');
+    await run.apply(restart, 'bob', {});
+    await run.apply(assertConverged);
+    await expectLiveNoteAt(run, 'bob', 'n1', { body: 'one' });
+    await expectLiveNoteAt(run, 'bob', 'n2', { body: 'two' });
   });
 });

@@ -24,8 +24,8 @@ import type { ProductUi } from '../host/ports';
 import type { SimActorHandle } from '../scenario/surface';
 import { injectPlaywrightSnapshotAuth } from './playwright-snapshot-auth';
 import { simNodeTimers } from './sim-actor-overrides';
+import { simReportTopology } from './sim-report-topology';
 import { createSimWaitPump } from './sim-wait-pump';
-import { simReportTopology } from './sim-world-snapshot';
 
 const reportFs = wallNodeFs();
 const reportDataDir = resolveSimConsoleReportsDir(

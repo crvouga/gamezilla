@@ -1,8 +1,20 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { openMatchmakingWorld } from '../../sim/scenario';
+import type { LeaveResult, StatusResult } from '../../interface/types';
+import {
+  join,
+  lastLeave,
+  leave,
+  participantIds,
+  ready,
+  startMatchmaking,
+  statusById,
+  statusOf,
+  tick,
+} from '../../sim/scenario';
 import { NameAttr, RatingAttr, registerTestCrashHandler } from '../fixtures';
 
 const SimpleFormula = { numeric: [{ tag: RatingAttr, weight: 1 }] };
+const UNKNOWN_ID = '00000000-0000-0000-0000-000000000000';
 
 describe('matchmaking sim: join / status / leave', () => {
   let disposeCrash: () => void;
@@ -14,65 +26,73 @@ describe('matchmaking sim: join / status / leave', () => {
   });
 
   test('round-trips participant data through status while waiting', async () => {
-    await using world = await openMatchmakingWorld({ seed: 1 });
-    const joined = await world.join({
-      data: { ...RatingAttr(1500), ...NameAttr('alice') },
-      formulas: [SimpleFormula],
+    await using run = await startMatchmaking({ seed: 1 });
+    await run.apply(join, {
+      ref: 'alice',
+      input: {
+        data: { ...RatingAttr(1500), ...NameAttr('alice') },
+        formulas: [SimpleFormula],
+      },
     });
-    expect(typeof joined.participantId).toBe('string');
-    const status = await joined.status();
+    const ids = await run.observe(participantIds);
+    expect(typeof ids['alice']).toBe('string');
+    const status = (await run.observe(statusOf('alice'))) as StatusResult;
     expect(status).not.toBeNull();
-    expect(status?.status).toBe('waiting');
-    expect(status?.data as Record<string, unknown>).toEqual({
+    expect(status.status).toBe('waiting');
+    expect(status.data as Record<string, unknown>).toEqual({
       'mmtest/rating': 1500,
       'mmtest/name': 'alice',
     });
   });
 
   test('status returns null for unknown id', async () => {
-    await using world = await openMatchmakingWorld({ seed: 2 });
-    expect(
-      await world.mm.status('00000000-0000-0000-0000-000000000000')
-    ).toBeNull();
+    await using run = await startMatchmaking({ seed: 2 });
+    expect(await run.observe(statusById(UNKNOWN_ID))).toBeNull();
   });
 
   test('leave removes the row', async () => {
-    await using world = await openMatchmakingWorld({ seed: 3 });
-    const p = await world.join({
-      data: RatingAttr(1000),
-      formulas: [SimpleFormula],
+    await using run = await startMatchmaking({ seed: 3 });
+    await run.apply(join, {
+      ref: 'p',
+      input: { data: RatingAttr(1000), formulas: [SimpleFormula] },
     });
-    expect((await p.leave()).removed).toBe(true);
-    expect(await p.status()).toBeNull();
+    await run.apply(leave, { ref: 'p' });
+    expect(((await run.observe(lastLeave)) as LeaveResult).removed).toBe(true);
+    expect(await run.observe(statusOf('p'))).toBeNull();
   });
 
   test('ready() is idempotent', async () => {
-    await using world = await openMatchmakingWorld({ seed: 4 });
-    await world.mm.ready();
-    await world.mm.ready();
-    const joined = await world.join({
-      data: RatingAttr(900),
-      formulas: [SimpleFormula],
+    await using run = await startMatchmaking({ seed: 4 });
+    await run.apply(ready, {});
+    await run.apply(ready, {});
+    await run.apply(join, {
+      ref: 'p',
+      input: { data: RatingAttr(900), formulas: [SimpleFormula] },
     });
-    expect(joined.participantId).toBeDefined();
+    expect((await run.observe(participantIds))['p']).toBeDefined();
   });
 
   test('leave on unknown id returns removed:false', async () => {
-    await using world = await openMatchmakingWorld({ seed: 5 });
-    expect(
-      (await world.mm.leave('00000000-0000-0000-0000-000000000000')).removed
-    ).toBe(false);
+    await using run = await startMatchmaking({ seed: 5 });
+    await run.apply(leave, { participantId: UNKNOWN_ID });
+    expect(((await run.observe(lastLeave)) as LeaveResult).removed).toBe(false);
   });
 
   test('leave on matched participant returns removed:false', async () => {
-    await using world = await openMatchmakingWorld({ seed: 6 });
-    const a = await world.join({
-      data: RatingAttr(1000),
-      formulas: [SimpleFormula],
+    await using run = await startMatchmaking({ seed: 6 });
+    await run.apply(join, {
+      ref: 'a',
+      input: { data: RatingAttr(1000), formulas: [SimpleFormula] },
     });
-    await world.join({ data: RatingAttr(1010), formulas: [SimpleFormula] });
-    await world.tick({ maxPassesPerPartition: 1 });
-    expect((await a.leave()).removed).toBe(false);
-    expect((await a.status())?.status).toBe('matched');
+    await run.apply(join, {
+      ref: 'b',
+      input: { data: RatingAttr(1010), formulas: [SimpleFormula] },
+    });
+    await run.apply(tick, { opts: { maxPassesPerPartition: 1 } });
+    await run.apply(leave, { ref: 'a' });
+    expect(((await run.observe(lastLeave)) as LeaveResult).removed).toBe(false);
+    expect(((await run.observe(statusOf('a'))) as StatusResult).status).toBe(
+      'matched'
+    );
   });
 });

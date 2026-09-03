@@ -1,63 +1,74 @@
 import { describe, expect, test } from 'bun:test';
-import { expectLiveNote, readLiveNotes, setNote } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import { start } from '@pkgs/dst';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  converge,
+  liveNote,
+  liveNotes,
+  mutate,
+  passTime,
+  setNote,
+  settle,
+  syncVirtualHost,
+} from '../apps/acme';
 
 describe('concurrent topic seq allocation monotonic', () => {
   test('overlapping mutates on shared topic converge without torn state', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 920,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
 
-    const writes: Promise<unknown>[] = [];
+    // Both writers hit the same topic back to back, so seq allocation overlaps
+    // inside the server without a settle between them.
     for (let i = 0; i < 12; i += 1) {
-      writes.push(
-        a.mutate(setNote, {
-          id: `a-${String(i).padStart(2, '0')}`,
-          body: `a${i}`,
-        })
-      );
-      writes.push(
-        b.mutate(setNote, {
-          id: `b-${String(i).padStart(2, '0')}`,
-          body: `b${i}`,
-        })
-      );
-      if (i % 3 === 0) await world.advance(5);
+      const suffix = String(i).padStart(2, '0');
+      await run.apply(mutate, 'alice', setNote, {
+        id: `a-${suffix}`,
+        body: `a${i}`,
+      });
+      await run.apply(mutate, 'bob', setNote, {
+        id: `b-${suffix}`,
+        body: `b${i}`,
+      });
+      if (i % 3 === 0) await run.apply(passTime, 5);
     }
-    await Promise.all(writes);
-    await world.assertConverged();
+    await run.apply(converge);
+    await run.apply(settle);
 
-    await world.checkInvariants();
-    const server = await readLiveNotes(world.server.db);
-    expect(server.length).toBe(24);
-    await expectLiveNote(a.db, 'a-00', { body: 'a0' });
-    await expectLiveNote(b.db, 'b-11', { body: 'b11' });
+    expect((await run.observe(liveNotes('server'))).length).toBe(24);
+    expect(await run.observe(liveNote('alice', 'a-00'))).toMatchObject({
+      body: 'a0',
+    });
+    expect(await run.observe(liveNote('bob', 'b-11'))).toMatchObject({
+      body: 'b11',
+    });
   });
 
   test.each([921, 922, 923])(
     'seed sweep concurrent writers converge (seed=%i)',
     async (seed) => {
-      await using world = await openAcmeWorld({
+      await using run = await start(acmeSystem, {
         seed: seed,
-        knobs: {
-          clientCount: 0,
-        },
+        host: syncVirtualHost(),
+        draws: acmeDraws({ clientCount: 0 }),
+        properties: [],
       });
 
-      const a = await world.addClient({ id: 'alice' });
-      const b = await world.addClient({ id: 'bob' });
-      await Promise.all([
-        a.mutate(setNote, { id: `a-${seed}`, body: 'x' }),
-        b.mutate(setNote, { id: `b-${seed}`, body: 'y' }),
-      ]);
-      await world.assertConverged();
-      await world.checkInvariants();
+      await run.apply(addClient, { id: 'alice' });
+      await run.apply(addClient, { id: 'bob' });
+      await run.apply(mutate, 'alice', setNote, { id: `a-${seed}`, body: 'x' });
+      await run.apply(mutate, 'bob', setNote, { id: `b-${seed}`, body: 'y' });
+      await run.apply(converge);
+      await run.apply(settle);
+      expect((await run.observe(liveNotes('server'))).length).toBe(2);
     }
   );
 });

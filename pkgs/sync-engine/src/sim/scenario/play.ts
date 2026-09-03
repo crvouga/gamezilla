@@ -1,4 +1,4 @@
-import type { BootedSimKernel } from '../world-types';
+import type { BootedSimKernel } from '../kit-types';
 import type { SyncAction } from './actions';
 import type { SyncApp } from './app';
 import { dispatchSyncAction } from './dispatch';
@@ -15,40 +15,40 @@ import {
   trackRemovedClients,
   trackRestartFromAction,
 } from './replay-step';
-import type { SystemWorldSurface } from './world-surface';
+import type { SyncSurfaceBase } from './surface-types';
 
 export type { ReplayRestartState };
 export { createReplayRestartState, resetReplayRestartState };
 
-function isKnownClient(world: SystemWorldSurface, id: string): boolean {
-  if (world.clients.has(id)) return true;
+function isKnownClient(surface: SyncSurfaceBase, id: string): boolean {
+  if (surface.clients.has(id)) return true;
   const kernel = (
-    world as { readonly runtime?: { kernel?: BootedSimKernel | null } }
+    surface as { readonly runtime?: { kernel?: BootedSimKernel | null } }
   ).runtime?.kernel;
   return kernel?.metas.has(id) ?? false;
 }
 
 /** Skew arms are fire-and-forget in replay — zero before settle. */
-export function resetClockSkews(world: SystemWorldSurface): void {
-  world.node('server').skewClock(0);
-  for (const id of world.clients.keys()) {
-    world.node(id).skewClock(0);
+export function resetClockSkews(surface: SyncSurfaceBase): void {
+  surface.node('server').skewClock(0);
+  for (const id of surface.clients.keys()) {
+    surface.node(id).skewClock(0);
   }
 }
 
 /** Revoked/crashed/protocol-cut clients — restore auth, restart before settle. */
 export async function prepareClientsForConverge(
   app: SyncApp,
-  world: SystemWorldSurface,
+  surface: SyncSurfaceBase,
   restart: ReplayRestartState
 ): Promise<void> {
   const ids = [...restart.needsRestart].filter((id) =>
-    isKnownClient(world, id)
+    isKnownClient(surface, id)
   );
   // Unfired armCrashAt (e.g. onNextEngineOpenAfterCacheWipe) must not hit
   // revoke/fresh-DB migrate during heal — chaos ends before converge prep.
-  world.clearBoundaryFaults();
-  restoreSettleAuth(world, restart.needsFreshRestart);
+  surface.clearBoundaryFaults();
+  restoreSettleAuth(surface, restart.needsFreshRestart);
   if (ids.length === 0) {
     resetReplayRestartState(restart);
     return;
@@ -56,17 +56,17 @@ export async function prepareClientsForConverge(
   // Remake revoked/crashed clients before heal so a shared-db peer is not
   // wiped by revokeDatabase while heal nudges pending uploads.
   for (const id of ids) {
-    await restartClientForConverge(world, id, {
+    await restartClientForConverge(surface, id, {
       preserveLocalDb: !restart.needsFreshRestart.has(id),
     });
   }
   resetReplayRestartState(restart);
-  if (world.clients.size > 0) {
-    await world.advance(50);
+  if (surface.clients.size > 0) {
+    await surface.advance(50);
   }
-  await dispatchSyncAction(world, app, { kind: 'heal' });
-  healNetworkForSettle(world);
-  resetClockSkews(world);
+  await dispatchSyncAction(surface, app, { kind: 'heal' });
+  healNetworkForSettle(surface);
+  resetClockSkews(surface);
 }
 
 /** Framework play loop owns invariants + idle after each step. */
@@ -77,16 +77,16 @@ const NO_STEP_ASSERT = async (): Promise<void> => undefined;
  * which clients owe a restart before converge.
  */
 export async function replayStep(args: {
-  readonly world: SystemWorldSurface;
+  readonly surface: SyncSurfaceBase;
   readonly app: SyncApp;
   readonly action: SyncAction;
   readonly state: ReplayRestartState;
 }): Promise<void> {
-  const { world, app, action, state } = args;
-  const aliveBefore = new Set(world.clients.keys());
-  await prepareReplayAction(world, action, state);
-  await dispatchReplayAction(world, app, action);
-  trackRemovedClients(aliveBefore, world, state);
-  trackRestartFromAction(action, state, world);
-  await finishReplayStep(world, action, state, NO_STEP_ASSERT);
+  const { surface, app, action, state } = args;
+  const aliveBefore = new Set(surface.clients.keys());
+  await prepareReplayAction(surface, action, state);
+  await dispatchReplayAction(surface, app, action);
+  trackRemovedClients(aliveBefore, surface, state);
+  trackRestartFromAction(action, state, surface);
+  await finishReplayStep(surface, action, state, NO_STEP_ASSERT);
 }

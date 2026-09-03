@@ -1,38 +1,53 @@
 import { describe, expect, test } from 'bun:test';
-import { expectLiveNote, setNote } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import { start } from '@pkgs/dst';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  converge,
+  lastMutationOk,
+  mutate,
+  setNote,
+  syncVirtualHost,
+} from '../apps/acme';
+import { expectLiveNoteAt } from '../apps/acme/reads';
 
 describe('single client mutate uploads and persists', () => {
   test('single client mutate uploads and is visible locally', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 1,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const result = await a.mutate(setNote, { id: 'n1', body: 'hello' });
-    expect(result.ok).toBe(true);
-    await world.assertConverged();
-    await expectLiveNote(a.db, 'n1', { body: 'hello' });
+    await run.apply(addClient, 'alice');
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'hello' });
+    expect(await run.observe(lastMutationOk('alice'))).toBe(true);
+
+    await run.apply(converge);
+    await expectLiveNoteAt(run, 'alice', 'n1', { body: 'hello' });
   });
 
   test('title and body both persist after converge', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 2,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    await a.mutate(setNote, {
+    await run.apply(addClient, 'alice');
+    await run.apply(mutate, 'alice', setNote, {
       id: 'n1',
       title: 'Greeting',
       body: 'hello',
     });
-    await world.assertConverged();
-    await expectLiveNote(a.db, 'n1', { body: 'hello', title: 'Greeting' });
+    await run.apply(converge);
+
+    await expectLiveNoteAt(run, 'alice', 'n1', {
+      body: 'hello',
+      title: 'Greeting',
+    });
   });
 });

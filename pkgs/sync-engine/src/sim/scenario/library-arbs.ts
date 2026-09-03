@@ -10,11 +10,11 @@ import {
   HTTP_FAULTS,
   PUBSUB_FAULTS,
   SCHEMA_VARIANTS,
+  SIM_PBT_CRASH_EVENTS,
   SKEW_MS_VALUES,
   STORAGE_PRESSURES,
   STORAGE_TAMPERS,
-  WORLD_PBT_CRASH_EVENTS,
-} from './world-model';
+} from './model';
 
 /** Mild fixed reorder/loss so `setFaults` perturbs without stalling sync. */
 export const MILD_NET_FAULTS = {
@@ -30,7 +30,7 @@ export type LibraryArbCtx = {
   readonly sessionQuery: SimSessionQuery;
 };
 
-/** Resolved per-world inputs shared by every library-action arbitrary. */
+/** Resolved per-run inputs shared by every library-action arbitrary. */
 type ArbInputs = {
   readonly ids: readonly string[];
   readonly pick: fc.Arbitrary<string>;
@@ -151,7 +151,7 @@ const BOUNDARY_FAULT_ENTRIES: readonly LibraryArbEntry[] = [
   {
     kind: 'armCrashAt',
     make: ({ pick }) =>
-      fc.tuple(pick, fc.constantFrom(...WORLD_PBT_CRASH_EVENTS)).map(
+      fc.tuple(pick, fc.constantFrom(...SIM_PBT_CRASH_EVENTS)).map(
         ([clientId, event]): LibraryAction => ({
           kind: 'armCrashAt',
           clientId,

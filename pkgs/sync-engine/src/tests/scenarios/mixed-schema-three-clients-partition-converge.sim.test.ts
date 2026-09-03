@@ -1,21 +1,32 @@
 import { describe, expect, test } from 'bun:test';
-import { sql } from '@pkgs/sql';
-import { defineSyncSystem, openSyncWorld } from '../../sim/scenario';
+import { start } from '@pkgs/dst';
 import {
   acmeApp,
+  acmeDraws,
   acmeLocalSchema,
   acmeLocalSchemaExtraColumn,
   acmeLocalSchemaExtraColumnAndTable,
   acmeLocalSchemaExtraTable,
   acmeMutationRegistry,
   acmeQueryRegistry,
-  expectLiveNote,
-  expectNotesMatchServer,
-  notesWorldWithColorQuery,
+  addClient,
+  converge,
+  defineSyncSystem,
+  liveNote,
+  liveTags,
+  localTable,
+  mutate,
+  noteColor,
+  noteColumns,
+  notesAllWithColorQuery,
+  partition,
+  release,
   setNote,
   setNoteColor,
   setTag,
-  tagsWorldQuery,
+  subscribe,
+  syncVirtualHost,
+  tagsAllQuery,
 } from '../apps/acme';
 
 const acmeMixedSchemaSystem = defineSyncSystem(acmeApp, {
@@ -28,8 +39,8 @@ const acmeMixedSchemaSystem = defineSyncSystem(acmeApp, {
   },
   queryRegistry: {
     ...acmeQueryRegistry,
-    [notesWorldWithColorQuery.name]: notesWorldWithColorQuery,
-    [tagsWorldQuery.name]: tagsWorldQuery,
+    [notesAllWithColorQuery.name]: notesAllWithColorQuery,
+    [tagsAllQuery.name]: tagsAllQuery,
   },
 });
 
@@ -37,18 +48,18 @@ describe('mixed schema three clients partition converge', () => {
   test.each([2100, 2101, 2102])(
     'baseline + color + tags under partition then heal (seed=%i)',
     async (seed) => {
-      await using world = await openSyncWorld(acmeMixedSchemaSystem, {
+      await using run = await start(acmeMixedSchemaSystem, {
         seed: seed,
-        knobs: {
-          clientCount: 0,
-        },
+        host: syncVirtualHost(),
+        draws: acmeDraws({ clientCount: 0 }),
+        properties: [],
       });
 
-      const alice = await world.addClient({
+      await run.apply(addClient, {
         id: 'alice',
         localSchema: acmeLocalSchema,
       });
-      const bob = await world.addClient({
+      await run.apply(addClient, {
         id: 'bob',
         localSchema: acmeLocalSchemaExtraColumn,
         mutationRegistry: {
@@ -57,11 +68,11 @@ describe('mixed schema three clients partition converge', () => {
         },
         queryRegistry: {
           ...acmeQueryRegistry,
-          [notesWorldWithColorQuery.name]: notesWorldWithColorQuery,
+          [notesAllWithColorQuery.name]: notesAllWithColorQuery,
         },
-        sessionQuery: { name: 'notesWorldWithColor', params: {} },
+        sessionQuery: { name: 'notesAllWithColor', params: {} },
       });
-      const carol = await world.addClient({
+      await run.apply(addClient, {
         id: 'carol',
         localSchema: acmeLocalSchemaExtraTable,
         mutationRegistry: {
@@ -70,62 +81,60 @@ describe('mixed schema three clients partition converge', () => {
         },
         queryRegistry: {
           ...acmeQueryRegistry,
-          [tagsWorldQuery.name]: tagsWorldQuery,
+          [tagsAllQuery.name]: tagsAllQuery,
         },
       });
 
-      await alice.mutate(setNote, { id: 'shared', body: 'seed' });
-      await world.assertConverged();
+      await run.apply(mutate, 'alice', setNote, { id: 'shared', body: 'seed' });
+      await run.apply(converge);
 
-      {
-        using _a = world.net('alice', 'all').set('down');
-        using _b = world.net('bob', 'all').set('down');
-        using _c = world.net('carol', 'all').set('down');
+      await run.apply(partition, 'alice', 'all');
+      await run.apply(partition, 'bob', 'all');
+      await run.apply(partition, 'carol', 'all');
 
-        await alice.mutate(setNote, { id: 'shared', body: 'from-alice' });
-        await bob.mutate(setNoteColor, {
-          id: 'shared',
-          body: 'from-bob',
-          color: 'blue',
-        });
-        await carol.mutate(setTag, { id: 't1', label: 'urgent' });
-        await carol.mutate(setNote, { id: 'carol-only', body: 'c-note' });
-      }
+      await run.apply(mutate, 'alice', setNote, {
+        id: 'shared',
+        body: 'from-alice',
+      });
+      await run.apply(mutate, 'bob', setNoteColor, {
+        id: 'shared',
+        body: 'from-bob',
+        color: 'blue',
+      });
+      await run.apply(mutate, 'carol', setTag, { id: 't1', label: 'urgent' });
+      await run.apply(mutate, 'carol', setNote, {
+        id: 'carol-only',
+        body: 'c-note',
+      });
 
-      using tagsSub = carol.subscribe('tagsWorld', {});
-      await world.waitUntil(tagsSub.ready);
-      await world.assertConverged();
+      await run.apply(release, 'alice', 'all');
+      await run.apply(release, 'bob', 'all');
+      await run.apply(release, 'carol', 'all');
 
-      await expectLiveNote(alice.db, 'carol-only', { body: 'c-note' });
-      await expectNotesMatchServer(alice.db, world.server.db);
-      await expectNotesMatchServer(bob.db, world.server.db);
+      await run.apply(subscribe, 'carol', 'tagsAll', {});
+      await run.apply(converge);
 
-      const aliceCols = await alice.db.query(sql<{ name: string }>`
-        SELECT name FROM pragma_table_info('notes')
-      `);
+      expect(await run.observe(liveNote('alice', 'carol-only'))).toMatchObject({
+        body: 'c-note',
+      });
+
+      // Alice stays on the baseline schema — no `color`, no `tags`.
+      const aliceCols = await run.observe(noteColumns('alice'));
       expect(aliceCols.some((c) => c.name === 'color')).toBe(false);
+      expect(await run.observe(localTable('alice', 'tags'))).toEqual([]);
 
-      const aliceTables = await alice.db.query(sql<{ name: string }>`
-        SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'tags'
-      `);
-      expect(aliceTables).toEqual([]);
+      expect((await run.observe(noteColor('bob', 'shared')))[0]?.color).toBe(
+        'blue'
+      );
 
-      const bobColor = await bob.db.query(sql<{ color: string | null }>`
-        SELECT color FROM notes WHERE id = ${'shared'} AND deleted_at IS NULL
-      `);
-      expect(bobColor[0]?.color).toBe('blue');
+      const shared = await run.observe(liveNote('alice', 'shared'));
+      expect(shared?.body === 'from-alice' || shared?.body === 'from-bob').toBe(
+        true
+      );
 
-      const shared = await alice.db.query(sql<{ body: string }>`
-        SELECT body FROM notes WHERE id = ${'shared'} AND deleted_at IS NULL
-      `);
-      expect(
-        shared[0]?.body === 'from-alice' || shared[0]?.body === 'from-bob'
-      ).toBe(true);
-
-      const tags = await carol.db.query(sql<{ id: string; label: string }>`
-        SELECT id, label FROM tags WHERE deleted_at IS NULL ORDER BY id ASC
-      `);
-      expect(tags).toEqual([{ id: 't1', label: 'urgent' }]);
+      expect(await run.observe(liveTags('carol'))).toEqual([
+        { id: 't1', label: 'urgent' },
+      ]);
     }
   );
 });

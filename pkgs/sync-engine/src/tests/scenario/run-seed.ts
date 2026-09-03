@@ -1,14 +1,15 @@
 import type { Repro } from '@pkgs/dst';
-import { REPRO_VERSION } from '@pkgs/dst';
+import { defineAction, draw, REPRO_VERSION, start } from '@pkgs/dst';
 
 import { isStorageFullError } from '../../client/storage-full-error';
 import { isClosedDatabaseError } from '../../sim/invariants';
-import { bootClients, settleWorld } from '../../sim/replay-steps';
+import { bootClients, settleKit } from '../../sim/replay-steps';
 import type { SeededRng } from '../../sim/rng';
 import {
   defineSyncSystem,
-  openSyncWorld,
   type SyncSurface,
+  syncSystemDraws,
+  syncVirtualHost,
 } from '../../sim/scenario';
 import type { SyncAction } from '../../sim/scenario/actions';
 import type { SyncApp } from '../../sim/scenario/app';
@@ -127,7 +128,7 @@ async function pickWorkloadAction(args: {
 
 async function runWorkloadLoop(args: {
   readonly app: SyncApp;
-  readonly world: SyncSurface;
+  readonly surface: SyncSurface;
   readonly ids: readonly string[];
   readonly steps: number;
   domainModel: unknown | null;
@@ -136,7 +137,7 @@ async function runWorkloadLoop(args: {
   readonly done: number;
   readonly fail: WorkloadLoopFail | null;
 }> {
-  const workRng = args.world.rng.fork('workload');
+  const workRng = args.surface.rng.fork('workload');
   let domainModel = args.domainModel;
   let done = 0;
   for (let i = 0; i < args.steps; i += 1) {
@@ -150,11 +151,11 @@ async function runWorkloadLoop(args: {
     const action = picked.action;
     args.actions.push(action);
     try {
-      await dispatchSyncAction(args.world, args.app, action);
+      await dispatchSyncAction(args.surface, args.app, action);
     } catch (error) {
       if (isTransientSimFault(error)) {
         done += 1;
-        await args.world.advance(20);
+        await args.surface.advance(20);
         continue;
       }
       const message = error instanceof Error ? error.message : String(error);
@@ -162,11 +163,11 @@ async function runWorkloadLoop(args: {
         done,
         fail: {
           ok: false,
-          seed: args.world.seed,
+          seed: args.surface.seed,
           steps: done,
           error: message,
           artifact: buildFailureArtifact({
-            seed: args.world.seed,
+            seed: args.surface.seed,
             actions: args.actions,
             error: message,
             failureStep: args.actions.length,
@@ -183,18 +184,18 @@ async function runWorkloadLoop(args: {
     }
     done += 1;
     try {
-      await args.world.checkInvariants();
+      await args.surface.checkInvariants();
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       return {
         done,
         fail: {
           ok: false,
-          seed: args.world.seed,
+          seed: args.surface.seed,
           steps: done,
           error: message,
           artifact: buildFailureArtifact({
-            seed: args.world.seed,
+            seed: args.surface.seed,
             actions: args.actions,
             error: message,
             failureStep: args.actions.length,
@@ -202,69 +203,99 @@ async function runWorkloadLoop(args: {
         },
       };
     }
-    await args.world.advance(20);
+    await args.surface.advance(20);
   }
   return { done, fail: null };
 }
 
-/**
- * Run one seeded universe: N clients, random workload, heal + converge.
- * On failure returns seed + scenario artifact for exact replay.
- */
-export async function runSeed(opts: RunSeedOptions): Promise<RunSeedResult> {
-  const clientCount = opts.clientCount ?? 2;
-  const steps = opts.steps ?? 40;
-  const world = await openSyncWorld(defineSyncSystem(opts.app), {
-    seed: opts.seed,
-    knobs: { clientCount: 0 },
-  });
-
+async function executeSeed(
+  surface: SyncSurface,
+  opts: RunSeedOptions
+): Promise<RunSeedResult> {
   const actions: SyncAction[] = [];
   let done = 0;
   try {
     const ids = await bootClients({
-      world,
-      clientCount,
+      surface,
+      clientCount: opts.clientCount ?? 2,
       sampleFaults: opts.sampleFaults === true,
       dstFaults: opts.dstFaults === true,
     });
     const loop = await runWorkloadLoop({
       app: opts.app,
-      world,
+      surface,
       ids,
-      steps,
+      steps: opts.steps ?? 40,
       domainModel: opts.app.domainModel?.initial() ?? null,
       actions,
     });
     done = loop.done;
     if (loop.fail !== null) return loop.fail;
     try {
-      await settleWorld({ world, ids });
+      await settleKit({ surface, ids });
     } catch (error) {
       if (isTransientSimFault(error)) {
-        await settleWorld({ world, ids });
+        await settleKit({ surface, ids });
       } else {
         throw error;
       }
     }
-    return { ok: true, seed: world.seed, steps: done };
+    return { ok: true, seed: surface.seed, steps: done };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     return {
       ok: false,
-      seed: world.seed,
+      seed: surface.seed,
       steps: done,
       error: message,
       artifact: buildFailureArtifact({
-        seed: world.seed,
-        actions: actions,
+        seed: surface.seed,
+        actions,
         error: message,
         failureStep: actions.length,
       }),
     };
-  } finally {
-    await world.dispose();
   }
+}
+
+type SeedJob = {
+  readonly opts: RunSeedOptions;
+  result: RunSeedResult | null;
+};
+
+/** Drives the whole seeded workload inside the run; the surface never escapes. */
+const seedWorkload = defineAction({
+  name: 'seedWorkload',
+  *generate() {
+    const job = yield* draw<SeedJob | undefined>(() => undefined);
+    if (job === undefined) return;
+    yield {
+      weight: 1,
+      act: async (s: SyncSurface) => {
+        job.result = await executeSeed(s, job.opts);
+      },
+    };
+  },
+});
+
+/**
+ * Run one seeded universe: N clients, random workload, heal + converge.
+ * On failure returns seed + scenario artifact for exact replay.
+ */
+export async function runSeed(opts: RunSeedOptions): Promise<RunSeedResult> {
+  const system = defineSyncSystem(opts.app);
+  await using run = await start(system, {
+    seed: opts.seed,
+    host: syncVirtualHost(),
+    draws: syncSystemDraws({ clientCount: 0 }),
+    properties: [],
+  });
+  const job: SeedJob = { opts, result: null };
+  await run.apply(seedWorkload, job);
+  if (job.result === null) {
+    throw new Error('sync: seedWorkload did not run');
+  }
+  return job.result;
 }
 
 /** Parse SYNC_SIM_SEED / SYNC_SIM_SEEDS env for CI / local replay. */

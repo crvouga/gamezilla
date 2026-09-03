@@ -2,11 +2,11 @@ import { defineSystem, draw, type System } from '@pkgs/dst';
 import { gen } from '@pkgs/dst/fast-check';
 import fc from 'fast-check';
 import type { InMemoryRoomStorage } from '../../server/adapters/memory';
-import { createRoomWorld } from '../world';
+import { createRoomKit } from '../kit';
 import type { RoomApp } from './app';
 import type { RoomSurface } from './surface';
 
-const WORLD_START_MS = 1_700_000_000_000;
+const SIM_START_MS = 1_700_000_000_000;
 
 export type DefineRoomSystemOpts = {
   readonly name?: string;
@@ -17,16 +17,16 @@ export type DefineRoomSystemOpts = {
 export type RoomSystemDef = System<RoomSurface>;
 
 async function bootClients(
-  world: Awaited<ReturnType<typeof createRoomWorld>>,
+  kit: Awaited<ReturnType<typeof createRoomKit>>,
   clientCount: number
 ): Promise<void> {
   for (let i = 0; i < clientCount; i++) {
-    await world.addClient({ id: `c${i}` });
+    await kit.addClient({ id: `c${i}` });
   }
 }
 
 /**
- * Room system: draws `clientCount` and `mildFaults`, boots one kit world,
+ * Room system: draws `clientCount` and `mildFaults`, boots one kit,
  * and returns {@link RoomSurface}.
  */
 export function defineRoomSystem(
@@ -38,7 +38,7 @@ export function defineRoomSystem(
     async *generate(session) {
       const clientCount = yield* draw(gen(fc.integer({ min: 0, max: 4 })));
       const mildFaults = yield* draw(gen(fc.boolean()));
-      const world = await createRoomWorld({
+      const kit = await createRoomKit({
         session,
         module: app.module,
         mildFaults,
@@ -46,17 +46,17 @@ export function defineRoomSystem(
         ...(opts?.storage !== undefined ? { storage: opts.storage } : {}),
         ...(app.authorize !== undefined ? { authorize: app.authorize } : {}),
       });
-      await bootClients(world, clientCount);
+      await bootClients(kit, clientCount);
       return {
         session,
         app,
-        world,
-        clients: world.clients,
-        server: world.server,
+        kit,
+        clients: kit.clients,
+        server: kit.server,
       } satisfies RoomSurface;
     },
   });
 }
 
 export type { RoomSurface };
-export { WORLD_START_MS };
+export { SIM_START_MS };

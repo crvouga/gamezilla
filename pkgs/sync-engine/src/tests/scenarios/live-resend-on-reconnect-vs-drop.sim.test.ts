@@ -1,59 +1,79 @@
 import { describe, test } from 'bun:test';
-import { expectLiveNote, isLiveNote, setNote } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import { start } from '@pkgs/dst';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  assertConverged,
+  connect,
+  disconnect,
+  expectLiveNoteAt,
+  hold,
+  liveNote,
+  mutate,
+  neverAcme,
+  noteBodyIs,
+  passTime,
+  release,
+  setNote,
+  syncVirtualHost,
+  untilAcme,
+} from '../apps/acme';
 
 describe('live resend on reconnect vs drop', () => {
   test('default: missed live is dropped; sync pull repairs', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 601,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
-    await a.mutate(setNote, { id: 'warm', body: 'w' });
-    await world.assertConverged();
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
+    await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
+    await run.apply(assertConverged);
 
-    await b.disconnect();
-    using _hold = world.net('bob', 'sync').set('hold');
-    await a.mutate(setNote, { id: 'n1', body: 'while-down' });
-    await world.advance(80);
+    await run.apply(disconnect, 'bob');
+    await run.apply(hold, 'bob', 'sync');
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'while-down' });
+    await run.apply(passTime, 80);
 
-    await b.connect();
-    await world.waitNever(() => isLiveNote(b.db, 'n1'), { forMs: 200 });
+    await run.apply(connect, 'bob');
+    await neverAcme(run, liveNote('bob', 'n1'), { forMs: 200 });
 
-    _hold.restore();
-    await world.assertConverged();
-    await expectLiveNote(b.db, 'n1', { body: 'while-down' });
+    await run.apply(release, 'bob', 'sync');
+    await run.apply(assertConverged);
+    await expectLiveNoteAt(run, 'bob', 'n1', { body: 'while-down' });
   });
 
   test('liveResendOnReconnect: consistent from resent live while sync held', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 602,
-      knobs: {
-        clientCount: 0,
-        liveResendOnReconnect: true,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0, liveResendOnReconnect: true }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
-    await a.mutate(setNote, { id: 'warm', body: 'w' });
-    await world.assertConverged();
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
+    await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
+    await run.apply(assertConverged);
 
-    await b.disconnect();
-    using _hold = world.net('bob', 'sync').set('hold');
-    await a.mutate(setNote, { id: 'n1', body: 'resent' });
-    await world.advance(80);
+    await run.apply(disconnect, 'bob');
+    await run.apply(hold, 'bob', 'sync');
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'resent' });
+    await run.apply(passTime, 80);
 
-    await b.connect();
-    await world.waitUntil(() => isLiveNote(b.db, 'n1'), { withinMs: 2_000 });
-    await expectLiveNote(b.db, 'n1', { body: 'resent' });
+    await run.apply(connect, 'bob');
+    await untilAcme(run, liveNote('bob', 'n1'), {
+      maxMs: 2_000,
+      pred: noteBodyIs('resent'),
+    });
+    await expectLiveNoteAt(run, 'bob', 'n1', { body: 'resent' });
 
-    _hold.restore();
-    await world.assertConverged();
-    await expectLiveNote(b.db, 'n1', { body: 'resent' });
+    await run.apply(release, 'bob', 'sync');
+    await run.apply(assertConverged);
+    await expectLiveNoteAt(run, 'bob', 'n1', { body: 'resent' });
   });
 });

@@ -2,31 +2,39 @@
  * Kit methods built in system `generate` over a shared store + replicas.
  */
 
-import type { Session } from '@pkgs/dst';
+import type { JsonValue, Session } from '@pkgs/dst';
 import { asSeededRng } from '@pkgs/dst/kernel';
 import type { SeededRng } from '@pkgs/uuid';
+import type { Hono } from 'hono';
 
+import type { TickResult } from '../../interface/matchmaking';
+import type { LeaveResult, UpdateFormulasResult } from '../../interface/types';
 import { bootReplicaOnStore } from '../boot-replica';
 import {
   buildReplicaHandle,
-  joinOnWorld,
+  joinOnReplica,
+  type ReplicaOps,
   resolveReplica,
-  type WorldReplicaOps,
 } from '../handles';
+import type { MatchmakingSimKit, ReplicaHandle } from '../sim-api';
 import {
   type EventuallyOptions,
   type NeverOptions,
-  runWorldNever,
-  runWorldUntil,
+  runNever,
+  runUntil,
   type UntilTarget,
 } from '../until';
-import type {
-  MatchmakingSimKit,
-  MatchmakingSimWorld,
-  ReplicaHandle,
-} from '../world-api';
 import type { MmReplicaBootHandle } from './node-kinds';
 import type { MatchmakingSystemConfig } from './system';
+
+/** Last result of each write action — read back through observations. */
+export type MatchmakingLastResults = {
+  tick: TickResult | null;
+  tickAll: readonly TickResult[] | null;
+  leave: LeaveResult | null;
+  update: UpdateFormulasResult | null;
+  http: { readonly status: number; readonly body: JsonValue } | null;
+};
 
 export type MatchmakingSurface = MatchmakingSimKit & {
   readonly session: Session;
@@ -35,6 +43,11 @@ export type MatchmakingSurface = MatchmakingSimKit & {
     readonly rng: SeededRng;
     readonly clock: Session['ports']['clock'];
   };
+  /** Test-chosen alias → participantId, filled in by the `join` action. */
+  readonly refs: Map<string, string>;
+  readonly last: MatchmakingLastResults;
+  /** Lazily built Hono app per replica, for the `httpRequest` action. */
+  readonly apps: Map<string, Hono>;
 };
 
 export function buildMatchmakingKit(args: {
@@ -50,7 +63,7 @@ export function buildMatchmakingKit(args: {
   }
   const firstId = boots[0]!.id;
   const replicas = new Map<string, ReplicaHandle>();
-  const ops: WorldReplicaOps = {
+  const ops: ReplicaOps = {
     getMm: (replicaId) => resolveReplica(replicas, replicaId).mm,
     defaultReplicaId: firstId,
   };
@@ -79,6 +92,15 @@ export function buildMatchmakingKit(args: {
     session,
     advance,
     replicas,
+    refs: new Map<string, string>(),
+    apps: new Map<string, Hono>(),
+    last: {
+      tick: null,
+      tickAll: null,
+      leave: null,
+      update: null,
+      http: null,
+    },
     ports: {
       rng,
       clock: session.ports.clock,
@@ -86,7 +108,7 @@ export function buildMatchmakingKit(args: {
     replica: (id) => resolveReplica(replicas, id),
     addReplica: async (id) => {
       if (replicas.has(id)) {
-        throw new Error(`MatchmakingSimWorld: replica ${id} already exists`);
+        throw new Error(`matchmaking surface: replica ${id} already exists`);
       }
       const mm = await bootReplicaOnStore({
         store,
@@ -103,22 +125,22 @@ export function buildMatchmakingKit(args: {
       return resolveReplica(replicas, firstId).mm;
     },
     join: (input, replicaId) =>
-      joinOnWorld({ replicas, ops, firstId }, input, replicaId),
+      joinOnReplica({ replicas, ops, firstId }, input, replicaId),
     tick: (opts, replicaId) =>
       resolveReplica(replicas, replicaId ?? firstId).tick(opts),
     tickAll: (opts) =>
       Promise.all([...replicas.values()].map((r) => r.tick(opts))),
     waitUntil: (target: UntilTarget, opts?: EventuallyOptions) =>
-      runWorldUntil(untilCtx, target, opts),
+      runUntil(untilCtx, target, opts),
     waitNever: (target: UntilTarget, opts: NeverOptions) =>
-      runWorldNever(untilCtx, target, opts),
+      runNever(untilCtx, target, opts),
   };
 }
 
 export async function assertReplicaAgreement(
-  world: MatchmakingSimWorld
+  surface: MatchmakingSurface
 ): Promise<void> {
-  const replicaIds = [...world.replicas.keys()];
+  const replicaIds = [...surface.replicas.keys()];
   if (replicaIds.length === 0) {
     throw new Error('matchmaking.no-replicas: kit has no replicas');
   }
@@ -126,7 +148,7 @@ export async function assertReplicaAgreement(
   let first: unknown;
   for (let i = 0; i < replicaIds.length; i += 1) {
     const id = replicaIds[i]!;
-    const r = world.replicas.get(id);
+    const r = surface.replicas.get(id);
     if (r === undefined) {
       throw new Error(`matchmaking.missing-replica: replica ${id} missing`);
     }

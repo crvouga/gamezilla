@@ -1,70 +1,88 @@
 import { describe, expect, test } from 'bun:test';
-import { setFolder, setNote } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import { start } from '@pkgs/dst';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  converge,
+  mutate,
+  passTime,
+  pendingEventCount,
+  schedulerQuiescent,
+  setFolder,
+  setNote,
+  subscribe,
+  subscribedTopics,
+  syncVirtualHost,
+} from '../apps/acme';
 
 describe('scope churn no leaked timers or subscriptions', () => {
   test('rapid subscribe/unsubscribe settles to active session topics only', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 1030,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    await a.mutate(setFolder, { id: 'f1', title: 'A' });
-    await a.mutate(setFolder, { id: 'f2', title: 'B' });
-    await a.mutate(setNote, { id: 'n1', body: 'x', folderId: 'f1' });
-    await world.assertConverged();
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(mutate, 'alice', setFolder, { id: 'f1', title: 'A' });
+    await run.apply(mutate, 'alice', setFolder, { id: 'f2', title: 'B' });
+    await run.apply(mutate, 'alice', setNote, {
+      id: 'n1',
+      body: 'x',
+      folderId: 'f1',
+    });
+    await run.apply(converge);
 
     // Warm held-row topic projection (same path subscribe churn uses).
-    {
-      using warm = a.subscribe('notesByFolder', {
-        folderId: 'f1',
-        includeArchived: false,
-      });
-      await world.waitUntil(warm.ready, { withinMs: 1_000 });
-    }
-    await world.advance(200);
-    const baseline = [...a.subscribedTopics()].sort();
+    await run.apply(subscribe, 'alice', 'notesByFolder', {
+      folderId: 'f1',
+      includeArchived: false,
+    });
+    await run.apply(passTime, 200);
+    const baseline = [...(await run.observe(subscribedTopics('alice')))].sort();
 
     for (let i = 0; i < 20; i += 1) {
-      const folderId = i % 2 === 0 ? 'f1' : 'f2';
-      using sub = a.subscribe('notesByFolder', {
-        folderId,
+      await run.apply(subscribe, 'alice', 'notesByFolder', {
+        folderId: i % 2 === 0 ? 'f1' : 'f2',
         includeArchived: i % 3 === 0,
       });
-      await world.waitUntil(sub.ready, { withinMs: 1_000 });
     }
 
-    await world.advance(1_000);
-    expect([...a.subscribedTopics()].sort()).toEqual(baseline);
+    await run.apply(passTime, 1_000);
+    expect([...(await run.observe(subscribedTopics('alice')))].sort()).toEqual(
+      baseline
+    );
     // No runaway timer storm: pending work stays bounded after churn.
-    expect(world.pendingEventCount()).toBeLessThan(50);
-    await world.assertConverged();
+    expect(await run.observe(pendingEventCount)).toBeLessThan(50);
+    await run.apply(converge);
   });
 
   test.each([1031, 1032, 1033])(
     'seed sweep churn returns to session topics (seed=%i)',
     async (seed) => {
-      await using world = await openAcmeWorld({
+      await using run = await start(acmeSystem, {
         seed: seed,
-        knobs: {
-          clientCount: 0,
-        },
+        host: syncVirtualHost(),
+        draws: acmeDraws({ clientCount: 0 }),
+        properties: [],
       });
 
-      const a = await world.addClient({ id: 'alice' });
-      const baseline = [...a.subscribedTopics()].sort();
+      await run.apply(addClient, { id: 'alice' });
+      const baseline = [
+        ...(await run.observe(subscribedTopics('alice'))),
+      ].sort();
       for (let i = 0; i < 6; i += 1) {
-        using sub = a.subscribe('notesDenied', {});
-        await world.waitUntil(sub.ready, { withinMs: 800 });
+        await run.apply(subscribe, 'alice', 'notesDenied', {});
       }
-      await world.advance(500);
-      expect([...a.subscribedTopics()].sort()).toEqual(baseline);
+      await run.apply(passTime, 500);
       expect(
-        world.isSchedulerQuiescent() || world.pendingEventCount() < 50
-      ).toBe(true);
+        [...(await run.observe(subscribedTopics('alice')))].sort()
+      ).toEqual(baseline);
+      const quiescent = await run.observe(schedulerQuiescent);
+      const pending = await run.observe(pendingEventCount);
+      expect(quiescent || pending < 50).toBe(true);
     }
   );
 });

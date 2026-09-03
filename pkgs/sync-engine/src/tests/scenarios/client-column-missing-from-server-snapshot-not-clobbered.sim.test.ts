@@ -1,50 +1,57 @@
 import { describe, expect, test } from 'bun:test';
-import { sql } from '@pkgs/sql';
+import { start } from '@pkgs/dst';
 import {
+  acmeDraws,
   acmeLocalSchemaExtraColumn,
-  expectLiveNote,
+  acmeSystem,
+  addClient,
+  converge,
+  expectLiveNoteAt,
+  mutate,
+  noteColor,
+  runSql,
   setNote,
+  syncVirtualHost,
 } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
 
 describe('client column missing from server snapshot not clobbered', () => {
   test.each([740, 741, 742])(
     'local color survives peer body update (seed=%i)',
     async (seed) => {
       // Server stays on base schema (no color). Client has extra column.
-      await using world = await openAcmeWorld({
+      await using run = await start(acmeSystem, {
         seed: seed,
-        knobs: {
-          clientCount: 0,
-        },
+        host: syncVirtualHost(),
+        draws: acmeDraws({ clientCount: 0 }),
+        properties: [],
       });
 
-      const a = await world.addClient({
+      await run.apply(addClient, {
         id: 'alice',
         localSchema: acmeLocalSchemaExtraColumn,
       });
-      const b = await world.addClient({ id: 'bob' });
+      await run.apply(addClient, { id: 'bob' });
 
-      await a.mutate(setNote, { id: 'n1', body: 'v1' });
-      await world.assertConverged();
+      await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'v1' });
+      await run.apply(converge);
 
       // Domain-only local write — not uploaded (server has no color column).
-      await a.db.run(sql`
-        UPDATE notes SET color = ${'red'} WHERE id = ${'n1'}
-      `);
-      const before = await a.db.query(sql<{ color: string | null }>`
-        SELECT color FROM notes WHERE id = ${'n1'} AND deleted_at IS NULL
-      `);
-      expect(before[0]?.color).toBe('red');
+      await run.apply(
+        runSql,
+        'alice',
+        `UPDATE notes SET color = 'red' WHERE id = 'n1'`
+      );
+      expect((await run.observe(noteColor('alice', 'n1')))[0]?.color).toBe(
+        'red'
+      );
 
-      await b.mutate(setNote, { id: 'n1', body: 'from-bob' });
-      await world.assertConverged();
+      await run.apply(mutate, 'bob', setNote, { id: 'n1', body: 'from-bob' });
+      await run.apply(converge);
 
-      await expectLiveNote(a.db, 'n1', { body: 'from-bob' });
-      const after = await a.db.query(sql<{ color: string | null }>`
-        SELECT color FROM notes WHERE id = ${'n1'} AND deleted_at IS NULL
-      `);
-      expect(after[0]?.color).toBe('red');
+      await expectLiveNoteAt(run, 'alice', 'n1', { body: 'from-bob' });
+      expect((await run.observe(noteColor('alice', 'n1')))[0]?.color).toBe(
+        'red'
+      );
     }
   );
 });

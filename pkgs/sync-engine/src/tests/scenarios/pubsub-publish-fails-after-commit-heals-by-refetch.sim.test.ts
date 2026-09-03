@@ -1,72 +1,99 @@
 import { describe, test } from 'bun:test';
-import { expectLiveNote, isLiveNote, setNote } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import { start } from '@pkgs/dst';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  assertConverged,
+  connect,
+  converge,
+  disconnect,
+  expectLiveNoteAt,
+  foreground,
+  hold,
+  liveNote,
+  mutate,
+  neverAcme,
+  noteBodyIs,
+  nudge,
+  passTime,
+  publishFault,
+  release,
+  setNote,
+  syncVirtualHost,
+  untilAcme,
+} from '../apps/acme';
 
 describe('pubsub publish fails after commit heals by refetch', () => {
-  // Pins Consistency table “Push lost”: commit acks, fanout drop, heal via refetch.
+  // Pins Consistency table "Push lost": commit acks, fanout drop, heal via refetch.
   test('lost publish leaves peers stale until foreground refetch', async () => {
     // rowImageFanout false: isolate server publish loss (no optimistic images).
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 901,
-      knobs: {
+      host: syncVirtualHost(),
+      draws: acmeDraws({
         clientCount: 0,
         rowImageFanout: false,
-      },
+      }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
-    await a.mutate(setNote, { id: 'warm', body: 'w' });
-    await world.assertConverged();
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
+    await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
+    await run.apply(converge);
 
-    {
-      using _hold = world.net('bob', 'sync').set('hold');
-      using _pub = world.node('server').publishFault('next');
-      await a.mutate(setNote, { id: 'n-lost-push', body: 'committed' });
-      await world.waitUntil(() => isLiveNote(world.server.db, 'n-lost-push'), {
-        withinMs: 5_000,
-      });
-      await expectLiveNote(world.server.db, 'n-lost-push', {
-        body: 'committed',
-      });
-      await world.waitNever(() => isLiveNote(b.db, 'n-lost-push'), {
-        forMs: 400,
-      });
-    }
-    b.foreground(false);
-    b.foreground(true);
+    await run.apply(hold, 'bob', 'sync');
+    await run.apply(publishFault, 'next');
+    await run.apply(mutate, 'alice', setNote, {
+      id: 'n-lost-push',
+      body: 'committed',
+    });
+    await untilAcme(run, liveNote('server', 'n-lost-push'), {
+      pred: noteBodyIs('committed'),
+    });
+    await expectLiveNoteAt(run, 'server', 'n-lost-push', {
+      body: 'committed',
+    });
+    await neverAcme(run, liveNote('bob', 'n-lost-push'), { forMs: 400 });
+
+    await run.apply(release, 'bob', 'sync');
+    await run.apply(foreground, 'bob', false);
+    await run.apply(foreground, 'bob', true);
     // nudge: heal-by-refetch after lost publish
-    await world.waitUntil(b.nudge());
-    await world.assertConverged();
-    await expectLiveNote(b.db, 'n-lost-push', { body: 'committed' });
+    await run.apply(nudge, 'bob');
+    await run.apply(assertConverged);
+    await expectLiveNoteAt(run, 'bob', 'n-lost-push', { body: 'committed' });
   });
 
   test.each([902, 903, 904])(
     'seed sweep: publish fault then reconnect heals (seed=%i)',
     async (seed) => {
-      await using world = await openAcmeWorld({
+      await using run = await start(acmeSystem, {
         seed: seed,
-        knobs: {
+        host: syncVirtualHost(),
+        draws: acmeDraws({
           clientCount: 0,
           rowImageFanout: false,
-        },
+        }),
+        properties: [],
       });
 
-      const a = await world.addClient({ id: 'alice' });
-      const b = await world.addClient({ id: 'bob' });
-      using _pub = world.node('server').publishFault('next');
-      await a.mutate(setNote, {
+      await run.apply(addClient, { id: 'alice' });
+      await run.apply(addClient, { id: 'bob' });
+      await run.apply(publishFault, 'next');
+      await run.apply(mutate, 'alice', setNote, {
         id: `n-${seed}`,
         body: `b-${seed}`,
       });
-      await world.advance(200);
-      await b.disconnect();
-      await b.connect();
-      await world.waitUntil(() => isLiveNote(b.db, `n-${seed}`), {
-        withinMs: 5_000,
+      await run.apply(passTime, 200);
+      await run.apply(disconnect, 'bob');
+      await run.apply(connect, 'bob');
+      await untilAcme(run, liveNote('bob', `n-${seed}`), {
+        pred: noteBodyIs(`b-${seed}`),
       });
-      await world.assertConverged();
-      await expectLiveNote(b.db, `n-${seed}`, { body: `b-${seed}` });
+      await run.apply(assertConverged);
+      await expectLiveNoteAt(run, 'bob', `n-${seed}`, { body: `b-${seed}` });
     }
   );
 });

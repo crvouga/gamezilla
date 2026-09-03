@@ -21,7 +21,7 @@ async function applySyncAction(
 ): Promise<void> {
   try {
     await replayStep({
-      world: surface,
+      surface: surface,
       app: surface.runtime.app,
       action,
       state: surface.runtime.replay,

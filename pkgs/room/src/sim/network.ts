@@ -396,7 +396,7 @@ function buildRoomNetworkApi(args: {
 
 /**
  * Adapt a framework-owned `@pkgs/dst` network kernel to the room-domain
- * client/direction-keyed surface. Framework worlds pass `ctx.network`.
+ * client/direction-keyed surface. Framework systems pass `ctx.network`.
  */
 export function wrapRoomNetwork(args: {
   readonly kernel: Network;

@@ -1,9 +1,9 @@
 import { mutationRegistry, queryRegistry } from '@pkgs/sync-engine/shared';
 import { befriend } from './friendship-mutations';
 import {
+  notesAllV2Query,
   notesAuthorizeThrowQuery,
   notesByFolderQuery,
-  notesWorldV2Query,
   retouchNotes,
   setNoteArgsTight,
   setNoteStrictExists,
@@ -37,12 +37,12 @@ import {
 import { ensureProfileEmpty, setProfileUsername } from './profile-mutations';
 import {
   foldersOnlyQuery,
+  notesAllQuery,
   notesDeniedQuery,
-  notesLargeWorldQuery,
+  notesLargeAllQuery,
   notesLimitedQuery,
   notesOnlyQuery,
   notesOwnedQuery,
-  notesWorldQuery,
   ownProfileQuery,
 } from './queries';
 
@@ -75,9 +75,9 @@ export const acmeMutationRegistry = mutationRegistry([
 ]);
 
 export const acmeQueryRegistry = queryRegistry([
-  notesWorldQuery,
-  notesLargeWorldQuery,
-  notesWorldV2Query,
+  notesAllQuery,
+  notesLargeAllQuery,
+  notesAllV2Query,
   notesByFolderQuery,
   notesAuthorizeThrowQuery,
   notesDeniedQuery,

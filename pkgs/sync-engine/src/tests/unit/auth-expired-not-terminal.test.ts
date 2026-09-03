@@ -5,7 +5,7 @@ import { createLocalSyncEngine } from '../../client/create-local-sync-engine';
 import type { Timers } from '../../client/sim-ports';
 import { SyncApiAuthError } from '../../client/sync-http-client';
 import { acmeLocalSchema } from '../apps/acme';
-import { notesWorldQuery } from '../apps/acme/shared/queries';
+import { notesAllQuery } from '../apps/acme/shared/queries';
 
 function createTestTimers(): {
   readonly timers: Timers;
@@ -55,7 +55,7 @@ async function openEngine(args: {
       createId: () => 'id1',
     }),
     getClientId: () => 'd1',
-    sessionQueries: [{ name: 'notesWorld', params: {} }],
+    sessionQueries: [{ name: 'notesAll', params: {} }],
     postQueries: async () => {
       postCalls += 1;
       return args.postQueries();
@@ -72,7 +72,7 @@ async function openEngine(args: {
     reconcileIntervalMs: 0,
     enableMutationUpload: false,
     push: {
-      queryRegistry: { notesWorld: notesWorldQuery },
+      queryRegistry: { notesAll: notesAllQuery },
       createPubSub: () => null,
       getChannelsCtx: () => ({ actorId: 'alice' }),
     },

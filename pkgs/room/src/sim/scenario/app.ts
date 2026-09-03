@@ -7,7 +7,7 @@ import type {
   RoomModule,
   RoomState,
 } from '../../types';
-import type { RoomSimAuthorize } from '../world-api';
+import type { RoomSimAuthorize } from '../kit-api';
 
 import type { DomainOp } from './actions';
 

@@ -1,9 +1,26 @@
 import { describe, test } from 'bun:test';
 import { assertProperty, fc } from '@pkgs/pbt';
 
-import { WORLD_PBT_CRASH_EVENTS } from '../../sim/boundary-faults';
-import { arbSeed, playRoomActions, startRoom } from '../../sim/scenario';
+import { SIM_PBT_CRASH_EVENTS } from '../../sim/boundary-faults';
+import {
+  arbSeed,
+  armCrashAt,
+  clearFaults,
+  converge,
+  domain,
+  passTime,
+  restart,
+  startRoom,
+} from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
+
+const increment = (clientId: string) =>
+  ({
+    kind: 'domain',
+    clientId,
+    command: 'increment',
+    args: {},
+  }) as const;
 
 describe('room armCrashAt slice PBT', () => {
   test(
@@ -13,39 +30,20 @@ describe('room armCrashAt slice PBT', () => {
         'armCrashAt slice converges',
         fc.asyncProperty(
           arbSeed(),
-          fc.constantFrom(...WORLD_PBT_CRASH_EVENTS),
+          fc.constantFrom(...SIM_PBT_CRASH_EVENTS),
           async (seed, event) => {
             await using run = await startRoom(counterSystem, {
               seed,
               clientCount: 2,
               mildFaults: false,
             });
-            await playRoomActions(run, [
-              {
-                kind: 'armCrashAt',
-                clientId: 'c1',
-                event,
-              },
-              {
-                kind: 'domain',
-                clientId: 'c0',
-                command: 'increment',
-                args: {},
-              },
-              { kind: 'idle', ms: 30 },
-            ]);
-            const world = run._internal.surface.world;
-            world.clearBoundaryFaults();
-            await playRoomActions(run, [
-              { kind: 'restart', clientId: 'c1' },
-              {
-                kind: 'domain',
-                clientId: 'c1',
-                command: 'increment',
-                args: {},
-              },
-            ]);
-            await world.assertConverged();
+            await run.apply(armCrashAt, { clientId: 'c1', event });
+            await run.apply(domain, increment('c0'));
+            await run.apply(passTime, 30);
+            await run.apply(clearFaults);
+            await run.apply(restart, 'c1');
+            await run.apply(domain, increment('c1'));
+            await run.apply(converge);
           }
         ),
         { numRuns: 6 }

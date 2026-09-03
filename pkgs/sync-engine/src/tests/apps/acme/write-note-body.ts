@@ -1,7 +1,7 @@
 import { sql } from '@pkgs/sql';
 
 import type { SimServer } from '../../../sim/server';
-import { NOTES_WORLD_TOPIC } from './shared/topics';
+import { NOTES_ALL_TOPIC } from './shared/topics';
 
 /**
  * Direct domain write bypassing mutations. Prefer `notify: true`.
@@ -20,7 +20,7 @@ export async function writeNoteBody(
   `);
   if (args.notify === true) {
     await server.notifyFanout({
-      topics: [NOTES_WORLD_TOPIC],
+      topics: [NOTES_ALL_TOPIC],
       tables: ['notes'],
       label: 'writeNoteBody',
     });

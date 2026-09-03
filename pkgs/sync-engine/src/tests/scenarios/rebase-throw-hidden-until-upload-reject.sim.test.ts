@@ -1,67 +1,80 @@
 import { describe, expect, test } from 'bun:test';
+import { start } from '@pkgs/dst';
 import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  assertConverged,
+  connect,
   deleteNote,
-  expectLiveNote,
-  expectNoteNotLive,
-  expectNotesMatchServer,
+  disconnect,
+  expectLiveNoteAt,
+  expectNoteNotLiveAt,
+  expectNotesAgree,
+  lastMutationId,
+  lastMutationOk,
+  liveNote,
+  mutate,
+  noteNotLive,
+  outcome,
+  passTime,
+  rejections,
   setNote,
   setNoteStrictExists,
+  syncVirtualHost,
+  untilAcme,
 } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
 
 describe('rebase throw hidden until upload reject', () => {
   test('strict update hidden after peer delete; upload rejects; converge', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 821,
-      knobs: {
+      host: syncVirtualHost(),
+      draws: acmeDraws({
         clientCount: 0,
         rowImageFanout: false,
-      },
+      }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
 
     // Bob owns the row so peer soft-delete is authorized.
-    await b.mutate(setNote, { id: 'n1', body: 'seed' });
-    await world.assertConverged();
+    await run.apply(mutate, 'bob', setNote, { id: 'n1', body: 'seed' });
+    await run.apply(assertConverged);
 
-    await a.disconnect();
-    const pending = await a.mutate(setNoteStrictExists, {
+    await run.apply(disconnect, 'alice');
+    await run.apply(mutate, 'alice', setNoteStrictExists, {
       id: 'n1',
       body: 'strict-pending',
     });
-    expect(pending.ok).toBe(true);
-    if (!pending.ok) return;
-    await expectLiveNote(a.db, 'n1', { body: 'strict-pending' });
+    expect(await run.observe(lastMutationOk('alice'))).toBe(true);
+    const pendingId = await run.observe(lastMutationId('alice'));
+    expect(pendingId).not.toBeNull();
+    if (pendingId === null) return;
+    await expectLiveNoteAt(run, 'alice', 'n1', { body: 'strict-pending' });
 
-    const del = await b.mutate(deleteNote, { id: 'n1' });
-    expect(del.ok).toBe(true);
-    await world.advance(400);
-    await expectNoteNotLive(world.server.db, 'n1');
+    await run.apply(mutate, 'bob', deleteNote, { id: 'n1' });
+    expect(await run.observe(lastMutationOk('bob'))).toBe(true);
+    await run.apply(passTime, 400);
+    await expectNoteNotLiveAt(run, 'server', 'n1');
 
-    await a.connect();
+    await run.apply(connect, 'alice');
     // Merge+rebase throws → optimistic effect hidden (tombstone wins locally).
-    await world.waitUntil(async () => {
-      try {
-        await expectNoteNotLive(a.db, 'n1');
-        return true;
-      } catch {
-        return false;
-      }
-    });
-    await expectNoteNotLive(a.db, 'n1');
+    await untilAcme(run, liveNote('alice', 'n1'), { pred: noteNotLive });
+    await expectNoteNotLiveAt(run, 'alice', 'n1');
 
-    await world.waitUntil(a.outcome(pending.mutationId));
-    expect(await a.outcome(pending.mutationId)).toBe('rejected');
-    const unacked = await a.rejections();
+    await untilAcme(run, outcome('alice', pendingId));
+    expect(await run.observe(outcome('alice', pendingId))).toBe('rejected');
+    const unacked = await run.observe(rejections('alice'));
     expect(unacked.length).toBe(1);
-    expect(unacked[0]?.mutationId).toBe(pending.mutationId);
+    expect(unacked[0]?.mutationId).toBe(pendingId);
 
-    await b.mutate(setNote, { id: 'bump', body: 'x' });
-    await world.assertConverged();
-    await expectNoteNotLive(a.db, 'n1');
-    await expectNotesMatchServer(a.db, world.server.db);
-    await expectNotesMatchServer(b.db, world.server.db);
+    await run.apply(mutate, 'bob', setNote, { id: 'bump', body: 'x' });
+    await run.apply(assertConverged);
+    await expectNoteNotLiveAt(run, 'alice', 'n1');
+    await expectNotesAgree(run, 'alice');
+    await expectNotesAgree(run, 'bob');
   });
 });

@@ -1,67 +1,85 @@
 import { describe, test } from 'bun:test';
+import { start } from '@pkgs/dst';
 import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  converge,
   createSpace,
-  expectLiveNote,
-  isLiveNote,
+  expectLiveNoteAt,
+  hasTopic,
+  hold,
   joinSpace,
+  lacksTopic,
   leaveSpace,
+  liveNote,
+  mutate,
+  neverAcme,
+  noteLive,
+  release,
   roomTopic,
   SPACE_MEMBERSHIP_SESSION,
   setSpaceNote,
+  subscribedTopics,
+  syncVirtualHost,
+  untilAcme,
 } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
 
 describe('push for just unsubscribed topic ignored', () => {
   test('leave races room push; ignored without error; engine stays healthy', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 812,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({
+    await run.apply(addClient, {
       id: 'alice',
       sessionQuery: SPACE_MEMBERSHIP_SESSION,
     });
-    const b = await world.addClient({
+    await run.apply(addClient, {
       id: 'bob',
       sessionQuery: SPACE_MEMBERSHIP_SESSION,
     });
 
-    await a.mutate(createSpace, { id: 'race-room', title: 'R' });
-    await world.assertConverged();
-    await world.waitUntil(() =>
-      a.subscribedTopics().includes(roomTopic('race-room'))
-    );
-    await b.mutate(joinSpace, { spaceId: 'race-room' });
-    await world.waitUntil(() =>
-      b.subscribedTopics().includes(roomTopic('race-room'))
-    );
-    await world.assertConverged();
-    await world.waitUntil(() =>
-      a.subscribedTopics().includes(roomTopic('race-room'))
-    );
+    await run.apply(mutate, 'alice', createSpace, {
+      id: 'race-room',
+      title: 'R',
+    });
+    await run.apply(converge);
+    await untilAcme(run, subscribedTopics('alice'), {
+      pred: hasTopic(roomTopic('race-room')),
+    });
+    await run.apply(mutate, 'bob', joinSpace, { spaceId: 'race-room' });
+    await untilAcme(run, subscribedTopics('bob'), {
+      pred: hasTopic(roomTopic('race-room')),
+    });
+    await run.apply(converge);
+    await untilAcme(run, subscribedTopics('alice'), {
+      pred: hasTopic(roomTopic('race-room')),
+    });
 
-    await a.mutate(leaveSpace, { spaceId: 'race-room' });
-    await world.waitUntil(
-      () => !a.subscribedTopics().includes(roomTopic('race-room'))
-    );
+    await run.apply(mutate, 'alice', leaveSpace, { spaceId: 'race-room' });
+    await untilAcme(run, subscribedTopics('alice'), {
+      pred: lacksTopic(roomTopic('race-room')),
+    });
 
-    {
-      using _hold = world.net('alice', 'sync').set('hold');
-      await b.mutate(setSpaceNote, {
-        id: 'late-push',
-        spaceId: 'race-room',
-        body: 'missed',
-      });
-      await world.waitNever(() => isLiveNote(a.db, 'late-push'), {
-        forMs: 300,
-      });
-      await expectLiveNote(b.db, 'late-push', { body: 'missed' });
-    }
-    await a.mutate(joinSpace, { spaceId: 'race-room' });
-    await world.assertConverged();
-    await expectLiveNote(a.db, 'late-push', { body: 'missed' });
+    await run.apply(hold, 'alice', 'sync');
+    await run.apply(mutate, 'bob', setSpaceNote, {
+      id: 'late-push',
+      spaceId: 'race-room',
+      body: 'missed',
+    });
+    await neverAcme(run, liveNote('alice', 'late-push'), {
+      forMs: 300,
+      pred: noteLive,
+    });
+    await expectLiveNoteAt(run, 'bob', 'late-push', { body: 'missed' });
+    await run.apply(release, 'alice', 'sync');
+
+    await run.apply(mutate, 'alice', joinSpace, { spaceId: 'race-room' });
+    await run.apply(converge);
+    await expectLiveNoteAt(run, 'alice', 'late-push', { body: 'missed' });
   });
 });

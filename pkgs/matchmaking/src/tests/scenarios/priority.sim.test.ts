@@ -1,5 +1,15 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { openMatchmakingWorld } from '../../sim/scenario';
+import type { TickResult } from '../../interface/matchmaking';
+import type { StatusResult } from '../../interface/types';
+import {
+  join,
+  lastTick,
+  participantIds,
+  passTime,
+  startMatchmaking,
+  statusOf,
+  tick,
+} from '../../sim/scenario';
 import {
   expectMatched,
   RatingAttr,
@@ -18,35 +28,40 @@ describe('matchmaking sim: priority', () => {
   });
 
   test('high-priority joiner is matched before same-bucket FIFO peer', async () => {
-    await using world = await openMatchmakingWorld({ seed: 80 });
-    const a = await world.join({
-      data: RatingAttr(1000),
-      formulas: [
-        {
-          numeric: [{ tag: RatingAttr, weight: 1 }],
-          radius: {
-            baseRadius: 0,
-            radiusGrowthPerSecond: 0,
-            maxRadius: 0,
+    await using run = await startMatchmaking({ seed: 80 });
+    await run.apply(join, {
+      ref: 'a',
+      input: {
+        data: RatingAttr(1000),
+        formulas: [
+          {
+            numeric: [{ tag: RatingAttr, weight: 1 }],
+            radius: { baseRadius: 0, radiusGrowthPerSecond: 0, maxRadius: 0 },
           },
-        },
-      ],
+        ],
+      },
     });
-    await world.advance(1);
-    const b = await world.join({
-      data: RatingAttr(1005),
-      formulas: [SimpleFormula],
-      priority: 100,
+    await run.apply(passTime, 1);
+    await run.apply(join, {
+      ref: 'b',
+      input: {
+        data: RatingAttr(1005),
+        formulas: [SimpleFormula],
+        priority: 100,
+      },
     });
-    await world.advance(1);
-    const c = await world.join({
-      data: RatingAttr(1010),
-      formulas: [SimpleFormula],
+    await run.apply(passTime, 1);
+    await run.apply(join, {
+      ref: 'c',
+      input: { data: RatingAttr(1010), formulas: [SimpleFormula] },
     });
-    expect((await world.tick({ maxPassesPerPartition: 1 })).matches).toBe(1);
-    expect(expectMatched(await b.status()).peers[0]?.participantId).toBe(
-      c.participantId
+    await run.apply(tick, { opts: { maxPassesPerPartition: 1 } });
+    expect(((await run.observe(lastTick)) as TickResult).matches).toBe(1);
+    const ids = await run.observe(participantIds);
+    const b = expectMatched((await run.observe(statusOf('b'))) as StatusResult);
+    expect(b.peers[0]?.participantId).toBe(ids['c']);
+    expect(((await run.observe(statusOf('a'))) as StatusResult).status).toBe(
+      'waiting'
     );
-    expect((await a.status())?.status).toBe('waiting');
   });
 });

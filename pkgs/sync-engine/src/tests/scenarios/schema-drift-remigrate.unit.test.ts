@@ -1,129 +1,116 @@
 import { describe, expect, test } from 'bun:test';
-import { sql } from '@pkgs/sql';
+import { start } from '@pkgs/dst';
 import {
+  acmeDraws,
   acmeLocalSchemaExtraColumn,
-  acmeRestartOptsForVariant,
-  expectLiveNote,
-  expectNotesMatchServer,
+  acmeSystem,
+  addClient,
+  addPeerEngine,
+  assertConverged,
+  crash,
+  expectLiveNoteAt,
+  expectNotesAgree,
+  hasLocalTable,
+  mutate,
+  noteColumns,
+  restart,
+  restartWithSchema,
   setNote,
+  syncVirtualHost,
 } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
 
 describe('preserveLocalDb remigrate after additive schema', () => {
   test('restart without localSchema keeps extra column (no drift fail)', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 42,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    await world.addClient({
+    await run.apply(addClient, {
       id: 'alice',
       localSchema: acmeLocalSchemaExtraColumn,
     });
-    const alice = world.clients.get('alice');
-    expect(alice).toBeDefined();
-    await alice!.mutate(setNote, { id: 'n1', body: 'hi' });
-    await world.assertConverged();
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'hi' });
+    await run.apply(assertConverged);
 
     // Settle-style remigrate: preserve DB, omit localSchema (pack baseline).
     // Must reuse sticky upgrade schema — baseline reconcile would reject color.
-    await world.node('alice').restart({ preserveLocalDb: true });
+    await run.apply(restart, 'alice', { preserveLocalDb: true });
 
-    const cols = await world.clients.get('alice')!.db.query(sql<{
-      name: string;
-    }>`
-      SELECT name FROM pragma_table_info('notes')
-    `);
+    const cols = await run.observe(noteColumns('alice'));
     expect(cols.some((c) => c.name === 'color')).toBe(true);
-    await expectLiveNote(world.clients.get('alice')!.db, 'n1', { body: 'hi' });
-    await expectNotesMatchServer(
-      world.clients.get('alice')!.db,
-      world.server.db
-    );
+    await expectLiveNoteAt(run, 'alice', 'n1', { body: 'hi' });
+    await expectNotesAgree(run, 'alice');
   });
 
   test('restartWithSchema then crash+preserve remigrate converges', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 43,
-      knobs: {
+      host: syncVirtualHost(),
+      draws: acmeDraws({
         clientCount: 0,
         rowImageFanout: false,
         liveResendOnReconnect: false,
         bufferOutboundLive: false,
-      },
+      }),
+      properties: [],
     });
 
-    await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
 
-    await world.node('alice').restart(acmeRestartOptsForVariant('extraColumn'));
-    await world.clients
-      .get('alice')!
-      .mutate(setNote, { id: 'n0', body: 'from-a' });
-    await b.mutate(setNote, { id: 'n1', body: 'from-b' });
+    await run.apply(restartWithSchema, 'alice', 'extraColumn');
+    await run.apply(mutate, 'alice', setNote, { id: 'n0', body: 'from-a' });
+    await run.apply(mutate, 'bob', setNote, { id: 'n1', body: 'from-b' });
 
-    await world.node('alice').crash();
-    await world.node('alice').restart({ preserveLocalDb: true });
+    await run.apply(crash, 'alice');
+    await run.apply(restart, 'alice', { preserveLocalDb: true });
 
-    await world.assertConverged();
-    await expectNotesMatchServer(
-      world.clients.get('alice')!.db,
-      world.server.db
-    );
-    await expectNotesMatchServer(b.db, world.server.db);
+    await run.apply(assertConverged);
+    await expectNotesAgree(run, 'alice');
+    await expectNotesAgree(run, 'bob');
   });
 
   test('extraColumn then extraTable remigrate drops color via deprecation', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 44,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    await world.addClient({ id: 'alice' });
-    await world.node('alice').restart(acmeRestartOptsForVariant('extraColumn'));
-    await world.clients
-      .get('alice')!
-      .mutate(setNote, { id: 'n1', body: 'keep' });
-    await world.assertConverged();
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(restartWithSchema, 'alice', 'extraColumn');
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'keep' });
+    await run.apply(assertConverged);
 
-    await world.node('alice').restart(acmeRestartOptsForVariant('extraTable'));
+    await run.apply(restartWithSchema, 'alice', 'extraTable');
 
-    const db = world.clients.get('alice')!.db;
-    const cols = await db.query(sql<{ name: string }>`
-      SELECT name FROM pragma_table_info('notes')
-    `);
+    const cols = await run.observe(noteColumns('alice'));
     expect(cols.some((c) => c.name === 'color')).toBe(false);
-    const tags = await db.query(sql<{ name: string }>`
-      SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'tags'
-    `);
-    expect(tags.length).toBe(1);
-    await expectLiveNote(db, 'n1', { body: 'keep' });
-    await expectNotesMatchServer(db, world.server.db);
+    expect(await hasLocalTable(run, 'alice', 'tags')).toBe(true);
+    await expectLiveNoteAt(run, 'alice', 'n1', { body: 'keep' });
+    await expectNotesAgree(run, 'alice');
   });
 
   test('addPeerEngine inherits sticky schema from shared extraColumn db', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 45,
-      knobs: { clientCount: 0 },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    await world.addClient({ id: 'c1' });
-    await world.node('c1').restart(acmeRestartOptsForVariant('extraColumn'));
-    await world.clients.get('c1')!.mutate(setNote, { id: 'n1', body: 'peer' });
-    await world.assertConverged();
+    await run.apply(addClient, { id: 'c1' });
+    await run.apply(restartWithSchema, 'c1', 'extraColumn');
+    await run.apply(mutate, 'c1', setNote, { id: 'n1', body: 'peer' });
+    await run.apply(assertConverged);
 
-    const donor = world.clients.get('c1')!;
-    await world.addClient({
-      id: 'c2',
-      actorId: donor.actorId,
-      existingDb: donor.dbBundle,
-    });
+    await run.apply(addPeerEngine, 'c2', 'c1');
 
-    await expectLiveNote(world.clients.get('c2')!.db, 'n1', { body: 'peer' });
-    await world.assertConverged();
+    await expectLiveNoteAt(run, 'c2', 'n1', { body: 'peer' });
+    await run.apply(assertConverged);
   });
 });

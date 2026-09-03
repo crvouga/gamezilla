@@ -56,7 +56,7 @@ export async function createTtsAppFromBindings(
     configured: true,
     app: createTtsApp({
       provider,
-      // World-mediated stores wrap methods in async scheduleCall, so withPrefix
+      // Store-host-mediated stores wrap methods in async scheduleCall, so withPrefix
       // may return Promise<ObjectStore>. Promise.resolve is a no-op for sync stores.
       objectStore: await Promise.resolve(
         options.objectStore.withPrefix(ObjectStorePrefix.ttsAudio)

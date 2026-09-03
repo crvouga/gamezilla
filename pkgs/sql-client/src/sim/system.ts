@@ -7,8 +7,14 @@ import {
 } from '../sqlite/web/owners/sim-opfs-sql-owner';
 import { startStore, startTab } from './nodes';
 import { persistImage } from './owners';
-import { connectTab, disconnectTab, killTab, ownerTabId } from './ownership';
-import { readToyRow, writeToyRow } from './toy-kv';
+import {
+  connectTab,
+  disconnectTab,
+  ensureOwnerClient,
+  killTab,
+  ownerTabId,
+} from './ownership';
+import { readToyRow, readToyRows, writeToyRow } from './toy-kv';
 import {
   boardOf,
   requireStore,
@@ -61,6 +67,19 @@ export const tabIdList = defineObservation({
 export const ownerId = defineObservation({
   name: 'ownerId',
   observe: (s) => ownerTabId(boardOf(s)),
+});
+
+/** Durable `toy_kv` rows as the elected owner sees them (`{}` with no owner). */
+export const ownerRows = defineObservation({
+  name: 'ownerRows',
+  observe: async (s) => {
+    const client = await ensureOwnerClient(boardOf(s));
+    if (client === null) return {} as Record<string, string>;
+    return Object.fromEntries(await readToyRows(client)) as Record<
+      string,
+      string
+    >;
+  },
 });
 
 export const mismatchCount = defineObservation({
@@ -255,4 +274,4 @@ export const SQL_CLIENT_WEB_PROPERTIES = [converged];
 
 export const SQL_CLIENT_WEB_SYSTEM = sqlClientWeb;
 export type SqlClientWebSystemDef = typeof sqlClientWeb;
-export type SqlClientWebWorld = SqlClientWebSurface;
+export type { SqlClientWebSurface };

@@ -14,7 +14,7 @@ export {
   ensureFrameworkSchema,
   SCHEMA_EPOCH,
 } from '../queries/client/local-schema';
-export type { SimClock } from '../sim/world-types';
+export type { SimClock } from '../sim/kit-types';
 export {
   createInMemorySyncEngine,
   type InMemorySyncEngineOptions,
@@ -28,8 +28,8 @@ export {
   type SimSessionQuery,
   type SyncAction,
   type SyncApp,
+  type SyncKnobs,
   type SyncSurface,
   type UntilTarget,
   type WaitUntilOptions,
-  type WorldKnobs,
 } from './sim-exports';

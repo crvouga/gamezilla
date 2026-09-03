@@ -41,6 +41,8 @@ export type AuthSurface = {
   readonly store: AuthStore;
   readonly clients: ReadonlyMap<string, ActorState>;
   fingerprint: string | null;
+  /** Status of the last `fetchAuth` action, read back via `lastStatus`. */
+  lastStatus: number | null;
 };
 
 export function requireStore(store: AuthStore | undefined): AuthStore {

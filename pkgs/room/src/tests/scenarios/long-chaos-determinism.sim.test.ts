@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import { createSeededRng } from '@pkgs/uuid';
 import {
   addClient,
   clientHash,
@@ -10,6 +11,7 @@ import {
   hold,
   passTime,
   release,
+  seed as seedOf,
   serverHash,
   startRoom,
 } from '../../sim/scenario';
@@ -22,7 +24,7 @@ async function runChaos(seed: string): Promise<string> {
   await run.apply(addClient, { id: 'bob' });
   await run.apply(addClient, { id: 'carol' });
   const ids = ['alice', 'bob', 'carol'] as const;
-  const rng = run._internal.surface.world.rng.fork('chaos');
+  const rng = createSeededRng(await run.observe(seedOf)).fork('chaos');
 
   for (let step = 0; step < 40; step += 1) {
     const actor = ids[rng.int(ids.length)]!;

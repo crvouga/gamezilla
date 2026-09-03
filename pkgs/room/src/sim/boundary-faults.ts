@@ -10,14 +10,14 @@ export type RoomCrashEvent =
   | 'onNextScheduleWake';
 
 /** Arms that hang random `fc.commands` sequences (need scripted hold). */
-export const WORLD_PBT_CRASH_EVENTS: readonly RoomCrashEvent[] = [
+export const SIM_PBT_CRASH_EVENTS: readonly RoomCrashEvent[] = [
   'afterNextWelcome',
   'afterNextCommitted',
   'afterNextCommandAck',
 ] as const;
 
 export const ALL_ROOM_CRASH_EVENTS: readonly RoomCrashEvent[] = [
-  ...WORLD_PBT_CRASH_EVENTS,
+  ...SIM_PBT_CRASH_EVENTS,
   'onNextScheduleWake',
 ] as const;
 

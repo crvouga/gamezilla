@@ -10,8 +10,6 @@
   },
   "scripts": {
     "mutants": "bun src/tests/mutants/scripted-mutants.ts",
-    "sim:replay": "bun src/tests/scenario/replay-cli.ts",
-    "sim:soak": "bun src/tests/scenario/replay-cli.ts --soak",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test",
     "test:sim": "bun test src/tests/scenario"

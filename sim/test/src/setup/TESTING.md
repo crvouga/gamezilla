@@ -8,8 +8,10 @@ Product system lives in `sim/test/src/scenario/`. Open a run with `openSim` from
 
 **Authoring** — scenarios import `describe` from `@pkgs/ui-testing` and pass
 `ctx` into `openSim(testId, ctx)`. Never import `@jest/globals` / `@playwright/test`
-in scenario files. Drive UI through `AppDriver` (taps checkpoint via `run.apply`);
-read state with `run.observe`; attach more properties on `start` if needed.
+in scenario files. Drive UI through `AppDriver` (taps and waits checkpoint via
+`run.apply`; visibility / text read via `run.observe`); attach more properties on
+`start` if needed. Flows that poll go through `ActorRun.pollUntil`, which advances
+the `passTime` action between reads — never a wall-clock deadline.
 
 ```tsx
 import { describe } from '@pkgs/ui-testing';
@@ -44,7 +46,7 @@ wired into `predev` / `setup`) so Metro's Hermes classic bundle never sees
 
 **System snapshots** (committed fixtures; infrastructure only — scenarios still use UI setup):
 
-- One JSON file per world under `sim/test/fixtures/snapshots/<id>.json`
+- One JSON file per snapshot under `sim/test/fixtures/snapshots/<id>.json`
   (portable logical dump: server/client SQL rows + client KV + rooms + clock).
 - `openSim(id, ctx, { snapshot: 'signed-in-alice' })` restores a fixture (not wired in
   scenario tests yet).
@@ -62,7 +64,7 @@ Catalog: `signed-in-alice`, `signed-in-pair`, `friends-pair`, `both-in-space`.
 | `simHost` (default) | `bun run --filter @sim/test test` | RNTL in-process | Seed PGlite/SQLite; in-process Hono `fetch`; caps include `partition` |
 | `maxHost` | `bun run --filter @sim/test test:max` | Playwright (one context per actor) | Real Postgres + MinIO/EMQX; Hono on loopback HTTP; Expo web on `:5173`; no `partition` cap |
 
-- **`simHost`** — world mesh (`partition`) is first-class. Server schema is migrated
+- **`simHost`** — the network mesh (`partition`) is first-class. Server schema is migrated
   **once** into the seed file (Jest `globalSetup` /
   `bun run --filter @sim/test seed:sim-db`); each `openSim` clones that seed
   instead of re-running DDL.

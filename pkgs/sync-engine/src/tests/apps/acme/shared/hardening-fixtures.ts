@@ -13,7 +13,7 @@ import {
 import { z } from 'zod';
 
 import type { LocalDomainSchema } from '../../../../client/local-schema-migrate';
-import { NOTES_WORLD_TOPIC } from './topics';
+import { NOTES_ALL_TOPIC } from './topics';
 
 /** Schema with optional `notes.color` for column-intersect scenarios. */
 export const acmeAppSchemaExtraColumn = registerTables([
@@ -137,7 +137,7 @@ export const acmeLocalSchemaExtraTable: LocalDomainSchema = {
   cacheTableNames: ACME_APP_TABLES_EXTRA_TABLE,
 };
 
-/** Both `notes.color` and `tags` — mixed-schema multi-client worlds. */
+/** Both `notes.color` and `tags` — mixed-schema multi-client systems. */
 export const acmeAppSchemaExtraColumnAndTable = registerTables([
   defineTable({
     domain: 'folders',
@@ -200,11 +200,11 @@ export const acmeLocalSchemaExtraColumnAndTable: LocalDomainSchema = {
   cacheTableNames: ACME_APP_TABLES_EXTRA_COLUMN_AND_TABLE,
 };
 
-/** V2 query name — same hydrate as notesWorld. */
-export const notesWorldV2Query = defineQuery({
-  name: 'notesWorldV2',
+/** V2 query name — same hydrate as notesAll. */
+export const notesAllV2Query = defineQuery({
+  name: 'notesAllV2',
   limit: 500,
-  entryChannel: () => [NOTES_WORLD_TOPIC],
+  entryChannel: () => [NOTES_ALL_TOPIC],
   async run({ db }) {
     const folders = await db.query(sql<{
       id: string;
@@ -231,13 +231,13 @@ export const notesWorldV2Query = defineQuery({
 });
 
 /**
- * Like notesWorld but SELECTs `color` — for server-extra-column / client-base
+ * Like notesAll but SELECTs `color` — for server-extra-column / client-base
  * intersect scenarios (requires acmeLocalSchemaExtraColumn on the server).
  */
-export const notesWorldWithColorQuery = defineQuery({
-  name: 'notesWorldWithColor',
+export const notesAllWithColorQuery = defineQuery({
+  name: 'notesAllWithColor',
   limit: 500,
-  entryChannel: () => [NOTES_WORLD_TOPIC],
+  entryChannel: () => [NOTES_ALL_TOPIC],
   async run({ db }) {
     const folders = await db.query(sql<{
       id: string;
@@ -273,7 +273,7 @@ export const notesByFolderQuery = defineQuery({
     includeArchived: z.boolean().optional(),
   }),
   limit: 500,
-  entryChannel: () => [NOTES_WORLD_TOPIC],
+  entryChannel: () => [NOTES_ALL_TOPIC],
   async run({ db }, params) {
     const notes = await db.query(sql<{
       id: string;
@@ -295,7 +295,7 @@ export const notesByFolderQuery = defineQuery({
 export const notesAuthorizeThrowQuery = defineQuery({
   name: 'notesAuthorizeThrow',
   limit: 500,
-  entryChannel: () => [NOTES_WORLD_TOPIC],
+  entryChannel: () => [NOTES_ALL_TOPIC],
   authorize: async () => {
     throw new Error('authorize exploded');
   },
@@ -305,10 +305,10 @@ export const notesAuthorizeThrowQuery = defineQuery({
 });
 
 /** Hydrates tags — used after mid-life schema add. */
-export const tagsWorldQuery = defineQuery({
-  name: 'tagsWorld',
+export const tagsAllQuery = defineQuery({
+  name: 'tagsAll',
   limit: 500,
-  entryChannel: () => [NOTES_WORLD_TOPIC],
+  entryChannel: () => [NOTES_ALL_TOPIC],
   async run({ db }) {
     const tags = await db.query(sql<{
       id: string;

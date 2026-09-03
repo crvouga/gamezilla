@@ -43,7 +43,7 @@ export const converges = defineProperty({
 
 /**
  * Liveness bound after quiet+healed. Not attached by default to short
- * check campaigns (chaos actions often leave the world intentionally
+ * check campaigns (chaos actions often leave the system intentionally
  * diverged until an explicit heal at the end of a pin).
  */
 export const eventuallyConverges = defineProperty({

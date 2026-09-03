@@ -4,7 +4,8 @@ import { assertProperty, fc } from '@pkgs/pbt';
 import {
   arbSeed,
   converge,
-  playRoomActions,
+  domain,
+  passTime,
   replayRoom,
   replayRoomPin,
   startRoom,
@@ -56,23 +57,21 @@ describe('room schedule-anticheat PBT', () => {
       seed: 3,
       clientCount: 2,
     });
-    await playRoomActions(run, [
-      {
-        kind: 'domain',
-        clientId: 'c0',
-        command: 'start',
-        args: { whiteMs: 5_000, blackMs: 5_000 },
-      },
-      { kind: 'idle', ms: 20 },
-      {
-        kind: 'domain',
-        clientId: 'c1',
-        command: 'flag-fall',
-        args: { seat: 'white' },
-      },
-    ]);
+    await run.apply(domain, {
+      kind: 'domain',
+      clientId: 'c0',
+      command: 'start',
+      args: { whiteMs: 5_000, blackMs: 5_000 },
+    });
+    await run.apply(passTime, 20);
+    await run.apply(domain, {
+      kind: 'domain',
+      clientId: 'c1',
+      command: 'flag-fall',
+      args: { seat: 'white' },
+    });
     expect(matchClockStatus(await readServer(run))).toBe('playing');
-    await playRoomActions(run, [{ kind: 'idle', ms: 5_100 }]);
+    await run.apply(passTime, 5_100);
     await run.apply(converge);
     const end = await readServer(run);
     expect(matchClockStatus(end)).toBe('flagged');
@@ -80,7 +79,7 @@ describe('room schedule-anticheat PBT', () => {
   });
 
   test('lagging held client cannot move after server flag', async () => {
-    await using world = await replayRoom(matchClockSystem, {
+    await using run = await replayRoom(matchClockSystem, {
       seed: 5,
       actions: [
         {
@@ -100,6 +99,6 @@ describe('room schedule-anticheat PBT', () => {
         { kind: 'heal' },
       ],
     });
-    expect(matchClockStatus(await readServer(world))).toBe('flagged');
+    expect(matchClockStatus(await readServer(run))).toBe('flagged');
   });
 });

@@ -252,7 +252,7 @@ export function attachPush(options: AttachPushOptions): () => void {
       options.onTablesChanged((tables) => {
         if (bag.disposed) return;
         // Room / session subscribe sets change with membership tables.
-        // World-topic queries (notes/folders) stay on entryChannel and must
+        // SyncKit-topic queries (notes/folders) stay on entryChannel and must
         // not resync on every row write (deterministic fuzz refetch races).
         if (
           tables.has('spaces') ||

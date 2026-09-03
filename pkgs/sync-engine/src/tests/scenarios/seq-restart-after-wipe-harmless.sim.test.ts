@@ -1,40 +1,63 @@
 import { describe, expect, test } from 'bun:test';
+import { start } from '@pkgs/dst';
 import {
-  expectLiveNote,
-  expectNoteNotLive,
-  readLiveNotes,
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  clearLocalData,
+  connect,
+  converge,
+  disconnect,
+  expectNoteNotLiveAt,
+  liveNote,
+  liveNotes,
+  mutate,
   setNote,
+  syncVirtualHost,
 } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
 
 describe('seq restart after wipe harmless', () => {
   test.each([840, 841, 842])(
     'cache clear then new mutates converge (seed=%i)',
     async (seed) => {
-      await using world = await openAcmeWorld({
+      await using run = await start(acmeSystem, {
         seed: seed,
-        knobs: {
-          clientCount: 0,
-        },
+        host: syncVirtualHost(),
+        draws: acmeDraws({ clientCount: 0 }),
+        properties: [],
       });
 
-      const a = await world.addClient({ id: 'alice' });
-      const b = await world.addClient({ id: 'bob' });
+      await run.apply(addClient, 'alice');
+      await run.apply(addClient, 'bob');
 
-      await a.mutate(setNote, { id: 'n1', body: 'before-wipe' });
-      await world.assertConverged();
+      await run.apply(mutate, 'alice', setNote, {
+        id: 'n1',
+        body: 'before-wipe',
+      });
+      await run.apply(converge);
 
-      await a.clearLocalData('cache');
-      expect(await readLiveNotes(a.db)).toEqual([]);
-      await expectNoteNotLive(a.db, 'n1');
+      // Offline while wiping: no resync may repaint the cache mid-check.
+      await run.apply(disconnect, 'alice');
+      await run.apply(clearLocalData, 'alice', 'cache');
+      expect(await run.observe(liveNotes('alice'))).toEqual([]);
+      await expectNoteNotLiveAt(run, 'alice', 'n1');
 
-      await a.connect();
-      await a.mutate(setNote, { id: 'n2', body: 'after-wipe' });
-      await world.assertConverged();
+      await run.apply(connect, 'alice');
+      await run.apply(mutate, 'alice', setNote, {
+        id: 'n2',
+        body: 'after-wipe',
+      });
+      await run.apply(converge);
 
-      await expectLiveNote(a.db, 'n1', { body: 'before-wipe' });
-      await expectLiveNote(a.db, 'n2', { body: 'after-wipe' });
-      await expectLiveNote(b.db, 'n2', { body: 'after-wipe' });
+      expect(await run.observe(liveNote('alice', 'n1'))).toMatchObject({
+        body: 'before-wipe',
+      });
+      expect(await run.observe(liveNote('alice', 'n2'))).toMatchObject({
+        body: 'after-wipe',
+      });
+      expect(await run.observe(liveNote('bob', 'n2'))).toMatchObject({
+        body: 'after-wipe',
+      });
     }
   );
 });

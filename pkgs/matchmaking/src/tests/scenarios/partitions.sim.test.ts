@@ -1,5 +1,14 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { openMatchmakingWorld } from '../../sim/scenario';
+import type { TickResult } from '../../interface/matchmaking';
+import type { StatusResult } from '../../interface/types';
+import {
+  join,
+  lastTick,
+  participantIds,
+  startMatchmaking,
+  statusOf,
+  tick,
+} from '../../sim/scenario';
 import {
   expectMatched,
   KindAttr,
@@ -19,35 +28,37 @@ describe('matchmaking sim: partitions', () => {
   });
 
   test('declared partitionKeys isolate participants across shards', async () => {
-    await using world = await openMatchmakingWorld({
+    await using run = await startMatchmaking({
       seed: 40,
       schema: { partitionKeys: [KindAttr.key] },
     });
-    const formulas = [SimpleFormula];
-    const a1 = await world.join({
-      data: { ...RatingAttr(1000), ...KindAttr('alpha') },
-      formulas,
-    });
-    const a2 = await world.join({
-      data: { ...RatingAttr(1010), ...KindAttr('alpha') },
-      formulas,
-    });
-    const b1 = await world.join({
-      data: { ...RatingAttr(1000), ...KindAttr('beta') },
-      formulas,
-    });
-    const b2 = await world.join({
-      data: { ...RatingAttr(1010), ...KindAttr('beta') },
-      formulas,
-    });
-    const drained = await world.tick({ maxPassesPerPartition: 8 });
+    const plan = [
+      { ref: 'a1', rating: 1000, kind: 'alpha' },
+      { ref: 'a2', rating: 1010, kind: 'alpha' },
+      { ref: 'b1', rating: 1000, kind: 'beta' },
+      { ref: 'b2', rating: 1010, kind: 'beta' },
+    ];
+    for (const { ref, rating, kind } of plan) {
+      await run.apply(join, {
+        ref,
+        input: {
+          data: { ...RatingAttr(rating), ...KindAttr(kind) },
+          formulas: [SimpleFormula],
+        },
+      });
+    }
+    await run.apply(tick, { opts: { maxPassesPerPartition: 8 } });
+    const drained = (await run.observe(lastTick)) as TickResult;
     expect(drained.matches).toBe(2);
     expect(drained.partitions).toBe(2);
-    expect(expectMatched(await a1.status()).peers[0]?.participantId).toBe(
-      a2.participantId
+    const ids = await run.observe(participantIds);
+    const a1 = expectMatched(
+      (await run.observe(statusOf('a1'))) as StatusResult
     );
-    expect(expectMatched(await b1.status()).peers[0]?.participantId).toBe(
-      b2.participantId
+    expect(a1.peers[0]?.participantId).toBe(ids['a2']);
+    const b1 = expectMatched(
+      (await run.observe(statusOf('b1'))) as StatusResult
     );
+    expect(b1.peers[0]?.participantId).toBe(ids['b2']);
   });
 });

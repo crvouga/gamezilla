@@ -1,55 +1,66 @@
 import { describe, expect, test } from 'bun:test';
+import { start } from '@pkgs/dst';
 import {
-  expectLiveNote,
-  expectNotesMatchServer,
-  readLiveFolders,
-  readLiveNotes,
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  assertConverged,
+  connect,
+  disconnect,
+  expectLiveNoteAt,
+  expectNotesAgree,
+  liveFolders,
+  liveNotes,
+  mutate,
+  passTime,
   setFolder,
   setNote,
+  syncVirtualHost,
 } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
 
 const CHAIN = 60;
 
+const pad = (i: number): string => String(i).padStart(3, '0');
+
 describe('deep pending chain rebases in seq order', () => {
   test('50+ pending folders+notes rebase in seq order to server truth', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 822,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
 
-    await a.disconnect();
+    await run.apply(disconnect, 'alice');
     for (let i = 0; i < CHAIN; i += 1) {
-      const n = String(i).padStart(3, '0');
       if (i % 2 === 0) {
-        await a.mutate(setFolder, { id: `f-${n}`, title: `F${i}` });
+        await run.apply(mutate, 'alice', setFolder, {
+          id: `f-${pad(i)}`,
+          title: `F${i}`,
+        });
       } else {
-        await a.mutate(setNote, {
-          id: `n-${n}`,
+        await run.apply(mutate, 'alice', setNote, {
+          id: `n-${pad(i)}`,
           body: `B${i}`,
-          folderId: `f-${String(i - 1).padStart(3, '0')}`,
+          folderId: `f-${pad(i - 1)}`,
         });
       }
     }
-    await world.advance(50);
+    await run.apply(passTime, 50);
 
-    await a.connect();
-    await world.assertConverged();
+    await run.apply(connect, 'alice');
+    await run.apply(assertConverged);
 
-    const serverNotes = await readLiveNotes(world.server.db);
-    const serverFolders = await readLiveFolders(world.server.db);
-    expect(serverNotes.length).toBe(CHAIN / 2);
-    expect(serverFolders.length).toBe(CHAIN / 2);
-    await expectLiveNote(b.db, 'n-001', { body: 'B1' });
-    await expectLiveNote(b.db, `n-${String(CHAIN - 1).padStart(3, '0')}`, {
+    expect((await run.observe(liveNotes('server'))).length).toBe(CHAIN / 2);
+    expect((await run.observe(liveFolders('server'))).length).toBe(CHAIN / 2);
+    await expectLiveNoteAt(run, 'bob', 'n-001', { body: 'B1' });
+    await expectLiveNoteAt(run, 'bob', `n-${pad(CHAIN - 1)}`, {
       body: `B${CHAIN - 1}`,
     });
-    await expectNotesMatchServer(a.db, world.server.db);
-    await expectNotesMatchServer(b.db, world.server.db);
+    await expectNotesAgree(run, 'alice');
+    await expectNotesAgree(run, 'bob');
   });
 });

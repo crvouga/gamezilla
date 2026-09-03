@@ -1,5 +1,4 @@
 export {
-  defaultStubAuth,
   expectMatched,
   KindAttr,
   NameAttr,
@@ -7,11 +6,12 @@ export {
   RegionAttr,
   registerTestCrashHandler,
   SkillAttr,
-  TEST_AUTH_HEADERS,
   testNs,
   UUID_REGEX,
 } from './attrs';
 export {
   assertMatchInvariants,
   assertStatusAgreesAcrossReplicas,
+  type MatchmakingRun,
+  matchFingerprint,
 } from './match-invariants';

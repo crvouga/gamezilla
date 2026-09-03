@@ -1,6 +1,6 @@
 import fc from 'fast-check';
 
-import { WORLD_PBT_CRASH_EVENTS } from '../boundary-faults';
+import { SIM_PBT_CRASH_EVENTS } from '../boundary-faults';
 import type { LibraryAction } from './actions';
 
 export { defaultClientIds } from './client-ids';
@@ -117,7 +117,7 @@ export const SCRIPTED_LIBRARY_ARBS: readonly LibraryArbEntry[] = [
     kind: 'armCrashAt',
     arb: (pick) =>
       fc
-        .tuple(pick, fc.constantFrom(...WORLD_PBT_CRASH_EVENTS))
+        .tuple(pick, fc.constantFrom(...SIM_PBT_CRASH_EVENTS))
         .map(([clientId, event]) => ({ kind: 'armCrashAt', clientId, event })),
   },
   {

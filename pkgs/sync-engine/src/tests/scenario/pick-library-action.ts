@@ -7,11 +7,11 @@ import {
   HTTP_FAULTS,
   PUBSUB_FAULTS,
   SCHEMA_VARIANTS,
+  SIM_PBT_CRASH_EVENTS,
   SKEW_MS_VALUES,
   STORAGE_PRESSURES,
   STORAGE_TAMPERS,
-  WORLD_PBT_CRASH_EVENTS,
-} from '../../sim/scenario/world-model';
+} from '../../sim/scenario/model';
 import type { SimTraffic } from '../../sim/traffic';
 
 const SERVER_NODE = 'server';
@@ -99,7 +99,7 @@ const LIBRARY_ACTION_PICKERS: readonly WeightedPicker[] = [
     pick: ({ rng, clientId }) => ({
       kind: 'armCrashAt',
       clientId,
-      event: rng.pick([...WORLD_PBT_CRASH_EVENTS]),
+      event: rng.pick([...SIM_PBT_CRASH_EVENTS]),
     }),
   },
   {

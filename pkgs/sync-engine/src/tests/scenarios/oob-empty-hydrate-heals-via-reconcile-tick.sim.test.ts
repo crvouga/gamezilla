@@ -1,69 +1,73 @@
-import { describe, expect, test } from 'bun:test';
+import { describe, test } from 'bun:test';
+import { start } from '@pkgs/dst';
 import {
-  expectLiveNote,
-  insertCatalogNote,
-  isLiveNote,
-  readLiveNotes,
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  assertConverged,
+  expectLiveNoteAt,
+  expectNoteNotLiveAt,
+  liveNote,
+  mutate,
+  noteBodyIs,
+  serverOp,
   setNote,
-  writeNoteBody,
+  syncVirtualHost,
+  untilAcme,
 } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
 
 describe('oob empty hydrate heals via reconcile tick', () => {
   // Chess-puzzle shaped: empty first sync, then silent catalog INSERT.
   // Missed notifyChannels must still heal via the reconcile tick (no nudge).
 
   test('silent catalog insert after empty hydrate heals without nudge', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 1501,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const client = await world.addClient({ id: 'alice' });
+    await run.apply(addClient, { id: 'alice' });
+    await expectNoteNotLiveAt(run, 'alice', 'n-seed');
 
-    expect(await isLiveNote(client.db, 'n-seed')).toBe(false);
-
-    await insertCatalogNote(world.server, {
-      id: 'n-seed',
+    await run.apply(serverOp, 'insertCatalogNoteSilent', {
+      noteId: 'n-seed',
       body: 'seeded',
-      notify: false,
     });
-    await expectLiveNote(world.server.db, 'n-seed', { body: 'seeded' });
+    await expectLiveNoteAt(run, 'server', 'n-seed', { body: 'seeded' });
 
-    await world.waitUntil(async () => isLiveNote(client.db, 'n-seed'));
-    await expectLiveNote(client.db, 'n-seed', { body: 'seeded' });
-    await world.assertConverged();
+    await untilAcme(run, liveNote('alice', 'n-seed'), {
+      pred: noteBodyIs('seeded'),
+    });
+    await expectLiveNoteAt(run, 'alice', 'n-seed', { body: 'seeded' });
+    await run.apply(assertConverged);
   });
 
   test('silent catalog update heals without nudge', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 1502,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
 
-    await a.mutate(setNote, { id: 'n1', body: 'v1' });
-    await world.assertConverged();
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'v1' });
+    await run.apply(assertConverged);
 
-    await writeNoteBody(world.server, {
-      id: 'n1',
+    await run.apply(serverOp, 'writeNoteBodySilent', {
+      noteId: 'n1',
       body: 'v2-silent',
-      notify: false,
     });
-    await expectLiveNote(world.server.db, 'n1', { body: 'v2-silent' });
+    await expectLiveNoteAt(run, 'server', 'n1', { body: 'v2-silent' });
 
-    await world.waitUntil(async () =>
-      (await readLiveNotes(b.db)).some(
-        (n) => n.id === 'n1' && n.body === 'v2-silent'
-      )
-    );
-    await expectLiveNote(b.db, 'n1', { body: 'v2-silent' });
-    await world.assertConverged();
+    await untilAcme(run, liveNote('bob', 'n1'), {
+      pred: noteBodyIs('v2-silent'),
+    });
+    await expectLiveNoteAt(run, 'bob', 'n1', { body: 'v2-silent' });
+    await run.apply(assertConverged);
   });
 });

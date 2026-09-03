@@ -1,7 +1,7 @@
 import { sql } from '@pkgs/sql';
 import { defineQuery } from '@pkgs/sync-engine/shared';
 
-import { NOTES_WORLD_TOPIC } from './topics';
+import { NOTES_ALL_TOPIC } from './topics';
 
 /** Folder id used as mid-session authorize gate for {@link notesOwnedQuery}. */
 export const NOTES_AUTH_GATE_FOLDER_ID = '__auth_gate__';
@@ -10,10 +10,10 @@ export const NOTES_AUTH_GATE_FOLDER_ID = '__auth_gate__';
  * Global notes+folders hydrate — all sim clients share scope for
  * convergence checks. Snapshots include soft-deleted rows (tombstones).
  */
-export const notesWorldQuery = defineQuery({
-  name: 'notesWorld',
+export const notesAllQuery = defineQuery({
+  name: 'notesAll',
   limit: 500,
-  entryChannel: () => [NOTES_WORLD_TOPIC],
+  entryChannel: () => [NOTES_ALL_TOPIC],
   async run({ db }) {
     const folders = await db.query(sql<{
       id: string;
@@ -40,10 +40,10 @@ export const notesWorldQuery = defineQuery({
 });
 
 /** Chess-scale hydrate for large-snapshot DST pins (limit above default 2k). */
-export const notesLargeWorldQuery = defineQuery({
-  name: 'notesLargeWorld',
+export const notesLargeAllQuery = defineQuery({
+  name: 'notesLargeAll',
   limit: 2_500,
-  entryChannel: () => [NOTES_WORLD_TOPIC],
+  entryChannel: () => [NOTES_ALL_TOPIC],
   async run({ db }) {
     const folders = await db.query(sql<{
       id: string;
@@ -71,12 +71,12 @@ export const notesLargeWorldQuery = defineQuery({
 
 /**
  * Always denied — used to exercise detachScope on query deny without wiping
- * domain rows hydrated by notesWorld.
+ * domain rows hydrated by notesAll.
  */
 export const notesDeniedQuery = defineQuery({
   name: 'notesDenied',
   limit: 500,
-  entryChannel: () => [NOTES_WORLD_TOPIC],
+  entryChannel: () => [NOTES_ALL_TOPIC],
   authorize: async () => false,
   async run({ db }) {
     const folders = await db.query(sql<{
@@ -109,7 +109,7 @@ export const notesDeniedQuery = defineQuery({
 export const notesLimitedQuery = defineQuery({
   name: 'notesLimited',
   limit: 5,
-  entryChannel: () => [NOTES_WORLD_TOPIC],
+  entryChannel: () => [NOTES_ALL_TOPIC],
   async run({ db }) {
     const notes = await db.query(sql<{
       id: string;
@@ -133,7 +133,7 @@ export const notesLimitedQuery = defineQuery({
 export const notesOwnedQuery = defineQuery({
   name: 'notesOwned',
   limit: 500,
-  entryChannel: () => [NOTES_WORLD_TOPIC],
+  entryChannel: () => [NOTES_ALL_TOPIC],
   authorize: async ({ db, env }) => {
     const rows = await db.query(sql<{ owner_id: string }>`
       SELECT owner_id FROM folders
@@ -170,7 +170,7 @@ export const notesOwnedQuery = defineQuery({
 export const notesOnlyQuery = defineQuery({
   name: 'notesOnly',
   limit: 500,
-  entryChannel: () => [NOTES_WORLD_TOPIC],
+  entryChannel: () => [NOTES_ALL_TOPIC],
   async run({ db }) {
     const notes = await db.query(sql<{
       id: string;
@@ -191,7 +191,7 @@ export const notesOnlyQuery = defineQuery({
 export const foldersOnlyQuery = defineQuery({
   name: 'foldersOnly',
   limit: 500,
-  entryChannel: () => [NOTES_WORLD_TOPIC],
+  entryChannel: () => [NOTES_ALL_TOPIC],
   async run({ db }) {
     const folders = await db.query(sql<{
       id: string;

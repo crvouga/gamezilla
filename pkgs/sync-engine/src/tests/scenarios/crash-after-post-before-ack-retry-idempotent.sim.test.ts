@@ -1,50 +1,59 @@
 import { describe, expect, test } from 'bun:test';
+import { start } from '@pkgs/dst';
 import {
-  expectLiveNote,
-  expectNotesMatchServer,
-  readLiveNotes,
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  assertConverged,
+  clientIds,
+  crashAt,
+  expectLiveNoteAt,
+  expectNotesAgree,
+  lastMutationOk,
+  liveNotes,
+  mutate,
+  passTime,
+  restart,
   setNote,
+  syncVirtualHost,
 } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
 
 describe('crash after post before ack retry idempotent', () => {
   test('crash after mutations POST accepted; restart re-drains idempotently', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 832,
-      knobs: {
+      host: syncVirtualHost(),
+      draws: acmeDraws({
         clientCount: 0,
-      },
+      }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
 
-    await a.mutate(setNote, { id: 'warm', body: 'w' });
-    await world.assertConverged();
+    await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
+    await run.apply(assertConverged);
 
-    using _arm = world.node('alice').crash({
-      at: 'afterNextMutationsPostAccepted',
-    });
-    const queued = await a.mutate(setNote, {
+    await run.apply(crashAt, 'alice', 'afterNextMutationsPostAccepted');
+    await run.apply(mutate, 'alice', setNote, {
       id: 'n1',
       body: 'post-accepted',
     });
-    expect(queued.ok).toBe(true);
-    await world.advance(500);
+    expect(await run.observe(lastMutationOk('alice'))).toBe(true);
+    await run.apply(passTime, 500);
 
-    expect(world.clients.has('alice')).toBe(false);
+    expect(await run.observe(clientIds)).not.toContain('alice');
     // Server applied before crash; client may re-upload on restart.
-    await expectLiveNote(world.server.db, 'n1', { body: 'post-accepted' });
+    await expectLiveNoteAt(run, 'server', 'n1', { body: 'post-accepted' });
 
-    const alice = await world.node('alice').restart({
-      preserveLocalDb: true,
-    });
-    await world.assertConverged();
+    await run.apply(restart, 'alice', { preserveLocalDb: true });
+    await run.apply(assertConverged);
 
-    const server = await readLiveNotes(world.server.db);
+    const server = await run.observe(liveNotes('server'));
     expect(server.filter((r) => r.id === 'n1').length).toBe(1);
-    await expectLiveNote(alice!.db, 'n1', { body: 'post-accepted' });
-    await expectLiveNote(b.db, 'n1', { body: 'post-accepted' });
-    await expectNotesMatchServer(alice!.db, world.server.db);
+    await expectLiveNoteAt(run, 'alice', 'n1', { body: 'post-accepted' });
+    await expectLiveNoteAt(run, 'bob', 'n1', { body: 'post-accepted' });
+    await expectNotesAgree(run, 'alice');
   });
 });

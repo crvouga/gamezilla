@@ -105,12 +105,3 @@ export async function applyRoomAction(
   }
   await applyLibrary(run, action);
 }
-
-export async function playRoomActions(
-  run: Run<RoomSurface>,
-  actionList: readonly RoomSystemAction[]
-): Promise<void> {
-  for (const action of actionList) {
-    await applyRoomAction(run, action);
-  }
-}

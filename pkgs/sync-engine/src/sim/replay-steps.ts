@@ -5,7 +5,7 @@ import type { SyncSurface } from './scenario/system';
 
 /** Add N clients and optionally enable DST / sampled network faults. */
 export async function bootClients(args: {
-  readonly world: SyncSurface;
+  readonly surface: SyncSurface;
   readonly clientCount: number;
   readonly sampleFaults: boolean;
   /** Mild fixed reorder/loss faults (ignored when sampleFaults is true). */
@@ -14,51 +14,51 @@ export async function bootClients(args: {
   const ids: string[] = [];
   for (let i = 0; i < args.clientCount; i += 1) {
     const id = `c${i}`;
-    await args.world.addClient({ id, actorId: id });
+    await args.surface.addClient({ id, actorId: id });
     ids.push(id);
   }
   if (args.sampleFaults) {
-    const sampled = sampleFaultOptions(args.world.rng.fork('faults'));
-    args.world.kit.network.setDefaultFaults(sampled);
+    const sampled = sampleFaultOptions(args.surface.rng.fork('faults'));
+    args.surface.kit.network.setDefaultFaults(sampled);
   } else if (args.dstFaults === true) {
-    args.world.kit.network.setDefaultFaults(DST_FAULTS);
+    args.surface.kit.network.setDefaultFaults(DST_FAULTS);
   }
-  await args.world.advance(200);
+  await args.surface.advance(200);
   return ids;
 }
 
 function settleClientIds(
-  world: SyncSurface,
+  surface: SyncSurface,
   bootIds: readonly string[]
 ): string[] {
   const ids = [...bootIds];
-  for (const id of world.clients.keys()) {
+  for (const id of surface.clients.keys()) {
     if (!ids.includes(id)) ids.push(id);
   }
   return ids;
 }
 
 /** Heal partitions, clear holds/faults, bring clients online, assert converge. */
-export async function settleWorld(args: {
-  readonly world: SyncSurface;
+export async function settleKit(args: {
+  readonly surface: SyncSurface;
   readonly ids: readonly string[];
 }): Promise<void> {
-  args.world.clearFailNextOpen();
-  args.world.clearStoragePressure();
-  args.world.clearBoundaryFaults();
-  const ids = settleClientIds(args.world, args.ids);
+  args.surface.clearFailNextOpen();
+  args.surface.clearStoragePressure();
+  args.surface.clearBoundaryFaults();
+  const ids = settleClientIds(args.surface, args.ids);
   for (const id of ids) {
-    args.world.net(id, 'all').set('ok');
+    args.surface.net(id, 'all').set('ok');
   }
-  args.world.kit.network.setDefaultFaults(RELIABLE_FAULTS);
+  args.surface.kit.network.setDefaultFaults(RELIABLE_FAULTS);
   for (const id of ids) {
-    const client = args.world.clients.get(id);
+    const client = args.surface.clients.get(id);
     const needsRestart = client === undefined || !(await isDbOpen(client.db));
     if (needsRestart) {
-      await restartClientWithRetry(args.world, id);
+      await restartClientWithRetry(args.surface, id);
     }
-    args.world.clients.get(id)?.online(true);
-    args.world.clients.get(id)?.foreground(true);
+    args.surface.clients.get(id)?.online(true);
+    args.surface.clients.get(id)?.foreground(true);
   }
-  await args.world.assertConverged();
+  await args.surface.assertConverged();
 }

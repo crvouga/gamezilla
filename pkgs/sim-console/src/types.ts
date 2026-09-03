@@ -49,7 +49,7 @@ export type SimulationFrameAttribute = {
   readonly eventIds?: readonly string[];
 };
 
-/** Small World checkpoint sidecar next to sqlite dumps (`frames/f-NNNNN.checkpoint.json`). */
+/** Small run checkpoint sidecar next to sqlite dumps (`frames/f-NNNNN.checkpoint.json`). */
 export type SimulationFrameCheckpoint = {
   readonly file: string;
   readonly clockMs: number;
@@ -77,7 +77,7 @@ export type SimulationFrame = {
   readonly views?: readonly SimulationFrameView[];
   /** Topology-aware attribute bags (preferred over views/databases). */
   readonly attributes?: readonly SimulationFrameAttribute[];
-  /** Optional per-frame World checkpoint metadata (legacy hydrate path). */
+  /** Optional per-frame run checkpoint metadata (legacy hydrate path). */
   readonly checkpoint?: SimulationFrameCheckpoint;
 };
 

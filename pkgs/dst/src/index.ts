@@ -22,6 +22,7 @@ export type {
   Run,
   StartOptions,
   Transition,
+  UntilObservedOpts,
   Walk,
   WalkOptions,
 } from './run';
@@ -30,6 +31,7 @@ export {
   DriveError,
   PropertyViolation,
   start,
+  untilObserved,
   walk,
 } from './run';
 export type {

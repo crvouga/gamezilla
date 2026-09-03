@@ -11,7 +11,7 @@ export type NeverOptions = {
   readonly forMs: number;
 };
 
-type WaitWorld = {
+type WaitKit = {
   readonly seed: bigint;
   readonly ports: { readonly scheduler: VirtualScheduler };
   readonly advance: (ms: number) => Promise<void>;
@@ -20,10 +20,10 @@ type WaitWorld = {
   readonly heldSummary?: () => readonly string[];
 };
 
-function withFlush(world: WaitWorld, pred: UntilPredicate): UntilPredicate {
+function withFlush(kit: WaitKit, pred: UntilPredicate): UntilPredicate {
   return async () => {
-    if (world.flushBeforePoll !== undefined) {
-      await world.flushBeforePoll();
+    if (kit.flushBeforePoll !== undefined) {
+      await kit.flushBeforePoll();
     }
     return Boolean(await pred());
   };
@@ -34,7 +34,7 @@ function withFlush(world: WaitWorld, pred: UntilPredicate): UntilPredicate {
  * Room-aware: optional aux IO flush before each poll (loopback transports).
  */
 export async function waitUntil(
-  world: WaitWorld,
+  kit: WaitKit,
   pred: UntilPredicate,
   opts?: WaitUntilOptions & {
     readonly budgetMs?: number;
@@ -43,10 +43,10 @@ export async function waitUntil(
 ): Promise<number> {
   const withinMs = opts?.withinMs ?? opts?.budgetMs ?? 2_000;
   const stepMs = opts?.stepMs ?? 25;
-  const simClock = world.ports.scheduler.clock;
-  const { scheduler } = world.ports;
+  const simClock = kit.ports.scheduler.clock;
+  const { scheduler } = kit.ports;
   const start = simClock.now();
-  const target = withFlush(world, pred);
+  const target = withFlush(kit, pred);
 
   if (await target()) {
     return simClock.now();
@@ -61,9 +61,9 @@ export async function waitUntil(
     if (simClock.now() - start >= withinMs) break;
   }
 
-  const held = world.heldSummary?.() ?? [];
+  const held = kit.heldSummary?.() ?? [];
   throw new Error(
-    `waitUntil timed out seed=${world.seed.toString(16)} now=${simClock.now()} ` +
+    `waitUntil timed out seed=${kit.seed.toString(16)} now=${simClock.now()} ` +
       `withinMs=${withinMs} pendingEvents=${scheduler.pendingTaskCount()} ` +
       `held=${held.length > 0 ? held.join(',') : 'none'}`
   );
@@ -71,20 +71,20 @@ export async function waitUntil(
 
 /** Advance virtual time for `forMs` and fail if `pred` becomes true. */
 export async function waitNever(
-  world: WaitWorld,
+  kit: WaitKit,
   pred: UntilPredicate,
   opts: NeverOptions & { readonly stepMs?: number }
 ): Promise<void> {
   const forMs = opts.forMs;
   const stepMs = opts.stepMs ?? 25;
-  const simClock = world.ports.scheduler.clock;
-  const { scheduler } = world.ports;
+  const simClock = kit.ports.scheduler.clock;
+  const { scheduler } = kit.ports;
   const start = simClock.now();
-  const target = withFlush(world, pred);
+  const target = withFlush(kit, pred);
 
   if (await target()) {
     throw new Error(
-      `waitNever violated seed=${world.seed.toString(16)} now=${simClock.now()} ` +
+      `waitNever violated seed=${kit.seed.toString(16)} now=${simClock.now()} ` +
         `forMs=${forMs} (target true before window)`
     );
   }
@@ -93,9 +93,9 @@ export async function waitNever(
   for (let i = 0; i < steps; i += 1) {
     await scheduler.runFor(stepMs);
     if (await target()) {
-      const held = world.heldSummary?.() ?? [];
+      const held = kit.heldSummary?.() ?? [];
       throw new Error(
-        `waitNever violated seed=${world.seed.toString(16)} now=${simClock.now()} ` +
+        `waitNever violated seed=${kit.seed.toString(16)} now=${simClock.now()} ` +
           `forMs=${forMs} pendingEvents=${scheduler.pendingTaskCount()} ` +
           `held=${held.length > 0 ? held.join(',') : 'none'}`
       );

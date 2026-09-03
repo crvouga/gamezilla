@@ -1,129 +1,135 @@
 import { describe, expect, test } from 'bun:test';
-import { expectLiveNote, isLiveNote, setNote } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import { start } from '@pkgs/dst';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  converge,
+  lastMutationId,
+  lastMutationOk,
+  liveNote,
+  mutate,
+  net,
+  netHeld,
+  neverAcme,
+  nodeNow,
+  outcome,
+  passTime,
+  setNote,
+  skewClock,
+  syncVirtualHost,
+  untilAcme,
+} from '../apps/acme';
+
+/** Two-client acme system with no default clients. */
+function openRun(seed: number) {
+  return start(acmeSystem, {
+    seed,
+    host: syncVirtualHost(),
+    draws: acmeDraws({ clientCount: 0 }),
+    properties: [],
+  });
+}
 
 describe('sim scenario API', () => {
   test('await using + net hold restore', async () => {
-    await using world = await openAcmeWorld({
-      seed: 2,
-      knobs: {
-        clientCount: 0,
-      },
-    });
+    await using run = await openRun(2);
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
-    {
-      using _hold = world.net('alice', 'sync').set('hold');
-      expect(world.kit.network.isHeld('alice', 'sync')).toBe(true);
-      const queued = await a.mutate(setNote, { id: 'n1', body: 'x' });
-      expect(queued.ok).toBe(true);
-      await world.advance(200);
-    }
-    expect(world.kit.network.isHeld('alice', 'sync')).toBe(false);
-    await world.assertConverged();
-    await expectLiveNote(b.db, 'n1', { body: 'x' });
+    await run.apply(addClient, 'alice');
+    await run.apply(addClient, 'bob');
+
+    await run.apply(net, 'alice', 'sync', 'hold');
+    expect(await run.observe(netHeld('alice', 'sync'))).toBe(true);
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'x' });
+    expect(await run.observe(lastMutationOk('alice'))).toBe(true);
+    await run.apply(passTime, 200);
+
+    await run.apply(net, 'alice', 'sync', 'ok');
+    expect(await run.observe(netHeld('alice', 'sync'))).toBe(false);
+    await run.apply(converge);
+    expect((await run.observe(liveNote('bob', 'n1')))?.body).toBe('x');
   });
 
-  test('until drives outcome promise', async () => {
-    await using world = await openAcmeWorld({
-      seed: 3,
-      knobs: {
-        clientCount: 0,
-      },
-    });
-    const a = await world.addClient({ id: 'alice' });
-    const queued = await a.mutate(setNote, { id: 'n1', body: 'y' });
-    expect(queued.ok).toBe(true);
-    if (!queued.ok) return;
-    const p = a.outcome(queued.mutationId);
-    await world.waitUntil(p, { withinMs: 5_000 });
-    expect(await p).toBe('confirmed');
+  test('until drives outcome observation', async () => {
+    await using run = await openRun(3);
+
+    await run.apply(addClient, 'alice');
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'y' });
+    const mutationId = await run.observe(lastMutationId('alice'));
+    expect(mutationId).not.toBeNull();
+    if (mutationId === null) return;
+
+    await untilAcme(run, outcome('alice', mutationId));
+    expect(await run.observe(outcome('alice', mutationId))).toBe('confirmed');
   });
 
   test('never holds for negative window', async () => {
-    await using world = await openAcmeWorld({
-      seed: 7,
-      knobs: {
-        clientCount: 0,
-      },
+    await using run = await openRun(7);
+
+    await run.apply(addClient, 'alice');
+    await run.apply(addClient, 'bob');
+
+    await run.apply(net, 'bob', 'sync', 'hold');
+    await run.apply(net, 'bob', 'live', 'down');
+    await run.apply(mutate, 'alice', setNote, {
+      id: 'n-never',
+      body: 'hidden',
     });
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
-    {
-      using _hold = world.net('bob', 'sync').set('hold');
-      using _live = world.net('bob', 'live').set('down');
-      await a.mutate(setNote, { id: 'n-never', body: 'hidden' });
-      await world.waitNever(() => isLiveNote(b.db, 'n-never'), { forMs: 300 });
-    }
-    await world.assertConverged();
-    await expectLiveNote(b.db, 'n-never', { body: 'hidden' });
+    await neverAcme(run, liveNote('bob', 'n-never'), { forMs: 300 });
+
+    await run.apply(net, 'bob', 'sync', 'ok');
+    await run.apply(net, 'bob', 'live', 'ok');
+    await run.apply(converge);
+    expect((await run.observe(liveNote('bob', 'n-never')))?.body).toBe(
+      'hidden'
+    );
   });
 
   test('never fails when target becomes true', async () => {
-    await using world = await openAcmeWorld({
-      seed: 8,
-      knobs: {
-        clientCount: 0,
-      },
+    await using run = await openRun(8);
+
+    await run.apply(addClient, 'alice');
+    await run.apply(addClient, 'bob');
+    await run.apply(mutate, 'alice', setNote, {
+      id: 'n-seen',
+      body: 'visible',
     });
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
-    await a.mutate(setNote, { id: 'n-seen', body: 'visible' });
     await expect(
-      world.waitNever(() => isLiveNote(b.db, 'n-seen'), { forMs: 2_000 })
-    ).rejects.toThrow(/waitNever violated/);
+      neverAcme(run, liveNote('bob', 'n-seen'), { forMs: 2_000 })
+    ).rejects.toThrow(/neverAcme violated/);
   });
 
-  test('assertConverged neutralizes net effects', async () => {
-    await using world = await openAcmeWorld({
-      seed: 4,
-      knobs: {
-        clientCount: 0,
-      },
-    });
-    await world.addClient({ id: 'alice' });
-    await world.addClient({ id: 'bob' });
-    using hold = world.net('bob', 'sync').set('hold');
-    expect(world.kit.network.isHeld('bob', 'sync')).toBe(true);
-    await world.assertConverged();
-    expect(world.kit.network.isHeld('bob', 'sync')).toBe(false);
-    hold.restore();
-    expect(world.kit.network.isHeld('bob', 'sync')).toBe(false);
+  test('converge neutralizes net effects', async () => {
+    await using run = await openRun(4);
+
+    await run.apply(addClient, 'alice');
+    await run.apply(addClient, 'bob');
+    await run.apply(net, 'bob', 'sync', 'hold');
+    expect(await run.observe(netHeld('bob', 'sync'))).toBe(true);
+    await run.apply(converge);
+    expect(await run.observe(netHeld('bob', 'sync'))).toBe(false);
   });
 
-  test('skewClock restores prior', async () => {
-    await using world = await openAcmeWorld({
-      seed: 5,
-      knobs: {
-        clientCount: 0,
-      },
-    });
-    await world.addClient({ id: 'alice' });
-    const base = world.node('alice').now();
-    {
-      using _skew = world.node('alice').skewClock(1_000);
-      expect(world.node('alice').now()).toBe(base + 1_000);
-    }
-    expect(world.node('alice').now()).toBe(base);
+  test('skewClock shifts and clears node time', async () => {
+    await using run = await openRun(5);
+
+    await run.apply(addClient, 'alice');
+    const base = await run.observe(nodeNow('alice'));
+    await run.apply(skewClock, 'alice', 1_000);
+    expect(await run.observe(nodeNow('alice'))).toBe(base + 1_000);
+    await run.apply(skewClock, 'alice', 0);
+    expect(await run.observe(nodeNow('alice'))).toBe(base);
   });
 
-  test('nested net set restore-prior LIFO', async () => {
-    await using world = await openAcmeWorld({
-      seed: 6,
-      knobs: {
-        clientCount: 0,
-      },
-    });
-    await world.addClient({ id: 'alice' });
-    using outer = world.net('alice', 'sync').set('hold');
-    using inner = world.net('alice', 'sync').set({
-      dropProbability: 1,
-    });
-    expect(world.kit.network.isHeld('alice', 'sync')).toBe(true);
-    inner.restore();
-    expect(world.kit.network.isHeld('alice', 'sync')).toBe(true);
-    outer.restore();
-    expect(world.kit.network.isHeld('alice', 'sync')).toBe(false);
+  test("net faults layer over a hold; only 'ok' clears it", async () => {
+    await using run = await openRun(6);
+
+    await run.apply(addClient, 'alice');
+    await run.apply(net, 'alice', 'sync', 'hold');
+    expect(await run.observe(netHeld('alice', 'sync'))).toBe(true);
+    await run.apply(net, 'alice', 'sync', { dropProbability: 1 });
+    expect(await run.observe(netHeld('alice', 'sync'))).toBe(true);
+    await run.apply(net, 'alice', 'sync', 'ok');
+    expect(await run.observe(netHeld('alice', 'sync'))).toBe(false);
   });
 });

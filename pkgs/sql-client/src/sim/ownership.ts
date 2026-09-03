@@ -53,7 +53,7 @@ export async function closeAllRuntimes(
 }
 
 /**
- * Converge the world onto the broker's election: exactly one tab holds a live
+ * Converge the system onto the broker's election: exactly one tab holds a live
  * `SqlClient`, everyone else is a proxy — same rule the SharedWorker enforces.
  */
 export async function ensureOwnerClient(

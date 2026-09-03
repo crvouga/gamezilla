@@ -8,33 +8,40 @@
 
 export {
   defineMatchmakingSystem,
+  join,
   MATCHMAKING_ACTIONS,
   MATCHMAKING_PROPERTIES,
   MATCHMAKING_SYSTEM,
+  type MatchmakingSurface,
   type MatchmakingSystemDef,
-  type MatchmakingSystemWorld,
   matchmaking,
+  participantIds,
+  passTime,
+  SIM_AUTH_HEADERS,
   type StartMatchmakingArgs,
+  simRequireAuth,
   startMatchmaking,
+  statuses,
+  statusOf,
+  tick,
+  tickAll,
 } from './sim/scenario';
 export type {
   MatchmakingSimBackend,
-  MatchmakingSimWorld,
   ParticipantHandle,
   ReplicaHandle,
-} from './sim/world-api';
+} from './sim/sim-api';
 export {
   assertMatchInvariants,
   assertStatusAgreesAcrossReplicas,
-  defaultStubAuth,
   expectMatched,
   KindAttr,
+  type MatchmakingRun,
   NameAttr,
   RatingAttr,
   RegionAttr,
   registerTestCrashHandler,
   SkillAttr,
-  TEST_AUTH_HEADERS,
   testNs,
   UUID_REGEX,
 } from './tests/fixtures';

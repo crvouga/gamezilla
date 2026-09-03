@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { createSimClock, SimDb } from '../../sim';
-import { faultScheduleFromSeed, runHarness } from '../../sim/harness';
+import { check } from '@pkgs/dst/pbt';
+import { INDEXES_ACTIONS, INDEXES_PROPERTIES, indexes } from './system';
 
 const SEEDS_PATH = join(import.meta.dir, 'known-seeds.txt');
 
@@ -22,27 +22,18 @@ function loadKnownSeeds(): number[] {
 describe('known-seeds corpus', () => {
   const seeds = loadKnownSeeds();
 
-  test(`runs ${String(seeds.length)} committed seeds with zero violations`, async () => {
+  test(`check ${String(seeds.length)} committed seeds with zero violations`, async () => {
     expect(seeds.length).toBeGreaterThan(0);
     for (const seed of seeds) {
-      const clock = createSimClock(0);
-      const db = new SimDb({
-        clock,
-        tables: [
-          { name: 'notes', estimatedRows: 50_000 },
-          { name: 'users', estimatedRows: 50_000 },
-        ],
-        defaultImprovement: 10,
-        faults: faultScheduleFromSeed(seed),
-      });
-      const result = await runHarness({
+      const report = await check(indexes, {
+        properties: INDEXES_PROPERTIES,
+        actions: INDEXES_ACTIONS,
+        episodes: 1,
+        steps: 8,
         seed,
-        db,
-        clock,
-        tables: ['notes', 'users'],
-        cycles: 4,
+        stopOnViolation: true,
       });
-      expect(result.violations).toEqual([]);
+      expect(report.ok).toBe(true);
     }
-  });
+  }, 300_000);
 });

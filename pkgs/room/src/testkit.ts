@@ -3,6 +3,7 @@ export {
   LoopbackRoomTransport,
   type LoopbackRoomTransportArgs,
 } from './client/adapters/transport/loopback';
+export type { RoomSimClientHandle } from './sim/kit-api';
 export type {
   DomainOp,
   RoomApp,
@@ -30,11 +31,6 @@ export {
   serverState,
   startRoom,
 } from './sim/scenario';
-export type {
-  OpenWorldArgs,
-  RoomSimClientHandle,
-  World,
-} from './sim/world-api';
 export {
   AuthzFixtureModule,
   authzCount,

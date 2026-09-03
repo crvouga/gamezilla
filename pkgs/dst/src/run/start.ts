@@ -25,10 +25,9 @@ export type Run<S> = {
   readonly observe: <T extends JsonValue>(o: Observation<S, T>) => Promise<T>;
   readonly assert: (p: Property<S>) => Promise<void>;
   readonly [Symbol.asyncDispose]: () => Promise<void>;
-  /** Internal — walk / check / replay. */
-  readonly _internal: RunInternal<S>;
 };
 
+/** Module-private run state — walk / check / replay only. */
 export type RunInternal<S> = {
   readonly surface: S;
   readonly session: Session;
@@ -38,10 +37,21 @@ export type RunInternal<S> = {
   readonly monitors: MonitorState[];
   readonly transitions: Transition[];
   readonly choices: Choice[];
-  readonly rng: Rng;
+  rng: Rng;
   step: number;
   readonly ctx: () => DriveContext<S>;
 };
+
+const runInternals = new WeakMap<object, RunInternal<unknown>>();
+
+/** Package-internal accessor — not part of the public `Run` surface. */
+export function getRunInternal<S>(run: Run<S>): RunInternal<S> {
+  const internal = runInternals.get(run as object);
+  if (internal === undefined) {
+    throw new Error('getRunInternal: run is not registered');
+  }
+  return internal as RunInternal<S>;
+}
 
 export type StartOptions<S> = {
   readonly seed: number | bigint | string;
@@ -141,11 +151,11 @@ function buildRun<S>(args: {
       surface: args.surface,
       session: args.session,
       memo: args.memo,
-      rng: args.actionRng,
+      rng: internal.rng,
     }),
   };
 
-  return {
+  const run: Run<S> = {
     async apply(action, ...draws) {
       const ctx = internal.ctx();
       internal.step += 1;
@@ -163,7 +173,7 @@ function buildRun<S>(args: {
               const probed = await probe(
                 action,
                 ctx,
-                args.actionRng.fork(`step:${t}`)
+                internal.rng.fork(`step:${t}`)
               );
               if (!probed.enabled) throw new ActionNotEnabled(action.name);
               return checkpoint({
@@ -192,8 +202,9 @@ function buildRun<S>(args: {
       await args.session.dispose();
       if (endViolations.length > 0) throw endViolations[0]!;
     },
-    _internal: internal,
   };
+  runInternals.set(run as object, internal as RunInternal<unknown>);
+  return run;
 }
 
 export async function start<S>(

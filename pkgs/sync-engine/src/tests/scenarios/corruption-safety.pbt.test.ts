@@ -4,12 +4,11 @@ import {
   CORRUPTION_VARIANTS,
   HTTP_FAULTS,
   PUBSUB_FAULTS,
-  replaySyncPin,
   STORAGE_TAMPERS,
 } from '../../sim/scenario';
 import { arbKnobs, arbSeed } from '../../sim/scenario/knobs';
+import { playAcmePin } from '../apps/acme';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
-import { acmeSystem } from '../apps/acme/system';
 import type { LibraryAction, SyncAction } from '../scenario/actions';
 
 const TRIGGER = acmeSetNoteOp('c0', 'n0', 'corruption');
@@ -35,7 +34,7 @@ describe('corruption safety PBT', () => {
                 f.kind === 'corruptQueryResponse'
             ),
           async (seed, knobs, fault) => {
-            await replaySyncPin(acmeSystem, {
+            await playAcmePin({
               seed,
               knobs,
               actions: corruptionSequence({
@@ -65,7 +64,7 @@ describe('corruption safety PBT', () => {
             .filter((f) => f.kind === 'corruptPubsubPayload'),
           fc.constantFrom(...CORRUPTION_VARIANTS),
           async (seed, knobs, _fault, variant) => {
-            await replaySyncPin(acmeSystem, {
+            await playAcmePin({
               seed,
               knobs,
               actions: corruptionSequence({
@@ -91,7 +90,7 @@ describe('corruption safety PBT', () => {
           arbKnobs(),
           fc.constantFrom(...STORAGE_TAMPERS),
           async (seed, knobs, tamper) => {
-            await replaySyncPin(acmeSystem, {
+            await playAcmePin({
               seed,
               knobs,
               actions: [

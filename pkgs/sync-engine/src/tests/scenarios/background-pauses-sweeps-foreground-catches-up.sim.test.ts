@@ -1,47 +1,72 @@
 import { describe, expect, test } from 'bun:test';
-import { expectLiveNote, isLiveNote, setNote } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import { start } from '@pkgs/dst';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  assertConverged,
+  foreground,
+  lastMutationOk,
+  liveNote,
+  mutate,
+  neverAcme,
+  passTime,
+  setNote,
+  syncVirtualHost,
+  untilAcme,
+} from '../apps/acme';
 
 describe('background pauses sweeps foreground catches up', () => {
   test('background pauses query sweeps until foreground', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 507,
-      knobs: {
+      host: syncVirtualHost(),
+      draws: acmeDraws({
         clientCount: 0,
         rowImageFanout: false,
-      },
+      }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
-    await a.mutate(setNote, { id: 'warm', body: 'w' });
-    await world.assertConverged();
+    await run.apply(addClient, 'alice');
+    await run.apply(addClient, 'bob');
+    await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
+    await run.apply(assertConverged);
 
-    b.foreground(false);
-    await a.mutate(setNote, { id: 'n1', body: 'while-bg' });
-    await world.waitNever(() => isLiveNote(b.db, 'n1'), { forMs: 300 });
+    await run.apply(foreground, 'bob', false);
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'while-bg' });
+    await neverAcme(run, liveNote('bob', 'n1'), { forMs: 300 });
 
-    b.foreground(true);
-    await world.waitUntil(async () => isLiveNote(b.db, 'n1'));
-    await world.assertConverged();
-    await expectLiveNote(b.db, 'n1', { body: 'while-bg' });
+    await run.apply(foreground, 'bob', true);
+    await untilAcme(run, liveNote('bob', 'n1'));
+    await run.apply(assertConverged);
+    expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+      body: 'while-bg',
+    });
   });
 
   test('background does not block local mutate visibility', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 508,
-      knobs: {
+      host: syncVirtualHost(),
+      draws: acmeDraws({
         clientCount: 0,
-      },
+      }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    a.foreground(false);
-    const ok = await a.mutate(setNote, { id: 'local', body: 'bg-write' });
-    expect(ok.ok).toBe(true);
-    await expectLiveNote(a.db, 'local', { body: 'bg-write' });
+    await run.apply(addClient, 'alice');
+    await run.apply(foreground, 'alice', false);
+    await run.apply(mutate, 'alice', setNote, {
+      id: 'local',
+      body: 'bg-write',
+    });
+    expect(await run.observe(lastMutationOk('alice'))).toBe(true);
+    expect(await run.observe(liveNote('alice', 'local'))).toMatchObject({
+      body: 'bg-write',
+    });
     // Drain upload while pumping sim time (dispose awaits upload stop).
-    a.foreground(true);
-    await world.advance(200);
+    await run.apply(foreground, 'alice', true);
+    await run.apply(passTime, 200);
   });
 });

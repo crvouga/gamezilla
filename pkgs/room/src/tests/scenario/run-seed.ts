@@ -1,7 +1,20 @@
-import type { RoomApp, RoomSystemAction } from '../../sim/scenario';
+import type { Run } from '@pkgs/dst';
+import { createSeededRng, type SeededRng } from '@pkgs/uuid';
+import type {
+  RoomApp,
+  RoomSurface,
+  RoomSystemAction,
+} from '../../sim/scenario';
 import {
   applyRoomAction,
+  clientHash,
+  converge,
   defineRoomSystem,
+  invariantViolations,
+  passTime,
+  seed as seedOf,
+  serverCrashed,
+  serverHash,
   startRoom,
 } from '../../sim/scenario';
 import { createFuzzState, pickRoomSystemAction } from './pick-library-action';
@@ -28,6 +41,43 @@ function clientIdsFor(opts: RunSeedOptions): readonly string[] {
   return Array.from({ length: count }, (_, i) => `c${i}`);
 }
 
+async function startSeedRun(
+  opts: RunSeedOptions
+): Promise<Run<RoomSurface> & AsyncDisposable> {
+  const system = defineRoomSystem(opts.app, { name: 'room.seed' });
+  return startRoom(system, {
+    seed: opts.seed,
+    clientCount: opts.clientCount ?? 2,
+    mildFaults: opts.mildFaults === true,
+  });
+}
+
+/** Deterministic workload stream, derived from the booted kit's own seed. */
+async function workloadRng(run: Run<RoomSurface>): Promise<SeededRng> {
+  return createSeededRng(await run.observe(seedOf)).fork('workload');
+}
+
+async function stepWorkload(
+  run: Run<RoomSurface>,
+  opts: RunSeedOptions,
+  rng: SeededRng,
+  fuzz: ReturnType<typeof createFuzzState>
+): Promise<void> {
+  const action: RoomSystemAction = pickRoomSystemAction(
+    rng,
+    clientIdsFor(opts),
+    opts.app.pickDomainOp,
+    fuzz
+  );
+  await applyRoomAction(run, action);
+}
+
+async function firstViolation(run: Run<RoomSurface>): Promise<string | null> {
+  if (await run.observe(serverCrashed)) return null;
+  const msgs = await run.observe(invariantViolations);
+  return msgs.length > 0 ? (msgs[0] as string) : null;
+}
+
 /**
  * Run one seeded universe: N clients, random workload, heal + converge.
  * On failure returns seed for exact replay.
@@ -36,46 +86,27 @@ export async function runRoomSeed(
   opts: RunSeedOptions
 ): Promise<RunSeedResult> {
   const steps = opts.steps ?? 40;
-  const system = defineRoomSystem(opts.app, { name: 'room.seed' });
-  await using run = await startRoom(system, {
-    seed: opts.seed,
-    clientCount: opts.clientCount ?? 2,
-    mildFaults: opts.mildFaults === true,
-  });
-  const world = run._internal.surface.world;
-  const ids = clientIdsFor(opts);
+  await using run = await startSeedRun(opts);
+  const runSeedValue = BigInt(await run.observe(seedOf));
+  const rng = await workloadRng(run);
+  const fuzz = createFuzzState(clientIdsFor(opts));
+  let done = 0;
   try {
-    const workRng = world.rng.fork('workload');
-    const fuzz = createFuzzState(ids);
-    let done = 0;
     for (let i = 0; i < steps; i += 1) {
-      const action: RoomSystemAction = pickRoomSystemAction(
-        workRng,
-        ids,
-        opts.app.pickDomainOp,
-        fuzz
-      );
-      await applyRoomAction(run, action);
+      await stepWorkload(run, opts, rng, fuzz);
       done += 1;
-      if (!world.isServerCrashed()) {
-        const inv = await world.checkInvariants();
-        if (inv !== null) {
-          return {
-            ok: false,
-            seed: world.seed,
-            steps: done,
-            error: `${inv.invariant}: ${inv.detail}`,
-          };
-        }
+      const violation = await firstViolation(run);
+      if (violation !== null) {
+        return { ok: false, seed: runSeedValue, steps: done, error: violation };
       }
-      await world.runFor(20);
+      await run.apply(passTime, 20);
     }
-    await world.assertConverged();
-    return { ok: true, seed: world.seed, steps: done };
+    await run.apply(converge);
+    return { ok: true, seed: runSeedValue, steps: done };
   } catch (err) {
     return {
       ok: false,
-      seed: world.seed,
+      seed: runSeedValue,
       steps,
       error: err instanceof Error ? err.message : String(err),
     };
@@ -96,33 +127,20 @@ export async function roomSeedFingerprint(
   opts: RunSeedOptions
 ): Promise<string> {
   const steps = opts.steps ?? 40;
-  const system = defineRoomSystem(opts.app, { name: 'room.seed' });
-  await using run = await startRoom(system, {
-    seed: opts.seed,
-    clientCount: opts.clientCount ?? 2,
-    mildFaults: opts.mildFaults === true,
-  });
-  const world = run._internal.surface.world;
+  await using run = await startSeedRun(opts);
+  const rng = await workloadRng(run);
   const ids = clientIdsFor(opts);
-  const workRng = world.rng.fork('workload');
   const fuzz = createFuzzState(ids);
   for (let i = 0; i < steps; i += 1) {
-    const action = pickRoomSystemAction(
-      workRng,
-      ids,
-      opts.app.pickDomainOp,
-      fuzz
-    );
-    await applyRoomAction(run, action);
-    await world.runFor(20);
+    await stepWorkload(run, opts, rng, fuzz);
+    await run.apply(passTime, 20);
   }
-  await world.assertConverged();
-  const parts = [await world.serverHash()];
+  await run.apply(converge);
+  const hashes = (await run.observe(clientHash)) as Record<string, string>;
+  const parts = [await run.observe(serverHash)];
   for (const id of ids) {
-    const c = world.clients.get(id);
-    if (c !== undefined && !c.isCrashed()) {
-      parts.push(c.hash());
-    }
+    const h = hashes[id];
+    if (h !== undefined) parts.push(h);
   }
   return parts.join(':');
 }

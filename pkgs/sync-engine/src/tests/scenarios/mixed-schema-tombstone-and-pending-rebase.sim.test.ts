@@ -1,19 +1,29 @@
 import { describe, expect, test } from 'bun:test';
-import { sql } from '@pkgs/sql';
-import { defineSyncSystem, openSyncWorld } from '../../sim/scenario';
+import { start } from '@pkgs/dst';
 import {
   acmeApp,
+  acmeDraws,
   acmeLocalSchema,
   acmeLocalSchemaExtraColumn,
   acmeMutationRegistry,
   acmeQueryRegistry,
+  addClient,
+  connect,
+  converge,
+  defineSyncSystem,
   deleteNote,
-  expectLiveNote,
-  expectNotesMatchServer,
-  notesWorldWithColorQuery,
-  readNoteTombstone,
+  disconnect,
+  lastMutationOk,
+  liveNote,
+  mutate,
+  noteColor,
+  noteColumns,
+  notesAllWithColorQuery,
+  passTime,
+  readNoteTombstoneAt,
   setNote,
   setNoteColor,
+  syncVirtualHost,
 } from '../apps/acme';
 
 const acmeColorTombstoneSystem = defineSyncSystem(acmeApp, {
@@ -25,23 +35,23 @@ const acmeColorTombstoneSystem = defineSyncSystem(acmeApp, {
   },
   queryRegistry: {
     ...acmeQueryRegistry,
-    [notesWorldWithColorQuery.name]: notesWorldWithColorQuery,
+    [notesAllWithColorQuery.name]: notesAllWithColorQuery,
   },
-  sessionQuery: { name: 'notesWorldWithColor', params: {} },
+  sessionQuery: { name: 'notesAllWithColor', params: {} },
 });
 
 describe('mixed schema tombstone and pending rebase', () => {
   test.each([2110, 2111, 2112])(
     'pending setNoteColor revives peer tombstone; color kept (seed=%i)',
     async (seed) => {
-      await using world = await openSyncWorld(acmeColorTombstoneSystem, {
+      await using run = await start(acmeColorTombstoneSystem, {
         seed: seed,
-        knobs: {
-          clientCount: 0,
-        },
+        host: syncVirtualHost(),
+        draws: acmeDraws({ clientCount: 0 }),
+        properties: [],
       });
 
-      const alice = await world.addClient({
+      await run.apply(addClient, {
         id: 'alice',
         localSchema: acmeLocalSchemaExtraColumn,
         mutationRegistry: {
@@ -50,50 +60,49 @@ describe('mixed schema tombstone and pending rebase', () => {
         },
         queryRegistry: {
           ...acmeQueryRegistry,
-          [notesWorldWithColorQuery.name]: notesWorldWithColorQuery,
+          [notesAllWithColorQuery.name]: notesAllWithColorQuery,
         },
-        sessionQuery: { name: 'notesWorldWithColor', params: {} },
+        sessionQuery: { name: 'notesAllWithColor', params: {} },
       });
       // Bob owns the row so peer soft-delete is authorized; baseline local schema.
-      const bob = await world.addClient({
+      await run.apply(addClient, {
         id: 'bob',
         localSchema: acmeLocalSchema,
-        sessionQuery: { name: 'notesWorld', params: {} },
+        sessionQuery: { name: 'notesAll', params: {} },
       });
 
-      await bob.mutate(setNote, { id: 'n1', body: 'seed' });
-      await world.assertConverged();
+      await run.apply(mutate, 'bob', setNote, { id: 'n1', body: 'seed' });
+      await run.apply(converge);
 
-      await alice.disconnect();
-      await alice.mutate(setNoteColor, {
+      await run.apply(disconnect, 'alice');
+      await run.apply(mutate, 'alice', setNoteColor, {
         id: 'n1',
         body: 'alice-pending',
         color: 'red',
       });
-      await expectLiveNote(alice.db, 'n1', { body: 'alice-pending' });
+      expect(await run.observe(liveNote('alice', 'n1'))).toMatchObject({
+        body: 'alice-pending',
+      });
 
-      const del = await bob.mutate(deleteNote, { id: 'n1' });
-      expect(del.ok).toBe(true);
-      await world.advance(400);
-      expect(await readNoteTombstone(world.server.db, 'n1')).not.toBeNull();
+      await run.apply(mutate, 'bob', deleteNote, { id: 'n1' });
+      expect(await run.observe(lastMutationOk('bob'))).toBe(true);
+      await run.apply(passTime, 400);
+      expect(await readNoteTombstoneAt(run, 'server', 'n1')).not.toBeNull();
 
-      await alice.connect();
-      await world.assertConverged();
+      await run.apply(connect, 'alice');
+      await run.apply(converge);
 
       // setNoteColor upsert clears deleted_at — revive wins (same as setNote).
-      await expectLiveNote(alice.db, 'n1', { body: 'alice-pending' });
-      await expectLiveNote(bob.db, 'n1', { body: 'alice-pending' });
-      await expectLiveNote(world.server.db, 'n1', { body: 'alice-pending' });
-      await expectNotesMatchServer(bob.db, world.server.db);
+      for (const node of ['alice', 'bob', 'server'] as const) {
+        expect(await run.observe(liveNote(node, 'n1'))).toMatchObject({
+          body: 'alice-pending',
+        });
+      }
 
-      const color = await alice.db.query(sql<{ color: string | null }>`
-        SELECT color FROM notes WHERE id = ${'n1'} AND deleted_at IS NULL
-      `);
-      expect(color[0]?.color).toBe('red');
-
-      const bobCols = await bob.db.query(sql<{ name: string }>`
-        SELECT name FROM pragma_table_info('notes')
-      `);
+      expect((await run.observe(noteColor('alice', 'n1')))[0]?.color).toBe(
+        'red'
+      );
+      const bobCols = await run.observe(noteColumns('bob'));
       expect(bobCols.some((c) => c.name === 'color')).toBe(false);
     }
   );

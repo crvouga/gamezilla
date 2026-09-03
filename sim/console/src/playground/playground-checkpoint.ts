@@ -1,5 +1,5 @@
 /**
- * In-memory playground World checkpoint capture / restore.
+ * In-memory playground run checkpoint capture / restore.
  */
 
 import type { SimCheckpoint } from '@pkgs/sim-console/client';

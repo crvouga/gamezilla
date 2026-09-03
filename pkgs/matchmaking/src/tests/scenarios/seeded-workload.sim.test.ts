@@ -1,7 +1,14 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { openMatchmakingWorld } from '../../sim/scenario';
+import { createSeededRng } from '@pkgs/uuid';
 import {
-  expectMatched,
+  join,
+  passTime,
+  replicaIds,
+  startMatchmaking,
+  tick,
+} from '../../sim/scenario';
+import {
+  matchFingerprint,
   RatingAttr,
   registerTestCrashHandler,
 } from '../fixtures';
@@ -9,48 +16,30 @@ import {
 const SimpleFormula = { numeric: [{ tag: RatingAttr, weight: 1 }] };
 
 async function runWorkload(seed: string): Promise<string> {
-  await using world = await openMatchmakingWorld({
-    seed,
-    replicas: 3,
-  });
-  const replicaIds = [...world.replicas.keys()];
-  const participants = [];
-  const rng = world.ports.rng.fork('workload');
+  await using run = await startMatchmaking({ seed, replicas: 3 });
+  const replicas = await run.observe(replicaIds);
+  const rng = createSeededRng(seed).fork('workload');
   for (let i = 0; i < 10; i += 1) {
-    await world.advance(1);
-    const rid = replicaIds[i % replicaIds.length]!;
-    participants.push(
-      await world.join(
-        {
-          data: RatingAttr(1000 + rng.int(50)),
-          formulas: [SimpleFormula],
-        },
-        rid
-      )
-    );
+    await run.apply(passTime, 1);
+    await run.apply(join, {
+      ref: `p${String(i)}`,
+      input: {
+        data: RatingAttr(1000 + rng.int(50)),
+        formulas: [SimpleFormula],
+      },
+      replicaId: replicas[i % replicas.length]!,
+    });
     if (i % 3 === 2) {
-      const tickRid = replicaIds[(i + 1) % replicaIds.length]!;
-      await world.tick({ maxPassesPerPartition: 2 }, tickRid);
+      await run.apply(tick, {
+        opts: { maxPassesPerPartition: 2 },
+        replicaId: replicas[(i + 1) % replicas.length]!,
+      });
     }
   }
-  for (const rid of replicaIds) {
-    await world.tick({ maxPassesPerPartition: 8 }, rid);
+  for (const replicaId of replicas) {
+    await run.apply(tick, { opts: { maxPassesPerPartition: 8 }, replicaId });
   }
-  const parts: string[] = [];
-  for (const p of participants) {
-    const st = await p.status();
-    if (st?.status !== 'matched') {
-      parts.push(`${p.participantId}:waiting`);
-      continue;
-    }
-    const matched = expectMatched(st);
-    const peers = matched.peers
-      .map((x) => x.participantId)
-      .sort()
-      .join(',');
-    parts.push(`${p.participantId}:${matched.matchId}:${peers}`);
-  }
-  return parts.sort().join('|');
+  return await matchFingerprint(run);
 }
 
 describe('matchmaking sim: seeded workload determinism', () => {

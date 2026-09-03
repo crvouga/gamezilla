@@ -53,15 +53,16 @@ const { participantId } = await mm.join({
 | `@pkgs/matchmaking/impl-sql` | `MatchmakingImplSql`, `MatchmakingDatabaseMigration` |
 | `@pkgs/matchmaking/wire` | `FormulaWire` types for HTTP / RPC |
 | `@pkgs/matchmaking/client` | `MatchmakingClient` |
-| `@pkgs/matchmaking/testing` | Framework sim (`openMatchmakingWorld` → World / `MATCHMAKING_SYSTEM`) + fixtures |
+| `@pkgs/matchmaking/testing` | Framework sim (`matchmaking` system + actions / observations, `startMatchmaking`) + fixtures |
 
 Anything outside these subpaths is internal.
 
 ## Testing
 
 All tests live under `src/tests/`. Deterministic scenarios use a seeded
-framework world (`@pkgs/dst`) that boots **N Matchmaking replicas
-sharing one DB** — the horizontal-scale composition root.
+`@pkgs/dst` system that boots **N Matchmaking replicas sharing one DB** —
+the horizontal-scale composition root. Tests only ever `start` a run and
+drive it with `apply` / `observe`; there is no direct surface access.
 
 ```text
 pkgs/matchmaking/src/
@@ -76,28 +77,36 @@ pkgs/matchmaking/src/
 
 ```ts
 import {
-  openMatchmakingWorld,
+  join,
   RatingAttr,
+  startMatchmaking,
+  statusOf,
+  tickAllWith,
 } from '@pkgs/matchmaking/testing';
 
-await using world = await openMatchmakingWorld({
+await using run = await startMatchmaking({
   seed: 3,
   replicas: 3,
   // backend: 'postgres', // required for concurrent tickAll claim races
 });
 
-const a = await world.join(
-  { data: RatingAttr(1000), formulas: [{ numeric: [{ tag: RatingAttr, weight: 1 }] }] },
-  'r0'
-);
-await world.tickAll({ maxPassesPerPartition: 4 });
+await run.apply(join, {
+  ref: 'a',
+  replicaId: 'r0',
+  input: {
+    data: RatingAttr(1000),
+    formulas: [{ numeric: [{ tag: RatingAttr, weight: 1 }] }],
+  },
+});
+await run.apply(tickAllWith, { maxPassesPerPartition: 4 });
+expect(await run.observe(statusOf('a'))).not.toBeNull();
 ```
 
 | Concept | API |
 |---------|-----|
-| Time | `runFor`, `until`, `never` (each step advances clock then `tickAll`) |
-| Replicas | `addReplica`, `replica(id)`, `tick` / `tickAll` |
-| Port | `join` / `status` / `leave` / `updateFormulas` / `mm.app()` |
+| Time | `passTime`, `waitUntilMatched`, `waitNeverMatched` actions |
+| Replicas | `addReplica`, `tick` / `tickAll` / `tickAllWith` actions |
+| Port | `join` / `leave` / `ready` / `updateFormulas` / `httpRequest` actions; `statusOf` / `statuses` / `lastTick` / `lastHttp` observations |
 
 Scenarios assert only port observables — never SQL tables or claim
 columns. CI: `bun run --filter @pkgs/matchmaking test`.

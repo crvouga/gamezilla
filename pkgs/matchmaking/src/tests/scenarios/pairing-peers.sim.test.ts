@@ -1,5 +1,14 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { openMatchmakingWorld } from '../../sim/scenario';
+import type { TickResult } from '../../interface/matchmaking';
+import type { StatusResult } from '../../interface/types';
+import {
+  join,
+  lastTick,
+  participantIds,
+  startMatchmaking,
+  statusOf,
+  tick,
+} from '../../sim/scenario';
 import {
   expectMatched,
   NameAttr,
@@ -9,6 +18,7 @@ import {
 } from '../fixtures';
 
 const SimpleFormula = { numeric: [{ tag: RatingAttr, weight: 1 }] };
+const fourPasses = { opts: { maxPassesPerPartition: 4 } };
 
 describe('matchmaking sim: pairing / peers', () => {
   let disposeCrash: () => void;
@@ -20,45 +30,50 @@ describe('matchmaking sim: pairing / peers', () => {
   });
 
   test('paired participants see the same matchId and each other as peers', async () => {
-    await using world = await openMatchmakingWorld({ seed: 20 });
-    const a = await world.join({
-      data: { ...RatingAttr(1000), ...NameAttr('a') },
-      formulas: [SimpleFormula],
+    await using run = await startMatchmaking({ seed: 20 });
+    await run.apply(join, {
+      ref: 'a',
+      input: {
+        data: { ...RatingAttr(1000), ...NameAttr('a') },
+        formulas: [SimpleFormula],
+      },
     });
-    const b = await world.join({
-      data: { ...RatingAttr(1020), ...NameAttr('b') },
-      formulas: [SimpleFormula],
+    await run.apply(join, {
+      ref: 'b',
+      input: {
+        data: { ...RatingAttr(1020), ...NameAttr('b') },
+        formulas: [SimpleFormula],
+      },
     });
-    expect((await world.tick({ maxPassesPerPartition: 4 })).matches).toBe(1);
-    const aStatus = expectMatched(await a.status());
-    const bStatus = expectMatched(await b.status());
-    expect(aStatus.matchId).toMatch(UUID_REGEX);
-    expect(aStatus.matchId).toBe(bStatus.matchId);
-    expect(aStatus.peers.map((p) => p.participantId)).toEqual([
-      b.participantId,
-    ]);
-    expect(bStatus.peers.map((p) => p.participantId)).toEqual([
-      a.participantId,
-    ]);
+    await run.apply(tick, fourPasses);
+    expect(((await run.observe(lastTick)) as TickResult).matches).toBe(1);
+    const ids = await run.observe(participantIds);
+    const a = expectMatched((await run.observe(statusOf('a'))) as StatusResult);
+    const b = expectMatched((await run.observe(statusOf('b'))) as StatusResult);
+    expect(a.matchId).toMatch(UUID_REGEX);
+    expect(a.matchId).toBe(b.matchId);
+    expect(a.peers.map((p) => p.participantId)).toEqual([ids['b'] as string]);
+    expect(b.peers.map((p) => p.participantId)).toEqual([ids['a'] as string]);
   });
 
   test('three participants — only the closest pair matches', async () => {
-    await using world = await openMatchmakingWorld({ seed: 21 });
-    const a = await world.join({
-      data: RatingAttr(1000),
-      formulas: [SimpleFormula],
-    });
-    const b = await world.join({
-      data: RatingAttr(1020),
-      formulas: [SimpleFormula],
-    });
-    const c = await world.join({
-      data: RatingAttr(2000),
-      formulas: [SimpleFormula],
-    });
-    await world.tick({ maxPassesPerPartition: 4 });
-    expect((await a.status())?.status).toBe('matched');
-    expect((await b.status())?.status).toBe('matched');
-    expect((await c.status())?.status).toBe('waiting');
+    await using run = await startMatchmaking({ seed: 21 });
+    const ratings = { a: 1000, b: 1020, c: 2000 } as const;
+    for (const [ref, rating] of Object.entries(ratings)) {
+      await run.apply(join, {
+        ref,
+        input: { data: RatingAttr(rating), formulas: [SimpleFormula] },
+      });
+    }
+    await run.apply(tick, fourPasses);
+    for (const [ref, expected] of [
+      ['a', 'matched'],
+      ['b', 'matched'],
+      ['c', 'waiting'],
+    ] as const) {
+      expect(((await run.observe(statusOf(ref))) as StatusResult).status).toBe(
+        expected
+      );
+    }
   });
 });

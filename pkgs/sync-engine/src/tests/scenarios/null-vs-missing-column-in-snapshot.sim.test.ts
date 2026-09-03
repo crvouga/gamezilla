@@ -1,61 +1,69 @@
 import { describe, expect, test } from 'bun:test';
-import { expectLiveNote, readLiveNotes, setNote } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import { start } from '@pkgs/dst';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  converge,
+  expectLiveNoteAt,
+  liveNotes,
+  mutate,
+  setNote,
+  syncVirtualHost,
+} from '../apps/acme';
 
 describe('null vs missing column in snapshot', () => {
   test('explicit null folderId and omitted folderId both yield null folder_id', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 1000,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
 
-    await a.mutate(setNote, {
+    await run.apply(mutate, 'alice', setNote, {
       id: 'explicit-null',
       body: 'n',
       folderId: null,
     });
-    await a.mutate(setNote, {
+    await run.apply(mutate, 'alice', setNote, {
       id: 'omitted',
       body: 'o',
       // folderId omitted — same wire outcome as null for this mutation.
     });
-    await world.assertConverged();
+    await run.apply(converge);
 
-    const notes = await readLiveNotes(b.db);
-    const explicit = notes.find((n) => n.id === 'explicit-null');
-    const omitted = notes.find((n) => n.id === 'omitted');
-    expect(explicit?.folder_id).toBeNull();
-    expect(omitted?.folder_id).toBeNull();
-    await expectLiveNote(b.db, 'explicit-null', { body: 'n' });
-    await expectLiveNote(b.db, 'omitted', { body: 'o' });
+    const notes = await run.observe(liveNotes('bob'));
+    expect(notes.find((n) => n.id === 'explicit-null')?.folderId).toBeNull();
+    expect(notes.find((n) => n.id === 'omitted')?.folderId).toBeNull();
+    await expectLiveNoteAt(run, 'bob', 'explicit-null', { body: 'n' });
+    await expectLiveNoteAt(run, 'bob', 'omitted', { body: 'o' });
   });
 
   test.each([1001, 1002, 1003])(
     'seed sweep null vs omitted folderId converge identically (seed=%i)',
     async (seed) => {
-      await using world = await openAcmeWorld({
+      await using run = await start(acmeSystem, {
         seed: seed,
-        knobs: {
-          clientCount: 0,
-        },
+        host: syncVirtualHost(),
+        draws: acmeDraws({ clientCount: 0 }),
+        properties: [],
       });
 
-      const a = await world.addClient({ id: 'alice' });
-      await world.addClient({ id: 'bob' });
-      await a.mutate(setNote, {
+      await run.apply(addClient, { id: 'alice' });
+      await run.apply(addClient, { id: 'bob' });
+      await run.apply(mutate, 'alice', setNote, {
         id: `n-${seed}`,
         body: 'x',
         folderId: null,
       });
-      await a.mutate(setNote, { id: `m-${seed}`, body: 'y' });
-      await world.assertConverged();
-      const notes = await readLiveNotes(world.server.db);
-      expect(notes.every((n) => n.folder_id === null)).toBe(true);
+      await run.apply(mutate, 'alice', setNote, { id: `m-${seed}`, body: 'y' });
+      await run.apply(converge);
+      const notes = await run.observe(liveNotes('server'));
+      expect(notes.every((n) => n.folderId === null)).toBe(true);
     }
   );
 });

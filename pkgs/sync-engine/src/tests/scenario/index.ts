@@ -1,6 +1,6 @@
 /**
- * PBT / system test helpers. Worlds and action replay are framework-owned:
- * `defineSyncSystem` + `check` / `replay` from `@pkgs/dst`.
+ * PBT / system test helpers. Runs and action replay are framework-owned:
+ * `defineSyncSystem` + `start` / `check` / `replay` from `@pkgs/dst`.
  */
 
 export type {
@@ -9,11 +9,11 @@ export type {
   ServerOp,
   SyncAction,
   SyncApp,
+  SyncKnobs,
+  SyncModel,
+  SyncReal,
   SyncSurface,
   SyncSystemDef,
-  WorldKnobs,
-  WorldModel,
-  WorldReal,
 } from '../../sim/scenario';
 export {
   AUTH_STATUSES,
@@ -25,14 +25,13 @@ export {
   defineSyncSystem,
   HOLD_TRAFFIC,
   HTTP_FAULTS,
-  openSyncWorld,
   PUBSUB_FAULTS,
-  playSyncActions,
-  replaySyncPin,
   SCHEMA_VARIANTS,
+  SIM_PBT_CRASH_EVENTS,
   STORAGE_TAMPERS,
   SYNC_PROPERTIES,
-  WORLD_PBT_CRASH_EVENTS,
+  syncSystemDraws,
+  syncVirtualHost,
 } from '../../sim/scenario';
 export { pickLibraryAction, pickSyncAction } from './pick-library-action';
 export type { RunSeedOptions, RunSeedResult } from './run-seed';

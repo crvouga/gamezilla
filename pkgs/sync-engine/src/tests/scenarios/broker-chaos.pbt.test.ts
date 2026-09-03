@@ -1,9 +1,9 @@
 import { describe, test } from 'bun:test';
 import { assertProperty, fc } from '@pkgs/pbt';
-import { PUBSUB_FAULTS, replaySyncPin } from '../../sim/scenario';
+import { PUBSUB_FAULTS } from '../../sim/scenario';
 import { arbKnobs, arbSeed } from '../../sim/scenario/knobs';
+import { playAcmePin } from '../apps/acme';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
-import { acmeSystem } from '../apps/acme/system';
 import type { LibraryAction, SyncAction } from '../scenario/actions';
 
 const TRIGGER = acmeSetNoteOp('c0', 'n0', 'broker-chaos');
@@ -16,7 +16,7 @@ describe('broker chaos PBT', () => {
   test(
     'brokerRestart then peer faults still converges',
     async () => {
-      await replaySyncPin(acmeSystem, {
+      await playAcmePin({
         seed: 1_000_000,
         knobs: {
           liveResendOnReconnect: true,
@@ -51,7 +51,7 @@ describe('broker chaos PBT', () => {
           arbKnobs(),
           fc.constantFrom(...PUBSUB_FAULTS),
           async (seed, knobs, fault) => {
-            await replaySyncPin(acmeSystem, {
+            await playAcmePin({
               seed,
               knobs,
               actions: brokerSequence({ kind: 'armPubsubFault', fault }),
@@ -77,7 +77,7 @@ describe('broker chaos PBT', () => {
             { kind: 'brokerRestart' } as const
           ),
           async (seed, knobs, arm) => {
-            await replaySyncPin(acmeSystem, {
+            await playAcmePin({
               seed,
               knobs,
               actions: [

@@ -1,9 +1,22 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import type { DistanceFormula } from '../../interface/types';
-import { openMatchmakingWorld } from '../../sim/scenario';
+import type { TickResult } from '../../interface/matchmaking';
+import type {
+  DistanceFormula,
+  UpdateFormulasResult,
+} from '../../interface/types';
+import {
+  join,
+  lastTick,
+  lastUpdate,
+  startMatchmaking,
+  tick,
+  updateFormulas,
+} from '../../sim/scenario';
 import { RatingAttr, registerTestCrashHandler } from '../fixtures';
 
 const SimpleFormula = { numeric: [{ tag: RatingAttr, weight: 1 }] };
+const onePass = { opts: { maxPassesPerPartition: 1 } };
+const UNKNOWN_ID = '00000000-0000-0000-0000-000000000000';
 
 describe('matchmaking sim: updateFormulas', () => {
   let disposeCrash: () => void;
@@ -15,44 +28,54 @@ describe('matchmaking sim: updateFormulas', () => {
   });
 
   test('widening criteria mid-wait allows a previously-rejected peer', async () => {
-    await using world = await openMatchmakingWorld({ seed: 100 });
+    await using run = await startMatchmaking({ seed: 100 });
     const tight: DistanceFormula = {
       numeric: [{ tag: RatingAttr, weight: 1 }],
       radius: { baseRadius: 5, radiusGrowthPerSecond: 0, maxRadius: 5 },
     };
     const open: DistanceFormula = {
       numeric: [{ tag: RatingAttr, weight: 1 }],
-      radius: {
-        baseRadius: 200,
-        radiusGrowthPerSecond: 0,
-        maxRadius: 200,
-      },
+      radius: { baseRadius: 200, radiusGrowthPerSecond: 0, maxRadius: 200 },
     };
-    const a = await world.join({
-      data: RatingAttr(1000),
-      formulas: [tight],
+    await run.apply(join, {
+      ref: 'a',
+      input: { data: RatingAttr(1000), formulas: [tight] },
     });
-    await world.join({ data: RatingAttr(1050), formulas: [open] });
-    expect((await world.tick({ maxPassesPerPartition: 1 })).matches).toBe(0);
-    expect((await a.updateFormulas([open])).updated).toBe(true);
-    expect((await world.tick({ maxPassesPerPartition: 1 })).matches).toBe(1);
+    await run.apply(join, {
+      ref: 'b',
+      input: { data: RatingAttr(1050), formulas: [open] },
+    });
+    await run.apply(tick, onePass);
+    expect(((await run.observe(lastTick)) as TickResult).matches).toBe(0);
+    await run.apply(updateFormulas, { ref: 'a', formulas: [open] });
+    expect(
+      ((await run.observe(lastUpdate)) as UpdateFormulasResult).updated
+    ).toBe(true);
+    await run.apply(tick, onePass);
+    expect(((await run.observe(lastTick)) as TickResult).matches).toBe(1);
   });
 
   test('returns updated:false for unknown / matched', async () => {
-    await using world = await openMatchmakingWorld({ seed: 101 });
-    expect(
-      (
-        await world.mm.updateFormulas('00000000-0000-0000-0000-000000000000', [
-          SimpleFormula,
-        ])
-      ).updated
-    ).toBe(false);
-    const a = await world.join({
-      data: RatingAttr(1000),
+    await using run = await startMatchmaking({ seed: 101 });
+    await run.apply(updateFormulas, {
+      participantId: UNKNOWN_ID,
       formulas: [SimpleFormula],
     });
-    await world.join({ data: RatingAttr(1010), formulas: [SimpleFormula] });
-    await world.tick({ maxPassesPerPartition: 1 });
-    expect((await a.updateFormulas([SimpleFormula])).updated).toBe(false);
+    expect(
+      ((await run.observe(lastUpdate)) as UpdateFormulasResult).updated
+    ).toBe(false);
+    await run.apply(join, {
+      ref: 'a',
+      input: { data: RatingAttr(1000), formulas: [SimpleFormula] },
+    });
+    await run.apply(join, {
+      ref: 'b',
+      input: { data: RatingAttr(1010), formulas: [SimpleFormula] },
+    });
+    await run.apply(tick, onePass);
+    await run.apply(updateFormulas, { ref: 'a', formulas: [SimpleFormula] });
+    expect(
+      ((await run.observe(lastUpdate)) as UpdateFormulasResult).updated
+    ).toBe(false);
   });
 });

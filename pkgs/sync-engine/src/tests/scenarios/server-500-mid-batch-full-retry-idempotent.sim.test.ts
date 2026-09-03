@@ -1,32 +1,48 @@
 import { describe, expect, test } from 'bun:test';
-import { expectLiveNote, readLiveNotes, setNote } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import { start } from '@pkgs/dst';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  converge,
+  httpFault,
+  liveNote,
+  liveNotes,
+  mutate,
+  setNote,
+  syncVirtualHost,
+} from '../apps/acme';
 
 describe('server 500 mid batch full retry idempotent', () => {
   test.each([850, 851, 852])(
     'in-txn fail rolls back then full apply (seed=%i)',
     async (seed) => {
-      await using world = await openAcmeWorld({
+      await using run = await start(acmeSystem, {
         seed: seed,
-        knobs: {
-          clientCount: 0,
-        },
+        host: syncVirtualHost(),
+        draws: acmeDraws({ clientCount: 0 }),
+        properties: [],
       });
 
-      const a = await world.addClient({ id: 'alice' });
-      const b = await world.addClient({ id: 'bob' });
+      await run.apply(addClient, { id: 'alice' });
+      await run.apply(addClient, { id: 'bob' });
 
       // Fail inside the batch txn after the first mutation attempt → full rollback.
-      using _fault = world.node('alice').httpFault({
+      await run.apply(httpFault, 'alice', {
         kind: 'failMutationsInsideTxnAfter',
         after: 0,
       });
-      await a.mutate(setNote, { id: 'n1', body: 'txn-atomic' });
-      await world.assertConverged();
+      await run.apply(mutate, 'alice', setNote, {
+        id: 'n1',
+        body: 'txn-atomic',
+      });
+      await run.apply(converge);
 
-      await expectLiveNote(b.db, 'n1', { body: 'txn-atomic' });
+      expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+        body: 'txn-atomic',
+      });
       expect(
-        (await readLiveNotes(world.server.db)).filter((r) => r.id === 'n1')
+        (await run.observe(liveNotes('server'))).filter((r) => r.id === 'n1')
       ).toHaveLength(1);
     }
   );
@@ -34,25 +50,30 @@ describe('server 500 mid batch full retry idempotent', () => {
   test.each([850, 851, 852])(
     'post-commit fail acks via retry dedupe (seed=%i)',
     async (seed) => {
-      await using world = await openAcmeWorld({
+      await using run = await start(acmeSystem, {
         seed: seed + 10,
-        knobs: {
-          clientCount: 0,
-        },
+        host: syncVirtualHost(),
+        draws: acmeDraws({ clientCount: 0 }),
+        properties: [],
       });
 
-      const a = await world.addClient({ id: 'alice' });
-      const b = await world.addClient({ id: 'bob' });
+      await run.apply(addClient, { id: 'alice' });
+      await run.apply(addClient, { id: 'bob' });
 
-      using _fault = world.node('alice').httpFault({
+      await run.apply(httpFault, 'alice', {
         kind: 'failMutationsAfterCommit',
       });
-      await a.mutate(setNote, { id: 'n2', body: 'post-commit' });
-      await world.assertConverged();
+      await run.apply(mutate, 'alice', setNote, {
+        id: 'n2',
+        body: 'post-commit',
+      });
+      await run.apply(converge);
 
-      await expectLiveNote(b.db, 'n2', { body: 'post-commit' });
+      expect(await run.observe(liveNote('bob', 'n2'))).toMatchObject({
+        body: 'post-commit',
+      });
       expect(
-        (await readLiveNotes(world.server.db)).filter((r) => r.id === 'n2')
+        (await run.observe(liveNotes('server'))).filter((r) => r.id === 'n2')
       ).toHaveLength(1);
     }
   );

@@ -18,9 +18,18 @@ A **deterministic simulation testing** framework for TypeScript. Same seed + sys
 - **Do** put `session` on `S` when actions need network/scheduler.
 - **Do** gate faults with a `caps` observation (`if (!(yield* caps).includes('partition')) return`).
 - **Do** use bare `yield obs` in infinite property watches (Bun hangs on `yield*` + `try/finally` + infinite loop).
+- **Do** wait with `untilObserved(run, obs, passTime, { maxMs })` — one `passTime` checkpoint per poll (observations are memoised per checkpoint).
 - **Don't** import `@pkgs/dst/kernel` from product libs (depcruise: only `pkgs/dst/**`, `sim/**`, `**/sim/**`).
 - **Don't** import `fast-check` from core dst modules — use `@pkgs/dst/fast-check` adapters.
-- **Don't** add `World` / `openWorld` / `defineScenario` / `knob` / `node` / `std` — deleted.
+- **Don't** add `World` / `openWorld` / `open*World` / `defineScenario` / `knob` / `node` / `std` — deleted.
+- **Don't** reach `Run` internals — `_internal` is sealed; tests speak only `apply` / `observe` / `assert`.
+
+## Waiting pattern
+
+```ts
+await untilObserved(run, outcome('bob', mid), passTime, { maxMs: 5_000 });
+expect(await run.observe(outcome('bob', mid))).toBe('rejected');
+```
 
 ## Key files
 

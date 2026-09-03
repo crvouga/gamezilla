@@ -2,26 +2,31 @@ import { Handles } from '@libs/dst-handles';
 import { ChessBoardFlows } from '@pkgs/chess-board/chess-board-flows';
 import type { ChessBoardProbe } from '@pkgs/chess-board/chess-board-probe';
 import type { Square } from '@pkgs/chess-board/chess-board-types';
-import { wallClock } from '@pkgs/clock';
-import type { Driver } from '@pkgs/ui-testing';
 
+import type { ActorRun } from './actor-run';
 import type { SpaceFlows } from './space-flows';
 
+/** Virtual-time budgets for puzzle screens to settle. */
 const WAIT_MS = 15_000;
+const INTERACTIVE_MS = 2_500;
+const POLL_MS = 250;
 
 function stripProbe(text: string | null | undefined): string {
   return (text ?? '').replace(/\u200b/g, '').trim();
 }
 
-/** Fail-fast wall backstop; drain pump advances sim time between checks. */
 export class ChessFlows {
   readonly board: ChessBoardFlows;
 
   constructor(
-    private readonly ui: Driver,
+    private readonly actor: ActorRun,
     private readonly space: SpaceFlows
   ) {
-    this.board = new ChessBoardFlows(ui, Handles.chessPuzzleBoard);
+    this.board = new ChessBoardFlows(actor.ui, Handles.chessPuzzleBoard);
+  }
+
+  private get ui() {
+    return this.actor.ui;
   }
 
   /**
@@ -150,18 +155,20 @@ export class ChessFlows {
   async findVisibleGameLogPuzzleId(
     puzzleIds: readonly string[]
   ): Promise<string> {
-    const deadline = wallClock.now() + WAIT_MS;
-    const probe = this.ui.get(Handles.chessStatsElo);
-    while (wallClock.now() < deadline) {
-      for (const id of puzzleIds) {
-        if (await this.ui.get(Handles.chessGameLogRow(id)).isVisible()) {
-          return id;
+    return this.actor.pollUntil(
+      async () => {
+        for (const id of puzzleIds) {
+          if (await this.ui.get(Handles.chessGameLogRow(id)).isVisible()) {
+            return id;
+          }
         }
+        return null;
+      },
+      {
+        maxMs: WAIT_MS,
+        stepMs: POLL_MS,
+        description: `game-log row among ${puzzleIds.join(', ')}`,
       }
-      await this.pumpProbe(probe);
-    }
-    throw new Error(
-      `no game-log row among ${puzzleIds.join(', ')} within ${WAIT_MS}ms`
     );
   }
 
@@ -195,24 +202,25 @@ export class ChessFlows {
     hostUsername: string
   ): Promise<void> {
     await this.resumePuzzlePlay(hostUsername);
-    const a = await this.board.readProbe();
+    const mine = await this.board.readProbe();
     await peer.resumePuzzlePlay(hostUsername);
-    const deadline = wallClock.now() + WAIT_MS;
-    let lastFen = '';
-    while (wallClock.now() < deadline) {
-      const b = await peer.board.readProbe();
-      lastFen = b.fen;
-      if (probesMatch(a, b)) return;
-      await peer.drainBriefly();
-    }
-    throw new Error(
-      `board fen mismatch after ${WAIT_MS}ms: ${a.fen} vs ${lastFen}`
-    );
+    await peer.pollUntilProbeMatches(mine);
   }
 
-  /** Advance the sim wait pump without asserting. */
-  async drainBriefly(): Promise<void> {
-    await this.pumpProbe(this.ui.get(Handles.chessPuzzleBoard));
+  private async pollUntilProbeMatches(
+    expected: ChessBoardProbe
+  ): Promise<void> {
+    await this.actor.pollUntil(
+      async () => {
+        const seen = await this.board.readProbe();
+        return probesMatch(expected, seen) ? true : null;
+      },
+      {
+        maxMs: WAIT_MS,
+        stepMs: POLL_MS,
+        description: `board fen ${expected.fen}`,
+      }
+    );
   }
 
   private async isSolved(): Promise<boolean> {
@@ -231,42 +239,46 @@ export class ChessFlows {
 
   private async waitUntilInteractiveOrSolved(): Promise<void> {
     // Opening opponent ply ~450ms + move; spectators never go interactive.
-    const deadline = wallClock.now() + 2_500;
-    const debugNode = this.ui.get(Handles.chessPuzzleE2eDebug);
-    while (wallClock.now() < deadline) {
-      if (await this.isSolved()) return;
-      try {
-        const raw = stripProbe(await debugNode.text());
-        const interactive = raw.split('|')[1];
-        if (interactive === '1') return;
-      } catch {
-        // keep pumping
-      }
-      await this.pumpProbe(debugNode);
+    try {
+      await this.actor.pollUntil(
+        async () => {
+          if (await this.isSolved()) return true;
+          return (await this.readE2eField(1)) === '1' ? true : null;
+        },
+        {
+          maxMs: INTERACTIVE_MS,
+          stepMs: POLL_MS,
+          description: 'puzzle interactive or solved',
+        }
+      );
+    } catch {
+      // Spectators never become interactive — proceed either way.
+    }
+  }
+
+  private async readE2eField(index: number): Promise<string | undefined> {
+    try {
+      const raw = stripProbe(
+        await this.ui.get(Handles.chessPuzzleE2eDebug).text()
+      );
+      return raw.split('|')[index];
+    } catch {
+      return undefined;
     }
   }
 
   private async waitExpectedUci(): Promise<string> {
     const node = this.ui.get(Handles.chessPuzzleExpectedUci);
     await node.wait('visible', { timeoutMs: WAIT_MS });
-    const deadline = wallClock.now() + WAIT_MS;
-    while (wallClock.now() < deadline) {
-      if (await this.isSolved()) {
-        throw new Error('expected UCI but puzzle already solved');
-      }
-      const uci = stripProbe(await node.text()).toLowerCase();
-      if (uci.length >= 4) return uci;
-      await this.pumpProbe(node);
-    }
-    const text = await node.text();
-    let debug = '';
-    try {
-      debug = stripProbe(await this.ui.get(Handles.chessPuzzleE2eDebug).text());
-    } catch {
-      debug = '(missing)';
-    }
-    throw new Error(
-      `expected uci timed out: ${JSON.stringify(text)} debug=${JSON.stringify(debug)}`
+    return this.actor.pollUntil(
+      async () => {
+        if (await this.isSolved()) {
+          throw new Error('expected UCI but puzzle already solved');
+        }
+        const uci = stripProbe(await node.text()).toLowerCase();
+        return uci.length >= 4 ? uci : null;
+      },
+      { maxMs: WAIT_MS, stepMs: POLL_MS, description: 'expected uci' }
     );
   }
 
@@ -276,33 +288,18 @@ export class ChessFlows {
    */
   private async waitAfterHumanMove(playedUci: string): Promise<void> {
     const played = playedUci.trim().toLowerCase();
-    const deadline = wallClock.now() + WAIT_MS;
     const node = this.ui.get(Handles.chessPuzzleExpectedUci);
-    while (wallClock.now() < deadline) {
-      if (await this.isSolved()) return;
-      try {
-        const uci = stripProbe(await node.text()).toLowerCase();
-        if (uci.length >= 4 && uci !== played) return;
-      } catch {
-        // keep waiting
-      }
-      await this.pumpProbe(node);
-    }
-  }
-
-  private async pumpProbe(node: {
-    wait: (
-      state: { text: string; exact: boolean },
-      options: { timeoutMs: number; description: string }
-    ) => Promise<void>;
-  }): Promise<void> {
     try {
-      await node.wait(
-        { text: '\0', exact: true },
-        { timeoutMs: 100, description: 'sim pump' }
+      await this.actor.pollUntil(
+        async () => {
+          if (await this.isSolved()) return true;
+          const uci = stripProbe(await node.text()).toLowerCase();
+          return uci.length >= 4 && uci !== played ? true : null;
+        },
+        { maxMs: WAIT_MS, stepMs: POLL_MS, description: 'next expected uci' }
       );
     } catch {
-      // expected — advances the drain pump
+      // Best effort, as before: the caller's next assertion reports the truth.
     }
   }
 }

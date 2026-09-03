@@ -1,9 +1,16 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { assertProperty, fc } from '@pkgs/pbt';
+import { createSeededRng } from '@pkgs/uuid';
 
-import { openMatchmakingWorld } from '../../sim/scenario';
 import {
-  expectMatched,
+  join,
+  passTime,
+  replicaIds,
+  startMatchmaking,
+  tick,
+} from '../../sim/scenario';
+import {
+  matchFingerprint,
   RatingAttr,
   registerTestCrashHandler,
 } from '../fixtures';
@@ -11,47 +18,31 @@ import {
 const SimpleFormula = { numeric: [{ tag: RatingAttr, weight: 1 }] };
 
 async function runShortWorkload(seed: string): Promise<string> {
-  await using world = await openMatchmakingWorld({
-    seed,
-    replicas: 2,
-  });
-  const replicaIds = [...world.replicas.keys()];
-  const participants = [];
-  const rng = world.ports.rng.fork('workload');
+  await using run = await startMatchmaking({ seed, replicas: 2 });
+  const replicas = await run.observe(replicaIds);
+  const rng = createSeededRng(seed).fork('workload');
   for (let i = 0; i < 6; i += 1) {
-    await world.advance(1);
-    const rid = replicaIds[i % replicaIds.length]!;
-    participants.push(
-      await world.join(
-        {
-          data: RatingAttr(1000 + rng.int(50)),
-          formulas: [SimpleFormula],
-        },
-        rid
-      )
-    );
+    const replicaId = replicas[i % replicas.length]!;
+    await run.apply(passTime, 1);
+    await run.apply(join, {
+      ref: `p${String(i)}`,
+      input: {
+        data: RatingAttr(1000 + rng.int(50)),
+        formulas: [SimpleFormula],
+      },
+      replicaId,
+    });
     if (i % 2 === 1) {
-      await world.tick({ maxPassesPerPartition: 2 }, rid);
+      await run.apply(tick, {
+        opts: { maxPassesPerPartition: 2 },
+        replicaId,
+      });
     }
   }
-  for (const rid of replicaIds) {
-    await world.tick({ maxPassesPerPartition: 4 }, rid);
+  for (const replicaId of replicas) {
+    await run.apply(tick, { opts: { maxPassesPerPartition: 4 }, replicaId });
   }
-  const parts: string[] = [];
-  for (const p of participants) {
-    const st = await p.status();
-    if (st?.status !== 'matched') {
-      parts.push(`${p.participantId}:waiting`);
-      continue;
-    }
-    const matched = expectMatched(st);
-    const peers = matched.peers
-      .map((x) => x.participantId)
-      .sort()
-      .join(',');
-    parts.push(`${p.participantId}:${matched.matchId}:${peers}`);
-  }
-  return parts.sort().join('|');
+  return await matchFingerprint(run);
 }
 
 describe('matchmaking seeded-workload PBT', () => {

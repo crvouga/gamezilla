@@ -1,20 +1,20 @@
-import type { World } from '../world-api';
+import type { RoomKit } from '../kit-api';
 
 /** Restart crashed clients / server so settle is meaningful. */
-export async function prepareClientsForConverge(world: World): Promise<void> {
-  world.clearBoundaryFaults();
-  if (world.isServerCrashed()) {
-    await world.serverRestart();
+export async function prepareClientsForConverge(kit: RoomKit): Promise<void> {
+  kit.clearBoundaryFaults();
+  if (kit.isServerCrashed()) {
+    await kit.serverRestart();
   }
-  for (const [id, client] of world.clients) {
+  for (const [id, client] of kit.clients) {
     if (client.isCrashed()) {
-      await world.node(id).restart();
+      await kit.node(id).restart();
     }
   }
-  for (const id of world.clients.keys()) {
-    world.net(id).set('ok');
+  for (const id of kit.clients.keys()) {
+    kit.net(id).set('ok');
   }
-  if (world.clients.size > 0) {
-    await world.runFor(50);
+  if (kit.clients.size > 0) {
+    await kit.runFor(50);
   }
 }

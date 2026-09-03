@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import { check } from '@pkgs/dst/pbt';
-import { ownerTabId } from './ownership';
 import {
   bumpEpoch,
   connect,
@@ -10,14 +9,13 @@ import {
   get,
   killTabAction,
   ownerId,
+  ownerRows,
   put,
   SQL_CLIENT_WEB_ACTIONS,
   SQL_CLIENT_WEB_PROPERTIES,
   sqlClientWeb,
   tabIdList,
 } from './system';
-import { readToyRows } from './toy-kv';
-import { boardOf } from './types';
 
 /** tabCount=2, poolCapacity=6, schemaEpoch=1, backend=web-sim-opfs */
 const OPFS_DRAWS = [2, 6, 1, 'web-sim-opfs'] as const;
@@ -92,10 +90,7 @@ describe('sql-client web multi-tab system PBT', () => {
     await run.apply(connect, 't0');
     await run.apply(connect, 't1');
 
-    const surface = run._internal.surface;
-    expect(ownerTabId(boardOf(surface))).toBe('t0');
-    const owner = boardOf(surface).tabs.get('t0');
-    if (owner === undefined) throw new Error('missing tab t0');
-    expect(await readToyRows(owner.runtime.getClient())).toEqual(new Map());
+    expect(await run.observe(ownerId)).toBe('t0');
+    expect(await run.observe(ownerRows)).toEqual({});
   });
 });

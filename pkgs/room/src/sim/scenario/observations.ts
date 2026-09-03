@@ -20,24 +20,30 @@ function stringList(v: unknown): string[] {
 
 export const clientIds = defineObservation({
   name: 'clientIds',
-  observe: (s: RoomSurface) => [...s.world.clients.keys()],
+  observe: (s: RoomSurface) => [...s.kit.clients.keys()],
+});
+
+/** Decimal kit seed — lets tests derive their own deterministic streams. */
+export const seed = defineObservation({
+  name: 'seed',
+  observe: (s: RoomSurface) => s.kit.seed.toString(),
 });
 
 export const serverHash = defineObservation({
   name: 'serverHash',
-  observe: (s: RoomSurface) => s.world.serverHash(),
+  observe: (s: RoomSurface) => s.kit.serverHash(),
 });
 
 export const serverState = defineObservation({
   name: 'serverState',
-  observe: async (s: RoomSurface) => asJson(await s.world.serverSnapshot()),
+  observe: async (s: RoomSurface) => asJson(await s.kit.serverSnapshot()),
 });
 
 export const clientState = defineObservation({
   name: 'clientState',
   observe: (s: RoomSurface) => {
     const out: Record<string, JsonValue> = {};
-    for (const [id, c] of s.world.clients) {
+    for (const [id, c] of s.kit.clients) {
       out[id] = asJson(c.snapshot());
     }
     return out;
@@ -48,7 +54,7 @@ export const clientHash = defineObservation({
   name: 'clientHash',
   observe: (s: RoomSurface) => {
     const out: Record<string, JsonValue> = {};
-    for (const [id, c] of s.world.clients) {
+    for (const [id, c] of s.kit.clients) {
       if (!c.isConnected() || c.isCrashed()) continue;
       out[id] = c.hash();
     }
@@ -59,7 +65,7 @@ export const clientHash = defineObservation({
 export const connected = defineObservation({
   name: 'connected',
   observe: (s: RoomSurface) =>
-    [...s.world.clients.entries()]
+    [...s.kit.clients.entries()]
       .filter(([, c]) => c.isConnected() && !c.isCrashed())
       .map(([id]) => id),
 });
@@ -67,7 +73,7 @@ export const connected = defineObservation({
 export const crashedIds = defineObservation({
   name: 'crashedIds',
   observe: (s: RoomSurface) =>
-    [...s.world.clients.entries()]
+    [...s.kit.clients.entries()]
       .filter(([, c]) => c.isCrashed())
       .map(([id]) => id),
 });
@@ -75,17 +81,13 @@ export const crashedIds = defineObservation({
 export const heldClients = defineObservation({
   name: 'heldClients',
   observe: (s: RoomSurface) =>
-    [...s.world.clients.keys()].filter(
-      (id) => s.world.net(id).state() === 'hold'
-    ),
+    [...s.kit.clients.keys()].filter((id) => s.kit.net(id).state() === 'hold'),
 });
 
 export const downClients = defineObservation({
   name: 'downClients',
   observe: (s: RoomSurface) =>
-    [...s.world.clients.keys()].filter(
-      (id) => s.world.net(id).state() === 'down'
-    ),
+    [...s.kit.clients.keys()].filter((id) => s.kit.net(id).state() === 'down'),
 });
 
 export const caps = defineObservation({
@@ -106,7 +108,7 @@ export const quiet = defineObservation({
 
 export const serverCrashed = defineObservation({
   name: 'serverCrashed',
-  observe: (s: RoomSurface) => s.world.isServerCrashed(),
+  observe: (s: RoomSurface) => s.kit.isServerCrashed(),
 });
 
 export const clock = defineObservation({
@@ -116,14 +118,14 @@ export const clock = defineObservation({
 
 export const logSeq = defineObservation({
   name: 'logSeq',
-  observe: (s: RoomSurface) => s.world.storage.getLastSeq(s.world.topic),
+  observe: (s: RoomSurface) => s.kit.storage.getLastSeq(s.kit.topic),
 });
 
 export const lastRejection = defineObservation({
   name: 'lastRejection',
   observe: (s: RoomSurface) => {
     const out: Record<string, JsonValue> = {};
-    for (const [id, c] of s.world.clients) {
+    for (const [id, c] of s.kit.clients) {
       const err = c.lastRejection();
       out[id] = err === null ? null : asJson(err);
     }
@@ -133,13 +135,13 @@ export const lastRejection = defineObservation({
 
 export const rosterSize = defineObservation({
   name: 'rosterSize',
-  observe: (s: RoomSurface) => s.world.server.getRoster().length,
+  observe: (s: RoomSurface) => s.kit.server.getRoster().length,
 });
 
 export const invariantViolations = defineObservation({
   name: 'invariantViolations',
   observe: async (s: RoomSurface) => {
-    const v = await s.world.checkInvariants();
+    const v = await s.kit.checkInvariants();
     return v === null ? [] : [`${v.invariant}: ${v.detail}`];
   },
 });

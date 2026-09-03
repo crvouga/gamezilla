@@ -205,5 +205,3 @@ export const invariantsHold = defineProperty({
 });
 
 export const INDEXES_PROPERTIES = [invariantsHold];
-
-export type IndexesWorld = IndexesSurface;

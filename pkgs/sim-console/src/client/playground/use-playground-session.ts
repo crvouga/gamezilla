@@ -86,7 +86,7 @@ export function usePlaygroundSession(
           if (live !== null) await live.dispose();
         })
         .catch(() => {
-          // Teardown races (already-wiped World) must not crash the console.
+          // Teardown races (already-wiped run) must not crash the console.
         });
     };
   }, [bootPlayground, active, bootGeneration]);
@@ -100,7 +100,7 @@ export function usePlaygroundSession(
       try {
         await current.wipe();
       } catch {
-        // Live World may already be partially torn down.
+        // Live run may already be partially torn down.
       }
     }
   }, []);

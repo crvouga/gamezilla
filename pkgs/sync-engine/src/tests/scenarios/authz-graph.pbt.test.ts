@@ -1,9 +1,20 @@
 import { describe, expect, test } from 'bun:test';
+import { start } from '@pkgs/dst';
 import { assertProperty, fc } from '@pkgs/pbt';
 import { arbKnobs, arbSeed } from '../../sim/scenario/knobs';
-import { expectLiveNote, readLiveNotes } from '../apps/acme/assert';
+import {
+  acmeDraws,
+  acmeSystem,
+  assertConverged,
+  clientIds,
+  expectEveryClientNotesAgree,
+  expectLiveNoteAt,
+  lastMutationFailures,
+  lastMutationOk,
+  mutate,
+  syncVirtualHost,
+} from '../apps/acme';
 import { deleteNote, setNote } from '../apps/acme/shared/mutations';
-import { openAcmeWorld } from '../apps/acme/system';
 
 describe('authz graph PBT', () => {
   test(
@@ -18,32 +29,33 @@ describe('authz graph PBT', () => {
           fc.string({ maxLength: 12 }),
           async (seed, knobs, noteId, body) => {
             if (knobs.clientCount < 2) return;
-            await using world = await openAcmeWorld({ seed, knobs });
+            await using run = await start(acmeSystem, {
+              seed,
+              host: syncVirtualHost(),
+              draws: acmeDraws(knobs),
+              properties: [],
+            });
 
-            const [owner, peer] = world.nodeIds('client');
-            const ownerClient = world.clients.get(owner!)!;
-            const peerClient = world.clients.get(peer!)!;
+            const [owner, peer] = await run.observe(clientIds);
 
-            await ownerClient.mutate(setNote, {
+            await run.apply(mutate, owner!, setNote, {
               id: noteId,
               body,
               title: '',
             });
-            await world.assertConverged();
+            await run.apply(assertConverged);
 
-            const denied = await peerClient.mutate(deleteNote, {
-              id: noteId,
-            });
-            if (denied.ok) {
+            await run.apply(mutate, peer!, deleteNote, { id: noteId });
+            if (await run.observe(lastMutationOk(peer!))) {
               throw new Error('non-owner delete unexpectedly succeeded');
             }
-            expect(denied.failures.some((f) => f.code === 'FORBIDDEN')).toBe(
-              true
+            expect(await run.observe(lastMutationFailures(peer!))).toContain(
+              'FORBIDDEN'
             );
 
-            await world.assertConverged();
-            await expectLiveNote(ownerClient.db, noteId, { body });
-            await expectLiveNote(peerClient.db, noteId, { body });
+            await run.apply(assertConverged);
+            await expectLiveNoteAt(run, owner!, noteId, { body });
+            await expectLiveNoteAt(run, peer!, noteId, { body });
           }
         ),
         { numRuns: 8 }
@@ -73,22 +85,22 @@ describe('authz graph PBT', () => {
             { minLength: 1, maxLength: 6 }
           ),
           async (seed, knobs, writes) => {
-            await using world = await openAcmeWorld({ seed, knobs });
+            await using run = await start(acmeSystem, {
+              seed,
+              host: syncVirtualHost(),
+              draws: acmeDraws(knobs),
+              properties: [],
+            });
 
             for (const w of writes) {
-              const client = world.clients.get('c0')!;
-              await client.mutate(setNote, {
+              await run.apply(mutate, 'c0', setNote, {
                 id: w.noteId,
                 body: w.body,
                 title: '',
               });
             }
-            await world.assertConverged();
-            const serverNotes = await readLiveNotes(world.server.db);
-            for (const client of world.clients.values()) {
-              const local = await readLiveNotes(client.db);
-              expect(local).toEqual([...serverNotes]);
-            }
+            await run.apply(assertConverged);
+            await expectEveryClientNotesAgree(run);
           }
         ),
         { numRuns: 6 }

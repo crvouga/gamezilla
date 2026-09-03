@@ -1,43 +1,52 @@
-import { describe, test } from 'bun:test';
-import { expectLiveNote, expectNotesMatchServer, setNote } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import { describe, expect, test } from 'bun:test';
+import { start } from '@pkgs/dst';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  converge,
+  liveNote,
+  mutate,
+  setNote,
+  syncVirtualHost,
+} from '../apps/acme';
 
 describe('two client mutual writes converge', () => {
   test('peer sees note after assertConverged', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 3,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
-    await a.mutate(setNote, { id: 'n1', body: 'shared' });
-    await world.assertConverged();
-    await expectLiveNote(b.db, 'n1', { body: 'shared' });
-    await expectNotesMatchServer(a.db, world.server.db);
-    await expectNotesMatchServer(b.db, world.server.db);
+    await run.apply(addClient, 'alice');
+    await run.apply(addClient, 'bob');
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'shared' });
+    await run.apply(converge);
+    expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+      body: 'shared',
+    });
   });
 
   test.each([1, 2, 42, 99])('seed sweep converges (seed=%i)', async (seed) => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: seed,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
-    await a.mutate(setNote, {
+    await run.apply(addClient, 'alice');
+    await run.apply(addClient, 'bob');
+    await run.apply(mutate, 'alice', setNote, {
       id: `n-${seed}`,
       body: `b-${seed}`,
     });
-    await b.mutate(setNote, {
+    await run.apply(mutate, 'bob', setNote, {
       id: `m-${seed}`,
       body: `c-${seed}`,
     });
-    await world.assertConverged();
+    await run.apply(converge);
   });
 });

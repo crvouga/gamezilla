@@ -1,55 +1,74 @@
 import { describe, expect, test } from 'bun:test';
+import { start } from '@pkgs/dst';
 import {
-  expectLiveNote,
-  expectNoteNotLive,
-  readLiveNotes,
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  assertConverged,
+  clearLocalData,
+  connect,
+  disconnect,
+  mutate,
+  partition,
+  passTime,
   setNote,
+  syncVirtualHost,
 } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import {
+  expectLiveNoteAt,
+  expectNoteNotLiveAt,
+  liveNotes,
+} from '../apps/acme/reads';
 
 describe('cache clear preserves pending mutations', () => {
   test('cache clear wipes domain but durable queue uploads on reconnect', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 610,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
+    await run.apply(addClient, 'alice');
+    await run.apply(addClient, 'bob');
 
     // Disconnect so mutate queues without upload.
-    await a.disconnect();
-    await a.mutate(setNote, { id: 'n1', body: 'durable-queued' });
-    await world.advance(50);
-    await expectLiveNote(a.db, 'n1', { body: 'durable-queued' });
-    await expectNoteNotLive(world.server.db, 'n1');
+    await run.apply(disconnect, 'alice');
+    await run.apply(mutate, 'alice', setNote, {
+      id: 'n1',
+      body: 'durable-queued',
+    });
+    await run.apply(passTime, 50);
+    await expectLiveNoteAt(run, 'alice', 'n1', { body: 'durable-queued' });
+    await expectNoteNotLiveAt(run, 'server', 'n1');
 
-    await a.clearLocalData('cache');
-    expect(await readLiveNotes(a.db)).toEqual([]);
-    await expectNoteNotLive(a.db, 'n1');
+    await run.apply(clearLocalData, 'alice', 'cache');
+    expect(await run.observe(liveNotes('alice'))).toEqual([]);
+    await expectNoteNotLiveAt(run, 'alice', 'n1');
 
-    await a.connect();
-    await world.assertConverged();
+    await run.apply(connect, 'alice');
+    await run.apply(assertConverged);
 
-    await expectLiveNote(a.db, 'n1', { body: 'durable-queued' });
-    await expectLiveNote(b.db, 'n1', { body: 'durable-queued' });
-    await expectLiveNote(world.server.db, 'n1', { body: 'durable-queued' });
+    await expectLiveNoteAt(run, 'alice', 'n1', { body: 'durable-queued' });
+    await expectLiveNoteAt(run, 'bob', 'n1', { body: 'durable-queued' });
+    await expectLiveNoteAt(run, 'server', 'n1', { body: 'durable-queued' });
   });
 
   test('cache clear during sync partition does not hang on in-flight upload', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 611,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    using _down = world.net('alice', 'sync').set('down');
-    await a.mutate(setNote, { id: 'n1', body: 'queued-while-down' });
-    await a.clearLocalData('cache');
-    expect(await readLiveNotes(a.db)).toEqual([]);
+    await run.apply(addClient, 'alice');
+    await run.apply(partition, 'alice', 'sync');
+    await run.apply(mutate, 'alice', setNote, {
+      id: 'n1',
+      body: 'queued-while-down',
+    });
+    await run.apply(clearLocalData, 'alice', 'cache');
+    expect(await run.observe(liveNotes('alice'))).toEqual([]);
   });
 });

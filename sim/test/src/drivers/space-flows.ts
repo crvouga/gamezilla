@@ -1,17 +1,21 @@
 import { Handles } from '@libs/dst-handles';
-import { wallClock } from '@pkgs/clock';
-import type { Driver } from '@pkgs/ui-testing';
+
+import type { ActorRun } from './actor-run';
 
 const SCREEN_SPACES = 'screen-spaces';
 const SCREEN_SPACE_JOIN = 'screen-space-join';
 const SCREEN_SPACE_ENDED = 'screen-space-ended';
 
-/** Fail-fast wall backstop; drain pump advances sim time between checks. */
+/** Virtual-time budget for lobby / chrome hydration. */
 const WAIT_MS = 10_000;
 const HIDDEN_MS = 5_000;
 
 export class SpaceFlows {
-  constructor(private readonly ui: Driver) {}
+  constructor(private readonly actor: ActorRun) {}
+
+  private get ui() {
+    return this.actor.ui;
+  }
 
   async openTab(): Promise<void> {
     await this.ui.get(Handles.tabSpaces).tap({ timeoutMs: WAIT_MS });
@@ -25,16 +29,14 @@ export class SpaceFlows {
   }
 
   async expectLobbyCard(hostUsername: string): Promise<void> {
-    await this.waitForLobbyCard(hostUsername, { timeoutMs: WAIT_MS });
+    await this.waitForLobbyCard(hostUsername);
   }
 
   async openLobbyCard(
     hostUsername: string,
     opts?: { readonly expectJoinPrompt?: boolean }
   ): Promise<void> {
-    const handle = await this.waitForLobbyCard(hostUsername, {
-      timeoutMs: WAIT_MS,
-    });
+    const handle = await this.waitForLobbyCard(hostUsername);
     await this.ui.get(handle).tap({ timeoutMs: WAIT_MS });
     if (opts?.expectJoinPrompt !== false) {
       await this.ui
@@ -131,32 +133,20 @@ export class SpaceFlows {
     });
   }
 
-  private async waitForLobbyCard(
-    hostUsername: string,
-    opts: { readonly timeoutMs: number }
-  ): Promise<string> {
+  private async waitForLobbyCard(hostUsername: string): Promise<string> {
     const handle = Handles.spaceCard(hostUsername);
-    const deadline = wallClock.now() + opts.timeoutMs;
-    let lastError: unknown;
     let opened = false;
-    while (wallClock.now() < deadline) {
-      if (!opened) {
-        await this.openTab();
-        opened = true;
-      }
-      if (await this.ui.get(handle).isVisible()) {
-        return handle;
-      }
-      try {
-        await this.ui.get(handle).wait('visible', { timeoutMs: 100 });
-        return handle;
-      } catch (error) {
-        lastError = error;
+    return this.actor.pollUntil(
+      async () => {
+        if (!opened) {
+          await this.openTab();
+          opened = true;
+        }
+        if (await this.ui.get(handle).isVisible()) return handle;
         opened = false;
-      }
-    }
-    throw lastError instanceof Error
-      ? lastError
-      : new Error(`Timed out waiting for lobby card ${handle}`);
+        return null;
+      },
+      { maxMs: WAIT_MS, description: `lobby card ${handle}` }
+    );
   }
 }

@@ -2,7 +2,7 @@ import type { Topic } from '@pkgs/pubsub/interface';
 import { sql } from '@pkgs/sql';
 import type { MutationDb } from '../../../../mutations/core/types';
 import { defineTopicMap } from '../../../../shared/topic-map';
-import { NOTES_WORLD_TOPIC, roomTopic, userTopic } from './topics';
+import { NOTES_ALL_TOPIC, roomTopic, userTopic } from './topics';
 
 async function ownerFriendTopics(
   db: MutationDb,
@@ -43,7 +43,7 @@ export const acmeTopicMap = defineTopicMap({
         typeof spaceId === 'string' && spaceId.length > 0
           ? [roomTopic(spaceId)]
           : [];
-      return [NOTES_WORLD_TOPIC, userTopic(ctx.actorId), ...room];
+      return [NOTES_ALL_TOPIC, userTopic(ctx.actorId), ...room];
     },
     subscribeTopics(row, ctx) {
       const spaceId = row['space_id'];
@@ -56,7 +56,7 @@ export const acmeTopicMap = defineTopicMap({
   },
   folders: {
     topics(_row, ctx) {
-      return [NOTES_WORLD_TOPIC, userTopic(ctx.actorId)];
+      return [NOTES_ALL_TOPIC, userTopic(ctx.actorId)];
     },
     subscribeTopics(_row, ctx) {
       return [userTopic(ctx.actorId)];
@@ -64,7 +64,7 @@ export const acmeTopicMap = defineTopicMap({
   },
   tags: {
     topics(_row, ctx) {
-      return [NOTES_WORLD_TOPIC, userTopic(ctx.actorId)];
+      return [NOTES_ALL_TOPIC, userTopic(ctx.actorId)];
     },
     subscribeTopics(_row, ctx) {
       return [userTopic(ctx.actorId)];

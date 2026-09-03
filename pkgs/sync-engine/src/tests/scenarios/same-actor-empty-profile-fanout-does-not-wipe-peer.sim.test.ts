@@ -1,11 +1,19 @@
 import { describe, expect, test } from 'bun:test';
+import { start } from '@pkgs/dst';
 import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  converge,
+  deviceId,
   ensureProfileEmpty,
+  mutate,
   OWN_PROFILE_SESSION,
-  readProfileUsername,
+  passTime,
+  readProfileUsernameAt,
   setProfileUsername,
+  syncVirtualHost,
 } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
 
 /**
  * Replicates the product bug: ensureProfile-style empty username INSERT fans
@@ -14,39 +22,52 @@ import { openAcmeWorld } from '../apps/acme/system';
  */
 describe('same actor empty profile fanout does not wipe peer', () => {
   test('empty ensureProfile seed does not blank peer username', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 1501,
-      knobs: {
-        clientCount: 0,
-        rowImageFanout: true,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0, rowImageFanout: true }),
+      properties: [],
     });
 
-    const phone = await world.addClient({
+    await run.apply(addClient, {
       id: 'phone',
       actorId: 'user-1',
       sessionQuery: OWN_PROFILE_SESSION,
     });
-    const tablet = await world.addClient({
+    await run.apply(addClient, {
       id: 'tablet',
       actorId: 'user-1',
       sessionQuery: OWN_PROFILE_SESSION,
     });
 
-    expect(phone.deviceId).not.toBe(tablet.deviceId);
+    expect(await run.observe(deviceId('phone'))).not.toBe(
+      await run.observe(deviceId('tablet'))
+    );
 
-    await phone.mutate(setProfileUsername, { username: 'AliceHandle' });
-    await world.assertConverged();
-    expect(await readProfileUsername(phone.db, 'user-1')).toBe('AliceHandle');
-    expect(await readProfileUsername(tablet.db, 'user-1')).toBe('AliceHandle');
+    await run.apply(mutate, 'phone', setProfileUsername, {
+      username: 'AliceHandle',
+    });
+    await run.apply(converge);
+    expect(await readProfileUsernameAt(run, 'phone', 'user-1')).toBe(
+      'AliceHandle'
+    );
+    expect(await readProfileUsernameAt(run, 'tablet', 'user-1')).toBe(
+      'AliceHandle'
+    );
 
-    await tablet.mutate(ensureProfileEmpty, {});
-    await world.advance(200);
+    await run.apply(mutate, 'tablet', ensureProfileEmpty, {});
+    await run.apply(passTime, 200);
 
-    expect(await readProfileUsername(phone.db, 'user-1')).toBe('AliceHandle');
+    expect(await readProfileUsernameAt(run, 'phone', 'user-1')).toBe(
+      'AliceHandle'
+    );
 
-    await world.assertConverged();
-    expect(await readProfileUsername(phone.db, 'user-1')).toBe('AliceHandle');
-    expect(await readProfileUsername(tablet.db, 'user-1')).toBe('AliceHandle');
+    await run.apply(converge);
+    expect(await readProfileUsernameAt(run, 'phone', 'user-1')).toBe(
+      'AliceHandle'
+    );
+    expect(await readProfileUsernameAt(run, 'tablet', 'user-1')).toBe(
+      'AliceHandle'
+    );
   });
 });

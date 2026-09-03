@@ -1,29 +1,40 @@
 import { describe, test } from 'bun:test';
-import { expectLiveNote, expectNotesMatchServer, setNote } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import { start } from '@pkgs/dst';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  assertConverged,
+  mutate,
+  nudge,
+  setNote,
+  subscribe,
+  syncVirtualHost,
+  unsubscribe,
+} from '../apps/acme';
+import { expectLiveNoteAt, expectNotesAgree } from '../apps/acme/reads';
 
 describe('denied query detaches scope keeps rows', () => {
   test('denied query detaches scope without wiping domain', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 512,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    await a.mutate(setNote, { id: 'n1', body: 'keep-me' });
-    await world.assertConverged();
-    await expectLiveNote(a.db, 'n1', { body: 'keep-me' });
+    await run.apply(addClient, 'alice');
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'keep-me' });
+    await run.apply(assertConverged);
+    await expectLiveNoteAt(run, 'alice', 'n1', { body: 'keep-me' });
 
-    {
-      using denied = a.subscribe('notesDenied', {});
-      await world.waitUntil(denied.ready);
-      await expectLiveNote(a.db, 'n1', { body: 'keep-me' });
-      await expectNotesMatchServer(a.db, world.server.db);
-    }
-    // nudge: refresh after denied-scope unsubscribe
-    await world.waitUntil(a.nudge());
-    await expectLiveNote(a.db, 'n1', { body: 'keep-me' });
+    await run.apply(subscribe, 'alice', 'notesDenied', {});
+    await expectLiveNoteAt(run, 'alice', 'n1', { body: 'keep-me' });
+    await expectNotesAgree(run, 'alice');
+    await run.apply(unsubscribe, 'alice', 'notesDenied');
+
+    // Refresh after denied-scope unsubscribe must keep the row.
+    await run.apply(nudge, 'alice');
+    await expectLiveNoteAt(run, 'alice', 'n1', { body: 'keep-me' });
   });
 });

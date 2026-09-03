@@ -8,7 +8,7 @@ import { SqlClientImplAgnostic } from '@pkgs/sql-client/impl-agnostic';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { createPgliteSqlClient } from '@pkgs/sql-client/postgres/impl-pglite';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
-import type { MatchmakingSimBackend } from './world-api';
+import type { MatchmakingSimBackend } from './sim-api';
 
 export type SimStore = {
   readonly backend: MatchmakingSimBackend;

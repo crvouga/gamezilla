@@ -24,7 +24,7 @@ export async function assertAuthInvariants(
 }
 
 /** Canonical dump of IdP state + actor bearers — the determinism fingerprint. */
-export async function worldFingerprint(surface: AuthSurface): Promise<string> {
+export async function authFingerprint(surface: AuthSurface): Promise<string> {
   const store = requireStore(surface.store);
   const users = await store.sql.query(
     sql<{

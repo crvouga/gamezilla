@@ -5,7 +5,6 @@ import {
   type Property,
   type Session,
   type System,
-  start,
   virtualHost,
 } from '@pkgs/dst';
 import { gen } from '@pkgs/dst/fast-check';
@@ -18,57 +17,68 @@ import type { QueryRegistry } from '../../queries/core/types';
 import type { SyncBootDeps } from '../boot-deps';
 import type { SimSessionQuery } from '../domain-pack';
 import { RELIABLE_FAULTS } from '../faults';
+import type { SyncKit } from '../kit-api';
+import { bootSimInfra, bootSimServer } from '../kit-boot';
+import { buildKitFacade } from '../kit-facade';
+import type { KitClientOpts } from '../kit-types';
 import { toKernelFaults, wrapSimNetwork } from '../network';
 import { type UntilTarget, waitNever, waitUntil } from '../wait-until';
-import type { World as KitWorld } from '../world-api';
-import { bootSimInfra, bootSimServer } from '../world-boot';
-import { buildWorldFacade } from '../world-facade';
-import type { WorldClientOpts } from '../world-types';
-import {
-  type ActionShadow,
-  applyActionToShadow,
-  createActionShadow,
-} from './action-shadow';
-import type { SyncAction } from './actions';
+import { type ActionShadow, createActionShadow } from './action-shadow';
 import type { SyncApp } from './app';
-import { DEFAULT_WORLD_KNOBS, syncSystemDraws, type WorldKnobs } from './knobs';
-import {
-  createReplayRestartState,
-  prepareClientsForConverge,
-  replayStep,
-  resetClockSkews,
-  resetReplayRestartState,
-} from './play';
+import { DEFAULT_SYNC_KNOBS, type SyncKnobs, syncSystemDraws } from './knobs';
+import { createReplayRestartState, resetReplayRestartState } from './play';
 import { createSyncActions } from './sync-actions';
 import { SYNC_PROPERTIES } from './sync-properties';
 import type { SyncRuntime, SyncSurface } from './system';
 
-const WORLD_START_MS = 1_700_000_000_000;
+const SIM_START_MS = 1_700_000_000_000;
 /** Post-topology settle window so clients finish initial hydration. */
 const PREPARE_HYDRATION_MS = 200;
-/** Idle between scripted pin steps (legacy STEP_MS). */
-export const SYNC_STEP_MS = 10;
 
 const RELIABLE_KERNEL_FAULTS: NetworkFaults = toKernelFaults(RELIABLE_FAULTS);
 
+/** Teardown registered by `generate`, drained by the session's own dispose. */
+const sessionTeardown = new WeakMap<Session, (() => Promise<void>)[]>();
+
+/**
+ * Run teardown before the session disposes, so `await using run` also closes
+ * the sim kit (server, clients, broker).
+ */
+function onSessionDispose(session: Session, fn: () => Promise<void>): void {
+  const hooks = sessionTeardown.get(session);
+  if (hooks === undefined) {
+    throw new Error(
+      'defineSyncSystem: host must be syncVirtualHost() (no dispose hook)'
+    );
+  }
+  hooks.push(fn);
+}
+
 export function syncVirtualHost(network?: NetworkFaults) {
   const base = virtualHost({
-    startTime: WORLD_START_MS,
+    startTime: SIM_START_MS,
     network: network ?? RELIABLE_KERNEL_FAULTS,
   });
-  // Sync clients schedule heartbeat / upload timers indefinitely. Algebra
-  // `settle()` after each Act must not wait for global quiescence.
   return {
     caps: base.caps,
     with: base.with.bind(base),
     async open(seed: number | bigint | string) {
-      const session = await base.open(seed);
-      return {
-        ...session,
+      const base_ = await base.open(seed);
+      const hooks: (() => Promise<void>)[] = [];
+      const session: Session = {
+        ...base_,
+        // Sync clients schedule heartbeat / upload timers indefinitely. Algebra
+        // `settle()` after each Act must not wait for global quiescence.
         settle: async () => {
-          await session.scheduler.underlying.runFor(0);
+          await base_.scheduler.underlying.runFor(0);
+        },
+        dispose: async () => {
+          for (const fn of hooks.splice(0)) await fn();
+          await base_.dispose();
         },
       };
+      sessionTeardown.set(session, hooks);
+      return session;
     },
   };
 }
@@ -88,17 +98,33 @@ export type SyncSystemDef = System<SyncSurface> & {
   readonly opts?: DefineSyncSystemOpts;
 };
 
-function worldArgsFromDraws(
-  runtime: Pick<
-    SyncRuntime,
-    | 'app'
-    | 'sessionQuery'
-    | 'localSchema'
-    | 'mutationRegistry'
-    | 'queryRegistry'
-  >,
-  knobs: WorldKnobs
-): WorldClientOpts {
+type RuntimeOverrides = Pick<
+  SyncRuntime,
+  'sessionQuery' | 'localSchema' | 'mutationRegistry' | 'queryRegistry'
+>;
+
+/** Per-system registry / schema overrides, shared by system args and runtime. */
+function runtimeOverrides(opts?: DefineSyncSystemOpts): RuntimeOverrides {
+  return {
+    ...(opts?.sessionQuery !== undefined
+      ? { sessionQuery: opts.sessionQuery }
+      : {}),
+    ...(opts?.localSchema !== undefined
+      ? { localSchema: opts.localSchema }
+      : {}),
+    ...(opts?.mutationRegistry !== undefined
+      ? { mutationRegistry: opts.mutationRegistry }
+      : {}),
+    ...(opts?.queryRegistry !== undefined
+      ? { queryRegistry: opts.queryRegistry }
+      : {}),
+  };
+}
+
+function kitArgsFromDraws(
+  runtime: RuntimeOverrides & Pick<SyncRuntime, 'app'>,
+  knobs: SyncKnobs
+): KitClientOpts {
   return {
     domain: runtime.app.pack,
     rowImageFanout: knobs.rowImageFanout,
@@ -130,11 +156,11 @@ function bootDeps(session: Session): SyncBootDeps {
 
 function buildSurface(
   session: Session,
-  kit: KitWorld,
+  kit: SyncKit,
   runtime: SyncRuntime,
   shadow: ActionShadow
 ): SyncSurface {
-  const waitWorld = {
+  const waitKit = {
     seed: kit.seed,
     scheduler: kit.scheduler,
     network: { held: () => kit.network.heldSummary() },
@@ -174,77 +200,14 @@ function buildSurface(
     brokerRestart: kit.brokerRestart,
     clearBoundaryFaults: kit.clearBoundaryFaults,
     advance: (ms) => session.scheduler.advance(ms),
-    waitUntil: (target: UntilTarget, opts) =>
-      waitUntil(waitWorld, target, opts),
-    waitNever: (target, opts) => waitNever(waitWorld, target, opts),
+    waitUntil: (target: UntilTarget, opts) => waitUntil(waitKit, target, opts),
+    waitNever: (target, opts) => waitNever(waitKit, target, opts),
     dispose: () => kit.dispose(),
   };
 }
 
-async function syncPrepareConverge(surface: SyncSurface): Promise<void> {
-  await prepareClientsForConverge(
-    surface.runtime.app,
-    surface,
-    surface.runtime.replay
-  );
-  resetClockSkews(surface);
-}
-
 /**
- * Replay DST SyncAction objects against an already-open sync surface.
- */
-export async function playSyncActions(
-  world: SyncSurface,
-  actionList: readonly SyncAction[]
-): Promise<void> {
-  for (const action of actionList) {
-    await replayStep({
-      world,
-      app: world.runtime.app,
-      action,
-      state: world.runtime.replay,
-    });
-    applyActionToShadow(world.runtime.app, world.shadow, action);
-    await world.checkInvariants();
-    await world.advance(SYNC_STEP_MS);
-  }
-  await syncPrepareConverge(world);
-}
-
-export type OpenSyncOptions = {
-  readonly seed: number | bigint | string;
-  readonly knobs?: Partial<WorldKnobs>;
-  readonly properties?: readonly Property<SyncSurface>[];
-  readonly draws?: readonly unknown[];
-  readonly networkFaults?: NetworkFaults;
-};
-
-/**
- * Open a sync system run and expose the domain surface for scripted pins.
- * Disposes kit + session on `await using`.
- */
-export async function openSyncWorld(
-  system: SyncSystemDef,
-  opts: OpenSyncOptions
-): Promise<SyncSurface & AsyncDisposable> {
-  const run = await start(system, {
-    seed: opts.seed,
-    host: syncVirtualHost(opts.networkFaults),
-    draws: opts.draws ?? syncSystemDraws(opts.knobs),
-    // Scripted pins drive the surface imperatively; monitors are opt-in.
-    properties: opts.properties ?? [],
-  });
-  const surface = run._internal.surface;
-  return Object.assign(surface, {
-    async [Symbol.asyncDispose]() {
-      await surface.dispose();
-      await run[Symbol.asyncDispose]();
-    },
-  });
-}
-
-/**
- * Framework-owned sync world: broker + server + N clients, full action pool.
+ * Framework-owned sync system: broker + server + N clients, full action pool.
  */
 export function defineSyncSystem(
   app: SyncApp,
@@ -253,15 +216,16 @@ export function defineSyncSystem(
   const sessionQuery = opts?.sessionQuery ?? app.pack.sessionQuery;
   const actions = createSyncActions(app, sessionQuery);
   const properties = [...SYNC_PROPERTIES];
+  const overrides = runtimeOverrides(opts);
 
   const system = defineSystem({
-    name: opts?.id ?? 'sync.world',
+    name: opts?.id ?? 'sync.system',
     async *generate(session) {
       const clientCount = yield* draw(gen(fc.integer({ min: 1, max: 3 })));
       const rowImageFanout = yield* draw(gen(fc.boolean()));
       const liveResendOnReconnect = yield* draw(gen(fc.boolean()));
       const bufferOutboundLive = yield* draw(gen(fc.boolean()));
-      const knobs: WorldKnobs = {
+      const knobs: SyncKnobs = {
         clientCount,
         rowImageFanout,
         liveResendOnReconnect,
@@ -269,54 +233,30 @@ export function defineSyncSystem(
       };
 
       const replay = createReplayRestartState();
-      const worldArgs = worldArgsFromDraws(
-        {
-          app,
-          ...(opts?.sessionQuery !== undefined
-            ? { sessionQuery: opts.sessionQuery }
-            : {}),
-          ...(opts?.localSchema !== undefined
-            ? { localSchema: opts.localSchema }
-            : {}),
-          ...(opts?.mutationRegistry !== undefined
-            ? { mutationRegistry: opts.mutationRegistry }
-            : {}),
-          ...(opts?.queryRegistry !== undefined
-            ? { queryRegistry: opts.queryRegistry }
-            : {}),
-        },
-        knobs
-      );
+      const clientOpts = kitArgsFromDraws({ app, ...overrides }, knobs);
 
       const deps = bootDeps(session);
       const network = wrapSimNetwork(session.network, RELIABLE_FAULTS);
       const infra = bootSimInfra({
-        worldArgs,
+        clientOpts,
         injected: { deps, network },
       });
-      const kernel = await bootSimServer({ infra, worldArgs });
-      const kit = buildWorldFacade(kernel);
+      const kernel = await bootSimServer({ infra, clientOpts });
+      const kit = buildKitFacade(kernel);
       const runtime: SyncRuntime = {
         app,
-        ...(opts?.sessionQuery !== undefined
-          ? { sessionQuery: opts.sessionQuery }
-          : {}),
-        ...(opts?.localSchema !== undefined
-          ? { localSchema: opts.localSchema }
-          : {}),
-        ...(opts?.mutationRegistry !== undefined
-          ? { mutationRegistry: opts.mutationRegistry }
-          : {}),
-        ...(opts?.queryRegistry !== undefined
-          ? { queryRegistry: opts.queryRegistry }
-          : {}),
+        ...overrides,
         replay,
-        worldArgs,
+        lastMutation: new Map(),
+        subscriptions: new Map(),
+        lastPost: new Map(),
+        clientOpts,
         infra,
         kernel,
         kit,
       };
       resetReplayRestartState(runtime.replay);
+      onSessionDispose(session, () => runtime.kit.dispose());
 
       for (let i = 0; i < clientCount; i += 1) {
         const id = `c${i}`;
@@ -338,4 +278,4 @@ export function defineSyncSystem(
 }
 
 export type { SyncRuntime, SyncSurface };
-export { DEFAULT_WORLD_KNOBS, SYNC_PROPERTIES, syncSystemDraws };
+export { DEFAULT_SYNC_KNOBS, SYNC_PROPERTIES, syncSystemDraws };

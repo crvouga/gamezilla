@@ -1,49 +1,69 @@
 import { describe, expect, test } from 'bun:test';
+import { start } from '@pkgs/dst';
 import {
-  expectLiveNote,
-  readLiveFolders,
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  connect,
+  converge,
+  crash,
+  disconnect,
+  liveFolders,
+  liveNote,
+  mutate,
+  net,
+  passTime,
   setFolder,
   setNote,
+  syncVirtualHost,
 } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
 
 describe('row image for inactive table ignored safely', () => {
   test('server folders push ignored by notesOnly peer; later note push applies', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 807,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const notesPeer = await world.addClient({
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, {
       id: 'notesPeer',
       sessionQuery: { name: 'notesOnly', params: {} },
     });
 
-    await a.mutate(setNote, { id: 'n1', body: 'seed' });
-    await world.advance(400);
-    await expectLiveNote(notesPeer.db, 'n1', { body: 'seed' });
-    expect(await readLiveFolders(notesPeer.db)).toEqual([]);
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'seed' });
+    await run.apply(passTime, 400);
+    expect(await run.observe(liveNote('notesPeer', 'n1'))).toMatchObject({
+      body: 'seed',
+    });
+    expect(await run.observe(liveFolders('notesPeer'))).toEqual([]);
 
     // No optimistic fanout — only server push (table-filtered).
-    await a.disconnect();
-    await a.mutate(setFolder, { id: 'f1', title: 'ignored' });
+    await run.apply(disconnect, 'alice');
+    await run.apply(mutate, 'alice', setFolder, { id: 'f1', title: 'ignored' });
     {
-      using _hold = world.net('notesPeer', 'sync').set('hold');
-      await a.connect();
-      await world.advance(400);
+      await run.apply(net, 'notesPeer', 'sync', 'hold');
+      await run.apply(connect, 'alice');
+      await run.apply(passTime, 400);
 
-      expect(await readLiveFolders(notesPeer.db)).toEqual([]);
-      await expectLiveNote(notesPeer.db, 'n1', { body: 'seed' });
+      expect(await run.observe(liveFolders('notesPeer'))).toEqual([]);
+      expect(await run.observe(liveNote('notesPeer', 'n1'))).toMatchObject({
+        body: 'seed',
+      });
 
-      await a.mutate(setNote, { id: 'n1', body: 'after-ignore' });
-      await world.advance(300);
-      await expectLiveNote(notesPeer.db, 'n1', { body: 'after-ignore' });
+      await run.apply(mutate, 'alice', setNote, {
+        id: 'n1',
+        body: 'after-ignore',
+      });
+      await run.apply(passTime, 300);
+      expect(await run.observe(liveNote('notesPeer', 'n1'))).toMatchObject({
+        body: 'after-ignore',
+      });
     }
-    await world.node('notesPeer').crash();
-    await world.addClient({ id: 'bob' });
-    await world.assertConverged();
+    await run.apply(crash, 'notesPeer');
+    await run.apply(addClient, { id: 'bob' });
+    await run.apply(converge);
   });
 });

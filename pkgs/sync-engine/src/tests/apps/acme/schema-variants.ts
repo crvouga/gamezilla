@@ -1,14 +1,14 @@
 import { SCHEMA_EPOCH } from '@pkgs/sync-engine/test';
 
 import type { LocalDomainSchema } from '../../../client/local-schema-migrate';
-import type { RestartClientOpts } from '../../../sim/world-lifecycle';
+import type { RestartClientOpts } from '../../../sim/kit-lifecycle';
 import {
   acmeLocalSchemaExtraColumn,
   acmeLocalSchemaExtraTable,
-  notesWorldWithColorQuery,
+  notesAllWithColorQuery,
   setNoteColor,
   setTag,
-  tagsWorldQuery,
+  tagsAllQuery,
 } from './shared/hardening-fixtures';
 import { acmeMutationRegistry, acmeQueryRegistry } from './shared/registries';
 
@@ -36,11 +36,11 @@ export function acmeRestartOptsForVariant(
         },
         queryRegistry: {
           ...acmeQueryRegistry,
-          [notesWorldWithColorQuery.name]: notesWorldWithColorQuery,
+          [notesAllWithColorQuery.name]: notesAllWithColorQuery,
         },
-        // Keep notesWorld session so baseline servers still hydrate;
-        // scenarios that need color SELECT use notesWorldWithColor explicitly.
-        sessionQuery: { name: 'notesWorld', params: {} },
+        // Keep notesAll session so baseline servers still hydrate;
+        // scenarios that need color SELECT use notesAllWithColor explicitly.
+        sessionQuery: { name: 'notesAll', params: {} },
       };
     case 'extraTable':
       return {
@@ -52,11 +52,11 @@ export function acmeRestartOptsForVariant(
         },
         queryRegistry: {
           ...acmeQueryRegistry,
-          [tagsWorldQuery.name]: tagsWorldQuery,
+          [tagsAllQuery.name]: tagsAllQuery,
         },
-        // Keep notesWorld as session so converge still compares notes/folders;
+        // Keep notesAll as session so converge still compares notes/folders;
         // tags hydrate via an explicit subscribe in scenarios that need them.
-        sessionQuery: { name: 'notesWorld', params: {} },
+        sessionQuery: { name: 'notesAll', params: {} },
       };
     case 'epochBump':
       return { ...preserve, schemaEpoch: SCHEMA_EPOCH + 1 };

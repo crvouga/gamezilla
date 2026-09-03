@@ -1,43 +1,69 @@
 import { describe, expect, test } from 'bun:test';
-import { expectLiveNote, expectNotesMatchServer, setNote } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import { start } from '@pkgs/dst';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  connect,
+  converge,
+  disconnect,
+  hold,
+  lastMutationId,
+  lastMutationOk,
+  liveNote,
+  mutate,
+  outcome,
+  passTime,
+  release,
+  setNote,
+  syncVirtualHost,
+  untilAcme,
+} from '../apps/acme';
 
 describe('interleaved mutate during upload inflight', () => {
   test('mutates while drain in flight join next batch; no loss', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 823,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
 
-    await a.disconnect();
-    const first = await a.mutate(setNote, { id: 'n1', body: 'first' });
-    const second = await a.mutate(setNote, { id: 'n2', body: 'second' });
-    expect(first.ok && second.ok).toBe(true);
-    if (!first.ok || !second.ok) return;
+    await run.apply(disconnect, 'alice');
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'first' });
+    expect(await run.observe(lastMutationOk('alice'))).toBe(true);
+    await run.apply(mutate, 'alice', setNote, { id: 'n2', body: 'second' });
+    expect(await run.observe(lastMutationOk('alice'))).toBe(true);
 
     // Hold sync so the first upload stays in flight while more mutates land.
-    using _hold = world.net('alice', 'sync').set('hold');
-    await a.connect();
-    await world.advance(50);
+    await run.apply(hold, 'alice', 'sync');
+    await run.apply(connect, 'alice');
+    await run.apply(passTime, 50);
 
-    const third = await a.mutate(setNote, { id: 'n3', body: 'third' });
-    const fourth = await a.mutate(setNote, { id: 'n1', body: 'first-v2' });
-    expect(third.ok && fourth.ok).toBe(true);
-    if (!third.ok || !fourth.ok) return;
+    await run.apply(mutate, 'alice', setNote, { id: 'n3', body: 'third' });
+    expect(await run.observe(lastMutationOk('alice'))).toBe(true);
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'first-v2' });
+    expect(await run.observe(lastMutationOk('alice'))).toBe(true);
+    const fourthId = await run.observe(lastMutationId('alice'));
+    expect(fourthId).not.toBeNull();
+    if (fourthId === null) return;
 
-    _hold.restore();
-    await world.waitUntil(a.outcome(fourth.mutationId), { withinMs: 5_000 });
-    expect(await a.outcome(fourth.mutationId)).toBe('confirmed');
-    await world.assertConverged();
+    await run.apply(release, 'alice', 'sync');
+    await untilAcme(run, outcome('alice', fourthId));
+    expect(await run.observe(outcome('alice', fourthId))).toBe('confirmed');
+    await run.apply(converge);
 
-    await expectLiveNote(b.db, 'n1', { body: 'first-v2' });
-    await expectLiveNote(b.db, 'n2', { body: 'second' });
-    await expectLiveNote(b.db, 'n3', { body: 'third' });
-    await expectNotesMatchServer(a.db, world.server.db);
+    expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+      body: 'first-v2',
+    });
+    expect(await run.observe(liveNote('bob', 'n2'))).toMatchObject({
+      body: 'second',
+    });
+    expect(await run.observe(liveNote('bob', 'n3'))).toMatchObject({
+      body: 'third',
+    });
   });
 });

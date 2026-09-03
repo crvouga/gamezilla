@@ -1,40 +1,56 @@
-import { describe, test } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
+import { start } from '@pkgs/dst';
 import { SCHEMA_EPOCH } from '@pkgs/sync-engine/test';
-import { expectLiveNote, isLiveNote, setNote } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  converge,
+  disconnect,
+  expectLiveNoteAt,
+  liveNote,
+  mutate,
+  neverAcme,
+  restart,
+  setNote,
+  syncVirtualHost,
+} from '../apps/acme';
 
 describe('epoch bump mid offline session then drain', () => {
   test.each([720, 721, 722])(
     'offline upgrade drains after later connect (seed=%i)',
     async (seed) => {
-      await using world = await openAcmeWorld({
+      await using run = await start(acmeSystem, {
         seed: seed,
-        knobs: {
-          clientCount: 0,
-        },
+        host: syncVirtualHost(),
+        draws: acmeDraws({ clientCount: 0 }),
+        properties: [],
       });
 
-      const a = await world.addClient({ id: 'alice' });
-      const b = await world.addClient({ id: 'bob' });
+      await run.apply(addClient, { id: 'alice' });
+      await run.apply(addClient, { id: 'bob' });
 
       // Disconnect so mutate queues without upload (lifecycle online alone
       // still allows HTTP in this sim).
-      await a.disconnect();
-      await a.mutate(setNote, { id: 'n1', body: 'mid-offline' });
-      await world.waitNever(() => isLiveNote(world.server.db, 'n1'), {
-        forMs: 50,
+      await run.apply(disconnect, 'alice');
+      await run.apply(mutate, 'alice', setNote, {
+        id: 'n1',
+        body: 'mid-offline',
       });
+      await neverAcme(run, liveNote('server', 'n1'), { forMs: 50 });
 
       // Restart applies epoch wipe on preserved DB; engine reconnects for
       // session sync (sim always boots online). Pending durable uploads drain.
-      const alice2 = await world.node('alice').restart({
+      await run.apply(restart, 'alice', {
         preserveLocalDb: true,
         schemaEpoch: SCHEMA_EPOCH + 1,
       });
-      await world.assertConverged();
+      await run.apply(converge);
 
-      await expectLiveNote(alice2!.db, 'n1', { body: 'mid-offline' });
-      await expectLiveNote(b.db, 'n1', { body: 'mid-offline' });
+      await expectLiveNoteAt(run, 'alice', 'n1', { body: 'mid-offline' });
+      expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+        body: 'mid-offline',
+      });
     }
   );
 });

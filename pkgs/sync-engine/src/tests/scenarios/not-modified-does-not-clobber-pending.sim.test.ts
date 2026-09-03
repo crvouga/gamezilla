@@ -1,46 +1,60 @@
 import { describe, expect, test } from 'bun:test';
+import { start } from '@pkgs/dst';
 import {
-  expectLiveNote,
-  expectNotesMatchServer,
-  readLiveNotes,
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  connect,
+  converge,
+  disconnect,
+  liveNote,
+  liveNotes,
+  mutate,
+  passTime,
   setNote,
+  syncVirtualHost,
 } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
 
 describe('not modified does not clobber pending', () => {
   test('not_modified refetch does not clobber pending optimistic; later hash miss rebases', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 640,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
 
-    await a.mutate(setNote, { id: 'n1', body: 'seed' });
-    await world.assertConverged();
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'seed' });
+    await run.apply(converge);
 
     // Queue pending without upload (upload loop stopped).
-    await a.disconnect();
-    await a.mutate(setNote, { id: 'n1', body: 'optimistic-pending' });
-    await expectLiveNote(a.db, 'n1', { body: 'optimistic-pending' });
-    await expectLiveNote(world.server.db, 'n1', { body: 'seed' });
+    await run.apply(disconnect, 'alice');
+    await run.apply(mutate, 'alice', setNote, {
+      id: 'n1',
+      body: 'optimistic-pending',
+    });
+    expect(await run.observe(liveNote('alice', 'n1'))).toMatchObject({
+      body: 'optimistic-pending',
+    });
+    expect(await run.observe(liveNote('server', 'n1'))).toMatchObject({
+      body: 'seed',
+    });
 
     // Reconnect: session sync sees unchanged server hash → not_modified;
     // pending mutation rebases on top so optimistic body must survive.
-    await a.connect();
-    await world.advance(500);
-    await expectLiveNote(a.db, 'n1', { body: 'optimistic-pending' });
+    await run.apply(connect, 'alice');
+    await run.apply(passTime, 500);
+    expect(await run.observe(liveNote('alice', 'n1'))).toMatchObject({
+      body: 'optimistic-pending',
+    });
 
-    await b.mutate(setNote, { id: 'n1', body: 'from-bob' });
-    await world.assertConverged();
-
-    await expectNotesMatchServer(a.db, world.server.db);
-    await expectNotesMatchServer(b.db, world.server.db);
+    await run.apply(mutate, 'bob', setNote, { id: 'n1', body: 'from-bob' });
+    await run.apply(converge);
     expect(
-      (await readLiveNotes(world.server.db)).find((r) => r.id === 'n1')
+      (await run.observe(liveNotes('server'))).find((r) => r.id === 'n1')
     ).toBeDefined();
   });
 });

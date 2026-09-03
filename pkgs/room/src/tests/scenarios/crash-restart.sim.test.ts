@@ -96,7 +96,7 @@ describe('room sim: client/server crash restart', () => {
     expect(counterValue(await readServer(run))).toBe(1);
   });
 
-  test('checkInvariants passes on healthy world', async () => {
+  test('checkInvariants passes on healthy run', async () => {
     await using run = await startRoom(counterSystem, { seed: 'inv-1' });
     await run.apply(addClient, { id: 'alice' });
     await run.apply(dispatch, {

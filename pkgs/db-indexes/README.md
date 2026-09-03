@@ -36,7 +36,7 @@ const report = await reconcileIndexes({
 
 ## Testing
 
-See [`TESTING.md`](./TESTING.md) for PBT / DST layers, seed replay, soak, and
+See [`TESTING.md`](./TESTING.md) for PBT / DST layers, known-seed corpus, and
 the invariant → assert / sim / property map.
 
 ## Ownership

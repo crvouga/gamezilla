@@ -1,6 +1,26 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import type { DistanceFormula } from '../../interface/types';
-import { openMatchmakingWorld } from '../../sim/scenario';
+import type { TickResult } from '../../interface/matchmaking';
+import type {
+  DistanceFormula,
+  LeaveResult,
+  StatusResult,
+  UpdateFormulasResult,
+} from '../../interface/types';
+import {
+  join,
+  lastLeave,
+  lastTick,
+  lastUpdate,
+  leave,
+  participantIds,
+  ready,
+  replicaIds,
+  startMatchmaking,
+  statusById,
+  statusOf,
+  tick,
+  updateFormulas,
+} from '../../sim/scenario';
 import {
   assertStatusAgreesAcrossReplicas,
   RatingAttr,
@@ -10,6 +30,7 @@ import {
 const SimpleFormula: DistanceFormula = {
   numeric: [{ tag: RatingAttr, weight: 1 }],
 };
+const onePass = { maxPassesPerPartition: 1 };
 
 describe('matchmaking sim: replicas share one DB', () => {
   let disposeCrash: () => void;
@@ -21,69 +42,69 @@ describe('matchmaking sim: replicas share one DB', () => {
   });
 
   test('join r0 / status r1 / leave r2 see the same store', async () => {
-    await using world = await openMatchmakingWorld({
-      seed: 200,
-      replicas: 3,
+    await using run = await startMatchmaking({ seed: 200, replicas: 3 });
+    await run.apply(join, {
+      ref: 'p',
+      input: { data: RatingAttr(1000), formulas: [SimpleFormula] },
+      replicaId: 'r0',
     });
-    const p = await world.join(
-      { data: RatingAttr(1000), formulas: [SimpleFormula] },
-      'r0'
-    );
-    const fromR1 = await assertStatusAgreesAcrossReplicas(
-      world,
-      p.participantId
-    );
-    expect(fromR1?.status).toBe('waiting');
-    expect((await p.leave('r2')).removed).toBe(true);
-    expect(await world.replica('r0').mm.status(p.participantId)).toBeNull();
-    expect(await world.replica('r1').mm.status(p.participantId)).toBeNull();
+    const participantId = (await run.observe(participantIds))['p'] as string;
+    const seen = await assertStatusAgreesAcrossReplicas(run, participantId);
+    expect(seen?.status).toBe('waiting');
+    await run.apply(leave, { ref: 'p', replicaId: 'r2' });
+    expect(((await run.observe(lastLeave)) as LeaveResult).removed).toBe(true);
+    expect(await run.observe(statusById(participantId, 'r0'))).toBeNull();
+    expect(await run.observe(statusById(participantId, 'r1'))).toBeNull();
   });
 
   test('updateFormulas on a different replica than join', async () => {
-    await using world = await openMatchmakingWorld({
-      seed: 201,
-      replicas: 2,
-    });
+    await using run = await startMatchmaking({ seed: 201, replicas: 2 });
     const open: DistanceFormula = {
       numeric: [{ tag: RatingAttr, weight: 1 }],
-      radius: {
-        baseRadius: 200,
-        radiusGrowthPerSecond: 0,
-        maxRadius: 200,
-      },
+      radius: { baseRadius: 200, radiusGrowthPerSecond: 0, maxRadius: 200 },
     };
     const tight: DistanceFormula = {
       numeric: [{ tag: RatingAttr, weight: 1 }],
       radius: { baseRadius: 5, radiusGrowthPerSecond: 0, maxRadius: 5 },
     };
-    const a = await world.join(
-      { data: RatingAttr(1000), formulas: [tight] },
-      'r0'
-    );
-    await world.join({ data: RatingAttr(1050), formulas: [open] }, 'r1');
-    expect((await world.tick({ maxPassesPerPartition: 1 }, 'r0')).matches).toBe(
-      0
-    );
-    expect((await a.updateFormulas([open], 'r1')).updated).toBe(true);
-    expect((await world.tick({ maxPassesPerPartition: 1 }, 'r1')).matches).toBe(
-      1
-    );
-    expect((await a.status('r0'))?.status).toBe('matched');
+    await run.apply(join, {
+      ref: 'a',
+      input: { data: RatingAttr(1000), formulas: [tight] },
+      replicaId: 'r0',
+    });
+    await run.apply(join, {
+      ref: 'b',
+      input: { data: RatingAttr(1050), formulas: [open] },
+      replicaId: 'r1',
+    });
+    await run.apply(tick, { opts: onePass, replicaId: 'r0' });
+    expect(((await run.observe(lastTick)) as TickResult).matches).toBe(0);
+    await run.apply(updateFormulas, {
+      ref: 'a',
+      formulas: [open],
+      replicaId: 'r1',
+    });
+    expect(
+      ((await run.observe(lastUpdate)) as UpdateFormulasResult).updated
+    ).toBe(true);
+    await run.apply(tick, { opts: onePass, replicaId: 'r1' });
+    expect(((await run.observe(lastTick)) as TickResult).matches).toBe(1);
+    expect(
+      ((await run.observe(statusOf('a', 'r0'))) as StatusResult).status
+    ).toBe('matched');
   });
 
   test('ready() is idempotent on every replica', async () => {
-    await using world = await openMatchmakingWorld({
-      seed: 202,
-      replicas: 3,
-    });
-    for (const r of world.replicas.values()) {
-      await r.mm.ready();
-      await r.mm.ready();
+    await using run = await startMatchmaking({ seed: 202, replicas: 3 });
+    for (const replicaId of await run.observe(replicaIds)) {
+      await run.apply(ready, { replicaId });
+      await run.apply(ready, { replicaId });
     }
-    const joined = await world.join(
-      { data: RatingAttr(900), formulas: [SimpleFormula] },
-      'r2'
-    );
-    expect(joined.participantId).toBeDefined();
+    await run.apply(join, {
+      ref: 'p',
+      input: { data: RatingAttr(900), formulas: [SimpleFormula] },
+      replicaId: 'r2',
+    });
+    expect((await run.observe(participantIds))['p']).toBeDefined();
   });
 });

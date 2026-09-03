@@ -1,5 +1,13 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { openMatchmakingWorld } from '../../sim/scenario';
+import type { TickResult } from '../../interface/matchmaking';
+import {
+  join,
+  lastTick,
+  passTime,
+  startMatchmaking,
+  statusOf,
+  tick,
+} from '../../sim/scenario';
 import { RatingAttr, registerTestCrashHandler } from '../fixtures';
 
 const SimpleFormula = { numeric: [{ tag: RatingAttr, weight: 1 }] };
@@ -14,43 +22,54 @@ describe('matchmaking sim: tick sweeps', () => {
   });
 
   test('expiredRemoved reaps waiters older than maxWaitSeconds', async () => {
-    await using world = await openMatchmakingWorld({
+    await using run = await startMatchmaking({
       seed: 50,
       tuning: { maxWaitSeconds: 30 },
     });
-    const p = await world.join({
-      data: RatingAttr(1000),
-      formulas: [SimpleFormula],
+    await run.apply(join, {
+      ref: 'p',
+      input: { data: RatingAttr(1000), formulas: [SimpleFormula] },
     });
-    expect((await world.tick()).expiredRemoved).toBe(0);
-    await world.advance(120_000);
-    expect((await world.tick()).expiredRemoved).toBe(1);
-    expect(await p.status()).toBeNull();
+    await run.apply(tick, {});
+    expect(((await run.observe(lastTick)) as TickResult).expiredRemoved).toBe(
+      0
+    );
+    await run.apply(passTime, 120_000);
+    await run.apply(tick, {});
+    expect(((await run.observe(lastTick)) as TickResult).expiredRemoved).toBe(
+      1
+    );
+    expect(await run.observe(statusOf('p'))).toBeNull();
   });
 
   test('matchedRemoved reaps matched rows older than matchedRetentionSeconds', async () => {
-    await using world = await openMatchmakingWorld({
+    await using run = await startMatchmaking({
       seed: 51,
       tuning: { matchedRetentionSeconds: 10 },
     });
-    const a = await world.join({
-      data: RatingAttr(1000),
-      formulas: [SimpleFormula],
+    await run.apply(join, {
+      ref: 'a',
+      input: { data: RatingAttr(1000), formulas: [SimpleFormula] },
     });
-    const b = await world.join({
-      data: RatingAttr(1010),
-      formulas: [SimpleFormula],
+    await run.apply(join, {
+      ref: 'b',
+      input: { data: RatingAttr(1010), formulas: [SimpleFormula] },
     });
-    expect((await world.tick({ maxPassesPerPartition: 1 })).matches).toBe(1);
-    await world.advance(60_000);
-    expect((await world.tick()).matchedRemoved).toBe(2);
-    expect(await a.status()).toBeNull();
-    expect(await b.status()).toBeNull();
+    await run.apply(tick, { opts: { maxPassesPerPartition: 1 } });
+    expect(((await run.observe(lastTick)) as TickResult).matches).toBe(1);
+    await run.apply(passTime, 60_000);
+    await run.apply(tick, {});
+    expect(((await run.observe(lastTick)) as TickResult).matchedRemoved).toBe(
+      2
+    );
+    expect(await run.observe(statusOf('a'))).toBeNull();
+    expect(await run.observe(statusOf('b'))).toBeNull();
   });
 
   test('tick on an empty queue is a clean no-op', async () => {
-    await using world = await openMatchmakingWorld({ seed: 52 });
-    expect(await world.tick()).toEqual({
+    await using run = await startMatchmaking({ seed: 52 });
+    await run.apply(tick, {});
+    expect(await run.observe(lastTick)).toEqual({
       matches: 0,
       passes: 0,
       partitions: 0,

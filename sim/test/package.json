@@ -21,6 +21,7 @@
     "@lingui/core": "catalog:",
     "@pkgs/assert": "workspace:*",
     "@pkgs/async-local": "workspace:*",
+    "@pkgs/auth": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/dst": "workspace:*",
     "@pkgs/emqx-server": "workspace:*",

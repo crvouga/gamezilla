@@ -1,68 +1,83 @@
 import { describe, expect, test } from 'bun:test';
+import { start } from '@pkgs/dst';
 import {
+  acmeDraws,
   acmeMutationRegistry,
-  expectLiveNote,
-  expectNotesMatchServer,
+  acmeSystem,
+  addClient,
+  connect,
+  converge,
+  disconnect,
+  lastMutationId,
+  lastMutationOk,
+  liveNote,
+  mutate,
+  outcome,
+  rejections,
   setNote,
   setNoteArgsLoose,
+  syncVirtualHost,
+  untilAcme,
 } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
 
 describe('args schema tightened server rejects stale args', () => {
   test.each([790, 791, 792])(
     'loose client args rejected by tight server (seed=%i)',
     async (seed) => {
-      await using world = await openAcmeWorld({
+      await using run = await start(acmeSystem, {
         seed: seed,
-        knobs: {
-          clientCount: 0,
-          rowImageFanout: false,
-        },
+        host: syncVirtualHost(),
+        draws: acmeDraws({ clientCount: 0, rowImageFanout: false }),
+        properties: [],
       });
 
-      const a = await world.addClient({
+      await run.apply(addClient, {
         id: 'alice',
         mutationRegistry: {
           ...acmeMutationRegistry,
           [setNoteArgsLoose.name]: setNoteArgsLoose,
         },
       });
-      const b = await world.addClient({ id: 'bob' });
+      await run.apply(addClient, { id: 'bob' });
 
       // Seed an existing row so reject heals via snapshot (absence ≠ delete).
-      await a.mutate(setNote, { id: 'n1', body: 'short' });
-      await world.assertConverged();
+      await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'short' });
+      await run.apply(converge);
 
-      await a.disconnect();
-      const longBody = 'x'.repeat(64);
-      const rejected = await a.mutate(setNoteArgsLoose, {
+      await run.apply(disconnect, 'alice');
+      await run.apply(mutate, 'alice', setNoteArgsLoose, {
         id: 'n1',
-        body: longBody,
+        body: 'x'.repeat(64),
       });
-      expect(rejected.ok).toBe(true);
-      if (!rejected.ok) return;
+      expect(await run.observe(lastMutationOk('alice'))).toBe(true);
+      const mutationId = await run.observe(lastMutationId('alice'));
+      expect(mutationId).not.toBeNull();
+      if (mutationId === null) return;
 
-      await a.connect();
-      await world.waitUntil(a.outcome(rejected.mutationId), {
-        withinMs: 5_000,
-      });
-      expect(await a.outcome(rejected.mutationId)).toBe('rejected');
+      await run.apply(connect, 'alice');
+      await untilAcme(run, outcome('alice', mutationId));
+      expect(await run.observe(outcome('alice', mutationId))).toBe('rejected');
 
-      const unacked = await a.rejections();
+      const unacked = await run.observe(rejections('alice'));
       expect(unacked.length).toBeGreaterThanOrEqual(1);
-      expect(unacked.some((r) => r.mutationId === rejected.mutationId)).toBe(
-        true
-      );
+      expect(unacked.some((r) => r.mutationId === mutationId)).toBe(true);
 
-      await expectLiveNote(world.server.db, 'n1', { body: 'short' });
-      await expectLiveNote(b.db, 'n1', { body: 'short' });
+      expect(await run.observe(liveNote('server', 'n1'))).toMatchObject({
+        body: 'short',
+      });
+      expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+        body: 'short',
+      });
 
       // Bump server hash so alice's optimistic long body is overwritten.
-      await b.mutate(setNote, { id: 'ok', body: 'healthy' });
-      await world.assertConverged();
-      await expectLiveNote(a.db, 'n1', { body: 'short' });
-      await expectLiveNote(a.db, 'ok', { body: 'healthy' });
-      await expectNotesMatchServer(a.db, world.server.db);
+      await run.apply(mutate, 'bob', setNote, { id: 'ok', body: 'healthy' });
+      await run.apply(converge);
+      expect(await run.observe(liveNote('alice', 'n1'))).toMatchObject({
+        body: 'short',
+      });
+      expect(await run.observe(liveNote('alice', 'ok'))).toMatchObject({
+        body: 'healthy',
+      });
     }
   );
 });

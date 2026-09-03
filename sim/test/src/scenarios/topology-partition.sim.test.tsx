@@ -9,8 +9,8 @@ import { describe } from '@pkgs/ui-testing';
 
 import { AppDriver } from '../drivers/app-driver';
 import { aliceCreds } from '../fixtures/fixtures';
-import { caps, heal, partition } from '../scenario';
-import { openSim, productOf } from '../setup/open-sim';
+import { caps, clientIds, heal, partition } from '../scenario';
+import { openSim } from '../setup/open-sim';
 
 describe('topology partition', (ctx) => {
   ctx.test(
@@ -34,10 +34,8 @@ describe('topology partition', (ctx) => {
       await run.apply(partition, 'alice');
       await run.apply(heal);
       await app.auth.signInWithDev(aliceCreds);
-      assert.ok(
-        productOf(run).sim.clientIds().includes('alice'),
-        'alice client mounted after sign-in'
-      );
+      const ids = await run.observe(clientIds);
+      assert.ok(ids.includes('alice'), 'alice client mounted after sign-in');
     }
   );
 });

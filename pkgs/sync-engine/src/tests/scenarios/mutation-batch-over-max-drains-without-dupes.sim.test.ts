@@ -1,38 +1,55 @@
 import { describe, expect, test } from 'bun:test';
-import { expectLiveNote, readLiveNotes, setNote } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import { start } from '@pkgs/dst';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  connect,
+  converge,
+  disconnect,
+  liveNote,
+  liveNotes,
+  mutate,
+  passTime,
+  setNote,
+  syncVirtualHost,
+} from '../apps/acme';
 
 const QUEUE_SIZE = 100;
 
 describe('mutation batch over max drains without dupes', () => {
   test('queue larger than MAX_MUTATIONS_BATCH drains across batches without dupes', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 650,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
 
-    await a.disconnect();
+    await run.apply(disconnect, 'alice');
     for (let i = 0; i < QUEUE_SIZE; i += 1) {
-      await a.mutate(setNote, {
+      await run.apply(mutate, 'alice', setNote, {
         id: `batch-${String(i).padStart(3, '0')}`,
         body: `b${i}`,
       });
     }
-    await world.advance(50);
+    await run.apply(passTime, 50);
 
-    await a.connect();
-    await world.assertConverged();
+    await run.apply(connect, 'alice');
+    await run.apply(converge);
 
-    const server = await readLiveNotes(world.server.db);
+    const server = await run.observe(liveNotes('server'));
     expect(server.length).toBe(QUEUE_SIZE);
     const ids = new Set(server.map((r) => r.id));
     expect(ids.size).toBe(QUEUE_SIZE);
-    await expectLiveNote(b.db, 'batch-000', { body: 'b0' });
-    await expectLiveNote(b.db, 'batch-099', { body: 'b99' });
+    expect(await run.observe(liveNote('bob', 'batch-000'))).toMatchObject({
+      body: 'b0',
+    });
+    expect(await run.observe(liveNote('bob', 'batch-099'))).toMatchObject({
+      body: 'b99',
+    });
   });
 });

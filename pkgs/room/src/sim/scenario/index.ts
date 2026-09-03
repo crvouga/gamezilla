@@ -1,5 +1,5 @@
 /**
- * Room system kernel. Worlds and action replay are framework-owned:
+ * Room system kernel. Runs and action replay are framework-owned:
  * {@link defineRoomSystem} + `start` / `check` / `replay` from `@pkgs/dst`.
  */
 
@@ -10,19 +10,34 @@ export type {
 } from './actions';
 export { isDomainOp, isLibraryAction } from './actions';
 export type { DomainModelHooks, RoomApp } from './app';
-export { applyRoomAction, playRoomActions } from './apply-room-action';
+export { applyRoomAction } from './apply-room-action';
 export type {
   DefineRoomSystemOpts,
   RoomSystemDef,
 } from './define-room-system';
 export {
   defineRoomSystem,
-  WORLD_START_MS,
+  SIM_START_MS,
 } from './define-room-system';
 export { dispatchRoomSystemAction } from './dispatch';
-export type { RoomWorldKnobs } from './knobs';
+export type { RoomKnobs } from './knobs';
 export { arbRoomKnobs, arbSeed } from './knobs';
 export { MILD_NET_FAULTS } from './library-arbs';
+export {
+  applyActionToModel,
+  BYZANTINE_INJECT_KINDS,
+  type ByzantineInjectKind,
+  buildByzantineRaw,
+  CLIENT_IDS,
+  clientLive,
+  domainOp,
+  initialRoomModel,
+  modelAllowsAction,
+  NET_FAULT_PROFILES,
+  type RoomModel,
+  type RoomReal,
+  SIM_PBT_CRASH_EVENTS,
+} from './model';
 export {
   caps,
   clientHash,
@@ -43,6 +58,7 @@ export {
   quiet,
   ROOM_PROPERTIES,
   rosterSize,
+  seed,
   serverCrashed,
   serverHash,
   serverState,
@@ -84,18 +100,3 @@ export {
 } from './room-actions';
 export { type StartRoomOpts, startRoom } from './start-room';
 export type { RoomSurface } from './surface';
-export {
-  applyActionToModel,
-  BYZANTINE_INJECT_KINDS,
-  type ByzantineInjectKind,
-  buildByzantineRaw,
-  CLIENT_IDS,
-  clientLive,
-  domainOp,
-  initialWorldModel,
-  modelAllowsAction,
-  NET_FAULT_PROFILES,
-  WORLD_PBT_CRASH_EVENTS,
-  type WorldModel,
-  type WorldReal,
-} from './world-model';

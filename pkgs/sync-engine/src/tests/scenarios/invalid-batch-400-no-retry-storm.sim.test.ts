@@ -1,41 +1,53 @@
 import { describe, expect, test } from 'bun:test';
-import { expectLiveNote, setNote } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import { start } from '@pkgs/dst';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  converge,
+  expectLiveNoteAt,
+  httpFault,
+  lastMutationOk,
+  mutate,
+  passTime,
+  pendingEventCount,
+  schedulerQuiescent,
+  setNote,
+  syncVirtualHost,
+} from '../apps/acme';
 
 describe('invalid batch 400 no retry storm', () => {
   test.each([880, 881, 882])(
     'invalidMutationsBody backs off then healthy drain (seed=%i)',
     async (seed) => {
-      await using world = await openAcmeWorld({
+      await using run = await start(acmeSystem, {
         seed: seed,
-        knobs: {
-          clientCount: 0,
-        },
+        host: syncVirtualHost(),
+        draws: acmeDraws({ clientCount: 0 }),
+        properties: [],
       });
 
-      const a = await world.addClient({ id: 'alice' });
-      const b = await world.addClient({ id: 'bob' });
+      await run.apply(addClient, { id: 'alice' });
+      await run.apply(addClient, { id: 'bob' });
 
-      {
-        using _fault = world.node('alice').httpFault({
-          kind: 'invalidMutationsBody',
-        });
-        const queued = await a.mutate(setNote, {
-          id: 'n1',
-          body: 'after-invalid',
-        });
-        expect(queued.ok).toBe(true);
+      await run.apply(httpFault, 'alice', { kind: 'invalidMutationsBody' });
+      await run.apply(mutate, 'alice', setNote, {
+        id: 'n1',
+        body: 'after-invalid',
+      });
+      expect(await run.observe(lastMutationOk('alice'))).toBe(true);
 
-        // Error path uses backoff — scheduler should not hot-loop.
-        await world.advance(500);
-        expect(world.pendingEventCount()).toBeLessThan(50);
-      }
-      await world.assertConverged();
+      // Error path uses backoff — scheduler should not hot-loop.
+      await run.apply(passTime, 500);
+      expect(await run.observe(pendingEventCount)).toBeLessThan(50);
 
-      await expectLiveNote(b.db, 'n1', { body: 'after-invalid' });
-      expect(
-        world.isSchedulerQuiescent() || world.pendingEventCount() < 50
-      ).toBe(true);
+      // `converge` clears boundary faults before healing and settling.
+      await run.apply(converge);
+
+      await expectLiveNoteAt(run, 'bob', 'n1', { body: 'after-invalid' });
+      const quiescent = await run.observe(schedulerQuiescent);
+      const pending = await run.observe(pendingEventCount);
+      expect(quiescent || pending < 50).toBe(true);
     }
   );
 });

@@ -56,8 +56,7 @@ const CASES: readonly Case[] = [
 ];
 
 describe.each([...HARNESSES])('acme-counter ($name)', (harness) => {
-  const skipWebView =
-    harness.name === 'Bun.WebView' && !webViewAvailable();
+  const skipWebView = harness.name === 'Bun.WebView' && !webViewAvailable();
 
   for (const c of CASES) {
     test.skipIf(skipWebView)(c.name, () => c.run(harness));

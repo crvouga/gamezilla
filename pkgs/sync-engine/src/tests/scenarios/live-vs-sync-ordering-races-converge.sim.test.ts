@@ -1,7 +1,25 @@
 import { describe, test } from 'bun:test';
+import { type Run, start } from '@pkgs/dst';
 import type { SyncSurface } from '../../sim/scenario';
-import { expectLiveNote, expectNotesMatchServer, setNote } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  assertConverged,
+  connect,
+  disconnect,
+  expectEveryClientNotesAgree,
+  expectLiveNoteAt,
+  hold,
+  mutate,
+  online,
+  partition,
+  passTime,
+  release,
+  setNote,
+  skewClock,
+  syncVirtualHost,
+} from '../apps/acme';
 
 const BEHIND = -60_000;
 const MID = 0;
@@ -20,198 +38,193 @@ const RACE_SKEWS: readonly ClockOrder[] = [
   { label: 'S < B < A', alice: AHEAD, bob: MID, server: BEHIND },
 ];
 
-async function expectClientsMatchServer(world: SyncSurface): Promise<void> {
-  for (const client of world.clients.values()) {
-    await expectNotesMatchServer(client.db, world.server.db);
-  }
+type SyncRun = Run<SyncSurface>;
+
+async function applySkews(run: SyncRun, order: ClockOrder): Promise<void> {
+  await run.apply(skewClock, 'alice', order.alice);
+  await run.apply(skewClock, 'bob', order.bob);
+  await run.apply(skewClock, 'server', order.server);
 }
 
-async function liveBeforeSync(world: SyncSurface): Promise<void> {
-  const a = await world.addClient({ id: 'alice' });
-  const b = await world.addClient({ id: 'bob' });
-  await a.mutate(setNote, { id: 'warm', body: 'w' });
-  await world.assertConverged();
-
-  {
-    using _hold = world.net('bob', 'sync').set('hold');
-    await a.mutate(setNote, { id: 'n1', body: 'live-first' });
-    await world.advance(120);
-  }
-  await world.assertConverged();
-  await expectLiveNote(b.db, 'n1', { body: 'live-first' });
-  await expectClientsMatchServer(world);
+async function bootWarmPair(run: SyncRun, skew?: ClockOrder): Promise<void> {
+  await run.apply(addClient, { id: 'alice' });
+  await run.apply(addClient, { id: 'bob' });
+  if (skew !== undefined) await applySkews(run, skew);
+  await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
+  await run.apply(assertConverged);
 }
 
-async function syncBeforeLive(world: SyncSurface): Promise<void> {
-  const a = await world.addClient({ id: 'alice' });
-  const b = await world.addClient({ id: 'bob' });
-  await a.mutate(setNote, { id: 'warm', body: 'w' });
-  await world.assertConverged();
+async function liveBeforeSync(run: SyncRun, skew?: ClockOrder): Promise<void> {
+  await bootWarmPair(run, skew);
 
-  {
-    using _hold = world.net('bob', 'live').set('hold');
-    await a.mutate(setNote, { id: 'n1', body: 'sync-first' });
-    await world.advance(40);
-    // Force pull while live is still held.
-    await b.disconnect();
-    await b.connect();
-    await world.advance(120);
-    await expectLiveNote(b.db, 'n1', { body: 'sync-first' });
-  }
-  await world.assertConverged();
-  await expectClientsMatchServer(world);
+  await run.apply(hold, 'bob', 'sync');
+  await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'live-first' });
+  await run.apply(passTime, 120);
+
+  await run.apply(assertConverged);
+  await expectLiveNoteAt(run, 'bob', 'n1', { body: 'live-first' });
+  await expectEveryClientNotesAgree(run);
+}
+
+async function syncBeforeLive(run: SyncRun, skew?: ClockOrder): Promise<void> {
+  await bootWarmPair(run, skew);
+
+  await run.apply(hold, 'bob', 'live');
+  await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'sync-first' });
+  await run.apply(passTime, 40);
+  // Force pull while live is still held.
+  await run.apply(disconnect, 'bob');
+  await run.apply(connect, 'bob');
+  await run.apply(passTime, 120);
+  await expectLiveNoteAt(run, 'bob', 'n1', { body: 'sync-first' });
+
+  await run.apply(assertConverged);
+  await expectEveryClientNotesAgree(run);
 }
 
 describe('live vs sync ordering races converge', () => {
   test('live before sync (refetch path)', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 301,
-      knobs: {
+      host: syncVirtualHost(),
+      draws: acmeDraws({
         clientCount: 0,
         rowImageFanout: false,
-      },
+      }),
+      properties: [],
     });
 
-    await liveBeforeSync(world);
+    await liveBeforeSync(run);
   });
 
   test('sync before live', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 302,
-      knobs: {
+      host: syncVirtualHost(),
+      draws: acmeDraws({
         clientCount: 0,
         rowImageFanout: false,
-      },
+      }),
+      properties: [],
     });
 
-    await syncBeforeLive(world);
+    await syncBeforeLive(run);
   });
 
   for (const order of RACE_SKEWS) {
     test(`live before sync skew ${order.label}`, async () => {
-      await using world = await openAcmeWorld({
+      await using run = await start(acmeSystem, {
         seed: 310,
-        knobs: {
+        host: syncVirtualHost(),
+        draws: acmeDraws({
           clientCount: 0,
           rowImageFanout: false,
-        },
+        }),
+        properties: [],
       });
 
-      using _sa = world.node('alice').skewClock(order.alice);
-      using _sb = world.node('bob').skewClock(order.bob);
-      using _ss = world.node('server').skewClock(order.server);
-      await liveBeforeSync(world);
+      await liveBeforeSync(run, order);
     });
 
     test(`sync before live skew ${order.label}`, async () => {
-      await using world = await openAcmeWorld({
+      await using run = await start(acmeSystem, {
         seed: 320,
-        knobs: {
+        host: syncVirtualHost(),
+        draws: acmeDraws({
           clientCount: 0,
           rowImageFanout: false,
-        },
+        }),
+        properties: [],
       });
 
-      using _sa = world.node('alice').skewClock(order.alice);
-      using _sb = world.node('bob').skewClock(order.bob);
-      using _ss = world.node('server').skewClock(order.server);
-      await syncBeforeLive(world);
+      await syncBeforeLive(run, order);
     });
   }
 
   test('stale sync after live fanout', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 303,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
-    await a.mutate(setNote, { id: 'warm', body: 'w' });
-    await world.assertConverged();
+    await bootWarmPair(run);
 
-    {
-      using _hold = world.net('bob', 'sync').set('hold');
-      await a.mutate(setNote, { id: 'n1', body: 'from-live' });
-      await world.advance(120);
-      await expectLiveNote(b.db, 'n1', { body: 'from-live' });
-    }
-    await world.assertConverged();
-    await expectClientsMatchServer(world);
+    await run.apply(hold, 'bob', 'sync');
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'from-live' });
+    await run.apply(passTime, 120);
+    await expectLiveNoteAt(run, 'bob', 'n1', { body: 'from-live' });
+
+    await run.apply(assertConverged);
+    await expectEveryClientNotesAgree(run);
   });
 
   test('optimistic + held sync converges', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 304,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
-    await a.mutate(setNote, { id: 'n1', body: 'base' });
-    await world.assertConverged();
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'base' });
+    await run.apply(assertConverged);
 
-    b.online(false);
-    await b.mutate(setNote, { id: 'n1', body: 'bob-pending' });
-    using _hold = world.net('bob', 'sync').set('hold');
-    b.online(true);
-    await a.mutate(setNote, { id: 'n1', body: 'from-a' });
-    await world.advance(80);
-    _hold.restore();
-    await world.assertConverged();
-    await expectClientsMatchServer(world);
+    await run.apply(online, 'bob', false);
+    await run.apply(mutate, 'bob', setNote, { id: 'n1', body: 'bob-pending' });
+    await run.apply(hold, 'bob', 'sync');
+    await run.apply(online, 'bob', true);
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'from-a' });
+    await run.apply(passTime, 80);
+    await run.apply(release, 'bob', 'sync');
+    await run.apply(assertConverged);
+    await expectEveryClientNotesAgree(run);
   });
 
   test('optimistic + held live converges', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 305,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
-    await a.mutate(setNote, { id: 'n1', body: 'base' });
-    await world.assertConverged();
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'base' });
+    await run.apply(assertConverged);
 
-    {
-      using _hold = world.net('bob', 'live').set('hold');
-      await a.mutate(setNote, { id: 'n1', body: 'from-a' });
-      await world.advance(80);
-    }
-    await world.assertConverged();
-    await expectLiveNote(b.db, 'n1', { body: 'from-a' });
-    await expectClientsMatchServer(world);
+    await run.apply(hold, 'bob', 'live');
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'from-a' });
+    await run.apply(passTime, 80);
+
+    await run.apply(assertConverged);
+    await expectLiveNoteAt(run, 'bob', 'n1', { body: 'from-a' });
+    await expectEveryClientNotesAgree(run);
   });
 
   test('live-only partition then heal converges via sync', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 306,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
-    await a.mutate(setNote, { id: 'warm', body: 'w' });
-    await world.assertConverged();
+    await bootWarmPair(run);
 
-    {
-      using _down = world.net('bob', 'live').set('down');
-      await a.mutate(setNote, { id: 'n1', body: 'via-sync' });
-      await world.advance(40);
-      await b.disconnect();
-      await b.connect();
-      await world.advance(120);
-      await expectLiveNote(b.db, 'n1', { body: 'via-sync' });
-    }
-    await world.assertConverged();
-    await expectClientsMatchServer(world);
+    await run.apply(partition, 'bob', 'live');
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'via-sync' });
+    await run.apply(passTime, 40);
+    await run.apply(disconnect, 'bob');
+    await run.apply(connect, 'bob');
+    await run.apply(passTime, 120);
+    await expectLiveNoteAt(run, 'bob', 'n1', { body: 'via-sync' });
+
+    await run.apply(assertConverged);
+    await expectEveryClientNotesAgree(run);
   });
 });

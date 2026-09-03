@@ -1,46 +1,54 @@
 import { describe, expect, test } from 'bun:test';
+import { start } from '@pkgs/dst';
 import {
-  expectLiveNote,
-  expectNotesMatchServer,
-  readLiveNotes,
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  assertConverged,
+  clientIds,
+  crashAt,
+  mutate,
+  passTime,
+  restart,
   setNote,
+  syncVirtualHost,
 } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import {
+  expectLiveNoteAt,
+  expectNotesAgree,
+  readLiveNoteIds,
+} from '../apps/acme/reads';
 
 describe('crash mid merge restart rehydrates', () => {
   test('crash after sync delivery; restart never torn across tables', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 830,
-      knobs: {
-        clientCount: 0,
-        rowImageFanout: false,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0, rowImageFanout: false }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    await world.addClient({ id: 'bob' });
+    await run.apply(addClient, 'alice');
+    await run.apply(addClient, 'bob');
 
-    await a.mutate(setNote, { id: 'n1', body: 'one' });
-    await a.mutate(setNote, { id: 'n2', body: 'two' });
-    await world.assertConverged();
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'one' });
+    await run.apply(mutate, 'alice', setNote, { id: 'n2', body: 'two' });
+    await run.apply(assertConverged);
 
-    using _arm = world.node('bob').crash({
-      at: 'afterNextSyncResponseDelivered',
-    });
-    await a.mutate(setNote, { id: 'n1', body: 'updated' });
-    await a.mutate(setNote, { id: 'n3', body: 'three' });
-    await world.advance(800);
+    await run.apply(crashAt, 'bob', 'afterNextSyncResponseDelivered');
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'updated' });
+    await run.apply(mutate, 'alice', setNote, { id: 'n3', body: 'three' });
+    await run.apply(passTime, 800);
 
-    expect(world.clients.has('bob')).toBe(false);
-    const bob = await world.node('bob').restart({ preserveLocalDb: true });
-    await world.assertConverged();
+    expect(await run.observe(clientIds)).not.toContain('bob');
+    await run.apply(restart, 'bob', { preserveLocalDb: true });
+    await run.apply(assertConverged);
 
-    const notes = await readLiveNotes(bob!.db);
-    const ids = new Set(notes.map((n) => n.id));
+    const ids = new Set(await readLiveNoteIds(run, 'bob'));
     expect(ids.has('n1')).toBe(true);
     expect(ids.has('n2')).toBe(true);
-    await expectLiveNote(bob!.db, 'n1', { body: 'updated' });
-    await expectLiveNote(bob!.db, 'n3', { body: 'three' });
-    await expectNotesMatchServer(bob!.db, world.server.db);
+    await expectLiveNoteAt(run, 'bob', 'n1', { body: 'updated' });
+    await expectLiveNoteAt(run, 'bob', 'n3', { body: 'three' });
+    await expectNotesAgree(run, 'bob');
   });
 });

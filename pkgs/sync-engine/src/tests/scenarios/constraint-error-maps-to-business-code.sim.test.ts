@@ -1,59 +1,73 @@
 import { describe, expect, test } from 'bun:test';
-import { expectLiveNote, setNoteUniqueSlug } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import { start } from '@pkgs/dst';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  clearLocalData,
+  connect,
+  converge,
+  disconnect,
+  lastMutationId,
+  liveNote,
+  mutate,
+  outcome,
+  passTime,
+  rejections,
+  setNoteUniqueSlug,
+  syncVirtualHost,
+  untilAcme,
+} from '../apps/acme';
+
+const OWNER_NOTE = { body: 'owner', title: 'taken', deletedAt: null };
 
 describe('constraint error maps to business code', () => {
   test.each([870, 871, 872])(
     'unique conflict surfaces SLUG_TAKEN (seed=%i)',
     async (seed) => {
-      await using world = await openAcmeWorld({
-        seed: seed,
-        knobs: {
-          clientCount: 0,
-          rowImageFanout: false,
-        },
+      await using run = await start(acmeSystem, {
+        seed,
+        host: syncVirtualHost(),
+        draws: acmeDraws({ clientCount: 0, rowImageFanout: false }),
+        properties: [],
       });
 
-      const a = await world.addClient({ id: 'alice' });
-      const b = await world.addClient({ id: 'bob' });
+      await run.apply(addClient, 'alice');
+      await run.apply(addClient, 'bob');
 
       // Bob offline so local DB lacks Alice's slug — conflict only on replay.
-      await b.disconnect();
-      await a.mutate(setNoteUniqueSlug, {
+      await run.apply(disconnect, 'bob');
+      await run.apply(mutate, 'alice', setNoteUniqueSlug, {
         id: 'n1',
         slug: 'taken',
         body: 'owner',
       });
-      await world.advance(500);
-      await expectLiveNote(world.server.db, 'n1', {
-        body: 'owner',
-        title: 'taken',
-      });
+      await run.apply(passTime, 500);
+      expect(await run.observe(liveNote('server', 'n1'))).toEqual(OWNER_NOTE);
 
-      const rejected = await b.mutate(setNoteUniqueSlug, {
+      await run.apply(mutate, 'bob', setNoteUniqueSlug, {
         id: 'n2',
         slug: 'taken',
         body: 'conflict',
       });
-      expect(rejected.ok).toBe(true);
-      if (!rejected.ok) return;
+      const mutationId = await run.observe(lastMutationId('bob'));
+      expect(mutationId).not.toBeNull();
+      if (mutationId === null) return;
 
-      await b.connect();
-      await world.waitUntil(b.outcome(rejected.mutationId), {
-        withinMs: 5_000,
-      });
-      expect(await b.outcome(rejected.mutationId)).toBe('rejected');
-      const unacked = await b.rejections();
+      await run.apply(connect, 'bob');
+      await untilAcme(run, outcome('bob', mutationId));
+      expect(await run.observe(outcome('bob', mutationId))).toBe('rejected');
+      const unacked = await run.observe(rejections('bob'));
       expect(unacked.some((r) => r.code === 'SLUG_TAKEN')).toBe(true);
 
-      await expectLiveNote(a.db, 'n1', { body: 'owner', title: 'taken' });
+      expect(await run.observe(liveNote('alice', 'n1'))).toEqual(OWNER_NOTE);
 
       // Rejected insert left a local-only row (absence ≠ delete). Wipe cache
       // and rehydrate so converge can succeed.
-      await b.clearLocalData('cache');
-      await b.connect();
-      await world.assertConverged();
-      await expectLiveNote(b.db, 'n1', { body: 'owner', title: 'taken' });
+      await run.apply(clearLocalData, 'bob', 'cache');
+      await run.apply(connect, 'bob');
+      await run.apply(converge);
+      expect(await run.observe(liveNote('bob', 'n1'))).toEqual(OWNER_NOTE);
     }
   );
 });

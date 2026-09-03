@@ -1,5 +1,5 @@
 /**
- * World-aligned node kinds for console chrome (playground + reports).
+ * System-aligned node kinds for console chrome (playground + reports).
  * Addresses are `kind` or `kind:instanceId` (`client:alice`, `room:<topic>`).
  */
 

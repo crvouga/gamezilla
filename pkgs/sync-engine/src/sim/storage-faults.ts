@@ -1,6 +1,6 @@
 import { unsafe } from '@pkgs/sql';
 
-import type { BootedSimKernel } from './world-types';
+import type { BootedSimKernel } from './kit-types';
 
 export type LocalStorageTamper =
   | 'corruptCheckpoint'

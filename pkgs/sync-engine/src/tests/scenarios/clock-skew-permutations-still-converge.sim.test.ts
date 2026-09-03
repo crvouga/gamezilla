@@ -1,13 +1,26 @@
 import { describe, expect, test } from 'bun:test';
+import { type Run, start } from '@pkgs/dst';
 import type { SyncSurface } from '../../sim/scenario';
 import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  assertConverged,
+  clientIds,
+  connect,
   deleteNote,
-  expectNotesMatchServer,
-  readLiveNotes,
-  readNoteTombstone,
+  disconnect,
+  expectEveryClientNotesAgree,
+  lastMutationOk,
+  liveNotes,
+  mutate,
+  online,
+  passTime,
+  readNoteTombstoneAt,
   setNote,
+  skewClock,
+  syncVirtualHost,
 } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
 
 const BEHIND = -60_000;
 const MID = 0;
@@ -32,91 +45,91 @@ const CLOCK_ORDERS: readonly ClockOrder[] = [
   { label: 'S < B < A', alice: AHEAD, bob: MID, server: BEHIND },
 ];
 
-function applyOrder(world: SyncSurface, order: ClockOrder): void {
-  world.node('alice').skewClock(order.alice);
-  world.node('bob').skewClock(order.bob);
-  world.node('server').skewClock(order.server);
+type SyncRun = Run<SyncSurface>;
+
+async function applyOrder(run: SyncRun, order: ClockOrder): Promise<void> {
+  await run.apply(skewClock, 'alice', order.alice);
+  await run.apply(skewClock, 'bob', order.bob);
+  await run.apply(skewClock, 'server', order.server);
 }
 
-async function expectClientsMatchServer(world: SyncSurface): Promise<void> {
-  for (const client of world.clients.values()) {
-    await expectNotesMatchServer(client.db, world.server.db);
-  }
+async function bootSkewedPair(run: SyncRun, order: ClockOrder): Promise<void> {
+  await applyOrder(run, order);
+  await run.apply(addClient, { id: 'alice' });
+  await run.apply(addClient, { id: 'bob' });
 }
 
 async function offlineConflictThenConverge(
-  world: SyncSurface,
+  run: SyncRun,
   order: ClockOrder
 ): Promise<void> {
-  applyOrder(world, order);
-  const a = await world.addClient({ id: 'alice' });
-  const b = await world.addClient({ id: 'bob' });
-  await world.advance(50);
+  await bootSkewedPair(run, order);
+  await run.apply(passTime, 50);
 
-  a.online(false);
-  b.online(false);
-  await a.mutate(setNote, { id: 'shared', body: 'from-a' });
-  await b.mutate(setNote, { id: 'shared', body: 'from-b' });
-  a.online(true);
-  b.online(true);
-  await world.assertConverged();
+  await run.apply(online, 'alice', false);
+  await run.apply(online, 'bob', false);
+  await run.apply(mutate, 'alice', setNote, { id: 'shared', body: 'from-a' });
+  await run.apply(mutate, 'bob', setNote, { id: 'shared', body: 'from-b' });
+  await run.apply(online, 'alice', true);
+  await run.apply(online, 'bob', true);
+  await run.apply(assertConverged);
 
-  const server = await readLiveNotes(world.server.db);
+  const server = await run.observe(liveNotes('server'));
   const winner = server.find((r) => r.id === 'shared');
   expect(winner).toBeDefined();
   expect(winner?.body === 'from-a' || winner?.body === 'from-b').toBe(true);
-  await expectClientsMatchServer(world);
+  await expectEveryClientNotesAgree(run);
 }
 
 async function onlineOptimisticRace(
-  world: SyncSurface,
+  run: SyncRun,
   order: ClockOrder
 ): Promise<void> {
-  applyOrder(world, order);
-  const a = await world.addClient({ id: 'alice' });
-  const b = await world.addClient({ id: 'bob' });
-  await a.mutate(setNote, { id: 'race', body: 'seed' });
-  await world.assertConverged();
+  await bootSkewedPair(run, order);
+  await run.apply(mutate, 'alice', setNote, { id: 'race', body: 'seed' });
+  await run.apply(assertConverged);
 
   // Both online: back-to-back optimistic writes (not Promise.all — simultaneous
   // local apply can race fanout rebase past settle budget).
-  await a.mutate(setNote, { id: 'race', body: 'a-online' });
-  await b.mutate(setNote, { id: 'race', body: 'b-online' });
-  await world.advance(200);
-  await world.assertConverged();
-  await expectClientsMatchServer(world);
+  await run.apply(mutate, 'alice', setNote, { id: 'race', body: 'a-online' });
+  await run.apply(mutate, 'bob', setNote, { id: 'race', body: 'b-online' });
+  await run.apply(passTime, 200);
+  await run.apply(assertConverged);
+  await expectEveryClientNotesAgree(run);
 }
 
 async function aheadDeleteBehindPending(
-  world: SyncSurface,
+  run: SyncRun,
   order: ClockOrder
 ): Promise<void> {
-  applyOrder(world, order);
-  const a = await world.addClient({ id: 'alice' });
-  const b = await world.addClient({ id: 'bob' });
+  await bootSkewedPair(run, order);
 
   // Owner is the ahead client so delete is authorized.
   const aheadIsAlice = order.alice > order.bob;
-  const owner = aheadIsAlice ? a : b;
-  const behind = aheadIsAlice ? b : a;
-  await owner.mutate(setNote, { id: 'n1', body: 'owned' });
-  await world.assertConverged();
+  const owner = aheadIsAlice ? 'alice' : 'bob';
+  const behind = aheadIsAlice ? 'bob' : 'alice';
+  await run.apply(mutate, owner, setNote, { id: 'n1', body: 'owned' });
+  await run.apply(assertConverged);
 
-  behind.online(false);
-  await behind.mutate(setNote, { id: 'n1', body: 'behind-pending' });
-  const del = await owner.mutate(deleteNote, { id: 'n1' });
-  expect(del.ok).toBe(true);
+  // Behind must genuinely stop uploading, otherwise its queued write lands
+  // first and steals ownership before the delete.
+  await run.apply(disconnect, behind);
+  await run.apply(mutate, behind, setNote, {
+    id: 'n1',
+    body: 'behind-pending',
+  });
+  await run.apply(mutate, owner, deleteNote, { id: 'n1' });
+  expect(await run.observe(lastMutationOk(owner))).toBe(true);
 
-  behind.online(true);
-  await world.assertConverged();
-  await expectClientsMatchServer(world);
+  await run.apply(connect, behind);
+  await run.apply(assertConverged);
+  await expectEveryClientNotesAgree(run);
 
   // Domain is consistent: either live with some body, or tombstoned everywhere.
-  const server = await readLiveNotes(world.server.db);
-  const live = server.find((r) => r.id === 'n1');
-  if (live === undefined) {
-    for (const client of world.clients.values()) {
-      expect(await readNoteTombstone(client.db, 'n1')).not.toBeNull();
+  const server = await run.observe(liveNotes('server'));
+  if (server.find((r) => r.id === 'n1') === undefined) {
+    for (const id of await run.observe(clientIds)) {
+      expect(await readNoteTombstoneAt(run, id, 'n1')).not.toBeNull();
     }
   }
 }
@@ -126,14 +139,14 @@ describe('clock skew permutations still converge', () => {
     test(
       `offline conflict converges (${order.label})`,
       async () => {
-        await using world = await openAcmeWorld({
+        await using run = await start(acmeSystem, {
           seed: 101,
-          knobs: {
-            clientCount: 0,
-          },
+          host: syncVirtualHost(),
+          draws: acmeDraws({ clientCount: 0 }),
+          properties: [],
         });
 
-        await offlineConflictThenConverge(world, order);
+        await offlineConflictThenConverge(run, order);
       },
       { timeout: 60_000 }
     );
@@ -141,14 +154,14 @@ describe('clock skew permutations still converge', () => {
     test(
       `online optimistic race converges (${order.label})`,
       async () => {
-        await using world = await openAcmeWorld({
+        await using run = await start(acmeSystem, {
           seed: 102,
-          knobs: {
-            clientCount: 0,
-          },
+          host: syncVirtualHost(),
+          draws: acmeDraws({ clientCount: 0 }),
+          properties: [],
         });
 
-        await onlineOptimisticRace(world, order);
+        await onlineOptimisticRace(run, order);
       },
       { timeout: 60_000 }
     );
@@ -156,14 +169,14 @@ describe('clock skew permutations still converge', () => {
     test(
       `ahead delete vs behind pending converges (${order.label})`,
       async () => {
-        await using world = await openAcmeWorld({
+        await using run = await start(acmeSystem, {
           seed: 103,
-          knobs: {
-            clientCount: 0,
-          },
+          host: syncVirtualHost(),
+          draws: acmeDraws({ clientCount: 0 }),
+          properties: [],
         });
 
-        await aheadDeleteBehindPending(world, order);
+        await aheadDeleteBehindPending(run, order);
       },
       { timeout: 60_000 }
     );

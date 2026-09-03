@@ -42,7 +42,7 @@ describe('createAttrNamespace', () => {
   });
 
   it('rejects camelCase segment', () => {
-    expect(() => createAttrNamespace('helloWorld')).toThrow();
+    expect(() => createAttrNamespace('helloThere')).toThrow();
   });
 
   it('joins multiple segments with dots', () => {

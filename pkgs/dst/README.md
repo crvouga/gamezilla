@@ -29,6 +29,10 @@ Bodies are sync or async generators. Three requests:
 
 `run.apply(action)` is the only checkpoint: probe → draw → act + settle → resume monitors → record. `walk` probes every action, picks by weight, finishes the chosen body. `check` = episodes × (start + walk + close) + shrink. `replay` re-walks choices.
 
+Waiting for a condition = poll with `untilObserved(run, obs, passTime)` (one checkpoint per step; do not busy-loop `observe` alone — memoisation would stick).
+
+Tests use `start` / `Run` only. `open*World`, `play*Actions`, and `Run._internal` are forbidden.
+
 ## Examples
 
 Slim toys under [`src/examples/`](src/examples/) (not public exports):

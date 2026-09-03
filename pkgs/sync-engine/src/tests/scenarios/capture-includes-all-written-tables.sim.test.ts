@@ -1,71 +1,77 @@
 import { describe, expect, test } from 'bun:test';
+import { start } from '@pkgs/dst';
 import {
-  expectLiveNote,
-  readLiveFolders,
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  converge,
+  liveFolders,
+  liveNote,
+  mutate,
   setNoteUndeclaredFolderWrite,
+  syncVirtualHost,
 } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
 
 describe('capture includes all written tables', () => {
   // Formerly "undeclared folder write misses table filter" — AST capture
   // records both folders + notes, so foldersOnly peers wake immediately.
   test('foldersOnly peer receives folder write from multi-table mutation', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 1070,
-      knobs: {
-        clientCount: 0,
-        rowImageFanout: true,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0, rowImageFanout: true }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const notesPeer = await world.addClient({
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, {
       id: 'notesPeer',
       sessionQuery: { name: 'notesOnly', params: {} },
     });
-    const foldersPeer = await world.addClient({
+    await run.apply(addClient, {
       id: 'foldersPeer',
       sessionQuery: { name: 'foldersOnly', params: {} },
     });
 
-    await a.mutate(setNoteUndeclaredFolderWrite, {
+    await run.apply(mutate, 'alice', setNoteUndeclaredFolderWrite, {
       noteId: 'n1',
       folderId: 'f-captured',
       folderTitle: 'Visible',
       body: 'note-ok',
     });
-    await world.assertConverged();
+    await run.apply(converge);
 
-    await expectLiveNote(notesPeer.db, 'n1', { body: 'note-ok' });
-    const folders = await readLiveFolders(foldersPeer.db);
+    expect(await run.observe(liveNote('notesPeer', 'n1'))).toMatchObject({
+      body: 'note-ok',
+    });
+    const folders = await run.observe(liveFolders('foldersPeer'));
     expect(folders.some((f) => f.id === 'f-captured')).toBe(true);
   });
 
   test.each([1071, 1072, 1073])(
     'seed sweep multi-table capture visible (seed=%i)',
     async (seed) => {
-      await using world = await openAcmeWorld({
+      await using run = await start(acmeSystem, {
         seed: seed,
-        knobs: {
-          clientCount: 0,
-          rowImageFanout: true,
-        },
+        host: syncVirtualHost(),
+        draws: acmeDraws({ clientCount: 0, rowImageFanout: true }),
+        properties: [],
       });
 
-      const a = await world.addClient({ id: 'alice' });
-      const foldersPeer = await world.addClient({
+      await run.apply(addClient, { id: 'alice' });
+      await run.apply(addClient, {
         id: 'foldersPeer',
         sessionQuery: { name: 'foldersOnly', params: {} },
       });
-      await a.mutate(setNoteUndeclaredFolderWrite, {
+      await run.apply(mutate, 'alice', setNoteUndeclaredFolderWrite, {
         noteId: `n-${seed}`,
         folderId: `f-${seed}`,
         folderTitle: 'T',
         body: 'x',
       });
-      await world.assertConverged();
+      await run.apply(converge);
       expect(
-        (await readLiveFolders(foldersPeer.db)).some(
+        (await run.observe(liveFolders('foldersPeer'))).some(
           (f) => f.id === `f-${seed}`
         )
       ).toBe(true);

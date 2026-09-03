@@ -1,23 +1,37 @@
-import { describe, test } from 'bun:test';
-import { expectLiveNote, setNoteNoFanout } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import { describe, expect, test } from 'bun:test';
+import { start } from '@pkgs/dst';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  converge,
+  liveNote,
+  mutate,
+  setNoteNoFanout,
+  syncVirtualHost,
+} from '../apps/acme';
 
 describe('push without row images wakes refetch', () => {
   test('mutation without capture images converges via wake+refetch with rowImageFanout', async () => {
     // rowImageFanout true: proves pushSeq-only pushes still wake peers when images absent.
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 680,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
+    await run.apply(addClient, 'alice');
+    await run.apply(addClient, 'bob');
 
-    await a.mutate(setNoteNoFanout, { id: 'n1', body: 'no-images' });
-    await world.assertConverged();
+    await run.apply(mutate, 'alice', setNoteNoFanout, {
+      id: 'n1',
+      body: 'no-images',
+    });
+    await run.apply(converge);
 
-    await expectLiveNote(b.db, 'n1', { body: 'no-images' });
+    expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+      body: 'no-images',
+    });
   });
 });

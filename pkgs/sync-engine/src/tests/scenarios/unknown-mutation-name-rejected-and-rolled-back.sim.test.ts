@@ -1,58 +1,68 @@
 import { describe, expect, test } from 'bun:test';
+import { start } from '@pkgs/dst';
 import {
+  acmeDraws,
   acmeMutationRegistry,
-  expectLiveNote,
-  expectNotesMatchServer,
+  acmeSystem,
+  addClient,
+  assertConverged,
   ghostMutation,
+  lastMutationId,
+  mutate,
+  outcome,
+  rejections,
   setNote,
+  syncVirtualHost,
+  untilAcme,
 } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import { expectLiveNoteAt, expectNotesAgree } from '../apps/acme/reads';
 
 describe('unknown mutation name rejected and rolled back', () => {
   test.each([770, 771, 772])(
     'ghostMutation rejected; merge heals (seed=%i)',
     async (seed) => {
-      await using world = await openAcmeWorld({
-        seed: seed,
-        knobs: {
-          clientCount: 0,
-          rowImageFanout: false,
-        },
+      await using run = await start(acmeSystem, {
+        seed,
+        host: syncVirtualHost(),
+        draws: acmeDraws({ clientCount: 0, rowImageFanout: false }),
+        properties: [],
       });
 
-      const a = await world.addClient({
+      await run.apply(addClient, {
         id: 'alice',
+        actorId: 'alice',
         mutationRegistry: {
           ...acmeMutationRegistry,
           [ghostMutation.name]: ghostMutation,
         },
       });
-      const b = await world.addClient({ id: 'bob' });
+      await run.apply(addClient, 'bob');
 
-      await a.mutate(setNote, { id: 'n1', body: 'good' });
-      await world.assertConverged();
+      await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'good' });
+      await run.apply(assertConverged);
 
-      const rejected = await a.mutate(ghostMutation, {
+      await run.apply(mutate, 'alice', ghostMutation, {
         id: 'n1',
         body: 'ghost-body',
       });
-      expect(rejected.ok).toBe(true);
-      if (!rejected.ok) return;
+      const mutationId = await run.observe(lastMutationId('alice'));
+      expect(mutationId).not.toBeNull();
+      if (mutationId === null) return;
 
-      await world.waitUntil(a.outcome(rejected.mutationId));
-      expect(await a.outcome(rejected.mutationId)).toBe('rejected');
+      await untilAcme(run, outcome('alice', mutationId));
+      expect(await run.observe(outcome('alice', mutationId))).toBe('rejected');
 
-      const unacked = await a.rejections();
+      const unacked = await run.observe(rejections('alice'));
       expect(unacked.length).toBe(1);
       expect(unacked[0]?.code).toBe('UNKNOWN_MUTATION');
-      expect(unacked[0]?.mutationId).toBe(rejected.mutationId);
+      expect(unacked[0]?.mutationId).toBe(mutationId);
 
-      await expectLiveNote(b.db, 'n1', { body: 'good' });
+      await expectLiveNoteAt(run, 'bob', 'n1', { body: 'good' });
 
-      await b.mutate(setNote, { id: 'bump', body: 'x' });
-      await world.assertConverged();
-      await expectLiveNote(a.db, 'n1', { body: 'good' });
-      await expectNotesMatchServer(a.db, world.server.db);
+      await run.apply(mutate, 'bob', setNote, { id: 'bump', body: 'x' });
+      await run.apply(assertConverged);
+      await expectLiveNoteAt(run, 'alice', 'n1', { body: 'good' });
+      await expectNotesAgree(run, 'alice');
     }
   );
 });

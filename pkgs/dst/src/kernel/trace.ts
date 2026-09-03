@@ -28,7 +28,7 @@ export type TraceRecord =
       readonly detail?: JsonValue;
     };
 
-/** Sink that receives TraceRecords while a World runs. */
+/** Sink that receives TraceRecords while a Run executes. */
 export type TraceRecorder = {
   readonly enabled: boolean;
   readonly record: (e: TraceRecord) => void;

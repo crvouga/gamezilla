@@ -1,7 +1,7 @@
 import { sql } from '@pkgs/sql';
 
 import type { SimServer } from '../../../sim/server';
-import { NOTES_WORLD_TOPIC } from './shared/topics';
+import { NOTES_ALL_TOPIC } from './shared/topics';
 
 /** Chess-scale catalog hydrate (~2k rows) for large-snapshot DST pins. */
 export async function seedLargeCatalogNotes(
@@ -24,7 +24,7 @@ export async function seedLargeCatalogNotes(
   });
   if (args.notify === true) {
     await server.notifyFanout({
-      topics: [NOTES_WORLD_TOPIC],
+      topics: [NOTES_ALL_TOPIC],
       tables: ['notes'],
       label: 'seedLargeCatalogNotes',
     });

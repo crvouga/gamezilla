@@ -1,70 +1,80 @@
-import { describe, test } from 'bun:test';
-import { RELIABLE_FAULTS } from '../../sim/faults';
-import { toKernelFaults } from '../../sim/network';
-import { expectLiveNote, setNote } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import { describe, expect, test } from 'bun:test';
+import { start } from '@pkgs/dst';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  converge,
+  liveNote,
+  mutate,
+  net,
+  passTime,
+  setNote,
+  syncVirtualHost,
+} from '../apps/acme';
 
 describe('dropped live repaired by refetch', () => {
   test('dropped fanout converges via refetch after heal', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 11,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
 
     {
-      using _loss = world.net('bob', 'live').set({ dropProbability: 1 });
-      await a.mutate(setNote, { id: 'n1', body: 'lost' });
-      await world.advance(50);
+      await run.apply(net, 'bob', 'live', { dropProbability: 1 });
+      await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'lost' });
+      await run.apply(passTime, 50);
+      await run.apply(net, 'bob', 'live', 'ok');
     }
-    await world.assertConverged();
+    await run.apply(converge);
 
-    await expectLiveNote(b.db, 'n1', { body: 'lost' });
+    expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+      body: 'lost',
+    });
   });
 
   test('reorder window still converges', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 12,
-      knobs: {
+      host: syncVirtualHost(),
+      draws: acmeDraws({
         clientCount: 0,
-      },
-      networkFaults: toKernelFaults({
-        ...RELIABLE_FAULTS,
-        latencyMeanMs: 20,
-        latencyJitterMs: 40,
-        reorderWindow: 5,
       }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
-    await a.mutate(setNote, { id: 'n1', body: 'a' });
-    await a.mutate(setNote, { id: 'n2', body: 'b' });
-    await a.mutate(setNote, { id: 'n3', body: 'c' });
-    await world.assertConverged();
-    await expectLiveNote(b.db, 'n2', { body: 'b' });
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'a' });
+    await run.apply(mutate, 'alice', setNote, { id: 'n2', body: 'b' });
+    await run.apply(mutate, 'alice', setNote, { id: 'n3', body: 'c' });
+    await run.apply(converge);
+    expect(await run.observe(liveNote('bob', 'n2'))).toMatchObject({
+      body: 'b',
+    });
   });
 
   test('duplicate delivery still converges', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 15,
-      knobs: {
+      host: syncVirtualHost(),
+      draws: acmeDraws({
         clientCount: 0,
-      },
-      networkFaults: toKernelFaults({
-        ...RELIABLE_FAULTS,
-        packetReplayProbability: 0.8,
       }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
-    await a.mutate(setNote, { id: 'n1', body: 'dup' });
-    await world.assertConverged();
-    await expectLiveNote(b.db, 'n1', { body: 'dup' });
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'dup' });
+    await run.apply(converge);
+    expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+      body: 'dup',
+    });
   });
 });

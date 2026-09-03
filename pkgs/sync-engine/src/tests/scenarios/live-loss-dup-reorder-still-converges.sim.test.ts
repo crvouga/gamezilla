@@ -1,134 +1,162 @@
 import { describe, test } from 'bun:test';
+import { start } from '@pkgs/dst';
+import type { SimFaultOptions } from '../../sim/faults';
 import { RELIABLE_FAULTS } from '../../sim/faults';
-import type { SyncSystemFacade } from '../../sim/scenario';
-import { expectLiveNote, expectNotesMatchServer, setNote } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import type { SyncAction } from '../../sim/scenario';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  assertConverged,
+  connect,
+  disconnect,
+  hold,
+  mutate,
+  passTime,
+  playActions,
+  release,
+  setNote,
+  syncVirtualHost,
+} from '../apps/acme';
+import { expectAllNotesAgree, expectLiveNoteAt } from '../apps/acme/reads';
 
-async function expectClientsMatchServer(
-  world: SyncSystemFacade
-): Promise<void> {
-  for (const client of world.clients.values()) {
-    await expectNotesMatchServer(client.db, world.server.db);
-  }
+const CLIENTS = ['alice', 'bob'] as const;
+
+/** One `setFaults` step for a node's live edge. */
+function liveFaults(
+  nodeId: string,
+  faults: Partial<SimFaultOptions>
+): readonly SyncAction[] {
+  return [{ kind: 'setFaults', nodeId, traffic: 'live', faults }];
 }
 
 describe('live loss dup reorder still converges', () => {
   test('lossy live on bob still converges after clear', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 401,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
-    await a.mutate(setNote, { id: 'warm', body: 'w' });
-    await world.assertConverged();
+    await run.apply(addClient, 'alice');
+    await run.apply(addClient, 'bob');
+    await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
+    await run.apply(assertConverged);
 
-    {
-      using _fault = world.net('bob', 'live').set({ dropProbability: 1 });
-      await a.mutate(setNote, { id: 'n1', body: 'lost-live' });
-      await world.advance(80);
-    }
-    await b.disconnect();
-    await b.connect();
-    await world.assertConverged();
-    await expectLiveNote(b.db, 'n1', { body: 'lost-live' });
-    await expectClientsMatchServer(world);
+    await run.apply(playActions, liveFaults('bob', { dropProbability: 1 }));
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'lost-live' });
+    await run.apply(passTime, 80);
+
+    await run.apply(release, 'bob', 'live');
+    await run.apply(disconnect, 'bob');
+    await run.apply(connect, 'bob');
+    await run.apply(assertConverged);
+    await expectLiveNoteAt(run, 'bob', 'n1', { body: 'lost-live' });
+    await expectAllNotesAgree(run, CLIENTS);
   });
 
   test('dup live on bob converges', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 402,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
-    using _fault = world.net('bob', 'live').set({ packetReplayProbability: 1 });
-    await a.mutate(setNote, { id: 'n1', body: 'dup' });
-    await a.mutate(setNote, { id: 'n2', body: 'dup2' });
-    await world.assertConverged();
-    await expectLiveNote(b.db, 'n1', { body: 'dup' });
-    await expectLiveNote(b.db, 'n2', { body: 'dup2' });
+    await run.apply(addClient, 'alice');
+    await run.apply(addClient, 'bob');
+    await run.apply(
+      playActions,
+      liveFaults('bob', { packetReplayProbability: 1 })
+    );
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'dup' });
+    await run.apply(mutate, 'alice', setNote, { id: 'n2', body: 'dup2' });
+    await run.apply(assertConverged);
+    await expectLiveNoteAt(run, 'bob', 'n1', { body: 'dup' });
+    await expectLiveNoteAt(run, 'bob', 'n2', { body: 'dup2' });
   });
 
   test('reordered live on bob converges', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 403,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
-    using _fault = world.net('bob', 'live').set({
-      latencyMeanMs: 30,
-      latencyJitterMs: 40,
-      reorderWindow: 8,
-    });
-    await a.mutate(setNote, { id: 'n1', body: 'a' });
-    await a.mutate(setNote, { id: 'n2', body: 'b' });
-    await a.mutate(setNote, { id: 'n3', body: 'c' });
-    await world.assertConverged();
-    await expectLiveNote(b.db, 'n2', { body: 'b' });
-    await expectClientsMatchServer(world);
+    await run.apply(addClient, 'alice');
+    await run.apply(addClient, 'bob');
+    await run.apply(
+      playActions,
+      liveFaults('bob', {
+        latencyMeanMs: 30,
+        latencyJitterMs: 40,
+        reorderWindow: 8,
+      })
+    );
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'a' });
+    await run.apply(mutate, 'alice', setNote, { id: 'n2', body: 'b' });
+    await run.apply(mutate, 'alice', setNote, { id: 'n3', body: 'c' });
+    await run.apply(assertConverged);
+    await expectLiveNoteAt(run, 'bob', 'n2', { body: 'b' });
+    await expectAllNotesAgree(run, CLIENTS);
   });
 
   test('asymmetric: alice reliable, bob lossy+dup+reorder', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 404,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
-    {
-      using _af = world.net('alice', 'live').set(RELIABLE_FAULTS);
-      using _bf = world.net('bob', 'live').set({
+    await run.apply(addClient, 'alice');
+    await run.apply(addClient, 'bob');
+    await run.apply(playActions, [
+      ...liveFaults('alice', RELIABLE_FAULTS),
+      ...liveFaults('bob', {
         dropProbability: 0.4,
         packetReplayProbability: 0.5,
         reorderWindow: 5,
         latencyMeanMs: 15,
         latencyJitterMs: 25,
-      });
-      await a.mutate(setNote, { id: 'n1', body: 'one' });
-      await b.mutate(setNote, { id: 'n2', body: 'two' });
-      await a.mutate(setNote, { id: 'n3', body: 'three' });
-      await world.advance(200);
-    }
-    await world.assertConverged();
-    await expectClientsMatchServer(world);
+      }),
+    ]);
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'one' });
+    await run.apply(mutate, 'bob', setNote, { id: 'n2', body: 'two' });
+    await run.apply(mutate, 'alice', setNote, { id: 'n3', body: 'three' });
+    await run.apply(passTime, 200);
+
+    await run.apply(release, 'alice', 'live');
+    await run.apply(release, 'bob', 'live');
+    await run.apply(assertConverged);
+    await expectAllNotesAgree(run, CLIENTS);
   });
 
   test('live chaos + sync hold then release converges', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 405,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
-    await a.mutate(setNote, { id: 'warm', body: 'w' });
-    await world.assertConverged();
+    await run.apply(addClient, 'alice');
+    await run.apply(addClient, 'bob');
+    await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
+    await run.apply(assertConverged);
 
-    {
-      using _fault = world.net('bob', 'live').set({ dropProbability: 1 });
-      using _hold = world.net('bob', 'sync').set('hold');
-      await a.mutate(setNote, { id: 'n1', body: 'held' });
-      await world.advance(60);
-    }
-    await b.disconnect();
-    await b.connect();
-    await world.assertConverged();
-    await expectLiveNote(b.db, 'n1', { body: 'held' });
+    await run.apply(playActions, liveFaults('bob', { dropProbability: 1 }));
+    await run.apply(hold, 'bob', 'sync');
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'held' });
+    await run.apply(passTime, 60);
+
+    await run.apply(release, 'bob', 'live');
+    await run.apply(release, 'bob', 'sync');
+    await run.apply(disconnect, 'bob');
+    await run.apply(connect, 'bob');
+    await run.apply(assertConverged);
+    await expectLiveNoteAt(run, 'bob', 'n1', { body: 'held' });
   });
 });

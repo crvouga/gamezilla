@@ -1,10 +1,9 @@
 import type { Run } from '@pkgs/dst';
-import type { Driver } from '@pkgs/ui-testing';
 
 import { spawnActor } from '../scenario/actions';
+import { actorIds } from '../scenario/observations';
 import type { ProductSurface } from '../scenario/surface';
-import { createCheckpointDriver } from '../setup/checkpoint-driver';
-import { productOf } from '../setup/open-sim';
+import { ActorRun } from './actor-run';
 import { AuthFlows } from './auth-flows';
 import { ChessFlows } from './chess-flows';
 import { FriendsFlows } from './friends-flows';
@@ -13,8 +12,10 @@ import { ProfileFlows } from './profile-flows';
 import { SearchFlows } from './search-flows';
 import { SpaceFlows } from './space-flows';
 
-/** Product UI flows for one sim actor. */
+/** Product UI flows for one sim actor, spoken entirely through the run. */
 export class AppDriver {
+  readonly run: Run<ProductSurface>;
+  readonly actorId: string;
   readonly auth: AuthFlows;
   readonly profile: ProfileFlows;
   readonly search: SearchFlows;
@@ -23,27 +24,26 @@ export class AppDriver {
   readonly space: SpaceFlows;
   readonly chess: ChessFlows;
 
-  private constructor(ui: Driver) {
-    this.auth = new AuthFlows(ui);
-    this.profile = new ProfileFlows(ui);
-    this.search = new SearchFlows(ui);
-    this.notifications = new NotificationsFlows(ui);
-    this.friends = new FriendsFlows(ui);
-    this.space = new SpaceFlows(ui);
-    this.chess = new ChessFlows(ui, this.space);
+  private constructor(actor: ActorRun) {
+    this.run = actor.run;
+    this.actorId = actor.actorId;
+    this.auth = new AuthFlows(actor.ui);
+    this.profile = new ProfileFlows(actor.ui);
+    this.search = new SearchFlows(actor);
+    this.notifications = new NotificationsFlows(actor.ui);
+    this.friends = new FriendsFlows(actor.ui);
+    this.space = new SpaceFlows(actor);
+    this.chess = new ChessFlows(actor, this.space);
   }
 
   static async forActor(
     run: Run<ProductSurface>,
     actorId: string
   ): Promise<AppDriver> {
-    if (!productOf(run).actors.has(actorId)) {
+    const ids = await run.observe(actorIds);
+    if (!ids.includes(actorId)) {
       await run.apply(spawnActor, actorId);
     }
-    const handle = productOf(run).actors.get(actorId);
-    if (handle === undefined) {
-      throw new Error(`AppDriver: actor '${actorId}' missing after spawn`);
-    }
-    return new AppDriver(createCheckpointDriver(run, actorId, handle.ui));
+    return new AppDriver(new ActorRun(run, actorId));
   }
 }

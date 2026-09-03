@@ -16,7 +16,7 @@ export type SqlWebTab = {
 };
 
 /**
- * Harness board for the multi-tab web SQL world. `expected` is the harness
+ * Harness board for the multi-tab web SQL system. `expected` is the harness
  * belief about durable `toy_kv` rows: writes add, wipes and schema-epoch drops
  * clear it, so invariants can compare it against the live owner connection.
  */

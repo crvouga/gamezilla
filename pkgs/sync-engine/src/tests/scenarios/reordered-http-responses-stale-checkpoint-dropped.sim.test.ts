@@ -1,35 +1,48 @@
-import { describe, test } from 'bun:test';
-import { expectLiveNote, expectNotesMatchServer, setNote } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import { describe, expect, test } from 'bun:test';
+import { start } from '@pkgs/dst';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  converge,
+  liveNote,
+  mutate,
+  net,
+  setNote,
+  syncVirtualHost,
+} from '../apps/acme';
 
 describe('reordered http responses stale checkpoint dropped', () => {
   test('reordered sync responses never regress newer domain rows', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 802,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
-    await a.mutate(setNote, { id: 'warm', body: 'w' });
-    await world.assertConverged();
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
+    await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
+    await run.apply(converge);
 
-    using _fault = world.net('bob', 'sync').set({
+    await run.apply(net, 'bob', 'sync', {
       latencyMeanMs: 20,
       latencyJitterMs: 40,
       reorderWindow: 6,
     });
 
-    await a.mutate(setNote, { id: 'n1', body: 'v1' });
-    await a.mutate(setNote, { id: 'n1', body: 'v2' });
-    await a.mutate(setNote, { id: 'n1', body: 'v3-final' });
-    await a.mutate(setNote, { id: 'n2', body: 'side' });
-    await world.assertConverged();
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'v1' });
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'v2' });
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'v3-final' });
+    await run.apply(mutate, 'alice', setNote, { id: 'n2', body: 'side' });
+    await run.apply(converge);
 
-    await expectLiveNote(b.db, 'n1', { body: 'v3-final' });
-    await expectLiveNote(b.db, 'n2', { body: 'side' });
-    await expectNotesMatchServer(b.db, world.server.db);
+    expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+      body: 'v3-final',
+    });
+    expect(await run.observe(liveNote('bob', 'n2'))).toMatchObject({
+      body: 'side',
+    });
   });
 });

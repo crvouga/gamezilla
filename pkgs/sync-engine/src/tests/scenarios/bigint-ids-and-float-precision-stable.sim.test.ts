@@ -1,6 +1,15 @@
 import { describe, expect, test } from 'bun:test';
-import { expectLiveNote, setNote } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import { start } from '@pkgs/dst';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  assertConverged,
+  mutate,
+  setNote,
+  syncVirtualHost,
+} from '../apps/acme';
+import { expectLiveNoteAt } from '../apps/acme/reads';
 
 /** String ids that look like JS-unsafe bigints (stay exact as text). */
 const BIG_IDS = [
@@ -11,15 +20,15 @@ const BIG_IDS = [
 
 describe('bigint ids and float precision stable', () => {
   test('string bigint ids and float JSON body round-trip stable', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 1010,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
+    await run.apply(addClient, 'alice');
+    await run.apply(addClient, 'bob');
 
     const floatBody = JSON.stringify({
       pi: 3.141592653589793,
@@ -28,13 +37,13 @@ describe('bigint ids and float precision stable', () => {
     });
 
     for (const id of BIG_IDS) {
-      await a.mutate(setNote, { id, body: floatBody });
+      await run.apply(mutate, 'alice', setNote, { id, body: floatBody });
     }
-    await world.assertConverged();
+    await run.apply(assertConverged);
 
     for (const id of BIG_IDS) {
-      await expectLiveNote(b.db, id, { body: floatBody });
-      await expectLiveNote(world.server.db, id, { body: floatBody });
+      await expectLiveNoteAt(run, 'bob', id, { body: floatBody });
+      await expectLiveNoteAt(run, 'server', id, { body: floatBody });
     }
     expect((JSON.parse(floatBody) as { readonly pi: number }).pi).toBe(
       3.141592653589793
@@ -44,20 +53,20 @@ describe('bigint ids and float precision stable', () => {
   test.each([1011, 1012, 1013])(
     'seed sweep bigint-looking ids converge (seed=%i)',
     async (seed) => {
-      await using world = await openAcmeWorld({
-        seed: seed,
-        knobs: {
-          clientCount: 0,
-        },
+      await using run = await start(acmeSystem, {
+        seed,
+        host: syncVirtualHost(),
+        draws: acmeDraws({ clientCount: 0 }),
+        properties: [],
       });
 
-      const a = await world.addClient({ id: 'alice' });
-      await world.addClient({ id: 'bob' });
+      await run.apply(addClient, 'alice');
+      await run.apply(addClient, 'bob');
       const id = `${BIG_IDS[0]}-${seed}`;
       const body = JSON.stringify({ n: 0.1 + 0.2, seed });
-      await a.mutate(setNote, { id, body });
-      await world.assertConverged();
-      await expectLiveNote(world.server.db, id, { body });
+      await run.apply(mutate, 'alice', setNote, { id, body });
+      await run.apply(assertConverged);
+      await expectLiveNoteAt(run, 'server', id, { body });
     }
   );
 });

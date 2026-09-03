@@ -1,8 +1,8 @@
 import type { Session } from '@pkgs/dst';
 import { asSeededRng } from '@pkgs/dst/kernel';
 import { bootReplicaOnStore } from '../boot-replica';
+import type { MatchmakingSimBackend } from '../sim-api';
 import { openSimStore, type SimStore } from '../store';
-import type { MatchmakingSimBackend } from '../world-api';
 import type { MatchmakingSystemConfig } from './system';
 
 export type MmStoreHandle = { readonly store: SimStore };

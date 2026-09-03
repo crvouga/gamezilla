@@ -36,7 +36,7 @@ function encodeJwtExp(expSec: number): string {
   return `${header}.${payload}.sig`;
 }
 
-const oneQuery = [{ name: 'notesWorld', params: {} }] as const;
+const oneQuery = [{ name: 'notesAll', params: {} }] as const;
 
 describe('sync http client opaque IdP tokens', () => {
   test('opaque non-JWT bearer is sent without calling getFreshAuthToken', async () => {

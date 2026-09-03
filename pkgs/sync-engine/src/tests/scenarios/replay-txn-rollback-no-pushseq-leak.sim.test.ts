@@ -1,79 +1,86 @@
 import { describe, expect, test } from 'bun:test';
+import { start } from '@pkgs/dst';
 import {
-  expectLiveNote,
-  expectNoteNotLive,
-  readLiveNotes,
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  assertConverged,
+  hold,
+  httpFault,
+  invariantViolations,
+  mutate,
+  passTime,
+  release,
   setNote,
+  syncVirtualHost,
 } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import {
+  expectLiveNoteAt,
+  expectNoteNotLiveAt,
+  liveNotes,
+} from '../apps/acme/reads';
+
+const IN_TXN_FAULT = { kind: 'failMutationsInsideTxnAfter', after: 0 } as const;
 
 describe('replay txn rollback no pushseq leak', () => {
   test('in-txn fail rolls back; peer sees no push; retry applies once', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 910,
-      knobs: {
-        clientCount: 0,
-        rowImageFanout: false,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0, rowImageFanout: false }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
-    await a.mutate(setNote, { id: 'warm', body: 'w' });
-    await world.assertConverged();
+    await run.apply(addClient, 'alice');
+    await run.apply(addClient, 'bob');
+    await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
+    await run.apply(assertConverged);
 
     // Hold peer sync so a successful retry cannot hydrate bob before we
     // observe the failed attempt's lack of live paint.
-    using holdSync = world.net('bob', 'sync').set('hold');
-    using holdLive = world.net('bob', 'live').set('hold');
-    using _fault = world.node('alice').httpFault({
-      kind: 'failMutationsInsideTxnAfter',
-      after: 0,
-    });
-    const queued = await a.mutate(setNote, {
+    await run.apply(hold, 'bob', 'sync');
+    await run.apply(hold, 'bob', 'live');
+    await run.apply(httpFault, 'alice', IN_TXN_FAULT);
+    await run.apply(mutate, 'alice', setNote, {
       id: 'n-rollback',
       body: 'should-retry',
     });
-    expect(queued.ok).toBe(true);
 
     // First upload hits in-txn fault (rollback). Allow one retry window.
-    await world.advance(100);
-    await expectNoteNotLive(b.db, 'n-rollback');
+    await run.apply(passTime, 100);
+    await expectNoteNotLiveAt(run, 'bob', 'n-rollback');
 
-    holdLive.restore();
-    holdSync.restore();
-    await world.assertConverged();
-    await expectLiveNote(b.db, 'n-rollback', { body: 'should-retry' });
-    await expectLiveNote(world.server.db, 'n-rollback', {
+    await run.apply(release, 'bob', 'live');
+    await run.apply(release, 'bob', 'sync');
+    await run.apply(assertConverged);
+    await expectLiveNoteAt(run, 'bob', 'n-rollback', { body: 'should-retry' });
+    await expectLiveNoteAt(run, 'server', 'n-rollback', {
       body: 'should-retry',
     });
-    expect(
-      (await readLiveNotes(world.server.db)).filter(
-        (n) => n.id === 'n-rollback'
-      ).length
-    ).toBe(1);
-    await world.checkInvariants();
+    const serverNotes = await run.observe(liveNotes('server'));
+    expect(serverNotes.filter((n) => n.id === 'n-rollback').length).toBe(1);
+    expect(await run.observe(invariantViolations)).toEqual([]);
   });
 
   test.each([911, 912, 913])(
     'seed sweep converges after in-txn fault (seed=%i)',
     async (seed) => {
-      await using world = await openAcmeWorld({
-        seed: seed,
-        knobs: {
-          clientCount: 0,
-        },
+      await using run = await start(acmeSystem, {
+        seed,
+        host: syncVirtualHost(),
+        draws: acmeDraws({ clientCount: 0 }),
+        properties: [],
       });
 
-      const a = await world.addClient({ id: 'alice' });
-      await world.addClient({ id: 'bob' });
-      using _fault = world.node('alice').httpFault({
-        kind: 'failMutationsInsideTxnAfter',
-        after: 0,
+      await run.apply(addClient, 'alice');
+      await run.apply(addClient, 'bob');
+      await run.apply(httpFault, 'alice', IN_TXN_FAULT);
+      await run.apply(mutate, 'alice', setNote, {
+        id: `n-${seed}`,
+        body: `b-${seed}`,
       });
-      await a.mutate(setNote, { id: `n-${seed}`, body: `b-${seed}` });
-      await world.assertConverged();
-      await expectLiveNote(world.server.db, `n-${seed}`, {
+      await run.apply(assertConverged);
+      await expectLiveNoteAt(run, 'server', `n-${seed}`, {
         body: `b-${seed}`,
       });
     }

@@ -1,93 +1,118 @@
 import { describe, expect, test } from 'bun:test';
-import { sql } from '@pkgs/sql';
-import { expectLiveNote, expectNoteNotLive, setNote } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import { start } from '@pkgs/dst';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  assertConverged,
+  connect,
+  disconnect,
+  expectNoteNotLiveAt,
+  hold,
+  liveNote,
+  mutate,
+  nodeNow,
+  passTime,
+  release,
+  setNote,
+  syncVirtualHost,
+  untilAcme,
+} from '../apps/acme';
 
 const PEER_VISIBLE_BUDGET_MS = 200;
 
 describe('buffer outbound live flush on reconnect', () => {
   test('default: no outbound buffer; peers wait for upload/sync', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 701,
-      knobs: {
+      host: syncVirtualHost(),
+      draws: acmeDraws({
         clientCount: 0,
-      },
+      }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
-    await a.mutate(setNote, { id: 'warm', body: 'w' });
-    await world.assertConverged();
+    await run.apply(addClient, 'alice');
+    await run.apply(addClient, 'bob');
+    await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
+    await run.apply(assertConverged);
 
-    await a.disconnect();
-    {
-      using _hold = world.net('alice', 'sync').set('hold');
-      await a.mutate(setNote, { id: 'n1', body: 'while-down' });
-      await a.connect();
-      await world.advance(200);
-      await expectNoteNotLive(b.db, 'n1');
-    }
-    await world.assertConverged();
-    await expectLiveNote(b.db, 'n1', { body: 'while-down' });
+    await run.apply(disconnect, 'alice');
+    await run.apply(hold, 'alice', 'sync');
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'while-down' });
+    await run.apply(connect, 'alice');
+    await run.apply(passTime, 200);
+    await expectNoteNotLiveAt(run, 'bob', 'n1');
+    await run.apply(release, 'alice', 'sync');
+
+    await run.apply(assertConverged);
+    expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+      body: 'while-down',
+    });
   });
 
   test('bufferOutboundLive: peer sees note while publisher sync held', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 702,
-      knobs: {
+      host: syncVirtualHost(),
+      draws: acmeDraws({
         clientCount: 0,
         bufferOutboundLive: true,
-      },
+      }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
-    await a.mutate(setNote, { id: 'warm', body: 'w' });
-    await world.assertConverged();
+    await run.apply(addClient, 'alice');
+    await run.apply(addClient, 'bob');
+    await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
+    await run.apply(assertConverged);
 
-    await a.disconnect();
-    {
-      using _hold = world.net('alice', 'sync').set('hold');
-      await a.mutate(setNote, { id: 'n1', body: 'buffered' });
-      await a.connect();
-      await world.advance(200);
-      await expectLiveNote(b.db, 'n1', { body: 'buffered' });
-    }
-    await world.assertConverged();
-    await expectLiveNote(b.db, 'n1', { body: 'buffered' });
+    await run.apply(disconnect, 'alice');
+    await run.apply(hold, 'alice', 'sync');
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'buffered' });
+    await run.apply(connect, 'alice');
+    await run.apply(passTime, 200);
+    expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+      body: 'buffered',
+    });
+    await run.apply(release, 'alice', 'sync');
+
+    await run.apply(assertConverged);
+    expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+      body: 'buffered',
+    });
   });
 
   test('bufferOutboundLive: peer visible under latency budget via live', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 703,
-      knobs: {
+      host: syncVirtualHost(),
+      draws: acmeDraws({
         clientCount: 0,
         bufferOutboundLive: true,
-      },
+      }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
-    await a.mutate(setNote, { id: 'warm', body: 'w' });
-    await world.assertConverged();
+    await run.apply(addClient, 'alice');
+    await run.apply(addClient, 'bob');
+    await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
+    await run.apply(assertConverged);
 
-    await a.disconnect();
-    {
-      using _hold = world.net('bob', 'sync').set('hold');
-      await a.mutate(setNote, { id: 'fast', body: 'y' });
-      const t0 = world.node('bob').now();
-      await a.connect();
-      const at = await world.waitUntil(
-        async () => {
-          const rows = await b.db.query(sql<{ body: string }>`
-            SELECT body FROM notes WHERE id = 'fast' AND deleted_at IS NULL
-          `);
-          return rows[0]?.body === 'y';
-        },
-        { withinMs: 400, stepMs: 5 }
-      );
-      expect(at - t0).toBeLessThan(PEER_VISIBLE_BUDGET_MS);
-    }
-    await world.assertConverged();
+    await run.apply(disconnect, 'alice');
+    await run.apply(hold, 'bob', 'sync');
+    await run.apply(mutate, 'alice', setNote, { id: 'fast', body: 'y' });
+    const t0 = await run.observe(nodeNow('bob'));
+    await run.apply(connect, 'alice');
+    await untilAcme(run, liveNote('bob', 'fast'), {
+      pred: (v) => (v as { body?: string } | null)?.body === 'y',
+      maxMs: 400,
+      stepMs: 5,
+    });
+    const at = await run.observe(nodeNow('bob'));
+    expect(at - t0).toBeLessThan(PEER_VISIBLE_BUDGET_MS);
+    await run.apply(release, 'bob', 'sync');
+
+    await run.apply(assertConverged);
   });
 });

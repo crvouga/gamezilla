@@ -1,5 +1,5 @@
 /**
- * Portable logical World snapshot — one JSON file per committed test fixture.
+ * Portable logical system snapshot — one JSON file per committed test fixture.
  * SQL slices use {@link SqlDataDump}; schema comes from migrate / seed only.
  */
 

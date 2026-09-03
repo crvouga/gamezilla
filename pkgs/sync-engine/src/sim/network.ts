@@ -22,7 +22,7 @@ export type SyncNetwork = {
   readonly partition: (a: EndpointId, b: EndpointId) => void;
   readonly heal: (a: EndpointId, b: EndpointId) => void;
   readonly healAll: () => void;
-  /** World default fault profile (fallback when no per-node override). */
+  /** SyncKit default fault profile (fallback when no per-node override). */
   readonly setDefaultFaults: (faults: SimFaultOptions) => void;
   readonly faults: () => SimFaultOptions;
   readonly hold: (nodeId: string, traffic: SimTraffic) => void;
@@ -159,7 +159,7 @@ function clearNodeOverrides(
 
 /**
  * Adapt a framework-owned `@pkgs/dst` network kernel to the sync-domain
- * traffic-keyed surface. Framework worlds pass `ctx.network`.
+ * traffic-keyed surface. Framework systems pass `ctx.network`.
  */
 export function wrapSimNetwork(
   kernel: KernelNetwork,

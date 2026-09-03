@@ -1,9 +1,20 @@
 import { describe, test } from 'bun:test';
+import { start } from '@pkgs/dst';
 import { assertProperty, fc } from '@pkgs/pbt';
 import { arbKnobs, arbSeed } from '../../sim/scenario/knobs';
-import { isLiveNote, readLiveNotes } from '../apps/acme/assert';
-import { setNote } from '../apps/acme/shared/mutations';
-import { openAcmeWorld } from '../apps/acme/system';
+import {
+  acmeDraws,
+  acmeSystem,
+  assertConverged,
+  clientIds,
+  hold,
+  liveNote,
+  mutate,
+  passTime,
+  release,
+  setNote,
+  syncVirtualHost,
+} from '../apps/acme';
 
 describe('hold window safety PBT', () => {
   test(
@@ -16,33 +27,40 @@ describe('hold window safety PBT', () => {
           arbKnobs(),
           fc.string({ minLength: 1, maxLength: 12 }),
           async (seed, knobs, body) => {
-            await using world = await openAcmeWorld({ seed, knobs });
+            await using run = await start(acmeSystem, {
+              seed,
+              host: syncVirtualHost(),
+              draws: acmeDraws(knobs),
+              properties: [],
+            });
 
-            const clientId = world.nodeIds('client')[0]!;
+            const clientId = (await run.observe(clientIds))[0];
+            if (clientId === undefined) return;
             const noteId = 'n0';
-            const client = world.clients.get(clientId)!;
-            using _hold = world.net(clientId, 'sync').set('hold');
-            await client.mutate(setNote, { id: noteId, body, title: '' });
+            await run.apply(hold, clientId, 'sync');
+            await run.apply(mutate, clientId, setNote, {
+              id: noteId,
+              body,
+              title: '',
+            });
 
             for (let i = 0; i < 8; i += 1) {
-              const live = await isLiveNote(client.db, noteId);
-              if (!live) {
+              const row = await run.observe(liveNote(clientId, noteId));
+              if (row === null || row.deletedAt !== null) {
                 throw new Error(
-                  `note missing during hold seed=${world.seed.toString(16)}`
+                  `note missing during hold seed=${String(seed)}`
                 );
               }
-              const rows = await readLiveNotes(client.db);
-              const current = rows.find((n) => n.id === noteId)?.body;
-              if (current !== body) {
+              if (row.body !== body) {
                 throw new Error(
-                  `body reverted during hold: expected ${body}, got ${current}`
+                  `body reverted during hold: expected ${body}, got ${row.body}`
                 );
               }
-              await world.advance(25);
+              await run.apply(passTime, 25);
             }
 
-            world.net(clientId, 'sync').set('ok');
-            await world.assertConverged();
+            await run.apply(release, clientId, 'sync');
+            await run.apply(assertConverged);
           }
         ),
         { numRuns: 6 }

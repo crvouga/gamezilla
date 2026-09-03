@@ -35,7 +35,7 @@ async function drainAct(
   fn: () => unknown | Promise<unknown>
 ): Promise<void> {
   await fn();
-  await s.world.drain();
+  await s.kit.drain();
 }
 
 function clientKind(
@@ -65,9 +65,9 @@ export const addClient = defineAction({
     yield {
       weight: 1,
       act: async (s: RoomSurface) => {
-        if (s.world.clients.has(spec.id)) return;
-        await s.world.addClient(spec);
-        await s.world.drain();
+        if (s.kit.clients.has(spec.id)) return;
+        await s.kit.addClient(spec);
+        await s.kit.drain();
       },
     };
   },
@@ -88,10 +88,10 @@ export const dispatch = defineAction({
     yield {
       weight: 1,
       act: async (s: RoomSurface) => {
-        const c = s.world.clients.get(spec.clientId);
+        const c = s.kit.clients.get(spec.clientId);
         if (c === undefined || spec.payload == null) return;
         c.dispatch(spec.payload as never);
-        await s.world.drain();
+        await s.kit.drain();
       },
     };
   },
@@ -115,10 +115,10 @@ export const domain = defineAction({
     yield {
       weight: 1,
       act: async (s: RoomSurface) => {
-        const c = s.world.clients.get(op.clientId);
+        const c = s.kit.clients.get(op.clientId);
         if (c === undefined) return;
         c.dispatch(s.app.toPayload(op as DomainOp));
-        await s.world.drain();
+        await s.kit.drain();
       },
     };
   },
@@ -136,29 +136,29 @@ export function domainAction(app: RoomApp): Action<RoomSurface> {
       yield {
         weight: 1,
         act: async (s: RoomSurface) => {
-          const c = s.world.clients.get(op.clientId);
+          const c = s.kit.clients.get(op.clientId);
           if (c === undefined) return;
           c.dispatch(s.app.toPayload(op));
-          await s.world.drain();
+          await s.kit.drain();
         },
       };
     },
   });
 }
 
-export const hold = clientKind('hold', (s, id) => s.world.net(id).set('hold'));
+export const hold = clientKind('hold', (s, id) => s.kit.net(id).set('hold'));
 export const release = clientKind('release', (s, id) =>
-  s.world.net(id).set('ok')
+  s.kit.net(id).set('ok')
 );
-export const down = clientKind('down', (s, id) => s.world.net(id).set('down'));
+export const down = clientKind('down', (s, id) => s.kit.net(id).set('down'));
 export const disconnect = clientKind('disconnect', async (s, id) => {
-  await s.world.clients.get(id)?.disconnect();
+  await s.kit.clients.get(id)?.disconnect();
 });
 export const connect = clientKind('connect', async (s, id) => {
-  await s.world.clients.get(id)?.connect();
+  await s.kit.clients.get(id)?.connect();
 });
 export const takeOver = clientKind('takeOver', async (s, id) => {
-  await s.world.node(id).takeOver();
+  await s.kit.node(id).takeOver();
 });
 export const crash = defineAction({
   name: 'crash',
@@ -169,21 +169,21 @@ export const crash = defineAction({
     const id = yield* pickId(ids);
     yield {
       weight: 1,
-      act: (s: RoomSurface) => drainAct(s, () => s.world.node(id).crash()),
+      act: (s: RoomSurface) => drainAct(s, () => s.kit.node(id).crash()),
     };
   },
 });
 export const restart = clientKind('restart', async (s, id) => {
-  const c = s.world.clients.get(id);
-  if (c !== undefined && !c.isCrashed()) await s.world.node(id).crash();
-  await s.world.node(id).restart();
+  const c = s.kit.clients.get(id);
+  if (c !== undefined && !c.isCrashed()) await s.kit.node(id).crash();
+  await s.kit.node(id).restart();
 });
 
 export const serverCrash = defineAction({
   name: 'serverCrash',
   *generate() {
     if (yield* serverCrashed) return;
-    yield { weight: 1, act: (s: RoomSurface) => s.world.serverCrash() };
+    yield { weight: 1, act: (s: RoomSurface) => s.kit.serverCrash() };
   },
 });
 
@@ -193,7 +193,7 @@ export const serverRestart = defineAction({
     if (!(yield* serverCrashed)) return;
     yield {
       weight: 1,
-      act: (s: RoomSurface) => drainAct(s, () => s.world.serverRestart()),
+      act: (s: RoomSurface) => drainAct(s, () => s.kit.serverRestart()),
     };
   },
 });
@@ -230,8 +230,8 @@ export const heal = defineAction({
       weight: Math.max(1, n),
       act: async (s: RoomSurface) => {
         if (asIds(c).includes('partition')) s.session.network.healAll();
-        for (const id of s.world.clients.keys()) s.world.net(id).set('ok');
-        await s.world.drain();
+        for (const id of s.kit.clients.keys()) s.kit.net(id).set('ok');
+        await s.kit.drain();
       },
     };
   },
@@ -242,7 +242,7 @@ export const passTime = defineAction({
   *generate() {
     if (!asIds(yield* caps).includes('virtualTime')) return;
     const ms = yield* draw((rng) => 1 + Math.floor(rng.next() * 40));
-    yield { weight: 1, act: (s: RoomSurface) => s.world.runFor(ms) };
+    yield { weight: 1, act: (s: RoomSurface) => s.kit.runFor(ms) };
   },
 });
 
@@ -252,8 +252,8 @@ export const converge = defineAction({
     yield {
       weight: 1,
       act: async (s: RoomSurface) => {
-        await prepareClientsForConverge(s.world);
-        await s.world.assertConverged();
+        await prepareClientsForConverge(s.kit);
+        await s.kit.assertConverged();
       },
     };
   },
@@ -264,7 +264,7 @@ export const clearFaults = defineAction({
   *generate() {
     yield {
       weight: 1,
-      act: (s: RoomSurface) => s.world.clearBoundaryFaults(),
+      act: (s: RoomSurface) => s.kit.clearBoundaryFaults(),
     };
   },
 });
@@ -285,7 +285,7 @@ export const armCrashAt = defineAction({
     yield {
       weight: 1,
       act: (s: RoomSurface) => {
-        s.world.armCrashAt(spec.clientId, spec.event);
+        s.kit.armCrashAt(spec.clientId, spec.event);
       },
     };
   },
@@ -311,10 +311,10 @@ export const injectToServer = defineAction({
     yield {
       weight: 1,
       act: async (s: RoomSurface) => {
-        s.world.clients.get(spec.clientId)?.injectToServer(spec.raw, {
+        s.kit.clients.get(spec.clientId)?.injectToServer(spec.raw, {
           ...(spec.direct === true ? { direct: true } : {}),
         });
-        await s.world.drain();
+        await s.kit.drain();
       },
     };
   },
@@ -335,8 +335,8 @@ export const injectFromServer = defineAction({
     yield {
       weight: 1,
       act: async (s: RoomSurface) => {
-        s.world.clients.get(spec.clientId)?.injectFromServer(spec.raw);
-        await s.world.drain();
+        s.kit.clients.get(spec.clientId)?.injectFromServer(spec.raw);
+        await s.kit.drain();
       },
     };
   },
@@ -357,20 +357,20 @@ export const setNet = defineAction({
     yield {
       weight: 1,
       act: (s: RoomSurface) => {
-        s.world.net(spec.clientId).set(spec.next);
+        s.kit.net(spec.clientId).set(spec.next);
       },
     };
   },
 });
 
 export const setFaults = clientKind('setFaults', (s, id) => {
-  s.world.net(id).set(MILD_NET_FAULTS);
+  s.kit.net(id).set(MILD_NET_FAULTS);
 });
 export const asymmetricLink = clientKind('asymmetricLink', (s, id) => {
-  s.world.net(id).set({ toClient: 'hold', toServer: 'ok' });
+  s.kit.net(id).set({ toClient: 'hold', toServer: 'ok' });
 });
 export const clearLocalData = clientKind('clearLocalData', async (s, id) => {
-  await s.world.node(id).clearLocalData();
+  await s.kit.node(id).clearLocalData();
 });
 
 export const addSpectator = defineAction({
@@ -379,13 +379,13 @@ export const addSpectator = defineAction({
     yield {
       weight: 1,
       act: async (s: RoomSurface) => {
-        if (s.world.clients.has('spec0')) return;
-        await s.world.addClient({
+        if (s.kit.clients.has('spec0')) return;
+        await s.kit.addClient({
           id: 'spec0',
           identity: 'spectator',
           clientId: 'spec-tab',
         });
-        await s.world.drain();
+        await s.kit.drain();
       },
     };
   },

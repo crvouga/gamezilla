@@ -1,39 +1,58 @@
 import { describe, expect, test } from 'bun:test';
-import { expectLiveNote, requiresOnlineNote } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import { start } from '@pkgs/dst';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  converge,
+  lastMutationFailures,
+  lastMutationId,
+  lastMutationOk,
+  liveNote,
+  mutate,
+  online,
+  outcome,
+  requiresOnlineNote,
+  syncVirtualHost,
+  untilAcme,
+} from '../apps/acme';
 
 describe('requires online fails offline without queue', () => {
   test('offline mutate fails with OFFLINE and does not queue', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 510,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    a.online(false);
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(online, 'alice', false);
 
-    const denied = await a.mutate(requiresOnlineNote, {
+    await run.apply(mutate, 'alice', requiresOnlineNote, {
       id: 'n1',
       body: 'need-net',
     });
-    expect(denied.ok).toBe(false);
-    if (!denied.ok) {
-      expect(denied.failures.some((f) => f.code === 'OFFLINE')).toBe(true);
-    }
+    expect(await run.observe(lastMutationOk('alice'))).toBe(false);
+    expect(await run.observe(lastMutationFailures('alice'))).toContain(
+      'OFFLINE'
+    );
 
-    a.online(true);
-    const ok = await a.mutate(requiresOnlineNote, {
+    await run.apply(online, 'alice', true);
+    await run.apply(mutate, 'alice', requiresOnlineNote, {
       id: 'n1',
       body: 'online-ok',
     });
-    expect(ok.ok).toBe(true);
-    if (!ok.ok) return;
+    expect(await run.observe(lastMutationOk('alice'))).toBe(true);
+    const okId = await run.observe(lastMutationId('alice'));
+    expect(okId).not.toBeNull();
+    if (okId === null) return;
 
-    await world.waitUntil(a.outcome(ok.mutationId), { withinMs: 5_000 });
-    expect(await a.outcome(ok.mutationId)).toBe('confirmed');
-    await world.assertConverged();
-    await expectLiveNote(a.db, 'n1', { body: 'online-ok' });
+    await untilAcme(run, outcome('alice', okId));
+    expect(await run.observe(outcome('alice', okId))).toBe('confirmed');
+    await run.apply(converge);
+    expect(await run.observe(liveNote('alice', 'n1'))).toMatchObject({
+      body: 'online-ok',
+    });
   });
 });

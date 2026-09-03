@@ -1,10 +1,7 @@
 import { fingerprintSql } from '../../core/fingerprint';
 import { isOwnedName } from '../../core/naming';
 import type { WorkloadManifest } from '../../core/types';
-import {
-  checkInvariantsAsync,
-  type InvariantViolation as HarnessViolation,
-} from '../../sim/harness';
+import { checkInvariantsAsync } from '../../sim/invariants';
 import type { IndexesReconcilerHandle } from './nodes';
 
 export async function checkIndexesInvariants(
@@ -30,13 +27,6 @@ export async function checkIndexesInvariants(
       }
     }
   }
-}
-
-export function harnessToDeterminism(v: HarnessViolation): {
-  invariant: string;
-  detail: string;
-} {
-  return { invariant: v.id, detail: v.detail };
 }
 
 export function manifestForCol(table: string, col: string): WorkloadManifest {

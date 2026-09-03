@@ -1,20 +1,29 @@
 import { describe, expect, test } from 'bun:test';
-import { sql } from '@pkgs/sql';
-import { defineSyncSystem, openSyncWorld } from '../../sim/scenario';
+import { start } from '@pkgs/dst';
 import {
   acmeApp,
+  acmeDraws,
   acmeLocalSchema,
   acmeLocalSchemaExtraTable,
   acmeMutationRegistry,
   acmeQueryRegistry,
-  expectLiveNote,
+  addClient,
+  assertConverged,
+  defineSyncSystem,
+  expectLiveNoteAt,
+  liveTags,
+  mutate,
+  nudge,
+  passTime,
+  restart,
   setNote,
   setTag,
-  tagsWorldQuery,
+  subscribe,
+  syncVirtualHost,
+  tagsAllQuery,
 } from '../apps/acme';
 
-const acmeExtraTableSystem = defineSyncSystem(acmeApp, {
-  id: 'sync.acmeExtraTableSystem',
+const extraTableRegistries = {
   localSchema: acmeLocalSchemaExtraTable,
   mutationRegistry: {
     ...acmeMutationRegistry,
@@ -22,71 +31,55 @@ const acmeExtraTableSystem = defineSyncSystem(acmeApp, {
   },
   queryRegistry: {
     ...acmeQueryRegistry,
-    [tagsWorldQuery.name]: tagsWorldQuery,
+    [tagsAllQuery.name]: tagsAllQuery,
   },
+} as const;
+
+const acmeExtraTableSystem = defineSyncSystem(acmeApp, {
+  id: 'sync.acmeExtraTableSystem',
+  ...extraTableRegistries,
 });
 
 describe('new domain table added mid life hydrates after migrate', () => {
   test.each([750, 751, 752])(
     'tags hydrate after client schema upgrade (seed=%i)',
     async (seed) => {
-      await using world = await openSyncWorld(acmeExtraTableSystem, {
+      await using run = await start(acmeExtraTableSystem, {
         seed: seed,
-        knobs: {
+        host: syncVirtualHost(),
+        draws: acmeDraws({
           clientCount: 0,
-        },
+        }),
+        properties: [],
       });
 
-      const a = await world.addClient({
+      await run.apply(addClient, {
         id: 'alice',
         localSchema: acmeLocalSchema,
       });
-      const b = await world.addClient({
-        id: 'bob',
-        localSchema: acmeLocalSchemaExtraTable,
-        mutationRegistry: {
-          ...acmeMutationRegistry,
-          [setTag.name]: setTag,
-        },
-        queryRegistry: {
-          ...acmeQueryRegistry,
-          [tagsWorldQuery.name]: tagsWorldQuery,
-        },
-      });
+      await run.apply(addClient, { id: 'bob', ...extraTableRegistries });
 
-      await a.mutate(setNote, { id: 'n1', body: 'kept' });
-      await world.assertConverged();
+      await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'kept' });
+      await run.apply(assertConverged);
 
-      await b.mutate(setTag, { id: 't1', label: 'urgent' });
-      // nudge: bob tagsWorld not in session — refresh after setTag
-      await world.waitUntil(b.nudge());
-      await world.advance(200);
+      await run.apply(mutate, 'bob', setTag, { id: 't1', label: 'urgent' });
+      // nudge: bob tagsAll not in session — refresh after setTag
+      await run.apply(nudge, 'bob');
+      await run.apply(passTime, 200);
 
-      const alice2 = await world.node('alice').restart({
+      await run.apply(restart, 'alice', {
         preserveLocalDb: true,
-        localSchema: acmeLocalSchemaExtraTable,
-        mutationRegistry: {
-          ...acmeMutationRegistry,
-          [setTag.name]: setTag,
-        },
-        queryRegistry: {
-          ...acmeQueryRegistry,
-          [tagsWorldQuery.name]: tagsWorldQuery,
-        },
+        ...extraTableRegistries,
       });
 
-      using tagsSub = alice2!.subscribe('tagsWorld', {});
-      await world.waitUntil(tagsSub.ready);
+      await run.apply(subscribe, 'alice', 'tagsAll', {});
 
-      await expectLiveNote(alice2!.db, 'n1', { body: 'kept' });
-      const tags = await alice2!.db.query(sql<{ id: string; label: string }>`
-        SELECT id, label FROM tags
-        WHERE deleted_at IS NULL
-        ORDER BY id ASC
-      `);
-      expect(tags).toEqual([{ id: 't1', label: 'urgent' }]);
+      await expectLiveNoteAt(run, 'alice', 'n1', { body: 'kept' });
+      expect(await run.observe(liveTags('alice'))).toEqual([
+        { id: 't1', label: 'urgent' },
+      ]);
 
-      await world.assertConverged();
+      await run.apply(assertConverged);
     }
   );
 });

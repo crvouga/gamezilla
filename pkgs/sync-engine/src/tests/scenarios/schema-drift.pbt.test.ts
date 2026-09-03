@@ -1,9 +1,9 @@
 import { describe, test } from 'bun:test';
 import { assertProperty, fc } from '@pkgs/pbt';
-import { replaySyncPin, SCHEMA_VARIANTS } from '../../sim/scenario';
+import { SCHEMA_VARIANTS } from '../../sim/scenario';
 import { arbKnobs, arbSeed } from '../../sim/scenario/knobs';
+import { playAcmePin } from '../apps/acme';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
-import { acmeSystem } from '../apps/acme/system';
 import type { LibraryAction, SyncAction } from '../scenario/actions';
 
 const TRIGGER = acmeSetNoteOp('c0', 'n0', 'schema-drift');
@@ -24,7 +24,7 @@ describe('schema drift PBT', () => {
           arbKnobs(),
           fc.constantFrom(...SCHEMA_VARIANTS),
           async (seed, knobs, variant) => {
-            await replaySyncPin(acmeSystem, {
+            await playAcmePin({
               seed,
               knobs,
               actions: schemaSequence({
@@ -53,7 +53,7 @@ describe('schema drift PBT', () => {
             'extraColumn' | 'extraTable'
           >,
           async (seed, knobs, variant) => {
-            await replaySyncPin(acmeSystem, {
+            await playAcmePin({
               seed,
               knobs: { ...knobs, clientCount: 2 },
               actions: [
@@ -77,7 +77,7 @@ describe('schema drift PBT', () => {
   );
 
   test('extraColumn then extraTable remigrate converges (PBT shrink)', async () => {
-    await replaySyncPin(acmeSystem, {
+    await playAcmePin({
       seed: 287086,
       knobs: { liveResendOnReconnect: true, bufferOutboundLive: true },
       actions: [
@@ -97,7 +97,7 @@ describe('schema drift PBT', () => {
   });
 
   test('mixed extraColumn without row images converges (PBT shrink)', async () => {
-    await replaySyncPin(acmeSystem, {
+    await playAcmePin({
       seed: 1,
       actions: [
         {
@@ -119,7 +119,7 @@ describe('schema drift PBT', () => {
       await assertProperty(
         'protocol cut sequences converge',
         fc.asyncProperty(arbSeed(), arbKnobs(), async (seed, knobs) => {
-          await replaySyncPin(acmeSystem, {
+          await playAcmePin({
             seed,
             knobs,
             actions: [

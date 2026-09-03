@@ -1,62 +1,80 @@
 import { describe, expect, test } from 'bun:test';
+import { start } from '@pkgs/dst';
 import {
   acknowledgeWriteRejectionMutation,
-  expectLiveNote,
-  expectNotesMatchServer,
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  converge,
+  lastMutationId,
+  lastMutationOk,
+  liveNote,
+  mutate,
+  outcome,
+  rejections,
   serverRejectNote,
   setNote,
+  syncVirtualHost,
+  untilAcme,
 } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
 
 describe('permanent reject stored peer never applies', () => {
   test('server reject stores write_rejection and merge restores domain', async () => {
     // rowImageFanout off: rejected optimistic body must not poison peers.
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 501,
-      knobs: {
-        clientCount: 0,
-        rowImageFanout: false,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0, rowImageFanout: false }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
 
-    await a.mutate(setNote, { id: 'n1', body: 'good' });
-    await world.assertConverged();
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'good' });
+    await run.apply(converge);
 
-    const rejected = await a.mutate(serverRejectNote, {
+    await run.apply(mutate, 'alice', serverRejectNote, {
       id: 'n1',
       body: 'bad',
     });
-    expect(rejected.ok).toBe(true);
-    if (!rejected.ok) return;
+    expect(await run.observe(lastMutationOk('alice'))).toBe(true);
+    const rejectedId = await run.observe(lastMutationId('alice'));
+    expect(rejectedId).not.toBeNull();
+    if (rejectedId === null) return;
 
-    await world.waitUntil(a.outcome(rejected.mutationId));
-    expect(await a.outcome(rejected.mutationId)).toBe('rejected');
+    await untilAcme(run, outcome('alice', rejectedId));
+    expect(await run.observe(outcome('alice', rejectedId))).toBe('rejected');
 
-    const unacked = await a.rejections();
+    const unacked = await run.observe(rejections('alice'));
     expect(unacked.length).toBe(1);
     expect(unacked[0]?.code).toBe('FORBIDDEN');
-    expect(unacked[0]?.mutationId).toBe(rejected.mutationId);
+    expect(unacked[0]?.mutationId).toBe(rejectedId);
 
     // Peer never applied the rejected body.
-    await expectLiveNote(b.db, 'n1', { body: 'good' });
+    expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+      body: 'good',
+    });
 
     // not_modified would leave alice's optimistic body; bump server hash.
-    await b.mutate(setNote, { id: 'bump', body: 'x' });
-    await world.assertConverged();
-    await expectLiveNote(a.db, 'n1', { body: 'good' });
-    await expectNotesMatchServer(a.db, world.server.db);
-    await expectNotesMatchServer(b.db, world.server.db);
-
-    const ack = await a.mutate(acknowledgeWriteRejectionMutation, {
-      rejectionId: unacked[0]!.id,
+    await run.apply(mutate, 'bob', setNote, { id: 'bump', body: 'x' });
+    await run.apply(converge);
+    expect(await run.observe(liveNote('alice', 'n1'))).toMatchObject({
+      body: 'good',
     });
-    expect(ack.ok).toBe(true);
-    if (!ack.ok) return;
-    await world.waitUntil(a.outcome(ack.mutationId));
-    expect(await a.outcome(ack.mutationId)).toBe('confirmed');
-    expect(await a.rejections()).toEqual([]);
+
+    const rejectionId = unacked[0]?.id;
+    expect(rejectionId).toBeDefined();
+    if (rejectionId === undefined) return;
+    await run.apply(mutate, 'alice', acknowledgeWriteRejectionMutation, {
+      rejectionId,
+    });
+    expect(await run.observe(lastMutationOk('alice'))).toBe(true);
+    const ackId = await run.observe(lastMutationId('alice'));
+    expect(ackId).not.toBeNull();
+    if (ackId === null) return;
+    await untilAcme(run, outcome('alice', ackId));
+    expect(await run.observe(outcome('alice', ackId))).toBe('confirmed');
+    expect(await run.observe(rejections('alice'))).toEqual([]);
   });
 });

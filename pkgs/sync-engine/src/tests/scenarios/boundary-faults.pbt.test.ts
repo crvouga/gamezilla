@@ -1,9 +1,9 @@
 import { describe, test } from 'bun:test';
 import { assertProperty, fc } from '@pkgs/pbt';
-import { HTTP_FAULTS, replaySyncPin } from '../../sim/scenario';
+import { HTTP_FAULTS } from '../../sim/scenario';
 import { arbKnobs, arbSeed } from '../../sim/scenario/knobs';
+import { playAcmePin } from '../apps/acme';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
-import { acmeSystem } from '../apps/acme/system';
 import type { DomainOp, LibraryAction, SyncAction } from '../scenario/actions';
 
 const TRIGGER: DomainOp = acmeSetNoteOp('c0', 'n0', 'boundary');
@@ -57,7 +57,7 @@ describe('boundary faults PBT', () => {
           arbKnobs(),
           fc.constantFrom(...HTTP_FAULTS),
           async (seed, knobs, fault) => {
-            await replaySyncPin(acmeSystem, {
+            await playAcmePin({
               seed,
               knobs,
               actions: richBoundarySequence({
@@ -84,7 +84,7 @@ describe('boundary faults PBT', () => {
           arbKnobs(),
           fc.constantFrom(1, 2, 'next' as const),
           async (seed, knobs, count) => {
-            await replaySyncPin(acmeSystem, {
+            await playAcmePin({
               seed,
               knobs,
               actions: boundarySequence([{ kind: 'publishFault', count }]),
@@ -114,7 +114,7 @@ describe('boundary faults PBT', () => {
             'afterNextMutationsPostAccepted' as const
           ),
           async (seed, knobs, event) => {
-            await replaySyncPin(acmeSystem, {
+            await playAcmePin({
               seed,
               knobs: { ...knobs, clientCount: 1 },
               actions: crashBoundarySequence({

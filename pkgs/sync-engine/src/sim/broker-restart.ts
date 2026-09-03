@@ -1,6 +1,6 @@
+import type { BootedSimKernel } from './kit-types';
 import { createSimPubSubBroker } from './pubsub-bridge';
 import { BROKER, SERVER_PUB } from './traffic';
-import type { BootedSimKernel } from './world-types';
 
 function createBroker(k: BootedSimKernel) {
   return createSimPubSubBroker({
@@ -8,7 +8,7 @@ function createBroker(k: BootedSimKernel) {
     brokerId: BROKER,
     faults: k.faults,
     rng: k.rng.fork('broker-restart'),
-    liveResendOnReconnect: k.worldArgs.liveResendOnReconnect === true,
+    liveResendOnReconnect: k.clientOpts.liveResendOnReconnect === true,
   });
 }
 
@@ -44,7 +44,7 @@ async function drainDisconnect(
     maxSteps: 50_000,
   });
   if (!ok) {
-    throw new Error('World: disconnect timeout during broker restart');
+    throw new Error('SyncKit: disconnect timeout during broker restart');
   }
   await disconnect;
 }

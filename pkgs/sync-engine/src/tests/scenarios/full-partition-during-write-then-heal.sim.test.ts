@@ -1,29 +1,46 @@
-import { describe, test } from 'bun:test';
-import { expectLiveNote, setNote } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import { describe, expect, test } from 'bun:test';
+import { start } from '@pkgs/dst';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  converge,
+  liveNote,
+  mutate,
+  partition,
+  passTime,
+  release,
+  setNote,
+  syncVirtualHost,
+} from '../apps/acme';
 
 describe('full partition during write then heal', () => {
   test('partition then heal converges domain state', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 33,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
-    await a.mutate(setNote, { id: 'warm', body: 'w' });
-    await world.assertConverged();
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
+    await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
+    await run.apply(converge);
 
-    {
-      using _pa = world.net('alice').set('down');
-      using _pb = world.net('bob').set('down');
-      await a.mutate(setNote, { id: 'n1', body: 'during-partition' });
-      await world.advance(100);
-    }
-    await world.assertConverged();
+    await run.apply(partition, 'alice', 'all');
+    await run.apply(partition, 'bob', 'all');
+    await run.apply(mutate, 'alice', setNote, {
+      id: 'n1',
+      body: 'during-partition',
+    });
+    await run.apply(passTime, 100);
+    await run.apply(release, 'alice', 'all');
+    await run.apply(release, 'bob', 'all');
+    await run.apply(converge);
 
-    await expectLiveNote(b.db, 'n1', { body: 'during-partition' });
+    expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+      body: 'during-partition',
+    });
   });
 });

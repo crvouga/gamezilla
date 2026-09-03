@@ -54,7 +54,7 @@ export const converged = defineObservation({
 
 export const caps = defineObservation({
   name: 'caps',
-  observe: (s) => [...s.session.caps] as string[],
+  observe: (s) => [...s.session.caps],
 });
 
 export const partitioned = defineObservation({
@@ -70,7 +70,7 @@ export const put = defineAction({
     const { client, key, value } = yield* draw(
       gen(
         fc.record({
-          client: fc.constantFrom(...(ids as string[])),
+          client: fc.constantFrom(...ids),
           key: fc.string({ minLength: 1, maxLength: 8 }),
           value: fc.string({ maxLength: 16 }),
         })
@@ -91,18 +91,12 @@ export const partition = defineAction({
   name: 'partition',
   *generate() {
     const [c, ids, cut] = yield* observe(caps, clientIds, partitioned);
-    if (
-      !(c as string[]).includes('partition') ||
-      (ids as string[]).length === 0
-    ) {
+    if (!c.includes('partition') || ids.length === 0) {
       return;
     }
-    const id = yield* draw(
-      (rng) =>
-        (ids as string[])[Math.floor(rng.next() * (ids as string[]).length)]!
-    );
+    const id = yield* draw((rng) => ids[Math.floor(rng.next() * ids.length)]!);
     yield {
-      weight: (cut as string[]).length === 0 ? 2 : 1,
+      weight: cut.length === 0 ? 2 : 1,
       act: (s: KvSurface) => {
         s.session.network.partition('server', id);
       },
@@ -114,9 +108,9 @@ export const heal = defineAction({
   name: 'heal',
   *generate() {
     const [c, cut] = yield* observe(caps, partitioned);
-    if (!(c as string[]).includes('partition')) return;
+    if (!c.includes('partition')) return;
     yield {
-      weight: (cut as string[]).length,
+      weight: cut.length,
       act: (s: KvSurface) => {
         s.session.network.healAll();
         rebroadcastStore(s.server);
@@ -152,13 +146,13 @@ export const converges = defineProperty({
   name: 'converges',
   *watch() {
     while (true) {
-      const [q, ok, cut, h, cs] = (yield observe(
+      const [q, ok, cut, h, cs] = yield* observe(
         quiet,
         converged,
         partitioned,
         serverHash,
         clientHash
-      )) as [boolean, boolean, string[], string, string[]];
+      );
       if (q && cut.length === 0 && !ok) {
         throw new Error(
           `quiet but diverged: server ${String(h)}, clients ${String(cs)}`

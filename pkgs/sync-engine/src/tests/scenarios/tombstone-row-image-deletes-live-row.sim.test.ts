@@ -1,39 +1,47 @@
 import { describe, expect, test } from 'bun:test';
+import { start } from '@pkgs/dst';
 import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  converge,
   deleteNote,
-  expectLiveNote,
-  expectNoteNotLive,
-  readNoteTombstone,
+  expectLiveNoteAt,
+  expectNoteNotLiveAt,
+  lastMutationOk,
+  mutate,
+  net,
+  passTime,
+  readNoteTombstoneAt,
   setNote,
+  syncVirtualHost,
 } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
 
 describe('tombstone row image deletes live row', () => {
   test('delete row image removes live peer row without waiting on sync', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 806,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
 
-    await a.mutate(setNote, { id: 'n1', body: 'alive' });
-    await world.assertConverged();
-    await expectLiveNote(b.db, 'n1', { body: 'alive' });
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'alive' });
+    await run.apply(converge);
+    await expectLiveNoteAt(run, 'bob', 'n1', { body: 'alive' });
 
-    {
-      using _hold = world.net('bob', 'sync').set('hold');
-      const del = await a.mutate(deleteNote, { id: 'n1' });
-      expect(del.ok).toBe(true);
-      await world.advance(300);
+    await run.apply(net, 'bob', 'sync', 'hold');
+    await run.apply(mutate, 'alice', deleteNote, { id: 'n1' });
+    expect(await run.observe(lastMutationOk('alice'))).toBe(true);
+    await run.apply(passTime, 300);
 
-      await expectNoteNotLive(b.db, 'n1');
-      expect(await readNoteTombstone(b.db, 'n1')).not.toBeNull();
-    }
-    await world.assertConverged();
-    await expectNoteNotLive(b.db, 'n1');
+    await expectNoteNotLiveAt(run, 'bob', 'n1');
+    expect(await readNoteTombstoneAt(run, 'bob', 'n1')).not.toBeNull();
+
+    await run.apply(converge);
+    await expectNoteNotLiveAt(run, 'bob', 'n1');
   });
 });

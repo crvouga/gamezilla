@@ -1,55 +1,72 @@
 import { describe, expect, test } from 'bun:test';
+import { start } from '@pkgs/dst';
 import { SCHEMA_EPOCH } from '@pkgs/sync-engine/test';
 import {
-  expectLiveNote,
-  expectNoteNotLive,
-  expectNotesMatchServer,
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  assertConverged,
+  clientIds,
+  crashAt,
+  disconnect,
+  expectLiveNoteAt,
+  expectNoteNotLiveAt,
+  expectNotesAgree,
+  mutate,
+  passTime,
+  restart,
   setNote,
+  syncVirtualHost,
 } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
 
 describe('crash during epoch migrate recovers', () => {
   test('crash after cache wipe mid migrate; next boot drains pending', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 834,
-      knobs: {
+      host: syncVirtualHost(),
+      draws: acmeDraws({
         clientCount: 0,
-      },
+      }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
 
-    await a.mutate(setNote, { id: 'kept', body: 'on-server' });
-    await world.assertConverged();
-
-    await a.disconnect();
-    await a.mutate(setNote, { id: 'pending', body: 'durable' });
-    await world.advance(50);
-    await expectLiveNote(a.db, 'pending', { body: 'durable' });
-    await expectNoteNotLive(world.server.db, 'pending');
-
-    using _arm = world.node('alice').crash({
-      at: 'onNextEngineOpenAfterCacheWipe',
+    await run.apply(mutate, 'alice', setNote, {
+      id: 'kept',
+      body: 'on-server',
     });
+    await run.apply(assertConverged);
+
+    await run.apply(disconnect, 'alice');
+    await run.apply(mutate, 'alice', setNote, {
+      id: 'pending',
+      body: 'durable',
+    });
+    await run.apply(passTime, 50);
+    await expectLiveNoteAt(run, 'alice', 'pending', { body: 'durable' });
+    await expectNoteNotLiveAt(run, 'server', 'pending');
+
+    await run.apply(crashAt, 'alice', 'onNextEngineOpenAfterCacheWipe');
     await expect(
-      world.node('alice').restart({
+      run.apply(restart, 'alice', {
         preserveLocalDb: true,
         schemaEpoch: SCHEMA_EPOCH + 1,
       })
     ).rejects.toThrow(/crash during epoch migrate/);
 
-    expect(world.clients.has('alice')).toBe(false);
+    expect(await run.observe(clientIds)).not.toContain('alice');
 
-    const alice = await world.node('alice').restart({
+    await run.apply(restart, 'alice', {
       preserveLocalDb: true,
       schemaEpoch: SCHEMA_EPOCH + 1,
     });
-    await world.assertConverged();
+    await run.apply(assertConverged);
 
-    await expectLiveNote(alice!.db, 'pending', { body: 'durable' });
-    await expectLiveNote(b.db, 'pending', { body: 'durable' });
-    await expectLiveNote(alice!.db, 'kept', { body: 'on-server' });
-    await expectNotesMatchServer(alice!.db, world.server.db);
+    await expectLiveNoteAt(run, 'alice', 'pending', { body: 'durable' });
+    await expectLiveNoteAt(run, 'bob', 'pending', { body: 'durable' });
+    await expectLiveNoteAt(run, 'alice', 'kept', { body: 'on-server' });
+    await expectNotesAgree(run, 'alice');
   });
 });

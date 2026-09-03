@@ -1,72 +1,87 @@
 import { describe, expect, test } from 'bun:test';
-import { expectLiveNote, readLiveNotes, setNote } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import { start } from '@pkgs/dst';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  converge,
+  httpFault,
+  liveNote,
+  liveNotes,
+  mutate,
+  passTime,
+  serverPrune,
+  setNote,
+  syncVirtualHost,
+} from '../apps/acme';
 
 describe('prune concurrent with replay safe', () => {
-  test('prune interleaved with uploads; retries dedupe; world converges', async () => {
-    await using world = await openAcmeWorld({
+  test('prune interleaved with uploads; retries dedupe; the run converges', async () => {
+    await using run = await start(acmeSystem, {
       seed: 940,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
 
-    await a.mutate(setNote, { id: 'n-kept', body: 'before-prune' });
-    await world.assertConverged();
+    await run.apply(mutate, 'alice', setNote, {
+      id: 'n-kept',
+      body: 'before-prune',
+    });
+    await run.apply(converge);
 
     for (let i = 0; i < 8; i += 1) {
       if (i % 2 === 0) {
-        using _fault = world.node('alice').httpFault({
-          kind: 'dropMutationsResponse',
-        });
-        await a.mutate(setNote, {
-          id: `n-${String(i).padStart(2, '0')}`,
-          body: `b${i}`,
-        });
-        await world.server.pruneArtifacts(0);
-        await world.advance(40);
-      } else {
-        await a.mutate(setNote, {
-          id: `n-${String(i).padStart(2, '0')}`,
-          body: `b${i}`,
-        });
-        await world.server.pruneArtifacts(0);
-        await world.advance(40);
+        await run.apply(httpFault, 'alice', { kind: 'dropMutationsResponse' });
       }
+      await run.apply(mutate, 'alice', setNote, {
+        id: `n-${String(i).padStart(2, '0')}`,
+        body: `b${i}`,
+      });
+      await run.apply(serverPrune, 0);
+      await run.apply(passTime, 40);
     }
 
-    await world.assertConverged();
-    const server = await readLiveNotes(world.server.db);
+    await run.apply(converge);
+    const server = await run.observe(liveNotes('server'));
     const ids = server.map((n) => n.id);
     expect(new Set(ids).size).toBe(ids.length);
     expect(ids).toContain('n-kept');
     expect(ids).toContain('n-07');
-    await expectLiveNote(b.db, 'n-07', { body: 'b7' });
-    await expectLiveNote(b.db, 'n-kept', { body: 'before-prune' });
+    expect(await run.observe(liveNote('bob', 'n-07'))).toMatchObject({
+      body: 'b7',
+    });
+    expect(await run.observe(liveNote('bob', 'n-kept'))).toMatchObject({
+      body: 'before-prune',
+    });
   });
 
   test.each([941, 942, 943])(
     'seed sweep prune + mutate converges (seed=%i)',
     async (seed) => {
-      await using world = await openAcmeWorld({
+      await using run = await start(acmeSystem, {
         seed: seed,
-        knobs: {
-          clientCount: 0,
-        },
+        host: syncVirtualHost(),
+        draws: acmeDraws({ clientCount: 0 }),
+        properties: [],
       });
 
-      const a = await world.addClient({ id: 'alice' });
-      await world.addClient({ id: 'bob' });
-      await a.mutate(setNote, { id: `n-${seed}`, body: 'x' });
-      await world.server.pruneArtifacts(0);
-      await a.mutate(setNote, { id: `m-${seed}`, body: 'y' });
-      await world.server.pruneArtifacts(0);
-      await world.assertConverged();
-      await expectLiveNote(world.server.db, `n-${seed}`, { body: 'x' });
-      await expectLiveNote(world.server.db, `m-${seed}`, { body: 'y' });
+      await run.apply(addClient, { id: 'alice' });
+      await run.apply(addClient, { id: 'bob' });
+      await run.apply(mutate, 'alice', setNote, { id: `n-${seed}`, body: 'x' });
+      await run.apply(serverPrune, 0);
+      await run.apply(mutate, 'alice', setNote, { id: `m-${seed}`, body: 'y' });
+      await run.apply(serverPrune, 0);
+      await run.apply(converge);
+      expect(await run.observe(liveNote('server', `n-${seed}`))).toMatchObject({
+        body: 'x',
+      });
+      expect(await run.observe(liveNote('server', `m-${seed}`))).toMatchObject({
+        body: 'y',
+      });
     }
   );
 });

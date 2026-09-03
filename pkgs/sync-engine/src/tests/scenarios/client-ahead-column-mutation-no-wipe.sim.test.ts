@@ -1,30 +1,38 @@
 import { describe, expect, test } from 'bun:test';
-import { sql } from '@pkgs/sql';
+import { start } from '@pkgs/dst';
 import {
+  acmeDraws,
   acmeLocalSchemaExtraColumn,
   acmeMutationRegistry,
-  expectLiveNote,
-  isLiveNote,
+  acmeSystem,
+  addClient,
+  connection,
+  isNoteLiveAt,
+  lastMutationOk,
+  liveNote,
+  mutate,
+  noteColumns,
+  passTime,
   setNote,
   setNoteColor,
+  syncVirtualHost,
 } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
 
 describe('client ahead column mutation no wipe', () => {
   test.each([2130, 2131, 2132])(
     'client writes color before server DDL: no wipe, no hot loop (seed=%i)',
     async (seed) => {
       // Unsupported deploy order — pin that the engine stays healthy.
-      await using world = await openAcmeWorld({
+      await using run = await start(acmeSystem, {
         seed: seed,
-        knobs: {
-          clientCount: 0,
-        },
+        host: syncVirtualHost(),
+        draws: acmeDraws({ clientCount: 0 }),
+        properties: [],
       });
 
-      // Session stays on notesWorld (server knows it); only local DDL + mutation
+      // Session stays on notesAll (server knows it); only local DDL + mutation
       // registry are ahead of the server.
-      const alice = await world.addClient({
+      await run.apply(addClient, {
         id: 'alice',
         localSchema: acmeLocalSchemaExtraColumn,
         mutationRegistry: {
@@ -32,40 +40,45 @@ describe('client ahead column mutation no wipe', () => {
           [setNoteColor.name]: setNoteColor,
         },
       });
-      const bob = await world.addClient({ id: 'bob' });
+      await run.apply(addClient, { id: 'bob' });
 
-      await bob.mutate(setNote, { id: 'ok', body: 'healthy' });
-      await world.advance(400);
-      await expectLiveNote(alice.db, 'ok', { body: 'healthy' });
+      await run.apply(mutate, 'bob', setNote, { id: 'ok', body: 'healthy' });
+      await run.apply(passTime, 400);
+      expect(await run.observe(liveNote('alice', 'ok'))).toMatchObject({
+        body: 'healthy',
+      });
 
-      const ahead = await alice.mutate(setNoteColor, {
+      await run.apply(mutate, 'alice', setNoteColor, {
         id: 'ahead',
         body: 'client-ahead',
         color: 'purple',
       });
-      expect(ahead.ok).toBe(true);
+      expect(await run.observe(lastMutationOk('alice'))).toBe(true);
 
       // Give uploads time to fail/retry; must not wipe local DB or hot-loop.
-      await world.advance(2_000);
+      await run.apply(passTime, 2_000);
 
-      expect(await isLiveNote(world.server.db, 'ahead')).toBe(false);
-      expect(await isLiveNote(bob.db, 'ahead')).toBe(false);
+      expect(await isNoteLiveAt(run, 'server', 'ahead')).toBe(false);
+      expect(await isNoteLiveAt(run, 'bob', 'ahead')).toBe(false);
 
-      // Engine stays mounted (not revoked/wiped).
-      const status = alice.getSyncEngine().status.getSnapshot();
-      expect(status).toBeDefined();
-      expect(alice.db).toBeDefined();
-
-      const cols = await alice.db.query(sql<{ name: string }>`
-        SELECT name FROM pragma_table_info('notes')
-      `);
+      // Engine stays mounted (not revoked/wiped) and keeps its ahead-of-server
+      // column.
+      expect(await run.observe(connection('alice'))).not.toBeNull();
+      const cols = await run.observe(noteColumns('alice'));
       expect(cols.some((c) => c.name === 'color')).toBe(true);
 
       // Healthy mutate from peer still paints; alice was not wiped.
-      await bob.mutate(setNote, { id: 'ok2', body: 'still-works' });
-      await world.advance(800);
-      await expectLiveNote(alice.db, 'ok2', { body: 'still-works' });
-      await expectLiveNote(alice.db, 'ok', { body: 'healthy' });
+      await run.apply(mutate, 'bob', setNote, {
+        id: 'ok2',
+        body: 'still-works',
+      });
+      await run.apply(passTime, 800);
+      expect(await run.observe(liveNote('alice', 'ok2'))).toMatchObject({
+        body: 'still-works',
+      });
+      expect(await run.observe(liveNote('alice', 'ok'))).toMatchObject({
+        body: 'healthy',
+      });
     }
   );
 });

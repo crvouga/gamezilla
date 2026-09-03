@@ -92,7 +92,7 @@ Core vs adapters stay split so callers opt into a runtime explicitly.
 
 `src/sim/` implementation stays **private** (relative imports from package
 tests). Games should import `defineRoomSystem` from
-`@pkgs/room/tests` and boot with `startRoom` / `openRoomWorld` / `check` from
+`@pkgs/room/tests` and boot with `startRoom` / `check` from
 `@pkgs/room/tests` + `@pkgs/dst`, not deep `sim/` paths.
 
 ---
@@ -283,7 +283,7 @@ replays are idempotent.
 | Tool | When to use |
 |------|-------------|
 | **`openLoopbackRoom`** (`@pkgs/room/tests`) | Fast in-process unit/integration with injected `Io`; real `RoomClient` + `RoomServer`, no net faults; Schedule via timers |
-| **`startRoom` / `openRoomWorld`** (`@pkgs/room/tests`) | Algebra `Run` or kit `World`: partitions, delays, soft disconnect, crash/restart, hash converge, seed replay, Schedule wakes |
+| **`startRoom`** (`@pkgs/room/tests`) | `Run<RoomSurface>` driven by `apply` / `observe`: partitions, delays, soft disconnect, crash/restart, hash converge, seed replay, Schedule wakes |
 | **`defineRoomSystem` + `check` / `replayRoom`** | Framework-owned system + weighted walk / scripted pins + fault-catalog slice PBTs |
 | **`runRoomSeed`** | Non-shrinking seeded fuzz (`ROOM_SIM_SEED` / `SIM_SEED`); determinism + long workloads |
 | **DO / adapter tests** | Hibernation, session take-over, per-key storage, alarms, WS heartbeat |
@@ -396,7 +396,7 @@ describe('room sim', () => {
 Games outside this package:
 
 ```ts
-import { defineRoomSystem, openRoomWorld, runModuleConformance } from '@pkgs/room/tests';
+import { defineRoomSystem, runModuleConformance, startRoom } from '@pkgs/room/tests';
 ```
 
 ---

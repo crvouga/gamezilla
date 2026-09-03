@@ -1,92 +1,105 @@
 import { describe, expect, test } from 'bun:test';
+import { start } from '@pkgs/dst';
 import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  converge,
+  crash,
   deleteNote,
-  expectLiveNote,
-  readLiveFolders,
-  readLiveNotes,
+  liveFolders,
+  liveNote,
+  liveNotes,
+  mutate,
+  nudge,
   setFolder,
   setNote,
+  syncVirtualHost,
 } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+
+const LIMITED_SESSION = { name: 'notesLimited', params: {} };
 
 describe('hard query limit truncates hydrate', () => {
-  test('hard limit truncates hydrate; engine stays healthy and world converges', async () => {
-    await using world = await openAcmeWorld({
+  test('hard limit truncates hydrate; engine stays healthy and the run converges', async () => {
+    await using run = await start(acmeSystem, {
       seed: 630,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    await world.addClient({ id: 'bob' });
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
 
     for (let i = 0; i < 12; i += 1) {
-      await a.mutate(setNote, {
+      await run.apply(mutate, 'alice', setNote, {
         id: `n${String(i).padStart(2, '0')}`,
         body: `b${i}`,
       });
     }
-    await world.assertConverged();
-    expect((await readLiveNotes(world.server.db)).length).toBe(12);
+    await run.apply(converge);
+    expect((await run.observe(liveNotes('server'))).length).toBe(12);
 
-    const lim = await world.addClient({
+    await run.apply(addClient, {
       id: 'limited',
-      sessionQuery: { name: 'notesLimited', params: {} },
+      sessionQuery: LIMITED_SESSION,
     });
-    const hydrated = await readLiveNotes(lim.db);
-    expect(hydrated.length).toBeLessThanOrEqual(5);
-    expect(hydrated.length).toBe(5);
+    expect((await run.observe(liveNotes('limited'))).length).toBe(5);
 
-    await a.mutate(setNote, { id: 'n99', body: 'after-limit' });
+    await run.apply(mutate, 'alice', setNote, {
+      id: 'n99',
+      body: 'after-limit',
+    });
     // Limited peer cannot full-converge (missing rows by design).
-    await world.node('limited').crash();
-    await world.assertConverged();
-    await expectLiveNote(a.db, 'n99', { body: 'after-limit' });
+    await run.apply(crash, 'limited');
+    await run.apply(converge);
+    expect(await run.observe(liveNote('alice', 'n99'))).toMatchObject({
+      body: 'after-limit',
+    });
   });
 
   test('multi-table truncate then shrink below limit eventually consistent', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 631,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    await world.addClient({ id: 'bob' });
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
 
-    await a.mutate(setFolder, { id: 'f1', title: 'Work' });
-    await a.mutate(setFolder, { id: 'f2', title: 'Home' });
+    await run.apply(mutate, 'alice', setFolder, { id: 'f1', title: 'Work' });
+    await run.apply(mutate, 'alice', setFolder, { id: 'f2', title: 'Home' });
     for (let i = 0; i < 8; i += 1) {
-      await a.mutate(setNote, {
+      await run.apply(mutate, 'alice', setNote, {
         id: `n${String(i).padStart(2, '0')}`,
         body: `b${i}`,
         folderId: i % 2 === 0 ? 'f1' : 'f2',
       });
     }
-    await world.assertConverged();
+    await run.apply(converge);
 
-    const lim = await world.addClient({
+    await run.apply(addClient, {
       id: 'limited',
-      sessionQuery: { name: 'notesLimited', params: {} },
+      sessionQuery: LIMITED_SESSION,
     });
-    expect((await readLiveNotes(lim.db)).length).toBe(5);
+    expect((await run.observe(liveNotes('limited'))).length).toBe(5);
     // Limited session hydrates notes only — folders stay empty (knowingly partial).
-    expect(await readLiveFolders(lim.db)).toEqual([]);
+    expect(await run.observe(liveFolders('limited'))).toEqual([]);
 
     // Shrink live set below hard limit so a later refetch can be complete.
     for (const id of ['n05', 'n06', 'n07'] as const) {
-      await a.mutate(deleteNote, { id });
+      await run.apply(mutate, 'alice', deleteNote, { id });
     }
-    await world.node('limited').crash();
-    const lim2 = await world.addClient({
+    await run.apply(crash, 'limited');
+    await run.apply(addClient, {
       id: 'limited',
-      sessionQuery: { name: 'notesLimited', params: {} },
+      sessionQuery: LIMITED_SESSION,
     });
     // nudge: limited session refetch after shrink below hard limit
-    await world.waitUntil(lim2.nudge());
-    const after = await readLiveNotes(lim2.db);
+    await run.apply(nudge, 'limited');
+    const after = await run.observe(liveNotes('limited'));
     expect(after.length).toBe(5);
     expect(after.map((n) => n.id).sort()).toEqual([
       'n00',
@@ -96,9 +109,11 @@ describe('hard query limit truncates hydrate', () => {
       'n04',
     ]);
 
-    await world.node('limited').crash();
-    await world.assertConverged();
-    await expectLiveNote(a.db, 'n00', { body: 'b0' });
-    expect((await readLiveFolders(a.db)).length).toBe(2);
+    await run.apply(crash, 'limited');
+    await run.apply(converge);
+    expect(await run.observe(liveNote('alice', 'n00'))).toMatchObject({
+      body: 'b0',
+    });
+    expect((await run.observe(liveFolders('alice'))).length).toBe(2);
   });
 });

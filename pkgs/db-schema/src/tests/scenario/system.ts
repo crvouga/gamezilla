@@ -125,4 +125,3 @@ export const aligned = defineProperty({
 export const SCHEMA_PROPERTIES = [aligned];
 
 export { SCHEMA_SERVER_ID };
-export type SchemaWorld = SchemaSurface;

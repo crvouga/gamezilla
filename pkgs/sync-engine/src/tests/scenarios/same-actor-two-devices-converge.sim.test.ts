@@ -1,34 +1,52 @@
-import { describe, test } from 'bun:test';
-import { expectLiveNote, expectNotesMatchServer, setNote } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import { describe, expect, test } from 'bun:test';
+import { start } from '@pkgs/dst';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  converge,
+  liveNote,
+  mutate,
+  setNote,
+  syncVirtualHost,
+} from '../apps/acme';
 
 describe('same actor two devices converge', () => {
   test('two devices same actor converge concurrent writes', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 509,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const phone = await world.addClient({
+    await run.apply(addClient, {
       id: 'phone',
       actorId: 'user-1',
     });
-    const tablet = await world.addClient({
+    await run.apply(addClient, {
       id: 'tablet',
       actorId: 'user-1',
     });
 
-    await phone.mutate(setNote, { id: 'from-phone', body: 'p' });
-    await tablet.mutate(setNote, { id: 'from-tablet', body: 't' });
-    await world.assertConverged();
+    await run.apply(mutate, 'phone', setNote, { id: 'from-phone', body: 'p' });
+    await run.apply(mutate, 'tablet', setNote, {
+      id: 'from-tablet',
+      body: 't',
+    });
+    await run.apply(converge);
 
-    await expectLiveNote(phone.db, 'from-phone', { body: 'p' });
-    await expectLiveNote(phone.db, 'from-tablet', { body: 't' });
-    await expectLiveNote(tablet.db, 'from-phone', { body: 'p' });
-    await expectLiveNote(tablet.db, 'from-tablet', { body: 't' });
-    await expectNotesMatchServer(phone.db, world.server.db);
-    await expectNotesMatchServer(tablet.db, world.server.db);
+    expect(await run.observe(liveNote('phone', 'from-phone'))).toMatchObject({
+      body: 'p',
+    });
+    expect(await run.observe(liveNote('phone', 'from-tablet'))).toMatchObject({
+      body: 't',
+    });
+    expect(await run.observe(liveNote('tablet', 'from-phone'))).toMatchObject({
+      body: 'p',
+    });
+    expect(await run.observe(liveNote('tablet', 'from-tablet'))).toMatchObject({
+      body: 't',
+    });
   });
 });

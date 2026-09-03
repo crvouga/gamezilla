@@ -1,7 +1,7 @@
 import { isStorageFullError } from '../../client/storage-full-error';
 import type { DomainOp, LibraryAction, ServerOp, SyncAction } from './actions';
 import type { SyncApp } from './app';
-import type { SystemWorldSurface } from './world-surface';
+import type { SyncSurfaceBase } from './surface-types';
 
 const SUBS_KEY = Symbol('pbtSubs');
 
@@ -13,25 +13,25 @@ function isExpectedRestartFault(error: unknown): boolean {
   );
 }
 
-function subs(world: SystemWorldSurface): Set<Disposable> {
-  const bag = (world as unknown as Record<symbol, Set<Disposable>>)[SUBS_KEY];
+function subs(surface: SyncSurfaceBase): Set<Disposable> {
+  const bag = (surface as unknown as Record<symbol, Set<Disposable>>)[SUBS_KEY];
   if (bag !== undefined) return bag;
   const next = new Set<Disposable>();
-  (world as unknown as Record<symbol, Set<Disposable>>)[SUBS_KEY] = next;
+  (surface as unknown as Record<symbol, Set<Disposable>>)[SUBS_KEY] = next;
   return next;
 }
 
-function disposeSubs(world: SystemWorldSurface): void {
-  for (const d of subs(world)) d[Symbol.dispose]();
-  subs(world).clear();
+function disposeSubs(surface: SyncSurfaceBase): void {
+  for (const d of subs(surface)) d[Symbol.dispose]();
+  subs(surface).clear();
 }
 
 async function dispatchDomainOp(
-  world: SystemWorldSurface,
+  surface: SyncSurfaceBase,
   app: SyncApp,
   op: DomainOp
 ): Promise<void> {
-  const client = world.clients.get(op.clientId);
+  const client = surface.clients.get(op.clientId);
   if (client === undefined) return;
   const mutation = app.pack.mutationRegistry[op.mutation];
   if (mutation === undefined) {
@@ -41,7 +41,7 @@ async function dispatchDomainOp(
 }
 
 async function dispatchServerOp(
-  world: SystemWorldSurface,
+  surface: SyncSurfaceBase,
   app: SyncApp,
   op: ServerOp
 ): Promise<void> {
@@ -49,170 +49,170 @@ async function dispatchServerOp(
   if (handler === undefined) {
     throw new Error(`unknown server op: ${op.name}`);
   }
-  await handler(world, op.args);
+  await handler(surface, op.args);
 }
 
 const LIBRARY_HANDLERS: {
   readonly [K in LibraryAction['kind']]: (
-    world: SystemWorldSurface,
+    surface: SyncSurfaceBase,
     action: Extract<LibraryAction, { kind: K }>,
     app: SyncApp
   ) => Promise<void>;
 } = {
-  offline: async (world, action, _app) => {
-    world.clients.get(action.clientId)?.online(false);
+  offline: async (surface, action, _app) => {
+    surface.clients.get(action.clientId)?.online(false);
   },
-  online: async (world, action, _app) => {
-    world.clients.get(action.clientId)?.online(true);
+  online: async (surface, action, _app) => {
+    surface.clients.get(action.clientId)?.online(true);
   },
-  disconnect: async (world, action, _app) => {
-    const client = world.clients.get(action.clientId);
+  disconnect: async (surface, action, _app) => {
+    const client = surface.clients.get(action.clientId);
     if (client === undefined) return;
     await client.disconnect();
   },
-  connect: async (world, action, _app) => {
-    const client = world.clients.get(action.clientId);
+  connect: async (surface, action, _app) => {
+    const client = surface.clients.get(action.clientId);
     if (client === undefined) return;
     await client.connect();
   },
-  background: async (world, action, _app) => {
-    world.clients.get(action.clientId)?.foreground(false);
+  background: async (surface, action, _app) => {
+    surface.clients.get(action.clientId)?.foreground(false);
   },
-  foreground: async (world, action, _app) => {
-    world.clients.get(action.clientId)?.foreground(true);
+  foreground: async (surface, action, _app) => {
+    surface.clients.get(action.clientId)?.foreground(true);
   },
-  partition: async (world, action, _app) => {
-    world.net(action.nodeId, action.traffic).set('down');
+  partition: async (surface, action, _app) => {
+    surface.net(action.nodeId, action.traffic).set('down');
   },
-  heal: async (world, _action, _app) => {
-    disposeSubs(world);
-    world.clearStoragePressure();
-    world.clearFailNextOpen();
-    for (const id of world.clients.keys()) {
-      world.net(id, 'all').set('ok');
+  heal: async (surface, _action, _app) => {
+    disposeSubs(surface);
+    surface.clearStoragePressure();
+    surface.clearFailNextOpen();
+    for (const id of surface.clients.keys()) {
+      surface.net(id, 'all').set('ok');
     }
-    await world.brokerRestart();
+    await surface.brokerRestart();
     try {
-      await world.node('server').restart({ preserveLocalDb: true });
+      await surface.node('server').restart({ preserveLocalDb: true });
     } catch {
       // Server may already be running.
     }
   },
-  idle: async (world, action, _app) => {
-    await world.advance(action.ms);
+  idle: async (surface, action, _app) => {
+    await surface.advance(action.ms);
   },
-  skew: async (world, action, _app) => {
-    world.node(action.nodeId).skewClock(action.skewMs);
+  skew: async (surface, action, _app) => {
+    surface.node(action.nodeId).skewClock(action.skewMs);
   },
-  crash: async (world, action, _app) => {
-    if (!world.clients.has(action.clientId)) return;
-    await world.node(action.clientId).crash();
+  crash: async (surface, action, _app) => {
+    if (!surface.clients.has(action.clientId)) return;
+    await surface.node(action.clientId).crash();
   },
-  restart: async (world, action, _app) => {
+  restart: async (surface, action, _app) => {
     try {
-      await world.node(action.clientId).restart();
+      await surface.node(action.clientId).restart();
     } catch (error) {
       if (!isExpectedRestartFault(error)) throw error;
       // Client removed mid-restart; replay tracks needsRestart and heals at settle.
     }
   },
-  hold: async (world, action, _app) => {
-    world.net(action.nodeId, action.traffic).set('hold');
+  hold: async (surface, action, _app) => {
+    surface.net(action.nodeId, action.traffic).set('hold');
   },
-  release: async (world, action, _app) => {
-    world.net(action.nodeId, action.traffic).set('ok');
+  release: async (surface, action, _app) => {
+    surface.net(action.nodeId, action.traffic).set('ok');
   },
-  setFaults: async (world, action, _app) => {
-    world.net(action.nodeId, action.traffic).set(action.faults);
+  setFaults: async (surface, action, _app) => {
+    surface.net(action.nodeId, action.traffic).set(action.faults);
   },
-  armHttpFault: async (world, action, _app) => {
-    world.node(action.clientId).httpFault(action.fault);
+  armHttpFault: async (surface, action, _app) => {
+    surface.node(action.clientId).httpFault(action.fault);
   },
-  armCrashAt: async (world, action, _app) => {
-    world.node(action.clientId).crash({ at: action.event });
+  armCrashAt: async (surface, action, _app) => {
+    surface.node(action.clientId).crash({ at: action.event });
   },
-  publishFault: async (world, action, _app) => {
-    world.node('server').publishFault(action.count);
+  publishFault: async (surface, action, _app) => {
+    surface.node('server').publishFault(action.count);
   },
-  armPubsubFault: async (world, action, _app) => {
-    world.node('server').pubsubFault(action.fault);
+  armPubsubFault: async (surface, action, _app) => {
+    surface.node('server').pubsubFault(action.fault);
   },
-  brokerCrash: async (world, _action, _app) => {
-    world.brokerCrash();
+  brokerCrash: async (surface, _action, _app) => {
+    surface.brokerCrash();
   },
-  brokerRestart: async (world, _action, _app) => {
-    await world.brokerRestart();
+  brokerRestart: async (surface, _action, _app) => {
+    await surface.brokerRestart();
   },
-  tamperLocalStorage: async (world, action, _app) => {
-    await world.tamperLocalStorage(action.clientId, action.tamper);
+  tamperLocalStorage: async (surface, action, _app) => {
+    await surface.tamperLocalStorage(action.clientId, action.tamper);
   },
-  restartWithSchema: async (world, action, app) => {
+  restartWithSchema: async (surface, action, app) => {
     const opts = app.restartOptsForVariant?.(action.variant) ?? {
       preserveLocalDb: true,
     };
     try {
-      await world.node(action.clientId).restart(opts);
+      await surface.node(action.clientId).restart(opts);
     } catch (error) {
       if (!isExpectedRestartFault(error)) throw error;
       // Client removed mid-restart; replay tracks needsRestart and heals at settle.
     }
   },
-  protocolCut: async (world, action, _app) => {
-    world.node(action.clientId).auth('upgrade_required');
+  protocolCut: async (surface, action, _app) => {
+    surface.node(action.clientId).auth('upgrade_required');
   },
-  serverCrash: async (world, _action, _app) => {
-    await world.node('server').crash();
+  serverCrash: async (surface, _action, _app) => {
+    await surface.node('server').crash();
   },
-  serverRestart: async (world, _action, _app) => {
-    await world.node('server').restart({ preserveLocalDb: true });
+  serverRestart: async (surface, _action, _app) => {
+    await surface.node('server').restart({ preserveLocalDb: true });
   },
-  auth: async (world, action, _app) => {
-    world.node(action.clientId).auth(action.status);
+  auth: async (surface, action, _app) => {
+    surface.node(action.clientId).auth(action.status);
     if (action.status === 'revoked') {
-      const client = world.clients.get(action.clientId);
+      const client = surface.clients.get(action.clientId);
       if (client !== undefined) {
         await client.disconnect();
       }
     }
   },
-  clearLocalData: async (world, action, _app) => {
-    const client = world.clients.get(action.clientId);
+  clearLocalData: async (surface, action, _app) => {
+    const client = surface.clients.get(action.clientId);
     if (client === undefined) return;
     await client.clearLocalData(action.reason);
   },
-  subscribe: async (world, action, _app) => {
-    const client = world.clients.get(action.clientId);
+  subscribe: async (surface, action, _app) => {
+    const client = surface.clients.get(action.clientId);
     if (client === undefined) return;
     const sub = client.subscribe(action.queryName, action.params);
-    subs(world).add(sub);
+    subs(surface).add(sub);
   },
-  freeze: async (world, action, _app) => {
-    world.net(action.clientId, 'sync').set('hold');
+  freeze: async (surface, action, _app) => {
+    surface.net(action.clientId, 'sync').set('hold');
   },
-  thaw: async (world, action, _app) => {
-    world.net(action.clientId, 'sync').set('ok');
-    world.clients.get(action.clientId)?.nudge();
+  thaw: async (surface, action, _app) => {
+    surface.net(action.clientId, 'sync').set('ok');
+    surface.clients.get(action.clientId)?.nudge();
   },
-  armStoragePressure: async (world, action, _app) => {
-    if (!world.clients.has(action.clientId)) return;
-    world.armStoragePressure(
+  armStoragePressure: async (surface, action, _app) => {
+    if (!surface.clients.has(action.clientId)) return;
+    surface.armStoragePressure(
       action.clientId,
       action.pressure,
       action.afterStatements
     );
   },
-  failNextOpen: async (world, action, _app) => {
-    if (!world.clients.has(action.clientId)) return;
-    world.armFailNextOpen(action.clientId);
+  failNextOpen: async (surface, action, _app) => {
+    if (!surface.clients.has(action.clientId)) return;
+    surface.armFailNextOpen(action.clientId);
   },
-  pruneServerArtifacts: async (world, action, _app) => {
-    await world.server.pruneArtifacts(action.olderThanMs);
+  pruneServerArtifacts: async (surface, action, _app) => {
+    await surface.server.pruneArtifacts(action.olderThanMs);
   },
-  addPeerEngine: async (world, action, _app) => {
-    const donor = world.clients.get(action.shareWithClientId);
+  addPeerEngine: async (surface, action, _app) => {
+    const donor = surface.clients.get(action.shareWithClientId);
     if (donor === undefined) return;
-    if (world.clients.has(action.clientId)) return;
-    await world.addClient({
+    if (surface.clients.has(action.clientId)) return;
+    await surface.addClient({
       id: action.clientId,
       actorId: donor.actorId,
       existingDb: donor.dbBundle,
@@ -221,34 +221,34 @@ const LIBRARY_HANDLERS: {
 };
 
 async function dispatchLibraryAction(
-  world: SystemWorldSurface,
+  surface: SyncSurfaceBase,
   app: SyncApp,
   action: LibraryAction
 ): Promise<void> {
   type Handler = (
-    w: SystemWorldSurface,
+    w: SyncSurfaceBase,
     a: LibraryAction,
     dstApp: SyncApp
   ) => Promise<void>;
-  await (LIBRARY_HANDLERS[action.kind] as Handler)(world, action, app);
+  await (LIBRARY_HANDLERS[action.kind] as Handler)(surface, action, app);
 }
 
 /** Dispatch one DST action (library, domain mutation, or server op). */
 export async function dispatchSyncAction(
-  world: SystemWorldSurface,
+  surface: SyncSurfaceBase,
   app: SyncApp,
   action: SyncAction
 ): Promise<void> {
   try {
     if (action.kind === 'domain') {
-      await dispatchDomainOp(world, app, action);
+      await dispatchDomainOp(surface, app, action);
       return;
     }
     if (action.kind === 'server') {
-      await dispatchServerOp(world, app, action);
+      await dispatchServerOp(surface, app, action);
       return;
     }
-    await dispatchLibraryAction(world, app, action);
+    await dispatchLibraryAction(surface, app, action);
   } catch (error) {
     // SQLITE_FULL / torn txn: local write aborted; heal+converge later.
     if (isStorageFullError(error)) return;

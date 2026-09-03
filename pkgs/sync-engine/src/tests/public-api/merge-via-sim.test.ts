@@ -1,77 +1,102 @@
 import { describe, expect, test } from 'bun:test';
+import { start } from '@pkgs/dst';
 import { sql } from '@pkgs/sql';
 import {
+  acmeDraws,
   acmeLocalSchemaExtraColumn,
+  acmeSystem,
+  addClient,
+  connect,
+  converge,
   deleteNote,
-  expectLiveNote,
-  expectNoteNotLive,
-  readNoteTombstone,
+  disconnect,
+  liveNote,
+  mutate,
+  passTime,
+  rows,
+  runSql,
   setNote,
+  syncVirtualHost,
 } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+
+const aliceColor = rows<{ color: string | null }>(
+  'noteColor',
+  'alice',
+  sql`SELECT color FROM notes WHERE id = 'n1' AND deleted_at IS NULL`
+);
 
 /**
  * Public-API / sim pins for merge semantics that bulk upsert must preserve:
  * column-intersect (missing keys), tombstone upsert, pending rebase.
  */
-describe('public API: merge via openSyncWorld', () => {
+describe('public API: merge via sim', () => {
   test('missing server keys do not null local-only columns', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 9001,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({
+    await run.apply(addClient, {
       id: 'alice',
+      actorId: 'alice',
       localSchema: acmeLocalSchemaExtraColumn,
     });
-    const b = await world.addClient({ id: 'bob' });
+    await run.apply(addClient, 'bob');
 
-    await a.mutate(setNote, { id: 'n1', body: 'v1' });
-    await world.assertConverged();
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'v1' });
+    await run.apply(converge);
 
-    await a.db.run(sql`
-      UPDATE notes SET color = ${'red'} WHERE id = ${'n1'}
-    `);
-    await b.mutate(setNote, { id: 'n1', body: 'from-bob' });
-    await world.assertConverged();
+    await run.apply(
+      runSql,
+      'alice',
+      "UPDATE notes SET color = 'red' WHERE id = 'n1'"
+    );
+    await run.apply(mutate, 'bob', setNote, { id: 'n1', body: 'from-bob' });
+    await run.apply(converge);
 
-    await expectLiveNote(a.db, 'n1', { body: 'from-bob' });
-    const after = await a.db.query(sql<{ color: string | null }>`
-      SELECT color FROM notes WHERE id = ${'n1'} AND deleted_at IS NULL
-    `);
-    expect(after[0]?.color).toBe('red');
+    expect((await run.observe(liveNote('alice', 'n1')))?.body).toBe('from-bob');
+    expect((await run.observe(aliceColor))[0]?.color).toBe('red');
   });
 
   test('tombstone upsert removes live peer row; pending rebase wins after disconnect', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 9002,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
+    await run.apply(addClient, 'alice');
+    await run.apply(addClient, 'bob');
 
-    await a.mutate(setNote, { id: 'n1', body: 'seed' });
-    await world.assertConverged();
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'seed' });
+    await run.apply(converge);
 
-    await a.mutate(deleteNote, { id: 'n1' });
-    await world.assertConverged();
-    await expectNoteNotLive(b.db, 'n1');
-    expect(await readNoteTombstone(b.db, 'n1')).not.toBeNull();
+    await run.apply(mutate, 'alice', deleteNote, { id: 'n1' });
+    await run.apply(converge);
+    expect(
+      (await run.observe(liveNote('bob', 'n1')))?.deletedAt
+    ).not.toBeNull();
 
-    await a.disconnect();
-    await a.mutate(setNote, { id: 'n1', body: 'optimistic-pending' });
-    await expectLiveNote(a.db, 'n1', { body: 'optimistic-pending' });
+    await run.apply(disconnect, 'alice');
+    await run.apply(mutate, 'alice', setNote, {
+      id: 'n1',
+      body: 'optimistic-pending',
+    });
+    expect((await run.observe(liveNote('alice', 'n1')))?.body).toBe(
+      'optimistic-pending'
+    );
 
-    await a.connect();
-    await world.advance(500);
-    await expectLiveNote(a.db, 'n1', { body: 'optimistic-pending' });
-    await world.assertConverged();
-    await expectLiveNote(b.db, 'n1', { body: 'optimistic-pending' });
+    await run.apply(connect, 'alice');
+    await run.apply(passTime, 500);
+    expect((await run.observe(liveNote('alice', 'n1')))?.body).toBe(
+      'optimistic-pending'
+    );
+    await run.apply(converge);
+    expect((await run.observe(liveNote('bob', 'n1')))?.body).toBe(
+      'optimistic-pending'
+    );
   });
 });

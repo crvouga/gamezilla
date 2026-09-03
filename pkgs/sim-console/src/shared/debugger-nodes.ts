@@ -1,6 +1,6 @@
 /**
- * Group World topology nodes into debugger chrome kinds.
- * World `db` is folded into Server (DB pane), not its own kind tab.
+ * Group system topology nodes into debugger chrome kinds.
+ * System `db` is folded into Server (DB pane), not its own kind tab.
  */
 
 import {
@@ -33,7 +33,7 @@ export function instancesForKind<T extends DebuggerNode>(
   });
 }
 
-/** Full World address from chrome kind + instance URL param. */
+/** Full system address from chrome kind + instance URL param. */
 export function nodeIdForKindInstance(
   kind: SimChromeKind,
   instance: string | null | undefined

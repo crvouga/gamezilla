@@ -1,0 +1,30 @@
+import type { Matchmaking } from '../../interface/matchmaking';
+import type { MatchmakingSurface } from './facade';
+
+/** Identifies a participant either by test alias or by raw id. */
+export type ParticipantTarget = {
+  readonly ref?: string;
+  readonly participantId?: string;
+  readonly replicaId?: string;
+};
+
+export function mmOf(s: MatchmakingSurface, replicaId?: string): Matchmaking {
+  return replicaId === undefined ? s.mm : s.replica(replicaId).mm;
+}
+
+export function idOf(s: MatchmakingSurface, ref: string): string {
+  const id = s.refs.get(ref);
+  if (id === undefined) {
+    throw new Error(`matchmaking surface: unknown participant ref ${ref}`);
+  }
+  return id;
+}
+
+export function targetId(
+  s: MatchmakingSurface,
+  target: ParticipantTarget
+): string {
+  if (target.participantId !== undefined) return target.participantId;
+  if (target.ref !== undefined) return idOf(s, target.ref);
+  throw new Error('matchmaking surface: target needs ref or participantId');
+}

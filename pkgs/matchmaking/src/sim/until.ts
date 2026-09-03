@@ -1,5 +1,5 @@
 /**
- * Virtual-time until / never helpers for the matchmaking sim world.
+ * Virtual-time until / never helpers for the matchmaking sim surface.
  */
 
 export type EventuallyOptions = {
@@ -35,7 +35,7 @@ function failMsg(
 /**
  * Advance virtual time until `target` is satisfied. Returns completion timestamp.
  */
-export async function runWorldUntil(
+export async function runUntil(
   ctx: MatchmakingUntilContext,
   target: UntilTarget,
   opts?: EventuallyOptions
@@ -53,7 +53,7 @@ export async function runWorldUntil(
 }
 
 /** Fail if target becomes true within `forMs` (scheduler-driven). */
-export async function runWorldNever(
+export async function runNever(
   ctx: MatchmakingUntilContext,
   target: UntilTarget,
   opts: NeverOptions

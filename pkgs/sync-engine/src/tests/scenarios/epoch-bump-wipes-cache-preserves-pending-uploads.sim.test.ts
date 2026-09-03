@@ -1,41 +1,55 @@
 import { describe, test } from 'bun:test';
+import { start } from '@pkgs/dst';
 import { SCHEMA_EPOCH } from '@pkgs/sync-engine/test';
-import { expectLiveNote, isLiveNote, setNote } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  assertConverged,
+  disconnect,
+  liveNote,
+  mutate,
+  neverAcme,
+  restart,
+  setNote,
+  syncVirtualHost,
+} from '../apps/acme';
+import { expectLiveNoteAt } from '../apps/acme/reads';
 
 describe('epoch bump wipes cache preserves pending uploads', () => {
   test.each([710, 711, 712])(
     'offline pending survives epoch bump (seed=%i)',
     async (seed) => {
-      await using world = await openAcmeWorld({
-        seed: seed,
-        knobs: {
-          clientCount: 0,
-        },
+      await using run = await start(acmeSystem, {
+        seed,
+        host: syncVirtualHost(),
+        draws: acmeDraws({ clientCount: 0 }),
+        properties: [],
       });
 
-      const a = await world.addClient({ id: 'alice' });
-      const b = await world.addClient({ id: 'bob' });
+      await run.apply(addClient, 'alice');
+      await run.apply(addClient, 'bob');
 
-      await b.mutate(setNote, { id: 'peer', body: 'from-bob' });
-      await world.assertConverged();
+      await run.apply(mutate, 'bob', setNote, { id: 'peer', body: 'from-bob' });
+      await run.apply(assertConverged);
 
-      await a.disconnect();
-      await a.mutate(setNote, { id: 'n1', body: 'queued' });
-      await world.waitNever(() => isLiveNote(world.server.db, 'n1'), {
+      await run.apply(disconnect, 'alice');
+      await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'queued' });
+      await neverAcme(run, liveNote('server', 'n1'), {
         forMs: 50,
+        pred: (v) => v !== null,
       });
 
-      const alice2 = await world.node('alice').restart({
+      await run.apply(restart, 'alice', {
         preserveLocalDb: true,
         schemaEpoch: SCHEMA_EPOCH + 1,
       });
-      await world.assertConverged();
+      await run.apply(assertConverged);
 
-      await expectLiveNote(alice2!.db, 'n1', { body: 'queued' });
-      await expectLiveNote(alice2!.db, 'peer', { body: 'from-bob' });
-      await expectLiveNote(b.db, 'n1', { body: 'queued' });
-      await expectLiveNote(world.server.db, 'n1', { body: 'queued' });
+      await expectLiveNoteAt(run, 'alice', 'n1', { body: 'queued' });
+      await expectLiveNoteAt(run, 'alice', 'peer', { body: 'from-bob' });
+      await expectLiveNoteAt(run, 'bob', 'n1', { body: 'queued' });
+      await expectLiveNoteAt(run, 'server', 'n1', { body: 'queued' });
     }
   );
 });

@@ -6,8 +6,8 @@ import type { Page } from './page';
 import {
   COUNTER_ACTIONS,
   COUNTER_PROPERTIES,
-  count,
   type CounterSurface,
+  count,
   counter,
   decrement,
   increment,

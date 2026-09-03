@@ -1,32 +1,48 @@
 import { describe, expect, test } from 'bun:test';
+import { start } from '@pkgs/dst';
 import { RELIABLE_FAULTS } from '../../sim/faults';
-import { expectLiveNote, readLiveNotes, setNote } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  converge,
+  liveNote,
+  liveNotes,
+  mutate,
+  net,
+  setNote,
+  syncVirtualHost,
+} from '../apps/acme';
 
 describe('same batch posted twice verdicts stable', () => {
   test.each([820, 821, 822])(
     'mesh replay of mutations POST is idempotent (seed=%i)',
     async (seed) => {
-      await using world = await openAcmeWorld({
+      await using run = await start(acmeSystem, {
         seed: seed,
-        knobs: {
-          clientCount: 0,
-        },
+        host: syncVirtualHost(),
+        draws: acmeDraws({ clientCount: 0 }),
+        properties: [],
       });
 
-      const a = await world.addClient({ id: 'alice' });
-      const b = await world.addClient({ id: 'bob' });
+      await run.apply(addClient, { id: 'alice' });
+      await run.apply(addClient, { id: 'bob' });
 
-      using _faults = world.net('alice', 'sync').set({
+      await run.apply(net, 'alice', 'sync', {
         ...RELIABLE_FAULTS,
         packetReplayProbability: 1,
       });
 
-      await a.mutate(setNote, { id: 'n1', body: 'replay-safe' });
-      await world.assertConverged();
+      await run.apply(mutate, 'alice', setNote, {
+        id: 'n1',
+        body: 'replay-safe',
+      });
+      await run.apply(converge);
 
-      await expectLiveNote(b.db, 'n1', { body: 'replay-safe' });
-      const server = await readLiveNotes(world.server.db);
+      expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+        body: 'replay-safe',
+      });
+      const server = await run.observe(liveNotes('server'));
       expect(server.filter((r) => r.id === 'n1')).toHaveLength(1);
     }
   );

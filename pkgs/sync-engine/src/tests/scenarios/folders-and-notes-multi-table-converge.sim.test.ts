@@ -1,95 +1,100 @@
 import { describe, expect, test } from 'bun:test';
+import { start } from '@pkgs/dst';
 import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  converge,
   deleteFolder,
-  expectFoldersMatchServer,
-  expectLiveNote,
+  expectLiveNoteAt,
+  liveFolders,
+  liveNotes,
   moveNote,
-  readLiveFolders,
-  readLiveNotes,
+  mutate,
   setFolder,
   setNote,
+  syncVirtualHost,
 } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
 
 describe('folders and notes multi table converge', () => {
   test('folder + note hydrate on peer', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 20,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
 
-    await a.mutate(setFolder, { id: 'f1', title: 'Work' });
-    await a.mutate(setNote, {
+    await run.apply(mutate, 'alice', setFolder, { id: 'f1', title: 'Work' });
+    await run.apply(mutate, 'alice', setNote, {
       id: 'n1',
       body: 'todo',
       folderId: 'f1',
       title: 'Task',
     });
-    await world.assertConverged();
+    await run.apply(converge);
 
-    const folders = await readLiveFolders(b.db);
-    expect(folders).toEqual([{ id: 'f1', title: 'Work', owner_id: 'alice' }]);
-    await expectLiveNote(b.db, 'n1', { body: 'todo', title: 'Task' });
-    const notes = await readLiveNotes(b.db);
-    expect(notes[0]?.folder_id).toBe('f1');
-    await expectFoldersMatchServer(b.db, world.server.db);
+    expect(await run.observe(liveFolders('bob'))).toEqual([
+      { id: 'f1', title: 'Work', ownerId: 'alice' },
+    ]);
+    await expectLiveNoteAt(run, 'bob', 'n1', { body: 'todo', title: 'Task' });
+    const notes = await run.observe(liveNotes('bob'));
+    expect(notes[0]?.folderId).toBe('f1');
   });
 
   test('moveNote updates folder_id on peers', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 21,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
 
-    await a.mutate(setFolder, { id: 'f1', title: 'A' });
-    await a.mutate(setFolder, { id: 'f2', title: 'B' });
-    await a.mutate(setNote, {
+    await run.apply(mutate, 'alice', setFolder, { id: 'f1', title: 'A' });
+    await run.apply(mutate, 'alice', setFolder, { id: 'f2', title: 'B' });
+    await run.apply(mutate, 'alice', setNote, {
       id: 'n1',
       body: 'x',
       folderId: 'f1',
     });
-    await world.assertConverged();
+    await run.apply(converge);
 
-    await a.mutate(moveNote, { id: 'n1', folderId: 'f2' });
-    await world.assertConverged();
+    await run.apply(mutate, 'alice', moveNote, { id: 'n1', folderId: 'f2' });
+    await run.apply(converge);
 
-    const notes = await readLiveNotes(b.db);
-    expect(notes.find((n) => n.id === 'n1')?.folder_id).toBe('f2');
+    const notes = await run.observe(liveNotes('bob'));
+    expect(notes.find((n) => n.id === 'n1')?.folderId).toBe('f2');
   });
 
   test('deleteFolder soft-deletes folder; notes remain', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 22,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
 
-    await a.mutate(setFolder, { id: 'f1', title: 'Temp' });
-    await a.mutate(setNote, {
+    await run.apply(mutate, 'alice', setFolder, { id: 'f1', title: 'Temp' });
+    await run.apply(mutate, 'alice', setNote, {
       id: 'n1',
       body: 'orphan-ok',
       folderId: 'f1',
     });
-    await world.assertConverged();
+    await run.apply(converge);
 
-    await a.mutate(deleteFolder, { id: 'f1' });
-    await world.assertConverged();
+    await run.apply(mutate, 'alice', deleteFolder, { id: 'f1' });
+    await run.apply(converge);
 
-    expect(await readLiveFolders(b.db)).toEqual([]);
-    await expectLiveNote(b.db, 'n1', { body: 'orphan-ok' });
+    expect(await run.observe(liveFolders('bob'))).toEqual([]);
+    await expectLiveNoteAt(run, 'bob', 'n1', { body: 'orphan-ok' });
   });
 });

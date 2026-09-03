@@ -1,18 +1,18 @@
 /**
- * Participant + replica handle builders for the matchmaking sim world.
+ * Participant + replica handle builders for the matchmaking sim surface.
  */
 
 import type { Matchmaking, TickOptions } from '../interface/matchmaking';
 import type { DistanceFormula, JoinInput } from '../interface/types';
-import type { ParticipantHandle, ReplicaHandle } from './world-api';
+import type { ParticipantHandle, ReplicaHandle } from './sim-api';
 
-export type WorldReplicaOps = {
+export type ReplicaOps = {
   readonly getMm: (replicaId: string) => Matchmaking;
   readonly defaultReplicaId: string;
 };
 
 export function buildParticipantHandle(
-  ops: WorldReplicaOps,
+  ops: ReplicaOps,
   participantId: string,
   joinedOn: string
 ): ParticipantHandle {
@@ -31,7 +31,7 @@ export function buildParticipantHandle(
 }
 
 export function buildReplicaHandle(
-  ops: WorldReplicaOps,
+  ops: ReplicaOps,
   id: string,
   mm: Matchmaking
 ): ReplicaHandle {
@@ -46,9 +46,9 @@ export function buildReplicaHandle(
   };
 }
 
-export type WorldFacadeDeps = {
+export type FacadeDeps = {
   readonly replicas: Map<string, ReplicaHandle>;
-  readonly ops: WorldReplicaOps;
+  readonly ops: ReplicaOps;
   readonly firstId: string;
 };
 
@@ -58,14 +58,14 @@ export function resolveReplica(
 ): ReplicaHandle {
   const r = replicas.get(id);
   if (r === undefined) {
-    throw new Error(`MatchmakingSimWorld: unknown replica ${id}`);
+    throw new Error(`matchmaking sim: unknown replica ${id}`);
   }
   return r;
 }
 
-/** Narrow helper so world.ts stays under the function size cap. */
-export async function joinOnWorld(
-  deps: WorldFacadeDeps,
+/** Narrow helper so `facade.ts` stays under the function size cap. */
+export async function joinOnReplica(
+  deps: FacadeDeps,
   input: JoinInput,
   replicaId?: string
 ): Promise<ParticipantHandle> {

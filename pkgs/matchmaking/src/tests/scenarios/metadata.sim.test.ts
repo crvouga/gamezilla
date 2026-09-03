@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { openMatchmakingWorld } from '../../sim/scenario';
+import type { StatusResult } from '../../interface/types';
+import { join, startMatchmaking, statusOf, tick } from '../../sim/scenario';
 import {
   expectMatched,
   RatingAttr,
@@ -18,32 +19,45 @@ describe('matchmaking sim: metadata', () => {
   });
 
   test('metadata round-trips through waiting and matched status', async () => {
-    await using world = await openMatchmakingWorld({ seed: 90 });
+    await using run = await startMatchmaking({ seed: 90 });
     const meta = { route: 'vip', n: 1 };
-    const a = await world.join({
-      data: RatingAttr(1000),
-      formulas: [SimpleFormula],
-      metadata: meta,
+    await run.apply(join, {
+      ref: 'a',
+      input: {
+        data: RatingAttr(1000),
+        formulas: [SimpleFormula],
+        metadata: meta,
+      },
     });
-    expect((await a.status())?.metadata).toEqual(meta);
-    await world.join({
-      data: RatingAttr(1010),
-      formulas: [SimpleFormula],
-      metadata: { other: true },
+    expect(
+      ((await run.observe(statusOf('a'))) as StatusResult).metadata
+    ).toEqual(meta);
+    await run.apply(join, {
+      ref: 'b',
+      input: {
+        data: RatingAttr(1010),
+        formulas: [SimpleFormula],
+        metadata: { other: true },
+      },
     });
-    await world.tick({ maxPassesPerPartition: 1 });
-    const matched = expectMatched(await a.status());
+    await run.apply(tick, { opts: { maxPassesPerPartition: 1 } });
+    const matched = expectMatched(
+      (await run.observe(statusOf('a'))) as StatusResult
+    );
     expect(matched.metadata).toEqual(meta);
     expect(matched.peers[0]?.metadata).toEqual({ other: true });
   });
 
   test('metadata cap enforced', async () => {
-    await using world = await openMatchmakingWorld({ seed: 91 });
+    await using run = await startMatchmaking({ seed: 91 });
     await expect(
-      world.join({
-        data: RatingAttr(1000),
-        formulas: [SimpleFormula],
-        metadata: { pad: 'x'.repeat(2000) },
+      run.apply(join, {
+        ref: 'a',
+        input: {
+          data: RatingAttr(1000),
+          formulas: [SimpleFormula],
+          metadata: { pad: 'x'.repeat(2000) },
+        },
       })
     ).rejects.toThrow();
   });

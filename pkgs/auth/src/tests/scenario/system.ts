@@ -14,8 +14,8 @@ import {
   dispatchStealBearer,
   type OauthProvider,
 } from './dispatch';
-import { assertAuthInvariants, worldFingerprint } from './invariants';
-import { startActor, startStore } from './nodes';
+import { assertAuthInvariants, authFingerprint } from './invariants';
+import { migrateAuthSchema, startActor, startStore } from './nodes';
 import type { AuthFabric, AuthSurface } from './types';
 
 function range(n: number): number[] {
@@ -52,6 +52,7 @@ export const auth = defineSystem({
       store,
       clients,
       fingerprint: null,
+      lastStatus: null,
     } satisfies AuthSurface;
   },
 });
@@ -77,6 +78,39 @@ export const bearers = defineObservation({
   name: 'bearers',
   observe: (s) =>
     [...s.clients.entries()].map(([id, a]) => `${id}:${a.bearer ?? ''}`),
+});
+
+/** Per-client bearer token (null when signed out). */
+export const clientBearers = defineObservation({
+  name: 'clientBearers',
+  observe: (s) =>
+    Object.fromEntries(
+      [...s.clients.entries()].map(([id, a]) => [id, a.bearer])
+    ) as Record<string, string | null>,
+});
+
+/** Verified session behind a bearer — null when expired / revoked / unknown. */
+export function sessionUser(bearer: string) {
+  return defineObservation({
+    name: `sessionUser(${bearer})`,
+    observe: async (s: AuthSurface) => {
+      const verified = await s.store.server.verifySessionToken(bearer);
+      return verified === null
+        ? null
+        : { externalUserId: verified.externalUserId };
+    },
+  });
+}
+
+/** Canonical IdP dump — the determinism fingerprint. */
+export const storeFingerprint = defineObservation({
+  name: 'storeFingerprint',
+  observe: (s) => authFingerprint(s),
+});
+
+export const lastStatus = defineObservation({
+  name: 'lastStatus',
+  observe: (s): number | null => s.lastStatus,
 });
 
 export const invariantViolations = defineObservation({
@@ -221,6 +255,37 @@ export const AUTH_ACTIONS = [
   stealBearer,
 ];
 
+/** Re-run the schema migration against the live store (idempotence pin). */
+export const migrateSchema = defineAction({
+  name: 'migrateSchema',
+  *generate() {
+    yield {
+      weight: 1,
+      act: async (s: AuthSurface) => {
+        await migrateAuthSchema(s.store.fabric, s.store.sql);
+      },
+    };
+  },
+});
+
+export const fetchAuth = defineAction({
+  name: 'fetchAuth',
+  *generate() {
+    const req = yield* draw(
+      (): { readonly path: string; readonly init?: RequestInit } => ({
+        path: '/auth/health',
+      })
+    );
+    yield {
+      weight: 1,
+      act: async (s: AuthSurface) => {
+        const res = await s.store.fetch(req.path, req.init);
+        s.lastStatus = res.status;
+      },
+    };
+  },
+});
+
 export const invariantsHold = defineProperty({
   name: 'invariants',
   *watch() {
@@ -233,5 +298,4 @@ export const invariantsHold = defineProperty({
 
 export const AUTH_PROPERTIES = [invariantsHold];
 
-export type AuthWorld = AuthSurface;
-export { worldFingerprint };
+export type { AuthSurface };

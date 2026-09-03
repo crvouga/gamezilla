@@ -1,16 +1,22 @@
 import { describe, expect, test } from 'bun:test';
-import { sql } from '@pkgs/sql';
-import { defineSyncSystem, openSyncWorld } from '../../sim/scenario';
+import { start } from '@pkgs/dst';
 import {
   acmeApp,
+  acmeDraws,
   acmeLocalSchema,
   acmeLocalSchemaExtraColumn,
   acmeMutationRegistry,
   acmeQueryRegistry,
-  expectLiveNote,
-  expectNotesMatchServer,
-  notesWorldWithColorQuery,
+  addClient,
+  converge,
+  defineSyncSystem,
+  expectLiveNoteAt,
+  mutate,
+  noteColor,
+  noteColumns,
+  notesAllWithColorQuery,
   setNoteColor,
+  syncVirtualHost,
 } from '../apps/acme';
 
 const acmeColorServerSystem = defineSyncSystem(acmeApp, {
@@ -22,52 +28,48 @@ const acmeColorServerSystem = defineSyncSystem(acmeApp, {
   },
   queryRegistry: {
     ...acmeQueryRegistry,
-    [notesWorldWithColorQuery.name]: notesWorldWithColorQuery,
+    [notesAllWithColorQuery.name]: notesAllWithColorQuery,
   },
-  sessionQuery: { name: 'notesWorldWithColor', params: {} },
+  sessionQuery: { name: 'notesAllWithColor', params: {} },
 });
 
 describe('server snapshot with unknown column merges cleanly', () => {
   test.each([730, 731, 732])(
     'client without color ignores server color key (seed=%i)',
     async (seed) => {
-      await using world = await openSyncWorld(acmeColorServerSystem, {
+      await using run = await start(acmeColorServerSystem, {
         seed: seed,
-        knobs: {
-          clientCount: 0,
-        },
+        host: syncVirtualHost(),
+        draws: acmeDraws({ clientCount: 0 }),
+        properties: [],
       });
 
-      const a = await world.addClient({
+      await run.apply(addClient, {
         id: 'alice',
         localSchema: acmeLocalSchema,
       });
-      const b = await world.addClient({
+      await run.apply(addClient, {
         id: 'bob',
         localSchema: acmeLocalSchemaExtraColumn,
       });
 
-      await b.mutate(setNoteColor, {
+      await run.apply(mutate, 'bob', setNoteColor, {
         id: 'n1',
         body: 'painted',
         color: 'blue',
       });
-      await world.assertConverged();
+      await run.apply(converge);
 
-      await expectLiveNote(a.db, 'n1', { body: 'painted' });
-      await expectLiveNote(b.db, 'n1', { body: 'painted' });
-      await expectNotesMatchServer(a.db, world.server.db);
+      await expectLiveNoteAt(run, 'alice', 'n1', { body: 'painted' });
+      await expectLiveNoteAt(run, 'bob', 'n1', { body: 'painted' });
 
       // Base client has no color column — PRAGMA would not list it.
-      const cols = await a.db.query(sql<{ name: string }>`
-        SELECT name FROM pragma_table_info('notes')
-      `);
+      const cols = await run.observe(noteColumns('alice'));
       expect(cols.some((c) => c.name === 'color')).toBe(false);
 
-      const bobColor = await b.db.query(sql<{ color: string | null }>`
-        SELECT color FROM notes WHERE id = ${'n1'} AND deleted_at IS NULL
-      `);
-      expect(bobColor[0]?.color).toBe('blue');
+      expect((await run.observe(noteColor('bob', 'n1')))[0]?.color).toBe(
+        'blue'
+      );
     }
   );
 });

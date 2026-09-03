@@ -1,6 +1,6 @@
 /**
  * Guards that interface / client / wire never import the SQL adapter.
- * `testing/` may re-export the sim world (which boots impl-sql privately).
+ * `testing/` may re-export the sim system (which boots impl-sql privately).
  */
 
 import { describe, expect, test } from 'bun:test';

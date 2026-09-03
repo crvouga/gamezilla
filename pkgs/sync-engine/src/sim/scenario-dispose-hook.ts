@@ -1,35 +1,35 @@
-type DisposableWorld = {
+type DisposableKit = {
   dispose(): Promise<void>;
 };
 
-const openWorlds = new Set<DisposableWorld>();
+const openKits = new Set<DisposableKit>();
 let installed = false;
 
-/** Register a world for afterEach leak disposal. */
-export function registerWorld(world: DisposableWorld): void {
-  openWorlds.add(world);
+/** Register a surface for afterEach leak disposal. */
+export function registerKit(surface: DisposableKit): void {
+  openKits.add(surface);
   ensureAfterEach();
 }
 
 /** Mark disposed so afterEach skips it. */
-export function unregisterWorld(world: DisposableWorld): void {
-  openWorlds.delete(world);
+export function unregisterKit(surface: DisposableKit): void {
+  openKits.delete(surface);
 }
 
 function ensureAfterEach(): void {
   if (installed) return;
   installed = true;
   try {
-    // bun:test only — ignore when worlds are opened outside the runner.
+    // bun:test only — ignore when systems are opened outside the runner.
     const { afterEach } = require('bun:test') as {
       afterEach: (fn: () => unknown) => void;
     };
     afterEach(async () => {
-      const pending = [...openWorlds];
-      openWorlds.clear();
-      for (const world of pending) {
+      const pending = [...openKits];
+      openKits.clear();
+      for (const surface of pending) {
         try {
-          await world.dispose();
+          await surface.dispose();
         } catch {
           // ignore double-dispose
         }

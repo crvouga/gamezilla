@@ -4,7 +4,7 @@ import type { SeededRng } from '@pkgs/uuid';
 
 /**
  * Ports the sync sim boot needs from a DST {@link Session}.
- * Replaces the old harness {@code WorldPorts} bag.
+ * Replaces the old harness {@code KitPorts} bag.
  */
 export type SyncBootDeps = {
   readonly clock: Clock;

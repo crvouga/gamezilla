@@ -1,8 +1,20 @@
 import { describe, expect, test } from 'bun:test';
-import { checkSync, playSyncActions, replaySyncPin } from '../../sim/scenario';
-import { setNote } from '../apps/acme';
+import { start } from '@pkgs/dst';
+import { checkSync } from '../../sim/scenario';
+import {
+  acmeDraws,
+  acmeSystem,
+  armStoragePressure,
+  converge,
+  lastMutationFailures,
+  lastMutationOk,
+  mutate,
+  playAcmePin,
+  playActions,
+  setNote,
+  syncVirtualHost,
+} from '../apps/acme';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
-import { acmeSystem, openAcmeWorld } from '../apps/acme/system';
 import type { DomainOp, LibraryAction, SyncAction } from '../scenario/actions';
 
 describe('fault permutation PBT', () => {
@@ -28,7 +40,7 @@ function multiFaultSequence(
 
 describe('fault permutation pins', () => {
   test('rate limit then mutate converges', async () => {
-    await replaySyncPin(acmeSystem, {
+    await playAcmePin({
       seed: 44001,
       actions: multiFaultSequence([
         {
@@ -45,27 +57,30 @@ describe('fault permutation pins', () => {
   });
 
   test('storage full then restart converges', async () => {
-    await using world = await openAcmeWorld({ seed: 44002 });
+    await using run = await start(acmeSystem, {
+      seed: 44002,
+      host: syncVirtualHost(),
+      draws: acmeDraws(),
+      properties: [],
+    });
 
-    const c0 = world.clients.get('c0');
-    expect(c0).toBeDefined();
-    if (c0 === undefined) return;
-    world.armStoragePressure('c0', 'sqliteFull');
-    const denied = await c0.mutate(setNote, { id: 'n0', body: 'quota' });
-    expect(denied.ok).toBe(false);
-    if (!denied.ok) {
-      expect(denied.failures.some((f) => f.code === 'STORAGE_FULL')).toBe(true);
-    }
-    await playSyncActions(world, [
+    await run.apply(armStoragePressure, 'c0', 'sqliteFull');
+    await run.apply(mutate, 'c0', setNote, { id: 'n0', body: 'quota' });
+    expect(await run.observe(lastMutationOk('c0'))).toBe(false);
+    expect(await run.observe(lastMutationFailures('c0'))).toContain(
+      'STORAGE_FULL'
+    );
+
+    await run.apply(playActions, [
       { kind: 'restart', clientId: 'c0' },
       acmeSetNoteOp('c0', 'n0', 'after-restart'),
       { kind: 'heal' },
     ]);
-    await world.assertConverged();
+    await run.apply(converge);
   });
 
   test('freeze sync then thaw catches up', async () => {
-    await replaySyncPin(acmeSystem, {
+    await playAcmePin({
       seed: 44003,
       actions: [
         { kind: 'freeze', clientId: 'c0' },
@@ -78,7 +93,7 @@ describe('fault permutation pins', () => {
   });
 
   test('auth expired in flight refreshes', async () => {
-    await replaySyncPin(acmeSystem, {
+    await playAcmePin({
       seed: 44004,
       actions: multiFaultSequence([
         {

@@ -1,62 +1,78 @@
 import { describe, expect, test } from 'bun:test';
-import { expectLiveNote, insertCatalogNote, isLiveNote } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import { start } from '@pkgs/dst';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  assertConverged,
+  expectLiveNoteAt,
+  isNoteLiveAt,
+  liveNote,
+  noteBodyIs,
+  serverOp,
+  syncVirtualHost,
+  untilAcme,
+} from '../apps/acme';
 
 describe('non mutation catalog insert wakes empty hydrate', () => {
-  // Chess-puzzle shaped bug: empty first sync of a world/entryChannel query,
+  // Chess-puzzle shaped bug: empty first sync of an all-rows entryChannel query,
   // then a non-mutation catalog INSERT. notify on the entry topic must wake
   // the client fast; without notify the reconcile tick still heals.
 
   test('insertCatalogNote notify true wakes client after empty hydrate', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 1401,
-      knobs: {
+      host: syncVirtualHost(),
+      draws: acmeDraws({
         clientCount: 0,
-      },
+      }),
+      properties: [],
     });
 
-    const client = await world.addClient({ id: 'alice' });
+    await run.apply(addClient, { id: 'alice' });
 
-    expect(await isLiveNote(client.db, 'n-seed')).toBe(false);
+    expect(await isNoteLiveAt(run, 'alice', 'n-seed')).toBe(false);
 
-    await insertCatalogNote(world.server, {
-      id: 'n-seed',
+    await run.apply(serverOp, 'insertCatalogNoteNotify', {
+      noteId: 'n-seed',
       body: 'seeded',
-      notify: true,
     });
-    await expectLiveNote(world.server.db, 'n-seed', { body: 'seeded' });
+    await expectLiveNoteAt(run, 'server', 'n-seed', { body: 'seeded' });
 
-    await world.waitUntil(async () => isLiveNote(client.db, 'n-seed'));
-    await expectLiveNote(client.db, 'n-seed', { body: 'seeded' });
-    await world.assertConverged();
+    await untilAcme(run, liveNote('alice', 'n-seed'), {
+      pred: noteBodyIs('seeded'),
+    });
+    await run.apply(assertConverged);
   });
 
   test('insertCatalogNote notify false heals via reconcile tick', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 1402,
-      knobs: {
+      host: syncVirtualHost(),
+      draws: acmeDraws({
         clientCount: 0,
-      },
+      }),
+      properties: [],
     });
 
-    const client = await world.addClient({ id: 'alice' });
+    await run.apply(addClient, { id: 'alice' });
 
-    expect(await isLiveNote(client.db, 'n-silent')).toBe(false);
+    expect(await isNoteLiveAt(run, 'alice', 'n-silent')).toBe(false);
 
-    await insertCatalogNote(world.server, {
-      id: 'n-silent',
+    await run.apply(serverOp, 'insertCatalogNoteSilent', {
+      noteId: 'n-silent',
       body: 'seeded-silent',
-      notify: false,
     });
-    await expectLiveNote(world.server.db, 'n-silent', {
+    await expectLiveNoteAt(run, 'server', 'n-silent', {
       body: 'seeded-silent',
     });
 
     // No notify → no instant wake; reconcile tick heals below.
-    expect(await isLiveNote(client.db, 'n-silent')).toBe(false);
+    expect(await isNoteLiveAt(run, 'alice', 'n-silent')).toBe(false);
 
-    await world.waitUntil(async () => isLiveNote(client.db, 'n-silent'));
-    await expectLiveNote(client.db, 'n-silent', { body: 'seeded-silent' });
-    await world.assertConverged();
+    await untilAcme(run, liveNote('alice', 'n-silent'), {
+      pred: noteBodyIs('seeded-silent'),
+    });
+    await run.apply(assertConverged);
   });
 });

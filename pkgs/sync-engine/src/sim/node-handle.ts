@@ -5,8 +5,8 @@ import type {
 } from './boundary-faults';
 import type { SimAuthStatus, SimClientHandle } from './client-factory';
 import { SIM_SERVER_NODE_ID } from './clock-skew';
-import type { RestartClientOpts } from './world-lifecycle';
-import type { BootedSimKernel } from './world-types';
+import type { RestartClientOpts } from './kit-lifecycle';
+import type { BootedSimKernel } from './kit-types';
 
 export type SkewEffect = Disposable & { restore(): void };
 
@@ -91,7 +91,7 @@ export function createSimNodeHandle(
     },
     auth(status) {
       if (nodeId === SIM_SERVER_NODE_ID) {
-        throw new Error('World.node(server).auth: clients only');
+        throw new Error('SyncKit.node(server).auth: clients only');
       }
       const meta = k.metas.get(nodeId);
       if (meta === undefined) throw new Error(`unknown client ${nodeId}`);

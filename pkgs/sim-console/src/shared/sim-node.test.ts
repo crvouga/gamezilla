@@ -9,13 +9,13 @@ import {
 } from './sim-node';
 
 describe('coerceSimNodeKind', () => {
-  test('maps legacy aliases onto World kinds', () => {
+  test('maps legacy aliases onto system node kinds', () => {
     expect(coerceSimNodeKind('api')).toBe('server');
     expect(coerceSimNodeKind('pubsub')).toBe('events');
     expect(coerceSimNodeKind('actor')).toBe('room');
   });
 
-  test('passes through World kinds', () => {
+  test('passes through system node kinds', () => {
     expect(coerceSimNodeKind('server')).toBe('server');
     expect(coerceSimNodeKind('events')).toBe('events');
     expect(coerceSimNodeKind('client')).toBe('client');

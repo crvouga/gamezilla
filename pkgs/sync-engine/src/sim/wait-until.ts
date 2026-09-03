@@ -10,7 +10,7 @@ export type UntilTarget =
   | Promise<unknown>
   | SimPollablePromise<unknown>;
 
-type WaitWorld = {
+type WaitKit = {
   readonly seed: bigint;
   readonly scheduler: VirtualScheduler;
   readonly network: Network | { readonly held: () => readonly string[] };
@@ -78,8 +78,8 @@ function watchTarget(target: UntilTarget): TargetWatch {
   };
 }
 
-function heldSummary(world: WaitWorld): readonly string[] {
-  return [...world.network.held()].sort();
+function heldSummary(surface: WaitKit): readonly string[] {
+  return [...surface.network.held()].sort();
 }
 
 /**
@@ -87,13 +87,13 @@ function heldSummary(world: WaitWorld): readonly string[] {
  * (`sub.ready`), and predicates.
  */
 export async function waitUntil(
-  world: WaitWorld,
+  surface: WaitKit,
   target: UntilTarget,
   opts?: WaitUntilOpts
 ): Promise<number> {
   const withinMs = opts?.withinMs ?? opts?.budgetMs ?? 2_000;
   const stepMs = opts?.stepMs ?? 25;
-  const { scheduler } = world;
+  const { scheduler } = surface;
   const simClock = scheduler.clock;
   const start = simClock.now();
   const watch = watchTarget(target);
@@ -113,9 +113,9 @@ export async function waitUntil(
     if (simClock.now() - start >= withinMs) break;
   }
 
-  const held = heldSummary(world);
+  const held = heldSummary(surface);
   throw new Error(
-    `waitUntil timed out seed=${world.seed.toString(16)} now=${simClock.now()} ` +
+    `waitUntil timed out seed=${surface.seed.toString(16)} now=${simClock.now()} ` +
       `withinMs=${withinMs} pendingEvents=${scheduler.pendingTaskCount()} ` +
       `held=${held.length > 0 ? held.join(',') : 'none'}`
   );
@@ -123,13 +123,13 @@ export async function waitUntil(
 
 /** Advance virtual time for `forMs` and fail if `target` becomes true. */
 export async function waitNever(
-  world: WaitWorld,
+  surface: WaitKit,
   target: UntilTarget,
   opts: NeverOptions
 ): Promise<void> {
   const forMs = opts.forMs;
   const stepMs = 25;
-  const { scheduler } = world;
+  const { scheduler } = surface;
   const simClock = scheduler.clock;
   const start = simClock.now();
   const watch = watchTarget(target);
@@ -137,7 +137,7 @@ export async function waitNever(
   if (await watch.ready()) {
     await watch.settle();
     throw new Error(
-      `waitNever violated seed=${world.seed.toString(16)} now=${simClock.now()} ` +
+      `waitNever violated seed=${surface.seed.toString(16)} now=${simClock.now()} ` +
         `forMs=${forMs} (target true before window)`
     );
   }
@@ -147,9 +147,9 @@ export async function waitNever(
     await scheduler.runFor(stepMs);
     if (await watch.ready()) {
       await watch.settle();
-      const held = heldSummary(world);
+      const held = heldSummary(surface);
       throw new Error(
-        `waitNever violated seed=${world.seed.toString(16)} now=${simClock.now()} ` +
+        `waitNever violated seed=${surface.seed.toString(16)} now=${simClock.now()} ` +
           `forMs=${forMs} pendingEvents=${scheduler.pendingTaskCount()} ` +
           `held=${held.length > 0 ? held.join(',') : 'none'}`
       );

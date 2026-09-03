@@ -1,5 +1,5 @@
 /**
- * Full World checkpoint for playground time travel and DST report replay.
+ * Full run checkpoint for playground time travel and DST report replay.
  * Playground capture stores opaque server/client bytes:
  * - `mixed-pglite-sqlite` — PGlite dump + real SQLite serialize (default `real`)
  * - `mixed-pgmm-sqlm` — postgres-mem PGMM + sqlite-mem SQLM (`mem` fabric)

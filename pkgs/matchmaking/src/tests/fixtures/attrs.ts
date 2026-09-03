@@ -6,7 +6,6 @@
 import { expect } from 'bun:test';
 import { Assert } from '@pkgs/assert';
 import { createAttrNamespace } from '@pkgs/attribute';
-import type { MiddlewareHandler } from 'hono';
 import type { MatchedStatus } from '../../interface/types';
 
 export const testNs = createAttrNamespace('mmtest');
@@ -56,15 +55,6 @@ export function registerTestCrashHandler(): () => void {
     },
   });
 }
-
-export const defaultStubAuth: MiddlewareHandler = async (c, next) => {
-  if (c.req.header('x-test-user') === undefined) {
-    return c.json({ error: 'unauthorized' }, 401);
-  }
-  return await next();
-};
-
-export const TEST_AUTH_HEADERS = { 'x-test-user': 'tester' } as const;
 
 export function expectMatched(status: unknown): MatchedStatus {
   expect(status).not.toBeNull();

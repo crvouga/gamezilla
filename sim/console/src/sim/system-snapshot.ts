@@ -1,5 +1,5 @@
 /**
- * Portable logical World snapshot capture / restore for createSim.
+ * Portable logical system snapshot capture / restore for createSim.
  */
 
 import type { Client } from '@apps/client/product/create-client';

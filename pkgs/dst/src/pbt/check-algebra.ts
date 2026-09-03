@@ -3,7 +3,7 @@ import { fingerprint } from '../kernel/fingerprint';
 import type { JsonValue } from '../kernel/json';
 import { createRng } from '../kernel/rng';
 import { closeMonitors } from '../run/checkpoint';
-import { start } from '../run/start';
+import { getRunInternal, start } from '../run/start';
 import { type Walk, walk } from '../run/walk';
 import type { System } from '../system/define-system';
 import type { Action, Property } from '../system/effect';
@@ -97,7 +97,7 @@ async function runEpisode<S>(args: {
     }
     for (const s of w.coverage.states) acc.allStates.add(s);
 
-    const endViolations = await closeMonitors(run._internal.monitors);
+    const endViolations = await closeMonitors(getRunInternal(run).monitors);
     await run[Symbol.asyncDispose]().catch(() => {});
 
     for (const v of endViolations) {
@@ -350,23 +350,22 @@ export async function replay<S>(
       if (action === undefined) {
         throw new Error(`replay: unknown action '${choice.action}'`);
       }
+      const internal = getRunInternal(run);
       const before = fingerprint(
-        Object.fromEntries(run._internal.memo) as JsonValue
+        Object.fromEntries(internal.memo) as JsonValue
       );
       // Replay draws: use replaying rng by applying with recorded floats
       // via a custom path — patch ctx rng
       const { createReplayingRng } = await import('../kernel/rng');
       const replayRng = createReplayingRng(choice.draws);
-      const origRng = run._internal.rng;
-      (run._internal as unknown as { rng: typeof replayRng }).rng = replayRng;
+      const origRng = internal.rng;
+      internal.rng = replayRng;
 
       await run.apply(action);
 
-      (run._internal as unknown as { rng: typeof origRng }).rng = origRng;
+      internal.rng = origRng;
 
-      const after = fingerprint(
-        Object.fromEntries(run._internal.memo) as JsonValue
-      );
+      const after = fingerprint(Object.fromEntries(internal.memo) as JsonValue);
       void before;
       void after;
     }

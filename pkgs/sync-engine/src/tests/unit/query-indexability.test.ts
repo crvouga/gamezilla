@@ -13,7 +13,7 @@ import {
 } from '../../shared';
 import {
   foldersOnlyQuery,
-  notesWorldQuery,
+  notesAllQuery,
   ownProfileQuery,
 } from '../apps/acme/shared/queries';
 
@@ -75,8 +75,8 @@ describe('query indexability (acme)', () => {
     });
   });
 
-  test('notesWorld / foldersOnly require catalog allowlist', async () => {
-    const registry = queryRegistry([notesWorldQuery, foldersOnlyQuery]);
+  test('notesAll / foldersOnly require catalog allowlist', async () => {
+    const registry = queryRegistry([notesAllQuery, foldersOnlyQuery]);
     await expect(
       assertQueryRegistryIndexable(registry, {
         schemaIndexes: pkSchemaIndexes(['notes', 'folders']),
@@ -91,7 +91,7 @@ describe('query indexability (acme)', () => {
   });
 
   test('extractWorkload + analyze gaps empty when catalogs listed', async () => {
-    const registry = queryRegistry([notesWorldQuery, ownProfileQuery]);
+    const registry = queryRegistry([notesAllQuery, ownProfileQuery]);
     const manifest = await extractWorkload(registry);
     const report = analyzeIndexability({
       manifest,

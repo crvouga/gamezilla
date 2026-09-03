@@ -2,7 +2,7 @@
  * Open a product UI simulation: `start(product)` on {@link simHost} / {@link maxHost}.
  */
 
-import type { Host, Ports, Run } from '@pkgs/dst';
+import type { Host, Ports, Run, Session } from '@pkgs/dst';
 import { start } from '@pkgs/dst';
 import type { SimulationReporter } from '@pkgs/sim-console';
 import type { SimSystemSnapshot } from '@pkgs/sim-console/shared/sim-system-snapshot';
@@ -20,6 +20,7 @@ import { maxHost, simHost } from '../host';
 import type { ProductExtra, ProductUi } from '../host/ports';
 import { PRODUCT_PROPERTIES } from '../scenario/observations';
 import type { ProductRuntime, SimActorHandle } from '../scenario/surface';
+import { productExtra } from '../scenario/surface';
 import { type ProductSurface, product } from '../scenario/system';
 import {
   type OpenSimFidelity,
@@ -44,10 +45,6 @@ import { readSimSystemSnapshot } from './sim-snapshot-fixture';
 export type { SimActorHandle };
 export type OpenSimHandle = Run<ProductSurface>;
 
-export function productOf(run: Run<ProductSurface>): ProductSurface {
-  return run._internal.surface;
-}
-
 function isUiTestCtx(value: unknown): value is UiTestCtx {
   if (typeof value !== 'object' || value === null) return false;
   const record = value as Record<string, unknown>;
@@ -66,10 +63,6 @@ function resolveHost(
   const driverKind =
     ctx?.driverKind ?? (fidelity === 'max' ? 'playwright' : 'rntl');
   return driverKind === 'playwright' ? maxHost() : simHost();
-}
-
-function extraOf(session: { readonly ports: object }): ProductExtra {
-  return session.ports as ProductExtra;
 }
 
 type WiredRuntime = {
@@ -111,9 +104,6 @@ function makeRuntime(args: {
       surface.actors.delete(id);
       await surface.sim.dropClient(id);
       surface.sim.bumpClientEpoch();
-    },
-    clearUiFocus() {
-      rntlOf(extra.ui)?.clearFocus();
     },
     async disposeResources() {
       await disposeProduct(surface.sim, extra, wired);
@@ -167,23 +157,23 @@ async function restoreSnapshot(
 }
 
 async function wireSurface(args: {
-  readonly run: Run<ProductSurface>;
-  readonly extra: ProductExtra;
+  readonly surface: ProductSurface;
   readonly testId: string;
   readonly snapshot?: SimSystemSnapshot;
 }): Promise<void> {
-  const surface = productOf(args.run);
+  const { surface } = args;
+  const extra = productExtra(surface);
   if (args.snapshot !== undefined) {
     await restoreSnapshot(surface.sim, args.snapshot);
   }
   if (simReportEnabled()) {
     await reportFs.mkdir(reportDataDir, { recursive: true });
   }
-  const rntl = rntlOf(args.extra.ui);
+  const rntl = rntlOf(extra.ui);
   const reporter = createSimReporter({
     testId: args.testId,
     sim: surface.sim,
-    driverKind: args.extra.ui.kind === 'playwright' ? 'playwright' : 'rntl',
+    driverKind: extra.ui.kind === 'playwright' ? 'playwright' : 'rntl',
     rntl,
   });
   const wired: WiredRuntime = {
@@ -191,36 +181,67 @@ async function wireSurface(args: {
     reporter,
     httpListener: null,
   };
-  if (args.extra.http.kind === 'loopback') {
+  if (extra.http.kind === 'loopback') {
     wired.httpListener = await listenSimHttpServer(surface.sim);
   }
   surface.runtime = makeRuntime({
     surface,
-    extra: args.extra,
+    extra,
     reporter,
     snapshot: args.snapshot,
     wired,
   });
 }
 
-function wrapRun(run: Run<ProductSurface>): OpenSimHandle {
-  return {
-    apply: run.apply.bind(run),
-    observe: run.observe.bind(run),
-    assert: run.assert.bind(run),
-    async [Symbol.asyncDispose]() {
-      await productOf(run).runtime.disposeResources();
-      await run[Symbol.asyncDispose]();
+/**
+ * Pin the surface for setup wiring only. `Run` is the sole public handle —
+ * scenarios never see this, and nothing outside this module may call it.
+ */
+async function pinSurface(run: Run<ProductSurface>): Promise<ProductSurface> {
+  let pinned: ProductSurface | null = null;
+  const capture = product.defineAction({
+    name: 'openSim.pinSurface',
+    *generate() {
+      yield (s: ProductSurface) => {
+        pinned = s;
+      };
     },
-    _internal: run._internal,
-  };
+  });
+  await run.apply(capture);
+  if (pinned === null) {
+    throw new Error('openSim: surface pin did not run');
+  }
+  return pinned;
 }
 
-export async function openSim(
-  testId: string,
+/**
+ * Product resources are torn down when the run disposes its session; the hook
+ * is installed before `start` and filled in once the runtime is wired.
+ */
+function hostWithProductDispose(
+  host: Host<Ports & ProductExtra>,
+  disposeRef: { current: (() => Promise<void>) | null }
+): Host<Ports & ProductExtra> {
+  return host.with(async (session: Session<Ports & ProductExtra>) => {
+    const disposeSession = session.dispose.bind(session);
+    (session as { dispose: () => Promise<void> }).dispose = async () => {
+      try {
+        await disposeRef.current?.();
+      } finally {
+        await disposeSession();
+      }
+    };
+    return {};
+  });
+}
+
+function resolveArgs(
   ctxOrOptions?: UiTestCtx | OpenSimOptions,
   maybeOptions?: OpenSimOptions
-): Promise<OpenSimHandle> {
+): {
+  readonly ctx: UiTestCtx | undefined;
+  readonly options: OpenSimOptions | undefined;
+} {
   const ctx =
     ctxOrOptions !== undefined && isUiTestCtx(ctxOrOptions)
       ? ctxOrOptions
@@ -229,25 +250,37 @@ export async function openSim(
     ctx !== undefined
       ? maybeOptions
       : (ctxOrOptions as OpenSimOptions | undefined);
+  return { ctx, options };
+}
+
+export async function openSim(
+  testId: string,
+  ctxOrOptions?: UiTestCtx | OpenSimOptions,
+  maybeOptions?: OpenSimOptions
+): Promise<OpenSimHandle> {
+  const { ctx, options } = resolveArgs(ctxOrOptions, maybeOptions);
   ensureNodeLocalStoragePolyfill();
-  const host = resolveHost(ctx, options);
+  const disposeRef: { current: (() => Promise<void>) | null } = {
+    current: null,
+  };
+  const host = hostWithProductDispose(resolveHost(ctx, options), disposeRef);
   const run = await start(product, {
     host: host as Host<Ports>,
     seed: 1,
     properties: PRODUCT_PROPERTIES,
   });
-  const extra = extraOf(productOf(run).session);
+  const surface = await pinSurface(run);
   const snapshot =
     options?.snapshot !== undefined
       ? readSimSystemSnapshot(options.snapshot)
       : undefined;
   await wireSurface({
-    run,
-    extra,
+    surface,
     testId,
     ...(snapshot !== undefined ? { snapshot } : {}),
   });
-  return wrapRun(run);
+  disposeRef.current = () => surface.runtime.disposeResources();
+  return run;
 }
 
 export type { OpenSimFidelity, OpenSimOptions };

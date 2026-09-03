@@ -1,42 +1,58 @@
 import { describe, expect, test } from 'bun:test';
+import { start } from '@pkgs/dst';
 import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  assertConverged,
   createSpace,
+  hasTopic,
+  hold,
+  lacksTopic,
   leaveSpace,
+  mutate,
+  passTime,
+  release,
   roomTopic,
   SPACE_MEMBERSHIP_SESSION,
+  subscribedTopics,
+  syncVirtualHost,
+  untilAcme,
 } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
 
 describe('topic sync waits for mutations drain', () => {
   test('topic sync waits until pending mutations drain', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 803,
-      knobs: {
+      host: syncVirtualHost(),
+      draws: acmeDraws({
         clientCount: 0,
-      },
+      }),
+      properties: [],
     });
 
-    const a = await world.addClient({
+    await run.apply(addClient, {
       id: 'alice',
       sessionQuery: SPACE_MEMBERSHIP_SESSION,
     });
-    await a.mutate(createSpace, { id: 'gated', title: 'G' });
-    await world.assertConverged();
-    await world.waitUntil(() =>
-      a.subscribedTopics().includes(roomTopic('gated'))
-    );
+    await run.apply(mutate, 'alice', createSpace, { id: 'gated', title: 'G' });
+    await run.apply(assertConverged);
+    await untilAcme(run, subscribedTopics('alice'), {
+      pred: hasTopic(roomTopic('gated')),
+    });
 
-    {
-      using _hold = world.net('alice', 'sync').set('hold');
-      await a.mutate(leaveSpace, { spaceId: 'gated' });
-      await world.advance(300);
-      // Upload held → membership sync must not drop room topic yet.
-      expect(a.subscribedTopics()).toContain(roomTopic('gated'));
-    }
-    await world.waitUntil(
-      () => !a.subscribedTopics().includes(roomTopic('gated'))
+    await run.apply(hold, 'alice', 'sync');
+    await run.apply(mutate, 'alice', leaveSpace, { spaceId: 'gated' });
+    await run.apply(passTime, 300);
+    // Upload held → membership sync must not drop room topic yet.
+    expect(await run.observe(subscribedTopics('alice'))).toContain(
+      roomTopic('gated')
     );
-    expect(a.subscribedTopics()).not.toContain(roomTopic('gated'));
-    await world.assertConverged();
+    await run.apply(release, 'alice', 'sync');
+
+    await untilAcme(run, subscribedTopics('alice'), {
+      pred: lacksTopic(roomTopic('gated')),
+    });
+    await run.apply(assertConverged);
   });
 });

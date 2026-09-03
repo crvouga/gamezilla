@@ -1,35 +1,51 @@
 import { describe, expect, test } from 'bun:test';
-import { expectLiveNote, setNote } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import { start } from '@pkgs/dst';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  converge,
+  hold,
+  lastMutationId,
+  lastMutationOk,
+  liveNote,
+  mutate,
+  neverAcme,
+  outcome,
+  release,
+  setNote,
+  syncVirtualHost,
+  untilAcme,
+} from '../apps/acme';
 
 describe('held sync upload retries on release', () => {
   test('held sync keeps queue pending then confirms after release', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 502,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
 
-    let mutationId = '';
-    {
-      using _hold = world.net('alice', 'sync').set('hold');
-      const queued = await a.mutate(setNote, {
-        id: 'n1',
-        body: 'transient',
-      });
-      expect(queued.ok).toBe(true);
-      if (!queued.ok) return;
-      mutationId = queued.mutationId;
+    await run.apply(hold, 'alice', 'sync');
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'transient' });
+    expect(await run.observe(lastMutationOk('alice'))).toBe(true);
+    const mutationId = await run.observe(lastMutationId('alice'));
+    expect(mutationId).not.toBeNull();
+    if (mutationId === null) return;
 
-      await world.waitNever(a.outcome(mutationId), { forMs: 300 });
-    }
-    await world.waitUntil(a.outcome(mutationId), { withinMs: 5_000 });
-    expect(await a.outcome(mutationId)).toBe('confirmed');
-    await world.assertConverged();
-    await expectLiveNote(b.db, 'n1', { body: 'transient' });
+    // Held sync: the queued row stays pending for the whole window.
+    await neverAcme(run, outcome('alice', mutationId), { forMs: 300 });
+
+    await run.apply(release, 'alice', 'sync');
+    await untilAcme(run, outcome('alice', mutationId));
+    expect(await run.observe(outcome('alice', mutationId))).toBe('confirmed');
+    await run.apply(converge);
+    expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+      body: 'transient',
+    });
   });
 });

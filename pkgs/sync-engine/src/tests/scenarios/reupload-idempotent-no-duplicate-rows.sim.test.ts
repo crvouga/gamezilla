@@ -1,50 +1,66 @@
 import { describe, expect, test } from 'bun:test';
-import { expectLiveNote, readLiveNotes, setNote } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import { start } from '@pkgs/dst';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  converge,
+  liveNote,
+  liveNotes,
+  mutate,
+  online,
+  passTime,
+  setNote,
+  syncVirtualHost,
+} from '../apps/acme';
 
 describe('reupload idempotent no duplicate rows', () => {
   test('reconnect after offline set does not duplicate domain rows', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 70,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
 
-    a.online(false);
-    await a.mutate(setNote, { id: 'n1', body: 'once' });
-    a.online(true);
-    await world.assertConverged();
+    await run.apply(online, 'alice', false);
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'once' });
+    await run.apply(online, 'alice', true);
+    await run.apply(converge);
 
     // Force another upload cycle via brief offline/online.
-    a.online(false);
-    await world.advance(20);
-    a.online(true);
-    await world.assertConverged();
+    await run.apply(online, 'alice', false);
+    await run.apply(passTime, 20);
+    await run.apply(online, 'alice', true);
+    await run.apply(converge);
 
-    await expectLiveNote(b.db, 'n1', { body: 'once' });
-    const server = await readLiveNotes(world.server.db);
+    expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+      body: 'once',
+    });
+    const server = await run.observe(liveNotes('server'));
     expect(server.filter((r) => r.id === 'n1')).toHaveLength(1);
   });
 
   test('repeated setNote on same id keeps single live row', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 71,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    await a.mutate(setNote, { id: 'n1', body: 'v1' });
-    await a.mutate(setNote, { id: 'n1', body: 'v2' });
-    await a.mutate(setNote, { id: 'n1', body: 'v3' });
-    await world.assertConverged();
-    const server = await readLiveNotes(world.server.db);
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'v1' });
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'v2' });
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'v3' });
+    await run.apply(converge);
+    const server = await run.observe(liveNotes('server'));
     expect(server.filter((r) => r.id === 'n1')).toHaveLength(1);
-    await expectLiveNote(a.db, 'n1', { body: 'v3' });
+    expect(await run.observe(liveNote('alice', 'n1'))).toMatchObject({
+      body: 'v3',
+    });
   });
 });

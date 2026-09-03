@@ -1,9 +1,21 @@
 import { describe, expect, test } from 'bun:test';
-import { sql } from '@pkgs/sql';
+import { start } from '@pkgs/dst';
 import { RELIABLE_FAULTS } from '../../sim/faults';
-import { toKernelFaults } from '../../sim/network';
-import { setNote } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import type { SyncAction } from '../../sim/scenario';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  assertConverged,
+  liveNote,
+  mutate,
+  nodeNow,
+  noteBodyIs,
+  playActions,
+  setNote,
+  syncVirtualHost,
+  untilAcme,
+} from '../apps/acme';
 
 const IMMEDIATE_DRAIN_MS = 0;
 const REPLAY_PUBLISH_MS = 40;
@@ -11,37 +23,44 @@ const PUBSUB_HOP_MS = 40;
 const PEER_VISIBLE_BUDGET_MS =
   IMMEDIATE_DRAIN_MS + REPLAY_PUBLISH_MS + PUBSUB_HOP_MS;
 
+/** Fixed one-hop latency on every node, so the budget is not trivially zero. */
+const HOP_LATENCY: readonly SyncAction[] = ['alice', 'bob', 'server'].map(
+  (nodeId) => ({
+    kind: 'setFaults',
+    nodeId,
+    traffic: 'all',
+    faults: {
+      ...RELIABLE_FAULTS,
+      latencyMeanMs: PUBSUB_HOP_MS,
+      latencyJitterMs: 0,
+    },
+  })
+);
+
 describe('peer visibility under 200ms sim budget', () => {
   test('peer visibility under 200ms sim time', async () => {
     expect(PEER_VISIBLE_BUDGET_MS).toBeLessThan(200);
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 19,
-      knobs: {
-        clientCount: 0,
-      },
-      networkFaults: toKernelFaults({
-        ...RELIABLE_FAULTS,
-        latencyMeanMs: PUBSUB_HOP_MS,
-        latencyJitterMs: 0,
-      }),
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
-    await a.mutate(setNote, { id: 'warm', body: 'w' });
-    await world.assertConverged();
+    await run.apply(addClient, 'alice');
+    await run.apply(addClient, 'bob');
+    await run.apply(playActions, HOP_LATENCY);
+    await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
+    await run.apply(assertConverged);
 
-    const t0 = world.node('bob').now();
-    await a.mutate(setNote, { id: 'fast', body: 'y' });
-    const at = await world.waitUntil(
-      async () => {
-        const rows = await b.db.query(sql<{ body: string }>`
-          SELECT body FROM notes WHERE id = 'fast' AND deleted_at IS NULL
-        `);
-        return rows[0]?.body === 'y';
-      },
-      { withinMs: 400, stepMs: 10 }
-    );
+    const t0 = await run.observe(nodeNow('bob'));
+    await run.apply(mutate, 'alice', setNote, { id: 'fast', body: 'y' });
+    await untilAcme(run, liveNote('bob', 'fast'), {
+      maxMs: 400,
+      stepMs: 10,
+      pred: noteBodyIs('y'),
+    });
+    const at = await run.observe(nodeNow('bob'));
     expect(at - t0).toBeLessThan(200);
   });
 });

@@ -1,7 +1,18 @@
 import { describe, test } from 'bun:test';
+import { start } from '@pkgs/dst';
 import { MAX_FANOUT_ROWS } from '@pkgs/sync-engine/shared';
-import { expectNotesMatchServer, retouchNotes, setNote } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  assertConverged,
+  mutate,
+  passTime,
+  retouchNotes,
+  setNote,
+  syncVirtualHost,
+} from '../apps/acme';
+import { expectNotesAgree } from '../apps/acme/reads';
 
 function noteIds(count: number): string[] {
   return Array.from(
@@ -12,25 +23,25 @@ function noteIds(count: number): string[] {
 
 describe('fanout receive cap on push', () => {
   test('oversized push row images are dropped; refetch converges', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 9402,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
+    await run.apply(addClient, 'alice');
+    await run.apply(addClient, 'bob');
     const ids = noteIds(MAX_FANOUT_ROWS + 1);
 
     for (const id of ids) {
-      await a.mutate(setNote, { id, body: 'seed' });
+      await run.apply(mutate, 'alice', setNote, { id, body: 'seed' });
     }
-    await world.assertConverged();
+    await run.apply(assertConverged);
 
-    await a.mutate(retouchNotes, { ids, body: 'over-cap' });
-    await world.advance(500);
-    await world.assertConverged();
-    await expectNotesMatchServer(b.db, world.server.db);
+    await run.apply(mutate, 'alice', retouchNotes, { ids, body: 'over-cap' });
+    await run.apply(passTime, 500);
+    await run.apply(assertConverged);
+    await expectNotesAgree(run, 'bob');
   });
 });

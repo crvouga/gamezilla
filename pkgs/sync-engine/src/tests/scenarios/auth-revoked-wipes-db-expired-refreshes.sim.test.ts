@@ -1,184 +1,215 @@
 import { describe, expect, test } from 'bun:test';
+import { start } from '@pkgs/dst';
 import {
-  expectLiveNote,
-  expectNoteNotLive,
-  isLiveNote,
-  readLiveNotes,
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  assertConverged,
+  auth,
+  connect,
+  disconnect,
+  expectLiveNoteAt,
+  expectNoteNotLiveAt,
+  expectNotesAgree,
+  invariantViolations,
+  lastError,
+  liveNote,
+  mutate,
+  neverAcme,
+  nudge,
+  restart,
   setNote,
+  subscribedTopics,
+  syncVirtualHost,
+  untilAcme,
 } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
 
 describe('auth revoked wipes db expired refreshes', () => {
   test('expired token refreshes; held queue drains and converges', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 601,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
 
-    await a.disconnect();
-    await a.mutate(setNote, { id: 'n-exp', body: 'queued-through-refresh' });
-    await world.waitNever(() => isLiveNote(world.server.db, 'n-exp'), {
-      forMs: 50,
+    await run.apply(disconnect, 'alice');
+    await run.apply(mutate, 'alice', setNote, {
+      id: 'n-exp',
+      body: 'queued-through-refresh',
     });
+    await neverAcme(run, liveNote('server', 'n-exp'), { forMs: 50 });
 
-    world.node('alice').auth('expired');
-    await a.connect();
-    await world.assertConverged();
+    await run.apply(auth, 'alice', 'expired');
+    await run.apply(connect, 'alice');
+    await run.apply(assertConverged);
 
-    await expectLiveNote(b.db, 'n-exp', { body: 'queued-through-refresh' });
-    await expectLiveNote(a.db, 'n-exp', { body: 'queued-through-refresh' });
+    await expectLiveNoteAt(run, 'bob', 'n-exp', {
+      body: 'queued-through-refresh',
+    });
+    await expectLiveNoteAt(run, 'alice', 'n-exp', {
+      body: 'queued-through-refresh',
+    });
   });
 
   test('revoked wipe drops unuploaded optimistic edit; restart rehydrates server only', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 602,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    await world.addClient({ id: 'bob' });
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
 
-    await a.mutate(setNote, { id: 'n-kept', body: 'on-server' });
-    await world.assertConverged();
-
-    await a.disconnect();
-    await a.mutate(setNote, { id: 'n-lost', body: 'never-uploaded' });
-    await world.waitNever(() => isLiveNote(world.server.db, 'n-lost'), {
-      forMs: 50,
+    await run.apply(mutate, 'alice', setNote, {
+      id: 'n-kept',
+      body: 'on-server',
     });
+    await run.apply(assertConverged);
 
-    world.node('alice').auth('revoked');
-    await a.connect();
-    await world.waitNever(() => isLiveNote(world.server.db, 'n-lost'), {
-      forMs: 500,
+    await run.apply(disconnect, 'alice');
+    await run.apply(mutate, 'alice', setNote, {
+      id: 'n-lost',
+      body: 'never-uploaded',
     });
+    await neverAcme(run, liveNote('server', 'n-lost'), { forMs: 50 });
 
-    const alice2 = await world.node('alice').restart();
-    await world.assertConverged();
+    await run.apply(auth, 'alice', 'revoked');
+    await run.apply(connect, 'alice');
+    await neverAcme(run, liveNote('server', 'n-lost'), { forMs: 500 });
 
-    await expectLiveNote(alice2!.db, 'n-kept', { body: 'on-server' });
-    await expectNoteNotLive(alice2!.db, 'n-lost');
-    await expectNoteNotLive(world.server.db, 'n-lost');
+    await run.apply(restart, 'alice', {});
+    await run.apply(assertConverged);
+
+    await expectLiveNoteAt(run, 'alice', 'n-kept', { body: 'on-server' });
+    await expectNoteNotLiveAt(run, 'alice', 'n-lost');
+    await expectNoteNotLiveAt(run, 'server', 'n-lost');
   });
 
   test('expired during multi-mutation drain refreshes without loss', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 603,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
 
-    await a.disconnect();
+    await run.apply(disconnect, 'alice');
     for (let i = 0; i < 5; i += 1) {
-      await a.mutate(setNote, {
+      await run.apply(mutate, 'alice', setNote, {
         id: `drain-${i}`,
         body: `d${i}`,
       });
     }
-    await world.waitNever(() => isLiveNote(world.server.db, 'drain-0'), {
-      forMs: 50,
-    });
+    await neverAcme(run, liveNote('server', 'drain-0'), { forMs: 50 });
 
-    world.node('alice').auth('expired');
-    await a.connect();
-    await world.assertConverged();
+    await run.apply(auth, 'alice', 'expired');
+    await run.apply(connect, 'alice');
+    await run.apply(assertConverged);
 
     for (let i = 0; i < 5; i += 1) {
-      await expectLiveNote(b.db, `drain-${i}`, { body: `d${i}` });
-      await expectLiveNote(a.db, `drain-${i}`, { body: `d${i}` });
+      await expectLiveNoteAt(run, 'bob', `drain-${i}`, { body: `d${i}` });
+      await expectLiveNoteAt(run, 'alice', `drain-${i}`, { body: `d${i}` });
     }
   });
 
   test('revoked mid-push session wipes and detaches topics', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 604,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
 
-    await a.mutate(setNote, { id: 'n-before', body: 'visible' });
-    await world.assertConverged();
-    expect(a.subscribedTopics().length).toBeGreaterThan(0);
+    await run.apply(mutate, 'alice', setNote, {
+      id: 'n-before',
+      body: 'visible',
+    });
+    await run.apply(assertConverged);
+    expect(
+      (await run.observe(subscribedTopics('alice'))).length
+    ).toBeGreaterThan(0);
 
-    world.node('alice').auth('revoked');
-    await b.mutate(setNote, { id: 'n-late', body: 'after-revoke' });
-    // nudge: revoke path may reject refresh — drive until settle/timeout
-    await world.waitUntil(a.nudge().catch(() => undefined));
-    await world.waitUntil(() => a.subscribedTopics().length === 0, {
-      withinMs: 2_000,
+    await run.apply(auth, 'alice', 'revoked');
+    await run.apply(mutate, 'bob', setNote, {
+      id: 'n-late',
+      body: 'after-revoke',
+    });
+    // nudge: revoke path may reject refresh — drive until topics detach.
+    await run.apply(nudge, 'alice');
+    await untilAcme(run, subscribedTopics('alice'), {
+      maxMs: 2_000,
+      pred: (t) => Array.isArray(t) && t.length === 0,
     });
 
-    expect(a.subscribedTopics()).toEqual([]);
-    await expectLiveNote(world.server.db, 'n-before', { body: 'visible' });
-    await expectLiveNote(b.db, 'n-late', { body: 'after-revoke' });
+    expect(await run.observe(subscribedTopics('alice'))).toEqual([]);
+    await expectLiveNoteAt(run, 'server', 'n-before', { body: 'visible' });
+    await expectLiveNoteAt(run, 'bob', 'n-late', { body: 'after-revoke' });
 
-    const alice2 = await world.node('alice').restart();
-    await world.assertConverged();
-    await expectLiveNote(alice2!.db, 'n-before', { body: 'visible' });
-    await expectLiveNote(alice2!.db, 'n-late', { body: 'after-revoke' });
-    expect(await readLiveNotes(alice2!.db)).toEqual(
-      await readLiveNotes(world.server.db)
-    );
+    await run.apply(restart, 'alice', {});
+    await run.apply(assertConverged);
+    await expectLiveNoteAt(run, 'alice', 'n-before', { body: 'visible' });
+    await expectLiveNoteAt(run, 'alice', 'n-late', { body: 'after-revoke' });
+    await expectNotesAgree(run, 'alice');
   });
 
   test('upgrade_required rejects without wiping local rows', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 605,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
+    await run.apply(addClient, { id: 'alice' });
 
-    await a.mutate(setNote, { id: 'n-keep', body: 'local-and-server' });
-    await world.assertConverged();
+    await run.apply(mutate, 'alice', setNote, {
+      id: 'n-keep',
+      body: 'local-and-server',
+    });
+    await run.apply(assertConverged);
 
-    world.node('alice').auth('upgrade_required');
-    await a.disconnect();
-    await a.connect();
-    await world.waitUntil(
-      () => (a.lastError() ?? '').includes('upgrade_required'),
-      {
-        withinMs: 2_000,
-      }
-    );
+    await run.apply(auth, 'alice', 'upgrade_required');
+    await run.apply(disconnect, 'alice');
+    await run.apply(connect, 'alice');
+    await untilAcme(run, lastError('alice'), {
+      maxMs: 2_000,
+      pred: (e) => typeof e === 'string' && e.includes('upgrade_required'),
+    });
 
     // Protocol cut must not wipe — local + server still hold the note.
-    await expectLiveNote(a.db, 'n-keep', { body: 'local-and-server' });
-    await expectLiveNote(world.server.db, 'n-keep', {
+    await expectLiveNoteAt(run, 'alice', 'n-keep', {
+      body: 'local-and-server',
+    });
+    await expectLiveNoteAt(run, 'server', 'n-keep', {
       body: 'local-and-server',
     });
   });
 
   test('seq invariants skip a revoked client after server restart', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 606,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'c0' });
-    await world.addClient({ id: 'c1' });
-    world.node('c0').auth('revoked');
-    await a.connect();
-    await world.node('server').restart({ preserveLocalDb: true });
-    await world.checkInvariants();
+    await run.apply(addClient, { id: 'c0' });
+    await run.apply(addClient, { id: 'c1' });
+    await run.apply(auth, 'c0', 'revoked');
+    await run.apply(connect, 'c0');
+    await run.apply(restart, 'server', { preserveLocalDb: true });
+    expect(await run.observe(invariantViolations)).toEqual([]);
   });
 });

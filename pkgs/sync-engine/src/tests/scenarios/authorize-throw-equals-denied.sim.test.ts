@@ -1,54 +1,74 @@
 import { describe, expect, test } from 'bun:test';
-import { expectLiveNote, expectNotesMatchServer, setNote } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import { start } from '@pkgs/dst';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  converge,
+  lastError,
+  liveNote,
+  mutate,
+  nudge,
+  setNote,
+  subscribe,
+  syncVirtualHost,
+  unsubscribe,
+} from '../apps/acme';
 
 describe('authorize throw equals denied', () => {
   test('authorize throw detaches scope, keeps domain rows, stays healthy', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 930,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    await a.mutate(setNote, { id: 'n1', body: 'keep-me' });
-    await world.assertConverged();
-    await expectLiveNote(a.db, 'n1', { body: 'keep-me' });
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'keep-me' });
+    await run.apply(converge);
+    expect(await run.observe(liveNote('alice', 'n1'))).toMatchObject({
+      body: 'keep-me',
+    });
 
     {
-      using thrown = a.subscribe('notesAuthorizeThrow', {});
-      await world.waitUntil(thrown.ready);
+      await run.apply(subscribe, 'alice', 'notesAuthorizeThrow', {});
       // Same observable outcome as denied: domain retained, no crash loop.
-      await expectLiveNote(a.db, 'n1', { body: 'keep-me' });
-      await expectNotesMatchServer(a.db, world.server.db);
-      expect(a.lastError()).toBeNull();
+      expect(await run.observe(liveNote('alice', 'n1'))).toMatchObject({
+        body: 'keep-me',
+      });
+      expect(await run.observe(lastError('alice'))).toBeNull();
+      await run.apply(unsubscribe, 'alice', 'notesAuthorizeThrow');
     }
     // nudge: refresh after denied-scope unsubscribe
-    await world.waitUntil(a.nudge());
-    await expectLiveNote(a.db, 'n1', { body: 'keep-me' });
-    await world.assertConverged();
+    await run.apply(nudge, 'alice');
+    expect(await run.observe(liveNote('alice', 'n1'))).toMatchObject({
+      body: 'keep-me',
+    });
+    await run.apply(converge);
   });
 
   test.each([931, 932, 933])(
     'seed sweep authorize-throw stays healthy (seed=%i)',
     async (seed) => {
-      await using world = await openAcmeWorld({
+      await using run = await start(acmeSystem, {
         seed: seed,
-        knobs: {
-          clientCount: 0,
-        },
+        host: syncVirtualHost(),
+        draws: acmeDraws({ clientCount: 0 }),
+        properties: [],
       });
 
-      const a = await world.addClient({ id: 'alice' });
-      await a.mutate(setNote, { id: `n-${seed}`, body: 'x' });
-      await world.assertConverged();
+      await run.apply(addClient, { id: 'alice' });
+      await run.apply(mutate, 'alice', setNote, { id: `n-${seed}`, body: 'x' });
+      await run.apply(converge);
       {
-        using sub = a.subscribe('notesAuthorizeThrow', {});
-        await world.waitUntil(sub.ready);
-        await expectLiveNote(a.db, `n-${seed}`, { body: 'x' });
+        await run.apply(subscribe, 'alice', 'notesAuthorizeThrow', {});
+        expect(await run.observe(liveNote('alice', `n-${seed}`))).toMatchObject(
+          { body: 'x' }
+        );
+        await run.apply(unsubscribe, 'alice', 'notesAuthorizeThrow');
       }
-      await world.assertConverged();
+      await run.apply(converge);
     }
   );
 });

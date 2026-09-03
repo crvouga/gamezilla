@@ -15,8 +15,8 @@ SimDomainPack
 SimSessionQuery
 SyncAction
 SyncApp
+SyncKnobs
 SyncSurface
 UntilTarget
 WaitUntilOptions
-WorldKnobs
 withFrameworkMutations

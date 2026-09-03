@@ -1,35 +1,47 @@
 import { describe, expect, test } from 'bun:test';
-import { expectLiveNote, readLiveNotes, setNote } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import { start } from '@pkgs/dst';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  assertConverged,
+  hold,
+  mutate,
+  passTime,
+  release,
+  setNote,
+  syncVirtualHost,
+} from '../apps/acme';
+import { expectLiveNoteAt, liveNotes } from '../apps/acme/reads';
 
 describe('own echo floor skips but peer push applies', () => {
   test('mutator never flickers on own echo; peer still paints', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 805,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
+    await run.apply(addClient, 'alice');
+    await run.apply(addClient, 'bob');
 
-    await a.mutate(setNote, { id: 'n1', body: 'seed' });
-    await world.assertConverged();
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'seed' });
+    await run.apply(assertConverged);
 
-    {
-      using _hold = world.net('bob', 'sync').set('hold');
-      await a.mutate(setNote, { id: 'n1', body: 'final' });
+    await run.apply(hold, 'bob', 'sync');
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'final' });
 
-      for (let i = 0; i < 8; i += 1) {
-        await world.advance(25);
-        const rows = await readLiveNotes(a.db);
-        expect(rows.find((r) => r.id === 'n1')?.body).toBe('final');
-      }
-
-      await expectLiveNote(b.db, 'n1', { body: 'final' });
+    for (let i = 0; i < 8; i += 1) {
+      await run.apply(passTime, 25);
+      const notes = await run.observe(liveNotes('alice'));
+      expect(notes.find((r) => r.id === 'n1')?.body).toBe('final');
     }
-    await world.assertConverged();
-    await expectLiveNote(b.db, 'n1', { body: 'final' });
+
+    await expectLiveNoteAt(run, 'bob', 'n1', { body: 'final' });
+
+    await run.apply(release, 'bob', 'sync');
+    await run.apply(assertConverged);
+    await expectLiveNoteAt(run, 'bob', 'n1', { body: 'final' });
   });
 });

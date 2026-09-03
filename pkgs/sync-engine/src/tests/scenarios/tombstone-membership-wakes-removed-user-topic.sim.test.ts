@@ -1,15 +1,25 @@
 import { describe, expect, test } from 'bun:test';
+import { start } from '@pkgs/dst';
 import { topicsFromWriteCapture } from '@pkgs/sync-engine/shared';
 import {
+  acmeDraws,
+  acmeSystem,
   acmeTopicMap,
+  addClient,
+  assertConverged,
   createSpace,
+  hasTopic,
   joinSpace,
+  lacksTopic,
   leaveSpace,
+  mutate,
   roomTopic,
   SPACE_MEMBERSHIP_SESSION,
+  subscribedTopics,
+  syncVirtualHost,
+  untilAcme,
   userTopic,
 } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
 
 describe('tombstone membership wakes removed user topic', () => {
   test('spaces_users tombstone post-image still maps to removed user topic', async () => {
@@ -41,34 +51,41 @@ describe('tombstone membership wakes removed user topic', () => {
   });
 
   test('leave soft-delete converges peers and drops leaver room topic', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 1201,
-      knobs: {
+      host: syncVirtualHost(),
+      draws: acmeDraws({
         clientCount: 0,
-      },
+      }),
+      properties: [],
     });
 
-    const a = await world.addClient({
+    await run.apply(addClient, {
       id: 'alice',
       sessionQuery: SPACE_MEMBERSHIP_SESSION,
     });
-    const b = await world.addClient({
+    await run.apply(addClient, {
       id: 'bob',
       sessionQuery: SPACE_MEMBERSHIP_SESSION,
     });
 
-    await a.mutate(createSpace, { id: 'tomb-room', title: 'T' });
-    await b.mutate(joinSpace, { spaceId: 'tomb-room' });
-    await world.assertConverged();
-    await world.waitUntil(() =>
-      b.subscribedTopics().includes(roomTopic('tomb-room'))
-    );
+    await run.apply(mutate, 'alice', createSpace, {
+      id: 'tomb-room',
+      title: 'T',
+    });
+    await run.apply(mutate, 'bob', joinSpace, { spaceId: 'tomb-room' });
+    await run.apply(assertConverged);
+    await untilAcme(run, subscribedTopics('bob'), {
+      pred: hasTopic(roomTopic('tomb-room')),
+    });
 
-    await b.mutate(leaveSpace, { spaceId: 'tomb-room' });
-    await world.waitUntil(
-      () => !b.subscribedTopics().includes(roomTopic('tomb-room'))
+    await run.apply(mutate, 'bob', leaveSpace, { spaceId: 'tomb-room' });
+    await untilAcme(run, subscribedTopics('bob'), {
+      pred: lacksTopic(roomTopic('tomb-room')),
+    });
+    await run.apply(assertConverged);
+    expect(await run.observe(subscribedTopics('alice'))).toContain(
+      roomTopic('tomb-room')
     );
-    await world.assertConverged();
-    expect(a.subscribedTopics()).toContain(roomTopic('tomb-room'));
   });
 });

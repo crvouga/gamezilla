@@ -1,74 +1,74 @@
-import type { World } from '../world-api';
+import type { RoomKit } from '../kit-api';
 import type { DomainOp, LibraryAction, RoomSystemAction } from './actions';
 import type { RoomApp } from './app';
 
 async function dispatchDomainOp(
-  world: World,
+  kit: RoomKit,
   app: RoomApp,
   op: DomainOp
 ): Promise<void> {
-  const client = world.clients.get(op.clientId);
+  const client = kit.clients.get(op.clientId);
   if (client === undefined) return;
   client.dispatch(app.toPayload(op));
 }
 
 const LIBRARY_HANDLERS: {
   readonly [K in LibraryAction['kind']]: (
-    world: World,
+    kit: RoomKit,
     action: Extract<LibraryAction, { kind: K }>
   ) => Promise<void>;
 } = {
-  disconnect: async (world, action) => {
-    const c = world.clients.get(action.clientId);
+  disconnect: async (kit, action) => {
+    const c = kit.clients.get(action.clientId);
     if (c === undefined) return;
     await c.disconnect();
   },
-  connect: async (world, action) => {
-    const c = world.clients.get(action.clientId);
+  connect: async (kit, action) => {
+    const c = kit.clients.get(action.clientId);
     if (c === undefined) return;
     await c.connect();
   },
-  hold: async (world, action) => {
-    world.net(action.clientId).set('hold');
+  hold: async (kit, action) => {
+    kit.net(action.clientId).set('hold');
   },
-  release: async (world, action) => {
-    world.net(action.clientId).set('ok');
+  release: async (kit, action) => {
+    kit.net(action.clientId).set('ok');
   },
-  down: async (world, action) => {
-    world.net(action.clientId).set('down');
+  down: async (kit, action) => {
+    kit.net(action.clientId).set('down');
   },
-  heal: async (world) => {
-    for (const id of world.clients.keys()) {
-      world.net(id).set('ok');
+  heal: async (kit) => {
+    for (const id of kit.clients.keys()) {
+      kit.net(id).set('ok');
     }
   },
-  idle: async (world, action) => {
-    await world.runFor(action.ms);
+  idle: async (kit, action) => {
+    await kit.runFor(action.ms);
   },
-  takeOver: async (world, action) => {
-    await world.node(action.clientId).takeOver();
+  takeOver: async (kit, action) => {
+    await kit.node(action.clientId).takeOver();
   },
-  crash: async (world, action) => {
-    await world.node(action.clientId).crash();
+  crash: async (kit, action) => {
+    await kit.node(action.clientId).crash();
   },
-  restart: async (world, action) => {
-    const c = world.clients.get(action.clientId);
+  restart: async (kit, action) => {
+    const c = kit.clients.get(action.clientId);
     if (c !== undefined && !c.isCrashed()) {
-      await world.node(action.clientId).crash();
+      await kit.node(action.clientId).crash();
     }
-    await world.node(action.clientId).restart();
+    await kit.node(action.clientId).restart();
   },
-  serverCrash: async (world) => {
-    await world.serverCrash();
+  serverCrash: async (kit) => {
+    await kit.serverCrash();
   },
-  serverRestart: async (world) => {
-    await world.serverRestart();
+  serverRestart: async (kit) => {
+    await kit.serverRestart();
   },
-  clearLocalData: async (world, action) => {
-    await world.node(action.clientId).clearLocalData();
+  clearLocalData: async (kit, action) => {
+    await kit.node(action.clientId).clearLocalData();
   },
-  setFaults: async (world, action) => {
-    world.net(action.clientId).set({
+  setFaults: async (kit, action) => {
+    kit.net(action.clientId).set({
       latencyMeanMs: action.faults.latencyMeanMs ?? 5,
       latencyJitterMs: action.faults.latencyJitterMs ?? 5,
       dropProbability: action.faults.dropProbability ?? 0.05,
@@ -80,49 +80,49 @@ const LIBRARY_HANDLERS: {
         : {}),
     });
   },
-  asymmetricLink: async (world, action) => {
-    world.net(action.clientId).set(action.link);
+  asymmetricLink: async (kit, action) => {
+    kit.net(action.clientId).set(action.link);
   },
-  armCrashAt: async (world, action) => {
-    world.armCrashAt(action.clientId, action.event);
+  armCrashAt: async (kit, action) => {
+    kit.armCrashAt(action.clientId, action.event);
   },
-  injectToServer: async (world, action) => {
-    const c = world.clients.get(action.clientId);
+  injectToServer: async (kit, action) => {
+    const c = kit.clients.get(action.clientId);
     if (c === undefined) return;
     c.injectToServer(action.raw, {
       ...(action.direct === true ? { direct: true } : {}),
     });
   },
-  injectFromServer: async (world, action) => {
-    const c = world.clients.get(action.clientId);
+  injectFromServer: async (kit, action) => {
+    const c = kit.clients.get(action.clientId);
     if (c === undefined) return;
     c.injectFromServer(action.raw);
   },
-  addSpectator: async (world, action) => {
-    if (world.clients.has(action.id)) return;
-    await world.addClient({
+  addSpectator: async (kit, action) => {
+    if (kit.clients.has(action.id)) return;
+    await kit.addClient({
       id: action.id,
       ...(action.identity !== undefined ? { identity: action.identity } : {}),
       ...(action.clientId !== undefined ? { clientId: action.clientId } : {}),
     });
   },
-  setLink: async (world, action) => {
-    world.net(action.clientId).set(action.link);
+  setLink: async (kit, action) => {
+    kit.net(action.clientId).set(action.link);
   },
 };
 
 export async function dispatchRoomSystemAction(
-  world: World,
+  kit: RoomKit,
   app: RoomApp,
   action: RoomSystemAction
 ): Promise<void> {
   if (action.kind === 'domain') {
-    await dispatchDomainOp(world, app, action);
+    await dispatchDomainOp(kit, app, action);
     return;
   }
   const handler = LIBRARY_HANDLERS[action.kind] as (
-    world: World,
+    kit: RoomKit,
     action: LibraryAction
   ) => Promise<void>;
-  await handler(world, action);
+  await handler(kit, action);
 }

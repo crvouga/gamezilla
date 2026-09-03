@@ -2,6 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import type { Run } from '@pkgs/dst';
 import { assertProperty, fc } from '@pkgs/pbt';
 import {
+  applyRoomAction,
   arbRoomKnobs,
   arbSeed,
   BYZANTINE_INJECT_KINDS,
@@ -10,7 +11,8 @@ import {
   clientHash,
   clock,
   converge,
-  playRoomActions,
+  domain,
+  passTime,
   type RoomSurface,
   type RoomSystemAction,
   replayRoom,
@@ -66,19 +68,18 @@ describe('room byzantine-wire PBT', () => {
               actions: [],
             });
             const before = await run.observe(serverHash);
-            await playRoomActions(run, [
-              {
-                kind: 'domain',
-                clientId: 'c0',
-                command: 'increment',
-                args: {},
-              },
-              { kind: 'idle', ms: 20 },
-            ]);
-            await playRoomActions(run, [
-              injectAction(kind, await run.observe(clock)),
-              { kind: 'idle', ms: 10 },
-            ]);
+            await run.apply(domain, {
+              kind: 'domain',
+              clientId: 'c0',
+              command: 'increment',
+              args: {},
+            });
+            await run.apply(passTime, 20);
+            await applyRoomAction(
+              run,
+              injectAction(kind, await run.observe(clock))
+            );
+            await run.apply(passTime, 10);
             await run.apply(converge);
             await expectServerTruthRestored(run, before);
           }

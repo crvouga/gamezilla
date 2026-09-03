@@ -1,27 +1,40 @@
 import { describe, test } from 'bun:test';
-import { setNote } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import { start } from '@pkgs/dst';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  converge,
+  mutate,
+  online,
+  passTime,
+  setNote,
+  syncVirtualHost,
+} from '../apps/acme';
 
 describe('remote fanout races local pending mutation', () => {
   test('fanout races local pending mutation on same row then converges', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 29,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
+    await run.apply(addClient, 'alice');
+    await run.apply(addClient, 'bob');
 
-    await a.mutate(setNote, { id: 'n1', body: 'from-a' });
-    await world.assertConverged();
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'from-a' });
+    await run.apply(converge);
 
-    b.online(false);
-    await b.mutate(setNote, { id: 'n1', body: 'from-b-pending' });
-    b.online(true);
-    await a.mutate(setNote, { id: 'n1', body: 'from-a-2' });
-    await world.advance(500);
-    await world.assertConverged();
+    await run.apply(online, 'bob', false);
+    await run.apply(mutate, 'bob', setNote, {
+      id: 'n1',
+      body: 'from-b-pending',
+    });
+    await run.apply(online, 'bob', true);
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'from-a-2' });
+    await run.apply(passTime, 500);
+    await run.apply(converge);
   });
 });

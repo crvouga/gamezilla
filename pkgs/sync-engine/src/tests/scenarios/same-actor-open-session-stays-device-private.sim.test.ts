@@ -1,13 +1,23 @@
 import { describe, expect, test } from 'bun:test';
-import { sql } from '@pkgs/sql';
+import { start } from '@pkgs/dst';
 import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  assertConverged,
   createSpace,
-  expectNoForeignOpenSessions,
-  expectOpenSession,
-  readLiveOpenSessions,
+  deviceId,
+  liveSpace,
+  mutate,
+  passTime,
   SPACE_MEMBERSHIP_SESSION,
+  syncVirtualHost,
 } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import {
+  expectNoForeignOpenSessionsAt,
+  expectOpenSessionAt,
+  liveOpenSessions,
+} from '../apps/acme/reads';
 
 /**
  * Replicates the product bug: createSpace writes spaces + spaces_users (user
@@ -16,40 +26,42 @@ import { openAcmeWorld } from '../apps/acme/system';
  */
 describe('same actor open session stays device private', () => {
   test('createSpace open-session row images do not land on peer device', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 1401,
-      knobs: {
-        clientCount: 0,
-        rowImageFanout: true,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0, rowImageFanout: true }),
+      properties: [],
     });
 
-    const phone = await world.addClient({
+    await run.apply(addClient, {
       id: 'phone',
       actorId: 'user-1',
       sessionQuery: SPACE_MEMBERSHIP_SESSION,
     });
-    const tablet = await world.addClient({
+    await run.apply(addClient, {
       id: 'tablet',
       actorId: 'user-1',
       sessionQuery: SPACE_MEMBERSHIP_SESSION,
     });
 
-    expect(phone.deviceId).not.toBe(tablet.deviceId);
+    expect(await run.observe(deviceId('phone'))).not.toBe(
+      await run.observe(deviceId('tablet'))
+    );
 
-    await phone.mutate(createSpace, { id: 'room-1', title: 'Private open' });
-    await world.assertConverged();
-    await world.advance(200);
+    await run.apply(mutate, 'phone', createSpace, {
+      id: 'room-1',
+      title: 'Private open',
+    });
+    await run.apply(assertConverged);
+    await run.apply(passTime, 200);
 
-    await expectOpenSession(phone.db, phone.deviceId, 'room-1');
-    await expectNoForeignOpenSessions(tablet.db, tablet.deviceId);
+    await expectOpenSessionAt(run, 'phone', 'room-1');
+    await expectNoForeignOpenSessionsAt(run, 'tablet');
 
-    const tabletSessions = await readLiveOpenSessions(tablet.db);
-    expect(tabletSessions).toEqual([]);
+    expect(await run.observe(liveOpenSessions('tablet'))).toEqual([]);
 
-    const tabletSpaces = await tablet.db.query(sql<{ id: string }>`
-      SELECT id FROM spaces WHERE id = ${'room-1'} AND deleted_at IS NULL
-    `);
-    expect(tabletSpaces.length).toBe(1);
+    const tabletSpace = await run.observe(liveSpace('tablet', 'room-1'));
+    expect(tabletSpace).not.toBeNull();
+    expect(tabletSpace?.deletedAt).toBeNull();
   });
 });

@@ -1,69 +1,92 @@
 import { describe, expect, test } from 'bun:test';
-import { expectLiveNote, readLiveNotes, setNote } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import { start } from '@pkgs/dst';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  connect,
+  converge,
+  disconnect,
+  liveNote,
+  liveNotes,
+  mutate,
+  setNote,
+  syncVirtualHost,
+} from '../apps/acme';
 
 const STORM = 150;
 
 describe('mutation storm batching order preserved', () => {
   test('offline queue drains; last-write-wins body matches seq order', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 1060,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
 
-    await a.disconnect();
+    await run.apply(disconnect, 'alice');
     // Many updates to the same id — final body must be last mutate.
     for (let i = 0; i < STORM; i += 1) {
-      await a.mutate(setNote, {
+      await run.apply(mutate, 'alice', setNote, {
         id: 'storm-shared',
         body: `v${i}`,
       });
     }
     // Distinct ids preserve create order / full set.
     for (let i = 0; i < 40; i += 1) {
-      await a.mutate(setNote, {
+      await run.apply(mutate, 'alice', setNote, {
         id: `row-${String(i).padStart(3, '0')}`,
         body: `r${i}`,
       });
     }
 
-    await a.connect();
-    await world.assertConverged();
+    await run.apply(connect, 'alice');
+    await run.apply(converge);
 
-    await expectLiveNote(b.db, 'storm-shared', { body: `v${STORM - 1}` });
-    await expectLiveNote(world.server.db, 'storm-shared', {
+    expect(await run.observe(liveNote('bob', 'storm-shared'))).toMatchObject({
       body: `v${STORM - 1}`,
     });
-    const server = await readLiveNotes(world.server.db);
+    expect(await run.observe(liveNote('server', 'storm-shared'))).toMatchObject(
+      {
+        body: `v${STORM - 1}`,
+      }
+    );
+    const server = await run.observe(liveNotes('server'));
     expect(server.some((n) => n.id === 'row-000')).toBe(true);
     expect(server.some((n) => n.id === 'row-039')).toBe(true);
-    await expectLiveNote(b.db, 'row-039', { body: 'r39' });
+    expect(await run.observe(liveNote('bob', 'row-039'))).toMatchObject({
+      body: 'r39',
+    });
   });
 
   test.each([1061, 1062, 1063])(
     'seed sweep modest storm preserves final body (seed=%i)',
     async (seed) => {
-      await using world = await openAcmeWorld({
+      await using run = await start(acmeSystem, {
         seed: seed,
-        knobs: {
-          clientCount: 0,
-        },
+        host: syncVirtualHost(),
+        draws: acmeDraws({ clientCount: 0 }),
+        properties: [],
       });
 
-      const a = await world.addClient({ id: 'alice' });
-      await world.addClient({ id: 'bob' });
-      await a.disconnect();
+      await run.apply(addClient, { id: 'alice' });
+      await run.apply(addClient, { id: 'bob' });
+      await run.apply(disconnect, 'alice');
       for (let i = 0; i < 30; i += 1) {
-        await a.mutate(setNote, { id: `s-${seed}`, body: `v${i}` });
+        await run.apply(mutate, 'alice', setNote, {
+          id: `s-${seed}`,
+          body: `v${i}`,
+        });
       }
-      await a.connect();
-      await world.assertConverged();
-      await expectLiveNote(world.server.db, `s-${seed}`, { body: 'v29' });
+      await run.apply(connect, 'alice');
+      await run.apply(converge);
+      expect(await run.observe(liveNote('server', `s-${seed}`))).toMatchObject({
+        body: 'v29',
+      });
     }
   );
 });

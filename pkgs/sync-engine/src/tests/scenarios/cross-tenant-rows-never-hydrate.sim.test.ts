@@ -1,95 +1,116 @@
 import { describe, expect, test } from 'bun:test';
+import type { Run } from '@pkgs/dst';
+import { start } from '@pkgs/dst';
 import {
-  expectLiveNote,
-  expectNoteNotLive,
-  isLiveNote,
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  mutate,
   NOTES_AUTH_GATE_FOLDER_ID,
-  readLiveNotes,
+  nudge,
+  type SyncSurface,
   setFolder,
   setNote,
+  syncVirtualHost,
 } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import {
+  expectLiveNoteAt,
+  expectNoteNotLiveAt,
+  isNoteLiveAt,
+  liveNotes,
+} from '../apps/acme/reads';
+
+const OWNED_SESSION = { name: 'notesOwned', params: {} };
+
+/**
+ * Nudge `clientId` across a negative window: every refresh must keep denying
+ * the row. A plain `neverAcme` cannot re-authorize between polls.
+ */
+async function nudgeWhileDenied(
+  run: Run<SyncSurface>,
+  clientId: string,
+  id: string,
+  forMs: number
+): Promise<void> {
+  for (let waited = 0; waited <= forMs; waited += 25) {
+    await run.apply(nudge, clientId);
+    expect(await isNoteLiveAt(run, clientId, id)).toBe(false);
+  }
+}
 
 describe('cross tenant rows never hydrate', () => {
   test('denied notesOwned peer never hydrates owner private rows', async () => {
     // rowImageFanout false: authorize deny must not be bypassed by images.
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 980,
-      knobs: {
-        clientCount: 0,
-        rowImageFanout: false,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0, rowImageFanout: false }),
+      properties: [],
     });
 
-    const a = await world.addClient({
+    await run.apply(addClient, {
       id: 'alice',
       actorId: 'alice',
-      sessionQuery: { name: 'notesOwned', params: {} },
+      sessionQuery: OWNED_SESSION,
     });
-    const b = await world.addClient({
+    await run.apply(addClient, {
       id: 'bob',
       actorId: 'bob',
-      sessionQuery: { name: 'notesOwned', params: {} },
+      sessionQuery: OWNED_SESSION,
     });
 
-    await a.mutate(setFolder, {
+    await run.apply(mutate, 'alice', setFolder, {
       id: NOTES_AUTH_GATE_FOLDER_ID,
       title: 'alice-gate',
     });
-    // nudge: re-authorize after gate folder
-    await world.waitUntil(a.nudge());
-    await a.mutate(setNote, { id: 'alice-private', body: 'secret-a' });
-    await world.waitNever(
-      async () => {
-        // nudge: stranger refresh must still deny across the negative window
-        await b.nudge();
-        return isLiveNote(b.db, 'alice-private');
-      },
-      { forMs: 400 }
-    );
+    // Re-authorize after the gate folder lands.
+    await run.apply(nudge, 'alice');
+    await run.apply(mutate, 'alice', setNote, {
+      id: 'alice-private',
+      body: 'secret-a',
+    });
+    await nudgeWhileDenied(run, 'bob', 'alice-private', 400);
 
-    await expectLiveNote(a.db, 'alice-private', { body: 'secret-a' });
+    await expectLiveNoteAt(run, 'alice', 'alice-private', {
+      body: 'secret-a',
+    });
     // Bob never owns the gate → notesOwned denied → no hydrate of alice rows.
-    await expectNoteNotLive(b.db, 'alice-private');
-    expect(
-      (await readLiveNotes(b.db)).some((n) => n.owner_id === 'alice')
-    ).toBe(false);
-    expect((await readLiveNotes(b.db)).length).toBe(0);
+    await expectNoteNotLiveAt(run, 'bob', 'alice-private');
+    const bobNotes = await run.observe(liveNotes('bob'));
+    expect(bobNotes.some((n) => n.ownerId === 'alice')).toBe(false);
+    expect(bobNotes.length).toBe(0);
   });
 
   test.each([981, 982, 983])(
     'seed sweep authorize filter keeps stranger rows out (seed=%i)',
     async (seed) => {
-      await using world = await openAcmeWorld({
-        seed: seed,
-        knobs: {
-          clientCount: 0,
-          rowImageFanout: false,
-        },
+      await using run = await start(acmeSystem, {
+        seed,
+        host: syncVirtualHost(),
+        draws: acmeDraws({ clientCount: 0, rowImageFanout: false }),
+        properties: [],
       });
 
-      const a = await world.addClient({
+      await run.apply(addClient, {
         id: 'alice',
-        sessionQuery: { name: 'notesOwned', params: {} },
+        actorId: 'alice',
+        sessionQuery: OWNED_SESSION,
       });
-      const stranger = await world.addClient({
+      await run.apply(addClient, {
         id: 'stranger',
-        sessionQuery: { name: 'notesOwned', params: {} },
+        actorId: 'stranger',
+        sessionQuery: OWNED_SESSION,
       });
-      await a.mutate(setFolder, {
+      await run.apply(mutate, 'alice', setFolder, {
         id: NOTES_AUTH_GATE_FOLDER_ID,
         title: 'g',
       });
-      await a.mutate(setNote, { id: `priv-${seed}`, body: 'x' });
-      await world.waitNever(
-        async () => {
-          // nudge: stranger refresh must still deny across the negative window
-          await stranger.nudge();
-          return isLiveNote(stranger.db, `priv-${seed}`);
-        },
-        { forMs: 300 }
-      );
-      await expectNoteNotLive(stranger.db, `priv-${seed}`);
+      await run.apply(mutate, 'alice', setNote, {
+        id: `priv-${seed}`,
+        body: 'x',
+      });
+      await nudgeWhileDenied(run, 'stranger', `priv-${seed}`, 300);
+      await expectNoteNotLiveAt(run, 'stranger', `priv-${seed}`);
     }
   );
 });

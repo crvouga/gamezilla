@@ -1,54 +1,62 @@
-import { describe, expect, test } from 'bun:test';
+import { describe, test } from 'bun:test';
+import { start } from '@pkgs/dst';
 import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
   befriend,
+  converge,
+  crash,
   createSpace,
-  expectLiveSpace,
-  isLiveSpace,
+  expectLiveSpaceAt,
+  liveSpace,
+  mutate,
+  restart,
   SPACE_MEMBERSHIP_SESSION,
+  syncVirtualHost,
+  untilAcme,
 } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
 
 describe('friend hosted space cold hydrate', () => {
   test('friend sees host space via push and again after wipe restart', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 910,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const alice = await world.addClient({
+    await run.apply(addClient, {
       id: 'alice',
       sessionQuery: SPACE_MEMBERSHIP_SESSION,
     });
-    const bob = await world.addClient({
+    await run.apply(addClient, {
       id: 'bob',
       sessionQuery: SPACE_MEMBERSHIP_SESSION,
     });
 
-    await alice.mutate(befriend, { peerId: 'bob' });
-    await world.assertConverged();
+    await run.apply(mutate, 'alice', befriend, { peerId: 'bob' });
+    await run.apply(converge);
 
-    await alice.mutate(createSpace, {
+    await run.apply(mutate, 'alice', createSpace, {
       id: 'friend-space',
       title: 'Alice lobby',
     });
 
     // Phase A — live push via friend topic wake (product: new space appears).
-    await world.waitUntil(() => isLiveSpace(bob.db, 'friend-space'));
-    await expectLiveSpace(bob.db, 'friend-space', {
+    await untilAcme(run, liveSpace('bob', 'friend-space'));
+    await expectLiveSpaceAt(run, 'bob', 'friend-space', {
       title: 'Alice lobby',
-      owner_id: 'alice',
+      ownerId: 'alice',
     });
 
     // Phase B — cold hydrate after wipe (product bug without query widen).
-    await world.node('bob').crash();
-    const bob2 = await world.node('bob').restart();
-    expect(bob2).toBeDefined();
-    await world.waitUntil(() => isLiveSpace(bob2!.db, 'friend-space'));
-    await expectLiveSpace(bob2!.db, 'friend-space', {
+    await run.apply(crash, 'bob');
+    await run.apply(restart, 'bob', {});
+    await untilAcme(run, liveSpace('bob', 'friend-space'));
+    await expectLiveSpaceAt(run, 'bob', 'friend-space', {
       title: 'Alice lobby',
-      owner_id: 'alice',
+      ownerId: 'alice',
     });
   });
 });

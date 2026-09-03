@@ -1,35 +1,47 @@
 import { describe, test } from 'bun:test';
-import { expectLiveNote, expectNotesMatchServer, setNote } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import { start } from '@pkgs/dst';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  assertConverged,
+  heal,
+  mutate,
+  partition,
+  passTime,
+  setNote,
+  syncVirtualHost,
+} from '../apps/acme';
+import { expectLiveNoteAt, expectNotesAgree } from '../apps/acme/reads';
 
 describe('content reverts hash matches not modified sound', () => {
   test('A→B→A while peer partitioned leaves peer at A after heal', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 803,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
+    await run.apply(addClient, 'alice');
+    await run.apply(addClient, 'bob');
 
-    await a.mutate(setNote, { id: 'n1', body: 'A' });
-    await world.assertConverged();
-    await expectLiveNote(b.db, 'n1', { body: 'A' });
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'A' });
+    await run.apply(assertConverged);
+    await expectLiveNoteAt(run, 'bob', 'n1', { body: 'A' });
 
     // Full partition so peer never applies intermediate B via live images.
-    {
-      using _part = world.net('bob').set('down');
-      await a.mutate(setNote, { id: 'n1', body: 'B' });
-      await a.mutate(setNote, { id: 'n1', body: 'A' });
-      await world.advance(100);
-      await expectLiveNote(b.db, 'n1', { body: 'A' });
-    }
-    await world.assertConverged();
+    await run.apply(partition, 'bob', 'all');
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'B' });
+    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'A' });
+    await run.apply(passTime, 100);
+    await expectLiveNoteAt(run, 'bob', 'n1', { body: 'A' });
 
-    await expectLiveNote(b.db, 'n1', { body: 'A' });
-    await expectLiveNote(a.db, 'n1', { body: 'A' });
-    await expectNotesMatchServer(b.db, world.server.db);
+    await run.apply(heal);
+    await run.apply(assertConverged);
+
+    await expectLiveNoteAt(run, 'bob', 'n1', { body: 'A' });
+    await expectLiveNoteAt(run, 'alice', 'n1', { body: 'A' });
+    await expectNotesAgree(run, 'bob');
   });
 });

@@ -7,7 +7,7 @@ import { checkpoint, PropertyViolation, type Transition } from './checkpoint';
 import type { DriveContext } from './drive';
 import { closeGenerator } from './drive';
 import { type ProbeResult, probe } from './probe';
-import type { Run } from './start';
+import { getRunInternal, type Run } from './start';
 
 export type WalkOptions<S> = {
   readonly actions: readonly Action<S>[];
@@ -105,7 +105,7 @@ async function applyPickedStep<S>(args: {
   readonly violations: Walk['violations'][number][];
   readonly stopOnViolation: boolean | undefined;
 }): Promise<'continue' | 'stop'> {
-  const internal = args.run._internal;
+  const internal = getRunInternal(args.run);
   try {
     const result = await checkpoint({
       action: args.picked.action,
@@ -135,7 +135,7 @@ export async function walk<S>(
   run: Run<S>,
   opts: WalkOptions<S>
 ): Promise<Walk> {
-  const internal = run._internal;
+  const internal = getRunInternal(run);
   const transitions: Transition[] = [...internal.transitions];
   const choices: Choice[] = [...internal.choices];
   const violations: Walk['violations'][number][] = [];

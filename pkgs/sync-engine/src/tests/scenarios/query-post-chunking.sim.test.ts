@@ -1,30 +1,41 @@
 import { describe, expect, test } from 'bun:test';
+import { start } from '@pkgs/dst';
 import { MAX_QUERY_BATCH } from '@pkgs/sync-engine/shared';
-import { openAcmeWorld } from '../apps/acme/system';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  assertConverged,
+  hasSynced,
+  subscribeAll,
+  syncVirtualHost,
+} from '../apps/acme';
 
 describe('query POST chunking', () => {
   test(
     'more than MAX_QUERY_BATCH active scopes converge without 400',
     async () => {
-      await using world = await openAcmeWorld({
+      await using run = await start(acmeSystem, {
         seed: 9401,
-        knobs: {
+        host: syncVirtualHost(),
+        draws: acmeDraws({
           clientCount: 0,
-        },
+        }),
+        properties: [],
       });
 
-      const client = await world.addClient({ id: 'alice' });
-      const subs = [];
-      for (let i = 0; i < MAX_QUERY_BATCH + 1; i += 1) {
-        subs.push(
-          client.subscribe('notesByFolder', { folderId: `folder-${i}` })
-        );
-      }
-      for (const sub of subs) {
-        await world.waitUntil(sub.ready, { withinMs: 5_000 });
-      }
-      expect(client.hasSynced()).toBe(true);
-      await world.assertConverged();
+      await run.apply(addClient, { id: 'alice' });
+      // One batch of MAX_QUERY_BATCH + 1 scopes: the POST must chunk.
+      await run.apply(
+        subscribeAll,
+        'alice',
+        'notesByFolder',
+        Array.from({ length: MAX_QUERY_BATCH + 1 }, (_, i) => ({
+          folderId: `folder-${String(i)}`,
+        }))
+      );
+      expect(await run.observe(hasSynced('alice'))).toBe(true);
+      await run.apply(assertConverged);
     },
     { timeout: 60_000 }
   );

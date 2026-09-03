@@ -1,10 +1,10 @@
 import type fc from 'fast-check';
 
 import type { SimDomainPack } from '../domain-pack';
+import type { RestartClientOpts } from '../kit-lifecycle';
 import type { SeededRng } from '../rng';
-import type { RestartClientOpts } from '../world-lifecycle';
 import type { DomainOp, ServerOp } from './actions';
-import type { SystemWorldSurface } from './world-surface';
+import type { SyncSurfaceBase } from './surface-types';
 
 export type DomainModelHooks = {
   readonly initial: () => unknown;
@@ -32,7 +32,7 @@ export type SyncApp = {
   ) => DomainOp | ServerOp;
   readonly serverOps?: Record<
     string,
-    (world: SystemWorldSurface, args: Record<string, unknown>) => Promise<void>
+    (surface: SyncSurfaceBase, args: Record<string, unknown>) => Promise<void>
   >;
   readonly domainModel?: DomainModelHooks;
   /** App-specific schema restart options for `restartWithSchema` actions. */

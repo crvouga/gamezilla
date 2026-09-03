@@ -1,104 +1,111 @@
 import { describe, expect, test } from 'bun:test';
-import { unsafe } from '@pkgs/sql';
+import { start } from '@pkgs/dst';
 import {
-  expectLiveNote,
-  expectNoteNotLive,
-  expectNotesMatchServer,
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  assertConverged,
+  connect,
+  disconnect,
+  lastMutationId,
+  mutate,
+  outcome,
+  rejections,
+  runSql,
   setNote,
+  syncVirtualHost,
+  untilAcme,
 } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import {
+  expectLiveNoteAt,
+  expectNoteNotLiveAt,
+  expectNotesAgree,
+} from '../apps/acme/reads';
+
+/** Replace a queued mutation's args with a non-JSON blob. */
+function corruptArgs(mutationId: string): string {
+  return `UPDATE sync_engine_mutations SET args = '__not_json__' WHERE id = '${mutationId}'`;
+}
 
 describe('corrupt queued args permanent reject', () => {
   test.each([2140, 2141, 2142])(
     'non-json queued args reject permanently; healthy mutate drains (seed=%i)',
     async (seed) => {
-      await using world = await openAcmeWorld({
-        seed: seed,
-        knobs: {
-          clientCount: 0,
-        },
+      await using run = await start(acmeSystem, {
+        seed,
+        host: syncVirtualHost(),
+        draws: acmeDraws({ clientCount: 0 }),
+        properties: [],
       });
 
-      const alice = await world.addClient({ id: 'alice' });
-      const bob = await world.addClient({ id: 'bob' });
+      await run.apply(addClient, 'alice');
+      await run.apply(addClient, 'bob');
 
-      // Seed so reject heals via snapshot (absence ≠ delete for brand-new ids).
-      await alice.mutate(setNote, { id: 'n1', body: 'seed' });
-      await world.assertConverged();
+      // Seed so reject heals via snapshot (absence ≠ delete for new ids).
+      await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'seed' });
+      await run.apply(assertConverged);
 
-      await alice.disconnect();
-      const pending = await alice.mutate(setNote, {
+      await run.apply(disconnect, 'alice');
+      await run.apply(mutate, 'alice', setNote, {
         id: 'n1',
         body: 'will-reject',
       });
-      expect(pending.ok).toBe(true);
-      if (!pending.ok) return;
+      const mutationId = await run.observe(lastMutationId('alice'));
+      expect(mutationId).not.toBeNull();
+      if (mutationId === null) return;
 
-      await alice.db.run(
-        unsafe(
-          `UPDATE sync_engine_mutations SET args = '__not_json__' WHERE id = '${pending.mutationId}'`
-        )
-      );
+      await run.apply(runSql, 'alice', corruptArgs(mutationId));
 
-      await alice.connect();
-      await world.waitUntil(alice.outcome(pending.mutationId), {
-        withinMs: 5_000,
-      });
-      expect(await alice.outcome(pending.mutationId)).toBe('rejected');
+      await run.apply(connect, 'alice');
+      await untilAcme(run, outcome('alice', mutationId), { maxMs: 5_000 });
+      expect(await run.observe(outcome('alice', mutationId))).toBe('rejected');
 
-      const unacked = await alice.rejections();
-      expect(unacked.some((r) => r.mutationId === pending.mutationId)).toBe(
-        true
-      );
+      const unacked = await run.observe(rejections('alice'));
+      expect(unacked.some((r) => r.mutationId === mutationId)).toBe(true);
       expect(unacked.some((r) => r.code === 'INVALID_ARGS')).toBe(true);
 
-      await expectLiveNote(world.server.db, 'n1', { body: 'seed' });
-      await expectLiveNote(bob.db, 'n1', { body: 'seed' });
+      await expectLiveNoteAt(run, 'server', 'n1', { body: 'seed' });
+      await expectLiveNoteAt(run, 'bob', 'n1', { body: 'seed' });
 
       // Bump server hash so alice's optimistic body is overwritten.
-      await bob.mutate(setNote, { id: 'ok', body: 'healthy' });
-      await world.assertConverged();
-      await expectLiveNote(alice.db, 'n1', { body: 'seed' });
-      await expectLiveNote(alice.db, 'ok', { body: 'healthy' });
-      await expectNotesMatchServer(alice.db, world.server.db);
+      await run.apply(mutate, 'bob', setNote, { id: 'ok', body: 'healthy' });
+      await run.apply(assertConverged);
+      await expectLiveNoteAt(run, 'alice', 'n1', { body: 'seed' });
+      await expectLiveNoteAt(run, 'alice', 'ok', { body: 'healthy' });
+      await expectNotesAgree(run, 'alice');
     }
   );
 
   test('brand-new note with corrupt queued args tombstones after reject', async () => {
-    await using world = await openAcmeWorld({
+    await using run = await start(acmeSystem, {
       seed: 2143,
-      knobs: {
-        clientCount: 0,
-      },
+      host: syncVirtualHost(),
+      draws: acmeDraws({ clientCount: 0 }),
+      properties: [],
     });
 
-    const alice = await world.addClient({ id: 'alice' });
-    const bob = await world.addClient({ id: 'bob' });
+    await run.apply(addClient, 'alice');
+    await run.apply(addClient, 'bob');
 
-    await alice.disconnect();
-    const pending = await alice.mutate(setNote, {
+    await run.apply(disconnect, 'alice');
+    await run.apply(mutate, 'alice', setNote, {
       id: 'orphan',
       body: 'will-reject',
     });
-    expect(pending.ok).toBe(true);
-    if (!pending.ok) return;
+    const mutationId = await run.observe(lastMutationId('alice'));
+    expect(mutationId).not.toBeNull();
+    if (mutationId === null) return;
 
-    await alice.db.run(
-      unsafe(
-        `UPDATE sync_engine_mutations SET args = '__not_json__' WHERE id = '${pending.mutationId}'`
-      )
-    );
+    await run.apply(runSql, 'alice', corruptArgs(mutationId));
 
-    await alice.connect();
-    await world.waitUntil(alice.outcome(pending.mutationId), {
-      withinMs: 5_000,
-    });
-    expect(await alice.outcome(pending.mutationId)).toBe('rejected');
+    await run.apply(connect, 'alice');
+    await untilAcme(run, outcome('alice', mutationId), { maxMs: 5_000 });
+    expect(await run.observe(outcome('alice', mutationId))).toBe('rejected');
 
-    await bob.mutate(setNote, { id: 'ok', body: 'healthy' });
-    await world.assertConverged();
-    await expectNoteNotLive(alice.db, 'orphan');
-    await expectLiveNote(alice.db, 'ok', { body: 'healthy' });
-    await expectNotesMatchServer(alice.db, world.server.db);
+    await run.apply(mutate, 'bob', setNote, { id: 'ok', body: 'healthy' });
+    await run.apply(assertConverged);
+    await expectNoteNotLiveAt(run, 'alice', 'orphan');
+    await expectLiveNoteAt(run, 'alice', 'ok', { body: 'healthy' });
+    await expectNotesAgree(run, 'alice');
   });
 });

@@ -1,29 +1,42 @@
 import { describe, expect, test } from 'bun:test';
-import { expectLiveNote, readLiveNotes, setNote } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import { start } from '@pkgs/dst';
+import {
+  acmeDraws,
+  acmeSystem,
+  addClient,
+  converge,
+  httpFault,
+  liveNote,
+  liveNotes,
+  mutate,
+  setNote,
+  syncVirtualHost,
+} from '../apps/acme';
 
 describe('upload response lost retry does not double apply', () => {
   test.each([810, 811, 812])(
     'dropMutationsResponse still one row (seed=%i)',
     async (seed) => {
-      await using world = await openAcmeWorld({
+      await using run = await start(acmeSystem, {
         seed: seed,
-        knobs: {
-          clientCount: 0,
-        },
+        host: syncVirtualHost(),
+        draws: acmeDraws({ clientCount: 0 }),
+        properties: [],
       });
 
-      const a = await world.addClient({ id: 'alice' });
-      const b = await world.addClient({ id: 'bob' });
+      await run.apply(addClient, { id: 'alice' });
+      await run.apply(addClient, { id: 'bob' });
 
-      using _fault = world.node('alice').httpFault({
+      await run.apply(httpFault, 'alice', {
         kind: 'dropMutationsResponse',
       });
-      await a.mutate(setNote, { id: 'n1', body: 'once' });
-      await world.assertConverged();
+      await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'once' });
+      await run.apply(converge);
 
-      await expectLiveNote(b.db, 'n1', { body: 'once' });
-      const server = await readLiveNotes(world.server.db);
+      expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+        body: 'once',
+      });
+      const server = await run.observe(liveNotes('server'));
       expect(server.filter((r) => r.id === 'n1')).toHaveLength(1);
     }
   );

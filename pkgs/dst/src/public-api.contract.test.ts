@@ -1,23 +1,24 @@
 import { describe, expect, test } from 'bun:test';
+import { kv } from './examples/acme-kv/scenario';
 import * as fcAdapter from './fast-check';
 import * as dst from './index';
 import * as kernel from './kernel';
 import * as pbt from './pbt';
+import { start } from './run/start';
 
 const FORBIDDEN = [
-  'openWorld',
   'defineScenario',
-  'createWorldPorts',
   'actions',
   'properties',
   'knob',
   'node',
   'std',
-  'WorldPorts',
   'runProperty',
   'arbSeed',
   'checkSystem',
   'replaySystem',
+  'getRunInternal',
+  'RunInternal',
 ] as const;
 
 describe('public-api', () => {
@@ -31,6 +32,7 @@ describe('public-api', () => {
       'observe',
       'start',
       'walk',
+      'untilObserved',
       'virtualHost',
       'wallHost',
       'defineHost',
@@ -43,6 +45,12 @@ describe('public-api', () => {
     for (const k of FORBIDDEN) {
       expect(dst).not.toHaveProperty(k);
     }
+  });
+
+  test('Run has no _internal escape hatch', async () => {
+    await using run = await start(kv, { seed: 1, draws: [1] });
+    expect(run).not.toHaveProperty('_internal');
+    expect(Object.keys(run).sort()).toEqual(['apply', 'assert', 'observe']);
   });
 
   test('@pkgs/dst/pbt exports check + replay only', () => {

@@ -11,12 +11,14 @@ export {
   ownerTabId,
 } from './ownership';
 export {
+  ownerId,
+  ownerRows,
   SQL_CLIENT_WEB_ACTIONS,
   SQL_CLIENT_WEB_PROPERTIES,
   SQL_CLIENT_WEB_SYSTEM,
   type SqlClientWebSystemDef,
-  type SqlClientWebWorld,
   sqlClientWeb,
+  tabIdList,
 } from './system';
 export { migrateToyKv, readToyRows, VERSION_STRIDE } from './toy-kv';
 export {

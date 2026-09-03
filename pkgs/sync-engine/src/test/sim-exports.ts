@@ -1,5 +1,5 @@
 /**
- * Curated deterministic-sim surface for product acceptance worlds
+ * Curated deterministic-sim surface for product acceptance systems
  * (`@libs/sim`). Prefer this over deep imports into `src/sim/`.
  */
 
@@ -10,8 +10,8 @@ export type { SeededRng } from '../sim/rng';
 export type {
   SyncAction,
   SyncApp,
+  SyncKnobs,
   SyncSurface,
-  WorldKnobs,
 } from '../sim/scenario';
 export type {
   NeverOptions,

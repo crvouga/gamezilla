@@ -82,7 +82,7 @@ export function installPlaygroundStickyAutosave(
     globalThis.document?.addEventListener('visibilitychange', onVisibility);
   }
 
-  // Capture post-boot / post-restore world even if no further domain wakes fire.
+  // Capture post-boot / post-restore state even if no further domain wakes fire.
   schedule();
 
   return () => {

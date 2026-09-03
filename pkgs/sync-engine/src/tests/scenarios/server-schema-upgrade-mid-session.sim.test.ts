@@ -1,83 +1,93 @@
 import { describe, expect, test } from 'bun:test';
-import { sql } from '@pkgs/sql';
+import { start } from '@pkgs/dst';
 import {
+  acmeDraws,
   acmeLocalSchemaExtraColumn,
   acmeMutationRegistry,
   acmeQueryRegistry,
-  expectLiveNote,
-  expectNotesMatchServer,
-  notesWorldWithColorQuery,
+  acmeSystem,
+  addClient,
+  assertConverged,
+  mutate,
+  notesAllWithColorQuery,
+  restart,
   setNote,
   setNoteColor,
+  syncVirtualHost,
 } from '../apps/acme';
-import { openAcmeWorld } from '../apps/acme/system';
+import {
+  expectLiveNoteAt,
+  expectNotesAgree,
+  noteColor,
+  noteColumns,
+} from '../apps/acme/reads';
+
+/** Registry pair for the post-upgrade (color-aware) schema variant. */
+const UPGRADED = {
+  localSchema: acmeLocalSchemaExtraColumn,
+  mutationRegistry: {
+    ...acmeMutationRegistry,
+    [setNoteColor.name]: setNoteColor,
+  },
+  queryRegistry: {
+    ...acmeQueryRegistry,
+    [notesAllWithColorQuery.name]: notesAllWithColorQuery,
+  },
+};
 
 describe('server schema upgrade mid session', () => {
   test.each([2120, 2121, 2122])(
     'server adds color mid-life; old clients ignore; new client stores (seed=%i)',
     async (seed) => {
-      await using world = await openAcmeWorld({
-        seed: seed,
-        knobs: {
-          clientCount: 0,
-        },
+      await using run = await start(acmeSystem, {
+        seed,
+        host: syncVirtualHost(),
+        draws: acmeDraws({ clientCount: 0 }),
+        properties: [],
       });
 
-      const alice = await world.addClient({ id: 'alice' });
-      const bob = await world.addClient({ id: 'bob' });
+      await run.apply(addClient, 'alice');
+      await run.apply(addClient, 'bob');
 
-      await alice.mutate(setNote, { id: 'n1', body: 'before-upgrade' });
-      await world.assertConverged();
+      await run.apply(mutate, 'alice', setNote, {
+        id: 'n1',
+        body: 'before-upgrade',
+      });
+      await run.apply(assertConverged);
 
-      await world.node('server').restart({
+      await run.apply(restart, 'server', {
         preserveLocalDb: true,
-        localSchema: acmeLocalSchemaExtraColumn,
-        mutationRegistry: {
-          ...acmeMutationRegistry,
-          [setNoteColor.name]: setNoteColor,
-        },
-        queryRegistry: {
-          ...acmeQueryRegistry,
-          [notesWorldWithColorQuery.name]: notesWorldWithColorQuery,
-        },
+        ...UPGRADED,
       });
 
-      const carol = await world.addClient({
+      await run.apply(addClient, {
         id: 'carol',
-        localSchema: acmeLocalSchemaExtraColumn,
-        mutationRegistry: {
-          ...acmeMutationRegistry,
-          [setNoteColor.name]: setNoteColor,
-        },
-        queryRegistry: {
-          ...acmeQueryRegistry,
-          [notesWorldWithColorQuery.name]: notesWorldWithColorQuery,
-        },
-        sessionQuery: { name: 'notesWorldWithColor', params: {} },
+        actorId: 'carol',
+        ...UPGRADED,
+        sessionQuery: { name: 'notesAllWithColor', params: {} },
       });
 
-      await carol.mutate(setNoteColor, {
+      await run.apply(mutate, 'carol', setNoteColor, {
         id: 'n1',
         body: 'after-upgrade',
         color: 'green',
       });
-      await alice.mutate(setNote, { id: 'n2', body: 'still-baseline' });
-      await world.assertConverged();
+      await run.apply(mutate, 'alice', setNote, {
+        id: 'n2',
+        body: 'still-baseline',
+      });
+      await run.apply(assertConverged);
 
-      await expectLiveNote(alice.db, 'n1', { body: 'after-upgrade' });
-      await expectLiveNote(bob.db, 'n1', { body: 'after-upgrade' });
-      await expectLiveNote(carol.db, 'n1', { body: 'after-upgrade' });
-      await expectLiveNote(alice.db, 'n2', { body: 'still-baseline' });
-      await expectNotesMatchServer(alice.db, world.server.db);
+      await expectLiveNoteAt(run, 'alice', 'n1', { body: 'after-upgrade' });
+      await expectLiveNoteAt(run, 'bob', 'n1', { body: 'after-upgrade' });
+      await expectLiveNoteAt(run, 'carol', 'n1', { body: 'after-upgrade' });
+      await expectLiveNoteAt(run, 'alice', 'n2', { body: 'still-baseline' });
+      await expectNotesAgree(run, 'alice');
 
-      const aliceCols = await alice.db.query(sql<{ name: string }>`
-        SELECT name FROM pragma_table_info('notes')
-      `);
+      const aliceCols = await run.observe(noteColumns('alice'));
       expect(aliceCols.some((c) => c.name === 'color')).toBe(false);
 
-      const carolColor = await carol.db.query(sql<{ color: string | null }>`
-        SELECT color FROM notes WHERE id = ${'n1'} AND deleted_at IS NULL
-      `);
+      const carolColor = await run.observe(noteColor('carol', 'n1'));
       expect(carolColor[0]?.color).toBe('green');
     }
   );
