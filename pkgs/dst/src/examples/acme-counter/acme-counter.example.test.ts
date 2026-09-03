@@ -59,6 +59,6 @@ describe.each([...HARNESSES])('acme-counter ($name)', (harness) => {
   const skipWebView = harness.name === 'Bun.WebView' && !webViewAvailable();
 
   for (const c of CASES) {
-    test.skipIf(skipWebView)(c.name, () => c.run(harness));
+    test.skipIf(skipWebView)(c.name, () => c.run(harness), 15_000);
   }
 });

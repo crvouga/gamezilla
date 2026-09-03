@@ -30,11 +30,11 @@ export {
   isObservation,
   OBSERVATION_TAG,
   type Observation,
-  observe,
   observationMemoKey,
-  payloadOf,
+  observe,
   PROPERTY_TAG,
   type Property,
+  payloadOf,
   SYSTEM_TAG,
 } from './effect';
 export type { Gen } from './gen';

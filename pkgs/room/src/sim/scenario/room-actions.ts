@@ -199,7 +199,9 @@ export const asymmetricLink = defineAction({
   name: 'asymmetricLink',
   generate(id: string) {
     return (s) =>
-      drainAct(s, () => s.kit.net(id).set({ toClient: 'hold', toServer: 'ok' }));
+      drainAct(s, () =>
+        s.kit.net(id).set({ toClient: 'hold', toServer: 'ok' })
+      );
   },
 });
 
@@ -254,10 +256,7 @@ export const partition = defineAction({
   name: 'partition',
   generate(id: string) {
     return (s) => {
-      s.session.network.partition(
-        ROOM_SERVER_ENDPOINT,
-        roomClientEndpoint(id)
-      );
+      s.session.network.partition(ROOM_SERVER_ENDPOINT, roomClientEndpoint(id));
     };
   },
 });
@@ -375,10 +374,7 @@ export const injectFromServer = defineAction({
 
 export const setNet = defineAction({
   name: 'setNet',
-  generate(spec: {
-    readonly clientId: string;
-    readonly next: RoomNetSetArg;
-  }) {
+  generate(spec: { readonly clientId: string; readonly next: RoomNetSetArg }) {
     return (s) => {
       s.kit.net(spec.clientId).set(spec.next);
     };

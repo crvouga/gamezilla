@@ -11,10 +11,10 @@ import {
 import {
   AUTH_ACTIONS,
   AUTH_PROPERTIES,
+  type AuthKnobs,
   advanceClock,
   arbAuthKnobs,
   auth,
-  type AuthKnobs,
   clientBearers,
   fetchAuth,
   lastStatus,

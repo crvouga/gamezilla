@@ -1,7 +1,7 @@
 import type { Host, Ports } from '../host/types';
 import { fingerprint } from '../kernel/fingerprint';
 import type { JsonValue } from '../kernel/json';
-import { createRng, createReplayingRng } from '../kernel/rng';
+import { createReplayingRng, createRng } from '../kernel/rng';
 import { closeMonitors } from '../run/checkpoint';
 import { getRunInternal, start } from '../run/start';
 import { type Walk, walk } from '../run/walk';
@@ -82,6 +82,47 @@ type EpisodeAcc = {
   readonly allStates: Set<string>;
 };
 
+function mergeCoverage(acc: EpisodeAcc, w: Walk): void {
+  for (const [k, v] of Object.entries(w.coverage.actions)) {
+    acc.allActions[k] = (acc.allActions[k] ?? 0) + v;
+  }
+  for (const s of w.coverage.states) acc.allStates.add(s);
+}
+
+function recordEndViolations(args: {
+  readonly acc: EpisodeAcc;
+  readonly endViolations: readonly {
+    property: string;
+    at: number | 'end';
+    message: string;
+  }[];
+  readonly epSeed: number;
+  readonly w: Walk;
+  readonly systemName: string;
+}): void {
+  for (const v of args.endViolations) {
+    if (v.at === 'end') {
+      args.acc.obligationMisses.set(
+        v.property,
+        (args.acc.obligationMisses.get(v.property) ?? 0) + 1
+      );
+      continue;
+    }
+    args.acc.failures.push({
+      seed: args.epSeed,
+      repro: {
+        version: REPRO_VERSION,
+        seed: args.epSeed,
+        system: args.w.system,
+        knobs: args.w.knobs,
+        choices: args.w.choices,
+        meta: { system: args.systemName },
+      },
+      error: v.message,
+    });
+  }
+}
+
 async function runEpisode<S, K>(args: {
   readonly system: System<S, K>;
   readonly opts: CheckOptions<S, K>;
@@ -107,35 +148,16 @@ async function runEpisode<S, K>(args: {
       stopOnViolation: opts.stopOnViolation ?? true,
     });
 
-    for (const [k, v] of Object.entries(w.coverage.actions)) {
-      acc.allActions[k] = (acc.allActions[k] ?? 0) + v;
-    }
-    for (const s of w.coverage.states) acc.allStates.add(s);
-
+    mergeCoverage(acc, w);
     const endViolations = await closeMonitors(getRunInternal(run).monitors);
     await run[Symbol.asyncDispose]().catch(() => {});
-
-    for (const v of endViolations) {
-      if (v.at === 'end') {
-        acc.obligationMisses.set(
-          v.property,
-          (acc.obligationMisses.get(v.property) ?? 0) + 1
-        );
-      } else {
-        acc.failures.push({
-          seed: epSeed,
-          repro: {
-            version: REPRO_VERSION,
-            seed: epSeed,
-            system: w.system,
-            knobs: w.knobs,
-            choices: w.choices,
-            meta: { system: system.name },
-          },
-          error: v.message,
-        });
-      }
-    }
+    recordEndViolations({
+      acc,
+      endViolations,
+      epSeed,
+      w,
+      systemName: system.name,
+    });
 
     if (w.violations.length > 0) {
       let repro: Repro = {
@@ -334,30 +356,55 @@ export type ReplayOptions<S> = {
   readonly actions: readonly Action<S, []>[];
 };
 
+function toRepro<S, K>(
+  system: System<S, K>,
+  input: Repro | Walk | string
+): Repro {
+  if (typeof input === 'string') return parseRepro(input);
+  if ('version' in input) return input as Repro;
+  return {
+    version: REPRO_VERSION,
+    seed: 0,
+    system: (input as Walk).system,
+    knobs: (input as Walk).knobs,
+    choices: (input as Walk).choices,
+    meta: { system: system.name },
+  };
+}
+
+async function replayChoice<S>(
+  run: Awaited<ReturnType<typeof start<S, unknown>>>,
+  action: Action<S, unknown[]>,
+  choice: Choice
+): Promise<void> {
+  if (choice.args.length > 0) {
+    await run.apply(action, ...choice.args);
+    return;
+  }
+  if (choice.draws.length === 0) {
+    await run.apply(action as Action<S, []>);
+    return;
+  }
+  const internal = getRunInternal(run);
+  const replayRng = createReplayingRng(choice.draws);
+  const origRng = internal.rng;
+  internal.rng = replayRng;
+  try {
+    await run.apply(action as Action<S, []>);
+  } finally {
+    internal.rng = origRng;
+  }
+}
+
 export async function replay<S, K = void>(
   system: System<S, K>,
   input: Repro | Walk | string,
   opts: ReplayOptions<S>
 ): Promise<Report> {
-  const repro: Repro =
-    typeof input === 'string'
-      ? parseRepro(input)
-      : 'version' in input
-        ? (input as Repro)
-        : {
-            version: REPRO_VERSION,
-            seed: 0,
-            system: (input as Walk).system,
-            knobs: (input as Walk).knobs,
-            choices: (input as Walk).choices,
-            meta: { system: system.name },
-          };
-
+  const repro = toRepro(system, input);
   const actionByName = new Map(
     opts.actions.map((a) => [a.name, a as Action<S, unknown[]>])
   );
-  // Also index any named actions from choices that aren't in the pool
-  // (scripted parameterized actions are applied by name + args).
 
   const run = await start(system, {
     seed: repro.seed,
@@ -368,45 +415,18 @@ export async function replay<S, K = void>(
     properties: opts.properties ?? [],
   } as Parameters<typeof start<S, K>>[1]);
 
-  // Replay system draws: if repro.system has floats, we already passed knobs;
-  // additional draw()s inside generate were recorded. For full fidelity of
-  // generate-time draws beyond knobs, start already ran generate with knobs.
-  // Choice-level draws are replayed via apply args + replaying rng.
-
   const failures: Report['failures'][number][] = [];
   try {
-    for (let i = 0; i < repro.choices.length; i++) {
-      const choice = repro.choices[i]!;
-      let action = actionByName.get(choice.action);
+    for (const choice of repro.choices) {
+      const action = actionByName.get(choice.action);
       if (action === undefined) {
-        // Allow replay of parameterized actions not in the walk pool by
-        // looking them up from the provided actions list by name only —
-        // callers that need this must include them in opts.actions as
-        // Action<S, unknown[]> cast, or we fail.
         throw new Error(`replay: unknown action '${choice.action}'`);
       }
-
       const internal = getRunInternal(run);
       const before = fingerprint(
         Object.fromEntries(internal.memo) as JsonValue
       );
-
-      if (choice.args.length > 0) {
-        await run.apply(action as Action<S, unknown[]>, ...choice.args);
-      } else if (choice.draws.length > 0) {
-        // Random-pool step: replay recorded floats into the action rng.
-        const replayRng = createReplayingRng(choice.draws);
-        const origRng = internal.rng;
-        internal.rng = replayRng;
-        try {
-          await run.apply(action as Action<S, []>);
-        } finally {
-          internal.rng = origRng;
-        }
-      } else {
-        await run.apply(action as Action<S, []>);
-      }
-
+      await replayChoice(run, action, choice);
       const after = fingerprint(Object.fromEntries(internal.memo) as JsonValue);
       void before;
       void after;

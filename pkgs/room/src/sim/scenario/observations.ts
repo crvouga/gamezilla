@@ -88,8 +88,7 @@ export const caps = defineObservation({
 
 export const partitioned = defineObservation({
   name: 'partitioned',
-  observe: (s) =>
-    s.session.network.partitions().map(([a, b]) => `${a}|${b}`),
+  observe: (s) => s.session.network.partitions().map(([a, b]) => `${a}|${b}`),
 });
 
 export const quiet = defineObservation({

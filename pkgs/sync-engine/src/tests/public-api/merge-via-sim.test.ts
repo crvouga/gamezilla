@@ -15,9 +15,9 @@ import {
   passTime,
   rows,
   runSql,
+  type SyncSurface,
   setNote,
   syncVirtualHost,
-  type SyncSurface,
 } from '../apps/acme';
 
 const aliceColor = rows(

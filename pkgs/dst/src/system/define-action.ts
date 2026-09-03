@@ -2,8 +2,8 @@ import {
   ACTION_TAG,
   type Action,
   type ActionBody,
-  type BoundAction,
   BOUND_ACTION_TAG,
+  type BoundAction,
 } from './effect';
 
 /** Infer parameter tuple from a generate function. */
@@ -16,10 +16,7 @@ type ArgsOf<G> = G extends (...args: infer A) => unknown ? A : [];
 export function defineAction<
   S,
   G extends (...args: never[]) => ActionBody<S>,
->(def: {
-  readonly name: string;
-  readonly generate: G;
-}): Action<S, ArgsOf<G>> {
+>(def: { readonly name: string; readonly generate: G }): Action<S, ArgsOf<G>> {
   if (!def.name) throw new Error('defineAction: name is required');
 
   type A = ArgsOf<G>;

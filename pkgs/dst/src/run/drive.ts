@@ -75,9 +75,7 @@ function runDraw<P>(gen: (rng: Rng) => P, ctx: DriveContext<unknown>): P {
   return gen(ctx.rng);
 }
 
-function isGeneratorLike(
-  v: unknown
-): v is AnyGen<unknown, unknown> {
+function isGeneratorLike(v: unknown): v is AnyGen<unknown, unknown> {
   return (
     typeof v === 'object' &&
     v !== null &&
@@ -127,9 +125,11 @@ export async function resolveObservation<S>(
   o: Observation<S, unknown[], JsonValue> | BoundObservation<S, JsonValue>,
   ctx: DriveContext<S>
 ): Promise<JsonValue> {
-  const obs = (
-    isBoundObservation(o) ? o.observation : o
-  ) as Observation<S, unknown[], JsonValue>;
+  const obs = (isBoundObservation(o) ? o.observation : o) as Observation<
+    S,
+    unknown[],
+    JsonValue
+  >;
   const args = isBoundObservation(o) ? o.args : [];
   const key = isBoundObservation(o)
     ? o.name
@@ -167,7 +167,9 @@ export type DriveOpts<S> = {
 export async function normalizeActionBody<S>(
   body: ActionBody<S>
 ): Promise<AnyGen<Effect<S>, Act<S> | void>> {
-  const resolved = await Promise.resolve(body as ActionBody<S> | Promise<ActionBody<S>>);
+  const resolved = await Promise.resolve(
+    body as ActionBody<S> | Promise<ActionBody<S>>
+  );
   if (resolved === undefined || resolved === null) {
     return (function* () {})();
   }
@@ -239,6 +241,39 @@ export async function drive<S, R>(
   return undefined as R;
 }
 
+async function driveDelegate<S>(
+  mode: DriveMode,
+  ctx: DriveContext<S>,
+  opts: DriveOpts<S> | undefined,
+  body: Awaited<ReturnType<typeof normalizeActionBody<S>>>
+): Promise<undefined | typeof STOPPED_AT_ACT> {
+  if (mode !== 'action') {
+    throw new DriveError(`${mode} body may not delegate to an action`);
+  }
+  const inner = await drive(body, 'action', ctx, opts);
+  if (inner === STOPPED_AT_ACT) return STOPPED_AT_ACT;
+  return undefined;
+}
+
+async function driveAct<S>(
+  yielded: Act<S>,
+  mode: DriveMode,
+  ctx: DriveContext<S>,
+  opts?: DriveOpts<S>
+): Promise<undefined | typeof STOPPED_AT_ACT> {
+  if (mode !== 'action') {
+    throw new DriveError(`${mode} body may not act`);
+  }
+  if (opts?.stopAtAct) {
+    opts.onFirstAct?.(yielded);
+    return STOPPED_AT_ACT;
+  }
+  await Promise.resolve(actFn(yielded)(ctx.surface));
+  await ctx.session.settle();
+  ctx.memo.clear();
+  return undefined;
+}
+
 async function handleYield<S>(
   yielded: Effect<S>,
   mode: DriveMode,
@@ -258,37 +293,23 @@ async function handleYield<S>(
     return runDraw(yielded.gen, ctx as DriveContext<unknown>);
   }
   if (isBoundAction(yielded)) {
-    if (mode !== 'action') {
-      throw new DriveError(`${mode} body may not delegate to an action`);
-    }
-    const innerBody = await normalizeActionBody(
-      yielded.action.generate(...yielded.args)
+    return driveDelegate(
+      mode,
+      ctx,
+      opts,
+      await normalizeActionBody(yielded.action.generate(...yielded.args))
     );
-    const inner = await drive(innerBody, 'action', ctx, opts);
-    if (inner === STOPPED_AT_ACT) return STOPPED_AT_ACT;
-    return undefined;
   }
   if (isAction(yielded)) {
-    if (mode !== 'action') {
-      throw new DriveError(`${mode} body may not delegate to an action`);
-    }
-    const innerBody = await normalizeActionBody(yielded.generate());
-    const inner = await drive(innerBody, 'action', ctx, opts);
-    if (inner === STOPPED_AT_ACT) return STOPPED_AT_ACT;
-    return undefined;
+    return driveDelegate(
+      mode,
+      ctx,
+      opts,
+      await normalizeActionBody(yielded.generate())
+    );
   }
   if (isAct<S>(yielded)) {
-    if (mode !== 'action') {
-      throw new DriveError(`${mode} body may not act`);
-    }
-    if (opts?.stopAtAct) {
-      opts.onFirstAct?.(yielded);
-      return STOPPED_AT_ACT;
-    }
-    await Promise.resolve(actFn(yielded)(ctx.surface));
-    await ctx.session.settle();
-    ctx.memo.clear();
-    return undefined;
+    return driveAct(yielded, mode, ctx, opts);
   }
   throw new DriveError(
     `${mode}: unexpected yield ${Object.prototype.toString.call(yielded)}`

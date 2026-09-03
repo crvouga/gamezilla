@@ -11,9 +11,9 @@ import {
   mutate,
   playActions,
   rows,
+  type SyncSurface,
   setNote,
   syncVirtualHost,
-  type SyncSurface,
 } from '../apps/acme';
 
 const pendingMutations = rows(

@@ -40,8 +40,7 @@ export const caps = defineObservation({
 
 export const partitioned = defineObservation({
   name: 'partitioned',
-  observe: (s) =>
-    s.session.network.partitions().map(([a, b]) => `${a}|${b}`),
+  observe: (s) => s.session.network.partitions().map(([a, b]) => `${a}|${b}`),
 });
 
 export const clock = defineObservation({
@@ -109,7 +108,11 @@ export type LiveNoteRow = {
  */
 export const liveNote = defineObservation({
   name: 'liveNote',
-  observe: async (s, nodeId: string, id: string): Promise<LiveNoteRow | null> => {
+  observe: async (
+    s,
+    nodeId: string,
+    id: string
+  ): Promise<LiveNoteRow | null> => {
     const db = dbFor(s, nodeId);
     if (db === null) return null;
     const rows = await db.query(sql<LiveNoteRow>`

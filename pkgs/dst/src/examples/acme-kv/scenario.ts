@@ -178,11 +178,11 @@ export const converges = defineProperty({
     const o = yield* observe({
       quiet,
       converged,
-      cut: partitioned,
+      partitioned,
       serverHash,
       clientHash,
     });
-    if (o.quiet && o.cut.length === 0 && !o.converged) {
+    if (o.quiet && o.partitioned.length === 0 && !o.converged) {
       throw new Error(
         `quiet but diverged: server ${String(o.serverHash)}, clients ${String(o.clientHash)}`
       );

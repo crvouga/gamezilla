@@ -41,13 +41,12 @@ export function simHost(): Host<Ports & ProductExtra> {
         void runFor(1_000).catch(() => undefined);
       },
     });
+    // Do not disconnect `sql` here: `createSim({ serverSql: extra.sql })`
+    // owns the handle and `sim.dispose()` closes it. A second PGlite
+    // disconnect hangs forever and OOMs the Jest worker.
     const sessionDispose = session.dispose.bind(session);
     (session as { dispose: () => Promise<void> }).dispose = async () => {
-      try {
-        await sql.disconnect();
-      } finally {
-        await sessionDispose();
-      }
+      await sessionDispose();
     };
     return {
       sql,

@@ -1,7 +1,7 @@
 import type { JsonValue } from '../kernel/json';
 import {
-  type BoundObservation,
   BOUND_OBSERVATION_TAG,
+  type BoundObservation,
   type Effect,
   OBSERVATION_TAG,
   type Observation,

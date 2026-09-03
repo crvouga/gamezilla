@@ -3,10 +3,7 @@ import { REPRO_VERSION } from '@pkgs/dst';
 import { gen } from '@pkgs/dst/fast-check';
 import { check, replay } from '@pkgs/dst/pbt';
 
-import {
-  type SyncSystemDef,
-  syncVirtualHost,
-} from './define-sync-system';
+import { type SyncSystemDef, syncVirtualHost } from './define-sync-system';
 import { arbKnobs, type SyncKnobs } from './knobs';
 
 /** Check campaign wrapper with sync host + system action/property catalogs. */

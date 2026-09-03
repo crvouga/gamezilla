@@ -57,7 +57,8 @@ export type SurfaceDefiners<S> = {
 export function defineSurface<S>(): SurfaceDefiners<S> {
   return {
     defineAction: defineAction as SurfaceDefiners<S>['defineAction'],
-    defineObservation: defineObservation as SurfaceDefiners<S>['defineObservation'],
+    defineObservation:
+      defineObservation as SurfaceDefiners<S>['defineObservation'],
     defineProperty: defineProperty as SurfaceDefiners<S>['defineProperty'],
   };
 }

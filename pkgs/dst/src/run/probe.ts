@@ -6,6 +6,7 @@ import {
   actFn,
   actWeight,
   type BoundAction,
+  type BoundObservation,
   type Effect,
   isAct,
   isAction,
@@ -35,6 +36,10 @@ export class ActionNotEnabled extends Error {
 type AnyGen =
   | Generator<unknown, void, unknown>
   | AsyncGenerator<unknown, void, unknown>;
+
+type ObsYield<S> =
+  | Observation<S, unknown[], JsonValue>
+  | BoundObservation<S, JsonValue>;
 
 function isAsync(body: AnyGen): body is AsyncGenerator<unknown, void, unknown> {
   return Symbol.asyncIterator in Object(body);
@@ -101,109 +106,98 @@ type ProbeBodyArgs<S> = {
   readonly args: readonly unknown[];
 };
 
-async function probeBody<S>(args: ProbeBodyArgs<S>): Promise<ProbeResult<S>> {
-  const { body, ctx, rng, draws, nested } = args;
-  let answer: unknown;
+function enabledFromAct<S>(
+  act: Act<S>,
+  args: ProbeBodyArgs<S>
+): ProbeResult<S> | null {
+  const weight = actWeight(act);
+  if (!(weight > 0)) return null;
+  return {
+    enabled: true,
+    weight,
+    act,
+    draws: args.draws,
+    body: args.body,
+    nested: args.nested,
+    args: args.args,
+  };
+}
 
-  for (;;) {
-    const r = await genNext(body, answer);
-    if (r.done) {
-      // Returned Act counts as the first act.
-      if (r.value !== undefined && isAct<S>(r.value)) {
-        const weight = actWeight(r.value);
-        if (!(weight > 0)) {
-          await closeGenerator(body);
-          return { enabled: false };
-        }
-        return {
-          enabled: true,
-          weight,
-          act: r.value,
-          draws,
-          body,
-          nested,
-          args: args.args,
-        };
-      }
-      await closeGenerator(body);
+async function nestProbe<S>(
+  inner: ProbeResult<S>,
+  args: ProbeBodyArgs<S>
+): Promise<ProbeResult<S>> {
+  if (!inner.enabled) {
+    await closeGenerator(args.body);
+    return { enabled: false };
+  }
+  return {
+    enabled: true,
+    weight: inner.weight,
+    act: inner.act,
+    draws: [...args.draws, ...inner.draws],
+    body: args.body,
+    nested: [...args.nested, inner],
+    args: args.args,
+  };
+}
+
+async function handleProbeYield<S>(
+  yielded: Effect<S>,
+  args: ProbeBodyArgs<S>
+): Promise<{ kind: 'answer'; value: unknown } | ProbeResult<S>> {
+  if (isObservation(yielded) || isBoundObservation(yielded)) {
+    return {
+      kind: 'answer',
+      value: await resolveObservation(yielded as ObsYield<S>, args.ctx),
+    };
+  }
+  if (isDraw(yielded)) {
+    return { kind: 'answer', value: yielded.gen(args.rng) };
+  }
+  if (isBoundAction(yielded)) {
+    return nestProbe(
+      await probe(yielded.action, args.ctx, args.rng, yielded.args),
+      args
+    );
+  }
+  if (isAction(yielded)) {
+    return nestProbe(await probe(yielded, args.ctx, args.rng, []), args);
+  }
+  if (isAct<S>(yielded)) {
+    const enabled = enabledFromAct(yielded, args);
+    if (enabled === null) {
+      await closeGenerator(args.body);
       return { enabled: false };
     }
+    return enabled;
+  }
+  await closeGenerator(args.body);
+  throw new Error('probe: unexpected yield');
+}
 
-    const yielded = r.value as Effect<S>;
-
-    if (isObservation(yielded) || isBoundObservation(yielded)) {
-      answer = await resolveObservation(
-        yielded as
-          | Observation<S, unknown[], JsonValue>
-          | import('../system/effect').BoundObservation<S, JsonValue>,
-        ctx
-      );
+async function probeBody<S>(args: ProbeBodyArgs<S>): Promise<ProbeResult<S>> {
+  let answer: unknown;
+  for (;;) {
+    const r = await genNext(args.body, answer);
+    if (r.done) {
+      if (r.value !== undefined && isAct<S>(r.value)) {
+        const enabled = enabledFromAct(r.value, args);
+        if (enabled === null) {
+          await closeGenerator(args.body);
+          return { enabled: false };
+        }
+        return enabled;
+      }
+      await closeGenerator(args.body);
+      return { enabled: false };
+    }
+    const step = await handleProbeYield(r.value as Effect<S>, args);
+    if ('kind' in step && step.kind === 'answer') {
+      answer = step.value;
       continue;
     }
-
-    if (isDraw(yielded)) {
-      answer = yielded.gen(rng);
-      continue;
-    }
-
-    if (isBoundAction(yielded)) {
-      const inner = await probe(
-        yielded.action,
-        ctx,
-        rng,
-        yielded.args
-      );
-      if (!inner.enabled) {
-        await closeGenerator(body);
-        return { enabled: false };
-      }
-      return {
-        enabled: true,
-        weight: inner.weight,
-        act: inner.act,
-        draws: [...draws, ...inner.draws],
-        body,
-        nested: [...nested, inner],
-        args: args.args,
-      };
-    }
-
-    if (isAction(yielded)) {
-      const inner = await probe(yielded, ctx, rng, []);
-      if (!inner.enabled) {
-        await closeGenerator(body);
-        return { enabled: false };
-      }
-      return {
-        enabled: true,
-        weight: inner.weight,
-        act: inner.act,
-        draws: [...draws, ...inner.draws],
-        body,
-        nested: [...nested, inner],
-        args: args.args,
-      };
-    }
-
-    if (isAct<S>(yielded)) {
-      const weight = actWeight(yielded);
-      if (!(weight > 0)) {
-        await closeGenerator(body);
-        return { enabled: false };
-      }
-      return {
-        enabled: true,
-        weight,
-        act: yielded,
-        draws,
-        body,
-        nested,
-        args: args.args,
-      };
-    }
-
-    await closeGenerator(body);
-    throw new Error('probe: unexpected yield');
+    return step as ProbeResult<S>;
   }
 }
 
@@ -230,6 +224,41 @@ export async function finishProbed<S>(
   await continueBody(p.body, ctx, p.draws);
 }
 
+async function performAct<S>(act: Act<S>, ctx: DriveContext<S>): Promise<void> {
+  await Promise.resolve(actFn(act)(ctx.surface));
+  await ctx.session.settle();
+  ctx.memo.clear();
+}
+
+async function continueYield<S>(
+  yielded: Effect<S>,
+  ctx: DriveContext<S>,
+  rng: Rng,
+  draws: number[]
+): Promise<unknown> {
+  if (isObservation(yielded) || isBoundObservation(yielded)) {
+    return resolveObservation(yielded as ObsYield<S>, ctx);
+  }
+  if (isDraw(yielded)) return yielded.gen(rng);
+  if (isBoundAction(yielded)) {
+    const innerBody = await normalizeActionBody(
+      yielded.action.generate(...yielded.args)
+    );
+    await drive(innerBody, 'action', { ...ctx, rng, recordDraws: draws });
+    return undefined;
+  }
+  if (isAction(yielded)) {
+    const innerBody = await normalizeActionBody(yielded.generate());
+    await drive(innerBody, 'action', { ...ctx, rng, recordDraws: draws });
+    return undefined;
+  }
+  if (isAct<S>(yielded)) {
+    await performAct(yielded, ctx);
+    return undefined;
+  }
+  throw new Error('continueBody: unexpected yield');
+}
+
 async function continueBody<S>(
   body: AnyGen,
   ctx: DriveContext<S>,
@@ -237,70 +266,16 @@ async function continueBody<S>(
 ): Promise<void> {
   const rng = recordingFork(ctx.rng, draws);
   let answer: unknown;
-
   for (;;) {
     const r = await genNext(body, answer);
     if (r.done) {
       if (r.value !== undefined && isAct<S>(r.value)) {
-        await Promise.resolve(actFn(r.value)(ctx.surface));
-        await ctx.session.settle();
-        ctx.memo.clear();
+        await performAct(r.value, ctx);
       }
       return;
     }
-
-    const yielded = r.value as Effect<S>;
-
-    if (isObservation(yielded) || isBoundObservation(yielded)) {
-      answer = await resolveObservation(
-        yielded as
-          | Observation<S, unknown[], JsonValue>
-          | import('../system/effect').BoundObservation<S, JsonValue>,
-        ctx
-      );
-      continue;
-    }
-
-    if (isDraw(yielded)) {
-      answer = yielded.gen(rng);
-      continue;
-    }
-
-    if (isBoundAction(yielded)) {
-      const innerBody = await normalizeActionBody(
-        yielded.action.generate(...yielded.args)
-      );
-      await drive(innerBody, 'action', {
-        ...ctx,
-        rng,
-        recordDraws: draws,
-      });
-      answer = undefined;
-      continue;
-    }
-
-    if (isAction(yielded)) {
-      const innerBody = await normalizeActionBody(yielded.generate());
-      await drive(innerBody, 'action', {
-        ...ctx,
-        rng,
-        recordDraws: draws,
-      });
-      answer = undefined;
-      continue;
-    }
-
-    if (isAct<S>(yielded)) {
-      await Promise.resolve(actFn(yielded)(ctx.surface));
-      await ctx.session.settle();
-      ctx.memo.clear();
-      answer = undefined;
-      continue;
-    }
-
-    throw new Error('continueBody: unexpected yield');
+    answer = await continueYield(r.value as Effect<S>, ctx, rng, draws);
   }
 }
 
-// Silence unused BoundAction import warning by re-exporting type use
 export type { BoundAction };

@@ -1,12 +1,9 @@
-import {
-  defineSurface,
-  type JsonValue,
-  observe,
-} from '@pkgs/dst';
+import { defineSurface, type JsonValue, observe } from '@pkgs/dst';
 import { assertReplicaAgreement, type MatchmakingSurface } from './facade';
 import { mmOf } from './refs';
 
-const { defineObservation, defineProperty } = defineSurface<MatchmakingSurface>();
+const { defineObservation, defineProperty } =
+  defineSurface<MatchmakingSurface>();
 
 export function asJson(value: unknown): JsonValue {
   return (

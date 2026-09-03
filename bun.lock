@@ -542,7 +542,6 @@
         "jose": "catalog:",
       },
       "devDependencies": {
-        "@pkgs/clock": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",

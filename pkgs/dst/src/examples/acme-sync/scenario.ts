@@ -68,7 +68,9 @@ export const converged = defineObservation({
   name: 'converged',
   *observe() {
     const o = yield* observe({ serverNotes, clientNotes });
-    return o.clientNotes.every((c) => c.h === o.serverNotes.h && c.n === o.serverNotes.n);
+    return o.clientNotes.every(
+      (c) => c.h === o.serverNotes.h && c.n === o.serverNotes.n
+    );
   },
 });
 

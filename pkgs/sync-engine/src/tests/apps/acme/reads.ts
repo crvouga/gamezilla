@@ -23,7 +23,10 @@ function rows<T extends Record<string, JsonValue>>(
   nodeId: string,
   statement: Parameters<SqlClient['query']>[0]
 ): BoundObservation<SyncSurface, T[]> {
-  return rowsObs(label, nodeId, statement) as BoundObservation<SyncSurface, T[]>;
+  return rowsObs(label, nodeId, statement) as BoundObservation<
+    SyncSurface,
+    T[]
+  >;
 }
 
 export type NoteRow = {
