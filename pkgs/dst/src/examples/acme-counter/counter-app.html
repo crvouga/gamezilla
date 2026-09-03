@@ -3,30 +3,40 @@
 
 <head>
   <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
   <title>acme-counter</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
 </head>
 
 <body>
-  <div id="app" data-screen="home">
-    <span id="count">0</span>
-    <span id="step">1</span>
-    <section id="home">
-      <button type="button" id="increment">+</button>
-      <button type="button" id="decrement" disabled>-</button>
-      <button type="button" id="to-settings">Settings</button>
-      <button type="button" id="reset" disabled>Reset</button>
-    </section>
-    <section id="settings" hidden>
-      <label><input type="radio" name="step" id="step-1" value="1" checked />1</label>
-      <label><input type="radio" name="step" id="step-5" value="5" />5</label>
-      <label><input type="radio" name="step" id="step-10" value="10" />10</label>
-      <button type="button" id="back">Back</button>
-    </section>
-    <section id="confirm-reset" hidden>
-      <button type="button" id="confirm">Confirm</button>
-      <button type="button" id="cancel">Cancel</button>
-    </section>
-  </div>
+  <main class="container">
+    <article id="app" data-screen="home">
+      <header>
+        <h1 id="count">0</h1>
+        <p>Step <span id="step">1</span></p>
+      </header>
+      <section id="home">
+        <button type="button" id="increment">+</button>
+        <button type="button" id="decrement" disabled>-</button>
+        <button type="button" id="to-settings" class="secondary">Settings</button>
+        <button type="button" id="reset" class="contrast" disabled>Reset</button>
+      </section>
+      <section id="settings" hidden>
+        <fieldset>
+          <legend>Step</legend>
+          <label><input type="radio" name="step" id="step-1" value="1" checked />1</label>
+          <label><input type="radio" name="step" id="step-5" value="5" />5</label>
+          <label><input type="radio" name="step" id="step-10" value="10" />10</label>
+        </fieldset>
+        <button type="button" id="back" class="secondary">Back</button>
+      </section>
+      <section id="confirm-reset" hidden>
+        <button type="button" id="confirm" class="contrast">Confirm</button>
+        <button type="button" id="cancel" class="secondary">Cancel</button>
+      </section>
+    </article>
+  </main>
   <script>
     (() => {
       let count = 0;

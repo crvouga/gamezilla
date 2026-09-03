@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { expectConverged, ROOM_ERROR_TYPE } from '@pkgs/room';
+import { ROOM_ERROR_TYPE } from '@pkgs/room';
 import {
   addClient,
   clientHash,

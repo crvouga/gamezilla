@@ -28,18 +28,18 @@ describe('printSqlCliResult', () => {
   });
 
   it('prints messages directly', () => {
-    const log = spyOn(console, 'log').mockImplementation(() => {});
+    const write = spyOn(process.stdout, 'write').mockImplementation(() => true);
 
     printSqlCliResult({ kind: 'message', message: 'Ready' });
 
-    expect(log).toHaveBeenCalledWith('Ready');
+    expect(write).toHaveBeenCalledWith('Ready\n');
   });
 
   it('describes empty results', () => {
-    const log = spyOn(console, 'log').mockImplementation(() => {});
+    const write = spyOn(process.stdout, 'write').mockImplementation(() => true);
 
     printSqlCliResult({ kind: 'empty' });
 
-    expect(log).toHaveBeenCalledWith('No rows returned');
+    expect(write).toHaveBeenCalledWith('No rows returned\n');
   });
 });
