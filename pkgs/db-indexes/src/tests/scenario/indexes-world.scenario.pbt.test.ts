@@ -1,28 +1,31 @@
 import { describe, expect, test } from 'bun:test';
-import { check, replay } from '@pkgs/dst/pbt';
-import { INDEXES_SYSTEM } from './system';
+import { start } from '@pkgs/dst';
+import { check } from '@pkgs/dst/pbt';
+import {
+  INDEXES_ACTIONS,
+  INDEXES_PROPERTIES,
+  indexes,
+  ownedIndexCount,
+} from './system';
 
 describe('indexes-world system PBT', () => {
   test('check + settle invariants', async () => {
-    await check(INDEXES_SYSTEM as unknown as Parameters<typeof check>[0], {
-      episodeLength: 10,
+    const report = await check(indexes, {
+      properties: INDEXES_PROPERTIES,
+      actions: INDEXES_ACTIONS,
       episodes: 6,
+      steps: 10,
+      seed: 1,
+      stopOnViolation: true,
     });
+    expect(report.ok).toBe(true);
   }, 120_000);
 
-  test('replay empty scenario pins', async () => {
-    const { world } = await replay(
-      INDEXES_SYSTEM as unknown as Parameters<typeof replay>[0],
-      {
-        seed: 1,
-        knobs: {},
-        actions: [],
-      }
-    );
-    try {
-      expect(world.nodes['reconciler']).toBeDefined();
-    } finally {
-      await world.dispose();
-    }
+  test('start boots reconciler', async () => {
+    await using run = await start(indexes, {
+      seed: 1,
+      properties: INDEXES_PROPERTIES,
+    });
+    expect(await run.observe(ownedIndexCount)).toBe(0);
   }, 60_000);
 });

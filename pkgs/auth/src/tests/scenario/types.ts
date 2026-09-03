@@ -1,4 +1,4 @@
-import type { KnobDef, NodeEntry, World } from '@pkgs/dst';
+import type { Session } from '@pkgs/dst';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { createAuthServerAdapter } from '../../server/create-auth-server-adapter';
 
@@ -18,7 +18,7 @@ export const AUTH_SYSTEM_TRUSTED_ORIGINS: readonly string[] = [
   'http://callback.test',
 ];
 
-/** Per-actor client session bag (zero-endpoint node). */
+/** Per-actor client session bag (zero-endpoint). */
 export type ActorState = {
   bearer: string | null;
   pendingAuthUrl: string | null;
@@ -36,9 +36,16 @@ export type AuthStore = {
   readonly fetch: (path: string, init?: RequestInit) => Promise<Response>;
 };
 
+export type AuthSurface = {
+  readonly session: Session;
+  readonly store: AuthStore;
+  readonly clients: ReadonlyMap<string, ActorState>;
+  fingerprint: string | null;
+};
+
 export function requireStore(store: AuthStore | undefined): AuthStore {
   if (store === undefined) {
-    throw new Error('auth system: auth.store node is not booted');
+    throw new Error('auth system: store is not booted');
   }
   return store;
 }
@@ -49,33 +56,7 @@ export function requireActor(
 ): ActorState {
   const actor = actors.get(id);
   if (actor === undefined) {
-    throw new Error(`auth system: no auth.actor node ${id}`);
+    throw new Error(`auth system: no actor ${id}`);
   }
   return actor;
 }
-
-export type AuthWorldNodes = {
-  readonly store: AuthStore;
-  readonly client: ReadonlyMap<string, ActorState>;
-};
-
-export type AuthKnobs = {
-  readonly fabric: KnobDef<AuthFabric>;
-  readonly clientCount: KnobDef<number>;
-  readonly devProvider: KnobDef<boolean>;
-  readonly googleProvider: KnobDef<boolean>;
-};
-
-export type AuthNodeEntries = {
-  readonly store: NodeEntry;
-  readonly client: NodeEntry;
-};
-
-export type AuthKit = {
-  /** Recorded by `settle` so dual-open runs can compare determinism. */
-  fingerprint: string | null;
-};
-
-export type AuthSurface = World<AuthKnobs, AuthNodeEntries, AuthKit> & {
-  readonly nodes: AuthWorldNodes;
-};

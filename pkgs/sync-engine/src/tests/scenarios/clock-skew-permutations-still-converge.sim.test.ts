@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import type { SyncSystemWorld } from '../../sim/scenario';
+import type { SyncSurface } from '../../sim/scenario';
 import {
   deleteNote,
   expectNotesMatchServer,
@@ -32,20 +32,20 @@ const CLOCK_ORDERS: readonly ClockOrder[] = [
   { label: 'S < B < A', alice: AHEAD, bob: MID, server: BEHIND },
 ];
 
-function applyOrder(world: SyncSystemWorld, order: ClockOrder): void {
+function applyOrder(world: SyncSurface, order: ClockOrder): void {
   world.node('alice').skewClock(order.alice);
   world.node('bob').skewClock(order.bob);
   world.node('server').skewClock(order.server);
 }
 
-async function expectClientsMatchServer(world: SyncSystemWorld): Promise<void> {
+async function expectClientsMatchServer(world: SyncSurface): Promise<void> {
   for (const client of world.clients.values()) {
     await expectNotesMatchServer(client.db, world.server.db);
   }
 }
 
 async function offlineConflictThenConverge(
-  world: SyncSystemWorld,
+  world: SyncSurface,
   order: ClockOrder
 ): Promise<void> {
   applyOrder(world, order);
@@ -69,7 +69,7 @@ async function offlineConflictThenConverge(
 }
 
 async function onlineOptimisticRace(
-  world: SyncSystemWorld,
+  world: SyncSurface,
   order: ClockOrder
 ): Promise<void> {
   applyOrder(world, order);
@@ -88,7 +88,7 @@ async function onlineOptimisticRace(
 }
 
 async function aheadDeleteBehindPending(
-  world: SyncSystemWorld,
+  world: SyncSurface,
   order: ClockOrder
 ): Promise<void> {
   applyOrder(world, order);

@@ -1,6 +1,10 @@
+import type { Run } from '@pkgs/dst';
 import type { Driver } from '@pkgs/ui-testing';
 
-import type { openSim } from '../setup/open-sim';
+import { spawnActor } from '../scenario/actions';
+import type { ProductSurface } from '../scenario/surface';
+import { createCheckpointDriver } from '../setup/checkpoint-driver';
+import { productOf } from '../setup/open-sim';
 import { AuthFlows } from './auth-flows';
 import { ChessFlows } from './chess-flows';
 import { FriendsFlows } from './friends-flows';
@@ -8,8 +12,6 @@ import { NotificationsFlows } from './notifications-flows';
 import { ProfileFlows } from './profile-flows';
 import { SearchFlows } from './search-flows';
 import { SpaceFlows } from './space-flows';
-
-type OpenSimResult = Awaited<ReturnType<typeof openSim>>;
 
 /** Product UI flows for one sim actor. */
 export class AppDriver {
@@ -32,10 +34,16 @@ export class AppDriver {
   }
 
   static async forActor(
-    sim: OpenSimResult,
+    run: Run<ProductSurface>,
     actorId: string
   ): Promise<AppDriver> {
-    const actor = await sim.actor(actorId);
-    return new AppDriver(actor.ui);
+    if (!productOf(run).actors.has(actorId)) {
+      await run.apply(spawnActor, actorId);
+    }
+    const handle = productOf(run).actors.get(actorId);
+    if (handle === undefined) {
+      throw new Error(`AppDriver: actor '${actorId}' missing after spawn`);
+    }
+    return new AppDriver(createCheckpointDriver(run, actorId, handle.ui));
   }
 }

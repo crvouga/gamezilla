@@ -70,7 +70,7 @@ export function createReplayRestartState(): ReplayRestartState {
   return { needsRestart: new Set(), needsFreshRestart: new Set() };
 }
 
-/** Shared {@link SyncRuntime} replay bags must reset on each `openWorld`. */
+/** Shared {@link SyncRuntime} replay bags must reset on each world open. */
 export function resetReplayRestartState(state: ReplayRestartState): void {
   state.needsRestart.clear();
   state.needsFreshRestart.clear();

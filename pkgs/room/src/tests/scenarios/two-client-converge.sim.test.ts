@@ -1,28 +1,41 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/dst';
+import {
+  addClient,
+  converge,
+  dispatch,
+  rosterSize,
+  startRoom,
+} from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
 import { counterValue, Increment } from '../fixtures/counter-module';
+import {
+  expectHashMatch,
+  readClient,
+  readServer,
+} from '../scenario/read-state';
 
 describe('room sim: two client converge', () => {
   test('mutual increments yield equal hashes and roster', async () => {
-    await using host = await openWorld(counterSystem, {
-      seed: 2,
-      knobs: { clientCount: 0 },
+    await using run = await startRoom(counterSystem, { seed: 2 });
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
+    await run.apply(dispatch, {
+      clientId: 'alice',
+      payload: Increment({}),
     });
-    const world = host;
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
-    a.dispatch(Increment({}));
-    b.dispatch(Increment({}));
-    a.dispatch(Increment({}));
-    await world.assertConverged();
-    const server = await world.serverSnapshot();
-    expect(counterValue(server)).toBe(3);
-    expect(counterValue(a.snapshot())).toBe(3);
-    expect(counterValue(b.snapshot())).toBe(3);
-    expect(a.hash()).toBe(await world.serverHash());
-    const room = a.room();
-    expect(room).not.toBeNull();
-    expect(room!.getRoster().length).toBe(2);
+    await run.apply(dispatch, {
+      clientId: 'bob',
+      payload: Increment({}),
+    });
+    await run.apply(dispatch, {
+      clientId: 'alice',
+      payload: Increment({}),
+    });
+    await run.apply(converge);
+    expect(counterValue(await readServer(run))).toBe(3);
+    expect(counterValue(await readClient(run, 'alice'))).toBe(3);
+    expect(counterValue(await readClient(run, 'bob'))).toBe(3);
+    await expectHashMatch(run, 'alice');
+    expect(await run.observe(rosterSize)).toBe(2);
   });
 });

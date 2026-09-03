@@ -1,125 +1,144 @@
-import {
-  actions,
-  defineScenario,
-  type KnobValues,
-  knob,
-  openWorld,
-  properties,
-  property,
-  type ScenarioDef,
-  std,
-} from '@pkgs/dst';
+import { defineSystem, draw, start } from '@pkgs/dst';
+import { gen } from '@pkgs/dst/fast-check';
+import { asSeededRng } from '@pkgs/dst/kernel';
 import fc from 'fast-check';
-import type { MatchmakingSimBackend, MatchmakingSimKit } from '../world-api';
-import { assertReplicaAgreement, buildMatchmakingKit } from './facade';
-import { MM_BACKEND, mmReplicaNode, mmStoreNode } from './node-kinds';
+import type { MatchmakingSimBackend } from '../world-api';
+import {
+  assertReplicaAgreement,
+  buildMatchmakingKit,
+  type MatchmakingSurface,
+} from './facade';
+import { startReplica, startStore } from './node-kinds';
 import {
   createMatchmakingSystemConfig,
   type MatchmakingSystemConfig,
   type MatchmakingSystemOpts,
 } from './system';
 
-const WORLD_START_MS = 1_700_000_000_000;
-
-const REPLICA_COUNT = knob(1, fc.integer({ min: 1, max: 3 }));
-
-type MatchmakingKnobs = {
-  readonly replicaCount: typeof REPLICA_COUNT;
-  readonly backend: typeof MM_BACKEND;
-};
-
-type MatchmakingNodeEntries = {
-  readonly store: typeof mmStoreNode;
-  readonly replica: ReturnType<typeof mmReplicaNode> & {
-    readonly count: (knobs: KnobValues<MatchmakingKnobs>) => number;
-    readonly id: (index: number) => string;
-  };
-};
-
-export type MatchmakingSurface = MatchmakingSimKit;
-
-export type MatchmakingSystemDef = ScenarioDef<
-  MatchmakingKnobs,
-  MatchmakingNodeEntries,
-  MatchmakingSurface,
-  MatchmakingSurface
->;
-
-export type MatchmakingSystemWorld = import('@pkgs/dst').World<
-  MatchmakingKnobs,
-  Record<string, import('@pkgs/dst').NodeEntry>,
-  MatchmakingSurface
->;
+function range(n: number): number[] {
+  return Array.from({ length: n }, (_, i) => i);
+}
 
 export type DefineMatchmakingSystemOpts = MatchmakingSystemOpts & {
-  readonly id?: string;
+  readonly name?: string;
 };
 
 function defineMatchmakingSystemInner(
   config: MatchmakingSystemConfig,
   opts?: DefineMatchmakingSystemOpts
-): MatchmakingSystemDef {
-  const matchmakingActions = actions<MatchmakingSurface>()({
-    tickAll: {
-      weight: 1,
-      generate: () => fc.constant({ kind: 'tickAll' as const }),
-      apply: async (surface) => {
-        await surface.tickAll({ maxPassesPerPartition: 2 });
-      },
-    },
-    ...std.time(),
-  });
-
-  return defineScenario({
-    id: opts?.id ?? 'matchmaking.replicas',
-    startTime: WORLD_START_MS,
-    knobs: {
-      replicaCount: REPLICA_COUNT,
-      backend: MM_BACKEND,
-    },
-    nodes: {
-      store: mmStoreNode,
-      replica: {
-        ...mmReplicaNode(config),
-        count: (k: KnobValues<MatchmakingKnobs>) => k.replicaCount,
-        id: (i) => `r${String(i)}`,
-      },
-    },
-    actions:
-      matchmakingActions as import('@pkgs/dst').ActionCatalog<MatchmakingSurface>,
-    properties: properties<MatchmakingSurface>()({
-      converged: property.always(async () => true, { at: 'converge' }),
-    }),
-    extend: (world) =>
-      buildMatchmakingKit({
-        world,
+) {
+  return defineSystem({
+    name: opts?.name ?? 'matchmaking.replicas',
+    async *generate(session) {
+      const replicaCount = yield* draw(gen(fc.integer({ min: 1, max: 3 })));
+      const backend = yield* draw(
+        gen(fc.constant('sqlite' as MatchmakingSimBackend))
+      );
+      const { store } = await startStore(session.fork('store'), backend);
+      const boots = await Promise.all(
+        range(replicaCount).map((i) => {
+          const id = `r${String(i)}`;
+          return startReplica(session.fork(id), store, id, config);
+        })
+      );
+      const surface = buildMatchmakingKit({
+        session,
+        store,
+        boots,
         config,
-        rng: world.ports.rng,
-      }),
-    converge: async (world) => {
-      await world.tickAll({ maxPassesPerPartition: 4 });
-      await world.quiesce();
-      await assertReplicaAgreement(world);
+        rng: asSeededRng(session.ports.rng as never),
+      });
+      const sessionDispose = session.dispose.bind(session);
+      (session as { dispose: () => Promise<void> }).dispose = async () => {
+        try {
+          await store.close();
+        } finally {
+          await sessionDispose();
+        }
+      };
+      return surface;
     },
   });
 }
 
 /**
  * Framework-owned matchmaking world: shared SQL store + N replicas.
- * Kit surface is merged onto the opened world via `extend`.
  */
-export function defineMatchmakingSystem(
-  opts?: DefineMatchmakingSystemOpts
-): MatchmakingSystemDef {
+export function defineMatchmakingSystem(opts?: DefineMatchmakingSystemOpts) {
   return defineMatchmakingSystemInner(
     createMatchmakingSystemConfig(opts),
     opts
   );
 }
 
-export const MATCHMAKING_SYSTEM = defineMatchmakingSystem();
+export const matchmaking = defineMatchmakingSystem();
 
-export type OpenMatchmakingWorldArgs = {
+const { defineObservation, defineAction, defineProperty } = matchmaking;
+
+export const caps = defineObservation({
+  name: 'caps',
+  observe: (s: MatchmakingSurface) => [...s.session.caps] as string[],
+});
+
+export const replicaIds = defineObservation({
+  name: 'replicaIds',
+  observe: (s: MatchmakingSurface) => [...s.replicas.keys()],
+});
+
+export const agreementViolations = defineObservation({
+  name: 'agreementViolations',
+  observe: async (s: MatchmakingSurface) => {
+    try {
+      await assertReplicaAgreement(s);
+      return [] as string[];
+    } catch (e) {
+      return [e instanceof Error ? e.message : String(e)];
+    }
+  },
+});
+
+export const tickAll = defineAction({
+  name: 'tickAll',
+  *generate() {
+    yield {
+      weight: 1,
+      act: (s: MatchmakingSurface) => s.tickAll({ maxPassesPerPartition: 2 }),
+    };
+  },
+});
+
+export const passTime = defineAction({
+  name: 'passTime',
+  *generate() {
+    if (!(yield* caps).includes('virtualTime')) return;
+    const ms = yield* draw((rng) => Math.floor(rng.next() * 5_000));
+    yield {
+      weight: 1,
+      act: (s: MatchmakingSurface) => s.advance(ms),
+    };
+  },
+});
+
+export const MATCHMAKING_ACTIONS = [tickAll, passTime];
+
+export const replicasAgree = defineProperty({
+  name: 'replicasAgree',
+  *watch() {
+    while (true) {
+      const v = (yield agreementViolations) as string[];
+      if (v.length > 0) throw new Error(v[0]!);
+    }
+  },
+});
+
+export const MATCHMAKING_PROPERTIES = [replicasAgree];
+
+export const MATCHMAKING_SYSTEM = matchmaking;
+
+export type MatchmakingSystemDef = ReturnType<typeof defineMatchmakingSystem>;
+export type MatchmakingSystemWorld = MatchmakingSurface;
+
+export type StartMatchmakingArgs = {
   readonly seed: number | bigint | string;
   readonly replicas?: number;
   readonly backend?: MatchmakingSimBackend;
@@ -128,16 +147,12 @@ export type OpenMatchmakingWorldArgs = {
   readonly tuning?: Partial<
     import('../../interface/matchmaking').MatchmakingTuning
   >;
-  readonly startTime?: number;
 };
 
-/**
- * Thin opener over framework {@link openWorld}. Returns the framework World
- * with matchmaking kit methods merged via `extend`.
- */
-export async function openMatchmakingWorld(
-  args: OpenMatchmakingWorldArgs
-): Promise<MatchmakingSystemWorld> {
+/** Boot a matchmaking run via {@link start} (pinned replica count / backend). */
+export async function startMatchmaking(
+  args: StartMatchmakingArgs
+): Promise<import('@pkgs/dst').Run<MatchmakingSurface>> {
   const needsCustom =
     args.schema !== undefined ||
     args.radius !== undefined ||
@@ -148,14 +163,26 @@ export async function openMatchmakingWorld(
         ...(args.radius !== undefined ? { radius: args.radius } : {}),
         ...(args.tuning !== undefined ? { tuning: args.tuning } : {}),
       })
-    : MATCHMAKING_SYSTEM;
-
-  return openWorld(system, {
+    : matchmaking;
+  return start(system, {
     seed: args.seed,
-    knobs: {
-      replicaCount: args.replicas ?? 1,
-      backend: args.backend ?? 'sqlite',
-    },
-    ...(args.startTime !== undefined ? { startTime: args.startTime } : {}),
+    draws: [args.replicas ?? 1, args.backend ?? 'sqlite'],
+    properties: MATCHMAKING_PROPERTIES,
   });
 }
+
+/**
+ * Imperative pin helper — surface + dispose (legacy `openMatchmakingWorld`).
+ */
+export async function openMatchmakingWorld(
+  args: StartMatchmakingArgs
+): Promise<MatchmakingSurface & AsyncDisposable> {
+  const run = await startMatchmaking(args);
+  return Object.assign(run._internal.surface, {
+    async [Symbol.asyncDispose]() {
+      await run[Symbol.asyncDispose]();
+    },
+  });
+}
+
+export type { MatchmakingSurface };

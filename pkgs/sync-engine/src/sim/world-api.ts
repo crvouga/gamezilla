@@ -1,4 +1,4 @@
-import type { Scheduler } from '@pkgs/dst';
+import type { VirtualScheduler } from '@pkgs/dst/kernel';
 
 import type { SimClientHandle } from './client-handle';
 import type { InvariantViolation } from './invariants';
@@ -20,7 +20,7 @@ export type World = {
   /** @internal Lab / fuzz */
   readonly rng: SeededRng;
   /** @internal Lab / harness */
-  readonly scheduler: Scheduler;
+  readonly scheduler: VirtualScheduler;
   /** @internal Lab / harness */
   readonly network: SyncNetwork;
   readonly server: SimServer;

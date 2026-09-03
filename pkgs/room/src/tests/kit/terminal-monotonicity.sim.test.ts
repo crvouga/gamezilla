@@ -1,5 +1,11 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/dst';
+import {
+  addClient,
+  converge,
+  dispatch,
+  passTime,
+  startRoom,
+} from '../../sim/scenario';
 import { deadlineSystem } from '../apps/deadline/system';
 import {
   ActBeforeDeadline,
@@ -8,39 +14,46 @@ import {
   ExpireDeadline,
   StartDeadline,
 } from '../fixtures/deadline-module';
+import {
+  expectHashMatch,
+  readClient,
+  readServer,
+} from '../scenario/read-state';
 
 describe('kit: terminal monotonicity (M-F06)', () => {
   test('schedule expire wins; late act / expire are no-ops', async () => {
-    await using host = await openWorld(deadlineSystem, {
-      seed: process.env['SIM_SEED'] ?? '42',
-      knobs: { clientCount: 0 },
+    await using run = await startRoom(deadlineSystem, {
       startTime: 1_000,
     });
-    const world = host;
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
-    await world.assertConverged();
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
+    await run.apply(converge);
 
-    a.dispatch(StartDeadline({ durationMs: 100 }));
-    await world.drain();
-    expect(deadlineStatus(await world.serverSnapshot())).toBe('open');
-    expect(deadlineStatus(a.snapshot())).toBe('open');
+    await run.apply(dispatch, {
+      clientId: 'alice',
+      payload: StartDeadline({ durationMs: 100 }),
+    });
+    expect(deadlineStatus(await readServer(run))).toBe('open');
+    expect(deadlineStatus(await readClient(run, 'alice'))).toBe('open');
 
-    // Advance past deadline; engine Schedule injects Expire.
-    await world.runFor(120);
-    await world.assertConverged();
+    await run.apply(passTime, 120);
+    await run.apply(converge);
 
-    const server = await world.serverSnapshot();
-    const outcome = deadlineOutcome(server);
+    const outcome = deadlineOutcome(await readServer(run));
     expect(outcome).toBe('expired');
-    expect(deadlineOutcome(a.snapshot())).toBe(outcome);
-    expect(deadlineOutcome(b.snapshot())).toBe(outcome);
-    expect(a.hash()).toBe(await world.serverHash());
+    expect(deadlineOutcome(await readClient(run, 'alice'))).toBe(outcome);
+    expect(deadlineOutcome(await readClient(run, 'bob'))).toBe(outcome);
+    await expectHashMatch(run, 'alice');
 
-    a.dispatch(ExpireDeadline({}));
-    a.dispatch(ActBeforeDeadline({}));
-    await world.drain();
-    expect(deadlineOutcome(await world.serverSnapshot())).toBe('expired');
-    expect(deadlineOutcome(a.snapshot())).toBe('expired');
+    await run.apply(dispatch, {
+      clientId: 'alice',
+      payload: ExpireDeadline({}),
+    });
+    await run.apply(dispatch, {
+      clientId: 'alice',
+      payload: ActBeforeDeadline({}),
+    });
+    expect(deadlineOutcome(await readServer(run))).toBe('expired');
+    expect(deadlineOutcome(await readClient(run, 'alice'))).toBe('expired');
   });
 });

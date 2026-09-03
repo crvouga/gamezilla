@@ -1021,15 +1021,21 @@
         "@pkgs/clock": "workspace:*",
         "@pkgs/http-client": "workspace:*",
         "@pkgs/invariants": "workspace:*",
-        "@pkgs/pbt": "workspace:*",
         "@pkgs/uuid": "workspace:*",
-        "fast-check": "catalog:",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
+        "happy-dom": "catalog:",
         "typescript": "catalog:",
       },
+      "peerDependencies": {
+        "fast-check": "catalog:",
+      },
+      "optionalPeers": [
+        "fast-check",
+      ],
     },
     "pkgs/emqx-server": {
       "name": "@pkgs/emqx-server",
@@ -1794,6 +1800,7 @@
         "@babel/runtime": "catalog:",
         "@pkgs/async-local": "workspace:*",
         "@pkgs/clock": "workspace:*",
+        "@pkgs/dst": "workspace:*",
         "@testing-library/react-native": "catalog:",
         "react": "catalog:",
         "react-native": "catalog:",

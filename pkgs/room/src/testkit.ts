@@ -6,12 +6,29 @@ export {
 export type {
   DomainOp,
   RoomApp,
+  RoomSurface,
   RoomSystemDef,
-  RoomSystemWorld,
 } from './sim/scenario';
 export {
+  addClient,
+  clientHash,
+  clientState,
+  converge,
+  crash,
   defineRoomSystem,
+  dispatch,
   domainOp,
+  heal,
+  hold,
+  lastRejection,
+  partition,
+  passTime,
+  ROOM_PROPERTIES,
+  release,
+  restart,
+  serverHash,
+  serverState,
+  startRoom,
 } from './sim/scenario';
 export type {
   OpenWorldArgs,

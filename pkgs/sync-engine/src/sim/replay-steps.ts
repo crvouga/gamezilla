@@ -1,11 +1,11 @@
 import { DST_FAULTS, RELIABLE_FAULTS, sampleFaultOptions } from './faults';
 import { isDbOpen } from './invariants';
-import type { SyncSystemWorld } from './scenario/define-sync-system';
 import { restartClientWithRetry } from './scenario/replay-step';
+import type { SyncSurface } from './scenario/system';
 
 /** Add N clients and optionally enable DST / sampled network faults. */
 export async function bootClients(args: {
-  readonly world: SyncSystemWorld;
+  readonly world: SyncSurface;
   readonly clientCount: number;
   readonly sampleFaults: boolean;
   /** Mild fixed reorder/loss faults (ignored when sampleFaults is true). */
@@ -28,7 +28,7 @@ export async function bootClients(args: {
 }
 
 function settleClientIds(
-  world: SyncSystemWorld,
+  world: SyncSurface,
   bootIds: readonly string[]
 ): string[] {
   const ids = [...bootIds];
@@ -40,7 +40,7 @@ function settleClientIds(
 
 /** Heal partitions, clear holds/faults, bring clients online, assert converge. */
 export async function settleWorld(args: {
-  readonly world: SyncSystemWorld;
+  readonly world: SyncSurface;
   readonly ids: readonly string[];
 }): Promise<void> {
   args.world.clearFailNextOpen();

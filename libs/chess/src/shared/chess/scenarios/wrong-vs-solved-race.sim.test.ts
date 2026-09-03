@@ -1,5 +1,15 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/dst';
+import {
+  addClient,
+  clientHash,
+  clientState,
+  converge,
+  dispatch,
+  passTime,
+  serverHash,
+  serverState,
+  startRoom,
+} from '@pkgs/room/tests';
 
 import {
   CHESS_PUZZLE_PLAY_STATUS,
@@ -14,46 +24,56 @@ const VALID_MOVES = 'e8d7 e1f2 d7e6 f2e3';
 
 describe('chess puzzle: wrong vs solve race (Gp-04)', () => {
   test('two host tabs race moves → one consistent status', async () => {
-    await using world = await openWorld(chessSystem, {
+    await using run = await startRoom(chessSystem, {
       seed: process.env['SIM_SEED'] ?? '42',
-      knobs: { clientCount: 0, mildFaults: true },
+      mildFaults: true,
     });
-    const tab1 = await world.addClient({
+    await run.apply(addClient, {
       id: 'tab1',
       identity: 'host-1',
       clientId: 'tab-1',
     });
-    const tab2 = await world.addClient({
+    await run.apply(addClient, {
       id: 'tab2',
       identity: 'host-1',
       clientId: 'tab-2',
     });
-    await world.assertConverged();
+    await run.apply(converge);
 
-    tab1.dispatch(
-      StartChessPuzzlePlay({
+    await run.apply(dispatch, {
+      clientId: 'tab1',
+      payload: StartChessPuzzlePlay({
         puzzleId: 'race',
         fen: VALID_FEN,
         moves: VALID_MOVES,
-      })
-    );
-    await world.drain();
+      }),
+    });
+    await run.apply(passTime, 0);
 
-    tab1.dispatch(SubmitChessPuzzleMove({ uci: 'e1f2' }));
-    tab2.dispatch(SubmitChessPuzzleMove({ uci: 'a2a3' }));
-    await world.assertConverged();
+    await run.apply(dispatch, {
+      clientId: 'tab1',
+      payload: SubmitChessPuzzleMove({ uci: 'e1f2' }),
+    });
+    await run.apply(dispatch, {
+      clientId: 'tab2',
+      payload: SubmitChessPuzzleMove({ uci: 'a2a3' }),
+    });
+    await run.apply(converge);
 
     const serverStatus = ChessPuzzlePlayAttr.status.from(
-      await world.serverSnapshot()
+      (await run.observe(serverState)) as never
     );
     expect(
       serverStatus === CHESS_PUZZLE_PLAY_STATUS.solving ||
         serverStatus === CHESS_PUZZLE_PLAY_STATUS.wrong ||
         serverStatus === CHESS_PUZZLE_PLAY_STATUS.solved
     ).toBe(true);
-    const status = ChessPuzzlePlayAttr.status.from(tab1.snapshot());
-    expect(status).toBe(serverStatus);
-    expect(tab1.hash()).toBe(await world.serverHash());
-    expect(tab1.hash()).toBe(tab2.hash());
+    const clients = await run.observe(clientState);
+    expect(ChessPuzzlePlayAttr.status.from(clients['tab1'] as never)).toBe(
+      serverStatus
+    );
+    const hashes = (await run.observe(clientHash)) as Record<string, string>;
+    expect(hashes['tab1']).toBe(await run.observe(serverHash));
+    expect(hashes['tab1']).toBe(hashes['tab2']);
   });
 });

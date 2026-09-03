@@ -1,5 +1,5 @@
 import { describe, test } from 'bun:test';
-import type { SyncSystemWorld } from '../../sim/scenario';
+import type { SyncSurface } from '../../sim/scenario';
 import { expectLiveNote, expectNotesMatchServer, setNote } from '../apps/acme';
 import { openAcmeWorld } from '../apps/acme/system';
 
@@ -20,13 +20,13 @@ const RACE_SKEWS: readonly ClockOrder[] = [
   { label: 'S < B < A', alice: AHEAD, bob: MID, server: BEHIND },
 ];
 
-async function expectClientsMatchServer(world: SyncSystemWorld): Promise<void> {
+async function expectClientsMatchServer(world: SyncSurface): Promise<void> {
   for (const client of world.clients.values()) {
     await expectNotesMatchServer(client.db, world.server.db);
   }
 }
 
-async function liveBeforeSync(world: SyncSystemWorld): Promise<void> {
+async function liveBeforeSync(world: SyncSurface): Promise<void> {
   const a = await world.addClient({ id: 'alice' });
   const b = await world.addClient({ id: 'bob' });
   await a.mutate(setNote, { id: 'warm', body: 'w' });
@@ -42,7 +42,7 @@ async function liveBeforeSync(world: SyncSystemWorld): Promise<void> {
   await expectClientsMatchServer(world);
 }
 
-async function syncBeforeLive(world: SyncSystemWorld): Promise<void> {
+async function syncBeforeLive(world: SyncSurface): Promise<void> {
   const a = await world.addClient({ id: 'alice' });
   const b = await world.addClient({ id: 'bob' });
   await a.mutate(setNote, { id: 'warm', body: 'w' });

@@ -1,6 +1,5 @@
 import { describe, test } from 'bun:test';
-import { runProperty } from '@pkgs/dst/pbt';
-import { fc } from '@pkgs/pbt';
+import { assertProperty, fc } from '@pkgs/pbt';
 import { arbKnobs, arbSeed } from '../../sim/scenario/knobs';
 import { isLiveNote, readLiveNotes } from '../apps/acme/assert';
 import { setNote } from '../apps/acme/shared/mutations';
@@ -10,7 +9,7 @@ describe('hold window safety PBT', () => {
   test(
     'optimistic body never reverts while sync is held after local mutate',
     async () => {
-      await runProperty(
+      await assertProperty(
         'hold window no flicker',
         fc.asyncProperty(
           arbSeed(),

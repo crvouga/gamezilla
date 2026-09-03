@@ -1,35 +1,41 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/dst';
-import { counterSystem } from '../apps/counter/system';
+import { addClient, converge, dispatch, rosterSize } from '../../sim/scenario';
 import { counterValue, Increment } from '../fixtures/counter-module';
+import { bootCounter } from '../scenario/boot-counter';
+import {
+  expectHashMatch,
+  readClient,
+  readServer,
+} from '../scenario/read-state';
 
 describe('room sim: multi-tab same identity (E-C03)', () => {
   test('two tabs same identity fold identically', async () => {
-    await using host = await openWorld(counterSystem, {
-      seed: process.env['SIM_SEED'] ?? '42',
-      knobs: { clientCount: 0 },
-    });
-    const world = host;
-    const t1 = await world.addClient({
+    await using run = await bootCounter([]);
+    await run.apply(addClient, {
       id: 'tab1',
       identity: 'alice',
       clientId: 'tab-1',
     });
-    const t2 = await world.addClient({
+    await run.apply(addClient, {
       id: 'tab2',
       identity: 'alice',
       clientId: 'tab-2',
     });
-    await world.assertConverged();
+    await run.apply(converge);
 
-    t1.dispatch(Increment({}));
-    t2.dispatch(Increment({}));
-    await world.assertConverged();
-    const server = await world.serverSnapshot();
-    expect(counterValue(server)).toBe(2);
-    expect(counterValue(t1.snapshot())).toBe(2);
-    expect(counterValue(t2.snapshot())).toBe(2);
-    expect(t1.hash()).toBe(await world.serverHash());
-    expect(world.server.getRoster()).toHaveLength(2);
+    await run.apply(dispatch, {
+      clientId: 'tab1',
+      payload: Increment({}),
+    });
+    await run.apply(dispatch, {
+      clientId: 'tab2',
+      payload: Increment({}),
+    });
+    await run.apply(converge);
+    expect(counterValue(await readServer(run))).toBe(2);
+    expect(counterValue(await readClient(run, 'tab1'))).toBe(2);
+    expect(counterValue(await readClient(run, 'tab2'))).toBe(2);
+    await expectHashMatch(run, 'tab1');
+    expect(await run.observe(rosterSize)).toBe(2);
   });
 });

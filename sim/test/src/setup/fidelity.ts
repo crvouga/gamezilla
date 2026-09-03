@@ -14,8 +14,3 @@ export function resolveOpenSimFidelity(
   if (fromEnv === 'max') return 'max';
   return 'sim';
 }
-
-/** World mesh (partition / dual-mount) is sim-only. */
-export function isWorldMeshSupported(fidelity: OpenSimFidelity): boolean {
-  return fidelity === 'sim';
-}

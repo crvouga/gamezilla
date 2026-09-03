@@ -4,12 +4,12 @@ import {
   createInMemoryAuthClientStorage,
 } from '@pkgs/auth/client';
 
-import { openSim } from '../setup/open-sim';
+import { openSim, productOf } from '../setup/open-sim';
 
 describe('auth oauth port', () => {
   test('dev sign-in via in-process openAuthSession', async () => {
     await using sim = await openSim('auth-oauth-port');
-    const env = sim.sim.client('alice');
+    const env = productOf(sim).sim.client('alice');
     const port = createAuthClientAdapter({
       baseURL: env.authBaseURL,
       timers: env.timers,

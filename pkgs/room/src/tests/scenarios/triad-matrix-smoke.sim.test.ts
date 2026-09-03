@@ -1,53 +1,65 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/dst';
-import { counterSystem } from '../apps/counter/system';
+import {
+  clientHash,
+  connect,
+  connected,
+  converge,
+  disconnect,
+  dispatch,
+  down,
+  hold,
+  passTime,
+  release,
+  serverHash,
+} from '../../sim/scenario';
 import { counterValue, Increment } from '../fixtures/counter-module';
+import { bootCounter } from '../scenario/boot-counter';
+import { readClient, readServer } from '../scenario/read-state';
 
 describe('room sim: triad matrix smoke (E-A06)', () => {
   test('soft disconnect, hold, and down remain independent', async () => {
-    await using host = await openWorld(counterSystem, {
-      seed: process.env['SIM_SEED'] ?? '42',
-      knobs: { clientCount: 0 },
+    await using run = await bootCounter(['alice', 'bob', 'carol']);
+
+    await run.apply(disconnect, 'alice');
+    await run.apply(dispatch, {
+      clientId: 'alice',
+      payload: Increment({}),
     });
-    const world = host;
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
-    const c = await world.addClient({ id: 'carol' });
-    await world.assertConverged();
+    expect(((await run.observe(connected)) as string[]).includes('alice')).toBe(
+      false
+    );
+    expect(counterValue(await readClient(run, 'alice'))).toBe(1);
 
-    // Soft disconnect: offline optimistic queue.
-    await a.disconnect();
-    a.dispatch(Increment({}));
-    expect(a.isConnected()).toBe(false);
-    expect(counterValue(a.snapshot())).toBe(1);
+    await run.apply(hold, 'bob');
+    expect(((await run.observe(connected)) as string[]).includes('bob')).toBe(
+      true
+    );
+    await run.apply(dispatch, {
+      clientId: 'carol',
+      payload: Increment({}),
+    });
+    await run.apply(passTime, 100);
+    expect(counterValue(await readClient(run, 'bob'))).not.toBe(1);
+    await run.apply(release, 'bob');
 
-    // Hold: frames buffered, session still "connected".
-    {
-      using _hold = world.net('bob').set('hold');
-      expect(b.isConnected()).toBe(true);
-      c.dispatch(Increment({}));
-      await world.drain();
-      await world.waitNever(() => counterValue(b.snapshot()) === 1, {
-        forMs: 100,
-      });
-    }
+    await run.apply(down, 'carol');
+    await run.apply(dispatch, {
+      clientId: 'bob',
+      payload: Increment({}),
+    });
+    await run.apply(passTime, 0);
+    await run.apply(release, 'carol');
 
-    // Down: drop, then soft reconnect alice.
-    {
-      using _down = world.net('carol').set('down');
-      b.dispatch(Increment({}));
-      await world.drain();
-    }
-
-    await a.connect();
-    await c.disconnect();
-    await c.connect();
-    await world.assertConverged();
-    const server = await world.serverSnapshot();
-    expect(counterValue(server)).toBe(3);
-    expect(counterValue(a.snapshot())).toBe(3);
-    expect(a.hash()).toBe(await world.serverHash());
-    expect(b.hash()).toBe(await world.serverHash());
-    expect(c.hash()).toBe(await world.serverHash());
+    await run.apply(connect, 'alice');
+    await run.apply(disconnect, 'carol');
+    await run.apply(connect, 'carol');
+    await run.apply(converge);
+    expect(counterValue(await readServer(run))).toBe(3);
+    expect(counterValue(await readClient(run, 'alice'))).toBe(3);
+    const h = await run.observe(serverHash);
+    const hashes = (await run.observe(clientHash)) as Record<string, string>;
+    expect(hashes['alice']).toBe(h);
+    expect(hashes['bob']).toBe(h);
+    expect(hashes['carol']).toBe(h);
   });
 });

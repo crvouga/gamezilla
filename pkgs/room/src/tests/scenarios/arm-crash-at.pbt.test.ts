@@ -1,63 +1,51 @@
 import { describe, test } from 'bun:test';
-import { arbSeed, runProperty } from '@pkgs/dst/pbt';
-import { fc } from '@pkgs/pbt';
+import { assertProperty, fc } from '@pkgs/pbt';
 
 import { WORLD_PBT_CRASH_EVENTS } from '../../sim/boundary-faults';
-import { playRoomActions, replayRoom } from '../../sim/scenario';
+import { arbSeed, playRoomActions, startRoom } from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
 
-/**
- * Scripted armCrashAt slice — intentionally out of the random library pool
- * (see library-arbs.ts). Covers each crash event under a short domain
- * sequence then settle.
- */
 describe('room armCrashAt slice PBT', () => {
   test(
     'each armCrashAt event then settle converges',
     async () => {
-      await runProperty(
+      await assertProperty(
         'armCrashAt slice converges',
         fc.asyncProperty(
           arbSeed(),
           fc.constantFrom(...WORLD_PBT_CRASH_EVENTS),
           async (seed, event) => {
-            const world = await replayRoom(counterSystem, {
+            await using run = await startRoom(counterSystem, {
               seed,
-              knobs: { clientCount: 2, mildFaults: false },
-              converge: false,
-              actions: [
-                {
-                  kind: 'armCrashAt',
-                  clientId: 'c1',
-                  event,
-                },
-                {
-                  kind: 'domain',
-                  clientId: 'c0',
-                  command: 'increment',
-                  args: {},
-                },
-                { kind: 'idle', ms: 30 },
-              ],
+              clientCount: 2,
+              mildFaults: false,
             });
-            const real = world;
-            try {
-              // Restart clears the node but a lingering afterNextWelcome arm
-              // would crash again on the reconnect welcome — clear arms first.
-              real.clearBoundaryFaults();
-              await playRoomActions(world, [
-                { kind: 'restart', clientId: 'c1' },
-                {
-                  kind: 'domain',
-                  clientId: 'c1',
-                  command: 'increment',
-                  args: {},
-                },
-              ]);
-              await real.assertConverged();
-            } finally {
-              await world.dispose();
-            }
+            await playRoomActions(run, [
+              {
+                kind: 'armCrashAt',
+                clientId: 'c1',
+                event,
+              },
+              {
+                kind: 'domain',
+                clientId: 'c0',
+                command: 'increment',
+                args: {},
+              },
+              { kind: 'idle', ms: 30 },
+            ]);
+            const world = run._internal.surface.world;
+            world.clearBoundaryFaults();
+            await playRoomActions(run, [
+              { kind: 'restart', clientId: 'c1' },
+              {
+                kind: 'domain',
+                clientId: 'c1',
+                command: 'increment',
+                args: {},
+              },
+            ]);
+            await world.assertConverged();
           }
         ),
         { numRuns: 6 }

@@ -1,7 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import type { AnyScenarioDef } from '@pkgs/dst';
-import { check } from '@pkgs/dst/pbt';
-import { playSyncActions, replaySyncPin } from '../../sim/scenario';
+import { checkSync, playSyncActions, replaySyncPin } from '../../sim/scenario';
 import { setNote } from '../apps/acme';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
 import { acmeSystem, openAcmeWorld } from '../apps/acme/system';
@@ -11,9 +9,10 @@ describe('fault permutation PBT', () => {
   test(
     'full fault pool interleaves and converges',
     async () => {
-      await check(acmeSystem as unknown as AnyScenarioDef, {
-        episodeLength: 20,
+      await checkSync(acmeSystem, {
+        steps: 20,
         episodes: 6,
+        seed: 44000,
       });
     },
     { timeout: 180_000 }

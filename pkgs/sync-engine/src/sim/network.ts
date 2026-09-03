@@ -3,7 +3,7 @@ import type {
   EndpointId,
   FlowKey,
   Network as KernelNetwork,
-} from '@pkgs/dst';
+} from '@pkgs/dst/kernel';
 
 import type { SimFaultOptions } from './faults';
 import { type ClientTraffic, clientForHop, type SimTraffic } from './traffic';

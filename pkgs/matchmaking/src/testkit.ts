@@ -8,10 +8,14 @@
 
 export {
   defineMatchmakingSystem,
+  MATCHMAKING_ACTIONS,
+  MATCHMAKING_PROPERTIES,
   MATCHMAKING_SYSTEM,
   type MatchmakingSystemDef,
-  type OpenMatchmakingWorldArgs,
-  openMatchmakingWorld,
+  type MatchmakingSystemWorld,
+  matchmaking,
+  type StartMatchmakingArgs,
+  startMatchmaking,
 } from './sim/scenario';
 export type {
   MatchmakingSimBackend,

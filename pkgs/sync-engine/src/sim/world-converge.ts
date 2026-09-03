@@ -1,4 +1,4 @@
-import type { Scheduler } from '@pkgs/dst';
+import type { VirtualScheduler } from '@pkgs/dst/kernel';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { reconcileOptimisticPeerMarkers } from '../client/optimistic-peer-rows';
 import type { SimClientHandle } from './client-factory';
@@ -17,7 +17,7 @@ import type { SimServer } from './server';
 
 export type AssertConvergedCtx = {
   readonly network: SyncNetwork;
-  readonly scheduler: Scheduler;
+  readonly scheduler: VirtualScheduler;
   readonly clients: ReadonlyMap<string, SimClientHandle>;
   readonly server: SimServer;
   readonly seed: bigint;

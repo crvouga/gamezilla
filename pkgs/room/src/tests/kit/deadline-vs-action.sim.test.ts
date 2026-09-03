@@ -1,5 +1,14 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/dst';
+import {
+  addClient,
+  clock,
+  converge,
+  dispatch,
+  hold,
+  passTime,
+  release,
+  startRoom,
+} from '../../sim/scenario';
 import { deadlineSystem } from '../apps/deadline/system';
 import {
   ActBeforeDeadline,
@@ -7,37 +16,40 @@ import {
   deadlineOutcome,
   StartDeadline,
 } from '../fixtures/deadline-module';
+import {
+  expectHashMatch,
+  readClient,
+  readServer,
+} from '../scenario/read-state';
 
 describe('kit: deadline vs action (M-F07)', () => {
   test('partitioned lagging client cannot win after deadline', async () => {
-    await using host = await openWorld(deadlineSystem, {
-      seed: process.env['SIM_SEED'] ?? '42',
-      knobs: { clientCount: 0 },
+    await using run = await startRoom(deadlineSystem, {
       startTime: 5_000,
     });
-    const world = host;
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
-    await world.assertConverged();
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
+    await run.apply(converge);
 
-    a.dispatch(StartDeadline({ durationMs: 50 }));
-    await world.drain();
-    const dl = deadlineAt(await world.serverSnapshot());
+    await run.apply(dispatch, {
+      clientId: 'alice',
+      payload: StartDeadline({ durationMs: 50 }),
+    });
+    const dl = deadlineAt(await readServer(run));
 
-    {
-      using _hold = world.net('bob').set('hold');
-      // Engine Schedule wake expires without client Expire dispatch.
-      await world.runFor(80);
-      expect(world.clock.now()).toBeGreaterThanOrEqual(dl);
-      // Bob still sees old open state locally while held.
-      b.dispatch(ActBeforeDeadline({}));
-      await world.drain();
-    }
+    await run.apply(hold, 'bob');
+    await run.apply(passTime, 80);
+    expect(await run.observe(clock)).toBeGreaterThanOrEqual(dl);
+    await run.apply(dispatch, {
+      clientId: 'bob',
+      payload: ActBeforeDeadline({}),
+    });
+    await run.apply(release, 'bob');
 
-    await world.assertConverged();
-    expect(deadlineOutcome(await world.serverSnapshot())).toBe('expired');
-    expect(deadlineOutcome(a.snapshot())).toBe('expired');
-    expect(deadlineOutcome(b.snapshot())).toBe('expired');
-    expect(a.hash()).toBe(await world.serverHash());
+    await run.apply(converge);
+    expect(deadlineOutcome(await readServer(run))).toBe('expired');
+    expect(deadlineOutcome(await readClient(run, 'alice'))).toBe('expired');
+    expect(deadlineOutcome(await readClient(run, 'bob'))).toBe('expired');
+    await expectHashMatch(run, 'alice');
   });
 });

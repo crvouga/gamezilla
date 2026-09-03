@@ -1,9 +1,9 @@
+import type { World } from '../world-api';
 import type { DomainOp, LibraryAction, RoomSystemAction } from './actions';
 import type { RoomApp } from './app';
-import type { RoomSystemWorldSurface } from './world-surface';
 
 async function dispatchDomainOp(
-  world: RoomSystemWorldSurface,
+  world: World,
   app: RoomApp,
   op: DomainOp
 ): Promise<void> {
@@ -14,7 +14,7 @@ async function dispatchDomainOp(
 
 const LIBRARY_HANDLERS: {
   readonly [K in LibraryAction['kind']]: (
-    world: RoomSystemWorldSurface,
+    world: World,
     action: Extract<LibraryAction, { kind: K }>
   ) => Promise<void>;
 } = {
@@ -52,8 +52,6 @@ const LIBRARY_HANDLERS: {
     await world.node(action.clientId).crash();
   },
   restart: async (world, action) => {
-    // A replayed `restart` only observes recovery if the node is down first
-    // (recorded/model state may disagree with the live world).
     const c = world.clients.get(action.clientId);
     if (c !== undefined && !c.isCrashed()) {
       await world.node(action.clientId).crash();
@@ -114,7 +112,7 @@ const LIBRARY_HANDLERS: {
 };
 
 export async function dispatchRoomSystemAction(
-  world: RoomSystemWorldSurface,
+  world: World,
   app: RoomApp,
   action: RoomSystemAction
 ): Promise<void> {
@@ -123,7 +121,7 @@ export async function dispatchRoomSystemAction(
     return;
   }
   const handler = LIBRARY_HANDLERS[action.kind] as (
-    world: RoomSystemWorldSurface,
+    world: World,
     action: LibraryAction
   ) => Promise<void>;
   await handler(world, action);

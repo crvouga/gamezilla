@@ -1,29 +1,36 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/dst';
 import { asKeyword } from '@pkgs/keyword';
+import {
+  addClient,
+  converge,
+  dispatch,
+  logSeq,
+  startRoom,
+} from '../../sim/scenario';
 import { ROOM_ERROR_TYPE } from '../../types';
 import { counterSystem } from '../apps/counter/system';
 import { counterValue } from '../fixtures/counter-module';
+import { readClient, readRejection, readServer } from '../scenario/read-state';
 
 describe('room sim: unknown command reject (E-D04)', () => {
   test('unknown message type rejects without mutate', async () => {
-    await using host = await openWorld(counterSystem, {
-      seed: process.env['SIM_SEED'] ?? '42',
-      knobs: { clientCount: 0 },
-    });
-    const world = host;
-    const a = await world.addClient({ id: 'alice' });
-    await world.assertConverged();
+    await using run = await startRoom(counterSystem);
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(converge);
 
-    a.dispatch({
-      type: asKeyword('space-counter-cmd/nope'),
-      payload: {},
+    await run.apply(dispatch, {
+      clientId: 'alice',
+      payload: {
+        type: asKeyword('space-counter-cmd/nope'),
+        payload: {},
+      },
     });
-    await world.drain();
 
-    expect(a.lastRejection()?.type).toBe(ROOM_ERROR_TYPE.invalidCommand);
-    expect(await world.storage.getLastSeq(world.topic)).toBe(0);
-    expect(counterValue(await world.serverSnapshot())).toBe(0);
-    expect(counterValue(a.snapshot())).toBe(0);
+    expect((await readRejection(run, 'alice'))?.type).toBe(
+      ROOM_ERROR_TYPE.invalidCommand
+    );
+    expect(await run.observe(logSeq)).toBe(0);
+    expect(counterValue(await readServer(run))).toBe(0);
+    expect(counterValue(await readClient(run, 'alice'))).toBe(0);
   });
 });

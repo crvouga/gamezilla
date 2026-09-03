@@ -1,33 +1,30 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/dst';
-import { arbSeed, runProperty } from '@pkgs/dst/pbt';
-import { fc } from '@pkgs/pbt';
-
+import { assertProperty, fc } from '@pkgs/pbt';
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '../../protocol/wire';
-import { arbRoomKnobs, replayRoom } from '../../sim/scenario';
+import {
+  addClient,
+  arbRoomKnobs,
+  arbSeed,
+  clock,
+  converge,
+  dispatch,
+  injectToServer,
+  replayRoom,
+  startRoom,
+  takeOver,
+} from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
 import { counterValue, Increment } from '../fixtures/counter-module';
-
-async function expectCounter(
-  world: Awaited<ReturnType<typeof replayRoom>>,
-  expected: number
-): Promise<void> {
-  try {
-    const snap = await world.serverSnapshot();
-    expect(counterValue(snap)).toBe(expected);
-  } finally {
-    await world.dispose();
-  }
-}
+import { readServer } from '../scenario/read-state';
 
 describe('room session-lifecycle PBT', () => {
   test(
     'takeOver mid-flight converges',
     async () => {
-      await runProperty(
-        'takeOver sequences converge',
+      await assertProperty(
+        'takeOver mid-flight',
         fc.asyncProperty(arbSeed(), arbRoomKnobs(), async (seed, knobs) => {
-          const world = await replayRoom(counterSystem, {
+          await using run = await replayRoom(counterSystem, {
             seed,
             knobs,
             actions: [
@@ -46,7 +43,7 @@ describe('room session-lifecycle PBT', () => {
               },
             ],
           });
-          await expectCounter(world, 2);
+          expect(counterValue(await readServer(run))).toBe(2);
         }),
         { numRuns: 8 }
       );
@@ -57,10 +54,10 @@ describe('room session-lifecycle PBT', () => {
   test(
     'crash restart clearLocalData converge',
     async () => {
-      await runProperty(
-        'lifecycle sequences converge',
+      await assertProperty(
+        'crash restart clearLocalData',
         fc.asyncProperty(arbSeed(), arbRoomKnobs(), async (seed, knobs) => {
-          const world = await replayRoom(counterSystem, {
+          await using _run = await replayRoom(counterSystem, {
             seed,
             knobs,
             actions: [
@@ -88,7 +85,6 @@ describe('room session-lifecycle PBT', () => {
               },
             ],
           });
-          await world.dispose();
         }),
         { numRuns: 8 }
       );
@@ -99,10 +95,10 @@ describe('room session-lifecycle PBT', () => {
   test(
     'serverCrash restart drains pending',
     async () => {
-      await runProperty(
-        'server crash sequences converge',
+      await assertProperty(
+        'serverCrash restart',
         fc.asyncProperty(arbSeed(), async (seed) => {
-          const world = await replayRoom(counterSystem, {
+          await using run = await replayRoom(counterSystem, {
             seed,
             actions: [
               {
@@ -121,7 +117,7 @@ describe('room session-lifecycle PBT', () => {
               },
             ],
           });
-          await expectCounter(world, 2);
+          expect(counterValue(await readServer(run))).toBe(2);
         }),
         { numRuns: 6 }
       );
@@ -130,52 +126,53 @@ describe('room session-lifecycle PBT', () => {
   );
 
   test('commandId replay across takeOver applies once', async () => {
-    const world = await replayRoom(counterSystem, {
+    await using run = await startRoom(counterSystem, {
       seed: 7,
-      converge: false,
-      actions: [],
+      clientCount: 2,
     });
-    const real = world;
-    try {
-      const c0 = real.clients.get('c0')!;
-      const frame = {
-        v: WIRE_VERSION,
-        kind: ROOM_WIRE_KIND.command,
-        id: 'same-cmd',
-        ts: real.clock.now(),
-        payload: Increment({}),
-      };
-      c0.injectToServer(frame, { direct: true });
-      await real.drain();
-      await real.node('c0').takeOver();
-      c0.injectToServer(frame, { direct: true });
-      await real.drain();
-      await real.assertConverged();
-      expect(counterValue(await real.serverSnapshot())).toBe(1);
-    } finally {
-      await world.dispose();
-    }
+    const frame = {
+      v: WIRE_VERSION,
+      kind: ROOM_WIRE_KIND.command,
+      id: 'same-cmd',
+      ts: await run.observe(clock),
+      payload: Increment({}),
+    };
+    await run.apply(injectToServer, {
+      clientId: 'c0',
+      raw: frame,
+      direct: true,
+    });
+    await run.apply(takeOver, 'c0');
+    await run.apply(injectToServer, {
+      clientId: 'c0',
+      raw: frame,
+      direct: true,
+    });
+    await run.apply(converge);
+    expect(counterValue(await readServer(run))).toBe(1);
   });
 
   test('multi-tab same identity converges', async () => {
-    await using host = await openWorld(counterSystem, {
-      seed: 11,
-      knobs: { clientCount: 0 },
-    });
-    const world = host;
-    await world.addClient({
+    await using run = await startRoom(counterSystem, { seed: 11 });
+    await run.apply(addClient, {
       id: 'tab-a',
       identity: 'user',
       clientId: 'a',
     });
-    await world.addClient({
+    await run.apply(addClient, {
       id: 'tab-b',
       identity: 'user',
       clientId: 'b',
     });
-    world.clients.get('tab-a')!.dispatch(Increment({}));
-    world.clients.get('tab-b')!.dispatch(Increment({}));
-    await world.assertConverged();
-    expect(counterValue(await world.serverSnapshot())).toBe(2);
+    await run.apply(dispatch, {
+      clientId: 'tab-a',
+      payload: Increment({}),
+    });
+    await run.apply(dispatch, {
+      clientId: 'tab-b',
+      payload: Increment({}),
+    });
+    await run.apply(converge);
+    expect(counterValue(await readServer(run))).toBe(2);
   });
 });

@@ -10,7 +10,7 @@ export type { SeededRng } from '../sim/rng';
 export type {
   SyncAction,
   SyncApp,
-  SyncSystemFacade,
+  SyncSurface,
   WorldKnobs,
 } from '../sim/scenario';
 export type {

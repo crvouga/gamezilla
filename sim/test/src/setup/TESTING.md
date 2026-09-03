@@ -1,17 +1,15 @@
 # Sim tests (DST)
 
-Product system graph lives in `@libs/runtime`. Open a world with `openSim` from
-`sim/test/src/setup/open-sim.ts` — a thin wrapper over framework
-`openWorld(defineProductSystem(…))` (`sim/test/src/scenario/`). The product system
-uses `defineScenario` with `node` / `knob` / `command` + optional `extend` (kit
-surface merged onto the opened world). Playground still calls `createSim`
-directly as a wall composition root; `createSim` accepts injected `ports` from
-`@pkgs/dst` (`createWorldPorts`: clock, scheduler, timers, rng, trace) so
-the same boot path works inside the `product.sim` node kind.
+Product system lives in `sim/test/src/scenario/`. Open a run with `openSim` from
+`sim/test/src/setup/open-sim.ts` — `start(product)` on `simHost` / `maxHost`
+(`virtualHost().with({ sql, ui, http })` / `wallHost({ network: 'none' }).with(…)`).
+`openSim` attaches `PRODUCT_PROPERTIES` (`noErrorBoundary`) and returns a
+`Run`. Playground opens `virtualHost()` and passes the `Session` to `createSim`.
 
 **Authoring** — scenarios import `describe` from `@pkgs/ui-testing` and pass
 `ctx` into `openSim(testId, ctx)`. Never import `@jest/globals` / `@playwright/test`
-in scenario files.
+in scenario files. Drive UI through `AppDriver` (taps checkpoint via `run.apply`);
+read state with `run.observe`; attach more properties on `start` if needed.
 
 ```tsx
 import { describe } from '@pkgs/ui-testing';
@@ -19,11 +17,15 @@ import { openSim } from '../setup/open-sim';
 
 describe('space create', (ctx) => {
   ctx.test('host creates a space', async () => {
-    await using sim = await openSim('space-create', ctx);
-    // AppDriver …
+    await using run = await openSim('space-create', ctx);
+    // AppDriver.forActor(run, 'alice') …
   }, 30_000);
 });
 ```
+
+Faults (partition / heal) are `defineAction`s gated by a `caps` observation —
+do not branch on `ctx.fidelity`. On `maxHost` (no `partition` cap),
+`run.apply(partition, …)` throws `ActionNotEnabled`.
 
 **SQL fabric** (`SIM_SQL_BACKEND=real|mem`, default **`real`**):
 
@@ -53,18 +55,18 @@ wired into `predev` / `setup`) so Metro's Hermes classic bundle never sees
 Builders live in `sim/test/src/snapshots/builders/` (same AppDriver DSL as scenarios).
 Catalog: `signed-in-alice`, `signed-in-pair`, `friends-pair`, `both-in-space`.
 
-**Fidelity** (`ctx.fidelity` from the installed runner, or `openSim` options for snapshot builders):
+**Hosts** (`ctx.driverKind` from the installed runner, or `openSim` options for snapshot builders):
 
-| Tier | Command | Host | UI driver | System |
-| --- | --- | --- | --- | --- |
-| `sim` (default) | `bun run --filter @sim/test test` | Jest + jest-expo | RNTL in-process | Seed PGlite/SQLite; in-process Hono `fetch` |
-| `max` | `bun run --filter @sim/test test:max` | Playwright Test | Playwright (one context per actor) | Real Postgres + MinIO/EMQX; Hono on loopback HTTP; Expo web on `:5173` |
+| Host | Command | UI driver | SQL / HTTP |
+| --- | --- | --- | --- |
+| `simHost` (default) | `bun run --filter @sim/test test` | RNTL in-process | Seed PGlite/SQLite; in-process Hono `fetch`; caps include `partition` |
+| `maxHost` | `bun run --filter @sim/test test:max` | Playwright (one context per actor) | Real Postgres + MinIO/EMQX; Hono on loopback HTTP; Expo web on `:5173`; no `partition` cap |
 
-- **`sim`** — world mesh (`partition`, crash) is first-class. Server schema is migrated
+- **`simHost`** — world mesh (`partition`) is first-class. Server schema is migrated
   **once** into the seed file (Jest `globalSetup` /
   `bun run --filter @sim/test seed:sim-db`); each `openSim` clones that seed
   instead of re-running DDL.
-- **`max`** — world-mesh scenarios skip when `ctx.fidelity !== 'sim'`. Sidecars boot via
+- **`maxHost`** — partition is not enabled (`ActionNotEnabled`). Sidecars boot via
   `playwright.global-setup.mjs` → `ensureMaxFidelityStack`. Each `openSim` listens the
   sim Hono app on `127.0.0.1:8787` and drives the exported web client. Build the web
   bundle first: `EXPO_PUBLIC_API_URL=http://127.0.0.1:8787 bun run --filter @apps/client build`.

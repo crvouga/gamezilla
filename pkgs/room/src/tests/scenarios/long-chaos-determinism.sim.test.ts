@@ -1,54 +1,77 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/dst';
+import {
+  addClient,
+  clientHash,
+  connect,
+  converge,
+  disconnect,
+  dispatch,
+  down,
+  hold,
+  passTime,
+  release,
+  serverHash,
+  startRoom,
+} from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
 import { Decrement, Increment } from '../fixtures/counter-module';
 
 async function runChaos(seed: string): Promise<string> {
-  await using host = await openWorld(counterSystem, {
-    seed,
-    knobs: { clientCount: 0 },
-  });
-  const world = host;
-  const alice = await world.addClient({ id: 'alice' });
-  const bob = await world.addClient({ id: 'bob' });
-  const carol = await world.addClient({ id: 'carol' });
-  const clients = [alice, bob, carol];
-  const rng = world.rng.fork('chaos');
+  await using run = await startRoom(counterSystem, { seed });
+  await run.apply(addClient, { id: 'alice' });
+  await run.apply(addClient, { id: 'bob' });
+  await run.apply(addClient, { id: 'carol' });
+  const ids = ['alice', 'bob', 'carol'] as const;
+  const rng = run._internal.surface.world.rng.fork('chaos');
 
   for (let step = 0; step < 40; step += 1) {
-    const actor = clients[rng.int(clients.length)]!;
+    const actor = ids[rng.int(ids.length)]!;
     const roll = rng.random();
     if (roll < 0.15) {
-      using _h = world.net(actor.id).set('hold');
-      actor.dispatch(Increment({}));
-      await world.drain();
+      await run.apply(hold, actor);
+      await run.apply(dispatch, {
+        clientId: actor,
+        payload: Increment({}),
+      });
+      await run.apply(release, actor);
     } else if (roll < 0.25) {
-      // Down drops the wire frame; soft-cycle so the durable queue re-flushes.
-      {
-        using _d = world.net(actor.id).set('down');
-        actor.dispatch(Decrement({}));
-        await world.drain();
-      }
-      await actor.disconnect();
-      await actor.connect();
+      await run.apply(down, actor);
+      await run.apply(dispatch, {
+        clientId: actor,
+        payload: Decrement({}),
+      });
+      await run.apply(release, actor);
+      await run.apply(disconnect, actor);
+      await run.apply(connect, actor);
     } else if (roll < 0.35) {
-      await actor.disconnect();
-      actor.dispatch(Increment({}));
-      await actor.connect();
+      await run.apply(disconnect, actor);
+      await run.apply(dispatch, {
+        clientId: actor,
+        payload: Increment({}),
+      });
+      await run.apply(connect, actor);
     } else if (roll < 0.5) {
-      actor.dispatch(Decrement({}));
+      await run.apply(dispatch, {
+        clientId: actor,
+        payload: Decrement({}),
+      });
     } else {
-      actor.dispatch(Increment({}));
+      await run.apply(dispatch, {
+        clientId: actor,
+        payload: Increment({}),
+      });
     }
-    await world.drain();
+    await run.apply(passTime, 0);
   }
 
-  for (const c of clients) {
-    await c.disconnect();
-    await c.connect();
+  for (const id of ids) {
+    await run.apply(disconnect, id);
+    await run.apply(connect, id);
   }
-  await world.assertConverged();
-  return `${await world.serverHash()}:${alice.hash()}:${bob.hash()}:${carol.hash()}`;
+  await run.apply(converge);
+  const h = await run.observe(serverHash);
+  const hashes = (await run.observe(clientHash)) as Record<string, string>;
+  return `${h}:${hashes['alice']}:${hashes['bob']}:${hashes['carol']}`;
 }
 
 describe('room sim: long chaos determinism (E-E01)', () => {

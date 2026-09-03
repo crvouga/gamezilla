@@ -1,10 +1,9 @@
-import { knob, node } from '@pkgs/dst';
+import type { Ports, Session } from '@pkgs/dst';
 import { createNoopLogger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplPostgresMem } from '@pkgs/sql-client/postgres/impl-postgres-mem';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres/schema';
 import { SqlClientImplSqliteMem } from '@pkgs/sql-client/sqlite/impl-sqlite-mem';
-import fc from 'fast-check';
 
 import {
   AuthPostgresDatabaseMigration,
@@ -22,19 +21,10 @@ import {
   type AuthStore,
 } from './types';
 
-export const AUTH_FABRIC = knob(
-  'sqlite-mem' satisfies AuthFabric,
-  fc.constantFrom<AuthFabric>('sqlite-mem', 'postgres-mem')
-);
-export const AUTH_DEV_PROVIDER = knob(true, fc.boolean());
-export const AUTH_GOOGLE_PROVIDER = knob(true, fc.boolean());
-export const AUTH_CLIENT_COUNT = knob(2, fc.integer({ min: 1, max: 3 }));
-
-function openSql(fabric: AuthFabric, seed: bigint): SqlClient {
-  const seedNum = Number(seed & 0xffffffffn) || 1;
+function openSql(fabric: AuthFabric, seed: number): SqlClient {
   return fabric === 'sqlite-mem'
-    ? SqlClientImplSqliteMem.open({ seed: seedNum })
-    : SqlClientImplPostgresMem.open({ seed: seedNum });
+    ? SqlClientImplSqliteMem.open({ seed })
+    : SqlClientImplPostgresMem.open({ seed });
 }
 
 export async function migrateAuthSchema(
@@ -56,16 +46,16 @@ export async function migrateAuthSchema(
 function buildStore(args: {
   readonly fabric: AuthFabric;
   readonly sql: SqlClient;
-  readonly deps: import('@pkgs/dst').WorldPorts;
+  readonly ports: Ports;
   readonly enableDev: boolean;
   readonly enableGoogle: boolean;
 }): AuthStore {
-  const { fabric, sql, deps } = args;
+  const { fabric, sql, ports } = args;
   const sim = { googleFault: false, googleSubjects: new Map<string, string>() };
   const app = createAuthApp({
     getSql: () => sql,
-    clock: deps.clock,
-    createId: deps.createId,
+    clock: ports.clock,
+    createId: ports.createId,
     http: createFakeGoogleHttp(sim),
     secret: AUTH_SYSTEM_SECRET,
     baseURL: AUTH_SYSTEM_BASE_URL,
@@ -79,8 +69,8 @@ function buildStore(args: {
   });
   const server = createAuthServerAdapter({
     getSql: () => sql,
-    clock: deps.clock,
-    createId: deps.createId,
+    clock: ports.clock,
+    createId: ports.createId,
     secret: AUTH_SYSTEM_SECRET,
   });
   return {
@@ -93,33 +83,31 @@ function buildStore(args: {
   };
 }
 
-/** SQL fabric + IdP Hono app + fake Google, one per system. */
-export const authStoreNode = node({
-  start: async (ctx) => {
-    const fabric = ctx.knob(AUTH_FABRIC);
-    const sql = openSql(fabric, ctx.ports.seed);
-    await migrateAuthSchema(fabric, sql);
-    return buildStore({
-      fabric,
-      sql,
-      deps: ctx.ports,
-      enableDev: ctx.knob(AUTH_DEV_PROVIDER),
-      enableGoogle: ctx.knob(AUTH_GOOGLE_PROVIDER),
-    });
-  },
-  stop: async (store) => {
-    await store.sql.disconnect();
-  },
-});
+export async function startStore(
+  session: Session,
+  opts: {
+    readonly fabric: AuthFabric;
+    readonly enableDev: boolean;
+    readonly enableGoogle: boolean;
+  }
+): Promise<AuthStore> {
+  const seed =
+    Math.floor(session.ports.rng.fork('sql').next() * 0xffffffff) || 1;
+  const sql = openSql(opts.fabric, seed);
+  await migrateAuthSchema(opts.fabric, sql);
+  return buildStore({
+    fabric: opts.fabric,
+    sql,
+    ports: session.ports,
+    enableDev: opts.enableDev,
+    enableGoogle: opts.enableGoogle,
+  });
+}
 
-/** Client-side session bag. Zero endpoints — actors drive the store by fetch. */
-export const authActorNode = node({
-  start: () => {
-    const state: ActorState = {
-      bearer: null,
-      pendingAuthUrl: null,
-      pendingCode: null,
-    };
-    return state;
-  },
-});
+export function startActor(): ActorState {
+  return {
+    bearer: null,
+    pendingAuthUrl: null,
+    pendingCode: null,
+  };
+}

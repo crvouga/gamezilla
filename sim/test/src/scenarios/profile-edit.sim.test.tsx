@@ -3,6 +3,7 @@ import { describe } from '@pkgs/ui-testing';
 
 import { AppDriver } from '../drivers/app-driver';
 import { aliceAvatarCreds, aliceUserCreds } from '../fixtures/fixtures';
+import { resetActor } from '../scenario';
 import { type OpenSimHandle, openSim } from '../setup/open-sim';
 
 describe('profile edit', (ctx) => {
@@ -13,11 +14,11 @@ describe('profile edit', (ctx) => {
   });
 
   ctx.afterAll(async () => {
-    await world.dispose();
+    await world[Symbol.asyncDispose]();
   });
 
   ctx.afterEach(async () => {
-    await world.resetActor('alice');
+    await world.apply(resetActor, 'alice');
   });
 
   ctx.test('guest updates username', async () => {

@@ -1,9 +1,7 @@
-import type { RoomSystemWorldSurface } from './world-surface';
+import type { World } from '../world-api';
 
 /** Restart crashed clients / server so settle is meaningful. */
-export async function prepareClientsForConverge(
-  world: RoomSystemWorldSurface
-): Promise<void> {
+export async function prepareClientsForConverge(world: World): Promise<void> {
   world.clearBoundaryFaults();
   if (world.isServerCrashed()) {
     await world.serverRestart();

@@ -1,5 +1,4 @@
-import type { WorldPorts } from '@pkgs/dst';
-
+import type { SyncBootDeps } from './boot-deps';
 import {
   type BoundaryFaultController,
   createBoundaryFaultController,
@@ -29,14 +28,14 @@ export type { BootedSimKernel } from './world-types';
 
 /** Deps + network + broker + boundary faults, before the server exists. */
 export type SimInfra = {
-  readonly deps: WorldPorts;
+  readonly deps: SyncBootDeps;
   readonly boundaryFaults: BoundaryFaultController;
   readonly runtime: BootRuntime;
 };
 
-/** Framework-owned deps + network for framework worlds (`@pkgs/dst` node kinds). */
+/** Session-derived deps + network for `defineSyncSystem` boot. */
 export type InjectedSimPorts = {
-  readonly deps: WorldPorts;
+  readonly deps: SyncBootDeps;
   readonly network: SyncNetwork;
 };
 

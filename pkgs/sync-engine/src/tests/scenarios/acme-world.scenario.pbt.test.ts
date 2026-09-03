@@ -1,8 +1,6 @@
 import { describe, test } from 'bun:test';
-import type { AnyScenarioDef } from '@pkgs/dst';
-import { check, runProperty } from '@pkgs/dst/pbt';
-import { fc } from '@pkgs/pbt';
-import { replaySyncPin } from '../../sim/scenario';
+import { assertProperty, fc } from '@pkgs/pbt';
+import { checkSync, replaySyncPin } from '../../sim/scenario';
 import { runAcmeSeed } from '../apps/acme';
 import { acmeSystem } from '../apps/acme/system';
 
@@ -10,8 +8,10 @@ describe('acme world PBT', () => {
   test(
     'fc.commands sequences replay on World and converge',
     async () => {
-      await check(acmeSystem as unknown as AnyScenarioDef, {
-        episodeLength: 14,
+      await checkSync(acmeSystem, {
+        steps: 14,
+        episodes: 8,
+        seed: 42,
       });
     },
     { timeout: 120_000 }
@@ -346,7 +346,7 @@ describe('acme world PBT', () => {
   test(
     'runAcmeSeed is deterministic for a generated seed',
     async () => {
-      await runProperty(
+      await assertProperty(
         'runAcmeSeed determinism',
         fc.asyncProperty(fc.integer({ min: 1, max: 10_000 }), async (seed) => {
           const a = await runAcmeSeed({

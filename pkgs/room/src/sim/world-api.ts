@@ -1,6 +1,7 @@
-import type { Clock } from '@pkgs/clock';
-import type { Scheduler, WorldPorts } from '@pkgs/dst';
-import type { SeededRng } from '@pkgs/uuid';
+import type { Clock, Timers } from '@pkgs/clock';
+import type { Session } from '@pkgs/dst';
+import type { VirtualScheduler } from '@pkgs/dst/kernel';
+import type { CreateId, SeededRng } from '@pkgs/uuid';
 import type { InMemoryRoomStorage } from '../server/adapters/memory';
 import type { RoomServer } from '../server/core/room-server';
 import type {
@@ -34,9 +35,18 @@ export type RoomSimAuthorize = (
   command: RoomCommand
 ) => Promise<{ ok: true } | { ok: false; reason: string }>;
 
-/** Framework-owned deps + network for framework worlds (`@pkgs/dst` node kinds). */
+/** Kernel ports the kit world needs, derived from a DST `Session`. */
+export type RoomWorldDeps = {
+  readonly seed: bigint;
+  readonly clock: Clock;
+  readonly scheduler: VirtualScheduler;
+  readonly timers: Timers;
+  readonly rng: SeededRng;
+  readonly createId: CreateId;
+};
+
 export type InjectedRoomSimPorts = {
-  readonly deps: WorldPorts;
+  readonly deps: RoomWorldDeps;
   readonly network: SimRoomNetwork;
 };
 
@@ -50,8 +60,7 @@ export type World<
   readonly module: RoomModule<S, C, E, string>;
   readonly rng: SeededRng;
   readonly clock: Clock;
-  /** @internal Lab / harness — scenarios use runFor / until */
-  readonly scheduler: Scheduler;
+  readonly scheduler: VirtualScheduler;
   readonly storage: InMemoryRoomStorage;
   readonly server: RoomServer<S, C, E, string>;
   readonly clients: ReadonlyMap<string, RoomSimClientHandle<S, C, E>>;
@@ -68,6 +77,16 @@ export type World<
     opts?: WaitUntilOptions
   ) => Promise<number>;
   readonly never: (pred: UntilPredicate, opts: NeverOptions) => Promise<void>;
+  /** Alias for {@link World.until}. */
+  readonly waitUntil: (
+    pred: UntilPredicate,
+    opts?: WaitUntilOptions
+  ) => Promise<number>;
+  /** Alias for {@link World.never}. */
+  readonly waitNever: (
+    pred: UntilPredicate,
+    opts: NeverOptions
+  ) => Promise<void>;
   /** Domain state folded from the committed storage log (authority). */
   readonly serverSnapshot: () => Promise<S>;
   /** `module.hash` of {@link serverSnapshot}. */
@@ -89,24 +108,17 @@ export type OpenWorldArgs<
   C extends RoomCommandPayload = RoomCommandPayload,
   E extends RoomEvent = RoomEvent,
 > = {
-  readonly seed: number | bigint | string;
+  readonly session: Session;
   readonly module: RoomModule<S, C, E, string>;
   readonly topic?: string;
-  readonly startTime?: number;
   /** When true, boot with {@link MILD_ROOM_FAULTS}. */
   readonly mildFaults?: boolean;
   /** Optional per-command authorize hook (RoomServer). */
   readonly authorize?: RoomSimAuthorize;
   /** Share storage across worlds for multi-topic isolation tests. */
   readonly storage?: InMemoryRoomStorage;
-  /**
-   * Required — framework-owned deps + network from `@pkgs/dst`
-   * (`ctx.ports` / `wrapRoomNetwork({ kernel: ctx.network })`).
-   */
-  readonly injected: InjectedRoomSimPorts;
 };
 
 export type { RoomCrashEvent } from './boundary-faults';
 export type { RoomInvariantViolation } from './invariants';
-// Re-export net types used by scenarios.
 export type { RoomNetEffect, RoomNetSetArg };

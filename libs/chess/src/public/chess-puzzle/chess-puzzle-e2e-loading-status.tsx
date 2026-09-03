@@ -2,8 +2,7 @@ import { Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
 const E2E_ENABLED =
-  process.env['EXPO_PUBLIC_E2E'] === '1' ||
-  process.env['NODE_ENV'] === 'test';
+  process.env['EXPO_PUBLIC_E2E'] === '1' || process.env['NODE_ENV'] === 'test';
 
 export type ChessPuzzleE2ELoadingStatusProps = {
   myId: string;

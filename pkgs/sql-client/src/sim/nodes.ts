@@ -1,5 +1,4 @@
-import { knob, node } from '@pkgs/dst';
-import fc from 'fast-check';
+import type { Session } from '@pkgs/dst';
 import { type BrokerCore, createBrokerCore } from '../sqlite/web/broker-core';
 import {
   createOwnerRuntime,
@@ -20,14 +19,6 @@ import {
   type SqlClientWebState,
 } from './types';
 
-export const SQL_TAB_COUNT = knob(2, fc.integer({ min: 1, max: 3 }));
-export const SQL_POOL_CAPACITY = knob(6, fc.constantFrom(2, 6));
-export const SQL_SCHEMA_EPOCH = knob(1, fc.constant(1));
-export const SQL_BACKEND = knob(
-  'web-sim-opfs' as SqlClientWebBackend,
-  fc.constantFrom('web-sim-opfs', 'sqlite-mem')
-);
-
 export type SqlWebStoreHandle = {
   readonly store: SimOpfsStore;
   readonly broker: BrokerCore;
@@ -39,48 +30,41 @@ export type SqlWebTabHandle = {
   readonly runtime: OwnerRuntime;
 };
 
-/**
- * Shared durable store (simulated AccessHandlePoolVFS) plus the in-process
- * broker every tab elects its owner through. Boots before any tab.
- */
-export const sqlWebStoreNode = node({
-  start: (ctx) => {
-    const board = createSqlClientWebState();
-    const store = createSimOpfsStore({
-      capacity: Number(ctx.knob(SQL_POOL_CAPACITY)),
-    });
-    const broker = createBrokerCore({
-      setTimeout: (fn, ms) => ctx.ports.timers.setTimeout(fn, ms),
-      clearTimeout: (id) => ctx.ports.timers.clearTimeout(id),
-      now: () => ctx.ports.clock.now(),
-    });
-    board.backend = ctx.knob(SQL_BACKEND);
-    board.epoch = Number(ctx.knob(SQL_SCHEMA_EPOCH));
-    board.store = store;
-    board.broker = broker;
-    return { store, broker, board };
-  },
-});
+export function startStore(
+  session: Session,
+  opts: {
+    readonly poolCapacity: number;
+    readonly schemaEpoch: number;
+    readonly backend: SqlClientWebBackend;
+  }
+): SqlWebStoreHandle {
+  const board = createSqlClientWebState();
+  const store = createSimOpfsStore({ capacity: opts.poolCapacity });
+  const broker = createBrokerCore({
+    setTimeout: (fn, ms) => session.ports.timers.setTimeout(fn, ms),
+    clearTimeout: (id) => session.ports.timers.clearTimeout(id),
+    now: () => session.ports.clock.now(),
+  });
+  board.backend = opts.backend;
+  board.epoch = opts.schemaEpoch;
+  board.store = store;
+  board.broker = broker;
+  return { store, broker, board };
+}
 
-/**
- * One browser tab. It only opens its owner runtime while the broker elects it.
- */
-export const sqlWebTabNode = node({
-  start: (ctx) => {
-    const storeHandle = ctx.peers.single('store') as SqlWebStoreHandle;
-    const board = storeHandle.board;
-    const runtime = createOwnerRuntime({
-      dbName: SIM_DB_NAME,
-      timers: ctx.ports.timers,
-      createOwner: () => createTabOwner(board),
-      migrate: (client) => migrateToyKv(client, board),
-      notifyPeersOnRecover: false,
-    });
-    board.tabs.set(ctx.id, { id: ctx.id, runtime, open: false });
-    requireBroker(board).attachPort(tabPort(ctx.id));
-    return { id: ctx.id, runtime };
-  },
-  stop: async (handle) => {
-    await handle.runtime.close();
-  },
-});
+export function startTab(
+  session: Session,
+  board: SqlClientWebState,
+  id: string
+): SqlWebTabHandle {
+  const runtime = createOwnerRuntime({
+    dbName: SIM_DB_NAME,
+    timers: session.ports.timers,
+    createOwner: () => createTabOwner(board),
+    migrate: (client) => migrateToyKv(client, board),
+    notifyPeersOnRecover: false,
+  });
+  board.tabs.set(id, { id, runtime, open: false });
+  requireBroker(board).attachPort(tabPort(id));
+  return { id, runtime };
+}

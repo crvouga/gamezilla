@@ -1,100 +1,100 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld, RELIABLE_NETWORK } from '@pkgs/dst';
-import { check, runExamples } from '@pkgs/dst/pbt';
+import { start } from '@pkgs/dst';
+import { check } from '@pkgs/dst/pbt';
 import { ownerTabId } from './ownership';
-import { SQL_CLIENT_WEB_SYSTEM } from './system';
+import {
+  bumpEpoch,
+  connect,
+  corruptStore,
+  fillPool,
+  get,
+  killTabAction,
+  ownerId,
+  put,
+  SQL_CLIENT_WEB_ACTIONS,
+  SQL_CLIENT_WEB_PROPERTIES,
+  sqlClientWeb,
+  tabIdList,
+} from './system';
 import { readToyRows } from './toy-kv';
 import { boardOf } from './types';
 
-const OPFS = { tabCount: 2, backend: 'web-sim-opfs' } as const;
-const SYSTEM = SQL_CLIENT_WEB_SYSTEM as unknown as Parameters<typeof check>[0];
+/** tabCount=2, poolCapacity=6, schemaEpoch=1, backend=web-sim-opfs */
+const OPFS_DRAWS = [2, 6, 1, 'web-sim-opfs'] as const;
 
 describe('sql-client web multi-tab system PBT', () => {
   test('check explores tabs, pool exhaustion, corruption, epochs', async () => {
-    await check(SYSTEM, { episodeLength: 10, episodes: 4, vacuity: 'warn' });
+    const report = await check(sqlClientWeb, {
+      properties: SQL_CLIENT_WEB_PROPERTIES,
+      actions: SQL_CLIENT_WEB_ACTIONS,
+      episodes: 4,
+      steps: 10,
+      seed: 1,
+      stopOnViolation: true,
+    });
+    expect(report.ok).toBe(true);
   }, 180_000);
 
   test('named fault pins recover to a usable cache', async () => {
-    await runExamples(
-      SYSTEM,
-      [
-        {
-          name: 'fill-pool-then-connect',
-          inputs: {
-            startTime: 0,
-            knobs: OPFS,
-            actions: [
-              { kind: 'fillPool' },
-              { kind: 'connect', tabId: 't0' },
-              { kind: 'put', tabId: 't0', key: 'a', value: '1' },
-              { kind: 'get', tabId: 't0', key: 'a' },
-            ],
-            networkFaults: RELIABLE_NETWORK,
-          },
-        },
-        {
-          name: 'corrupt-then-connect',
-          inputs: {
-            startTime: 0,
-            knobs: OPFS,
-            actions: [
-              { kind: 'corruptStore' },
-              { kind: 'connect', tabId: 't0' },
-              { kind: 'put', tabId: 't0', key: 'a', value: '1' },
-              { kind: 'get', tabId: 't0', key: 'a' },
-            ],
-            networkFaults: RELIABLE_NETWORK,
-          },
-        },
-        {
-          name: 'bump-epoch-clears-rows',
-          inputs: {
-            startTime: 0,
-            knobs: OPFS,
-            actions: [
-              { kind: 'connect', tabId: 't0' },
-              { kind: 'put', tabId: 't0', key: 'a', value: '1' },
-              { kind: 'bumpEpoch' },
-              { kind: 'killTab', tabId: 't0' },
-              { kind: 'connect', tabId: 't0' },
-              { kind: 'get', tabId: 't0', key: 'a' },
-            ],
-            networkFaults: RELIABLE_NETWORK,
-          },
-        },
-        {
-          name: 'kill-owner-promotes-peer',
-          inputs: {
-            startTime: 0,
-            knobs: OPFS,
-            actions: [
-              { kind: 'connect', tabId: 't0' },
-              { kind: 'connect', tabId: 't1' },
-              { kind: 'put', tabId: 't0', key: 'a', value: '1' },
-              { kind: 'killTab', tabId: 't0' },
-              { kind: 'get', tabId: 't1', key: 'a' },
-            ],
-            networkFaults: RELIABLE_NETWORK,
-          },
-        },
-      ],
-      { seeds: [1, 2] }
-    );
+    await using run1 = await start(sqlClientWeb, {
+      seed: 1,
+      draws: [...OPFS_DRAWS],
+      properties: SQL_CLIENT_WEB_PROPERTIES,
+    });
+    await run1.apply(fillPool);
+    await run1.apply(connect, 't0');
+    await run1.apply(put, { tabId: 't0', key: 'a', value: '1' });
+    await run1.apply(get, { tabId: 't0', key: 'a' });
+
+    await using run2 = await start(sqlClientWeb, {
+      seed: 1,
+      draws: [...OPFS_DRAWS],
+      properties: SQL_CLIENT_WEB_PROPERTIES,
+    });
+    await run2.apply(corruptStore);
+    await run2.apply(connect, 't0');
+    await run2.apply(put, { tabId: 't0', key: 'a', value: '1' });
+    await run2.apply(get, { tabId: 't0', key: 'a' });
+
+    await using run3 = await start(sqlClientWeb, {
+      seed: 1,
+      draws: [...OPFS_DRAWS],
+      properties: SQL_CLIENT_WEB_PROPERTIES,
+    });
+    await run3.apply(connect, 't0');
+    await run3.apply(put, { tabId: 't0', key: 'a', value: '1' });
+    await run3.apply(bumpEpoch);
+    await run3.apply(killTabAction, 't0');
+    await run3.apply(connect, 't0');
+    await run3.apply(get, { tabId: 't0', key: 'a' });
+
+    await using run4 = await start(sqlClientWeb, {
+      seed: 1,
+      draws: [...OPFS_DRAWS],
+      properties: SQL_CLIENT_WEB_PROPERTIES,
+    });
+    await run4.apply(connect, 't0');
+    await run4.apply(connect, 't1');
+    await run4.apply(put, { tabId: 't0', key: 'a', value: '1' });
+    await run4.apply(killTabAction, 't0');
+    await run4.apply(get, { tabId: 't1', key: 'a' });
   }, 120_000);
 
-  test('openWorld boots a store plus tabs and elects one owner', async () => {
-    await using world = await openWorld(SQL_CLIENT_WEB_SYSTEM, {
+  test('start boots a store plus tabs and elects one owner', async () => {
+    await using run = await start(sqlClientWeb, {
       seed: 7,
-      knobs: OPFS,
+      draws: [...OPFS_DRAWS],
+      properties: SQL_CLIENT_WEB_PROPERTIES,
     });
-    expect(world.nodeIds('tab')).toEqual(['t0', 't1']);
-    expect(ownerTabId(boardOf(world))).toBeNull();
+    expect(await run.observe(tabIdList)).toEqual(['t0', 't1']);
+    expect(await run.observe(ownerId)).toBeNull();
 
-    await world.converge();
+    await run.apply(connect, 't0');
+    await run.apply(connect, 't1');
 
-    const elected = ownerTabId(boardOf(world));
-    expect(elected).toBe('t0');
-    const owner = boardOf(world).tabs.get('t0');
+    const surface = run._internal.surface;
+    expect(ownerTabId(boardOf(surface))).toBe('t0');
+    const owner = boardOf(surface).tabs.get('t0');
     if (owner === undefined) throw new Error('missing tab t0');
     expect(await readToyRows(owner.runtime.getClient())).toEqual(new Map());
   });

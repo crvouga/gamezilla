@@ -113,9 +113,7 @@ export class ChessFlows {
   async openStats(): Promise<void> {
     // Puzzle play / celebration → chess root via chrome back, then Stats.
     if (!(await this.ui.get(Handles.chessMenuStats).isVisible())) {
-      await this.ui
-        .get(Handles.navBack)
-        .expect.visible({ timeoutMs: WAIT_MS });
+      await this.ui.get(Handles.navBack).expect.visible({ timeoutMs: WAIT_MS });
       await this.ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
       await this.ui
         .get(Handles.chessMenuStats)

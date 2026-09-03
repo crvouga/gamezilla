@@ -1,4 +1,4 @@
-import type { Scheduler } from '@pkgs/dst';
+import type { VirtualScheduler } from '@pkgs/dst/kernel';
 import { HttpNetworkError } from '@pkgs/http-client';
 import type { SimHttpRequestBody, SimHttpResponse } from './http-bridge-types';
 
@@ -16,7 +16,7 @@ export type CreateSimHttpRpcArgs = {
   readonly network: SyncNetwork;
   readonly clientId: EndpointId;
   readonly serverId: EndpointId;
-  readonly scheduler: Scheduler;
+  readonly scheduler: VirtualScheduler;
   readonly timeoutMs: number;
   readonly pending: SimHttpPending;
 };

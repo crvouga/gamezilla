@@ -1,4 +1,4 @@
-import type { Scheduler } from '@pkgs/dst';
+import type { VirtualScheduler } from '@pkgs/dst/kernel';
 import type { SeededRng } from '@pkgs/uuid';
 
 import type { LocalDomainSchema } from '../client/local-schema-migrate';
@@ -86,14 +86,14 @@ export type AddClientArgs = {
 };
 
 /** Virtual clock used by the sim scheduler (see `@pkgs/dst` `VirtualClock`). */
-export type SimClock = Scheduler['clock'];
+export type SimClock = VirtualScheduler['clock'];
 
 /** Clock, network, broker, and in-memory SQLite server for a sim world. */
 export type BootedSimKernel = {
   readonly rng: SeededRng;
   readonly clock: SimClock;
   readonly clockSkew: ClockSkewTable;
-  readonly scheduler: Scheduler;
+  readonly scheduler: VirtualScheduler;
   readonly timers: Timers;
   readonly network: SyncNetwork;
   server: SimServer;

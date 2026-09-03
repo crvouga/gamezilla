@@ -1,35 +1,49 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/dst';
+import {
+  addClient,
+  connect,
+  converge,
+  disconnect,
+  dispatch,
+  startRoom,
+} from '../../sim/scenario';
 import { ROOM_ERROR_TYPE } from '../../types';
 import { authzSystem } from '../apps/authz/system';
 import { authzCount, authzOwner, Bump, Claim } from '../fixtures/authz-module';
+import { readClient, readRejection, readServer } from '../scenario/read-state';
 
 describe('kit: authz survives reconnect (M-F05)', () => {
   test('non-owner still unauthorized after soft reconnect', async () => {
-    await using host = await openWorld(authzSystem, {
-      seed: process.env['SIM_SEED'] ?? '42',
-      knobs: { clientCount: 0 },
+    await using run = await startRoom(authzSystem);
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
+    await run.apply(converge);
+
+    await run.apply(dispatch, {
+      clientId: 'alice',
+      payload: Claim({}),
     });
-    const world = host;
-    const alice = await world.addClient({ id: 'alice' });
-    const bob = await world.addClient({ id: 'bob' });
-    await world.assertConverged();
+    expect(authzOwner(await readServer(run))).toBe('alice');
+    expect(authzOwner(await readClient(run, 'alice'))).toBe('alice');
 
-    alice.dispatch(Claim({}));
-    await world.drain();
-    expect(authzOwner(await world.serverSnapshot())).toBe('alice');
-    expect(authzOwner(alice.snapshot())).toBe('alice');
+    await run.apply(dispatch, {
+      clientId: 'bob',
+      payload: Bump({}),
+    });
+    expect((await readRejection(run, 'bob'))?.type).toBe(
+      ROOM_ERROR_TYPE.unauthorized
+    );
 
-    bob.dispatch(Bump({}));
-    await world.drain();
-    expect(bob.lastRejection()?.type).toBe(ROOM_ERROR_TYPE.unauthorized);
-
-    await bob.disconnect();
-    await bob.connect();
-    bob.dispatch(Bump({}));
-    await world.drain();
-    expect(bob.lastRejection()?.type).toBe(ROOM_ERROR_TYPE.unauthorized);
-    expect(authzCount(await world.serverSnapshot())).toBe(0);
-    expect(authzCount(alice.snapshot())).toBe(0);
+    await run.apply(disconnect, 'bob');
+    await run.apply(connect, 'bob');
+    await run.apply(dispatch, {
+      clientId: 'bob',
+      payload: Bump({}),
+    });
+    expect((await readRejection(run, 'bob'))?.type).toBe(
+      ROOM_ERROR_TYPE.unauthorized
+    );
+    expect(authzCount(await readServer(run))).toBe(0);
+    expect(authzCount(await readClient(run, 'alice'))).toBe(0);
   });
 });

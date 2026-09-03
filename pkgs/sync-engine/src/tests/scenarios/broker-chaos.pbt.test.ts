@@ -1,6 +1,5 @@
 import { describe, test } from 'bun:test';
-import { runProperty } from '@pkgs/dst/pbt';
-import { fc } from '@pkgs/pbt';
+import { assertProperty, fc } from '@pkgs/pbt';
 import { PUBSUB_FAULTS, replaySyncPin } from '../../sim/scenario';
 import { arbKnobs, arbSeed } from '../../sim/scenario/knobs';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
@@ -45,7 +44,7 @@ describe('broker chaos PBT', () => {
   test(
     'pubsub fault arms then mutate converges',
     async () => {
-      await runProperty(
+      await assertProperty(
         'pubsub fault sequences converge',
         fc.asyncProperty(
           arbSeed(),
@@ -68,7 +67,7 @@ describe('broker chaos PBT', () => {
   test(
     'broker crash/restart then mutate converges',
     async () => {
-      await runProperty(
+      await assertProperty(
         'broker restart sequences converge',
         fc.asyncProperty(
           arbSeed(),

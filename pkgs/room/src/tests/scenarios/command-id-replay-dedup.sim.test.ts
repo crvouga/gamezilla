@@ -1,44 +1,55 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/dst';
-import { counterSystem } from '../apps/counter/system';
+import {
+  clock,
+  converge,
+  injectToServer,
+  logSeq,
+  takeOver,
+} from '../../sim/scenario';
 import { counterValue, Increment } from '../fixtures/counter-module';
+import { bootCounter } from '../scenario/boot-counter';
+import {
+  expectHashMatch,
+  readClient,
+  readServer,
+} from '../scenario/read-state';
 import { commandWire } from './wire-helpers';
 
 describe('room sim: command-id replay dedup (E-B02)', () => {
   test('same commandId applies once across reconnect storm', async () => {
-    await using host = await openWorld(counterSystem, {
-      seed: process.env['SIM_SEED'] ?? '42',
-      knobs: { clientCount: 0 },
-    });
-    const world = host;
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
-    await world.assertConverged();
+    await using run = await bootCounter(['alice', 'bob']);
 
-    const commandId = 'fixed-cmd-1';
     const frame = commandWire({
-      id: commandId,
-      ts: world.clock.now(),
+      id: 'fixed-cmd-1',
+      ts: await run.observe(clock),
       payload: Increment({}),
     });
-    a.injectToServer(frame, { direct: true });
-    await world.drain();
-    expect(counterValue(a.snapshot())).toBe(1);
+    await run.apply(injectToServer, {
+      clientId: 'alice',
+      raw: frame,
+      direct: true,
+    });
+    expect(counterValue(await readClient(run, 'alice'))).toBe(1);
 
     for (let i = 0; i < 5; i += 1) {
-      a.injectToServer(frame, { direct: true });
-      await world.drain();
+      await run.apply(injectToServer, {
+        clientId: 'alice',
+        raw: frame,
+        direct: true,
+      });
     }
-    await world.node('alice').takeOver();
-    a.injectToServer(frame, { direct: true });
-    await world.drain();
+    await run.apply(takeOver, 'alice');
+    await run.apply(injectToServer, {
+      clientId: 'alice',
+      raw: frame,
+      direct: true,
+    });
 
-    await world.assertConverged();
-    const server = await world.serverSnapshot();
-    expect(counterValue(server)).toBe(1);
-    expect(counterValue(a.snapshot())).toBe(1);
-    expect(counterValue(b.snapshot())).toBe(1);
-    expect(a.hash()).toBe(await world.serverHash());
-    expect(await world.storage.getLastSeq(world.topic)).toBe(1);
+    await run.apply(converge);
+    expect(counterValue(await readServer(run))).toBe(1);
+    expect(counterValue(await readClient(run, 'alice'))).toBe(1);
+    expect(counterValue(await readClient(run, 'bob'))).toBe(1);
+    await expectHashMatch(run, 'alice');
+    expect(await run.observe(logSeq)).toBe(1);
   });
 });

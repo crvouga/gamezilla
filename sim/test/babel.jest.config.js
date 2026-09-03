@@ -6,7 +6,9 @@
 const path = require('node:path');
 
 module.exports = function (api) {
-  api.cache(() => `${process.env.NODE_ENV ?? ''}:${process.env.EXPO_PUBLIC_E2E ?? ''}`);
+  api.cache(
+    () => `${process.env.NODE_ENV ?? ''}:${process.env.EXPO_PUBLIC_E2E ?? ''}`
+  );
   return {
     presets: [
       [

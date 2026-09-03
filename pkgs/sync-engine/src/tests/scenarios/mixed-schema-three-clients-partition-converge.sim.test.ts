@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/dst';
 import { sql } from '@pkgs/sql';
-import { defineSyncSystem } from '../../sim/scenario';
+import { defineSyncSystem, openSyncWorld } from '../../sim/scenario';
 import {
   acmeApp,
   acmeLocalSchema,
@@ -38,7 +37,7 @@ describe('mixed schema three clients partition converge', () => {
   test.each([2100, 2101, 2102])(
     'baseline + color + tags under partition then heal (seed=%i)',
     async (seed) => {
-      await using world = await openWorld(acmeMixedSchemaSystem, {
+      await using world = await openSyncWorld(acmeMixedSchemaSystem, {
         seed: seed,
         knobs: {
           clientCount: 0,

@@ -1,16 +1,9 @@
-import type { World } from '@pkgs/dst';
 import {
   AUTH_SET_TOKEN_HEADER,
   type IDP_PROVIDER_DEV,
   IDP_PROVIDER_GOOGLE,
 } from '../../shared/auth-constants';
-import type { ActorState, AuthKit, AuthStore } from './types';
-
-type AuthWorld = World<
-  Record<string, import('@pkgs/dst').KnobDef>,
-  Record<string, import('@pkgs/dst').NodeEntry>,
-  AuthKit
->;
+import type { ActorState, AuthStore, AuthSurface } from './types';
 
 export type OauthProvider =
   | typeof IDP_PROVIDER_GOOGLE
@@ -25,12 +18,8 @@ async function readToken(res: Response): Promise<string | null> {
     : res.headers.get(AUTH_SET_TOKEN_HEADER);
 }
 
-function actorOf(world: AuthWorld, clientId: string): ActorState | null {
-  return world.nodes['client'].get(clientId) ?? null;
-}
-
-function storeOf(world: AuthWorld): AuthStore {
-  return world.nodes['store'] as AuthStore;
+function actorOf(surface: AuthSurface, clientId: string): ActorState | null {
+  return surface.clients.get(clientId) ?? null;
 }
 
 async function oauthStart(
@@ -49,14 +38,14 @@ async function oauthStart(
 }
 
 async function googleApprove(
-  world: AuthWorld,
+  surface: AuthSurface,
   actor: ActorState,
   subject: string
 ): Promise<void> {
   if (actor.pendingAuthUrl === null) return;
-  const store = storeOf(world);
+  const store = surface.store;
   const state = new URL(actor.pendingAuthUrl).searchParams.get('state') ?? '';
-  const code = world.ports.createId();
+  const code = surface.session.ports.createId();
   store.sim.googleSubjects.set(code, subject);
   const query = `code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`;
   const res = await store.fetch(`/auth/callback/google?${query}`, {
@@ -73,12 +62,12 @@ async function googleApprove(
 }
 
 async function devApprove(
-  world: AuthWorld,
+  surface: AuthSurface,
   actor: ActorState,
   subject: string
 ): Promise<void> {
   if (actor.pendingAuthUrl === null) return;
-  const store = storeOf(world);
+  const store = surface.store;
   const authorizeUrl = new URL(actor.pendingAuthUrl);
   const state = authorizeUrl.searchParams.get('state') ?? '';
   const completeRes = await store.fetch('/auth/dev/authorize/complete', {
@@ -134,57 +123,56 @@ async function signOut(store: AuthStore, actor: ActorState): Promise<void> {
 }
 
 export async function dispatchOauthStart(
-  world: AuthWorld,
+  surface: AuthSurface,
   clientId: string,
   provider: OauthProvider,
   callbackUrl: string
 ): Promise<void> {
-  const actor = actorOf(world, clientId);
+  const actor = actorOf(surface, clientId);
   if (actor === null) return;
-  await oauthStart(storeOf(world), actor, provider, callbackUrl);
+  await oauthStart(surface.store, actor, provider, callbackUrl);
 }
 
 export async function dispatchOauthApprove(
-  world: AuthWorld,
+  surface: AuthSurface,
   clientId: string,
   provider: OauthProvider,
   subject: string
 ): Promise<void> {
-  const actor = actorOf(world, clientId);
+  const actor = actorOf(surface, clientId);
   if (actor === null) return;
   if (provider === IDP_PROVIDER_GOOGLE) {
-    await googleApprove(world, actor, subject);
+    await googleApprove(surface, actor, subject);
     return;
   }
-  await devApprove(world, actor, subject);
+  await devApprove(surface, actor, subject);
 }
 
 export async function dispatchSessionExchange(
-  world: AuthWorld,
+  surface: AuthSurface,
   clientId: string
 ): Promise<void> {
-  const actor = actorOf(world, clientId);
+  const actor = actorOf(surface, clientId);
   if (actor === null) return;
-  await sessionExchange(storeOf(world), actor);
+  await sessionExchange(surface.store, actor);
 }
 
 export async function dispatchSignOut(
-  world: AuthWorld,
+  surface: AuthSurface,
   clientId: string
 ): Promise<void> {
-  const actor = actorOf(world, clientId);
+  const actor = actorOf(surface, clientId);
   if (actor === null) return;
-  await signOut(storeOf(world), actor);
+  await signOut(surface.store, actor);
 }
 
 export function dispatchStealBearer(
-  world: AuthWorld,
+  surface: AuthSurface,
   from: string,
   to: string
 ): void {
-  const actors = world.nodes['client'] as ReadonlyMap<string, ActorState>;
-  const src = actors.get(from);
-  const dst = actors.get(to);
+  const src = surface.clients.get(from);
+  const dst = surface.clients.get(to);
   if (src === undefined || dst === undefined) return;
   dst.bearer = src.bearer;
 }

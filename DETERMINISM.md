@@ -6,32 +6,30 @@ identical logic. Hidden nondeterminism is a production correctness bug.
 
 ## Core rule
 
-**Same seed → same path.** Given the same `createWorldPorts` / `createSimAdapters`
-seed (and the same command / mutation inputs), reducers, merges, and derived
+**Same seed → same path.** Given the same `Session` / `start(system, { seed })`
+seed (and the same system draws + action choices), reducers, merges, and derived
 game/social state must match bit-for-bit across clients and runs.
 
 ## What injected ports cover
 
 Inject clock, timers, ids, RNG, and HTTP from a composition root
 (`createClient(env)` / `createServer(env)` / `createSim` via harness-only
-`createWorldPorts` from `@pkgs/dst` / `createSimAdapters` for thin adapters /
-wall adapters at process entry):
+`virtualHost()` / `Session` from `@pkgs/dst` / wall adapters at process entry):
 
 | Port | Use |
 | --- | --- |
-| `clock` / `timers` (`@pkgs/clock` types; sim uses bare `@pkgs/dst` `VirtualClock` + `Scheduler`) | Time and scheduling |
+| `clock` / `timers` (`@pkgs/clock` types; sim uses `@pkgs/dst/kernel` virtual clock + scheduler) | Time and scheduling |
 | `createId` (`@pkgs/uuid`) | UUIDs / ids |
 | `random` (`@pkgs/uuid`) | RNG |
 | HTTP (`@pkgs/http-client`) | Network |
 
-**`WorldPorts` is harness-only.** Product `ClientEnv` / `ServerEnv` receive unpacked
-ports — never the `WorldPorts` bag. Shared simulation mechanics (scheduler, network
-mesh, fault/knob catalogs, scenario JSON, `eventually`/`never`, apply helpers) live in
-`@pkgs/dst`. **Worlds are framework-owned:** packages declare `node` /
-`knob` / `command` + `networkCommands` / `advanceCommand` + `defineScenario` (topology, knobs, commands, converge,
-optional `extend`); tests call `runScenario` / `replay` / `runPins` from
-`@pkgs/dst/pbt` — not package-local World openers / `worldPropertyInputs` /
-`runCommands`. See [`pkgs/dst/CONTEXT.md`](pkgs/dst/CONTEXT.md).
+**`Session` / Host are harness-only.** Product `ClientEnv` / `ServerEnv` receive unpacked
+ports — never the Session bag. Shared simulation mechanics live in
+`@pkgs/dst`. **Systems are framework-owned:** packages declare
+`defineSystem` / `defineObservation` / `defineAction` / `defineProperty` (topology via
+`session.fork` + `draw`, converge as actions/properties); tests call `start` /
+`walk` / `check` / `replay` from `@pkgs/dst` / `@pkgs/dst/pbt` — not package-local
+World openers. See [`pkgs/dst/CONTEXT.md`](pkgs/dst/CONTEXT.md).
 
 Domain and game-logic code take required `clock` / `createId` (or `now` slices).
 Never default to wall implementations inside libraries. Never construct an `Io` bag.

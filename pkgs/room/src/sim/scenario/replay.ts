@@ -1,35 +1,35 @@
-import type { Action, AnyScenarioDef, JsonValue } from '@pkgs/dst';
-import { replay } from '@pkgs/dst/pbt';
-
+import type { Run } from '@pkgs/dst';
 import type { RoomSystemAction } from './actions';
-import type { RoomSystemDef, RoomSystemWorld } from './define-room-system';
+import { playRoomActions } from './apply-room-action';
+import type { RoomSystemDef } from './define-room-system';
 import type { RoomWorldKnobs } from './knobs';
+import { converge } from './room-actions';
+import { startRoom } from './start-room';
+import type { RoomSurface } from './surface';
 
 export type ReplayRoomInputs = {
   readonly seed: number | bigint | string;
   readonly knobs?: Partial<RoomWorldKnobs>;
   readonly actions: readonly RoomSystemAction[];
-  /** Default true — run the scenario converge assertion. */
+  /** Default true — heal + converge after the script. */
   readonly converge?: boolean;
 };
 
-/**
- * `replay` with room-typed actions and knobs. Room domain ops carry
- * `args: Record<string, unknown>`, so the wire cast lives here once.
- */
 export async function replayRoom(
   def: RoomSystemDef,
   inputs: ReplayRoomInputs
-): Promise<RoomSystemWorld> {
-  const { world } = await replay(def as unknown as AnyScenarioDef, {
+): Promise<Run<RoomSurface>> {
+  const knobs = inputs.knobs;
+  const run = await startRoom(def, {
     seed: inputs.seed,
-    actions: inputs.actions as unknown as readonly Action[],
-    ...(inputs.knobs !== undefined
-      ? { knobs: inputs.knobs as Partial<Record<string, JsonValue>> }
-      : {}),
-    ...(inputs.converge !== undefined ? { converge: inputs.converge } : {}),
+    clientCount: knobs?.clientCount ?? 2,
+    mildFaults: knobs?.mildFaults === true,
   });
-  return world as unknown as RoomSystemWorld;
+  await playRoomActions(run, inputs.actions);
+  if (inputs.converge !== false) {
+    await run.apply(converge);
+  }
+  return run;
 }
 
 /** Replay a scripted pin, then dispose. */
@@ -37,6 +37,5 @@ export async function replayRoomPin(
   def: RoomSystemDef,
   inputs: ReplayRoomInputs
 ): Promise<void> {
-  const world = await replayRoom(def, inputs);
-  await world.dispose();
+  await using _run = await replayRoom(def, inputs);
 }

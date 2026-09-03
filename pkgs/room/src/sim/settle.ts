@@ -1,4 +1,4 @@
-import type { Scheduler } from '@pkgs/dst';
+import type { VirtualScheduler } from '@pkgs/dst/kernel';
 
 import type { InMemoryClientStorage } from '../client/adapters/storage/memory';
 import type { RoomClient } from '../client/core/room-client';
@@ -93,7 +93,7 @@ export type DrainCtx<
   readonly seed: bigint;
   readonly now: () => number;
   readonly network: SimRoomNetwork;
-  readonly scheduler: Scheduler;
+  readonly scheduler: VirtualScheduler;
   readonly serverQueue: SerialQueue;
   readonly clients: ReadonlyMap<string, RoomSimClientSlot<S, C, E>>;
 };

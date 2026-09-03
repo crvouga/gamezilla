@@ -1,20 +1,27 @@
 /**
- * Product sim system. Worlds are framework-owned:
- * {@link defineProductSystem} + `openWorld` / `check` / `replay`.
- * {@link openSim} is a thin wrapper that opens this system and exposes actors.
+ * Product sim system. Hosts own fidelity (`simHost` / `maxHost`);
+ * {@link openSim} starts this system and returns a {@link Run}.
  */
 
 export {
-  type DefineProductSystemOpts,
-  defineProductSystem,
-  PRODUCT_SYSTEM,
-  type ProductSimExtension,
-  type ProductSystemDef,
-  type ProductSystemWorld,
-} from './define-product-system';
+  heal,
+  partition,
+  resetActor,
+  spawnActor,
+  type UiOp,
+  uiOp,
+} from './actions';
 export {
-  createProductSimNode,
-  type ProductSimHandle,
-  productSimNode,
-} from './node-kinds';
-export { type ProductSystemOpts } from './system';
+  actor,
+  anyActor,
+  caps,
+  clientIds,
+  PRODUCT_PROPERTIES,
+  partitioned,
+} from './observations';
+export {
+  createProductSurface,
+  type ProductRuntime,
+  type SimActorHandle,
+} from './surface';
+export { type ProductSurface, product } from './system';

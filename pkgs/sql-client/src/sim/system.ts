@@ -1,137 +1,258 @@
+import { defineSystem, draw, observe } from '@pkgs/dst';
+import { gen } from '@pkgs/dst/fast-check';
+import fc from 'fast-check';
 import {
-  type ActionCatalog,
-  defineScenario,
-  nodeCount,
-  properties,
-  property,
-  std,
-  type World,
-} from '@pkgs/dst';
-import { SQL_CLIENT_WEB_ACTIONS } from './actions';
+  corruptSimOpfsStore,
+  fillSimOpfsPool,
+} from '../sqlite/web/owners/sim-opfs-sql-owner';
+import { startStore, startTab } from './nodes';
+import { persistImage } from './owners';
+import { connectTab, disconnectTab, killTab, ownerTabId } from './ownership';
+import { readToyRow, writeToyRow } from './toy-kv';
 import {
-  SQL_BACKEND,
-  SQL_POOL_CAPACITY,
-  SQL_SCHEMA_EPOCH,
-  SQL_TAB_COUNT,
-  sqlWebStoreNode,
-  sqlWebTabNode,
-} from './nodes';
-import { closeAllRuntimes, connectTab, ensureOwnerClient } from './ownership';
-import { readToyRows, readUserVersion, VERSION_STRIDE } from './toy-kv';
-import { boardOf, kvFingerprint } from './types';
+  boardOf,
+  requireStore,
+  type SqlClientWebBackend,
+  type SqlClientWebSurface,
+} from './types';
 
-const WORLD_START_MS = 1_700_000_000_000;
-
-type SqlWebKnobs = {
-  readonly tabCount: typeof SQL_TAB_COUNT;
-  readonly poolCapacity: typeof SQL_POOL_CAPACITY;
-  readonly schemaEpoch: typeof SQL_SCHEMA_EPOCH;
-  readonly backend: typeof SQL_BACKEND;
-};
-
-type SqlWebNodes = {
-  readonly store: typeof sqlWebStoreNode;
-  readonly tab: typeof sqlWebTabNode & {
-    readonly count: (
-      knobs: import('@pkgs/dst').KnobValues<SqlWebKnobs>
-    ) => number;
-    readonly id: (index: number) => string;
-  };
-};
-
-export type SqlClientWebSurface = World<
-  SqlWebKnobs,
-  SqlWebNodes,
-  Record<string, never>
->;
-
-async function settleSqlClientWeb(
-  world: World<SqlWebKnobs, SqlWebNodes>
-): Promise<void> {
-  const state = boardOf(world);
-  await world.quiesce();
-  if (state.appliedEpoch !== state.epoch) {
-    await closeAllRuntimes(state);
-  }
-  for (const tabId of world.nodeIds('tab')) {
-    await connectTab(state, tabId);
-  }
-  const client = await ensureOwnerClient(state);
-  if (client === null) {
-    throw new Error('sql-client.web: no tab could own the cache after settle');
-  }
-  await readToyRows(client);
+function range(n: number): number[] {
+  return Array.from({ length: n }, (_, i) => i);
 }
 
-async function assertSqlClientWebConverged(
-  world: World<SqlWebKnobs, SqlWebNodes>
-): Promise<void> {
-  const state = boardOf(world);
-  const stale = state.mismatches[0];
-  if (stale !== undefined) {
-    throw new Error(`sql-client.web.stale-read: ${stale}`);
-  }
-  const open = [...state.tabs.values()].filter((tab) => tab.open);
-  if (open.length > 1) {
-    throw new Error(
-      `sql-client.web.multi-owner: ${open.map((tab) => tab.id).join(',')}`
-    );
-  }
-  const owner = open[0];
-  if (owner === undefined) return;
-  const client = owner.runtime.getClient();
-  const version = await readUserVersion(client);
-  if (Math.floor(version / VERSION_STRIDE) !== state.epoch) {
-    throw new Error(
-      `sql-client.web.schema-epoch: user_version ${version} for epoch ${state.epoch}`
-    );
-  }
-  const got = kvFingerprint(await readToyRows(client));
-  const want = kvFingerprint(state.expected);
-  if (got !== want) {
-    throw new Error(`sql-client.web.rows-diverge: ${got} !== ${want}`);
-  }
-}
+const KEYS = ['a', 'b', 'c'] as const;
+const VALUES = ['1', '2', ''] as const;
 
-/**
- * Multi-tab web SQLite world: one shared simulated-OPFS store, an in-process
- * broker electing a single owner tab, and chaos that exhausts the handle pool,
- * corrupts the image, kills tabs, or bumps the schema epoch.
- */
-export function defineSqlClientWebSystem(opts?: { readonly id?: string }) {
-  return defineScenario({
-    id: opts?.id ?? 'sql-client.web',
-    startTime: WORLD_START_MS,
-    knobs: {
-      tabCount: SQL_TAB_COUNT,
-      poolCapacity: SQL_POOL_CAPACITY,
-      schemaEpoch: SQL_SCHEMA_EPOCH,
-      backend: SQL_BACKEND,
-    },
-    nodes: {
-      store: sqlWebStoreNode,
-      tab: {
-        ...sqlWebTabNode,
-        count: nodeCount<SqlWebKnobs>((k) => k.tabCount),
-        id: (i) => `t${String(i)}`,
+export const sqlClientWeb = defineSystem({
+  name: 'sql-client.web',
+  async *generate(session) {
+    const tabCount = yield* draw(gen(fc.integer({ min: 1, max: 3 })));
+    const poolCapacity = yield* draw(gen(fc.constantFrom(2, 6)));
+    const schemaEpoch = yield* draw(gen(fc.constant(1)));
+    const backend = yield* draw(
+      gen(fc.constantFrom<SqlClientWebBackend>('web-sim-opfs', 'sqlite-mem'))
+    );
+    const storeSession = session.fork('store');
+    const { board } = startStore(storeSession, {
+      poolCapacity,
+      schemaEpoch,
+      backend,
+    });
+    const tabIds = range(tabCount).map((i) => `t${String(i)}`);
+    for (const id of tabIds) {
+      startTab(session.fork(id), board, id);
+    }
+    return { session, board, tabIds } satisfies SqlClientWebSurface;
+  },
+});
+
+const { defineObservation, defineAction, defineProperty } = sqlClientWeb;
+
+export const caps = defineObservation({
+  name: 'caps',
+  observe: (s) => [...s.session.caps] as string[],
+});
+
+export const tabIdList = defineObservation({
+  name: 'tabIdList',
+  observe: (s) => [...s.tabIds],
+});
+
+export const ownerId = defineObservation({
+  name: 'ownerId',
+  observe: (s) => ownerTabId(boardOf(s)),
+});
+
+export const mismatchCount = defineObservation({
+  name: 'mismatchCount',
+  observe: (s) => boardOf(s).mismatches.length,
+});
+
+export const openOwnerCount = defineObservation({
+  name: 'openOwnerCount',
+  observe: (s) => [...boardOf(s).tabs.values()].filter((t) => t.open).length,
+});
+
+export const passTime = defineAction({
+  name: 'passTime',
+  *generate() {
+    if (!(yield* caps).includes('virtualTime')) return;
+    const ms = yield* draw((rng) => Math.floor(rng.next() * 5_000));
+    yield {
+      weight: 1,
+      act: (s: SqlClientWebSurface) => s.session.scheduler.advance(ms),
+    };
+  },
+});
+
+export const connect = defineAction({
+  name: 'connect',
+  *generate() {
+    const ids = yield* tabIdList;
+    if (ids.length === 0) return;
+    const tabId = yield* draw(gen(fc.constantFrom(...(ids as string[]))));
+    yield {
+      weight: 3,
+      act: (s: SqlClientWebSurface) => connectTab(boardOf(s), tabId),
+    };
+  },
+});
+
+export const disconnect = defineAction({
+  name: 'disconnect',
+  *generate() {
+    const ids = yield* tabIdList;
+    if (ids.length === 0) return;
+    const tabId = yield* draw(gen(fc.constantFrom(...(ids as string[]))));
+    yield {
+      weight: 3,
+      act: (s: SqlClientWebSurface) => disconnectTab(boardOf(s), tabId),
+    };
+  },
+});
+
+export const put = defineAction({
+  name: 'put',
+  *generate() {
+    const ids = yield* tabIdList;
+    if (ids.length === 0) return;
+    const payload = yield* draw(
+      gen(
+        fc.record({
+          tabId: fc.constantFrom(...(ids as string[])),
+          key: fc.constantFrom(...KEYS),
+          value: fc.constantFrom(...VALUES),
+        })
+      )
+    );
+    yield {
+      weight: 3,
+      act: async (s: SqlClientWebSurface) => {
+        const state = boardOf(s);
+        const client = await connectTab(state, payload.tabId);
+        if (client === null) return;
+        await writeToyRow(client, payload.key, payload.value);
+        state.expected.set(payload.key, payload.value);
+        persistImage(state, client);
       },
-    },
-    actions: {
-      ...std.time(),
-      ...SQL_CLIENT_WEB_ACTIONS,
-    } as unknown as ActionCatalog<SqlClientWebSurface>,
-    properties: properties<SqlClientWebSurface>()({
-      converged: property.always(async () => true, { at: 'converge' }),
-    }),
-    converge: async (world) => {
-      const sqlWorld = world as World<SqlWebKnobs, SqlWebNodes>;
-      await settleSqlClientWeb(sqlWorld);
-      await assertSqlClientWebConverged(sqlWorld);
-    },
-  } as import('@pkgs/dst').AnyScenarioDef);
-}
+    };
+  },
+});
 
-export const SQL_CLIENT_WEB_SYSTEM = defineSqlClientWebSystem();
+export const get = defineAction({
+  name: 'get',
+  *generate() {
+    const ids = yield* tabIdList;
+    if (ids.length === 0) return;
+    const payload = yield* draw(
+      gen(
+        fc.record({
+          tabId: fc.constantFrom(...(ids as string[])),
+          key: fc.constantFrom(...KEYS),
+        })
+      )
+    );
+    yield {
+      weight: 3,
+      act: async (s: SqlClientWebSurface) => {
+        const state = boardOf(s);
+        const client = await connectTab(state, payload.tabId);
+        if (client === null) return;
+        const got = await readToyRow(client, payload.key);
+        const want = state.expected.get(payload.key) ?? null;
+        if (got !== want) {
+          state.mismatches.push(
+            `tab ${payload.tabId} read ${payload.key}=${String(got)} want ${String(want)}`
+          );
+        }
+      },
+    };
+  },
+});
 
-export type SqlClientWebSystemDef = typeof SQL_CLIENT_WEB_SYSTEM;
+export const killTabAction = defineAction({
+  name: 'killTab',
+  *generate() {
+    const ids = yield* tabIdList;
+    if (ids.length === 0) return;
+    const tabId = yield* draw(gen(fc.constantFrom(...(ids as string[]))));
+    yield {
+      weight: 1,
+      act: (s: SqlClientWebSurface) => killTab(boardOf(s), tabId),
+    };
+  },
+});
+
+export const fillPool = defineAction({
+  name: 'fillPool',
+  *generate() {
+    yield {
+      weight: 1,
+      act: (s: SqlClientWebSurface) => {
+        fillSimOpfsPool(requireStore(boardOf(s)));
+      },
+    };
+  },
+});
+
+export const corruptStore = defineAction({
+  name: 'corruptStore',
+  *generate() {
+    yield {
+      weight: 1,
+      act: (s: SqlClientWebSurface) => {
+        corruptSimOpfsStore(requireStore(boardOf(s)));
+      },
+    };
+  },
+});
+
+export const bumpEpoch = defineAction({
+  name: 'bumpEpoch',
+  *generate() {
+    yield {
+      weight: 1,
+      act: (s: SqlClientWebSurface) => {
+        boardOf(s).epoch += 1;
+      },
+    };
+  },
+});
+
+export const SQL_CLIENT_WEB_ACTIONS = [
+  passTime,
+  connect,
+  disconnect,
+  put,
+  get,
+  killTabAction,
+  fillPool,
+  corruptStore,
+  bumpEpoch,
+];
+
+export const converged = defineProperty({
+  name: 'converged',
+  *watch() {
+    while (true) {
+      const [mismatches, owners] = (yield observe(
+        mismatchCount,
+        openOwnerCount
+      )) as [number, number];
+      if (mismatches > 0) {
+        throw new Error(
+          `sql-client.web.stale-read: ${mismatches} mismatch(es)`
+        );
+      }
+      if (owners > 1) {
+        throw new Error(`sql-client.web.multi-owner: ${owners}`);
+      }
+    }
+  },
+});
+
+export const SQL_CLIENT_WEB_PROPERTIES = [converged];
+
+export const SQL_CLIENT_WEB_SYSTEM = sqlClientWeb;
+export type SqlClientWebSystemDef = typeof sqlClientWeb;
 export type SqlClientWebWorld = SqlClientWebSurface;

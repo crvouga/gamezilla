@@ -38,53 +38,42 @@ Env knobs:
 
 `test:pbt:random` discovers every `*.pbt.test.ts` under `pkgs/` and `libs/`, runs each file in its own `bun test` subprocess (bounded worker pool), and shows a compact live dashboard (attempt, seed, workers, progress). Full output is shown only for failures. Each attempt gets a random `FC_SEED` you can replay.
 
-## World sample properties
+## World / DST properties
 
-For sim-backed suites, world helpers live in **`@pkgs/dst/pbt`**, not here.
-`runProperty` caps `numRuns` and extends the interrupt budget so
-`test:pbt:random` cannot accidentally run hundreds of full-world opens;
-`check` drives a whole `defineScenario` scenario (seed + knobs + action pool +
-online walk + property coverage) without per-suite plumbing. Use `runProperty` for custom
-arbitraries; `runExamples` for named replay matrices.
+Sim-backed exploration lives in **`@pkgs/dst`** + **`@pkgs/dst/pbt`**:
+`check(system, { properties, actions, episodes, steps })` runs start + weighted
+`walk` + shrink. Scripted pins use package helpers (`start` / `startRoom` /
+`openSyncWorld`) with local seed arbitraries — not `@pkgs/dst/pbt` `arbSeed`.
+
+For custom fast-check properties over seeds, use **`assertProperty`** from this
+package (caps `numRuns` / interrupt for `test:pbt:random`):
 
 ```ts
-import fc from 'fast-check';
-import {
-  arbSeed,
-  check,
-  runExamples,
-  runProperty,
-} from '@pkgs/dst/pbt';
-import { openWorld } from '@pkgs/dst';
-import { acmeSystem } from '../apps/acme/system';
+import { assertProperty, fc } from '@pkgs/pbt';
+import { check } from '@pkgs/dst/pbt';
+import { start } from '@pkgs/dst';
+import { acmeSystem, ACME_ACTIONS, ACME_PROPERTIES } from '../apps/acme/system';
 
-const report = await check(acmeSystem, { episodes: 12, episodeLength: 14 });
-// report.coverage on success
+const report = await check(acmeSystem, {
+  properties: ACME_PROPERTIES,
+  actions: ACME_ACTIONS,
+  episodes: 12,
+  steps: 14,
+});
+expect(report.ok).toBe(true);
 
-await runExamples(acmeSystem, [
-  { name: 'baseline', inputs: { actions: [{ kind: 'domain', mutation: 'setNote', args: {} }] } },
-]);
-
-await runProperty(
-  'app world converges',
+const arbSeed = () => fc.integer({ min: 1, max: 2 ** 31 - 1 });
+assertProperty(
+  'app world starts',
   fc.asyncProperty(arbSeed(), async (seed) => {
-    const world = await openWorld(acmeSystem, { seed });
-    try {
-      await world.converge();
-    } finally {
-      await world.dispose();
-    }
+    await using run = await start(acmeSystem, { seed });
+    expect(run).toBeDefined();
   })
 );
 ```
 
-Replay a shrunk command sequence from failure output:
-
-```bash
-FC_SEED=424242 bun test pkgs/sync-engine/src/tests/scenarios/acme-world.pbt.test.ts
-# also capture replayPath from the fc.commands failure and pass to fc.commands({ replayPath })
-```
-
+Replay a shrunk walk from failure output via `replay` from `@pkgs/dst/pbt`
+(or package `replayRoom` / sync helpers).
 ## Writing a property
 
 ```ts

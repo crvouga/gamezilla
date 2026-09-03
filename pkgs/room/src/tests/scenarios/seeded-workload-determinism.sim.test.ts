@@ -1,28 +1,39 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/dst';
+import {
+  addClient,
+  clientHash,
+  converge,
+  dispatch,
+  hold,
+  passTime,
+  release,
+  serverHash,
+  startRoom,
+} from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
 import { Increment } from '../fixtures/counter-module';
 
 async function runWorkload(seed: number | string): Promise<string> {
-  await using host = await openWorld(counterSystem, {
-    seed,
-    knobs: { clientCount: 0 },
-  });
-  const world = host;
-  const a = await world.addClient({ id: 'alice' });
-  const b = await world.addClient({ id: 'bob' });
+  await using run = await startRoom(counterSystem, { seed });
+  await run.apply(addClient, { id: 'alice' });
+  await run.apply(addClient, { id: 'bob' });
   for (let i = 0; i < 7; i += 1) {
-    if (i % 2 === 0) a.dispatch(Increment({}));
-    else b.dispatch(Increment({}));
-    await world.drain();
+    await run.apply(dispatch, {
+      clientId: i % 2 === 0 ? 'alice' : 'bob',
+      payload: Increment({}),
+    });
   }
-  {
-    using _hold = world.net('bob').set('hold');
-    a.dispatch(Increment({}));
-    await world.drain();
-  }
-  await world.assertConverged();
-  return `${await world.serverHash()}:${a.hash()}:${b.hash()}`;
+  await run.apply(hold, 'bob');
+  await run.apply(dispatch, {
+    clientId: 'alice',
+    payload: Increment({}),
+  });
+  await run.apply(release, 'bob');
+  await run.apply(passTime, 0);
+  await run.apply(converge);
+  const h = await run.observe(serverHash);
+  const hashes = (await run.observe(clientHash)) as Record<string, string>;
+  return `${h}:${hashes['alice']}:${hashes['bob']}`;
 }
 
 describe('room sim: seeded workload determinism', () => {

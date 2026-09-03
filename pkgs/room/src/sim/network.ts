@@ -1,11 +1,11 @@
-import {
-  type EndpointId,
-  type FlowKey,
-  type Network,
-  type NetworkFaults,
-  RELIABLE_NETWORK,
-  type Scheduler,
-} from '@pkgs/dst';
+import type {
+  EndpointId,
+  FlowKey,
+  Network,
+  NetworkFaults,
+  VirtualScheduler,
+} from '@pkgs/dst/kernel';
+import { RELIABLE_NETWORK } from '@pkgs/dst/kernel';
 
 import { createNetEffect, type NetEffect } from './net-effect';
 
@@ -142,6 +142,7 @@ export type SimRoomNetwork = {
 
 export type SimRoomNetHandle = {
   readonly set: (next: RoomNetSetArg) => RoomNetEffect;
+  readonly state: () => RoomNetLinkState;
 };
 
 function linkStateOf(ctx: RoomNetCtx, clientKey: string): RoomNetLinkState {
@@ -308,7 +309,7 @@ function applySet(
 }
 
 function buildRoomNetworkApi(args: {
-  readonly scheduler: Scheduler;
+  readonly scheduler: VirtualScheduler;
   readonly ctx: RoomNetCtx;
 }): SimRoomNetwork {
   const { scheduler, ctx } = args;
@@ -399,7 +400,7 @@ function buildRoomNetworkApi(args: {
  */
 export function wrapRoomNetwork(args: {
   readonly kernel: Network;
-  readonly scheduler: Scheduler;
+  readonly scheduler: VirtualScheduler;
   readonly faults?: RoomFaultProfile;
 }): SimRoomNetwork {
   if (args.faults !== undefined) {

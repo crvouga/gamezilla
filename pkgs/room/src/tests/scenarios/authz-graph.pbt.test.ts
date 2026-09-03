@@ -1,32 +1,19 @@
 import { describe, expect, test } from 'bun:test';
-import { arbSeed, runProperty } from '@pkgs/dst/pbt';
-import { fc } from '@pkgs/pbt';
+import { assertProperty, fc } from '@pkgs/pbt';
 
-import { replayRoom } from '../../sim/scenario';
+import { arbSeed, replayRoom } from '../../sim/scenario';
 import { authzSystem } from '../apps/authz/system';
 import { authzCount, authzOwner } from '../fixtures/authz-module';
-
-async function expectAuthzState(
-  world: Awaited<ReturnType<typeof replayRoom>>,
-  expected: { readonly owner: string; readonly count: number }
-): Promise<void> {
-  try {
-    const snap = await world.serverSnapshot();
-    expect(authzOwner(snap)).toBe(expected.owner);
-    expect(authzCount(snap)).toBe(expected.count);
-  } finally {
-    await world.dispose();
-  }
-}
+import { readServer } from '../scenario/read-state';
 
 describe('room authz-graph PBT', () => {
   test(
     'owner claim+bump; non-owner bump never mutates',
     async () => {
-      await runProperty(
+      await assertProperty(
         'authz graph converges',
         fc.asyncProperty(arbSeed(), async (seed) => {
-          const world = await replayRoom(authzSystem, {
+          await using run = await replayRoom(authzSystem, {
             seed,
             actions: [
               {
@@ -58,7 +45,9 @@ describe('room authz-graph PBT', () => {
               },
             ],
           });
-          await expectAuthzState(world, { owner: 'c0', count: 2 });
+          const snap = await readServer(run);
+          expect(authzOwner(snap)).toBe('c0');
+          expect(authzCount(snap)).toBe(2);
         }),
         { numRuns: 8 }
       );
@@ -67,7 +56,7 @@ describe('room authz-graph PBT', () => {
   );
 
   test('takeOver does not transfer ownership', async () => {
-    const world = await replayRoom(authzSystem, {
+    await using run = await replayRoom(authzSystem, {
       seed: 21,
       actions: [
         {
@@ -85,6 +74,8 @@ describe('room authz-graph PBT', () => {
         },
       ],
     });
-    await expectAuthzState(world, { owner: 'c0', count: 0 });
+    const snap = await readServer(run);
+    expect(authzOwner(snap)).toBe('c0');
+    expect(authzCount(snap)).toBe(0);
   });
 });

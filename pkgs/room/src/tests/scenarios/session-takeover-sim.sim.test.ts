@@ -1,39 +1,52 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/dst';
-import { counterSystem } from '../apps/counter/system';
+import {
+  clock,
+  converge,
+  dispatch,
+  injectToServer,
+  rosterSize,
+  takeOver,
+} from '../../sim/scenario';
 import { counterValue, Increment } from '../fixtures/counter-module';
+import { bootCounter } from '../scenario/boot-counter';
+import {
+  expectHashMatch,
+  readClient,
+  readServer,
+} from '../scenario/read-state';
 import { commandWire } from './wire-helpers';
 
 describe('room sim: session take-over (E-C04)', () => {
   test('take-over mid-command does not double-apply', async () => {
-    await using host = await openWorld(counterSystem, {
-      seed: process.env['SIM_SEED'] ?? '42',
-      knobs: { clientCount: 0 },
-    });
-    const world = host;
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
-    await world.assertConverged();
+    await using run = await bootCounter(['alice', 'bob']);
 
-    const commandId = 'takeover-cmd';
     const frame = commandWire({
-      id: commandId,
-      ts: world.clock.now(),
+      id: 'takeover-cmd',
+      ts: await run.observe(clock),
       payload: Increment({}),
     });
-    a.injectToServer(frame, { direct: true });
-    await world.drain();
+    await run.apply(injectToServer, {
+      clientId: 'alice',
+      raw: frame,
+      direct: true,
+    });
 
-    await world.node('alice').takeOver();
-    a.injectToServer(frame, { direct: true });
-    a.dispatch(Increment({}));
-    await world.assertConverged();
+    await run.apply(takeOver, 'alice');
+    await run.apply(injectToServer, {
+      clientId: 'alice',
+      raw: frame,
+      direct: true,
+    });
+    await run.apply(dispatch, {
+      clientId: 'alice',
+      payload: Increment({}),
+    });
+    await run.apply(converge);
 
-    const server = await world.serverSnapshot();
-    expect(counterValue(server)).toBe(2);
-    expect(counterValue(a.snapshot())).toBe(2);
-    expect(counterValue(b.snapshot())).toBe(2);
-    expect(a.hash()).toBe(await world.serverHash());
-    expect(world.server.getRoster()).toHaveLength(2);
+    expect(counterValue(await readServer(run))).toBe(2);
+    expect(counterValue(await readClient(run, 'alice'))).toBe(2);
+    expect(counterValue(await readClient(run, 'bob'))).toBe(2);
+    await expectHashMatch(run, 'alice');
+    expect(await run.observe(rosterSize)).toBe(2);
   });
 });

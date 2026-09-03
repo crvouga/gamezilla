@@ -1,13 +1,10 @@
-export type { CoverageReport } from '../harness/repro';
-export { arbKnobs, arbSeed } from './arbs';
-export { assertDeterministic, type RunInputs } from './assert-deterministic';
+/** Historical alias for {@link Report}. */
+export type { Report as CampaignReport } from './check-algebra';
 export {
-  type CampaignReport,
   CheckFailedError,
   type CheckOptions,
   check,
-  runExamples,
-  VacuityError,
-} from './check';
-export { replay } from './replay';
-export { type RunPropertyOptions, runProperty } from './run-property';
+  type ReplayOptions,
+  type Report,
+  replay,
+} from './check-algebra';

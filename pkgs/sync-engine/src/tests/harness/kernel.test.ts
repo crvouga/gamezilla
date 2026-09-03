@@ -1,11 +1,17 @@
 import { describe, expect, test } from 'bun:test';
-import { createWorldPorts } from '@pkgs/dst';
+import {
+  createScheduler,
+  createTimers,
+  createVirtualClock,
+} from '@pkgs/dst/kernel';
 
 import { createSeededRng } from '../../sim/rng';
 
-/** Fresh clock (startTime 0) + scheduler + timers from the harness deps mint. */
-function kernelParts(): ReturnType<typeof createWorldPorts> {
-  return createWorldPorts({ seed: 1, startTime: 0 });
+function kernelParts() {
+  const clock = createVirtualClock(0);
+  const scheduler = createScheduler(clock);
+  const timers = createTimers(scheduler);
+  return { clock, scheduler, timers };
 }
 
 describe('sim kernel', () => {

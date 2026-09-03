@@ -1,8 +1,9 @@
 /**
- * Kit methods merged onto the framework world via `extend`.
+ * Kit methods built in system `generate` over a shared store + replicas.
  */
 
-import type { World } from '@pkgs/dst';
+import type { Session } from '@pkgs/dst';
+import { asSeededRng } from '@pkgs/dst/kernel';
 import type { SeededRng } from '@pkgs/uuid';
 
 import { bootReplicaOnStore } from '../boot-replica';
@@ -24,71 +25,64 @@ import type {
   MatchmakingSimWorld,
   ReplicaHandle,
 } from '../world-api';
-import type { MmReplicaBootHandle, MmStoreHandle } from './node-kinds';
+import type { MmReplicaBootHandle } from './node-kinds';
 import type { MatchmakingSystemConfig } from './system';
 
-type MatchmakingFrameworkWorld = World<
-  Record<string, import('@pkgs/dst').KnobDef>,
-  Record<string, import('@pkgs/dst').NodeEntry>,
-  MatchmakingSimKit
->;
+export type MatchmakingSurface = MatchmakingSimKit & {
+  readonly session: Session;
+  readonly advance: (ms: number) => Promise<void>;
+  readonly ports: {
+    readonly rng: SeededRng;
+    readonly clock: Session['ports']['clock'];
+  };
+};
 
-function buildReplicaMap(
-  world: MatchmakingFrameworkWorld
-): Map<string, ReplicaHandle> {
-  const bootMap = world.nodes['replica'] as ReadonlyMap<
-    string,
-    MmReplicaBootHandle
-  >;
-  const replicaIds = world.nodeIds('replica');
-  const firstId = replicaIds[0];
-  if (firstId === undefined) {
+export function buildMatchmakingKit(args: {
+  readonly session: Session;
+  readonly store: import('../store').SimStore;
+  readonly boots: readonly MmReplicaBootHandle[];
+  readonly config: MatchmakingSystemConfig;
+  readonly rng: SeededRng;
+}): MatchmakingSurface {
+  const { session, store, boots, config, rng } = args;
+  if (boots.length === 0) {
     throw new Error('buildMatchmakingKit: no replicas booted');
   }
+  const firstId = boots[0]!.id;
   const replicas = new Map<string, ReplicaHandle>();
   const ops: WorldReplicaOps = {
     getMm: (replicaId) => resolveReplica(replicas, replicaId).mm,
     defaultReplicaId: firstId,
   };
-  for (const id of replicaIds) {
-    const boot = bootMap.get(id);
-    if (boot === undefined) {
-      throw new Error(`buildMatchmakingKit: missing replica ${id}`);
-    }
-    replicas.set(id, buildReplicaHandle(ops, id, boot.mm));
+  for (const boot of boots) {
+    replicas.set(boot.id, buildReplicaHandle(ops, boot.id, boot.mm));
   }
-  return replicas;
-}
 
-export function buildMatchmakingKit(args: {
-  readonly world: MatchmakingFrameworkWorld;
-  readonly config: MatchmakingSystemConfig;
-  readonly rng: SeededRng;
-}): MatchmakingSimKit {
-  const { world, config, rng } = args;
-  const store = (world.nodes['store'] as MmStoreHandle).store;
-  const replicas = buildReplicaMap(world);
-  const firstId = world.nodeIds('replica')[0]!;
-  const ops: WorldReplicaOps = {
-    getMm: (replicaId) => resolveReplica(replicas, replicaId).mm,
-    defaultReplicaId: firstId,
-  };
+  async function advance(ms: number): Promise<void> {
+    await session.scheduler.advance(ms);
+  }
 
   async function step(ms: number): Promise<void> {
-    await world.advance(ms);
+    await advance(ms);
     await Promise.all(
       [...replicas.values()].map((r) => r.tick({ maxPassesPerPartition: 4 }))
     );
   }
 
   const untilCtx = {
-    clock: { now: () => world.now() },
-    seed: world.seed,
+    clock: { now: () => session.ports.clock.now() },
+    seed: BigInt(0),
     step,
   };
 
   return {
+    session,
+    advance,
     replicas,
+    ports: {
+      rng,
+      clock: session.ports.clock,
+    },
     replica: (id) => resolveReplica(replicas, id),
     addReplica: async (id) => {
       if (replicas.has(id)) {
@@ -96,7 +90,7 @@ export function buildMatchmakingKit(args: {
       }
       const mm = await bootReplicaOnStore({
         store,
-        clock: world.ports.clock,
+        clock: session.ports.clock,
         rng,
         replicaId: id,
         config,
@@ -147,3 +141,4 @@ export async function assertReplicaAgreement(
 }
 
 export type { ReplicaHandle };
+export { asSeededRng };

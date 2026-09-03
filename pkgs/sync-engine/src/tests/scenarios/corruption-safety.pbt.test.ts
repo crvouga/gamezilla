@@ -1,6 +1,5 @@
 import { describe, test } from 'bun:test';
-import { runProperty } from '@pkgs/dst/pbt';
-import { fc } from '@pkgs/pbt';
+import { assertProperty, fc } from '@pkgs/pbt';
 import {
   CORRUPTION_VARIANTS,
   HTTP_FAULTS,
@@ -23,7 +22,7 @@ describe('corruption safety PBT', () => {
   test(
     'HTTP response corruption then mutate converges',
     async () => {
-      await runProperty(
+      await assertProperty(
         'http corruption sequences converge',
         fc.asyncProperty(
           arbSeed(),
@@ -56,7 +55,7 @@ describe('corruption safety PBT', () => {
   test(
     'pubsub corruption then mutate converges',
     async () => {
-      await runProperty(
+      await assertProperty(
         'pubsub corruption sequences converge',
         fc.asyncProperty(
           arbSeed(),
@@ -85,7 +84,7 @@ describe('corruption safety PBT', () => {
   test(
     'local storage tamper then restart converges',
     async () => {
-      await runProperty(
+      await assertProperty(
         'storage tamper sequences converge',
         fc.asyncProperty(
           arbSeed(),

@@ -1,24 +1,30 @@
-import {
-  type FailureReport,
-  type JsonValue,
-  openWorld,
-  REPRO_VERSION,
-} from '@pkgs/dst';
+import type { Repro } from '@pkgs/dst';
+import { REPRO_VERSION } from '@pkgs/dst';
 
 import { isStorageFullError } from '../../client/storage-full-error';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { isClosedDatabaseError } from '../../sim/invariants';
-import { toKernelFaults } from '../../sim/network';
 import { bootClients, settleWorld } from '../../sim/replay-steps';
 import type { SeededRng } from '../../sim/rng';
-import { defineSyncSystem } from '../../sim/scenario';
+import {
+  defineSyncSystem,
+  openSyncWorld,
+  type SyncSurface,
+} from '../../sim/scenario';
 import type { SyncAction } from '../../sim/scenario/actions';
 import type { SyncApp } from '../../sim/scenario/app';
-import type { SyncSystemWorld } from '../../sim/scenario/define-sync-system';
 import { dispatchSyncAction } from '../../sim/scenario/dispatch';
 import { pickLibraryAction } from './pick-library-action';
 
-const WORLD_START_MS = 1_700_000_000_000;
+export type SeedFailureArtifact = {
+  readonly repro: Repro & {
+    readonly meta: Repro['meta'] & {
+      readonly error: string;
+      readonly seedHex: string;
+      readonly failureStep: number;
+    };
+  };
+  readonly error: string;
+};
 
 export type RunSeedResult =
   | { readonly ok: true; readonly seed: bigint; readonly steps: number }
@@ -27,7 +33,7 @@ export type RunSeedResult =
       readonly seed: bigint;
       readonly steps: number;
       readonly error: string;
-      readonly artifact: FailureReport;
+      readonly artifact: SeedFailureArtifact;
     };
 
 export type RunSeedOptions = {
@@ -45,7 +51,7 @@ type WorkloadLoopFail = {
   readonly seed: bigint;
   readonly steps: number;
   readonly error: string;
-  readonly artifact: FailureReport;
+  readonly artifact: SeedFailureArtifact;
 };
 
 function isTransientSimFault(error: unknown): boolean {
@@ -62,24 +68,23 @@ function buildFailureArtifact(args: {
   readonly actions: readonly SyncAction[];
   readonly error: string;
   readonly failureStep: number;
-}): FailureReport {
+}): SeedFailureArtifact {
   return {
     repro: {
       version: REPRO_VERSION,
-      inputs: {
-        seed: args.seed.toString(),
-        startTime: WORLD_START_MS,
-        knobs: {},
-        actions: args.actions as readonly JsonValue[],
-        networkFaults: toKernelFaults(RELIABLE_FAULTS),
-      },
+      seed: args.seed.toString(),
+      system: [],
+      choices: args.actions.map((a) => ({
+        action: a.kind,
+        draws: [] as number[],
+      })),
       meta: {
+        system: 'sync.runSeed',
         error: args.error,
         seedHex: args.seed.toString(16),
         failureStep: args.failureStep,
       },
     },
-    trace: [],
     error: args.error,
   };
 }
@@ -122,7 +127,7 @@ async function pickWorkloadAction(args: {
 
 async function runWorkloadLoop(args: {
   readonly app: SyncApp;
-  readonly world: SyncSystemWorld;
+  readonly world: SyncSurface;
   readonly ids: readonly string[];
   readonly steps: number;
   domainModel: unknown | null;
@@ -209,10 +214,10 @@ async function runWorkloadLoop(args: {
 export async function runSeed(opts: RunSeedOptions): Promise<RunSeedResult> {
   const clientCount = opts.clientCount ?? 2;
   const steps = opts.steps ?? 40;
-  const world = (await openWorld(defineSyncSystem(opts.app), {
+  const world = await openSyncWorld(defineSyncSystem(opts.app), {
     seed: opts.seed,
     knobs: { clientCount: 0 },
-  })) as SyncSystemWorld;
+  });
 
   const actions: SyncAction[] = [];
   let done = 0;

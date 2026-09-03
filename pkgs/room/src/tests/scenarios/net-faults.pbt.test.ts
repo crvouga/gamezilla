@@ -1,9 +1,9 @@
 import { describe, test } from 'bun:test';
-import { arbSeed, runProperty } from '@pkgs/dst/pbt';
 import { fc } from '@pkgs/pbt';
 
 import {
   arbRoomKnobs,
+  arbSeed,
   NET_FAULT_PROFILES,
   type RoomSystemAction,
   replayRoomPin,
@@ -21,8 +21,7 @@ describe('room net-faults PBT', () => {
   test(
     'hold then mutate then heal converges',
     async () => {
-      await runProperty(
-        'hold sequences converge',
+      await fc.assert(
         fc.asyncProperty(arbSeed(), arbRoomKnobs(), async (seed, knobs) => {
           await replayRoomPin(counterSystem, {
             seed,
@@ -44,8 +43,7 @@ describe('room net-faults PBT', () => {
   test(
     'down then mutate then heal converges',
     async () => {
-      await runProperty(
-        'down sequences converge',
+      await fc.assert(
         fc.asyncProperty(arbSeed(), arbRoomKnobs(), async (seed, knobs) => {
           await replayRoomPin(counterSystem, {
             seed,
@@ -67,8 +65,7 @@ describe('room net-faults PBT', () => {
   test(
     'asymmetric link then mutate converges',
     async () => {
-      await runProperty(
-        'asymmetric sequences converge',
+      await fc.assert(
         fc.asyncProperty(arbSeed(), arbRoomKnobs(), async (seed, knobs) => {
           await replayRoomPin(counterSystem, {
             seed,
@@ -100,8 +97,7 @@ describe('room net-faults PBT', () => {
   test(
     'each NET_FAULT_PROFILES arm then mutate converges',
     async () => {
-      await runProperty(
-        'fault profile sequences converge',
+      await fc.assert(
         fc.asyncProperty(
           arbSeed(),
           arbRoomKnobs(),

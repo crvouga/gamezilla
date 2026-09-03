@@ -1,11 +1,21 @@
-import { openWorld } from '@pkgs/dst';
 import { createSimAdapters } from '@pkgs/uuid';
 import {
+  addClient,
+  clientHash,
+  clientState,
+  connect,
+  converge,
   defineRoomSystem,
+  disconnect,
+  dispatch,
+  hold,
+  passTime,
   type RoomApp,
-  type RoomSystemWorld,
+  release,
+  serverHash,
+  serverState,
+  startRoom,
 } from '../../sim/scenario';
-import type { RoomSimClientHandle } from '../../sim/world-api';
 import type {
   RoomCommand,
   RoomCommandPayload,
@@ -30,22 +40,6 @@ function assertDomainValid<S extends RoomState>(
     if (oid === null) {
       throw new Error(`M6: ${label} terminal missing outcomeId`);
     }
-  }
-}
-
-async function assertSettledDomain<
-  S extends RoomState,
-  C extends RoomCommandPayload,
-  E extends RoomEvent,
->(
-  world: RoomSystemWorld,
-  client: RoomSimClientHandle<S, C, E>,
-  args: ModuleConformanceArgs<S, C, E>
-): Promise<void> {
-  assertDomainValid('server fold', (await world.serverSnapshot()) as S, args);
-  assertDomainValid('client fold', client.snapshot(), args);
-  if ((await world.serverHash()) !== client.hash()) {
-    throw new Error('E1: client hash diverged from serverHash after settle');
   }
 }
 
@@ -77,14 +71,12 @@ export async function runModuleConformance<
   const identities = args.identities ?? ['alice', 'bob'];
   const steps = args.fuzzSteps ?? 24;
 
-  // M8: pure seed-stable handle/reduce/hash.
   const hashA = purePlay(args, identities[0]!, 8);
   const hashB = purePlay(args, identities[0]!, 8);
   if (hashA !== hashB) {
     throw new Error(`M8 seed drift: ${hashA} !== ${hashB}`);
   }
 
-  // M2 + M3 on reachable corpus from pure play.
   const corpus = collectStates(args, identities[0]!, 12);
   assertHashCanonical(args.module, corpus.states);
   assertTotality({
@@ -94,53 +86,66 @@ export async function runModuleConformance<
     identities,
   });
 
-  // Engine fuzz: converge under mild faults (E1 + module).
-  const system = defineRoomSystem(conformanceApp(args.module), {
-    id: 'room.conformance',
-  });
-  await using host = await openWorld(system, {
-    seed: args.seed,
-    knobs: {
-      clientCount: 0,
-      mildFaults: args.mildFaults ?? true,
-    },
-  });
-  const world = host as unknown as RoomSystemWorld;
-  const clients = [];
-  for (const id of identities.slice(0, 3)) {
-    clients.push(await world.addClient({ id, identity: id }));
-  }
-  await world.assertConverged();
+  await engineFuzz(args, identities, steps);
+}
 
-  const rng = world.rng.fork('kit-fuzz');
+async function engineFuzz<
+  S extends RoomState,
+  C extends RoomCommandPayload,
+  E extends RoomEvent,
+>(
+  args: ModuleConformanceArgs<S, C, E>,
+  identities: readonly string[],
+  steps: number
+): Promise<void> {
+  const system = defineRoomSystem(conformanceApp(args.module), {
+    name: 'room.conformance',
+  });
+  await using run = await startRoom(system, {
+    seed: args.seed,
+    clientCount: 0,
+    mildFaults: args.mildFaults ?? true,
+  });
+  const ids = identities.slice(0, 3);
+  for (const id of ids) {
+    await run.apply(addClient, { id, identity: id });
+  }
+  await run.apply(converge);
+
+  const rng = run._internal.surface.world.rng.fork('kit-fuzz');
   for (let step = 0; step < steps; step += 1) {
-    const client = clients[rng.int(clients.length)]!;
+    const id = ids[rng.int(ids.length)]!;
+    const states = (await run.observe(clientState)) as Record<string, S>;
     const payload = args.generateCommand({
       rng,
-      state: client.snapshot() as S,
-      identity: client.identity,
-      now: world.clock.now(),
+      state: states[id] as S,
+      identity: id,
+      now: run._internal.surface.world.clock.now(),
       step,
     });
     if (payload === null) continue;
-    client.dispatch(payload);
+    await run.apply(dispatch, { clientId: id, payload });
     if (step % 5 === 4) {
-      using _h = world.net(client.id).set('hold');
-      await world.drain();
+      await run.apply(hold, id);
+      await run.apply(passTime, 0);
+      await run.apply(release, id);
     } else {
-      await world.drain();
+      await run.apply(passTime, 0);
     }
   }
-  for (const c of clients) {
-    await c.disconnect();
-    await c.connect();
+  for (const id of ids) {
+    await run.apply(disconnect, id);
+    await run.apply(connect, id);
   }
-  await world.assertConverged();
-  await assertSettledDomain(
-    world,
-    clients[0]!,
-    args as unknown as ModuleConformanceArgs<RoomState, C, E>
-  );
+  await run.apply(converge);
+  const server = (await run.observe(serverState)) as S;
+  const clients = (await run.observe(clientState)) as Record<string, S>;
+  assertDomainValid('server fold', server, args);
+  assertDomainValid('client fold', clients[ids[0]!] as S, args);
+  const hashes = (await run.observe(clientHash)) as Record<string, string>;
+  if ((await run.observe(serverHash)) !== hashes[ids[0]!]) {
+    throw new Error('E1: client hash diverged from serverHash after settle');
+  }
 }
 
 function purePlay<

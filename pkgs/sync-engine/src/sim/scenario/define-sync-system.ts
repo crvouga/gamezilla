@@ -1,40 +1,37 @@
 import {
   type Action,
-  actions,
-  defineScenario,
-  properties,
-  property,
-  type ScenarioDef,
-  STEP_MS,
-  type UnboundActionDef,
-  type World,
+  defineSystem,
+  draw,
+  type Property,
+  type Session,
+  type System,
+  start,
+  virtualHost,
 } from '@pkgs/dst';
+import { gen } from '@pkgs/dst/fast-check';
+import { asSeededRng, type NetworkFaults } from '@pkgs/dst/kernel';
 import fc from 'fast-check';
 
 import type { LocalDomainSchema } from '../../client/local-schema-migrate';
 import type { MutationRegistry } from '../../mutations/core/types';
 import type { QueryRegistry } from '../../queries/core/types';
+import type { SyncBootDeps } from '../boot-deps';
 import type { SimSessionQuery } from '../domain-pack';
 import { RELIABLE_FAULTS } from '../faults';
-import { toKernelFaults } from '../network';
+import { toKernelFaults, wrapSimNetwork } from '../network';
 import { type UntilTarget, waitNever, waitUntil } from '../wait-until';
 import type { World as KitWorld } from '../world-api';
+import { bootSimInfra, bootSimServer } from '../world-boot';
+import { buildWorldFacade } from '../world-facade';
+import type { WorldClientOpts } from '../world-types';
 import {
   type ActionShadow,
   applyActionToShadow,
-  clientLive,
   createActionShadow,
 } from './action-shadow';
 import type { SyncAction } from './actions';
 import type { SyncApp } from './app';
-import { SYNC_SYSTEM_KNOBS, type SyncKnobDefs } from './knobs';
-import {
-  defaultClientIds,
-  LIBRARY_ARB_ENTRIES,
-  type LibraryArbEntry,
-  libraryActionArb,
-} from './library-arbs';
-import { createSyncNodes } from './node-kinds';
+import { DEFAULT_WORLD_KNOBS, syncSystemDraws, type WorldKnobs } from './knobs';
 import {
   createReplayRestartState,
   prepareClientsForConverge,
@@ -42,104 +39,123 @@ import {
   resetClockSkews,
   resetReplayRestartState,
 } from './play';
-import { bindSyncRuntime, requireKit, type SyncRuntime } from './system';
+import { createSyncActions } from './sync-actions';
+import { SYNC_PROPERTIES } from './sync-properties';
+import type { SyncRuntime, SyncSurface } from './system';
 
 const WORLD_START_MS = 1_700_000_000_000;
 /** Post-topology settle window so clients finish initial hydration. */
 const PREPARE_HYDRATION_MS = 200;
+/** Idle between scripted pin steps (legacy STEP_MS). */
+export const SYNC_STEP_MS = 10;
 
-type SyncNodes = ReturnType<typeof createSyncNodes>;
+const RELIABLE_KERNEL_FAULTS: NetworkFaults = toKernelFaults(RELIABLE_FAULTS);
 
-type BaseSyncWorld = World<SyncKnobDefs, SyncNodes, Record<string, never>>;
+export function syncVirtualHost(network?: NetworkFaults) {
+  const base = virtualHost({
+    startTime: WORLD_START_MS,
+    network: network ?? RELIABLE_KERNEL_FAULTS,
+  });
+  // Sync clients schedule heartbeat / upload timers indefinitely. Algebra
+  // `settle()` after each Act must not wait for global quiescence.
+  return {
+    caps: base.caps,
+    with: base.with.bind(base),
+    async open(seed: number | bigint | string) {
+      const session = await base.open(seed);
+      return {
+        ...session,
+        settle: async () => {
+          await session.scheduler.underlying.runFor(0);
+        },
+      };
+    },
+  };
+}
 
-export type SyncWorldExtension = {
-  readonly kit: KitWorld;
-  readonly runtime: SyncRuntime;
-  readonly shadow: ActionShadow;
-  readonly rng: KitWorld['rng'];
-  readonly clients: KitWorld['clients'];
-  readonly server: KitWorld['server'];
-  readonly net: KitWorld['net'];
-  readonly node: KitWorld['node'];
-  readonly nextId: KitWorld['nextId'];
-  readonly addClient: KitWorld['addClient'];
-  readonly isSchedulerQuiescent: KitWorld['isSchedulerQuiescent'];
-  readonly pendingEventCount: KitWorld['pendingEventCount'];
-  readonly checkInvariants: () => Promise<void>;
-  readonly assertConverged: () => Promise<void>;
-  readonly tamperLocalStorage: KitWorld['tamperLocalStorage'];
-  readonly armStoragePressure: KitWorld['armStoragePressure'];
-  readonly clearStoragePressure: KitWorld['clearStoragePressure'];
-  readonly armFailNextOpen: KitWorld['armFailNextOpen'];
-  readonly clearFailNextOpen: KitWorld['clearFailNextOpen'];
-  readonly brokerCrash: KitWorld['brokerCrash'];
-  readonly brokerRestart: KitWorld['brokerRestart'];
-  readonly clearBoundaryFaults: KitWorld['clearBoundaryFaults'];
-  readonly waitUntil: (
-    target: UntilTarget,
-    opts?: {
-      readonly withinMs?: number;
-      readonly budgetMs?: number;
-      readonly stepMs?: number;
-    }
-  ) => Promise<number>;
-  readonly waitNever: (
-    target: UntilTarget,
-    opts: { readonly forMs: number }
-  ) => Promise<void>;
+export type DefineSyncSystemOpts = {
+  readonly id?: string;
+  readonly sessionQuery?: SimSessionQuery;
+  readonly localSchema?: LocalDomainSchema;
+  readonly mutationRegistry?: MutationRegistry;
+  readonly queryRegistry?: QueryRegistry;
 };
 
-export type SyncSurface = SyncWorldExtension;
-export type SyncSystemWorld = World<SyncKnobDefs, SyncNodes, SyncSurface>;
-export type SyncSystemDef = ScenarioDef<
-  SyncKnobDefs,
-  SyncNodes,
-  SyncSurface,
-  SyncSurface
->;
+export type SyncSystemDef = System<SyncSurface> & {
+  readonly actions: readonly Action<SyncSurface>[];
+  readonly properties: readonly Property<SyncSurface>[];
+  readonly app: SyncApp;
+  readonly opts?: DefineSyncSystemOpts;
+};
 
-function asSystemActionArb<T>(arb: fc.Arbitrary<T>): fc.Arbitrary<Action> {
-  return arb as unknown as fc.Arbitrary<Action>;
+function worldArgsFromDraws(
+  runtime: Pick<
+    SyncRuntime,
+    | 'app'
+    | 'sessionQuery'
+    | 'localSchema'
+    | 'mutationRegistry'
+    | 'queryRegistry'
+  >,
+  knobs: WorldKnobs
+): WorldClientOpts {
+  return {
+    domain: runtime.app.pack,
+    rowImageFanout: knobs.rowImageFanout,
+    liveResendOnReconnect: knobs.liveResendOnReconnect,
+    bufferOutboundLive: knobs.bufferOutboundLive,
+    ...(runtime.sessionQuery !== undefined
+      ? { sessionQuery: runtime.sessionQuery }
+      : {}),
+    ...(runtime.localSchema !== undefined
+      ? { localSchema: runtime.localSchema }
+      : {}),
+    ...(runtime.mutationRegistry !== undefined
+      ? { mutationRegistry: runtime.mutationRegistry }
+      : {}),
+    ...(runtime.queryRegistry !== undefined
+      ? { queryRegistry: runtime.queryRegistry }
+      : {}),
+  };
 }
 
-async function dispatchSync(world: SyncSurface, action: Action): Promise<void> {
-  const full = world as unknown as SyncSystemWorld;
-  await replayStep({
-    world: full,
-    app: world.runtime.app,
-    action: action as unknown as SyncAction,
-    state: world.runtime.replay,
-  });
-  applyActionToShadow(
-    world.runtime.app,
-    world.shadow,
-    action as unknown as SyncAction
-  );
+function bootDeps(session: Session): SyncBootDeps {
+  return {
+    clock: session.ports.clock,
+    scheduler: session.scheduler.underlying,
+    timers: session.ports.timers,
+    rng: asSeededRng(session.ports.rng),
+  };
 }
 
-async function syncPrepareConverge(world: SyncSystemWorld): Promise<void> {
-  const { replay } = world.runtime;
-  await prepareClientsForConverge(world.runtime.app, world, replay);
-  resetClockSkews(world);
-}
-
-function kitExtension(
-  world: BaseSyncWorld,
+function buildSurface(
+  session: Session,
   kit: KitWorld,
   runtime: SyncRuntime,
   shadow: ActionShadow
-): SyncWorldExtension {
+): SyncSurface {
+  const waitWorld = {
+    seed: kit.seed,
+    scheduler: kit.scheduler,
+    network: { held: () => kit.network.heldSummary() },
+  };
   return {
-    kit,
+    session,
     runtime,
     shadow,
+    seed: kit.seed,
     rng: kit.rng,
     clients: kit.clients,
     server: kit.server,
+    kit: { network: kit.network },
     net: kit.net,
     node: kit.node,
-    nextId: kit.nextId,
     addClient: kit.addClient,
+    nodeIds: (role) => {
+      if (role === 'server') return ['server'] as const;
+      if (role === 'client') return [...kit.clients.keys()];
+      return [];
+    },
     isSchedulerQuiescent: kit.isSchedulerQuiescent,
     pendingEventCount: kit.pendingEventCount,
     checkInvariants: async () => {
@@ -157,214 +173,169 @@ function kitExtension(
     brokerCrash: kit.brokerCrash,
     brokerRestart: kit.brokerRestart,
     clearBoundaryFaults: kit.clearBoundaryFaults,
-    waitUntil: (target, opts) => waitUntil(world, target, opts),
-    waitNever: (target, opts) => waitNever(world, target, opts),
+    advance: (ms) => session.scheduler.advance(ms),
+    waitUntil: (target: UntilTarget, opts) =>
+      waitUntil(waitWorld, target, opts),
+    waitNever: (target, opts) => waitNever(waitWorld, target, opts),
+    dispose: () => kit.dispose(),
   };
 }
 
+async function syncPrepareConverge(surface: SyncSurface): Promise<void> {
+  await prepareClientsForConverge(
+    surface.runtime.app,
+    surface,
+    surface.runtime.replay
+  );
+  resetClockSkews(surface);
+}
+
 /**
- * Replay DST actions against an already-open sync world (dispatch, invariant
- * check, small step advance, then converge prep). Scripted pins that also
- * poke clients imperatively use this; pure scripts use `replay`.
+ * Replay DST SyncAction objects against an already-open sync surface.
  */
 export async function playSyncActions(
-  world: SyncSystemWorld,
+  world: SyncSurface,
   actionList: readonly SyncAction[]
 ): Promise<void> {
   for (const action of actionList) {
-    await dispatchSync(world, action as unknown as Action);
+    await replayStep({
+      world,
+      app: world.runtime.app,
+      action,
+      state: world.runtime.replay,
+    });
+    applyActionToShadow(world.runtime.app, world.shadow, action);
     await world.checkInvariants();
-    await world.advance(STEP_MS);
+    await world.advance(SYNC_STEP_MS);
   }
   await syncPrepareConverge(world);
 }
 
-function libraryActionWeight(
-  surface: SyncSurface,
-  entry: LibraryArbEntry
-): number {
-  if (entry.kind === 'heal') {
-    return surface.shadow.partitioned.size > 0 || surface.shadow.held.size > 0
-      ? 1
-      : 0;
-  }
-  return 1;
-}
-
-function libraryAction(
-  sessionQuery: SimSessionQuery,
-  entry: LibraryArbEntry
-): UnboundActionDef<unknown, SyncSurface> {
-  return {
-    weight: (surface) => libraryActionWeight(surface, entry),
-    generate: (ctx) => {
-      const surface = ctx.surface as SyncSurface;
-      const live = surface.shadow.clientIds.filter((id) =>
-        clientLive(surface.shadow, id)
-      );
-      return libraryActionArb(entry, {
-        clientIds: defaultClientIds(
-          live.length > 0 ? live : ctx.nodeIds('client')
-        ),
-        sessionQuery,
-      }) as fc.Arbitrary<Action>;
-    },
-    apply: (surface, act) => dispatchSync(surface, act as Action),
-  };
-}
-
-function domainAction(app: SyncApp): UnboundActionDef<unknown, SyncSurface> {
-  return {
-    weight: (surface) => {
-      for (const id of surface.shadow.clientIds) {
-        if (clientLive(surface.shadow, id)) return 1;
-      }
-      return 0;
-    },
-    generate: (ctx) => {
-      const surface = ctx.surface as SyncSurface;
-      const live = surface.shadow.clientIds.filter((id) =>
-        clientLive(surface.shadow, id)
-      );
-      return fc.oneof(
-        ...app
-          .domainOpArbs({
-            clientIds: defaultClientIds(
-              live.length > 0 ? live : ctx.nodeIds('client')
-            ),
-          })
-          .map(asSystemActionArb)
-      ) as fc.Arbitrary<Action>;
-    },
-    apply: (surface, act) => dispatchSync(surface, act as Action),
-  };
-}
-
-function serverAction(
-  app: SyncApp
-): UnboundActionDef<unknown, SyncSurface> | null {
-  const serverOpArbs = app.serverOpArbs;
-  if (serverOpArbs === undefined) return null;
-  return {
-    weight: 1,
-    generate: (ctx) =>
-      fc.oneof(
-        ...serverOpArbs({ clientIds: ctx.nodeIds('client') }).map(
-          asSystemActionArb
-        )
-      ),
-    apply: (surface, act) => dispatchSync(surface, act as Action),
-  };
-}
-
-function syncActionCatalog(
-  app: SyncApp,
-  sessionQuery: SimSessionQuery
-): Record<string, UnboundActionDef<unknown, SyncSurface>> {
-  const out: Record<string, UnboundActionDef<unknown, SyncSurface>> = {};
-  for (const entry of LIBRARY_ARB_ENTRIES) {
-    out[entry.kind] = libraryAction(sessionQuery, entry);
-  }
-  out['domain'] = domainAction(app);
-  const server = serverAction(app);
-  if (server !== null) {
-    out['server'] = server;
-  }
-  return out;
-}
-
-export type DefineSyncSystemOpts = {
-  readonly id?: string;
-  /** Override the domain pack session query (large-snapshot pins). */
-  readonly sessionQuery?: SimSessionQuery;
-  /** Server + default-client pack overrides (mixed-schema pins). */
-  readonly localSchema?: LocalDomainSchema;
-  readonly mutationRegistry?: MutationRegistry;
-  readonly queryRegistry?: QueryRegistry;
+export type OpenSyncOptions = {
+  readonly seed: number | bigint | string;
+  readonly knobs?: Partial<WorldKnobs>;
+  readonly properties?: readonly Property<SyncSurface>[];
+  readonly draws?: readonly unknown[];
+  readonly networkFaults?: NetworkFaults;
 };
 
-function initialSyncRuntime(
-  app: SyncApp,
-  opts?: DefineSyncSystemOpts
-): SyncRuntime {
-  return {
-    app,
-    ...(opts?.sessionQuery !== undefined
-      ? { sessionQuery: opts.sessionQuery }
-      : {}),
-    ...(opts?.localSchema !== undefined
-      ? { localSchema: opts.localSchema }
-      : {}),
-    ...(opts?.mutationRegistry !== undefined
-      ? { mutationRegistry: opts.mutationRegistry }
-      : {}),
-    ...(opts?.queryRegistry !== undefined
-      ? { queryRegistry: opts.queryRegistry }
-      : {}),
-    replay: createReplayRestartState(),
-    worldArgs: null,
-    infra: null,
-    kernel: null,
-    kit: null,
-  };
+/**
+ * Open a sync system run and expose the domain surface for scripted pins.
+ * Disposes kit + session on `await using`.
+ */
+export async function openSyncWorld(
+  system: SyncSystemDef,
+  opts: OpenSyncOptions
+): Promise<SyncSurface & AsyncDisposable> {
+  const run = await start(system, {
+    seed: opts.seed,
+    host: syncVirtualHost(opts.networkFaults),
+    draws: opts.draws ?? syncSystemDraws(opts.knobs),
+    // Scripted pins drive the surface imperatively; monitors are opt-in.
+    properties: opts.properties ?? [],
+  });
+  const surface = run._internal.surface;
+  return Object.assign(surface, {
+    async [Symbol.asyncDispose]() {
+      await surface.dispose();
+      await run[Symbol.asyncDispose]();
+    },
+  });
 }
 
-/** {@link SyncKnobDefs} as framework knob defs (default + arbitrary). */
-export { SYNC_SYSTEM_KNOBS };
-
 /**
- * Framework-owned sync world: broker + server + N clients booted by
- * `@pkgs/dst` node kinds, with the full library/domain action pool.
+ * Framework-owned sync world: broker + server + N clients, full action pool.
  */
 export function defineSyncSystem(
   app: SyncApp,
   opts?: DefineSyncSystemOpts
 ): SyncSystemDef {
   const sessionQuery = opts?.sessionQuery ?? app.pack.sessionQuery;
-  const runtimeOf = bindSyncRuntime(() => initialSyncRuntime(app, opts));
-  const nodes = createSyncNodes(runtimeOf);
-  const catalog = syncActionCatalog(app, sessionQuery);
+  const actions = createSyncActions(app, sessionQuery);
+  const properties = [...SYNC_PROPERTIES];
 
-  return defineScenario({
-    id: opts?.id ?? 'sync.world',
-    startTime: WORLD_START_MS,
-    network: { faults: toKernelFaults(RELIABLE_FAULTS) },
-    knobs: SYNC_SYSTEM_KNOBS,
-    nodes,
-    actions: actions<SyncSurface>()(
-      catalog
-    ) as import('@pkgs/dst').ActionCatalog<SyncSurface>,
-    properties: properties<SyncSurface>()({
-      invariants: property.always(async (surface) => {
-        await surface.checkInvariants();
-        return true;
-      }),
-      converged: property.always(
-        async (surface) => {
-          await surface.assertConverged();
-          return true;
+  const system = defineSystem({
+    name: opts?.id ?? 'sync.world',
+    async *generate(session) {
+      const clientCount = yield* draw(gen(fc.integer({ min: 1, max: 3 })));
+      const rowImageFanout = yield* draw(gen(fc.boolean()));
+      const liveResendOnReconnect = yield* draw(gen(fc.boolean()));
+      const bufferOutboundLive = yield* draw(gen(fc.boolean()));
+      const knobs: WorldKnobs = {
+        clientCount,
+        rowImageFanout,
+        liveResendOnReconnect,
+        bufferOutboundLive,
+      };
+
+      const replay = createReplayRestartState();
+      const worldArgs = worldArgsFromDraws(
+        {
+          app,
+          ...(opts?.sessionQuery !== undefined
+            ? { sessionQuery: opts.sessionQuery }
+            : {}),
+          ...(opts?.localSchema !== undefined
+            ? { localSchema: opts.localSchema }
+            : {}),
+          ...(opts?.mutationRegistry !== undefined
+            ? { mutationRegistry: opts.mutationRegistry }
+            : {}),
+          ...(opts?.queryRegistry !== undefined
+            ? { queryRegistry: opts.queryRegistry }
+            : {}),
         },
-        { at: 'converge' }
-      ),
-    }),
-    extend: async (world) => {
-      const runtime = runtimeOf(world.ports);
-      resetReplayRestartState(runtime.replay);
-      const kit = requireKit(runtime);
-      const shadow = createActionShadow(app, world.nodeIds('client'));
-      await world.advance(PREPARE_HYDRATION_MS);
-      return kitExtension(
-        world as unknown as BaseSyncWorld,
-        kit,
-        runtime,
-        shadow
+        knobs
       );
+
+      const deps = bootDeps(session);
+      const network = wrapSimNetwork(session.network, RELIABLE_FAULTS);
+      const infra = bootSimInfra({
+        worldArgs,
+        injected: { deps, network },
+      });
+      const kernel = await bootSimServer({ infra, worldArgs });
+      const kit = buildWorldFacade(kernel);
+      const runtime: SyncRuntime = {
+        app,
+        ...(opts?.sessionQuery !== undefined
+          ? { sessionQuery: opts.sessionQuery }
+          : {}),
+        ...(opts?.localSchema !== undefined
+          ? { localSchema: opts.localSchema }
+          : {}),
+        ...(opts?.mutationRegistry !== undefined
+          ? { mutationRegistry: opts.mutationRegistry }
+          : {}),
+        ...(opts?.queryRegistry !== undefined
+          ? { queryRegistry: opts.queryRegistry }
+          : {}),
+        replay,
+        worldArgs,
+        infra,
+        kernel,
+        kit,
+      };
+      resetReplayRestartState(runtime.replay);
+
+      for (let i = 0; i < clientCount; i += 1) {
+        const id = `c${i}`;
+        await kit.addClient({ id, actorId: id });
+      }
+
+      const shadow = createActionShadow(app, [...kit.clients.keys()]);
+      await session.scheduler.advance(PREPARE_HYDRATION_MS);
+      return buildSurface(session, kit, runtime, shadow);
     },
-    converge: async (world) => {
-      await syncPrepareConverge(world);
-      await world.assertConverged();
-    },
+  });
+
+  return Object.assign(system, {
+    actions,
+    properties,
+    app,
+    ...(opts !== undefined ? { opts } : {}),
   });
 }
 
-export type SyncSystemFacade = SyncWorldExtension;
+export type { SyncRuntime, SyncSurface };
+export { DEFAULT_WORLD_KNOBS, SYNC_PROPERTIES, syncSystemDraws };

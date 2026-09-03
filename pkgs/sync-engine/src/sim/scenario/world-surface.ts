@@ -1,5 +1,3 @@
-import type { NeverOptions } from '@pkgs/dst';
-
 import type { SimClientHandle } from '../client-handle';
 import type { SimNetHandle } from '../net-effect';
 import type { SyncNetwork } from '../network';
@@ -9,11 +7,11 @@ import type { SimServer } from '../server';
 import type { LocalStorageTamper } from '../storage-faults';
 import type { StoragePressureKind } from '../storage-pressure';
 import type { SimTraffic } from '../traffic';
-import type { UntilTarget } from '../wait-until';
+import type { NeverOptions, UntilTarget } from '../wait-until';
 import type { AddClientArgs } from '../world-types';
 
 /**
- * Scripted-pin / dispatch surface — sync extension merged onto framework World.
+ * Scripted-pin / dispatch surface — domain ops over the live sync world.
  */
 export type SystemWorldSurface = {
   readonly seed: bigint;
@@ -56,4 +54,6 @@ export type SystemWorldSurface = {
   readonly addClient: (args: AddClientArgs) => Promise<SimClientHandle>;
   readonly brokerCrash: () => void;
   readonly brokerRestart: () => Promise<void>;
+  /** Role → node ids (`client` → live clients, `server` → `['server']`). */
+  readonly nodeIds: (role: string) => readonly string[];
 };

@@ -1,57 +1,237 @@
+import { defineSystem, draw } from '@pkgs/dst';
+import { gen } from '@pkgs/dst/fast-check';
+import fc from 'fast-check';
 import {
-  type ActionCatalog,
-  defineScenario,
-  nodeCount,
-  properties,
-  property,
-} from '@pkgs/dst';
-import { AUTH_ACTIONS } from './actions';
+  AUTH_SESSION_TTL_MS,
+  IDP_PROVIDER_DEV,
+  IDP_PROVIDER_GOOGLE,
+} from '../../shared/auth-constants';
+import {
+  dispatchOauthApprove,
+  dispatchOauthStart,
+  dispatchSessionExchange,
+  dispatchSignOut,
+  dispatchStealBearer,
+  type OauthProvider,
+} from './dispatch';
 import { assertAuthInvariants, worldFingerprint } from './invariants';
-import {
-  AUTH_CLIENT_COUNT,
-  AUTH_DEV_PROVIDER,
-  AUTH_FABRIC,
-  AUTH_GOOGLE_PROVIDER,
-  authActorNode,
-  authStoreNode,
-} from './nodes';
-import type { AuthKit, AuthKnobs, AuthSurface } from './types';
+import { startActor, startStore } from './nodes';
+import type { AuthFabric, AuthSurface } from './types';
 
-const AUTH_SYSTEM_START_MS = 1_700_000_000_000;
+function range(n: number): number[] {
+  return Array.from({ length: n }, (_, i) => i);
+}
 
-/**
- * `auth.store` (SQL + Hono IdP + fake Google) plus N zero-endpoint
- * `auth.actor` session bags. Framework owns the world via openWorld.
- */
-export const AUTH_SYSTEM = defineScenario({
-  id: 'auth.idp',
-  startTime: AUTH_SYSTEM_START_MS,
-  knobs: {
-    fabric: AUTH_FABRIC,
-    clientCount: AUTH_CLIENT_COUNT,
-    devProvider: AUTH_DEV_PROVIDER,
-    googleProvider: AUTH_GOOGLE_PROVIDER,
-  },
-  nodes: {
-    store: authStoreNode,
-    client: {
-      ...authActorNode,
-      count: nodeCount<AuthKnobs>((k) => k.clientCount),
-      id: (i) => `c${i}`,
-    },
-  },
-  actions: AUTH_ACTIONS as unknown as ActionCatalog<AuthKit>,
-  properties: properties<AuthSurface>()({
-    invariantsAtConverge: property.always(async () => true, { at: 'converge' }),
-  }),
-  extend: (): AuthKit => ({ fingerprint: null }),
-  converge: async (world) => {
-    const authWorld = world as AuthSurface;
-    await authWorld.quiesce();
-    await assertAuthInvariants(authWorld);
-    authWorld.fingerprint = await worldFingerprint(authWorld);
+const SUBJECTS = ['alice', 'bob', 'carol'] as const;
+const PROVIDERS = [IDP_PROVIDER_GOOGLE, IDP_PROVIDER_DEV] as const;
+const CALLBACK_URLS = [
+  'http://callback.test/sso',
+  'gamezilla://sso-callback',
+  'https://evil.example/sso',
+] as const;
+
+export const auth = defineSystem({
+  name: 'auth.idp',
+  async *generate(session) {
+    const fabric = yield* draw(
+      gen(fc.constantFrom<AuthFabric>('sqlite-mem', 'postgres-mem'))
+    );
+    const clientCount = yield* draw(gen(fc.integer({ min: 1, max: 3 })));
+    const enableDev = yield* draw(gen(fc.boolean()));
+    const enableGoogle = yield* draw(gen(fc.boolean()));
+    const store = await startStore(session.fork('store'), {
+      fabric,
+      enableDev,
+      enableGoogle,
+    });
+    const clients = new Map(
+      range(clientCount).map((i) => [`c${i}`, startActor()] as const)
+    );
+    return {
+      session,
+      store,
+      clients,
+      fingerprint: null,
+    } satisfies AuthSurface;
   },
 });
 
-export type AuthSystemDef = typeof AUTH_SYSTEM;
+const { defineObservation, defineAction, defineProperty } = auth;
+
+export const caps = defineObservation({
+  name: 'caps',
+  observe: (s) => [...s.session.caps] as string[],
+});
+
+export const clientIds = defineObservation({
+  name: 'clientIds',
+  observe: (s) => [...s.clients.keys()],
+});
+
+export const fabric = defineObservation({
+  name: 'fabric',
+  observe: (s) => s.store.fabric,
+});
+
+export const bearers = defineObservation({
+  name: 'bearers',
+  observe: (s) =>
+    [...s.clients.entries()].map(([id, a]) => `${id}:${a.bearer ?? ''}`),
+});
+
+export const invariantViolations = defineObservation({
+  name: 'invariantViolations',
+  observe: async (s) => {
+    try {
+      await assertAuthInvariants(s);
+      return [] as string[];
+    } catch (e) {
+      return [e instanceof Error ? e.message : String(e)];
+    }
+  },
+});
+
+export const advanceClock = defineAction({
+  name: 'advanceClock',
+  *generate() {
+    if (!(yield* caps).includes('virtualTime')) return;
+    const ms = yield* draw(
+      gen(fc.constantFrom(1_000, AUTH_SESSION_TTL_MS + 1))
+    );
+    yield {
+      weight: 1,
+      act: (s: AuthSurface) => s.session.scheduler.advance(ms),
+    };
+  },
+});
+
+export const setGoogleFault = defineAction({
+  name: 'setGoogleFault',
+  *generate() {
+    const fault = yield* draw(gen(fc.boolean()));
+    yield {
+      weight: 1,
+      act: (s: AuthSurface) => {
+        s.store.sim.googleFault = fault;
+      },
+    };
+  },
+});
+
+export const oauthStart = defineAction({
+  name: 'oauthStart',
+  *generate() {
+    const ids = yield* clientIds;
+    if (ids.length === 0) return;
+    const payload = yield* draw(
+      gen(
+        fc.record({
+          clientId: fc.constantFrom(...(ids as string[])),
+          provider: fc.constantFrom(...PROVIDERS),
+          callbackUrl: fc.constantFrom(...CALLBACK_URLS),
+        })
+      )
+    );
+    yield {
+      weight: 3,
+      act: (s: AuthSurface) =>
+        dispatchOauthStart(
+          s,
+          payload.clientId,
+          payload.provider as OauthProvider,
+          payload.callbackUrl
+        ),
+    };
+  },
+});
+
+export const oauthApprove = defineAction({
+  name: 'oauthApprove',
+  *generate() {
+    const ids = yield* clientIds;
+    if (ids.length === 0) return;
+    const payload = yield* draw(
+      gen(
+        fc.record({
+          clientId: fc.constantFrom(...(ids as string[])),
+          provider: fc.constantFrom(...PROVIDERS),
+          subject: fc.constantFrom(...SUBJECTS),
+        })
+      )
+    );
+    yield {
+      weight: 3,
+      act: (s: AuthSurface) =>
+        dispatchOauthApprove(
+          s,
+          payload.clientId,
+          payload.provider as OauthProvider,
+          payload.subject
+        ),
+    };
+  },
+});
+
+export const sessionExchange = defineAction({
+  name: 'sessionExchange',
+  *generate() {
+    const ids = yield* clientIds;
+    if (ids.length === 0) return;
+    const clientId = yield* draw(gen(fc.constantFrom(...(ids as string[]))));
+    yield {
+      weight: 3,
+      act: (s: AuthSurface) => dispatchSessionExchange(s, clientId),
+    };
+  },
+});
+
+export const signOut = defineAction({
+  name: 'signOut',
+  *generate() {
+    const ids = yield* clientIds;
+    if (ids.length === 0) return;
+    const clientId = yield* draw(gen(fc.constantFrom(...(ids as string[]))));
+    yield {
+      weight: 3,
+      act: (s: AuthSurface) => dispatchSignOut(s, clientId),
+    };
+  },
+});
+
+export const stealBearer = defineAction({
+  name: 'stealBearer',
+  *generate() {
+    const ids = yield* clientIds;
+    if (ids.length === 0) return;
+    const clientId = yield* draw(gen(fc.constantFrom(...(ids as string[]))));
+    yield {
+      weight: 3,
+      act: (s: AuthSurface) => dispatchStealBearer(s, clientId, clientId),
+    };
+  },
+});
+
+export const AUTH_ACTIONS = [
+  advanceClock,
+  setGoogleFault,
+  oauthStart,
+  oauthApprove,
+  sessionExchange,
+  signOut,
+  stealBearer,
+];
+
+export const invariantsHold = defineProperty({
+  name: 'invariants',
+  *watch() {
+    while (true) {
+      const v = (yield invariantViolations) as string[];
+      if (v.length > 0) throw new Error(v[0]!);
+    }
+  },
+});
+
+export const AUTH_PROPERTIES = [invariantsHold];
+
 export type AuthWorld = AuthSurface;
+export { worldFingerprint };

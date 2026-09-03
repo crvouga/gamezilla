@@ -1,39 +1,39 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/dst';
-import { counterSystem } from '../apps/counter/system';
+import {
+  clientHash,
+  converge,
+  dispatch,
+  hold,
+  passTime,
+  release,
+  serverHash,
+} from '../../sim/scenario';
 import { counterValue, Increment } from '../fixtures/counter-module';
+import { bootCounter } from '../scenario/boot-counter';
+import { readClient, readServer } from '../scenario/read-state';
 
 describe('room sim: n-client partition (E-A07)', () => {
   test('selective holds across four clients converge', async () => {
-    await using host = await openWorld(counterSystem, {
-      seed: process.env['SIM_SEED'] ?? '42',
-      knobs: { clientCount: 0 },
-    });
-    const world = host;
     const ids = ['a', 'b', 'c', 'd'] as const;
-    const clients = [];
+    await using run = await bootCounter(ids);
+
+    await run.apply(hold, 'b');
+    await run.apply(hold, 'd');
+    await run.apply(dispatch, { clientId: 'a', payload: Increment({}) });
+    await run.apply(dispatch, { clientId: 'c', payload: Increment({}) });
+    await run.apply(passTime, 0);
+    expect(counterValue(await readClient(run, 'b'))).toBe(0);
+    expect(counterValue(await readClient(run, 'd'))).toBe(0);
+    await run.apply(release, 'b');
+    await run.apply(release, 'd');
+
+    await run.apply(converge);
+    expect(counterValue(await readServer(run))).toBe(2);
+    const h = await run.observe(serverHash);
+    const hashes = (await run.observe(clientHash)) as Record<string, string>;
     for (const id of ids) {
-      clients.push(await world.addClient({ id }));
-    }
-    await world.assertConverged();
-
-    {
-      using _b = world.net('b').set('hold');
-      using _d = world.net('d').set('hold');
-      clients[0]!.dispatch(Increment({}));
-      clients[2]!.dispatch(Increment({}));
-      await world.drain();
-      expect(counterValue(clients[1]!.snapshot())).toBe(0);
-      expect(counterValue(clients[3]!.snapshot())).toBe(0);
-    }
-
-    await world.assertConverged();
-    const server = await world.serverSnapshot();
-    expect(counterValue(server)).toBe(2);
-    const serverHash = await world.serverHash();
-    for (const c of clients) {
-      expect(counterValue(c.snapshot())).toBe(2);
-      expect(c.hash()).toBe(serverHash);
+      expect(counterValue(await readClient(run, id))).toBe(2);
+      expect(hashes[id]).toBe(h);
     }
   });
 });

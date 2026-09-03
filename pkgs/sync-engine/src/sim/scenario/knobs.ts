@@ -1,4 +1,3 @@
-import { type KnobDef, knob } from '@pkgs/dst';
 import fc from 'fast-check';
 
 export type WorldKnobs = {
@@ -8,19 +7,27 @@ export type WorldKnobs = {
   readonly clientCount: number;
 };
 
-export const ROW_IMAGE_FANOUT = knob(true, fc.boolean());
-export const LIVE_RESEND_ON_RECONNECT = knob(false, fc.boolean());
-export const BUFFER_OUTBOUND_LIVE = knob(false, fc.boolean());
-export const CLIENT_COUNT = knob(2, fc.integer({ min: 2, max: 3 }));
+/** Default knobs when a scripted test omits a field. */
+export const DEFAULT_WORLD_KNOBS: WorldKnobs = {
+  rowImageFanout: true,
+  liveResendOnReconnect: false,
+  bufferOutboundLive: false,
+  clientCount: 2,
+};
 
-export const SYNC_SYSTEM_KNOBS = {
-  rowImageFanout: ROW_IMAGE_FANOUT,
-  liveResendOnReconnect: LIVE_RESEND_ON_RECONNECT,
-  bufferOutboundLive: BUFFER_OUTBOUND_LIVE,
-  clientCount: CLIENT_COUNT,
-} as const;
-
-export type SyncKnobDefs = typeof SYNC_SYSTEM_KNOBS;
+/**
+ * Positional system draws for `start` / `check`:
+ * `[clientCount, rowImageFanout, liveResendOnReconnect, bufferOutboundLive]`.
+ */
+export function syncSystemDraws(knobs?: Partial<WorldKnobs>): unknown[] {
+  const k = { ...DEFAULT_WORLD_KNOBS, ...knobs };
+  return [
+    k.clientCount,
+    k.rowImageFanout,
+    k.liveResendOnReconnect,
+    k.bufferOutboundLive,
+  ];
+}
 
 export const arbSeed = (): fc.Arbitrary<number> =>
   fc.integer({ min: 1, max: 1_000_000 });
@@ -32,15 +39,4 @@ export function arbKnobs(): fc.Arbitrary<WorldKnobs> {
     bufferOutboundLive: fc.boolean(),
     clientCount: fc.integer({ min: 2, max: 3 }),
   });
-}
-
-export function knobValuesFromCatalog(
-  knob: <T extends boolean | number>(def: KnobDef<T>) => T
-): WorldKnobs {
-  return {
-    rowImageFanout: knob(ROW_IMAGE_FANOUT),
-    liveResendOnReconnect: knob(LIVE_RESEND_ON_RECONNECT),
-    bufferOutboundLive: knob(BUFFER_OUTBOUND_LIVE),
-    clientCount: knob(CLIENT_COUNT),
-  };
 }

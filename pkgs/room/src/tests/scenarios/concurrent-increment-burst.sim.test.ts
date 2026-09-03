@@ -1,34 +1,30 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/dst';
-import { counterSystem } from '../apps/counter/system';
+import { clientHash, converge, dispatch, serverHash } from '../../sim/scenario';
 import { counterValue, Increment } from '../fixtures/counter-module';
+import { bootCounter } from '../scenario/boot-counter';
+import { readClient, readServer } from '../scenario/read-state';
 
 describe('room sim: concurrent increment burst (E-B01)', () => {
   test('three clients burst N each → count and hashes match', async () => {
-    await using host = await openWorld(counterSystem, {
-      seed: process.env['SIM_SEED'] ?? '42',
-      knobs: { clientCount: 0, mildFaults: true },
+    await using run = await bootCounter(['alice', 'bob', 'carol'], {
+      mildFaults: true,
     });
-    const world = host;
-    const clients = [
-      await world.addClient({ id: 'alice' }),
-      await world.addClient({ id: 'bob' }),
-      await world.addClient({ id: 'carol' }),
-    ];
-    await world.assertConverged();
 
+    const ids = ['alice', 'bob', 'carol'] as const;
     const perClient = 5;
     for (let i = 0; i < perClient; i += 1) {
-      for (const c of clients) c.dispatch(Increment({}));
+      for (const id of ids) {
+        await run.apply(dispatch, { clientId: id, payload: Increment({}) });
+      }
     }
-    await world.assertConverged();
-    const expected = perClient * clients.length;
-    const server = await world.serverSnapshot();
-    expect(counterValue(server)).toBe(expected);
-    const serverHash = await world.serverHash();
-    for (const c of clients) {
-      expect(counterValue(c.snapshot())).toBe(expected);
-      expect(c.hash()).toBe(serverHash);
+    await run.apply(converge);
+    const expected = perClient * ids.length;
+    expect(counterValue(await readServer(run))).toBe(expected);
+    const h = await run.observe(serverHash);
+    const hashes = (await run.observe(clientHash)) as Record<string, string>;
+    for (const id of ids) {
+      expect(counterValue(await readClient(run, id))).toBe(expected);
+      expect(hashes[id]).toBe(h);
     }
   });
 });

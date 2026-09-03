@@ -1,56 +1,62 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/dst';
+import {
+  addClient,
+  clock,
+  converge,
+  injectToServer,
+  logSeq,
+  startRoom,
+} from '../../sim/scenario';
 import { ROOM_ERROR_TYPE } from '../../types';
 import { counterSystem } from '../apps/counter/system';
 import { counterValue } from '../fixtures/counter-module';
+import {
+  readClient,
+  readClientHash,
+  readRejection,
+  readServer,
+} from '../scenario/read-state';
 
 describe('room sim: malformed frame reject (E-D02)', () => {
   test('non-Message command payload rejects without mutate', async () => {
-    await using host = await openWorld(counterSystem, {
-      seed: process.env['SIM_SEED'] ?? '42',
-      knobs: { clientCount: 0 },
-    });
-    const world = host;
-    const a = await world.addClient({ id: 'alice' });
-    await world.assertConverged();
-    const before = a.hash();
+    await using run = await startRoom(counterSystem);
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(converge);
+    const before = await readClientHash(run, 'alice');
 
-    a.injectToServer(
-      {
+    await run.apply(injectToServer, {
+      clientId: 'alice',
+      raw: {
         v: 1,
         kind: 'command',
         id: 'bad-1',
-        ts: world.clock.now(),
+        ts: await run.observe(clock),
         payload: { not: 'a-message' },
       },
-      { direct: true }
-    );
-    await world.drain();
+      direct: true,
+    });
 
-    const err = a.lastRejection();
+    const err = await readRejection(run, 'alice');
     expect(err).not.toBeNull();
-    expect(err && 'type' in err ? err.type : null).toBe(
-      ROOM_ERROR_TYPE.invalidCommand
-    );
-    expect(await world.storage.getLastSeq(world.topic)).toBe(0);
-    expect(counterValue(await world.serverSnapshot())).toBe(0);
-    expect(counterValue(a.snapshot())).toBe(0);
-    expect(a.hash()).toBe(before);
+    expect(err?.type).toBe(ROOM_ERROR_TYPE.invalidCommand);
+    expect(await run.observe(logSeq)).toBe(0);
+    expect(counterValue(await readServer(run))).toBe(0);
+    expect(counterValue(await readClient(run, 'alice'))).toBe(0);
+    expect(await readClientHash(run, 'alice')).toBe(before);
   });
 
   test('unknown wire kind is ignored without mutate', async () => {
-    await using host = await openWorld(counterSystem, {
-      seed: process.env['SIM_SEED'] ?? '43',
-      knobs: { clientCount: 0 },
+    await using run = await startRoom(counterSystem, { seed: '43' });
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(converge);
+    const before = await readClientHash(run, 'alice');
+    await run.apply(injectToServer, {
+      clientId: 'alice',
+      raw: { v: 1, kind: 'nope' },
+      direct: true,
     });
-    const world = host;
-    const a = await world.addClient({ id: 'alice' });
-    await world.assertConverged();
-    const before = a.hash();
-    a.injectToServer({ v: 1, kind: 'nope' }, { direct: true });
-    await world.drain();
-    expect(await world.storage.getLastSeq(world.topic)).toBe(0);
-    expect(counterValue(await world.serverSnapshot())).toBe(0);
-    expect(a.hash()).toBe(before);
+    expect(await run.observe(logSeq)).toBe(0);
+    expect(counterValue(await readServer(run))).toBe(0);
+    expect(await readClientHash(run, 'alice')).toBe(before);
   });
 });

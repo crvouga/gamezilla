@@ -1,4 +1,4 @@
-import type { Scheduler } from '@pkgs/dst';
+import type { VirtualScheduler } from '@pkgs/dst/kernel';
 import type {
   MutationUploadResult,
   MutationUploadRow,
@@ -108,7 +108,7 @@ export function createSimHttpClient(args: {
   readonly clientId: EndpointId;
   readonly serverId: EndpointId;
   readonly createId: () => string;
-  readonly scheduler: Scheduler;
+  readonly scheduler: VirtualScheduler;
   readonly rpcTimeoutMs?: number;
   /** Fired when a sync response is delivered to this client (before resolve). */
   readonly onSyncResponseDelivered?: () => void | Promise<void>;

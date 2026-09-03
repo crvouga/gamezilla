@@ -1,6 +1,5 @@
 import { describe, test } from 'bun:test';
-import { runProperty } from '@pkgs/dst/pbt';
-import { fc } from '@pkgs/pbt';
+import { assertProperty, fc } from '@pkgs/pbt';
 import { replaySyncPin, SCHEMA_VARIANTS } from '../../sim/scenario';
 import { arbKnobs, arbSeed } from '../../sim/scenario/knobs';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
@@ -18,7 +17,7 @@ describe('schema drift PBT', () => {
   test(
     'restartWithSchema then mutate converges among healthy clients',
     async () => {
-      await runProperty(
+      await assertProperty(
         'schema drift sequences converge',
         fc.asyncProperty(
           arbSeed(),
@@ -45,7 +44,7 @@ describe('schema drift PBT', () => {
   test(
     'mixed-schema clients both mutate then converge',
     async () => {
-      await runProperty(
+      await assertProperty(
         'mixed schema drift sequences converge',
         fc.asyncProperty(
           arbSeed(),
@@ -117,7 +116,7 @@ describe('schema drift PBT', () => {
   test(
     'protocolCut rejects without wiping then heal converges',
     async () => {
-      await runProperty(
+      await assertProperty(
         'protocol cut sequences converge',
         fc.asyncProperty(arbSeed(), arbKnobs(), async (seed, knobs) => {
           await replaySyncPin(acmeSystem, {

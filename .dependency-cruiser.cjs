@@ -141,7 +141,7 @@ module.exports = {
       name: 'product-no-sim-deps',
       severity: 'error',
       comment:
-        'WorldPorts / @pkgs/dst is harness-only. Product apps and non-test product libs must receive unpacked clock/timers/createId/random/http. DST package tests and @sim/* may import @pkgs/dst.',
+        'Session / @pkgs/dst is harness-only. Product apps and non-test product libs must receive unpacked clock/timers/createId/random/http. DST package tests and @sim/* may import @pkgs/dst.',
       from: {
         path: '^(apps/|libs/)',
         pathNot:
@@ -149,6 +149,32 @@ module.exports = {
       },
       to: {
         path: '^pkgs/dst/',
+      },
+    },
+    {
+      name: 'dst-kernel-harness-only',
+      severity: 'error',
+      comment:
+        'Only pkgs/dst/**, sim/**, and **/sim/** may import @pkgs/dst/kernel.',
+      from: {
+        pathNot: '^pkgs/dst/|(^|/)sim/|(^|/)sim\\.|(^|/)(/sim/)',
+      },
+      to: {
+        path: '^pkgs/dst/src/kernel/',
+        pathNot: '\\.(test|spec)\\.',
+      },
+    },
+    {
+      name: 'dst-core-no-pbt-library',
+      severity: 'error',
+      comment:
+        '@pkgs/dst core (except fast-check adapter and tests) must not import fast-check or @pkgs/pbt.',
+      from: {
+        path: '^pkgs/dst/src/',
+        pathNot: '^pkgs/dst/src/fast-check/|\\.(test|spec)\\.|/test/',
+      },
+      to: {
+        path: 'node_modules/(fast-check|@pkgs/pbt)/|^pkgs/pbt/',
       },
     },
   ],

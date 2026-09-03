@@ -1,8 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import { createWorldPorts } from '../harness/world-ports';
 import { createVirtualClock } from './clock';
+import { createRngInternal } from './rng';
 import { createScheduler } from './scheduler';
+import { createVirtualScheduler } from './scheduler-api';
 import { createTimers } from './timers';
+import { createTraceRecorder } from './trace';
 
 describe('Scheduler contract', () => {
   test('same-at tasks fire in insertion order without choiceRng', async () => {
@@ -67,19 +69,25 @@ describe('Scheduler contract', () => {
 
   test('seeded same-at choice is deterministic per seed', async () => {
     const run = async (seed: number) => {
-      const ports = createWorldPorts({ seed });
+      const clock = createVirtualClock(0);
+      const rng = createRngInternal(seed);
+      const trace = createTraceRecorder();
+      const ports = createVirtualScheduler({
+        clock,
+        choiceRng: rng._seeded.fork('sched'),
+        trace,
+      });
       const order: number[] = [];
       for (let i = 0; i < 5; i += 1) {
         const n = i;
-        ports.scheduler.scheduleAt(0, () => {
+        ports.underlying.scheduleAt(0, () => {
           order.push(n);
         });
       }
-      await ports.scheduler.runFor(0);
+      await ports.underlying.runFor(0);
       return order;
     };
     expect(await run(7)).toEqual(await run(7));
-    // Different seeds may diverge; same seed must match.
     const a = await run(11);
     const b = await run(11);
     expect(a).toEqual(b);
@@ -181,23 +189,22 @@ describe('Scheduler contract', () => {
   });
 });
 
-describe('createWorldPorts choice-scope isolation', () => {
-  test('extra createId does not change network rng draws', () => {
-    const a = createWorldPorts({ seed: 42 });
-    const b = createWorldPorts({ seed: 42 });
-    const netA = a.rng.fork('net');
-    const netB = b.rng.fork('net');
-    a.createId();
-    a.createId();
-    expect(netA.random()).toBe(netB.random());
-    expect(netA.int(100)).toBe(netB.int(100));
+describe('rng fork isolation', () => {
+  test('extra createId-scope fork does not change network draws', () => {
+    const a = createRngInternal(42);
+    const b = createRngInternal(42);
+    const netA = a.fork('net');
+    const netB = b.fork('net');
+    a.fork('id').next();
+    a.fork('id').next();
+    expect(netA.next()).toBe(netB.next());
   });
 
-  test('extra network draws do not change createId', () => {
-    const a = createWorldPorts({ seed: 99 });
-    const b = createWorldPorts({ seed: 99 });
-    a.rng.fork('net').random();
-    a.rng.fork('net').int(50);
-    expect(a.createId()).toBe(b.createId());
+  test('extra network draws do not change id fork', () => {
+    const a = createRngInternal(99);
+    const b = createRngInternal(99);
+    a.fork('net').next();
+    a.fork('net').next();
+    expect(a.fork('id').next()).toBe(b.fork('id').next());
   });
 });

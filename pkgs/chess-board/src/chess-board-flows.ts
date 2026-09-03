@@ -1,4 +1,3 @@
-import { wallClock } from '@pkgs/clock';
 import type { Driver } from '@pkgs/ui-testing';
 
 import {
@@ -11,6 +10,7 @@ import { squareCenter } from './chess-board-squares';
 import type { BoardOrientation, PieceCode, Square } from './chess-board-types';
 
 const WAIT_MS = 10_000;
+const POLL_MS = 100;
 const PIECE_XY_EPS = 1.5;
 
 /**
@@ -97,11 +97,13 @@ export class ChessBoardFlows {
     opts?: { readonly timeoutMs?: number }
   ): Promise<ChessBoardProbe> {
     const timeoutMs = opts?.timeoutMs ?? WAIT_MS;
-    const deadline = wallClock.now() + timeoutMs;
+    const maxAttempts = Math.max(1, Math.ceil(timeoutMs / POLL_MS));
     let lastError: unknown;
-    while (wallClock.now() < deadline) {
+    for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
       try {
-        await this.ui.get(this.probeTestId).expect.visible({ timeoutMs: 100 });
+        await this.ui
+          .get(this.probeTestId)
+          .expect.visible({ timeoutMs: POLL_MS });
         const probe = await this.readProbe();
         if (predicate(probe)) return probe;
         lastError = new Error(

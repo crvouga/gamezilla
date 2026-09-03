@@ -1,38 +1,42 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/dst';
-import { counterSystem } from '../apps/counter/system';
+import {
+  asymmetricLink,
+  converge,
+  dispatch,
+  passTime,
+  release,
+} from '../../sim/scenario';
 import { counterValue, Increment } from '../fixtures/counter-module';
+import { bootCounter } from '../scenario/boot-counter';
+import {
+  expectHashMatch,
+  readClient,
+  readServer,
+} from '../scenario/read-state';
 
 describe('room sim: asymmetric link (P2)', () => {
   test('toClient hold blocks fanout while toServer still works', async () => {
-    await using host = await openWorld(counterSystem, {
-      seed: process.env['SIM_SEED'] ?? '42',
-      knobs: { clientCount: 0 },
+    await using run = await bootCounter(['alice', 'bob']);
+
+    await run.apply(asymmetricLink, 'bob');
+    await run.apply(dispatch, {
+      clientId: 'bob',
+      payload: Increment({}),
     });
-    const world = host;
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
-    await world.assertConverged();
+    await run.apply(passTime, 0);
+    expect(counterValue(await readClient(run, 'alice'))).toBe(1);
+    await run.apply(dispatch, {
+      clientId: 'alice',
+      payload: Increment({}),
+    });
+    await run.apply(passTime, 120);
+    expect(counterValue(await readClient(run, 'bob'))).not.toBe(2);
+    await run.apply(release, 'bob');
 
-    {
-      using _dir = world.net('bob').set({ toClient: 'hold', toServer: 'ok' });
-      // Bob can still send to server.
-      b.dispatch(Increment({}));
-      await world.drain();
-      expect(counterValue(a.snapshot())).toBe(1);
-      // Alice's commits do not reach bob while toClient held.
-      a.dispatch(Increment({}));
-      await world.drain();
-      await world.waitNever(() => counterValue(b.snapshot()) === 2, {
-        forMs: 120,
-      });
-    }
-
-    await world.assertConverged();
-    const server = await world.serverSnapshot();
-    expect(counterValue(server)).toBe(2);
-    expect(counterValue(a.snapshot())).toBe(2);
-    expect(counterValue(b.snapshot())).toBe(2);
-    expect(a.hash()).toBe(await world.serverHash());
+    await run.apply(converge);
+    expect(counterValue(await readServer(run))).toBe(2);
+    expect(counterValue(await readClient(run, 'alice'))).toBe(2);
+    expect(counterValue(await readClient(run, 'bob'))).toBe(2);
+    await expectHashMatch(run, 'alice');
   });
 });

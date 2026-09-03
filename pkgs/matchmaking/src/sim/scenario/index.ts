@@ -1,18 +1,25 @@
 /**
- * Matchmaking system kernel. Worlds are framework-owned:
- * {@link defineMatchmakingSystem} + `check` / `replay` / {@link openMatchmakingWorld}.
+ * Matchmaking system kernel. Worlds are framework-owned via
+ * {@link defineMatchmakingSystem} + `start` / `check` / `replay`.
  */
 
 export {
   type DefineMatchmakingSystemOpts,
   defineMatchmakingSystem,
+  MATCHMAKING_ACTIONS,
+  MATCHMAKING_PROPERTIES,
   MATCHMAKING_SYSTEM,
+  type MatchmakingSurface,
   type MatchmakingSystemDef,
   type MatchmakingSystemWorld,
-  type OpenMatchmakingWorldArgs,
+  matchmaking,
   openMatchmakingWorld,
+  passTime,
+  type StartMatchmakingArgs,
+  startMatchmaking,
+  tickAll,
 } from './define-matchmaking-system';
-export { MM_BACKEND, mmReplicaNode, mmStoreNode } from './node-kinds';
+export { startReplica, startStore } from './node-kinds';
 export {
   createMatchmakingSystemConfig,
   type MatchmakingSystemConfig,

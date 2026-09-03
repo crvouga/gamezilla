@@ -116,6 +116,14 @@ function buildNetworkApi(state: NetworkState): Network {
     inFlight() {
       return state.inFlight;
     },
+    partitions() {
+      const out: (readonly [string, string])[] = [];
+      for (const key of [...state.partitioned].sort()) {
+        const [a, b] = key.split('\0');
+        if (a !== undefined && b !== undefined) out.push([a, b]);
+      }
+      return out;
+    },
   };
 }
 

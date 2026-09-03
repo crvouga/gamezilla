@@ -2,8 +2,7 @@
  * Harness-only DST surface for multi-tab web SQL. Tests and sim consoles only —
  * product code must never import this (it would pull `@pkgs/dst` in).
  */
-export { SQL_CLIENT_WEB_ACTIONS } from './actions';
-export { sqlWebStoreNode, sqlWebTabNode } from './nodes';
+export { startStore, startTab } from './nodes';
 export {
   connectTab,
   disconnectTab,
@@ -12,10 +11,12 @@ export {
   ownerTabId,
 } from './ownership';
 export {
-  defineSqlClientWebSystem,
+  SQL_CLIENT_WEB_ACTIONS,
+  SQL_CLIENT_WEB_PROPERTIES,
   SQL_CLIENT_WEB_SYSTEM,
   type SqlClientWebSystemDef,
   type SqlClientWebWorld,
+  sqlClientWeb,
 } from './system';
 export { migrateToyKv, readToyRows, VERSION_STRIDE } from './toy-kv';
 export {
@@ -23,4 +24,5 @@ export {
   SIM_DB_NAME,
   type SqlClientWebBackend,
   type SqlClientWebState,
+  type SqlClientWebSurface,
 } from './types';

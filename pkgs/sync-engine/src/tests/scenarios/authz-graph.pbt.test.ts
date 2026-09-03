@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { runProperty } from '@pkgs/dst/pbt';
-import { fc } from '@pkgs/pbt';
+import { assertProperty, fc } from '@pkgs/pbt';
 import { arbKnobs, arbSeed } from '../../sim/scenario/knobs';
 import { expectLiveNote, readLiveNotes } from '../apps/acme/assert';
 import { deleteNote, setNote } from '../apps/acme/shared/mutations';
@@ -10,7 +9,7 @@ describe('authz graph PBT', () => {
   test(
     'non-owner delete cannot remove owner note from live set',
     async () => {
-      await runProperty(
+      await assertProperty(
         'non-owner delete rejected',
         fc.asyncProperty(
           arbSeed(),
@@ -56,7 +55,7 @@ describe('authz graph PBT', () => {
   test(
     'authorized mutates from multiple clients converge to one live row set',
     async () => {
-      await runProperty(
+      await assertProperty(
         'multi-client authorized converge',
         fc.asyncProperty(
           arbSeed(),

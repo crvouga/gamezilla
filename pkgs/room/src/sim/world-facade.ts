@@ -46,7 +46,7 @@ export function assembleWorld<
   const drainCtx = () => opts.drainCtx();
   const waitWorld = () => ({
     seed: k.seed,
-    ports: { scheduler: k.scheduler } as never,
+    ports: { scheduler: k.scheduler },
     advance: async (ms: number) => {
       await k.scheduler.runFor(ms);
       await drainRoomSim(drainCtx());
@@ -84,12 +84,17 @@ export function assembleWorld<
     addClient: opts.addClient,
     net: (clientId: string): SimRoomNetHandle => ({
       set: (next: RoomNetSetArg) => k.network.set(clientId, next),
+      state: () => k.network.linkState(clientId),
     }),
     node: (clientId: string) => buildNodeHandle(k, clientId),
     runFor,
     until: (target, optsUntil?: WaitUntilOptions) =>
       waitUntil(waitWorld(), withAuxFlush(target), optsUntil),
     never: (target, optsNever: NeverOptions) =>
+      waitNever(waitWorld(), withAuxFlush(target), optsNever),
+    waitUntil: (target, optsUntil?: WaitUntilOptions) =>
+      waitUntil(waitWorld(), withAuxFlush(target), optsUntil),
+    waitNever: (target, optsNever: NeverOptions) =>
       waitNever(waitWorld(), withAuxFlush(target), optsNever),
     drain: async () => {
       await drainRoomSim(drainCtx());

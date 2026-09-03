@@ -1,17 +1,29 @@
-import { describe, test } from 'bun:test';
-import type { AnyScenarioDef } from '@pkgs/dst';
+import { describe, expect, test } from 'bun:test';
 import { check } from '@pkgs/dst/pbt';
 
-import { replayRoom, replayRoomPin } from '../../sim/scenario';
+import {
+  invariantViolations,
+  ROOM_PROPERTIES,
+  replayRoom,
+  replayRoomPin,
+  roomActions,
+} from '../../sim/scenario';
+import { counterApp } from '../apps/counter/app';
 import { counterSystem } from '../apps/counter/system';
 
 describe('room world PBT', () => {
   test(
-    'fc.commands sequences replay on World and converge',
+    'check explores room actions under ROOM_PROPERTIES',
     async () => {
-      await check(counterSystem as unknown as AnyScenarioDef, {
-        episodeLength: 14,
+      const report = await check(counterSystem, {
+        properties: ROOM_PROPERTIES,
+        actions: roomActions(counterApp),
+        episodes: 4,
+        steps: 10,
+        seed: 1,
+        stopOnViolation: true,
       });
+      expect(report.ok).toBe(true);
     },
     { timeout: 180_000 }
   );
@@ -71,7 +83,6 @@ describe('room world PBT', () => {
           command: 'decrement',
           args: {},
         },
-        // c1 may already be crashed from the arm — restart before more work.
         { kind: 'restart', clientId: 'c1' },
         {
           kind: 'domain',
@@ -89,7 +100,7 @@ describe('room world PBT', () => {
   });
 
   test('ghost durable queue: dispatch then settle leaves queues empty (pin)', async () => {
-    const world = await replayRoom(counterSystem, {
+    await using world = await replayRoom(counterSystem, {
       seed: 4242,
       actions: [
         {
@@ -107,10 +118,6 @@ describe('room world PBT', () => {
         { kind: 'idle', ms: 40 },
       ],
     });
-    try {
-      await world.checkInvariants();
-    } finally {
-      await world.dispose();
-    }
+    expect(await world.observe(invariantViolations)).toEqual([]);
   });
 });

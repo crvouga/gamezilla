@@ -4,7 +4,9 @@
   "private": true,
   "exports": {
     ".": "./src/index.ts",
-    "./pbt": "./src/pbt/index.ts"
+    "./pbt": "./src/pbt/index.ts",
+    "./kernel": "./src/kernel/index.ts",
+    "./fast-check": "./src/fast-check/index.ts"
   },
   "scripts": {
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
@@ -14,13 +16,21 @@
     "@pkgs/clock": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/invariants": "workspace:*",
-    "@pkgs/pbt": "workspace:*",
-    "@pkgs/uuid": "workspace:*",
-    "fast-check": "catalog:"
+    "@pkgs/uuid": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "happy-dom": "catalog:",
     "typescript": "catalog:"
+  },
+  "peerDependencies": {
+    "fast-check": "catalog:"
+  },
+  "peerDependenciesMeta": {
+    "fast-check": {
+      "optional": true
+    }
   }
 }

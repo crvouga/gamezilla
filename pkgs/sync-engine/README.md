@@ -371,7 +371,7 @@ is the safety net so peers do not stay forever-stale.
 | `createSyncApp({ rowImageFanout })` | **false** | Opt-in |
 | Client `push.rowImageFanout` | **false** | Opt-in |
 | Product Gamezilla (`apps/*`) | **true** | Both API + client set true |
-| `openWorld` | **true** | `!== false` |
+| `openSyncWorld | **true** | `!== false` |
 
 When off, pushes are wake+refetch only (still correct). When on, contiguous
 `pushSeq` + `rows` may apply via `applyRowImages` without updating
@@ -803,14 +803,14 @@ bun run lint
 | Suite | Path | Role |
 |-------|------|------|
 | Scenarios | `src/tests/scenarios/*.sim.test.ts` | Black-box multi-client pins via `openAcmeWorld` (kit merged via `extend`) |
-| Property / system | `src/tests/scenarios/*.scenario.pbt.test.ts` / `*.pbt.test.ts` | Shrinking `runScenario` / `replaySyncPin` over `acmeSystem` |
+| Property / system | `src/tests/scenarios/*.scenario.pbt.test.ts` / `*.pbt.test.ts` | Shrinking `check` / `replaySyncPin` over `acmeSystem` |
 | Unit PBT | `src/tests/unit/*.pbt.test.ts` | Pure helpers (checkpoints, topic map, …) |
 | Kernel harness | `src/tests/harness/*.test.ts` | RNG / scheduler / timers; membership topic sync |
 | Public unit helper | `@pkgs/sync-engine/test` | `createInMemorySyncEngine` (no full world) |
 
 **Two layers:** named scenarios document specific safety claims (`never`, authz,
 protocol cut, flicker). `*.pbt.test.ts` files explore the fault state space with
-`runScenario(acmeSystem)` from `@pkgs/dst/pbt` (system declared via `defineSyncSystem` —
+`check(acmeSystem)` from `@pkgs/dst/pbt` (system declared via `defineSyncSystem` —
 see `src/sim/scenario/define-sync-system.ts` and `pkgs/dst/CONTEXT.md`).
 When a property fails, capture `seed` / `path` / `replayPath`, pin `examples`,
 add a named scenario, and log in repo-root `PBT_FINDINGS.md`.
@@ -847,7 +847,7 @@ TigerBeetle-style deterministic simulation in `src/sim/` (not a public export). 
 identical timeline.** Worlds are **owned by `@pkgs/dst`**:
 `defineSyncSystem(acmeApp)` (exported as `acmeSystem`) declares the
 broker/server/client topology, knobs, action pool, and model, and tests drive it
-with `runScenario(acmeSystem)` / `replaySyncPin(acmeSystem, …)` / `openAcmeWorld(…)`; fuzz calls `runSeed({ app: acmeApp })`. Assert **live domain rows
+with `check(acmeSystem)` / `replaySyncPin(acmeSystem, …)` / `openAcmeWorld(…)`; fuzz calls `runSeed({ app: acmeApp })`. Assert **live domain rows
 only** — never framework tables or private modules.
 
 ```text
@@ -933,14 +933,19 @@ describe('example', () => {
 });
 ```
 
-PBT / system pins (`defineSyncSystem` → `runScenario` / `replaySyncPin`):
+PBT / system pins (`defineSyncSystem` → `check` / `replaySyncPin`):
 
 ```ts
-import { runScenario } from '@pkgs/dst/pbt';
+import { check } from '@pkgs/dst/pbt';
 import { replaySyncPin } from '../../sim/scenario';
 import { acmeSystem } from '../apps/acme/system';
 
-await runScenario(acmeSystem, { numRuns: 12, maxCommands: 14 });
+await check(acmeSystem, {
+  properties: ACME_PROPERTIES,
+  actions: ACME_ACTIONS,
+  episodes: 12,
+  steps: 14,
+});
 
 await replaySyncPin(acmeSystem, {
   seed: 42,
@@ -1011,7 +1016,7 @@ world.node('alice').now(); // base + skew
 
 #### Knobs
 
-**World open** — framework `openWorld(acmeSystem, opts)` from `@pkgs/dst`:
+**World open** — package `openSyncWorld(acmeSystem, opts)` / algebra `start`:
 
 | Knob | Default | Meaning |
 |------|---------|---------|

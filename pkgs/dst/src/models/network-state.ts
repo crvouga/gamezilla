@@ -51,6 +51,8 @@ export type Network = {
   readonly setFaults: (partial: Partial<NetworkFaults>, key?: FlowKey) => void;
   readonly clearFaults: (key?: FlowKey) => void;
   readonly inFlight: () => number;
+  /** Current undirected partition edges as `[a, b]` pairs (sorted). */
+  readonly partitions: () => readonly (readonly [EndpointId, EndpointId])[];
 };
 
 export type HeldMessage = {

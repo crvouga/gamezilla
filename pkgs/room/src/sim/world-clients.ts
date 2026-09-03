@@ -1,5 +1,5 @@
 import type { Clock, Timers } from '@pkgs/clock';
-import type { Scheduler } from '@pkgs/dst';
+import type { VirtualScheduler } from '@pkgs/dst/kernel';
 import type { CreateId, SeededRng } from '@pkgs/uuid';
 
 import { InMemoryClientStorage } from '../client/adapters/storage/memory';
@@ -36,7 +36,7 @@ export type WorldKernel<
   readonly topic: string;
   readonly module: RoomModule<S, C, E, string>;
   readonly clock: Clock;
-  readonly scheduler: Scheduler;
+  readonly scheduler: VirtualScheduler;
   readonly timers: Timers;
   readonly createId: CreateId;
   readonly rng: SeededRng;

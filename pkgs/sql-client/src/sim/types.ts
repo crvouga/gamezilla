@@ -1,3 +1,4 @@
+import type { Session } from '@pkgs/dst';
 import type { BrokerCore } from '../sqlite/web/broker-core';
 import type { OwnerRuntime } from '../sqlite/web/owner-runtime';
 import type { SimOpfsStore } from '../sqlite/web/owners/sim-opfs-sql-owner';
@@ -32,6 +33,12 @@ export type SqlClientWebState = {
   readonly mismatches: string[];
 };
 
+export type SqlClientWebSurface = {
+  readonly session: Session;
+  readonly board: SqlClientWebState;
+  readonly tabIds: readonly string[];
+};
+
 export function createSqlClientWebState(): SqlClientWebState {
   return {
     backend: 'web-sim-opfs',
@@ -47,14 +54,8 @@ export function createSqlClientWebState(): SqlClientWebState {
   };
 }
 
-export function boardOf(
-  world: import('@pkgs/dst').World<
-    Record<string, import('@pkgs/dst').KnobDef>,
-    Record<string, import('@pkgs/dst').NodeEntry>,
-    unknown
-  >
-): SqlClientWebState {
-  return (world.nodes['store'] as { board: SqlClientWebState }).board;
+export function boardOf(surface: SqlClientWebSurface): SqlClientWebState {
+  return surface.board;
 }
 
 export function requireStore(state: SqlClientWebState): SimOpfsStore {

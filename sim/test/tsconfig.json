@@ -114,6 +114,8 @@
       "@pkgs/dst/*": ["../../pkgs/dst/src/*"],
       "@pkgs/http-client": ["../../pkgs/http-client/src/index.ts"],
       "@pkgs/http-client/*": ["../../pkgs/http-client/src/*"],
+      "@pkgs/ui-testing": ["../../pkgs/ui-testing/src/index.ts"],
+      "@pkgs/ui-testing/*": ["../../pkgs/ui-testing/src/*"],
       "@pkgs/sim-console": ["../../pkgs/sim-console/src/index.ts"],
       "@pkgs/sim-console/*": ["../../pkgs/sim-console/src/*"]
     }

@@ -20,7 +20,7 @@ function ensureAfterEach(): void {
   if (installed) return;
   installed = true;
   try {
-    // bun:test only — ignore when openWorld is used outside the runner.
+    // bun:test only — ignore when worlds are opened outside the runner.
     const { afterEach } = require('bun:test') as {
       afterEach: (fn: () => unknown) => void;
     };

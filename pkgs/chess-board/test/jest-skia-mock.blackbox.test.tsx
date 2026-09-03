@@ -5,17 +5,10 @@
 
 import { describe, expect, it } from '@jest/globals';
 import { serializeHostTreeHtml } from '@pkgs/ui-testing';
-import { createElement } from 'react';
-import { render } from '@testing-library/react-native';
-
 // Mapped by jest.config moduleNameMapper → jest-skia-mock.cjs
-import {
-  Canvas,
-  Group,
-  Image,
-  Rect,
-  Skia,
-} from '@shopify/react-native-skia';
+import { Canvas, Group, Image, Rect, Skia } from '@shopify/react-native-skia';
+import { render } from '@testing-library/react-native';
+import { createElement } from 'react';
 
 describe('jest-skia-mock report serialization', () => {
   it('paints checkerboard Rect colors into HTML', () => {

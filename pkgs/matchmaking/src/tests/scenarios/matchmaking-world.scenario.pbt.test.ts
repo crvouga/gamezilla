@@ -1,7 +1,11 @@
-import { afterAll, beforeAll, describe, test } from 'bun:test';
+import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { check } from '@pkgs/dst/pbt';
 
-import { MATCHMAKING_SYSTEM } from '../../sim/scenario';
+import {
+  MATCHMAKING_ACTIONS,
+  MATCHMAKING_PROPERTIES,
+  MATCHMAKING_SYSTEM,
+} from '../../sim/scenario';
 import { registerTestCrashHandler } from '../fixtures';
 
 describe('matchmaking world system PBT', () => {
@@ -16,10 +20,15 @@ describe('matchmaking world system PBT', () => {
   test(
     'check explores knobs + tick/advance library',
     async () => {
-      await check(
-        MATCHMAKING_SYSTEM as unknown as Parameters<typeof check>[0],
-        { episodeLength: 6, episodes: 2 }
-      );
+      const report = await check(MATCHMAKING_SYSTEM, {
+        properties: MATCHMAKING_PROPERTIES,
+        actions: MATCHMAKING_ACTIONS,
+        episodes: 2,
+        steps: 6,
+        seed: 1,
+        stopOnViolation: true,
+      });
+      expect(report.ok).toBe(true);
     },
     { timeout: 120_000 }
   );

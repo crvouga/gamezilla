@@ -1,84 +1,109 @@
 import { describe, expect, test } from 'bun:test';
-
-import { openWorld } from '@pkgs/dst';
+import {
+  addClient,
+  armCrashAt,
+  converge,
+  crash,
+  disconnect,
+  dispatch,
+  passTime,
+  restart,
+  serverCrash,
+  serverCrashed,
+  serverRestart,
+  startRoom,
+} from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
 import { counterValue, Increment } from '../fixtures/counter-module';
+import {
+  expectHashMatch,
+  readClient,
+  readServer,
+} from '../scenario/read-state';
 
 describe('room sim: client/server crash restart', () => {
   test('client crash keeps local queue; restart + settle converges', async () => {
-    await using host = await openWorld(counterSystem, {
+    await using run = await startRoom(counterSystem, {
       seed: 'crash-client-1',
-      knobs: { clientCount: 0 },
     });
-    const world = host;
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
-    await world.assertConverged();
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
+    await run.apply(converge);
 
-    await a.disconnect();
-    a.dispatch(Increment({}));
-    await world.node('alice').crash();
-    expect(a.isCrashed()).toBe(true);
+    await run.apply(disconnect, 'alice');
+    await run.apply(dispatch, {
+      clientId: 'alice',
+      payload: Increment({}),
+    });
+    await run.apply(crash, 'alice');
 
-    b.dispatch(Increment({}));
-    await world.drain();
+    await run.apply(dispatch, {
+      clientId: 'bob',
+      payload: Increment({}),
+    });
+    await run.apply(passTime, 0);
 
-    await world.node('alice').restart();
-    await world.assertConverged();
-    const server = await world.serverSnapshot();
-    expect(counterValue(server)).toBe(2);
-    expect(counterValue(a.snapshot())).toBe(2);
-    expect(a.hash()).toBe(await world.serverHash());
+    await run.apply(restart, 'alice');
+    await run.apply(converge);
+    expect(counterValue(await readServer(run))).toBe(2);
+    expect(counterValue(await readClient(run, 'alice'))).toBe(2);
+    await expectHashMatch(run, 'alice');
   });
 
   test('server crash + restart hydrates log and converges', async () => {
-    await using host = await openWorld(counterSystem, {
+    await using run = await startRoom(counterSystem, {
       seed: 'crash-server-1',
-      knobs: { clientCount: 0 },
     });
-    const world = host;
-    const a = await world.addClient({ id: 'alice' });
-    await world.addClient({ id: 'bob' });
-    a.dispatch(Increment({}));
-    a.dispatch(Increment({}));
-    await world.drain();
-    expect(counterValue(await world.serverSnapshot())).toBe(2);
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
+    await run.apply(dispatch, {
+      clientId: 'alice',
+      payload: Increment({}),
+    });
+    await run.apply(dispatch, {
+      clientId: 'alice',
+      payload: Increment({}),
+    });
+    await run.apply(passTime, 0);
+    expect(counterValue(await readServer(run))).toBe(2);
 
-    await world.serverCrash();
-    expect(world.isServerCrashed()).toBe(true);
-    await world.serverRestart();
-    expect(world.isServerCrashed()).toBe(false);
-    expect(counterValue(await world.serverSnapshot())).toBe(2);
+    await run.apply(serverCrash);
+    expect(await run.observe(serverCrashed)).toBe(true);
+    await run.apply(serverRestart);
+    expect(await run.observe(serverCrashed)).toBe(false);
+    expect(counterValue(await readServer(run))).toBe(2);
 
-    await world.assertConverged();
-    expect(a.hash()).toBe(await world.serverHash());
+    await run.apply(converge);
+    await expectHashMatch(run, 'alice');
   });
 
   test('boundary afterNextCommitted crashes client; settle restores', async () => {
-    await using host = await openWorld(counterSystem, {
+    await using run = await startRoom(counterSystem, {
       seed: 'boundary-committed-1',
-      knobs: { clientCount: 0 },
     });
-    const world = host;
-    const a = await world.addClient({ id: 'alice' });
-    await world.addClient({ id: 'bob' });
-    world.armCrashAt('alice', 'afterNextCommitted');
-    a.dispatch(Increment({}));
-    await world.drain();
-    // Arm may fire asynchronously with delivery; settle heals either way.
-    await world.assertConverged();
-    expect(counterValue(await world.serverSnapshot())).toBe(1);
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
+    await run.apply(armCrashAt, {
+      clientId: 'alice',
+      event: 'afterNextCommitted',
+    });
+    await run.apply(dispatch, {
+      clientId: 'alice',
+      payload: Increment({}),
+    });
+    await run.apply(passTime, 0);
+    await run.apply(converge);
+    expect(counterValue(await readServer(run))).toBe(1);
   });
 
   test('checkInvariants passes on healthy world', async () => {
-    await using host = await openWorld(counterSystem, {
-      seed: 'inv-1',
-      knobs: { clientCount: 0 },
+    await using run = await startRoom(counterSystem, { seed: 'inv-1' });
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(dispatch, {
+      clientId: 'alice',
+      payload: Increment({}),
     });
-    const world = host;
-    const a = await world.addClient({ id: 'alice' });
-    a.dispatch(Increment({}));
-    await world.drain();
-    await world.checkInvariants();
+    await run.apply(passTime, 0);
+    await run.apply(converge);
   });
 });

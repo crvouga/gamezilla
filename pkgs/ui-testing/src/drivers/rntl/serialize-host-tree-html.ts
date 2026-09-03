@@ -352,6 +352,61 @@ function pushStringAttr(parts: string[], name: string, value: unknown): void {
   }
 }
 
+function resolveCapturedOrStyleCss(
+  style: unknown,
+  capturedCss: string | undefined,
+  ctx: SerializeCtx
+): string {
+  if (capturedCss !== undefined && capturedCss.length > 0) {
+    const rewritten = rewritePlatformFontsInCss(capturedCss, ctx);
+    collectFontsFromCss(rewritten, ctx);
+    return rewritten;
+  }
+  return styleToCss(style, ctx);
+}
+
+function repairBrokenTransformCss(
+  styleCss: string,
+  style: unknown,
+  ctx: SerializeCtx
+): string {
+  if (!styleCss.includes('[object Object]')) return styleCss;
+  let next = stripBrokenTransform(styleCss);
+  const fromStyle = styleToCss(style, ctx);
+  if (fromStyle.length > 0) {
+    next = next ? `${next};${fromStyle}` : fromStyle;
+  }
+  return next;
+}
+
+function mergeScrollContentCss(
+  typeName: string,
+  styleCss: string,
+  contentContainerStyle: unknown,
+  ctx: SerializeCtx
+): string {
+  if (!(isScrollHost(typeName) && contentContainerStyle != null)) {
+    return styleCss;
+  }
+  const contentCss = styleToCss(contentContainerStyle, ctx);
+  if (contentCss.length === 0) return styleCss;
+  return styleCss ? `${styleCss};${contentCss}` : contentCss;
+}
+
+function withScrollOverflowCss(
+  typeName: string,
+  css: string,
+  horizontal: boolean
+): string {
+  if (!isScrollHost(typeName)) return css;
+  if (horizontal) {
+    const row =
+      'flex-direction:row;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden';
+    return css ? `${css};${row}` : row;
+  }
+  return css ? `${css};overflow:auto` : 'overflow:auto';
+}
+
 function pushStyleAttr(args: {
   readonly parts: string[];
   readonly typeName: string;
@@ -374,29 +429,17 @@ function pushStyleAttr(args: {
     ctx,
     hideScreen,
   } = args;
-  let styleCss =
-    capturedCss !== undefined && capturedCss.length > 0
-      ? rewritePlatformFontsInCss(capturedCss, ctx)
-      : styleToCss(style, ctx);
-  if (capturedCss !== undefined && capturedCss.length > 0) {
-    collectFontsFromCss(styleCss, ctx);
-  }
+  let styleCss = resolveCapturedOrStyleCss(style, capturedCss, ctx);
   // Animated transforms in dataSet.css stringify as `[object Object]`.
-  if (styleCss.includes('[object Object]')) {
-    styleCss = stripBrokenTransform(styleCss);
-    const fromStyle = styleToCss(style, ctx);
-    if (fromStyle.length > 0) {
-      styleCss = styleCss ? `${styleCss};${fromStyle}` : fromStyle;
-    }
-  }
+  styleCss = repairBrokenTransformCss(styleCss, style, ctx);
   // ScrollView puts row layout on contentContainerStyle; merge so report HTML
   // does not stack horizontal strips as a column (VIEW_DEFAULTS).
-  if (isScrollHost(typeName) && contentContainerStyle != null) {
-    const contentCss = styleToCss(contentContainerStyle, ctx);
-    if (contentCss.length > 0) {
-      styleCss = styleCss ? `${styleCss};${contentCss}` : contentCss;
-    }
-  }
+  styleCss = mergeScrollContentCss(
+    typeName,
+    styleCss,
+    contentContainerStyle,
+    ctx
+  );
   styleCss = rewriteFlexZero(styleCss);
   styleCss = ensureAbsoluteFillSizing(styleCss);
   const base = hostBaseCss(typeName, tag);
@@ -404,15 +447,7 @@ function pushStyleAttr(args: {
   if (styleCss) {
     css = css ? `${css};${styleCss}` : styleCss;
   }
-  if (isScrollHost(typeName)) {
-    if (horizontal) {
-      css = css
-        ? `${css};flex-direction:row;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden`
-        : 'flex-direction:row;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden';
-    } else {
-      css = css ? `${css};overflow:auto` : 'overflow:auto';
-    }
-  }
+  css = withScrollOverflowCss(typeName, css, horizontal);
   css = withRnScreenHiddenCss(css, hideScreen);
   if (css) {
     parts.push(` style="${escapeAttr(css)}"`);

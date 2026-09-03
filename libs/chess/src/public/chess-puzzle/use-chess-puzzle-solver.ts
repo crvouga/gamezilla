@@ -4,14 +4,12 @@ import {
 } from '@libs/spaces/public/room/use-space-room-selector';
 import type { Move } from '@pkgs/chess-board/chess-board-types';
 import { useCallback } from 'react';
-
-
+import { tokenize } from '../chess-puzzle-fsm';
 import {
   CHESS_PUZZLE_PLAY_STATUS,
   ChessPuzzlePlayAttr,
   SubmitChessPuzzleMove,
 } from '../chess-puzzle-play';
-import { tokenize } from '../chess-puzzle-fsm';
 import { uciFromMove } from './chess-puzzle-play-chess-utils';
 import type { SolveStatus } from './solve-status';
 import { usePuzzleOpponentMoveStage } from './use-puzzle-opponent-move-stage';

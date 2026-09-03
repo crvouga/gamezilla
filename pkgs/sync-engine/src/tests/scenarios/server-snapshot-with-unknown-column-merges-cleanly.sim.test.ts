@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/dst';
 import { sql } from '@pkgs/sql';
-import { defineSyncSystem } from '../../sim/scenario';
+import { defineSyncSystem, openSyncWorld } from '../../sim/scenario';
 import {
   acmeApp,
   acmeLocalSchema,
@@ -32,7 +31,7 @@ describe('server snapshot with unknown column merges cleanly', () => {
   test.each([730, 731, 732])(
     'client without color ignores server color key (seed=%i)',
     async (seed) => {
-      await using world = await openWorld(acmeColorServerSystem, {
+      await using world = await openSyncWorld(acmeColorServerSystem, {
         seed: seed,
         knobs: {
           clientCount: 0,

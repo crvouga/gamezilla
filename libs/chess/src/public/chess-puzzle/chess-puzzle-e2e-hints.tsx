@@ -4,8 +4,7 @@ import type { ReactNode } from 'react';
 import { uciToSquares } from '../chess-puzzle-fsm';
 
 const E2E_ENABLED =
-  process.env['EXPO_PUBLIC_E2E'] === '1' ||
-  process.env['NODE_ENV'] === 'test';
+  process.env['EXPO_PUBLIC_E2E'] === '1' || process.env['NODE_ENV'] === 'test';
 
 export type ChessPuzzleE2EHintsProps = {
   orientation: 'white' | 'black';
@@ -38,7 +37,9 @@ function resolveSolutionUci(props: ChessPuzzleE2EHintsProps): string | null {
  * Expose orientation + next human UCI for DST / Detox. `chess-puzzle-expected-uci`
  * is blank until the board is interactive so waits cover opponent unlock.
  */
-export function ChessPuzzleE2EHints(props: ChessPuzzleE2EHintsProps): ReactNode {
+export function ChessPuzzleE2EHints(
+  props: ChessPuzzleE2EHintsProps
+): ReactNode {
   if (!E2E_ENABLED) return null;
   const { orientation, status, solveIdx, moves, interactive } = props;
   const resolved = resolveSolutionUci(props);
@@ -51,7 +52,11 @@ export function ChessPuzzleE2EHints(props: ChessPuzzleE2EHintsProps): ReactNode 
   };
   return (
     <>
-      <Text testID="chess-puzzle-board-orientation" sx={sx} label={orientation} />
+      <Text
+        testID="chess-puzzle-board-orientation"
+        sx={sx}
+        label={orientation}
+      />
       <Text testID="chess-puzzle-expected-uci" sx={sx} label={uci ?? ''} />
       <Text
         testID="chess-puzzle-e2e-debug"

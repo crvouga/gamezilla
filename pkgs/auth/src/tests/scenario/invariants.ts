@@ -1,27 +1,17 @@
-import type { World } from '@pkgs/dst';
 import { sql } from '@pkgs/sql';
 import {
   AUTH_SET_TOKEN_HEADER,
   IDP_PROVIDER_DEV,
   IDP_PROVIDER_GOOGLE,
 } from '../../shared/auth-constants';
-import {
-  type ActorState,
-  type AuthKit,
-  type AuthStore,
-  requireStore,
-} from './types';
+import type { AuthSurface } from './types';
+import { requireStore } from './types';
 
-type AuthWorld = World<
-  Record<string, import('@pkgs/dst').KnobDef>,
-  Record<string, import('@pkgs/dst').NodeEntry>,
-  AuthKit
->;
-
-export async function assertAuthInvariants(world: AuthWorld): Promise<void> {
-  const store = requireStore(world.nodes['store'] as AuthStore);
-  const actors = world.nodes['client'] as ReadonlyMap<string, ActorState>;
-  for (const [id, actor] of actors) {
+export async function assertAuthInvariants(
+  surface: AuthSurface
+): Promise<void> {
+  const store = requireStore(surface.store);
+  for (const [id, actor] of surface.clients) {
     if (actor.bearer === null) continue;
     const verified = await store.server.verifySessionToken(actor.bearer);
     if (verified === null) continue;
@@ -34,9 +24,8 @@ export async function assertAuthInvariants(world: AuthWorld): Promise<void> {
 }
 
 /** Canonical dump of IdP state + actor bearers — the determinism fingerprint. */
-export async function worldFingerprint(world: AuthWorld): Promise<string> {
-  const store = requireStore(world.nodes['store'] as AuthStore);
-  const actors = world.nodes['client'] as ReadonlyMap<string, ActorState>;
+export async function worldFingerprint(surface: AuthSurface): Promise<string> {
+  const store = requireStore(surface.store);
   const users = await store.sql.query(
     sql<{
       id: string;
@@ -59,7 +48,7 @@ export async function worldFingerprint(world: AuthWorld): Promise<string> {
   }>`
     SELECT user_id, token_hash FROM idp_sessions ORDER BY token_hash
   `);
-  const bearers = [...actors.entries()]
+  const bearers = [...surface.clients.entries()]
     .map(([id, actor]) => `${id}:${actor.bearer ?? ''}`)
     .sort();
   return JSON.stringify({ users, accounts, sessions, bearers });

@@ -12,20 +12,20 @@ export {
 export type { DomainModelHooks, SyncApp } from './app';
 export type {
   DefineSyncSystemOpts,
-  SyncSurface,
+  OpenSyncOptions,
   SyncSystemDef,
-  SyncSystemFacade,
-  SyncSystemWorld,
-  SyncWorldExtension,
 } from './define-sync-system';
 export {
   defineSyncSystem,
+  openSyncWorld,
   playSyncActions,
-  SYNC_SYSTEM_KNOBS,
+  SYNC_STEP_MS,
+  syncSystemDraws,
+  syncVirtualHost,
 } from './define-sync-system';
 export { dispatchSyncAction } from './dispatch';
 export type { WorldKnobs } from './knobs';
-export { arbKnobs, arbSeed } from './knobs';
+export { arbKnobs, arbSeed, DEFAULT_WORLD_KNOBS } from './knobs';
 export { libraryActionArbs, MILD_NET_FAULTS } from './library-arbs';
 export {
   prepareClientsForConverge,
@@ -33,8 +33,25 @@ export {
   resetClockSkews,
 } from './play';
 export type { ReplaySyncInputs } from './replay';
-export { replaySync, replaySyncPin } from './replay';
-export type { SyncRuntime, SyncSystem } from './system';
+export { checkSync, replaySyncPin, replaySyncRepro } from './replay';
+export { createSyncActions, passTime } from './sync-actions';
+export {
+  caps,
+  clientIds,
+  clock,
+  converged,
+  invariantViolations,
+  partitioned,
+  pending,
+  quiet,
+} from './sync-observations';
+export { SYNC_PROPERTIES } from './sync-properties';
+export type {
+  SyncRuntime,
+  SyncSurface,
+  SyncSurface as SyncSystemFacade,
+  SyncSurface as SyncSystemWorld,
+} from './system';
 export type { WorldModel, WorldReal } from './world-model';
 export {
   AUTH_STATUSES,

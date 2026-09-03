@@ -1,6 +1,5 @@
 import { describe, test } from 'bun:test';
-import { runProperty } from '@pkgs/dst/pbt';
-import { fc } from '@pkgs/pbt';
+import { assertProperty, fc } from '@pkgs/pbt';
 import { HTTP_FAULTS, replaySyncPin } from '../../sim/scenario';
 import { arbKnobs, arbSeed } from '../../sim/scenario/knobs';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
@@ -51,7 +50,7 @@ describe('boundary faults PBT', () => {
   test(
     'HTTP fault arm then mutate converges',
     async () => {
-      await runProperty(
+      await assertProperty(
         'http fault sequences converge',
         fc.asyncProperty(
           arbSeed(),
@@ -78,7 +77,7 @@ describe('boundary faults PBT', () => {
   test(
     'publishFault then mutate converges',
     async () => {
-      await runProperty(
+      await assertProperty(
         'publish fault sequences converge',
         fc.asyncProperty(
           arbSeed(),
@@ -101,7 +100,7 @@ describe('boundary faults PBT', () => {
   test(
     'crash arm then mutate converges',
     async () => {
-      await runProperty(
+      await assertProperty(
         'crash arm sequences converge',
         fc.asyncProperty(
           arbSeed(),

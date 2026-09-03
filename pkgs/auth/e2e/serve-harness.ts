@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { createWorldPorts } from '@pkgs/dst';
+import { virtualHost } from '@pkgs/dst';
 import { createNoopLogger } from '@pkgs/logger';
 import { SqlClientImplSqliteMem } from '@pkgs/sql-client/sqlite/impl-sqlite-mem';
 
@@ -22,7 +22,7 @@ const authState = {
   googleFault: false,
 };
 
-const deps = createWorldPorts({ seed: 1 });
+const session = await virtualHost().open(1);
 const sql = SqlClientImplSqliteMem.open({ seed: 1 });
 await new AuthSqliteDatabaseMigration().migrate({
   sqlClient: sql,
@@ -31,8 +31,8 @@ await new AuthSqliteDatabaseMigration().migrate({
 
 const app = createAuthApp({
   getSql: () => sql,
-  clock: deps.clock,
-  createId: deps.createId,
+  clock: session.ports.clock,
+  createId: session.ports.createId,
   http: createFakeGoogleHttp(authState),
   secret: AUTH_SECRET,
   baseURL: API_ORIGIN,

@@ -1,13 +1,19 @@
-import type { NeverOptions, Scheduler, WaitUntilOptions } from '@pkgs/dst';
+import type { VirtualScheduler } from '@pkgs/dst/kernel';
 
 /** Poll target for room kit wait helpers — predicates only. */
 export type UntilPredicate = () => boolean | Promise<boolean>;
 
-export type { NeverOptions, WaitUntilOptions };
+export type WaitUntilOptions = {
+  readonly withinMs?: number;
+};
+
+export type NeverOptions = {
+  readonly forMs: number;
+};
 
 type WaitWorld = {
   readonly seed: bigint;
-  readonly ports: { readonly scheduler: Scheduler };
+  readonly ports: { readonly scheduler: VirtualScheduler };
   readonly advance: (ms: number) => Promise<void>;
   readonly now: () => number;
   readonly flushBeforePoll?: () => Promise<void>;

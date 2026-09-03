@@ -1,4 +1,5 @@
-import type { WorldPorts } from '@pkgs/dst';
+import type { Session } from '@pkgs/dst';
+import { asSeededRng } from '@pkgs/dst/kernel';
 
 import { InMemoryClientStorage } from '../client/adapters/storage/memory';
 import { createTimerScheduleStack } from '../effects/timer-schedule-stack';
@@ -8,7 +9,11 @@ import type { RoomCommandPayload, RoomEvent, RoomState } from '../types';
 
 import { createRoomBoundaryFaultController } from './boundary-faults';
 import { checkRoomInvariants } from './invariants';
-import type { SimRoomNetwork } from './network';
+import {
+  MILD_ROOM_FAULTS,
+  type SimRoomNetwork,
+  wrapRoomNetwork,
+} from './network';
 import { SerialQueue } from './serial-queue';
 import {
   assertRoomConverged,
@@ -21,6 +26,7 @@ import type {
   OpenWorldArgs,
   RoomSimAuthorize,
   RoomSimClientHandle,
+  RoomWorldDeps,
   World,
 } from './world-api';
 import {
@@ -28,7 +34,6 @@ import {
   buildClientHandle,
   crashClientSync,
   destroyClient,
-  rebindLiveConnections,
   restartClient,
   softDisconnectClient,
   softReconnectClient,
@@ -94,20 +99,28 @@ function createWorldServer<
   });
 }
 
-function resolveWorldPorts<
-  S extends RoomState,
-  C extends RoomCommandPayload,
-  E extends RoomEvent,
->(
-  args: KernelBootArgs<S, C, E>
-): { readonly deps: WorldPorts; readonly network: SimRoomNetwork } {
-  const injected = args.injected;
-  if (injected === undefined) {
-    throw new Error(
-      'bootRoomKitWorld: injected deps+network required (use openWorld / ctx.network)'
-    );
-  }
-  return injected;
+function resolveWorldPorts(
+  session: Session,
+  mildFaults: boolean
+): { readonly deps: RoomWorldDeps; readonly network: SimRoomNetwork } {
+  const node = session.fork('server');
+  const rng = asSeededRng(node.ports.rng);
+  const scheduler = session.scheduler.underlying;
+  return {
+    deps: {
+      seed: rng.seed,
+      clock: session.ports.clock,
+      scheduler,
+      timers: session.ports.timers,
+      rng,
+      createId: node.ports.createId,
+    },
+    network: wrapRoomNetwork({
+      kernel: session.network,
+      scheduler,
+      ...(mildFaults ? { faults: MILD_ROOM_FAULTS } : {}),
+    }),
+  };
 }
 
 function wireBoundaryCrash<
@@ -128,7 +141,10 @@ async function createWorldKernel<
   C extends RoomCommandPayload,
   E extends RoomEvent,
 >(args: KernelBootArgs<S, C, E>): Promise<WorldKernel<S, C, E>> {
-  const { deps, network } = resolveWorldPorts(args);
+  const { deps, network } = resolveWorldPorts(
+    args.session,
+    args.mildFaults === true
+  );
   const topic = args.topic ?? `sim:${deps.createId()}`;
   const storage = args.storage ?? new InMemoryRoomStorage();
   const serverQueue = new SerialQueue();
@@ -292,7 +308,23 @@ async function recreateWorldServer<
   await server.hydrateFromStorage();
   k.server = server;
   k.serverCrashed = false;
-  rebindLiveConnections(k);
+  for (const slot of k.slots.values()) {
+    if (slot.crashed || slot.room === null || slot.transport === null) continue;
+    if (slot.connectionId.length === 0) {
+      await softReconnectClient(k, slot);
+      continue;
+    }
+    // Already had a live connection id (rare) — re-register on the new server.
+    const transport = slot.transport;
+    k.server.registerConnection(
+      slot.connectionId,
+      (msg) => {
+        transport.enqueueFromServer(msg);
+      },
+      { id: slot.identity, clientId: slot.clientId },
+      { silent: true }
+    );
+  }
 }
 
 async function prepareWorldForSettle<
@@ -404,15 +436,10 @@ async function assertWorldConverged<
 }
 
 /**
- * Boot the multi-client kit room world (TigerBeetle-style deterministic sim).
- * Internal — framework worlds use `openWorld` from `@pkgs/dst` +
- * {@link defineRoomSystem}; node kinds and module conformance call this.
- *
- * Clients are added explicitly via {@link World.addClient}. Generated system
- * topologies come from `defineRoomSystem` (`sim/system`), which boots `room.server`
- * / `room.client` node kinds on top of this function.
+ * Boot the multi-client kit room world from a DST session.
+ * Clients are added explicitly via {@link World.addClient}.
  */
-export async function bootRoomKitWorld<
+export async function createRoomWorld<
   S extends RoomState,
   C extends RoomCommandPayload,
   E extends RoomEvent,
@@ -421,7 +448,7 @@ export async function bootRoomKitWorld<
   const recreateServer = (): Promise<void> => recreateWorldServer(k, args);
   const prepareForSettle = (): Promise<void> =>
     prepareWorldForSettle(k, recreateServer);
-  return assembleWorld(k, {
+  const world = assembleWorld(k, {
     addClient: (a) => addWorldClient(k, a),
     recreateServer,
     prepareForSettle,
@@ -431,4 +458,18 @@ export async function bootRoomKitWorld<
     domainQueries: worldDomainQueries(k),
     drainCtx: makeDrainCtx(k),
   });
+  bindWorldDispose(args.session, world);
+  return world;
+}
+
+function bindWorldDispose(
+  session: Session,
+  world: { dispose: () => Promise<void> }
+): void {
+  const orig = session.dispose.bind(session);
+  const bag = session as { dispose: () => Promise<void> };
+  bag.dispose = async () => {
+    await world.dispose();
+    await orig();
+  };
 }

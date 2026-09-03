@@ -1,5 +1,14 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/dst';
+import {
+  addClient,
+  clientState,
+  converge,
+  dispatch,
+  passTime,
+  serverHash,
+  serverState,
+  startRoom,
+} from '@pkgs/room/tests';
 
 import {
   CHESS_PUZZLE_PLAY_STATUS,
@@ -15,44 +24,43 @@ const SHORT_MOVES = 'e8d7';
 
 describe('chess puzzle: solved monotonic (Gp-03)', () => {
   test('post-solved moves do not change terminal status', async () => {
-    await using world = await openWorld(chessSystem, {
+    await using run = await startRoom(chessSystem, {
       seed: process.env['SIM_SEED'] ?? '42',
-      knobs: { clientCount: 0 },
     });
-    const hostClient = await world.addClient({
-      id: 'host',
-      identity: 'host-1',
-    });
-    await world.assertConverged();
+    await run.apply(addClient, { id: 'host', identity: 'host-1' });
+    await run.apply(converge);
 
-    hostClient.dispatch(
-      StartChessPuzzlePlay({
+    await run.apply(dispatch, {
+      clientId: 'host',
+      payload: StartChessPuzzlePlay({
         puzzleId: 'short',
         fen: VALID_FEN,
         moves: SHORT_MOVES,
-      })
-    );
-    await world.drain();
-    expect(ChessPuzzlePlayAttr.status.from(await world.serverSnapshot())).toBe(
+      }),
+    });
+    await run.apply(passTime, 0);
+    expect(
+      ChessPuzzlePlayAttr.status.from((await run.observe(serverState)) as never)
+    ).toBe(CHESS_PUZZLE_PLAY_STATUS.solved);
+    const clients = await run.observe(clientState);
+    expect(ChessPuzzlePlayAttr.status.from(clients['host'] as never)).toBe(
       CHESS_PUZZLE_PLAY_STATUS.solved
     );
-    expect(ChessPuzzlePlayAttr.status.from(hostClient.snapshot())).toBe(
-      CHESS_PUZZLE_PLAY_STATUS.solved
-    );
-    const terminalHash = await world.serverHash();
-    expect(hostClient.hash()).toBe(terminalHash);
+    const terminalHash = await run.observe(serverHash);
 
-    hostClient.dispatch(SubmitChessPuzzleMove({ uci: 'e1f2' }));
-    hostClient.dispatch(SubmitChessPuzzleMove({ uci: 'a2a3' }));
-    await world.drain();
+    await run.apply(dispatch, {
+      clientId: 'host',
+      payload: SubmitChessPuzzleMove({ uci: 'e1f2' }),
+    });
+    await run.apply(dispatch, {
+      clientId: 'host',
+      payload: SubmitChessPuzzleMove({ uci: 'a2a3' }),
+    });
+    await run.apply(passTime, 0);
 
-    expect(ChessPuzzlePlayAttr.status.from(await world.serverSnapshot())).toBe(
-      CHESS_PUZZLE_PLAY_STATUS.solved
-    );
-    expect(ChessPuzzlePlayAttr.status.from(hostClient.snapshot())).toBe(
-      CHESS_PUZZLE_PLAY_STATUS.solved
-    );
-    expect(hostClient.hash()).toBe(await world.serverHash());
-    expect(await world.serverHash()).toBe(terminalHash);
+    expect(
+      ChessPuzzlePlayAttr.status.from((await run.observe(serverState)) as never)
+    ).toBe(CHESS_PUZZLE_PLAY_STATUS.solved);
+    expect(await run.observe(serverHash)).toBe(terminalHash);
   });
 });

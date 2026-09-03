@@ -92,8 +92,8 @@ Core vs adapters stay split so callers opt into a runtime explicitly.
 
 `src/sim/` implementation stays **private** (relative imports from package
 tests). Games should import `defineRoomSystem` from
-`@pkgs/room/tests` and boot with `openWorld` from `@pkgs/dst`, not deep
-`sim/` paths.
+`@pkgs/room/tests` and boot with `startRoom` / `openRoomWorld` / `check` from
+`@pkgs/room/tests` + `@pkgs/dst`, not deep `sim/` paths.
 
 ---
 
@@ -283,8 +283,8 @@ replays are idempotent.
 | Tool | When to use |
 |------|-------------|
 | **`openLoopbackRoom`** (`@pkgs/room/tests`) | Fast in-process unit/integration with injected `Io`; real `RoomClient` + `RoomServer`, no net faults; Schedule via timers |
-| **`openWorld`** (`@pkgs/dst` + `@pkgs/room/tests`) | Framework multi-client world (kit merged via `extend`): partitions, delays, soft disconnect, crash/restart, hash converge, seed replay, Schedule wakes |
-| **`defineRoomSystem` + `runScenario` / `replay`** | Framework-owned world (`room.server` / `room.client` node kinds): shrinking `fc.commands` search + fault-catalog slice PBTs |
+| **`startRoom` / `openRoomWorld`** (`@pkgs/room/tests`) | Algebra `Run` or kit `World`: partitions, delays, soft disconnect, crash/restart, hash converge, seed replay, Schedule wakes |
+| **`defineRoomSystem` + `check` / `replayRoom`** | Framework-owned system + weighted walk / scripted pins + fault-catalog slice PBTs |
 | **`runRoomSeed`** | Non-shrinking seeded fuzz (`ROOM_SIM_SEED` / `SIM_SEED`); determinism + long workloads |
 | **DO / adapter tests** | Hibernation, session take-over, per-key storage, alarms, WS heartbeat |
 | **`runModuleConformance`** | Game-module kit (purity, hash, totality, fold, fuzz) |
@@ -308,8 +308,13 @@ node kinds and the library + domain action pool:
 // tests/apps/counter/system.ts
 export const counterSystem = defineRoomSystem(counterApp, { id: 'room.counter' });
 
-// shrinking PBT — framework generates seed, knobs, and fc.commands
-await runScenario(counterSystem, { maxCommands: 14 });
+// shrinking PBT — start + weighted walk + shrink
+await check(counterSystem, {
+  properties: ROOM_PROPERTIES,
+  actions: roomActions(counterApp),
+  episodes: 12,
+  steps: 14,
+});
 
 // scripted pin
 await replayRoomPin(counterSystem, { seed, knobs, actions: [/* RoomSystemAction */] });
@@ -321,7 +326,7 @@ await replayRoomPin(counterSystem, { seed, knobs, actions: [/* RoomSystemAction 
    `armCrashAt` / wire injects stay out of it and are covered by slice PBTs
 4. Const fault catalogs (`NET_FAULT_PROFILES`, `BYZANTINE_INJECT_KINDS`, `WORLD_PBT_CRASH_EVENTS`) exhausted by slice PBTs
 5. `runRoomSeed` (`tests/scenario/run-seed.ts`) boots the same topology via
-   framework `openWorld(defineRoomSystem(app), …)` for non-shrinking seeded fuzz
+   framework `startRoom(defineRoomSystem(app), …)` for non-shrinking seeded fuzz
 
 On find: capture `FC_SEED` / `replayPath` → pin in `room-world.pbt.test.ts` or a named `.sim.test.ts` → log in [`PBT_FINDINGS.md`](../../../PBT_FINDINGS.md).
 
@@ -358,30 +363,32 @@ Connectivity triad — do not conflate:
 
 ```ts
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/dst';
+import {
+  addClient,
+  converge,
+  dispatch,
+  hold,
+  heal,
+  startRoom,
+} from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
 import { Increment, counterValue } from '../fixtures/counter-module';
+import { readClient, readServer } from '../scenario/read-state';
 
 describe('room sim', () => {
   test('partition then heal', async () => {
-    await using world = await openWorld(counterSystem, {
+    await using run = await startRoom(counterSystem, {
       seed: 3,
-      knobs: { clientCount: 0 },
+      clientCount: 0,
     });
-    const a = await world.addClient({ id: 'alice' });
-    const b = await world.addClient({ id: 'bob' });
-    {
-      using _hold = world.net('bob').set('hold');
-      a.dispatch(Increment({}));
-      await world.never(() => counterValue(b.snapshot()) === 1, {
-        forMs: 200,
-      });
-    }
-    await world.assertConverged();
-    const server = await world.serverSnapshot();
-    expect(counterValue(server)).toBe(1);
-    expect(counterValue(a.snapshot())).toBe(1);
-    expect(a.hash()).toBe(await world.serverHash());
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'bob' });
+    await run.apply(hold, 'bob');
+    await run.apply(dispatch, { clientId: 'alice', payload: Increment({}) });
+    await run.apply(heal);
+    await run.apply(converge);
+    expect(counterValue(await readServer(run))).toBe(1);
+    expect(counterValue(await readClient(run, 'alice'))).toBe(1);
   });
 });
 ```
@@ -389,8 +396,7 @@ describe('room sim', () => {
 Games outside this package:
 
 ```ts
-import { openWorld } from '@pkgs/dst';
-import { defineRoomSystem, runModuleConformance } from '@pkgs/room/tests';
+import { defineRoomSystem, openRoomWorld, runModuleConformance } from '@pkgs/room/tests';
 ```
 
 ---

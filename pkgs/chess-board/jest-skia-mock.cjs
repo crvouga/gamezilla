@@ -42,7 +42,9 @@ function foldTranslate(transform) {
 }
 
 function Canvas({ children, style, ...rest }) {
-  const flat = Array.isArray(style) ? Object.assign({}, ...style.flat(8)) : style;
+  const flat = Array.isArray(style)
+    ? Object.assign({}, ...style.flat(8))
+    : style;
   return React.createElement(
     View,
     {
@@ -217,7 +219,11 @@ const Skia = {
       return {
         getCanvas: () => ({
           drawSvg: (svg) => {
-            if (svg != null && typeof svg === 'object' && typeof svg.xml === 'string') {
+            if (
+              svg != null &&
+              typeof svg === 'object' &&
+              typeof svg.xml === 'string'
+            ) {
               drawnXml = svg.xml;
             }
           },

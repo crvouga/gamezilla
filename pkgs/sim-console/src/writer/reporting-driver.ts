@@ -10,6 +10,7 @@ import type {
   WaitTextCondition,
 } from '@pkgs/ui-testing';
 import { formatTestIdPath } from '@pkgs/ui-testing';
+import { hasInventory } from '@pkgs/ui-testing/explore';
 
 import type { SimulationStepKind } from '../types';
 import type { SimulationReporter } from './reporter';
@@ -51,6 +52,7 @@ export function createReportingDriver(
         detail: key,
       }),
     snapshotHtml: (options) => driver.snapshotHtml(options),
+    ...(hasInventory(driver) ? { inventory: () => driver.inventory() } : {}),
   };
 }
 

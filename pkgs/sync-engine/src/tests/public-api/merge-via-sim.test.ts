@@ -14,7 +14,7 @@ import { openAcmeWorld } from '../apps/acme/system';
  * Public-API / sim pins for merge semantics that bulk upsert must preserve:
  * column-intersect (missing keys), tombstone upsert, pending rebase.
  */
-describe('public API: merge via openWorld', () => {
+describe('public API: merge via openSyncWorld', () => {
   test('missing server keys do not null local-only columns', async () => {
     await using world = await openAcmeWorld({
       seed: 9001,

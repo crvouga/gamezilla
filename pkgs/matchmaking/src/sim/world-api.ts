@@ -36,7 +36,7 @@ export type ReplicaHandle = {
   readonly tick: (opts?: TickOptions) => Promise<TickResult>;
 };
 
-/** Kit methods merged onto the framework world via `extend`. */
+/** Kit methods on the matchmaking surface. */
 export type MatchmakingSimKit = {
   readonly replicas: ReadonlyMap<string, ReplicaHandle>;
   readonly replica: (id: string) => ReplicaHandle;
@@ -62,5 +62,7 @@ export type MatchmakingSimKit = {
   ) => Promise<void>;
 };
 
-/** Opened matchmaking world: framework controls + {@link MatchmakingSimKit}. */
-export type MatchmakingSimWorld = MatchmakingSimKit;
+/** Opened matchmaking surface (kit + session helpers). */
+export type MatchmakingSimWorld = MatchmakingSimKit & {
+  readonly advance: (ms: number) => Promise<void>;
+};

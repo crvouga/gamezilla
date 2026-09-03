@@ -1,6 +1,16 @@
 import { describe, expect, test } from 'bun:test';
-
-import { openWorld } from '@pkgs/dst';
+import {
+  addClient,
+  connect,
+  converge,
+  disconnect,
+  dispatch,
+  hold,
+  passTime,
+  release,
+  serverHash,
+  startRoom,
+} from '../../sim/scenario';
 import { matchClockSystem } from '../apps/match-clock/system';
 import {
   FlagFall,
@@ -12,166 +22,160 @@ import {
   matchClockWinner,
   StartMatch,
 } from '../fixtures/match-clock-module';
+import {
+  expectHashMatch,
+  readClient,
+  readServer,
+} from '../scenario/read-state';
+
+async function bootMatch(seed: string, startTime: number) {
+  const run = await startRoom(matchClockSystem, { seed, startTime });
+  await run.apply(addClient, { id: 'white', identity: 'white' });
+  await run.apply(addClient, { id: 'black', identity: 'black' });
+  await run.apply(converge);
+  return run;
+}
 
 describe('match-clock schedule (MC-01..06)', () => {
   test('MC-01: runFor past flag → server FlagFall terminal; clients converge', async () => {
-    await using host = await openWorld(matchClockSystem, {
-      seed: process.env['SIM_SEED'] ?? 'mc-01',
-      knobs: { clientCount: 0 },
-      startTime: 10_000,
+    await using run = await bootMatch(
+      process.env['SIM_SEED'] ?? 'mc-01',
+      10_000
+    );
+    await run.apply(dispatch, {
+      clientId: 'white',
+      payload: StartMatch({ whiteMs: 50, blackMs: 80 }),
     });
-    const world = host;
-    const a = await world.addClient({ id: 'white', identity: 'white' });
-    const b = await world.addClient({ id: 'black', identity: 'black' });
-    await world.assertConverged();
+    expect(matchClockStatus(await readServer(run))).toBe('playing');
 
-    a.dispatch(StartMatch({ whiteMs: 50, blackMs: 80 }));
-    await world.drain();
-    expect(matchClockStatus(await world.serverSnapshot())).toBe('playing');
+    await run.apply(passTime, 60);
+    await run.apply(converge);
 
-    await world.runFor(60);
-    await world.assertConverged();
-
-    const server = await world.serverSnapshot();
+    const server = await readServer(run);
     expect(matchClockStatus(server)).toBe('flagged');
     expect(matchClockWinner(server)).toBe('black');
-    expect(matchClockStatus(a.snapshot())).toBe('flagged');
-    expect(matchClockStatus(b.snapshot())).toBe('flagged');
-    expect(a.hash()).toBe(await world.serverHash());
+    expect(matchClockStatus(await readClient(run, 'white'))).toBe('flagged');
+    expect(matchClockStatus(await readClient(run, 'black'))).toBe('flagged');
+    await expectHashMatch(run, 'white');
   });
 
   test('MC-02: move before flag cancels; opponent clock active', async () => {
-    await using host = await openWorld(matchClockSystem, {
-      seed: process.env['SIM_SEED'] ?? 'mc-02',
-      knobs: { clientCount: 0 },
-      startTime: 20_000,
+    await using run = await bootMatch(
+      process.env['SIM_SEED'] ?? 'mc-02',
+      20_000
+    );
+    await run.apply(dispatch, {
+      clientId: 'white',
+      payload: StartMatch({ whiteMs: 100, blackMs: 100 }),
     });
-    const world = host;
-    const white = await world.addClient({ id: 'white', identity: 'white' });
-    await world.addClient({ id: 'black', identity: 'black' });
-    await world.assertConverged();
+    await run.apply(passTime, 30);
+    await run.apply(dispatch, {
+      clientId: 'white',
+      payload: Move({}),
+    });
 
-    white.dispatch(StartMatch({ whiteMs: 100, blackMs: 100 }));
-    await world.drain();
-    await world.runFor(30);
-    white.dispatch(Move({}));
-    await world.drain();
-
-    const server = await world.serverSnapshot();
+    const server = await readServer(run);
     expect(matchClockStatus(server)).toBe('playing');
     expect(matchClockTurn(server)).toBe('black');
     expect(matchClockWhiteMs(server)).toBe(70);
     expect(matchClockBlackMs(server)).toBe(100);
 
-    await world.runFor(40);
-    expect(matchClockStatus(await world.serverSnapshot())).toBe('playing');
+    await run.apply(passTime, 40);
+    expect(matchClockStatus(await readServer(run))).toBe('playing');
 
-    await world.runFor(70);
-    await world.assertConverged();
-    expect(matchClockStatus(await world.serverSnapshot())).toBe('flagged');
-    expect(matchClockWinner(await world.serverSnapshot())).toBe('white');
+    await run.apply(passTime, 70);
+    await run.apply(converge);
+    expect(matchClockStatus(await readServer(run))).toBe('flagged');
+    expect(matchClockWinner(await readServer(run))).toBe('white');
   });
 
   test('MC-03: lagging held client cannot move after server flag', async () => {
-    await using host = await openWorld(matchClockSystem, {
-      seed: process.env['SIM_SEED'] ?? 'mc-03',
-      knobs: { clientCount: 0 },
-      startTime: 30_000,
+    await using run = await bootMatch(
+      process.env['SIM_SEED'] ?? 'mc-03',
+      30_000
+    );
+    await run.apply(dispatch, {
+      clientId: 'white',
+      payload: StartMatch({ whiteMs: 40, blackMs: 40 }),
     });
-    const world = host;
-    const white = await world.addClient({ id: 'white', identity: 'white' });
-    const black = await world.addClient({ id: 'black', identity: 'black' });
-    await world.assertConverged();
 
-    white.dispatch(StartMatch({ whiteMs: 40, blackMs: 40 }));
-    await world.drain();
+    await run.apply(hold, 'white');
+    await run.apply(passTime, 50);
+    expect(matchClockStatus(await readServer(run))).toBe('flagged');
+    await run.apply(dispatch, {
+      clientId: 'white',
+      payload: Move({}),
+    });
+    await run.apply(release, 'white');
 
-    {
-      using _hold = world.net('white').set('hold');
-      await world.runFor(50);
-      expect(matchClockStatus(await world.serverSnapshot())).toBe('flagged');
-      white.dispatch(Move({}));
-      await world.drain();
-    }
-
-    await world.assertConverged();
-    expect(matchClockStatus(await world.serverSnapshot())).toBe('flagged');
-    expect(matchClockWinner(await world.serverSnapshot())).toBe('black');
-    expect(white.hash()).toBe(await world.serverHash());
-    expect(black.hash()).toBe(await world.serverHash());
+    await run.apply(converge);
+    expect(matchClockStatus(await readServer(run))).toBe('flagged');
+    expect(matchClockWinner(await readServer(run))).toBe('black');
+    await expectHashMatch(run, 'white');
+    await expectHashMatch(run, 'black');
   });
 
   test('MC-04: early client FlagFall rejected; server still flags at at', async () => {
-    await using host = await openWorld(matchClockSystem, {
-      seed: process.env['SIM_SEED'] ?? 'mc-04',
-      knobs: { clientCount: 0 },
-      startTime: 40_000,
+    await using run = await bootMatch(
+      process.env['SIM_SEED'] ?? 'mc-04',
+      40_000
+    );
+    await run.apply(dispatch, {
+      clientId: 'white',
+      payload: StartMatch({ whiteMs: 80, blackMs: 80 }),
     });
-    const world = host;
-    const white = await world.addClient({ id: 'white', identity: 'white' });
-    await world.addClient({ id: 'black', identity: 'black' });
-    await world.assertConverged();
+    await run.apply(dispatch, {
+      clientId: 'white',
+      payload: FlagFall({ seat: 'white' }),
+    });
+    expect(matchClockStatus(await readServer(run))).toBe('playing');
 
-    white.dispatch(StartMatch({ whiteMs: 80, blackMs: 80 }));
-    await world.drain();
-    white.dispatch(FlagFall({ seat: 'white' }));
-    await world.drain();
-    expect(matchClockStatus(await world.serverSnapshot())).toBe('playing');
-
-    await world.runFor(90);
-    await world.assertConverged();
-    expect(matchClockStatus(await world.serverSnapshot())).toBe('flagged');
-    expect(matchClockWinner(await world.serverSnapshot())).toBe('black');
+    await run.apply(passTime, 90);
+    await run.apply(converge);
+    expect(matchClockStatus(await readServer(run))).toBe('flagged');
+    expect(matchClockWinner(await readServer(run))).toBe('black');
   });
 
   test('MC-05: soft disconnect during tick; reconnect after flag', async () => {
-    await using host = await openWorld(matchClockSystem, {
-      seed: process.env['SIM_SEED'] ?? 'mc-05',
-      knobs: { clientCount: 0 },
-      startTime: 50_000,
+    await using run = await bootMatch(
+      process.env['SIM_SEED'] ?? 'mc-05',
+      50_000
+    );
+    await run.apply(dispatch, {
+      clientId: 'white',
+      payload: StartMatch({ whiteMs: 40, blackMs: 40 }),
     });
-    const world = host;
-    const white = await world.addClient({ id: 'white', identity: 'white' });
-    await world.addClient({ id: 'black', identity: 'black' });
-    await world.assertConverged();
-
-    white.dispatch(StartMatch({ whiteMs: 40, blackMs: 40 }));
-    await world.drain();
-    await world.node('white').disconnect();
-    await world.runFor(50);
-    expect(matchClockStatus(await world.serverSnapshot())).toBe('flagged');
-    await world.node('white').reconnect();
-    await world.assertConverged();
-    expect(matchClockStatus(white.snapshot())).toBe('flagged');
-    expect(white.hash()).toBe(await world.serverHash());
+    await run.apply(disconnect, 'white');
+    await run.apply(passTime, 50);
+    expect(matchClockStatus(await readServer(run))).toBe('flagged');
+    await run.apply(connect, 'white');
+    await run.apply(converge);
+    expect(matchClockStatus(await readClient(run, 'white'))).toBe('flagged');
+    await expectHashMatch(run, 'white');
   });
 
   test('MC-06: seeded clock workload ×2 identical serverHash', async () => {
     const seed = process.env['SIM_SEED'] ?? 'mc-06';
-    const run = async (): Promise<string> => {
-      await using host = await openWorld(matchClockSystem, {
-        seed,
-        knobs: { clientCount: 0 },
-        startTime: 60_000,
+    const once = async (): Promise<string> => {
+      await using run = await bootMatch(seed, 60_000);
+      await run.apply(dispatch, {
+        clientId: 'white',
+        payload: StartMatch({ whiteMs: 100, blackMs: 100 }),
       });
-      const world = host;
-      const white = await world.addClient({ id: 'white', identity: 'white' });
-      const black = await world.addClient({ id: 'black', identity: 'black' });
-      await world.assertConverged();
-      white.dispatch(StartMatch({ whiteMs: 100, blackMs: 100 }));
-      await world.drain();
-      await world.runFor(20);
-      white.dispatch(Move({}));
-      await world.drain();
-      await world.runFor(15);
-      black.dispatch(Move({}));
-      await world.drain();
-      await world.runFor(200);
-      await world.assertConverged();
-      return world.serverHash();
+      await run.apply(passTime, 20);
+      await run.apply(dispatch, {
+        clientId: 'white',
+        payload: Move({}),
+      });
+      await run.apply(passTime, 15);
+      await run.apply(dispatch, {
+        clientId: 'black',
+        payload: Move({}),
+      });
+      await run.apply(passTime, 200);
+      await run.apply(converge);
+      return run.observe(serverHash);
     };
-    const h1 = await run();
-    const h2 = await run();
-    expect(h1).toBe(h2);
+    expect(await once()).toBe(await once());
   });
 });

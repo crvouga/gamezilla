@@ -1,37 +1,44 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/dst';
-import { counterSystem } from '../apps/counter/system';
+import {
+  addClient,
+  connect,
+  converge,
+  disconnect,
+  dispatch,
+  passTime,
+  setNet,
+} from '../../sim/scenario';
 import { counterValue, Increment } from '../fixtures/counter-module';
+import { bootCounter } from '../scenario/boot-counter';
+import {
+  expectHashMatch,
+  readClient,
+  readServer,
+} from '../scenario/read-state';
 
 describe('room sim: down during welcome (E-A03)', () => {
   test('join under down then heal converges', async () => {
-    await using host = await openWorld(counterSystem, {
-      seed: process.env['SIM_SEED'] ?? '42',
-      knobs: { clientCount: 0 },
+    await using run = await bootCounter(['alice']);
+    await run.apply(dispatch, {
+      clientId: 'alice',
+      payload: Increment({}),
     });
-    const world = host;
-    const a = await world.addClient({ id: 'alice' });
-    a.dispatch(Increment({}));
-    a.dispatch(Increment({}));
-    await world.drain();
+    await run.apply(dispatch, {
+      clientId: 'alice',
+      payload: Increment({}),
+    });
 
-    {
-      using _down = world.net('bob').set('down');
-      const b = await world.addClient({ id: 'bob' });
-      await world.drain();
-      // May or may not be synced depending on whether welcome was dropped.
-      void b;
-    }
+    await run.apply(setNet, { clientId: 'bob', next: 'down' });
+    await run.apply(addClient, { id: 'bob' });
+    await run.apply(passTime, 0);
+    await run.apply(setNet, { clientId: 'bob', next: 'ok' });
 
-    const b = world.clients.get('bob');
-    expect(b).toBeDefined();
-    await b!.disconnect();
-    await b!.connect();
-    await world.assertConverged();
-    const server = await world.serverSnapshot();
-    expect(counterValue(server)).toBe(2);
-    expect(counterValue(a.snapshot())).toBe(2);
-    expect(counterValue(b!.snapshot())).toBe(2);
-    expect(a.hash()).toBe(await world.serverHash());
+    await run.apply(disconnect, 'bob');
+    await run.apply(connect, 'bob');
+    await run.apply(converge);
+    expect(counterValue(await readServer(run))).toBe(2);
+    expect(counterValue(await readClient(run, 'alice'))).toBe(2);
+    expect(counterValue(await readClient(run, 'bob'))).toBe(2);
+    await expectHashMatch(run, 'alice');
   });
 });

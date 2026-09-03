@@ -1,10 +1,10 @@
 /**
  * Virtual-time drain pump for rntl sim waits.
- * Advances scheduled work via {@link Scheduler} without wall sleep.
+ * Advances scheduled work via {@link VirtualScheduler} without wall sleep.
  */
 
 import { setImmediate as nodeSetImmediate } from 'node:timers';
-import type { Scheduler } from '@pkgs/dst';
+import type { VirtualScheduler } from '@pkgs/dst/kernel';
 import type { WaitPump } from '@pkgs/ui-testing';
 
 /**
@@ -24,12 +24,12 @@ function yieldEventLoop(): Promise<void> {
 }
 
 /**
- * Serialize overlapping {@link Scheduler.runFor} calls from the UI harness.
+ * Serialize overlapping {@link VirtualScheduler.runFor} calls from the UI harness.
  * Nested drain from a scheduled task still throws; concurrent mount / focus /
  * wait-pump callers queue instead of racing the drain gate.
  */
 export function createSerializedRunFor(
-  scheduler: Scheduler
+  scheduler: VirtualScheduler
 ): (durationMs: number) => Promise<void> {
   let tail: Promise<void> = Promise.resolve();
   return (durationMs: number): Promise<void> => {
@@ -47,7 +47,7 @@ export function createSerializedRunFor(
  * microtasks) without wall 50ms sleeps.
  */
 export function createSimWaitPump(args: {
-  readonly scheduler: Scheduler;
+  readonly scheduler: VirtualScheduler;
   readonly runFor?: (durationMs: number) => Promise<void>;
 }): WaitPump {
   const runFor =

@@ -1,21 +1,11 @@
 /**
- * Smoke: defineProductSystem wiring (no SQL boot — openWorld would migrate).
+ * Smoke: product system wiring (no SQL boot).
  */
 
-import { defineProductSystem, PRODUCT_SYSTEM, productSimNode } from './index';
+import { product } from './index';
 
 describe('sim.product system', () => {
-  it('registers id sim.product', () => {
-    expect(PRODUCT_SYSTEM.id).toBe('sim.product');
-  });
-
-  it('defineProductSystem accepts createOpts and startTime', () => {
-    const startTime = 1_700_000_000_000;
-    const system = defineProductSystem({ seed: 1, startTime });
-    expect(system.id).toBe('sim.product');
-    expect(system.startTime).toBe(startTime);
-    expect(system.nodes.sim).toBeDefined();
-    expect(system.extend).toBeDefined();
-    expect(productSimNode).toBeDefined();
+  it('registers name sim.product', () => {
+    expect(product.name).toBe('sim.product');
   });
 });

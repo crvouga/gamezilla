@@ -1,22 +1,24 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/dst';
+import { addClient, converge, dispatch, startRoom } from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
 import { counterValue, Increment } from '../fixtures/counter-module';
+import {
+  expectHashMatch,
+  readClient,
+  readServer,
+} from '../scenario/read-state';
 
 describe('room sim: single client increment', () => {
   test('increment converges to server hash', async () => {
-    await using host = await openWorld(counterSystem, {
-      seed: 1,
-      knobs: { clientCount: 0 },
+    await using run = await startRoom(counterSystem, { seed: 1 });
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(dispatch, {
+      clientId: 'alice',
+      payload: Increment({}),
     });
-    const world = host;
-    const a = await world.addClient({ id: 'alice' });
-    expect(a.isSynced()).toBe(true);
-    a.dispatch(Increment({}));
-    await world.assertConverged();
-    const server = await world.serverSnapshot();
-    expect(counterValue(server)).toBe(1);
-    expect(counterValue(a.snapshot())).toBe(1);
-    expect(a.hash()).toBe(await world.serverHash());
+    await run.apply(converge);
+    expect(counterValue(await readServer(run))).toBe(1);
+    expect(counterValue(await readClient(run, 'alice'))).toBe(1);
+    await expectHashMatch(run, 'alice');
   });
 });

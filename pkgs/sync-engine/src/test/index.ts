@@ -28,7 +28,7 @@ export {
   type SimSessionQuery,
   type SyncAction,
   type SyncApp,
-  type SyncSystemFacade,
+  type SyncSurface,
   type UntilTarget,
   type WaitUntilOptions,
   type WorldKnobs,

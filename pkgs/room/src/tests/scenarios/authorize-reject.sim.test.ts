@@ -1,9 +1,17 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/dst';
-import { defineRoomSystem, type RoomApp } from '../../sim/scenario';
+import {
+  addClient,
+  converge,
+  defineRoomSystem,
+  dispatch,
+  logSeq,
+  type RoomApp,
+  startRoom,
+} from '../../sim/scenario';
 import { ROOM_ERROR_TYPE } from '../../types';
 import { authzApp } from '../apps/authz/app';
 import { authzCount, Bump, Claim } from '../fixtures/authz-module';
+import { readClient, readRejection, readServer } from '../scenario/read-state';
 
 const denyEveApp: RoomApp = {
   ...authzApp,
@@ -16,32 +24,31 @@ const denyEveApp: RoomApp = {
 };
 
 const denyEveSystem = defineRoomSystem(denyEveApp, {
-  id: 'room.authz-deny-eve',
+  name: 'room.authz-deny-eve',
 });
 
 describe('room sim: authorize reject (E-D03)', () => {
   test('authorize hook denies without mutating', async () => {
-    await using host = await openWorld(denyEveSystem, {
-      seed: process.env['SIM_SEED'] ?? '42',
-      knobs: { clientCount: 0 },
+    await using run = await startRoom(denyEveSystem);
+    await run.apply(addClient, { id: 'alice' });
+    await run.apply(addClient, { id: 'eve' });
+    await run.apply(converge);
+
+    await run.apply(dispatch, {
+      clientId: 'alice',
+      payload: Claim({}),
     });
-    const world = host;
-    const alice = await world.addClient({ id: 'alice' });
-    const eve = await world.addClient({ id: 'eve' });
-    await world.assertConverged();
+    expect(authzCount(await readClient(run, 'alice'))).toBe(0);
 
-    alice.dispatch(Claim({}));
-    await world.drain();
-    expect(authzCount(alice.snapshot())).toBe(0);
-
-    eve.dispatch(Bump({}));
-    await world.drain();
-    const err = eve.lastRejection();
-    expect(err && 'type' in err ? err.type : null).toBe(
+    await run.apply(dispatch, {
+      clientId: 'eve',
+      payload: Bump({}),
+    });
+    expect((await readRejection(run, 'eve'))?.type).toBe(
       ROOM_ERROR_TYPE.unauthorized
     );
-    expect(await world.storage.getLastSeq(world.topic)).toBe(1);
-    expect(authzCount(await world.serverSnapshot())).toBe(0);
-    expect(authzCount(alice.snapshot())).toBe(0);
+    expect(await run.observe(logSeq)).toBe(1);
+    expect(authzCount(await readServer(run))).toBe(0);
+    expect(authzCount(await readClient(run, 'alice'))).toBe(0);
   });
 });

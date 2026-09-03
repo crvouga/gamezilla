@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/dst';
 import { sql } from '@pkgs/sql';
-import { defineSyncSystem } from '../../sim/scenario';
+import { defineSyncSystem, openSyncWorld } from '../../sim/scenario';
 import {
   acmeApp,
   acmeLocalSchema,
@@ -35,7 +34,7 @@ describe('mixed schema tombstone and pending rebase', () => {
   test.each([2110, 2111, 2112])(
     'pending setNoteColor revives peer tombstone; color kept (seed=%i)',
     async (seed) => {
-      await using world = await openWorld(acmeColorTombstoneSystem, {
+      await using world = await openSyncWorld(acmeColorTombstoneSystem, {
         seed: seed,
         knobs: {
           clientCount: 0,

@@ -19,5 +19,5 @@ export const chessApp: RoomApp = {
 };
 
 export const chessSystem: RoomSystemDef = defineRoomSystem(chessApp, {
-  id: 'chess.puzzle',
+  name: 'chess.puzzle',
 });

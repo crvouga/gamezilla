@@ -1,20 +1,27 @@
 import { describe, expect, test } from 'bun:test';
-import { arbSeed, runProperty } from '@pkgs/dst/pbt';
-import { fc } from '@pkgs/pbt';
+import { assertProperty, fc } from '@pkgs/pbt';
 
-import { replayRoom, replayRoomPin } from '../../sim/scenario';
+import {
+  arbSeed,
+  converge,
+  playRoomActions,
+  replayRoom,
+  replayRoomPin,
+  startRoom,
+} from '../../sim/scenario';
 import { matchClockSystem } from '../apps/match-clock/system';
 import {
   matchClockStatus,
   matchClockWinner,
 } from '../fixtures/match-clock-module';
+import { readServer } from '../scenario/read-state';
 
 describe('room schedule-anticheat PBT', () => {
   test(
     'start move flag interleaved with hold converges',
     async () => {
-      await runProperty(
-        'match-clock chaos converges',
+      await assertProperty(
+        'hold interleaved converges',
         fc.asyncProperty(arbSeed(), async (seed) => {
           await replayRoomPin(matchClockSystem, {
             seed,
@@ -45,40 +52,35 @@ describe('room schedule-anticheat PBT', () => {
   );
 
   test('early FlagFall rejected; server still flags at true at', async () => {
-    const world = await replayRoom(matchClockSystem, {
+    await using run = await startRoom(matchClockSystem, {
       seed: 3,
-      converge: false,
-      actions: [
-        {
-          kind: 'domain',
-          clientId: 'c0',
-          command: 'start',
-          args: { whiteMs: 5_000, blackMs: 5_000 },
-        },
-        { kind: 'idle', ms: 20 },
-        {
-          kind: 'domain',
-          clientId: 'c1',
-          command: 'flag-fall',
-          args: { seat: 'white' },
-        },
-      ],
+      clientCount: 2,
     });
-    const real = world;
-    try {
-      expect(matchClockStatus(await real.serverSnapshot())).toBe('playing');
-      await real.runFor(5_100);
-      await real.assertConverged();
-      const end = await real.serverSnapshot();
-      expect(matchClockStatus(end)).toBe('flagged');
-      expect(matchClockWinner(end)).toBe('black');
-    } finally {
-      await world.dispose();
-    }
+    await playRoomActions(run, [
+      {
+        kind: 'domain',
+        clientId: 'c0',
+        command: 'start',
+        args: { whiteMs: 5_000, blackMs: 5_000 },
+      },
+      { kind: 'idle', ms: 20 },
+      {
+        kind: 'domain',
+        clientId: 'c1',
+        command: 'flag-fall',
+        args: { seat: 'white' },
+      },
+    ]);
+    expect(matchClockStatus(await readServer(run))).toBe('playing');
+    await playRoomActions(run, [{ kind: 'idle', ms: 5_100 }]);
+    await run.apply(converge);
+    const end = await readServer(run);
+    expect(matchClockStatus(end)).toBe('flagged');
+    expect(matchClockWinner(end)).toBe('black');
   });
 
   test('lagging held client cannot move after server flag', async () => {
-    const world = await replayRoom(matchClockSystem, {
+    await using world = await replayRoom(matchClockSystem, {
       seed: 5,
       actions: [
         {
@@ -98,11 +100,6 @@ describe('room schedule-anticheat PBT', () => {
         { kind: 'heal' },
       ],
     });
-    try {
-      const end = await world.serverSnapshot();
-      expect(matchClockStatus(end)).toBe('flagged');
-    } finally {
-      await world.dispose();
-    }
+    expect(matchClockStatus(await readServer(world))).toBe('flagged');
   });
 });

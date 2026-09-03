@@ -1,5 +1,5 @@
-import type { WorldPorts } from '@pkgs/dst';
 import type { SeededRng } from '@pkgs/uuid';
+import type { SyncBootDeps } from './boot-deps';
 import type { BoundaryFaultController } from './boundary-faults';
 import type { SimAuthStatus } from './client-factory';
 import { createClockSkewTable, SIM_SERVER_NODE_ID } from './clock-skew';
@@ -23,10 +23,7 @@ export function resolveBootDomain(worldArgs: WorldClientOpts): SimDomainPack {
   };
 }
 
-export type BootRuntimeDeps = Pick<
-  WorldPorts,
-  'clock' | 'scheduler' | 'timers' | 'rng'
->;
+export type BootRuntimeDeps = SyncBootDeps;
 
 export type CreateBootRuntimeArgs = {
   readonly deps: BootRuntimeDeps;

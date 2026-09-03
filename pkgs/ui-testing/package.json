@@ -23,6 +23,7 @@
     "@babel/runtime": "catalog:",
     "@pkgs/async-local": "workspace:*",
     "@pkgs/clock": "workspace:*",
+    "@pkgs/dst": "workspace:*",
     "@testing-library/react-native": "catalog:",
     "react": "catalog:",
     "react-native": "catalog:",

@@ -1,13 +1,9 @@
-import type {
-  Network,
-  NeverOptions,
-  WaitUntilOptions,
-  WorldPorts,
-} from '@pkgs/dst';
+import type { Network, VirtualScheduler } from '@pkgs/dst/kernel';
 
 import type { SimPollablePromise } from './client-surface';
 
-export type { NeverOptions, WaitUntilOptions };
+export type WaitUntilOptions = { readonly withinMs?: number };
+export type NeverOptions = { readonly forMs: number };
 
 export type UntilTarget =
   | (() => boolean | Promise<boolean>)
@@ -16,8 +12,8 @@ export type UntilTarget =
 
 type WaitWorld = {
   readonly seed: bigint;
-  readonly ports: WorldPorts;
-  readonly network: Network;
+  readonly scheduler: VirtualScheduler;
+  readonly network: Network | { readonly held: () => readonly string[] };
 };
 
 type WaitUntilOpts = WaitUntilOptions & {
@@ -88,7 +84,7 @@ function heldSummary(world: WaitWorld): readonly string[] {
 
 /**
  * Sync-aware wait: pollable promises (`client.outcome()`), plain promises
- * (`sub.ready`), and predicates. Framework `World.until` is predicate-only.
+ * (`sub.ready`), and predicates.
  */
 export async function waitUntil(
   world: WaitWorld,
@@ -97,8 +93,8 @@ export async function waitUntil(
 ): Promise<number> {
   const withinMs = opts?.withinMs ?? opts?.budgetMs ?? 2_000;
   const stepMs = opts?.stepMs ?? 25;
-  const simClock = world.ports.scheduler.clock;
-  const { scheduler } = world.ports;
+  const { scheduler } = world;
+  const simClock = scheduler.clock;
   const start = simClock.now();
   const watch = watchTarget(target);
 
@@ -133,8 +129,8 @@ export async function waitNever(
 ): Promise<void> {
   const forMs = opts.forMs;
   const stepMs = 25;
-  const simClock = world.ports.scheduler.clock;
-  const { scheduler } = world.ports;
+  const { scheduler } = world;
+  const simClock = scheduler.clock;
   const start = simClock.now();
   const watch = watchTarget(target);
 

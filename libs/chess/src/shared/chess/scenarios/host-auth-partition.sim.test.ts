@@ -1,6 +1,19 @@
 import { describe, expect, test } from 'bun:test';
-import { openWorld } from '@pkgs/dst';
 import { ROOM_ERROR_TYPE } from '@pkgs/room';
+import {
+  addClient,
+  clientHash,
+  clientState,
+  converge,
+  dispatch,
+  hold,
+  lastRejection,
+  passTime,
+  release,
+  serverHash,
+  serverState,
+  startRoom,
+} from '@pkgs/room/tests';
 
 import {
   CHESS_PUZZLE_PLAY_STATUS,
@@ -15,50 +28,48 @@ const VALID_MOVES = 'e8d7 e1f2 d7e6 f2e3';
 
 describe('chess puzzle: host auth under partition (Gp-02)', () => {
   test('non-host submit rejected; domain still converges', async () => {
-    await using world = await openWorld(chessSystem, {
+    await using run = await startRoom(chessSystem, {
       seed: process.env['SIM_SEED'] ?? '42',
-      knobs: { clientCount: 0 },
     });
-    const hostClient = await world.addClient({
-      id: 'host',
-      identity: 'host-1',
-    });
-    const spectator = await world.addClient({
-      id: 'spec',
-      identity: 'guest-1',
-    });
-    await world.assertConverged();
+    await run.apply(addClient, { id: 'host', identity: 'host-1' });
+    await run.apply(addClient, { id: 'spec', identity: 'guest-1' });
+    await run.apply(converge);
 
-    hostClient.dispatch(
-      StartChessPuzzlePlay({
+    await run.apply(dispatch, {
+      clientId: 'host',
+      payload: StartChessPuzzlePlay({
         puzzleId: 'p1',
         fen: VALID_FEN,
         moves: VALID_MOVES,
-      })
-    );
-    await world.drain();
-    expect(ChessPuzzlePlayAttr.status.from(await world.serverSnapshot())).toBe(
-      CHESS_PUZZLE_PLAY_STATUS.solving
-    );
-    expect(ChessPuzzlePlayAttr.status.from(hostClient.snapshot())).toBe(
-      CHESS_PUZZLE_PLAY_STATUS.solving
-    );
+      }),
+    });
+    await run.apply(passTime, 0);
+    expect(
+      ChessPuzzlePlayAttr.status.from((await run.observe(serverState)) as never)
+    ).toBe(CHESS_PUZZLE_PLAY_STATUS.solving);
 
-    {
-      using _hold = world.net('spec').set('hold');
-      spectator.dispatch(SubmitChessPuzzleMove({ uci: 'e1f2' }));
-      await world.drain();
-    }
+    await run.apply(hold, 'spec');
+    await run.apply(dispatch, {
+      clientId: 'spec',
+      payload: SubmitChessPuzzleMove({ uci: 'e1f2' }),
+    });
+    await run.apply(release, 'spec');
 
-    await world.assertConverged();
-    expect(spectator.lastRejection()?.type).toBe(ROOM_ERROR_TYPE.unauthorized);
-    expect(ChessPuzzlePlayAttr.status.from(await world.serverSnapshot())).toBe(
+    await run.apply(converge);
+    const rejections = (await run.observe(lastRejection)) as Record<
+      string,
+      { readonly type?: string } | null
+    >;
+    expect(rejections['spec']?.type).toBe(ROOM_ERROR_TYPE.unauthorized);
+    expect(
+      ChessPuzzlePlayAttr.status.from((await run.observe(serverState)) as never)
+    ).toBe(CHESS_PUZZLE_PLAY_STATUS.solving);
+    const clients = await run.observe(clientState);
+    expect(ChessPuzzlePlayAttr.status.from(clients['host'] as never)).toBe(
       CHESS_PUZZLE_PLAY_STATUS.solving
     );
-    expect(ChessPuzzlePlayAttr.status.from(hostClient.snapshot())).toBe(
-      CHESS_PUZZLE_PLAY_STATUS.solving
-    );
-    expect(hostClient.hash()).toBe(await world.serverHash());
-    expect(hostClient.hash()).toBe(spectator.hash());
+    const hashes = (await run.observe(clientHash)) as Record<string, string>;
+    expect(hashes['host']).toBe(await run.observe(serverHash));
+    expect(hashes['host']).toBe(hashes['spec']);
   });
 });
