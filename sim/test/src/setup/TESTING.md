@@ -1,7 +1,7 @@
 # Sim tests (DST)
 
 Product system lives in `sim/test/src/scenario/`. Open a run with `openSim` from
-`sim/test/src/setup/open-sim.ts` — `start(product)` on `simHost` / `maxHost`
+`sim/test/src/setup/open-sim.ts` — `script(product)` on `simHost` / `maxHost`
 (`virtualHost().with({ sql, ui, http })` / `wallHost({ network: 'none' }).with(…)`).
 `openSim` attaches `PRODUCT_PROPERTIES` (`noErrorBoundary`) and returns a
 `Run`. Playground opens `virtualHost()` and passes the `Session` to `createSim`.

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -14,7 +14,7 @@ import {
 
 describe('null vs missing column in snapshot', () => {
   test('explicit null folderId and omitted folderId both yield null folder_id', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 1000,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -46,7 +46,7 @@ describe('null vs missing column in snapshot', () => {
   test.each([1001, 1002, 1003])(
     'seed sweep null vs omitted folderId converge identically (seed=%i)',
     async (seed) => {
-      await using run = await start(acmeSystem, {
+      await using run = await script(acmeSystem, {
         seed: seed,
         host: syncVirtualHost(),
         knobs: acmeKnobs({ clientCount: 0 }),

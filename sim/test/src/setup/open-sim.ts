@@ -1,9 +1,9 @@
 /**
- * Open a product UI simulation: `start(product)` on {@link simHost} / {@link maxHost}.
+ * Open a product UI simulation: `script(product)` on {@link simHost} / {@link maxHost}.
  */
 
 import type { Host, Ports, Run, Session } from '@pkgs/dst';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import type { SimulationReporter } from '@pkgs/sim-console';
 import type { SimSystemSnapshot } from '@pkgs/sim-console/shared/sim-system-snapshot';
 import type { UiTestCtx } from '@pkgs/ui-testing';
@@ -264,7 +264,7 @@ export async function openSim(
     current: null,
   };
   const host = hostWithProductDispose(resolveHost(ctx, options), disposeRef);
-  const run = await start(product, {
+  const run = await script(product, {
     host: host as Host<Ports>,
     seed: 1,
     properties: PRODUCT_PROPERTIES,

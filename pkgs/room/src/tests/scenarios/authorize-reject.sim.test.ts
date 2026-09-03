@@ -5,7 +5,7 @@ import {
   dispatch,
   logSeq,
   type RoomApp,
-  startRoom,
+  scriptRoom,
 } from '../../sim/scenario';
 import { ROOM_ERROR_TYPE } from '../../types';
 import { authzApp } from '../apps/authz/app';
@@ -29,7 +29,7 @@ const denyEveSystem = defineRoomSystem(denyEveApp, {
 
 describe('room sim: authorize reject (E-D03)', () => {
   test('authorize hook denies without mutating', async () => {
-    await using run = await startRoom(denyEveSystem);
+    await using run = await scriptRoom(denyEveSystem);
     await run.apply(addClient, { id: 'alice' });
     await run.apply(addClient, { id: 'eve' });
     await expectConverged(run);

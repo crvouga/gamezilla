@@ -27,9 +27,9 @@ export {
   release,
   restart,
   revive,
+  scriptRoom,
   serverHash,
   serverState,
-  startRoom,
 } from './sim/scenario';
 export { expectConverged } from './tests/expect-converged';
 export {

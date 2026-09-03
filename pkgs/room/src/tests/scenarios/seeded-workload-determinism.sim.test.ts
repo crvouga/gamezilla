@@ -6,15 +6,15 @@ import {
   hold,
   passTime,
   release,
+  scriptRoom,
   serverHash,
-  startRoom,
 } from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
 import { expectConverged } from '../expect-converged';
 import { Increment } from '../fixtures/counter-module';
 
 async function runWorkload(seed: number | string): Promise<string> {
-  await using run = await startRoom(counterSystem, { seed });
+  await using run = await scriptRoom(counterSystem, { seed });
   await run.apply(addClient, { id: 'alice' });
   await run.apply(addClient, { id: 'bob' });
   for (let i = 0; i < 7; i += 1) {

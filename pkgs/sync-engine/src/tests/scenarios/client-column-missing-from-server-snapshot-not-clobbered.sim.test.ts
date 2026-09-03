@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeLocalSchemaExtraColumn,
@@ -19,7 +19,7 @@ describe('client column missing from server snapshot not clobbered', () => {
     'local color survives peer body update (seed=%i)',
     async (seed) => {
       // Server stays on base schema (no color). Client has extra column.
-      await using run = await start(acmeSystem, {
+      await using run = await script(acmeSystem, {
         seed: seed,
         host: syncVirtualHost(),
         knobs: acmeKnobs({ clientCount: 0 }),

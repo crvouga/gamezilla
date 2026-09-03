@@ -1,4 +1,4 @@
-import { defineSystem, type Run, start } from '@pkgs/dst';
+import { defineSystem, type Run, script } from '@pkgs/dst';
 import { gen } from '@pkgs/dst/fast-check';
 import { asSeededRng } from '@pkgs/dst/kernel';
 import fc from 'fast-check';
@@ -95,7 +95,7 @@ export const MATCHMAKING_SYSTEM = matchmaking;
 
 export type MatchmakingSystemDef = ReturnType<typeof defineMatchmakingSystem>;
 
-export type StartMatchmakingArgs = {
+export type ScriptMatchmakingArgs = {
   readonly seed: number | bigint | string;
   readonly replicas?: number;
   readonly backend?: MatchmakingSimBackend;
@@ -104,7 +104,7 @@ export type StartMatchmakingArgs = {
   readonly tuning?: Partial<MatchmakingTuning>;
 };
 
-function systemFor(args: StartMatchmakingArgs): MatchmakingSystemDef {
+function systemFor(args: ScriptMatchmakingArgs): MatchmakingSystemDef {
   if (
     args.schema === undefined &&
     args.radius === undefined &&
@@ -119,11 +119,11 @@ function systemFor(args: StartMatchmakingArgs): MatchmakingSystemDef {
   });
 }
 
-/** Boot a matchmaking run via {@link start} (pinned replica count / backend). */
-export async function startMatchmaking(
-  args: StartMatchmakingArgs
+/** Boot a matchmaking run via {@link script} (pinned replica count / backend). */
+export async function scriptMatchmaking(
+  args: ScriptMatchmakingArgs
 ): Promise<Run<MatchmakingSurface>> {
-  return start(systemFor(args), {
+  return script(systemFor(args), {
     seed: args.seed,
     knobs: matchmakingKnobs({
       ...(args.replicas !== undefined ? { replicas: args.replicas } : {}),
@@ -135,5 +135,5 @@ export async function startMatchmaking(
 
 export type { MatchmakingSurface };
 
-/** Gen for `check(..., { knobs })` campaigns. */
+/** Gen for `explore(..., { knobs })` campaigns. */
 export const genMatchmakingKnobs = () => gen(arbMatchmakingKnobs());

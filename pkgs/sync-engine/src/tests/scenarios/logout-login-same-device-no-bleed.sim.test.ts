@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -20,7 +20,7 @@ import {
 
 describe('logout login same device no bleed', () => {
   test('actor B on same device id never sees A unuploaded optimistic', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 960,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -71,7 +71,7 @@ describe('logout login same device no bleed', () => {
   test.each([961, 962, 963])(
     'seed sweep logout/login same device id (seed=%i)',
     async (seed) => {
-      await using run = await start(acmeSystem, {
+      await using run = await script(acmeSystem, {
         seed: seed,
         host: syncVirtualHost(),
         knobs: acmeKnobs({ clientCount: 0 }),

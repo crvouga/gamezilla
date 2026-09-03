@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import type { Run } from '@pkgs/dst';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -36,7 +36,7 @@ async function flapForeground(run: Run<SyncSurface>): Promise<void> {
 
 describe('connect disconnect flapping under load', () => {
   test('online/foreground flap under mutation storm still converges', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 1050,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -69,7 +69,7 @@ describe('connect disconnect flapping under load', () => {
   test.each([1051, 1052, 1053])(
     'seed sweep flap + mutate converges (seed=%i)',
     async (seed) => {
-      await using run = await start(acmeSystem, {
+      await using run = await script(acmeSystem, {
         seed,
         host: syncVirtualHost(),
         knobs: acmeKnobs({ clientCount: 0 }),

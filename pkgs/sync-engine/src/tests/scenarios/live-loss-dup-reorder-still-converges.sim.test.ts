@@ -1,5 +1,5 @@
 import { describe, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import type { SimFaultOptions } from '../../sim/faults';
 import { RELIABLE_FAULTS } from '../../sim/faults';
 import type { SyncAction } from '../../sim/scenario';
@@ -32,7 +32,7 @@ function liveFaults(
 
 describe('live loss dup reorder still converges', () => {
   test('lossy live on bob still converges after clear', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 401,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -57,7 +57,7 @@ describe('live loss dup reorder still converges', () => {
   });
 
   test('dup live on bob converges', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 402,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -78,7 +78,7 @@ describe('live loss dup reorder still converges', () => {
   });
 
   test('reordered live on bob converges', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 403,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -104,7 +104,7 @@ describe('live loss dup reorder still converges', () => {
   });
 
   test('asymmetric: alice reliable, bob lossy+dup+reorder', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 404,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -135,7 +135,7 @@ describe('live loss dup reorder still converges', () => {
   });
 
   test('live chaos + sync hold then release converges', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 405,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

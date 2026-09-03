@@ -37,7 +37,7 @@ export type Run<S> = {
   readonly [Symbol.asyncDispose]: () => Promise<void>;
 };
 
-/** Module-private run state — walk / check / replay only. */
+/** Module-private run state — walk / explore / replay only. */
 export type RunInternal<S> = {
   readonly surface: S;
   readonly session: Session;
@@ -68,7 +68,7 @@ type KnobsOption<K> = [K] extends [void]
   ? { readonly knobs?: undefined }
   : { readonly knobs: K };
 
-export type StartOptions<S, K = void> = {
+export type ScriptOptions<S, K = void> = {
   readonly seed: number | bigint | string;
   readonly host?: Host<Ports>;
   readonly properties?: readonly Property<S>[];
@@ -238,9 +238,9 @@ function buildRun<S>(args: {
   return run;
 }
 
-export async function start<S, K = void>(
+export async function script<S, K = void>(
   system: System<S, K>,
-  opts: StartOptions<S, K>
+  opts: ScriptOptions<S, K>
 ): Promise<Run<S>> {
   const host = opts.host ?? virtualHost();
   const session = await host.open(opts.seed);

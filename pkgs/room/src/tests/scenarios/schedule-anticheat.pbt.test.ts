@@ -6,7 +6,7 @@ import {
   passTime,
   replayRoom,
   replayRoomPin,
-  startRoom,
+  scriptRoom,
 } from '../../sim/scenario';
 import { matchClockSystem } from '../apps/match-clock/system';
 import { expectConverged } from '../expect-converged';
@@ -52,7 +52,7 @@ describe('room schedule-anticheat PBT', () => {
   );
 
   test('early FlagFall rejected; server still flags at true at', async () => {
-    await using run = await startRoom(matchClockSystem, {
+    await using run = await scriptRoom(matchClockSystem, {
       seed: 3,
       clientCount: 2,
     });

@@ -5,7 +5,7 @@ import {
   join,
   lastTick,
   participantIds,
-  startMatchmaking,
+  scriptMatchmaking,
   statusOf,
   tick,
 } from '../../sim/scenario';
@@ -28,7 +28,7 @@ describe('matchmaking sim: groupSize', () => {
   });
 
   test('groupSize: 3 forms one match', async () => {
-    await using run = await startMatchmaking({ seed: 60 });
+    await using run = await scriptMatchmaking({ seed: 60 });
     const ratings = { a: 1000, b: 1005, c: 1010 } as const;
     for (const [ref, rating] of Object.entries(ratings)) {
       await run.apply(join, {
@@ -57,7 +57,7 @@ describe('matchmaking sim: groupSize', () => {
   });
 
   test('mixed groupSize never cross-matches', async () => {
-    await using run = await startMatchmaking({ seed: 61 });
+    await using run = await scriptMatchmaking({ seed: 61 });
     const plan = [
       { ref: 'a', rating: 1000, groupSize: 2 },
       { ref: 'b', rating: 1005, groupSize: 3 },

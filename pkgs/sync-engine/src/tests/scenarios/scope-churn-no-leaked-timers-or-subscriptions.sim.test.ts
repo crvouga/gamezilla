@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -18,7 +18,7 @@ import {
 
 describe('scope churn no leaked timers or subscriptions', () => {
   test('rapid subscribe/unsubscribe settles to active session topics only', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 1030,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -62,7 +62,7 @@ describe('scope churn no leaked timers or subscriptions', () => {
   test.each([1031, 1032, 1033])(
     'seed sweep churn returns to session topics (seed=%i)',
     async (seed) => {
-      await using run = await start(acmeSystem, {
+      await using run = await script(acmeSystem, {
         seed: seed,
         host: syncVirtualHost(),
         knobs: acmeKnobs({ clientCount: 0 }),

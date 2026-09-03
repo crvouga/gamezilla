@@ -4,7 +4,7 @@ import {
   join,
   lastTick,
   passTime,
-  startMatchmaking,
+  scriptMatchmaking,
   statusOf,
   tick,
 } from '../../sim/scenario';
@@ -22,7 +22,7 @@ describe('matchmaking sim: tick sweeps', () => {
   });
 
   test('expiredRemoved reaps waiters older than maxWaitSeconds', async () => {
-    await using run = await startMatchmaking({
+    await using run = await scriptMatchmaking({
       seed: 50,
       tuning: { maxWaitSeconds: 30 },
     });
@@ -43,7 +43,7 @@ describe('matchmaking sim: tick sweeps', () => {
   });
 
   test('matchedRemoved reaps matched rows older than matchedRetentionSeconds', async () => {
-    await using run = await startMatchmaking({
+    await using run = await scriptMatchmaking({
       seed: 51,
       tuning: { matchedRetentionSeconds: 10 },
     });
@@ -67,7 +67,7 @@ describe('matchmaking sim: tick sweeps', () => {
   });
 
   test('tick on an empty queue is a clean no-op', async () => {
-    await using run = await startMatchmaking({ seed: 52 });
+    await using run = await scriptMatchmaking({ seed: 52 });
     await run.apply(tick, {});
     expect(await run.observe(lastTick)).toEqual({
       matches: 0,

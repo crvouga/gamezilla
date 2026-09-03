@@ -6,7 +6,7 @@ import {
   lastTickAll,
   participantIds,
   passTime,
-  startMatchmaking,
+  scriptMatchmaking,
   statuses,
   tickAllWith,
 } from '../../sim/scenario';
@@ -28,7 +28,7 @@ describe('matchmaking sim: concurrent replica ticks', () => {
   });
 
   test('tickAll never double-matches a participant', async () => {
-    await using run = await startMatchmaking({
+    await using run = await scriptMatchmaking({
       seed: 210,
       replicas: 3,
       backend: 'postgres',

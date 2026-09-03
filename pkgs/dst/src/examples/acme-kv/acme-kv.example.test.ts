@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { gen } from '../../fast-check';
-import { start, walk, wallHost } from '../../index';
-import { check } from '../../pbt';
+import { explore, script, walk, wallHost } from '../../index';
 import {
   arbKvKnobs,
   converged,
@@ -17,7 +16,7 @@ import {
 
 describe('acme-kv', () => {
   test('scripted put → partition → put → heal → converge', async () => {
-    await using run = await start(kv, {
+    await using run = await script(kv, {
       seed: 7,
       knobs: { clients: 2 },
       properties: KV_PROPERTIES,
@@ -33,8 +32,8 @@ describe('acme-kv', () => {
     expect(await run.observe(converged)).toBe(true);
   });
 
-  test('check campaign on virtual host', async () => {
-    const report = await check(kv, {
+  test('explore campaign on virtual host', async () => {
+    const report = await explore(kv, {
       properties: KV_PROPERTIES,
       actions: [...KV_ACTIONS],
       knobs: gen(arbKvKnobs()),
@@ -48,7 +47,7 @@ describe('acme-kv', () => {
 
   test('walk on wall host with model network', async () => {
     const host = wallHost({ network: 'model' });
-    await using run = await start(kv, {
+    await using run = await script(kv, {
       host,
       seed: 9,
       knobs: { clients: 2 },

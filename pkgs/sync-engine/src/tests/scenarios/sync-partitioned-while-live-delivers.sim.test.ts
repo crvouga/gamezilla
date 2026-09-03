@@ -1,5 +1,5 @@
 import { describe, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -16,7 +16,7 @@ import { expectLiveNoteAt, expectNotesAgree } from '../apps/acme/reads';
 
 describe('sync partitioned while live delivers', () => {
   test('partition sync then heal converges', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 506,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0, rowImageFanout: false }),

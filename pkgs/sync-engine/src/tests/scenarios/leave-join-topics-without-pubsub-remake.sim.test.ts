@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -23,7 +23,7 @@ import {
 
 describe('leave join topics without pubsub remake', () => {
   test('leave then join different room without pubsub remake', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 801,
       host: syncVirtualHost(),
       knobs: acmeKnobs({

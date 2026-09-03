@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeMutationRegistry,
@@ -25,7 +25,7 @@ function mutationRegistryV1Only(): typeof acmeMutationRegistry {
 
 describe('set note v1 v2 interleaved converge', () => {
   test('setNote and setNoteV2 interleaved writes converge', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 660,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -60,7 +60,7 @@ describe('set note v1 v2 interleaved converge', () => {
   });
 
   test('mutation-v2-rollout-old-client-still-replays-v1', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 661,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

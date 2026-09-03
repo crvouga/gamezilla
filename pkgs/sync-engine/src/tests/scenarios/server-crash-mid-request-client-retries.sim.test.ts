@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -17,7 +17,7 @@ import {
 
 describe('server crash mid request client retries', () => {
   test('server dies mid traffic; restart; clients retry and converge', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 833,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

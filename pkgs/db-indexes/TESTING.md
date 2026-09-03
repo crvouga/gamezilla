@@ -18,7 +18,7 @@ INDEXES_SIM_SEED=42 bun test src/tests/scenario/known-seeds.sim.test.ts
 ```
 
 Persist new failure seeds in `src/tests/scenario/known-seeds.txt` (always run first).
-Corpus runs are driven by `@pkgs/dst/pbt` `check` over `indexes` + `INDEXES_ACTIONS`.
+Corpus runs are driven by `@pkgs/dst` `explore` over `indexes` + `INDEXES_ACTIONS`.
 
 ## Invariant → assert / sim / property map
 

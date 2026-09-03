@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -20,7 +20,7 @@ describe('non mutation catalog insert wakes empty hydrate', () => {
   // the client fast; without notify the reconcile tick still heals.
 
   test('insertCatalogNote notify true wakes client after empty hydrate', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 1401,
       host: syncVirtualHost(),
       knobs: acmeKnobs({
@@ -46,7 +46,7 @@ describe('non mutation catalog insert wakes empty hydrate', () => {
   });
 
   test('insertCatalogNote notify false heals via reconcile tick', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 1402,
       host: syncVirtualHost(),
       knobs: acmeKnobs({

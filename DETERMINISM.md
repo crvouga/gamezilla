@@ -6,7 +6,7 @@ identical logic. Hidden nondeterminism is a production correctness bug.
 
 ## Core rule
 
-**Same seed → same path.** Given the same `Session` / `start(system, { seed })`
+**Same seed → same path.** Given the same `Session` / `script(system, { seed })`
 seed (and the same system draws + action choices), reducers, merges, and derived
 game/social state must match bit-for-bit across clients and runs.
 
@@ -27,8 +27,8 @@ Inject clock, timers, ids, RNG, and HTTP from a composition root
 ports — never the Session bag. Shared simulation mechanics live in
 `@pkgs/dst`. **Systems are framework-owned:** packages declare
 `defineSystem` / `defineObservation` / `defineAction` / `defineProperty` (topology via
-`session.fork` + `draw`, converge as actions/properties); tests call `start` /
-`walk` / `check` / `replay` from `@pkgs/dst` / `@pkgs/dst/pbt` — not package-local
+`session.fork` + `draw`, converge as actions/properties); tests call `script` /
+`walk` / `explore` / `replay` from `@pkgs/dst` — not package-local
 World openers. See [`pkgs/dst/README.md`](pkgs/dst/README.md).
 
 Domain and game-logic code take required `clock` / `createId` (or `now` slices).

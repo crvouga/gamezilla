@@ -1,5 +1,5 @@
 import { describe, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -27,7 +27,7 @@ describe('pubsub publish fails after commit heals by refetch', () => {
   // Pins Consistency table "Push lost": commit acks, fanout drop, heal via refetch.
   test('lost publish leaves peers stale until foreground refetch', async () => {
     // rowImageFanout false: isolate server publish loss (no optimistic images).
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 901,
       host: syncVirtualHost(),
       knobs: acmeKnobs({
@@ -68,7 +68,7 @@ describe('pubsub publish fails after commit heals by refetch', () => {
   test.each([902, 903, 904])(
     'seed sweep: publish fault then reconnect heals (seed=%i)',
     async (seed) => {
-      await using run = await start(acmeSystem, {
+      await using run = await script(acmeSystem, {
         seed: seed,
         host: syncVirtualHost(),
         knobs: acmeKnobs({

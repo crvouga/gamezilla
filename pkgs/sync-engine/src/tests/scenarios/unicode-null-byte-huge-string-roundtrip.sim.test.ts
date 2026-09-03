@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -17,7 +17,7 @@ const HUGE = `${'🚀'.repeat(50)}${'a'.repeat(100_000)}`;
 
 describe('unicode null byte huge string roundtrip', () => {
   test('emoji RTL null-byte and huge body round-trip across peers', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 990,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -53,7 +53,7 @@ describe('unicode null byte huge string roundtrip', () => {
   test.each([991, 992, 993])(
     'seed sweep unicode bodies hash-stable converge (seed=%i)',
     async (seed) => {
-      await using run = await start(acmeSystem, {
+      await using run = await script(acmeSystem, {
         seed: seed,
         host: syncVirtualHost(),
         knobs: acmeKnobs({ clientCount: 0 }),

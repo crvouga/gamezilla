@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -16,7 +16,7 @@ import {
 
 describe('domain hard delete rejected', () => {
   test('illegalHardDeleteNote fails with NO_HARD_DELETE; row stays live', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 60,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

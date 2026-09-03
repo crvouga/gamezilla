@@ -1,6 +1,6 @@
 import { describe, test } from 'bun:test';
 import { assertProperty, fc } from '@pkgs/pbt';
-import { checkSync } from '../../sim/scenario';
+import { exploreSync } from '../../sim/scenario';
 import { playAcmePin, runAcmeSeed } from '../apps/acme';
 import { acmeSystem } from '../apps/acme/system';
 
@@ -8,7 +8,7 @@ describe('acme system PBT', () => {
   test(
     'fc.commands sequences replay on SyncKit and converge',
     async () => {
-      await checkSync(acmeSystem, {
+      await exploreSync(acmeSystem, {
         steps: 14,
         episodes: 8,
         seed: 42,

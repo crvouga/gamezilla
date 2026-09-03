@@ -4,7 +4,7 @@ import {
   connect,
   disconnect,
   dispatch,
-  startRoom,
+  scriptRoom,
 } from '../../sim/scenario';
 import { ROOM_ERROR_TYPE } from '../../types';
 import { authzSystem } from '../apps/authz/system';
@@ -14,7 +14,7 @@ import { readClient, readRejection, readServer } from '../scenario/read-state';
 
 describe('kit: authz survives reconnect (M-F05)', () => {
   test('non-owner still unauthorized after soft reconnect', async () => {
-    await using run = await startRoom(authzSystem);
+    await using run = await scriptRoom(authzSystem);
     await run.apply(addClient, { id: 'alice' });
     await run.apply(addClient, { id: 'bob' });
     await expectConverged(run);

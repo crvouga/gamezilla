@@ -10,9 +10,9 @@ import {
   lastRejection,
   passTime,
   release,
+  scriptRoom,
   serverHash,
   serverState,
-  startRoom,
 } from '@pkgs/room/tests';
 
 import {
@@ -28,7 +28,7 @@ const VALID_MOVES = 'e8d7 e1f2 d7e6 f2e3';
 
 describe('chess puzzle: host auth under partition (Gp-02)', () => {
   test('non-host submit rejected; domain still converges', async () => {
-    await using run = await startRoom(chessSystem, {
+    await using run = await scriptRoom(chessSystem, {
       seed: process.env['SIM_SEED'] ?? '42',
     });
     await run.apply(addClient, { id: 'host', identity: 'host-1' });

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -22,7 +22,7 @@ import {
 
 describe('mutate local apply and queue atomic under crash', () => {
   test('crash after mutate resolves offline: write everywhere or nowhere', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 831,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -13,7 +13,7 @@ import {
 
 describe('two client mutual writes converge', () => {
   test('peer sees note after expectConverged', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 3,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -30,7 +30,7 @@ describe('two client mutual writes converge', () => {
   });
 
   test.each([1, 2, 42, 99])('seed sweep converges (seed=%i)', async (seed) => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: seed,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

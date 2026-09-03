@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -17,7 +17,7 @@ import {
 
 describe('not modified does not clobber pending', () => {
   test('not_modified refetch does not clobber pending optimistic; later hash miss rebases', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 640,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

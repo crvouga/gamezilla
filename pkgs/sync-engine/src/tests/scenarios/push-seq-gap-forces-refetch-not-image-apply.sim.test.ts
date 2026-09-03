@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -17,7 +17,7 @@ import {
 
 describe('push seq gap forces refetch not image apply', () => {
   test('lost live push creates gap; later push still converges via refetch', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 804,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

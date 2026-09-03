@@ -5,7 +5,7 @@ import {
   hold,
   passTime,
   release,
-  startRoom,
+  scriptRoom,
 } from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
 import { expectConverged } from '../expect-converged';
@@ -19,7 +19,7 @@ import {
 
 describe('room sim: partition then heal', () => {
   test('held peer never sees write until heal + converge', async () => {
-    await using run = await startRoom(counterSystem, { seed: 3 });
+    await using run = await scriptRoom(counterSystem, { seed: 3 });
     await run.apply(addClient, { id: 'alice' });
     await run.apply(addClient, { id: 'bob' });
     await expectConverged(run);

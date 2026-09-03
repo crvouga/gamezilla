@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import { createSyncEnginePool } from '@pkgs/sync-engine/client';
 import {
   acmeKnobs,
@@ -24,7 +24,7 @@ import {
 
 describe('account switch pool isolation', () => {
   test('createSyncEnginePool closes prior identity SQLite before next open', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 950,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0, rowImageFanout: false }),
@@ -98,7 +98,7 @@ describe('account switch pool isolation', () => {
   });
 
   test('concurrent getOrCreate for different identities does not overlap create', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 960,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0, rowImageFanout: false }),
@@ -138,7 +138,7 @@ describe('account switch pool isolation', () => {
   test.each([951, 952, 953])(
     'seed sweep dual-client pool stand-in isolates pending (seed=%i)',
     async (seed) => {
-      await using run = await start(acmeSystem, {
+      await using run = await script(acmeSystem, {
         seed: seed,
         host: syncVirtualHost(),
         knobs: acmeKnobs({ clientCount: 0, rowImageFanout: false }),

@@ -1,5 +1,5 @@
 import { describe, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -17,7 +17,7 @@ import {
 
 describe('sync hold reorder dup still converges', () => {
   test('held sync still converges after release', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 503,
       host: syncVirtualHost(),
       knobs: acmeKnobs({
@@ -42,7 +42,7 @@ describe('sync hold reorder dup still converges', () => {
   });
 
   test('reordered sync still converges', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 504,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -65,7 +65,7 @@ describe('sync hold reorder dup still converges', () => {
   });
 
   test('duplicate sync still converges', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 505,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

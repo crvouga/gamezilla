@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -16,7 +16,7 @@ import {
 
 describe('reupload idempotent no duplicate rows', () => {
   test('reconnect after offline set does not duplicate domain rows', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 70,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -45,7 +45,7 @@ describe('reupload idempotent no duplicate rows', () => {
   });
 
   test('repeated setNote on same id keeps single live row', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 71,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

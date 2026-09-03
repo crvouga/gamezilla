@@ -4,7 +4,7 @@ import {
   join,
   passTime,
   replicaIds,
-  startMatchmaking,
+  scriptMatchmaking,
   tick,
 } from '../../sim/scenario';
 import {
@@ -16,7 +16,7 @@ import {
 const SimpleFormula = { numeric: [{ tag: RatingAttr, weight: 1 }] };
 
 async function runWorkload(seed: string): Promise<string> {
-  await using run = await startMatchmaking({ seed, replicas: 3 });
+  await using run = await scriptMatchmaking({ seed, replicas: 3 });
   const replicas = await run.observe(replicaIds);
   const rng = createSeededRng(seed).fork('workload');
   for (let i = 0; i < 10; i += 1) {

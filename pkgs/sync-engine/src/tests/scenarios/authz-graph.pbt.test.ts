@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import { assertProperty, fc } from '@pkgs/pbt';
 import { arbKnobs, arbSeed } from '../../sim/scenario/knobs';
 import {
@@ -29,7 +29,7 @@ describe('authz graph PBT', () => {
           fc.string({ maxLength: 12 }),
           async (seed, knobs, noteId, body) => {
             if (knobs.clientCount < 2) return;
-            await using run = await start(acmeSystem, {
+            await using run = await script(acmeSystem, {
               seed,
               host: syncVirtualHost(),
               knobs: acmeKnobs(knobs),
@@ -85,7 +85,7 @@ describe('authz graph PBT', () => {
             { minLength: 1, maxLength: 6 }
           ),
           async (seed, knobs, writes) => {
-            await using run = await start(acmeSystem, {
+            await using run = await script(acmeSystem, {
               seed,
               host: syncVirtualHost(),
               knobs: acmeKnobs(knobs),

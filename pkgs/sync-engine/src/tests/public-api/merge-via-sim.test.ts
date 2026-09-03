@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { type BoundObservation, start } from '@pkgs/dst';
+import { type BoundObservation, script } from '@pkgs/dst';
 import { sql } from '@pkgs/sql';
 import {
   acmeKnobs,
@@ -32,7 +32,7 @@ const aliceColor = rows(
  */
 describe('public API: merge via sim', () => {
   test('missing server keys do not null local-only columns', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 9001,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -62,7 +62,7 @@ describe('public API: merge via sim', () => {
   });
 
   test('tombstone upsert removes live peer row; pending rebase wins after disconnect', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 9002,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

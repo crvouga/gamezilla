@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import { MAX_QUERY_BATCH } from '@pkgs/sync-engine/shared';
 import {
   acmeKnobs,
@@ -15,7 +15,7 @@ describe('query POST chunking', () => {
   test(
     'more than MAX_QUERY_BATCH active scopes converge without 400',
     async () => {
-      await using run = await start(acmeSystem, {
+      await using run = await script(acmeSystem, {
         seed: 9401,
         host: syncVirtualHost(),
         knobs: acmeKnobs({

@@ -8,7 +8,7 @@ import {
   domain,
   passTime,
   restart,
-  startRoom,
+  scriptRoom,
 } from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
 import { expectConverged } from '../expect-converged';
@@ -31,7 +31,7 @@ describe('room armCrashAt slice PBT', () => {
           arbSeed(),
           fc.constantFrom(...SIM_PBT_CRASH_EVENTS),
           async (seed, event) => {
-            await using run = await startRoom(counterSystem, {
+            await using run = await scriptRoom(counterSystem, {
               seed,
               clientCount: 2,
               mildFaults: false,

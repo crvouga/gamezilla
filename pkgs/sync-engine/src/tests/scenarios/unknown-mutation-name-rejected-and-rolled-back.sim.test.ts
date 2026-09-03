@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeMutationRegistry,
@@ -21,7 +21,7 @@ describe('unknown mutation name rejected and rolled back', () => {
   test.each([770, 771, 772])(
     'ghostMutation rejected; merge heals (seed=%i)',
     async (seed) => {
-      await using run = await start(acmeSystem, {
+      await using run = await script(acmeSystem, {
         seed,
         host: syncVirtualHost(),
         knobs: acmeKnobs({ clientCount: 0, rowImageFanout: false }),

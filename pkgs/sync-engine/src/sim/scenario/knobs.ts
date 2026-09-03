@@ -16,7 +16,7 @@ export const DEFAULT_SYNC_KNOBS: SyncKnobs = {
 };
 
 /**
- * Typed system knobs for `start` / `check`:
+ * Typed system knobs for `script` / `explore`:
  * `knobs: syncKnobs({ clientCount: 0 })`.
  */
 export function syncKnobs(knobs?: Partial<SyncKnobs>): SyncKnobs {

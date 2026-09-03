@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -20,7 +20,7 @@ const BIG_IDS = [
 
 describe('bigint ids and float precision stable', () => {
   test('string bigint ids and float JSON body round-trip stable', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 1010,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -53,7 +53,7 @@ describe('bigint ids and float precision stable', () => {
   test.each([1011, 1012, 1013])(
     'seed sweep bigint-looking ids converge (seed=%i)',
     async (seed) => {
-      await using run = await start(acmeSystem, {
+      await using run = await script(acmeSystem, {
         seed,
         host: syncVirtualHost(),
         knobs: acmeKnobs({ clientCount: 0 }),

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -20,7 +20,7 @@ import {
 
 describe('row image for inactive table ignored safely', () => {
   test('server folders push ignored by notesOnly peer; later note push applies', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 807,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

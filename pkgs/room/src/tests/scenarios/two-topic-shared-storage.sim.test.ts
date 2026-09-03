@@ -7,7 +7,7 @@ import {
   hold,
   passTime,
   release,
-  startRoom,
+  scriptRoom,
 } from '../../sim/scenario';
 import { counterApp } from '../apps/counter/app';
 import { expectConverged } from '../expect-converged';
@@ -31,8 +31,8 @@ describe('room sim: two-topic shared storage (E-H01)', () => {
       topic: 'topic-b',
       storage,
     });
-    await using runA = await startRoom(systemA);
-    await using runB = await startRoom(systemB, { seed: '43' });
+    await using runA = await scriptRoom(systemA);
+    await using runB = await scriptRoom(systemB, { seed: '43' });
     await runA.apply(addClient, { id: 'alice' });
     await runA.apply(addClient, { id: 'bob' });
     await runB.apply(addClient, { id: 'carol' });

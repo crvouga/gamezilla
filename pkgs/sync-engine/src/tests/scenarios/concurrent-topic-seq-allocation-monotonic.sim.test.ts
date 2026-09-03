@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -15,7 +15,7 @@ import {
 
 describe('concurrent topic seq allocation monotonic', () => {
   test('overlapping mutates on shared topic converge without torn state', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 920,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -51,7 +51,7 @@ describe('concurrent topic seq allocation monotonic', () => {
   test.each([921, 922, 923])(
     'seed sweep concurrent writers converge (seed=%i)',
     async (seed) => {
-      await using run = await start(acmeSystem, {
+      await using run = await script(acmeSystem, {
         seed: seed,
         host: syncVirtualHost(),
         knobs: acmeKnobs({ clientCount: 0 }),

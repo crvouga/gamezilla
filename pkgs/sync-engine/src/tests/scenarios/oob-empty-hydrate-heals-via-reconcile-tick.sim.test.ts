@@ -1,5 +1,5 @@
 import { describe, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -21,7 +21,7 @@ describe('oob empty hydrate heals via reconcile tick', () => {
   // Missed notifyChannels must still heal via the reconcile tick (no nudge).
 
   test('silent catalog insert after empty hydrate heals without nudge', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 1501,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -45,7 +45,7 @@ describe('oob empty hydrate heals via reconcile tick', () => {
   });
 
   test('silent catalog update heals without nudge', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 1502,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

@@ -7,7 +7,7 @@ import { checkpoint, PropertyViolation, type Transition } from './checkpoint';
 import type { DriveContext } from './drive';
 import { closeGenerator } from './drive';
 import { type ProbeResult, probe } from './probe';
-import { getRunInternal, type Run } from './start';
+import { getRunInternal, type Run } from './script';
 
 export type WalkOptions<S> = {
   /** Only zero-arg actions may enter a random walk pool. */

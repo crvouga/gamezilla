@@ -25,7 +25,7 @@ export const acmeLargeCatalogSystem: SyncSystemDef = defineSyncSystem(acmeApp, {
  * Scripted pin shape:
  *
  * ```ts
- * await using run = await start(acmeSystem, {
+ * await using run = await script(acmeSystem, {
  *   seed,
  *   host: syncVirtualHost(),
  *   knobs: acmeKnobs({ clientCount: 0, rowImageFanout: false }),

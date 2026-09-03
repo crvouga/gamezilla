@@ -8,7 +8,7 @@ import {
   join,
   lastTick,
   lastUpdate,
-  startMatchmaking,
+  scriptMatchmaking,
   tick,
   updateFormulas,
 } from '../../sim/scenario';
@@ -28,7 +28,7 @@ describe('matchmaking sim: updateFormulas', () => {
   });
 
   test('widening criteria mid-wait allows a previously-rejected peer', async () => {
-    await using run = await startMatchmaking({ seed: 100 });
+    await using run = await scriptMatchmaking({ seed: 100 });
     const tight: DistanceFormula = {
       numeric: [{ tag: RatingAttr, weight: 1 }],
       radius: { baseRadius: 5, radiusGrowthPerSecond: 0, maxRadius: 5 },
@@ -56,7 +56,7 @@ describe('matchmaking sim: updateFormulas', () => {
   });
 
   test('returns updated:false for unknown / matched', async () => {
-    await using run = await startMatchmaking({ seed: 101 });
+    await using run = await scriptMatchmaking({ seed: 101 });
     await run.apply(updateFormulas, {
       participantId: UNKNOWN_ID,
       formulas: [SimpleFormula],

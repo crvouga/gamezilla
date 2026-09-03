@@ -4,16 +4,24 @@ export {
   type Transition,
 } from './checkpoint';
 export { DriveError } from './drive';
-// Package-internal: walk / check / replay. Not re-exported from `@pkgs/dst`.
+export {
+  ExploreFailedError,
+  type ExploreOptions,
+  explore,
+  type ReplayOptions,
+  type Report,
+  replay,
+} from './explore';
+// Package-internal: walk / explore / replay. getRunInternal not on `@pkgs/dst`.
 export {
   ActionNotEnabled,
   getRunInternal,
   PropertyViolation,
   type Run,
   type RunInternal,
-  type StartOptions,
-  start,
-} from './start';
+  type ScriptOptions,
+  script,
+} from './script';
 export {
   type NeverObservedOpts,
   neverObserved,

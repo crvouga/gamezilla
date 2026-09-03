@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -21,7 +21,7 @@ import { expectAllNotesAgree, expectLiveNoteAt } from '../apps/acme/reads';
 describe('pending reject surfaces write rejections', () => {
   test('pending rejectable mutate uploads after reconnect, surfaces write_rejection, domain rolls back', async () => {
     // rowImageFanout off: rejected optimistic must not poison peers via images.
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 711,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0, rowImageFanout: false }),

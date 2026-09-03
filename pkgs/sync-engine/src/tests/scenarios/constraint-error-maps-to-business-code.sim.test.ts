@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -25,7 +25,7 @@ describe('constraint error maps to business code', () => {
   test.each([870, 871, 872])(
     'unique conflict surfaces SLUG_TAKEN (seed=%i)',
     async (seed) => {
-      await using run = await start(acmeSystem, {
+      await using run = await script(acmeSystem, {
         seed,
         host: syncVirtualHost(),
         knobs: acmeKnobs({ clientCount: 0, rowImageFanout: false }),

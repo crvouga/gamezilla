@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { type Run, start } from '@pkgs/dst';
+import { type Run, script } from '@pkgs/dst';
 import type { SyncSurface } from '../../sim/scenario';
 import {
   acmeKnobs,
@@ -139,7 +139,7 @@ describe('clock skew permutations still converge', () => {
     test(
       `offline conflict converges (${order.label})`,
       async () => {
-        await using run = await start(acmeSystem, {
+        await using run = await script(acmeSystem, {
           seed: 101,
           host: syncVirtualHost(),
           knobs: acmeKnobs({ clientCount: 0 }),
@@ -154,7 +154,7 @@ describe('clock skew permutations still converge', () => {
     test(
       `online optimistic race converges (${order.label})`,
       async () => {
-        await using run = await start(acmeSystem, {
+        await using run = await script(acmeSystem, {
           seed: 102,
           host: syncVirtualHost(),
           knobs: acmeKnobs({ clientCount: 0 }),
@@ -169,7 +169,7 @@ describe('clock skew permutations still converge', () => {
     test(
       `ahead delete vs behind pending converges (${order.label})`,
       async () => {
-        await using run = await start(acmeSystem, {
+        await using run = await script(acmeSystem, {
           seed: 103,
           host: syncVirtualHost(),
           knobs: acmeKnobs({ clientCount: 0 }),

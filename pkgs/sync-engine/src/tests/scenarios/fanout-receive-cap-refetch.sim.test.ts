@@ -1,5 +1,5 @@
 import { describe, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import { MAX_FANOUT_ROWS } from '@pkgs/sync-engine/shared';
 import {
   acmeKnobs,
@@ -23,7 +23,7 @@ function noteIds(count: number): string[] {
 
 describe('fanout receive cap on push', () => {
   test('oversized push row images are dropped; refetch converges', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 9402,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

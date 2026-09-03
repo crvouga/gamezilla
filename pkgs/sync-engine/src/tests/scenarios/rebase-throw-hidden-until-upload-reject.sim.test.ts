@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -27,7 +27,7 @@ import {
 
 describe('rebase throw hidden until upload reject', () => {
   test('strict update hidden after peer delete; upload rejects; converge', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 821,
       host: syncVirtualHost(),
       knobs: acmeKnobs({

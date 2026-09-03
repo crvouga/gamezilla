@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -18,7 +18,7 @@ import {
 
 describe('background pauses sweeps foreground catches up', () => {
   test('background pauses query sweeps until foreground', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 507,
       host: syncVirtualHost(),
       knobs: acmeKnobs({
@@ -46,7 +46,7 @@ describe('background pauses sweeps foreground catches up', () => {
   });
 
   test('background does not block local mutate visibility', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 508,
       host: syncVirtualHost(),
       knobs: acmeKnobs({

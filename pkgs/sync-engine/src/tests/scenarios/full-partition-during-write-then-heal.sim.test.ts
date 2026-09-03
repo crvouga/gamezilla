@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -16,7 +16,7 @@ import {
 
 describe('full partition during write then heal', () => {
   test('partition then heal converges domain state', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 33,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

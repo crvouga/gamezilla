@@ -5,7 +5,7 @@ import {
   join,
   lastTick,
   participantIds,
-  startMatchmaking,
+  scriptMatchmaking,
   statusOf,
   tick,
 } from '../../sim/scenario';
@@ -30,7 +30,7 @@ describe('matchmaking sim: pairing / peers', () => {
   });
 
   test('paired participants see the same matchId and each other as peers', async () => {
-    await using run = await startMatchmaking({ seed: 20 });
+    await using run = await scriptMatchmaking({ seed: 20 });
     await run.apply(join, {
       ref: 'a',
       input: {
@@ -57,7 +57,7 @@ describe('matchmaking sim: pairing / peers', () => {
   });
 
   test('three participants — only the closest pair matches', async () => {
-    await using run = await startMatchmaking({ seed: 21 });
+    await using run = await scriptMatchmaking({ seed: 21 });
     const ratings = { a: 1000, b: 1020, c: 2000 } as const;
     for (const [ref, rating] of Object.entries(ratings)) {
       await run.apply(join, {

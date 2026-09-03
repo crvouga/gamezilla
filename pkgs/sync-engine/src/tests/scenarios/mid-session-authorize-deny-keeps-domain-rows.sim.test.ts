@@ -1,5 +1,5 @@
 import { describe, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -17,7 +17,7 @@ import { expectLiveNoteAt } from '../apps/acme/reads';
 
 describe('mid session authorize deny keeps domain rows', () => {
   test('ownership flip denies scope; domain rows remain; other scopes sync', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 620,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

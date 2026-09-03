@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   acmeKnobs,
@@ -26,7 +26,7 @@ const REORDERING_FAULTS = {
 
 describe('push during inflight merge queues single flight', () => {
   test('pushes during merge leave no torn intermediate; final converge', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 811,
       host: syncVirtualHost(),
       knobs: acmeKnobs({

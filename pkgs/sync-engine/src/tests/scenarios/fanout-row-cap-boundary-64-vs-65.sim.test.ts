@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import { MAX_FANOUT_ROWS } from '@pkgs/sync-engine/shared';
 import {
   acmeKnobs,
@@ -25,7 +25,7 @@ function noteIds(count: number): string[] {
 
 describe('fanout row cap boundary 64 vs 65', () => {
   test('exactly MAX_FANOUT_ROWS applies via images while sync held', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 808,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -54,7 +54,7 @@ describe('fanout row cap boundary 64 vs 65', () => {
   });
 
   test('MAX_FANOUT_ROWS+1 falls back to pushSeq-only; peers still converge', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 809,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

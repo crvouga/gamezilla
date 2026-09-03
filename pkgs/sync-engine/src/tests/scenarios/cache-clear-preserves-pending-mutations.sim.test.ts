@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -22,7 +22,7 @@ import {
 
 describe('cache clear preserves pending mutations', () => {
   test('cache clear wipes domain but durable queue uploads on reconnect', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 610,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -55,7 +55,7 @@ describe('cache clear preserves pending mutations', () => {
   });
 
   test('cache clear during sync partition does not hang on in-flight upload', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 611,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

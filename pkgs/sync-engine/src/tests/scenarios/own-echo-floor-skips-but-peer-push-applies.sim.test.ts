@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -16,7 +16,7 @@ import { expectLiveNoteAt, liveNotes } from '../apps/acme/reads';
 
 describe('own echo floor skips but peer push applies', () => {
   test('mutator never flickers on own echo; peer still paints', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 805,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

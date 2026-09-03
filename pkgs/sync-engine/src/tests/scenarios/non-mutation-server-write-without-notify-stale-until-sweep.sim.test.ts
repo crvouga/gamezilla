@@ -1,5 +1,5 @@
 import { describe, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -18,7 +18,7 @@ describe('non mutation server write without notify stale until sweep', () => {
   // Domain write outside mutation replay should notify; missed notify heals
   // via the reconcile tick (safety net), not forever-stale.
   test('writeNoteBody notify false heals via reconcile tick', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 1090,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -50,7 +50,7 @@ describe('non mutation server write without notify stale until sweep', () => {
   test.each([1091, 1092, 1093])(
     'silent write heals on reconcile tick (seed=%i)',
     async (seed) => {
-      await using run = await start(acmeSystem, {
+      await using run = await script(acmeSystem, {
         seed,
         host: syncVirtualHost(),
         knobs: acmeKnobs({ clientCount: 0 }),

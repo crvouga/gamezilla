@@ -1,5 +1,5 @@
 import { describe, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeLargeCatalogSystem,
@@ -19,7 +19,7 @@ import { expectLiveNoteAt } from '../apps/acme/reads';
 
 describe('online lifecycle wakes query refetch', () => {
   test('online after offline triggers nudge path', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 55001,
       host: syncVirtualHost(),
       knobs: acmeKnobs(),
@@ -40,7 +40,7 @@ describe('online lifecycle wakes query refetch', () => {
 
 describe('storage full merge abort', () => {
   test('quota arm aborts merge and queue survives restart', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 55002,
       host: syncVirtualHost(),
       knobs: acmeKnobs(),

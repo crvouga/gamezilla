@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -13,7 +13,7 @@ import {
 
 describe('same actor two devices converge', () => {
   test('two devices same actor converge concurrent writes', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 509,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

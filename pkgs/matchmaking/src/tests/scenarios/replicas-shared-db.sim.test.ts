@@ -15,7 +15,7 @@ import {
   participantIds,
   ready,
   replicaIds,
-  startMatchmaking,
+  scriptMatchmaking,
   statusById,
   statusOf,
   tick,
@@ -42,7 +42,7 @@ describe('matchmaking sim: replicas share one DB', () => {
   });
 
   test('join r0 / status r1 / leave r2 see the same store', async () => {
-    await using run = await startMatchmaking({ seed: 200, replicas: 3 });
+    await using run = await scriptMatchmaking({ seed: 200, replicas: 3 });
     await run.apply(join, {
       ref: 'p',
       input: { data: RatingAttr(1000), formulas: [SimpleFormula] },
@@ -58,7 +58,7 @@ describe('matchmaking sim: replicas share one DB', () => {
   });
 
   test('updateFormulas on a different replica than join', async () => {
-    await using run = await startMatchmaking({ seed: 201, replicas: 2 });
+    await using run = await scriptMatchmaking({ seed: 201, replicas: 2 });
     const open: DistanceFormula = {
       numeric: [{ tag: RatingAttr, weight: 1 }],
       radius: { baseRadius: 200, radiusGrowthPerSecond: 0, maxRadius: 200 },
@@ -95,7 +95,7 @@ describe('matchmaking sim: replicas share one DB', () => {
   });
 
   test('ready() is idempotent on every replica', async () => {
-    await using run = await startMatchmaking({ seed: 202, replicas: 3 });
+    await using run = await scriptMatchmaking({ seed: 202, replicas: 3 });
     for (const replicaId of await run.observe(replicaIds)) {
       await run.apply(ready, { replicaId });
       await run.apply(ready, { replicaId });

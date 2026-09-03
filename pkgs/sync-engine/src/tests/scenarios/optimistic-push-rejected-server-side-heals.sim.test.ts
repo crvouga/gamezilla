@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -21,7 +21,7 @@ import { expectAllNotesAgree, expectLiveNoteAt } from '../apps/acme/reads';
 
 describe('optimistic push rejected server side heals', () => {
   test('optimistic live paint on peer heals to server truth after reject', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 810,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0, bufferOutboundLive: true }),

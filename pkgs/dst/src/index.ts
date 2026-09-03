@@ -19,9 +19,12 @@ export {
 export type { JsonPrimitive, JsonValue } from './kernel/json';
 export type { Rng } from './kernel/rng';
 export type {
+  ExploreOptions,
   NeverObservedOpts,
+  ReplayOptions,
+  Report,
   Run,
-  StartOptions,
+  ScriptOptions,
   Transition,
   UntilObservedOpts,
   Walk,
@@ -30,9 +33,12 @@ export type {
 export {
   ActionNotEnabled,
   DriveError,
+  ExploreFailedError,
+  explore,
   neverObserved,
   PropertyViolation,
-  start,
+  replay,
+  script,
   untilObserved,
   walk,
 } from './run';

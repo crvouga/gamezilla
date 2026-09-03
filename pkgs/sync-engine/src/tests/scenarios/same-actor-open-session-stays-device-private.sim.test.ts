@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -26,7 +26,7 @@ import {
  */
 describe('same actor open session stays device private', () => {
   test('createSpace open-session row images do not land on peer device', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 1401,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0, rowImageFanout: true }),

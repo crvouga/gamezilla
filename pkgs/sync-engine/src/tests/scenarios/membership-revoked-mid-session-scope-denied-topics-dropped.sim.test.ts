@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -24,7 +24,7 @@ import {
 
 describe('membership revoked mid session scope denied topics dropped', () => {
   test('leave drops room topic; previously hydrated domain rows retained', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 970,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -94,7 +94,7 @@ describe('membership revoked mid session scope denied topics dropped', () => {
   test.each([971, 972, 973])(
     'seed sweep leave drops room topic (seed=%i)',
     async (seed) => {
-      await using run = await start(acmeSystem, {
+      await using run = await script(acmeSystem, {
         seed: seed,
         host: syncVirtualHost(),
         knobs: acmeKnobs({ clientCount: 0 }),

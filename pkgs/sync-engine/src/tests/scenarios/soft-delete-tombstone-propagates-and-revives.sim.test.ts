@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -19,7 +19,7 @@ import {
 
 describe('soft delete tombstone propagates and revives', () => {
   test('delete tombstones on peer after converge', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 13,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -41,7 +41,7 @@ describe('soft delete tombstone propagates and revives', () => {
   });
 
   test('setNote after delete revives the row', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 14,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

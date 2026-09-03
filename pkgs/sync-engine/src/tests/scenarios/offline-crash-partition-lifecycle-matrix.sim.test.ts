@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -21,7 +21,7 @@ import {
 
 describe('offline crash partition lifecycle matrix', () => {
   test('A offline while B writes; A online matches', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 201,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -40,7 +40,7 @@ describe('offline crash partition lifecycle matrix', () => {
   });
 
   test('B offline while A writes; B online matches', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 202,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -59,7 +59,7 @@ describe('offline crash partition lifecycle matrix', () => {
   });
 
   test('both offline divergent writes then online converge', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 203,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -83,7 +83,7 @@ describe('offline crash partition lifecycle matrix', () => {
   });
 
   test('A crash+restart after B wrote rehydrates', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 204,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -101,7 +101,7 @@ describe('offline crash partition lifecycle matrix', () => {
   });
 
   test('B crash+restart after A wrote rehydrates', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 205,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -119,7 +119,7 @@ describe('offline crash partition lifecycle matrix', () => {
   });
 
   test('sequential A then B crash/restart after shared state', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 206,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -141,7 +141,7 @@ describe('offline crash partition lifecycle matrix', () => {
   });
 
   test('server unreachable: both mutate locally then heal converges', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 207,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -167,7 +167,7 @@ describe('offline crash partition lifecycle matrix', () => {
   });
 
   test('staggered: A partitioned, B writes; heal A; B offline writes', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 208,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -195,7 +195,7 @@ describe('offline crash partition lifecycle matrix', () => {
   });
 
   test('flip-flop offline and partition around contested note', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 209,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

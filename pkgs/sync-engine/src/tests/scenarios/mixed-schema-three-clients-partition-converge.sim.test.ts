@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeApp,
   acmeKnobs,
@@ -48,7 +48,7 @@ describe('mixed schema three clients partition converge', () => {
   test.each([2100, 2101, 2102])(
     'baseline + color + tags under partition then heal (seed=%i)',
     async (seed) => {
-      await using run = await start(acmeMixedSchemaSystem, {
+      await using run = await script(acmeMixedSchemaSystem, {
         seed: seed,
         host: syncVirtualHost(),
         knobs: acmeKnobs({ clientCount: 0 }),

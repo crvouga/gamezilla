@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeApp,
   acmeKnobs,
@@ -37,7 +37,7 @@ describe('server snapshot with unknown column merges cleanly', () => {
   test.each([730, 731, 732])(
     'client without color ignores server color key (seed=%i)',
     async (seed) => {
-      await using run = await start(acmeColorServerSystem, {
+      await using run = await script(acmeColorServerSystem, {
         seed: seed,
         host: syncVirtualHost(),
         knobs: acmeKnobs({ clientCount: 0 }),

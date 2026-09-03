@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -19,7 +19,7 @@ import {
 
 describe('requires online fails offline without queue', () => {
   test('offline mutate fails with OFFLINE and does not queue', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 510,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

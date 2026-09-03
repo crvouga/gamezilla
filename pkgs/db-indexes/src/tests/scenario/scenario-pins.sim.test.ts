@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   advanceClock,
   bumpUsage,
@@ -13,7 +13,7 @@ import {
 describe('indexes scenario pins', () => {
   test('seed replay is byte-identical on owned count', async () => {
     async function once(seed: number): Promise<number> {
-      await using run = await start(indexes, {
+      await using run = await script(indexes, {
         seed,
         properties: INDEXES_PROPERTIES,
       });
@@ -29,7 +29,7 @@ describe('indexes scenario pins', () => {
   }, 60_000);
 
   test('fixpoint after enough fault-free runs', async () => {
-    await using run = await start(indexes, {
+    await using run = await script(indexes, {
       seed: 1,
       properties: INDEXES_PROPERTIES,
     });
@@ -42,7 +42,7 @@ describe('indexes scenario pins', () => {
   }, 60_000);
 
   test('usage since deprecation never drops', async () => {
-    await using run = await start(indexes, {
+    await using run = await script(indexes, {
       seed: 3,
       properties: INDEXES_PROPERTIES,
     });

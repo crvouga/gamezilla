@@ -92,7 +92,7 @@ Core vs adapters stay split so callers opt into a runtime explicitly.
 
 `src/sim/` implementation stays **private** (relative imports from package
 tests). Games should import `defineRoomSystem` from
-`@pkgs/room/tests` and boot with `startRoom` / `check` from
+`@pkgs/room/tests` and boot with `scriptRoom` / `explore` from
 `@pkgs/room/tests` + `@pkgs/dst`, not deep `sim/` paths.
 
 ---
@@ -283,8 +283,8 @@ replays are idempotent.
 | Tool | When to use |
 |------|-------------|
 | **`openLoopbackRoom`** (`@pkgs/room/tests`) | Fast in-process unit/integration with injected `Io`; real `RoomClient` + `RoomServer`, no net faults; Schedule via timers |
-| **`startRoom`** (`@pkgs/room/tests`) | `Run<RoomSurface>` driven by `apply` / `observe`: partitions, delays, soft disconnect, crash/restart, hash converge, seed replay, Schedule wakes |
-| **`defineRoomSystem` + `check` / `replayRoom`** | Framework-owned system + weighted walk / scripted pins + fault-catalog slice PBTs |
+| **`scriptRoom`** (`@pkgs/room/tests`) | `Run<RoomSurface>` driven by `apply` / `observe`: partitions, delays, soft disconnect, crash/restart, hash converge, seed replay, Schedule wakes |
+| **`defineRoomSystem` + `explore` / `replayRoom`** | Framework-owned system + weighted walk / scripted pins + fault-catalog slice PBTs |
 | **`runRoomSeed`** | Non-shrinking seeded fuzz (`ROOM_SIM_SEED` / `SIM_SEED`); determinism + long workloads |
 | **DO / adapter tests** | Hibernation, session take-over, per-key storage, alarms, WS heartbeat |
 | **`runModuleConformance`** | Game-module kit (purity, hash, totality, fold, fuzz) |
@@ -309,7 +309,7 @@ node kinds and the library + domain action pool:
 export const counterSystem = defineRoomSystem(counterApp, { id: 'room.counter' });
 
 // shrinking PBT — start + weighted walk + shrink
-await check(counterSystem, {
+await explore(counterSystem, {
   properties: ROOM_PROPERTIES,
   actions: roomActions(counterApp),
   episodes: 12,
@@ -326,7 +326,7 @@ await replayRoomPin(counterSystem, { seed, knobs, actions: [/* RoomSystemAction 
    `armCrashAt` / wire injects stay out of it and are covered by slice PBTs
 4. Const fault catalogs (`NET_FAULT_PROFILES`, `BYZANTINE_INJECT_KINDS`, `WORLD_PBT_CRASH_EVENTS`) exhausted by slice PBTs
 5. `runRoomSeed` (`tests/scenario/run-seed.ts`) boots the same topology via
-   framework `startRoom(defineRoomSystem(app), …)` for non-shrinking seeded fuzz
+   framework `scriptRoom(defineRoomSystem(app), …)` for non-shrinking seeded fuzz
 
 On find: capture `FC_SEED` / `replayPath` → pin in `room-world.pbt.test.ts` or a named `.sim.test.ts` → log in [`PBT_FINDINGS.md`](../../../PBT_FINDINGS.md).
 
@@ -369,7 +369,7 @@ import {
   dispatch,
   hold,
   heal,
-  startRoom,
+  scriptRoom,
 } from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
 import { Increment, counterValue } from '../fixtures/counter-module';
@@ -377,7 +377,7 @@ import { readClient, readServer } from '../scenario/read-state';
 
 describe('room sim', () => {
   test('partition then heal', async () => {
-    await using run = await startRoom(counterSystem, {
+    await using run = await scriptRoom(counterSystem, {
       seed: 3,
       clientCount: 0,
     });
@@ -396,7 +396,7 @@ describe('room sim', () => {
 Games outside this package:
 
 ```ts
-import { defineRoomSystem, runModuleConformance, startRoom } from '@pkgs/room/tests';
+import { defineRoomSystem, runModuleConformance, scriptRoom } from '@pkgs/room/tests';
 ```
 
 ---

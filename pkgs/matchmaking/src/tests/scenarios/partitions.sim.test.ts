@@ -5,7 +5,7 @@ import {
   join,
   lastTick,
   participantIds,
-  startMatchmaking,
+  scriptMatchmaking,
   statusOf,
   tick,
 } from '../../sim/scenario';
@@ -28,7 +28,7 @@ describe('matchmaking sim: partitions', () => {
   });
 
   test('declared partitionKeys isolate participants across shards', async () => {
-    await using run = await startMatchmaking({
+    await using run = await scriptMatchmaking({
       seed: 40,
       schema: { partitionKeys: [KindAttr.key] },
     });

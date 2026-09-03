@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -14,7 +14,7 @@ import {
 describe('push without row images wakes refetch', () => {
   test('mutation without capture images converges via wake+refetch with rowImageFanout', async () => {
     // rowImageFanout true: proves pushSeq-only pushes still wake peers when images absent.
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 680,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

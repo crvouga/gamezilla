@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -22,7 +22,7 @@ import {
 
 describe('room live isolated until member joins', () => {
   test('live on room-B does not reach alice in room-A until join', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 804,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

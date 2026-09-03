@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -21,7 +21,7 @@ const LIMITED_SESSION = { name: 'notesLimited', params: {} };
 
 describe('hard query limit truncates hydrate', () => {
   test('hard limit truncates hydrate; engine stays healthy and the run converges', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 630,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -59,7 +59,7 @@ describe('hard query limit truncates hydrate', () => {
   });
 
   test('multi-table truncate then shrink below limit eventually consistent', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 631,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import { SCHEMA_EPOCH } from '@pkgs/sync-engine/test';
 import {
   acmeKnobs,
@@ -20,7 +20,7 @@ describe('epoch bump mid offline session then drain', () => {
   test.each([720, 721, 722])(
     'offline upgrade drains after later connect (seed=%i)',
     async (seed) => {
-      await using run = await start(acmeSystem, {
+      await using run = await script(acmeSystem, {
         seed: seed,
         host: syncVirtualHost(),
         knobs: acmeKnobs({ clientCount: 0 }),

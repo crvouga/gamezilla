@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -19,7 +19,7 @@ const QUEUE_SIZE = 100;
 
 describe('mutation batch over max drains without dupes', () => {
   test('queue larger than MAX_MUTATIONS_BATCH drains across batches without dupes', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 650,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

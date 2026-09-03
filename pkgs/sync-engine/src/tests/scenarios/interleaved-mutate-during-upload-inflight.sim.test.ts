@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -22,7 +22,7 @@ import {
 
 describe('interleaved mutate during upload inflight', () => {
   test('mutates while drain in flight join next batch; no loss', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 823,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

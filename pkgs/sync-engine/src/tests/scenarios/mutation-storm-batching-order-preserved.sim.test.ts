@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -18,7 +18,7 @@ const STORM = 150;
 
 describe('mutation storm batching order preserved', () => {
   test('offline queue drains; last-write-wins body matches seq order', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 1060,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -66,7 +66,7 @@ describe('mutation storm batching order preserved', () => {
   test.each([1061, 1062, 1063])(
     'seed sweep modest storm preserves final body (seed=%i)',
     async (seed) => {
-      await using run = await start(acmeSystem, {
+      await using run = await script(acmeSystem, {
         seed: seed,
         host: syncVirtualHost(),
         knobs: acmeKnobs({ clientCount: 0 }),

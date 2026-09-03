@@ -1,6 +1,6 @@
 /**
  * PBT / system test helpers. Runs and action replay are framework-owned:
- * `defineSyncSystem` + `start` / `check` / `replay` from `@pkgs/dst`.
+ * `defineSyncSystem` + `script` / `explore` / `replay` from `@pkgs/dst`.
  */
 
 export type {
@@ -21,8 +21,8 @@ export {
   CLIENT_IDS,
   CORRUPTION_VARIANTS,
   CRASH_EVENTS,
-  checkSync,
   defineSyncSystem,
+  exploreSync,
   HOLD_TRAFFIC,
   HTTP_FAULTS,
   PUBSUB_FAULTS,

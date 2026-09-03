@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -17,7 +17,7 @@ describe('server 500 mid batch full retry idempotent', () => {
   test.each([850, 851, 852])(
     'in-txn fail rolls back then full apply (seed=%i)',
     async (seed) => {
-      await using run = await start(acmeSystem, {
+      await using run = await script(acmeSystem, {
         seed: seed,
         host: syncVirtualHost(),
         knobs: acmeKnobs({ clientCount: 0 }),
@@ -50,7 +50,7 @@ describe('server 500 mid batch full retry idempotent', () => {
   test.each([850, 851, 852])(
     'post-commit fail acks via retry dedupe (seed=%i)',
     async (seed) => {
-      await using run = await start(acmeSystem, {
+      await using run = await script(acmeSystem, {
         seed: seed + 10,
         host: syncVirtualHost(),
         knobs: acmeKnobs({ clientCount: 0 }),

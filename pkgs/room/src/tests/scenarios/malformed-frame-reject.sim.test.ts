@@ -4,7 +4,7 @@ import {
   clock,
   injectToServer,
   logSeq,
-  startRoom,
+  scriptRoom,
 } from '../../sim/scenario';
 import { ROOM_ERROR_TYPE } from '../../types';
 import { counterSystem } from '../apps/counter/system';
@@ -19,7 +19,7 @@ import {
 
 describe('room sim: malformed frame reject (E-D02)', () => {
   test('non-Message command payload rejects without mutate', async () => {
-    await using run = await startRoom(counterSystem);
+    await using run = await scriptRoom(counterSystem);
     await run.apply(addClient, { id: 'alice' });
     await expectConverged(run);
     const before = await readClientHash(run, 'alice');
@@ -46,7 +46,7 @@ describe('room sim: malformed frame reject (E-D02)', () => {
   });
 
   test('unknown wire kind is ignored without mutate', async () => {
-    await using run = await startRoom(counterSystem, { seed: '43' });
+    await using run = await scriptRoom(counterSystem, { seed: '43' });
     await run.apply(addClient, { id: 'alice' });
     await expectConverged(run);
     const before = await readClientHash(run, 'alice');

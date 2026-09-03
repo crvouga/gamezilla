@@ -5,7 +5,7 @@ import {
   joinsDuringTick,
   participantIds,
   passTime,
-  startMatchmaking,
+  scriptMatchmaking,
   tickAllWith,
 } from '../../sim/scenario';
 import {
@@ -34,7 +34,7 @@ describe('matchmaking sim: join during tick', () => {
   });
 
   test('joins on r0/r1 while r2 ticks; settle with tickAll', async () => {
-    await using run = await startMatchmaking({
+    await using run = await scriptMatchmaking({
       seed: 230,
       replicas: 3,
       backend: 'postgres',

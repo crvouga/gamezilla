@@ -4,7 +4,7 @@ import {
   join,
   participantIds,
   passTime,
-  startMatchmaking,
+  scriptMatchmaking,
   statuses,
   tickAllWith,
 } from '../../sim/scenario';
@@ -26,7 +26,7 @@ describe('matchmaking sim: replica split work', () => {
   });
 
   test('maxPairsPerPass:1 still pairs everyone across concurrent workers', async () => {
-    await using run = await startMatchmaking({
+    await using run = await scriptMatchmaking({
       seed: 220,
       replicas: 2,
       backend: 'postgres',

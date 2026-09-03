@@ -1,6 +1,6 @@
 import type { JsonValue } from '../kernel/json';
 import type { Action, BoundObservation, Observation } from '../system/effect';
-import type { Run } from './start';
+import type { Run } from './script';
 
 export type UntilObservedOpts<T extends JsonValue = JsonValue> = {
   /** Virtual-time step per poll (default 50). */

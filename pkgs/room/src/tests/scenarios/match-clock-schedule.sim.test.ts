@@ -7,8 +7,8 @@ import {
   hold,
   passTime,
   release,
+  scriptRoom,
   serverHash,
-  startRoom,
 } from '../../sim/scenario';
 import { matchClockSystem } from '../apps/match-clock/system';
 import { expectConverged } from '../expect-converged';
@@ -29,7 +29,7 @@ import {
 } from '../scenario/read-state';
 
 async function bootMatch(seed: string, startTime: number) {
-  const run = await startRoom(matchClockSystem, { seed, startTime });
+  const run = await scriptRoom(matchClockSystem, { seed, startTime });
   await run.apply(addClient, { id: 'white', identity: 'white' });
   await run.apply(addClient, { id: 'black', identity: 'black' });
   await expectConverged(run);

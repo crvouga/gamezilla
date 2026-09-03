@@ -1,7 +1,6 @@
 import { expect } from 'bun:test';
 import type { Host, Ports, Run } from '../../index';
-import { start, walk } from '../../index';
-import { replay } from '../../pbt';
+import { replay, script, walk } from '../../index';
 import type { Page } from './page';
 import {
   COUNTER_ACTIONS,
@@ -34,7 +33,7 @@ export class CounterApp implements AsyncDisposable {
     readonly host: CounterHost;
     readonly seed?: number;
   }): Promise<CounterApp> {
-    const run = await start(counter, {
+    const run = await script(counter, {
       host: args.host,
       seed: args.seed ?? 1,
       properties: COUNTER_PROPERTIES,

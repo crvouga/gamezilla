@@ -1,5 +1,5 @@
 import { describe, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -22,7 +22,7 @@ const PEER_VISIBLE_BUDGET_MS =
 
 describe('live fanout peer visibility within budget', () => {
   test('happy path: peer sees note without waiting for full settle', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 7,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -43,7 +43,7 @@ describe('live fanout peer visibility within budget', () => {
   });
 
   test('crash + restart rehydrates from server', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 23,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

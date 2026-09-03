@@ -3,8 +3,7 @@ import { kv } from './examples/acme-kv/scenario';
 import * as fcAdapter from './fast-check';
 import * as dst from './index';
 import * as kernel from './kernel';
-import * as pbt from './pbt';
-import { start } from './run/start';
+import { script } from './run/script';
 
 const FORBIDDEN = [
   'defineScenario',
@@ -20,6 +19,10 @@ const FORBIDDEN = [
   'getRunInternal',
   'RunInternal',
   'Body',
+  'start',
+  'check',
+  'CheckFailedError',
+  'CampaignReport',
 ] as const;
 
 describe('public-api', () => {
@@ -32,8 +35,11 @@ describe('public-api', () => {
       'defineSurface',
       'draw',
       'observe',
-      'start',
+      'script',
       'walk',
+      'explore',
+      'replay',
+      'ExploreFailedError',
       'untilObserved',
       'neverObserved',
       'virtualHost',
@@ -51,24 +57,9 @@ describe('public-api', () => {
   });
 
   test('Run has no _internal escape hatch', async () => {
-    await using run = await start(kv, { seed: 1, knobs: { clients: 1 } });
+    await using run = await script(kv, { seed: 1, knobs: { clients: 1 } });
     expect(run).not.toHaveProperty('_internal');
     expect(Object.keys(run).sort()).toEqual(['apply', 'assert', 'observe']);
-  });
-
-  test('@pkgs/dst/pbt exports check + replay only', () => {
-    for (const k of ['check', 'replay', 'CheckFailedError']) {
-      expect(pbt).toHaveProperty(k);
-    }
-    for (const k of [
-      'runProperty',
-      'arbSeed',
-      'checkSystem',
-      'replaySystem',
-      'assertDeterministic',
-    ]) {
-      expect(pbt).not.toHaveProperty(k);
-    }
   });
 
   test('@pkgs/dst/kernel exports factories', () => {

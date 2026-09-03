@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { addClient, dispatch, startRoom } from '../../sim/scenario';
+import { addClient, dispatch, scriptRoom } from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
 import { expectConverged } from '../expect-converged';
 import { counterValue, Increment } from '../fixtures/counter-module';
@@ -11,7 +11,7 @@ import {
 
 describe('room sim: single client increment', () => {
   test('increment converges to server hash', async () => {
-    await using run = await startRoom(counterSystem, { seed: 1 });
+    await using run = await scriptRoom(counterSystem, { seed: 1 });
     await run.apply(addClient, { id: 'alice' });
     await run.apply(dispatch, {
       clientId: 'alice',

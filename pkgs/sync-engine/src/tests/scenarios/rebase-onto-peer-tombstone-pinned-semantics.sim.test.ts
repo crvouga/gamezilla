@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -20,7 +20,7 @@ import {
 describe('rebase onto peer tombstone pinned semantics', () => {
   test('pending setNote rebases onto peer tombstone and revives after upload', async () => {
     // setNote upsert clears deleted_at — pin revive semantics for all clients.
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 820,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

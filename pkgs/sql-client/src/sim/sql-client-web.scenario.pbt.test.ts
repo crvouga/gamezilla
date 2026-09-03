@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { explore, script } from '@pkgs/dst';
 import { gen } from '@pkgs/dst/fast-check';
-import { check } from '@pkgs/dst/pbt';
 import {
   arbSqlClientWebKnobs,
   bumpEpoch,
@@ -30,7 +29,7 @@ const OPFS_KNOBS: SqlClientWebKnobs = {
 
 describe('sql-client web multi-tab system PBT', () => {
   test('check explores tabs, pool exhaustion, corruption, epochs', async () => {
-    const report = await check(sqlClientWeb, {
+    const report = await explore(sqlClientWeb, {
       properties: SQL_CLIENT_WEB_PROPERTIES,
       actions: SQL_CLIENT_WEB_ACTIONS,
       knobs: gen(arbSqlClientWebKnobs()),
@@ -43,7 +42,7 @@ describe('sql-client web multi-tab system PBT', () => {
   }, 180_000);
 
   test('named fault pins recover to a usable cache', async () => {
-    await using run1 = await start(sqlClientWeb, {
+    await using run1 = await script(sqlClientWeb, {
       seed: 1,
       knobs: OPFS_KNOBS,
       properties: SQL_CLIENT_WEB_PROPERTIES,
@@ -53,7 +52,7 @@ describe('sql-client web multi-tab system PBT', () => {
     await run1.apply(put, { tabId: 't0', key: 'a', value: '1' });
     await run1.apply(get, { tabId: 't0', key: 'a' });
 
-    await using run2 = await start(sqlClientWeb, {
+    await using run2 = await script(sqlClientWeb, {
       seed: 1,
       knobs: OPFS_KNOBS,
       properties: SQL_CLIENT_WEB_PROPERTIES,
@@ -63,7 +62,7 @@ describe('sql-client web multi-tab system PBT', () => {
     await run2.apply(put, { tabId: 't0', key: 'a', value: '1' });
     await run2.apply(get, { tabId: 't0', key: 'a' });
 
-    await using run3 = await start(sqlClientWeb, {
+    await using run3 = await script(sqlClientWeb, {
       seed: 1,
       knobs: OPFS_KNOBS,
       properties: SQL_CLIENT_WEB_PROPERTIES,
@@ -75,7 +74,7 @@ describe('sql-client web multi-tab system PBT', () => {
     await run3.apply(connect, 't0');
     await run3.apply(get, { tabId: 't0', key: 'a' });
 
-    await using run4 = await start(sqlClientWeb, {
+    await using run4 = await script(sqlClientWeb, {
       seed: 1,
       knobs: OPFS_KNOBS,
       properties: SQL_CLIENT_WEB_PROPERTIES,
@@ -88,7 +87,7 @@ describe('sql-client web multi-tab system PBT', () => {
   }, 120_000);
 
   test('start boots a store plus tabs and elects one owner', async () => {
-    await using run = await start(sqlClientWeb, {
+    await using run = await script(sqlClientWeb, {
       seed: 7,
       knobs: OPFS_KNOBS,
       properties: SQL_CLIENT_WEB_PROPERTIES,

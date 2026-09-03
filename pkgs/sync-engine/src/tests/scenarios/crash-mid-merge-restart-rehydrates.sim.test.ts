@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -21,7 +21,7 @@ import {
 
 describe('crash mid merge restart rehydrates', () => {
   test('crash after sync delivery; restart never torn across tables', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 830,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0, rowImageFanout: false }),

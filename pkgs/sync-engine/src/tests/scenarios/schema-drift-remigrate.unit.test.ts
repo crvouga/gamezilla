@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeLocalSchemaExtraColumn,
@@ -21,7 +21,7 @@ import {
 
 describe('preserveLocalDb remigrate after additive schema', () => {
   test('restart without localSchema keeps extra column (no drift fail)', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 42,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -46,7 +46,7 @@ describe('preserveLocalDb remigrate after additive schema', () => {
   });
 
   test('restartWithSchema then crash+preserve remigrate converges', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 43,
       host: syncVirtualHost(),
       knobs: acmeKnobs({
@@ -74,7 +74,7 @@ describe('preserveLocalDb remigrate after additive schema', () => {
   });
 
   test('extraColumn then extraTable remigrate drops color via deprecation', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 44,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -96,7 +96,7 @@ describe('preserveLocalDb remigrate after additive schema', () => {
   });
 
   test('addPeerEngine inherits sticky schema from shared extraColumn db', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 45,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

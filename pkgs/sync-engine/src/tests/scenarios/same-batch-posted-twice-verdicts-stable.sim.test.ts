@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   acmeKnobs,
@@ -18,7 +18,7 @@ describe('same batch posted twice verdicts stable', () => {
   test.each([820, 821, 822])(
     'mesh replay of mutations POST is idempotent (seed=%i)',
     async (seed) => {
-      await using run = await start(acmeSystem, {
+      await using run = await script(acmeSystem, {
         seed: seed,
         host: syncVirtualHost(),
         knobs: acmeKnobs({ clientCount: 0 }),

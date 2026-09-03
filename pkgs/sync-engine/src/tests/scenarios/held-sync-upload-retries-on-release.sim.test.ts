@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -20,7 +20,7 @@ import {
 
 describe('held sync upload retries on release', () => {
   test('held sync keeps queue pending then confirms after release', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 502,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

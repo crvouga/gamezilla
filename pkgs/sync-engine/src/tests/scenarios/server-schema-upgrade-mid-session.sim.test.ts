@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeLocalSchemaExtraColumn,
@@ -39,7 +39,7 @@ describe('server schema upgrade mid session', () => {
   test.each([2120, 2121, 2122])(
     'server adds color mid-life; old clients ignore; new client stores (seed=%i)',
     async (seed) => {
-      await using run = await start(acmeSystem, {
+      await using run = await script(acmeSystem, {
         seed,
         host: syncVirtualHost(),
         knobs: acmeKnobs({ clientCount: 0 }),

@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { check } from '@pkgs/dst/pbt';
+import { explore } from '@pkgs/dst';
 import { INDEXES_ACTIONS, INDEXES_PROPERTIES, indexes } from './system';
 
 const SEEDS_PATH = join(import.meta.dir, 'known-seeds.txt');
@@ -25,7 +25,7 @@ describe('known-seeds corpus', () => {
   test(`check ${String(seeds.length)} committed seeds with zero violations`, async () => {
     expect(seeds.length).toBeGreaterThan(0);
     for (const seed of seeds) {
-      const report = await check(indexes, {
+      const report = await explore(indexes, {
         properties: INDEXES_PROPERTIES,
         actions: INDEXES_ACTIONS,
         episodes: 1,

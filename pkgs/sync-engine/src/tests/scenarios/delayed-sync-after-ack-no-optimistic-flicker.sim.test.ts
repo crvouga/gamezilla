@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -27,7 +27,7 @@ const DELAYED_SYNC_FAULTS = {
 
 describe('delayed sync after ack no optimistic flicker', () => {
   test('optimistic body never reverts under delayed sync after upload ack', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 701,
       host: syncVirtualHost(),
       knobs: acmeKnobs({

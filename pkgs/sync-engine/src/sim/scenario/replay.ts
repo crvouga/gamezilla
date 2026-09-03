@@ -1,13 +1,12 @@
 import type { Action, Gen, Repro } from '@pkgs/dst';
-import { REPRO_VERSION } from '@pkgs/dst';
+import { explore, REPRO_VERSION, replay } from '@pkgs/dst';
 import { gen } from '@pkgs/dst/fast-check';
-import { check, replay } from '@pkgs/dst/pbt';
 
 import { type SyncSystemDef, syncVirtualHost } from './define-sync-system';
 import { arbKnobs, type SyncKnobs } from './knobs';
 
-/** Check campaign wrapper with sync host + system action/property catalogs. */
-export async function checkSync(
+/** Explore campaign wrapper with sync host + system action/property catalogs. */
+export async function exploreSync(
   def: SyncSystemDef,
   opts?: {
     readonly episodes?: number;
@@ -16,7 +15,7 @@ export async function checkSync(
     readonly knobs?: SyncKnobs | Gen<SyncKnobs>;
   }
 ) {
-  return check(def, {
+  return explore(def, {
     host: syncVirtualHost(),
     properties: def.properties,
     actions: def.actions,

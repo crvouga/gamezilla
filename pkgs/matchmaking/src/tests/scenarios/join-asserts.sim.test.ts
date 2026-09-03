@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { AttributeState } from '@pkgs/attribute';
 import { MATCHMAKING_PAYLOAD_LIMITS } from '../../interface/payload-limits';
-import { join, startMatchmaking } from '../../sim/scenario';
+import { join, scriptMatchmaking } from '../../sim/scenario';
 import { NameAttr, RatingAttr, registerTestCrashHandler } from '../fixtures';
 
 const SimpleFormula = { numeric: [{ tag: RatingAttr, weight: 1 }] };
@@ -16,7 +16,7 @@ describe('matchmaking sim: join asserts', () => {
   });
 
   test('throws on empty formulas array', async () => {
-    await using run = await startMatchmaking({ seed: 10 });
+    await using run = await scriptMatchmaking({ seed: 10 });
     await expect(
       run.apply(join, {
         ref: 'p',
@@ -26,7 +26,7 @@ describe('matchmaking sim: join asserts', () => {
   });
 
   test('throws on empty formula (no terms)', async () => {
-    await using run = await startMatchmaking({ seed: 11 });
+    await using run = await scriptMatchmaking({ seed: 11 });
     await expect(
       run.apply(join, {
         ref: 'p',
@@ -36,7 +36,7 @@ describe('matchmaking sim: join asserts', () => {
   });
 
   test('throws on negative numeric weight', async () => {
-    await using run = await startMatchmaking({ seed: 12 });
+    await using run = await scriptMatchmaking({ seed: 12 });
     await expect(
       run.apply(join, {
         ref: 'p',
@@ -49,7 +49,7 @@ describe('matchmaking sim: join asserts', () => {
   });
 
   test('throws when required numeric attr is missing', async () => {
-    await using run = await startMatchmaking({ seed: 13 });
+    await using run = await scriptMatchmaking({ seed: 13 });
     await expect(
       run.apply(join, {
         ref: 'p',
@@ -59,7 +59,7 @@ describe('matchmaking sim: join asserts', () => {
   });
 
   test('throws when data contains a non-keyword key', async () => {
-    await using run = await startMatchmaking({ seed: 14 });
+    await using run = await scriptMatchmaking({ seed: 14 });
     await expect(
       run.apply(join, {
         ref: 'p',
@@ -72,7 +72,7 @@ describe('matchmaking sim: join asserts', () => {
   });
 
   test('rejects groupSize out of range', async () => {
-    await using run = await startMatchmaking({ seed: 15 });
+    await using run = await scriptMatchmaking({ seed: 15 });
     for (const groupSize of [1, 17]) {
       await expect(
         run.apply(join, {
@@ -88,7 +88,7 @@ describe('matchmaking sim: join asserts', () => {
   });
 
   test('rejects priority out of range', async () => {
-    await using run = await startMatchmaking({ seed: 16 });
+    await using run = await scriptMatchmaking({ seed: 16 });
     for (const priority of [-1001, 1001]) {
       await expect(
         run.apply(join, {

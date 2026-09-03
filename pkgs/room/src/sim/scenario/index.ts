@@ -1,6 +1,6 @@
 /**
  * Room system kernel. Runs and action replay are framework-owned:
- * {@link defineRoomSystem} + `start` / `check` / `replay` from `@pkgs/dst`.
+ * {@link defineRoomSystem} + `script` / `explore` / `replay` from `@pkgs/dst`.
  */
 
 export type {
@@ -98,5 +98,5 @@ export {
   setNet,
   takeOver,
 } from './room-actions';
-export { type StartRoomOpts, startRoom } from './start-room';
+export { type ScriptRoomOpts, scriptRoom } from './script-room';
 export type { RoomSurface } from './surface';

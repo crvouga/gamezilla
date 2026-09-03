@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -24,7 +24,7 @@ const IN_TXN_FAULT = { kind: 'failMutationsInsideTxnAfter', after: 0 } as const;
 
 describe('replay txn rollback no pushseq leak', () => {
   test('in-txn fail rolls back; peer sees no push; retry applies once', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 910,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0, rowImageFanout: false }),
@@ -65,7 +65,7 @@ describe('replay txn rollback no pushseq leak', () => {
   test.each([911, 912, 913])(
     'seed sweep converges after in-txn fault (seed=%i)',
     async (seed) => {
-      await using run = await start(acmeSystem, {
+      await using run = await script(acmeSystem, {
         seed,
         host: syncVirtualHost(),
         knobs: acmeKnobs({ clientCount: 0 }),

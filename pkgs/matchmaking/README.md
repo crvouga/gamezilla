@@ -53,7 +53,7 @@ const { participantId } = await mm.join({
 | `@pkgs/matchmaking/impl-sql` | `MatchmakingImplSql`, `MatchmakingDatabaseMigration` |
 | `@pkgs/matchmaking/wire` | `FormulaWire` types for HTTP / RPC |
 | `@pkgs/matchmaking/client` | `MatchmakingClient` |
-| `@pkgs/matchmaking/testing` | Framework sim (`matchmaking` system + actions / observations, `startMatchmaking`) + fixtures |
+| `@pkgs/matchmaking/testing` | Framework sim (`matchmaking` system + actions / observations, `scriptMatchmaking`) + fixtures |
 
 Anything outside these subpaths is internal.
 
@@ -61,7 +61,7 @@ Anything outside these subpaths is internal.
 
 All tests live under `src/tests/`. Deterministic scenarios use a seeded
 `@pkgs/dst` system that boots **N Matchmaking replicas sharing one DB** —
-the horizontal-scale composition root. Tests only ever `start` a run and
+the horizontal-scale composition root. Tests only ever `script` a run and
 drive it with `apply` / `observe`; there is no direct surface access.
 
 ```text
@@ -79,12 +79,12 @@ pkgs/matchmaking/src/
 import {
   join,
   RatingAttr,
-  startMatchmaking,
+  scriptMatchmaking,
   statusOf,
   tickAllWith,
 } from '@pkgs/matchmaking/testing';
 
-await using run = await startMatchmaking({
+await using run = await scriptMatchmaking({
   seed: 3,
   replicas: 3,
   // backend: 'postgres', // required for concurrent tickAll claim races

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import { SYNC_PROTOCOL_VERSION } from '../../protocol';
 import {
   acmeKnobs,
@@ -19,7 +19,7 @@ import {
 describe('pending mutations across protocol cut drain', () => {
   test('offline queue drains under current protocol (preserve-and-drain)', async () => {
     expect(SYNC_PROTOCOL_VERSION).toBe(3);
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 1210,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

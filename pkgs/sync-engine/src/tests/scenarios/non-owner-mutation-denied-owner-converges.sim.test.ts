@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -16,7 +16,7 @@ import {
 
 describe('non owner mutation denied owner converges', () => {
   test('non-owner delete is rejected; note stays live on peers', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 50,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -48,7 +48,7 @@ describe('non owner mutation denied owner converges', () => {
   });
 
   test('owner delete succeeds', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 51,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

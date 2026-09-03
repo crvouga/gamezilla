@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { addClient, dispatch, passTime, startRoom } from '../../sim/scenario';
+import { addClient, dispatch, passTime, scriptRoom } from '../../sim/scenario';
 import { deadlineSystem } from '../apps/deadline/system';
 import { expectConverged } from '../expect-converged';
 import {
@@ -17,7 +17,7 @@ import {
 
 describe('kit: terminal monotonicity (M-F06)', () => {
   test('schedule expire wins; late act / expire are no-ops', async () => {
-    await using run = await startRoom(deadlineSystem, {
+    await using run = await scriptRoom(deadlineSystem, {
       startTime: 1_000,
     });
     await run.apply(addClient, { id: 'alice' });

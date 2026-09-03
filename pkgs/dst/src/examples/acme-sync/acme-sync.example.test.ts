@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { gen } from '../../fast-check';
-import { start } from '../../index';
-import { check } from '../../pbt';
+import { explore, script } from '../../index';
 import {
   arbSyncKnobs,
   clientNotes,
@@ -17,7 +16,7 @@ import {
 
 describe('acme-sync', () => {
   test('scripted create → partition → heal → converge', async () => {
-    await using run = await start(sync, {
+    await using run = await script(sync, {
       seed: 3,
       knobs: { clients: 2 },
       properties: SYNC_PROPERTIES,
@@ -33,8 +32,8 @@ describe('acme-sync', () => {
     expect(await run.observe(converged)).toBe(true);
   });
 
-  test('check campaign on virtual host', async () => {
-    const report = await check(sync, {
+  test('explore campaign on virtual host', async () => {
+    const report = await explore(sync, {
       properties: SYNC_PROPERTIES,
       actions: [...SYNC_ACTIONS],
       knobs: gen(arbSyncKnobs()),

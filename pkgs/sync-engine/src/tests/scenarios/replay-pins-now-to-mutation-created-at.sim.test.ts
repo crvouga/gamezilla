@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -24,7 +24,7 @@ import {
 
 describe('replay pins now to mutation created at', () => {
   test('replay pins env.now to mutation createdAt under client clock skew', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 720,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -61,7 +61,7 @@ describe('replay pins now to mutation created at', () => {
 
   test('rebase env.now pinned to createdAt under skew before upload', async () => {
     // Offline pending delete + peer merge before upload: rebase uses createdAt.
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 721,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

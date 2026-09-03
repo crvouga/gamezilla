@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -14,7 +14,7 @@ import { expectLiveNoteAt } from '../apps/acme/reads';
 
 describe('single client mutate uploads and persists', () => {
   test('single client mutate uploads and is visible locally', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 1,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -30,7 +30,7 @@ describe('single client mutate uploads and persists', () => {
   });
 
   test('title and body both persist after converge', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 2,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

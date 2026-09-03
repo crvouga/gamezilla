@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -22,7 +22,7 @@ import {
 
 describe('topic sync waits for mutations drain', () => {
   test('topic sync waits until pending mutations drain', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 803,
       host: syncVirtualHost(),
       knobs: acmeKnobs({

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -23,7 +23,7 @@ const PEER_VISIBLE_BUDGET_MS = 200;
 
 describe('buffer outbound live flush on reconnect', () => {
   test('default: no outbound buffer; peers wait for upload/sync', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 701,
       host: syncVirtualHost(),
       knobs: acmeKnobs({
@@ -52,7 +52,7 @@ describe('buffer outbound live flush on reconnect', () => {
   });
 
   test('bufferOutboundLive: peer sees note while publisher sync held', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 702,
       host: syncVirtualHost(),
       knobs: acmeKnobs({
@@ -84,7 +84,7 @@ describe('buffer outbound live flush on reconnect', () => {
   });
 
   test('bufferOutboundLive: peer visible under latency budget via live', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 703,
       host: syncVirtualHost(),
       knobs: acmeKnobs({

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeApp,
   acmeKnobs,
@@ -44,7 +44,7 @@ describe('mixed schema tombstone and pending rebase', () => {
   test.each([2110, 2111, 2112])(
     'pending setNoteColor revives peer tombstone; color kept (seed=%i)',
     async (seed) => {
-      await using run = await start(acmeColorTombstoneSystem, {
+      await using run = await script(acmeColorTombstoneSystem, {
         seed: seed,
         host: syncVirtualHost(),
         knobs: acmeKnobs({ clientCount: 0 }),

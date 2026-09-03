@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
+import { explore } from '@pkgs/dst';
 import { gen } from '@pkgs/dst/fast-check';
-import { check } from '@pkgs/dst/pbt';
 
 import {
   arbRoomKnobs,
@@ -17,7 +17,7 @@ describe('room system PBT', () => {
   test(
     'check explores room actions under ROOM_PROPERTIES',
     async () => {
-      const report = await check(counterSystem, {
+      const report = await explore(counterSystem, {
         properties: ROOM_PROPERTIES,
         actions: roomActions(counterApp),
         knobs: gen(arbRoomKnobs()),

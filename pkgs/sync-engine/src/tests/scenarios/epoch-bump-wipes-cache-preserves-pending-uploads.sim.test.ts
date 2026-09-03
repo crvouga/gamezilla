@@ -1,5 +1,5 @@
 import { describe, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import { SCHEMA_EPOCH } from '@pkgs/sync-engine/test';
 import {
   acmeKnobs,
@@ -20,7 +20,7 @@ describe('epoch bump wipes cache preserves pending uploads', () => {
   test.each([710, 711, 712])(
     'offline pending survives epoch bump (seed=%i)',
     async (seed) => {
-      await using run = await start(acmeSystem, {
+      await using run = await script(acmeSystem, {
         seed,
         host: syncVirtualHost(),
         knobs: acmeKnobs({ clientCount: 0 }),

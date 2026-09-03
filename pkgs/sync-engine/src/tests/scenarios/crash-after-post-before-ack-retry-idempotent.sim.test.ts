@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -20,7 +20,7 @@ import {
 
 describe('crash after post before ack retry idempotent', () => {
   test('crash after mutations POST accepted; restart re-drains idempotently', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 832,
       host: syncVirtualHost(),
       knobs: acmeKnobs({

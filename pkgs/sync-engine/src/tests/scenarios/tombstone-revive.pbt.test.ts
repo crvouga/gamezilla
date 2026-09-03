@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import { assertProperty, fc } from '@pkgs/pbt';
 import { arbKnobs, arbSeed } from '../../sim/scenario/knobs';
 import {
@@ -38,7 +38,7 @@ describe('tombstone revive PBT', () => {
             { minLength: 1, maxLength: 8 }
           ),
           async (seed, knobs, steps) => {
-            await using run = await start(acmeSystem, {
+            await using run = await script(acmeSystem, {
               seed,
               host: syncVirtualHost(),
               knobs: acmeKnobs(knobs),
@@ -99,7 +99,7 @@ describe('tombstone revive PBT', () => {
           fc.string({ maxLength: 8 }),
           fc.string({ maxLength: 8 }),
           async (seed, knobs, body1, body2) => {
-            await using run = await start(acmeSystem, {
+            await using run = await script(acmeSystem, {
               seed,
               host: syncVirtualHost(),
               knobs: acmeKnobs(knobs),

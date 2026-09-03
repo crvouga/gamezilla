@@ -1,21 +1,21 @@
-import { type Run, type StartOptions, start, virtualHost } from '@pkgs/dst';
+import { type Run, type ScriptOptions, script, virtualHost } from '@pkgs/dst';
 import { type RoomSystemDef, SIM_START_MS } from './define-room-system';
 import type { RoomSurface } from './surface';
 
-export type StartRoomOpts = {
+export type ScriptRoomOpts = {
   readonly seed?: number | bigint | string;
   readonly clientCount?: number;
   readonly mildFaults?: boolean;
   readonly startTime?: number;
-  readonly properties?: StartOptions<RoomSurface>['properties'];
+  readonly properties?: ScriptOptions<RoomSurface>['properties'];
 };
 
-export async function startRoom(
+export async function scriptRoom(
   system: RoomSystemDef,
-  opts?: StartRoomOpts
+  opts?: ScriptRoomOpts
 ): Promise<Run<RoomSurface>> {
   const seed = opts?.seed ?? process.env['SIM_SEED'] ?? '42';
-  return start(system, {
+  return script(system, {
     seed,
     knobs: {
       clientCount: opts?.clientCount ?? 0,

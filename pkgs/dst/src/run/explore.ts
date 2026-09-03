@@ -2,26 +2,26 @@ import type { Host, Ports } from '../host/types';
 import { fingerprint } from '../kernel/fingerprint';
 import type { JsonValue } from '../kernel/json';
 import { createReplayingRng, createRng } from '../kernel/rng';
-import { closeMonitors } from '../run/checkpoint';
-import { getRunInternal, start } from '../run/start';
-import { type Walk, walk } from '../run/walk';
 import type { System } from '../system/define-system';
 import type { Action, Property } from '../system/effect';
 import type { Gen } from '../system/gen';
 import type { Choice, Repro } from '../system/repro';
 import { parseRepro, REPRO_VERSION } from '../system/repro';
+import { closeMonitors } from './checkpoint';
+import { getRunInternal, script } from './script';
+import { type Walk, walk } from './walk';
 
-export class CheckFailedError extends Error {
+export class ExploreFailedError extends Error {
   readonly report: Report;
   constructor(report: Report) {
     super(
-      `CheckFailedError: ${report.failures.length} failure(s)${
+      `ExploreFailedError: ${report.failures.length} failure(s)${
         report.vacuity.length > 0
           ? `; vacuity: ${report.vacuity.join(',')}`
           : ''
       }`
     );
-    this.name = 'CheckFailedError';
+    this.name = 'ExploreFailedError';
     this.report = report;
   }
 }
@@ -41,7 +41,7 @@ export type Report = {
   };
 };
 
-export type CheckOptions<S, K = void> = {
+export type ExploreOptions<S, K = void> = {
   readonly host?: Host<Ports>;
   readonly properties: readonly Property<S>[];
   readonly actions: readonly Action<S, []>[];
@@ -55,7 +55,7 @@ export type CheckOptions<S, K = void> = {
   readonly stopOnViolation?: boolean;
 };
 
-function campaignSeed(opts: CheckOptions<unknown, unknown>): number {
+function campaignSeed(opts: ExploreOptions<unknown, unknown>): number {
   if (opts.seed !== undefined) return opts.seed;
   const env =
     typeof process !== 'undefined' ? process.env['PBT_SEED'] : undefined;
@@ -125,7 +125,7 @@ function recordEndViolations(args: {
 
 async function runEpisode<S, K>(args: {
   readonly system: System<S, K>;
-  readonly opts: CheckOptions<S, K>;
+  readonly opts: ExploreOptions<S, K>;
   readonly epSeed: number;
   readonly steps: number;
   readonly acc: EpisodeAcc;
@@ -135,12 +135,12 @@ async function runEpisode<S, K>(args: {
   let run;
   const knobs = resolveKnobs(opts.knobs, args.episodeRng);
   try {
-    run = await start(system, {
+    run = await script(system, {
       seed: epSeed,
       ...(opts.host !== undefined ? { host: opts.host } : {}),
       ...(knobs !== undefined ? { knobs } : {}),
       properties: opts.properties,
-    } as Parameters<typeof start<S, K>>[1]);
+    } as Parameters<typeof script<S, K>>[1]);
     const w = await walk(run, {
       actions: opts.actions,
       steps,
@@ -200,13 +200,13 @@ async function runEpisode<S, K>(args: {
   }
 }
 
-export async function check<S, K = void>(
+export async function explore<S, K = void>(
   system: System<S, K>,
-  opts: CheckOptions<S, K>
+  opts: ExploreOptions<S, K>
 ): Promise<Report> {
   const episodes = opts.episodes ?? 20;
   const steps = opts.steps ?? 40;
-  const seed = campaignSeed(opts as CheckOptions<unknown, unknown>);
+  const seed = campaignSeed(opts as ExploreOptions<unknown, unknown>);
   const rng = createRng(seed);
   const acc: EpisodeAcc = {
     failures: [],
@@ -243,13 +243,13 @@ export async function check<S, K = void>(
     coverage: { states: acc.allStates.size, actions: acc.allActions },
   };
 
-  if (!report.ok) throw new CheckFailedError(report);
+  if (!report.ok) throw new ExploreFailedError(report);
   return report;
 }
 
 async function deltaDebugChoices(
   system: System<unknown, unknown>,
-  opts: CheckOptions<unknown, unknown>,
+  opts: ExploreOptions<unknown, unknown>,
   repro: Repro,
   choices: Choice[]
 ): Promise<Choice[]> {
@@ -291,11 +291,11 @@ async function minifyFloat(
 
 async function shrinkRepro<S, K>(
   system: System<S, K>,
-  opts: CheckOptions<S, K>,
+  opts: ExploreOptions<S, K>,
   repro: Repro
 ): Promise<Repro> {
   const sys = system as System<unknown, unknown>;
-  const o = opts as CheckOptions<unknown, unknown>;
+  const o = opts as ExploreOptions<unknown, unknown>;
   const choices = await deltaDebugChoices(sys, o, repro, repro.choices.slice());
 
   const systemDraws = [...repro.system];
@@ -335,7 +335,7 @@ async function shrinkRepro<S, K>(
 
 async function fails<S, K>(
   system: System<S, K>,
-  opts: CheckOptions<S, K>,
+  opts: ExploreOptions<S, K>,
   repro: Repro
 ): Promise<boolean> {
   try {
@@ -373,7 +373,7 @@ function toRepro<S, K>(
 }
 
 async function replayChoice<S>(
-  run: Awaited<ReturnType<typeof start<S, unknown>>>,
+  run: Awaited<ReturnType<typeof script<S, unknown>>>,
   action: Action<S, unknown[]>,
   choice: Choice
 ): Promise<void> {
@@ -406,14 +406,14 @@ export async function replay<S, K = void>(
     opts.actions.map((a) => [a.name, a as Action<S, unknown[]>])
   );
 
-  const run = await start(system, {
+  const run = await script(system, {
     seed: repro.seed,
     ...(opts.host !== undefined ? { host: opts.host } : {}),
     ...(repro.knobs !== undefined && repro.knobs !== null
       ? { knobs: repro.knobs as K }
       : {}),
     properties: opts.properties ?? [],
-  } as Parameters<typeof start<S, K>>[1]);
+  } as Parameters<typeof script<S, K>>[1]);
 
   const failures: Report['failures'][number][] = [];
   try {

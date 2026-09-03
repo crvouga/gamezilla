@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import { topicsFromWriteCapture } from '@pkgs/sync-engine/shared';
 import {
   acmeKnobs,
@@ -51,7 +51,7 @@ describe('tombstone membership wakes removed user topic', () => {
   });
 
   test('leave soft-delete converges peers and drops leaver room topic', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 1201,
       host: syncVirtualHost(),
       knobs: acmeKnobs({

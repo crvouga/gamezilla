@@ -6,7 +6,7 @@ import {
   hold,
   passTime,
   release,
-  startRoom,
+  scriptRoom,
 } from '../../sim/scenario';
 import { deadlineSystem } from '../apps/deadline/system';
 import { expectConverged } from '../expect-converged';
@@ -24,7 +24,7 @@ import {
 
 describe('kit: deadline vs action (M-F07)', () => {
   test('partitioned lagging client cannot win after deadline', async () => {
-    await using run = await startRoom(deadlineSystem, {
+    await using run = await scriptRoom(deadlineSystem, {
       startTime: 5_000,
     });
     await run.apply(addClient, { id: 'alice' });

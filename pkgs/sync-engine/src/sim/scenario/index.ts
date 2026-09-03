@@ -49,7 +49,7 @@ export {
   replayStep,
   resetClockSkews,
 } from './play';
-export { checkSync, replaySyncRepro } from './replay';
+export { exploreSync, replaySyncRepro } from './replay';
 export { createSyncActions } from './sync-actions';
 export type {
   LiveNoteRow,

@@ -1,5 +1,5 @@
 import { describe, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -14,7 +14,7 @@ import {
 
 describe('remote fanout races local pending mutation', () => {
   test('fanout races local pending mutation on same row then converges', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 29,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

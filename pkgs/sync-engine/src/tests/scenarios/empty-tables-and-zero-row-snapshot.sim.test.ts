@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -16,7 +16,7 @@ import { expectLiveNoteAt, liveFolders, liveNotes } from '../apps/acme/reads';
 
 describe('empty tables and zero row snapshot', () => {
   test('zero-row system converges; not_modified refresh stays empty', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 1020,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -39,7 +39,7 @@ describe('empty tables and zero row snapshot', () => {
 
   test('absence in snapshot does not delete unrelated live rows outside scope', async () => {
     // Pin upsert contract: empty secondary scope refresh must not wipe domain.
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 1021,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -64,7 +64,7 @@ describe('empty tables and zero row snapshot', () => {
   test.each([1022, 1023, 1024])(
     'seed sweep empty converge (seed=%i)',
     async (seed) => {
-      await using run = await start(acmeSystem, {
+      await using run = await script(acmeSystem, {
         seed,
         host: syncVirtualHost(),
         knobs: acmeKnobs({ clientCount: 0 }),

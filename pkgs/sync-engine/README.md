@@ -371,7 +371,7 @@ is the safety net so peers do not stay forever-stale.
 | `createSyncApp({ rowImageFanout })` | **false** | Opt-in |
 | Client `push.rowImageFanout` | **false** | Opt-in |
 | Product Gamezilla (`apps/*`) | **true** | Both API + client set true |
-| `start(acmeSystem)` | **true** | algebra entry |
+| `script(acmeSystem)` | **true** | algebra entry |
 
 When off, pushes are wake+refetch only (still correct). When on, contiguous
 `pushSeq` + `rows` may apply via `applyRowImages` without updating
@@ -802,15 +802,15 @@ bun run lint
 
 | Suite | Path | Role |
 |-------|------|------|
-| Scenarios | `src/tests/scenarios/*.sim.test.ts` | Black-box multi-client pins via `start(acmeSystem)` + `run.apply` / `untilAcme` |
-| Property / system | `src/tests/scenarios/*.scenario.pbt.test.ts` / `*.pbt.test.ts` | Shrinking `check` / `replay` / `playAcmePin` over `acmeSystem` |
+| Scenarios | `src/tests/scenarios/*.sim.test.ts` | Black-box multi-client pins via `script(acmeSystem)` + `run.apply` / `untilAcme` |
+| Property / system | `src/tests/scenarios/*.scenario.pbt.test.ts` / `*.pbt.test.ts` | Shrinking `explore` / `replay` / `playAcmePin` over `acmeSystem` |
 | Unit PBT | `src/tests/unit/*.pbt.test.ts` | Pure helpers (checkpoints, topic map, …) |
 | Kernel harness | `src/tests/harness/*.test.ts` | RNG / scheduler / timers; membership topic sync |
 | Public unit helper | `@pkgs/sync-engine/test` | `createInMemorySyncEngine` (no full kit surface) |
 
 **Two layers:** named scenarios document specific safety claims (`never`, authz,
 protocol cut, flicker). `*.pbt.test.ts` files explore the fault state space with
-`check(acmeSystem)` from `@pkgs/dst/pbt` (system declared via `defineSyncSystem` —
+`explore(acmeSystem)` from `@pkgs/dst` (system declared via `defineSyncSystem` —
 see `src/sim/scenario/define-sync-system.ts` and `pkgs/dst/README.md`).
 When a property fails, capture `seed` / `path` / `replayPath`, pin `examples`,
 add a named scenario, and log in repo-root `PBT_FINDINGS.md`.
@@ -847,7 +847,7 @@ TigerBeetle-style deterministic simulation in `src/sim/` (not a public export). 
 identical timeline.** Systems are **owned by `@pkgs/dst`**:
 `defineSyncSystem(acmeApp)` (exported as `acmeSystem`) declares the
 broker/server/client topology, knobs, action pool, and model, and tests drive it
-with `check(acmeSystem)` / `replaySyncRepro` / `start(acmeSystem)` + `run.apply` /
+with `explore(acmeSystem)` / `replaySyncRepro` / `script(acmeSystem)` + `run.apply` /
 `run.observe`; fuzz calls `runSeed({ app: acmeApp })`. Assert **live domain rows
 only** — never framework tables or private modules.
 
@@ -917,7 +917,7 @@ embed `seed=<hex>` and virtual `now=` for replay.
 
 ```ts
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -931,7 +931,7 @@ import {
 
 describe('example', () => {
   test('mutate converges', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 42,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -947,15 +947,15 @@ describe('example', () => {
 });
 ```
 
-PBT / system pins (`defineSyncSystem` → `check` / `playAcmePin` / `replay`):
+PBT / system pins (`defineSyncSystem` → `explore` / `playAcmePin` / `replay`):
 
 ```ts
-import { check } from '@pkgs/dst/pbt';
-import { checkSync } from '../../sim/scenario';
+import { explore } from '@pkgs/dst';
+import { exploreSync } from '../../sim/scenario';
 import { playAcmePin } from '../apps/acme';
 import { acmeSystem } from '../apps/acme/system';
 
-await checkSync(acmeSystem, {
+await exploreSync(acmeSystem, {
   episodes: 12,
   steps: 14,
 });
@@ -1035,7 +1035,7 @@ await run.observe(nodeNow('alice')); // base + skew
 
 #### Knobs
 
-**System open** — algebra `start(acmeSystem, { seed, host: syncVirtualHost(), draws })`:
+**System open** — algebra `script(acmeSystem, { seed, host: syncVirtualHost(), draws })`:
 
 | Knob | Default | Meaning |
 |------|---------|---------|
@@ -1338,7 +1338,7 @@ Three distinct monotonic sequences — do not conflate them:
 
 Black-box correctness under `src/tests/scenarios/` (`*.sim.test.ts` +
 `*.scenario.pbt.test.ts`) plus harness `src/tests/harness/kernel.test.ts`.
-Most pins use `start(acmeSystem, { seed, host: syncVirtualHost(), knobs: acmeKnobs({…}) })`
+Most pins use `script(acmeSystem, { seed, host: syncVirtualHost(), knobs: acmeKnobs({…}) })`
 with `run.apply` / `run.observe` / `untilAcme`, and domain observations from
 `src/tests/apps/acme/`.
 

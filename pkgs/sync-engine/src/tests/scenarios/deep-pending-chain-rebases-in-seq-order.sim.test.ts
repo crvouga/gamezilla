@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -24,7 +24,7 @@ const pad = (i: number): string => String(i).padStart(3, '0');
 
 describe('deep pending chain rebases in seq order', () => {
   test('50+ pending folders+notes rebase in seq order to server truth', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 822,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

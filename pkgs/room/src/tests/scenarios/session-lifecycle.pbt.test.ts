@@ -9,7 +9,7 @@ import {
   dispatch,
   injectToServer,
   replayRoom,
-  startRoom,
+  scriptRoom,
   takeOver,
 } from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
@@ -126,7 +126,7 @@ describe('room session-lifecycle PBT', () => {
   );
 
   test('commandId replay across takeOver applies once', async () => {
-    await using run = await startRoom(counterSystem, {
+    await using run = await scriptRoom(counterSystem, {
       seed: 7,
       clientCount: 2,
     });
@@ -153,7 +153,7 @@ describe('room session-lifecycle PBT', () => {
   });
 
   test('multi-tab same identity converges', async () => {
-    await using run = await startRoom(counterSystem, { seed: 11 });
+    await using run = await scriptRoom(counterSystem, { seed: 11 });
     await run.apply(addClient, {
       id: 'tab-a',
       identity: 'user',

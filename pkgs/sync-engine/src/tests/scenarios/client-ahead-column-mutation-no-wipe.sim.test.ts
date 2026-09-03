@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeLocalSchemaExtraColumn,
@@ -23,7 +23,7 @@ describe('client ahead column mutation no wipe', () => {
     'client writes color before server DDL: no wipe, no hot loop (seed=%i)',
     async (seed) => {
       // Unsupported deploy order — pin that the engine stays healthy.
-      await using run = await start(acmeSystem, {
+      await using run = await script(acmeSystem, {
         seed: seed,
         host: syncVirtualHost(),
         knobs: acmeKnobs({ clientCount: 0 }),

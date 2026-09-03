@@ -1,5 +1,5 @@
 import { describe, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -22,7 +22,7 @@ import {
 
 describe('live resend on reconnect vs drop', () => {
   test('default: missed live is dropped; sync pull repairs', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 601,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -48,7 +48,7 @@ describe('live resend on reconnect vs drop', () => {
   });
 
   test('liveResendOnReconnect: consistent from resent live while sync held', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 602,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0, liveResendOnReconnect: true }),

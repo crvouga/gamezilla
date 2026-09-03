@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { explore, script } from '@pkgs/dst';
 import { gen } from '@pkgs/dst/fast-check';
-import { check } from '@pkgs/dst/pbt';
 import { schemaAt } from './schemas';
 import {
   advance,
@@ -19,7 +18,7 @@ import {
 
 describe('db-schema framework system', () => {
   test('compatible schema chain + mixed clients + forbidden refuse', async () => {
-    const report = await check(schema, {
+    const report = await explore(schema, {
       properties: SCHEMA_PROPERTIES,
       actions: SCHEMA_ACTIONS,
       knobs: gen(arbSchemaKnobs()),
@@ -32,7 +31,7 @@ describe('db-schema framework system', () => {
   }, 120_000);
 
   test('scripted: server ahead of lagging client stays valid', async () => {
-    await using run = await start(schema, {
+    await using run = await script(schema, {
       seed: 42,
       knobs: { clients: 2 },
       properties: SCHEMA_PROPERTIES,
@@ -48,7 +47,7 @@ describe('db-schema framework system', () => {
   }, 60_000);
 
   test('forbidden in-place type change is refused without plan drift', async () => {
-    await using run = await start(schema, {
+    await using run = await script(schema, {
       seed: 7,
       knobs: { clients: 1 },
       properties: SCHEMA_PROPERTIES,
@@ -59,7 +58,7 @@ describe('db-schema framework system', () => {
   }, 60_000);
 
   test('nodes boot at v0 with server + client roles', async () => {
-    await using run = await start(schema, {
+    await using run = await script(schema, {
       seed: 3,
       knobs: { clients: 3 },
       properties: SCHEMA_PROPERTIES,

@@ -6,7 +6,7 @@ import {
   lastTick,
   participantIds,
   passTime,
-  startMatchmaking,
+  scriptMatchmaking,
   statusOf,
   tick,
 } from '../../sim/scenario';
@@ -28,7 +28,7 @@ describe('matchmaking sim: priority', () => {
   });
 
   test('high-priority joiner is matched before same-bucket FIFO peer', async () => {
-    await using run = await startMatchmaking({ seed: 80 });
+    await using run = await scriptMatchmaking({ seed: 80 });
     await run.apply(join, {
       ref: 'a',
       input: {

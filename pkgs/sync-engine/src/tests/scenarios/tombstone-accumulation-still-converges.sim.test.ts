@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -21,7 +21,7 @@ const TOMBSTONE_COUNT = 120;
 describe('tombstone accumulation still converges', () => {
   // README known limitation 1 SQLite growth — soft-delete catalogs accumulate.
   test('hundreds of tombstones; live queries stay correct and converge', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 1040,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -55,7 +55,7 @@ describe('tombstone accumulation still converges', () => {
   test.each([1041, 1042, 1043])(
     'seed sweep modest tombstone piles converge (seed=%i)',
     async (seed) => {
-      await using run = await start(acmeSystem, {
+      await using run = await script(acmeSystem, {
         seed: seed,
         host: syncVirtualHost(),
         knobs: acmeKnobs({ clientCount: 0 }),

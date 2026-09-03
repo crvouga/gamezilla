@@ -1,5 +1,5 @@
 import { describe, test } from 'bun:test';
-import { type Run, start } from '@pkgs/dst';
+import { type Run, script } from '@pkgs/dst';
 import type { SyncSurface } from '../../sim/scenario';
 import {
   acmeKnobs,
@@ -84,7 +84,7 @@ async function syncBeforeLive(run: SyncRun, skew?: ClockOrder): Promise<void> {
 
 describe('live vs sync ordering races converge', () => {
   test('live before sync (refetch path)', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 301,
       host: syncVirtualHost(),
       knobs: acmeKnobs({
@@ -98,7 +98,7 @@ describe('live vs sync ordering races converge', () => {
   });
 
   test('sync before live', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 302,
       host: syncVirtualHost(),
       knobs: acmeKnobs({
@@ -113,7 +113,7 @@ describe('live vs sync ordering races converge', () => {
 
   for (const order of RACE_SKEWS) {
     test(`live before sync skew ${order.label}`, async () => {
-      await using run = await start(acmeSystem, {
+      await using run = await script(acmeSystem, {
         seed: 310,
         host: syncVirtualHost(),
         knobs: acmeKnobs({
@@ -127,7 +127,7 @@ describe('live vs sync ordering races converge', () => {
     });
 
     test(`sync before live skew ${order.label}`, async () => {
-      await using run = await start(acmeSystem, {
+      await using run = await script(acmeSystem, {
         seed: 320,
         host: syncVirtualHost(),
         knobs: acmeKnobs({
@@ -142,7 +142,7 @@ describe('live vs sync ordering races converge', () => {
   }
 
   test('stale sync after live fanout', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 303,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -161,7 +161,7 @@ describe('live vs sync ordering races converge', () => {
   });
 
   test('optimistic + held sync converges', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 304,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -185,7 +185,7 @@ describe('live vs sync ordering races converge', () => {
   });
 
   test('optimistic + held live converges', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 305,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -207,7 +207,7 @@ describe('live vs sync ordering races converge', () => {
   });
 
   test('live-only partition then heal converges via sync', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 306,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

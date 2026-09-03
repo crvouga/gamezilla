@@ -1,6 +1,6 @@
 /**
  * Matchmaking system kernel. Topologies are framework-owned via
- * {@link defineMatchmakingSystem} + `start` / `check` / `replay`.
+ * {@link defineMatchmakingSystem} + `script` / `explore` / `replay`.
  */
 
 export {
@@ -36,8 +36,8 @@ export {
   type MatchmakingSystemDef,
   matchmaking,
   matchmakingKnobs,
-  type StartMatchmakingArgs,
-  startMatchmaking,
+  type ScriptMatchmakingArgs,
+  scriptMatchmaking,
 } from './define-matchmaking-system';
 export { SIM_AUTH_HEADER, SIM_AUTH_HEADERS, simRequireAuth } from './http';
 export { startReplica, startStore } from './node-kinds';

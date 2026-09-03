@@ -16,7 +16,7 @@ Root determinism policy lives in [`DETERMINISM.md`](../../DETERMINISM.md).
 A small algebra of singular primitives. Packages declare a **System**
 (topology from typed knobs), **Observations** (named reads), **Actions**
 (stimuli), and **Properties** (monitors). The framework owns the run:
-`start` / `walk` / `check` / `replay`.
+`script` / `walk` / `explore` / `replay`.
 
 It is **not** a product runtime. `Host` / `Session` are harness-only.
 Product `ClientEnv` / `ServerEnv` receive unpacked ports (`clock`, `timers`,
@@ -38,7 +38,7 @@ algebra / `WorldControls`.
 | Observation | `defineObservation({ name, observe })` | `yield*` / `observe({ a, b })` | Named read of live state |
 | Action | `defineAction({ name, generate(...args) })` | typed params / `{ weight, act }` | Stimulus |
 | Property | `defineProperty({ name, watch })` | control flow | Monitor over checkpoints |
-| Run | `start(system, { knobs })` | `apply` / `observe` / `assert` | Live handle |
+| Run | `script(system, { knobs })` | `apply` / `observe` / `assert` | Live handle |
 | Gen | `(rng) => T` | function composition | Randomness (`@pkgs/dst/fast-check` adapts fc) |
 
 Bind the surface once with `defineSurface<S>()` (also spread onto `System<S>`).
@@ -57,7 +57,7 @@ Bind the surface once with `defineSurface<S>()` (also spread onto `System<S>`).
    Bare `(s) => …` = weight 1.
 5. **Properties** are monitors: body re-invoked each checkpoint when it
    completes; throw = violation; `finally` on close = obligation.
-6. **Run** = `start` → `{ apply, observe, assert }`. `walk` / `check` /
+6. **Run** = `script` → `{ apply, observe, assert }`. `walk` / `explore` /
    `replay` compose Runs.
 
 `run.apply(action, ...args)` is the only checkpoint: probe → draw → act +
@@ -72,12 +72,11 @@ Do not encode wait / assert / settle / converge as actions.
 
 ## Public surface
 
-Four entrypoints (`pkgs/dst/package.json` `exports`):
+Three entrypoints (`pkgs/dst/package.json` `exports`):
 
 | Import | Contents |
 | --- | --- |
-| `@pkgs/dst` | `defineSystem` / `defineObservation` / `defineAction` / `defineProperty` / `defineSurface` / `draw` / `observe` / `start` / `walk` / `untilObserved` / `neverObserved` / `virtualHost` / `wallHost` / `defineHost` / `REPRO_VERSION` / `parseRepro` / `stringifyRepro` + types (`Run`, `Session`, `Host`, `Action`, …) |
-| `@pkgs/dst/pbt` | `check`, `replay`, `CheckFailedError` |
+| `@pkgs/dst` | `defineSystem` / `defineObservation` / `defineAction` / `defineProperty` / `defineSurface` / `draw` / `observe` / `script` / `walk` / `explore` / `replay` / `ExploreFailedError` / `untilObserved` / `neverObserved` / `virtualHost` / `wallHost` / `defineHost` / `REPRO_VERSION` / `parseRepro` / `stringifyRepro` + types (`Run`, `Session`, `Host`, `Action`, …) |
 | `@pkgs/dst/kernel` | Clock / scheduler / rng / network factories. **Host authors + sim only.** Depcruise: `pkgs/dst/**`, `sim/**`, `**/sim/**`. |
 | `@pkgs/dst/fast-check` | `gen(arbitrary)`, `arbitrary(gen)`, `randomGeneratorOver` |
 
@@ -85,11 +84,8 @@ Contract: `src/public-api.contract.test.ts`. Forbidden on the public
 `@pkgs/dst` object: `defineScenario`, `actions`, `properties`, `knob`,
 `node`, `std`, `runProperty`, `arbSeed`, `checkSystem`, `replaySystem`,
 `getRunInternal`, `RunInternal`, `Body`. `Run` has no `_internal` field;
-tests speak only `apply` / `observe` / `assert`. `walk` / `check` / `replay`
+tests speak only `apply` / `observe` / `assert`. `walk` / `explore` / `replay`
 reach internals via a package-private WeakMap (`getRunInternal`).
-
-`CampaignReport` is a historical type alias of `Report` in `@pkgs/dst/pbt`.
-That is a leftover — do not add more aliases.
 
 ---
 
@@ -119,7 +115,7 @@ const { defineObservation, defineAction, defineProperty } = kv;
 - Put `session` on `S` when actions need network / scheduler.
 - `session.fork(name)` is memoised by name (second fork of `'server'` returns
   the same Session).
-- Default host is `virtualHost()`. Override with `start(..., { host })`.
+- Default host is `virtualHost()`. Override with `script(..., { host })`.
 
 ### Observation
 
@@ -194,10 +190,10 @@ export const converges = defineProperty({
 });
 ```
 
-Attach via `start(..., { properties })` or `check(..., { properties })`.
+Attach via `script(..., { properties })` or `explore(..., { properties })`.
 `run.assert(p)` runs a property once (not as a standing monitor).
 Bodies that complete restart at the next checkpoint. `finally` on dispose
-is the obligation check (`check` treats end-only failures as vacuity if
+is the obligation check (`explore` treats end-only failures as vacuity if
 they miss every episode).
 
 ### Body protocol
@@ -222,8 +218,20 @@ Do not import `fast-check` from core dst modules. Scenario kits may import
 
 ## Driving a run
 
+Who chooses the path is the top-level distinction:
+
+| Verb | Who chooses | Role |
+| --- | --- | --- |
+| `script` | Human | Open a run; drive with `apply` / `observe` |
+| `explore` | Framework | Search paths (episodes × `walk` + shrink) |
+| `replay` | Recorded repro | Reproduce a discovered path |
+
+`walk` is the internal search primitive (still public). No `start` / `check` aliases; no `@pkgs/dst/pbt`.
+
 ```ts
-await using run = await start(kv, {
+import { script, explore, replay, walk } from '@pkgs/dst';
+
+await using run = await script(kv, {
   seed: 7,
   knobs: { clients: 2 },
   properties: KV_PROPERTIES,
@@ -231,7 +239,7 @@ await using run = await start(kv, {
 await run.apply(put, 'client:0', 'a', '1');
 expect(await run.observe(quiet)).toBe(true);
 
-await check(kv, {
+await explore(kv, {
   properties: KV_PROPERTIES,
   actions: KV_ACTIONS,
   knobs: gen(arbKvKnobs()),
@@ -257,13 +265,13 @@ await neverObserved(run, liveNote('bob', 'late'), passTime, {
 `untilObserved` / `neverObserved` require a typed `passTime: Action<S, [ms: number]>`.
 Defaults: `stepMs: 50`, `maxMs: 5_000`. Predicate defaults to truthiness.
 
-### Walk / check / replay
+### Walk / explore / replay
 
 - `walk(run, { actions, steps?, budgetMs?, stopOnViolation? })` — probes every
   zero-arg action, picks by weight, finishes the chosen body. Returns
   transitions, choices, coverage, violations.
-- `check(system, { properties, actions, knobs?, episodes?, steps?, … })` —
-  episodes × (start + walk + close) + shrink. Throws `CheckFailedError`.
+- `explore(system, { properties, actions, knobs?, episodes?, steps?, … })` —
+  episodes × (script + walk + close) + shrink. Throws `ExploreFailedError`.
   Seed: `opts.seed` else `PBT_SEED` env else pinned `424242`.
 - `replay(system, repro | walk | string, { actions, properties?, host? })` —
   re-applies named choices (args, or recorded draws for zero-arg actions).
@@ -329,7 +337,7 @@ Slim toys under [`src/examples/`](src/examples/) (not public exports):
 
 | Toy | Teaches |
 | --- | --- |
-| [`acme-kv`](src/examples/acme-kv/scenario.ts) | typed knobs, forks, faults, `check` / `walk` |
+| [`acme-kv`](src/examples/acme-kv/scenario.ts) | typed knobs, forks, faults, `explore` / `walk` |
 | [`acme-sync`](src/examples/acme-sync/scenario.ts) | SQL-shaped aggregates + pending, converge after partition |
 | [`acme-counter`](src/examples/acme-counter/scenario.ts) | DOM reads/acts (happy-dom + Bun.WebView), screen-conditional enablement, walk + replay |
 
@@ -343,13 +351,13 @@ typed actions + zero-arg random wrappers, properties that throw on
 
 | Consumer | System | How tests drive it |
 | --- | --- | --- |
-| `@pkgs/sync-engine` | `defineSyncSystem(app)` → `sync.system` | ~100 `*.sim.test.ts` call `start(acmeSystem, { host: syncVirtualHost(), knobs })` then `run.apply(pin, …args)`. PBT via `checkSync`. Separate `runSeed` workload. |
-| `@pkgs/room` | `defineRoomSystem(app)` | `startRoom` wrapper; pins via `run.apply`; tagged `RoomSystemAction` replayed by `applyRoomAction` → `run.apply`. |
-| `@pkgs/matchmaking` | `defineMatchmakingSystem` | `startMatchmaking`; `untilObserved` / `neverObserved` for radius growth. |
-| `@pkgs/sql-client` | `sqlClientWeb` | closest to the toys; `check` over `SQL_CLIENT_WEB_ACTIONS`. |
-| `@pkgs/auth` | `auth.idp` | `check(auth, …)` PBT. |
-| `@pkgs/db-schema` | `db-schema.reconcile` | `check` + scripted `start`. |
-| `@pkgs/db-indexes` | `db-indexes.reconcile` | `check` + known-seed pins. |
+| `@pkgs/sync-engine` | `defineSyncSystem(app)` → `sync.system` | ~100 `*.sim.test.ts` call `script(acmeSystem, { host: syncVirtualHost(), knobs })` then `run.apply(pin, …args)`. PBT via `exploreSync`. Separate `runSeed` workload. |
+| `@pkgs/room` | `defineRoomSystem(app)` | `scriptRoom` wrapper; pins via `run.apply`; tagged `RoomSystemAction` replayed by `applyRoomAction` → `run.apply`. |
+| `@pkgs/matchmaking` | `defineMatchmakingSystem` | `scriptMatchmaking`; `untilObserved` / `neverObserved` for radius growth. |
+| `@pkgs/sql-client` | `sqlClientWeb` | closest to the toys; `explore` over `SQL_CLIENT_WEB_ACTIONS`. |
+| `@pkgs/auth` | `auth.idp` | `explore(auth, …)` PBT. |
+| `@pkgs/db-schema` | `db-schema.reconcile` | `explore` + scripted `script`. |
+| `@pkgs/db-indexes` | `db-indexes.reconcile` | `explore` + known-seed pins. |
 | `@sim/test` | `product` (`sim.product`) | `openSim` + `walk`; UI via `@pkgs/ui-testing` observations/actions. |
 | `@pkgs/ui-testing` | (no system) | generic `inventory` / `tap` / `fill` factories over a `Driver`. |
 | `@sim/console` | playground | `virtualHost` + kernel scheduler types for checkpoint UI. |
@@ -394,9 +402,9 @@ typed actions + zero-arg random wrappers, properties that throw on
 - **Don't** add `World` / `openWorld` / `pin` / `spec` / positional `draws:`.
 - **Don't** reach `Run` internals — no `_internal`; tests speak only
   `apply` / `observe` / `assert`.
-- **Don't** add package-local World openers / kit DSLs — `start` / `walk` /
-  `check` / `replay` are the run API. (`startRoom` / `startMatchmaking` /
-  `checkSync` / `runSeed` are the existing exceptions; do not grow them.)
+- **Don't** add package-local World openers / kit DSLs — `script` / `walk` /
+  `explore` / `replay` are the run API. (`scriptRoom` / `scriptMatchmaking` /
+  `exploreSync` / `runSeed` are the existing exceptions; do not grow them.)
 
 ---
 
@@ -406,8 +414,7 @@ typed actions + zero-arg random wrappers, properties that throw on
 src/index.ts          public algebra
 src/host/             virtualHost / wallHost / defineHost / Session
 src/system/           define* + effect protocol (tags, draw, observe)
-src/run/              drive / probe / start / walk / until / checkpoint
-src/pbt/              check / replay / shrink
+src/run/              drive / probe / script / walk / explore / replay / until / checkpoint
 src/kernel/           clocks, schedulers, rng, fingerprint, json, timers
 src/models/           in-process network (delay/loss/dup/partition)
 src/fast-check/       gen / arbitrary adapters
@@ -498,12 +505,12 @@ Walk draws them. Replay stores them. Delete tagged-union dispatchers.
 
 ### 6. Package-local World openers came back under new names
 
-`startRoom`, `startMatchmaking`, `checkSync`, `syncVirtualHost`,
+`scriptRoom`, `scriptMatchmaking`, `exploreSync`, `syncVirtualHost`,
 `runSeed`, `expectConverged`. AGENTS.md bans World openers; these are
-the same pattern (hide `start` + host + default knobs + properties).
+the same pattern (hide `script` + host + default knobs + properties).
 
 Some of this is justified (`syncVirtualHost` must wrap `settle` + dispose
-hooks). Most is not (`startRoom` reading `process.env.SIM_SEED`).
+hooks). Most is not (`scriptRoom` reading `process.env.SIM_SEED`).
 
 **v2:** Host composition stays. Default knobs stay on the system. Do not
 add `startX` functions that mint Runs.
@@ -578,7 +585,7 @@ the heap, that is a Host capability, not an import of `@pkgs/dst/kernel`.
 ### 12. Replay does not replay system draws
 
 `Repro.system` records floats from `generate`'s `draw`s. Shrink minifies
-them. `replay()` then calls `start({ seed, knobs })`, which records **new**
+them. `replay()` then calls `script({ seed, knobs })`, which records **new**
 draws from the seed — it never installs `createReplayingRng(repro.system)`.
 Shrinking `system` draws therefore cannot affect replay unless knobs already
 determine topology.
@@ -586,13 +593,13 @@ determine topology.
 Choice draws **are** replayed (by swapping `internal.rng` for zero-arg
 actions). Scripted `apply(action, ...args)` ignores stored draws.
 
-**v2:** start must accept replayed system rng. Scripted args vs drawn args
+**v2:** script must accept replayed system rng. Scripted args vs drawn args
 should be one mechanism (record the bound args; do not special-case
 zero-arg).
 
-### 13. `check` / `startRoom` read `process.env`
+### 13. `explore` / `scriptRoom` read `process.env`
 
-`check` reads `PBT_SEED`; `startRoom` and many sim tests read `SIM_SEED`.
+`explore` reads `PBT_SEED`; `scriptRoom` and many sim tests read `SIM_SEED`.
 That is wall entropy / wall config inside the algebra. The pinned default
 `424242` is the right idea; env as a side channel is not.
 
@@ -624,17 +631,16 @@ read. Walk should not need to fully drive a generator to learn weight.
 `defineSyncSystem` `Object.assign`s `.actions` and `.properties` onto the
 system value. The public-api contract **forbids** those keys on `@pkgs/dst`.
 The deleted catalog API (`actions<S>()`, `properties<S>()`) is back as ad
-hoc fields so `checkSync` can pass `def.actions`.
+hoc fields so `exploreSync` can pass `def.actions`.
 
-**v2:** `check({ actions, properties })` takes lists. Systems do not grow
+**v2:** `explore({ actions, properties })` takes lists. Systems do not grow
 fields.
 
-### 17. `CampaignReport` alias, `getRunInternal` export from `./run`
+### 17. `getRunInternal` export from `./run`
 
-Soft-deprecated alias. `getRunInternal` is correctly hidden from
-`@pkgs/dst` but re-exported from `src/run/index.ts` (package-internal).
-Fine if the package boundary is the export map; confusing for in-repo
-imports of deep paths.
+`getRunInternal` is correctly hidden from `@pkgs/dst` but re-exported from
+`src/run/index.ts` (package-internal). Fine if the package boundary is the
+export map; confusing for in-repo imports of deep paths.
 
 ### 18. AGENTS.md vs this algebra
 
@@ -659,20 +665,20 @@ will otherwise be used the same way.
 | `sync-engine/.../sync-pin-actions.ts` + `pin-chaos-actions.ts` | Second, complete action catalog next to `createSyncActions`. |
 | `room/.../room-actions.ts` | Almost every act calls `s.kit.drain()` (settle-in-the-action). |
 | `room/.../apply-room-action.ts` | Tagged-union dispatcher over `run.apply`. |
-| `room/.../start-room.ts` | World opener; reads `SIM_SEED`. |
-| `room/.../replay.ts` | Own replay (list of tagged actions), not `@pkgs/dst/pbt` `replay`. |
+| `room/.../script-room.ts` | World opener; reads `SIM_SEED`. |
+| `room/.../replay.ts` | Own replay (list of tagged actions), not `@pkgs/dst` `replay`. |
 | `sql-client/.../system.ts` `get` | **Read encoded as an action** that pushes into `mismatches`. Should be an observation; property already watches `mismatchCount`. |
 | `sql-client/.../system.ts` `converged` property | Named `converged` but it is a property, not an observation — collides with the vocabulary used everywhere else. |
 | `acme-counter/scenario.ts` | Mutates `session.dispose`; casts `session.ports` for `openPage` instead of a typed Host `.with`. |
-| `matchmaking/.../define-matchmaking-system.ts` | Mutates `session.dispose`; `asSeededRng(... as never)`; `startMatchmaking` World opener. |
+| `matchmaking/.../define-matchmaking-system.ts` | Mutates `session.dispose`; `asSeededRng(... as never)`; `scriptMatchmaking` World opener. |
 | `ui-testing/.../observations.ts` | Unbound `defineObservation` (no `defineSurface`); shared `name: 'inventory'` across actors; `as unknown as JsonValue`. |
 | `sim/test/.../system.ts` | Casts `session.ports as ProductExtra` rather than a typed host. |
 | `sync-engine` / `room` / `matchmaking` `**/sim/**` | Broad `@pkgs/dst/kernel` imports (`VirtualScheduler`, `Network`, `asSeededRng`) — legal under depcruise, against the "Session is the handle" rule. |
-| Many `*.sim.test.ts` | `properties: []` on `start`, then `expectConverged` at the end — standing monitors off, converge bolted on. |
+| Many `*.sim.test.ts` | `properties: []` on `script`, then `expectConverged` at the end — standing monitors off, converge bolted on. |
 
 **Correct usage to copy:** dst examples (`acme-kv`, `acme-sync`,
 `acme-counter`); `sql-client` / `auth` / `db-schema` / `db-indexes` systems
-(small `S`, system-bound definers, `check` over zero-arg pools); sync-engine
+(small `S`, system-bound definers, `explore` over zero-arg pools); sync-engine
 **pins** that `run.apply(mutate, …)` then `run.observe(liveNote(…))`
 (`single-client-mutate-uploads-and-persists.sim.test.ts`); matchmaking
 `untilObserved` / `neverObserved` (`radius-growth.sim.test.ts`);
@@ -701,14 +707,14 @@ A new version that drops these is a different tool, not a dst v2.
 7. **Session.fork** for topology. Model network partition/heal as
    capability-gated stimuli.
 8. **Harness-only Session.** Product runtime still takes unpacked ports.
-9. **Four import paths** (algebra / pbt / kernel / fast-check), kernel
+9. **Three import paths** (algebra / kernel / fast-check), kernel
    confined to hosts + sim.
 10. **No dependency patches, no Io bag, no package-local World DSL.**
 
 Nice-to-have that v1 already has and v2 should not lose: observation
 memo per checkpoint; named `observe({ a, b })`; `await using run`;
 Repro as data (versioned JSON); vacuity detection on obligations;
-`ActionNotEnabled` / `PropertyViolation` / `CheckFailedError` as named
+`ActionNotEnabled` / `PropertyViolation` / `ExploreFailedError` as named
 errors.
 
 ---
@@ -716,5 +722,5 @@ errors.
 ## Extending (v1)
 
 New stimulus = `defineAction`. New read = `defineObservation`. New
-invariant = `defineProperty` attached via `start(..., { properties })` or
-`check(..., { properties })`. Fidelity = new Host or `.with(extra ports)`.
+invariant = `defineProperty` attached via `script(..., { properties })` or
+`explore(..., { properties })`. Fidelity = new Host or `.with(extra ports)`.

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import { RELIABLE_FAULTS } from '../../sim/faults';
 import type { SyncAction } from '../../sim/scenario';
 import {
@@ -40,7 +40,7 @@ const HOP_LATENCY: readonly SyncAction[] = ['alice', 'bob', 'server'].map(
 describe('peer visibility under 200ms sim budget', () => {
   test('peer visibility under 200ms sim time', async () => {
     expect(PEER_VISIBLE_BUDGET_MS).toBeLessThan(200);
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 19,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

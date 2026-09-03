@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -13,7 +13,7 @@ import { expectLiveNoteAt, isNoteLiveAt } from '../apps/acme/reads';
 
 describe('entry channel wakes never-held row', () => {
   test('entryChannel delivers peer create before local ever held the row', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 1220,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

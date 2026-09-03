@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acknowledgeWriteRejectionMutation,
   acmeKnobs,
@@ -21,7 +21,7 @@ import {
 describe('permanent reject stored peer never applies', () => {
   test('server reject stores write_rejection and merge restores domain', async () => {
     // rowImageFanout off: rejected optimistic body must not poison peers.
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 501,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0, rowImageFanout: false }),

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -17,7 +17,7 @@ const HUGE_BODY = 'x'.repeat(33 * 1024);
 describe('oversized fanout falls back to refetch', () => {
   test('oversized row images fall back to pushSeq-only; peers still converge', async () => {
     // rowImageFanout true (default): cap drops images; wake+refetch still converges.
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 670,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

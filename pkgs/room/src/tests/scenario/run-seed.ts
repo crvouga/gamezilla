@@ -11,10 +11,10 @@ import {
   defineRoomSystem,
   invariantViolations,
   passTime,
+  scriptRoom,
   seed as seedOf,
   serverCrashed,
   serverHash,
-  startRoom,
 } from '../../sim/scenario';
 import { expectConverged } from '../expect-converged';
 import { createFuzzState, pickRoomSystemAction } from './pick-library-action';
@@ -45,7 +45,7 @@ async function startSeedRun(
   opts: RunSeedOptions
 ): Promise<Run<RoomSurface> & AsyncDisposable> {
   const system = defineRoomSystem(opts.app, { name: 'room.seed' });
-  return startRoom(system, {
+  return scriptRoom(system, {
     seed: opts.seed,
     clientCount: opts.clientCount ?? 2,
     mildFaults: opts.mildFaults === true,

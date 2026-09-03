@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -18,7 +18,7 @@ import {
 
 describe('folders and notes multi table converge', () => {
   test('folder + note hydrate on peer', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 20,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -46,7 +46,7 @@ describe('folders and notes multi table converge', () => {
   });
 
   test('moveNote updates folder_id on peers', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 21,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -73,7 +73,7 @@ describe('folders and notes multi table converge', () => {
   });
 
   test('deleteFolder soft-deletes folder; notes remain', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 22,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

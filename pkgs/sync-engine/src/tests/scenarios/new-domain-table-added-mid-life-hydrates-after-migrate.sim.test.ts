@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeApp,
   acmeKnobs,
@@ -44,7 +44,7 @@ describe('new domain table added mid life hydrates after migrate', () => {
   test.each([750, 751, 752])(
     'tags hydrate after client schema upgrade (seed=%i)',
     async (seed) => {
-      await using run = await start(acmeExtraTableSystem, {
+      await using run = await script(acmeExtraTableSystem, {
         seed: seed,
         host: syncVirtualHost(),
         knobs: acmeKnobs({

@@ -1,5 +1,5 @@
 import { describe, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -17,7 +17,7 @@ import { expectLiveNoteAt } from '../apps/acme/reads';
 
 describe('crash restart rehydrates and drains queue', () => {
   test('offline queue drains after reconnect', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 40,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -38,7 +38,7 @@ describe('crash restart rehydrates and drains queue', () => {
   });
 
   test('restart after crash rehydrates all live notes', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 41,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

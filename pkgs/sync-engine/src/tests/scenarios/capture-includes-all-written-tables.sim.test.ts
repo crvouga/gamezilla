@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -16,7 +16,7 @@ describe('capture includes all written tables', () => {
   // Formerly "undeclared folder write misses table filter" — AST capture
   // records both folders + notes, so foldersOnly peers wake immediately.
   test('foldersOnly peer receives folder write from multi-table mutation', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 1070,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0, rowImageFanout: true }),
@@ -51,7 +51,7 @@ describe('capture includes all written tables', () => {
   test.each([1071, 1072, 1073])(
     'seed sweep multi-table capture visible (seed=%i)',
     async (seed) => {
-      await using run = await start(acmeSystem, {
+      await using run = await script(acmeSystem, {
         seed: seed,
         host: syncVirtualHost(),
         knobs: acmeKnobs({ clientCount: 0, rowImageFanout: true }),

@@ -6,7 +6,7 @@ import {
   join,
   lastTick,
   matched,
-  startMatchmaking,
+  scriptMatchmaking,
   statusOf,
   stepTime,
   tick,
@@ -25,7 +25,7 @@ describe('matchmaking sim: radius growth', () => {
   });
 
   test('far pair never matches at t=0; until matched after wait', async () => {
-    await using run = await startMatchmaking({
+    await using run = await scriptMatchmaking({
       seed: 70,
       radius: { baseRadius: 10, radiusGrowthPerSecond: 10, maxRadius: 400 },
     });
@@ -52,7 +52,7 @@ describe('matchmaking sim: radius growth', () => {
   });
 
   test('stricter per-formula radius bounds the match', async () => {
-    await using run = await startMatchmaking({ seed: 71 });
+    await using run = await scriptMatchmaking({ seed: 71 });
     await run.apply(join, {
       ref: 'a',
       input: {
@@ -77,7 +77,7 @@ describe('matchmaking sim: radius growth', () => {
   });
 
   test('looser per-formula radius lets pair match', async () => {
-    await using run = await startMatchmaking({ seed: 72 });
+    await using run = await scriptMatchmaking({ seed: 72 });
     const wide = {
       numeric: [{ tag: RatingAttr, weight: 1 }],
       radius: { baseRadius: 200, radiusGrowthPerSecond: 0, maxRadius: 200 },

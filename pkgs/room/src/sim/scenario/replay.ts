@@ -6,7 +6,7 @@ import type { RoomSystemDef } from './define-room-system';
 import type { RoomKnobs } from './knobs';
 import { converged } from './observations';
 import { passTime, revive } from './room-actions';
-import { startRoom } from './start-room';
+import { scriptRoom } from './script-room';
 import type { RoomSurface } from './surface';
 
 export type ReplayRoomInputs = {
@@ -22,7 +22,7 @@ export async function replayRoom(
   inputs: ReplayRoomInputs
 ): Promise<Run<RoomSurface>> {
   const knobs = inputs.knobs;
-  const run = await startRoom(def, {
+  const run = await scriptRoom(def, {
     seed: inputs.seed,
     clientCount: knobs?.clientCount ?? 2,
     mildFaults: knobs?.mildFaults === true,

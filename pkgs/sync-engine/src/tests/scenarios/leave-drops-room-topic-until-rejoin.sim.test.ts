@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -29,7 +29,7 @@ import {
 
 describe('leave drops room topic until rejoin', () => {
   test('leave drops room topic; further live does not apply until rejoin', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 806,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -91,7 +91,7 @@ describe('leave drops room topic until rejoin', () => {
   });
 
   test('endSpace drops room topic without remake', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 807,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

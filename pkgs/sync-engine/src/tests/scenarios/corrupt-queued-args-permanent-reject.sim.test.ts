@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -31,7 +31,7 @@ describe('corrupt queued args permanent reject', () => {
   test.each([2140, 2141, 2142])(
     'non-json queued args reject permanently; healthy mutate drains (seed=%i)',
     async (seed) => {
-      await using run = await start(acmeSystem, {
+      await using run = await script(acmeSystem, {
         seed,
         host: syncVirtualHost(),
         knobs: acmeKnobs({ clientCount: 0 }),
@@ -77,7 +77,7 @@ describe('corrupt queued args permanent reject', () => {
   );
 
   test('brand-new note with corrupt queued args tombstones after reject', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 2143,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

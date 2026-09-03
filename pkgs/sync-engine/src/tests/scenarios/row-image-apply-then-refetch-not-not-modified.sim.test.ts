@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -17,7 +17,7 @@ import {
 describe('row image apply then refetch not not modified', () => {
   test('live row-image paint while sync held still converges after refetch', async () => {
     // Row images must not advance content hash; release+refetch stays sound.
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 801,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

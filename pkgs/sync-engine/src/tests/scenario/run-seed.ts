@@ -1,5 +1,5 @@
 import type { Repro } from '@pkgs/dst';
-import { defineSurface, REPRO_VERSION, start } from '@pkgs/dst';
+import { defineSurface, REPRO_VERSION, script } from '@pkgs/dst';
 
 import { isStorageFullError } from '../../client/storage-full-error';
 import { isClosedDatabaseError } from '../../sim/invariants';
@@ -286,7 +286,7 @@ const seedWorkload = defineAction({
  */
 export async function runSeed(opts: RunSeedOptions): Promise<RunSeedResult> {
   const system = defineSyncSystem(opts.app);
-  await using run = await start(system, {
+  await using run = await script(system, {
     seed: opts.seed,
     host: syncVirtualHost(),
     knobs: syncKnobs({ clientCount: 0 }),

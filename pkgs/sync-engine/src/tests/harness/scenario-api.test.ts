@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -23,7 +23,7 @@ import {
 
 /** Two-client acme system with no default clients. */
 function openRun(seed: number) {
-  return start(acmeSystem, {
+  return script(acmeSystem, {
     seed,
     host: syncVirtualHost(),
     knobs: acmeKnobs({ clientCount: 0 }),

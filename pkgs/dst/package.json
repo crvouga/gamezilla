@@ -4,7 +4,6 @@
   "private": true,
   "exports": {
     ".": "./src/index.ts",
-    "./pbt": "./src/pbt/index.ts",
     "./kernel": "./src/kernel/index.ts",
     "./fast-check": "./src/fast-check/index.ts"
   },

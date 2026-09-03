@@ -113,7 +113,6 @@
       "@pkgs/pbt": ["./pkgs/pbt/src/index.ts"],
       "@pkgs/pbt/*": ["./pkgs/pbt/src/*"],
       "@pkgs/dst": ["./pkgs/dst/src/index.ts"],
-      "@pkgs/dst/pbt": ["./pkgs/dst/src/pbt/index.ts"],
       "@pkgs/dst/*": ["./pkgs/dst/src/*"],
       "@pkgs/keyword/*": ["./pkgs/keyword/src/*"],
       "@pkgs/database-url-policy": ["./pkgs/database-url-policy/src/index.ts"],

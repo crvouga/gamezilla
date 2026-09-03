@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import type { Run } from '@pkgs/dst';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -41,7 +41,7 @@ async function nudgeWhileDenied(
 describe('cross tenant rows never hydrate', () => {
   test('denied notesOwned peer never hydrates owner private rows', async () => {
     // rowImageFanout false: authorize deny must not be bypassed by images.
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 980,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0, rowImageFanout: false }),
@@ -84,7 +84,7 @@ describe('cross tenant rows never hydrate', () => {
   test.each([981, 982, 983])(
     'seed sweep authorize filter keeps stranger rows out (seed=%i)',
     async (seed) => {
-      await using run = await start(acmeSystem, {
+      await using run = await script(acmeSystem, {
         seed,
         host: syncVirtualHost(),
         knobs: acmeKnobs({ clientCount: 0, rowImageFanout: false }),

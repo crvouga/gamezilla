@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -14,7 +14,7 @@ import {
 
 describe('reordered http responses stale checkpoint dropped', () => {
   test('reordered sync responses never regress newer domain rows', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 802,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

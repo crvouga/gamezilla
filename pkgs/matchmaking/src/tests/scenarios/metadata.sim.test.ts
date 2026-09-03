@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { StatusResult } from '../../interface/types';
-import { join, startMatchmaking, statusOf, tick } from '../../sim/scenario';
+import { join, scriptMatchmaking, statusOf, tick } from '../../sim/scenario';
 import {
   expectMatched,
   RatingAttr,
@@ -19,7 +19,7 @@ describe('matchmaking sim: metadata', () => {
   });
 
   test('metadata round-trips through waiting and matched status', async () => {
-    await using run = await startMatchmaking({ seed: 90 });
+    await using run = await scriptMatchmaking({ seed: 90 });
     const meta = { route: 'vip', n: 1 };
     await run.apply(join, {
       ref: 'a',
@@ -49,7 +49,7 @@ describe('matchmaking sim: metadata', () => {
   });
 
   test('metadata cap enforced', async () => {
-    await using run = await startMatchmaking({ seed: 91 });
+    await using run = await scriptMatchmaking({ seed: 91 });
     await expect(
       run.apply(join, {
         ref: 'a',

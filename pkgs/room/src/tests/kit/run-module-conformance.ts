@@ -12,10 +12,10 @@ import {
   passTime,
   type RoomApp,
   release,
+  scriptRoom,
   seed as seedOf,
   serverHash,
   serverState,
-  startRoom,
 } from '../../sim/scenario';
 import type {
   RoomCommand,
@@ -103,7 +103,7 @@ async function engineFuzz<
   const system = defineRoomSystem(conformanceApp(args.module), {
     name: 'room.conformance',
   });
-  await using run = await startRoom(system, {
+  await using run = await scriptRoom(system, {
     seed: args.seed,
     clientCount: 0,
     mildFaults: args.mildFaults ?? true,

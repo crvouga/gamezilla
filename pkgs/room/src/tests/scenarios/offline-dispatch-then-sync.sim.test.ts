@@ -6,7 +6,7 @@ import {
   disconnect,
   dispatch,
   passTime,
-  startRoom,
+  scriptRoom,
 } from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
 import { expectConverged } from '../expect-converged';
@@ -19,7 +19,7 @@ import {
 
 describe('room sim: offline dispatch then sync', () => {
   test('optimistic increment flushes after reconnect', async () => {
-    await using run = await startRoom(counterSystem, { seed: 4 });
+    await using run = await scriptRoom(counterSystem, { seed: 4 });
     await run.apply(addClient, { id: 'alice' });
     await run.apply(addClient, { id: 'bob' });
     await expectConverged(run);

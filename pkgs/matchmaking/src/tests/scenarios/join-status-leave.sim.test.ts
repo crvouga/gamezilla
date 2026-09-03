@@ -6,7 +6,7 @@ import {
   leave,
   participantIds,
   ready,
-  startMatchmaking,
+  scriptMatchmaking,
   statusById,
   statusOf,
   tick,
@@ -26,7 +26,7 @@ describe('matchmaking sim: join / status / leave', () => {
   });
 
   test('round-trips participant data through status while waiting', async () => {
-    await using run = await startMatchmaking({ seed: 1 });
+    await using run = await scriptMatchmaking({ seed: 1 });
     await run.apply(join, {
       ref: 'alice',
       input: {
@@ -46,12 +46,12 @@ describe('matchmaking sim: join / status / leave', () => {
   });
 
   test('status returns null for unknown id', async () => {
-    await using run = await startMatchmaking({ seed: 2 });
+    await using run = await scriptMatchmaking({ seed: 2 });
     expect(await run.observe(statusById(UNKNOWN_ID))).toBeNull();
   });
 
   test('leave removes the row', async () => {
-    await using run = await startMatchmaking({ seed: 3 });
+    await using run = await scriptMatchmaking({ seed: 3 });
     await run.apply(join, {
       ref: 'p',
       input: { data: RatingAttr(1000), formulas: [SimpleFormula] },
@@ -62,7 +62,7 @@ describe('matchmaking sim: join / status / leave', () => {
   });
 
   test('ready() is idempotent', async () => {
-    await using run = await startMatchmaking({ seed: 4 });
+    await using run = await scriptMatchmaking({ seed: 4 });
     await run.apply(ready, {});
     await run.apply(ready, {});
     await run.apply(join, {
@@ -73,13 +73,13 @@ describe('matchmaking sim: join / status / leave', () => {
   });
 
   test('leave on unknown id returns removed:false', async () => {
-    await using run = await startMatchmaking({ seed: 5 });
+    await using run = await scriptMatchmaking({ seed: 5 });
     await run.apply(leave, { participantId: UNKNOWN_ID });
     expect(((await run.observe(lastLeave)) as LeaveResult).removed).toBe(false);
   });
 
   test('leave on matched participant returns removed:false', async () => {
-    await using run = await startMatchmaking({ seed: 6 });
+    await using run = await scriptMatchmaking({ seed: 6 });
     await run.apply(join, {
       ref: 'a',
       input: { data: RatingAttr(1000), formulas: [SimpleFormula] },

@@ -1,5 +1,5 @@
 import { describe, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -27,7 +27,7 @@ import {
 
 describe('push for just unsubscribed topic ignored', () => {
   test('leave races room push; ignored without error; engine stays healthy', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 812,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

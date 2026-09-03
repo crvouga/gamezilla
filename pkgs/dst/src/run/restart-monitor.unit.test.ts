@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { virtualHost } from '../host';
 import { defineSystem } from '../system';
-import { start } from './start';
+import { script } from './script';
 
 type S = { n: number };
 
@@ -41,7 +41,7 @@ const prop = defineProperty({
 describe('restart-on-complete', () => {
   test('many checkpoints do not explode watch starts', async () => {
     watchStarts = 0;
-    await using run = await start(sys, {
+    await using run = await script(sys, {
       host: virtualHost(),
       seed: 1,
       properties: [prop],

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
-import { checkSync } from '../../sim/scenario';
+import { script } from '@pkgs/dst';
+import { exploreSync } from '../../sim/scenario';
 import {
   acmeKnobs,
   acmeSystem,
@@ -21,7 +21,7 @@ describe('fault permutation PBT', () => {
   test(
     'full fault pool interleaves and converges',
     async () => {
-      await checkSync(acmeSystem, {
+      await exploreSync(acmeSystem, {
         steps: 20,
         episodes: 6,
         seed: 44000,
@@ -57,7 +57,7 @@ describe('fault permutation pins', () => {
   });
 
   test('storage full then restart converges', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 44002,
       host: syncVirtualHost(),
       knobs: acmeKnobs(),

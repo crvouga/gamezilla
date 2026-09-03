@@ -5,9 +5,9 @@ import {
   dispatch,
   expectConverged,
   passTime,
+  scriptRoom,
   serverHash,
   serverState,
-  startRoom,
 } from '@pkgs/room/tests';
 
 import {
@@ -24,7 +24,7 @@ const SHORT_MOVES = 'e8d7';
 
 describe('chess puzzle: solved monotonic (Gp-03)', () => {
   test('post-solved moves do not change terminal status', async () => {
-    await using run = await startRoom(chessSystem, {
+    await using run = await scriptRoom(chessSystem, {
       seed: process.env['SIM_SEED'] ?? '42',
     });
     await run.apply(addClient, { id: 'host', identity: 'host-1' });

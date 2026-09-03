@@ -1,5 +1,5 @@
 import { describe, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -19,7 +19,7 @@ import {
 
 describe('friend hosted space cold hydrate', () => {
   test('friend sees host space via push and again after wipe restart', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 910,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),

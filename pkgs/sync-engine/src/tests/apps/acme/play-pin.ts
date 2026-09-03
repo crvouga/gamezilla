@@ -1,4 +1,4 @@
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 
 import type { SyncAction } from '../../../sim/scenario';
 import {
@@ -28,7 +28,7 @@ export type PlayAcmePinOpts = {
  * domain agreement via {@link expectConverged}.
  */
 export async function playAcmePin(opts: PlayAcmePinOpts): Promise<void> {
-  await using run = await start(opts.system ?? acmeSystem, {
+  await using run = await script(opts.system ?? acmeSystem, {
     seed: opts.seed,
     host: syncVirtualHost(),
     knobs: acmeKnobs(opts.knobs),

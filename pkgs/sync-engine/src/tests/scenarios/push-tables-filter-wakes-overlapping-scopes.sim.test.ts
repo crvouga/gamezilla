@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -20,7 +20,7 @@ describe('push tables filter wakes overlapping scopes', () => {
   test('folders-only push does not wake notesOnly peer; foldersOnly peer wakes', async () => {
     // rowImageFanout false: table filter gates wake+refetch (optimistic images
     // bypass the filter when fanout is on).
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 690,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0, rowImageFanout: false }),

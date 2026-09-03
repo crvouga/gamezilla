@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { explore, script } from '@pkgs/dst';
 import { gen } from '@pkgs/dst/fast-check';
-import { check } from '@pkgs/dst/pbt';
 
 import {
   AUTH_SESSION_TTL_MS,
@@ -45,7 +44,7 @@ function fabricKnobs(
 }
 
 function startAuth(fabric: AuthFabric, seed: number, knobs?: AuthKnobs) {
-  return start(auth, {
+  return script(auth, {
     seed,
     knobs: knobs ?? fabricKnobs(fabric),
     properties: AUTH_PROPERTIES,
@@ -148,7 +147,7 @@ describe('auth system / PBT', () => {
   }
 
   test('check explores knobs + library + domain actions', async () => {
-    const report = await check(auth, {
+    const report = await explore(auth, {
       properties: AUTH_PROPERTIES,
       actions: AUTH_ACTIONS,
       knobs: gen(arbAuthKnobs()),

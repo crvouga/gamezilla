@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import {
   acmeKnobs,
   acmeSystem,
@@ -15,7 +15,7 @@ import {
 
 describe('dropped live repaired by refetch', () => {
   test('dropped fanout converges via refetch after heal', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 11,
       host: syncVirtualHost(),
       knobs: acmeKnobs({ clientCount: 0 }),
@@ -39,7 +39,7 @@ describe('dropped live repaired by refetch', () => {
   });
 
   test('reorder window still converges', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 12,
       host: syncVirtualHost(),
       knobs: acmeKnobs({
@@ -60,7 +60,7 @@ describe('dropped live repaired by refetch', () => {
   });
 
   test('duplicate delivery still converges', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 15,
       host: syncVirtualHost(),
       knobs: acmeKnobs({

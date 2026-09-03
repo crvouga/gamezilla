@@ -1,5 +1,5 @@
 import { describe, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import { assertProperty, fc } from '@pkgs/pbt';
 import { arbKnobs, arbSeed } from '../../sim/scenario/knobs';
 import {
@@ -27,7 +27,7 @@ describe('hold window safety PBT', () => {
           arbKnobs(),
           fc.string({ minLength: 1, maxLength: 12 }),
           async (seed, knobs, body) => {
-            await using run = await start(acmeSystem, {
+            await using run = await script(acmeSystem, {
               seed,
               host: syncVirtualHost(),
               knobs: acmeKnobs(knobs),

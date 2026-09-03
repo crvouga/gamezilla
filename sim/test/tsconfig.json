@@ -110,7 +110,6 @@
       "@pkgs/clock": ["../../pkgs/clock/src/index.ts"],
       "@pkgs/clock/*": ["../../pkgs/clock/src/*"],
       "@pkgs/dst": ["../../pkgs/dst/src/index.ts"],
-      "@pkgs/dst/pbt": ["../../pkgs/dst/src/pbt/index.ts"],
       "@pkgs/dst/*": ["../../pkgs/dst/src/*"],
       "@pkgs/http-client": ["../../pkgs/http-client/src/index.ts"],
       "@pkgs/http-client/*": ["../../pkgs/http-client/src/*"],

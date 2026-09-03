@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { type BoundObservation, start } from '@pkgs/dst';
+import { type BoundObservation, script } from '@pkgs/dst';
 import { sql } from '@pkgs/sql';
 import {
   acmeKnobs,
@@ -27,7 +27,7 @@ const pendingMutations = rows(
 
 describe('storage full mutate denied', () => {
   test('SQLITE_FULL returns STORAGE_FULL and does not queue', async () => {
-    await using run = await start(acmeSystem, {
+    await using run = await script(acmeSystem, {
       seed: 55100,
       host: syncVirtualHost(),
       knobs: acmeKnobs(),
