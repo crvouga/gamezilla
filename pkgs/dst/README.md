@@ -1,72 +1,153 @@
 # `@pkgs/dst`
 
-Deterministic simulation testing for TypeScript. Same seed + system knobs +
-action choices ⇒ the same run. Used by sync-engine, room, matchmaking,
-sql-client, auth, db-schema, db-indexes, product sim (`@sim/test`), and
-package-local scenario kits.
+Deterministic simulation testing for TypeScript. Same seed + knobs + action
+choices ⇒ the same run. The algebra does not know about clients, browsers,
+SQL, rooms, or networks — a **Host** supplies those. Any stateful system
+that can boot behind a Host is in scope.
 
-This file is the single source of truth for the package: summary, usage,
-implementation map, and the context an LLM needs to design a next version.
-Root determinism policy lives in [`DETERMINISM.md`](../../DETERMINISM.md).
+This document specifies **v2**. The tree still implements v1 (generator
+bodies, implicit enablement, `untilObserved(passTime)`). Do not add new
+v1 patterns; author against this spec.
+
+Root determinism policy: [`DETERMINISM.md`](../../DETERMINISM.md).
+
+---
+
+## Why v2
+
+v1 is a small algebra of the right sorts — Host, System, Action,
+Property, Run — driven by `script` / `walk` / `explore` / `replay`. The
+sorts stay. The **body protocol** does not.
+
+v1 overloaded one JS generator into six jobs: read, draw, act, enable,
+weight, and monitor. Probe had to *drive* a body to learn whether an
+action existed. Properties looked like busy loops. Scripted pins, random
+pools, and tagged-union dispatchers became three names for one stimulus.
+Every product kit grew a god surface so sealed `Run` could still wait,
+drain, and converge. `defineObservation` wrapped a function in tags,
+bind objects, and `yield*` so it could live in that protocol.
+
+Those are API defects, not missing wrappers.
+
+### What other systems got right
+
+**[Bombadil](https://antithesishq.github.io/bombadil/browser/bombadil-manual.txt)**
+(Antithesis, UI PBT) splits jobs the way v2 does — except Bombadil still
+wraps reads (`extract` → `Cell`) because its state is an implicit
+browser. dst passes a typed surface `S`, so a read is `(s) => T`.
+
+| Bombadil | dst v2 |
+| --- | --- |
+| `extract(state => …)` → `Cell` | `(s: S, ...args) => T` |
+| `actions(() => templates \| [])` | `enabled` + `args` + `act` |
+| empty array = disabled | `enabled: (s) => Awaitable<boolean>` |
+| `weighted([[w, gen], …])` | `weight: (s) => Awaitable<number>` (recomputed each probe) |
+| ranges on templates | `args: (s) => Awaitable<Gen<A>>` |
+| `always` / `eventually` formulas | checkpoint `check` + `run.until` |
+| framework owns extract → check → pick → wait | `explore` owns the same loop |
+| `--reproduce` from a trace | `replay` from a Repro |
+
+Take the **shape**: reads, catalogs, and checks are separate; enablement
+is explicit; the framework picks. Do not take the **product**: Bombadil
+is a browser fuzzer. Its `State` is `document` / `window`. Reproductions
+are best-effort on a wall clock. There is no Host, no virtual time, no
+typed knobs, no first-class scripted `apply`.
+
+**Hypothesis / Erlang `eqc_statem` / fast-check commands** use the same
+triple: precondition, argument generator, run. v2 is that triple on a
+deterministic Host.
+
+**What v2 refuses from Bombadil**
+
+- A Formula combinator tree (`always` / `next` / `.and` / `.implies`).
+  v1 deleted that language: `if`, previous-check state, and `run.until`
+  cover the same claims without a second algebra.
+- An implicit global state. Bombadil cells close over *the* browser.
+  dst reads close over a typed surface `S`.
+- A tree of action *templates* as the public type. One named Action
+  whose `args` Gen ranges over the current inventory is enough.
+- `extract` / `defineObservation` / `Cell`. A function of `S` is the
+  read API.
+- “You provide properties and actions, the framework does the rest” as
+  the *only* loop. Scripted paths (`apply` with typed args) are equal
+  citizens. Explore is search; script is proof; replay is witness.
 
 ---
 
 ## What it is
 
-A small algebra of singular primitives. Packages declare a **System**
-(topology from typed knobs), **Observations** (named reads), **Actions**
-(stimuli), and **Properties** (monitors). The framework owns the run:
-`script` / `walk` / `explore` / `replay`.
+Packages declare a **System** (boot a typed surface `S` from knobs),
+**Actions** (named stimuli with explicit enablement and args), and
+**Properties** (checkpoint predicates). Reads are ordinary functions of
+`S`. The framework owns the run: `script` / `walk` / `explore` /
+`replay`.
 
 It is **not** a product runtime. `Host` / `Session` are harness-only.
-Product `ClientEnv` / `ServerEnv` receive unpacked ports (`clock`, `timers`,
-`createId`, `random`, `http`) — never the Session bag.
+Product `ClientEnv` / `ServerEnv` receive unpacked ports (`clock`,
+`timers`, `createId`, `random`, `http`) — never the Session bag.
 
-Deleted (do not reintroduce): `World` / `openWorld` / `pin` / `spec` /
-positional `draws:` / `defineScenario` / `node` / `knob` / `std` / Formula
-algebra / `WorldControls`.
+Deleted (v1 and v2): `World` / `openWorld` / `pin` / `spec` / positional
+`draws:` / `defineScenario` / `node` / `knob` / `std` / Formula algebra /
+`WorldControls`.
+
+Deleted in v2 (were v1): generator bodies, `yield*`, `draw()` inside
+actions, `defineObservation` / `BoundObservation` / `observe({ a, b })`,
+implicit “return before first act”, zero-arg random wrappers,
+`untilObserved(run, obs, passTime)`, catalogs hung on `System`.
 
 ---
 
 ## Algebra
 
-| Sort | Constructor | Composition | Role |
-| --- | --- | --- | --- |
-| Host | `defineHost` / `virtualHost` / `wallHost` | `.with(extra)` | Fidelity (virtual vs wall) |
-| Session | `host.open(seed)` | `.fork(name)` | Kernel + ports for one node |
-| System | `defineSystem({ name, generate(session, knobs) })` | typed knobs + optional `draw` | Recipe → surface `S` |
-| Observation | `defineObservation({ name, observe })` | `yield*` / `observe({ a, b })` | Named read of live state |
-| Action | `defineAction({ name, generate(...args) })` | typed params / `{ weight, act }` | Stimulus |
-| Property | `defineProperty({ name, watch })` | control flow | Monitor over checkpoints |
-| Run | `script(system, { knobs })` | `apply` / `observe` / `assert` | Live handle |
-| Gen | `(rng) => T` | function composition | Randomness (`@pkgs/dst/fast-check` adapts fc) |
+| Sort | Constructor | Role |
+| --- | --- | --- |
+| Host | `defineHost` / `virtualHost` / `wallHost` | Fidelity: clock, rng, network, extras |
+| Session | `host.open(seed)` | Kernel + ports for one node; `fork(name)` |
+| System | `defineSystem({ name, generate(session, knobs) })` | Recipe → surface `S` |
+| Action | `defineAction({ name, enabled, weight, args, act })` | Named stimulus |
+| Property | `defineProperty({ name, check, close? })` | Predicate at each checkpoint |
+| Run | `script(system, { knobs, properties })` | `apply` / `observe` / `assert` / `until` / `elapse` |
+| Gen | `(rng) => T` | Randomness (`@pkgs/dst/fast-check` adapts fc) |
 
-Bind the surface once with `defineSurface<S>()` (also spread onto `System<S>`).
+Reads are not a sort. A read is `(s: S, ...args) => Awaitable<T>`.
+Every framework callback may return a `Promise` (`Awaitable<T> = T |
+Promise<T>`). The Host awaits. UI queries and SQL reads are async; in-
+process `inFlight()` is sync. Same type either way.
+
+`walk` is the search primitive (public). `explore` is episodes × walk +
+shrink. `replay` re-applies a Repro.
 
 ---
 
-## Mental model (irreducible)
+## Mental model
 
-1. **Host** opens a **Session** (virtual or wall clock, model network, caps).
-2. **System.generate(session, knobs)** boots topology from typed knobs,
-   optionally draws extra entropy, returns surface `S`.
-3. **Observations** read `S` (or compose other observations). Memoised per
-   checkpoint; parameterized observations key by `name + fingerprint(args)`.
-4. **Actions** have typed `generate(...args)`. Probe rule: return before the
-   first act = disabled. Weight on the first act = pick probability.
-   Bare `(s) => …` = weight 1.
-5. **Properties** are monitors: body re-invoked each checkpoint when it
-   completes; throw = violation; `finally` on close = obligation.
-6. **Run** = `script` → `{ apply, observe, assert }`. `walk` / `explore` /
-   `replay` compose Runs.
+1. **Host** opens a **Session** (virtual or wall clock, model network or
+   none, caps, extra ports).
+2. **System.generate(session, knobs)** boots topology from typed knobs
+   and returns surface `S`. `S` is data (nodes + whatever the domain
+   needs). No methods that wait, drain, or converge.
+3. **Reads** are pure functions of `S`. They may be async (DOM, SQL).
+   `enabled` / `weight` / `check` `await` them. `run.observe(quiet)` is
+   the same function through a sealed Run (memoised per checkpoint by
+   function identity + args — including the probe’s own `await count(s)`
+   so `enabled` and `weight` share one UI query).
+4. **Actions** are `{ enabled, weight, args, act }`. Probe **awaits**
+   `enabled(s)` and `weight(s)` only — it never runs `act`, never draws.
+   Both are live: a counter’s `increment` can get heavier as `count(s)`
+   stays small, lighter as it grows. Walk awaits `args(s)` for the chosen
+   action, then `act(s, ...args)`. Scripted tests pass those args
+   themselves: `run.apply(put, 'c0', 'a', '1')`.
+5. **Properties** `await check(s, ctx)` at every checkpoint. Throw =
+   safety violation. `await close(ctx)` on dispose = obligation (vacuity
+   if unmet in every episode). Cross-step state is `ctx`, not a
+   `while (true)` loop.
+6. **Run** is sealed for mutation: the only stimulus is `apply` or
+   `elapse`. Waiting is `until` / `never`, which elapse the host clock
+   and re-read. Quiescence and convergence are functions of `S`.
 
-`run.apply(action, ...args)` is the only checkpoint: probe → draw → act +
-`session.settle()` → resume monitors → record. Waiting for a condition is
-polling with `untilObserved(run, obs, passTime)` (one `passTime` checkpoint
-per step). Negative: `neverObserved`.
-
-Actions are stimuli only. Heal or revive, then observe `quiet` / `converged`.
-Do not encode wait / assert / settle / converge as actions.
+`run.apply` / `run.elapse` are the checkpoints: act (or tick) →
+`session.settle()` → clear read memo → run every `check` → record a
+`Choice`.
 
 ---
 
@@ -76,27 +157,27 @@ Three entrypoints (`pkgs/dst/package.json` `exports`):
 
 | Import | Contents |
 | --- | --- |
-| `@pkgs/dst` | `defineSystem` / `defineObservation` / `defineAction` / `defineProperty` / `defineSurface` / `draw` / `observe` / `script` / `walk` / `explore` / `replay` / `ExploreFailedError` / `untilObserved` / `neverObserved` / `virtualHost` / `wallHost` / `defineHost` / `REPRO_VERSION` / `parseRepro` / `stringifyRepro` + types (`Run`, `Session`, `Host`, `Action`, …) |
-| `@pkgs/dst/kernel` | Clock / scheduler / rng / network factories. **Host authors + sim only.** Depcruise: `pkgs/dst/**`, `sim/**`, `**/sim/**`. |
+| `@pkgs/dst` | Algebra: `defineSystem` / `defineAction` / `defineProperty` / `defineSurface` / `script` / `walk` / `explore` / `replay` / `ExploreFailedError` / `virtualHost` / `wallHost` / `defineHost` / `REPRO_VERSION` / `parseRepro` / `stringifyRepro` + types |
+| `@pkgs/dst/kernel` | Clock / scheduler / rng / network factories. **Host authors only.** Depcruise: `pkgs/dst/**` host + kernel, not `**/sim/**`. |
 | `@pkgs/dst/fast-check` | `gen(arbitrary)`, `arbitrary(gen)`, `randomGeneratorOver` |
 
-Contract: `src/public-api.contract.test.ts`. Forbidden on the public
-`@pkgs/dst` object: `defineScenario`, `actions`, `properties`, `knob`,
-`node`, `std`, `runProperty`, `arbSeed`, `checkSystem`, `replaySystem`,
-`getRunInternal`, `RunInternal`, `Body`. `Run` has no `_internal` field;
-tests speak only `apply` / `observe` / `assert`. `walk` / `explore` / `replay`
-reach internals via a package-private WeakMap (`getRunInternal`).
+Forbidden on `@pkgs/dst`: `start`, `check`, `draw`, `defineObservation`,
+`observe` (the yield helper), `defineScenario`, `actions`, `properties`,
+`knob`, `node`, `std`, Formula operators, `getRunInternal`,
+`RunInternal`. `Run` has no `_internal` and no `surface`. Tests speak
+`apply` / `observe` / `assert` / `until` / `never` / `elapse`.
 
 ---
 
 ## Authoring
 
-### System
+Bind action / property definers from the system (or `defineSurface<S>()`
+when they live in several files). Reads are ordinary functions of `S`.
 
 ```ts
 const kv = defineSystem({
   name: 'kv',
-  *generate(session, knobs: { clients: number }) {
+  generate(session, knobs: { clients: number }) {
     const server = startServer(session.fork('server'));
     return {
       session,
@@ -107,112 +188,229 @@ const kv = defineSystem({
     };
   },
 });
-const { defineObservation, defineAction, defineProperty } = kv;
+const { defineAction, defineProperty } = kv;
 ```
 
-- `generate` may be sync, async, a generator, or an async generator.
-- Yield `draw(gen)` for extra entropy (recorded on the Repro as `system`).
-- Put `session` on `S` when actions need network / scheduler.
-- `session.fork(name)` is memoised by name (second fork of `'server'` returns
-  the same Session).
-- Default host is `virtualHost()`. Override with `script(..., { host })`.
+`generate` is `(session, knobs) => S | Promise<S>`. Topology is knobs.
+Do not draw inside `generate`. `session.rng` exists so *nodes* receive
+an injected `Random` — not so the recipe can hide extra entropy.
 
-### Observation
+Put `session` on `S` only when actions must reach network / scheduler.
+`session.fork(name)` is memoised by name.
+
+### Reads
+
+A pure function of `S`. Sync or async. No constructor.
 
 ```ts
-export const liveNote = defineObservation({
-  name: 'liveNote',
-  observe: async (s, nodeId: string, id: string) => { /* … */ },
-});
+export function quiet(s: KvSurface): boolean {
+  return s.session.network.inFlight() === 0;
+}
 
-await run.observe(liveNote('bob', 'n1'));
+export async function count(s: CounterSurface): Promise<number> {
+  return Number(await s.page.text('#count'));
+}
+
+export async function liveNote(
+  s: KvSurface,
+  nodeId: string,
+  id: string
+) { /* SQL / UI */ }
+
+await run.observe(quiet);
+await run.observe(count);
+await run.observe(liveNote, 'bob', 'n1');
 ```
 
-- Result type is constrained to `JsonValue` (JSON-serialisable, finite
-  numbers, sorted-key objects). Needed for memo keys, transition snapshots,
-  and coverage fingerprints.
-- Zero-arg: `yield* quiet` or `run.observe(quiet)`.
-- Parameterized: `yield* liveNote('bob', 'n1')` or `run.observe(liveNote('bob', 'n1'))`.
-- Compose with a **named record**, not positional tuples:
+Inside `enabled` / `weight` / `check`, `await` it:
 
-  ```ts
-  const o = yield* observe({ quiet, cut: partitioned });
-  ```
+```ts
+enabled: async (s) => (await route(s)) === 'home',
+weight: async (s) => ((await count(s)) < 50 ? 6 : 2),
+```
 
-- Memoised per checkpoint. `observe` on `Run` does **not** checkpoint; it
-  reads the current memo / live state. After an act, settle clears the memo.
+Rules:
+
+- **Pure.** Probe and `check` may call it. A “get” that writes a
+  mismatch log is not a read — it is an action, or it is a bug.
+- **Identity is the function + args.** Do not close over an actor and
+  reuse one name; pass `actorId` as an argument.
+- **Memo** for the duration of one probe or checkpoint, keyed by
+  function identity + `fingerprint(args)`. `enabled` and `weight` both
+  `await count(s)` → one DOM/SQL round-trip. `run.observe` uses the same
+  cache. The cache clears at the next checkpoint.
+- **Names** for traces come from `function count` (`.name`). Anonymous
+  arrows are fine when you do not care about the label.
+
+`run.observe` exists because Run does not expose `S`. It is not a
+second kind of observation.
 
 ### Action
 
+One name. Scripted args are the walk args. Replay stores them.
+`enabled` and `weight` are both functions of `S`, recomputed every
+probe. `enabled` is whether the action is legal; `weight` is how often
+walk should pick it **in this state**.
+
 ```ts
-export const online = defineAction({
-  name: 'online',
-  generate: (clientId: string, value: boolean) => (s) =>
-    requireClient(s, clientId).online(value),
+export const increment = defineAction({
+  name: 'increment',
+  enabled: async (s) => (await route(s)) === 'home',
+  weight: async (s) => ((await count(s)) < 50 ? 6 : 2),
+  act: (s) => s.page.click('#increment'),
 });
 
-await run.apply(online, 'alice', true);
+export const decrement = defineAction({
+  name: 'decrement',
+  enabled: async (s) =>
+    (await route(s)) === 'home' && (await count(s)) > 0,
+  weight: async (s) => Math.min(await count(s), 4),
+  act: (s) => s.page.click('#decrement'),
+});
 ```
 
-Scripted tests pass typed args: `run.apply(put, 'client:0', 'a', '1')`.
-Random-walk pools accept **only zero-arg** actions (draw, then
-`yield* typedAction(...args)`).
+Walk sees a low count → increment is 6× decrement. Count climbs past 50
+→ increment drops to 2, decrement is capped at 4. Same actions, different
+mix, no extra `randomIncrement` wrapper.
+
+Scripted args and a constant mix (sugar: a number is `() => n`):
 
 ```ts
-export const randomPut = defineAction({
-  name: 'randomPut',
-  *generate() {
-    const ids = yield* clientIds;
-    if (ids.length === 0) return; // disabled
-    const { client, key, value } = yield* draw(gen(arbPut(ids)));
-    yield* put(client, key, value);
+export const put = defineAction({
+  name: 'put',
+  enabled: (s) => s.clients.length > 0,
+  weight: 3,
+  args: (s) =>
+    gen(
+      fc.tuple(
+        fc.constantFrom(...s.clients.map((c) => c.id)),
+        fc.string({ minLength: 1, maxLength: 8 }),
+        fc.string({ maxLength: 16 })
+      )
+    ),
+  act: (s, client: string, key: string, value: string) => {
+    const c = s.clients.find((x) => x.id === client);
+    if (c === undefined) return;
+    sendPut({ server: s.server, client: c, key, value });
+  },
+});
+
+await run.apply(put, 'client:0', 'a', '1');
+```
+
+| Field | Default | Meaning |
+| --- | --- | --- |
+| `enabled(s)` | `() => true` | Probe; `Awaitable<boolean>`. false ⇒ not in the pool |
+| `weight(s)` | `() => 1` | `Awaitable<number>` this step. A number `n` is `() => n`. `<= 0` ⇒ not in the pool |
+| `args(s)` | none (zero-arg) | `Awaitable<Gen<A>>` drawn by walk; ignored by `apply` |
+| `act(s, ...args)` | required | Stimulus. `Awaitable<void>`. Must not wait-for-converge |
+
+`enabled` vs `weight`: `decrement` is illegal at 0 (`enabled`); at 12 it
+is legal and only moderately interesting (`weight: 4`). Do not encode
+“rarely” as `enabled: false`.
+
+Screen-conditional UI is `enabled` on the route, `weight` on the count.
+
+Capability-gated faults:
+
+```ts
+export const partition = defineAction({
+  name: 'partition',
+  enabled: (s) =>
+    caps(s).includes('partition') && s.clients.length > 0,
+  weight: (s) => (partitioned(s).length === 0 ? 2 : 1),
+  args: (s) => gen(fc.constantFrom(...s.clients.map((c) => c.id))),
+  act: (s, id: string) => {
+    s.session.network.partition('server', id);
   },
 });
 ```
 
-Gate faults with a `caps` observation:
+Macros (outage = partition + time + heal) are either:
+
+- one `act` that performs several stimuli as **one** choice, or
+- omitted — walk will pick the primitives in sequence.
+
+Do not delegate by yielding other actions. Do not keep a parallel
+`randomPut` wrapper. Do not keep a tagged-union dispatcher for replay.
+
+Inventory-driven UI (Bombadil’s “return N click templates”) is one
+action whose `args` ranges over the current inventory:
 
 ```ts
-if (!(yield* caps).includes('partition')) return;
+export const tap = defineAction({
+  name: 'tap',
+  enabled: async (s) => (await inventory(s, 'alice')).targets.length > 0,
+  args: async (s) => {
+    const { targets } = await inventory(s, 'alice');
+    return gen(fc.constantFrom(...targets));
+  },
+  act: (s, target: Target) => s.driver.tap(target),
+});
 ```
 
 ### Property
 
+A checkpoint function, plus optional close. The constructor exists
+because vacuity reports a **name**, and `setup` / `check` / `close`
+share `ctx`. All three are `Awaitable`.
+
 ```ts
 export const converges = defineProperty({
   name: 'converges',
-  *watch() {
-    const o = yield* observe({ quiet, converged, cut: partitioned });
-    if (o.quiet && o.cut.length === 0 && !o.converged) {
-      throw new Error('quiet but diverged');
+  check: async (s) => {
+    if (
+      (await quiet(s)) &&
+      (await partitioned(s)).length === 0 &&
+      !(await converged(s))
+    ) {
+      throw new Error(
+        `quiet but diverged: server ${String(await serverHash(s))}`
+      );
     }
   },
 });
 ```
 
-Attach via `script(..., { properties })` or `explore(..., { properties })`.
-`run.assert(p)` runs a property once (not as a standing monitor).
-Bodies that complete restart at the next checkpoint. `finally` on dispose
-is the obligation check (`explore` treats end-only failures as vacuity if
-they miss every episode).
+Cross-step (Bombadil `now(() => { const initial = cell.current; … })`):
 
-### Body protocol
+```ts
+export const counterSteps = defineProperty({
+  name: 'counter-steps',
+  setup: async (s) => ({ prev: await count(s) }),
+  check: async (s, ctx: { prev: number }) => {
+    const n = await count(s);
+    if (Math.abs(n - ctx.prev) > 1) throw new Error('jumped');
+    return { prev: n };
+  },
+});
+```
 
-`generate(...args)` may return a bare act, a `{ weight, act }`, a promise, a
-generator, or any iterable.
+Obligation (coverage / “sometimes heal”):
 
-1. **Read** — `yield* observation` / `yield* observation(...args)` /
-   `yield* observe({ quiet, cut: partitioned })`
-2. **Draw** — `yield* draw(gen)` (entropy only — not scripted params)
-3. **Act** — return `(s) => …` or `{ weight, act: s => … }`, or `yield`
-   them inside a generator
+```ts
+export const healedOnce = defineProperty({
+  name: 'healed-once',
+  setup: () => ({ hit: false }),
+  check: (s, ctx: { hit: boolean }) => ({
+    hit: ctx.hit || partitioned(s).length === 0,
+  }),
+  close: (ctx) => {
+    if (!ctx.hit) throw new Error('never healed');
+  },
+});
+```
 
-`yield* action` / `yield* action(...args)` delegates. An action that returns
-before its first act is not enabled. Bare function = weight 1; `weight: 0` =
-disabled.
+`explore` treats a `close` throw that happens in **every** episode as
+vacuity (no witness to shrink). A throw from `check` is a safety
+violation and shrinks.
 
-Do not import `fast-check` from core dst modules. Scenario kits may import
-`fc` to build arbitraries, then wrap with `gen()` from `@pkgs/dst/fast-check`.
+Liveness in a **scripted** test is `run.until`, not a property loop.
+Bounded “if error then gone within 5s” in explore is a `check` that
+records `errorAt` on `ctx` and throws when `(await clock(s)) - errorAt`
+exceeds the bound. That is ordinary code, not `eventually().within()`.
+
+`run.assert(p)` runs `setup` + `check` once (not as a standing monitor).
 
 ---
 
@@ -222,14 +420,13 @@ Who chooses the path is the top-level distinction:
 
 | Verb | Who chooses | Role |
 | --- | --- | --- |
-| `script` | Human | Open a run; drive with `apply` / `observe` |
-| `explore` | Framework | Search paths (episodes × `walk` + shrink) |
-| `replay` | Recorded repro | Reproduce a discovered path |
-
-`walk` is the internal search primitive (still public). No `start` / `check` aliases; no `@pkgs/dst/pbt`.
+| `script` | Human | Open a run; drive with `apply` / `observe` / `until` |
+| `explore` | Framework | Search (episodes × `walk` + shrink) |
+| `replay` | Recorded Repro | Reproduce a discovered path |
 
 ```ts
 import { script, explore, replay, walk } from '@pkgs/dst';
+import { gen } from '@pkgs/dst/fast-check';
 
 await using run = await script(kv, {
   seed: 7,
@@ -237,490 +434,276 @@ await using run = await script(kv, {
   properties: KV_PROPERTIES,
 });
 await run.apply(put, 'client:0', 'a', '1');
-expect(await run.observe(quiet)).toBe(true);
+await run.apply(partition, 'client:0');
+await run.until(quiet, { maxMs: 2_000 });
+await run.apply(heal);
+await run.until(converged, { maxMs: 5_000 });
+expect(await run.observe(converged)).toBe(true);
 
 await explore(kv, {
   properties: KV_PROPERTIES,
-  actions: KV_ACTIONS,
+  actions: [put, partition, heal],
   knobs: gen(arbKvKnobs()),
+  time: { weight: 1, minMs: 0, maxMs: 5_000 },
   episodes: 20,
   steps: 40,
 });
 ```
 
-### Waiting
+### Run
 
 ```ts
-await run.apply(heal); // stimulus only
-await untilObserved(run, quiet, passTime, { maxMs: 2_000 });
-await untilObserved(run, converged, passTime, { maxMs: 5_000 });
-expect(await run.observe(converged)).toBe(true);
+type Awaitable<T> = T | Promise<T>;
+type Read<S, A extends unknown[], T> = (s: S, ...args: A) => Awaitable<T>;
 
-await neverObserved(run, liveNote('bob', 'late'), passTime, {
-  forMs: 200,
-  pred: (n) => n != null,
-});
+type Run<S> = {
+  apply<A extends unknown[]>(action: Action<S, A>, ...args: A): Promise<void>;
+  observe<T, A extends unknown[]>(read: Read<S, A, T>, ...args: A): Promise<T>;
+  assert(p: Property<S>): Promise<void>;
+  elapse(ms: number): Promise<void>;
+  until<T>(
+    read: Read<S, [], T>,
+    opts?: { maxMs?: number; stepMs?: number; pred?: (t: T) => boolean }
+  ): Promise<T>;
+  never<T>(
+    read: Read<S, [], T>,
+    opts: { forMs: number; stepMs?: number; pred?: (t: T) => boolean }
+  ): Promise<void>;
+  [Symbol.asyncDispose](): Promise<void>;
+};
 ```
 
-`untilObserved` / `neverObserved` require a typed `passTime: Action<S, [ms: number]>`.
-Defaults: `stepMs: 50`, `maxMs: 5_000`. Predicate defaults to truthiness.
+- **`apply`** — checkpoint. Throws `ActionNotEnabled` if `enabled` is
+  false at probe time (scripted tests that fire a disabled action fail
+  loudly; they do not no-op).
+- **`observe`** — call `read(s, ...args)` without exposing `S`. No
+  checkpoint.
+- **`elapse(ms)`** — Host-defined time step, then settle + checks.
+  Recorded as a `Choice` `{ action: 'elapse', args: [ms] }` so replay
+  does not need a per-system `passTime`.
+- **`until` / `never`** — poll `observe` and `elapse(stepMs)` until the
+  predicate or the bound. Default `stepMs: 50`, `until.maxMs: 5_000`.
+  Predicate defaults to truthiness. There is no `passTime` action
+  argument. Extra args belong on the function:
+  `run.until((s) => liveNote(s, 'bob', 'late'))`.
+
+`Run` does not expose `surface` or `session`. If a test needs a read,
+write a function. If it needs a stimulus, add an action. Kit methods
+named `waitUntil` / `drainUntilConverged` / `checkInvariants` do not
+come back.
 
 ### Walk / explore / replay
 
-- `walk(run, { actions, steps?, budgetMs?, stopOnViolation? })` — probes every
-  zero-arg action, picks by weight, finishes the chosen body. Returns
-  transitions, choices, coverage, violations.
-- `explore(system, { properties, actions, knobs?, episodes?, steps?, … })` —
-  episodes × (script + walk + close) + shrink. Throws `ExploreFailedError`.
-  Seed: `opts.seed` else `PBT_SEED` env else pinned `424242`.
-- `replay(system, repro | walk | string, { actions, properties?, host? })` —
-  re-applies named choices (args, or recorded draws for zero-arg actions).
+- `walk(run, { actions, steps?, budgetMs?, stopOnViolation?, time? })` —
+  probe every action (`await enabled(s)` + `await weight(s)`), pick by
+  that step’s weights, `await args(s)`, `await act`. Optional `time`
+  injects `elapse` into the pool.
+- `explore(system, { properties, actions, knobs?, episodes?, steps?,
+  time?, seed?, shrink?, budgetMs? })` — episodes × (script + walk +
+  close) + shrink. Throws `ExploreFailedError`. Seed is `opts.seed` or
+  pinned `424242`. **No `process.env`.**
+- `replay(system, repro, { actions, properties?, host? })` — boots with
+  the Repro’s knobs and re-applies each `Choice` (named action + args,
+  or `elapse`).
 
-Repro v4:
+Repro:
 
 ```ts
 {
-  version: 4,
+  version: 5,
   seed,
-  system: number[],   // rng floats from generate draws
-  knobs: unknown,     // JSON-projected typed knobs
-  choices: { action, draws, args }[],
+  knobs: unknown,          // JSON-projected typed knobs
+  choices: { action, args }[],
   meta: { system, host? },
 }
 ```
+
+No separate `system:` draw tape — topology is knobs. Shrink (1) delta-
+debugs choices (2) minimises knobs and JSON args toward empty / 0.
 
 ---
 
 ## Host, Session, kernel
 
-**Ports** on every Session: `clock`, `timers`, `rng`, `createId`, `random`,
-`network` (per-fork `Endpoint`: send/listen).
+Every Session still has ports: `clock`, `timers`, `rng`, `createId`,
+`random`, `network` (per-fork `Endpoint`).
 
-**Session** also holds: `scheduler`, `network` (the full model `Network`:
-partition/heal/inFlight), optional `trace`, `caps`, `fork`, `dispose`,
-`settle`.
+Session also holds: `scheduler`, `network` (partition / heal /
+`inFlight`), optional `trace`, `caps`, `fork`, `dispose`, `settle`,
+**`elapse(ms)`**, **`onDispose(fn)`**.
 
 **Capabilities:** `'virtualTime' | 'partition' | 'trace'`.
-`virtualHost()` has all three. `wallHost({ network })` does not have
+`virtualHost()` has all three. `wallHost({ network })` has no
 `virtualTime`; partition only if `network: 'model'`.
 
-**Fidelity:**
+**Settle** = “effects of this act have been delivered”, defined by the
+Host. Virtual default: drain due-at-now, no time travel. It is **not**
+global quiescence. Heartbeats that reschedule forever are fine: settle
+returns after the current due set. Convergence is a function of `S`.
 
-- `virtualHost({ startTime?, network? })` — virtual clock + model network.
-  Default `startTime` is `0`. Product systems usually pass
-  `1_700_000_000_000`.
-- `wallHost({ network: 'model' | 'none', settleMs?, networkFaults? })`.
-- `.with(session => extraPorts)` — extra keys appear on `session.ports` and
-  forks (see `acme-counter` `openPage`).
-- `defineHost({ caps, open })` for custom hosts.
+**Elapse** = Host-defined tick. Virtual: `scheduler.advance(ms)`. Wall:
+wait `ms` (or the UI driver’s `runFor`). Product extras that must move
+with time (RNTL) belong on the Host, not as a system action.
 
-After every act the driver awaits `session.settle()`. Virtual settle is
-`scheduler.advance(0)` / `runFor(0)` — due-at-now only, no time travel.
-Long-lived timers (sync heartbeats) mean a naïve settle never returns;
-sync overrides `settle` for that reason.
+**Lifecycle** belongs on Session, not in `generate`:
 
-Kernel (`@pkgs/dst/kernel`) is the clock / scheduler / rng / network
-implementation. Two scheduler types are exported under overlapping names:
+```ts
+const page = await ports.openPage();
+session.onDispose(() => page.dispose());
+```
 
-- `Scheduler` from `scheduler-api.ts` — session-facing (`advance`, `settle`,
-  `underlying`).
-- `VirtualScheduler` — alias of the heap scheduler from `scheduler.ts`,
-  also the type of `scheduler.underlying`.
+**`.with(session => extraPorts)`** merges keys onto `session.ports` and
+forks. **`settle` overrides** are Host options (`defineHost({ settle })`
+or `virtualHost({ settle })`), not a reimplemented Host and not a
+WeakMap keyed by host brand.
 
-Most sim kits import `VirtualScheduler` and call `scheduler.underlying`.
-
----
-
-## Examples
-
-Slim toys under [`src/examples/`](src/examples/) (not public exports):
-
-| Toy | Teaches |
-| --- | --- |
-| [`acme-kv`](src/examples/acme-kv/scenario.ts) | typed knobs, forks, faults, `explore` / `walk` |
-| [`acme-sync`](src/examples/acme-sync/scenario.ts) | SQL-shaped aggregates + pending, converge after partition |
-| [`acme-counter`](src/examples/acme-counter/scenario.ts) | DOM reads/acts (happy-dom + Bun.WebView), screen-conditional enablement, walk + replay |
-
-These are the intended authoring shape: small `S`, observations for reads,
-typed actions + zero-arg random wrappers, properties that throw on
-`quiet ∧ healed ∧ !converged`.
+Kernel (`@pkgs/dst/kernel`) is host-private. Session is the only handle
+sim kits see. If a sim needs the scheduler heap, that is a Host
+capability, not an import of `createVirtualScheduler`.
 
 ---
 
-## Who uses it
+## Same algebra, different domains
 
-| Consumer | System | How tests drive it |
-| --- | --- | --- |
-| `@pkgs/sync-engine` | `defineSyncSystem(app)` → `sync.system` | ~100 `*.sim.test.ts` call `script(acmeSystem, { host: syncVirtualHost(), knobs })` then `run.apply(pin, …args)`. PBT via `exploreSync`. Separate `runSeed` workload. |
-| `@pkgs/room` | `defineRoomSystem(app)` | `scriptRoom` wrapper; pins via `run.apply`; tagged `RoomSystemAction` replayed by `applyRoomAction` → `run.apply`. |
-| `@pkgs/matchmaking` | `defineMatchmakingSystem` | `scriptMatchmaking`; `untilObserved` / `neverObserved` for radius growth. |
-| `@pkgs/sql-client` | `sqlClientWeb` | closest to the toys; `explore` over `SQL_CLIENT_WEB_ACTIONS`. |
-| `@pkgs/auth` | `auth.idp` | `explore(auth, …)` PBT. |
-| `@pkgs/db-schema` | `db-schema.reconcile` | `explore` + scripted `script`. |
-| `@pkgs/db-indexes` | `db-indexes.reconcile` | `explore` + known-seed pins. |
-| `@sim/test` | `product` (`sim.product`) | `openSim` + `walk`; UI via `@pkgs/ui-testing` observations/actions. |
-| `@pkgs/ui-testing` | (no system) | generic `inventory` / `tap` / `fill` factories over a `Driver`. |
-| `@sim/console` | playground | `virtualHost` + kernel scheduler types for checkpoint UI. |
+The framework does not change. The Host and `S` do.
 
-**Two authoring styles in the wild:**
+### Multi-node service (sync, room, matchmaking, kv)
 
-1. **Toy / leaf kits** bind definers from the system:
-   `const { defineAction, … } = kv` (`sql-client`, `auth`, `db-schema`,
-   `db-indexes`, `sim/test` product, dst examples).
-2. **Product kits** bind a second surface: `defineSurface<SyncSurface>()`
-   in a different file from `defineSystem` (sync-engine, room, matchmaking).
-   Needed because actions live in many files; the type `S` is declared
-   separately from the system value.
+`S = { session, server, clients }`. Actions: mutate, partition, heal.
+Reads: `quiet`, `converged`, live row. Properties: quiet ∧ healed ⇒
+converged. `time` on in explore. Host: `virtualHost({ startTime })`.
 
-**Two driving styles:**
+### UI (DOM, RN, WebView)
 
-1. **Algebra** — `run.apply(typedAction, ...args)` / `run.observe(obs(args))`
-   / `untilObserved`. This is what new tests should do.
-2. **Kit / tagged-union leftovers** — `dispatchSyncAction(surface, action)`,
-   `applyRoomAction(run, { kind })`, `surface.waitUntil(pred)`,
-   `surface.drainUntilConverged()`, `runSeed` packing a whole workload into
-   one `seedWorkload` act that writes a closure. These predate the algebra
-   cut and still dominate sync-engine and room.
+`S = { page }` or `{ driver }`. Actions: tap / fill / back; `enabled`
+on the current screen; `weight` on live widgets (e.g. `count(s)`).
+Reads: `route`, `count`, `inventory(s, actorId)`.
+Properties: no error boundary, no console error. Host: `.with(openPage)`
+or a Playwright/RNTL host; `elapse` is the driver’s clock. This is the
+Bombadil use case without Bombadil’s Formula layer or `extract`.
+
+### Schema / indexes / SQL client / auth
+
+`S = { db }` or `{ engine, migrations }`. No network. Actions: apply
+migration, insert row, rebuild index. Reads: catalog, mismatch count.
+Properties: `mismatchCount(s) === 0`. Omit `time`. Host: `virtualHost`
+or a tiny SQL host. `get` is a function, not an action that writes
+`state.mismatches`.
+
+### Product sim (`@sim/test`)
+
+`S` is the product graph. Host is `simHost` / `maxHost` (real Postgres,
+MinIO, …). Same `script` / `explore`. Extra ports via `.with`, not
+`session.ports as ProductExtra`.
+
+A new domain is: a Host (if fidelity differs), a `defineSystem`,
+functions of `S`, actions, properties. Not a package-local World opener.
 
 ---
 
 ## Do / don't
 
-- **Do** bind the surface once: `defineSurface<S>()` or destructure from the
-  `System`.
-- **Do** put `session` on `S` when actions need network/scheduler.
-- **Do** gate faults with a `caps` observation.
-- **Do** use `yield* observe({ quiet, cut: partitioned })` (named record).
-- **Do** wait with `untilObserved(run, obs, passTime, { maxMs })`.
-- **Do** negative waits with `neverObserved(run, obs, passTime, { forMs })`.
-- **Do** keep random walk pools as zero-arg actions that draw then
-  `yield* typedAction(…args)`.
-- **Don't** encode wait / assert / settle / converge as **actions**.
-- **Don't** import `@pkgs/dst/kernel` from product libs (only dst, `sim/**`,
-  `**/sim/**`).
-- **Don't** import `fast-check` from core dst modules.
-- **Don't** add `World` / `openWorld` / `pin` / `spec` / positional `draws:`.
-- **Don't** reach `Run` internals — no `_internal`; tests speak only
-  `apply` / `observe` / `assert`.
-- **Don't** add package-local World openers / kit DSLs — `script` / `walk` /
-  `explore` / `replay` are the run API. (`scriptRoom` / `scriptMatchmaking` /
-  `exploreSync` / `runSeed` are the existing exceptions; do not grow them.)
-
----
-
-## Implementation map
-
-```
-src/index.ts          public algebra
-src/host/             virtualHost / wallHost / defineHost / Session
-src/system/           define* + effect protocol (tags, draw, observe)
-src/run/              drive / probe / script / walk / explore / replay / until / checkpoint
-src/kernel/           clocks, schedulers, rng, fingerprint, json, timers
-src/models/           in-process network (delay/loss/dup/partition)
-src/fast-check/       gen / arbitrary adapters
-src/examples/         teaching toys (not public API)
-```
-
-Effect tags are `Symbol.for('dst.*')`. Observation / Action values are
-callable (bind args) **and** iterable (so `yield*` works without calling).
-
-Probe (`src/run/probe.ts`): run the body with a forked rng until the first
-`Act` with `weight > 0`. Observations and draws during probe are live (they
-must be read-only). Unpicked probes are `return()`'d.
-
-Checkpoint (`src/run/checkpoint.ts`): perform the act, `settle()`, clear
-observation memo, resume every monitor, snapshot memo into a `Transition`.
-
----
-
-## Design defects (for a next version)
-
-These are the load-bearing problems. A rewrite should fix them rather than
-paper over them with more wrappers.
-
-### 1. The body protocol is too many shapes
-
-An action `generate` may return `Act | void | Promise<…> | Generator |
-AsyncGenerator | Iterable | AsyncIterable`. Probe, drive, and continue-body
-each reimplement the same type tests (`isAct` / `isObservation` / `isDraw`
-/ `isAction` / `isBoundAction`). `isAct` treats any non-tagged function as
-an act, so a misplaced helper can be executed as a stimulus.
-
-**v2:** one body type. Generator of `{ read } | { draw } | { act, weight? }`
-(or an explicit `Effect` union that is not also a function). No bare
-functions, no dual `yield` vs `yield*`, no iterable-that-is-also-callable.
-
-### 2. Enablement and weight are implicit
-
-`return` before the first act = disabled. `weight: 0` = disabled. Bare fn =
-weight 1. Composite actions (`outage` = partition + passTime + heal) inherit
-the first nested act's weight. Easy to get wrong; hard to see in a catalog.
-
-**v2:** explicit `enabled` / `weight` from the probe, computed from
-observations, not from control flow. Or: actions are always enabled and
-walk filters a separate `when` observation — but the current rule exists
-because screen-conditional UI (acme-counter) needs it.
-
-### 3. `Run` cannot see `S`
-
-`Run` is `{ apply, observe, assert, [asyncDispose] }`. There is no
-`run.surface` / `run.session`. That is intentional (tests should not poke
-the kit). The consequence: every product surface became a god object so
-scripted code could still call `s.drainUntilConverged()`, `s.waitUntil()`,
-`s.checkInvariants()`, `s.kit.drain()`. Those methods then get wrapped as
-actions (`drainUntilConverged` in `expect-converged.ts`) or called from
-inside acts (`room-actions.ts` `await s.kit.drain()`).
-
-**v2:** either (a) keep Run sealed and make the observation/action set
-complete enough that kit methods die, or (b) give Run a typed, read-only
-handle for diagnostics and force all mutation through `apply`. Do not keep
-both.
-
-### 4. `untilObserved` is coupled to a `passTime` action
-
-Every system reinvent `passTime(ms)` with the same signature. Product sim
-special-cases RNTL (`ui.runFor(ms)`). Sync overrides Session.settle because
-heartbeats never quiesce, then still needs `passTime` to make progress.
-
-**v2:** waiting should be a Run operation that advances the host's
-scheduler (`run.elapse(ms)` / `run.until(obs)`), not an action in the
-catalog. Passing time is a stimulus in a random walk; it is not the same
-thing as a poll clock.
-
-### 5. Two action universes per product system
-
-Sync and room each have:
-
-- **Pins** — typed `run.apply(mutate, clientId, def, args)`.
-- **Pool** — zero-arg `random*` that draw then delegate.
-- **Tagged unions** — `SyncAction` / `RoomSystemAction` dispatched by
-  `dispatchSyncAction` / `applyRoomAction` for seed replay.
-
-Three names for one stimulus. Shrink/replay of algebra `Choice`s cannot
-replay a `runSeed` path; `runSeed` fabricates a fake Repro whose
-`choices[].args` are empty.
-
-**v2:** one action is one name. Scripted args are the generate parameters.
-Walk draws them. Replay stores them. Delete tagged-union dispatchers.
-
-### 6. Package-local World openers came back under new names
-
-`scriptRoom`, `scriptMatchmaking`, `exploreSync`, `syncVirtualHost`,
-`runSeed`, `expectConverged`. AGENTS.md bans World openers; these are
-the same pattern (hide `script` + host + default knobs + properties).
-
-Some of this is justified (`syncVirtualHost` must wrap `settle` + dispose
-hooks). Most is not (`scriptRoom` reading `process.env.SIM_SEED`).
-
-**v2:** Host composition stays. Default knobs stay on the system. Do not
-add `startX` functions that mint Runs.
-
-### 7. Surfaces leak the kernel and the kit
-
-`SyncSurface` (`surface-types.ts`) is a 20-method façade: `waitUntil`,
-`waitNever`, `drainUntilConverged`, `revive`, `advance`, `checkInvariants`,
-storage-pressure arms, broker crash, … Room surface holds the whole kit.
-Matchmaking `buildMatchmakingKit` is the surface.
-
-The toys keep `S = { session, server, clients }`. That is the target.
-Product surfaces grew because Run is sealed and observations were added
-later than the kit.
-
-**v2:** `S` is data (nodes + session). Methods on `S` that change state
-are actions; methods that read are observations. No `wait*` on `S`.
-
-### 8. Observations must be `JsonValue`
-
-Forces casts (`as unknown as JsonValue` in ui-testing), blocks Maps/bytes,
-and makes `rows(_label, nodeId, sqlStatement)` fingerprint SQL objects
-for the memo key. `fingerprint` catch-all falls back to `JSON.stringify`
-via `payloadOf`. Unstable args ⇒ stale memo or collisions.
-
-`ui-testing` factories all use `name: 'inventory'` (and `'tap'`, `'fill'`).
-Memo keys ignore the `actor` closure. Two actors on one Run share one memo
-slot.
-
-**v2:** memo keys must include identity the author supplies (actor id,
-node id), not only `name + args`. Either drop the JsonValue bound (snapshot
-via an explicit serializer) or keep it and enforce it at `defineObservation`
-so casts fail in CI.
-
-### 9. Host extension is awkward
-
-`.with(extra)` merges ports onto the session and forks. Sync cannot use it:
-it needs to replace `settle` and register dispose hooks, so it **reimplements
-Host** (`syncVirtualHost`) and a WeakMap (`sessionTeardown`) that throws if
-you pass a plain `virtualHost()`. Counter and matchmaking **mutate**
-`session.dispose` in `generate`.
-
-**v2:** Session lifecycle hooks (`onDispose`, `settle` override) belong on
-Host/Session, not in generate bodies or WeakMaps keyed by host brand.
-
-### 10. `settle` is the wrong default for long-lived systems
-
-Framework settle = drain due-at-now. Sync heartbeats reschedule forever, so
-sync replaces settle with `runFor(0)` (same thing) and documents that
-algebra settle "must not wait for global quiescence". Room acts call
-`kit.drain()` in addition to settle. `expectConverged` is a third settle
-(revive + drainUntilConverged + softQuiet loop that **reimplements**
-`untilObserved`).
-
-**v2:** settle = "effects of this act have been delivered", defined by the
-host. Quiescence / convergence are observations. Never both.
-
-### 11. Kernel API is wide and aliased
-
-`@pkgs/dst/kernel` exports two `Scheduler` types, `createScheduler` vs
-`createVirtualScheduler`, `asSeededRng` (callers write `as never`),
-`createRngInternal` (private `_seeded` field used by `virtualHost`),
-recording/replaying RNGs. Sim kits depend on `scheduler.underlying` (heap
-API) rather than Session.scheduler.
-
-Depcruise allows any `**/sim/**` file to import kernel. That is most of
-sync-engine and room sim.
-
-**v2:** Session is the only handle. Kernel is host-private. If a sim needs
-the heap, that is a Host capability, not an import of `@pkgs/dst/kernel`.
-
-### 12. Replay does not replay system draws
-
-`Repro.system` records floats from `generate`'s `draw`s. Shrink minifies
-them. `replay()` then calls `script({ seed, knobs })`, which records **new**
-draws from the seed — it never installs `createReplayingRng(repro.system)`.
-Shrinking `system` draws therefore cannot affect replay unless knobs already
-determine topology.
-
-Choice draws **are** replayed (by swapping `internal.rng` for zero-arg
-actions). Scripted `apply(action, ...args)` ignores stored draws.
-
-**v2:** script must accept replayed system rng. Scripted args vs drawn args
-should be one mechanism (record the bound args; do not special-case
-zero-arg).
-
-### 13. `explore` / `scriptRoom` read `process.env`
-
-`explore` reads `PBT_SEED`; `scriptRoom` and many sim tests read `SIM_SEED`.
-That is wall entropy / wall config inside the algebra. The pinned default
-`424242` is the right idea; env as a side channel is not.
-
-### 14. Properties that loop are confusing
-
-`eventuallyConverges` (`sync-properties.ts`) `while (true)`'s on
-`yield* observe(...)`. That is legal (each yield parks until the next
-checkpoint) but looks like a busy loop and duplicates `untilObserved`.
-Authors copy it.
-
-**v2:** monitors are one-shot predicates per checkpoint, plus an optional
-obligation on close. Liveness (`eventually`) is `untilObserved` in the
-test, or a property that records `t0` and throws past a bound — not a
-while loop.
-
-### 15. Probe cost and purity
-
-`walk` probes **every** pool action every step, each with a forked rng,
-running observations against live `S`. Observations must be pure; several
-are not obviously so (`checkInvariants` throws-and-catches, `get` in
-sql-client **writes** `state.mismatches`). A probe of `randomGet` would
-mutate.
-
-**v2:** distinguish reads from acts in the type system. Probe may only
-read. Walk should not need to fully drive a generator to learn weight.
-
-### 16. leftover catalogs on `System`
-
-`defineSyncSystem` `Object.assign`s `.actions` and `.properties` onto the
-system value. The public-api contract **forbids** those keys on `@pkgs/dst`.
-The deleted catalog API (`actions<S>()`, `properties<S>()`) is back as ad
-hoc fields so `exploreSync` can pass `def.actions`.
-
-**v2:** `explore({ actions, properties })` takes lists. Systems do not grow
-fields.
-
-### 17. `getRunInternal` export from `./run`
-
-`getRunInternal` is correctly hidden from `@pkgs/dst` but re-exported from
-`src/run/index.ts` (package-internal). Fine if the package boundary is the
-export map; confusing for in-repo imports of deep paths.
-
-### 18. AGENTS.md vs this algebra
-
-AGENTS.md currently says "converge as actions/properties". The algebra
-rule is the opposite: converge is an **observation** + property; heal/revive
-are the actions. The AGENTS line is a leftover of the World cut.
-
----
-
-## Misusage in this repo (concrete)
-
-Fix these in consumers even if v1 stays; a v2 that keeps the same shapes
-will otherwise be used the same way.
-
-| Location | What's wrong |
-| --- | --- |
-| `sync-engine/.../expect-converged.ts` | `drainUntilConverged` **action** wraps kit drain; `softQuiet` reimplements `untilObserved`. Test helper should be `apply(revive)` + `untilObserved(quiet)` + `untilObserved(converged)`. |
-| `sync-engine/.../run-seed.ts` | Entire workload is one action (`seedWorkload`) that mutates a closure (`job.result`). Bypasses walk, choices, and real Repro. |
-| `sync-engine/.../define-sync-system.ts` | God `SyncSurface`; `waitUntil` / `drainUntilConverged` / `checkInvariants` as methods; Host reimplemented; WeakMap dispose; `asSeededRng`. Attaches `.actions` / `.properties` onto System. |
-| `sync-engine/.../sync-actions.ts` | Library kinds become one `defineAction` per tagged union entry; all `weight: 1`; chaos errors swallowed in `applySyncAction`. |
-| `sync-engine/.../sync-observations.ts` | `rows(_label, nodeId, statement)` — SQL object in memo args; `pendingEventCount` alias of `pending`. |
-| `sync-engine/.../sync-pin-actions.ts` + `pin-chaos-actions.ts` | Second, complete action catalog next to `createSyncActions`. |
-| `room/.../room-actions.ts` | Almost every act calls `s.kit.drain()` (settle-in-the-action). |
-| `room/.../apply-room-action.ts` | Tagged-union dispatcher over `run.apply`. |
-| `room/.../script-room.ts` | World opener; reads `SIM_SEED`. |
-| `room/.../replay.ts` | Own replay (list of tagged actions), not `@pkgs/dst` `replay`. |
-| `sql-client/.../system.ts` `get` | **Read encoded as an action** that pushes into `mismatches`. Should be an observation; property already watches `mismatchCount`. |
-| `sql-client/.../system.ts` `converged` property | Named `converged` but it is a property, not an observation — collides with the vocabulary used everywhere else. |
-| `acme-counter/scenario.ts` | Mutates `session.dispose`; casts `session.ports` for `openPage` instead of a typed Host `.with`. |
-| `matchmaking/.../define-matchmaking-system.ts` | Mutates `session.dispose`; `asSeededRng(... as never)`; `scriptMatchmaking` World opener. |
-| `ui-testing/.../observations.ts` | Unbound `defineObservation` (no `defineSurface`); shared `name: 'inventory'` across actors; `as unknown as JsonValue`. |
-| `sim/test/.../system.ts` | Casts `session.ports as ProductExtra` rather than a typed host. |
-| `sync-engine` / `room` / `matchmaking` `**/sim/**` | Broad `@pkgs/dst/kernel` imports (`VirtualScheduler`, `Network`, `asSeededRng`) — legal under depcruise, against the "Session is the handle" rule. |
-| Many `*.sim.test.ts` | `properties: []` on `script`, then `expectConverged` at the end — standing monitors off, converge bolted on. |
-
-**Correct usage to copy:** dst examples (`acme-kv`, `acme-sync`,
-`acme-counter`); `sql-client` / `auth` / `db-schema` / `db-indexes` systems
-(small `S`, system-bound definers, `explore` over zero-arg pools); sync-engine
-**pins** that `run.apply(mutate, …)` then `run.observe(liveNote(…))`
-(`single-client-mutate-uploads-and-persists.sim.test.ts`); matchmaking
-`untilObserved` / `neverObserved` (`radius-growth.sim.test.ts`);
-`sim/test` `untilObserved` in `run-driver.ts`.
+- **Do** bind action / property definers once (`defineSurface<S>()` or
+  from the System).
+- **Do** keep `S` as data. Reads = functions; stimuli = actions.
+- **Do** put `enabled(s)` and `weight(s)` on the action. Both may be
+  async. Weight is live — bump `increment` when `await count(s)` is
+  low, drop it when high.
+- **Do** pass actor / node identity as function args, not closures.
+- **Do** wait with `run.until` / `run.never`.
+- **Do** attach standing properties on `script` / `explore`.
+- **Don't** `defineObservation`, `yield*`, `draw()`, or return-before-act.
+- **Don't** add `randomFoo` wrappers next to `foo`.
+- **Don't** encode wait / assert / settle / converge as actions.
+- **Don't** hang `.actions` / `.properties` on the System. Pass lists.
+- **Don't** add `scriptRoom` / `exploreSync` / `runSeed`. Host + knobs
+  + `script` / `explore` are the API.
+- **Don't** import `@pkgs/dst/kernel` from sim kits.
+- **Don't** read `process.env` for seeds.
+- **Don't** reintroduce Formula / World / catalogs-as-records / Cells.
 
 ---
 
 ## Constraints a rewrite must keep
 
-A new version that drops these is a different tool, not a dst v2.
+A version that drops these is a different tool.
 
 1. **Determinism.** Same seed + knobs + choices ⇒ same Run. No wall
    `Date.now` / `Math.random` / `fetch` in the algebra. Host injects
    clock, rng, network, ids.
-2. **Singular primitives.** One System, one Observation, one Action, one
-   Property, one Run. No catalogs-as-records, no Formula tree, no World.
+2. **Singular primitives.** One System, one Action, one Property, one
+   Run. No Observation sort, no catalogs-as-records, no Formula tree,
+   no World.
 3. **Stimuli vs reads vs invariants.** Actions change the world.
-   Observations read it. Properties watch it. Waiting is polling reads
-   plus time, not an action named `converge`.
+   Functions read it. Properties watch it. Waiting is polling reads
+   plus Host time.
 4. **Typed knobs and typed action args.** Scripted tests are ordinary
-   function calls (`apply(put, 'c0', 'a', '1')`), not stringly `pin()`.
-5. **Probe-by-weight random walk** over a pool of enabled actions, with
-   recorded draws so a failing episode shrinks and replays.
-6. **Host as fidelity.** Virtual vs wall vs product extras (SQL, UI
-   driver, WebView) without the System knowing which.
+   calls (`apply(put, 'c0', 'a', '1')`).
+5. **Probe-by-weight random walk** over enabled actions, with recorded
+   args so a failing episode shrinks and replays.
+6. **Host as fidelity.** Virtual vs wall vs product extras without the
+   System knowing which.
 7. **Session.fork** for topology. Model network partition/heal as
    capability-gated stimuli.
-8. **Harness-only Session.** Product runtime still takes unpacked ports.
+8. **Harness-only Session.** Product runtime takes unpacked ports.
 9. **Three import paths** (algebra / kernel / fast-check), kernel
-   confined to hosts + sim.
+   confined to host authors.
 10. **No dependency patches, no Io bag, no package-local World DSL.**
+11. **Domain-agnostic algebra.** No type, helper, or default action
+    that assumes clients, browsers, SQL, or games. Those live in
+    Hosts and in consuming packages.
 
-Nice-to-have that v1 already has and v2 should not lose: observation
-memo per checkpoint; named `observe({ a, b })`; `await using run`;
-Repro as data (versioned JSON); vacuity detection on obligations;
-`ActionNotEnabled` / `PropertyViolation` / `ExploreFailedError` as named
-errors.
+Keep from v1: read memo on `run.observe` per checkpoint; `await using
+run`; Repro as versioned JSON; vacuity on obligations;
+`ActionNotEnabled` / `PropertyViolation` / `ExploreFailedError`.
 
 ---
 
-## Extending (v1)
+## v1 → v2 (mechanical)
 
-New stimulus = `defineAction`. New read = `defineObservation`. New
-invariant = `defineProperty` attached via `script(..., { properties })` or
-`explore(..., { properties })`. Fidelity = new Host or `.with(extra ports)`.
+| v1 | v2 |
+| --- | --- |
+| `defineObservation({ name, observe })` | `function name(s, …args) { … }` |
+| `quiet.read(s)` / `yield* quiet` | `quiet(s)` |
+| `run.observe(liveNote('bob', 'n1'))` | `run.observe(liveNote, 'bob', 'n1')` |
+| `observe(run, { quiet, cut })` | `quiet(s)` / `run.observe(quiet)` |
+| `*generate() { if (!ok) return; const x = yield* draw(g); yield* foo(x); }` | `enabled`, `args: (s) => g`, `act: (s, x) => …` |
+| `randomPut` + `put` | `put` only |
+| `*watch() { while (true) { yield* obs; } }` | `check(s)` / `setup` + `ctx` |
+| `untilObserved(run, obs, passTime)` | `run.until(obs)` |
+| `passTime` / `randomPassTime` | `run.elapse` / explore `time:` |
+| `scriptRoom` / `exploreSync` | `script` / `explore` + Host |
+| `dispatchSyncAction` / `applyRoomAction` | `run.apply(named, ...args)` |
+| `S.waitUntil` / `S.drainUntilConverged` | functions of `S` + `run.until` |
+| `session.dispose = …` | `session.onDispose` |
+| `PBT_SEED` / `SIM_SEED` | `seed:` option |
+| Repro v4 `system:` draws + `choices[].draws` | Repro v5 `choices[].args` |
+| `generate` may yield `draw` | knobs only |
+
+---
+
+## Implementation map (today = v1)
+
+```
+src/index.ts          public algebra
+src/host/             virtualHost / wallHost / defineHost / Session
+src/system/           define* + v1 effect protocol (tags, draw, observe)
+src/run/              drive / probe / script / walk / explore / replay / until
+src/kernel/           clocks, schedulers, rng, fingerprint, json, timers
+src/models/           in-process network
+src/fast-check/       gen / arbitrary adapters
+src/examples/         teaching toys (retarget to v2 when the algebra lands)
+```
+
+v2 probe is `enabled` + `weight` (no body drive). v2 checkpoint is
+unchanged in spirit: act / elapse → settle → checks → `Choice`. v2
+reads are functions; `src/system/define-observation.ts` goes away.
+
+---
+
+## Extending
+
+New stimulus = `defineAction`. New read = a function of `S`. New
+invariant = `defineProperty` attached via `script` / `explore`.
+New fidelity = new Host or `.with(extra ports)`. New domain = those,
+not a new framework.

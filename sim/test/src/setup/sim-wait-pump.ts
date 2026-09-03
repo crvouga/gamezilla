@@ -33,7 +33,14 @@ export function createSerializedRunFor(
 ): (durationMs: number) => Promise<void> {
   let tail: Promise<void> = Promise.resolve();
   return (durationMs: number): Promise<void> => {
-    const run = tail.then(() => scheduler.runFor(durationMs));
+    const run = tail.then(async () => {
+      await scheduler.runFor(durationMs);
+      // React 18 / RNTL apply updates on microtasks + setImmediate.
+      // Without this, `passTime` / `untilObserved` spin virtual time
+      // while the tree stays stale.
+      await flushMicrotasks();
+      await yieldEventLoop();
+    });
     tail = run.then(
       () => undefined,
       () => undefined

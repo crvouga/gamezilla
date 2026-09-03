@@ -36,6 +36,10 @@ export function simHost(): Host<Ports & ProductExtra> {
   return virtualHost({ startTime: SIM_START_MS }).with(async (session) => {
     const sql = await openSeededServerSql(session.ports.clock);
     const runFor = createSerializedRunFor(session.scheduler.underlying);
+    // finishProbed calls session.settle() after every act. Route it through
+    // the serialized drain so it flushes RNTL and cannot nest-drain against
+    // ui.runFor / onActorFocus.
+    (session as { settle: () => Promise<void> }).settle = () => runFor(0);
     const rntl: MultiAppRntlSession = loadRntlSessionFactory()({
       onActorFocus: () => {
         void runFor(1_000).catch(() => undefined);
