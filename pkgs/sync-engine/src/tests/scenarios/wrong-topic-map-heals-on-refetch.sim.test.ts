@@ -9,7 +9,6 @@ import {
   mutate,
   net,
   nudge,
-  passTime,
   setNoteWrongTopic,
   syncVirtualHost,
 } from '../apps/acme';
@@ -32,7 +31,7 @@ describe('wrong topic map heals on refetch', () => {
     });
     // nudge: wrong topic — peer needs explicit refetch
     await run.apply(nudge, 'bob');
-    expect(await run.observe(liveNote('bob', 'warm'))).toMatchObject({
+    expect(await run.observe(liveNote, 'bob', 'warm')).toMatchObject({
       body: 'w',
     });
 
@@ -42,21 +41,21 @@ describe('wrong topic map heals on refetch', () => {
         id: 'stale-until-refetch',
         body: 'missed-live',
       });
-      await run.apply(passTime, 400);
+      await run.elapse(400);
       expect(
-        await run.observe(liveNote('server', 'stale-until-refetch'))
+        await run.observe(liveNote, 'server', 'stale-until-refetch')
       ).toMatchObject({
         body: 'missed-live',
       });
       expect(
-        await run.observe(liveNote('bob', 'stale-until-refetch'))
+        await run.observe(liveNote, 'bob', 'stale-until-refetch')
       ).toBeNull();
     }
     // nudge: heal-by-refetch after wrong topic-map wake
     await run.apply(nudge, 'bob');
     await expectConverged(run);
     expect(
-      await run.observe(liveNote('bob', 'stale-until-refetch'))
+      await run.observe(liveNote, 'bob', 'stale-until-refetch')
     ).toMatchObject({
       body: 'missed-live',
     });
@@ -81,7 +80,7 @@ describe('wrong topic map heals on refetch', () => {
       // nudge: heal-by-refetch is the behavior under test
       await run.apply(nudge, 'bob');
       await expectConverged(run);
-      expect(await run.observe(liveNote('bob', `n-${seed}`))).toMatchObject({
+      expect(await run.observe(liveNote, 'bob', `n-${seed}`)).toMatchObject({
         body: `b-${seed}`,
       });
     }

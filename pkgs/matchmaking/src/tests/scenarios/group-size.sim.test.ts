@@ -1,13 +1,16 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
+import { script } from '@pkgs/dst';
 import type { TickResult } from '../../interface/matchmaking';
 import type { StatusResult } from '../../interface/types';
 import {
   join,
   lastTick,
   participantIds,
-  scriptMatchmaking,
   statusOf,
   tick,
+  matchmaking,
+  matchmakingKnobs,
+  MATCHMAKING_PROPERTIES,
 } from '../../sim/scenario';
 import {
   expectMatched,
@@ -28,7 +31,11 @@ describe('matchmaking sim: groupSize', () => {
   });
 
   test('groupSize: 3 forms one match', async () => {
-    await using run = await scriptMatchmaking({ seed: 60 });
+    await using run = await script(matchmaking, {
+      seed: 60,
+      knobs: matchmakingKnobs(),
+      properties: MATCHMAKING_PROPERTIES,
+    });
     const ratings = { a: 1000, b: 1005, c: 1010 } as const;
     for (const [ref, rating] of Object.entries(ratings)) {
       await run.apply(join, {
@@ -44,10 +51,10 @@ describe('matchmaking sim: groupSize', () => {
     expect(((await run.observe(lastTick)) as TickResult).matches).toBe(1);
     const ids = await run.observe(participantIds);
     const ma = expectMatched(
-      (await run.observe(statusOf('a'))) as StatusResult
+      (await run.observe(statusOf, 'a')) as StatusResult
     );
     const mb = expectMatched(
-      (await run.observe(statusOf('b'))) as StatusResult
+      (await run.observe(statusOf, 'b')) as StatusResult
     );
     expect(ma.matchId).toBe(mb.matchId);
     expect(ma.peers).toHaveLength(2);
@@ -57,7 +64,11 @@ describe('matchmaking sim: groupSize', () => {
   });
 
   test('mixed groupSize never cross-matches', async () => {
-    await using run = await scriptMatchmaking({ seed: 61 });
+    await using run = await script(matchmaking, {
+      seed: 61,
+      knobs: matchmakingKnobs(),
+      properties: MATCHMAKING_PROPERTIES,
+    });
     const plan = [
       { ref: 'a', rating: 1000, groupSize: 2 },
       { ref: 'b', rating: 1005, groupSize: 3 },

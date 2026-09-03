@@ -14,7 +14,6 @@ import type {
   StatusResult,
   UpdateFormulasResult,
 } from '../interface/types';
-import type { EventuallyOptions, NeverOptions, UntilTarget } from './until';
 
 export type MatchmakingSimBackend = 'sqlite' | 'postgres';
 
@@ -52,12 +51,4 @@ export type MatchmakingSimKit = {
     replicaId?: string
   ) => Promise<TickResult>;
   readonly tickAll: (opts?: TickOptions) => Promise<readonly TickResult[]>;
-  readonly waitUntil: (
-    target: UntilTarget,
-    opts?: EventuallyOptions
-  ) => Promise<number>;
-  readonly waitNever: (
-    target: UntilTarget,
-    opts: NeverOptions
-  ) => Promise<void>;
 };

@@ -25,6 +25,7 @@ describe('matchmaking system PBT', () => {
         properties: MATCHMAKING_PROPERTIES,
         actions: MATCHMAKING_ACTIONS,
         knobs: genMatchmakingKnobs(),
+        time: { weight: 1, minMs: 0, maxMs: 5_000 },
         episodes: 2,
         steps: 6,
         seed: 1,

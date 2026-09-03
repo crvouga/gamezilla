@@ -1,6 +1,6 @@
 import fc from 'fast-check';
 import { gen } from '../../fast-check';
-import { defineSystem, draw, observe } from '../../index';
+import { defineSystem } from '../../index';
 import {
   createNoteOnClient,
   flushPending,
@@ -25,7 +25,7 @@ export type SyncKnobs = {
  */
 export const sync = defineSystem({
   name: 'acme-sync',
-  *generate(session, knobs: SyncKnobs) {
+  generate(session, knobs: SyncKnobs) {
     const server = startServer(session.fork('server'));
     const clientList = range(knobs.clients).map((i) =>
       startClient(session.fork(`client:${i}`), server)
@@ -34,161 +34,91 @@ export const sync = defineSystem({
   },
 });
 
-const { defineObservation, defineAction, defineProperty } = sync;
+const { defineAction, defineProperty } = sync;
 
-export const clientIds = defineObservation({
-  name: 'clientIds',
-  observe: (s) => s.clients.map((c) => c.id),
-});
+export function clientIds(s: SyncSurface): string[] {
+  return s.clients.map((c) => c.id);
+}
 
-export const pending = defineObservation({
-  name: 'pending',
-  observe: (s) => s.clients.map((c) => c.pending.length),
-});
+export function pending(s: SyncSurface): number[] {
+  return s.clients.map((c) => c.pending.length);
+}
 
-export const serverNotes = defineObservation({
-  name: 'serverNotes',
-  observe: (s) => notesAgg(s.server.notes),
-});
+export function serverNotes(s: SyncSurface) {
+  return notesAgg(s.server.notes);
+}
 
-export const clientNotes = defineObservation({
-  name: 'clientNotes',
-  observe: (s) => s.clients.map((c) => notesAgg(c.notes)),
-});
+export function clientNotes(s: SyncSurface) {
+  return s.clients.map((c) => notesAgg(c.notes));
+}
 
-export const quiet = defineObservation({
-  name: 'quiet',
-  *observe() {
-    const p = yield* pending;
-    return p.every((n) => n === 0);
-  },
-});
+export function quiet(s: SyncSurface): boolean {
+  return pending(s).every((n) => n === 0);
+}
 
-export const converged = defineObservation({
-  name: 'converged',
-  *observe() {
-    const o = yield* observe({ serverNotes, clientNotes });
-    return o.clientNotes.every(
-      (c) => c.h === o.serverNotes.h && c.n === o.serverNotes.n
-    );
-  },
-});
+export function converged(s: SyncSurface): boolean {
+  const server = serverNotes(s);
+  return clientNotes(s).every((c) => c.h === server.h && c.n === server.n);
+}
 
-export const caps = defineObservation({
-  name: 'caps',
-  observe: (s) => [...s.session.caps] as string[],
-});
+export function caps(s: SyncSurface): string[] {
+  return [...s.session.caps] as string[];
+}
 
-export const partitioned = defineObservation({
-  name: 'partitioned',
-  observe: (s) => s.session.network.partitions().map(([a, b]) => `${a}|${b}`),
-});
+export function partitioned(s: SyncSurface): string[] {
+  return s.session.network.partitions().map(([a, b]) => `${a}|${b}`);
+}
 
 export const createNote = defineAction({
   name: 'createNote',
-  generate(client: string, body: string) {
-    return {
-      weight: 3,
-      act: (s) => {
-        const c = s.clients.find((x) => x.id === client);
-        if (c === undefined) return;
-        createNoteOnClient({
-          server: s.server,
-          client: c,
-          id: s.session.ports.createId(),
-          body,
-        });
-      },
-    };
-  },
-});
-
-export const randomCreateNote = defineAction({
-  name: 'randomCreateNote',
-  *generate() {
-    const ids = yield* clientIds;
-    if (ids.length === 0) return;
-    const { client, body } = yield* draw(
-      gen(
-        fc.record({
-          client: fc.constantFrom(...(ids as string[])),
-          body: fc.string({ maxLength: 20 }),
-        })
+  enabled: (s) => s.clients.length > 0,
+  weight: 3,
+  args: (s) =>
+    gen(
+      fc.tuple(
+        fc.constantFrom(...s.clients.map((c) => c.id)),
+        fc.string({ maxLength: 20 })
       )
-    );
-    yield* createNote(client, body);
+    ),
+  act: (s, client: string, body: string) => {
+    const c = s.clients.find((x) => x.id === client);
+    if (c === undefined) return;
+    createNoteOnClient({
+      server: s.server,
+      client: c,
+      id: s.session.ports.createId(),
+      body,
+    });
   },
 });
 
 export const partition = defineAction({
   name: 'partition',
-  generate(id: string) {
-    return (s) => {
-      s.session.network.partition('server', id);
-    };
-  },
-});
-
-export const randomPartition = defineAction({
-  name: 'randomPartition',
-  *generate() {
-    const o = yield* observe({ caps, clientIds });
-    if (!o.caps.includes('partition') || o.clientIds.length === 0) return;
-    const id = yield* draw(
-      (rng) => o.clientIds[Math.floor(rng.next() * o.clientIds.length)]!
-    );
-    yield* partition(id);
+  enabled: (s) => caps(s).includes('partition') && s.clients.length > 0,
+  weight: (s) => (partitioned(s).length === 0 ? 2 : 1),
+  args: (s) => gen(fc.constantFrom(...s.clients.map((c) => c.id))),
+  act: (s, id: string) => {
+    s.session.network.partition('server', id);
   },
 });
 
 export const heal = defineAction({
   name: 'heal',
-  *generate() {
-    if (!(yield* caps).includes('partition')) return;
-    yield {
-      weight: 2,
-      act: (s) => {
-        s.session.network.healAll();
-        rebroadcastNotes(s.server);
-        for (const c of s.clients) flushPending(s.server, c);
-      },
-    };
+  enabled: (s) => caps(s).includes('partition'),
+  weight: 2,
+  act: (s) => {
+    s.session.network.healAll();
+    rebroadcastNotes(s.server);
+    for (const c of s.clients) flushPending(s.server, c);
   },
 });
 
-export const passTime = defineAction({
-  name: 'passTime',
-  generate(ms: number) {
-    return (s) => s.session.scheduler.advance(ms);
-  },
-});
-
-export const randomPassTime = defineAction({
-  name: 'randomPassTime',
-  *generate() {
-    const o = yield* observe({ caps, pending });
-    if (!o.caps.includes('virtualTime')) return;
-    const pendingTotal = o.pending.reduce((a, b) => a + b, 0);
-    const ms = yield* draw((rng) => Math.floor(rng.next() * 5_000));
-    yield {
-      weight: 1 + pendingTotal,
-      act: (s) => s.session.scheduler.advance(ms),
-    };
-  },
-});
-
-export const SYNC_ACTIONS = [
-  randomCreateNote,
-  randomPartition,
-  heal,
-  randomPassTime,
-] as const;
+export const SYNC_ACTIONS = [createNote, partition, heal] as const;
 
 export const converges = defineProperty({
   name: 'converges',
-  *watch() {
-    const o = yield* observe({ quiet, converged, cut: partitioned });
-    if (o.quiet && o.cut.length === 0 && !o.converged) {
+  check: (s) => {
+    if (quiet(s) && partitioned(s).length === 0 && !converged(s)) {
       throw new Error('quiet but diverged');
     }
   },

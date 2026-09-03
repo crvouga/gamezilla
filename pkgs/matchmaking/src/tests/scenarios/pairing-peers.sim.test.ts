@@ -1,13 +1,16 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
+import { script } from '@pkgs/dst';
 import type { TickResult } from '../../interface/matchmaking';
 import type { StatusResult } from '../../interface/types';
 import {
   join,
   lastTick,
   participantIds,
-  scriptMatchmaking,
   statusOf,
   tick,
+  matchmaking,
+  matchmakingKnobs,
+  MATCHMAKING_PROPERTIES,
 } from '../../sim/scenario';
 import {
   expectMatched,
@@ -30,7 +33,11 @@ describe('matchmaking sim: pairing / peers', () => {
   });
 
   test('paired participants see the same matchId and each other as peers', async () => {
-    await using run = await scriptMatchmaking({ seed: 20 });
+    await using run = await script(matchmaking, {
+      seed: 20,
+      knobs: matchmakingKnobs(),
+      properties: MATCHMAKING_PROPERTIES,
+    });
     await run.apply(join, {
       ref: 'a',
       input: {
@@ -48,8 +55,8 @@ describe('matchmaking sim: pairing / peers', () => {
     await run.apply(tick, fourPasses);
     expect(((await run.observe(lastTick)) as TickResult).matches).toBe(1);
     const ids = await run.observe(participantIds);
-    const a = expectMatched((await run.observe(statusOf('a'))) as StatusResult);
-    const b = expectMatched((await run.observe(statusOf('b'))) as StatusResult);
+    const a = expectMatched((await run.observe(statusOf, 'a')) as StatusResult);
+    const b = expectMatched((await run.observe(statusOf, 'b')) as StatusResult);
     expect(a.matchId).toMatch(UUID_REGEX);
     expect(a.matchId).toBe(b.matchId);
     expect(a.peers.map((p) => p.participantId)).toEqual([ids['b'] as string]);
@@ -57,7 +64,11 @@ describe('matchmaking sim: pairing / peers', () => {
   });
 
   test('three participants — only the closest pair matches', async () => {
-    await using run = await scriptMatchmaking({ seed: 21 });
+    await using run = await script(matchmaking, {
+      seed: 21,
+      knobs: matchmakingKnobs(),
+      properties: MATCHMAKING_PROPERTIES,
+    });
     const ratings = { a: 1000, b: 1020, c: 2000 } as const;
     for (const [ref, rating] of Object.entries(ratings)) {
       await run.apply(join, {
@@ -71,7 +82,7 @@ describe('matchmaking sim: pairing / peers', () => {
       ['b', 'matched'],
       ['c', 'waiting'],
     ] as const) {
-      expect(((await run.observe(statusOf(ref))) as StatusResult).status).toBe(
+      expect(((await run.observe(statusOf, ref)) as StatusResult).status).toBe(
         expected
       );
     }

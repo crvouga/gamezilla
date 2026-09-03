@@ -39,8 +39,8 @@ describe('late retry after prune window idempotent', () => {
       await run.apply(addClient, { id: 'bob' });
 
       await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'original' });
-      expect(await run.observe(lastMutationOk('alice'))).toBe(true);
-      const firstId = await run.observe(lastMutationId('alice'));
+      expect(await run.observe(lastMutationOk, 'alice')).toBe(true);
+      const firstId = await run.observe(lastMutationId, 'alice');
       expect(firstId).not.toBeNull();
       await expectConverged(run);
       await expectLiveNoteAt(run, 'server', 'n1', { body: 'original' });
@@ -52,15 +52,15 @@ describe('late retry after prune window idempotent', () => {
           id: firstId!,
           name: 'setNote',
           args: JSON.stringify({ id: 'n1', body: 'after-prune' }),
-          clientId: (await run.observe(deviceId('alice')))!,
+          clientId: (await run.observe(deviceId, 'alice'))!,
           seq: 1,
           createdAt: new Date(
-            await run.observe(nodeNow('alice'))
+            await run.observe(nodeNow, 'alice')
           ).toISOString(),
         },
       ]);
       // Wire ack is `applied` for idempotent retries (duplicate replay path).
-      expect(await run.observe(postOutcome('alice'))).toMatchObject({
+      expect(await run.observe(postOutcome, 'alice')).toMatchObject({
         ok: true,
         verdicts: [{ status: 'applied' }],
       });

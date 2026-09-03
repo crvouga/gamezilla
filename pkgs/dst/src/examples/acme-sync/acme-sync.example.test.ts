@@ -8,7 +8,6 @@ import {
   createNote,
   heal,
   partition,
-  passTime,
   SYNC_ACTIONS,
   SYNC_PROPERTIES,
   sync,
@@ -28,7 +27,7 @@ describe('acme-sync', () => {
     expect((await run.observe(clientNotes))[1]?.n).toBe(0);
 
     await run.apply(heal);
-    await run.apply(passTime, 100);
+    await run.until(converged);
     expect(await run.observe(converged)).toBe(true);
   });
 
@@ -37,6 +36,7 @@ describe('acme-sync', () => {
       properties: SYNC_PROPERTIES,
       actions: [...SYNC_ACTIONS],
       knobs: gen(arbSyncKnobs()),
+      time: { weight: 1, minMs: 0, maxMs: 5_000 },
       episodes: 3,
       steps: 10,
       seed: 11,

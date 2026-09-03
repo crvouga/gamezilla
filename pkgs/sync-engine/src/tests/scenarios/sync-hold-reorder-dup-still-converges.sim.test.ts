@@ -10,7 +10,6 @@ import {
   hold,
   mutate,
   net,
-  passTime,
   setNote,
   syncVirtualHost,
 } from '../apps/acme';
@@ -34,7 +33,7 @@ describe('sync hold reorder dup still converges', () => {
 
     await run.apply(hold, 'bob', 'sync');
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'held-sync' });
-    await run.apply(passTime, 80);
+    await run.elapse(80);
 
     await expectConverged(run);
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'held-sync' });

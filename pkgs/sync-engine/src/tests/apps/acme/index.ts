@@ -48,7 +48,6 @@ export {
   outcome,
   partition,
   partitioned,
-  passTime,
   pending,
   pendingEventCount,
   playActions,

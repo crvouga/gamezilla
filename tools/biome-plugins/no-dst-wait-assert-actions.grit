@@ -2,39 +2,39 @@ language js
 
 or {
   `run.apply(settle)` as $x where {
-    register_diagnostic(span=$x, message="settle is not an action — use untilObserved(run, quiet, passTime).", severity="error")
+    register_diagnostic(span=$x, message="settle is not an action — use run.until(quiet).", severity="error")
   },
   `run.apply(converge)` as $x where {
-    register_diagnostic(span=$x, message="converge is not an action — use expectConverged(run) or revive + untilObserved(converged).", severity="error")
+    register_diagnostic(span=$x, message="converge is not an action — use expectConverged(run) or revive + run.until(converged).", severity="error")
   },
   `run.apply(assertConverged)` as $x where {
-    register_diagnostic(span=$x, message="assertConverged is not an action — use expectConverged(run) or revive + untilObserved(converged).", severity="error")
+    register_diagnostic(span=$x, message="assertConverged is not an action — use expectConverged(run) or revive + run.until(converged).", severity="error")
   },
   `run.apply(waitUntilMatched)` as $x where {
-    register_diagnostic(span=$x, message="waitUntilMatched is not an action — use untilObserved(run, matched(...), passTime).", severity="error")
+    register_diagnostic(span=$x, message="waitUntilMatched is not an action — use run.until(matched).", severity="error")
   },
   `run.apply(waitNeverMatched)` as $x where {
-    register_diagnostic(span=$x, message="waitNeverMatched is not an action — use neverObserved(run, matched(...), passTime).", severity="error")
+    register_diagnostic(span=$x, message="waitNeverMatched is not an action — use run.never(matched, { forMs }).", severity="error")
   },
   `run.apply(uiWait)` as $x where {
-    register_diagnostic(span=$x, message="uiWait is not an action — wait via untilObserved on UI observations + passTime.", severity="error")
+    register_diagnostic(span=$x, message="uiWait is not an action — wait via run.until on UI reads.", severity="error")
   },
   `name: 'settle'` as $x where {
-    register_diagnostic(span=$x, message="Do not defineAction named settle — use quiet observation + untilObserved.", severity="error")
+    register_diagnostic(span=$x, message="Do not defineAction named settle — use quiet read + run.until.", severity="error")
   },
   `name: 'converge'` as $x where {
-    register_diagnostic(span=$x, message="Do not defineAction named converge — use revive stimulus + converged observation.", severity="error")
+    register_diagnostic(span=$x, message="Do not defineAction named converge — use revive stimulus + converged read.", severity="error")
   },
   `name: 'assertConverged'` as $x where {
-    register_diagnostic(span=$x, message="Do not defineAction named assertConverged — use converged observation.", severity="error")
+    register_diagnostic(span=$x, message="Do not defineAction named assertConverged — use converged read.", severity="error")
   },
   `name: 'waitUntilMatched'` as $x where {
-    register_diagnostic(span=$x, message="Do not defineAction named waitUntilMatched — use matched observation + untilObserved.", severity="error")
+    register_diagnostic(span=$x, message="Do not defineAction named waitUntilMatched — use matched read + run.until.", severity="error")
   },
   `name: 'waitNeverMatched'` as $x where {
-    register_diagnostic(span=$x, message="Do not defineAction named waitNeverMatched — use matched observation + neverObserved.", severity="error")
+    register_diagnostic(span=$x, message="Do not defineAction named waitNeverMatched — use matched read + run.never.", severity="error")
   },
   `name: 'uiWait'` as $x where {
-    register_diagnostic(span=$x, message="Do not defineAction named uiWait — use UI observations + untilObserved.", severity="error")
+    register_diagnostic(span=$x, message="Do not defineAction named uiWait — use UI reads + run.until.", severity="error")
   }
 }

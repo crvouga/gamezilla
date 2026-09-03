@@ -47,18 +47,18 @@ describe('mutation storm batching order preserved', () => {
     await run.apply(connect, 'alice');
     await expectConverged(run);
 
-    expect(await run.observe(liveNote('bob', 'storm-shared'))).toMatchObject({
+    expect(await run.observe(liveNote, 'bob', 'storm-shared')).toMatchObject({
       body: `v${STORM - 1}`,
     });
-    expect(await run.observe(liveNote('server', 'storm-shared'))).toMatchObject(
+    expect(await run.observe(liveNote, 'server', 'storm-shared')).toMatchObject(
       {
         body: `v${STORM - 1}`,
       }
     );
-    const server = await run.observe(liveNotes('server'));
+    const server = await run.observe(liveNotes, 'server');
     expect(server.some((n) => n.id === 'row-000')).toBe(true);
     expect(server.some((n) => n.id === 'row-039')).toBe(true);
-    expect(await run.observe(liveNote('bob', 'row-039'))).toMatchObject({
+    expect(await run.observe(liveNote, 'bob', 'row-039')).toMatchObject({
       body: 'r39',
     });
   });
@@ -84,7 +84,7 @@ describe('mutation storm batching order preserved', () => {
       }
       await run.apply(connect, 'alice');
       await expectConverged(run);
-      expect(await run.observe(liveNote('server', `s-${seed}`))).toMatchObject({
+      expect(await run.observe(liveNote, 'server', `s-${seed}`)).toMatchObject({
         body: 'v29',
       });
     }

@@ -9,7 +9,6 @@ import {
   hold,
   joinSpace,
   mutate,
-  passTime,
   release,
   roomTopic,
   SPACE_MEMBERSHIP_SESSION,
@@ -51,12 +50,12 @@ describe('join paints peer space note via live', () => {
       title: 'L',
     });
     await expectConverged(run);
-    await untilAcme(run, subscribedTopics('alice'), {
+    await untilAcme(run, (s) => subscribedTopics(s, 'alice'), {
       pred: hasRoom('live-room'),
     });
 
     await run.apply(mutate, 'bob', joinSpace, { spaceId: 'live-room' });
-    await untilAcme(run, subscribedTopics('bob'), {
+    await untilAcme(run, (s) => subscribedTopics(s, 'bob'), {
       pred: hasRoom('live-room'),
     });
 
@@ -66,7 +65,7 @@ describe('join paints peer space note via live', () => {
       spaceId: 'live-room',
       body: 'from-bob',
     });
-    await run.apply(passTime, 300);
+    await run.elapse(300);
     await expectLiveNoteAt(run, 'alice', 'via-live', { body: 'from-bob' });
 
     await run.apply(release, 'alice', 'sync');

@@ -1,5 +1,4 @@
-import type { Session } from '@pkgs/dst';
-import { asSeededRng } from '@pkgs/dst/kernel';
+import { asSeededRng, type Session } from '@pkgs/dst';
 
 import { InMemoryClientStorage } from '../client/adapters/storage/memory';
 import { createTimerScheduleStack } from '../effects/timer-schedule-stack';

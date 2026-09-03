@@ -14,7 +14,6 @@ import {
   mutate,
   online,
   partition,
-  passTime,
   release,
   setNote,
   skewClock,
@@ -59,7 +58,7 @@ async function liveBeforeSync(run: SyncRun, skew?: ClockOrder): Promise<void> {
 
   await run.apply(hold, 'bob', 'sync');
   await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'live-first' });
-  await run.apply(passTime, 120);
+  await run.elapse(120);
 
   await expectConverged(run);
   await expectLiveNoteAt(run, 'bob', 'n1', { body: 'live-first' });
@@ -71,11 +70,11 @@ async function syncBeforeLive(run: SyncRun, skew?: ClockOrder): Promise<void> {
 
   await run.apply(hold, 'bob', 'live');
   await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'sync-first' });
-  await run.apply(passTime, 40);
+  await run.elapse(40);
   // Force pull while live is still held.
   await run.apply(disconnect, 'bob');
   await run.apply(connect, 'bob');
-  await run.apply(passTime, 120);
+  await run.elapse(120);
   await expectLiveNoteAt(run, 'bob', 'n1', { body: 'sync-first' });
 
   await expectConverged(run);
@@ -153,7 +152,7 @@ describe('live vs sync ordering races converge', () => {
 
     await run.apply(hold, 'bob', 'sync');
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'from-live' });
-    await run.apply(passTime, 120);
+    await run.elapse(120);
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'from-live' });
 
     await expectConverged(run);
@@ -178,7 +177,7 @@ describe('live vs sync ordering races converge', () => {
     await run.apply(hold, 'bob', 'sync');
     await run.apply(online, 'bob', true);
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'from-a' });
-    await run.apply(passTime, 80);
+    await run.elapse(80);
     await run.apply(release, 'bob', 'sync');
     await expectConverged(run);
     await expectEveryClientNotesAgree(run);
@@ -199,7 +198,7 @@ describe('live vs sync ordering races converge', () => {
 
     await run.apply(hold, 'bob', 'live');
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'from-a' });
-    await run.apply(passTime, 80);
+    await run.elapse(80);
 
     await expectConverged(run);
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'from-a' });
@@ -218,10 +217,10 @@ describe('live vs sync ordering races converge', () => {
 
     await run.apply(partition, 'bob', 'live');
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'via-sync' });
-    await run.apply(passTime, 40);
+    await run.elapse(40);
     await run.apply(disconnect, 'bob');
     await run.apply(connect, 'bob');
-    await run.apply(passTime, 120);
+    await run.elapse(120);
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'via-sync' });
 
     await expectConverged(run);

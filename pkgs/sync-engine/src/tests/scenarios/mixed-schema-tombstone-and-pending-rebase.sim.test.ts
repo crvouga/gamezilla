@@ -19,7 +19,6 @@ import {
   noteColor,
   noteColumns,
   notesAllWithColorQuery,
-  passTime,
   readNoteTombstoneAt,
   setNote,
   setNoteColor,
@@ -80,13 +79,13 @@ describe('mixed schema tombstone and pending rebase', () => {
         body: 'alice-pending',
         color: 'red',
       });
-      expect(await run.observe(liveNote('alice', 'n1'))).toMatchObject({
+      expect(await run.observe(liveNote, 'alice', 'n1')).toMatchObject({
         body: 'alice-pending',
       });
 
       await run.apply(mutate, 'bob', deleteNote, { id: 'n1' });
-      expect(await run.observe(lastMutationOk('bob'))).toBe(true);
-      await run.apply(passTime, 400);
+      expect(await run.observe(lastMutationOk, 'bob')).toBe(true);
+      await run.elapse(400);
       expect(await readNoteTombstoneAt(run, 'server', 'n1')).not.toBeNull();
 
       await run.apply(connect, 'alice');
@@ -94,15 +93,15 @@ describe('mixed schema tombstone and pending rebase', () => {
 
       // setNoteColor upsert clears deleted_at — revive wins (same as setNote).
       for (const node of ['alice', 'bob', 'server'] as const) {
-        expect(await run.observe(liveNote(node, 'n1'))).toMatchObject({
+        expect(await run.observe(liveNote, node, 'n1')).toMatchObject({
           body: 'alice-pending',
         });
       }
 
-      expect((await run.observe(noteColor('alice', 'n1')))[0]?.color).toBe(
+      expect((await run.observe(noteColor, 'alice', 'n1'))[0]?.color).toBe(
         'red'
       );
-      const bobCols = await run.observe(noteColumns('bob'));
+      const bobCols = await run.observe(noteColumns, 'bob');
       expect(bobCols.some((c) => c.name === 'color')).toBe(false);
     }
   );

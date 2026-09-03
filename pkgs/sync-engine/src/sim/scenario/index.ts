@@ -19,7 +19,6 @@ export {
   syncKnobs,
   syncVirtualHost,
 } from './define-sync-system';
-export { dispatchSyncAction } from './dispatch';
 export type { SyncKnobs } from './knobs';
 export { arbKnobs, arbSeed, DEFAULT_SYNC_KNOBS } from './knobs';
 export { libraryActionArbs, MILD_NET_FAULTS } from './library-arbs';
@@ -49,7 +48,7 @@ export {
   replayStep,
   resetClockSkews,
 } from './play';
-export { exploreSync, replaySyncRepro } from './replay';
+export { replaySyncRepro, syncRepro } from './replay';
 export { createSyncActions } from './sync-actions';
 export type {
   LiveNoteRow,
@@ -111,7 +110,6 @@ export {
   nudge,
   online,
   partition,
-  passTime,
   playActions,
   postMutations,
   publishFault,

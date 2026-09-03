@@ -6,51 +6,72 @@ import { script } from './script';
 type S = { n: number };
 
 const sys = defineSystem({
-  name: 'restart-unit',
+  name: 'property-lifecycle',
   generate(): S {
     return { n: 0 };
   },
 });
 
-const { defineAction, defineObservation, defineProperty } = sys;
+const { defineAction, defineProperty } = sys;
 
 const bump = defineAction({
   name: 'bump',
-  generate() {
-    return (s) => {
-      s.n += 1;
-    };
+  act: (s) => {
+    s.n += 1;
   },
 });
 
-const nObs = defineObservation({
-  name: 'n',
-  observe: (s) => s.n,
-});
+type Ctx = { seen: number };
 
-let watchStarts = 0;
+let setups = 0;
+let checks = 0;
+let closes = 0;
+let lastSeen = -1;
+
 const prop = defineProperty({
   name: 'nNonNeg',
-  *watch() {
-    watchStarts += 1;
-    const n = (yield* nObs) as number;
-    if (n < 0) throw new Error('neg');
+  setup: (s): Ctx => {
+    setups += 1;
+    return { seen: s.n };
+  },
+  check: (s, ctx) => {
+    checks += 1;
+    if (s.n < 0) throw new Error('neg');
+    return { seen: ctx.seen + 1 };
+  },
+  close: (ctx) => {
+    closes += 1;
+    lastSeen = ctx.seen;
   },
 });
 
-describe('restart-on-complete', () => {
-  test('many checkpoints do not explode watch starts', async () => {
-    watchStarts = 0;
-    await using run = await script(sys, {
-      host: virtualHost(),
-      seed: 1,
-      properties: [prop],
-    });
-    const afterBoot = watchStarts;
-    for (let i = 0; i < 200; i++) {
-      await run.apply(bump);
+describe('property setup / check / close', () => {
+  test('setup once, check each checkpoint, close on dispose', async () => {
+    setups = 0;
+    checks = 0;
+    closes = 0;
+    lastSeen = -1;
+
+    const steps = 20;
+    {
+      await using run = await script(sys, {
+        host: virtualHost(),
+        seed: 1,
+        properties: [prop],
+      });
+      expect(setups).toBe(1);
+      expect(checks).toBe(1);
+      expect(closes).toBe(0);
+
+      for (let i = 0; i < steps; i++) {
+        await run.apply(bump);
+      }
+      expect(setups).toBe(1);
+      expect(checks).toBe(1 + steps);
+      expect(closes).toBe(0);
     }
-    expect(watchStarts).toBeLessThanOrEqual(afterBoot + 200 + 5);
-    expect(watchStarts).toBeGreaterThan(afterBoot + 100);
+
+    expect(closes).toBe(1);
+    expect(lastSeen).toBe(1 + steps);
   });
 });

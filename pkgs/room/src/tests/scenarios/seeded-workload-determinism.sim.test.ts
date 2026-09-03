@@ -4,17 +4,16 @@ import {
   clientHash,
   dispatch,
   hold,
-  passTime,
   release,
-  scriptRoom,
   serverHash,
 } from '../../sim/scenario';
+import { openRoom } from '../scenario/open-room';
 import { counterSystem } from '../apps/counter/system';
 import { expectConverged } from '../expect-converged';
 import { Increment } from '../fixtures/counter-module';
 
 async function runWorkload(seed: number | string): Promise<string> {
-  await using run = await scriptRoom(counterSystem, { seed });
+  await using run = await openRoom(counterSystem, { seed });
   await run.apply(addClient, { id: 'alice' });
   await run.apply(addClient, { id: 'bob' });
   for (let i = 0; i < 7; i += 1) {
@@ -29,7 +28,7 @@ async function runWorkload(seed: number | string): Promise<string> {
     payload: Increment({}),
   });
   await run.apply(release, 'bob');
-  await run.apply(passTime, 0);
+  await run.elapse(0);
   await expectConverged(run);
   const h = await run.observe(serverHash);
   const hashes = (await run.observe(clientHash)) as Record<string, string>;

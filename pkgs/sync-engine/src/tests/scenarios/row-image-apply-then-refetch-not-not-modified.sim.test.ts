@@ -9,7 +9,6 @@ import {
   mutate,
   net,
   nudge,
-  passTime,
   setNote,
   syncVirtualHost,
 } from '../apps/acme';
@@ -37,18 +36,18 @@ describe('row image apply then refetch not not modified', () => {
         id: 'n1',
         body: 'via-image',
       });
-      await run.apply(passTime, 300);
-      expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+      await run.elapse(300);
+      expect(await run.observe(liveNote, 'bob', 'n1')).toMatchObject({
         body: 'via-image',
       });
-      expect(await run.observe(liveNote('bob', 'n2'))).toMatchObject({
+      expect(await run.observe(liveNote, 'bob', 'n2')).toMatchObject({
         body: 'other',
       });
     }
     // nudge: release sync — refetch must not be not-modified after row-image paint
     await run.apply(nudge, 'bob');
     await expectConverged(run);
-    expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+    expect(await run.observe(liveNote, 'bob', 'n1')).toMatchObject({
       body: 'via-image',
     });
   });

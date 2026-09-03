@@ -53,14 +53,14 @@ describe('peer visibility under 200ms sim budget', () => {
     await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
     await expectConverged(run);
 
-    const t0 = await run.observe(nodeNow('bob'));
+    const t0 = await run.observe(nodeNow, 'bob');
     await run.apply(mutate, 'alice', setNote, { id: 'fast', body: 'y' });
-    await untilAcme(run, liveNote('bob', 'fast'), {
+    await untilAcme(run, (s) => liveNote(s, 'bob', 'fast'), {
       maxMs: 400,
       stepMs: 10,
       pred: noteBodyIs('y'),
     });
-    const at = await run.observe(nodeNow('bob'));
+    const at = await run.observe(nodeNow, 'bob');
     expect(at - t0).toBeLessThan(200);
   });
 });

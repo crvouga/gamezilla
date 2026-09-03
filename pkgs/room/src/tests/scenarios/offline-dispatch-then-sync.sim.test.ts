@@ -5,9 +5,8 @@ import {
   connected,
   disconnect,
   dispatch,
-  passTime,
-  scriptRoom,
 } from '../../sim/scenario';
+import { openRoom } from '../scenario/open-room';
 import { counterSystem } from '../apps/counter/system';
 import { expectConverged } from '../expect-converged';
 import { counterValue, Increment } from '../fixtures/counter-module';
@@ -19,7 +18,7 @@ import {
 
 describe('room sim: offline dispatch then sync', () => {
   test('optimistic increment flushes after reconnect', async () => {
-    await using run = await scriptRoom(counterSystem, { seed: 4 });
+    await using run = await openRoom(counterSystem, { seed: 4 });
     await run.apply(addClient, { id: 'alice' });
     await run.apply(addClient, { id: 'bob' });
     await expectConverged(run);
@@ -34,7 +33,7 @@ describe('room sim: offline dispatch then sync', () => {
     });
     expect(counterValue(await readClient(run, 'alice'))).toBe(1);
 
-    await run.apply(passTime, 100);
+    await run.elapse(100);
     expect(counterValue(await readClient(run, 'bob'))).not.toBe(1);
 
     await run.apply(connect, 'alice');

@@ -37,6 +37,7 @@ describe('sql-client web multi-tab system PBT', () => {
       steps: 10,
       seed: 1,
       stopOnViolation: true,
+      time: { weight: 1, minMs: 0, maxMs: 5_000 },
     });
     expect(report.ok).toBe(true);
   }, 180_000);
@@ -50,7 +51,7 @@ describe('sql-client web multi-tab system PBT', () => {
     await run1.apply(fillPool);
     await run1.apply(connect, 't0');
     await run1.apply(put, { tabId: 't0', key: 'a', value: '1' });
-    await run1.apply(get, { tabId: 't0', key: 'a' });
+    expect(await run1.observe(get, 't0', 'a')).toBe('1');
 
     await using run2 = await script(sqlClientWeb, {
       seed: 1,
@@ -60,7 +61,7 @@ describe('sql-client web multi-tab system PBT', () => {
     await run2.apply(corruptStore);
     await run2.apply(connect, 't0');
     await run2.apply(put, { tabId: 't0', key: 'a', value: '1' });
-    await run2.apply(get, { tabId: 't0', key: 'a' });
+    expect(await run2.observe(get, 't0', 'a')).toBe('1');
 
     await using run3 = await script(sqlClientWeb, {
       seed: 1,
@@ -72,7 +73,9 @@ describe('sql-client web multi-tab system PBT', () => {
     await run3.apply(bumpEpoch);
     await run3.apply(killTabAction, 't0');
     await run3.apply(connect, 't0');
-    await run3.apply(get, { tabId: 't0', key: 'a' });
+    // Schema-epoch bump drops the table; reconnect recovers a usable empty cache.
+    expect(await run3.observe(get, 't0', 'a')).toBeNull();
+    expect(await run3.observe(ownerRows)).toEqual({});
 
     await using run4 = await script(sqlClientWeb, {
       seed: 1,
@@ -83,7 +86,7 @@ describe('sql-client web multi-tab system PBT', () => {
     await run4.apply(connect, 't1');
     await run4.apply(put, { tabId: 't0', key: 'a', value: '1' });
     await run4.apply(killTabAction, 't0');
-    await run4.apply(get, { tabId: 't1', key: 'a' });
+    expect(await run4.observe(get, 't1', 'a')).toBe('1');
   }, 120_000);
 
   test('start boots a store plus tabs and elects one owner', async () => {

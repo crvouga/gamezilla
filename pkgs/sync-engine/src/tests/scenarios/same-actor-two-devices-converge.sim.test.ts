@@ -36,16 +36,16 @@ describe('same actor two devices converge', () => {
     });
     await expectConverged(run);
 
-    expect(await run.observe(liveNote('phone', 'from-phone'))).toMatchObject({
+    expect(await run.observe(liveNote, 'phone', 'from-phone')).toMatchObject({
       body: 'p',
     });
-    expect(await run.observe(liveNote('phone', 'from-tablet'))).toMatchObject({
+    expect(await run.observe(liveNote, 'phone', 'from-tablet')).toMatchObject({
       body: 't',
     });
-    expect(await run.observe(liveNote('tablet', 'from-phone'))).toMatchObject({
+    expect(await run.observe(liveNote, 'tablet', 'from-phone')).toMatchObject({
       body: 'p',
     });
-    expect(await run.observe(liveNote('tablet', 'from-tablet'))).toMatchObject({
+    expect(await run.observe(liveNote, 'tablet', 'from-tablet')).toMatchObject({
       body: 't',
     });
   });

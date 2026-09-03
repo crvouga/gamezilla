@@ -1,6 +1,14 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
+import { script } from '@pkgs/dst';
 import type { StatusResult } from '../../interface/types';
-import { join, scriptMatchmaking, statusOf, tick } from '../../sim/scenario';
+import {
+  join,
+  statusOf,
+  tick,
+  matchmaking,
+  matchmakingKnobs,
+  MATCHMAKING_PROPERTIES,
+} from '../../sim/scenario';
 import {
   expectMatched,
   RatingAttr,
@@ -19,7 +27,11 @@ describe('matchmaking sim: metadata', () => {
   });
 
   test('metadata round-trips through waiting and matched status', async () => {
-    await using run = await scriptMatchmaking({ seed: 90 });
+    await using run = await script(matchmaking, {
+      seed: 90,
+      knobs: matchmakingKnobs(),
+      properties: MATCHMAKING_PROPERTIES,
+    });
     const meta = { route: 'vip', n: 1 };
     await run.apply(join, {
       ref: 'a',
@@ -30,7 +42,7 @@ describe('matchmaking sim: metadata', () => {
       },
     });
     expect(
-      ((await run.observe(statusOf('a'))) as StatusResult).metadata
+      ((await run.observe(statusOf, 'a')) as StatusResult).metadata
     ).toEqual(meta);
     await run.apply(join, {
       ref: 'b',
@@ -42,14 +54,18 @@ describe('matchmaking sim: metadata', () => {
     });
     await run.apply(tick, { opts: { maxPassesPerPartition: 1 } });
     const matched = expectMatched(
-      (await run.observe(statusOf('a'))) as StatusResult
+      (await run.observe(statusOf, 'a')) as StatusResult
     );
     expect(matched.metadata).toEqual(meta);
     expect(matched.peers[0]?.metadata).toEqual({ other: true });
   });
 
   test('metadata cap enforced', async () => {
-    await using run = await scriptMatchmaking({ seed: 91 });
+    await using run = await script(matchmaking, {
+      seed: 91,
+      knobs: matchmakingKnobs(),
+      properties: MATCHMAKING_PROPERTIES,
+    });
     await expect(
       run.apply(join, {
         ref: 'a',

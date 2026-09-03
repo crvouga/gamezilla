@@ -22,16 +22,17 @@ export {
   hold,
   lastRejection,
   partition,
-  passTime,
   ROOM_PROPERTIES,
   release,
   restart,
   revive,
-  scriptRoom,
+  roomVirtualHost,
   serverHash,
   serverState,
+  SIM_START_MS,
 } from './sim/scenario';
 export { expectConverged } from './tests/expect-converged';
+export { openRoom, type OpenRoomOpts } from './tests/scenario/open-room';
 export {
   AuthzFixtureModule,
   authzCount,

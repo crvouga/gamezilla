@@ -10,7 +10,6 @@ import {
   liveNote,
   liveNotes,
   mutate,
-  passTime,
   setNote,
   syncVirtualHost,
 } from '../apps/acme';
@@ -36,19 +35,19 @@ describe('mutation batch over max drains without dupes', () => {
         body: `b${i}`,
       });
     }
-    await run.apply(passTime, 50);
+    await run.elapse(50);
 
     await run.apply(connect, 'alice');
     await expectConverged(run);
 
-    const server = await run.observe(liveNotes('server'));
+    const server = await run.observe(liveNotes, 'server');
     expect(server.length).toBe(QUEUE_SIZE);
     const ids = new Set(server.map((r) => r.id));
     expect(ids.size).toBe(QUEUE_SIZE);
-    expect(await run.observe(liveNote('bob', 'batch-000'))).toMatchObject({
+    expect(await run.observe(liveNote, 'bob', 'batch-000')).toMatchObject({
       body: 'b0',
     });
-    expect(await run.observe(liveNote('bob', 'batch-099'))).toMatchObject({
+    expect(await run.observe(liveNote, 'bob', 'batch-099')).toMatchObject({
       body: 'b99',
     });
   });

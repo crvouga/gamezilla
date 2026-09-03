@@ -1,4 +1,4 @@
-import { defineSurface, observe } from '@pkgs/dst';
+import { defineSurface } from '@pkgs/dst';
 
 import {
   clock,
@@ -11,26 +11,25 @@ import type { SyncSurface } from './system';
 
 const { defineProperty } = defineSurface<SyncSurface>();
 
-/** always(invariants hold) — read-only checkInvariants */
+/** always(invariants hold) — read-only kit.checkInvariants */
 export const invariantsHold = defineProperty({
   name: 'invariants',
-  *watch() {
-    const o = yield* observe({ violations: invariantViolations });
-    if (o.violations.length > 0) {
-      throw new Error(o.violations.join('; '));
+  check: async (s) => {
+    const violations = await invariantViolations(s);
+    if (violations.length > 0) {
+      throw new Error(violations.join('; '));
     }
   },
 });
 
 /**
  * always(quiet ∧ healed ⇒ domain-agreed). Uses the pure `converged`
- * observation (no heal / revive side effects).
+ * read (no heal / revive side effects).
  */
 export const converges = defineProperty({
   name: 'converges',
-  *watch() {
-    const o = yield* observe({ quiet, cut: partitioned, converged });
-    if (o.quiet && o.cut.length === 0 && !o.converged) {
+  check: async (s) => {
+    if (quiet(s) && partitioned(s).length === 0 && !(await converged(s))) {
       throw new Error('quiet and healed but not converged');
     }
   },
@@ -43,22 +42,19 @@ export const converges = defineProperty({
  */
 export const eventuallyConverges = defineProperty({
   name: 'eventuallyConverges',
-  *watch() {
-    const start = yield* observe({ quiet, cut: partitioned, clock });
-    if (!start.quiet || start.cut.length > 0) return;
-    const t0 = start.clock;
-    while (true) {
-      const o = yield* observe({
-        quiet,
-        cut: partitioned,
-        converged,
-        clock,
-      });
-      if (!o.quiet || o.cut.length > 0 || o.converged) break;
-      if (o.clock - t0 > 10_000) {
-        throw new Error(`still diverged ${o.clock - t0}ms after going quiet`);
-      }
+  setup: (s) => ({
+    armed: quiet(s) && partitioned(s).length === 0,
+    t0: clock(s),
+  }),
+  check: async (s, ctx) => {
+    if (!ctx.armed) return ctx;
+    if (!quiet(s) || partitioned(s).length > 0 || (await converged(s))) {
+      return { armed: false, t0: ctx.t0 };
     }
+    if (clock(s) - ctx.t0 > 10_000) {
+      throw new Error(`still diverged ${clock(s) - ctx.t0}ms after going quiet`);
+    }
+    return ctx;
   },
 });
 

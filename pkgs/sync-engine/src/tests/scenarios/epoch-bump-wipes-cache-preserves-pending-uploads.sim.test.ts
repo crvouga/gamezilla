@@ -35,7 +35,7 @@ describe('epoch bump wipes cache preserves pending uploads', () => {
 
       await run.apply(disconnect, 'alice');
       await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'queued' });
-      await neverAcme(run, liveNote('server', 'n1'), {
+      await neverAcme(run, (s) => liveNote(s, 'server', 'n1'), {
         forMs: 50,
         pred: (v) => v !== null,
       });

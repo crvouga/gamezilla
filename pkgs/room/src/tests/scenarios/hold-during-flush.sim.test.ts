@@ -4,7 +4,6 @@ import {
   disconnect,
   dispatch,
   hold,
-  passTime,
   release,
 } from '../../sim/scenario';
 import { expectConverged } from '../expect-converged';
@@ -29,7 +28,7 @@ describe('room sim: hold during flush (E-A01)', () => {
 
     await run.apply(hold, 'bob');
     await run.apply(connect, 'alice');
-    await run.apply(passTime, 150);
+    await run.elapse(150);
     expect(counterValue(await readClient(run, 'bob'))).toBe(0);
     await run.apply(release, 'bob');
 

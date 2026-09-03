@@ -11,7 +11,6 @@ import {
   lastMutationOk,
   mutate,
   nodeNow,
-  passTime,
   setNote,
   skewClock,
   syncVirtualHost,
@@ -42,9 +41,9 @@ describe('replay pins now to mutation created at', () => {
     await expectConverged(run);
 
     await run.apply(disconnect, 'alice');
-    const skewedNow = await run.observe(nodeNow('alice'));
+    const skewedNow = await run.observe(nodeNow, 'alice');
     await run.apply(mutate, 'alice', deleteNote, { id: 'n1' });
-    expect(await run.observe(lastMutationOk('alice'))).toBe(true);
+    expect(await run.observe(lastMutationOk, 'alice')).toBe(true);
     const expectedIso = new Date(skewedNow).toISOString();
 
     await run.apply(connect, 'alice');
@@ -79,19 +78,19 @@ describe('replay pins now to mutation created at', () => {
     await expectConverged(run);
 
     await run.apply(disconnect, 'alice');
-    const skewedNow = await run.observe(nodeNow('alice'));
+    const skewedNow = await run.observe(nodeNow, 'alice');
     await run.apply(mutate, 'alice', deleteNote, { id: 'n1' });
-    expect(await run.observe(lastMutationOk('alice'))).toBe(true);
+    expect(await run.observe(lastMutationOk, 'alice')).toBe(true);
     const expectedIso = new Date(skewedNow).toISOString();
     await expectNoteNotLiveAt(run, 'alice', 'n1');
     expect(await readNoteTombstoneAt(run, 'alice', 'n1')).toBe(expectedIso);
 
     // Peer write forces alice merge+rebase on reconnect before upload.
     await run.apply(mutate, 'bob', setNote, { id: 'n2', body: 'peer' });
-    await run.apply(passTime, 200);
+    await run.elapse(200);
 
     await run.apply(connect, 'alice');
-    await run.apply(passTime, 100);
+    await run.elapse(100);
     // Rebase must keep tombstone stamped with mutation createdAt, not wall now.
     expect(await readNoteTombstoneAt(run, 'alice', 'n1')).toBe(expectedIso);
 

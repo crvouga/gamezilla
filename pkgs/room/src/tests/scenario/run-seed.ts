@@ -1,4 +1,5 @@
 import type { Run } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import { createSeededRng, type SeededRng } from '@pkgs/uuid';
 import type {
   RoomApp,
@@ -6,12 +7,11 @@ import type {
   RoomSystemAction,
 } from '../../sim/scenario';
 import {
-  applyRoomAction,
+  applyTaggedRoomAction,
   clientHash,
   defineRoomSystem,
   invariantViolations,
-  passTime,
-  scriptRoom,
+  roomVirtualHost,
   seed as seedOf,
   serverCrashed,
   serverHash,
@@ -45,10 +45,13 @@ async function startSeedRun(
   opts: RunSeedOptions
 ): Promise<Run<RoomSurface> & AsyncDisposable> {
   const system = defineRoomSystem(opts.app, { name: 'room.seed' });
-  return scriptRoom(system, {
+  return script(system, {
     seed: opts.seed,
-    clientCount: opts.clientCount ?? 2,
-    mildFaults: opts.mildFaults === true,
+    knobs: {
+      clientCount: opts.clientCount ?? 2,
+      mildFaults: opts.mildFaults === true,
+    },
+    host: roomVirtualHost(),
   });
 }
 
@@ -69,7 +72,7 @@ async function stepWorkload(
     opts.app.pickDomainOp,
     fuzz
   );
-  await applyRoomAction(run, action);
+  await applyTaggedRoomAction(run, action);
 }
 
 async function firstViolation(run: Run<RoomSurface>): Promise<string | null> {
@@ -99,7 +102,7 @@ export async function runRoomSeed(
       if (violation !== null) {
         return { ok: false, seed: runSeedValue, steps: done, error: violation };
       }
-      await run.apply(passTime, 20);
+      await run.elapse(20);
     }
     await expectConverged(run);
     return { ok: true, seed: runSeedValue, steps: done };
@@ -133,7 +136,7 @@ export async function roomSeedFingerprint(
   const fuzz = createFuzzState(ids);
   for (let i = 0; i < steps; i += 1) {
     await stepWorkload(run, opts, rng, fuzz);
-    await run.apply(passTime, 20);
+    await run.elapse(20);
   }
   await expectConverged(run);
   const hashes = (await run.observe(clientHash)) as Record<string, string>;

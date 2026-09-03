@@ -8,13 +8,13 @@ import {
   clock,
   dispatch,
   injectToServer,
-  replayRoom,
-  scriptRoom,
   takeOver,
 } from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
 import { expectConverged } from '../expect-converged';
 import { counterValue, Increment } from '../fixtures/counter-module';
+import { openRoom } from '../scenario/open-room';
+import { playRoomActions } from '../scenario/play-actions';
 import { readServer } from '../scenario/read-state';
 
 describe('room session-lifecycle PBT', () => {
@@ -24,7 +24,7 @@ describe('room session-lifecycle PBT', () => {
       await assertProperty(
         'takeOver mid-flight',
         fc.asyncProperty(arbSeed(), arbRoomKnobs(), async (seed, knobs) => {
-          await using run = await replayRoom(counterSystem, {
+          await using run = await playRoomActions(counterSystem, {
             seed,
             knobs,
             actions: [
@@ -57,7 +57,7 @@ describe('room session-lifecycle PBT', () => {
       await assertProperty(
         'crash restart clearLocalData',
         fc.asyncProperty(arbSeed(), arbRoomKnobs(), async (seed, knobs) => {
-          await using _run = await replayRoom(counterSystem, {
+          await using _run = await playRoomActions(counterSystem, {
             seed,
             knobs,
             actions: [
@@ -98,7 +98,7 @@ describe('room session-lifecycle PBT', () => {
       await assertProperty(
         'serverCrash restart',
         fc.asyncProperty(arbSeed(), async (seed) => {
-          await using run = await replayRoom(counterSystem, {
+          await using run = await playRoomActions(counterSystem, {
             seed,
             actions: [
               {
@@ -126,7 +126,7 @@ describe('room session-lifecycle PBT', () => {
   );
 
   test('commandId replay across takeOver applies once', async () => {
-    await using run = await scriptRoom(counterSystem, {
+    await using run = await openRoom(counterSystem, {
       seed: 7,
       clientCount: 2,
     });
@@ -153,7 +153,7 @@ describe('room session-lifecycle PBT', () => {
   });
 
   test('multi-tab same identity converges', async () => {
-    await using run = await scriptRoom(counterSystem, { seed: 11 });
+    await using run = await openRoom(counterSystem, { seed: 11 });
     await run.apply(addClient, {
       id: 'tab-a',
       identity: 'user',

@@ -39,7 +39,7 @@ describe('non mutation catalog insert wakes empty hydrate', () => {
     });
     await expectLiveNoteAt(run, 'server', 'n-seed', { body: 'seeded' });
 
-    await untilAcme(run, liveNote('alice', 'n-seed'), {
+    await untilAcme(run, (s) => liveNote(s, 'alice', 'n-seed'), {
       pred: noteBodyIs('seeded'),
     });
     await expectConverged(run);
@@ -70,7 +70,7 @@ describe('non mutation catalog insert wakes empty hydrate', () => {
     // No notify → no instant wake; reconcile tick heals below.
     expect(await isNoteLiveAt(run, 'alice', 'n-silent')).toBe(false);
 
-    await untilAcme(run, liveNote('alice', 'n-silent'), {
+    await untilAcme(run, (s) => liveNote(s, 'alice', 'n-silent'), {
       pred: noteBodyIs('seeded-silent'),
     });
     await expectConverged(run);

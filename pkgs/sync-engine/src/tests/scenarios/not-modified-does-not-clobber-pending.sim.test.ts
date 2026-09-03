@@ -10,7 +10,6 @@ import {
   liveNote,
   liveNotes,
   mutate,
-  passTime,
   setNote,
   syncVirtualHost,
 } from '../apps/acme';
@@ -36,25 +35,25 @@ describe('not modified does not clobber pending', () => {
       id: 'n1',
       body: 'optimistic-pending',
     });
-    expect(await run.observe(liveNote('alice', 'n1'))).toMatchObject({
+    expect(await run.observe(liveNote, 'alice', 'n1')).toMatchObject({
       body: 'optimistic-pending',
     });
-    expect(await run.observe(liveNote('server', 'n1'))).toMatchObject({
+    expect(await run.observe(liveNote, 'server', 'n1')).toMatchObject({
       body: 'seed',
     });
 
     // Reconnect: session sync sees unchanged server hash → not_modified;
     // pending mutation rebases on top so optimistic body must survive.
     await run.apply(connect, 'alice');
-    await run.apply(passTime, 500);
-    expect(await run.observe(liveNote('alice', 'n1'))).toMatchObject({
+    await run.elapse(500);
+    expect(await run.observe(liveNote, 'alice', 'n1')).toMatchObject({
       body: 'optimistic-pending',
     });
 
     await run.apply(mutate, 'bob', setNote, { id: 'n1', body: 'from-bob' });
     await expectConverged(run);
     expect(
-      (await run.observe(liveNotes('server'))).find((r) => r.id === 'n1')
+      (await run.observe(liveNotes, 'server')).find((r) => r.id === 'n1')
     ).toBeDefined();
   });
 });

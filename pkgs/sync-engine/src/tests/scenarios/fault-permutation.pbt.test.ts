@@ -1,6 +1,12 @@
 import { describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
-import { exploreSync } from '../../sim/scenario';
+import { explore, script } from '@pkgs/dst';
+import { gen } from '@pkgs/dst/fast-check';
+import {
+  arbKnobs,
+  createSyncActions,
+  SYNC_PROPERTIES,
+  syncVirtualHost as syncHost,
+} from '../../sim/scenario';
 import {
   acmeKnobs,
   acmeSystem,
@@ -14,6 +20,7 @@ import {
   setNote,
   syncVirtualHost,
 } from '../apps/acme';
+import { acmeApp } from '../apps/acme/app';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
 import type { DomainOp, LibraryAction, SyncAction } from '../scenario/actions';
 
@@ -21,10 +28,16 @@ describe('fault permutation PBT', () => {
   test(
     'full fault pool interleaves and converges',
     async () => {
-      await exploreSync(acmeSystem, {
+      await explore(acmeSystem, {
+        host: syncHost(),
+        properties: [...SYNC_PROPERTIES],
+        actions: [...createSyncActions(acmeApp, acmeApp.pack.sessionQuery)],
+        knobs: gen(arbKnobs()),
         steps: 20,
         episodes: 6,
         seed: 44000,
+        stopOnViolation: true,
+        time: { weight: 1, minMs: 0, maxMs: 40 },
       });
     },
     { timeout: 180_000 }
@@ -66,8 +79,8 @@ describe('fault permutation pins', () => {
 
     await run.apply(armStoragePressure, 'c0', 'sqliteFull');
     await run.apply(mutate, 'c0', setNote, { id: 'n0', body: 'quota' });
-    expect(await run.observe(lastMutationOk('c0'))).toBe(false);
-    expect(await run.observe(lastMutationFailures('c0'))).toContain(
+    expect(await run.observe(lastMutationOk, 'c0')).toBe(false);
+    expect(await run.observe(lastMutationFailures, 'c0')).toContain(
       'STORAGE_FULL'
     );
 

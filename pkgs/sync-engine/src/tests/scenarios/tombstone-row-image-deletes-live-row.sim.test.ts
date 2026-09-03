@@ -11,7 +11,6 @@ import {
   lastMutationOk,
   mutate,
   net,
-  passTime,
   readNoteTombstoneAt,
   setNote,
   syncVirtualHost,
@@ -35,8 +34,8 @@ describe('tombstone row image deletes live row', () => {
 
     await run.apply(net, 'bob', 'sync', 'hold');
     await run.apply(mutate, 'alice', deleteNote, { id: 'n1' });
-    expect(await run.observe(lastMutationOk('alice'))).toBe(true);
-    await run.apply(passTime, 300);
+    expect(await run.observe(lastMutationOk, 'alice')).toBe(true);
+    await run.elapse(300);
 
     await expectNoteNotLiveAt(run, 'bob', 'n1');
     expect(await readNoteTombstoneAt(run, 'bob', 'n1')).not.toBeNull();

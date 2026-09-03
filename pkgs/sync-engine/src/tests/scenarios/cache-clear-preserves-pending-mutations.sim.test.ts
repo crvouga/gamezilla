@@ -10,7 +10,6 @@ import {
   expectConverged,
   mutate,
   partition,
-  passTime,
   setNote,
   syncVirtualHost,
 } from '../apps/acme';
@@ -38,12 +37,12 @@ describe('cache clear preserves pending mutations', () => {
       id: 'n1',
       body: 'durable-queued',
     });
-    await run.apply(passTime, 50);
+    await run.elapse(50);
     await expectLiveNoteAt(run, 'alice', 'n1', { body: 'durable-queued' });
     await expectNoteNotLiveAt(run, 'server', 'n1');
 
     await run.apply(clearLocalData, 'alice', 'cache');
-    expect(await run.observe(liveNotes('alice'))).toEqual([]);
+    expect(await run.observe(liveNotes, 'alice')).toEqual([]);
     await expectNoteNotLiveAt(run, 'alice', 'n1');
 
     await run.apply(connect, 'alice');
@@ -69,6 +68,6 @@ describe('cache clear preserves pending mutations', () => {
       body: 'queued-while-down',
     });
     await run.apply(clearLocalData, 'alice', 'cache');
-    expect(await run.observe(liveNotes('alice'))).toEqual([]);
+    expect(await run.observe(liveNotes, 'alice')).toEqual([]);
   });
 });

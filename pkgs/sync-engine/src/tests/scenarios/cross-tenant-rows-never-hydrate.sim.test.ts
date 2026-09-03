@@ -76,7 +76,7 @@ describe('cross tenant rows never hydrate', () => {
     });
     // Bob never owns the gate → notesOwned denied → no hydrate of alice rows.
     await expectNoteNotLiveAt(run, 'bob', 'alice-private');
-    const bobNotes = await run.observe(liveNotes('bob'));
+    const bobNotes = await run.observe(liveNotes, 'bob');
     expect(bobNotes.some((n) => n.ownerId === 'alice')).toBe(false);
     expect(bobNotes.length).toBe(0);
   });

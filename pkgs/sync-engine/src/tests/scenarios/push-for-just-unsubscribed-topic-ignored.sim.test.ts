@@ -48,20 +48,20 @@ describe('push for just unsubscribed topic ignored', () => {
       title: 'R',
     });
     await expectConverged(run);
-    await untilAcme(run, subscribedTopics('alice'), {
+    await untilAcme(run, (s) => subscribedTopics(s, 'alice'), {
       pred: hasTopic(roomTopic('race-room')),
     });
     await run.apply(mutate, 'bob', joinSpace, { spaceId: 'race-room' });
-    await untilAcme(run, subscribedTopics('bob'), {
+    await untilAcme(run, (s) => subscribedTopics(s, 'bob'), {
       pred: hasTopic(roomTopic('race-room')),
     });
     await expectConverged(run);
-    await untilAcme(run, subscribedTopics('alice'), {
+    await untilAcme(run, (s) => subscribedTopics(s, 'alice'), {
       pred: hasTopic(roomTopic('race-room')),
     });
 
     await run.apply(mutate, 'alice', leaveSpace, { spaceId: 'race-room' });
-    await untilAcme(run, subscribedTopics('alice'), {
+    await untilAcme(run, (s) => subscribedTopics(s, 'alice'), {
       pred: lacksTopic(roomTopic('race-room')),
     });
 
@@ -71,7 +71,7 @@ describe('push for just unsubscribed topic ignored', () => {
       spaceId: 'race-room',
       body: 'missed',
     });
-    await neverAcme(run, liveNote('alice', 'late-push'), {
+    await neverAcme(run, (s) => liveNote(s, 'alice', 'late-push'), {
       forMs: 300,
       pred: noteLive,
     });

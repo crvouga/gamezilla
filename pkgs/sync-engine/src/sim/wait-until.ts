@@ -1,4 +1,4 @@
-import type { Network, VirtualScheduler } from '@pkgs/dst/kernel';
+import type { Network, VirtualScheduler } from '@pkgs/dst';
 
 import type { SimPollablePromise } from './client-surface';
 

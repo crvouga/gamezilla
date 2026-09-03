@@ -23,7 +23,7 @@ describe('single client mutate uploads and persists', () => {
 
     await run.apply(addClient, 'alice');
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'hello' });
-    expect(await run.observe(lastMutationOk('alice'))).toBe(true);
+    expect(await run.observe(lastMutationOk, 'alice')).toBe(true);
 
     await expectConverged(run);
     await expectLiveNoteAt(run, 'alice', 'n1', { body: 'hello' });

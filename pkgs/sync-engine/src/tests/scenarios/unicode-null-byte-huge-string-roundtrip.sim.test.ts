@@ -35,16 +35,16 @@ describe('unicode null byte huge string roundtrip', () => {
     await run.apply(mutate, 'alice', setNote, { id: 'huge', body: HUGE });
     await expectConverged(run);
 
-    expect(await run.observe(liveNote('bob', 'emoji'))).toMatchObject({
+    expect(await run.observe(liveNote, 'bob', 'emoji')).toMatchObject({
       body: EMOJI_RTL,
     });
-    expect(await run.observe(liveNote('bob', 'nullish'))).toMatchObject({
+    expect(await run.observe(liveNote, 'bob', 'nullish')).toMatchObject({
       body: WITH_NULL,
     });
-    expect(await run.observe(liveNote('bob', 'huge'))).toMatchObject({
+    expect(await run.observe(liveNote, 'bob', 'huge')).toMatchObject({
       body: HUGE,
     });
-    expect(await run.observe(liveNote('server', 'huge'))).toMatchObject({
+    expect(await run.observe(liveNote, 'server', 'huge')).toMatchObject({
       body: HUGE,
     });
     expect(HUGE.length).toBeGreaterThan(100_000);
@@ -65,7 +65,7 @@ describe('unicode null byte huge string roundtrip', () => {
       const body = `${EMOJI_RTL}-${seed}-\u0000`;
       await run.apply(mutate, 'alice', setNote, { id: `u-${seed}`, body });
       await expectConverged(run);
-      expect(await run.observe(liveNote('bob', `u-${seed}`))).toMatchObject({
+      expect(await run.observe(liveNote, 'bob', `u-${seed}`)).toMatchObject({
         body,
       });
     }

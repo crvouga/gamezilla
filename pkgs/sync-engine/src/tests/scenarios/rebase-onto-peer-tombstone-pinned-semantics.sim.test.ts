@@ -11,7 +11,6 @@ import {
   lastMutationOk,
   liveNote,
   mutate,
-  passTime,
   readNoteTombstoneAt,
   setNote,
   syncVirtualHost,
@@ -39,25 +38,25 @@ describe('rebase onto peer tombstone pinned semantics', () => {
       id: 'n1',
       body: 'alice-pending',
     });
-    expect(await run.observe(liveNote('alice', 'n1'))).toMatchObject({
+    expect(await run.observe(liveNote, 'alice', 'n1')).toMatchObject({
       body: 'alice-pending',
     });
 
     await run.apply(mutate, 'bob', deleteNote, { id: 'n1' });
-    expect(await run.observe(lastMutationOk('bob'))).toBe(true);
-    await run.apply(passTime, 400);
+    expect(await run.observe(lastMutationOk, 'bob')).toBe(true);
+    await run.elapse(400);
     expect(await readNoteTombstoneAt(run, 'server', 'n1')).not.toBeNull();
 
     await run.apply(connect, 'alice');
     await expectConverged(run);
 
-    expect(await run.observe(liveNote('alice', 'n1'))).toMatchObject({
+    expect(await run.observe(liveNote, 'alice', 'n1')).toMatchObject({
       body: 'alice-pending',
     });
-    expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+    expect(await run.observe(liveNote, 'bob', 'n1')).toMatchObject({
       body: 'alice-pending',
     });
-    expect(await run.observe(liveNote('server', 'n1'))).toMatchObject({
+    expect(await run.observe(liveNote, 'server', 'n1')).toMatchObject({
       body: 'alice-pending',
     });
   });

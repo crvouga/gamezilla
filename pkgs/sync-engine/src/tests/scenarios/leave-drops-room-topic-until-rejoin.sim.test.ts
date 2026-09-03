@@ -50,24 +50,24 @@ describe('leave drops room topic until rejoin', () => {
       title: 'E',
     });
     await expectConverged(run);
-    await untilAcme(run, subscribedTopics('alice'), {
+    await untilAcme(run, (s) => subscribedTopics(s, 'alice'), {
       pred: hasTopic(roomTopic('end-room')),
     });
     await run.apply(mutate, 'bob', joinSpace, { spaceId: 'end-room' });
-    await untilAcme(run, subscribedTopics('bob'), {
+    await untilAcme(run, (s) => subscribedTopics(s, 'bob'), {
       pred: hasTopic(roomTopic('end-room')),
     });
     await expectConverged(run);
-    await untilAcme(run, subscribedTopics('alice'), {
+    await untilAcme(run, (s) => subscribedTopics(s, 'alice'), {
       pred: hasTopic(roomTopic('end-room')),
     });
-    const remakes = await run.observe(pubsubRemakeCount('alice'));
+    const remakes = await run.observe(pubsubRemakeCount, 'alice');
 
     await run.apply(mutate, 'alice', leaveSpace, { spaceId: 'end-room' });
-    await untilAcme(run, subscribedTopics('alice'), {
+    await untilAcme(run, (s) => subscribedTopics(s, 'alice'), {
       pred: lacksTopic(roomTopic('end-room')),
     });
-    expect(await run.observe(pubsubRemakeCount('alice'))).toBe(remakes);
+    expect(await run.observe(pubsubRemakeCount, 'alice')).toBe(remakes);
 
     await run.apply(hold, 'alice', 'sync');
     await run.apply(mutate, 'bob', setSpaceNote, {
@@ -75,14 +75,14 @@ describe('leave drops room topic until rejoin', () => {
       spaceId: 'end-room',
       body: 'miss-me',
     });
-    await neverAcme(run, liveNote('alice', 'after-leave'), {
+    await neverAcme(run, (s) => liveNote(s, 'alice', 'after-leave'), {
       forMs: 300,
       pred: noteLive,
     });
-    expect(await run.observe(liveNote('bob', 'after-leave'))).toMatchObject({
+    expect(await run.observe(liveNote, 'bob', 'after-leave')).toMatchObject({
       body: 'miss-me',
     });
-    expect(await run.observe(pubsubRemakeCount('alice'))).toBe(remakes);
+    expect(await run.observe(pubsubRemakeCount, 'alice')).toBe(remakes);
     await run.apply(release, 'alice', 'sync');
 
     await run.apply(mutate, 'alice', joinSpace, { spaceId: 'end-room' });
@@ -104,19 +104,19 @@ describe('leave drops room topic until rejoin', () => {
     });
     await run.apply(mutate, 'alice', createSpace, { id: 'ended', title: 'X' });
     await expectConverged(run);
-    await untilAcme(run, subscribedTopics('alice'), {
+    await untilAcme(run, (s) => subscribedTopics(s, 'alice'), {
       pred: hasTopic(roomTopic('ended')),
     });
-    const remakes = await run.observe(pubsubRemakeCount('alice'));
+    const remakes = await run.observe(pubsubRemakeCount, 'alice');
 
     await run.apply(mutate, 'alice', endSpace, { spaceId: 'ended' });
-    await untilAcme(run, subscribedTopics('alice'), {
+    await untilAcme(run, (s) => subscribedTopics(s, 'alice'), {
       pred: lacksTopic(roomTopic('ended')),
     });
-    expect(await run.observe(subscribedTopics('alice'))).not.toContain(
+    expect(await run.observe(subscribedTopics, 'alice')).not.toContain(
       roomTopic('ended')
     );
-    expect(await run.observe(pubsubRemakeCount('alice'))).toBe(remakes);
+    expect(await run.observe(pubsubRemakeCount, 'alice')).toBe(remakes);
     await expectConverged(run);
   });
 });

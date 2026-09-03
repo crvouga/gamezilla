@@ -1,15 +1,10 @@
-import {
-  createScheduler,
-  createTimers,
-  createVirtualClock,
-  type VirtualScheduler,
-} from '@pkgs/dst/kernel';
+import { type Session, virtualHost } from '@pkgs/dst';
 
 import type { Timers } from '../client/sim-ports';
 
 export type SimTestDriver = {
   readonly clock: { now(): number };
-  readonly scheduler: VirtualScheduler;
+  readonly scheduler: Session['scheduler']['underlying'];
   readonly timers: Timers;
   readonly now: () => number;
   readonly random: () => number;
@@ -18,13 +13,15 @@ export type SimTestDriver = {
     pred: () => boolean,
     opts?: { readonly maxVirtualMs?: number }
   ) => Promise<boolean>;
+  readonly dispose: () => Promise<void>;
 };
 
 /** Lightweight driver for unit tests that inject timers into runtime/push. */
-export function createSimTestDriver(): SimTestDriver {
-  const clock = createVirtualClock(0);
-  const scheduler = createScheduler(clock);
-  const timers = createTimers(scheduler);
+export async function createSimTestDriver(): Promise<SimTestDriver> {
+  const session = await virtualHost().open(0);
+  const scheduler = session.scheduler.underlying;
+  const timers = session.ports.timers;
+  const clock = session.ports.clock;
   return {
     clock,
     scheduler,
@@ -33,5 +30,6 @@ export function createSimTestDriver(): SimTestDriver {
     random: () => 0,
     runFor: (ms) => scheduler.runFor(ms),
     runUntil: (pred, opts) => scheduler.runUntil(pred, opts),
+    dispose: () => session.dispose(),
   };
 }

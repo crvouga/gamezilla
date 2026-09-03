@@ -28,7 +28,7 @@ export const product = defineSystem({
   },
 });
 
-const { defineObservation, defineAction } = product;
+const { defineAction, defineProperty } = product;
 
 export type { ProductSurface };
-export { defineAction, defineObservation };
+export { defineAction, defineProperty };

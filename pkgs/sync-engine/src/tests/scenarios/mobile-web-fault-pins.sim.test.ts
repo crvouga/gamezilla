@@ -8,7 +8,6 @@ import {
   expectConverged,
   mutate,
   online,
-  passTime,
   playAcmePin,
   restart,
   setNote,
@@ -32,7 +31,7 @@ describe('online lifecycle wakes query refetch', () => {
       body: 'offline-local',
     });
     await run.apply(online, 'c0', true);
-    await run.apply(passTime, 100);
+    await run.elapse(100);
     await expectConverged(run);
     await expectLiveNoteAt(run, 'server', 'n0', { body: 'offline-local' });
   });

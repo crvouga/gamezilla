@@ -10,13 +10,14 @@ export type {
 } from './actions';
 export { isDomainOp, isLibraryAction } from './actions';
 export type { DomainModelHooks, RoomApp } from './app';
-export { applyRoomAction } from './apply-room-action';
+export { applyTaggedRoomAction } from './apply-tagged';
 export type {
   DefineRoomSystemOpts,
   RoomSystemDef,
 } from './define-room-system';
 export {
   defineRoomSystem,
+  roomVirtualHost,
   SIM_START_MS,
 } from './define-room-system';
 export { dispatchRoomSystemAction } from './dispatch';
@@ -64,8 +65,6 @@ export {
   serverState,
 } from './observations';
 export { prepareClientsForConverge } from './play';
-export type { ReplayRoomInputs } from './replay';
-export { replayRoom, replayRoomPin } from './replay';
 export {
   addClient,
   addSpectator,
@@ -86,7 +85,6 @@ export {
   injectToServer,
   LIBRARY_ACTIONS,
   partition,
-  passTime,
   ROOM_ACTIONS,
   release,
   restart,
@@ -98,5 +96,4 @@ export {
   setNet,
   takeOver,
 } from './room-actions';
-export { type ScriptRoomOpts, scriptRoom } from './script-room';
 export type { RoomSurface } from './surface';

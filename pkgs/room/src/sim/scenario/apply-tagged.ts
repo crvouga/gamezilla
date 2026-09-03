@@ -14,7 +14,6 @@ import {
   hold,
   injectFromServer,
   injectToServer,
-  passTime,
   release,
   restart,
   serverCrash,
@@ -24,11 +23,17 @@ import {
 } from './room-actions';
 import type { RoomSurface } from './surface';
 
-async function applyLibrary(
+/**
+ * Map a tagged {@link RoomSystemAction} onto `run.apply`.
+ * Fuzz harness only — prefer direct `run.apply` in scripted tests.
+ */
+export async function applyTaggedRoomAction(
   run: Run<RoomSurface>,
-  action: Exclude<RoomSystemAction, { kind: 'domain' }>
+  action: RoomSystemAction
 ): Promise<void> {
   switch (action.kind) {
+    case 'domain':
+      return run.apply(domain, action);
     case 'disconnect':
       return run.apply(disconnect, action.clientId);
     case 'connect':
@@ -42,7 +47,7 @@ async function applyLibrary(
     case 'heal':
       return run.apply(heal);
     case 'idle':
-      return run.apply(passTime, action.ms);
+      return run.elapse(action.ms);
     case 'takeOver':
       return run.apply(takeOver, action.clientId);
     case 'crash':
@@ -93,16 +98,4 @@ async function applyLibrary(
       return _never;
     }
   }
-}
-
-/** Apply a tagged {@link RoomSystemAction} through `run.apply`. */
-export async function applyRoomAction(
-  run: Run<RoomSurface>,
-  action: RoomSystemAction
-): Promise<void> {
-  if (action.kind === 'domain') {
-    await run.apply(domain, action);
-    return;
-  }
-  await applyLibrary(run, action);
 }

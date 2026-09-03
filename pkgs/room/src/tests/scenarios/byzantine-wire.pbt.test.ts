@@ -2,7 +2,6 @@ import { describe, expect, test } from 'bun:test';
 import type { Run } from '@pkgs/dst';
 import { assertProperty, fc } from '@pkgs/pbt';
 import {
-  applyRoomAction,
   arbRoomKnobs,
   arbSeed,
   BYZANTINE_INJECT_KINDS,
@@ -11,31 +10,35 @@ import {
   clientHash,
   clock,
   domain,
-  passTime,
+  injectFromServer,
+  injectToServer,
   type RoomSurface,
-  type RoomSystemAction,
-  replayRoom,
   serverHash,
 } from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
 import { expectConverged } from '../expect-converged';
 import { counterValue } from '../fixtures/counter-module';
+import { openRoom } from '../scenario/open-room';
 import { readServer } from '../scenario/read-state';
 
-function injectAction(
+async function injectByzantine(
+  run: Run<RoomSurface>,
   kind: ByzantineInjectKind,
   now: number
-): RoomSystemAction {
+): Promise<void> {
   const raw = buildByzantineRaw(kind, now);
   if (raw.direction === 'toServer') {
-    return {
-      kind: 'injectToServer',
+    await run.apply(injectToServer, {
       clientId: 'c1',
       raw: raw.raw,
       direct: true,
-    };
+    });
+    return;
   }
-  return { kind: 'injectFromServer', clientId: 'c1', raw: raw.raw };
+  await run.apply(injectFromServer, {
+    clientId: 'c1',
+    raw: raw.raw,
+  });
 }
 
 async function expectServerTruthRestored(
@@ -61,11 +64,10 @@ describe('room byzantine-wire PBT', () => {
           arbRoomKnobs(),
           fc.constantFrom(...BYZANTINE_INJECT_KINDS),
           async (seed, knobs, kind) => {
-            await using run = await replayRoom(counterSystem, {
+            await using run = await openRoom(counterSystem, {
               seed,
-              knobs: { ...knobs, clientCount: 2 },
-              converge: false,
-              actions: [],
+              clientCount: 2,
+              mildFaults: knobs.mildFaults === true,
             });
             const before = await run.observe(serverHash);
             await run.apply(domain, {
@@ -74,12 +76,9 @@ describe('room byzantine-wire PBT', () => {
               command: 'increment',
               args: {},
             });
-            await run.apply(passTime, 20);
-            await applyRoomAction(
-              run,
-              injectAction(kind, await run.observe(clock))
-            );
-            await run.apply(passTime, 10);
+            await run.elapse(20);
+            await injectByzantine(run, kind, await run.observe(clock));
+            await run.elapse(10);
             await expectConverged(run);
             await expectServerTruthRestored(run, before);
           }

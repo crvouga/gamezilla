@@ -9,14 +9,13 @@ import {
   disconnect,
   dispatch,
   hold,
-  passTime,
   type RoomApp,
   release,
-  scriptRoom,
   seed as seedOf,
   serverHash,
   serverState,
 } from '../../sim/scenario';
+import { openRoom } from '../scenario/open-room';
 import type {
   RoomCommand,
   RoomCommandPayload,
@@ -103,7 +102,7 @@ async function engineFuzz<
   const system = defineRoomSystem(conformanceApp(args.module), {
     name: 'room.conformance',
   });
-  await using run = await scriptRoom(system, {
+  await using run = await openRoom(system, {
     seed: args.seed,
     clientCount: 0,
     mildFaults: args.mildFaults ?? true,
@@ -129,10 +128,10 @@ async function engineFuzz<
     await run.apply(dispatch, { clientId: id, payload });
     if (step % 5 === 4) {
       await run.apply(hold, id);
-      await run.apply(passTime, 0);
+      await run.elapse(0);
       await run.apply(release, id);
     } else {
-      await run.apply(passTime, 0);
+      await run.elapse(0);
     }
   }
   for (const id of ids) {

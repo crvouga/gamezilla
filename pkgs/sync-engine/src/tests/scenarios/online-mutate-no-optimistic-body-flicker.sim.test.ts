@@ -8,7 +8,6 @@ import {
   expectLiveNoteAt,
   liveNotes,
   mutate,
-  passTime,
   setNote,
   syncVirtualHost,
 } from '../apps/acme';
@@ -34,8 +33,8 @@ describe('online mutate no optimistic body flicker', () => {
     });
 
     for (let i = 0; i < 8; i += 1) {
-      await run.apply(passTime, 25);
-      const notes = await run.observe(liveNotes('alice'));
+      await run.elapse(25);
+      const notes = await run.observe(liveNotes, 'alice');
       expect(notes.find((r) => r.id === 'n1')?.body).toBe('optimistic-final');
     }
 

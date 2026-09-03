@@ -9,7 +9,6 @@ import {
   expectConverged,
   liveSpace,
   mutate,
-  passTime,
   SPACE_MEMBERSHIP_SESSION,
   syncVirtualHost,
 } from '../apps/acme';
@@ -44,8 +43,8 @@ describe('same actor open session stays device private', () => {
       sessionQuery: SPACE_MEMBERSHIP_SESSION,
     });
 
-    expect(await run.observe(deviceId('phone'))).not.toBe(
-      await run.observe(deviceId('tablet'))
+    expect(await run.observe(deviceId, 'phone')).not.toBe(
+      await run.observe(deviceId, 'tablet')
     );
 
     await run.apply(mutate, 'phone', createSpace, {
@@ -53,14 +52,14 @@ describe('same actor open session stays device private', () => {
       title: 'Private open',
     });
     await expectConverged(run);
-    await run.apply(passTime, 200);
+    await run.elapse(200);
 
     await expectOpenSessionAt(run, 'phone', 'room-1');
     await expectNoForeignOpenSessionsAt(run, 'tablet');
 
-    expect(await run.observe(liveOpenSessions('tablet'))).toEqual([]);
+    expect(await run.observe(liveOpenSessions, 'tablet')).toEqual([]);
 
-    const tabletSpace = await run.observe(liveSpace('tablet', 'room-1'));
+    const tabletSpace = await run.observe(liveSpace, 'tablet', 'room-1');
     expect(tabletSpace).not.toBeNull();
     expect(tabletSpace?.deletedAt).toBeNull();
   });

@@ -1,39 +1,50 @@
 import type { Host, Ports, Session } from '../host/types';
 import { virtualHost } from '../host/virtual-host';
-import type { JsonValue } from '../kernel/json';
 import type { Rng } from '../kernel/rng';
 import type { System } from '../system/define-system';
-import type {
-  Action,
-  BoundObservation,
-  Observation,
-  Property,
-} from '../system/effect';
+import type { Action, CatalogProperty, Property, Read } from '../system/effect';
 import type { Choice } from '../system/repro';
 import {
-  applyWithArgs,
+  assertProperty,
+  bootMonitors,
   checkpoint,
   closeMonitors,
   type MonitorState,
+  observeRead,
   PropertyViolation,
   resumeMonitors,
   type Transition,
 } from './checkpoint';
-import { type DriveContext, drive, resolveObservation } from './drive';
-import { ActionNotEnabled, finishProbed, probe } from './probe';
+import { memoRead, popMemoFrame, pushMemoFrame } from './memo';
+import { ActionNotEnabled, probe } from './probe';
 
 export type Run<S> = {
   readonly apply: <A extends unknown[]>(
     action: Action<S, A>,
     ...args: A
   ) => Promise<void>;
-  readonly observe: <T extends JsonValue>(
-    o:
-      | Observation<S, [], T>
-      | BoundObservation<S, T>
-      | Observation<S, unknown[], T>
+  readonly observe: <T, A extends unknown[]>(
+    read: Read<S, A, T>,
+    ...args: A
   ) => Promise<T>;
   readonly assert: (p: Property<S>) => Promise<void>;
+  readonly elapse: (ms: number) => Promise<void>;
+  readonly until: <T>(
+    read: Read<S, [], T>,
+    opts?: {
+      readonly maxMs?: number;
+      readonly stepMs?: number;
+      readonly pred?: (t: T) => boolean;
+    }
+  ) => Promise<T>;
+  readonly never: <T>(
+    read: Read<S, [], T>,
+    opts: {
+      readonly forMs: number;
+      readonly stepMs?: number;
+      readonly pred?: (t: T) => boolean;
+    }
+  ) => Promise<void>;
   readonly [Symbol.asyncDispose]: () => Promise<void>;
 };
 
@@ -42,15 +53,12 @@ export type RunInternal<S> = {
   readonly surface: S;
   readonly session: Session;
   readonly systemName: string;
-  readonly systemDraws: readonly number[];
   readonly knobs: unknown;
-  readonly memo: Map<string, JsonValue>;
   readonly monitors: MonitorState[];
   readonly transitions: Transition[];
   readonly choices: Choice[];
   rng: Rng;
   step: number;
-  readonly ctx: () => DriveContext<S>;
 };
 
 const runInternals = new WeakMap<object, RunInternal<unknown>>();
@@ -71,93 +79,37 @@ type KnobsOption<K> = [K] extends [void]
 export type ScriptOptions<S, K = void> = {
   readonly seed: number | bigint | string;
   readonly host?: Host<Ports>;
-  readonly properties?: readonly Property<S>[];
+  readonly properties?: readonly CatalogProperty<S>[];
 } & KnobsOption<K>;
 
-function recordingRng(base: Rng, buf: number[]): Rng {
-  const wrap = (r: Rng): Rng => ({
-    next() {
-      const v = r.next();
-      buf.push(v);
-      return v;
-    },
-    fork(name) {
-      return wrap(r.fork(name));
-    },
-  });
-  return wrap(base);
-}
+const ELAPSE_ACTION = 'elapse';
 
-async function bootMonitors(monitors: MonitorState[]): Promise<void> {
-  for (const m of monitors) {
-    try {
-      const r =
-        Symbol.asyncIterator in Object(m.body)
-          ? await (m.body as AsyncGenerator<unknown, void, unknown>).next()
-          : (m.body as Generator<unknown, void, unknown>).next();
-      if (!r.done) {
-        m.pending = r.value as MonitorState['pending'];
-      } else {
-        // Restart immediately so empty-first-yield still watches next checkpoint.
-        m.body = m.property.watch() as MonitorState['body'];
-        const again =
-          Symbol.asyncIterator in Object(m.body)
-            ? await (m.body as AsyncGenerator<unknown, void, unknown>).next()
-            : (m.body as Generator<unknown, void, unknown>).next();
-        if (!again.done) {
-          m.pending = again.value as MonitorState['pending'];
-        } else {
-          m.pending = null;
-        }
-      }
-    } catch (e) {
-      throw new PropertyViolation(m.property.name, 0, e);
-    }
-  }
-}
-
-async function assertOnce<S>(
-  p: Property<S>,
-  ctx: DriveContext<S>,
-  step: number
+async function runCheckpoint<S>(
+  internal: RunInternal<S>,
+  actionName: string,
+  applyArgs: readonly unknown[],
+  act: (s: S, ...a: unknown[]) => unknown | Promise<unknown>
 ): Promise<void> {
-  const body = p.watch();
-  try {
-    const first =
-      Symbol.asyncIterator in Object(body)
-        ? await (body as AsyncGenerator<unknown, void, unknown>).next()
-        : (body as Generator<unknown, void, unknown>).next();
-    if (first.done) return;
-    const obs = first.value as
-      | Observation<S, unknown[], JsonValue>
-      | BoundObservation<S, JsonValue>;
-    const value = await resolveObservation(obs, ctx);
-    if (Symbol.asyncIterator in Object(body)) {
-      await (body as AsyncGenerator<unknown, void, unknown>).next(value);
-    } else {
-      (body as Generator<unknown, void, unknown>).next(value);
-    }
-    await closeMonitors([
-      {
-        property: p as Property<unknown>,
-        body: body as MonitorState['body'],
-        pending: null,
-        closed: false,
-      },
-    ]);
-  } catch (e) {
-    if (e instanceof PropertyViolation) throw e;
-    throw new PropertyViolation(p.name, step, e);
-  }
+  internal.step += 1;
+  const result = await checkpoint({
+    actionName,
+    applyArgs,
+    act,
+    surface: internal.surface,
+    settle: () => internal.session.settle(),
+    monitors: internal.monitors,
+    t: internal.step,
+  });
+  internal.transitions.push(result.transition);
+  internal.choices.push(result.choice);
+  if (result.violations.length > 0) throw result.violations[0]!;
 }
 
 function buildRun<S>(args: {
   readonly surface: S;
   readonly session: Session;
   readonly system: System<S, unknown>;
-  readonly systemDraws: number[];
   readonly knobs: unknown;
-  readonly memo: Map<string, JsonValue>;
   readonly monitors: MonitorState[];
   readonly actionRng: Rng;
 }): Run<S> {
@@ -167,66 +119,77 @@ function buildRun<S>(args: {
     surface: args.surface,
     session: args.session,
     systemName: args.system.name,
-    systemDraws: args.systemDraws,
     knobs: args.knobs,
-    memo: args.memo,
     monitors: args.monitors,
     transitions,
     choices,
     rng: args.actionRng,
     step: 0,
-    ctx: () => ({
-      surface: args.surface,
-      session: args.session,
-      memo: args.memo,
-      rng: internal.rng,
-    }),
   };
 
   const run: Run<S> = {
     async apply(action, ...applyArgs) {
-      const ctx = internal.ctx();
-      internal.step += 1;
-      const t = internal.step;
-      const result =
-        applyArgs.length > 0
-          ? await applyWithArgs({
-              action: action as Action<S, unknown[]>,
-              applyArgs,
-              ctx,
-              monitors: args.monitors,
-              t,
-            })
-          : await (async () => {
-              const probed = await probe(
-                action as Action<S, unknown[]>,
-                ctx,
-                internal.rng.fork(`step:${t}`),
-                []
-              );
-              if (!probed.enabled) throw new ActionNotEnabled(action.name);
-              return checkpoint({
-                action: action as Action<S, unknown[]>,
-                probed,
-                ctx,
-                monitors: args.monitors,
-                t,
-              });
-            })();
-      transitions.push(result.transition);
-      choices.push(result.choice);
-      if (result.violations.length > 0) throw result.violations[0]!;
+      pushMemoFrame();
+      let enabled: boolean;
+      try {
+        const probed = await probe(
+          action as Action<S, unknown[]>,
+          args.surface
+        );
+        enabled = probed.enabled;
+      } finally {
+        popMemoFrame();
+      }
+      if (!enabled) throw new ActionNotEnabled(action.name);
+      await runCheckpoint(internal, action.name, applyArgs, (s, ...a) =>
+        (action as Action<S, unknown[]>).act(s, ...(a as never[]))
+      );
     },
-    async observe(o) {
-      return (await resolveObservation(
-        o as
-          | Observation<S, unknown[], JsonValue>
-          | BoundObservation<S, JsonValue>,
-        internal.ctx()
-      )) as never;
+    async observe(read, ...observeArgs) {
+      pushMemoFrame();
+      try {
+        return await observeRead(read, args.surface, observeArgs);
+      } finally {
+        popMemoFrame();
+      }
     },
     async assert(p) {
-      await assertOnce(p, internal.ctx(), internal.step);
+      await assertProperty(p, args.surface, internal.step);
+    },
+    async elapse(ms) {
+      await runCheckpoint(internal, ELAPSE_ACTION, [ms], async () => {
+        await args.session.elapse(ms);
+      });
+    },
+    async until(read, opts) {
+      const maxMs = opts?.maxMs ?? 5_000;
+      const stepMs = opts?.stepMs ?? 50;
+      const pred = opts?.pred ?? ((t: unknown) => Boolean(t));
+      let waited = 0;
+      for (;;) {
+        const value = await run.observe(read);
+        if (pred(value)) return value;
+        if (waited >= maxMs) {
+          throw new Error(`until: predicate not met within ${String(maxMs)}ms`);
+        }
+        await run.elapse(stepMs);
+        waited += stepMs;
+      }
+    },
+    async never(read, opts) {
+      const stepMs = opts.stepMs ?? 50;
+      const pred = opts.pred ?? ((t: unknown) => Boolean(t));
+      let waited = 0;
+      while (waited < opts.forMs) {
+        const value = await run.observe(read);
+        if (pred(value)) {
+          throw new Error(
+            `never: predicate became true at ${String(waited)}ms`
+          );
+        }
+        await run.elapse(stepMs);
+        waited += stepMs;
+      }
     },
     async [Symbol.asyncDispose]() {
       const endViolations = await closeMonitors(args.monitors);
@@ -244,53 +207,30 @@ export async function script<S, K = void>(
 ): Promise<Run<S>> {
   const host = opts.host ?? virtualHost();
   const session = await host.open(opts.seed);
-  const systemDraws: number[] = [];
-  const memo = new Map<string, JsonValue>();
   const knobs = ('knobs' in opts ? opts.knobs : undefined) as K;
-  const genCtx: DriveContext<S> = {
-    surface: null as unknown as S,
-    session,
-    memo,
-    rng: recordingRng(session.ports.rng.fork('system'), systemDraws),
-    recordDraws: systemDraws,
-  };
+  const surface = (await system.generate(session, knobs as K)) as S;
 
-  const surface = (await drive(
-    system.generate(session, knobs as K) as never,
-    'generate',
-    genCtx
-  )) as S;
-
-  const monitors: MonitorState[] = (opts.properties ?? []).map((p) => ({
-    property: p as Property<unknown>,
-    body: p.watch() as MonitorState['body'],
-    pending: null,
-    closed: false,
-  }));
-
-  await bootMonitors(monitors);
-  const v0 = await resumeMonitors(
-    monitors,
-    {
-      surface,
-      session,
-      memo,
-      rng: session.ports.rng.fork('actions'),
-    } as DriveContext<unknown>,
-    0
-  );
-  if (v0.length > 0) throw v0[0]!;
+  pushMemoFrame();
+  let monitors: MonitorState[];
+  try {
+    monitors = await bootMonitors(
+      (opts.properties ?? []) as readonly Property<unknown>[],
+      surface
+    );
+    const v0 = await resumeMonitors(monitors, surface, 0);
+    if (v0.length > 0) throw v0[0]!;
+  } finally {
+    popMemoFrame();
+  }
 
   return buildRun({
     surface,
     session,
     system: system as System<S, unknown>,
-    systemDraws,
     knobs,
-    memo,
     monitors,
     actionRng: session.ports.rng.fork('actions'),
   });
 }
 
-export { ActionNotEnabled, finishProbed, PropertyViolation, probe };
+export { ActionNotEnabled, memoRead, PropertyViolation };

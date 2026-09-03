@@ -4,10 +4,9 @@ import {
   clock,
   dispatch,
   hold,
-  passTime,
   release,
-  scriptRoom,
 } from '../../sim/scenario';
+import { openRoom } from '../scenario/open-room';
 import { deadlineSystem } from '../apps/deadline/system';
 import { expectConverged } from '../expect-converged';
 import {
@@ -24,7 +23,7 @@ import {
 
 describe('kit: deadline vs action (M-F07)', () => {
   test('partitioned lagging client cannot win after deadline', async () => {
-    await using run = await scriptRoom(deadlineSystem, {
+    await using run = await openRoom(deadlineSystem, {
       startTime: 5_000,
     });
     await run.apply(addClient, { id: 'alice' });
@@ -38,7 +37,7 @@ describe('kit: deadline vs action (M-F07)', () => {
     const dl = deadlineAt(await readServer(run));
 
     await run.apply(hold, 'bob');
-    await run.apply(passTime, 80);
+    await run.elapse(80);
     expect(await run.observe(clock)).toBeGreaterThanOrEqual(dl);
     await run.apply(dispatch, {
       clientId: 'bob',

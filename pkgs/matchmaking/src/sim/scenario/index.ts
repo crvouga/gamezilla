@@ -13,8 +13,6 @@ export {
   joinsDuringTick,
   leave,
   MATCHMAKING_ACTIONS,
-  passTime,
-  randomPassTime,
   ready,
   stepTime,
   type TickSpec,
@@ -36,8 +34,6 @@ export {
   type MatchmakingSystemDef,
   matchmaking,
   matchmakingKnobs,
-  type ScriptMatchmakingArgs,
-  scriptMatchmaking,
 } from './define-matchmaking-system';
 export { SIM_AUTH_HEADER, SIM_AUTH_HEADERS, simRequireAuth } from './http';
 export { startReplica, startStore } from './node-kinds';

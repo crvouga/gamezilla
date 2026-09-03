@@ -1,11 +1,11 @@
 /**
  * A {@link Driver} whose every step is a {@link Run} step: mutations are
- * `run.apply` checkpoints, waits are `untilObserved` + `passTime`, reads are
+ * `run.apply` checkpoints, waits are `run.until` / `run.elapse`, reads are
  * `run.observe`. Nothing here touches the product surface — that is the
  * scenario system's job.
  */
 
-import { type Run, untilObserved } from '@pkgs/dst';
+import type { Run } from '@pkgs/dst';
 import type {
   AssertionOptions,
   Driver,
@@ -20,7 +20,7 @@ import type {
 } from '@pkgs/ui-testing';
 import { isWaitTextCondition } from '@pkgs/ui-testing';
 
-import { passTime, type UiOp, uiOp } from '../scenario/actions';
+import { type UiOp, uiOp } from '../scenario/actions';
 import {
   actorHtml,
   nodeLayout,
@@ -53,7 +53,7 @@ async function waitVisible(
   path: readonly string[],
   options?: DriverWaitOptions
 ): Promise<void> {
-  await untilObserved(run, visible(actorId, path), passTime, {
+  await run.until((s) => visible(s, actorId, path), {
     stepMs: UI_STEP_MS,
     maxMs: maxMsOf(options),
   });
@@ -65,7 +65,7 @@ async function waitHidden(
   path: readonly string[],
   options?: DriverWaitOptions
 ): Promise<void> {
-  await untilObserved(run, visible(actorId, path), passTime, {
+  await run.until((s) => visible(s, actorId, path), {
     stepMs: UI_STEP_MS,
     maxMs: maxMsOf(options),
     pred: (v) => v === false,
@@ -80,7 +80,7 @@ async function waitText(args: {
   readonly exact: boolean;
   readonly options?: DriverWaitOptions;
 }): Promise<void> {
-  await untilObserved(args.run, nodeText(args.actorId, args.path), passTime, {
+  await args.run.until((s) => nodeText(s, args.actorId, args.path), {
     stepMs: UI_STEP_MS,
     maxMs: maxMsOf(args.options),
     pred: (v) => {
@@ -157,7 +157,7 @@ function wrapNode(
         toX: to.xRatio,
         toY: to.yRatio,
       }),
-    layout: () => run.observe(nodeLayout(actorId, path)),
+    layout: () => run.observe(nodeLayout, actorId, path),
     input: (text, options) => op('input', extraOf(options, { text })),
     clear: () => op('clear', {}),
     key: (key: DriverKey) => op('key', { key }),
@@ -178,8 +178,8 @@ function wrapNode(
         ...(options !== undefined ? { options } : {}),
       }),
     expect: nodeExpect(run, actorId, path),
-    isVisible: () => run.observe(visible(actorId, path)),
-    text: () => run.observe(nodeText(actorId, path)),
+    isVisible: () => run.observe(visible, actorId, path),
+    text: () => run.observe(nodeText, actorId, path),
   };
 }
 
@@ -196,6 +196,6 @@ export function createRunDriver(run: ProductRun, actorId: string): Driver {
     key: (key) =>
       run.apply(uiOp, { actorId, op: 'key', path: [], extra: { key } }),
     snapshotHtml: (options) =>
-      run.observe(actorHtml(actorId, options?.stylesheetHref)),
+      run.observe(actorHtml, actorId, options?.stylesheetHref),
   };
 }

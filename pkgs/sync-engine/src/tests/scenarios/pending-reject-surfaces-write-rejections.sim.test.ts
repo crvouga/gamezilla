@@ -39,16 +39,16 @@ describe('pending reject surfaces write rejections', () => {
       id: 'n1',
       body: 'bad-optimistic',
     });
-    const mutationId = await run.observe(lastMutationId('alice'));
+    const mutationId = await run.observe(lastMutationId, 'alice');
     expect(mutationId).not.toBeNull();
     if (mutationId === null) return;
     await expectLiveNoteAt(run, 'alice', 'n1', { body: 'bad-optimistic' });
 
     await run.apply(connect, 'alice');
-    await untilAcme(run, outcome('alice', mutationId));
-    expect(await run.observe(outcome('alice', mutationId))).toBe('rejected');
+    await untilAcme(run, (s) => outcome(s, 'alice', mutationId));
+    expect(await run.observe(outcome, 'alice', mutationId)).toBe('rejected');
 
-    const unacked = await run.observe(rejections('alice'));
+    const unacked = await run.observe(rejections, 'alice');
     expect(unacked.length).toBe(1);
     expect(unacked[0]?.code).toBe('FORBIDDEN');
     expect(unacked[0]?.mutationId).toBe(mutationId);

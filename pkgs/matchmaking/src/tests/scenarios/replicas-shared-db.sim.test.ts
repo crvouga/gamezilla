@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
+import { script } from '@pkgs/dst';
 import type { TickResult } from '../../interface/matchmaking';
 import type {
   DistanceFormula,
@@ -15,11 +16,13 @@ import {
   participantIds,
   ready,
   replicaIds,
-  scriptMatchmaking,
   statusById,
   statusOf,
   tick,
   updateFormulas,
+  matchmaking,
+  matchmakingKnobs,
+  MATCHMAKING_PROPERTIES,
 } from '../../sim/scenario';
 import {
   assertStatusAgreesAcrossReplicas,
@@ -42,7 +45,11 @@ describe('matchmaking sim: replicas share one DB', () => {
   });
 
   test('join r0 / status r1 / leave r2 see the same store', async () => {
-    await using run = await scriptMatchmaking({ seed: 200, replicas: 3 });
+    await using run = await script(matchmaking, {
+      seed: 200,
+      knobs: matchmakingKnobs({ replicas: 3 }),
+      properties: MATCHMAKING_PROPERTIES,
+    });
     await run.apply(join, {
       ref: 'p',
       input: { data: RatingAttr(1000), formulas: [SimpleFormula] },
@@ -53,12 +60,16 @@ describe('matchmaking sim: replicas share one DB', () => {
     expect(seen?.status).toBe('waiting');
     await run.apply(leave, { ref: 'p', replicaId: 'r2' });
     expect(((await run.observe(lastLeave)) as LeaveResult).removed).toBe(true);
-    expect(await run.observe(statusById(participantId, 'r0'))).toBeNull();
-    expect(await run.observe(statusById(participantId, 'r1'))).toBeNull();
+    expect(await run.observe(statusById, participantId, 'r0')).toBeNull();
+    expect(await run.observe(statusById, participantId, 'r1')).toBeNull();
   });
 
   test('updateFormulas on a different replica than join', async () => {
-    await using run = await scriptMatchmaking({ seed: 201, replicas: 2 });
+    await using run = await script(matchmaking, {
+      seed: 201,
+      knobs: matchmakingKnobs({ replicas: 2 }),
+      properties: MATCHMAKING_PROPERTIES,
+    });
     const open: DistanceFormula = {
       numeric: [{ tag: RatingAttr, weight: 1 }],
       radius: { baseRadius: 200, radiusGrowthPerSecond: 0, maxRadius: 200 },
@@ -90,12 +101,16 @@ describe('matchmaking sim: replicas share one DB', () => {
     await run.apply(tick, { opts: onePass, replicaId: 'r1' });
     expect(((await run.observe(lastTick)) as TickResult).matches).toBe(1);
     expect(
-      ((await run.observe(statusOf('a', 'r0'))) as StatusResult).status
+      ((await run.observe(statusOf, 'a', 'r0')) as StatusResult).status
     ).toBe('matched');
   });
 
   test('ready() is idempotent on every replica', async () => {
-    await using run = await scriptMatchmaking({ seed: 202, replicas: 3 });
+    await using run = await script(matchmaking, {
+      seed: 202,
+      knobs: matchmakingKnobs({ replicas: 3 }),
+      properties: MATCHMAKING_PROPERTIES,
+    });
     for (const replicaId of await run.observe(replicaIds)) {
       await run.apply(ready, { replicaId });
       await run.apply(ready, { replicaId });

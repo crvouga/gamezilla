@@ -9,7 +9,6 @@ import {
   httpFault,
   lastMutationOk,
   mutate,
-  passTime,
   pendingEventCount,
   schedulerQuiescent,
   setNote,
@@ -35,10 +34,10 @@ describe('invalid batch 400 no retry storm', () => {
         id: 'n1',
         body: 'after-invalid',
       });
-      expect(await run.observe(lastMutationOk('alice'))).toBe(true);
+      expect(await run.observe(lastMutationOk, 'alice')).toBe(true);
 
       // Error path uses backoff — scheduler should not hot-loop.
-      await run.apply(passTime, 500);
+      await run.elapse(500);
       expect(await run.observe(pendingEventCount)).toBeLessThan(50);
 
       // `converge` clears boundary faults before healing and settling.

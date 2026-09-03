@@ -47,13 +47,13 @@ describe('set note v1 v2 interleaved converge', () => {
     });
     await expectConverged(run);
 
-    expect(await run.observe(liveNote('alice', 'only-a'))).toMatchObject({
+    expect(await run.observe(liveNote, 'alice', 'only-a')).toMatchObject({
       body: 'from-v1',
     });
-    expect(await run.observe(liveNote('bob', 'only-b'))).toMatchObject({
+    expect(await run.observe(liveNote, 'bob', 'only-b')).toMatchObject({
       body: 'from-v2',
     });
-    const shared = (await run.observe(liveNotes('server'))).find(
+    const shared = (await run.observe(liveNotes, 'server')).find(
       (r) => r.id === 'shared'
     );
     expect(shared?.body === 'v1-a' || shared?.body === 'v2-b').toBe(true);
@@ -83,13 +83,13 @@ describe('set note v1 v2 interleaved converge', () => {
     });
     await expectConverged(run);
 
-    expect(await run.observe(liveNote('alice', 'from-old'))).toMatchObject({
+    expect(await run.observe(liveNote, 'alice', 'from-old')).toMatchObject({
       body: 'v1-only-client',
     });
-    expect(await run.observe(liveNote('alice', 'from-new'))).toMatchObject({
+    expect(await run.observe(liveNote, 'alice', 'from-new')).toMatchObject({
       body: 'v2-peer',
     });
-    expect(await run.observe(liveNote('bob', 'from-old'))).toMatchObject({
+    expect(await run.observe(liveNote, 'bob', 'from-old')).toMatchObject({
       body: 'v1-only-client',
     });
   });

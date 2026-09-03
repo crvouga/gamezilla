@@ -1,4 +1,4 @@
-import type { VirtualScheduler } from '@pkgs/dst/kernel';
+import type { VirtualScheduler } from '@pkgs/dst';
 
 import type { InMemoryClientStorage } from '../client/adapters/storage/memory';
 import type { RoomClient } from '../client/core/room-client';

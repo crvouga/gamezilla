@@ -12,7 +12,6 @@ import {
   expectConverged,
   hold,
   mutate,
-  passTime,
   playActions,
   release,
   setNote,
@@ -46,7 +45,7 @@ describe('live loss dup reorder still converges', () => {
 
     await run.apply(playActions, liveFaults('bob', { dropProbability: 1 }));
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'lost-live' });
-    await run.apply(passTime, 80);
+    await run.elapse(80);
 
     await run.apply(release, 'bob', 'live');
     await run.apply(disconnect, 'bob');
@@ -126,7 +125,7 @@ describe('live loss dup reorder still converges', () => {
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'one' });
     await run.apply(mutate, 'bob', setNote, { id: 'n2', body: 'two' });
     await run.apply(mutate, 'alice', setNote, { id: 'n3', body: 'three' });
-    await run.apply(passTime, 200);
+    await run.elapse(200);
 
     await run.apply(release, 'alice', 'live');
     await run.apply(release, 'bob', 'live');
@@ -150,7 +149,7 @@ describe('live loss dup reorder still converges', () => {
     await run.apply(playActions, liveFaults('bob', { dropProbability: 1 }));
     await run.apply(hold, 'bob', 'sync');
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'held' });
-    await run.apply(passTime, 60);
+    await run.elapse(60);
 
     await run.apply(release, 'bob', 'live');
     await run.apply(release, 'bob', 'sync');

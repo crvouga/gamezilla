@@ -37,7 +37,7 @@ describe('epoch bump mid offline session then drain', () => {
         id: 'n1',
         body: 'mid-offline',
       });
-      await neverAcme(run, liveNote('server', 'n1'), { forMs: 50 });
+      await neverAcme(run, (s) => liveNote(s, 'server', 'n1'), { forMs: 50 });
 
       // Restart applies epoch wipe on preserved DB; engine reconnects for
       // session sync (sim always boots online). Pending durable uploads drain.
@@ -48,7 +48,7 @@ describe('epoch bump mid offline session then drain', () => {
       await expectConverged(run);
 
       await expectLiveNoteAt(run, 'alice', 'n1', { body: 'mid-offline' });
-      expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+      expect(await run.observe(liveNote, 'bob', 'n1')).toMatchObject({
         body: 'mid-offline',
       });
     }

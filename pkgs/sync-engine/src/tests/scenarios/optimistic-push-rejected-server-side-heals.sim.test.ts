@@ -9,7 +9,6 @@ import {
   lastMutationId,
   mutate,
   outcome,
-  passTime,
   rejections,
   release,
   serverRejectNote,
@@ -41,16 +40,16 @@ describe('optimistic push rejected server side heals', () => {
       id: 'n1',
       body: 'bad-optimistic',
     });
-    const mutationId = await run.observe(lastMutationId('alice'));
+    const mutationId = await run.observe(lastMutationId, 'alice');
     expect(mutationId).not.toBeNull();
     if (mutationId === null) return;
 
-    await run.apply(passTime, 300);
+    await run.elapse(300);
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'bad-optimistic' });
 
     await run.apply(release, 'alice', 'sync');
-    await untilAcme(run, outcome('alice', mutationId));
-    expect((await run.observe(rejections('alice'))).length).toBe(1);
+    await untilAcme(run, (s) => outcome(s, 'alice', mutationId));
+    expect((await run.observe(rejections, 'alice')).length).toBe(1);
 
     await run.apply(release, 'bob', 'sync');
     await run.apply(mutate, 'bob', setNote, { id: 'bump', body: 'x' });

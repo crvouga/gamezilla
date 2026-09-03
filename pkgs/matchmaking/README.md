@@ -53,7 +53,7 @@ const { participantId } = await mm.join({
 | `@pkgs/matchmaking/impl-sql` | `MatchmakingImplSql`, `MatchmakingDatabaseMigration` |
 | `@pkgs/matchmaking/wire` | `FormulaWire` types for HTTP / RPC |
 | `@pkgs/matchmaking/client` | `MatchmakingClient` |
-| `@pkgs/matchmaking/testing` | Framework sim (`matchmaking` system + actions / observations, `scriptMatchmaking`) + fixtures |
+| `@pkgs/matchmaking/testing` | Framework sim (`matchmaking` system + actions / reads, fixtures) |
 
 Anything outside these subpaths is internal.
 
@@ -76,18 +76,22 @@ pkgs/matchmaking/src/
 ```
 
 ```ts
+import { script } from '@pkgs/dst';
 import {
   join,
+  MATCHMAKING_PROPERTIES,
+  matchmaking,
+  matchmakingKnobs,
   RatingAttr,
-  scriptMatchmaking,
   statusOf,
   tickAllWith,
 } from '@pkgs/matchmaking/testing';
 
-await using run = await scriptMatchmaking({
+await using run = await script(matchmaking, {
   seed: 3,
-  replicas: 3,
-  // backend: 'postgres', // required for concurrent tickAll claim races
+  knobs: matchmakingKnobs({ replicas: 3 }),
+  // backend: 'postgres' via knobs — required for concurrent tickAll claim races
+  properties: MATCHMAKING_PROPERTIES,
 });
 
 await run.apply(join, {
@@ -99,14 +103,14 @@ await run.apply(join, {
   },
 });
 await run.apply(tickAllWith, { maxPassesPerPartition: 4 });
-expect(await run.observe(statusOf('a'))).not.toBeNull();
+expect(await run.observe(statusOf, 'a')).not.toBeNull();
 ```
 
 | Concept | API |
 |---------|-----|
-| Time | `passTime`; wait via `untilObserved` / `neverObserved` on `matched(...)` |
+| Time | `run.elapse`; radius waits via `stepTime` + `run.observe(matched, …)` |
 | Replicas | `addReplica`, `tick` / `tickAll` / `tickAllWith` actions |
-| Port | `join` / `leave` / `ready` / `updateFormulas` / `httpRequest` actions; `statusOf` / `statuses` / `lastTick` / `lastHttp` observations |
+| Port | `join` / `leave` / `ready` / `updateFormulas` / `httpRequest` actions; `statusOf` / `statuses` / `lastTick` / `lastHttp` reads |
 
 Scenarios assert only port observables — never SQL tables or claim
 columns. CI: `bun run --filter @pkgs/matchmaking test`.

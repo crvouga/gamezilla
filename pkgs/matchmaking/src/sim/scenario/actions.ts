@@ -1,12 +1,13 @@
-import { type Action, defineSurface, draw } from '@pkgs/dst';
+import type { Action } from '@pkgs/dst';
 import type { TickOptions } from '../../interface/matchmaking';
 import type { DistanceFormula, JoinInput } from '../../interface/types';
+import { matchmaking } from './define-matchmaking-system';
 import type { MatchmakingSurface } from './facade';
 import { SIM_AUTH_HEADERS, simRequireAuth } from './http';
-import { asJson, caps } from './observations';
+import { asJson } from './observations';
 import { mmOf, type ParticipantTarget, targetId } from './refs';
 
-const { defineAction } = defineSurface<MatchmakingSurface>();
+const { defineAction } = matchmaking;
 
 export type JoinSpec = {
   readonly ref: string;
@@ -21,25 +22,20 @@ async function joinInto(s: MatchmakingSurface, one: JoinSpec): Promise<void> {
 
 export const join = defineAction({
   name: 'join',
-  generate(one: JoinSpec) {
-    return (s) => joinInto(s, one);
-  },
+  act: (s, one: JoinSpec) => joinInto(s, one),
 });
 
 export const leave = defineAction({
   name: 'leave',
-  generate(target: ParticipantTarget) {
-    return async (s) => {
-      s.last.leave = await mmOf(s, target.replicaId).leave(targetId(s, target));
-    };
+  act: async (s, target: ParticipantTarget) => {
+    s.last.leave = await mmOf(s, target.replicaId).leave(targetId(s, target));
   },
 });
 
 export const ready = defineAction({
   name: 'ready',
-  generate(on: { readonly replicaId?: string }) {
-    return (s) => mmOf(s, on.replicaId).ready();
-  },
+  act: (s, on: { readonly replicaId?: string }) =>
+    mmOf(s, on.replicaId).ready(),
 });
 
 export type TickSpec = {
@@ -49,61 +45,35 @@ export type TickSpec = {
 
 export const tick = defineAction({
   name: 'tick',
-  generate(on: TickSpec) {
-    return async (s) => {
-      s.last.tick = await s.tick(on.opts, on.replicaId);
-    };
+  act: async (s, on: TickSpec) => {
+    s.last.tick = await s.tick(on.opts, on.replicaId);
   },
 });
 
 export const tickAll = defineAction({
   name: 'tickAll',
-  generate() {
-    return async (s) => {
-      s.last.tickAll = [...(await s.tickAll({ maxPassesPerPartition: 2 }))];
-    };
+  act: async (s) => {
+    s.last.tickAll = [...(await s.tickAll({ maxPassesPerPartition: 2 }))];
   },
 });
 
 /** Scripted variant of {@link tickAll} that takes tick options. */
 export const tickAllWith = defineAction({
   name: 'tickAllWith',
-  generate(opts: TickOptions) {
-    return async (s) => {
-      s.last.tickAll = [...(await s.tickAll(opts))];
-    };
-  },
-});
-
-/** Scripted / poll helper — `run.apply(passTime, 500)`. */
-export const passTime = defineAction({
-  name: 'passTime',
-  generate(ms: number) {
-    return (s) => s.advance(ms);
-  },
-});
-
-/** Random pool member — draws ms then delegates to typed {@link passTime}. */
-export const randomPassTime = defineAction({
-  name: 'randomPassTime',
-  *generate() {
-    if (!(yield* caps).includes('virtualTime')) return;
-    const ms = yield* draw((rng) => Math.floor(rng.next() * 5_000));
-    yield* passTime(ms);
+  act: async (s, opts: TickOptions) => {
+    s.last.tickAll = [...(await s.tickAll(opts))];
   },
 });
 
 /**
- * Advance virtual time and tick all replicas — use with `untilObserved` /
- * `neverObserved` when waiting on match status (radius growth needs ticks).
+ * Advance virtual time and tick all replicas — use between `run.observe(matched,
+ * …)` polls when radius growth needs ticks (plain `run.elapse` does not tick).
  */
 export const stepTime = defineAction({
   name: 'stepTime',
-  generate(ms: number) {
-    return async (s) => {
-      await s.advance(ms);
-      await s.tickAll({ maxPassesPerPartition: 4 });
-    };
+  act: async (s, ms: number) => {
+    await s.session.elapse(ms);
+    await s.tickAll({ maxPassesPerPartition: 4 });
   },
 });
 
@@ -113,22 +83,18 @@ export type UpdateFormulasSpec = ParticipantTarget & {
 
 export const updateFormulas = defineAction({
   name: 'updateFormulas',
-  generate(on: UpdateFormulasSpec) {
-    return async (s) => {
-      s.last.update = await mmOf(s, on.replicaId).updateFormulas(
-        targetId(s, on),
-        on.formulas
-      );
-    };
+  act: async (s, on: UpdateFormulasSpec) => {
+    s.last.update = await mmOf(s, on.replicaId).updateFormulas(
+      targetId(s, on),
+      on.formulas
+    );
   },
 });
 
 export const addReplica = defineAction({
   name: 'addReplica',
-  generate(on: { readonly id: string }) {
-    return async (s) => {
-      await s.addReplica(on.id);
-    };
+  act: async (s, on: { readonly id: string }) => {
+    await s.addReplica(on.id);
   },
 });
 
@@ -143,18 +109,16 @@ export type JoinsDuringTickSpec = {
 /** Race one replica's tick against joins landing on other replicas. */
 export const joinsDuringTick = defineAction({
   name: 'joinsDuringTick',
-  generate(plan: JoinsDuringTickSpec) {
-    return async (s) => {
-      await Promise.all([
-        s.replica(plan.tickReplicaId).tick(plan.tickOpts),
-        (async () => {
-          for (const one of plan.joins) {
-            await s.advance(plan.gapMs ?? 1);
-            await joinInto(s, one);
-          }
-        })(),
-      ]);
-    };
+  act: async (s, plan: JoinsDuringTickSpec) => {
+    await Promise.all([
+      s.replica(plan.tickReplicaId).tick(plan.tickOpts),
+      (async () => {
+        for (const one of plan.joins) {
+          await s.session.elapse(plan.gapMs ?? 1);
+          await joinInto(s, one);
+        }
+      })(),
+    ]);
   },
 });
 
@@ -188,23 +152,20 @@ async function readBody(res: Response): Promise<unknown> {
 
 export const httpRequest = defineAction({
   name: 'httpRequest',
-  generate(req: HttpSpec) {
-    return async (s) => {
-      const method = req.method ?? 'GET';
-      const res = await appFor(s, req.replicaId).request(req.path, {
-        method,
-        headers: {
-          ...(req.headers ?? SIM_AUTH_HEADERS),
-          ...(method === 'POST' ? { 'Content-Type': 'application/json' } : {}),
-        },
-        ...(method === 'POST' ? { body: JSON.stringify(req.body ?? {}) } : {}),
-      });
-      s.last.http = { status: res.status, body: asJson(await readBody(res)) };
-    };
+  act: async (s, req: HttpSpec) => {
+    const method = req.method ?? 'GET';
+    const res = await appFor(s, req.replicaId).request(req.path, {
+      method,
+      headers: {
+        ...(req.headers ?? SIM_AUTH_HEADERS),
+        ...(method === 'POST' ? { 'Content-Type': 'application/json' } : {}),
+      },
+      ...(method === 'POST' ? { body: JSON.stringify(req.body ?? {}) } : {}),
+    });
+    s.last.http = { status: res.status, body: asJson(await readBody(res)) };
   },
 });
 
 export const MATCHMAKING_ACTIONS: readonly Action<MatchmakingSurface, []>[] = [
   tickAll,
-  randomPassTime,
 ];

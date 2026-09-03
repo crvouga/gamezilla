@@ -8,7 +8,6 @@ import {
   heal,
   mutate,
   partition,
-  passTime,
   setNote,
   syncVirtualHost,
 } from '../apps/acme';
@@ -33,7 +32,7 @@ describe('sync partitioned while live delivers', () => {
       id: 'n1',
       body: 'sync-partitioned',
     });
-    await run.apply(passTime, 100);
+    await run.elapse(100);
 
     await run.apply(heal);
     await expectConverged(run);

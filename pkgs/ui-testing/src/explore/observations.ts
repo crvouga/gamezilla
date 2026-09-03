@@ -1,15 +1,16 @@
 import {
   type Action,
   defineAction,
-  defineObservation,
   defineProperty,
-  draw,
-  type JsonValue,
-  type Observation,
   type Property,
 } from '@pkgs/dst';
 import type { Driver } from '../driver/driver';
-import { EMPTY_INVENTORY, hasInventory, type Inventory } from './inventory';
+import {
+  EMPTY_INVENTORY,
+  hasInventory,
+  type Inventory,
+  type InventoryItem,
+} from './inventory';
 
 export type Actor<S> = (s: S) => Driver | null;
 
@@ -19,65 +20,65 @@ async function readInventory(driver: Driver | null): Promise<Inventory> {
   return driver.inventory();
 }
 
-export function inventory<S>(actor: Actor<S>): Observation<S, [], JsonValue> {
-  return defineObservation({
-    name: 'inventory',
-    observe: async (s) =>
-      (await readInventory(actor(s))) as unknown as JsonValue,
-  });
+export async function inventory<S>(
+  s: S,
+  actor: Actor<S>
+): Promise<Inventory> {
+  return readInventory(actor(s));
 }
 
-export function screen<S>(actor: Actor<S>): Observation<S, [], JsonValue> {
-  return defineObservation({
-    name: 'screen',
-    observe: async (s) => (await readInventory(actor(s))).screen,
-  });
+export async function screen<S>(
+  s: S,
+  actor: Actor<S>
+): Promise<string | null> {
+  return (await inventory(s, actor)).screen;
 }
 
-export function errors<S>(actor: Actor<S>): Observation<S, [], JsonValue> {
-  return defineObservation({
-    name: 'errors',
-    observe: async (s) => [...(await readInventory(actor(s))).errors],
-  });
+export async function errors<S>(
+  s: S,
+  actor: Actor<S>
+): Promise<readonly string[]> {
+  return [...(await inventory(s, actor)).errors];
 }
 
-export function tap<S>(actor: Actor<S>): Action<S> {
+export function tap<S>(actor: Actor<S>): Action<S, [InventoryItem]> {
   return defineAction({
     name: 'tap',
-    *generate() {
-      const inv = (yield* inventory(actor)) as unknown as Inventory;
-      if (inv.pressables.length === 0) return;
-      const target = yield* draw((rng) => {
+    enabled: async (s) => (await inventory(s, actor)).pressables.length > 0,
+    args: async (s) => {
+      const inv = await inventory(s, actor);
+      return (rng) => {
         const i = Math.floor(rng.next() * inv.pressables.length);
         return inv.pressables[i]!;
-      });
-      yield async (s: S) => {
-        const d = actor(s);
-        if (d === null) return;
-        await d.get(target.testId).tap();
       };
+    },
+    act: async (s, target: InventoryItem) => {
+      const d = actor(s);
+      if (d === null) return;
+      await d.get(target.testId).tap();
     },
   });
 }
 
-export function fill<S>(actor: Actor<S>): Action<S> {
+export function fill<S>(
+  actor: Actor<S>
+): Action<S, [InventoryItem, string]> {
   return defineAction({
     name: 'fill',
-    *generate() {
-      const inv = (yield* inventory(actor)) as unknown as Inventory;
-      if (inv.inputs.length === 0) return;
-      const target = yield* draw((rng) => {
+    enabled: async (s) => (await inventory(s, actor)).inputs.length > 0,
+    args: async (s) => {
+      const inv = await inventory(s, actor);
+      return (rng) => {
         const i = Math.floor(rng.next() * inv.inputs.length);
-        return inv.inputs[i]!;
-      });
-      const text = yield* draw(
-        (rng) => `t${Math.floor(rng.next() * 1_000_000)}`
-      );
-      yield async (s: S) => {
-        const d = actor(s);
-        if (d === null) return;
-        await d.get(target.testId).input(text);
+        const target = inv.inputs[i]!;
+        const text = `t${Math.floor(rng.next() * 1_000_000)}`;
+        return [target, text] as [InventoryItem, string];
       };
+    },
+    act: async (s, target: InventoryItem, text: string) => {
+      const d = actor(s);
+      if (d === null) return;
+      await d.get(target.testId).input(text);
     },
   });
 }
@@ -85,46 +86,44 @@ export function fill<S>(actor: Actor<S>): Action<S> {
 export function back<S>(actor: Actor<S>): Action<S> {
   return defineAction({
     name: 'back',
-    *generate() {
-      const inv = (yield* inventory(actor)) as unknown as Inventory;
-      if (!inv.canGoBack) return;
-      yield async (s: S) => {
-        const d = actor(s);
-        if (d === null) return;
-        await d.key('escape');
-      };
+    enabled: async (s) => (await inventory(s, actor)).canGoBack,
+    act: async (s) => {
+      const d = actor(s);
+      if (d === null) return;
+      await d.key('escape');
     },
   });
 }
 
-export function scroll<S>(actor: Actor<S>): Action<S> {
+const SCROLL_DIRS = ['up', 'down', 'left', 'right'] as const;
+
+export function scroll<S>(
+  actor: Actor<S>
+): Action<S, [(typeof SCROLL_DIRS)[number]]> {
   return defineAction({
     name: 'scroll',
-    *generate() {
-      const inv = (yield* inventory(actor)) as unknown as Inventory;
-      if (inv.pressables.length === 0 && inv.inputs.length === 0) return;
-      const dir = yield* draw(
-        (rng) =>
-          (['up', 'down', 'left', 'right'] as const)[
-            Math.floor(rng.next() * 4)
-          ]!
-      );
-      yield async (s: S) => {
-        const d = actor(s);
-        if (d === null) return;
-        const id = inv.pressables[0]?.testId ?? inv.inputs[0]?.testId;
-        if (id === undefined) return;
-        await d.get(id).scroll(dir);
-      };
+    enabled: async (s) => {
+      const inv = await inventory(s, actor);
+      return inv.pressables.length > 0 || inv.inputs.length > 0;
+    },
+    args: (_s) => (rng) =>
+      SCROLL_DIRS[Math.floor(rng.next() * SCROLL_DIRS.length)]!,
+    act: async (s, dir: (typeof SCROLL_DIRS)[number]) => {
+      const d = actor(s);
+      if (d === null) return;
+      const inv = await inventory(s, actor);
+      const id = inv.pressables[0]?.testId ?? inv.inputs[0]?.testId;
+      if (id === undefined) return;
+      await d.get(id).scroll(dir);
     },
   });
 }
 
-export function noErrorBoundary<S>(actor: Actor<S>): Property<S> {
+export function noErrorBoundary<S>(actor: Actor<S>): Property<S, void> {
   return defineProperty({
     name: 'noErrorBoundary',
-    *watch() {
-      const errs = (yield* errors(actor)) as string[];
+    check: async (s) => {
+      const errs = await errors(s, actor);
       const boundary = errs.filter((e) =>
         e.toLowerCase().includes('error boundary')
       );
@@ -135,11 +134,11 @@ export function noErrorBoundary<S>(actor: Actor<S>): Property<S> {
   });
 }
 
-export function noConsoleError<S>(actor: Actor<S>): Property<S> {
+export function noConsoleError<S>(actor: Actor<S>): Property<S, void> {
   return defineProperty({
     name: 'noConsoleError',
-    *watch() {
-      const errs = (yield* errors(actor)) as string[];
+    check: async (s) => {
+      const errs = await errors(s, actor);
       if (errs.length > 0) {
         throw new Error(errs.join('; '));
       }

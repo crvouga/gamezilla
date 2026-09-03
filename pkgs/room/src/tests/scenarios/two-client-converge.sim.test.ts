@@ -3,8 +3,8 @@ import {
   addClient,
   dispatch,
   rosterSize,
-  scriptRoom,
 } from '../../sim/scenario';
+import { openRoom } from '../scenario/open-room';
 import { counterSystem } from '../apps/counter/system';
 import { expectConverged } from '../expect-converged';
 import { counterValue, Increment } from '../fixtures/counter-module';
@@ -16,7 +16,7 @@ import {
 
 describe('room sim: two client converge', () => {
   test('mutual increments yield equal hashes and roster', async () => {
-    await using run = await scriptRoom(counterSystem, { seed: 2 });
+    await using run = await openRoom(counterSystem, { seed: 2 });
     await run.apply(addClient, { id: 'alice' });
     await run.apply(addClient, { id: 'bob' });
     await run.apply(dispatch, {

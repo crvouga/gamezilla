@@ -39,20 +39,20 @@ describe('reject mid chain later pendings still apply', () => {
       id: 'n1',
       body: 'bad-mid',
     });
-    const badId = await run.observe(lastMutationId('alice'));
+    const badId = await run.observe(lastMutationId, 'alice');
     await run.apply(mutate, 'alice', setNote, { id: 'n3', body: 'after' });
-    const okId = await run.observe(lastMutationId('alice'));
+    const okId = await run.observe(lastMutationId, 'alice');
     expect(badId).not.toBeNull();
     expect(okId).not.toBeNull();
     if (badId === null || okId === null) return;
 
     await run.apply(connect, 'alice');
-    await untilAcme(run, outcome('alice', badId));
-    await untilAcme(run, outcome('alice', okId));
-    expect(await run.observe(outcome('alice', badId))).toBe('rejected');
-    expect(await run.observe(outcome('alice', okId))).toBe('confirmed');
+    await untilAcme(run, (s) => outcome(s, 'alice', badId));
+    await untilAcme(run, (s) => outcome(s, 'alice', okId));
+    expect(await run.observe(outcome, 'alice', badId)).toBe('rejected');
+    expect(await run.observe(outcome, 'alice', okId)).toBe('confirmed');
 
-    const unacked = await run.observe(rejections('alice'));
+    const unacked = await run.observe(rejections, 'alice');
     expect(unacked.some((r) => r.mutationId === badId)).toBe(true);
 
     await run.apply(mutate, 'bob', setNote, { id: 'bump', body: 'x' });

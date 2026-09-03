@@ -1,4 +1,4 @@
-import type { VirtualScheduler } from '@pkgs/dst/kernel';
+import type { VirtualScheduler } from '@pkgs/dst';
 import { HttpNetworkError } from '@pkgs/http-client';
 import type { SimHttpRequestBody, SimHttpResponse } from './http-bridge-types';
 

@@ -6,7 +6,6 @@ import {
   addClient,
   expectConverged,
   mutate,
-  passTime,
   pendingEventCount,
   schedulerQuiescent,
   setFolder,
@@ -40,8 +39,8 @@ describe('scope churn no leaked timers or subscriptions', () => {
       folderId: 'f1',
       includeArchived: false,
     });
-    await run.apply(passTime, 200);
-    const baseline = [...(await run.observe(subscribedTopics('alice')))].sort();
+    await run.elapse(200);
+    const baseline = [...(await run.observe(subscribedTopics, 'alice'))].sort();
 
     for (let i = 0; i < 20; i += 1) {
       await run.apply(subscribe, 'alice', 'notesByFolder', {
@@ -50,8 +49,8 @@ describe('scope churn no leaked timers or subscriptions', () => {
       });
     }
 
-    await run.apply(passTime, 1_000);
-    expect([...(await run.observe(subscribedTopics('alice')))].sort()).toEqual(
+    await run.elapse(1_000);
+    expect([...(await run.observe(subscribedTopics, 'alice'))].sort()).toEqual(
       baseline
     );
     // No runaway timer storm: pending work stays bounded after churn.
@@ -71,14 +70,14 @@ describe('scope churn no leaked timers or subscriptions', () => {
 
       await run.apply(addClient, { id: 'alice' });
       const baseline = [
-        ...(await run.observe(subscribedTopics('alice'))),
+        ...(await run.observe(subscribedTopics, 'alice')),
       ].sort();
       for (let i = 0; i < 6; i += 1) {
         await run.apply(subscribe, 'alice', 'notesDenied', {});
       }
-      await run.apply(passTime, 500);
+      await run.elapse(500);
       expect(
-        [...(await run.observe(subscribedTopics('alice')))].sort()
+        [...(await run.observe(subscribedTopics, 'alice'))].sort()
       ).toEqual(baseline);
       const quiescent = await run.observe(schedulerQuiescent);
       const pending = await run.observe(pendingEventCount);

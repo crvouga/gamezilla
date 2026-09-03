@@ -41,7 +41,7 @@ describe('logout login same device no bleed', () => {
       id: 'a-pending',
       body: 'never-upload-as-b',
     });
-    await neverAcme(run, liveNote('server', 'a-pending'), {
+    await neverAcme(run, (s) => liveNote(s, 'server', 'a-pending'), {
       forMs: 50,
       pred: noteLive,
     });
@@ -49,21 +49,21 @@ describe('logout login same device no bleed', () => {
     // Logout: dispose without preserving local DB (fresh login DB).
     await run.apply(crash, 'phone');
     await run.apply(addClient, { id: 'phone', actorId: 'user-b' });
-    expect(await run.observe(deviceId('phone'))).toBe('device:phone');
-    expect(await run.observe(actorId('phone'))).toBe('user-b');
+    expect(await run.observe(deviceId, 'phone')).toBe('device:phone');
+    expect(await run.observe(actorId, 'phone')).toBe('user-b');
 
-    expect(await run.observe(liveNote('phone', 'a-pending'))).toBeNull();
+    expect(await run.observe(liveNote, 'phone', 'a-pending')).toBeNull();
     expect(
-      (await run.observe(liveNotes('phone'))).some((n) => n.id === 'a-pending')
+      (await run.observe(liveNotes, 'phone')).some((n) => n.id === 'a-pending')
     ).toBe(false);
 
     await run.apply(mutate, 'phone', setNote, { id: 'b-note', body: 'from-b' });
     await expectConverged(run);
-    expect(await run.observe(liveNote('phone', 'b-note'))).toMatchObject({
+    expect(await run.observe(liveNote, 'phone', 'b-note')).toMatchObject({
       body: 'from-b',
     });
-    expect(await run.observe(liveNote('server', 'a-pending'))).toBeNull();
-    expect(await run.observe(liveNote('server', 'a-uploaded'))).toMatchObject({
+    expect(await run.observe(liveNote, 'server', 'a-pending')).toBeNull();
+    expect(await run.observe(liveNote, 'server', 'a-uploaded')).toMatchObject({
       body: 'on-server',
     });
   });
@@ -87,7 +87,7 @@ describe('logout login same device no bleed', () => {
       await run.apply(crash, 'phone');
       await run.apply(addClient, { id: 'phone', actorId: 'carol' });
       expect(
-        await run.observe(liveNote('phone', `pending-${seed}`))
+        await run.observe(liveNote, 'phone', `pending-${seed}`)
       ).toBeNull();
       await run.apply(mutate, 'phone', setNote, {
         id: `ok-${seed}`,
@@ -95,7 +95,7 @@ describe('logout login same device no bleed', () => {
       });
       await expectConverged(run);
       expect(
-        await run.observe(liveNote('server', `pending-${seed}`))
+        await run.observe(liveNote, 'server', `pending-${seed}`)
       ).toBeNull();
     }
   );

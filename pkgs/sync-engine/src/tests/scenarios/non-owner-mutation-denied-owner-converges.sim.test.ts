@@ -33,16 +33,16 @@ describe('non owner mutation denied owner converges', () => {
     await expectConverged(run);
 
     await run.apply(mutate, 'bob', deleteNote, { id: 'n1' });
-    expect(await run.observe(lastMutationOk('bob'))).toBe(false);
-    expect(await run.observe(lastMutationFailures('bob'))).toContain(
+    expect(await run.observe(lastMutationOk, 'bob')).toBe(false);
+    expect(await run.observe(lastMutationFailures, 'bob')).toContain(
       'FORBIDDEN'
     );
 
     await expectConverged(run);
-    expect(await run.observe(liveNote('alice', 'n1'))).toMatchObject({
+    expect(await run.observe(liveNote, 'alice', 'n1')).toMatchObject({
       body: 'owned-by-alice',
     });
-    expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+    expect(await run.observe(liveNote, 'bob', 'n1')).toMatchObject({
       body: 'owned-by-alice',
     });
   });
@@ -60,10 +60,10 @@ describe('non owner mutation denied owner converges', () => {
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'x' });
     await expectConverged(run);
     await run.apply(mutate, 'alice', deleteNote, { id: 'n1' });
-    const okOk = await run.observe(lastMutationOk('alice'));
+    const okOk = await run.observe(lastMutationOk, 'alice');
     expect(okOk).toBe(true);
     await expectConverged(run);
-    expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+    expect(await run.observe(liveNote, 'bob', 'n1')).toMatchObject({
       deletedAt: expect.any(String),
     });
   });

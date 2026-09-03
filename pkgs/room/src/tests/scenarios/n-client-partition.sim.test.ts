@@ -3,7 +3,6 @@ import {
   clientHash,
   dispatch,
   hold,
-  passTime,
   release,
   serverHash,
 } from '../../sim/scenario';
@@ -21,7 +20,7 @@ describe('room sim: n-client partition (E-A07)', () => {
     await run.apply(hold, 'd');
     await run.apply(dispatch, { clientId: 'a', payload: Increment({}) });
     await run.apply(dispatch, { clientId: 'c', payload: Increment({}) });
-    await run.apply(passTime, 0);
+    await run.elapse(0);
     expect(counterValue(await readClient(run, 'b'))).toBe(0);
     expect(counterValue(await readClient(run, 'd'))).toBe(0);
     await run.apply(release, 'b');

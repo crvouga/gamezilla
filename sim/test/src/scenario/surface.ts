@@ -18,7 +18,7 @@ export type ProductRuntime = {
 
 /**
  * Results of actions whose outcome is only readable as data.
- * Written by an action, read back by the matching observation.
+ * Written by an action, read back by the matching read function.
  */
 export type ProductProbes = {
   oauthTokenLength: number | null;

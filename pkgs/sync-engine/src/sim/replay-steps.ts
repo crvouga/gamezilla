@@ -64,5 +64,5 @@ export async function settleKit(args: {
     args.surface.clients.get(id)?.foreground(true);
   }
   await args.surface.revive();
-  await args.surface.drainUntilConverged();
+  await args.surface.runtime.kit.drainUntilConverged();
 }

@@ -1,6 +1,6 @@
 /**
  * Pool actions for the account-switch scenario. `createSyncEnginePool` hands
- * back live `SyncEngine` objects, which no observation may return — so the
+ * back live `SyncEngine` objects, which no read may return — so the
  * identity comparison happens inside the action and the run only ever sees the
  * boolean verdict.
  */
@@ -10,7 +10,7 @@ import { defineSurface } from '@pkgs/dst';
 import type { SyncEnginePoolApi } from '../../../client/sync-engine-pool';
 import type { SyncSurface } from '../../../sim/scenario';
 
-const { defineAction, defineObservation } = defineSurface<SyncSurface>();
+const { defineAction } = defineSurface<SyncSurface>();
 
 /** One `getOrCreate` call: which identity, and which client owns the engine. */
 export type PoolActivation = {
@@ -48,19 +48,18 @@ function engineOf(s: SyncSurface, clientId: string) {
  */
 export const poolActivate = defineAction({
   name: 'poolActivate',
-  generate(pool: SyncEnginePoolApi, activation: PoolActivation) {
-    return {
-      weight: 1,
-      act: async (s: SyncSurface) => {
-        const engine = await pool.getOrCreate(activation.identity, async () =>
-          engineOf(s, activation.clientId)
-        );
-        verdicts(s).matched.set(
-          activation.identity,
-          engine === engineOf(s, activation.clientId)
-        );
-      },
-    };
+  act: async (
+    s,
+    pool: SyncEnginePoolApi,
+    activation: PoolActivation
+  ) => {
+    const engine = await pool.getOrCreate(activation.identity, async () =>
+      engineOf(s, activation.clientId)
+    );
+    verdicts(s).matched.set(
+      activation.identity,
+      engine === engineOf(s, activation.clientId)
+    );
   },
 });
 
@@ -70,48 +69,41 @@ export const poolActivate = defineAction({
  */
 export const poolActivateConcurrently = defineAction({
   name: 'poolActivateConcurrently',
-  generate(
+  act: async (
+    s,
     pool: SyncEnginePoolApi,
     activations: readonly PoolActivation[],
     delayMs: number
-  ) {
-    return {
-      weight: 1,
-      act: async (s: SyncSurface) => {
-        const bag = verdicts(s);
-        let inFlight = 0;
-        await Promise.all(
-          activations.map(async (activation) =>
-            pool.getOrCreate(activation.identity, async () => {
-              inFlight += 1;
-              if (inFlight > 1) bag.overlappingCreates += 1;
-              await s.advance(delayMs);
-              inFlight -= 1;
-              return engineOf(s, activation.clientId);
-            })
-          )
-        );
-        for (const activation of activations) {
-          const ready = pool.peekReady(activation.identity);
-          bag.matched.set(
-            activation.identity,
-            ready === null || ready === engineOf(s, activation.clientId)
-          );
-        }
-      },
-    };
+  ) => {
+    const bag = verdicts(s);
+    let inFlight = 0;
+    await Promise.all(
+      activations.map(async (activation) =>
+        pool.getOrCreate(activation.identity, async () => {
+          inFlight += 1;
+          if (inFlight > 1) bag.overlappingCreates += 1;
+          await s.advance(delayMs);
+          inFlight -= 1;
+          return engineOf(s, activation.clientId);
+        })
+      )
+    );
+    for (const activation of activations) {
+      const ready = pool.peekReady(activation.identity);
+      bag.matched.set(
+        activation.identity,
+        ready === null || ready === engineOf(s, activation.clientId)
+      );
+    }
   },
 });
 
 /** True when the pool handed back that client's own engine for an identity. */
-export const poolMatched = defineObservation({
-  name: 'poolMatched',
-  observe: (s, identity: string): boolean =>
-    verdicts(s).matched.get(identity) ?? false,
-});
+export function poolMatched(s: SyncSurface, identity: string): boolean {
+  return verdicts(s).matched.get(identity) ?? false;
+}
 
 /** How many creates ever ran concurrently — a serialized pool keeps this at 0. */
-export const poolOverlappingCreates = defineObservation({
-  name: 'poolOverlappingCreates',
-  observe: (s): number => verdicts(s).overlappingCreates,
-});
+export function poolOverlappingCreates(s: SyncSurface): number {
+  return verdicts(s).overlappingCreates;
+}

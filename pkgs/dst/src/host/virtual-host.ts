@@ -73,6 +73,8 @@ export function virtualHost(opts?: VirtualHostOptions): Host<Ports> {
   const faults: NetworkFaults = opts?.network ?? RELIABLE_NETWORK;
   const startTime = opts?.startTime ?? 0;
   const caps = new Set<Capability>(VIRTUAL_CAPS);
+  const settleOverride = opts?.settle;
+  const elapseOverride = opts?.elapse;
 
   return defineHost({
     caps,
@@ -97,6 +99,7 @@ export function virtualHost(opts?: VirtualHostOptions): Host<Ports> {
       );
 
       let disposed = false;
+      const disposeHooks: (() => void | Promise<void>)[] = [];
       const forks = new Map<string, Session<Ports>>();
 
       const makeSession = (name: string, rng: RngInternal): Session<Ports> => {
@@ -126,11 +129,26 @@ export function virtualHost(opts?: VirtualHostOptions): Host<Ports> {
             return child;
           },
           async settle() {
+            if (settleOverride !== undefined) {
+              await settleOverride(session);
+              return;
+            }
             await scheduler.settle();
+          },
+          async elapse(ms) {
+            if (elapseOverride !== undefined) {
+              await elapseOverride(session, ms);
+              return;
+            }
+            await scheduler.advance(ms);
+          },
+          onDispose(fn) {
+            disposeHooks.push(fn);
           },
           async dispose() {
             if (disposed) return;
             disposed = true;
+            for (const fn of disposeHooks) await fn();
             for (const s of forks.values()) s.ports.network.unlisten();
             scheduler.underlying.reset(startTime);
           },

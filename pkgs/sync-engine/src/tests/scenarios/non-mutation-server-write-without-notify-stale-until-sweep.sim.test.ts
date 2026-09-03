@@ -39,7 +39,7 @@ describe('non mutation server write without notify stale until sweep', () => {
     // No notify → no instant wake; reconcile tick heals below.
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'v1' });
 
-    await untilAcme(run, liveNote('bob', 'n1'), {
+    await untilAcme(run, (s) => liveNote(s, 'bob', 'n1'), {
       pred: noteBodyIs('v2-silent'),
     });
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'v2-silent' });
@@ -68,7 +68,7 @@ describe('non mutation server write without notify stale until sweep', () => {
         noteId: `n-${seed}`,
         body: 'new',
       });
-      await untilAcme(run, liveNote('bob', `n-${seed}`), {
+      await untilAcme(run, (s) => liveNote(s, 'bob', `n-${seed}`), {
         pred: noteBodyIs('new'),
       });
       await expectConverged(run);

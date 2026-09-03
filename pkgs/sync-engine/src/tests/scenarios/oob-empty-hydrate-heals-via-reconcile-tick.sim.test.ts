@@ -37,7 +37,7 @@ describe('oob empty hydrate heals via reconcile tick', () => {
     });
     await expectLiveNoteAt(run, 'server', 'n-seed', { body: 'seeded' });
 
-    await untilAcme(run, liveNote('alice', 'n-seed'), {
+    await untilAcme(run, (s) => liveNote(s, 'alice', 'n-seed'), {
       pred: noteBodyIs('seeded'),
     });
     await expectLiveNoteAt(run, 'alice', 'n-seed', { body: 'seeded' });
@@ -64,7 +64,7 @@ describe('oob empty hydrate heals via reconcile tick', () => {
     });
     await expectLiveNoteAt(run, 'server', 'n1', { body: 'v2-silent' });
 
-    await untilAcme(run, liveNote('bob', 'n1'), {
+    await untilAcme(run, (s) => liveNote(s, 'bob', 'n1'), {
       pred: noteBodyIs('v2-silent'),
     });
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'v2-silent' });

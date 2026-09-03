@@ -11,7 +11,6 @@ import {
   AUTH_ACTIONS,
   AUTH_PROPERTIES,
   type AuthKnobs,
-  advanceClock,
   arbAuthKnobs,
   auth,
   clientBearers,
@@ -79,8 +78,8 @@ describe('auth system / PBT', () => {
       expect(b0).not.toBeNull();
       expect(b1).not.toBeNull();
       expect(b0).not.toBe(b1);
-      const u0 = await run.observe(sessionUser(b0 as string));
-      const u1 = await run.observe(sessionUser(b1 as string));
+      const u0 = await run.observe(sessionUser, b0 as string);
+      const u1 = await run.observe(sessionUser, b1 as string);
       expect(u0?.externalUserId).toBe(u1?.externalUserId as string);
     }, 60_000);
 
@@ -89,9 +88,9 @@ describe('auth system / PBT', () => {
       await signIn(run, 'c0', IDP_PROVIDER_DEV, 'alice');
 
       const bearer = (await run.observe(clientBearers))['c0'] as string;
-      expect(await run.observe(sessionUser(bearer))).not.toBeNull();
-      await run.apply(advanceClock, AUTH_SESSION_TTL_MS + 1);
-      expect(await run.observe(sessionUser(bearer))).toBeNull();
+      expect(await run.observe(sessionUser, bearer)).not.toBeNull();
+      await run.elapse(AUTH_SESSION_TTL_MS + 1);
+      expect(await run.observe(sessionUser, bearer)).toBeNull();
     }, 60_000);
 
     test(`sign-out invalidates only that session (${fabric})`, async () => {
@@ -102,7 +101,7 @@ describe('auth system / PBT', () => {
       await run.apply(signOut, 'c0');
 
       expect((await run.observe(clientBearers))['c0']).toBeNull();
-      expect(await run.observe(sessionUser(b1))).not.toBeNull();
+      expect(await run.observe(sessionUser, b1)).not.toBeNull();
     }, 60_000);
 
     test(`google oauth happy path (${fabric})`, async () => {
@@ -111,7 +110,7 @@ describe('auth system / PBT', () => {
 
       const bearer = (await run.observe(clientBearers))['c0'];
       expect(bearer).not.toBeNull();
-      expect(await run.observe(sessionUser(bearer as string))).not.toBeNull();
+      expect(await run.observe(sessionUser, bearer as string)).not.toBeNull();
     }, 60_000);
 
     test(`dev provider knob off returns 404 on launch (${fabric})`, async () => {

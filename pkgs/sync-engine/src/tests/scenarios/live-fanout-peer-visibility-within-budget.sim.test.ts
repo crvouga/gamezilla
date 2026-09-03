@@ -6,7 +6,6 @@ import {
   addClient,
   expectConverged,
   mutate,
-  passTime,
   restart,
   setNote,
   syncVirtualHost,
@@ -36,7 +35,7 @@ describe('live fanout peer visibility within budget', () => {
     await expectConverged(run);
 
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'hello' });
-    await run.apply(passTime, PEER_VISIBLE_BUDGET_MS + 50);
+    await run.elapse(PEER_VISIBLE_BUDGET_MS + 50);
 
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'hello' });
     await expectConverged(run);

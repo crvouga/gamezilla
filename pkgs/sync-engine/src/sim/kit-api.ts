@@ -1,4 +1,4 @@
-import type { VirtualScheduler } from '@pkgs/dst/kernel';
+import type { VirtualScheduler } from '@pkgs/dst';
 
 import type { SimClientHandle } from './client-handle';
 import type { InvariantViolation } from './invariants';

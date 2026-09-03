@@ -64,10 +64,10 @@ describe('server snapshot with unknown column merges cleanly', () => {
       await expectLiveNoteAt(run, 'bob', 'n1', { body: 'painted' });
 
       // Base client has no color column — PRAGMA would not list it.
-      const cols = await run.observe(noteColumns('alice'));
+      const cols = await run.observe(noteColumns, 'alice');
       expect(cols.some((c) => c.name === 'color')).toBe(false);
 
-      expect((await run.observe(noteColor('bob', 'n1')))[0]?.color).toBe(
+      expect((await run.observe(noteColor, 'bob', 'n1'))[0]?.color).toBe(
         'blue'
       );
     }

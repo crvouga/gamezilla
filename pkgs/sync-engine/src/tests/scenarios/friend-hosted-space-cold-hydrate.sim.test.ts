@@ -44,7 +44,7 @@ describe('friend hosted space cold hydrate', () => {
     });
 
     // Phase A — live push via friend topic wake (product: new space appears).
-    await untilAcme(run, liveSpace('bob', 'friend-space'));
+    await untilAcme(run, (s) => liveSpace(s, 'bob', 'friend-space'));
     await expectLiveSpaceAt(run, 'bob', 'friend-space', {
       title: 'Alice lobby',
       ownerId: 'alice',
@@ -53,7 +53,7 @@ describe('friend hosted space cold hydrate', () => {
     // Phase B — cold hydrate after wipe (product bug without query widen).
     await run.apply(crash, 'bob');
     await run.apply(restart, 'bob', {});
-    await untilAcme(run, liveSpace('bob', 'friend-space'));
+    await untilAcme(run, (s) => liveSpace(s, 'bob', 'friend-space'));
     await expectLiveSpaceAt(run, 'bob', 'friend-space', {
       title: 'Alice lobby',
       ownerId: 'alice',

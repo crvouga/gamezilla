@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { addClient, dispatch, passTime, scriptRoom } from '../../sim/scenario';
+import { addClient, dispatch } from '../../sim/scenario';
+import { openRoom } from '../scenario/open-room';
 import { deadlineSystem } from '../apps/deadline/system';
 import { expectConverged } from '../expect-converged';
 import {
@@ -17,7 +18,7 @@ import {
 
 describe('kit: terminal monotonicity (M-F06)', () => {
   test('schedule expire wins; late act / expire are no-ops', async () => {
-    await using run = await scriptRoom(deadlineSystem, {
+    await using run = await openRoom(deadlineSystem, {
       startTime: 1_000,
     });
     await run.apply(addClient, { id: 'alice' });
@@ -31,7 +32,7 @@ describe('kit: terminal monotonicity (M-F06)', () => {
     expect(deadlineStatus(await readServer(run))).toBe('open');
     expect(deadlineStatus(await readClient(run, 'alice'))).toBe('open');
 
-    await run.apply(passTime, 120);
+    await run.elapse(120);
     await expectConverged(run);
 
     const outcome = deadlineOutcome(await readServer(run));

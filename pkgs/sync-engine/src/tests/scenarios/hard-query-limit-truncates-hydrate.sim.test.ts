@@ -38,13 +38,13 @@ describe('hard query limit truncates hydrate', () => {
       });
     }
     await expectConverged(run);
-    expect((await run.observe(liveNotes('server'))).length).toBe(12);
+    expect((await run.observe(liveNotes, 'server')).length).toBe(12);
 
     await run.apply(addClient, {
       id: 'limited',
       sessionQuery: LIMITED_SESSION,
     });
-    expect((await run.observe(liveNotes('limited'))).length).toBe(5);
+    expect((await run.observe(liveNotes, 'limited')).length).toBe(5);
 
     await run.apply(mutate, 'alice', setNote, {
       id: 'n99',
@@ -53,7 +53,7 @@ describe('hard query limit truncates hydrate', () => {
     // Limited peer cannot full-converge (missing rows by design).
     await run.apply(crash, 'limited');
     await expectConverged(run);
-    expect(await run.observe(liveNote('alice', 'n99'))).toMatchObject({
+    expect(await run.observe(liveNote, 'alice', 'n99')).toMatchObject({
       body: 'after-limit',
     });
   });
@@ -84,9 +84,9 @@ describe('hard query limit truncates hydrate', () => {
       id: 'limited',
       sessionQuery: LIMITED_SESSION,
     });
-    expect((await run.observe(liveNotes('limited'))).length).toBe(5);
+    expect((await run.observe(liveNotes, 'limited')).length).toBe(5);
     // Limited session hydrates notes only — folders stay empty (knowingly partial).
-    expect(await run.observe(liveFolders('limited'))).toEqual([]);
+    expect(await run.observe(liveFolders, 'limited')).toEqual([]);
 
     // Shrink live set below hard limit so a later refetch can be complete.
     for (const id of ['n05', 'n06', 'n07'] as const) {
@@ -99,7 +99,7 @@ describe('hard query limit truncates hydrate', () => {
     });
     // nudge: limited session refetch after shrink below hard limit
     await run.apply(nudge, 'limited');
-    const after = await run.observe(liveNotes('limited'));
+    const after = await run.observe(liveNotes, 'limited');
     expect(after.length).toBe(5);
     expect(after.map((n) => n.id).sort()).toEqual([
       'n00',
@@ -111,9 +111,9 @@ describe('hard query limit truncates hydrate', () => {
 
     await run.apply(crash, 'limited');
     await expectConverged(run);
-    expect(await run.observe(liveNote('alice', 'n00'))).toMatchObject({
+    expect(await run.observe(liveNote, 'alice', 'n00')).toMatchObject({
       body: 'b0',
     });
-    expect((await run.observe(liveFolders('alice'))).length).toBe(2);
+    expect((await run.observe(liveFolders, 'alice')).length).toBe(2);
   });
 });

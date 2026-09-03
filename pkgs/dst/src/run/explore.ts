@@ -1,9 +1,7 @@
 import type { Host, Ports } from '../host/types';
-import { fingerprint } from '../kernel/fingerprint';
-import type { JsonValue } from '../kernel/json';
-import { createReplayingRng, createRng } from '../kernel/rng';
+import { createRng } from '../kernel/rng';
 import type { System } from '../system/define-system';
-import type { Action, Property } from '../system/effect';
+import type { Action, CatalogAction, CatalogProperty } from '../system/effect';
 import type { Gen } from '../system/gen';
 import type { Choice, Repro } from '../system/repro';
 import { parseRepro, REPRO_VERSION } from '../system/repro';
@@ -43,8 +41,8 @@ export type Report = {
 
 export type ExploreOptions<S, K = void> = {
   readonly host?: Host<Ports>;
-  readonly properties: readonly Property<S>[];
-  readonly actions: readonly Action<S, []>[];
+  readonly properties: readonly CatalogProperty<S>[];
+  readonly actions: readonly CatalogAction<S>[];
   readonly seed?: number;
   /** Fixed knobs or a Gen that draws per episode. */
   readonly knobs?: [K] extends [void] ? undefined : K | Gen<K>;
@@ -53,14 +51,15 @@ export type ExploreOptions<S, K = void> = {
   readonly shrink?: boolean;
   readonly budgetMs?: number;
   readonly stopOnViolation?: boolean;
+  readonly time?: {
+    readonly weight: number;
+    readonly minMs: number;
+    readonly maxMs: number;
+  };
 };
 
 function campaignSeed(opts: ExploreOptions<unknown, unknown>): number {
   if (opts.seed !== undefined) return opts.seed;
-  const env =
-    typeof process !== 'undefined' ? process.env['PBT_SEED'] : undefined;
-  if (env !== undefined && env !== '') return Number(env);
-  // Pinned default — matches @pkgs/pbt FC_SEED policy (no wall entropy).
   return 424242;
 }
 
@@ -113,7 +112,6 @@ function recordEndViolations(args: {
       repro: {
         version: REPRO_VERSION,
         seed: args.epSeed,
-        system: args.w.system,
         knobs: args.w.knobs,
         choices: args.w.choices,
         meta: { system: args.systemName },
@@ -145,6 +143,7 @@ async function runEpisode<S, K>(args: {
       actions: opts.actions,
       steps,
       ...(opts.budgetMs !== undefined ? { budgetMs: opts.budgetMs } : {}),
+      ...(opts.time !== undefined ? { time: opts.time } : {}),
       stopOnViolation: opts.stopOnViolation ?? true,
     });
 
@@ -163,7 +162,6 @@ async function runEpisode<S, K>(args: {
       let repro: Repro = {
         version: REPRO_VERSION,
         seed: epSeed,
-        system: w.system,
         knobs: w.knobs,
         choices: w.choices,
         meta: { system: system.name },
@@ -186,7 +184,6 @@ async function runEpisode<S, K>(args: {
       repro: {
         version: REPRO_VERSION,
         seed: epSeed,
-        system: [],
         knobs: knobs ?? null,
         choices: [],
         meta: { system: system.name },
@@ -270,23 +267,13 @@ async function deltaDebugChoices(
   return cur;
 }
 
-async function minifyFloat(
-  tryFail: (v: number) => Promise<boolean>,
-  start: number
-): Promise<number> {
-  let lo = 0;
-  let hi = start;
-  let best = start;
-  while (hi - lo > 1e-6 && hi > 0) {
-    const mid = (lo + hi) / 2;
-    if (await tryFail(mid)) {
-      hi = mid;
-      best = mid;
-    } else {
-      lo = mid;
-    }
-  }
-  return best;
+function minifyJsonValue(v: unknown): unknown {
+  if (typeof v === 'number') return 0;
+  if (typeof v === 'string') return '';
+  if (typeof v === 'boolean') return false;
+  if (Array.isArray(v)) return [];
+  if (v !== null && typeof v === 'object') return {};
+  return v;
 }
 
 async function shrinkRepro<S, K>(
@@ -298,39 +285,43 @@ async function shrinkRepro<S, K>(
   const o = opts as ExploreOptions<unknown, unknown>;
   const choices = await deltaDebugChoices(sys, o, repro, repro.choices.slice());
 
-  const systemDraws = [...repro.system];
-  for (let i = 0; i < systemDraws.length; i++) {
-    systemDraws[i] = await minifyFloat(async (mid) => {
-      const next = systemDraws.slice();
-      next[i] = mid;
-      return fails(sys, o, { ...repro, system: next, choices });
-    }, systemDraws[i]!);
-  }
-
-  const shrunkChoices: Choice[] = choices.map((c) => ({
-    action: c.action,
-    draws: [...c.draws],
-    args: [...c.args],
-  }));
-  for (const c of shrunkChoices) {
-    const draws = c.draws as number[];
-    for (let i = 0; i < draws.length; i++) {
-      draws[i] = await minifyFloat(async (mid) => {
-        const trial = draws.slice();
-        trial[i] = mid;
-        const trialChoices = shrunkChoices.map((x) =>
-          x === c ? { action: c.action, draws: trial, args: c.args } : x
-        );
-        return fails(sys, o, {
-          ...repro,
-          system: systemDraws,
-          choices: trialChoices,
-        });
-      }, draws[i]!);
+  let knobs = repro.knobs;
+  if (knobs !== null && typeof knobs === 'object' && !Array.isArray(knobs)) {
+    const obj = { ...(knobs as Record<string, unknown>) };
+    for (const key of Object.keys(obj)) {
+      const trial = { ...obj, [key]: minifyJsonValue(obj[key]) };
+      if (await fails(sys, o, { ...repro, knobs: trial, choices })) {
+        obj[key] = trial[key];
+      }
     }
+    knobs = obj;
   }
 
-  return { ...repro, system: systemDraws, choices: shrunkChoices };
+  const shrunkChoices: Choice[] = [];
+  for (const c of choices) {
+    const args = c.args.map((a) => a);
+    for (let i = 0; i < args.length; i++) {
+      const trial = args.slice();
+      trial[i] = minifyJsonValue(args[i]);
+      const trialChoices = [
+        ...shrunkChoices,
+        { action: c.action, args: trial },
+        ...choices.slice(shrunkChoices.length + 1),
+      ];
+      if (
+        await fails(sys, o, {
+          ...repro,
+          knobs,
+          choices: trialChoices,
+        })
+      ) {
+        args[i] = trial[i];
+      }
+    }
+    shrunkChoices.push({ action: c.action, args });
+  }
+
+  return { ...repro, knobs, choices: shrunkChoices };
 }
 
 async function fails<S, K>(
@@ -352,8 +343,8 @@ async function fails<S, K>(
 
 export type ReplayOptions<S> = {
   readonly host?: Host<Ports>;
-  readonly properties?: readonly Property<S>[];
-  readonly actions: readonly Action<S, []>[];
+  readonly properties?: readonly CatalogProperty<S>[];
+  readonly actions: readonly CatalogAction<S>[];
 };
 
 function toRepro<S, K>(
@@ -365,35 +356,10 @@ function toRepro<S, K>(
   return {
     version: REPRO_VERSION,
     seed: 0,
-    system: (input as Walk).system,
     knobs: (input as Walk).knobs,
     choices: (input as Walk).choices,
     meta: { system: system.name },
   };
-}
-
-async function replayChoice<S>(
-  run: Awaited<ReturnType<typeof script<S, unknown>>>,
-  action: Action<S, unknown[]>,
-  choice: Choice
-): Promise<void> {
-  if (choice.args.length > 0) {
-    await run.apply(action, ...choice.args);
-    return;
-  }
-  if (choice.draws.length === 0) {
-    await run.apply(action as Action<S, []>);
-    return;
-  }
-  const internal = getRunInternal(run);
-  const replayRng = createReplayingRng(choice.draws);
-  const origRng = internal.rng;
-  internal.rng = replayRng;
-  try {
-    await run.apply(action as Action<S, []>);
-  } finally {
-    internal.rng = origRng;
-  }
 }
 
 export async function replay<S, K = void>(
@@ -418,18 +384,16 @@ export async function replay<S, K = void>(
   const failures: Report['failures'][number][] = [];
   try {
     for (const choice of repro.choices) {
+      if (choice.action === 'elapse') {
+        const ms = Number(choice.args[0] ?? 0);
+        await run.elapse(ms);
+        continue;
+      }
       const action = actionByName.get(choice.action);
       if (action === undefined) {
         throw new Error(`replay: unknown action '${choice.action}'`);
       }
-      const internal = getRunInternal(run);
-      const before = fingerprint(
-        Object.fromEntries(internal.memo) as JsonValue
-      );
-      await replayChoice(run, action, choice);
-      const after = fingerprint(Object.fromEntries(internal.memo) as JsonValue);
-      void before;
-      void after;
+      await run.apply(action, ...(choice.args as never[]));
     }
   } catch (e) {
     failures.push({

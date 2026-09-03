@@ -8,7 +8,6 @@ import {
   liveNote,
   mutate,
   partition,
-  passTime,
   release,
   setNote,
   syncVirtualHost,
@@ -34,12 +33,12 @@ describe('full partition during write then heal', () => {
       id: 'n1',
       body: 'during-partition',
     });
-    await run.apply(passTime, 100);
+    await run.elapse(100);
     await run.apply(release, 'alice', 'all');
     await run.apply(release, 'bob', 'all');
     await expectConverged(run);
 
-    expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+    expect(await run.observe(liveNote, 'bob', 'n1')).toMatchObject({
       body: 'during-partition',
     });
   });

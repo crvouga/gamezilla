@@ -5,13 +5,12 @@ import {
   crash,
   disconnect,
   dispatch,
-  passTime,
   restart,
-  scriptRoom,
   serverCrash,
   serverCrashed,
   serverRestart,
 } from '../../sim/scenario';
+import { openRoom } from '../scenario/open-room';
 import { counterSystem } from '../apps/counter/system';
 import { expectConverged } from '../expect-converged';
 import { counterValue, Increment } from '../fixtures/counter-module';
@@ -23,7 +22,7 @@ import {
 
 describe('room sim: client/server crash restart', () => {
   test('client crash keeps local queue; restart + settle converges', async () => {
-    await using run = await scriptRoom(counterSystem, {
+    await using run = await openRoom(counterSystem, {
       seed: 'crash-client-1',
     });
     await run.apply(addClient, { id: 'alice' });
@@ -41,7 +40,7 @@ describe('room sim: client/server crash restart', () => {
       clientId: 'bob',
       payload: Increment({}),
     });
-    await run.apply(passTime, 0);
+    await run.elapse(0);
 
     await run.apply(restart, 'alice');
     await expectConverged(run);
@@ -51,7 +50,7 @@ describe('room sim: client/server crash restart', () => {
   });
 
   test('server crash + restart hydrates log and converges', async () => {
-    await using run = await scriptRoom(counterSystem, {
+    await using run = await openRoom(counterSystem, {
       seed: 'crash-server-1',
     });
     await run.apply(addClient, { id: 'alice' });
@@ -64,7 +63,7 @@ describe('room sim: client/server crash restart', () => {
       clientId: 'alice',
       payload: Increment({}),
     });
-    await run.apply(passTime, 0);
+    await run.elapse(0);
     expect(counterValue(await readServer(run))).toBe(2);
 
     await run.apply(serverCrash);
@@ -78,32 +77,32 @@ describe('room sim: client/server crash restart', () => {
   });
 
   test('boundary afterNextCommitted crashes client; settle restores', async () => {
-    await using run = await scriptRoom(counterSystem, {
+    await using run = await openRoom(counterSystem, {
       seed: 'boundary-committed-1',
     });
     await run.apply(addClient, { id: 'alice' });
     await run.apply(addClient, { id: 'bob' });
     await run.apply(armCrashAt, {
       clientId: 'alice',
-      event: 'afterNextCommitted',
+      event: 'afterNextCommitted' as const,
     });
     await run.apply(dispatch, {
       clientId: 'alice',
       payload: Increment({}),
     });
-    await run.apply(passTime, 0);
+    await run.elapse(0);
     await expectConverged(run);
     expect(counterValue(await readServer(run))).toBe(1);
   });
 
   test('checkInvariants passes on healthy run', async () => {
-    await using run = await scriptRoom(counterSystem, { seed: 'inv-1' });
+    await using run = await openRoom(counterSystem, { seed: 'inv-1' });
     await run.apply(addClient, { id: 'alice' });
     await run.apply(dispatch, {
       clientId: 'alice',
       payload: Increment({}),
     });
-    await run.apply(passTime, 0);
+    await run.elapse(0);
     await expectConverged(run);
   });
 });

@@ -84,10 +84,10 @@ describe('server schema upgrade mid session', () => {
       await expectLiveNoteAt(run, 'alice', 'n2', { body: 'still-baseline' });
       await expectNotesAgree(run, 'alice');
 
-      const aliceCols = await run.observe(noteColumns('alice'));
+      const aliceCols = await run.observe(noteColumns, 'alice');
       expect(aliceCols.some((c) => c.name === 'color')).toBe(false);
 
-      const carolColor = await run.observe(noteColor('carol', 'n1'));
+      const carolColor = await run.observe(noteColor, 'carol', 'n1');
       expect(carolColor[0]?.color).toBe('green');
     }
   );

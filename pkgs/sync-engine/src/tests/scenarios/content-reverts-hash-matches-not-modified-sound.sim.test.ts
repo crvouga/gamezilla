@@ -8,7 +8,6 @@ import {
   heal,
   mutate,
   partition,
-  passTime,
   setNote,
   syncVirtualHost,
 } from '../apps/acme';
@@ -34,7 +33,7 @@ describe('content reverts hash matches not modified sound', () => {
     await run.apply(partition, 'bob', 'all');
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'B' });
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'A' });
-    await run.apply(passTime, 100);
+    await run.elapse(100);
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'A' });
 
     await run.apply(heal);

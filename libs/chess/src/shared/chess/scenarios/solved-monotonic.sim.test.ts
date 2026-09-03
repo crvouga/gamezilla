@@ -4,8 +4,7 @@ import {
   clientState,
   dispatch,
   expectConverged,
-  passTime,
-  scriptRoom,
+  openRoom,
   serverHash,
   serverState,
 } from '@pkgs/room/tests';
@@ -24,7 +23,7 @@ const SHORT_MOVES = 'e8d7';
 
 describe('chess puzzle: solved monotonic (Gp-03)', () => {
   test('post-solved moves do not change terminal status', async () => {
-    await using run = await scriptRoom(chessSystem, {
+    await using run = await openRoom(chessSystem, {
       seed: process.env['SIM_SEED'] ?? '42',
     });
     await run.apply(addClient, { id: 'host', identity: 'host-1' });
@@ -38,7 +37,7 @@ describe('chess puzzle: solved monotonic (Gp-03)', () => {
         moves: SHORT_MOVES,
       }),
     });
-    await run.apply(passTime, 0);
+    await run.elapse(0);
     expect(
       ChessPuzzlePlayAttr.status.from((await run.observe(serverState)) as never)
     ).toBe(CHESS_PUZZLE_PLAY_STATUS.solved);
@@ -56,7 +55,7 @@ describe('chess puzzle: solved monotonic (Gp-03)', () => {
       clientId: 'host',
       payload: SubmitChessPuzzleMove({ uci: 'a2a3' }),
     });
-    await run.apply(passTime, 0);
+    await run.elapse(0);
 
     expect(
       ChessPuzzlePlayAttr.status.from((await run.observe(serverState)) as never)

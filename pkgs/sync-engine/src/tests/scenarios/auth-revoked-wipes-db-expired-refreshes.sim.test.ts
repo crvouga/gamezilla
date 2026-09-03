@@ -41,7 +41,7 @@ describe('auth revoked wipes db expired refreshes', () => {
       id: 'n-exp',
       body: 'queued-through-refresh',
     });
-    await neverAcme(run, liveNote('server', 'n-exp'), { forMs: 50 });
+    await neverAcme(run, (s) => liveNote(s, 'server', 'n-exp'), { forMs: 50 });
 
     await run.apply(auth, 'alice', 'expired');
     await run.apply(connect, 'alice');
@@ -77,11 +77,11 @@ describe('auth revoked wipes db expired refreshes', () => {
       id: 'n-lost',
       body: 'never-uploaded',
     });
-    await neverAcme(run, liveNote('server', 'n-lost'), { forMs: 50 });
+    await neverAcme(run, (s) => liveNote(s, 'server', 'n-lost'), { forMs: 50 });
 
     await run.apply(auth, 'alice', 'revoked');
     await run.apply(connect, 'alice');
-    await neverAcme(run, liveNote('server', 'n-lost'), { forMs: 500 });
+    await neverAcme(run, (s) => liveNote(s, 'server', 'n-lost'), { forMs: 500 });
 
     await run.apply(restart, 'alice', {});
     await expectConverged(run);
@@ -109,7 +109,7 @@ describe('auth revoked wipes db expired refreshes', () => {
         body: `d${i}`,
       });
     }
-    await neverAcme(run, liveNote('server', 'drain-0'), { forMs: 50 });
+    await neverAcme(run, (s) => liveNote(s, 'server', 'drain-0'), { forMs: 50 });
 
     await run.apply(auth, 'alice', 'expired');
     await run.apply(connect, 'alice');
@@ -138,7 +138,7 @@ describe('auth revoked wipes db expired refreshes', () => {
     });
     await expectConverged(run);
     expect(
-      (await run.observe(subscribedTopics('alice'))).length
+      (await run.observe(subscribedTopics, 'alice')).length
     ).toBeGreaterThan(0);
 
     await run.apply(auth, 'alice', 'revoked');
@@ -148,12 +148,12 @@ describe('auth revoked wipes db expired refreshes', () => {
     });
     // nudge: revoke path may reject refresh — drive until topics detach.
     await run.apply(nudge, 'alice');
-    await untilAcme(run, subscribedTopics('alice'), {
+    await untilAcme(run, (s) => subscribedTopics(s, 'alice'), {
       maxMs: 2_000,
       pred: (t) => Array.isArray(t) && t.length === 0,
     });
 
-    expect(await run.observe(subscribedTopics('alice'))).toEqual([]);
+    expect(await run.observe(subscribedTopics, 'alice')).toEqual([]);
     await expectLiveNoteAt(run, 'server', 'n-before', { body: 'visible' });
     await expectLiveNoteAt(run, 'bob', 'n-late', { body: 'after-revoke' });
 
@@ -183,7 +183,7 @@ describe('auth revoked wipes db expired refreshes', () => {
     await run.apply(auth, 'alice', 'upgrade_required');
     await run.apply(disconnect, 'alice');
     await run.apply(connect, 'alice');
-    await untilAcme(run, lastError('alice'), {
+    await untilAcme(run, (s) => lastError(s, 'alice'), {
       maxMs: 2_000,
       pred: (e) => typeof e === 'string' && e.includes('upgrade_required'),
     });

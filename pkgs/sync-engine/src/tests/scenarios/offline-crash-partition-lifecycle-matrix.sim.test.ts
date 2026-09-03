@@ -12,7 +12,6 @@ import {
   mutate,
   online,
   partition,
-  passTime,
   release,
   restart,
   setNote,
@@ -32,7 +31,7 @@ describe('offline crash partition lifecycle matrix', () => {
     await run.apply(addClient, { id: 'bob' });
     await run.apply(online, 'alice', false);
     await run.apply(mutate, 'bob', setNote, { id: 'n1', body: 'from-b' });
-    await run.apply(passTime, 100);
+    await run.elapse(100);
     await run.apply(online, 'alice', true);
     await expectConverged(run);
     await expectLiveNoteAt(run, 'alice', 'n1', { body: 'from-b' });
@@ -51,7 +50,7 @@ describe('offline crash partition lifecycle matrix', () => {
     await run.apply(addClient, { id: 'bob' });
     await run.apply(online, 'bob', false);
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'from-a' });
-    await run.apply(passTime, 100);
+    await run.elapse(100);
     await run.apply(online, 'bob', true);
     await expectConverged(run);
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'from-a' });
@@ -76,7 +75,7 @@ describe('offline crash partition lifecycle matrix', () => {
     await run.apply(online, 'bob', true);
     await expectConverged(run);
 
-    const server = await run.observe(liveNotes('server'));
+    const server = await run.observe(liveNotes, 'server');
     const winner = server.find((r) => r.id === 'shared');
     expect(winner?.body === 'a' || winner?.body === 'b').toBe(true);
     await expectEveryClientNotesAgree(run);
@@ -158,7 +157,7 @@ describe('offline crash partition lifecycle matrix', () => {
     await run.apply(partition, 'bob', 'all');
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'a-local' });
     await run.apply(mutate, 'bob', setNote, { id: 'n2', body: 'b-local' });
-    await run.apply(passTime, 100);
+    await run.elapse(100);
 
     await expectConverged(run);
     await expectLiveNoteAt(run, 'alice', 'n1', { body: 'a-local' });
@@ -181,13 +180,13 @@ describe('offline crash partition lifecycle matrix', () => {
 
     await run.apply(partition, 'alice', 'all');
     await run.apply(mutate, 'bob', setNote, { id: 'n1', body: 'from-b' });
-    await run.apply(passTime, 80);
+    await run.elapse(80);
     await expectConverged(run);
     await expectLiveNoteAt(run, 'alice', 'n1', { body: 'from-b' });
 
     await run.apply(online, 'bob', false);
     await run.apply(mutate, 'bob', setNote, { id: 'n2', body: 'b-queued' });
-    await run.apply(passTime, 40);
+    await run.elapse(40);
     await run.apply(online, 'bob', true);
     await expectConverged(run);
     await expectLiveNoteAt(run, 'alice', 'n2', { body: 'b-queued' });
@@ -208,19 +207,19 @@ describe('offline crash partition lifecycle matrix', () => {
     await run.apply(online, 'alice', false);
     await run.apply(mutate, 'alice', setNote, { id: 'flip', body: 'a1' });
     await run.apply(online, 'alice', true);
-    await run.apply(passTime, 40);
+    await run.elapse(40);
 
     await run.apply(partition, 'bob', 'all');
     await run.apply(mutate, 'bob', setNote, { id: 'flip', body: 'b1' });
     await run.apply(release, 'bob', 'all');
-    await run.apply(passTime, 40);
+    await run.elapse(40);
 
     await run.apply(online, 'bob', false);
     await run.apply(mutate, 'alice', setNote, { id: 'flip', body: 'a2' });
     await run.apply(online, 'bob', true);
     await expectConverged(run);
 
-    const server = await run.observe(liveNotes('server'));
+    const server = await run.observe(liveNotes, 'server');
     expect(server.find((r) => r.id === 'flip')).toBeDefined();
     await expectEveryClientNotesAgree(run);
   });

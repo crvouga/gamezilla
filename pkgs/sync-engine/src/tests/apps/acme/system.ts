@@ -33,8 +33,8 @@ export const acmeLargeCatalogSystem: SyncSystemDef = defineSyncSystem(acmeApp, {
  * });
  * await run.apply(addClient, 'alice');
  * await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'hi' });
- * await run.apply(passTime, 500);
- * expect(await run.observe(liveNote('server', 'n1'))).toEqual({
+ * await run.elapse(500);
+ * expect(await run.observe(liveNote, 'server', 'n1')).toEqual({
  *   body: 'hi',
  *   title: 'hi',
  *   deletedAt: null,
@@ -42,7 +42,7 @@ export const acmeLargeCatalogSystem: SyncSystemDef = defineSyncSystem(acmeApp, {
  * await expectConverged(run);
  * ```
  *
- * Poll instead of guessing a timeout with `untilAcme` (`./until`).
+ * Poll with `run.until` / `untilAcme` (`./until`).
  */
 export const acmeKnobs = syncKnobs;
 

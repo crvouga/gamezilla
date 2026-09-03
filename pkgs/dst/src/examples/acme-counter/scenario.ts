@@ -1,10 +1,6 @@
-import {
-  defineSystem,
-  draw,
-  observe,
-  virtualHost,
-  wallHost,
-} from '../../index';
+import fc from 'fast-check';
+import { gen } from '../../fast-check';
+import { defineSystem, virtualHost, wallHost } from '../../index';
 import type { Page } from './page';
 
 export type CounterPorts = {
@@ -21,119 +17,87 @@ export const counter = defineSystem({
   async generate(session) {
     const ports = session.ports as typeof session.ports & CounterPorts;
     const page = await ports.openPage();
-    const prevDispose = session.dispose.bind(session);
-    (session as { dispose: () => Promise<void> }).dispose = async () => {
-      await page.dispose();
-      await prevDispose();
-    };
+    session.onDispose(() => page.dispose());
     return { page } satisfies CounterSurface;
   },
 });
 
-const { defineObservation, defineAction, defineProperty } = counter;
+const { defineAction, defineProperty } = counter;
 
-export const route = defineObservation({
-  name: 'route',
-  observe: async (s) => (await s.page.routeAttr()) ?? '',
-});
+export async function route(s: CounterSurface): Promise<string> {
+  return (await s.page.routeAttr()) ?? '';
+}
 
-export const count = defineObservation({
-  name: 'count',
-  observe: async (s) => Number(await s.page.text('#count')),
-});
+export async function count(s: CounterSurface): Promise<number> {
+  return Number(await s.page.text('#count'));
+}
 
-export const step = defineObservation({
-  name: 'step',
-  observe: async (s) => Number(await s.page.text('#step')),
-});
+export async function step(s: CounterSurface): Promise<number> {
+  return Number(await s.page.text('#step'));
+}
 
 const SCREENS = new Set(['home', 'settings', 'confirm-reset']);
+const STEP_CHOICES = [1, 5, 10] as const;
 
 export const increment = defineAction({
   name: 'increment',
-  *generate() {
-    const o = yield* observe({ route, count });
-    if (o.route !== 'home') return;
-    yield {
-      weight: o.count < 50 ? 6 : 2,
-      act: (s) => s.page.click('#increment'),
-    };
-  },
+  enabled: async (s) => (await route(s)) === 'home',
+  weight: async (s) => ((await count(s)) < 50 ? 6 : 2),
+  act: (s) => s.page.click('#increment'),
 });
 
 export const decrement = defineAction({
   name: 'decrement',
-  *generate() {
-    const o = yield* observe({ route, count });
-    if (o.route !== 'home') return;
-    yield {
-      weight: Math.min(o.count, 4),
-      act: (s) => s.page.click('#decrement'),
-    };
-  },
+  enabled: async (s) => (await route(s)) === 'home' && (await count(s)) > 0,
+  weight: async (s) => Math.min(await count(s), 4),
+  act: (s) => s.page.click('#decrement'),
 });
 
 export const openSettings = defineAction({
   name: 'openSettings',
-  *generate() {
-    if ((yield* route) !== 'home') return;
-    yield (s: CounterSurface) => s.page.click('#to-settings');
-  },
+  enabled: async (s) => (await route(s)) === 'home',
+  act: (s) => s.page.click('#to-settings'),
 });
 
 export const setStep = defineAction({
   name: 'setStep',
-  generate(n: number) {
-    return (s) => s.page.click(`#step-${n}`);
+  enabled: async (s) => (await route(s)) === 'settings',
+  weight: 2,
+  args: async (s) => {
+    const current = await step(s);
+    const rest = STEP_CHOICES.filter((n) => n !== current);
+    const choices = rest.length > 0 ? rest : STEP_CHOICES;
+    return gen(fc.constantFrom(...choices));
   },
-});
-
-export const randomSetStep = defineAction({
-  name: 'randomSetStep',
-  *generate() {
-    const o = yield* observe({ route, step });
-    if (o.route !== 'settings') return;
-    const n = yield* draw((rng) => [1, 5, 10][Math.floor(rng.next() * 3)]!);
-    yield {
-      weight: n === o.step ? 0 : 2,
-      act: (s) => s.page.click(`#step-${n}`),
-    };
-  },
+  act: (s, n: number) => s.page.click(`#step-${n}`),
 });
 
 export const leaveSettings = defineAction({
   name: 'leaveSettings',
-  *generate() {
-    if ((yield* route) !== 'settings') return;
-    yield (s: CounterSurface) => s.page.click('#back');
-  },
+  enabled: async (s) => (await route(s)) === 'settings',
+  act: (s) => s.page.click('#back'),
 });
 
 export const openReset = defineAction({
   name: 'openReset',
-  *generate() {
-    const o = yield* observe({ route, count });
-    if (o.route !== 'home' || o.count === 0) return;
-    yield {
-      weight: o.count > 100 ? 3 : 1,
-      act: (s) => s.page.click('#reset'),
-    };
-  },
+  enabled: async (s) => (await route(s)) === 'home' && (await count(s)) > 0,
+  weight: async (s) => ((await count(s)) > 100 ? 3 : 1),
+  act: (s) => s.page.click('#reset'),
 });
 
 export const confirmReset = defineAction({
   name: 'confirmReset',
-  *generate() {
-    if ((yield* route) !== 'confirm-reset') return;
-    yield (s: CounterSurface) => s.page.click('#confirm');
-  },
+  enabled: async (s) => (await route(s)) === 'confirm-reset',
+  act: (s) => s.page.click('#confirm'),
 });
 
 export const reset = defineAction({
   name: 'reset',
-  *generate() {
-    yield* openReset;
-    yield* confirmReset;
+  enabled: async (s) => (await route(s)) === 'home' && (await count(s)) > 0,
+  weight: async (s) => ((await count(s)) > 100 ? 3 : 1),
+  act: async (s) => {
+    await s.page.click('#reset');
+    await s.page.click('#confirm');
   },
 });
 
@@ -141,7 +105,7 @@ export const COUNTER_ACTIONS = [
   increment,
   decrement,
   openSettings,
-  randomSetStep,
+  setStep,
   leaveSettings,
   openReset,
   confirmReset,
@@ -150,16 +114,16 @@ export const COUNTER_ACTIONS = [
 
 export const knownScreen = defineProperty({
   name: 'knownScreen',
-  *watch() {
-    const r = yield* route;
+  check: async (s) => {
+    const r = await route(s);
     if (!SCREENS.has(r)) throw new Error(`unknown screen ${r}`);
   },
 });
 
 export const nonNegative = defineProperty({
   name: 'nonNegative',
-  *watch() {
-    if ((yield* count) < 0) {
+  check: async (s) => {
+    if ((await count(s)) < 0) {
       throw new Error('count went negative');
     }
   },

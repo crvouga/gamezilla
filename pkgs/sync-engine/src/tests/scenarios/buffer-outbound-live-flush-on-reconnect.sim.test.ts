@@ -12,7 +12,6 @@ import {
   liveNote,
   mutate,
   nodeNow,
-  passTime,
   release,
   setNote,
   syncVirtualHost,
@@ -41,12 +40,12 @@ describe('buffer outbound live flush on reconnect', () => {
     await run.apply(hold, 'alice', 'sync');
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'while-down' });
     await run.apply(connect, 'alice');
-    await run.apply(passTime, 200);
+    await run.elapse(200);
     await expectNoteNotLiveAt(run, 'bob', 'n1');
     await run.apply(release, 'alice', 'sync');
 
     await expectConverged(run);
-    expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+    expect(await run.observe(liveNote, 'bob', 'n1')).toMatchObject({
       body: 'while-down',
     });
   });
@@ -71,14 +70,14 @@ describe('buffer outbound live flush on reconnect', () => {
     await run.apply(hold, 'alice', 'sync');
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'buffered' });
     await run.apply(connect, 'alice');
-    await run.apply(passTime, 200);
-    expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+    await run.elapse(200);
+    expect(await run.observe(liveNote, 'bob', 'n1')).toMatchObject({
       body: 'buffered',
     });
     await run.apply(release, 'alice', 'sync');
 
     await expectConverged(run);
-    expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+    expect(await run.observe(liveNote, 'bob', 'n1')).toMatchObject({
       body: 'buffered',
     });
   });
@@ -102,14 +101,14 @@ describe('buffer outbound live flush on reconnect', () => {
     await run.apply(disconnect, 'alice');
     await run.apply(hold, 'bob', 'sync');
     await run.apply(mutate, 'alice', setNote, { id: 'fast', body: 'y' });
-    const t0 = await run.observe(nodeNow('bob'));
+    const t0 = await run.observe(nodeNow, 'bob');
     await run.apply(connect, 'alice');
-    await untilAcme(run, liveNote('bob', 'fast'), {
+    await untilAcme(run, (s) => liveNote(s, 'bob', 'fast'), {
       pred: (v) => (v as { body?: string } | null)?.body === 'y',
       maxMs: 400,
       stepMs: 5,
     });
-    const at = await run.observe(nodeNow('bob'));
+    const at = await run.observe(nodeNow, 'bob');
     expect(at - t0).toBeLessThan(PEER_VISIBLE_BUDGET_MS);
     await run.apply(release, 'bob', 'sync');
 

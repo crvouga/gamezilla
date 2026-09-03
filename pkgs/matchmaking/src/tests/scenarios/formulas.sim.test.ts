@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { neverObserved } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import type { TickResult } from '../../interface/matchmaking';
 import type { DistanceFormula, StatusResult } from '../../interface/types';
 import {
@@ -7,11 +7,12 @@ import {
   lastTick,
   matched,
   participantIds,
-  passTime,
-  scriptMatchmaking,
   statusOf,
   stepTime,
   tick,
+  matchmaking,
+  matchmakingKnobs,
+  MATCHMAKING_PROPERTIES,
 } from '../../sim/scenario';
 import {
   expectMatched,
@@ -34,7 +35,11 @@ describe('matchmaking sim: formulas', () => {
   });
 
   test('combined numeric formula respects summed distance', async () => {
-    await using run = await scriptMatchmaking({ seed: 30 });
+    await using run = await script(matchmaking, {
+      seed: 30,
+      knobs: matchmakingKnobs(),
+      properties: MATCHMAKING_PROPERTIES,
+    });
     const closeFormula: DistanceFormula = {
       numeric: [
         { tag: RatingAttr, weight: 1 },
@@ -60,7 +65,11 @@ describe('matchmaking sim: formulas', () => {
   });
 
   test('categorical penalty needs wait across regions', async () => {
-    await using run = await scriptMatchmaking({ seed: 31 });
+    await using run = await script(matchmaking, {
+      seed: 31,
+      knobs: matchmakingKnobs(),
+      properties: MATCHMAKING_PROPERTIES,
+    });
     const regionFormula: DistanceFormula = {
       numeric: [{ tag: RatingAttr, weight: 1 }],
       categorical: [{ tag: RegionAttr, penalty: 75 }],
@@ -81,13 +90,17 @@ describe('matchmaking sim: formulas', () => {
     });
     await run.apply(tick, onePass);
     expect(((await run.observe(lastTick)) as TickResult).matches).toBe(0);
-    await run.apply(passTime, 30_000);
+    await run.elapse(30_000);
     await run.apply(tick, onePass);
     expect(((await run.observe(lastTick)) as TickResult).matches).toBe(1);
   });
 
   test('partition hard-equality never crosses even at max wait', async () => {
-    await using run = await scriptMatchmaking({ seed: 32 });
+    await using run = await script(matchmaking, {
+      seed: 32,
+      knobs: matchmakingKnobs(),
+      properties: MATCHMAKING_PROPERTIES,
+    });
     const kindFormula: DistanceFormula = {
       numeric: [{ tag: RatingAttr, weight: 1 }],
       partition: [{ tag: KindAttr }],
@@ -106,14 +119,22 @@ describe('matchmaking sim: formulas', () => {
         formulas: [kindFormula],
       },
     });
-    await neverObserved(run, matched(['a', 'b']), stepTime, {
-      forMs: 60_000,
-      stepMs: 5_000,
-    });
+    let waited = 0;
+    while (waited < 60_000) {
+      if (await run.observe(matched, ['a', 'b'])) {
+        throw new Error(`never: matched at ${String(waited)}ms`);
+      }
+      await run.apply(stepTime, 5_000);
+      waited += 5_000;
+    }
   });
 
   test('OR-of-formulas pairs when any pair is mutually accepted', async () => {
-    await using run = await scriptMatchmaking({ seed: 33 });
+    await using run = await script(matchmaking, {
+      seed: 33,
+      knobs: matchmakingKnobs(),
+      properties: MATCHMAKING_PROPERTIES,
+    });
     const alpha: DistanceFormula = {
       numeric: [{ tag: RatingAttr, weight: 1 }],
       partition: [{ tag: KindAttr }],
@@ -134,7 +155,7 @@ describe('matchmaking sim: formulas', () => {
     });
     await run.apply(tick, onePass);
     const ids = await run.observe(participantIds);
-    const a = expectMatched((await run.observe(statusOf('a'))) as StatusResult);
+    const a = expectMatched((await run.observe(statusOf, 'a')) as StatusResult);
     expect(a.peers[0]?.participantId).toBe(ids['b']);
   });
 });

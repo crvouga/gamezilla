@@ -10,7 +10,6 @@ import {
   liveNotes,
   mutate,
   net,
-  passTime,
   retouchNotes,
   setNote,
   syncVirtualHost,
@@ -43,14 +42,14 @@ describe('fanout row cap boundary 64 vs 65', () => {
 
     await run.apply(net, 'bob', 'sync', 'hold');
     await run.apply(mutate, 'alice', retouchNotes, { ids, body: 'at-cap' });
-    await run.apply(passTime, 500);
+    await run.elapse(500);
 
     for (const id of ids) {
       await expectLiveNoteAt(run, 'bob', id, { body: 'at-cap' });
     }
 
     await expectConverged(run);
-    expect((await run.observe(liveNotes('bob'))).length).toBe(MAX_FANOUT_ROWS);
+    expect((await run.observe(liveNotes, 'bob')).length).toBe(MAX_FANOUT_ROWS);
   });
 
   test('MAX_FANOUT_ROWS+1 falls back to pushSeq-only; peers still converge', async () => {
@@ -73,14 +72,14 @@ describe('fanout row cap boundary 64 vs 65', () => {
     await run.apply(net, 'bob', 'sync', 'hold');
     await run.apply(mutate, 'alice', retouchNotes, { ids, body: 'over-cap' });
     // Over-cap omits images; peer waits for sync refetch.
-    await run.apply(passTime, 200);
+    await run.elapse(200);
     await expectConverged(run);
 
     await expectLiveNoteAt(run, 'bob', ids[0]!, { body: 'over-cap' });
     await expectLiveNoteAt(run, 'bob', ids[MAX_FANOUT_ROWS]!, {
       body: 'over-cap',
     });
-    expect((await run.observe(liveNotes('bob'))).length).toBe(
+    expect((await run.observe(liveNotes, 'bob')).length).toBe(
       MAX_FANOUT_ROWS + 1
     );
   });

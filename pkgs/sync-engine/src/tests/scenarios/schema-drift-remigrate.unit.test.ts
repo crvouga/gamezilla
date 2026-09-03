@@ -39,7 +39,7 @@ describe('preserveLocalDb remigrate after additive schema', () => {
     // Must reuse sticky upgrade schema — baseline reconcile would reject color.
     await run.apply(restart, 'alice', { preserveLocalDb: true });
 
-    const cols = await run.observe(noteColumns('alice'));
+    const cols = await run.observe(noteColumns, 'alice');
     expect(cols.some((c) => c.name === 'color')).toBe(true);
     await expectLiveNoteAt(run, 'alice', 'n1', { body: 'hi' });
     await expectNotesAgree(run, 'alice');
@@ -88,7 +88,7 @@ describe('preserveLocalDb remigrate after additive schema', () => {
 
     await run.apply(restartWithSchema, 'alice', 'extraTable');
 
-    const cols = await run.observe(noteColumns('alice'));
+    const cols = await run.observe(noteColumns, 'alice');
     expect(cols.some((c) => c.name === 'color')).toBe(false);
     expect(await hasLocalTable(run, 'alice', 'tags')).toBe(true);
     await expectLiveNoteAt(run, 'alice', 'n1', { body: 'keep' });

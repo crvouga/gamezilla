@@ -13,7 +13,6 @@ import {
   liveNote,
   mutate,
   outcome,
-  passTime,
   release,
   setNote,
   syncVirtualHost,
@@ -34,35 +33,35 @@ describe('interleaved mutate during upload inflight', () => {
 
     await run.apply(disconnect, 'alice');
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'first' });
-    expect(await run.observe(lastMutationOk('alice'))).toBe(true);
+    expect(await run.observe(lastMutationOk, 'alice')).toBe(true);
     await run.apply(mutate, 'alice', setNote, { id: 'n2', body: 'second' });
-    expect(await run.observe(lastMutationOk('alice'))).toBe(true);
+    expect(await run.observe(lastMutationOk, 'alice')).toBe(true);
 
     // Hold sync so the first upload stays in flight while more mutates land.
     await run.apply(hold, 'alice', 'sync');
     await run.apply(connect, 'alice');
-    await run.apply(passTime, 50);
+    await run.elapse(50);
 
     await run.apply(mutate, 'alice', setNote, { id: 'n3', body: 'third' });
-    expect(await run.observe(lastMutationOk('alice'))).toBe(true);
+    expect(await run.observe(lastMutationOk, 'alice')).toBe(true);
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'first-v2' });
-    expect(await run.observe(lastMutationOk('alice'))).toBe(true);
-    const fourthId = await run.observe(lastMutationId('alice'));
+    expect(await run.observe(lastMutationOk, 'alice')).toBe(true);
+    const fourthId = await run.observe(lastMutationId, 'alice');
     expect(fourthId).not.toBeNull();
     if (fourthId === null) return;
 
     await run.apply(release, 'alice', 'sync');
-    await untilAcme(run, outcome('alice', fourthId));
-    expect(await run.observe(outcome('alice', fourthId))).toBe('confirmed');
+    await untilAcme(run, (s) => outcome(s, 'alice', fourthId));
+    expect(await run.observe(outcome, 'alice', fourthId)).toBe('confirmed');
     await expectConverged(run);
 
-    expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+    expect(await run.observe(liveNote, 'bob', 'n1')).toMatchObject({
       body: 'first-v2',
     });
-    expect(await run.observe(liveNote('bob', 'n2'))).toMatchObject({
+    expect(await run.observe(liveNote, 'bob', 'n2')).toMatchObject({
       body: 'second',
     });
-    expect(await run.observe(liveNote('bob', 'n3'))).toMatchObject({
+    expect(await run.observe(liveNote, 'bob', 'n3')).toMatchObject({
       body: 'third',
     });
   });

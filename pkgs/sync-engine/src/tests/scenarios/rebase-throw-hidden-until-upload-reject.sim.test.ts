@@ -17,7 +17,6 @@ import {
   mutate,
   noteNotLive,
   outcome,
-  passTime,
   rejections,
   setNote,
   setNoteStrictExists,
@@ -49,25 +48,25 @@ describe('rebase throw hidden until upload reject', () => {
       id: 'n1',
       body: 'strict-pending',
     });
-    expect(await run.observe(lastMutationOk('alice'))).toBe(true);
-    const pendingId = await run.observe(lastMutationId('alice'));
+    expect(await run.observe(lastMutationOk, 'alice')).toBe(true);
+    const pendingId = await run.observe(lastMutationId, 'alice');
     expect(pendingId).not.toBeNull();
     if (pendingId === null) return;
     await expectLiveNoteAt(run, 'alice', 'n1', { body: 'strict-pending' });
 
     await run.apply(mutate, 'bob', deleteNote, { id: 'n1' });
-    expect(await run.observe(lastMutationOk('bob'))).toBe(true);
-    await run.apply(passTime, 400);
+    expect(await run.observe(lastMutationOk, 'bob')).toBe(true);
+    await run.elapse(400);
     await expectNoteNotLiveAt(run, 'server', 'n1');
 
     await run.apply(connect, 'alice');
     // Merge+rebase throws → optimistic effect hidden (tombstone wins locally).
-    await untilAcme(run, liveNote('alice', 'n1'), { pred: noteNotLive });
+    await untilAcme(run, (s) => liveNote(s, 'alice', 'n1'), { pred: noteNotLive });
     await expectNoteNotLiveAt(run, 'alice', 'n1');
 
-    await untilAcme(run, outcome('alice', pendingId));
-    expect(await run.observe(outcome('alice', pendingId))).toBe('rejected');
-    const unacked = await run.observe(rejections('alice'));
+    await untilAcme(run, (s) => outcome(s, 'alice', pendingId));
+    expect(await run.observe(outcome, 'alice', pendingId)).toBe('rejected');
+    const unacked = await run.observe(rejections, 'alice');
     expect(unacked.length).toBe(1);
     expect(unacked[0]?.mutationId).toBe(pendingId);
 

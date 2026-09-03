@@ -1,4 +1,4 @@
-import { defineSystem, draw } from '@pkgs/dst';
+import { defineSystem } from '@pkgs/dst';
 import { gen } from '@pkgs/dst/fast-check';
 import fc from 'fast-check';
 import { reconcileIndexes } from '../../core/reconcile';
@@ -32,29 +32,26 @@ export const indexes = defineSystem({
   },
 });
 
-const { defineObservation, defineAction, defineProperty } = indexes;
+const { defineAction, defineProperty } = indexes;
 
-export const ownedIndexCount = defineObservation({
-  name: 'ownedIndexCount',
-  observe: (s) => reconcilerOf(s).db.getOwnedIndexNames().length,
-});
+export function ownedIndexCount(s: IndexesSurface): number {
+  return reconcilerOf(s).db.getOwnedIndexNames().length;
+}
 
-export const lastCrash = defineObservation({
-  name: 'lastCrash',
-  observe: (s) => reconcilerOf(s).lastCrash,
-});
+export function lastCrash(s: IndexesSurface): boolean {
+  return reconcilerOf(s).lastCrash;
+}
 
-export const invariantViolations = defineObservation({
-  name: 'invariantViolations',
-  observe: async (s) => {
-    try {
-      await checkIndexesInvariants(reconcilerOf(s));
-      return [] as string[];
-    } catch (e) {
-      return [e instanceof Error ? e.message : String(e)];
-    }
-  },
-});
+export async function invariantViolations(
+  s: IndexesSurface
+): Promise<string[]> {
+  try {
+    await checkIndexesInvariants(reconcilerOf(s));
+    return [];
+  } catch (e) {
+    return [e instanceof Error ? e.message : String(e)];
+  }
+}
 
 async function runReconcile(s: IndexesSurface): Promise<void> {
   const state = reconcilerOf(s);
@@ -106,25 +103,16 @@ async function runReconcile(s: IndexesSurface): Promise<void> {
 
 export const reconcile = defineAction({
   name: 'reconcile',
-  generate() {
-    return (s) => runReconcile(s);
+  act: async (s) => {
+    await runReconcile(s);
   },
 });
 
 export const advanceClock = defineAction({
   name: 'advanceClock',
-  generate(days: number) {
-    return (s) => {
-      reconcilerOf(s).clock.advance(days * 24 * 60 * 60 * 1000);
-    };
-  },
-});
-
-export const randomAdvanceClock = defineAction({
-  name: 'randomAdvanceClock',
-  *generate() {
-    const days = yield* draw(gen(fc.constantFrom(1, 2, 40)));
-    yield* advanceClock(days);
+  args: (_s) => gen(fc.constantFrom(1, 2, 40)),
+  act: (s, days: number) => {
+    reconcilerOf(s).clock.advance(days * 24 * 60 * 60 * 1000);
   },
 });
 
@@ -132,84 +120,60 @@ export type ManifestMode = 'user' | 'owner' | 'empty';
 
 export const setManifest = defineAction({
   name: 'setManifest',
-  generate(mode: ManifestMode) {
-    return (s) => {
-      const state = reconcilerOf(s);
-      if (mode === 'empty') {
-        state.manifest = emptyManifest();
-        return;
-      }
-      const col = mode === 'user' ? 'user_id' : 'owner_id';
-      state.manifest = manifestForCol('notes', col);
-    };
-  },
-});
-
-export const randomSetManifest = defineAction({
-  name: 'randomSetManifest',
-  *generate() {
-    const mode = yield* draw(gen(fc.constantFrom('user', 'owner', 'empty')));
-    yield {
-      weight: 3,
-      act: (s: IndexesSurface) => {
-        const state = reconcilerOf(s);
-        if (mode === 'empty') {
-          state.manifest = emptyManifest();
-          return;
-        }
-        const col = mode === 'user' ? 'user_id' : 'owner_id';
-        state.manifest = manifestForCol('notes', col);
-      },
-    };
+  weight: 3,
+  args: (_s) => gen(fc.constantFrom('user', 'owner', 'empty')),
+  act: (s, mode: string) => {
+    const state = reconcilerOf(s);
+    if (mode === 'empty') {
+      state.manifest = emptyManifest();
+      return;
+    }
+    const col = mode === 'user' ? 'user_id' : 'owner_id';
+    state.manifest = manifestForCol('notes', col);
   },
 });
 
 export const bumpUsage = defineAction({
   name: 'bumpUsage',
-  *generate() {
-    const n = yield* ownedIndexCount;
-    if (n === 0) return;
-    yield (s: IndexesSurface) => {
-      const state = reconcilerOf(s);
-      const names = state.db.getOwnedIndexNames();
-      if (names.length > 0) {
-        state.db.bumpScans(names[0]!, 1);
-      }
-    };
+  enabled: (s) => ownedIndexCount(s) > 0,
+  act: (s) => {
+    const state = reconcilerOf(s);
+    const names = state.db.getOwnedIndexNames();
+    if (names.length > 0) {
+      state.db.bumpScans(names[0]!, 1);
+    }
   },
 });
 
 export const externalAdd = defineAction({
   name: 'externalAdd',
-  generate() {
-    return (s) => {
-      reconcilerOf(s).db.externalAddIndex({
-        name: 'ix_notes_title',
-        table: 'notes',
-        columns: ['title'],
-        include: [],
-        predicate: null,
-        isUnique: false,
-        isPrimary: false,
-        isValid: true,
-        isOwned: false,
-      });
-    };
+  act: (s) => {
+    reconcilerOf(s).db.externalAddIndex({
+      name: 'ix_notes_title',
+      table: 'notes',
+      columns: ['title'],
+      include: [],
+      predicate: null,
+      isUnique: false,
+      isPrimary: false,
+      isValid: true,
+      isOwned: false,
+    });
   },
 });
 
 export const INDEXES_ACTIONS = [
   reconcile,
-  randomAdvanceClock,
-  randomSetManifest,
+  advanceClock,
+  setManifest,
   bumpUsage,
   externalAdd,
 ];
 
 export const invariantsHold = defineProperty({
   name: 'invariants',
-  *watch() {
-    const v = yield* invariantViolations;
+  check: async (s) => {
+    const v = await invariantViolations(s);
     if (v.length > 0) throw new Error(v[0]!);
   },
 });

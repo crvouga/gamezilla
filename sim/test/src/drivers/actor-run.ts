@@ -1,13 +1,12 @@
 /**
  * One actor's slice of a {@link Run}: the run-backed driver plus the two
- * time verbs flows need — `passTime` and `pollUntil`. Virtual time only; no
+ * time verbs flows need — `elapse` and `pollUntil`. Virtual time only; no
  * wall deadlines live in product flows.
  */
 
 import type { Run } from '@pkgs/dst';
 import type { Driver } from '@pkgs/ui-testing';
 
-import { passTime } from '../scenario/actions';
 import type { ProductSurface } from '../scenario/surface';
 import { createRunDriver } from '../setup/run-driver';
 
@@ -31,13 +30,13 @@ export class ActorRun {
     this.ui = createRunDriver(run, actorId);
   }
 
-  /** Advance the run one checkpoint; invalidates memoised observations. */
-  async passTime(ms: number = DEFAULT_STEP_MS): Promise<void> {
-    await this.run.apply(passTime, ms);
+  /** Advance the run one checkpoint; invalidates memoised reads. */
+  async elapse(ms: number = DEFAULT_STEP_MS): Promise<void> {
+    await this.run.elapse(ms);
   }
 
   /**
-   * Re-read `probe` across `passTime` checkpoints until it yields a value.
+   * Re-read `probe` across `elapse` checkpoints until it yields a value.
    * `probe` returning `null` means "not yet".
    */
   async pollUntil<T>(
@@ -54,7 +53,7 @@ export class ActorRun {
           `Timed out after ${String(opts.maxMs)}ms waiting for ${opts.description}`
         );
       }
-      await this.passTime(stepMs);
+      await this.elapse(stepMs);
       waited += stepMs;
     }
   }

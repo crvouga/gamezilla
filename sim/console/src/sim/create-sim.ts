@@ -25,7 +25,6 @@ import {
 import { InMemoryBilling } from '@pkgs/billing';
 import type { Clock, Timers } from '@pkgs/clock';
 import type { Session } from '@pkgs/dst';
-import type { VirtualScheduler } from '@pkgs/dst/kernel';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
 import { KvImplWebNamespaced } from '@pkgs/kv/impl-kv-web-namespaced';
 import { InMemoryLlmProvider } from '@pkgs/llm/server';
@@ -71,11 +70,13 @@ export type CreateSimOptions = {
 
 export type Server = Awaited<ReturnType<typeof createServer>>;
 
+type UnderlyingScheduler = Session['scheduler']['underlying'];
+
 export type Sim = {
   readonly session: Session;
   readonly server: ServerEnv;
   readonly clock: Clock;
-  readonly scheduler: VirtualScheduler;
+  readonly scheduler: UnderlyingScheduler;
   readonly pubSubBus: ReturnType<typeof createInMemoryBus>;
   client(id: string): ClientEnv;
   spawnServer(): Promise<Server>;

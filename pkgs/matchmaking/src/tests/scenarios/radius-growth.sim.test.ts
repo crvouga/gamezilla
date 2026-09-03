@@ -1,12 +1,15 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { neverObserved, untilObserved } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import type { TickResult } from '../../interface/matchmaking';
 import type { StatusResult } from '../../interface/types';
 import {
+  defineMatchmakingSystem,
   join,
   lastTick,
+  MATCHMAKING_PROPERTIES,
   matched,
-  scriptMatchmaking,
+  matchmaking,
+  matchmakingKnobs,
   statusOf,
   stepTime,
   tick,
@@ -25,10 +28,16 @@ describe('matchmaking sim: radius growth', () => {
   });
 
   test('far pair never matches at t=0; until matched after wait', async () => {
-    await using run = await scriptMatchmaking({
-      seed: 70,
-      radius: { baseRadius: 10, radiusGrowthPerSecond: 10, maxRadius: 400 },
-    });
+    await using run = await script(
+      defineMatchmakingSystem({
+        radius: { baseRadius: 10, radiusGrowthPerSecond: 10, maxRadius: 400 },
+      }),
+      {
+        seed: 70,
+        knobs: matchmakingKnobs(),
+        properties: MATCHMAKING_PROPERTIES,
+      }
+    );
     const formula = { numeric: [{ tag: RatingAttr, weight: 1 }] };
     await run.apply(join, {
       ref: 'a',
@@ -38,21 +47,34 @@ describe('matchmaking sim: radius growth', () => {
       ref: 'b',
       input: { data: RatingAttr(1080), formulas: [formula] },
     });
-    await neverObserved(run, matched(['a']), stepTime, {
-      forMs: 500,
-      stepMs: 100,
-    });
-    await untilObserved(run, matched(['a']), stepTime, {
-      maxMs: 30_000,
-      stepMs: 1_000,
-    });
-    expect(((await run.observe(statusOf('b'))) as StatusResult).status).toBe(
+    let waited = 0;
+    while (waited < 500) {
+      if (await run.observe(matched, ['a'])) {
+        throw new Error(`never: matched at ${String(waited)}ms`);
+      }
+      await run.apply(stepTime, 100);
+      waited += 100;
+    }
+    waited = 0;
+    for (;;) {
+      if (await run.observe(matched, ['a'])) break;
+      if (waited >= 30_000) {
+        throw new Error('until: not matched within 30000ms');
+      }
+      await run.apply(stepTime, 1_000);
+      waited += 1_000;
+    }
+    expect(((await run.observe(statusOf, 'b')) as StatusResult).status).toBe(
       'matched'
     );
   });
 
   test('stricter per-formula radius bounds the match', async () => {
-    await using run = await scriptMatchmaking({ seed: 71 });
+    await using run = await script(matchmaking, {
+      seed: 71,
+      knobs: matchmakingKnobs(),
+      properties: MATCHMAKING_PROPERTIES,
+    });
     await run.apply(join, {
       ref: 'a',
       input: {
@@ -77,7 +99,11 @@ describe('matchmaking sim: radius growth', () => {
   });
 
   test('looser per-formula radius lets pair match', async () => {
-    await using run = await scriptMatchmaking({ seed: 72 });
+    await using run = await script(matchmaking, {
+      seed: 72,
+      knobs: matchmakingKnobs(),
+      properties: MATCHMAKING_PROPERTIES,
+    });
     const wide = {
       numeric: [{ tag: RatingAttr, weight: 1 }],
       radius: { baseRadius: 200, radiusGrowthPerSecond: 0, maxRadius: 200 },

@@ -1,4 +1,4 @@
-import type { VirtualScheduler } from '@pkgs/dst/kernel';
+import type { VirtualScheduler } from '@pkgs/dst';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { reconcileOptimisticPeerMarkers } from '../client/optimistic-peer-rows';
 import type { SimClientHandle } from './client-handle';

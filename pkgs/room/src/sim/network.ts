@@ -1,11 +1,11 @@
-import type {
-  EndpointId,
-  FlowKey,
-  Network,
-  NetworkFaults,
-  VirtualScheduler,
-} from '@pkgs/dst/kernel';
-import { RELIABLE_NETWORK } from '@pkgs/dst/kernel';
+import {
+  type EndpointId,
+  type FlowKey,
+  type Network,
+  type NetworkFaults,
+  RELIABLE_NETWORK,
+  type VirtualScheduler,
+} from '@pkgs/dst';
 
 import { createNetEffect, type NetEffect } from './net-effect';
 

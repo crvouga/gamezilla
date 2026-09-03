@@ -10,7 +10,6 @@ import {
   liveNote,
   mutate,
   neverAcme,
-  passTime,
   setNote,
   syncVirtualHost,
   untilAcme,
@@ -35,12 +34,12 @@ describe('background pauses sweeps foreground catches up', () => {
 
     await run.apply(foreground, 'bob', false);
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'while-bg' });
-    await neverAcme(run, liveNote('bob', 'n1'), { forMs: 300 });
+    await neverAcme(run, (s) => liveNote(s, 'bob', 'n1'), { forMs: 300 });
 
     await run.apply(foreground, 'bob', true);
-    await untilAcme(run, liveNote('bob', 'n1'));
+    await untilAcme(run, (s) => liveNote(s, 'bob', 'n1'));
     await expectConverged(run);
-    expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+    expect(await run.observe(liveNote, 'bob', 'n1')).toMatchObject({
       body: 'while-bg',
     });
   });
@@ -61,12 +60,12 @@ describe('background pauses sweeps foreground catches up', () => {
       id: 'local',
       body: 'bg-write',
     });
-    expect(await run.observe(lastMutationOk('alice'))).toBe(true);
-    expect(await run.observe(liveNote('alice', 'local'))).toMatchObject({
+    expect(await run.observe(lastMutationOk, 'alice')).toBe(true);
+    expect(await run.observe(liveNote, 'alice', 'local')).toMatchObject({
       body: 'bg-write',
     });
     // Drain upload while pumping sim time (dispose awaits upload stop).
     await run.apply(foreground, 'alice', true);
-    await run.apply(passTime, 200);
+    await run.elapse(200);
   });
 });

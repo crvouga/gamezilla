@@ -10,7 +10,6 @@ import {
   hold,
   liveNote,
   mutate,
-  passTime,
   release,
   setNote,
   syncVirtualHost,
@@ -45,7 +44,7 @@ describe('hold window safety PBT', () => {
             });
 
             for (let i = 0; i < 8; i += 1) {
-              const row = await run.observe(liveNote(clientId, noteId));
+              const row = await run.observe(liveNote, clientId, noteId);
               if (row === null || row.deletedAt !== null) {
                 throw new Error(
                   `note missing during hold seed=${String(seed)}`
@@ -56,7 +55,7 @@ describe('hold window safety PBT', () => {
                   `body reverted during hold: expected ${body}, got ${row.body}`
                 );
               }
-              await run.apply(passTime, 25);
+              await run.elapse(25);
             }
 
             await run.apply(release, clientId, 'sync');

@@ -7,7 +7,6 @@ import {
   expectConverged,
   hold,
   mutate,
-  passTime,
   release,
   setNote,
   syncVirtualHost,
@@ -33,8 +32,8 @@ describe('own echo floor skips but peer push applies', () => {
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'final' });
 
     for (let i = 0; i < 8; i += 1) {
-      await run.apply(passTime, 25);
-      const notes = await run.observe(liveNotes('alice'));
+      await run.elapse(25);
+      const notes = await run.observe(liveNotes, 'alice');
       expect(notes.find((r) => r.id === 'n1')?.body).toBe('final');
     }
 

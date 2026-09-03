@@ -30,7 +30,7 @@ describe('push without row images wakes refetch', () => {
     });
     await expectConverged(run);
 
-    expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+    expect(await run.observe(liveNote, 'bob', 'n1')).toMatchObject({
       body: 'no-images',
     });
   });

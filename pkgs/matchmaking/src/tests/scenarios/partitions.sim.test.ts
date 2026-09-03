@@ -1,13 +1,17 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
+import { script } from '@pkgs/dst';
 import type { TickResult } from '../../interface/matchmaking';
 import type { StatusResult } from '../../interface/types';
 import {
   join,
   lastTick,
   participantIds,
-  scriptMatchmaking,
   statusOf,
   tick,
+  matchmaking,
+  matchmakingKnobs,
+  MATCHMAKING_PROPERTIES,
+  defineMatchmakingSystem,
 } from '../../sim/scenario';
 import {
   expectMatched,
@@ -28,9 +32,10 @@ describe('matchmaking sim: partitions', () => {
   });
 
   test('declared partitionKeys isolate participants across shards', async () => {
-    await using run = await scriptMatchmaking({
+    await using run = await script(defineMatchmakingSystem({ schema: { partitionKeys: [KindAttr.key] } }), {
       seed: 40,
-      schema: { partitionKeys: [KindAttr.key] },
+      knobs: matchmakingKnobs(),
+      properties: MATCHMAKING_PROPERTIES,
     });
     const plan = [
       { ref: 'a1', rating: 1000, kind: 'alpha' },
@@ -53,11 +58,11 @@ describe('matchmaking sim: partitions', () => {
     expect(drained.partitions).toBe(2);
     const ids = await run.observe(participantIds);
     const a1 = expectMatched(
-      (await run.observe(statusOf('a1'))) as StatusResult
+      (await run.observe(statusOf, 'a1')) as StatusResult
     );
     expect(a1.peers[0]?.participantId).toBe(ids['a2']);
     const b1 = expectMatched(
-      (await run.observe(statusOf('b1'))) as StatusResult
+      (await run.observe(statusOf, 'b1')) as StatusResult
     );
     expect(b1.peers[0]?.participantId).toBe(ids['b2']);
   });

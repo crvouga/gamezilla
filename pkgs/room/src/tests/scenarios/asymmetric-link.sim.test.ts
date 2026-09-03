@@ -2,7 +2,6 @@ import { describe, expect, test } from 'bun:test';
 import {
   asymmetricLink,
   dispatch,
-  passTime,
   release,
 } from '../../sim/scenario';
 import { expectConverged } from '../expect-converged';
@@ -23,13 +22,13 @@ describe('room sim: asymmetric link (P2)', () => {
       clientId: 'bob',
       payload: Increment({}),
     });
-    await run.apply(passTime, 0);
+    await run.elapse(0);
     expect(counterValue(await readClient(run, 'alice'))).toBe(1);
     await run.apply(dispatch, {
       clientId: 'alice',
       payload: Increment({}),
     });
-    await run.apply(passTime, 120);
+    await run.elapse(120);
     expect(counterValue(await readClient(run, 'bob'))).not.toBe(2);
     await run.apply(release, 'bob');
 

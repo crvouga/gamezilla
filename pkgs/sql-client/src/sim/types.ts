@@ -30,7 +30,6 @@ export type SqlClientWebState = {
   rpcSeq: number;
   readonly tabs: Map<string, SqlWebTab>;
   readonly expected: Map<string, string>;
-  readonly mismatches: string[];
 };
 
 export type SqlClientWebSurface = {
@@ -50,7 +49,6 @@ export function createSqlClientWebState(): SqlClientWebState {
     rpcSeq: 0,
     tabs: new Map(),
     expected: new Map(),
-    mismatches: [],
   };
 }
 

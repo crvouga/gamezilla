@@ -1,5 +1,4 @@
-import type { Session } from '@pkgs/dst';
-import { asSeededRng } from '@pkgs/dst/kernel';
+import { asSeededRng, type Session } from '@pkgs/dst';
 import { bootReplicaOnStore } from '../boot-replica';
 import type { MatchmakingSimBackend } from '../sim-api';
 import { openSimStore, type SimStore } from '../store';

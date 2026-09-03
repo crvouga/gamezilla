@@ -8,10 +8,11 @@ import type { SimServer } from '../server';
 import type { LocalStorageTamper } from '../storage-faults';
 import type { StoragePressureKind } from '../storage-pressure';
 import type { SimTraffic } from '../traffic';
-import type { NeverOptions, UntilTarget } from '../wait-until';
 
 /**
  * Scripted-pin / dispatch surface — domain ops over the live sync surface.
+ * Waiting / converge / invariants are reads + `run.until` / properties — not
+ * methods on this surface.
  */
 export type SyncSurfaceBase = {
   readonly seed: bigint;
@@ -22,25 +23,10 @@ export type SyncSurfaceBase = {
   readonly net: (nodeId: string, traffic?: SimTraffic) => SimNetHandle;
   readonly node: (id: string) => SimNodeHandle;
   readonly advance: (ms: number) => Promise<void>;
-  readonly waitUntil: (
-    target: UntilTarget,
-    opts?: {
-      readonly withinMs?: number;
-      readonly budgetMs?: number;
-      readonly stepMs?: number;
-    }
-  ) => Promise<number>;
-  readonly waitNever: (
-    target: UntilTarget,
-    opts: NeverOptions
-  ) => Promise<void>;
   readonly pendingEventCount: () => number;
   readonly isSchedulerQuiescent: () => boolean;
-  readonly checkInvariants: () => Promise<void>;
   /** Heal network / infra / reconnect clients — stimulus only. */
   readonly revive: () => Promise<void>;
-  /** Drain until domain agreement (no heal — call revive first). */
-  readonly drainUntilConverged: () => Promise<void>;
   readonly clearBoundaryFaults: () => void;
   readonly tamperLocalStorage: (
     clientId: string,

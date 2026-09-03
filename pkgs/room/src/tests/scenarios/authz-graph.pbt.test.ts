@@ -1,9 +1,10 @@
 import { describe, expect, test } from 'bun:test';
 import { assertProperty, fc } from '@pkgs/pbt';
 
-import { arbSeed, replayRoom } from '../../sim/scenario';
+import { arbSeed } from '../../sim/scenario';
 import { authzSystem } from '../apps/authz/system';
 import { authzCount, authzOwner } from '../fixtures/authz-module';
+import { playRoomActions } from '../scenario/play-actions';
 import { readServer } from '../scenario/read-state';
 
 describe('room authz-graph PBT', () => {
@@ -13,7 +14,7 @@ describe('room authz-graph PBT', () => {
       await assertProperty(
         'authz graph converges',
         fc.asyncProperty(arbSeed(), async (seed) => {
-          await using run = await replayRoom(authzSystem, {
+          await using run = await playRoomActions(authzSystem, {
             seed,
             actions: [
               {
@@ -56,7 +57,7 @@ describe('room authz-graph PBT', () => {
   );
 
   test('takeOver does not transfer ownership', async () => {
-    await using run = await replayRoom(authzSystem, {
+    await using run = await playRoomActions(authzSystem, {
       seed: 21,
       actions: [
         {

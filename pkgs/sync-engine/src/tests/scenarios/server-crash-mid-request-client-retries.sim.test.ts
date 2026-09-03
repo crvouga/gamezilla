@@ -9,7 +9,6 @@ import {
   liveNote,
   mutate,
   net,
-  passTime,
   restart,
   setNote,
   syncVirtualHost,
@@ -36,14 +35,14 @@ describe('server crash mid request client retries', () => {
         id: 'n1',
         body: 'during-crash',
       });
-      await run.apply(passTime, 20);
+      await run.elapse(20);
       await run.apply(crash, 'server');
-      await run.apply(passTime, 50);
+      await run.elapse(50);
       await run.apply(restart, 'server', { preserveLocalDb: true });
     }
     await expectConverged(run);
 
-    expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+    expect(await run.observe(liveNote, 'bob', 'n1')).toMatchObject({
       body: 'during-crash',
     });
 
@@ -53,7 +52,7 @@ describe('server crash mid request client retries', () => {
       body: 'after-restart',
     });
     await expectConverged(run);
-    expect(await run.observe(liveNote('alice', 'n2'))).toMatchObject({
+    expect(await run.observe(liveNote, 'alice', 'n2')).toMatchObject({
       body: 'after-restart',
     });
   });

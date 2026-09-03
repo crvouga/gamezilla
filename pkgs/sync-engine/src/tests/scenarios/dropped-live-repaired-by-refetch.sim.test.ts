@@ -8,7 +8,6 @@ import {
   liveNote,
   mutate,
   net,
-  passTime,
   setNote,
   syncVirtualHost,
 } from '../apps/acme';
@@ -28,12 +27,12 @@ describe('dropped live repaired by refetch', () => {
     {
       await run.apply(net, 'bob', 'live', { dropProbability: 1 });
       await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'lost' });
-      await run.apply(passTime, 50);
+      await run.elapse(50);
       await run.apply(net, 'bob', 'live', 'ok');
     }
     await expectConverged(run);
 
-    expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+    expect(await run.observe(liveNote, 'bob', 'n1')).toMatchObject({
       body: 'lost',
     });
   });
@@ -54,7 +53,7 @@ describe('dropped live repaired by refetch', () => {
     await run.apply(mutate, 'alice', setNote, { id: 'n2', body: 'b' });
     await run.apply(mutate, 'alice', setNote, { id: 'n3', body: 'c' });
     await expectConverged(run);
-    expect(await run.observe(liveNote('bob', 'n2'))).toMatchObject({
+    expect(await run.observe(liveNote, 'bob', 'n2')).toMatchObject({
       body: 'b',
     });
   });
@@ -73,7 +72,7 @@ describe('dropped live repaired by refetch', () => {
     await run.apply(addClient, { id: 'bob' });
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'dup' });
     await expectConverged(run);
-    expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+    expect(await run.observe(liveNote, 'bob', 'n1')).toMatchObject({
       body: 'dup',
     });
   });

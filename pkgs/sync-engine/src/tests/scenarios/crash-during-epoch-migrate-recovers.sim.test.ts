@@ -13,7 +13,6 @@ import {
   expectNoteNotLiveAt,
   expectNotesAgree,
   mutate,
-  passTime,
   restart,
   setNote,
   syncVirtualHost,
@@ -44,7 +43,7 @@ describe('crash during epoch migrate recovers', () => {
       id: 'pending',
       body: 'durable',
     });
-    await run.apply(passTime, 50);
+    await run.elapse(50);
     await expectLiveNoteAt(run, 'alice', 'pending', { body: 'durable' });
     await expectNoteNotLiveAt(run, 'server', 'pending');
 

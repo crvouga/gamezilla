@@ -75,16 +75,16 @@ describe('tombstone membership wakes removed user topic', () => {
     });
     await run.apply(mutate, 'bob', joinSpace, { spaceId: 'tomb-room' });
     await expectConverged(run);
-    await untilAcme(run, subscribedTopics('bob'), {
+    await untilAcme(run, (s) => subscribedTopics(s, 'bob'), {
       pred: hasTopic(roomTopic('tomb-room')),
     });
 
     await run.apply(mutate, 'bob', leaveSpace, { spaceId: 'tomb-room' });
-    await untilAcme(run, subscribedTopics('bob'), {
+    await untilAcme(run, (s) => subscribedTopics(s, 'bob'), {
       pred: lacksTopic(roomTopic('tomb-room')),
     });
     await expectConverged(run);
-    expect(await run.observe(subscribedTopics('alice'))).toContain(
+    expect(await run.observe(subscribedTopics, 'alice')).toContain(
       roomTopic('tomb-room')
     );
   });

@@ -34,7 +34,7 @@ describe('query POST chunking', () => {
           folderId: `folder-${String(i)}`,
         }))
       );
-      expect(await run.observe(hasSynced('alice'))).toBe(true);
+      expect(await run.observe(hasSynced, 'alice')).toBe(true);
       await expectConverged(run);
     },
     { timeout: 60_000 }

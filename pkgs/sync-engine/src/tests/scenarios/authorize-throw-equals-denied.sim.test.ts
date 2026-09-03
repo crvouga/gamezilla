@@ -27,22 +27,22 @@ describe('authorize throw equals denied', () => {
     await run.apply(addClient, { id: 'alice' });
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'keep-me' });
     await expectConverged(run);
-    expect(await run.observe(liveNote('alice', 'n1'))).toMatchObject({
+    expect(await run.observe(liveNote, 'alice', 'n1')).toMatchObject({
       body: 'keep-me',
     });
 
     {
       await run.apply(subscribe, 'alice', 'notesAuthorizeThrow', {});
       // Same observable outcome as denied: domain retained, no crash loop.
-      expect(await run.observe(liveNote('alice', 'n1'))).toMatchObject({
+      expect(await run.observe(liveNote, 'alice', 'n1')).toMatchObject({
         body: 'keep-me',
       });
-      expect(await run.observe(lastError('alice'))).toBeNull();
+      expect(await run.observe(lastError, 'alice')).toBeNull();
       await run.apply(unsubscribe, 'alice', 'notesAuthorizeThrow');
     }
     // nudge: refresh after denied-scope unsubscribe
     await run.apply(nudge, 'alice');
-    expect(await run.observe(liveNote('alice', 'n1'))).toMatchObject({
+    expect(await run.observe(liveNote, 'alice', 'n1')).toMatchObject({
       body: 'keep-me',
     });
     await expectConverged(run);
@@ -63,7 +63,7 @@ describe('authorize throw equals denied', () => {
       await expectConverged(run);
       {
         await run.apply(subscribe, 'alice', 'notesAuthorizeThrow', {});
-        expect(await run.observe(liveNote('alice', `n-${seed}`))).toMatchObject(
+        expect(await run.observe(liveNote, 'alice', `n-${seed}`)).toMatchObject(
           { body: 'x' }
         );
         await run.apply(unsubscribe, 'alice', 'notesAuthorizeThrow');

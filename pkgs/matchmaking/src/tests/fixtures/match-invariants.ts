@@ -19,7 +19,7 @@ export type MatchmakingRun = Run<MatchmakingSurface>;
 /** Stable digest of every aliased participant's match outcome. */
 export async function matchFingerprint(run: MatchmakingRun): Promise<string> {
   const ids = await run.observe(participantIds);
-  const all = (await run.observe(statuses())) as Record<
+  const all = (await run.observe(statuses)) as Record<
     string,
     StatusResult | null
   >;
@@ -46,7 +46,8 @@ export async function assertStatusAgreesAcrossReplicas(
   participantId: string
 ): Promise<StatusResult | null> {
   const byReplica = (await run.observe(
-    statusAcrossReplicas(participantId)
+    statusAcrossReplicas,
+    participantId
   )) as Record<string, StatusResult | null>;
   const ids = Object.keys(byReplica);
   const firstId = ids[0];
@@ -105,7 +106,7 @@ export async function assertMatchInvariants(
   for (const [matchId, members] of byMatch) {
     expect(members.size).toBe(groupSize);
     for (const id of members) {
-      const st = expectMatched(await run.observe(statusById(id)));
+      const st = expectMatched(await run.observe(statusById, id));
       expect(st.matchId).toBe(matchId);
       expect(new Set([id, ...st.peers.map((x) => x.participantId)])).toEqual(
         members

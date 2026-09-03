@@ -50,17 +50,17 @@ describe('corrupt queued args permanent reject', () => {
         id: 'n1',
         body: 'will-reject',
       });
-      const mutationId = await run.observe(lastMutationId('alice'));
+      const mutationId = await run.observe(lastMutationId, 'alice');
       expect(mutationId).not.toBeNull();
       if (mutationId === null) return;
 
       await run.apply(runSql, 'alice', corruptArgs(mutationId));
 
       await run.apply(connect, 'alice');
-      await untilAcme(run, outcome('alice', mutationId), { maxMs: 5_000 });
-      expect(await run.observe(outcome('alice', mutationId))).toBe('rejected');
+      await untilAcme(run, (s) => outcome(s, 'alice', mutationId), { maxMs: 5_000 });
+      expect(await run.observe(outcome, 'alice', mutationId)).toBe('rejected');
 
-      const unacked = await run.observe(rejections('alice'));
+      const unacked = await run.observe(rejections, 'alice');
       expect(unacked.some((r) => r.mutationId === mutationId)).toBe(true);
       expect(unacked.some((r) => r.code === 'INVALID_ARGS')).toBe(true);
 
@@ -92,15 +92,15 @@ describe('corrupt queued args permanent reject', () => {
       id: 'orphan',
       body: 'will-reject',
     });
-    const mutationId = await run.observe(lastMutationId('alice'));
+    const mutationId = await run.observe(lastMutationId, 'alice');
     expect(mutationId).not.toBeNull();
     if (mutationId === null) return;
 
     await run.apply(runSql, 'alice', corruptArgs(mutationId));
 
     await run.apply(connect, 'alice');
-    await untilAcme(run, outcome('alice', mutationId), { maxMs: 5_000 });
-    expect(await run.observe(outcome('alice', mutationId))).toBe('rejected');
+    await untilAcme(run, (s) => outcome(s, 'alice', mutationId), { maxMs: 5_000 });
+    expect(await run.observe(outcome, 'alice', mutationId)).toBe('rejected');
 
     await run.apply(mutate, 'bob', setNote, { id: 'ok', body: 'healthy' });
     await expectConverged(run);

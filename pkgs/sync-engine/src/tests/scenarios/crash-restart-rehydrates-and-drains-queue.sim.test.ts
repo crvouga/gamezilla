@@ -8,7 +8,6 @@ import {
   expectConverged,
   mutate,
   online,
-  passTime,
   restart,
   setNote,
   syncVirtualHost,
@@ -30,7 +29,7 @@ describe('crash restart rehydrates and drains queue', () => {
     // AppLifecycle offline: requiresOnline gate; upload may still run.
     await run.apply(online, 'alice', false);
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'queued' });
-    await run.apply(passTime, 50);
+    await run.elapse(50);
 
     await run.apply(online, 'alice', true);
     await expectConverged(run);

@@ -43,19 +43,19 @@ describe('mutate local apply and queue atomic under crash', () => {
     });
     // Crash fires after mutate resolves — alice is gone from the run.
     expect(await run.observe(clientIds)).not.toContain('alice');
-    expect(await run.observe(lastMutationOk('alice'))).toBe(true);
+    expect(await run.observe(lastMutationOk, 'alice')).toBe(true);
 
     await run.apply(restart, 'alice', { preserveLocalDb: true });
     await expectConverged(run);
 
-    const onServer = (await run.observe(liveNotes('server'))).some(
+    const onServer = (await run.observe(liveNotes, 'server')).some(
       (r) => r.id === 'atomic' && r.body === 'queued-or-absent'
     );
     if (onServer) {
       await expectLiveNoteAt(run, 'alice', 'atomic', {
         body: 'queued-or-absent',
       });
-      expect(await run.observe(liveNote('bob', 'atomic'))).toMatchObject({
+      expect(await run.observe(liveNote, 'bob', 'atomic')).toMatchObject({
         body: 'queued-or-absent',
       });
     } else {

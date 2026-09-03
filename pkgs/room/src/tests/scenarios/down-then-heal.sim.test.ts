@@ -4,7 +4,6 @@ import {
   disconnect,
   dispatch,
   down,
-  passTime,
 } from '../../sim/scenario';
 import { expectConverged } from '../expect-converged';
 import { counterValue, Increment } from '../fixtures/counter-module';
@@ -26,7 +25,7 @@ describe('room sim: down then heal (E-A02)', () => {
       clientId: 'alice',
       payload: Increment({}),
     });
-    await run.apply(passTime, 200);
+    await run.elapse(200);
     expect(await readClientHash(run, 'bob')).toBe(bobBefore);
     await run.apply(disconnect, 'bob');
     await run.apply(connect, 'bob');

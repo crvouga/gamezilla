@@ -26,14 +26,14 @@ describe('empty tables and zero row snapshot', () => {
     await run.apply(addClient, 'alice');
     await run.apply(addClient, 'bob');
     await expectConverged(run);
-    expect(await run.observe(liveNotes('alice'))).toEqual([]);
-    expect(await run.observe(liveFolders('alice'))).toEqual([]);
-    expect(await run.observe(liveNotes('bob'))).toEqual([]);
+    expect(await run.observe(liveNotes, 'alice')).toEqual([]);
+    expect(await run.observe(liveFolders, 'alice')).toEqual([]);
+    expect(await run.observe(liveNotes, 'bob')).toEqual([]);
 
     // Verify not_modified refresh stays empty on both sides.
     await run.apply(nudge, 'alice');
     await run.apply(nudge, 'bob');
-    expect(await run.observe(liveNotes('alice'))).toEqual([]);
+    expect(await run.observe(liveNotes, 'alice')).toEqual([]);
     await expectConverged(run);
   });
 
@@ -74,7 +74,7 @@ describe('empty tables and zero row snapshot', () => {
       await run.apply(addClient, 'alice');
       await run.apply(addClient, 'bob');
       await expectConverged(run);
-      expect(await run.observe(liveNotes('server'))).toEqual([]);
+      expect(await run.observe(liveNotes, 'server')).toEqual([]);
     }
   );
 });

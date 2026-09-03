@@ -28,15 +28,15 @@ describe('domain hard delete rejected', () => {
     await expectConverged(run);
 
     await run.apply(mutate, 'alice', illegalHardDeleteNote, { id: 'n1' });
-    expect(await run.observe(lastMutationOk('alice'))).toBe(false);
-    expect(await run.observe(lastMutationFailures('alice'))).toContain(
+    expect(await run.observe(lastMutationOk, 'alice')).toBe(false);
+    expect(await run.observe(lastMutationFailures, 'alice')).toContain(
       'NO_HARD_DELETE'
     );
 
-    expect(await run.observe(liveNote('alice', 'n1'))).toMatchObject({
+    expect(await run.observe(liveNote, 'alice', 'n1')).toMatchObject({
       body: 'keep-me',
     });
-    expect(await run.observe(liveNote('server', 'n1'))).toMatchObject({
+    expect(await run.observe(liveNote, 'server', 'n1')).toMatchObject({
       body: 'keep-me',
     });
   });

@@ -1,79 +1,46 @@
-import { draw, type JsonValue, observe } from '@pkgs/dst';
+import type { JsonValue } from '@pkgs/dst';
 import type { DriverKey, DriverNode, ScrollDirection } from '@pkgs/ui-testing';
 
-import { caps, clientIds } from './observations';
-import { type ProductSurface, productExtra } from './surface';
+import { caps, clientIds, partitioned } from './observations';
+import type { ProductSurface } from './surface';
 import { defineAction } from './system';
 import { nodeAt } from './ui-nodes';
 
 export const spawnActor = defineAction({
   name: 'spawnActor',
-  generate(id: string) {
-    return async (s) => {
-      if (s.actors.has(id)) return;
-      const handle = await s.runtime.launchActor(id);
-      s.actors.set(id, handle);
-    };
+  act: async (s, id: string) => {
+    if (s.actors.has(id)) return;
+    const handle = await s.runtime.launchActor(id);
+    s.actors.set(id, handle);
   },
 });
 
 export const resetActor = defineAction({
   name: 'resetActor',
-  generate(id: string) {
-    return async (s) => {
-      await s.runtime.resetActor(id);
-    };
-  },
-});
-
-/**
- * Advance the run. RNTL goes through the host's serialized `runFor` (the
- * same drain the UI wait pump uses); other hosts advance the scheduler.
- */
-export const passTime = defineAction({
-  name: 'passTime',
-  generate(ms: number) {
-    return async (s) => {
-      const { ui } = productExtra(s);
-      if (ui.kind === 'rntl') {
-        await ui.runFor(ms);
-        return;
-      }
-      await s.session.scheduler.advance(ms);
-    };
+  act: async (s, id: string) => {
+    await s.runtime.resetActor(id);
   },
 });
 
 export const partition = defineAction({
   name: 'partition',
-  *generate(id: string) {
-    if (!(yield* caps).includes('partition')) return;
-    yield (s: ProductSurface) => {
-      s.session.network.partition('server', id);
-    };
+  enabled: (s) => caps(s).includes('partition') && clientIds(s).length > 0,
+  weight: (s) => (partitioned(s).length === 0 ? 2 : 1),
+  args: (s) => {
+    const ids = clientIds(s);
+    return (rng) => ids[Math.floor(rng.next() * ids.length)]!;
   },
-});
-
-/** Random pool member — draws a client then delegates to typed {@link partition}. */
-export const randomPartition = defineAction({
-  name: 'randomPartition',
-  *generate() {
-    const o = yield* observe({ caps, clientIds });
-    if (!o.caps.includes('partition') || o.clientIds.length === 0) return;
-    const id = yield* draw(
-      (rng) => o.clientIds[Math.floor(rng.next() * o.clientIds.length)]!
-    );
-    yield* partition(id);
+  act: (s, id: string) => {
+    s.session.network.partition('server', id);
   },
 });
 
 export const heal = defineAction({
   name: 'heal',
-  *generate() {
-    if (!(yield* caps).includes('partition')) return;
-    yield (s: ProductSurface) => {
-      s.session.network.healAll();
-    };
+  enabled: (s) => caps(s).includes('partition'),
+  weight: (s) => Math.max(partitioned(s).length, 0),
+  act: (s) => {
+    s.session.network.healAll();
   },
 });
 
@@ -86,10 +53,8 @@ export type UiOp = {
 
 export const uiOp = defineAction({
   name: 'uiOp',
-  generate(op: UiOp) {
-    return async (s) => {
-      await performUiOp(s, op);
-    };
+  act: async (s, op: UiOp) => {
+    await performUiOp(s, op);
   },
 });
 

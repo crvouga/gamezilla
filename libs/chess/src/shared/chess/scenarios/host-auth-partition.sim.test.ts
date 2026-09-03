@@ -8,9 +8,8 @@ import {
   expectConverged,
   hold,
   lastRejection,
-  passTime,
+  openRoom,
   release,
-  scriptRoom,
   serverHash,
   serverState,
 } from '@pkgs/room/tests';
@@ -28,7 +27,7 @@ const VALID_MOVES = 'e8d7 e1f2 d7e6 f2e3';
 
 describe('chess puzzle: host auth under partition (Gp-02)', () => {
   test('non-host submit rejected; domain still converges', async () => {
-    await using run = await scriptRoom(chessSystem, {
+    await using run = await openRoom(chessSystem, {
       seed: process.env['SIM_SEED'] ?? '42',
     });
     await run.apply(addClient, { id: 'host', identity: 'host-1' });
@@ -43,7 +42,7 @@ describe('chess puzzle: host auth under partition (Gp-02)', () => {
         moves: VALID_MOVES,
       }),
     });
-    await run.apply(passTime, 0);
+    await run.elapse(0);
     expect(
       ChessPuzzlePlayAttr.status.from((await run.observe(serverState)) as never)
     ).toBe(CHESS_PUZZLE_PLAY_STATUS.solving);

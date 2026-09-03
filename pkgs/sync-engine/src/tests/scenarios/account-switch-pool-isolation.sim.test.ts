@@ -12,7 +12,6 @@ import {
   liveNote,
   mutate,
   noteLive,
-  passTime,
   poolActivate,
   poolActivateConcurrently,
   poolMatched,
@@ -40,7 +39,7 @@ describe('account switch pool isolation', () => {
       identity: 'user-a',
       clientId: 'device-a',
     });
-    expect(await run.observe(poolMatched('user-a'))).toBe(true);
+    expect(await run.observe(poolMatched, 'user-a')).toBe(true);
 
     // Offline pending on A must not appear in B's separate local DB.
     await run.apply(disconnect, 'device-a');
@@ -48,30 +47,30 @@ describe('account switch pool isolation', () => {
       id: 'a-pending',
       body: 'only-on-a',
     });
-    expect(await run.observe(liveNote('device-a', 'a-pending'))).toMatchObject({
+    expect(await run.observe(liveNote, 'device-a', 'a-pending')).toMatchObject({
       body: 'only-on-a',
     });
-    expect(await run.observe(liveNote('server', 'a-pending'))).toBeNull();
+    expect(await run.observe(liveNote, 'server', 'a-pending')).toBeNull();
 
     await run.apply(poolActivate, pool, {
       identity: 'user-b',
       clientId: 'device-b',
     });
-    expect(await run.observe(poolMatched('user-b'))).toBe(true);
-    expect(await run.observe(connection('device-a'))).toBe('disconnected');
+    expect(await run.observe(poolMatched, 'user-b')).toBe(true);
+    expect(await run.observe(connection, 'device-a')).toBe('disconnected');
     // Prior identity is dropped from the ready map after SQLite close (web OPFS
     // single-session). Switch-back must recreate via `create`.
     expect(pool.peekReady('user-a')).toBeNull();
     expect(pool.peekReady('user-b')).not.toBeNull();
-    expect(await run.observe(liveNote('device-b', 'a-pending'))).toBeNull();
+    expect(await run.observe(liveNote, 'device-b', 'a-pending')).toBeNull();
 
     await run.apply(mutate, 'device-b', setNote, {
       id: 'b-only',
       body: 'from-b',
     });
     await run.apply(connect, 'device-b');
-    await untilAcme(run, liveNote('server', 'b-only'), { pred: noteLive });
-    expect(await run.observe(liveNote('server', 'b-only'))).toMatchObject({
+    await untilAcme(run, (s) => liveNote(s, 'server', 'b-only'), { pred: noteLive });
+    expect(await run.observe(liveNote, 'server', 'b-only')).toMatchObject({
       body: 'from-b',
     });
 
@@ -84,16 +83,16 @@ describe('account switch pool isolation', () => {
       identity: 'user-a',
       clientId: 'device-a-reopen',
     });
-    expect(await run.observe(poolMatched('user-a'))).toBe(true);
+    expect(await run.observe(poolMatched, 'user-a')).toBe(true);
     expect(pool.peekReady('user-b')).toBeNull();
     // Fresh local DB for the reopened identity — prior :memory: handle is gone.
     expect(
-      await run.observe(liveNote('device-a-reopen', 'a-pending'))
+      await run.observe(liveNote, 'device-a-reopen', 'a-pending')
     ).toBeNull();
 
-    await run.apply(passTime, 300);
+    await run.elapse(300);
     expect(
-      await run.observe(liveNote('device-a-reopen', 'b-only'))
+      await run.observe(liveNote, 'device-a-reopen', 'b-only')
     ).toMatchObject({ body: 'from-b' });
   });
 
@@ -128,9 +127,9 @@ describe('account switch pool isolation', () => {
     );
 
     expect(await run.observe(poolOverlappingCreates)).toBe(0);
-    expect(await run.observe(poolMatched('user-a-race'))).toBe(true);
-    expect(await run.observe(poolMatched('user-b-race'))).toBe(true);
-    expect(await run.observe(connection('device-a-race'))).toBe('disconnected');
+    expect(await run.observe(poolMatched, 'user-a-race')).toBe(true);
+    expect(await run.observe(poolMatched, 'user-b-race')).toBe(true);
+    expect(await run.observe(connection, 'device-a-race')).toBe('disconnected');
     expect(pool.peekReady('user-a-race')).toBeNull();
     expect(pool.peekReady('user-b-race')).not.toBeNull();
   });
@@ -153,7 +152,7 @@ describe('account switch pool isolation', () => {
       await run.apply(disconnect, 'a');
       await run.apply(mutate, 'a', setNote, { id: `pend-${seed}`, body: 'a' });
       await run.apply(poolActivate, pool, { identity: 'ub', clientId: 'b' });
-      expect(await run.observe(liveNote('b', `pend-${seed}`))).toBeNull();
+      expect(await run.observe(liveNote, 'b', `pend-${seed}`)).toBeNull();
       expect(pool.peekReady('ua')).toBeNull();
       await run.apply(crash, 'a');
       await run.apply(crash, 'b');
@@ -161,9 +160,9 @@ describe('account switch pool isolation', () => {
       await run.apply(poolActivate, pool, { identity: 'ua', clientId: 'a2' });
       await run.apply(mutate, 'a2', setNote, { id: `pend-${seed}`, body: 'a' });
       await run.apply(connect, 'a2');
-      await run.apply(passTime, 1_000);
+      await run.elapse(1_000);
       expect(
-        await run.observe(liveNote('server', `pend-${seed}`))
+        await run.observe(liveNote, 'server', `pend-${seed}`)
       ).toMatchObject({ body: 'a' });
     }
   );

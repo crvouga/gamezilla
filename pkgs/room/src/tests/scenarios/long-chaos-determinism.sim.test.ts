@@ -8,18 +8,17 @@ import {
   dispatch,
   down,
   hold,
-  passTime,
   release,
-  scriptRoom,
   seed as seedOf,
   serverHash,
 } from '../../sim/scenario';
+import { openRoom } from '../scenario/open-room';
 import { counterSystem } from '../apps/counter/system';
 import { expectConverged } from '../expect-converged';
 import { Decrement, Increment } from '../fixtures/counter-module';
 
 async function runChaos(seed: string): Promise<string> {
-  await using run = await scriptRoom(counterSystem, { seed });
+  await using run = await openRoom(counterSystem, { seed });
   await run.apply(addClient, { id: 'alice' });
   await run.apply(addClient, { id: 'bob' });
   await run.apply(addClient, { id: 'carol' });
@@ -63,7 +62,7 @@ async function runChaos(seed: string): Promise<string> {
         payload: Increment({}),
       });
     }
-    await run.apply(passTime, 0);
+    await run.elapse(0);
   }
 
   for (const id of ids) {

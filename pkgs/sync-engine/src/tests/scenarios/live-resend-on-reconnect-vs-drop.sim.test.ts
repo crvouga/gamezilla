@@ -13,7 +13,6 @@ import {
   mutate,
   neverAcme,
   noteBodyIs,
-  passTime,
   release,
   setNote,
   syncVirtualHost,
@@ -37,10 +36,10 @@ describe('live resend on reconnect vs drop', () => {
     await run.apply(disconnect, 'bob');
     await run.apply(hold, 'bob', 'sync');
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'while-down' });
-    await run.apply(passTime, 80);
+    await run.elapse(80);
 
     await run.apply(connect, 'bob');
-    await neverAcme(run, liveNote('bob', 'n1'), { forMs: 200 });
+    await neverAcme(run, (s) => liveNote(s, 'bob', 'n1'), { forMs: 200 });
 
     await run.apply(release, 'bob', 'sync');
     await expectConverged(run);
@@ -63,10 +62,10 @@ describe('live resend on reconnect vs drop', () => {
     await run.apply(disconnect, 'bob');
     await run.apply(hold, 'bob', 'sync');
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'resent' });
-    await run.apply(passTime, 80);
+    await run.elapse(80);
 
     await run.apply(connect, 'bob');
-    await untilAcme(run, liveNote('bob', 'n1'), {
+    await untilAcme(run, (s) => liveNote(s, 'bob', 'n1'), {
       maxMs: 2_000,
       pred: noteBodyIs('resent'),
     });

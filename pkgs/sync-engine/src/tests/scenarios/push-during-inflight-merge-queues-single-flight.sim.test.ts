@@ -12,7 +12,6 @@ import {
   mutate,
   net,
   nudge,
-  passTime,
   setNote,
   syncVirtualHost,
 } from '../apps/acme';
@@ -54,8 +53,8 @@ describe('push during inflight merge queues single flight', () => {
     });
 
     for (let i = 0; i < 12; i += 1) {
-      await run.apply(passTime, 25);
-      const rows = await run.observe(liveNotes('bob'));
+      await run.elapse(25);
+      const rows = await run.observe(liveNotes, 'bob');
       // Single-flight: never a torn mix where only one of the seeded pair is gone.
       expect(rows.length).toBeGreaterThanOrEqual(2);
     }

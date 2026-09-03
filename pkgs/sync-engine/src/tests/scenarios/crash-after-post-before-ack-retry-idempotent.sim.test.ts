@@ -12,7 +12,6 @@ import {
   lastMutationOk,
   liveNotes,
   mutate,
-  passTime,
   restart,
   setNote,
   syncVirtualHost,
@@ -40,8 +39,8 @@ describe('crash after post before ack retry idempotent', () => {
       id: 'n1',
       body: 'post-accepted',
     });
-    expect(await run.observe(lastMutationOk('alice'))).toBe(true);
-    await run.apply(passTime, 500);
+    expect(await run.observe(lastMutationOk, 'alice')).toBe(true);
+    await run.elapse(500);
 
     expect(await run.observe(clientIds)).not.toContain('alice');
     // Server applied before crash; client may re-upload on restart.
@@ -50,7 +49,7 @@ describe('crash after post before ack retry idempotent', () => {
     await run.apply(restart, 'alice', { preserveLocalDb: true });
     await expectConverged(run);
 
-    const server = await run.observe(liveNotes('server'));
+    const server = await run.observe(liveNotes, 'server');
     expect(server.filter((r) => r.id === 'n1').length).toBe(1);
     await expectLiveNoteAt(run, 'alice', 'n1', { body: 'post-accepted' });
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'post-accepted' });

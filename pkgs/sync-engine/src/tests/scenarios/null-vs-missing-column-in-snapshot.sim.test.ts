@@ -36,7 +36,7 @@ describe('null vs missing column in snapshot', () => {
     });
     await expectConverged(run);
 
-    const notes = await run.observe(liveNotes('bob'));
+    const notes = await run.observe(liveNotes, 'bob');
     expect(notes.find((n) => n.id === 'explicit-null')?.folderId).toBeNull();
     expect(notes.find((n) => n.id === 'omitted')?.folderId).toBeNull();
     await expectLiveNoteAt(run, 'bob', 'explicit-null', { body: 'n' });
@@ -62,7 +62,7 @@ describe('null vs missing column in snapshot', () => {
       });
       await run.apply(mutate, 'alice', setNote, { id: `m-${seed}`, body: 'y' });
       await expectConverged(run);
-      const notes = await run.observe(liveNotes('server'));
+      const notes = await run.observe(liveNotes, 'server');
       expect(notes.every((n) => n.folderId === null)).toBe(true);
     }
   );

@@ -9,7 +9,6 @@ import {
   httpFault,
   invariantViolations,
   mutate,
-  passTime,
   release,
   setNote,
   syncVirtualHost,
@@ -47,7 +46,7 @@ describe('replay txn rollback no pushseq leak', () => {
     });
 
     // First upload hits in-txn fault (rollback). Allow one retry window.
-    await run.apply(passTime, 100);
+    await run.elapse(100);
     await expectNoteNotLiveAt(run, 'bob', 'n-rollback');
 
     await run.apply(release, 'bob', 'live');
@@ -57,7 +56,7 @@ describe('replay txn rollback no pushseq leak', () => {
     await expectLiveNoteAt(run, 'server', 'n-rollback', {
       body: 'should-retry',
     });
-    const serverNotes = await run.observe(liveNotes('server'));
+    const serverNotes = await run.observe(liveNotes, 'server');
     expect(serverNotes.filter((n) => n.id === 'n-rollback').length).toBe(1);
     expect(await run.observe(invariantViolations)).toEqual([]);
   });

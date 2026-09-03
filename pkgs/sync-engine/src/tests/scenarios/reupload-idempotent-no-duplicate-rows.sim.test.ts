@@ -9,7 +9,6 @@ import {
   liveNotes,
   mutate,
   online,
-  passTime,
   setNote,
   syncVirtualHost,
 } from '../apps/acme';
@@ -33,14 +32,14 @@ describe('reupload idempotent no duplicate rows', () => {
 
     // Force another upload cycle via brief offline/online.
     await run.apply(online, 'alice', false);
-    await run.apply(passTime, 20);
+    await run.elapse(20);
     await run.apply(online, 'alice', true);
     await expectConverged(run);
 
-    expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+    expect(await run.observe(liveNote, 'bob', 'n1')).toMatchObject({
       body: 'once',
     });
-    const server = await run.observe(liveNotes('server'));
+    const server = await run.observe(liveNotes, 'server');
     expect(server.filter((r) => r.id === 'n1')).toHaveLength(1);
   });
 
@@ -57,9 +56,9 @@ describe('reupload idempotent no duplicate rows', () => {
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'v2' });
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'v3' });
     await expectConverged(run);
-    const server = await run.observe(liveNotes('server'));
+    const server = await run.observe(liveNotes, 'server');
     expect(server.filter((r) => r.id === 'n1')).toHaveLength(1);
-    expect(await run.observe(liveNote('alice', 'n1'))).toMatchObject({
+    expect(await run.observe(liveNote, 'alice', 'n1')).toMatchObject({
       body: 'v3',
     });
   });

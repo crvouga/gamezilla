@@ -33,7 +33,7 @@ describe('soft delete tombstone propagates and revives', () => {
     await expectConverged(run);
 
     await run.apply(mutate, 'alice', deleteNote, { id: 'n1' });
-    expect(await run.observe(lastMutationOk('alice'))).toBe(true);
+    expect(await run.observe(lastMutationOk, 'alice')).toBe(true);
     await expectConverged(run);
 
     await expectNoteNotLiveAt(run, 'bob', 'n1');

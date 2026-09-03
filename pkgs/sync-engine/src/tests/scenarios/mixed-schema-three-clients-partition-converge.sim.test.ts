@@ -114,25 +114,25 @@ describe('mixed schema three clients partition converge', () => {
       await run.apply(subscribe, 'carol', 'tagsAll', {});
       await expectConverged(run);
 
-      expect(await run.observe(liveNote('alice', 'carol-only'))).toMatchObject({
+      expect(await run.observe(liveNote, 'alice', 'carol-only')).toMatchObject({
         body: 'c-note',
       });
 
       // Alice stays on the baseline schema — no `color`, no `tags`.
-      const aliceCols = await run.observe(noteColumns('alice'));
+      const aliceCols = await run.observe(noteColumns, 'alice');
       expect(aliceCols.some((c) => c.name === 'color')).toBe(false);
-      expect(await run.observe(localTable('alice', 'tags'))).toEqual([]);
+      expect(await run.observe(localTable, 'alice', 'tags')).toEqual([]);
 
-      expect((await run.observe(noteColor('bob', 'shared')))[0]?.color).toBe(
+      expect((await run.observe(noteColor, 'bob', 'shared'))[0]?.color).toBe(
         'blue'
       );
 
-      const shared = await run.observe(liveNote('alice', 'shared'));
+      const shared = await run.observe(liveNote, 'alice', 'shared');
       expect(shared?.body === 'from-alice' || shared?.body === 'from-bob').toBe(
         true
       );
 
-      expect(await run.observe(liveTags('carol'))).toEqual([
+      expect(await run.observe(liveTags, 'carol')).toEqual([
         { id: 't1', label: 'urgent' },
       ]);
     }

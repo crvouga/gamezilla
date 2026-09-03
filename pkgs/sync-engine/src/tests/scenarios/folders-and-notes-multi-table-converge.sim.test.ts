@@ -37,11 +37,11 @@ describe('folders and notes multi table converge', () => {
     });
     await expectConverged(run);
 
-    expect(await run.observe(liveFolders('bob'))).toEqual([
+    expect(await run.observe(liveFolders, 'bob')).toEqual([
       { id: 'f1', title: 'Work', ownerId: 'alice' },
     ]);
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'todo', title: 'Task' });
-    const notes = await run.observe(liveNotes('bob'));
+    const notes = await run.observe(liveNotes, 'bob');
     expect(notes[0]?.folderId).toBe('f1');
   });
 
@@ -68,7 +68,7 @@ describe('folders and notes multi table converge', () => {
     await run.apply(mutate, 'alice', moveNote, { id: 'n1', folderId: 'f2' });
     await expectConverged(run);
 
-    const notes = await run.observe(liveNotes('bob'));
+    const notes = await run.observe(liveNotes, 'bob');
     expect(notes.find((n) => n.id === 'n1')?.folderId).toBe('f2');
   });
 
@@ -94,7 +94,7 @@ describe('folders and notes multi table converge', () => {
     await run.apply(mutate, 'alice', deleteFolder, { id: 'f1' });
     await expectConverged(run);
 
-    expect(await run.observe(liveFolders('bob'))).toEqual([]);
+    expect(await run.observe(liveFolders, 'bob')).toEqual([]);
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'orphan-ok' });
   });
 });

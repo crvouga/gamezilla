@@ -41,10 +41,10 @@ describe('capture includes all written tables', () => {
     });
     await expectConverged(run);
 
-    expect(await run.observe(liveNote('notesPeer', 'n1'))).toMatchObject({
+    expect(await run.observe(liveNote, 'notesPeer', 'n1')).toMatchObject({
       body: 'note-ok',
     });
-    const folders = await run.observe(liveFolders('foldersPeer'));
+    const folders = await run.observe(liveFolders, 'foldersPeer');
     expect(folders.some((f) => f.id === 'f-captured')).toBe(true);
   });
 
@@ -71,7 +71,7 @@ describe('capture includes all written tables', () => {
       });
       await expectConverged(run);
       expect(
-        (await run.observe(liveFolders('foldersPeer'))).some(
+        (await run.observe(liveFolders, 'foldersPeer')).some(
           (f) => f.id === `f-${seed}`
         )
       ).toBe(true);

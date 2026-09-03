@@ -21,10 +21,8 @@ const { defineAction } = defineSurface<SyncSurface>();
 
 export const netSet = defineAction({
   name: 'netSet',
-  generate(nodeId: string, traffic: SimTraffic, state: NetState) {
-    return (s) => {
-      s.net(nodeId, traffic).set(state);
-    };
+  act: (s, nodeId: string, traffic: string, state: NetState) => {
+    s.net(nodeId, traffic as SimTraffic).set(state);
   },
 });
 
@@ -33,13 +31,11 @@ export const net = netSet;
 function netStatePin(
   name: string,
   state: NetState
-): Action<SyncSurface, [string, SimTraffic]> {
+): Action<SyncSurface, [string, string]> {
   return defineAction({
     name,
-    generate(nodeId: string, traffic: SimTraffic) {
-      return (s) => {
-        s.net(nodeId, traffic).set(state);
-      };
+    act: (s, nodeId: string, traffic: string) => {
+      s.net(nodeId, traffic as SimTraffic).set(state);
     },
   });
 }
@@ -50,67 +46,53 @@ export const partition = netStatePin('partition', 'down');
 
 export const heal = defineAction({
   name: 'heal',
-  generate() {
-    return (s) => {
-      for (const id of s.clients.keys()) s.net(id, 'all').set('ok');
-    };
+  act: (s) => {
+    for (const id of s.clients.keys()) s.net(id, 'all').set('ok');
   },
 });
 
 export const crash = defineAction({
   name: 'crash',
-  generate(nodeId: string) {
-    return async (s) => {
-      await s.node(nodeId).crash();
-    };
+  act: async (s, nodeId: string) => {
+    await s.node(nodeId).crash();
   },
 });
 
 export const crashAt = defineAction({
   name: 'crashAt',
-  generate(clientId: string, event: SimCrashEvent) {
-    return (s) => {
-      void s.node(clientId).crash({ at: event });
-    };
+  act: (s, clientId: string, event: string) => {
+    void s.node(clientId).crash({ at: event as SimCrashEvent });
   },
 });
 
 export const restart = defineAction({
   name: 'restart',
-  generate(nodeId: string, opts?: RestartClientOpts) {
-    return async (s) => {
-      await s.node(nodeId).restart(opts);
-    };
+  act: async (s, nodeId: string, opts?: RestartClientOpts) => {
+    await s.node(nodeId).restart(opts);
   },
 });
 
 export const restartWithSchema = defineAction({
   name: 'restartWithSchema',
-  generate(clientId: string, variant: string) {
-    return async (s) => {
-      const opts = s.runtime.app.restartOptsForVariant?.(variant) ?? {
-        preserveLocalDb: true,
-      };
-      await s.node(clientId).restart(opts);
+  act: async (s, clientId: string, variant: string) => {
+    const opts = s.runtime.app.restartOptsForVariant?.(variant) ?? {
+      preserveLocalDb: true,
     };
+    await s.node(clientId).restart(opts);
   },
 });
 
 export const skewClock = defineAction({
   name: 'skewClock',
-  generate(nodeId: string, skewMs: number) {
-    return (s) => {
-      s.node(nodeId).skewClock(skewMs);
-    };
+  act: (s, nodeId: string, skewMs: number) => {
+    s.node(nodeId).skewClock(skewMs);
   },
 });
 
 export const httpFault = defineAction({
   name: 'httpFault',
-  generate(clientId: string, fault: SimHttpFault) {
-    return (s) => {
-      s.node(clientId).httpFault(fault);
-    };
+  act: (s, clientId: string, fault: SimHttpFault) => {
+    s.node(clientId).httpFault(fault);
   },
 });
 
@@ -120,38 +102,30 @@ export const httpFault = defineAction({
  */
 export const publishFault = defineAction({
   name: 'publishFault',
-  generate(count: number | 'next') {
-    return (s) => {
-      s.node('server').publishFault(count);
-    };
+  act: (s, count: number | 'next') => {
+    s.node('server').publishFault(count);
   },
 });
 
 /** Arm a server pubsub-boundary fault — `run.apply(pubsubFault, fault)`. */
 export const pubsubFault = defineAction({
   name: 'pubsubFault',
-  generate(fault: SimPubsubFault) {
-    return (s) => {
-      s.node('server').pubsubFault(fault);
-    };
+  act: (s, fault: SimPubsubFault) => {
+    s.node('server').pubsubFault(fault);
   },
 });
 
 export const brokerCrash = defineAction({
   name: 'brokerCrash',
-  generate() {
-    return (s) => {
-      s.brokerCrash();
-    };
+  act: (s) => {
+    s.brokerCrash();
   },
 });
 
 export const brokerRestart = defineAction({
   name: 'brokerRestart',
-  generate() {
-    return async (s) => {
-      await s.brokerRestart();
-    };
+  act: async (s) => {
+    await s.brokerRestart();
   },
 });
 
@@ -162,98 +136,86 @@ export const brokerRestart = defineAction({
  */
 export const armStoragePressure = defineAction({
   name: 'armStoragePressure',
-  generate(
+  act: (
+    s,
     clientId: string,
     pressure: StoragePressureKind | { kind: StoragePressureKind; after: number }
-  ) {
-    return (s) => {
-      if (typeof pressure === 'string') {
-        s.armStoragePressure(clientId, pressure);
-        return;
-      }
-      s.armStoragePressure(clientId, pressure.kind, pressure.after);
-    };
+  ) => {
+    if (typeof pressure === 'string') {
+      s.armStoragePressure(clientId, pressure);
+      return;
+    }
+    s.armStoragePressure(clientId, pressure.kind, pressure.after);
   },
 });
 
 export const clearStoragePressure = defineAction({
   name: 'clearStoragePressure',
-  generate(clientId: string) {
-    return (s) => {
-      s.clearStoragePressure(clientId);
-    };
+  act: (s, clientId: string) => {
+    s.clearStoragePressure(clientId);
   },
 });
 
 export const tamperLocalStorage = defineAction({
   name: 'tamperLocalStorage',
-  generate(
+  act: async (
+    s,
     clientId: string,
     tamper: Parameters<SyncSurface['tamperLocalStorage']>[1]
-  ) {
-    return async (s) => {
-      await s.tamperLocalStorage(clientId, tamper);
-    };
+  ) => {
+    await s.tamperLocalStorage(clientId, tamper);
   },
 });
 
 export const failNextOpen = defineAction({
   name: 'failNextOpen',
-  generate(clientId: string) {
-    return (s) => {
-      s.armFailNextOpen(clientId);
-    };
+  act: (s, clientId: string) => {
+    s.armFailNextOpen(clientId);
   },
 });
 
 export const serverPrune = defineAction({
   name: 'serverPrune',
-  generate(olderThanMs: number) {
-    return async (s) => {
-      await s.server.pruneArtifacts(olderThanMs);
-    };
+  act: async (s, olderThanMs: number) => {
+    await s.server.pruneArtifacts(olderThanMs);
   },
 });
 
 export const addPeerEngine = defineAction({
   name: 'addPeerEngine',
-  generate(clientId: string, donorId: string) {
-    return async (s) => {
-      const donor = requireClient(s, donorId);
-      await s.addClient({
-        id: clientId,
-        actorId: donor.actorId,
-        existingDb: donor.dbBundle,
-      });
-    };
+  act: async (s, clientId: string, donorId: string) => {
+    const donor = requireClient(s, donorId);
+    await s.addClient({
+      id: clientId,
+      actorId: donor.actorId,
+      existingDb: donor.dbBundle,
+    });
   },
 });
 
 export const serverOp = defineAction({
   name: 'serverOp',
-  generate(name: string, args: Record<string, unknown>) {
-    return async (s) => {
-      const handler = s.runtime.app.serverOps?.[name];
-      if (handler === undefined) {
-        throw new Error(`sync pin: unknown server op '${name}'`);
-      }
-      await handler(s, args);
-    };
+  act: async (s, name: string, args: Record<string, unknown>) => {
+    const handler = s.runtime.app.serverOps?.[name];
+    if (handler === undefined) {
+      throw new Error(`sync pin: unknown server op '${name}'`);
+    }
+    await handler(s, args);
   },
 });
 
 export const auth = defineAction({
   name: 'auth',
-  generate(
-    clientId: string,
-    status: 'valid' | 'expired' | 'revoked' | 'upgrade_required'
-  ) {
-    return async (s) => {
-      s.node(clientId).auth(status);
-      if (status === 'revoked') {
-        const client = s.clients.get(clientId);
-        if (client !== undefined) await client.disconnect();
-      }
-    };
+  act: async (s, clientId: string, status: string) => {
+    const authStatus = status as
+      | 'valid'
+      | 'expired'
+      | 'revoked'
+      | 'upgrade_required';
+    s.node(clientId).auth(authStatus);
+    if (authStatus === 'revoked') {
+      const client = s.clients.get(clientId);
+      if (client !== undefined) await client.disconnect();
+    }
   },
 });

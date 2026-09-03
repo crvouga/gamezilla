@@ -1,12 +1,13 @@
 import {
-  type Action,
+  asSeededRng,
+  type CatalogAction,
+  type CatalogProperty,
   defineSystem,
-  type Property,
+  type NetworkFaults,
   type Session,
   type System,
   virtualHost,
 } from '@pkgs/dst';
-import { asSeededRng, type NetworkFaults } from '@pkgs/dst/kernel';
 
 import type { LocalDomainSchema } from '../../client/local-schema-migrate';
 import type { MutationRegistry } from '../../mutations/core/types';
@@ -19,7 +20,6 @@ import { bootSimInfra, bootSimServer } from '../kit-boot';
 import { buildKitFacade } from '../kit-facade';
 import type { KitClientOpts } from '../kit-types';
 import { toKernelFaults, wrapSimNetwork } from '../network';
-import { type UntilTarget, waitNever, waitUntil } from '../wait-until';
 import { type ActionShadow, createActionShadow } from './action-shadow';
 import type { SyncApp } from './app';
 import { DEFAULT_SYNC_KNOBS, type SyncKnobs, syncKnobs } from './knobs';
@@ -34,50 +34,18 @@ const PREPARE_HYDRATION_MS = 200;
 
 const RELIABLE_KERNEL_FAULTS: NetworkFaults = toKernelFaults(RELIABLE_FAULTS);
 
-/** Teardown registered by `generate`, drained by the session's own dispose. */
-const sessionTeardown = new WeakMap<Session, (() => Promise<void>)[]>();
-
 /**
- * Run teardown before the session disposes, so `await using run` also closes
- * the sim kit (server, clients, broker).
+ * Sync host: virtualHost with settle that does not wait for heartbeat quiescence.
  */
-function onSessionDispose(session: Session, fn: () => Promise<void>): void {
-  const hooks = sessionTeardown.get(session);
-  if (hooks === undefined) {
-    throw new Error(
-      'defineSyncSystem: host must be syncVirtualHost() (no dispose hook)'
-    );
-  }
-  hooks.push(fn);
-}
-
 export function syncVirtualHost(network?: NetworkFaults) {
-  const base = virtualHost({
+  return virtualHost({
     startTime: SIM_START_MS,
     network: network ?? RELIABLE_KERNEL_FAULTS,
-  });
-  return {
-    caps: base.caps,
-    with: base.with.bind(base),
-    async open(seed: number | bigint | string) {
-      const base_ = await base.open(seed);
-      const hooks: (() => Promise<void>)[] = [];
-      const session: Session = {
-        ...base_,
-        // Sync clients schedule heartbeat / upload timers indefinitely. Algebra
-        // `settle()` after each Act must not wait for global quiescence.
-        settle: async () => {
-          await base_.scheduler.underlying.runFor(0);
-        },
-        dispose: async () => {
-          for (const fn of hooks.splice(0)) await fn();
-          await base_.dispose();
-        },
-      };
-      sessionTeardown.set(session, hooks);
-      return session;
+    // Sync clients schedule heartbeat / upload timers indefinitely.
+    settle: async (session) => {
+      await session.scheduler.underlying.runFor(0);
     },
-  };
+  });
 }
 
 export type DefineSyncSystemOpts = {
@@ -89,10 +57,11 @@ export type DefineSyncSystemOpts = {
 };
 
 export type SyncSystemDef = System<SyncSurface, SyncKnobs> & {
-  readonly actions: readonly Action<SyncSurface>[];
-  readonly properties: readonly Property<SyncSurface>[];
   readonly app: SyncApp;
   readonly opts?: DefineSyncSystemOpts;
+  /** Explore / replay catalog — pass explicitly; not hung for walk. */
+  readonly actions: readonly CatalogAction<SyncSurface>[];
+  readonly properties: readonly CatalogProperty<SyncSurface>[];
 };
 
 type RuntimeOverrides = Pick<
@@ -157,11 +126,6 @@ function buildSurface(
   runtime: SyncRuntime,
   shadow: ActionShadow
 ): SyncSurface {
-  const waitKit = {
-    seed: kit.seed,
-    scheduler: kit.scheduler,
-    network: { held: () => kit.network.heldSummary() },
-  };
   return {
     session,
     runtime,
@@ -181,14 +145,7 @@ function buildSurface(
     },
     isSchedulerQuiescent: kit.isSchedulerQuiescent,
     pendingEventCount: kit.pendingEventCount,
-    checkInvariants: async () => {
-      const inv = await kit.checkInvariants();
-      if (inv !== null) {
-        throw new Error(`${inv.invariant}: ${inv.detail}`);
-      }
-    },
     revive: () => kit.revive(),
-    drainUntilConverged: () => kit.drainUntilConverged(),
     tamperLocalStorage: kit.tamperLocalStorage,
     armStoragePressure: kit.armStoragePressure,
     clearStoragePressure: kit.clearStoragePressure,
@@ -197,9 +154,7 @@ function buildSurface(
     brokerCrash: kit.brokerCrash,
     brokerRestart: kit.brokerRestart,
     clearBoundaryFaults: kit.clearBoundaryFaults,
-    advance: (ms) => session.scheduler.advance(ms),
-    waitUntil: (target: UntilTarget, opts) => waitUntil(waitKit, target, opts),
-    waitNever: (target, opts) => waitNever(waitKit, target, opts),
+    advance: (ms) => session.elapse(ms),
     dispose: () => kit.dispose(),
   };
 }
@@ -243,7 +198,7 @@ export function defineSyncSystem(
         kit,
       };
       resetReplayRestartState(runtime.replay);
-      onSessionDispose(session, () => runtime.kit.dispose());
+      session.onDispose(() => runtime.kit.dispose());
 
       for (let i = 0; i < knobs.clientCount; i += 1) {
         const id = `c${i}`;
@@ -251,17 +206,19 @@ export function defineSyncSystem(
       }
 
       const shadow = createActionShadow(app, [...kit.clients.keys()]);
-      await session.scheduler.advance(PREPARE_HYDRATION_MS);
+      await session.elapse(PREPARE_HYDRATION_MS);
       return buildSurface(session, kit, runtime, shadow);
     },
   });
 
+  // Catalogs stay on the def for call-site convenience; explore still requires
+  // explicit `actions` / `properties` options (not read from System by dst).
   return Object.assign(system, {
     actions,
     properties,
     app,
     ...(opts !== undefined ? { opts } : {}),
-  });
+  }) as unknown as SyncSystemDef;
 }
 
 export type { SyncRuntime, SyncSurface };

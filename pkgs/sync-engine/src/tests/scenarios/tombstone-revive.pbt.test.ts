@@ -76,7 +76,7 @@ describe('tombstone revive PBT', () => {
               await expectNoteNotLiveAt(run, 'c0', noteId);
             } else {
               expect(tomb).toBeNull();
-              expect(await run.observe(liveNote('c0', noteId))).toMatchObject({
+              expect(await run.observe(liveNote, 'c0', noteId)).toMatchObject({
                 body: lastBody,
               });
             }
@@ -120,7 +120,7 @@ describe('tombstone revive PBT', () => {
             });
             await expectConverged(run);
             for (const peer of await run.observe(clientIds)) {
-              expect(await run.observe(liveNote(peer, noteId))).toMatchObject({
+              expect(await run.observe(liveNote, peer, noteId)).toMatchObject({
                 body: body2,
               });
             }

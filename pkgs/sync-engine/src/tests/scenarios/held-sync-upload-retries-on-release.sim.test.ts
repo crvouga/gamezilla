@@ -32,19 +32,19 @@ describe('held sync upload retries on release', () => {
 
     await run.apply(hold, 'alice', 'sync');
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'transient' });
-    expect(await run.observe(lastMutationOk('alice'))).toBe(true);
-    const mutationId = await run.observe(lastMutationId('alice'));
+    expect(await run.observe(lastMutationOk, 'alice')).toBe(true);
+    const mutationId = await run.observe(lastMutationId, 'alice');
     expect(mutationId).not.toBeNull();
     if (mutationId === null) return;
 
     // Held sync: the queued row stays pending for the whole window.
-    await neverAcme(run, outcome('alice', mutationId), { forMs: 300 });
+    await neverAcme(run, (s) => outcome(s, 'alice', mutationId), { forMs: 300 });
 
     await run.apply(release, 'alice', 'sync');
-    await untilAcme(run, outcome('alice', mutationId));
-    expect(await run.observe(outcome('alice', mutationId))).toBe('confirmed');
+    await untilAcme(run, (s) => outcome(s, 'alice', mutationId));
+    expect(await run.observe(outcome, 'alice', mutationId)).toBe('confirmed');
     await expectConverged(run);
-    expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+    expect(await run.observe(liveNote, 'bob', 'n1')).toMatchObject({
       body: 'transient',
     });
   });

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { dispatch, hold, passTime, release } from '../../sim/scenario';
+import { dispatch, hold, release } from '../../sim/scenario';
 import { expectConverged } from '../expect-converged';
 import { counterValue, Increment } from '../fixtures/counter-module';
 import { bootCounter } from '../scenario/boot-counter';
@@ -20,10 +20,10 @@ describe('room sim: hold during sync (E-A05)', () => {
         payload: Increment({}),
       });
     }
-    await run.apply(passTime, 0);
+    await run.elapse(0);
     expect(counterValue(await readClient(run, 'bob'))).toBe(0);
     await run.apply(release, 'bob');
-    await run.apply(passTime, 0);
+    await run.elapse(0);
     await expectConverged(run);
     expect(counterValue(await readServer(run))).toBe(12);
     expect(counterValue(await readClient(run, 'alice'))).toBe(12);

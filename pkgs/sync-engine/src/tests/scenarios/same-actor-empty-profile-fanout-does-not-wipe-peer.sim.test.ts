@@ -9,7 +9,6 @@ import {
   expectConverged,
   mutate,
   OWN_PROFILE_SESSION,
-  passTime,
   readProfileUsernameAt,
   setProfileUsername,
   syncVirtualHost,
@@ -40,8 +39,8 @@ describe('same actor empty profile fanout does not wipe peer', () => {
       sessionQuery: OWN_PROFILE_SESSION,
     });
 
-    expect(await run.observe(deviceId('phone'))).not.toBe(
-      await run.observe(deviceId('tablet'))
+    expect(await run.observe(deviceId, 'phone')).not.toBe(
+      await run.observe(deviceId, 'tablet')
     );
 
     await run.apply(mutate, 'phone', setProfileUsername, {
@@ -56,7 +55,7 @@ describe('same actor empty profile fanout does not wipe peer', () => {
     );
 
     await run.apply(mutate, 'tablet', ensureProfileEmpty, {});
-    await run.apply(passTime, 200);
+    await run.elapse(200);
 
     expect(await readProfileUsernameAt(run, 'phone', 'user-1')).toBe(
       'AliceHandle'

@@ -1,4 +1,4 @@
-import { defineSystem, draw } from '@pkgs/dst';
+import { defineSystem } from '@pkgs/dst';
 import { gen } from '@pkgs/dst/fast-check';
 import fc from 'fast-check';
 import {
@@ -58,104 +58,76 @@ export const auth = defineSystem({
   },
 });
 
-const { defineObservation, defineAction, defineProperty } = auth;
+const { defineAction, defineProperty } = auth;
 
-export const caps = defineObservation({
-  name: 'caps',
-  observe: (s) => [...s.session.caps] as string[],
-});
+export function caps(s: AuthSurface): string[] {
+  return [...s.session.caps];
+}
 
-export const clientIds = defineObservation({
-  name: 'clientIds',
-  observe: (s) => [...s.clients.keys()],
-});
+export function clientIds(s: AuthSurface): string[] {
+  return [...s.clients.keys()];
+}
 
-export const fabric = defineObservation({
-  name: 'fabric',
-  observe: (s) => s.store.fabric,
-});
+export function fabric(s: AuthSurface): AuthFabric {
+  return s.store.fabric;
+}
 
-export const bearers = defineObservation({
-  name: 'bearers',
-  observe: (s) =>
-    [...s.clients.entries()].map(([id, a]) => `${id}:${a.bearer ?? ''}`),
-});
+export function bearers(s: AuthSurface): string[] {
+  return [...s.clients.entries()].map(([id, a]) => `${id}:${a.bearer ?? ''}`);
+}
 
 /** Per-client bearer token (null when signed out). */
-export const clientBearers = defineObservation({
-  name: 'clientBearers',
-  observe: (s) =>
-    Object.fromEntries(
-      [...s.clients.entries()].map(([id, a]) => [id, a.bearer])
-    ) as Record<string, string | null>,
-});
+export function clientBearers(
+  s: AuthSurface
+): Record<string, string | null> {
+  return Object.fromEntries(
+    [...s.clients.entries()].map(([id, a]) => [id, a.bearer])
+  );
+}
 
 /** Verified session behind a bearer — null when expired / revoked / unknown. */
-export const sessionUser = defineObservation({
-  name: 'sessionUser',
-  observe: async (s, bearer: string) => {
-    const verified = await s.store.server.verifySessionToken(bearer);
-    return verified === null
-      ? null
-      : { externalUserId: verified.externalUserId };
-  },
-});
+export async function sessionUser(
+  s: AuthSurface,
+  bearer: string
+): Promise<{ externalUserId: string } | null> {
+  const verified = await s.store.server.verifySessionToken(bearer);
+  return verified === null
+    ? null
+    : { externalUserId: verified.externalUserId };
+}
 
 /** Canonical IdP dump — the determinism fingerprint. */
-export const storeFingerprint = defineObservation({
-  name: 'storeFingerprint',
-  observe: (s) => authFingerprint(s),
-});
+export async function storeFingerprint(s: AuthSurface): Promise<string> {
+  return authFingerprint(s);
+}
 
-export const lastStatus = defineObservation({
-  name: 'lastStatus',
-  observe: (s): number | null => s.lastStatus,
-});
+export function lastStatus(s: AuthSurface): number | null {
+  return s.lastStatus;
+}
 
-export const invariantViolations = defineObservation({
-  name: 'invariantViolations',
-  observe: async (s) => {
-    try {
-      await assertAuthInvariants(s);
-      return [] as string[];
-    } catch (e) {
-      return [e instanceof Error ? e.message : String(e)];
-    }
-  },
-});
+export async function invariantViolations(s: AuthSurface): Promise<string[]> {
+  try {
+    await assertAuthInvariants(s);
+    return [];
+  } catch (e) {
+    return [e instanceof Error ? e.message : String(e)];
+  }
+}
 
 export const advanceClock = defineAction({
   name: 'advanceClock',
-  generate(ms: number) {
-    return (s) => s.session.scheduler.advance(ms);
-  },
-});
-
-export const randomAdvanceClock = defineAction({
-  name: 'randomAdvanceClock',
-  *generate() {
-    if (!(yield* caps).includes('virtualTime')) return;
-    const ms = yield* draw(
-      gen(fc.constantFrom(1_000, AUTH_SESSION_TTL_MS + 1))
-    );
-    yield* advanceClock(ms);
+  enabled: (s) => caps(s).includes('virtualTime'),
+  args: (_s) => gen(fc.constantFrom(1_000, AUTH_SESSION_TTL_MS + 1)),
+  act: async (s, ms: number) => {
+    await s.session.elapse(ms);
   },
 });
 
 export const setGoogleFault = defineAction({
   name: 'setGoogleFault',
-  generate(fault: boolean) {
-    return (s) => {
-      s.store.sim.googleFault = fault;
-    };
-  },
-});
-
-export const randomSetGoogleFault = defineAction({
-  name: 'randomSetGoogleFault',
-  *generate() {
-    const fault = yield* draw(gen(fc.boolean()));
-    yield* setGoogleFault(fault);
+  args: (_s) => gen(fc.boolean()),
+  act: (s, fault: boolean) => {
+    s.store.sim.googleFault = fault;
   },
 });
 
@@ -167,36 +139,18 @@ export type OauthStartArgs = {
 
 export const oauthStart = defineAction({
   name: 'oauthStart',
-  generate(args: OauthStartArgs) {
-    return (s) =>
-      dispatchOauthStart(s, args.clientId, args.provider, args.callbackUrl);
-  },
-});
-
-export const randomOauthStart = defineAction({
-  name: 'randomOauthStart',
-  *generate() {
-    const ids = yield* clientIds;
-    if (ids.length === 0) return;
-    const payload = yield* draw(
-      gen(
-        fc.record({
-          clientId: fc.constantFrom(...(ids as string[])),
-          provider: fc.constantFrom(...PROVIDERS),
-          callbackUrl: fc.constantFrom(...CALLBACK_URLS),
-        })
-      )
-    );
-    yield {
-      weight: 3,
-      act: (s: AuthSurface) =>
-        dispatchOauthStart(
-          s,
-          payload.clientId,
-          payload.provider as OauthProvider,
-          payload.callbackUrl
-        ),
-    };
+  enabled: (s) => clientIds(s).length > 0,
+  weight: 3,
+  args: (s) =>
+    gen(
+      fc.record({
+        clientId: fc.constantFrom(...clientIds(s)),
+        provider: fc.constantFrom(...PROVIDERS),
+        callbackUrl: fc.constantFrom(...CALLBACK_URLS),
+      })
+    ),
+  act: async (s, args: OauthStartArgs) => {
+    await dispatchOauthStart(s, args.clientId, args.provider, args.callbackUrl);
   },
 });
 
@@ -208,109 +162,66 @@ export type OauthApproveArgs = {
 
 export const oauthApprove = defineAction({
   name: 'oauthApprove',
-  generate(args: OauthApproveArgs) {
-    return (s) =>
-      dispatchOauthApprove(s, args.clientId, args.provider, args.subject);
-  },
-});
-
-export const randomOauthApprove = defineAction({
-  name: 'randomOauthApprove',
-  *generate() {
-    const ids = yield* clientIds;
-    if (ids.length === 0) return;
-    const payload = yield* draw(
-      gen(
-        fc.record({
-          clientId: fc.constantFrom(...(ids as string[])),
-          provider: fc.constantFrom(...PROVIDERS),
-          subject: fc.constantFrom(...SUBJECTS),
-        })
-      )
-    );
-    yield {
-      weight: 3,
-      act: (s: AuthSurface) =>
-        dispatchOauthApprove(
-          s,
-          payload.clientId,
-          payload.provider as OauthProvider,
-          payload.subject
-        ),
-    };
+  enabled: (s) => clientIds(s).length > 0,
+  weight: 3,
+  args: (s) =>
+    gen(
+      fc.record({
+        clientId: fc.constantFrom(...clientIds(s)),
+        provider: fc.constantFrom(...PROVIDERS),
+        subject: fc.constantFrom(...SUBJECTS),
+      })
+    ),
+  act: async (s, args: OauthApproveArgs) => {
+    await dispatchOauthApprove(s, args.clientId, args.provider, args.subject);
   },
 });
 
 export const sessionExchange = defineAction({
   name: 'sessionExchange',
-  generate(clientId: string) {
-    return (s) => dispatchSessionExchange(s, clientId);
-  },
-});
-
-export const randomSessionExchange = defineAction({
-  name: 'randomSessionExchange',
-  *generate() {
-    const ids = yield* clientIds;
-    if (ids.length === 0) return;
-    const clientId = yield* draw(gen(fc.constantFrom(...(ids as string[]))));
-    yield {
-      weight: 3,
-      act: (s: AuthSurface) => dispatchSessionExchange(s, clientId),
-    };
+  enabled: (s) => clientIds(s).length > 0,
+  weight: 3,
+  args: (s) => gen(fc.constantFrom(...clientIds(s))),
+  act: async (s, clientId: string) => {
+    await dispatchSessionExchange(s, clientId);
   },
 });
 
 export const signOut = defineAction({
   name: 'signOut',
-  generate(clientId: string) {
-    return (s) => dispatchSignOut(s, clientId);
-  },
-});
-
-export const randomSignOut = defineAction({
-  name: 'randomSignOut',
-  *generate() {
-    const ids = yield* clientIds;
-    if (ids.length === 0) return;
-    const clientId = yield* draw(gen(fc.constantFrom(...(ids as string[]))));
-    yield {
-      weight: 3,
-      act: (s: AuthSurface) => dispatchSignOut(s, clientId),
-    };
+  enabled: (s) => clientIds(s).length > 0,
+  weight: 3,
+  args: (s) => gen(fc.constantFrom(...clientIds(s))),
+  act: async (s, clientId: string) => {
+    await dispatchSignOut(s, clientId);
   },
 });
 
 export const stealBearer = defineAction({
   name: 'stealBearer',
-  *generate() {
-    const ids = yield* clientIds;
-    if (ids.length === 0) return;
-    const clientId = yield* draw(gen(fc.constantFrom(...(ids as string[]))));
-    yield {
-      weight: 3,
-      act: (s: AuthSurface) => dispatchStealBearer(s, clientId, clientId),
-    };
+  enabled: (s) => clientIds(s).length > 0,
+  weight: 3,
+  args: (s) => gen(fc.constantFrom(...clientIds(s))),
+  act: async (s, clientId: string) => {
+    await dispatchStealBearer(s, clientId, clientId);
   },
 });
 
 export const AUTH_ACTIONS = [
-  randomAdvanceClock,
-  randomSetGoogleFault,
-  randomOauthStart,
-  randomOauthApprove,
-  randomSessionExchange,
-  randomSignOut,
+  advanceClock,
+  setGoogleFault,
+  oauthStart,
+  oauthApprove,
+  sessionExchange,
+  signOut,
   stealBearer,
 ];
 
 /** Re-run the schema migration against the live store (idempotence pin). */
 export const migrateSchema = defineAction({
   name: 'migrateSchema',
-  generate() {
-    return async (s) => {
-      await migrateAuthSchema(s.store.fabric, s.store.sql);
-    };
+  act: async (s) => {
+    await migrateAuthSchema(s.store.fabric, s.store.sql);
   },
 });
 
@@ -321,18 +232,16 @@ export type FetchAuthArgs = {
 
 export const fetchAuth = defineAction({
   name: 'fetchAuth',
-  generate(req: FetchAuthArgs) {
-    return async (s) => {
-      const res = await s.store.fetch(req.path, req.init);
-      s.lastStatus = res.status;
-    };
+  act: async (s, req: FetchAuthArgs) => {
+    const res = await s.store.fetch(req.path, req.init);
+    s.lastStatus = res.status;
   },
 });
 
 export const invariantsHold = defineProperty({
   name: 'invariants',
-  *watch() {
-    const v = yield* invariantViolations;
+  check: async (s) => {
+    const v = await invariantViolations(s);
     if (v.length > 0) throw new Error(v[0]!);
   },
 });

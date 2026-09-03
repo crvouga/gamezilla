@@ -26,10 +26,11 @@ Inject clock, timers, ids, RNG, and HTTP from a composition root
 **`Session` / Host are harness-only.** Product `ClientEnv` / `ServerEnv` receive unpacked
 ports — never the Session bag. Shared simulation mechanics live in
 `@pkgs/dst`. **Systems are framework-owned:** packages declare
-`defineSystem` / `defineObservation` / `defineAction` / `defineProperty` (topology via
-`session.fork` + `draw`, converge as actions/properties); tests call `script` /
-`walk` / `explore` / `replay` from `@pkgs/dst` — not package-local
-World openers. See [`pkgs/dst/README.md`](pkgs/dst/README.md).
+`defineSystem` / `defineAction` / `defineProperty` (topology via
+`session.fork`; reads are plain functions of the surface; converge as
+actions/properties); tests call `script` / `explore` / `replay` from
+`@pkgs/dst` — not package-local World openers. See
+[`pkgs/dst/README.md`](pkgs/dst/README.md).
 
 Domain and game-logic code take required `clock` / `createId` (or `now` slices).
 Never default to wall implementations inside libraries. Never construct an `Io` bag.

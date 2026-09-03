@@ -1,4 +1,4 @@
-import { defineSurface, draw } from '@pkgs/dst';
+import { defineSurface } from '@pkgs/dst';
 import { gen } from '@pkgs/dst/fast-check';
 import fc from 'fast-check';
 
@@ -12,7 +12,7 @@ import {
   libraryActionArb,
 } from './library-arbs';
 import { replayStep } from './play';
-import { caps, clientIds, healWeight } from './sync-observations';
+import { clientIds, healWeight, partitioned } from './sync-observations';
 import type { SyncSurface } from './system';
 
 const { defineAction } = defineSurface<SyncSurface>();
@@ -49,26 +49,23 @@ function libraryActions(sessionQuery: SimSessionQuery) {
   return LIBRARY_ARB_ENTRIES.map((entry) =>
     defineAction({
       name: entry.kind,
-      *generate() {
-        const ids = yield* clientIds;
-        if (ids.length === 0) return;
-        if (entry.kind === 'heal') {
-          const w = yield* healWeight;
-          if (w === 0) return;
-        }
-        const action = yield* draw(
-          gen(
-            libraryActionArb(entry, {
-              clientIds: ids,
-              sessionQuery,
-            })
-          )
-        );
-        yield {
-          weight: 1,
-          act: (s: SyncSurface) => applySyncAction(s, action),
-        };
+      enabled: (s) => {
+        if (clientIds(s).length === 0) return false;
+        if (entry.kind === 'heal') return healWeight(s) > 0;
+        return true;
       },
+      weight: (s) => {
+        if (entry.kind === 'heal') return Math.max(partitioned(s).length, 1);
+        return 1;
+      },
+      args: (s) =>
+        gen(
+          libraryActionArb(entry, {
+            clientIds: clientIds(s),
+            sessionQuery,
+          }).map((action) => [action] as const)
+        ),
+      act: (s, action: SyncAction) => applySyncAction(s, action),
     })
   );
 }
@@ -76,17 +73,18 @@ function libraryActions(sessionQuery: SimSessionQuery) {
 function domainAction(app: SyncApp) {
   return defineAction({
     name: 'domain',
-    *generate() {
-      const ids = yield* clientIds;
-      if (ids.length === 0) return;
-      const arbs = app.domainOpArbs({ clientIds: defaultClientIds(ids) });
-      if (arbs.length === 0) return;
-      const action = yield* draw(gen(fc.oneof(...arbs)));
-      yield {
-        weight: 1,
-        act: (s: SyncSurface) => applySyncAction(s, action),
-      };
+    enabled: (s) => {
+      const ids = clientIds(s);
+      if (ids.length === 0) return false;
+      return app.domainOpArbs({ clientIds: defaultClientIds(ids) }).length > 0;
     },
+    args: (s) => {
+      const arbs = app.domainOpArbs({
+        clientIds: defaultClientIds(clientIds(s)),
+      });
+      return gen(fc.oneof(...arbs).map((action) => [action] as const));
+    },
+    act: (s, action: SyncAction) => applySyncAction(s, action),
   });
 }
 
@@ -95,36 +93,17 @@ function serverAction(app: SyncApp) {
   const serverOpArbs = app.serverOpArbs;
   return defineAction({
     name: 'server',
-    *generate() {
-      const ids = yield* clientIds;
-      const arbs = serverOpArbs({ clientIds: defaultClientIds(ids) });
-      if (arbs.length === 0) return;
-      const action = yield* draw(gen(fc.oneof(...arbs)));
-      yield {
-        weight: 1,
-        act: (s: SyncSurface) => applySyncAction(s, action),
-      };
+    enabled: (s) =>
+      serverOpArbs({ clientIds: defaultClientIds(clientIds(s)) }).length > 0,
+    args: (s) => {
+      const arbs = serverOpArbs({
+        clientIds: defaultClientIds(clientIds(s)),
+      });
+      return gen(fc.oneof(...arbs).map((action) => [action] as const));
     },
+    act: (s, action: SyncAction) => applySyncAction(s, action),
   });
 }
-
-/** Scripted / poll helper — `run.apply(passTime, 500)`. */
-export const passTime = defineAction({
-  name: 'passTime',
-  generate(ms: number) {
-    return (s: SyncSurface) => s.session.scheduler.advance(ms);
-  },
-});
-
-/** Random pool member — draws ms then delegates to typed {@link passTime}. */
-export const randomPassTime = defineAction({
-  name: 'randomPassTime',
-  *generate() {
-    if (!(yield* caps).includes('virtualTime')) return;
-    const ms = yield* draw((rng) => 1 + Math.floor(rng.next() * 40));
-    yield* passTime(ms);
-  },
-});
 
 /** Build the action catalog for one sync app (library + domain + server). */
 export function createSyncActions(app: SyncApp, sessionQuery: SimSessionQuery) {
@@ -133,7 +112,6 @@ export function createSyncActions(app: SyncApp, sessionQuery: SimSessionQuery) {
     ...libraryActions(sessionQuery),
     domainAction(app),
     ...(server !== null ? [server] : []),
-    randomPassTime,
   ] as const;
 }
 

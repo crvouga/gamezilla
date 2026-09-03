@@ -33,8 +33,8 @@ describe('requires online fails offline without queue', () => {
       id: 'n1',
       body: 'need-net',
     });
-    expect(await run.observe(lastMutationOk('alice'))).toBe(false);
-    expect(await run.observe(lastMutationFailures('alice'))).toContain(
+    expect(await run.observe(lastMutationOk, 'alice')).toBe(false);
+    expect(await run.observe(lastMutationFailures, 'alice')).toContain(
       'OFFLINE'
     );
 
@@ -43,15 +43,15 @@ describe('requires online fails offline without queue', () => {
       id: 'n1',
       body: 'online-ok',
     });
-    expect(await run.observe(lastMutationOk('alice'))).toBe(true);
-    const okId = await run.observe(lastMutationId('alice'));
+    expect(await run.observe(lastMutationOk, 'alice')).toBe(true);
+    const okId = await run.observe(lastMutationId, 'alice');
     expect(okId).not.toBeNull();
     if (okId === null) return;
 
-    await untilAcme(run, outcome('alice', okId));
-    expect(await run.observe(outcome('alice', okId))).toBe('confirmed');
+    await untilAcme(run, (s) => outcome(s, 'alice', okId));
+    expect(await run.observe(outcome, 'alice', okId)).toBe('confirmed');
     await expectConverged(run);
-    expect(await run.observe(liveNote('alice', 'n1'))).toMatchObject({
+    expect(await run.observe(liveNote, 'alice', 'n1')).toMatchObject({
       body: 'online-ok',
     });
   });

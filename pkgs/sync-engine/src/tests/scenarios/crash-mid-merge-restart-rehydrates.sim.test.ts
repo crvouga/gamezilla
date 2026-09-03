@@ -8,7 +8,6 @@ import {
   crashAt,
   expectConverged,
   mutate,
-  passTime,
   restart,
   setNote,
   syncVirtualHost,
@@ -38,7 +37,7 @@ describe('crash mid merge restart rehydrates', () => {
     await run.apply(crashAt, 'bob', 'afterNextSyncResponseDelivered');
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'updated' });
     await run.apply(mutate, 'alice', setNote, { id: 'n3', body: 'three' });
-    await run.apply(passTime, 800);
+    await run.elapse(800);
 
     expect(await run.observe(clientIds)).not.toContain('bob');
     await run.apply(restart, 'bob', { preserveLocalDb: true });

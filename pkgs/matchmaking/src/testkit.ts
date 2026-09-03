@@ -18,16 +18,13 @@ export {
   matchmaking,
   matchmakingKnobs,
   participantIds,
-  passTime,
-  randomPassTime,
-  type ScriptMatchmakingArgs,
   SIM_AUTH_HEADERS,
-  scriptMatchmaking,
   simRequireAuth,
   statuses,
   statusOf,
   tick,
   tickAll,
+  tickAllWith,
 } from './sim/scenario';
 export type {
   MatchmakingSimBackend,

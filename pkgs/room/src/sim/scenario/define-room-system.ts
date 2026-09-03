@@ -1,4 +1,4 @@
-import { defineSystem, type System } from '@pkgs/dst';
+import { defineSystem, type System, virtualHost } from '@pkgs/dst';
 import type { InMemoryRoomStorage } from '../../server/adapters/memory';
 import { createRoomKit } from '../kit';
 import type { RoomApp } from './app';
@@ -6,6 +6,11 @@ import type { RoomKnobs } from './knobs';
 import type { RoomSurface } from './surface';
 
 const SIM_START_MS = 1_700_000_000_000;
+
+/** Default virtual host for room `script` / `explore` call sites. */
+export function roomVirtualHost(startTime: number = SIM_START_MS) {
+  return virtualHost({ startTime });
+}
 
 export type DefineRoomSystemOpts = {
   readonly name?: string;
@@ -43,6 +48,11 @@ export function defineRoomSystem(
         ...(app.authorize !== undefined ? { authorize: app.authorize } : {}),
       });
       await bootClients(kit, knobs.clientCount);
+      // Room loopback / aux IO settles via kit.drain — not bare scheduler.settle.
+      const mutable = session as {
+        settle: () => Promise<void>;
+      };
+      mutable.settle = () => kit.drain();
       return {
         session,
         app,

@@ -38,28 +38,28 @@ describe('permanent reject stored peer never applies', () => {
       id: 'n1',
       body: 'bad',
     });
-    expect(await run.observe(lastMutationOk('alice'))).toBe(true);
-    const rejectedId = await run.observe(lastMutationId('alice'));
+    expect(await run.observe(lastMutationOk, 'alice')).toBe(true);
+    const rejectedId = await run.observe(lastMutationId, 'alice');
     expect(rejectedId).not.toBeNull();
     if (rejectedId === null) return;
 
-    await untilAcme(run, outcome('alice', rejectedId));
-    expect(await run.observe(outcome('alice', rejectedId))).toBe('rejected');
+    await untilAcme(run, (s) => outcome(s, 'alice', rejectedId));
+    expect(await run.observe(outcome, 'alice', rejectedId)).toBe('rejected');
 
-    const unacked = await run.observe(rejections('alice'));
+    const unacked = await run.observe(rejections, 'alice');
     expect(unacked.length).toBe(1);
     expect(unacked[0]?.code).toBe('FORBIDDEN');
     expect(unacked[0]?.mutationId).toBe(rejectedId);
 
     // Peer never applied the rejected body.
-    expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+    expect(await run.observe(liveNote, 'bob', 'n1')).toMatchObject({
       body: 'good',
     });
 
     // not_modified would leave alice's optimistic body; bump server hash.
     await run.apply(mutate, 'bob', setNote, { id: 'bump', body: 'x' });
     await expectConverged(run);
-    expect(await run.observe(liveNote('alice', 'n1'))).toMatchObject({
+    expect(await run.observe(liveNote, 'alice', 'n1')).toMatchObject({
       body: 'good',
     });
 
@@ -69,12 +69,12 @@ describe('permanent reject stored peer never applies', () => {
     await run.apply(mutate, 'alice', acknowledgeWriteRejectionMutation, {
       rejectionId,
     });
-    expect(await run.observe(lastMutationOk('alice'))).toBe(true);
-    const ackId = await run.observe(lastMutationId('alice'));
+    expect(await run.observe(lastMutationOk, 'alice')).toBe(true);
+    const ackId = await run.observe(lastMutationId, 'alice');
     expect(ackId).not.toBeNull();
     if (ackId === null) return;
-    await untilAcme(run, outcome('alice', ackId));
-    expect(await run.observe(outcome('alice', ackId))).toBe('confirmed');
-    expect(await run.observe(rejections('alice'))).toEqual([]);
+    await untilAcme(run, (s) => outcome(s, 'alice', ackId));
+    expect(await run.observe(outcome, 'alice', ackId)).toBe('confirmed');
+    expect(await run.observe(rejections, 'alice')).toEqual([]);
   });
 });

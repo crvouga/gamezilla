@@ -33,25 +33,34 @@ async function openSeededServerSql(clock: Clock): Promise<SimSqlHandle> {
  * In-process product host: virtual time, model network, PGlite/mem SQL, RNTL.
  */
 export function simHost(): Host<Ports & ProductExtra> {
-  return virtualHost({ startTime: SIM_START_MS }).with(async (session) => {
+  let runFor: ((durationMs: number) => Promise<void>) | null = null;
+  return virtualHost({
+    startTime: SIM_START_MS,
+    // Checkpoint settle routes through the serialized drain so it flushes
+    // RNTL and cannot nest-drain against ui.runFor / onActorFocus.
+    settle: async () => {
+      if (runFor === null) {
+        throw new Error('simHost: settle before extras wired');
+      }
+      await runFor(0);
+    },
+    elapse: async (_session, ms) => {
+      if (runFor === null) {
+        throw new Error('simHost: elapse before extras wired');
+      }
+      await runFor(ms);
+    },
+  }).with(async (session) => {
     const sql = await openSeededServerSql(session.ports.clock);
-    const runFor = createSerializedRunFor(session.scheduler.underlying);
-    // finishProbed calls session.settle() after every act. Route it through
-    // the serialized drain so it flushes RNTL and cannot nest-drain against
-    // ui.runFor / onActorFocus.
-    (session as { settle: () => Promise<void> }).settle = () => runFor(0);
+    runFor = createSerializedRunFor(session.scheduler.underlying);
     const rntl: MultiAppRntlSession = loadRntlSessionFactory()({
       onActorFocus: () => {
-        void runFor(1_000).catch(() => undefined);
+        void runFor?.(1_000).catch(() => undefined);
       },
     });
     // Do not disconnect `sql` here: `createSim({ serverSql: extra.sql })`
     // owns the handle and `sim.dispose()` closes it. A second PGlite
     // disconnect hangs forever and OOMs the Jest worker.
-    const sessionDispose = session.dispose.bind(session);
-    (session as { dispose: () => Promise<void> }).dispose = async () => {
-      await sessionDispose();
-    };
     return {
       sql,
       ui: { kind: 'rntl' as const, rntl, runFor },

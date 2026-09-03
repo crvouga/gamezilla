@@ -6,8 +6,6 @@
 export {
   heal,
   partition,
-  passTime,
-  randomPartition,
   resetActor,
   spawnActor,
   type UiOp,

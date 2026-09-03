@@ -9,7 +9,6 @@ import {
   liveNote,
   liveNotes,
   mutate,
-  passTime,
   serverPrune,
   setNote,
   syncVirtualHost,
@@ -42,19 +41,19 @@ describe('prune concurrent with replay safe', () => {
         body: `b${i}`,
       });
       await run.apply(serverPrune, 0);
-      await run.apply(passTime, 40);
+      await run.elapse(40);
     }
 
     await expectConverged(run);
-    const server = await run.observe(liveNotes('server'));
+    const server = await run.observe(liveNotes, 'server');
     const ids = server.map((n) => n.id);
     expect(new Set(ids).size).toBe(ids.length);
     expect(ids).toContain('n-kept');
     expect(ids).toContain('n-07');
-    expect(await run.observe(liveNote('bob', 'n-07'))).toMatchObject({
+    expect(await run.observe(liveNote, 'bob', 'n-07')).toMatchObject({
       body: 'b7',
     });
-    expect(await run.observe(liveNote('bob', 'n-kept'))).toMatchObject({
+    expect(await run.observe(liveNote, 'bob', 'n-kept')).toMatchObject({
       body: 'before-prune',
     });
   });
@@ -76,10 +75,10 @@ describe('prune concurrent with replay safe', () => {
       await run.apply(mutate, 'alice', setNote, { id: `m-${seed}`, body: 'y' });
       await run.apply(serverPrune, 0);
       await expectConverged(run);
-      expect(await run.observe(liveNote('server', `n-${seed}`))).toMatchObject({
+      expect(await run.observe(liveNote, 'server', `n-${seed}`)).toMatchObject({
         body: 'x',
       });
-      expect(await run.observe(liveNote('server', `m-${seed}`))).toMatchObject({
+      expect(await run.observe(liveNote, 'server', `m-${seed}`)).toMatchObject({
         body: 'y',
       });
     }

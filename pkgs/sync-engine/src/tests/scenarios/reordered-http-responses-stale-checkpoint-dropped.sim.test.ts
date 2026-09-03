@@ -38,10 +38,10 @@ describe('reordered http responses stale checkpoint dropped', () => {
     await run.apply(mutate, 'alice', setNote, { id: 'n2', body: 'side' });
     await expectConverged(run);
 
-    expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+    expect(await run.observe(liveNote, 'bob', 'n1')).toMatchObject({
       body: 'v3-final',
     });
-    expect(await run.observe(liveNote('bob', 'n2'))).toMatchObject({
+    expect(await run.observe(liveNote, 'bob', 'n2')).toMatchObject({
       body: 'side',
     });
   });

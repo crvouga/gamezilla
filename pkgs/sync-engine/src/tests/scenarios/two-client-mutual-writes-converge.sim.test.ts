@@ -24,7 +24,7 @@ describe('two client mutual writes converge', () => {
     await run.apply(addClient, 'bob');
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'shared' });
     await expectConverged(run);
-    expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+    expect(await run.observe(liveNote, 'bob', 'n1')).toMatchObject({
       body: 'shared',
     });
   });

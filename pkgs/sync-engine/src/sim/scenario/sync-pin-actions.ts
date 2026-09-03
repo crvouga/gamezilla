@@ -1,5 +1,5 @@
 /**
- * Scripted-pin actions for `run.apply(action, ...args)`. Typed generate
+ * Scripted-pin actions for `run.apply(action, ...args)`. Typed act
  * parameters replace the old `pin()` draws. Randomised coverage lives in
  * `createSyncActions` (`sync-actions.ts`). Network / fault / crash pins live
  * in `pin-chaos-actions.ts`.
@@ -25,7 +25,6 @@ import {
   subscriptions,
 } from './pin-support';
 import { prepareClientsForConverge, replayStep, resetClockSkews } from './play';
-import { passTime } from './sync-actions';
 import type { SyncSurface } from './system';
 
 export {
@@ -54,8 +53,7 @@ export {
   skewClock,
   tamperLocalStorage,
 } from './pin-chaos-actions';
-/** `passTime(ms)` advances virtual time — `run.apply(passTime, 500)`. */
-export { passTime, SYNC_STEP_MS };
+export { SYNC_STEP_MS };
 
 import {
   addPeerEngine,
@@ -88,106 +86,94 @@ const { defineAction } = defineSurface<SyncSurface>();
 /** `run.apply(addClient, 'alice')` or `run.apply(addClient, { id, actorId })`. */
 export const addClient = defineAction({
   name: 'addClient',
-  generate(arg: string | AddClientArgs) {
+  act: async (s, arg: string | AddClientArgs) => {
     const args: AddClientArgs =
       typeof arg === 'string' ? { id: arg, actorId: arg } : arg;
-    return async (s) => {
-      await s.addClient(args);
-    };
+    await s.addClient(args);
   },
 });
 
 /**
  * `run.apply(mutate, 'bob', setNote, { id: 'n1' })`. The result is recorded on
- * the run so `lastMutationId('bob')` / `lastMutationOk('bob')` can read it.
+ * the run so `lastMutationId` / `lastMutationOk` can read it.
  */
 export const mutate = defineAction({
   name: 'mutate',
-  generate(clientId: string, named: Mutation<unknown> | string, args: unknown) {
-    return async (s) => {
-      const mutation = resolveMutation(s, named);
-      const result = await requireClient(s, clientId).mutate(mutation, args);
-      s.runtime.lastMutation.set(
-        clientId,
-        result.ok
-          ? { ok: true, mutationId: result.mutationId, failures: [] }
-          : { ok: false, mutationId: null, failures: result.failures }
-      );
-    };
+  act: async (
+    s,
+    clientId: string,
+    named: Mutation<unknown> | string,
+    args: unknown
+  ) => {
+    const mutation = resolveMutation(s, named);
+    const result = await requireClient(s, clientId).mutate(mutation, args);
+    s.runtime.lastMutation.set(
+      clientId,
+      result.ok
+        ? { ok: true, mutationId: result.mutationId, failures: [] }
+        : { ok: false, mutationId: null, failures: result.failures }
+    );
   },
 });
 
 export const connect = defineAction({
   name: 'connect',
-  generate(clientId: string) {
-    return async (s) => {
-      await requireClient(s, clientId).connect();
-    };
+  act: async (s, clientId: string) => {
+    await requireClient(s, clientId).connect();
   },
 });
 
 export const disconnect = defineAction({
   name: 'disconnect',
-  generate(clientId: string) {
-    return (s) => requireClient(s, clientId).disconnect();
-  },
+  act: (s, clientId: string) => requireClient(s, clientId).disconnect(),
 });
 
 export const online = defineAction({
   name: 'online',
-  generate(clientId: string, value: boolean) {
-    return (s) => {
-      requireClient(s, clientId).online(value);
-    };
+  act: (s, clientId: string, value: boolean) => {
+    requireClient(s, clientId).online(value);
   },
 });
 
 export const foreground = defineAction({
   name: 'foreground',
-  generate(clientId: string, value: boolean) {
-    return (s) => {
-      requireClient(s, clientId).foreground(value);
-    };
+  act: (s, clientId: string, value: boolean) => {
+    requireClient(s, clientId).foreground(value);
   },
 });
 
 export const clearLocalData = defineAction({
   name: 'clearLocalData',
-  generate(clientId: string, reason: string) {
-    return async (s) => {
-      await requireClient(s, clientId).clearLocalData(reason);
-    };
+  act: async (s, clientId: string, reason: string) => {
+    await requireClient(s, clientId).clearLocalData(reason);
   },
 });
 
 export const nudge = defineAction({
   name: 'nudge',
-  generate(clientId: string) {
-    return async (s) => {
-      const client = requireClient(s, clientId);
-      // A nudge issued while sync is held never resolves — drive it as far as
-      // virtual time allows and leave the wake in flight.
-      await driveWhilePending(s, () => client.nudge());
-    };
+  act: async (s, clientId: string) => {
+    const client = requireClient(s, clientId);
+    // A nudge issued while sync is held never resolves — drive it as far as
+    // virtual time allows and leave the wake in flight.
+    await driveWhilePending(s, () => client.nudge());
   },
 });
 
 export const subscribe = defineAction({
   name: 'subscribe',
-  generate(
+  act: async (
+    s,
     clientId: string,
     queryName: string,
     params?: Record<string, unknown>
-  ) {
-    return async (s) => {
-      const sub = requireClient(s, clientId).subscribe(queryName, params ?? {});
-      subscriptions(s).set(subscriptionKey(clientId, queryName), sub);
-      await driveToSettled(
-        s,
-        `subscribe:${clientId}:${queryName}`,
-        () => sub.ready
-      );
-    };
+  ) => {
+    const sub = requireClient(s, clientId).subscribe(queryName, params ?? {});
+    subscriptions(s).set(subscriptionKey(clientId, queryName), sub);
+    await driveToSettled(
+      s,
+      `subscribe:${clientId}:${queryName}`,
+      () => sub.ready
+    );
   },
 });
 
@@ -198,38 +184,35 @@ export const subscribe = defineAction({
  */
 export const subscribeAll = defineAction({
   name: 'subscribeAll',
-  generate(
+  act: async (
+    s,
     clientId: string,
     queryName: string,
     paramsList: readonly Record<string, unknown>[]
-  ) {
-    return async (s) => {
-      const client = requireClient(s, clientId);
-      const bag = subscriptions(s);
-      const opened = paramsList.map((params, i) => {
-        const sub = client.subscribe(queryName, params);
-        bag.set(`${subscriptionKey(clientId, queryName)}:${String(i)}`, sub);
-        return sub;
-      });
-      await driveToSettled(
-        s,
-        `subscribeAll:${clientId}:${queryName}`,
-        () => Promise.all(opened.map((sub) => sub.ready)),
-        SUBSCRIBE_ALL_BUDGET_MS
-      );
-    };
+  ) => {
+    const client = requireClient(s, clientId);
+    const bag = subscriptions(s);
+    const opened = paramsList.map((params, i) => {
+      const sub = client.subscribe(queryName, params);
+      bag.set(`${subscriptionKey(clientId, queryName)}:${String(i)}`, sub);
+      return sub;
+    });
+    await driveToSettled(
+      s,
+      `subscribeAll:${clientId}:${queryName}`,
+      () => Promise.all(opened.map((sub) => sub.ready)),
+      SUBSCRIBE_ALL_BUDGET_MS
+    );
   },
 });
 
 export const unsubscribe = defineAction({
   name: 'unsubscribe',
-  generate(clientId: string, queryName: string) {
-    return (s) => {
-      const key = subscriptionKey(clientId, queryName);
-      const bag = subscriptions(s);
-      bag.get(key)?.[Symbol.dispose]();
-      bag.delete(key);
-    };
+  act: (s, clientId: string, queryName: string) => {
+    const key = subscriptionKey(clientId, queryName);
+    const bag = subscriptions(s);
+    bag.get(key)?.[Symbol.dispose]();
+    bag.delete(key);
   },
 });
 
@@ -262,10 +245,8 @@ function recordPost(s: SyncSurface, clientId: string, rows: PostRows): void {
 
 export const postMutations = defineAction({
   name: 'postMutations',
-  generate(clientId: string, rows: PostRows) {
-    return (s) => {
-      recordPost(s, clientId, rows);
-    };
+  act: (s, clientId: string, rows: PostRows) => {
+    recordPost(s, clientId, rows);
   },
 });
 
@@ -276,36 +257,31 @@ export const postMutations = defineAction({
  */
 export const serverReplay = defineAction({
   name: 'serverReplay',
-  generate(actorId: string, rows: PostRows) {
-    return async (s) => {
-      const first = rows[0];
-      if (first === undefined) return;
-      s.server.setAuth({
-        actorId,
-        deviceId: first.clientId,
-        accountId: `acct:${actorId}`,
-        isAnon: false,
-      });
-      const result = await s.server.handlers.handleMutations(rows);
-      s.runtime.lastPost.set(actorId, {
-        ok: result.ok,
-        verdicts: result.verdicts.map((v) => ({
-          mutationId: v.mutationId,
-          status: v.status,
-        })),
-      });
-    };
+  act: async (s, actorId: string, rows: PostRows) => {
+    const first = rows[0];
+    if (first === undefined) return;
+    s.server.setAuth({
+      actorId,
+      deviceId: first.clientId,
+      accountId: `acct:${actorId}`,
+      isAnon: false,
+    });
+    const result = await s.server.handlers.handleMutations(rows);
+    s.runtime.lastPost.set(actorId, {
+      ok: result.ok,
+      verdicts: result.verdicts.map((v) => ({
+        mutationId: v.mutationId,
+        status: v.status,
+      })),
+    });
   },
 });
 
 export const execSql = defineAction({
   name: 'execSql',
-  generate(nodeId: string, statement: string) {
-    return async (s) => {
-      const db =
-        nodeId === 'server' ? s.server.db : requireClient(s, nodeId).db;
-      await db.run(unsafe(statement));
-    };
+  act: async (s, nodeId: string, statement: string) => {
+    const db = nodeId === 'server' ? s.server.db : requireClient(s, nodeId).db;
+    await db.run(unsafe(statement));
   },
 });
 
@@ -313,61 +289,56 @@ export const runSql = execSql;
 
 export const playActions = defineAction({
   name: 'playActions',
-  generate(actions: readonly SyncAction[]) {
-    return async (s) => {
-      for (const action of actions) {
-        await replayStep({
-          surface: s,
-          app: s.runtime.app,
-          action,
-          state: s.runtime.replay,
-        });
-        applyActionToShadow(s.runtime.app, s.shadow, action);
-        await s.checkInvariants();
-        await s.advance(SYNC_STEP_MS);
+  act: async (s, actions: readonly SyncAction[]) => {
+    for (const action of actions) {
+      await replayStep({
+        surface: s,
+        app: s.runtime.app,
+        action,
+        state: s.runtime.replay,
+      });
+      applyActionToShadow(s.runtime.app, s.shadow, action);
+      const inv = await s.runtime.kit.checkInvariants();
+      if (inv !== null) {
+        throw new Error(`${inv.invariant}: ${inv.detail}`);
       }
-    };
+      await s.advance(SYNC_STEP_MS);
+    }
   },
 });
 
 /**
  * Heal owed clients, clear faults, reconnect — stimulus only. Pair with
- * `untilObserved(run, converged, passTime)` (or {@link expectConverged}).
+ * `run.until(converged)` (or {@link expectConverged}).
  */
 export const revive = defineAction({
   name: 'revive',
-  generate() {
-    return async (s) => {
-      await prepareClientsForConverge(s.runtime.app, s, s.runtime.replay);
-      resetClockSkews(s);
-      await s.revive();
-    };
+  act: async (s) => {
+    await prepareClientsForConverge(s.runtime.app, s, s.runtime.replay);
+    resetClockSkews(s);
+    await s.revive();
   },
 });
 
 /** Wake uploads / refresh on every live client — stimulus for drain waits. */
 export const wakeAll = defineAction({
   name: 'wakeAll',
-  generate() {
-    return (s) => {
-      for (const client of s.clients.values()) {
-        client.engine.wakeUploads();
-        void client.engine.refreshQueries().catch(() => undefined);
-      }
-    };
+  act: (s) => {
+    for (const client of s.clients.values()) {
+      client.engine.wakeUploads();
+      void client.engine.refreshQueries().catch(() => undefined);
+    }
   },
 });
 
 /**
  * One converge pump: wake + drain scheduler (stimulus only).
- * Pair with `untilObserved(converged)` / {@link expectConverged}.
+ * Pair with `run.until(converged)` / {@link expectConverged}.
  */
 export const pump = defineAction({
   name: 'pump',
-  generate() {
-    return async (s) => {
-      await pumpConverge(s);
-    };
+  act: async (s) => {
+    await pumpConverge(s);
   },
 });
 
@@ -389,7 +360,6 @@ export const SYNC_PIN_ACTIONS = [
   execSql,
   runSql,
   playActions,
-  passTime,
   revive,
   wakeAll,
   pump,

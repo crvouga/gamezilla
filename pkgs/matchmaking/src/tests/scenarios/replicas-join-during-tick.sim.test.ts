@@ -1,12 +1,14 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
+import { script } from '@pkgs/dst';
 import {
   type JoinSpec,
   join,
   joinsDuringTick,
   participantIds,
-  passTime,
-  scriptMatchmaking,
   tickAllWith,
+  matchmaking,
+  matchmakingKnobs,
+  MATCHMAKING_PROPERTIES,
 } from '../../sim/scenario';
 import {
   assertMatchInvariants,
@@ -34,13 +36,13 @@ describe('matchmaking sim: join during tick', () => {
   });
 
   test('joins on r0/r1 while r2 ticks; settle with tickAll', async () => {
-    await using run = await scriptMatchmaking({
+    await using run = await script(matchmaking, {
       seed: 230,
-      replicas: 3,
-      backend: 'postgres',
+      knobs: matchmakingKnobs({ replicas: 3, backend: 'postgres' }),
+      properties: MATCHMAKING_PROPERTIES,
     });
     for (let i = 0; i < 4; i += 1) {
-      await run.apply(passTime, 1);
+      await run.elapse(1);
       await run.apply(join, {
         ref: `warm${String(i)}`,
         input: { data: RatingAttr(1100 + i), formulas: [SimpleFormula] },

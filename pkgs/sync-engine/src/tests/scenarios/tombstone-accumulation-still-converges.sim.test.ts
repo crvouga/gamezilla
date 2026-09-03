@@ -10,7 +10,6 @@ import {
   expectNoteNotLiveAt,
   liveNotes,
   mutate,
-  passTime,
   readNoteTombstoneAt,
   setNote,
   syncVirtualHost,
@@ -40,11 +39,11 @@ describe('tombstone accumulation still converges', () => {
       id: 'live-final',
       body: 'survivor',
     });
-    await run.apply(passTime, 5_000);
+    await run.elapse(5_000);
     await expectConverged(run);
 
     await expectLiveNoteAt(run, 'bob', 'live-final', { body: 'survivor' });
-    const live = await run.observe(liveNotes('bob'));
+    const live = await run.observe(liveNotes, 'bob');
     expect(live.map((n) => n.id)).toEqual(['live-final']);
     expect(live[0]?.body).toBe('survivor');
     await expectNoteNotLiveAt(run, 'bob', 't-000');
@@ -73,7 +72,7 @@ describe('tombstone accumulation still converges', () => {
         id: `live-${seed}`,
         body: 'ok',
       });
-      await run.apply(passTime, 1_000);
+      await run.elapse(1_000);
       await expectConverged(run);
       await expectLiveNoteAt(run, 'server', `live-${seed}`, { body: 'ok' });
     }

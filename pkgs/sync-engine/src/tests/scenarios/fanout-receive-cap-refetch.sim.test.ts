@@ -7,7 +7,6 @@ import {
   addClient,
   expectConverged,
   mutate,
-  passTime,
   retouchNotes,
   setNote,
   syncVirtualHost,
@@ -40,7 +39,7 @@ describe('fanout receive cap on push', () => {
     await expectConverged(run);
 
     await run.apply(mutate, 'alice', retouchNotes, { ids, body: 'over-cap' });
-    await run.apply(passTime, 500);
+    await run.elapse(500);
     await expectConverged(run);
     await expectNotesAgree(run, 'bob');
   });

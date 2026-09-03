@@ -1,18 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import {
-  createScheduler,
-  createTimers,
-  createVirtualClock,
-} from '@pkgs/dst/kernel';
 
 import { createSeededRng } from '../../sim/rng';
-
-function kernelParts() {
-  const clock = createVirtualClock(0);
-  const scheduler = createScheduler(clock);
-  const timers = createTimers(scheduler);
-  return { clock, scheduler, timers };
-}
 
 describe('sim kernel', () => {
   test('rng same seed identical stream', () => {
@@ -36,51 +24,5 @@ describe('sim kernel', () => {
     expect(f1.random()).toBe(f2.random());
     const work = root.fork('work');
     expect(work.random()).not.toBe(f1.random());
-  });
-
-  test('scheduler fires earlier times first; same-at events both run', async () => {
-    const { clock, scheduler: sched } = kernelParts();
-    const order: string[] = [];
-    sched.scheduleAt(10, () => {
-      order.push('a');
-    });
-    sched.scheduleAt(10, () => {
-      order.push('b');
-    });
-    sched.scheduleAt(5, () => {
-      order.push('c');
-    });
-    await sched.runFor(10);
-    expect(order[0]).toBe('c');
-    expect(new Set(order.slice(1))).toEqual(new Set(['a', 'b']));
-    expect(clock.now()).toBe(10);
-  });
-
-  test('sim timers drive via scheduler', async () => {
-    const { clock, scheduler: sched, timers } = kernelParts();
-    let fired = 0;
-    timers.setTimeout(() => {
-      fired += 1;
-    }, 50);
-    const h = timers.setTimeout(() => {
-      fired += 10;
-    }, 100);
-    timers.clearTimeout(h);
-    await sched.runFor(200);
-    expect(fired).toBe(1);
-    expect(clock.now()).toBe(200);
-  });
-
-  test('runUntilQuiescent drains nested schedules', async () => {
-    const { scheduler: sched } = kernelParts();
-    let n = 0;
-    const chain = (): void => {
-      n += 1;
-      if (n < 5) sched.scheduleAfter(1, chain);
-    };
-    sched.scheduleAfter(0, chain);
-    await sched.runUntilQuiescent();
-    expect(n).toBe(5);
-    expect(sched.pendingTaskCount()).toBe(0);
   });
 });

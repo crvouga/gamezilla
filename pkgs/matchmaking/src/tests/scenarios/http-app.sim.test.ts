@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { Run } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import type { FormulaWire } from '../../interface/formula-wire';
 import type { StatusResult } from '../../interface/types';
 import {
@@ -7,8 +8,10 @@ import {
   httpRequest,
   lastHttp,
   type MatchmakingSurface,
-  scriptMatchmaking,
   tick,
+  matchmaking,
+  matchmakingKnobs,
+  MATCHMAKING_PROPERTIES,
 } from '../../sim/scenario';
 import {
   expectMatched,
@@ -48,19 +51,31 @@ describe('matchmaking sim: http app', () => {
   });
 
   test('rejects requests without the auth header', async () => {
-    await using run = await scriptMatchmaking({ seed: 110 });
+    await using run = await script(matchmaking, {
+      seed: 110,
+      knobs: matchmakingKnobs(),
+      properties: MATCHMAKING_PROPERTIES,
+    });
     const res = await http(run, { path: '/status/x', headers: {} });
     expect(res.status).toBe(401);
   });
 
   test('400 on missing data', async () => {
-    await using run = await scriptMatchmaking({ seed: 111 });
+    await using run = await script(matchmaking, {
+      seed: 111,
+      knobs: matchmakingKnobs(),
+      properties: MATCHMAKING_PROPERTIES,
+    });
     const res = await postJoin(run, { formulas: [RatingFormula] });
     expect(res.status).toBe(400);
   });
 
   test('400 on non-keyword key in data', async () => {
-    await using run = await scriptMatchmaking({ seed: 112 });
+    await using run = await script(matchmaking, {
+      seed: 112,
+      knobs: matchmakingKnobs(),
+      properties: MATCHMAKING_PROPERTIES,
+    });
     const res = await postJoin(run, {
       data: { badkey: 1 },
       formulas: [RatingFormula],
@@ -69,7 +84,11 @@ describe('matchmaking sim: http app', () => {
   });
 
   test('400 on empty formulas array', async () => {
-    await using run = await scriptMatchmaking({ seed: 113 });
+    await using run = await script(matchmaking, {
+      seed: 113,
+      knobs: matchmakingKnobs(),
+      properties: MATCHMAKING_PROPERTIES,
+    });
     const res = await postJoin(run, {
       data: { 'mmtest/rating': 1000 },
       formulas: [],
@@ -78,7 +97,11 @@ describe('matchmaking sim: http app', () => {
   });
 
   test('400 on negative numeric weight', async () => {
-    await using run = await scriptMatchmaking({ seed: 114 });
+    await using run = await script(matchmaking, {
+      seed: 114,
+      knobs: matchmakingKnobs(),
+      properties: MATCHMAKING_PROPERTIES,
+    });
     const res = await postJoin(run, {
       data: { 'mmtest/rating': 1000 },
       formulas: [{ numeric: [{ path: 'mmtest/rating', weight: -1 }] }],
@@ -87,7 +110,11 @@ describe('matchmaking sim: http app', () => {
   });
 
   test('paired participants see the same matchId over HTTP', async () => {
-    await using run = await scriptMatchmaking({ seed: 115 });
+    await using run = await script(matchmaking, {
+      seed: 115,
+      knobs: matchmakingKnobs(),
+      properties: MATCHMAKING_PROPERTIES,
+    });
     const a = await postJoin(run, {
       data: { 'mmtest/rating': 1000, 'mmtest/name': 'a' },
       formulas: [RatingFormula],
@@ -113,7 +140,11 @@ describe('matchmaking sim: http app', () => {
   });
 
   test('leave removes a waiting participant', async () => {
-    await using run = await scriptMatchmaking({ seed: 116 });
+    await using run = await script(matchmaking, {
+      seed: 116,
+      knobs: matchmakingKnobs(),
+      properties: MATCHMAKING_PROPERTIES,
+    });
     const participantId = participantIdIn(
       await postJoin(run, {
         data: { 'mmtest/rating': 1000 },
@@ -133,7 +164,11 @@ describe('matchmaking sim: http app', () => {
   });
 
   test('update-formulas 404 when unknown; updates when waiting', async () => {
-    await using run = await scriptMatchmaking({ seed: 117 });
+    await using run = await script(matchmaking, {
+      seed: 117,
+      knobs: matchmakingKnobs(),
+      properties: MATCHMAKING_PROPERTIES,
+    });
     const missing = await http(run, {
       path: '/update-formulas/00000000-0000-0000-0000-000000000000',
       method: 'POST',
@@ -156,7 +191,11 @@ describe('matchmaking sim: http app', () => {
   });
 
   test('accepts groupSize 3 over HTTP', async () => {
-    await using run = await scriptMatchmaking({ seed: 118 });
+    await using run = await script(matchmaking, {
+      seed: 118,
+      knobs: matchmakingKnobs(),
+      properties: MATCHMAKING_PROPERTIES,
+    });
     const res = await postJoin(run, {
       data: { 'mmtest/rating': 1000 },
       formulas: [RatingFormula],

@@ -1,5 +1,5 @@
+export type { Awaitable } from './awaitable';
 export { defineAction } from './define-action';
-export { defineObservation, type ObserveFn } from './define-observation';
 export { defineProperty } from './define-property';
 export { defineSurface, type SurfaceDefiners } from './define-surface';
 export {
@@ -9,32 +9,16 @@ export {
 } from './define-system';
 export {
   ACTION_TAG,
-  type Act,
   type Action,
-  type ActionBody,
-  actFn,
-  actWeight,
-  BOUND_ACTION_TAG,
-  BOUND_OBSERVATION_TAG,
-  type BoundAction,
-  type BoundObservation,
-  DRAW_TAG,
-  type Draw,
-  draw,
-  type Effect,
-  isAct,
+  type ActionDef,
+  type CatalogAction,
+  type CatalogProperty,
   isAction,
-  isBoundAction,
-  isBoundObservation,
-  isDraw,
-  isObservation,
-  OBSERVATION_TAG,
-  type Observation,
-  observationMemoKey,
-  observe,
+  isProperty,
   PROPERTY_TAG,
   type Property,
-  payloadOf,
+  type PropertyDef,
+  type Read,
   SYSTEM_TAG,
 } from './effect';
 export type { Gen } from './gen';

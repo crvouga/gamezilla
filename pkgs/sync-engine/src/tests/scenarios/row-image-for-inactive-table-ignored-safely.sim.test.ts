@@ -12,7 +12,6 @@ import {
   liveNote,
   mutate,
   net,
-  passTime,
   setFolder,
   setNote,
   syncVirtualHost,
@@ -34,11 +33,11 @@ describe('row image for inactive table ignored safely', () => {
     });
 
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'seed' });
-    await run.apply(passTime, 400);
-    expect(await run.observe(liveNote('notesPeer', 'n1'))).toMatchObject({
+    await run.elapse(400);
+    expect(await run.observe(liveNote, 'notesPeer', 'n1')).toMatchObject({
       body: 'seed',
     });
-    expect(await run.observe(liveFolders('notesPeer'))).toEqual([]);
+    expect(await run.observe(liveFolders, 'notesPeer')).toEqual([]);
 
     // No optimistic fanout — only server push (table-filtered).
     await run.apply(disconnect, 'alice');
@@ -46,10 +45,10 @@ describe('row image for inactive table ignored safely', () => {
     {
       await run.apply(net, 'notesPeer', 'sync', 'hold');
       await run.apply(connect, 'alice');
-      await run.apply(passTime, 400);
+      await run.elapse(400);
 
-      expect(await run.observe(liveFolders('notesPeer'))).toEqual([]);
-      expect(await run.observe(liveNote('notesPeer', 'n1'))).toMatchObject({
+      expect(await run.observe(liveFolders, 'notesPeer')).toEqual([]);
+      expect(await run.observe(liveNote, 'notesPeer', 'n1')).toMatchObject({
         body: 'seed',
       });
 
@@ -57,8 +56,8 @@ describe('row image for inactive table ignored safely', () => {
         id: 'n1',
         body: 'after-ignore',
       });
-      await run.apply(passTime, 300);
-      expect(await run.observe(liveNote('notesPeer', 'n1'))).toMatchObject({
+      await run.elapse(300);
+      expect(await run.observe(liveNote, 'notesPeer', 'n1')).toMatchObject({
         body: 'after-ignore',
       });
     }

@@ -37,28 +37,28 @@ describe('scope hash stable under param key order', () => {
       });
       await expectConverged(run);
 
-      const topicsBefore = (await run.observe(subscribedTopics('alice')))
+      const topicsBefore = (await run.observe(subscribedTopics, 'alice'))
         .length;
 
       await run.apply(subscribe, 'alice', 'notesByFolder', {
         folderId: 'f1',
         includeArchived: true,
       });
-      const topicsAfterFirst = (await run.observe(subscribedTopics('alice')))
+      const topicsAfterFirst = (await run.observe(subscribedTopics, 'alice'))
         .length;
 
       await run.apply(subscribe, 'alice', 'notesByFolder', {
         includeArchived: true,
         folderId: 'f1',
       });
-      const topicsAfterSecond = (await run.observe(subscribedTopics('alice')))
+      const topicsAfterSecond = (await run.observe(subscribedTopics, 'alice'))
         .length;
 
       // Same canonical params → no extra topic churn from second subscribe.
       expect(topicsAfterSecond).toBe(topicsAfterFirst);
       expect(topicsAfterFirst).toBeGreaterThanOrEqual(topicsBefore);
 
-      expect(await run.observe(liveNote('alice', 'n1'))).toMatchObject({
+      expect(await run.observe(liveNote, 'alice', 'n1')).toMatchObject({
         body: 'in-folder',
       });
       await expectConverged(run);

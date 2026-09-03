@@ -1,6 +1,6 @@
 /**
  * Actions whose result is data: they run against live wiring the surface owns
- * and record the outcome in `probes`, where an observation can read it back.
+ * and record the outcome in `probes`, where a read can observe it back.
  */
 
 import {
@@ -19,31 +19,27 @@ import { defineAction } from './system';
 /** Sign in through the client auth port wired to the in-process sim server. */
 export const devOauthSignIn = defineAction({
   name: 'devOauthSignIn',
-  generate(actorId: string) {
-    return async (s) => {
-      const env = s.sim.client(actorId);
-      const port = createAuthClientAdapter({
-        baseURL: env.authBaseURL,
-        timers: env.timers,
-        fetch: env.server,
-        storage: createInMemoryAuthClientStorage(),
-        openAuthSession: env.openAuthSession,
-        callbackUrl: 'gamezilla://sso-callback',
-      });
-      await port.signIn('oauth-dev');
-      const token = await port.getFreshToken();
-      s.probes.oauthTokenLength = token === null ? null : token.length;
-    };
+  act: async (s, actorId: string) => {
+    const env = s.sim.client(actorId);
+    const port = createAuthClientAdapter({
+      baseURL: env.authBaseURL,
+      timers: env.timers,
+      fetch: env.server,
+      storage: createInMemoryAuthClientStorage(),
+      openAuthSession: env.openAuthSession,
+      callbackUrl: 'gamezilla://sso-callback',
+    });
+    await port.signIn('oauth-dev');
+    const token = await port.getFreshToken();
+    s.probes.oauthTokenLength = token === null ? null : token.length;
   },
 });
 
 /** Dump server + client SQL / kv / rooms into `probes.snapshot`. */
 export const captureSnapshot = defineAction({
   name: 'captureSnapshot',
-  generate(clientIds: readonly string[]) {
-    return async (s) => {
-      s.probes.snapshot = await captureSnapshotOf(s, clientIds);
-    };
+  act: async (s, clientIds: readonly string[]) => {
+    s.probes.snapshot = await captureSnapshotOf(s, clientIds);
   },
 });
 

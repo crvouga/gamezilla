@@ -38,14 +38,9 @@ function makeEndpoint(network: Network, id: string): Endpoint {
 }
 
 function noopNetwork(): Network {
-  const endpoints = new Map<string, (p: unknown) => void | Promise<void>>();
   return {
-    register(id, deliver) {
-      endpoints.set(id, deliver);
-    },
-    unregister(id) {
-      endpoints.delete(id);
-    },
+    register() {},
+    unregister() {},
     send() {},
     partition() {
       throw new CapabilityError('partition');
@@ -101,6 +96,7 @@ export function wallHost(opts: WallHostOptions): Host<Ports> {
     opts.network === 'model' ? ['partition'] : []
   );
   const faults: NetworkFaults = opts.networkFaults ?? RELIABLE_NETWORK;
+  const settleOverride = opts.settle;
 
   return defineHost({
     caps,
@@ -123,6 +119,7 @@ export function wallHost(opts: WallHostOptions): Host<Ports> {
           : noopNetwork();
 
       let disposed = false;
+      const disposeHooks: (() => void | Promise<void>)[] = [];
       const forks = new Map<string, Session<Ports>>();
 
       const makeSession = (name: string, rng: RngInternal): Session<Ports> => {
@@ -152,11 +149,22 @@ export function wallHost(opts: WallHostOptions): Host<Ports> {
             return child;
           },
           async settle() {
+            if (settleOverride !== undefined) {
+              await settleOverride(session);
+              return;
+            }
             await scheduler.settle();
+          },
+          async elapse(ms) {
+            await scheduler.advance(ms);
+          },
+          onDispose(fn) {
+            disposeHooks.push(fn);
           },
           async dispose() {
             if (disposed) return;
             disposed = true;
+            for (const fn of disposeHooks) await fn();
             for (const s of forks.values()) s.ports.network.unlisten();
             scheduler.underlying.reset(0);
           },

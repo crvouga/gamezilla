@@ -39,10 +39,10 @@ describe('same batch posted twice verdicts stable', () => {
       });
       await expectConverged(run);
 
-      expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+      expect(await run.observe(liveNote, 'bob', 'n1')).toMatchObject({
         body: 'replay-safe',
       });
-      const server = await run.observe(liveNotes('server'));
+      const server = await run.observe(liveNotes, 'server');
       expect(server.filter((r) => r.id === 'n1')).toHaveLength(1);
     }
   );

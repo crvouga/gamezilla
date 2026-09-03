@@ -4,7 +4,6 @@ import {
   connect,
   disconnect,
   dispatch,
-  passTime,
   setNet,
 } from '../../sim/scenario';
 import { expectConverged } from '../expect-converged';
@@ -30,7 +29,7 @@ describe('room sim: down during welcome (E-A03)', () => {
 
     await run.apply(setNet, { clientId: 'bob', next: 'down' });
     await run.apply(addClient, { id: 'bob' });
-    await run.apply(passTime, 0);
+    await run.elapse(0);
     await run.apply(setNet, { clientId: 'bob', next: 'ok' });
 
     await run.apply(disconnect, 'bob');

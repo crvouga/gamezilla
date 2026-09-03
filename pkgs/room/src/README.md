@@ -91,9 +91,9 @@ Core vs adapters stay split so callers opt into a runtime explicitly.
 | `@pkgs/room/tests` | `openLoopbackRoom`, **`defineRoomSystem`**, kit (`runModuleConformance`, …), fixtures (counter / deadline / authz / match-clock) |
 
 `src/sim/` implementation stays **private** (relative imports from package
-tests). Games should import `defineRoomSystem` from
-`@pkgs/room/tests` and boot with `scriptRoom` / `explore` from
-`@pkgs/room/tests` + `@pkgs/dst`, not deep `sim/` paths.
+tests). Games should import `defineRoomSystem` / `openRoom` from
+`@pkgs/room/tests` and drive runs with `script` / `explore` / `replay` from
+`@pkgs/dst`, not deep `sim/` paths.
 
 ---
 
@@ -108,12 +108,13 @@ pkgs/room/src/
 ├── server/adapters/      memory + durable-object (alarms, KV schedules)
 ├── protocol/             wire frames + ids
 ├── effects/              Schedule/CancelSchedule + RoomEffectHandler port
-├── sim/                  private sim harness (world, net, settle, until)
-│   └── system/           RoomSystemAction + defineRoomSystem (`@pkgs/dst` node kinds)
+├── sim/                  private sim harness (kit, net, settle)
+│   └── scenario/         defineRoomSystem + actions / properties / surface
 └── tests/
     ├── fixtures/         Counter, Deadline, Authz, MatchClock modules
     ├── harness/          openLoopbackRoom + LoopbackRoomTransport
     ├── kit/              Module-conformance API + M1–M8 scenarios
+    ├── scenario/         openRoom / playRoomPin / runRoomSeed helpers
     └── scenarios/        Engine scenarios *.sim.test.ts
 ```
 
@@ -283,8 +284,8 @@ replays are idempotent.
 | Tool | When to use |
 |------|-------------|
 | **`openLoopbackRoom`** (`@pkgs/room/tests`) | Fast in-process unit/integration with injected `Io`; real `RoomClient` + `RoomServer`, no net faults; Schedule via timers |
-| **`scriptRoom`** (`@pkgs/room/tests`) | `Run<RoomSurface>` driven by `apply` / `observe`: partitions, delays, soft disconnect, crash/restart, hash converge, seed replay, Schedule wakes |
-| **`defineRoomSystem` + `explore` / `replayRoom`** | Framework-owned system + weighted walk / scripted pins + fault-catalog slice PBTs |
+| **`openRoom`** (`@pkgs/room/tests`) | `script` + room virtual host → `Run<RoomSurface>` driven by `apply` / `observe` / `until`: partitions, delays, soft disconnect, crash/restart, hash converge, Schedule wakes |
+| **`defineRoomSystem` + `explore` / `playRoomPin`** | Framework-owned system + weighted walk / scripted pins + fault-catalog slice PBTs |
 | **`runRoomSeed`** | Non-shrinking seeded fuzz (`ROOM_SIM_SEED` / `SIM_SEED`); determinism + long workloads |
 | **DO / adapter tests** | Hibernation, session take-over, per-key storage, alarms, WS heartbeat |
 | **`runModuleConformance`** | Game-module kit (purity, hash, totality, fold, fuzz) |
@@ -308,16 +309,17 @@ node kinds and the library + domain action pool:
 // tests/apps/counter/system.ts
 export const counterSystem = defineRoomSystem(counterApp, { id: 'room.counter' });
 
-// shrinking PBT — start + weighted walk + shrink
+// shrinking PBT — script + weighted walk + shrink
 await explore(counterSystem, {
   properties: ROOM_PROPERTIES,
   actions: roomActions(counterApp),
+  host: roomVirtualHost(),
   episodes: 12,
   steps: 14,
 });
 
 // scripted pin
-await replayRoomPin(counterSystem, { seed, knobs, actions: [/* RoomSystemAction */] });
+await playRoomPin(counterSystem, { seed, actions: [/* RoomSystemAction */] });
 ```
 
 1. `RoomSystemAction` union (domain + library chaos) under `sim/scenario/`
@@ -326,21 +328,21 @@ await replayRoomPin(counterSystem, { seed, knobs, actions: [/* RoomSystemAction 
    `armCrashAt` / wire injects stay out of it and are covered by slice PBTs
 4. Const fault catalogs (`NET_FAULT_PROFILES`, `BYZANTINE_INJECT_KINDS`, `WORLD_PBT_CRASH_EVENTS`) exhausted by slice PBTs
 5. `runRoomSeed` (`tests/scenario/run-seed.ts`) boots the same topology via
-   framework `scriptRoom(defineRoomSystem(app), …)` for non-shrinking seeded fuzz
+   `openRoom` / `script` + `explore` for non-shrinking seeded fuzz
 
-On find: capture `FC_SEED` / `replayPath` → pin in `room-world.pbt.test.ts` or a named `.sim.test.ts` → log in [`PBT_FINDINGS.md`](../../../PBT_FINDINGS.md).
+On find: capture `FC_SEED` / `replayPath` → pin in `room-system.scenario.pbt.test.ts` or a named `.sim.test.ts` → log in [`PBT_FINDINGS.md`](../../../PBT_FINDINGS.md).
 
 ### System five concepts (room-shaped)
 
 | Concept | API | Notes |
 |---------|-----|-------|
-| Time | `runFor` / `until` / `never` | Virtual clock + net queue; timers fire on `clock.advance` |
-| Network | `world.net(id).set('hold'\|'down'\|'ok'\|FaultProfile)` | Disposable restore-prior stack; asymmetric `{ toServer, toClient }` |
+| Time | `run.elapse` / `run.until` / `run.never` | Virtual clock + net queue; timers fire on scheduler advance |
+| Network | `run.apply(hold\|release\|…)` / mesh actions | Asymmetric `{ toServer, toClient }` links; heal restores |
 | Node | `disconnect` / `reconnect` / `takeOver` / `crash` / `restart` / `clearLocalData` | Soft session + hard crash with persisted client storage |
 | Client | `dispatch`, `snapshot`, `hash`, `isSynced`, `isConnected`, `isCrashed`, inject helpers | Black-box |
 | Server | `serverSnapshot()`, `serverHash()`, `serverCrash` / `serverRestart`, `storage` | Storage log fold (authority); hydrate on restart |
-| Settle | `expectConverged(run)` / `revive` + `untilObserved(converged)` | Clear arms, revive crashed nodes, heal nets, soft-cycle, drain; hashes == log fold; queues drained; lastSeq == tip |
-| Invariants | `checkInvariants()` | Mid-chaos: seq contiguity, live-vs-log, dedup stable, durable≈memory queue |
+| Settle | `expectConverged(run)` / `revive` + `run.until(converged)` | Clear arms, revive crashed nodes, heal nets, soft-cycle, drain; hashes == log fold; queues drained; lastSeq == tip |
+| Invariants | `run.observe(invariantViolations)` / properties | Mid-chaos: seq contiguity, live-vs-log, dedup stable, durable≈memory queue |
 
 Connectivity triad — do not conflate:
 
@@ -363,29 +365,20 @@ Connectivity triad — do not conflate:
 
 ```ts
 import { describe, expect, test } from 'bun:test';
-import { expectConverged } from '@pkgs/room/testkit';
-import {
-  addClient,
-  dispatch,
-  hold,
-  heal,
-  scriptRoom,
-} from '../../sim/scenario';
+import { expectConverged, openRoom } from '@pkgs/room/tests';
+import { addClient, dispatch, hold, release } from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
 import { Increment, counterValue } from '../fixtures/counter-module';
 import { readClient, readServer } from '../scenario/read-state';
 
 describe('room sim', () => {
   test('partition then heal', async () => {
-    await using run = await scriptRoom(counterSystem, {
-      seed: 3,
-      clientCount: 0,
-    });
+    await using run = await openRoom(counterSystem, { seed: 3 });
     await run.apply(addClient, { id: 'alice' });
     await run.apply(addClient, { id: 'bob' });
     await run.apply(hold, 'bob');
     await run.apply(dispatch, { clientId: 'alice', payload: Increment({}) });
-    await run.apply(heal);
+    await run.apply(release, 'bob');
     await expectConverged(run);
     expect(counterValue(await readServer(run))).toBe(1);
     expect(counterValue(await readClient(run, 'alice'))).toBe(1);
@@ -396,7 +389,8 @@ describe('room sim', () => {
 Games outside this package:
 
 ```ts
-import { defineRoomSystem, runModuleConformance, scriptRoom } from '@pkgs/room/tests';
+import { defineRoomSystem, openRoom, runModuleConformance } from '@pkgs/room/tests';
+import { explore } from '@pkgs/dst';
 ```
 
 ---

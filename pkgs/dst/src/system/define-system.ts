@@ -1,17 +1,12 @@
 import type { Session } from '../host/types';
+import type { Awaitable } from './awaitable';
 import { defineSurface, type SurfaceDefiners } from './define-surface';
-import type { Draw } from './effect';
 import { SYSTEM_TAG } from './effect';
-import type { Gen } from './gen';
 
 export type SystemGenerate<S, K = void> = (
   session: Session,
   knobs: K
-) =>
-  | Generator<Draw<unknown>, S, unknown>
-  | AsyncGenerator<Draw<unknown>, S, unknown>
-  | S
-  | Promise<S>;
+) => Awaitable<S>;
 
 export type System<S, K = void> = SurfaceDefiners<S> & {
   readonly [SYSTEM_TAG]: true;
@@ -26,16 +21,11 @@ type SurfaceOfGenerate<G> = G extends (
   session: Session,
   knobs: never
 ) => infer R
-  ? Awaited<R> extends AsyncGenerator<unknown, infer S, unknown>
-    ? S
-    : Awaited<R> extends Generator<unknown, infer S, unknown>
-      ? S
-      : Awaited<R>
+  ? Awaited<R>
   : unknown;
 
 /**
- * `knobs: never` keeps typed knob params assignable under contravariance
- * (same pattern as {@link defineAction}).
+ * `knobs: never` keeps typed knob params assignable under contravariance.
  */
 export function defineSystem<
   G extends (session: Session, knobs: never) => unknown,
@@ -55,5 +45,3 @@ export function defineSystem<
   };
   return system as System<S, K>;
 }
-
-export type { Gen };

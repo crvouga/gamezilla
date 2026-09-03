@@ -4,7 +4,6 @@ import {
   connect,
   disconnect,
   dispatch,
-  passTime,
   serverHash,
   setNet,
 } from '../../sim/scenario';
@@ -34,7 +33,7 @@ describe('room sim: lossy profile converge (E-A04)', () => {
       });
     }
     await run.apply(setNet, { clientId: 'bob', next: 'ok' });
-    await run.apply(passTime, 0);
+    await run.elapse(0);
 
     for (const id of ids) {
       await run.apply(disconnect, id);

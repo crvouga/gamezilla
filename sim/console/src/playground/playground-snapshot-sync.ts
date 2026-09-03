@@ -4,13 +4,15 @@
 
 import type { Client } from '@apps/client/product/create-client';
 import type { Clock } from '@pkgs/clock';
-import type { VirtualScheduler } from '@pkgs/dst/kernel';
+import type { Session } from '@pkgs/dst';
 import { sql } from '@pkgs/sql';
 import type { SimSqlHandle } from '@sim/console/sim/sim-sql';
 
+type UnderlyingScheduler = Session['scheduler']['underlying'];
+
 type DrainCtx = {
   readonly clock: Clock;
-  readonly scheduler: VirtualScheduler;
+  readonly scheduler: UnderlyingScheduler;
   readonly serverHandle: SimSqlHandle;
   readonly sim: { clientSql(id: string): SimSqlHandle | undefined };
   readonly clientSqlByAddress: Map<string, SimSqlHandle>;

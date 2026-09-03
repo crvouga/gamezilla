@@ -6,9 +6,9 @@ import {
   arbSeed,
   NET_FAULT_PROFILES,
   type RoomSystemAction,
-  replayRoomPin,
 } from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
+import { playRoomPin } from '../scenario/play-actions';
 
 const INCREMENT_C0: RoomSystemAction = {
   kind: 'domain',
@@ -23,7 +23,7 @@ describe('room net-faults PBT', () => {
     async () => {
       await fc.assert(
         fc.asyncProperty(arbSeed(), arbRoomKnobs(), async (seed, knobs) => {
-          await replayRoomPin(counterSystem, {
+          await playRoomPin(counterSystem, {
             seed,
             knobs,
             actions: [
@@ -45,7 +45,7 @@ describe('room net-faults PBT', () => {
     async () => {
       await fc.assert(
         fc.asyncProperty(arbSeed(), arbRoomKnobs(), async (seed, knobs) => {
-          await replayRoomPin(counterSystem, {
+          await playRoomPin(counterSystem, {
             seed,
             knobs,
             actions: [
@@ -67,7 +67,7 @@ describe('room net-faults PBT', () => {
     async () => {
       await fc.assert(
         fc.asyncProperty(arbSeed(), arbRoomKnobs(), async (seed, knobs) => {
-          await replayRoomPin(counterSystem, {
+          await playRoomPin(counterSystem, {
             seed,
             knobs,
             actions: [
@@ -103,7 +103,7 @@ describe('room net-faults PBT', () => {
           arbRoomKnobs(),
           fc.constantFrom(...NET_FAULT_PROFILES),
           async (seed, knobs, faults) => {
-            await replayRoomPin(counterSystem, {
+            await playRoomPin(counterSystem, {
               seed,
               knobs,
               actions: [

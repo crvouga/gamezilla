@@ -33,10 +33,10 @@ describe('upload response lost retry does not double apply', () => {
       await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'once' });
       await expectConverged(run);
 
-      expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+      expect(await run.observe(liveNote, 'bob', 'n1')).toMatchObject({
         body: 'once',
       });
-      const server = await run.observe(liveNotes('server'));
+      const server = await run.observe(liveNotes, 'server');
       expect(server.filter((r) => r.id === 'n1')).toHaveLength(1);
     }
   );

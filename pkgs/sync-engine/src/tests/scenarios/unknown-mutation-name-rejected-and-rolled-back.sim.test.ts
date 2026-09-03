@@ -45,14 +45,14 @@ describe('unknown mutation name rejected and rolled back', () => {
         id: 'n1',
         body: 'ghost-body',
       });
-      const mutationId = await run.observe(lastMutationId('alice'));
+      const mutationId = await run.observe(lastMutationId, 'alice');
       expect(mutationId).not.toBeNull();
       if (mutationId === null) return;
 
-      await untilAcme(run, outcome('alice', mutationId));
-      expect(await run.observe(outcome('alice', mutationId))).toBe('rejected');
+      await untilAcme(run, (s) => outcome(s, 'alice', mutationId));
+      expect(await run.observe(outcome, 'alice', mutationId)).toBe('rejected');
 
-      const unacked = await run.observe(rejections('alice'));
+      const unacked = await run.observe(rejections, 'alice');
       expect(unacked.length).toBe(1);
       expect(unacked[0]?.code).toBe('UNKNOWN_MUTATION');
       expect(unacked[0]?.mutationId).toBe(mutationId);

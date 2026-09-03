@@ -14,7 +14,6 @@ import {
   liveTags,
   mutate,
   nudge,
-  passTime,
   restart,
   setNote,
   setTag,
@@ -65,7 +64,7 @@ describe('new domain table added mid life hydrates after migrate', () => {
       await run.apply(mutate, 'bob', setTag, { id: 't1', label: 'urgent' });
       // nudge: bob tagsAll not in session — refresh after setTag
       await run.apply(nudge, 'bob');
-      await run.apply(passTime, 200);
+      await run.elapse(200);
 
       await run.apply(restart, 'alice', {
         preserveLocalDb: true,
@@ -75,7 +74,7 @@ describe('new domain table added mid life hydrates after migrate', () => {
       await run.apply(subscribe, 'alice', 'tagsAll', {});
 
       await expectLiveNoteAt(run, 'alice', 'n1', { body: 'kept' });
-      expect(await run.observe(liveTags('alice'))).toEqual([
+      expect(await run.observe(liveTags, 'alice')).toEqual([
         { id: 't1', label: 'urgent' },
       ]);
 

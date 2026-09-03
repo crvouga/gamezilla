@@ -7,7 +7,6 @@ import {
   dispatch,
   down,
   hold,
-  passTime,
   release,
   serverHash,
 } from '../../sim/scenario';
@@ -38,7 +37,7 @@ describe('room sim: triad matrix smoke (E-A06)', () => {
       clientId: 'carol',
       payload: Increment({}),
     });
-    await run.apply(passTime, 100);
+    await run.elapse(100);
     expect(counterValue(await readClient(run, 'bob'))).not.toBe(1);
     await run.apply(release, 'bob');
 
@@ -47,7 +46,7 @@ describe('room sim: triad matrix smoke (E-A06)', () => {
       clientId: 'bob',
       payload: Increment({}),
     });
-    await run.apply(passTime, 0);
+    await run.elapse(0);
     await run.apply(release, 'carol');
 
     await run.apply(connect, 'alice');

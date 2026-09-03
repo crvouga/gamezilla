@@ -18,42 +18,47 @@ export {
 } from './host';
 export type { JsonPrimitive, JsonValue } from './kernel/json';
 export type { Rng } from './kernel/rng';
+export { asSeededRng } from './kernel/rng';
+export type { Scheduler } from './kernel/scheduler-api';
+export type { Scheduler as VirtualScheduler } from './kernel/scheduler';
+export type {
+  Deliver,
+  EndpointId,
+  FlowKey,
+  Network,
+  NetworkFaults,
+} from './models/network';
+export { RELIABLE_NETWORK } from './models/network';
 export type {
   ExploreOptions,
-  NeverObservedOpts,
   ReplayOptions,
   Report,
   Run,
   ScriptOptions,
   Transition,
-  UntilObservedOpts,
   Walk,
   WalkOptions,
 } from './run';
 export {
   ActionNotEnabled,
-  DriveError,
   ExploreFailedError,
   explore,
-  neverObserved,
   PropertyViolation,
   replay,
   script,
-  untilObserved,
   walk,
 } from './run';
 export type {
-  Act,
   Action,
-  ActionBody,
-  BoundAction,
-  BoundObservation,
+  ActionDef,
+  Awaitable,
+  CatalogAction,
+  CatalogProperty,
   Choice,
-  Draw,
-  Effect,
   Gen,
-  Observation,
   Property,
+  PropertyDef,
+  Read,
   Repro,
   ReproMeta,
   SurfaceDefiners,
@@ -62,12 +67,9 @@ export type {
 } from './system';
 export {
   defineAction,
-  defineObservation,
   defineProperty,
   defineSurface,
   defineSystem,
-  draw,
-  observe,
   parseRepro,
   REPRO_VERSION,
   stringifyRepro,

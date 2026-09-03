@@ -8,7 +8,6 @@ import {
   expectConverged,
   hold,
   mutate,
-  passTime,
   release,
   setFolder,
   setNote,
@@ -40,21 +39,21 @@ describe('push tables filter wakes overlapping scopes', () => {
     });
 
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'note-seed' });
-    await run.apply(passTime, 400);
+    await run.elapse(400);
     await expectLiveNoteAt(run, 'notesPeer', 'n1', { body: 'note-seed' });
-    expect(await run.observe(liveFolders('notesPeer'))).toEqual([]);
+    expect(await run.observe(liveFolders, 'notesPeer')).toEqual([]);
 
     await run.apply(hold, 'notesPeer', 'sync');
     await run.apply(mutate, 'alice', setFolder, { id: 'f1', title: 'Work' });
-    await run.apply(passTime, 400);
+    await run.elapse(400);
 
     // notesOnly ∩ tables=['folders'] = empty → no wake; still no folders.
-    expect(await run.observe(liveFolders('notesPeer'))).toEqual([]);
+    expect(await run.observe(liveFolders, 'notesPeer')).toEqual([]);
     await expectLiveNoteAt(run, 'notesPeer', 'n1', { body: 'note-seed' });
 
     // foldersOnly overlaps → wake+refetch brings folder in.
-    await run.apply(passTime, 400);
-    const folders = await run.observe(liveFolders('foldersPeer'));
+    await run.elapse(400);
+    const folders = await run.observe(liveFolders, 'foldersPeer');
     expect(folders.some((f) => f.id === 'f1')).toBe(true);
 
     await run.apply(release, 'notesPeer', 'sync');
@@ -62,6 +61,6 @@ describe('push tables filter wakes overlapping scopes', () => {
     await run.apply(crash, 'foldersPeer');
     await run.apply(addClient, 'bob');
     await expectConverged(run);
-    expect((await run.observe(liveNotes('server'))).length).toBeGreaterThan(0);
+    expect((await run.observe(liveNotes, 'server')).length).toBeGreaterThan(0);
   });
 });

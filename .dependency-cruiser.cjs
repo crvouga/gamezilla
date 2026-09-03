@@ -155,9 +155,9 @@ module.exports = {
       name: 'dst-kernel-harness-only',
       severity: 'error',
       comment:
-        'Only pkgs/dst/**, sim/**, and **/sim/** may import @pkgs/dst/kernel.',
+        'Only pkgs/dst/** (host + kernel + dst tests) may import @pkgs/dst/kernel.',
       from: {
-        pathNot: '^pkgs/dst/|(^|/)sim/|(^|/)sim\\.|(^|/)(/sim/)',
+        pathNot: '^pkgs/dst/',
       },
       to: {
         path: '^pkgs/dst/src/kernel/',

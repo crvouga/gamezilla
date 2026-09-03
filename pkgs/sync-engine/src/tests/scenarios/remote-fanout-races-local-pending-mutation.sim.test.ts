@@ -7,7 +7,6 @@ import {
   expectConverged,
   mutate,
   online,
-  passTime,
   setNote,
   syncVirtualHost,
 } from '../apps/acme';
@@ -34,7 +33,7 @@ describe('remote fanout races local pending mutation', () => {
     });
     await run.apply(online, 'bob', true);
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'from-a-2' });
-    await run.apply(passTime, 500);
+    await run.elapse(500);
     await expectConverged(run);
   });
 });

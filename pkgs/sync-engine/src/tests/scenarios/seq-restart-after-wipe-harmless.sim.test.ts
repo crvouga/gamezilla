@@ -39,7 +39,7 @@ describe('seq restart after wipe harmless', () => {
       // Offline while wiping: no resync may repaint the cache mid-check.
       await run.apply(disconnect, 'alice');
       await run.apply(clearLocalData, 'alice', 'cache');
-      expect(await run.observe(liveNotes('alice'))).toEqual([]);
+      expect(await run.observe(liveNotes, 'alice')).toEqual([]);
       await expectNoteNotLiveAt(run, 'alice', 'n1');
 
       await run.apply(connect, 'alice');
@@ -49,13 +49,13 @@ describe('seq restart after wipe harmless', () => {
       });
       await expectConverged(run);
 
-      expect(await run.observe(liveNote('alice', 'n1'))).toMatchObject({
+      expect(await run.observe(liveNote, 'alice', 'n1')).toMatchObject({
         body: 'before-wipe',
       });
-      expect(await run.observe(liveNote('alice', 'n2'))).toMatchObject({
+      expect(await run.observe(liveNote, 'alice', 'n2')).toMatchObject({
         body: 'after-wipe',
       });
-      expect(await run.observe(liveNote('bob', 'n2'))).toMatchObject({
+      expect(await run.observe(liveNote, 'bob', 'n2')).toMatchObject({
         body: 'after-wipe',
       });
     }

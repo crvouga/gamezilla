@@ -15,7 +15,6 @@ import {
   neverAcme,
   noteBodyIs,
   nudge,
-  passTime,
   publishFault,
   release,
   setNote,
@@ -48,13 +47,13 @@ describe('pubsub publish fails after commit heals by refetch', () => {
       id: 'n-lost-push',
       body: 'committed',
     });
-    await untilAcme(run, liveNote('server', 'n-lost-push'), {
+    await untilAcme(run, (s) => liveNote(s, 'server', 'n-lost-push'), {
       pred: noteBodyIs('committed'),
     });
     await expectLiveNoteAt(run, 'server', 'n-lost-push', {
       body: 'committed',
     });
-    await neverAcme(run, liveNote('bob', 'n-lost-push'), { forMs: 400 });
+    await neverAcme(run, (s) => liveNote(s, 'bob', 'n-lost-push'), { forMs: 400 });
 
     await run.apply(release, 'bob', 'sync');
     await run.apply(foreground, 'bob', false);
@@ -85,10 +84,10 @@ describe('pubsub publish fails after commit heals by refetch', () => {
         id: `n-${seed}`,
         body: `b-${seed}`,
       });
-      await run.apply(passTime, 200);
+      await run.elapse(200);
       await run.apply(disconnect, 'bob');
       await run.apply(connect, 'bob');
-      await untilAcme(run, liveNote('bob', `n-${seed}`), {
+      await untilAcme(run, (s) => liveNote(s, 'bob', `n-${seed}`), {
         pred: noteBodyIs(`b-${seed}`),
       });
       await expectConverged(run);

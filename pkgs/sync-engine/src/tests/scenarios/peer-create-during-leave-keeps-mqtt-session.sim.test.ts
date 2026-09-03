@@ -11,7 +11,6 @@ import {
   leaveSpace,
   liveNote,
   mutate,
-  passTime,
   pubsubRemakeCount,
   roomTopic,
   SPACE_MEMBERSHIP_SESSION,
@@ -41,18 +40,18 @@ describe('peer create during leave keeps mqtt session', () => {
 
     await run.apply(mutate, 'alice', createSpace, { id: 'room-1', title: 'R' });
     await expectConverged(run);
-    await untilAcme(run, subscribedTopics('alice'), {
+    await untilAcme(run, (s) => subscribedTopics(s, 'alice'), {
       pred: hasTopic(roomTopic('room-1')),
     });
     await run.apply(mutate, 'bob', joinSpace, { spaceId: 'room-1' });
-    await untilAcme(run, subscribedTopics('bob'), {
+    await untilAcme(run, (s) => subscribedTopics(s, 'bob'), {
       pred: hasTopic(roomTopic('room-1')),
     });
     await expectConverged(run);
-    await untilAcme(run, subscribedTopics('alice'), {
+    await untilAcme(run, (s) => subscribedTopics(s, 'alice'), {
       pred: hasTopic(roomTopic('room-1')),
     });
-    const remakes = await run.observe(pubsubRemakeCount('alice'));
+    const remakes = await run.observe(pubsubRemakeCount, 'alice');
 
     await run.apply(mutate, 'alice', leaveSpace, { spaceId: 'room-1' });
     await run.apply(mutate, 'bob', setSpaceNote, {
@@ -60,21 +59,21 @@ describe('peer create during leave keeps mqtt session', () => {
       spaceId: 'room-1',
       body: 'created-while-leave',
     });
-    await run.apply(passTime, 300);
+    await run.elapse(300);
 
-    expect(await run.observe(pubsubRemakeCount('alice'))).toBe(remakes);
-    expect(await run.observe(liveNote('bob', 'n-during-leave'))).toMatchObject({
+    expect(await run.observe(pubsubRemakeCount, 'alice')).toBe(remakes);
+    expect(await run.observe(liveNote, 'bob', 'n-during-leave')).toMatchObject({
       body: 'created-while-leave',
     });
     expect(
-      await run.observe(liveNote('server', 'n-during-leave'))
+      await run.observe(liveNote, 'server', 'n-during-leave')
     ).toMatchObject({ body: 'created-while-leave' });
 
     await run.apply(mutate, 'alice', joinSpace, { spaceId: 'room-1' });
     await expectConverged(run);
     expect(
-      await run.observe(liveNote('alice', 'n-during-leave'))
+      await run.observe(liveNote, 'alice', 'n-during-leave')
     ).toMatchObject({ body: 'created-while-leave' });
-    expect(await run.observe(pubsubRemakeCount('alice'))).toBe(remakes);
+    expect(await run.observe(pubsubRemakeCount, 'alice')).toBe(remakes);
   });
 });

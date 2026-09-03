@@ -1,137 +1,51 @@
 import { fingerprint } from '../kernel/fingerprint';
-import type { JsonValue } from '../kernel/json';
-import type { Rng } from '../kernel/rng';
-import type { Action } from '../system/effect';
+import { ACTION_TAG, type Action, type CatalogAction } from '../system/effect';
 import type { Choice } from '../system/repro';
-import { checkpoint, PropertyViolation, type Transition } from './checkpoint';
-import type { DriveContext } from './drive';
-import { closeGenerator } from './drive';
-import { type ProbeResult, probe } from './probe';
+import type { Transition } from './checkpoint';
+import { checkpoint } from './checkpoint';
+import { type ProbeResult, probeAll } from './probe';
 import { getRunInternal, type Run } from './script';
 
 export type WalkOptions<S> = {
-  /** Only zero-arg actions may enter a random walk pool. */
-  readonly actions: readonly Action<S, []>[];
+  readonly actions: readonly CatalogAction<S>[];
   readonly steps?: number;
   readonly budgetMs?: number;
   readonly stopOnViolation?: boolean;
+  readonly time?: {
+    readonly weight: number;
+    readonly minMs: number;
+    readonly maxMs: number;
+  };
 };
 
 export type Walk = {
-  readonly system: readonly number[];
-  readonly knobs: unknown;
+  readonly steps: number;
+  readonly choices: readonly Choice[];
   readonly transitions: readonly Transition[];
-  readonly violations: readonly {
-    readonly property: string;
-    readonly at: number | 'end';
-    readonly error: string;
-  }[];
+  readonly knobs: unknown;
   readonly coverage: {
     readonly states: ReadonlySet<string>;
     readonly actions: Readonly<Record<string, number>>;
   };
-  readonly choices: readonly Choice[];
-};
-
-type EnabledEntry<S> = {
-  readonly action: Action<S, []>;
-  readonly probe: Extract<ProbeResult<S>, { enabled: true }>;
-  readonly weight: number;
+  readonly violations: readonly { readonly error: string }[];
 };
 
 function pickWeighted<T extends { weight: number }>(
   items: readonly T[],
   next: () => number
 ): T {
-  const total = items.reduce((a, b) => a + b.weight, 0);
+  const total = items.reduce((s, i) => s + i.weight, 0);
   let r = next() * total;
   for (const item of items) {
     r -= item.weight;
-    if (r <= 0) return item;
+    if (r < 0) return item;
   }
   return items[items.length - 1]!;
 }
 
-async function probeAll<S>(
-  actions: readonly Action<S, []>[],
-  ctx: DriveContext<S>,
-  walkRng: Rng,
-  steps: number
-): Promise<{ action: Action<S, []>; probe: ProbeResult<S> }[]> {
-  const out: { action: Action<S, []>; probe: ProbeResult<S> }[] = [];
-  for (let i = 0; i < actions.length; i++) {
-    const action = actions[i]!;
-    out.push({
-      action,
-      probe: await probe(
-        action as Action<S, unknown[]>,
-        ctx,
-        walkRng.fork(`probe:${steps}:${action.name}:${i}`),
-        []
-      ),
-    });
-  }
-  return out;
-}
-
-async function closeUnpicked<S>(
-  probes: readonly { probe: ProbeResult<S> }[],
-  picked: ProbeResult<S> | undefined
-): Promise<void> {
-  for (const x of probes) {
-    if (!x.probe.enabled) continue;
-    if (picked !== undefined && x.probe === picked) continue;
-    await closeGenerator(x.probe.body);
-    for (const n of x.probe.nested) {
-      await closeGenerator(n.body);
-    }
-  }
-}
-
-function recordViolations(
-  violations: Walk['violations'][number][],
-  items: readonly { property: string; at: number | 'end'; message: string }[]
-): void {
-  for (const v of items) {
-    violations.push({ property: v.property, at: v.at, error: v.message });
-  }
-}
-
-async function applyPickedStep<S>(args: {
-  readonly run: Run<S>;
-  readonly picked: EnabledEntry<S>;
-  readonly t: number;
-  readonly transitions: Transition[];
-  readonly choices: Choice[];
-  readonly actionCounts: Record<string, number>;
-  readonly states: Set<string>;
-  readonly violations: Walk['violations'][number][];
-  readonly stopOnViolation: boolean | undefined;
-}): Promise<'continue' | 'stop'> {
-  const internal = getRunInternal(args.run);
-  try {
-    const result = await checkpoint({
-      action: args.picked.action as Action<S, unknown[]>,
-      probed: args.picked.probe,
-      ctx: internal.ctx(),
-      monitors: internal.monitors,
-      t: args.t,
-    });
-    args.transitions.push(result.transition);
-    args.choices.push(result.choice);
-    args.actionCounts[args.picked.action.name] =
-      (args.actionCounts[args.picked.action.name] ?? 0) + 1;
-    args.states.add(fingerprint(result.transition.after as JsonValue));
-    if (result.violations.length > 0) {
-      recordViolations(args.violations, result.violations);
-      if (args.stopOnViolation) return 'stop';
-    }
-  } catch (e) {
-    if (!(e instanceof PropertyViolation)) throw e;
-    recordViolations(args.violations, [e]);
-    if (args.stopOnViolation) return 'stop';
-  }
-  return 'continue';
+function normalizeArgs(drawn: unknown): readonly unknown[] {
+  if (Array.isArray(drawn)) return drawn;
+  return [drawn];
 }
 
 export async function walk<S>(
@@ -139,61 +53,110 @@ export async function walk<S>(
   opts: WalkOptions<S>
 ): Promise<Walk> {
   const internal = getRunInternal(run);
-  const transitions: Transition[] = [...internal.transitions];
-  const choices: Choice[] = [...internal.choices];
-  const violations: Walk['violations'][number][] = [];
-  const states = new Set<string>();
-  const actionCounts: Record<string, number> = {};
-  const maxSteps = opts.steps ?? Number.POSITIVE_INFINITY;
-  const deadline =
-    opts.budgetMs !== undefined
-      ? internal.session.ports.clock.now() + opts.budgetMs
-      : Number.POSITIVE_INFINITY;
-  let steps = 0;
+  const maxSteps = opts.steps ?? 40;
+  const stopOnViolation = opts.stopOnViolation ?? true;
   const walkRng = internal.rng.fork('walk');
+  const actionCounts: Record<string, number> = {};
+  const states = new Set<string>();
+  const violations: { error: string }[] = [];
+  let steps = 0;
+  const t0 =
+    typeof performance !== 'undefined' ? performance.now() : Date.now();
 
   while (steps < maxSteps) {
-    if (internal.session.ports.clock.now() >= deadline) break;
+    if (opts.budgetMs !== undefined) {
+      const now =
+        typeof performance !== 'undefined' ? performance.now() : Date.now();
+      if (now - t0 > opts.budgetMs) break;
+    }
 
-    const probes = await probeAll(opts.actions, internal.ctx(), walkRng, steps);
-    const enabled: EnabledEntry<S>[] = probes
-      .filter(
-        (
-          x
-        ): x is {
-          action: Action<S, []>;
-          probe: Extract<ProbeResult<S>, { enabled: true }>;
-        } => x.probe.enabled
-      )
-      .map((e) => ({ ...e, weight: e.probe.weight }));
+    const probed = await probeAll(
+      opts.actions as readonly Action<S, unknown[]>[],
+      internal.surface,
+      false,
+      walkRng
+    );
+
+    type Cand = {
+      readonly action: Action<S, unknown[]>;
+      readonly weight: number;
+      readonly kind: 'action' | 'elapse';
+      readonly elapseMs?: number;
+    };
+    const enabled: Cand[] = [];
+    for (const { action, result } of probed) {
+      if (!result.enabled) continue;
+      const r = result as Extract<ProbeResult, { enabled: true }>;
+      enabled.push({ action, weight: r.weight, kind: 'action' });
+    }
+    if (opts.time !== undefined && opts.time.weight > 0) {
+      const span = Math.max(0, opts.time.maxMs - opts.time.minMs);
+      const ms = opts.time.minMs + Math.floor(walkRng.next() * (span + 1));
+      enabled.push({
+        action: {
+          [ACTION_TAG]: true,
+          name: 'elapse',
+          enabled: () => true,
+          weight: () => opts.time!.weight,
+          args: undefined,
+          act: async () => {
+            await internal.session.elapse(ms);
+          },
+        } as Action<S, unknown[]>,
+        weight: opts.time.weight,
+        kind: 'elapse',
+        elapseMs: ms,
+      });
+    }
 
     if (enabled.length === 0) break;
 
     const picked = pickWeighted(enabled, () => walkRng.next());
-    await closeUnpicked(probes, picked.probe);
+    let args: readonly unknown[] = [];
+    if (picked.kind === 'elapse') {
+      args = [picked.elapseMs!];
+    } else if (picked.action.args !== undefined) {
+      const gen = await picked.action.args(internal.surface);
+      args = normalizeArgs(
+        gen(walkRng.fork(`args:${picked.action.name}:${steps}`))
+      );
+    }
 
     internal.step += 1;
+    try {
+      const result = await checkpoint({
+        actionName: picked.action.name,
+        applyArgs: args,
+        act: (s, ...a) => picked.action.act(s, ...(a as never[])),
+        surface: internal.surface,
+        settle: () => internal.session.settle(),
+        monitors: internal.monitors,
+        t: internal.step,
+      });
+      internal.transitions.push(result.transition);
+      internal.choices.push(result.choice);
+      actionCounts[picked.action.name] =
+        (actionCounts[picked.action.name] ?? 0) + 1;
+      states.add(fingerprint(result.transition.after as never));
+      if (result.violations.length > 0) {
+        violations.push({ error: result.violations[0]!.message });
+        if (stopOnViolation) break;
+      }
+    } catch (e) {
+      violations.push({
+        error: e instanceof Error ? e.message : String(e),
+      });
+      if (stopOnViolation) break;
+    }
     steps += 1;
-    const status = await applyPickedStep({
-      run,
-      picked,
-      t: internal.step,
-      transitions,
-      choices,
-      actionCounts,
-      states,
-      violations,
-      stopOnViolation: opts.stopOnViolation,
-    });
-    if (status === 'stop') break;
   }
 
   return {
-    system: internal.systemDraws.slice(),
+    steps,
+    choices: internal.choices.slice(),
+    transitions: internal.transitions.slice(),
     knobs: internal.knobs,
-    transitions,
-    violations,
     coverage: { states, actions: actionCounts },
-    choices,
+    violations,
   };
 }

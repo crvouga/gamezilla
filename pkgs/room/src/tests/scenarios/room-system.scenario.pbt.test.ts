@@ -6,12 +6,15 @@ import {
   arbRoomKnobs,
   invariantViolations,
   ROOM_PROPERTIES,
-  replayRoom,
-  replayRoomPin,
   roomActions,
+  roomVirtualHost,
 } from '../../sim/scenario';
 import { counterApp } from '../apps/counter/app';
 import { counterSystem } from '../apps/counter/system';
+import {
+  playRoomActions,
+  playRoomPin,
+} from '../scenario/play-actions';
 
 describe('room system PBT', () => {
   test(
@@ -21,10 +24,12 @@ describe('room system PBT', () => {
         properties: ROOM_PROPERTIES,
         actions: roomActions(counterApp),
         knobs: gen(arbRoomKnobs()),
+        host: roomVirtualHost(),
         episodes: 4,
         steps: 10,
         seed: 1,
         stopOnViolation: true,
+        time: { weight: 1, minMs: 1, maxMs: 40 },
       });
       expect(report.ok).toBe(true);
     },
@@ -32,7 +37,7 @@ describe('room system PBT', () => {
   );
 
   test('hold then increment then heal converges (pin)', async () => {
-    await replayRoomPin(counterSystem, {
+    await playRoomPin(counterSystem, {
       seed: 42,
       actions: [
         { kind: 'hold', clientId: 'c1' },
@@ -49,7 +54,7 @@ describe('room system PBT', () => {
   });
 
   test('crash then restart with pending offline queue converges (pin)', async () => {
-    await replayRoomPin(counterSystem, {
+    await playRoomPin(counterSystem, {
       seed: 99,
       actions: [
         { kind: 'disconnect', clientId: 'c0' },
@@ -72,7 +77,7 @@ describe('room system PBT', () => {
   });
 
   test('armCrashAt afterNextCommitted then settle (pin FC_SEED=665742204)', async () => {
-    await replayRoomPin(counterSystem, {
+    await playRoomPin(counterSystem, {
       seed: 706975,
       actions: [
         {
@@ -103,7 +108,7 @@ describe('room system PBT', () => {
   });
 
   test('ghost durable queue: dispatch then settle leaves queues empty (pin)', async () => {
-    await using run = await replayRoom(counterSystem, {
+    await using run = await playRoomActions(counterSystem, {
       seed: 4242,
       actions: [
         {

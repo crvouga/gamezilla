@@ -1,14 +1,16 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
+import { script } from '@pkgs/dst';
 import type { TickResult } from '../../interface/matchmaking';
 import type { StatusResult } from '../../interface/types';
 import {
   join,
   lastTick,
   participantIds,
-  passTime,
-  scriptMatchmaking,
   statusOf,
   tick,
+  matchmaking,
+  matchmakingKnobs,
+  MATCHMAKING_PROPERTIES,
 } from '../../sim/scenario';
 import {
   expectMatched,
@@ -28,7 +30,11 @@ describe('matchmaking sim: priority', () => {
   });
 
   test('high-priority joiner is matched before same-bucket FIFO peer', async () => {
-    await using run = await scriptMatchmaking({ seed: 80 });
+    await using run = await script(matchmaking, {
+      seed: 80,
+      knobs: matchmakingKnobs(),
+      properties: MATCHMAKING_PROPERTIES,
+    });
     await run.apply(join, {
       ref: 'a',
       input: {
@@ -41,7 +47,7 @@ describe('matchmaking sim: priority', () => {
         ],
       },
     });
-    await run.apply(passTime, 1);
+    await run.elapse(1);
     await run.apply(join, {
       ref: 'b',
       input: {
@@ -50,7 +56,7 @@ describe('matchmaking sim: priority', () => {
         priority: 100,
       },
     });
-    await run.apply(passTime, 1);
+    await run.elapse(1);
     await run.apply(join, {
       ref: 'c',
       input: { data: RatingAttr(1010), formulas: [SimpleFormula] },
@@ -58,9 +64,9 @@ describe('matchmaking sim: priority', () => {
     await run.apply(tick, { opts: { maxPassesPerPartition: 1 } });
     expect(((await run.observe(lastTick)) as TickResult).matches).toBe(1);
     const ids = await run.observe(participantIds);
-    const b = expectMatched((await run.observe(statusOf('b'))) as StatusResult);
+    const b = expectMatched((await run.observe(statusOf, 'b')) as StatusResult);
     expect(b.peers[0]?.participantId).toBe(ids['c']);
-    expect(((await run.observe(statusOf('a'))) as StatusResult).status).toBe(
+    expect(((await run.observe(statusOf, 'a')) as StatusResult).status).toBe(
       'waiting'
     );
   });

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { type BoundObservation, script } from '@pkgs/dst';
+import { script } from '@pkgs/dst';
 import { sql } from '@pkgs/sql';
 import {
   acmeKnobs,
@@ -12,7 +12,6 @@ import {
   expectConverged,
   liveNote,
   mutate,
-  passTime,
   rows,
   runSql,
   type SyncSurface,
@@ -20,11 +19,14 @@ import {
   syncVirtualHost,
 } from '../apps/acme';
 
-const aliceColor = rows(
-  'noteColor',
-  'alice',
-  sql`SELECT color FROM notes WHERE id = 'n1' AND deleted_at IS NULL`
-) as BoundObservation<SyncSurface, { readonly color: string | null }[]>;
+async function aliceColor(s: SyncSurface) {
+  return rows(
+    s,
+    'noteColor',
+    'alice',
+    sql`SELECT color FROM notes WHERE id = 'n1' AND deleted_at IS NULL`
+  ) as Promise<{ readonly color: string | null }[]>;
+}
 
 /**
  * Public-API / sim pins for merge semantics that bulk upsert must preserve:
@@ -57,7 +59,7 @@ describe('public API: merge via sim', () => {
     await run.apply(mutate, 'bob', setNote, { id: 'n1', body: 'from-bob' });
     await expectConverged(run);
 
-    expect((await run.observe(liveNote('alice', 'n1')))?.body).toBe('from-bob');
+    expect((await run.observe(liveNote, 'alice', 'n1'))?.body).toBe('from-bob');
     expect((await run.observe(aliceColor))[0]?.color).toBe('red');
   });
 
@@ -78,7 +80,7 @@ describe('public API: merge via sim', () => {
     await run.apply(mutate, 'alice', deleteNote, { id: 'n1' });
     await expectConverged(run);
     expect(
-      (await run.observe(liveNote('bob', 'n1')))?.deletedAt
+      (await run.observe(liveNote, 'bob', 'n1'))?.deletedAt
     ).not.toBeNull();
 
     await run.apply(disconnect, 'alice');
@@ -86,17 +88,17 @@ describe('public API: merge via sim', () => {
       id: 'n1',
       body: 'optimistic-pending',
     });
-    expect((await run.observe(liveNote('alice', 'n1')))?.body).toBe(
+    expect((await run.observe(liveNote, 'alice', 'n1'))?.body).toBe(
       'optimistic-pending'
     );
 
     await run.apply(connect, 'alice');
-    await run.apply(passTime, 500);
-    expect((await run.observe(liveNote('alice', 'n1')))?.body).toBe(
+    await run.elapse(500);
+    expect((await run.observe(liveNote, 'alice', 'n1'))?.body).toBe(
       'optimistic-pending'
     );
     await expectConverged(run);
-    expect((await run.observe(liveNote('bob', 'n1')))?.body).toBe(
+    expect((await run.observe(liveNote, 'bob', 'n1'))?.body).toBe(
       'optimistic-pending'
     );
   });

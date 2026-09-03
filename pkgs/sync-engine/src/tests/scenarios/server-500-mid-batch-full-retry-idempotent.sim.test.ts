@@ -38,11 +38,11 @@ describe('server 500 mid batch full retry idempotent', () => {
       });
       await expectConverged(run);
 
-      expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
+      expect(await run.observe(liveNote, 'bob', 'n1')).toMatchObject({
         body: 'txn-atomic',
       });
       expect(
-        (await run.observe(liveNotes('server'))).filter((r) => r.id === 'n1')
+        (await run.observe(liveNotes, 'server')).filter((r) => r.id === 'n1')
       ).toHaveLength(1);
     }
   );
@@ -69,11 +69,11 @@ describe('server 500 mid batch full retry idempotent', () => {
       });
       await expectConverged(run);
 
-      expect(await run.observe(liveNote('bob', 'n2'))).toMatchObject({
+      expect(await run.observe(liveNote, 'bob', 'n2')).toMatchObject({
         body: 'post-commit',
       });
       expect(
-        (await run.observe(liveNotes('server'))).filter((r) => r.id === 'n2')
+        (await run.observe(liveNotes, 'server')).filter((r) => r.id === 'n2')
       ).toHaveLength(1);
     }
   );

@@ -5,72 +5,16 @@ choices ⇒ the same run. The algebra does not know about clients, browsers,
 SQL, rooms, or networks — a **Host** supplies those. Any stateful system
 that can boot behind a Host is in scope.
 
-This document specifies **v2**. The tree still implements v1 (generator
-bodies, implicit enablement, `untilObserved(passTime)`). Do not add new
-v1 patterns; author against this spec.
-
 Root determinism policy: [`DETERMINISM.md`](../../DETERMINISM.md).
 
----
-
-## Why v2
-
-v1 is a small algebra of the right sorts — Host, System, Action,
-Property, Run — driven by `script` / `walk` / `explore` / `replay`. The
-sorts stay. The **body protocol** does not.
-
-v1 overloaded one JS generator into six jobs: read, draw, act, enable,
-weight, and monitor. Probe had to *drive* a body to learn whether an
-action existed. Properties looked like busy loops. Scripted pins, random
-pools, and tagged-union dispatchers became three names for one stimulus.
-Every product kit grew a god surface so sealed `Run` could still wait,
-drain, and converge. `defineObservation` wrapped a function in tags,
-bind objects, and `yield*` so it could live in that protocol.
-
-Those are API defects, not missing wrappers.
-
-### What other systems got right
-
-**[Bombadil](https://antithesishq.github.io/bombadil/browser/bombadil-manual.txt)**
-(Antithesis, UI PBT) splits jobs the way v2 does — except Bombadil still
-wraps reads (`extract` → `Cell`) because its state is an implicit
-browser. dst passes a typed surface `S`, so a read is `(s) => T`.
-
-| Bombadil | dst v2 |
-| --- | --- |
-| `extract(state => …)` → `Cell` | `(s: S, ...args) => T` |
-| `actions(() => templates \| [])` | `enabled` + `args` + `act` |
-| empty array = disabled | `enabled: (s) => Awaitable<boolean>` |
-| `weighted([[w, gen], …])` | `weight: (s) => Awaitable<number>` (recomputed each probe) |
-| ranges on templates | `args: (s) => Awaitable<Gen<A>>` |
-| `always` / `eventually` formulas | checkpoint `check` + `run.until` |
-| framework owns extract → check → pick → wait | `explore` owns the same loop |
-| `--reproduce` from a trace | `replay` from a Repro |
-
-Take the **shape**: reads, catalogs, and checks are separate; enablement
-is explicit; the framework picks. Do not take the **product**: Bombadil
-is a browser fuzzer. Its `State` is `document` / `window`. Reproductions
-are best-effort on a wall clock. There is no Host, no virtual time, no
-typed knobs, no first-class scripted `apply`.
-
-**Hypothesis / Erlang `eqc_statem` / fast-check commands** use the same
-triple: precondition, argument generator, run. v2 is that triple on a
-deterministic Host.
-
-**What v2 refuses from Bombadil**
-
-- A Formula combinator tree (`always` / `next` / `.and` / `.implies`).
-  v1 deleted that language: `if`, previous-check state, and `run.until`
-  cover the same claims without a second algebra.
-- An implicit global state. Bombadil cells close over *the* browser.
-  dst reads close over a typed surface `S`.
-- A tree of action *templates* as the public type. One named Action
-  whose `args` Gen ranges over the current inventory is enough.
-- `extract` / `defineObservation` / `Cell`. A function of `S` is the
-  read API.
-- “You provide properties and actions, the framework does the rest” as
-  the *only* loop. Scripted paths (`apply` with typed args) are equal
-  citizens. Explore is search; script is proof; replay is witness.
+The shape matches [Bombadil](https://antithesishq.github.io/bombadil/browser/bombadil-manual.txt)
+and Hypothesis / `eqc_statem` / fast-check commands: **reads**,
+**enablement + args + act**, and **checkpoint checks** are separate;
+the framework picks; scripted `apply` is a first-class citizen. dst
+adds a deterministic Host (virtual time, model network, typed knobs,
+Repro). Reads are plain `(s: S, ...args) => T` — no extract/Cell
+wrapper. There is no Formula combinator tree: use `if`, previous-check
+`ctx`, and `run.until`.
 
 ---
 
@@ -86,14 +30,9 @@ It is **not** a product runtime. `Host` / `Session` are harness-only.
 Product `ClientEnv` / `ServerEnv` receive unpacked ports (`clock`,
 `timers`, `createId`, `random`, `http`) — never the Session bag.
 
-Deleted (v1 and v2): `World` / `openWorld` / `pin` / `spec` / positional
-`draws:` / `defineScenario` / `node` / `knob` / `std` / Formula algebra /
-`WorldControls`.
-
-Deleted in v2 (were v1): generator bodies, `yield*`, `draw()` inside
-actions, `defineObservation` / `BoundObservation` / `observe({ a, b })`,
-implicit “return before first act”, zero-arg random wrappers,
-`untilObserved(run, obs, passTime)`, catalogs hung on `System`.
+Out of scope forever: World openers, Formula algebra, generator action
+bodies, observation constructors, catalogs hung on `System`, and
+package wrappers around `script` / `explore`.
 
 ---
 
@@ -161,11 +100,9 @@ Three entrypoints (`pkgs/dst/package.json` `exports`):
 | `@pkgs/dst/kernel` | Clock / scheduler / rng / network factories. **Host authors only.** Depcruise: `pkgs/dst/**` host + kernel, not `**/sim/**`. |
 | `@pkgs/dst/fast-check` | `gen(arbitrary)`, `arbitrary(gen)`, `randomGeneratorOver` |
 
-Forbidden on `@pkgs/dst`: `start`, `check`, `draw`, `defineObservation`,
-`observe` (the yield helper), `defineScenario`, `actions`, `properties`,
-`knob`, `node`, `std`, Formula operators, `getRunInternal`,
-`RunInternal`. `Run` has no `_internal` and no `surface`. Tests speak
-`apply` / `observe` / `assert` / `until` / `never` / `elapse`.
+`Run` has no `_internal` and no `surface`. Tests speak `apply` /
+`observe` / `assert` / `until` / `never` / `elapse`. See
+`public-api.contract.test.ts` for the forbidden-export list.
 
 ---
 
@@ -331,8 +268,9 @@ Macros (outage = partition + time + heal) are either:
 - one `act` that performs several stimuli as **one** choice, or
 - omitted — walk will pick the primitives in sequence.
 
-Do not delegate by yielding other actions. Do not keep a parallel
-`randomPut` wrapper. Do not keep a tagged-union dispatcher for replay.
+Do not delegate by yielding other actions. One named action covers
+both scripted pins and the walk pool — do not keep a parallel
+`random*` wrapper or a tagged-union dispatcher for replay.
 
 Inventory-driven UI (Bombadil’s “return N click templates”) is one
 action whose `args` ranges over the current inventory:
@@ -480,11 +418,11 @@ type Run<S> = {
   checkpoint.
 - **`elapse(ms)`** — Host-defined time step, then settle + checks.
   Recorded as a `Choice` `{ action: 'elapse', args: [ms] }` so replay
-  does not need a per-system `passTime`.
+  does not need a per-system clock action.
 - **`until` / `never`** — poll `observe` and `elapse(stepMs)` until the
   predicate or the bound. Default `stepMs: 50`, `until.maxMs: 5_000`.
-  Predicate defaults to truthiness. There is no `passTime` action
-  argument. Extra args belong on the function:
+  Predicate defaults to truthiness. Time advance is `elapse`, not a
+  system action. Extra args belong on the function:
   `run.until((s) => liveNote(s, 'bob', 'late'))`.
 
 `Run` does not expose `surface` or `session`. If a test needs a read,
@@ -612,21 +550,20 @@ functions of `S`, actions, properties. Not a package-local World opener.
 - **Do** pass actor / node identity as function args, not closures.
 - **Do** wait with `run.until` / `run.never`.
 - **Do** attach standing properties on `script` / `explore`.
-- **Don't** `defineObservation`, `yield*`, `draw()`, or return-before-act.
+- **Don't** wrap reads in a constructor or drive actions as generators.
 - **Don't** add `randomFoo` wrappers next to `foo`.
 - **Don't** encode wait / assert / settle / converge as actions.
 - **Don't** hang `.actions` / `.properties` on the System. Pass lists.
-- **Don't** add `scriptRoom` / `exploreSync` / `runSeed`. Host + knobs
-  + `script` / `explore` are the API.
-- **Don't** import `@pkgs/dst/kernel` from sim kits.
+- **Don't** wrap `script` / `explore` in package helpers — Host + knobs
+  + the algebra verbs are the API.
+- **Don't** import `@pkgs/dst/kernel` from sim kits (Session + public
+  Session-adjacent types only).
 - **Don't** read `process.env` for seeds.
 - **Don't** reintroduce Formula / World / catalogs-as-records / Cells.
 
 ---
 
-## Constraints a rewrite must keep
-
-A version that drops these is a different tool.
+## Invariants
 
 1. **Determinism.** Same seed + knobs + choices ⇒ same Run. No wall
    `Date.now` / `Math.random` / `fetch` in the algebra. Host injects
@@ -647,57 +584,33 @@ A version that drops these is a different tool.
    capability-gated stimuli.
 8. **Harness-only Session.** Product runtime takes unpacked ports.
 9. **Three import paths** (algebra / kernel / fast-check), kernel
-   confined to host authors.
+   confined to host authors inside `pkgs/dst`.
 10. **No dependency patches, no Io bag, no package-local World DSL.**
 11. **Domain-agnostic algebra.** No type, helper, or default action
     that assumes clients, browsers, SQL, or games. Those live in
     Hosts and in consuming packages.
 
-Keep from v1: read memo on `run.observe` per checkpoint; `await using
-run`; Repro as versioned JSON; vacuity on obligations;
+Also: read memo on `run.observe` per checkpoint; `await using run`;
+Repro as versioned JSON; vacuity on obligations;
 `ActionNotEnabled` / `PropertyViolation` / `ExploreFailedError`.
 
 ---
 
-## v1 → v2 (mechanical)
-
-| v1 | v2 |
-| --- | --- |
-| `defineObservation({ name, observe })` | `function name(s, …args) { … }` |
-| `quiet.read(s)` / `yield* quiet` | `quiet(s)` |
-| `run.observe(liveNote('bob', 'n1'))` | `run.observe(liveNote, 'bob', 'n1')` |
-| `observe(run, { quiet, cut })` | `quiet(s)` / `run.observe(quiet)` |
-| `*generate() { if (!ok) return; const x = yield* draw(g); yield* foo(x); }` | `enabled`, `args: (s) => g`, `act: (s, x) => …` |
-| `randomPut` + `put` | `put` only |
-| `*watch() { while (true) { yield* obs; } }` | `check(s)` / `setup` + `ctx` |
-| `untilObserved(run, obs, passTime)` | `run.until(obs)` |
-| `passTime` / `randomPassTime` | `run.elapse` / explore `time:` |
-| `scriptRoom` / `exploreSync` | `script` / `explore` + Host |
-| `dispatchSyncAction` / `applyRoomAction` | `run.apply(named, ...args)` |
-| `S.waitUntil` / `S.drainUntilConverged` | functions of `S` + `run.until` |
-| `session.dispose = …` | `session.onDispose` |
-| `PBT_SEED` / `SIM_SEED` | `seed:` option |
-| Repro v4 `system:` draws + `choices[].draws` | Repro v5 `choices[].args` |
-| `generate` may yield `draw` | knobs only |
-
----
-
-## Implementation map (today = v1)
+## Layout
 
 ```
 src/index.ts          public algebra
 src/host/             virtualHost / wallHost / defineHost / Session
-src/system/           define* + v1 effect protocol (tags, draw, observe)
-src/run/              drive / probe / script / walk / explore / replay / until
+src/system/           defineSystem / defineAction / defineProperty / defineSurface
+src/run/              probe / script / walk / explore / replay / checkpoint
 src/kernel/           clocks, schedulers, rng, fingerprint, json, timers
 src/models/           in-process network
 src/fast-check/       gen / arbitrary adapters
-src/examples/         teaching toys (retarget to v2 when the algebra lands)
+src/examples/         teaching toys (acme-kv, acme-sync, acme-counter)
 ```
 
-v2 probe is `enabled` + `weight` (no body drive). v2 checkpoint is
-unchanged in spirit: act / elapse → settle → checks → `Choice`. v2
-reads are functions; `src/system/define-observation.ts` goes away.
+Probe is `enabled` + `weight` (never runs `act`). Checkpoint: act /
+elapse → settle → checks → `Choice`.
 
 ---
 

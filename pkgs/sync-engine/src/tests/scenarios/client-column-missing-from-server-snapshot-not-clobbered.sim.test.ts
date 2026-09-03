@@ -41,7 +41,7 @@ describe('client column missing from server snapshot not clobbered', () => {
         'alice',
         `UPDATE notes SET color = 'red' WHERE id = 'n1'`
       );
-      expect((await run.observe(noteColor('alice', 'n1')))[0]?.color).toBe(
+      expect((await run.observe(noteColor, 'alice', 'n1'))[0]?.color).toBe(
         'red'
       );
 
@@ -49,7 +49,7 @@ describe('client column missing from server snapshot not clobbered', () => {
       await expectConverged(run);
 
       await expectLiveNoteAt(run, 'alice', 'n1', { body: 'from-bob' });
-      expect((await run.observe(noteColor('alice', 'n1')))[0]?.color).toBe(
+      expect((await run.observe(noteColor, 'alice', 'n1'))[0]?.color).toBe(
         'red'
       );
     }

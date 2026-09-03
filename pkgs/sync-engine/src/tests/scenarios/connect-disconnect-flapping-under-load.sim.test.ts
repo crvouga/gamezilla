@@ -9,7 +9,6 @@ import {
   foreground,
   mutate,
   online,
-  passTime,
   type SyncSurface,
   setNote,
   syncVirtualHost,
@@ -22,14 +21,14 @@ async function flapOnline(
   clientId: string
 ): Promise<void> {
   await run.apply(online, clientId, false);
-  await run.apply(passTime, 25);
+  await run.elapse(25);
   await run.apply(online, clientId, true);
 }
 
 async function flapForeground(run: Run<SyncSurface>): Promise<void> {
   await run.apply(foreground, 'alice', false);
   await run.apply(foreground, 'bob', false);
-  await run.apply(passTime, 25);
+  await run.elapse(25);
   await run.apply(foreground, 'alice', true);
   await run.apply(foreground, 'bob', true);
 }
@@ -61,7 +60,7 @@ describe('connect disconnect flapping under load', () => {
     await run.apply(online, 'bob', true);
     await run.apply(foreground, 'bob', true);
     await expectConverged(run);
-    expect((await run.observe(liveNotes('server'))).length).toBe(24);
+    expect((await run.observe(liveNotes, 'server')).length).toBe(24);
     await expectLiveNoteAt(run, 'bob', 'n-00', { body: 'b0' });
     await expectLiveNoteAt(run, 'bob', 'n-23', { body: 'b23' });
   });
@@ -84,7 +83,7 @@ describe('connect disconnect flapping under load', () => {
           body: `x${i}`,
         });
         await run.apply(online, 'bob', i % 2 === 0);
-        await run.apply(passTime, 10);
+        await run.elapse(10);
         await run.apply(online, 'bob', true);
       }
       await expectConverged(run);

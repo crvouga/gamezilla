@@ -30,7 +30,7 @@ describe('oversized fanout falls back to refetch', () => {
     await run.apply(mutate, 'alice', setNote, { id: 'huge', body: HUGE_BODY });
     await expectConverged(run);
 
-    expect(await run.observe(liveNote('bob', 'huge'))).toMatchObject({
+    expect(await run.observe(liveNote, 'bob', 'huge')).toMatchObject({
       body: HUGE_BODY,
     });
   });

@@ -7,6 +7,11 @@ import { script } from './run/script';
 
 const FORBIDDEN = [
   'defineScenario',
+  'defineObservation',
+  'draw',
+  'observe',
+  'untilObserved',
+  'neverObserved',
   'actions',
   'properties',
   'knob',
@@ -29,25 +34,22 @@ describe('public-api', () => {
   test('@pkgs/dst exports the algebra only', () => {
     for (const k of [
       'defineSystem',
-      'defineObservation',
       'defineAction',
       'defineProperty',
       'defineSurface',
-      'draw',
-      'observe',
       'script',
       'walk',
       'explore',
       'replay',
       'ExploreFailedError',
-      'untilObserved',
-      'neverObserved',
       'virtualHost',
       'wallHost',
       'defineHost',
       'REPRO_VERSION',
       'parseRepro',
       'stringifyRepro',
+      'RELIABLE_NETWORK',
+      'asSeededRng',
     ]) {
       expect(dst).toHaveProperty(k);
     }
@@ -59,7 +61,14 @@ describe('public-api', () => {
   test('Run has no _internal escape hatch', async () => {
     await using run = await script(kv, { seed: 1, knobs: { clients: 1 } });
     expect(run).not.toHaveProperty('_internal');
-    expect(Object.keys(run).sort()).toEqual(['apply', 'assert', 'observe']);
+    expect(Object.keys(run).sort()).toEqual([
+      'apply',
+      'assert',
+      'elapse',
+      'never',
+      'observe',
+      'until',
+    ]);
   });
 
   test('@pkgs/dst/kernel exports factories', () => {

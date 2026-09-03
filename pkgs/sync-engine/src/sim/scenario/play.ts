@@ -1,7 +1,6 @@
 import type { BootedSimKernel } from '../kit-types';
 import type { SyncAction } from './actions';
 import type { SyncApp } from './app';
-import { dispatchSyncAction } from './dispatch';
 import {
   createReplayRestartState,
   dispatchReplayAction,
@@ -64,7 +63,7 @@ export async function prepareClientsForConverge(
   if (surface.clients.size > 0) {
     await surface.advance(50);
   }
-  await dispatchSyncAction(surface, app, { kind: 'heal' });
+  await dispatchReplayAction(surface, app, { kind: 'heal' });
   healNetworkForSettle(surface);
   resetClockSkews(surface);
 }

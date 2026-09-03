@@ -8,7 +8,6 @@ import {
   liveNote,
   liveNotes,
   mutate,
-  passTime,
   setNote,
   syncVirtualHost,
 } from '../apps/acme';
@@ -24,7 +23,7 @@ describe('concurrent topic seq allocation monotonic', () => {
 
     await run.apply(addClient, { id: 'alice' });
     await run.apply(addClient, { id: 'bob' });
-    // Fire many overlapping mutates; occasional passTime lets the batcher flush
+    // Fire many overlapping mutates; occasional elapse lets the batcher flush
     // inside the server without a settle between them.
     for (let i = 0; i < 12; i += 1) {
       await run.apply(mutate, 'alice', setNote, {
@@ -35,15 +34,15 @@ describe('concurrent topic seq allocation monotonic', () => {
         id: `b-${String(i).padStart(2, '0')}`,
         body: `b${i}`,
       });
-      if (i % 3 === 0) await run.apply(passTime, 5);
+      if (i % 3 === 0) await run.elapse(5);
     }
     await expectConverged(run);
 
-    expect((await run.observe(liveNotes('server'))).length).toBe(24);
-    expect(await run.observe(liveNote('alice', 'a-00'))).toMatchObject({
+    expect((await run.observe(liveNotes, 'server')).length).toBe(24);
+    expect(await run.observe(liveNote, 'alice', 'a-00')).toMatchObject({
       body: 'a0',
     });
-    expect(await run.observe(liveNote('bob', 'b-11'))).toMatchObject({
+    expect(await run.observe(liveNote, 'bob', 'b-11')).toMatchObject({
       body: 'b11',
     });
   });
@@ -63,7 +62,7 @@ describe('concurrent topic seq allocation monotonic', () => {
       await run.apply(mutate, 'alice', setNote, { id: `a-${seed}`, body: 'x' });
       await run.apply(mutate, 'bob', setNote, { id: `b-${seed}`, body: 'y' });
       await expectConverged(run);
-      expect((await run.observe(liveNotes('server'))).length).toBe(2);
+      expect((await run.observe(liveNotes, 'server')).length).toBe(2);
     }
   );
 });

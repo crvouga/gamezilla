@@ -201,10 +201,8 @@ async function pinSurface(run: Run<ProductSurface>): Promise<ProductSurface> {
   let pinned: ProductSurface | null = null;
   const capture = product.defineAction({
     name: 'openSim.pinSurface',
-    generate() {
-      return (s: ProductSurface) => {
-        pinned = s;
-      };
+    act: (s: ProductSurface) => {
+      pinned = s;
     },
   });
   await run.apply(capture);
@@ -216,21 +214,16 @@ async function pinSurface(run: Run<ProductSurface>): Promise<ProductSurface> {
 
 /**
  * Product resources are torn down when the run disposes its session; the hook
- * is installed before `start` and filled in once the runtime is wired.
+ * is installed before `script` and filled in once the runtime is wired.
  */
 function hostWithProductDispose(
   host: Host<Ports & ProductExtra>,
   disposeRef: { current: (() => Promise<void>) | null }
 ): Host<Ports & ProductExtra> {
   return host.with(async (session: Session<Ports & ProductExtra>) => {
-    const disposeSession = session.dispose.bind(session);
-    (session as { dispose: () => Promise<void> }).dispose = async () => {
-      try {
-        await disposeRef.current?.();
-      } finally {
-        await disposeSession();
-      }
-    };
+    session.onDispose(async () => {
+      await disposeRef.current?.();
+    });
     return {};
   });
 }

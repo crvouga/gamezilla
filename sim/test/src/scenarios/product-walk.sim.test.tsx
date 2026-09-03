@@ -6,7 +6,7 @@ import { walk } from '@pkgs/dst';
 import { describe } from '@pkgs/ui-testing';
 import { back, fill, scroll, tap } from '@pkgs/ui-testing/explore';
 
-import { actor, randomPartition, spawnActor } from '../scenario';
+import { actor, partition, spawnActor } from '../scenario';
 import { openSim } from '../setup/open-sim';
 
 describe('product walk', (ctx) => {
@@ -22,7 +22,7 @@ describe('product walk', (ctx) => {
           fill(actorA),
           back(actorA),
           scroll(actorA),
-          randomPartition,
+          partition,
         ],
         steps: 40,
       });

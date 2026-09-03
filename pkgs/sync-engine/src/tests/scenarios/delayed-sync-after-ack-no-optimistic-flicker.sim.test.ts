@@ -10,7 +10,6 @@ import {
   mutate,
   net,
   nudge,
-  passTime,
   setNote,
   syncVirtualHost,
 } from '../apps/acme';
@@ -54,8 +53,8 @@ describe('delayed sync after ack no optimistic flicker', () => {
     // nudge races post-ack sweeps with delayed sync.
     await run.apply(nudge, 'alice');
     for (let i = 0; i < 16; i += 1) {
-      await run.apply(passTime, 25);
-      const rows = await run.observe(liveNotes('alice'));
+      await run.elapse(25);
+      const rows = await run.observe(liveNotes, 'alice');
       const note = rows.find((r) => r.id === 'n1');
       expect(note?.body).toBe('optimistic-final');
     }

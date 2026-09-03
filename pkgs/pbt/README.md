@@ -42,8 +42,8 @@ Env knobs:
 
 Sim-backed exploration lives in **`@pkgs/dst`**:
 `explore(system, { properties, actions, episodes, steps })` runs script +
-weighted `walk` + shrink. Scripted pins use `script` (or package helpers like
-`scriptRoom`) with local seed arbitraries — not a deleted `arbSeed`.
+weighted `walk` + shrink. Scripted pins use `script` with a `seed:` option
+(or local seed arbitraries) — not a deleted `arbSeed`.
 
 For custom fast-check properties over seeds, use **`assertProperty`** from this
 package (caps `numRuns` / interrupt for `test:pbt:random`):
@@ -72,7 +72,7 @@ assertProperty(
 ```
 
 Replay a shrunk walk from failure output via `replay` from `@pkgs/dst`
-(or package `replayRoom` / sync helpers).
+(or package pin helpers such as `playRoomPin` / `playAcmePin`).
 
 ## Writing a property
 

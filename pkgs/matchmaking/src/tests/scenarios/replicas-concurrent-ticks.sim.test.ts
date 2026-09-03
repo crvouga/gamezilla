@@ -1,14 +1,16 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
+import { script } from '@pkgs/dst';
 import type { TickResult } from '../../interface/matchmaking';
 import type { StatusResult } from '../../interface/types';
 import {
   join,
   lastTickAll,
   participantIds,
-  passTime,
-  scriptMatchmaking,
   statuses,
   tickAllWith,
+  matchmaking,
+  matchmakingKnobs,
+  MATCHMAKING_PROPERTIES,
 } from '../../sim/scenario';
 import {
   assertMatchInvariants,
@@ -28,13 +30,13 @@ describe('matchmaking sim: concurrent replica ticks', () => {
   });
 
   test('tickAll never double-matches a participant', async () => {
-    await using run = await scriptMatchmaking({
+    await using run = await script(matchmaking, {
       seed: 210,
-      replicas: 3,
-      backend: 'postgres',
+      knobs: matchmakingKnobs({ replicas: 3, backend: 'postgres' }),
+      properties: MATCHMAKING_PROPERTIES,
     });
     for (let i = 0; i < 12; i += 1) {
-      await run.apply(passTime, 1);
+      await run.elapse(1);
       await run.apply(join, {
         ref: `p${String(i)}`,
         input: { data: RatingAttr(1500 + i), formulas: [SimpleFormula] },
@@ -47,7 +49,7 @@ describe('matchmaking sim: concurrent replica ticks', () => {
     const { matchCount, waiting } = await assertMatchInvariants(run, ids);
     expect(matchSum).toBe(matchCount);
     expect(matchCount * 2 + waiting).toBe(ids.length);
-    const all = (await run.observe(statuses())) as Record<
+    const all = (await run.observe(statuses)) as Record<
       string,
       StatusResult | null
     >;

@@ -5,10 +5,9 @@ import {
   defineRoomSystem,
   dispatch,
   hold,
-  passTime,
   release,
-  scriptRoom,
 } from '../../sim/scenario';
+import { openRoom } from '../scenario/open-room';
 import { counterApp } from '../apps/counter/app';
 import { expectConverged } from '../expect-converged';
 import { counterValue, Increment } from '../fixtures/counter-module';
@@ -31,8 +30,8 @@ describe('room sim: two-topic shared storage (E-H01)', () => {
       topic: 'topic-b',
       storage,
     });
-    await using runA = await scriptRoom(systemA);
-    await using runB = await scriptRoom(systemB, { seed: '43' });
+    await using runA = await openRoom(systemA);
+    await using runB = await openRoom(systemB, { seed: '43' });
     await runA.apply(addClient, { id: 'alice' });
     await runA.apply(addClient, { id: 'bob' });
     await runB.apply(addClient, { id: 'carol' });
@@ -55,7 +54,7 @@ describe('room sim: two-topic shared storage (E-H01)', () => {
     expect(counterValue(await readClient(runA, 'bob'))).toBe(0);
     expect(counterValue(await readClient(runB, 'carol'))).toBe(1);
     await runA.apply(release, 'bob');
-    await runA.apply(passTime, 0);
+    await runA.elapse(0);
 
     await expectConverged(runA);
     await expectConverged(runB);

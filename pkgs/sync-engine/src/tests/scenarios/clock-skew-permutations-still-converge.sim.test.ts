@@ -15,7 +15,6 @@ import {
   liveNotes,
   mutate,
   online,
-  passTime,
   readNoteTombstoneAt,
   setNote,
   skewClock,
@@ -64,7 +63,7 @@ async function offlineConflictThenConverge(
   order: ClockOrder
 ): Promise<void> {
   await bootSkewedPair(run, order);
-  await run.apply(passTime, 50);
+  await run.elapse(50);
 
   await run.apply(online, 'alice', false);
   await run.apply(online, 'bob', false);
@@ -74,7 +73,7 @@ async function offlineConflictThenConverge(
   await run.apply(online, 'bob', true);
   await expectConverged(run);
 
-  const server = await run.observe(liveNotes('server'));
+  const server = await run.observe(liveNotes, 'server');
   const winner = server.find((r) => r.id === 'shared');
   expect(winner).toBeDefined();
   expect(winner?.body === 'from-a' || winner?.body === 'from-b').toBe(true);
@@ -93,7 +92,7 @@ async function onlineOptimisticRace(
   // local apply can race fanout rebase past settle budget).
   await run.apply(mutate, 'alice', setNote, { id: 'race', body: 'a-online' });
   await run.apply(mutate, 'bob', setNote, { id: 'race', body: 'b-online' });
-  await run.apply(passTime, 200);
+  await run.elapse(200);
   await expectConverged(run);
   await expectEveryClientNotesAgree(run);
 }
@@ -119,14 +118,14 @@ async function aheadDeleteBehindPending(
     body: 'behind-pending',
   });
   await run.apply(mutate, owner, deleteNote, { id: 'n1' });
-  expect(await run.observe(lastMutationOk(owner))).toBe(true);
+  expect(await run.observe(lastMutationOk, owner)).toBe(true);
 
   await run.apply(connect, behind);
   await expectConverged(run);
   await expectEveryClientNotesAgree(run);
 
   // Domain is consistent: either live with some body, or tombstoned everywhere.
-  const server = await run.observe(liveNotes('server'));
+  const server = await run.observe(liveNotes, 'server');
   if (server.find((r) => r.id === 'n1') === undefined) {
     for (const id of await run.observe(clientIds)) {
       expect(await readNoteTombstoneAt(run, id, 'n1')).not.toBeNull();

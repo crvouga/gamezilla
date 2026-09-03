@@ -1,4 +1,4 @@
-import { defineSystem, draw, observe } from '@pkgs/dst';
+import { defineSystem } from '@pkgs/dst';
 import { gen } from '@pkgs/dst/fast-check';
 import fc from 'fast-check';
 import {
@@ -53,99 +53,69 @@ export const sqlClientWeb = defineSystem({
   },
 });
 
-const { defineObservation, defineAction, defineProperty } = sqlClientWeb;
+const { defineAction, defineProperty } = sqlClientWeb;
 
-export const caps = defineObservation({
-  name: 'caps',
-  observe: (s) => [...s.session.caps] as string[],
-});
+export function caps(s: SqlClientWebSurface): string[] {
+  return [...s.session.caps];
+}
 
-export const tabIdList = defineObservation({
-  name: 'tabIdList',
-  observe: (s) => [...s.tabIds],
-});
+export function tabIdList(s: SqlClientWebSurface): string[] {
+  return [...s.tabIds];
+}
 
-export const ownerId = defineObservation({
-  name: 'ownerId',
-  observe: (s) => ownerTabId(boardOf(s)),
-});
+export function ownerId(s: SqlClientWebSurface): string | null {
+  return ownerTabId(boardOf(s));
+}
 
 /** Durable `toy_kv` rows as the elected owner sees them (`{}` with no owner). */
-export const ownerRows = defineObservation({
-  name: 'ownerRows',
-  observe: async (s) => {
-    const client = await ensureOwnerClient(boardOf(s));
-    if (client === null) return {} as Record<string, string>;
-    return Object.fromEntries(await readToyRows(client)) as Record<
-      string,
-      string
-    >;
-  },
-});
+export async function ownerRows(
+  s: SqlClientWebSurface
+): Promise<Record<string, string>> {
+  const client = await ensureOwnerClient(boardOf(s));
+  if (client === null) return {};
+  return Object.fromEntries(await readToyRows(client));
+}
 
-export const mismatchCount = defineObservation({
-  name: 'mismatchCount',
-  observe: (s) => boardOf(s).mismatches.length,
-});
+export function openOwnerCount(s: SqlClientWebSurface): number {
+  return [...boardOf(s).tabs.values()].filter((t) => t.open).length;
+}
 
-export const openOwnerCount = defineObservation({
-  name: 'openOwnerCount',
-  observe: (s) => [...boardOf(s).tabs.values()].filter((t) => t.open).length,
-});
-
-export const passTime = defineAction({
-  name: 'passTime',
-  generate(ms: number) {
-    return (s) => s.session.scheduler.advance(ms);
-  },
-});
-
-export const randomPassTime = defineAction({
-  name: 'randomPassTime',
-  *generate() {
-    if (!(yield* caps).includes('virtualTime')) return;
-    const ms = yield* draw((rng) => Math.floor(rng.next() * 5_000));
-    yield* passTime(ms);
-  },
-});
+/**
+ * Read a `toy_kv` key via the named tab when it is open, else via the elected
+ * owner. Pure observation — does not record mismatches.
+ */
+export async function get(
+  s: SqlClientWebSurface,
+  tabId: string,
+  key: string
+): Promise<string | null> {
+  const state = boardOf(s);
+  const tab = state.tabs.get(tabId);
+  if (tab?.open) {
+    return readToyRow(tab.runtime.getClient(), key);
+  }
+  const client = await ensureOwnerClient(state);
+  if (client === null) return null;
+  return readToyRow(client, key);
+}
 
 export const connect = defineAction({
   name: 'connect',
-  generate(tabId: string) {
-    return (s) => connectTab(boardOf(s), tabId);
-  },
-});
-
-export const randomConnect = defineAction({
-  name: 'randomConnect',
-  *generate() {
-    const ids = yield* tabIdList;
-    if (ids.length === 0) return;
-    const tabId = yield* draw(gen(fc.constantFrom(...(ids as string[]))));
-    yield {
-      weight: 3,
-      act: (s: SqlClientWebSurface) => connectTab(boardOf(s), tabId),
-    };
+  enabled: (s) => tabIdList(s).length > 0,
+  weight: 3,
+  args: (s) => gen(fc.constantFrom(...tabIdList(s))),
+  act: async (s, tabId: string) => {
+    await connectTab(boardOf(s), tabId);
   },
 });
 
 export const disconnect = defineAction({
   name: 'disconnect',
-  generate(tabId: string) {
-    return (s) => disconnectTab(boardOf(s), tabId);
-  },
-});
-
-export const randomDisconnect = defineAction({
-  name: 'randomDisconnect',
-  *generate() {
-    const ids = yield* tabIdList;
-    if (ids.length === 0) return;
-    const tabId = yield* draw(gen(fc.constantFrom(...(ids as string[]))));
-    yield {
-      weight: 3,
-      act: (s: SqlClientWebSurface) => disconnectTab(boardOf(s), tabId),
-    };
+  enabled: (s) => tabIdList(s).length > 0,
+  weight: 3,
+  args: (s) => gen(fc.constantFrom(...tabIdList(s))),
+  act: async (s, tabId: string) => {
+    await disconnectTab(boardOf(s), tabId);
   },
 });
 
@@ -157,127 +127,61 @@ export type PutArgs = {
 
 export const put = defineAction({
   name: 'put',
-  generate(payload: PutArgs) {
-    return async (s) => {
-      const state = boardOf(s);
-      const client = await connectTab(state, payload.tabId);
-      if (client === null) return;
-      await writeToyRow(client, payload.key, payload.value);
-      state.expected.set(payload.key, payload.value);
-      persistImage(state, client);
-    };
-  },
-});
-
-export const randomPut = defineAction({
-  name: 'randomPut',
-  *generate() {
-    const ids = yield* tabIdList;
-    if (ids.length === 0) return;
-    const payload = yield* draw(
-      gen(
-        fc.record({
-          tabId: fc.constantFrom(...(ids as string[])),
-          key: fc.constantFrom(...KEYS),
-          value: fc.constantFrom(...VALUES),
-        })
-      )
-    );
-    yield* put(payload);
-  },
-});
-
-export type GetArgs = {
-  readonly tabId: string;
-  readonly key: string;
-};
-
-export const get = defineAction({
-  name: 'get',
-  generate(payload: GetArgs) {
-    return async (s) => {
-      const state = boardOf(s);
-      const client = await connectTab(state, payload.tabId);
-      if (client === null) return;
-      const got = await readToyRow(client, payload.key);
-      const want = state.expected.get(payload.key) ?? null;
-      if (got !== want) {
-        state.mismatches.push(
-          `tab ${payload.tabId} read ${payload.key}=${String(got)} want ${String(want)}`
-        );
-      }
-    };
-  },
-});
-
-export const randomGet = defineAction({
-  name: 'randomGet',
-  *generate() {
-    const ids = yield* tabIdList;
-    if (ids.length === 0) return;
-    const payload = yield* draw(
-      gen(
-        fc.record({
-          tabId: fc.constantFrom(...(ids as string[])),
-          key: fc.constantFrom(...KEYS),
-        })
-      )
-    );
-    yield* get(payload);
+  enabled: (s) => tabIdList(s).length > 0,
+  weight: 3,
+  args: (s) =>
+    gen(
+      fc.record({
+        tabId: fc.constantFrom(...tabIdList(s)),
+        key: fc.constantFrom(...KEYS),
+        value: fc.constantFrom(...VALUES),
+      })
+    ),
+  act: async (s, payload: PutArgs) => {
+    const state = boardOf(s);
+    const client = await connectTab(state, payload.tabId);
+    if (client === null) return;
+    await writeToyRow(client, payload.key, payload.value);
+    state.expected.set(payload.key, payload.value);
+    persistImage(state, client);
   },
 });
 
 export const killTabAction = defineAction({
   name: 'killTab',
-  generate(tabId: string) {
-    return (s) => killTab(boardOf(s), tabId);
-  },
-});
-
-export const randomKillTab = defineAction({
-  name: 'randomKillTab',
-  *generate() {
-    const ids = yield* tabIdList;
-    if (ids.length === 0) return;
-    const tabId = yield* draw(gen(fc.constantFrom(...(ids as string[]))));
-    yield* killTabAction(tabId);
+  enabled: (s) => tabIdList(s).length > 0,
+  args: (s) => gen(fc.constantFrom(...tabIdList(s))),
+  act: async (s, tabId: string) => {
+    await killTab(boardOf(s), tabId);
   },
 });
 
 export const fillPool = defineAction({
   name: 'fillPool',
-  generate() {
-    return (s) => {
-      fillSimOpfsPool(requireStore(boardOf(s)));
-    };
+  act: (s) => {
+    fillSimOpfsPool(requireStore(boardOf(s)));
   },
 });
 
 export const corruptStore = defineAction({
   name: 'corruptStore',
-  generate() {
-    return (s) => {
-      corruptSimOpfsStore(requireStore(boardOf(s)));
-    };
+  act: (s) => {
+    corruptSimOpfsStore(requireStore(boardOf(s)));
   },
 });
 
 export const bumpEpoch = defineAction({
   name: 'bumpEpoch',
-  generate() {
-    return (s) => {
-      boardOf(s).epoch += 1;
-    };
+  act: (s) => {
+    boardOf(s).epoch += 1;
   },
 });
 
 export const SQL_CLIENT_WEB_ACTIONS = [
-  randomPassTime,
-  randomConnect,
-  randomDisconnect,
-  randomPut,
-  randomGet,
-  randomKillTab,
+  connect,
+  disconnect,
+  put,
+  killTabAction,
   fillPool,
   corruptStore,
   bumpEpoch,
@@ -285,15 +189,21 @@ export const SQL_CLIENT_WEB_ACTIONS = [
 
 export const converged = defineProperty({
   name: 'converged',
-  *watch() {
-    const o = yield* observe({ mismatchCount, openOwnerCount });
-    if (o.mismatchCount > 0) {
-      throw new Error(
-        `sql-client.web.stale-read: ${o.mismatchCount} mismatch(es)`
-      );
+  check: async (s) => {
+    const owners = openOwnerCount(s);
+    if (owners > 1) {
+      throw new Error(`sql-client.web.multi-owner: ${owners}`);
     }
-    if (o.openOwnerCount > 1) {
-      throw new Error(`sql-client.web.multi-owner: ${o.openOwnerCount}`);
+    // No live owner ⇒ nothing to compare; wipes clear `expected` on reopen.
+    if (owners === 0) return;
+    const rows = await ownerRows(s);
+    for (const [key, want] of boardOf(s).expected) {
+      const got = rows[key] ?? null;
+      if (got !== want) {
+        throw new Error(
+          `sql-client.web.stale-read: ${key}=${String(got)} want ${want}`
+        );
+      }
     }
   },
 });

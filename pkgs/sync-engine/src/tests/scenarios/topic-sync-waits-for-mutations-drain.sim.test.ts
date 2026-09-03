@@ -11,7 +11,6 @@ import {
   lacksTopic,
   leaveSpace,
   mutate,
-  passTime,
   release,
   roomTopic,
   SPACE_MEMBERSHIP_SESSION,
@@ -37,20 +36,20 @@ describe('topic sync waits for mutations drain', () => {
     });
     await run.apply(mutate, 'alice', createSpace, { id: 'gated', title: 'G' });
     await expectConverged(run);
-    await untilAcme(run, subscribedTopics('alice'), {
+    await untilAcme(run, (s) => subscribedTopics(s, 'alice'), {
       pred: hasTopic(roomTopic('gated')),
     });
 
     await run.apply(hold, 'alice', 'sync');
     await run.apply(mutate, 'alice', leaveSpace, { spaceId: 'gated' });
-    await run.apply(passTime, 300);
+    await run.elapse(300);
     // Upload held → membership sync must not drop room topic yet.
-    expect(await run.observe(subscribedTopics('alice'))).toContain(
+    expect(await run.observe(subscribedTopics, 'alice')).toContain(
       roomTopic('gated')
     );
     await run.apply(release, 'alice', 'sync');
 
-    await untilAcme(run, subscribedTopics('alice'), {
+    await untilAcme(run, (s) => subscribedTopics(s, 'alice'), {
       pred: lacksTopic(roomTopic('gated')),
     });
     await expectConverged(run);

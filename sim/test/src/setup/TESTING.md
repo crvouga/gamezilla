@@ -8,10 +8,11 @@ Product system lives in `sim/test/src/scenario/`. Open a run with `openSim` from
 
 **Authoring** — scenarios import `describe` from `@pkgs/ui-testing` and pass
 `ctx` into `openSim(testId, ctx)`. Never import `@jest/globals` / `@playwright/test`
-in scenario files. Drive UI through `AppDriver` (taps and waits checkpoint via
-`run.apply`; visibility / text read via `run.observe`); attach more properties on
-`start` if needed. Flows that poll go through `ActorRun.pollUntil`, which advances
-the `passTime` action between reads — never a wall-clock deadline.
+in scenario files. Drive UI through `AppDriver` (taps checkpoint via `run.apply`;
+waits via `run.until` / `run.elapse`; visibility / text via `run.observe(read, …args)`).
+Attach more properties on `script` if needed. Flows that poll go through
+`ActorRun.pollUntil`, which calls `run.elapse` between reads — never a wall-clock
+deadline. Reads are plain functions of the surface.
 
 ```tsx
 import { describe } from '@pkgs/ui-testing';
@@ -25,7 +26,7 @@ describe('space create', (ctx) => {
 });
 ```
 
-Faults (partition / heal) are `defineAction`s gated by a `caps` observation —
+Faults (partition / heal) are `defineAction`s gated by the `caps` read —
 do not branch on `ctx.fidelity`. On `maxHost` (no `partition` cap),
 `run.apply(partition, …)` throws `ActionNotEnabled`.
 

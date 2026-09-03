@@ -40,10 +40,10 @@ describe('room live isolated until member joins', () => {
 
     await run.apply(mutate, 'alice', createSpace, { id: 'room-a', title: 'A' });
     await run.apply(mutate, 'bob', createSpace, { id: 'room-b', title: 'B' });
-    await untilAcme(run, subscribedTopics('alice'), {
+    await untilAcme(run, (s) => subscribedTopics(s, 'alice'), {
       pred: hasTopic(roomTopic('room-a')),
     });
-    await untilAcme(run, subscribedTopics('bob'), {
+    await untilAcme(run, (s) => subscribedTopics(s, 'bob'), {
       pred: hasTopic(roomTopic('room-b')),
     });
 
@@ -52,20 +52,20 @@ describe('room live isolated until member joins', () => {
       spaceId: 'room-b',
       body: 'secret-b',
     });
-    await neverAcme(run, liveNote('alice', 'b-only'), {
+    await neverAcme(run, (s) => liveNote(s, 'alice', 'b-only'), {
       forMs: 300,
       pred: noteLive,
     });
-    expect(await run.observe(liveNote('bob', 'b-only'))).toMatchObject({
+    expect(await run.observe(liveNote, 'bob', 'b-only')).toMatchObject({
       body: 'secret-b',
     });
 
     await run.apply(mutate, 'alice', joinSpace, { spaceId: 'room-b' });
-    await untilAcme(run, subscribedTopics('alice'), {
+    await untilAcme(run, (s) => subscribedTopics(s, 'alice'), {
       pred: hasTopic(roomTopic('room-b')),
     });
     await expectConverged(run);
-    expect(await run.observe(liveNote('alice', 'b-only'))).toMatchObject({
+    expect(await run.observe(liveNote, 'alice', 'b-only')).toMatchObject({
       body: 'secret-b',
     });
   });

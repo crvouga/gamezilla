@@ -34,7 +34,7 @@ describe('pending mutations across protocol cut drain', () => {
       id: 'pending-cut',
       body: 'queued-at-cut',
     });
-    await neverAcme(run, liveNote('server', 'pending-cut'), {
+    await neverAcme(run, (s) => liveNote(s, 'server', 'pending-cut'), {
       forMs: 50,
       pred: noteLive,
     });
@@ -42,13 +42,13 @@ describe('pending mutations across protocol cut drain', () => {
     // Reconnect speaks current protocol; stable mutation names drain unchanged.
     await run.apply(connect, 'alice');
     await expectConverged(run);
-    expect(await run.observe(liveNote('alice', 'pending-cut'))).toMatchObject({
+    expect(await run.observe(liveNote, 'alice', 'pending-cut')).toMatchObject({
       body: 'queued-at-cut',
     });
-    expect(await run.observe(liveNote('bob', 'pending-cut'))).toMatchObject({
+    expect(await run.observe(liveNote, 'bob', 'pending-cut')).toMatchObject({
       body: 'queued-at-cut',
     });
-    expect(await run.observe(liveNote('server', 'pending-cut'))).toMatchObject({
+    expect(await run.observe(liveNote, 'server', 'pending-cut')).toMatchObject({
       body: 'queued-at-cut',
     });
   });

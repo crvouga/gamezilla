@@ -4,8 +4,8 @@ import {
   clock,
   injectToServer,
   logSeq,
-  scriptRoom,
 } from '../../sim/scenario';
+import { openRoom } from '../scenario/open-room';
 import { counterSystem } from '../apps/counter/system';
 import { expectConverged } from '../expect-converged';
 import { counterValue, Increment } from '../fixtures/counter-module';
@@ -18,7 +18,7 @@ import { commandWire } from './wire-helpers';
 
 describe('room sim: replay flood dedup (E-D01)', () => {
   test('N replays of one commandId mutate once', async () => {
-    await using run = await scriptRoom(counterSystem);
+    await using run = await openRoom(counterSystem);
     await run.apply(addClient, { id: 'alice' });
     await expectConverged(run);
 

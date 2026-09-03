@@ -38,8 +38,8 @@ describe('duplicate mutation id different args first wins', () => {
         id: 'n1',
         body: 'first-wins',
       });
-      expect(await run.observe(lastMutationOk('alice'))).toBe(true);
-      const firstId = await run.observe(lastMutationId('alice'));
+      expect(await run.observe(lastMutationOk, 'alice')).toBe(true);
+      const firstId = await run.observe(lastMutationId, 'alice');
       expect(firstId).not.toBeNull();
       await expectConverged(run);
 
@@ -48,14 +48,14 @@ describe('duplicate mutation id different args first wins', () => {
           id: firstId!,
           name: 'setNote',
           args: JSON.stringify({ id: 'n1', body: 'second-should-lose' }),
-          clientId: (await run.observe(deviceId('alice')))!,
+          clientId: (await run.observe(deviceId, 'alice'))!,
           seq: 999,
           createdAt: new Date(
-            await run.observe(nodeNow('alice'))
+            await run.observe(nodeNow, 'alice')
           ).toISOString(),
         },
       ]);
-      const hostile = await untilAcme(run, postOutcome('alice'));
+      const hostile = await untilAcme(run, (s) => postOutcome(s, 'alice'));
       expect(hostile).toMatchObject({
         ok: true,
         verdicts: [{ status: 'applied' }],

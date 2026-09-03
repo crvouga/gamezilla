@@ -1,11 +1,15 @@
 /**
  * Virtual-time drain pump for rntl sim waits.
- * Advances scheduled work via {@link VirtualScheduler} without wall sleep.
+ * Advances scheduled work via the Host session's underlying scheduler
+ * without wall sleep.
  */
 
 import { setImmediate as nodeSetImmediate } from 'node:timers';
-import type { VirtualScheduler } from '@pkgs/dst/kernel';
+import type { Session } from '@pkgs/dst';
 import type { WaitPump } from '@pkgs/ui-testing';
+
+/** Heap scheduler behind `session.scheduler` (Host public API). */
+type UnderlyingScheduler = Session['scheduler']['underlying'];
 
 /**
  * Max sim-time advanced per pump tick. Covers upload IDLE_DELAY (100) and one
@@ -24,19 +28,19 @@ function yieldEventLoop(): Promise<void> {
 }
 
 /**
- * Serialize overlapping {@link VirtualScheduler.runFor} calls from the UI harness.
+ * Serialize overlapping underlying-scheduler `runFor` calls from the UI harness.
  * Nested drain from a scheduled task still throws; concurrent mount / focus /
  * wait-pump callers queue instead of racing the drain gate.
  */
 export function createSerializedRunFor(
-  scheduler: VirtualScheduler
+  scheduler: UnderlyingScheduler
 ): (durationMs: number) => Promise<void> {
   let tail: Promise<void> = Promise.resolve();
   return (durationMs: number): Promise<void> => {
     const run = tail.then(async () => {
       await scheduler.runFor(durationMs);
       // React 18 / RNTL apply updates on microtasks + setImmediate.
-      // Without this, `passTime` / `untilObserved` spin virtual time
+      // Without this, `run.elapse` / `run.until` spin virtual time
       // while the tree stays stale.
       await flushMicrotasks();
       await yieldEventLoop();
@@ -54,7 +58,7 @@ export function createSerializedRunFor(
  * microtasks) without wall 50ms sleeps.
  */
 export function createSimWaitPump(args: {
-  readonly scheduler: VirtualScheduler;
+  readonly scheduler: UnderlyingScheduler;
   readonly runFor?: (durationMs: number) => Promise<void>;
 }): WaitPump {
   const runFor =

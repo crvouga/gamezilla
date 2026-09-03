@@ -46,10 +46,10 @@ describe('authz graph PBT', () => {
             await expectConverged(run);
 
             await run.apply(mutate, peer!, deleteNote, { id: noteId });
-            if (await run.observe(lastMutationOk(peer!))) {
+            if (await run.observe(lastMutationOk, peer!)) {
               throw new Error('non-owner delete unexpectedly succeeded');
             }
-            expect(await run.observe(lastMutationFailures(peer!))).toContain(
+            expect(await run.observe(lastMutationFailures, peer!)).toContain(
               'FORBIDDEN'
             );
 

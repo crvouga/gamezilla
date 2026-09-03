@@ -7,7 +7,6 @@ import {
   expectConverged,
   mutate,
   online,
-  passTime,
   setNote,
   syncVirtualHost,
 } from '../apps/acme';
@@ -24,7 +23,7 @@ describe('two offline same id single winner', () => {
 
     await run.apply(addClient, 'alice');
     await run.apply(addClient, 'bob');
-    await run.apply(passTime, 100);
+    await run.elapse(100);
 
     await run.apply(online, 'alice', false);
     await run.apply(online, 'bob', false);
@@ -35,13 +34,13 @@ describe('two offline same id single winner', () => {
     await run.apply(online, 'bob', true);
     await expectConverged(run);
 
-    const server = await run.observe(liveNotes('server'));
+    const server = await run.observe(liveNotes, 'server');
     const winner = server.find((r) => r.id === 'shared');
     expect(winner).toBeDefined();
     expect(winner?.body === 'from-a' || winner?.body === 'from-b').toBe(true);
 
-    const localA = await run.observe(liveNotes('alice'));
-    const localB = await run.observe(liveNotes('bob'));
+    const localA = await run.observe(liveNotes, 'alice');
+    const localB = await run.observe(liveNotes, 'bob');
     expect(localA.find((r) => r.id === 'shared')?.body).toBe(winner?.body);
     expect(localB.find((r) => r.id === 'shared')?.body).toBe(winner?.body);
   });

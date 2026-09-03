@@ -5,8 +5,7 @@ import {
   clientState,
   dispatch,
   expectConverged,
-  passTime,
-  scriptRoom,
+  openRoom,
   serverHash,
   serverState,
 } from '@pkgs/room/tests';
@@ -24,7 +23,7 @@ const VALID_MOVES = 'e8d7 e1f2 d7e6 f2e3';
 
 describe('chess puzzle: wrong vs solve race (Gp-04)', () => {
   test('two host tabs race moves → one consistent status', async () => {
-    await using run = await scriptRoom(chessSystem, {
+    await using run = await openRoom(chessSystem, {
       seed: process.env['SIM_SEED'] ?? '42',
       mildFaults: true,
     });
@@ -48,7 +47,7 @@ describe('chess puzzle: wrong vs solve race (Gp-04)', () => {
         moves: VALID_MOVES,
       }),
     });
-    await run.apply(passTime, 0);
+    await run.elapse(0);
 
     await run.apply(dispatch, {
       clientId: 'tab1',

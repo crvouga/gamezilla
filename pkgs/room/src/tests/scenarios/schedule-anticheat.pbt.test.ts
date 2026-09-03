@@ -3,10 +3,6 @@ import { assertProperty, fc } from '@pkgs/pbt';
 import {
   arbSeed,
   domain,
-  passTime,
-  replayRoom,
-  replayRoomPin,
-  scriptRoom,
 } from '../../sim/scenario';
 import { matchClockSystem } from '../apps/match-clock/system';
 import { expectConverged } from '../expect-converged';
@@ -14,6 +10,8 @@ import {
   matchClockStatus,
   matchClockWinner,
 } from '../fixtures/match-clock-module';
+import { openRoom } from '../scenario/open-room';
+import { playRoomActions, playRoomPin } from '../scenario/play-actions';
 import { readServer } from '../scenario/read-state';
 
 describe('room schedule-anticheat PBT', () => {
@@ -23,7 +21,7 @@ describe('room schedule-anticheat PBT', () => {
       await assertProperty(
         'hold interleaved converges',
         fc.asyncProperty(arbSeed(), async (seed) => {
-          await replayRoomPin(matchClockSystem, {
+          await playRoomPin(matchClockSystem, {
             seed,
             actions: [
               {
@@ -52,7 +50,7 @@ describe('room schedule-anticheat PBT', () => {
   );
 
   test('early FlagFall rejected; server still flags at true at', async () => {
-    await using run = await scriptRoom(matchClockSystem, {
+    await using run = await openRoom(matchClockSystem, {
       seed: 3,
       clientCount: 2,
     });
@@ -62,7 +60,7 @@ describe('room schedule-anticheat PBT', () => {
       command: 'start',
       args: { whiteMs: 5_000, blackMs: 5_000 },
     });
-    await run.apply(passTime, 20);
+    await run.elapse(20);
     await run.apply(domain, {
       kind: 'domain',
       clientId: 'c1',
@@ -70,7 +68,7 @@ describe('room schedule-anticheat PBT', () => {
       args: { seat: 'white' },
     });
     expect(matchClockStatus(await readServer(run))).toBe('playing');
-    await run.apply(passTime, 5_100);
+    await run.elapse(5_100);
     await expectConverged(run);
     const end = await readServer(run);
     expect(matchClockStatus(end)).toBe('flagged');
@@ -78,7 +76,7 @@ describe('room schedule-anticheat PBT', () => {
   });
 
   test('lagging held client cannot move after server flag', async () => {
-    await using run = await replayRoom(matchClockSystem, {
+    await using run = await playRoomActions(matchClockSystem, {
       seed: 5,
       actions: [
         {

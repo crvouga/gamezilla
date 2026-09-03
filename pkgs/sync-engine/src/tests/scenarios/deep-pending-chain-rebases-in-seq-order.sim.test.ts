@@ -12,7 +12,6 @@ import {
   liveFolders,
   liveNotes,
   mutate,
-  passTime,
   setFolder,
   setNote,
   syncVirtualHost,
@@ -49,13 +48,13 @@ describe('deep pending chain rebases in seq order', () => {
         });
       }
     }
-    await run.apply(passTime, 50);
+    await run.elapse(50);
 
     await run.apply(connect, 'alice');
     await expectConverged(run);
 
-    expect((await run.observe(liveNotes('server'))).length).toBe(CHAIN / 2);
-    expect((await run.observe(liveFolders('server'))).length).toBe(CHAIN / 2);
+    expect((await run.observe(liveNotes, 'server')).length).toBe(CHAIN / 2);
+    expect((await run.observe(liveFolders, 'server')).length).toBe(CHAIN / 2);
     await expectLiveNoteAt(run, 'bob', 'n-001', { body: 'B1' });
     await expectLiveNoteAt(run, 'bob', `n-${pad(CHAIN - 1)}`, {
       body: `B${CHAIN - 1}`,

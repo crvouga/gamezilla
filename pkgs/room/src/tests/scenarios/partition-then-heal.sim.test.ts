@@ -3,10 +3,9 @@ import {
   addClient,
   dispatch,
   hold,
-  passTime,
   release,
-  scriptRoom,
 } from '../../sim/scenario';
+import { openRoom } from '../scenario/open-room';
 import { counterSystem } from '../apps/counter/system';
 import { expectConverged } from '../expect-converged';
 import { counterValue, Increment } from '../fixtures/counter-module';
@@ -19,7 +18,7 @@ import {
 
 describe('room sim: partition then heal', () => {
   test('held peer never sees write until heal + converge', async () => {
-    await using run = await scriptRoom(counterSystem, { seed: 3 });
+    await using run = await openRoom(counterSystem, { seed: 3 });
     await run.apply(addClient, { id: 'alice' });
     await run.apply(addClient, { id: 'bob' });
     await expectConverged(run);
@@ -30,7 +29,7 @@ describe('room sim: partition then heal', () => {
       clientId: 'alice',
       payload: Increment({}),
     });
-    await run.apply(passTime, 200);
+    await run.elapse(200);
     expect(counterValue(await readClient(run, 'bob'))).toBe(0);
     expect(await readClientHash(run, 'bob')).toBe(bobBefore);
     await run.apply(release, 'bob');

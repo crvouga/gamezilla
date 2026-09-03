@@ -1,17 +1,31 @@
 import { describe, test } from 'bun:test';
+import { explore } from '@pkgs/dst';
+import { gen } from '@pkgs/dst/fast-check';
 import { assertProperty, fc } from '@pkgs/pbt';
-import { exploreSync } from '../../sim/scenario';
+import {
+  arbKnobs,
+  createSyncActions,
+  SYNC_PROPERTIES,
+  syncVirtualHost,
+} from '../../sim/scenario';
 import { playAcmePin, runAcmeSeed } from '../apps/acme';
+import { acmeApp } from '../apps/acme/app';
 import { acmeSystem } from '../apps/acme/system';
 
 describe('acme system PBT', () => {
   test(
     'fc.commands sequences replay on SyncKit and converge',
     async () => {
-      await exploreSync(acmeSystem, {
+      await explore(acmeSystem, {
+        host: syncVirtualHost(),
+        properties: [...SYNC_PROPERTIES],
+        actions: [...createSyncActions(acmeApp, acmeApp.pack.sessionQuery)],
+        knobs: gen(arbKnobs()),
         steps: 14,
         episodes: 8,
         seed: 42,
+        stopOnViolation: true,
+        time: { weight: 1, minMs: 0, maxMs: 40 },
       });
     },
     { timeout: 120_000 }

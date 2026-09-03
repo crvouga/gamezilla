@@ -1,4 +1,4 @@
-import { defineSystem, draw } from '@pkgs/dst';
+import { defineSystem } from '@pkgs/dst';
 import { gen } from '@pkgs/dst/fast-check';
 import fc from 'fast-check';
 import { applyAdvance, applyForbidden } from './dispatch';
@@ -32,104 +32,82 @@ export const schema = defineSystem({
   },
 });
 
-const { defineObservation, defineAction, defineProperty } = schema;
+const { defineAction, defineProperty } = schema;
 
-export const clientIds = defineObservation({
-  name: 'clientIds',
-  observe: (s) => s.clients.map((c) => c.id),
-});
+export function clientIds(s: SchemaSurface): string[] {
+  return s.clients.map((c) => c.id);
+}
 
-export const peerIdList = defineObservation({
-  name: 'peerIdList',
-  observe: (s) => [...peerIds(s)],
-});
+export function peerIdList(s: SchemaSurface): string[] {
+  return [...peerIds(s)];
+}
 
-export const serverVersion = defineObservation({
-  name: 'serverVersion',
-  observe: (s) => s.server.version,
-});
+export function serverVersion(s: SchemaSurface): SchemaVersion {
+  return s.server.version;
+}
 
-export const clientVersions = defineObservation({
-  name: 'clientVersions',
-  observe: (s) => s.clients.map((c) => c.version),
-});
+export function clientVersions(s: SchemaSurface): SchemaVersion[] {
+  return s.clients.map((c) => c.version);
+}
 
-export const serverPlanKinds = defineObservation({
-  name: 'serverPlanKinds',
-  observe: (s) => [...s.server.planKinds],
-});
+export function serverPlanKinds(s: SchemaSurface): string[] {
+  return [...s.server.planKinds];
+}
 
-export const alignmentViolations = defineObservation({
-  name: 'alignmentViolations',
-  observe: async (s) => {
-    const out: string[] = [];
-    try {
-      await assertServerLiveColumns(s.server);
-      for (const client of s.clients) {
-        if (client.version > s.server.version) {
-          out.push(
-            `client ${client.id}@v${client.version} ahead of server@v${s.server.version}`
-          );
-        }
+export async function alignmentViolations(
+  s: SchemaSurface
+): Promise<string[]> {
+  const out: string[] = [];
+  try {
+    await assertServerLiveColumns(s.server);
+    for (const client of s.clients) {
+      if (client.version > s.server.version) {
+        out.push(
+          `client ${client.id}@v${client.version} ahead of server@v${s.server.version}`
+        );
       }
-      if (planKindHash(s.server).length !== PLAN_HASH_HEX_LENGTH) {
-        out.push('server plan hash is not a sha256 hex digest');
-      }
-    } catch (e) {
-      out.push(e instanceof Error ? e.message : String(e));
     }
-    return out;
-  },
-});
-
-export type AdvanceArgs = {
-  readonly target: string;
-  readonly to: SchemaVersion;
-};
+    if (planKindHash(s.server).length !== PLAN_HASH_HEX_LENGTH) {
+      out.push('server plan hash is not a sha256 hex digest');
+    }
+  } catch (e) {
+    out.push(e instanceof Error ? e.message : String(e));
+  }
+  return out;
+}
 
 export const advance = defineAction({
   name: 'advance',
-  generate(args: AdvanceArgs) {
-    return (s) => applyAdvance(s, args.target, args.to);
-  },
-});
-
-export const randomAdvance = defineAction({
-  name: 'randomAdvance',
-  *generate() {
-    const ids = yield* peerIdList;
-    if (ids.length === 0) return;
-    const { target, to } = yield* draw(
-      gen(
-        fc.record({
-          target: fc.constantFrom(...(ids as string[])),
-          to: fc.integer({
-            min: 0,
-            max: MAX_SCHEMA_VERSION,
-          }) as fc.Arbitrary<SchemaVersion>,
-        })
-      )
-    );
-    yield {
-      weight: 3,
-      act: (s: SchemaSurface) => applyAdvance(s, target, to),
-    };
+  enabled: (s) => peerIdList(s).length > 0,
+  weight: 3,
+  args: (s) =>
+    gen(
+      fc.record({
+        target: fc.constantFrom(...peerIdList(s)),
+        to: fc.integer({
+          min: 0,
+          max: MAX_SCHEMA_VERSION,
+        }),
+      })
+    ),
+  act: async (s, args: { readonly target: string; readonly to: number }) => {
+    await applyAdvance(s, args.target, args.to as SchemaVersion);
   },
 });
 
 export const forbidden = defineAction({
   name: 'forbidden',
-  generate() {
-    return (s) => applyForbidden(s);
+  act: async (s) => {
+    await applyForbidden(s);
   },
 });
 
-export const SCHEMA_ACTIONS = [randomAdvance, forbidden];
+export const SCHEMA_ACTIONS = [advance, forbidden];
 
 export const aligned = defineProperty({
   name: 'aligned',
-  *watch() {
-    const v = yield* alignmentViolations;
+  check: async (s) => {
+    const v = await alignmentViolations(s);
     if (v.length > 0) throw new Error(v[0]!);
   },
 });

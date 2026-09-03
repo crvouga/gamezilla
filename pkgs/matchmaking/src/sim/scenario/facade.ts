@@ -2,8 +2,7 @@
  * Kit methods built in system `generate` over a shared store + replicas.
  */
 
-import type { JsonValue, Session } from '@pkgs/dst';
-import { asSeededRng } from '@pkgs/dst/kernel';
+import { asSeededRng, type JsonValue, type Session } from '@pkgs/dst';
 import type { SeededRng } from '@pkgs/uuid';
 import type { Hono } from 'hono';
 
@@ -17,13 +16,6 @@ import {
   resolveReplica,
 } from '../handles';
 import type { MatchmakingSimKit, ReplicaHandle } from '../sim-api';
-import {
-  type EventuallyOptions,
-  type NeverOptions,
-  runNever,
-  runUntil,
-  type UntilTarget,
-} from '../until';
 import type { MmReplicaBootHandle } from './node-kinds';
 import type { MatchmakingSystemConfig } from './system';
 
@@ -38,7 +30,6 @@ export type MatchmakingLastResults = {
 
 export type MatchmakingSurface = MatchmakingSimKit & {
   readonly session: Session;
-  readonly advance: (ms: number) => Promise<void>;
   readonly ports: {
     readonly rng: SeededRng;
     readonly clock: Session['ports']['clock'];
@@ -71,26 +62,8 @@ export function buildMatchmakingKit(args: {
     replicas.set(boot.id, buildReplicaHandle(ops, boot.id, boot.mm));
   }
 
-  async function advance(ms: number): Promise<void> {
-    await session.scheduler.advance(ms);
-  }
-
-  async function step(ms: number): Promise<void> {
-    await advance(ms);
-    await Promise.all(
-      [...replicas.values()].map((r) => r.tick({ maxPassesPerPartition: 4 }))
-    );
-  }
-
-  const untilCtx = {
-    clock: { now: () => session.ports.clock.now() },
-    seed: BigInt(0),
-    step,
-  };
-
   return {
     session,
-    advance,
     replicas,
     refs: new Map<string, string>(),
     apps: new Map<string, Hono>(),
@@ -130,10 +103,6 @@ export function buildMatchmakingKit(args: {
       resolveReplica(replicas, replicaId ?? firstId).tick(opts),
     tickAll: (opts) =>
       Promise.all([...replicas.values()].map((r) => r.tick(opts))),
-    waitUntil: (target: UntilTarget, opts?: EventuallyOptions) =>
-      runUntil(untilCtx, target, opts),
-    waitNever: (target: UntilTarget, opts: NeverOptions) =>
-      runNever(untilCtx, target, opts),
   };
 }
 
