@@ -7,10 +7,10 @@ import {
   release,
   serverHash,
 } from '../../sim/scenario';
-import { openRoom } from '../scenario/open-room';
 import { counterSystem } from '../apps/counter/system';
 import { expectConverged } from '../expect-converged';
 import { Increment } from '../fixtures/counter-module';
+import { openRoom } from '../scenario/open-room';
 
 async function runWorkload(seed: number | string): Promise<string> {
   await using run = await openRoom(counterSystem, { seed });

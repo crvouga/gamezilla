@@ -12,10 +12,10 @@ import {
   seed as seedOf,
   serverHash,
 } from '../../sim/scenario';
-import { openRoom } from '../scenario/open-room';
 import { counterSystem } from '../apps/counter/system';
 import { expectConverged } from '../expect-converged';
 import { Decrement, Increment } from '../fixtures/counter-module';
+import { openRoom } from '../scenario/open-room';
 
 async function runChaos(seed: string): Promise<string> {
   await using run = await openRoom(counterSystem, { seed });

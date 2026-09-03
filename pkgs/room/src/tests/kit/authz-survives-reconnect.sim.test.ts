@@ -1,15 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import {
-  addClient,
-  connect,
-  disconnect,
-  dispatch,
-} from '../../sim/scenario';
-import { openRoom } from '../scenario/open-room';
+import { addClient, connect, disconnect, dispatch } from '../../sim/scenario';
 import { ROOM_ERROR_TYPE } from '../../types';
 import { authzSystem } from '../apps/authz/system';
 import { expectConverged } from '../expect-converged';
 import { authzCount, authzOwner, Bump, Claim } from '../fixtures/authz-module';
+import { openRoom } from '../scenario/open-room';
 import { readClient, readRejection, readServer } from '../scenario/read-state';
 
 describe('kit: authz survives reconnect (M-F05)', () => {

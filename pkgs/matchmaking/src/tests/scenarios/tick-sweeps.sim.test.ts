@@ -2,14 +2,14 @@ import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { script } from '@pkgs/dst';
 import type { TickResult } from '../../interface/matchmaking';
 import {
+  defineMatchmakingSystem,
   join,
   lastTick,
-  statusOf,
-  tick,
+  MATCHMAKING_PROPERTIES,
   matchmaking,
   matchmakingKnobs,
-  MATCHMAKING_PROPERTIES,
-  defineMatchmakingSystem,
+  statusOf,
+  tick,
 } from '../../sim/scenario';
 import { RatingAttr, registerTestCrashHandler } from '../fixtures';
 
@@ -25,11 +25,14 @@ describe('matchmaking sim: tick sweeps', () => {
   });
 
   test('expiredRemoved reaps waiters older than maxWaitSeconds', async () => {
-    await using run = await script(defineMatchmakingSystem({ tuning: { maxWaitSeconds: 30 } }), {
-      seed: 50,
-      knobs: matchmakingKnobs(),
-      properties: MATCHMAKING_PROPERTIES,
-    });
+    await using run = await script(
+      defineMatchmakingSystem({ tuning: { maxWaitSeconds: 30 } }),
+      {
+        seed: 50,
+        knobs: matchmakingKnobs(),
+        properties: MATCHMAKING_PROPERTIES,
+      }
+    );
     await run.apply(join, {
       ref: 'p',
       input: { data: RatingAttr(1000), formulas: [SimpleFormula] },
@@ -47,11 +50,14 @@ describe('matchmaking sim: tick sweeps', () => {
   });
 
   test('matchedRemoved reaps matched rows older than matchedRetentionSeconds', async () => {
-    await using run = await script(defineMatchmakingSystem({ tuning: { matchedRetentionSeconds: 10 } }), {
-      seed: 51,
-      knobs: matchmakingKnobs(),
-      properties: MATCHMAKING_PROPERTIES,
-    });
+    await using run = await script(
+      defineMatchmakingSystem({ tuning: { matchedRetentionSeconds: 10 } }),
+      {
+        seed: 51,
+        knobs: matchmakingKnobs(),
+        properties: MATCHMAKING_PROPERTIES,
+      }
+    );
     await run.apply(join, {
       ref: 'a',
       input: { data: RatingAttr(1000), formulas: [SimpleFormula] },

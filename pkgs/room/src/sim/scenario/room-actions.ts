@@ -211,8 +211,7 @@ export const serverRestart = defineAction({
 
 export const partition = defineAction({
   name: 'partition',
-  enabled: (s) =>
-    caps(s).includes('partition') && clientIds(s).length > 0,
+  enabled: (s) => caps(s).includes('partition') && clientIds(s).length > 0,
   weight: (s) => (partitioned(s).length === 0 ? 2 : 1),
   args: (s) => pickClientId(clientIds(s)),
   act: (s, id: string) => {
@@ -273,10 +272,7 @@ export const injectToServer = defineAction({
 
 export const injectFromServer = defineAction({
   name: 'injectFromServer',
-  act: (
-    s,
-    spec: { readonly clientId: string; readonly raw: unknown }
-  ) => {
+  act: (s, spec: { readonly clientId: string; readonly raw: unknown }) => {
     s.kit.clients.get(spec.clientId)?.injectFromServer(spec.raw);
   },
 });

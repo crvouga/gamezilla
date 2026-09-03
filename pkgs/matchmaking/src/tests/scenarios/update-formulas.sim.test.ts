@@ -9,11 +9,11 @@ import {
   join,
   lastTick,
   lastUpdate,
-  tick,
-  updateFormulas,
+  MATCHMAKING_PROPERTIES,
   matchmaking,
   matchmakingKnobs,
-  MATCHMAKING_PROPERTIES,
+  tick,
+  updateFormulas,
 } from '../../sim/scenario';
 import { RatingAttr, registerTestCrashHandler } from '../fixtures';
 

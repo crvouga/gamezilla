@@ -19,8 +19,8 @@ export {
 export type { JsonPrimitive, JsonValue } from './kernel/json';
 export type { Rng } from './kernel/rng';
 export { asSeededRng } from './kernel/rng';
-export type { Scheduler } from './kernel/scheduler-api';
 export type { Scheduler as VirtualScheduler } from './kernel/scheduler';
+export type { Scheduler } from './kernel/scheduler-api';
 export type {
   Deliver,
   EndpointId,

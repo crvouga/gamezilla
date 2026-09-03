@@ -1,11 +1,6 @@
 import type { Property } from '../system/effect';
 import type { Choice } from '../system/repro';
-import {
-  memoRead,
-  popMemoFrame,
-  pushMemoFrame,
-  snapshotMemo,
-} from './memo';
+import { memoRead, popMemoFrame, pushMemoFrame, snapshotMemo } from './memo';
 
 export class PropertyViolation extends Error {
   readonly property: string;
@@ -46,9 +41,7 @@ export async function bootMonitors(
   const monitors: MonitorState[] = [];
   for (const property of properties) {
     const ctx =
-      property.setup !== undefined
-        ? await property.setup(surface)
-        : undefined;
+      property.setup !== undefined ? await property.setup(surface) : undefined;
     monitors.push({ property, ctx, closed: false });
   }
   return monitors;

@@ -38,7 +38,9 @@ describe('held sync upload retries on release', () => {
     if (mutationId === null) return;
 
     // Held sync: the queued row stays pending for the whole window.
-    await neverAcme(run, (s) => outcome(s, 'alice', mutationId), { forMs: 300 });
+    await neverAcme(run, (s) => outcome(s, 'alice', mutationId), {
+      forMs: 300,
+    });
 
     await run.apply(release, 'alice', 'sync');
     await untilAcme(run, (s) => outcome(s, 'alice', mutationId));

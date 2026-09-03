@@ -8,7 +8,6 @@ import {
   release,
   serverHash,
 } from '../../sim/scenario';
-import { openRoom } from '../scenario/open-room';
 import { matchClockSystem } from '../apps/match-clock/system';
 import { expectConverged } from '../expect-converged';
 import {
@@ -21,6 +20,7 @@ import {
   matchClockWinner,
   StartMatch,
 } from '../fixtures/match-clock-module';
+import { openRoom } from '../scenario/open-room';
 import {
   expectHashMatch,
   readClient,

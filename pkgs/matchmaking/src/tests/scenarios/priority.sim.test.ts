@@ -5,12 +5,12 @@ import type { StatusResult } from '../../interface/types';
 import {
   join,
   lastTick,
+  MATCHMAKING_PROPERTIES,
+  matchmaking,
+  matchmakingKnobs,
   participantIds,
   statusOf,
   tick,
-  matchmaking,
-  matchmakingKnobs,
-  MATCHMAKING_PROPERTIES,
 } from '../../sim/scenario';
 import {
   expectMatched,

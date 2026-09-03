@@ -1,14 +1,9 @@
 import { describe, expect, test } from 'bun:test';
-import {
-  addClient,
-  clock,
-  injectToServer,
-  logSeq,
-} from '../../sim/scenario';
-import { openRoom } from '../scenario/open-room';
+import { addClient, clock, injectToServer, logSeq } from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
 import { expectConverged } from '../expect-converged';
 import { counterValue, Increment } from '../fixtures/counter-module';
+import { openRoom } from '../scenario/open-room';
 import {
   expectHashMatch,
   readClient,

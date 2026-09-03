@@ -11,10 +11,7 @@ import {
 } from '../../sim/scenario';
 import { counterApp } from '../apps/counter/app';
 import { counterSystem } from '../apps/counter/system';
-import {
-  playRoomActions,
-  playRoomPin,
-} from '../scenario/play-actions';
+import { playRoomActions, playRoomPin } from '../scenario/play-actions';
 
 describe('room system PBT', () => {
   test(

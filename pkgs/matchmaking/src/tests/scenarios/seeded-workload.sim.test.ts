@@ -3,11 +3,11 @@ import { script } from '@pkgs/dst';
 import { createSeededRng } from '@pkgs/uuid';
 import {
   join,
-  replicaIds,
-  tick,
+  MATCHMAKING_PROPERTIES,
   matchmaking,
   matchmakingKnobs,
-  MATCHMAKING_PROPERTIES,
+  replicaIds,
+  tick,
 } from '../../sim/scenario';
 import {
   matchFingerprint,
@@ -19,10 +19,10 @@ const SimpleFormula = { numeric: [{ tag: RatingAttr, weight: 1 }] };
 
 async function runWorkload(seed: string): Promise<string> {
   await using run = await script(matchmaking, {
-      seed: seed,
-      knobs: matchmakingKnobs({ replicas: 3 }),
-      properties: MATCHMAKING_PROPERTIES,
-    });
+    seed: seed,
+    knobs: matchmakingKnobs({ replicas: 3 }),
+    properties: MATCHMAKING_PROPERTIES,
+  });
   const replicas = await run.observe(replicaIds);
   const rng = createSeededRng(seed).fork('workload');
   for (let i = 0; i < 10; i += 1) {

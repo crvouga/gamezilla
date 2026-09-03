@@ -61,7 +61,9 @@ describe('rebase throw hidden until upload reject', () => {
 
     await run.apply(connect, 'alice');
     // Merge+rebase throws → optimistic effect hidden (tombstone wins locally).
-    await untilAcme(run, (s) => liveNote(s, 'alice', 'n1'), { pred: noteNotLive });
+    await untilAcme(run, (s) => liveNote(s, 'alice', 'n1'), {
+      pred: noteNotLive,
+    });
     await expectNoteNotLiveAt(run, 'alice', 'n1');
 
     await untilAcme(run, (s) => outcome(s, 'alice', pendingId));

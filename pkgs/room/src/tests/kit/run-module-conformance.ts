@@ -15,7 +15,6 @@ import {
   serverHash,
   serverState,
 } from '../../sim/scenario';
-import { openRoom } from '../scenario/open-room';
 import type {
   RoomCommand,
   RoomCommandPayload,
@@ -23,6 +22,7 @@ import type {
   RoomState,
 } from '../../types';
 import { expectConverged } from '../expect-converged';
+import { openRoom } from '../scenario/open-room';
 
 import { assertHashCanonical } from './assert-hash-canonical';
 import { assertTotality } from './assert-totality';

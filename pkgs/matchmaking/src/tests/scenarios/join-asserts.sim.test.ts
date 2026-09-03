@@ -1,12 +1,12 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import type { AttributeState } from '@pkgs/attribute';
+import { script } from '@pkgs/dst';
 import { MATCHMAKING_PAYLOAD_LIMITS } from '../../interface/payload-limits';
 import {
   join,
+  MATCHMAKING_PROPERTIES,
   matchmaking,
   matchmakingKnobs,
-  MATCHMAKING_PROPERTIES,
 } from '../../sim/scenario';
 import { NameAttr, RatingAttr, registerTestCrashHandler } from '../fixtures';
 

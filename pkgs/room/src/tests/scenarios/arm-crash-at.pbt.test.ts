@@ -8,9 +8,9 @@ import {
   domain,
   restart,
 } from '../../sim/scenario';
-import { openRoom } from '../scenario/open-room';
 import { counterSystem } from '../apps/counter/system';
 import { expectConverged } from '../expect-converged';
+import { openRoom } from '../scenario/open-room';
 
 const increment = (clientId: string) =>
   ({

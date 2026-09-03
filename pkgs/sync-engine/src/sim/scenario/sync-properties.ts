@@ -52,7 +52,9 @@ export const eventuallyConverges = defineProperty({
       return { armed: false, t0: ctx.t0 };
     }
     if (clock(s) - ctx.t0 > 10_000) {
-      throw new Error(`still diverged ${clock(s) - ctx.t0}ms after going quiet`);
+      throw new Error(
+        `still diverged ${clock(s) - ctx.t0}ms after going quiet`
+      );
     }
     return ctx;
   },

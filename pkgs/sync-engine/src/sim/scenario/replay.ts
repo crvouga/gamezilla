@@ -1,10 +1,7 @@
 import type { Action, CatalogProperty, Repro, System } from '@pkgs/dst';
 import { REPRO_VERSION, replay } from '@pkgs/dst';
 
-import {
-  type SyncSystemDef,
-  syncVirtualHost,
-} from './define-sync-system';
+import { type SyncSystemDef, syncVirtualHost } from './define-sync-system';
 import type { SyncKnobs } from './knobs';
 
 /** Replay an algebra repro (choices name algebra actions). */

@@ -54,9 +54,7 @@ export function serverPlanKinds(s: SchemaSurface): string[] {
   return [...s.server.planKinds];
 }
 
-export async function alignmentViolations(
-  s: SchemaSurface
-): Promise<string[]> {
+export async function alignmentViolations(s: SchemaSurface): Promise<string[]> {
   const out: string[] = [];
   try {
     await assertServerLiveColumns(s.server);

@@ -2,9 +2,9 @@ import type { Run } from '@pkgs/dst';
 import {
   applyTaggedRoomAction,
   type RoomKnobs,
+  type RoomSurface,
   type RoomSystemAction,
   type RoomSystemDef,
-  type RoomSurface,
 } from '../../sim/scenario';
 import { expectConverged } from '../expect-converged';
 import { openRoom } from './open-room';

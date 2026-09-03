@@ -2,14 +2,14 @@ import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { script } from '@pkgs/dst';
 import type { StatusResult } from '../../interface/types';
 import {
+  defineMatchmakingSystem,
   join,
+  MATCHMAKING_PROPERTIES,
+  matchmaking,
+  matchmakingKnobs,
   participantIds,
   statuses,
   tickAllWith,
-  matchmaking,
-  matchmakingKnobs,
-  MATCHMAKING_PROPERTIES,
-  defineMatchmakingSystem,
 } from '../../sim/scenario';
 import {
   assertMatchInvariants,
@@ -29,11 +29,14 @@ describe('matchmaking sim: replica split work', () => {
   });
 
   test('maxPairsPerPass:1 still pairs everyone across concurrent workers', async () => {
-    await using run = await script(defineMatchmakingSystem({ tuning: { maxPairsPerPass: 1 } }), {
-      seed: 220,
-      knobs: matchmakingKnobs({ replicas: 2, backend: 'postgres' }),
-      properties: MATCHMAKING_PROPERTIES,
-    });
+    await using run = await script(
+      defineMatchmakingSystem({ tuning: { maxPairsPerPass: 1 } }),
+      {
+        seed: 220,
+        knobs: matchmakingKnobs({ replicas: 2, backend: 'postgres' }),
+        properties: MATCHMAKING_PROPERTIES,
+      }
+    );
     for (let i = 0; i < 8; i += 1) {
       await run.elapse(1);
       await run.apply(join, {

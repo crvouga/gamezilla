@@ -4,11 +4,11 @@ import {
   type JoinSpec,
   join,
   joinsDuringTick,
-  participantIds,
-  tickAllWith,
+  MATCHMAKING_PROPERTIES,
   matchmaking,
   matchmakingKnobs,
-  MATCHMAKING_PROPERTIES,
+  participantIds,
+  tickAllWith,
 } from '../../sim/scenario';
 import {
   assertMatchInvariants,

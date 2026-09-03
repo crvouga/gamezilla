@@ -77,8 +77,7 @@ export const put = defineAction({
 
 export const partition = defineAction({
   name: 'partition',
-  enabled: (s) =>
-    caps(s).includes('partition') && s.clients.length > 0,
+  enabled: (s) => caps(s).includes('partition') && s.clients.length > 0,
   weight: (s) => (partitioned(s).length === 0 ? 2 : 1),
   args: (s) => gen(fc.constantFrom(...s.clients.map((c) => c.id))),
   act: (s, id: string) => {
@@ -98,8 +97,7 @@ export const heal = defineAction({
 
 export const outage = defineAction({
   name: 'outage',
-  enabled: (s) =>
-    caps(s).includes('partition') && s.clients.length > 0,
+  enabled: (s) => caps(s).includes('partition') && s.clients.length > 0,
   weight: 1,
   args: (s) => gen(fc.constantFrom(...s.clients.map((c) => c.id))),
   act: async (s, id: string) => {

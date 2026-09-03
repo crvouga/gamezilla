@@ -7,11 +7,11 @@ import {
   type HttpSpec,
   httpRequest,
   lastHttp,
+  MATCHMAKING_PROPERTIES,
   type MatchmakingSurface,
-  tick,
   matchmaking,
   matchmakingKnobs,
-  MATCHMAKING_PROPERTIES,
+  tick,
 } from '../../sim/scenario';
 import {
   expectMatched,

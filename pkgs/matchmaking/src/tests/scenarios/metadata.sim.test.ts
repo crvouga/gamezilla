@@ -3,11 +3,11 @@ import { script } from '@pkgs/dst';
 import type { StatusResult } from '../../interface/types';
 import {
   join,
-  statusOf,
-  tick,
+  MATCHMAKING_PROPERTIES,
   matchmaking,
   matchmakingKnobs,
-  MATCHMAKING_PROPERTIES,
+  statusOf,
+  tick,
 } from '../../sim/scenario';
 import {
   expectMatched,

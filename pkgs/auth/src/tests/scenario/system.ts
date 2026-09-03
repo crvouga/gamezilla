@@ -77,9 +77,7 @@ export function bearers(s: AuthSurface): string[] {
 }
 
 /** Per-client bearer token (null when signed out). */
-export function clientBearers(
-  s: AuthSurface
-): Record<string, string | null> {
+export function clientBearers(s: AuthSurface): Record<string, string | null> {
   return Object.fromEntries(
     [...s.clients.entries()].map(([id, a]) => [id, a.bearer])
   );
@@ -91,9 +89,7 @@ export async function sessionUser(
   bearer: string
 ): Promise<{ externalUserId: string } | null> {
   const verified = await s.store.server.verifySessionToken(bearer);
-  return verified === null
-    ? null
-    : { externalUserId: verified.externalUserId };
+  return verified === null ? null : { externalUserId: verified.externalUserId };
 }
 
 /** Canonical IdP dump — the determinism fingerprint. */

@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
 import { addClient, dispatch } from '../../sim/scenario';
-import { openRoom } from '../scenario/open-room';
 import { deadlineSystem } from '../apps/deadline/system';
 import { expectConverged } from '../expect-converged';
 import {
@@ -10,6 +9,7 @@ import {
   ExpireDeadline,
   StartDeadline,
 } from '../fixtures/deadline-module';
+import { openRoom } from '../scenario/open-room';
 import {
   expectHashMatch,
   readClient,

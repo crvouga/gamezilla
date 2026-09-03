@@ -1,9 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { assertProperty, fc } from '@pkgs/pbt';
-import {
-  arbSeed,
-  domain,
-} from '../../sim/scenario';
+import { arbSeed, domain } from '../../sim/scenario';
 import { matchClockSystem } from '../apps/match-clock/system';
 import { expectConverged } from '../expect-converged';
 import {

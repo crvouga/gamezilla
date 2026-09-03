@@ -53,7 +53,9 @@ describe('pubsub publish fails after commit heals by refetch', () => {
     await expectLiveNoteAt(run, 'server', 'n-lost-push', {
       body: 'committed',
     });
-    await neverAcme(run, (s) => liveNote(s, 'bob', 'n-lost-push'), { forMs: 400 });
+    await neverAcme(run, (s) => liveNote(s, 'bob', 'n-lost-push'), {
+      forMs: 400,
+    });
 
     await run.apply(release, 'bob', 'sync');
     await run.apply(foreground, 'bob', false);

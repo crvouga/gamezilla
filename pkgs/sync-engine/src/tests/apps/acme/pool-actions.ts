@@ -48,11 +48,7 @@ function engineOf(s: SyncSurface, clientId: string) {
  */
 export const poolActivate = defineAction({
   name: 'poolActivate',
-  act: async (
-    s,
-    pool: SyncEnginePoolApi,
-    activation: PoolActivation
-  ) => {
+  act: async (s, pool: SyncEnginePoolApi, activation: PoolActivation) => {
     const engine = await pool.getOrCreate(activation.identity, async () =>
       engineOf(s, activation.clientId)
     );

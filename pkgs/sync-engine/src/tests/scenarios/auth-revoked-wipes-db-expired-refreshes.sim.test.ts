@@ -81,7 +81,9 @@ describe('auth revoked wipes db expired refreshes', () => {
 
     await run.apply(auth, 'alice', 'revoked');
     await run.apply(connect, 'alice');
-    await neverAcme(run, (s) => liveNote(s, 'server', 'n-lost'), { forMs: 500 });
+    await neverAcme(run, (s) => liveNote(s, 'server', 'n-lost'), {
+      forMs: 500,
+    });
 
     await run.apply(restart, 'alice', {});
     await expectConverged(run);
@@ -109,7 +111,9 @@ describe('auth revoked wipes db expired refreshes', () => {
         body: `d${i}`,
       });
     }
-    await neverAcme(run, (s) => liveNote(s, 'server', 'drain-0'), { forMs: 50 });
+    await neverAcme(run, (s) => liveNote(s, 'server', 'drain-0'), {
+      forMs: 50,
+    });
 
     await run.apply(auth, 'alice', 'expired');
     await run.apply(connect, 'alice');

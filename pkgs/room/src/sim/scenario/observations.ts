@@ -91,9 +91,7 @@ export async function logSeq(s: RoomSurface): Promise<number> {
   return s.kit.storage.getLastSeq(s.kit.topic);
 }
 
-export function lastRejection(
-  s: RoomSurface
-): Record<string, JsonValue> {
+export function lastRejection(s: RoomSurface): Record<string, JsonValue> {
   const out: Record<string, JsonValue> = {};
   for (const [id, c] of s.kit.clients) {
     const err = c.lastRejection();
@@ -106,9 +104,7 @@ export function rosterSize(s: RoomSurface): number {
   return s.kit.server.getRoster().length;
 }
 
-export async function invariantViolations(
-  s: RoomSurface
-): Promise<string[]> {
+export async function invariantViolations(s: RoomSurface): Promise<string[]> {
   const v = await s.kit.checkInvariants();
   return v === null ? [] : [`${v.invariant}: ${v.detail}`];
 }

@@ -1,4 +1,4 @@
-import { script, type ScriptOptions } from '@pkgs/dst';
+import { type ScriptOptions, script } from '@pkgs/dst';
 import type { RoomSystemDef } from '../../sim/scenario';
 import { roomVirtualHost, SIM_START_MS } from '../../sim/scenario';
 import type { RoomKnobs } from '../../sim/scenario/knobs';

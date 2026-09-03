@@ -55,7 +55,10 @@ export type CheckpointSessionCtx = {
   readonly runQuiet: <T>(fn: () => Promise<T>) => Promise<T>;
 };
 
-export function resetSimClock(scheduler: UnderlyingScheduler, ms: number): void {
+export function resetSimClock(
+  scheduler: UnderlyingScheduler,
+  ms: number
+): void {
   scheduler.reset(ms);
 }
 

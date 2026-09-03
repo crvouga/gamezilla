@@ -3,7 +3,14 @@ export {
   type MonitorState,
   type Transition,
 } from './checkpoint';
-export { ExploreFailedError, type ExploreOptions, explore, type ReplayOptions, type Report, replay } from './explore';
+export {
+  ExploreFailedError,
+  type ExploreOptions,
+  explore,
+  type ReplayOptions,
+  type Report,
+  replay,
+} from './explore';
 export {
   ActionNotEnabled,
   getRunInternal,

@@ -57,7 +57,9 @@ describe('corrupt queued args permanent reject', () => {
       await run.apply(runSql, 'alice', corruptArgs(mutationId));
 
       await run.apply(connect, 'alice');
-      await untilAcme(run, (s) => outcome(s, 'alice', mutationId), { maxMs: 5_000 });
+      await untilAcme(run, (s) => outcome(s, 'alice', mutationId), {
+        maxMs: 5_000,
+      });
       expect(await run.observe(outcome, 'alice', mutationId)).toBe('rejected');
 
       const unacked = await run.observe(rejections, 'alice');
@@ -99,7 +101,9 @@ describe('corrupt queued args permanent reject', () => {
     await run.apply(runSql, 'alice', corruptArgs(mutationId));
 
     await run.apply(connect, 'alice');
-    await untilAcme(run, (s) => outcome(s, 'alice', mutationId), { maxMs: 5_000 });
+    await untilAcme(run, (s) => outcome(s, 'alice', mutationId), {
+      maxMs: 5_000,
+    });
     expect(await run.observe(outcome, 'alice', mutationId)).toBe('rejected');
 
     await run.apply(mutate, 'bob', setNote, { id: 'ok', body: 'healthy' });

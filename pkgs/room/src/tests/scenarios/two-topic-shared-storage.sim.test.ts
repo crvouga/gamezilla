@@ -7,10 +7,10 @@ import {
   hold,
   release,
 } from '../../sim/scenario';
-import { openRoom } from '../scenario/open-room';
 import { counterApp } from '../apps/counter/app';
 import { expectConverged } from '../expect-converged';
 import { counterValue, Increment } from '../fixtures/counter-module';
+import { openRoom } from '../scenario/open-room';
 import {
   expectHashMatch,
   readClient,

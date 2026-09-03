@@ -5,14 +5,14 @@ import {
   join,
   lastLeave,
   leave,
+  MATCHMAKING_PROPERTIES,
+  matchmaking,
+  matchmakingKnobs,
   participantIds,
   ready,
   statusById,
   statusOf,
   tick,
-  matchmaking,
-  matchmakingKnobs,
-  MATCHMAKING_PROPERTIES,
 } from '../../sim/scenario';
 import { NameAttr, RatingAttr, registerTestCrashHandler } from '../fixtures';
 

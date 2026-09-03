@@ -1,10 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import {
-  connect,
-  disconnect,
-  dispatch,
-  down,
-} from '../../sim/scenario';
+import { connect, disconnect, dispatch, down } from '../../sim/scenario';
 import { expectConverged } from '../expect-converged';
 import { counterValue, Increment } from '../fixtures/counter-module';
 import { bootCounter } from '../scenario/boot-counter';

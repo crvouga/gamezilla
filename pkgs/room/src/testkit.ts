@@ -27,12 +27,11 @@ export {
   restart,
   revive,
   roomVirtualHost,
+  SIM_START_MS,
   serverHash,
   serverState,
-  SIM_START_MS,
 } from './sim/scenario';
 export { expectConverged } from './tests/expect-converged';
-export { openRoom, type OpenRoomOpts } from './tests/scenario/open-room';
 export {
   AuthzFixtureModule,
   authzCount,
@@ -74,3 +73,4 @@ export {
   assertTotality,
   runModuleConformance,
 } from './tests/kit';
+export { type OpenRoomOpts, openRoom } from './tests/scenario/open-room';

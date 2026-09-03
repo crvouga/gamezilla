@@ -69,7 +69,9 @@ describe('account switch pool isolation', () => {
       body: 'from-b',
     });
     await run.apply(connect, 'device-b');
-    await untilAcme(run, (s) => liveNote(s, 'server', 'b-only'), { pred: noteLive });
+    await untilAcme(run, (s) => liveNote(s, 'server', 'b-only'), {
+      pred: noteLive,
+    });
     expect(await run.observe(liveNote, 'server', 'b-only')).toMatchObject({
       body: 'from-b',
     });

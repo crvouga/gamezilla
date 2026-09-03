@@ -20,17 +20,11 @@ async function readInventory(driver: Driver | null): Promise<Inventory> {
   return driver.inventory();
 }
 
-export async function inventory<S>(
-  s: S,
-  actor: Actor<S>
-): Promise<Inventory> {
+export async function inventory<S>(s: S, actor: Actor<S>): Promise<Inventory> {
   return readInventory(actor(s));
 }
 
-export async function screen<S>(
-  s: S,
-  actor: Actor<S>
-): Promise<string | null> {
+export async function screen<S>(s: S, actor: Actor<S>): Promise<string | null> {
   return (await inventory(s, actor)).screen;
 }
 
@@ -60,9 +54,7 @@ export function tap<S>(actor: Actor<S>): Action<S, [InventoryItem]> {
   });
 }
 
-export function fill<S>(
-  actor: Actor<S>
-): Action<S, [InventoryItem, string]> {
+export function fill<S>(actor: Actor<S>): Action<S, [InventoryItem, string]> {
   return defineAction({
     name: 'fill',
     enabled: async (s) => (await inventory(s, actor)).inputs.length > 0,

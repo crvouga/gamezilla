@@ -6,11 +6,11 @@ import {
   logSeq,
   type RoomApp,
 } from '../../sim/scenario';
-import { openRoom } from '../scenario/open-room';
 import { ROOM_ERROR_TYPE } from '../../types';
 import { authzApp } from '../apps/authz/app';
 import { expectConverged } from '../expect-converged';
 import { authzCount, Bump, Claim } from '../fixtures/authz-module';
+import { openRoom } from '../scenario/open-room';
 import { readClient, readRejection, readServer } from '../scenario/read-state';
 
 const denyEveApp: RoomApp = {

@@ -3,15 +3,15 @@ import { script } from '@pkgs/dst';
 import type { TickResult } from '../../interface/matchmaking';
 import type { StatusResult } from '../../interface/types';
 import {
+  defineMatchmakingSystem,
   join,
   lastTick,
+  MATCHMAKING_PROPERTIES,
+  matchmaking,
+  matchmakingKnobs,
   participantIds,
   statusOf,
   tick,
-  matchmaking,
-  matchmakingKnobs,
-  MATCHMAKING_PROPERTIES,
-  defineMatchmakingSystem,
 } from '../../sim/scenario';
 import {
   expectMatched,
@@ -32,11 +32,14 @@ describe('matchmaking sim: partitions', () => {
   });
 
   test('declared partitionKeys isolate participants across shards', async () => {
-    await using run = await script(defineMatchmakingSystem({ schema: { partitionKeys: [KindAttr.key] } }), {
-      seed: 40,
-      knobs: matchmakingKnobs(),
-      properties: MATCHMAKING_PROPERTIES,
-    });
+    await using run = await script(
+      defineMatchmakingSystem({ schema: { partitionKeys: [KindAttr.key] } }),
+      {
+        seed: 40,
+        knobs: matchmakingKnobs(),
+        properties: MATCHMAKING_PROPERTIES,
+      }
+    );
     const plan = [
       { ref: 'a1', rating: 1000, kind: 'alpha' },
       { ref: 'a2', rating: 1010, kind: 'alpha' },

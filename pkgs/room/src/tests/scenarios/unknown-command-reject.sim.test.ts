@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'bun:test';
 import { asKeyword } from '@pkgs/keyword';
 import { addClient, dispatch, logSeq } from '../../sim/scenario';
-import { openRoom } from '../scenario/open-room';
 import { ROOM_ERROR_TYPE } from '../../types';
 import { counterSystem } from '../apps/counter/system';
 import { expectConverged } from '../expect-converged';
 import { counterValue } from '../fixtures/counter-module';
+import { openRoom } from '../scenario/open-room';
 import { readClient, readRejection, readServer } from '../scenario/read-state';
 
 describe('room sim: unknown command reject (E-D04)', () => {

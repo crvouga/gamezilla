@@ -10,10 +10,10 @@ import {
   serverCrashed,
   serverRestart,
 } from '../../sim/scenario';
-import { openRoom } from '../scenario/open-room';
 import { counterSystem } from '../apps/counter/system';
 import { expectConverged } from '../expect-converged';
 import { counterValue, Increment } from '../fixtures/counter-module';
+import { openRoom } from '../scenario/open-room';
 import {
   expectHashMatch,
   readClient,

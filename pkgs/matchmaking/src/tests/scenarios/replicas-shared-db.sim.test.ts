@@ -13,6 +13,9 @@ import {
   lastTick,
   lastUpdate,
   leave,
+  MATCHMAKING_PROPERTIES,
+  matchmaking,
+  matchmakingKnobs,
   participantIds,
   ready,
   replicaIds,
@@ -20,9 +23,6 @@ import {
   statusOf,
   tick,
   updateFormulas,
-  matchmaking,
-  matchmakingKnobs,
-  MATCHMAKING_PROPERTIES,
 } from '../../sim/scenario';
 import {
   assertStatusAgreesAcrossReplicas,

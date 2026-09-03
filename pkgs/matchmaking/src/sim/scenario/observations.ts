@@ -20,9 +20,7 @@ export function replicaIds(s: MatchmakingSurface): string[] {
 }
 
 /** Every alias minted by the `join` action, in insertion order. */
-export function participantIds(
-  s: MatchmakingSurface
-): Record<string, string> {
+export function participantIds(s: MatchmakingSurface): Record<string, string> {
   return Object.fromEntries(s.refs) as Record<string, string>;
 }
 

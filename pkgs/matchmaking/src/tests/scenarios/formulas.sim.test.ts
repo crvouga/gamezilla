@@ -5,14 +5,14 @@ import type { DistanceFormula, StatusResult } from '../../interface/types';
 import {
   join,
   lastTick,
+  MATCHMAKING_PROPERTIES,
   matched,
+  matchmaking,
+  matchmakingKnobs,
   participantIds,
   statusOf,
   stepTime,
   tick,
-  matchmaking,
-  matchmakingKnobs,
-  MATCHMAKING_PROPERTIES,
 } from '../../sim/scenario';
 import {
   expectMatched,
