@@ -1,7 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
+import { gen } from '@pkgs/dst/fast-check';
 import { check } from '@pkgs/dst/pbt';
 import {
+  arbSqlClientWebKnobs,
   bumpEpoch,
   connect,
   corruptStore,
@@ -13,18 +15,25 @@ import {
   put,
   SQL_CLIENT_WEB_ACTIONS,
   SQL_CLIENT_WEB_PROPERTIES,
+  type SqlClientWebKnobs,
   sqlClientWeb,
   tabIdList,
 } from './system';
 
 /** tabCount=2, poolCapacity=6, schemaEpoch=1, backend=web-sim-opfs */
-const OPFS_DRAWS = [2, 6, 1, 'web-sim-opfs'] as const;
+const OPFS_KNOBS: SqlClientWebKnobs = {
+  tabCount: 2,
+  poolCapacity: 6,
+  schemaEpoch: 1,
+  backend: 'web-sim-opfs',
+};
 
 describe('sql-client web multi-tab system PBT', () => {
   test('check explores tabs, pool exhaustion, corruption, epochs', async () => {
     const report = await check(sqlClientWeb, {
       properties: SQL_CLIENT_WEB_PROPERTIES,
       actions: SQL_CLIENT_WEB_ACTIONS,
+      knobs: gen(arbSqlClientWebKnobs()),
       episodes: 4,
       steps: 10,
       seed: 1,
@@ -36,7 +45,7 @@ describe('sql-client web multi-tab system PBT', () => {
   test('named fault pins recover to a usable cache', async () => {
     await using run1 = await start(sqlClientWeb, {
       seed: 1,
-      draws: [...OPFS_DRAWS],
+      knobs: OPFS_KNOBS,
       properties: SQL_CLIENT_WEB_PROPERTIES,
     });
     await run1.apply(fillPool);
@@ -46,7 +55,7 @@ describe('sql-client web multi-tab system PBT', () => {
 
     await using run2 = await start(sqlClientWeb, {
       seed: 1,
-      draws: [...OPFS_DRAWS],
+      knobs: OPFS_KNOBS,
       properties: SQL_CLIENT_WEB_PROPERTIES,
     });
     await run2.apply(corruptStore);
@@ -56,7 +65,7 @@ describe('sql-client web multi-tab system PBT', () => {
 
     await using run3 = await start(sqlClientWeb, {
       seed: 1,
-      draws: [...OPFS_DRAWS],
+      knobs: OPFS_KNOBS,
       properties: SQL_CLIENT_WEB_PROPERTIES,
     });
     await run3.apply(connect, 't0');
@@ -68,7 +77,7 @@ describe('sql-client web multi-tab system PBT', () => {
 
     await using run4 = await start(sqlClientWeb, {
       seed: 1,
-      draws: [...OPFS_DRAWS],
+      knobs: OPFS_KNOBS,
       properties: SQL_CLIENT_WEB_PROPERTIES,
     });
     await run4.apply(connect, 't0');
@@ -81,7 +90,7 @@ describe('sql-client web multi-tab system PBT', () => {
   test('start boots a store plus tabs and elects one owner', async () => {
     await using run = await start(sqlClientWeb, {
       seed: 7,
-      draws: [...OPFS_DRAWS],
+      knobs: OPFS_KNOBS,
       properties: SQL_CLIENT_WEB_PROPERTIES,
     });
     expect(await run.observe(tabIdList)).toEqual(['t0', 't1']);

@@ -1,15 +1,12 @@
 import {
   type Action,
   defineSystem,
-  draw,
   type Property,
   type Session,
   type System,
   virtualHost,
 } from '@pkgs/dst';
-import { gen } from '@pkgs/dst/fast-check';
 import { asSeededRng, type NetworkFaults } from '@pkgs/dst/kernel';
-import fc from 'fast-check';
 
 import type { LocalDomainSchema } from '../../client/local-schema-migrate';
 import type { MutationRegistry } from '../../mutations/core/types';
@@ -25,7 +22,7 @@ import { toKernelFaults, wrapSimNetwork } from '../network';
 import { type UntilTarget, waitNever, waitUntil } from '../wait-until';
 import { type ActionShadow, createActionShadow } from './action-shadow';
 import type { SyncApp } from './app';
-import { DEFAULT_SYNC_KNOBS, type SyncKnobs, syncSystemDraws } from './knobs';
+import { DEFAULT_SYNC_KNOBS, type SyncKnobs, syncKnobs } from './knobs';
 import { createReplayRestartState, resetReplayRestartState } from './play';
 import { createSyncActions } from './sync-actions';
 import { SYNC_PROPERTIES } from './sync-properties';
@@ -91,7 +88,7 @@ export type DefineSyncSystemOpts = {
   readonly queryRegistry?: QueryRegistry;
 };
 
-export type SyncSystemDef = System<SyncSurface> & {
+export type SyncSystemDef = System<SyncSurface, SyncKnobs> & {
   readonly actions: readonly Action<SyncSurface>[];
   readonly properties: readonly Property<SyncSurface>[];
   readonly app: SyncApp;
@@ -221,18 +218,7 @@ export function defineSyncSystem(
 
   const system = defineSystem({
     name: opts?.id ?? 'sync.system',
-    async *generate(session) {
-      const clientCount = yield* draw(gen(fc.integer({ min: 1, max: 3 })));
-      const rowImageFanout = yield* draw(gen(fc.boolean()));
-      const liveResendOnReconnect = yield* draw(gen(fc.boolean()));
-      const bufferOutboundLive = yield* draw(gen(fc.boolean()));
-      const knobs: SyncKnobs = {
-        clientCount,
-        rowImageFanout,
-        liveResendOnReconnect,
-        bufferOutboundLive,
-      };
-
+    async generate(session, knobs: SyncKnobs) {
       const replay = createReplayRestartState();
       const clientOpts = kitArgsFromDraws({ app, ...overrides }, knobs);
 
@@ -259,7 +245,7 @@ export function defineSyncSystem(
       resetReplayRestartState(runtime.replay);
       onSessionDispose(session, () => runtime.kit.dispose());
 
-      for (let i = 0; i < clientCount; i += 1) {
+      for (let i = 0; i < knobs.clientCount; i += 1) {
         const id = `c${i}`;
         await kit.addClient({ id, actorId: id });
       }
@@ -279,4 +265,4 @@ export function defineSyncSystem(
 }
 
 export type { SyncRuntime, SyncSurface };
-export { DEFAULT_SYNC_KNOBS, SYNC_PROPERTIES, syncSystemDraws };
+export { DEFAULT_SYNC_KNOBS, SYNC_PROPERTIES, syncKnobs };

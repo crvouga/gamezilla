@@ -19,7 +19,7 @@ async function readInventory(driver: Driver | null): Promise<Inventory> {
   return driver.inventory();
 }
 
-export function inventory<S>(actor: Actor<S>): Observation<S, JsonValue> {
+export function inventory<S>(actor: Actor<S>): Observation<S, [], JsonValue> {
   return defineObservation({
     name: 'inventory',
     observe: async (s) =>
@@ -27,14 +27,14 @@ export function inventory<S>(actor: Actor<S>): Observation<S, JsonValue> {
   });
 }
 
-export function screen<S>(actor: Actor<S>): Observation<S, JsonValue> {
+export function screen<S>(actor: Actor<S>): Observation<S, [], JsonValue> {
   return defineObservation({
     name: 'screen',
     observe: async (s) => (await readInventory(actor(s))).screen,
   });
 }
 
-export function errors<S>(actor: Actor<S>): Observation<S, JsonValue> {
+export function errors<S>(actor: Actor<S>): Observation<S, [], JsonValue> {
   return defineObservation({
     name: 'errors',
     observe: async (s) => [...(await readInventory(actor(s))).errors],
@@ -124,14 +124,12 @@ export function noErrorBoundary<S>(actor: Actor<S>): Property<S> {
   return defineProperty({
     name: 'noErrorBoundary',
     *watch() {
-      while (true) {
-        const errs = (yield errors(actor)) as string[];
-        const boundary = errs.filter((e) =>
-          e.toLowerCase().includes('error boundary')
-        );
-        if (boundary.length > 0) {
-          throw new Error(boundary.join('; '));
-        }
+      const errs = (yield* errors(actor)) as string[];
+      const boundary = errs.filter((e) =>
+        e.toLowerCase().includes('error boundary')
+      );
+      if (boundary.length > 0) {
+        throw new Error(boundary.join('; '));
       }
     },
   });
@@ -141,11 +139,9 @@ export function noConsoleError<S>(actor: Actor<S>): Property<S> {
   return defineProperty({
     name: 'noConsoleError',
     *watch() {
-      while (true) {
-        const errs = (yield errors(actor)) as string[];
-        if (errs.length > 0) {
-          throw new Error(errs.join('; '));
-        }
+      const errs = (yield* errors(actor)) as string[];
+      if (errs.length > 0) {
+        throw new Error(errs.join('; '));
       }
     },
   });

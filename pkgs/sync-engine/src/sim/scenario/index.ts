@@ -16,7 +16,7 @@ export type {
 } from './define-sync-system';
 export {
   defineSyncSystem,
-  syncSystemDraws,
+  syncKnobs,
   syncVirtualHost,
 } from './define-sync-system';
 export { dispatchSyncAction } from './dispatch';

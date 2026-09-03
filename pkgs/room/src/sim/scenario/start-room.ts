@@ -17,7 +17,10 @@ export async function startRoom(
   const seed = opts?.seed ?? process.env['SIM_SEED'] ?? '42';
   return start(system, {
     seed,
-    draws: [opts?.clientCount ?? 0, opts?.mildFaults ?? false],
+    knobs: {
+      clientCount: opts?.clientCount ?? 0,
+      mildFaults: opts?.mildFaults ?? false,
+    },
     properties: opts?.properties ?? [],
     host: virtualHost({
       startTime: opts?.startTime ?? SIM_START_MS,

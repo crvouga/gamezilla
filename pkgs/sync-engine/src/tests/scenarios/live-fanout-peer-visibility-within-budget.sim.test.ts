@@ -1,7 +1,7 @@
 import { describe, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
@@ -25,7 +25,7 @@ describe('live fanout peer visibility within budget', () => {
     await using run = await start(acmeSystem, {
       seed: 7,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 
@@ -46,7 +46,7 @@ describe('live fanout peer visibility within budget', () => {
     await using run = await start(acmeSystem, {
       seed: 23,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 

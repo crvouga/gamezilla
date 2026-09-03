@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   clientIds,
@@ -24,7 +24,7 @@ describe('crash mid merge restart rehydrates', () => {
     await using run = await start(acmeSystem, {
       seed: 830,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0, rowImageFanout: false }),
+      knobs: acmeKnobs({ clientCount: 0, rowImageFanout: false }),
       properties: [],
     });
 

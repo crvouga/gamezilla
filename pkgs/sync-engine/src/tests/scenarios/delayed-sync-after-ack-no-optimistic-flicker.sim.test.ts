@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
@@ -30,7 +30,7 @@ describe('delayed sync after ack no optimistic flicker', () => {
     await using run = await start(acmeSystem, {
       seed: 701,
       host: syncVirtualHost(),
-      draws: acmeDraws({
+      knobs: acmeKnobs({
         clientCount: 0,
         rowImageFanout: false,
       }),

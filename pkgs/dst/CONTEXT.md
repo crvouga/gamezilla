@@ -2,29 +2,52 @@
 
 ## What this package is
 
-A **deterministic simulation testing** framework for TypeScript. Same seed + system draws + action choices ⇒ same run. Used by sync-engine, room, product sim, and package-local scenario kits.
+A **deterministic simulation testing** framework for TypeScript. Same seed + system knobs + action choices ⇒ same run. Used by sync-engine, room, product sim, and package-local scenario kits.
 
 ## Mental model (irreducible)
 
 1. **Host** opens a **Session** (virtual or wall clock, model network, caps).
-2. **System.generate(session)** draws knobs, forks sessions for nodes, returns surface `S`.
-3. **Observations** read `S` (or compose other observations). Memoised per checkpoint.
-4. **Actions** read → decide → draw → act. Probe rule: return before first act = disabled. Weight on first act = pick probability.
-5. **Properties** are monitors: each `yield` is answered at the next checkpoint; throw = violation; `finally` on close = obligation.
+2. **System.generate(session, knobs)** boots topology from typed knobs, optionally draws extra entropy, returns surface `S`.
+3. **Observations** read `S` (or compose other observations). Memoised per checkpoint; parameterized observations key by `name + fingerprint(args)`.
+4. **Actions** have typed `generate(...args)`. Probe rule: return before first act = disabled. Weight on first act = pick probability. Bare `(s) => …` = weight 1.
+5. **Properties** are monitors: body re-invoked each checkpoint when it completes; throw = violation; `finally` on close = obligation.
 6. **Run** = `start` → `{ apply, observe, assert }`. `walk` / `check` / `replay` compose Runs.
 
 ## Do / don't
 
+- **Do** bind the surface once: `const { defineAction, defineObservation, defineProperty } = defineSurface<S>()` (also on `System<S>`).
 - **Do** put `session` on `S` when actions need network/scheduler.
 - **Do** gate faults with a `caps` observation (`if (!(yield* caps).includes('partition')) return`).
-- **Do** use bare `yield obs` in infinite property watches (Bun hangs on `yield*` + `try/finally` + infinite loop).
-- **Do** wait with `untilObserved(run, obs, passTime, { maxMs })` — one `passTime` checkpoint per poll (observations are memoised per checkpoint).
+- **Do** use `yield* observe({ quiet, cut: partitioned })` (named record) — not positional tuples.
+- **Do** wait with `untilObserved(run, obs, passTime, { maxMs })` — one `passTime` checkpoint per poll.
 - **Do** negative waits with `neverObserved(run, obs, passTime, { forMs })`.
+- **Do** keep random walk pools as zero-arg actions that draw then `yield* typedAction(…args)`.
 - **Don't** encode wait/assert/settle/converge as **actions** — those are observations (`quiet`, `converged`) plus stimuli (`heal` / `revive`) and `untilObserved`.
 - **Don't** import `@pkgs/dst/kernel` from product libs (depcruise: only `pkgs/dst/**`, `sim/**`, `**/sim/**`).
 - **Don't** import `fast-check` from core dst modules — use `@pkgs/dst/fast-check` adapters.
-- **Don't** add `World` / `openWorld` / `open*World` / `defineScenario` / `knob` / `node` / `std` — deleted.
+- **Don't** add `World` / `openWorld` / `pin` / `spec` / positional `draws:` — deleted.
 - **Don't** reach `Run` internals — `_internal` is sealed; tests speak only `apply` / `observe` / `assert`.
+
+## Target shapes
+
+```ts
+const { defineAction, defineObservation, defineProperty } = defineSurface<S>();
+
+export const online = defineAction({
+  name: 'online',
+  generate: (clientId: string, value: boolean) => (s) =>
+    requireClient(s, clientId).online(value),
+});
+
+export const liveNote = defineObservation({
+  name: 'liveNote',
+  observe: async (s, nodeId: string, id: string) => { /* … */ },
+});
+
+await start(system, { seed, host, knobs: { clientCount: 0 } });
+await run.apply(online, 'alice', true);
+await run.observe(liveNote('bob', 'n1'));
+```
 
 ## Waiting pattern
 

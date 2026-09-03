@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
@@ -17,7 +17,7 @@ describe('null vs missing column in snapshot', () => {
     await using run = await start(acmeSystem, {
       seed: 1000,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 
@@ -49,7 +49,7 @@ describe('null vs missing column in snapshot', () => {
       await using run = await start(acmeSystem, {
         seed: seed,
         host: syncVirtualHost(),
-        draws: acmeDraws({ clientCount: 0 }),
+        knobs: acmeKnobs({ clientCount: 0 }),
         properties: [],
       });
 

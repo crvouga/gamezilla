@@ -3,7 +3,7 @@ import { start } from '@pkgs/dst';
 import { assertProperty, fc } from '@pkgs/pbt';
 import { arbKnobs, arbSeed } from '../../sim/scenario/knobs';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   clientIds,
   deleteNote,
@@ -41,7 +41,7 @@ describe('tombstone revive PBT', () => {
             await using run = await start(acmeSystem, {
               seed,
               host: syncVirtualHost(),
-              draws: acmeDraws(knobs),
+              knobs: acmeKnobs(knobs),
               properties: [],
             });
 
@@ -102,7 +102,7 @@ describe('tombstone revive PBT', () => {
             await using run = await start(acmeSystem, {
               seed,
               host: syncVirtualHost(),
-              draws: acmeDraws(knobs),
+              knobs: acmeKnobs(knobs),
               properties: [],
             });
 

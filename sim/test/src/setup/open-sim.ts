@@ -201,8 +201,8 @@ async function pinSurface(run: Run<ProductSurface>): Promise<ProductSurface> {
   let pinned: ProductSurface | null = null;
   const capture = product.defineAction({
     name: 'openSim.pinSurface',
-    *generate() {
-      yield (s: ProductSurface) => {
+    generate() {
+      return (s: ProductSurface) => {
         pinned = s;
       };
     },

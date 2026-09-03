@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import type { Run } from '@pkgs/dst';
 import { start } from '@pkgs/dst';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
@@ -39,7 +39,7 @@ describe('connect disconnect flapping under load', () => {
     await using run = await start(acmeSystem, {
       seed: 1050,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 
@@ -72,7 +72,7 @@ describe('connect disconnect flapping under load', () => {
       await using run = await start(acmeSystem, {
         seed,
         host: syncVirtualHost(),
-        draws: acmeDraws({ clientCount: 0 }),
+        knobs: acmeKnobs({ clientCount: 0 }),
         properties: [],
       });
 

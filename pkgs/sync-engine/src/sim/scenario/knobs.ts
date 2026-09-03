@@ -16,17 +16,11 @@ export const DEFAULT_SYNC_KNOBS: SyncKnobs = {
 };
 
 /**
- * Positional system draws for `start` / `check`:
- * `[clientCount, rowImageFanout, liveResendOnReconnect, bufferOutboundLive]`.
+ * Typed system knobs for `start` / `check`:
+ * `knobs: syncKnobs({ clientCount: 0 })`.
  */
-export function syncSystemDraws(knobs?: Partial<SyncKnobs>): unknown[] {
-  const k = { ...DEFAULT_SYNC_KNOBS, ...knobs };
-  return [
-    k.clientCount,
-    k.rowImageFanout,
-    k.liveResendOnReconnect,
-    k.bufferOutboundLive,
-  ];
+export function syncKnobs(knobs?: Partial<SyncKnobs>): SyncKnobs {
+  return { ...DEFAULT_SYNC_KNOBS, ...knobs };
 }
 
 export const arbSeed = (): fc.Arbitrary<number> =>

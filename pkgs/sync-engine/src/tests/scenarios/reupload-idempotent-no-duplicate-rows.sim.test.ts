@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
@@ -19,7 +19,7 @@ describe('reupload idempotent no duplicate rows', () => {
     await using run = await start(acmeSystem, {
       seed: 70,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 
@@ -48,7 +48,7 @@ describe('reupload idempotent no duplicate rows', () => {
     await using run = await start(acmeSystem, {
       seed: 71,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 

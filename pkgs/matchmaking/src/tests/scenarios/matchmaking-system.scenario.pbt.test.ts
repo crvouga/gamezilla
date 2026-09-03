@@ -2,6 +2,7 @@ import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { check } from '@pkgs/dst/pbt';
 
 import {
+  genMatchmakingKnobs,
   MATCHMAKING_ACTIONS,
   MATCHMAKING_PROPERTIES,
   MATCHMAKING_SYSTEM,
@@ -23,6 +24,7 @@ describe('matchmaking system PBT', () => {
       const report = await check(MATCHMAKING_SYSTEM, {
         properties: MATCHMAKING_PROPERTIES,
         actions: MATCHMAKING_ACTIONS,
+        knobs: genMatchmakingKnobs(),
         episodes: 2,
         steps: 6,
         seed: 1,

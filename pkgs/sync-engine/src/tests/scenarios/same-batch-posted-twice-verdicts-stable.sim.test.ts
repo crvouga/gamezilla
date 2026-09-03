@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
@@ -21,7 +21,7 @@ describe('same batch posted twice verdicts stable', () => {
       await using run = await start(acmeSystem, {
         seed: seed,
         host: syncVirtualHost(),
-        draws: acmeDraws({ clientCount: 0 }),
+        knobs: acmeKnobs({ clientCount: 0 }),
         properties: [],
       });
 

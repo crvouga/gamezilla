@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
@@ -21,7 +21,7 @@ describe('background pauses sweeps foreground catches up', () => {
     await using run = await start(acmeSystem, {
       seed: 507,
       host: syncVirtualHost(),
-      draws: acmeDraws({
+      knobs: acmeKnobs({
         clientCount: 0,
         rowImageFanout: false,
       }),
@@ -49,7 +49,7 @@ describe('background pauses sweeps foreground catches up', () => {
     await using run = await start(acmeSystem, {
       seed: 508,
       host: syncVirtualHost(),
-      draws: acmeDraws({
+      knobs: acmeKnobs({
         clientCount: 0,
       }),
       properties: [],

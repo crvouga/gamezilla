@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   auth,
@@ -29,7 +29,7 @@ describe('auth revoked wipes db expired refreshes', () => {
     await using run = await start(acmeSystem, {
       seed: 601,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 
@@ -59,7 +59,7 @@ describe('auth revoked wipes db expired refreshes', () => {
     await using run = await start(acmeSystem, {
       seed: 602,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 
@@ -95,7 +95,7 @@ describe('auth revoked wipes db expired refreshes', () => {
     await using run = await start(acmeSystem, {
       seed: 603,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 
@@ -125,7 +125,7 @@ describe('auth revoked wipes db expired refreshes', () => {
     await using run = await start(acmeSystem, {
       seed: 604,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 
@@ -168,7 +168,7 @@ describe('auth revoked wipes db expired refreshes', () => {
     await using run = await start(acmeSystem, {
       seed: 605,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 
@@ -201,7 +201,7 @@ describe('auth revoked wipes db expired refreshes', () => {
     await using run = await start(acmeSystem, {
       seed: 606,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 

@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   createSpace,
@@ -32,7 +32,7 @@ describe('leave drops room topic until rejoin', () => {
     await using run = await start(acmeSystem, {
       seed: 806,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 
@@ -94,7 +94,7 @@ describe('leave drops room topic until rejoin', () => {
     await using run = await start(acmeSystem, {
       seed: 807,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 

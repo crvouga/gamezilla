@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   connect,
@@ -30,7 +30,7 @@ describe('rebase throw hidden until upload reject', () => {
     await using run = await start(acmeSystem, {
       seed: 821,
       host: syncVirtualHost(),
-      draws: acmeDraws({
+      knobs: acmeKnobs({
         clientCount: 0,
         rowImageFanout: false,
       }),

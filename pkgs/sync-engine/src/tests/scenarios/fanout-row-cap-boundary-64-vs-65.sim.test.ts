@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import { MAX_FANOUT_ROWS } from '@pkgs/sync-engine/shared';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
@@ -28,7 +28,7 @@ describe('fanout row cap boundary 64 vs 65', () => {
     await using run = await start(acmeSystem, {
       seed: 808,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 
@@ -57,7 +57,7 @@ describe('fanout row cap boundary 64 vs 65', () => {
     await using run = await start(acmeSystem, {
       seed: 809,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 

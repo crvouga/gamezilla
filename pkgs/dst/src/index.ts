@@ -39,7 +39,9 @@ export {
 export type {
   Act,
   Action,
-  Body,
+  ActionBody,
+  BoundAction,
+  BoundObservation,
   Choice,
   Draw,
   Effect,
@@ -48,6 +50,7 @@ export type {
   Property,
   Repro,
   ReproMeta,
+  SurfaceDefiners,
   System,
   SystemGenerate,
 } from './system';
@@ -55,6 +58,7 @@ export {
   defineAction,
   defineObservation,
   defineProperty,
+  defineSurface,
   defineSystem,
   draw,
   observe,

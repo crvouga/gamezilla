@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { type Run, start } from '@pkgs/dst';
 import type { SyncSurface } from '../../sim/scenario';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   clientIds,
@@ -142,7 +142,7 @@ describe('clock skew permutations still converge', () => {
         await using run = await start(acmeSystem, {
           seed: 101,
           host: syncVirtualHost(),
-          draws: acmeDraws({ clientCount: 0 }),
+          knobs: acmeKnobs({ clientCount: 0 }),
           properties: [],
         });
 
@@ -157,7 +157,7 @@ describe('clock skew permutations still converge', () => {
         await using run = await start(acmeSystem, {
           seed: 102,
           host: syncVirtualHost(),
-          draws: acmeDraws({ clientCount: 0 }),
+          knobs: acmeKnobs({ clientCount: 0 }),
           properties: [],
         });
 
@@ -172,7 +172,7 @@ describe('clock skew permutations still converge', () => {
         await using run = await start(acmeSystem, {
           seed: 103,
           host: syncVirtualHost(),
-          draws: acmeDraws({ clientCount: 0 }),
+          knobs: acmeKnobs({ clientCount: 0 }),
           properties: [],
         });
 

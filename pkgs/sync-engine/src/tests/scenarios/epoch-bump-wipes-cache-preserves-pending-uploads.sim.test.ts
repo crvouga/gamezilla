@@ -2,7 +2,7 @@ import { describe, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import { SCHEMA_EPOCH } from '@pkgs/sync-engine/test';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   disconnect,
@@ -23,7 +23,7 @@ describe('epoch bump wipes cache preserves pending uploads', () => {
       await using run = await start(acmeSystem, {
         seed,
         host: syncVirtualHost(),
-        draws: acmeDraws({ clientCount: 0 }),
+        knobs: acmeKnobs({ clientCount: 0 }),
         properties: [],
       });
 

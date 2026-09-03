@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import { MAX_QUERY_BATCH } from '@pkgs/sync-engine/shared';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
@@ -18,7 +18,7 @@ describe('query POST chunking', () => {
       await using run = await start(acmeSystem, {
         seed: 9401,
         host: syncVirtualHost(),
-        draws: acmeDraws({
+        knobs: acmeKnobs({
           clientCount: 0,
         }),
         properties: [],

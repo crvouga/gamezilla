@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
@@ -19,7 +19,7 @@ describe('empty tables and zero row snapshot', () => {
     await using run = await start(acmeSystem, {
       seed: 1020,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 
@@ -42,7 +42,7 @@ describe('empty tables and zero row snapshot', () => {
     await using run = await start(acmeSystem, {
       seed: 1021,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 
@@ -67,7 +67,7 @@ describe('empty tables and zero row snapshot', () => {
       await using run = await start(acmeSystem, {
         seed,
         host: syncVirtualHost(),
-        draws: acmeDraws({ clientCount: 0 }),
+        knobs: acmeKnobs({ clientCount: 0 }),
         properties: [],
       });
 

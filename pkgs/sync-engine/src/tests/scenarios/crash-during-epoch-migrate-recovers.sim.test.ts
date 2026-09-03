@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import { SCHEMA_EPOCH } from '@pkgs/sync-engine/test';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   clientIds,
@@ -24,7 +24,7 @@ describe('crash during epoch migrate recovers', () => {
     await using run = await start(acmeSystem, {
       seed: 834,
       host: syncVirtualHost(),
-      draws: acmeDraws({
+      knobs: acmeKnobs({
         clientCount: 0,
       }),
       properties: [],

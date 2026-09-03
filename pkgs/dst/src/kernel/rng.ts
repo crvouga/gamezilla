@@ -94,23 +94,3 @@ export function createReplayingRng(draws: readonly number[]): ReplayingRng {
   return self;
 }
 
-/** Answers body `draw(gen)` calls with positional Gen results (scripted apply). */
-export type ScriptedDraws = {
-  readonly take: () => unknown;
-  readonly remaining: () => number;
-};
-
-export function createScriptedDraws(values: readonly unknown[]): ScriptedDraws {
-  let i = 0;
-  return {
-    take() {
-      if (i >= values.length) {
-        throw new Error(
-          `ScriptedDraws: exhausted after ${String(values.length)} values`
-        );
-      }
-      return values[i++]!;
-    },
-    remaining: () => values.length - i,
-  };
-}

@@ -4,7 +4,7 @@ import type { SimFaultOptions } from '../../sim/faults';
 import { RELIABLE_FAULTS } from '../../sim/faults';
 import type { SyncAction } from '../../sim/scenario';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   connect,
@@ -35,7 +35,7 @@ describe('live loss dup reorder still converges', () => {
     await using run = await start(acmeSystem, {
       seed: 401,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 
@@ -60,7 +60,7 @@ describe('live loss dup reorder still converges', () => {
     await using run = await start(acmeSystem, {
       seed: 402,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 
@@ -81,7 +81,7 @@ describe('live loss dup reorder still converges', () => {
     await using run = await start(acmeSystem, {
       seed: 403,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 
@@ -107,7 +107,7 @@ describe('live loss dup reorder still converges', () => {
     await using run = await start(acmeSystem, {
       seed: 404,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 
@@ -138,7 +138,7 @@ describe('live loss dup reorder still converges', () => {
     await using run = await start(acmeSystem, {
       seed: 405,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 

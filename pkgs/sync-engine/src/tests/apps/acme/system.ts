@@ -4,7 +4,7 @@ import {
   defineSyncSystem,
   type SyncSurface,
   type SyncSystemDef,
-  syncSystemDraws,
+  syncKnobs,
 } from '../../../sim/scenario';
 import { acmeApp } from './app';
 
@@ -20,7 +20,7 @@ export const acmeLargeCatalogSystem: SyncSystemDef = defineSyncSystem(acmeApp, {
 });
 
 /**
- * Positional system draws for `start` — `acmeDraws({ clientCount: 0 })`.
+ * Typed system knobs for `start` — `acmeKnobs({ clientCount: 0 })`.
  *
  * Scripted pin shape:
  *
@@ -28,7 +28,7 @@ export const acmeLargeCatalogSystem: SyncSystemDef = defineSyncSystem(acmeApp, {
  * await using run = await start(acmeSystem, {
  *   seed,
  *   host: syncVirtualHost(),
- *   draws: acmeDraws({ clientCount: 0, rowImageFanout: false }),
+ *   knobs: acmeKnobs({ clientCount: 0, rowImageFanout: false }),
  *   properties: [],
  * });
  * await run.apply(addClient, 'alice');
@@ -44,6 +44,6 @@ export const acmeLargeCatalogSystem: SyncSystemDef = defineSyncSystem(acmeApp, {
  *
  * Poll instead of guessing a timeout with `untilAcme` (`./until`).
  */
-export const acmeDraws = syncSystemDraws;
+export const acmeKnobs = syncKnobs;
 
 export type { SyncSurface, SyncSystemDef, System };

@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   connect,
@@ -23,7 +23,7 @@ describe('reject mid chain later pendings still apply', () => {
     await using run = await start(acmeSystem, {
       seed: 824,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0, rowImageFanout: false }),
+      knobs: acmeKnobs({ clientCount: 0, rowImageFanout: false }),
       properties: [],
     });
 

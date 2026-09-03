@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   clearLocalData,
@@ -25,7 +25,7 @@ describe('cache clear preserves pending mutations', () => {
     await using run = await start(acmeSystem, {
       seed: 610,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 
@@ -58,7 +58,7 @@ describe('cache clear preserves pending mutations', () => {
     await using run = await start(acmeSystem, {
       seed: 611,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 

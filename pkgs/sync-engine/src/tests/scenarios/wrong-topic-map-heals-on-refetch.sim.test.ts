@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
@@ -20,7 +20,7 @@ describe('wrong topic map heals on refetch', () => {
     await using run = await start(acmeSystem, {
       seed: 1080,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0, rowImageFanout: false }),
+      knobs: acmeKnobs({ clientCount: 0, rowImageFanout: false }),
       properties: [],
     });
 
@@ -68,7 +68,7 @@ describe('wrong topic map heals on refetch', () => {
       await using run = await start(acmeSystem, {
         seed: seed,
         host: syncVirtualHost(),
-        draws: acmeDraws({ clientCount: 0, rowImageFanout: false }),
+        knobs: acmeKnobs({ clientCount: 0, rowImageFanout: false }),
         properties: [],
       });
 

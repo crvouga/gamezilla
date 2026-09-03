@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   actorId,
   addClient,
@@ -23,7 +23,7 @@ describe('logout login same device no bleed', () => {
     await using run = await start(acmeSystem, {
       seed: 960,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 
@@ -74,7 +74,7 @@ describe('logout login same device no bleed', () => {
       await using run = await start(acmeSystem, {
         seed: seed,
         host: syncVirtualHost(),
-        draws: acmeDraws({ clientCount: 0 }),
+        knobs: acmeKnobs({ clientCount: 0 }),
         properties: [],
       });
 

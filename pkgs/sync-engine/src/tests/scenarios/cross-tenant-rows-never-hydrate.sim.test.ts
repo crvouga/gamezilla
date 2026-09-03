@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import type { Run } from '@pkgs/dst';
 import { start } from '@pkgs/dst';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   mutate,
@@ -44,7 +44,7 @@ describe('cross tenant rows never hydrate', () => {
     await using run = await start(acmeSystem, {
       seed: 980,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0, rowImageFanout: false }),
+      knobs: acmeKnobs({ clientCount: 0, rowImageFanout: false }),
       properties: [],
     });
 
@@ -87,7 +87,7 @@ describe('cross tenant rows never hydrate', () => {
       await using run = await start(acmeSystem, {
         seed,
         host: syncVirtualHost(),
-        draws: acmeDraws({ clientCount: 0, rowImageFanout: false }),
+        knobs: acmeKnobs({ clientCount: 0, rowImageFanout: false }),
         properties: [],
       });
 

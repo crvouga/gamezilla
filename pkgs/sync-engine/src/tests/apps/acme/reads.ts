@@ -5,8 +5,9 @@
  */
 
 import { expect } from 'bun:test';
-import type { JsonValue, Run } from '@pkgs/dst';
+import type { BoundObservation, JsonValue, Run } from '@pkgs/dst';
 import { sql } from '@pkgs/sql';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { SyncSurface } from '../../../sim/scenario';
 import {
@@ -14,8 +15,16 @@ import {
   deviceId,
   liveNote,
   liveSpace,
-  rows,
+  rows as rowsObs,
 } from '../../../sim/scenario';
+
+function rows<T extends Record<string, JsonValue>>(
+  label: string,
+  nodeId: string,
+  statement: Parameters<SqlClient['query']>[0]
+): BoundObservation<SyncSurface, T[]> {
+  return rowsObs(label, nodeId, statement) as BoundObservation<SyncSurface, T[]>;
+}
 
 export type NoteRow = {
   readonly id: string;

@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import { checkSync } from '../../sim/scenario';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   armStoragePressure,
   expectConverged,
@@ -60,7 +60,7 @@ describe('fault permutation pins', () => {
     await using run = await start(acmeSystem, {
       seed: 44002,
       host: syncVirtualHost(),
-      draws: acmeDraws(),
+      knobs: acmeKnobs(),
       properties: [],
     });
 

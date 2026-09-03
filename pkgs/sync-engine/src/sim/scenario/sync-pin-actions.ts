@@ -1,12 +1,11 @@
 /**
- * Scripted-pin actions for `run.apply(action, ...args)`. Every argument is a
- * scripted draw, so a random `walk` / `check` campaign draws `undefined` and
- * the action reports itself disabled. Randomised coverage lives in
+ * Scripted-pin actions for `run.apply(action, ...args)`. Typed generate
+ * parameters replace the old `pin()` draws. Randomised coverage lives in
  * `createSyncActions` (`sync-actions.ts`). Network / fault / crash pins live
  * in `pin-chaos-actions.ts`.
  */
 
-import { defineAction } from '@pkgs/dst';
+import { defineSurface } from '@pkgs/dst';
 import { unsafe } from '@pkgs/sql';
 
 import type { Mutation } from '../../mutations/core/types';
@@ -18,7 +17,6 @@ import {
   driveToSettled,
   driveWhilePending,
   type PostRows,
-  pin,
   requireClient,
   resolveMutation,
   SUBSCRIBE_ALL_BUDGET_MS,
@@ -56,7 +54,7 @@ export {
   skewClock,
   tamperLocalStorage,
 } from './pin-chaos-actions';
-/** `passTime` is already draw-shaped: `run.apply(passTime, 500)`. */
+/** `passTime(ms)` advances virtual time — `run.apply(passTime, 500)`. */
 export { passTime, SYNC_STEP_MS };
 
 import {
@@ -85,19 +83,16 @@ import {
   tamperLocalStorage,
 } from './pin-chaos-actions';
 
+const { defineAction } = defineSurface<SyncSurface>();
+
 /** `run.apply(addClient, 'alice')` or `run.apply(addClient, { id, actorId })`. */
 export const addClient = defineAction({
   name: 'addClient',
-  *generate() {
-    const arg = yield* pin<string | AddClientArgs>();
-    if (arg === undefined) return;
+  generate(arg: string | AddClientArgs) {
     const args: AddClientArgs =
       typeof arg === 'string' ? { id: arg, actorId: arg } : arg;
-    yield {
-      weight: 1,
-      act: async (s: SyncSurface) => {
-        await s.addClient(args);
-      },
+    return async (s) => {
+      await s.addClient(args);
     };
   },
 });
@@ -108,143 +103,90 @@ export const addClient = defineAction({
  */
 export const mutate = defineAction({
   name: 'mutate',
-  *generate() {
-    const clientId = yield* pin<string>();
-    if (clientId === undefined) return;
-    const named = yield* pin<Mutation<unknown> | string>();
-    if (named === undefined) return;
-    const args = yield* pin<unknown>();
-    yield {
-      weight: 1,
-      act: async (s: SyncSurface) => {
-        const mutation = resolveMutation(s, named);
-        const result = await requireClient(s, clientId).mutate(mutation, args);
-        s.runtime.lastMutation.set(
-          clientId,
-          result.ok
-            ? { ok: true, mutationId: result.mutationId, failures: [] }
-            : { ok: false, mutationId: null, failures: result.failures }
-        );
-      },
+  generate(clientId: string, named: Mutation<unknown> | string, args: unknown) {
+    return async (s) => {
+      const mutation = resolveMutation(s, named);
+      const result = await requireClient(s, clientId).mutate(mutation, args);
+      s.runtime.lastMutation.set(
+        clientId,
+        result.ok
+          ? { ok: true, mutationId: result.mutationId, failures: [] }
+          : { ok: false, mutationId: null, failures: result.failures }
+      );
     };
   },
 });
 
 export const connect = defineAction({
   name: 'connect',
-  *generate() {
-    const clientId = yield* pin<string>();
-    if (clientId === undefined) return;
-    yield {
-      weight: 1,
-      act: async (s: SyncSurface) => {
-        await requireClient(s, clientId).connect();
-      },
+  generate(clientId: string) {
+    return async (s) => {
+      await requireClient(s, clientId).connect();
     };
   },
 });
 
 export const disconnect = defineAction({
   name: 'disconnect',
-  *generate() {
-    const clientId = yield* pin<string>();
-    if (clientId === undefined) return;
-    yield {
-      weight: 1,
-      act: async (s: SyncSurface) => {
-        await requireClient(s, clientId).disconnect();
-      },
-    };
+  generate(clientId: string) {
+    return (s) => requireClient(s, clientId).disconnect();
   },
 });
 
 export const online = defineAction({
   name: 'online',
-  *generate() {
-    const clientId = yield* pin<string>();
-    if (clientId === undefined) return;
-    const value = yield* pin<boolean>();
-    if (value === undefined) return;
-    yield {
-      weight: 1,
-      act: (s: SyncSurface) => {
-        requireClient(s, clientId).online(value);
-      },
+  generate(clientId: string, value: boolean) {
+    return (s) => {
+      requireClient(s, clientId).online(value);
     };
   },
 });
 
 export const foreground = defineAction({
   name: 'foreground',
-  *generate() {
-    const clientId = yield* pin<string>();
-    if (clientId === undefined) return;
-    const value = yield* pin<boolean>();
-    if (value === undefined) return;
-    yield {
-      weight: 1,
-      act: (s: SyncSurface) => {
-        requireClient(s, clientId).foreground(value);
-      },
+  generate(clientId: string, value: boolean) {
+    return (s) => {
+      requireClient(s, clientId).foreground(value);
     };
   },
 });
 
 export const clearLocalData = defineAction({
   name: 'clearLocalData',
-  *generate() {
-    const clientId = yield* pin<string>();
-    if (clientId === undefined) return;
-    const reason = yield* pin<string>();
-    if (reason === undefined) return;
-    yield {
-      weight: 1,
-      act: async (s: SyncSurface) => {
-        await requireClient(s, clientId).clearLocalData(reason);
-      },
+  generate(clientId: string, reason: string) {
+    return async (s) => {
+      await requireClient(s, clientId).clearLocalData(reason);
     };
   },
 });
 
 export const nudge = defineAction({
   name: 'nudge',
-  *generate() {
-    const clientId = yield* pin<string>();
-    if (clientId === undefined) return;
-    yield {
-      weight: 1,
-      act: async (s: SyncSurface) => {
-        const client = requireClient(s, clientId);
-        // A nudge issued while sync is held never resolves — drive it as far as
-        // virtual time allows and leave the wake in flight.
-        await driveWhilePending(s, () => client.nudge());
-      },
+  generate(clientId: string) {
+    return async (s) => {
+      const client = requireClient(s, clientId);
+      // A nudge issued while sync is held never resolves — drive it as far as
+      // virtual time allows and leave the wake in flight.
+      await driveWhilePending(s, () => client.nudge());
     };
   },
 });
 
 export const subscribe = defineAction({
   name: 'subscribe',
-  *generate() {
-    const clientId = yield* pin<string>();
-    if (clientId === undefined) return;
-    const queryName = yield* pin<string>();
-    if (queryName === undefined) return;
-    const params = yield* pin<Record<string, unknown>>();
-    yield {
-      weight: 1,
-      act: async (s: SyncSurface) => {
-        const sub = requireClient(s, clientId).subscribe(
-          queryName,
-          params ?? {}
-        );
-        subscriptions(s).set(subscriptionKey(clientId, queryName), sub);
-        await driveToSettled(
-          s,
-          `subscribe:${clientId}:${queryName}`,
-          () => sub.ready
-        );
-      },
+  generate(
+    clientId: string,
+    queryName: string,
+    params?: Record<string, unknown>
+  ) {
+    return async (s) => {
+      const sub = requireClient(s, clientId).subscribe(queryName, params ?? {});
+      subscriptions(s).set(subscriptionKey(clientId, queryName), sub);
+      await driveToSettled(
+        s,
+        `subscribe:${clientId}:${queryName}`,
+        () => sub.ready
+      );
     };
   },
 });
@@ -256,49 +198,37 @@ export const subscribe = defineAction({
  */
 export const subscribeAll = defineAction({
   name: 'subscribeAll',
-  *generate() {
-    const clientId = yield* pin<string>();
-    if (clientId === undefined) return;
-    const queryName = yield* pin<string>();
-    if (queryName === undefined) return;
-    const paramsList = yield* pin<readonly Record<string, unknown>[]>();
-    if (paramsList === undefined) return;
-    yield {
-      weight: 1,
-      act: async (s: SyncSurface) => {
-        const client = requireClient(s, clientId);
-        const bag = subscriptions(s);
-        const opened = paramsList.map((params, i) => {
-          const sub = client.subscribe(queryName, params);
-          bag.set(`${subscriptionKey(clientId, queryName)}:${String(i)}`, sub);
-          return sub;
-        });
-        await driveToSettled(
-          s,
-          `subscribeAll:${clientId}:${queryName}`,
-          () => Promise.all(opened.map((sub) => sub.ready)),
-          SUBSCRIBE_ALL_BUDGET_MS
-        );
-      },
+  generate(
+    clientId: string,
+    queryName: string,
+    paramsList: readonly Record<string, unknown>[]
+  ) {
+    return async (s) => {
+      const client = requireClient(s, clientId);
+      const bag = subscriptions(s);
+      const opened = paramsList.map((params, i) => {
+        const sub = client.subscribe(queryName, params);
+        bag.set(`${subscriptionKey(clientId, queryName)}:${String(i)}`, sub);
+        return sub;
+      });
+      await driveToSettled(
+        s,
+        `subscribeAll:${clientId}:${queryName}`,
+        () => Promise.all(opened.map((sub) => sub.ready)),
+        SUBSCRIBE_ALL_BUDGET_MS
+      );
     };
   },
 });
 
 export const unsubscribe = defineAction({
   name: 'unsubscribe',
-  *generate() {
-    const clientId = yield* pin<string>();
-    if (clientId === undefined) return;
-    const queryName = yield* pin<string>();
-    if (queryName === undefined) return;
-    yield {
-      weight: 1,
-      act: (s: SyncSurface) => {
-        const key = subscriptionKey(clientId, queryName);
-        const bag = subscriptions(s);
-        bag.get(key)?.[Symbol.dispose]();
-        bag.delete(key);
-      },
+  generate(clientId: string, queryName: string) {
+    return (s) => {
+      const key = subscriptionKey(clientId, queryName);
+      const bag = subscriptions(s);
+      bag.get(key)?.[Symbol.dispose]();
+      bag.delete(key);
     };
   },
 });
@@ -332,16 +262,9 @@ function recordPost(s: SyncSurface, clientId: string, rows: PostRows): void {
 
 export const postMutations = defineAction({
   name: 'postMutations',
-  *generate() {
-    const clientId = yield* pin<string>();
-    if (clientId === undefined) return;
-    const rows = yield* pin<PostRows>();
-    if (rows === undefined) return;
-    yield {
-      weight: 1,
-      act: (s: SyncSurface) => {
-        recordPost(s, clientId, rows);
-      },
+  generate(clientId: string, rows: PostRows) {
+    return (s) => {
+      recordPost(s, clientId, rows);
     };
   },
 });
@@ -353,49 +276,35 @@ export const postMutations = defineAction({
  */
 export const serverReplay = defineAction({
   name: 'serverReplay',
-  *generate() {
-    const actorId = yield* pin<string>();
-    if (actorId === undefined) return;
-    const rows = yield* pin<PostRows>();
-    if (rows === undefined) return;
-    yield {
-      weight: 1,
-      act: async (s: SyncSurface) => {
-        const first = rows[0];
-        if (first === undefined) return;
-        s.server.setAuth({
-          actorId,
-          deviceId: first.clientId,
-          accountId: `acct:${actorId}`,
-          isAnon: false,
-        });
-        const result = await s.server.handlers.handleMutations(rows);
-        s.runtime.lastPost.set(actorId, {
-          ok: result.ok,
-          verdicts: result.verdicts.map((v) => ({
-            mutationId: v.mutationId,
-            status: v.status,
-          })),
-        });
-      },
+  generate(actorId: string, rows: PostRows) {
+    return async (s) => {
+      const first = rows[0];
+      if (first === undefined) return;
+      s.server.setAuth({
+        actorId,
+        deviceId: first.clientId,
+        accountId: `acct:${actorId}`,
+        isAnon: false,
+      });
+      const result = await s.server.handlers.handleMutations(rows);
+      s.runtime.lastPost.set(actorId, {
+        ok: result.ok,
+        verdicts: result.verdicts.map((v) => ({
+          mutationId: v.mutationId,
+          status: v.status,
+        })),
+      });
     };
   },
 });
 
 export const execSql = defineAction({
   name: 'execSql',
-  *generate() {
-    const nodeId = yield* pin<string>();
-    if (nodeId === undefined) return;
-    const statement = yield* pin<string>();
-    if (statement === undefined) return;
-    yield {
-      weight: 1,
-      act: async (s: SyncSurface) => {
-        const db =
-          nodeId === 'server' ? s.server.db : requireClient(s, nodeId).db;
-        await db.run(unsafe(statement));
-      },
+  generate(nodeId: string, statement: string) {
+    return async (s) => {
+      const db =
+        nodeId === 'server' ? s.server.db : requireClient(s, nodeId).db;
+      await db.run(unsafe(statement));
     };
   },
 });
@@ -404,24 +313,19 @@ export const runSql = execSql;
 
 export const playActions = defineAction({
   name: 'playActions',
-  *generate() {
-    const actions = yield* pin<readonly SyncAction[]>();
-    if (actions === undefined) return;
-    yield {
-      weight: 1,
-      act: async (s: SyncSurface) => {
-        for (const action of actions) {
-          await replayStep({
-            surface: s,
-            app: s.runtime.app,
-            action,
-            state: s.runtime.replay,
-          });
-          applyActionToShadow(s.runtime.app, s.shadow, action);
-          await s.checkInvariants();
-          await s.advance(SYNC_STEP_MS);
-        }
-      },
+  generate(actions: readonly SyncAction[]) {
+    return async (s) => {
+      for (const action of actions) {
+        await replayStep({
+          surface: s,
+          app: s.runtime.app,
+          action,
+          state: s.runtime.replay,
+        });
+        applyActionToShadow(s.runtime.app, s.shadow, action);
+        await s.checkInvariants();
+        await s.advance(SYNC_STEP_MS);
+      }
     };
   },
 });
@@ -432,14 +336,11 @@ export const playActions = defineAction({
  */
 export const revive = defineAction({
   name: 'revive',
-  *generate() {
-    yield {
-      weight: 1,
-      act: async (s: SyncSurface) => {
-        await prepareClientsForConverge(s.runtime.app, s, s.runtime.replay);
-        resetClockSkews(s);
-        await s.revive();
-      },
+  generate() {
+    return async (s) => {
+      await prepareClientsForConverge(s.runtime.app, s, s.runtime.replay);
+      resetClockSkews(s);
+      await s.revive();
     };
   },
 });
@@ -447,15 +348,12 @@ export const revive = defineAction({
 /** Wake uploads / refresh on every live client — stimulus for drain waits. */
 export const wakeAll = defineAction({
   name: 'wakeAll',
-  *generate() {
-    yield {
-      weight: 1,
-      act: (s: SyncSurface) => {
-        for (const client of s.clients.values()) {
-          client.engine.wakeUploads();
-          void client.engine.refreshQueries().catch(() => undefined);
-        }
-      },
+  generate() {
+    return (s) => {
+      for (const client of s.clients.values()) {
+        client.engine.wakeUploads();
+        void client.engine.refreshQueries().catch(() => undefined);
+      }
     };
   },
 });
@@ -466,12 +364,9 @@ export const wakeAll = defineAction({
  */
 export const pump = defineAction({
   name: 'pump',
-  *generate() {
-    yield {
-      weight: 1,
-      act: async (s: SyncSurface) => {
-        await pumpConverge(s);
-      },
+  generate() {
+    return async (s) => {
+      await pumpConverge(s);
     };
   },
 });

@@ -8,9 +8,8 @@ import { nodeAt } from './ui-nodes';
 
 export const spawnActor = defineAction({
   name: 'spawnActor',
-  *generate() {
-    const id = yield* draw(() => '');
-    yield async (s: ProductSurface) => {
+  generate(id: string) {
+    return async (s) => {
       if (s.actors.has(id)) return;
       const handle = await s.runtime.launchActor(id);
       s.actors.set(id, handle);
@@ -20,9 +19,8 @@ export const spawnActor = defineAction({
 
 export const resetActor = defineAction({
   name: 'resetActor',
-  *generate() {
-    const id = yield* draw(() => '');
-    yield async (s: ProductSurface) => {
+  generate(id: string) {
+    return async (s) => {
       await s.runtime.resetActor(id);
     };
   },
@@ -34,9 +32,8 @@ export const resetActor = defineAction({
  */
 export const passTime = defineAction({
   name: 'passTime',
-  *generate() {
-    const ms = yield* draw(() => 50);
-    yield async (s: ProductSurface) => {
+  generate(ms: number) {
+    return async (s) => {
       const { ui } = productExtra(s);
       if (ui.kind === 'rntl') {
         await ui.runFor(ms);
@@ -49,17 +46,24 @@ export const passTime = defineAction({
 
 export const partition = defineAction({
   name: 'partition',
-  *generate() {
-    const [c, ids] = yield* observe(caps, clientIds);
-    if (!(c as string[]).includes('partition')) return;
-    const list = ids as string[];
-    if (list.length === 0) return;
-    const id = yield* draw(
-      (rng) => list[Math.floor(rng.next() * list.length)]!
-    );
+  *generate(id: string) {
+    if (!(yield* caps).includes('partition')) return;
     yield (s: ProductSurface) => {
       s.session.network.partition('server', id);
     };
+  },
+});
+
+/** Random pool member — draws a client then delegates to typed {@link partition}. */
+export const randomPartition = defineAction({
+  name: 'randomPartition',
+  *generate() {
+    const o = yield* observe({ caps, clientIds });
+    if (!o.caps.includes('partition') || o.clientIds.length === 0) return;
+    const id = yield* draw(
+      (rng) => o.clientIds[Math.floor(rng.next() * o.clientIds.length)]!
+    );
+    yield* partition(id);
   },
 });
 
@@ -82,16 +86,8 @@ export type UiOp = {
 
 export const uiOp = defineAction({
   name: 'uiOp',
-  *generate() {
-    const op = yield* draw(() => {
-      return {
-        actorId: '',
-        op: 'tap',
-        path: [] as string[],
-        extra: {},
-      } satisfies UiOp;
-    });
-    yield async (s: ProductSurface) => {
+  generate(op: UiOp) {
+    return async (s) => {
       await performUiOp(s, op);
     };
   },

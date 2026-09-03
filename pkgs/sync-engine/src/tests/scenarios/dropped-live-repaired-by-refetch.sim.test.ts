@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
@@ -18,7 +18,7 @@ describe('dropped live repaired by refetch', () => {
     await using run = await start(acmeSystem, {
       seed: 11,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 
@@ -42,7 +42,7 @@ describe('dropped live repaired by refetch', () => {
     await using run = await start(acmeSystem, {
       seed: 12,
       host: syncVirtualHost(),
-      draws: acmeDraws({
+      knobs: acmeKnobs({
         clientCount: 0,
       }),
       properties: [],
@@ -63,7 +63,7 @@ describe('dropped live repaired by refetch', () => {
     await using run = await start(acmeSystem, {
       seed: 15,
       host: syncVirtualHost(),
-      draws: acmeDraws({
+      knobs: acmeKnobs({
         clientCount: 0,
       }),
       properties: [],

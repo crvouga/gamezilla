@@ -19,6 +19,7 @@ const FORBIDDEN = [
   'replaySystem',
   'getRunInternal',
   'RunInternal',
+  'Body',
 ] as const;
 
 describe('public-api', () => {
@@ -28,6 +29,7 @@ describe('public-api', () => {
       'defineObservation',
       'defineAction',
       'defineProperty',
+      'defineSurface',
       'draw',
       'observe',
       'start',
@@ -49,7 +51,7 @@ describe('public-api', () => {
   });
 
   test('Run has no _internal escape hatch', async () => {
-    await using run = await start(kv, { seed: 1, draws: [1] });
+    await using run = await start(kv, { seed: 1, knobs: { clients: 1 } });
     expect(run).not.toHaveProperty('_internal');
     expect(Object.keys(run).sort()).toEqual(['apply', 'assert', 'observe']);
   });
@@ -81,6 +83,7 @@ describe('public-api', () => {
     ]) {
       expect(kernel).toHaveProperty(k);
     }
+    expect(kernel).not.toHaveProperty('createScriptedDraws');
   });
 
   test('@pkgs/dst/fast-check exports gen + arbitrary', () => {

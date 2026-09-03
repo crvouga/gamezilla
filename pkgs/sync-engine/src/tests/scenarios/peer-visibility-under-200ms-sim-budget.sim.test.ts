@@ -3,7 +3,7 @@ import { start } from '@pkgs/dst';
 import { RELIABLE_FAULTS } from '../../sim/faults';
 import type { SyncAction } from '../../sim/scenario';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
@@ -43,7 +43,7 @@ describe('peer visibility under 200ms sim budget', () => {
     await using run = await start(acmeSystem, {
       seed: 19,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 

@@ -1,7 +1,7 @@
 import { describe, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
@@ -19,7 +19,7 @@ describe('sync partitioned while live delivers', () => {
     await using run = await start(acmeSystem, {
       seed: 506,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0, rowImageFanout: false }),
+      knobs: acmeKnobs({ clientCount: 0, rowImageFanout: false }),
       properties: [],
     });
 

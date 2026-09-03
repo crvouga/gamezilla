@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { type BoundObservation, start } from '@pkgs/dst';
 import { sql } from '@pkgs/sql';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeLocalSchemaExtraColumn,
   acmeSystem,
   addClient,
@@ -17,13 +17,14 @@ import {
   runSql,
   setNote,
   syncVirtualHost,
+  type SyncSurface,
 } from '../apps/acme';
 
-const aliceColor = rows<{ color: string | null }>(
+const aliceColor = rows(
   'noteColor',
   'alice',
   sql`SELECT color FROM notes WHERE id = 'n1' AND deleted_at IS NULL`
-);
+) as BoundObservation<SyncSurface, { readonly color: string | null }[]>;
 
 /**
  * Public-API / sim pins for merge semantics that bulk upsert must preserve:
@@ -34,7 +35,7 @@ describe('public API: merge via sim', () => {
     await using run = await start(acmeSystem, {
       seed: 9001,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 
@@ -64,7 +65,7 @@ describe('public API: merge via sim', () => {
     await using run = await start(acmeSystem, {
       seed: 9002,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 

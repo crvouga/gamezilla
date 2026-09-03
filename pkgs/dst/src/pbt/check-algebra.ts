@@ -1,12 +1,13 @@
 import type { Host, Ports } from '../host/types';
 import { fingerprint } from '../kernel/fingerprint';
 import type { JsonValue } from '../kernel/json';
-import { createRng } from '../kernel/rng';
+import { createRng, createReplayingRng } from '../kernel/rng';
 import { closeMonitors } from '../run/checkpoint';
 import { getRunInternal, start } from '../run/start';
 import { type Walk, walk } from '../run/walk';
 import type { System } from '../system/define-system';
 import type { Action, Property } from '../system/effect';
+import type { Gen } from '../system/gen';
 import type { Choice, Repro } from '../system/repro';
 import { parseRepro, REPRO_VERSION } from '../system/repro';
 
@@ -40,12 +41,13 @@ export type Report = {
   };
 };
 
-export type CheckOptions<S> = {
+export type CheckOptions<S, K = void> = {
   readonly host?: Host<Ports>;
   readonly properties: readonly Property<S>[];
-  readonly actions: readonly Action<S>[];
+  readonly actions: readonly Action<S, []>[];
   readonly seed?: number;
-  readonly draws?: readonly unknown[];
+  /** Fixed knobs or a Gen that draws per episode. */
+  readonly knobs?: [K] extends [void] ? undefined : K | Gen<K>;
   readonly episodes?: number;
   readonly steps?: number;
   readonly shrink?: boolean;
@@ -53,13 +55,24 @@ export type CheckOptions<S> = {
   readonly stopOnViolation?: boolean;
 };
 
-function campaignSeed(opts: CheckOptions<unknown>): number {
+function campaignSeed(opts: CheckOptions<unknown, unknown>): number {
   if (opts.seed !== undefined) return opts.seed;
   const env =
     typeof process !== 'undefined' ? process.env['PBT_SEED'] : undefined;
   if (env !== undefined && env !== '') return Number(env);
   // Pinned default — matches @pkgs/pbt FC_SEED policy (no wall entropy).
   return 424242;
+}
+
+function resolveKnobs<K>(
+  knobs: K | Gen<K> | undefined,
+  rng: ReturnType<typeof createRng>
+): K | undefined {
+  if (knobs === undefined) return undefined;
+  if (typeof knobs === 'function') {
+    return (knobs as Gen<K>)(rng);
+  }
+  return knobs;
 }
 
 type EpisodeAcc = {
@@ -69,22 +82,24 @@ type EpisodeAcc = {
   readonly allStates: Set<string>;
 };
 
-async function runEpisode<S>(args: {
-  readonly system: System<S>;
-  readonly opts: CheckOptions<S>;
+async function runEpisode<S, K>(args: {
+  readonly system: System<S, K>;
+  readonly opts: CheckOptions<S, K>;
   readonly epSeed: number;
   readonly steps: number;
   readonly acc: EpisodeAcc;
+  readonly episodeRng: ReturnType<typeof createRng>;
 }): Promise<'ok' | 'fail'> {
   const { system, opts, epSeed, steps, acc } = args;
   let run;
+  const knobs = resolveKnobs(opts.knobs, args.episodeRng);
   try {
     run = await start(system, {
       seed: epSeed,
       ...(opts.host !== undefined ? { host: opts.host } : {}),
-      ...(opts.draws !== undefined ? { draws: opts.draws } : {}),
+      ...(knobs !== undefined ? { knobs } : {}),
       properties: opts.properties,
-    });
+    } as Parameters<typeof start<S, K>>[1]);
     const w = await walk(run, {
       actions: opts.actions,
       steps,
@@ -113,6 +128,7 @@ async function runEpisode<S>(args: {
             version: REPRO_VERSION,
             seed: epSeed,
             system: w.system,
+            knobs: w.knobs,
             choices: w.choices,
             meta: { system: system.name },
           },
@@ -126,6 +142,7 @@ async function runEpisode<S>(args: {
         version: REPRO_VERSION,
         seed: epSeed,
         system: w.system,
+        knobs: w.knobs,
         choices: w.choices,
         meta: { system: system.name },
       };
@@ -148,6 +165,7 @@ async function runEpisode<S>(args: {
         version: REPRO_VERSION,
         seed: epSeed,
         system: [],
+        knobs: knobs ?? null,
         choices: [],
         meta: { system: system.name },
       },
@@ -160,13 +178,13 @@ async function runEpisode<S>(args: {
   }
 }
 
-export async function check<S>(
-  system: System<S>,
-  opts: CheckOptions<S>
+export async function check<S, K = void>(
+  system: System<S, K>,
+  opts: CheckOptions<S, K>
 ): Promise<Report> {
   const episodes = opts.episodes ?? 20;
   const steps = opts.steps ?? 40;
-  const seed = campaignSeed(opts as CheckOptions<unknown>);
+  const seed = campaignSeed(opts as CheckOptions<unknown, unknown>);
   const rng = createRng(seed);
   const acc: EpisodeAcc = {
     failures: [],
@@ -186,6 +204,7 @@ export async function check<S>(
       epSeed,
       steps,
       acc,
+      episodeRng: createRng(`${String(seed)}:ep:${ep}`),
     });
     if (status === 'fail') break;
   }
@@ -207,8 +226,8 @@ export async function check<S>(
 }
 
 async function deltaDebugChoices(
-  system: System<unknown>,
-  opts: CheckOptions<unknown>,
+  system: System<unknown, unknown>,
+  opts: CheckOptions<unknown, unknown>,
   repro: Repro,
   choices: Choice[]
 ): Promise<Choice[]> {
@@ -248,13 +267,13 @@ async function minifyFloat(
   return best;
 }
 
-async function shrinkRepro<S>(
-  system: System<S>,
-  opts: CheckOptions<S>,
+async function shrinkRepro<S, K>(
+  system: System<S, K>,
+  opts: CheckOptions<S, K>,
   repro: Repro
 ): Promise<Repro> {
-  const sys = system as System<unknown>;
-  const o = opts as CheckOptions<unknown>;
+  const sys = system as System<unknown, unknown>;
+  const o = opts as CheckOptions<unknown, unknown>;
   const choices = await deltaDebugChoices(sys, o, repro, repro.choices.slice());
 
   const systemDraws = [...repro.system];
@@ -269,6 +288,7 @@ async function shrinkRepro<S>(
   const shrunkChoices: Choice[] = choices.map((c) => ({
     action: c.action,
     draws: [...c.draws],
+    args: [...c.args],
   }));
   for (const c of shrunkChoices) {
     const draws = c.draws as number[];
@@ -277,7 +297,7 @@ async function shrinkRepro<S>(
         const trial = draws.slice();
         trial[i] = mid;
         const trialChoices = shrunkChoices.map((x) =>
-          x === c ? { action: c.action, draws: trial } : x
+          x === c ? { action: c.action, draws: trial, args: c.args } : x
         );
         return fails(sys, o, {
           ...repro,
@@ -291,9 +311,9 @@ async function shrinkRepro<S>(
   return { ...repro, system: systemDraws, choices: shrunkChoices };
 }
 
-async function fails<S>(
-  system: System<S>,
-  opts: CheckOptions<S>,
+async function fails<S, K>(
+  system: System<S, K>,
+  opts: CheckOptions<S, K>,
   repro: Repro
 ): Promise<boolean> {
   try {
@@ -311,11 +331,11 @@ async function fails<S>(
 export type ReplayOptions<S> = {
   readonly host?: Host<Ports>;
   readonly properties?: readonly Property<S>[];
-  readonly actions: readonly Action<S>[];
+  readonly actions: readonly Action<S, []>[];
 };
 
-export async function replay<S>(
-  system: System<S>,
+export async function replay<S, K = void>(
+  system: System<S, K>,
   input: Repro | Walk | string,
   opts: ReplayOptions<S>
 ): Promise<Report> {
@@ -328,42 +348,64 @@ export async function replay<S>(
             version: REPRO_VERSION,
             seed: 0,
             system: (input as Walk).system,
+            knobs: (input as Walk).knobs,
             choices: (input as Walk).choices,
             meta: { system: system.name },
           };
 
-  const actionByName = new Map(opts.actions.map((a) => [a.name, a]));
+  const actionByName = new Map(
+    opts.actions.map((a) => [a.name, a as Action<S, unknown[]>])
+  );
+  // Also index any named actions from choices that aren't in the pool
+  // (scripted parameterized actions are applied by name + args).
+
   const run = await start(system, {
     seed: repro.seed,
     ...(opts.host !== undefined ? { host: opts.host } : {}),
-    ...(repro.system.length > 0
-      ? {} // system draws replayed via rng — for pinned floats we'd need scripted
+    ...(repro.knobs !== undefined && repro.knobs !== null
+      ? { knobs: repro.knobs as K }
       : {}),
     properties: opts.properties ?? [],
-  });
+  } as Parameters<typeof start<S, K>>[1]);
+
+  // Replay system draws: if repro.system has floats, we already passed knobs;
+  // additional draw()s inside generate were recorded. For full fidelity of
+  // generate-time draws beyond knobs, start already ran generate with knobs.
+  // Choice-level draws are replayed via apply args + replaying rng.
 
   const failures: Report['failures'][number][] = [];
   try {
     for (let i = 0; i < repro.choices.length; i++) {
       const choice = repro.choices[i]!;
-      const action = actionByName.get(choice.action);
+      let action = actionByName.get(choice.action);
       if (action === undefined) {
+        // Allow replay of parameterized actions not in the walk pool by
+        // looking them up from the provided actions list by name only —
+        // callers that need this must include them in opts.actions as
+        // Action<S, unknown[]> cast, or we fail.
         throw new Error(`replay: unknown action '${choice.action}'`);
       }
+
       const internal = getRunInternal(run);
       const before = fingerprint(
         Object.fromEntries(internal.memo) as JsonValue
       );
-      // Replay draws: use replaying rng by applying with recorded floats
-      // via a custom path — patch ctx rng
-      const { createReplayingRng } = await import('../kernel/rng');
-      const replayRng = createReplayingRng(choice.draws);
-      const origRng = internal.rng;
-      internal.rng = replayRng;
 
-      await run.apply(action);
-
-      internal.rng = origRng;
+      if (choice.args.length > 0) {
+        await run.apply(action as Action<S, unknown[]>, ...choice.args);
+      } else if (choice.draws.length > 0) {
+        // Random-pool step: replay recorded floats into the action rng.
+        const replayRng = createReplayingRng(choice.draws);
+        const origRng = internal.rng;
+        internal.rng = replayRng;
+        try {
+          await run.apply(action as Action<S, []>);
+        } finally {
+          internal.rng = origRng;
+        }
+      } else {
+        await run.apply(action as Action<S, []>);
+      }
 
       const after = fingerprint(Object.fromEntries(internal.memo) as JsonValue);
       void before;

@@ -1,18 +1,11 @@
 /** Shared helpers for the scripted-pin action modules. */
 
-import { draw } from '@pkgs/dst';
-
 import type { Mutation } from '../../mutations/core/types';
 import type { SimClientHandle, SimSubscription } from '../client-handle';
 import type { SyncSurface } from './system';
 
 /** Virtual-time slice between scripted chaos steps. */
 export const SYNC_STEP_MS = 10;
-
-/** One scripted argument — `undefined` under random generation. */
-export function pin<T>() {
-  return draw<T | undefined>(() => undefined);
-}
 
 export function requireClient(
   s: SyncSurface,

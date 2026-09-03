@@ -24,11 +24,9 @@ export {
   createReplayingRng,
   createRng,
   createRngInternal,
-  createScriptedDraws,
   type RecordingRng,
   type ReplayingRng,
   type Rng,
-  type ScriptedDraws,
   wrapSeeded,
 } from './rng';
 export {

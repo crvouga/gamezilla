@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import { SYNC_PROTOCOL_VERSION } from '../../protocol';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   connect,
@@ -22,7 +22,7 @@ describe('pending mutations across protocol cut drain', () => {
     await using run = await start(acmeSystem, {
       seed: 1210,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 

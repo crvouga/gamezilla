@@ -1,8 +1,9 @@
-export const REPRO_VERSION = 3 as const;
+export const REPRO_VERSION = 4 as const;
 
 export type Choice = {
   readonly action: string;
   readonly draws: readonly number[];
+  readonly args: readonly unknown[];
 };
 
 export type ReproMeta = {
@@ -13,7 +14,10 @@ export type ReproMeta = {
 export type Repro = {
   readonly version: typeof REPRO_VERSION;
   readonly seed: number | string;
+  /** Recorded rng floats from system.generate draws (beyond knobs). */
   readonly system: readonly number[];
+  /** Typed system knobs supplied to generate (JSON-projected). */
+  readonly knobs: unknown;
   readonly choices: readonly Choice[];
   readonly meta: ReproMeta;
 };

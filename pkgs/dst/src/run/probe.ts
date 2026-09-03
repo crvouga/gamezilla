@@ -5,9 +5,12 @@ import {
   type Action,
   actFn,
   actWeight,
+  type BoundAction,
   type Effect,
   isAct,
   isAction,
+  isBoundAction,
+  isBoundObservation,
   isDraw,
   isObservation,
   type Observation,
@@ -16,6 +19,7 @@ import {
   closeGenerator,
   type DriveContext,
   drive,
+  normalizeActionBody,
   resolveObservation,
 } from './drive';
 
@@ -67,6 +71,7 @@ export type EnabledProbe<S> = {
   readonly body: AnyGen;
   /** Nested probes to finish before resuming `body` (for yield* delegation). */
   readonly nested: readonly EnabledProbe<S>[];
+  readonly args: readonly unknown[];
 };
 
 export type ProbeResult<S> = { readonly enabled: false } | EnabledProbe<S>;
@@ -75,14 +80,16 @@ export type ProbeResult<S> = { readonly enabled: false } | EnabledProbe<S>;
  * Probe to the first Act. Per-probe rng; draws buffered. weight 0 / return → disabled.
  */
 export async function probe<S>(
-  action: Action<S>,
+  action: Action<S, unknown[]>,
   ctx: DriveContext<S>,
-  probeRng: Rng
+  probeRng: Rng,
+  args: readonly unknown[] = []
 ): Promise<ProbeResult<S>> {
   const draws: number[] = [];
   const rng = recordingFork(probeRng, draws);
-  const body = action.generate() as AnyGen;
-  return probeBody({ body, ctx, rng, draws, nested: [] });
+  const raw = action.generate(...args);
+  const body = (await normalizeActionBody(raw)) as AnyGen;
+  return probeBody({ body, ctx, rng, draws, nested: [], args });
 }
 
 type ProbeBodyArgs<S> = {
@@ -91,6 +98,7 @@ type ProbeBodyArgs<S> = {
   readonly rng: Rng;
   readonly draws: number[];
   readonly nested: EnabledProbe<S>[];
+  readonly args: readonly unknown[];
 };
 
 async function probeBody<S>(args: ProbeBodyArgs<S>): Promise<ProbeResult<S>> {
@@ -100,28 +108,51 @@ async function probeBody<S>(args: ProbeBodyArgs<S>): Promise<ProbeResult<S>> {
   for (;;) {
     const r = await genNext(body, answer);
     if (r.done) {
+      // Returned Act counts as the first act.
+      if (r.value !== undefined && isAct<S>(r.value)) {
+        const weight = actWeight(r.value);
+        if (!(weight > 0)) {
+          await closeGenerator(body);
+          return { enabled: false };
+        }
+        return {
+          enabled: true,
+          weight,
+          act: r.value,
+          draws,
+          body,
+          nested,
+          args: args.args,
+        };
+      }
       await closeGenerator(body);
       return { enabled: false };
     }
 
     const yielded = r.value as Effect<S>;
 
-    if (isObservation(yielded)) {
+    if (isObservation(yielded) || isBoundObservation(yielded)) {
       answer = await resolveObservation(
-        yielded as Observation<S, JsonValue>,
+        yielded as
+          | Observation<S, unknown[], JsonValue>
+          | import('../system/effect').BoundObservation<S, JsonValue>,
         ctx
       );
       continue;
     }
 
     if (isDraw(yielded)) {
-      answer =
-        ctx.scripted !== undefined ? ctx.scripted.take() : yielded.gen(rng);
+      answer = yielded.gen(rng);
       continue;
     }
 
-    if (isAction(yielded)) {
-      const inner = await probe(yielded, ctx, rng);
+    if (isBoundAction(yielded)) {
+      const inner = await probe(
+        yielded.action,
+        ctx,
+        rng,
+        yielded.args
+      );
       if (!inner.enabled) {
         await closeGenerator(body);
         return { enabled: false };
@@ -133,6 +164,24 @@ async function probeBody<S>(args: ProbeBodyArgs<S>): Promise<ProbeResult<S>> {
         draws: [...draws, ...inner.draws],
         body,
         nested: [...nested, inner],
+        args: args.args,
+      };
+    }
+
+    if (isAction(yielded)) {
+      const inner = await probe(yielded, ctx, rng, []);
+      if (!inner.enabled) {
+        await closeGenerator(body);
+        return { enabled: false };
+      }
+      return {
+        enabled: true,
+        weight: inner.weight,
+        act: inner.act,
+        draws: [...draws, ...inner.draws],
+        body,
+        nested: [...nested, inner],
+        args: args.args,
       };
     }
 
@@ -149,6 +198,7 @@ async function probeBody<S>(args: ProbeBodyArgs<S>): Promise<ProbeResult<S>> {
         draws,
         body,
         nested,
+        args: args.args,
       };
     }
 
@@ -164,15 +214,12 @@ export async function finishProbed<S>(
   p: EnabledProbe<S>,
   ctx: DriveContext<S>
 ): Promise<void> {
-  // Finish deepest nested first (the actual first act lives there)
   if (p.nested.length > 0) {
     const inner = p.nested[p.nested.length - 1]!;
     await finishProbed(inner, ctx);
-    // Sync draws
     for (const d of inner.draws) {
       if (!p.draws.includes(d)) p.draws.push(d);
     }
-    // Resume outer past the Action yield
     await continueBody(p.body, ctx, p.draws);
     return;
   }
@@ -193,26 +240,48 @@ async function continueBody<S>(
 
   for (;;) {
     const r = await genNext(body, answer);
-    if (r.done) return;
+    if (r.done) {
+      if (r.value !== undefined && isAct<S>(r.value)) {
+        await Promise.resolve(actFn(r.value)(ctx.surface));
+        await ctx.session.settle();
+        ctx.memo.clear();
+      }
+      return;
+    }
 
     const yielded = r.value as Effect<S>;
 
-    if (isObservation(yielded)) {
+    if (isObservation(yielded) || isBoundObservation(yielded)) {
       answer = await resolveObservation(
-        yielded as Observation<S, JsonValue>,
+        yielded as
+          | Observation<S, unknown[], JsonValue>
+          | import('../system/effect').BoundObservation<S, JsonValue>,
         ctx
       );
       continue;
     }
 
     if (isDraw(yielded)) {
-      answer =
-        ctx.scripted !== undefined ? ctx.scripted.take() : yielded.gen(rng);
+      answer = yielded.gen(rng);
+      continue;
+    }
+
+    if (isBoundAction(yielded)) {
+      const innerBody = await normalizeActionBody(
+        yielded.action.generate(...yielded.args)
+      );
+      await drive(innerBody, 'action', {
+        ...ctx,
+        rng,
+        recordDraws: draws,
+      });
+      answer = undefined;
       continue;
     }
 
     if (isAction(yielded)) {
-      await drive(yielded.generate(), 'action', {
+      const innerBody = await normalizeActionBody(yielded.generate());
+      await drive(innerBody, 'action', {
         ...ctx,
         rng,
         recordDraws: draws,
@@ -232,3 +301,6 @@ async function continueBody<S>(
     throw new Error('continueBody: unexpected yield');
   }
 }
+
+// Silence unused BoundAction import warning by re-exporting type use
+export type { BoundAction };

@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
@@ -20,7 +20,7 @@ describe('server 500 mid batch full retry idempotent', () => {
       await using run = await start(acmeSystem, {
         seed: seed,
         host: syncVirtualHost(),
-        draws: acmeDraws({ clientCount: 0 }),
+        knobs: acmeKnobs({ clientCount: 0 }),
         properties: [],
       });
 
@@ -53,7 +53,7 @@ describe('server 500 mid batch full retry idempotent', () => {
       await using run = await start(acmeSystem, {
         seed: seed + 10,
         host: syncVirtualHost(),
-        draws: acmeDraws({ clientCount: 0 }),
+        knobs: acmeKnobs({ clientCount: 0 }),
         properties: [],
       });
 

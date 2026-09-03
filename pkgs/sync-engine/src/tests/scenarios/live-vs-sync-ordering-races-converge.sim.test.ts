@@ -2,7 +2,7 @@ import { describe, test } from 'bun:test';
 import { type Run, start } from '@pkgs/dst';
 import type { SyncSurface } from '../../sim/scenario';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   connect,
@@ -87,7 +87,7 @@ describe('live vs sync ordering races converge', () => {
     await using run = await start(acmeSystem, {
       seed: 301,
       host: syncVirtualHost(),
-      draws: acmeDraws({
+      knobs: acmeKnobs({
         clientCount: 0,
         rowImageFanout: false,
       }),
@@ -101,7 +101,7 @@ describe('live vs sync ordering races converge', () => {
     await using run = await start(acmeSystem, {
       seed: 302,
       host: syncVirtualHost(),
-      draws: acmeDraws({
+      knobs: acmeKnobs({
         clientCount: 0,
         rowImageFanout: false,
       }),
@@ -116,7 +116,7 @@ describe('live vs sync ordering races converge', () => {
       await using run = await start(acmeSystem, {
         seed: 310,
         host: syncVirtualHost(),
-        draws: acmeDraws({
+        knobs: acmeKnobs({
           clientCount: 0,
           rowImageFanout: false,
         }),
@@ -130,7 +130,7 @@ describe('live vs sync ordering races converge', () => {
       await using run = await start(acmeSystem, {
         seed: 320,
         host: syncVirtualHost(),
-        draws: acmeDraws({
+        knobs: acmeKnobs({
           clientCount: 0,
           rowImageFanout: false,
         }),
@@ -145,7 +145,7 @@ describe('live vs sync ordering races converge', () => {
     await using run = await start(acmeSystem, {
       seed: 303,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 
@@ -164,7 +164,7 @@ describe('live vs sync ordering races converge', () => {
     await using run = await start(acmeSystem, {
       seed: 304,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 
@@ -188,7 +188,7 @@ describe('live vs sync ordering races converge', () => {
     await using run = await start(acmeSystem, {
       seed: 305,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 
@@ -210,7 +210,7 @@ describe('live vs sync ordering races converge', () => {
     await using run = await start(acmeSystem, {
       seed: 306,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 

@@ -15,16 +15,19 @@ function range(n: number): number[] {
   return Array.from({ length: n }, (_, i) => i);
 }
 
+export type SyncKnobs = {
+  readonly clients: number;
+};
+
 /**
  * Toy sync-shaped system: in-memory notes + pending uploads over the model
  * network (stands in for mutate / SELECT md5 aggregates — no real SQL).
  */
 export const sync = defineSystem({
   name: 'acme-sync',
-  *generate(session) {
-    const clients = yield* draw(gen(fc.integer({ min: 1, max: 3 })));
+  *generate(session, knobs: SyncKnobs) {
     const server = startServer(session.fork('server'));
-    const clientList = range(clients).map((i) =>
+    const clientList = range(knobs.clients).map((i) =>
       startClient(session.fork(`client:${i}`), server)
     );
     return { session, server, clients: clientList } satisfies SyncSurface;
@@ -64,8 +67,8 @@ export const quiet = defineObservation({
 export const converged = defineObservation({
   name: 'converged',
   *observe() {
-    const [sv, cs] = yield* observe(serverNotes, clientNotes);
-    return cs.every((c) => c.h === sv.h && c.n === sv.n);
+    const o = yield* observe({ serverNotes, clientNotes });
+    return o.clientNotes.every((c) => c.h === o.serverNotes.h && c.n === o.serverNotes.n);
   },
 });
 
@@ -81,20 +84,10 @@ export const partitioned = defineObservation({
 
 export const createNote = defineAction({
   name: 'createNote',
-  *generate() {
-    const ids = yield* clientIds;
-    if (ids.length === 0) return;
-    const { client, body } = yield* draw(
-      gen(
-        fc.record({
-          client: fc.constantFrom(...(ids as string[])),
-          body: fc.string({ maxLength: 20 }),
-        })
-      )
-    );
-    yield {
+  generate(client: string, body: string) {
+    return {
       weight: 3,
-      act: (s: SyncSurface) => {
+      act: (s) => {
         const c = s.clients.find((x) => x.id === client);
         if (c === undefined) return;
         createNoteOnClient({
@@ -108,26 +101,41 @@ export const createNote = defineAction({
   },
 });
 
+export const randomCreateNote = defineAction({
+  name: 'randomCreateNote',
+  *generate() {
+    const ids = yield* clientIds;
+    if (ids.length === 0) return;
+    const { client, body } = yield* draw(
+      gen(
+        fc.record({
+          client: fc.constantFrom(...(ids as string[])),
+          body: fc.string({ maxLength: 20 }),
+        })
+      )
+    );
+    yield* createNote(client, body);
+  },
+});
+
 export const partition = defineAction({
   name: 'partition',
-  *generate() {
-    const [c, ids] = yield* observe(caps, clientIds);
-    if (
-      !(c as string[]).includes('partition') ||
-      (ids as string[]).length === 0
-    ) {
-      return;
-    }
-    const id = yield* draw(
-      (rng) =>
-        (ids as string[])[Math.floor(rng.next() * (ids as string[]).length)]!
-    );
-    yield {
-      weight: 2,
-      act: (s: SyncSurface) => {
-        s.session.network.partition('server', id);
-      },
+  generate(id: string) {
+    return (s) => {
+      s.session.network.partition('server', id);
     };
+  },
+});
+
+export const randomPartition = defineAction({
+  name: 'randomPartition',
+  *generate() {
+    const o = yield* observe({ caps, clientIds });
+    if (!o.caps.includes('partition') || o.clientIds.length === 0) return;
+    const id = yield* draw(
+      (rng) => o.clientIds[Math.floor(rng.next() * o.clientIds.length)]!
+    );
+    yield* partition(id);
   },
 });
 
@@ -137,7 +145,7 @@ export const heal = defineAction({
     if (!(yield* caps).includes('partition')) return;
     yield {
       weight: 2,
-      act: (s: SyncSurface) => {
+      act: (s) => {
         s.session.network.healAll();
         rebroadcastNotes(s.server);
         for (const c of s.clients) flushPending(s.server, c);
@@ -148,35 +156,45 @@ export const heal = defineAction({
 
 export const passTime = defineAction({
   name: 'passTime',
+  generate(ms: number) {
+    return (s) => s.session.scheduler.advance(ms);
+  },
+});
+
+export const randomPassTime = defineAction({
+  name: 'randomPassTime',
   *generate() {
-    const [c, p] = yield* observe(caps, pending);
-    if (!(c as string[]).includes('virtualTime')) return;
+    const o = yield* observe({ caps, pending });
+    if (!o.caps.includes('virtualTime')) return;
+    const pendingTotal = o.pending.reduce((a, b) => a + b, 0);
     const ms = yield* draw((rng) => Math.floor(rng.next() * 5_000));
     yield {
-      weight: 1 + (p as number[]).reduce((a, b) => a + b, 0),
-      act: (s: SyncSurface) => s.session.scheduler.advance(ms),
+      weight: 1 + pendingTotal,
+      act: (s) => s.session.scheduler.advance(ms),
     };
   },
 });
 
-export const SYNC_ACTIONS = [createNote, partition, heal, passTime];
+export const SYNC_ACTIONS = [
+  randomCreateNote,
+  randomPartition,
+  heal,
+  randomPassTime,
+] as const;
 
 export const converges = defineProperty({
   name: 'converges',
   *watch() {
-    while (true) {
-      const [q, ok, cut] = (yield observe(quiet, converged, partitioned)) as [
-        boolean,
-        boolean,
-        string[],
-      ];
-      if (q && cut.length === 0 && !ok) {
-        throw new Error('quiet but diverged');
-      }
+    const o = yield* observe({ quiet, converged, cut: partitioned });
+    if (o.quiet && o.cut.length === 0 && !o.converged) {
+      throw new Error('quiet but diverged');
     }
   },
 });
 
 export const SYNC_PROPERTIES = [converges];
+
+export const arbSyncKnobs = (): fc.Arbitrary<SyncKnobs> =>
+  fc.record({ clients: fc.integer({ min: 1, max: 3 }) });
 
 export type { SyncSurface };

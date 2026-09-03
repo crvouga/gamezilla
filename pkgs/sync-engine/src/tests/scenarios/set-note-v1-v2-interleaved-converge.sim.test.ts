@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeMutationRegistry,
   acmeSystem,
   addClient,
@@ -28,7 +28,7 @@ describe('set note v1 v2 interleaved converge', () => {
     await using run = await start(acmeSystem, {
       seed: 660,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 
@@ -63,7 +63,7 @@ describe('set note v1 v2 interleaved converge', () => {
     await using run = await start(acmeSystem, {
       seed: 661,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 

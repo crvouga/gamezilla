@@ -29,22 +29,23 @@ function range(n: number): number[] {
 const KEYS = ['a', 'b', 'c'] as const;
 const VALUES = ['1', '2', ''] as const;
 
+export type SqlClientWebKnobs = {
+  readonly tabCount: number;
+  readonly poolCapacity: number;
+  readonly schemaEpoch: number;
+  readonly backend: SqlClientWebBackend;
+};
+
 export const sqlClientWeb = defineSystem({
   name: 'sql-client.web',
-  async *generate(session) {
-    const tabCount = yield* draw(gen(fc.integer({ min: 1, max: 3 })));
-    const poolCapacity = yield* draw(gen(fc.constantFrom(2, 6)));
-    const schemaEpoch = yield* draw(gen(fc.constant(1)));
-    const backend = yield* draw(
-      gen(fc.constantFrom<SqlClientWebBackend>('web-sim-opfs', 'sqlite-mem'))
-    );
+  generate(session, knobs: SqlClientWebKnobs) {
     const storeSession = session.fork('store');
     const { board } = startStore(storeSession, {
-      poolCapacity,
-      schemaEpoch,
-      backend,
+      poolCapacity: knobs.poolCapacity,
+      schemaEpoch: knobs.schemaEpoch,
+      backend: knobs.backend,
     });
-    const tabIds = range(tabCount).map((i) => `t${String(i)}`);
+    const tabIds = range(knobs.tabCount).map((i) => `t${String(i)}`);
     for (const id of tabIds) {
       startTab(session.fork(id), board, id);
     }
@@ -94,18 +95,29 @@ export const openOwnerCount = defineObservation({
 
 export const passTime = defineAction({
   name: 'passTime',
+  generate(ms: number) {
+    return (s) => s.session.scheduler.advance(ms);
+  },
+});
+
+export const randomPassTime = defineAction({
+  name: 'randomPassTime',
   *generate() {
     if (!(yield* caps).includes('virtualTime')) return;
     const ms = yield* draw((rng) => Math.floor(rng.next() * 5_000));
-    yield {
-      weight: 1,
-      act: (s: SqlClientWebSurface) => s.session.scheduler.advance(ms),
-    };
+    yield* passTime(ms);
   },
 });
 
 export const connect = defineAction({
   name: 'connect',
+  generate(tabId: string) {
+    return (s) => connectTab(boardOf(s), tabId);
+  },
+});
+
+export const randomConnect = defineAction({
+  name: 'randomConnect',
   *generate() {
     const ids = yield* tabIdList;
     if (ids.length === 0) return;
@@ -119,6 +131,13 @@ export const connect = defineAction({
 
 export const disconnect = defineAction({
   name: 'disconnect',
+  generate(tabId: string) {
+    return (s) => disconnectTab(boardOf(s), tabId);
+  },
+});
+
+export const randomDisconnect = defineAction({
+  name: 'randomDisconnect',
   *generate() {
     const ids = yield* tabIdList;
     if (ids.length === 0) return;
@@ -130,8 +149,28 @@ export const disconnect = defineAction({
   },
 });
 
+export type PutArgs = {
+  readonly tabId: string;
+  readonly key: string;
+  readonly value: string;
+};
+
 export const put = defineAction({
   name: 'put',
+  generate(payload: PutArgs) {
+    return async (s) => {
+      const state = boardOf(s);
+      const client = await connectTab(state, payload.tabId);
+      if (client === null) return;
+      await writeToyRow(client, payload.key, payload.value);
+      state.expected.set(payload.key, payload.value);
+      persistImage(state, client);
+    };
+  },
+});
+
+export const randomPut = defineAction({
+  name: 'randomPut',
   *generate() {
     const ids = yield* tabIdList;
     if (ids.length === 0) return;
@@ -144,22 +183,35 @@ export const put = defineAction({
         })
       )
     );
-    yield {
-      weight: 3,
-      act: async (s: SqlClientWebSurface) => {
-        const state = boardOf(s);
-        const client = await connectTab(state, payload.tabId);
-        if (client === null) return;
-        await writeToyRow(client, payload.key, payload.value);
-        state.expected.set(payload.key, payload.value);
-        persistImage(state, client);
-      },
+    yield* put(payload);
+  },
+});
+
+export type GetArgs = {
+  readonly tabId: string;
+  readonly key: string;
+};
+
+export const get = defineAction({
+  name: 'get',
+  generate(payload: GetArgs) {
+    return async (s) => {
+      const state = boardOf(s);
+      const client = await connectTab(state, payload.tabId);
+      if (client === null) return;
+      const got = await readToyRow(client, payload.key);
+      const want = state.expected.get(payload.key) ?? null;
+      if (got !== want) {
+        state.mismatches.push(
+          `tab ${payload.tabId} read ${payload.key}=${String(got)} want ${String(want)}`
+        );
+      }
     };
   },
 });
 
-export const get = defineAction({
-  name: 'get',
+export const randomGet = defineAction({
+  name: 'randomGet',
   *generate() {
     const ids = yield* tabIdList;
     if (ids.length === 0) return;
@@ -171,80 +223,61 @@ export const get = defineAction({
         })
       )
     );
-    yield {
-      weight: 3,
-      act: async (s: SqlClientWebSurface) => {
-        const state = boardOf(s);
-        const client = await connectTab(state, payload.tabId);
-        if (client === null) return;
-        const got = await readToyRow(client, payload.key);
-        const want = state.expected.get(payload.key) ?? null;
-        if (got !== want) {
-          state.mismatches.push(
-            `tab ${payload.tabId} read ${payload.key}=${String(got)} want ${String(want)}`
-          );
-        }
-      },
-    };
+    yield* get(payload);
   },
 });
 
 export const killTabAction = defineAction({
   name: 'killTab',
+  generate(tabId: string) {
+    return (s) => killTab(boardOf(s), tabId);
+  },
+});
+
+export const randomKillTab = defineAction({
+  name: 'randomKillTab',
   *generate() {
     const ids = yield* tabIdList;
     if (ids.length === 0) return;
     const tabId = yield* draw(gen(fc.constantFrom(...(ids as string[]))));
-    yield {
-      weight: 1,
-      act: (s: SqlClientWebSurface) => killTab(boardOf(s), tabId),
-    };
+    yield* killTabAction(tabId);
   },
 });
 
 export const fillPool = defineAction({
   name: 'fillPool',
-  *generate() {
-    yield {
-      weight: 1,
-      act: (s: SqlClientWebSurface) => {
-        fillSimOpfsPool(requireStore(boardOf(s)));
-      },
+  generate() {
+    return (s) => {
+      fillSimOpfsPool(requireStore(boardOf(s)));
     };
   },
 });
 
 export const corruptStore = defineAction({
   name: 'corruptStore',
-  *generate() {
-    yield {
-      weight: 1,
-      act: (s: SqlClientWebSurface) => {
-        corruptSimOpfsStore(requireStore(boardOf(s)));
-      },
+  generate() {
+    return (s) => {
+      corruptSimOpfsStore(requireStore(boardOf(s)));
     };
   },
 });
 
 export const bumpEpoch = defineAction({
   name: 'bumpEpoch',
-  *generate() {
-    yield {
-      weight: 1,
-      act: (s: SqlClientWebSurface) => {
-        boardOf(s).epoch += 1;
-      },
+  generate() {
+    return (s) => {
+      boardOf(s).epoch += 1;
     };
   },
 });
 
 export const SQL_CLIENT_WEB_ACTIONS = [
-  passTime,
-  connect,
-  disconnect,
-  put,
-  get,
-  killTabAction,
+  randomPassTime,
+  randomConnect,
+  randomDisconnect,
+  randomPut,
+  randomGet,
+  randomKillTab,
   fillPool,
   corruptStore,
   bumpEpoch,
@@ -253,24 +286,27 @@ export const SQL_CLIENT_WEB_ACTIONS = [
 export const converged = defineProperty({
   name: 'converged',
   *watch() {
-    while (true) {
-      const [mismatches, owners] = (yield observe(
-        mismatchCount,
-        openOwnerCount
-      )) as [number, number];
-      if (mismatches > 0) {
-        throw new Error(
-          `sql-client.web.stale-read: ${mismatches} mismatch(es)`
-        );
-      }
-      if (owners > 1) {
-        throw new Error(`sql-client.web.multi-owner: ${owners}`);
-      }
+    const o = yield* observe({ mismatchCount, openOwnerCount });
+    if (o.mismatchCount > 0) {
+      throw new Error(
+        `sql-client.web.stale-read: ${o.mismatchCount} mismatch(es)`
+      );
+    }
+    if (o.openOwnerCount > 1) {
+      throw new Error(`sql-client.web.multi-owner: ${o.openOwnerCount}`);
     }
   },
 });
 
 export const SQL_CLIENT_WEB_PROPERTIES = [converged];
+
+export const arbSqlClientWebKnobs = (): fc.Arbitrary<SqlClientWebKnobs> =>
+  fc.record({
+    tabCount: fc.integer({ min: 1, max: 3 }),
+    poolCapacity: fc.constantFrom(2, 6),
+    schemaEpoch: fc.constant(1),
+    backend: fc.constantFrom<SqlClientWebBackend>('web-sim-opfs', 'sqlite-mem'),
+  });
 
 export const SQL_CLIENT_WEB_SYSTEM = sqlClientWeb;
 export type SqlClientWebSystemDef = typeof sqlClientWeb;

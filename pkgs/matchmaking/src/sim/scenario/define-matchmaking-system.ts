@@ -1,4 +1,4 @@
-import { defineSystem, draw, type Run, start } from '@pkgs/dst';
+import { defineSystem, type Run, start } from '@pkgs/dst';
 import { gen } from '@pkgs/dst/fast-check';
 import { asSeededRng } from '@pkgs/dst/kernel';
 import fc from 'fast-check';
@@ -19,6 +19,28 @@ function range(n: number): number[] {
   return Array.from({ length: n }, (_, i) => i);
 }
 
+export type MatchmakingKnobs = {
+  readonly replicas: number;
+  readonly backend: MatchmakingSimBackend;
+};
+
+export const DEFAULT_MATCHMAKING_KNOBS: MatchmakingKnobs = {
+  replicas: 1,
+  backend: 'sqlite',
+};
+
+export function matchmakingKnobs(
+  knobs?: Partial<MatchmakingKnobs>
+): MatchmakingKnobs {
+  return { ...DEFAULT_MATCHMAKING_KNOBS, ...knobs };
+}
+
+export const arbMatchmakingKnobs = (): fc.Arbitrary<MatchmakingKnobs> =>
+  fc.record({
+    replicas: fc.integer({ min: 1, max: 3 }),
+    backend: fc.constant('sqlite' as MatchmakingSimBackend),
+  });
+
 export type DefineMatchmakingSystemOpts = MatchmakingSystemOpts & {
   readonly name?: string;
 };
@@ -29,14 +51,10 @@ function defineMatchmakingSystemInner(
 ) {
   return defineSystem({
     name: opts?.name ?? 'matchmaking.replicas',
-    async *generate(session) {
-      const replicaCount = yield* draw(gen(fc.integer({ min: 1, max: 3 })));
-      const backend = yield* draw(
-        gen(fc.constant('sqlite' as MatchmakingSimBackend))
-      );
-      const { store } = await startStore(session.fork('store'), backend);
+    async generate(session, knobs: MatchmakingKnobs) {
+      const { store } = await startStore(session.fork('store'), knobs.backend);
       const boots = await Promise.all(
-        range(replicaCount).map((i) => {
+        range(knobs.replicas).map((i) => {
           const id = `r${String(i)}`;
           return startReplica(session.fork(id), store, id, config);
         })
@@ -107,9 +125,15 @@ export async function startMatchmaking(
 ): Promise<Run<MatchmakingSurface>> {
   return start(systemFor(args), {
     seed: args.seed,
-    draws: [args.replicas ?? 1, args.backend ?? 'sqlite'],
+    knobs: matchmakingKnobs({
+      ...(args.replicas !== undefined ? { replicas: args.replicas } : {}),
+      ...(args.backend !== undefined ? { backend: args.backend } : {}),
+    }),
     properties: MATCHMAKING_PROPERTIES,
   });
 }
 
 export type { MatchmakingSurface };
+
+/** Gen for `check(..., { knobs })` campaigns. */
+export const genMatchmakingKnobs = () => gen(arbMatchmakingKnobs());

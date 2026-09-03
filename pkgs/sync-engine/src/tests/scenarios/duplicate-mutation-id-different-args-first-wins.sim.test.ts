@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   deviceId,
@@ -25,7 +25,7 @@ describe('duplicate mutation id different args first wins', () => {
       await using run = await start(acmeSystem, {
         seed: seed,
         host: syncVirtualHost(),
-        draws: acmeDraws({
+        knobs: acmeKnobs({
           clientCount: 0,
         }),
         properties: [],
@@ -48,7 +48,7 @@ describe('duplicate mutation id different args first wins', () => {
           id: firstId!,
           name: 'setNote',
           args: JSON.stringify({ id: 'n1', body: 'second-should-lose' }),
-          clientId: await run.observe(deviceId('alice')),
+          clientId: (await run.observe(deviceId('alice')))!,
           seq: 999,
           createdAt: new Date(
             await run.observe(nodeNow('alice'))

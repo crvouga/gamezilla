@@ -1,7 +1,7 @@
 import { describe, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
@@ -19,7 +19,7 @@ describe('content reverts hash matches not modified sound', () => {
     await using run = await start(acmeSystem, {
       seed: 803,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 

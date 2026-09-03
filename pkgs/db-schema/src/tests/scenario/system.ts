@@ -15,13 +15,18 @@ function range(n: number): number[] {
 
 const PLAN_HASH_HEX_LENGTH = 64;
 
+export type SchemaKnobs = {
+  readonly clients: number;
+};
+
 export const schema = defineSystem({
   name: 'db-schema.reconcile',
-  async *generate(session) {
-    const clientCount = yield* draw(gen(fc.integer({ min: 1, max: 3 })));
+  async generate(session, knobs: SchemaKnobs) {
     const server = await startServer(session.fork('server'));
     const clients = await Promise.all(
-      range(clientCount).map((i) => startClient(session.fork(`client:${i}`), i))
+      range(knobs.clients).map((i) =>
+        startClient(session.fork(`client:${i}`), i)
+      )
     );
     return { session, server, clients } satisfies SchemaSurface;
   },
@@ -77,8 +82,20 @@ export const alignmentViolations = defineObservation({
   },
 });
 
+export type AdvanceArgs = {
+  readonly target: string;
+  readonly to: SchemaVersion;
+};
+
 export const advance = defineAction({
   name: 'advance',
+  generate(args: AdvanceArgs) {
+    return (s) => applyAdvance(s, args.target, args.to);
+  },
+});
+
+export const randomAdvance = defineAction({
+  name: 'randomAdvance',
   *generate() {
     const ids = yield* peerIdList;
     if (ids.length === 0) return;
@@ -102,26 +119,24 @@ export const advance = defineAction({
 
 export const forbidden = defineAction({
   name: 'forbidden',
-  *generate() {
-    yield {
-      weight: 3,
-      act: (s: SchemaSurface) => applyForbidden(s),
-    };
+  generate() {
+    return (s) => applyForbidden(s);
   },
 });
 
-export const SCHEMA_ACTIONS = [advance, forbidden];
+export const SCHEMA_ACTIONS = [randomAdvance, forbidden];
 
 export const aligned = defineProperty({
   name: 'aligned',
   *watch() {
-    while (true) {
-      const v = (yield alignmentViolations) as string[];
-      if (v.length > 0) throw new Error(v[0]!);
-    }
+    const v = yield* alignmentViolations;
+    if (v.length > 0) throw new Error(v[0]!);
   },
 });
 
 export const SCHEMA_PROPERTIES = [aligned];
+
+export const arbSchemaKnobs = (): fc.Arbitrary<SchemaKnobs> =>
+  fc.record({ clients: fc.integer({ min: 1, max: 3 }) });
 
 export { SCHEMA_SERVER_ID };

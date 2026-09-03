@@ -1,7 +1,7 @@
 import { describe, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
@@ -20,7 +20,7 @@ describe('sync hold reorder dup still converges', () => {
     await using run = await start(acmeSystem, {
       seed: 503,
       host: syncVirtualHost(),
-      draws: acmeDraws({
+      knobs: acmeKnobs({
         clientCount: 0,
         rowImageFanout: false,
       }),
@@ -45,7 +45,7 @@ describe('sync hold reorder dup still converges', () => {
     await using run = await start(acmeSystem, {
       seed: 504,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 
@@ -68,7 +68,7 @@ describe('sync hold reorder dup still converges', () => {
     await using run = await start(acmeSystem, {
       seed: 505,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 

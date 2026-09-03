@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
@@ -19,7 +19,7 @@ describe('capture includes all written tables', () => {
     await using run = await start(acmeSystem, {
       seed: 1070,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0, rowImageFanout: true }),
+      knobs: acmeKnobs({ clientCount: 0, rowImageFanout: true }),
       properties: [],
     });
 
@@ -54,7 +54,7 @@ describe('capture includes all written tables', () => {
       await using run = await start(acmeSystem, {
         seed: seed,
         host: syncVirtualHost(),
-        draws: acmeDraws({ clientCount: 0, rowImageFanout: true }),
+        knobs: acmeKnobs({ clientCount: 0, rowImageFanout: true }),
         properties: [],
       });
 

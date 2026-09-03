@@ -110,7 +110,7 @@ function nodeExpect(
         path,
         expected,
         exact: options?.exact ?? true,
-        options,
+        ...(options !== undefined ? { options } : {}),
       }),
   };
 }
@@ -134,7 +134,7 @@ function runWait(args: {
     path: args.path,
     expected: args.state.text,
     exact: args.state.exact ?? true,
-    options: args.options,
+    ...(args.options !== undefined ? { options: args.options } : {}),
   });
 }
 
@@ -169,7 +169,14 @@ function wrapNode(
           ...(amount !== undefined ? { amount } : {}),
         })
       ),
-    wait: (state, options) => runWait({ run, actorId, path, state, options }),
+    wait: (state, options) =>
+      runWait({
+        run,
+        actorId,
+        path,
+        state,
+        ...(options !== undefined ? { options } : {}),
+      }),
     expect: nodeExpect(run, actorId, path),
     isVisible: () => run.observe(visible(actorId, path)),
     text: () => run.observe(nodeText(actorId, path)),

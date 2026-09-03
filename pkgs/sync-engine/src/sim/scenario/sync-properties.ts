@@ -1,4 +1,4 @@
-import { defineProperty, observe } from '@pkgs/dst';
+import { defineSurface, observe } from '@pkgs/dst';
 
 import {
   clock,
@@ -7,16 +7,17 @@ import {
   partitioned,
   quiet,
 } from './sync-observations';
+import type { SyncSurface } from './system';
+
+const { defineProperty } = defineSurface<SyncSurface>();
 
 /** always(invariants hold) — read-only checkInvariants */
 export const invariantsHold = defineProperty({
   name: 'invariants',
   *watch() {
-    while (true) {
-      const violations = (yield invariantViolations) as string[];
-      if (violations.length > 0) {
-        throw new Error(violations.join('; '));
-      }
+    const o = yield* observe({ violations: invariantViolations });
+    if (o.violations.length > 0) {
+      throw new Error(o.violations.join('; '));
     }
   },
 });
@@ -28,15 +29,9 @@ export const invariantsHold = defineProperty({
 export const converges = defineProperty({
   name: 'converges',
   *watch() {
-    while (true) {
-      const [q, cut, ok] = (yield observe(quiet, partitioned, converged)) as [
-        boolean,
-        string[],
-        boolean,
-      ];
-      if (q && cut.length === 0 && !ok) {
-        throw new Error('quiet and healed but not converged');
-      }
+    const o = yield* observe({ quiet, cut: partitioned, converged });
+    if (o.quiet && o.cut.length === 0 && !o.converged) {
+      throw new Error('quiet and healed but not converged');
     }
   },
 });
@@ -49,24 +44,19 @@ export const converges = defineProperty({
 export const eventuallyConverges = defineProperty({
   name: 'eventuallyConverges',
   *watch() {
+    const start = yield* observe({ quiet, cut: partitioned, clock });
+    if (!start.quiet || start.cut.length > 0) return;
+    const t0 = start.clock;
     while (true) {
-      const [q, cut, t0] = (yield observe(quiet, partitioned, clock)) as [
-        boolean,
-        string[],
-        number,
-      ];
-      if (!q || cut.length > 0) continue;
-      while (true) {
-        const [q2, cut2, ok, t] = (yield observe(
-          quiet,
-          partitioned,
-          converged,
-          clock
-        )) as [boolean, string[], boolean, number];
-        if (!q2 || cut2.length > 0 || ok) break;
-        if (t - t0 > 10_000) {
-          throw new Error(`still diverged ${t - t0}ms after going quiet`);
-        }
+      const o = yield* observe({
+        quiet,
+        cut: partitioned,
+        converged,
+        clock,
+      });
+      if (!o.quiet || o.cut.length > 0 || o.converged) break;
+      if (o.clock - t0 > 10_000) {
+        throw new Error(`still diverged ${o.clock - t0}ms after going quiet`);
       }
     }
   },

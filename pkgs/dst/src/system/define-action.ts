@@ -1,21 +1,62 @@
-import { ACTION_TAG, type Action, type Body, type Effect } from './effect';
+import {
+  ACTION_TAG,
+  type Action,
+  type ActionBody,
+  type BoundAction,
+  BOUND_ACTION_TAG,
+} from './effect';
 
-export function defineAction<S>(def: {
+/** Infer parameter tuple from a generate function. */
+type ArgsOf<G> = G extends (...args: infer A) => unknown ? A : [];
+
+/**
+ * `never[]` (not `unknown[]`) so typed params like `(id: string)` remain
+ * assignable under function parameter contravariance.
+ */
+export function defineAction<
+  S,
+  G extends (...args: never[]) => ActionBody<S>,
+>(def: {
   readonly name: string;
-  readonly generate: () =>
-    | Generator<Effect<S>, void, unknown>
-    | AsyncGenerator<Effect<S>, void, unknown>;
-}): Action<S> {
+  readonly generate: G;
+}): Action<S, ArgsOf<G>> {
   if (!def.name) throw new Error('defineAction: name is required');
-  const a: Action<S> = {
-    [ACTION_TAG]: true,
-    name: def.name,
-    generate: def.generate,
-    *[Symbol.iterator]() {
-      yield a;
+
+  type A = ArgsOf<G>;
+
+  const a = function bind(...args: A): BoundAction<S> {
+    const bound: BoundAction<S> = {
+      [BOUND_ACTION_TAG]: true,
+      action: a as unknown as Action<S, unknown[]>,
+      args,
+      *[Symbol.iterator]() {
+        yield bound;
+      },
+    };
+    return bound;
+  } as Action<S, A>;
+
+  Object.defineProperties(a, {
+    [ACTION_TAG]: { value: true, enumerable: true },
+    generate: {
+      value: def.generate as (...args: A) => ActionBody<S>,
+      enumerable: true,
     },
-  };
+    [Symbol.iterator]: {
+      value: function* (): Generator<
+        Action<S, A> | BoundAction<S>,
+        void,
+        void
+      > {
+        yield a;
+      },
+      enumerable: false,
+    },
+  });
+  Object.defineProperty(a, 'name', {
+    value: def.name,
+    configurable: true,
+  });
+
   return a;
 }
-
-export type { Body };

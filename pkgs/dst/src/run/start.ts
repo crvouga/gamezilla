@@ -1,28 +1,38 @@
 import type { Host, Ports, Session } from '../host/types';
 import { virtualHost } from '../host/virtual-host';
 import type { JsonValue } from '../kernel/json';
-import { createScriptedDraws, type Rng } from '../kernel/rng';
+import type { Rng } from '../kernel/rng';
 import type { System } from '../system/define-system';
-import type { Action, Observation, Property } from '../system/effect';
+import type {
+  Action,
+  BoundObservation,
+  Observation,
+  Property,
+} from '../system/effect';
 import type { Choice } from '../system/repro';
 import {
+  applyWithArgs,
   checkpoint,
   closeMonitors,
   type MonitorState,
   PropertyViolation,
   resumeMonitors,
-  scriptedApply,
   type Transition,
 } from './checkpoint';
 import { type DriveContext, drive, resolveObservation } from './drive';
 import { ActionNotEnabled, finishProbed, probe } from './probe';
 
 export type Run<S> = {
-  readonly apply: (
-    action: Action<S>,
-    ...draws: readonly unknown[]
+  readonly apply: <A extends unknown[]>(
+    action: Action<S, A>,
+    ...args: A
   ) => Promise<void>;
-  readonly observe: <T extends JsonValue>(o: Observation<S, T>) => Promise<T>;
+  readonly observe: <T extends JsonValue>(
+    o:
+      | Observation<S, [], T>
+      | BoundObservation<S, T>
+      | Observation<S, unknown[], T>
+  ) => Promise<T>;
   readonly assert: (p: Property<S>) => Promise<void>;
   readonly [Symbol.asyncDispose]: () => Promise<void>;
 };
@@ -33,6 +43,7 @@ export type RunInternal<S> = {
   readonly session: Session;
   readonly systemName: string;
   readonly systemDraws: readonly number[];
+  readonly knobs: unknown;
   readonly memo: Map<string, JsonValue>;
   readonly monitors: MonitorState[];
   readonly transitions: Transition[];
@@ -53,12 +64,15 @@ export function getRunInternal<S>(run: Run<S>): RunInternal<S> {
   return internal as RunInternal<S>;
 }
 
-export type StartOptions<S> = {
+type KnobsOption<K> = [K] extends [void]
+  ? { readonly knobs?: undefined }
+  : { readonly knobs: K };
+
+export type StartOptions<S, K = void> = {
   readonly seed: number | bigint | string;
   readonly host?: Host<Ports>;
-  readonly draws?: readonly unknown[];
   readonly properties?: readonly Property<S>[];
-};
+} & KnobsOption<K>;
 
 function recordingRng(base: Rng, buf: number[]): Rng {
   const wrap = (r: Rng): Rng => ({
@@ -82,9 +96,19 @@ async function bootMonitors(monitors: MonitorState[]): Promise<void> {
           ? await (m.body as AsyncGenerator<unknown, void, unknown>).next()
           : (m.body as Generator<unknown, void, unknown>).next();
       if (!r.done) {
-        m.pending = r.value as Observation<unknown, JsonValue>;
+        m.pending = r.value as MonitorState['pending'];
       } else {
-        m.closed = true;
+        // Restart immediately so empty-first-yield still watches next checkpoint.
+        m.body = m.property.watch() as MonitorState['body'];
+        const again =
+          Symbol.asyncIterator in Object(m.body)
+            ? await (m.body as AsyncGenerator<unknown, void, unknown>).next()
+            : (m.body as Generator<unknown, void, unknown>).next();
+        if (!again.done) {
+          m.pending = again.value as MonitorState['pending'];
+        } else {
+          m.pending = null;
+        }
       }
     } catch (e) {
       throw new PropertyViolation(m.property.name, 0, e);
@@ -104,7 +128,9 @@ async function assertOnce<S>(
         ? await (body as AsyncGenerator<unknown, void, unknown>).next()
         : (body as Generator<unknown, void, unknown>).next();
     if (first.done) return;
-    const obs = first.value as Observation<S, JsonValue>;
+    const obs = first.value as
+      | Observation<S, unknown[], JsonValue>
+      | BoundObservation<S, JsonValue>;
     const value = await resolveObservation(obs, ctx);
     if (Symbol.asyncIterator in Object(body)) {
       await (body as AsyncGenerator<unknown, void, unknown>).next(value);
@@ -128,8 +154,9 @@ async function assertOnce<S>(
 function buildRun<S>(args: {
   readonly surface: S;
   readonly session: Session;
-  readonly system: System<S>;
+  readonly system: System<S, unknown>;
   readonly systemDraws: number[];
+  readonly knobs: unknown;
   readonly memo: Map<string, JsonValue>;
   readonly monitors: MonitorState[];
   readonly actionRng: Rng;
@@ -141,6 +168,7 @@ function buildRun<S>(args: {
     session: args.session,
     systemName: args.system.name,
     systemDraws: args.systemDraws,
+    knobs: args.knobs,
     memo: args.memo,
     monitors: args.monitors,
     transitions,
@@ -156,28 +184,29 @@ function buildRun<S>(args: {
   };
 
   const run: Run<S> = {
-    async apply(action, ...draws) {
+    async apply(action, ...applyArgs) {
       const ctx = internal.ctx();
       internal.step += 1;
       const t = internal.step;
       const result =
-        draws.length > 0
-          ? await scriptedApply({
-              action,
-              draws,
+        applyArgs.length > 0
+          ? await applyWithArgs({
+              action: action as Action<S, unknown[]>,
+              applyArgs,
               ctx,
               monitors: args.monitors,
               t,
             })
           : await (async () => {
               const probed = await probe(
-                action,
+                action as Action<S, unknown[]>,
                 ctx,
-                internal.rng.fork(`step:${t}`)
+                internal.rng.fork(`step:${t}`),
+                []
               );
               if (!probed.enabled) throw new ActionNotEnabled(action.name);
               return checkpoint({
-                action,
+                action: action as Action<S, unknown[]>,
                 probed,
                 ctx,
                 monitors: args.monitors,
@@ -190,7 +219,9 @@ function buildRun<S>(args: {
     },
     async observe(o) {
       return (await resolveObservation(
-        o as Observation<S, JsonValue>,
+        o as
+          | Observation<S, unknown[], JsonValue>
+          | BoundObservation<S, JsonValue>,
         internal.ctx()
       )) as never;
     },
@@ -207,27 +238,25 @@ function buildRun<S>(args: {
   return run;
 }
 
-export async function start<S>(
-  system: System<S>,
-  opts: StartOptions<S>
+export async function start<S, K = void>(
+  system: System<S, K>,
+  opts: StartOptions<S, K>
 ): Promise<Run<S>> {
   const host = opts.host ?? virtualHost();
   const session = await host.open(opts.seed);
   const systemDraws: number[] = [];
   const memo = new Map<string, JsonValue>();
+  const knobs = ('knobs' in opts ? opts.knobs : undefined) as K;
   const genCtx: DriveContext<S> = {
     surface: null as unknown as S,
     session,
     memo,
     rng: recordingRng(session.ports.rng.fork('system'), systemDraws),
-    ...(opts.draws !== undefined
-      ? { scripted: createScriptedDraws(opts.draws) }
-      : { recordDraws: systemDraws }),
+    recordDraws: systemDraws,
   };
-  if (opts.draws !== undefined) systemDraws.length = 0;
 
   const surface = (await drive(
-    system.generate(session) as never,
+    system.generate(session, knobs as K) as never,
     'generate',
     genCtx
   )) as S;
@@ -255,8 +284,9 @@ export async function start<S>(
   return buildRun({
     surface,
     session,
-    system,
+    system: system as System<S, unknown>,
     systemDraws,
+    knobs,
     memo,
     monitors,
     actionRng: session.ports.rng.fork('actions'),

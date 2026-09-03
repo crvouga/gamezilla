@@ -1,7 +1,7 @@
 import { describe, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
@@ -20,7 +20,7 @@ describe('mid session authorize deny keeps domain rows', () => {
     await using run = await start(acmeSystem, {
       seed: 620,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 

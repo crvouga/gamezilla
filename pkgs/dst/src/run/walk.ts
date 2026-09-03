@@ -10,7 +10,8 @@ import { type ProbeResult, probe } from './probe';
 import { getRunInternal, type Run } from './start';
 
 export type WalkOptions<S> = {
-  readonly actions: readonly Action<S>[];
+  /** Only zero-arg actions may enter a random walk pool. */
+  readonly actions: readonly Action<S, []>[];
   readonly steps?: number;
   readonly budgetMs?: number;
   readonly stopOnViolation?: boolean;
@@ -18,6 +19,7 @@ export type WalkOptions<S> = {
 
 export type Walk = {
   readonly system: readonly number[];
+  readonly knobs: unknown;
   readonly transitions: readonly Transition[];
   readonly violations: readonly {
     readonly property: string;
@@ -32,7 +34,7 @@ export type Walk = {
 };
 
 type EnabledEntry<S> = {
-  readonly action: Action<S>;
+  readonly action: Action<S, []>;
   readonly probe: Extract<ProbeResult<S>, { enabled: true }>;
   readonly weight: number;
 };
@@ -51,20 +53,21 @@ function pickWeighted<T extends { weight: number }>(
 }
 
 async function probeAll<S>(
-  actions: readonly Action<S>[],
+  actions: readonly Action<S, []>[],
   ctx: DriveContext<S>,
   walkRng: Rng,
   steps: number
-): Promise<{ action: Action<S>; probe: ProbeResult<S> }[]> {
-  const out: { action: Action<S>; probe: ProbeResult<S> }[] = [];
+): Promise<{ action: Action<S, []>; probe: ProbeResult<S> }[]> {
+  const out: { action: Action<S, []>; probe: ProbeResult<S> }[] = [];
   for (let i = 0; i < actions.length; i++) {
     const action = actions[i]!;
     out.push({
       action,
       probe: await probe(
-        action,
+        action as Action<S, unknown[]>,
         ctx,
-        walkRng.fork(`probe:${steps}:${action.name}:${i}`)
+        walkRng.fork(`probe:${steps}:${action.name}:${i}`),
+        []
       ),
     });
   }
@@ -108,7 +111,7 @@ async function applyPickedStep<S>(args: {
   const internal = getRunInternal(args.run);
   try {
     const result = await checkpoint({
-      action: args.picked.action,
+      action: args.picked.action as Action<S, unknown[]>,
       probed: args.picked.probe,
       ctx: internal.ctx(),
       monitors: internal.monitors,
@@ -158,7 +161,7 @@ export async function walk<S>(
         (
           x
         ): x is {
-          action: Action<S>;
+          action: Action<S, []>;
           probe: Extract<ProbeResult<S>, { enabled: true }>;
         } => x.probe.enabled
       )
@@ -187,6 +190,7 @@ export async function walk<S>(
 
   return {
     system: internal.systemDraws.slice(),
+    knobs: internal.knobs,
     transitions,
     violations,
     coverage: { states, actions: actionCounts },

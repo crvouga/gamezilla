@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   createSpace,
@@ -29,7 +29,7 @@ describe('same actor open session stays device private', () => {
     await using run = await start(acmeSystem, {
       seed: 1401,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0, rowImageFanout: true }),
+      knobs: acmeKnobs({ clientCount: 0, rowImageFanout: true }),
       properties: [],
     });
 

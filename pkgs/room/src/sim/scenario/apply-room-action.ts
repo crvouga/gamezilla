@@ -1,4 +1,5 @@
 import type { Run } from '@pkgs/dst';
+import { RELIABLE_ROOM_FAULTS } from '../network';
 import type { RoomSystemAction } from './actions';
 import {
   addSpectator,
@@ -57,7 +58,7 @@ async function applyLibrary(
     case 'setFaults':
       return run.apply(setNet, {
         clientId: action.clientId,
-        next: action.faults,
+        next: { ...RELIABLE_ROOM_FAULTS, ...action.faults },
       });
     case 'asymmetricLink':
       return run.apply(setNet, {
@@ -73,7 +74,7 @@ async function applyLibrary(
       return run.apply(injectToServer, {
         clientId: action.clientId,
         raw: action.raw,
-        direct: action.direct,
+        ...(action.direct === true ? { direct: true as const } : {}),
       });
     case 'injectFromServer':
       return run.apply(injectFromServer, {

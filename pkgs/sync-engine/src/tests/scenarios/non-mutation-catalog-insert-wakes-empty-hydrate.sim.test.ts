@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
@@ -23,7 +23,7 @@ describe('non mutation catalog insert wakes empty hydrate', () => {
     await using run = await start(acmeSystem, {
       seed: 1401,
       host: syncVirtualHost(),
-      draws: acmeDraws({
+      knobs: acmeKnobs({
         clientCount: 0,
       }),
       properties: [],
@@ -49,7 +49,7 @@ describe('non mutation catalog insert wakes empty hydrate', () => {
     await using run = await start(acmeSystem, {
       seed: 1402,
       host: syncVirtualHost(),
-      draws: acmeDraws({
+      knobs: acmeKnobs({
         clientCount: 0,
       }),
       properties: [],

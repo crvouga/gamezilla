@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import { createSyncEnginePool } from '@pkgs/sync-engine/client';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   connect,
@@ -27,7 +27,7 @@ describe('account switch pool isolation', () => {
     await using run = await start(acmeSystem, {
       seed: 950,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0, rowImageFanout: false }),
+      knobs: acmeKnobs({ clientCount: 0, rowImageFanout: false }),
       properties: [],
     });
 
@@ -101,7 +101,7 @@ describe('account switch pool isolation', () => {
     await using run = await start(acmeSystem, {
       seed: 960,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0, rowImageFanout: false }),
+      knobs: acmeKnobs({ clientCount: 0, rowImageFanout: false }),
       properties: [],
     });
 
@@ -141,7 +141,7 @@ describe('account switch pool isolation', () => {
       await using run = await start(acmeSystem, {
         seed: seed,
         host: syncVirtualHost(),
-        draws: acmeDraws({ clientCount: 0, rowImageFanout: false }),
+        knobs: acmeKnobs({ clientCount: 0, rowImageFanout: false }),
         properties: [],
       });
 

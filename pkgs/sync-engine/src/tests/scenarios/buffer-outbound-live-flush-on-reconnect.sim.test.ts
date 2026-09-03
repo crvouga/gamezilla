@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   connect,
@@ -26,7 +26,7 @@ describe('buffer outbound live flush on reconnect', () => {
     await using run = await start(acmeSystem, {
       seed: 701,
       host: syncVirtualHost(),
-      draws: acmeDraws({
+      knobs: acmeKnobs({
         clientCount: 0,
       }),
       properties: [],
@@ -55,7 +55,7 @@ describe('buffer outbound live flush on reconnect', () => {
     await using run = await start(acmeSystem, {
       seed: 702,
       host: syncVirtualHost(),
-      draws: acmeDraws({
+      knobs: acmeKnobs({
         clientCount: 0,
         bufferOutboundLive: true,
       }),
@@ -87,7 +87,7 @@ describe('buffer outbound live flush on reconnect', () => {
     await using run = await start(acmeSystem, {
       seed: 703,
       host: syncVirtualHost(),
-      draws: acmeDraws({
+      knobs: acmeKnobs({
         clientCount: 0,
         bufferOutboundLive: true,
       }),

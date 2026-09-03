@@ -1,7 +1,7 @@
 import { describe, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeLargeCatalogSystem,
   acmeSystem,
   armStoragePressure,
@@ -22,7 +22,7 @@ describe('online lifecycle wakes query refetch', () => {
     await using run = await start(acmeSystem, {
       seed: 55001,
       host: syncVirtualHost(),
-      draws: acmeDraws(),
+      knobs: acmeKnobs(),
       properties: [],
     });
 
@@ -43,7 +43,7 @@ describe('storage full merge abort', () => {
     await using run = await start(acmeSystem, {
       seed: 55002,
       host: syncVirtualHost(),
-      draws: acmeDraws(),
+      knobs: acmeKnobs(),
       properties: [],
     });
 

@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeLocalSchemaExtraColumn,
   acmeMutationRegistry,
   acmeQueryRegistry,
@@ -42,7 +42,7 @@ describe('server schema upgrade mid session', () => {
       await using run = await start(acmeSystem, {
         seed,
         host: syncVirtualHost(),
-        draws: acmeDraws({ clientCount: 0 }),
+        knobs: acmeKnobs({ clientCount: 0 }),
         properties: [],
       });
 

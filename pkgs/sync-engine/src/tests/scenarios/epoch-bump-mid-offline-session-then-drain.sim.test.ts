@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import { SCHEMA_EPOCH } from '@pkgs/sync-engine/test';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   disconnect,
@@ -23,7 +23,7 @@ describe('epoch bump mid offline session then drain', () => {
       await using run = await start(acmeSystem, {
         seed: seed,
         host: syncVirtualHost(),
-        draws: acmeDraws({ clientCount: 0 }),
+        knobs: acmeKnobs({ clientCount: 0 }),
         properties: [],
       });
 

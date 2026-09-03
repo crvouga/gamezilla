@@ -106,29 +106,47 @@ async function runReconcile(s: IndexesSurface): Promise<void> {
 
 export const reconcile = defineAction({
   name: 'reconcile',
-  *generate() {
-    yield {
-      weight: 3,
-      act: (s: IndexesSurface) => runReconcile(s),
-    };
+  generate() {
+    return (s) => runReconcile(s);
   },
 });
 
 export const advanceClock = defineAction({
   name: 'advanceClock',
-  *generate() {
-    const days = yield* draw(gen(fc.constantFrom(1, 2, 40)));
-    yield {
-      weight: 1,
-      act: (s: IndexesSurface) => {
-        reconcilerOf(s).clock.advance(days * 24 * 60 * 60 * 1000);
-      },
+  generate(days: number) {
+    return (s) => {
+      reconcilerOf(s).clock.advance(days * 24 * 60 * 60 * 1000);
     };
   },
 });
 
+export const randomAdvanceClock = defineAction({
+  name: 'randomAdvanceClock',
+  *generate() {
+    const days = yield* draw(gen(fc.constantFrom(1, 2, 40)));
+    yield* advanceClock(days);
+  },
+});
+
+export type ManifestMode = 'user' | 'owner' | 'empty';
+
 export const setManifest = defineAction({
   name: 'setManifest',
+  generate(mode: ManifestMode) {
+    return (s) => {
+      const state = reconcilerOf(s);
+      if (mode === 'empty') {
+        state.manifest = emptyManifest();
+        return;
+      }
+      const col = mode === 'user' ? 'user_id' : 'owner_id';
+      state.manifest = manifestForCol('notes', col);
+    };
+  },
+});
+
+export const randomSetManifest = defineAction({
+  name: 'randomSetManifest',
   *generate() {
     const mode = yield* draw(gen(fc.constantFrom('user', 'owner', 'empty')));
     yield {
@@ -151,45 +169,39 @@ export const bumpUsage = defineAction({
   *generate() {
     const n = yield* ownedIndexCount;
     if (n === 0) return;
-    yield {
-      weight: 1,
-      act: (s: IndexesSurface) => {
-        const state = reconcilerOf(s);
-        const names = state.db.getOwnedIndexNames();
-        if (names.length > 0) {
-          state.db.bumpScans(names[0]!, 1);
-        }
-      },
+    yield (s: IndexesSurface) => {
+      const state = reconcilerOf(s);
+      const names = state.db.getOwnedIndexNames();
+      if (names.length > 0) {
+        state.db.bumpScans(names[0]!, 1);
+      }
     };
   },
 });
 
 export const externalAdd = defineAction({
   name: 'externalAdd',
-  *generate() {
-    yield {
-      weight: 1,
-      act: (s: IndexesSurface) => {
-        reconcilerOf(s).db.externalAddIndex({
-          name: 'ix_notes_title',
-          table: 'notes',
-          columns: ['title'],
-          include: [],
-          predicate: null,
-          isUnique: false,
-          isPrimary: false,
-          isValid: true,
-          isOwned: false,
-        });
-      },
+  generate() {
+    return (s) => {
+      reconcilerOf(s).db.externalAddIndex({
+        name: 'ix_notes_title',
+        table: 'notes',
+        columns: ['title'],
+        include: [],
+        predicate: null,
+        isUnique: false,
+        isPrimary: false,
+        isValid: true,
+        isOwned: false,
+      });
     };
   },
 });
 
 export const INDEXES_ACTIONS = [
   reconcile,
-  advanceClock,
-  setManifest,
+  randomAdvanceClock,
+  randomSetManifest,
   bumpUsage,
   externalAdd,
 ];
@@ -197,10 +209,8 @@ export const INDEXES_ACTIONS = [
 export const invariantsHold = defineProperty({
   name: 'invariants',
   *watch() {
-    while (true) {
-      const v = (yield invariantViolations) as string[];
-      if (v.length > 0) throw new Error(v[0]!);
-    }
+    const v = yield* invariantViolations;
+    if (v.length > 0) throw new Error(v[0]!);
   },
 });
 

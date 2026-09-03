@@ -9,13 +9,16 @@ function range(n: number): number[] {
   return Array.from({ length: n }, (_, i) => i);
 }
 
-/** Toy multi-client KV — drawn topology, model network, fault actions. */
+export type KvKnobs = {
+  readonly clients: number;
+};
+
+/** Toy multi-client KV — knobs topology, model network, fault actions. */
 export const kv = defineSystem({
   name: 'acme-kv',
-  *generate(session) {
-    const clients = yield* draw(gen(fc.integer({ min: 1, max: 3 })));
+  *generate(session, knobs: KvKnobs) {
     const server = startServer(session.fork('server'));
-    const clientList = range(clients).map((i) =>
+    const clientList = range(knobs.clients).map((i) =>
       startClient(session.fork(`client:${i}`), server)
     );
     return { session, server, clients: clientList } satisfies KvSurface;
@@ -47,8 +50,8 @@ export const quiet = defineObservation({
 export const converged = defineObservation({
   name: 'converged',
   *observe() {
-    const [h, cs] = yield* observe(serverHash, clientHash);
-    return cs.every((c) => c === h);
+    const o = yield* observe({ serverHash, clientHash });
+    return o.clientHash.every((c) => c === o.serverHash);
   },
 });
 
@@ -64,6 +67,21 @@ export const partitioned = defineObservation({
 
 export const put = defineAction({
   name: 'put',
+  generate(client: string, key: string, value: string) {
+    return {
+      weight: 3,
+      act: (s) => {
+        const c = s.clients.find((x) => x.id === client);
+        if (c === undefined) return;
+        sendPut({ server: s.server, client: c, key, value });
+      },
+    };
+  },
+});
+
+/** Random pool member — draws then delegates to typed {@link put}. */
+export const randomPut = defineAction({
+  name: 'randomPut',
   *generate() {
     const ids = yield* clientIds;
     if (ids.length === 0) return;
@@ -76,28 +94,30 @@ export const put = defineAction({
         })
       )
     );
-    yield {
-      weight: 3,
-      act: (s: KvSurface) => {
-        const c = s.clients.find((x) => x.id === client);
-        if (c === undefined) return;
-        sendPut({ server: s.server, client: c, key, value });
-      },
-    };
+    yield* put(client, key, value);
   },
 });
 
 export const partition = defineAction({
   name: 'partition',
+  generate(id: string) {
+    return (s) => {
+      s.session.network.partition('server', id);
+    };
+  },
+});
+
+export const randomPartition = defineAction({
+  name: 'randomPartition',
   *generate() {
-    const [c, ids, cut] = yield* observe(caps, clientIds, partitioned);
-    if (!c.includes('partition') || ids.length === 0) {
-      return;
-    }
-    const id = yield* draw((rng) => ids[Math.floor(rng.next() * ids.length)]!);
+    const o = yield* observe({ caps, clientIds, partitioned });
+    if (!o.caps.includes('partition') || o.clientIds.length === 0) return;
+    const id = yield* draw(
+      (rng) => o.clientIds[Math.floor(rng.next() * o.clientIds.length)]!
+    );
     yield {
-      weight: cut.length === 0 ? 2 : 1,
-      act: (s: KvSurface) => {
+      weight: o.partitioned.length === 0 ? 2 : 1,
+      act: (s) => {
         s.session.network.partition('server', id);
       },
     };
@@ -107,11 +127,11 @@ export const partition = defineAction({
 export const heal = defineAction({
   name: 'heal',
   *generate() {
-    const [c, cut] = yield* observe(caps, partitioned);
-    if (!c.includes('partition')) return;
+    const o = yield* observe({ caps, partitioned });
+    if (!o.caps.includes('partition')) return;
     yield {
-      weight: cut.length,
-      act: (s: KvSurface) => {
+      weight: o.partitioned.length,
+      act: (s) => {
         s.session.network.healAll();
         rebroadcastStore(s.server);
       },
@@ -121,47 +141,58 @@ export const heal = defineAction({
 
 export const passTime = defineAction({
   name: 'passTime',
+  generate(ms: number) {
+    return (s) => s.session.scheduler.advance(ms);
+  },
+});
+
+export const randomPassTime = defineAction({
+  name: 'randomPassTime',
   *generate() {
     if (!(yield* caps).includes('virtualTime')) return;
     const ms = yield* draw((rng) => Math.floor(rng.next() * 5_000));
-    yield {
-      weight: 1,
-      act: (s: KvSurface) => s.session.scheduler.advance(ms),
-    };
+    yield* passTime(ms);
   },
 });
 
 export const outage = defineAction({
   name: 'outage',
   *generate() {
-    yield* partition;
-    yield* passTime;
+    yield* randomPartition;
+    yield* randomPassTime;
     yield* heal;
   },
 });
 
-export const KV_ACTIONS = [put, partition, heal, passTime, outage];
+export const KV_ACTIONS = [
+  randomPut,
+  randomPartition,
+  heal,
+  randomPassTime,
+  outage,
+] as const;
 
 export const converges = defineProperty({
   name: 'converges',
   *watch() {
-    while (true) {
-      const [q, ok, cut, h, cs] = yield* observe(
-        quiet,
-        converged,
-        partitioned,
-        serverHash,
-        clientHash
+    const o = yield* observe({
+      quiet,
+      converged,
+      cut: partitioned,
+      serverHash,
+      clientHash,
+    });
+    if (o.quiet && o.cut.length === 0 && !o.converged) {
+      throw new Error(
+        `quiet but diverged: server ${String(o.serverHash)}, clients ${String(o.clientHash)}`
       );
-      if (q && cut.length === 0 && !ok) {
-        throw new Error(
-          `quiet but diverged: server ${String(h)}, clients ${String(cs)}`
-        );
-      }
     }
   },
 });
 
 export const KV_PROPERTIES = [converges];
+
+export const arbKvKnobs = (): fc.Arbitrary<KvKnobs> =>
+  fc.record({ clients: fc.integer({ min: 1, max: 3 }) });
 
 export type { KvSurface };

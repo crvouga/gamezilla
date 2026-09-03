@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeMutationRegistry,
   acmeSystem,
   addClient,
@@ -24,7 +24,7 @@ describe('unknown mutation name rejected and rolled back', () => {
       await using run = await start(acmeSystem, {
         seed,
         host: syncVirtualHost(),
-        draws: acmeDraws({ clientCount: 0, rowImageFanout: false }),
+        knobs: acmeKnobs({ clientCount: 0, rowImageFanout: false }),
         properties: [],
       });
 

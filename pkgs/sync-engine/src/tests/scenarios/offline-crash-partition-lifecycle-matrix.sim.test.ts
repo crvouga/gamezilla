@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   crash,
@@ -24,7 +24,7 @@ describe('offline crash partition lifecycle matrix', () => {
     await using run = await start(acmeSystem, {
       seed: 201,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 
@@ -43,7 +43,7 @@ describe('offline crash partition lifecycle matrix', () => {
     await using run = await start(acmeSystem, {
       seed: 202,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 
@@ -62,7 +62,7 @@ describe('offline crash partition lifecycle matrix', () => {
     await using run = await start(acmeSystem, {
       seed: 203,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 
@@ -86,7 +86,7 @@ describe('offline crash partition lifecycle matrix', () => {
     await using run = await start(acmeSystem, {
       seed: 204,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 
@@ -104,7 +104,7 @@ describe('offline crash partition lifecycle matrix', () => {
     await using run = await start(acmeSystem, {
       seed: 205,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 
@@ -122,7 +122,7 @@ describe('offline crash partition lifecycle matrix', () => {
     await using run = await start(acmeSystem, {
       seed: 206,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 
@@ -144,7 +144,7 @@ describe('offline crash partition lifecycle matrix', () => {
     await using run = await start(acmeSystem, {
       seed: 207,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 
@@ -170,7 +170,7 @@ describe('offline crash partition lifecycle matrix', () => {
     await using run = await start(acmeSystem, {
       seed: 208,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 
@@ -198,7 +198,7 @@ describe('offline crash partition lifecycle matrix', () => {
     await using run = await start(acmeSystem, {
       seed: 209,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 

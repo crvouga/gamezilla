@@ -2,7 +2,7 @@ import { describe, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import { MAX_FANOUT_ROWS } from '@pkgs/sync-engine/shared';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
@@ -26,7 +26,7 @@ describe('fanout receive cap on push', () => {
     await using run = await start(acmeSystem, {
       seed: 9402,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 

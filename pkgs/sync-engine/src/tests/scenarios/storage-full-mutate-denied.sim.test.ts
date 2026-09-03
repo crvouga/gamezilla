@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
-import { start } from '@pkgs/dst';
+import { type BoundObservation, start } from '@pkgs/dst';
 import { sql } from '@pkgs/sql';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   armStoragePressure,
   expectConverged,
@@ -13,23 +13,24 @@ import {
   rows,
   setNote,
   syncVirtualHost,
+  type SyncSurface,
 } from '../apps/acme';
 
-const pendingMutations = rows<{ c: number | string }>(
+const pendingMutations = rows(
   'pendingMutations',
   'c0',
   sql`
     SELECT COUNT(*) AS c FROM sync_engine_mutations
     WHERE deleted_at IS NULL
   `
-);
+) as BoundObservation<SyncSurface, { readonly c: number | string }[]>;
 
 describe('storage full mutate denied', () => {
   test('SQLITE_FULL returns STORAGE_FULL and does not queue', async () => {
     await using run = await start(acmeSystem, {
       seed: 55100,
       host: syncVirtualHost(),
-      draws: acmeDraws(),
+      knobs: acmeKnobs(),
       properties: [],
     });
 

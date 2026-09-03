@@ -14,6 +14,7 @@ export {
   leave,
   MATCHMAKING_ACTIONS,
   passTime,
+  randomPassTime,
   ready,
   stepTime,
   type TickSpec,
@@ -24,12 +25,17 @@ export {
   updateFormulas,
 } from './actions';
 export {
+  arbMatchmakingKnobs,
+  DEFAULT_MATCHMAKING_KNOBS,
   type DefineMatchmakingSystemOpts,
   defineMatchmakingSystem,
+  genMatchmakingKnobs,
   MATCHMAKING_SYSTEM,
+  type MatchmakingKnobs,
   type MatchmakingSurface,
   type MatchmakingSystemDef,
   matchmaking,
+  matchmakingKnobs,
   type StartMatchmakingArgs,
   startMatchmaking,
 } from './define-matchmaking-system';

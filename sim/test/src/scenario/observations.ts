@@ -4,7 +4,7 @@ import type { Actor } from '@pkgs/ui-testing/explore';
 import { noErrorBoundary } from '@pkgs/ui-testing/explore';
 
 import { defineObservation, type ProductSurface } from './system';
-import { nodeAt, nodeKey } from './ui-nodes';
+import { nodeAt } from './ui-nodes';
 
 export function actor(id: string): Actor<ProductSurface> {
   return (s) => s.actors.get(id)?.ui ?? null;
@@ -36,56 +36,48 @@ export const partitioned = defineObservation({
 });
 
 /** Is the node at `path` currently on screen? Snapshot read, no waiting. */
-export function visible(actorId: string, path: readonly string[]) {
-  return defineObservation<boolean>({
-    name: `visible(${nodeKey(actorId, path)})`,
-    observe: async (s: ProductSurface) => {
-      const node = nodeAt(s, actorId, path);
-      if (node === null) return false;
-      return node.isVisible();
-    },
-  });
-}
+export const visible = defineObservation({
+  name: 'visible',
+  observe: async (s, actorId: string, path: readonly string[]) => {
+    const node = nodeAt(s, actorId, path);
+    if (node === null) return false;
+    return node.isVisible();
+  },
+});
 
 /** Accessible / displayed text of the node at `path`. */
-export function nodeText(actorId: string, path: readonly string[]) {
-  return defineObservation<string | null>({
-    name: `text(${nodeKey(actorId, path)})`,
-    observe: async (s: ProductSurface) => {
-      const node = nodeAt(s, actorId, path);
-      if (node === null) return null;
-      return node.text();
-    },
-  });
-}
+export const nodeText = defineObservation({
+  name: 'nodeText',
+  observe: async (s, actorId: string, path: readonly string[]) => {
+    const node = nodeAt(s, actorId, path);
+    if (node === null) return null;
+    return node.text();
+  },
+});
 
 /**
  * Bounding box of the node at `path`. RNTL synthesizes `onLayout` on read so
  * measured canvases (chess board) become interactive.
  */
-export function nodeLayout(actorId: string, path: readonly string[]) {
-  return defineObservation<ElementLayout | null>({
-    name: `layout(${nodeKey(actorId, path)})`,
-    observe: async (s: ProductSurface) => {
-      const node = nodeAt(s, actorId, path);
-      if (node === null) return null;
-      return node.layout();
-    },
-  });
-}
+export const nodeLayout = defineObservation({
+  name: 'nodeLayout',
+  observe: async (s, actorId: string, path: readonly string[]) => {
+    const node = nodeAt(s, actorId, path);
+    if (node === null) return null;
+    return (await node.layout()) as ElementLayout | null;
+  },
+});
 
-export function actorHtml(actorId: string, stylesheetHref?: string) {
-  return defineObservation<string | null>({
-    name: `html(${actorId}:${stylesheetHref ?? ''})`,
-    observe: async (s: ProductSurface) => {
-      const handle = s.actors.get(actorId);
-      if (handle === undefined) return null;
-      return handle.ui.snapshotHtml(
-        stylesheetHref === undefined ? undefined : { stylesheetHref }
-      );
-    },
-  });
-}
+export const actorHtml = defineObservation({
+  name: 'actorHtml',
+  observe: async (s, actorId: string, stylesheetHref?: string) => {
+    const handle = s.actors.get(actorId);
+    if (handle === undefined) return null;
+    return handle.ui.snapshotHtml(
+      stylesheetHref === undefined ? undefined : { stylesheetHref }
+    );
+  },
+});
 
 /** Token length recorded by the `devOauthSignIn` action (`null` = no token). */
 export const oauthTokenLength = defineObservation({

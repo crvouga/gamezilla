@@ -1,63 +1,59 @@
 import type { Session } from '../host/types';
-import { defineAction } from './define-action';
-import { defineObservation } from './define-observation';
-import { defineProperty } from './define-property';
-import { type Body, type Draw, SYSTEM_TAG } from './effect';
+import { defineSurface, type SurfaceDefiners } from './define-surface';
+import type { Draw } from './effect';
+import { SYSTEM_TAG } from './effect';
+import type { Gen } from './gen';
 
-export type SystemGenerate<S> = (
-  session: Session
+export type SystemGenerate<S, K = void> = (
+  session: Session,
+  knobs: K
 ) =>
   | Generator<Draw<unknown>, S, unknown>
   | AsyncGenerator<Draw<unknown>, S, unknown>
   | S
   | Promise<S>;
 
-export type System<S> = {
+export type System<S, K = void> = SurfaceDefiners<S> & {
   readonly [SYSTEM_TAG]: true;
   readonly name: string;
-  readonly generate: SystemGenerate<S>;
-  readonly defineObservation: <
-    T extends import('../kernel/json').JsonValue,
-  >(def: {
-    readonly name: string;
-    readonly observe: import('./define-observation').ObserveFn<S, T>;
-  }) => import('./effect').Observation<S, T>;
-  readonly defineAction: (def: {
-    readonly name: string;
-    readonly generate: () =>
-      | Generator<import('./effect').Effect<S>, void, unknown>
-      | AsyncGenerator<import('./effect').Effect<S>, void, unknown>;
-  }) => import('./effect').Action<S>;
-  readonly defineProperty: (def: {
-    readonly name: string;
-    readonly watch: () =>
-      | Generator<
-          import('./effect').Observation<S, import('../kernel/json').JsonValue>,
-          void,
-          unknown
-        >
-      | AsyncGenerator<
-          import('./effect').Observation<S, import('../kernel/json').JsonValue>,
-          void,
-          unknown
-        >;
-  }) => import('./effect').Property<S>;
+  readonly generate: SystemGenerate<S, K>;
 };
 
-export function defineSystem<S>(def: {
+type ParamsOf<G> = G extends (...args: infer P) => unknown ? P : [];
+type KnobsOf<G> = ParamsOf<G> extends [Session, infer K] ? K : void;
+
+type SurfaceOfGenerate<G> = G extends (
+  session: Session,
+  knobs: never
+) => infer R
+  ? Awaited<R> extends AsyncGenerator<unknown, infer S, unknown>
+    ? S
+    : Awaited<R> extends Generator<unknown, infer S, unknown>
+      ? S
+      : Awaited<R>
+  : unknown;
+
+/**
+ * `knobs: never` keeps typed knob params assignable under contravariance
+ * (same pattern as {@link defineAction}).
+ */
+export function defineSystem<
+  G extends (session: Session, knobs: never) => unknown,
+>(def: {
   readonly name: string;
-  readonly generate: SystemGenerate<S>;
-}): System<S> {
+  readonly generate: G;
+}): System<SurfaceOfGenerate<G>, KnobsOf<G>> {
   if (!def.name) throw new Error('defineSystem: name is required');
-  const system: System<S> = {
-    [SYSTEM_TAG]: true,
+  type S = SurfaceOfGenerate<G>;
+  type K = KnobsOf<G>;
+  const surface = defineSurface<S>();
+  const system = {
+    [SYSTEM_TAG]: true as const,
     name: def.name,
-    generate: def.generate,
-    defineObservation: defineObservation as System<S>['defineObservation'],
-    defineAction: defineAction as System<S>['defineAction'],
-    defineProperty: defineProperty as System<S>['defineProperty'],
+    generate: def.generate as unknown as SystemGenerate<S, K>,
+    ...surface,
   };
-  return system;
+  return system as System<S, K>;
 }
 
-export type { Body };
+export type { Gen };

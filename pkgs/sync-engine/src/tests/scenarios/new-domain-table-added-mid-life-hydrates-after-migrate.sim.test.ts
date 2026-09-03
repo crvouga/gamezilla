@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import {
   acmeApp,
-  acmeDraws,
+  acmeKnobs,
   acmeLocalSchema,
   acmeLocalSchemaExtraTable,
   acmeMutationRegistry,
@@ -47,7 +47,7 @@ describe('new domain table added mid life hydrates after migrate', () => {
       await using run = await start(acmeExtraTableSystem, {
         seed: seed,
         host: syncVirtualHost(),
-        draws: acmeDraws({
+        knobs: acmeKnobs({
           clientCount: 0,
         }),
         properties: [],

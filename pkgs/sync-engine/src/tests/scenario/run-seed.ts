@@ -1,5 +1,5 @@
 import type { Repro } from '@pkgs/dst';
-import { defineAction, draw, REPRO_VERSION, start } from '@pkgs/dst';
+import { defineSurface, REPRO_VERSION, start } from '@pkgs/dst';
 
 import { isStorageFullError } from '../../client/storage-full-error';
 import { isClosedDatabaseError } from '../../sim/invariants';
@@ -8,13 +8,15 @@ import type { SeededRng } from '../../sim/rng';
 import {
   defineSyncSystem,
   type SyncSurface,
-  syncSystemDraws,
+  syncKnobs,
   syncVirtualHost,
 } from '../../sim/scenario';
 import type { SyncAction } from '../../sim/scenario/actions';
 import type { SyncApp } from '../../sim/scenario/app';
 import { dispatchSyncAction } from '../../sim/scenario/dispatch';
 import { pickLibraryAction } from './pick-library-action';
+
+const { defineAction } = defineSurface<SyncSurface>();
 
 export type SeedFailureArtifact = {
   readonly repro: Repro & {
@@ -75,9 +77,11 @@ function buildFailureArtifact(args: {
       version: REPRO_VERSION,
       seed: args.seed.toString(),
       system: [],
+      knobs: null,
       choices: args.actions.map((a) => ({
         action: a.kind,
         draws: [] as number[],
+        args: [],
       })),
       meta: {
         system: 'sync.runSeed',
@@ -266,10 +270,8 @@ type SeedJob = {
 /** Drives the whole seeded workload inside the run; the surface never escapes. */
 const seedWorkload = defineAction({
   name: 'seedWorkload',
-  *generate() {
-    const job = yield* draw<SeedJob | undefined>(() => undefined);
-    if (job === undefined) return;
-    yield {
+  generate(job: SeedJob) {
+    return {
       weight: 1,
       act: async (s: SyncSurface) => {
         job.result = await executeSeed(s, job.opts);
@@ -287,7 +289,7 @@ export async function runSeed(opts: RunSeedOptions): Promise<RunSeedResult> {
   await using run = await start(system, {
     seed: opts.seed,
     host: syncVirtualHost(),
-    draws: syncSystemDraws({ clientCount: 0 }),
+    knobs: syncKnobs({ clientCount: 0 }),
     properties: [],
   });
   const job: SeedJob = { opts, result: null };

@@ -919,7 +919,7 @@ embed `seed=<hex>` and virtual `now=` for replay.
 import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   converge,
@@ -934,7 +934,7 @@ describe('example', () => {
     await using run = await start(acmeSystem, {
       seed: 42,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
     await run.apply(addClient, 'alice');
@@ -1338,7 +1338,7 @@ Three distinct monotonic sequences — do not conflate them:
 
 Black-box correctness under `src/tests/scenarios/` (`*.sim.test.ts` +
 `*.scenario.pbt.test.ts`) plus harness `src/tests/harness/kernel.test.ts`.
-Most pins use `start(acmeSystem, { seed, host: syncVirtualHost(), draws: acmeDraws({…}) })`
+Most pins use `start(acmeSystem, { seed, host: syncVirtualHost(), knobs: acmeKnobs({…}) })`
 with `run.apply` / `run.observe` / `untilAcme`, and domain observations from
 `src/tests/apps/acme/`.
 

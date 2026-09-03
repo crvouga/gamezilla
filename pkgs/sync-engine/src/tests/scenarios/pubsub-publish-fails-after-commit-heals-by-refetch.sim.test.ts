@@ -1,7 +1,7 @@
 import { describe, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   connect,
@@ -30,7 +30,7 @@ describe('pubsub publish fails after commit heals by refetch', () => {
     await using run = await start(acmeSystem, {
       seed: 901,
       host: syncVirtualHost(),
-      draws: acmeDraws({
+      knobs: acmeKnobs({
         clientCount: 0,
         rowImageFanout: false,
       }),
@@ -71,7 +71,7 @@ describe('pubsub publish fails after commit heals by refetch', () => {
       await using run = await start(acmeSystem, {
         seed: seed,
         host: syncVirtualHost(),
-        draws: acmeDraws({
+        knobs: acmeKnobs({
           clientCount: 0,
           rowImageFanout: false,
         }),

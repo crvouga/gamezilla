@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
@@ -29,7 +29,7 @@ describe('push during inflight merge queues single flight', () => {
     await using run = await start(acmeSystem, {
       seed: 811,
       host: syncVirtualHost(),
-      draws: acmeDraws({
+      knobs: acmeKnobs({
         clientCount: 0,
       }),
       properties: [],

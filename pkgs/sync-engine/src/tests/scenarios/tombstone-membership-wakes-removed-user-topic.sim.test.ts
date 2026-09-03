@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import { topicsFromWriteCapture } from '@pkgs/sync-engine/shared';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   acmeTopicMap,
   addClient,
@@ -54,7 +54,7 @@ describe('tombstone membership wakes removed user topic', () => {
     await using run = await start(acmeSystem, {
       seed: 1201,
       host: syncVirtualHost(),
-      draws: acmeDraws({
+      knobs: acmeKnobs({
         clientCount: 0,
       }),
       properties: [],

@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   deviceId,
@@ -29,7 +29,7 @@ describe('late retry after prune window idempotent', () => {
       await using run = await start(acmeSystem, {
         seed: seed,
         host: syncVirtualHost(),
-        draws: acmeDraws({
+        knobs: acmeKnobs({
           clientCount: 0,
         }),
         properties: [],
@@ -52,7 +52,7 @@ describe('late retry after prune window idempotent', () => {
           id: firstId!,
           name: 'setNote',
           args: JSON.stringify({ id: 'n1', body: 'after-prune' }),
-          clientId: await run.observe(deviceId('alice')),
+          clientId: (await run.observe(deviceId('alice')))!,
           seq: 1,
           createdAt: new Date(
             await run.observe(nodeNow('alice'))

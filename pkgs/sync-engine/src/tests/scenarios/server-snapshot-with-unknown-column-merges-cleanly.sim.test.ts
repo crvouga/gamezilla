@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import {
   acmeApp,
-  acmeDraws,
+  acmeKnobs,
   acmeLocalSchema,
   acmeLocalSchemaExtraColumn,
   acmeMutationRegistry,
@@ -40,7 +40,7 @@ describe('server snapshot with unknown column merges cleanly', () => {
       await using run = await start(acmeColorServerSystem, {
         seed: seed,
         host: syncVirtualHost(),
-        draws: acmeDraws({ clientCount: 0 }),
+        knobs: acmeKnobs({ clientCount: 0 }),
         properties: [],
       });
 

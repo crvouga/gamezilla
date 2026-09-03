@@ -1,4 +1,4 @@
-import { defineAction, draw } from '@pkgs/dst';
+import { defineSurface, draw } from '@pkgs/dst';
 import { gen } from '@pkgs/dst/fast-check';
 import fc from 'fast-check';
 
@@ -14,6 +14,8 @@ import {
 import { replayStep } from './play';
 import { caps, clientIds, healWeight } from './sync-observations';
 import type { SyncSurface } from './system';
+
+const { defineAction } = defineSurface<SyncSurface>();
 
 async function applySyncAction(
   surface: SyncSurface,
@@ -106,15 +108,21 @@ function serverAction(app: SyncApp) {
   });
 }
 
+/** Scripted / poll helper — `run.apply(passTime, 500)`. */
 export const passTime = defineAction({
   name: 'passTime',
+  generate(ms: number) {
+    return (s: SyncSurface) => s.session.scheduler.advance(ms);
+  },
+});
+
+/** Random pool member — draws ms then delegates to typed {@link passTime}. */
+export const randomPassTime = defineAction({
+  name: 'randomPassTime',
   *generate() {
     if (!(yield* caps).includes('virtualTime')) return;
     const ms = yield* draw((rng) => 1 + Math.floor(rng.next() * 40));
-    yield {
-      weight: 1,
-      act: (s: SyncSurface) => s.session.scheduler.advance(ms),
-    };
+    yield* passTime(ms);
   },
 });
 
@@ -125,7 +133,7 @@ export function createSyncActions(app: SyncApp, sessionQuery: SimSessionQuery) {
     ...libraryActions(sessionQuery),
     domainAction(app),
     ...(server !== null ? [server] : []),
-    passTime,
+    randomPassTime,
   ] as const;
 }
 

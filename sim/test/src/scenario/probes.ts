@@ -7,7 +7,6 @@ import {
   createAuthClientAdapter,
   createInMemoryAuthClientStorage,
 } from '@pkgs/auth/client';
-import { draw } from '@pkgs/dst';
 import type { SimSqlHandle } from '@sim/console/sim/sim-sql';
 import {
   captureSystemSnapshot,
@@ -20,9 +19,8 @@ import { defineAction } from './system';
 /** Sign in through the client auth port wired to the in-process sim server. */
 export const devOauthSignIn = defineAction({
   name: 'devOauthSignIn',
-  *generate() {
-    const actorId = yield* draw(() => '');
-    yield async (s: ProductSurface) => {
+  generate(actorId: string) {
+    return async (s) => {
       const env = s.sim.client(actorId);
       const port = createAuthClientAdapter({
         baseURL: env.authBaseURL,
@@ -42,9 +40,8 @@ export const devOauthSignIn = defineAction({
 /** Dump server + client SQL / kv / rooms into `probes.snapshot`. */
 export const captureSnapshot = defineAction({
   name: 'captureSnapshot',
-  *generate() {
-    const clientIds = yield* draw(() => [] as string[]);
-    yield async (s: ProductSurface) => {
+  generate(clientIds: readonly string[]) {
+    return async (s) => {
       s.probes.snapshot = await captureSnapshotOf(s, clientIds);
     };
   },

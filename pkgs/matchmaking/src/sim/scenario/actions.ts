@@ -1,4 +1,4 @@
-import { type Action, defineAction, draw } from '@pkgs/dst';
+import { type Action, defineSurface, draw } from '@pkgs/dst';
 import type { TickOptions } from '../../interface/matchmaking';
 import type { DistanceFormula, JoinInput } from '../../interface/types';
 import type { MatchmakingSurface } from './facade';
@@ -6,10 +6,7 @@ import { SIM_AUTH_HEADERS, simRequireAuth } from './http';
 import { asJson, caps } from './observations';
 import { mmOf, type ParticipantTarget, targetId } from './refs';
 
-/** Scripted-only spec: `run.apply(action, spec)` supplies the value. */
-function spec<T>(fallback: T) {
-  return draw((): T => fallback);
-}
+const { defineAction } = defineSurface<MatchmakingSurface>();
 
 export type JoinSpec = {
   readonly ref: string;
@@ -24,38 +21,24 @@ async function joinInto(s: MatchmakingSurface, one: JoinSpec): Promise<void> {
 
 export const join = defineAction({
   name: 'join',
-  *generate() {
-    const one = yield* spec<JoinSpec>({
-      ref: 'p0',
-      input: { data: {}, formulas: [] } as unknown as JoinInput,
-    });
-    yield { weight: 1, act: (s: MatchmakingSurface) => joinInto(s, one) };
+  generate(one: JoinSpec) {
+    return (s) => joinInto(s, one);
   },
 });
 
 export const leave = defineAction({
   name: 'leave',
-  *generate() {
-    const target = yield* spec<ParticipantTarget>({ ref: 'p0' });
-    yield {
-      weight: 1,
-      act: async (s: MatchmakingSurface) => {
-        s.last.leave = await mmOf(s, target.replicaId).leave(
-          targetId(s, target)
-        );
-      },
+  generate(target: ParticipantTarget) {
+    return async (s) => {
+      s.last.leave = await mmOf(s, target.replicaId).leave(targetId(s, target));
     };
   },
 });
 
 export const ready = defineAction({
   name: 'ready',
-  *generate() {
-    const on = yield* spec<{ readonly replicaId?: string }>({});
-    yield {
-      weight: 1,
-      act: (s: MatchmakingSurface) => mmOf(s, on.replicaId).ready(),
-    };
+  generate(on: { readonly replicaId?: string }) {
+    return (s) => mmOf(s, on.replicaId).ready();
   },
 });
 
@@ -66,25 +49,18 @@ export type TickSpec = {
 
 export const tick = defineAction({
   name: 'tick',
-  *generate() {
-    const on = yield* spec<TickSpec>({});
-    yield {
-      weight: 1,
-      act: async (s: MatchmakingSurface) => {
-        s.last.tick = await s.tick(on.opts, on.replicaId);
-      },
+  generate(on: TickSpec) {
+    return async (s) => {
+      s.last.tick = await s.tick(on.opts, on.replicaId);
     };
   },
 });
 
 export const tickAll = defineAction({
   name: 'tickAll',
-  *generate() {
-    yield {
-      weight: 1,
-      act: async (s: MatchmakingSurface) => {
-        s.last.tickAll = [...(await s.tickAll({ maxPassesPerPartition: 2 }))];
-      },
+  generate() {
+    return async (s) => {
+      s.last.tickAll = [...(await s.tickAll({ maxPassesPerPartition: 2 }))];
     };
   },
 });
@@ -92,23 +68,28 @@ export const tickAll = defineAction({
 /** Scripted variant of {@link tickAll} that takes tick options. */
 export const tickAllWith = defineAction({
   name: 'tickAllWith',
-  *generate() {
-    const opts = yield* spec<TickOptions>({ maxPassesPerPartition: 2 });
-    yield {
-      weight: 1,
-      act: async (s: MatchmakingSurface) => {
-        s.last.tickAll = [...(await s.tickAll(opts))];
-      },
+  generate(opts: TickOptions) {
+    return async (s) => {
+      s.last.tickAll = [...(await s.tickAll(opts))];
     };
   },
 });
 
+/** Scripted / poll helper — `run.apply(passTime, 500)`. */
 export const passTime = defineAction({
   name: 'passTime',
+  generate(ms: number) {
+    return (s) => s.advance(ms);
+  },
+});
+
+/** Random pool member — draws ms then delegates to typed {@link passTime}. */
+export const randomPassTime = defineAction({
+  name: 'randomPassTime',
   *generate() {
     if (!(yield* caps).includes('virtualTime')) return;
     const ms = yield* draw((rng) => Math.floor(rng.next() * 5_000));
-    yield { weight: 1, act: (s: MatchmakingSurface) => s.advance(ms) };
+    yield* passTime(ms);
   },
 });
 
@@ -118,15 +99,10 @@ export const passTime = defineAction({
  */
 export const stepTime = defineAction({
   name: 'stepTime',
-  *generate() {
-    if (!(yield* caps).includes('virtualTime')) return;
-    const ms = yield* draw((rng) => Math.floor(rng.next() * 5_000));
-    yield {
-      weight: 1,
-      act: async (s: MatchmakingSurface) => {
-        await s.advance(ms);
-        await s.tickAll({ maxPassesPerPartition: 4 });
-      },
+  generate(ms: number) {
+    return async (s) => {
+      await s.advance(ms);
+      await s.tickAll({ maxPassesPerPartition: 4 });
     };
   },
 });
@@ -137,29 +113,21 @@ export type UpdateFormulasSpec = ParticipantTarget & {
 
 export const updateFormulas = defineAction({
   name: 'updateFormulas',
-  *generate() {
-    const on = yield* spec<UpdateFormulasSpec>({ ref: 'p0', formulas: [] });
-    yield {
-      weight: 1,
-      act: async (s: MatchmakingSurface) => {
-        s.last.update = await mmOf(s, on.replicaId).updateFormulas(
-          targetId(s, on),
-          on.formulas
-        );
-      },
+  generate(on: UpdateFormulasSpec) {
+    return async (s) => {
+      s.last.update = await mmOf(s, on.replicaId).updateFormulas(
+        targetId(s, on),
+        on.formulas
+      );
     };
   },
 });
 
 export const addReplica = defineAction({
   name: 'addReplica',
-  *generate() {
-    const on = yield* spec<{ readonly id: string }>({ id: 'r9' });
-    yield {
-      weight: 1,
-      act: async (s: MatchmakingSurface) => {
-        await s.addReplica(on.id);
-      },
+  generate(on: { readonly id: string }) {
+    return async (s) => {
+      await s.addReplica(on.id);
     };
   },
 });
@@ -175,24 +143,17 @@ export type JoinsDuringTickSpec = {
 /** Race one replica's tick against joins landing on other replicas. */
 export const joinsDuringTick = defineAction({
   name: 'joinsDuringTick',
-  *generate() {
-    const plan = yield* spec<JoinsDuringTickSpec>({
-      tickReplicaId: 'r0',
-      joins: [],
-    });
-    yield {
-      weight: 1,
-      act: async (s: MatchmakingSurface) => {
-        await Promise.all([
-          s.replica(plan.tickReplicaId).tick(plan.tickOpts),
-          (async () => {
-            for (const one of plan.joins) {
-              await s.advance(plan.gapMs ?? 1);
-              await joinInto(s, one);
-            }
-          })(),
-        ]);
-      },
+  generate(plan: JoinsDuringTickSpec) {
+    return async (s) => {
+      await Promise.all([
+        s.replica(plan.tickReplicaId).tick(plan.tickOpts),
+        (async () => {
+          for (const one of plan.joins) {
+            await s.advance(plan.gapMs ?? 1);
+            await joinInto(s, one);
+          }
+        })(),
+      ]);
     };
   },
 });
@@ -227,31 +188,23 @@ async function readBody(res: Response): Promise<unknown> {
 
 export const httpRequest = defineAction({
   name: 'httpRequest',
-  *generate() {
-    const req = yield* spec<HttpSpec>({ path: '/status/unknown' });
-    yield {
-      weight: 1,
-      act: async (s: MatchmakingSurface) => {
-        const method = req.method ?? 'GET';
-        const res = await appFor(s, req.replicaId).request(req.path, {
-          method,
-          headers: {
-            ...(req.headers ?? SIM_AUTH_HEADERS),
-            ...(method === 'POST'
-              ? { 'Content-Type': 'application/json' }
-              : {}),
-          },
-          ...(method === 'POST'
-            ? { body: JSON.stringify(req.body ?? {}) }
-            : {}),
-        });
-        s.last.http = { status: res.status, body: asJson(await readBody(res)) };
-      },
+  generate(req: HttpSpec) {
+    return async (s) => {
+      const method = req.method ?? 'GET';
+      const res = await appFor(s, req.replicaId).request(req.path, {
+        method,
+        headers: {
+          ...(req.headers ?? SIM_AUTH_HEADERS),
+          ...(method === 'POST' ? { 'Content-Type': 'application/json' } : {}),
+        },
+        ...(method === 'POST' ? { body: JSON.stringify(req.body ?? {}) } : {}),
+      });
+      s.last.http = { status: res.status, body: asJson(await readBody(res)) };
     };
   },
 });
 
-export const MATCHMAKING_ACTIONS: readonly Action<MatchmakingSurface>[] = [
+export const MATCHMAKING_ACTIONS: readonly Action<MatchmakingSurface, []>[] = [
   tickAll,
-  passTime,
+  randomPassTime,
 ];

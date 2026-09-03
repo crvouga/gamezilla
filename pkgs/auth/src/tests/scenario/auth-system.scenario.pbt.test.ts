@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
+import { gen } from '@pkgs/dst/fast-check';
 import { check } from '@pkgs/dst/pbt';
 
 import {
@@ -11,7 +12,9 @@ import {
   AUTH_ACTIONS,
   AUTH_PROPERTIES,
   advanceClock,
+  arbAuthKnobs,
   auth,
+  type AuthKnobs,
   clientBearers,
   fetchAuth,
   lastStatus,
@@ -28,18 +31,23 @@ import { AUTH_FABRICS, type AuthFabric } from './types';
 const LAUNCH_DEV_URL =
   '/auth/oauth/launch?provider=dev&callbackUrl=http%3A%2F%2Fcallback.test%2Fsso';
 
-function fabricDraws(fabric: AuthFabric): readonly unknown[] {
-  return [fabric, 2, true, true];
+function fabricKnobs(
+  fabric: AuthFabric,
+  overrides?: Partial<AuthKnobs>
+): AuthKnobs {
+  return {
+    fabric,
+    clientCount: 2,
+    enableDev: true,
+    enableGoogle: true,
+    ...overrides,
+  };
 }
 
-function startAuth(
-  fabric: AuthFabric,
-  seed: number,
-  draws?: readonly unknown[]
-) {
+function startAuth(fabric: AuthFabric, seed: number, knobs?: AuthKnobs) {
   return start(auth, {
     seed,
-    draws: draws ?? fabricDraws(fabric),
+    knobs: knobs ?? fabricKnobs(fabric),
     properties: AUTH_PROPERTIES,
   });
 }
@@ -108,7 +116,11 @@ describe('auth system / PBT', () => {
     }, 60_000);
 
     test(`dev provider knob off returns 404 on launch (${fabric})`, async () => {
-      await using run = await startAuth(fabric, 13, [fabric, 2, false, true]);
+      await using run = await startAuth(
+        fabric,
+        13,
+        fabricKnobs(fabric, { enableDev: false })
+      );
       await run.apply(fetchAuth, {
         path: LAUNCH_DEV_URL,
         init: { method: 'GET', redirect: 'manual' },
@@ -139,6 +151,7 @@ describe('auth system / PBT', () => {
     const report = await check(auth, {
       properties: AUTH_PROPERTIES,
       actions: AUTH_ACTIONS,
+      knobs: gen(arbAuthKnobs()),
       episodes: 4,
       steps: 10,
       seed: 1,

@@ -8,7 +8,7 @@ import {
   syncVirtualHost,
 } from '../../../sim/scenario';
 import { expectConverged } from './expect-converged';
-import { acmeDraws, acmeSystem } from './system';
+import { acmeKnobs, acmeSystem } from './system';
 
 export type PlayAcmePinOpts = {
   readonly seed: number | bigint | string;
@@ -31,7 +31,7 @@ export async function playAcmePin(opts: PlayAcmePinOpts): Promise<void> {
   await using run = await start(opts.system ?? acmeSystem, {
     seed: opts.seed,
     host: syncVirtualHost(),
-    draws: acmeDraws(opts.knobs),
+    knobs: acmeKnobs(opts.knobs),
     properties: [],
   });
   await run.apply(playActions, opts.actions);

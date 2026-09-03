@@ -1,8 +1,10 @@
 import { expect } from 'bun:test';
-import { defineAction, type Run } from '@pkgs/dst';
+import { defineSurface, type Run } from '@pkgs/dst';
 import { converged, quiet } from '../../../sim/scenario/sync-observations';
 import { passTime, revive } from '../../../sim/scenario/sync-pin-actions';
 import type { SyncSurface } from '../../../sim/scenario/system';
+
+const { defineAction } = defineSurface<SyncSurface>();
 
 const QUIET_BUDGET_MS = 2_000;
 const QUIET_STEP_MS = 25;

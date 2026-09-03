@@ -1,7 +1,7 @@
 import { describe, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeSystem,
   addClient,
   connect,
@@ -25,7 +25,7 @@ describe('live resend on reconnect vs drop', () => {
     await using run = await start(acmeSystem, {
       seed: 601,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 
@@ -51,7 +51,7 @@ describe('live resend on reconnect vs drop', () => {
     await using run = await start(acmeSystem, {
       seed: 602,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0, liveResendOnReconnect: true }),
+      knobs: acmeKnobs({ clientCount: 0, liveResendOnReconnect: true }),
       properties: [],
     });
 

@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import {
   acmeApp,
-  acmeDraws,
+  acmeKnobs,
   acmeLocalSchema,
   acmeLocalSchemaExtraColumn,
   acmeLocalSchemaExtraColumnAndTable,
@@ -51,7 +51,7 @@ describe('mixed schema three clients partition converge', () => {
       await using run = await start(acmeMixedSchemaSystem, {
         seed: seed,
         host: syncVirtualHost(),
-        draws: acmeDraws({ clientCount: 0 }),
+        knobs: acmeKnobs({ clientCount: 0 }),
         properties: [],
       });
 

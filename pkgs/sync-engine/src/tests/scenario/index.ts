@@ -30,7 +30,7 @@ export {
   SIM_PBT_CRASH_EVENTS,
   STORAGE_TAMPERS,
   SYNC_PROPERTIES,
-  syncSystemDraws,
+  syncKnobs,
   syncVirtualHost,
 } from '../../sim/scenario';
 export { pickLibraryAction, pickSyncAction } from './pick-library-action';

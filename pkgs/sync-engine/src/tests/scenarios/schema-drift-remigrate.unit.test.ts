@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { start } from '@pkgs/dst';
 import {
-  acmeDraws,
+  acmeKnobs,
   acmeLocalSchemaExtraColumn,
   acmeSystem,
   addClient,
@@ -24,7 +24,7 @@ describe('preserveLocalDb remigrate after additive schema', () => {
     await using run = await start(acmeSystem, {
       seed: 42,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 
@@ -49,7 +49,7 @@ describe('preserveLocalDb remigrate after additive schema', () => {
     await using run = await start(acmeSystem, {
       seed: 43,
       host: syncVirtualHost(),
-      draws: acmeDraws({
+      knobs: acmeKnobs({
         clientCount: 0,
         rowImageFanout: false,
         liveResendOnReconnect: false,
@@ -77,7 +77,7 @@ describe('preserveLocalDb remigrate after additive schema', () => {
     await using run = await start(acmeSystem, {
       seed: 44,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 
@@ -99,7 +99,7 @@ describe('preserveLocalDb remigrate after additive schema', () => {
     await using run = await start(acmeSystem, {
       seed: 45,
       host: syncVirtualHost(),
-      draws: acmeDraws({ clientCount: 0 }),
+      knobs: acmeKnobs({ clientCount: 0 }),
       properties: [],
     });
 

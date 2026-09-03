@@ -1,4 +1,5 @@
 import {
+  type BoundObservation,
   type JsonValue,
   neverObserved,
   type Observation,
@@ -23,12 +24,17 @@ export type NeverAcmeOpts = {
   readonly pred?: (value: JsonValue) => boolean;
 };
 
+type AcmeObs<T extends JsonValue> =
+  | Observation<SyncSurface, [], T>
+  | BoundObservation<SyncSurface, T>
+  | Observation<SyncSurface, unknown[], T>;
+
 /** Thin acme defaults over {@link untilObserved}. Prefer calling dst directly. */
 export async function untilAcme<T extends JsonValue>(
   run: Run<SyncSurface>,
-  observation: Observation<SyncSurface, T>,
+  observation: AcmeObs<T>,
   opts?: UntilAcmeOpts
-): Promise<JsonValue> {
+): Promise<T> {
   return untilObserved(run, observation, passTime, {
     stepMs: opts?.stepMs ?? ACME_STEP_MS,
     ...(opts?.maxMs !== undefined ? { maxMs: opts.maxMs } : {}),
@@ -39,7 +45,7 @@ export async function untilAcme<T extends JsonValue>(
 /** Thin acme defaults over {@link neverObserved}. Prefer calling dst directly. */
 export async function neverAcme<T extends JsonValue>(
   run: Run<SyncSurface>,
-  observation: Observation<SyncSurface, T>,
+  observation: AcmeObs<T>,
   opts: NeverAcmeOpts
 ): Promise<void> {
   return neverObserved(run, observation, passTime, {

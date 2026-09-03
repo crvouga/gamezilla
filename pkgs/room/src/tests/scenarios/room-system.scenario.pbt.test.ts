@@ -1,7 +1,9 @@
 import { describe, expect, test } from 'bun:test';
+import { gen } from '@pkgs/dst/fast-check';
 import { check } from '@pkgs/dst/pbt';
 
 import {
+  arbRoomKnobs,
   invariantViolations,
   ROOM_PROPERTIES,
   replayRoom,
@@ -18,6 +20,7 @@ describe('room system PBT', () => {
       const report = await check(counterSystem, {
         properties: ROOM_PROPERTIES,
         actions: roomActions(counterApp),
+        knobs: gen(arbRoomKnobs()),
         episodes: 4,
         steps: 10,
         seed: 1,

@@ -1,9 +1,8 @@
-import { defineSystem, draw, type System } from '@pkgs/dst';
-import { gen } from '@pkgs/dst/fast-check';
-import fc from 'fast-check';
+import { defineSystem, type System } from '@pkgs/dst';
 import type { InMemoryRoomStorage } from '../../server/adapters/memory';
 import { createRoomKit } from '../kit';
 import type { RoomApp } from './app';
+import type { RoomKnobs } from './knobs';
 import type { RoomSurface } from './surface';
 
 const SIM_START_MS = 1_700_000_000_000;
@@ -14,7 +13,7 @@ export type DefineRoomSystemOpts = {
   readonly storage?: InMemoryRoomStorage;
 };
 
-export type RoomSystemDef = System<RoomSurface>;
+export type RoomSystemDef = System<RoomSurface, RoomKnobs>;
 
 async function bootClients(
   kit: Awaited<ReturnType<typeof createRoomKit>>,
@@ -26,8 +25,7 @@ async function bootClients(
 }
 
 /**
- * Room system: draws `clientCount` and `mildFaults`, boots one kit,
- * and returns {@link RoomSurface}.
+ * Room system: boots one kit from typed knobs and returns {@link RoomSurface}.
  */
 export function defineRoomSystem(
   app: RoomApp,
@@ -35,18 +33,16 @@ export function defineRoomSystem(
 ): RoomSystemDef {
   return defineSystem({
     name: opts?.name ?? 'room',
-    async *generate(session) {
-      const clientCount = yield* draw(gen(fc.integer({ min: 0, max: 4 })));
-      const mildFaults = yield* draw(gen(fc.boolean()));
+    async generate(session, knobs: RoomKnobs) {
       const kit = await createRoomKit({
         session,
         module: app.module,
-        mildFaults,
+        mildFaults: knobs.mildFaults,
         ...(opts?.topic !== undefined ? { topic: opts.topic } : {}),
         ...(opts?.storage !== undefined ? { storage: opts.storage } : {}),
         ...(app.authorize !== undefined ? { authorize: app.authorize } : {}),
       });
-      await bootClients(kit, clientCount);
+      await bootClients(kit, knobs.clientCount);
       return {
         session,
         app,
