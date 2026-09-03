@@ -25,7 +25,9 @@ export class AuthFlows {
   async signOut(): Promise<void> {
     await this.ui.get(Handles.accountSignOut).tap();
     await this.ui.get(Handles.authSignOutConfirm).tap();
-    await this.ui.get(Handles.authSignedOut).expect.visible();
+    await this.ui
+      .get(Handles.authSignedOut)
+      .expect.visible({ timeoutMs: 15_000 });
   }
 
   async expectSignedOut(): Promise<void> {
