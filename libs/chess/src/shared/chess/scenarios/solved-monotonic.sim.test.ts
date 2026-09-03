@@ -2,8 +2,8 @@ import { describe, expect, test } from 'bun:test';
 import {
   addClient,
   clientState,
-  converge,
   dispatch,
+  expectConverged,
   passTime,
   serverHash,
   serverState,
@@ -28,7 +28,7 @@ describe('chess puzzle: solved monotonic (Gp-03)', () => {
       seed: process.env['SIM_SEED'] ?? '42',
     });
     await run.apply(addClient, { id: 'host', identity: 'host-1' });
-    await run.apply(converge);
+    await expectConverged(run);
 
     await run.apply(dispatch, {
       clientId: 'host',

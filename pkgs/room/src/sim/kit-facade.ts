@@ -27,7 +27,7 @@ export type AssembleKitOpts<
   }) => Promise<RoomSimClientHandle<S, C, E>>;
   readonly recreateServer: () => Promise<void>;
   readonly prepareForSettle: () => Promise<void>;
-  readonly assertConverged: () => Promise<void>;
+  readonly revive: () => Promise<void>;
   readonly serverCrash: () => Promise<void>;
   readonly dispose: () => Promise<void>;
   readonly domainQueries: Pick<
@@ -112,7 +112,7 @@ export function assembleKit<
       await drainRoomSim(drainCtx());
     },
     isServerCrashed: () => k.serverCrashed,
-    assertConverged: opts.assertConverged,
+    revive: opts.revive,
     dispose: opts.dispose,
     [Symbol.asyncDispose]: opts.dispose,
   };

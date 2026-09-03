@@ -6,8 +6,8 @@ import {
   acmeSystem,
   addClient,
   connect,
-  converge,
   disconnect,
+  expectConverged,
   liveNote,
   mutate,
   neverAcme,
@@ -41,7 +41,7 @@ describe('pending mutations across protocol cut drain', () => {
 
     // Reconnect speaks current protocol; stable mutation names drain unchanged.
     await run.apply(connect, 'alice');
-    await run.apply(converge);
+    await expectConverged(run);
     expect(await run.observe(liveNote('alice', 'pending-cut'))).toMatchObject({
       body: 'queued-at-cut',
     });

@@ -1,0 +1,10 @@
+/**
+ * Node (Jest / Playwright / bun) real fabric entry.
+ * Imports `.impl` directly so jest-expo never re-resolves through `.native.ts`.
+ */
+export {
+  openRealClientSql,
+  openRealServerSql,
+  openRealServerSqlFromSeed,
+  REAL_CHECKPOINT_SQL_FORMAT,
+} from './sim-sql-fabric-real.impl';

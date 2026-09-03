@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
+  expectConverged,
   liveNote,
   mutate,
   nudge,
@@ -26,7 +26,7 @@ describe('unknown query name denied detaches scope', () => {
 
       await run.apply(addClient, { id: 'alice' });
       await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'keep-me' });
-      await run.apply(converge);
+      await expectConverged(run);
       expect(await run.observe(liveNote('alice', 'n1'))).toMatchObject({
         body: 'keep-me',
       });
@@ -42,7 +42,7 @@ describe('unknown query name denied detaches scope', () => {
       expect(await run.observe(liveNote('alice', 'n1'))).toMatchObject({
         body: 'keep-me',
       });
-      await run.apply(converge);
+      await expectConverged(run);
     }
   );
 });

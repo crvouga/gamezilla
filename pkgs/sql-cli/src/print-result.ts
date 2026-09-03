@@ -15,10 +15,10 @@ export function printSqlCliResult(result: SqlCliResult): void {
       ]);
       return;
     case 'message':
-      console.log(result.message);
+      process.stdout.write(`${result.message}\n`);
       return;
     case 'empty':
-      console.log('No rows returned');
+      process.stdout.write('No rows returned\n');
       return;
   }
 }

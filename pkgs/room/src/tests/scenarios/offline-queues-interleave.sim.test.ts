@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { connect, converge, disconnect, dispatch } from '../../sim/scenario';
+import { connect, disconnect, dispatch } from '../../sim/scenario';
+import { expectConverged } from '../expect-converged';
 import { counterValue, Increment } from '../fixtures/counter-module';
 import { bootCounter } from '../scenario/boot-counter';
 import {
@@ -34,7 +35,7 @@ describe('room sim: offline queues interleave (E-B03)', () => {
 
     await run.apply(connect, 'alice');
     await run.apply(connect, 'bob');
-    await run.apply(converge);
+    await expectConverged(run);
     expect(counterValue(await readServer(run))).toBe(4);
     expect(counterValue(await readClient(run, 'alice'))).toBe(4);
     await expectHashMatch(run, 'alice');

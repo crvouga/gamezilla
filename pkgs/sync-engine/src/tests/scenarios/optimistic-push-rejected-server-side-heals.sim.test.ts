@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
+  expectConverged,
   hold,
   lastMutationId,
   mutate,
@@ -32,7 +32,7 @@ describe('optimistic push rejected server side heals', () => {
     await run.apply(addClient, 'bob');
 
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'good' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     // Hold mutator sync so upload cannot ack; peer may still see optimistic.
     await run.apply(hold, 'alice', 'sync');
@@ -54,7 +54,7 @@ describe('optimistic push rejected server side heals', () => {
 
     await run.apply(release, 'bob', 'sync');
     await run.apply(mutate, 'bob', setNote, { id: 'bump', body: 'x' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await expectLiveNoteAt(run, 'alice', 'n1', { body: 'good' });
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'good' });

@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
+  expectConverged,
   expectLiveNoteAt,
   liveNotes,
   mutate,
@@ -34,7 +34,7 @@ describe('null vs missing column in snapshot', () => {
       body: 'o',
       // folderId omitted — same wire outcome as null for this mutation.
     });
-    await run.apply(converge);
+    await expectConverged(run);
 
     const notes = await run.observe(liveNotes('bob'));
     expect(notes.find((n) => n.id === 'explicit-null')?.folderId).toBeNull();
@@ -61,7 +61,7 @@ describe('null vs missing column in snapshot', () => {
         folderId: null,
       });
       await run.apply(mutate, 'alice', setNote, { id: `m-${seed}`, body: 'y' });
-      await run.apply(converge);
+      await expectConverged(run);
       const notes = await run.observe(liveNotes('server'));
       expect(notes.every((n) => n.folderId === null)).toBe(true);
     }

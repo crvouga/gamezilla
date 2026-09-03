@@ -1,14 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 import { asKeyword } from '@pkgs/keyword';
-import {
-  addClient,
-  converge,
-  dispatch,
-  logSeq,
-  startRoom,
-} from '../../sim/scenario';
+import { addClient, dispatch, logSeq, startRoom } from '../../sim/scenario';
 import { ROOM_ERROR_TYPE } from '../../types';
 import { counterSystem } from '../apps/counter/system';
+import { expectConverged } from '../expect-converged';
 import { counterValue } from '../fixtures/counter-module';
 import { readClient, readRejection, readServer } from '../scenario/read-state';
 
@@ -16,7 +11,7 @@ describe('room sim: unknown command reject (E-D04)', () => {
   test('unknown message type rejects without mutate', async () => {
     await using run = await startRoom(counterSystem);
     await run.apply(addClient, { id: 'alice' });
-    await run.apply(converge);
+    await expectConverged(run);
 
     await run.apply(dispatch, {
       clientId: 'alice',

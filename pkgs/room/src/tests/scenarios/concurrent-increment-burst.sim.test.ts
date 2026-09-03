@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { clientHash, converge, dispatch, serverHash } from '../../sim/scenario';
+import { clientHash, dispatch, serverHash } from '../../sim/scenario';
+import { expectConverged } from '../expect-converged';
 import { counterValue, Increment } from '../fixtures/counter-module';
 import { bootCounter } from '../scenario/boot-counter';
 import { readClient, readServer } from '../scenario/read-state';
@@ -17,7 +18,7 @@ describe('room sim: concurrent increment burst (E-B01)', () => {
         await run.apply(dispatch, { clientId: id, payload: Increment({}) });
       }
     }
-    await run.apply(converge);
+    await expectConverged(run);
     const expected = perClient * ids.length;
     expect(counterValue(await readServer(run))).toBe(expected);
     const h = await run.observe(serverHash);

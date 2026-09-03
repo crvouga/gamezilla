@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
+  expectConverged,
   liveNote,
   mutate,
   net,
@@ -29,7 +29,7 @@ describe('row image apply then refetch not not modified', () => {
 
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'seed' });
     await run.apply(mutate, 'alice', setNote, { id: 'n2', body: 'other' });
-    await run.apply(converge);
+    await expectConverged(run);
 
     {
       await run.apply(net, 'bob', 'sync', 'hold');
@@ -47,7 +47,7 @@ describe('row image apply then refetch not not modified', () => {
     }
     // nudge: release sync — refetch must not be not-modified after row-image paint
     await run.apply(nudge, 'bob');
-    await run.apply(converge);
+    await expectConverged(run);
     expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
       body: 'via-image',
     });

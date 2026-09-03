@@ -10,10 +10,7 @@ export {
   resetActor,
   spawnActor,
   type UiOp,
-  type UiWait,
-  type UiWaitKind,
   uiOp,
-  uiWait,
 } from './actions';
 export {
   actor,

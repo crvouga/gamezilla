@@ -10,8 +10,8 @@ import {
   acmeMutationRegistry,
   acmeQueryRegistry,
   addClient,
-  converge,
   defineSyncSystem,
+  expectConverged,
   liveNote,
   liveTags,
   localTable,
@@ -86,7 +86,7 @@ describe('mixed schema three clients partition converge', () => {
       });
 
       await run.apply(mutate, 'alice', setNote, { id: 'shared', body: 'seed' });
-      await run.apply(converge);
+      await expectConverged(run);
 
       await run.apply(partition, 'alice', 'all');
       await run.apply(partition, 'bob', 'all');
@@ -112,7 +112,7 @@ describe('mixed schema three clients partition converge', () => {
       await run.apply(release, 'carol', 'all');
 
       await run.apply(subscribe, 'carol', 'tagsAll', {});
-      await run.apply(converge);
+      await expectConverged(run);
 
       expect(await run.observe(liveNote('alice', 'carol-only'))).toMatchObject({
         body: 'c-note',

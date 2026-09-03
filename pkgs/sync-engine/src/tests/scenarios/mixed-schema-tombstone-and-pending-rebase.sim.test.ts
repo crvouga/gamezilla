@@ -9,10 +9,10 @@ import {
   acmeQueryRegistry,
   addClient,
   connect,
-  converge,
   defineSyncSystem,
   deleteNote,
   disconnect,
+  expectConverged,
   lastMutationOk,
   liveNote,
   mutate,
@@ -72,7 +72,7 @@ describe('mixed schema tombstone and pending rebase', () => {
       });
 
       await run.apply(mutate, 'bob', setNote, { id: 'n1', body: 'seed' });
-      await run.apply(converge);
+      await expectConverged(run);
 
       await run.apply(disconnect, 'alice');
       await run.apply(mutate, 'alice', setNoteColor, {
@@ -90,7 +90,7 @@ describe('mixed schema tombstone and pending rebase', () => {
       expect(await readNoteTombstoneAt(run, 'server', 'n1')).not.toBeNull();
 
       await run.apply(connect, 'alice');
-      await run.apply(converge);
+      await expectConverged(run);
 
       // setNoteColor upsert clears deleted_at — revive wins (same as setNote).
       for (const node of ['alice', 'bob', 'server'] as const) {

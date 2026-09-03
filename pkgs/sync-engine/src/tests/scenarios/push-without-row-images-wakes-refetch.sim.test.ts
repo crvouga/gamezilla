@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
+  expectConverged,
   liveNote,
   mutate,
   setNoteNoFanout,
@@ -28,7 +28,7 @@ describe('push without row images wakes refetch', () => {
       id: 'n1',
       body: 'no-images',
     });
-    await run.apply(converge);
+    await expectConverged(run);
 
     expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
       body: 'no-images',

@@ -97,42 +97,6 @@ export const uiOp = defineAction({
   },
 });
 
-/** What `wait` waits for. `text` carries `text` / `exact` in the payload. */
-export type UiWaitKind = 'visible' | 'hidden' | 'text';
-
-export type UiWait = {
-  readonly actorId: string;
-  readonly path: readonly string[];
-  readonly kind: UiWaitKind;
-  /** `true` → `node.expect.*` (assertion copy); `false` → `node.wait`. */
-  readonly assert: boolean;
-  readonly text?: string;
-  readonly exact?: boolean;
-  readonly timeoutMs?: number;
-  readonly description?: string;
-};
-
-/**
- * Waiting is a checkpoint: it advances the host's own wait pump, so every
- * memoised observation is invalidated once it returns.
- */
-export const uiWait = defineAction({
-  name: 'uiWait',
-  *generate() {
-    const w = yield* draw(() => {
-      return {
-        actorId: '',
-        path: [] as string[],
-        kind: 'visible',
-        assert: false,
-      } satisfies UiWait;
-    });
-    yield async (s: ProductSurface) => {
-      await performUiWait(s, w);
-    };
-  },
-});
-
 async function performUiOp(s: ProductSurface, op: UiOp): Promise<void> {
   const handle = s.actors.get(op.actorId);
   if (handle === undefined) return;
@@ -148,41 +112,6 @@ async function performUiOp(s: ProductSurface, op: UiOp): Promise<void> {
   const node = nodeAt(s, op.actorId, op.path);
   if (node === null) return;
   await runNodeOp(node, op, opts);
-}
-
-function waitOptions(w: UiWait) {
-  return {
-    ...(w.timeoutMs !== undefined ? { timeoutMs: w.timeoutMs } : {}),
-    ...(w.description !== undefined ? { description: w.description } : {}),
-  };
-}
-
-async function performUiWait(s: ProductSurface, w: UiWait): Promise<void> {
-  const node = nodeAt(s, w.actorId, w.path);
-  if (node === null) {
-    throw new Error(`uiWait: actor '${w.actorId}' has no UI`);
-  }
-  const opts = waitOptions(w);
-  if (!w.assert) {
-    const state =
-      w.kind === 'text'
-        ? { text: w.text ?? '', exact: w.exact ?? true }
-        : w.kind;
-    await node.wait(state, opts);
-    return;
-  }
-  if (w.kind === 'visible') {
-    await node.expect.visible(opts);
-    return;
-  }
-  if (w.kind === 'hidden') {
-    await node.expect.hidden(opts);
-    return;
-  }
-  await node.expect.text(w.text ?? '', {
-    ...opts,
-    ...(w.exact !== undefined ? { exact: w.exact } : {}),
-  });
 }
 
 async function runNodeOp(

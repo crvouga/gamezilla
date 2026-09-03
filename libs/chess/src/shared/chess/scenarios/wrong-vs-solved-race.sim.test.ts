@@ -3,8 +3,8 @@ import {
   addClient,
   clientHash,
   clientState,
-  converge,
   dispatch,
+  expectConverged,
   passTime,
   serverHash,
   serverState,
@@ -38,7 +38,7 @@ describe('chess puzzle: wrong vs solve race (Gp-04)', () => {
       identity: 'host-1',
       clientId: 'tab-2',
     });
-    await run.apply(converge);
+    await expectConverged(run);
 
     await run.apply(dispatch, {
       clientId: 'tab1',
@@ -58,7 +58,7 @@ describe('chess puzzle: wrong vs solve race (Gp-04)', () => {
       clientId: 'tab2',
       payload: SubmitChessPuzzleMove({ uci: 'a2a3' }),
     });
-    await run.apply(converge);
+    await expectConverged(run);
 
     const serverStatus = ChessPuzzlePlayAttr.status.from(
       (await run.observe(serverState)) as never

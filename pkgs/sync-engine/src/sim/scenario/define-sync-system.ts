@@ -190,7 +190,8 @@ function buildSurface(
         throw new Error(`${inv.invariant}: ${inv.detail}`);
       }
     },
-    assertConverged: () => kit.assertConverged(),
+    revive: () => kit.revive(),
+    drainUntilConverged: () => kit.drainUntilConverged(),
     tamperLocalStorage: kit.tamperLocalStorage,
     armStoragePressure: kit.armStoragePressure,
     clearStoragePressure: kit.clearStoragePressure,

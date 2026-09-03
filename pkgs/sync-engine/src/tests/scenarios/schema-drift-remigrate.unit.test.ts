@@ -6,8 +6,8 @@ import {
   acmeSystem,
   addClient,
   addPeerEngine,
-  assertConverged,
   crash,
+  expectConverged,
   expectLiveNoteAt,
   expectNotesAgree,
   hasLocalTable,
@@ -33,7 +33,7 @@ describe('preserveLocalDb remigrate after additive schema', () => {
       localSchema: acmeLocalSchemaExtraColumn,
     });
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'hi' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     // Settle-style remigrate: preserve DB, omit localSchema (pack baseline).
     // Must reuse sticky upgrade schema — baseline reconcile would reject color.
@@ -68,7 +68,7 @@ describe('preserveLocalDb remigrate after additive schema', () => {
     await run.apply(crash, 'alice');
     await run.apply(restart, 'alice', { preserveLocalDb: true });
 
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await expectNotesAgree(run, 'alice');
     await expectNotesAgree(run, 'bob');
   });
@@ -84,7 +84,7 @@ describe('preserveLocalDb remigrate after additive schema', () => {
     await run.apply(addClient, { id: 'alice' });
     await run.apply(restartWithSchema, 'alice', 'extraColumn');
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'keep' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await run.apply(restartWithSchema, 'alice', 'extraTable');
 
@@ -106,11 +106,11 @@ describe('preserveLocalDb remigrate after additive schema', () => {
     await run.apply(addClient, { id: 'c1' });
     await run.apply(restartWithSchema, 'c1', 'extraColumn');
     await run.apply(mutate, 'c1', setNote, { id: 'n1', body: 'peer' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await run.apply(addPeerEngine, 'c2', 'c1');
 
     await expectLiveNoteAt(run, 'c2', 'n1', { body: 'peer' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
   });
 });

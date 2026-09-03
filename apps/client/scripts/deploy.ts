@@ -11,8 +11,12 @@ import { REPO_ROOT } from '@libs/secrets/shared/paths';
 import { runAsync, runCapture } from '@libs/secrets/shared/subprocess';
 import { wranglerArgs, wranglerEnv } from '@libs/secrets/shared/wrangler-env';
 import { assert } from '@pkgs/assert';
+import { wallClock } from '@pkgs/clock';
 import { assertCommitDateIso, COMMIT_HASH_HEX_REGEX } from '@pkgs/git';
+import { createLogger } from '@pkgs/logger';
 import { isProductionSecretsEnv } from '../../../tools/src/deploy-mode';
+
+const log = createLogger({ name: 'client:deploy', now: wallClock.now });
 
 const clientDir = join(import.meta.dirname, '..');
 
@@ -111,13 +115,13 @@ async function deploy(dryRun: boolean): Promise<void> {
     return;
   }
 
-  console.log(
+  log.info(
     `Client Worker deployed (${PRODUCT_CONFIG.cloudflare.clientWorker}) on gamezilla.app / www.gamezilla.app.`
   );
 }
 
 const dryRun = !isProductionSecretsEnv();
 if (dryRun) {
-  console.log('[client:deploy] dry-run (SECRETS_ENV is not prd)');
+  log.info('[client:deploy] dry-run (SECRETS_ENV is not prd)');
 }
 await deploy(dryRun);

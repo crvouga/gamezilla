@@ -5,7 +5,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
+  expectConverged,
   mutate,
   passTime,
   retouchNotes,
@@ -37,11 +37,11 @@ describe('fanout receive cap on push', () => {
     for (const id of ids) {
       await run.apply(mutate, 'alice', setNote, { id, body: 'seed' });
     }
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await run.apply(mutate, 'alice', retouchNotes, { ids, body: 'over-cap' });
     await run.apply(passTime, 500);
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await expectNotesAgree(run, 'bob');
   });
 });

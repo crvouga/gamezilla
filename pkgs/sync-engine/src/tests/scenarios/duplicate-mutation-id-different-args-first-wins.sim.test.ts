@@ -4,8 +4,8 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
   deviceId,
+  expectConverged,
   expectLiveNoteAt,
   lastMutationId,
   lastMutationOk,
@@ -41,7 +41,7 @@ describe('duplicate mutation id different args first wins', () => {
       expect(await run.observe(lastMutationOk('alice'))).toBe(true);
       const firstId = await run.observe(lastMutationId('alice'));
       expect(firstId).not.toBeNull();
-      await run.apply(assertConverged);
+      await expectConverged(run);
 
       await run.apply(postMutations, 'alice', [
         {
@@ -61,7 +61,7 @@ describe('duplicate mutation id different args first wins', () => {
         verdicts: [{ status: 'applied' }],
       });
 
-      await run.apply(assertConverged);
+      await expectConverged(run);
 
       await expectLiveNoteAt(run, 'alice', 'n1', { body: 'first-wins' });
       await expectLiveNoteAt(run, 'bob', 'n1', { body: 'first-wins' });

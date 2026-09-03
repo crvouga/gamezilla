@@ -4,8 +4,8 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
   crash,
+  expectConverged,
   liveNote,
   mutate,
   net,
@@ -28,7 +28,7 @@ describe('server crash mid request client retries', () => {
     await run.apply(addClient, { id: 'bob' });
 
     await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
-    await run.apply(converge);
+    await expectConverged(run);
 
     {
       await run.apply(net, 'alice', 'sync', 'hold');
@@ -41,7 +41,7 @@ describe('server crash mid request client retries', () => {
       await run.apply(passTime, 50);
       await run.apply(restart, 'server', { preserveLocalDb: true });
     }
-    await run.apply(converge);
+    await expectConverged(run);
 
     expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
       body: 'during-crash',
@@ -52,7 +52,7 @@ describe('server crash mid request client retries', () => {
       id: 'n2',
       body: 'after-restart',
     });
-    await run.apply(converge);
+    await expectConverged(run);
     expect(await run.observe(liveNote('alice', 'n2'))).toMatchObject({
       body: 'after-restart',
     });

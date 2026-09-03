@@ -4,8 +4,8 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
   createSpace,
+  expectConverged,
   hasTopic,
   joinSpace,
   lacksTopic,
@@ -46,7 +46,7 @@ describe('leave join topics without pubsub remake', () => {
       title: 'A',
     });
     await run.apply(mutate, 'bob', joinSpace, { spaceId: 'space-a' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await untilAcme(run, subscribedTopics('alice'), {
       pred: hasTopic(roomTopic('space-a')),
@@ -80,6 +80,6 @@ describe('leave join topics without pubsub remake', () => {
       remakesAfterJoin
     );
 
-    await run.apply(assertConverged);
+    await expectConverged(run);
   });
 });

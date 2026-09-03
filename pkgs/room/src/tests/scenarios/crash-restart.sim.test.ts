@@ -2,7 +2,6 @@ import { describe, expect, test } from 'bun:test';
 import {
   addClient,
   armCrashAt,
-  converge,
   crash,
   disconnect,
   dispatch,
@@ -14,6 +13,7 @@ import {
   startRoom,
 } from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
+import { expectConverged } from '../expect-converged';
 import { counterValue, Increment } from '../fixtures/counter-module';
 import {
   expectHashMatch,
@@ -28,7 +28,7 @@ describe('room sim: client/server crash restart', () => {
     });
     await run.apply(addClient, { id: 'alice' });
     await run.apply(addClient, { id: 'bob' });
-    await run.apply(converge);
+    await expectConverged(run);
 
     await run.apply(disconnect, 'alice');
     await run.apply(dispatch, {
@@ -44,7 +44,7 @@ describe('room sim: client/server crash restart', () => {
     await run.apply(passTime, 0);
 
     await run.apply(restart, 'alice');
-    await run.apply(converge);
+    await expectConverged(run);
     expect(counterValue(await readServer(run))).toBe(2);
     expect(counterValue(await readClient(run, 'alice'))).toBe(2);
     await expectHashMatch(run, 'alice');
@@ -73,7 +73,7 @@ describe('room sim: client/server crash restart', () => {
     expect(await run.observe(serverCrashed)).toBe(false);
     expect(counterValue(await readServer(run))).toBe(2);
 
-    await run.apply(converge);
+    await expectConverged(run);
     await expectHashMatch(run, 'alice');
   });
 
@@ -92,7 +92,7 @@ describe('room sim: client/server crash restart', () => {
       payload: Increment({}),
     });
     await run.apply(passTime, 0);
-    await run.apply(converge);
+    await expectConverged(run);
     expect(counterValue(await readServer(run))).toBe(1);
   });
 
@@ -104,6 +104,6 @@ describe('room sim: client/server crash restart', () => {
       payload: Increment({}),
     });
     await run.apply(passTime, 0);
-    await run.apply(converge);
+    await expectConverged(run);
   });
 });

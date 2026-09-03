@@ -14,7 +14,11 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { wallClock } from '@pkgs/clock';
+import { createLogger } from '@pkgs/logger';
 import { run } from '@pkgs/os/command';
+
+const log = createLogger({ name: 'client:pwa-assets', now: wallClock.now });
 
 /** Pinned bunx spec — not a workspace dep (extract-zip has no patched release). */
 const PWA_ASSET_GENERATOR = 'pwa-asset-generator@8.1.4';
@@ -100,9 +104,9 @@ function generatePwaImages(): void {
 
 if (!hasAllExpectedAssets()) {
   generatePwaImages();
-  console.log(`PWA assets generated under ${pwaDir}`);
+  log.info(`PWA assets generated under ${pwaDir}`);
 } else {
-  console.log(`Up-to-date: ${pwaDir}`);
+  log.info(`Up-to-date: ${pwaDir}`);
 }
 
 /** pwa-asset-generator may emit protocol-relative `//file` URLs. */

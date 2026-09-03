@@ -1,7 +1,10 @@
 import { assert } from '@pkgs/assert';
+import { createLogger } from '@pkgs/logger';
 import { cliClock, cliTimers } from './cli-io';
 import { fmtElapsed } from './fmt';
 import { httpProbe } from './http-probe';
+
+const log = createLogger({ name: 'secrets:wait-for-http', now: cliClock.now });
 
 const DEFAULT_MAX_WAIT_MS = 5 * 60 * 1000;
 const DEFAULT_RETRY_MS = 5_000;
@@ -42,7 +45,7 @@ export async function waitForHttp(
     const result = await httpProbe(rawUrl, probeTimeoutMs);
 
     if (isProbeHealthy(result)) {
-      console.log(
+      log.info(
         `${label} ${rawUrl} — HTTP ${result.status} OK (${elapsedStr}).`
       );
       return;
@@ -64,7 +67,7 @@ export async function waitForHttp(
       (result.status === undefined
         ? 'no HTTP status'
         : `HTTP ${String(result.status)}`);
-    console.log(
+    log.info(
       `Waiting for ${label} ${rawUrl} — attempt ${attempt}/${maxAttempts}, ${detail}, ${elapsedStr} elapsed (max ${maxWaitStr})`
     );
     await sleep(retryMs);

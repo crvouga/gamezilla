@@ -4,8 +4,8 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
   deleteNote,
+  expectConverged,
   expectLiveNoteAt,
   expectNoteNotLiveAt,
   liveNotes,
@@ -41,7 +41,7 @@ describe('tombstone accumulation still converges', () => {
       body: 'survivor',
     });
     await run.apply(passTime, 5_000);
-    await run.apply(converge);
+    await expectConverged(run);
 
     await expectLiveNoteAt(run, 'bob', 'live-final', { body: 'survivor' });
     const live = await run.observe(liveNotes('bob'));
@@ -74,7 +74,7 @@ describe('tombstone accumulation still converges', () => {
         body: 'ok',
       });
       await run.apply(passTime, 1_000);
-      await run.apply(converge);
+      await expectConverged(run);
       await expectLiveNoteAt(run, 'server', `live-${seed}`, { body: 'ok' });
     }
   );

@@ -5,8 +5,8 @@ import {
   acmeSystem,
   addClient,
   connect,
-  converge,
   disconnect,
+  expectConverged,
   liveNote,
   liveNotes,
   mutate,
@@ -45,7 +45,7 @@ describe('mutation storm batching order preserved', () => {
     }
 
     await run.apply(connect, 'alice');
-    await run.apply(converge);
+    await expectConverged(run);
 
     expect(await run.observe(liveNote('bob', 'storm-shared'))).toMatchObject({
       body: `v${STORM - 1}`,
@@ -83,7 +83,7 @@ describe('mutation storm batching order preserved', () => {
         });
       }
       await run.apply(connect, 'alice');
-      await run.apply(converge);
+      await expectConverged(run);
       expect(await run.observe(liveNote('server', `s-${seed}`))).toMatchObject({
         body: 'v29',
       });

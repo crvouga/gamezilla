@@ -19,6 +19,8 @@ A **deterministic simulation testing** framework for TypeScript. Same seed + sys
 - **Do** gate faults with a `caps` observation (`if (!(yield* caps).includes('partition')) return`).
 - **Do** use bare `yield obs` in infinite property watches (Bun hangs on `yield*` + `try/finally` + infinite loop).
 - **Do** wait with `untilObserved(run, obs, passTime, { maxMs })` — one `passTime` checkpoint per poll (observations are memoised per checkpoint).
+- **Do** negative waits with `neverObserved(run, obs, passTime, { forMs })`.
+- **Don't** encode wait/assert/settle/converge as **actions** — those are observations (`quiet`, `converged`) plus stimuli (`heal` / `revive`) and `untilObserved`.
 - **Don't** import `@pkgs/dst/kernel` from product libs (depcruise: only `pkgs/dst/**`, `sim/**`, `**/sim/**`).
 - **Don't** import `fast-check` from core dst modules — use `@pkgs/dst/fast-check` adapters.
 - **Don't** add `World` / `openWorld` / `open*World` / `defineScenario` / `knob` / `node` / `std` — deleted.
@@ -27,8 +29,15 @@ A **deterministic simulation testing** framework for TypeScript. Same seed + sys
 ## Waiting pattern
 
 ```ts
-await untilObserved(run, outcome('bob', mid), passTime, { maxMs: 5_000 });
-expect(await run.observe(outcome('bob', mid))).toBe('rejected');
+await run.apply(heal); // stimulus only
+await untilObserved(run, quiet, passTime, { maxMs: 2_000 });
+await untilObserved(run, converged, passTime, { maxMs: 5_000 });
+expect(await run.observe(converged)).toBe(true);
+
+await neverObserved(run, liveNote('bob', 'late'), passTime, {
+  forMs: 200,
+  pred: (n) => n != null,
+});
 ```
 
 ## Key files

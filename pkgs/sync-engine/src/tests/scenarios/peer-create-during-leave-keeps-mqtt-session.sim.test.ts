@@ -4,8 +4,8 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
   createSpace,
+  expectConverged,
   hasTopic,
   joinSpace,
   leaveSpace,
@@ -40,7 +40,7 @@ describe('peer create during leave keeps mqtt session', () => {
     });
 
     await run.apply(mutate, 'alice', createSpace, { id: 'room-1', title: 'R' });
-    await run.apply(converge);
+    await expectConverged(run);
     await untilAcme(run, subscribedTopics('alice'), {
       pred: hasTopic(roomTopic('room-1')),
     });
@@ -48,7 +48,7 @@ describe('peer create during leave keeps mqtt session', () => {
     await untilAcme(run, subscribedTopics('bob'), {
       pred: hasTopic(roomTopic('room-1')),
     });
-    await run.apply(converge);
+    await expectConverged(run);
     await untilAcme(run, subscribedTopics('alice'), {
       pred: hasTopic(roomTopic('room-1')),
     });
@@ -71,7 +71,7 @@ describe('peer create during leave keeps mqtt session', () => {
     ).toMatchObject({ body: 'created-while-leave' });
 
     await run.apply(mutate, 'alice', joinSpace, { spaceId: 'room-1' });
-    await run.apply(converge);
+    await expectConverged(run);
     expect(
       await run.observe(liveNote('alice', 'n-during-leave'))
     ).toMatchObject({ body: 'created-while-leave' });

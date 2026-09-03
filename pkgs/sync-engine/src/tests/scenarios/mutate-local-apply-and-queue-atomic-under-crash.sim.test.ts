@@ -5,8 +5,8 @@ import {
   acmeSystem,
   addClient,
   clientIds,
-  converge,
   crashAt,
+  expectConverged,
   expectLiveNoteAt,
   expectNoteNotLiveAt,
   expectNotesAgree,
@@ -33,7 +33,7 @@ describe('mutate local apply and queue atomic under crash', () => {
     await run.apply(addClient, { id: 'bob' });
 
     await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
-    await run.apply(converge);
+    await expectConverged(run);
 
     await run.apply(online, 'alice', false);
     await run.apply(crashAt, 'alice', 'afterNextMutateResolved');
@@ -46,7 +46,7 @@ describe('mutate local apply and queue atomic under crash', () => {
     expect(await run.observe(lastMutationOk('alice'))).toBe(true);
 
     await run.apply(restart, 'alice', { preserveLocalDb: true });
-    await run.apply(converge);
+    await expectConverged(run);
 
     const onServer = (await run.observe(liveNotes('server'))).some(
       (r) => r.id === 'atomic' && r.body === 'queued-or-absent'

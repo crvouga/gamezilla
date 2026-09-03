@@ -4,9 +4,9 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
   connect,
   disconnect,
+  expectConverged,
   lastMutationId,
   mutate,
   outcome,
@@ -32,7 +32,7 @@ describe('pending reject surfaces write rejections', () => {
     await run.apply(addClient, 'bob');
 
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'good' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await run.apply(disconnect, 'alice');
     await run.apply(mutate, 'alice', serverRejectNote, {
@@ -54,7 +54,7 @@ describe('pending reject surfaces write rejections', () => {
     expect(unacked[0]?.mutationId).toBe(mutationId);
 
     await run.apply(mutate, 'bob', setNote, { id: 'bump', body: 'x' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await expectLiveNoteAt(run, 'alice', 'n1', { body: 'good' });
     await expectAllNotesAgree(run, ['alice', 'bob']);
   });

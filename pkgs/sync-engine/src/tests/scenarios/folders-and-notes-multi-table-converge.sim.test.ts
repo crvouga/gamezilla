@@ -4,8 +4,8 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
   deleteFolder,
+  expectConverged,
   expectLiveNoteAt,
   liveFolders,
   liveNotes,
@@ -35,7 +35,7 @@ describe('folders and notes multi table converge', () => {
       folderId: 'f1',
       title: 'Task',
     });
-    await run.apply(converge);
+    await expectConverged(run);
 
     expect(await run.observe(liveFolders('bob'))).toEqual([
       { id: 'f1', title: 'Work', ownerId: 'alice' },
@@ -63,10 +63,10 @@ describe('folders and notes multi table converge', () => {
       body: 'x',
       folderId: 'f1',
     });
-    await run.apply(converge);
+    await expectConverged(run);
 
     await run.apply(mutate, 'alice', moveNote, { id: 'n1', folderId: 'f2' });
-    await run.apply(converge);
+    await expectConverged(run);
 
     const notes = await run.observe(liveNotes('bob'));
     expect(notes.find((n) => n.id === 'n1')?.folderId).toBe('f2');
@@ -89,10 +89,10 @@ describe('folders and notes multi table converge', () => {
       body: 'orphan-ok',
       folderId: 'f1',
     });
-    await run.apply(converge);
+    await expectConverged(run);
 
     await run.apply(mutate, 'alice', deleteFolder, { id: 'f1' });
-    await run.apply(converge);
+    await expectConverged(run);
 
     expect(await run.observe(liveFolders('bob'))).toEqual([]);
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'orphan-ok' });

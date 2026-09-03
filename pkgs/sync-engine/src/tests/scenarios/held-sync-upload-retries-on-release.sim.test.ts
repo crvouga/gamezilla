@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
+  expectConverged,
   hold,
   lastMutationId,
   lastMutationOk,
@@ -43,7 +43,7 @@ describe('held sync upload retries on release', () => {
     await run.apply(release, 'alice', 'sync');
     await untilAcme(run, outcome('alice', mutationId));
     expect(await run.observe(outcome('alice', mutationId))).toBe('confirmed');
-    await run.apply(converge);
+    await expectConverged(run);
     expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
       body: 'transient',
     });

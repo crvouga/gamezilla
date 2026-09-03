@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
+  expectConverged,
   httpFault,
   liveNote,
   liveNotes,
@@ -36,7 +36,7 @@ describe('server 500 mid batch full retry idempotent', () => {
         id: 'n1',
         body: 'txn-atomic',
       });
-      await run.apply(converge);
+      await expectConverged(run);
 
       expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
         body: 'txn-atomic',
@@ -67,7 +67,7 @@ describe('server 500 mid batch full retry idempotent', () => {
         id: 'n2',
         body: 'post-commit',
       });
-      await run.apply(converge);
+      await expectConverged(run);
 
       expect(await run.observe(liveNote('bob', 'n2'))).toMatchObject({
         body: 'post-commit',

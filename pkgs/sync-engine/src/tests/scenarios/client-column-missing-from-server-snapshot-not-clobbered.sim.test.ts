@@ -5,7 +5,7 @@ import {
   acmeLocalSchemaExtraColumn,
   acmeSystem,
   addClient,
-  converge,
+  expectConverged,
   expectLiveNoteAt,
   mutate,
   noteColor,
@@ -33,7 +33,7 @@ describe('client column missing from server snapshot not clobbered', () => {
       await run.apply(addClient, { id: 'bob' });
 
       await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'v1' });
-      await run.apply(converge);
+      await expectConverged(run);
 
       // Domain-only local write — not uploaded (server has no color column).
       await run.apply(
@@ -46,7 +46,7 @@ describe('client column missing from server snapshot not clobbered', () => {
       );
 
       await run.apply(mutate, 'bob', setNote, { id: 'n1', body: 'from-bob' });
-      await run.apply(converge);
+      await expectConverged(run);
 
       await expectLiveNoteAt(run, 'alice', 'n1', { body: 'from-bob' });
       expect((await run.observe(noteColor('alice', 'n1')))[0]?.color).toBe(

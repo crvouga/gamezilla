@@ -4,9 +4,9 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
   clientIds,
   crashAt,
+  expectConverged,
   mutate,
   passTime,
   restart,
@@ -33,7 +33,7 @@ describe('crash mid merge restart rehydrates', () => {
 
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'one' });
     await run.apply(mutate, 'alice', setNote, { id: 'n2', body: 'two' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await run.apply(crashAt, 'bob', 'afterNextSyncResponseDelivered');
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'updated' });
@@ -42,7 +42,7 @@ describe('crash mid merge restart rehydrates', () => {
 
     expect(await run.observe(clientIds)).not.toContain('bob');
     await run.apply(restart, 'bob', { preserveLocalDb: true });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     const ids = new Set(await readLiveNoteIds(run, 'bob'));
     expect(ids.has('n1')).toBe(true);

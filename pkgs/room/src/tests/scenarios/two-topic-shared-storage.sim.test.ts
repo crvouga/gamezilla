@@ -2,7 +2,6 @@ import { describe, expect, test } from 'bun:test';
 import { InMemoryRoomStorage } from '../../server/adapters/memory';
 import {
   addClient,
-  converge,
   defineRoomSystem,
   dispatch,
   hold,
@@ -11,6 +10,7 @@ import {
   startRoom,
 } from '../../sim/scenario';
 import { counterApp } from '../apps/counter/app';
+import { expectConverged } from '../expect-converged';
 import { counterValue, Increment } from '../fixtures/counter-module';
 import {
   expectHashMatch,
@@ -36,8 +36,8 @@ describe('room sim: two-topic shared storage (E-H01)', () => {
     await runA.apply(addClient, { id: 'alice' });
     await runA.apply(addClient, { id: 'bob' });
     await runB.apply(addClient, { id: 'carol' });
-    await runA.apply(converge);
-    await runB.apply(converge);
+    await expectConverged(runA);
+    await expectConverged(runB);
 
     await runA.apply(hold, 'bob');
     await runA.apply(dispatch, {
@@ -57,8 +57,8 @@ describe('room sim: two-topic shared storage (E-H01)', () => {
     await runA.apply(release, 'bob');
     await runA.apply(passTime, 0);
 
-    await runA.apply(converge);
-    await runB.apply(converge);
+    await expectConverged(runA);
+    await expectConverged(runB);
     expect(counterValue(await readServer(runA))).toBe(2);
     expect(counterValue(await readClient(runA, 'alice'))).toBe(2);
     await expectHashMatch(runA, 'alice');

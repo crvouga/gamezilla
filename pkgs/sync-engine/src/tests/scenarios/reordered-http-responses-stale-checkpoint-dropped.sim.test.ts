@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
+  expectConverged,
   liveNote,
   mutate,
   net,
@@ -24,7 +24,7 @@ describe('reordered http responses stale checkpoint dropped', () => {
     await run.apply(addClient, { id: 'alice' });
     await run.apply(addClient, { id: 'bob' });
     await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
-    await run.apply(converge);
+    await expectConverged(run);
 
     await run.apply(net, 'bob', 'sync', {
       latencyMeanMs: 20,
@@ -36,7 +36,7 @@ describe('reordered http responses stale checkpoint dropped', () => {
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'v2' });
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'v3-final' });
     await run.apply(mutate, 'alice', setNote, { id: 'n2', body: 'side' });
-    await run.apply(converge);
+    await expectConverged(run);
 
     expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
       body: 'v3-final',

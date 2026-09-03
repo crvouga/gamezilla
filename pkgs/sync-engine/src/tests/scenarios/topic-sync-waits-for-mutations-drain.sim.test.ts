@@ -4,8 +4,8 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
   createSpace,
+  expectConverged,
   hasTopic,
   hold,
   lacksTopic,
@@ -36,7 +36,7 @@ describe('topic sync waits for mutations drain', () => {
       sessionQuery: SPACE_MEMBERSHIP_SESSION,
     });
     await run.apply(mutate, 'alice', createSpace, { id: 'gated', title: 'G' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await untilAcme(run, subscribedTopics('alice'), {
       pred: hasTopic(roomTopic('gated')),
     });
@@ -53,6 +53,6 @@ describe('topic sync waits for mutations drain', () => {
     await untilAcme(run, subscribedTopics('alice'), {
       pred: lacksTopic(roomTopic('gated')),
     });
-    await run.apply(assertConverged);
+    await expectConverged(run);
   });
 });

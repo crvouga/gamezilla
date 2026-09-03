@@ -2,11 +2,11 @@ import { describe, expect, test } from 'bun:test';
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '../../protocol/wire';
 import {
   connect,
-  converge,
   disconnect,
   dispatch,
   injectFromServer,
 } from '../../sim/scenario';
+import { expectConverged } from '../expect-converged';
 import { counterValue, Increment } from '../fixtures/counter-module';
 import { bootCounter } from '../scenario/boot-counter';
 import {
@@ -41,7 +41,7 @@ describe('room sim: stale welcome recover (E-C02)', () => {
     await run.apply(connect, 'bob');
     await run.apply(disconnect, 'alice');
     await run.apply(connect, 'alice');
-    await run.apply(converge);
+    await expectConverged(run);
     expect(counterValue(await readServer(run))).toBe(5);
     expect(counterValue(await readClient(run, 'alice'))).toBe(5);
     expect(counterValue(await readClient(run, 'bob'))).toBe(5);

@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
+  expectConverged,
   lastMutationFailures,
   lastMutationId,
   lastMutationOk,
@@ -50,7 +50,7 @@ describe('requires online fails offline without queue', () => {
 
     await untilAcme(run, outcome('alice', okId));
     expect(await run.observe(outcome('alice', okId))).toBe('confirmed');
-    await run.apply(converge);
+    await expectConverged(run);
     expect(await run.observe(liveNote('alice', 'n1'))).toMatchObject({
       body: 'online-ok',
     });

@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
+  expectConverged,
   liveNote,
   mutate,
   net,
@@ -54,7 +54,7 @@ describe('wrong topic map heals on refetch', () => {
     }
     // nudge: heal-by-refetch after wrong topic-map wake
     await run.apply(nudge, 'bob');
-    await run.apply(converge);
+    await expectConverged(run);
     expect(
       await run.observe(liveNote('bob', 'stale-until-refetch'))
     ).toMatchObject({
@@ -80,7 +80,7 @@ describe('wrong topic map heals on refetch', () => {
       });
       // nudge: heal-by-refetch is the behavior under test
       await run.apply(nudge, 'bob');
-      await run.apply(converge);
+      await expectConverged(run);
       expect(await run.observe(liveNote('bob', `n-${seed}`))).toMatchObject({
         body: `b-${seed}`,
       });

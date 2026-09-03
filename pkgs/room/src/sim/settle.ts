@@ -207,56 +207,7 @@ async function nudgeUntilSynced<
   }
 }
 
-function assertSlotMatchesServer<
-  S extends RoomState,
-  C extends RoomCommandPayload,
-  E extends RoomEvent,
->(
-  ctx: ConvergeCtx<S, C, E>,
-  slot: RoomSimClientSlot<S, C, E>,
-  serverHash: string,
-  serverTip: number
-): void {
-  if (slot.room === null) {
-    throw new Error(
-      `assertConverged: missing room key=${slot.key} seed=${ctx.seed.toString(16)}`
-    );
-  }
-  if (!RoomMetaAttr.isSynced.from(slot.room.getSnapshot())) {
-    throw new Error(
-      `assertConverged: client not synced key=${slot.key} seed=${ctx.seed.toString(16)} now=${String(ctx.now())}`
-    );
-  }
-  const clientHash = clientDomainHash(ctx.module, slot.room);
-  if (clientHash !== serverHash) {
-    throw new Error(
-      `assertConverged: hash mismatch key=${slot.key} client=${clientHash} server=${serverHash} seed=${ctx.seed.toString(16)} now=${String(ctx.now())}`
-    );
-  }
-  if (slot.room.getLastSeq() !== serverTip) {
-    throw new Error(
-      `assertConverged: client-lastseq-equals-server-tip key=${slot.key} client=${String(slot.room.getLastSeq())} tip=${String(serverTip)} seed=${ctx.seed.toString(16)}`
-    );
-  }
-}
-
-async function assertHealedQueueDrained<
-  S extends RoomState,
-  C extends RoomCommandPayload,
-  E extends RoomEvent,
->(ctx: ConvergeCtx<S, C, E>, slot: RoomSimClientSlot<S, C, E>): Promise<void> {
-  if (slot.room === null) return;
-  await slot.room.flushIo();
-  const memory = slot.room.getPendingQueueIds();
-  const durable = await slot.clientStorage.loadQueued();
-  if (memory.length > 0 || durable.length > 0) {
-    throw new Error(
-      `assertConverged: healed-queue-drained key=${slot.key} memory=${String(memory.length)} durable=${String(durable.length)} seed=${ctx.seed.toString(16)}`
-    );
-  }
-}
-
-export async function assertRoomConverged<
+export async function reviveRoom<
   S extends RoomState,
   C extends RoomCommandPayload,
   E extends RoomEvent,
@@ -271,25 +222,32 @@ export async function assertRoomConverged<
   for (const key of ctx.clients.keys()) {
     await ctx.ensureConnected(key);
   }
-
-  // Nudge a few drain rounds so welcome/sync can complete after soft cycles.
   await nudgeUntilSynced(ctx);
+}
 
+/** Pure hash / seq / queue agreement check — never heals or reconnects. */
+export async function checkRoomConverged<
+  S extends RoomState,
+  C extends RoomCommandPayload,
+  E extends RoomEvent,
+>(ctx: ConvergeCtx<S, C, E>): Promise<boolean> {
   const serverHash = await serverDomainHash({
     module: ctx.module,
     storage: ctx.storage,
     topic: ctx.topic,
   });
   const liveHash = ctx.module.hash(ctx.getServer().getCommittedState());
-  if (liveHash !== serverHash) {
-    throw new Error(
-      `assertConverged: live committed diverged from log fold live=${liveHash} log=${serverHash} seed=${ctx.seed.toString(16)} now=${String(ctx.now())}`
-    );
-  }
+  if (liveHash !== serverHash) return false;
 
   const serverTip = await ctx.storage.getLastSeq(ctx.topic);
   for (const slot of ctx.clients.values()) {
-    assertSlotMatchesServer(ctx, slot, serverHash, serverTip);
-    await assertHealedQueueDrained(ctx, slot);
+    if (slot.room === null) return false;
+    if (!RoomMetaAttr.isSynced.from(slot.room.getSnapshot())) return false;
+    if (clientDomainHash(ctx.module, slot.room) !== serverHash) return false;
+    if (slot.room.getLastSeq() !== serverTip) return false;
+    const memory = slot.room.getPendingQueueIds();
+    const durable = await slot.clientStorage.loadQueued();
+    if (memory.length > 0 || durable.length > 0) return false;
   }
+  return true;
 }

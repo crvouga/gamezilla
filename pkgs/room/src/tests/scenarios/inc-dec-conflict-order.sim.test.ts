@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { converge, dispatch, passTime, setNet } from '../../sim/scenario';
+import { dispatch, passTime, setNet } from '../../sim/scenario';
+import { expectConverged } from '../expect-converged';
 import { counterValue, Decrement, Increment } from '../fixtures/counter-module';
 import { bootCounter } from '../scenario/boot-counter';
 import {
@@ -31,7 +32,7 @@ describe('room sim: inc-dec conflict order (E-B04)', () => {
       });
     }
     await run.apply(passTime, 0);
-    await run.apply(converge);
+    await expectConverged(run);
     expect(counterValue(await readServer(run))).toBe(0);
     expect(counterValue(await readClient(run, 'alice'))).toBe(0);
     await expectHashMatch(run, 'alice');

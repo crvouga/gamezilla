@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
+  expectConverged,
   expectLiveNoteAt,
   httpFault,
   lastMutationOk,
@@ -42,7 +42,7 @@ describe('invalid batch 400 no retry storm', () => {
       expect(await run.observe(pendingEventCount)).toBeLessThan(50);
 
       // `converge` clears boundary faults before healing and settling.
-      await run.apply(converge);
+      await expectConverged(run);
 
       await expectLiveNoteAt(run, 'bob', 'n1', { body: 'after-invalid' });
       const quiescent = await run.observe(schedulerQuiescent);

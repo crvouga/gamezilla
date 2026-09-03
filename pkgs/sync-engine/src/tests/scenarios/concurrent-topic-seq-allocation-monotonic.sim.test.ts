@@ -4,13 +4,12 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
+  expectConverged,
   liveNote,
   liveNotes,
   mutate,
   passTime,
   setNote,
-  settle,
   syncVirtualHost,
 } from '../apps/acme';
 
@@ -25,23 +24,20 @@ describe('concurrent topic seq allocation monotonic', () => {
 
     await run.apply(addClient, { id: 'alice' });
     await run.apply(addClient, { id: 'bob' });
-
-    // Both writers hit the same topic back to back, so seq allocation overlaps
+    // Fire many overlapping mutates; occasional passTime lets the batcher flush
     // inside the server without a settle between them.
     for (let i = 0; i < 12; i += 1) {
-      const suffix = String(i).padStart(2, '0');
       await run.apply(mutate, 'alice', setNote, {
-        id: `a-${suffix}`,
+        id: `a-${String(i).padStart(2, '0')}`,
         body: `a${i}`,
       });
       await run.apply(mutate, 'bob', setNote, {
-        id: `b-${suffix}`,
+        id: `b-${String(i).padStart(2, '0')}`,
         body: `b${i}`,
       });
       if (i % 3 === 0) await run.apply(passTime, 5);
     }
-    await run.apply(converge);
-    await run.apply(settle);
+    await expectConverged(run);
 
     expect((await run.observe(liveNotes('server'))).length).toBe(24);
     expect(await run.observe(liveNote('alice', 'a-00'))).toMatchObject({
@@ -66,8 +62,7 @@ describe('concurrent topic seq allocation monotonic', () => {
       await run.apply(addClient, { id: 'bob' });
       await run.apply(mutate, 'alice', setNote, { id: `a-${seed}`, body: 'x' });
       await run.apply(mutate, 'bob', setNote, { id: `b-${seed}`, body: 'y' });
-      await run.apply(converge);
-      await run.apply(settle);
+      await expectConverged(run);
       expect((await run.observe(liveNotes('server'))).length).toBe(2);
     }
   );

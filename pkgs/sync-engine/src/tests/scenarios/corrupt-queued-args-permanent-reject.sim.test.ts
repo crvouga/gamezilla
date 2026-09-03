@@ -4,9 +4,9 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
   connect,
   disconnect,
+  expectConverged,
   lastMutationId,
   mutate,
   outcome,
@@ -43,7 +43,7 @@ describe('corrupt queued args permanent reject', () => {
 
       // Seed so reject heals via snapshot (absence ≠ delete for new ids).
       await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'seed' });
-      await run.apply(assertConverged);
+      await expectConverged(run);
 
       await run.apply(disconnect, 'alice');
       await run.apply(mutate, 'alice', setNote, {
@@ -69,7 +69,7 @@ describe('corrupt queued args permanent reject', () => {
 
       // Bump server hash so alice's optimistic body is overwritten.
       await run.apply(mutate, 'bob', setNote, { id: 'ok', body: 'healthy' });
-      await run.apply(assertConverged);
+      await expectConverged(run);
       await expectLiveNoteAt(run, 'alice', 'n1', { body: 'seed' });
       await expectLiveNoteAt(run, 'alice', 'ok', { body: 'healthy' });
       await expectNotesAgree(run, 'alice');
@@ -103,7 +103,7 @@ describe('corrupt queued args permanent reject', () => {
     expect(await run.observe(outcome('alice', mutationId))).toBe('rejected');
 
     await run.apply(mutate, 'bob', setNote, { id: 'ok', body: 'healthy' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await expectNoteNotLiveAt(run, 'alice', 'orphan');
     await expectLiveNoteAt(run, 'alice', 'ok', { body: 'healthy' });
     await expectNotesAgree(run, 'alice');

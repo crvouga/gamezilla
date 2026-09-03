@@ -5,7 +5,7 @@ import {
   acmeDraws,
   acmeSystem,
   armStoragePressure,
-  converge,
+  expectConverged,
   lastMutationFailures,
   lastMutationOk,
   mutate,
@@ -47,6 +47,6 @@ describe('storage full mutate denied', () => {
       { kind: 'restart', clientId: 'c0' },
       { kind: 'heal' },
     ]);
-    await run.apply(converge);
+    await expectConverged(run);
   });
 });

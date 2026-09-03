@@ -5,7 +5,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
+  expectConverged,
   expectLiveNoteAt,
   expectNotesAgree,
   liveNotes,
@@ -42,7 +42,7 @@ describe('push during inflight merge queues single flight', () => {
 
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'seed' });
     await run.apply(mutate, 'alice', setNote, { id: 'n2', body: 'seed' });
-    await run.apply(converge);
+    await expectConverged(run);
 
     // nudge: force in-flight merge so pushes queue single-flight
     await run.apply(nudge, 'bob');
@@ -60,7 +60,7 @@ describe('push during inflight merge queues single flight', () => {
       expect(rows.length).toBeGreaterThanOrEqual(2);
     }
 
-    await run.apply(converge);
+    await expectConverged(run);
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'burst-final' });
     await expectLiveNoteAt(run, 'bob', 'n2', { body: 'burst-2' });
     await expectNotesAgree(run, 'bob');

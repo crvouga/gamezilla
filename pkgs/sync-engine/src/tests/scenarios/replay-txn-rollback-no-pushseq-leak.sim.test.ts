@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
+  expectConverged,
   hold,
   httpFault,
   invariantViolations,
@@ -34,7 +34,7 @@ describe('replay txn rollback no pushseq leak', () => {
     await run.apply(addClient, 'alice');
     await run.apply(addClient, 'bob');
     await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     // Hold peer sync so a successful retry cannot hydrate bob before we
     // observe the failed attempt's lack of live paint.
@@ -52,7 +52,7 @@ describe('replay txn rollback no pushseq leak', () => {
 
     await run.apply(release, 'bob', 'live');
     await run.apply(release, 'bob', 'sync');
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await expectLiveNoteAt(run, 'bob', 'n-rollback', { body: 'should-retry' });
     await expectLiveNoteAt(run, 'server', 'n-rollback', {
       body: 'should-retry',
@@ -79,7 +79,7 @@ describe('replay txn rollback no pushseq leak', () => {
         id: `n-${seed}`,
         body: `b-${seed}`,
       });
-      await run.apply(assertConverged);
+      await expectConverged(run);
       await expectLiveNoteAt(run, 'server', `n-${seed}`, {
         body: `b-${seed}`,
       });

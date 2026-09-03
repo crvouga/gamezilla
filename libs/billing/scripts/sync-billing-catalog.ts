@@ -6,9 +6,11 @@ import { CATALOG_SPEC } from '@libs/billing/public/catalog';
 import { createStripeBillingFromSecretStore } from '@pkgs/billing-stripe';
 import { wallClock } from '@pkgs/clock';
 import { createGlobalHttpClient } from '@pkgs/http-client';
+import { createLogger } from '@pkgs/logger';
 import { createBillingScriptSecretStore } from './billing-script-secret-store';
 
 const SCRIPT_TAG = 'billing sync';
+const log = createLogger({ name: SCRIPT_TAG, now: wallClock.now });
 const cliHttp = createGlobalHttpClient();
 
 async function main(): Promise<void> {
@@ -16,7 +18,10 @@ async function main(): Promise<void> {
     fetchFn: cliHttp.fetch.bind(cliHttp),
     now: wallClock.now,
   });
-  const billing = await createStripeBillingFromSecretStore(store);
+  const billing = await createStripeBillingFromSecretStore(
+    store,
+    wallClock.now
+  );
   if (billing === null) {
     console.error(
       `[${SCRIPT_TAG}] billing secret key is missing or blank — run under \`bun run tools/scripts/secrets-run.ts\``
@@ -24,15 +29,12 @@ async function main(): Promise<void> {
     process.exit(1);
   }
   const catalog = await billing.syncCatalog(CATALOG_SPEC);
-  console.log(
-    `[${SCRIPT_TAG}] done`,
-    JSON.stringify({
-      catalog: {
-        products: catalog.products.length,
-        prices: catalog.prices.length,
-      },
-    })
-  );
+  log.info(`[${SCRIPT_TAG}] done`, {
+    catalog: {
+      products: catalog.products.length,
+      prices: catalog.prices.length,
+    },
+  });
 }
 
 await main().catch((e: unknown) => {

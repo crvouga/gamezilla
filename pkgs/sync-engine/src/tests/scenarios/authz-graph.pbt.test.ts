@@ -5,8 +5,8 @@ import { arbKnobs, arbSeed } from '../../sim/scenario/knobs';
 import {
   acmeDraws,
   acmeSystem,
-  assertConverged,
   clientIds,
+  expectConverged,
   expectEveryClientNotesAgree,
   expectLiveNoteAt,
   lastMutationFailures,
@@ -43,7 +43,7 @@ describe('authz graph PBT', () => {
               body,
               title: '',
             });
-            await run.apply(assertConverged);
+            await expectConverged(run);
 
             await run.apply(mutate, peer!, deleteNote, { id: noteId });
             if (await run.observe(lastMutationOk(peer!))) {
@@ -53,7 +53,7 @@ describe('authz graph PBT', () => {
               'FORBIDDEN'
             );
 
-            await run.apply(assertConverged);
+            await expectConverged(run);
             await expectLiveNoteAt(run, owner!, noteId, { body });
             await expectLiveNoteAt(run, peer!, noteId, { body });
           }
@@ -99,7 +99,7 @@ describe('authz graph PBT', () => {
                 title: '',
               });
             }
-            await run.apply(assertConverged);
+            await expectConverged(run);
             await expectEveryClientNotesAgree(run);
           }
         ),

@@ -2,6 +2,8 @@
 
 import { copyFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { wallClock } from '@pkgs/clock';
+import { createLogger } from '@pkgs/logger';
 import * as esbuild from 'esbuild';
 import {
   expoSqliteWorkerEntry,
@@ -11,6 +13,11 @@ import {
   sqlHostHtml,
   sqlHostSharedOptions,
 } from './sql-host-build';
+
+const log = createLogger({
+  name: 'sql-client:build-web-workers',
+  now: wallClock.now,
+});
 
 const entry = join(pkgRoot, 'src/sqlite/web/db-host-shared-worker.ts');
 
@@ -65,22 +72,20 @@ async function main(): Promise<void> {
       target: ['es2022'],
       logLevel: 'info',
     });
-    console.log(`wrote ${outfile}`);
+    log.info(`wrote ${outfile}`);
   }
   for (const outDir of sqlWorkerDirs) {
     mkdirSync(outDir, { recursive: true });
     await buildSqlHost(outDir);
     await buildExpoSqliteWorker(outDir);
-    console.log(
-      `wrote ${outDir}/{sql-host.js,worker,worker.js,wa-sqlite.wasm}`
-    );
+    log.info(`wrote ${outDir}/{sql-host.js,worker,worker.js,wa-sqlite.wasm}`);
   }
   for (const { from, name } of staticTargets) {
     for (const outDir of sqlWorkerDirs) {
       const outfile = join(outDir, name);
       mkdirSync(outDir, { recursive: true });
       copyFileSync(from, outfile);
-      console.log(`wrote ${outfile}`);
+      log.info(`wrote ${outfile}`);
     }
   }
 }

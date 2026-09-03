@@ -34,10 +34,10 @@ import {
 } from './network';
 import { SerialQueue } from './serial-queue';
 import {
-  assertRoomConverged,
   drainRoomSim,
   foldServerDomainState,
   type RoomSimClientSlot,
+  reviveRoom,
   serverDomainHash,
 } from './settle';
 
@@ -416,7 +416,7 @@ async function ensureKitClientConnected<
   await softReconnectClient(k, slot);
 }
 
-async function assertKitConverged<
+async function reviveKit<
   S extends RoomState,
   C extends RoomCommandPayload,
   E extends RoomEvent,
@@ -424,7 +424,7 @@ async function assertKitConverged<
   k: RoomKernel<S, C, E>,
   prepareForSettle: () => Promise<void>
 ): Promise<void> {
-  await assertRoomConverged({
+  await reviveRoom({
     ...makeDrainCtx(k)(),
     module: k.module,
     storage: k.storage,
@@ -452,7 +452,7 @@ export async function createRoomKit<
     addClient: (a) => addKitClient(k, a),
     recreateServer,
     prepareForSettle,
-    assertConverged: () => assertKitConverged(k, prepareForSettle),
+    revive: () => reviveKit(k, prepareForSettle),
     serverCrash: () => serverCrashImpl(k),
     dispose: makeKitDispose(k),
     domainQueries: domainQueriesOf(k),

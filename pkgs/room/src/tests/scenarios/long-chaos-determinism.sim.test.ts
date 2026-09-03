@@ -4,7 +4,6 @@ import {
   addClient,
   clientHash,
   connect,
-  converge,
   disconnect,
   dispatch,
   down,
@@ -16,6 +15,7 @@ import {
   startRoom,
 } from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
+import { expectConverged } from '../expect-converged';
 import { Decrement, Increment } from '../fixtures/counter-module';
 
 async function runChaos(seed: string): Promise<string> {
@@ -70,7 +70,7 @@ async function runChaos(seed: string): Promise<string> {
     await run.apply(disconnect, id);
     await run.apply(connect, id);
   }
-  await run.apply(converge);
+  await expectConverged(run);
   const h = await run.observe(serverHash);
   const hashes = (await run.observe(clientHash)) as Record<string, string>;
   return `${h}:${hashes['alice']}:${hashes['bob']}:${hashes['carol']}`;

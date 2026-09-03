@@ -5,8 +5,8 @@ import {
   acmeSystem,
   addClient,
   connect,
-  converge,
   disconnect,
+  expectConverged,
   hold,
   lastMutationId,
   lastMutationOk,
@@ -54,7 +54,7 @@ describe('interleaved mutate during upload inflight', () => {
     await run.apply(release, 'alice', 'sync');
     await untilAcme(run, outcome('alice', fourthId));
     expect(await run.observe(outcome('alice', fourthId))).toBe('confirmed');
-    await run.apply(converge);
+    await expectConverged(run);
 
     expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
       body: 'first-v2',

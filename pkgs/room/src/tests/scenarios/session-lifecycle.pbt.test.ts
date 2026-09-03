@@ -6,7 +6,6 @@ import {
   arbRoomKnobs,
   arbSeed,
   clock,
-  converge,
   dispatch,
   injectToServer,
   replayRoom,
@@ -14,6 +13,7 @@ import {
   takeOver,
 } from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
+import { expectConverged } from '../expect-converged';
 import { counterValue, Increment } from '../fixtures/counter-module';
 import { readServer } from '../scenario/read-state';
 
@@ -148,7 +148,7 @@ describe('room session-lifecycle PBT', () => {
       raw: frame,
       direct: true,
     });
-    await run.apply(converge);
+    await expectConverged(run);
     expect(counterValue(await readServer(run))).toBe(1);
   });
 
@@ -172,7 +172,7 @@ describe('room session-lifecycle PBT', () => {
       clientId: 'tab-b',
       payload: Increment({}),
     });
-    await run.apply(converge);
+    await expectConverged(run);
     expect(counterValue(await readServer(run))).toBe(2);
   });
 });

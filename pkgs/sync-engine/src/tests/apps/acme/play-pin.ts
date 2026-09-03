@@ -2,27 +2,30 @@ import { start } from '@pkgs/dst';
 
 import type { SyncAction } from '../../../sim/scenario';
 import {
-  converge,
   playActions,
   type SyncKnobs,
   type SyncSystemDef,
   syncVirtualHost,
 } from '../../../sim/scenario';
+import { expectConverged } from './expect-converged';
 import { acmeDraws, acmeSystem } from './system';
 
 export type PlayAcmePinOpts = {
   readonly seed: number | bigint | string;
   readonly knobs?: Partial<SyncKnobs>;
   readonly actions: readonly SyncAction[];
-  /** Skip the heal + assert-converged tail (default false). */
+  /**
+   * When true (default), revive + wait for domain agreement after the script.
+   * Set false when the pin asserts mid-fault / pre-heal state.
+   */
   readonly converge?: boolean;
   /** Defaults to {@link acmeSystem}. */
   readonly system?: SyncSystemDef;
 };
 
 /**
- * Boot acme, play a scripted chaos sequence, then heal and assert every client
- * agrees with the server. Shrunk PBT counterexamples land here as pins.
+ * Boot acme and play a scripted chaos sequence. By default heals and waits for
+ * domain agreement via {@link expectConverged}.
  */
 export async function playAcmePin(opts: PlayAcmePinOpts): Promise<void> {
   await using run = await start(opts.system ?? acmeSystem, {
@@ -32,5 +35,5 @@ export async function playAcmePin(opts: PlayAcmePinOpts): Promise<void> {
     properties: [],
   });
   await run.apply(playActions, opts.actions);
-  if (opts.converge !== false) await run.apply(converge);
+  if (opts.converge !== false) await expectConverged(run);
 }

@@ -14,14 +14,16 @@ export function banner(text: string, elapsedMs?: number): void {
   const timeStr = elapsedMs !== undefined ? ` (${fmtMs(elapsedMs)})` : '';
   const lineLen = Math.max(text.length + timeStr.length + 4, 40);
   const rule = '─'.repeat(lineLen);
-  console.log('');
-  console.log(fmt.dim(rule));
-  console.log(`  ${fmt.bold(text)}${timeStr ? fmt.dim(timeStr) : ''}`);
-  console.log(fmt.dim(rule));
+  process.stdout.write('\n');
+  process.stdout.write(`${fmt.dim(rule)}\n`);
+  process.stdout.write(
+    `  ${fmt.bold(text)}${timeStr ? fmt.dim(timeStr) : ''}\n`
+  );
+  process.stdout.write(`${fmt.dim(rule)}\n`);
 }
 
 export function heading(text: string): void {
-  console.log(`\n${fmt.bold(fmt.cyan(text))}`);
+  process.stdout.write(`\n${fmt.bold(fmt.cyan(text))}\n`);
 }
 
 export function step(label: string): void {
@@ -29,35 +31,39 @@ export function step(label: string): void {
 }
 
 export function stepDone(label: string, ms: number): void {
-  console.log(`${fmt.green('●')} ${label} ${fmt.dim(`(${fmtMs(ms)})`)}`);
+  process.stdout.write(
+    `${fmt.green('●')} ${label} ${fmt.dim(`(${fmtMs(ms)})`)}\n`
+  );
 }
 
 export function stepFail(label: string, ms: number): void {
-  console.log(`${fmt.red('✗')} ${label} ${fmt.dim(`(${fmtMs(ms)})`)}`);
+  process.stdout.write(
+    `${fmt.red('✗')} ${label} ${fmt.dim(`(${fmtMs(ms)})`)}\n`
+  );
 }
 
 export function ok(label: string, detail?: string): void {
   const d = detail ? ` ${fmt.dim('—')} ${detail}` : '';
-  console.log(`${fmt.green('✓')} ${label}${d}`);
+  process.stdout.write(`${fmt.green('✓')} ${label}${d}\n`);
 }
 
 export function fail(label: string, detail?: string): void {
   const d = detail ? ` ${fmt.dim('—')} ${detail}` : '';
-  console.log(`${fmt.red('✗')} ${label}${d}`);
+  process.stdout.write(`${fmt.red('✗')} ${label}${d}\n`);
 }
 
 export function warn(label: string, detail?: string): void {
   const d = detail ? ` ${fmt.dim('—')} ${detail}` : '';
-  console.log(`${fmt.yellow('⚠')} ${label}${d}`);
+  process.stdout.write(`${fmt.yellow('⚠')} ${label}${d}\n`);
 }
 
 export function info(label: string, detail?: string): void {
   const d = detail ? ` ${fmt.dim('—')} ${detail}` : '';
-  console.log(`${fmt.dim('·')} ${label}${d}`);
+  process.stdout.write(`${fmt.dim('·')} ${label}${d}\n`);
 }
 
 export function kv(key: string, value: string): void {
-  console.log(`  ${fmt.dim(key + ':')} ${value}`);
+  process.stdout.write(`  ${fmt.dim(`${key}:`)} ${value}\n`);
 }
 
 export function fmtMs(ms: number): string {

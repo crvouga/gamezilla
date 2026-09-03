@@ -1,11 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import {
-  clock,
-  converge,
-  injectToServer,
-  logSeq,
-  takeOver,
-} from '../../sim/scenario';
+import { clock, injectToServer, logSeq, takeOver } from '../../sim/scenario';
+import { expectConverged } from '../expect-converged';
 import { counterValue, Increment } from '../fixtures/counter-module';
 import { bootCounter } from '../scenario/boot-counter';
 import {
@@ -45,7 +40,7 @@ describe('room sim: command-id replay dedup (E-B02)', () => {
       direct: true,
     });
 
-    await run.apply(converge);
+    await expectConverged(run);
     expect(counterValue(await readServer(run))).toBe(1);
     expect(counterValue(await readClient(run, 'alice'))).toBe(1);
     expect(counterValue(await readClient(run, 'bob'))).toBe(1);

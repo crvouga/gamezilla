@@ -4,7 +4,14 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { wallClock } from '@pkgs/clock';
+import { createLogger } from '@pkgs/logger';
 import * as esbuild from 'esbuild';
+
+const log = createLogger({
+  name: 'sql-client:e2e-harness',
+  now: wallClock.now,
+});
 
 const here = dirname(fileURLToPath(import.meta.url));
 const pkgRoot = join(here, '..');
@@ -78,5 +85,5 @@ createServer((req, res) => {
     res.end('not found');
   }
 }).listen(PORT, '127.0.0.1', () => {
-  console.log(`sql-client e2e harness on http://127.0.0.1:${PORT}`);
+  log.info(`sql-client e2e harness on http://127.0.0.1:${PORT}`);
 });

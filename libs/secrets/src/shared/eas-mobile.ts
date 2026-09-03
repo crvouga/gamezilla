@@ -1,10 +1,14 @@
 import { join } from 'node:path';
 import { assert } from '@pkgs/assert';
 import { assertCommitDateIso, COMMIT_HASH_HEX_REGEX } from '@pkgs/git';
+import { createLogger } from '@pkgs/logger';
+import { cliClock } from './cli-io';
 import { productionApiOrigin } from './deploy-origins';
 import { ok } from './fmt';
 import { REPO_ROOT } from './paths';
 import { runAsync, runCapture } from './subprocess';
+
+const log = createLogger({ name: 'secrets:eas-mobile', now: cliClock.now });
 
 export type EasProfile = 'production' | 'development';
 
@@ -113,7 +117,7 @@ export function assertExpoTokenPresent(): void {
 export function resolveEasProfileWithNotice(): EasProfile | null {
   const profile = resolveEasProfile();
   if (profile === null) {
-    console.log(
+    log.info(
       'eas update skipped — set EAS_PROFILE=development to publish an OTA update locally.'
     );
     return null;
@@ -162,7 +166,7 @@ export async function publishClientEasUpdate(
     }
   );
 
-  console.log(`EAS OTA update published (${profile} channel).`);
+  log.info(`EAS OTA update published (${profile} channel).`);
 }
 
 export async function buildAndSubmitClientNative(
@@ -192,7 +196,7 @@ export async function buildAndSubmitClientNative(
     label: `eas build: all (${profile})${profile === 'production' ? ' + submit' : ''}`,
   });
 
-  console.log(
+  log.info(
     profile === 'production'
       ? 'EAS native build + store submission complete (production).'
       : `EAS native build complete (${profile}).`

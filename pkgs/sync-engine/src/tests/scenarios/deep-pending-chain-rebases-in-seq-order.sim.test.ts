@@ -4,9 +4,9 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
   connect,
   disconnect,
+  expectConverged,
   expectLiveNoteAt,
   expectNotesAgree,
   liveFolders,
@@ -52,7 +52,7 @@ describe('deep pending chain rebases in seq order', () => {
     await run.apply(passTime, 50);
 
     await run.apply(connect, 'alice');
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     expect((await run.observe(liveNotes('server'))).length).toBe(CHAIN / 2);
     expect((await run.observe(liveFolders('server'))).length).toBe(CHAIN / 2);

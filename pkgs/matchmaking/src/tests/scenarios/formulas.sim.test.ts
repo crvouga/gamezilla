@@ -1,15 +1,17 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
+import { neverObserved } from '@pkgs/dst';
 import type { TickResult } from '../../interface/matchmaking';
 import type { DistanceFormula, StatusResult } from '../../interface/types';
 import {
   join,
   lastTick,
+  matched,
   participantIds,
   passTime,
   startMatchmaking,
   statusOf,
+  stepTime,
   tick,
-  waitNeverMatched,
 } from '../../sim/scenario';
 import {
   expectMatched,
@@ -104,8 +106,7 @@ describe('matchmaking sim: formulas', () => {
         formulas: [kindFormula],
       },
     });
-    await run.apply(waitNeverMatched, {
-      refs: ['a', 'b'],
+    await neverObserved(run, matched(['a', 'b']), stepTime, {
       forMs: 60_000,
       stepMs: 5_000,
     });

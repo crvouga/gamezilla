@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
+  expectConverged,
   lastError,
   liveNote,
   mutate,
@@ -26,7 +26,7 @@ describe('authorize throw equals denied', () => {
 
     await run.apply(addClient, { id: 'alice' });
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'keep-me' });
-    await run.apply(converge);
+    await expectConverged(run);
     expect(await run.observe(liveNote('alice', 'n1'))).toMatchObject({
       body: 'keep-me',
     });
@@ -45,7 +45,7 @@ describe('authorize throw equals denied', () => {
     expect(await run.observe(liveNote('alice', 'n1'))).toMatchObject({
       body: 'keep-me',
     });
-    await run.apply(converge);
+    await expectConverged(run);
   });
 
   test.each([931, 932, 933])(
@@ -60,7 +60,7 @@ describe('authorize throw equals denied', () => {
 
       await run.apply(addClient, { id: 'alice' });
       await run.apply(mutate, 'alice', setNote, { id: `n-${seed}`, body: 'x' });
-      await run.apply(converge);
+      await expectConverged(run);
       {
         await run.apply(subscribe, 'alice', 'notesAuthorizeThrow', {});
         expect(await run.observe(liveNote('alice', `n-${seed}`))).toMatchObject(
@@ -68,7 +68,7 @@ describe('authorize throw equals denied', () => {
         );
         await run.apply(unsubscribe, 'alice', 'notesAuthorizeThrow');
       }
-      await run.apply(converge);
+      await expectConverged(run);
     }
   );
 });

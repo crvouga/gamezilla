@@ -5,7 +5,7 @@ import {
   acmeDraws,
   acmeSystem,
   armStoragePressure,
-  converge,
+  expectConverged,
   lastMutationFailures,
   lastMutationOk,
   mutate,
@@ -76,7 +76,7 @@ describe('fault permutation pins', () => {
       acmeSetNoteOp('c0', 'n0', 'after-restart'),
       { kind: 'heal' },
     ]);
-    await run.apply(converge);
+    await expectConverged(run);
   });
 
   test('freeze sync then thaw catches up', async () => {

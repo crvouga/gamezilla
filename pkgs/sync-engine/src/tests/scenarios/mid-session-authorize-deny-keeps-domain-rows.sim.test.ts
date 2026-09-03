@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
+  expectConverged,
   mutate,
   NOTES_AUTH_GATE_FOLDER_ID,
   nudge,
@@ -35,7 +35,7 @@ describe('mid session authorize deny keeps domain rows', () => {
       id: 'n1',
       body: 'keep-locally',
     });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await run.apply(subscribe, 'alice', 'notesOwned', {});
     await expectLiveNoteAt(run, 'alice', 'n1', { body: 'keep-locally' });
@@ -45,14 +45,14 @@ describe('mid session authorize deny keeps domain rows', () => {
       id: NOTES_AUTH_GATE_FOLDER_ID,
       title: 'stolen',
     });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     // Denied detach must not wipe previously hydrated domain rows.
     await run.apply(nudge, 'alice');
     await expectLiveNoteAt(run, 'alice', 'n1', { body: 'keep-locally' });
 
     await run.apply(mutate, 'bob', setNote, { id: 'n2', body: 'still-syncs' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await expectLiveNoteAt(run, 'alice', 'n2', { body: 'still-syncs' });
   });
 });

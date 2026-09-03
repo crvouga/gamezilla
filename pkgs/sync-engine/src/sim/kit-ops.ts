@@ -1,4 +1,11 @@
-import { type AssertConvergedCtx, assertConvergedImpl } from './kit-converge';
+import {
+  checkDomainConverged,
+  type DomainConvergedCtx,
+  type DrainUntilConvergedCtx,
+  drainUntilConvergedImpl,
+  type ReviveCtx,
+  reviveImpl,
+} from './kit-converge';
 
 export type {
   AddClientArgs,
@@ -6,5 +13,5 @@ export type {
   ClientMeta,
   KitClientOpts,
 } from './kit-types';
-export type { AssertConvergedCtx };
-export { assertConvergedImpl };
+export type { DomainConvergedCtx, DrainUntilConvergedCtx, ReviveCtx };
+export { checkDomainConverged, drainUntilConvergedImpl, reviveImpl };

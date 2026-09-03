@@ -8,8 +8,8 @@ import {
   acmeMutationRegistry,
   acmeQueryRegistry,
   addClient,
-  converge,
   defineSyncSystem,
+  expectConverged,
   expectLiveNoteAt,
   mutate,
   noteColor,
@@ -58,7 +58,7 @@ describe('server snapshot with unknown column merges cleanly', () => {
         body: 'painted',
         color: 'blue',
       });
-      await run.apply(converge);
+      await expectConverged(run);
 
       await expectLiveNoteAt(run, 'alice', 'n1', { body: 'painted' });
       await expectLiveNoteAt(run, 'bob', 'n1', { body: 'painted' });

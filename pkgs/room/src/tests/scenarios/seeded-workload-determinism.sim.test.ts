@@ -2,7 +2,6 @@ import { describe, expect, test } from 'bun:test';
 import {
   addClient,
   clientHash,
-  converge,
   dispatch,
   hold,
   passTime,
@@ -11,6 +10,7 @@ import {
   startRoom,
 } from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
+import { expectConverged } from '../expect-converged';
 import { Increment } from '../fixtures/counter-module';
 
 async function runWorkload(seed: number | string): Promise<string> {
@@ -30,7 +30,7 @@ async function runWorkload(seed: number | string): Promise<string> {
   });
   await run.apply(release, 'bob');
   await run.apply(passTime, 0);
-  await run.apply(converge);
+  await expectConverged(run);
   const h = await run.observe(serverHash);
   const hashes = (await run.observe(clientHash)) as Record<string, string>;
   return `${h}:${hashes['alice']}:${hashes['bob']}`;

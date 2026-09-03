@@ -17,7 +17,7 @@ export type SimSqlBackend = 'mem' | 'real';
 export type SimSqlRuntime = 'browser' | 'node';
 
 /** Default when env is unset — plan default is real engines. */
-export const DEFAULT_SIM_SQL_BACKEND: SimSqlBackend = 'mem';
+export const DEFAULT_SIM_SQL_BACKEND: SimSqlBackend = 'real';
 
 export function resolveSimSqlRuntime(): SimSqlRuntime {
   // Real browser playground (no Jest): WASM clients.

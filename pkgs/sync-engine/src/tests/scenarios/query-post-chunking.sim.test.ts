@@ -5,7 +5,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
+  expectConverged,
   hasSynced,
   subscribeAll,
   syncVirtualHost,
@@ -35,7 +35,7 @@ describe('query POST chunking', () => {
         }))
       );
       expect(await run.observe(hasSynced('alice'))).toBe(true);
-      await run.apply(assertConverged);
+      await expectConverged(run);
     },
     { timeout: 60_000 }
   );

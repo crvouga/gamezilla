@@ -4,9 +4,9 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
   createSpace,
   deviceId,
+  expectConverged,
   liveSpace,
   mutate,
   passTime,
@@ -52,7 +52,7 @@ describe('same actor open session stays device private', () => {
       id: 'room-1',
       title: 'Private open',
     });
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await run.apply(passTime, 200);
 
     await expectOpenSessionAt(run, 'phone', 'room-1');

@@ -5,8 +5,8 @@ import {
   acmeSystem,
   addClient,
   connect,
-  converge,
   disconnect,
+  expectConverged,
   liveNote,
   liveNotes,
   mutate,
@@ -39,7 +39,7 @@ describe('mutation batch over max drains without dupes', () => {
     await run.apply(passTime, 50);
 
     await run.apply(connect, 'alice');
-    await run.apply(converge);
+    await expectConverged(run);
 
     const server = await run.observe(liveNotes('server'));
     expect(server.length).toBe(QUEUE_SIZE);

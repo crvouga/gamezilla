@@ -14,5 +14,10 @@ export {
   type StartOptions,
   start,
 } from './start';
-export { type UntilObservedOpts, untilObserved } from './until';
+export {
+  type NeverObservedOpts,
+  neverObserved,
+  type UntilObservedOpts,
+  untilObserved,
+} from './until';
 export { type Walk, type WalkOptions, walk } from './walk';

@@ -4,8 +4,8 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
   crash,
+  expectConverged,
   mutate,
   online,
   passTime,
@@ -33,7 +33,7 @@ describe('crash restart rehydrates and drains queue', () => {
     await run.apply(passTime, 50);
 
     await run.apply(online, 'alice', true);
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'queued' });
   });
 
@@ -49,11 +49,11 @@ describe('crash restart rehydrates and drains queue', () => {
     await run.apply(addClient, 'bob');
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'one' });
     await run.apply(mutate, 'alice', setNote, { id: 'n2', body: 'two' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await run.apply(crash, 'bob');
     await run.apply(restart, 'bob', {});
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'one' });
     await expectLiveNoteAt(run, 'bob', 'n2', { body: 'two' });
   });

@@ -4,10 +4,10 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
   connect,
   deleteNote,
   disconnect,
+  expectConverged,
   expectLiveNoteAt,
   expectNoteNotLiveAt,
   expectNotesAgree,
@@ -42,7 +42,7 @@ describe('rebase throw hidden until upload reject', () => {
 
     // Bob owns the row so peer soft-delete is authorized.
     await run.apply(mutate, 'bob', setNote, { id: 'n1', body: 'seed' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await run.apply(disconnect, 'alice');
     await run.apply(mutate, 'alice', setNoteStrictExists, {
@@ -72,7 +72,7 @@ describe('rebase throw hidden until upload reject', () => {
     expect(unacked[0]?.mutationId).toBe(pendingId);
 
     await run.apply(mutate, 'bob', setNote, { id: 'bump', body: 'x' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await expectNoteNotLiveAt(run, 'alice', 'n1');
     await expectNotesAgree(run, 'alice');
     await expectNotesAgree(run, 'bob');

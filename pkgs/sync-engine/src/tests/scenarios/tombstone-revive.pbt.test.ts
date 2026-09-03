@@ -5,9 +5,9 @@ import { arbKnobs, arbSeed } from '../../sim/scenario/knobs';
 import {
   acmeDraws,
   acmeSystem,
-  assertConverged,
   clientIds,
   deleteNote,
+  expectConverged,
   expectNoteNotLiveAt,
   liveNote,
   mutate,
@@ -66,7 +66,7 @@ describe('tombstone revive PBT', () => {
               }
             }
 
-            await run.apply(assertConverged);
+            await expectConverged(run);
 
             if (!everSet) return;
 
@@ -118,7 +118,7 @@ describe('tombstone revive PBT', () => {
               body: body2,
               title: '',
             });
-            await run.apply(assertConverged);
+            await expectConverged(run);
             for (const peer of await run.observe(clientIds)) {
               expect(await run.observe(liveNote(peer, noteId))).toMatchObject({
                 body: body2,

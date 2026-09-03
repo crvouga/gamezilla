@@ -5,9 +5,9 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
   connect,
   disconnect,
+  expectConverged,
   expectEveryClientNotesAgree,
   expectLiveNoteAt,
   hold,
@@ -51,7 +51,7 @@ async function bootWarmPair(run: SyncRun, skew?: ClockOrder): Promise<void> {
   await run.apply(addClient, { id: 'bob' });
   if (skew !== undefined) await applySkews(run, skew);
   await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
-  await run.apply(assertConverged);
+  await expectConverged(run);
 }
 
 async function liveBeforeSync(run: SyncRun, skew?: ClockOrder): Promise<void> {
@@ -61,7 +61,7 @@ async function liveBeforeSync(run: SyncRun, skew?: ClockOrder): Promise<void> {
   await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'live-first' });
   await run.apply(passTime, 120);
 
-  await run.apply(assertConverged);
+  await expectConverged(run);
   await expectLiveNoteAt(run, 'bob', 'n1', { body: 'live-first' });
   await expectEveryClientNotesAgree(run);
 }
@@ -78,7 +78,7 @@ async function syncBeforeLive(run: SyncRun, skew?: ClockOrder): Promise<void> {
   await run.apply(passTime, 120);
   await expectLiveNoteAt(run, 'bob', 'n1', { body: 'sync-first' });
 
-  await run.apply(assertConverged);
+  await expectConverged(run);
   await expectEveryClientNotesAgree(run);
 }
 
@@ -156,7 +156,7 @@ describe('live vs sync ordering races converge', () => {
     await run.apply(passTime, 120);
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'from-live' });
 
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await expectEveryClientNotesAgree(run);
   });
 
@@ -171,7 +171,7 @@ describe('live vs sync ordering races converge', () => {
     await run.apply(addClient, { id: 'alice' });
     await run.apply(addClient, { id: 'bob' });
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'base' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await run.apply(online, 'bob', false);
     await run.apply(mutate, 'bob', setNote, { id: 'n1', body: 'bob-pending' });
@@ -180,7 +180,7 @@ describe('live vs sync ordering races converge', () => {
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'from-a' });
     await run.apply(passTime, 80);
     await run.apply(release, 'bob', 'sync');
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await expectEveryClientNotesAgree(run);
   });
 
@@ -195,13 +195,13 @@ describe('live vs sync ordering races converge', () => {
     await run.apply(addClient, { id: 'alice' });
     await run.apply(addClient, { id: 'bob' });
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'base' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await run.apply(hold, 'bob', 'live');
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'from-a' });
     await run.apply(passTime, 80);
 
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'from-a' });
     await expectEveryClientNotesAgree(run);
   });
@@ -224,7 +224,7 @@ describe('live vs sync ordering races converge', () => {
     await run.apply(passTime, 120);
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'via-sync' });
 
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await expectEveryClientNotesAgree(run);
   });
 });

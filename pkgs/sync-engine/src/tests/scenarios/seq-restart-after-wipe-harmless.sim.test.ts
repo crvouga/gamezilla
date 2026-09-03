@@ -6,8 +6,8 @@ import {
   addClient,
   clearLocalData,
   connect,
-  converge,
   disconnect,
+  expectConverged,
   expectNoteNotLiveAt,
   liveNote,
   liveNotes,
@@ -34,7 +34,7 @@ describe('seq restart after wipe harmless', () => {
         id: 'n1',
         body: 'before-wipe',
       });
-      await run.apply(converge);
+      await expectConverged(run);
 
       // Offline while wiping: no resync may repaint the cache mid-check.
       await run.apply(disconnect, 'alice');
@@ -47,7 +47,7 @@ describe('seq restart after wipe harmless', () => {
         id: 'n2',
         body: 'after-wipe',
       });
-      await run.apply(converge);
+      await expectConverged(run);
 
       expect(await run.observe(liveNote('alice', 'n1'))).toMatchObject({
         body: 'before-wipe',

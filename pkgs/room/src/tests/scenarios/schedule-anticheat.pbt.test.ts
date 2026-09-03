@@ -1,9 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { assertProperty, fc } from '@pkgs/pbt';
-
 import {
   arbSeed,
-  converge,
   domain,
   passTime,
   replayRoom,
@@ -11,6 +9,7 @@ import {
   startRoom,
 } from '../../sim/scenario';
 import { matchClockSystem } from '../apps/match-clock/system';
+import { expectConverged } from '../expect-converged';
 import {
   matchClockStatus,
   matchClockWinner,
@@ -72,7 +71,7 @@ describe('room schedule-anticheat PBT', () => {
     });
     expect(matchClockStatus(await readServer(run))).toBe('playing');
     await run.apply(passTime, 5_100);
-    await run.apply(converge);
+    await expectConverged(run);
     const end = await readServer(run);
     expect(matchClockStatus(end)).toBe('flagged');
     expect(matchClockWinner(end)).toBe('black');

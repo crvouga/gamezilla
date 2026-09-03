@@ -1,10 +1,13 @@
 import { Resolver, resolve4, resolve6, resolveNs } from 'node:dns/promises';
 import { PRODUCT_CONFIG } from '@libs/db/public/product-config';
 import { assert } from '@pkgs/assert';
+import { createLogger } from '@pkgs/logger';
 import { cliClock, cliTimers } from './cli-io';
 import type { DeployOutputs } from './deploy-origins';
 import { fmtElapsed, ok, warn } from './fmt';
 import { httpProbe } from './http-probe';
+
+const log = createLogger({ name: 'secrets:smoke-tests', now: cliClock.now });
 
 type HttpEndpointCheck = {
   readonly label: string;
@@ -253,7 +256,7 @@ async function checkHttpEndpoint(opts: {
     if (fallbackUrl && (result.status == null || result.status === 0)) {
       const fallback = await httpProbe(fallbackUrl, 15_000);
       if (fallback.ok) {
-        console.log(
+        log.info(
           `Smoke ${opts.step}/${opts.total}: ${opts.label} ${url} unreachable, but ${opts.fallbackLabel ?? 'fallback'} ${fallbackUrl} is healthy (HTTP ${fallback.status}, ${elapsedStr}).`
         );
         return;
@@ -266,7 +269,7 @@ async function checkHttpEndpoint(opts: {
           `smoke-test: ${opts.label} unreachable at ${url}${result.error ? `: ${result.error}` : ''}`
         );
       }
-      console.log(
+      log.info(
         `Waiting for ${opts.label} ${url} — attempt ${attempt}/${maxAttempts}, ${elapsedStr} elapsed (max ${maxWaitStr}): ${result.error ?? `HTTP ${String(result.status)}`}`
       );
       await sleep(POST_DEPLOY_HTTP_RETRY_MS);
@@ -278,7 +281,7 @@ async function checkHttpEndpoint(opts: {
       : result.ok;
 
     if (acceptable) {
-      console.log(
+      log.info(
         `Smoke ${opts.step}/${opts.total}: ${opts.label} ${url} — HTTP ${result.status} OK (${elapsedStr}).`
       );
       return;
@@ -310,7 +313,7 @@ async function checkHttpEndpoint(opts: {
       ? `HTTP ${result.status} (transient, retrying)`
       : `HTTP ${result.status} (unexpected, retrying)`;
 
-    console.log(
+    log.info(
       `Waiting for ${opts.label} ${url} — attempt ${attempt}/${maxAttempts}, ${detail}, ${elapsedStr} elapsed (max ${maxWaitStr})`
     );
     await sleep(POST_DEPLOY_HTTP_RETRY_MS);
@@ -343,7 +346,7 @@ export async function runHttpSmokeTests(outputs: DeployOutputs): Promise<void> {
     });
   }
 
-  console.log('HTTP smoke: all checks passed.');
+  log.info('HTTP smoke: all checks passed.');
 
   const emqxUrl = probeUrl(outputs.emqx_url, '/healthz');
   const emqx = await httpProbe(emqxUrl);

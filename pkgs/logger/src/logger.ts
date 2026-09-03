@@ -16,13 +16,6 @@ const LEVEL_VALUE: Record<LogLevel, number> = {
   silent: 4,
 };
 
-const CONSOLE_METHOD: Record<Exclude<LogLevel, 'silent'>, keyof Console> = {
-  debug: 'debug',
-  info: 'info',
-  warn: 'warn',
-  error: 'error',
-};
-
 export interface CreateLoggerOptions {
   name: string;
   level?: LogLevel;
@@ -75,8 +68,22 @@ function buildLogger(
       ...context,
     };
 
-    const method = CONSOLE_METHOD[lvl];
-    (console[method] as (...args: unknown[]) => void)(JSON.stringify(entry));
+    const payload = JSON.stringify(entry);
+    switch (lvl) {
+      case 'debug':
+        // biome-ignore lint/suspicious/noConsole: logger sink writes structured JSON
+        console.debug(payload);
+        return;
+      case 'info':
+        // biome-ignore lint/suspicious/noConsole: logger sink writes structured JSON
+        console.info(payload);
+        return;
+      case 'warn':
+        console.warn(payload);
+        return;
+      case 'error':
+        console.error(payload);
+    }
   }
 
   return {

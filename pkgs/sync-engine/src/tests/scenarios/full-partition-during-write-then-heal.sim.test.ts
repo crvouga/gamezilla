@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
+  expectConverged,
   liveNote,
   mutate,
   partition,
@@ -26,7 +26,7 @@ describe('full partition during write then heal', () => {
     await run.apply(addClient, { id: 'alice' });
     await run.apply(addClient, { id: 'bob' });
     await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
-    await run.apply(converge);
+    await expectConverged(run);
 
     await run.apply(partition, 'alice', 'all');
     await run.apply(partition, 'bob', 'all');
@@ -37,7 +37,7 @@ describe('full partition during write then heal', () => {
     await run.apply(passTime, 100);
     await run.apply(release, 'alice', 'all');
     await run.apply(release, 'bob', 'all');
-    await run.apply(converge);
+    await expectConverged(run);
 
     expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
       body: 'during-partition',

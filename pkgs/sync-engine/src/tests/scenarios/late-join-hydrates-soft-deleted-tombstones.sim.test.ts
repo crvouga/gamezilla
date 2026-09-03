@@ -4,8 +4,8 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
   deleteNote,
+  expectConverged,
   expectNoteNotLiveAt,
   mutate,
   readNoteTombstoneAt,
@@ -24,9 +24,9 @@ describe('late join hydrates soft deleted tombstones', () => {
 
     await run.apply(addClient, 'alice');
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'gone' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await run.apply(mutate, 'alice', deleteNote, { id: 'n1' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await run.apply(addClient, 'charlie');
     await expectNoteNotLiveAt(run, 'charlie', 'n1');

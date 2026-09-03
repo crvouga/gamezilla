@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
+  expectConverged,
   liveNote,
   mutate,
   serverOp,
@@ -29,7 +29,7 @@ describe('non mutation server write without notify stale until sweep', () => {
     await run.apply(addClient, 'bob');
 
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'v1' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await run.apply(serverOp, 'writeNoteBodySilent', {
       noteId: 'n1',
@@ -43,7 +43,7 @@ describe('non mutation server write without notify stale until sweep', () => {
       pred: noteBodyIs('v2-silent'),
     });
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'v2-silent' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await expectLiveNoteAt(run, 'alice', 'n1', { body: 'v2-silent' });
   });
 
@@ -63,7 +63,7 @@ describe('non mutation server write without notify stale until sweep', () => {
         id: `n-${seed}`,
         body: 'old',
       });
-      await run.apply(assertConverged);
+      await expectConverged(run);
       await run.apply(serverOp, 'writeNoteBodySilent', {
         noteId: `n-${seed}`,
         body: 'new',
@@ -71,7 +71,7 @@ describe('non mutation server write without notify stale until sweep', () => {
       await untilAcme(run, liveNote('bob', `n-${seed}`), {
         pred: noteBodyIs('new'),
       });
-      await run.apply(assertConverged);
+      await expectConverged(run);
       await expectLiveNoteAt(run, 'bob', `n-${seed}`, { body: 'new' });
     }
   );

@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
+  expectConverged,
   illegalHardDeleteNote,
   lastMutationFailures,
   lastMutationOk,
@@ -25,7 +25,7 @@ describe('domain hard delete rejected', () => {
 
     await run.apply(addClient, { id: 'alice' });
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'keep-me' });
-    await run.apply(converge);
+    await expectConverged(run);
 
     await run.apply(mutate, 'alice', illegalHardDeleteNote, { id: 'n1' });
     expect(await run.observe(lastMutationOk('alice'))).toBe(false);

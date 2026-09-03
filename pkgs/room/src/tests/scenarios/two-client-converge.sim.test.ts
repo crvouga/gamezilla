@@ -1,12 +1,7 @@
 import { describe, expect, test } from 'bun:test';
-import {
-  addClient,
-  converge,
-  dispatch,
-  rosterSize,
-  startRoom,
-} from '../../sim/scenario';
+import { addClient, dispatch, rosterSize, startRoom } from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
+import { expectConverged } from '../expect-converged';
 import { counterValue, Increment } from '../fixtures/counter-module';
 import {
   expectHashMatch,
@@ -31,7 +26,7 @@ describe('room sim: two client converge', () => {
       clientId: 'alice',
       payload: Increment({}),
     });
-    await run.apply(converge);
+    await expectConverged(run);
     expect(counterValue(await readServer(run))).toBe(3);
     expect(counterValue(await readClient(run, 'alice'))).toBe(3);
     expect(counterValue(await readClient(run, 'bob'))).toBe(3);

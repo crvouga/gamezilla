@@ -23,7 +23,7 @@ export const invariantsHold = defineProperty({
 
 /**
  * always(quiet ∧ healed ⇒ domain-agreed). Uses the pure `converged`
- * observation (no heal / assertConverged side effects).
+ * observation (no heal / revive side effects).
  */
 export const converges = defineProperty({
   name: 'converges',

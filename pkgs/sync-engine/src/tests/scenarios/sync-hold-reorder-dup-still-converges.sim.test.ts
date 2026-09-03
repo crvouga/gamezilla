@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
+  expectConverged,
   expectEveryClientNotesAgree,
   expectLiveNoteAt,
   hold,
@@ -30,13 +30,13 @@ describe('sync hold reorder dup still converges', () => {
     await run.apply(addClient, { id: 'alice' });
     await run.apply(addClient, { id: 'bob' });
     await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await run.apply(hold, 'bob', 'sync');
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'held-sync' });
     await run.apply(passTime, 80);
 
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'held-sync' });
     await expectEveryClientNotesAgree(run);
   });
@@ -59,7 +59,7 @@ describe('sync hold reorder dup still converges', () => {
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'a' });
     await run.apply(mutate, 'alice', setNote, { id: 'n2', body: 'b' });
     await run.apply(mutate, 'alice', setNote, { id: 'n3', body: 'c' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await expectLiveNoteAt(run, 'bob', 'n2', { body: 'b' });
     await expectEveryClientNotesAgree(run);
   });
@@ -76,7 +76,7 @@ describe('sync hold reorder dup still converges', () => {
     await run.apply(addClient, { id: 'bob' });
     await run.apply(net, 'bob', 'sync', { packetReplayProbability: 1 });
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'dup-sync' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'dup-sync' });
     await expectEveryClientNotesAgree(run);
   });

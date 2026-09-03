@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
+  expectConverged,
   liveNote,
   mutate,
   setNote,
@@ -28,7 +28,7 @@ describe('oversized fanout falls back to refetch', () => {
     await run.apply(addClient, 'bob');
 
     await run.apply(mutate, 'alice', setNote, { id: 'huge', body: HUGE_BODY });
-    await run.apply(converge);
+    await expectConverged(run);
 
     expect(await run.observe(liveNote('bob', 'huge'))).toMatchObject({
       body: HUGE_BODY,

@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@pkgs/billing": "workspace:*",
+    "@pkgs/logger": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
     "stripe": "catalog:"
   },

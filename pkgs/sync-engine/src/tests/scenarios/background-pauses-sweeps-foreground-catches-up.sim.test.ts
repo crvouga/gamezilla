@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
+  expectConverged,
   foreground,
   lastMutationOk,
   liveNote,
@@ -31,7 +31,7 @@ describe('background pauses sweeps foreground catches up', () => {
     await run.apply(addClient, 'alice');
     await run.apply(addClient, 'bob');
     await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await run.apply(foreground, 'bob', false);
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'while-bg' });
@@ -39,7 +39,7 @@ describe('background pauses sweeps foreground catches up', () => {
 
     await run.apply(foreground, 'bob', true);
     await untilAcme(run, liveNote('bob', 'n1'));
-    await run.apply(assertConverged);
+    await expectConverged(run);
     expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
       body: 'while-bg',
     });

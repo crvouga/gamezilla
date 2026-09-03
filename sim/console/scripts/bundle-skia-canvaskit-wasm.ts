@@ -17,6 +17,13 @@ import {
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { wallClock } from '@pkgs/clock';
+import { createLogger } from '@pkgs/logger';
+
+const log = createLogger({
+  name: 'sim:bundle-skia-canvaskit-wasm',
+  now: wallClock.now,
+});
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const consoleRoot = join(__dirname, '..');
@@ -50,7 +57,7 @@ function needsCopy(sourcePath: string, destPath: string): boolean {
 
 if (needsCopy(wasmSource, wasmDest)) {
   copyFileSync(wasmSource, wasmDest);
-  console.log(`Copied ${wasmSource} -> ${wasmDest}`);
+  log.info(`Copied ${wasmSource} -> ${wasmDest}`);
 } else {
-  console.log(`Up-to-date: ${wasmDest}`);
+  log.info(`Up-to-date: ${wasmDest}`);
 }

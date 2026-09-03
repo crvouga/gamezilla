@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
+  expectConverged,
   expectLiveNoteAt,
   expectNoteNotLiveAt,
   liveNote,
@@ -41,7 +41,7 @@ describe('oob empty hydrate heals via reconcile tick', () => {
       pred: noteBodyIs('seeded'),
     });
     await expectLiveNoteAt(run, 'alice', 'n-seed', { body: 'seeded' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
   });
 
   test('silent catalog update heals without nudge', async () => {
@@ -56,7 +56,7 @@ describe('oob empty hydrate heals via reconcile tick', () => {
     await run.apply(addClient, { id: 'bob' });
 
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'v1' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await run.apply(serverOp, 'writeNoteBodySilent', {
       noteId: 'n1',
@@ -68,6 +68,6 @@ describe('oob empty hydrate heals via reconcile tick', () => {
       pred: noteBodyIs('v2-silent'),
     });
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'v2-silent' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
   });
 });

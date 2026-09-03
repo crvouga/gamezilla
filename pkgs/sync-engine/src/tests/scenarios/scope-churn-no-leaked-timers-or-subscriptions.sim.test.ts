@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
+  expectConverged,
   mutate,
   passTime,
   pendingEventCount,
@@ -33,7 +33,7 @@ describe('scope churn no leaked timers or subscriptions', () => {
       body: 'x',
       folderId: 'f1',
     });
-    await run.apply(converge);
+    await expectConverged(run);
 
     // Warm held-row topic projection (same path subscribe churn uses).
     await run.apply(subscribe, 'alice', 'notesByFolder', {
@@ -56,7 +56,7 @@ describe('scope churn no leaked timers or subscriptions', () => {
     );
     // No runaway timer storm: pending work stays bounded after churn.
     expect(await run.observe(pendingEventCount)).toBeLessThan(50);
-    await run.apply(converge);
+    await expectConverged(run);
   });
 
   test.each([1031, 1032, 1033])(

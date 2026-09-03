@@ -3,13 +3,13 @@ import {
   addClient,
   connect,
   connected,
-  converge,
   disconnect,
   dispatch,
   passTime,
   startRoom,
 } from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
+import { expectConverged } from '../expect-converged';
 import { counterValue, Increment } from '../fixtures/counter-module';
 import {
   expectHashMatch,
@@ -22,7 +22,7 @@ describe('room sim: offline dispatch then sync', () => {
     await using run = await startRoom(counterSystem, { seed: 4 });
     await run.apply(addClient, { id: 'alice' });
     await run.apply(addClient, { id: 'bob' });
-    await run.apply(converge);
+    await expectConverged(run);
 
     await run.apply(disconnect, 'alice');
     expect(((await run.observe(connected)) as string[]).includes('alice')).toBe(
@@ -38,7 +38,7 @@ describe('room sim: offline dispatch then sync', () => {
     expect(counterValue(await readClient(run, 'bob'))).not.toBe(1);
 
     await run.apply(connect, 'alice');
-    await run.apply(converge);
+    await expectConverged(run);
     expect(counterValue(await readServer(run))).toBe(1);
     expect(counterValue(await readClient(run, 'alice'))).toBe(1);
     expect(counterValue(await readClient(run, 'bob'))).toBe(1);

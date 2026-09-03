@@ -2,6 +2,7 @@
 // @io-wall-ok
 import { PRODUCT_CONFIG } from '@libs/db/public/product-config';
 import { assert } from '@pkgs/assert';
+import { wallClock } from '@pkgs/clock';
 import {
   ensureCustomDomain,
   ensureProject,
@@ -12,8 +13,11 @@ import {
   validateRailwayToken,
 } from '@pkgs/emqx-server/railway/railway-api';
 import { createGlobalHttpClient } from '@pkgs/http-client';
+import { createLogger } from '@pkgs/logger';
 import { isProductionSecretsEnv } from '../../../../tools/src/deploy-mode';
 import { cfHeadersForZones, upsertDnsRecord } from '../shared/provision/cf-dns';
+
+const log = createLogger({ name: 'pubsub:provision', now: wallClock.now });
 
 const http = createGlobalHttpClient();
 
@@ -57,7 +61,7 @@ async function provision(): Promise<void> {
       ? undefined
       : { preferredWorkspaceName: preferredWorkspace }
   );
-  console.log(`✓ Railway project — ${project.name} (${project.id})`);
+  log.info(`✓ Railway project — ${project.name} (${project.id})`);
 
   const service = await ensureService({
     token,
@@ -66,7 +70,7 @@ async function provision(): Promise<void> {
     githubRepo,
     rootDirectory: cfg.githubRootDirectory,
   });
-  console.log(`✓ Railway service — ${service.name} (${service.id})`);
+  log.info(`✓ Railway service — ${service.name} (${service.id})`);
 
   await upsertVariables({
     token,
@@ -110,7 +114,7 @@ async function provision(): Promise<void> {
     content: cnameTarget,
     proxied: false,
   });
-  console.log(`· DNS CNAME — ${cfg.hostname} → ${cnameTarget}`);
+  log.info(`· DNS CNAME — ${cfg.hostname} → ${cnameTarget}`);
 
   if (domain.verificationToken) {
     await upsertDnsRecord(http, {
@@ -119,14 +123,14 @@ async function provision(): Promise<void> {
       name: `_railway-verify.${cfg.hostname}`,
       content: domain.verificationToken,
     });
-    console.log(`· DNS TXT — _railway-verify.${cfg.hostname}`);
+    log.info(`· DNS TXT — _railway-verify.${cfg.hostname}`);
   }
 
-  console.log(`✓ EMQX domain — ${cfg.hostname}`);
+  log.info(`✓ EMQX domain — ${cfg.hostname}`);
 }
 
 if (!isProductionSecretsEnv()) {
-  console.log('[pubsub:provision] dry-run (SECRETS_ENV is not prd)');
+  log.info('[pubsub:provision] dry-run (SECRETS_ENV is not prd)');
   process.exit(0);
 }
 

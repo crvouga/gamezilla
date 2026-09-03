@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
+  expectConverged,
   hold,
   mutate,
   passTime,
@@ -27,7 +27,7 @@ describe('own echo floor skips but peer push applies', () => {
     await run.apply(addClient, 'bob');
 
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'seed' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await run.apply(hold, 'bob', 'sync');
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'final' });
@@ -41,7 +41,7 @@ describe('own echo floor skips but peer push applies', () => {
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'final' });
 
     await run.apply(release, 'bob', 'sync');
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'final' });
   });
 });

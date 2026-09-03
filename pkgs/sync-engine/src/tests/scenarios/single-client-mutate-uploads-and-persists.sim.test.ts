@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
+  expectConverged,
   lastMutationOk,
   mutate,
   setNote,
@@ -25,7 +25,7 @@ describe('single client mutate uploads and persists', () => {
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'hello' });
     expect(await run.observe(lastMutationOk('alice'))).toBe(true);
 
-    await run.apply(converge);
+    await expectConverged(run);
     await expectLiveNoteAt(run, 'alice', 'n1', { body: 'hello' });
   });
 
@@ -43,7 +43,7 @@ describe('single client mutate uploads and persists', () => {
       title: 'Greeting',
       body: 'hello',
     });
-    await run.apply(converge);
+    await expectConverged(run);
 
     await expectLiveNoteAt(run, 'alice', 'n1', {
       body: 'hello',

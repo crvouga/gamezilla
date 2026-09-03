@@ -4,10 +4,9 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
   connect,
-  converge,
   disconnect,
+  expectConverged,
   expectLiveNoteAt,
   foreground,
   hold,
@@ -41,7 +40,7 @@ describe('pubsub publish fails after commit heals by refetch', () => {
     await run.apply(addClient, { id: 'alice' });
     await run.apply(addClient, { id: 'bob' });
     await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
-    await run.apply(converge);
+    await expectConverged(run);
 
     await run.apply(hold, 'bob', 'sync');
     await run.apply(publishFault, 'next');
@@ -62,7 +61,7 @@ describe('pubsub publish fails after commit heals by refetch', () => {
     await run.apply(foreground, 'bob', true);
     // nudge: heal-by-refetch after lost publish
     await run.apply(nudge, 'bob');
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await expectLiveNoteAt(run, 'bob', 'n-lost-push', { body: 'committed' });
   });
 
@@ -92,7 +91,7 @@ describe('pubsub publish fails after commit heals by refetch', () => {
       await untilAcme(run, liveNote('bob', `n-${seed}`), {
         pred: noteBodyIs(`b-${seed}`),
       });
-      await run.apply(assertConverged);
+      await expectConverged(run);
       await expectLiveNoteAt(run, 'bob', `n-${seed}`, { body: `b-${seed}` });
     }
   );

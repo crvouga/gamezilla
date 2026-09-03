@@ -91,7 +91,7 @@ export type RoomKit<
   readonly serverSnapshot: () => Promise<S>;
   /** `module.hash` of {@link serverSnapshot}. */
   readonly serverHash: () => Promise<string>;
-  readonly assertConverged: () => Promise<void>;
+  readonly revive: () => Promise<void>;
   readonly drain: () => Promise<void>;
   readonly checkInvariants: () => Promise<RoomInvariantViolation | null>;
   readonly armCrashAt: (clientId: string, event: RoomCrashEvent) => void;

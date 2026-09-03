@@ -3,6 +3,8 @@ import { PRODUCT_CONFIG } from '@libs/db/public/product-config';
 import { ensureObjectStoreBuckets } from '@libs/object-store/shared/ensure-buckets';
 // @io-wall-ok
 import { assert } from '@pkgs/assert';
+import { wallClock } from '@pkgs/clock';
+import { createLogger } from '@pkgs/logger';
 import { isProductionSecretsEnv } from '../../../../tools/src/deploy-mode';
 import { ok, warn } from '../shared/fmt';
 import {
@@ -32,6 +34,8 @@ import {
   setSecret,
   setSecretIn,
 } from '../shared/secrets/secrets';
+
+const log = createLogger({ name: 'secrets:provision', now: wallClock.now });
 
 const legacyWwwApiOrigin = (): string => `https://www.${PRODUCT_CONFIG.domain}`;
 
@@ -305,7 +309,7 @@ async function purgeOrphans(): Promise<void> {
 }
 
 if (!isProductionSecretsEnv()) {
-  console.log('[secrets:provision] dry-run (SECRETS_ENV is not prd)');
+  log.info('[secrets:provision] dry-run (SECRETS_ENV is not prd)');
   process.exit(0);
 }
 

@@ -43,7 +43,7 @@ if (files.length === 0) {
 
 for (let i = 1; i <= seedCount; i++) {
   const seed = ((Math.random() * 0xffffffff) >>> 0) ^ i;
-  console.log(`::group::seed=${seed} (${i}/${seedCount})`);
+  process.stdout.write(`::group::seed=${seed} (${i}/${seedCount})\n`);
   for (const file of files) {
     const result = spawnSync('bun', ['test', file], {
       cwd: REPO_ROOT,
@@ -57,7 +57,9 @@ for (let i = 1; i <= seedCount; i++) {
       process.exit(1);
     }
   }
-  console.log('::endgroup::');
+  process.stdout.write('::endgroup::\n');
 }
 
-console.log(`determinism fuzz OK (${seedCount} seeds × ${files.length} files)`);
+process.stdout.write(
+  `determinism fuzz OK (${seedCount} seeds × ${files.length} files)\n`
+);

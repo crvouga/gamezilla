@@ -5,7 +5,6 @@ import {
   clientState,
   clock,
   connect,
-  converge,
   defineRoomSystem,
   disconnect,
   dispatch,
@@ -24,6 +23,7 @@ import type {
   RoomEvent,
   RoomState,
 } from '../../types';
+import { expectConverged } from '../expect-converged';
 
 import { assertHashCanonical } from './assert-hash-canonical';
 import { assertTotality } from './assert-totality';
@@ -112,7 +112,7 @@ async function engineFuzz<
   for (const id of ids) {
     await run.apply(addClient, { id, identity: id });
   }
-  await run.apply(converge);
+  await expectConverged(run);
 
   const rng = createSeededRng(await run.observe(seedOf)).fork('kit-fuzz');
   for (let step = 0; step < steps; step += 1) {
@@ -139,7 +139,7 @@ async function engineFuzz<
     await run.apply(disconnect, id);
     await run.apply(connect, id);
   }
-  await run.apply(converge);
+  await expectConverged(run);
   const server = (await run.observe(serverState)) as S;
   const clients = (await run.observe(clientState)) as Record<string, S>;
   assertDomainValid('server fold', server, args);

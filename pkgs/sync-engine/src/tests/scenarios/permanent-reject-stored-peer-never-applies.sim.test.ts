@@ -5,7 +5,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
+  expectConverged,
   lastMutationId,
   lastMutationOk,
   liveNote,
@@ -32,7 +32,7 @@ describe('permanent reject stored peer never applies', () => {
     await run.apply(addClient, { id: 'bob' });
 
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'good' });
-    await run.apply(converge);
+    await expectConverged(run);
 
     await run.apply(mutate, 'alice', serverRejectNote, {
       id: 'n1',
@@ -58,7 +58,7 @@ describe('permanent reject stored peer never applies', () => {
 
     // not_modified would leave alice's optimistic body; bump server hash.
     await run.apply(mutate, 'bob', setNote, { id: 'bump', body: 'x' });
-    await run.apply(converge);
+    await expectConverged(run);
     expect(await run.observe(liveNote('alice', 'n1'))).toMatchObject({
       body: 'good',
     });

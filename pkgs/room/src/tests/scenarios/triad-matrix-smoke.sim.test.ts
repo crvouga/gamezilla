@@ -3,7 +3,6 @@ import {
   clientHash,
   connect,
   connected,
-  converge,
   disconnect,
   dispatch,
   down,
@@ -12,6 +11,7 @@ import {
   release,
   serverHash,
 } from '../../sim/scenario';
+import { expectConverged } from '../expect-converged';
 import { counterValue, Increment } from '../fixtures/counter-module';
 import { bootCounter } from '../scenario/boot-counter';
 import { readClient, readServer } from '../scenario/read-state';
@@ -53,7 +53,7 @@ describe('room sim: triad matrix smoke (E-A06)', () => {
     await run.apply(connect, 'alice');
     await run.apply(disconnect, 'carol');
     await run.apply(connect, 'carol');
-    await run.apply(converge);
+    await expectConverged(run);
     expect(counterValue(await readServer(run))).toBe(3);
     expect(counterValue(await readClient(run, 'alice'))).toBe(3);
     const h = await run.observe(serverHash);

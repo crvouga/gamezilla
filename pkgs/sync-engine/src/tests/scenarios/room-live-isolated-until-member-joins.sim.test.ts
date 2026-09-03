@@ -4,8 +4,8 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
   createSpace,
+  expectConverged,
   hasTopic,
   joinSpace,
   liveNote,
@@ -64,7 +64,7 @@ describe('room live isolated until member joins', () => {
     await untilAcme(run, subscribedTopics('alice'), {
       pred: hasTopic(roomTopic('room-b')),
     });
-    await run.apply(converge);
+    await expectConverged(run);
     expect(await run.observe(liveNote('alice', 'b-only'))).toMatchObject({
       body: 'secret-b',
     });

@@ -17,8 +17,10 @@
     "verify:licenses": "bun run scripts/verify-licenses.ts"
   },
   "dependencies": {
+    "@pkgs/clock": "workspace:*",
     "@pkgs/keyword": "workspace:*",
     "@pkgs/kv": "workspace:*",
+    "@pkgs/logger": "workspace:*",
     "expo-audio": "catalog:",
     "react": "catalog:",
     "react-native": "catalog:"

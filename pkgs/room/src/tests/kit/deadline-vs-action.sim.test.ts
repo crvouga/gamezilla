@@ -2,7 +2,6 @@ import { describe, expect, test } from 'bun:test';
 import {
   addClient,
   clock,
-  converge,
   dispatch,
   hold,
   passTime,
@@ -10,6 +9,7 @@ import {
   startRoom,
 } from '../../sim/scenario';
 import { deadlineSystem } from '../apps/deadline/system';
+import { expectConverged } from '../expect-converged';
 import {
   ActBeforeDeadline,
   deadlineAt,
@@ -29,7 +29,7 @@ describe('kit: deadline vs action (M-F07)', () => {
     });
     await run.apply(addClient, { id: 'alice' });
     await run.apply(addClient, { id: 'bob' });
-    await run.apply(converge);
+    await expectConverged(run);
 
     await run.apply(dispatch, {
       clientId: 'alice',
@@ -46,7 +46,7 @@ describe('kit: deadline vs action (M-F07)', () => {
     });
     await run.apply(release, 'bob');
 
-    await run.apply(converge);
+    await expectConverged(run);
     expect(deadlineOutcome(await readServer(run))).toBe('expired');
     expect(deadlineOutcome(await readClient(run, 'alice'))).toBe('expired');
     expect(deadlineOutcome(await readClient(run, 'bob'))).toBe('expired');

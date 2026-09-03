@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
+  expectConverged,
   mutate,
   setNote,
   syncVirtualHost,
@@ -39,7 +39,7 @@ describe('bigint ids and float precision stable', () => {
     for (const id of BIG_IDS) {
       await run.apply(mutate, 'alice', setNote, { id, body: floatBody });
     }
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     for (const id of BIG_IDS) {
       await expectLiveNoteAt(run, 'bob', id, { body: floatBody });
@@ -65,7 +65,7 @@ describe('bigint ids and float precision stable', () => {
       const id = `${BIG_IDS[0]}-${seed}`;
       const body = JSON.stringify({ n: 0.1 + 0.2, seed });
       await run.apply(mutate, 'alice', setNote, { id, body });
-      await run.apply(assertConverged);
+      await expectConverged(run);
       await expectLiveNoteAt(run, 'server', id, { body });
     }
   );

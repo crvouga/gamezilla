@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
+  expectConverged,
   lastMutationId,
   lastMutationOk,
   liveNote,
@@ -46,7 +46,7 @@ describe('sim scenario API', () => {
 
     await run.apply(net, 'alice', 'sync', 'ok');
     expect(await run.observe(netHeld('alice', 'sync'))).toBe(false);
-    await run.apply(converge);
+    await expectConverged(run);
     expect((await run.observe(liveNote('bob', 'n1')))?.body).toBe('x');
   });
 
@@ -79,7 +79,7 @@ describe('sim scenario API', () => {
 
     await run.apply(net, 'bob', 'sync', 'ok');
     await run.apply(net, 'bob', 'live', 'ok');
-    await run.apply(converge);
+    await expectConverged(run);
     expect((await run.observe(liveNote('bob', 'n-never')))?.body).toBe(
       'hidden'
     );
@@ -96,7 +96,7 @@ describe('sim scenario API', () => {
     });
     await expect(
       neverAcme(run, liveNote('bob', 'n-seen'), { forMs: 2_000 })
-    ).rejects.toThrow(/neverAcme violated/);
+    ).rejects.toThrow(/never(Acme|Observed)/);
   });
 
   test('converge neutralizes net effects', async () => {
@@ -106,7 +106,7 @@ describe('sim scenario API', () => {
     await run.apply(addClient, 'bob');
     await run.apply(net, 'bob', 'sync', 'hold');
     expect(await run.observe(netHeld('bob', 'sync'))).toBe(true);
-    await run.apply(converge);
+    await expectConverged(run);
     expect(await run.observe(netHeld('bob', 'sync'))).toBe(false);
   });
 

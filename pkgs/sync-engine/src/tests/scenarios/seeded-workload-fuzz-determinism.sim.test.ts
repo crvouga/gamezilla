@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
+  expectConverged,
   mutate,
   runAcmeSeed,
   seedsFromEnv,
@@ -116,6 +116,6 @@ describe('seeded workload fuzz determinism', () => {
 
     await run.apply(addClient, 'alice');
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'ok' });
-    await run.apply(converge);
+    await expectConverged(run);
   });
 });

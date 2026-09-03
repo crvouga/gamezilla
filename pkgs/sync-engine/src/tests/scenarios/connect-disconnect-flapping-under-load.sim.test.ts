@@ -5,7 +5,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
+  expectConverged,
   foreground,
   mutate,
   online,
@@ -60,7 +60,7 @@ describe('connect disconnect flapping under load', () => {
     await run.apply(foreground, 'alice', true);
     await run.apply(online, 'bob', true);
     await run.apply(foreground, 'bob', true);
-    await run.apply(assertConverged);
+    await expectConverged(run);
     expect((await run.observe(liveNotes('server'))).length).toBe(24);
     await expectLiveNoteAt(run, 'bob', 'n-00', { body: 'b0' });
     await expectLiveNoteAt(run, 'bob', 'n-23', { body: 'b23' });
@@ -87,7 +87,7 @@ describe('connect disconnect flapping under load', () => {
         await run.apply(passTime, 10);
         await run.apply(online, 'bob', true);
       }
-      await run.apply(assertConverged);
+      await expectConverged(run);
       await expectLiveNoteAt(run, 'bob', `n-${seed}-7`, { body: 'x7' });
     }
   );

@@ -6,8 +6,8 @@ import {
   acmeSystem,
   acmeTopicMap,
   addClient,
-  assertConverged,
   createSpace,
+  expectConverged,
   hasTopic,
   joinSpace,
   lacksTopic,
@@ -74,7 +74,7 @@ describe('tombstone membership wakes removed user topic', () => {
       title: 'T',
     });
     await run.apply(mutate, 'bob', joinSpace, { spaceId: 'tomb-room' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await untilAcme(run, subscribedTopics('bob'), {
       pred: hasTopic(roomTopic('tomb-room')),
     });
@@ -83,7 +83,7 @@ describe('tombstone membership wakes removed user topic', () => {
     await untilAcme(run, subscribedTopics('bob'), {
       pred: lacksTopic(roomTopic('tomb-room')),
     });
-    await run.apply(assertConverged);
+    await expectConverged(run);
     expect(await run.observe(subscribedTopics('alice'))).toContain(
       roomTopic('tomb-room')
     );

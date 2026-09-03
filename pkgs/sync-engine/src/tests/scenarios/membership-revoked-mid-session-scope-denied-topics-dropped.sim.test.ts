@@ -4,8 +4,8 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
   createSpace,
+  expectConverged,
   hasTopic,
   joinSpace,
   lacksTopic,
@@ -44,7 +44,7 @@ describe('membership revoked mid session scope denied topics dropped', () => {
       id: 'revoked-room',
       title: 'R',
     });
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await untilAcme(run, subscribedTopics('alice'), {
       pred: hasTopic(roomTopic('revoked-room')),
     });
@@ -52,14 +52,14 @@ describe('membership revoked mid session scope denied topics dropped', () => {
     await untilAcme(run, subscribedTopics('bob'), {
       pred: hasTopic(roomTopic('revoked-room')),
     });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await run.apply(mutate, 'bob', setSpaceNote, {
       id: 'kept-local',
       spaceId: 'revoked-room',
       body: 'retain-me',
     });
-    await run.apply(assertConverged);
+    await expectConverged(run);
     expect(await run.observe(liveNote('bob', 'kept-local'))).toMatchObject({
       body: 'retain-me',
     });

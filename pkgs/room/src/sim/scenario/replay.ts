@@ -1,9 +1,11 @@
 import type { Run } from '@pkgs/dst';
+import { untilObserved } from '@pkgs/dst';
 import type { RoomSystemAction } from './actions';
 import { applyRoomAction } from './apply-room-action';
 import type { RoomSystemDef } from './define-room-system';
 import type { RoomKnobs } from './knobs';
-import { converge } from './room-actions';
+import { converged } from './observations';
+import { passTime, revive } from './room-actions';
 import { startRoom } from './start-room';
 import type { RoomSurface } from './surface';
 
@@ -11,7 +13,7 @@ export type ReplayRoomInputs = {
   readonly seed: number | bigint | string;
   readonly knobs?: Partial<RoomKnobs>;
   readonly actions: readonly RoomSystemAction[];
-  /** Default true — heal + converge after the script. */
+  /** Default true — revive + wait for domain agreement after the script. */
   readonly converge?: boolean;
 };
 
@@ -29,7 +31,11 @@ export async function replayRoom(
     await applyRoomAction(run, action);
   }
   if (inputs.converge !== false) {
-    await run.apply(converge);
+    await run.apply(revive);
+    await untilObserved(run, converged, passTime, {
+      stepMs: 25,
+      maxMs: 15_000,
+    });
   }
   return run;
 }

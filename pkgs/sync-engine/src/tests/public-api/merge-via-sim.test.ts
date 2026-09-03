@@ -7,9 +7,9 @@ import {
   acmeSystem,
   addClient,
   connect,
-  converge,
   deleteNote,
   disconnect,
+  expectConverged,
   liveNote,
   mutate,
   passTime,
@@ -46,7 +46,7 @@ describe('public API: merge via sim', () => {
     await run.apply(addClient, 'bob');
 
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'v1' });
-    await run.apply(converge);
+    await expectConverged(run);
 
     await run.apply(
       runSql,
@@ -54,7 +54,7 @@ describe('public API: merge via sim', () => {
       "UPDATE notes SET color = 'red' WHERE id = 'n1'"
     );
     await run.apply(mutate, 'bob', setNote, { id: 'n1', body: 'from-bob' });
-    await run.apply(converge);
+    await expectConverged(run);
 
     expect((await run.observe(liveNote('alice', 'n1')))?.body).toBe('from-bob');
     expect((await run.observe(aliceColor))[0]?.color).toBe('red');
@@ -72,10 +72,10 @@ describe('public API: merge via sim', () => {
     await run.apply(addClient, 'bob');
 
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'seed' });
-    await run.apply(converge);
+    await expectConverged(run);
 
     await run.apply(mutate, 'alice', deleteNote, { id: 'n1' });
-    await run.apply(converge);
+    await expectConverged(run);
     expect(
       (await run.observe(liveNote('bob', 'n1')))?.deletedAt
     ).not.toBeNull();
@@ -94,7 +94,7 @@ describe('public API: merge via sim', () => {
     expect((await run.observe(liveNote('alice', 'n1')))?.body).toBe(
       'optimistic-pending'
     );
-    await run.apply(converge);
+    await expectConverged(run);
     expect((await run.observe(liveNote('bob', 'n1')))?.body).toBe(
       'optimistic-pending'
     );

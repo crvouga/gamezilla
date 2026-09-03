@@ -5,7 +5,7 @@ import {
   acmeMutationRegistry,
   acmeSystem,
   addClient,
-  converge,
+  expectConverged,
   liveNote,
   liveNotes,
   mutate,
@@ -45,7 +45,7 @@ describe('set note v1 v2 interleaved converge', () => {
       id: 'only-b',
       body: 'from-v2',
     });
-    await run.apply(converge);
+    await expectConverged(run);
 
     expect(await run.observe(liveNote('alice', 'only-a'))).toMatchObject({
       body: 'from-v1',
@@ -81,7 +81,7 @@ describe('set note v1 v2 interleaved converge', () => {
       id: 'from-new',
       body: 'v2-peer',
     });
-    await run.apply(converge);
+    await expectConverged(run);
 
     expect(await run.observe(liveNote('alice', 'from-old'))).toMatchObject({
       body: 'v1-only-client',

@@ -38,16 +38,16 @@ async function bench(
 
 function printResults(results: BenchResult[]): void {
   const nameW = Math.max(24, ...results.map((r) => r.name.length));
-  console.log(
-    `\n${'scenario'.padEnd(nameW)}   ${'ns/op'.padStart(14)}   ${'ops/s'.padStart(12)}   ${'total ms'.padStart(10)}`
+  process.stdout.write(
+    `\n${'scenario'.padEnd(nameW)}   ${'ns/op'.padStart(14)}   ${'ops/s'.padStart(12)}   ${'total ms'.padStart(10)}\n`
   );
-  console.log('-'.repeat(nameW + 44));
+  process.stdout.write(`${'-'.repeat(nameW + 44)}\n`);
   for (const r of results) {
-    console.log(
-      `${r.name.padEnd(nameW)}   ${r.nsPerOp.toFixed(0).padStart(14)}   ${Math.round(r.opsPerSec).toLocaleString().padStart(12)}   ${r.totalMs.toFixed(1).padStart(10)}`
+    process.stdout.write(
+      `${r.name.padEnd(nameW)}   ${r.nsPerOp.toFixed(0).padStart(14)}   ${Math.round(r.opsPerSec).toLocaleString().padStart(12)}   ${r.totalMs.toFixed(1).padStart(10)}\n`
     );
   }
-  console.log('');
+  process.stdout.write('\n');
 }
 
 const cases = await createHotPathCases();

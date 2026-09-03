@@ -666,6 +666,15 @@
       ]
     },
     {
+      "path": "./tools/biome-plugins/no-dst-wait-assert-actions.grit",
+      "includes": [
+        "**/pkgs/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "**/apps/**/*.{ts,tsx}",
+        "**/sim/**/*.{ts,tsx}"
+      ]
+    },
+    {
       "path": "./tools/biome-plugins/no-dst-internal.grit",
       "includes": [
         "**/pkgs/**/*.{ts,tsx}",
@@ -799,7 +808,6 @@
         "**/e2e/**",
         "**/*.bench.ts",
         "**/*.bench.tsx",
-        "pkgs/logger/src/**",
         "pkgs/sql-cli/src/**"
       ],
       "linter": {

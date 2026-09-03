@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import {
   addClient,
-  converge,
   defineRoomSystem,
   dispatch,
   logSeq,
@@ -10,6 +9,7 @@ import {
 } from '../../sim/scenario';
 import { ROOM_ERROR_TYPE } from '../../types';
 import { authzApp } from '../apps/authz/app';
+import { expectConverged } from '../expect-converged';
 import { authzCount, Bump, Claim } from '../fixtures/authz-module';
 import { readClient, readRejection, readServer } from '../scenario/read-state';
 
@@ -32,7 +32,7 @@ describe('room sim: authorize reject (E-D03)', () => {
     await using run = await startRoom(denyEveSystem);
     await run.apply(addClient, { id: 'alice' });
     await run.apply(addClient, { id: 'eve' });
-    await run.apply(converge);
+    await expectConverged(run);
 
     await run.apply(dispatch, {
       clientId: 'alice',

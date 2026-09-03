@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'bun:test';
 import {
   connect,
-  converge,
   disconnect,
   dispatch,
   down,
   passTime,
 } from '../../sim/scenario';
+import { expectConverged } from '../expect-converged';
 import { counterValue, Increment } from '../fixtures/counter-module';
 import { bootCounter } from '../scenario/boot-counter';
 import {
@@ -31,7 +31,7 @@ describe('room sim: down then heal (E-A02)', () => {
     await run.apply(disconnect, 'bob');
     await run.apply(connect, 'bob');
 
-    await run.apply(converge);
+    await expectConverged(run);
     expect(counterValue(await readServer(run))).toBe(1);
     expect(counterValue(await readClient(run, 'alice'))).toBe(1);
     expect(counterValue(await readClient(run, 'bob'))).toBe(1);

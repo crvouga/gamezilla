@@ -1,7 +1,11 @@
 // @io-wall-ok — composition-root wall FS via ObjectStore migration pending
 import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
+import { wallClock } from '@pkgs/clock';
+import { createLogger } from '@pkgs/logger';
 import { CURATED_SOUNDS, type CuratedSound } from './curate-mapping';
+
+const log = createLogger({ name: 'sounds:curate', now: wallClock.now });
 
 const ROOT = path.join(import.meta.dir, '..');
 const ASSETS = path.join(ROOT, 'assets');
@@ -63,9 +67,9 @@ async function main(): Promise<void> {
     const destPath = path.join(ASSETS, sound.relativePath);
     await convertSource(sourcePath, destPath, loudnessTarget(sound));
     converted += 1;
-    console.log(`Curated ${sound.id} -> ${sound.relativePath}`);
+    log.info(`Curated ${sound.id} -> ${sound.relativePath}`);
   }
-  console.log(`Curated ${converted} sounds into ${ASSETS}`);
+  log.info(`Curated ${converted} sounds into ${ASSETS}`);
 }
 
 await main();

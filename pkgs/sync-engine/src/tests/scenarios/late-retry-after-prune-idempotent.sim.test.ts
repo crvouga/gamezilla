@@ -4,8 +4,8 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
   deviceId,
+  expectConverged,
   expectLiveNoteAt,
   lastMutationId,
   lastMutationOk,
@@ -42,7 +42,7 @@ describe('late retry after prune window idempotent', () => {
       expect(await run.observe(lastMutationOk('alice'))).toBe(true);
       const firstId = await run.observe(lastMutationId('alice'));
       expect(firstId).not.toBeNull();
-      await run.apply(assertConverged);
+      await expectConverged(run);
       await expectLiveNoteAt(run, 'server', 'n1', { body: 'original' });
 
       await run.apply(serverPrune, PRUNE_ALL_MS);
@@ -66,7 +66,7 @@ describe('late retry after prune window idempotent', () => {
       });
 
       await run.apply(nudge, 'alice');
-      await run.apply(assertConverged);
+      await expectConverged(run);
 
       await expectLiveNoteAt(run, 'server', 'n1', { body: 'original' });
     }

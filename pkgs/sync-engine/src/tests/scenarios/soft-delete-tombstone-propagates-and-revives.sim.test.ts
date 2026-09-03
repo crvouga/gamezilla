@@ -4,8 +4,8 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
   deleteNote,
+  expectConverged,
   lastMutationOk,
   mutate,
   setNote,
@@ -30,11 +30,11 @@ describe('soft delete tombstone propagates and revives', () => {
     await run.apply(addClient, 'bob');
 
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'x' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await run.apply(mutate, 'alice', deleteNote, { id: 'n1' });
     expect(await run.observe(lastMutationOk('alice'))).toBe(true);
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await expectNoteNotLiveAt(run, 'bob', 'n1');
     expect(await readNoteTombstoneAt(run, 'bob', 'n1')).not.toBeNull();
@@ -52,13 +52,13 @@ describe('soft delete tombstone propagates and revives', () => {
     await run.apply(addClient, 'bob');
 
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'first' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await run.apply(mutate, 'alice', deleteNote, { id: 'n1' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await expectNoteNotLiveAt(run, 'bob', 'n1');
 
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'revived' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'revived' });
     expect(await readNoteTombstoneAt(run, 'bob', 'n1')).toBeNull();
   });

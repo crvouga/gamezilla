@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
+  expectConverged,
   liveNote,
   mutate,
   setNote,
@@ -33,7 +33,7 @@ describe('unicode null byte huge string roundtrip', () => {
       body: WITH_NULL,
     });
     await run.apply(mutate, 'alice', setNote, { id: 'huge', body: HUGE });
-    await run.apply(converge);
+    await expectConverged(run);
 
     expect(await run.observe(liveNote('bob', 'emoji'))).toMatchObject({
       body: EMOJI_RTL,
@@ -64,7 +64,7 @@ describe('unicode null byte huge string roundtrip', () => {
       await run.apply(addClient, 'bob');
       const body = `${EMOJI_RTL}-${seed}-\u0000`;
       await run.apply(mutate, 'alice', setNote, { id: `u-${seed}`, body });
-      await run.apply(converge);
+      await expectConverged(run);
       expect(await run.observe(liveNote('bob', `u-${seed}`))).toMatchObject({
         body,
       });

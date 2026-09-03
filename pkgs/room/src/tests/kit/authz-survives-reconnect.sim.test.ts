@@ -2,13 +2,13 @@ import { describe, expect, test } from 'bun:test';
 import {
   addClient,
   connect,
-  converge,
   disconnect,
   dispatch,
   startRoom,
 } from '../../sim/scenario';
 import { ROOM_ERROR_TYPE } from '../../types';
 import { authzSystem } from '../apps/authz/system';
+import { expectConverged } from '../expect-converged';
 import { authzCount, authzOwner, Bump, Claim } from '../fixtures/authz-module';
 import { readClient, readRejection, readServer } from '../scenario/read-state';
 
@@ -17,7 +17,7 @@ describe('kit: authz survives reconnect (M-F05)', () => {
     await using run = await startRoom(authzSystem);
     await run.apply(addClient, { id: 'alice' });
     await run.apply(addClient, { id: 'bob' });
-    await run.apply(converge);
+    await expectConverged(run);
 
     await run.apply(dispatch, {
       clientId: 'alice',

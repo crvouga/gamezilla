@@ -5,8 +5,8 @@ import {
   acmeSystem,
   addClient,
   connect,
-  converge,
   disconnect,
+  expectConverged,
   liveNote,
   liveNotes,
   mutate,
@@ -28,7 +28,7 @@ describe('not modified does not clobber pending', () => {
     await run.apply(addClient, { id: 'bob' });
 
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'seed' });
-    await run.apply(converge);
+    await expectConverged(run);
 
     // Queue pending without upload (upload loop stopped).
     await run.apply(disconnect, 'alice');
@@ -52,7 +52,7 @@ describe('not modified does not clobber pending', () => {
     });
 
     await run.apply(mutate, 'bob', setNote, { id: 'n1', body: 'from-bob' });
-    await run.apply(converge);
+    await expectConverged(run);
     expect(
       (await run.observe(liveNotes('server'))).find((r) => r.id === 'n1')
     ).toBeDefined();

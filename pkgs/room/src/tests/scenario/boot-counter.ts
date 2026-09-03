@@ -1,10 +1,6 @@
-import {
-  addClient,
-  converge,
-  type StartRoomOpts,
-  startRoom,
-} from '../../sim/scenario';
+import { addClient, type StartRoomOpts, startRoom } from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
+import { expectConverged } from '../expect-converged';
 
 export async function bootCounter(
   ids: readonly string[],
@@ -14,6 +10,6 @@ export async function bootCounter(
   for (const id of ids) {
     await run.apply(addClient, { id });
   }
-  await run.apply(converge);
+  await expectConverged(run);
   return run;
 }

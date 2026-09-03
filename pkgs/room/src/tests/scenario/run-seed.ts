@@ -8,7 +8,6 @@ import type {
 import {
   applyRoomAction,
   clientHash,
-  converge,
   defineRoomSystem,
   invariantViolations,
   passTime,
@@ -17,6 +16,7 @@ import {
   serverHash,
   startRoom,
 } from '../../sim/scenario';
+import { expectConverged } from '../expect-converged';
 import { createFuzzState, pickRoomSystemAction } from './pick-library-action';
 
 export type RunSeedResult =
@@ -101,7 +101,7 @@ export async function runRoomSeed(
       }
       await run.apply(passTime, 20);
     }
-    await run.apply(converge);
+    await expectConverged(run);
     return { ok: true, seed: runSeedValue, steps: done };
   } catch (err) {
     return {
@@ -135,7 +135,7 @@ export async function roomSeedFingerprint(
     await stepWorkload(run, opts, rng, fuzz);
     await run.apply(passTime, 20);
   }
-  await run.apply(converge);
+  await expectConverged(run);
   const hashes = (await run.observe(clientHash)) as Record<string, string>;
   const parts = [await run.observe(serverHash)];
   for (const id of ids) {

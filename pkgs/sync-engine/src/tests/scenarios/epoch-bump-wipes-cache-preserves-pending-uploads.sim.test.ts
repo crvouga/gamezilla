@@ -5,8 +5,8 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
   disconnect,
+  expectConverged,
   liveNote,
   mutate,
   neverAcme,
@@ -31,7 +31,7 @@ describe('epoch bump wipes cache preserves pending uploads', () => {
       await run.apply(addClient, 'bob');
 
       await run.apply(mutate, 'bob', setNote, { id: 'peer', body: 'from-bob' });
-      await run.apply(assertConverged);
+      await expectConverged(run);
 
       await run.apply(disconnect, 'alice');
       await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'queued' });
@@ -44,7 +44,7 @@ describe('epoch bump wipes cache preserves pending uploads', () => {
         preserveLocalDb: true,
         schemaEpoch: SCHEMA_EPOCH + 1,
       });
-      await run.apply(assertConverged);
+      await expectConverged(run);
 
       await expectLiveNoteAt(run, 'alice', 'n1', { body: 'queued' });
       await expectLiveNoteAt(run, 'alice', 'peer', { body: 'from-bob' });

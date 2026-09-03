@@ -6,7 +6,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
+  expectConverged,
   liveNote,
   mutate,
   nodeNow,
@@ -51,7 +51,7 @@ describe('peer visibility under 200ms sim budget', () => {
     await run.apply(addClient, 'bob');
     await run.apply(playActions, HOP_LATENCY);
     await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     const t0 = await run.observe(nodeNow('bob'));
     await run.apply(mutate, 'alice', setNote, { id: 'fast', body: 'y' });

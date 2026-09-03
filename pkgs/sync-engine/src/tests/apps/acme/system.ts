@@ -39,7 +39,7 @@ export const acmeLargeCatalogSystem: SyncSystemDef = defineSyncSystem(acmeApp, {
  *   title: 'hi',
  *   deletedAt: null,
  * });
- * await run.apply(converge);
+ * await expectConverged(run);
  * ```
  *
  * Poll instead of guessing a timeout with `untilAcme` (`./until`).

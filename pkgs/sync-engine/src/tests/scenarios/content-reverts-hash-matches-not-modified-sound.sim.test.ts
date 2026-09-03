@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
+  expectConverged,
   heal,
   mutate,
   partition,
@@ -27,7 +27,7 @@ describe('content reverts hash matches not modified sound', () => {
     await run.apply(addClient, 'bob');
 
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'A' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'A' });
 
     // Full partition so peer never applies intermediate B via live images.
@@ -38,7 +38,7 @@ describe('content reverts hash matches not modified sound', () => {
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'A' });
 
     await run.apply(heal);
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'A' });
     await expectLiveNoteAt(run, 'alice', 'n1', { body: 'A' });

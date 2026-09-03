@@ -33,6 +33,7 @@ describe('public-api', () => {
       'start',
       'walk',
       'untilObserved',
+      'neverObserved',
       'virtualHost',
       'wallHost',
       'defineHost',

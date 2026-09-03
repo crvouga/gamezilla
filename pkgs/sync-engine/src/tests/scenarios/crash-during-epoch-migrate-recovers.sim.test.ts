@@ -5,10 +5,10 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
   clientIds,
   crashAt,
   disconnect,
+  expectConverged,
   expectLiveNoteAt,
   expectNoteNotLiveAt,
   expectNotesAgree,
@@ -37,7 +37,7 @@ describe('crash during epoch migrate recovers', () => {
       id: 'kept',
       body: 'on-server',
     });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await run.apply(disconnect, 'alice');
     await run.apply(mutate, 'alice', setNote, {
@@ -62,7 +62,7 @@ describe('crash during epoch migrate recovers', () => {
       preserveLocalDb: true,
       schemaEpoch: SCHEMA_EPOCH + 1,
     });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await expectLiveNoteAt(run, 'alice', 'pending', { body: 'durable' });
     await expectLiveNoteAt(run, 'bob', 'pending', { body: 'durable' });

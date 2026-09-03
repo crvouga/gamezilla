@@ -9,9 +9,11 @@ import { CATALOG_SPEC } from '@libs/billing/public/catalog';
 import { createStripeBillingFromSecretStore } from '@pkgs/billing-stripe';
 import { wallClock } from '@pkgs/clock';
 import { createGlobalHttpClient } from '@pkgs/http-client';
+import { createLogger } from '@pkgs/logger';
 import { createBillingScriptSecretStore } from './billing-script-secret-store';
 
 const SCRIPT_TAG = 'billing check';
+const log = createLogger({ name: SCRIPT_TAG, now: wallClock.now });
 const cliHttp = createGlobalHttpClient();
 
 function isCi(): boolean {
@@ -35,30 +37,30 @@ async function main(): Promise<void> {
       );
       process.exit(1);
     }
-    console.log(
+    log.info(
       `[${SCRIPT_TAG}] skip catalog sync — could not resolve secret store token`
     );
     return;
   }
 
-  const billing = await createStripeBillingFromSecretStore(store);
+  const billing = await createStripeBillingFromSecretStore(
+    store,
+    wallClock.now
+  );
   if (billing === null) {
     if (isCi()) {
       console.error(`[${SCRIPT_TAG}] CI: billing secret key missing`);
       process.exit(1);
     }
-    console.log(`[${SCRIPT_TAG}] skip catalog sync — billing secret missing`);
+    log.info(`[${SCRIPT_TAG}] skip catalog sync — billing secret missing`);
     return;
   }
 
   const catalog = await billing.syncCatalog(CATALOG_SPEC);
-  console.log(
-    `[${SCRIPT_TAG}] ok`,
-    JSON.stringify({
-      products: catalog.products.length,
-      prices: catalog.prices.length,
-    })
-  );
+  log.info(`[${SCRIPT_TAG}] ok`, {
+    products: catalog.products.length,
+    prices: catalog.prices.length,
+  });
 }
 
 await main().catch((e: unknown) => {

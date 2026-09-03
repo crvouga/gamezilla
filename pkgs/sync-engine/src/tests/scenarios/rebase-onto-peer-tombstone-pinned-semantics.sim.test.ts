@@ -5,9 +5,9 @@ import {
   acmeSystem,
   addClient,
   connect,
-  converge,
   deleteNote,
   disconnect,
+  expectConverged,
   lastMutationOk,
   liveNote,
   mutate,
@@ -32,7 +32,7 @@ describe('rebase onto peer tombstone pinned semantics', () => {
 
     // Bob owns the row so peer soft-delete is authorized.
     await run.apply(mutate, 'bob', setNote, { id: 'n1', body: 'seed' });
-    await run.apply(converge);
+    await expectConverged(run);
 
     await run.apply(disconnect, 'alice');
     await run.apply(mutate, 'alice', setNote, {
@@ -49,7 +49,7 @@ describe('rebase onto peer tombstone pinned semantics', () => {
     expect(await readNoteTombstoneAt(run, 'server', 'n1')).not.toBeNull();
 
     await run.apply(connect, 'alice');
-    await run.apply(converge);
+    await expectConverged(run);
 
     expect(await run.observe(liveNote('alice', 'n1'))).toMatchObject({
       body: 'alice-pending',

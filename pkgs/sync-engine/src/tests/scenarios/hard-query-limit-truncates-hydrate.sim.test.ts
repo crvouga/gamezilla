@@ -4,9 +4,9 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
   crash,
   deleteNote,
+  expectConverged,
   liveFolders,
   liveNote,
   liveNotes,
@@ -37,7 +37,7 @@ describe('hard query limit truncates hydrate', () => {
         body: `b${i}`,
       });
     }
-    await run.apply(converge);
+    await expectConverged(run);
     expect((await run.observe(liveNotes('server'))).length).toBe(12);
 
     await run.apply(addClient, {
@@ -52,7 +52,7 @@ describe('hard query limit truncates hydrate', () => {
     });
     // Limited peer cannot full-converge (missing rows by design).
     await run.apply(crash, 'limited');
-    await run.apply(converge);
+    await expectConverged(run);
     expect(await run.observe(liveNote('alice', 'n99'))).toMatchObject({
       body: 'after-limit',
     });
@@ -78,7 +78,7 @@ describe('hard query limit truncates hydrate', () => {
         folderId: i % 2 === 0 ? 'f1' : 'f2',
       });
     }
-    await run.apply(converge);
+    await expectConverged(run);
 
     await run.apply(addClient, {
       id: 'limited',
@@ -110,7 +110,7 @@ describe('hard query limit truncates hydrate', () => {
     ]);
 
     await run.apply(crash, 'limited');
-    await run.apply(converge);
+    await expectConverged(run);
     expect(await run.observe(liveNote('alice', 'n00'))).toMatchObject({
       body: 'b0',
     });

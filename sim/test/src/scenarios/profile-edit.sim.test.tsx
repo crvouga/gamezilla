@@ -3,25 +3,11 @@ import { describe } from '@pkgs/ui-testing';
 
 import { AppDriver } from '../drivers/app-driver';
 import { aliceAvatarCreds, aliceUserCreds } from '../fixtures/fixtures';
-import { resetActor } from '../scenario';
-import { type OpenSimHandle, openSim } from '../setup/open-sim';
+import { openSim } from '../setup/open-sim';
 
 describe('profile edit', (ctx) => {
-  let run: OpenSimHandle;
-
-  ctx.beforeAll(async () => {
-    run = await openSim('profile-edit', ctx);
-  });
-
-  ctx.afterAll(async () => {
-    await run[Symbol.asyncDispose]();
-  });
-
-  ctx.afterEach(async () => {
-    await run.apply(resetActor, 'alice');
-  });
-
   ctx.test('guest updates username', async () => {
+    await using run = await openSim('profile-edit-guest-username', ctx);
     const app = await AppDriver.forActor(run, 'alice');
     await app.profile.openEdit();
     await app.profile.setUsername('guest_user_1');
@@ -29,6 +15,7 @@ describe('profile edit', (ctx) => {
   });
 
   ctx.test('guest updates avatar', async () => {
+    await using run = await openSim('profile-edit-guest-avatar', ctx);
     const app = await AppDriver.forActor(run, 'alice');
     await app.profile.openEdit();
     await app.profile.openAvatarEditor();
@@ -44,6 +31,7 @@ describe('profile edit', (ctx) => {
   });
 
   ctx.test('signed-in updates username', async () => {
+    await using run = await openSim('profile-edit-signed-username', ctx);
     const app = await AppDriver.forActor(run, 'alice');
     await app.auth.signInWithDev(aliceUserCreds);
     await app.auth.returnToTabs();
@@ -53,6 +41,7 @@ describe('profile edit', (ctx) => {
   });
 
   ctx.test('signed-in updates avatar', async () => {
+    await using run = await openSim('profile-edit-signed-avatar', ctx);
     const app = await AppDriver.forActor(run, 'alice');
     await app.auth.signInWithDev(aliceAvatarCreds);
     await app.auth.returnToTabs();

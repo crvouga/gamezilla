@@ -3,11 +3,11 @@ import { ROOM_WIRE_KIND, WIRE_VERSION } from '../../protocol/wire';
 import {
   clock,
   connect,
-  converge,
   disconnect,
   dispatch,
   injectFromServer,
 } from '../../sim/scenario';
+import { expectConverged } from '../expect-converged';
 import {
   CounterIncremented,
   counterValue,
@@ -48,7 +48,7 @@ describe('room sim: byzantine committed inject (E-D05)', () => {
 
     await run.apply(disconnect, 'bob');
     await run.apply(connect, 'bob');
-    await run.apply(converge);
+    await expectConverged(run);
     expect(counterValue(await readServer(run))).toBe(1);
     expect(counterValue(await readClient(run, 'alice'))).toBe(1);
     expect(counterValue(await readClient(run, 'bob'))).toBe(1);

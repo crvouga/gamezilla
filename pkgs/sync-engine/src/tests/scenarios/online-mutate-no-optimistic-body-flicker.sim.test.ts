@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
+  expectConverged,
   expectLiveNoteAt,
   liveNotes,
   mutate,
@@ -26,7 +26,7 @@ describe('online mutate no optimistic body flicker', () => {
     await run.apply(addClient, { id: 'bob' });
 
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'seed' });
-    await run.apply(converge);
+    await expectConverged(run);
 
     await run.apply(mutate, 'alice', setNote, {
       id: 'n1',
@@ -39,7 +39,7 @@ describe('online mutate no optimistic body flicker', () => {
       expect(notes.find((r) => r.id === 'n1')?.body).toBe('optimistic-final');
     }
 
-    await run.apply(converge);
+    await expectConverged(run);
     await expectLiveNoteAt(run, 'alice', 'n1', { body: 'optimistic-final' });
   });
 });

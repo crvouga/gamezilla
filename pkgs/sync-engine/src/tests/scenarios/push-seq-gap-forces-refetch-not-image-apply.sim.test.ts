@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
+  expectConverged,
   hold,
   liveNote,
   mutate,
@@ -28,7 +28,7 @@ describe('push seq gap forces refetch not image apply', () => {
     await run.apply(addClient, { id: 'bob' });
 
     await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
-    await run.apply(converge);
+    await expectConverged(run);
 
     // Drop the next live fanout (gap), keep sync so repair can refetch.
     await run.apply(net, 'bob', 'live', { dropProbability: 1 });
@@ -41,7 +41,7 @@ describe('push seq gap forces refetch not image apply', () => {
     await run.apply(mutate, 'alice', setNote, { id: 'n2', body: 'after-gap' });
     await run.apply(passTime, 200);
     await run.apply(release, 'bob', 'sync');
-    await run.apply(converge);
+    await expectConverged(run);
 
     expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
       body: 'lost-push',

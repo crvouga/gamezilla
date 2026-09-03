@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
+  expectConverged,
   mutate,
   nudge,
   setNote,
@@ -25,7 +25,7 @@ describe('empty tables and zero row snapshot', () => {
 
     await run.apply(addClient, 'alice');
     await run.apply(addClient, 'bob');
-    await run.apply(assertConverged);
+    await expectConverged(run);
     expect(await run.observe(liveNotes('alice'))).toEqual([]);
     expect(await run.observe(liveFolders('alice'))).toEqual([]);
     expect(await run.observe(liveNotes('bob'))).toEqual([]);
@@ -34,7 +34,7 @@ describe('empty tables and zero row snapshot', () => {
     await run.apply(nudge, 'alice');
     await run.apply(nudge, 'bob');
     expect(await run.observe(liveNotes('alice'))).toEqual([]);
-    await run.apply(assertConverged);
+    await expectConverged(run);
   });
 
   test('absence in snapshot does not delete unrelated live rows outside scope', async () => {
@@ -49,7 +49,7 @@ describe('empty tables and zero row snapshot', () => {
     await run.apply(addClient, 'alice');
     await run.apply(addClient, 'bob');
     await run.apply(mutate, 'alice', setNote, { id: 'keep', body: 'seed' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await run.apply(subscribe, 'alice', 'notesDenied', {});
     await expectLiveNoteAt(run, 'alice', 'keep', { body: 'seed' });
@@ -58,7 +58,7 @@ describe('empty tables and zero row snapshot', () => {
     // Post-unsubscribe refresh must keep unrelated live rows.
     await run.apply(nudge, 'alice');
     await expectLiveNoteAt(run, 'alice', 'keep', { body: 'seed' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
   });
 
   test.each([1022, 1023, 1024])(
@@ -73,7 +73,7 @@ describe('empty tables and zero row snapshot', () => {
 
       await run.apply(addClient, 'alice');
       await run.apply(addClient, 'bob');
-      await run.apply(assertConverged);
+      await expectConverged(run);
       expect(await run.observe(liveNotes('server'))).toEqual([]);
     }
   );

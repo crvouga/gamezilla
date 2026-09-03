@@ -1,14 +1,15 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
+import { neverObserved, untilObserved } from '@pkgs/dst';
 import type { TickResult } from '../../interface/matchmaking';
 import type { StatusResult } from '../../interface/types';
 import {
   join,
   lastTick,
+  matched,
   startMatchmaking,
   statusOf,
+  stepTime,
   tick,
-  waitNeverMatched,
-  waitUntilMatched,
 } from '../../sim/scenario';
 import { RatingAttr, registerTestCrashHandler } from '../fixtures';
 
@@ -37,14 +38,12 @@ describe('matchmaking sim: radius growth', () => {
       ref: 'b',
       input: { data: RatingAttr(1080), formulas: [formula] },
     });
-    await run.apply(waitNeverMatched, {
-      refs: ['a'],
+    await neverObserved(run, matched(['a']), stepTime, {
       forMs: 500,
       stepMs: 100,
     });
-    await run.apply(waitUntilMatched, {
-      refs: ['a'],
-      budgetMs: 30_000,
+    await untilObserved(run, matched(['a']), stepTime, {
+      maxMs: 30_000,
       stepMs: 1_000,
     });
     expect(((await run.observe(statusOf('b'))) as StatusResult).status).toBe(

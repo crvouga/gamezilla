@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
+  expectConverged,
   heal,
   mutate,
   partition,
@@ -26,7 +26,7 @@ describe('sync partitioned while live delivers', () => {
     await run.apply(addClient, 'alice');
     await run.apply(addClient, 'bob');
     await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await run.apply(partition, 'bob', 'sync');
     await run.apply(mutate, 'alice', setNote, {
@@ -36,7 +36,7 @@ describe('sync partitioned while live delivers', () => {
     await run.apply(passTime, 100);
 
     await run.apply(heal);
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'sync-partitioned' });
     await expectNotesAgree(run, 'bob');
   });

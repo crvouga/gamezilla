@@ -104,7 +104,7 @@ expect(await run.observe(statusOf('a'))).not.toBeNull();
 
 | Concept | API |
 |---------|-----|
-| Time | `passTime`, `waitUntilMatched`, `waitNeverMatched` actions |
+| Time | `passTime`; wait via `untilObserved` / `neverObserved` on `matched(...)` |
 | Replicas | `addReplica`, `tick` / `tickAll` / `tickAllWith` actions |
 | Port | `join` / `leave` / `ready` / `updateFormulas` / `httpRequest` actions; `statusOf` / `statuses` / `lastTick` / `lastHttp` observations |
 

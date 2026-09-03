@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
+  expectConverged,
   mutate,
   online,
   passTime,
@@ -33,7 +33,7 @@ describe('two offline same id single winner', () => {
 
     await run.apply(online, 'alice', true);
     await run.apply(online, 'bob', true);
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     const server = await run.observe(liveNotes('server'));
     const winner = server.find((r) => r.id === 'shared');

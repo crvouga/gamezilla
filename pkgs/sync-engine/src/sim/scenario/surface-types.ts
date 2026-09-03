@@ -37,7 +37,10 @@ export type SyncSurfaceBase = {
   readonly pendingEventCount: () => number;
   readonly isSchedulerQuiescent: () => boolean;
   readonly checkInvariants: () => Promise<void>;
-  readonly assertConverged: () => Promise<void>;
+  /** Heal network / infra / reconnect clients — stimulus only. */
+  readonly revive: () => Promise<void>;
+  /** Drain until domain agreement (no heal — call revive first). */
+  readonly drainUntilConverged: () => Promise<void>;
   readonly clearBoundaryFaults: () => void;
   readonly tamperLocalStorage: (
     clientId: string,

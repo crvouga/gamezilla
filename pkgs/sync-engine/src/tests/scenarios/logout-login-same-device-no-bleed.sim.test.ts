@@ -5,10 +5,10 @@ import {
   acmeSystem,
   actorId,
   addClient,
-  converge,
   crash,
   deviceId,
   disconnect,
+  expectConverged,
   liveNote,
   liveNotes,
   mutate,
@@ -34,7 +34,7 @@ describe('logout login same device no bleed', () => {
       id: 'a-uploaded',
       body: 'on-server',
     });
-    await run.apply(converge);
+    await expectConverged(run);
 
     await run.apply(disconnect, 'phone');
     await run.apply(mutate, 'phone', setNote, {
@@ -58,7 +58,7 @@ describe('logout login same device no bleed', () => {
     ).toBe(false);
 
     await run.apply(mutate, 'phone', setNote, { id: 'b-note', body: 'from-b' });
-    await run.apply(converge);
+    await expectConverged(run);
     expect(await run.observe(liveNote('phone', 'b-note'))).toMatchObject({
       body: 'from-b',
     });
@@ -93,7 +93,7 @@ describe('logout login same device no bleed', () => {
         id: `ok-${seed}`,
         body: 'c',
       });
-      await run.apply(converge);
+      await expectConverged(run);
       expect(
         await run.observe(liveNote('server', `pending-${seed}`))
       ).toBeNull();

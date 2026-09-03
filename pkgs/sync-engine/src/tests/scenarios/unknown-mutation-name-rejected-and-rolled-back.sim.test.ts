@@ -5,7 +5,7 @@ import {
   acmeMutationRegistry,
   acmeSystem,
   addClient,
-  assertConverged,
+  expectConverged,
   ghostMutation,
   lastMutationId,
   mutate,
@@ -39,7 +39,7 @@ describe('unknown mutation name rejected and rolled back', () => {
       await run.apply(addClient, 'bob');
 
       await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'good' });
-      await run.apply(assertConverged);
+      await expectConverged(run);
 
       await run.apply(mutate, 'alice', ghostMutation, {
         id: 'n1',
@@ -60,7 +60,7 @@ describe('unknown mutation name rejected and rolled back', () => {
       await expectLiveNoteAt(run, 'bob', 'n1', { body: 'good' });
 
       await run.apply(mutate, 'bob', setNote, { id: 'bump', body: 'x' });
-      await run.apply(assertConverged);
+      await expectConverged(run);
       await expectLiveNoteAt(run, 'alice', 'n1', { body: 'good' });
       await expectNotesAgree(run, 'alice');
     }

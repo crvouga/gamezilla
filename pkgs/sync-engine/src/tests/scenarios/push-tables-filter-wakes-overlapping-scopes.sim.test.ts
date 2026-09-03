@@ -4,8 +4,8 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
   crash,
+  expectConverged,
   hold,
   mutate,
   passTime,
@@ -61,7 +61,7 @@ describe('push tables filter wakes overlapping scopes', () => {
     await run.apply(crash, 'notesPeer');
     await run.apply(crash, 'foldersPeer');
     await run.apply(addClient, 'bob');
-    await run.apply(assertConverged);
+    await expectConverged(run);
     expect((await run.observe(liveNotes('server'))).length).toBeGreaterThan(0);
   });
 });

@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
+  expectConverged,
   mutate,
   nudge,
   setNote,
@@ -25,7 +25,7 @@ describe('denied query detaches scope keeps rows', () => {
 
     await run.apply(addClient, 'alice');
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'keep-me' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await expectLiveNoteAt(run, 'alice', 'n1', { body: 'keep-me' });
 
     await run.apply(subscribe, 'alice', 'notesDenied', {});

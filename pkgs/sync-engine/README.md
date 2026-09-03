@@ -882,7 +882,7 @@ server uses SQLite dialect; production server is Postgres.
 
 Scenarios are plain `bun:test` (`describe` / `test` / `test.each`). Cleanup uses
 `await using` / `using` (`AsyncDisposable` / `Disposable`). No custom test
-runner. Failures from `assertConverged` / `until` / `never` / `checkInvariants`
+runner. Failures from `expectConverged` / `untilObserved` / `neverObserved` / `checkInvariants`
 embed `seed=<hex>` and virtual `now=` for replay.
 
 **Five concepts:**
@@ -900,7 +900,7 @@ embed `seed=<hex>` and virtual `now=` for replay.
 4. **Client** — `run.apply(mutate, id, mutation, args)`, connectivity triad
    (below), `subscribe`, `outcome` / `rejections` observations, `nudge`
    (rare; needs `// nudge:` comment).
-5. **Settle** — `run.apply(converge)` clears holds/partitions/faults, forces
+5. **Revive + observe** — `expectConverged(run)` (or `revive` + `untilObserved(converged)`) clears holds/partitions/faults, forces
    online/foreground/connect, wakes uploads + refreshes, diffs each client vs
    server (differential oracle). Does **not** absorb negative-timing windows —
    use `neverAcme` for those.
@@ -939,7 +939,7 @@ describe('example', () => {
     });
     await run.apply(addClient, 'alice');
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'hi' });
-    await run.apply(converge);
+    await expectConverged(run);
     expect(await run.observe(liveNote('alice', 'n1'))).toMatchObject({
       body: 'hi',
     });
@@ -997,7 +997,7 @@ Scoped hold + latency budget + negative window:
   const at = await run.observe(nodeNow('bob'));
   expect(at - t0).toBeLessThan(200);
 }
-await run.apply(converge);
+await expectConverged(run);
 ```
 
 Lightweight clock/timers without a full kit:
@@ -1114,7 +1114,7 @@ Keep these as snippets — do **not** promote into API members:
 
 ```ts
 await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
-await run.apply(converge);
+await expectConverged(run);
 ```
 
 **Offline queue (AppLifecycle)**
@@ -1127,7 +1127,7 @@ await neverAcme(run, liveNote('server', 'n1'), {
   pred: (n) => n != null && n.deletedAt == null,
 });
 await run.apply(online, 'alice', true);
-await run.apply(converge);
+await expectConverged(run);
 ```
 
 **Engine offline queue (session stop)**
@@ -1136,7 +1136,7 @@ await run.apply(converge);
 await run.apply(disconnect, 'alice');
 await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'queued' });
 await run.apply(connect, 'alice');
-await run.apply(converge);
+await expectConverged(run);
 ```
 
 **Sync hold race**
@@ -1151,7 +1151,7 @@ await run.apply(converge);
   });
   await run.apply(release, 'bob', 'sync');
 }
-await run.apply(converge);
+await expectConverged(run);
 ```
 
 **Partition heal**
@@ -1162,7 +1162,7 @@ await run.apply(converge);
   await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'x' });
   await run.apply(heal);
 }
-await run.apply(converge);
+await expectConverged(run);
 ```
 
 **Crash + preserve DB**
@@ -1170,7 +1170,7 @@ await run.apply(converge);
 ```ts
 await run.apply(crash, 'bob');
 await run.apply(restart, 'bob', { preserveLocalDb: true });
-await run.apply(converge);
+await expectConverged(run);
 ```
 
 **Subscribe scope**

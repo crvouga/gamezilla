@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
+  expectConverged,
   liveNote,
   mutate,
   setNote,
@@ -34,7 +34,7 @@ describe('same actor two devices converge', () => {
       id: 'from-tablet',
       body: 't',
     });
-    await run.apply(converge);
+    await expectConverged(run);
 
     expect(await run.observe(liveNote('phone', 'from-phone'))).toMatchObject({
       body: 'p',

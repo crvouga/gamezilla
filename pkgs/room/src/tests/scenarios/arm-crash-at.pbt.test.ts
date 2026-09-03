@@ -1,18 +1,17 @@
 import { describe, test } from 'bun:test';
 import { assertProperty, fc } from '@pkgs/pbt';
-
 import { SIM_PBT_CRASH_EVENTS } from '../../sim/boundary-faults';
 import {
   arbSeed,
   armCrashAt,
   clearFaults,
-  converge,
   domain,
   passTime,
   restart,
   startRoom,
 } from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
+import { expectConverged } from '../expect-converged';
 
 const increment = (clientId: string) =>
   ({
@@ -43,7 +42,7 @@ describe('room armCrashAt slice PBT', () => {
             await run.apply(clearFaults);
             await run.apply(restart, 'c1');
             await run.apply(domain, increment('c1'));
-            await run.apply(converge);
+            await expectConverged(run);
           }
         ),
         { numRuns: 6 }

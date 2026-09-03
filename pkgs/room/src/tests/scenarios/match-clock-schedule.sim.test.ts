@@ -2,7 +2,6 @@ import { describe, expect, test } from 'bun:test';
 import {
   addClient,
   connect,
-  converge,
   disconnect,
   dispatch,
   hold,
@@ -12,6 +11,7 @@ import {
   startRoom,
 } from '../../sim/scenario';
 import { matchClockSystem } from '../apps/match-clock/system';
+import { expectConverged } from '../expect-converged';
 import {
   FlagFall,
   Move,
@@ -32,7 +32,7 @@ async function bootMatch(seed: string, startTime: number) {
   const run = await startRoom(matchClockSystem, { seed, startTime });
   await run.apply(addClient, { id: 'white', identity: 'white' });
   await run.apply(addClient, { id: 'black', identity: 'black' });
-  await run.apply(converge);
+  await expectConverged(run);
   return run;
 }
 
@@ -49,7 +49,7 @@ describe('match-clock schedule (MC-01..06)', () => {
     expect(matchClockStatus(await readServer(run))).toBe('playing');
 
     await run.apply(passTime, 60);
-    await run.apply(converge);
+    await expectConverged(run);
 
     const server = await readServer(run);
     expect(matchClockStatus(server)).toBe('flagged');
@@ -84,7 +84,7 @@ describe('match-clock schedule (MC-01..06)', () => {
     expect(matchClockStatus(await readServer(run))).toBe('playing');
 
     await run.apply(passTime, 70);
-    await run.apply(converge);
+    await expectConverged(run);
     expect(matchClockStatus(await readServer(run))).toBe('flagged');
     expect(matchClockWinner(await readServer(run))).toBe('white');
   });
@@ -108,7 +108,7 @@ describe('match-clock schedule (MC-01..06)', () => {
     });
     await run.apply(release, 'white');
 
-    await run.apply(converge);
+    await expectConverged(run);
     expect(matchClockStatus(await readServer(run))).toBe('flagged');
     expect(matchClockWinner(await readServer(run))).toBe('black');
     await expectHashMatch(run, 'white');
@@ -131,7 +131,7 @@ describe('match-clock schedule (MC-01..06)', () => {
     expect(matchClockStatus(await readServer(run))).toBe('playing');
 
     await run.apply(passTime, 90);
-    await run.apply(converge);
+    await expectConverged(run);
     expect(matchClockStatus(await readServer(run))).toBe('flagged');
     expect(matchClockWinner(await readServer(run))).toBe('black');
   });
@@ -149,7 +149,7 @@ describe('match-clock schedule (MC-01..06)', () => {
     await run.apply(passTime, 50);
     expect(matchClockStatus(await readServer(run))).toBe('flagged');
     await run.apply(connect, 'white');
-    await run.apply(converge);
+    await expectConverged(run);
     expect(matchClockStatus(await readClient(run, 'white'))).toBe('flagged');
     await expectHashMatch(run, 'white');
   });
@@ -173,7 +173,7 @@ describe('match-clock schedule (MC-01..06)', () => {
         payload: Move({}),
       });
       await run.apply(passTime, 200);
-      await run.apply(converge);
+      await expectConverged(run);
       return run.observe(serverHash);
     };
     expect(await once()).toBe(await once());

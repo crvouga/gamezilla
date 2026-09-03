@@ -4,9 +4,9 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
   connect,
   disconnect,
+  expectConverged,
   expectNoteNotLiveAt,
   hold,
   liveNote,
@@ -35,7 +35,7 @@ describe('buffer outbound live flush on reconnect', () => {
     await run.apply(addClient, 'alice');
     await run.apply(addClient, 'bob');
     await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await run.apply(disconnect, 'alice');
     await run.apply(hold, 'alice', 'sync');
@@ -45,7 +45,7 @@ describe('buffer outbound live flush on reconnect', () => {
     await expectNoteNotLiveAt(run, 'bob', 'n1');
     await run.apply(release, 'alice', 'sync');
 
-    await run.apply(assertConverged);
+    await expectConverged(run);
     expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
       body: 'while-down',
     });
@@ -65,7 +65,7 @@ describe('buffer outbound live flush on reconnect', () => {
     await run.apply(addClient, 'alice');
     await run.apply(addClient, 'bob');
     await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await run.apply(disconnect, 'alice');
     await run.apply(hold, 'alice', 'sync');
@@ -77,7 +77,7 @@ describe('buffer outbound live flush on reconnect', () => {
     });
     await run.apply(release, 'alice', 'sync');
 
-    await run.apply(assertConverged);
+    await expectConverged(run);
     expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
       body: 'buffered',
     });
@@ -97,7 +97,7 @@ describe('buffer outbound live flush on reconnect', () => {
     await run.apply(addClient, 'alice');
     await run.apply(addClient, 'bob');
     await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await run.apply(disconnect, 'alice');
     await run.apply(hold, 'bob', 'sync');
@@ -113,6 +113,6 @@ describe('buffer outbound live flush on reconnect', () => {
     expect(at - t0).toBeLessThan(PEER_VISIBLE_BUDGET_MS);
     await run.apply(release, 'bob', 'sync');
 
-    await run.apply(assertConverged);
+    await expectConverged(run);
   });
 });

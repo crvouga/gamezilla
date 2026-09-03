@@ -4,8 +4,8 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
   createSpace,
+  expectConverged,
   hold,
   joinSpace,
   mutate,
@@ -50,7 +50,7 @@ describe('join paints peer space note via live', () => {
       id: 'live-room',
       title: 'L',
     });
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await untilAcme(run, subscribedTopics('alice'), {
       pred: hasRoom('live-room'),
     });
@@ -70,6 +70,6 @@ describe('join paints peer space note via live', () => {
     await expectLiveNoteAt(run, 'alice', 'via-live', { body: 'from-bob' });
 
     await run.apply(release, 'alice', 'sync');
-    await run.apply(assertConverged);
+    await expectConverged(run);
   });
 });

@@ -4,9 +4,9 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
   createSpace,
   endSpace,
+  expectConverged,
   expectLiveNoteAt,
   hasTopic,
   hold,
@@ -49,7 +49,7 @@ describe('leave drops room topic until rejoin', () => {
       id: 'end-room',
       title: 'E',
     });
-    await run.apply(converge);
+    await expectConverged(run);
     await untilAcme(run, subscribedTopics('alice'), {
       pred: hasTopic(roomTopic('end-room')),
     });
@@ -57,7 +57,7 @@ describe('leave drops room topic until rejoin', () => {
     await untilAcme(run, subscribedTopics('bob'), {
       pred: hasTopic(roomTopic('end-room')),
     });
-    await run.apply(converge);
+    await expectConverged(run);
     await untilAcme(run, subscribedTopics('alice'), {
       pred: hasTopic(roomTopic('end-room')),
     });
@@ -86,7 +86,7 @@ describe('leave drops room topic until rejoin', () => {
     await run.apply(release, 'alice', 'sync');
 
     await run.apply(mutate, 'alice', joinSpace, { spaceId: 'end-room' });
-    await run.apply(converge);
+    await expectConverged(run);
     await expectLiveNoteAt(run, 'alice', 'after-leave', { body: 'miss-me' });
   });
 
@@ -103,7 +103,7 @@ describe('leave drops room topic until rejoin', () => {
       sessionQuery: SPACE_MEMBERSHIP_SESSION,
     });
     await run.apply(mutate, 'alice', createSpace, { id: 'ended', title: 'X' });
-    await run.apply(converge);
+    await expectConverged(run);
     await untilAcme(run, subscribedTopics('alice'), {
       pred: hasTopic(roomTopic('ended')),
     });
@@ -117,6 +117,6 @@ describe('leave drops room topic until rejoin', () => {
       roomTopic('ended')
     );
     expect(await run.observe(pubsubRemakeCount('alice'))).toBe(remakes);
-    await run.apply(converge);
+    await expectConverged(run);
   });
 });

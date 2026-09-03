@@ -15,6 +15,8 @@
   "dependencies": {
     "@libs/db": "workspace:*",
     "@pkgs/assert": "workspace:*",
+    "@pkgs/clock": "workspace:*",
+    "@pkgs/logger": "workspace:*",
     "@pkgs/object-store": "workspace:*"
   },
   "devDependencies": {

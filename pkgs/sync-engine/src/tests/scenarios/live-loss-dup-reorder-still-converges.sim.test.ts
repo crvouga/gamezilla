@@ -7,9 +7,9 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
   connect,
   disconnect,
+  expectConverged,
   hold,
   mutate,
   passTime,
@@ -42,7 +42,7 @@ describe('live loss dup reorder still converges', () => {
     await run.apply(addClient, 'alice');
     await run.apply(addClient, 'bob');
     await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await run.apply(playActions, liveFaults('bob', { dropProbability: 1 }));
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'lost-live' });
@@ -51,7 +51,7 @@ describe('live loss dup reorder still converges', () => {
     await run.apply(release, 'bob', 'live');
     await run.apply(disconnect, 'bob');
     await run.apply(connect, 'bob');
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'lost-live' });
     await expectAllNotesAgree(run, CLIENTS);
   });
@@ -72,7 +72,7 @@ describe('live loss dup reorder still converges', () => {
     );
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'dup' });
     await run.apply(mutate, 'alice', setNote, { id: 'n2', body: 'dup2' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'dup' });
     await expectLiveNoteAt(run, 'bob', 'n2', { body: 'dup2' });
   });
@@ -98,7 +98,7 @@ describe('live loss dup reorder still converges', () => {
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'a' });
     await run.apply(mutate, 'alice', setNote, { id: 'n2', body: 'b' });
     await run.apply(mutate, 'alice', setNote, { id: 'n3', body: 'c' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await expectLiveNoteAt(run, 'bob', 'n2', { body: 'b' });
     await expectAllNotesAgree(run, CLIENTS);
   });
@@ -130,7 +130,7 @@ describe('live loss dup reorder still converges', () => {
 
     await run.apply(release, 'alice', 'live');
     await run.apply(release, 'bob', 'live');
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await expectAllNotesAgree(run, CLIENTS);
   });
 
@@ -145,7 +145,7 @@ describe('live loss dup reorder still converges', () => {
     await run.apply(addClient, 'alice');
     await run.apply(addClient, 'bob');
     await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await run.apply(playActions, liveFaults('bob', { dropProbability: 1 }));
     await run.apply(hold, 'bob', 'sync');
@@ -156,7 +156,7 @@ describe('live loss dup reorder still converges', () => {
     await run.apply(release, 'bob', 'sync');
     await run.apply(disconnect, 'bob');
     await run.apply(connect, 'bob');
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'held' });
   });
 });

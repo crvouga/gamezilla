@@ -4,8 +4,8 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
   deleteNote,
+  expectConverged,
   lastMutationFailures,
   lastMutationOk,
   liveNote,
@@ -30,7 +30,7 @@ describe('non owner mutation denied owner converges', () => {
       id: 'n1',
       body: 'owned-by-alice',
     });
-    await run.apply(converge);
+    await expectConverged(run);
 
     await run.apply(mutate, 'bob', deleteNote, { id: 'n1' });
     expect(await run.observe(lastMutationOk('bob'))).toBe(false);
@@ -38,7 +38,7 @@ describe('non owner mutation denied owner converges', () => {
       'FORBIDDEN'
     );
 
-    await run.apply(converge);
+    await expectConverged(run);
     expect(await run.observe(liveNote('alice', 'n1'))).toMatchObject({
       body: 'owned-by-alice',
     });
@@ -58,11 +58,11 @@ describe('non owner mutation denied owner converges', () => {
     await run.apply(addClient, 'alice');
     await run.apply(addClient, 'bob');
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'x' });
-    await run.apply(converge);
+    await expectConverged(run);
     await run.apply(mutate, 'alice', deleteNote, { id: 'n1' });
     const okOk = await run.observe(lastMutationOk('alice'));
     expect(okOk).toBe(true);
-    await run.apply(converge);
+    await expectConverged(run);
     expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
       deletedAt: expect.any(String),
     });

@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
+  expectConverged,
   httpFault,
   liveNote,
   liveNotes,
@@ -31,7 +31,7 @@ describe('upload response lost retry does not double apply', () => {
         kind: 'dropMutationsResponse',
       });
       await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'once' });
-      await run.apply(converge);
+      await expectConverged(run);
 
       expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
         body: 'once',

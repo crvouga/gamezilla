@@ -7,6 +7,8 @@
  * Usage: `bun run --filter @sim/test seed:sim-db`
  */
 
+import { wallClock } from '@pkgs/clock';
+import { createLogger } from '@pkgs/logger';
 import { resolveSimSqlBackend } from '@sim/console/sim/sim-sql-backend';
 import {
   computeSimPgliteSeedFp,
@@ -19,13 +21,15 @@ import {
   SIM_SEED_PGMM_PATH,
 } from '../src/setup/boot-sim-postgres-mem';
 
+const log = createLogger({ name: 'sim:seed-db', now: wallClock.now });
+
 async function main(): Promise<void> {
   const backend = resolveSimSqlBackend();
   if (backend === 'mem') {
     const fingerprint = await computeSimPostgresMemSeedFp();
     const { didMigrate } = await ensureSimPostgresMemSeed();
     const action = didMigrate ? 'rebuilt' : 'cached';
-    console.log(
+    log.info(
       `[seed:sim-db] mem ${action} ${SIM_SEED_PGMM_PATH} (fingerprint=${fingerprint.slice(0, 12)}…)`
     );
     return;
@@ -33,7 +37,7 @@ async function main(): Promise<void> {
   const fingerprint = await computeSimPgliteSeedFp();
   const { didMigrate } = await ensureSimPgliteSeed();
   const action = didMigrate ? 'rebuilt' : 'cached';
-  console.log(
+  log.info(
     `[seed:sim-db] real ${action} ${SIM_SEED_PGLITE_PATH} (fingerprint=${fingerprint.slice(0, 12)}…)`
   );
 }

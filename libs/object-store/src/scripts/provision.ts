@@ -1,14 +1,21 @@
 #!/usr/bin/env bun
 // @io-wall-ok
+import { wallClock } from '@pkgs/clock';
+import { createLogger } from '@pkgs/logger';
 import { isProductionSecretsEnv } from '../../../../tools/src/deploy-mode';
 import { ensureObjectStoreBuckets } from '../shared/ensure-buckets';
 
+const log = createLogger({
+  name: 'object-store:provision',
+  now: wallClock.now,
+});
+
 function ok(label: string, detail?: string): void {
-  console.log(`✓ ${label}${detail ? ` — ${detail}` : ''}`);
+  log.info(`✓ ${label}${detail ? ` — ${detail}` : ''}`);
 }
 
 if (!isProductionSecretsEnv()) {
-  console.log('[object-store:provision] dry-run (SECRETS_ENV is not prd)');
+  log.info('[object-store:provision] dry-run (SECRETS_ENV is not prd)');
   process.exit(0);
 }
 

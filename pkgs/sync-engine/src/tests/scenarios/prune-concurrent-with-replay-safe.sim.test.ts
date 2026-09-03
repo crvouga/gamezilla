@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
+  expectConverged,
   httpFault,
   liveNote,
   liveNotes,
@@ -31,7 +31,7 @@ describe('prune concurrent with replay safe', () => {
       id: 'n-kept',
       body: 'before-prune',
     });
-    await run.apply(converge);
+    await expectConverged(run);
 
     for (let i = 0; i < 8; i += 1) {
       if (i % 2 === 0) {
@@ -45,7 +45,7 @@ describe('prune concurrent with replay safe', () => {
       await run.apply(passTime, 40);
     }
 
-    await run.apply(converge);
+    await expectConverged(run);
     const server = await run.observe(liveNotes('server'));
     const ids = server.map((n) => n.id);
     expect(new Set(ids).size).toBe(ids.length);
@@ -75,7 +75,7 @@ describe('prune concurrent with replay safe', () => {
       await run.apply(serverPrune, 0);
       await run.apply(mutate, 'alice', setNote, { id: `m-${seed}`, body: 'y' });
       await run.apply(serverPrune, 0);
-      await run.apply(converge);
+      await expectConverged(run);
       expect(await run.observe(liveNote('server', `n-${seed}`))).toMatchObject({
         body: 'x',
       });

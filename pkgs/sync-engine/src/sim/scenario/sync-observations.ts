@@ -4,7 +4,8 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import { mutationStatus } from '../../mutations/client/mutation-status';
 import type { SimClientHandle } from '../client-handle';
-import { isClosedDatabaseError, isDbOpen } from '../invariants';
+import { isClosedDatabaseError } from '../invariants';
+import { checkDomainConverged } from '../kit-converge';
 import type { SyncSurface } from './system';
 
 export const clientIds = defineObservation({
@@ -63,19 +64,11 @@ export const invariantViolations = defineObservation({
 export const converged = defineObservation({
   name: 'converged',
   observe: async (s: SyncSurface) => {
-    const clients: { label: string; db: SqlClient }[] = [];
-    for (const c of s.clients.values()) {
-      try {
-        if (await isDbOpen(c.db)) clients.push({ label: c.id, db: c.db });
-      } catch (e) {
-        if (isClosedDatabaseError(e)) continue;
-        throw e;
-      }
-    }
     try {
-      const v = await s.runtime.app.pack.checkAllConverged({
-        clients,
-        serverDb: s.server.db,
+      const v = await checkDomainConverged({
+        clients: s.clients,
+        server: s.server,
+        domain: s.runtime.app.pack,
       });
       return v === null;
     } catch (e) {

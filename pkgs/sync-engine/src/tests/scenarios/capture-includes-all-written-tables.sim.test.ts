@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
+  expectConverged,
   liveFolders,
   liveNote,
   mutate,
@@ -39,7 +39,7 @@ describe('capture includes all written tables', () => {
       folderTitle: 'Visible',
       body: 'note-ok',
     });
-    await run.apply(converge);
+    await expectConverged(run);
 
     expect(await run.observe(liveNote('notesPeer', 'n1'))).toMatchObject({
       body: 'note-ok',
@@ -69,7 +69,7 @@ describe('capture includes all written tables', () => {
         folderTitle: 'T',
         body: 'x',
       });
-      await run.apply(converge);
+      await expectConverged(run);
       expect(
         (await run.observe(liveFolders('foldersPeer'))).some(
           (f) => f.id === `f-${seed}`

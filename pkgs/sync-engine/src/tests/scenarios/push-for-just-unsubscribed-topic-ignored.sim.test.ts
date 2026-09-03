@@ -4,8 +4,8 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
   createSpace,
+  expectConverged,
   expectLiveNoteAt,
   hasTopic,
   hold,
@@ -47,7 +47,7 @@ describe('push for just unsubscribed topic ignored', () => {
       id: 'race-room',
       title: 'R',
     });
-    await run.apply(converge);
+    await expectConverged(run);
     await untilAcme(run, subscribedTopics('alice'), {
       pred: hasTopic(roomTopic('race-room')),
     });
@@ -55,7 +55,7 @@ describe('push for just unsubscribed topic ignored', () => {
     await untilAcme(run, subscribedTopics('bob'), {
       pred: hasTopic(roomTopic('race-room')),
     });
-    await run.apply(converge);
+    await expectConverged(run);
     await untilAcme(run, subscribedTopics('alice'), {
       pred: hasTopic(roomTopic('race-room')),
     });
@@ -79,7 +79,7 @@ describe('push for just unsubscribed topic ignored', () => {
     await run.apply(release, 'alice', 'sync');
 
     await run.apply(mutate, 'alice', joinSpace, { spaceId: 'race-room' });
-    await run.apply(converge);
+    await expectConverged(run);
     await expectLiveNoteAt(run, 'alice', 'late-push', { body: 'missed' });
   });
 });

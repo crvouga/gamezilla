@@ -2,13 +2,13 @@ import { describe, expect, test } from 'bun:test';
 import {
   clientHash,
   connect,
-  converge,
   disconnect,
   dispatch,
   passTime,
   serverHash,
   setNet,
 } from '../../sim/scenario';
+import { expectConverged } from '../expect-converged';
 import { counterValue, Increment } from '../fixtures/counter-module';
 import { bootCounter } from '../scenario/boot-counter';
 import { readClient, readServer } from '../scenario/read-state';
@@ -40,7 +40,7 @@ describe('room sim: lossy profile converge (E-A04)', () => {
       await run.apply(disconnect, id);
       await run.apply(connect, id);
     }
-    await run.apply(converge);
+    await expectConverged(run);
     expect(counterValue(await readServer(run))).toBe(10);
     const h = await run.observe(serverHash);
     const hashes = (await run.observe(clientHash)) as Record<string, string>;

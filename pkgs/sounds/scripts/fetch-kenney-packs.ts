@@ -1,6 +1,10 @@
 // @io-wall-ok
 import { mkdir, rm } from 'node:fs/promises';
 import path from 'node:path';
+import { wallClock } from '@pkgs/clock';
+import { createLogger } from '@pkgs/logger';
+
+const log = createLogger({ name: 'sounds:fetch-kenney', now: wallClock.now });
 
 const ROOT = path.join(import.meta.dir, '..');
 const CACHE = path.join(ROOT, '.cache', 'kenney');
@@ -47,7 +51,7 @@ async function download(name: string, url: string): Promise<void> {
   }
   const buf = await res.arrayBuffer();
   await Bun.write(dest, buf);
-  console.log(`Downloaded ${name} (${buf.byteLength} bytes)`);
+  log.info(`Downloaded ${name} (${buf.byteLength} bytes)`);
 }
 
 async function extractZip(zipPath: string, destDir: string): Promise<void> {
@@ -81,7 +85,7 @@ async function main(): Promise<void> {
     await extractZip(dest, path.join(STAGING, extractName));
   }
 
-  console.log('Kenney packs fetched and extracted.');
+  log.info('Kenney packs fetched and extracted.');
 }
 
 await main();

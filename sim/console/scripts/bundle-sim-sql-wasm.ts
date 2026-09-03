@@ -15,6 +15,13 @@ import {
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { wallClock } from '@pkgs/clock';
+import { createLogger } from '@pkgs/logger';
+
+const log = createLogger({
+  name: 'sim:bundle-sim-sql-wasm',
+  now: wallClock.now,
+});
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const consoleRoot = join(__dirname, '..');
@@ -36,9 +43,9 @@ function copyIfNeeded(sourcePath: string, destPath: string): void {
   mkdirSync(dirname(destPath), { recursive: true });
   if (needsCopy(sourcePath, destPath)) {
     copyFileSync(sourcePath, destPath);
-    console.log(`Copied ${sourcePath} -> ${destPath}`);
+    log.info(`Copied ${sourcePath} -> ${destPath}`);
   } else {
-    console.log(`Up-to-date: ${destPath}`);
+    log.info(`Up-to-date: ${destPath}`);
   }
 }
 

@@ -1,9 +1,14 @@
+// @io-wall-ok
 /**
  * Post-process step after `expo export -p web`: generates `dist/sw.js` via Workbox.
  */
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { wallClock } from '@pkgs/clock';
+import { createLogger } from '@pkgs/logger';
 import { generateSW } from 'workbox-build';
+
+const log = createLogger({ name: 'client:build-sw', now: wallClock.now });
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const distDir = resolve(__dirname, '..', 'dist');
@@ -52,4 +57,4 @@ const { count, size, warnings } = await generateSW({
 if (warnings.length > 0) {
   console.warn('workbox warnings:', warnings.join('\n'));
 }
-console.log(`workbox: precached ${count} entries, ${size} bytes`);
+log.info(`workbox: precached ${count} entries, ${size} bytes`);

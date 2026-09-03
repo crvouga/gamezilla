@@ -158,6 +158,7 @@ export async function wipeSession(
   }
   args.disposeTick();
   await args.sim.dispose();
+  await args.sim.session.dispose();
   notify(maps);
 }
 
@@ -175,6 +176,7 @@ export async function disposeSession(
   }
   args.disposeTick();
   await args.sim.dispose();
+  await args.sim.session.dispose();
   maps.listeners.clear();
 }
 

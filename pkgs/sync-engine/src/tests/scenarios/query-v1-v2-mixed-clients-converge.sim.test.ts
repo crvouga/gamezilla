@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
+  expectConverged,
   mutate,
   setNote,
   setNoteV2,
@@ -42,7 +42,7 @@ describe('query v1 v2 mixed clients converge', () => {
         id: 'n2',
         body: 'from-v2-client',
       });
-      await run.apply(assertConverged);
+      await expectConverged(run);
 
       await expectLiveNoteAt(run, 'alice', 'n1', { body: 'from-v1-client' });
       await expectLiveNoteAt(run, 'alice', 'n2', { body: 'from-v2-client' });

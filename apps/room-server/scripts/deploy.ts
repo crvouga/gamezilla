@@ -5,7 +5,11 @@ import { PRODUCT_CONFIG } from '@libs/db/public/product-config';
 import { ok } from '@libs/secrets/shared/fmt';
 import { runAsync } from '@libs/secrets/shared/subprocess';
 import { wranglerArgs, wranglerEnv } from '@libs/secrets/shared/wrangler-env';
+import { wallClock } from '@pkgs/clock';
+import { createLogger } from '@pkgs/logger';
 import { isProductionSecretsEnv } from '../../../tools/src/deploy-mode';
+
+const log = createLogger({ name: 'room-server:deploy', now: wallClock.now });
 
 const roomDir = join(import.meta.dirname, '..');
 
@@ -28,13 +32,11 @@ async function deploy(dryRun: boolean): Promise<void> {
     return;
   }
 
-  console.log(
-    `Room Worker deployed (${PRODUCT_CONFIG.cloudflare.roomWorker}).`
-  );
+  log.info(`Room Worker deployed (${PRODUCT_CONFIG.cloudflare.roomWorker}).`);
 }
 
 const dryRun = !isProductionSecretsEnv();
 if (dryRun) {
-  console.log('[room-server:deploy] dry-run (SECRETS_ENV is not prd)');
+  log.info('[room-server:deploy] dry-run (SECRETS_ENV is not prd)');
 }
 await deploy(dryRun);

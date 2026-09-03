@@ -8,8 +8,8 @@ import {
   acmeMutationRegistry,
   acmeQueryRegistry,
   addClient,
-  assertConverged,
   defineSyncSystem,
+  expectConverged,
   expectLiveNoteAt,
   liveTags,
   mutate,
@@ -60,7 +60,7 @@ describe('new domain table added mid life hydrates after migrate', () => {
       await run.apply(addClient, { id: 'bob', ...extraTableRegistries });
 
       await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'kept' });
-      await run.apply(assertConverged);
+      await expectConverged(run);
 
       await run.apply(mutate, 'bob', setTag, { id: 't1', label: 'urgent' });
       // nudge: bob tagsAll not in session — refresh after setTag
@@ -79,7 +79,7 @@ describe('new domain table added mid life hydrates after migrate', () => {
         { id: 't1', label: 'urgent' },
       ]);
 
-      await run.apply(assertConverged);
+      await expectConverged(run);
     }
   );
 });

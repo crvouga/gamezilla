@@ -4,10 +4,10 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
   clearLocalData,
   connect,
   disconnect,
+  expectConverged,
   mutate,
   partition,
   passTime,
@@ -47,7 +47,7 @@ describe('cache clear preserves pending mutations', () => {
     await expectNoteNotLiveAt(run, 'alice', 'n1');
 
     await run.apply(connect, 'alice');
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await expectLiveNoteAt(run, 'alice', 'n1', { body: 'durable-queued' });
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'durable-queued' });

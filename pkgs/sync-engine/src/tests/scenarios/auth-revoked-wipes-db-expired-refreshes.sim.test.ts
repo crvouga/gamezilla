@@ -4,10 +4,10 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
   auth,
   connect,
   disconnect,
+  expectConverged,
   expectLiveNoteAt,
   expectNoteNotLiveAt,
   expectNotesAgree,
@@ -45,7 +45,7 @@ describe('auth revoked wipes db expired refreshes', () => {
 
     await run.apply(auth, 'alice', 'expired');
     await run.apply(connect, 'alice');
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await expectLiveNoteAt(run, 'bob', 'n-exp', {
       body: 'queued-through-refresh',
@@ -70,7 +70,7 @@ describe('auth revoked wipes db expired refreshes', () => {
       id: 'n-kept',
       body: 'on-server',
     });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await run.apply(disconnect, 'alice');
     await run.apply(mutate, 'alice', setNote, {
@@ -84,7 +84,7 @@ describe('auth revoked wipes db expired refreshes', () => {
     await neverAcme(run, liveNote('server', 'n-lost'), { forMs: 500 });
 
     await run.apply(restart, 'alice', {});
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await expectLiveNoteAt(run, 'alice', 'n-kept', { body: 'on-server' });
     await expectNoteNotLiveAt(run, 'alice', 'n-lost');
@@ -113,7 +113,7 @@ describe('auth revoked wipes db expired refreshes', () => {
 
     await run.apply(auth, 'alice', 'expired');
     await run.apply(connect, 'alice');
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     for (let i = 0; i < 5; i += 1) {
       await expectLiveNoteAt(run, 'bob', `drain-${i}`, { body: `d${i}` });
@@ -136,7 +136,7 @@ describe('auth revoked wipes db expired refreshes', () => {
       id: 'n-before',
       body: 'visible',
     });
-    await run.apply(assertConverged);
+    await expectConverged(run);
     expect(
       (await run.observe(subscribedTopics('alice'))).length
     ).toBeGreaterThan(0);
@@ -158,7 +158,7 @@ describe('auth revoked wipes db expired refreshes', () => {
     await expectLiveNoteAt(run, 'bob', 'n-late', { body: 'after-revoke' });
 
     await run.apply(restart, 'alice', {});
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await expectLiveNoteAt(run, 'alice', 'n-before', { body: 'visible' });
     await expectLiveNoteAt(run, 'alice', 'n-late', { body: 'after-revoke' });
     await expectNotesAgree(run, 'alice');
@@ -178,7 +178,7 @@ describe('auth revoked wipes db expired refreshes', () => {
       id: 'n-keep',
       body: 'local-and-server',
     });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await run.apply(auth, 'alice', 'upgrade_required');
     await run.apply(disconnect, 'alice');

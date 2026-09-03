@@ -33,6 +33,7 @@
     "@pkgs/database-url-policy": "workspace:*",
     "@pkgs/distributed-lock": "workspace:*",
     "@pkgs/http-client": "workspace:*",
+    "@pkgs/logger": "workspace:*",
     "@pkgs/object-store": "workspace:*",
     "@pkgs/secret-provider": "workspace:*",
     "@pkgs/sql": "workspace:*",

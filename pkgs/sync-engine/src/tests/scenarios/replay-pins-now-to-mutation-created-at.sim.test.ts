@@ -4,10 +4,10 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
   connect,
   deleteNote,
   disconnect,
+  expectConverged,
   lastMutationOk,
   mutate,
   nodeNow,
@@ -39,7 +39,7 @@ describe('replay pins now to mutation created at', () => {
     await run.apply(addClient, 'bob');
 
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'live' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await run.apply(disconnect, 'alice');
     const skewedNow = await run.observe(nodeNow('alice'));
@@ -48,7 +48,7 @@ describe('replay pins now to mutation created at', () => {
     const expectedIso = new Date(skewedNow).toISOString();
 
     await run.apply(connect, 'alice');
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await expectNoteNotLiveAt(run, 'alice', 'n1');
     await expectNoteNotLiveAt(run, 'bob', 'n1');
@@ -76,7 +76,7 @@ describe('replay pins now to mutation created at', () => {
     await run.apply(addClient, 'bob');
 
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'live' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await run.apply(disconnect, 'alice');
     const skewedNow = await run.observe(nodeNow('alice'));
@@ -95,7 +95,7 @@ describe('replay pins now to mutation created at', () => {
     // Rebase must keep tombstone stamped with mutation createdAt, not wall now.
     expect(await readNoteTombstoneAt(run, 'alice', 'n1')).toBe(expectedIso);
 
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await expectNoteNotLiveAt(run, 'alice', 'n1');
     await expectNoteNotLiveAt(run, 'bob', 'n1');

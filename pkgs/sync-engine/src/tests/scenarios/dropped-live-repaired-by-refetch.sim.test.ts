@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
+  expectConverged,
   liveNote,
   mutate,
   net,
@@ -31,7 +31,7 @@ describe('dropped live repaired by refetch', () => {
       await run.apply(passTime, 50);
       await run.apply(net, 'bob', 'live', 'ok');
     }
-    await run.apply(converge);
+    await expectConverged(run);
 
     expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
       body: 'lost',
@@ -53,7 +53,7 @@ describe('dropped live repaired by refetch', () => {
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'a' });
     await run.apply(mutate, 'alice', setNote, { id: 'n2', body: 'b' });
     await run.apply(mutate, 'alice', setNote, { id: 'n3', body: 'c' });
-    await run.apply(converge);
+    await expectConverged(run);
     expect(await run.observe(liveNote('bob', 'n2'))).toMatchObject({
       body: 'b',
     });
@@ -72,7 +72,7 @@ describe('dropped live repaired by refetch', () => {
     await run.apply(addClient, { id: 'alice' });
     await run.apply(addClient, { id: 'bob' });
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'dup' });
-    await run.apply(converge);
+    await expectConverged(run);
     expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
       body: 'dup',
     });

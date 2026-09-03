@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
+  expectConverged,
   expectLiveNoteAt,
   liveNotes,
   mutate,
@@ -43,7 +43,7 @@ describe('delayed sync after ack no optimistic flicker', () => {
     await run.apply(net, 'bob', 'all', DELAYED_SYNC_FAULTS);
 
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'seed' });
-    await run.apply(converge);
+    await expectConverged(run);
 
     await run.apply(mutate, 'alice', setNote, {
       id: 'n1',
@@ -60,7 +60,7 @@ describe('delayed sync after ack no optimistic flicker', () => {
       expect(note?.body).toBe('optimistic-final');
     }
 
-    await run.apply(converge);
+    await expectConverged(run);
     await expectLiveNoteAt(run, 'alice', 'n1', { body: 'optimistic-final' });
   });
 });

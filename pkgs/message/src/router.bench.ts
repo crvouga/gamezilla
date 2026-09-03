@@ -170,14 +170,14 @@ type Pair = { scenario: string; current: BenchResult; legacy: BenchResult };
 
 function printPairs(pairs: Pair[]): void {
   const nameW = Math.max(20, ...pairs.map((p) => p.scenario.length));
-  console.log(
-    `\n${'scenario'.padEnd(nameW)}   ${'current ns/op'.padStart(14)}   ${'legacy ns/op'.padStart(13)}   ${'speedup'.padStart(8)}   ${'cur ops/s'.padStart(14)}   ${'leg ops/s'.padStart(14)}`
+  process.stdout.write(
+    `\n${'scenario'.padEnd(nameW)}   ${'current ns/op'.padStart(14)}   ${'legacy ns/op'.padStart(13)}   ${'speedup'.padStart(8)}   ${'cur ops/s'.padStart(14)}   ${'leg ops/s'.padStart(14)}\n`
   );
-  console.log('-'.repeat(nameW + 80));
+  process.stdout.write(`${'-'.repeat(nameW + 80)}\n`);
   for (const p of pairs) {
     const speedup = p.legacy.nsPerOp / p.current.nsPerOp;
-    console.log(
-      `${p.scenario.padEnd(nameW)}   ${p.current.nsPerOp.toFixed(1).padStart(14)}   ${p.legacy.nsPerOp.toFixed(1).padStart(13)}   ${speedup.toFixed(2).padStart(7)}x   ${Math.round(p.current.opsPerSec).toLocaleString().padStart(14)}   ${Math.round(p.legacy.opsPerSec).toLocaleString().padStart(14)}`
+    process.stdout.write(
+      `${p.scenario.padEnd(nameW)}   ${p.current.nsPerOp.toFixed(1).padStart(14)}   ${p.legacy.nsPerOp.toFixed(1).padStart(13)}   ${speedup.toFixed(2).padStart(7)}x   ${Math.round(p.current.opsPerSec).toLocaleString().padStart(14)}   ${Math.round(p.legacy.opsPerSec).toLocaleString().padStart(14)}\n`
     );
   }
 }
@@ -374,6 +374,6 @@ printPairs(pairs);
 const aggregateSpeedup =
   pairs.reduce((acc, p) => acc + p.legacy.nsPerOp / p.current.nsPerOp, 0) /
   pairs.length;
-console.log(
-  `\naverage speedup across scenarios: ${aggregateSpeedup.toFixed(2)}x\n`
+process.stdout.write(
+  `\naverage speedup across scenarios: ${aggregateSpeedup.toFixed(2)}x\n\n`
 );

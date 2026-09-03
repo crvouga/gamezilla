@@ -112,6 +112,25 @@ export const passTime = defineAction({
   },
 });
 
+/**
+ * Advance virtual time and tick all replicas — use with `untilObserved` /
+ * `neverObserved` when waiting on match status (radius growth needs ticks).
+ */
+export const stepTime = defineAction({
+  name: 'stepTime',
+  *generate() {
+    if (!(yield* caps).includes('virtualTime')) return;
+    const ms = yield* draw((rng) => Math.floor(rng.next() * 5_000));
+    yield {
+      weight: 1,
+      act: async (s: MatchmakingSurface) => {
+        await s.advance(ms);
+        await s.tickAll({ maxPassesPerPartition: 4 });
+      },
+    };
+  },
+});
+
 export type UpdateFormulasSpec = ParticipantTarget & {
   readonly formulas: readonly DistanceFormula[];
 };
@@ -140,60 +159,6 @@ export const addReplica = defineAction({
       weight: 1,
       act: async (s: MatchmakingSurface) => {
         await s.addReplica(on.id);
-      },
-    };
-  },
-});
-
-export type WaitSpec = {
-  /** Aliases whose `matched` status the wait is watching. */
-  readonly refs: readonly string[];
-  readonly replicaId?: string;
-  readonly budgetMs?: number;
-  readonly forMs?: number;
-  readonly stepMs?: number;
-};
-
-async function anyMatched(
-  s: MatchmakingSurface,
-  wait: WaitSpec
-): Promise<boolean> {
-  for (const ref of wait.refs) {
-    const id = s.refs.get(ref);
-    if (id === undefined) continue;
-    const st = await mmOf(s, wait.replicaId).status(id);
-    if (st?.status === 'matched') return true;
-  }
-  return false;
-}
-
-export const waitUntilMatched = defineAction({
-  name: 'waitUntilMatched',
-  *generate() {
-    const wait = yield* spec<WaitSpec>({ refs: [] });
-    yield {
-      weight: 1,
-      act: async (s: MatchmakingSurface) => {
-        await s.waitUntil(() => anyMatched(s, wait), {
-          ...(wait.budgetMs !== undefined ? { budgetMs: wait.budgetMs } : {}),
-          ...(wait.stepMs !== undefined ? { stepMs: wait.stepMs } : {}),
-        });
-      },
-    };
-  },
-});
-
-export const waitNeverMatched = defineAction({
-  name: 'waitNeverMatched',
-  *generate() {
-    const wait = yield* spec<WaitSpec>({ refs: [], forMs: 100 });
-    yield {
-      weight: 1,
-      act: async (s: MatchmakingSurface) => {
-        await s.waitNever(() => anyMatched(s, wait), {
-          forMs: wait.forMs ?? 100,
-          ...(wait.stepMs !== undefined ? { stepMs: wait.stepMs } : {}),
-        });
       },
     };
   },

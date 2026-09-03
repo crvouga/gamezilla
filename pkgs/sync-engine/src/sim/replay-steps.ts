@@ -1,5 +1,6 @@
 import { DST_FAULTS, RELIABLE_FAULTS, sampleFaultOptions } from './faults';
 import { isDbOpen } from './invariants';
+import { pumpConverge } from './kit-pump';
 import { restartClientWithRetry } from './scenario/replay-step';
 import type { SyncSurface } from './scenario/system';
 
@@ -38,7 +39,9 @@ function settleClientIds(
   return ids;
 }
 
-/** Heal partitions, clear holds/faults, bring clients online, assert converge. */
+export { pumpConverge };
+
+/** Heal partitions, clear holds/faults, bring clients online, wait to converge. */
 export async function settleKit(args: {
   readonly surface: SyncSurface;
   readonly ids: readonly string[];
@@ -60,5 +63,6 @@ export async function settleKit(args: {
     args.surface.clients.get(id)?.online(true);
     args.surface.clients.get(id)?.foreground(true);
   }
-  await args.surface.assertConverged();
+  await args.surface.revive();
+  await args.surface.drainUntilConverged();
 }

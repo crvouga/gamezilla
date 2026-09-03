@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import {
   addClient,
-  converge,
   dispatch,
   hold,
   passTime,
@@ -9,6 +8,7 @@ import {
   startRoom,
 } from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
+import { expectConverged } from '../expect-converged';
 import { counterValue, Increment } from '../fixtures/counter-module';
 import {
   expectHashMatch,
@@ -22,7 +22,7 @@ describe('room sim: partition then heal', () => {
     await using run = await startRoom(counterSystem, { seed: 3 });
     await run.apply(addClient, { id: 'alice' });
     await run.apply(addClient, { id: 'bob' });
-    await run.apply(converge);
+    await expectConverged(run);
     const bobBefore = await readClientHash(run, 'bob');
 
     await run.apply(hold, 'bob');
@@ -35,7 +35,7 @@ describe('room sim: partition then heal', () => {
     expect(await readClientHash(run, 'bob')).toBe(bobBefore);
     await run.apply(release, 'bob');
 
-    await run.apply(converge);
+    await expectConverged(run);
     expect(counterValue(await readServer(run))).toBe(1);
     expect(counterValue(await readClient(run, 'alice'))).toBe(1);
     expect(counterValue(await readClient(run, 'bob'))).toBe(1);

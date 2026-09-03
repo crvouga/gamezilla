@@ -424,7 +424,6 @@ function createSimHandle(kernel: SimKernel): Sim {
           hono = null;
         },
       });
-      await session.dispose();
     },
     roomNode,
     serverSql,

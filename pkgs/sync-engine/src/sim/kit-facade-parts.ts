@@ -13,7 +13,7 @@ import {
   fireCrashIfArmed,
   type KitFaultApi,
 } from './kit-lifecycle';
-import { assertConvergedImpl } from './kit-ops';
+import { drainUntilConvergedImpl, reviveImpl } from './kit-ops';
 import { addClientImpl } from './kit-ops-add-client';
 import { restartClientImpl, restartServerImpl } from './kit-restart';
 import type { BootedSimKernel } from './kit-types';
@@ -196,18 +196,22 @@ export function bindKitMethods(args: {
     pendingEventCount: () => scheduler.pendingTaskCount(),
     checkInvariants: () =>
       checkClientSeqs(clients, rng.seed, () => k.clock.now()),
-    assertConverged: () =>
-      assertConvergedImpl({
+    revive: () =>
+      reviveImpl({
         network,
+        clients,
+        netEffects,
+        clearBoundaryFaults: () => clearFaultArms(k, faultApi),
+        healInfra: () => healInfraForSettle(k),
+      }),
+    drainUntilConverged: () =>
+      drainUntilConvergedImpl({
         scheduler,
         clients,
         server: k.server,
         seed: rng.seed,
         domain,
-        netEffects,
         now: () => k.clock.now(),
-        clearBoundaryFaults: () => clearFaultArms(k, faultApi),
-        healInfra: () => healInfraForSettle(k),
       }),
     tamperLocalStorage: (clientId, tamper) =>
       tamperClientLocalStorage(k, clientId, tamper),

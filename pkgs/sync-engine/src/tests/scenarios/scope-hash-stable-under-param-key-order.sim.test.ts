@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
+  expectConverged,
   liveNote,
   mutate,
   setFolder,
@@ -35,7 +35,7 @@ describe('scope hash stable under param key order', () => {
         body: 'in-folder',
         folderId: 'f1',
       });
-      await run.apply(converge);
+      await expectConverged(run);
 
       const topicsBefore = (await run.observe(subscribedTopics('alice')))
         .length;
@@ -61,7 +61,7 @@ describe('scope hash stable under param key order', () => {
       expect(await run.observe(liveNote('alice', 'n1'))).toMatchObject({
         body: 'in-folder',
       });
-      await run.apply(converge);
+      await expectConverged(run);
     }
   );
 });

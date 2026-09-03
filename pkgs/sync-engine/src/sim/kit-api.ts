@@ -32,7 +32,10 @@ export type SyncKit = {
   readonly isSchedulerQuiescent: () => boolean;
   readonly pendingEventCount: () => number;
   readonly checkInvariants: () => Promise<InvariantViolation | null>;
-  readonly assertConverged: () => Promise<void>;
+  /** Heal network / infra / reconnect clients — stimulus only. */
+  readonly revive: () => Promise<void>;
+  /** Drain until domain agreement (no heal — call revive first). */
+  readonly drainUntilConverged: () => Promise<void>;
   readonly tamperLocalStorage: (
     clientId: string,
     tamper: LocalStorageTamper

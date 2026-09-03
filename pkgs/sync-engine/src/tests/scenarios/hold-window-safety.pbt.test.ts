@@ -5,8 +5,8 @@ import { arbKnobs, arbSeed } from '../../sim/scenario/knobs';
 import {
   acmeDraws,
   acmeSystem,
-  assertConverged,
   clientIds,
+  expectConverged,
   hold,
   liveNote,
   mutate,
@@ -60,7 +60,7 @@ describe('hold window safety PBT', () => {
             }
 
             await run.apply(release, clientId, 'sync');
-            await run.apply(assertConverged);
+            await expectConverged(run);
           }
         ),
         { numRuns: 6 }

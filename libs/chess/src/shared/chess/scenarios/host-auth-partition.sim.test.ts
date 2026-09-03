@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'bun:test';
-import { ROOM_ERROR_TYPE } from '@pkgs/room';
+import { expectConverged, ROOM_ERROR_TYPE } from '@pkgs/room';
 import {
   addClient,
   clientHash,
   clientState,
-  converge,
   dispatch,
+  expectConverged,
   hold,
   lastRejection,
   passTime,
@@ -33,7 +33,7 @@ describe('chess puzzle: host auth under partition (Gp-02)', () => {
     });
     await run.apply(addClient, { id: 'host', identity: 'host-1' });
     await run.apply(addClient, { id: 'spec', identity: 'guest-1' });
-    await run.apply(converge);
+    await expectConverged(run);
 
     await run.apply(dispatch, {
       clientId: 'host',
@@ -55,7 +55,7 @@ describe('chess puzzle: host auth under partition (Gp-02)', () => {
     });
     await run.apply(release, 'spec');
 
-    await run.apply(converge);
+    await expectConverged(run);
     const rejections = (await run.observe(lastRejection)) as Record<
       string,
       { readonly type?: string } | null

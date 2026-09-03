@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
+  expectConverged,
   mutate,
   passTime,
   restart,
@@ -33,13 +33,13 @@ describe('live fanout peer visibility within budget', () => {
     await run.apply(addClient, 'bob');
 
     await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'hello' });
     await run.apply(passTime, PEER_VISIBLE_BUDGET_MS + 50);
 
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'hello' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
   });
 
   test('crash + restart rehydrates from server', async () => {
@@ -53,13 +53,13 @@ describe('live fanout peer visibility within budget', () => {
     await run.apply(addClient, 'alice');
     await run.apply(addClient, 'bob');
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'x' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await run.apply(mutate, 'alice', setNote, { id: 'n2', body: 'y' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await run.apply(restart, 'bob', {});
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'x' });
     await expectLiveNoteAt(run, 'bob', 'n2', { body: 'y' });
   });

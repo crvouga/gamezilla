@@ -6,8 +6,8 @@ import {
   acmeSystem,
   addClient,
   connect,
-  converge,
   disconnect,
+  expectConverged,
   lastMutationId,
   lastMutationOk,
   liveNote,
@@ -42,7 +42,7 @@ describe('args schema tightened server rejects stale args', () => {
 
       // Seed an existing row so reject heals via snapshot (absence ≠ delete).
       await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'short' });
-      await run.apply(converge);
+      await expectConverged(run);
 
       await run.apply(disconnect, 'alice');
       await run.apply(mutate, 'alice', setNoteArgsLoose, {
@@ -71,7 +71,7 @@ describe('args schema tightened server rejects stale args', () => {
 
       // Bump server hash so alice's optimistic long body is overwritten.
       await run.apply(mutate, 'bob', setNote, { id: 'ok', body: 'healthy' });
-      await run.apply(converge);
+      await expectConverged(run);
       expect(await run.observe(liveNote('alice', 'n1'))).toMatchObject({
         body: 'short',
       });

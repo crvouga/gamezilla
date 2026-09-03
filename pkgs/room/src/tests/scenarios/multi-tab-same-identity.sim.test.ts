@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { addClient, converge, dispatch, rosterSize } from '../../sim/scenario';
+import { addClient, dispatch, rosterSize } from '../../sim/scenario';
+import { expectConverged } from '../expect-converged';
 import { counterValue, Increment } from '../fixtures/counter-module';
 import { bootCounter } from '../scenario/boot-counter';
 import {
@@ -21,7 +22,7 @@ describe('room sim: multi-tab same identity (E-C03)', () => {
       identity: 'alice',
       clientId: 'tab-2',
     });
-    await run.apply(converge);
+    await expectConverged(run);
 
     await run.apply(dispatch, {
       clientId: 'tab1',
@@ -31,7 +32,7 @@ describe('room sim: multi-tab same identity (E-C03)', () => {
       clientId: 'tab2',
       payload: Increment({}),
     });
-    await run.apply(converge);
+    await expectConverged(run);
     expect(counterValue(await readServer(run))).toBe(2);
     expect(counterValue(await readClient(run, 'tab1'))).toBe(2);
     expect(counterValue(await readClient(run, 'tab2'))).toBe(2);

@@ -130,6 +130,25 @@ export const lastHttp = defineObservation({
   observe: (s: MatchmakingSurface) => asJson(s.last.http),
 });
 
+/** True when any of `refs` is matched on `replicaId` (default first). */
+export function matched(
+  refs: readonly string[],
+  replicaId?: string
+): Observation<MatchmakingSurface, boolean> {
+  return defineObservation({
+    name: `matched(${refs.join(',')}|${replicaTag(replicaId)})`,
+    observe: async (s: MatchmakingSurface) => {
+      for (const ref of refs) {
+        const id = s.refs.get(ref);
+        if (id === undefined) continue;
+        const st = await mmOf(s, replicaId).status(id);
+        if (st?.status === 'matched') return true;
+      }
+      return false;
+    },
+  });
+}
+
 export const replicasAgree = defineProperty({
   name: 'replicasAgree',
   *watch() {

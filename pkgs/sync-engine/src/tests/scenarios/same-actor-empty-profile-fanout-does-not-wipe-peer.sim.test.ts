@@ -4,9 +4,9 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
   deviceId,
   ensureProfileEmpty,
+  expectConverged,
   mutate,
   OWN_PROFILE_SESSION,
   passTime,
@@ -47,7 +47,7 @@ describe('same actor empty profile fanout does not wipe peer', () => {
     await run.apply(mutate, 'phone', setProfileUsername, {
       username: 'AliceHandle',
     });
-    await run.apply(converge);
+    await expectConverged(run);
     expect(await readProfileUsernameAt(run, 'phone', 'user-1')).toBe(
       'AliceHandle'
     );
@@ -62,7 +62,7 @@ describe('same actor empty profile fanout does not wipe peer', () => {
       'AliceHandle'
     );
 
-    await run.apply(converge);
+    await expectConverged(run);
     expect(await readProfileUsernameAt(run, 'phone', 'user-1')).toBe(
       'AliceHandle'
     );

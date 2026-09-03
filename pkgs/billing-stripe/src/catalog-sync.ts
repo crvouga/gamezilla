@@ -13,6 +13,7 @@ import {
   priceMatchesSpec,
   priceProductId,
 } from '@pkgs/billing';
+import { createLogger, type Logger } from '@pkgs/logger';
 import type Stripe from 'stripe';
 
 /** Stripe product metadata key used to match catalog product ids. */
@@ -85,7 +86,8 @@ async function findProductByCatalogId(
 async function archiveOrphanPricesForLookup(
   stripe: Stripe,
   lookupKey: string,
-  canonicalProductId: string
+  canonicalProductId: string,
+  log: Logger
 ): Promise<void> {
   const listed = await stripe.prices.list({
     lookup_keys: [lookupKey],
@@ -96,7 +98,7 @@ async function archiveOrphanPricesForLookup(
     const pid = priceProductId(p.product);
     if (pid === null || pid === canonicalProductId) continue;
     await stripe.prices.update(p.id, { active: false });
-    console.log(
+    log.info(
       `[${TAG}] archived orphan price ${p.id} (${lookupKey} on ${pid}, canonical product is ${canonicalProductId})`
     );
   }
@@ -104,7 +106,8 @@ async function archiveOrphanPricesForLookup(
 
 async function ensureProduct(
   stripe: Stripe,
-  def: ProductSpec
+  def: ProductSpec,
+  log: Logger
 ): Promise<Stripe.Product> {
   const existing = await findProductByCatalogId(stripe, def.catalogProductId);
   if (existing !== null) {
@@ -116,7 +119,7 @@ async function ensureProduct(
         name: def.name,
         description: def.description,
       });
-      console.log(
+      log.info(
         `[${TAG}] updated product ${existing.id} (${STRIPE_CATALOG_PRODUCT_METADATA_KEY}=${def.catalogProductId})`
       );
     }
@@ -129,7 +132,7 @@ async function ensureProduct(
       [STRIPE_CATALOG_PRODUCT_METADATA_KEY]: def.catalogProductId,
     },
   });
-  console.log(
+  log.info(
     `[${TAG}] created product ${created.id} (${STRIPE_CATALOG_PRODUCT_METADATA_KEY}=${def.catalogProductId})`
   );
   return created;
@@ -165,10 +168,11 @@ async function reconcileOnePrice(args: {
   readonly priceKey: string;
   readonly spec: PriceSpec;
   readonly productId: string;
+  readonly log: Logger;
 }): Promise<string> {
-  const { stripe, priceKey, spec, productId } = args;
+  const { stripe, priceKey, spec, productId, log } = args;
 
-  await archiveOrphanPricesForLookup(stripe, spec.lookupKey, productId);
+  await archiveOrphanPricesForLookup(stripe, spec.lookupKey, productId, log);
 
   const { live, liveDetail } = await findLivePriceForLookup(
     stripe,
@@ -185,7 +189,7 @@ async function reconcileOnePrice(args: {
   );
 
   if (action === 'noop' && live !== null) {
-    console.log(`[${TAG}] price ${priceKey} (${spec.lookupKey}) unchanged`);
+    log.info(`[${TAG}] price ${priceKey} (${spec.lookupKey}) unchanged`);
     return live.id;
   }
 
@@ -195,7 +199,7 @@ async function reconcileOnePrice(args: {
     !priceMatchesSpec(liveSnap, spec, productId)
   ) {
     await stripe.prices.update(live.id, { active: false });
-    console.log(`[${TAG}] archived price ${live.id} (${spec.lookupKey})`);
+    log.info(`[${TAG}] archived price ${live.id} (${spec.lookupKey})`);
   }
 
   const created = await stripe.prices.create({
@@ -212,18 +216,20 @@ async function reconcileOnePrice(args: {
     transfer_lookup_key: live !== null,
     currency_options: currencyOptionsToSnake(spec.currencyOptions),
   });
-  console.log(`[${TAG}] created price ${created.id} (${spec.lookupKey})`);
+  log.info(`[${TAG}] created price ${created.id} (${spec.lookupKey})`);
   return created.id;
 }
 
 export async function reconcileStripeCatalog(
   stripe: Stripe,
-  spec: CatalogSpec
+  spec: CatalogSpec,
+  now: () => number = () => 0
 ): Promise<CatalogSyncResult> {
+  const log = createLogger({ name: TAG, now });
   const products: Array<{ key: string; productId: string }> = [];
   const productIdsByKey: Record<string, string> = {};
   for (const [productKey, def] of Object.entries(spec.products)) {
-    const p = await ensureProduct(stripe, def);
+    const p = await ensureProduct(stripe, def, log);
     productIdsByKey[productKey] = p.id;
     products.push({ key: productKey, productId: p.id });
   }
@@ -241,6 +247,7 @@ export async function reconcileStripeCatalog(
       priceKey,
       spec: priceSpec,
       productId,
+      log,
     });
     prices.push({ key: priceKey, priceId });
   }

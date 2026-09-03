@@ -1,6 +1,13 @@
 // @io-wall-ok — composition-root wall FS via ObjectStore migration pending
 import path from 'node:path';
+import { wallClock } from '@pkgs/clock';
+import { createLogger } from '@pkgs/logger';
 import { CURATED_SOUNDS, KENNEY_ATTRIBUTION } from './curate-mapping';
+
+const log = createLogger({
+  name: 'sounds:generate-manifest',
+  now: wallClock.now,
+});
 
 const ROOT = path.join(import.meta.dir, '..');
 const ASSETS = path.join(ROOT, 'assets');
@@ -144,10 +151,10 @@ async function main(): Promise<void> {
   const tree = buildSoundsTree();
   await Bun.write(SOUND_ID_PATH, formatSoundIdFile(formatSoundsTree(tree)));
 
-  console.log(`Generated manifest (${manifest.length} sounds)`);
-  console.log(`Wrote ${MANIFEST_PATH}`);
-  console.log(`Wrote ${SOURCES_PATH}`);
-  console.log(`Wrote ${SOUND_ID_PATH}`);
+  log.info(`Generated manifest (${manifest.length} sounds)`);
+  log.info(`Wrote ${MANIFEST_PATH}`);
+  log.info(`Wrote ${SOURCES_PATH}`);
+  log.info(`Wrote ${SOUND_ID_PATH}`);
 }
 
 await main();

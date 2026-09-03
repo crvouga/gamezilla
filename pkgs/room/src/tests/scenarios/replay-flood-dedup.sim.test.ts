@@ -2,12 +2,12 @@ import { describe, expect, test } from 'bun:test';
 import {
   addClient,
   clock,
-  converge,
   injectToServer,
   logSeq,
   startRoom,
 } from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
+import { expectConverged } from '../expect-converged';
 import { counterValue, Increment } from '../fixtures/counter-module';
 import {
   expectHashMatch,
@@ -20,7 +20,7 @@ describe('room sim: replay flood dedup (E-D01)', () => {
   test('N replays of one commandId mutate once', async () => {
     await using run = await startRoom(counterSystem);
     await run.apply(addClient, { id: 'alice' });
-    await run.apply(converge);
+    await expectConverged(run);
 
     const frame = commandWire({
       id: 'flood-1',
@@ -34,7 +34,7 @@ describe('room sim: replay flood dedup (E-D01)', () => {
         direct: true,
       });
     }
-    await run.apply(converge);
+    await expectConverged(run);
     expect(counterValue(await readServer(run))).toBe(1);
     expect(counterValue(await readClient(run, 'alice'))).toBe(1);
     await expectHashMatch(run, 'alice');

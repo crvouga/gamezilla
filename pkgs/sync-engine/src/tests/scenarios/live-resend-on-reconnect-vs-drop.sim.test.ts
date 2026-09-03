@@ -4,9 +4,9 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
   connect,
   disconnect,
+  expectConverged,
   expectLiveNoteAt,
   hold,
   liveNote,
@@ -32,7 +32,7 @@ describe('live resend on reconnect vs drop', () => {
     await run.apply(addClient, { id: 'alice' });
     await run.apply(addClient, { id: 'bob' });
     await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await run.apply(disconnect, 'bob');
     await run.apply(hold, 'bob', 'sync');
@@ -43,7 +43,7 @@ describe('live resend on reconnect vs drop', () => {
     await neverAcme(run, liveNote('bob', 'n1'), { forMs: 200 });
 
     await run.apply(release, 'bob', 'sync');
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'while-down' });
   });
 
@@ -58,7 +58,7 @@ describe('live resend on reconnect vs drop', () => {
     await run.apply(addClient, { id: 'alice' });
     await run.apply(addClient, { id: 'bob' });
     await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await run.apply(disconnect, 'bob');
     await run.apply(hold, 'bob', 'sync');
@@ -73,7 +73,7 @@ describe('live resend on reconnect vs drop', () => {
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'resent' });
 
     await run.apply(release, 'bob', 'sync');
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'resent' });
   });
 });

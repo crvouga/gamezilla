@@ -1,5 +1,13 @@
+// @io-wall-ok
+import { wallClock } from '@pkgs/clock';
+import { createLogger } from '@pkgs/logger';
 import manifest from '../src/manifest.json';
 import { ALLOWED_LICENSES } from './curate-mapping';
+
+const log = createLogger({
+  name: 'sounds:verify-licenses',
+  now: wallClock.now,
+});
 
 let failed = false;
 
@@ -22,4 +30,4 @@ if (failed) {
   process.exit(1);
 }
 
-console.log(`Verified licenses for ${manifest.length} sounds.`);
+log.info(`Verified licenses for ${manifest.length} sounds.`);

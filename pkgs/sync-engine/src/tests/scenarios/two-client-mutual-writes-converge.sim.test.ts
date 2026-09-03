@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
+  expectConverged,
   liveNote,
   mutate,
   setNote,
@@ -12,7 +12,7 @@ import {
 } from '../apps/acme';
 
 describe('two client mutual writes converge', () => {
-  test('peer sees note after assertConverged', async () => {
+  test('peer sees note after expectConverged', async () => {
     await using run = await start(acmeSystem, {
       seed: 3,
       host: syncVirtualHost(),
@@ -23,7 +23,7 @@ describe('two client mutual writes converge', () => {
     await run.apply(addClient, 'alice');
     await run.apply(addClient, 'bob');
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'shared' });
-    await run.apply(converge);
+    await expectConverged(run);
     expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
       body: 'shared',
     });
@@ -47,6 +47,6 @@ describe('two client mutual writes converge', () => {
       id: `m-${seed}`,
       body: `c-${seed}`,
     });
-    await run.apply(converge);
+    await expectConverged(run);
   });
 });

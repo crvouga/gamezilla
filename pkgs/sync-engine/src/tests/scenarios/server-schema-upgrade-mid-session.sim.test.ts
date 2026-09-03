@@ -7,7 +7,7 @@ import {
   acmeQueryRegistry,
   acmeSystem,
   addClient,
-  assertConverged,
+  expectConverged,
   mutate,
   notesAllWithColorQuery,
   restart,
@@ -53,7 +53,7 @@ describe('server schema upgrade mid session', () => {
         id: 'n1',
         body: 'before-upgrade',
       });
-      await run.apply(assertConverged);
+      await expectConverged(run);
 
       await run.apply(restart, 'server', {
         preserveLocalDb: true,
@@ -76,7 +76,7 @@ describe('server schema upgrade mid session', () => {
         id: 'n2',
         body: 'still-baseline',
       });
-      await run.apply(assertConverged);
+      await expectConverged(run);
 
       await expectLiveNoteAt(run, 'alice', 'n1', { body: 'after-upgrade' });
       await expectLiveNoteAt(run, 'bob', 'n1', { body: 'after-upgrade' });

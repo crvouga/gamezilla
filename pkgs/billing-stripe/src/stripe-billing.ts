@@ -11,7 +11,10 @@ import { reconcileStripeCatalog } from './catalog-sync';
 import { StripeSecretKeys } from './secret-keys';
 
 export class StripeBilling implements Billing {
-  constructor(private readonly stripe: Stripe) {}
+  constructor(
+    private readonly stripe: Stripe,
+    private readonly now: () => number = () => 0
+  ) {}
 
   async createPortalSession(
     input: CreatePortalSessionInput
@@ -27,15 +30,19 @@ export class StripeBilling implements Billing {
   }
 
   async syncCatalog(spec: CatalogSpec): Promise<CatalogSyncResult> {
-    return reconcileStripeCatalog(this.stripe, spec);
+    return reconcileStripeCatalog(this.stripe, spec, this.now);
   }
 }
 
-export function createStripeBilling(secretKey: string): StripeBilling {
+export function createStripeBilling(
+  secretKey: string,
+  now: () => number = () => 0
+): StripeBilling {
   return new StripeBilling(
     new Stripe(secretKey, {
       httpClient: Stripe.createFetchHttpClient(),
-    })
+    }),
+    now
   );
 }
 
@@ -43,12 +50,13 @@ export function createStripeBilling(secretKey: string): StripeBilling {
  * Build StripeBilling from a secret store, or null when the secret is missing.
  */
 export async function createStripeBillingFromSecretStore(
-  secretStore: SecretStore
+  secretStore: SecretStore,
+  now: () => number = () => 0
 ): Promise<StripeBilling | null> {
   const raw = (
     await secretStore.getOptional(StripeSecretKeys.secretKey)
   )?.readSecretValue();
   const trimmed = typeof raw === 'string' ? raw.trim() : '';
   if (trimmed.length === 0) return null;
-  return createStripeBilling(trimmed);
+  return createStripeBilling(trimmed, now);
 }

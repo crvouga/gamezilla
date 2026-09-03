@@ -5,8 +5,8 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
   disconnect,
+  expectConverged,
   expectLiveNoteAt,
   liveNote,
   mutate,
@@ -45,7 +45,7 @@ describe('epoch bump mid offline session then drain', () => {
         preserveLocalDb: true,
         schemaEpoch: SCHEMA_EPOCH + 1,
       });
-      await run.apply(converge);
+      await expectConverged(run);
 
       await expectLiveNoteAt(run, 'alice', 'n1', { body: 'mid-offline' });
       expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({

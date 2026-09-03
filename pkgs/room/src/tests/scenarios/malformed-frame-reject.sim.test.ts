@@ -2,13 +2,13 @@ import { describe, expect, test } from 'bun:test';
 import {
   addClient,
   clock,
-  converge,
   injectToServer,
   logSeq,
   startRoom,
 } from '../../sim/scenario';
 import { ROOM_ERROR_TYPE } from '../../types';
 import { counterSystem } from '../apps/counter/system';
+import { expectConverged } from '../expect-converged';
 import { counterValue } from '../fixtures/counter-module';
 import {
   readClient,
@@ -21,7 +21,7 @@ describe('room sim: malformed frame reject (E-D02)', () => {
   test('non-Message command payload rejects without mutate', async () => {
     await using run = await startRoom(counterSystem);
     await run.apply(addClient, { id: 'alice' });
-    await run.apply(converge);
+    await expectConverged(run);
     const before = await readClientHash(run, 'alice');
 
     await run.apply(injectToServer, {
@@ -48,7 +48,7 @@ describe('room sim: malformed frame reject (E-D02)', () => {
   test('unknown wire kind is ignored without mutate', async () => {
     await using run = await startRoom(counterSystem, { seed: '43' });
     await run.apply(addClient, { id: 'alice' });
-    await run.apply(converge);
+    await expectConverged(run);
     const before = await readClientHash(run, 'alice');
     await run.apply(injectToServer, {
       clientId: 'alice',

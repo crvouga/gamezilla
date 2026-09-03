@@ -5,11 +5,11 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
   clientIds,
   connect,
   deleteNote,
   disconnect,
+  expectConverged,
   expectEveryClientNotesAgree,
   lastMutationOk,
   liveNotes,
@@ -72,7 +72,7 @@ async function offlineConflictThenConverge(
   await run.apply(mutate, 'bob', setNote, { id: 'shared', body: 'from-b' });
   await run.apply(online, 'alice', true);
   await run.apply(online, 'bob', true);
-  await run.apply(assertConverged);
+  await expectConverged(run);
 
   const server = await run.observe(liveNotes('server'));
   const winner = server.find((r) => r.id === 'shared');
@@ -87,14 +87,14 @@ async function onlineOptimisticRace(
 ): Promise<void> {
   await bootSkewedPair(run, order);
   await run.apply(mutate, 'alice', setNote, { id: 'race', body: 'seed' });
-  await run.apply(assertConverged);
+  await expectConverged(run);
 
   // Both online: back-to-back optimistic writes (not Promise.all — simultaneous
   // local apply can race fanout rebase past settle budget).
   await run.apply(mutate, 'alice', setNote, { id: 'race', body: 'a-online' });
   await run.apply(mutate, 'bob', setNote, { id: 'race', body: 'b-online' });
   await run.apply(passTime, 200);
-  await run.apply(assertConverged);
+  await expectConverged(run);
   await expectEveryClientNotesAgree(run);
 }
 
@@ -109,7 +109,7 @@ async function aheadDeleteBehindPending(
   const owner = aheadIsAlice ? 'alice' : 'bob';
   const behind = aheadIsAlice ? 'bob' : 'alice';
   await run.apply(mutate, owner, setNote, { id: 'n1', body: 'owned' });
-  await run.apply(assertConverged);
+  await expectConverged(run);
 
   // Behind must genuinely stop uploading, otherwise its queued write lands
   // first and steals ownership before the delete.
@@ -122,7 +122,7 @@ async function aheadDeleteBehindPending(
   expect(await run.observe(lastMutationOk(owner))).toBe(true);
 
   await run.apply(connect, behind);
-  await run.apply(assertConverged);
+  await expectConverged(run);
   await expectEveryClientNotesAgree(run);
 
   // Domain is consistent: either live with some body, or tombstoned everywhere.

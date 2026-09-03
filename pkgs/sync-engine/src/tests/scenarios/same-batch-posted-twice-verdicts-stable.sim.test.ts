@@ -5,7 +5,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
+  expectConverged,
   liveNote,
   liveNotes,
   mutate,
@@ -37,7 +37,7 @@ describe('same batch posted twice verdicts stable', () => {
         id: 'n1',
         body: 'replay-safe',
       });
-      await run.apply(converge);
+      await expectConverged(run);
 
       expect(await run.observe(liveNote('bob', 'n1'))).toMatchObject({
         body: 'replay-safe',

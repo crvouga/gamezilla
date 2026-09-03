@@ -4,9 +4,9 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
   connect,
   disconnect,
+  expectConverged,
   lastMutationId,
   mutate,
   outcome,
@@ -31,7 +31,7 @@ describe('reject mid chain later pendings still apply', () => {
     await run.apply(addClient, 'bob');
 
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'good' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await run.apply(disconnect, 'alice');
     await run.apply(mutate, 'alice', setNote, { id: 'n2', body: 'before' });
@@ -56,7 +56,7 @@ describe('reject mid chain later pendings still apply', () => {
     expect(unacked.some((r) => r.mutationId === badId)).toBe(true);
 
     await run.apply(mutate, 'bob', setNote, { id: 'bump', body: 'x' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await expectLiveNoteAt(run, 'alice', 'n1', { body: 'good' });
     await expectLiveNoteAt(run, 'bob', 'n2', { body: 'before' });

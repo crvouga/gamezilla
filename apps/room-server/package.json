@@ -23,6 +23,7 @@
     "@libs/secrets": "workspace:*",
     "@libs/spaces": "workspace:*",
     "@pkgs/clock": "workspace:*",
+    "@pkgs/logger": "workspace:*",
     "@pkgs/message": "workspace:*",
     "@pkgs/room": "workspace:*"
   },

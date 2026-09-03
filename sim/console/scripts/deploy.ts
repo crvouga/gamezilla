@@ -12,8 +12,12 @@ import { runAsync, runCapture } from '@libs/secrets/shared/subprocess';
 import { waitForHttp } from '@libs/secrets/shared/wait-for-http';
 import { wranglerArgs, wranglerEnv } from '@libs/secrets/shared/wrangler-env';
 import { assert } from '@pkgs/assert';
+import { wallClock } from '@pkgs/clock';
 import { assertCommitDateIso, COMMIT_HASH_HEX_REGEX } from '@pkgs/git';
+import { createLogger } from '@pkgs/logger';
 import { isProductionSecretsEnv } from '../../../tools/src/deploy-mode';
+
+const log = createLogger({ name: 'sim:deploy', now: wallClock.now });
 
 const require = createRequire(import.meta.url);
 const {
@@ -121,13 +125,13 @@ async function deploy(dryRun: boolean): Promise<void> {
 
   await waitForHttp(productionSimOrigin(), { label: 'Sim Console' });
 
-  console.log(
+  log.info(
     `Sim Worker deployed (${PRODUCT_CONFIG.cloudflare.simWorker}) on sim.gamezilla.app.`
   );
 }
 
 const dryRun = !isProductionSecretsEnv();
 if (dryRun) {
-  console.log('[sim:deploy] dry-run (SECRETS_ENV is not prd)');
+  log.info('[sim:deploy] dry-run (SECRETS_ENV is not prd)');
 }
 await deploy(dryRun);

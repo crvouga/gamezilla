@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'bun:test';
 import {
   asymmetricLink,
-  converge,
   dispatch,
   passTime,
   release,
 } from '../../sim/scenario';
+import { expectConverged } from '../expect-converged';
 import { counterValue, Increment } from '../fixtures/counter-module';
 import { bootCounter } from '../scenario/boot-counter';
 import {
@@ -33,7 +33,7 @@ describe('room sim: asymmetric link (P2)', () => {
     expect(counterValue(await readClient(run, 'bob'))).not.toBe(2);
     await run.apply(release, 'bob');
 
-    await run.apply(converge);
+    await expectConverged(run);
     expect(counterValue(await readServer(run))).toBe(2);
     expect(counterValue(await readClient(run, 'alice'))).toBe(2);
     expect(counterValue(await readClient(run, 'bob'))).toBe(2);

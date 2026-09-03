@@ -5,7 +5,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
+  expectConverged,
   expectLiveNoteAt,
   liveNotes,
   mutate,
@@ -39,7 +39,7 @@ describe('fanout row cap boundary 64 vs 65', () => {
     for (const id of ids) {
       await run.apply(mutate, 'alice', setNote, { id, body: 'seed' });
     }
-    await run.apply(converge);
+    await expectConverged(run);
 
     await run.apply(net, 'bob', 'sync', 'hold');
     await run.apply(mutate, 'alice', retouchNotes, { ids, body: 'at-cap' });
@@ -49,7 +49,7 @@ describe('fanout row cap boundary 64 vs 65', () => {
       await expectLiveNoteAt(run, 'bob', id, { body: 'at-cap' });
     }
 
-    await run.apply(converge);
+    await expectConverged(run);
     expect((await run.observe(liveNotes('bob'))).length).toBe(MAX_FANOUT_ROWS);
   });
 
@@ -68,13 +68,13 @@ describe('fanout row cap boundary 64 vs 65', () => {
     for (const id of ids) {
       await run.apply(mutate, 'alice', setNote, { id, body: 'seed' });
     }
-    await run.apply(converge);
+    await expectConverged(run);
 
     await run.apply(net, 'bob', 'sync', 'hold');
     await run.apply(mutate, 'alice', retouchNotes, { ids, body: 'over-cap' });
     // Over-cap omits images; peer waits for sync refetch.
     await run.apply(passTime, 200);
-    await run.apply(converge);
+    await expectConverged(run);
 
     await expectLiveNoteAt(run, 'bob', ids[0]!, { body: 'over-cap' });
     await expectLiveNoteAt(run, 'bob', ids[MAX_FANOUT_ROWS]!, {

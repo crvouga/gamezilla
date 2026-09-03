@@ -4,9 +4,9 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
   clientIds,
   crashAt,
+  expectConverged,
   expectLiveNoteAt,
   expectNotesAgree,
   lastMutationOk,
@@ -33,7 +33,7 @@ describe('crash after post before ack retry idempotent', () => {
     await run.apply(addClient, { id: 'bob' });
 
     await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await run.apply(crashAt, 'alice', 'afterNextMutationsPostAccepted');
     await run.apply(mutate, 'alice', setNote, {
@@ -48,7 +48,7 @@ describe('crash after post before ack retry idempotent', () => {
     await expectLiveNoteAt(run, 'server', 'n1', { body: 'post-accepted' });
 
     await run.apply(restart, 'alice', { preserveLocalDb: true });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     const server = await run.observe(liveNotes('server'));
     expect(server.filter((r) => r.id === 'n1').length).toBe(1);

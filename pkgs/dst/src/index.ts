@@ -19,6 +19,7 @@ export {
 export type { JsonPrimitive, JsonValue } from './kernel/json';
 export type { Rng } from './kernel/rng';
 export type {
+  NeverObservedOpts,
   Run,
   StartOptions,
   Transition,
@@ -29,6 +30,7 @@ export type {
 export {
   ActionNotEnabled,
   DriveError,
+  neverObserved,
   PropertyViolation,
   start,
   untilObserved,

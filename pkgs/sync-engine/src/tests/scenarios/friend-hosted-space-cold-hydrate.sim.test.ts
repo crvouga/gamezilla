@@ -5,9 +5,9 @@ import {
   acmeSystem,
   addClient,
   befriend,
-  converge,
   crash,
   createSpace,
+  expectConverged,
   expectLiveSpaceAt,
   liveSpace,
   mutate,
@@ -36,7 +36,7 @@ describe('friend hosted space cold hydrate', () => {
     });
 
     await run.apply(mutate, 'alice', befriend, { peerId: 'bob' });
-    await run.apply(converge);
+    await expectConverged(run);
 
     await run.apply(mutate, 'alice', createSpace, {
       id: 'friend-space',

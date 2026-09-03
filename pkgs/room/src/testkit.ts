@@ -14,7 +14,6 @@ export {
   addClient,
   clientHash,
   clientState,
-  converge,
   crash,
   defineRoomSystem,
   dispatch,
@@ -27,10 +26,12 @@ export {
   ROOM_PROPERTIES,
   release,
   restart,
+  revive,
   serverHash,
   serverState,
   startRoom,
 } from './sim/scenario';
+export { expectConverged } from './tests/expect-converged';
 export {
   AuthzFixtureModule,
   authzCount,

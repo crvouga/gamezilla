@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
+  expectConverged,
   mutate,
   online,
   passTime,
@@ -25,7 +25,7 @@ describe('remote fanout races local pending mutation', () => {
     await run.apply(addClient, 'bob');
 
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'from-a' });
-    await run.apply(converge);
+    await expectConverged(run);
 
     await run.apply(online, 'bob', false);
     await run.apply(mutate, 'bob', setNote, {
@@ -35,6 +35,6 @@ describe('remote fanout races local pending mutation', () => {
     await run.apply(online, 'bob', true);
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'from-a-2' });
     await run.apply(passTime, 500);
-    await run.apply(converge);
+    await expectConverged(run);
   });
 });

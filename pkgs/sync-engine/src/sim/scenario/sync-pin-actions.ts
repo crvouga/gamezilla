@@ -10,6 +10,7 @@ import { defineAction } from '@pkgs/dst';
 import { unsafe } from '@pkgs/sql';
 
 import type { Mutation } from '../../mutations/core/types';
+import { pumpConverge } from '../kit-pump';
 import type { AddClientArgs } from '../kit-types';
 import { applyActionToShadow } from './action-shadow';
 import type { SyncAction } from './actions';
@@ -27,7 +28,6 @@ import {
 } from './pin-support';
 import { prepareClientsForConverge, replayStep, resetClockSkews } from './play';
 import { passTime } from './sync-actions';
-import { caps } from './sync-observations';
 import type { SyncSurface } from './system';
 
 export {
@@ -402,52 +402,6 @@ export const execSql = defineAction({
 
 export const runSql = execSql;
 
-const SETTLE_STEP_MS = 25;
-const SETTLE_BUDGET_MS = 2_000;
-
-export const settle = defineAction({
-  name: 'settle',
-  *generate() {
-    if (!(yield* caps).includes('virtualTime')) return;
-    yield {
-      weight: 1,
-      act: async (s: SyncSurface) => {
-        for (let waited = 0; waited < SETTLE_BUDGET_MS; ) {
-          if (s.isSchedulerQuiescent() && s.pendingEventCount() === 0) return;
-          await s.advance(SETTLE_STEP_MS);
-          waited += SETTLE_STEP_MS;
-        }
-      },
-    };
-  },
-});
-
-export const converge = defineAction({
-  name: 'converge',
-  *generate() {
-    yield {
-      weight: 1,
-      act: async (s: SyncSurface) => {
-        await prepareClientsForConverge(s.runtime.app, s, s.runtime.replay);
-        resetClockSkews(s);
-        await s.assertConverged();
-      },
-    };
-  },
-});
-
-export const assertConverged = defineAction({
-  name: 'assertConverged',
-  *generate() {
-    yield {
-      weight: 1,
-      act: async (s: SyncSurface) => {
-        await s.assertConverged();
-      },
-    };
-  },
-});
-
 export const playActions = defineAction({
   name: 'playActions',
   *generate() {
@@ -472,6 +426,56 @@ export const playActions = defineAction({
   },
 });
 
+/**
+ * Heal owed clients, clear faults, reconnect — stimulus only. Pair with
+ * `untilObserved(run, converged, passTime)` (or {@link expectConverged}).
+ */
+export const revive = defineAction({
+  name: 'revive',
+  *generate() {
+    yield {
+      weight: 1,
+      act: async (s: SyncSurface) => {
+        await prepareClientsForConverge(s.runtime.app, s, s.runtime.replay);
+        resetClockSkews(s);
+        await s.revive();
+      },
+    };
+  },
+});
+
+/** Wake uploads / refresh on every live client — stimulus for drain waits. */
+export const wakeAll = defineAction({
+  name: 'wakeAll',
+  *generate() {
+    yield {
+      weight: 1,
+      act: (s: SyncSurface) => {
+        for (const client of s.clients.values()) {
+          client.engine.wakeUploads();
+          void client.engine.refreshQueries().catch(() => undefined);
+        }
+      },
+    };
+  },
+});
+
+/**
+ * One converge pump: wake + drain scheduler (stimulus only).
+ * Pair with `untilObserved(converged)` / {@link expectConverged}.
+ */
+export const pump = defineAction({
+  name: 'pump',
+  *generate() {
+    yield {
+      weight: 1,
+      act: async (s: SyncSurface) => {
+        await pumpConverge(s);
+      },
+    };
+  },
+});
+
 /** Every scripted pin, for callers that need the whole vocabulary. */
 export const SYNC_PIN_ACTIONS = [
   addClient,
@@ -491,9 +495,9 @@ export const SYNC_PIN_ACTIONS = [
   runSql,
   playActions,
   passTime,
-  settle,
-  converge,
-  assertConverged,
+  revive,
+  wakeAll,
+  pump,
   net,
   hold,
   release,

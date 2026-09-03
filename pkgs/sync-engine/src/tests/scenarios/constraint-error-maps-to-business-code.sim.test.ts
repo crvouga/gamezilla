@@ -6,8 +6,8 @@ import {
   addClient,
   clearLocalData,
   connect,
-  converge,
   disconnect,
+  expectConverged,
   lastMutationId,
   liveNote,
   mutate,
@@ -66,7 +66,7 @@ describe('constraint error maps to business code', () => {
       // and rehydrate so converge can succeed.
       await run.apply(clearLocalData, 'bob', 'cache');
       await run.apply(connect, 'bob');
-      await run.apply(converge);
+      await expectConverged(run);
       expect(await run.observe(liveNote('bob', 'n1'))).toEqual(OWNER_NOTE);
     }
   );

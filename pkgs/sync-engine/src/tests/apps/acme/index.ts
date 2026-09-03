@@ -9,7 +9,6 @@ export {
   addClient,
   addPeerEngine,
   armStoragePressure,
-  assertConverged,
   auth,
   brokerCrash,
   brokerRestart,
@@ -20,7 +19,6 @@ export {
   clock,
   connect,
   connection,
-  converge,
   converged,
   crash,
   crashAt,
@@ -64,6 +62,7 @@ export {
   release,
   restart,
   restartWithSchema,
+  revive,
   rows,
   runSql,
   SYNC_PIN_ACTIONS,
@@ -73,7 +72,6 @@ export {
   serverOp,
   serverPrune,
   serverReplay,
-  settle,
   skewClock,
   subscribe,
   subscribeAll,
@@ -109,6 +107,7 @@ export {
   checkClientDomainMatchServer,
 } from './converge';
 export { acmeDomainPack } from './domain-pack';
+export { expectConverged } from './expect-converged';
 export { insertCatalogNote } from './insert-catalog-note';
 export { createSimMembershipChannels } from './membership-channels';
 export { type PlayAcmePinOpts, playAcmePin } from './play-pin';

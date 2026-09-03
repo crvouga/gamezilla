@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
+  expectConverged,
   expectLiveNoteAt,
   isNoteLiveAt,
   liveNote,
@@ -42,7 +42,7 @@ describe('non mutation catalog insert wakes empty hydrate', () => {
     await untilAcme(run, liveNote('alice', 'n-seed'), {
       pred: noteBodyIs('seeded'),
     });
-    await run.apply(assertConverged);
+    await expectConverged(run);
   });
 
   test('insertCatalogNote notify false heals via reconcile tick', async () => {
@@ -73,6 +73,6 @@ describe('non mutation catalog insert wakes empty hydrate', () => {
     await untilAcme(run, liveNote('alice', 'n-silent'), {
       pred: noteBodyIs('seeded-silent'),
     });
-    await run.apply(assertConverged);
+    await expectConverged(run);
   });
 });

@@ -4,7 +4,7 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  assertConverged,
+  expectConverged,
   mutate,
   setNote,
   syncVirtualHost,
@@ -30,7 +30,7 @@ describe('entry channel wakes never-held row', () => {
       id: 'n-fresh',
       body: 'via-entry',
     });
-    await run.apply(assertConverged);
+    await expectConverged(run);
 
     await expectLiveNoteAt(run, 'bob', 'n-fresh', { body: 'via-entry' });
   });

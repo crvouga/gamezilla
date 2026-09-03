@@ -4,8 +4,8 @@ import {
   acmeDraws,
   acmeSystem,
   addClient,
-  converge,
   deleteNote,
+  expectConverged,
   expectLiveNoteAt,
   expectNoteNotLiveAt,
   lastMutationOk,
@@ -30,7 +30,7 @@ describe('tombstone row image deletes live row', () => {
     await run.apply(addClient, { id: 'bob' });
 
     await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'alive' });
-    await run.apply(converge);
+    await expectConverged(run);
     await expectLiveNoteAt(run, 'bob', 'n1', { body: 'alive' });
 
     await run.apply(net, 'bob', 'sync', 'hold');
@@ -41,7 +41,7 @@ describe('tombstone row image deletes live row', () => {
     await expectNoteNotLiveAt(run, 'bob', 'n1');
     expect(await readNoteTombstoneAt(run, 'bob', 'n1')).not.toBeNull();
 
-    await run.apply(converge);
+    await expectConverged(run);
     await expectNoteNotLiveAt(run, 'bob', 'n1');
   });
 });

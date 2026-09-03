@@ -17,6 +17,7 @@ module.exports = function (api) {
       ],
     ],
     plugins: [
+      require('./babel-plugin-sim-sql-fabric-jest.cjs'),
       ['@lingui/babel-plugin-lingui-macro', { stripMessageField: false }],
       // `await using` / `using` → try/finally + babelHelpers.usingCtx().
       require.resolve('@babel/plugin-transform-explicit-resource-management'),

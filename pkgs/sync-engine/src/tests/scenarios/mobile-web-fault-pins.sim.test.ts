@@ -5,8 +5,7 @@ import {
   acmeLargeCatalogSystem,
   acmeSystem,
   armStoragePressure,
-  assertConverged,
-  converge,
+  expectConverged,
   mutate,
   online,
   passTime,
@@ -34,7 +33,7 @@ describe('online lifecycle wakes query refetch', () => {
     });
     await run.apply(online, 'c0', true);
     await run.apply(passTime, 100);
-    await run.apply(assertConverged);
+    await expectConverged(run);
     await expectLiveNoteAt(run, 'server', 'n0', { body: 'offline-local' });
   });
 });
@@ -51,7 +50,7 @@ describe('storage full merge abort', () => {
     await run.apply(armStoragePressure, 'c0', 'sqliteFull');
     await run.apply(mutate, 'c0', setNote, { id: 'n2', body: 'queued' });
     await run.apply(restart, 'c0', {});
-    await run.apply(converge);
+    await expectConverged(run);
   });
 });
 

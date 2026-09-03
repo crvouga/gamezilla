@@ -231,7 +231,6 @@ export const heal = defineAction({
       act: async (s: RoomSurface) => {
         if (asIds(c).includes('partition')) s.session.network.healAll();
         for (const id of s.kit.clients.keys()) s.kit.net(id).set('ok');
-        await s.kit.drain();
       },
     };
   },
@@ -246,14 +245,14 @@ export const passTime = defineAction({
   },
 });
 
-export const converge = defineAction({
-  name: 'converge',
+export const revive = defineAction({
+  name: 'revive',
   *generate() {
     yield {
       weight: 1,
       act: async (s: RoomSurface) => {
         await prepareClientsForConverge(s.kit);
-        await s.kit.assertConverged();
+        await s.kit.revive();
       },
     };
   },

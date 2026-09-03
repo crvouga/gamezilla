@@ -1,10 +1,11 @@
 /**
- * A {@link Driver} whose every step is a {@link Run} step: mutations and waits
- * are `run.apply` checkpoints, reads are `run.observe` observations. Nothing
- * here touches the product surface — that is the scenario system's job.
+ * A {@link Driver} whose every step is a {@link Run} step: mutations are
+ * `run.apply` checkpoints, waits are `untilObserved` + `passTime`, reads are
+ * `run.observe`. Nothing here touches the product surface — that is the
+ * scenario system's job.
  */
 
-import type { Run } from '@pkgs/dst';
+import { type Run, untilObserved } from '@pkgs/dst';
 import type {
   AssertionOptions,
   Driver,
@@ -19,7 +20,7 @@ import type {
 } from '@pkgs/ui-testing';
 import { isWaitTextCondition } from '@pkgs/ui-testing';
 
-import { type UiOp, type UiWait, uiOp, uiWait } from '../scenario/actions';
+import { passTime, type UiOp, uiOp } from '../scenario/actions';
 import {
   actorHtml,
   nodeLayout,
@@ -31,6 +32,9 @@ import type { ProductSurface } from '../scenario/surface';
 type Extra = UiOp['extra'];
 type ProductRun = Run<ProductSurface>;
 
+const DEFAULT_UI_WAIT_MS = 5_000;
+const UI_STEP_MS = 50;
+
 function extraOf(opts?: UiWaitOptions, more?: Extra): Extra {
   const timeoutMs = opts?.timeoutMs;
   return {
@@ -39,59 +43,98 @@ function extraOf(opts?: UiWaitOptions, more?: Extra): Extra {
   };
 }
 
-function waitPayload(
-  base: Omit<UiWait, 'kind' | 'assert'>,
-  kind: UiWait['kind'],
-  assert: boolean,
+function maxMsOf(options?: { readonly timeoutMs?: number }): number {
+  return options?.timeoutMs ?? DEFAULT_UI_WAIT_MS;
+}
+
+async function waitVisible(
+  run: ProductRun,
+  actorId: string,
+  path: readonly string[],
   options?: DriverWaitOptions
-): UiWait {
-  return {
-    ...base,
-    kind,
-    assert,
-    ...(options?.timeoutMs !== undefined
-      ? { timeoutMs: options.timeoutMs }
-      : {}),
-    ...(options?.description !== undefined
-      ? { description: options.description }
-      : {}),
-  };
+): Promise<void> {
+  await untilObserved(run, visible(actorId, path), passTime, {
+    stepMs: UI_STEP_MS,
+    maxMs: maxMsOf(options),
+  });
+}
+
+async function waitHidden(
+  run: ProductRun,
+  actorId: string,
+  path: readonly string[],
+  options?: DriverWaitOptions
+): Promise<void> {
+  await untilObserved(run, visible(actorId, path), passTime, {
+    stepMs: UI_STEP_MS,
+    maxMs: maxMsOf(options),
+    pred: (v) => v === false,
+  });
+}
+
+async function waitText(args: {
+  readonly run: ProductRun;
+  readonly actorId: string;
+  readonly path: readonly string[];
+  readonly expected: string;
+  readonly exact: boolean;
+  readonly options?: DriverWaitOptions;
+}): Promise<void> {
+  await untilObserved(args.run, nodeText(args.actorId, args.path), passTime, {
+    stepMs: UI_STEP_MS,
+    maxMs: maxMsOf(args.options),
+    pred: (v) => {
+      if (typeof v !== 'string') return false;
+      return args.exact ? v === args.expected : v.includes(args.expected);
+    },
+  });
 }
 
 function nodeExpect(
   run: ProductRun,
-  base: Omit<UiWait, 'kind' | 'assert'>
+  actorId: string,
+  path: readonly string[]
 ): DriverNode['expect'] {
   return {
     visible: (options?: AssertionOptions) =>
-      run.apply(uiWait, waitPayload(base, 'visible', true, options)),
+      waitVisible(run, actorId, path, options),
     hidden: (options?: AssertionOptions) =>
-      run.apply(uiWait, waitPayload(base, 'hidden', true, options)),
+      waitHidden(run, actorId, path, options),
     text: (
       expected: string,
       options?: AssertionOptions & { exact?: boolean }
     ) =>
-      run.apply(uiWait, {
-        ...waitPayload(base, 'text', true, options),
-        text: expected,
-        ...(options?.exact !== undefined ? { exact: options.exact } : {}),
+      waitText({
+        run,
+        actorId,
+        path,
+        expected,
+        exact: options?.exact ?? true,
+        options,
       }),
   };
 }
 
-function runWait(
-  run: ProductRun,
-  base: Omit<UiWait, 'kind' | 'assert'>,
-  state: WaitState | WaitTextCondition,
-  options?: DriverWaitOptions
-): Promise<void> {
-  if (!isWaitTextCondition(state)) {
-    return run.apply(uiWait, waitPayload(base, state, false, options));
+function runWait(args: {
+  readonly run: ProductRun;
+  readonly actorId: string;
+  readonly path: readonly string[];
+  readonly state: WaitState | WaitTextCondition;
+  readonly options?: DriverWaitOptions;
+}): Promise<void> {
+  if (!isWaitTextCondition(args.state)) {
+    if (args.state === 'visible') {
+      return waitVisible(args.run, args.actorId, args.path, args.options);
+    }
+    return waitHidden(args.run, args.actorId, args.path, args.options);
   }
-  return run.apply(uiWait, {
-    ...waitPayload(base, 'text', false, options),
-    text: state.text,
-    ...(state.exact !== undefined ? { exact: state.exact } : {}),
+  return waitText({
+    run: args.run,
+    actorId: args.actorId,
+    path: args.path,
+    expected: args.state.text,
+    exact: args.state.exact ?? true,
+    options: args.options,
   });
 }
 
@@ -100,7 +143,6 @@ function wrapNode(
   actorId: string,
   path: readonly string[]
 ): DriverNode {
-  const base = { actorId, path };
   const op = (name: string, extra: Extra) =>
     run.apply(uiOp, { actorId, op: name, path, extra });
   return {
@@ -127,8 +169,8 @@ function wrapNode(
           ...(amount !== undefined ? { amount } : {}),
         })
       ),
-    wait: (state, options) => runWait(run, base, state, options),
-    expect: nodeExpect(run, base),
+    wait: (state, options) => runWait({ run, actorId, path, state, options }),
+    expect: nodeExpect(run, actorId, path),
     isVisible: () => run.observe(visible(actorId, path)),
     text: () => run.observe(nodeText(actorId, path)),
   };

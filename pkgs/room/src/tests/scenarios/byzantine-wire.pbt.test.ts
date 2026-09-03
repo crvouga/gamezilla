@@ -10,7 +10,6 @@ import {
   buildByzantineRaw,
   clientHash,
   clock,
-  converge,
   domain,
   passTime,
   type RoomSurface,
@@ -19,6 +18,7 @@ import {
   serverHash,
 } from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
+import { expectConverged } from '../expect-converged';
 import { counterValue } from '../fixtures/counter-module';
 import { readServer } from '../scenario/read-state';
 
@@ -80,7 +80,7 @@ describe('room byzantine-wire PBT', () => {
               injectAction(kind, await run.observe(clock))
             );
             await run.apply(passTime, 10);
-            await run.apply(converge);
+            await expectConverged(run);
             await expectServerTruthRestored(run, before);
           }
         ),

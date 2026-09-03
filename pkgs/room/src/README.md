@@ -339,7 +339,7 @@ On find: capture `FC_SEED` / `replayPath` → pin in `room-world.pbt.test.ts` or
 | Node | `disconnect` / `reconnect` / `takeOver` / `crash` / `restart` / `clearLocalData` | Soft session + hard crash with persisted client storage |
 | Client | `dispatch`, `snapshot`, `hash`, `isSynced`, `isConnected`, `isCrashed`, inject helpers | Black-box |
 | Server | `serverSnapshot()`, `serverHash()`, `serverCrash` / `serverRestart`, `storage` | Storage log fold (authority); hydrate on restart |
-| Settle | `assertConverged()` | Clear arms, revive crashed nodes, heal nets, soft-cycle, drain; hashes == log fold; queues drained; lastSeq == tip |
+| Settle | `expectConverged(run)` / `revive` + `untilObserved(converged)` | Clear arms, revive crashed nodes, heal nets, soft-cycle, drain; hashes == log fold; queues drained; lastSeq == tip |
 | Invariants | `checkInvariants()` | Mid-chaos: seq contiguity, live-vs-log, dedup stable, durable≈memory queue |
 
 Connectivity triad — do not conflate:
@@ -363,9 +363,9 @@ Connectivity triad — do not conflate:
 
 ```ts
 import { describe, expect, test } from 'bun:test';
+import { expectConverged } from '@pkgs/room/testkit';
 import {
   addClient,
-  converge,
   dispatch,
   hold,
   heal,
@@ -386,7 +386,7 @@ describe('room sim', () => {
     await run.apply(hold, 'bob');
     await run.apply(dispatch, { clientId: 'alice', payload: Increment({}) });
     await run.apply(heal);
-    await run.apply(converge);
+    await expectConverged(run);
     expect(counterValue(await readServer(run))).toBe(1);
     expect(counterValue(await readClient(run, 'alice'))).toBe(1);
   });

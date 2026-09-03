@@ -5,9 +5,9 @@ import {
   acmeSystem,
   addClient,
   connect,
-  converge,
   crash,
   disconnect,
+  expectConverged,
   liveFolders,
   liveNote,
   mutate,
@@ -64,6 +64,6 @@ describe('row image for inactive table ignored safely', () => {
     }
     await run.apply(crash, 'notesPeer');
     await run.apply(addClient, { id: 'bob' });
-    await run.apply(converge);
+    await expectConverged(run);
   });
 });
