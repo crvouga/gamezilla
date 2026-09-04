@@ -10,6 +10,7 @@
     ]
   },
   "scripts": {
+    "lint": "bunx biome check --error-on-warnings .",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test"
   },
@@ -17,9 +18,12 @@
     "@pkgs/assert": "workspace:*",
     "@pkgs/db-migrate": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
+    "@pkgs/db-schema-postgres": "workspace:*",
+    "@pkgs/db-schema-sqlite": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/sql": "workspace:*",
-    "@pkgs/sql-client": "workspace:*"
+    "@pkgs/sql-client": "workspace:*",
+    "@pkgs/sql-client-postgres": "workspace:*"
   },
   "devDependencies": {
     "@electric-sql/pglite": "catalog:",

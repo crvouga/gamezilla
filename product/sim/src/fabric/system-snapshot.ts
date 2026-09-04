@@ -17,23 +17,20 @@ import type {
 import { getLocalSchemaTargetVersion } from '@pkgs/sync-engine/client';
 import { FRAMEWORK_CACHE_TABLE_NAMES } from '@pkgs/sync-engine/shared';
 import {
-  dumpPlaygroundClientDurable,
-  restorePlaygroundClientDurable,
-} from './client-durable';
-import {
   applyCheckpointFaults,
   collectRooms,
   resetSimClock,
 } from './checkpoint-state';
 import {
+  dumpPlaygroundClientDurable,
+  restorePlaygroundClientDurable,
+} from './client-durable';
+import { type Sim, simClientNamespace } from './create-sim';
+import { openFreshSimClientSql, type SimSql } from './sim-sql';
+import {
   awaitPlaygroundMutationDrain,
   reconcileServerProfilesFromClients,
 } from './snapshot-sync';
-import { type Sim, simClientNamespace } from './create-sim';
-import {
-  openFreshSimClientSql,
-  type SimSql,
-} from './sim-sql';
 
 export type SystemSnapshotCtx = {
   readonly sim: Sim;

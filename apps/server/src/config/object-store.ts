@@ -1,9 +1,9 @@
 import { appObjectStoreRootPrefix } from '@libs/db/public/scope';
 import { createLogger } from '@pkgs/logger';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
-import { createS3ObjectStore } from '@pkgs/object-store/impl-s3';
 import type { ObjectStore } from '@pkgs/object-store/interface';
-import { S3SecretName } from '@pkgs/object-store/s3-config';
+import { createS3ObjectStore } from '@pkgs/object-store-s3/impl-s3';
+import { S3SecretName } from '@pkgs/object-store-s3/s3-config';
 import type { SecretStore } from '@pkgs/secret-store';
 
 const S3_SECRET_NAMES = [

@@ -1,4 +1,4 @@
-import { MULTI_APP_ACTOR_FRAME } from '@pkgs/ui-testing/drivers/rntl/snapshot-frame';
+import { MULTI_APP_ACTOR_FRAME } from '@pkgs/ui-testing-rntl/snapshot-frame';
 
 /** Dark app chrome (matches `@pkgs/ui` dark palette surfaces / text). */
 const SNAPSHOT_BG = 'hsla(240, 5%, 4%, 1)';

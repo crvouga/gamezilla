@@ -4,7 +4,7 @@
  * helpers without a circular dependency on `registry.ts`.
  */
 
-import { createRepoTreeObjectStore } from '@pkgs/object-store/repo-tree-store';
+import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs/repo-tree-store';
 import { createSecretAdminStore } from '@pkgs/secret-provider';
 import type { SecretAdminStore } from '@pkgs/secret-store';
 import { REPO_ROOT } from '../paths';

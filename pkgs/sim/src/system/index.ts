@@ -1,6 +1,12 @@
 export type { Awaitable } from './awaitable';
 export { defineAction } from './define-action';
 export { defineProperty } from './define-property';
+export {
+  defineRuntime,
+  isRuntimeDef,
+  RUNTIME_TAG,
+  type RuntimeDef,
+} from './define-runtime';
 export { defineSystem, type System } from './define-system';
 export {
   ACTION_TAG,
@@ -30,7 +36,8 @@ export {
   type ActionSlice,
   getSystemRegistry,
   poolActions,
-  type RuntimeDef,
+  type ResolvedRuntime,
+  type RuntimeOption,
   resolveActions,
   resolveRuntime,
   type SystemCore,

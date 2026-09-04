@@ -1,4 +1,10 @@
-import { defineSystem, virtualTimeRuntime } from '@pkgs/sim';
+import {
+  defineAction,
+  defineProperty,
+  defineRuntime,
+  defineSystem,
+  virtualTimeRuntime,
+} from '@pkgs/sim';
 import { gen } from '@pkgs/sim/fast-check';
 import fc from 'fast-check';
 import { reconcileIndexes } from '../../src/core/reconcile';
@@ -21,23 +27,6 @@ const CFG = {
   maxBuildsPerRun: 3,
   maxIndexesPerTable: 6,
 } as const;
-
-/** One in-memory reconciler behind a virtual clock; no topology args. */
-export const indexes = defineSystem<IndexesSurface>({
-  name: 'db-indexes.reconcile',
-  create(session) {
-    return {
-      session,
-      reconciler: startReconciler(),
-    } satisfies IndexesSurface;
-  },
-});
-
-indexes.runtime({
-  default: true,
-  name: 'virtual',
-  create: () => virtualTimeRuntime(),
-});
 
 export function ownedIndexCount(s: IndexesSurface): number {
   return reconcilerOf(s).db.getOwnedIndexNames().length;
@@ -106,28 +95,28 @@ async function runReconcile(s: IndexesSurface): Promise<void> {
   }
 }
 
-export const reconcile = indexes.action({
+export const reconcile = defineAction({
   name: 'reconcile',
-  act: async (s) => {
+  act: async (s: IndexesSurface) => {
     await runReconcile(s);
   },
 });
 
-export const advanceClock = indexes.action<[number]>({
+export const advanceClock = defineAction({
   name: 'advanceClock',
   sample: () => gen(fc.constantFrom(1, 2, 40)),
-  act: (s, days) => {
+  act: (s: IndexesSurface, days: number) => {
     reconcilerOf(s).clock.advance(days * 24 * 60 * 60 * 1000);
   },
 });
 
 export type ManifestMode = 'user' | 'owner' | 'empty';
 
-export const setManifest = indexes.action<[string]>({
+export const setManifest = defineAction({
   name: 'setManifest',
   weight: 3,
   sample: () => gen(fc.constantFrom('user', 'owner', 'empty')),
-  act: (s, mode) => {
+  act: (s: IndexesSurface, mode: string) => {
     const state = reconcilerOf(s);
     if (mode === 'empty') {
       state.manifest = emptyManifest();
@@ -138,10 +127,10 @@ export const setManifest = indexes.action<[string]>({
   },
 });
 
-export const bumpUsage = indexes.action({
+export const bumpUsage = defineAction({
   name: 'bumpUsage',
-  enabled: (s) => ownedIndexCount(s) > 0,
-  act: (s) => {
+  enabled: (s: IndexesSurface) => ownedIndexCount(s) > 0,
+  act: (s: IndexesSurface) => {
     const state = reconcilerOf(s);
     const names = state.db.getOwnedIndexNames();
     if (names.length > 0) {
@@ -150,9 +139,9 @@ export const bumpUsage = indexes.action({
   },
 });
 
-export const externalAdd = indexes.action({
+export const externalAdd = defineAction({
   name: 'externalAdd',
-  act: (s) => {
+  act: (s: IndexesSurface) => {
     reconcilerOf(s).db.externalAddIndex({
       name: 'ix_notes_title',
       table: 'notes',
@@ -167,10 +156,30 @@ export const externalAdd = indexes.action({
   },
 });
 
-export const invariantsHold = indexes.property({
+export const invariantsHold = defineProperty({
   name: 'invariants',
-  check: async (s) => {
+  check: async (s: IndexesSurface) => {
     const v = await invariantViolations(s);
     if (v.length > 0) throw new Error(v[0]!);
   },
+});
+
+/** One in-memory reconciler behind a virtual clock; no topology args. */
+export const indexes = defineSystem<IndexesSurface>({
+  name: 'db-indexes.reconcile',
+  create(session) {
+    return {
+      session,
+      reconciler: startReconciler(),
+    } satisfies IndexesSurface;
+  },
+  runtimes: [
+    defineRuntime({
+      default: true,
+      name: 'virtual',
+      create: () => virtualTimeRuntime(),
+    }),
+  ],
+  actions: [reconcile, advanceClock, setManifest, bumpUsage, externalAdd],
+  properties: [invariantsHold],
 });

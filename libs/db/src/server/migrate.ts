@@ -18,10 +18,10 @@ import { PostgresMigrationRunner } from '@libs/runtime/server/run-postgres-migra
 import { assert } from '@pkgs/assert';
 import { wallClock, wallTimers } from '@pkgs/clock';
 import { createLogger, type Logger } from '@pkgs/logger';
-import { createRepoTreeObjectStore } from '@pkgs/object-store/repo-tree-store';
+import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs/repo-tree-store';
 import { createScriptSecretStore } from '@pkgs/secret-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
-import { createPgPool, pingPostgres } from '@pkgs/sql-client/postgres/connect';
+import { createPgPool, pingPostgres } from '@pkgs/sql-client-postgres/connect';
 import { readDevVarsDatabaseUrl } from '../scripts/dev-vars';
 import { fetchSecret } from '../shared/secret-io';
 import {

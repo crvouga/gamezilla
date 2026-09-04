@@ -1,4 +1,4 @@
-import { createRepoTreeObjectStore } from '@pkgs/object-store/repo-tree-store';
+import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs/repo-tree-store';
 import { createToolingSecretStore } from '@pkgs/secret-provider';
 import {
   assertNonProdDatabaseUrl,

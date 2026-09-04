@@ -1,0 +1,39 @@
+{
+  "name": "@pkgs/sql-client-contract",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*/index.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bunx biome check --error-on-warnings .",
+    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "test": "bun test --pass-with-no-tests"
+  },
+  "dependencies": {
+    "@electric-sql/pglite": "catalog:",
+    "@pkgs/assert": "workspace:*",
+    "@pkgs/db-schema": "workspace:*",
+    "@pkgs/db-schema-sqlite": "workspace:*",
+    "@pkgs/pubsub": "workspace:*",
+    "@pkgs/sql": "workspace:*",
+    "@pkgs/sql-client": "workspace:*",
+    "@pkgs/sql-client-postgres": "workspace:*",
+    "@pkgs/sql-client-sim": "workspace:*",
+    "@pkgs/sql-client-sqlite": "workspace:*",
+    "@pkgs/uuid": "workspace:*"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "catalog:",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "expo-sqlite": "catalog:",
+    "fast-check": "catalog:",
+    "react": "catalog:",
+    "react-native": "catalog:",
+    "typescript": "catalog:"
+  }
+}

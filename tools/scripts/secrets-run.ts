@@ -9,7 +9,7 @@
  */
 
 import { join } from 'node:path';
-import { createRepoTreeObjectStore } from '@pkgs/object-store/repo-tree-store';
+import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs/repo-tree-store';
 import { runWithSecrets } from '@pkgs/secret-provider';
 
 const REPO_ROOT = join(import.meta.dirname, '../..');

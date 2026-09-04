@@ -2,10 +2,10 @@ import { Database } from 'bun:sqlite';
 import {
   applySqliteSchema,
   SqliteSchemaDatabaseMigration,
-} from '@pkgs/db-schema/sqlite';
+} from '@pkgs/db-schema-sqlite';
 import { createLogger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite/impl-bun-sqlite';
 
 import type { LocalDomainSchema } from '../client/local-schema-migrate';
 import { syncEngineServerSchema } from '../shared/schema/tables';

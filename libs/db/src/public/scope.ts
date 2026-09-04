@@ -1,4 +1,4 @@
-import { createPostgresDbScope } from '@pkgs/sql-client/postgres/schema';
+import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
 
 import { PRODUCT_CONFIG } from '../shared/product-config';
 

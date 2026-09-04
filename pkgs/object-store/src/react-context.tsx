@@ -7,7 +7,7 @@ const Ctx = createContext<ObjectStore | null>(null);
 /**
  * React provider for an {@link ObjectStore}. Mount once near the app root
  * with the platform-appropriate implementation (e.g.
- * {@link ./impl-expo-file-system.ts ObjectStoreImplExpoFileSystem} for the
+ * `ObjectStoreImplExpoFileSystem` from `@pkgs/object-store-expo-fs` for the
  * Expo client). Consumers read it via {@link useObjectStore}.
  */
 export function ObjectStoreProvider({

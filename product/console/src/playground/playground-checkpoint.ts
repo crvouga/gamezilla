@@ -15,8 +15,8 @@ import {
   restoreCheckpointKv,
   restoreCheckpointRooms,
 } from '@product/sim/fabric/checkpoint-state';
-import { awaitPlaygroundMutationDrain } from '@product/sim/fabric/snapshot-sync';
 import { getSimSqlEngines } from '@product/sim/fabric/sim-sql-engines';
+import { awaitPlaygroundMutationDrain } from '@product/sim/fabric/snapshot-sync';
 
 export type { CheckpointSessionCtx } from '@product/sim/fabric/checkpoint-state';
 

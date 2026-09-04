@@ -3,7 +3,6 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
-    "./sim": "./src/sim/index.ts",
     "./shared": "./src/shared/index.ts",
     "./server": "./src/server/index.ts",
     "./client": "./src/client/index.ts",
@@ -21,9 +20,10 @@
     ]
   },
   "scripts": {
+    "lint": "bunx biome check --error-on-warnings .",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test src",
-    "test:e2e": "playwright test -c ./e2e/playwright.config.mjs"
+    "test:e2e": "bun ./e2e/run-e2e.ts"
   },
   "dependencies": {
     "@noble/hashes": "catalog:",
@@ -31,9 +31,9 @@
     "@pkgs/clock": "workspace:*",
     "@pkgs/db-migrate": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
+    "@pkgs/db-schema-postgres": "workspace:*",
+    "@pkgs/db-schema-sqlite": "workspace:*",
     "@pkgs/http-client": "workspace:*",
-    "@pkgs/logger": "workspace:*",
-    "@pkgs/sim": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/uuid": "workspace:*",
@@ -41,7 +41,10 @@
     "react": "catalog:"
   },
   "devDependencies": {
-    "@playwright/test": "catalog:",
+    "@pkgs/logger": "workspace:*",
+    "@pkgs/sim": "workspace:*",
+    "@pkgs/sql-client-postgres": "workspace:*",
+    "@pkgs/sql-client-sqlite": "workspace:*",
     "@types/bun": "catalog:",
     "@types/react": "catalog:",
     "@typescript/native": "catalog:",

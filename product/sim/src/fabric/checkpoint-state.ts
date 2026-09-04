@@ -17,12 +17,9 @@ import {
   dumpPlaygroundClientDurable,
   restorePlaygroundClientDurable,
 } from './client-durable';
-import { reconcileServerProfilesFromClients } from './snapshot-sync';
 import { type Sim, simClientNamespace } from './create-sim';
-import {
-  openFreshSimClientSql,
-  type SimSql,
-} from './sim-sql';
+import { openFreshSimClientSql, type SimSql } from './sim-sql';
+import { reconcileServerProfilesFromClients } from './snapshot-sync';
 
 export type CheckpointSessionMaps = {
   readonly clients: {

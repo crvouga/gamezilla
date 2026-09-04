@@ -112,7 +112,7 @@ export function scroll<S>(actor: Actor<S>): Action<S, [ScrollDir]> {
 
 /**
  * Property defs are registered by the owning system
- * (`system.property(noErrorBoundary(actor))`) — there is no free property.
+ * (`defineProperty(noErrorBoundary(actor))` on the owning system) — there is no free property.
  */
 export function noErrorBoundary<S>(actor: Actor<S>): PropertyDef<S> {
   return {

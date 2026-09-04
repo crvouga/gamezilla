@@ -2,14 +2,7 @@
  * Driver-based ChessBoardFlows suite: tap/drag via portable Driver APIs + probe.
  */
 
-import {
-  afterEach,
-  beforeAll,
-  describe,
-  expect,
-  it,
-  jest,
-} from '@jest/globals';
+import { afterEach, beforeAll, describe, expect, it, mock } from 'bun:test';
 import { ChessBoard } from '@pkgs/chess-board/chess-board';
 import { ChessBoardCanvasBootstrap } from '@pkgs/chess-board/chess-board-canvas-bootstrap';
 import { preloadChessBoardCanvas } from '@pkgs/chess-board/chess-board-canvas-runtime';
@@ -24,11 +17,8 @@ import type {
 } from '@pkgs/sounds/audio-playback/ports';
 import { OverlayPortalProvider } from '@pkgs/ui/components/overlay-portal';
 import { ThemeProvider } from '@pkgs/ui/theme';
-import {
-  createDriver,
-  createRenderedAppFromRntl,
-  type Driver,
-} from '@pkgs/ui-testing';
+import type { Driver } from '@pkgs/ui-testing';
+import { createRenderedAppFromRntl, RntlDriver } from '@pkgs/ui-testing-rntl';
 import { act, type RenderResult, render } from '@testing-library/react-native';
 import { type ReactElement, type ReactNode, useMemo } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -110,7 +100,7 @@ function Harness(props: {
 describe('ChessBoardFlows (Driver)', () => {
   let tree: RenderResult | undefined;
   let driver: Driver | undefined;
-  let onMove: jest.Mock<(m: Move) => void>;
+  let onMove: ReturnType<typeof mock<(m: Move) => void>>;
 
   beforeAll(async () => {
     await preloadChessBoardCanvas();
@@ -124,12 +114,11 @@ describe('ChessBoardFlows (Driver)', () => {
   });
 
   async function mountFlows(): Promise<ChessBoardFlows> {
-    onMove = jest.fn();
+    onMove = mock((_: Move) => undefined);
     tree = render(<Harness fen={START_FEN} onMove={onMove} />);
     await tree.findByTestId(BOARD_TEST_ID);
     const app = createRenderedAppFromRntl(tree);
-    driver = createDriver({
-      kind: 'rntl',
+    driver = new RntlDriver({
       harness: { mount: async () => app },
       now: wallClock.now,
       timers: wallTimers,

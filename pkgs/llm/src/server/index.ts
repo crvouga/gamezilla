@@ -25,16 +25,6 @@ export {
 export { createLlmInMemoryKv } from './adapters/kv-cache-in-memory';
 export { createLlmPostgresKv } from './adapters/kv-cache-postgres';
 export {
-  OpenAiLlmProvider,
-  type OpenAiLlmProviderOptions,
-} from './adapters/openai-llm-provider';
-export {
-  type CreateLlmAppFromBindingsOptions,
-  type CreateLlmAppFromBindingsResult,
-  createLlmAppFromBindings,
-  LlmSecretName,
-} from './llm-from-bindings';
-export {
   type CreateLlmAppOptions,
   createLlmApp,
   type LlmGetKv,

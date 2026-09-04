@@ -1,20 +1,27 @@
-import { describe } from '@pkgs/ui-testing';
+import { describe, test } from 'bun:test';
 
 import { aliceUsername } from '../src/fixtures/fixtures';
 import { setupFriendsPair } from '../src/fixtures/setup-friends-pair';
 import { openSim } from '../src/setup/open-sim';
+import {
+  createSpace,
+  expectActiveSpace,
+  expectLobbyCard,
+  joinFromPrompt,
+  openLobbyCard,
+  openSpacesTab,
+} from '../src/sim';
 
-describe('space friend join', (ctx) => {
-  ctx.test('host creates; friend joins from lobby card', async () => {
-    await using sim = await openSim('space-friend-join', ctx);
-    const { alice, bob } = await setupFriendsPair(sim);
+describe('space friend join', () => {
+  test('host creates; friend joins from lobby card', async () => {
+    await using s = await openSim('space-friend-join');
+    await setupFriendsPair(s);
 
-    await alice.space.createSpace();
-
-    await bob.space.openTab();
-    await bob.space.expectLobbyCard(aliceUsername);
-    await bob.space.openLobbyCard(aliceUsername);
-    await bob.space.joinFromPrompt();
-    await bob.space.expectActiveSpace();
+    await s.apply(createSpace, 'alice');
+    await s.apply(openSpacesTab, 'bob');
+    await s.apply(expectLobbyCard, 'bob', aliceUsername);
+    await s.apply(openLobbyCard, 'bob', aliceUsername);
+    await s.apply(joinFromPrompt, 'bob');
+    await s.apply(expectActiveSpace, 'bob');
   });
 });

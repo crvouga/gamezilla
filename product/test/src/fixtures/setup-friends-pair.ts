@@ -1,34 +1,30 @@
-import { AppDriver } from '../drivers/app-driver';
 import type { openSim } from '../setup/open-sim';
-import { aliceCreds, aliceUsername, bobCreds, bobUsername } from './fixtures';
+import {
+  acceptFriendRequest,
+  addFriend,
+  expectFriend,
+  openFriendsList,
+  returnToTabs,
+  searchUsername,
+  signInWithDev,
+} from '../sim';
+import { aliceUsername, bobUsername } from './fixtures';
 
 type OpenSimResult = Awaited<ReturnType<typeof openSim>>;
 
 /** Sign up alice + bob and establish friendship via UI. */
-export async function setupFriendsPair(sim: OpenSimResult): Promise<{
-  readonly alice: AppDriver;
-  readonly bob: AppDriver;
-}> {
-  const alice = await AppDriver.forActor(sim, 'alice');
-  await alice.auth.signInWithDev(aliceCreds);
-  await alice.auth.returnToTabs();
+export async function setupFriendsPair(sim: OpenSimResult): Promise<void> {
+  await sim.apply(signInWithDev, 'alice');
+  await sim.apply(returnToTabs, 'alice');
+  await sim.apply(signInWithDev, 'bob');
+  await sim.apply(returnToTabs, 'bob');
 
-  // Signup username matches aliceUsername — ensureProfile already claimed it.
+  await sim.apply(searchUsername, 'alice', bobUsername);
+  await sim.apply(addFriend, 'alice', bobUsername);
+  await sim.apply(acceptFriendRequest, 'bob', aliceUsername);
 
-  const bob = await AppDriver.forActor(sim, 'bob');
-  await bob.auth.signInWithDev(bobCreds);
-  await bob.auth.returnToTabs();
-
-  await alice.search.expectUserVisible(bobUsername);
-  await alice.search.addFriend(bobUsername);
-
-  await bob.notifications.acceptFriendRequest(aliceUsername);
-
-  await alice.friends.openList();
-  await alice.friends.expectFriend(bobUsername);
-
-  await bob.friends.openList();
-  await bob.friends.expectFriend(aliceUsername);
-
-  return { alice, bob };
+  await sim.apply(openFriendsList, 'alice');
+  await sim.apply(expectFriend, 'alice', bobUsername);
+  await sim.apply(openFriendsList, 'bob');
+  await sim.apply(expectFriend, 'bob', aliceUsername);
 }

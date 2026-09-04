@@ -1,5 +1,5 @@
 import { raw, unsafe } from '@pkgs/sql';
-import { SqlClientImplPostgresTcp } from '@pkgs/sql-client/postgres/impl-postgres-tcp';
+import { SqlClientImplPostgresTcp } from '@pkgs/sql-client-postgres/impl-postgres-tcp';
 import { appPostgresDbScope } from '../public/scope';
 import { cliClock } from './cli-io';
 import { fetchSecret } from './secret-io';

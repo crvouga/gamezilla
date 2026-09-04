@@ -1,10 +1,13 @@
 import type { CreateId } from '@pkgs/uuid';
-import { createLocalFileObservability } from '../impl-local-file/impl-local-file';
 import { createLoggerObservability } from '../impl-logger/impl-logger';
 import { createNoopObservability } from '../impl-noop/impl-noop';
 import type { ObservabilityBackend } from '../shared/backend';
 import { DEFAULT_COLLECTOR_URL } from '../shared/backend';
 import type { HttpFetchFn } from '../shared/types';
+import {
+  type ObservabilityBackendFactory,
+  requireBackendFactory,
+} from './backend-factory';
 import type { Observability } from './observability';
 
 export type ObservabilityConfig = {
@@ -15,6 +18,8 @@ export type ObservabilityConfig = {
   readonly localFile?: {
     readonly collectorUrl?: string;
   };
+  /** Required when `backend` is `local-file`. */
+  readonly createLocalFile?: ObservabilityBackendFactory;
   readonly fetchFn?: HttpFetchFn;
 };
 
@@ -23,7 +28,10 @@ export function createObservability(
   config: ObservabilityConfig
 ): Observability {
   if (config.backend === 'local-file') {
-    return createLocalFileObservability({
+    return requireBackendFactory(
+      config.createLocalFile,
+      'local-file'
+    )({
       serviceName: config.serviceName,
       now: config.now,
       createId: config.createId,

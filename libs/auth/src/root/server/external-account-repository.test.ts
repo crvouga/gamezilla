@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { registerTables } from '@pkgs/db-schema';
-import { applySqliteSchema } from '@pkgs/db-schema/sqlite';
+import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite/impl-bun-sqlite';
 import { createSimAdapters } from '@pkgs/uuid';
 
 import { ExternalAccountRepository } from '../../public/external-account-repository';

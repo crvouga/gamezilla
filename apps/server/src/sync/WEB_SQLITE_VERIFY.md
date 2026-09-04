@@ -8,7 +8,7 @@
 - Dev/prod isolation headers: `apps/client/scripts/expo-sqlite-web-headers.js`
   (`Cross-Origin-Opener-Policy: same-origin`, `Cross-Origin-Embedder-Policy: require-corp`)
 - Opener: `apps/client/src/storage/open-main-sql-client.ts` → `SqlClientImplExpoSqlite`
-- Session lock: `@pkgs/sql-client/sqlite/expo-web-session-lock`
+- Session lock: `@pkgs/sql-client-sqlite/expo-web-session-lock`
 - Phase 0 `web-driver-parity` test: file-backed SQLite merge/mutate via `SqlClient` surface
 
 ## Blocking criteria (plan)

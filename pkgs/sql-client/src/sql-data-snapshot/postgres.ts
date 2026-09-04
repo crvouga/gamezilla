@@ -4,7 +4,7 @@
 
 import { ident, join, raw, sql } from '@pkgs/sql';
 import type { PostgresSqlClient } from '../interface';
-import { quotePgIdent } from '../postgres/schema';
+import { quotePgIdent } from '../postgres-db-scope';
 import { rowToDumpValues } from './cell-codec';
 import {
   SQL_DATA_DUMP_VERSION,

@@ -1,8 +1,8 @@
 // @io-wall-ok
 
 import { assert, setHotAssertsEnabled } from '@pkgs/assert';
-import { BrowserCrashHandler } from '@pkgs/assert/crash/crash-handler/crash-handler-browser';
-import { ExpoCrashHandler } from '@pkgs/assert/crash/crash-handler/crash-handler-expo';
+import { BrowserCrashHandler } from '@pkgs/assert-crash-browser';
+import { ExpoCrashHandler } from '@pkgs/assert-crash-expo';
 import { wallTimers } from '@pkgs/clock';
 import { polyfill } from '@pkgs/polyfill';
 import * as WebBrowser from 'expo-web-browser';

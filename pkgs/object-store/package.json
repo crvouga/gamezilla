@@ -10,19 +10,12 @@
     ]
   },
   "scripts": {
+    "lint": "bunx biome check --error-on-warnings .",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test --pass-with-no-tests --path-ignore-patterns='**/*.contract.test.ts'",
-    "test:contract": "bun test src/object-store.s3.contract.test.ts"
+    "test": "bun test --pass-with-no-tests --path-ignore-patterns='**/*.contract.test.ts'"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "catalog:",
-    "@pkgs/assert": "workspace:*",
-    "@pkgs/async": "workspace:*",
-    "@pkgs/clock": "workspace:*",
-    "@pkgs/http-client": "workspace:*",
-    "expo-file-system": "catalog:",
-    "react": "catalog:",
-    "react-native": "catalog:"
+    "react": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

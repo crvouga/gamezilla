@@ -1,5 +1,5 @@
 // @io-wall-ok — inspect SQL + dual-env secret loading helpers.
-import { createRepoTreeObjectStore } from '@pkgs/object-store/repo-tree-store';
+import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs/repo-tree-store';
 import { createSecretAdminStore } from '@pkgs/secret-provider';
 
 export type SecretsEnvName = 'dev' | 'prd';

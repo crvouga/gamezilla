@@ -5,19 +5,20 @@
 import type { Timers } from '@pkgs/clock';
 import { wallClock } from '@pkgs/clock';
 import { writeUtf8 } from '@pkgs/object-store/helpers';
-import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
 import type { ObjectStore } from '@pkgs/object-store/interface';
-import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';
+import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs/impl-node-fs';
+import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
 import { resolveSimConsoleReportsDir, wallPathExists } from '@pkgs/sim-console';
 import type { SimSystemSnapshot } from '@pkgs/sim-console/shared/sim-system-snapshot';
-import type { Driver, MultiAppRntlSession } from '@pkgs/ui-testing';
-import { createDriver, getUiTestBrowser } from '@pkgs/ui-testing';
-import { SNAPSHOT_SHELL_CSS } from '@pkgs/ui-testing/drivers/rntl/serialize-host-tree-html';
-import type { Page } from '@playwright/test';
+import type { Driver } from '@pkgs/ui-testing';
+import { BunWebviewDriver } from '@pkgs/ui-testing-bun-webview';
+import type { MultiAppRntlSession } from '@pkgs/ui-testing-rntl';
+import { RntlDriver } from '@pkgs/ui-testing-rntl';
+import { SNAPSHOT_SHELL_CSS } from '@pkgs/ui-testing-rntl/serialize-host-tree-html';
 import type { ProductUi, Sim, SimActor } from '@product/sim';
 import { simClientNamespace } from '@product/sim';
 
-import { injectPlaywrightSnapshotAuth } from './playwright-snapshot-auth';
+import { injectWebViewSnapshotAuth } from './inject-webview-snapshot-auth';
 import { simNodeTimers } from './sim-actor-overrides';
 import { createSimWaitPump } from './sim-wait-pump';
 
@@ -81,8 +82,7 @@ function createRntlClientDriver(args: {
     runFor: args.runFor,
   });
   const timers: Timers = simNodeTimers;
-  return createDriver({
-    kind: 'rntl',
+  return new RntlDriver({
     now: wallClock.now,
     timers,
     pump,
@@ -99,46 +99,6 @@ function createRntlClientDriver(args: {
   });
 }
 
-async function createPlaywrightClientDriver(args: {
-  readonly id: string;
-  readonly baseUrl: string;
-  readonly snapshot?: SimSystemSnapshot;
-}): Promise<{
-  readonly driver: Driver;
-  readonly page: Page;
-  close: () => Promise<void>;
-}> {
-  const browser = getUiTestBrowser() as
-    | import('@playwright/test').Browser
-    | undefined;
-  if (browser === undefined) {
-    throw new Error(
-      'openSim max: Playwright browser unavailable — run scenarios via test:max'
-    );
-  }
-  const context = await browser.newContext();
-  const page = await context.newPage();
-  if (args.snapshot !== undefined) {
-    await injectPlaywrightSnapshotAuth({
-      page,
-      actorId: args.id,
-      snapshot: args.snapshot,
-      namespace: simClientNamespace(args.id),
-    });
-  }
-  return {
-    driver: createDriver({
-      kind: 'playwright',
-      page,
-      baseUrl: args.baseUrl,
-    }),
-    page,
-    close: async () => {
-      await context.close();
-    },
-  };
-}
-
 export async function launchActor(args: {
   readonly ui: ProductUi;
   readonly sim: Sim;
@@ -147,34 +107,36 @@ export async function launchActor(args: {
 }): Promise<ActorEntry> {
   let raw: Driver;
   let closeResources: () => Promise<void> = async () => undefined;
-  if (args.ui.kind === 'playwright') {
-    const pw = await createPlaywrightClientDriver({
-      id: args.id,
-      baseUrl: args.ui.webOrigin ?? 'http://127.0.0.1:5173',
-      ...(args.snapshot !== undefined ? { snapshot: args.snapshot } : {}),
-    });
-    raw = pw.driver;
-    closeResources = pw.close;
-  } else if (args.ui.kind === 'bun-webview') {
+  if (args.ui.kind === 'bun-webview') {
+    const webOrigin = args.ui.webOrigin;
     const view = new Bun.WebView({
-      url: args.ui.webOrigin,
-      headless: true,
+      url: webOrigin,
       width: 390,
       height: 844,
     });
-    raw = createDriver({
-      kind: 'bun-webview',
+    raw = new BunWebviewDriver({
       view,
-      baseUrl: args.ui.webOrigin,
+      baseUrl: webOrigin,
+      actorId: args.id,
     });
     closeResources = async () => {
       view.close();
     };
+    await raw.launch();
+    if (args.snapshot !== undefined) {
+      await injectWebViewSnapshotAuth({
+        view,
+        actorId: args.id,
+        snapshot: args.snapshot,
+        namespace: simClientNamespace(args.id),
+        origin: webOrigin,
+      });
+    }
   } else {
     const rntl = args.ui.rntl;
     if (rntl === undefined) {
       throw new Error(
-        'launchActor: react-tree host requires an RNTL session (Jest/in-process tests)'
+        'launchActor: react-tree host requires an RNTL session (in-process tests)'
       );
     }
     raw = createRntlClientDriver({
@@ -183,8 +145,8 @@ export async function launchActor(args: {
       rntl,
       runFor: args.ui.runFor,
     });
+    await raw.launch();
   }
-  await raw.launch();
   return {
     handle: { id: args.id, ui: raw },
     raw,

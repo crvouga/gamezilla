@@ -13,6 +13,7 @@
   "scripts": {
     "build": "bun -e \"process.exit(0)\"",
     "deploy": "bun run scripts/deploy.ts",
+    "lint": "bunx biome check --error-on-warnings .",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test --pass-with-no-tests"
   },
@@ -25,7 +26,9 @@
     "@pkgs/clock": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/message": "workspace:*",
-    "@pkgs/room": "workspace:*"
+    "@pkgs/room": "workspace:*",
+    "@pkgs/room-adapter-durable-object": "workspace:*",
+    "@pkgs/room-adapter-memory": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

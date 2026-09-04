@@ -1,6 +1,9 @@
 import { PRODUCT_CONFIG } from '@libs/db/public/product-config';
 import { assert } from '@pkgs/assert';
-import { authorizeB2FromEnv, ensureB2Bucket } from '@pkgs/object-store/b2-api';
+import {
+  authorizeB2FromEnv,
+  ensureB2Bucket,
+} from '@pkgs/object-store-s3/b2-api';
 
 export async function ensureObjectStoreBuckets(): Promise<void> {
   const auth = await authorizeB2FromEnv();

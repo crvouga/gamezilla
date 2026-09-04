@@ -11,7 +11,7 @@ import {
   type NetworkFaults,
   RELIABLE_NETWORK,
 } from '../models/network';
-import { defineRuntime } from './define-runtime';
+import { createRuntime } from './create-runtime';
 import {
   type Capability,
   CapabilityError,
@@ -78,7 +78,7 @@ export function virtualTimeRuntime(
   const waitForIdleOverride = opts?.waitForIdle;
   const advanceTimeOverride = opts?.advanceTime;
 
-  return defineRuntime({
+  return createRuntime({
     caps,
     async open(seed) {
       const rootRng = createRngInternal(seed);

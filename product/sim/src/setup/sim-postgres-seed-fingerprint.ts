@@ -1,8 +1,8 @@
 import { join } from 'node:path';
 import { SIM_AUTH_SECRET } from '@apps/server/sim/migrate-sim-postgres';
 import { readUtf8 } from '@pkgs/object-store/helpers';
-import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
-import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';
+import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs/impl-node-fs';
+import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
 
 const MIGRATE_SOURCE_KEY = 'migrate-sim-postgres.ts';
 

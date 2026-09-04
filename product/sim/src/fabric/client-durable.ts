@@ -6,8 +6,8 @@ import { clearNamespacedAuthClientStorage } from '@pkgs/auth/client';
 import {
   clearNamespacedKvWeb,
   dumpNamespacedKvWeb,
-} from '@pkgs/kv/impl-kv-web-namespaced';
-import { clearNamespacedWebSecureStorage } from '@pkgs/secure-storage/impl-web';
+} from '@pkgs/kv-web/impl-kv-web-namespaced';
+import { clearNamespacedWebSecureStorage } from '@pkgs/secure-storage-web';
 
 /** Mirrors `@pkgs/secure-storage` session-scoped keys (tab-local). */
 const SESSION_SCOPED_DURABLE_KEYS = new Set(['lastLocalAccountId']);

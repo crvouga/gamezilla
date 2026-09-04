@@ -5,7 +5,7 @@
  */
 
 import { Database } from 'bun:sqlite';
-import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite/impl-bun-sqlite';
 
 import { sqliteClientToSqlmBytes } from './sqlite-client-to-sqlm';
 

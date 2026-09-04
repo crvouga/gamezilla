@@ -20,9 +20,6 @@
     "./impl-noop/*": [
       "./src/impl-noop/*.ts"
     ],
-    "./impl-local-file/*": [
-      "./src/impl-local-file/*.ts"
-    ],
     "./impl-logger/*": [
       "./src/impl-logger/*.ts"
     ],
@@ -33,19 +30,14 @@
     ]
   },
   "scripts": {
-    "collector": "bun run src/impl-local-file/dev.ts",
-    "kill": "bun run scripts/kill-dev.ts",
-    "summarize": "bun run src/impl-local-file/summarize-cli.ts",
+    "lint": "bunx biome check --error-on-warnings .",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test"
   },
   "dependencies": {
-    "@pkgs/assert": "workspace:*",
     "@pkgs/async-local": "workspace:*",
     "@pkgs/clock": "workspace:*",
-    "@pkgs/http-client": "workspace:*",
     "@pkgs/logger": "workspace:*",
-    "@pkgs/object-store": "workspace:*",
     "@pkgs/uuid": "workspace:*",
     "hono": "catalog:",
     "react": "catalog:"

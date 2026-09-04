@@ -2,8 +2,8 @@ import { afterEach, beforeEach, describe, expect, it } from 'bun:test';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
-import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';
+import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs/impl-node-fs';
+import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
 
 import { SECRETS_DEFAULTS } from './defaults';
 import {

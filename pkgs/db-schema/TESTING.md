@@ -10,7 +10,7 @@
 | Planner / emit PBT | `src/tests/pbt/planner.pbt.test.ts`, `emit-safety.pbt.test.ts` | `bun test` |
 | Live round-trip | `src/tests/pbt/roundtrip.pbt.test.ts` | `bun test` |
 | Contract matrix | `src/interface.contract.test.ts` | `bun test` |
-| Integration | `src/*/reconcile.integration.test.ts` | `bun test` |
+| Integration | `@pkgs/db-schema-postgres` / `@pkgs/db-schema-sqlite` `tests/*-reconcile.integration.test.ts` | `bun test` |
 | System world | `src/tests/scenario/*.pbt.test.ts` | `bun test` |
 
 ## Invariants (oracles)
@@ -37,7 +37,7 @@ FC_SEED=424242 bun test pkgs/db-schema/src/tests/pbt/conventions.pbt.test.ts
 | --- | --- |
 | sqlite-mem | Default PBT + contract matrix |
 | postgres-mem | Default PBT + contract matrix |
-| PGlite | Postgres integration pin (`reconcile.integration.test.ts`) |
+| PGlite | Postgres integration pin (`@pkgs/db-schema-postgres` `tests/`) |
 | bun:sqlite | SQLite integration pin |
 
 Postgres catalog FK introspection falls back to `[]` on engines that lack

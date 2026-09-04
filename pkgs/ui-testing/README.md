@@ -4,7 +4,8 @@ Application-agnostic cross-platform UI testing framework.
 
 This package is designed as if it were an independent open-source library: it
 contains **no product concepts**, imports nothing from `apps/` or `libs/`, and
-models **user intent** rather than Playwright / Detox / DOM APIs.
+models **user intent** rather than browser / Detox / DOM APIs. Suites run under
+`bun:test`.
 
 ## Install (in this monorepo)
 
@@ -23,17 +24,14 @@ The package is a workspace member. Depend on it from a consuming package:
 ```ts
 import {
   createDriver,
-  describe,
   type Driver,
   type DriverNode,
-  type UiTestCtx,
   type AppHarness,
 } from '@pkgs/ui-testing';
 ```
 
 | Surface | Purpose |
 | --- | --- |
-| `describe` / `UiTestCtx` | Runtime-agnostic scenario registration (Jest, Playwright, Detox) |
 | `Driver` | Portable user-intent ops via locator nodes |
 | `DriverNode` | Element-scoped tap / wait / expect / text |
 | `createDriver(config)` | Factory over a discriminated `DriverConfig` |
@@ -53,13 +51,13 @@ Consumer (app / e2e package)
   ├── page objects (LoginPage, …)  — live in the consumer
   ├── AppHarness                   — createRoot / mount / setup / teardown
   └── createDriver({ kind, … })
-        ├── RntlDriver       → RenderAdapter (RNTL) or harness.mount
-        ├── PlaywrightDriver → injected Playwright Page
-        └── DetoxDriver      → stub (documented Detox mapping)
+        ├── RntlDriver        → RenderAdapter (RNTL) or harness.mount
+        ├── BunWebviewDriver  → injected Bun.WebView
+        └── DetoxDriver       → stub (documented Detox mapping)
 ```
 
 Dependency direction is always **apps → pkgs**. Drivers receive their underlying
-handles (`Page`, Detox device, harness) from the consumer.
+handles (`Bun.WebView`, Detox device, harness) from the consumer.
 
 **No mocking of product deps.** RNTL rendering uses
 [React Native Testing Library](https://oss.callstack.com/react-native-testing-library/)
@@ -132,13 +130,7 @@ For Expo Router trees, prefer harness `mount()` with
 `expo-router/testing-library` `renderRouter`, then wrap the result with
 `createRenderedAppFromRntl`.
 
-### 2. Run under a RN-capable test env
-
-Product UI DST should use Jest + `jest-expo` (or an equivalent Metro/Babel
-transform). Bun cannot parse React Native's Flow entry without remapping, which
-this package forbids.
-
-### 3. Write a test
+### 2. Write a test
 
 ```ts
 import { createDriver } from '@pkgs/ui-testing';
@@ -158,25 +150,25 @@ await driver.close();
 Wire I/O and storage through your harness / composition roots — the framework
 does not stub native modules.
 
-## Playwright driver
+## Bun.WebView driver
 
-Inject a Playwright `Page`. The package depends on `@playwright/test` as a
-**type-only** / devDependency — consumers already using Playwright pay nothing
-extra at runtime beyond their own install.
+Inject a `Bun.WebView` pointed at a localhost origin:
 
 ```ts
-import { test } from '@playwright/test';
 import { createDriver } from '@pkgs/ui-testing';
 
-test('home loads', async ({ page }) => {
-  const driver = createDriver({
-    kind: 'playwright',
-    page,
-    baseUrl: 'http://localhost:5173',
-  });
-  await driver.launch();
-  await driver.get('app-root').expect.visible();
+const view = new Bun.WebView({
+  url: 'http://127.0.0.1:5173',
+  width: 390,
+  height: 844,
 });
+const driver = createDriver({
+  kind: 'bun-webview',
+  view,
+  baseUrl: 'http://127.0.0.1:5173',
+});
+await driver.launch();
+await driver.get('app-root').expect.visible();
 ```
 
 ## Detox driver (stub)
@@ -188,26 +180,25 @@ first-class text read-back — `text()` remains unsupported by design.
 
 ## Driver capability matrix
 
-| Operation | RNTL | Playwright | Detox (stub) |
+| Operation | RNTL | Bun.WebView | Detox (stub) |
 | --- | --- | --- | --- |
 | `launch` / `close` | yes | yes (`baseUrl` optional) | stub → `device.launchApp` / `terminateApp` |
 | `get` / nested `get` | yes | yes | stub → `by.id` / `withDescendant` |
 | `tap` / `input` (auto-wait) | yes | yes | stub → `element().tap()` / `typeText` |
 | `tapAt` | yes (RNGH / press+location) | yes | stub → `element().tap({ x, y })` |
-| `drag` | yes (RNGH pan stream) | yes (mouse down/move/up) | stub → `longPressAndDrag` |
-| `layout` | yes (style / synthetic onLayout) | yes (`boundingBox`) | stub → `getAttributes` |
+| `drag` | yes (RNGH pan stream) | yes | stub → `longPressAndDrag` |
+| `layout` | yes (style / synthetic onLayout) | yes | stub → `getAttributes` |
 | `clear` | yes | yes | stub → `clearText` |
 | `key` (driver + node) | yes (no-op host) | yes | stub (platform-limited) |
 | `scroll` | yes | yes | stub → `element().scroll` |
-| `wait` / `isVisible` | virtual pump + query | `locator.waitFor` / filter | stub → native `waitFor` |
+| `wait` / `isVisible` | virtual pump + query | `evaluate` poll | stub → native `waitFor` |
 | `expect.visible` / `hidden` / `text` | thin wrappers over `wait` | same | stub |
 | `text()` | yes | yes | unsupported in Detox |
-| `snapshotHtml` | RN host → HTML | `page.content()` | returns `null` |
+| `snapshotHtml` | RN host → HTML | `documentElement.outerHTML` | returns `null` |
 
-`DriverNode.wait` is host-native for speed: Playwright uses event-driven waits;
-rntl uses a constructor `pump` (sim virtual clock) instead of RNTL
-`findBy` / wall 50ms sleeps. Public options are only `timeoutMs` /
-`description` — no shared poll interval.
+`DriverNode.wait` is host-native for speed: rntl uses a constructor `pump`
+(sim virtual clock) instead of RNTL `findBy` / wall 50ms sleeps. Public options
+are only `timeoutMs` / `description` — no shared poll interval.
 
 ### UI snapshots for reports
 
@@ -226,33 +217,7 @@ Driver poll hook).
 3. Export from `src/index.ts`
 4. No change to assertions or page-object patterns
 
-## Test runner independence
-
-Scenario files import `describe` from `@pkgs/ui-testing` and register tests
-via `ctx.test`. A host adapter is installed once per process:
-
-| Fidelity | Runtime | Driver | Install |
-| --- | --- | --- | --- |
-| `sim` | Jest + jest-expo | `RntlDriver` | `installJestUiTestRunner()` in product/test `jest.setup.ts` |
-| `max` | Playwright Test | `PlaywrightDriver` (one browser context per actor) | `installPlaywrightUiTestRunner()` in product/test `playwright.setup.ts` |
-| native (future) | Jest / Detox | `DetoxDriver` stub | `installDetoxUiTestRunner()` |
-
-```ts
-import { describe } from '@pkgs/ui-testing';
-
-describe('space create', (ctx) => {
-  ctx.test('host creates a space', async () => {
-    await using sim = await openSim('space-create', ctx);
-    // …
-  }, 30_000);
-});
-```
-
-`openSim(testId, ctx)` reads `ctx.fidelity` / `ctx.driverKind` to pick RNTL
-in-process mounting vs Playwright browser tabs + loopback HTTP.
-
 Assertions throw plain `Error` subclasses (`TimeoutError`, `UiTestError`, …).
-RNTL may use an internal `waitUntil` helper; Playwright / Detox must not.
 There is no dependency on Vitest, Jest, or Bun's `expect` for driver assertions.
 
 ## Package layout
@@ -262,11 +227,10 @@ pkgs/ui-testing/src/
   core/           errors, waitUntil, DriverKey
   selector/       formatTestId + formatTestIdPath + thin internal testId helper
   driver/         Driver interface + createDriver
-  runner/         describe / UiTestCtx + Jest / Playwright / Detox adapters
   assertions/     shared expect* helpers for DriverNode implementations
   bootstrap/      AppHarness + RenderAdapter ports
   drivers/
     rntl/         RntlDriver + RNTL renderer + RntlDriverNode
-    playwright/   PlaywrightDriver + PlaywrightDriverNode
+    bun-webview/  BunWebviewDriver + BunWebviewDriverNode
     detox/        DetoxDriver stub
 ```

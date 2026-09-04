@@ -1,7 +1,7 @@
 import {
   authorizeB2,
   B2_PROVISION_CAPABILITIES,
-} from '@pkgs/object-store/b2-api';
+} from '@pkgs/object-store-s3/b2-api';
 import { requireNonEmpty, Secret, type SecretInput } from './secret';
 
 async function validateB2MasterKeyId(input: SecretInput): Promise<void> {

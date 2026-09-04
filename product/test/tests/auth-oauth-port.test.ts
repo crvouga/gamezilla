@@ -1,4 +1,4 @@
-import { describe, expect, test } from '@jest/globals';
+import { describe, expect, test } from 'bun:test';
 import { openSim } from '../src/setup/open-sim';
 import { devOauthSignIn, oauthTokenLength } from '../src/sim';
 

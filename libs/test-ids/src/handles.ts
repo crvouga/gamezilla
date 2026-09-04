@@ -1,7 +1,7 @@
 /**
  * Semantic DST / E2E handles shared by product UI (`testID={Handles.*}`) and
- * `@product/test` DST drivers (`Driver` testIds). Add a handle here when a control
- * must be uniquely addressable without copy or index hacks.
+ * `@product/sim` scenario actions (`Driver` testIds). Add a handle here when a
+ * control must be uniquely addressable without copy or index hacks.
  */
 export const Handles = {
   // status / chrome

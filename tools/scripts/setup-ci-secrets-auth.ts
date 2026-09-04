@@ -1,9 +1,9 @@
 #!/usr/bin/env bun
 import { homedir } from 'node:os';
 import { join } from 'node:path';
-import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
-import { createRepoTreeObjectStore } from '@pkgs/object-store/repo-tree-store';
-import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';
+import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs/impl-node-fs';
+import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs/repo-tree-store';
+import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
 /**
  * Idempotent setup for CI → secrets-backend OIDC auth.
  *

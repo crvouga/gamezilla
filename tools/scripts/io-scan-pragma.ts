@@ -109,6 +109,13 @@ export function isIoCompositionEntryPath(rel: string): boolean {
   if (base === 'sql-host-entry.ts') {
     return true;
   }
+  // Bun.WebView e2e host + ui-testing bun-webview wall driver.
+  if (rel.endsWith('/e2e/webview.ts')) {
+    return true;
+  }
+  if (base === 'bun-webview-driver-node.ts') {
+    return true;
+  }
   return false;
 }
 

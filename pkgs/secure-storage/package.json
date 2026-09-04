@@ -11,18 +11,15 @@
     ]
   },
   "scripts": {
+    "lint": "bunx biome check --error-on-warnings .",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
     "@pkgs/assert": "workspace:*",
-    "expo-secure-store": "catalog:",
-    "react": "catalog:",
-    "react-native": "catalog:"
+    "react": "catalog:"
   },
   "devDependencies": {
-    "@pkgs/keyword": "workspace:*",
-    "@pkgs/kv": "workspace:*",
     "@types/bun": "catalog:",
     "@types/react": "catalog:",
     "@typescript/native": "catalog:",

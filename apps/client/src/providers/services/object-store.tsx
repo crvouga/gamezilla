@@ -1,6 +1,6 @@
-import { ObjectStoreImplExpoFileSystem } from '@pkgs/object-store/impl-expo-file-system';
 import { ObjectStoreProvider } from '@pkgs/object-store/react-context';
-import { wallExpoFs } from '@pkgs/object-store/wall-expo-fs';
+import { ObjectStoreImplExpoFileSystem } from '@pkgs/object-store-expo-fs/impl-expo-file-system';
+import { wallExpoFs } from '@pkgs/object-store-expo-fs/wall-expo-fs';
 import { type ReactNode, useMemo } from 'react';
 
 const BASE_DIR = 'object-store';

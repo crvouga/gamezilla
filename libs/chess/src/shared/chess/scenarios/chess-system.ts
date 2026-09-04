@@ -1,11 +1,12 @@
-import type { RoomApp, RoomArgs, RoomSim } from '@pkgs/room/sim';
 import {
   bootRoomSim,
   ROOM_ARGS,
   ROOM_DRAW,
-  registerRoomLibrary,
-  roomVirtual,
-} from '@pkgs/room/sim';
+  type RoomApp,
+  type RoomArgs,
+  type RoomSim,
+  roomSystemCatalog,
+} from '@pkgs/room-sim';
 import { defineSystem } from '@pkgs/sim';
 
 import { ChessModule } from '../chess-module';
@@ -28,6 +29,5 @@ export const chessSystem = defineSystem<RoomSim, RoomArgs>({
   args: ROOM_ARGS,
   sample: ROOM_DRAW,
   create: (session, args) => bootRoomSim(session, chessApp, args),
+  ...roomSystemCatalog(chessApp),
 });
-chessSystem.runtime({ default: true, name: 'virtual', create: roomVirtual });
-registerRoomLibrary(chessSystem, chessApp);

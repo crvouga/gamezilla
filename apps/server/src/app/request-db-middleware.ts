@@ -10,7 +10,7 @@ import type { OpenSqlClient } from '@libs/runtime/shared/env';
 import { assert } from '@pkgs/assert';
 import { createAuthServerAdapter } from '@pkgs/auth/server';
 import type { Clock, Timers } from '@pkgs/clock';
-import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
+import { KvImplPostgres } from '@pkgs/kv-postgres/impl-postgres';
 import { isObservabilityActive } from '@pkgs/observability/port/is-observability-active';
 import type { Observability } from '@pkgs/observability/port/observability';
 import type { SecretStore } from '@pkgs/secret-store';

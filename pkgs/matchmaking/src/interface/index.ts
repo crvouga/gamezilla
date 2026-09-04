@@ -2,8 +2,8 @@
  * Public port of `@pkgs/matchmaking`.
  *
  * Import via `@pkgs/matchmaking/interface`. Adapters live at
- * `@pkgs/matchmaking/impl-sql`.
- * Sim / scenario tests import only this surface (+ `@pkgs/matchmaking/sim`).
+ * `@pkgs/matchmaking-sql`.
+ * Sim / scenario tests import only this surface (+ `@pkgs/matchmaking-sim`).
  */
 
 export { createAttrNamespace } from '@pkgs/attribute';
@@ -22,6 +22,14 @@ export {
   assertWireFormula,
   serializeFormula,
 } from './formula-wire';
+export type { InsertJoinAttrs } from './join-helpers';
+export {
+  assertDistanceFormulasInput,
+  assertWireFormulasInput,
+  MAX_FORMULAS_PER_PARTICIPANT,
+  resolveGroupSize,
+  resolveJoinAttrs,
+} from './join-helpers';
 export type {
   JoinInputRaw,
   Matchmaking,
@@ -41,6 +49,7 @@ export {
 } from './payload-limits';
 export type { MatchmakingSchema } from './schema';
 export type {
+  _MatchPassResult,
   DistanceFormula,
   DistanceFormulaCategoricalTerm,
   DistanceFormulaNumericTerm,

@@ -7,24 +7,24 @@
 
 import type { Clock } from '@pkgs/clock';
 import type { SimCheckpointSqlFormat } from '@pkgs/sim-console/shared/sim-checkpoint';
-import { openSimPgliteFromSeed } from '@pkgs/sql-client/postgres/boot-sim-pglite';
 import {
   openPgliteSqlClient,
   type PgliteSqlBundle,
-} from '@pkgs/sql-client/postgres/impl-pglite';
+} from '@pkgs/sql-client-postgres/impl-pglite';
+import { openSimPgliteFromSeed } from '@pkgs/sql-client-sim/boot-sim-pglite';
 import { nextSimSqlDatabaseName, type SimSql } from './sim-sql-types';
 
 export const REAL_CHECKPOINT_SQL_FORMAT: SimCheckpointSqlFormat =
   'mixed-pglite-sqlite';
 
 async function openBrowserSqliteClient(bytes?: Uint8Array): Promise<{
-  readonly client: import('@pkgs/sql-client/sqlite/impl-sqlite-wasm').SqlClientImplSqliteWasm;
+  readonly client: import('@pkgs/sql-client-sqlite/impl-sqlite-wasm').SqlClientImplSqliteWasm;
   exportBytes(): Uint8Array;
   importBytes(bytes: Uint8Array): void;
   disconnect(): Promise<void>;
 }> {
   const { SqlClientImplSqliteWasm } = await import(
-    '@pkgs/sql-client/sqlite/impl-sqlite-wasm'
+    '@pkgs/sql-client-sqlite/impl-sqlite-wasm'
   );
   const client = await SqlClientImplSqliteWasm.open(bytes);
   return {

@@ -11,11 +11,11 @@
  * request path instead (`request-db-middleware`).
  */
 
+import type { PostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
 import {
   adaptPgClientAsPool,
   openPgClient,
-} from '@pkgs/sql-client/postgres/connect';
-import type { PostgresDbScope } from '@pkgs/sql-client/postgres/schema';
+} from '@pkgs/sql-client-postgres/connect';
 
 import type { RequestDb } from './open-request-db';
 

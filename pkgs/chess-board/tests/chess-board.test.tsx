@@ -3,14 +3,7 @@
  * Act with pointer streams; assert only onMove / silence.
  */
 
-import {
-  afterEach,
-  beforeAll,
-  describe,
-  expect,
-  it,
-  jest,
-} from '@jest/globals';
+import { afterEach, beforeAll, describe, expect, it, mock } from 'bun:test';
 import { ChessBoard } from '@pkgs/chess-board/chess-board';
 import { ChessBoardCanvasBootstrap } from '@pkgs/chess-board/chess-board-canvas-bootstrap';
 import { preloadChessBoardCanvas } from '@pkgs/chess-board/chess-board-canvas-runtime';
@@ -107,7 +100,7 @@ const BLACK_TO_MOVE_FEN =
 
 describe('ChessBoard black-box', () => {
   let tree: RenderResult | undefined;
-  let onMove: jest.Mock<(m: Move) => void>;
+  let onMove: ReturnType<typeof mock<(m: Move) => void>>;
 
   beforeAll(async () => {
     await preloadChessBoardCanvas();
@@ -121,7 +114,7 @@ describe('ChessBoard black-box', () => {
   async function mount(
     props: Partial<Parameters<typeof ChessBoardHarness>[0]> = {}
   ): Promise<RenderResult> {
-    onMove = jest.fn();
+    onMove = mock((_: Move) => undefined);
     const element: ReactElement = (
       <ChessBoardHarness fen={START_FEN} onMove={onMove} {...props} />
     );

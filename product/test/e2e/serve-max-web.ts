@@ -1,4 +1,4 @@
-// @io-wall-ok — real-mode Playwright web stack for @product/test
+// @io-wall-ok — real-mode bun-webview web stack for @product/test
 
 process.env['EXPO_PUBLIC_API_URL'] =
   process.env['EXPO_PUBLIC_API_URL'] ?? 'http://127.0.0.1:8787';

@@ -1,4 +1,4 @@
-import { SqliteSchemaDatabaseMigration } from '@pkgs/db-schema/sqlite';
+import { SqliteSchemaDatabaseMigration } from '@pkgs/db-schema-sqlite';
 import { createLogger } from '@pkgs/logger';
 
 import type { LocalDomainSchema } from '../client/local-schema-migrate';

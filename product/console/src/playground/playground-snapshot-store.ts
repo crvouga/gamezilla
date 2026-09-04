@@ -3,9 +3,9 @@
  * ObjectStore (OPFS on web / Expo document FS on native).
  */
 
-import { createClientFsObjectStore } from '@pkgs/object-store/impl-client-fs';
 import type { ObjectStore } from '@pkgs/object-store/interface';
-import { wallExpoFs } from '@pkgs/object-store/wall-expo-fs';
+import { createClientFsObjectStore } from '@pkgs/object-store-expo-fs/impl-client-fs';
+import { wallExpoFs } from '@pkgs/object-store-expo-fs/wall-expo-fs';
 
 const PLAYGROUND_SNAPSHOT_BASE_DIR = 'playground-snapshots';
 

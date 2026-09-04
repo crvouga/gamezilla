@@ -1,10 +1,10 @@
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useTimers } from '@pkgs/clock';
-import { isExpoSqliteWebSessionLockError } from '@pkgs/sql-client/sqlite/expo-web-session-lock';
+import { isExpoSqliteWebSessionLockError } from '@pkgs/sql-client-sqlite/expo-web-session-lock';
 import {
   isLeaderLostError,
   runWebOpfsRecoveryAndReload,
-} from '@pkgs/sql-client/sqlite/web';
+} from '@pkgs/sql-client-sqlite-web';
 import { Center, ErrorState } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 

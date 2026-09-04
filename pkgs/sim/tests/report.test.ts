@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 import { readUtf8 } from '@pkgs/object-store/helpers';
+import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 
 import {
   defineAction,

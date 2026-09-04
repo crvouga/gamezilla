@@ -1,0 +1,112 @@
+/**
+ * Product scenario actions (pool: false). Explore still uses spawnActor /
+ * uiOp / partition; these are named user-intent stimuli for `s.apply`.
+ */
+
+import { returnToTabs, signInWithDev, signOut } from './auth-actions';
+import {
+  expectPuzzleSolved,
+  openPuzzleFromSpace,
+  playUntilSolved,
+} from './chess-actions';
+import {
+  acceptFriendRequest,
+  expectFriend,
+  openFriendsList,
+} from './friends-actions';
+import {
+  expectAvatarSeed,
+  expectAvatarStyleLabel,
+  expectAvatarTraitVisible,
+  expectUsername,
+  leaveAvatarEditor,
+  openAvatarEditor,
+  openProfileEdit,
+  saveAvatar,
+  setAvatarSeed,
+  setAvatarStyle,
+  setUsername,
+} from './profile-actions';
+import { addFriend, searchUsername } from './search-actions';
+import {
+  createSpace,
+  endSpace,
+  expectActiveSpace,
+  expectLobbyCard,
+  expectLobbyCardGone,
+  joinFromPrompt,
+  openLobbyCard,
+  openSpacesTab,
+  reenterActiveSpace,
+  returnToLobby,
+} from './space-actions';
+
+export {
+  acceptFriendRequest,
+  addFriend,
+  createSpace,
+  endSpace,
+  expectActiveSpace,
+  expectAvatarSeed,
+  expectAvatarStyleLabel,
+  expectAvatarTraitVisible,
+  expectFriend,
+  expectLobbyCard,
+  expectLobbyCardGone,
+  expectPuzzleSolved,
+  expectUsername,
+  joinFromPrompt,
+  leaveAvatarEditor,
+  openAvatarEditor,
+  openFriendsList,
+  openLobbyCard,
+  openProfileEdit,
+  openPuzzleFromSpace,
+  openSpacesTab,
+  playUntilSolved,
+  reenterActiveSpace,
+  returnToLobby,
+  returnToTabs,
+  saveAvatar,
+  searchUsername,
+  setAvatarSeed,
+  setAvatarStyle,
+  setUsername,
+  signInWithDev,
+  signOut,
+};
+
+export const productScenarioActions = [
+  signInWithDev,
+  signOut,
+  returnToTabs,
+  openSpacesTab,
+  createSpace,
+  returnToLobby,
+  expectLobbyCard,
+  openLobbyCard,
+  joinFromPrompt,
+  expectActiveSpace,
+  reenterActiveSpace,
+  endSpace,
+  expectLobbyCardGone,
+  openPuzzleFromSpace,
+  playUntilSolved,
+  expectPuzzleSolved,
+  openProfileEdit,
+  setUsername,
+  expectUsername,
+  openAvatarEditor,
+  setAvatarSeed,
+  setAvatarStyle,
+  expectAvatarStyleLabel,
+  expectAvatarTraitVisible,
+  saveAvatar,
+  leaveAvatarEditor,
+  expectAvatarSeed,
+  searchUsername,
+  addFriend,
+  acceptFriendRequest,
+  openFriendsList,
+  expectFriend,
+];

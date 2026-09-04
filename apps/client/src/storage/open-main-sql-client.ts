@@ -1,8 +1,8 @@
 import type { Timers } from '@pkgs/clock';
 import { assertDatabaseName } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { SqlClientImplExpoSqlite } from '@pkgs/sql-client/sqlite/impl-expo-sqlite';
-import { createExpoWebSqlClient } from '@pkgs/sql-client/sqlite/web';
+import { SqlClientImplExpoSqlite } from '@pkgs/sql-client-sqlite/impl-expo-sqlite';
+import { createExpoWebSqlClient } from '@pkgs/sql-client-sqlite-web';
 import type { CreateId } from '@pkgs/uuid';
 import { Platform } from 'react-native';
 

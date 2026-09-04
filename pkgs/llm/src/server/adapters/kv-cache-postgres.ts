@@ -1,5 +1,5 @@
-import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
 import type { Kv } from '@pkgs/kv/interface';
+import { KvImplPostgres } from '@pkgs/kv-postgres/impl-postgres';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 /**

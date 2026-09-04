@@ -6,12 +6,12 @@
 
 import type { Clock } from '@pkgs/clock';
 import type { SimCheckpointSqlFormat } from '@pkgs/sim-console/shared/sim-checkpoint';
-import { openSimPgliteFromSeed } from '@pkgs/sql-client/postgres/boot-sim-pglite';
 import {
   openPgliteSqlClient,
   type PgliteSqlBundle,
-} from '@pkgs/sql-client/postgres/impl-pglite';
-import { SqlClientImplBetterSqlite } from '@pkgs/sql-client/sqlite/impl-better-sqlite3';
+} from '@pkgs/sql-client-postgres/impl-pglite';
+import { openSimPgliteFromSeed } from '@pkgs/sql-client-sim/boot-sim-pglite';
+import { SqlClientImplBetterSqlite } from '@pkgs/sql-client-sqlite/impl-better-sqlite3';
 import { resolveSimSqlRuntime, type SimSqlRuntime } from './sim-sql-backend';
 import { nextSimSqlDatabaseName, type SimSql } from './sim-sql-types';
 
@@ -25,10 +25,10 @@ type NodeSqliteLive =
 async function openBunLive(
   bytes?: Uint8Array
 ): Promise<
-  import('@pkgs/sql-client/sqlite/impl-bun-sqlite').SqlClientImplBunSqlite
+  import('@pkgs/sql-client-sqlite/impl-bun-sqlite').SqlClientImplBunSqlite
 > {
   const { SqlClientImplBunSqlite } = await import(
-    '@pkgs/sql-client/sqlite/impl-bun-sqlite'
+    '@pkgs/sql-client-sqlite/impl-bun-sqlite'
   );
   return bytes !== undefined
     ? SqlClientImplBunSqlite.openFromBytes(bytes)
@@ -36,7 +36,7 @@ async function openBunLive(
 }
 
 function preferBunSqlite(): boolean {
-  // `bunx jest` still runs Jest on Node — only use bun:sqlite under Bun's runtime.
+  // `bun test` still runs on Node for some workers — only use bun:sqlite under Bun's runtime.
   return (
     typeof process !== 'undefined' &&
     typeof process.versions === 'object' &&
@@ -77,13 +77,13 @@ async function openNodeSqliteClient(bytes?: Uint8Array): Promise<{
 }
 
 async function openBrowserSqliteClient(bytes?: Uint8Array): Promise<{
-  readonly client: import('@pkgs/sql-client/sqlite/impl-sqlite-wasm').SqlClientImplSqliteWasm;
+  readonly client: import('@pkgs/sql-client-sqlite/impl-sqlite-wasm').SqlClientImplSqliteWasm;
   exportBytes(): Uint8Array;
   importBytes(bytes: Uint8Array): void;
   disconnect(): Promise<void>;
 }> {
   const { SqlClientImplSqliteWasm } = await import(
-    '@pkgs/sql-client/sqlite/impl-sqlite-wasm'
+    '@pkgs/sql-client-sqlite/impl-sqlite-wasm'
   );
   const client = await SqlClientImplSqliteWasm.open(bytes);
   return {

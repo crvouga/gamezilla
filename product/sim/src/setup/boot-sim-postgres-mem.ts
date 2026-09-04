@@ -7,14 +7,14 @@ import { join } from 'node:path';
 import { migrateSimPostgres } from '@apps/server/sim/migrate-sim-postgres';
 import type { Clock } from '@pkgs/clock';
 import { wallClock } from '@pkgs/clock';
-import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
-import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';
+import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs/impl-node-fs';
+import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
 import {
   computeSimPostgresMemSeedFingerprint,
   ensureSimPostgresMemSeedBuffer,
   openSimPostgresMemFromSeed,
   type SimPostgresMemSqlBundle,
-} from '@pkgs/sql-client/postgres/boot-sim-postgres-mem';
+} from '@pkgs/sql-client-sim/boot-sim-postgres-mem';
 import type { SimSql } from '@product/sim/fabric/sim-sql';
 
 import { simPostgresSeedFingerprintSource } from './sim-postgres-seed-fingerprint';

@@ -1,20 +1,24 @@
-import { describe } from '@pkgs/ui-testing';
+import { describe, test } from 'bun:test';
 
-import { AppDriver } from '../src/drivers/app-driver';
-import { aliceCreds } from '../src/fixtures/fixtures';
 import { openSim } from '../src/setup/open-sim';
+import {
+  createSpace,
+  expectPuzzleSolved,
+  openPuzzleFromSpace,
+  playUntilSolved,
+  returnToTabs,
+  signInWithDev,
+} from '../src/sim';
 
-describe('chess puzzle play', (ctx) => {
-  ctx.test('host solves a seeded mate-in-1 via board drag', async () => {
-    await using sim = await openSim('chess-puzzle-play', ctx);
+describe('chess puzzle play', () => {
+  test('host solves a seeded mate-in-1 via board drag', async () => {
+    await using s = await openSim('chess-puzzle-play');
 
-    const alice = await AppDriver.forActor(sim, 'alice');
-    await alice.auth.signInWithDev(aliceCreds);
-    await alice.auth.returnToTabs();
-
-    await alice.space.createSpace();
-    await alice.chess.openPuzzleFromSpace();
-    await alice.chess.playUntilSolved();
-    await alice.chess.expectSolved();
+    await s.apply(signInWithDev, 'alice');
+    await s.apply(returnToTabs, 'alice');
+    await s.apply(createSpace, 'alice');
+    await s.apply(openPuzzleFromSpace, 'alice');
+    await s.apply(playUntilSolved, 'alice');
+    await s.apply(expectPuzzleSolved, 'alice');
   });
 });

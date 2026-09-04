@@ -1,6 +1,6 @@
 // @sql-vendor-ok — local SQLite client schema uses PRAGMA user_version.
 import type { Schema } from '@pkgs/db-schema';
-import { SqliteSchemaDatabaseMigration } from '@pkgs/db-schema/sqlite';
+import { SqliteSchemaDatabaseMigration } from '@pkgs/db-schema-sqlite';
 import { createLogger } from '@pkgs/logger';
 import { unsafe } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';

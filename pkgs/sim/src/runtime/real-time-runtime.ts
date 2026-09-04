@@ -11,7 +11,7 @@ import {
   type NetworkFaults,
   RELIABLE_NETWORK,
 } from '../models/network';
-import { defineRuntime } from './define-runtime';
+import { createRuntime } from './create-runtime';
 import {
   type Capability,
   CapabilityError,
@@ -98,7 +98,7 @@ export function realTimeRuntime(opts: RealTimeRuntimeOptions): Runtime<Ports> {
   const faults: NetworkFaults = opts.networkFaults ?? RELIABLE_NETWORK;
   const waitForIdleOverride = opts.waitForIdle;
 
-  return defineRuntime({
+  return createRuntime({
     caps,
     async open(seed) {
       const rootRng = createRngInternal(seed);

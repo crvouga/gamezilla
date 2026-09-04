@@ -142,7 +142,7 @@ function softLoadQueued(raw: KvRecord): QueuedCommand[] | null {
 /**
  * Async {@link Kv}-backed room cache + outbound queue.
  *
- * Use a non-secure client {@link Kv} (e.g. `KvPlatform` from `@pkgs/kv/kv-platform`):
+ * Use a non-secure client {@link Kv} (e.g. `KvPlatform` from `@pkgs/kv-expo/kv-platform`):
  * committed-log + queue blobs grow past `expo-secure-store`'s
  * 2048 UTF-8 byte per-value cap as soon as a few entries accumulate. None of
  * this data is sensitive — it's a recovery cache for replay-on-reconnect.

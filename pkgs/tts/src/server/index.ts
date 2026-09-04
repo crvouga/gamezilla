@@ -1,6 +1,6 @@
 /**
- * Server-side facade for `@pkgs/tts`. Hosts that just want to mount the
- * pre-wired ElevenLabs+B2 setup should import from here.
+ * Server-side facade for `@pkgs/tts`. Vendor wiring lives in the provider
+ * package (`@pkgs/tts-elevenlabs`).
  */
 
 export {
@@ -14,7 +14,6 @@ export {
   type VoiceProvider,
   Voices,
 } from '../shared/tts-voice';
-export { ElevenLabsTtsProvider } from './adapters/elevenlabs-tts-provider';
 export { InMemoryTtsProvider } from './adapters/in-memory-tts-provider';
 export {
   isTtsProviderError,
@@ -23,12 +22,6 @@ export {
   type TtsSynthesizeInput,
   type TtsSynthesizeOutput,
 } from './ports/tts-provider';
-export {
-  type CreateTtsAppFromBindingsOptions,
-  type CreateTtsAppFromBindingsResult,
-  createTtsAppFromBindings,
-  TtsSecretName,
-} from './tts-from-bindings';
 export {
   type CreateTtsAppOptions,
   createTtsApp,

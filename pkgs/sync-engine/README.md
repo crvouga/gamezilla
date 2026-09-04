@@ -311,7 +311,7 @@ Rules:
 ### Sync engine (client)
 
 `createLocalSyncEngine` owns:
-1. Local schema migrate (framework + domain via `@pkgs/db-schema/sqlite`;
+1. Local schema migrate (framework + domain via `@pkgs/db-schema-sqlite`;
    `SCHEMA_EPOCH = 11`)
 2. `SubscriptionRuntime` — coalesce → `POST /query` → merge
 3. `MutationUploadQueue` — drain `sync_engine_mutations` → `POST /mutations`
@@ -710,7 +710,7 @@ single-flight (it does) — mainly HTTP/server load then.
 ## Schema & versioning
 
 - **Domain schema:** `@libs/runtime` `defineTable` / `registerTables` / `appSchema`; local reconcile via
-  `@pkgs/db-schema/sqlite`; Postgres migrate separate.
+  `@pkgs/db-schema-sqlite`; Postgres migrate separate.
 - **Framework local:** package-local `syncEngineLocalSchema` via `applySqliteSchema`; `SCHEMA_EPOCH` (= 12)
   in `queries/client/local-schema.ts`.
 - **Framework server:** `syncEngineServerSchema` via `SyncEngineDatabaseMigration` (cutover + Postgres reconcile).

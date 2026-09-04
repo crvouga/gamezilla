@@ -1,15 +1,17 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../tsconfig.base.json",
   "include": [
     "../../pkgs/ts-reset/src/index.ts",
     "./src/**/*.ts",
     "./src/**/*.tsx",
     "./scripts/**/*.ts",
     "./tests/**/*.ts",
-    "./tests/**/*.tsx"
+    "./tests/**/*.tsx",
+    "./bun-preload.ts",
+    "./bun-babel-plugin.ts"
   ],
   "compilerOptions": {
-    "types": ["jest", "bun"],
+    "types": ["bun"],
     "paths": {
       "@product/sim": ["../sim/src/index.ts"],
       "@product/sim/*": ["../sim/src/*"],
@@ -38,6 +40,42 @@
       "@libs/db/shared/*": ["../../libs/db/src/shared/*.ts"],
       "@libs/user-search/*": ["../../libs/user-search/src/*"],
       "@pkgs/tts/*": ["../../pkgs/tts/src/*"],
+      "@pkgs/ui-testing-rntl": ["../../pkgs/ui-testing-rntl/src/index.ts"],
+      "@pkgs/ui-testing-rntl/*": ["../../pkgs/ui-testing-rntl/src/*"],
+      "@pkgs/ui-testing-detox": ["../../pkgs/ui-testing-detox/src/index.ts"],
+      "@pkgs/ui-testing-detox/*": ["../../pkgs/ui-testing-detox/src/*"],
+      "@pkgs/ui-testing-bun-webview": [
+        "../../pkgs/ui-testing-bun-webview/src/index.ts"
+      ],
+      "@pkgs/ui-testing-bun-webview/*": [
+        "../../pkgs/ui-testing-bun-webview/src/*"
+      ],
+      "@pkgs/observability-impl-local-file": [
+        "../../pkgs/observability-impl-local-file/src/index.ts"
+      ],
+      "@pkgs/observability-impl-local-file/*": [
+        "../../pkgs/observability-impl-local-file/src/*"
+      ],
+      "@pkgs/secure-storage-expo": [
+        "../../pkgs/secure-storage-expo/src/index.ts"
+      ],
+      "@pkgs/secure-storage-expo/*": ["../../pkgs/secure-storage-expo/src/*"],
+      "@pkgs/secure-storage-web": [
+        "../../pkgs/secure-storage-web/src/index.ts"
+      ],
+      "@pkgs/secure-storage-web/*": ["../../pkgs/secure-storage-web/src/*"],
+      "@pkgs/assert-crash-expo": ["../../pkgs/assert-crash-expo/src/index.ts"],
+      "@pkgs/assert-crash-expo/*": ["../../pkgs/assert-crash-expo/src/*"],
+      "@pkgs/assert-crash-browser": [
+        "../../pkgs/assert-crash-browser/src/index.ts"
+      ],
+      "@pkgs/assert-crash-browser/*": ["../../pkgs/assert-crash-browser/src/*"],
+      "@pkgs/assert-crash-node": ["../../pkgs/assert-crash-node/src/index.ts"],
+      "@pkgs/assert-crash-node/*": ["../../pkgs/assert-crash-node/src/*"],
+      "@pkgs/llm-openai": ["../../pkgs/llm-openai/src/index.ts"],
+      "@pkgs/llm-openai/*": ["../../pkgs/llm-openai/src/*"],
+      "@pkgs/tts-elevenlabs": ["../../pkgs/tts-elevenlabs/src/index.ts"],
+      "@pkgs/tts-elevenlabs/*": ["../../pkgs/tts-elevenlabs/src/*"],
       "@pkgs/assert": ["../../pkgs/assert/src/index.ts"],
       "@pkgs/assert/*": ["../../pkgs/assert/src/*"],
       "@pkgs/auth/client": ["../../pkgs/auth/src/client/index.ts"],
@@ -72,17 +110,18 @@
       "@pkgs/matchmaking/interface": [
         "../../pkgs/matchmaking/src/interface/index.ts"
       ],
-      "@pkgs/matchmaking/impl-sql": [
-        "../../pkgs/matchmaking/src/impl-sql/index.ts"
-      ],
+      "@pkgs/matchmaking-sql": ["../../pkgs/matchmaking-sql/src/index.ts"],
+      "@pkgs/matchmaking-sql/*": ["../../pkgs/matchmaking-sql/src/*"],
       "@pkgs/matchmaking/wire": ["../../pkgs/matchmaking/src/wire/index.ts"],
       "@pkgs/matchmaking/client": [
         "../../pkgs/matchmaking/src/client/index.ts"
       ],
-      "@pkgs/matchmaking/sim": ["../../pkgs/matchmaking/src/sim/index.ts"],
+      "@pkgs/matchmaking-sim": ["../../pkgs/matchmaking-sim/src/index.ts"],
+      "@pkgs/matchmaking-sim/*": ["../../pkgs/matchmaking-sim/src/*"],
       "@pkgs/message": ["../../pkgs/message/src/index.ts"],
       "@pkgs/message/*": ["../../pkgs/message/src/*"],
       "@pkgs/object-store/*": ["../../pkgs/object-store/src/*"],
+      "@pkgs/object-store-node-fs/*": ["../../pkgs/object-store-node-fs/src/*"],
       "@pkgs/observability/*": ["../../pkgs/observability/src/*"],
       "@pkgs/polyfill": ["../../pkgs/polyfill/src/index.ts"],
       "@pkgs/polyfill/*": ["../../pkgs/polyfill/src/*"],
@@ -91,6 +130,20 @@
       "@pkgs/room": ["../../pkgs/room/src/index.ts"],
       "@pkgs/room/server": ["../../pkgs/room/src/server.ts"],
       "@pkgs/room/*": ["../../pkgs/room/src/*"],
+      "@pkgs/room-adapter-durable-object": [
+        "../../pkgs/room-adapter-durable-object/src/index.ts"
+      ],
+      "@pkgs/room-adapter-durable-object/*": [
+        "../../pkgs/room-adapter-durable-object/src/*"
+      ],
+      "@pkgs/room-adapter-memory": [
+        "../../pkgs/room-adapter-memory/src/index.ts"
+      ],
+      "@pkgs/room-adapter-memory/*": ["../../pkgs/room-adapter-memory/src/*"],
+      "@pkgs/room-adapter-web": ["../../pkgs/room-adapter-web/src/index.ts"],
+      "@pkgs/room-adapter-web/*": ["../../pkgs/room-adapter-web/src/*"],
+      "@pkgs/room-sim": ["../../pkgs/room-sim/src/index.ts"],
+      "@pkgs/room-sim/*": ["../../pkgs/room-sim/src/*"],
       "@pkgs/room-widgets/*": ["../../pkgs/room-widgets/src/*"],
       "@pkgs/secret-store": ["../../pkgs/secret-store/src/index.ts"],
       "@pkgs/secret-store/*": ["../../pkgs/secret-store/src/*"],
@@ -120,7 +173,22 @@
       "@pkgs/ui-testing": ["../../pkgs/ui-testing/src/index.ts"],
       "@pkgs/ui-testing/*": ["../../pkgs/ui-testing/src/*"],
       "@pkgs/sim-console": ["../../pkgs/sim-console/src/index.ts"],
-      "@pkgs/sim-console/*": ["../../pkgs/sim-console/src/*"]
+      "@pkgs/sim-console/*": ["../../pkgs/sim-console/src/*"],
+      "@pkgs/kv-postgres/*": ["../../pkgs/kv-postgres/src/*"],
+      "@pkgs/kv-web/*": ["../../pkgs/kv-web/src/*"],
+      "@pkgs/kv-expo/*": ["../../pkgs/kv-expo/src/*"],
+      "@pkgs/db-schema-postgres": [
+        "../../pkgs/db-schema-postgres/src/index.ts"
+      ],
+      "@pkgs/db-schema-postgres/*": ["../../pkgs/db-schema-postgres/src/*"],
+      "@pkgs/db-schema-sqlite": ["../../pkgs/db-schema-sqlite/src/index.ts"],
+      "@pkgs/db-schema-sqlite/*": ["../../pkgs/db-schema-sqlite/src/*"],
+      "@pkgs/db-indexes-postgres": [
+        "../../pkgs/db-indexes-postgres/src/index.ts"
+      ],
+      "@pkgs/db-indexes-postgres/*": ["../../pkgs/db-indexes-postgres/src/*"],
+      "@pkgs/db-indexes-sqlite": ["../../pkgs/db-indexes-sqlite/src/index.ts"],
+      "@pkgs/db-indexes-sqlite/*": ["../../pkgs/db-indexes-sqlite/src/*"]
     }
   }
 }

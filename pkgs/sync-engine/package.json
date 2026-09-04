@@ -9,6 +9,7 @@
     "./sim": "./src/sim/index.ts"
   },
   "scripts": {
+    "lint": "bunx biome check --error-on-warnings .",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test",
     "test:sim": "bun test tests"
@@ -20,6 +21,8 @@
     "@pkgs/db-indexes": "workspace:*",
     "@pkgs/db-migrate": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
+    "@pkgs/db-schema-postgres": "workspace:*",
+    "@pkgs/db-schema-sqlite": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/outbox": "workspace:*",
@@ -27,6 +30,7 @@
     "@pkgs/sim": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
+    "@pkgs/sql-client-sqlite": "workspace:*",
     "@pkgs/uuid": "workspace:*",
     "@standard-schema/spec": "catalog:",
     "hono": "catalog:",

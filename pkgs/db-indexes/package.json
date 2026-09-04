@@ -4,11 +4,13 @@
   "private": true,
   "exports": {
     ".": "./src/index.ts",
-    "./postgres": "./src/postgres/index.ts",
-    "./sqlite": "./src/sqlite/index.ts",
-    "./sim": "./src/sim/index.ts"
+    "./*": [
+      "./src/*.ts",
+      "./src/*/index.ts"
+    ]
   },
   "scripts": {
+    "lint": "bunx biome check --error-on-warnings .",
     "mutants": "bun tests/mutants/scripted-mutants.ts",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test",
@@ -18,13 +20,11 @@
     "@noble/hashes": "catalog:",
     "@pkgs/assert": "workspace:*",
     "@pkgs/clock": "workspace:*",
-    "@pkgs/db-schema": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "node-sql-parser": "catalog:"
   },
   "devDependencies": {
-    "@pkgs/postgres-embedded": "workspace:*",
     "@pkgs/sim": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",

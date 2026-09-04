@@ -1,4 +1,4 @@
-import { defineSystem } from '@pkgs/sim';
+import { defineRuntime, defineSystem } from '@pkgs/sim';
 import { gen } from '@pkgs/sim/fast-check';
 
 import { DST_FAULTS } from '../faults';
@@ -6,7 +6,8 @@ import { toKernelFaults } from '../network';
 import {
   arbSyncArgs,
   createSyncSim,
-  registerSyncLibrary,
+  SYNC_POOL_ACTIONS,
+  SYNC_PROPERTY_DEFS,
   type SyncArgs,
   type SyncSim,
   syncVirtual,
@@ -23,19 +24,6 @@ export const EXAMPLE_DEFAULT_ARGS: SyncArgs = {
   bufferOutboundLive: false,
   clientCount: 2,
 };
-
-const SYNC_RUNTIMES: Runtime<Ports>[] = [
-  defineRuntime({
-    default: true,
-    name: 'virtual',
-    create: () => syncVirtual(),
-  }),
-  defineRuntime({
-    default: false,
-    name: EXAMPLE_DST_FAULTS_HOST,
-    create: () => syncVirtual(toKernelFaults(DST_FAULTS)),
-  }),
-] as const;
 
 /**
  * Framework-owned example system: broker + server + `args.clientCount` clients.
@@ -65,9 +53,19 @@ export const exampleSystem = defineSystem<SyncSim, SyncArgs>({
   args: EXAMPLE_DEFAULT_ARGS,
   sample: () => gen(arbSyncArgs()),
   create: (session, args) => createSyncSim(session, exampleApp, args),
-  properties: SYNC_PROPERTY_DEFS,
+  properties: [...SYNC_PROPERTY_DEFS],
   actions: SYNC_POOL_ACTIONS,
-  runtimes: SYNC_RUNTIMES,
+  runtimes: [
+    defineRuntime({
+      default: true,
+      name: 'virtual',
+      create: () => syncVirtual(),
+    }),
+    defineRuntime({
+      name: EXAMPLE_DST_FAULTS_HOST,
+      create: () => syncVirtual(toKernelFaults(DST_FAULTS)),
+    }),
+  ],
 });
 
 /** Hydrates the ~2k row catalog query instead of the pack default. */

@@ -6,13 +6,7 @@ export function ActorUrlFrame(props: {
   readonly title: string;
   readonly url: string;
 }) {
-  return (
-    <iframe
-      title={props.title}
-      src={props.url}
-      style={frameStyle}
-    />
-  );
+  return <iframe title={props.title} src={props.url} style={frameStyle} />;
 }
 
 const frameStyle = {

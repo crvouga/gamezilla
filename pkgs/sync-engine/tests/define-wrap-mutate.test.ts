@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
-import { SqlClientImplSqliteMem } from '@pkgs/sql-client/sqlite/impl-sqlite-mem';
+import { SqlClientImplSqliteMem } from '@pkgs/sql-client-sqlite/impl-sqlite-mem';
 import { migrateLocalSchema } from '@pkgs/sync-engine/client';
 import {
   defineMutation,

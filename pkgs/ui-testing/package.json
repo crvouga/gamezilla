@@ -9,38 +9,23 @@
       "./src/*.tsx",
       "./src/*/index.ts",
       "./src/*/*.ts",
-      "./src/*/*.tsx",
-      "./src/*/*/index.ts",
-      "./src/*/*/*.ts",
-      "./src/*/*/*.tsx"
+      "./src/*/*.tsx"
     ]
   },
   "scripts": {
+    "lint": "bunx biome check --error-on-warnings .",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test src/core src/selector src/runner src/drivers/playwright src/drivers/detox --pass-with-no-tests && bunx jest --config ./jest.config.cjs --runInBand"
+    "test": "bun test src --pass-with-no-tests"
   },
   "dependencies": {
-    "@babel/runtime": "catalog:",
-    "@pkgs/async-local": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/sim": "workspace:*",
-    "@testing-library/react-native": "catalog:",
-    "react": "catalog:",
-    "react-native": "catalog:",
-    "react-native-gesture-handler": "catalog:",
-    "react-test-renderer": "catalog:"
+    "react": "catalog:"
   },
   "devDependencies": {
-    "@jest/globals": "catalog:",
-    "@playwright/test": "catalog:",
     "@types/bun": "catalog:",
-    "@types/jest": "catalog:",
     "@types/react": "catalog:",
-    "@types/react-test-renderer": "catalog:",
     "@typescript/native": "catalog:",
-    "expo": "catalog:",
-    "jest": "catalog:",
-    "jest-expo": "catalog:",
     "typescript": "catalog:"
   }
 }

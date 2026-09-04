@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { PGlite } from '@electric-sql/pglite';
 import { createLogger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { createPgliteSqlClient } from '@pkgs/sql-client/postgres/impl-pglite';
+import { createPgliteSqlClient } from '@pkgs/sql-client-postgres/impl-pglite';
 import { createSimAdapters } from '@pkgs/uuid';
 import { EntityStoreImplPostgres } from './impl-postgres';
 

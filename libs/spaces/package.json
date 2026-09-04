@@ -13,6 +13,7 @@
     ]
   },
   "scripts": {
+    "lint": "bunx biome check --error-on-warnings .",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test --pass-with-no-tests"
   },
@@ -30,13 +31,16 @@
     "@pkgs/collab": "workspace:*",
     "@pkgs/collab-ui": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
+    "@pkgs/db-schema-sqlite": "workspace:*",
     "@pkgs/i18n": "workspace:*",
     "@pkgs/kv": "workspace:*",
     "@pkgs/message": "workspace:*",
     "@pkgs/room": "workspace:*",
+    "@pkgs/room-adapter-web": "workspace:*",
     "@pkgs/sounds": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
+    "@pkgs/sql-client-sqlite": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
     "@pkgs/ui": "workspace:*",
     "@pkgs/uuid": "workspace:*",

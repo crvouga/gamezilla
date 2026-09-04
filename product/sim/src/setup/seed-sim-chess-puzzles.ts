@@ -9,12 +9,12 @@
 import { join } from 'node:path';
 import { ChessPuzzleLoadFileSeeder } from '@libs/chess/root/server/seed-chess-puzzles/chess-puzzle-load-file-seeder';
 import { createLogger } from '@pkgs/logger';
-import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
-import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';
+import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs/impl-node-fs';
+import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { createSimIds } from '@pkgs/uuid';
 
-const FIXTURES_DIR = join(__dirname, '../../fixtures');
+const FIXTURES_DIR = join(__dirname, '../../../test/fixtures');
 const LOAD_FILE_KEY = 'chess-puzzles.sim.csv';
 
 /** Fixed seed clock so rebuild dumps stay byte-stable. */

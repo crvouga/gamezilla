@@ -5,14 +5,16 @@ import {
   type RoomEvent,
   type RoomState,
 } from '@pkgs/room';
-import { InMemoryClientStorage } from '@pkgs/room/client/adapters/storage/memory';
 import { RoomServer } from '@pkgs/room/server';
-import { InMemoryRoomStorage } from '@pkgs/room/server/adapters/memory';
+import {
+  InMemoryClientStorage,
+  InMemoryRoomStorage,
+} from '@pkgs/room-adapter-memory';
 import {
   Increment,
   LoopbackRoomTransport,
   TestCounterModule,
-} from '@pkgs/room/sim';
+} from '@pkgs/room-sim';
 import { createSimAdapters } from '@pkgs/uuid';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 

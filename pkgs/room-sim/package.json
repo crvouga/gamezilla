@@ -1,0 +1,33 @@
+{
+  "name": "@pkgs/room-sim",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": [
+      "./src/*.ts",
+      "./src/*/index.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bunx biome check --error-on-warnings .",
+    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "test": "bun test tests",
+    "test:sim": "bun test tests"
+  },
+  "dependencies": {
+    "@pkgs/attribute": "workspace:*",
+    "@pkgs/clock": "workspace:*",
+    "@pkgs/message": "workspace:*",
+    "@pkgs/room": "workspace:*",
+    "@pkgs/room-adapter-memory": "workspace:*",
+    "@pkgs/sim": "workspace:*",
+    "@pkgs/uuid": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:"
+  }
+}

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { createMessageNamespace, isPlainRecord } from '@pkgs/message';
-import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite/impl-bun-sqlite';
 import { createSimAdapters } from '@pkgs/uuid';
 
 import {

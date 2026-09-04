@@ -12,7 +12,7 @@ import { appPostgresDbScope } from '@libs/db/public/scope';
 import { PostgresMigrationRunner } from '@libs/runtime/server/run-postgres-migrations';
 import { wallClock, wallTimers } from '@pkgs/clock';
 import { createLogger } from '@pkgs/logger';
-import { createPgPool } from '@pkgs/sql-client/postgres/connect';
+import { createPgPool } from '@pkgs/sql-client-postgres/connect';
 import { resolveDatabaseUrl } from '../../libs/db/src/shared/postgres-ping-source';
 import { loadSecretsIntoEnv } from '../../libs/secrets/src/shared/secrets/secrets';
 

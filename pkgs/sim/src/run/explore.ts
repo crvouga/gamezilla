@@ -1,4 +1,5 @@
 import { createRng } from '../internals/rng';
+import { isRuntimeDef } from '../system/define-runtime';
 import type { Action, CatalogAction, CatalogProperty } from '../system/effect';
 import type { Gen } from '../system/gen';
 import type { Recording, Step } from '../system/recording';
@@ -6,6 +7,7 @@ import { parseRecording, RECORDING_VERSION } from '../system/recording';
 import {
   type ActionSlice,
   getSystemRegistry,
+  type RuntimeOption,
   resolveActions,
   type SystemCore as System,
 } from '../system/registry';
@@ -44,8 +46,8 @@ export type Report = {
 };
 
 export type ExploreOptions<S, Args = void> = {
-  /** Registered host name. Omit → system default. */
-  readonly runtime?: string;
+  /** Runtime name or inline RuntimeDef. Omit → system default. */
+  readonly runtime?: RuntimeOption;
   /**
    * Slice of the walk: registered action names and/or action objects.
    * Default: every registered action with `pool !== false`.
@@ -67,6 +69,16 @@ export type ExploreOptions<S, Args = void> = {
     readonly maxMs: number;
   };
 };
+
+/** Resolve a RuntimeOption to a name for recording meta (no create). */
+function resolveRuntimeName(
+  system: System<unknown, unknown>,
+  runtime: RuntimeOption | undefined
+): string {
+  if (isRuntimeDef(runtime)) return runtime.name;
+  const registry = getSystemRegistry(system);
+  return runtime ?? registry.defaultRuntimeName;
+}
 
 function campaignSeed(opts: ExploreOptions<unknown, unknown>): number {
   if (opts.seed !== undefined) return opts.seed;
@@ -158,6 +170,7 @@ async function scriptEpisode<S, Args>(args: {
   readonly acc: EpisodeAcc;
   readonly episodeRng: ReturnType<typeof createRng>;
   readonly runtimeName: string;
+  readonly runtimeOpt: RuntimeOption | undefined;
   readonly actions: readonly CatalogAction<S>[];
 }): Promise<'ok' | 'fail'> {
   const { system, opts, epSeed, steps, acc } = args;
@@ -170,7 +183,7 @@ async function scriptEpisode<S, Args>(args: {
   try {
     s = await run(system, {
       seed: epSeed,
-      runtime: args.runtimeName,
+      ...(args.runtimeOpt !== undefined ? { runtime: args.runtimeOpt } : {}),
       ...(systemArgs !== undefined ? { args: systemArgs as never } : {}),
     } as Parameters<typeof run<S, Args>>[1]);
     const w = await randomActions(s, {
@@ -247,12 +260,10 @@ export async function explore<S, Args = void>(
   const seed = campaignSeed(opts as ExploreOptions<unknown, unknown>);
   const rng = createRng(seed);
   const registry = getSystemRegistry(system as System<S, unknown>);
-  const runtimeName = opts.runtime ?? registry.defaultRuntimeName;
-  if (runtimeName === undefined) {
-    throw new Error(
-      `explore: system '${system.name}' has no default runtime (register with system.runtime)`
-    );
-  }
+  const runtimeName = resolveRuntimeName(
+    system as System<unknown, unknown>,
+    opts.runtime
+  );
   const properties = registry.properties as readonly CatalogProperty<S>[];
   const actions = resolveActions(
     system as System<S, unknown>,
@@ -279,6 +290,7 @@ export async function explore<S, Args = void>(
       acc,
       episodeRng: createRng(`${String(seed)}:ep:${ep}`),
       runtimeName,
+      runtimeOpt: opts.runtime,
       actions,
     });
     if (status === 'fail') break;
@@ -410,7 +422,7 @@ async function fails(ctx: ShrinkCtx, repro: Recording): Promise<boolean> {
 }
 
 export type ReplayOptions<S> = {
-  readonly runtime?: string;
+  readonly runtime?: RuntimeOption;
   /** Slice to dispatch from (names or objects). Default: every registered action. */
   readonly actions?: ActionSlice<S>;
 };
@@ -445,13 +457,9 @@ export async function replay<S, Args = void>(
           system as System<S, unknown>,
           opts.actions
         ) as readonly CatalogAction<S>[]);
-  const runtimeName =
-    opts.runtime ?? repro.meta.runtime ?? registry.defaultRuntimeName;
-  if (runtimeName === undefined) {
-    throw new Error(
-      `replay: system '${system.name}' has no default runtime (register with system.runtime)`
-    );
-  }
+  const runtimeOpt: RuntimeOption | undefined =
+    opts.runtime ??
+    (repro.meta.runtime !== undefined ? repro.meta.runtime : undefined);
 
   const actionByName = new Map(
     actions.map((a) => [a.name, a as Action<S, unknown[]>])
@@ -459,7 +467,7 @@ export async function replay<S, Args = void>(
 
   const s = await run(system, {
     seed: repro.seed,
-    runtime: runtimeName,
+    ...(runtimeOpt !== undefined ? { runtime: runtimeOpt } : {}),
     ...(repro.args !== undefined && repro.args !== null
       ? { args: repro.args as never }
       : {}),

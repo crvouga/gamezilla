@@ -1,4 +1,3 @@
-export { defineRuntime } from './define-runtime';
 export { realTimeRuntime } from './real-time-runtime';
 export type {
   Capability,

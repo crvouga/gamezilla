@@ -2,14 +2,14 @@
  * Explore walk: tap / fill / back / scroll plus product partition.
  */
 
-import { describe } from '@pkgs/ui-testing';
+import { describe, expect, test } from 'bun:test';
 import { back, fill, scroll, tap } from '@pkgs/ui-testing/explore';
 import { openSim } from '../src/setup/open-sim';
 import { actor, partition, spawnActor } from '../src/sim';
 
-describe('product walk', (ctx) => {
-  ctx.test('walk tap/fill/back/scroll + partition', async () => {
-    await using s = await openSim('product-walk', ctx);
+describe('product walk', () => {
+  test('walk tap/fill/back/scroll + partition', async () => {
+    await using s = await openSim('product-walk');
     await s.apply(spawnActor, 'alice');
     const actorA = actor('alice');
     const w = await s.randomActions({

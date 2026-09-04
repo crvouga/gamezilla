@@ -14,19 +14,36 @@ import {
   createHealthOriginAvailability,
   gateFetchUntilAvailable,
 } from '@pkgs/http-client';
-import { KvPlatform } from '@pkgs/kv/kv-platform';
+import { KvPlatform } from '@pkgs/kv-expo/kv-platform';
 import { createNoopObservability } from '@pkgs/observability/impl-noop/impl-noop';
 import { createInMemoryPubSub } from '@pkgs/pubsub/in-memory';
-import { createSecureStorage } from '@pkgs/secure-storage/create';
+import type { SecureStorage } from '@pkgs/secure-storage/interface';
 import { createSecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
+import { createExpoSecureStorage } from '@pkgs/secure-storage-expo';
+import { createWebSecureStorage } from '@pkgs/secure-storage-web';
 import { createExpoAudioPlaybackPort } from '@pkgs/sounds/audio-playback/expo-audio-playback-port';
 import * as SecureStore from 'expo-secure-store';
 import * as WebBrowser from 'expo-web-browser';
+import { Platform } from 'react-native';
 
 import type { ClientEnv } from './client-env';
 import { setOriginAvailability } from './origin-availability-for-env';
 import { wallBottomSheetHost } from './wall-bottom-sheet-host';
 import { WallGestureRoot } from './wall-gesture-root';
+
+/**
+ * Small encrypted-at-rest secrets: native goes to `expo-secure-store`
+ * (Keychain / Keystore), web to `localStorage` / `sessionStorage`.
+ *
+ * For bulk async `Kv` storage (cache blobs, command queues) use `KvPlatform`
+ * from `@pkgs/kv-expo/kv-platform` — that path skips the 2048-byte cap.
+ */
+function createWallSecureStorage(): SecureStorage {
+  if (Platform.OS === 'web') {
+    return createWebSecureStorage();
+  }
+  return createExpoSecureStorage();
+}
 
 function mintWallSeed(): bigint {
   const bytes = new Uint8Array(8);
@@ -98,7 +115,7 @@ export function wallClientEnv(args?: {
     },
     kv: new KvPlatform(),
     authStorage: SecureStore as AuthClientStorage,
-    secureStorage: createSecureStorageStore(createSecureStorage()),
+    secureStorage: createSecureStorageStore(createWallSecureStorage()),
     room: (roomArgs) =>
       new WebSocketRoomTransportFactory(
         roomArgs.timers,

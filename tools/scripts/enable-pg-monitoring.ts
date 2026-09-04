@@ -9,7 +9,7 @@
  */
 import { spawnSync } from 'node:child_process';
 import { join } from 'node:path';
-import { createRepoTreeObjectStore } from '@pkgs/object-store/repo-tree-store';
+import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs/repo-tree-store';
 import { which } from '@pkgs/os/command';
 import { createSecretAdminStore } from '@pkgs/secret-provider';
 import { resolveSecretsScope } from '@pkgs/secrets-config';

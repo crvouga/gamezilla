@@ -2,10 +2,10 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import type { VerifiedSession } from '@pkgs/auth/shared/verified-session';
 import { registerTables } from '@pkgs/db-schema';
-import { applySqliteSchema } from '@pkgs/db-schema/sqlite';
+import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite/impl-bun-sqlite';
 import { createSimAdapters } from '@pkgs/uuid';
 
 import { AUTH_TABLES } from '../../public/schema';

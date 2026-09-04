@@ -3,10 +3,10 @@ import { DefaultLockIdentityProvider } from '@pkgs/distributed-lock/default-lock
 import { DistributedLockImplKv } from '@pkgs/distributed-lock/impl-kv';
 import type { DistributedLock } from '@pkgs/distributed-lock/interface';
 import { asKeyword } from '@pkgs/keyword';
-import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
+import { KvImplPostgres } from '@pkgs/kv-postgres/impl-postgres';
 import { createLogger } from '@pkgs/logger';
 import { raw } from '@pkgs/sql';
-import { SqlClientImplPostgresTcp } from '@pkgs/sql-client/postgres/impl-postgres-tcp';
+import { SqlClientImplPostgresTcp } from '@pkgs/sql-client-postgres/impl-postgres-tcp';
 import { cliClock, cliCreateId } from './cli-io';
 import { resolveDatabaseUrl } from './postgres-ping-source';
 

@@ -4,7 +4,7 @@
  */
 import type { Timers } from '@pkgs/clock';
 import type { ClientTransport } from '@pkgs/room';
-import { WebSocketRoomTransport } from '@pkgs/room/client/adapters/transport/websocket';
+import { WebSocketRoomTransport } from '@pkgs/room-adapter-web';
 import type { Random } from '@pkgs/uuid';
 import { createContext, type ReactNode, useContext, useMemo } from 'react';
 

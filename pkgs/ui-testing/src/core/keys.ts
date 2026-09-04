@@ -1,6 +1,6 @@
 /**
  * Portable key names. Drivers map these to their native key identifiers
- * (DOM `KeyboardEvent.key`, Playwright `keyboard.press`, Detox, …).
+ * (DOM `KeyboardEvent.key`, Bun.WebView, Detox, …).
  */
 export type DriverKey =
   | 'enter'
@@ -14,7 +14,7 @@ export type DriverKey =
   | 'space'
   | 'delete';
 
-/** Playwright / DOM `keyboard.press` identifiers for each {@link DriverKey}. */
+/** DOM `KeyboardEvent.key` identifiers for each {@link DriverKey}. */
 export const DRIVER_KEY_TO_DOM: Record<DriverKey, string> = {
   enter: 'Enter',
   backspace: 'Backspace',

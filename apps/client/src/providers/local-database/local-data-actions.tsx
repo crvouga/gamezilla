@@ -8,7 +8,7 @@ import {
   useSecureStorageStore,
   writeSecureStorageItem,
 } from '@pkgs/secure-storage/use-secure-storage-item';
-import { runWebOpfsRecoveryAndReload } from '@pkgs/sql-client/sqlite/web';
+import { runWebOpfsRecoveryAndReload } from '@pkgs/sql-client-sqlite-web';
 import { useSyncEngineInstance } from '@pkgs/sync-engine/client';
 import { type ReactNode, useMemo } from 'react';
 import { Platform } from 'react-native';

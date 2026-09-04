@@ -3,12 +3,12 @@
 import { Database } from 'bun:sqlite';
 import { wallClock } from '@pkgs/clock';
 
-import { SqliteSchemaDatabaseMigration } from '@pkgs/db-schema/sqlite';
+import { SqliteSchemaDatabaseMigration } from '@pkgs/db-schema-sqlite';
 import { createLogger } from '@pkgs/logger';
 import { raw, type Sql, sql } from '@pkgs/sql';
 import { assertSqlIdentifier } from '@pkgs/sql/assert-sql-identifier';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite/impl-bun-sqlite';
 
 const domainMigrateLogger = createLogger({
   name: 'in-memory-sync-engine',

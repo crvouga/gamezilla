@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { SqlClientImplSqliteMem } from '@pkgs/sql-client/sqlite/impl-sqlite-mem';
+import { SqlClientImplSqliteMem } from '@pkgs/sql-client-sqlite/impl-sqlite-mem';
 import { createSyncApp } from '@pkgs/sync-engine/server';
 import {
   defineQuery,

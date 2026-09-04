@@ -10,7 +10,7 @@
 
 import { assert } from '@pkgs/assert';
 import type { Sql, Value } from '@pkgs/sql';
-import type { PostgresDbScope } from './postgres/schema';
+import type { PostgresDbScope } from './postgres-db-scope';
 
 export interface RunResult {
   changes: number;

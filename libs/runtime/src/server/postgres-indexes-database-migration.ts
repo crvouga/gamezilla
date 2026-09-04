@@ -2,7 +2,7 @@ import { APP_QUERIES } from '@libs/runtime/root/app-queries';
 import { assert } from '@pkgs/assert';
 import type { Clock } from '@pkgs/clock';
 import { MIGRATE_RECONCILE_CONFIG, resolveConfig } from '@pkgs/db-indexes';
-import { createPostgresPort } from '@pkgs/db-indexes/postgres';
+import { createPostgresPort } from '@pkgs/db-indexes-postgres';
 import type {
   DatabaseMigration,
   DatabaseMigrationContext,

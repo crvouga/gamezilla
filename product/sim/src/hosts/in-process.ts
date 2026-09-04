@@ -18,13 +18,13 @@ import { type ProductExtra, SIM_START_MS } from './ports';
 // @io-wall-ok — host factory; wallClock only when skipSeed (playground).
 
 type MultiAppRntlSession = ReturnType<
-  typeof import('@pkgs/ui-testing')['createMultiAppRntlSession']
+  typeof import('@pkgs/ui-testing-rntl')['createMultiAppRntlSession']
 >;
 
 export type InProcessRuntimeOptions = {
   /**
-   * Attach MultiAppRntlSession for Jest/RNTL tests.
-   * Default: true when `JEST_WORKER_ID` is set, else false (playground / Expo).
+   * Attach MultiAppRntlSession for bun:test / RNTL tests.
+   * Default: true when `SIM_WITH_RNTL=1` or bun:test, else false (playground / Expo).
    */
   readonly withRntl?: boolean;
   /** Override start time (playground uses wallClock.now()). */
@@ -32,18 +32,20 @@ export type InProcessRuntimeOptions = {
   /** Inject server SQL. */
   readonly serverSql?: SimSql;
   /**
-   * Open + migrate a fresh server DB instead of cloning the Jest seed.
-   * Default: true outside Jest (playground).
+   * Open + migrate a fresh server DB instead of cloning the sim seed.
+   * Default: true outside bun:test (playground).
    */
   readonly skipSeed?: boolean;
 };
 
-function loadRntlSessionFactory(): typeof import('@pkgs/ui-testing')['createMultiAppRntlSession'] {
-  return require('@pkgs/ui-testing').createMultiAppRntlSession;
+function loadRntlSessionFactory(): typeof import('@pkgs/ui-testing-rntl')['createMultiAppRntlSession'] {
+  return require('@pkgs/ui-testing-rntl').createMultiAppRntlSession;
 }
 
 function defaultWithRntl(): boolean {
-  return process.env['JEST_WORKER_ID'] !== undefined;
+  return (
+    process.env['SIM_WITH_RNTL'] === '1' || process.env['BUN_TEST'] === '1'
+  );
 }
 
 async function openSeededServerSql(clock: Clock): Promise<SimSql> {

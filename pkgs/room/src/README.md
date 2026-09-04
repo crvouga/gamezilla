@@ -22,7 +22,7 @@ package. Prefer scenarios + fixtures over speculation about “how room works.�
 | Multi-device / multi-tab | Roster keyed by `(identity, clientId)`; session take-over on reconnect |
 | Time-sensitive rules (flag / deadline) | Modules emit `Schedule` effects; server wake injects commands; clients may arm optimistic timers |
 | Cloudflare hosting | DO adapter multiplexes modules, hibernates sockets, persists per-key log + pending schedules |
-| Deterministic regression | Sim harness (`src/sim/`, `@pkgs/room/sim`) — one seed → identical timeline |
+| Deterministic regression | Sim harness (`@pkgs/room-sim`) — one seed → identical timeline |
 
 **Out of scope:** cross-topic SQL sync, auth sessions, REST CRUD,
 bandwidth/clock-drift compensation beyond server `command.ts`, broadcasting
@@ -64,13 +64,13 @@ by game modules in product.
 2. **Offline-first open** — `RoomClient.open` hydrates local storage and attaches
    transport even when connect fails; UI can dispatch while disconnected.
 3. **Playgrounds / widgets** — `@pkgs/room-widgets` and tests use
-   `@pkgs/room/sim` (`openLoopbackRoom`, `TestCounterModule`) for in-process
+   `@pkgs/room-sim` (`openLoopbackRoom`, `TestCounterModule`) for in-process
    multi-client demos without a Worker.
 4. **Authoring a game** — implement `RoomModule` (`initialState` / `handle` /
    `reduce` / `hash`), optionally emit `Schedule` / `CancelSchedule` effects for
    clocks; register in spaces’ module list + DO `modules: […]`.
 5. **Module conformance** — games call `runModuleConformance` from
-   `@pkgs/room/sim` (hash / totality / fold / fuzz / optional deadline hooks).
+   `@pkgs/room-sim` (hash / totality / fold / fuzz / optional deadline hooks).
 
 ---
 
@@ -82,17 +82,15 @@ Core vs adapters stay split so callers opt into a runtime explicitly.
 |--------|---------|
 | `@pkgs/room` | Client core: `RoomClient`, `RoomMetaAttr`, React hooks/registry, ports, wire helpers, effect builtins / handlers |
 | `@pkgs/room/server` | `RoomServer`, `RoomStorage`, `RoomAuth`, effect types/builtins |
-| `@pkgs/room/client/adapters/transport/websocket` | `WebSocketRoomTransport` (+ heartbeat / `probeLiveness`) |
-| `@pkgs/room/client/adapters/storage/memory` | `InMemoryClientStorage` |
-| `@pkgs/room/client/adapters/storage/web` | `WebClientStorage` (`localStorage`) |
 | `@pkgs/room/client/adapters/storage/key-value` | `KeyValueClientRoomStorage` (async `Kv`) |
-| `@pkgs/room/server/adapters/memory` | `InMemoryRoomStorage` |
-| `@pkgs/room/server/adapters/durable-object` | `createDurableObjectAdapter`, DO storage + alarm schedule |
-| `@pkgs/room/sim` | `openLoopbackRoom`, **`bootRoomSim` / `registerRoomLibrary` / `roomVirtual`**, kit (`runModuleConformance`, …), fixtures (counter / deadline / authz / match-clock) |
+| `@pkgs/room-adapter-web` | `WebSocketRoomTransport` (+ heartbeat / `probeLiveness`), `WebClientStorage` (`localStorage`) |
+| `@pkgs/room-adapter-memory` | `InMemoryRoomStorage`, `InMemoryClientStorage`, `LoopbackRoomTransport` |
+| `@pkgs/room-adapter-durable-object` | `createDurableObjectAdapter`, DO storage + alarm schedule |
+| `@pkgs/room-sim` | `openLoopbackRoom`, **`bootRoomSim` / `roomSystemCatalog` / `roomVirtual`**, kit (`runModuleConformance`, …), fixtures (counter / deadline / authz / match-clock) |
 
-`src/sim/` implementation is exported as `@pkgs/room/sim`. Games should declare
-their own `defineSystem` from `@pkgs/sim` over
-`bootRoomSim` / `roomVirtual` / `registerRoomLibrary` (`@pkgs/room/sim`)
+Each adapter is its own package so callers pull in only the runtime they
+host on. Games should declare their own `defineSystem` from `@pkgs/sim` over
+`bootRoomSim` / `roomVirtual` / `roomSystemCatalog` (`@pkgs/room-sim`)
 and drive runs with `system.run` / `.explore` / `.replay`, not deep relative
 `sim/` paths.
 
@@ -104,15 +102,18 @@ and drive runs with `system.run` / `.explore` / `.replay`, not deep relative
 pkgs/room/
 ├── src/
 │   ├── client/core/          RoomClient engine, fold, meta, ports, optimistic effects
-│   ├── client/adapters/      websocket transport; memory/web/key-value storage
+│   ├── client/adapters/      key-value storage (async `Kv`)
 │   ├── client/react/         snapshot + registry hooks
 │   ├── server/core/          RoomServer, auth/storage ports, injectCommand
-│   ├── server/adapters/      memory + durable-object (alarms, KV schedules)
 │   ├── protocol/             wire frames + ids
-│   ├── effects/              Schedule/CancelSchedule + RoomEffectHandler port
-│   └── sim/                  sim harness (exported as `@pkgs/room/sim`)
-│       └── scenario/         boot + actions / properties / S
+│   └── effects/              Schedule/CancelSchedule + RoomEffectHandler port
 └── tests/                    black-box against package exports
+
+pkgs/room-adapter-web/            websocket transport + localStorage storage
+pkgs/room-adapter-memory/         in-memory room/client storage + loopback transport
+pkgs/room-adapter-durable-object/ DO adapter (alarms, KV schedules)
+pkgs/room-sim/                    sim harness (`@pkgs/room-sim`)
+└── src/scenario/                 boot + actions / properties / S
 ```
 
 ---
@@ -278,7 +279,7 @@ replays are idempotent.
 
 | Tool | When to use |
 |------|-------------|
-| **`openLoopbackRoom`** (`@pkgs/room/sim`) | Fast in-process unit/integration with injected `Io`; real `RoomClient` + `RoomServer`, no net faults; Schedule via timers |
+| **`openLoopbackRoom`** (`@pkgs/room-sim`) | Fast in-process unit/integration with injected `Io`; real `RoomClient` + `RoomServer`, no net faults; Schedule via timers |
 | **`system.run`** (`@pkgs/sim`) | Room virtual runtime → `Run<RoomSim>` driven by `apply` / `read` / `until`: partitions, delays, soft disconnect, crash/restart, hash converge, Schedule wakes |
 | **`system.explore` / `s.randomActions`** | Weighted walk over the registered pool (or an `actions:` slice) + shrink; seeded `s.randomActions` for determinism / long workloads |
 | **DO / adapter tests** | Hibernation, session take-over, per-key storage, alarms, WS heartbeat |
@@ -293,12 +294,12 @@ bun run test:pbt                       # all pkgs/libs *.pbt.test.ts (pinned FC_
 bun run test:pbt:random                # nightly random exploration
 ```
 
-### Shrinking system kernel (`sim/scenario/`)
+### Shrinking system kernel (`@pkgs/room-sim` `src/scenario/`)
 
 Runs and action replay are owned by `@pkgs/sim`. A room app declares its own
-`defineSystem`, boots `S` with `bootRoomSim`, registers the virtual
-runtime, and picks up the shared library + domain action pool and standing
-properties via `registerRoomLibrary`:
+`defineSystem`, boots `S` with `bootRoomSim`, and spreads `roomSystemCatalog`
+for the virtual runtime, shared library + domain action pool, and standing
+properties:
 
 ```ts
 // tests/apps/counter/system.ts
@@ -307,9 +308,8 @@ export const counterSystem = defineSystem<RoomSim, RoomArgs>({
   args: ROOM_ARGS,
   sample: ROOM_DRAW,
   create: (session, args) => bootRoomSim(session, counterApp, args),
+  ...roomSystemCatalog(counterApp),
 });
-counterSystem.runtime({ default: true, name: 'virtual', create: roomVirtual });
-registerRoomLibrary(counterSystem, counterApp);
 
 // shrinking PBT — script + weighted walk + shrink
 await counterSystem.explore({ episodes: 12, steps: 14 });
@@ -365,7 +365,7 @@ Connectivity triad — do not conflate:
 
 **Not simulated:** real WebSocket, full CF DO hibernation runtime (covered by DO unit tests).
 
-### Fixtures (`@pkgs/room/sim`)
+### Fixtures (`@pkgs/room-sim`)
 
 | Fixture | Purpose |
 |---------|---------|
@@ -378,11 +378,11 @@ Connectivity triad — do not conflate:
 
 ```ts
 import { describe, expect, test } from 'bun:test';
-import { expectInSync } from '@pkgs/room/sim';
-import { addClient, dispatch, pauseNetwork, resumeNetwork } from '../../sim/scenario';
+import { expectInSync } from '@pkgs/room-sim';
+import { addClient, dispatch, pauseNetwork, resumeNetwork } from '@pkgs/room-sim';
 import { counterSystem } from '../apps/counter/system';
 import { Increment, counterValue } from '../fixtures/counter-module';
-import { readClient, readServer } from '../sim/read-state';
+import { readClient, readServer } from '@pkgs/room-sim';
 
 describe('room sim', () => {
   test('partition then restoreNetwork', async () => {
@@ -404,12 +404,12 @@ Games outside this package:
 ```ts
 import {
   bootRoomSim,
-  registerRoomLibrary,
   ROOM_ARGS,
   ROOM_DRAW,
+  roomSystemCatalog,
   roomVirtual,
   runModuleConformance,
-} from '@pkgs/room/sim';
+} from '@pkgs/room-sim';
 import { defineSystem } from '@pkgs/sim';
 ```
 
@@ -593,12 +593,12 @@ File: `tests/match-clock-schedule.test.ts` (`MatchClockFixtureModule`).
 
 | File | Kind | Asserts / use case |
 |------|------|--------------------|
-| `server/adapters/durable-object/storage.test.ts` | DO storage | Per-key append/load; dedup keys; v2→v3 blob migrate; reject seq gaps |
-| `server/adapters/durable-object/do-schedule.test.ts` | DO schedule | Schedule persists + arms alarm; `fireDue` injects and clears KV |
-| `server/adapters/durable-object/hibernation.test.ts` | DO host | After simulated eviction, passive peer still receives committed |
-| `server/adapters/durable-object/session-takeover.test.ts` | DO host | Same `(identity, clientId)` replaces socket; different `clientId` keeps both |
-| `server/adapters/durable-object/auth-upgrade.test.ts` | DO host | Missing identity header on upgrade → HTTP 401 |
-| `client/adapters/transport/websocket/transport.test.ts` | WS transport | Heartbeat ping; reconnect on missed pong; `probeLiveness`; pong clears miss |
+| `room-adapter-durable-object` `storage.test.ts` | DO storage | Per-key append/load; dedup keys; v2→v3 blob migrate; reject seq gaps |
+| `room-adapter-durable-object` `do-schedule.test.ts` | DO schedule | Schedule persists + arms alarm; `fireDue` injects and clears KV |
+| `room-adapter-durable-object` `hibernation.test.ts` | DO host | After simulated eviction, passive peer still receives committed |
+| `room-adapter-durable-object` `session-takeover.test.ts` | DO host | Same `(identity, clientId)` replaces socket; different `clientId` keeps both |
+| `room-adapter-durable-object` `auth-upgrade.test.ts` | DO host | Missing identity header on upgrade → HTTP 401 |
+| `room-adapter-web` `websocket-transport.test.ts` | WS transport | Heartbeat ping; reconnect on missed pong; `probeLiveness`; pong clears miss |
 | `client/adapters/storage/key-value/storage.test.ts` | KV storage | Corrupt committed/queued blobs load empty and are zapped |
 
 ### Pure helpers
@@ -611,5 +611,5 @@ File: `tests/match-clock-schedule.test.ts` (`MatchClockFixtureModule`).
 | `tests/client-storage.pbt.test.ts` | PBT | Memory/web/KV queue append/remove round-trip + serial remove |
 | `tests/bench/hot-paths.bench.test.ts` | Hang-only | Dispatch burst, welcome-256, hash nested state |
 
-Curated exports for games: `@pkgs/room/sim` (`bootRoomSim`,
-`registerRoomLibrary`, `roomVirtual`, kit helpers, fixtures). Prefer adding a row above whenever you add coverage.
+Curated exports for games: `@pkgs/room-sim` (`bootRoomSim`,
+`roomSystemCatalog`, `roomVirtual`, kit helpers, fixtures). Prefer adding a row above whenever you add coverage.

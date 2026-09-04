@@ -1,0 +1,37 @@
+{
+  "name": "@pkgs/matchmaking-sim",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": [
+      "./src/*.ts",
+      "./src/*/index.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bunx biome check --error-on-warnings .",
+    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "test": "bun test --parallel=1 --timeout 120000 tests",
+    "test:sim": "bun test --parallel=1 --timeout 120000 tests"
+  },
+  "dependencies": {
+    "@electric-sql/pglite": "catalog:",
+    "@pkgs/assert": "workspace:*",
+    "@pkgs/attribute": "workspace:*",
+    "@pkgs/matchmaking": "workspace:*",
+    "@pkgs/matchmaking-sql": "workspace:*",
+    "@pkgs/sim": "workspace:*",
+    "@pkgs/sql-client": "workspace:*",
+    "@pkgs/sql-client-postgres": "workspace:*",
+    "@pkgs/sql-client-sqlite": "workspace:*",
+    "@pkgs/uuid": "workspace:*",
+    "hono": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:"
+  }
+}

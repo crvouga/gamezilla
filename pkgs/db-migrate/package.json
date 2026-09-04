@@ -11,13 +11,15 @@
     ]
   },
   "scripts": {
+    "lint": "bunx biome check --error-on-warnings .",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test"
   },
   "dependencies": {
     "@pkgs/logger": "workspace:*",
     "@pkgs/sql": "workspace:*",
-    "@pkgs/sql-client": "workspace:*"
+    "@pkgs/sql-client": "workspace:*",
+    "@pkgs/sql-client-postgres": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

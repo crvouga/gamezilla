@@ -2,7 +2,7 @@
   "$schema": "https://v2-10-12.turborepo.dev/schema.json",
   "ui": "stream",
   "concurrency": "100%",
-  "globalDependencies": ["tsconfig.json"],
+  "globalDependencies": ["tsconfig.base.json"],
   "globalPassThroughEnv": [
     "GITHUB_*",
     "POST_DEPLOY_*",
@@ -57,39 +57,171 @@
       "cache": false
     },
     "tc": {
+      "dependsOn": ["^tc"],
       "inputs": [
-        "**/*.ts",
-        "**/*.tsx",
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "src/**/*.d.ts",
         "package.json",
         "tsconfig.json",
         "tsconfig.tc.json",
-        "../../tsconfig.json"
+        "../../tsconfig.base.json"
       ],
       "outputLogs": "new-only",
       "outputs": []
     },
+    "@pkgs/auth#tc": {
+      "dependsOn": [
+        "@pkgs/assert#tc",
+        "@pkgs/clock#tc",
+        "@pkgs/db-migrate#tc",
+        "@pkgs/db-schema#tc",
+        "@pkgs/db-schema-postgres#tc",
+        "@pkgs/db-schema-sqlite#tc",
+        "@pkgs/http-client#tc",
+        "@pkgs/sql#tc",
+        "@pkgs/sql-client#tc",
+        "@pkgs/uuid#tc"
+      ]
+    },
+    "@pkgs/matchmaking#tc": {
+      "dependsOn": [
+        "@pkgs/assert#tc",
+        "@pkgs/attribute#tc",
+        "@pkgs/clock#tc",
+        "@pkgs/http-client#tc",
+        "@pkgs/keyword#tc",
+        "@pkgs/logger#tc"
+      ]
+    },
+    "@pkgs/room#tc": {
+      "dependsOn": [
+        "@pkgs/assert#tc",
+        "@pkgs/attribute#tc",
+        "@pkgs/clock#tc",
+        "@pkgs/keyword#tc",
+        "@pkgs/kv#tc",
+        "@pkgs/message#tc",
+        "@pkgs/uuid#tc"
+      ]
+    },
+    "@pkgs/sql-client-sqlite#tc": {
+      "dependsOn": [
+        "@pkgs/assert#tc",
+        "@pkgs/clock#tc",
+        "@pkgs/logger#tc",
+        "@pkgs/object-store#tc",
+        "@pkgs/sql#tc",
+        "@pkgs/sql-client#tc"
+      ]
+    },
     "test": {
+      "dependsOn": ["tc"],
+      "inputs": ["**/*.ts", "**/*.tsx", "tests/**", "package.json", "*.cjs"],
+      "outputLogs": "new-only",
+      "outputs": []
+    },
+    "test:auth": {
+      "dependsOn": ["tc"],
       "inputs": [
-        "**/*.ts",
-        "**/*.tsx",
-        "tests/**",
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "tests/auth-*.ts",
+        "tests/auth-*.tsx",
         "package.json",
-        "jest.config.*",
-        "*.cjs"
+        "*.cjs",
+        "bun-*.ts"
+      ],
+      "outputLogs": "new-only",
+      "outputs": []
+    },
+    "test:spaces": {
+      "dependsOn": ["tc"],
+      "inputs": [
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "tests/space-*.ts",
+        "tests/space-*.tsx",
+        "package.json",
+        "*.cjs",
+        "bun-*.ts"
+      ],
+      "outputLogs": "new-only",
+      "outputs": []
+    },
+    "test:friends": {
+      "dependsOn": ["tc"],
+      "inputs": [
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "tests/friends-*.ts",
+        "tests/friends-*.tsx",
+        "package.json",
+        "*.cjs",
+        "bun-*.ts"
+      ],
+      "outputLogs": "new-only",
+      "outputs": []
+    },
+    "test:profile": {
+      "dependsOn": ["tc"],
+      "inputs": [
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "tests/profile-*.ts",
+        "tests/profile-*.tsx",
+        "package.json",
+        "*.cjs",
+        "bun-*.ts"
+      ],
+      "outputLogs": "new-only",
+      "outputs": []
+    },
+    "test:chess": {
+      "dependsOn": ["tc"],
+      "inputs": [
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "tests/chess-*.ts",
+        "tests/chess-*.tsx",
+        "package.json",
+        "*.cjs",
+        "bun-*.ts"
+      ],
+      "outputLogs": "new-only",
+      "outputs": []
+    },
+    "test:walk": {
+      "dependsOn": ["tc"],
+      "inputs": [
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "tests/product-walk.test.tsx",
+        "package.json",
+        "*.cjs",
+        "bun-*.ts"
+      ],
+      "outputLogs": "new-only",
+      "outputs": []
+    },
+    "test:topology": {
+      "dependsOn": ["tc"],
+      "inputs": [
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "tests/topology-*.ts",
+        "tests/topology-*.tsx",
+        "package.json",
+        "*.cjs",
+        "bun-*.ts"
       ],
       "outputLogs": "new-only",
       "outputs": []
     },
     "test:max": {
       "cache": false,
-      "inputs": [
-        "**/*.ts",
-        "**/*.tsx",
-        "tests/**",
-        "package.json",
-        "jest.config.*",
-        "*.cjs"
-      ],
+      "dependsOn": ["tc"],
+      "inputs": ["**/*.ts", "**/*.tsx", "tests/**", "package.json", "*.cjs"],
       "outputLogs": "new-only",
       "outputs": []
     },
@@ -125,23 +257,18 @@
         "**/*.ts",
         "**/*.tsx",
         "package.json",
-        "jest.config.*",
         "*.cjs",
         "**/integration/**"
       ],
       "outputLogs": "new-only",
-      "outputs": []
+      "outputs": [],
+      "dependsOn": ["tc"]
     },
     "test:contract": {
-      "inputs": [
-        "**/*.ts",
-        "**/*.tsx",
-        "package.json",
-        "jest.config.*",
-        "*.cjs"
-      ],
+      "inputs": ["**/*.ts", "**/*.tsx", "package.json", "*.cjs"],
       "outputLogs": "new-only",
-      "outputs": []
+      "outputs": [],
+      "dependsOn": ["tc"]
     },
     "test:e2e": {
       "inputs": [
@@ -150,32 +277,43 @@
         "**/*.mjs",
         "package.json",
         "e2e/**",
-        "jest.config.*",
         "*.cjs"
       ],
       "outputLogs": "new-only",
-      "outputs": []
+      "outputs": [],
+      "dependsOn": ["tc"]
     },
     "billing:check": {
       "inputs": ["**/*.ts", "**/*.tsx", "package.json", "scripts/**"],
       "outputLogs": "new-only",
-      "outputs": []
+      "outputs": [],
+      "dependsOn": ["tc"]
     },
     "lint": {
       "inputs": [
-        "apps/**/*.{ts,tsx,js,jsx}",
-        "libs/**/*.{ts,tsx,js,jsx}",
-        "pkgs/**/*.{ts,tsx,js,jsx}",
-        "product/**/*.{ts,tsx,js,jsx,cjs}",
-        "tools/**/*.{ts,tsx,js,cjs}",
+        "src/**/*.{ts,tsx,js,jsx,cjs}",
+        "tests/**/*.{ts,tsx,js,jsx,cjs}",
+        "scripts/**/*.{ts,tsx,js,cjs}",
+        "package.json",
         "biome.json",
+        "../../biome.json",
+        "../../tools/biome-plugins/**",
         "tools/biome-plugins/**"
       ],
       "outputs": [],
       "outputLogs": "new-only"
     },
+    "//#lint:vocab": {
+      "inputs": [
+        "tools/scripts/check-no-removed-auth-vocab.ts",
+        "libs/auth/**/*.{ts,tsx}",
+        "pkgs/auth/**/*.{ts,tsx}"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
     "//#check": {
-      "dependsOn": ["lint", "tc", "test"],
+      "dependsOn": ["lint", "//#lint:vocab", "tc", "test"],
       "outputs": [],
       "outputLogs": "new-only"
     },
@@ -279,6 +417,7 @@
       "cache": false,
       "dependsOn": [
         "lint",
+        "//#lint:vocab",
         "tc",
         "test",
         "@apps/server#build",
@@ -345,7 +484,7 @@
         "apps/client/src/i18n/locales/**",
         "apps/client/babel.config.js",
         "product/console/babel.config.js",
-        "product/test/babel.jest.config.js",
+        "product/test/babel.test.config.cjs",
         "tools/scripts/ci-i18n.ts"
       ],
       "outputs": [],

@@ -6,13 +6,13 @@ import {
   EnsurePostgresSchemaMigration,
   PostgresAdvisoryLockedTransactionMigration,
 } from '@pkgs/db-migrate';
-import { PostgresSchemaDatabaseMigration } from '@pkgs/db-schema/postgres';
+import { PostgresSchemaDatabaseMigration } from '@pkgs/db-schema-postgres';
 import { EntityStorePostgresDatabaseMigration } from '@pkgs/entity-store/postgres-database-migration';
-import { KvPostgresDatabaseMigration } from '@pkgs/kv/postgres-database-migration';
+import { KvPostgresDatabaseMigration } from '@pkgs/kv-postgres/postgres-database-migration';
 import type { Logger } from '@pkgs/logger';
 import { OutboxDatabaseMigration } from '@pkgs/outbox';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import type { PostgresDbScope } from '@pkgs/sql-client/postgres/schema';
+import type { PostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
 import { SyncEngineDatabaseMigration } from '@pkgs/sync-engine/shared';
 import { CutoverLegacyAuthToIdpMigration } from './cutover-legacy-auth-to-idp-migration';
 import { DomainSchemaNullabilityMigration } from './domain-schema-nullability-migration';

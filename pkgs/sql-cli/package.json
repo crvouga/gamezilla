@@ -10,13 +10,16 @@
     ]
   },
   "scripts": {
+    "lint": "bunx biome check --error-on-warnings .",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
     "@pkgs/assert": "workspace:*",
+    "@pkgs/db-schema-sqlite": "workspace:*",
     "@pkgs/sql": "workspace:*",
-    "@pkgs/sql-client": "workspace:*"
+    "@pkgs/sql-client": "workspace:*",
+    "@pkgs/sql-client-sqlite": "workspace:*"
   },
   "devDependencies": {
     "@pkgs/db-schema": "workspace:*",

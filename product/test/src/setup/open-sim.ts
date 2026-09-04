@@ -1,13 +1,12 @@
 /**
  * Open a product UI simulation: `product.run` on a registered host
- * (`in-process` / `bun-webview` / `playwright`).
+ * (`in-process` / `bun-webview`).
  */
 
 import { wallClock } from '@pkgs/clock';
 import type { Run } from '@pkgs/sim';
 import { defineAction } from '@pkgs/sim';
 import type { SimSystemSnapshot } from '@pkgs/sim-console/shared/sim-system-snapshot';
-import type { UiTestCtx } from '@pkgs/ui-testing';
 import type {
   ProductExtra,
   ProductHostName,
@@ -47,32 +46,8 @@ import { readSimSystemSnapshot } from './sim-snapshot-fixture';
 export type { SimActor };
 export type OpenSim = Run<ProductSim>;
 
-function isUiTestCtx(value: unknown): value is UiTestCtx {
-  if (typeof value !== 'object' || value === null) return false;
-  const record = value as Record<string, unknown>;
-  return (
-    typeof record['fidelity'] === 'string' &&
-    typeof record['driverKind'] === 'string' &&
-    typeof record['test'] === 'function'
-  );
-}
-
-/** Map ui-testing driver / fidelity onto a registered product host name. */
-function resolveHostName(
-  ctx: UiTestCtx | undefined,
-  options: OpenSimOptions | undefined
-): ProductHostName {
-  const mode =
-    ctx?.fidelity === 'max'
-      ? 'real'
-      : ctx?.fidelity === 'sim'
-        ? 'fast'
-        : resolveSimMode(options);
-  const driverKind =
-    ctx?.driverKind ?? (mode === 'real' ? 'playwright' : 'rntl');
-  if (driverKind === 'playwright') return 'playwright';
-  if (driverKind === 'bun-webview') return 'bun-webview';
-  return 'in-process';
+function resolveHostName(options: OpenSimOptions | undefined): ProductHostName {
+  return resolveSimMode(options) === 'real' ? 'bun-webview' : 'in-process';
 }
 
 type WiredRuntime = {
@@ -205,37 +180,21 @@ async function pinSim(s: Run<ProductSim>): Promise<ProductSim> {
   return pinned;
 }
 
-function resolveArgs(
-  ctxOrOptions?: UiTestCtx | OpenSimOptions,
-  maybeOptions?: OpenSimOptions
-): {
-  readonly ctx: UiTestCtx | undefined;
-  readonly options: OpenSimOptions | undefined;
-} {
-  const ctx =
-    ctxOrOptions !== undefined && isUiTestCtx(ctxOrOptions)
-      ? ctxOrOptions
-      : undefined;
-  const options =
-    ctx !== undefined
-      ? maybeOptions
-      : (ctxOrOptions as OpenSimOptions | undefined);
-  return { ctx, options };
-}
-
 export async function openSim(
   testId: string,
-  ctxOrOptions?: UiTestCtx | OpenSimOptions,
-  maybeOptions?: OpenSimOptions
+  options?: OpenSimOptions
 ): Promise<OpenSim> {
-  const { ctx, options } = resolveArgs(ctxOrOptions, maybeOptions);
   ensureNodeLocalStoragePolyfill();
+  const mode = resolveSimMode(options);
+  if (mode === 'real') {
+    process.env['SIM_MODE'] = 'real';
+  }
   if (simReportEnabled()) {
     await prepareReportStore();
   }
   const s = await product.run({
     seed: 1,
-    runtime: resolveHostName(ctx, options),
+    runtime: resolveHostName(options),
     ...(simReportEnabled()
       ? {
           report: {

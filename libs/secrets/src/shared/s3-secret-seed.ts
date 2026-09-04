@@ -16,7 +16,7 @@ import {
   clearB2AuthCache,
   ensureB2Bucket,
   mintB2S3Credentials,
-} from '@pkgs/object-store/b2-api';
+} from '@pkgs/object-store-s3/b2-api';
 import type { SecretsEnv } from './secrets/secret';
 import { setSecretIn } from './secrets/secrets-io';
 

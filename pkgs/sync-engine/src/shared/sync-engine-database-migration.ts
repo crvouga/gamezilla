@@ -2,11 +2,11 @@ import type {
   DatabaseMigration,
   DatabaseMigrationContext,
 } from '@pkgs/db-migrate';
-import { PostgresSchemaDatabaseMigration } from '@pkgs/db-schema/postgres';
+import { PostgresSchemaDatabaseMigration } from '@pkgs/db-schema-postgres';
 import {
   createPostgresDbScope,
   type PostgresDbScope,
-} from '@pkgs/sql-client/postgres/schema';
+} from '@pkgs/sql-client/postgres-db-scope';
 
 import { SyncEngineCutoverMigration } from '../cutover-migration';
 import { syncEngineServerSchema } from './schema/tables';

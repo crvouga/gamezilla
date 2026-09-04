@@ -15,14 +15,13 @@ import {
   type RoomModule,
   type RoomState,
 } from '@pkgs/room';
-import { LoopbackRoomTransport } from '@pkgs/room/client/adapters/transport/loopback';
 import { RoomServer } from '@pkgs/room/server';
 import {
   InMemoryRoomStorage,
+  LoopbackRoomTransport,
   type RoomStorageTopicReplace,
   type RoomStorageTopicSnapshot,
-} from '@pkgs/room/server/adapters/memory';
-
+} from '@pkgs/room-adapter-memory';
 import type { RoomServerEnv } from './room-server-env';
 
 type SpaceModule = RoomModule<RoomState, Message, Message, string>;

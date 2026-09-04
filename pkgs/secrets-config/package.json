@@ -10,6 +10,7 @@
     ]
   },
   "scripts": {
+    "lint": "bunx biome check --error-on-warnings .",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test --pass-with-no-tests"
   },
@@ -17,6 +18,7 @@
     "@pkgs/object-store": "workspace:*"
   },
   "devDependencies": {
+    "@pkgs/object-store-node-fs": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"

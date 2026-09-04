@@ -1,6 +1,6 @@
 /**
- * Node (Jest / Playwright / bun) real fabric entry.
- * Imports `.impl` directly so jest-expo never re-resolves through `.native.ts`.
+ * Node / bun real fabric entry.
+ * Imports `.impl` directly so Expo never re-resolves through `.native.ts`.
  */
 export {
   openRealClientSql,

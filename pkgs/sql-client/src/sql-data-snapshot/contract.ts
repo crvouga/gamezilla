@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test } from 'bun:test';
 import { defineTable, registerTables, type TableDef } from '@pkgs/db-schema';
-import { applyPostgresSchema } from '@pkgs/db-schema/postgres';
-import { applySqliteSchema } from '@pkgs/db-schema/sqlite';
+import { applyPostgresSchema } from '@pkgs/db-schema-postgres';
+import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
 import { raw, sql } from '@pkgs/sql';
 import type { PostgresSqlClient, SqlClient } from '../interface';
 import { dumpData, loadData } from './port';

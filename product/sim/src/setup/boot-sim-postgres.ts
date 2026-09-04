@@ -4,7 +4,7 @@
 import { appPostgresDbScope } from '@libs/db/public/scope';
 import { LOCAL_DATABASE_URL } from '@pkgs/postgres-embedded/ports';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { createPgPool } from '@pkgs/sql-client/postgres/connect';
+import { createPgPool } from '@pkgs/sql-client-postgres/connect';
 
 export type SimPostgresHandle = {
   readonly sqlClient: SqlClient;

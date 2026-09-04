@@ -5,9 +5,9 @@
 
 import { join } from 'node:path';
 import { readUtf8 } from '@pkgs/object-store/helpers';
-import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
 import type { ObjectStore } from '@pkgs/object-store/interface';
-import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';
+import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs/impl-node-fs';
+import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
   type SimSqliteHandle as AgnosticSimSqliteHandle,
@@ -15,7 +15,7 @@ import {
   computeSimSqliteSeedFingerprint,
   ensureSimSqliteSeedBuffer as ensureAgnostic,
   type SimSqliteMigrateHandle,
-} from '@pkgs/sql-client/sqlite/boot-sim-sqlite';
+} from '@pkgs/sql-client-sim/boot-sim-sqlite';
 import type { Database as BetterSqliteDatabase } from 'better-sqlite3';
 
 /** Placeholder URL for secret-store / config (SQLite has no TCP listener). */

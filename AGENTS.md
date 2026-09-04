@@ -37,7 +37,7 @@
 
 - **Three-layer DI (primitives / use cases / transaction-scoped).** Only `SqlClient` + `Io` are long-lived. Use-case classes take `(db, io)` and open transactions for writes (reads pass `db` as `SqlTx` without a write tx). Repositories/services/publishers/handlers take `SqlTx` (`Pick` of `query`/`run` from `SqlClient`) + `Io`, constructed on demand inside the use case — never eagerly on a container. Factory **functions** `(tx, io) => …` are the wiring escape hatch; no `*Container` / registry classes. Do not convert `defineMutation` / `defineQuery` `run` handlers or React hooks. Details: [`docs/dependency-injection.md`](docs/dependency-injection.md). CI: Biome plugin `no-di-container.grit` (via `bun run lint`).
 
-- **Test layout.** Package-level tests live in `tests/` (sibling of `src/`). Colocate `module.test.ts` only next to public entrypoint modules. All tests are black-box against the package `exports` (no exceptions — no deep `src/` imports from tests). Sim harness code lives in `src/sim/` and is exported as `./sim` (e.g. `@pkgs/sync-engine/sim`, `@pkgs/room/sim`).
+- **Test layout.** Package-level tests live in `tests/` (sibling of `src/`). Colocate `module.test.ts` only next to public entrypoint modules. All tests are black-box against the package `exports` (no exceptions — no deep `src/` imports from tests). Sim harness code either lives in `src/sim/` and is exported as `./sim` (e.g. `@pkgs/sync-engine/sim`), or is peeled into a sibling `-sim` package (e.g. `@pkgs/room-sim`, `@pkgs/matchmaking-sim`, `@pkgs/auth-sim`).
 
 ## `@pkgs/ui` design system
 
@@ -85,7 +85,7 @@ GitHub Actions runs checks with `SECRETS_ENV=dev`. Turbo caching is **local + re
 
 **Local → CI reuse:** run `bun check` / `bun check:full` (or `deploy:dev`) with Infisical so the same Vercel team cache is warmed; push the same tree and the deployment pipeline reuses those remote artifacts for cacheable tasks. Match `SECRETS_ENV=dev` for PR CI; `prd` `build` hashes separately when `EXPO_PUBLIC_*` differ. Uncacheable deploy steps (`cache: false`: static, check:api, provision, migrate, deploy, smoke, OTA) always re-run.
 
-Object storage (TTS audio cache, etc.) uses **S3-compatible** storage via `@pkgs/object-store/impl-s3`. The API Worker reads `B2_APP_KEY_ID` / `B2_APP_KEY` plus `S3_BUCKET` / `S3_ENDPOINT` / `S3_REGION` at boot and injects a namespaced store through `createS3ObjectStore`, which always applies the injected root prefix (from `PRODUCT_CONFIG.objectStore.namespace`, e.g. `gamezilla/`) before feature-level prefixes (e.g. `tts-audio/`). The S3 transport layer rejects any wire key that does not start with that root prefix. **CI / fidelity-max** may boot **`@pkgs/minio-server`** (`http://127.0.0.1:9000`). Missing S3 secrets still fall back to an in-memory store so the Worker can boot. **Production** uses Infisical → Backblaze B2 (`gamezilla-production`). Operator-supplied `B2_MASTER_KEY_ID` / `B2_MASTER_KEY` authorize provision only. Every secret the app needs is defined in `libs/secrets/src/shared/secrets/registry.ts`; `bun check:full` / `bun run deploy` run `@libs/secrets#check` (validates both `dev` and `prd`).
+Object storage (TTS audio cache, etc.) uses **S3-compatible** storage via `@pkgs/object-store-s3/impl-s3`. The API Worker reads `B2_APP_KEY_ID` / `B2_APP_KEY` plus `S3_BUCKET` / `S3_ENDPOINT` / `S3_REGION` at boot and injects a namespaced store through `createS3ObjectStore`, which always applies the injected root prefix (from `PRODUCT_CONFIG.objectStore.namespace`, e.g. `gamezilla/`) before feature-level prefixes (e.g. `tts-audio/`). The S3 transport layer rejects any wire key that does not start with that root prefix. **CI / fidelity-max** may boot **`@pkgs/minio-server`** (`http://127.0.0.1:9000`). Missing S3 secrets still fall back to an in-memory store so the Worker can boot. **Production** uses Infisical → Backblaze B2 (`gamezilla-production`). Operator-supplied `B2_MASTER_KEY_ID` / `B2_MASTER_KEY` authorize provision only. Every secret the app needs is defined in `libs/secrets/src/shared/secrets/registry.ts`; `bun check:full` / `bun run deploy` run `@libs/secrets#check` (validates both `dev` and `prd`).
 
 ## CI/CD job layout
 
@@ -103,7 +103,7 @@ When adding a new check, assign it to `//#check` (fast) or `//#check:full` (slow
 
 Representativeness of production is **port contract matrices** (PGlite / real SQLite vs mem engines, Kv, ObjectStore, PubSub, billing/TTS/LLM stubs) plus default sim server dialect via **PGlite** (`SIM_SQL_BACKEND=real`), with `@product/test` `openSim({ fidelity: 'max' })` / `SIM_FIDELITY=max` for embedded real Postgres (+ MinIO/EMQX). Sidecar processes live in `@pkgs/postgres-embedded`, `@pkgs/minio-server`, `@pkgs/emqx-server` and are booted from tests/CI (`tools/scripts/boot-local-stack.ts`, `tools/scripts/boot-embedded-postgres.ts`).
 
-`@product/test` migrates the active fabric **once** (Jest `globalSetup` → `product/test/.cache/sim-backend-seed.pglite.bin` for `real`, or `.pgmm.json` for `mem`) and clones per `openSim`. Mem-engine wishlist: [`docs/sim-mem-engine-wishlist.md`](docs/sim-mem-engine-wishlist.md). Suite notes: [`product/test/src/setup/TESTING.md`](product/test/src/setup/TESTING.md).
+`@product/test` migrates the active fabric **once** (`ensureSimPgliteSeed` / `seed:sim-db` → `product/test/.cache/sim-backend-seed.pglite.bin` for `real`, or `.pgmm.json` for `mem`) and clones per `openSim`. Mem-engine wishlist: [`docs/sim-mem-engine-wishlist.md`](docs/sim-mem-engine-wishlist.md). Suite notes: [`product/test/src/setup/TESTING.md`](product/test/src/setup/TESTING.md).
 
 Production (`SECRETS_ENV=prd`) uses Infisical Neon + B2 (+ Railway EMQX) only.
 
@@ -121,11 +121,11 @@ Production (`SECRETS_ENV=prd`) uses Infisical Neon + B2 (+ Railway EMQX) only.
 
 Server SQL migrations are expressed only as `DatabaseMigration` classes (interface + `ComposedDatabaseMigration.register` from `@pkgs/db-migrate`). Each package owns its unit (`SyncEngineDatabaseMigration`, `KvPostgresDatabaseMigration`, `PostgresSchemaDatabaseMigration`, …); `@libs/runtime/server/run-postgres-migrations` (`PostgresMigrationRunner`) composes them (including `PostgresAdvisoryLockedTransactionMigration` for the migrate mutex).
 
-**Domain tables** are declared with `defineTable` in each feature lib’s `shared/schema/` (exported via `public/schema.ts`), composed by `registerTables` in `@libs/runtime/root/app-schema`, and applied only through `@pkgs/db-schema/postgres` / `@pkgs/db-schema/sqlite` migration classes (no public `reconcile` API). **Do not add raw `.sql` schema files** under `libs/` / `pkgs/` / `apps/`.
+**Domain tables** are declared with `defineTable` in each feature lib’s `shared/schema/` (exported via `public/schema.ts`), composed by `registerTables` in `@libs/runtime/root/app-schema`, and applied only through `@pkgs/db-schema-postgres` / `@pkgs/db-schema-sqlite` migration classes (no public `reconcile` API). **Do not add raw `.sql` schema files** under `libs/` / `pkgs/` / `apps/`.
 
 **Framework / infra tables** (sync-engine, outbox, kv, entity-store, matchmaking) are also declared with `defineTable` + package-local `registerTables`, then applied via package `*DatabaseMigration` wrappers (`PostgresSchemaDatabaseMigration` / `SqliteSchemaDatabaseMigration` / `applySqliteSchema`). They are **not** registered in product `appSchema` (not synced). Soft-delete + managed `id` / timestamps apply; former custom PKs become `uniqueIndexes`. One-shot cutover migrations may rebuild legacy shapes before reconcile. **IdP tables** (`idp_*` in `@pkgs/auth`) use the same `defineTable` pattern and are also **not** in `appSchema`.
 
-**Never author `CREATE TABLE` strings** in product or test code — use `defineTable` + `applySqliteSchema` / `applyPostgresSchema` / `*SchemaDatabaseMigration`. The only DDL emitters are `@pkgs/db-schema` `emit.ts`. Biome grit `no-raw-create-table` enforces this.
+**Never author `CREATE TABLE` strings** in product or test code — use `defineTable` + `applySqliteSchema` / `applyPostgresSchema` / `*SchemaDatabaseMigration`. The only DDL emitters are `@pkgs/db-schema-postgres` / `@pkgs/db-schema-sqlite` `emit.ts`. Biome grit `no-raw-create-table` enforces this.
 
 Do not add ad-hoc `migrateUp` / free-function DDL entrypoints for new schema — implement `defineTable` + register (app-schema for synced domain; package-local schema for infra). `@apps/server` owns URL/policy/retry orchestration (`migratePostgresApp` / `migrate-cli.ts`); tests/CI boot `@pkgs/postgres-embedded` then call api migrate/seed scripts. Root `db:migrate` / infra shell out to `apps/server/src/db/migrate-cli.ts` (apps must not import other `@apps/*` packages).
 
@@ -145,7 +145,7 @@ Workspace packages live under four top-level tier directories with matching npm 
 
 | Tier | Path    | Scope    | Contains                                                           |
 | ---- | ------- | -------- | ------------------------------------------------------------------ |
-| Product | `product/` | `@product/` | Composition hub: `@product/console` (`bun dev` Reports + Playground) and `@product/test` (system worlds / `openSim`). |
+| Product | `product/` | `@product/` | Composition hub: `@product/sim` (shared System + hosts), `@product/console` (`bun dev` Reports + Playground), `@product/test` (`openSim` / scenarios). |
 | Apps | `apps/` | `@apps/` | Deployed product surfaces (`client`, `server`, `room-server`).     |
 | Libs | `libs/` | `@libs/` | Product-flavored reusable code (`chess`, `auth`, `spaces`, …).     |
 | Pkgs | `pkgs/` | `@pkgs/` | Agnostic utilities, framework, CLIs, dev infra, runnable examples. |
@@ -194,6 +194,8 @@ Feature-specific scripts (seeders, dev refreshers, migration runners) live in `<
 
 ### Current feature packages
 
+- `@product/sim` — shared product System + fabric (`createSim`, SQL engines, net/fetch, snapshots) and registered hosts (`in-process`, `bun-webview`). Both `@product/test` and `@product/console` call `product.run({ runtime })` only; neither owns a parallel boot.
+
 - `@libs/runtime` — product composition hub: `defineTable` tables from feature libs composed via `registerTables` in `root/app-schema.ts`; sync topic map in `root/app-topic-map.ts`; Postgres migrate runner in `server/run-postgres-migrations.ts`. **`@libs/runtime` is the sole lib allowed to import other `@libs/*`.** Framework tables (`sync_engine_*`, outbox, kv, …) are owned by their packages via package-local `defineTable` schemas + `*DatabaseMigration` (not in `appSchema`). Domain mutations validate and apply their own authorized SQL against declared table names.
 
 - `@libs/auth` — sign-in flows, sessions, devices, account-scoped local SQLite, auth port/adapters + Postgres migrations runner.
@@ -240,7 +242,7 @@ pkgs    →  pkgs only (leaf tier: reusable, app-agnostic)
 
 **Other layering rules:**
 
-- `@product/*` composes product apps (`createSim`, playground, system worlds). Apps/libs/pkgs must not import `@product/*`.
+- `@product/*` composes product apps (`@product/sim` fabric / hosts, playground, system worlds). Apps/libs/pkgs must not import `@product/*`.
 - `@apps/<name>` may import other `@apps/<other>` (e.g. client composing the in-process sim Hono factory). Same-package deep imports and type-only `import type` are fine.
 - **`@apps/server` Hono/runtime source is isomorphic.** Platform engines (`pg`, `node:*`, …) live only behind injected ports (e.g. `OpenSqlClient`) and `@api-wall-ok` adapter/entry modules. Isomorphic files must not import wall modules.
 - `shared/` cannot import from `client/` or `server/` anywhere in the repo (`shared-pure`). Product-lib `shared/` also must not import `use-cases/`, `root/`, or `public/`.

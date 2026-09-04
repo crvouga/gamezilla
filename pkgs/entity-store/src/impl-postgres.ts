@@ -6,7 +6,7 @@
 import type { Logger } from '@pkgs/logger';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { createPostgresDbScope } from '@pkgs/sql-client/postgres/schema';
+import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
 
 import { entityStoreId } from './entity-id';
 import type {

@@ -1,0 +1,38 @@
+import { assert, hotAssert } from '@pkgs/assert';
+import type { Keyword } from '@pkgs/keyword/keyword';
+import { assertNamespacedKeyword } from '@pkgs/keyword/keyword';
+import {
+  assertKvRecord,
+  parseKvRecordFromUnknown,
+} from '@pkgs/kv/assert-kv-record';
+import type { Kv, KvRecord } from '@pkgs/kv/interface';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+function assertKvKey(key: string): asserts key is Keyword {
+  assertNamespacedKeyword(hotAssert(), key);
+}
+
+/** Transaction view: same AsyncStorage; nested {@link Kv.tx} is rejected. */
+export class KvImplExpoTx implements Kv {
+  async get(key: Keyword): Promise<KvRecord | null> {
+    assertKvKey(key);
+    const raw = await AsyncStorage.getItem(key);
+    if (raw === null || raw.length === 0) return null;
+    return parseKvRecordFromUnknown(hotAssert(), raw, 'kv expo tx get');
+  }
+
+  async put(key: Keyword, value: KvRecord): Promise<void> {
+    assertKvKey(key);
+    assertKvRecord(hotAssert(), value, 'kv expo tx put');
+    await AsyncStorage.setItem(key, JSON.stringify(value));
+  }
+
+  async zap(key: Keyword): Promise<void> {
+    assertKvKey(key);
+    await AsyncStorage.removeItem(key);
+  }
+
+  async tx<T>(_fn: (tx: Kv) => Promise<T>): Promise<T> {
+    assert.fail('KvImplExpo: nested transaction');
+  }
+}

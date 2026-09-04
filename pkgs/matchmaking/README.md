@@ -1,7 +1,7 @@
 # @pkgs/matchmaking
 
 Storage-agnostic matchmaking queue. One port (`Matchmaking`), one SQL
-adapter (`impl-sql`) that runs the same portable SQL on SQLite and
+adapter (`@pkgs/matchmaking-sql`) that runs the same portable SQL on SQLite and
 Postgres. Matching runs in the app layer inside DB transactions with
 row claims so workers stay horizontally scalable and nearly stateless.
 
@@ -14,8 +14,8 @@ JSON helpers (`json_extract`, `json_each`, …) are available.
 
 ```ts
 import { createAttrNamespace } from '@pkgs/matchmaking/interface';
-import { MatchmakingImplSql } from '@pkgs/matchmaking/impl-sql';
-import { createPgPool } from '@pkgs/sql-client/postgres/connect';
+import { MatchmakingImplSql } from '@pkgs/matchmaking-sql';
+import { createPgPool } from '@pkgs/sql-client-postgres/connect';
 
 const { sqlClient } = createPgPool({
   connectionString: process.env.DATABASE_URL,
@@ -47,15 +47,15 @@ const { participantId } = await mm.join({
 
 ## Public surface
 
-| Subpath | Contents |
-|---------|----------|
+| Package / subpath | Contents |
+|-------------------|----------|
 | `@pkgs/matchmaking/interface` | `Matchmaking` port, domain types, `createMatchmakingApp`, limits |
-| `@pkgs/matchmaking/impl-sql` | `MatchmakingImplSql`, `MatchmakingDatabaseMigration` |
+| `@pkgs/matchmaking-sql` | `MatchmakingImplSql`, `MatchmakingDatabaseMigration` |
 | `@pkgs/matchmaking/wire` | `FormulaWire` types for HTTP / RPC |
 | `@pkgs/matchmaking/client` | `MatchmakingClient` |
-| `@pkgs/matchmaking/sim` | Framework sim (`matchmaking` system + actions / reads, fixtures) |
+| `@pkgs/matchmaking-sim` | Framework sim (`matchmaking` system + actions / reads, fixtures) |
 
-Anything outside these subpaths is internal.
+Anything outside these entrypoints is internal.
 
 ## Testing
 
@@ -65,9 +65,10 @@ the horizontal-scale composition root. Tests only ever `run` a system and
 drive it with `apply` / `read`; there is no direct access to `S` internals.
 
 ```text
-pkgs/matchmaking/
-  src/sim/                        # exported as `@pkgs/matchmaking/sim`
+pkgs/matchmaking-sim/
+  src/                            # exported as `@pkgs/matchmaking-sim`
     scenario/                     # matchmaking system + node kinds
+pkgs/matchmaking/
   tests/                          # black-box against package exports
 ```
 
@@ -78,7 +79,7 @@ import {
   RatingAttr,
   statusOf,
   tickAllWith,
-} from '@pkgs/matchmaking/sim';
+} from '@pkgs/matchmaking-sim';
 
 await using s = await matchmaking.run({
   seed: 3,

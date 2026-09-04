@@ -18,7 +18,6 @@ import {
   captureCheckpoint,
   restoreCheckpoint,
 } from '@product/console/playground/playground-checkpoint';
-import { clearPlaygroundClientDurable } from '@product/sim/fabric/client-durable';
 import { createPlaygroundChessCommands } from '@product/console/playground/playground-chess-seed';
 import { buildSnapshotLoadCommands } from '@product/console/playground/playground-fault-commands';
 import { loggingFetch } from '@product/console/playground/playground-logging-fetch';
@@ -43,6 +42,7 @@ import {
   type SnapshotSessionCtx,
 } from '@product/console/playground/playground-snapshots';
 import { installPlaygroundStickyAutosave } from '@product/console/playground/playground-sticky-autosave';
+import { clearPlaygroundClientDurable } from '@product/sim/fabric/client-durable';
 import { type Sim, simClientNamespace } from '@product/sim/fabric/create-sim';
 
 const DEFAULT_CLIENT_IDS = ['alice', 'bob'] as const;
@@ -63,6 +63,11 @@ function playgroundClock(sim: Sim): PlaygroundSession['clock'] {
 
 export type BootPlaygroundOptions = {
   readonly skipSnapshotLoad?: boolean;
+  /**
+   * Product host. Default `in-process` (Expo / WASM SQL).
+   * `bun-webview` embeds actor URLs (iframe) against a localhost sidecar.
+   */
+  readonly runtime?: 'in-process' | 'bun-webview';
 };
 
 export type PlaygroundSessionBuildArgs = {
@@ -76,20 +81,26 @@ export type PlaygroundSessionBuildArgs = {
   readonly setClockPaused: (paused: boolean) => void;
   readonly skipSnapshotLoad?: boolean;
   readonly bindDomainWake?: (fire: (label: string) => void) => void;
+  /** When set, actor panels embed this origin as a URL view (not React App). */
+  readonly actorWebOrigin?: string;
 };
 
-function liveToActor(
-  id: string,
-  live: Client,
-  logs: ReturnType<typeof createPlaygroundLogBuffer>,
-  sqlClient: PlaygroundActor['sqlClient']
-): PlaygroundActor {
+function liveToActor(args: {
+  id: string;
+  live: Client;
+  logs: ReturnType<typeof createPlaygroundLogBuffer>;
+  sqlClient: PlaygroundActor['sqlClient'];
+  actorWebOrigin?: string;
+}): PlaygroundActor {
   return {
-    id,
-    address: id,
-    sqlClient,
-    logs,
-    view: { kind: 'react', App: live.App },
+    id: args.id,
+    address: args.id,
+    sqlClient: args.sqlClient,
+    logs: args.logs,
+    view:
+      args.actorWebOrigin !== undefined
+        ? { kind: 'url', url: args.actorWebOrigin }
+        : { kind: 'react', App: args.live.App },
   };
 }
 
@@ -178,7 +189,15 @@ async function spawnClient(
     throw new Error(`playground client '${instanceId}' SQL missing`);
   }
   maps.lives.set(instanceId, live);
-  const actor = liveToActor(instanceId, live, actorLogs, handle.sqlClient);
+  const actor = liveToActor({
+    id: instanceId,
+    live,
+    logs: actorLogs,
+    sqlClient: handle.sqlClient,
+    ...(args.actorWebOrigin !== undefined
+      ? { actorWebOrigin: args.actorWebOrigin }
+      : {}),
+  });
   maps.clients.set(instanceId, actor);
   notify(maps);
   fireDomainWake(maps, 'spawn');

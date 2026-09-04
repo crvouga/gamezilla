@@ -8,7 +8,7 @@ import {
   LOCAL_DOMAIN_TABLE_NAMES,
 } from '@libs/runtime/root/app-schema';
 import { AuthSqliteDatabaseMigration } from '@pkgs/auth/server';
-import { SqliteSchemaDatabaseMigration } from '@pkgs/db-schema/sqlite';
+import { SqliteSchemaDatabaseMigration } from '@pkgs/db-schema-sqlite';
 import { EntityStoreSqliteDatabaseMigration } from '@pkgs/entity-store/sqlite-database-migration';
 import { KvSqliteDatabaseMigration } from '@pkgs/kv/sqlite-database-migration';
 import { createLogger } from '@pkgs/logger';

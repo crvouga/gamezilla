@@ -8,7 +8,7 @@ import { appPostgresDbScope } from '@libs/db/public/scope';
 import { PostgresMigrationRunner } from '@libs/runtime/server/run-postgres-migrations';
 import { createLogger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import type { Pool } from '@pkgs/sql-client/postgres/pg-types';
+import type { Pool } from '@pkgs/sql-client-postgres/pg-types';
 
 /** Placeholder DATABASE_URL for secret-store / config (no TCP listener). */
 export const SIM_POSTGRES_MEM_DATABASE_URL = 'postgresql://postgres-mem/sim';

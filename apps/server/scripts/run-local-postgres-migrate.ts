@@ -9,7 +9,7 @@ import { PostgresMigrationRunner } from '@libs/runtime/server/run-postgres-migra
 import { wallClock } from '@pkgs/clock';
 import { createLogger } from '@pkgs/logger';
 import { LOCAL_DATABASE_URL } from '@pkgs/postgres-embedded';
-import { createPgPool } from '@pkgs/sql-client/postgres/connect';
+import { createPgPool } from '@pkgs/sql-client-postgres/connect';
 
 export async function runLocalMigrate(): Promise<void> {
   process.stdout.write('[postgres] migrating…\n');

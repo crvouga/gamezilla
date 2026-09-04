@@ -10,8 +10,9 @@
     ]
   },
   "scripts": {
+    "lint": "bunx biome check --error-on-warnings .",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bunx jest --config ./jest.config.cjs --runInBand"
+    "test": "bun test --preload ./bun-babel-plugin.ts --preload ./bun-preload.ts --timeout 30000 tests"
   },
   "dependencies": {
     "@lingui/core": "catalog:",
@@ -33,19 +34,16 @@
     "react-native-svg": "catalog:"
   },
   "devDependencies": {
+    "@babel/core": "catalog:",
     "@babel/runtime": "catalog:",
-    "@jest/globals": "catalog:",
     "@lingui/babel-plugin-lingui-macro": "catalog:",
+    "@pkgs/ui-testing-rntl": "workspace:*",
     "@testing-library/react-native": "catalog:",
     "@types/bun": "catalog:",
-    "@types/jest": "catalog:",
     "@types/react": "catalog:",
     "@types/react-test-renderer": "catalog:",
     "@typescript/native": "catalog:",
-    "babel-jest": "catalog:",
     "expo": "catalog:",
-    "jest": "catalog:",
-    "jest-expo": "catalog:",
     "react-native-worklets": "catalog:",
     "react-test-renderer": "catalog:",
     "typescript": "catalog:"

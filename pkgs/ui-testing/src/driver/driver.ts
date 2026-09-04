@@ -48,14 +48,14 @@ export function isWaitTextCondition(
 }
 
 /**
- * User-intent driver. Models what a person does with an app, not Playwright /
+ * User-intent driver. Models what a person does with an app, not host /
  * Detox / DOM primitives. Every concrete driver must satisfy this interface.
  *
  * Targets are resolved via {@link Driver.get} → {@link DriverNode}.
  * `tap` / `input` on a node auto-wait until visible before acting.
  *
  * {@link DriverNode.wait} is the sole waiting API — each implementation uses
- * the host framework's fastest mechanism (Playwright auto-wait, rntl virtual
+ * the host framework's fastest mechanism (Bun.WebView evaluate, rntl virtual
  * pump, Detox `waitFor`, …). Do not reintroduce shared poll intervals here.
  */
 export interface Driver {

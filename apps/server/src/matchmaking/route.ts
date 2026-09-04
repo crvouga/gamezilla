@@ -22,8 +22,8 @@
 import { appAuth } from '@libs/auth/public/auth-context';
 import { UnauthorizedError } from '@libs/auth/public/unauthorized-error';
 import { assert } from '@pkgs/assert';
-import { MatchmakingImplSql } from '@pkgs/matchmaking/impl-sql';
 import type { Matchmaking } from '@pkgs/matchmaking/interface';
+import { MatchmakingImplSql } from '@pkgs/matchmaking-sql';
 import type { Sql } from '@pkgs/sql';
 import type {
   PreparedStatement,

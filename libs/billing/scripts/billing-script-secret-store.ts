@@ -1,7 +1,7 @@
 // @io-wall-ok
 import { join } from 'node:path';
 import type { HttpClient } from '@pkgs/http-client';
-import { createRepoTreeObjectStore } from '@pkgs/object-store/repo-tree-store';
+import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs/repo-tree-store';
 import { createWritableScriptSecretStore } from '@pkgs/secret-provider';
 import type { SecretStore } from '@pkgs/secret-store';
 import { createCachingSecretStore } from '@pkgs/secret-store';

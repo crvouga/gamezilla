@@ -5,22 +5,19 @@
  * engine, its React binding, the wire protocol helpers, and the abstract
  * ports (`ClientTransport`, `ClientRoomStorage`) that any adapter must
  * satisfy. Adapters (browser WebSocket, in-memory storage, `localStorage`,
- * async key-value storage, etc.) live behind their own subpath imports so
- * callers explicitly opt in to a runtime/backend:
+ * async key-value storage, etc.) live in their own packages so callers
+ * explicitly opt in to a runtime/backend:
  *
- * - `@pkgs/room/client/adapters/transport/websocket` — browser WebSocket.
- * - `@pkgs/room/client/adapters/storage/memory` — in-process (tests).
- * - `@pkgs/room/client/adapters/storage/web` — synchronous `localStorage`.
+ * - `@pkgs/room-adapter-web` — browser WebSocket + `localStorage`.
+ * - `@pkgs/room-adapter-memory` — in-process storage + loopback transport.
  * - `@pkgs/room/client/adapters/storage/key-value` — async KV (web +
  *   React Native AsyncStorage).
  *
- * Server entry: `@pkgs/room/server`. Test helpers: `@pkgs/room/sim`
- * (re-exports from `./sim`).
+ * Server entry: `@pkgs/room/server`. Test helpers: `@pkgs/room-sim`.
  *
  * Adding a new transport (WebRTC, SSE, …) or storage backend (SQLite,
- * IndexedDB, …) means dropping a new folder under
- * `./client/adapters/{transport,storage}/` and re-exporting it via
- * `package.json` — the core engine stays untouched.
+ * IndexedDB, …) means dropping a new `@pkgs/room-adapter-*` package —
+ * the core engine stays untouched.
  */
 
 export { createAttrNamespace } from '@pkgs/attribute';

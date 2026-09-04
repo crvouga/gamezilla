@@ -9,10 +9,10 @@ import { appPostgresDbScope } from '@libs/db/public/scope';
 import { wallClock } from '@pkgs/clock';
 import { ComposedDatabaseSeeder } from '@pkgs/db-migrate';
 import { createLogger } from '@pkgs/logger';
-import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
-import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';
+import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs/impl-node-fs';
+import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
 import { LOCAL_DATABASE_URL } from '@pkgs/postgres-embedded';
-import { createPgPool } from '@pkgs/sql-client/postgres/connect';
+import { createPgPool } from '@pkgs/sql-client-postgres/connect';
 
 const fs = wallNodeFs();
 const chessRoot = new URL('../../../libs/chess', import.meta.url).pathname;

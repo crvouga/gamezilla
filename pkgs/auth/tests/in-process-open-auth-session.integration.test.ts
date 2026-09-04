@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
 import { wallClock, wallTimers } from '@pkgs/clock';
 import { createNoopLogger } from '@pkgs/logger';
-import { SqlClientImplPostgresMem } from '@pkgs/sql-client/postgres/impl-postgres-mem';
-import { createPostgresDbScope } from '@pkgs/sql-client/postgres/schema';
+import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
+import { SqlClientImplPostgresMem } from '@pkgs/sql-client-postgres/impl-postgres-mem';
 import { Hono } from 'hono';
 import { createInMemoryAuthClientStorage } from '../src/client/bearer-token-store';
 import { createAuthClientAdapter } from '../src/client/create-auth-client-adapter';

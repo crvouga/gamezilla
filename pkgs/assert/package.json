@@ -11,13 +11,9 @@
     ]
   },
   "scripts": {
+    "lint": "bunx biome check --error-on-warnings .",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test --pass-with-no-tests"
-  },
-  "dependencies": {
-    "@pkgs/clock": "workspace:*",
-    "expo-clipboard": "catalog:",
-    "react-native": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

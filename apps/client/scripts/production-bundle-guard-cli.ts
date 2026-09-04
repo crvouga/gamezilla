@@ -6,8 +6,8 @@ import {
   ProductionBundleGuard,
   productionClientApiOrigin,
 } from '@libs/client-config/public/production-client-bundle-guard';
-import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
-import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';
+import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs/impl-node-fs';
+import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
 
 const clientRoot = join(fileURLToPath(import.meta.url), '..', '..');
 const fs = wallNodeFs();

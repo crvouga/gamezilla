@@ -5,19 +5,13 @@
   "exports": {
     ".": "./src/index.ts",
     "./server": "./src/server.ts",
-    "./server/adapters/durable-object": "./src/server/adapters/durable-object/index.ts",
-    "./server/adapters/memory": "./src/server/adapters/memory/index.ts",
-    "./client/adapters/storage/memory": "./src/client/adapters/storage/memory/index.ts",
-    "./client/adapters/storage/web": "./src/client/adapters/storage/web/index.ts",
-    "./client/adapters/storage/key-value": "./src/client/adapters/storage/key-value/index.ts",
-    "./client/adapters/transport/websocket": "./src/client/adapters/transport/websocket/index.ts",
-    "./client/adapters/transport/loopback": "./src/client/adapters/transport/loopback/index.ts",
-    "./sim": "./src/sim/index.ts"
+    "./client/adapters/storage/key-value": "./src/client/adapters/storage/key-value/index.ts"
   },
   "scripts": {
+    "lint": "bunx biome check --error-on-warnings .",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test tests",
-    "test:sim": "bun test tests"
+    "test": "bun test --pass-with-no-tests",
+    "test:sim": "bun run --filter @pkgs/room-sim test"
   },
   "dependencies": {
     "@pkgs/assert": "workspace:*",
@@ -26,10 +20,10 @@
     "@pkgs/keyword": "workspace:*",
     "@pkgs/kv": "workspace:*",
     "@pkgs/message": "workspace:*",
-    "@pkgs/sim": "workspace:*",
     "@pkgs/uuid": "workspace:*"
   },
   "devDependencies": {
+    "@pkgs/sim": "workspace:*",
     "@types/bun": "catalog:",
     "@types/react": "catalog:",
     "@typescript/native": "catalog:",

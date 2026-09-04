@@ -1,14 +1,12 @@
-import { describe } from '@pkgs/ui-testing';
+import { describe, test } from 'bun:test';
 
-import { AppDriver } from '../src/drivers/app-driver';
-import { aliceCreds } from '../src/fixtures/fixtures';
 import { openSim } from '../src/setup/open-sim';
+import { signInWithDev, signOut } from '../src/sim';
 
-describe('auth login → logout', (ctx) => {
-  ctx.test('first login → logout on the account screen', async () => {
-    await using sim = await openSim('auth-login-logout', ctx);
-    const app = await AppDriver.forActor(sim, 'alice');
-    await app.auth.signInWithDev(aliceCreds);
-    await app.auth.signOut();
+describe('auth login → logout', () => {
+  test('first login → logout on the account screen', async () => {
+    await using s = await openSim('auth-login-logout');
+    await s.apply(signInWithDev, 'alice');
+    await s.apply(signOut, 'alice');
   });
 });

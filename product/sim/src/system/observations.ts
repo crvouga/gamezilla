@@ -18,7 +18,10 @@ export function caps(s: ProductSim): string[] {
 }
 
 export function clientIds(s: ProductSim): string[] {
-  return [...s.sim.clientIds()];
+  const fromSim = [...s.sim.clientIds()];
+  if (fromSim.length > 0) return fromSim;
+  // Localhost bun-webview may spawn UI without in-heap clients.
+  return [...s.actors.keys()];
 }
 
 export function actorIds(s: ProductSim): string[] {

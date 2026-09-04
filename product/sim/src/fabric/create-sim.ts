@@ -25,7 +25,7 @@ import {
 import { InMemoryBilling } from '@pkgs/billing';
 import type { Clock, Timers } from '@pkgs/clock';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
-import { KvImplWebNamespaced } from '@pkgs/kv/impl-kv-web-namespaced';
+import { KvImplWebNamespaced } from '@pkgs/kv-web/impl-kv-web-namespaced';
 import { InMemoryLlmProvider } from '@pkgs/llm/server';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 import { createNoopObservability } from '@pkgs/observability/impl-noop/impl-noop';
@@ -35,8 +35,8 @@ import {
 } from '@pkgs/pubsub/in-memory';
 import { createRecordSecretStore } from '@pkgs/secret-store/record-secret-store';
 import { createInMemorySecureStorage } from '@pkgs/secure-storage/impl-memory';
-import { createNamespacedWebSecureStorage } from '@pkgs/secure-storage/impl-web';
 import { createSecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
+import { createNamespacedWebSecureStorage } from '@pkgs/secure-storage-web';
 import type { Session } from '@pkgs/sim';
 import { createInMemoryAudioPlaybackPort } from '@pkgs/sounds/audio-playback/in-memory-audio-playback-port';
 import { InMemoryTtsProvider } from '@pkgs/tts/server';
@@ -78,6 +78,8 @@ export type Sim = {
   readonly clock: Clock;
   readonly scheduler: UnderlyingScheduler;
   readonly pubSubBus: ReturnType<typeof createInMemoryBus>;
+  /** Crash / partition coordinator for in-process + localhost HTTP hosts. */
+  readonly net: ReturnType<typeof createSimNet>;
   client(id: string): ClientEnv;
   spawnServer(): Promise<Server>;
   spawnClient(id: string, env?: ClientEnv): Client;
@@ -328,7 +330,7 @@ function makeSimClientEnv(
       };
     })(),
     resolveDatabaseName: () => ns,
-    mutationSuccessHoldMs: 0,
+    mutationSuccessHoldMs: 900,
   };
 }
 
@@ -378,6 +380,7 @@ function createSimHandle(kernel: SimKernel): Sim {
     clock: session.ports.clock,
     scheduler: session.scheduler.underlying,
     pubSubBus,
+    net,
     client,
     async spawnServer() {
       if (hono !== null) return hono;

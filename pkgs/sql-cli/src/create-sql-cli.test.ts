@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { defineTable, registerTables } from '@pkgs/db-schema';
-import { applySqliteSchema } from '@pkgs/db-schema/sqlite';
+import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
 import { raw } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite/impl-bun-sqlite';
 
 import { attachToGlobal } from './attach-to-global';
 import { createSqlCli } from './create-sql-cli';

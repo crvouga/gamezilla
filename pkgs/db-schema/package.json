@@ -4,27 +4,25 @@
   "private": true,
   "exports": {
     ".": "./src/index.ts",
-    "./postgres": "./src/postgres/index.ts",
-    "./sqlite": "./src/sqlite/index.ts"
+    "./*": [
+      "./src/*.ts",
+      "./src/*/index.ts"
+    ]
   },
   "scripts": {
+    "lint": "bunx biome check --error-on-warnings .",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
     "@noble/hashes": "catalog:",
     "@pkgs/assert": "workspace:*",
-    "@pkgs/db-migrate": "workspace:*",
-    "@pkgs/logger": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*"
   },
   "devDependencies": {
-    "@electric-sql/pglite": "catalog:",
-    "@pkgs/sim": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
-    "fast-check": "catalog:",
     "typescript": "catalog:"
   }
 }

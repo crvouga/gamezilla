@@ -7,6 +7,7 @@ import {
   createAuthClientAdapter,
   createInMemoryAuthClientStorage,
 } from '@pkgs/auth/client';
+import { defineAction } from '@pkgs/sim';
 import type { SimSql } from '@product/sim/fabric/sim-sql';
 import {
   captureSystemSnapshot,
@@ -14,12 +15,11 @@ import {
 } from '@product/sim/fabric/system-snapshot';
 
 import type { ProductSim } from './sim';
-import { product } from './system';
 
 /** Sign in through the client auth port wired to the in-process sim server. */
-export const devOauthSignIn = product.action({
+export const devOauthSignIn = defineAction({
   name: 'devOauthSignIn',
-  act: async (s, actorId: string) => {
+  act: async (s: ProductSim, actorId: string) => {
     const env = s.sim.client(actorId);
     const port = createAuthClientAdapter({
       baseURL: env.authBaseURL,
@@ -36,9 +36,9 @@ export const devOauthSignIn = product.action({
 });
 
 /** Dump server + client SQL / kv / rooms into `probes.snapshot`. */
-export const captureSnapshot = product.action({
+export const captureSnapshot = defineAction({
   name: 'captureSnapshot',
-  act: async (s, clientIds: readonly string[]) => {
+  act: async (s: ProductSim, clientIds: readonly string[]) => {
     s.probes.snapshot = await captureSnapshotOf(s, clientIds);
   },
 });

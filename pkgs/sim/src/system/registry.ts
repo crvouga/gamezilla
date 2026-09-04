@@ -4,34 +4,19 @@
  * imports the module that (lazily) imports the runtime.
  */
 
-import type {
-  CatalogSnapshot,
-  Snapshot,
-  SnapshotDef,
-} from '../report/define-snapshot';
+import type { CatalogSnapshot } from '../report/define-snapshot';
 import type { Ports, Runtime, Session } from '../runtime/types';
 import type { Awaitable } from './awaitable';
-import type {
-  Action,
-  ActionDef,
-  CatalogAction,
-  CatalogProperty,
-  Property,
-  PropertyDef,
-  SYSTEM_TAG,
-} from './effect';
+import { isRuntimeDef, type RuntimeDef } from './define-runtime';
+import type { CatalogAction, CatalogProperty, SYSTEM_TAG } from './effect';
 import type { Gen } from './gen';
+
+export type { RuntimeDef } from './define-runtime';
 
 export type SystemCreate<S, Args = void> = (
   session: Session,
   args: Args
 ) => Awaitable<S>;
-
-export type RuntimeDef = {
-  readonly name: string;
-  readonly default?: boolean;
-  readonly create: () => Awaitable<Runtime<Ports>>;
-};
 
 export type SystemRuntimeEntry = {
   readonly name: string;
@@ -44,28 +29,17 @@ export type SystemRegistry<S> = {
   readonly actions: CatalogAction<S>[];
   readonly properties: CatalogProperty<S>[];
   readonly snapshots: CatalogSnapshot<S>[];
-  readonly runtimeEntries: SystemRuntimeEntry[];
-  defaultRuntimeName: string | undefined;
+  readonly runtimeEntries: readonly SystemRuntimeEntry[];
+  readonly defaultRuntimeName: string;
 };
 
-/** Declaration + registration surface; `System` adds `run` / `explore` / `replay`. */
+/** Declaration surface; `System` adds `run` / `explore` / `replay`. */
 export type SystemCore<S, Args = void> = {
   readonly [SYSTEM_TAG]: true;
   readonly name: string;
   readonly create: SystemCreate<S, Args>;
   readonly args: Args | undefined;
   readonly sample: (() => Gen<Args>) | undefined;
-  readonly runtimes: readonly string[];
-  runtime(def: RuntimeDef): void;
-  action<const A extends unknown[] = []>(
-    def: ActionDef<S, A> | Action<S, A>
-  ): Action<S, A>;
-  property<C = unknown>(
-    def: PropertyDef<S, C> | Property<S, C>
-  ): Property<S, C>;
-  snapshot<T = unknown>(
-    def: SnapshotDef<S, T> | Snapshot<S, T>
-  ): Snapshot<S, T>;
 };
 
 const registries = new WeakMap<object, SystemRegistry<unknown>>();
@@ -118,22 +92,28 @@ export function resolveActions<S>(
   });
 }
 
+/** Runtime pick: registered name, or an inline RuntimeDef. */
+export type RuntimeOption = string | RuntimeDef;
+
+export type ResolvedRuntime = {
+  readonly name: string;
+  readonly runtime: Runtime<Ports>;
+};
+
 export async function resolveRuntime(
   system: SystemCore<unknown, unknown>,
-  runtimeName: string | undefined
-): Promise<Runtime<Ports>> {
-  const reg = getSystemRegistry(system);
-  const name = runtimeName ?? reg.defaultRuntimeName;
-  if (name === undefined) {
-    throw new Error(
-      `system '${system.name}': no runtime registered (call system.runtime)`
-    );
+  runtime: RuntimeOption | undefined
+): Promise<ResolvedRuntime> {
+  if (isRuntimeDef(runtime)) {
+    return { name: runtime.name, runtime: await runtime.create() };
   }
+  const reg = getSystemRegistry(system);
+  const name = runtime ?? reg.defaultRuntimeName;
   const entry = reg.runtimeEntries.find((h) => h.name === name);
   if (entry === undefined) {
     throw new Error(
       `system '${system.name}': unknown runtime '${name}' (have: ${reg.runtimeEntries.map((h) => h.name).join(', ')})`
     );
   }
-  return await entry.create();
+  return { name: entry.name, runtime: await entry.create() };
 }

@@ -76,7 +76,6 @@ export type {
 } from './runtime';
 export {
   CapabilityError,
-  defineRuntime,
   realTimeRuntime,
   virtualTimeRuntime,
 } from './runtime';
@@ -94,14 +93,19 @@ export type {
   Read,
   Recording,
   RecordingMeta,
+  ResolvedRuntime,
   RuntimeDef,
+  RuntimeOption,
   Step,
   System,
   SystemCreate,
 } from './system';
 export {
   defineAction,
+  defineProperty,
+  defineRuntime,
   defineSystem,
+  isRuntimeDef,
   parseRecording,
   RECORDING_VERSION,
   stringifyRecording,

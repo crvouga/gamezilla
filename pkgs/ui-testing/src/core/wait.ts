@@ -30,7 +30,7 @@ const DEFAULT_INTERVAL_MS = 50;
 
 /**
  * Poll `fn` until it returns a truthy value (or resolves to one).
- * RNTL-only helper — Playwright / Detox must not call this.
+ * RNTL-only helper — Bun.WebView / Detox must not call this.
  * Throws {@link TimeoutError} on failure.
  */
 export async function waitUntil<T>(

@@ -1,23 +1,21 @@
 /**
- * Template for new system scenarios (`AppDriver` + `openSim`).
+ * Template for new system scenarios (`defineAction` + `openSim`).
  *
- * Scenarios stay intent-only: `openSim` + `AppDriver.forActor`. No `by.*` selectors.
+ * Scenarios stay intent-only: `openSim` + `s.apply(action, actorId, …)`.
  * Committed snapshots exist under `fixtures/snapshots/`; wire them via
- * `openSim(id, ctx, { snapshot: '…' })` when restore is ready (scenarios do not yet).
+ * `openSim(id, { snapshot: '…' })` when restore is ready (scenarios do not yet).
  */
 
-import { describe } from '@pkgs/ui-testing';
+import { describe, test } from 'bun:test';
 
-import { AppDriver } from '../drivers/app-driver';
-import { aliceCreds } from '../fixtures/fixtures';
 import { openSim } from '../setup/open-sim';
+import { openSpacesTab, returnToTabs, signInWithDev } from '../sim';
 
-describe('example journey', (ctx) => {
-  ctx.test('alice signs up and opens spaces', async () => {
-    await using sim = await openSim('example-journey', ctx);
-    const app = await AppDriver.forActor(sim, 'alice');
-    await app.auth.signInWithDev(aliceCreds);
-    await app.auth.returnToTabs();
-    await app.space.openTab();
+describe('example journey', () => {
+  test('alice signs up and opens spaces', async () => {
+    await using s = await openSim('example-journey');
+    await s.apply(signInWithDev, 'alice');
+    await s.apply(returnToTabs, 'alice');
+    await s.apply(openSpacesTab, 'alice');
   });
 });

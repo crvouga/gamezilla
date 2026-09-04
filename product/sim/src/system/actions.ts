@@ -1,45 +1,44 @@
-import type { JsonValue, Rng } from '@pkgs/sim';
+import { defineAction, type JsonValue, type Rng } from '@pkgs/sim';
 import type { DriverKey, DriverNode, ScrollDirection } from '@pkgs/ui-testing';
 
+import { ensureActor } from './actor-ui';
 import { caps, clientIds, partitioned } from './observations';
 import type { ProductSim } from './sim';
-import { product } from './system';
 import { nodeAt } from './ui-nodes';
 
-export const spawnActor = product.action({
+export const spawnActor = defineAction({
   name: 'spawnActor',
-  act: async (s, id: string) => {
-    if (s.actors.has(id)) return;
-    const handle = await s.runtime.launchActor(id);
-    s.actors.set(id, handle);
+  act: async (s: ProductSim, id: string) => {
+    await ensureActor(s, id);
   },
 });
 
-export const resetActor = product.action({
+export const resetActor = defineAction({
   name: 'resetActor',
-  act: async (s, id: string) => {
+  act: async (s: ProductSim, id: string) => {
     await s.runtime.resetActor(id);
   },
 });
 
-export const partition = product.action({
+export const partition = defineAction({
   name: 'partition',
-  enabled: (s) => caps(s).includes('partition') && clientIds(s).length > 0,
-  weight: (s) => (partitioned(s).length === 0 ? 2 : 1),
-  sample: (s) => {
+  enabled: (s: ProductSim) =>
+    caps(s).includes('partition') && clientIds(s).length > 0,
+  weight: (s: ProductSim) => (partitioned(s).length === 0 ? 2 : 1),
+  sample: (s: ProductSim) => {
     const ids = clientIds(s);
     return (rng: Rng) => ids[Math.floor(rng.next() * ids.length)]!;
   },
-  act: (s, id: string) => {
+  act: (s: ProductSim, id: string) => {
     s.session.network.partition('server', id);
   },
 });
 
-export const restoreNetwork = product.action({
+export const restoreNetwork = defineAction({
   name: 'restoreNetwork',
-  enabled: (s) => caps(s).includes('partition'),
-  weight: (s) => Math.max(partitioned(s).length, 0),
-  act: (s) => {
+  enabled: (s: ProductSim) => caps(s).includes('partition'),
+  weight: (s: ProductSim) => Math.max(partitioned(s).length, 0),
+  act: (s: ProductSim) => {
     s.session.network.healAll();
   },
 });
@@ -51,9 +50,9 @@ export type UiOp = {
   readonly extra: { readonly [k: string]: JsonValue };
 };
 
-export const uiOp = product.action({
+export const uiOp = defineAction({
   name: 'uiOp',
-  act: async (s, op: UiOp) => {
+  act: async (s: ProductSim, op: UiOp) => {
     await performUiOp(s, op);
   },
 });

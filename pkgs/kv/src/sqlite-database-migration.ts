@@ -2,7 +2,7 @@ import type {
   DatabaseMigration,
   DatabaseMigrationContext,
 } from '@pkgs/db-migrate';
-import { SqliteSchemaDatabaseMigration } from '@pkgs/db-schema/sqlite';
+import { SqliteSchemaDatabaseMigration } from '@pkgs/db-schema-sqlite';
 
 import { kvSchema } from './schema/tables';
 

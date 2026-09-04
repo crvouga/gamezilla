@@ -1,10 +1,8 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../tsconfig.base.json",
   "include": [
     "./src/**/*.ts",
     "./src/**/*.d.ts",
-    "./scripts/**/*.ts",
-    "./scripts/**/*.d.ts",
     "../../tools/src/deploy-mode.ts"
   ]
 }

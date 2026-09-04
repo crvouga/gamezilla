@@ -1,9 +1,12 @@
 import { useClock } from '@pkgs/clock';
 import { type CreateId, useCreateId } from '@pkgs/uuid';
 import { createContext, type ReactNode, useContext, useMemo } from 'react';
-import { createLocalFileObservability } from '../impl-local-file/impl-local-file';
 import { createLoggerObservability } from '../impl-logger/impl-logger';
 import { createNoopObservability } from '../impl-noop/impl-noop';
+import {
+  type ObservabilityBackendFactory,
+  requireBackendFactory,
+} from '../port/backend-factory';
 import { InMemorySpanContextStorage } from '../port/in-memory-context-storage';
 import type { Observability } from '../port/observability';
 import {
@@ -28,6 +31,8 @@ export type ObservabilityProviderProps = {
   readonly forceNoop?: boolean;
   readonly collectorUrl?: string;
   readonly observability?: Observability;
+  /** Required when the resolved backend is `local-file`. */
+  readonly createLocalFile?: ObservabilityBackendFactory;
 };
 
 function createClientObservability(args: {
@@ -37,6 +42,7 @@ function createClientObservability(args: {
   readonly backendEnv?: string | undefined;
   readonly forceNoop?: boolean;
   readonly collectorUrl?: string;
+  readonly createLocalFile?: ObservabilityBackendFactory;
 }): Observability {
   const backend = resolveObservabilityBackend({
     envBackend: args.backendEnv,
@@ -44,7 +50,10 @@ function createClientObservability(args: {
     ...(args.forceNoop === true ? { forceNoop: true } : {}),
   });
   if (backend === 'local-file') {
-    return createLocalFileObservability({
+    return requireBackendFactory(
+      args.createLocalFile,
+      'local-file'
+    )({
       serviceName: args.serviceName,
       now: args.now,
       createId: args.createId,
@@ -70,6 +79,7 @@ export function ObservabilityProvider({
   forceNoop,
   collectorUrl,
   observability: observabilityOverride,
+  createLocalFile,
 }: ObservabilityProviderProps): ReactNode {
   const clock = useClock();
   const createId = useCreateId();
@@ -82,6 +92,7 @@ export function ObservabilityProvider({
       backendEnv,
       ...(forceNoop !== undefined ? { forceNoop } : {}),
       ...(collectorUrl !== undefined ? { collectorUrl } : {}),
+      ...(createLocalFile !== undefined ? { createLocalFile } : {}),
     });
   }, [
     observabilityOverride,
@@ -89,6 +100,7 @@ export function ObservabilityProvider({
     backendEnv,
     forceNoop,
     collectorUrl,
+    createLocalFile,
     clock,
     createId,
   ]);

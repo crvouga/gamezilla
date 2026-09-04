@@ -1,8 +1,7 @@
 import { ACTION_TAG, type Action, type ActionDef } from './effect';
 
 /**
- * `S` is contravariant on callbacks — callers bind via `defineSystem` /
- * `system.action`. Args tuple `A` is inferred from `act`'s parameters after `s`.
+ * `S` is contravariant on callbacks — callers bind via `defineSystem({ actions })`. Args tuple `A` is inferred from `act`'s parameters after `s`.
  */
 export function defineAction<S, const A extends unknown[] = []>(
   def: ActionDef<S, A>

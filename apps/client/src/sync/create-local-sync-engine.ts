@@ -12,7 +12,7 @@ import type { OpenSqlClient } from '@libs/runtime/shared/env';
 import type { Clock, Timers } from '@pkgs/clock';
 import type { PubSub } from '@pkgs/pubsub/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import type { ExpoWebSqlClient } from '@pkgs/sql-client/sqlite/web';
+import type { ExpoWebSqlClient } from '@pkgs/sql-client-sqlite-web';
 import {
   createLocalSyncEngine,
   type SyncEngine,

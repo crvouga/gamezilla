@@ -80,8 +80,12 @@ module.exports = function jsxSourceAttrPlugin(api) {
     process.env.NODE_ENV !== 'production' ||
     process.env.EXPO_PUBLIC_E2E === '1';
 
-  const jestCaller = callerName === 'babel-jest' || callerBundler === 'jest';
-  const platformOk = platform === 'web' || jestCaller;
+  const testCaller =
+    callerName === 'bun-test' ||
+    callerBundler === 'bun' ||
+    callerName === 'babel-jest' ||
+    callerBundler === 'jest';
+  const platformOk = platform === 'web' || testCaller;
 
   if (!platformOk || !enabled) {
     return { name: 'jsx-source-attr', visitor: {} };

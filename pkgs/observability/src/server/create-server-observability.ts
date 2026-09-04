@@ -1,7 +1,10 @@
 import type { CreateId } from '@pkgs/uuid';
-import { createLocalFileObservability } from '../impl-local-file/impl-local-file';
 import { createLoggerObservability } from '../impl-logger/impl-logger';
 import { createNoopObservability } from '../impl-noop/impl-noop';
+import {
+  type ObservabilityBackendFactory,
+  requireBackendFactory,
+} from '../port/backend-factory';
 import type { Observability } from '../port/observability';
 import {
   DEFAULT_COLLECTOR_URL,
@@ -17,6 +20,8 @@ export type CreateServerObservabilityOptions = {
   readonly forceNoop?: boolean;
   readonly collectorUrl?: string;
   readonly isProduction?: boolean;
+  /** Required when the resolved backend is `local-file`. */
+  readonly createLocalFile?: ObservabilityBackendFactory;
 };
 
 export function createServerObservability(
@@ -29,7 +34,10 @@ export function createServerObservability(
   });
   const storage = createAsyncLocalSpanContextStorage();
   if (backend === 'local-file') {
-    return createLocalFileObservability({
+    return requireBackendFactory(
+      options.createLocalFile,
+      'local-file'
+    )({
       serviceName: options.serviceName,
       now: options.now,
       createId: options.createId,

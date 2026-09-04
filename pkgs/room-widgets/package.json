@@ -10,6 +10,7 @@
     ]
   },
   "scripts": {
+    "lint": "bunx biome check --error-on-warnings .",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test --pass-with-no-tests"
   },
@@ -21,6 +22,8 @@
     "@pkgs/collab-ui": "workspace:*",
     "@pkgs/keyword": "workspace:*",
     "@pkgs/room": "workspace:*",
+    "@pkgs/room-adapter-memory": "workspace:*",
+    "@pkgs/room-sim": "workspace:*",
     "@pkgs/ui": "workspace:*",
     "@pkgs/uuid": "workspace:*",
     "expo": "catalog:",

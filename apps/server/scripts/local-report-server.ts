@@ -8,9 +8,9 @@
 import { join } from 'node:path';
 
 import { wallClock, wallTimers } from '@pkgs/clock';
-import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
 import { ObjectStorePrefix } from '@pkgs/object-store/prefixes';
-import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';
+import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs/impl-node-fs';
+import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
 import { resolveLocalReportDataDir } from '@pkgs/sim-console/local-data-dir';
 import { createSimConsoleApp } from '@pkgs/sim-console/server';
 import { bunSqliteDumpToSqlm } from '@pkgs/sim-console/server/bun-sqlite-dump-to-sqlm';

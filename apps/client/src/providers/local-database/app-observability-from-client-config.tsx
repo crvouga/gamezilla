@@ -1,5 +1,6 @@
 import { useClientConfig } from '@libs/client-config/public/use-client-config';
 import { ObservabilityProvider as BaseObservabilityProvider } from '@pkgs/observability/client/observability-provider';
+import { createLocalFileObservability } from '@pkgs/observability-impl-local-file';
 import type { ReactNode } from 'react';
 
 /**
@@ -18,6 +19,7 @@ export function AppObservabilityFromClientConfig({
     <BaseObservabilityProvider
       serviceName={'gamezilla-client' as const}
       backendEnv={backend}
+      createLocalFile={createLocalFileObservability}
     >
       {children}
     </BaseObservabilityProvider>

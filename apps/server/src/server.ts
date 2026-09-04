@@ -14,6 +14,7 @@ import { createStripeBillingFromSecretStore } from '@pkgs/billing-stripe';
 import { wallClock, wallTimers } from '@pkgs/clock';
 import { createLogger } from '@pkgs/logger';
 import { createServerObservability } from '@pkgs/observability/server/create-server-observability';
+import { createLocalFileObservability } from '@pkgs/observability-impl-local-file';
 import { isSecretStoreError } from '@pkgs/secret-store';
 import { createServer } from './app/create-server';
 import type { ServerEnv } from './app/server-env';
@@ -133,6 +134,7 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
     createId: () => crypto.randomUUID(),
     envBackend: env.OBSERVABILITY_BACKEND,
     isProduction: secretsEnv === 'prd',
+    createLocalFile: createLocalFileObservability,
     ...(env.OBSERVABILITY_COLLECTOR_URL !== undefined &&
     env.OBSERVABILITY_COLLECTOR_URL.length > 0
       ? { collectorUrl: env.OBSERVABILITY_COLLECTOR_URL }

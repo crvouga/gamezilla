@@ -22,6 +22,7 @@
     ]
   },
   "scripts": {
+    "lint": "bunx biome check --error-on-warnings .",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test --pass-with-no-tests"
   },
@@ -31,6 +32,7 @@
     "@pkgs/http-client": "workspace:*",
     "@pkgs/keyword": "workspace:*",
     "@pkgs/kv": "workspace:*",
+    "@pkgs/kv-postgres": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "hono": "catalog:",

@@ -19,8 +19,8 @@ import {
   reconcileIndexes,
   renderPlanMarkdown,
 } from '@pkgs/db-indexes';
-import { createPostgresPort } from '@pkgs/db-indexes/postgres';
-import { createSqlitePort } from '@pkgs/db-indexes/sqlite';
+import { createPostgresPort } from '@pkgs/db-indexes-postgres';
+import { createSqlitePort } from '@pkgs/db-indexes-sqlite';
 
 // Analyze only — no writes
 const plan = await planIndexes({ manifest, db, clock });

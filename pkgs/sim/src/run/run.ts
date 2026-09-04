@@ -7,6 +7,7 @@ import type { Action, CatalogProperty, Property, Read } from '../system/effect';
 import type { Step } from '../system/recording';
 import {
   getSystemRegistry,
+  type RuntimeOption,
   resolveRuntime,
   type SystemCore as System,
 } from '../system/registry';
@@ -34,8 +35,8 @@ type ArgsOption<Args> = [Args] extends [void]
 
 export type RunOptions<_S, Args = void> = {
   readonly seed: number | bigint | string;
-  /** Registered runtime name. Omit → system default runtime. */
-  readonly runtime?: string;
+  /** Runtime name or inline RuntimeDef. Omit → system default runtime. */
+  readonly runtime?: RuntimeOption;
   /**
    * Timeline reporting. Default off.
    * Pass `true` for in-memory only, or `{ store, testId, … }` to persist.
@@ -275,19 +276,12 @@ export async function run<S, Args = void>(
   system: System<S, Args>,
   opts: RunOptions<S, Args>
 ): Promise<Run<S>> {
-  const runtimeName =
-    opts.runtime ??
-    getSystemRegistry(system as System<S, unknown>).defaultRuntimeName;
-  if (runtimeName === undefined) {
-    throw new Error(
-      `run: system '${system.name}' has no default runtime (register with system.runtime)`
-    );
-  }
-  const runtime = await resolveRuntime(
+  const resolved = await resolveRuntime(
     system as System<unknown, unknown>,
-    runtimeName
+    opts.runtime
   );
-  const session = await runtime.open(opts.seed);
+  const runtimeName = resolved.name;
+  const session = await resolved.runtime.open(opts.seed);
   const systemArgs = mergeArgs(
     system.args,
     ('args' in opts ? opts.args : undefined) as Partial<Args> | undefined

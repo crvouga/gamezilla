@@ -17,12 +17,12 @@ import {
 import { assertDatabaseUrlAllowedForSecretsEnvForTooling } from '@pkgs/database-url-policy/database-url-policy-tooling';
 import { createGlobalHttpClient } from '@pkgs/http-client';
 import { createLogger } from '@pkgs/logger';
-import { createRepoTreeObjectStore } from '@pkgs/object-store/repo-tree-store';
+import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs/repo-tree-store';
 import { createScriptSecretStore } from '@pkgs/secret-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
 import { raw } from '@pkgs/sql';
-import { openPgClient } from '@pkgs/sql-client/postgres/connect';
-import { createPostgresDbScope } from '@pkgs/sql-client/postgres/schema';
+import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
+import { openPgClient } from '@pkgs/sql-client-postgres/connect';
 import {
   CHESS_PUZZLES_LOAD_CSV_COLUMNS,
   CHESS_PUZZLES_LOAD_EXPORT_SQL,

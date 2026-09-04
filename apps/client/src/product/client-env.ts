@@ -59,7 +59,7 @@ export type ClientEnv = {
   readonly resolveDatabaseName: (args: { readonly userId: string }) => string;
   /**
    * Default success-face hold (ms) for mutation buttons when the call site
-   * omits `successHoldMs`. Wall: 900; sim: 0 (ClientEnvProvider projects this).
+   * omits `successHoldMs`. Wall and sim: 900 (ClientEnvProvider projects this).
    */
   readonly mutationSuccessHoldMs: number;
 };

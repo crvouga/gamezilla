@@ -1,5 +1,5 @@
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import type { Pool } from '@pkgs/sql-client/postgres/pg-types';
+import type { Pool } from '@pkgs/sql-client-postgres/pg-types';
 
 /**
  * Opaque SQL handle for sim server / actor DBs. Dump format is fabric-specific

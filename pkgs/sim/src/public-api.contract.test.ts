@@ -3,13 +3,12 @@ import * as fcAdapter from './fast-check';
 import * as sim from './index';
 import * as kernel from './internals';
 import { virtualTimeRuntime } from './runtime';
-import { defineSystem } from './system';
+import { defineAction, defineRuntime, defineSystem } from './system';
 
 const FORBIDDEN = [
   'defineScenario',
   'defineObservation',
   'defineSurface',
-  'defineProperty',
   'draw',
   'read',
   'untilObserved',
@@ -42,6 +41,7 @@ const FORBIDDEN = [
   'defineHost',
   'virtualHost',
   'wallHost',
+  'createRuntime',
 ] as const;
 
 describe('public-api', () => {
@@ -49,10 +49,12 @@ describe('public-api', () => {
     for (const k of [
       'defineSystem',
       'defineAction',
+      'defineProperty',
+      'defineSnapshot',
+      'defineRuntime',
       'ExploreFailedError',
       'virtualTimeRuntime',
       'realTimeRuntime',
-      'defineRuntime',
       'RECORDING_VERSION',
       'parseRecording',
       'stringifyRecording',
@@ -67,14 +69,22 @@ describe('public-api', () => {
   });
 
   test('Run has no _internal escape hatch', async () => {
-    const sys = defineSystem({
+    const sys = defineSystem<{ n: number }>({
       name: 'api-contract',
       create: () => ({ n: 0 }),
-    });
-    sys.runtime({
-      default: true,
-      name: 'virtual',
-      create: () => virtualTimeRuntime(),
+      runtimes: [
+        defineRuntime({
+          default: true,
+          name: 'virtual',
+          create: () => virtualTimeRuntime(),
+        }),
+      ],
+      actions: [
+        defineAction({
+          name: 'noop',
+          act: (_s: { n: number }) => {},
+        }),
+      ],
     });
     await using s = await sys.run({ seed: 1 });
     expect(s).not.toHaveProperty('_internal');

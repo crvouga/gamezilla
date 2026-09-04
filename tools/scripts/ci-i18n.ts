@@ -153,7 +153,7 @@ function loadLinguiConfig(): LinguiCatalogConfig {
 const BABEL_CONFIG_RELS = [
   'apps/client/babel.config.js',
   'product/console/babel.config.js',
-  'product/test/babel.jest.config.js',
+  'product/test/babel.test.config.cjs',
 ] as const;
 
 function assertStripMessageFieldKept(): void {

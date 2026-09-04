@@ -1,5 +1,4 @@
 import {
-  type Action,
   asSeededRng,
   type NetworkFaults,
   type Ports,
@@ -22,8 +21,6 @@ import { buildKitFacade } from '../sim-facade';
 import type { SimClientOpts } from '../sim-types';
 import type { SyncApp } from './app';
 import type { SyncArgs } from './args';
-import { SYNC_POOL_ACTIONS } from './sync-actions';
-import { SYNC_PROPERTY_DEFS } from './sync-properties';
 import { createOwedRestart, type SyncRuntime, type SyncSim } from './system';
 
 export const SIM_START_MS = 1_700_000_000_000;
@@ -34,7 +31,7 @@ const RELIABLE_KERNEL_FAULTS: NetworkFaults = toKernelFaults(RELIABLE_FAULTS);
 
 /**
  * Sync runtime: `virtualTimeRuntime` with a settle that does not wait for heartbeat
- * quiescence. Register it with `system.runtime({ create: () => syncVirtual() })`.
+ * quiescence. Pass `create: () => syncVirtual()` into `defineRuntime`.
  */
 export function syncVirtual(network?: NetworkFaults): Runtime<Ports> {
   return virtualTimeRuntime({
@@ -49,15 +46,6 @@ export function syncVirtual(network?: NetworkFaults): Runtime<Ports> {
 
 /** Every sync app system has the same surface and args shape. */
 export type SyncSystemDef = System<SyncSim, SyncArgs>;
-
-/** Register the shared explore pool + standing properties on `system`. */
-export function registerSyncLibrary(system: SyncSystemDef): void {
-  for (const action of SYNC_POOL_ACTIONS) {
-    // Existential registration — the pool holds mixed action arities.
-    system.action(action as unknown as Action<SyncSim>);
-  }
-  for (const def of SYNC_PROPERTY_DEFS) system.property(def);
-}
 
 /**
  * Non-JSON per-system fixtures. Anything JSON-able belongs on {@link SyncArgs}

@@ -1,6 +1,6 @@
 import { GAME_DEFINITIONS } from '@libs/games/game-plugins';
 import { composeRoomModules } from '@libs/spaces/public/load-game-plugins';
-import { createDurableObjectAdapter } from '@pkgs/room/server/adapters/durable-object';
+import { createDurableObjectAdapter } from '@pkgs/room-adapter-durable-object';
 
 import type { RoomServerEnv } from './room-server-env';
 

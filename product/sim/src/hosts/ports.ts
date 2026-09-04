@@ -1,4 +1,4 @@
-import type { MultiAppRntlSession } from '@pkgs/ui-testing';
+import type { MultiAppRntlSession } from '@pkgs/ui-testing-rntl';
 import type { SimSql } from '@product/sim/fabric/sim-sql';
 
 export const SIM_START_MS = Date.parse('2024-06-01T00:00:00.000Z');
@@ -7,22 +7,17 @@ export const SIM_START_MS = Date.parse('2024-06-01T00:00:00.000Z');
  * UI adapter for a registered product host.
  * - `react-tree` — in-process React App (RNTL in tests; embedded App in playground)
  * - `bun-webview` — Bun.WebView per actor against localhost web + API
- * - `playwright` — Playwright Page per actor (same localhost topology)
  */
 export type ProductUi =
   | {
       readonly kind: 'react-tree';
-      /** Present in Jest/RNTL tests; omitted in playground / Expo. */
+      /** Present in bun:test / RNTL tests; omitted in playground / Expo. */
       readonly rntl?: MultiAppRntlSession;
       readonly runFor: (durationMs: number) => Promise<void>;
     }
   | {
       readonly kind: 'bun-webview';
       readonly webOrigin: string;
-    }
-  | {
-      readonly kind: 'playwright';
-      readonly webOrigin?: string;
     };
 
 export type ProductHttp =
@@ -42,4 +37,4 @@ export type ProductExtra = {
 };
 
 /** Registered host names on the product system. */
-export type ProductHostName = 'in-process' | 'bun-webview' | 'playwright';
+export type ProductHostName = 'in-process' | 'bun-webview';

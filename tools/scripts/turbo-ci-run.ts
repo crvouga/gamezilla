@@ -304,6 +304,28 @@ async function main(): Promise<void> {
   if (affected.length > 0) {
     console.log(`turbo-ci-run: affected filter ${affected.join(' ')}`);
   }
+
+  // Exclude the root workspace from package tasks so root scripts like
+  // `lint` (which themselves call turbo-ci-run) are never scheduled.
+  const hasExplicitFilter = taskArgs.some((a) => a.startsWith('--filter='));
+  const hasPackageTasks = taskArgs.some(
+    (a) => !a.startsWith('//') && !a.startsWith('--')
+  );
+  const hasRootTasks = taskArgs.some((a) => a.startsWith('//'));
+  const rootExcludeFilters: string[] = [];
+  if (!hasExplicitFilter && affected.length === 0 && hasPackageTasks) {
+    rootExcludeFilters.push(
+      '--filter=./apps/*',
+      '--filter=./libs/*',
+      '--filter=./pkgs/*',
+      '--filter=./product/*',
+      '--filter=./tools'
+    );
+    if (hasRootTasks) {
+      rootExcludeFilters.push('--filter=//');
+    }
+  }
+
   console.log(
     `turbo-ci-run: cache=${cache} concurrency=${concurrency} log-order=${TURBO_LOG_ORDER}` +
       (ui !== undefined ? ` ui=${ui}` : '') +
@@ -312,7 +334,7 @@ async function main(): Promise<void> {
 
   const result = spawnSync(
     'turbo',
-    ['run', ...taskArgs, ...affected, ...TURBO_CI_FLAGS],
+    ['run', ...taskArgs, ...affected, ...rootExcludeFilters, ...TURBO_CI_FLAGS],
     {
       stdio: 'inherit',
       env,

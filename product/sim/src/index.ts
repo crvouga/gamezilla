@@ -2,10 +2,49 @@
  * @product/sim — shared product simulation fabric + System.
  *
  * Console and test couple only to this package's public API (`product.run`,
- * actions, reads). Hosts are registered runtimes: `in-process`, `bun-webview`,
- * `playwright`.
+ * actions, reads). Hosts are registered runtimes: `in-process`, `bun-webview`.
  */
 
+export {
+  bumpSimClientEpoch,
+  type CreateSimOptions,
+  createSim,
+  type Server,
+  type Sim,
+  simClientNamespace,
+} from './fabric/create-sim';
+export {
+  handleBoundSqlClient,
+  openFreshSimClientSql,
+  openFreshSimServerSql,
+  openSimServerSqlFromSeedBytes,
+  type SimSql,
+  sharedSqlClient,
+} from './fabric/sim-sql';
+export {
+  resolveSimSqlBackend,
+  type SimSqlBackend,
+} from './fabric/sim-sql-backend';
+export { getSimSqlEngines } from './fabric/sim-sql-engines';
+export {
+  captureSystemSnapshot,
+  restoreSystemSnapshot,
+  type SystemSnapshotCtx,
+} from './fabric/system-snapshot';
+export { bunWebviewRuntime } from './hosts/bun-webview';
+export { inProcessRuntime } from './hosts/in-process';
+export {
+  ACTOR_HEADER,
+  listenSimHttpServer,
+  type SimHttpListener,
+} from './hosts/localhost-http';
+export type {
+  ProductExtra,
+  ProductHostName,
+  ProductHttp,
+  ProductUi,
+} from './hosts/ports';
+export { SIM_START_MS } from './hosts/ports';
 export {
   partition,
   resetActor,
@@ -30,6 +69,40 @@ export {
 } from './system/observations';
 export { captureSnapshot, devOauthSignIn } from './system/probes';
 export {
+  acceptFriendRequest,
+  addFriend,
+  createSpace,
+  endSpace,
+  expectActiveSpace,
+  expectAvatarSeed,
+  expectAvatarStyleLabel,
+  expectAvatarTraitVisible,
+  expectFriend,
+  expectLobbyCard,
+  expectLobbyCardGone,
+  expectPuzzleSolved,
+  expectUsername,
+  joinFromPrompt,
+  leaveAvatarEditor,
+  openAvatarEditor,
+  openFriendsList,
+  openLobbyCard,
+  openProfileEdit,
+  openPuzzleFromSpace,
+  openSpacesTab,
+  playUntilSolved,
+  reenterActiveSpace,
+  returnToLobby,
+  returnToTabs,
+  saveAvatar,
+  searchUsername,
+  setAvatarSeed,
+  setAvatarStyle,
+  setUsername,
+  signInWithDev,
+  signOut,
+} from './system/scenario-actions';
+export {
   createProductSim,
   type ProductProbes,
   type ProductRuntime,
@@ -41,45 +114,3 @@ export {
   type ProductSim,
   product,
 } from './system/system';
-
-export type {
-  ProductExtra,
-  ProductHostName,
-  ProductHttp,
-  ProductUi,
-} from './hosts/ports';
-export { SIM_START_MS } from './hosts/ports';
-export { inProcessRuntime } from './hosts/in-process';
-export { bunWebviewRuntime } from './hosts/bun-webview';
-export { playwrightRuntime } from './hosts/playwright';
-export {
-  listenSimHttpServer,
-  type SimHttpListener,
-} from './hosts/localhost-http';
-
-export {
-  bumpSimClientEpoch,
-  createSim,
-  type CreateSimOptions,
-  type Sim,
-  simClientNamespace,
-  type Server,
-} from './fabric/create-sim';
-export {
-  handleBoundSqlClient,
-  openFreshSimClientSql,
-  openFreshSimServerSql,
-  openSimServerSqlFromSeedBytes,
-  type SimSql,
-  sharedSqlClient,
-} from './fabric/sim-sql';
-export {
-  resolveSimSqlBackend,
-  type SimSqlBackend,
-} from './fabric/sim-sql-backend';
-export { getSimSqlEngines } from './fabric/sim-sql-engines';
-export {
-  captureSystemSnapshot,
-  restoreSystemSnapshot,
-  type SystemSnapshotCtx,
-} from './fabric/system-snapshot';

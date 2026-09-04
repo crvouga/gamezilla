@@ -4,33 +4,27 @@
   "private": true,
   "exports": {
     "./interface": "./src/interface/index.ts",
-    "./impl-sql": "./src/impl-sql/index.ts",
     "./wire": "./src/wire/index.ts",
-    "./client": "./src/client/index.ts",
-    "./sim": "./src/sim/index.ts"
+    "./client": "./src/client/index.ts"
   },
   "scripts": {
+    "lint": "bunx biome check --error-on-warnings .",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test --parallel=1 --timeout 120000 tests",
-    "test:sim": "bun test --parallel=1 --timeout 120000 tests"
+    "test": "bun test --pass-with-no-tests",
+    "test:sim": "bun run --filter @pkgs/matchmaking-sim test"
   },
   "dependencies": {
     "@pkgs/assert": "workspace:*",
     "@pkgs/attribute": "workspace:*",
     "@pkgs/clock": "workspace:*",
-    "@pkgs/db-migrate": "workspace:*",
-    "@pkgs/db-schema": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/keyword": "workspace:*",
-    "@pkgs/postgres-sqlite-compat": "workspace:*",
-    "@pkgs/sim": "workspace:*",
-    "@pkgs/sql": "workspace:*",
-    "@pkgs/sql-client": "workspace:*",
-    "@pkgs/uuid": "workspace:*",
+    "@pkgs/logger": "workspace:*",
     "hono": "catalog:"
   },
   "devDependencies": {
-    "@electric-sql/pglite": "catalog:",
+    "@pkgs/sql-client-sqlite": "workspace:*",
+    "@pkgs/uuid": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",

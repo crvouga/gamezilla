@@ -7,9 +7,9 @@ import {
 import { assert } from '@pkgs/assert';
 import { wallClock, wallTimers } from '@pkgs/clock';
 import { createGlobalHttpClient } from '@pkgs/http-client';
-import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
-import { createRepoTreeObjectStore } from '@pkgs/object-store/repo-tree-store';
-import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';
+import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs/impl-node-fs';
+import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs/repo-tree-store';
+import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
 
 const fs = wallNodeFs();
 const repoRoot = new URL('../../..', import.meta.url).pathname;

@@ -7,7 +7,9 @@
  * focus onto the pressed control once the click handler returns.
  */
 export function releaseWebFocus(): void {
-  if (typeof document === 'undefined') return;
+  if (typeof document === 'undefined' || typeof HTMLElement === 'undefined') {
+    return;
+  }
   const blurActive = () => {
     const active = document.activeElement;
     if (active instanceof HTMLElement) active.blur();

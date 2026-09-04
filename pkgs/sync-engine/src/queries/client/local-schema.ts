@@ -1,4 +1,4 @@
-import { applySqliteSchema } from '@pkgs/db-schema/sqlite';
+import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
 import { unsafe } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 

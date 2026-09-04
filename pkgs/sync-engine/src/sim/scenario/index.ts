@@ -4,7 +4,6 @@ export { arbSeed, arbSyncArgs } from './args';
 export type { SyncBootOverrides, SyncSystemDef } from './boot';
 export {
   createSyncSim,
-  registerSyncLibrary,
   SIM_START_MS,
   syncVirtual,
 } from './boot';
@@ -98,7 +97,11 @@ export {
   schedulerQuiescent,
   subscribedTopics,
 } from './sync-observations';
-export { invariantsHold, staysInSync } from './sync-properties';
+export {
+  invariantsHold,
+  SYNC_PROPERTY_DEFS,
+  staysInSync,
+} from './sync-properties';
 export type {
   LastMutation,
   LastPost,

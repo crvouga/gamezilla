@@ -23,7 +23,6 @@ const SKIP_NAMES = new Set([
   'dist',
   'web-build',
   'coverage',
-  'playwright-report',
   'test-results',
   'blob-report',
   'check',

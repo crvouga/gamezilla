@@ -1,0 +1,37 @@
+{
+  "name": "@pkgs/ui-testing-rntl",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*/index.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bunx biome check --error-on-warnings .",
+    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "test": "bun test --preload ./bun-babel-plugin.ts --preload ./bun-preload.ts src --pass-with-no-tests"
+  },
+  "dependencies": {
+    "@babel/runtime": "catalog:",
+    "@pkgs/clock": "workspace:*",
+    "@pkgs/ui-testing": "workspace:*",
+    "@testing-library/react-native": "catalog:",
+    "react": "catalog:",
+    "react-native": "catalog:",
+    "react-native-gesture-handler": "catalog:",
+    "react-test-renderer": "catalog:"
+  },
+  "devDependencies": {
+    "@babel/core": "catalog:",
+    "@types/bun": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-test-renderer": "catalog:",
+    "@typescript/native": "catalog:",
+    "expo": "catalog:",
+    "typescript": "catalog:"
+  }
+}

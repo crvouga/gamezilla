@@ -1,60 +1,69 @@
+import { describe, test } from 'bun:test';
 import { Handles } from '@libs/test-ids';
-import { describe } from '@pkgs/ui-testing';
 
-import { AppDriver } from '../src/drivers/app-driver';
-import { aliceAvatarCreds, aliceUserCreds } from '../src/fixtures/fixtures';
 import { openSim } from '../src/setup/open-sim';
+import {
+  expectAvatarSeed,
+  expectAvatarStyleLabel,
+  expectAvatarTraitVisible,
+  expectUsername,
+  leaveAvatarEditor,
+  openAvatarEditor,
+  openProfileEdit,
+  returnToTabs,
+  saveAvatar,
+  setAvatarSeed,
+  setAvatarStyle,
+  setUsername,
+  signInWithDev,
+} from '../src/sim';
 
-describe('profile edit', (ctx) => {
-  ctx.test('guest updates username', async () => {
-    await using s = await openSim('profile-edit-guest-username', ctx);
-    const app = await AppDriver.forActor(s, 'alice');
-    await app.profile.openEdit();
-    await app.profile.setUsername('guest_user_1');
-    await app.profile.expectUsername('guest_user_1');
+describe('profile edit', () => {
+  test('guest updates username', async () => {
+    await using s = await openSim('profile-edit-guest-username');
+    await s.apply(openProfileEdit, 'alice');
+    await s.apply(setUsername, 'alice', 'guest_user_1');
+    await s.apply(expectUsername, 'alice', 'guest_user_1');
   });
 
-  ctx.test('guest updates avatar', async () => {
-    await using s = await openSim('profile-edit-guest-avatar', ctx);
-    const app = await AppDriver.forActor(s, 'alice');
-    await app.profile.openEdit();
-    await app.profile.openAvatarEditor();
-    await app.profile.setAvatarSeed('sim-seed-guest');
-    await app.profile.setAvatarStyle(Handles.profileAvatarStyleBottts);
-    await app.profile.expectAvatarStyleLabel('Bottts');
-    await app.profile.expectAvatarTraitVisible();
-    await app.profile.saveAvatar();
-    await app.profile.leaveAvatarEditor();
-    await app.profile.openAvatarEditor();
-    await app.profile.expectAvatarSeed('sim-seed-guest');
-    await app.profile.expectAvatarStyleLabel('Bottts');
+  test('guest updates avatar', async () => {
+    await using s = await openSim('profile-edit-guest-avatar');
+    await s.apply(openProfileEdit, 'alice');
+    await s.apply(openAvatarEditor, 'alice');
+    await s.apply(setAvatarSeed, 'alice', 'sim-seed-guest');
+    await s.apply(setAvatarStyle, 'alice', Handles.profileAvatarStyleBottts);
+    await s.apply(expectAvatarStyleLabel, 'alice', 'Bottts');
+    await s.apply(expectAvatarTraitVisible, 'alice');
+    await s.apply(saveAvatar, 'alice');
+    await s.apply(leaveAvatarEditor, 'alice');
+    await s.apply(openAvatarEditor, 'alice');
+    await s.apply(expectAvatarSeed, 'alice', 'sim-seed-guest');
+    await s.apply(expectAvatarStyleLabel, 'alice', 'Bottts');
   });
 
-  ctx.test('signed-in updates username', async () => {
-    await using s = await openSim('profile-edit-signed-username', ctx);
-    const app = await AppDriver.forActor(s, 'alice');
-    await app.auth.signInWithDev(aliceUserCreds);
-    await app.auth.returnToTabs();
-    await app.profile.openEdit();
-    await app.profile.setUsername('signed_alice_1');
-    await app.profile.expectUsername('signed_alice_1');
+  test('signed-in updates username', async () => {
+    await using s = await openSim('profile-edit-signed-username');
+    await s.apply(signInWithDev, 'alice');
+    await s.apply(returnToTabs, 'alice');
+    await s.apply(openProfileEdit, 'alice');
+    await s.apply(setUsername, 'alice', 'signed_alice_1');
+    await s.apply(expectUsername, 'alice', 'signed_alice_1');
   });
 
-  ctx.test('signed-in updates avatar', async () => {
-    await using s = await openSim('profile-edit-signed-avatar', ctx);
-    const app = await AppDriver.forActor(s, 'alice');
-    await app.auth.signInWithDev(aliceAvatarCreds);
-    await app.auth.returnToTabs();
-    await app.profile.openEdit();
-    await app.profile.openAvatarEditor();
-    await app.profile.setAvatarSeed('sim-seed-signed');
-    await app.profile.setAvatarStyle(Handles.profileAvatarStyleBottts);
-    await app.profile.expectAvatarStyleLabel('Bottts');
-    await app.profile.expectAvatarTraitVisible();
-    await app.profile.saveAvatar();
-    await app.profile.leaveAvatarEditor();
-    await app.profile.openAvatarEditor();
-    await app.profile.expectAvatarSeed('sim-seed-signed');
-    await app.profile.expectAvatarStyleLabel('Bottts');
+  test('signed-in updates avatar', async () => {
+    await using s = await openSim('profile-edit-signed-avatar');
+    await s.apply(signInWithDev, 'alice');
+    await s.apply(returnToTabs, 'alice');
+    await s.apply(openProfileEdit, 'alice');
+    await s.apply(openAvatarEditor, 'alice');
+    await s.apply(setAvatarSeed, 'alice', 'sim-seed-signed');
+    await s.apply(setAvatarStyle, 'alice', Handles.profileAvatarStyleBottts);
+    await s.apply(expectAvatarStyleLabel, 'alice', 'Bottts');
+    await s.apply(expectAvatarTraitVisible, 'alice');
+    await s.apply(saveAvatar, 'alice');
+    await s.apply(leaveAvatarEditor, 'alice');
+    await s.apply(openAvatarEditor, 'alice');
+    await s.apply(expectAvatarSeed, 'alice', 'sim-seed-signed');
+    await s.apply(expectAvatarStyleLabel, 'alice', 'Bottts');
   });
 });

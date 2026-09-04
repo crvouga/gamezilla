@@ -2,7 +2,7 @@
  * Single flag for which SQL engines `@product/sim` use.
  *
  * - `real` (default): PGlite server + real SQLite clients
- *   (browser → SQLite WASM; Node/Jest → better-sqlite3 / bun:sqlite)
+ *   (browser → SQLite WASM; Node/bun → better-sqlite3 / bun:sqlite)
  * - `mem`: postgres-mem + sqlite-mem (legacy A/B)
  *
  * Override: `SIM_SQL_BACKEND=mem|real`
@@ -20,12 +20,11 @@ export type SimSqlRuntime = 'browser' | 'node';
 export const DEFAULT_SIM_SQL_BACKEND: SimSqlBackend = 'real';
 
 export function resolveSimSqlRuntime(): SimSqlRuntime {
-  // Real browser playground (no Jest): WASM clients.
+  // Real browser playground (no bun:test): WASM clients.
   if (
     typeof window !== 'undefined' &&
     typeof document !== 'undefined' &&
-    (typeof process === 'undefined' ||
-      process.env['JEST_WORKER_ID'] === undefined)
+    typeof Bun === 'undefined'
   ) {
     return 'browser';
   }

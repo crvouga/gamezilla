@@ -115,11 +115,11 @@ import { defineTable, registerTables } from '@pkgs/db-schema';
 import {
   applyPostgresSchema,
   PostgresSchemaDatabaseMigration,
-} from '@pkgs/db-schema/postgres';
+} from '@pkgs/db-schema-postgres';
 import {
   applySqliteSchema,
   SqliteSchemaDatabaseMigration,
-} from '@pkgs/db-schema/sqlite';
+} from '@pkgs/db-schema-sqlite';
 
 export const appSchema = registerTables([...TABLES]);
 

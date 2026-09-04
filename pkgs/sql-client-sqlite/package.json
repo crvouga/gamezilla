@@ -1,0 +1,36 @@
+{
+  "name": "@pkgs/sql-client-sqlite",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*/index.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bunx biome check --error-on-warnings .",
+    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "test": "bun test --pass-with-no-tests"
+  },
+  "dependencies": {
+    "@crvouga/sqlite-mem": "catalog:",
+    "@pkgs/assert": "workspace:*",
+    "@pkgs/clock": "workspace:*",
+    "@pkgs/logger": "workspace:*",
+    "@pkgs/object-store": "workspace:*",
+    "@pkgs/sql": "workspace:*",
+    "@pkgs/sql-client": "workspace:*",
+    "@sqlite.org/sqlite-wasm": "catalog:",
+    "better-sqlite3": "catalog:",
+    "expo-sqlite": "catalog:",
+    "react": "catalog:",
+    "react-native": "catalog:"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "catalog:",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "name": "@pkgs/kv-expo",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*/index.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bunx biome check --error-on-warnings .",
+    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "test": "bun test --pass-with-no-tests"
+  },
+  "dependencies": {
+    "@pkgs/assert": "workspace:*",
+    "@pkgs/keyword": "workspace:*",
+    "@pkgs/kv": "workspace:*",
+    "@pkgs/kv-web": "workspace:*",
+    "@react-native-async-storage/async-storage": "catalog:",
+    "react-native": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  }
+}

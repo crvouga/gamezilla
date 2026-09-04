@@ -5,7 +5,7 @@ import type {
   RunResult,
   SqlClient,
 } from '@pkgs/sql-client/interface';
-import type { PostgresDbScope } from '@pkgs/sql-client/postgres/schema';
+import type { PostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
 
 export type RecordedCall =
   | {

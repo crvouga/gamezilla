@@ -1,6 +1,7 @@
 // @io-wall-ok — composition root: product.run + wall-driven sim clock advance.
 
 import { wallClock, wallTimers } from '@pkgs/clock';
+import { defineAction, type Run } from '@pkgs/sim';
 import {
   createPlaygroundLogBuffer,
   type PlaygroundSession,
@@ -11,12 +12,13 @@ import {
 } from '@product/console/playground/playground-session';
 import { createPlaygroundSnapshotStore } from '@product/console/playground/playground-snapshot-store';
 import {
+  listenSimHttpServer,
+  type ProductSim,
   product,
   productExtra,
-  type ProductSim,
   type Sim,
+  type SimHttpListener,
 } from '@product/sim';
-import { defineAction, type Run } from '@pkgs/sim';
 
 function startSimClockTick(sim: Sim): {
   readonly disposeTick: () => void;
@@ -64,17 +66,27 @@ async function pinSim(s: Run<ProductSim>): Promise<ProductSim> {
 }
 
 /**
- * Boot the shared product System on the `in-process` host and adapt it to a
- * PlaygroundSession. Console must not open a Session / createSim itself.
+ * Boot the shared product System and adapt it to a PlaygroundSession.
+ * Default host `in-process` (Expo Metro / Expo Go). Optional `bun-webview`
+ * embeds actor URLs against localhost when a web sidecar is up.
+ * Console must not open a Session / createSim itself.
  */
 export async function bootPlaygroundSession(
   opts?: BootPlaygroundOptions
 ): Promise<PlaygroundSession> {
-  const run = await product.run({ seed: 1, runtime: 'in-process' });
+  const host: 'in-process' | 'bun-webview' = opts?.runtime ?? 'in-process';
+  const run = await product.run({ seed: 1, runtime: host });
   const surface = await pinSim(run);
-  // Playground never uses RNTL; ensure drain hook is wired (system create did).
-  void productExtra(surface);
+  const extra = productExtra(surface);
   const sim = surface.sim;
+  let httpListener: SimHttpListener | null = null;
+  let actorWebOrigin: string | undefined;
+  if (extra.http.kind === 'localhost') {
+    httpListener = await listenSimHttpServer(sim);
+  }
+  if (extra.ui.kind === 'bun-webview') {
+    actorWebOrigin = extra.ui.webOrigin;
+  }
   const clock = startSimClockTick(sim);
   const domainWake: { fire: (label: string) => void } = {
     fire() {},
@@ -87,6 +99,9 @@ export async function bootPlaygroundSession(
     snapshotStore: createPlaygroundSnapshotStore(),
     disposeTick: () => {
       clock.disposeTick();
+      if (httpListener !== null) {
+        void httpListener.stop();
+      }
       void run[Symbol.asyncDispose]();
     },
     getClockPaused: clock.getClockPaused,
@@ -95,6 +110,7 @@ export async function bootPlaygroundSession(
     bindDomainWake: (fire) => {
       domainWake.fire = fire;
     },
+    ...(actorWebOrigin !== undefined ? { actorWebOrigin } : {}),
   });
   return session;
 }

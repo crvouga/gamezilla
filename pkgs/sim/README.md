@@ -13,13 +13,13 @@ Runtime supplies those. Root policy: [`DETERMINISM.md`](../../DETERMINISM.md).
 
 | Term | Meaning |
 | --- | --- |
-| **Runtime** | Fidelity factory (`virtualTimeRuntime` / `realTimeRuntime` / `defineRuntime`). Registered on the System by name; opens a Session. |
+| **Runtime** | Fidelity factory (`virtualTimeRuntime` / `realTimeRuntime`) or a catalog entry from `defineRuntime`. Passed into `defineSystem` via `runtimes`; opens a Session. |
 | **Session** | Kernel + ports for one node (`clock`, `timers`, `createId`, `random`, `network`, `fork`, `waitForIdle`, `advanceTime`). Harness-only. |
-| **System** | `defineSystem({ name, create, args?, sample? })` — recipe → `S`; catalogs Actions / Properties / Snapshots / Runtimes via methods. |
+| **System** | `defineSystem({ name, create, runtimes, actions?, properties?, snapshots?, args?, sample? })` — recipe → `S` with catalogs declared upfront. |
 | **sim `S`** | Typed surface returned by `create(session, args)`. Data only — no wait/drain methods. |
-| **Action** | Named stimulus `{ enabled, weight, args?, sample?, pool?, act }`, registered with `system.action`. |
-| **Property** | Checkpoint predicate `{ setup?, check, close? }`, registered with `system.property`. |
-| **Snapshot** | Named capture `{ media?, capture }` registered with `system.snapshot`. Value may be any type; `media` (`json` / `html` / `png` / `text` / `bytes`) controls encoding and UI. |
+| **Action** | Named stimulus `{ enabled, weight, args?, sample?, pool?, act }` from `defineAction`, listed in `defineSystem({ actions })`. |
+| **Property** | Checkpoint predicate `{ setup?, check, close? }` from `defineProperty`, listed in `defineSystem({ properties })`. |
+| **Snapshot** | Named capture `{ media?, capture }` from `defineSnapshot`, listed in `defineSystem({ snapshots })`. Value may be any type; `media` (`json` / `html` / `png` / `text` / `bytes`) controls encoding and UI. |
 | **Run** | Opened by `system.run({ seed, runtime?, args?, report? })`. Drive with `apply` / `read` / `assert` / `advanceTime` / `until` / `never` / `randomActions` / `record` / `snapshot`. |
 | **RunReport** | Timeline of report steps + frames for one test. Built when `report` is enabled; optionally persisted to an ObjectStore. |
 | **record** | `s.record({ kind, title, … }, fn)` — one labeled report step; nested `apply` / `advanceTime` attach frames to it. |
@@ -132,8 +132,6 @@ await kv.explore({ episodes: 20, steps: 40, seed: 42 });
 `create` is `(session, args) => S | Promise<S>`. Do not sample inside `create`.
 Omit `sample` on the system when every episode should use `args`.
 
----
-
 ## Layout
 
 ```
@@ -164,3 +162,5 @@ src/fast-check/    gen / arbitrary adapters
   unpack ports at the composition root.
 - **Don't** import `@pkgs/sim/internals` from product or sim kits.
 - **Don't** read `process.env` for seeds.
+- **Don't** revive `Host` / `defineHost` — a host is a named `defineRuntime` entry on `defineSystem`.
+  Product hosts (`in-process`, `bun-webview`, …) live in `@product/sim`, not here.

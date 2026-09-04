@@ -520,6 +520,8 @@
         "!**/*.example.tsx",
         "!**/e2e/harness/tab-app.ts",
         "!**/e2e/harness/harness-client.ts",
+        "!**/e2e/webview.ts",
+        "!**/bun-webview-driver-node.ts",
         "!**/sql-host-entry.ts",
         "!**/cf-dns.ts",
         "!**/tests/**",
@@ -589,6 +591,8 @@
         "!**/*.example.tsx",
         "!**/e2e/harness/tab-app.ts",
         "!**/e2e/harness/harness-client.ts",
+        "!**/e2e/webview.ts",
+        "!**/bun-webview-driver-node.ts",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
         "!**/src/sim/**"
@@ -630,7 +634,7 @@
         "!**/pkgs/chess-board/src/chess-board-promotion.tsx",
         "!**/pkgs/chess-board/src/chess-board-drag-preview.tsx",
         "!**/pkgs/chess-board/src/chess-board-feedback.tsx",
-        "!**/pkgs/ui-testing/src/drivers/rntl/demo-app.tsx",
+        "!**/pkgs/ui-testing-rntl/src/demo-app.tsx",
         "!**/fixtures/**",
         "!**/demo-app.*",
         "!**/serialize-host-tree-html*",
@@ -647,7 +651,8 @@
       "path": "./tools/biome-plugins/no-dst-raw-selectors.grit",
       "includes": [
         "**/product/test/tests/**/*.{ts,tsx}",
-        "**/product/test/src/drivers/**/*.{ts,tsx}",
+        "**/product/test/src/fixtures/**/*.{ts,tsx}",
+        "**/product/test/src/snapshots/**/*.{ts,tsx}",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
         "!**/src/sim/**"
@@ -689,8 +694,8 @@
         "**/libs/**/*.{ts,tsx}",
         "**/pkgs/**/*.{ts,tsx}",
         "**/product/**/*.{ts,tsx}",
-        "!**/pkgs/db-schema/src/postgres/emit.ts",
-        "!**/pkgs/db-schema/src/sqlite/emit.ts",
+        "!**/pkgs/db-schema-postgres/src/emit.ts",
+        "!**/pkgs/db-schema-sqlite/src/emit.ts",
         "!**/pkgs/sql-client/src/agnostic-sql.test.ts",
         "!**/pkgs/sql-client/e2e/harness/memory-sql.ts",
         "!**/pkgs/sql-client/tests/helpers/generators/program.ts",
@@ -889,15 +894,17 @@
               "options": {
                 "paths": {
                   "@pkgs/ui-testing": {
-                    "importNames": [
-                      "createDriver",
-                      "Driver",
-                      "RntlDriver",
-                      "PlaywrightDriver",
-                      "DetoxDriver",
-                      "createMultiAppRntlSession"
-                    ],
-                    "message": "Scenarios must use AppDriver / openSim (see product/test/src/setup/TESTING.md). Import only describe from @pkgs/ui-testing."
+                    "importNames": ["Driver"],
+                    "message": "Scenarios must use s.apply(defineAction) / openSim (see product/test/src/setup/TESTING.md)."
+                  },
+                  "@pkgs/ui-testing-rntl": {
+                    "message": "Scenarios must use s.apply(defineAction) / openSim (see product/test/src/setup/TESTING.md)."
+                  },
+                  "@pkgs/ui-testing-bun-webview": {
+                    "message": "Scenarios must use s.apply(defineAction) / openSim (see product/test/src/setup/TESTING.md)."
+                  },
+                  "@pkgs/ui-testing-detox": {
+                    "message": "Scenarios must use s.apply(defineAction) / openSim (see product/test/src/setup/TESTING.md)."
                   }
                 }
               }

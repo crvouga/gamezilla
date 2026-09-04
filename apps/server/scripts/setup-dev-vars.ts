@@ -27,7 +27,7 @@ import {
   MINIO_ROOT_PASSWORD,
   MINIO_ROOT_USER,
 } from '@pkgs/minio-server';
-import { createRepoTreeObjectStore } from '@pkgs/object-store/repo-tree-store';
+import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs/repo-tree-store';
 import { LOCAL_DATABASE_URL } from '@pkgs/postgres-embedded';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
 import { DEV_VARS_PATH, encodeDevVarValue } from './dev-vars';
