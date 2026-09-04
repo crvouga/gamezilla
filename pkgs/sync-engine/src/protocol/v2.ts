@@ -101,12 +101,18 @@ export type AuthErrorBody = {
  * Pubsub push payload. `pushSeq` required and monotonic per topic.
  * Optional `rows` are a lossy optimization; snapshots define correctness.
  * `tables` comes from captured writes (AST), not hand declarations.
+ *
+ * `checkpoint` is the query-checkpoint allocator value minted after the
+ * replay committed. Clients that already hold this push's writes raise the
+ * affected scopes' `last_checkpoint` to it so an in-flight snapshot that was
+ * read before the replay cannot overwrite them.
  */
 export type PushMessage = {
   readonly pushSeq: string;
   readonly optimistic?: true;
   readonly tables?: readonly string[];
   readonly rows?: Readonly<Record<string, readonly QueryRow[]>>;
+  readonly checkpoint?: string;
 };
 
 /** Header / body field clients send; server rejects mismatch. */

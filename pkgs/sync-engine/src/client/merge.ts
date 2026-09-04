@@ -20,7 +20,7 @@ import {
   omitAlreadyLiveRows,
   recordOptimisticPeerRows,
 } from './optimistic-peer-rows';
-import { compareCheckpoint } from './push-applied';
+import { compareCheckpoint, raiseScopeCheckpoints } from './push-applied';
 
 export type MergeFullInput = {
   readonly scopeHash: string;
@@ -228,11 +228,22 @@ function filterDeviceOwnedRows(
  *
  * When `optimistic` is true, ids are recorded so a later confirming snapshot
  * can soft-delete orphans that never committed on the server.
+ *
+ * `raise` lifts the listed scopes' `last_checkpoint` in the same transaction
+ * so no stale snapshot can slip in between the row apply and the fence.
  */
+export type RowImageCheckpointRaise = {
+  readonly checkpoint: string;
+  readonly scopes: readonly string[];
+};
+
 export async function applyRowImages(
   deps: MergeApplierDeps,
   tables: Readonly<Record<string, readonly QueryRow[]>>,
-  opts?: { readonly optimistic?: boolean }
+  opts?: {
+    readonly optimistic?: boolean;
+    readonly raise?: RowImageCheckpointRaise;
+  }
 ): Promise<void> {
   const filtered: Record<string, readonly QueryRow[]> = {};
   for (const [table, rows] of Object.entries(tables)) {
@@ -272,6 +283,14 @@ export async function applyRowImages(
         );
       }
       await rebasePending(tx, deps, changed);
+      if (opts?.raise !== undefined) {
+        await raiseScopeCheckpoints(
+          tx,
+          opts.raise.scopes,
+          opts.raise.checkpoint,
+          { now: () => deps.env.now().getTime() }
+        );
+      }
     });
     if (changed.size > 0) deps.bus.emit([...changed]);
   });

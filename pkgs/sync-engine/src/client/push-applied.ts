@@ -1,4 +1,4 @@
-import { sql } from '@pkgs/sql';
+import { join, sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import { managedUpdatedAtIso } from '../mutations/shared/managed-columns';
@@ -96,6 +96,44 @@ export async function isPushSeqStale(
   const prev = await readLastPushSeq(db, topic, clock);
   if (prev === null) return false;
   return compareCheckpoint(pushSeq, prev) <= 0;
+}
+
+/**
+ * Raise `sync_engine_scope_meta.last_checkpoint` for scopes whose rows already
+ * reflect a push minted at `checkpoint`. Snapshots read before that replay
+ * then fail `isStale` instead of reviving overwritten rows. Scopes with no
+ * meta row yet (never hydrated) are left alone — the first snapshot must land.
+ */
+export async function raiseScopeCheckpoints(
+  db: SqlClient,
+  scopeHashes: readonly string[],
+  checkpoint: string,
+  clock: PushAppliedClock
+): Promise<void> {
+  if (scopeHashes.length === 0) return;
+  const rows = await db.query(sql<{
+    scope_hash: string;
+    last_checkpoint: string | null;
+  }>`
+    SELECT scope_hash, last_checkpoint FROM sync_engine_scope_meta
+    WHERE scope_hash IN (${join(scopeHashes.map((h) => sql`${h}`))})
+      AND deleted_at IS NULL
+  `);
+  const behind = rows
+    .filter(
+      (row) =>
+        row.last_checkpoint === null ||
+        compareCheckpoint(checkpoint, row.last_checkpoint) > 0
+    )
+    .map((row) => row.scope_hash);
+  if (behind.length === 0) return;
+  const ts = managedUpdatedAtIso(clock.now);
+  await db.run(sql`
+    UPDATE sync_engine_scope_meta
+    SET last_checkpoint = ${checkpoint}, updated_at = ${ts}
+    WHERE scope_hash IN (${join(behind.map((h) => sql`${h}`))})
+      AND deleted_at IS NULL
+  `);
 }
 
 export async function recordPushApplied(

@@ -172,6 +172,9 @@ async function notifyApplied(args: {
   publishPushMessages({
     pubsub: args.ctx.pubsub,
     pushSeqs: checkpoints,
+    // After the replay commit — orders this push above any snapshot that was
+    // read before it (see `PushMessage.checkpoint`).
+    checkpoint: args.ctx.nextCheckpoint(),
     tables: merged.tables,
     ...(rowsByTopic !== undefined
       ? { rowsByTopic }

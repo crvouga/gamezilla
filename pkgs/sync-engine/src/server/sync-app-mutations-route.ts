@@ -213,6 +213,10 @@ function publishMutationPushes(
   publishPushMessages({
     pubsub: deps.pubsub,
     pushSeqs: prepared.checkpoints,
+    // Minted after the replay transaction committed: any snapshot read before
+    // the commit carries a lower checkpoint and is rejected once a client has
+    // applied these rows.
+    checkpoint: deps.nextCheckpoint(),
     tables: prepared.tables,
     ...(prepared.rowsByTopic !== undefined
       ? { rowsByTopic: prepared.rowsByTopic }
@@ -231,6 +235,8 @@ export type MountMutationsRouteDeps = {
   readonly mutations: MutationRegistry;
   readonly now: () => number;
   readonly createId: CreateId;
+  /** Shared with the query routes — snapshot / push ordering must agree. */
+  readonly nextCheckpoint: () => string;
   readonly pubsub?: PubSub;
   /** When true, publish post-replay row images on pushes (default false). */
   readonly rowImageFanout?: boolean;

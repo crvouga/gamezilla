@@ -48,8 +48,9 @@ export type MutationUploadQueueOptions = {
   ) => Promise<MutationUploadResult>;
   readonly onError: (error: unknown) => void;
   /**
-   * Sync fence right after applied acks delete queue rows (before further
-   * awaits). Bump query generations so in-flight pre-replay sweeps drop.
+   * Sync fence fired before applied acks delete queue rows. Bump query
+   * generations so in-flight pre-replay sweeps drop instead of merging a
+   * stale snapshot once the pending mutation is no longer there to rebase.
    */
   readonly onAckFence?: (() => void) | undefined;
   readonly timers: Timers;
@@ -116,8 +117,11 @@ async function storeRejection(
 }
 
 /**
- * Ack = delete queue row. Applied ids trigger `onAckFence` before any further
- * await so in-flight pre-replay query sweeps cannot apply without rebase.
+ * Ack = delete queue row. Applied ids trigger `onAckFence` synchronously,
+ * before the delete transaction is even opened: a pre-replay sweep response
+ * that lands between "queue row gone" and "generation bumped" would merge its
+ * stale snapshot with nothing left to rebase, reviving rows the mutation
+ * already changed on the server.
  */
 async function applyUploadResult(
   options: MutationUploadQueueOptions,
@@ -141,13 +145,15 @@ async function applyUploadResult(
 
   const clientId = options.clientId();
   const nowIso = new Date(now()).toISOString();
-  let appliedAny = false;
+  const appliedAny = result.verdicts.some((v) => v.status !== 'rejected');
+  if (appliedAny) {
+    options.onAckFence?.();
+  }
   await options.db.transaction(async (tx) => {
     for (const verdict of result.verdicts) {
       if (verdict.status === 'rejected') {
         await storeRejection(tx, clientId, verdict, nowIso);
       } else {
-        appliedAny = true;
         await clearOptimisticRowsForMutation(tx, verdict.mutationId, nowIso);
       }
     }
@@ -163,9 +169,6 @@ async function applyUploadResult(
       `);
     }
   });
-  if (appliedAny) {
-    options.onAckFence?.();
-  }
   // Floor topic pushSeqs from the ack so own echoed fanout is a no-op.
   if (result.topicPushSeqs !== undefined) {
     for (const [topic, pushSeq] of Object.entries(result.topicPushSeqs)) {

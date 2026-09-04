@@ -6,7 +6,7 @@
     "seed:sim-db": "bun scripts/build-sim-seed.ts",
     "snapshot": "NODE_OPTIONS=--max-old-space-size=8192 bunx jest --config ./jest.snapshots.config.cjs --runInBand",
     "tc": "tsc --noEmit -p tsconfig.json",
-    "test": "NODE_OPTIONS=--max-old-space-size=8192 bunx jest --config ./jest.config.cjs --runInBand",
+    "test": "NODE_OPTIONS=--max-old-space-size=8192 bunx jest --config ./jest.config.cjs --runInBand --detectOpenHandles",
     "test:debug-handles": "NODE_OPTIONS=--max-old-space-size=8192 bunx jest --config ./jest.config.cjs --runInBand --detectOpenHandles",
     "test:fuzz": "bun run scripts/test-fuzz.ts",
     "test:max": "playwright test -c ./playwright.config.mjs"

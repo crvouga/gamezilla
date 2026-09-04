@@ -117,11 +117,15 @@ export function parsePush(data: unknown): PushMessage | null {
   const rows = parsePushRows(record['rows']);
   const optimistic =
     record['optimistic'] === true ? (true as const) : undefined;
+  const checkpoint = record['checkpoint'];
   return {
     pushSeq,
     ...(optimistic !== undefined ? { optimistic } : {}),
     ...(tables !== undefined ? { tables } : {}),
     ...(rows !== undefined ? { rows } : {}),
+    ...(typeof checkpoint === 'string' && checkpoint.length > 0
+      ? { checkpoint }
+      : {}),
   };
 }
 

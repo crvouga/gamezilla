@@ -74,6 +74,8 @@ export function publishPushMessages(options: {
     Topic,
     Readonly<Record<string, readonly QueryRow[]>>
   >;
+  /** Query-checkpoint minted after the replay committed (see `PushMessage`). */
+  readonly checkpoint?: string;
   readonly label?: string;
 }): void {
   const label = options.label ?? 'publishPushMessages';
@@ -88,6 +90,9 @@ export function publishPushMessages(options: {
       ...(tables !== undefined && tables.length > 0 ? { tables } : {}),
       ...(topicRows !== undefined && Object.keys(topicRows).length > 0
         ? { rows: topicRows }
+        : {}),
+      ...(options.checkpoint !== undefined
+        ? { checkpoint: options.checkpoint }
         : {}),
     };
     void options.pubsub.publish(topic, payload).catch((error: unknown) => {

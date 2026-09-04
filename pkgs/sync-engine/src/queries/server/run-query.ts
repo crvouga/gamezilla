@@ -145,6 +145,10 @@ async function runDefinedQuery(
     return { status: 'denied' };
   }
 
+  // Mint before reading: the checkpoint is a lower bound on the snapshot's
+  // position. A replay that commits after this mint publishes a higher
+  // checkpoint, so a client holding that push rejects this (older) snapshot.
+  const checkpoint = deps.nextCheckpoint();
   const tables = await def.run(runCtx, params);
   let total = 0;
   for (const rows of Object.values(tables)) {
@@ -166,7 +170,7 @@ async function runDefinedQuery(
 
   return {
     status: 'ok',
-    checkpoint: deps.nextCheckpoint(),
+    checkpoint,
     hash,
     tables: limited,
   };

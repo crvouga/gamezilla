@@ -241,6 +241,56 @@ describe('merge snapshot and row images unit', () => {
     await db.disconnect();
   });
 
+  test('row images with a push checkpoint fence out an older in-flight snapshot', async () => {
+    const { db, deps } = await openMergeDb();
+    const live = {
+      id: 'n1',
+      folder_id: null,
+      title: '',
+      body: 'v1',
+      owner_id: 'actor',
+      deleted_at: null,
+    };
+    await applyFullMerge(deps, {
+      scopeHash: 's1',
+      checkpoint: '10',
+      hash: 'h1',
+      tables: { notes: [live] },
+    });
+    // Replay committed on the server and its push (checkpoint 30) landed here.
+    await applyRowImages(
+      deps,
+      { notes: [{ ...live, deleted_at: '2020-01-01T00:00:00.000Z' }] },
+      { raise: { checkpoint: '30', scopes: ['s1', 'never-hydrated'] } }
+    );
+    // A snapshot read before that replay (checkpoint 20) arrives late.
+    const verdict = await applyFullMerge(deps, {
+      scopeHash: 's1',
+      checkpoint: '20',
+      hash: 'h2',
+      tables: { notes: [live] },
+    });
+    expect(verdict).toBe('stale');
+    const rows = await db.query(sql<{ deleted_at: string | null }>`
+      SELECT deleted_at FROM notes WHERE id = ${'n1'}
+    `);
+    expect(rows[0]?.deleted_at).toBe('2020-01-01T00:00:00.000Z');
+    // Scopes without a meta row are untouched — their first snapshot must land.
+    const meta = await db.query<{ scope_hash: string }>(sql`
+      SELECT scope_hash FROM sync_engine_scope_meta WHERE deleted_at IS NULL
+    `);
+    expect(meta.map((m) => m.scope_hash)).toEqual(['s1']);
+    // A snapshot read after the replay (checkpoint 40) still applies.
+    const later = await applyFullMerge(deps, {
+      scopeHash: 's1',
+      checkpoint: '40',
+      hash: 'h3',
+      tables: { notes: [{ ...live, body: 'v2', deleted_at: null }] },
+    });
+    expect(later).toBe('applied');
+    await db.disconnect();
+  });
+
   test('own optimistic insert absent from snapshot is tombstoned', async () => {
     const { db, deps } = await openMergeDb();
     await applyFullMerge(deps, {

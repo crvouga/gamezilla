@@ -63,6 +63,7 @@ export function createSyncApp(deps: CreateSyncAppDeps) {
     mutations,
     now: deps.now,
     createId: deps.createId,
+    nextCheckpoint,
     ...(deps.pubsub !== undefined ? { pubsub: deps.pubsub } : {}),
     ...(deps.rowImageFanout === true ? { rowImageFanout: true } : {}),
     ...(topicMap !== undefined ? { topicMap } : {}),

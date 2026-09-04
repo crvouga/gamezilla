@@ -11,11 +11,12 @@ import {
   parsePush,
 } from './attach-push-bag';
 import { rowsWithinReceiveCap } from './attach-push-rows-cap';
-import { applyRowImages } from './merge';
+import { applyRowImages, type RowImageCheckpointRaise } from './merge';
 import {
   compareCheckpoint,
   isContiguousNext,
   type PushAppliedClock,
+  raiseScopeCheckpoints,
   readLastPushSeq,
   recordPushApplied,
 } from './push-applied';
@@ -58,6 +59,41 @@ async function tryApplyOptimisticRows(
   return true;
 }
 
+/**
+ * Local rows already reflect this push (row images applied, or the pushSeq
+ * was consumed by an earlier apply / own upload ack). Fence the topic's
+ * scopes at the push checkpoint so an older in-flight snapshot is dropped.
+ */
+async function fenceScopesAtPush(
+  bag: PushBag,
+  topic: Topic,
+  payload: PushMessage
+): Promise<void> {
+  if (payload.checkpoint === undefined) return;
+  const scopes = bag.topicToScopes.get(topic);
+  if (scopes === undefined || scopes.size === 0) return;
+  try {
+    await raiseScopeCheckpoints(
+      bag.options.db,
+      [...scopes],
+      payload.checkpoint,
+      { now: bag.options.now }
+    );
+  } catch (error) {
+    warnPush('[push] scope checkpoint fence failed', topic, error);
+  }
+}
+
+function raiseFor(
+  bag: PushBag,
+  topic: Topic,
+  payload: PushMessage
+): { readonly raise: RowImageCheckpointRaise } | Record<string, never> {
+  const scopes = bag.topicToScopes.get(topic);
+  if (payload.checkpoint === undefined || scopes === undefined) return {};
+  return { raise: { checkpoint: payload.checkpoint, scopes: [...scopes] } };
+}
+
 async function tryApplyFanoutRows(
   bag: PushBag,
   topic: Topic,
@@ -77,7 +113,8 @@ async function tryApplyFanoutRows(
   try {
     await applyRowImages(
       getMergeDeps(),
-      capped as Record<string, readonly QueryRow[]>
+      capped as Record<string, readonly QueryRow[]>,
+      raiseFor(bag, topic, payload)
     );
     await recordPushApplied(bag.options.db, topic, payload.pushSeq, clock);
     return true;
@@ -129,14 +166,12 @@ export async function handlePush(
 
   if (
     lastPushSeq !== null &&
-    isDuplicatePushSeq(lastPushSeq, payload.pushSeq)
+    (isDuplicatePushSeq(lastPushSeq, payload.pushSeq) ||
+      compareCheckpoint(payload.pushSeq, lastPushSeq) <= 0)
   ) {
-    return;
-  }
-  if (
-    lastPushSeq !== null &&
-    compareCheckpoint(payload.pushSeq, lastPushSeq) <= 0
-  ) {
+    // Already applied (fanout / refetch) or floored by our own upload ack —
+    // local rows hold these writes, so the fence is sound.
+    await fenceScopesAtPush(bag, topic, payload);
     return;
   }
 
