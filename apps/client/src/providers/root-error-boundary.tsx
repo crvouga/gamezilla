@@ -1,7 +1,7 @@
 import { useTimers } from '@pkgs/clock';
 import * as Clipboard from 'expo-clipboard';
 import { Component, type ReactNode, useState } from 'react';
-import { DevSettings, Platform, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
 type Props = { children: ReactNode };
 type State = { error: Error | null };
@@ -22,62 +22,13 @@ function crashMessage(error: Error): string {
   return message.length > 0 ? message : String(error);
 }
 
-function reloadApp(): void {
-  if (Platform.OS === 'web') {
-    globalThis.location.reload();
-    return;
-  }
-  DevSettings.reload();
-}
-
-type CrashButtonProps = {
-  label: string;
-  accessibilityLabel: string;
-  onPress: () => void;
-  primary?: boolean;
-};
-
-function CrashButton({
-  label,
-  accessibilityLabel,
-  onPress,
-  primary = false,
-}: CrashButtonProps): ReactNode {
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel}
-      onPress={onPress}
-      style={({ pressed }) => ({
-        paddingVertical: 10,
-        paddingHorizontal: 14,
-        borderRadius: 8,
-        borderWidth: 1,
-        borderColor: primary ? '#ffb4b4' : '#ff8a8a',
-        backgroundColor: pressed
-          ? primary
-            ? '#4a2020'
-            : '#3a1a1a'
-          : primary
-            ? '#3a1818'
-            : '#2a1212',
-        opacity: pressed ? 0.85 : 1,
-      })}
-    >
-      <Text style={{ color: '#ff8a8a', fontSize: 14, fontWeight: '600' }}>
-        {label}
-      </Text>
-    </Pressable>
-  );
-}
-
 function CopyErrorButton({ error }: { error: Error }): ReactNode {
   const timers = useTimers();
   const [copied, setCopied] = useState(false);
 
   return (
-    <CrashButton
-      label={copied ? 'Copied' : 'Copy error'}
+    <Pressable
+      accessibilityRole="button"
       accessibilityLabel="Copy error"
       onPress={() => {
         void Clipboard.setStringAsync(formatCrashText(error)).then(() => {
@@ -85,18 +36,20 @@ function CopyErrorButton({ error }: { error: Error }): ReactNode {
           timers.setTimeout(() => setCopied(false), COPIED_RESET_MS);
         });
       }}
-    />
-  );
-}
-
-function RestartAppButton(): ReactNode {
-  return (
-    <CrashButton
-      label="Restart"
-      accessibilityLabel="Restart app"
-      primary
-      onPress={reloadApp}
-    />
+      style={({ pressed }) => ({
+        paddingVertical: 10,
+        paddingHorizontal: 14,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#ff8a8a',
+        backgroundColor: pressed ? '#3a1a1a' : '#2a1212',
+        opacity: pressed ? 0.85 : 1,
+      })}
+    >
+      <Text style={{ color: '#ff8a8a', fontSize: 14, fontWeight: '600' }}>
+        {copied ? 'Copied' : 'Copy error'}
+      </Text>
+    </Pressable>
   );
 }
 
@@ -112,6 +65,34 @@ export class RootErrorBoundary extends Component<Props, State> {
 
   static getDerivedStateFromError(error: Error): State {
     return { error };
+  }
+
+  override componentDidCatch(
+    error: Error,
+    info: { componentStack?: string }
+  ): void {
+    // #region agent log
+    fetch('http://127.0.0.1:7911/ingest/d4edd39e-6094-44db-a7a5-6f18ec22b1a0', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Debug-Session-Id': 'ad8a49',
+      },
+      body: JSON.stringify({
+        sessionId: 'ad8a49',
+        runId: 'pre-fix',
+        hypothesisId: 'stack',
+        location: 'root-error-boundary.tsx:componentDidCatch',
+        message: 'caught render error',
+        data: {
+          err: String(error?.message ?? error),
+          stack: String(error?.stack ?? '').slice(0, 4000),
+          componentStack: String(info?.componentStack ?? '').slice(0, 2000),
+        },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+    // #endregion
   }
 
   override render(): ReactNode {
@@ -153,17 +134,7 @@ export class RootErrorBoundary extends Component<Props, State> {
           >
             {crashMessage(error)}
           </Text>
-          <View
-            style={{
-              flexDirection: 'row',
-              flexWrap: 'wrap',
-              gap: 10,
-              justifyContent: 'center',
-            }}
-          >
-            <RestartAppButton />
-            <CopyErrorButton error={error} />
-          </View>
+          <CopyErrorButton error={error} />
         </View>
       </View>
     );

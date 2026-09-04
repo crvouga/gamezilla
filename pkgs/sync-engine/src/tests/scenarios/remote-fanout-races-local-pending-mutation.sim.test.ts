@@ -1,39 +1,34 @@
 import { describe, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import {
-  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
   mutate,
   online,
   setNote,
-  syncVirtualHost,
 } from '../apps/acme';
 
 describe('remote fanout races local pending mutation', () => {
   test('fanout races local pending mutation on same row then converges', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 29,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, 'alice');
-    await run.apply(addClient, 'bob');
+    await s.apply(addClient, 'alice');
+    await s.apply(addClient, 'bob');
 
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'from-a' });
-    await expectConverged(run);
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'from-a' });
+    await expectConverged(s);
 
-    await run.apply(online, 'bob', false);
-    await run.apply(mutate, 'bob', setNote, {
+    await s.apply(online, 'bob', false);
+    await s.apply(mutate, 'bob', setNote, {
       id: 'n1',
       body: 'from-b-pending',
     });
-    await run.apply(online, 'bob', true);
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'from-a-2' });
-    await run.elapse(500);
-    await expectConverged(run);
+    await s.apply(online, 'bob', true);
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'from-a-2' });
+    await s.elapse(500);
+    await expectConverged(s);
   });
 });

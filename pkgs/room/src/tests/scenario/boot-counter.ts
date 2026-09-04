@@ -7,10 +7,10 @@ export type { OpenRoomOpts };
 export { openRoom };
 
 export async function bootCounter(ids: readonly string[], opts?: OpenRoomOpts) {
-  const run = await openRoom(counterSystem, opts);
+  const s = await openRoom(counterSystem, opts);
   for (const id of ids) {
-    await run.apply(addClient, { id });
+    await s.apply(addClient, { id });
   }
-  await expectConverged(run);
-  return run;
+  await expectConverged(s);
+  return s;
 }

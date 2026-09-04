@@ -3,7 +3,6 @@ import { addClient, dispatch, rosterSize } from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
 import { expectConverged } from '../expect-converged';
 import { counterValue, Increment } from '../fixtures/counter-module';
-import { openRoom } from '../scenario/open-room';
 import {
   expectHashMatch,
   readClient,
@@ -12,26 +11,26 @@ import {
 
 describe('room sim: two client converge', () => {
   test('mutual increments yield equal hashes and roster', async () => {
-    await using run = await openRoom(counterSystem, { seed: 2 });
-    await run.apply(addClient, { id: 'alice' });
-    await run.apply(addClient, { id: 'bob' });
-    await run.apply(dispatch, {
+    await using s = await counterSystem.script({ seed: 2 });
+    await s.apply(addClient, { id: 'alice' });
+    await s.apply(addClient, { id: 'bob' });
+    await s.apply(dispatch, {
       clientId: 'alice',
       payload: Increment({}),
     });
-    await run.apply(dispatch, {
+    await s.apply(dispatch, {
       clientId: 'bob',
       payload: Increment({}),
     });
-    await run.apply(dispatch, {
+    await s.apply(dispatch, {
       clientId: 'alice',
       payload: Increment({}),
     });
-    await expectConverged(run);
+    await expectConverged(s);
     expect(counterValue(await readServer(run))).toBe(3);
-    expect(counterValue(await readClient(run, 'alice'))).toBe(3);
-    expect(counterValue(await readClient(run, 'bob'))).toBe(3);
-    await expectHashMatch(run, 'alice');
-    expect(await run.observe(rosterSize)).toBe(2);
+    expect(counterValue(await readClient(s, 'alice'))).toBe(3);
+    expect(counterValue(await readClient(s, 'bob'))).toBe(3);
+    await expectHashMatch(s, 'alice');
+    expect(await s.observe(rosterSize)).toBe(2);
   });
 });

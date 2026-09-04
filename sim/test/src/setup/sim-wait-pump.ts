@@ -40,7 +40,7 @@ export function createSerializedRunFor(
     const run = tail.then(async () => {
       await scheduler.runFor(durationMs);
       // React 18 / RNTL apply updates on microtasks + setImmediate.
-      // Without this, `run.elapse` / `run.until` spin virtual time
+      // Without this, `s.elapse` / `s.until` spin virtual time
       // while the tree stays stale.
       await flushMicrotasks();
       await yieldEventLoop();

@@ -59,13 +59,13 @@ test.describe('multi-tab sql-client', () => {
       .poll(async () => call<number>(tabB, 'changedCount'))
       .toBeGreaterThan(0);
 
-    const rows = await call<Array<{ id: string; k: string; v: string }>>(
+    const rows = await call<Array<{ k: string; v: string }>>(
       tabB,
       'query',
       'db_shared',
       'SELECT * FROM kv'
     );
-    expect(rows).toEqual([{ id: '1', k: 'a', v: '1' }]);
+    expect(rows).toEqual([{ k: 'a', v: '1' }]);
     await context.close();
   });
 

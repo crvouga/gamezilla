@@ -1,8 +1,7 @@
 import { describe, test } from 'bun:test';
-import { type Run, script } from '@pkgs/dst';
+import type { Script } from '@pkgs/dst';
 import type { SyncSurface } from '../../sim/scenario';
 import {
-  acmeKnobs,
   acmeSystem,
   addClient,
   connect,
@@ -17,7 +16,6 @@ import {
   release,
   setNote,
   skewClock,
-  syncVirtualHost,
 } from '../apps/acme';
 
 const BEHIND = -60_000;
@@ -37,193 +35,177 @@ const RACE_SKEWS: readonly ClockOrder[] = [
   { label: 'S < B < A', alice: AHEAD, bob: MID, server: BEHIND },
 ];
 
-type SyncRun = Run<SyncSurface>;
+type SyncScript = Script<SyncSurface>;
 
-async function applySkews(run: SyncRun, order: ClockOrder): Promise<void> {
-  await run.apply(skewClock, 'alice', order.alice);
-  await run.apply(skewClock, 'bob', order.bob);
-  await run.apply(skewClock, 'server', order.server);
+async function applySkews(s: SyncScript, order: ClockOrder): Promise<void> {
+  await s.apply(skewClock, 'alice', order.alice);
+  await s.apply(skewClock, 'bob', order.bob);
+  await s.apply(skewClock, 'server', order.server);
 }
 
-async function bootWarmPair(run: SyncRun, skew?: ClockOrder): Promise<void> {
-  await run.apply(addClient, { id: 'alice' });
-  await run.apply(addClient, { id: 'bob' });
-  if (skew !== undefined) await applySkews(run, skew);
-  await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
-  await expectConverged(run);
+async function bootWarmPair(s: SyncScript, skew?: ClockOrder): Promise<void> {
+  await s.apply(addClient, { id: 'alice' });
+  await s.apply(addClient, { id: 'bob' });
+  if (skew !== undefined) await applySkews(s, skew);
+  await s.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
+  await expectConverged(s);
 }
 
-async function liveBeforeSync(run: SyncRun, skew?: ClockOrder): Promise<void> {
-  await bootWarmPair(run, skew);
+async function liveBeforeSync(s: SyncScript, skew?: ClockOrder): Promise<void> {
+  await bootWarmPair(s, skew);
 
-  await run.apply(hold, 'bob', 'sync');
-  await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'live-first' });
-  await run.elapse(120);
+  await s.apply(hold, 'bob', 'sync');
+  await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'live-first' });
+  await s.elapse(120);
 
-  await expectConverged(run);
-  await expectLiveNoteAt(run, 'bob', 'n1', { body: 'live-first' });
-  await expectEveryClientNotesAgree(run);
+  await expectConverged(s);
+  await expectLiveNoteAt(s, 'bob', 'n1', { body: 'live-first' });
+  await expectEveryClientNotesAgree(s);
 }
 
-async function syncBeforeLive(run: SyncRun, skew?: ClockOrder): Promise<void> {
-  await bootWarmPair(run, skew);
+async function syncBeforeLive(s: SyncScript, skew?: ClockOrder): Promise<void> {
+  await bootWarmPair(s, skew);
 
-  await run.apply(hold, 'bob', 'live');
-  await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'sync-first' });
-  await run.elapse(40);
+  await s.apply(hold, 'bob', 'live');
+  await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'sync-first' });
+  await s.elapse(40);
   // Force pull while live is still held.
-  await run.apply(disconnect, 'bob');
-  await run.apply(connect, 'bob');
-  await run.elapse(120);
-  await expectLiveNoteAt(run, 'bob', 'n1', { body: 'sync-first' });
+  await s.apply(disconnect, 'bob');
+  await s.apply(connect, 'bob');
+  await s.elapse(120);
+  await expectLiveNoteAt(s, 'bob', 'n1', { body: 'sync-first' });
 
-  await expectConverged(run);
-  await expectEveryClientNotesAgree(run);
+  await expectConverged(s);
+  await expectEveryClientNotesAgree(s);
 }
 
 describe('live vs sync ordering races converge', () => {
   test('live before sync (refetch path)', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 301,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({
+      args: {
         clientCount: 0,
         rowImageFanout: false,
-      }),
-      properties: [],
+      },
     });
 
-    await liveBeforeSync(run);
+    await liveBeforeSync(s);
   });
 
   test('sync before live', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 302,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({
+      args: {
         clientCount: 0,
         rowImageFanout: false,
-      }),
-      properties: [],
+      },
     });
 
-    await syncBeforeLive(run);
+    await syncBeforeLive(s);
   });
 
   for (const order of RACE_SKEWS) {
     test(`live before sync skew ${order.label}`, async () => {
-      await using run = await script(acmeSystem, {
+      await using s = await acmeSystem.script({
         seed: 310,
-        host: syncVirtualHost(),
-        knobs: acmeKnobs({
+        args: {
           clientCount: 0,
           rowImageFanout: false,
-        }),
-        properties: [],
+        },
       });
 
-      await liveBeforeSync(run, order);
+      await liveBeforeSync(s, order);
     });
 
     test(`sync before live skew ${order.label}`, async () => {
-      await using run = await script(acmeSystem, {
+      await using s = await acmeSystem.script({
         seed: 320,
-        host: syncVirtualHost(),
-        knobs: acmeKnobs({
+        args: {
           clientCount: 0,
           rowImageFanout: false,
-        }),
-        properties: [],
+        },
       });
 
-      await syncBeforeLive(run, order);
+      await syncBeforeLive(s, order);
     });
   }
 
   test('stale sync after live fanout', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 303,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await bootWarmPair(run);
+    await bootWarmPair(s);
 
-    await run.apply(hold, 'bob', 'sync');
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'from-live' });
-    await run.elapse(120);
-    await expectLiveNoteAt(run, 'bob', 'n1', { body: 'from-live' });
+    await s.apply(hold, 'bob', 'sync');
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'from-live' });
+    await s.elapse(120);
+    await expectLiveNoteAt(s, 'bob', 'n1', { body: 'from-live' });
 
-    await expectConverged(run);
-    await expectEveryClientNotesAgree(run);
+    await expectConverged(s);
+    await expectEveryClientNotesAgree(s);
   });
 
   test('optimistic + held sync converges', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 304,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, { id: 'alice' });
-    await run.apply(addClient, { id: 'bob' });
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'base' });
-    await expectConverged(run);
+    await s.apply(addClient, { id: 'alice' });
+    await s.apply(addClient, { id: 'bob' });
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'base' });
+    await expectConverged(s);
 
-    await run.apply(online, 'bob', false);
-    await run.apply(mutate, 'bob', setNote, { id: 'n1', body: 'bob-pending' });
-    await run.apply(hold, 'bob', 'sync');
-    await run.apply(online, 'bob', true);
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'from-a' });
-    await run.elapse(80);
-    await run.apply(release, 'bob', 'sync');
-    await expectConverged(run);
-    await expectEveryClientNotesAgree(run);
+    await s.apply(online, 'bob', false);
+    await s.apply(mutate, 'bob', setNote, { id: 'n1', body: 'bob-pending' });
+    await s.apply(hold, 'bob', 'sync');
+    await s.apply(online, 'bob', true);
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'from-a' });
+    await s.elapse(80);
+    await s.apply(release, 'bob', 'sync');
+    await expectConverged(s);
+    await expectEveryClientNotesAgree(s);
   });
 
   test('optimistic + held live converges', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 305,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, { id: 'alice' });
-    await run.apply(addClient, { id: 'bob' });
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'base' });
-    await expectConverged(run);
+    await s.apply(addClient, { id: 'alice' });
+    await s.apply(addClient, { id: 'bob' });
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'base' });
+    await expectConverged(s);
 
-    await run.apply(hold, 'bob', 'live');
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'from-a' });
-    await run.elapse(80);
+    await s.apply(hold, 'bob', 'live');
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'from-a' });
+    await s.elapse(80);
 
-    await expectConverged(run);
-    await expectLiveNoteAt(run, 'bob', 'n1', { body: 'from-a' });
-    await expectEveryClientNotesAgree(run);
+    await expectConverged(s);
+    await expectLiveNoteAt(s, 'bob', 'n1', { body: 'from-a' });
+    await expectEveryClientNotesAgree(s);
   });
 
   test('live-only partition then heal converges via sync', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 306,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await bootWarmPair(run);
+    await bootWarmPair(s);
 
-    await run.apply(partition, 'bob', 'live');
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'via-sync' });
-    await run.elapse(40);
-    await run.apply(disconnect, 'bob');
-    await run.apply(connect, 'bob');
-    await run.elapse(120);
-    await expectLiveNoteAt(run, 'bob', 'n1', { body: 'via-sync' });
+    await s.apply(partition, 'bob', 'live');
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'via-sync' });
+    await s.elapse(40);
+    await s.apply(disconnect, 'bob');
+    await s.apply(connect, 'bob');
+    await s.elapse(120);
+    await expectLiveNoteAt(s, 'bob', 'n1', { body: 'via-sync' });
 
-    await expectConverged(run);
-    await expectEveryClientNotesAgree(run);
+    await expectConverged(s);
+    await expectEveryClientNotesAgree(s);
   });
 });

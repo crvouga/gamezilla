@@ -1,9 +1,7 @@
 import { describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import { RELIABLE_FAULTS } from '../../sim/faults';
 import type { SyncAction } from '../../sim/scenario';
 import {
-  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
@@ -13,7 +11,6 @@ import {
   noteBodyIs,
   playActions,
   setNote,
-  syncVirtualHost,
   untilAcme,
 } from '../apps/acme';
 
@@ -40,27 +37,25 @@ const HOP_LATENCY: readonly SyncAction[] = ['alice', 'bob', 'server'].map(
 describe('peer visibility under 200ms sim budget', () => {
   test('peer visibility under 200ms sim time', async () => {
     expect(PEER_VISIBLE_BUDGET_MS).toBeLessThan(200);
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 19,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, 'alice');
-    await run.apply(addClient, 'bob');
-    await run.apply(playActions, HOP_LATENCY);
-    await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
-    await expectConverged(run);
+    await s.apply(addClient, 'alice');
+    await s.apply(addClient, 'bob');
+    await s.apply(playActions, HOP_LATENCY);
+    await s.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
+    await expectConverged(s);
 
-    const t0 = await run.observe(nodeNow, 'bob');
-    await run.apply(mutate, 'alice', setNote, { id: 'fast', body: 'y' });
-    await untilAcme(run, (s) => liveNote(s, 'bob', 'fast'), {
+    const t0 = await s.observe(nodeNow, 'bob');
+    await s.apply(mutate, 'alice', setNote, { id: 'fast', body: 'y' });
+    await untilAcme(s, (s) => liveNote(s, 'bob', 'fast'), {
       maxMs: 400,
       stepMs: 10,
       pred: noteBodyIs('y'),
     });
-    const at = await run.observe(nodeNow, 'bob');
+    const at = await s.observe(nodeNow, 'bob');
     expect(at - t0).toBeLessThan(200);
   });
 });

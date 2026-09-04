@@ -169,9 +169,7 @@ async function applyUploadResult(
   // Floor topic pushSeqs from the ack so own echoed fanout is a no-op.
   if (result.topicPushSeqs !== undefined) {
     for (const [topic, pushSeq] of Object.entries(result.topicPushSeqs)) {
-      await recordPushApplied(options.db, topic, pushSeq, {
-        now: options.now,
-      });
+      await recordPushApplied(options.db, topic, pushSeq);
     }
   }
   options.bus.emit(['sync_engine_mutations', 'sync_engine_write_rejections']);

@@ -5,7 +5,6 @@ import {
   clientState,
   dispatch,
   expectConverged,
-  openRoom,
   serverHash,
   serverState,
 } from '@pkgs/room/tests';
@@ -23,23 +22,23 @@ const VALID_MOVES = 'e8d7 e1f2 d7e6 f2e3';
 
 describe('chess puzzle: wrong vs solve race (Gp-04)', () => {
   test('two host tabs race moves → one consistent status', async () => {
-    await using run = await openRoom(chessSystem, {
+    await using s = await chessSystem.script({
       seed: process.env['SIM_SEED'] ?? '42',
-      mildFaults: true,
+      args: { mildFaults: true },
     });
-    await run.apply(addClient, {
+    await s.apply(addClient, {
       id: 'tab1',
       identity: 'host-1',
       clientId: 'tab-1',
     });
-    await run.apply(addClient, {
+    await s.apply(addClient, {
       id: 'tab2',
       identity: 'host-1',
       clientId: 'tab-2',
     });
-    await expectConverged(run);
+    await expectConverged(s);
 
-    await run.apply(dispatch, {
+    await s.apply(dispatch, {
       clientId: 'tab1',
       payload: StartChessPuzzlePlay({
         puzzleId: 'race',
@@ -47,32 +46,32 @@ describe('chess puzzle: wrong vs solve race (Gp-04)', () => {
         moves: VALID_MOVES,
       }),
     });
-    await run.elapse(0);
+    await s.elapse(0);
 
-    await run.apply(dispatch, {
+    await s.apply(dispatch, {
       clientId: 'tab1',
       payload: SubmitChessPuzzleMove({ uci: 'e1f2' }),
     });
-    await run.apply(dispatch, {
+    await s.apply(dispatch, {
       clientId: 'tab2',
       payload: SubmitChessPuzzleMove({ uci: 'a2a3' }),
     });
-    await expectConverged(run);
+    await expectConverged(s);
 
     const serverStatus = ChessPuzzlePlayAttr.status.from(
-      (await run.observe(serverState)) as never
+      (await s.observe(serverState)) as never
     );
     expect(
       serverStatus === CHESS_PUZZLE_PLAY_STATUS.solving ||
         serverStatus === CHESS_PUZZLE_PLAY_STATUS.wrong ||
         serverStatus === CHESS_PUZZLE_PLAY_STATUS.solved
     ).toBe(true);
-    const clients = await run.observe(clientState);
+    const clients = await s.observe(clientState);
     expect(ChessPuzzlePlayAttr.status.from(clients['tab1'] as never)).toBe(
       serverStatus
     );
-    const hashes = (await run.observe(clientHash)) as Record<string, string>;
-    expect(hashes['tab1']).toBe(await run.observe(serverHash));
+    const hashes = (await s.observe(clientHash)) as Record<string, string>;
+    expect(hashes['tab1']).toBe(await s.observe(serverHash));
     expect(hashes['tab1']).toBe(hashes['tab2']);
   });
 });

@@ -69,11 +69,15 @@ export {
   type ButtonSize,
   type ButtonVariant,
   buttonForegroundColor,
+  type MutationButtonDefaults,
+  MutationButtonDefaultsProvider,
+  type MutationButtonDefaultsProviderProps,
   type MutationButtonLabels,
   type MutationFabProps,
   type UseMutationButtonParams,
   type UseMutationButtonResult,
   useMutationButton,
+  useMutationButtonDefaults,
 } from './button';
 // Data Display
 export { Card, type CardProps } from './card';
@@ -260,7 +264,6 @@ export {
   useKeyboardShortcutsEnabled,
   type WebKeyboardEventLike,
 } from './keyboard-shortcuts';
-export { LegendList, type LegendListProps } from './legend-list';
 export { List, ListItem, type ListItemProps, type ListProps } from './list';
 export { LoadingState, type LoadingStateProps } from './loading-state';
 export * from './main-menu-screen';

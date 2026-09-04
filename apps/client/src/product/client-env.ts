@@ -2,7 +2,7 @@ import type { DevMenuPort, NetworkStatePort } from '@apps/client/device/ports';
 import type { GestureRootProps } from '@apps/client/product/gesture-root-props';
 import type { OpenSqlClient } from '@libs/runtime/shared/env';
 import type { CreateRoomTransport } from '@libs/spaces/root/client/room/room-transport-factory';
-import type { AuthClientStorage, OpenAuthSession } from '@pkgs/auth/client';
+import type { AuthClientStorage } from '@pkgs/auth-better-auth/client';
 import type { Clock, Timers } from '@pkgs/clock';
 import type { Kv } from '@pkgs/kv/interface';
 import type { Observability } from '@pkgs/observability/port/observability';
@@ -53,13 +53,6 @@ export type ClientEnv = {
   readonly observability: Observability;
   readonly serverUrl: string;
   readonly authBaseURL: string;
-  /** OAuth popup / auth-session (Expo on wall; in-process stub in sim). */
-  readonly openAuthSession: OpenAuthSession;
   /** Sync-engine pool key / local DB name (sim: per-actor; prod: per-user). */
   readonly resolveDatabaseName: (args: { readonly userId: string }) => string;
-  /**
-   * Default success-face hold (ms) for mutation buttons when the call site
-   * omits `successHoldMs`. Wall: 900; sim: 0 (ClientEnvProvider projects this).
-   */
-  readonly mutationSuccessHoldMs: number;
 };

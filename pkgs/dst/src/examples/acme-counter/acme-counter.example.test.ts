@@ -1,64 +1,45 @@
 import { describe, test } from 'bun:test';
-import { CounterApp, type CounterHost } from './counter-app';
-import { happyDomHost, webViewHost } from './scenario';
+import { CounterApp } from './counter-app';
 import { webViewAvailable } from './webview-page';
 
-type Harness = {
-  readonly name: string;
-  readonly host: () => CounterHost;
-};
-
 /**
- * Harness axis. WebView listed first — loading happy-dom in-process breaks
- * Bun.WebView spawn, so matrix cells run in this order.
+ * WebView first — loading happy-dom in-process breaks Bun.WebView spawn.
  */
-const HARNESSES: readonly Harness[] = [
-  { name: 'Bun.WebView', host: webViewHost },
-  { name: 'happy-dom', host: happyDomHost },
-];
+function hosts(): string[] {
+  const list: string[] = [];
+  if (webViewAvailable()) list.push('webview');
+  list.push('happy-dom');
+  return list;
+}
 
-type Case = {
-  readonly name: string;
-  readonly run: (harness: Harness) => Promise<void>;
-};
+describe('acme-counter', () => {
+  for (const host of hosts()) {
+    describe(host, () => {
+      test('scripted settings → step → increment → reset', async () => {
+        await using app = await CounterApp.open({ host });
 
-const CASES: readonly Case[] = [
-  {
-    name: 'scripted settings → step → increment → reset',
-    async run(harness) {
-      await using app = await CounterApp.open({ host: harness.host() });
+        await app.openSettings();
+        await app.setStep(5);
+        await app.leaveSettings();
 
-      await app.openSettings();
-      await app.setStep(5);
-      await app.leaveSettings();
+        await app.increment();
+        await app.increment();
+        await app.expectCount(10);
+        await app.expectRoute('home');
 
-      await app.increment();
-      await app.increment();
-      await app.expectCount(10);
-      await app.expectRoute('home');
-
-      await app.openResetAndConfirm();
-      await app.expectCount(0);
-      await app.expectDecrementDisabled();
-      await app.expectResetDisabled();
-    },
-  },
-  {
-    name: 'walk + replay',
-    async run(harness) {
-      await using app = await CounterApp.open({
-        host: harness.host(),
-        seed: 42,
+        await app.openResetAndConfirm();
+        await app.expectCount(0);
+        await app.expectDecrementDisabled();
+        await app.expectResetDisabled();
       });
-      await app.exploreAndReplay({ host: harness.host() });
-    },
-  },
-];
 
-describe.each([...HARNESSES])('acme-counter ($name)', (harness) => {
-  const skipWebView = harness.name === 'Bun.WebView' && !webViewAvailable();
-
-  for (const c of CASES) {
-    test.skipIf(skipWebView)(c.name, () => c.run(harness), 15_000);
+      test('walk + replay', async () => {
+        await using app = await CounterApp.open({
+          host,
+          seed: 42,
+        });
+        await app.exploreAndReplay();
+      });
+    });
   }
 });

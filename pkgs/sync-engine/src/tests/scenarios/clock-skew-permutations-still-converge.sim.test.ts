@@ -1,8 +1,7 @@
 import { describe, expect, test } from 'bun:test';
-import { type Run, script } from '@pkgs/dst';
+import type { Script } from '@pkgs/dst';
 import type { SyncSurface } from '../../sim/scenario';
 import {
-  acmeKnobs,
   acmeSystem,
   addClient,
   clientIds,
@@ -18,7 +17,6 @@ import {
   readNoteTombstoneAt,
   setNote,
   skewClock,
-  syncVirtualHost,
 } from '../apps/acme';
 
 const BEHIND = -60_000;
@@ -44,91 +42,91 @@ const CLOCK_ORDERS: readonly ClockOrder[] = [
   { label: 'S < B < A', alice: AHEAD, bob: MID, server: BEHIND },
 ];
 
-type SyncRun = Run<SyncSurface>;
+type SyncScript = Script<SyncSurface>;
 
-async function applyOrder(run: SyncRun, order: ClockOrder): Promise<void> {
-  await run.apply(skewClock, 'alice', order.alice);
-  await run.apply(skewClock, 'bob', order.bob);
-  await run.apply(skewClock, 'server', order.server);
+async function applyOrder(s: SyncScript, order: ClockOrder): Promise<void> {
+  await s.apply(skewClock, 'alice', order.alice);
+  await s.apply(skewClock, 'bob', order.bob);
+  await s.apply(skewClock, 'server', order.server);
 }
 
-async function bootSkewedPair(run: SyncRun, order: ClockOrder): Promise<void> {
-  await applyOrder(run, order);
-  await run.apply(addClient, { id: 'alice' });
-  await run.apply(addClient, { id: 'bob' });
+async function bootSkewedPair(s: SyncScript, order: ClockOrder): Promise<void> {
+  await applyOrder(s, order);
+  await s.apply(addClient, { id: 'alice' });
+  await s.apply(addClient, { id: 'bob' });
 }
 
 async function offlineConflictThenConverge(
-  run: SyncRun,
+  s: SyncScript,
   order: ClockOrder
 ): Promise<void> {
-  await bootSkewedPair(run, order);
-  await run.elapse(50);
+  await bootSkewedPair(s, order);
+  await s.elapse(50);
 
-  await run.apply(online, 'alice', false);
-  await run.apply(online, 'bob', false);
-  await run.apply(mutate, 'alice', setNote, { id: 'shared', body: 'from-a' });
-  await run.apply(mutate, 'bob', setNote, { id: 'shared', body: 'from-b' });
-  await run.apply(online, 'alice', true);
-  await run.apply(online, 'bob', true);
-  await expectConverged(run);
+  await s.apply(online, 'alice', false);
+  await s.apply(online, 'bob', false);
+  await s.apply(mutate, 'alice', setNote, { id: 'shared', body: 'from-a' });
+  await s.apply(mutate, 'bob', setNote, { id: 'shared', body: 'from-b' });
+  await s.apply(online, 'alice', true);
+  await s.apply(online, 'bob', true);
+  await expectConverged(s);
 
-  const server = await run.observe(liveNotes, 'server');
+  const server = await s.observe(liveNotes, 'server');
   const winner = server.find((r) => r.id === 'shared');
   expect(winner).toBeDefined();
   expect(winner?.body === 'from-a' || winner?.body === 'from-b').toBe(true);
-  await expectEveryClientNotesAgree(run);
+  await expectEveryClientNotesAgree(s);
 }
 
 async function onlineOptimisticRace(
-  run: SyncRun,
+  s: SyncScript,
   order: ClockOrder
 ): Promise<void> {
-  await bootSkewedPair(run, order);
-  await run.apply(mutate, 'alice', setNote, { id: 'race', body: 'seed' });
-  await expectConverged(run);
+  await bootSkewedPair(s, order);
+  await s.apply(mutate, 'alice', setNote, { id: 'race', body: 'seed' });
+  await expectConverged(s);
 
   // Both online: back-to-back optimistic writes (not Promise.all — simultaneous
   // local apply can race fanout rebase past settle budget).
-  await run.apply(mutate, 'alice', setNote, { id: 'race', body: 'a-online' });
-  await run.apply(mutate, 'bob', setNote, { id: 'race', body: 'b-online' });
-  await run.elapse(200);
-  await expectConverged(run);
-  await expectEveryClientNotesAgree(run);
+  await s.apply(mutate, 'alice', setNote, { id: 'race', body: 'a-online' });
+  await s.apply(mutate, 'bob', setNote, { id: 'race', body: 'b-online' });
+  await s.elapse(200);
+  await expectConverged(s);
+  await expectEveryClientNotesAgree(s);
 }
 
 async function aheadDeleteBehindPending(
-  run: SyncRun,
+  s: SyncScript,
   order: ClockOrder
 ): Promise<void> {
-  await bootSkewedPair(run, order);
+  await bootSkewedPair(s, order);
 
   // Owner is the ahead client so delete is authorized.
   const aheadIsAlice = order.alice > order.bob;
   const owner = aheadIsAlice ? 'alice' : 'bob';
   const behind = aheadIsAlice ? 'bob' : 'alice';
-  await run.apply(mutate, owner, setNote, { id: 'n1', body: 'owned' });
-  await expectConverged(run);
+  await s.apply(mutate, owner, setNote, { id: 'n1', body: 'owned' });
+  await expectConverged(s);
 
   // Behind must genuinely stop uploading, otherwise its queued write lands
   // first and steals ownership before the delete.
-  await run.apply(disconnect, behind);
-  await run.apply(mutate, behind, setNote, {
+  await s.apply(disconnect, behind);
+  await s.apply(mutate, behind, setNote, {
     id: 'n1',
     body: 'behind-pending',
   });
-  await run.apply(mutate, owner, deleteNote, { id: 'n1' });
-  expect(await run.observe(lastMutationOk, owner)).toBe(true);
+  await s.apply(mutate, owner, deleteNote, { id: 'n1' });
+  expect(await s.observe(lastMutationOk, owner)).toBe(true);
 
-  await run.apply(connect, behind);
-  await expectConverged(run);
-  await expectEveryClientNotesAgree(run);
+  await s.apply(connect, behind);
+  await expectConverged(s);
+  await expectEveryClientNotesAgree(s);
 
   // Domain is consistent: either live with some body, or tombstoned everywhere.
-  const server = await run.observe(liveNotes, 'server');
+  const server = await s.observe(liveNotes, 'server');
   if (server.find((r) => r.id === 'n1') === undefined) {
-    for (const id of await run.observe(clientIds)) {
-      expect(await readNoteTombstoneAt(run, id, 'n1')).not.toBeNull();
+    for (const id of await s.observe(clientIds)) {
+      expect(await readNoteTombstoneAt(s, id, 'n1')).not.toBeNull();
     }
   }
 }
@@ -138,14 +136,12 @@ describe('clock skew permutations still converge', () => {
     test(
       `offline conflict converges (${order.label})`,
       async () => {
-        await using run = await script(acmeSystem, {
+        await using s = await acmeSystem.script({
           seed: 101,
-          host: syncVirtualHost(),
-          knobs: acmeKnobs({ clientCount: 0 }),
-          properties: [],
+          args: { clientCount: 0 },
         });
 
-        await offlineConflictThenConverge(run, order);
+        await offlineConflictThenConverge(s, order);
       },
       { timeout: 60_000 }
     );
@@ -153,14 +149,12 @@ describe('clock skew permutations still converge', () => {
     test(
       `online optimistic race converges (${order.label})`,
       async () => {
-        await using run = await script(acmeSystem, {
+        await using s = await acmeSystem.script({
           seed: 102,
-          host: syncVirtualHost(),
-          knobs: acmeKnobs({ clientCount: 0 }),
-          properties: [],
+          args: { clientCount: 0 },
         });
 
-        await onlineOptimisticRace(run, order);
+        await onlineOptimisticRace(s, order);
       },
       { timeout: 60_000 }
     );
@@ -168,14 +162,12 @@ describe('clock skew permutations still converge', () => {
     test(
       `ahead delete vs behind pending converges (${order.label})`,
       async () => {
-        await using run = await script(acmeSystem, {
+        await using s = await acmeSystem.script({
           seed: 103,
-          host: syncVirtualHost(),
-          knobs: acmeKnobs({ clientCount: 0 }),
-          properties: [],
+          args: { clientCount: 0 },
         });
 
-        await aheadDeleteBehindPending(run, order);
+        await aheadDeleteBehindPending(s, order);
       },
       { timeout: 60_000 }
     );

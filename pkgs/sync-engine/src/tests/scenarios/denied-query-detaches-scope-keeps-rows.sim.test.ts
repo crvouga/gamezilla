@@ -1,7 +1,5 @@
 import { describe, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import {
-  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
@@ -9,32 +7,29 @@ import {
   nudge,
   setNote,
   subscribe,
-  syncVirtualHost,
   unsubscribe,
 } from '../apps/acme';
 import { expectLiveNoteAt, expectNotesAgree } from '../apps/acme/reads';
 
 describe('denied query detaches scope keeps rows', () => {
   test('denied query detaches scope without wiping domain', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 512,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, 'alice');
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'keep-me' });
-    await expectConverged(run);
-    await expectLiveNoteAt(run, 'alice', 'n1', { body: 'keep-me' });
+    await s.apply(addClient, 'alice');
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'keep-me' });
+    await expectConverged(s);
+    await expectLiveNoteAt(s, 'alice', 'n1', { body: 'keep-me' });
 
-    await run.apply(subscribe, 'alice', 'notesDenied', {});
-    await expectLiveNoteAt(run, 'alice', 'n1', { body: 'keep-me' });
-    await expectNotesAgree(run, 'alice');
-    await run.apply(unsubscribe, 'alice', 'notesDenied');
+    await s.apply(subscribe, 'alice', 'notesDenied', {});
+    await expectLiveNoteAt(s, 'alice', 'n1', { body: 'keep-me' });
+    await expectNotesAgree(s, 'alice');
+    await s.apply(unsubscribe, 'alice', 'notesDenied');
 
     // Refresh after denied-scope unsubscribe must keep the row.
-    await run.apply(nudge, 'alice');
-    await expectLiveNoteAt(run, 'alice', 'n1', { body: 'keep-me' });
+    await s.apply(nudge, 'alice');
+    await expectLiveNoteAt(s, 'alice', 'n1', { body: 'keep-me' });
   });
 });

@@ -1,7 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import {
-  acmeKnobs,
   acmeSystem,
   addClient,
   deleteNote,
@@ -9,7 +7,6 @@ import {
   lastMutationOk,
   mutate,
   setNote,
-  syncVirtualHost,
 } from '../apps/acme';
 import {
   expectLiveNoteAt,
@@ -19,47 +16,43 @@ import {
 
 describe('soft delete tombstone propagates and revives', () => {
   test('delete tombstones on peer after converge', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 13,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, 'alice');
-    await run.apply(addClient, 'bob');
+    await s.apply(addClient, 'alice');
+    await s.apply(addClient, 'bob');
 
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'x' });
-    await expectConverged(run);
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'x' });
+    await expectConverged(s);
 
-    await run.apply(mutate, 'alice', deleteNote, { id: 'n1' });
-    expect(await run.observe(lastMutationOk, 'alice')).toBe(true);
-    await expectConverged(run);
+    await s.apply(mutate, 'alice', deleteNote, { id: 'n1' });
+    expect(await s.observe(lastMutationOk, 'alice')).toBe(true);
+    await expectConverged(s);
 
-    await expectNoteNotLiveAt(run, 'bob', 'n1');
-    expect(await readNoteTombstoneAt(run, 'bob', 'n1')).not.toBeNull();
+    await expectNoteNotLiveAt(s, 'bob', 'n1');
+    expect(await readNoteTombstoneAt(s, 'bob', 'n1')).not.toBeNull();
   });
 
   test('setNote after delete revives the row', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 14,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, 'alice');
-    await run.apply(addClient, 'bob');
+    await s.apply(addClient, 'alice');
+    await s.apply(addClient, 'bob');
 
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'first' });
-    await expectConverged(run);
-    await run.apply(mutate, 'alice', deleteNote, { id: 'n1' });
-    await expectConverged(run);
-    await expectNoteNotLiveAt(run, 'bob', 'n1');
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'first' });
+    await expectConverged(s);
+    await s.apply(mutate, 'alice', deleteNote, { id: 'n1' });
+    await expectConverged(s);
+    await expectNoteNotLiveAt(s, 'bob', 'n1');
 
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'revived' });
-    await expectConverged(run);
-    await expectLiveNoteAt(run, 'bob', 'n1', { body: 'revived' });
-    expect(await readNoteTombstoneAt(run, 'bob', 'n1')).toBeNull();
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'revived' });
+    await expectConverged(s);
+    await expectLiveNoteAt(s, 'bob', 'n1', { body: 'revived' });
+    expect(await readNoteTombstoneAt(s, 'bob', 'n1')).toBeNull();
   });
 });

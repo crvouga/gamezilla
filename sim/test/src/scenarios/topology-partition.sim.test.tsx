@@ -16,14 +16,14 @@ describe('topology partition', (ctx) => {
   ctx.test(
     'partition alice–server then heal still allows sign-up',
     async () => {
-      await using run = await openSim('topology-partition-heal', ctx);
-      const app = await AppDriver.forActor(run, 'alice');
-      const hostCaps = await run.observe(caps);
+      await using s = await openSim('topology-partition-heal', ctx);
+      const app = await AppDriver.forActor(s, 'alice');
+      const hostCaps = await s.observe(caps);
 
       if (!hostCaps.includes('partition')) {
         let threw = false;
         try {
-          await run.apply(partition, 'alice');
+          await s.apply(partition, 'alice');
         } catch (e) {
           threw = e instanceof ActionNotEnabled;
         }
@@ -31,10 +31,10 @@ describe('topology partition', (ctx) => {
         return;
       }
 
-      await run.apply(partition, 'alice');
-      await run.apply(heal);
+      await s.apply(partition, 'alice');
+      await s.apply(heal);
       await app.auth.signInWithDev(aliceCreds);
-      const ids = await run.observe(clientIds);
+      const ids = await s.observe(clientIds);
       assert.ok(ids.includes('alice'), 'alice client mounted after sign-in');
     }
   );

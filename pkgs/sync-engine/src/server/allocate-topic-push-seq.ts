@@ -2,7 +2,6 @@ import type { Topic } from '@pkgs/pubsub/interface';
 import { join, sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
-import { managedUpdatedAtIso } from '../mutations/shared/managed-columns';
 import { topicRowId } from '../shared/schema/tables';
 
 /**
@@ -12,18 +11,13 @@ import { topicRowId } from '../shared/schema/tables';
  * so concurrent replays on the same topic serialize correctly. The wire value
  * is the decimal string of `n` (not Date.now()+ackSeq) so peers can detect gaps
  * with exact-next contiguous checks.
- *
- * Use `+ CAST(1 AS BIGINT)` (not bare `+ 1`): domain `integer` is physical
- * Postgres `bigint`, and postgres-mem `toI8` can leave JS numbers in int8
- * slots so `number + bigint` throws in V8. `CAST` is portable (SQLite +
- * Postgres); `1::bigint` is Postgres-only and fails on sim SQLite servers.
  */
 export async function allocateTopicPushSeq(
   db: SqlClient,
   topic: Topic,
-  now: () => number
+  nowIso?: string
 ): Promise<string> {
-  const ts = managedUpdatedAtIso(now);
+  const ts = nowIso ?? new Date().toISOString();
   const rows = await db.query(sql<{ n: number | string | bigint }>`
     INSERT INTO sync_engine_topic_seq (
       id, topic, n, created_at, updated_at, deleted_at
@@ -37,7 +31,7 @@ export async function allocateTopicPushSeq(
       ${null}
     )
     ON CONFLICT (id) DO UPDATE
-      SET n = sync_engine_topic_seq.n + CAST(1 AS BIGINT),
+      SET n = sync_engine_topic_seq.n + 1,
           updated_at = ${ts},
           deleted_at = NULL
     RETURNING n
@@ -67,20 +61,21 @@ function dedupeTopics(topics: readonly Topic[]): Topic[] {
 export async function allocateTopicPushSeqs(
   db: SqlClient,
   topics: readonly Topic[],
-  now: () => number
+  nowIso?: string
 ): Promise<ReadonlyMap<Topic, string>> {
   const unique = dedupeTopics(topics);
   const out = new Map<Topic, string>();
   if (unique.length === 0) return out;
   if (unique.length === 1) {
     const topic = unique[0]!;
-    out.set(topic, await allocateTopicPushSeq(db, topic, now));
+    out.set(topic, await allocateTopicPushSeq(db, topic, nowIso));
     return out;
   }
 
-  const ts = managedUpdatedAtIso(now);
+  const ts = nowIso ?? new Date().toISOString();
   const valueFrags = unique.map(
-    (topic) => sql`(${topicRowId(topic)}, ${topic}, 1, ${ts}, ${ts}, ${null})`
+    (topic) =>
+      sql`(${topicRowId(topic)}, ${topic}, 1, ${ts}, ${ts}, ${null})`
   );
   const rows = await db.query(sql<{
     topic: string;
@@ -91,7 +86,7 @@ export async function allocateTopicPushSeqs(
     )
     VALUES ${join(valueFrags)}
     ON CONFLICT (id) DO UPDATE
-      SET n = sync_engine_topic_seq.n + CAST(1 AS BIGINT),
+      SET n = sync_engine_topic_seq.n + 1,
           updated_at = ${ts},
           deleted_at = NULL
     RETURNING topic, n
@@ -101,7 +96,7 @@ export async function allocateTopicPushSeqs(
   }
   for (const topic of unique) {
     if (out.has(topic)) continue;
-    out.set(topic, await allocateTopicPushSeq(db, topic, now));
+    out.set(topic, await allocateTopicPushSeq(db, topic, ts));
   }
   return out;
 }

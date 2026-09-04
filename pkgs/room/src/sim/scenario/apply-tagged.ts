@@ -1,4 +1,4 @@
-import type { Run } from '@pkgs/dst';
+import type { Script } from '@pkgs/dst';
 import { RELIABLE_ROOM_FAULTS } from '../network';
 import type { RoomSystemAction } from './actions';
 import {
@@ -24,72 +24,72 @@ import {
 import type { RoomSurface } from './surface';
 
 /**
- * Map a tagged {@link RoomSystemAction} onto `run.apply`.
- * Fuzz harness only — prefer direct `run.apply` in scripted tests.
+ * Map a tagged {@link RoomSystemAction} onto `s.apply` / `s.elapse`.
+ * Fuzz harness only — prefer direct `s.apply` in scripted tests.
  */
 export async function applyTaggedRoomAction(
-  run: Run<RoomSurface>,
+  s: Script<RoomSurface>,
   action: RoomSystemAction
 ): Promise<void> {
   switch (action.kind) {
     case 'domain':
-      return run.apply(domain, action);
+      return s.apply(domain, action);
     case 'disconnect':
-      return run.apply(disconnect, action.clientId);
+      return s.apply(disconnect, action.clientId);
     case 'connect':
-      return run.apply(connect, action.clientId);
+      return s.apply(connect, action.clientId);
     case 'hold':
-      return run.apply(hold, action.clientId);
+      return s.apply(hold, action.clientId);
     case 'release':
-      return run.apply(release, action.clientId);
+      return s.apply(release, action.clientId);
     case 'down':
-      return run.apply(down, action.clientId);
+      return s.apply(down, action.clientId);
     case 'heal':
-      return run.apply(heal);
+      return s.apply(heal);
     case 'idle':
-      return run.elapse(action.ms);
+      return s.elapse(action.ms);
     case 'takeOver':
-      return run.apply(takeOver, action.clientId);
+      return s.apply(takeOver, action.clientId);
     case 'crash':
-      return run.apply(crash, action.clientId);
+      return s.apply(crash, action.clientId);
     case 'restart':
-      return run.apply(restart, action.clientId);
+      return s.apply(restart, action.clientId);
     case 'serverCrash':
-      return run.apply(serverCrash);
+      return s.apply(serverCrash);
     case 'serverRestart':
-      return run.apply(serverRestart);
+      return s.apply(serverRestart);
     case 'clearLocalData':
-      return run.apply(clearLocalData, action.clientId);
+      return s.apply(clearLocalData, action.clientId);
     case 'setFaults':
-      return run.apply(setNet, {
+      return s.apply(setNet, {
         clientId: action.clientId,
         next: { ...RELIABLE_ROOM_FAULTS, ...action.faults },
       });
     case 'asymmetricLink':
-      return run.apply(setNet, {
+      return s.apply(setNet, {
         clientId: action.clientId,
         next: action.link,
       });
     case 'armCrashAt':
-      return run.apply(armCrashAt, {
+      return s.apply(armCrashAt, {
         clientId: action.clientId,
         event: action.event,
       });
     case 'injectToServer':
-      return run.apply(injectToServer, {
+      return s.apply(injectToServer, {
         clientId: action.clientId,
         raw: action.raw,
         ...(action.direct === true ? { direct: true as const } : {}),
       });
     case 'injectFromServer':
-      return run.apply(injectFromServer, {
+      return s.apply(injectFromServer, {
         clientId: action.clientId,
         raw: action.raw,
       });
     case 'addSpectator':
-      return run.apply(addSpectator);
+      return s.apply(addSpectator);
     case 'setLink':
-      return run.apply(setNet, {
+      return s.apply(setNet, {
         clientId: action.clientId,
         next: action.link,
       });
@@ -97,5 +97,15 @@ export async function applyTaggedRoomAction(
       const _never: never = action;
       return _never;
     }
+  }
+}
+
+/** Apply a scripted sequence of tagged room actions on an open run. */
+export async function applyTaggedSequence(
+  s: Script<RoomSurface>,
+  actions: readonly RoomSystemAction[]
+): Promise<void> {
+  for (const action of actions) {
+    await applyTaggedRoomAction(s, action);
   }
 }

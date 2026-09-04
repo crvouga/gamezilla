@@ -108,8 +108,8 @@ describe('postgres reconcile integration', () => {
       sqlClient,
       registerTables([
         defineTable({
-          domain: 'ghost',
-          name: 'ghost_billing',
+          domain: 'foreign',
+          name: 'foreign_billing',
           columns: {},
         }),
       ]),
@@ -123,7 +123,7 @@ describe('postgres reconcile integration', () => {
     const stillThere = await sqlClient.query<{ table_name: string }>(sql`
       SELECT table_name FROM information_schema.tables
       WHERE table_schema = ${sqlClient.dbScope.schema}
-        AND table_name = 'ghost_billing'
+        AND table_name = 'foreign_billing'
     `);
     expect(stillThere.length).toBe(1);
   });

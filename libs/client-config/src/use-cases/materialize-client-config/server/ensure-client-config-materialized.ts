@@ -1,18 +1,18 @@
-import type { Clock } from '@pkgs/clock';
 import { isEqual } from '@pkgs/equal/is-equal';
+import type { Io } from '@pkgs/io';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import { ClientConfigRepository } from '../../../root/server/client-config-repository';
 import {
   CLIENT_CONFIG_KEYS,
   ClientConfigKey,
   type ClientConfigKeyId,
   type ObservabilityBackendName,
 } from '../../../shared/client-config/client-config-keys';
-import { ClientConfigRepository } from './client-config-repository';
 
 export type DesiredClientConfig = {
   readonly google: boolean;
-  readonly devOauth: boolean;
-  readonly billing: boolean;
+  readonly emailPassword: boolean;
+  readonly stripe: boolean;
   readonly tts: boolean;
   readonly llm: boolean;
   readonly googleWebClientId: string | null;
@@ -42,12 +42,12 @@ function buildDesiredRows(desired: DesiredClientConfig): readonly DesiredRow[] {
       value: trimOrNull(desired.googleWebClientId),
     },
     {
-      id: ClientConfigKey.devOauthEnabled,
-      value: desired.devOauth,
+      id: ClientConfigKey.emailPasswordEnabled,
+      value: desired.emailPassword,
     },
     {
-      id: ClientConfigKey.billingEnabled,
-      value: desired.billing,
+      id: ClientConfigKey.stripeEnabled,
+      value: desired.stripe,
     },
     {
       id: ClientConfigKey.ttsEnabled,
@@ -88,7 +88,7 @@ function liveStoredSnapshot(
 export class EnsureClientConfigMaterialized {
   constructor(
     private readonly db: SqlClient,
-    private readonly clock: Clock
+    private readonly io: Io
   ) {}
 
   /**
@@ -98,10 +98,7 @@ export class EnsureClientConfigMaterialized {
     desired: DesiredClientConfig
   ): Promise<{ readonly updated: boolean }> {
     const desiredRows = buildDesiredRows(desired);
-    const stored = await new ClientConfigRepository(
-      this.db,
-      this.clock
-    ).listAll();
+    const stored = await new ClientConfigRepository(this.db, this.io).listAll();
     if (isEqual(liveStoredSnapshot(stored), snapshotForCompare(desiredRows))) {
       return { updated: false };
     }
@@ -109,7 +106,7 @@ export class EnsureClientConfigMaterialized {
     const known = new Set<string>(CLIENT_CONFIG_KEYS);
 
     await this.db.transaction(async (tx) => {
-      const repo = new ClientConfigRepository(tx, this.clock);
+      const repo = new ClientConfigRepository(tx, this.io);
       for (const row of desiredRows) {
         await repo.upsert({ id: row.id, value: row.value });
       }

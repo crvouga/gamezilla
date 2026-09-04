@@ -1,6 +1,6 @@
 import { Handles } from '@libs/dst-handles';
 
-import type { ActorRun } from './actor-run';
+import type { ActorScript } from './actor-script';
 
 const SCREEN_SPACES = 'screen-spaces';
 const SCREEN_SPACE_JOIN = 'screen-space-join';
@@ -11,7 +11,7 @@ const WAIT_MS = 10_000;
 const HIDDEN_MS = 5_000;
 
 export class SpaceFlows {
-  constructor(private readonly actor: ActorRun) {}
+  constructor(private readonly actor: ActorScript) {}
 
   private get ui() {
     return this.actor.ui;

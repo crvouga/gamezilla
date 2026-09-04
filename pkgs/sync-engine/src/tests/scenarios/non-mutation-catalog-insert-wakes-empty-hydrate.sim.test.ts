@@ -1,7 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import {
-  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
@@ -10,7 +8,6 @@ import {
   liveNote,
   noteBodyIs,
   serverOp,
-  syncVirtualHost,
   untilAcme,
 } from '../apps/acme';
 
@@ -20,59 +17,55 @@ describe('non mutation catalog insert wakes empty hydrate', () => {
   // the client fast; without notify the reconcile tick still heals.
 
   test('insertCatalogNote notify true wakes client after empty hydrate', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 1401,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({
+      args: {
         clientCount: 0,
-      }),
-      properties: [],
+      },
     });
 
-    await run.apply(addClient, { id: 'alice' });
+    await s.apply(addClient, { id: 'alice' });
 
-    expect(await isNoteLiveAt(run, 'alice', 'n-seed')).toBe(false);
+    expect(await isNoteLiveAt(s, 'alice', 'n-seed')).toBe(false);
 
-    await run.apply(serverOp, 'insertCatalogNoteNotify', {
+    await s.apply(serverOp, 'insertCatalogNoteNotify', {
       noteId: 'n-seed',
       body: 'seeded',
     });
-    await expectLiveNoteAt(run, 'server', 'n-seed', { body: 'seeded' });
+    await expectLiveNoteAt(s, 'server', 'n-seed', { body: 'seeded' });
 
-    await untilAcme(run, (s) => liveNote(s, 'alice', 'n-seed'), {
+    await untilAcme(s, (s) => liveNote(s, 'alice', 'n-seed'), {
       pred: noteBodyIs('seeded'),
     });
-    await expectConverged(run);
+    await expectConverged(s);
   });
 
   test('insertCatalogNote notify false heals via reconcile tick', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 1402,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({
+      args: {
         clientCount: 0,
-      }),
-      properties: [],
+      },
     });
 
-    await run.apply(addClient, { id: 'alice' });
+    await s.apply(addClient, { id: 'alice' });
 
-    expect(await isNoteLiveAt(run, 'alice', 'n-silent')).toBe(false);
+    expect(await isNoteLiveAt(s, 'alice', 'n-silent')).toBe(false);
 
-    await run.apply(serverOp, 'insertCatalogNoteSilent', {
+    await s.apply(serverOp, 'insertCatalogNoteSilent', {
       noteId: 'n-silent',
       body: 'seeded-silent',
     });
-    await expectLiveNoteAt(run, 'server', 'n-silent', {
+    await expectLiveNoteAt(s, 'server', 'n-silent', {
       body: 'seeded-silent',
     });
 
     // No notify → no instant wake; reconcile tick heals below.
-    expect(await isNoteLiveAt(run, 'alice', 'n-silent')).toBe(false);
+    expect(await isNoteLiveAt(s, 'alice', 'n-silent')).toBe(false);
 
-    await untilAcme(run, (s) => liveNote(s, 'alice', 'n-silent'), {
+    await untilAcme(s, (s) => liveNote(s, 'alice', 'n-silent'), {
       pred: noteBodyIs('seeded-silent'),
     });
-    await expectConverged(run);
+    await expectConverged(s);
   });
 });

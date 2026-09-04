@@ -1,49 +1,72 @@
-import type { System } from '@pkgs/dst';
+import { defineSystem } from '@pkgs/dst';
+import { gen } from '@pkgs/dst/fast-check';
 
 import {
-  defineSyncSystem,
+  arbSyncArgs,
+  createSyncSurface,
+  SYNC_POOL_ACTIONS,
+  SYNC_PROPERTY_DEFS,
+  type SyncArgs,
   type SyncSurface,
-  type SyncSystemDef,
-  syncKnobs,
+  syncVirtual,
 } from '../../../sim/scenario';
 import { acmeApp } from './app';
 
-/** Framework-owned acme system: broker + server + `clientCount` clients. */
-export const acmeSystem: SyncSystemDef = defineSyncSystem(acmeApp, {
-  id: 'sync.acme',
-});
-
-/** Same topology, but hydrating the large-catalog session query. */
-export const acmeLargeCatalogSystem: SyncSystemDef = defineSyncSystem(acmeApp, {
-  id: 'sync.acme.large-catalog',
-  sessionQuery: { name: 'notesLargeAll', params: {} },
-});
+/** System defaults; scripted tests overlay a partial. */
+export const ACME_DEFAULT_ARGS: SyncArgs = {
+  rowImageFanout: true,
+  liveResendOnReconnect: false,
+  bufferOutboundLive: false,
+  clientCount: 2,
+};
 
 /**
- * Typed system knobs for `start` — `acmeKnobs({ clientCount: 0 })`.
+ * Framework-owned acme system: broker + server + `args.clientCount` clients.
  *
  * Scripted pin shape:
  *
  * ```ts
- * await using run = await script(acmeSystem, {
+ * await using s = await acmeSystem.script({
  *   seed,
- *   host: syncVirtualHost(),
- *   knobs: acmeKnobs({ clientCount: 0, rowImageFanout: false }),
- *   properties: [],
+ *   args: { clientCount: 0, rowImageFanout: false },
  * });
- * await run.apply(addClient, 'alice');
- * await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'hi' });
- * await run.elapse(500);
- * expect(await run.observe(liveNote, 'server', 'n1')).toEqual({
+ * await s.apply(addClient, 'alice');
+ * await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'hi' });
+ * await s.elapse(500);
+ * expect(await s.observe(liveNote, 'server', 'n1')).toEqual({
  *   body: 'hi',
  *   title: 'hi',
  *   deletedAt: null,
  * });
- * await expectConverged(run);
+ * await expectConverged(s);
  * ```
  *
- * Poll with `run.until` / `untilAcme` (`./until`).
+ * Poll with `s.until` / `untilAcme` (`./until`).
  */
-export const acmeKnobs = syncKnobs;
+export const acmeSystem = defineSystem({
+  name: 'sync.acme',
+  args: ACME_DEFAULT_ARGS,
+  draw: () => gen(arbSyncArgs()),
+  create: (session, args) => createSyncSurface(session, acmeApp, args),
+});
 
-export type { SyncSurface, SyncSystemDef, System };
+acmeSystem.host({
+  default: true,
+  name: 'virtual',
+  create: () => syncVirtual(),
+});
+
+/** Explore / walk pool + standing monitors for acme. */
+export const ACME_POOL_ACTIONS = SYNC_POOL_ACTIONS.map((def) =>
+  acmeSystem.action(def)
+);
+export const ACME_PROPERTIES = SYNC_PROPERTY_DEFS.map((def) =>
+  acmeSystem.property(def)
+);
+
+/** Hydrates the ~2k row catalog query instead of the pack default. */
+export const ACME_LARGE_CATALOG_ARGS: Partial<SyncArgs> = {
+  sessionQuery: { name: 'notesLargeAll', params: {} },
+};
+
+export type { SyncArgs, SyncSurface };

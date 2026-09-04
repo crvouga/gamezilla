@@ -1,8 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import type { Run } from '@pkgs/dst';
-import { script } from '@pkgs/dst';
+import type { Script } from '@pkgs/dst';
 import {
-  acmeKnobs,
   acmeSystem,
   addClient,
   mutate,
@@ -11,7 +9,6 @@ import {
   type SyncSurface,
   setFolder,
   setNote,
-  syncVirtualHost,
 } from '../apps/acme';
 import {
   expectLiveNoteAt,
@@ -27,56 +24,54 @@ const OWNED_SESSION = { name: 'notesOwned', params: {} };
  * the row. A plain `neverAcme` cannot re-authorize between polls.
  */
 async function nudgeWhileDenied(
-  run: Run<SyncSurface>,
+  s: Script<SyncSurface>,
   clientId: string,
   id: string,
   forMs: number
 ): Promise<void> {
   for (let waited = 0; waited <= forMs; waited += 25) {
-    await run.apply(nudge, clientId);
-    expect(await isNoteLiveAt(run, clientId, id)).toBe(false);
+    await s.apply(nudge, clientId);
+    expect(await isNoteLiveAt(s, clientId, id)).toBe(false);
   }
 }
 
 describe('cross tenant rows never hydrate', () => {
   test('denied notesOwned peer never hydrates owner private rows', async () => {
     // rowImageFanout false: authorize deny must not be bypassed by images.
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 980,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0, rowImageFanout: false }),
-      properties: [],
+      args: { clientCount: 0, rowImageFanout: false },
     });
 
-    await run.apply(addClient, {
+    await s.apply(addClient, {
       id: 'alice',
       actorId: 'alice',
       sessionQuery: OWNED_SESSION,
     });
-    await run.apply(addClient, {
+    await s.apply(addClient, {
       id: 'bob',
       actorId: 'bob',
       sessionQuery: OWNED_SESSION,
     });
 
-    await run.apply(mutate, 'alice', setFolder, {
+    await s.apply(mutate, 'alice', setFolder, {
       id: NOTES_AUTH_GATE_FOLDER_ID,
       title: 'alice-gate',
     });
     // Re-authorize after the gate folder lands.
-    await run.apply(nudge, 'alice');
-    await run.apply(mutate, 'alice', setNote, {
+    await s.apply(nudge, 'alice');
+    await s.apply(mutate, 'alice', setNote, {
       id: 'alice-private',
       body: 'secret-a',
     });
-    await nudgeWhileDenied(run, 'bob', 'alice-private', 400);
+    await nudgeWhileDenied(s, 'bob', 'alice-private', 400);
 
-    await expectLiveNoteAt(run, 'alice', 'alice-private', {
+    await expectLiveNoteAt(s, 'alice', 'alice-private', {
       body: 'secret-a',
     });
     // Bob never owns the gate → notesOwned denied → no hydrate of alice rows.
-    await expectNoteNotLiveAt(run, 'bob', 'alice-private');
-    const bobNotes = await run.observe(liveNotes, 'bob');
+    await expectNoteNotLiveAt(s, 'bob', 'alice-private');
+    const bobNotes = await s.observe(liveNotes, 'bob');
     expect(bobNotes.some((n) => n.ownerId === 'alice')).toBe(false);
     expect(bobNotes.length).toBe(0);
   });
@@ -84,33 +79,31 @@ describe('cross tenant rows never hydrate', () => {
   test.each([981, 982, 983])(
     'seed sweep authorize filter keeps stranger rows out (seed=%i)',
     async (seed) => {
-      await using run = await script(acmeSystem, {
+      await using s = await acmeSystem.script({
         seed,
-        host: syncVirtualHost(),
-        knobs: acmeKnobs({ clientCount: 0, rowImageFanout: false }),
-        properties: [],
+        args: { clientCount: 0, rowImageFanout: false },
       });
 
-      await run.apply(addClient, {
+      await s.apply(addClient, {
         id: 'alice',
         actorId: 'alice',
         sessionQuery: OWNED_SESSION,
       });
-      await run.apply(addClient, {
+      await s.apply(addClient, {
         id: 'stranger',
         actorId: 'stranger',
         sessionQuery: OWNED_SESSION,
       });
-      await run.apply(mutate, 'alice', setFolder, {
+      await s.apply(mutate, 'alice', setFolder, {
         id: NOTES_AUTH_GATE_FOLDER_ID,
         title: 'g',
       });
-      await run.apply(mutate, 'alice', setNote, {
+      await s.apply(mutate, 'alice', setNote, {
         id: `priv-${seed}`,
         body: 'x',
       });
-      await nudgeWhileDenied(run, 'stranger', `priv-${seed}`, 300);
-      await expectNoteNotLiveAt(run, 'stranger', `priv-${seed}`);
+      await nudgeWhileDenied(s, 'stranger', `priv-${seed}`, 300);
+      await expectNoteNotLiveAt(s, 'stranger', `priv-${seed}`);
     }
   );
 });

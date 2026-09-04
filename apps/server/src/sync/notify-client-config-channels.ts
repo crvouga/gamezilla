@@ -16,7 +16,7 @@ export async function notifyClientConfigChannels(label: string): Promise<void> {
     label,
     now: () => store.clock.now(),
     schedulePublish: (run) => {
-      store.timers.setTimeout(run, 0);
+      store.timers.setTimeout(s, 0);
     },
   });
 }

@@ -1,7 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import {
-  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
@@ -9,7 +7,6 @@ import {
   runAcmeSeed,
   seedsFromEnv,
   setNote,
-  syncVirtualHost,
 } from '../apps/acme';
 
 describe('seeded workload fuzz determinism', () => {
@@ -107,15 +104,13 @@ describe('seeded workload fuzz determinism', () => {
   );
 
   test('single mutate then fuzz-style settle', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 88,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, 'alice');
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'ok' });
-    await expectConverged(run);
+    await s.apply(addClient, 'alice');
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'ok' });
+    await expectConverged(s);
   });
 });

@@ -1,7 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import {
-  acmeKnobs,
   acmeSystem,
   addClient,
   crash,
@@ -15,212 +13,193 @@ import {
   release,
   restart,
   setNote,
-  syncVirtualHost,
 } from '../apps/acme';
 
 describe('offline crash partition lifecycle matrix', () => {
   test('A offline while B writes; A online matches', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 201,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, { id: 'alice' });
-    await run.apply(addClient, { id: 'bob' });
-    await run.apply(online, 'alice', false);
-    await run.apply(mutate, 'bob', setNote, { id: 'n1', body: 'from-b' });
-    await run.elapse(100);
-    await run.apply(online, 'alice', true);
-    await expectConverged(run);
-    await expectLiveNoteAt(run, 'alice', 'n1', { body: 'from-b' });
-    await expectEveryClientNotesAgree(run);
+    await s.apply(addClient, { id: 'alice' });
+    await s.apply(addClient, { id: 'bob' });
+    await s.apply(online, 'alice', false);
+    await s.apply(mutate, 'bob', setNote, { id: 'n1', body: 'from-b' });
+    await s.elapse(100);
+    await s.apply(online, 'alice', true);
+    await expectConverged(s);
+    await expectLiveNoteAt(s, 'alice', 'n1', { body: 'from-b' });
+    await expectEveryClientNotesAgree(s);
   });
 
   test('B offline while A writes; B online matches', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 202,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, { id: 'alice' });
-    await run.apply(addClient, { id: 'bob' });
-    await run.apply(online, 'bob', false);
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'from-a' });
-    await run.elapse(100);
-    await run.apply(online, 'bob', true);
-    await expectConverged(run);
-    await expectLiveNoteAt(run, 'bob', 'n1', { body: 'from-a' });
-    await expectEveryClientNotesAgree(run);
+    await s.apply(addClient, { id: 'alice' });
+    await s.apply(addClient, { id: 'bob' });
+    await s.apply(online, 'bob', false);
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'from-a' });
+    await s.elapse(100);
+    await s.apply(online, 'bob', true);
+    await expectConverged(s);
+    await expectLiveNoteAt(s, 'bob', 'n1', { body: 'from-a' });
+    await expectEveryClientNotesAgree(s);
   });
 
   test('both offline divergent writes then online converge', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 203,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, { id: 'alice' });
-    await run.apply(addClient, { id: 'bob' });
-    await run.apply(online, 'alice', false);
-    await run.apply(online, 'bob', false);
-    await run.apply(mutate, 'alice', setNote, { id: 'shared', body: 'a' });
-    await run.apply(mutate, 'bob', setNote, { id: 'shared', body: 'b' });
-    await run.apply(online, 'alice', true);
-    await run.apply(online, 'bob', true);
-    await expectConverged(run);
+    await s.apply(addClient, { id: 'alice' });
+    await s.apply(addClient, { id: 'bob' });
+    await s.apply(online, 'alice', false);
+    await s.apply(online, 'bob', false);
+    await s.apply(mutate, 'alice', setNote, { id: 'shared', body: 'a' });
+    await s.apply(mutate, 'bob', setNote, { id: 'shared', body: 'b' });
+    await s.apply(online, 'alice', true);
+    await s.apply(online, 'bob', true);
+    await expectConverged(s);
 
-    const server = await run.observe(liveNotes, 'server');
+    const server = await s.observe(liveNotes, 'server');
     const winner = server.find((r) => r.id === 'shared');
     expect(winner?.body === 'a' || winner?.body === 'b').toBe(true);
-    await expectEveryClientNotesAgree(run);
+    await expectEveryClientNotesAgree(s);
   });
 
   test('A crash+restart after B wrote rehydrates', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 204,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, { id: 'alice' });
-    await run.apply(addClient, { id: 'bob' });
-    await run.apply(mutate, 'bob', setNote, { id: 'n1', body: 'from-b' });
-    await expectConverged(run);
-    await run.apply(crash, 'alice');
-    await run.apply(restart, 'alice', {});
-    await expectConverged(run);
-    await expectLiveNoteAt(run, 'alice', 'n1', { body: 'from-b' });
+    await s.apply(addClient, { id: 'alice' });
+    await s.apply(addClient, { id: 'bob' });
+    await s.apply(mutate, 'bob', setNote, { id: 'n1', body: 'from-b' });
+    await expectConverged(s);
+    await s.apply(crash, 'alice');
+    await s.apply(restart, 'alice', {});
+    await expectConverged(s);
+    await expectLiveNoteAt(s, 'alice', 'n1', { body: 'from-b' });
   });
 
   test('B crash+restart after A wrote rehydrates', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 205,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, { id: 'alice' });
-    await run.apply(addClient, { id: 'bob' });
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'from-a' });
-    await expectConverged(run);
-    await run.apply(crash, 'bob');
-    await run.apply(restart, 'bob', {});
-    await expectConverged(run);
-    await expectLiveNoteAt(run, 'bob', 'n1', { body: 'from-a' });
+    await s.apply(addClient, { id: 'alice' });
+    await s.apply(addClient, { id: 'bob' });
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'from-a' });
+    await expectConverged(s);
+    await s.apply(crash, 'bob');
+    await s.apply(restart, 'bob', {});
+    await expectConverged(s);
+    await expectLiveNoteAt(s, 'bob', 'n1', { body: 'from-a' });
   });
 
   test('sequential A then B crash/restart after shared state', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 206,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, { id: 'alice' });
-    await run.apply(addClient, { id: 'bob' });
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'shared' });
-    await expectConverged(run);
-    await run.apply(crash, 'alice');
-    await run.apply(restart, 'alice', {});
-    await expectConverged(run);
-    await run.apply(crash, 'bob');
-    await run.apply(restart, 'bob', {});
-    await expectConverged(run);
-    await expectEveryClientNotesAgree(run);
-    await expectLiveNoteAt(run, 'server', 'n1', { body: 'shared' });
+    await s.apply(addClient, { id: 'alice' });
+    await s.apply(addClient, { id: 'bob' });
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'shared' });
+    await expectConverged(s);
+    await s.apply(crash, 'alice');
+    await s.apply(restart, 'alice', {});
+    await expectConverged(s);
+    await s.apply(crash, 'bob');
+    await s.apply(restart, 'bob', {});
+    await expectConverged(s);
+    await expectEveryClientNotesAgree(s);
+    await expectLiveNoteAt(s, 'server', 'n1', { body: 'shared' });
   });
 
   test('server unreachable: both mutate locally then heal converges', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 207,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, { id: 'alice' });
-    await run.apply(addClient, { id: 'bob' });
-    await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
-    await expectConverged(run);
+    await s.apply(addClient, { id: 'alice' });
+    await s.apply(addClient, { id: 'bob' });
+    await s.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
+    await expectConverged(s);
 
     // Server unreachable = both partitioned from server HTTP/pubsub.
-    await run.apply(partition, 'alice', 'all');
-    await run.apply(partition, 'bob', 'all');
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'a-local' });
-    await run.apply(mutate, 'bob', setNote, { id: 'n2', body: 'b-local' });
-    await run.elapse(100);
+    await s.apply(partition, 'alice', 'all');
+    await s.apply(partition, 'bob', 'all');
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'a-local' });
+    await s.apply(mutate, 'bob', setNote, { id: 'n2', body: 'b-local' });
+    await s.elapse(100);
 
-    await expectConverged(run);
-    await expectLiveNoteAt(run, 'alice', 'n1', { body: 'a-local' });
-    await expectLiveNoteAt(run, 'bob', 'n2', { body: 'b-local' });
-    await expectEveryClientNotesAgree(run);
+    await expectConverged(s);
+    await expectLiveNoteAt(s, 'alice', 'n1', { body: 'a-local' });
+    await expectLiveNoteAt(s, 'bob', 'n2', { body: 'b-local' });
+    await expectEveryClientNotesAgree(s);
   });
 
   test('staggered: A partitioned, B writes; heal A; B offline writes', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 208,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, { id: 'alice' });
-    await run.apply(addClient, { id: 'bob' });
-    await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
-    await expectConverged(run);
+    await s.apply(addClient, { id: 'alice' });
+    await s.apply(addClient, { id: 'bob' });
+    await s.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
+    await expectConverged(s);
 
-    await run.apply(partition, 'alice', 'all');
-    await run.apply(mutate, 'bob', setNote, { id: 'n1', body: 'from-b' });
-    await run.elapse(80);
-    await expectConverged(run);
-    await expectLiveNoteAt(run, 'alice', 'n1', { body: 'from-b' });
+    await s.apply(partition, 'alice', 'all');
+    await s.apply(mutate, 'bob', setNote, { id: 'n1', body: 'from-b' });
+    await s.elapse(80);
+    await expectConverged(s);
+    await expectLiveNoteAt(s, 'alice', 'n1', { body: 'from-b' });
 
-    await run.apply(online, 'bob', false);
-    await run.apply(mutate, 'bob', setNote, { id: 'n2', body: 'b-queued' });
-    await run.elapse(40);
-    await run.apply(online, 'bob', true);
-    await expectConverged(run);
-    await expectLiveNoteAt(run, 'alice', 'n2', { body: 'b-queued' });
-    await expectEveryClientNotesAgree(run);
+    await s.apply(online, 'bob', false);
+    await s.apply(mutate, 'bob', setNote, { id: 'n2', body: 'b-queued' });
+    await s.elapse(40);
+    await s.apply(online, 'bob', true);
+    await expectConverged(s);
+    await expectLiveNoteAt(s, 'alice', 'n2', { body: 'b-queued' });
+    await expectEveryClientNotesAgree(s);
   });
 
   test('flip-flop offline and partition around contested note', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 209,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, { id: 'alice' });
-    await run.apply(addClient, { id: 'bob' });
+    await s.apply(addClient, { id: 'alice' });
+    await s.apply(addClient, { id: 'bob' });
 
-    await run.apply(online, 'alice', false);
-    await run.apply(mutate, 'alice', setNote, { id: 'flip', body: 'a1' });
-    await run.apply(online, 'alice', true);
-    await run.elapse(40);
+    await s.apply(online, 'alice', false);
+    await s.apply(mutate, 'alice', setNote, { id: 'flip', body: 'a1' });
+    await s.apply(online, 'alice', true);
+    await s.elapse(40);
 
-    await run.apply(partition, 'bob', 'all');
-    await run.apply(mutate, 'bob', setNote, { id: 'flip', body: 'b1' });
-    await run.apply(release, 'bob', 'all');
-    await run.elapse(40);
+    await s.apply(partition, 'bob', 'all');
+    await s.apply(mutate, 'bob', setNote, { id: 'flip', body: 'b1' });
+    await s.apply(release, 'bob', 'all');
+    await s.elapse(40);
 
-    await run.apply(online, 'bob', false);
-    await run.apply(mutate, 'alice', setNote, { id: 'flip', body: 'a2' });
-    await run.apply(online, 'bob', true);
-    await expectConverged(run);
+    await s.apply(online, 'bob', false);
+    await s.apply(mutate, 'alice', setNote, { id: 'flip', body: 'a2' });
+    await s.apply(online, 'bob', true);
+    await expectConverged(s);
 
-    const server = await run.observe(liveNotes, 'server');
+    const server = await s.observe(liveNotes, 'server');
     expect(server.find((r) => r.id === 'flip')).toBeDefined();
-    await expectEveryClientNotesAgree(run);
+    await expectEveryClientNotesAgree(s);
   });
 });

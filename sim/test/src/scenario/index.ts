@@ -1,6 +1,6 @@
 /**
  * Product sim system. Hosts own fidelity (`simHost` / `maxHost`);
- * {@link openSim} starts this system and returns a {@link Run}.
+ * {@link openSim} starts this system and returns a {@link Script}.
  */
 
 export {

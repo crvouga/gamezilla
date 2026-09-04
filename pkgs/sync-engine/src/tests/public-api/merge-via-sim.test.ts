@@ -1,8 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import { sql } from '@pkgs/sql';
 import {
-  acmeKnobs,
   acmeLocalSchemaExtraColumn,
   acmeSystem,
   addClient,
@@ -16,7 +14,6 @@ import {
   runSql,
   type SyncSurface,
   setNote,
-  syncVirtualHost,
 } from '../apps/acme';
 
 async function aliceColor(s: SyncSurface) {
@@ -34,71 +31,65 @@ async function aliceColor(s: SyncSurface) {
  */
 describe('public API: merge via sim', () => {
   test('missing server keys do not null local-only columns', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 9001,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, {
+    await s.apply(addClient, {
       id: 'alice',
       actorId: 'alice',
       localSchema: acmeLocalSchemaExtraColumn,
     });
-    await run.apply(addClient, 'bob');
+    await s.apply(addClient, 'bob');
 
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'v1' });
-    await expectConverged(run);
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'v1' });
+    await expectConverged(s);
 
-    await run.apply(
+    await s.apply(
       runSql,
       'alice',
       "UPDATE notes SET color = 'red' WHERE id = 'n1'"
     );
-    await run.apply(mutate, 'bob', setNote, { id: 'n1', body: 'from-bob' });
-    await expectConverged(run);
+    await s.apply(mutate, 'bob', setNote, { id: 'n1', body: 'from-bob' });
+    await expectConverged(s);
 
-    expect((await run.observe(liveNote, 'alice', 'n1'))?.body).toBe('from-bob');
-    expect((await run.observe(aliceColor))[0]?.color).toBe('red');
+    expect((await s.observe(liveNote, 'alice', 'n1'))?.body).toBe('from-bob');
+    expect((await s.observe(aliceColor))[0]?.color).toBe('red');
   });
 
   test('tombstone upsert removes live peer row; pending rebase wins after disconnect', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 9002,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, 'alice');
-    await run.apply(addClient, 'bob');
+    await s.apply(addClient, 'alice');
+    await s.apply(addClient, 'bob');
 
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'seed' });
-    await expectConverged(run);
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'seed' });
+    await expectConverged(s);
 
-    await run.apply(mutate, 'alice', deleteNote, { id: 'n1' });
-    await expectConverged(run);
-    expect(
-      (await run.observe(liveNote, 'bob', 'n1'))?.deletedAt
-    ).not.toBeNull();
+    await s.apply(mutate, 'alice', deleteNote, { id: 'n1' });
+    await expectConverged(s);
+    expect((await s.observe(liveNote, 'bob', 'n1'))?.deletedAt).not.toBeNull();
 
-    await run.apply(disconnect, 'alice');
-    await run.apply(mutate, 'alice', setNote, {
+    await s.apply(disconnect, 'alice');
+    await s.apply(mutate, 'alice', setNote, {
       id: 'n1',
       body: 'optimistic-pending',
     });
-    expect((await run.observe(liveNote, 'alice', 'n1'))?.body).toBe(
+    expect((await s.observe(liveNote, 'alice', 'n1'))?.body).toBe(
       'optimistic-pending'
     );
 
-    await run.apply(connect, 'alice');
-    await run.elapse(500);
-    expect((await run.observe(liveNote, 'alice', 'n1'))?.body).toBe(
+    await s.apply(connect, 'alice');
+    await s.elapse(500);
+    expect((await s.observe(liveNote, 'alice', 'n1'))?.body).toBe(
       'optimistic-pending'
     );
-    await expectConverged(run);
-    expect((await run.observe(liveNote, 'bob', 'n1'))?.body).toBe(
+    await expectConverged(s);
+    expect((await s.observe(liveNote, 'bob', 'n1'))?.body).toBe(
       'optimistic-pending'
     );
   });

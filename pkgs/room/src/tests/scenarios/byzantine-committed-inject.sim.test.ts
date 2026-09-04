@@ -1,19 +1,20 @@
 import { describe, expect, test } from 'bun:test';
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '../../protocol/wire';
 import {
+  addClient,
   clock,
   connect,
   disconnect,
   dispatch,
   injectFromServer,
 } from '../../sim/scenario';
+import { counterSystem } from '../apps/counter/system';
 import { expectConverged } from '../expect-converged';
 import {
   CounterIncremented,
   counterValue,
   Increment,
 } from '../fixtures/counter-module';
-import { bootCounter } from '../scenario/boot-counter';
 import {
   expectHashMatch,
   readClient,
@@ -22,14 +23,20 @@ import {
 
 describe('room sim: byzantine committed inject (E-D05)', () => {
   test('fake committed on one client heals to server truth', async () => {
-    await using run = await bootCounter(['alice', 'bob']);
+    await using s = await counterSystem.script({
+      seed: 42,
+    });
+    for (const id of ['alice', 'bob']) {
+      await s.apply(addClient, { id });
+    }
+    await expectConverged(s);
 
-    await run.apply(dispatch, {
+    await s.apply(dispatch, {
       clientId: 'alice',
       payload: Increment({}),
     });
 
-    await run.apply(injectFromServer, {
+    await s.apply(injectFromServer, {
       clientId: 'bob',
       raw: {
         v: WIRE_VERSION,
@@ -40,18 +47,18 @@ describe('room sim: byzantine committed inject (E-D05)', () => {
             seq: 99,
             event: CounterIncremented({}),
             actor: { id: 'eve', clientId: 'eve' },
-            ts: await run.observe(clock),
+            ts: await s.observe(clock),
           },
         ],
       },
     });
 
-    await run.apply(disconnect, 'bob');
-    await run.apply(connect, 'bob');
-    await expectConverged(run);
+    await s.apply(disconnect, 'bob');
+    await s.apply(connect, 'bob');
+    await expectConverged(s);
     expect(counterValue(await readServer(run))).toBe(1);
-    expect(counterValue(await readClient(run, 'alice'))).toBe(1);
-    expect(counterValue(await readClient(run, 'bob'))).toBe(1);
-    await expectHashMatch(run, 'alice');
+    expect(counterValue(await readClient(s, 'alice'))).toBe(1);
+    expect(counterValue(await readClient(s, 'bob'))).toBe(1);
+    await expectHashMatch(s, 'alice');
   });
 });

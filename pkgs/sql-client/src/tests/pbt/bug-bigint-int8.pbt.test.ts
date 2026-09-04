@@ -2,7 +2,6 @@
  * Pin for BUG-1: Hermes `Cannot convert BigInt to number` on Postgres int8.
  * Every default backend must return safe integers as number (never bigint).
  */
-import './_shared-teardown';
 import { describe, expect, test } from 'bun:test';
 import { defineTable, registerTables } from '@pkgs/db-schema';
 import { applyPostgresSchema } from '@pkgs/db-schema/postgres';

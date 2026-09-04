@@ -1,7 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import {
-  acmeKnobs,
   acmeSystem,
   addClient,
   clientIds,
@@ -10,7 +8,6 @@ import {
   mutate,
   restart,
   setNote,
-  syncVirtualHost,
 } from '../apps/acme';
 import {
   expectLiveNoteAt,
@@ -20,34 +17,32 @@ import {
 
 describe('crash mid merge restart rehydrates', () => {
   test('crash after sync delivery; restart never torn across tables', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 830,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0, rowImageFanout: false }),
-      properties: [],
+      args: { clientCount: 0, rowImageFanout: false },
     });
 
-    await run.apply(addClient, 'alice');
-    await run.apply(addClient, 'bob');
+    await s.apply(addClient, 'alice');
+    await s.apply(addClient, 'bob');
 
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'one' });
-    await run.apply(mutate, 'alice', setNote, { id: 'n2', body: 'two' });
-    await expectConverged(run);
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'one' });
+    await s.apply(mutate, 'alice', setNote, { id: 'n2', body: 'two' });
+    await expectConverged(s);
 
-    await run.apply(crashAt, 'bob', 'afterNextSyncResponseDelivered');
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'updated' });
-    await run.apply(mutate, 'alice', setNote, { id: 'n3', body: 'three' });
-    await run.elapse(800);
+    await s.apply(crashAt, 'bob', 'afterNextSyncResponseDelivered');
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'updated' });
+    await s.apply(mutate, 'alice', setNote, { id: 'n3', body: 'three' });
+    await s.elapse(800);
 
-    expect(await run.observe(clientIds)).not.toContain('bob');
-    await run.apply(restart, 'bob', { preserveLocalDb: true });
-    await expectConverged(run);
+    expect(await s.observe(clientIds)).not.toContain('bob');
+    await s.apply(restart, 'bob', { preserveLocalDb: true });
+    await expectConverged(s);
 
-    const ids = new Set(await readLiveNoteIds(run, 'bob'));
+    const ids = new Set(await readLiveNoteIds(s, 'bob'));
     expect(ids.has('n1')).toBe(true);
     expect(ids.has('n2')).toBe(true);
-    await expectLiveNoteAt(run, 'bob', 'n1', { body: 'updated' });
-    await expectLiveNoteAt(run, 'bob', 'n3', { body: 'three' });
-    await expectNotesAgree(run, 'bob');
+    await expectLiveNoteAt(s, 'bob', 'n1', { body: 'updated' });
+    await expectLiveNoteAt(s, 'bob', 'n3', { body: 'three' });
+    await expectNotesAgree(s, 'bob');
   });
 });

@@ -1,7 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import {
-  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
@@ -13,45 +11,40 @@ import {
   online,
   outcome,
   requiresOnlineNote,
-  syncVirtualHost,
   untilAcme,
 } from '../apps/acme';
 
 describe('requires online fails offline without queue', () => {
   test('offline mutate fails with OFFLINE and does not queue', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 510,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, { id: 'alice' });
-    await run.apply(online, 'alice', false);
+    await s.apply(addClient, { id: 'alice' });
+    await s.apply(online, 'alice', false);
 
-    await run.apply(mutate, 'alice', requiresOnlineNote, {
+    await s.apply(mutate, 'alice', requiresOnlineNote, {
       id: 'n1',
       body: 'need-net',
     });
-    expect(await run.observe(lastMutationOk, 'alice')).toBe(false);
-    expect(await run.observe(lastMutationFailures, 'alice')).toContain(
-      'OFFLINE'
-    );
+    expect(await s.observe(lastMutationOk, 'alice')).toBe(false);
+    expect(await s.observe(lastMutationFailures, 'alice')).toContain('OFFLINE');
 
-    await run.apply(online, 'alice', true);
-    await run.apply(mutate, 'alice', requiresOnlineNote, {
+    await s.apply(online, 'alice', true);
+    await s.apply(mutate, 'alice', requiresOnlineNote, {
       id: 'n1',
       body: 'online-ok',
     });
-    expect(await run.observe(lastMutationOk, 'alice')).toBe(true);
-    const okId = await run.observe(lastMutationId, 'alice');
+    expect(await s.observe(lastMutationOk, 'alice')).toBe(true);
+    const okId = await s.observe(lastMutationId, 'alice');
     expect(okId).not.toBeNull();
     if (okId === null) return;
 
-    await untilAcme(run, (s) => outcome(s, 'alice', okId));
-    expect(await run.observe(outcome, 'alice', okId)).toBe('confirmed');
-    await expectConverged(run);
-    expect(await run.observe(liveNote, 'alice', 'n1')).toMatchObject({
+    await untilAcme(s, (s) => outcome(s, 'alice', okId));
+    expect(await s.observe(outcome, 'alice', okId)).toBe('confirmed');
+    await expectConverged(s);
+    expect(await s.observe(liveNote, 'alice', 'n1')).toMatchObject({
       body: 'online-ok',
     });
   });

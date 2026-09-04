@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
-import { dispatch, setNet } from '../../sim/scenario';
+import { addClient, dispatch, setNet } from '../../sim/scenario';
+import { counterSystem } from '../apps/counter/system';
 import { expectConverged } from '../expect-converged';
 import { counterValue, Decrement, Increment } from '../fixtures/counter-module';
-import { bootCounter } from '../scenario/boot-counter';
 import {
   expectHashMatch,
   readClient,
@@ -17,25 +17,31 @@ const JITTER = {
 
 describe('room sim: inc-dec conflict order (E-B04)', () => {
   test('final count matches server fold under jitter', async () => {
-    await using run = await bootCounter(['alice', 'bob']);
+    await using s = await counterSystem.script({
+      seed: 42,
+    });
+    for (const id of ['alice', 'bob']) {
+      await s.apply(addClient, { id });
+    }
+    await expectConverged(s);
 
-    await run.apply(setNet, { clientId: 'alice', next: JITTER });
-    await run.apply(setNet, { clientId: 'bob', next: JITTER });
+    await s.apply(setNet, { clientId: 'alice', next: JITTER });
+    await s.apply(setNet, { clientId: 'bob', next: JITTER });
     for (let i = 0; i < 6; i += 1) {
-      await run.apply(dispatch, {
+      await s.apply(dispatch, {
         clientId: 'alice',
         payload: Increment({}),
       });
-      await run.apply(dispatch, {
+      await s.apply(dispatch, {
         clientId: 'bob',
         payload: Decrement({}),
       });
     }
-    await run.elapse(0);
-    await expectConverged(run);
+    await s.elapse(0);
+    await expectConverged(s);
     expect(counterValue(await readServer(run))).toBe(0);
-    expect(counterValue(await readClient(run, 'alice'))).toBe(0);
-    await expectHashMatch(run, 'alice');
-    await expectHashMatch(run, 'bob');
+    expect(counterValue(await readClient(s, 'alice'))).toBe(0);
+    await expectHashMatch(s, 'alice');
+    await expectHashMatch(s, 'bob');
   });
 });

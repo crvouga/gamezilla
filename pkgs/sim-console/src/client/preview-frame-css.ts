@@ -23,3 +23,17 @@ export const PREVIEW_IN_DOM_SHELL_CSS = [
   '[data-component="ModalBackdrop"]{width:100%;height:100%;min-height:100%}',
   'input,textarea,button,span{font:inherit;color:inherit;}',
 ].join('');
+
+/**
+ * @deprecated iframe srcdoc path — prefer {@link PREVIEW_IN_DOM_SHELL_CSS}.
+ * Kept for unit coverage of stretch math.
+ */
+export const PREVIEW_STRETCH_SHELL_CSS = [
+  `html,body{width:100%;height:100%;margin:0;padding:0;overflow:hidden;color-scheme:dark;background:${SNAPSHOT_BG};color:${SNAPSHOT_FG};font-family:${BODY_FONT};}`,
+  '*{box-sizing:border-box;-webkit-user-select:none;user-select:none;}',
+  "input,textarea,[contenteditable='true']{-webkit-user-select:text;user-select:text;}",
+  `.rn-root{position:absolute;inset:0;margin:auto;width:${FRAME_W}px;height:${FRAME_H}px;display:flex;flex-direction:column;box-sizing:border-box;overflow:hidden;transform:scale(min(calc(100vw / ${FRAME_W}px), calc(100vh / ${FRAME_H}px)));transform-origin:center center;}`,
+  '[data-component="ModalRoot"],[role="dialog"]{width:100%;height:100%;min-height:100%}',
+  '[data-component="ModalBackdrop"]{width:100%;height:100%;min-height:100%}',
+  'input,textarea,button,span{font:inherit;color:inherit;}',
+].join('');

@@ -1,7 +1,5 @@
 import { describe, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import {
-  acmeKnobs,
   acmeSystem,
   addClient,
   befriend,
@@ -13,48 +11,45 @@ import {
   mutate,
   restart,
   SPACE_MEMBERSHIP_SESSION,
-  syncVirtualHost,
   untilAcme,
 } from '../apps/acme';
 
 describe('friend hosted space cold hydrate', () => {
   test('friend sees host space via push and again after wipe restart', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 910,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, {
+    await s.apply(addClient, {
       id: 'alice',
       sessionQuery: SPACE_MEMBERSHIP_SESSION,
     });
-    await run.apply(addClient, {
+    await s.apply(addClient, {
       id: 'bob',
       sessionQuery: SPACE_MEMBERSHIP_SESSION,
     });
 
-    await run.apply(mutate, 'alice', befriend, { peerId: 'bob' });
-    await expectConverged(run);
+    await s.apply(mutate, 'alice', befriend, { peerId: 'bob' });
+    await expectConverged(s);
 
-    await run.apply(mutate, 'alice', createSpace, {
+    await s.apply(mutate, 'alice', createSpace, {
       id: 'friend-space',
       title: 'Alice lobby',
     });
 
     // Phase A — live push via friend topic wake (product: new space appears).
-    await untilAcme(run, (s) => liveSpace(s, 'bob', 'friend-space'));
-    await expectLiveSpaceAt(run, 'bob', 'friend-space', {
+    await untilAcme(s, (s) => liveSpace(s, 'bob', 'friend-space'));
+    await expectLiveSpaceAt(s, 'bob', 'friend-space', {
       title: 'Alice lobby',
       ownerId: 'alice',
     });
 
     // Phase B — cold hydrate after wipe (product bug without query widen).
-    await run.apply(crash, 'bob');
-    await run.apply(restart, 'bob', {});
-    await untilAcme(run, (s) => liveSpace(s, 'bob', 'friend-space'));
-    await expectLiveSpaceAt(run, 'bob', 'friend-space', {
+    await s.apply(crash, 'bob');
+    await s.apply(restart, 'bob', {});
+    await untilAcme(s, (s) => liveSpace(s, 'bob', 'friend-space'));
+    await expectLiveSpaceAt(s, 'bob', 'friend-space', {
       title: 'Alice lobby',
       ownerId: 'alice',
     });

@@ -1,7 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import {
-  acmeKnobs,
   acmeLocalSchemaExtraColumn,
   acmeSystem,
   addClient,
@@ -11,7 +9,6 @@ import {
   noteColor,
   runSql,
   setNote,
-  syncVirtualHost,
 } from '../apps/acme';
 
 describe('client column missing from server snapshot not clobbered', () => {
@@ -19,39 +16,33 @@ describe('client column missing from server snapshot not clobbered', () => {
     'local color survives peer body update (seed=%i)',
     async (seed) => {
       // Server stays on base schema (no color). Client has extra column.
-      await using run = await script(acmeSystem, {
+      await using s = await acmeSystem.script({
         seed: seed,
-        host: syncVirtualHost(),
-        knobs: acmeKnobs({ clientCount: 0 }),
-        properties: [],
+        args: { clientCount: 0 },
       });
 
-      await run.apply(addClient, {
+      await s.apply(addClient, {
         id: 'alice',
         localSchema: acmeLocalSchemaExtraColumn,
       });
-      await run.apply(addClient, { id: 'bob' });
+      await s.apply(addClient, { id: 'bob' });
 
-      await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'v1' });
-      await expectConverged(run);
+      await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'v1' });
+      await expectConverged(s);
 
       // Domain-only local write — not uploaded (server has no color column).
-      await run.apply(
+      await s.apply(
         runSql,
         'alice',
         `UPDATE notes SET color = 'red' WHERE id = 'n1'`
       );
-      expect((await run.observe(noteColor, 'alice', 'n1'))[0]?.color).toBe(
-        'red'
-      );
+      expect((await s.observe(noteColor, 'alice', 'n1'))[0]?.color).toBe('red');
 
-      await run.apply(mutate, 'bob', setNote, { id: 'n1', body: 'from-bob' });
-      await expectConverged(run);
+      await s.apply(mutate, 'bob', setNote, { id: 'n1', body: 'from-bob' });
+      await expectConverged(s);
 
-      await expectLiveNoteAt(run, 'alice', 'n1', { body: 'from-bob' });
-      expect((await run.observe(noteColor, 'alice', 'n1'))[0]?.color).toBe(
-        'red'
-      );
+      await expectLiveNoteAt(s, 'alice', 'n1', { body: 'from-bob' });
+      expect((await s.observe(noteColor, 'alice', 'n1'))[0]?.color).toBe('red');
     }
   );
 });

@@ -5,7 +5,7 @@ import type {
   SimHttpResponse,
   SimHttpServerHandlers,
 } from './http-bridge-types';
-import type { EndpointId, SyncNetwork } from './network';
+import type { SimEndpointId, SimNetwork } from './network';
 import { classifyEndpoint } from './traffic';
 
 function httpFaultRoute(
@@ -21,8 +21,8 @@ function clientNodeFromReplyTo(replyTo: string): string | undefined {
 }
 
 function sendError(args: {
-  readonly network: SyncNetwork;
-  readonly serverId: EndpointId;
+  readonly network: SimNetwork;
+  readonly serverId: SimEndpointId;
   readonly replyTo: string;
   readonly correlationId: string;
   readonly message: string;
@@ -55,8 +55,8 @@ function takeMatchingRouteFault(
 function applyPreRouteFaults(args: {
   readonly route: 'mutations' | 'query';
   readonly payload: SimHttpRequest;
-  readonly serverId: EndpointId;
-  readonly network: SyncNetwork;
+  readonly serverId: SimEndpointId;
+  readonly network: SimNetwork;
   readonly faults?: BoundaryFaultController;
   readonly clientNode: string | undefined;
 }): 'continue' | 'done' {
@@ -119,8 +119,8 @@ function applyPreRouteFaults(args: {
 
 async function dispatchQuery(args: {
   readonly payload: Extract<SimHttpRequest, { kind: 'query' }>;
-  readonly serverId: EndpointId;
-  readonly network: SyncNetwork;
+  readonly serverId: SimEndpointId;
+  readonly network: SimNetwork;
   readonly handlers: SimHttpServerHandlers;
   readonly faults?: BoundaryFaultController;
   readonly clientNode: string | undefined;
@@ -153,14 +153,14 @@ async function dispatchQuery(args: {
     clientNode !== undefined &&
     faults?.takeHttpFault(clientNode, 'dropQueryResponse')
   ) {
-    await handlers.handleQuery(payload.requests, clientNode);
+    await handlers.handleQuery(payload.requests);
     return;
   }
   const abortBody =
     clientNode !== undefined &&
     httpFaultRoute(faults?.peekHttpFault(clientNode, 'abortResponseBody')) ===
       'query';
-  const body = await handlers.handleQuery(payload.requests, clientNode);
+  const body = await handlers.handleQuery(payload.requests);
   if (abortBody && clientNode !== undefined) {
     faults?.takeHttpFault(clientNode, 'abortResponseBody');
     return;
@@ -181,14 +181,17 @@ async function dispatchQuery(args: {
   } satisfies SimHttpResponse);
 }
 
-function applyMutationsPreHandlerFaults(args: {
+async function dispatchMutations(args: {
   readonly payload: Extract<SimHttpRequest, { kind: 'mutations' }>;
-  readonly serverId: EndpointId;
-  readonly network: SyncNetwork;
+  readonly serverId: SimEndpointId;
+  readonly network: SimNetwork;
+  readonly handlers: SimHttpServerHandlers;
   readonly faults?: BoundaryFaultController;
   readonly clientNode: string | undefined;
-}): 'continue' | 'done' {
-  const { payload, serverId, network, faults, clientNode } = args;
+  readonly onMutationsAccepted?: (clientNodeId: string) => void | Promise<void>;
+}): Promise<void> {
+  const { payload, serverId, network, handlers, faults, clientNode } = args;
+  const replyTo = payload.replyTo;
   if (
     applyPreRouteFaults({
       route: 'mutations',
@@ -199,7 +202,7 @@ function applyMutationsPreHandlerFaults(args: {
       ...(faults !== undefined ? { faults } : {}),
     }) === 'done'
   ) {
-    return 'done';
+    return;
   }
   const mutServerErr = clientNode
     ? faults?.peekHttpFault(clientNode, 'serverErrorOnNext')
@@ -218,99 +221,31 @@ function applyMutationsPreHandlerFaults(args: {
     sendError({
       network,
       serverId,
-      replyTo: payload.replyTo,
+      replyTo,
       correlationId: payload.correlationId,
       message: 'invalid_batch',
     });
-    return 'done';
-  }
-  return 'continue';
-}
-
-type MutationsResponseFaults = {
-  readonly insideTxn:
-    | Extract<SimHttpFault, { kind: 'failMutationsInsideTxnAfter' }>
-    | undefined;
-  readonly dropResponse: boolean;
-  readonly abortBody: boolean;
-  readonly failAfterCommit: boolean;
-};
-
-function peekMutationsResponseFaults(
-  faults: BoundaryFaultController | undefined,
-  clientNode: string | undefined
-): MutationsResponseFaults {
-  if (clientNode === undefined) {
-    return {
-      insideTxn: undefined,
-      dropResponse: false,
-      abortBody: false,
-      failAfterCommit: false,
-    };
-  }
-  const insideTxn = faults?.peekHttpFault(
-    clientNode,
-    'failMutationsInsideTxnAfter'
-  );
-  return {
-    insideTxn:
-      insideTxn?.kind === 'failMutationsInsideTxnAfter' ? insideTxn : undefined,
-    dropResponse:
-      faults?.peekHttpFault(clientNode, 'dropMutationsResponse') !== undefined,
-    abortBody:
-      httpFaultRoute(faults?.peekHttpFault(clientNode, 'abortResponseBody')) ===
-      'mutations',
-    failAfterCommit:
-      faults?.peekHttpFault(clientNode, 'failMutationsAfterCommit') !==
-      undefined,
-  };
-}
-
-function wireMutationsBody(
-  body: Awaited<ReturnType<SimHttpServerHandlers['handleMutations']>>,
-  faults: BoundaryFaultController | undefined,
-  clientNode: string | undefined
-): typeof body {
-  const corrupt = clientNode
-    ? faults?.peekHttpFault(clientNode, 'corruptMutationsResponse')
-    : undefined;
-  if (corrupt?.kind === 'corruptMutationsResponse') {
-    faults?.takeHttpFault(clientNode!, 'corruptMutationsResponse');
-    return corruptJsonString(
-      JSON.stringify(body),
-      corrupt.variant
-    ) as unknown as typeof body;
-  }
-  return body;
-}
-
-async function dispatchMutations(args: {
-  readonly payload: Extract<SimHttpRequest, { kind: 'mutations' }>;
-  readonly serverId: EndpointId;
-  readonly network: SyncNetwork;
-  readonly handlers: SimHttpServerHandlers;
-  readonly faults?: BoundaryFaultController;
-  readonly clientNode: string | undefined;
-  readonly onMutationsAccepted?: (clientNodeId: string) => void | Promise<void>;
-}): Promise<void> {
-  const { payload, serverId, network, handlers, faults, clientNode } = args;
-  if (
-    applyMutationsPreHandlerFaults({
-      payload,
-      serverId,
-      network,
-      clientNode,
-      ...(faults !== undefined ? { faults } : {}),
-    }) === 'done'
-  ) {
     return;
   }
 
-  const responseFaults = peekMutationsResponseFaults(faults, clientNode);
+  const insideTxn = clientNode
+    ? faults?.peekHttpFault(clientNode, 'failMutationsInsideTxnAfter')
+    : undefined;
+  const dropResponse =
+    clientNode !== undefined &&
+    faults?.peekHttpFault(clientNode, 'dropMutationsResponse') !== undefined;
+  const abortBody =
+    clientNode !== undefined &&
+    httpFaultRoute(faults?.peekHttpFault(clientNode, 'abortResponseBody')) ===
+      'mutations';
+  const failAfterCommit =
+    clientNode !== undefined &&
+    faults?.peekHttpFault(clientNode, 'failMutationsAfterCommit') !== undefined;
+
   const body = await handlers.handleMutations(payload.mutations, {
-    ...(responseFaults.insideTxn !== undefined
+    ...(insideTxn?.kind === 'failMutationsInsideTxnAfter'
       ? {
-          failInsideTxnAfter: responseFaults.insideTxn.after,
+          failInsideTxnAfter: insideTxn.after,
           onArmed: () => {
             faults?.takeHttpFault(clientNode!, 'failMutationsInsideTxnAfter');
           },
@@ -321,32 +256,44 @@ async function dispatchMutations(args: {
   if (clientNode !== undefined) {
     await args.onMutationsAccepted?.(clientNode);
   }
-  if (clientNode !== undefined && responseFaults.dropResponse) {
+  if (clientNode !== undefined && dropResponse) {
     faults?.takeHttpFault(clientNode, 'dropMutationsResponse');
     return;
   }
-  if (clientNode !== undefined && responseFaults.abortBody) {
+  if (clientNode !== undefined && abortBody) {
     faults?.takeHttpFault(clientNode, 'abortResponseBody');
     return;
   }
-  if (clientNode !== undefined && responseFaults.failAfterCommit) {
+  if (clientNode !== undefined && failAfterCommit) {
     faults?.takeHttpFault(clientNode, 'failMutationsAfterCommit');
     throw new Error('sim http: fail after mutations commit');
   }
 
-  network.send(serverId, payload.replyTo, {
+  network.send(serverId, replyTo, {
     kind: 'mutations',
     correlationId: payload.correlationId,
     ok: true,
-    body: wireMutationsBody(body, faults, clientNode),
+    body: (() => {
+      const corrupt = clientNode
+        ? faults?.peekHttpFault(clientNode, 'corruptMutationsResponse')
+        : undefined;
+      if (corrupt?.kind === 'corruptMutationsResponse') {
+        faults?.takeHttpFault(clientNode!, 'corruptMutationsResponse');
+        return corruptJsonString(
+          JSON.stringify(body),
+          corrupt.variant
+        ) as unknown as typeof body;
+      }
+      return body;
+    })(),
   } satisfies SimHttpResponse);
 }
 
 /** Dispatch one HTTP request with optional response-loss / error faults. */
 export async function dispatchSimHttpRequest(args: {
   readonly payload: SimHttpRequest;
-  readonly serverId: EndpointId;
-  readonly network: SyncNetwork;
+  readonly serverId: SimEndpointId;
+  readonly network: SimNetwork;
   readonly handlers: SimHttpServerHandlers;
   readonly faults?: BoundaryFaultController;
   readonly onMutationsAccepted?: (clientNodeId: string) => void | Promise<void>;

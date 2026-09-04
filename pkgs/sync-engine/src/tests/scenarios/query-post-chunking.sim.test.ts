@@ -1,32 +1,27 @@
 import { describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import { MAX_QUERY_BATCH } from '@pkgs/sync-engine/shared';
 import {
-  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
   hasSynced,
   subscribeAll,
-  syncVirtualHost,
 } from '../apps/acme';
 
 describe('query POST chunking', () => {
   test(
     'more than MAX_QUERY_BATCH active scopes converge without 400',
     async () => {
-      await using run = await script(acmeSystem, {
+      await using s = await acmeSystem.script({
         seed: 9401,
-        host: syncVirtualHost(),
-        knobs: acmeKnobs({
+        args: {
           clientCount: 0,
-        }),
-        properties: [],
+        },
       });
 
-      await run.apply(addClient, { id: 'alice' });
+      await s.apply(addClient, { id: 'alice' });
       // One batch of MAX_QUERY_BATCH + 1 scopes: the POST must chunk.
-      await run.apply(
+      await s.apply(
         subscribeAll,
         'alice',
         'notesByFolder',
@@ -34,8 +29,8 @@ describe('query POST chunking', () => {
           folderId: `folder-${String(i)}`,
         }))
       );
-      expect(await run.observe(hasSynced, 'alice')).toBe(true);
-      await expectConverged(run);
+      expect(await s.observe(hasSynced, 'alice')).toBe(true);
+      await expectConverged(s);
     },
     { timeout: 60_000 }
   );

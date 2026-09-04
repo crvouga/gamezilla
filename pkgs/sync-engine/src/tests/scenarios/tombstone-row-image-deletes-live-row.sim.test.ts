@@ -1,7 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import {
-  acmeKnobs,
   acmeSystem,
   addClient,
   deleteNote,
@@ -13,34 +11,31 @@ import {
   net,
   readNoteTombstoneAt,
   setNote,
-  syncVirtualHost,
 } from '../apps/acme';
 
 describe('tombstone row image deletes live row', () => {
   test('delete row image removes live peer row without waiting on sync', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 806,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, { id: 'alice' });
-    await run.apply(addClient, { id: 'bob' });
+    await s.apply(addClient, { id: 'alice' });
+    await s.apply(addClient, { id: 'bob' });
 
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'alive' });
-    await expectConverged(run);
-    await expectLiveNoteAt(run, 'bob', 'n1', { body: 'alive' });
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'alive' });
+    await expectConverged(s);
+    await expectLiveNoteAt(s, 'bob', 'n1', { body: 'alive' });
 
-    await run.apply(net, 'bob', 'sync', 'hold');
-    await run.apply(mutate, 'alice', deleteNote, { id: 'n1' });
-    expect(await run.observe(lastMutationOk, 'alice')).toBe(true);
-    await run.elapse(300);
+    await s.apply(net, 'bob', 'sync', 'hold');
+    await s.apply(mutate, 'alice', deleteNote, { id: 'n1' });
+    expect(await s.observe(lastMutationOk, 'alice')).toBe(true);
+    await s.elapse(300);
 
-    await expectNoteNotLiveAt(run, 'bob', 'n1');
-    expect(await readNoteTombstoneAt(run, 'bob', 'n1')).not.toBeNull();
+    await expectNoteNotLiveAt(s, 'bob', 'n1');
+    expect(await readNoteTombstoneAt(s, 'bob', 'n1')).not.toBeNull();
 
-    await expectConverged(run);
-    await expectNoteNotLiveAt(run, 'bob', 'n1');
+    await expectConverged(s);
+    await expectNoteNotLiveAt(s, 'bob', 'n1');
   });
 });

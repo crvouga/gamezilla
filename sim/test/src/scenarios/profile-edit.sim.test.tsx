@@ -7,16 +7,16 @@ import { openSim } from '../setup/open-sim';
 
 describe('profile edit', (ctx) => {
   ctx.test('guest updates username', async () => {
-    await using run = await openSim('profile-edit-guest-username', ctx);
-    const app = await AppDriver.forActor(run, 'alice');
+    await using s = await openSim('profile-edit-guest-username', ctx);
+    const app = await AppDriver.forActor(s, 'alice');
     await app.profile.openEdit();
     await app.profile.setUsername('guest_user_1');
     await app.profile.expectUsername('guest_user_1');
   });
 
   ctx.test('guest updates avatar', async () => {
-    await using run = await openSim('profile-edit-guest-avatar', ctx);
-    const app = await AppDriver.forActor(run, 'alice');
+    await using s = await openSim('profile-edit-guest-avatar', ctx);
+    const app = await AppDriver.forActor(s, 'alice');
     await app.profile.openEdit();
     await app.profile.openAvatarEditor();
     await app.profile.setAvatarSeed('sim-seed-guest');
@@ -31,8 +31,8 @@ describe('profile edit', (ctx) => {
   });
 
   ctx.test('signed-in updates username', async () => {
-    await using run = await openSim('profile-edit-signed-username', ctx);
-    const app = await AppDriver.forActor(run, 'alice');
+    await using s = await openSim('profile-edit-signed-username', ctx);
+    const app = await AppDriver.forActor(s, 'alice');
     await app.auth.signInWithDev(aliceUserCreds);
     await app.auth.returnToTabs();
     await app.profile.openEdit();
@@ -41,8 +41,8 @@ describe('profile edit', (ctx) => {
   });
 
   ctx.test('signed-in updates avatar', async () => {
-    await using run = await openSim('profile-edit-signed-avatar', ctx);
-    const app = await AppDriver.forActor(run, 'alice');
+    await using s = await openSim('profile-edit-signed-avatar', ctx);
+    const app = await AppDriver.forActor(s, 'alice');
     await app.auth.signInWithDev(aliceAvatarCreds);
     await app.auth.returnToTabs();
     await app.profile.openEdit();

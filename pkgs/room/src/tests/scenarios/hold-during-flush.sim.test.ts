@@ -1,14 +1,15 @@
 import { describe, expect, test } from 'bun:test';
 import {
+  addClient,
   connect,
   disconnect,
   dispatch,
   hold,
   release,
 } from '../../sim/scenario';
+import { counterSystem } from '../apps/counter/system';
 import { expectConverged } from '../expect-converged';
 import { counterValue, Increment } from '../fixtures/counter-module';
-import { bootCounter } from '../scenario/boot-counter';
 import {
   expectHashMatch,
   readClient,
@@ -17,25 +18,31 @@ import {
 
 describe('room sim: hold during flush (E-A01)', () => {
   test('offline queue + peer hold still converges after heal', async () => {
-    await using run = await bootCounter(['alice', 'bob']);
+    await using s = await counterSystem.script({
+      seed: 42,
+    });
+    for (const id of ['alice', 'bob']) {
+      await s.apply(addClient, { id });
+    }
+    await expectConverged(s);
 
-    await run.apply(disconnect, 'alice');
-    await run.apply(dispatch, {
+    await s.apply(disconnect, 'alice');
+    await s.apply(dispatch, {
       clientId: 'alice',
       payload: Increment({}),
     });
-    expect(counterValue(await readClient(run, 'alice'))).toBe(1);
+    expect(counterValue(await readClient(s, 'alice'))).toBe(1);
 
-    await run.apply(hold, 'bob');
-    await run.apply(connect, 'alice');
-    await run.elapse(150);
-    expect(counterValue(await readClient(run, 'bob'))).toBe(0);
-    await run.apply(release, 'bob');
+    await s.apply(hold, 'bob');
+    await s.apply(connect, 'alice');
+    await s.elapse(150);
+    expect(counterValue(await readClient(s, 'bob'))).toBe(0);
+    await s.apply(release, 'bob');
 
-    await expectConverged(run);
+    await expectConverged(s);
     expect(counterValue(await readServer(run))).toBe(1);
-    expect(counterValue(await readClient(run, 'alice'))).toBe(1);
-    expect(counterValue(await readClient(run, 'bob'))).toBe(1);
-    await expectHashMatch(run, 'alice');
+    expect(counterValue(await readClient(s, 'alice'))).toBe(1);
+    expect(counterValue(await readClient(s, 'bob'))).toBe(1);
+    await expectHashMatch(s, 'alice');
   });
 });

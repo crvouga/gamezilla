@@ -1,8 +1,6 @@
 import { describe, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import {
-  acmeKnobs,
-  acmeLargeCatalogSystem,
+  ACME_LARGE_CATALOG_ARGS,
   acmeSystem,
   armStoragePressure,
   expectConverged,
@@ -11,45 +9,38 @@ import {
   playAcmePin,
   restart,
   setNote,
-  syncVirtualHost,
 } from '../apps/acme';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
 import { expectLiveNoteAt } from '../apps/acme/reads';
 
 describe('online lifecycle wakes query refetch', () => {
   test('online after offline triggers nudge path', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 55001,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs(),
-      properties: [],
     });
 
-    await run.apply(online, 'c0', false);
-    await run.apply(mutate, 'c0', setNote, {
+    await s.apply(online, 'c0', false);
+    await s.apply(mutate, 'c0', setNote, {
       id: 'n0',
       body: 'offline-local',
     });
-    await run.apply(online, 'c0', true);
-    await run.elapse(100);
-    await expectConverged(run);
-    await expectLiveNoteAt(run, 'server', 'n0', { body: 'offline-local' });
+    await s.apply(online, 'c0', true);
+    await s.elapse(100);
+    await expectConverged(s);
+    await expectLiveNoteAt(s, 'server', 'n0', { body: 'offline-local' });
   });
 });
 
 describe('storage full merge abort', () => {
   test('quota arm aborts merge and queue survives restart', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 55002,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs(),
-      properties: [],
     });
 
-    await run.apply(armStoragePressure, 'c0', 'sqliteFull');
-    await run.apply(mutate, 'c0', setNote, { id: 'n2', body: 'queued' });
-    await run.apply(restart, 'c0', {});
-    await expectConverged(run);
+    await s.apply(armStoragePressure, 'c0', 'sqliteFull');
+    await s.apply(mutate, 'c0', setNote, { id: 'n2', body: 'queued' });
+    await s.apply(restart, 'c0', {});
+    await expectConverged(s);
   });
 });
 
@@ -57,7 +48,7 @@ describe('shared db peer engine', () => {
   test('two engines on one db converge', async () => {
     await playAcmePin({
       seed: 55003,
-      knobs: {
+      args: {
         rowImageFanout: true,
         liveResendOnReconnect: false,
         bufferOutboundLive: false,
@@ -105,7 +96,7 @@ describe('fail next open', () => {
   test('restartWithSchema survives failNextOpen arm', async () => {
     await playAcmePin({
       seed: 55007,
-      knobs: {
+      args: {
         rowImageFanout: false,
         liveResendOnReconnect: true,
         bufferOutboundLive: true,
@@ -142,7 +133,7 @@ describe('prune server artifacts interleaved', () => {
 describe('large snapshot hydrate', () => {
   test('~2k row catalog seed converges after heal', async () => {
     await playAcmePin({
-      system: acmeLargeCatalogSystem,
+      args: ACME_LARGE_CATALOG_ARGS,
       seed: 55006,
       actions: [
         {

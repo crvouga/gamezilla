@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { assertProperty, fc } from '@pkgs/pbt';
 
 import { counterApp } from '../apps/counter/app';
-import { roomSeedFingerprint, runRoomSeed } from '../scenario/run-seed';
+import { roomSeedFingerprint, runRoomSeed } from '../scenario/script-seed';
 
 describe('room seeded chaos PBT', () => {
   test('same generated seed → identical chaos fingerprint', async () => {

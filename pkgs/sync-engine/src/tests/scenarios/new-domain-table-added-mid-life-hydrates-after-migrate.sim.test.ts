@@ -1,14 +1,14 @@
 import { describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
+import { defineSystem } from '@pkgs/dst';
 import {
+  ACME_DEFAULT_ARGS,
   acmeApp,
-  acmeKnobs,
   acmeLocalSchema,
   acmeLocalSchemaExtraTable,
   acmeMutationRegistry,
   acmeQueryRegistry,
   addClient,
-  defineSyncSystem,
+  createSyncSurface,
   expectConverged,
   expectLiveNoteAt,
   liveTags,
@@ -18,7 +18,7 @@ import {
   setNote,
   setTag,
   subscribe,
-  syncVirtualHost,
+  syncVirtual,
   tagsAllQuery,
 } from '../apps/acme';
 
@@ -34,51 +34,57 @@ const extraTableRegistries = {
   },
 } as const;
 
-const acmeExtraTableSystem = defineSyncSystem(acmeApp, {
-  id: 'sync.acmeExtraTableSystem',
-  ...extraTableRegistries,
+/** Non-JSON schema fixture — the system closes over the registries. */
+const acmeExtraTableSystem = defineSystem({
+  name: 'sync.acme.extraTable',
+  args: ACME_DEFAULT_ARGS,
+  create: (session, args) =>
+    createSyncSurface(session, acmeApp, args, extraTableRegistries),
+});
+acmeExtraTableSystem.host({
+  default: true,
+  name: 'virtual',
+  create: () => syncVirtual(),
 });
 
 describe('new domain table added mid life hydrates after migrate', () => {
   test.each([750, 751, 752])(
     'tags hydrate after client schema upgrade (seed=%i)',
     async (seed) => {
-      await using run = await script(acmeExtraTableSystem, {
+      await using s = await acmeExtraTableSystem.script({
         seed: seed,
-        host: syncVirtualHost(),
-        knobs: acmeKnobs({
+        args: {
           clientCount: 0,
-        }),
-        properties: [],
+        },
       });
 
-      await run.apply(addClient, {
+      await s.apply(addClient, {
         id: 'alice',
         localSchema: acmeLocalSchema,
       });
-      await run.apply(addClient, { id: 'bob', ...extraTableRegistries });
+      await s.apply(addClient, { id: 'bob', ...extraTableRegistries });
 
-      await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'kept' });
-      await expectConverged(run);
+      await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'kept' });
+      await expectConverged(s);
 
-      await run.apply(mutate, 'bob', setTag, { id: 't1', label: 'urgent' });
+      await s.apply(mutate, 'bob', setTag, { id: 't1', label: 'urgent' });
       // nudge: bob tagsAll not in session — refresh after setTag
-      await run.apply(nudge, 'bob');
-      await run.elapse(200);
+      await s.apply(nudge, 'bob');
+      await s.elapse(200);
 
-      await run.apply(restart, 'alice', {
+      await s.apply(restart, 'alice', {
         preserveLocalDb: true,
         ...extraTableRegistries,
       });
 
-      await run.apply(subscribe, 'alice', 'tagsAll', {});
+      await s.apply(subscribe, 'alice', 'tagsAll', {});
 
-      await expectLiveNoteAt(run, 'alice', 'n1', { body: 'kept' });
-      expect(await run.observe(liveTags, 'alice')).toEqual([
+      await expectLiveNoteAt(s, 'alice', 'n1', { body: 'kept' });
+      expect(await s.observe(liveTags, 'alice')).toEqual([
         { id: 't1', label: 'urgent' },
       ]);
 
-      await expectConverged(run);
+      await expectConverged(s);
     }
   );
 });

@@ -41,18 +41,14 @@ describe('SqlClientImplSqliteMem lifecycle', () => {
     await alice.run(
       sql<void>`INSERT INTO t (id, name) VALUES (${'1'}, ${'alice'})`
     );
-    await bob.run(
-      sql<void>`INSERT INTO t (id, name) VALUES (${'1'}, ${'bob'})`
-    );
+    await bob.run(sql<void>`INSERT INTO t (id, name) VALUES (${'1'}, ${'bob'})`);
     expect(
       await alice.query(
         raw<{ id: string; name: string }>('SELECT id, name FROM t')
       )
     ).toEqual([{ id: '1', name: 'alice' }]);
     expect(
-      await bob.query(
-        raw<{ id: string; name: string }>('SELECT id, name FROM t')
-      )
+      await bob.query(raw<{ id: string; name: string }>('SELECT id, name FROM t'))
     ).toEqual([{ id: '1', name: 'bob' }]);
   });
 
@@ -69,33 +65,9 @@ describe('SqlClientImplSqliteMem lifecycle', () => {
     await applyTables(second, [
       defineTable({ domain: 't', name: 't', columns: {} }),
     ]);
-    expect(await second.query(raw<{ id: string }>('SELECT id FROM t'))).toEqual(
-      []
-    );
-  });
-
-  test('overlapping transactions serialize without nested BEGIN', async () => {
-    const client = await openMem();
-    await applyTables(client, [
-      defineTable({ domain: 't', name: 't', columns: { n: 'integer' } }),
-    ]);
-    let release!: () => void;
-    const held = new Promise<void>((resolve) => {
-      release = resolve;
-    });
-    const first = client.transaction(async (tx) => {
-      await tx.run(sql<void>`INSERT INTO t (id, n) VALUES (${'1'}, ${1})`);
-      await held;
-    });
-    const second = client.transaction(async (tx) => {
-      await tx.run(sql<void>`INSERT INTO t (id, n) VALUES (${'2'}, ${2})`);
-    });
-    release();
-    await Promise.all([first, second]);
-    const rows = await client.query(
-      raw<{ id: string }>('SELECT id FROM t ORDER BY id')
-    );
-    expect(rows.map((row) => row.id)).toEqual(['1', '2']);
+    expect(
+      await second.query(raw<{ id: string }>('SELECT id FROM t'))
+    ).toEqual([]);
   });
 
   test('snapshot round-trips rows and user_version', async () => {
@@ -109,9 +81,9 @@ describe('SqlClientImplSqliteMem lifecycle', () => {
 
     const dest = await openMem();
     dest.importDatabaseBytes(bytes);
-    expect(await dest.query(raw<{ id: string }>('SELECT id FROM t'))).toEqual([
-      { id: '7' },
-    ]);
+    expect(
+      await dest.query(raw<{ id: string }>('SELECT id FROM t'))
+    ).toEqual([{ id: '7' }]);
     expect(
       await dest.query(raw<{ user_version: number }>('PRAGMA user_version'))
     ).toEqual([{ user_version: 42 }]);

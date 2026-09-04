@@ -1,9 +1,10 @@
 /**
- * Open a product UI simulation: `script(product)` on {@link simHost} / {@link maxHost}.
+ * Open a product UI simulation: `product.script` on the `rntl` / `playwright`
+ * host registered by the product system.
  */
 
-import type { Host, Ports, Run, Session } from '@pkgs/dst';
-import { script } from '@pkgs/dst';
+import type { Script } from '@pkgs/dst';
+import { defineAction } from '@pkgs/dst';
 import type { SimulationReporter } from '@pkgs/sim-console';
 import type { SimSystemSnapshot } from '@pkgs/sim-console/shared/sim-system-snapshot';
 import type { UiTestCtx } from '@pkgs/ui-testing';
@@ -16,12 +17,13 @@ import {
 
 import '@apps/client/i18n/i18n';
 
-import { maxHost, simHost } from '../host';
 import type { ProductExtra, ProductUi } from '../host/ports';
-import { PRODUCT_PROPERTIES } from '../scenario/observations';
-import type { ProductRuntime, SimActorHandle } from '../scenario/surface';
-import { productExtra } from '../scenario/surface';
-import { type ProductSurface, product } from '../scenario/system';
+import type {
+  ProductRuntime,
+  ProductSurface,
+  SimActorHandle,
+} from '../scenario';
+import { product, productExtra } from '../scenario';
 import {
   type OpenSimFidelity,
   type OpenSimOptions,
@@ -43,7 +45,7 @@ import { listenSimHttpServer, type SimHttpListener } from './sim-http-listener';
 import { readSimSystemSnapshot } from './sim-snapshot-fixture';
 
 export type { SimActorHandle };
-export type OpenSimHandle = Run<ProductSurface>;
+export type OpenSimHandle = Script<ProductSurface>;
 
 function isUiTestCtx(value: unknown): value is UiTestCtx {
   if (typeof value !== 'object' || value === null) return false;
@@ -55,14 +57,15 @@ function isUiTestCtx(value: unknown): value is UiTestCtx {
   );
 }
 
-function resolveHost(
+/** Registered host name — driver kind is the host identity. */
+function resolveHostName(
   ctx: UiTestCtx | undefined,
   options: OpenSimOptions | undefined
-): Host<Ports & ProductExtra> {
+): 'rntl' | 'playwright' {
   const fidelity = ctx?.fidelity ?? resolveOpenSimFidelity(options);
   const driverKind =
     ctx?.driverKind ?? (fidelity === 'max' ? 'playwright' : 'rntl');
-  return driverKind === 'playwright' ? maxHost() : simHost();
+  return driverKind === 'playwright' ? 'playwright' : 'rntl';
 }
 
 type WiredRuntime = {
@@ -194,38 +197,22 @@ async function wireSurface(args: {
 }
 
 /**
- * Pin the surface for setup wiring only. `Run` is the sole public handle —
+ * Pin the surface for setup wiring only. `Script` is the sole public handle —
  * scenarios never see this, and nothing outside this module may call it.
  */
-async function pinSurface(run: Run<ProductSurface>): Promise<ProductSurface> {
+async function pinSurface(s: Script<ProductSurface>): Promise<ProductSurface> {
   let pinned: ProductSurface | null = null;
-  const capture = product.defineAction({
+  const capture = defineAction({
     name: 'openSim.pinSurface',
     act: (s: ProductSurface) => {
       pinned = s;
     },
   });
-  await run.apply(capture);
+  await s.apply(capture);
   if (pinned === null) {
     throw new Error('openSim: surface pin did not run');
   }
   return pinned;
-}
-
-/**
- * Product resources are torn down when the run disposes its session; the hook
- * is installed before `script` and filled in once the runtime is wired.
- */
-function hostWithProductDispose(
-  host: Host<Ports & ProductExtra>,
-  disposeRef: { current: (() => Promise<void>) | null }
-): Host<Ports & ProductExtra> {
-  return host.with(async (session: Session<Ports & ProductExtra>) => {
-    session.onDispose(async () => {
-      await disposeRef.current?.();
-    });
-    return {};
-  });
 }
 
 function resolveArgs(
@@ -253,16 +240,11 @@ export async function openSim(
 ): Promise<OpenSimHandle> {
   const { ctx, options } = resolveArgs(ctxOrOptions, maybeOptions);
   ensureNodeLocalStoragePolyfill();
-  const disposeRef: { current: (() => Promise<void>) | null } = {
-    current: null,
-  };
-  const host = hostWithProductDispose(resolveHost(ctx, options), disposeRef);
-  const run = await script(product, {
-    host: host as Host<Ports>,
+  const s = await product.script({
     seed: 1,
-    properties: PRODUCT_PROPERTIES,
+    host: resolveHostName(ctx, options),
   });
-  const surface = await pinSurface(run);
+  const surface = await pinSurface(s);
   const snapshot =
     options?.snapshot !== undefined
       ? readSimSystemSnapshot(options.snapshot)
@@ -272,8 +254,9 @@ export async function openSim(
     testId,
     ...(snapshot !== undefined ? { snapshot } : {}),
   });
-  disposeRef.current = () => surface.runtime.disposeResources();
-  return run;
+  // Product resources tear down with the session the run owns.
+  surface.session.onDispose(() => surface.runtime.disposeResources());
+  return s;
 }
 
 export type { OpenSimFidelity, OpenSimOptions };

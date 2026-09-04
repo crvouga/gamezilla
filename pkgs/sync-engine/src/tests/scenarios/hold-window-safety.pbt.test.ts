@@ -1,9 +1,7 @@
 import { describe, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import { assertProperty, fc } from '@pkgs/pbt';
-import { arbKnobs, arbSeed } from '../../sim/scenario/knobs';
+import { arbSeed, arbSyncArgs } from '../../sim/scenario/args';
 import {
-  acmeKnobs,
   acmeSystem,
   clientIds,
   expectConverged,
@@ -12,7 +10,6 @@ import {
   mutate,
   release,
   setNote,
-  syncVirtualHost,
 } from '../apps/acme';
 
 describe('hold window safety PBT', () => {
@@ -23,28 +20,26 @@ describe('hold window safety PBT', () => {
         'hold window no flicker',
         fc.asyncProperty(
           arbSeed(),
-          arbKnobs(),
+          arbSyncArgs(),
           fc.string({ minLength: 1, maxLength: 12 }),
-          async (seed, knobs, body) => {
-            await using run = await script(acmeSystem, {
+          async (seed, syncArgs, body) => {
+            await using s = await acmeSystem.script({
               seed,
-              host: syncVirtualHost(),
-              knobs: acmeKnobs(knobs),
-              properties: [],
+              args: syncArgs,
             });
 
-            const clientId = (await run.observe(clientIds))[0];
+            const clientId = (await s.observe(clientIds))[0];
             if (clientId === undefined) return;
             const noteId = 'n0';
-            await run.apply(hold, clientId, 'sync');
-            await run.apply(mutate, clientId, setNote, {
+            await s.apply(hold, clientId, 'sync');
+            await s.apply(mutate, clientId, setNote, {
               id: noteId,
               body,
               title: '',
             });
 
             for (let i = 0; i < 8; i += 1) {
-              const row = await run.observe(liveNote, clientId, noteId);
+              const row = await s.observe(liveNote, clientId, noteId);
               if (row === null || row.deletedAt !== null) {
                 throw new Error(
                   `note missing during hold seed=${String(seed)}`
@@ -55,11 +50,11 @@ describe('hold window safety PBT', () => {
                   `body reverted during hold: expected ${body}, got ${row.body}`
                 );
               }
-              await run.elapse(25);
+              await s.elapse(25);
             }
 
-            await run.apply(release, clientId, 'sync');
-            await expectConverged(run);
+            await s.apply(release, clientId, 'sync');
+            await expectConverged(s);
           }
         ),
         { numRuns: 6 }

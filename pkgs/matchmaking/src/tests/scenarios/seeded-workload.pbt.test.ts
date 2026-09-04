@@ -1,16 +1,8 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import { assertProperty, fc } from '@pkgs/pbt';
 import { createSeededRng } from '@pkgs/uuid';
 
-import {
-  join,
-  MATCHMAKING_PROPERTIES,
-  matchmaking,
-  matchmakingKnobs,
-  replicaIds,
-  tick,
-} from '../../sim/scenario';
+import { join, matchmaking, replicaIds, tick } from '../../sim/scenario';
 import {
   matchFingerprint,
   RatingAttr,
@@ -20,17 +12,16 @@ import {
 const SimpleFormula = { numeric: [{ tag: RatingAttr, weight: 1 }] };
 
 async function runShortWorkload(seed: string): Promise<string> {
-  await using run = await script(matchmaking, {
+  await using s = await matchmaking.script({
     seed: seed,
-    knobs: matchmakingKnobs({ replicas: 2 }),
-    properties: MATCHMAKING_PROPERTIES,
+    args: { replicas: 2 },
   });
-  const replicas = await run.observe(replicaIds);
+  const replicas = await s.observe(replicaIds);
   const rng = createSeededRng(seed).fork('workload');
   for (let i = 0; i < 6; i += 1) {
     const replicaId = replicas[i % replicas.length]!;
-    await run.elapse(1);
-    await run.apply(join, {
+    await s.elapse(1);
+    await s.apply(join, {
       ref: `p${String(i)}`,
       input: {
         data: RatingAttr(1000 + rng.int(50)),
@@ -39,16 +30,16 @@ async function runShortWorkload(seed: string): Promise<string> {
       replicaId,
     });
     if (i % 2 === 1) {
-      await run.apply(tick, {
+      await s.apply(tick, {
         opts: { maxPassesPerPartition: 2 },
         replicaId,
       });
     }
   }
   for (const replicaId of replicas) {
-    await run.apply(tick, { opts: { maxPassesPerPartition: 4 }, replicaId });
+    await s.apply(tick, { opts: { maxPassesPerPartition: 4 }, replicaId });
   }
-  return await matchFingerprint(run);
+  return await matchFingerprint(s);
 }
 
 describe('matchmaking seeded-workload PBT', () => {

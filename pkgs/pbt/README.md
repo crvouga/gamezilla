@@ -41,21 +41,18 @@ Env knobs:
 ## World / DST properties
 
 Sim-backed exploration lives in **`@pkgs/dst`**:
-`explore(system, { properties, actions, episodes, steps })` runs script +
-weighted `walk` + shrink. Scripted pins use `script` with a `seed:` option
-(or local seed arbitraries) — not a deleted `arbSeed`.
+`system.explore({ episodes, steps })` runs script + weighted `walk` +
+shrink (catalogs and default host come from the system). Scripted pins
+use `system.script({ seed })` — not free `script` / `explore` verbs.
 
 For custom fast-check properties over seeds, use **`assertProperty`** from this
 package (caps `numRuns` / interrupt for `test:pbt:random`):
 
 ```ts
 import { assertProperty, fc } from '@pkgs/pbt';
-import { explore, script } from '@pkgs/dst';
-import { acmeSystem, ACME_ACTIONS, ACME_PROPERTIES } from '../apps/acme/system';
+import { acmeSystem } from '../apps/acme/system';
 
-const report = await explore(acmeSystem, {
-  properties: ACME_PROPERTIES,
-  actions: ACME_ACTIONS,
+const report = await acmeSystem.explore({
   episodes: 12,
   steps: 14,
 });
@@ -65,14 +62,13 @@ const arbSeed = () => fc.integer({ min: 1, max: 2 ** 31 - 1 });
 assertProperty(
   'app world starts',
   fc.asyncProperty(arbSeed(), async (seed) => {
-    await using run = await script(acmeSystem, { seed });
+    await using s = await acmeSystem.script({ seed });
     expect(run).toBeDefined();
   })
 );
 ```
 
-Replay a shrunk walk from failure output via `replay` from `@pkgs/dst`
-(or package pin helpers such as `playRoomPin` / `playAcmePin`).
+Replay a shrunk walk from failure output via `system.replay(...)`.
 
 ## Writing a property
 

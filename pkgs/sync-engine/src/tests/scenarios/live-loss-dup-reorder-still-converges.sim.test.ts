@@ -1,10 +1,8 @@
 import { describe, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import type { SimFaultOptions } from '../../sim/faults';
 import { RELIABLE_FAULTS } from '../../sim/faults';
 import type { SyncAction } from '../../sim/scenario';
 import {
-  acmeKnobs,
   acmeSystem,
   addClient,
   connect,
@@ -15,7 +13,6 @@ import {
   playActions,
   release,
   setNote,
-  syncVirtualHost,
 } from '../apps/acme';
 import { expectAllNotesAgree, expectLiveNoteAt } from '../apps/acme/reads';
 
@@ -31,62 +28,56 @@ function liveFaults(
 
 describe('live loss dup reorder still converges', () => {
   test('lossy live on bob still converges after clear', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 401,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, 'alice');
-    await run.apply(addClient, 'bob');
-    await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
-    await expectConverged(run);
+    await s.apply(addClient, 'alice');
+    await s.apply(addClient, 'bob');
+    await s.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
+    await expectConverged(s);
 
-    await run.apply(playActions, liveFaults('bob', { dropProbability: 1 }));
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'lost-live' });
-    await run.elapse(80);
+    await s.apply(playActions, liveFaults('bob', { dropProbability: 1 }));
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'lost-live' });
+    await s.elapse(80);
 
-    await run.apply(release, 'bob', 'live');
-    await run.apply(disconnect, 'bob');
-    await run.apply(connect, 'bob');
-    await expectConverged(run);
-    await expectLiveNoteAt(run, 'bob', 'n1', { body: 'lost-live' });
-    await expectAllNotesAgree(run, CLIENTS);
+    await s.apply(release, 'bob', 'live');
+    await s.apply(disconnect, 'bob');
+    await s.apply(connect, 'bob');
+    await expectConverged(s);
+    await expectLiveNoteAt(s, 'bob', 'n1', { body: 'lost-live' });
+    await expectAllNotesAgree(s, CLIENTS);
   });
 
   test('dup live on bob converges', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 402,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, 'alice');
-    await run.apply(addClient, 'bob');
-    await run.apply(
+    await s.apply(addClient, 'alice');
+    await s.apply(addClient, 'bob');
+    await s.apply(
       playActions,
       liveFaults('bob', { packetReplayProbability: 1 })
     );
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'dup' });
-    await run.apply(mutate, 'alice', setNote, { id: 'n2', body: 'dup2' });
-    await expectConverged(run);
-    await expectLiveNoteAt(run, 'bob', 'n1', { body: 'dup' });
-    await expectLiveNoteAt(run, 'bob', 'n2', { body: 'dup2' });
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'dup' });
+    await s.apply(mutate, 'alice', setNote, { id: 'n2', body: 'dup2' });
+    await expectConverged(s);
+    await expectLiveNoteAt(s, 'bob', 'n1', { body: 'dup' });
+    await expectLiveNoteAt(s, 'bob', 'n2', { body: 'dup2' });
   });
 
   test('reordered live on bob converges', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 403,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, 'alice');
-    await run.apply(addClient, 'bob');
-    await run.apply(
+    await s.apply(addClient, 'alice');
+    await s.apply(addClient, 'bob');
+    await s.apply(
       playActions,
       liveFaults('bob', {
         latencyMeanMs: 30,
@@ -94,25 +85,23 @@ describe('live loss dup reorder still converges', () => {
         reorderWindow: 8,
       })
     );
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'a' });
-    await run.apply(mutate, 'alice', setNote, { id: 'n2', body: 'b' });
-    await run.apply(mutate, 'alice', setNote, { id: 'n3', body: 'c' });
-    await expectConverged(run);
-    await expectLiveNoteAt(run, 'bob', 'n2', { body: 'b' });
-    await expectAllNotesAgree(run, CLIENTS);
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'a' });
+    await s.apply(mutate, 'alice', setNote, { id: 'n2', body: 'b' });
+    await s.apply(mutate, 'alice', setNote, { id: 'n3', body: 'c' });
+    await expectConverged(s);
+    await expectLiveNoteAt(s, 'bob', 'n2', { body: 'b' });
+    await expectAllNotesAgree(s, CLIENTS);
   });
 
   test('asymmetric: alice reliable, bob lossy+dup+reorder', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 404,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, 'alice');
-    await run.apply(addClient, 'bob');
-    await run.apply(playActions, [
+    await s.apply(addClient, 'alice');
+    await s.apply(addClient, 'bob');
+    await s.apply(playActions, [
       ...liveFaults('alice', RELIABLE_FAULTS),
       ...liveFaults('bob', {
         dropProbability: 0.4,
@@ -122,40 +111,38 @@ describe('live loss dup reorder still converges', () => {
         latencyJitterMs: 25,
       }),
     ]);
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'one' });
-    await run.apply(mutate, 'bob', setNote, { id: 'n2', body: 'two' });
-    await run.apply(mutate, 'alice', setNote, { id: 'n3', body: 'three' });
-    await run.elapse(200);
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'one' });
+    await s.apply(mutate, 'bob', setNote, { id: 'n2', body: 'two' });
+    await s.apply(mutate, 'alice', setNote, { id: 'n3', body: 'three' });
+    await s.elapse(200);
 
-    await run.apply(release, 'alice', 'live');
-    await run.apply(release, 'bob', 'live');
-    await expectConverged(run);
-    await expectAllNotesAgree(run, CLIENTS);
+    await s.apply(release, 'alice', 'live');
+    await s.apply(release, 'bob', 'live');
+    await expectConverged(s);
+    await expectAllNotesAgree(s, CLIENTS);
   });
 
   test('live chaos + sync hold then release converges', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 405,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, 'alice');
-    await run.apply(addClient, 'bob');
-    await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
-    await expectConverged(run);
+    await s.apply(addClient, 'alice');
+    await s.apply(addClient, 'bob');
+    await s.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
+    await expectConverged(s);
 
-    await run.apply(playActions, liveFaults('bob', { dropProbability: 1 }));
-    await run.apply(hold, 'bob', 'sync');
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'held' });
-    await run.elapse(60);
+    await s.apply(playActions, liveFaults('bob', { dropProbability: 1 }));
+    await s.apply(hold, 'bob', 'sync');
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'held' });
+    await s.elapse(60);
 
-    await run.apply(release, 'bob', 'live');
-    await run.apply(release, 'bob', 'sync');
-    await run.apply(disconnect, 'bob');
-    await run.apply(connect, 'bob');
-    await expectConverged(run);
-    await expectLiveNoteAt(run, 'bob', 'n1', { body: 'held' });
+    await s.apply(release, 'bob', 'live');
+    await s.apply(release, 'bob', 'sync');
+    await s.apply(disconnect, 'bob');
+    await s.apply(connect, 'bob');
+    await expectConverged(s);
+    await expectLiveNoteAt(s, 'bob', 'n1', { body: 'held' });
   });
 });

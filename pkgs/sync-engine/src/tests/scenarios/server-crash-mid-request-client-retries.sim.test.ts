@@ -1,7 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import {
-  acmeKnobs,
   acmeSystem,
   addClient,
   crash,
@@ -11,48 +9,45 @@ import {
   net,
   restart,
   setNote,
-  syncVirtualHost,
 } from '../apps/acme';
 
 describe('server crash mid request client retries', () => {
   test('server dies mid traffic; restart; clients retry and converge', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 833,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, { id: 'alice' });
-    await run.apply(addClient, { id: 'bob' });
+    await s.apply(addClient, { id: 'alice' });
+    await s.apply(addClient, { id: 'bob' });
 
-    await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
-    await expectConverged(run);
+    await s.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
+    await expectConverged(s);
 
     {
-      await run.apply(net, 'alice', 'sync', 'hold');
-      await run.apply(mutate, 'alice', setNote, {
+      await s.apply(net, 'alice', 'sync', 'hold');
+      await s.apply(mutate, 'alice', setNote, {
         id: 'n1',
         body: 'during-crash',
       });
-      await run.elapse(20);
-      await run.apply(crash, 'server');
-      await run.elapse(50);
-      await run.apply(restart, 'server', { preserveLocalDb: true });
+      await s.elapse(20);
+      await s.apply(crash, 'server');
+      await s.elapse(50);
+      await s.apply(restart, 'server', { preserveLocalDb: true });
     }
-    await expectConverged(run);
+    await expectConverged(s);
 
-    expect(await run.observe(liveNote, 'bob', 'n1')).toMatchObject({
+    expect(await s.observe(liveNote, 'bob', 'n1')).toMatchObject({
       body: 'during-crash',
     });
 
     // Query path also recovers after server restart.
-    await run.apply(mutate, 'bob', setNote, {
+    await s.apply(mutate, 'bob', setNote, {
       id: 'n2',
       body: 'after-restart',
     });
-    await expectConverged(run);
-    expect(await run.observe(liveNote, 'alice', 'n2')).toMatchObject({
+    await expectConverged(s);
+    expect(await s.observe(liveNote, 'alice', 'n2')).toMatchObject({
       body: 'after-restart',
     });
   });

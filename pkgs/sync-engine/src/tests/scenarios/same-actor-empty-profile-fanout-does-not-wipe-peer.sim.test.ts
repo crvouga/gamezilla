@@ -1,7 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import {
-  acmeKnobs,
   acmeSystem,
   addClient,
   deviceId,
@@ -11,7 +9,6 @@ import {
   OWN_PROFILE_SESSION,
   readProfileUsernameAt,
   setProfileUsername,
-  syncVirtualHost,
 } from '../apps/acme';
 
 /**
@@ -21,51 +18,49 @@ import {
  */
 describe('same actor empty profile fanout does not wipe peer', () => {
   test('empty ensureProfile seed does not blank peer username', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 1501,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0, rowImageFanout: true }),
-      properties: [],
+      args: { clientCount: 0, rowImageFanout: true },
     });
 
-    await run.apply(addClient, {
+    await s.apply(addClient, {
       id: 'phone',
       actorId: 'user-1',
       sessionQuery: OWN_PROFILE_SESSION,
     });
-    await run.apply(addClient, {
+    await s.apply(addClient, {
       id: 'tablet',
       actorId: 'user-1',
       sessionQuery: OWN_PROFILE_SESSION,
     });
 
-    expect(await run.observe(deviceId, 'phone')).not.toBe(
-      await run.observe(deviceId, 'tablet')
+    expect(await s.observe(deviceId, 'phone')).not.toBe(
+      await s.observe(deviceId, 'tablet')
     );
 
-    await run.apply(mutate, 'phone', setProfileUsername, {
+    await s.apply(mutate, 'phone', setProfileUsername, {
       username: 'AliceHandle',
     });
-    await expectConverged(run);
-    expect(await readProfileUsernameAt(run, 'phone', 'user-1')).toBe(
+    await expectConverged(s);
+    expect(await readProfileUsernameAt(s, 'phone', 'user-1')).toBe(
       'AliceHandle'
     );
-    expect(await readProfileUsernameAt(run, 'tablet', 'user-1')).toBe(
-      'AliceHandle'
-    );
-
-    await run.apply(mutate, 'tablet', ensureProfileEmpty, {});
-    await run.elapse(200);
-
-    expect(await readProfileUsernameAt(run, 'phone', 'user-1')).toBe(
+    expect(await readProfileUsernameAt(s, 'tablet', 'user-1')).toBe(
       'AliceHandle'
     );
 
-    await expectConverged(run);
-    expect(await readProfileUsernameAt(run, 'phone', 'user-1')).toBe(
+    await s.apply(mutate, 'tablet', ensureProfileEmpty, {});
+    await s.elapse(200);
+
+    expect(await readProfileUsernameAt(s, 'phone', 'user-1')).toBe(
       'AliceHandle'
     );
-    expect(await readProfileUsernameAt(run, 'tablet', 'user-1')).toBe(
+
+    await expectConverged(s);
+    expect(await readProfileUsernameAt(s, 'phone', 'user-1')).toBe(
+      'AliceHandle'
+    );
+    expect(await readProfileUsernameAt(s, 'tablet', 'user-1')).toBe(
       'AliceHandle'
     );
   });

@@ -135,6 +135,9 @@ export function scopeMetaId(scopeHash: string): string {
 }
 
 /** Deterministic PK for optimistic peer marker rows. */
-export function optimisticPeerRowId(tableName: string, rowId: string): string {
+export function optimisticPeerRowId(
+  tableName: string,
+  rowId: string
+): string {
   return `${tableName}:${rowId}`;
 }

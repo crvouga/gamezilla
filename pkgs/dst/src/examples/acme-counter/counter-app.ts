@@ -1,10 +1,6 @@
 import { expect } from 'bun:test';
-import type { Host, Ports, Run } from '../../index';
-import { replay, script, walk } from '../../index';
-import type { Page } from './page';
+import type { Script } from '../../index';
 import {
-  COUNTER_ACTIONS,
-  COUNTER_PROPERTIES,
   type CounterSurface,
   count,
   counter,
@@ -17,102 +13,82 @@ import {
   setStep,
 } from './scenario';
 
-export type CounterHost = Host<
-  Ports & { readonly openPage: () => Promise<Page> }
->;
-
 /**
- * BDD-style domain driver over a DST {@link Run} — same idea as
- * `@sim/test` {@link AppDriver}: scenarios speak product verbs, not
- * `run.apply` / `run.observe`.
+ * BDD-style domain driver over a DST {@link Script} — same idea as
+ * `@sim/test` AppDriver: scenarios speak product verbs, not
+ * `s.apply` / `s.observe`.
  */
 export class CounterApp implements AsyncDisposable {
-  private constructor(private readonly run: Run<CounterSurface>) {}
+  private constructor(
+    private readonly s: Script<CounterSurface>,
+    private readonly hostName: string
+  ) {}
 
   static async open(args: {
-    readonly host: CounterHost;
+    readonly host: string;
     readonly seed?: number;
   }): Promise<CounterApp> {
-    const run = await script(counter, {
+    const s = await counter.script({
       host: args.host,
       seed: args.seed ?? 1,
-      properties: COUNTER_PROPERTIES,
     });
-    return new CounterApp(run);
+    return new CounterApp(s, args.host);
   }
 
   async [Symbol.asyncDispose](): Promise<void> {
-    await this.run[Symbol.asyncDispose]();
+    await this.s[Symbol.asyncDispose]();
   }
 
-  // --- home ------------------------------------------------------------------
-
   async increment(): Promise<void> {
-    await this.run.apply(increment);
+    await this.s.apply(increment);
   }
 
   async decrement(): Promise<void> {
-    await this.run.apply(decrement);
+    await this.s.apply(decrement);
   }
 
   async openSettings(): Promise<void> {
-    await this.run.apply(openSettings);
+    await this.s.apply(openSettings);
   }
 
   async openResetAndConfirm(): Promise<void> {
-    await this.run.apply(reset);
+    await this.s.apply(reset);
   }
 
-  // --- settings --------------------------------------------------------------
-
   async setStep(n: 1 | 5 | 10): Promise<void> {
-    await this.run.apply(setStep, n);
+    await this.s.apply(setStep, n);
   }
 
   async leaveSettings(): Promise<void> {
-    await this.run.apply(leaveSettings);
+    await this.s.apply(leaveSettings);
   }
 
-  // --- expectations ----------------------------------------------------------
-
   async expectCount(n: number): Promise<void> {
-    expect(await this.run.observe(count)).toBe(n);
+    expect(await this.s.observe(count)).toBe(n);
   }
 
   async expectRoute(name: string): Promise<void> {
-    expect(await this.run.observe(route)).toBe(name);
+    expect(await this.s.observe(route)).toBe(name);
   }
 
   async expectDecrementDisabled(): Promise<void> {
     const { ActionNotEnabled } = await import('../../index');
-    await expect(this.run.apply(decrement)).rejects.toBeInstanceOf(
+    await expect(this.s.apply(decrement)).rejects.toBeInstanceOf(
       ActionNotEnabled
     );
   }
 
   async expectResetDisabled(): Promise<void> {
     const { ActionNotEnabled } = await import('../../index');
-    await expect(this.run.apply(reset)).rejects.toBeInstanceOf(
-      ActionNotEnabled
-    );
+    await expect(this.s.apply(reset)).rejects.toBeInstanceOf(ActionNotEnabled);
   }
 
-  // --- exploration -----------------------------------------------------------
-
-  async exploreAndReplay(args: {
-    readonly host: CounterHost;
-    readonly steps?: number;
-  }): Promise<void> {
-    const w = await walk(this.run, {
-      actions: COUNTER_ACTIONS,
-      steps: args.steps ?? 12,
+  async exploreAndReplay(args?: { readonly steps?: number }): Promise<void> {
+    const w = await this.s.walk({
+      steps: args?.steps ?? 12,
     });
     expect(w.violations).toEqual([]);
     expect(w.choices.length).toBeGreaterThan(0);
-    await replay(counter, w, {
-      host: args.host,
-      properties: COUNTER_PROPERTIES,
-      actions: COUNTER_ACTIONS,
-    });
+    await counter.replay(w, { host: this.hostName });
   }
 }

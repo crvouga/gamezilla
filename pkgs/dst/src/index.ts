@@ -33,21 +33,17 @@ export type {
   ExploreOptions,
   ReplayOptions,
   Report,
-  Run,
+  Script,
   ScriptOptions,
   Transition,
   Walk,
   WalkOptions,
-} from './run';
+} from './script';
 export {
   ActionNotEnabled,
   ExploreFailedError,
-  explore,
   PropertyViolation,
-  replay,
-  script,
-  walk,
-} from './run';
+} from './script';
 export type {
   Action,
   ActionDef,
@@ -56,19 +52,18 @@ export type {
   CatalogProperty,
   Choice,
   Gen,
+  HostDef,
   Property,
   PropertyDef,
   Read,
   Repro,
   ReproMeta,
-  SurfaceDefiners,
   System,
+  SystemCreate,
   SystemGenerate,
 } from './system';
 export {
   defineAction,
-  defineProperty,
-  defineSurface,
   defineSystem,
   parseRepro,
   REPRO_VERSION,

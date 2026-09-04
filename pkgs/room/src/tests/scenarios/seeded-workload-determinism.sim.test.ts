@@ -10,28 +10,27 @@ import {
 import { counterSystem } from '../apps/counter/system';
 import { expectConverged } from '../expect-converged';
 import { Increment } from '../fixtures/counter-module';
-import { openRoom } from '../scenario/open-room';
 
 async function runWorkload(seed: number | string): Promise<string> {
-  await using run = await openRoom(counterSystem, { seed });
-  await run.apply(addClient, { id: 'alice' });
-  await run.apply(addClient, { id: 'bob' });
+  await using s = await counterSystem.script({ seed });
+  await s.apply(addClient, { id: 'alice' });
+  await s.apply(addClient, { id: 'bob' });
   for (let i = 0; i < 7; i += 1) {
-    await run.apply(dispatch, {
+    await s.apply(dispatch, {
       clientId: i % 2 === 0 ? 'alice' : 'bob',
       payload: Increment({}),
     });
   }
-  await run.apply(hold, 'bob');
-  await run.apply(dispatch, {
+  await s.apply(hold, 'bob');
+  await s.apply(dispatch, {
     clientId: 'alice',
     payload: Increment({}),
   });
-  await run.apply(release, 'bob');
-  await run.elapse(0);
-  await expectConverged(run);
-  const h = await run.observe(serverHash);
-  const hashes = (await run.observe(clientHash)) as Record<string, string>;
+  await s.apply(release, 'bob');
+  await s.elapse(0);
+  await expectConverged(s);
+  const h = await s.observe(serverHash);
+  const hashes = (await s.observe(clientHash)) as Record<string, string>;
   return `${h}:${hashes['alice']}:${hashes['bob']}`;
 }
 

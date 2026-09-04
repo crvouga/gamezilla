@@ -2,7 +2,7 @@
 export { acknowledgeWriteRejectionMutation } from '../../../mutations/shared/acknowledge-write-rejection';
 /**
  * Scripted-pin vocabulary for acme scenarios. Tests drive the run with
- * `start` + `run.apply` / `run.observe` — see `./system.ts` for the shape.
+ * `system.script` + `s.apply` / `s.observe` — see `./system.ts` for the shape.
  */
 export {
   actorId,
@@ -22,7 +22,7 @@ export {
   converged,
   crash,
   crashAt,
-  defineSyncSystem,
+  createSyncSurface,
   deviceId,
   disconnect,
   execSql,
@@ -65,7 +65,6 @@ export {
   rows,
   runSql,
   SYNC_PIN_ACTIONS,
-  SYNC_PROPERTIES,
   SYNC_STEP_MS,
   schedulerQuiescent,
   serverOp,
@@ -75,7 +74,7 @@ export {
   subscribe,
   subscribeAll,
   subscribedTopics,
-  syncVirtualHost,
+  syncVirtual,
   tamperLocalStorage,
   unsubscribe,
 } from '../../../sim/scenario';
@@ -233,9 +232,12 @@ export {
   userTopic,
 } from './shared/topics';
 export {
-  acmeKnobs,
-  acmeLargeCatalogSystem,
+  ACME_DEFAULT_ARGS,
+  ACME_LARGE_CATALOG_ARGS,
+  ACME_POOL_ACTIONS,
+  ACME_PROPERTIES,
   acmeSystem,
+  type SyncArgs,
   type SyncSurface,
 } from './system';
 export {
@@ -246,14 +248,14 @@ export {
 } from './until';
 export { writeNoteBody } from './write-note-body';
 
-import { runSeed, seedsFromEnv } from '../../scenario/run-seed';
-import { acmeApp } from './app';
+import { runSeed, seedsFromEnv } from '../../scenario/script-seed';
+import { acmeSystem } from './system';
 
 /** Seeded fuzz entrypoint bound to the acme fixture. */
 export async function runAcmeSeed(
-  opts: Omit<import('../../scenario/run-seed').RunSeedOptions, 'app'>
-): Promise<import('../../scenario/run-seed').RunSeedResult> {
-  return runSeed({ ...opts, app: acmeApp });
+  opts: Omit<import('../../scenario/script-seed').RunSeedOptions, 'system'>
+): Promise<import('../../scenario/script-seed').RunSeedResult> {
+  return runSeed({ ...opts, system: acmeSystem });
 }
 
 export { seedsFromEnv };

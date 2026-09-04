@@ -12,6 +12,6 @@ export {
 export {
   assertMatchInvariants,
   assertStatusAgreesAcrossReplicas,
-  type MatchmakingRun,
+  type MatchmakingScript,
   matchFingerprint,
 } from './match-invariants';

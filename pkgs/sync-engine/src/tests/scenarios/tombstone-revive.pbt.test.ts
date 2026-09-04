@@ -1,9 +1,7 @@
 import { describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import { assertProperty, fc } from '@pkgs/pbt';
-import { arbKnobs, arbSeed } from '../../sim/scenario/knobs';
+import { arbSeed, arbSyncArgs } from '../../sim/scenario/args';
 import {
-  acmeKnobs,
   acmeSystem,
   clientIds,
   deleteNote,
@@ -13,7 +11,6 @@ import {
   mutate,
   readNoteTombstoneAt,
   setNote,
-  syncVirtualHost,
 } from '../apps/acme';
 
 type TombstoneStep =
@@ -28,7 +25,7 @@ describe('tombstone revive PBT', () => {
         'tombstone interleave',
         fc.asyncProperty(
           arbSeed(),
-          arbKnobs(),
+          arbSyncArgs(),
           fc.array(
             fc.constantFrom(
               { kind: 'set' as const, body: 'a' },
@@ -37,12 +34,10 @@ describe('tombstone revive PBT', () => {
             ),
             { minLength: 1, maxLength: 8 }
           ),
-          async (seed, knobs, steps) => {
-            await using run = await script(acmeSystem, {
+          async (seed, syncArgs, steps) => {
+            await using s = await acmeSystem.script({
               seed,
-              host: syncVirtualHost(),
-              knobs: acmeKnobs(knobs),
-              properties: [],
+              args: syncArgs,
             });
 
             const noteId = 'n0';
@@ -55,28 +50,28 @@ describe('tombstone revive PBT', () => {
                 everSet = true;
                 lastBody = step.body;
                 deleted = false;
-                await run.apply(mutate, 'c0', setNote, {
+                await s.apply(mutate, 'c0', setNote, {
                   id: noteId,
                   body: step.body,
                   title: '',
                 });
               } else if (everSet) {
                 deleted = true;
-                await run.apply(mutate, 'c0', deleteNote, { id: noteId });
+                await s.apply(mutate, 'c0', deleteNote, { id: noteId });
               }
             }
 
-            await expectConverged(run);
+            await expectConverged(s);
 
             if (!everSet) return;
 
-            const tomb = await readNoteTombstoneAt(run, 'server', noteId);
+            const tomb = await readNoteTombstoneAt(s, 'server', noteId);
             if (deleted) {
               expect(tomb).not.toBeNull();
-              await expectNoteNotLiveAt(run, 'c0', noteId);
+              await expectNoteNotLiveAt(s, 'c0', noteId);
             } else {
               expect(tomb).toBeNull();
-              expect(await run.observe(liveNote, 'c0', noteId)).toMatchObject({
+              expect(await s.observe(liveNote, 'c0', noteId)).toMatchObject({
                 body: lastBody,
               });
             }
@@ -95,32 +90,30 @@ describe('tombstone revive PBT', () => {
         'tombstone revive',
         fc.asyncProperty(
           arbSeed(),
-          arbKnobs(),
+          arbSyncArgs(),
           fc.string({ maxLength: 8 }),
           fc.string({ maxLength: 8 }),
-          async (seed, knobs, body1, body2) => {
-            await using run = await script(acmeSystem, {
+          async (seed, syncArgs, body1, body2) => {
+            await using s = await acmeSystem.script({
               seed,
-              host: syncVirtualHost(),
-              knobs: acmeKnobs(knobs),
-              properties: [],
+              args: syncArgs,
             });
 
             const noteId = 'n0';
-            await run.apply(mutate, 'c0', setNote, {
+            await s.apply(mutate, 'c0', setNote, {
               id: noteId,
               body: body1,
               title: '',
             });
-            await run.apply(mutate, 'c0', deleteNote, { id: noteId });
-            await run.apply(mutate, 'c0', setNote, {
+            await s.apply(mutate, 'c0', deleteNote, { id: noteId });
+            await s.apply(mutate, 'c0', setNote, {
               id: noteId,
               body: body2,
               title: '',
             });
-            await expectConverged(run);
-            for (const peer of await run.observe(clientIds)) {
-              expect(await run.observe(liveNote, peer, noteId)).toMatchObject({
+            await expectConverged(s);
+            for (const peer of await s.observe(clientIds)) {
+              expect(await s.observe(liveNote, peer, noteId)).toMatchObject({
                 body: body2,
               });
             }

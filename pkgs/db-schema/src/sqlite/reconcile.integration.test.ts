@@ -109,7 +109,7 @@ describe('sqlite reconcile integration', () => {
       tables: { notes: { body: 'text' } },
       deprecations: [['notes', 'extra', 'unused']],
     });
-    await sqlite(schema, client, { ownership: 'whole-db' }).reconcile();
+    await sqlite(schema, client).reconcile();
 
     const catalog = await readSqliteCatalog(client, schema._declared);
     expect(catalog.allTableNames.has('ghost')).toBe(false);

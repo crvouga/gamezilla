@@ -1,23 +1,41 @@
-import type { Clock, Timers } from '@pkgs/clock';
+import type { Clock } from '@pkgs/clock';
+import type { Kv } from '@pkgs/kv/interface';
+import type { ObjectStore } from '@pkgs/object-store/interface';
+import type { PubSub } from '@pkgs/pubsub/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
-/**
- * Opens a SQL client. Client env is identity-scoped (`userId` / `databaseName`);
- * server env closes over connection details and ignores args.
- */
-export type OpenSqlClient = (args?: {
-  readonly userId?: string;
-  readonly databaseName?: string;
-}) => Promise<SqlClient>;
+export type Fetch = (
+  input: RequestInfo | URL,
+  init?: RequestInit
+) => Promise<Response>;
 
-/**
- * Shared time / entropy fields on {@link ClientEnv}, {@link ServerEnv}, and
- * {@link RoomServerEnv}.
- */
-export type EnvTime = {
-  readonly clock: Clock;
-  readonly timers: Timers;
-  readonly createId: () => string;
-  readonly random: () => number;
-  readonly seed: bigint;
+export type ClientEnvironment = {
+  api: Fetch;
+  events: PubSub;
+  db: SqlClient;
+  kv: Kv;
+  blob: ObjectStore;
+  clock: Clock;
+  createId: () => string;
+  room: WebSocket;
 };
+
+export type ServerEnvironment = {
+  db: SqlClient;
+  events: PubSub;
+  kv: Kv;
+  blob: ObjectStore;
+  clock: Clock;
+  createId: () => string;
+  random: () => number;
+  seed: bigint;
+};
+
+/* 
+
+declare function createClient(env: ClientEnv): Client;
+declare function createServer(env: ServerEnv): Server;
+
+const sim = createSim()
+
+*/

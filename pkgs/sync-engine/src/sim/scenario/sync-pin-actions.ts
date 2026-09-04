@@ -1,11 +1,11 @@
 /**
- * Scripted-pin actions for `run.apply(action, ...args)`. Typed act
+ * Scripted-pin actions for `s.apply(action, ...args)`. Typed act
  * parameters replace the old `pin()` draws. Randomised coverage lives in
- * `createSyncActions` (`sync-actions.ts`). Network / fault / crash pins live
+ * `SYNC_POOL_ACTIONS` (`sync-actions.ts`). Network / fault / crash pins live
  * in `pin-chaos-actions.ts`.
  */
 
-import { defineSurface } from '@pkgs/dst';
+import { defineAction } from '@pkgs/dst';
 import { unsafe } from '@pkgs/sql';
 
 import type { Mutation } from '../../mutations/core/types';
@@ -81,12 +81,10 @@ import {
   tamperLocalStorage,
 } from './pin-chaos-actions';
 
-const { defineAction } = defineSurface<SyncSurface>();
-
-/** `run.apply(addClient, 'alice')` or `run.apply(addClient, { id, actorId })`. */
+/** `s.apply(addClient, 'alice')` or `s.apply(addClient, { id, actorId })`. */
 export const addClient = defineAction({
   name: 'addClient',
-  act: async (s, arg: string | AddClientArgs) => {
+  act: async (s: SyncSurface, arg: string | AddClientArgs) => {
     const args: AddClientArgs =
       typeof arg === 'string' ? { id: arg, actorId: arg } : arg;
     await s.addClient(args);
@@ -94,13 +92,13 @@ export const addClient = defineAction({
 });
 
 /**
- * `run.apply(mutate, 'bob', setNote, { id: 'n1' })`. The result is recorded on
+ * `s.apply(mutate, 'bob', setNote, { id: 'n1' })`. The result is recorded on
  * the run so `lastMutationId` / `lastMutationOk` can read it.
  */
 export const mutate = defineAction({
   name: 'mutate',
   act: async (
-    s,
+    s: SyncSurface,
     clientId: string,
     named: Mutation<unknown> | string,
     args: unknown
@@ -118,40 +116,41 @@ export const mutate = defineAction({
 
 export const connect = defineAction({
   name: 'connect',
-  act: async (s, clientId: string) => {
+  act: async (s: SyncSurface, clientId: string) => {
     await requireClient(s, clientId).connect();
   },
 });
 
 export const disconnect = defineAction({
   name: 'disconnect',
-  act: (s, clientId: string) => requireClient(s, clientId).disconnect(),
+  act: (s: SyncSurface, clientId: string) =>
+    requireClient(s, clientId).disconnect(),
 });
 
 export const online = defineAction({
   name: 'online',
-  act: (s, clientId: string, value: boolean) => {
+  act: (s: SyncSurface, clientId: string, value: boolean) => {
     requireClient(s, clientId).online(value);
   },
 });
 
 export const foreground = defineAction({
   name: 'foreground',
-  act: (s, clientId: string, value: boolean) => {
+  act: (s: SyncSurface, clientId: string, value: boolean) => {
     requireClient(s, clientId).foreground(value);
   },
 });
 
 export const clearLocalData = defineAction({
   name: 'clearLocalData',
-  act: async (s, clientId: string, reason: string) => {
+  act: async (s: SyncSurface, clientId: string, reason: string) => {
     await requireClient(s, clientId).clearLocalData(reason);
   },
 });
 
 export const nudge = defineAction({
   name: 'nudge',
-  act: async (s, clientId: string) => {
+  act: async (s: SyncSurface, clientId: string) => {
     const client = requireClient(s, clientId);
     // A nudge issued while sync is held never resolves — drive it as far as
     // virtual time allows and leave the wake in flight.
@@ -162,7 +161,7 @@ export const nudge = defineAction({
 export const subscribe = defineAction({
   name: 'subscribe',
   act: async (
-    s,
+    s: SyncSurface,
     clientId: string,
     queryName: string,
     params?: Record<string, unknown>
@@ -185,7 +184,7 @@ export const subscribe = defineAction({
 export const subscribeAll = defineAction({
   name: 'subscribeAll',
   act: async (
-    s,
+    s: SyncSurface,
     clientId: string,
     queryName: string,
     paramsList: readonly Record<string, unknown>[]
@@ -208,7 +207,7 @@ export const subscribeAll = defineAction({
 
 export const unsubscribe = defineAction({
   name: 'unsubscribe',
-  act: (s, clientId: string, queryName: string) => {
+  act: (s: SyncSurface, clientId: string, queryName: string) => {
     const key = subscriptionKey(clientId, queryName);
     const bag = subscriptions(s);
     bag.get(key)?.[Symbol.dispose]();
@@ -245,7 +244,7 @@ function recordPost(s: SyncSurface, clientId: string, rows: PostRows): void {
 
 export const postMutations = defineAction({
   name: 'postMutations',
-  act: (s, clientId: string, rows: PostRows) => {
+  act: (s: SyncSurface, clientId: string, rows: PostRows) => {
     recordPost(s, clientId, rows);
   },
 });
@@ -257,7 +256,7 @@ export const postMutations = defineAction({
  */
 export const serverReplay = defineAction({
   name: 'serverReplay',
-  act: async (s, actorId: string, rows: PostRows) => {
+  act: async (s: SyncSurface, actorId: string, rows: PostRows) => {
     const first = rows[0];
     if (first === undefined) return;
     s.server.setAuth({
@@ -279,7 +278,7 @@ export const serverReplay = defineAction({
 
 export const execSql = defineAction({
   name: 'execSql',
-  act: async (s, nodeId: string, statement: string) => {
+  act: async (s: SyncSurface, nodeId: string, statement: string) => {
     const db = nodeId === 'server' ? s.server.db : requireClient(s, nodeId).db;
     await db.run(unsafe(statement));
   },
@@ -289,7 +288,7 @@ export const runSql = execSql;
 
 export const playActions = defineAction({
   name: 'playActions',
-  act: async (s, actions: readonly SyncAction[]) => {
+  act: async (s: SyncSurface, actions: readonly SyncAction[]) => {
     for (const action of actions) {
       await replayStep({
         surface: s,
@@ -309,11 +308,11 @@ export const playActions = defineAction({
 
 /**
  * Heal owed clients, clear faults, reconnect — stimulus only. Pair with
- * `run.until(converged)` (or {@link expectConverged}).
+ * `s.until(converged)` (or {@link expectConverged}).
  */
 export const revive = defineAction({
   name: 'revive',
-  act: async (s) => {
+  act: async (s: SyncSurface) => {
     await prepareClientsForConverge(s.runtime.app, s, s.runtime.replay);
     resetClockSkews(s);
     await s.revive();
@@ -323,7 +322,7 @@ export const revive = defineAction({
 /** Wake uploads / refresh on every live client — stimulus for drain waits. */
 export const wakeAll = defineAction({
   name: 'wakeAll',
-  act: (s) => {
+  act: (s: SyncSurface) => {
     for (const client of s.clients.values()) {
       client.engine.wakeUploads();
       void client.engine.refreshQueries().catch(() => undefined);
@@ -333,11 +332,11 @@ export const wakeAll = defineAction({
 
 /**
  * One converge pump: wake + drain scheduler (stimulus only).
- * Pair with `run.until(converged)` / {@link expectConverged}.
+ * Pair with `s.until(converged)` / {@link expectConverged}.
  */
 export const pump = defineAction({
   name: 'pump',
-  act: async (s) => {
+  act: async (s: SyncSurface) => {
     await pumpConverge(s);
   },
 });

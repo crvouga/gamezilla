@@ -1,7 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import {
-  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
@@ -9,40 +7,37 @@ import {
   liveNotes,
   mutate,
   setNote,
-  syncVirtualHost,
 } from '../apps/acme';
 
 describe('concurrent topic seq allocation monotonic', () => {
   test('overlapping mutates on shared topic converge without torn state', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 920,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, { id: 'alice' });
-    await run.apply(addClient, { id: 'bob' });
+    await s.apply(addClient, { id: 'alice' });
+    await s.apply(addClient, { id: 'bob' });
     // Fire many overlapping mutates; occasional elapse lets the batcher flush
     // inside the server without a settle between them.
     for (let i = 0; i < 12; i += 1) {
-      await run.apply(mutate, 'alice', setNote, {
+      await s.apply(mutate, 'alice', setNote, {
         id: `a-${String(i).padStart(2, '0')}`,
         body: `a${i}`,
       });
-      await run.apply(mutate, 'bob', setNote, {
+      await s.apply(mutate, 'bob', setNote, {
         id: `b-${String(i).padStart(2, '0')}`,
         body: `b${i}`,
       });
-      if (i % 3 === 0) await run.elapse(5);
+      if (i % 3 === 0) await s.elapse(5);
     }
-    await expectConverged(run);
+    await expectConverged(s);
 
-    expect((await run.observe(liveNotes, 'server')).length).toBe(24);
-    expect(await run.observe(liveNote, 'alice', 'a-00')).toMatchObject({
+    expect((await s.observe(liveNotes, 'server')).length).toBe(24);
+    expect(await s.observe(liveNote, 'alice', 'a-00')).toMatchObject({
       body: 'a0',
     });
-    expect(await run.observe(liveNote, 'bob', 'b-11')).toMatchObject({
+    expect(await s.observe(liveNote, 'bob', 'b-11')).toMatchObject({
       body: 'b11',
     });
   });
@@ -50,19 +45,17 @@ describe('concurrent topic seq allocation monotonic', () => {
   test.each([921, 922, 923])(
     'seed sweep concurrent writers converge (seed=%i)',
     async (seed) => {
-      await using run = await script(acmeSystem, {
+      await using s = await acmeSystem.script({
         seed: seed,
-        host: syncVirtualHost(),
-        knobs: acmeKnobs({ clientCount: 0 }),
-        properties: [],
+        args: { clientCount: 0 },
       });
 
-      await run.apply(addClient, { id: 'alice' });
-      await run.apply(addClient, { id: 'bob' });
-      await run.apply(mutate, 'alice', setNote, { id: `a-${seed}`, body: 'x' });
-      await run.apply(mutate, 'bob', setNote, { id: `b-${seed}`, body: 'y' });
-      await expectConverged(run);
-      expect((await run.observe(liveNotes, 'server')).length).toBe(2);
+      await s.apply(addClient, { id: 'alice' });
+      await s.apply(addClient, { id: 'bob' });
+      await s.apply(mutate, 'alice', setNote, { id: `a-${seed}`, body: 'x' });
+      await s.apply(mutate, 'bob', setNote, { id: `b-${seed}`, body: 'y' });
+      await expectConverged(s);
+      expect((await s.observe(liveNotes, 'server')).length).toBe(2);
     }
   );
 });

@@ -1,4 +1,4 @@
-// @io-wall-ok — real `@gorhom/bottom-sheet` host for wall ClientEnv / sim console.
+// @io-wall-ok — real `@gorhom/bottom-sheet` host for wall ClientEnv / system console.
 
 import {
   BottomSheetBackdrop,
@@ -39,11 +39,10 @@ function GorhomView(props: BottomSheetHostViewProps): ReactElement {
   );
 }
 
-/** Singleton wall host — safe to share across product + sim console roots. */
+/** Singleton wall host — safe to share across product + system console roots. */
 export const wallBottomSheetHost: BottomSheetHost = {
   Provider: BottomSheetModalProvider,
   Modal: GorhomModal,
   View: GorhomView,
   Backdrop: GorhomBackdrop,
-  supportsSheetPresentation: true,
 };

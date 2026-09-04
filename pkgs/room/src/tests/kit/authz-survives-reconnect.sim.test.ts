@@ -4,41 +4,40 @@ import { ROOM_ERROR_TYPE } from '../../types';
 import { authzSystem } from '../apps/authz/system';
 import { expectConverged } from '../expect-converged';
 import { authzCount, authzOwner, Bump, Claim } from '../fixtures/authz-module';
-import { openRoom } from '../scenario/open-room';
 import { readClient, readRejection, readServer } from '../scenario/read-state';
 
 describe('kit: authz survives reconnect (M-F05)', () => {
   test('non-owner still unauthorized after soft reconnect', async () => {
-    await using run = await openRoom(authzSystem);
-    await run.apply(addClient, { id: 'alice' });
-    await run.apply(addClient, { id: 'bob' });
-    await expectConverged(run);
+    await using s = await authzSystem.script({ seed: 42 });
+    await s.apply(addClient, { id: 'alice' });
+    await s.apply(addClient, { id: 'bob' });
+    await expectConverged(s);
 
-    await run.apply(dispatch, {
+    await s.apply(dispatch, {
       clientId: 'alice',
       payload: Claim({}),
     });
     expect(authzOwner(await readServer(run))).toBe('alice');
-    expect(authzOwner(await readClient(run, 'alice'))).toBe('alice');
+    expect(authzOwner(await readClient(s, 'alice'))).toBe('alice');
 
-    await run.apply(dispatch, {
+    await s.apply(dispatch, {
       clientId: 'bob',
       payload: Bump({}),
     });
-    expect((await readRejection(run, 'bob'))?.type).toBe(
+    expect((await readRejection(s, 'bob'))?.type).toBe(
       ROOM_ERROR_TYPE.unauthorized
     );
 
-    await run.apply(disconnect, 'bob');
-    await run.apply(connect, 'bob');
-    await run.apply(dispatch, {
+    await s.apply(disconnect, 'bob');
+    await s.apply(connect, 'bob');
+    await s.apply(dispatch, {
       clientId: 'bob',
       payload: Bump({}),
     });
-    expect((await readRejection(run, 'bob'))?.type).toBe(
+    expect((await readRejection(s, 'bob'))?.type).toBe(
       ROOM_ERROR_TYPE.unauthorized
     );
     expect(authzCount(await readServer(run))).toBe(0);
-    expect(authzCount(await readClient(run, 'alice'))).toBe(0);
+    expect(authzCount(await readClient(s, 'alice'))).toBe(0);
   });
 });

@@ -1,5 +1,5 @@
 import { expect } from 'bun:test';
-import type { Run } from '@pkgs/dst';
+import type { Script } from '@pkgs/dst';
 import {
   clientHash,
   clientState,
@@ -11,38 +11,38 @@ import {
 } from '../../sim/scenario';
 import type { RoomState } from '../../types';
 
-export async function readServer(run: Run<RoomSurface>): Promise<RoomState> {
-  return (await run.observe(serverState)) as RoomState;
+export async function readServer(s: Script<RoomSurface>): Promise<RoomState> {
+  return (await s.observe(serverState)) as RoomState;
 }
 
 export async function readClient(
-  run: Run<RoomSurface>,
+  s: Script<RoomSurface>,
   id: string
 ): Promise<RoomState> {
-  const all = (await run.observe(clientState)) as Record<string, RoomState>;
+  const all = (await s.observe(clientState)) as Record<string, RoomState>;
   return all[id]!;
 }
 
 export async function readClientHash(
-  run: Run<RoomSurface>,
+  s: Script<RoomSurface>,
   id: string
 ): Promise<string> {
-  const all = (await run.observe(clientHash)) as Record<string, string>;
+  const all = (await s.observe(clientHash)) as Record<string, string>;
   return all[id]!;
 }
 
 export async function expectHashMatch(
-  run: Run<RoomSurface>,
+  s: Script<RoomSurface>,
   id: string
 ): Promise<void> {
-  expect(await readClientHash(run, id)).toBe(await run.observe(serverHash));
+  expect(await readClientHash(s, id)).toBe(await s.observe(serverHash));
 }
 
 export async function readRejection(
-  run: Run<RoomSurface>,
+  s: Script<RoomSurface>,
   id: string
 ): Promise<{ readonly type?: string } | null> {
-  const all = (await run.observe(lastRejection)) as Record<
+  const all = (await s.observe(lastRejection)) as Record<
     string,
     { readonly type?: string } | null
   >;
@@ -50,9 +50,9 @@ export async function readRejection(
 }
 
 export async function isConnected(
-  run: Run<RoomSurface>,
+  s: Script<RoomSurface>,
   id: string
 ): Promise<boolean> {
-  const ids = (await run.observe(connected)) as string[];
+  const ids = (await s.observe(connected)) as string[];
   return ids.includes(id);
 }

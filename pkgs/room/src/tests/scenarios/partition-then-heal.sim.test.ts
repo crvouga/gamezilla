@@ -3,7 +3,6 @@ import { addClient, dispatch, hold, release } from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
 import { expectConverged } from '../expect-converged';
 import { counterValue, Increment } from '../fixtures/counter-module';
-import { openRoom } from '../scenario/open-room';
 import {
   expectHashMatch,
   readClient,
@@ -13,26 +12,26 @@ import {
 
 describe('room sim: partition then heal', () => {
   test('held peer never sees write until heal + converge', async () => {
-    await using run = await openRoom(counterSystem, { seed: 3 });
-    await run.apply(addClient, { id: 'alice' });
-    await run.apply(addClient, { id: 'bob' });
-    await expectConverged(run);
-    const bobBefore = await readClientHash(run, 'bob');
+    await using s = await counterSystem.script({ seed: 3 });
+    await s.apply(addClient, { id: 'alice' });
+    await s.apply(addClient, { id: 'bob' });
+    await expectConverged(s);
+    const bobBefore = await readClientHash(s, 'bob');
 
-    await run.apply(hold, 'bob');
-    await run.apply(dispatch, {
+    await s.apply(hold, 'bob');
+    await s.apply(dispatch, {
       clientId: 'alice',
       payload: Increment({}),
     });
-    await run.elapse(200);
-    expect(counterValue(await readClient(run, 'bob'))).toBe(0);
-    expect(await readClientHash(run, 'bob')).toBe(bobBefore);
-    await run.apply(release, 'bob');
+    await s.elapse(200);
+    expect(counterValue(await readClient(s, 'bob'))).toBe(0);
+    expect(await readClientHash(s, 'bob')).toBe(bobBefore);
+    await s.apply(release, 'bob');
 
-    await expectConverged(run);
+    await expectConverged(s);
     expect(counterValue(await readServer(run))).toBe(1);
-    expect(counterValue(await readClient(run, 'alice'))).toBe(1);
-    expect(counterValue(await readClient(run, 'bob'))).toBe(1);
-    await expectHashMatch(run, 'alice');
+    expect(counterValue(await readClient(s, 'alice'))).toBe(1);
+    expect(counterValue(await readClient(s, 'bob'))).toBe(1);
+    await expectHashMatch(s, 'alice');
   });
 });

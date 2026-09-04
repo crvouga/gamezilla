@@ -15,63 +15,62 @@ import {
 import { counterSystem } from '../apps/counter/system';
 import { expectConverged } from '../expect-converged';
 import { Decrement, Increment } from '../fixtures/counter-module';
-import { openRoom } from '../scenario/open-room';
 
 async function runChaos(seed: string): Promise<string> {
-  await using run = await openRoom(counterSystem, { seed });
-  await run.apply(addClient, { id: 'alice' });
-  await run.apply(addClient, { id: 'bob' });
-  await run.apply(addClient, { id: 'carol' });
+  await using s = await counterSystem.script({ seed });
+  await s.apply(addClient, { id: 'alice' });
+  await s.apply(addClient, { id: 'bob' });
+  await s.apply(addClient, { id: 'carol' });
   const ids = ['alice', 'bob', 'carol'] as const;
-  const rng = createSeededRng(await run.observe(seedOf)).fork('chaos');
+  const rng = createSeededRng(await s.observe(seedOf)).fork('chaos');
 
   for (let step = 0; step < 40; step += 1) {
     const actor = ids[rng.int(ids.length)]!;
     const roll = rng.random();
     if (roll < 0.15) {
-      await run.apply(hold, actor);
-      await run.apply(dispatch, {
+      await s.apply(hold, actor);
+      await s.apply(dispatch, {
         clientId: actor,
         payload: Increment({}),
       });
-      await run.apply(release, actor);
+      await s.apply(release, actor);
     } else if (roll < 0.25) {
-      await run.apply(down, actor);
-      await run.apply(dispatch, {
+      await s.apply(down, actor);
+      await s.apply(dispatch, {
         clientId: actor,
         payload: Decrement({}),
       });
-      await run.apply(release, actor);
-      await run.apply(disconnect, actor);
-      await run.apply(connect, actor);
+      await s.apply(release, actor);
+      await s.apply(disconnect, actor);
+      await s.apply(connect, actor);
     } else if (roll < 0.35) {
-      await run.apply(disconnect, actor);
-      await run.apply(dispatch, {
+      await s.apply(disconnect, actor);
+      await s.apply(dispatch, {
         clientId: actor,
         payload: Increment({}),
       });
-      await run.apply(connect, actor);
+      await s.apply(connect, actor);
     } else if (roll < 0.5) {
-      await run.apply(dispatch, {
+      await s.apply(dispatch, {
         clientId: actor,
         payload: Decrement({}),
       });
     } else {
-      await run.apply(dispatch, {
+      await s.apply(dispatch, {
         clientId: actor,
         payload: Increment({}),
       });
     }
-    await run.elapse(0);
+    await s.elapse(0);
   }
 
   for (const id of ids) {
-    await run.apply(disconnect, id);
-    await run.apply(connect, id);
+    await s.apply(disconnect, id);
+    await s.apply(connect, id);
   }
-  await expectConverged(run);
-  const h = await run.observe(serverHash);
-  const hashes = (await run.observe(clientHash)) as Record<string, string>;
+  await expectConverged(s);
+  const h = await s.observe(serverHash);
+  const hashes = (await s.observe(clientHash)) as Record<string, string>;
   return `${h}:${hashes['alice']}:${hashes['bob']}:${hashes['carol']}`;
 }
 

@@ -36,7 +36,7 @@ export {
   assertStatusAgreesAcrossReplicas,
   expectMatched,
   KindAttr,
-  type MatchmakingRun,
+  type MatchmakingScript,
   NameAttr,
   RatingAttr,
   RegionAttr,

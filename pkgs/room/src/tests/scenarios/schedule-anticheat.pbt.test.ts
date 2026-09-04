@@ -47,33 +47,33 @@ describe('room schedule-anticheat PBT', () => {
   );
 
   test('early FlagFall rejected; server still flags at true at', async () => {
-    await using run = await openRoom(matchClockSystem, {
+    await using s = await openRoom(matchClockSystem, {
       seed: 3,
       clientCount: 2,
     });
-    await run.apply(domain, {
+    await s.apply(domain, {
       kind: 'domain',
       clientId: 'c0',
       command: 'start',
       args: { whiteMs: 5_000, blackMs: 5_000 },
     });
-    await run.elapse(20);
-    await run.apply(domain, {
+    await s.elapse(20);
+    await s.apply(domain, {
       kind: 'domain',
       clientId: 'c1',
       command: 'flag-fall',
       args: { seat: 'white' },
     });
-    expect(matchClockStatus(await readServer(run))).toBe('playing');
-    await run.elapse(5_100);
-    await expectConverged(run);
-    const end = await readServer(run);
+    expect(matchClockStatus(await readServer(s))).toBe('playing');
+    await s.elapse(5_100);
+    await expectConverged(s);
+    const end = await readServer(s);
     expect(matchClockStatus(end)).toBe('flagged');
     expect(matchClockWinner(end)).toBe('black');
   });
 
   test('lagging held client cannot move after server flag', async () => {
-    await using run = await playRoomActions(matchClockSystem, {
+    await using s = await playRoomActions(matchClockSystem, {
       seed: 5,
       actions: [
         {
@@ -93,6 +93,6 @@ describe('room schedule-anticheat PBT', () => {
         { kind: 'heal' },
       ],
     });
-    expect(matchClockStatus(await readServer(run))).toBe('flagged');
+    expect(matchClockStatus(await readServer(s))).toBe('flagged');
   });
 });

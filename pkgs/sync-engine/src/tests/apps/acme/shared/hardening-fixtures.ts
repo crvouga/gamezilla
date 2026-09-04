@@ -13,7 +13,7 @@ import {
 import { z } from 'zod';
 
 import type { LocalDomainSchema } from '../../../../client/local-schema-migrate';
-import { NOTES_ALL_TOPIC } from './topics';
+import { NOTES_WORLD_TOPIC } from './topics';
 
 /** Schema with optional `notes.color` for column-intersect scenarios. */
 export const acmeAppSchemaExtraColumn = registerTables([
@@ -21,6 +21,7 @@ export const acmeAppSchemaExtraColumn = registerTables([
     domain: 'folders',
     name: 'folders',
     columns: { title: 'text', owner_id: 'text' },
+    
   }),
   defineTable({
     domain: 'notes',
@@ -33,17 +34,19 @@ export const acmeAppSchemaExtraColumn = registerTables([
       color: 'text',
       owner_id: 'text',
     },
+    
   }),
   defineTable({
     domain: 'spaces',
     name: 'spaces',
     columns: { title: 'text', owner_id: 'text' },
+    
   }),
   defineTable({
     domain: 'spaces',
     name: 'spaces_users',
     columns: { space_id: 'text', user_id: 'text' },
-
+    
     uniqueIndexes: [['space_id', 'user_id']],
   }),
   defineTable({
@@ -54,7 +57,7 @@ export const acmeAppSchemaExtraColumn = registerTables([
       device_id: 'text',
       opened_at: 'timestamp',
     },
-
+    
     uniqueIndexes: [['device_id', 'space_id']],
   }),
 ]);
@@ -78,6 +81,7 @@ export const acmeAppSchemaExtraTable = registerTables([
     domain: 'folders',
     name: 'folders',
     columns: { title: 'text', owner_id: 'text' },
+    
   }),
   defineTable({
     domain: 'notes',
@@ -89,7 +93,7 @@ export const acmeAppSchemaExtraTable = registerTables([
       body: 'text',
       owner_id: 'text',
     },
-
+    
     // Preserve-DB extraColumn → extraTable leaves notes.color on disk.
     deprecations: [['color', 'pbt leftover from extraColumn variant']],
   }),
@@ -97,17 +101,19 @@ export const acmeAppSchemaExtraTable = registerTables([
     domain: 'tags',
     name: 'tags',
     columns: { label: 'text', owner_id: 'text' },
+    
   }),
   defineTable({
     domain: 'spaces',
     name: 'spaces',
     columns: { title: 'text', owner_id: 'text' },
+    
   }),
   defineTable({
     domain: 'spaces',
     name: 'spaces_users',
     columns: { space_id: 'text', user_id: 'text' },
-
+    
     uniqueIndexes: [['space_id', 'user_id']],
   }),
   defineTable({
@@ -118,7 +124,7 @@ export const acmeAppSchemaExtraTable = registerTables([
       device_id: 'text',
       opened_at: 'timestamp',
     },
-
+    
     uniqueIndexes: [['device_id', 'space_id']],
   }),
 ]);
@@ -137,12 +143,13 @@ export const acmeLocalSchemaExtraTable: LocalDomainSchema = {
   cacheTableNames: ACME_APP_TABLES_EXTRA_TABLE,
 };
 
-/** Both `notes.color` and `tags` — mixed-schema multi-client systems. */
+/** Both `notes.color` and `tags` — mixed-schema multi-client worlds. */
 export const acmeAppSchemaExtraColumnAndTable = registerTables([
   defineTable({
     domain: 'folders',
     name: 'folders',
     columns: { title: 'text', owner_id: 'text' },
+    
   }),
   defineTable({
     domain: 'notes',
@@ -155,22 +162,25 @@ export const acmeAppSchemaExtraColumnAndTable = registerTables([
       color: 'text',
       owner_id: 'text',
     },
+    
   }),
   defineTable({
     domain: 'tags',
     name: 'tags',
     columns: { label: 'text', owner_id: 'text' },
+    
   }),
   defineTable({
     domain: 'spaces',
     name: 'spaces',
     columns: { title: 'text', owner_id: 'text' },
+    
   }),
   defineTable({
     domain: 'spaces',
     name: 'spaces_users',
     columns: { space_id: 'text', user_id: 'text' },
-
+    
     uniqueIndexes: [['space_id', 'user_id']],
   }),
   defineTable({
@@ -181,7 +191,7 @@ export const acmeAppSchemaExtraColumnAndTable = registerTables([
       device_id: 'text',
       opened_at: 'timestamp',
     },
-
+    
     uniqueIndexes: [['device_id', 'space_id']],
   }),
 ]);
@@ -200,11 +210,11 @@ export const acmeLocalSchemaExtraColumnAndTable: LocalDomainSchema = {
   cacheTableNames: ACME_APP_TABLES_EXTRA_COLUMN_AND_TABLE,
 };
 
-/** V2 query name — same hydrate as notesAll. */
-export const notesAllV2Query = defineQuery({
-  name: 'notesAllV2',
+/** V2 query name — same hydrate as notesWorld. */
+export const notesWorldV2Query = defineQuery({
+  name: 'notesWorldV2',
   limit: 500,
-  entryChannel: () => [NOTES_ALL_TOPIC],
+  entryChannel: () => [NOTES_WORLD_TOPIC],
   async run({ db }) {
     const folders = await db.query(sql<{
       id: string;
@@ -231,13 +241,13 @@ export const notesAllV2Query = defineQuery({
 });
 
 /**
- * Like notesAll but SELECTs `color` — for server-extra-column / client-base
+ * Like notesWorld but SELECTs `color` — for server-extra-column / client-base
  * intersect scenarios (requires acmeLocalSchemaExtraColumn on the server).
  */
-export const notesAllWithColorQuery = defineQuery({
-  name: 'notesAllWithColor',
+export const notesWorldWithColorQuery = defineQuery({
+  name: 'notesWorldWithColor',
   limit: 500,
-  entryChannel: () => [NOTES_ALL_TOPIC],
+  entryChannel: () => [NOTES_WORLD_TOPIC],
   async run({ db }) {
     const folders = await db.query(sql<{
       id: string;
@@ -273,7 +283,7 @@ export const notesByFolderQuery = defineQuery({
     includeArchived: z.boolean().optional(),
   }),
   limit: 500,
-  entryChannel: () => [NOTES_ALL_TOPIC],
+  entryChannel: () => [NOTES_WORLD_TOPIC],
   async run({ db }, params) {
     const notes = await db.query(sql<{
       id: string;
@@ -295,7 +305,7 @@ export const notesByFolderQuery = defineQuery({
 export const notesAuthorizeThrowQuery = defineQuery({
   name: 'notesAuthorizeThrow',
   limit: 500,
-  entryChannel: () => [NOTES_ALL_TOPIC],
+  entryChannel: () => [NOTES_WORLD_TOPIC],
   authorize: async () => {
     throw new Error('authorize exploded');
   },
@@ -305,10 +315,10 @@ export const notesAuthorizeThrowQuery = defineQuery({
 });
 
 /** Hydrates tags — used after mid-life schema add. */
-export const tagsAllQuery = defineQuery({
-  name: 'tagsAll',
+export const tagsWorldQuery = defineQuery({
+  name: 'tagsWorld',
   limit: 500,
-  entryChannel: () => [NOTES_ALL_TOPIC],
+  entryChannel: () => [NOTES_WORLD_TOPIC],
   async run({ db }) {
     const tags = await db.query(sql<{
       id: string;

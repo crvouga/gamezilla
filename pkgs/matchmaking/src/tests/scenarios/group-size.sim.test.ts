@@ -1,13 +1,10 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import type { TickResult } from '../../interface/matchmaking';
 import type { StatusResult } from '../../interface/types';
 import {
   join,
   lastTick,
-  MATCHMAKING_PROPERTIES,
   matchmaking,
-  matchmakingKnobs,
   participantIds,
   statusOf,
   tick,
@@ -31,14 +28,10 @@ describe('matchmaking sim: groupSize', () => {
   });
 
   test('groupSize: 3 forms one match', async () => {
-    await using run = await script(matchmaking, {
-      seed: 60,
-      knobs: matchmakingKnobs(),
-      properties: MATCHMAKING_PROPERTIES,
-    });
+    await using s = await matchmaking.script({ seed: 60 });
     const ratings = { a: 1000, b: 1005, c: 1010 } as const;
     for (const [ref, rating] of Object.entries(ratings)) {
-      await run.apply(join, {
+      await s.apply(join, {
         ref,
         input: {
           data: RatingAttr(rating),
@@ -47,15 +40,11 @@ describe('matchmaking sim: groupSize', () => {
         },
       });
     }
-    await run.apply(tick, onePass);
-    expect(((await run.observe(lastTick)) as TickResult).matches).toBe(1);
-    const ids = await run.observe(participantIds);
-    const ma = expectMatched(
-      (await run.observe(statusOf, 'a')) as StatusResult
-    );
-    const mb = expectMatched(
-      (await run.observe(statusOf, 'b')) as StatusResult
-    );
+    await s.apply(tick, onePass);
+    expect(((await s.observe(lastTick)) as TickResult).matches).toBe(1);
+    const ids = await s.observe(participantIds);
+    const ma = expectMatched((await s.observe(statusOf, 'a')) as StatusResult);
+    const mb = expectMatched((await s.observe(statusOf, 'b')) as StatusResult);
     expect(ma.matchId).toBe(mb.matchId);
     expect(ma.peers).toHaveLength(2);
     expect(new Set(ma.peers.map((p) => p.participantId))).toEqual(
@@ -64,18 +53,14 @@ describe('matchmaking sim: groupSize', () => {
   });
 
   test('mixed groupSize never cross-matches', async () => {
-    await using run = await script(matchmaking, {
-      seed: 61,
-      knobs: matchmakingKnobs(),
-      properties: MATCHMAKING_PROPERTIES,
-    });
+    await using s = await matchmaking.script({ seed: 61 });
     const plan = [
       { ref: 'a', rating: 1000, groupSize: 2 },
       { ref: 'b', rating: 1005, groupSize: 3 },
       { ref: 'c', rating: 1010, groupSize: 3 },
     ];
     for (const { ref, rating, groupSize } of plan) {
-      await run.apply(join, {
+      await s.apply(join, {
         ref,
         input: {
           data: RatingAttr(rating),
@@ -84,7 +69,7 @@ describe('matchmaking sim: groupSize', () => {
         },
       });
     }
-    await run.apply(tick, onePass);
-    expect(((await run.observe(lastTick)) as TickResult).matches).toBe(0);
+    await s.apply(tick, onePass);
+    expect(((await s.observe(lastTick)) as TickResult).matches).toBe(0);
   });
 });

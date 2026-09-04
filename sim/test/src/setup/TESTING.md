@@ -1,17 +1,20 @@
 # Sim tests (DST)
 
-Product system lives in `sim/test/src/scenario/`. Open a run with `openSim` from
-`sim/test/src/setup/open-sim.ts` — `script(product)` on `simHost` / `maxHost`
+Product system lives in `sim/test/src/scenario/`. Hosts are registered on the
+system as `rntl` (default, `simHost`) and `playwright` (`maxHost`)
 (`virtualHost().with({ sql, ui, http })` / `wallHost({ network: 'none' }).with(…)`).
-`openSim` attaches `PRODUCT_PROPERTIES` (`noErrorBoundary`) and returns a
-`Run`. Playground opens `virtualHost()` and passes the `Session` to `createSim`.
+Open a run with `openSim` from `sim/test/src/setup/open-sim.ts` — it calls
+`product.script({ seed, host })`, picking the host name from `ctx.driverKind` /
+fidelity, and returns a `Script`. Standing properties (`noErrorBoundary`) are
+registered with `product.property` in `scenario/observations.ts`.
+Playground opens `virtualHost()` and passes the `Session` to `createSim`.
 
 **Authoring** — scenarios import `describe` from `@pkgs/ui-testing` and pass
 `ctx` into `openSim(testId, ctx)`. Never import `@jest/globals` / `@playwright/test`
-in scenario files. Drive UI through `AppDriver` (taps checkpoint via `run.apply`;
-waits via `run.until` / `run.elapse`; visibility / text via `run.observe(read, …args)`).
-Attach more properties on `script` if needed. Flows that poll go through
-`ActorRun.pollUntil`, which calls `run.elapse` between reads — never a wall-clock
+in scenario files. Drive UI through `AppDriver` (taps checkpoint via `s.apply`;
+waits via `s.until` / `s.elapse`; visibility / text via `s.observe(read, …args)`).
+Register more properties with `product.property` if needed. Flows that poll go through
+`ActorScript.pollUntil`, which calls `s.elapse` between reads — never a wall-clock
 deadline. Reads are plain functions of the surface.
 
 ```tsx
@@ -20,15 +23,15 @@ import { openSim } from '../setup/open-sim';
 
 describe('space create', (ctx) => {
   ctx.test('host creates a space', async () => {
-    await using run = await openSim('space-create', ctx);
-    // AppDriver.forActor(run, 'alice') …
+    await using s = await openSim('space-create', ctx);
+    // AppDriver.forActor(s, 'alice') …
   }, 30_000);
 });
 ```
 
-Faults (partition / heal) are `defineAction`s gated by the `caps` read —
-do not branch on `ctx.fidelity`. On `maxHost` (no `partition` cap),
-`run.apply(partition, …)` throws `ActionNotEnabled`.
+Faults (partition / heal) are `product.action`s gated by the `caps` read —
+do not branch on `ctx.fidelity`. On the `playwright` host (no `partition` cap),
+`s.apply(partition, …)` throws `ActionNotEnabled`.
 
 **SQL fabric** (`SIM_SQL_BACKEND=real|mem`, default **`real`**):
 
@@ -60,16 +63,16 @@ Catalog: `signed-in-alice`, `signed-in-pair`, `friends-pair`, `both-in-space`.
 
 **Hosts** (`ctx.driverKind` from the installed runner, or `openSim` options for snapshot builders):
 
-| Host | Command | UI driver | SQL / HTTP |
-| --- | --- | --- | --- |
-| `simHost` (default) | `bun run --filter @sim/test test` | RNTL in-process | Seed PGlite/SQLite; in-process Hono `fetch`; caps include `partition` |
-| `maxHost` | `bun run --filter @sim/test test:max` | Playwright (one context per actor) | Real Postgres + MinIO/EMQX; Hono on loopback HTTP; Expo web on `:5173`; no `partition` cap |
+| Host name | Factory | Command | UI driver | SQL / HTTP |
+| --- | --- | --- | --- | --- |
+| `rntl` (default) | `simHost` | `bun run --filter @sim/test test` | RNTL in-process | Seed PGlite/SQLite; in-process Hono `fetch`; caps include `partition` |
+| `playwright` | `maxHost` | `bun run --filter @sim/test test:max` | Playwright (one context per actor) | Real Postgres + MinIO/EMQX; Hono on loopback HTTP; Expo web on `:5173`; no `partition` cap |
 
-- **`simHost`** — the network mesh (`partition`) is first-class. Server schema is migrated
+- **`rntl`** — the network mesh (`partition`) is first-class. Server schema is migrated
   **once** into the seed file (Jest `globalSetup` /
   `bun run --filter @sim/test seed:sim-db`); each `openSim` clones that seed
   instead of re-running DDL.
-- **`maxHost`** — partition is not enabled (`ActionNotEnabled`). Sidecars boot via
+- **`playwright`** — partition is not enabled (`ActionNotEnabled`). Sidecars boot via
   `playwright.global-setup.mjs` → `ensureMaxFidelityStack`. Each `openSim` listens the
   sim Hono app on `127.0.0.1:8787` and drives the exported web client. Build the web
   bundle first: `EXPO_PUBLIC_API_URL=http://127.0.0.1:8787 bun run --filter @apps/client build`.

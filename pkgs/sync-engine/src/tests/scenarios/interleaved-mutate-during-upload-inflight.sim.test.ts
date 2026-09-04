@@ -1,7 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import {
-  acmeKnobs,
   acmeSystem,
   addClient,
   connect,
@@ -15,53 +13,50 @@ import {
   outcome,
   release,
   setNote,
-  syncVirtualHost,
   untilAcme,
 } from '../apps/acme';
 
 describe('interleaved mutate during upload inflight', () => {
   test('mutates while drain in flight join next batch; no loss', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 823,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, { id: 'alice' });
-    await run.apply(addClient, { id: 'bob' });
+    await s.apply(addClient, { id: 'alice' });
+    await s.apply(addClient, { id: 'bob' });
 
-    await run.apply(disconnect, 'alice');
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'first' });
-    expect(await run.observe(lastMutationOk, 'alice')).toBe(true);
-    await run.apply(mutate, 'alice', setNote, { id: 'n2', body: 'second' });
-    expect(await run.observe(lastMutationOk, 'alice')).toBe(true);
+    await s.apply(disconnect, 'alice');
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'first' });
+    expect(await s.observe(lastMutationOk, 'alice')).toBe(true);
+    await s.apply(mutate, 'alice', setNote, { id: 'n2', body: 'second' });
+    expect(await s.observe(lastMutationOk, 'alice')).toBe(true);
 
     // Hold sync so the first upload stays in flight while more mutates land.
-    await run.apply(hold, 'alice', 'sync');
-    await run.apply(connect, 'alice');
-    await run.elapse(50);
+    await s.apply(hold, 'alice', 'sync');
+    await s.apply(connect, 'alice');
+    await s.elapse(50);
 
-    await run.apply(mutate, 'alice', setNote, { id: 'n3', body: 'third' });
-    expect(await run.observe(lastMutationOk, 'alice')).toBe(true);
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'first-v2' });
-    expect(await run.observe(lastMutationOk, 'alice')).toBe(true);
-    const fourthId = await run.observe(lastMutationId, 'alice');
+    await s.apply(mutate, 'alice', setNote, { id: 'n3', body: 'third' });
+    expect(await s.observe(lastMutationOk, 'alice')).toBe(true);
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'first-v2' });
+    expect(await s.observe(lastMutationOk, 'alice')).toBe(true);
+    const fourthId = await s.observe(lastMutationId, 'alice');
     expect(fourthId).not.toBeNull();
     if (fourthId === null) return;
 
-    await run.apply(release, 'alice', 'sync');
-    await untilAcme(run, (s) => outcome(s, 'alice', fourthId));
-    expect(await run.observe(outcome, 'alice', fourthId)).toBe('confirmed');
-    await expectConverged(run);
+    await s.apply(release, 'alice', 'sync');
+    await untilAcme(s, (s) => outcome(s, 'alice', fourthId));
+    expect(await s.observe(outcome, 'alice', fourthId)).toBe('confirmed');
+    await expectConverged(s);
 
-    expect(await run.observe(liveNote, 'bob', 'n1')).toMatchObject({
+    expect(await s.observe(liveNote, 'bob', 'n1')).toMatchObject({
       body: 'first-v2',
     });
-    expect(await run.observe(liveNote, 'bob', 'n2')).toMatchObject({
+    expect(await s.observe(liveNote, 'bob', 'n2')).toMatchObject({
       body: 'second',
     });
-    expect(await run.observe(liveNote, 'bob', 'n3')).toMatchObject({
+    expect(await s.observe(liveNote, 'bob', 'n3')).toMatchObject({
       body: 'third',
     });
   });

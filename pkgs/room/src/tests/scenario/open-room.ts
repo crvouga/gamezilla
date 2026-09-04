@@ -1,26 +1,22 @@
-import { type ScriptOptions, script } from '@pkgs/dst';
 import type { RoomSystemDef } from '../../sim/scenario';
-import { roomVirtualHost, SIM_START_MS } from '../../sim/scenario';
-import type { RoomKnobs } from '../../sim/scenario/knobs';
-import type { RoomSurface } from '../../sim/scenario/surface';
+import type { RoomArgs } from '../../sim/scenario/args';
 
 export type OpenRoomOpts = {
   readonly seed?: number | bigint | string;
   readonly clientCount?: number;
   readonly mildFaults?: boolean;
-  readonly startTime?: number;
-  readonly properties?: ScriptOptions<RoomSurface, RoomKnobs>['properties'];
+  readonly host?: string;
 };
 
-/** `script` + default room virtual host. */
+/** `system.script` with default room args on the registered virtual host. */
 export async function openRoom(system: RoomSystemDef, opts?: OpenRoomOpts) {
-  return script(system, {
+  const args: Partial<RoomArgs> = {
+    clientCount: opts?.clientCount ?? 0,
+    mildFaults: opts?.mildFaults ?? false,
+  };
+  return system.script({
     seed: opts?.seed ?? process.env['SIM_SEED'] ?? '42',
-    knobs: {
-      clientCount: opts?.clientCount ?? 0,
-      mildFaults: opts?.mildFaults ?? false,
-    },
-    properties: opts?.properties ?? [],
-    host: roomVirtualHost(opts?.startTime ?? SIM_START_MS),
+    args,
+    host: opts?.host,
   });
 }

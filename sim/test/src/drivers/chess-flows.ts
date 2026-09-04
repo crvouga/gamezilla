@@ -3,7 +3,7 @@ import { ChessBoardFlows } from '@pkgs/chess-board/chess-board-flows';
 import type { ChessBoardProbe } from '@pkgs/chess-board/chess-board-probe';
 import type { Square } from '@pkgs/chess-board/chess-board-types';
 
-import type { ActorRun } from './actor-run';
+import type { ActorScript } from './actor-script';
 import type { SpaceFlows } from './space-flows';
 
 /** Virtual-time budgets for puzzle screens to settle. */
@@ -19,7 +19,7 @@ export class ChessFlows {
   readonly board: ChessBoardFlows;
 
   constructor(
-    private readonly actor: ActorRun,
+    private readonly actor: ActorScript,
     private readonly space: SpaceFlows
   ) {
     this.board = new ChessBoardFlows(actor.ui, Handles.chessPuzzleBoard);

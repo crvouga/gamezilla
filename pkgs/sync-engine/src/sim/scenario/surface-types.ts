@@ -11,7 +11,7 @@ import type { SimTraffic } from '../traffic';
 
 /**
  * Scripted-pin / dispatch surface — domain ops over the live sync surface.
- * Waiting / converge / invariants are reads + `run.until` / properties — not
+ * Waiting / converge / invariants are reads + `s.until` / properties — not
  * methods on this surface.
  */
 export type SyncSurfaceBase = {

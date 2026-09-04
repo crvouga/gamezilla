@@ -1,37 +1,32 @@
 import { describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import {
-  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
   mutate,
   setNote,
-  syncVirtualHost,
 } from '../apps/acme';
 import { expectLiveNoteAt, isNoteLiveAt } from '../apps/acme/reads';
 
 describe('entry channel wakes never-held row', () => {
   test('entryChannel delivers peer create before local ever held the row', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 1220,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
     // notesAll entryChannel = NOTES_ALL_TOPIC (no prior row for n-fresh).
-    await run.apply(addClient, 'alice');
-    await run.apply(addClient, 'bob');
+    await s.apply(addClient, 'alice');
+    await s.apply(addClient, 'bob');
 
-    expect(await isNoteLiveAt(run, 'bob', 'n-fresh')).toBe(false);
+    expect(await isNoteLiveAt(s, 'bob', 'n-fresh')).toBe(false);
 
-    await run.apply(mutate, 'alice', setNote, {
+    await s.apply(mutate, 'alice', setNote, {
       id: 'n-fresh',
       body: 'via-entry',
     });
-    await expectConverged(run);
+    await expectConverged(s);
 
-    await expectLiveNoteAt(run, 'bob', 'n-fresh', { body: 'via-entry' });
+    await expectLiveNoteAt(s, 'bob', 'n-fresh', { body: 'via-entry' });
   });
 });

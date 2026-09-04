@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import type { Run } from '@pkgs/dst';
+import type { Script } from '@pkgs/dst';
 import {
   addClient,
   clientHash,
@@ -8,34 +8,40 @@ import {
   rosterSize,
   serverHash,
 } from '../../sim/scenario';
+import { counterSystem } from '../apps/counter/system';
 import { expectConverged } from '../expect-converged';
 import { counterValue, Increment } from '../fixtures/counter-module';
-import { bootCounter } from '../scenario/boot-counter';
 import { readClient, readServer } from '../scenario/read-state';
 
 describe('room sim: spectator fanout (E-H03)', () => {
   test('joining spectators does not change domain hash', async () => {
-    await using run = await bootCounter(['alice']);
-    await run.apply(dispatch, {
+    await using s = await counterSystem.script({
+      seed: 42,
+    });
+    for (const id of ['alice']) {
+      await s.apply(addClient, { id });
+    }
+    await expectConverged(s);
+    await s.apply(dispatch, {
       clientId: 'alice',
       payload: Increment({}),
     });
-    const domainHash = await readClientHashOrServer(run);
+    const domainHash = await readClientHashOrServer(s);
 
-    await run.apply(addClient, { id: 'spec1' });
-    await run.apply(addClient, { id: 'spec2' });
-    await expectConverged(run);
+    await s.apply(addClient, { id: 'spec1' });
+    await s.apply(addClient, { id: 'spec2' });
+    await expectConverged(s);
 
-    expect(counterValue(await readServer(run))).toBe(1);
-    expect(counterValue(await readClient(run, 'alice'))).toBe(1);
-    expect(await run.observe(serverHash)).toBe(domainHash);
-    const hashes = await run.observe(clientHash);
+    expect(counterValue(await readServer(s))).toBe(1);
+    expect(counterValue(await readClient(s, 'alice'))).toBe(1);
+    expect(await s.observe(serverHash)).toBe(domainHash);
+    const hashes = await s.observe(clientHash);
     expect(hashes['alice']).toBe(domainHash);
-    expect(await run.observe(rosterSize)).toBe(3);
+    expect(await s.observe(rosterSize)).toBe(3);
   });
 });
 
-async function readClientHashOrServer(run: Run<RoomSurface>): Promise<string> {
-  const hashes = (await run.observe(clientHash)) as Record<string, string>;
+async function readClientHashOrServer(s: Script<RoomSurface>): Promise<string> {
+  const hashes = (await s.observe(clientHash)) as Record<string, string>;
   return hashes['alice']!;
 }

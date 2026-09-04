@@ -1,27 +1,14 @@
 import { describe, expect, test } from 'bun:test';
-import { explore } from '@pkgs/dst';
-import { gen } from '@pkgs/dst/fast-check';
 
-import {
-  arbRoomKnobs,
-  invariantViolations,
-  ROOM_PROPERTIES,
-  roomActions,
-  roomVirtualHost,
-} from '../../sim/scenario';
-import { counterApp } from '../apps/counter/app';
+import { invariantViolations } from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
 import { playRoomActions, playRoomPin } from '../scenario/play-actions';
 
 describe('room system PBT', () => {
   test(
-    'check explores room actions under ROOM_PROPERTIES',
+    'explore room actions under registered properties',
     async () => {
-      const report = await explore(counterSystem, {
-        properties: ROOM_PROPERTIES,
-        actions: roomActions(counterApp),
-        knobs: gen(arbRoomKnobs()),
-        host: roomVirtualHost(),
+      const report = await counterSystem.explore({
         episodes: 4,
         steps: 10,
         seed: 1,
@@ -105,7 +92,7 @@ describe('room system PBT', () => {
   });
 
   test('ghost durable queue: dispatch then settle leaves queues empty (pin)', async () => {
-    await using run = await playRoomActions(counterSystem, {
+    await using s = await playRoomActions(counterSystem, {
       seed: 4242,
       actions: [
         {
@@ -123,6 +110,6 @@ describe('room system PBT', () => {
         { kind: 'idle', ms: 40 },
       ],
     });
-    expect(await run.observe(invariantViolations)).toEqual([]);
+    expect(await s.observe(invariantViolations)).toEqual([]);
   });
 });

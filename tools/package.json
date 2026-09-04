@@ -11,7 +11,6 @@
     "test": "bun test --pass-with-no-tests scripts/sims"
   },
   "dependencies": {
-    "@clack/prompts": "catalog:",
     "@pkgs/object-store": "workspace:*",
     "@pkgs/os": "workspace:*",
     "@pkgs/secret-provider": "workspace:*",

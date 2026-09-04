@@ -1,6 +1,5 @@
 import { appSchema } from '@libs/runtime/root/app-schema';
-import { AuthPostgresDatabaseMigration } from '@pkgs/auth/server';
-import type { Clock } from '@pkgs/clock';
+import { BetterAuthDatabaseMigration } from '@pkgs/auth-better-auth/server';
 import {
   ComposedDatabaseMigration,
   EnsurePostgresSchemaMigration,
@@ -12,12 +11,11 @@ import { KvPostgresDatabaseMigration } from '@pkgs/kv/postgres-database-migratio
 import type { Logger } from '@pkgs/logger';
 import { OutboxDatabaseMigration } from '@pkgs/outbox';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { Pool } from '@pkgs/sql-client/postgres/pg-types';
 import type { PostgresDbScope } from '@pkgs/sql-client/postgres/schema';
 import { SyncEngineDatabaseMigration } from '@pkgs/sync-engine/shared';
-import { CutoverLegacyAuthToIdpMigration } from './cutover-legacy-auth-to-idp-migration';
 import { DomainSchemaNullabilityMigration } from './domain-schema-nullability-migration';
 import { HardCutoverDropLegacyTablesMigration } from './hard-cutover-drop-legacy-tables-migration';
-import { PostgresIndexesDatabaseMigration } from './postgres-indexes-database-migration';
 import { PostgresSqliteCompatMigration } from './postgres-sqlite-compat-migration';
 import { PurgeClerkExternalAccountsMigration } from './purge-clerk-external-accounts-migration';
 
@@ -30,25 +28,24 @@ export const POSTGRES_MIGRATE_ADVISORY_LOCK_ID = '872014001234567890';
 
 export type PostgresMigrationRunnerDeps = {
   sqlClient: SqlClient;
+  /** Pinned pool for Better Auth Kysely migrations (same TCP session). */
+  pool: Pool;
   logger: Logger;
   dbScope: PostgresDbScope;
+  /** Used as Better Auth baseURL during migrate (placeholder OK). */
+  betterAuthBaseURL: string;
+  betterAuthSecret: string;
   /**
-   * When true, skip `pg_advisory_xact_lock` + outer transaction (postgres-mem /
-   * single-process sims cannot nest SET LOCAL with DO-block DDL on one adapter pool).
+   * When true, skip `pg_advisory_xact_lock` + outer transaction (pg-mem / single-process
+   * sims cannot nest SET LOCAL with DO-block DDL on one adapter pool).
    */
   skipAdvisoryLock?: boolean;
   /**
    * When true, skip PL/pgSQL {@link PostgresSqliteCompatMigration}.
-   * Use when JSON1 shims are installed at SqlClient open time (postgres-mem).
+   * Use for pg-mem where JSON1 shims are installed via
+   * `installPgMemSqliteCompat` at `createPgMemSqlClient` time.
    */
   skipSqliteCompat?: boolean;
-  /**
-   * When true, skip workload {@link PostgresIndexesDatabaseMigration}.
-   * Defaults to true when `skipAdvisoryLock` (sim / postgres-mem).
-   */
-  skipIndexReconcile?: boolean;
-  /** Injected clock for index reconcile deadlines (required unless skipped). */
-  clock?: Clock;
 };
 
 export class PostgresMigrationRunner {
@@ -57,12 +54,13 @@ export class PostgresMigrationRunner {
   async run(): Promise<void> {
     const {
       sqlClient,
+      pool,
       logger,
       dbScope,
+      betterAuthBaseURL,
+      betterAuthSecret,
       skipAdvisoryLock = false,
       skipSqliteCompat = false,
-      skipIndexReconcile = skipAdvisoryLock,
-      clock,
     } = this.deps;
 
     const locked = new ComposedDatabaseMigration()
@@ -95,25 +93,13 @@ export class PostgresMigrationRunner {
             })
       )
       .register(
-        new AuthPostgresDatabaseMigration({
-          dbScope,
-          skipAdvisoryLock: true,
-          alreadyInTransaction: false,
+        new BetterAuthDatabaseMigration({
+          database: { kind: 'postgres', pool },
+          secret: betterAuthSecret,
+          baseURL: betterAuthBaseURL,
         })
       )
-      .register(new CutoverLegacyAuthToIdpMigration())
       .register(new PurgeClerkExternalAccountsMigration());
-
-    if (!skipIndexReconcile) {
-      if (clock === undefined) {
-        throw new Error(
-          'PostgresMigrationRunner: clock required when index reconcile is enabled'
-        );
-      }
-      databaseMigration.register(
-        new PostgresIndexesDatabaseMigration({ clock })
-      );
-    }
 
     await databaseMigration.migrate({ sqlClient, logger });
   }

@@ -1,7 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import {
-  acmeKnobs,
   acmeSystem,
   addClient,
   createSpace,
@@ -17,75 +15,72 @@ import {
   SPACE_MEMBERSHIP_SESSION,
   setSpaceNote,
   subscribedTopics,
-  syncVirtualHost,
   untilAcme,
 } from '../apps/acme';
 
 describe('membership revoked mid session scope denied topics dropped', () => {
   test('leave drops room topic; previously hydrated domain rows retained', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 970,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, {
+    await s.apply(addClient, {
       id: 'alice',
       sessionQuery: SPACE_MEMBERSHIP_SESSION,
     });
-    await run.apply(addClient, {
+    await s.apply(addClient, {
       id: 'bob',
       sessionQuery: SPACE_MEMBERSHIP_SESSION,
     });
 
-    await run.apply(mutate, 'alice', createSpace, {
+    await s.apply(mutate, 'alice', createSpace, {
       id: 'revoked-room',
       title: 'R',
     });
-    await expectConverged(run);
-    await untilAcme(run, (s) => subscribedTopics(s, 'alice'), {
+    await expectConverged(s);
+    await untilAcme(s, (s) => subscribedTopics(s, 'alice'), {
       pred: hasTopic(roomTopic('revoked-room')),
     });
-    await run.apply(mutate, 'bob', joinSpace, { spaceId: 'revoked-room' });
-    await untilAcme(run, (s) => subscribedTopics(s, 'bob'), {
+    await s.apply(mutate, 'bob', joinSpace, { spaceId: 'revoked-room' });
+    await untilAcme(s, (s) => subscribedTopics(s, 'bob'), {
       pred: hasTopic(roomTopic('revoked-room')),
     });
-    await expectConverged(run);
+    await expectConverged(s);
 
-    await run.apply(mutate, 'bob', setSpaceNote, {
+    await s.apply(mutate, 'bob', setSpaceNote, {
       id: 'kept-local',
       spaceId: 'revoked-room',
       body: 'retain-me',
     });
-    await expectConverged(run);
-    expect(await run.observe(liveNote, 'bob', 'kept-local')).toMatchObject({
+    await expectConverged(s);
+    expect(await s.observe(liveNote, 'bob', 'kept-local')).toMatchObject({
       body: 'retain-me',
     });
 
-    await run.apply(mutate, 'bob', leaveSpace, { spaceId: 'revoked-room' });
-    await untilAcme(run, (s) => subscribedTopics(s, 'bob'), {
+    await s.apply(mutate, 'bob', leaveSpace, { spaceId: 'revoked-room' });
+    await untilAcme(s, (s) => subscribedTopics(s, 'bob'), {
       pred: lacksTopic(roomTopic('revoked-room')),
     });
     // nudge: confirm leave detach keeps domain rows after refetch
-    await run.apply(nudge, 'bob');
+    await s.apply(nudge, 'bob');
 
-    expect(await run.observe(subscribedTopics, 'bob')).not.toContain(
+    expect(await s.observe(subscribedTopics, 'bob')).not.toContain(
       roomTopic('revoked-room')
     );
     // Domain rows retained after membership detach (no wipe on deny/leave).
-    expect(await run.observe(liveNote, 'bob', 'kept-local')).toMatchObject({
+    expect(await s.observe(liveNote, 'bob', 'kept-local')).toMatchObject({
       body: 'retain-me',
     });
 
-    await run.apply(mutate, 'alice', setSpaceNote, {
+    await s.apply(mutate, 'alice', setSpaceNote, {
       id: 'after-leave',
       spaceId: 'revoked-room',
       body: 'miss',
     });
-    await run.elapse(300);
+    await s.elapse(300);
     // Intentionally not converged: bob is out of room scope.
-    expect(await run.observe(liveNote, 'alice', 'after-leave')).toMatchObject({
+    expect(await s.observe(liveNote, 'alice', 'after-leave')).toMatchObject({
       body: 'miss',
     });
   });
@@ -93,29 +88,27 @@ describe('membership revoked mid session scope denied topics dropped', () => {
   test.each([971, 972, 973])(
     'seed sweep leave drops room topic (seed=%i)',
     async (seed) => {
-      await using run = await script(acmeSystem, {
+      await using s = await acmeSystem.script({
         seed: seed,
-        host: syncVirtualHost(),
-        knobs: acmeKnobs({ clientCount: 0 }),
-        properties: [],
+        args: { clientCount: 0 },
       });
 
-      await run.apply(addClient, {
+      await s.apply(addClient, {
         id: 'alice',
         sessionQuery: SPACE_MEMBERSHIP_SESSION,
       });
-      await run.apply(mutate, 'alice', createSpace, {
+      await s.apply(mutate, 'alice', createSpace, {
         id: `r-${seed}`,
         title: 'T',
       });
-      await untilAcme(run, (s) => subscribedTopics(s, 'alice'), {
+      await untilAcme(s, (s) => subscribedTopics(s, 'alice'), {
         pred: hasTopic(roomTopic(`r-${seed}`)),
       });
-      await run.apply(mutate, 'alice', leaveSpace, { spaceId: `r-${seed}` });
-      await untilAcme(run, (s) => subscribedTopics(s, 'alice'), {
+      await s.apply(mutate, 'alice', leaveSpace, { spaceId: `r-${seed}` });
+      await untilAcme(s, (s) => subscribedTopics(s, 'alice'), {
         pred: lacksTopic(roomTopic(`r-${seed}`)),
       });
-      expect(await run.observe(subscribedTopics, 'alice')).not.toContain(
+      expect(await s.observe(subscribedTopics, 'alice')).not.toContain(
         roomTopic(`r-${seed}`)
       );
     }

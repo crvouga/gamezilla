@@ -1,15 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import { explore, script } from '@pkgs/dst';
-import { gen } from '@pkgs/dst/fast-check';
 import { schemaAt } from './schemas';
 import {
   advance,
-  arbSchemaKnobs,
   clientIds,
   clientVersions,
   forbidden,
-  SCHEMA_ACTIONS,
-  SCHEMA_PROPERTIES,
   SCHEMA_SERVER_ID,
   schema,
   serverPlanKinds,
@@ -18,10 +13,7 @@ import {
 
 describe('db-schema framework system', () => {
   test('compatible schema chain + mixed clients + forbidden refuse', async () => {
-    const report = await explore(schema, {
-      properties: SCHEMA_PROPERTIES,
-      actions: SCHEMA_ACTIONS,
-      knobs: gen(arbSchemaKnobs()),
+    const report = await schema.explore({
       episodes: 6,
       steps: 10,
       seed: 1,
@@ -31,45 +23,33 @@ describe('db-schema framework system', () => {
   }, 120_000);
 
   test('scripted: server ahead of lagging client stays valid', async () => {
-    await using run = await script(schema, {
-      seed: 42,
-      knobs: { clients: 2 },
-      properties: SCHEMA_PROPERTIES,
-    });
-    await run.apply(advance, { target: SCHEMA_SERVER_ID, to: 2 });
-    await run.apply(advance, { target: 'client-0', to: 1 });
-    await run.apply(advance, { target: 'client-1', to: 2 });
-    expect(await run.observe(serverVersion)).toBe(2);
+    await using s = await schema.script({ seed: 42, args: { clients: 2 } });
+    await s.apply(advance, { target: SCHEMA_SERVER_ID, to: 2 });
+    await s.apply(advance, { target: 'client-0', to: 1 });
+    await s.apply(advance, { target: 'client-1', to: 2 });
+    expect(await s.observe(serverVersion)).toBe(2);
     // client-0 was capped at requested `to: 1` (lagging is allowed until caught up)
-    expect(await run.observe(clientVersions)).toEqual([1, 2]);
-    await run.apply(advance, { target: 'client-0', to: 2 });
-    expect(await run.observe(clientVersions)).toEqual([2, 2]);
+    expect(await s.observe(clientVersions)).toEqual([1, 2]);
+    await s.apply(advance, { target: 'client-0', to: 2 });
+    expect(await s.observe(clientVersions)).toEqual([2, 2]);
   }, 60_000);
 
   test('forbidden in-place type change is refused without plan drift', async () => {
-    await using run = await script(schema, {
-      seed: 7,
-      knobs: { clients: 1 },
-      properties: SCHEMA_PROPERTIES,
-    });
-    await run.apply(advance, { target: SCHEMA_SERVER_ID, to: 1 });
-    await run.apply(forbidden);
-    expect(await run.observe(serverPlanKinds)).toEqual(['v1']);
+    await using s = await schema.script({ seed: 7, args: { clients: 1 } });
+    await s.apply(advance, { target: SCHEMA_SERVER_ID, to: 1 });
+    await s.apply(forbidden);
+    expect(await s.observe(serverPlanKinds)).toEqual(['v1']);
   }, 60_000);
 
   test('nodes boot at v0 with server + client roles', async () => {
-    await using run = await script(schema, {
-      seed: 3,
-      knobs: { clients: 3 },
-      properties: SCHEMA_PROPERTIES,
-    });
-    expect(await run.observe(serverVersion)).toBe(0);
-    expect(await run.observe(clientIds)).toEqual([
+    await using s = await schema.script({ seed: 3, args: { clients: 3 } });
+    expect(await s.observe(serverVersion)).toBe(0);
+    expect(await s.observe(clientIds)).toEqual([
       'client-0',
       'client-1',
       'client-2',
     ]);
-    expect(await run.observe(clientVersions)).toEqual([0, 0, 0]);
+    expect(await s.observe(clientVersions)).toEqual([0, 0, 0]);
   }, 60_000);
 
   test('surface coverage: schema snapshot exports checks/views/enums arrays', () => {

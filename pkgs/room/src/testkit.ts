@@ -26,7 +26,6 @@ export {
   release,
   restart,
   revive,
-  roomVirtualHost,
   SIM_START_MS,
   serverHash,
   serverState,

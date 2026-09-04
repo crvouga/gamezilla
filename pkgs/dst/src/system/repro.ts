@@ -13,8 +13,8 @@ export type ReproMeta = {
 export type Repro = {
   readonly version: typeof REPRO_VERSION;
   readonly seed: number | string;
-  /** Typed system knobs supplied to generate (JSON-projected). */
-  readonly knobs: unknown;
+  /** Typed system args supplied to create (JSON-projected). */
+  readonly args: unknown;
   readonly choices: readonly Choice[];
   readonly meta: ReproMeta;
 };

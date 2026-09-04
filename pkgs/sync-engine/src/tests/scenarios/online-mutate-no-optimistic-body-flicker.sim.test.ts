@@ -1,7 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import {
-  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
@@ -9,36 +7,33 @@ import {
   liveNotes,
   mutate,
   setNote,
-  syncVirtualHost,
 } from '../apps/acme';
 
 describe('online mutate no optimistic body flicker', () => {
   test('online mutate never reverts optimistic body before quiescence', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 700,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, { id: 'alice' });
-    await run.apply(addClient, { id: 'bob' });
+    await s.apply(addClient, { id: 'alice' });
+    await s.apply(addClient, { id: 'bob' });
 
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'seed' });
-    await expectConverged(run);
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'seed' });
+    await expectConverged(s);
 
-    await run.apply(mutate, 'alice', setNote, {
+    await s.apply(mutate, 'alice', setNote, {
       id: 'n1',
       body: 'optimistic-final',
     });
 
     for (let i = 0; i < 8; i += 1) {
-      await run.elapse(25);
-      const notes = await run.observe(liveNotes, 'alice');
+      await s.elapse(25);
+      const notes = await s.observe(liveNotes, 'alice');
       expect(notes.find((r) => r.id === 'n1')?.body).toBe('optimistic-final');
     }
 
-    await expectConverged(run);
-    await expectLiveNoteAt(run, 'alice', 'n1', { body: 'optimistic-final' });
+    await expectConverged(s);
+    await expectLiveNoteAt(s, 'alice', 'n1', { body: 'optimistic-final' });
   });
 });

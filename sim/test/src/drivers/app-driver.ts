@@ -1,9 +1,9 @@
-import type { Run } from '@pkgs/dst';
+import type { Script } from '@pkgs/dst';
 
 import { spawnActor } from '../scenario/actions';
 import { actorIds } from '../scenario/observations';
 import type { ProductSurface } from '../scenario/surface';
-import { ActorRun } from './actor-run';
+import { ActorScript } from './actor-script';
 import { AuthFlows } from './auth-flows';
 import { ChessFlows } from './chess-flows';
 import { FriendsFlows } from './friends-flows';
@@ -14,7 +14,7 @@ import { SpaceFlows } from './space-flows';
 
 /** Product UI flows for one sim actor, spoken entirely through the run. */
 export class AppDriver {
-  readonly run: Run<ProductSurface>;
+  readonly s: Script<ProductSurface>;
   readonly actorId: string;
   readonly auth: AuthFlows;
   readonly profile: ProfileFlows;
@@ -24,8 +24,8 @@ export class AppDriver {
   readonly space: SpaceFlows;
   readonly chess: ChessFlows;
 
-  private constructor(actor: ActorRun) {
-    this.run = actor.run;
+  private constructor(actor: ActorScript) {
+    this.s = actor.s;
     this.actorId = actor.actorId;
     this.auth = new AuthFlows(actor.ui);
     this.profile = new ProfileFlows(actor.ui);
@@ -37,13 +37,13 @@ export class AppDriver {
   }
 
   static async forActor(
-    run: Run<ProductSurface>,
+    s: Script<ProductSurface>,
     actorId: string
   ): Promise<AppDriver> {
-    const ids = await run.observe(actorIds);
+    const ids = await s.observe(actorIds);
     if (!ids.includes(actorId)) {
-      await run.apply(spawnActor, actorId);
+      await s.apply(spawnActor, actorId);
     }
-    return new AppDriver(new ActorRun(run, actorId));
+    return new AppDriver(new ActorScript(s, actorId));
   }
 }

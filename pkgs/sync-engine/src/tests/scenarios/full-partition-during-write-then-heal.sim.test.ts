@@ -1,7 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import {
-  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
@@ -10,35 +8,32 @@ import {
   partition,
   release,
   setNote,
-  syncVirtualHost,
 } from '../apps/acme';
 
 describe('full partition during write then heal', () => {
   test('partition then heal converges domain state', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 33,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, { id: 'alice' });
-    await run.apply(addClient, { id: 'bob' });
-    await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
-    await expectConverged(run);
+    await s.apply(addClient, { id: 'alice' });
+    await s.apply(addClient, { id: 'bob' });
+    await s.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
+    await expectConverged(s);
 
-    await run.apply(partition, 'alice', 'all');
-    await run.apply(partition, 'bob', 'all');
-    await run.apply(mutate, 'alice', setNote, {
+    await s.apply(partition, 'alice', 'all');
+    await s.apply(partition, 'bob', 'all');
+    await s.apply(mutate, 'alice', setNote, {
       id: 'n1',
       body: 'during-partition',
     });
-    await run.elapse(100);
-    await run.apply(release, 'alice', 'all');
-    await run.apply(release, 'bob', 'all');
-    await expectConverged(run);
+    await s.elapse(100);
+    await s.apply(release, 'alice', 'all');
+    await s.apply(release, 'bob', 'all');
+    await expectConverged(s);
 
-    expect(await run.observe(liveNote, 'bob', 'n1')).toMatchObject({
+    expect(await s.observe(liveNote, 'bob', 'n1')).toMatchObject({
       body: 'during-partition',
     });
   });

@@ -1426,7 +1426,7 @@
       for (var i = 0; i < 200; i++) {
         Array.from(document.querySelectorAll('a-row')).forEach(function (row) {
           var run = parseRunRow(row);
-          var key = runKey(run);
+          var key = runKey(s);
           if (key) runs.set(key, run);
         });
 

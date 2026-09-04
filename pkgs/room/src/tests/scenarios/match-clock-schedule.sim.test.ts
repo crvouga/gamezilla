@@ -6,6 +6,7 @@ import {
   dispatch,
   hold,
   release,
+  roomEpoch,
   serverHash,
 } from '../../sim/scenario';
 import { matchClockSystem } from '../apps/match-clock/system';
@@ -20,7 +21,6 @@ import {
   matchClockWinner,
   StartMatch,
 } from '../fixtures/match-clock-module';
-import { openRoom } from '../scenario/open-room';
 import {
   expectHashMatch,
   readClient,
@@ -28,152 +28,140 @@ import {
 } from '../scenario/read-state';
 
 async function bootMatch(seed: string, startTime: number) {
-  const run = await openRoom(matchClockSystem, { seed, startTime });
-  await run.apply(addClient, { id: 'white', identity: 'white' });
-  await run.apply(addClient, { id: 'black', identity: 'black' });
-  await expectConverged(run);
-  return run;
+  const s = await matchClockSystem.script({
+    seed,
+    host: roomEpoch(matchClockSystem, startTime),
+  });
+  await s.apply(addClient, { id: 'white', identity: 'white' });
+  await s.apply(addClient, { id: 'black', identity: 'black' });
+  await expectConverged(s);
+  return s;
 }
 
 describe('match-clock schedule (MC-01..06)', () => {
   test('MC-01: runFor past flag → server FlagFall terminal; clients converge', async () => {
-    await using run = await bootMatch(
-      process.env['SIM_SEED'] ?? 'mc-01',
-      10_000
-    );
-    await run.apply(dispatch, {
+    await using s = await bootMatch(process.env['SIM_SEED'] ?? 'mc-01', 10_000);
+    await s.apply(dispatch, {
       clientId: 'white',
       payload: StartMatch({ whiteMs: 50, blackMs: 80 }),
     });
-    expect(matchClockStatus(await readServer(run))).toBe('playing');
+    expect(matchClockStatus(await readServer(s))).toBe('playing');
 
-    await run.elapse(60);
-    await expectConverged(run);
+    await s.elapse(60);
+    await expectConverged(s);
 
-    const server = await readServer(run);
+    const server = await readServer(s);
     expect(matchClockStatus(server)).toBe('flagged');
     expect(matchClockWinner(server)).toBe('black');
-    expect(matchClockStatus(await readClient(run, 'white'))).toBe('flagged');
-    expect(matchClockStatus(await readClient(run, 'black'))).toBe('flagged');
-    await expectHashMatch(run, 'white');
+    expect(matchClockStatus(await readClient(s, 'white'))).toBe('flagged');
+    expect(matchClockStatus(await readClient(s, 'black'))).toBe('flagged');
+    await expectHashMatch(s, 'white');
   });
 
   test('MC-02: move before flag cancels; opponent clock active', async () => {
-    await using run = await bootMatch(
-      process.env['SIM_SEED'] ?? 'mc-02',
-      20_000
-    );
-    await run.apply(dispatch, {
+    await using s = await bootMatch(process.env['SIM_SEED'] ?? 'mc-02', 20_000);
+    await s.apply(dispatch, {
       clientId: 'white',
       payload: StartMatch({ whiteMs: 100, blackMs: 100 }),
     });
-    await run.elapse(30);
-    await run.apply(dispatch, {
+    await s.elapse(30);
+    await s.apply(dispatch, {
       clientId: 'white',
       payload: Move({}),
     });
 
-    const server = await readServer(run);
+    const server = await readServer(s);
     expect(matchClockStatus(server)).toBe('playing');
     expect(matchClockTurn(server)).toBe('black');
     expect(matchClockWhiteMs(server)).toBe(70);
     expect(matchClockBlackMs(server)).toBe(100);
 
-    await run.elapse(40);
-    expect(matchClockStatus(await readServer(run))).toBe('playing');
+    await s.elapse(40);
+    expect(matchClockStatus(await readServer(s))).toBe('playing');
 
-    await run.elapse(70);
-    await expectConverged(run);
-    expect(matchClockStatus(await readServer(run))).toBe('flagged');
-    expect(matchClockWinner(await readServer(run))).toBe('white');
+    await s.elapse(70);
+    await expectConverged(s);
+    expect(matchClockStatus(await readServer(s))).toBe('flagged');
+    expect(matchClockWinner(await readServer(s))).toBe('white');
   });
 
   test('MC-03: lagging held client cannot move after server flag', async () => {
-    await using run = await bootMatch(
-      process.env['SIM_SEED'] ?? 'mc-03',
-      30_000
-    );
-    await run.apply(dispatch, {
+    await using s = await bootMatch(process.env['SIM_SEED'] ?? 'mc-03', 30_000);
+    await s.apply(dispatch, {
       clientId: 'white',
       payload: StartMatch({ whiteMs: 40, blackMs: 40 }),
     });
 
-    await run.apply(hold, 'white');
-    await run.elapse(50);
-    expect(matchClockStatus(await readServer(run))).toBe('flagged');
-    await run.apply(dispatch, {
+    await s.apply(hold, 'white');
+    await s.elapse(50);
+    expect(matchClockStatus(await readServer(s))).toBe('flagged');
+    await s.apply(dispatch, {
       clientId: 'white',
       payload: Move({}),
     });
-    await run.apply(release, 'white');
+    await s.apply(release, 'white');
 
-    await expectConverged(run);
-    expect(matchClockStatus(await readServer(run))).toBe('flagged');
-    expect(matchClockWinner(await readServer(run))).toBe('black');
-    await expectHashMatch(run, 'white');
-    await expectHashMatch(run, 'black');
+    await expectConverged(s);
+    expect(matchClockStatus(await readServer(s))).toBe('flagged');
+    expect(matchClockWinner(await readServer(s))).toBe('black');
+    await expectHashMatch(s, 'white');
+    await expectHashMatch(s, 'black');
   });
 
   test('MC-04: early client FlagFall rejected; server still flags at at', async () => {
-    await using run = await bootMatch(
-      process.env['SIM_SEED'] ?? 'mc-04',
-      40_000
-    );
-    await run.apply(dispatch, {
+    await using s = await bootMatch(process.env['SIM_SEED'] ?? 'mc-04', 40_000);
+    await s.apply(dispatch, {
       clientId: 'white',
       payload: StartMatch({ whiteMs: 80, blackMs: 80 }),
     });
-    await run.apply(dispatch, {
+    await s.apply(dispatch, {
       clientId: 'white',
       payload: FlagFall({ seat: 'white' }),
     });
-    expect(matchClockStatus(await readServer(run))).toBe('playing');
+    expect(matchClockStatus(await readServer(s))).toBe('playing');
 
-    await run.elapse(90);
-    await expectConverged(run);
-    expect(matchClockStatus(await readServer(run))).toBe('flagged');
-    expect(matchClockWinner(await readServer(run))).toBe('black');
+    await s.elapse(90);
+    await expectConverged(s);
+    expect(matchClockStatus(await readServer(s))).toBe('flagged');
+    expect(matchClockWinner(await readServer(s))).toBe('black');
   });
 
   test('MC-05: soft disconnect during tick; reconnect after flag', async () => {
-    await using run = await bootMatch(
-      process.env['SIM_SEED'] ?? 'mc-05',
-      50_000
-    );
-    await run.apply(dispatch, {
+    await using s = await bootMatch(process.env['SIM_SEED'] ?? 'mc-05', 50_000);
+    await s.apply(dispatch, {
       clientId: 'white',
       payload: StartMatch({ whiteMs: 40, blackMs: 40 }),
     });
-    await run.apply(disconnect, 'white');
-    await run.elapse(50);
-    expect(matchClockStatus(await readServer(run))).toBe('flagged');
-    await run.apply(connect, 'white');
-    await expectConverged(run);
-    expect(matchClockStatus(await readClient(run, 'white'))).toBe('flagged');
-    await expectHashMatch(run, 'white');
+    await s.apply(disconnect, 'white');
+    await s.elapse(50);
+    expect(matchClockStatus(await readServer(s))).toBe('flagged');
+    await s.apply(connect, 'white');
+    await expectConverged(s);
+    expect(matchClockStatus(await readClient(s, 'white'))).toBe('flagged');
+    await expectHashMatch(s, 'white');
   });
 
   test('MC-06: seeded clock workload ×2 identical serverHash', async () => {
     const seed = process.env['SIM_SEED'] ?? 'mc-06';
     const once = async (): Promise<string> => {
-      await using run = await bootMatch(seed, 60_000);
-      await run.apply(dispatch, {
+      await using s = await bootMatch(seed, 60_000);
+      await s.apply(dispatch, {
         clientId: 'white',
         payload: StartMatch({ whiteMs: 100, blackMs: 100 }),
       });
-      await run.elapse(20);
-      await run.apply(dispatch, {
+      await s.elapse(20);
+      await s.apply(dispatch, {
         clientId: 'white',
         payload: Move({}),
       });
-      await run.elapse(15);
-      await run.apply(dispatch, {
+      await s.elapse(15);
+      await s.apply(dispatch, {
         clientId: 'black',
         payload: Move({}),
       });
-      await run.elapse(200);
-      await expectConverged(run);
-      return run.observe(serverHash);
+      await s.elapse(200);
+      await expectConverged(s);
+      return s.observe(serverHash);
     };
     expect(await once()).toBe(await once());
   });

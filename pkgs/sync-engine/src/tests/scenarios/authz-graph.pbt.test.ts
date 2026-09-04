@@ -1,9 +1,7 @@
 import { describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import { assertProperty, fc } from '@pkgs/pbt';
-import { arbKnobs, arbSeed } from '../../sim/scenario/knobs';
+import { arbSeed, arbSyncArgs } from '../../sim/scenario/args';
 import {
-  acmeKnobs,
   acmeSystem,
   clientIds,
   expectConverged,
@@ -12,7 +10,6 @@ import {
   lastMutationFailures,
   lastMutationOk,
   mutate,
-  syncVirtualHost,
 } from '../apps/acme';
 import { deleteNote, setNote } from '../apps/acme/shared/mutations';
 
@@ -24,38 +21,36 @@ describe('authz graph PBT', () => {
         'non-owner delete rejected',
         fc.asyncProperty(
           arbSeed(),
-          arbKnobs(),
+          arbSyncArgs(),
           fc.constantFrom('n0', 'n1'),
           fc.string({ maxLength: 12 }),
-          async (seed, knobs, noteId, body) => {
-            if (knobs.clientCount < 2) return;
-            await using run = await script(acmeSystem, {
+          async (seed, syncArgs, noteId, body) => {
+            if (syncArgs.clientCount < 2) return;
+            await using s = await acmeSystem.script({
               seed,
-              host: syncVirtualHost(),
-              knobs: acmeKnobs(knobs),
-              properties: [],
+              args: syncArgs,
             });
 
-            const [owner, peer] = await run.observe(clientIds);
+            const [owner, peer] = await s.observe(clientIds);
 
-            await run.apply(mutate, owner!, setNote, {
+            await s.apply(mutate, owner!, setNote, {
               id: noteId,
               body,
               title: '',
             });
-            await expectConverged(run);
+            await expectConverged(s);
 
-            await run.apply(mutate, peer!, deleteNote, { id: noteId });
-            if (await run.observe(lastMutationOk, peer!)) {
+            await s.apply(mutate, peer!, deleteNote, { id: noteId });
+            if (await s.observe(lastMutationOk, peer!)) {
               throw new Error('non-owner delete unexpectedly succeeded');
             }
-            expect(await run.observe(lastMutationFailures, peer!)).toContain(
+            expect(await s.observe(lastMutationFailures, peer!)).toContain(
               'FORBIDDEN'
             );
 
-            await expectConverged(run);
-            await expectLiveNoteAt(run, owner!, noteId, { body });
-            await expectLiveNoteAt(run, peer!, noteId, { body });
+            await expectConverged(s);
+            await expectLiveNoteAt(s, owner!, noteId, { body });
+            await expectLiveNoteAt(s, peer!, noteId, { body });
           }
         ),
         { numRuns: 8 }
@@ -84,23 +79,21 @@ describe('authz graph PBT', () => {
             }),
             { minLength: 1, maxLength: 6 }
           ),
-          async (seed, knobs, writes) => {
-            await using run = await script(acmeSystem, {
+          async (seed, syncArgs, writes) => {
+            await using s = await acmeSystem.script({
               seed,
-              host: syncVirtualHost(),
-              knobs: acmeKnobs(knobs),
-              properties: [],
+              args: syncArgs,
             });
 
             for (const w of writes) {
-              await run.apply(mutate, 'c0', setNote, {
+              await s.apply(mutate, 'c0', setNote, {
                 id: w.noteId,
                 body: w.body,
                 title: '',
               });
             }
-            await expectConverged(run);
-            await expectEveryClientNotesAgree(run);
+            await expectConverged(s);
+            await expectEveryClientNotesAgree(s);
           }
         ),
         { numRuns: 6 }

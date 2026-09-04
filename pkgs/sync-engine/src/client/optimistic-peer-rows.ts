@@ -21,51 +21,6 @@ function collectIds(rows: readonly QueryRow[]): string[] {
   return ids;
 }
 
-/** Live domain ids already on this client (before an optimistic upsert). */
-export async function loadLiveRowIds(
-  tx: SqlClient,
-  tables: Readonly<Record<string, readonly QueryRow[]>>
-): Promise<Readonly<Record<string, ReadonlySet<string>>>> {
-  const out: Record<string, Set<string>> = {};
-  for (const [table, rows] of Object.entries(tables)) {
-    assertTableName(table);
-    const ids = collectIds(rows);
-    if (ids.length === 0) continue;
-    const found = new Set<string>();
-    const maxIds = Math.max(1, MAX_SQLITE_VARS - 1);
-    for (let offset = 0; offset < ids.length; offset += maxIds) {
-      const chunk = ids.slice(offset, offset + maxIds);
-      const part = await tx.query(sql<{ id: string }>`
-        SELECT id FROM ${ident(table)}
-        WHERE id IN (${join(chunk.map((id) => sql`${id}`))})
-          AND deleted_at IS NULL
-      `);
-      for (const row of part) found.add(row.id);
-    }
-    out[table] = found;
-  }
-  return out;
-}
-
-export function omitAlreadyLiveRows(
-  tables: Readonly<Record<string, readonly QueryRow[]>>,
-  live: Readonly<Record<string, ReadonlySet<string>>>
-): Record<string, QueryRow[]> {
-  const out: Record<string, QueryRow[]> = {};
-  for (const [table, rows] of Object.entries(tables)) {
-    const present = live[table];
-    const fresh =
-      present === undefined
-        ? [...rows]
-        : rows.filter((row) => {
-            const id = row['id'];
-            return typeof id !== 'string' || !present.has(id);
-          });
-    if (fresh.length > 0) out[table] = fresh;
-  }
-  return out;
-}
-
 /** Record peer-applied optimistic row images so a later snapshot can heal orphans. */
 export async function recordOptimisticPeerRows(
   tx: SqlClient,
@@ -81,14 +36,7 @@ export async function recordOptimisticPeerRows(
       const chunk = ids.slice(offset, offset + maxRows);
       const data = chunk.map(
         (id) =>
-          [
-            optimisticPeerRowId(table, id),
-            table,
-            id,
-            nowIso,
-            nowIso,
-            null,
-          ] as const
+          [optimisticPeerRowId(table, id), table, id, nowIso, nowIso, null] as const
       );
       await tx.run(sql`
         INSERT INTO ${ident(SYNC_ENGINE_OPTIMISTIC_PEER_ROWS)} (
@@ -189,33 +137,6 @@ async function softDeleteOrphanRows(
   }
 }
 
-async function loadPendingMutationIds(tx: SqlClient): Promise<Set<string>> {
-  const rows = await tx.query(sql<{ id: string }>`
-    SELECT id FROM sync_engine_mutations
-    WHERE deleted_at IS NULL
-  `);
-  return new Set(rows.map((row) => row.id));
-}
-
-function markersWithoutPendingOwnWrites(
-  markers: readonly { row_id: string; mutation_id: string | null }[],
-  pendingIds: ReadonlySet<string>
-): { row_id: string }[] {
-  const out: { row_id: string }[] = [];
-  for (const marker of markers) {
-    const mutationId = marker.mutation_id;
-    if (
-      typeof mutationId === 'string' &&
-      mutationId.length > 0 &&
-      pendingIds.has(mutationId)
-    ) {
-      continue;
-    }
-    out.push({ row_id: marker.row_id });
-  }
-  return out;
-}
-
 async function healOrphansForTable(
   tx: SqlClient,
   table: string,
@@ -224,16 +145,12 @@ async function healOrphansForTable(
 ): Promise<boolean> {
   assertTableName(table);
   const present = collectPresentIds(rows);
-  const markers = await tx.query(
-    sql<{ row_id: string; mutation_id: string | null }>`
-      SELECT row_id, mutation_id FROM ${ident(SYNC_ENGINE_OPTIMISTIC_PEER_ROWS)}
-      WHERE table_name = ${table}
-        AND deleted_at IS NULL
-    `
-  );
-  const pendingIds = await loadPendingMutationIds(tx);
-  const healable = markersWithoutPendingOwnWrites(markers, pendingIds);
-  const { confirmed, orphans } = partitionPeerMarkers(healable, present);
+  const markers = await tx.query(sql<{ row_id: string }>`
+    SELECT row_id FROM ${ident(SYNC_ENGINE_OPTIMISTIC_PEER_ROWS)}
+    WHERE table_name = ${table}
+      AND deleted_at IS NULL
+  `);
+  const { confirmed, orphans } = partitionPeerMarkers(markers, present);
   await softDeletePeerRowsChunked(tx, table, confirmed, nowIso);
   await softDeleteOrphanRows(tx, table, orphans, nowIso);
   return orphans.length > 0;

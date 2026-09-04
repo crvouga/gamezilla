@@ -1,11 +1,17 @@
 export type { Awaitable } from './awaitable';
 export { defineAction } from './define-action';
 export { defineProperty } from './define-property';
-export { defineSurface, type SurfaceDefiners } from './define-surface';
 export {
   defineSystem,
+  getSystemRegistry,
+  type HostDef,
+  poolActions,
+  resolveHost,
   type System,
+  type SystemCreate,
   type SystemGenerate,
+  type SystemHostEntry,
+  type SystemRegistry,
 } from './define-system';
 export {
   ACTION_TAG,

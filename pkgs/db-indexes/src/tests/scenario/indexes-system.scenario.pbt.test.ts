@@ -1,17 +1,9 @@
 import { describe, expect, test } from 'bun:test';
-import { explore, script } from '@pkgs/dst';
-import {
-  INDEXES_ACTIONS,
-  INDEXES_PROPERTIES,
-  indexes,
-  ownedIndexCount,
-} from './system';
+import { indexes, ownedIndexCount } from './system';
 
 describe('indexes system PBT', () => {
   test('check + settle invariants', async () => {
-    const report = await explore(indexes, {
-      properties: INDEXES_PROPERTIES,
-      actions: INDEXES_ACTIONS,
+    const report = await indexes.explore({
       episodes: 6,
       steps: 10,
       seed: 1,
@@ -21,10 +13,7 @@ describe('indexes system PBT', () => {
   }, 120_000);
 
   test('start boots reconciler', async () => {
-    await using run = await script(indexes, {
-      seed: 1,
-      properties: INDEXES_PROPERTIES,
-    });
-    expect(await run.observe(ownedIndexCount)).toBe(0);
+    await using s = await indexes.script({ seed: 1 });
+    expect(await s.observe(ownedIndexCount)).toBe(0);
   }, 60_000);
 });

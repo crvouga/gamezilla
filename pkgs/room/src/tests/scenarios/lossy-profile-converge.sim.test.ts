@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import {
+  addClient,
   clientHash,
   connect,
   disconnect,
@@ -7,9 +8,9 @@ import {
   serverHash,
   setNet,
 } from '../../sim/scenario';
+import { counterSystem } from '../apps/counter/system';
 import { expectConverged } from '../expect-converged';
 import { counterValue, Increment } from '../fixtures/counter-module';
-import { bootCounter } from '../scenario/boot-counter';
 import { readClient, readServer } from '../scenario/read-state';
 
 const LOSSY = {
@@ -23,28 +24,35 @@ const LOSSY = {
 describe('room sim: lossy profile converge (E-A04)', () => {
   test('mild faults + reorder/dup still converge after soft cycle', async () => {
     const ids = ['alice', 'bob', 'carol'] as const;
-    await using run = await bootCounter(ids, { mildFaults: true });
+    await using s = await counterSystem.script({
+      seed: 42,
+      args: { mildFaults: true },
+    });
+    for (const id of ids) {
+      await s.apply(addClient, { id });
+    }
+    await expectConverged(s);
 
-    await run.apply(setNet, { clientId: 'bob', next: LOSSY });
+    await s.apply(setNet, { clientId: 'bob', next: LOSSY });
     for (let i = 0; i < 10; i += 1) {
-      await run.apply(dispatch, {
+      await s.apply(dispatch, {
         clientId: ids[i % 3]!,
         payload: Increment({}),
       });
     }
-    await run.apply(setNet, { clientId: 'bob', next: 'ok' });
-    await run.elapse(0);
+    await s.apply(setNet, { clientId: 'bob', next: 'ok' });
+    await s.elapse(0);
 
     for (const id of ids) {
-      await run.apply(disconnect, id);
-      await run.apply(connect, id);
+      await s.apply(disconnect, id);
+      await s.apply(connect, id);
     }
-    await expectConverged(run);
+    await expectConverged(s);
     expect(counterValue(await readServer(run))).toBe(10);
-    const h = await run.observe(serverHash);
-    const hashes = (await run.observe(clientHash)) as Record<string, string>;
+    const h = await s.observe(serverHash);
+    const hashes = (await s.observe(clientHash)) as Record<string, string>;
     for (const id of ids) {
-      expect(counterValue(await readClient(run, id))).toBe(10);
+      expect(counterValue(await readClient(s, id))).toBe(10);
       expect(hashes[id]).toBe(h);
     }
   });

@@ -1,7 +1,5 @@
 import { describe, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import {
-  acmeKnobs,
   acmeSystem,
   addClient,
   createSpace,
@@ -14,7 +12,6 @@ import {
   SPACE_MEMBERSHIP_SESSION,
   setSpaceNote,
   subscribedTopics,
-  syncVirtualHost,
   untilAcme,
 } from '../apps/acme';
 import { expectLiveNoteAt } from '../apps/acme/reads';
@@ -27,48 +24,46 @@ function hasRoom(spaceId: string) {
 
 describe('join paints peer space note via live', () => {
   test('after join, peer space note paints via live while sync held', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 805,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, {
+    await s.apply(addClient, {
       id: 'alice',
       actorId: 'alice',
       sessionQuery: SPACE_MEMBERSHIP_SESSION,
     });
-    await run.apply(addClient, {
+    await s.apply(addClient, {
       id: 'bob',
       actorId: 'bob',
       sessionQuery: SPACE_MEMBERSHIP_SESSION,
     });
 
-    await run.apply(mutate, 'alice', createSpace, {
+    await s.apply(mutate, 'alice', createSpace, {
       id: 'live-room',
       title: 'L',
     });
-    await expectConverged(run);
-    await untilAcme(run, (s) => subscribedTopics(s, 'alice'), {
+    await expectConverged(s);
+    await untilAcme(s, (s) => subscribedTopics(s, 'alice'), {
       pred: hasRoom('live-room'),
     });
 
-    await run.apply(mutate, 'bob', joinSpace, { spaceId: 'live-room' });
-    await untilAcme(run, (s) => subscribedTopics(s, 'bob'), {
+    await s.apply(mutate, 'bob', joinSpace, { spaceId: 'live-room' });
+    await untilAcme(s, (s) => subscribedTopics(s, 'bob'), {
       pred: hasRoom('live-room'),
     });
 
-    await run.apply(hold, 'alice', 'sync');
-    await run.apply(mutate, 'bob', setSpaceNote, {
+    await s.apply(hold, 'alice', 'sync');
+    await s.apply(mutate, 'bob', setSpaceNote, {
       id: 'via-live',
       spaceId: 'live-room',
       body: 'from-bob',
     });
-    await run.elapse(300);
-    await expectLiveNoteAt(run, 'alice', 'via-live', { body: 'from-bob' });
+    await s.elapse(300);
+    await expectLiveNoteAt(s, 'alice', 'via-live', { body: 'from-bob' });
 
-    await run.apply(release, 'alice', 'sync');
-    await expectConverged(run);
+    await s.apply(release, 'alice', 'sync');
+    await expectConverged(s);
   });
 });

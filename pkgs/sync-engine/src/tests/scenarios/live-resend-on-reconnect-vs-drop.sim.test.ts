@@ -1,7 +1,5 @@
 import { describe, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import {
-  acmeKnobs,
   acmeSystem,
   addClient,
   connect,
@@ -15,64 +13,59 @@ import {
   noteBodyIs,
   release,
   setNote,
-  syncVirtualHost,
   untilAcme,
 } from '../apps/acme';
 
 describe('live resend on reconnect vs drop', () => {
   test('default: missed live is dropped; sync pull repairs', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 601,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, { id: 'alice' });
-    await run.apply(addClient, { id: 'bob' });
-    await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
-    await expectConverged(run);
+    await s.apply(addClient, { id: 'alice' });
+    await s.apply(addClient, { id: 'bob' });
+    await s.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
+    await expectConverged(s);
 
-    await run.apply(disconnect, 'bob');
-    await run.apply(hold, 'bob', 'sync');
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'while-down' });
-    await run.elapse(80);
+    await s.apply(disconnect, 'bob');
+    await s.apply(hold, 'bob', 'sync');
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'while-down' });
+    await s.elapse(80);
 
-    await run.apply(connect, 'bob');
-    await neverAcme(run, (s) => liveNote(s, 'bob', 'n1'), { forMs: 200 });
+    await s.apply(connect, 'bob');
+    await neverAcme(s, (s) => liveNote(s, 'bob', 'n1'), { forMs: 200 });
 
-    await run.apply(release, 'bob', 'sync');
-    await expectConverged(run);
-    await expectLiveNoteAt(run, 'bob', 'n1', { body: 'while-down' });
+    await s.apply(release, 'bob', 'sync');
+    await expectConverged(s);
+    await expectLiveNoteAt(s, 'bob', 'n1', { body: 'while-down' });
   });
 
   test('liveResendOnReconnect: consistent from resent live while sync held', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 602,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0, liveResendOnReconnect: true }),
-      properties: [],
+      args: { clientCount: 0, liveResendOnReconnect: true },
     });
 
-    await run.apply(addClient, { id: 'alice' });
-    await run.apply(addClient, { id: 'bob' });
-    await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
-    await expectConverged(run);
+    await s.apply(addClient, { id: 'alice' });
+    await s.apply(addClient, { id: 'bob' });
+    await s.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
+    await expectConverged(s);
 
-    await run.apply(disconnect, 'bob');
-    await run.apply(hold, 'bob', 'sync');
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'resent' });
-    await run.elapse(80);
+    await s.apply(disconnect, 'bob');
+    await s.apply(hold, 'bob', 'sync');
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'resent' });
+    await s.elapse(80);
 
-    await run.apply(connect, 'bob');
-    await untilAcme(run, (s) => liveNote(s, 'bob', 'n1'), {
+    await s.apply(connect, 'bob');
+    await untilAcme(s, (s) => liveNote(s, 'bob', 'n1'), {
       maxMs: 2_000,
       pred: noteBodyIs('resent'),
     });
-    await expectLiveNoteAt(run, 'bob', 'n1', { body: 'resent' });
+    await expectLiveNoteAt(s, 'bob', 'n1', { body: 'resent' });
 
-    await run.apply(release, 'bob', 'sync');
-    await expectConverged(run);
-    await expectLiveNoteAt(run, 'bob', 'n1', { body: 'resent' });
+    await s.apply(release, 'bob', 'sync');
+    await expectConverged(s);
+    await expectLiveNoteAt(s, 'bob', 'n1', { body: 'resent' });
   });
 });

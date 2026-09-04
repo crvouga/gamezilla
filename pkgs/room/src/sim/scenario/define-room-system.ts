@@ -2,15 +2,10 @@ import { defineSystem, type System, virtualHost } from '@pkgs/dst';
 import type { InMemoryRoomStorage } from '../../server/adapters/memory';
 import { createRoomKit } from '../kit';
 import type { RoomApp } from './app';
-import type { RoomKnobs } from './knobs';
+import { ROOM_ARGS, ROOM_DRAW, type RoomArgs } from './args';
 import type { RoomSurface } from './surface';
 
 const SIM_START_MS = 1_700_000_000_000;
-
-/** Default virtual host for room `script` / `explore` call sites. */
-export function roomVirtualHost(startTime: number = SIM_START_MS) {
-  return virtualHost({ startTime });
-}
 
 export type DefineRoomSystemOpts = {
   readonly name?: string;
@@ -18,7 +13,7 @@ export type DefineRoomSystemOpts = {
   readonly storage?: InMemoryRoomStorage;
 };
 
-export type RoomSystemDef = System<RoomSurface, RoomKnobs>;
+export type RoomSystemDef = System<RoomSurface, RoomArgs>;
 
 async function bootClients(
   kit: Awaited<ReturnType<typeof createRoomKit>>,
@@ -30,24 +25,26 @@ async function bootClients(
 }
 
 /**
- * Room system: boots one kit from typed knobs and returns {@link RoomSurface}.
+ * Room system: boots one kit from typed args and returns {@link RoomSurface}.
  */
 export function defineRoomSystem(
   app: RoomApp,
   opts?: DefineRoomSystemOpts
 ): RoomSystemDef {
-  return defineSystem({
+  const system = defineSystem({
     name: opts?.name ?? 'room',
-    async generate(session, knobs: RoomKnobs) {
+    args: ROOM_ARGS,
+    draw: ROOM_DRAW,
+    async create(session, args: RoomArgs) {
       const kit = await createRoomKit({
         session,
         module: app.module,
-        mildFaults: knobs.mildFaults,
+        mildFaults: args.mildFaults,
         ...(opts?.topic !== undefined ? { topic: opts.topic } : {}),
         ...(opts?.storage !== undefined ? { storage: opts.storage } : {}),
         ...(app.authorize !== undefined ? { authorize: app.authorize } : {}),
       });
-      await bootClients(kit, knobs.clientCount);
+      await bootClients(kit, args.clientCount);
       // Room loopback / aux IO settles via kit.drain — not bare scheduler.settle.
       const mutable = session as {
         settle: () => Promise<void>;
@@ -62,7 +59,15 @@ export function defineRoomSystem(
       } satisfies RoomSurface;
     },
   });
+
+  system.host({
+    default: true,
+    name: 'virtual',
+    create: () => virtualHost({ startTime: SIM_START_MS }),
+  });
+
+  return system;
 }
 
-export type { RoomSurface };
+export type { RoomArgs, RoomSurface };
 export { SIM_START_MS };

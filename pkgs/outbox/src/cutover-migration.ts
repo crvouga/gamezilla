@@ -8,8 +8,8 @@ import { OUTBOX_DELIVERIES_TABLE, OUTBOX_EVENTS_TABLE } from './schema/tables';
 
 /**
  * One-shot Postgres cutover from raw outbox DDL to defineTable shape:
- * rebuild events from TEXT onto jsonb/timestamptz; rebuild deliveries with
- * TEXT `id` PK. No-op when tables are missing (fresh DB).
+ * drop NOT NULL, add managed columns / rebuild deliveries with TEXT `id` PK.
+ * No-op when tables are missing (fresh DB).
  */
 export class OutboxCutoverMigration implements DatabaseMigration {
   async migrate(ctx: DatabaseMigrationContext): Promise<void> {
@@ -39,17 +39,9 @@ async function hasColumn(
   table: string,
   column: string
 ): Promise<boolean> {
-  return (await columnUdt(ctx, table, column)) !== null;
-}
-
-async function columnUdt(
-  ctx: DatabaseMigrationContext,
-  table: string,
-  column: string
-): Promise<string | null> {
-  const rows = await ctx.sqlClient.query<{ udt_name: string }>(
+  const rows = await ctx.sqlClient.query<{ one: number }>(
     unsafe(`
-      SELECT udt_name
+      SELECT 1 AS one
       FROM information_schema.columns
       WHERE table_schema = current_schema()
         AND table_name = '${table}'
@@ -57,7 +49,7 @@ async function columnUdt(
       LIMIT 1
     `)
   );
-  return rows[0]?.udt_name ?? null;
+  return rows.length > 0;
 }
 
 async function dropNotNullNonPk(
@@ -93,81 +85,27 @@ async function cutoverEvents(ctx: DatabaseMigrationContext): Promise<void> {
     ctx.logger.info('outbox cutover: outbox_events missing (fresh)');
     return;
   }
-  if (!(await outboxEventsNeedsRebuild(ctx))) {
-    await dropNotNullNonPk(ctx, OUTBOX_EVENTS_TABLE);
-    ctx.logger.info('outbox cutover: outbox_events already typed');
-    return;
+  await dropNotNullNonPk(ctx, OUTBOX_EVENTS_TABLE);
+  if (!(await hasColumn(ctx, OUTBOX_EVENTS_TABLE, 'updated_at'))) {
+    await ctx.sqlClient.run(
+      unsafe(
+        `ALTER TABLE ${OUTBOX_EVENTS_TABLE} ADD COLUMN IF NOT EXISTS updated_at text`
+      )
+    );
+    await ctx.sqlClient.run(
+      unsafe(
+        `UPDATE ${OUTBOX_EVENTS_TABLE} SET updated_at = created_at WHERE updated_at IS NULL`
+      )
+    );
   }
-  await rebuildOutboxEvents(ctx);
-}
-
-async function outboxEventsNeedsRebuild(
-  ctx: DatabaseMigrationContext
-): Promise<boolean> {
-  const payload = await columnUdt(ctx, OUTBOX_EVENTS_TABLE, 'payload');
-  const createdAt = await columnUdt(ctx, OUTBOX_EVENTS_TABLE, 'created_at');
-  const availableAt = await columnUdt(ctx, OUTBOX_EVENTS_TABLE, 'available_at');
-  return (
-    payload !== 'jsonb' ||
-    createdAt !== 'timestamptz' ||
-    availableAt !== 'timestamptz'
-  );
-}
-
-async function rebuildOutboxEvents(
-  ctx: DatabaseMigrationContext
-): Promise<void> {
-  const table = OUTBOX_EVENTS_TABLE;
-  const next = `${table}_next`;
-  await ctx.sqlClient.run(unsafe(`DROP TABLE IF EXISTS ${next}`));
-  await ctx.sqlClient.run(
-    unsafe(`
-      CREATE TABLE ${next} (
-        id text PRIMARY KEY,
-        type text,
-        payload jsonb,
-        available_at timestamptz,
-        created_at timestamptz,
-        updated_at timestamptz,
-        deleted_at timestamptz
+  if (!(await hasColumn(ctx, OUTBOX_EVENTS_TABLE, 'deleted_at'))) {
+    await ctx.sqlClient.run(
+      unsafe(
+        `ALTER TABLE ${OUTBOX_EVENTS_TABLE} ADD COLUMN IF NOT EXISTS deleted_at text`
       )
-    `)
-  );
-  await copyOutboxEventRows(ctx, next);
-  await ctx.sqlClient.run(unsafe(`DROP TABLE ${table} CASCADE`));
-  await ctx.sqlClient.run(unsafe(`ALTER TABLE ${next} RENAME TO ${table}`));
-  ctx.logger.info('outbox cutover: outbox_events rebuilt');
-}
-
-async function copyOutboxEventRows(
-  ctx: DatabaseMigrationContext,
-  next: string
-): Promise<void> {
-  const table = OUTBOX_EVENTS_TABLE;
-  const updatedAt = (await hasColumn(ctx, table, 'updated_at'))
-    ? 'COALESCE(updated_at::timestamptz, created_at::timestamptz)'
-    : 'created_at::timestamptz';
-  const deletedAt = (await hasColumn(ctx, table, 'deleted_at'))
-    ? 'deleted_at::timestamptz'
-    : 'NULL';
-  await ctx.sqlClient.run(
-    unsafe(`
-      INSERT INTO ${next} (
-        id, type, payload, available_at, created_at, updated_at, deleted_at
-      )
-      SELECT
-        id, type,
-        CASE
-          WHEN btrim(COALESCE(payload::text, '')) = '' THEN NULL
-          ELSE payload::text::jsonb
-        END,
-        available_at::timestamptz,
-        created_at::timestamptz,
-        ${updatedAt},
-        ${deletedAt}
-      FROM ${table}
-    `)
-  );
+    );
+  }
+  ctx.logger.info('outbox cutover: outbox_events ready');
 }
 
 async function cutoverDeliveries(ctx: DatabaseMigrationContext): Promise<void> {

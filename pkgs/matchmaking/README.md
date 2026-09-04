@@ -66,7 +66,7 @@ drive it with `apply` / `observe`; there is no direct surface access.
 
 ```text
 pkgs/matchmaking/src/
-  sim/scenario/                   # defineMatchmakingSystem + node kinds
+  sim/scenario/                   # matchmaking system + node kinds
   testkit.ts                    # @pkgs/matchmaking/testing facade
   tests/
     fixtures/
@@ -76,25 +76,21 @@ pkgs/matchmaking/src/
 ```
 
 ```ts
-import { script } from '@pkgs/dst';
 import {
   join,
-  MATCHMAKING_PROPERTIES,
   matchmaking,
-  matchmakingKnobs,
   RatingAttr,
   statusOf,
   tickAllWith,
 } from '@pkgs/matchmaking/testing';
 
-await using run = await script(matchmaking, {
+await using s = await matchmaking.script({
   seed: 3,
-  knobs: matchmakingKnobs({ replicas: 3 }),
-  // backend: 'postgres' via knobs — required for concurrent tickAll claim races
-  properties: MATCHMAKING_PROPERTIES,
+  // backend: 'postgres' — required for concurrent tickAll claim races
+  args: { replicas: 3 },
 });
 
-await run.apply(join, {
+await s.apply(join, {
   ref: 'a',
   replicaId: 'r0',
   input: {
@@ -102,13 +98,13 @@ await run.apply(join, {
     formulas: [{ numeric: [{ tag: RatingAttr, weight: 1 }] }],
   },
 });
-await run.apply(tickAllWith, { maxPassesPerPartition: 4 });
-expect(await run.observe(statusOf, 'a')).not.toBeNull();
+await s.apply(tickAllWith, { maxPassesPerPartition: 4 });
+expect(await s.observe(statusOf, 'a')).not.toBeNull();
 ```
 
 | Concept | API |
 |---------|-----|
-| Time | `run.elapse`; radius waits via `stepTime` + `run.observe(matched, …)` |
+| Time | `s.elapse`; radius waits via `stepTime` + `s.observe(matched, …)` |
 | Replicas | `addReplica`, `tick` / `tickAll` / `tickAllWith` actions |
 | Port | `join` / `leave` / `ready` / `updateFormulas` / `httpRequest` actions; `statusOf` / `statuses` / `lastTick` / `lastHttp` reads |
 

@@ -1,5 +1,4 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import type { TickResult } from '../../interface/matchmaking';
 import type {
   DistanceFormula,
@@ -9,9 +8,7 @@ import {
   join,
   lastTick,
   lastUpdate,
-  MATCHMAKING_PROPERTIES,
   matchmaking,
-  matchmakingKnobs,
   tick,
   updateFormulas,
 } from '../../sim/scenario';
@@ -31,11 +28,7 @@ describe('matchmaking sim: updateFormulas', () => {
   });
 
   test('widening criteria mid-wait allows a previously-rejected peer', async () => {
-    await using run = await script(matchmaking, {
-      seed: 100,
-      knobs: matchmakingKnobs(),
-      properties: MATCHMAKING_PROPERTIES,
-    });
+    await using s = await matchmaking.script({ seed: 100 });
     const tight: DistanceFormula = {
       numeric: [{ tag: RatingAttr, weight: 1 }],
       radius: { baseRadius: 5, radiusGrowthPerSecond: 0, maxRadius: 5 },
@@ -44,49 +37,45 @@ describe('matchmaking sim: updateFormulas', () => {
       numeric: [{ tag: RatingAttr, weight: 1 }],
       radius: { baseRadius: 200, radiusGrowthPerSecond: 0, maxRadius: 200 },
     };
-    await run.apply(join, {
+    await s.apply(join, {
       ref: 'a',
       input: { data: RatingAttr(1000), formulas: [tight] },
     });
-    await run.apply(join, {
+    await s.apply(join, {
       ref: 'b',
       input: { data: RatingAttr(1050), formulas: [open] },
     });
-    await run.apply(tick, onePass);
-    expect(((await run.observe(lastTick)) as TickResult).matches).toBe(0);
-    await run.apply(updateFormulas, { ref: 'a', formulas: [open] });
+    await s.apply(tick, onePass);
+    expect(((await s.observe(lastTick)) as TickResult).matches).toBe(0);
+    await s.apply(updateFormulas, { ref: 'a', formulas: [open] });
     expect(
-      ((await run.observe(lastUpdate)) as UpdateFormulasResult).updated
+      ((await s.observe(lastUpdate)) as UpdateFormulasResult).updated
     ).toBe(true);
-    await run.apply(tick, onePass);
-    expect(((await run.observe(lastTick)) as TickResult).matches).toBe(1);
+    await s.apply(tick, onePass);
+    expect(((await s.observe(lastTick)) as TickResult).matches).toBe(1);
   });
 
   test('returns updated:false for unknown / matched', async () => {
-    await using run = await script(matchmaking, {
-      seed: 101,
-      knobs: matchmakingKnobs(),
-      properties: MATCHMAKING_PROPERTIES,
-    });
-    await run.apply(updateFormulas, {
+    await using s = await matchmaking.script({ seed: 101 });
+    await s.apply(updateFormulas, {
       participantId: UNKNOWN_ID,
       formulas: [SimpleFormula],
     });
     expect(
-      ((await run.observe(lastUpdate)) as UpdateFormulasResult).updated
+      ((await s.observe(lastUpdate)) as UpdateFormulasResult).updated
     ).toBe(false);
-    await run.apply(join, {
+    await s.apply(join, {
       ref: 'a',
       input: { data: RatingAttr(1000), formulas: [SimpleFormula] },
     });
-    await run.apply(join, {
+    await s.apply(join, {
       ref: 'b',
       input: { data: RatingAttr(1010), formulas: [SimpleFormula] },
     });
-    await run.apply(tick, onePass);
-    await run.apply(updateFormulas, { ref: 'a', formulas: [SimpleFormula] });
+    await s.apply(tick, onePass);
+    await s.apply(updateFormulas, { ref: 'a', formulas: [SimpleFormula] });
     expect(
-      ((await run.observe(lastUpdate)) as UpdateFormulasResult).updated
+      ((await s.observe(lastUpdate)) as UpdateFormulasResult).updated
     ).toBe(false);
   });
 });

@@ -3,7 +3,7 @@
  */
 
 import { expect } from 'bun:test';
-import type { Run } from '@pkgs/dst';
+import type { Script } from '@pkgs/dst';
 import type { StatusResult } from '../../interface/types';
 import {
   type MatchmakingSurface,
@@ -14,12 +14,12 @@ import {
 } from '../../sim/scenario';
 import { expectMatched } from './attrs';
 
-export type MatchmakingRun = Run<MatchmakingSurface>;
+export type MatchmakingScript = Script<MatchmakingSurface>;
 
 /** Stable digest of every aliased participant's match outcome. */
-export async function matchFingerprint(run: MatchmakingRun): Promise<string> {
-  const ids = await run.observe(participantIds);
-  const all = (await run.observe(statuses)) as Record<
+export async function matchFingerprint(s: MatchmakingScript): Promise<string> {
+  const ids = await s.observe(participantIds);
+  const all = (await s.observe(statuses)) as Record<
     string,
     StatusResult | null
   >;
@@ -42,10 +42,10 @@ export async function matchFingerprint(run: MatchmakingRun): Promise<string> {
 
 /** Every replica returns the same status for this participant. */
 export async function assertStatusAgreesAcrossReplicas(
-  run: MatchmakingRun,
+  s: MatchmakingScript,
   participantId: string
 ): Promise<StatusResult | null> {
-  const byReplica = (await run.observe(
+  const byReplica = (await s.observe(
     statusAcrossReplicas,
     participantId
   )) as Record<string, StatusResult | null>;
@@ -60,14 +60,14 @@ export async function assertStatusAgreesAcrossReplicas(
 }
 
 async function collectMatchGroups(
-  run: MatchmakingRun,
+  s: MatchmakingScript,
   participantIds: readonly string[],
   groupSize: number
 ): Promise<{ byMatch: Map<string, Set<string>>; waiting: number }> {
   const byMatch = new Map<string, Set<string>>();
   let waiting = 0;
   for (const participantId of participantIds) {
-    const st = await assertStatusAgreesAcrossReplicas(run, participantId);
+    const st = await assertStatusAgreesAcrossReplicas(s, participantId);
     if (st === null) {
       throw new Error(`participant ${participantId} missing from all replicas`);
     }
@@ -93,7 +93,7 @@ async function collectMatchGroups(
  * agree, optional groupSize - 1 peers.
  */
 export async function assertMatchInvariants(
-  run: MatchmakingRun,
+  s: MatchmakingScript,
   participantIds: readonly string[],
   opts?: { readonly groupSize?: number }
 ): Promise<{ readonly matchCount: number; readonly waiting: number }> {
@@ -106,7 +106,7 @@ export async function assertMatchInvariants(
   for (const [matchId, members] of byMatch) {
     expect(members.size).toBe(groupSize);
     for (const id of members) {
-      const st = expectMatched(await run.observe(statusById, id));
+      const st = expectMatched(await s.observe(statusById, id));
       expect(st.matchId).toBe(matchId);
       expect(new Set([id, ...st.peers.map((x) => x.participantId)])).toEqual(
         members

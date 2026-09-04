@@ -1,4 +1,4 @@
-import type { JsonValue, Read, Run } from '@pkgs/dst';
+import type { JsonValue, Read, Script } from '@pkgs/dst';
 import type { SyncSurface } from '../../../sim/scenario';
 
 /** Sync default step — hydrate / upload / pubsub each need a scheduler slice. */
@@ -17,15 +17,15 @@ export type NeverAcmeOpts = {
 };
 
 /**
- * Thin acme defaults over `run.until`. Prefer calling dst directly with a
- * zero-arg read (or wrap args: `run.until((s) => liveNote(s, id, n))`).
+ * Thin acme defaults over `s.until`. Prefer calling dst directly with a
+ * zero-arg read (or wrap args: `s.until((s) => liveNote(s, id, n))`).
  */
 export async function untilAcme<T extends JsonValue>(
-  run: Run<SyncSurface>,
+  s: Script<SyncSurface>,
   read: Read<SyncSurface, [], T>,
   opts?: UntilAcmeOpts
 ): Promise<T> {
-  return run.until(read, {
+  return s.until(read, {
     stepMs: opts?.stepMs ?? ACME_STEP_MS,
     ...(opts?.maxMs !== undefined ? { maxMs: opts.maxMs } : {}),
     ...(opts?.pred !== undefined
@@ -34,13 +34,13 @@ export async function untilAcme<T extends JsonValue>(
   });
 }
 
-/** Thin acme defaults over `run.never`. Prefer calling dst directly. */
+/** Thin acme defaults over `s.never`. Prefer calling dst directly. */
 export async function neverAcme<T extends JsonValue>(
-  run: Run<SyncSurface>,
+  s: Script<SyncSurface>,
   read: Read<SyncSurface, [], T>,
   opts: NeverAcmeOpts
 ): Promise<void> {
-  return run.never(read, {
+  return s.never(read, {
     forMs: opts.forMs,
     stepMs: opts.stepMs ?? ACME_STEP_MS,
     ...(opts.pred !== undefined

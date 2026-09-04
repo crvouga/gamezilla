@@ -1,4 +1,4 @@
-import { type Action, defineSurface } from '@pkgs/dst';
+import { type Action, defineAction } from '@pkgs/dst';
 import { gen } from '@pkgs/dst/fast-check';
 import fc from 'fast-check';
 import type { RoomCrashEvent } from '../boundary-faults';
@@ -20,8 +20,6 @@ import {
 import { prepareClientsForConverge } from './play';
 import type { RoomSurface } from './surface';
 
-const { defineAction } = defineSurface<RoomSurface>();
-
 type AddClientSpec = {
   readonly id: string;
   readonly identity?: string;
@@ -37,27 +35,33 @@ function pickClientId(ids: readonly string[]) {
   return gen(fc.constantFrom(...(ids as [string, ...string[]])));
 }
 
-export const addClient = defineAction({
+export const addClient = defineAction<RoomSurface, [AddClientSpec]>({
   name: 'addClient',
-  act: async (s, spec: AddClientSpec) => {
+  pool: false,
+  act: async (s, spec) => {
     if (s.kit.clients.has(spec.id)) return;
     await s.kit.addClient(spec);
   },
 });
 
-export const dispatch = defineAction({
+export const dispatch = defineAction<
+  RoomSurface,
+  [{ readonly clientId: string; readonly payload: unknown }]
+>({
   name: 'dispatch',
-  act: (s, spec: { readonly clientId: string; readonly payload: unknown }) => {
+  pool: false,
+  act: (s, spec) => {
     const c = s.kit.clients.get(spec.clientId);
     if (c === undefined || spec.payload == null) return;
     c.dispatch(spec.payload as never);
   },
 });
 
-/** Scripted domain op — `run.apply(domain, { kind: 'domain', clientId, … })`. */
-export const domain = defineAction({
+/** Scripted domain op — `s.apply(domain, { kind: 'domain', clientId, … })`. */
+export const domain = defineAction<RoomSurface, [DomainOp]>({
   name: 'domain',
-  act: (s, op: DomainOp) => {
+  pool: false,
+  act: (s, op) => {
     const c = s.kit.clients.get(op.clientId);
     if (c === undefined) return;
     c.dispatch(s.app.toPayload(op));
@@ -66,19 +70,19 @@ export const domain = defineAction({
 
 /** Random pool domain action — draws from the app's domainOpArbs. */
 export function domainAction(app: RoomApp): Action<RoomSurface, [DomainOp]> {
-  return defineAction({
+  return defineAction<RoomSurface, [DomainOp]>({
     name: 'domain',
     enabled: (s) => {
       const ids = connected(s);
       return ids.length > 0 && app.domainOpArbs({ clientIds: ids }).length > 0;
     },
     weight: 3,
-    args: (s) => {
+    draw: (s) => {
       const ids = connected(s);
       const arbs = app.domainOpArbs({ clientIds: ids });
       return gen(fc.oneof(...arbs));
     },
-    act: (s, op: DomainOp) => {
+    act: (s, op) => {
       const c = s.kit.clients.get(op.clientId);
       if (c === undefined) return;
       c.dispatch(s.app.toPayload(op));
@@ -86,114 +90,114 @@ export function domainAction(app: RoomApp): Action<RoomSurface, [DomainOp]> {
   });
 }
 
-export const hold = defineAction({
+export const hold = defineAction<RoomSurface, [string]>({
   name: 'hold',
   enabled: (s) => clientIds(s).length > 0,
-  args: (s) => pickClientId(clientIds(s)),
-  act: (s, id: string) => {
+  draw: (s) => pickClientId(clientIds(s)),
+  act: (s, id) => {
     s.kit.net(id).set('hold');
   },
 });
 
-export const release = defineAction({
+export const release = defineAction<RoomSurface, [string]>({
   name: 'release',
   enabled: (s) => clientIds(s).length > 0,
-  args: (s) => pickClientId(clientIds(s)),
-  act: (s, id: string) => {
+  draw: (s) => pickClientId(clientIds(s)),
+  act: (s, id) => {
     s.kit.net(id).set('ok');
   },
 });
 
-export const down = defineAction({
+export const down = defineAction<RoomSurface, [string]>({
   name: 'down',
   enabled: (s) => clientIds(s).length > 0,
-  args: (s) => pickClientId(clientIds(s)),
-  act: (s, id: string) => {
+  draw: (s) => pickClientId(clientIds(s)),
+  act: (s, id) => {
     s.kit.net(id).set('down');
   },
 });
 
-export const disconnect = defineAction({
+export const disconnect = defineAction<RoomSurface, [string]>({
   name: 'disconnect',
   enabled: (s) => clientIds(s).length > 0,
-  args: (s) => pickClientId(clientIds(s)),
-  act: async (s, id: string) => {
+  draw: (s) => pickClientId(clientIds(s)),
+  act: async (s, id) => {
     await s.kit.clients.get(id)?.disconnect();
   },
 });
 
-export const connect = defineAction({
+export const connect = defineAction<RoomSurface, [string]>({
   name: 'connect',
   enabled: (s) => clientIds(s).length > 0,
-  args: (s) => pickClientId(clientIds(s)),
-  act: async (s, id: string) => {
+  draw: (s) => pickClientId(clientIds(s)),
+  act: async (s, id) => {
     await s.kit.clients.get(id)?.connect();
   },
 });
 
-export const takeOver = defineAction({
+export const takeOver = defineAction<RoomSurface, [string]>({
   name: 'takeOver',
   enabled: (s) => clientIds(s).length > 0,
-  args: (s) => pickClientId(clientIds(s)),
-  act: async (s, id: string) => {
+  draw: (s) => pickClientId(clientIds(s)),
+  act: async (s, id) => {
     await s.kit.node(id).takeOver();
   },
 });
 
-export const crash = defineAction({
+export const crash = defineAction<RoomSurface, [string]>({
   name: 'crash',
   enabled: (s) => {
     const crashed = new Set(crashedIds(s));
     return clientIds(s).some((id) => !crashed.has(id));
   },
-  args: (s) => {
+  draw: (s) => {
     const crashed = new Set(crashedIds(s));
     return pickClientId(clientIds(s).filter((id) => !crashed.has(id)));
   },
-  act: async (s, id: string) => {
+  act: async (s, id) => {
     await s.kit.node(id).crash();
   },
 });
 
-export const restart = defineAction({
+export const restart = defineAction<RoomSurface, [string]>({
   name: 'restart',
   enabled: (s) => clientIds(s).length > 0,
-  args: (s) => pickClientId(clientIds(s)),
-  act: async (s, id: string) => {
+  draw: (s) => pickClientId(clientIds(s)),
+  act: async (s, id) => {
     const c = s.kit.clients.get(id);
     if (c !== undefined && !c.isCrashed()) await s.kit.node(id).crash();
     await s.kit.node(id).restart();
   },
 });
 
-export const clearLocalData = defineAction({
+export const clearLocalData = defineAction<RoomSurface, [string]>({
   name: 'clearLocalData',
   enabled: (s) => clientIds(s).length > 0,
-  args: (s) => pickClientId(clientIds(s)),
-  act: async (s, id: string) => {
+  draw: (s) => pickClientId(clientIds(s)),
+  act: async (s, id) => {
     await s.kit.node(id).clearLocalData();
   },
 });
 
-export const setFaults = defineAction({
+export const setFaults = defineAction<RoomSurface, [string]>({
   name: 'setFaults',
   enabled: (s) => clientIds(s).length > 0,
-  args: (s) => pickClientId(clientIds(s)),
-  act: (s, id: string) => {
+  draw: (s) => pickClientId(clientIds(s)),
+  act: (s, id) => {
     s.kit.net(id).set(MILD_NET_FAULTS);
   },
 });
 
-export const asymmetricLink = defineAction({
+export const asymmetricLink = defineAction<RoomSurface, [string]>({
   name: 'asymmetricLink',
   enabled: (s) => clientIds(s).length > 0,
-  args: (s) => pickClientId(clientIds(s)),
-  act: (s, id: string) => {
+  draw: (s) => pickClientId(clientIds(s)),
+  act: (s, id) => {
     s.kit.net(id).set({ toClient: 'hold', toServer: 'ok' });
   },
 });
 
-export const serverCrash = defineAction({
+export const serverCrash = defineAction<RoomSurface>({
   name: 'serverCrash',
   enabled: (s) => !serverCrashed(s),
   act: async (s) => {
@@ -201,7 +205,7 @@ export const serverCrash = defineAction({
   },
 });
 
-export const serverRestart = defineAction({
+export const serverRestart = defineAction<RoomSurface>({
   name: 'serverRestart',
   enabled: (s) => serverCrashed(s),
   act: async (s) => {
@@ -209,85 +213,97 @@ export const serverRestart = defineAction({
   },
 });
 
-export const partition = defineAction({
+export const partition = defineAction<RoomSurface, [string]>({
   name: 'partition',
   enabled: (s) => caps(s).includes('partition') && clientIds(s).length > 0,
   weight: (s) => (partitioned(s).length === 0 ? 2 : 1),
-  args: (s) => pickClientId(clientIds(s)),
-  act: (s, id: string) => {
+  draw: (s) => pickClientId(clientIds(s)),
+  act: (s, id) => {
     s.session.network.partition(ROOM_SERVER_ENDPOINT, roomClientEndpoint(id));
   },
 });
 
-export const heal = defineAction({
+export const heal = defineAction<RoomSurface>({
   name: 'heal',
   weight: (s) =>
     Math.max(
       1,
       partitioned(s).length + heldClients(s).length + downClients(s).length
     ),
-  act: (s) => {
+  act: async (s) => {
     if (caps(s).includes('partition')) s.session.network.healAll();
-    for (const id of s.kit.clients.keys()) s.kit.net(id).set('ok');
+    await prepareClientsForConverge(s.kit);
+    await s.kit.revive();
   },
 });
 
-export const revive = defineAction({
+export const revive = defineAction<RoomSurface>({
   name: 'revive',
+  pool: false,
   act: async (s) => {
     await prepareClientsForConverge(s.kit);
     await s.kit.revive();
   },
 });
 
-export const clearFaults = defineAction({
+export const clearFaults = defineAction<RoomSurface>({
   name: 'clearFaults',
+  pool: false,
   act: (s) => {
     s.kit.clearBoundaryFaults();
   },
 });
 
-export const armCrashAt = defineAction({
+export const armCrashAt = defineAction<RoomSurface, [ArmCrashAtSpec]>({
   name: 'armCrashAt',
-  act: (s, spec: ArmCrashAtSpec) => {
+  pool: false,
+  act: (s, spec) => {
     s.kit.armCrashAt(spec.clientId, spec.event);
   },
 });
 
-export const injectToServer = defineAction({
-  name: 'injectToServer',
-  act: async (
-    s,
-    spec: {
+export const injectToServer = defineAction<
+  RoomSurface,
+  [
+    {
       readonly clientId: string;
       readonly raw: unknown;
       readonly direct?: boolean;
-    }
-  ) => {
+    },
+  ]
+>({
+  name: 'injectToServer',
+  pool: false,
+  act: (s, spec) => {
     s.kit.clients.get(spec.clientId)?.injectToServer(spec.raw, {
       ...(spec.direct === true ? { direct: true } : {}),
     });
   },
 });
 
-export const injectFromServer = defineAction({
+export const injectFromServer = defineAction<
+  RoomSurface,
+  [{ readonly clientId: string; readonly raw: unknown }]
+>({
   name: 'injectFromServer',
-  act: (s, spec: { readonly clientId: string; readonly raw: unknown }) => {
+  pool: false,
+  act: (s, spec) => {
     s.kit.clients.get(spec.clientId)?.injectFromServer(spec.raw);
   },
 });
 
-export const setNet = defineAction({
+export const setNet = defineAction<
+  RoomSurface,
+  [{ readonly clientId: string; readonly next: RoomNetSetArg }]
+>({
   name: 'setNet',
-  act: (
-    s,
-    spec: { readonly clientId: string; readonly next: RoomNetSetArg }
-  ) => {
+  pool: false,
+  act: (s, spec) => {
     s.kit.net(spec.clientId).set(spec.next);
   },
 });
 
-export const addSpectator = defineAction({
+export const addSpectator = defineAction<RoomSurface>({
   name: 'addSpectator',
   enabled: (s) => !s.kit.clients.has('spec0'),
   act: async (s) => {
@@ -300,7 +316,7 @@ export const addSpectator = defineAction({
   },
 });
 
-/** Walk / explore pool — scripted variants take explicit args via `run.apply`. */
+/** Walk / explore pool — one entry per randomly sampled library fault. */
 export const LIBRARY_ACTIONS = [
   hold,
   release,
@@ -320,8 +336,17 @@ export const LIBRARY_ACTIONS = [
   clearLocalData,
 ] as const;
 
-export function roomActions(app: RoomApp) {
-  return [domainAction(app), ...LIBRARY_ACTIONS];
-}
-
-export const ROOM_ACTIONS = LIBRARY_ACTIONS;
+/**
+ * Out-of-pool actions — they need careful sequencing, so scripted tests drive
+ * them via `s.apply`. Registered so `replay` can still dispatch by name.
+ */
+export const SCRIPTED_ACTIONS = [
+  addClient,
+  dispatch,
+  armCrashAt,
+  injectToServer,
+  injectFromServer,
+  setNet,
+  clearFaults,
+  revive,
+] as const;

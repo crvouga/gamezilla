@@ -1,13 +1,10 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import type { LeaveResult, StatusResult } from '../../interface/types';
 import {
   join,
   lastLeave,
   leave,
-  MATCHMAKING_PROPERTIES,
   matchmaking,
-  matchmakingKnobs,
   participantIds,
   ready,
   statusById,
@@ -29,21 +26,17 @@ describe('matchmaking sim: join / status / leave', () => {
   });
 
   test('round-trips participant data through status while waiting', async () => {
-    await using run = await script(matchmaking, {
-      seed: 1,
-      knobs: matchmakingKnobs(),
-      properties: MATCHMAKING_PROPERTIES,
-    });
-    await run.apply(join, {
+    await using s = await matchmaking.script({ seed: 1 });
+    await s.apply(join, {
       ref: 'alice',
       input: {
         data: { ...RatingAttr(1500), ...NameAttr('alice') },
         formulas: [SimpleFormula],
       },
     });
-    const ids = await run.observe(participantIds);
+    const ids = await s.observe(participantIds);
     expect(typeof ids['alice']).toBe('string');
-    const status = (await run.observe(statusOf, 'alice')) as StatusResult;
+    const status = (await s.observe(statusOf, 'alice')) as StatusResult;
     expect(status).not.toBeNull();
     expect(status.status).toBe('waiting');
     expect(status.data as Record<string, unknown>).toEqual({
@@ -53,72 +46,52 @@ describe('matchmaking sim: join / status / leave', () => {
   });
 
   test('status returns null for unknown id', async () => {
-    await using run = await script(matchmaking, {
-      seed: 2,
-      knobs: matchmakingKnobs(),
-      properties: MATCHMAKING_PROPERTIES,
-    });
-    expect(await run.observe(statusById, UNKNOWN_ID)).toBeNull();
+    await using s = await matchmaking.script({ seed: 2 });
+    expect(await s.observe(statusById, UNKNOWN_ID)).toBeNull();
   });
 
   test('leave removes the row', async () => {
-    await using run = await script(matchmaking, {
-      seed: 3,
-      knobs: matchmakingKnobs(),
-      properties: MATCHMAKING_PROPERTIES,
-    });
-    await run.apply(join, {
+    await using s = await matchmaking.script({ seed: 3 });
+    await s.apply(join, {
       ref: 'p',
       input: { data: RatingAttr(1000), formulas: [SimpleFormula] },
     });
-    await run.apply(leave, { ref: 'p' });
-    expect(((await run.observe(lastLeave)) as LeaveResult).removed).toBe(true);
-    expect(await run.observe(statusOf, 'p')).toBeNull();
+    await s.apply(leave, { ref: 'p' });
+    expect(((await s.observe(lastLeave)) as LeaveResult).removed).toBe(true);
+    expect(await s.observe(statusOf, 'p')).toBeNull();
   });
 
   test('ready() is idempotent', async () => {
-    await using run = await script(matchmaking, {
-      seed: 4,
-      knobs: matchmakingKnobs(),
-      properties: MATCHMAKING_PROPERTIES,
-    });
-    await run.apply(ready, {});
-    await run.apply(ready, {});
-    await run.apply(join, {
+    await using s = await matchmaking.script({ seed: 4 });
+    await s.apply(ready, {});
+    await s.apply(ready, {});
+    await s.apply(join, {
       ref: 'p',
       input: { data: RatingAttr(900), formulas: [SimpleFormula] },
     });
-    expect((await run.observe(participantIds))['p']).toBeDefined();
+    expect((await s.observe(participantIds))['p']).toBeDefined();
   });
 
   test('leave on unknown id returns removed:false', async () => {
-    await using run = await script(matchmaking, {
-      seed: 5,
-      knobs: matchmakingKnobs(),
-      properties: MATCHMAKING_PROPERTIES,
-    });
-    await run.apply(leave, { participantId: UNKNOWN_ID });
-    expect(((await run.observe(lastLeave)) as LeaveResult).removed).toBe(false);
+    await using s = await matchmaking.script({ seed: 5 });
+    await s.apply(leave, { participantId: UNKNOWN_ID });
+    expect(((await s.observe(lastLeave)) as LeaveResult).removed).toBe(false);
   });
 
   test('leave on matched participant returns removed:false', async () => {
-    await using run = await script(matchmaking, {
-      seed: 6,
-      knobs: matchmakingKnobs(),
-      properties: MATCHMAKING_PROPERTIES,
-    });
-    await run.apply(join, {
+    await using s = await matchmaking.script({ seed: 6 });
+    await s.apply(join, {
       ref: 'a',
       input: { data: RatingAttr(1000), formulas: [SimpleFormula] },
     });
-    await run.apply(join, {
+    await s.apply(join, {
       ref: 'b',
       input: { data: RatingAttr(1010), formulas: [SimpleFormula] },
     });
-    await run.apply(tick, { opts: { maxPassesPerPartition: 1 } });
-    await run.apply(leave, { ref: 'a' });
-    expect(((await run.observe(lastLeave)) as LeaveResult).removed).toBe(false);
-    expect(((await run.observe(statusOf, 'a')) as StatusResult).status).toBe(
+    await s.apply(tick, { opts: { maxPassesPerPartition: 1 } });
+    await s.apply(leave, { ref: 'a' });
+    expect(((await s.observe(lastLeave)) as LeaveResult).removed).toBe(false);
+    expect(((await s.observe(statusOf, 'a')) as StatusResult).status).toBe(
       'matched'
     );
   });

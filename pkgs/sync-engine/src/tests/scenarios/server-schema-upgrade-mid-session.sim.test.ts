@@ -1,7 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import {
-  acmeKnobs,
   acmeLocalSchemaExtraColumn,
   acmeMutationRegistry,
   acmeQueryRegistry,
@@ -13,7 +11,6 @@ import {
   restart,
   setNote,
   setNoteColor,
-  syncVirtualHost,
 } from '../apps/acme';
 import {
   expectLiveNoteAt,
@@ -39,55 +36,53 @@ describe('server schema upgrade mid session', () => {
   test.each([2120, 2121, 2122])(
     'server adds color mid-life; old clients ignore; new client stores (seed=%i)',
     async (seed) => {
-      await using run = await script(acmeSystem, {
+      await using s = await acmeSystem.script({
         seed,
-        host: syncVirtualHost(),
-        knobs: acmeKnobs({ clientCount: 0 }),
-        properties: [],
+        args: { clientCount: 0 },
       });
 
-      await run.apply(addClient, 'alice');
-      await run.apply(addClient, 'bob');
+      await s.apply(addClient, 'alice');
+      await s.apply(addClient, 'bob');
 
-      await run.apply(mutate, 'alice', setNote, {
+      await s.apply(mutate, 'alice', setNote, {
         id: 'n1',
         body: 'before-upgrade',
       });
-      await expectConverged(run);
+      await expectConverged(s);
 
-      await run.apply(restart, 'server', {
+      await s.apply(restart, 'server', {
         preserveLocalDb: true,
         ...UPGRADED,
       });
 
-      await run.apply(addClient, {
+      await s.apply(addClient, {
         id: 'carol',
         actorId: 'carol',
         ...UPGRADED,
         sessionQuery: { name: 'notesAllWithColor', params: {} },
       });
 
-      await run.apply(mutate, 'carol', setNoteColor, {
+      await s.apply(mutate, 'carol', setNoteColor, {
         id: 'n1',
         body: 'after-upgrade',
         color: 'green',
       });
-      await run.apply(mutate, 'alice', setNote, {
+      await s.apply(mutate, 'alice', setNote, {
         id: 'n2',
         body: 'still-baseline',
       });
-      await expectConverged(run);
+      await expectConverged(s);
 
-      await expectLiveNoteAt(run, 'alice', 'n1', { body: 'after-upgrade' });
-      await expectLiveNoteAt(run, 'bob', 'n1', { body: 'after-upgrade' });
-      await expectLiveNoteAt(run, 'carol', 'n1', { body: 'after-upgrade' });
-      await expectLiveNoteAt(run, 'alice', 'n2', { body: 'still-baseline' });
-      await expectNotesAgree(run, 'alice');
+      await expectLiveNoteAt(s, 'alice', 'n1', { body: 'after-upgrade' });
+      await expectLiveNoteAt(s, 'bob', 'n1', { body: 'after-upgrade' });
+      await expectLiveNoteAt(s, 'carol', 'n1', { body: 'after-upgrade' });
+      await expectLiveNoteAt(s, 'alice', 'n2', { body: 'still-baseline' });
+      await expectNotesAgree(s, 'alice');
 
-      const aliceCols = await run.observe(noteColumns, 'alice');
+      const aliceCols = await s.observe(noteColumns, 'alice');
       expect(aliceCols.some((c) => c.name === 'color')).toBe(false);
 
-      const carolColor = await run.observe(noteColor, 'carol', 'n1');
+      const carolColor = await s.observe(noteColor, 'carol', 'n1');
       expect(carolColor[0]?.color).toBe('green');
     }
   );

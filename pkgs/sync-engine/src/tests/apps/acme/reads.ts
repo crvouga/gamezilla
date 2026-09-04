@@ -1,11 +1,11 @@
 /**
  * Domain reads for acme scenarios, built on the framework `rows` / `liveNote`
- * functions. Scenario tests stay on `run.apply` / `run.observe` — the run
+ * functions. Scenario tests stay on `s.apply` / `s.observe` — the run
  * API hands out no live database handles.
  */
 
 import { expect } from 'bun:test';
-import type { JsonValue, Run } from '@pkgs/dst';
+import type { JsonValue, Script } from '@pkgs/dst';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -168,11 +168,11 @@ export async function localTable(
 
 /** True when `nodeId`'s local database has a table called `name`. */
 export async function hasLocalTable(
-  run: Run<SyncSurface>,
+  s: Script<SyncSurface>,
   nodeId: string,
   name: string
 ): Promise<boolean> {
-  return (await run.observe(localTable, nodeId, name)).length === 1;
+  return (await s.observe(localTable, nodeId, name)).length === 1;
 }
 
 /** Narrow a raw observation value to a row object, or null. */
@@ -183,7 +183,7 @@ function asRow(value: JsonValue): Record<string, JsonValue> | null {
 }
 
 /**
- * Predicate for `untilAcme(run, (s) => liveNote(s, node, id), { pred: noteBodyIs(x) })`
+ * Predicate for `untilAcme(s, (s) => liveNote(s, node, id), { pred: noteBodyIs(x) })`
  * — true once the row is present, live, and carries `body`.
  */
 export function noteBodyIs(body: string) {
@@ -194,19 +194,19 @@ export function noteBodyIs(body: string) {
 }
 
 /**
- * Predicate for `neverAcme(run, (s) => liveNote(s, node, id), { pred: noteLive })`
+ * Predicate for `neverAcme(s, (s) => liveNote(s, node, id), { pred: noteLive })`
  * — true once the row is present and not tombstoned, whatever its body.
  */
 export const noteLive = (value: JsonValue): boolean =>
   asRow(value)?.['deletedAt'] === null;
 
 /**
- * Predicate for `untilAcme(run, (s) => liveNote(s, node, id), { pred: noteNotLive })`
+ * Predicate for `untilAcme(s, (s) => liveNote(s, node, id), { pred: noteNotLive })`
  * — true while the row is absent or tombstoned.
  */
 export const noteNotLive = (value: JsonValue): boolean => !noteLive(value);
 
-/** Predicate for `untilAcme(run, (s) => subscribedTopics(s, id), { pred: hasTopic(t) })`. */
+/** Predicate for `untilAcme(s, (s) => subscribedTopics(s, id), { pred: hasTopic(t) })`. */
 export function hasTopic(topic: string) {
   return (value: JsonValue): boolean =>
     Array.isArray(value) && value.includes(topic);
@@ -220,39 +220,39 @@ export function lacksTopic(topic: string) {
 
 /** Live note ids on `nodeId`. */
 export async function readLiveNoteIds(
-  run: Run<SyncSurface>,
+  s: Script<SyncSurface>,
   nodeId: string
 ): Promise<string[]> {
-  return (await run.observe(liveNotes, nodeId)).map((n) => n.id);
+  return (await s.observe(liveNotes, nodeId)).map((n) => n.id);
 }
 
 /** Tombstone stamp for one note, or `null` when the row is absent or live. */
 export async function readNoteTombstoneAt(
-  run: Run<SyncSurface>,
+  s: Script<SyncSurface>,
   nodeId: string,
   id: string
 ): Promise<string | null> {
-  return (await run.observe(liveNote, nodeId, id))?.deletedAt ?? null;
+  return (await s.observe(liveNote, nodeId, id))?.deletedAt ?? null;
 }
 
 /** True when a note row is present and not tombstoned on `nodeId`. */
 export async function isNoteLiveAt(
-  run: Run<SyncSurface>,
+  s: Script<SyncSurface>,
   nodeId: string,
   id: string
 ): Promise<boolean> {
-  const row = await run.observe(liveNote, nodeId, id);
+  const row = await s.observe(liveNote, nodeId, id);
   return row !== null && row.deletedAt === null;
 }
 
 /** Assert one live note body (and optional title) on `nodeId`. */
 export async function expectLiveNoteAt(
-  run: Run<SyncSurface>,
+  s: Script<SyncSurface>,
   nodeId: string,
   id: string,
   expected: { readonly body: string; readonly title?: string }
 ): Promise<void> {
-  const row = await run.observe(liveNote, nodeId, id);
+  const row = await s.observe(liveNote, nodeId, id);
   expect(row).not.toBeNull();
   expect(row?.deletedAt).toBeNull();
   expect(row?.body).toBe(expected.body);
@@ -263,46 +263,46 @@ export async function expectLiveNoteAt(
 
 /** Assert a note is not live on `nodeId` — absent or tombstoned. */
 export async function expectNoteNotLiveAt(
-  run: Run<SyncSurface>,
+  s: Script<SyncSurface>,
   nodeId: string,
   id: string
 ): Promise<void> {
-  expect(await isNoteLiveAt(run, nodeId, id)).toBe(false);
+  expect(await isNoteLiveAt(s, nodeId, id)).toBe(false);
 }
 
 /** Assert one client's live notes equal the server's (domain rows only). */
 export async function expectNotesAgree(
-  run: Run<SyncSurface>,
+  s: Script<SyncSurface>,
   clientId: string
 ): Promise<void> {
-  const local = await run.observe(liveNotes, clientId);
-  const server = await run.observe(liveNotes, 'server');
+  const local = await s.observe(liveNotes, clientId);
+  const server = await s.observe(liveNotes, 'server');
   expect(local).toEqual(server);
 }
 
 /** Assert every named client's live notes equal the server's. */
 export async function expectAllNotesAgree(
-  run: Run<SyncSurface>,
+  s: Script<SyncSurface>,
   ids: readonly string[]
 ): Promise<void> {
-  for (const id of ids) await expectNotesAgree(run, id);
+  for (const id of ids) await expectNotesAgree(s, id);
 }
 
 /** Assert every client still live on the run agrees with the server. */
 export async function expectEveryClientNotesAgree(
-  run: Run<SyncSurface>
+  s: Script<SyncSurface>
 ): Promise<void> {
-  await expectAllNotesAgree(run, await run.observe(clientIds));
+  await expectAllNotesAgree(s, await s.observe(clientIds));
 }
 
 /** Assert this install holds exactly one live open session for `spaceId`. */
 export async function expectOpenSessionAt(
-  run: Run<SyncSurface>,
+  s: Script<SyncSurface>,
   clientId: string,
   spaceId: string
 ): Promise<void> {
-  const device = await run.observe(deviceId, clientId);
-  const sessions = await run.observe(liveOpenSessions, clientId);
+  const device = await s.observe(deviceId, clientId);
+  const sessions = await s.observe(liveOpenSessions, clientId);
   const owned = sessions.filter(
     (s) => s.spaceId === spaceId && s.deviceId === device
   );
@@ -311,42 +311,42 @@ export async function expectOpenSessionAt(
 
 /** Assert no live open-session row on `clientId` belongs to another device. */
 export async function expectNoForeignOpenSessionsAt(
-  run: Run<SyncSurface>,
+  s: Script<SyncSurface>,
   clientId: string
 ): Promise<void> {
-  const device = await run.observe(deviceId, clientId);
-  const sessions = await run.observe(liveOpenSessions, clientId);
+  const device = await s.observe(deviceId, clientId);
+  const sessions = await s.observe(liveOpenSessions, clientId);
   expect(sessions.filter((s) => s.deviceId !== device)).toEqual([]);
 }
 
 /** Assert one client's live folders equal the server's. */
 export async function expectFoldersAgree(
-  run: Run<SyncSurface>,
+  s: Script<SyncSurface>,
   clientId: string
 ): Promise<void> {
-  const local = await run.observe(liveFolders, clientId);
-  const server = await run.observe(liveFolders, 'server');
+  const local = await s.observe(liveFolders, clientId);
+  const server = await s.observe(liveFolders, 'server');
   expect(local).toEqual(server);
 }
 
 /** True when a space row is present and not tombstoned on `nodeId`. */
 export async function isSpaceLiveAt(
-  run: Run<SyncSurface>,
+  s: Script<SyncSurface>,
   nodeId: string,
   id: string
 ): Promise<boolean> {
-  const row = await run.observe(liveSpace, nodeId, id);
+  const row = await s.observe(liveSpace, nodeId, id);
   return row !== null && row.deletedAt === null;
 }
 
 /** Assert one live space on `nodeId` (optional title / owner). */
 export async function expectLiveSpaceAt(
-  run: Run<SyncSurface>,
+  s: Script<SyncSurface>,
   nodeId: string,
   id: string,
   expected?: { readonly title?: string; readonly ownerId?: string }
 ): Promise<void> {
-  const row = await run.observe(liveSpace, nodeId, id);
+  const row = await s.observe(liveSpace, nodeId, id);
   expect(row).not.toBeNull();
   expect(row?.deletedAt).toBeNull();
   if (expected?.title !== undefined) expect(row?.title).toBe(expected.title);
@@ -357,11 +357,11 @@ export async function expectLiveSpaceAt(
 
 /** Assert a space is not live on `nodeId` — absent or tombstoned. */
 export async function expectSpaceNotLiveAt(
-  run: Run<SyncSurface>,
+  s: Script<SyncSurface>,
   nodeId: string,
   id: string
 ): Promise<void> {
-  expect(await isSpaceLiveAt(run, nodeId, id)).toBe(false);
+  expect(await isSpaceLiveAt(s, nodeId, id)).toBe(false);
 }
 
 /** Live username on one profile row, or null when absent / empty. */
@@ -384,11 +384,11 @@ export async function profileUsername(
 
 /** Username for a profile on `nodeId`, or null when absent / empty. */
 export async function readProfileUsernameAt(
-  run: Run<SyncSurface>,
+  s: Script<SyncSurface>,
   nodeId: string,
   profileId: string
 ): Promise<string | null> {
-  const found = await run.observe(profileUsername, nodeId, profileId);
+  const found = await s.observe(profileUsername, nodeId, profileId);
   const username = found[0]?.username;
   return typeof username === 'string' && username.length > 0 ? username : null;
 }

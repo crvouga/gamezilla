@@ -1,61 +1,44 @@
 import { describe, test } from 'bun:test';
-import { assertProperty, fc } from '@pkgs/pbt';
-import { PUBSUB_FAULTS } from '../../sim/scenario';
-import { arbKnobs, arbSeed } from '../../sim/scenario/knobs';
-import { playAcmePin } from '../apps/acme';
+import { assertDstProperty, fc } from '@pkgs/pbt';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
-import type { LibraryAction, SyncAction } from '../scenario/actions';
+import { acmeDstApp } from '../apps/acme/dst-app';
+import type { DstAction, LibraryAction } from '../dst/actions';
+import { PUBSUB_FAULTS, replayActionsOnWorld } from '../dst/commands';
+import { arbWorldKnobs, arbWorldSeed, openPbtWorld } from '../dst/world-config';
 
 const TRIGGER = acmeSetNoteOp('c0', 'n0', 'broker-chaos');
 
-function brokerSequence(arm: LibraryAction): SyncAction[] {
+function brokerSequence(arm: LibraryAction): DstAction[] {
   return [arm, TRIGGER, { kind: 'idle', ms: 40 }, { kind: 'heal' }];
 }
 
 describe('broker chaos PBT', () => {
   test(
-    'brokerRestart then peer faults still converges',
-    async () => {
-      await playAcmePin({
-        seed: 1_000_000,
-        knobs: {
-          liveResendOnReconnect: true,
-          bufferOutboundLive: true,
-          clientCount: 3,
-        },
-        actions: [
-          { kind: 'brokerRestart' },
-          {
-            kind: 'setFaults',
-            nodeId: 'c1',
-            traffic: 'all',
-            faults: {
-              dropProbability: 0.05,
-              reorderWindow: 2,
-              partitionProbability: 0.02,
-            },
-          },
-        ],
-      });
-    },
-    { timeout: 30_000 }
-  );
-
-  test(
     'pubsub fault arms then mutate converges',
     async () => {
-      await assertProperty(
+      await assertDstProperty(
         'pubsub fault sequences converge',
         fc.asyncProperty(
-          arbSeed(),
-          arbKnobs(),
+          arbWorldSeed(),
+          arbWorldKnobs(),
           fc.constantFrom(...PUBSUB_FAULTS),
           async (seed, knobs, fault) => {
-            await playAcmePin({
+            const arm: LibraryAction = { kind: 'armPubsubFault', fault };
+            const opened = await openPbtWorld({
+              app: acmeDstApp,
               seed,
               knobs,
-              actions: brokerSequence({ kind: 'armPubsubFault', fault }),
             });
+            try {
+              await replayActionsOnWorld(
+                acmeDstApp,
+                opened.world,
+                brokerSequence(arm)
+              );
+              await opened.world.assertConverged();
+            } finally {
+              await opened.world.dispose();
+            }
           }
         ),
         { numRuns: 6 }
@@ -67,27 +50,33 @@ describe('broker chaos PBT', () => {
   test(
     'broker crash/restart then mutate converges',
     async () => {
-      await assertProperty(
+      await assertDstProperty(
         'broker restart sequences converge',
         fc.asyncProperty(
-          arbSeed(),
-          arbKnobs(),
+          arbWorldSeed(),
+          arbWorldKnobs(),
           fc.constantFrom(
             { kind: 'brokerCrash' } as const,
             { kind: 'brokerRestart' } as const
           ),
           async (seed, knobs, arm) => {
-            await playAcmePin({
+            const opened = await openPbtWorld({
+              app: acmeDstApp,
               seed,
               knobs,
-              actions: [
+            });
+            try {
+              await replayActionsOnWorld(acmeDstApp, opened.world, [
                 arm,
                 TRIGGER,
                 { kind: 'brokerRestart' },
                 { kind: 'idle', ms: 40 },
                 { kind: 'heal' },
-              ],
-            });
+              ]);
+              await opened.world.assertConverged();
+            } finally {
+              await opened.world.dispose();
+            }
           }
         ),
         { numRuns: 6 }

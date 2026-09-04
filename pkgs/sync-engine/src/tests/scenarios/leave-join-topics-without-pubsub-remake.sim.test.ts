@@ -1,7 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import {
-  acmeKnobs,
   acmeSystem,
   addClient,
   createSpace,
@@ -15,70 +13,63 @@ import {
   roomTopic,
   SPACE_MEMBERSHIP_SESSION,
   subscribedTopics,
-  syncVirtualHost,
   untilAcme,
   userTopic,
 } from '../apps/acme';
 
 describe('leave join topics without pubsub remake', () => {
   test('leave then join different room without pubsub remake', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 801,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({
+      args: {
         clientCount: 0,
-      }),
-      properties: [],
+      },
     });
 
-    await run.apply(addClient, {
+    await s.apply(addClient, {
       id: 'alice',
       sessionQuery: SPACE_MEMBERSHIP_SESSION,
     });
-    await run.apply(addClient, {
+    await s.apply(addClient, {
       id: 'bob',
       sessionQuery: SPACE_MEMBERSHIP_SESSION,
     });
 
-    await run.apply(mutate, 'alice', createSpace, {
+    await s.apply(mutate, 'alice', createSpace, {
       id: 'space-a',
       title: 'A',
     });
-    await run.apply(mutate, 'bob', joinSpace, { spaceId: 'space-a' });
-    await expectConverged(run);
+    await s.apply(mutate, 'bob', joinSpace, { spaceId: 'space-a' });
+    await expectConverged(s);
 
-    await untilAcme(run, (s) => subscribedTopics(s, 'alice'), {
+    await untilAcme(s, (s) => subscribedTopics(s, 'alice'), {
       pred: hasTopic(roomTopic('space-a')),
     });
-    const topicsA = await run.observe(subscribedTopics, 'alice');
+    const topicsA = await s.observe(subscribedTopics, 'alice');
     expect(topicsA).toContain(userTopic('alice'));
     expect(topicsA).toContain(roomTopic('space-a'));
-    const remakesAfterJoin = await run.observe(pubsubRemakeCount, 'alice');
+    const remakesAfterJoin = await s.observe(pubsubRemakeCount, 'alice');
 
-    await run.apply(mutate, 'alice', leaveSpace, { spaceId: 'space-a' });
-    await run.elapse(200);
-    await untilAcme(run, (s) => subscribedTopics(s, 'alice'), {
+    await s.apply(mutate, 'alice', leaveSpace, { spaceId: 'space-a' });
+    await s.elapse(200);
+    await untilAcme(s, (s) => subscribedTopics(s, 'alice'), {
       pred: lacksTopic(roomTopic('space-a')),
     });
-    expect(await run.observe(pubsubRemakeCount, 'alice')).toBe(
-      remakesAfterJoin
-    );
+    expect(await s.observe(pubsubRemakeCount, 'alice')).toBe(remakesAfterJoin);
 
-    await run.apply(mutate, 'alice', createSpace, {
+    await s.apply(mutate, 'alice', createSpace, {
       id: 'space-b',
       title: 'B',
     });
-    await run.elapse(200);
-    await untilAcme(run, (s) => subscribedTopics(s, 'alice'), {
+    await s.elapse(200);
+    await untilAcme(s, (s) => subscribedTopics(s, 'alice'), {
       pred: hasTopic(roomTopic('space-b')),
     });
-    const topicsB = await run.observe(subscribedTopics, 'alice');
+    const topicsB = await s.observe(subscribedTopics, 'alice');
     expect(topicsB).toContain(roomTopic('space-b'));
     expect(topicsB).not.toContain(roomTopic('space-a'));
-    expect(await run.observe(pubsubRemakeCount, 'alice')).toBe(
-      remakesAfterJoin
-    );
+    expect(await s.observe(pubsubRemakeCount, 'alice')).toBe(remakesAfterJoin);
 
-    await expectConverged(run);
+    await expectConverged(s);
   });
 });

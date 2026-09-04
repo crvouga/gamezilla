@@ -1,5 +1,12 @@
 import { describe, expect, test } from 'bun:test';
-import { addClient, clock, dispatch, hold, release } from '../../sim/scenario';
+import {
+  addClient,
+  clock,
+  dispatch,
+  hold,
+  release,
+  roomEpoch,
+} from '../../sim/scenario';
 import { deadlineSystem } from '../apps/deadline/system';
 import { expectConverged } from '../expect-converged';
 import {
@@ -8,7 +15,6 @@ import {
   deadlineOutcome,
   StartDeadline,
 } from '../fixtures/deadline-module';
-import { openRoom } from '../scenario/open-room';
 import {
   expectHashMatch,
   readClient,
@@ -17,32 +23,33 @@ import {
 
 describe('kit: deadline vs action (M-F07)', () => {
   test('partitioned lagging client cannot win after deadline', async () => {
-    await using run = await openRoom(deadlineSystem, {
-      startTime: 5_000,
+    await using s = await deadlineSystem.script({
+      seed: 42,
+      host: roomEpoch(deadlineSystem, 5_000),
     });
-    await run.apply(addClient, { id: 'alice' });
-    await run.apply(addClient, { id: 'bob' });
-    await expectConverged(run);
+    await s.apply(addClient, { id: 'alice' });
+    await s.apply(addClient, { id: 'bob' });
+    await expectConverged(s);
 
-    await run.apply(dispatch, {
+    await s.apply(dispatch, {
       clientId: 'alice',
       payload: StartDeadline({ durationMs: 50 }),
     });
     const dl = deadlineAt(await readServer(run));
 
-    await run.apply(hold, 'bob');
-    await run.elapse(80);
-    expect(await run.observe(clock)).toBeGreaterThanOrEqual(dl);
-    await run.apply(dispatch, {
+    await s.apply(hold, 'bob');
+    await s.elapse(80);
+    expect(await s.observe(clock)).toBeGreaterThanOrEqual(dl);
+    await s.apply(dispatch, {
       clientId: 'bob',
       payload: ActBeforeDeadline({}),
     });
-    await run.apply(release, 'bob');
+    await s.apply(release, 'bob');
 
-    await expectConverged(run);
+    await expectConverged(s);
     expect(deadlineOutcome(await readServer(run))).toBe('expired');
-    expect(deadlineOutcome(await readClient(run, 'alice'))).toBe('expired');
-    expect(deadlineOutcome(await readClient(run, 'bob'))).toBe('expired');
-    await expectHashMatch(run, 'alice');
+    expect(deadlineOutcome(await readClient(s, 'alice'))).toBe('expired');
+    expect(deadlineOutcome(await readClient(s, 'bob'))).toBe('expired');
+    await expectHashMatch(s, 'alice');
   });
 });

@@ -14,7 +14,7 @@ export type CounterSurface = {
 /** Toy HTML counter — surface is a DOM Page (happy-dom or Bun.WebView). */
 export const counter = defineSystem({
   name: 'acme-counter',
-  async generate(session) {
+  async create(session) {
     const ports = session.ports as typeof session.ports & CounterPorts;
     const page = await ports.openPage();
     session.onDispose(() => page.dispose());
@@ -22,7 +22,15 @@ export const counter = defineSystem({
   },
 });
 
-const { defineAction, defineProperty } = counter;
+counter.host({
+  default: true,
+  name: 'happy-dom',
+  create: () => happyDomHost(),
+});
+counter.host({
+  name: 'webview',
+  create: () => webViewHost(),
+});
 
 export async function route(s: CounterSurface): Promise<string> {
   return (await s.page.routeAttr()) ?? '';
@@ -39,31 +47,32 @@ export async function step(s: CounterSurface): Promise<number> {
 const SCREENS = new Set(['home', 'settings', 'confirm-reset']);
 const STEP_CHOICES = [1, 5, 10] as const;
 
-export const increment = defineAction({
+export const increment = counter.action({
   name: 'increment',
   enabled: async (s) => (await route(s)) === 'home',
   weight: async (s) => ((await count(s)) < 50 ? 6 : 2),
   act: (s) => s.page.click('#increment'),
 });
 
-export const decrement = defineAction({
+export const decrement = counter.action({
   name: 'decrement',
   enabled: async (s) => (await route(s)) === 'home' && (await count(s)) > 0,
   weight: async (s) => Math.min(await count(s), 4),
   act: (s) => s.page.click('#decrement'),
 });
 
-export const openSettings = defineAction({
+export const openSettings = counter.action({
   name: 'openSettings',
   enabled: async (s) => (await route(s)) === 'home',
   act: (s) => s.page.click('#to-settings'),
 });
 
-export const setStep = defineAction({
+export const setStep = counter.action({
   name: 'setStep',
   enabled: async (s) => (await route(s)) === 'settings',
   weight: 2,
-  args: async (s) => {
+  args: [5] as const,
+  draw: async (s) => {
     const current = await step(s);
     const rest = STEP_CHOICES.filter((n) => n !== current);
     const choices = rest.length > 0 ? rest : STEP_CHOICES;
@@ -72,26 +81,26 @@ export const setStep = defineAction({
   act: (s, n: number) => s.page.click(`#step-${n}`),
 });
 
-export const leaveSettings = defineAction({
+export const leaveSettings = counter.action({
   name: 'leaveSettings',
   enabled: async (s) => (await route(s)) === 'settings',
   act: (s) => s.page.click('#back'),
 });
 
-export const openReset = defineAction({
+export const openReset = counter.action({
   name: 'openReset',
   enabled: async (s) => (await route(s)) === 'home' && (await count(s)) > 0,
   weight: async (s) => ((await count(s)) > 100 ? 3 : 1),
   act: (s) => s.page.click('#reset'),
 });
 
-export const confirmReset = defineAction({
+export const confirmReset = counter.action({
   name: 'confirmReset',
   enabled: async (s) => (await route(s)) === 'confirm-reset',
   act: (s) => s.page.click('#confirm'),
 });
 
-export const reset = defineAction({
+export const reset = counter.action({
   name: 'reset',
   enabled: async (s) => (await route(s)) === 'home' && (await count(s)) > 0,
   weight: async (s) => ((await count(s)) > 100 ? 3 : 1),
@@ -112,7 +121,7 @@ export const COUNTER_ACTIONS = [
   reset,
 ] as const;
 
-export const knownScreen = defineProperty({
+export const knownScreen = counter.property({
   name: 'knownScreen',
   check: async (s) => {
     const r = await route(s);
@@ -120,7 +129,7 @@ export const knownScreen = defineProperty({
   },
 });
 
-export const nonNegative = defineProperty({
+export const nonNegative = counter.property({
   name: 'nonNegative',
   check: async (s) => {
     if ((await count(s)) < 0) {

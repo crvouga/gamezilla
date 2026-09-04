@@ -1,7 +1,5 @@
 import { describe, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import {
-  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
@@ -9,34 +7,31 @@ import {
   mutate,
   partition,
   setNote,
-  syncVirtualHost,
 } from '../apps/acme';
 import { expectLiveNoteAt, expectNotesAgree } from '../apps/acme/reads';
 
 describe('sync partitioned while live delivers', () => {
   test('partition sync then heal converges', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 506,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0, rowImageFanout: false }),
-      properties: [],
+      args: { clientCount: 0, rowImageFanout: false },
     });
 
-    await run.apply(addClient, 'alice');
-    await run.apply(addClient, 'bob');
-    await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
-    await expectConverged(run);
+    await s.apply(addClient, 'alice');
+    await s.apply(addClient, 'bob');
+    await s.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
+    await expectConverged(s);
 
-    await run.apply(partition, 'bob', 'sync');
-    await run.apply(mutate, 'alice', setNote, {
+    await s.apply(partition, 'bob', 'sync');
+    await s.apply(mutate, 'alice', setNote, {
       id: 'n1',
       body: 'sync-partitioned',
     });
-    await run.elapse(100);
+    await s.elapse(100);
 
-    await run.apply(heal);
-    await expectConverged(run);
-    await expectLiveNoteAt(run, 'bob', 'n1', { body: 'sync-partitioned' });
-    await expectNotesAgree(run, 'bob');
+    await s.apply(heal);
+    await expectConverged(s);
+    await expectLiveNoteAt(s, 'bob', 'n1', { body: 'sync-partitioned' });
+    await expectNotesAgree(s, 'bob');
   });
 });

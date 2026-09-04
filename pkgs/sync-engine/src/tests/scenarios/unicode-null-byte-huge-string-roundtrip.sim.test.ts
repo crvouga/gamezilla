@@ -1,14 +1,11 @@
 import { describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import {
-  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
   liveNote,
   mutate,
   setNote,
-  syncVirtualHost,
 } from '../apps/acme';
 
 const EMOJI_RTL = 'hello 👋 مرحبا \u202Ertl';
@@ -17,34 +14,32 @@ const HUGE = `${'🚀'.repeat(50)}${'a'.repeat(100_000)}`;
 
 describe('unicode null byte huge string roundtrip', () => {
   test('emoji RTL null-byte and huge body round-trip across peers', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 990,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, 'alice');
-    await run.apply(addClient, 'bob');
+    await s.apply(addClient, 'alice');
+    await s.apply(addClient, 'bob');
 
-    await run.apply(mutate, 'alice', setNote, { id: 'emoji', body: EMOJI_RTL });
-    await run.apply(mutate, 'alice', setNote, {
+    await s.apply(mutate, 'alice', setNote, { id: 'emoji', body: EMOJI_RTL });
+    await s.apply(mutate, 'alice', setNote, {
       id: 'nullish',
       body: WITH_NULL,
     });
-    await run.apply(mutate, 'alice', setNote, { id: 'huge', body: HUGE });
-    await expectConverged(run);
+    await s.apply(mutate, 'alice', setNote, { id: 'huge', body: HUGE });
+    await expectConverged(s);
 
-    expect(await run.observe(liveNote, 'bob', 'emoji')).toMatchObject({
+    expect(await s.observe(liveNote, 'bob', 'emoji')).toMatchObject({
       body: EMOJI_RTL,
     });
-    expect(await run.observe(liveNote, 'bob', 'nullish')).toMatchObject({
+    expect(await s.observe(liveNote, 'bob', 'nullish')).toMatchObject({
       body: WITH_NULL,
     });
-    expect(await run.observe(liveNote, 'bob', 'huge')).toMatchObject({
+    expect(await s.observe(liveNote, 'bob', 'huge')).toMatchObject({
       body: HUGE,
     });
-    expect(await run.observe(liveNote, 'server', 'huge')).toMatchObject({
+    expect(await s.observe(liveNote, 'server', 'huge')).toMatchObject({
       body: HUGE,
     });
     expect(HUGE.length).toBeGreaterThan(100_000);
@@ -53,19 +48,17 @@ describe('unicode null byte huge string roundtrip', () => {
   test.each([991, 992, 993])(
     'seed sweep unicode bodies hash-stable converge (seed=%i)',
     async (seed) => {
-      await using run = await script(acmeSystem, {
+      await using s = await acmeSystem.script({
         seed: seed,
-        host: syncVirtualHost(),
-        knobs: acmeKnobs({ clientCount: 0 }),
-        properties: [],
+        args: { clientCount: 0 },
       });
 
-      await run.apply(addClient, 'alice');
-      await run.apply(addClient, 'bob');
+      await s.apply(addClient, 'alice');
+      await s.apply(addClient, 'bob');
       const body = `${EMOJI_RTL}-${seed}-\u0000`;
-      await run.apply(mutate, 'alice', setNote, { id: `u-${seed}`, body });
-      await expectConverged(run);
-      expect(await run.observe(liveNote, 'bob', `u-${seed}`)).toMatchObject({
+      await s.apply(mutate, 'alice', setNote, { id: `u-${seed}`, body });
+      await expectConverged(s);
+      expect(await s.observe(liveNote, 'bob', `u-${seed}`)).toMatchObject({
         body,
       });
     }

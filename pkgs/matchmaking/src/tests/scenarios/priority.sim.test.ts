@@ -1,13 +1,10 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import type { TickResult } from '../../interface/matchmaking';
 import type { StatusResult } from '../../interface/types';
 import {
   join,
   lastTick,
-  MATCHMAKING_PROPERTIES,
   matchmaking,
-  matchmakingKnobs,
   participantIds,
   statusOf,
   tick,
@@ -30,12 +27,8 @@ describe('matchmaking sim: priority', () => {
   });
 
   test('high-priority joiner is matched before same-bucket FIFO peer', async () => {
-    await using run = await script(matchmaking, {
-      seed: 80,
-      knobs: matchmakingKnobs(),
-      properties: MATCHMAKING_PROPERTIES,
-    });
-    await run.apply(join, {
+    await using s = await matchmaking.script({ seed: 80 });
+    await s.apply(join, {
       ref: 'a',
       input: {
         data: RatingAttr(1000),
@@ -47,8 +40,8 @@ describe('matchmaking sim: priority', () => {
         ],
       },
     });
-    await run.elapse(1);
-    await run.apply(join, {
+    await s.elapse(1);
+    await s.apply(join, {
       ref: 'b',
       input: {
         data: RatingAttr(1005),
@@ -56,17 +49,17 @@ describe('matchmaking sim: priority', () => {
         priority: 100,
       },
     });
-    await run.elapse(1);
-    await run.apply(join, {
+    await s.elapse(1);
+    await s.apply(join, {
       ref: 'c',
       input: { data: RatingAttr(1010), formulas: [SimpleFormula] },
     });
-    await run.apply(tick, { opts: { maxPassesPerPartition: 1 } });
-    expect(((await run.observe(lastTick)) as TickResult).matches).toBe(1);
-    const ids = await run.observe(participantIds);
-    const b = expectMatched((await run.observe(statusOf, 'b')) as StatusResult);
+    await s.apply(tick, { opts: { maxPassesPerPartition: 1 } });
+    expect(((await s.observe(lastTick)) as TickResult).matches).toBe(1);
+    const ids = await s.observe(participantIds);
+    const b = expectMatched((await s.observe(statusOf, 'b')) as StatusResult);
     expect(b.peers[0]?.participantId).toBe(ids['c']);
-    expect(((await run.observe(statusOf, 'a')) as StatusResult).status).toBe(
+    expect(((await s.observe(statusOf, 'a')) as StatusResult).status).toBe(
       'waiting'
     );
   });

@@ -1,18 +1,13 @@
-import { script } from '@pkgs/dst';
+import type { System } from '@pkgs/dst';
 
-import type { SyncAction } from '../../../sim/scenario';
-import {
-  playActions,
-  type SyncKnobs,
-  type SyncSystemDef,
-  syncVirtualHost,
-} from '../../../sim/scenario';
+import type { SyncAction, SyncArgs, SyncSurface } from '../../../sim/scenario';
+import { playActions } from '../../../sim/scenario';
 import { expectConverged } from './expect-converged';
-import { acmeKnobs, acmeSystem } from './system';
+import { acmeSystem } from './system';
 
 export type PlayAcmePinOpts = {
   readonly seed: number | bigint | string;
-  readonly knobs?: Partial<SyncKnobs>;
+  readonly args?: Partial<SyncArgs>;
   readonly actions: readonly SyncAction[];
   /**
    * When true (default), revive + wait for domain agreement after the script.
@@ -20,7 +15,7 @@ export type PlayAcmePinOpts = {
    */
   readonly converge?: boolean;
   /** Defaults to {@link acmeSystem}. */
-  readonly system?: SyncSystemDef;
+  readonly system?: System<SyncSurface, SyncArgs>;
 };
 
 /**
@@ -28,12 +23,11 @@ export type PlayAcmePinOpts = {
  * domain agreement via {@link expectConverged}.
  */
 export async function playAcmePin(opts: PlayAcmePinOpts): Promise<void> {
-  await using run = await script(opts.system ?? acmeSystem, {
+  const system = opts.system ?? acmeSystem;
+  await using s = await system.script({
     seed: opts.seed,
-    host: syncVirtualHost(),
-    knobs: acmeKnobs(opts.knobs),
-    properties: [],
+    ...(opts.args !== undefined ? { args: opts.args } : {}),
   });
-  await run.apply(playActions, opts.actions);
-  if (opts.converge !== false) await expectConverged(run);
+  await s.apply(playActions, opts.actions);
+  if (opts.converge !== false) await expectConverged(s);
 }

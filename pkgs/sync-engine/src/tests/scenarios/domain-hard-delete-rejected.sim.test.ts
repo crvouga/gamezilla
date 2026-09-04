@@ -1,7 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import {
-  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
@@ -11,32 +9,29 @@ import {
   liveNote,
   mutate,
   setNote,
-  syncVirtualHost,
 } from '../apps/acme';
 
 describe('domain hard delete rejected', () => {
   test('illegalHardDeleteNote fails with NO_HARD_DELETE; row stays live', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 60,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, { id: 'alice' });
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'keep-me' });
-    await expectConverged(run);
+    await s.apply(addClient, { id: 'alice' });
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'keep-me' });
+    await expectConverged(s);
 
-    await run.apply(mutate, 'alice', illegalHardDeleteNote, { id: 'n1' });
-    expect(await run.observe(lastMutationOk, 'alice')).toBe(false);
-    expect(await run.observe(lastMutationFailures, 'alice')).toContain(
+    await s.apply(mutate, 'alice', illegalHardDeleteNote, { id: 'n1' });
+    expect(await s.observe(lastMutationOk, 'alice')).toBe(false);
+    expect(await s.observe(lastMutationFailures, 'alice')).toContain(
       'NO_HARD_DELETE'
     );
 
-    expect(await run.observe(liveNote, 'alice', 'n1')).toMatchObject({
+    expect(await s.observe(liveNote, 'alice', 'n1')).toMatchObject({
       body: 'keep-me',
     });
-    expect(await run.observe(liveNote, 'server', 'n1')).toMatchObject({
+    expect(await s.observe(liveNote, 'server', 'n1')).toMatchObject({
       body: 'keep-me',
     });
   });

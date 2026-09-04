@@ -1,6 +1,6 @@
 import fc from 'fast-check';
 import { gen } from '../../fast-check';
-import { defineSystem } from '../../index';
+import { defineSystem, virtualHost } from '../../index';
 import {
   createNoteOnClient,
   flushPending,
@@ -15,7 +15,7 @@ function range(n: number): number[] {
   return Array.from({ length: n }, (_, i) => i);
 }
 
-export type SyncKnobs = {
+export type SyncArgs = {
   readonly clients: number;
 };
 
@@ -25,16 +25,22 @@ export type SyncKnobs = {
  */
 export const sync = defineSystem({
   name: 'acme-sync',
-  generate(session, knobs: SyncKnobs) {
+  args: { clients: 2 },
+  draw: () => gen(fc.record({ clients: fc.integer({ min: 1, max: 3 }) })),
+  create(session, args: SyncArgs) {
     const server = startServer(session.fork('server'));
-    const clientList = range(knobs.clients).map((i) =>
+    const clientList = range(args.clients).map((i) =>
       startClient(session.fork(`client:${i}`), server)
     );
     return { session, server, clients: clientList } satisfies SyncSurface;
   },
 });
 
-const { defineAction, defineProperty } = sync;
+sync.host({
+  default: true,
+  name: 'virtual',
+  create: () => virtualHost(),
+});
 
 export function clientIds(s: SyncSurface): string[] {
   return s.clients.map((c) => c.id);
@@ -69,11 +75,12 @@ export function partitioned(s: SyncSurface): string[] {
   return s.session.network.partitions().map(([a, b]) => `${a}|${b}`);
 }
 
-export const createNote = defineAction({
+export const createNote = sync.action({
   name: 'createNote',
   enabled: (s) => s.clients.length > 0,
   weight: 3,
-  args: (s) =>
+  args: ['client:0', 'note'] as const,
+  draw: (s) =>
     gen(
       fc.tuple(
         fc.constantFrom(...s.clients.map((c) => c.id)),
@@ -92,17 +99,18 @@ export const createNote = defineAction({
   },
 });
 
-export const partition = defineAction({
+export const partition = sync.action({
   name: 'partition',
   enabled: (s) => caps(s).includes('partition') && s.clients.length > 0,
   weight: (s) => (partitioned(s).length === 0 ? 2 : 1),
-  args: (s) => gen(fc.constantFrom(...s.clients.map((c) => c.id))),
+  args: ['client:0'] as const,
+  draw: (s) => gen(fc.constantFrom(...s.clients.map((c) => c.id))),
   act: (s, id: string) => {
     s.session.network.partition('server', id);
   },
 });
 
-export const heal = defineAction({
+export const heal = sync.action({
   name: 'heal',
   enabled: (s) => caps(s).includes('partition'),
   weight: 2,
@@ -115,7 +123,7 @@ export const heal = defineAction({
 
 export const SYNC_ACTIONS = [createNote, partition, heal] as const;
 
-export const converges = defineProperty({
+export const converges = sync.property({
   name: 'converges',
   check: (s) => {
     if (quiet(s) && partitioned(s).length === 0 && !converged(s)) {
@@ -126,7 +134,7 @@ export const converges = defineProperty({
 
 export const SYNC_PROPERTIES = [converges];
 
-export const arbSyncKnobs = (): fc.Arbitrary<SyncKnobs> =>
+export const arbSyncArgs = (): fc.Arbitrary<SyncArgs> =>
   fc.record({ clients: fc.integer({ min: 1, max: 3 }) });
 
 export type { SyncSurface };

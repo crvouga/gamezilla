@@ -3,7 +3,7 @@ import { assertProperty, fc } from '@pkgs/pbt';
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '../../protocol/wire';
 import {
   addClient,
-  arbRoomKnobs,
+  arbRoomArgs,
   arbSeed,
   clock,
   dispatch,
@@ -23,8 +23,8 @@ describe('room session-lifecycle PBT', () => {
     async () => {
       await assertProperty(
         'takeOver mid-flight',
-        fc.asyncProperty(arbSeed(), arbRoomKnobs(), async (seed, knobs) => {
-          await using run = await playRoomActions(counterSystem, {
+        fc.asyncProperty(arbSeed(), arbRoomArgs(), async (seed, args) => {
+          await using s = await playRoomActions(counterSystem, {
             seed,
             knobs,
             actions: [
@@ -43,7 +43,7 @@ describe('room session-lifecycle PBT', () => {
               },
             ],
           });
-          expect(counterValue(await readServer(run))).toBe(2);
+          expect(counterValue(await readServer(s))).toBe(2);
         }),
         { numRuns: 8 }
       );
@@ -56,8 +56,8 @@ describe('room session-lifecycle PBT', () => {
     async () => {
       await assertProperty(
         'crash restart clearLocalData',
-        fc.asyncProperty(arbSeed(), arbRoomKnobs(), async (seed, knobs) => {
-          await using _run = await playRoomActions(counterSystem, {
+        fc.asyncProperty(arbSeed(), arbRoomArgs(), async (seed, args) => {
+          await using _s = await playRoomActions(counterSystem, {
             seed,
             knobs,
             actions: [
@@ -98,7 +98,7 @@ describe('room session-lifecycle PBT', () => {
       await assertProperty(
         'serverCrash restart',
         fc.asyncProperty(arbSeed(), async (seed) => {
-          await using run = await playRoomActions(counterSystem, {
+          await using s = await playRoomActions(counterSystem, {
             seed,
             actions: [
               {
@@ -117,7 +117,7 @@ describe('room session-lifecycle PBT', () => {
               },
             ],
           });
-          expect(counterValue(await readServer(run))).toBe(2);
+          expect(counterValue(await readServer(s))).toBe(2);
         }),
         { numRuns: 6 }
       );
@@ -126,7 +126,7 @@ describe('room session-lifecycle PBT', () => {
   );
 
   test('commandId replay across takeOver applies once', async () => {
-    await using run = await openRoom(counterSystem, {
+    await using s = await openRoom(counterSystem, {
       seed: 7,
       clientCount: 2,
     });
@@ -134,45 +134,45 @@ describe('room session-lifecycle PBT', () => {
       v: WIRE_VERSION,
       kind: ROOM_WIRE_KIND.command,
       id: 'same-cmd',
-      ts: await run.observe(clock),
+      ts: await s.observe(clock),
       payload: Increment({}),
     };
-    await run.apply(injectToServer, {
+    await s.apply(injectToServer, {
       clientId: 'c0',
       raw: frame,
       direct: true,
     });
-    await run.apply(takeOver, 'c0');
-    await run.apply(injectToServer, {
+    await s.apply(takeOver, 'c0');
+    await s.apply(injectToServer, {
       clientId: 'c0',
       raw: frame,
       direct: true,
     });
-    await expectConverged(run);
-    expect(counterValue(await readServer(run))).toBe(1);
+    await expectConverged(s);
+    expect(counterValue(await readServer(s))).toBe(1);
   });
 
   test('multi-tab same identity converges', async () => {
-    await using run = await openRoom(counterSystem, { seed: 11 });
-    await run.apply(addClient, {
+    await using s = await openRoom(counterSystem, { seed: 11 });
+    await s.apply(addClient, {
       id: 'tab-a',
       identity: 'user',
       clientId: 'a',
     });
-    await run.apply(addClient, {
+    await s.apply(addClient, {
       id: 'tab-b',
       identity: 'user',
       clientId: 'b',
     });
-    await run.apply(dispatch, {
+    await s.apply(dispatch, {
       clientId: 'tab-a',
       payload: Increment({}),
     });
-    await run.apply(dispatch, {
+    await s.apply(dispatch, {
       clientId: 'tab-b',
       payload: Increment({}),
     });
-    await expectConverged(run);
-    expect(counterValue(await readServer(run))).toBe(2);
+    await expectConverged(s);
+    expect(counterValue(await readServer(s))).toBe(2);
   });
 });

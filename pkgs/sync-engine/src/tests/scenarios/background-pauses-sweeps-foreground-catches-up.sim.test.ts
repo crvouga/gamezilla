@@ -1,7 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import {
-  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
@@ -11,61 +9,56 @@ import {
   mutate,
   neverAcme,
   setNote,
-  syncVirtualHost,
   untilAcme,
 } from '../apps/acme';
 
 describe('background pauses sweeps foreground catches up', () => {
   test('background pauses query sweeps until foreground', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 507,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({
+      args: {
         clientCount: 0,
         rowImageFanout: false,
-      }),
-      properties: [],
+      },
     });
 
-    await run.apply(addClient, 'alice');
-    await run.apply(addClient, 'bob');
-    await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
-    await expectConverged(run);
+    await s.apply(addClient, 'alice');
+    await s.apply(addClient, 'bob');
+    await s.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
+    await expectConverged(s);
 
-    await run.apply(foreground, 'bob', false);
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'while-bg' });
-    await neverAcme(run, (s) => liveNote(s, 'bob', 'n1'), { forMs: 300 });
+    await s.apply(foreground, 'bob', false);
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'while-bg' });
+    await neverAcme(s, (s) => liveNote(s, 'bob', 'n1'), { forMs: 300 });
 
-    await run.apply(foreground, 'bob', true);
-    await untilAcme(run, (s) => liveNote(s, 'bob', 'n1'));
-    await expectConverged(run);
-    expect(await run.observe(liveNote, 'bob', 'n1')).toMatchObject({
+    await s.apply(foreground, 'bob', true);
+    await untilAcme(s, (s) => liveNote(s, 'bob', 'n1'));
+    await expectConverged(s);
+    expect(await s.observe(liveNote, 'bob', 'n1')).toMatchObject({
       body: 'while-bg',
     });
   });
 
   test('background does not block local mutate visibility', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 508,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({
+      args: {
         clientCount: 0,
-      }),
-      properties: [],
+      },
     });
 
-    await run.apply(addClient, 'alice');
-    await run.apply(foreground, 'alice', false);
-    await run.apply(mutate, 'alice', setNote, {
+    await s.apply(addClient, 'alice');
+    await s.apply(foreground, 'alice', false);
+    await s.apply(mutate, 'alice', setNote, {
       id: 'local',
       body: 'bg-write',
     });
-    expect(await run.observe(lastMutationOk, 'alice')).toBe(true);
-    expect(await run.observe(liveNote, 'alice', 'local')).toMatchObject({
+    expect(await s.observe(lastMutationOk, 'alice')).toBe(true);
+    expect(await s.observe(liveNote, 'alice', 'local')).toMatchObject({
       body: 'bg-write',
     });
     // Drain upload while pumping sim time (dispose awaits upload stop).
-    await run.apply(foreground, 'alice', true);
-    await run.elapse(200);
+    await s.apply(foreground, 'alice', true);
+    await s.elapse(200);
   });
 });

@@ -1,12 +1,12 @@
 import { Handles } from '@libs/dst-handles';
 
-import type { ActorRun } from './actor-run';
+import type { ActorScript } from './actor-script';
 
 /** Virtual-time budget for a search hit to hydrate and render. */
 const WAIT_MS = 10_000;
 
 export class SearchFlows {
-  constructor(private readonly actor: ActorRun) {}
+  constructor(private readonly actor: ActorScript) {}
 
   async openTab(): Promise<void> {
     await this.actor.ui.get(Handles.tabSearch).tap();

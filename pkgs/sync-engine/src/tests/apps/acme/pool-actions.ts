@@ -5,12 +5,10 @@
  * boolean verdict.
  */
 
-import { defineSurface } from '@pkgs/dst';
+import { defineAction } from '@pkgs/dst';
 
 import type { SyncEnginePoolApi } from '../../../client/sync-engine-pool';
 import type { SyncSurface } from '../../../sim/scenario';
-
-const { defineAction } = defineSurface<SyncSurface>();
 
 /** One `getOrCreate` call: which identity, and which client owns the engine. */
 export type PoolActivation = {
@@ -42,13 +40,17 @@ function engineOf(s: SyncSurface, clientId: string) {
 }
 
 /**
- * `run.apply(poolActivate, pool, { identity: 'user-a', clientId: 'device-a' })`
+ * `s.apply(poolActivate, pool, { identity: 'user-a', clientId: 'device-a' })`
  * — activate one identity and record whether the pool returned that client's
  * own engine.
  */
 export const poolActivate = defineAction({
   name: 'poolActivate',
-  act: async (s, pool: SyncEnginePoolApi, activation: PoolActivation) => {
+  act: async (
+    s: SyncSurface,
+    pool: SyncEnginePoolApi,
+    activation: PoolActivation
+  ) => {
     const engine = await pool.getOrCreate(activation.identity, async () =>
       engineOf(s, activation.clientId)
     );
@@ -66,7 +68,7 @@ export const poolActivate = defineAction({
 export const poolActivateConcurrently = defineAction({
   name: 'poolActivateConcurrently',
   act: async (
-    s,
+    s: SyncSurface,
     pool: SyncEnginePoolApi,
     activations: readonly PoolActivation[],
     delayMs: number

@@ -1,7 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import {
-  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
@@ -11,7 +9,6 @@ import {
   net,
   nudge,
   setNote,
-  syncVirtualHost,
 } from '../apps/acme';
 
 const DELAYED_SYNC_FAULTS = {
@@ -26,40 +23,38 @@ const DELAYED_SYNC_FAULTS = {
 
 describe('delayed sync after ack no optimistic flicker', () => {
   test('optimistic body never reverts under delayed sync after upload ack', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 701,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({
+      args: {
         clientCount: 0,
         rowImageFanout: false,
-      }),
-      properties: [],
+      },
     });
 
-    await run.apply(addClient, { id: 'alice' });
-    await run.apply(addClient, { id: 'bob' });
-    await run.apply(net, 'alice', 'all', DELAYED_SYNC_FAULTS);
-    await run.apply(net, 'bob', 'all', DELAYED_SYNC_FAULTS);
+    await s.apply(addClient, { id: 'alice' });
+    await s.apply(addClient, { id: 'bob' });
+    await s.apply(net, 'alice', 'all', DELAYED_SYNC_FAULTS);
+    await s.apply(net, 'bob', 'all', DELAYED_SYNC_FAULTS);
 
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'seed' });
-    await expectConverged(run);
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'seed' });
+    await expectConverged(s);
 
-    await run.apply(mutate, 'alice', setNote, {
+    await s.apply(mutate, 'alice', setNote, {
       id: 'n1',
       body: 'optimistic-final',
     });
 
     // Overlap upload ack with delayed / reordered query responses:
     // nudge races post-ack sweeps with delayed sync.
-    await run.apply(nudge, 'alice');
+    await s.apply(nudge, 'alice');
     for (let i = 0; i < 16; i += 1) {
-      await run.elapse(25);
-      const rows = await run.observe(liveNotes, 'alice');
+      await s.elapse(25);
+      const rows = await s.observe(liveNotes, 'alice');
       const note = rows.find((r) => r.id === 'n1');
       expect(note?.body).toBe('optimistic-final');
     }
 
-    await expectConverged(run);
-    await expectLiveNoteAt(run, 'alice', 'n1', { body: 'optimistic-final' });
+    await expectConverged(s);
+    await expectLiveNoteAt(s, 'alice', 'n1', { body: 'optimistic-final' });
   });
 });

@@ -66,8 +66,8 @@ export const tickAllWith = defineAction({
 });
 
 /**
- * Advance virtual time and tick all replicas — use between `run.observe(matched,
- * …)` polls when radius growth needs ticks (plain `run.elapse` does not tick).
+ * Advance virtual time and tick all replicas — use between `s.observe(matched,
+ * …)` polls when radius growth needs ticks (plain `s.elapse` does not tick).
  */
 export const stepTime = defineAction({
   name: 'stepTime',

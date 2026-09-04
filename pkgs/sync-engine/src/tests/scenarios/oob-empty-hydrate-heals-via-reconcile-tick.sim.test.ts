@@ -1,7 +1,5 @@
 import { describe, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import {
-  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
@@ -12,7 +10,6 @@ import {
   noteBodyIs,
   serverOp,
   setNote,
-  syncVirtualHost,
   untilAcme,
 } from '../apps/acme';
 
@@ -21,53 +18,49 @@ describe('oob empty hydrate heals via reconcile tick', () => {
   // Missed notifyChannels must still heal via the reconcile tick (no nudge).
 
   test('silent catalog insert after empty hydrate heals without nudge', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 1501,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, { id: 'alice' });
-    await expectNoteNotLiveAt(run, 'alice', 'n-seed');
+    await s.apply(addClient, { id: 'alice' });
+    await expectNoteNotLiveAt(s, 'alice', 'n-seed');
 
-    await run.apply(serverOp, 'insertCatalogNoteSilent', {
+    await s.apply(serverOp, 'insertCatalogNoteSilent', {
       noteId: 'n-seed',
       body: 'seeded',
     });
-    await expectLiveNoteAt(run, 'server', 'n-seed', { body: 'seeded' });
+    await expectLiveNoteAt(s, 'server', 'n-seed', { body: 'seeded' });
 
-    await untilAcme(run, (s) => liveNote(s, 'alice', 'n-seed'), {
+    await untilAcme(s, (s) => liveNote(s, 'alice', 'n-seed'), {
       pred: noteBodyIs('seeded'),
     });
-    await expectLiveNoteAt(run, 'alice', 'n-seed', { body: 'seeded' });
-    await expectConverged(run);
+    await expectLiveNoteAt(s, 'alice', 'n-seed', { body: 'seeded' });
+    await expectConverged(s);
   });
 
   test('silent catalog update heals without nudge', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 1502,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, { id: 'alice' });
-    await run.apply(addClient, { id: 'bob' });
+    await s.apply(addClient, { id: 'alice' });
+    await s.apply(addClient, { id: 'bob' });
 
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'v1' });
-    await expectConverged(run);
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'v1' });
+    await expectConverged(s);
 
-    await run.apply(serverOp, 'writeNoteBodySilent', {
+    await s.apply(serverOp, 'writeNoteBodySilent', {
       noteId: 'n1',
       body: 'v2-silent',
     });
-    await expectLiveNoteAt(run, 'server', 'n1', { body: 'v2-silent' });
+    await expectLiveNoteAt(s, 'server', 'n1', { body: 'v2-silent' });
 
-    await untilAcme(run, (s) => liveNote(s, 'bob', 'n1'), {
+    await untilAcme(s, (s) => liveNote(s, 'bob', 'n1'), {
       pred: noteBodyIs('v2-silent'),
     });
-    await expectLiveNoteAt(run, 'bob', 'n1', { body: 'v2-silent' });
-    await expectConverged(run);
+    await expectLiveNoteAt(s, 'bob', 'n1', { body: 'v2-silent' });
+    await expectConverged(s);
   });
 });

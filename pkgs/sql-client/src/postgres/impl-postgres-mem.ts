@@ -8,9 +8,8 @@
  * Snapshots are PGMM blobs wrapped in a JSON envelope (not `pg_dump`).
  */
 
-import { Database, Snapshot } from '@crvouga/postgres-mem';
+import { Database } from '@crvouga/postgres-mem';
 import { assert } from '@pkgs/assert';
-import { installPostgresMemSqliteCompat } from '@pkgs/postgres-sqlite-compat/install-postgres-mem';
 import type { Sql, Value } from '@pkgs/sql';
 import type {
   PostgresSqlClient,
@@ -20,18 +19,20 @@ import type {
 } from '../interface';
 import { questionMarkParamsToDollarParams } from '../positional-params';
 import { readLastInsertRowid } from './impl-pg-shared';
-import { normalizePgInt8Rows } from './normalize-pg-int8';
 import type { Pool, PoolClient, QueryResult } from './pg-types';
-import {
-  encodePostgresMemSnapshotEnvelope,
-  parsePostgresMemSnapshotEnvelope,
-} from './postgres-mem-snapshot';
-import { repairPostgresMemPgmmBigintSlots } from './repair-pgmm-bigint-slots';
+import { installPostgresMemSqliteCompat } from './postgres-mem-sqlite-compat';
 import {
   createPostgresDbScope,
   type PostgresDbScope,
   quotePgIdent,
 } from './schema';
+
+const PGMM_MAGIC0 = 0x50; // P
+const PGMM_MAGIC1 = 0x47; // G
+const PGMM_MAGIC2 = 0x4d; // M
+const PGMM_MAGIC3 = 0x4d; // M
+
+const SNAPSHOT_KIND = 'postgres-mem';
 
 type PostgresMemBind =
   | string
@@ -76,6 +77,91 @@ function toBinds(values: readonly Value[]): PostgresMemBind[] {
   });
 }
 
+/**
+ * postgres-mem returns int8 as bigint (like node-pg with parseInt8). Wire/JSON
+ * responses and many app paths expect number|string — coerce for SqlClient
+ * parity with typical node-pg defaults (string) / SQLite (number).
+ */
+function normalizeRowValue(value: unknown): unknown {
+  if (typeof value === 'bigint') {
+    const asNumber = Number(value);
+    if (Number.isSafeInteger(asNumber) && BigInt(asNumber) === value) {
+      return asNumber;
+    }
+    return value.toString();
+  }
+  return value;
+}
+
+function normalizeRows<T extends Record<string, unknown>>(
+  rows: readonly T[]
+): T[] {
+  return rows.map((row) => {
+    const out: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(row)) {
+      out[key] = normalizeRowValue(value);
+    }
+    return out as T;
+  });
+}
+
+function hasPgmmMagic(bytes: Uint8Array): boolean {
+  return (
+    bytes.length >= 4 &&
+    bytes[0] === PGMM_MAGIC0 &&
+    bytes[1] === PGMM_MAGIC1 &&
+    bytes[2] === PGMM_MAGIC2 &&
+    bytes[3] === PGMM_MAGIC3
+  );
+}
+
+function bytesToBase64(bytes: Uint8Array): string {
+  let binary = '';
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]!);
+  }
+  return btoa(binary);
+}
+
+function base64ToBytes(b64: string): Uint8Array {
+  const binary = atob(b64);
+  const out = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    out[i] = binary.charCodeAt(i);
+  }
+  return out;
+}
+
+function parseSnapshotPayload(bytes: Uint8Array): Uint8Array {
+  let payload: {
+    v?: unknown;
+    kind?: unknown;
+    pgmmB64?: unknown;
+  };
+  try {
+    payload = JSON.parse(new TextDecoder().decode(bytes)) as typeof payload;
+  } catch {
+    throw new Error(
+      'SqlClientImplPostgresMem.importDatabaseBytes: expected JSON postgres-mem snapshot'
+    );
+  }
+  if (
+    payload.v !== 1 ||
+    payload.kind !== SNAPSHOT_KIND ||
+    typeof payload.pgmmB64 !== 'string'
+  ) {
+    throw new Error(
+      'SqlClientImplPostgresMem.importDatabaseBytes: unsupported snapshot format'
+    );
+  }
+  const pgmm = base64ToBytes(payload.pgmmB64);
+  assert.ok(
+    hasPgmmMagic(pgmm),
+    'SqlClientImplPostgresMem.importDatabaseBytes: missing PGMM magic'
+  );
+  return pgmm;
+}
+
 function execOnDb(
   db: Database,
   sqlText: string,
@@ -96,7 +182,7 @@ function execOnDb(
       text,
       toBinds(vals as Value[])
     );
-    return { rows: normalizePgInt8Rows(rows), rowCount: rows.length };
+    return { rows: normalizeRows(rows), rowCount: rows.length };
   }
   if (vals.length === 0 && /;\s*\S/.test(trimmed)) {
     // Multi-statement DDL scripts (no binds) — postgres-mem `exec`.
@@ -108,7 +194,7 @@ function execOnDb(
 }
 
 /**
- * Storage / UNLOGGED tweaks are real-Postgres only. Mirror postgres-mem intercepts so
+ * Storage / UNLOGGED tweaks are real-Postgres only. Mirror pg-mem intercepts so
  * package migrates succeed on the dialect emulator.
  */
 function tryPostgresMemNoop(
@@ -138,8 +224,8 @@ function tryPostgresMemNoop(
 }
 
 /**
- * postgres-mem rejects PL/pgSQL `DO` blocks. Expand known migrate DO loops
- * (DROP DEFAULT / DROP NOT NULL) into plain ALTER statements.
+ * postgres-mem rejects PL/pgSQL `DO` blocks. Expand the known migrate DO that
+ * drops engine defaults on id/created_at/updated_at into plain ALTER statements.
  */
 function execDoBlock(
   db: Database,
@@ -150,71 +236,25 @@ function execDoBlock(
     /information_schema\.columns/i.test(doSql) &&
     /created_at/i.test(doSql)
   ) {
-    return execDropDefaultDo(db);
-  }
-  if (
-    /DROP NOT NULL/i.test(doSql) &&
-    /information_schema\.columns/i.test(doSql)
-  ) {
-    return execDropNotNullDo(db, doSql);
+    const rows = db.query<{ table_name: string; column_name: string }>(`
+      SELECT c.table_name, c.column_name
+      FROM information_schema.columns c
+      WHERE c.table_schema = current_schema()
+        AND c.column_name IN ('id', 'created_at', 'updated_at')
+        AND c.column_default IS NOT NULL
+    `);
+    let changes = 0;
+    for (const row of rows) {
+      const table = quotePgIdent(row.table_name);
+      const column = quotePgIdent(row.column_name);
+      db.exec(`ALTER TABLE ${table} ALTER COLUMN ${column} DROP DEFAULT`);
+      changes += 1;
+    }
+    return { rows: [], rowCount: changes };
   }
   throw new Error(
     `SqlClientImplPostgresMem: unsupported DO $$ block (PL/pgSQL). Rewrite as plain SQL or expand in the adapter.\n${doSql.slice(0, 200)}`
   );
-}
-
-function execDropDefaultDo(db: Database): {
-  rows: Record<string, unknown>[];
-  rowCount: number;
-} {
-  const rows = db.query<{ table_name: string; column_name: string }>(`
-    SELECT c.table_name, c.column_name
-    FROM information_schema.columns c
-    WHERE c.table_schema = current_schema()
-      AND c.column_name IN ('id', 'created_at', 'updated_at')
-      AND c.column_default IS NOT NULL
-  `);
-  let changes = 0;
-  for (const row of rows) {
-    db.exec(
-      `ALTER TABLE ${quotePgIdent(row.table_name)} ALTER COLUMN ${quotePgIdent(
-        row.column_name
-      )} DROP DEFAULT`
-    );
-    changes += 1;
-  }
-  return { rows: [], rowCount: changes };
-}
-
-function execDropNotNullDo(
-  db: Database,
-  doSql: string
-): { rows: Record<string, unknown>[]; rowCount: number } {
-  const tableMatch = /c\.table_name = '([a-z0-9_]+)'/.exec(doSql);
-  if (tableMatch === null) {
-    throw new Error(
-      `SqlClientImplPostgresMem: DROP NOT NULL DO missing table_name\n${doSql.slice(0, 200)}`
-    );
-  }
-  const table = tableMatch[1]!;
-  const rows = db.query<{ column_name: string }>(`
-    SELECT c.column_name
-    FROM information_schema.columns c
-    WHERE c.table_schema = current_schema()
-      AND c.table_name = '${table}'
-      AND c.is_nullable = 'NO'
-      AND c.column_name <> 'id'
-  `);
-  let changes = 0;
-  for (const row of rows) {
-    db.exec(
-      `ALTER TABLE ${quotePgIdent(table)} ALTER COLUMN ${quotePgIdent(
-        row.column_name
-      )} DROP NOT NULL`
-    );
-    changes += 1;
-  }
-  return { rows: [], rowCount: changes };
 }
 
 function createSessionClient(db: Database): SqlClient {
@@ -274,14 +314,10 @@ function createSessionClient(db: Database): SqlClient {
  * Minimal `pg.Pool` facade over a single postgres-mem {@link Database}.
  * Enough for Better Auth Kysely migrate (`pool.query` / `pool.connect`).
  */
-export function adaptPostgresMemAsPool(getDb: () => Database): Pool {
+export function adaptPostgresMemAsPool(db: Database): Pool {
   const runQuery = (text: string, values?: unknown[]): Promise<QueryResult> => {
     try {
-      const { rows, rowCount } = execOnDb(
-        getDb(),
-        text,
-        (values ?? []) as Value[]
-      );
+      const { rows, rowCount } = execOnDb(db, text, (values ?? []) as Value[]);
       return Promise.resolve({ rows, rowCount });
     } catch (err) {
       return Promise.reject(err);
@@ -341,31 +377,26 @@ export function adaptPostgresMemAsPool(getDb: () => Database): Pool {
   return poolAdapter as unknown as Pool;
 }
 
-function postgresMemEngineOptions(options?: PostgresMemOpenOptions) {
-  return {
-    seed: options?.seed ?? 1,
-    ...(options?.now !== undefined ? { now: options.now } : {}),
-  };
-}
-
 export class SqlClientImplPostgresMem implements PostgresSqlClient {
   private db: Database | null;
 
   private constructor(
     db: Database,
-    readonly dbScope: PostgresDbScope,
-    private readonly openOptions: PostgresMemOpenOptions | undefined
+    readonly dbScope: PostgresDbScope
   ) {
     this.db = db;
   }
 
   static open(options?: PostgresMemOpenOptions): SqlClientImplPostgresMem {
     const dbScope = options?.dbScope ?? createPostgresDbScope('public');
-    const db = new Database(postgresMemEngineOptions(options));
+    const db = new Database({
+      seed: options?.seed ?? 1,
+      ...(options?.now !== undefined ? { now: options.now } : {}),
+    });
     if (options?.installSqliteCompat !== false) {
       installPostgresMemSqliteCompat({ db });
     }
-    return new SqlClientImplPostgresMem(db, dbScope, options);
+    return new SqlClientImplPostgresMem(db, dbScope);
   }
 
   private requireDb(): Database {
@@ -403,24 +434,25 @@ export class SqlClientImplPostgresMem implements PostgresSqlClient {
     }
   }
 
+  /**
+   * JSON envelope around a PGMM snapshot.
+   */
   exportDatabaseBytes(): Uint8Array {
-    return encodePostgresMemSnapshotEnvelope(
-      this.requireDb().snapshot().encode()
-    );
+    const db = this.requireDb();
+    const payload = {
+      v: 1 as const,
+      kind: SNAPSHOT_KIND,
+      pgmmB64: bytesToBase64(db.snapshot()),
+    };
+    return new TextEncoder().encode(JSON.stringify(payload));
   }
 
+  /**
+   * Restore a prior {@link exportDatabaseBytes} payload into this connection.
+   */
   importDatabaseBytes(bytes: Uint8Array): void {
-    const pgmm = parsePostgresMemSnapshotEnvelope(bytes);
-    const next = Snapshot.decode(pgmm).open(
-      postgresMemEngineOptions(this.openOptions)
-    );
-    repairPostgresMemPgmmBigintSlots(next);
-    const prev = this.requireDb();
-    this.db = next;
-    prev.close();
-    if (this.dbScope.schema !== 'public') {
-      next.exec(`SET search_path TO ${quotePgIdent(this.dbScope.schema)}`);
-    }
+    const pgmm = parseSnapshotPayload(bytes);
+    this.requireDb().restore(pgmm);
   }
 
   query<T extends Record<string, unknown>>(query: Sql<T>): Promise<T[]> {
@@ -483,6 +515,6 @@ export function createPostgresMemSqlClient(
   options?: PostgresMemOpenOptions
 ): PostgresMemSqlClientBundle {
   const sqlClient = SqlClientImplPostgresMem.open(options);
-  const pool = adaptPostgresMemAsPool(() => sqlClient.rawDb);
+  const pool = adaptPostgresMemAsPool(sqlClient.rawDb);
   return { db: sqlClient.rawDb, sqlClient, pool };
 }

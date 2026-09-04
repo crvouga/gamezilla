@@ -1,11 +1,11 @@
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
-import { mutationAppliedId } from '../../shared/schema/tables';
 import {
   parseStandardSchema,
   schemaIssuesToFailures,
 } from '../../shared/standard-schema';
+import { mutationAppliedId } from '../../shared/schema/tables';
 import type { WriteCaptureSnapshot } from '../../sql-ast';
 import { isMutationError, mutationErrorToFailure } from '../core/failures';
 import type {
@@ -50,52 +50,6 @@ export type ReplayOutcome =
       readonly code: string;
       readonly message: string;
     };
-
-async function applyReplayMutationInTxn(args: {
-  readonly txc: Pick<SqlClient, 'query' | 'run'>;
-  readonly deps: ReplayMutationDeps;
-  readonly m: MutationRow;
-  readonly mutation: NonNullable<MutationRegistry[string]>;
-  readonly parsedValue: unknown;
-}): Promise<ReplayOutcome> {
-  const { txc, deps, m, mutation, parsedValue } = args;
-  const env: MutationEnv = {
-    actorId: deps.auth.actorId,
-    deviceId: deps.auth.deviceId,
-    accountId: deps.auth.accountId,
-    isAnon: deps.auth.isAnon,
-    now: () => new Date(m.createdAt),
-    createId: deps.createId,
-    ...(deps.serverNow !== undefined ? { serverNow: deps.serverNow } : {}),
-  };
-
-  const wrapped = wrapMutationDb(txc, env);
-  await mutation.run({ tx: wrapped.tx, env }, parsedValue);
-  const capture = wrapped.getCapture();
-
-  const managed = managedInsertColumns(
-    deps.createId,
-    deps.now,
-    mutationAppliedId(m.id)
-  );
-  await txc.run(sql`
-    INSERT INTO sync_engine_mutations_applied (
-      id, mutation_id, client_id, seq, status,
-      created_at, updated_at, deleted_at
-    )
-    VALUES (
-      ${managed.id},
-      ${m.id},
-      ${m.clientId},
-      ${m.seq},
-      ${'applied'},
-      ${managed.created_at},
-      ${managed.updated_at},
-      ${null}
-    )
-  `);
-  return { status: 'applied' as const, capture };
-}
 
 /**
  * Replay one mutation against authoritative Postgres.
@@ -161,13 +115,42 @@ export async function replayMutation(
         };
       }
 
-      return applyReplayMutationInTxn({
-        txc,
-        deps,
-        m,
-        mutation,
-        parsedValue: parsed.value,
-      });
+      const env: MutationEnv = {
+        actorId: deps.auth.actorId,
+        deviceId: deps.auth.deviceId,
+        accountId: deps.auth.accountId,
+        isAnon: deps.auth.isAnon,
+        now: () => new Date(m.createdAt),
+        createId: deps.createId,
+        ...(deps.serverNow !== undefined ? { serverNow: deps.serverNow } : {}),
+      };
+
+      const wrapped = wrapMutationDb(txc, env);
+      await mutation.run({ tx: wrapped.tx, env }, parsed.value);
+      const capture = wrapped.getCapture();
+
+      const managed = managedInsertColumns(
+        deps.createId,
+        deps.now,
+        mutationAppliedId(m.id)
+      );
+      await txc.run(sql`
+        INSERT INTO sync_engine_mutations_applied (
+          id, mutation_id, client_id, seq, status,
+          created_at, updated_at, deleted_at
+        )
+        VALUES (
+          ${managed.id},
+          ${m.id},
+          ${m.clientId},
+          ${m.seq},
+          ${'applied'},
+          ${managed.created_at},
+          ${managed.updated_at},
+          ${null}
+        )
+      `);
+      return { status: 'applied' as const, capture };
     });
   } catch (e) {
     const mutation = deps.registry[m.name];

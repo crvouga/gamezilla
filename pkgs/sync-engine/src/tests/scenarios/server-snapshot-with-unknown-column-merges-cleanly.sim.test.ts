@@ -1,14 +1,14 @@
 import { describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
+import { defineSystem } from '@pkgs/dst';
 import {
+  ACME_DEFAULT_ARGS,
   acmeApp,
-  acmeKnobs,
   acmeLocalSchema,
   acmeLocalSchemaExtraColumn,
   acmeMutationRegistry,
   acmeQueryRegistry,
   addClient,
-  defineSyncSystem,
+  createSyncSurface,
   expectConverged,
   expectLiveNoteAt,
   mutate,
@@ -16,11 +16,11 @@ import {
   noteColumns,
   notesAllWithColorQuery,
   setNoteColor,
-  syncVirtualHost,
+  syncVirtual,
 } from '../apps/acme';
 
-const acmeColorServerSystem = defineSyncSystem(acmeApp, {
-  id: 'sync.acmeColorServerSystem',
+/** Non-JSON schema fixture — the system closes over the registries. */
+const colorFixtures = {
   localSchema: acmeLocalSchemaExtraColumn,
   mutationRegistry: {
     ...acmeMutationRegistry,
@@ -30,46 +30,56 @@ const acmeColorServerSystem = defineSyncSystem(acmeApp, {
     ...acmeQueryRegistry,
     [notesAllWithColorQuery.name]: notesAllWithColorQuery,
   },
-  sessionQuery: { name: 'notesAllWithColor', params: {} },
+} as const;
+
+const acmeColorServerSystem = defineSystem({
+  name: 'sync.acme.colorServer',
+  args: {
+    ...ACME_DEFAULT_ARGS,
+    sessionQuery: { name: 'notesAllWithColor', params: {} },
+  },
+  create: (session, args) =>
+    createSyncSurface(session, acmeApp, args, colorFixtures),
+});
+acmeColorServerSystem.host({
+  default: true,
+  name: 'virtual',
+  create: () => syncVirtual(),
 });
 
 describe('server snapshot with unknown column merges cleanly', () => {
   test.each([730, 731, 732])(
     'client without color ignores server color key (seed=%i)',
     async (seed) => {
-      await using run = await script(acmeColorServerSystem, {
+      await using s = await acmeColorServerSystem.script({
         seed: seed,
-        host: syncVirtualHost(),
-        knobs: acmeKnobs({ clientCount: 0 }),
-        properties: [],
+        args: { clientCount: 0 },
       });
 
-      await run.apply(addClient, {
+      await s.apply(addClient, {
         id: 'alice',
         localSchema: acmeLocalSchema,
       });
-      await run.apply(addClient, {
+      await s.apply(addClient, {
         id: 'bob',
         localSchema: acmeLocalSchemaExtraColumn,
       });
 
-      await run.apply(mutate, 'bob', setNoteColor, {
+      await s.apply(mutate, 'bob', setNoteColor, {
         id: 'n1',
         body: 'painted',
         color: 'blue',
       });
-      await expectConverged(run);
+      await expectConverged(s);
 
-      await expectLiveNoteAt(run, 'alice', 'n1', { body: 'painted' });
-      await expectLiveNoteAt(run, 'bob', 'n1', { body: 'painted' });
+      await expectLiveNoteAt(s, 'alice', 'n1', { body: 'painted' });
+      await expectLiveNoteAt(s, 'bob', 'n1', { body: 'painted' });
 
       // Base client has no color column — PRAGMA would not list it.
-      const cols = await run.observe(noteColumns, 'alice');
+      const cols = await s.observe(noteColumns, 'alice');
       expect(cols.some((c) => c.name === 'color')).toBe(false);
 
-      expect((await run.observe(noteColor, 'bob', 'n1'))[0]?.color).toBe(
-        'blue'
-      );
+      expect((await s.observe(noteColor, 'bob', 'n1'))[0]?.color).toBe('blue');
     }
   );
 });

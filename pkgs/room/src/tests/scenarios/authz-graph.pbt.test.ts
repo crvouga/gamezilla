@@ -14,7 +14,7 @@ describe('room authz-graph PBT', () => {
       await assertProperty(
         'authz graph converges',
         fc.asyncProperty(arbSeed(), async (seed) => {
-          await using run = await playRoomActions(authzSystem, {
+          await using s = await playRoomActions(authzSystem, {
             seed,
             actions: [
               {
@@ -46,7 +46,7 @@ describe('room authz-graph PBT', () => {
               },
             ],
           });
-          const snap = await readServer(run);
+          const snap = await readServer(s);
           expect(authzOwner(snap)).toBe('c0');
           expect(authzCount(snap)).toBe(2);
         }),
@@ -57,7 +57,7 @@ describe('room authz-graph PBT', () => {
   );
 
   test('takeOver does not transfer ownership', async () => {
-    await using run = await playRoomActions(authzSystem, {
+    await using s = await playRoomActions(authzSystem, {
       seed: 21,
       actions: [
         {
@@ -75,7 +75,7 @@ describe('room authz-graph PBT', () => {
         },
       ],
     });
-    const snap = await readServer(run);
+    const snap = await readServer(s);
     expect(authzOwner(snap)).toBe('c0');
     expect(authzCount(snap)).toBe(0);
   });

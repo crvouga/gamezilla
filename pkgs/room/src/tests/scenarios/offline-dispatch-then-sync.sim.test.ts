@@ -9,7 +9,6 @@ import {
 import { counterSystem } from '../apps/counter/system';
 import { expectConverged } from '../expect-converged';
 import { counterValue, Increment } from '../fixtures/counter-module';
-import { openRoom } from '../scenario/open-room';
 import {
   expectHashMatch,
   readClient,
@@ -18,29 +17,29 @@ import {
 
 describe('room sim: offline dispatch then sync', () => {
   test('optimistic increment flushes after reconnect', async () => {
-    await using run = await openRoom(counterSystem, { seed: 4 });
-    await run.apply(addClient, { id: 'alice' });
-    await run.apply(addClient, { id: 'bob' });
-    await expectConverged(run);
+    await using s = await counterSystem.script({ seed: 4 });
+    await s.apply(addClient, { id: 'alice' });
+    await s.apply(addClient, { id: 'bob' });
+    await expectConverged(s);
 
-    await run.apply(disconnect, 'alice');
-    expect(((await run.observe(connected)) as string[]).includes('alice')).toBe(
+    await s.apply(disconnect, 'alice');
+    expect(((await s.observe(connected)) as string[]).includes('alice')).toBe(
       false
     );
-    await run.apply(dispatch, {
+    await s.apply(dispatch, {
       clientId: 'alice',
       payload: Increment({}),
     });
-    expect(counterValue(await readClient(run, 'alice'))).toBe(1);
+    expect(counterValue(await readClient(s, 'alice'))).toBe(1);
 
-    await run.elapse(100);
-    expect(counterValue(await readClient(run, 'bob'))).not.toBe(1);
+    await s.elapse(100);
+    expect(counterValue(await readClient(s, 'bob'))).not.toBe(1);
 
-    await run.apply(connect, 'alice');
-    await expectConverged(run);
+    await s.apply(connect, 'alice');
+    await expectConverged(s);
     expect(counterValue(await readServer(run))).toBe(1);
-    expect(counterValue(await readClient(run, 'alice'))).toBe(1);
-    expect(counterValue(await readClient(run, 'bob'))).toBe(1);
-    await expectHashMatch(run, 'alice');
+    expect(counterValue(await readClient(s, 'alice'))).toBe(1);
+    expect(counterValue(await readClient(s, 'bob'))).toBe(1);
+    await expectHashMatch(s, 'alice');
   });
 });

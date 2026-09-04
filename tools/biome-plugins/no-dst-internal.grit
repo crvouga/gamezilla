@@ -2,10 +2,10 @@ language js
 
 or {
   `run._internal` as $x where {
-    register_diagnostic(span=$x, message="Run._internal is sealed — use run.apply / run.observe / run.assert.", severity="error")
+    register_diagnostic(span=$x, message="Run._internal is sealed — use s.apply / run.observe / run.assert.", severity="error")
   },
   `$run._internal` as $x where {
-    register_diagnostic(span=$x, message="Run._internal is sealed — use run.apply / run.observe / run.assert.", severity="error")
+    register_diagnostic(span=$x, message="Run._internal is sealed — use s.apply / run.observe / run.assert.", severity="error")
   },
   `openAcmeWorld` as $x where {
     register_diagnostic(span=$x, message="open*World is forbidden — use start(system) and Run.", severity="error")
@@ -20,9 +20,9 @@ or {
     register_diagnostic(span=$x, message="open*World is forbidden — use start(system) and Run.", severity="error")
   },
   `playSyncActions` as $x where {
-    register_diagnostic(span=$x, message="play*Actions is forbidden — use run.apply or check/replay.", severity="error")
+    register_diagnostic(span=$x, message="play*Actions is forbidden — use s.apply or check/replay.", severity="error")
   },
   `playRoomActions` as $x where {
-    register_diagnostic(span=$x, message="play*Actions is forbidden — use run.apply or check/replay.", severity="error")
+    register_diagnostic(span=$x, message="play*Actions is forbidden — use system.script + s.apply / applyTaggedSequence / system.explore / system.replay.", severity="error")
   }
 }

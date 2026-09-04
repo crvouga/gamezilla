@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
-import { connect, disconnect, dispatch } from '../../sim/scenario';
+import { addClient, connect, disconnect, dispatch } from '../../sim/scenario';
+import { counterSystem } from '../apps/counter/system';
 import { expectConverged } from '../expect-converged';
 import { counterValue, Increment } from '../fixtures/counter-module';
-import { bootCounter } from '../scenario/boot-counter';
 import {
   expectHashMatch,
   readClient,
@@ -11,35 +11,41 @@ import {
 
 describe('room sim: offline queues interleave (E-B03)', () => {
   test('both offline queues flush; server order wins', async () => {
-    await using run = await bootCounter(['alice', 'bob', 'carol']);
+    await using s = await counterSystem.script({
+      seed: 42,
+    });
+    for (const id of ['alice', 'bob', 'carol']) {
+      await s.apply(addClient, { id });
+    }
+    await expectConverged(s);
 
-    await run.apply(disconnect, 'alice');
-    await run.apply(disconnect, 'bob');
-    await run.apply(dispatch, {
+    await s.apply(disconnect, 'alice');
+    await s.apply(disconnect, 'bob');
+    await s.apply(dispatch, {
       clientId: 'alice',
       payload: Increment({}),
     });
-    await run.apply(dispatch, {
+    await s.apply(dispatch, {
       clientId: 'alice',
       payload: Increment({}),
     });
-    await run.apply(dispatch, {
+    await s.apply(dispatch, {
       clientId: 'bob',
       payload: Increment({}),
     });
-    await run.apply(dispatch, {
+    await s.apply(dispatch, {
       clientId: 'carol',
       payload: Increment({}),
     });
-    expect(counterValue(await readClient(run, 'carol'))).toBe(1);
+    expect(counterValue(await readClient(s, 'carol'))).toBe(1);
 
-    await run.apply(connect, 'alice');
-    await run.apply(connect, 'bob');
-    await expectConverged(run);
+    await s.apply(connect, 'alice');
+    await s.apply(connect, 'bob');
+    await expectConverged(s);
     expect(counterValue(await readServer(run))).toBe(4);
-    expect(counterValue(await readClient(run, 'alice'))).toBe(4);
-    await expectHashMatch(run, 'alice');
-    await expectHashMatch(run, 'bob');
-    await expectHashMatch(run, 'carol');
+    expect(counterValue(await readClient(s, 'alice'))).toBe(4);
+    await expectHashMatch(s, 'alice');
+    await expectHashMatch(s, 'bob');
+    await expectHashMatch(s, 'carol');
   });
 });

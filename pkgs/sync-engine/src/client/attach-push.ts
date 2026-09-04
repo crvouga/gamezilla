@@ -27,34 +27,27 @@ function scheduleTopicSync(bag: PushBag): void {
   void flushTopicSync(bag);
 }
 
-async function runHeldRowTopicRefresh(bag: PushBag): Promise<void> {
-  if (bag.disposed) return;
-  const pending = await countPendingMutations(bag.options.db);
-  if (bag.disposed) return;
-  if (pending > 0) return;
-  await refreshHeldRowTopics(bag);
-  if (bag.disposed) return;
-  bag.membershipRemakePending = false;
-  syncTopics(bag);
-}
-
 async function flushTopicSync(bag: PushBag): Promise<void> {
-  if (bag.disposed || !bag.membershipRemakePending) return;
-  if (bag.remakeFlushInFlight) {
-    bag.remakeFlushQueued = true;
+  if (bag.disposed || !bag.membershipRemakePending || bag.remakeFlushInFlight) {
     return;
   }
   bag.remakeFlushInFlight = true;
   try {
-    await runHeldRowTopicRefresh(bag);
+    if (bag.disposed) return;
+    const pending = await countPendingMutations(bag.options.db);
+    if (bag.disposed) return;
+    if (pending > 0) {
+      // Stay pending; retry only when `sync_engine_mutations` bus fires (do not recurse).
+      return;
+    }
+    await refreshHeldRowTopics(bag);
+    if (bag.disposed) return;
+    bag.membershipRemakePending = false;
+    syncTopics(bag);
   } catch (error) {
     warnPush('[push] held-row topic refresh failed', error);
   } finally {
     bag.remakeFlushInFlight = false;
-    if (!bag.disposed && bag.membershipRemakePending && bag.remakeFlushQueued) {
-      bag.remakeFlushQueued = false;
-      void flushTopicSync(bag);
-    }
   }
 }
 
@@ -148,12 +141,12 @@ function remake(bag: PushBag, desired: Map<Topic, Set<string>>): void {
     bag.topicToScopes.set(topic, scopes);
     subscribeTopic(bag, topic);
   }
-  void clearRemovedPushApplied(bag.options.db, new Set(desired.keys()), {
-    now: bag.options.now,
-  }).catch((error) => {
-    if (bag.disposed) return;
-    warnPush('[push] clearRemovedPushApplied failed', error);
-  });
+  void clearRemovedPushApplied(bag.options.db, new Set(desired.keys())).catch(
+    (error) => {
+      if (bag.disposed) return;
+      warnPush('[push] clearRemovedPushApplied failed', error);
+    }
+  );
 }
 
 /**
@@ -182,12 +175,12 @@ function syncTopicsIncremental(
   }
 
   bag.lastTopicKey = topicKey(desired);
-  void clearRemovedPushApplied(bag.options.db, new Set(desired.keys()), {
-    now: bag.options.now,
-  }).catch((error) => {
-    if (bag.disposed) return;
-    warnPush('[push] clearRemovedPushApplied failed', error);
-  });
+  void clearRemovedPushApplied(bag.options.db, new Set(desired.keys())).catch(
+    (error) => {
+      if (bag.disposed) return;
+      warnPush('[push] clearRemovedPushApplied failed', error);
+    }
+  );
 
   // Heal any push lost in the tiny subscribe race without tearing down MQTT.
   if (changed) bag.options.runtime.wakeAll();
@@ -252,7 +245,7 @@ export function attachPush(options: AttachPushOptions): () => void {
       options.onTablesChanged((tables) => {
         if (bag.disposed) return;
         // Room / session subscribe sets change with membership tables.
-        // SyncKit-topic queries (notes/folders) stay on entryChannel and must
+        // World-topic queries (notes/folders) stay on entryChannel and must
         // not resync on every row write (deterministic fuzz refetch races).
         if (
           tables.has('spaces') ||

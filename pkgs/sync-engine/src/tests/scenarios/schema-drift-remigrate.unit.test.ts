@@ -1,7 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import {
-  acmeKnobs,
   acmeLocalSchemaExtraColumn,
   acmeSystem,
   addClient,
@@ -16,101 +14,92 @@ import {
   restart,
   restartWithSchema,
   setNote,
-  syncVirtualHost,
 } from '../apps/acme';
 
 describe('preserveLocalDb remigrate after additive schema', () => {
   test('restart without localSchema keeps extra column (no drift fail)', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 42,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, {
+    await s.apply(addClient, {
       id: 'alice',
       localSchema: acmeLocalSchemaExtraColumn,
     });
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'hi' });
-    await expectConverged(run);
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'hi' });
+    await expectConverged(s);
 
     // Settle-style remigrate: preserve DB, omit localSchema (pack baseline).
     // Must reuse sticky upgrade schema — baseline reconcile would reject color.
-    await run.apply(restart, 'alice', { preserveLocalDb: true });
+    await s.apply(restart, 'alice', { preserveLocalDb: true });
 
-    const cols = await run.observe(noteColumns, 'alice');
+    const cols = await s.observe(noteColumns, 'alice');
     expect(cols.some((c) => c.name === 'color')).toBe(true);
-    await expectLiveNoteAt(run, 'alice', 'n1', { body: 'hi' });
-    await expectNotesAgree(run, 'alice');
+    await expectLiveNoteAt(s, 'alice', 'n1', { body: 'hi' });
+    await expectNotesAgree(s, 'alice');
   });
 
   test('restartWithSchema then crash+preserve remigrate converges', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 43,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({
+      args: {
         clientCount: 0,
         rowImageFanout: false,
         liveResendOnReconnect: false,
         bufferOutboundLive: false,
-      }),
-      properties: [],
+      },
     });
 
-    await run.apply(addClient, { id: 'alice' });
-    await run.apply(addClient, { id: 'bob' });
+    await s.apply(addClient, { id: 'alice' });
+    await s.apply(addClient, { id: 'bob' });
 
-    await run.apply(restartWithSchema, 'alice', 'extraColumn');
-    await run.apply(mutate, 'alice', setNote, { id: 'n0', body: 'from-a' });
-    await run.apply(mutate, 'bob', setNote, { id: 'n1', body: 'from-b' });
+    await s.apply(restartWithSchema, 'alice', 'extraColumn');
+    await s.apply(mutate, 'alice', setNote, { id: 'n0', body: 'from-a' });
+    await s.apply(mutate, 'bob', setNote, { id: 'n1', body: 'from-b' });
 
-    await run.apply(crash, 'alice');
-    await run.apply(restart, 'alice', { preserveLocalDb: true });
+    await s.apply(crash, 'alice');
+    await s.apply(restart, 'alice', { preserveLocalDb: true });
 
-    await expectConverged(run);
-    await expectNotesAgree(run, 'alice');
-    await expectNotesAgree(run, 'bob');
+    await expectConverged(s);
+    await expectNotesAgree(s, 'alice');
+    await expectNotesAgree(s, 'bob');
   });
 
   test('extraColumn then extraTable remigrate drops color via deprecation', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 44,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, { id: 'alice' });
-    await run.apply(restartWithSchema, 'alice', 'extraColumn');
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'keep' });
-    await expectConverged(run);
+    await s.apply(addClient, { id: 'alice' });
+    await s.apply(restartWithSchema, 'alice', 'extraColumn');
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'keep' });
+    await expectConverged(s);
 
-    await run.apply(restartWithSchema, 'alice', 'extraTable');
+    await s.apply(restartWithSchema, 'alice', 'extraTable');
 
-    const cols = await run.observe(noteColumns, 'alice');
+    const cols = await s.observe(noteColumns, 'alice');
     expect(cols.some((c) => c.name === 'color')).toBe(false);
-    expect(await hasLocalTable(run, 'alice', 'tags')).toBe(true);
-    await expectLiveNoteAt(run, 'alice', 'n1', { body: 'keep' });
-    await expectNotesAgree(run, 'alice');
+    expect(await hasLocalTable(s, 'alice', 'tags')).toBe(true);
+    await expectLiveNoteAt(s, 'alice', 'n1', { body: 'keep' });
+    await expectNotesAgree(s, 'alice');
   });
 
   test('addPeerEngine inherits sticky schema from shared extraColumn db', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 45,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, { id: 'c1' });
-    await run.apply(restartWithSchema, 'c1', 'extraColumn');
-    await run.apply(mutate, 'c1', setNote, { id: 'n1', body: 'peer' });
-    await expectConverged(run);
+    await s.apply(addClient, { id: 'c1' });
+    await s.apply(restartWithSchema, 'c1', 'extraColumn');
+    await s.apply(mutate, 'c1', setNote, { id: 'n1', body: 'peer' });
+    await expectConverged(s);
 
-    await run.apply(addPeerEngine, 'c2', 'c1');
+    await s.apply(addPeerEngine, 'c2', 'c1');
 
-    await expectLiveNoteAt(run, 'c2', 'n1', { body: 'peer' });
-    await expectConverged(run);
+    await expectLiveNoteAt(s, 'c2', 'n1', { body: 'peer' });
+    await expectConverged(s);
   });
 });

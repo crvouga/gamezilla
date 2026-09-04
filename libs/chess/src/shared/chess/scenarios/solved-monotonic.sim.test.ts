@@ -4,7 +4,6 @@ import {
   clientState,
   dispatch,
   expectConverged,
-  openRoom,
   serverHash,
   serverState,
 } from '@pkgs/room/tests';
@@ -23,13 +22,13 @@ const SHORT_MOVES = 'e8d7';
 
 describe('chess puzzle: solved monotonic (Gp-03)', () => {
   test('post-solved moves do not change terminal status', async () => {
-    await using run = await openRoom(chessSystem, {
+    await using s = await chessSystem.script({
       seed: process.env['SIM_SEED'] ?? '42',
     });
-    await run.apply(addClient, { id: 'host', identity: 'host-1' });
-    await expectConverged(run);
+    await s.apply(addClient, { id: 'host', identity: 'host-1' });
+    await expectConverged(s);
 
-    await run.apply(dispatch, {
+    await s.apply(dispatch, {
       clientId: 'host',
       payload: StartChessPuzzlePlay({
         puzzleId: 'short',
@@ -37,29 +36,29 @@ describe('chess puzzle: solved monotonic (Gp-03)', () => {
         moves: SHORT_MOVES,
       }),
     });
-    await run.elapse(0);
+    await s.elapse(0);
     expect(
-      ChessPuzzlePlayAttr.status.from((await run.observe(serverState)) as never)
+      ChessPuzzlePlayAttr.status.from((await s.observe(serverState)) as never)
     ).toBe(CHESS_PUZZLE_PLAY_STATUS.solved);
-    const clients = await run.observe(clientState);
+    const clients = await s.observe(clientState);
     expect(ChessPuzzlePlayAttr.status.from(clients['host'] as never)).toBe(
       CHESS_PUZZLE_PLAY_STATUS.solved
     );
-    const terminalHash = await run.observe(serverHash);
+    const terminalHash = await s.observe(serverHash);
 
-    await run.apply(dispatch, {
+    await s.apply(dispatch, {
       clientId: 'host',
       payload: SubmitChessPuzzleMove({ uci: 'e1f2' }),
     });
-    await run.apply(dispatch, {
+    await s.apply(dispatch, {
       clientId: 'host',
       payload: SubmitChessPuzzleMove({ uci: 'a2a3' }),
     });
-    await run.elapse(0);
+    await s.elapse(0);
 
     expect(
-      ChessPuzzlePlayAttr.status.from((await run.observe(serverState)) as never)
+      ChessPuzzlePlayAttr.status.from((await s.observe(serverState)) as never)
     ).toBe(CHESS_PUZZLE_PLAY_STATUS.solved);
-    expect(await run.observe(serverHash)).toBe(terminalHash);
+    expect(await s.observe(serverHash)).toBe(terminalHash);
   });
 });

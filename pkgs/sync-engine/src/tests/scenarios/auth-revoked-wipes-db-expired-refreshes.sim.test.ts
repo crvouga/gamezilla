@@ -1,7 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import {
-  acmeKnobs,
   acmeSystem,
   addClient,
   auth,
@@ -20,200 +18,187 @@ import {
   restart,
   setNote,
   subscribedTopics,
-  syncVirtualHost,
   untilAcme,
 } from '../apps/acme';
 
 describe('auth revoked wipes db expired refreshes', () => {
   test('expired token refreshes; held queue drains and converges', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 601,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, { id: 'alice' });
-    await run.apply(addClient, { id: 'bob' });
+    await s.apply(addClient, { id: 'alice' });
+    await s.apply(addClient, { id: 'bob' });
 
-    await run.apply(disconnect, 'alice');
-    await run.apply(mutate, 'alice', setNote, {
+    await s.apply(disconnect, 'alice');
+    await s.apply(mutate, 'alice', setNote, {
       id: 'n-exp',
       body: 'queued-through-refresh',
     });
-    await neverAcme(run, (s) => liveNote(s, 'server', 'n-exp'), { forMs: 50 });
+    await neverAcme(s, (s) => liveNote(s, 'server', 'n-exp'), { forMs: 50 });
 
-    await run.apply(auth, 'alice', 'expired');
-    await run.apply(connect, 'alice');
-    await expectConverged(run);
+    await s.apply(auth, 'alice', 'expired');
+    await s.apply(connect, 'alice');
+    await expectConverged(s);
 
-    await expectLiveNoteAt(run, 'bob', 'n-exp', {
+    await expectLiveNoteAt(s, 'bob', 'n-exp', {
       body: 'queued-through-refresh',
     });
-    await expectLiveNoteAt(run, 'alice', 'n-exp', {
+    await expectLiveNoteAt(s, 'alice', 'n-exp', {
       body: 'queued-through-refresh',
     });
   });
 
   test('revoked wipe drops unuploaded optimistic edit; restart rehydrates server only', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 602,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, { id: 'alice' });
-    await run.apply(addClient, { id: 'bob' });
+    await s.apply(addClient, { id: 'alice' });
+    await s.apply(addClient, { id: 'bob' });
 
-    await run.apply(mutate, 'alice', setNote, {
+    await s.apply(mutate, 'alice', setNote, {
       id: 'n-kept',
       body: 'on-server',
     });
-    await expectConverged(run);
+    await expectConverged(s);
 
-    await run.apply(disconnect, 'alice');
-    await run.apply(mutate, 'alice', setNote, {
+    await s.apply(disconnect, 'alice');
+    await s.apply(mutate, 'alice', setNote, {
       id: 'n-lost',
       body: 'never-uploaded',
     });
-    await neverAcme(run, (s) => liveNote(s, 'server', 'n-lost'), { forMs: 50 });
+    await neverAcme(s, (s) => liveNote(s, 'server', 'n-lost'), { forMs: 50 });
 
-    await run.apply(auth, 'alice', 'revoked');
-    await run.apply(connect, 'alice');
-    await neverAcme(run, (s) => liveNote(s, 'server', 'n-lost'), {
+    await s.apply(auth, 'alice', 'revoked');
+    await s.apply(connect, 'alice');
+    await neverAcme(s, (s) => liveNote(s, 'server', 'n-lost'), {
       forMs: 500,
     });
 
-    await run.apply(restart, 'alice', {});
-    await expectConverged(run);
+    await s.apply(restart, 'alice', {});
+    await expectConverged(s);
 
-    await expectLiveNoteAt(run, 'alice', 'n-kept', { body: 'on-server' });
-    await expectNoteNotLiveAt(run, 'alice', 'n-lost');
-    await expectNoteNotLiveAt(run, 'server', 'n-lost');
+    await expectLiveNoteAt(s, 'alice', 'n-kept', { body: 'on-server' });
+    await expectNoteNotLiveAt(s, 'alice', 'n-lost');
+    await expectNoteNotLiveAt(s, 'server', 'n-lost');
   });
 
   test('expired during multi-mutation drain refreshes without loss', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 603,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, { id: 'alice' });
-    await run.apply(addClient, { id: 'bob' });
+    await s.apply(addClient, { id: 'alice' });
+    await s.apply(addClient, { id: 'bob' });
 
-    await run.apply(disconnect, 'alice');
+    await s.apply(disconnect, 'alice');
     for (let i = 0; i < 5; i += 1) {
-      await run.apply(mutate, 'alice', setNote, {
+      await s.apply(mutate, 'alice', setNote, {
         id: `drain-${i}`,
         body: `d${i}`,
       });
     }
-    await neverAcme(run, (s) => liveNote(s, 'server', 'drain-0'), {
+    await neverAcme(s, (s) => liveNote(s, 'server', 'drain-0'), {
       forMs: 50,
     });
 
-    await run.apply(auth, 'alice', 'expired');
-    await run.apply(connect, 'alice');
-    await expectConverged(run);
+    await s.apply(auth, 'alice', 'expired');
+    await s.apply(connect, 'alice');
+    await expectConverged(s);
 
     for (let i = 0; i < 5; i += 1) {
-      await expectLiveNoteAt(run, 'bob', `drain-${i}`, { body: `d${i}` });
-      await expectLiveNoteAt(run, 'alice', `drain-${i}`, { body: `d${i}` });
+      await expectLiveNoteAt(s, 'bob', `drain-${i}`, { body: `d${i}` });
+      await expectLiveNoteAt(s, 'alice', `drain-${i}`, { body: `d${i}` });
     }
   });
 
   test('revoked mid-push session wipes and detaches topics', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 604,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, { id: 'alice' });
-    await run.apply(addClient, { id: 'bob' });
+    await s.apply(addClient, { id: 'alice' });
+    await s.apply(addClient, { id: 'bob' });
 
-    await run.apply(mutate, 'alice', setNote, {
+    await s.apply(mutate, 'alice', setNote, {
       id: 'n-before',
       body: 'visible',
     });
-    await expectConverged(run);
-    expect(
-      (await run.observe(subscribedTopics, 'alice')).length
-    ).toBeGreaterThan(0);
+    await expectConverged(s);
+    expect((await s.observe(subscribedTopics, 'alice')).length).toBeGreaterThan(
+      0
+    );
 
-    await run.apply(auth, 'alice', 'revoked');
-    await run.apply(mutate, 'bob', setNote, {
+    await s.apply(auth, 'alice', 'revoked');
+    await s.apply(mutate, 'bob', setNote, {
       id: 'n-late',
       body: 'after-revoke',
     });
     // nudge: revoke path may reject refresh — drive until topics detach.
-    await run.apply(nudge, 'alice');
-    await untilAcme(run, (s) => subscribedTopics(s, 'alice'), {
+    await s.apply(nudge, 'alice');
+    await untilAcme(s, (s) => subscribedTopics(s, 'alice'), {
       maxMs: 2_000,
       pred: (t) => Array.isArray(t) && t.length === 0,
     });
 
-    expect(await run.observe(subscribedTopics, 'alice')).toEqual([]);
-    await expectLiveNoteAt(run, 'server', 'n-before', { body: 'visible' });
-    await expectLiveNoteAt(run, 'bob', 'n-late', { body: 'after-revoke' });
+    expect(await s.observe(subscribedTopics, 'alice')).toEqual([]);
+    await expectLiveNoteAt(s, 'server', 'n-before', { body: 'visible' });
+    await expectLiveNoteAt(s, 'bob', 'n-late', { body: 'after-revoke' });
 
-    await run.apply(restart, 'alice', {});
-    await expectConverged(run);
-    await expectLiveNoteAt(run, 'alice', 'n-before', { body: 'visible' });
-    await expectLiveNoteAt(run, 'alice', 'n-late', { body: 'after-revoke' });
-    await expectNotesAgree(run, 'alice');
+    await s.apply(restart, 'alice', {});
+    await expectConverged(s);
+    await expectLiveNoteAt(s, 'alice', 'n-before', { body: 'visible' });
+    await expectLiveNoteAt(s, 'alice', 'n-late', { body: 'after-revoke' });
+    await expectNotesAgree(s, 'alice');
   });
 
   test('upgrade_required rejects without wiping local rows', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 605,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, { id: 'alice' });
+    await s.apply(addClient, { id: 'alice' });
 
-    await run.apply(mutate, 'alice', setNote, {
+    await s.apply(mutate, 'alice', setNote, {
       id: 'n-keep',
       body: 'local-and-server',
     });
-    await expectConverged(run);
+    await expectConverged(s);
 
-    await run.apply(auth, 'alice', 'upgrade_required');
-    await run.apply(disconnect, 'alice');
-    await run.apply(connect, 'alice');
-    await untilAcme(run, (s) => lastError(s, 'alice'), {
+    await s.apply(auth, 'alice', 'upgrade_required');
+    await s.apply(disconnect, 'alice');
+    await s.apply(connect, 'alice');
+    await untilAcme(s, (s) => lastError(s, 'alice'), {
       maxMs: 2_000,
       pred: (e) => typeof e === 'string' && e.includes('upgrade_required'),
     });
 
     // Protocol cut must not wipe — local + server still hold the note.
-    await expectLiveNoteAt(run, 'alice', 'n-keep', {
+    await expectLiveNoteAt(s, 'alice', 'n-keep', {
       body: 'local-and-server',
     });
-    await expectLiveNoteAt(run, 'server', 'n-keep', {
+    await expectLiveNoteAt(s, 'server', 'n-keep', {
       body: 'local-and-server',
     });
   });
 
   test('seq invariants skip a revoked client after server restart', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 606,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, { id: 'c0' });
-    await run.apply(addClient, { id: 'c1' });
-    await run.apply(auth, 'c0', 'revoked');
-    await run.apply(connect, 'c0');
-    await run.apply(restart, 'server', { preserveLocalDb: true });
-    expect(await run.observe(invariantViolations)).toEqual([]);
+    await s.apply(addClient, { id: 'c0' });
+    await s.apply(addClient, { id: 'c1' });
+    await s.apply(auth, 'c0', 'revoked');
+    await s.apply(connect, 'c0');
+    await s.apply(restart, 'server', { preserveLocalDb: true });
+    expect(await s.observe(invariantViolations)).toEqual([]);
   });
 });

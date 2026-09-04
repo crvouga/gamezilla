@@ -1,14 +1,7 @@
 import { describe, expect, test } from 'bun:test';
-import { explore, script } from '@pkgs/dst';
 import { gen } from '@pkgs/dst/fast-check';
+import { arbSyncArgs } from '../../sim/scenario';
 import {
-  arbKnobs,
-  createSyncActions,
-  SYNC_PROPERTIES,
-  syncVirtualHost as syncHost,
-} from '../../sim/scenario';
-import {
-  acmeKnobs,
   acmeSystem,
   armStoragePressure,
   expectConverged,
@@ -18,9 +11,7 @@ import {
   playAcmePin,
   playActions,
   setNote,
-  syncVirtualHost,
 } from '../apps/acme';
-import { acmeApp } from '../apps/acme/app';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
 import type { DomainOp, LibraryAction, SyncAction } from '../scenario/actions';
 
@@ -28,11 +19,8 @@ describe('fault permutation PBT', () => {
   test(
     'full fault pool interleaves and converges',
     async () => {
-      await explore(acmeSystem, {
-        host: syncHost(),
-        properties: [...SYNC_PROPERTIES],
-        actions: [...createSyncActions(acmeApp, acmeApp.pack.sessionQuery)],
-        knobs: gen(arbKnobs()),
+      await acmeSystem.explore({
+        args: gen(arbSyncArgs()),
         steps: 20,
         episodes: 6,
         seed: 44000,
@@ -70,26 +58,23 @@ describe('fault permutation pins', () => {
   });
 
   test('storage full then restart converges', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 44002,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs(),
-      properties: [],
     });
 
-    await run.apply(armStoragePressure, 'c0', 'sqliteFull');
-    await run.apply(mutate, 'c0', setNote, { id: 'n0', body: 'quota' });
-    expect(await run.observe(lastMutationOk, 'c0')).toBe(false);
-    expect(await run.observe(lastMutationFailures, 'c0')).toContain(
+    await s.apply(armStoragePressure, 'c0', 'sqliteFull');
+    await s.apply(mutate, 'c0', setNote, { id: 'n0', body: 'quota' });
+    expect(await s.observe(lastMutationOk, 'c0')).toBe(false);
+    expect(await s.observe(lastMutationFailures, 'c0')).toContain(
       'STORAGE_FULL'
     );
 
-    await run.apply(playActions, [
+    await s.apply(playActions, [
       { kind: 'restart', clientId: 'c0' },
       acmeSetNoteOp('c0', 'n0', 'after-restart'),
       { kind: 'heal' },
     ]);
-    await expectConverged(run);
+    await expectConverged(s);
   });
 
   test('freeze sync then thaw catches up', async () => {

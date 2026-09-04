@@ -30,40 +30,40 @@ describe('room sim: two-topic shared storage (E-H01)', () => {
       topic: 'topic-b',
       storage,
     });
-    await using runA = await openRoom(systemA);
-    await using runB = await openRoom(systemB, { seed: '43' });
-    await runA.apply(addClient, { id: 'alice' });
-    await runA.apply(addClient, { id: 'bob' });
-    await runB.apply(addClient, { id: 'carol' });
-    await expectConverged(runA);
-    await expectConverged(runB);
+    await using sA = await openRoom(systemA);
+    await using sB = await openRoom(systemB, { seed: '43' });
+    await sA.apply(addClient, { id: 'alice' });
+    await sA.apply(addClient, { id: 'bob' });
+    await sB.apply(addClient, { id: 'carol' });
+    await expectConverged(sA);
+    await expectConverged(sB);
 
-    await runA.apply(hold, 'bob');
-    await runA.apply(dispatch, {
+    await sA.apply(hold, 'bob');
+    await sA.apply(dispatch, {
       clientId: 'alice',
       payload: Increment({}),
     });
-    await runA.apply(dispatch, {
+    await sA.apply(dispatch, {
       clientId: 'alice',
       payload: Increment({}),
     });
-    await runB.apply(dispatch, {
+    await sB.apply(dispatch, {
       clientId: 'carol',
       payload: Increment({}),
     });
-    expect(counterValue(await readClient(runA, 'bob'))).toBe(0);
-    expect(counterValue(await readClient(runB, 'carol'))).toBe(1);
-    await runA.apply(release, 'bob');
-    await runA.elapse(0);
+    expect(counterValue(await readClient(sA, 'bob'))).toBe(0);
+    expect(counterValue(await readClient(sB, 'carol'))).toBe(1);
+    await sA.apply(release, 'bob');
+    await sA.elapse(0);
 
-    await expectConverged(runA);
-    await expectConverged(runB);
-    expect(counterValue(await readServer(runA))).toBe(2);
-    expect(counterValue(await readClient(runA, 'alice'))).toBe(2);
-    await expectHashMatch(runA, 'alice');
-    expect(counterValue(await readServer(runB))).toBe(1);
-    expect(counterValue(await readClient(runB, 'carol'))).toBe(1);
-    await expectHashMatch(runB, 'carol');
+    await expectConverged(sA);
+    await expectConverged(sB);
+    expect(counterValue(await readServer(sA))).toBe(2);
+    expect(counterValue(await readClient(sA, 'alice'))).toBe(2);
+    await expectHashMatch(sA, 'alice');
+    expect(counterValue(await readServer(sB))).toBe(1);
+    expect(counterValue(await readClient(sB, 'carol'))).toBe(1);
+    await expectHashMatch(sB, 'carol');
     expect(await storage.getLastSeq('topic-a')).toBe(2);
     expect(await storage.getLastSeq('topic-b')).toBe(1);
   });

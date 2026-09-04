@@ -1,7 +1,6 @@
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
-import { managedUpdatedAtIso } from '../mutations/shared/managed-columns';
 import { topicRowId } from '../shared/schema/tables';
 
 /**
@@ -10,10 +9,6 @@ import { topicRowId } from '../shared/schema/tables';
  * floor is treated as an unknown baseline (ignore / heal).
  */
 const LEGACY_WALL_CLOCK_MIN = 10n ** 15n;
-
-export type PushAppliedClock = {
-  readonly now: () => number;
-};
 
 /** Compare push/query sequence strings as bigints when both are integer strings. */
 export function compareCheckpoint(a: string, b: string): number {
@@ -60,8 +55,7 @@ export function isContiguousNext(
 
 export async function readLastPushSeq(
   db: SqlClient,
-  topic: string,
-  clock: PushAppliedClock
+  topic: string
 ): Promise<string | null> {
   const rows = await db.query(sql<{ last_push_seq: string }>`
     SELECT last_push_seq FROM sync_engine_push_applied
@@ -73,10 +67,10 @@ export async function readLastPushSeq(
   if (raw === null) return null;
   if (!isLegacyWallClockCheckpoint(raw)) return raw;
   // Heal poisoned rows so own-ack floor / seq pushes can advance again.
-  const ts = managedUpdatedAtIso(clock.now);
+  const nowIso = new Date().toISOString();
   await db.run(sql`
     UPDATE sync_engine_push_applied
-    SET deleted_at = ${ts}, updated_at = ${ts}
+    SET deleted_at = ${nowIso}, updated_at = ${nowIso}
     WHERE topic = ${topic}
       AND deleted_at IS NULL
   `);
@@ -90,10 +84,9 @@ export async function readLastPushSeq(
 export async function isPushSeqStale(
   db: SqlClient,
   topic: string,
-  pushSeq: string,
-  clock: PushAppliedClock
+  pushSeq: string
 ): Promise<boolean> {
-  const prev = await readLastPushSeq(db, topic, clock);
+  const prev = await readLastPushSeq(db, topic);
   if (prev === null) return false;
   return compareCheckpoint(pushSeq, prev) <= 0;
 }
@@ -102,14 +95,14 @@ export async function recordPushApplied(
   db: SqlClient,
   topic: string,
   pushSeq: string,
-  clock: PushAppliedClock
+  nowIso?: string
 ): Promise<void> {
   if (isLegacyWallClockCheckpoint(pushSeq)) {
     return;
   }
-  const prev = await readLastPushSeq(db, topic, clock);
+  const prev = await readLastPushSeq(db, topic);
   if (prev !== null && compareCheckpoint(pushSeq, prev) <= 0) return;
-  const ts = managedUpdatedAtIso(clock.now);
+  const ts = nowIso ?? new Date().toISOString();
   await db.run(sql`
     INSERT INTO sync_engine_push_applied (
       id, topic, last_push_seq, created_at, updated_at, deleted_at
@@ -133,9 +126,9 @@ export async function recordPushApplied(
 export async function clearRemovedPushApplied(
   db: SqlClient,
   retainedTopics: ReadonlySet<string>,
-  clock: PushAppliedClock
+  nowIso?: string
 ): Promise<void> {
-  const ts = managedUpdatedAtIso(clock.now);
+  const ts = nowIso ?? new Date().toISOString();
   const rows = await db.query(sql<{ topic: string }>`
     SELECT topic FROM sync_engine_push_applied
     WHERE deleted_at IS NULL

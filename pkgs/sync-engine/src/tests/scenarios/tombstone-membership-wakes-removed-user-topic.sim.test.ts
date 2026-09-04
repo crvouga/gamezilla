@@ -1,8 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import { topicsFromWriteCapture } from '@pkgs/sync-engine/shared';
 import {
-  acmeKnobs,
   acmeSystem,
   acmeTopicMap,
   addClient,
@@ -16,7 +14,6 @@ import {
   roomTopic,
   SPACE_MEMBERSHIP_SESSION,
   subscribedTopics,
-  syncVirtualHost,
   untilAcme,
   userTopic,
 } from '../apps/acme';
@@ -51,40 +48,38 @@ describe('tombstone membership wakes removed user topic', () => {
   });
 
   test('leave soft-delete converges peers and drops leaver room topic', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 1201,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({
+      args: {
         clientCount: 0,
-      }),
-      properties: [],
+      },
     });
 
-    await run.apply(addClient, {
+    await s.apply(addClient, {
       id: 'alice',
       sessionQuery: SPACE_MEMBERSHIP_SESSION,
     });
-    await run.apply(addClient, {
+    await s.apply(addClient, {
       id: 'bob',
       sessionQuery: SPACE_MEMBERSHIP_SESSION,
     });
 
-    await run.apply(mutate, 'alice', createSpace, {
+    await s.apply(mutate, 'alice', createSpace, {
       id: 'tomb-room',
       title: 'T',
     });
-    await run.apply(mutate, 'bob', joinSpace, { spaceId: 'tomb-room' });
-    await expectConverged(run);
-    await untilAcme(run, (s) => subscribedTopics(s, 'bob'), {
+    await s.apply(mutate, 'bob', joinSpace, { spaceId: 'tomb-room' });
+    await expectConverged(s);
+    await untilAcme(s, (s) => subscribedTopics(s, 'bob'), {
       pred: hasTopic(roomTopic('tomb-room')),
     });
 
-    await run.apply(mutate, 'bob', leaveSpace, { spaceId: 'tomb-room' });
-    await untilAcme(run, (s) => subscribedTopics(s, 'bob'), {
+    await s.apply(mutate, 'bob', leaveSpace, { spaceId: 'tomb-room' });
+    await untilAcme(s, (s) => subscribedTopics(s, 'bob'), {
       pred: lacksTopic(roomTopic('tomb-room')),
     });
-    await expectConverged(run);
-    expect(await run.observe(subscribedTopics, 'alice')).toContain(
+    await expectConverged(s);
+    expect(await s.observe(subscribedTopics, 'alice')).toContain(
       roomTopic('tomb-room')
     );
   });

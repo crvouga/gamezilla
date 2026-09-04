@@ -8,8 +8,8 @@ export async function captureOpenSimSnapshot(
   run: OpenSimHandle,
   clientIds: readonly string[]
 ): Promise<SimSystemSnapshot> {
-  await run.apply(captureSnapshot, [...clientIds]);
-  const snapshot = await run.observe(capturedSnapshot);
+  await s.apply(captureSnapshot, [...clientIds]);
+  const snapshot = await s.observe(capturedSnapshot);
   if (snapshot === null) {
     throw new Error('captureOpenSimSnapshot: no snapshot recorded');
   }

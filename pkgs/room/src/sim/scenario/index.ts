@@ -1,6 +1,6 @@
 /**
- * Room system kernel. Runs and action replay are framework-owned:
- * {@link defineRoomSystem} + `script` / `explore` / `replay` from `@pkgs/dst`.
+ * Room system kernel. Scripts and action replay are framework-owned:
+ * {@link defineRoomSystem} + `system.script` / `.explore` / `.replay`.
  */
 
 export type {
@@ -11,18 +11,22 @@ export type {
 export { isDomainOp, isLibraryAction } from './actions';
 export type { DomainModelHooks, RoomApp } from './app';
 export { applyTaggedRoomAction } from './apply-tagged';
+export type { RoomArgs } from './args';
+export {
+  arbRoomArgs,
+  arbSeed,
+  ROOM_ARGS,
+  ROOM_DRAW,
+} from './args';
 export type {
   DefineRoomSystemOpts,
   RoomSystemDef,
 } from './define-room-system';
 export {
   defineRoomSystem,
-  roomVirtualHost,
   SIM_START_MS,
 } from './define-room-system';
 export { dispatchRoomSystemAction } from './dispatch';
-export type { RoomKnobs } from './knobs';
-export { arbRoomKnobs, arbSeed } from './knobs';
 export { MILD_NET_FAULTS } from './library-arbs';
 export {
   applyActionToModel,

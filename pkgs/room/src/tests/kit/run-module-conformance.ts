@@ -1,16 +1,22 @@
+import { defineSystem } from '@pkgs/dst';
 import { createSeededRng, createSimAdapters } from '@pkgs/uuid';
 import {
   addClient,
+  bootRoomSurface,
   clientHash,
   clientState,
   clock,
   connect,
-  defineRoomSystem,
   disconnect,
   dispatch,
   hold,
+  ROOM_ARGS,
+  ROOM_DRAW,
   type RoomApp,
+  type RoomArgs,
+  type RoomSurface,
   release,
+  roomVirtual,
   seed as seedOf,
   serverHash,
   serverState,
@@ -22,7 +28,6 @@ import type {
   RoomState,
 } from '../../types';
 import { expectConverged } from '../expect-converged';
-import { openRoom } from '../scenario/open-room';
 
 import { assertHashCanonical } from './assert-hash-canonical';
 import { assertTotality } from './assert-totality';
@@ -99,52 +104,56 @@ async function engineFuzz<
   identities: readonly string[],
   steps: number
 ): Promise<void> {
-  const system = defineRoomSystem(conformanceApp(args.module), {
+  const app = conformanceApp(args.module);
+  const system = defineSystem<RoomSurface, RoomArgs>({
     name: 'room.conformance',
+    args: ROOM_ARGS,
+    draw: ROOM_DRAW,
+    create: (session, systemArgs) => bootRoomSurface(session, app, systemArgs),
   });
-  await using run = await openRoom(system, {
+  system.host({ default: true, name: 'virtual', create: roomVirtual });
+  await using s = await system.script({
     seed: args.seed,
-    clientCount: 0,
-    mildFaults: args.mildFaults ?? true,
+    args: { clientCount: 0, mildFaults: args.mildFaults ?? true },
   });
   const ids = identities.slice(0, 3);
   for (const id of ids) {
-    await run.apply(addClient, { id, identity: id });
+    await s.apply(addClient, { id, identity: id });
   }
-  await expectConverged(run);
+  await expectConverged(s);
 
-  const rng = createSeededRng(await run.observe(seedOf)).fork('kit-fuzz');
+  const rng = createSeededRng(await s.observe(seedOf)).fork('kit-fuzz');
   for (let step = 0; step < steps; step += 1) {
     const id = ids[rng.int(ids.length)]!;
-    const states = (await run.observe(clientState)) as Record<string, S>;
+    const states = (await s.observe(clientState)) as Record<string, S>;
     const payload = args.generateCommand({
       rng,
       state: states[id] as S,
       identity: id,
-      now: await run.observe(clock),
+      now: await s.observe(clock),
       step,
     });
     if (payload === null) continue;
-    await run.apply(dispatch, { clientId: id, payload });
+    await s.apply(dispatch, { clientId: id, payload });
     if (step % 5 === 4) {
-      await run.apply(hold, id);
-      await run.elapse(0);
-      await run.apply(release, id);
+      await s.apply(hold, id);
+      await s.elapse(0);
+      await s.apply(release, id);
     } else {
-      await run.elapse(0);
+      await s.elapse(0);
     }
   }
   for (const id of ids) {
-    await run.apply(disconnect, id);
-    await run.apply(connect, id);
+    await s.apply(disconnect, id);
+    await s.apply(connect, id);
   }
-  await expectConverged(run);
-  const server = (await run.observe(serverState)) as S;
-  const clients = (await run.observe(clientState)) as Record<string, S>;
+  await expectConverged(s);
+  const server = (await s.observe(serverState)) as S;
+  const clients = (await s.observe(clientState)) as Record<string, S>;
   assertDomainValid('server fold', server, args);
   assertDomainValid('client fold', clients[ids[0]!] as S, args);
-  const hashes = (await run.observe(clientHash)) as Record<string, string>;
-  if ((await run.observe(serverHash)) !== hashes[ids[0]!]) {
+  const hashes = (await s.observe(clientHash)) as Record<string, string>;
+  if ((await s.observe(serverHash)) !== hashes[ids[0]!]) {
     throw new Error('E1: client hash diverged from serverHash after settle');
   }
 }

@@ -3,11 +3,12 @@ import { kv } from './examples/acme-kv/scenario';
 import * as fcAdapter from './fast-check';
 import * as dst from './index';
 import * as kernel from './kernel';
-import { script } from './run/script';
 
 const FORBIDDEN = [
   'defineScenario',
   'defineObservation',
+  'defineSurface',
+  'defineProperty',
   'draw',
   'observe',
   'untilObserved',
@@ -21,13 +22,17 @@ const FORBIDDEN = [
   'arbSeed',
   'checkSystem',
   'replaySystem',
-  'getRunInternal',
-  'RunInternal',
+  'getScriptInternal',
+  'ScriptInternal',
   'Body',
   'start',
   'check',
   'CheckFailedError',
   'CampaignReport',
+  'script',
+  'walk',
+  'explore',
+  'replay',
 ] as const;
 
 describe('public-api', () => {
@@ -35,12 +40,6 @@ describe('public-api', () => {
     for (const k of [
       'defineSystem',
       'defineAction',
-      'defineProperty',
-      'defineSurface',
-      'script',
-      'walk',
-      'explore',
-      'replay',
       'ExploreFailedError',
       'virtualHost',
       'wallHost',
@@ -58,16 +57,17 @@ describe('public-api', () => {
     }
   });
 
-  test('Run has no _internal escape hatch', async () => {
-    await using run = await script(kv, { seed: 1, knobs: { clients: 1 } });
-    expect(run).not.toHaveProperty('_internal');
-    expect(Object.keys(run).sort()).toEqual([
+  test('Script has no _internal escape hatch', async () => {
+    await using s = await kv.script({ seed: 1, args: { clients: 1 } });
+    expect(s).not.toHaveProperty('_internal');
+    expect(Object.keys(s).sort()).toEqual([
       'apply',
       'assert',
       'elapse',
       'never',
       'observe',
       'until',
+      'walk',
     ]);
   });
 

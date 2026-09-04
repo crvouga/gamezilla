@@ -4,7 +4,6 @@
  */
 
 import type { ColorTokens } from './colors';
-import { expoFontFaceForWeight } from './expo-font-family';
 import {
   flattenSx,
   type SxCompileOptions,
@@ -234,20 +233,6 @@ function applyTypography(props: SxProps, result: ResolvedRnStyle): void {
   if (props.lineHeight !== undefined) {
     result['lineHeight'] = resolveLineHeight(props.lineHeight);
   }
-  applyExpoFontFace(result);
-}
-
-/**
- * Pair Expo postscript families with a matching loaded face and drop
- * `fontWeight`. iOS otherwise substitutes the system font.
- */
-function applyExpoFontFace(result: ResolvedRnStyle): void {
-  const family = result['fontFamily'];
-  if (typeof family !== 'string') return;
-  const next = expoFontFaceForWeight(family, result['fontWeight']);
-  if (next === undefined) return;
-  result['fontFamily'] = next;
-  delete result['fontWeight'];
 }
 
 function applyElevation(

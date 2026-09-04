@@ -5,7 +5,7 @@
  */
 
 import { ChessPuzzleLoadFileSeeder } from '@libs/chess/root/server/seed-chess-puzzles/chess-puzzle-load-file-seeder';
-import { appPostgresDbScope } from '@libs/db/public/scope';
+import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import { wallClock } from '@pkgs/clock';
 import { ComposedDatabaseSeeder } from '@pkgs/db-migrate';
 import { createLogger } from '@pkgs/logger';

@@ -1,7 +1,7 @@
-import type { Run } from '@pkgs/dst';
+import type { Script } from '@pkgs/dst';
 import {
   applyTaggedRoomAction,
-  type RoomKnobs,
+  type RoomArgs,
   type RoomSurface,
   type RoomSystemAction,
   type RoomSystemDef,
@@ -11,33 +11,33 @@ import { openRoom } from './open-room';
 
 export type PlayRoomActionsOpts = {
   readonly seed: number | bigint | string;
-  readonly knobs?: Partial<RoomKnobs>;
+  readonly args?: Partial<RoomArgs>;
   readonly actions: readonly RoomSystemAction[];
   /** Default true — revive + wait for domain agreement after the script. */
   readonly converge?: boolean;
 };
 
 /**
- * Open a room run, apply tagged actions via `run.apply`, optionally converge.
+ * Open a room script, apply tagged actions via `s.apply`, optionally converge.
  * Test helper for PBT pins that still speak {@link RoomSystemAction}.
  */
 export async function playRoomActions(
   def: RoomSystemDef,
   opts: PlayRoomActionsOpts
-): Promise<Run<RoomSurface>> {
-  const knobs = opts.knobs;
-  const run = await openRoom(def, {
+): Promise<Script<RoomSurface>> {
+  const args = opts.args;
+  const s = await openRoom(def, {
     seed: opts.seed,
-    clientCount: knobs?.clientCount ?? 2,
-    mildFaults: knobs?.mildFaults === true,
+    clientCount: args?.clientCount ?? 2,
+    mildFaults: args?.mildFaults === true,
   });
   for (const action of opts.actions) {
-    await applyTaggedRoomAction(run, action);
+    await applyTaggedRoomAction(s, action);
   }
   if (opts.converge !== false) {
-    await expectConverged(run);
+    await expectConverged(s);
   }
-  return run;
+  return s;
 }
 
 /** Play then dispose — for pins that only need converge-or-throw. */
@@ -45,5 +45,5 @@ export async function playRoomPin(
   def: RoomSystemDef,
   opts: PlayRoomActionsOpts
 ): Promise<void> {
-  await using _run = await playRoomActions(def, opts);
+  await using _s = await playRoomActions(def, opts);
 }

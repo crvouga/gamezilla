@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
+import { defineSystem } from '@pkgs/dst';
 import {
+  ACME_DEFAULT_ARGS,
   acmeApp,
-  acmeKnobs,
   acmeLocalSchema,
   acmeLocalSchemaExtraColumn,
   acmeLocalSchemaExtraColumnAndTable,
@@ -10,7 +10,7 @@ import {
   acmeMutationRegistry,
   acmeQueryRegistry,
   addClient,
-  defineSyncSystem,
+  createSyncSurface,
   expectConverged,
   liveNote,
   liveTags,
@@ -25,12 +25,12 @@ import {
   setNoteColor,
   setTag,
   subscribe,
-  syncVirtualHost,
+  syncVirtual,
   tagsAllQuery,
 } from '../apps/acme';
 
-const acmeMixedSchemaSystem = defineSyncSystem(acmeApp, {
-  id: 'sync.acmeMixedSchemaSystem',
+/** Non-JSON schema fixture — the system closes over the registries. */
+const mixedSchemaFixtures = {
   localSchema: acmeLocalSchemaExtraColumnAndTable,
   mutationRegistry: {
     ...acmeMutationRegistry,
@@ -42,24 +42,34 @@ const acmeMixedSchemaSystem = defineSyncSystem(acmeApp, {
     [notesAllWithColorQuery.name]: notesAllWithColorQuery,
     [tagsAllQuery.name]: tagsAllQuery,
   },
+} as const;
+
+const acmeMixedSchemaSystem = defineSystem({
+  name: 'sync.acme.mixedSchema',
+  args: ACME_DEFAULT_ARGS,
+  create: (session, args) =>
+    createSyncSurface(session, acmeApp, args, mixedSchemaFixtures),
+});
+acmeMixedSchemaSystem.host({
+  default: true,
+  name: 'virtual',
+  create: () => syncVirtual(),
 });
 
 describe('mixed schema three clients partition converge', () => {
   test.each([2100, 2101, 2102])(
     'baseline + color + tags under partition then heal (seed=%i)',
     async (seed) => {
-      await using run = await script(acmeMixedSchemaSystem, {
+      await using s = await acmeMixedSchemaSystem.script({
         seed: seed,
-        host: syncVirtualHost(),
-        knobs: acmeKnobs({ clientCount: 0 }),
-        properties: [],
+        args: { clientCount: 0 },
       });
 
-      await run.apply(addClient, {
+      await s.apply(addClient, {
         id: 'alice',
         localSchema: acmeLocalSchema,
       });
-      await run.apply(addClient, {
+      await s.apply(addClient, {
         id: 'bob',
         localSchema: acmeLocalSchemaExtraColumn,
         mutationRegistry: {
@@ -72,7 +82,7 @@ describe('mixed schema three clients partition converge', () => {
         },
         sessionQuery: { name: 'notesAllWithColor', params: {} },
       });
-      await run.apply(addClient, {
+      await s.apply(addClient, {
         id: 'carol',
         localSchema: acmeLocalSchemaExtraTable,
         mutationRegistry: {
@@ -85,54 +95,54 @@ describe('mixed schema three clients partition converge', () => {
         },
       });
 
-      await run.apply(mutate, 'alice', setNote, { id: 'shared', body: 'seed' });
-      await expectConverged(run);
+      await s.apply(mutate, 'alice', setNote, { id: 'shared', body: 'seed' });
+      await expectConverged(s);
 
-      await run.apply(partition, 'alice', 'all');
-      await run.apply(partition, 'bob', 'all');
-      await run.apply(partition, 'carol', 'all');
+      await s.apply(partition, 'alice', 'all');
+      await s.apply(partition, 'bob', 'all');
+      await s.apply(partition, 'carol', 'all');
 
-      await run.apply(mutate, 'alice', setNote, {
+      await s.apply(mutate, 'alice', setNote, {
         id: 'shared',
         body: 'from-alice',
       });
-      await run.apply(mutate, 'bob', setNoteColor, {
+      await s.apply(mutate, 'bob', setNoteColor, {
         id: 'shared',
         body: 'from-bob',
         color: 'blue',
       });
-      await run.apply(mutate, 'carol', setTag, { id: 't1', label: 'urgent' });
-      await run.apply(mutate, 'carol', setNote, {
+      await s.apply(mutate, 'carol', setTag, { id: 't1', label: 'urgent' });
+      await s.apply(mutate, 'carol', setNote, {
         id: 'carol-only',
         body: 'c-note',
       });
 
-      await run.apply(release, 'alice', 'all');
-      await run.apply(release, 'bob', 'all');
-      await run.apply(release, 'carol', 'all');
+      await s.apply(release, 'alice', 'all');
+      await s.apply(release, 'bob', 'all');
+      await s.apply(release, 'carol', 'all');
 
-      await run.apply(subscribe, 'carol', 'tagsAll', {});
-      await expectConverged(run);
+      await s.apply(subscribe, 'carol', 'tagsAll', {});
+      await expectConverged(s);
 
-      expect(await run.observe(liveNote, 'alice', 'carol-only')).toMatchObject({
+      expect(await s.observe(liveNote, 'alice', 'carol-only')).toMatchObject({
         body: 'c-note',
       });
 
       // Alice stays on the baseline schema — no `color`, no `tags`.
-      const aliceCols = await run.observe(noteColumns, 'alice');
+      const aliceCols = await s.observe(noteColumns, 'alice');
       expect(aliceCols.some((c) => c.name === 'color')).toBe(false);
-      expect(await run.observe(localTable, 'alice', 'tags')).toEqual([]);
+      expect(await s.observe(localTable, 'alice', 'tags')).toEqual([]);
 
-      expect((await run.observe(noteColor, 'bob', 'shared'))[0]?.color).toBe(
+      expect((await s.observe(noteColor, 'bob', 'shared'))[0]?.color).toBe(
         'blue'
       );
 
-      const shared = await run.observe(liveNote, 'alice', 'shared');
+      const shared = await s.observe(liveNote, 'alice', 'shared');
       expect(shared?.body === 'from-alice' || shared?.body === 'from-bob').toBe(
         true
       );
 
-      expect(await run.observe(liveTags, 'carol')).toEqual([
+      expect(await s.observe(liveTags, 'carol')).toEqual([
         { id: 't1', label: 'urgent' },
       ]);
     }

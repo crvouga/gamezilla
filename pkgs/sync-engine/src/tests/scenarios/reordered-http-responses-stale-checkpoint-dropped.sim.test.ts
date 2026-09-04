@@ -1,7 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import {
-  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
@@ -9,39 +7,36 @@ import {
   mutate,
   net,
   setNote,
-  syncVirtualHost,
 } from '../apps/acme';
 
 describe('reordered http responses stale checkpoint dropped', () => {
   test('reordered sync responses never regress newer domain rows', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 802,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, { id: 'alice' });
-    await run.apply(addClient, { id: 'bob' });
-    await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
-    await expectConverged(run);
+    await s.apply(addClient, { id: 'alice' });
+    await s.apply(addClient, { id: 'bob' });
+    await s.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
+    await expectConverged(s);
 
-    await run.apply(net, 'bob', 'sync', {
+    await s.apply(net, 'bob', 'sync', {
       latencyMeanMs: 20,
       latencyJitterMs: 40,
       reorderWindow: 6,
     });
 
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'v1' });
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'v2' });
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'v3-final' });
-    await run.apply(mutate, 'alice', setNote, { id: 'n2', body: 'side' });
-    await expectConverged(run);
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'v1' });
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'v2' });
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'v3-final' });
+    await s.apply(mutate, 'alice', setNote, { id: 'n2', body: 'side' });
+    await expectConverged(s);
 
-    expect(await run.observe(liveNote, 'bob', 'n1')).toMatchObject({
+    expect(await s.observe(liveNote, 'bob', 'n1')).toMatchObject({
       body: 'v3-final',
     });
-    expect(await run.observe(liveNote, 'bob', 'n2')).toMatchObject({
+    expect(await s.observe(liveNote, 'bob', 'n2')).toMatchObject({
       body: 'side',
     });
   });

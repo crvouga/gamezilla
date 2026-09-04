@@ -371,7 +371,7 @@ is the safety net so peers do not stay forever-stale.
 | `createSyncApp({ rowImageFanout })` | **false** | Opt-in |
 | Client `push.rowImageFanout` | **false** | Opt-in |
 | Product Gamezilla (`apps/*`) | **true** | Both API + client set true |
-| `script(acmeSystem)` | **true** | algebra entry |
+| `acmeSystem.script(...)` | **true** | algebra entry |
 
 When off, pushes are wake+refetch only (still correct). When on, contiguous
 `pushSeq` + `rows` may apply via `applyRowImages` without updating
@@ -802,16 +802,17 @@ bun run lint
 
 | Suite | Path | Role |
 |-------|------|------|
-| Scenarios | `src/tests/scenarios/*.sim.test.ts` | Black-box multi-client pins via `script(acmeSystem)` + `run.apply` / `run.until` |
-| Property / system | `src/tests/scenarios/*.scenario.pbt.test.ts` / `*.pbt.test.ts` | Shrinking `explore` / `replay` / `playAcmePin` over `acmeSystem` |
+| Scenarios | `src/tests/scenarios/*.sim.test.ts` | Black-box multi-client pins via `acmeSystem.script(...)` + `s.apply` / `s.until` |
+| Property / system | `src/tests/scenarios/*.scenario.pbt.test.ts` / `*.pbt.test.ts` | Shrinking `acmeSystem.explore` / `.replay` / `playAcmePin` |
 | Unit PBT | `src/tests/unit/*.pbt.test.ts` | Pure helpers (checkpoints, topic map, …) |
 | Kernel harness | `src/tests/harness/*.test.ts` | RNG / scheduler / timers; membership topic sync |
 | Public unit helper | `@pkgs/sync-engine/test` | `createInMemorySyncEngine` (no full kit surface) |
 
 **Two layers:** named scenarios document specific safety claims (`never`, authz,
 protocol cut, flicker). `*.pbt.test.ts` files explore the fault state space with
-`explore(acmeSystem)` from `@pkgs/dst` (system declared via `defineSyncSystem` —
-see `src/sim/scenario/define-sync-system.ts` and `pkgs/dst/README.md`).
+`acmeSystem.explore(...)` (the system is a literal `defineSystem` in
+`src/tests/apps/acme/system.ts`; boot lives in `src/sim/scenario/boot.ts` — see
+also `pkgs/dst/README.md`).
 When a property fails, capture `seed` / `path` / `replayPath`, pin `examples`,
 add a named scenario, and log in repo-root `PBT_FINDINGS.md`.
 
@@ -845,11 +846,11 @@ App fixtures (e.g. acme) supply `domainOpArbs`, `pickDomainOrServerOp`, and
 
 TigerBeetle-style deterministic simulation in `src/sim/` (not a public export). **One seed →
 identical timeline.** Systems are **owned by `@pkgs/dst`**:
-`defineSyncSystem(acmeApp)` (exported as `acmeSystem`) declares the
-broker/server/client topology, knobs, action pool, and model, and tests drive it
-with `explore(acmeSystem)` / `replaySyncRepro` / `script(acmeSystem)` + `run.apply` /
-`run.observe`; fuzz calls `runSeed({ app: acmeApp })`. Assert **live domain rows
-only** — never framework tables or private modules.
+`acmeSystem` (a `defineSystem` over `createSyncSurface`) declares the
+broker/server/client topology, args, action pool, and model, and tests drive it
+with `acmeSystem.explore(...)` / `.replay(...)` / `.script(...)` + `s.apply` /
+`s.observe`; fuzz calls `runSeed({ system: acmeSystem })`. Assert **live domain
+rows only** — never framework tables or private modules.
 
 ```text
 seed ──► SeededRng ──► Network (delay/loss/reorder/replay)
@@ -867,11 +868,11 @@ seed ──► SeededRng ──► Network (delay/loss/reorder/replay)
 
 | Boundary | Implementation |
 |----------|----------------|
-| Time | `run.elapse` / `run.until` / `run.never` over Host virtual clock + scheduler |
-| Wall clocks | `run.apply(skewClock, id, ms)` / `run.observe(nodeNow, id)` |
+| Time | `s.elapse` / `s.until` / `s.never` over Host virtual clock + scheduler |
+| Wall clocks | `s.apply(skewClock, id, ms)` / `s.observe(nodeNow, id)` |
 | Timers | `createTimers` implements the production `Timers` port |
 | RNG | `createSeededRng` (splitmix64); `fork(label)` for independent streams |
-| Network | `run.apply(net, nodeId, traffic, state)` — hold / down / fault profiles |
+| Network | `s.apply(net, nodeId, traffic, state)` — hold / down / fault profiles |
 | HTTP | `createSimHttpClient` / `bindSimHttpServer` over the mesh (`sync` traffic) |
 | PubSub | `createSimPubSubBroker` delayed fanout over the same mesh (`live` traffic) |
 | Server | Bun `:memory:` SQLite + framework DDL + schema reconcile |
@@ -882,99 +883,85 @@ server uses SQLite dialect; production server is Postgres.
 
 Scenarios are plain `bun:test` (`describe` / `test` / `test.each`). Cleanup uses
 `await using` / `using` (`AsyncDisposable` / `Disposable`). No custom test
-runner. Failures from `expectConverged` / `run.until` / `run.never` / property
+runner. Failures from `expectConverged` / `s.until` / `s.never` / property
 asserts embed `seed=<hex>` and virtual `now=` for replay.
 
 **Five concepts:**
 
-1. **Time** — `run.elapse(ms)`,
-   `run.until(read, { maxMs?, pred? })` (positive wait; wrap args in a
+1. **Time** — `s.elapse(ms)`,
+   `s.until(read, { maxMs?, pred? })` (positive wait; wrap args in a
    zero-arg read),
-   `run.never(read, { forMs })` (fail if the predicate holds within the
+   `s.never(read, { forMs })` (fail if the predicate holds within the
    window). Thin acme helpers `untilAcme` / `neverAcme` only set default
    `stepMs`. All scheduler-driven — never wall-clock.
-2. **Network** — `run.apply(net, nodeId, traffic, state)` /
+2. **Network** — `s.apply(net, nodeId, traffic, state)` /
    `hold` / `release` / `partition` / `heal`; settle neutralizes
    outstanding net effects.
-3. **Node** — `run.apply(crash, id)` / `crashAt` / `restart` /
+3. **Node** — `s.apply(crash, id)` / `crashAt` / `restart` /
    `auth` / `skewClock` (and related fault pins). Server id is `'server'`.
-4. **Client** — `run.apply(mutate, id, mutation, args)`, connectivity triad
+4. **Client** — `s.apply(mutate, id, mutation, args)`, connectivity triad
    (below), `subscribe`, `outcome` / `rejections` reads, `nudge`
    (rare; needs `// nudge:` comment).
-5. **Revive + observe** — `expectConverged(run)` (or `revive` + `run.until(converged)`) clears holds/partitions/faults, forces
+5. **Revive + observe** — `expectConverged(run)` (or `revive` + `s.until(converged)`) clears holds/partitions/faults, forces
    online/foreground/connect, wakes uploads + refreshes, diffs each client vs
    server (differential oracle). Does **not** absorb negative-timing windows —
-   use `run.never` / `neverAcme` for those.
+   use `s.never` / `neverAcme` for those.
 
 #### Connectivity triad (do not conflate)
 
 | API | Layer | Use when |
 |-----|-------|----------|
-| `run.apply(online, id, false\|true)` | AppLifecycle intent | `requiresOnline` gate; queue-while-offline that still allows engine session |
-| `run.apply(disconnect, id)` / `connect` | Engine session | Stop/start upload runtime + push attach (auth revoke / upload-stop) |
-| `run.apply(net, id, traffic, state)` | Network reality | Partition, hold sync/live, packet loss |
+| `s.apply(online, id, false\|true)` | AppLifecycle intent | `requiresOnline` gate; queue-while-offline that still allows engine session |
+| `s.apply(disconnect, id)` / `connect` | Engine session | Stop/start upload runtime + push attach (auth revoke / upload-stop) |
+| `s.apply(net, id, traffic, state)` | Network reality | Partition, hold sync/live, packet loss |
 
 #### Quick start
 
 ```ts
 import { describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import {
-  acmeKnobs,
   acmeSystem,
   addClient,
   expectConverged,
   liveNote,
   mutate,
   setNote,
-  syncVirtualHost,
 } from '../apps/acme';
 
 describe('example', () => {
   test('mutate converges', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 42,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
-    await run.apply(addClient, 'alice');
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'hi' });
-    await expectConverged(run);
-    expect(await run.observe(liveNote, 'alice', 'n1')).toMatchObject({
+    await s.apply(addClient, 'alice');
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'hi' });
+    await expectConverged(s);
+    expect(await s.observe(liveNote, 'alice', 'n1')).toMatchObject({
       body: 'hi',
     });
   });
 });
 ```
 
-PBT / system pins (`defineSyncSystem` → `explore` / `playAcmePin` / `replay`):
+PBT / system pins (`acmeSystem.explore` / `playAcmePin` / `acmeSystem.replay`):
 
 ```ts
-import { explore } from '@pkgs/dst';
 import { gen } from '@pkgs/dst/fast-check';
-import {
-  arbKnobs,
-  createSyncActions,
-  SYNC_PROPERTIES,
-  syncVirtualHost,
-} from '../../sim/scenario';
+import { arbSyncArgs } from '../../sim/scenario';
 import { playAcmePin } from '../apps/acme';
-import { acmeApp } from '../apps/acme/app';
 import { acmeSystem } from '../apps/acme/system';
 
-await explore(acmeSystem, {
-  host: syncVirtualHost(),
-  properties: [...SYNC_PROPERTIES],
-  actions: [...createSyncActions(acmeApp, acmeApp.pack.sessionQuery)],
-  knobs: gen(arbKnobs()),
+// Host, action pool, and properties are registered on the system.
+await acmeSystem.explore({
+  args: gen(arbSyncArgs()),
   episodes: 12,
   steps: 14,
 });
 
 await playAcmePin({
   seed: 42,
-  knobs: {
+  args: {
     rowImageFanout: true,
     liveResendOnReconnect: false,
     bufferOutboundLive: false,
@@ -995,21 +982,21 @@ Scoped hold + latency budget + negative window:
 
 ```ts
 {
-  await run.apply(hold, 'bob', 'sync');
-  const t0 = await run.observe(nodeNow, 'bob');
-  await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'x' });
-  await run.never((s) => liveNote(s, 'bob', 'n1'), {
+  await s.apply(hold, 'bob', 'sync');
+  const t0 = await s.observe(nodeNow, 'bob');
+  await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'x' });
+  await s.never((s) => liveNote(s, 'bob', 'n1'), {
     forMs: 200,
     pred: (n) => n != null && n.deletedAt == null,
   });
-  await run.apply(release, 'bob', 'sync');
-  await run.until((s) => liveNote(s, 'bob', 'n1'), {
+  await s.apply(release, 'bob', 'sync');
+  await s.until((s) => liveNote(s, 'bob', 'n1'), {
     pred: (n) => n != null && n.deletedAt == null,
   });
-  const at = await run.observe(nodeNow, 'bob');
+  const at = await s.observe(nodeNow, 'bob');
   expect(at - t0).toBeLessThan(200);
 }
-await expectConverged(run);
+await expectConverged(s);
 ```
 
 Lightweight clock/timers without a full kit:
@@ -1029,9 +1016,9 @@ await sim.runFor(150);
 | `all` | Both |
 
 ```ts
-await run.apply(net, 'bob', 'sync', 'hold');
-await run.apply(net, 'bob', 'live', 'down');
-await run.apply(net, 'bob', 'live', { dropProbability: 1 });
+await s.apply(net, 'bob', 'sync', 'hold');
+await s.apply(net, 'bob', 'live', 'down');
+await s.apply(net, 'bob', 'live', { dropProbability: 1 });
 ```
 
 **Live is unreliable by design.** Named tests assert domain convergence after
@@ -1040,23 +1027,26 @@ settle, not push ordering. Prefer `hold` on `sync` to script push↔query races.
 #### Clock skew
 
 ```ts
-await run.apply(skewClock, 'alice', -60_000);
-await run.apply(skewClock, 'server', 60_000);
-await run.observe(nodeNow, 'alice'); // base + skew
+await s.apply(skewClock, 'alice', -60_000);
+await s.apply(skewClock, 'server', 60_000);
+await s.observe(nodeNow, 'alice'); // base + skew
 ```
 
-#### Knobs
+#### Args
 
-**System open** — algebra `script(acmeSystem, { seed, host: syncVirtualHost(), draws })`:
+**System open** — `acmeSystem.script({ seed, args })`. `args` is a partial
+overlay on the system defaults; the registered `virtual` host supplies the clock
+and network:
 
-| Knob | Default | Meaning |
+| Arg | Default | Meaning |
 |------|---------|---------|
 | `seed` | required | Root RNG seed (`number \| bigint \| string`) |
-| `knobs.clientCount` | `2` | Booted `c0..` clients (`0` for scripted pins that `addClient`) |
-| `knobs.rowImageFanout` | `true` | Live pushes apply row images when `true` (kit/`!== false` semantics) |
-| `knobs.liveResendOnReconnect` | `false` | Buffer last topics while peer closed; flush on re-subscribe |
-| `knobs.bufferOutboundLive` | `false` | Queue optimistic fanout while push detached |
-| `networkDefaults` | reliable | Pass `toKernelFaults({ … })` for custom delay/loss |
+| `args.clientCount` | `2` | Booted `c0..` clients (`0` for scripted pins that `addClient`) |
+| `args.rowImageFanout` | `true` | Live pushes apply row images when `true` (kit/`!== false` semantics) |
+| `args.liveResendOnReconnect` | `false` | Buffer last topics while peer closed; flush on re-subscribe |
+| `args.bufferOutboundLive` | `false` | Queue optimistic fanout while push detached |
+| `args.sessionQuery` | pack default | Override the hydration query (e.g. the large catalog) |
+| host network | reliable | Register a second host with `syncVirtual(toKernelFaults({ … }))` |
 
 Custom faults: `networkDefaults: toKernelFaults({ ...RELIABLE_FAULTS, latencyMeanMs: 30 })`.
 
@@ -1114,7 +1104,7 @@ SYNC_SIM_SEED=42 bun test pkgs/sync-engine/src/tests/scenarios/seeded-workload-f
 
 ```ts
 import { acmeApp } from '../apps/acme/app';
-import { runSeed } from '../scenario/run-seed';
+import { runSeed } from '../scenario/script-seed';
 await runSeed({ app: acmeApp, seed: 0x2a, steps: 16 });
 ```
 
@@ -1125,80 +1115,80 @@ Keep these as snippets — do **not** promote into API members:
 **Warm baseline**
 
 ```ts
-await run.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
-await expectConverged(run);
+await s.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
+await expectConverged(s);
 ```
 
 **Offline queue (AppLifecycle)**
 
 ```ts
-await run.apply(online, 'alice', false);
-await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'queued' });
-await run.never((s) => liveNote(s, 'server', 'n1'), {
+await s.apply(online, 'alice', false);
+await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'queued' });
+await s.never((s) => liveNote(s, 'server', 'n1'), {
   forMs: 50,
   pred: (n) => n != null && n.deletedAt == null,
 });
-await run.apply(online, 'alice', true);
-await expectConverged(run);
+await s.apply(online, 'alice', true);
+await expectConverged(s);
 ```
 
 **Engine offline queue (session stop)**
 
 ```ts
-await run.apply(disconnect, 'alice');
-await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'queued' });
-await run.apply(connect, 'alice');
-await expectConverged(run);
+await s.apply(disconnect, 'alice');
+await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'queued' });
+await s.apply(connect, 'alice');
+await expectConverged(s);
 ```
 
 **Sync hold race**
 
 ```ts
 {
-  await run.apply(hold, 'bob', 'sync');
-  await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'x' });
-  await run.never((s) => liveNote(s, 'bob', 'n1'), {
+  await s.apply(hold, 'bob', 'sync');
+  await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'x' });
+  await s.never((s) => liveNote(s, 'bob', 'n1'), {
     forMs: 300,
     pred: (n) => n != null && n.deletedAt == null,
   });
-  await run.apply(release, 'bob', 'sync');
+  await s.apply(release, 'bob', 'sync');
 }
-await expectConverged(run);
+await expectConverged(s);
 ```
 
 **Partition heal**
 
 ```ts
 {
-  await run.apply(partition, 'bob');
-  await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'x' });
-  await run.apply(heal);
+  await s.apply(partition, 'bob');
+  await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'x' });
+  await s.apply(heal);
 }
-await expectConverged(run);
+await expectConverged(s);
 ```
 
 **Crash + preserve DB**
 
 ```ts
-await run.apply(crash, 'bob');
-await run.apply(restart, 'bob', { preserveLocalDb: true });
-await expectConverged(run);
+await s.apply(crash, 'bob');
+await s.apply(restart, 'bob', { preserveLocalDb: true });
+await expectConverged(s);
 ```
 
 **Subscribe scope**
 
 ```ts
-await run.apply(subscribe, 'alice', 'notesDenied', {});
+await s.apply(subscribe, 'alice', 'notesDenied', {});
 // … asserts …
-await run.apply(unsubscribe, 'alice', 'notesDenied', {});
+await s.apply(unsubscribe, 'alice', 'notesDenied', {});
 ```
 
 **Flicker window** (keep explicit ms; do not absorb into settle)
 
 ```ts
 for (let i = 0; i < 8; i += 1) {
-  await run.elapse(25);
-  expect(await run.observe(liveNote, 'alice', 'n1')).toMatchObject({
+  await s.elapse(25);
+  expect(await s.observe(liveNote, 'alice', 'n1')).toMatchObject({
     body: 'optimistic',
   });
 }
@@ -1208,7 +1198,7 @@ for (let i = 0; i < 8; i += 1) {
 
 ```ts
 // nudge: reason under test
-await run.apply(nudge, 'bob');
+await s.apply(nudge, 'bob');
 ```
 
 #### Sim layout
@@ -1221,7 +1211,7 @@ src/sim/                             # domain-agnostic DST harness (not public)
   domain-pack.ts                     # SimDomainPack type (no built-in packs)
   faults.ts invariants.ts until.ts replay-steps.ts
   test-driver.ts
-  scenario/                          # defineSyncSystem, pin actions, observations
+  scenario/                          # boot (host + surface), pin actions, observations
 
 src/tests/
   scenario/                          # run-seed / play-pin helpers
@@ -1350,8 +1340,8 @@ Three distinct monotonic sequences — do not conflate them:
 
 Black-box correctness under `src/tests/scenarios/` (`*.sim.test.ts` +
 `*.scenario.pbt.test.ts`) plus harness `src/tests/harness/kernel.test.ts`.
-Most pins use `script(acmeSystem, { seed, host: syncVirtualHost(), knobs: acmeKnobs({…}) })`
-with `run.apply` / `run.observe` / `run.until`, and domain reads from
+Most pins use `acmeSystem.script({ seed, args: {…} })`
+with `s.apply` / `s.observe` / `s.until`, and domain reads from
 `src/tests/apps/acme/`.
 
 ### Happy path / multi-client (10)

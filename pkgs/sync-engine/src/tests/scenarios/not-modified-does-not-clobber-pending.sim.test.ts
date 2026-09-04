@@ -1,7 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { script } from '@pkgs/dst';
 import {
-  acmeKnobs,
   acmeSystem,
   addClient,
   connect,
@@ -11,49 +9,46 @@ import {
   liveNotes,
   mutate,
   setNote,
-  syncVirtualHost,
 } from '../apps/acme';
 
 describe('not modified does not clobber pending', () => {
   test('not_modified refetch does not clobber pending optimistic; later hash miss rebases', async () => {
-    await using run = await script(acmeSystem, {
+    await using s = await acmeSystem.script({
       seed: 640,
-      host: syncVirtualHost(),
-      knobs: acmeKnobs({ clientCount: 0 }),
-      properties: [],
+      args: { clientCount: 0 },
     });
 
-    await run.apply(addClient, { id: 'alice' });
-    await run.apply(addClient, { id: 'bob' });
+    await s.apply(addClient, { id: 'alice' });
+    await s.apply(addClient, { id: 'bob' });
 
-    await run.apply(mutate, 'alice', setNote, { id: 'n1', body: 'seed' });
-    await expectConverged(run);
+    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'seed' });
+    await expectConverged(s);
 
     // Queue pending without upload (upload loop stopped).
-    await run.apply(disconnect, 'alice');
-    await run.apply(mutate, 'alice', setNote, {
+    await s.apply(disconnect, 'alice');
+    await s.apply(mutate, 'alice', setNote, {
       id: 'n1',
       body: 'optimistic-pending',
     });
-    expect(await run.observe(liveNote, 'alice', 'n1')).toMatchObject({
+    expect(await s.observe(liveNote, 'alice', 'n1')).toMatchObject({
       body: 'optimistic-pending',
     });
-    expect(await run.observe(liveNote, 'server', 'n1')).toMatchObject({
+    expect(await s.observe(liveNote, 'server', 'n1')).toMatchObject({
       body: 'seed',
     });
 
     // Reconnect: session sync sees unchanged server hash → not_modified;
     // pending mutation rebases on top so optimistic body must survive.
-    await run.apply(connect, 'alice');
-    await run.elapse(500);
-    expect(await run.observe(liveNote, 'alice', 'n1')).toMatchObject({
+    await s.apply(connect, 'alice');
+    await s.elapse(500);
+    expect(await s.observe(liveNote, 'alice', 'n1')).toMatchObject({
       body: 'optimistic-pending',
     });
 
-    await run.apply(mutate, 'bob', setNote, { id: 'n1', body: 'from-bob' });
-    await expectConverged(run);
+    await s.apply(mutate, 'bob', setNote, { id: 'n1', body: 'from-bob' });
+    await expectConverged(s);
     expect(
-      (await run.observe(liveNotes, 'server')).find((r) => r.id === 'n1')
+      (await s.observe(liveNotes, 'server')).find((r) => r.id === 'n1')
     ).toBeDefined();
   });
 });

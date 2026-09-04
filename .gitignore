@@ -77,9 +77,6 @@ apps/client/android/
 
 .cursor/debug*.log
 
-# DuckDB inspect UI local database
-.local/
-
 # Local preview-stack log from check:api
 .check-*
 
@@ -107,11 +104,8 @@ apps/client/android/
 # Simulation report local ObjectStore data (repo root)
 /simulation-report-data/
 **/simulation-report-data/
-# Simulation report local ObjectStore data (repo root .cache)
-/.cache/sim-console-data/
-**/.cache/sim-console-data/
-/sim-console-data/
-**/sim-console-data/
+/system-console-data/
+**/system-console-data/
 
 /.data/
 **/.data/

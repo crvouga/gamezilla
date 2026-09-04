@@ -1,7 +1,7 @@
 # `@pkgs/dst`
 
-Deterministic simulation testing for TypeScript. Same seed + knobs + action
-choices ⇒ the same run. The algebra does not know about clients, browsers,
+Deterministic simulation testing for TypeScript. Same seed + args + action
+choices ⇒ the same script. The algebra does not know about clients, browsers,
 SQL, rooms, or networks — a **Host** supplies those. Any stateful system
 that can boot behind a Host is in scope.
 
@@ -11,28 +11,27 @@ The shape matches [Bombadil](https://antithesishq.github.io/bombadil/browser/bom
 and Hypothesis / `eqc_statem` / fast-check commands: **reads**,
 **enablement + args + act**, and **checkpoint checks** are separate;
 the framework picks; scripted `apply` is a first-class citizen. dst
-adds a deterministic Host (virtual time, model network, typed knobs,
+adds a deterministic Host (virtual time, model network, typed args,
 Repro). Reads are plain `(s: S, ...args) => T` — no extract/Cell
 wrapper. There is no Formula combinator tree: use `if`, previous-check
-`ctx`, and `run.until`.
+`ctx`, and `s.until`.
 
 ---
 
 ## What it is
 
-Packages declare a **System** (boot a typed surface `S` from knobs),
-**Actions** (named stimuli with explicit enablement and args), and
-**Properties** (checkpoint predicates). Reads are ordinary functions of
-`S`. The framework owns the run: `script` / `walk` / `explore` /
-`replay`.
+Packages declare a **System** (boot a typed surface `S` from `args`),
+register **Actions** / **Properties** / **Hosts** on that system, and
+drive scripts with **methods**: `system.script` / `system.explore` /
+`system.replay` / `s.walk`. Reads are ordinary functions of `S`.
 
 It is **not** a product runtime. `Host` / `Session` are harness-only.
 Product `ClientEnv` / `ServerEnv` receive unpacked ports (`clock`,
 `timers`, `createId`, `random`, `http`) — never the Session bag.
 
 Out of scope forever: World openers, Formula algebra, generator action
-bodies, observation constructors, catalogs hung on `System`, and
-package wrappers around `script` / `explore`.
+bodies, observation constructors, free `script` / `explore` verbs, and
+package wrappers around `defineSystem` / `script` / `explore`.
 
 ---
 
@@ -40,51 +39,51 @@ package wrappers around `script` / `explore`.
 
 | Sort | Constructor | Role |
 | --- | --- | --- |
-| Host | `defineHost` / `virtualHost` / `wallHost` | Fidelity: clock, rng, network, extras |
+| Host | `defineHost` / `virtualHost` / `wallHost` | Fidelity factories used **inside** `system.host({ create })` |
 | Session | `host.open(seed)` | Kernel + ports for one node; `fork(name)` |
-| System | `defineSystem({ name, generate(session, knobs) })` | Recipe → surface `S` |
-| Action | `defineAction({ name, enabled, weight, args, act })` | Named stimulus |
-| Property | `defineProperty({ name, check, close? })` | Predicate at each checkpoint |
-| Run | `script(system, { knobs, properties })` | `apply` / `observe` / `assert` / `until` / `elapse` |
+| System | `defineSystem({ name, create, args?, draw? })` | Recipe → surface `S`; catalogs via methods |
+| Action | `system.action({ name, enabled, weight, args?, draw?, act })` | Named stimulus (catalogued) |
+| Property | `system.property({ name, check, close? })` | Predicate at each checkpoint |
+| Script | `system.script({ seed, host?, args? })` | `apply` / `observe` / `assert` / `until` / `elapse` / `walk` |
 | Gen | `(rng) => T` | Randomness (`@pkgs/dst/fast-check` adapts fc) |
 
-Reads are not a sort. A read is `(s: S, ...args) => Awaitable<T>`.
-Every framework callback may return a `Promise` (`Awaitable<T> = T |
-Promise<T>`). The Host awaits. UI queries and SQL reads are async; in-
-process `inFlight()` is sync. Same type either way.
+**Naming (one concept, one word):**
 
-`walk` is the search primitive (public). `explore` is episodes × walk +
-shrink. `replay` re-applies a Repro.
+| Role | Field | Shape |
+| --- | --- | --- |
+| Default values | `args` on system / action | `Args` or apply tuple `A` |
+| Overlay for this script / apply | `script({ args })` / `apply(action, ...)` | `Partial<Args>` overlay; apply is a full tuple override |
+| How explore / walk samples | `draw` | system: `() => Gen<Args>`; action: `(s) => Gen<A>` |
+| Fidelity | `system.host({ name, default?, create })` | named Host factory; `script({ host: 'playwright' })` |
+
+`draw` is named so it does not clash with `gen()` from `@pkgs/dst/fast-check`.
+Do not name a field `gen`, `defaults`, or `knobs`.
+
+Reads are not a sort. A read is `(s: S, ...args) => Awaitable<T>`.
+Every framework callback may return a `Promise`. The Host awaits.
 
 ---
 
 ## Mental model
 
 1. **Host** opens a **Session** (virtual or wall clock, model network or
-   none, caps, extra ports).
-2. **System.generate(session, knobs)** boots topology from typed knobs
-   and returns surface `S`. `S` is data (nodes + whatever the domain
-   needs). No methods that wait, drain, or converge.
+   none, caps, extra ports). Hosts are **registered by name** on the
+   system; `script` / `explore` pick a name (or the `default: true`).
+2. **System.create(session, args)** boots topology from typed args and
+   returns surface `S`. `S` is data. No methods that wait, drain, or
+   converge.
 3. **Reads** are pure functions of `S`. They may be async (DOM, SQL).
-   `enabled` / `weight` / `check` `await` them. `run.observe(quiet)` is
-   the same function through a sealed Run (memoised per checkpoint by
-   function identity + args — including the probe’s own `await count(s)`
-   so `enabled` and `weight` share one UI query).
-4. **Actions** are `{ enabled, weight, args, act }`. Probe **awaits**
-   `enabled(s)` and `weight(s)` only — it never runs `act`, never draws.
-   Both are live: a counter’s `increment` can get heavier as `count(s)`
-   stays small, lighter as it grows. Walk awaits `args(s)` for the chosen
-   action, then `act(s, ...args)`. Scripted tests pass those args
-   themselves: `run.apply(put, 'c0', 'a', '1')`.
+4. **Actions** are `{ enabled, weight, args?, draw?, act }`. Probe
+   awaits `enabled` / `weight`. Walk awaits `draw(s)` for the chosen
+   action, then `act`. Scripted tests pass args themselves or use
+   `action.args` defaults: `await s.apply(put)` /
+   `await s.apply(put, 'c0', 'a', '1')`.
 5. **Properties** `await check(s, ctx)` at every checkpoint. Throw =
-   safety violation. `await close(ctx)` on dispose = obligation (vacuity
-   if unmet in every episode). Cross-step state is `ctx`, not a
-   `while (true)` loop.
-6. **Run** is sealed for mutation: the only stimulus is `apply` or
-   `elapse`. Waiting is `until` / `never`, which elapse the host clock
-   and re-read. Quiescence and convergence are functions of `S`.
+   safety violation. `await close(ctx)` on dispose = obligation.
+6. **Script** is sealed for mutation: the only stimulus is `apply` or
+   `elapse`. Waiting is `until` / `never`.
 
-`run.apply` / `run.elapse` are the checkpoints: act (or tick) →
+`s.apply` / `s.elapse` are the checkpoints: act (or tick) →
 `session.settle()` → clear read memo → run every `check` → record a
 `Choice`.
 
@@ -96,44 +95,87 @@ Three entrypoints (`pkgs/dst/package.json` `exports`):
 
 | Import | Contents |
 | --- | --- |
-| `@pkgs/dst` | Algebra: `defineSystem` / `defineAction` / `defineProperty` / `defineSurface` / `script` / `walk` / `explore` / `replay` / `ExploreFailedError` / `virtualHost` / `wallHost` / `defineHost` / `REPRO_VERSION` / `parseRepro` / `stringifyRepro` + types |
-| `@pkgs/dst/kernel` | Clock / scheduler / rng / network factories. **Host authors only.** Depcruise: `pkgs/dst/**` host + kernel, not `**/sim/**`. |
+| `@pkgs/dst` | `defineSystem` / unbound `defineAction` (walk-time helpers only) / `ExploreFailedError` / `virtualHost` / `wallHost` / `defineHost` / `REPRO_VERSION` / `parseRepro` / `stringifyRepro` + types |
+| `@pkgs/dst/kernel` | Clock / scheduler / rng / network factories. **Host authors only.** |
 | `@pkgs/dst/fast-check` | `gen(arbitrary)`, `arbitrary(gen)`, `randomGeneratorOver` |
 
-`Run` has no `_internal` and no `surface`. Tests speak `apply` /
-`observe` / `assert` / `until` / `never` / `elapse`. See
-`public-api.contract.test.ts` for the forbidden-export list.
+Free `script` / `walk` / `explore` / `replay` / `defineSurface` /
+`defineProperty` are **not** exported. Prefer `system.script` /
+`s.walk`. Unbound `defineAction` exists for walk-time helpers that
+cannot be pre-registered (e.g. `tap(actor)` in `@pkgs/ui-testing`).
+
+`Script` has no `_internal` and no `surface`. See
+`public-api.contract.test.ts`.
 
 ---
 
 ## Authoring
 
-Bind action / property definers from the system (or `defineSurface<S>()`
-when they live in several files). Reads are ordinary functions of `S`.
-
 ```ts
-const kv = defineSystem({
-  name: 'kv',
-  generate(session, knobs: { clients: number }) {
+import { defineSystem, virtualHost, wallHost } from '@pkgs/dst';
+import { gen } from '@pkgs/dst/fast-check';
+import fc from 'fast-check';
+
+export const kv = defineSystem({
+  name: 'acme-kv',
+  args: { clients: 2 },
+  draw: () => gen(fc.record({ clients: fc.integer({ min: 1, max: 3 }) })),
+  create(session, args: { clients: number }) {
     const server = startServer(session.fork('server'));
-    return {
-      session,
-      server,
-      clients: range(knobs.clients).map((i) =>
-        startClient(session.fork(`client:${i}`), server)
-      ),
-    };
+    const clients = range(args.clients).map((i) =>
+      startClient(session.fork(`client:${i}`), server)
+    );
+    return { session, server, clients };
   },
 });
-const { defineAction, defineProperty } = kv;
+
+kv.host({ default: true, name: 'virtual', create: () => virtualHost() });
+kv.host({ name: 'wall-model', create: () => wallHost({ network: 'model' }) });
+
+export const put = kv.action({
+  name: 'put',
+  enabled: (s) => s.clients.length > 0,
+  weight: 3,
+  args: ['client:0', 'a', '1'] as const,
+  draw: (s) =>
+    gen(
+      fc.tuple(
+        fc.constantFrom(...s.clients.map((c) => c.id)),
+        fc.string({ minLength: 1, maxLength: 8 }),
+        fc.string({ maxLength: 16 })
+      )
+    ),
+  act: (s, client: string, key: string, value: string) => {
+    /* ... */
+  },
+});
+
+export const converges = kv.property({
+  name: 'converges',
+  check: (s) => {
+    if (quiet(s) && !converged(s)) throw new Error('diverged');
+  },
+});
 ```
 
-`generate` is `(session, knobs) => S | Promise<S>`. Topology is knobs.
-Do not draw inside `generate`. `session.rng` exists so *nodes* receive
-an injected `Random` — not so the recipe can hide extra entropy.
+`create` is `(session, args) => S | Promise<S>`. Topology is `args`.
+Do not draw inside `create`. `draw` on the system samples per explore
+episode; omit it when every episode should use `args`.
 
-Put `session` on `S` only when actions must reach network / scheduler.
-`session.fork(name)` is memoised by name.
+`system.hosts` is the registered name list — use it for matrices:
+
+```ts
+describe.each(kv.hosts)('acme-kv ($0)', (host) => {
+  test('pin', async () => {
+    await using s = await kv.script({ seed: 7, host });
+    /* ... */
+  });
+});
+```
+
+Shared library actions (room `addClient` across counter / chess) are
+unbound `defineAction` (or registered on one system) then
+`otherSystem.action(existingAction)`.
 
 ### Reads
 
@@ -144,320 +186,117 @@ export function quiet(s: KvSurface): boolean {
   return s.session.network.inFlight() === 0;
 }
 
-export async function count(s: CounterSurface): Promise<number> {
-  return Number(await s.page.text('#count'));
-}
-
-export async function liveNote(
-  s: KvSurface,
-  nodeId: string,
-  id: string
-) { /* SQL / UI */ }
-
-await run.observe(quiet);
-await run.observe(count);
-await run.observe(liveNote, 'bob', 'n1');
+await s.observe(quiet);
+await s.observe(liveNote, 'bob', 'n1');
 ```
-
-Inside `enabled` / `weight` / `check`, `await` it:
-
-```ts
-enabled: async (s) => (await route(s)) === 'home',
-weight: async (s) => ((await count(s)) < 50 ? 6 : 2),
-```
-
-Rules:
-
-- **Pure.** Probe and `check` may call it. A “get” that writes a
-  mismatch log is not a read — it is an action, or it is a bug.
-- **Identity is the function + args.** Do not close over an actor and
-  reuse one name; pass `actorId` as an argument.
-- **Memo** for the duration of one probe or checkpoint, keyed by
-  function identity + `fingerprint(args)`. `enabled` and `weight` both
-  `await count(s)` → one DOM/SQL round-trip. `run.observe` uses the same
-  cache. The cache clears at the next checkpoint.
-- **Names** for traces come from `function count` (`.name`). Anonymous
-  arrows are fine when you do not care about the label.
-
-`run.observe` exists because Run does not expose `S`. It is not a
-second kind of observation.
 
 ### Action
 
-One name. Scripted args are the walk args. Replay stores them.
-`enabled` and `weight` are both functions of `S`, recomputed every
-probe. `enabled` is whether the action is legal; `weight` is how often
-walk should pick it **in this state**.
-
-```ts
-export const increment = defineAction({
-  name: 'increment',
-  enabled: async (s) => (await route(s)) === 'home',
-  weight: async (s) => ((await count(s)) < 50 ? 6 : 2),
-  act: (s) => s.page.click('#increment'),
-});
-
-export const decrement = defineAction({
-  name: 'decrement',
-  enabled: async (s) =>
-    (await route(s)) === 'home' && (await count(s)) > 0,
-  weight: async (s) => Math.min(await count(s), 4),
-  act: (s) => s.page.click('#decrement'),
-});
-```
-
-Walk sees a low count → increment is 6× decrement. Count climbs past 50
-→ increment drops to 2, decrement is capped at 4. Same actions, different
-mix, no extra `randomIncrement` wrapper.
-
-Scripted args and a constant mix (sugar: a number is `() => n`):
-
-```ts
-export const put = defineAction({
-  name: 'put',
-  enabled: (s) => s.clients.length > 0,
-  weight: 3,
-  args: (s) =>
-    gen(
-      fc.tuple(
-        fc.constantFrom(...s.clients.map((c) => c.id)),
-        fc.string({ minLength: 1, maxLength: 8 }),
-        fc.string({ maxLength: 16 })
-      )
-    ),
-  act: (s, client: string, key: string, value: string) => {
-    const c = s.clients.find((x) => x.id === client);
-    if (c === undefined) return;
-    sendPut({ server: s.server, client: c, key, value });
-  },
-});
-
-await run.apply(put, 'client:0', 'a', '1');
-```
-
 | Field | Default | Meaning |
 | --- | --- | --- |
-| `enabled(s)` | `() => true` | Probe; `Awaitable<boolean>`. false ⇒ not in the pool |
-| `weight(s)` | `() => 1` | `Awaitable<number>` this step. A number `n` is `() => n`. `<= 0` ⇒ not in the pool |
-| `args(s)` | none (zero-arg) | `Awaitable<Gen<A>>` drawn by walk; ignored by `apply` |
-| `act(s, ...args)` | required | Stimulus. `Awaitable<void>`. Must not wait-for-converge |
-
-`enabled` vs `weight`: `decrement` is illegal at 0 (`enabled`); at 12 it
-is legal and only moderately interesting (`weight: 4`). Do not encode
-“rarely” as `enabled: false`.
-
-Screen-conditional UI is `enabled` on the route, `weight` on the count.
-
-Capability-gated faults:
+| `enabled(s)` | `() => true` | Probe; false ⇒ not in the pool |
+| `weight(s)` | `() => 1` | Live weight this step. A number `n` is `() => n` |
+| `args` | none | Default apply tuple when `s.apply(action)` has no rest |
+| `draw(s)` | none | Walk / explore sampler (`Gen<A>`) |
+| `pool` | `true` | `false` ⇒ scripted/replay only (excluded from explore / walk) |
+| `act(s, ...args)` | required | Stimulus. Must not wait-for-converge |
 
 ```ts
-export const partition = defineAction({
-  name: 'partition',
-  enabled: (s) =>
-    caps(s).includes('partition') && s.clients.length > 0,
-  weight: (s) => (partitioned(s).length === 0 ? 2 : 1),
-  args: (s) => gen(fc.constantFrom(...s.clients.map((c) => c.id))),
-  act: (s, id: string) => {
-    s.session.network.partition('server', id);
-  },
-});
-```
-
-Macros (outage = partition + time + heal) are either:
-
-- one `act` that performs several stimuli as **one** choice, or
-- omitted — walk will pick the primitives in sequence.
-
-Do not delegate by yielding other actions. One named action covers
-both scripted pins and the walk pool — do not keep a parallel
-`random*` wrapper or a tagged-union dispatcher for replay.
-
-Inventory-driven UI (Bombadil’s “return N click templates”) is one
-action whose `args` ranges over the current inventory:
-
-```ts
-export const tap = defineAction({
-  name: 'tap',
-  enabled: async (s) => (await inventory(s, 'alice')).targets.length > 0,
-  args: async (s) => {
-    const { targets } = await inventory(s, 'alice');
-    return gen(fc.constantFrom(...targets));
-  },
-  act: (s, target: Target) => s.driver.tap(target),
-});
+await s.apply(put); // uses put.args
+await s.apply(put, 'client:1', 'b', '2'); // full override
 ```
 
 ### Property
 
-A checkpoint function, plus optional close. The constructor exists
-because vacuity reports a **name**, and `setup` / `check` / `close`
-share `ctx`. All three are `Awaitable`.
+Register on the system — there is no free `defineProperty`.
 
 ```ts
-export const converges = defineProperty({
+export const converges = kv.property({
   name: 'converges',
-  check: async (s) => {
-    if (
-      (await quiet(s)) &&
-      (await partitioned(s)).length === 0 &&
-      !(await converged(s))
-    ) {
-      throw new Error(
-        `quiet but diverged: server ${String(await serverHash(s))}`
-      );
-    }
-  },
+  check: (s) => { /* throw if quiet but diverged */ },
 });
 ```
 
-Cross-step (Bombadil `now(() => { const initial = cell.current; … })`):
-
-```ts
-export const counterSteps = defineProperty({
-  name: 'counter-steps',
-  setup: async (s) => ({ prev: await count(s) }),
-  check: async (s, ctx: { prev: number }) => {
-    const n = await count(s);
-    if (Math.abs(n - ctx.prev) > 1) throw new Error('jumped');
-    return { prev: n };
-  },
-});
-```
-
-Obligation (coverage / “sometimes heal”):
-
-```ts
-export const healedOnce = defineProperty({
-  name: 'healed-once',
-  setup: () => ({ hit: false }),
-  check: (s, ctx: { hit: boolean }) => ({
-    hit: ctx.hit || partitioned(s).length === 0,
-  }),
-  close: (ctx) => {
-    if (!ctx.hit) throw new Error('never healed');
-  },
-});
-```
-
-`explore` treats a `close` throw that happens in **every** episode as
-vacuity (no witness to shrink). A throw from `check` is a safety
-violation and shrinks.
-
-Liveness in a **scripted** test is `run.until`, not a property loop.
-Bounded “if error then gone within 5s” in explore is a `check` that
-records `errorAt` on `ctx` and throws when `(await clock(s)) - errorAt`
-exceeds the bound. That is ordinary code, not `eventually().within()`.
-
-`run.assert(p)` runs `setup` + `check` once (not as a standing monitor).
+`script` / `explore` attach every registered property. There is no
+opt-out — register only the properties that should stand on every script.
 
 ---
 
-## Driving a run
-
-Who chooses the path is the top-level distinction:
+## Driving a script
 
 | Verb | Who chooses | Role |
 | --- | --- | --- |
-| `script` | Human | Open a run; drive with `apply` / `observe` / `until` |
-| `explore` | Framework | Search (episodes × `walk` + shrink) |
-| `replay` | Recorded Repro | Reproduce a discovered path |
+| `system.script` | Human | Open a script; drive with `apply` / `observe` / `until` |
+| `system.explore` | Framework | Search (episodes × `walk` + shrink) |
+| `system.replay` | Recorded Repro | Reproduce a discovered path |
+| `s.walk` | Framework | Weighted walk over the pool (or an explicit `actions` list) |
 
 ```ts
-import { script, explore, replay, walk } from '@pkgs/dst';
-import { gen } from '@pkgs/dst/fast-check';
+await using s = await kv.script({ seed: 7 });
+await s.apply(put);
+await s.apply(partition, 'client:0');
+await s.until(quiet, { maxMs: 2_000 });
+await s.apply(heal);
+await s.until(converged, { maxMs: 5_000 });
 
-await using run = await script(kv, {
-  seed: 7,
-  knobs: { clients: 2 },
-  properties: KV_PROPERTIES,
-});
-await run.apply(put, 'client:0', 'a', '1');
-await run.apply(partition, 'client:0');
-await run.until(quiet, { maxMs: 2_000 });
-await run.apply(heal);
-await run.until(converged, { maxMs: 5_000 });
-expect(await run.observe(converged)).toBe(true);
-
-await explore(kv, {
-  properties: KV_PROPERTIES,
-  actions: [put, partition, heal],
-  knobs: gen(arbKvKnobs()),
+await kv.explore({
   time: { weight: 1, minMs: 0, maxMs: 5_000 },
   episodes: 20,
   steps: 40,
+  seed: 42,
 });
+
+await kv.script({ seed: 7, host: 'wall-model', args: { clients: 3 } });
 ```
 
-### Run
+### Args / draw resolution
+
+| Site | Rule |
+| --- | --- |
+| `script({ seed })` | use `system.args` |
+| `script({ seed, args })` | `{ ...system.args, ...opts.args }` |
+| `explore()` | `draw()`; if omitted, every episode uses `args` |
+| `explore({ args })` | fixed `Args` or a one-off `Gen<Args>` instead of `draw` |
+| `apply(action)` | use `action.args` |
+| `apply(action, ...args)` | full override — no partial tuple merge |
+| walk | `action.draw(s)`; action `args` are not a walk input |
+
+### Script
 
 ```ts
-type Awaitable<T> = T | Promise<T>;
-type Read<S, A extends unknown[], T> = (s: S, ...args: A) => Awaitable<T>;
-
-type Run<S> = {
-  apply<A extends unknown[]>(action: Action<S, A>, ...args: A): Promise<void>;
+type Script<S> = {
+  apply<A extends unknown[]>(action: Action<S, A>, ...args: A | []): Promise<void>;
   observe<T, A extends unknown[]>(read: Read<S, A, T>, ...args: A): Promise<T>;
   assert(p: Property<S>): Promise<void>;
   elapse(ms: number): Promise<void>;
-  until<T>(
-    read: Read<S, [], T>,
-    opts?: { maxMs?: number; stepMs?: number; pred?: (t: T) => boolean }
-  ): Promise<T>;
-  never<T>(
-    read: Read<S, [], T>,
-    opts: { forMs: number; stepMs?: number; pred?: (t: T) => boolean }
-  ): Promise<void>;
+  until<T>(read: Read<S, [], T>, opts?: { maxMs?: number; stepMs?: number; pred?: (t: T) => boolean }): Promise<T>;
+  never<T>(read: Read<S, [], T>, opts: { forMs: number; stepMs?: number; pred?: (t: T) => boolean }): Promise<void>;
+  walk(opts?: WalkOptions<S>): Promise<Walk>;
   [Symbol.asyncDispose](): Promise<void>;
 };
 ```
 
-- **`apply`** — checkpoint. Throws `ActionNotEnabled` if `enabled` is
-  false at probe time (scripted tests that fire a disabled action fail
-  loudly; they do not no-op).
-- **`observe`** — call `read(s, ...args)` without exposing `S`. No
-  checkpoint.
-- **`elapse(ms)`** — Host-defined time step, then settle + checks.
-  Recorded as a `Choice` `{ action: 'elapse', args: [ms] }` so replay
-  does not need a per-system clock action.
-- **`until` / `never`** — poll `observe` and `elapse(stepMs)` until the
-  predicate or the bound. Default `stepMs: 50`, `until.maxMs: 5_000`.
-  Predicate defaults to truthiness. Time advance is `elapse`, not a
-  system action. Extra args belong on the function:
-  `run.until((s) => liveNote(s, 'bob', 'late'))`.
-
-`Run` does not expose `surface` or `session`. If a test needs a read,
-write a function. If it needs a stimulus, add an action. Kit methods
-named `waitUntil` / `drainUntilConverged` / `checkInvariants` do not
-come back.
-
 ### Walk / explore / replay
 
-- `walk(run, { actions, steps?, budgetMs?, stopOnViolation?, time? })` —
-  probe every action (`await enabled(s)` + `await weight(s)`), pick by
-  that step’s weights, `await args(s)`, `await act`. Optional `time`
-  injects `elapse` into the pool.
-- `explore(system, { properties, actions, knobs?, episodes?, steps?,
-  time?, seed?, shrink?, budgetMs? })` — episodes × (script + walk +
-  close) + shrink. Throws `ExploreFailedError`. Seed is `opts.seed` or
-  pinned `424242`. **No `process.env`.**
-- `replay(system, repro, { actions, properties?, host? })` — boots with
-  the Repro’s knobs and re-applies each `Choice` (named action + args,
-  or `elapse`).
+- `s.walk({ actions?, steps?, … })` — defaults to the registered pool
+  (`pool !== false`). Product-walk may pass actor-bound `tap(actor)`.
+- `system.explore({ episodes?, steps?, time?, seed?, args? })` —
+  catalogs and default host come from the system. Throws
+  `ExploreFailedError`.
+- `system.replay(repro, { host? })` — boots with the Repro’s `args` and
+  re-applies each `Choice`.
 
 Repro:
 
 ```ts
 {
-  version: 5,
+  version: 6,
   seed,
-  knobs: unknown,          // JSON-projected typed knobs
+  args: unknown,          // JSON-projected typed args
   choices: { action, args }[],
   meta: { system, host? },
 }
 ```
-
-No separate `system:` draw tape — topology is knobs. Shrink (1) delta-
-debugs choices (2) minimises knobs and JSON args toward empty / 0.
 
 ---
 
@@ -466,133 +305,91 @@ debugs choices (2) minimises knobs and JSON args toward empty / 0.
 Every Session still has ports: `clock`, `timers`, `rng`, `createId`,
 `random`, `network` (per-fork `Endpoint`).
 
-Session also holds: `scheduler`, `network` (partition / heal /
-`inFlight`), optional `trace`, `caps`, `fork`, `dispose`, `settle`,
-**`elapse(ms)`**, **`onDispose(fn)`**.
-
 **Capabilities:** `'virtualTime' | 'partition' | 'trace'`.
 `virtualHost()` has all three. `wallHost({ network })` has no
 `virtualTime`; partition only if `network: 'model'`.
 
-**Settle** = “effects of this act have been delivered”, defined by the
-Host. Virtual default: drain due-at-now, no time travel. It is **not**
-global quiescence. Heartbeats that reschedule forever are fine: settle
-returns after the current due set. Convergence is a function of `S`.
+Register hosts on the system — do not pass a `Host` object through
+`script`:
 
-**Elapse** = Host-defined tick. Virtual: `scheduler.advance(ms)`. Wall:
-wait `ms` (or the UI driver’s `runFor`). Product extras that must move
-with time (RNTL) belong on the Host, not as a system action.
+```ts
+counter.host({ default: true, name: 'happydom', create: () => happyDomHost() });
+counter.host({ name: 'webview', create: () => webViewHost() });
+await counter.script({ seed: 1, host: 'webview' });
+```
 
-**Lifecycle** belongs on Session, not in `generate`:
+`virtualHost` / `wallHost` / `defineHost` stay as Host constructors used
+**inside** `create` — they are not script options.
+
+**Lifecycle** belongs on Session, not in `create`:
 
 ```ts
 const page = await ports.openPage();
 session.onDispose(() => page.dispose());
 ```
 
-**`.with(session => extraPorts)`** merges keys onto `session.ports` and
-forks. **`settle` overrides** are Host options (`defineHost({ settle })`
-or `virtualHost({ settle })`), not a reimplemented Host and not a
-WeakMap keyed by host brand.
-
-Kernel (`@pkgs/dst/kernel`) is host-private. Session is the only handle
-sim kits see. If a sim needs the scheduler heap, that is a Host
-capability, not an import of `createVirtualScheduler`.
+Kernel (`@pkgs/dst/kernel`) is host-private.
 
 ---
 
 ## Same algebra, different domains
 
-The framework does not change. The Host and `S` do.
-
 ### Multi-node service (sync, room, matchmaking, kv)
 
-`S = { session, server, clients }`. Actions: mutate, partition, heal.
-Reads: `quiet`, `converged`, live row. Properties: quiet ∧ healed ⇒
-converged. `time` on in explore. Host: `virtualHost({ startTime })`.
+`S = { session, server, clients }`. Literal `defineSystem` per app;
+shared `ROOM_DRAW` / `roomVirtual` constants are fine. Fold JSON
+variants into `args` (matchmaking `tuning` / sync `sessionQuery`).
 
 ### UI (DOM, RN, WebView)
 
-`S = { page }` or `{ driver }`. Actions: tap / fill / back; `enabled`
-on the current screen; `weight` on live widgets (e.g. `count(s)`).
-Reads: `route`, `count`, `inventory(s, actorId)`.
-Properties: no error boundary, no console error. Host: `.with(openPage)`
-or a Playwright/RNTL host; `elapse` is the driver’s clock. This is the
-Bombadil use case without Bombadil’s Formula layer or `extract`.
-
-### Schema / indexes / SQL client / auth
-
-`S = { db }` or `{ engine, migrations }`. No network. Actions: apply
-migration, insert row, rebuild index. Reads: catalog, mismatch count.
-Properties: `mismatchCount(s) === 0`. Omit `time`. Host: `virtualHost`
-or a tiny SQL host. `get` is a function, not an action that writes
-`state.mismatches`.
+`S = { page }`. Register happydom / webview hosts; matrix via
+`describe.each(counter.hosts)`.
 
 ### Product sim (`@sim/test`)
 
-`S` is the product graph. Host is `simHost` / `maxHost` (real Postgres,
-MinIO, …). Same `script` / `explore`. Extra ports via `.with`, not
-`session.ports as ProductExtra`.
+`product.host({ name: 'rntl' | 'playwright', … })`. `openSim` picks a
+host name from fidelity. Product-walk keeps an explicit `actions` list
+on `s.walk` (actor-bound UI actions cannot be pre-registered).
 
 A new domain is: a Host (if fidelity differs), a `defineSystem`,
-functions of `S`, actions, properties. Not a package-local World opener.
+functions of `S`, `system.action` / `system.property`. Not a
+package-local World opener or `defineXSystem` factory.
 
 ---
 
 ## Do / don't
 
-- **Do** bind action / property definers once (`defineSurface<S>()` or
-  from the System).
+- **Do** register actions / properties / hosts on the System.
 - **Do** keep `S` as data. Reads = functions; stimuli = actions.
-- **Do** put `enabled(s)` and `weight(s)` on the action. Both may be
-  async. Weight is live — bump `increment` when `await count(s)` is
-  low, drop it when high.
-- **Do** pass actor / node identity as function args, not closures.
-- **Do** wait with `run.until` / `run.never`.
-- **Do** attach standing properties on `script` / `explore`.
-- **Don't** wrap reads in a constructor or drive actions as generators.
-- **Don't** add `randomFoo` wrappers next to `foo`.
-- **Don't** encode wait / assert / settle / converge as actions.
-- **Don't** hang `.actions` / `.properties` on the System. Pass lists.
-- **Don't** wrap `script` / `explore` in package helpers — Host + knobs
-  + the algebra verbs are the API.
-- **Don't** import `@pkgs/dst/kernel` from sim kits (Session + public
-  Session-adjacent types only).
+- **Do** put defaults on `args` and samplers on `draw`.
+- **Do** wait with `s.until` / `s.never`.
+- **Do** use `system.hosts` for host matrices.
+- **Don't** wrap `defineSystem` / `script` / `explore` in package
+  helpers (`defineRoomSystem`, `openRoom`, `syncKnobs`, …).
+- **Don't** pass Host objects through `script` — register names.
+- **Don't** thread `actions` / `knobs` catalogs at call
+  sites when the registry defaults apply.
+- **Don't** import `@pkgs/dst/kernel` from sim kits.
 - **Don't** read `process.env` for seeds.
-- **Don't** reintroduce Formula / World / catalogs-as-records / Cells.
+- **Don't** reintroduce Formula / World / Cells / free explore verbs.
 
 ---
 
 ## Invariants
 
-1. **Determinism.** Same seed + knobs + choices ⇒ same Run. No wall
-   `Date.now` / `Math.random` / `fetch` in the algebra. Host injects
-   clock, rng, network, ids.
+1. **Determinism.** Same seed + args + choices ⇒ same Script.
 2. **Singular primitives.** One System, one Action, one Property, one
-   Run. No Observation sort, no catalogs-as-records, no Formula tree,
-   no World.
+   Script. Catalogs live **on** the System via registration.
 3. **Stimuli vs reads vs invariants.** Actions change the world.
-   Functions read it. Properties watch it. Waiting is polling reads
-   plus Host time.
-4. **Typed knobs and typed action args.** Scripted tests are ordinary
-   calls (`apply(put, 'c0', 'a', '1')`).
-5. **Probe-by-weight random walk** over enabled actions, with recorded
-   args so a failing episode shrinks and replays.
-6. **Host as fidelity.** Virtual vs wall vs product extras without the
-   System knowing which.
-7. **Session.fork** for topology. Model network partition/heal as
-   capability-gated stimuli.
-8. **Harness-only Session.** Product runtime takes unpacked ports.
-9. **Three import paths** (algebra / kernel / fast-check), kernel
-   confined to host authors inside `pkgs/dst`.
+   Functions read it. Properties watch it.
+4. **Typed args.** Scripted tests are ordinary calls.
+5. **Probe-by-weight random walk** with recorded args for shrink/replay.
+6. **Host as fidelity** — named, registered, selectable.
+7. **Session.fork** for topology.
+8. **Harness-only Session.**
+9. **Three import paths** (algebra / kernel / fast-check).
 10. **No dependency patches, no Io bag, no package-local World DSL.**
-11. **Domain-agnostic algebra.** No type, helper, or default action
-    that assumes clients, browsers, SQL, or games. Those live in
-    Hosts and in consuming packages.
-
-Also: read memo on `run.observe` per checkpoint; `await using run`;
-Repro as versioned JSON; vacuity on obligations;
-`ActionNotEnabled` / `PropertyViolation` / `ExploreFailedError`.
+11. **Domain-agnostic algebra.**
 
 ---
 
@@ -601,22 +398,19 @@ Repro as versioned JSON; vacuity on obligations;
 ```
 src/index.ts          public algebra
 src/host/             virtualHost / wallHost / defineHost / Session
-src/system/           defineSystem / defineAction / defineProperty / defineSurface
-src/run/              probe / script / walk / explore / replay / checkpoint
+src/system/           defineSystem / defineAction / effect / repro
+src/script/           probe / script / walk / explore / checkpoint (internal)
 src/kernel/           clocks, schedulers, rng, fingerprint, json, timers
 src/models/           in-process network
 src/fast-check/       gen / arbitrary adapters
 src/examples/         teaching toys (acme-kv, acme-sync, acme-counter)
 ```
 
-Probe is `enabled` + `weight` (never runs `act`). Checkpoint: act /
-elapse → settle → checks → `Choice`.
-
 ---
 
 ## Extending
 
-New stimulus = `defineAction`. New read = a function of `S`. New
-invariant = `defineProperty` attached via `script` / `explore`.
-New fidelity = new Host or `.with(extra ports)`. New domain = those,
+New stimulus = `system.action` (or unbound `defineAction` for walk-time
+helpers). New read = a function of `S`. New invariant =
+`system.property`. New fidelity = `system.host`. New domain = those,
 not a new framework.

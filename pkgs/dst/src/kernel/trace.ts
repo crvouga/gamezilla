@@ -28,7 +28,7 @@ export type TraceRecord =
       readonly detail?: JsonValue;
     };
 
-/** Sink that receives TraceRecords while a Run executes. */
+/** Sink that receives TraceRecords while a Script executes. */
 export type TraceRecorder = {
   readonly enabled: boolean;
   readonly record: (e: TraceRecord) => void;

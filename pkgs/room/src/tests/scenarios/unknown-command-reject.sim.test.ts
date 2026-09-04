@@ -5,16 +5,15 @@ import { ROOM_ERROR_TYPE } from '../../types';
 import { counterSystem } from '../apps/counter/system';
 import { expectConverged } from '../expect-converged';
 import { counterValue } from '../fixtures/counter-module';
-import { openRoom } from '../scenario/open-room';
 import { readClient, readRejection, readServer } from '../scenario/read-state';
 
 describe('room sim: unknown command reject (E-D04)', () => {
   test('unknown message type rejects without mutate', async () => {
-    await using run = await openRoom(counterSystem);
-    await run.apply(addClient, { id: 'alice' });
-    await expectConverged(run);
+    await using s = await counterSystem.script({ seed: 42 });
+    await s.apply(addClient, { id: 'alice' });
+    await expectConverged(s);
 
-    await run.apply(dispatch, {
+    await s.apply(dispatch, {
       clientId: 'alice',
       payload: {
         type: asKeyword('space-counter-cmd/nope'),
@@ -22,11 +21,11 @@ describe('room sim: unknown command reject (E-D04)', () => {
       },
     });
 
-    expect((await readRejection(run, 'alice'))?.type).toBe(
+    expect((await readRejection(s, 'alice'))?.type).toBe(
       ROOM_ERROR_TYPE.invalidCommand
     );
-    expect(await run.observe(logSeq)).toBe(0);
+    expect(await s.observe(logSeq)).toBe(0);
     expect(counterValue(await readServer(run))).toBe(0);
-    expect(counterValue(await readClient(run, 'alice'))).toBe(0);
+    expect(counterValue(await readClient(s, 'alice'))).toBe(0);
   });
 });

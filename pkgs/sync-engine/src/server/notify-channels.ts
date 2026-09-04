@@ -20,7 +20,7 @@ export type NotifyChannelsOptions = {
   readonly now: () => number;
   /**
    * When set, publish runs on this scheduler after allocate. Use a macrotask
-   * (`timers.setTimeout(run, 0)`) so in-memory pubsub does not re-enter the
+   * (`timers.setTimeout(s, 0)`) so in-memory pubsub does not re-enter the
    * still-open request (overlapping postgres-mem / Hono hangs under Jest).
    */
   readonly schedulePublish?: (run: () => void) => void;
