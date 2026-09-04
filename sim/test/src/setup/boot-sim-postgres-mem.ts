@@ -15,7 +15,7 @@ import {
   openSimPostgresMemFromSeed,
   type SimPostgresMemSqlBundle,
 } from '@pkgs/sql-client/postgres/boot-sim-postgres-mem';
-import type { SimSqlHandle } from '@sim/console/sim/sim-sql';
+import type { SimSql } from '@sim/console/sim/sim-sql';
 
 import { simPostgresSeedFingerprintSource } from './sim-postgres-seed-fingerprint';
 
@@ -68,13 +68,13 @@ function uniqueName(base: string): string {
 }
 
 /**
- * Open a SimSqlHandle from the cached post-migrate PGMM seed (no migrate).
+ * Open a SimSql from the cached post-migrate PGMM seed (no migrate).
  * Call {@link ensureSimPostgresMemSeed} first (globalSetup) or rely on lazy ensure.
  */
 export async function openSeededSimServerSql(
   logicalName: string,
   clock: Clock
-): Promise<SimSqlHandle> {
+): Promise<SimSql> {
   const { seedBytes } = await ensureSimPostgresMemSeed();
   let databaseName = uniqueName(logicalName);
   let live: SimPostgresMemSqlBundle = openSimPostgresMemFromSeed({

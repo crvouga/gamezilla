@@ -363,7 +363,7 @@ No Raft. Coordination is LWW + lossy MQTT + HTTP snapshots.
 |---|---|
 | **Priority** | High |
 | **Type** | Safety |
-| **Property** | Host/seat room checks use only the gateway-resolved actor; a stale-bearer fallback or unauthenticated `anonId` must not pass as another user’s account. |
+| **Property** | Runtime/seat room checks use only the gateway-resolved actor; a stale-bearer fallback or unauthenticated `anonId` must not pass as another user’s account. |
 | **Invariant** | `Always` after upgrade: `x-actor-id` is session account, else offered `anonId`, else a server-minted id — never WS body. A failed bearer resolve must not equal account `A`. `Reachable` on the `tryResolveAccount` catch. |
 | **Antithesis Angle** | Pause/kill Postgres during WS upgrade; `anonId=<victim account>`. Sim `RoomServer` never runs `createRoomApp`. |
 | **Why It Matters** | Gateway never blocks on auth. Chess host/seat is string equality on that header. Reclaim is any-connected-identity, not an ACL check. |

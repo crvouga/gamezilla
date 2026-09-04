@@ -7,7 +7,7 @@ import { topicRowId } from '../shared/schema/tables';
 /**
  * Pre-Phase-2 REST pushes used `${Date.now()}000000` (~1e18). Monotonic
  * allocateTopicPushSeq values stay small integers. Anything at/above this
- * floor is treated as an unknown baseline (ignore / heal).
+ * floor is treated as an unknown baseline (ignore / restoreNetwork).
  */
 const LEGACY_WALL_CLOCK_MIN = 10n ** 15n;
 

@@ -6,31 +6,31 @@ identical logic. Hidden nondeterminism is a production correctness bug.
 
 ## Core rule
 
-**Same seed → same path.** Given the same `Session` / `system.script({ seed })`
-seed (and the same system draws + action choices), reducers, merges, and derived
+**Same seed → same path.** Given the same `Session` / `system.run({ seed })`
+seed (and the same system samples + action choices), reducers, merges, and derived
 game/social state must match bit-for-bit across clients and runs.
 
 ## What injected ports cover
 
 Inject clock, timers, ids, RNG, and HTTP from a composition root
 (`createClient(env)` / `createServer(env)` / `createSim` via harness-only
-`virtualHost()` / `Session` from `@pkgs/dst` / wall adapters at process entry):
+`virtualTimeRuntime()` / `Session` from `@pkgs/sim` / wall adapters at process entry):
 
 | Port | Use |
 | --- | --- |
-| `clock` / `timers` (`@pkgs/clock` types; sim uses `@pkgs/dst/kernel` virtual clock + scheduler) | Time and scheduling |
+| `clock` / `timers` (`@pkgs/clock` types; sim uses `@pkgs/sim/internals` virtual clock + scheduler) | Time and scheduling |
 | `createId` (`@pkgs/uuid`) | UUIDs / ids |
 | `random` (`@pkgs/uuid`) | RNG |
 | HTTP (`@pkgs/http-client`) | Network |
 
-**`Session` / Host are harness-only.** Product `ClientEnv` / `ServerEnv` receive unpacked
-ports — never the Session bag. Shared simulation mechanics live in
-`@pkgs/dst`. **Systems are framework-owned:** packages declare
+**`Session` / Runtime are harness-only.** Product `ClientEnv` / `ServerEnv` receive unpacked
+ports — never a Session. Shared simulation mechanics live in
+`@pkgs/sim`. **Systems are framework-owned:** packages declare
 `defineSystem` / `defineAction` / `defineProperty` (topology via
-`session.fork`; reads are plain functions of the surface; converge as
-actions/properties); tests call `script` / `explore` / `replay` from
-`@pkgs/dst` — not package-local World openers. See
-[`pkgs/dst/README.md`](pkgs/dst/README.md).
+`session.fork`; reads are plain functions of `S`; converge as
+actions/properties); tests call `system.run` / `system.explore` /
+`system.replay` from `@pkgs/sim` — not package-local World openers. See
+[`pkgs/sim/README.md`](pkgs/sim/README.md).
 
 Domain and game-logic code take required `clock` / `createId` (or `now` slices).
 Never default to wall implementations inside libraries. Never construct an `Io` bag.

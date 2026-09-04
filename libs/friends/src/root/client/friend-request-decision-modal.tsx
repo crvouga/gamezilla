@@ -1,8 +1,8 @@
-import { Handles } from '@libs/dst-handles';
 import type {
   Notification,
   NotificationCardActions,
 } from '@libs/notifications/public';
+import { Handles } from '@libs/test-ids';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { isSoundId } from '@pkgs/sounds';
 import {

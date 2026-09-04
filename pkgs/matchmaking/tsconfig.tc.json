@@ -1,5 +1,5 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["../ts-reset/src/index.ts", "./src/**/*.ts"],
+  "include": ["../ts-reset/src/index.ts", "./src/**/*.ts", "./tests/**/*.ts"],
   "exclude": ["node_modules"]
 }

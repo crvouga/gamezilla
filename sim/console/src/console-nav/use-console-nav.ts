@@ -15,7 +15,7 @@ import {
   readConsoleNavSearch,
   subscribeConsoleNavPopState,
   writeConsoleNavUrl,
-} from '@sim/console/console-nav/console-nav-wall';
+} from '@sim/console/console-nav/console-nav-real';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Platform } from 'react-native';
 

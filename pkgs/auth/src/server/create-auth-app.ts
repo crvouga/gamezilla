@@ -17,7 +17,7 @@ import type {
 export type { CreateAuthAppDeps, CreateAuthAppProviders };
 
 /**
- * Application-agnostic IdP Hono app. Host mounts with `.route('/', app)`.
+ * Application-agnostic IdP Hono app. Runtime mounts with `.route('/', app)`.
  * All I/O is injected — safe for Workers, Node tests, and in-process sim.
  */
 export function createAuthApp(deps: CreateAuthAppDeps): Hono {

@@ -1,10 +1,10 @@
 import { AppDriver } from '../../drivers/app-driver';
 import { aliceUsername } from '../../fixtures/fixtures';
-import type { OpenSimHandle } from '../../setup/open-sim';
+import type { OpenSim } from '../../setup/open-sim';
 import { buildFriendsPair } from './friends-pair';
 
 /** Friends in an active space (alice host, bob joined). */
-export async function buildBothInSpace(sim: OpenSimHandle): Promise<void> {
+export async function buildBothInSpace(sim: OpenSim): Promise<void> {
   await buildFriendsPair(sim);
   const alice = await AppDriver.forActor(sim, 'alice');
   const bob = await AppDriver.forActor(sim, 'bob');

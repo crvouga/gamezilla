@@ -1,5 +1,5 @@
 import type { Property } from '../system/effect';
-import type { Choice } from '../system/repro';
+import type { Step } from '../system/recording';
 import { memoRead, popMemoFrame, pushMemoFrame, snapshotMemo } from './memo';
 
 export class PropertyViolation extends Error {
@@ -30,7 +30,7 @@ export type Transition = {
 
 export type CheckpointResult = {
   readonly transition: Transition;
-  readonly choice: Choice;
+  readonly step: Step;
   readonly violations: readonly PropertyViolation[];
 };
 
@@ -96,13 +96,13 @@ export async function checkpoint<S>(args: {
   readonly applyArgs: readonly unknown[];
   readonly act: (s: S, ...a: unknown[]) => unknown | Promise<unknown>;
   readonly surface: S;
-  readonly settle: () => Promise<void>;
+  readonly waitForIdle: () => Promise<void>;
   readonly monitors: MonitorState[];
   readonly t: number;
 }): Promise<CheckpointResult> {
   const before: Record<string, unknown> = {};
   await args.act(args.surface, ...(args.applyArgs as never[]));
-  await args.settle();
+  await args.waitForIdle();
   pushMemoFrame();
   try {
     const violations = await resumeMonitors(
@@ -118,7 +118,7 @@ export async function checkpoint<S>(args: {
         action: { name: args.actionName, args: args.applyArgs },
         after,
       },
-      choice: { action: args.actionName, args: args.applyArgs },
+      step: { action: args.actionName, args: args.applyArgs },
       violations,
     };
   } finally {

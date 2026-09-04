@@ -1,4 +1,4 @@
-import type { Session } from '@pkgs/dst';
+import type { Session } from '@pkgs/sim';
 import type { BrokerCore } from '../sqlite/web/broker-core';
 import type { OwnerRuntime } from '../sqlite/web/owner-runtime';
 import type { SimOpfsStore } from '../sqlite/web/owners/sim-opfs-sql-owner';

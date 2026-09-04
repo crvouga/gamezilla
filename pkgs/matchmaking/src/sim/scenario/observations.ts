@@ -1,5 +1,5 @@
-import type { JsonValue } from '@pkgs/dst';
-import { assertReplicaAgreement, type MatchmakingSurface } from './facade';
+import type { JsonValue } from '@pkgs/sim';
+import { assertReplicaAgreement, type MatchmakingSim } from './facade';
 import { mmOf } from './refs';
 import { matchmaking } from './system';
 
@@ -9,21 +9,21 @@ export function asJson(value: unknown): JsonValue {
   ) as JsonValue;
 }
 
-export function caps(s: MatchmakingSurface): string[] {
+export function caps(s: MatchmakingSim): string[] {
   return [...s.session.caps] as string[];
 }
 
-export function replicaIds(s: MatchmakingSurface): string[] {
+export function replicaIds(s: MatchmakingSim): string[] {
   return [...s.replicas.keys()];
 }
 
 /** Every alias minted by the `join` action, in insertion order. */
-export function participantIds(s: MatchmakingSurface): Record<string, string> {
+export function participantIds(s: MatchmakingSim): Record<string, string> {
   return Object.fromEntries(s.refs) as Record<string, string>;
 }
 
 export async function agreementViolations(
-  s: MatchmakingSurface
+  s: MatchmakingSim
 ): Promise<string[]> {
   try {
     await assertReplicaAgreement(s);
@@ -35,7 +35,7 @@ export async function agreementViolations(
 
 /** Status of one raw participant id, read from `replicaId` (default first). */
 export async function statusById(
-  s: MatchmakingSurface,
+  s: MatchmakingSim,
   participantId: string,
   replicaId?: string
 ): Promise<JsonValue> {
@@ -44,7 +44,7 @@ export async function statusById(
 
 /** Status of one aliased participant, read from `replicaId` (default first). */
 export async function statusOf(
-  s: MatchmakingSurface,
+  s: MatchmakingSim,
   ref: string,
   replicaId?: string
 ): Promise<JsonValue> {
@@ -55,7 +55,7 @@ export async function statusOf(
 
 /** Status of every aliased participant, keyed by alias. */
 export async function statuses(
-  s: MatchmakingSurface,
+  s: MatchmakingSim,
   replicaId?: string
 ): Promise<Record<string, JsonValue>> {
   const out: Record<string, JsonValue> = {};
@@ -67,7 +67,7 @@ export async function statuses(
 
 /** One participant's status as seen by each replica, keyed by replica id. */
 export async function statusAcrossReplicas(
-  s: MatchmakingSurface,
+  s: MatchmakingSim,
   participantId: string
 ): Promise<Record<string, JsonValue>> {
   const out: Record<string, JsonValue> = {};
@@ -77,29 +77,29 @@ export async function statusAcrossReplicas(
   return out;
 }
 
-export function lastTick(s: MatchmakingSurface): JsonValue {
+export function lastTick(s: MatchmakingSim): JsonValue {
   return asJson(s.last.tick);
 }
 
-export function lastTickAll(s: MatchmakingSurface): JsonValue {
+export function lastTickAll(s: MatchmakingSim): JsonValue {
   return asJson(s.last.tickAll);
 }
 
-export function lastLeave(s: MatchmakingSurface): JsonValue {
+export function lastLeave(s: MatchmakingSim): JsonValue {
   return asJson(s.last.leave);
 }
 
-export function lastUpdate(s: MatchmakingSurface): JsonValue {
+export function lastUpdate(s: MatchmakingSim): JsonValue {
   return asJson(s.last.update);
 }
 
-export function lastHttp(s: MatchmakingSurface): JsonValue {
+export function lastHttp(s: MatchmakingSim): JsonValue {
   return asJson(s.last.http);
 }
 
 /** True when any of `refs` is matched on `replicaId` (default first). */
 export async function matched(
-  s: MatchmakingSurface,
+  s: MatchmakingSim,
   refs: readonly string[],
   replicaId?: string
 ): Promise<boolean> {

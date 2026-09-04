@@ -1,4 +1,4 @@
-import { Handles } from '@libs/dst-handles';
+import { Handles } from '@libs/test-ids';
 import { useLingui } from '@lingui/react/macro';
 import { Pressable, useRouter } from '@pkgs/ui';
 import { optionalProps } from '@pkgs/ui/components/optional-props';

@@ -1,17 +1,17 @@
-import type { Session } from '@pkgs/dst';
+import type { Session } from '@pkgs/sim';
 import type { SimSystemSnapshot } from '@pkgs/sim-console/shared/sim-system-snapshot';
 import type { Driver } from '@pkgs/ui-testing';
 import type { Sim } from '@sim/console/sim/create-sim';
 
-import type { ProductExtra } from '../host/ports';
+import type { ProductExtra } from '../runtime/ports';
 
-export type SimActorHandle = {
+export type SimActor = {
   readonly id: string;
   readonly ui: Driver;
 };
 
 export type ProductRuntime = {
-  launchActor: (id: string) => Promise<SimActorHandle>;
+  launchActor: (id: string) => Promise<SimActor>;
   resetActor: (id: string) => Promise<void>;
   disposeResources: () => Promise<void>;
 };
@@ -25,10 +25,10 @@ export type ProductProbes = {
   snapshot: SimSystemSnapshot | null;
 };
 
-export type ProductSurface = {
+export type ProductSim = {
   readonly session: Session;
   readonly sim: Sim;
-  readonly actors: Map<string, SimActorHandle>;
+  readonly actors: Map<string, SimActor>;
   readonly probes: ProductProbes;
   runtime: ProductRuntime;
 };
@@ -37,16 +37,13 @@ function unwired(method: string): never {
   throw new Error(`product runtime: ${method} not wired`);
 }
 
-/** Host extras (`sql` / `ui` / `http`) merged onto the session ports. */
-export function productExtra(s: ProductSurface): ProductExtra {
+/** Runtime extras (`sql` / `ui` / `http`) merged onto the session ports. */
+export function productExtra(s: ProductSim): ProductExtra {
   return s.session.ports as unknown as ProductExtra;
 }
 
-export function createProductSurface(
-  session: Session,
-  sim: Sim
-): ProductSurface {
-  const actors = new Map<string, SimActorHandle>();
+export function createProductSim(session: Session, sim: Sim): ProductSim {
+  const actors = new Map<string, SimActor>();
   const runtime: ProductRuntime = {
     launchActor: async () => unwired('launchActor'),
     resetActor: async () => unwired('resetActor'),

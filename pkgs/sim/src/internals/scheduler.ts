@@ -15,7 +15,7 @@ export type { Task, TaskBody };
 
 /**
  * Discrete-event Scheduler over the virtual clock. Fires due Tasks one at a
- * time with a quiescence probe between them; same-time ties are a Choice.
+ * time with a quiescence probe between them; same-time ties are a Step.
  * Nested drain throws `Scheduler: nested drain`.
  */
 export type Scheduler = {
@@ -40,7 +40,7 @@ export type Scheduler = {
 
 export type SchedulerOptions = {
   readonly trace?: TraceRecorder;
-  /** Seeded RNG that resolves the same-time scheduling Choice. */
+  /** Seeded RNG that resolves the same-time scheduling Step. */
   readonly choiceRng?: SeededRng;
 };
 

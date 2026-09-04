@@ -1,4 +1,4 @@
-import type { Session } from '@pkgs/dst';
+import type { Session } from '@pkgs/sim';
 import { type BrokerCore, createBrokerCore } from '../sqlite/web/broker-core';
 import {
   createOwnerRuntime,

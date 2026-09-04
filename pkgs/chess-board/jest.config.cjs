@@ -17,10 +17,7 @@ const babelRuntimeRoot = path.dirname(
 /** @type {import('jest').Config} */
 module.exports = {
   preset: 'jest-expo',
-  testMatch: [
-    '<rootDir>/test/**/*.blackbox.test.tsx',
-    '<rootDir>/test/chess-board-gestures.test.ts',
-  ],
+  testMatch: ['<rootDir>/tests/**/*.test.ts', '<rootDir>/tests/**/*.test.tsx'],
   testPathIgnorePatterns: ['/node_modules/'],
   testTimeout: 30_000,
   setupFiles: ['<rootDir>/jest.setup-env.cjs'],

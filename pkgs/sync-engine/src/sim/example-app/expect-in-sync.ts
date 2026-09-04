@@ -1,18 +1,18 @@
 import { expect } from 'bun:test';
-import { defineAction, type Script } from '@pkgs/dst';
-import { converged } from '../../../sim/scenario/sync-observations';
-import { revive } from '../../../sim/scenario/sync-pin-actions';
-import type { SyncSurface } from '../../../sim/scenario/system';
+import { defineAction, type Run } from '@pkgs/sim';
+import { recoverAll } from '../scenario/regression-actions';
+import { inSync } from '../scenario/sync-observations';
+import type { SyncSim } from '../scenario/system';
 
 /**
  * Module-private kit drain — not a public pin / explore action. Sync needs
- * wake + scheduler drain + peer-marker reconcile (kit.drainUntilConverged);
- * `s.until(converged)` alone cannot nudge uploads under perpetual heartbeats.
+ * wake + scheduler drain + peer-marker reconcile (kit.drainUntilInSync);
+ * `s.until(inSync)` alone cannot nudge uploads under perpetual heartbeats.
  */
 const drainKit = defineAction({
   name: 'drainKit',
-  act: async (s: SyncSurface) => {
-    await s.runtime.kit.drainUntilConverged();
+  act: async (s: SyncSim) => {
+    await s.runtime.kit.drainUntilInSync();
   },
 });
 
@@ -20,8 +20,8 @@ const drainKit = defineAction({
  * Heal owed clients / network, drain until domain agreement, then assert.
  * Test helper — not part of the explore catalog.
  */
-export async function expectConverged(s: Script<SyncSurface>): Promise<void> {
-  await s.apply(revive);
+export async function expectInSync(s: Run<SyncSim>): Promise<void> {
+  await s.apply(recoverAll);
   await s.apply(drainKit);
-  expect(await s.observe(converged)).toBe(true);
+  expect(await s.read(inSync)).toBe(true);
 }

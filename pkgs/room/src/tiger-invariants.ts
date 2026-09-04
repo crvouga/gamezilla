@@ -23,7 +23,7 @@ export const TIGER_MID_CHAOS_INVARIANTS = [
   'durable-queue-matches-memory',
 ] as const satisfies readonly TigerInvariant[];
 
-/** Post-converge: only after heal + sync. */
+/** Post-converge: only after restoreNetwork + sync. */
 export const TIGER_POST_CONVERGE_INVARIANTS = [
   'healed-queue-drained',
   'client-lastseq-equals-server-tip',

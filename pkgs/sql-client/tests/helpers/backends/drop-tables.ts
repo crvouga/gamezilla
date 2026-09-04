@@ -1,5 +1,5 @@
 import { raw } from '@pkgs/sql';
-import type { SqlClient } from '../../interface';
+import type { SqlClient } from '../../../src/interface';
 import type { SqlDialect } from './types';
 
 /** Drop sample tables; ignore missing (idempotent cleanup). */

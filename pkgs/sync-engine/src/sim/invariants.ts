@@ -93,8 +93,8 @@ export async function checkClientFrameworkInvariants(
   return checkCheckpointMonotonicPerScope(db);
 }
 
-/** Post-settle checks — only after heal + domain convergence. */
-export async function checkPostConvergeInvariants(
+/** Post-settle checks — only after restoreNetwork + domain convergence. */
+export async function checkPostInSyncInvariants(
   db: SqlClient
 ): Promise<InvariantViolation | null> {
   const markers = await checkOptimisticMarkersHealed(db);

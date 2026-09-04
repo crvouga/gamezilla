@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'bun:test';
-import { fingerprintSql } from '../../core/fingerprint';
-import { ownedIndexName } from '../../core/naming';
-import type { IndexDefinition, WorkloadManifest } from '../../core/types';
-import { planIndexes, reconcileIndexes } from '../../index';
-import { createSimClock, SimDb } from '../../sim';
+import { planIndexes, reconcileIndexes } from '@pkgs/db-indexes';
+import { createSimClock, SimDb } from '@pkgs/db-indexes/sim';
+import { fingerprintSql } from '../src/core/fingerprint';
+import { ownedIndexName } from '../src/core/naming';
+import type { IndexDefinition, WorkloadManifest } from '../src/core/types';
 
 function stmt(sql: string, index = 0) {
   return {

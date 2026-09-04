@@ -1,19 +1,19 @@
 /**
- * Domain reads for acme scenarios, built on the framework `rows` observation.
+ * Domain reads for example scenarios, built on the framework `rows` observation.
  * Scenario tests stay on `s.apply` / `s.observe` — the run API hands out no
  * live database handles.
  */
 
 import { expect } from 'bun:test';
-import type { JsonValue, Script } from '@pkgs/dst';
+import type { JsonValue, Run } from '@pkgs/sim';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
-import type { SyncSurface } from '../../../sim/scenario';
-import { clientIds, deviceId, rows as rowsObs } from '../../../sim/scenario';
+import type { SyncSim } from '../scenario';
+import { clientIds, deviceId, rows as rowsObs } from '../scenario';
 
 async function rows<T extends Record<string, JsonValue>>(
-  s: SyncSurface,
+  s: SyncSim,
   label: string,
   nodeId: string,
   statement: Parameters<SqlClient['query']>[0]
@@ -32,7 +32,7 @@ export type LiveNoteRow = {
  * absent; a non-null `deletedAt` means present but tombstoned.
  */
 export async function liveNote(
-  s: SyncSurface,
+  s: SyncSim,
   nodeId: string,
   id: string
 ): Promise<LiveNoteRow | null> {
@@ -57,7 +57,7 @@ export type LiveSpaceRow = {
 
 /** Space row on `nodeId` — same absent / tombstoned rules as {@link liveNote}. */
 export async function liveSpace(
-  s: SyncSurface,
+  s: SyncSim,
   nodeId: string,
   id: string
 ): Promise<LiveSpaceRow | null> {
@@ -96,7 +96,7 @@ export type OpenSessionRow = {
 
 /** Live (non-tombstoned) notes on `nodeId`, ordered by id. */
 export async function liveNotes(
-  s: SyncSurface,
+  s: SyncSim,
   nodeId: string
 ): Promise<NoteRow[]> {
   return rows<NoteRow>(
@@ -114,7 +114,7 @@ export async function liveNotes(
 
 /** Live folders on `nodeId`, ordered by id. */
 export async function liveFolders(
-  s: SyncSurface,
+  s: SyncSim,
   nodeId: string
 ): Promise<FolderRow[]> {
   return rows<FolderRow>(
@@ -136,10 +136,7 @@ export type TagRow = {
 };
 
 /** Live tag rows on `nodeId` — only present on the extra-table variant. */
-export async function liveTags(
-  s: SyncSurface,
-  nodeId: string
-): Promise<TagRow[]> {
+export async function liveTags(s: SyncSim, nodeId: string): Promise<TagRow[]> {
   return rows<TagRow>(
     s,
     'liveTags',
@@ -152,7 +149,7 @@ export async function liveTags(
 
 /** Live space open-session rows on `nodeId`, ordered by id. */
 export async function liveOpenSessions(
-  s: SyncSurface,
+  s: SyncSim,
   nodeId: string
 ): Promise<OpenSessionRow[]> {
   return rows<OpenSessionRow>(
@@ -170,7 +167,7 @@ export async function liveOpenSessions(
 
 /** Column names of the local `notes` table on `nodeId`. */
 export async function noteColumns(
-  s: SyncSurface,
+  s: SyncSim,
   nodeId: string
 ): Promise<{ readonly name: string }[]> {
   return rows<{ readonly name: string }>(
@@ -183,7 +180,7 @@ export async function noteColumns(
 
 /** `color` on one note — only present on the extra-column schema variant. */
 export async function noteColor(
-  s: SyncSurface,
+  s: SyncSim,
   nodeId: string,
   id: string
 ): Promise<{ readonly color: string | null }[]> {
@@ -199,7 +196,7 @@ export async function noteColor(
 
 /** Local tables named `name` on `nodeId` — empty when the table is absent. */
 export async function localTable(
-  s: SyncSurface,
+  s: SyncSim,
   nodeId: string,
   name: string
 ): Promise<{ readonly name: string }[]> {
@@ -215,11 +212,11 @@ export async function localTable(
 
 /** True when `nodeId`'s local database has a table called `name`. */
 export async function hasLocalTable(
-  s: Script<SyncSurface>,
+  s: Run<SyncSim>,
   nodeId: string,
   name: string
 ): Promise<boolean> {
-  return (await s.observe(localTable, nodeId, name)).length === 1;
+  return (await s.read(localTable, nodeId, name)).length === 1;
 }
 
 /** Narrow a raw observation value to a row object, or null. */
@@ -230,7 +227,7 @@ function asRow(value: JsonValue): Record<string, JsonValue> | null {
 }
 
 /**
- * Predicate for `untilAcme(s, (s) => liveNote(s, node, id), { pred: noteBodyIs(x) })`
+ * Predicate for `untilExample(s, (s) => liveNote(s, node, id), { pred: noteBodyIs(x) })`
  * — true once the row is present, live, and carries `body`.
  */
 export function noteBodyIs(body: string) {
@@ -241,19 +238,19 @@ export function noteBodyIs(body: string) {
 }
 
 /**
- * Predicate for `neverAcme(s, (s) => liveNote(s, node, id), { pred: noteLive })`
+ * Predicate for `neverExample(s, (s) => liveNote(s, node, id), { pred: noteLive })`
  * — true once the row is present and not tombstoned, whatever its body.
  */
 export const noteLive = (value: JsonValue): boolean =>
   asRow(value)?.['deletedAt'] === null;
 
 /**
- * Predicate for `untilAcme(s, (s) => liveNote(s, node, id), { pred: noteNotLive })`
+ * Predicate for `untilExample(s, (s) => liveNote(s, node, id), { pred: noteNotLive })`
  * — true while the row is absent or tombstoned.
  */
 export const noteNotLive = (value: JsonValue): boolean => !noteLive(value);
 
-/** Predicate for `untilAcme(s, (s) => subscribedTopics(s, id), { pred: hasTopic(t) })`. */
+/** Predicate for `untilExample(s, (s) => subscribedTopics(s, id), { pred: hasTopic(t) })`. */
 export function hasTopic(topic: string) {
   return (value: JsonValue): boolean =>
     Array.isArray(value) && value.includes(topic);
@@ -267,39 +264,39 @@ export function lacksTopic(topic: string) {
 
 /** Live note ids on `nodeId`. */
 export async function readLiveNoteIds(
-  s: Script<SyncSurface>,
+  s: Run<SyncSim>,
   nodeId: string
 ): Promise<string[]> {
-  return (await s.observe(liveNotes, nodeId)).map((n) => n.id);
+  return (await s.read(liveNotes, nodeId)).map((n) => n.id);
 }
 
 /** Tombstone stamp for one note, or `null` when the row is absent or live. */
 export async function readNoteTombstoneAt(
-  s: Script<SyncSurface>,
+  s: Run<SyncSim>,
   nodeId: string,
   id: string
 ): Promise<string | null> {
-  return (await s.observe(liveNote, nodeId, id))?.deletedAt ?? null;
+  return (await s.read(liveNote, nodeId, id))?.deletedAt ?? null;
 }
 
 /** True when a note row is present and not tombstoned on `nodeId`. */
 export async function isNoteLiveAt(
-  s: Script<SyncSurface>,
+  s: Run<SyncSim>,
   nodeId: string,
   id: string
 ): Promise<boolean> {
-  const row = await s.observe(liveNote, nodeId, id);
+  const row = await s.read(liveNote, nodeId, id);
   return row !== null && row.deletedAt === null;
 }
 
 /** Assert one live note body (and optional title) on `nodeId`. */
 export async function expectLiveNoteAt(
-  s: Script<SyncSurface>,
+  s: Run<SyncSim>,
   nodeId: string,
   id: string,
   expected: { readonly body: string; readonly title?: string }
 ): Promise<void> {
-  const row = await s.observe(liveNote, nodeId, id);
+  const row = await s.read(liveNote, nodeId, id);
   expect(row).not.toBeNull();
   expect(row?.deletedAt).toBeNull();
   expect(row?.body).toBe(expected.body);
@@ -310,7 +307,7 @@ export async function expectLiveNoteAt(
 
 /** Assert a note is not live on `nodeId` — absent or tombstoned. */
 export async function expectNoteNotLiveAt(
-  s: Script<SyncSurface>,
+  s: Run<SyncSim>,
   nodeId: string,
   id: string
 ): Promise<void> {
@@ -319,17 +316,17 @@ export async function expectNoteNotLiveAt(
 
 /** Assert one client's live notes equal the server's (domain rows only). */
 export async function expectNotesAgree(
-  s: Script<SyncSurface>,
+  s: Run<SyncSim>,
   clientId: string
 ): Promise<void> {
-  const local = await s.observe(liveNotes, clientId);
-  const server = await s.observe(liveNotes, 'server');
+  const local = await s.read(liveNotes, clientId);
+  const server = await s.read(liveNotes, 'server');
   expect(local).toEqual(server);
 }
 
 /** Assert every named client's live notes equal the server's. */
 export async function expectAllNotesAgree(
-  s: Script<SyncSurface>,
+  s: Run<SyncSim>,
   ids: readonly string[]
 ): Promise<void> {
   for (const id of ids) await expectNotesAgree(s, id);
@@ -337,19 +334,19 @@ export async function expectAllNotesAgree(
 
 /** Assert every client still live on the run agrees with the server. */
 export async function expectEveryClientNotesAgree(
-  s: Script<SyncSurface>
+  s: Run<SyncSim>
 ): Promise<void> {
-  await expectAllNotesAgree(s, await s.observe(clientIds));
+  await expectAllNotesAgree(s, await s.read(clientIds));
 }
 
 /** Assert this install holds exactly one live open session for `spaceId`. */
 export async function expectOpenSessionAt(
-  s: Script<SyncSurface>,
+  s: Run<SyncSim>,
   clientId: string,
   spaceId: string
 ): Promise<void> {
-  const device = await s.observe(deviceId, clientId);
-  const sessions = await s.observe(liveOpenSessions, clientId);
+  const device = await s.read(deviceId, clientId);
+  const sessions = await s.read(liveOpenSessions, clientId);
   const owned = sessions.filter(
     (s) => s.spaceId === spaceId && s.deviceId === device
   );
@@ -358,42 +355,42 @@ export async function expectOpenSessionAt(
 
 /** Assert no live open-session row on `clientId` belongs to another device. */
 export async function expectNoForeignOpenSessionsAt(
-  s: Script<SyncSurface>,
+  s: Run<SyncSim>,
   clientId: string
 ): Promise<void> {
-  const device = await s.observe(deviceId, clientId);
-  const sessions = await s.observe(liveOpenSessions, clientId);
+  const device = await s.read(deviceId, clientId);
+  const sessions = await s.read(liveOpenSessions, clientId);
   expect(sessions.filter((s) => s.deviceId !== device)).toEqual([]);
 }
 
 /** Assert one client's live folders equal the server's. */
 export async function expectFoldersAgree(
-  s: Script<SyncSurface>,
+  s: Run<SyncSim>,
   clientId: string
 ): Promise<void> {
-  const local = await s.observe(liveFolders, clientId);
-  const server = await s.observe(liveFolders, 'server');
+  const local = await s.read(liveFolders, clientId);
+  const server = await s.read(liveFolders, 'server');
   expect(local).toEqual(server);
 }
 
 /** True when a space row is present and not tombstoned on `nodeId`. */
 export async function isSpaceLiveAt(
-  s: Script<SyncSurface>,
+  s: Run<SyncSim>,
   nodeId: string,
   id: string
 ): Promise<boolean> {
-  const row = await s.observe(liveSpace, nodeId, id);
+  const row = await s.read(liveSpace, nodeId, id);
   return row !== null && row.deletedAt === null;
 }
 
 /** Assert one live space on `nodeId` (optional title / owner). */
 export async function expectLiveSpaceAt(
-  s: Script<SyncSurface>,
+  s: Run<SyncSim>,
   nodeId: string,
   id: string,
   expected?: { readonly title?: string; readonly ownerId?: string }
 ): Promise<void> {
-  const row = await s.observe(liveSpace, nodeId, id);
+  const row = await s.read(liveSpace, nodeId, id);
   expect(row).not.toBeNull();
   expect(row?.deletedAt).toBeNull();
   if (expected?.title !== undefined) expect(row?.title).toBe(expected.title);
@@ -404,7 +401,7 @@ export async function expectLiveSpaceAt(
 
 /** Assert a space is not live on `nodeId` — absent or tombstoned. */
 export async function expectSpaceNotLiveAt(
-  s: Script<SyncSurface>,
+  s: Run<SyncSim>,
   nodeId: string,
   id: string
 ): Promise<void> {
@@ -413,7 +410,7 @@ export async function expectSpaceNotLiveAt(
 
 /** Live username on one profile row, or null when absent / empty. */
 export async function profileUsername(
-  s: SyncSurface,
+  s: SyncSim,
   nodeId: string,
   profileId: string
 ): Promise<{ readonly username: string | null }[]> {
@@ -431,11 +428,11 @@ export async function profileUsername(
 
 /** Username for a profile on `nodeId`, or null when absent / empty. */
 export async function readProfileUsernameAt(
-  s: Script<SyncSurface>,
+  s: Run<SyncSim>,
   nodeId: string,
   profileId: string
 ): Promise<string | null> {
-  const found = await s.observe(profileUsername, nodeId, profileId);
+  const found = await s.read(profileUsername, nodeId, profileId);
   const username = found[0]?.username;
   return typeof username === 'string' && username.length > 0 ? username : null;
 }

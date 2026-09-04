@@ -5,10 +5,10 @@
 
 import type { DriverNode } from '@pkgs/ui-testing';
 
-import type { ProductSurface } from './surface';
+import type { ProductSim } from './sim';
 
 export function nodeAt(
-  s: ProductSurface,
+  s: ProductSim,
   actorId: string,
   path: readonly string[]
 ): DriverNode | null {

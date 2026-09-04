@@ -1,13 +1,11 @@
-import type { Host, Ports } from '@pkgs/dst';
-import { wallHost } from '@pkgs/dst';
-import { type SimSqlHandle, sharedSqlClient } from '@sim/console/sim/sim-sql';
+import type { Ports, Runtime } from '@pkgs/sim';
+import { realTimeRuntime } from '@pkgs/sim';
+import { type SimSql, sharedSqlClient } from '@sim/console/sim/sim-sql';
 
 import type { ProductExtra } from './ports';
 
-async function postgresServerSql(): Promise<SimSqlHandle> {
-  const { ensureMaxFidelityStack } = await import(
-    '../setup/max-fidelity-stack'
-  );
+async function postgresServerSql(): Promise<SimSql> {
+  const { ensureMaxFidelityStack } = await import('../setup/real-mode-stack');
   const { bootSimPostgres } = await import('../setup/boot-sim-postgres');
   await ensureMaxFidelityStack();
   const pg = await bootSimPostgres();
@@ -27,13 +25,14 @@ async function postgresServerSql(): Promise<SimSqlHandle> {
 /**
  * Wall product host: real Postgres, Playwright, no partition capability.
  */
-export function maxHost(): Host<Ports & ProductExtra> {
-  return wallHost({ network: 'none' }).with(async () => {
+export function maxRuntime(): Runtime<Ports & ProductExtra> {
+  return realTimeRuntime({ network: 'none' }).with(async () => {
     const sql = await postgresServerSql();
     return {
       sql,
       ui: { kind: 'playwright' as const },
       http: { kind: 'loopback' as const },
+      drainServerHttp: { current: async () => undefined },
     };
   });
 }

@@ -1,5 +1,5 @@
 import type { Clock, Timers } from '@pkgs/clock';
-import type { Session, VirtualScheduler } from '@pkgs/dst';
+import type { Session, VirtualScheduler } from '@pkgs/sim';
 import type { CreateId, SeededRng } from '@pkgs/uuid';
 import type { InMemoryRoomStorage } from '../server/adapters/memory';
 import type { RoomServer } from '../server/core/room-server';
@@ -11,22 +11,22 @@ import type {
   RoomState,
 } from '../types';
 
-import type { RoomCrashEvent } from './boundary-faults';
-import type { RoomSimClientHandle, RoomSimNodeHandle } from './handles';
+import type { RoomCrashEvent } from './edge-faults';
 import type { RoomInvariantViolation } from './invariants';
 import type {
   RoomNetEffect,
   RoomNetSetArg,
-  SimRoomNetHandle,
+  RoomSimNet,
   SimRoomNetwork,
 } from './network';
+import type { RoomSimClient, RoomSimNode } from './sim-handles';
 import type {
   NeverOptions,
   UntilPredicate,
   WaitUntilOptions,
 } from './wait-until';
 
-export type { RoomSimClientHandle, RoomSimNodeHandle } from './handles';
+export type { RoomSimClient, RoomSimNode } from './sim-handles';
 
 export type RoomSimAuthorize = (
   identity: string,
@@ -35,7 +35,7 @@ export type RoomSimAuthorize = (
 ) => Promise<{ ok: true } | { ok: false; reason: string }>;
 
 /** Kernel ports the kit needs, derived from a DST `Session`. */
-export type RoomKitDeps = {
+export type RoomSimRuntimeDeps = {
   readonly seed: bigint;
   readonly clock: Clock;
   readonly scheduler: VirtualScheduler;
@@ -45,11 +45,11 @@ export type RoomKitDeps = {
 };
 
 export type InjectedRoomSimPorts = {
-  readonly deps: RoomKitDeps;
+  readonly deps: RoomSimRuntimeDeps;
   readonly network: SimRoomNetwork;
 };
 
-export type RoomKit<
+export type RoomSimRuntime<
   S extends RoomState = RoomState,
   C extends RoomCommandPayload = RoomCommandPayload,
   E extends RoomEvent = RoomEvent,
@@ -62,26 +62,26 @@ export type RoomKit<
   readonly scheduler: VirtualScheduler;
   readonly storage: InMemoryRoomStorage;
   readonly server: RoomServer<S, C, E, string>;
-  readonly clients: ReadonlyMap<string, RoomSimClientHandle<S, C, E>>;
+  readonly clients: ReadonlyMap<string, RoomSimClient<S, C, E>>;
   readonly addClient: (args: {
     readonly id: string;
     readonly identity?: string;
     readonly clientId?: string;
-  }) => Promise<RoomSimClientHandle<S, C, E>>;
-  readonly net: (clientId: string) => SimRoomNetHandle;
-  readonly node: (clientId: string) => RoomSimNodeHandle;
+  }) => Promise<RoomSimClient<S, C, E>>;
+  readonly net: (clientId: string) => RoomSimNet;
+  readonly node: (clientId: string) => RoomSimNode;
   readonly runFor: (ms: number) => Promise<void>;
   readonly until: (
     pred: UntilPredicate,
     opts?: WaitUntilOptions
   ) => Promise<number>;
   readonly never: (pred: UntilPredicate, opts: NeverOptions) => Promise<void>;
-  /** Alias for {@link RoomKit.until}. */
+  /** Alias for {@link RoomSimRuntime.until}. */
   readonly waitUntil: (
     pred: UntilPredicate,
     opts?: WaitUntilOptions
   ) => Promise<number>;
-  /** Alias for {@link RoomKit.never}. */
+  /** Alias for {@link RoomSimRuntime.never}. */
   readonly waitNever: (
     pred: UntilPredicate,
     opts: NeverOptions
@@ -90,11 +90,11 @@ export type RoomKit<
   readonly serverSnapshot: () => Promise<S>;
   /** `module.hash` of {@link serverSnapshot}. */
   readonly serverHash: () => Promise<string>;
-  readonly revive: () => Promise<void>;
+  readonly recoverAll: () => Promise<void>;
   readonly drain: () => Promise<void>;
   readonly checkInvariants: () => Promise<RoomInvariantViolation | null>;
   readonly armCrashAt: (clientId: string, event: RoomCrashEvent) => void;
-  readonly clearBoundaryFaults: () => void;
+  readonly clearEdgeFaults: () => void;
   readonly serverCrash: () => Promise<void>;
   readonly serverRestart: () => Promise<void>;
   readonly isServerCrashed: () => boolean;
@@ -102,7 +102,7 @@ export type RoomKit<
   readonly [Symbol.asyncDispose]: () => Promise<void>;
 };
 
-export type OpenKitArgs<
+export type OpenRoomSimArgs<
   S extends RoomState = RoomState,
   C extends RoomCommandPayload = RoomCommandPayload,
   E extends RoomEvent = RoomEvent,
@@ -118,6 +118,6 @@ export type OpenKitArgs<
   readonly storage?: InMemoryRoomStorage;
 };
 
-export type { RoomCrashEvent } from './boundary-faults';
+export type { RoomCrashEvent } from './edge-faults';
 export type { RoomInvariantViolation } from './invariants';
 export type { RoomNetEffect, RoomNetSetArg };

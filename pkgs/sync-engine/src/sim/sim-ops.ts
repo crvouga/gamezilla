@@ -1,17 +1,17 @@
 import {
-  checkDomainConverged,
-  type DomainConvergedCtx,
+  checkDomainInSync,
+  type DomainInSyncCtx,
   type DrainUntilConvergedCtx,
-  drainUntilConvergedImpl,
-  type ReviveCtx,
-  reviveImpl,
-} from './kit-converge';
+  drainUntilInSyncImpl,
+  type RecoverAllCtx,
+  recoverAllImpl,
+} from './wait-for-in-sync';
 
 export type {
   AddClientArgs,
   BootedSimKernel,
   ClientMeta,
-  KitClientOpts,
-} from './kit-types';
-export type { DomainConvergedCtx, DrainUntilConvergedCtx, ReviveCtx };
-export { checkDomainConverged, drainUntilConvergedImpl, reviveImpl };
+  SimClientOpts,
+} from './sim-types';
+export type { DomainInSyncCtx, DrainUntilConvergedCtx, RecoverAllCtx };
+export { checkDomainInSync, drainUntilInSyncImpl, recoverAllImpl };

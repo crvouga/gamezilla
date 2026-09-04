@@ -1,8 +1,8 @@
-import { defineSystem, virtualHost } from '@pkgs/dst';
-import { gen } from '@pkgs/dst/fast-check';
+import { defineSystem, virtualTimeRuntime } from '@pkgs/sim';
+import { gen } from '@pkgs/sim/fast-check';
 import fc from 'fast-check';
-import { reconcileIndexes } from '../../core/reconcile';
-import type { WorkloadManifest } from '../../core/types';
+import { reconcileIndexes } from '../../src/core/reconcile';
+import type { WorkloadManifest } from '../../src/core/types';
 import { checkIndexesInvariants, manifestForCol } from './invariants';
 import { startReconciler } from './nodes';
 import type { IndexesSurface } from './types';
@@ -33,7 +33,11 @@ export const indexes = defineSystem<IndexesSurface>({
   },
 });
 
-indexes.host({ default: true, name: 'virtual', create: () => virtualHost() });
+indexes.runtime({
+  default: true,
+  name: 'virtual',
+  create: () => virtualTimeRuntime(),
+});
 
 export function ownedIndexCount(s: IndexesSurface): number {
   return reconcilerOf(s).db.getOwnedIndexNames().length;
@@ -111,7 +115,7 @@ export const reconcile = indexes.action({
 
 export const advanceClock = indexes.action<[number]>({
   name: 'advanceClock',
-  draw: () => gen(fc.constantFrom(1, 2, 40)),
+  sample: () => gen(fc.constantFrom(1, 2, 40)),
   act: (s, days) => {
     reconcilerOf(s).clock.advance(days * 24 * 60 * 60 * 1000);
   },
@@ -122,7 +126,7 @@ export type ManifestMode = 'user' | 'owner' | 'empty';
 export const setManifest = indexes.action<[string]>({
   name: 'setManifest',
   weight: 3,
-  draw: () => gen(fc.constantFrom('user', 'owner', 'empty')),
+  sample: () => gen(fc.constantFrom('user', 'owner', 'empty')),
   act: (s, mode) => {
     const state = reconcilerOf(s);
     if (mode === 'empty') {

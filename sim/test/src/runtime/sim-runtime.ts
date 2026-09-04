@@ -1,9 +1,9 @@
 import type { Clock } from '@pkgs/clock';
-import type { Host, Ports } from '@pkgs/dst';
-import { virtualHost } from '@pkgs/dst';
+import type { Ports, Runtime } from '@pkgs/sim';
+import { virtualTimeRuntime } from '@pkgs/sim';
 import {
   openSimServerSqlFromSeedBytes,
-  type SimSqlHandle,
+  type SimSql,
 } from '@sim/console/sim/sim-sql';
 import { resolveSimSqlBackend } from '@sim/console/sim/sim-sql-backend';
 
@@ -20,7 +20,7 @@ function loadRntlSessionFactory(): typeof import('@pkgs/ui-testing')['createMult
   return require('@pkgs/ui-testing').createMultiAppRntlSession;
 }
 
-async function openSeededServerSql(clock: Clock): Promise<SimSqlHandle> {
+async function openSeededServerSql(clock: Clock): Promise<SimSql> {
   const backend = resolveSimSqlBackend();
   const seedBytes =
     backend === 'mem'
@@ -32,27 +32,32 @@ async function openSeededServerSql(clock: Clock): Promise<SimSqlHandle> {
 /**
  * In-process product host: virtual time, model network, PGlite/mem SQL, RNTL.
  */
-export function simHost(): Host<Ports & ProductExtra> {
+export function simRuntime(): Runtime<Ports & ProductExtra> {
   let runFor: ((durationMs: number) => Promise<void>) | null = null;
-  return virtualHost({
+  return virtualTimeRuntime({
     startTime: SIM_START_MS,
     // Checkpoint settle routes through the serialized drain so it flushes
     // RNTL and cannot nest-drain against ui.runFor / onActorFocus.
-    settle: async () => {
+    waitForIdle: async () => {
       if (runFor === null) {
-        throw new Error('simHost: settle before extras wired');
+        throw new Error('simRuntime: waitForIdle before extras wired');
       }
       await runFor(0);
     },
-    elapse: async (_session, ms) => {
+    advanceTime: async (_session, ms) => {
       if (runFor === null) {
-        throw new Error('simHost: elapse before extras wired');
+        throw new Error('simRuntime: advanceTime before extras wired');
       }
       await runFor(ms);
     },
   }).with(async (session) => {
     const sql = await openSeededServerSql(session.ports.clock);
-    runFor = createSerializedRunFor(session.scheduler.underlying);
+    const drainServerHttp: { current: () => Promise<void> } = {
+      current: async () => undefined,
+    };
+    runFor = createSerializedRunFor(session.scheduler.underlying, {
+      after: () => drainServerHttp.current(),
+    });
     const rntl: MultiAppRntlSession = loadRntlSessionFactory()({
       onActorFocus: () => {
         void runFor?.(1_000).catch(() => undefined);
@@ -65,6 +70,7 @@ export function simHost(): Host<Ports & ProductExtra> {
       sql,
       ui: { kind: 'rntl' as const, rntl, runFor },
       http: { kind: 'in-process' as const },
+      drainServerHttp,
     };
   });
 }

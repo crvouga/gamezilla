@@ -4,10 +4,10 @@ import { defineTable, registerTables } from '@pkgs/db-schema';
 import { applySqliteSchema } from '@pkgs/db-schema/sqlite';
 import { raw } from '@pkgs/sql';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
-import { defineSchema } from '../core/define-schema';
-import { createRecordingSqlClient } from '../test/fake-sql-client';
-import { readSqliteCatalog } from './catalog';
-import { sqlite } from './driver';
+import { defineSchema } from '../src/core/define-schema';
+import { readSqliteCatalog } from '../src/sqlite/catalog';
+import { sqlite } from '../src/sqlite/driver';
+import { createRecordingSqlClient } from '../src/test/fake-sql-client';
 
 function openMemoryClient() {
   const db = new Database(':memory:');

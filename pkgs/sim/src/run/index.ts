@@ -12,12 +12,16 @@ export {
   replay,
 } from './explore';
 export {
+  type RandomActionsOptions,
+  type RandomActionsReport,
+  randomActions,
+} from './random-actions';
+export {
   ActionNotEnabled,
-  getScriptInternal,
+  getRunInternal,
   PropertyViolation,
-  type Script,
-  type ScriptInternal,
-  type ScriptOptions,
-  script,
-} from './script';
-export { type Walk, type WalkOptions, walk } from './walk';
+  type Run,
+  type RunInternal,
+  type RunOptions,
+  run,
+} from './run';

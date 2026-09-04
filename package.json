@@ -57,7 +57,7 @@
     "scaffold:game": "bun run tools/scripts/scaffold-game.ts",
     "sims:open": "bun run tools/scripts/sims/open-sims.ts",
     "sims:setup": "bun run tools/scripts/sims/setup-sims.ts",
-    "test:pbt": "bun test $(find pkgs libs -name \"*.pbt.test.ts\")",
+    "test:pbt": "bun run tools/scripts/test-pbt-random.ts",
     "test:pbt:random": "bun run tools/scripts/test-pbt-random.ts",
     "test:sim": "SIM_REPORT=0 turbo test -F @sim/test --force",
     "test:sim:report": "SIM_REPORT=1 turbo test -F @sim/test --force",

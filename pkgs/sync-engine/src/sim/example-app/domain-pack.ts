@@ -1,12 +1,18 @@
 import { unsafe } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
-import type { SimDomainPack } from '../../../sim/domain-pack';
-import { acmeLocalSchema } from './client/local-schema';
+import type { SimDomainPack } from '../domain-pack';
+import { exampleLocalSchema } from './client/local-schema';
 import { checkAllClientsConverged } from './converge';
 import { createSimMembershipChannels } from './membership-channels';
-import { acmeMutationRegistry, acmeQueryRegistry } from './shared/registries';
-import { acmeDefaultEntryChannel, acmeTopicMap } from './shared/topic-map';
+import {
+  exampleMutationRegistry,
+  exampleQueryRegistry,
+} from './shared/registries';
+import {
+  exampleDefaultEntryChannel,
+  exampleTopicMap,
+} from './shared/topic-map';
 import { NOTES_ALL_TOPIC } from './shared/topics';
 
 async function tamperDomainRow(db: SqlClient): Promise<void> {
@@ -17,15 +23,15 @@ async function tamperDomainRow(db: SqlClient): Promise<void> {
   );
 }
 
-export const acmeDomainPack: SimDomainPack = {
-  localSchema: acmeLocalSchema,
-  mutationRegistry: acmeMutationRegistry,
-  queryRegistry: acmeQueryRegistry,
+export const exampleDomainPack: SimDomainPack = {
+  localSchema: exampleLocalSchema,
+  mutationRegistry: exampleMutationRegistry,
+  queryRegistry: exampleQueryRegistry,
   sessionQuery: { name: 'notesAll', params: {} },
-  checkAllConverged: checkAllClientsConverged,
+  checkAllInSync: checkAllClientsConverged,
   createPushChannels: createSimMembershipChannels,
-  topicMap: acmeTopicMap,
-  defaultEntryChannel: acmeDefaultEntryChannel,
+  topicMap: exampleTopicMap,
+  defaultEntryChannel: exampleDefaultEntryChannel,
   tamperDomainRow,
   fuzzDropTopic: NOTES_ALL_TOPIC,
 };

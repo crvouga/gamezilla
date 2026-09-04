@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * Run all `*.pbt.test.ts` files with random fast-check seeds (parallel per file).
+ * Run property tests (*.test.ts that use fast-check / assertProperty) with random seeds.
  *
  *   bun run test:pbt:random                  # single suite run (200 runs/property)
  *   bun run test:pbt:random 100              # up to 100 attempts; stop on first fail
@@ -98,7 +98,7 @@ async function main(): Promise<void> {
 
   const files = await discoverPbtTests(REPO_ROOT);
   if (files.length === 0) {
-    console.error('no *.pbt.test.ts files found under pkgs/ or libs/');
+    console.error('no property tests found under pkgs/ or libs/');
     process.exit(1);
   }
 

@@ -1,25 +1,25 @@
-// @io-wall-ok — wallHost composition root
+// @io-wall-ok — realTimeRuntime composition root
 import type { Clock } from '@pkgs/clock';
 import { createSeededCreateId } from '@pkgs/uuid';
-import { createRngInternal } from '../kernel/rng';
-import { createTimers } from '../kernel/timers';
-import { NOOP_TRACE_RECORDER } from '../kernel/trace';
-import { createWallScheduler } from '../kernel/wall-scheduler';
+import { createWallScheduler } from '../internals/real-time-scheduler';
+import { createRngInternal } from '../internals/rng';
+import { createTimers } from '../internals/timers';
+import { NOOP_TRACE_RECORDER } from '../internals/trace';
 import {
   createNetwork,
   type Network,
   type NetworkFaults,
   RELIABLE_NETWORK,
 } from '../models/network';
-import { defineHost } from './define-host';
+import { defineRuntime } from './define-runtime';
 import {
   type Capability,
   CapabilityError,
   type Endpoint,
-  type Host,
   type Ports,
+  type RealTimeRuntimeOptions,
+  type Runtime,
   type Session,
-  type WallHostOptions,
 } from './types';
 
 function makeEndpoint(network: Network, id: string): Endpoint {
@@ -91,14 +91,14 @@ function wrapNetworkCaps(
 
 type RngInternal = ReturnType<typeof createRngInternal>;
 
-export function wallHost(opts: WallHostOptions): Host<Ports> {
+export function realTimeRuntime(opts: RealTimeRuntimeOptions): Runtime<Ports> {
   const caps = new Set<Capability>(
     opts.network === 'model' ? ['partition'] : []
   );
   const faults: NetworkFaults = opts.networkFaults ?? RELIABLE_NETWORK;
-  const settleOverride = opts.settle;
+  const waitForIdleOverride = opts.waitForIdle;
 
-  return defineHost({
+  return defineRuntime({
     caps,
     async open(seed) {
       const rootRng = createRngInternal(seed);
@@ -148,14 +148,14 @@ export function wallHost(opts: WallHostOptions): Host<Ports> {
             forks.set(childName, child);
             return child;
           },
-          async settle() {
-            if (settleOverride !== undefined) {
-              await settleOverride(session);
+          async waitForIdle() {
+            if (waitForIdleOverride !== undefined) {
+              await waitForIdleOverride(session);
               return;
             }
-            await scheduler.settle();
+            await scheduler.waitForIdle();
           },
-          async elapse(ms) {
+          async advanceTime(ms) {
             await scheduler.advance(ms);
           },
           onDispose(fn) {

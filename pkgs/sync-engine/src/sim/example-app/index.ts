@@ -1,7 +1,7 @@
 /** Framework mutation — merged by createLocalSyncEngine / createSyncApp. */
-export { acknowledgeWriteRejectionMutation } from '../../../mutations/shared/acknowledge-write-rejection';
+export { acknowledgeWriteRejectionMutation } from '../../mutations/shared/acknowledge-write-rejection';
 /**
- * Scripted-pin vocabulary for acme scenarios. Tests drive the run with
+ * Scripted-pin vocabulary for example scenarios. Tests drive the run with
  * `system.script` + `s.apply` / `s.observe` — see `./system.ts` for the shape.
  */
 export {
@@ -19,19 +19,17 @@ export {
   clock,
   connect,
   connection,
-  converged,
   crash,
   crashAt,
-  createSyncSurface,
+  createSyncSim,
   deviceId,
   disconnect,
   execSql,
   failNextOpen,
   foreground,
   hasSynced,
-  heal,
-  hold,
   httpFault,
+  inSync,
   invariantViolations,
   lastError,
   lastMutationFailures,
@@ -47,6 +45,7 @@ export {
   outcome,
   partition,
   partitioned,
+  pauseNetwork,
   pending,
   pendingEventCount,
   pool,
@@ -56,11 +55,12 @@ export {
   pubsubFault,
   pubsubRemakeCount,
   quiet,
+  recoverAll,
   rejections,
-  release,
   restart,
   restartWithSchema,
-  revive,
+  restoreNetwork,
+  resumeNetwork,
   rows,
   runSql,
   SYNC_STEP_MS,
@@ -75,8 +75,8 @@ export {
   syncVirtual,
   tamperLocalStorage,
   unsubscribe,
-} from '../../../sim/scenario';
-export { acmeApp } from './app';
+} from '../scenario';
+export { exampleApp } from './app';
 export {
   expectFoldersMatchServer,
   expectLiveNote,
@@ -97,13 +97,13 @@ export {
   readNoteTombstone,
   readProfileUsername,
 } from './assert';
-export { acmeLocalSchema } from './client/local-schema';
+export { exampleLocalSchema } from './client/local-schema';
 export {
   checkAllClientsConverged,
   checkClientDomainMatchServer,
 } from './converge';
-export { acmeDomainPack } from './domain-pack';
-export { expectConverged } from './expect-converged';
+export { exampleDomainPack } from './domain-pack';
+export { expectInSync } from './expect-in-sync';
 export { insertCatalogNote } from './insert-catalog-note';
 export { createSimMembershipChannels } from './membership-channels';
 export {
@@ -153,15 +153,15 @@ export {
   type TagRow,
 } from './reads';
 export {
-  type AcmeSchemaVariant,
-  acmeRestartOptsForVariant,
-  acmeSchemaForVariant,
+  type ExampleSchemaVariant,
+  exampleRestartOptsForVariant,
+  exampleSchemaForVariant,
 } from './schema-variants';
 export { befriend } from './shared/friendship-mutations';
 export {
-  acmeLocalSchemaExtraColumn,
-  acmeLocalSchemaExtraColumnAndTable,
-  acmeLocalSchemaExtraTable,
+  exampleLocalSchemaExtraColumn,
+  exampleLocalSchemaExtraColumnAndTable,
+  exampleLocalSchemaExtraTable,
   ghostMutation,
   notesAllV2Query,
   notesAllWithColorQuery,
@@ -219,13 +219,13 @@ export {
   ownProfileQuery,
 } from './shared/queries';
 export {
-  acmeMutationRegistry,
-  acmeQueryRegistry,
+  exampleMutationRegistry,
+  exampleQueryRegistry,
 } from './shared/registries';
-export { ACME_APP_TABLES, acmeAppSchema } from './shared/schema';
+export { EXAMPLE_APP_TABLES, exampleAppSchema } from './shared/schema';
 export {
-  acmeDefaultEntryChannel,
-  acmeTopicMap,
+  exampleDefaultEntryChannel,
+  exampleTopicMap,
 } from './shared/topic-map';
 export {
   NOTES_ALL_TOPIC,
@@ -233,17 +233,18 @@ export {
   userTopic,
 } from './shared/topics';
 export {
-  ACME_DEFAULT_ARGS,
-  ACME_DST_FAULTS_HOST,
-  ACME_LARGE_CATALOG_ARGS,
-  acmeSystem,
+  EXAMPLE_DEFAULT_ARGS,
+  EXAMPLE_DST_FAULTS_HOST,
+  EXAMPLE_LARGE_CATALOG_ARGS,
+  exampleSystem,
   type SyncArgs,
-  type SyncSurface,
+  type SyncSim,
 } from './system';
 export {
-  type NeverAcmeOpts,
-  neverAcme,
-  type UntilAcmeOpts,
-  untilAcme,
+  type NeverExampleOpts,
+  neverExample,
+  type UntilExampleOpts,
+  untilExample,
 } from './until';
+export { type WalkThenInSyncOpts, walkThenInSync } from './walk-in-sync';
 export { writeNoteBody } from './write-note-body';

@@ -16,7 +16,7 @@ import {
 } from '@pkgs/http-client';
 import { KvPlatform } from '@pkgs/kv/kv-platform';
 import { createNoopObservability } from '@pkgs/observability/impl-noop/impl-noop';
-import { createInMemoryPubSub } from '@pkgs/pubsub/testing/in-memory';
+import { createInMemoryPubSub } from '@pkgs/pubsub/in-memory';
 import { createSecureStorage } from '@pkgs/secure-storage/create';
 import { createSecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
 import { createExpoAudioPlaybackPort } from '@pkgs/sounds/audio-playback/expo-audio-playback-port';

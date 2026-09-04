@@ -129,7 +129,7 @@ export type DriverNode = {
 
   /**
    * Wait until this node satisfies `state` (visible / hidden / text).
-   * Host-native — not a shared poller. Throws {@link TimeoutError} on failure.
+   * Runtime-native — not a shared poller. Throws {@link TimeoutError} on failure.
    */
   wait(
     state: WaitState | WaitTextCondition,

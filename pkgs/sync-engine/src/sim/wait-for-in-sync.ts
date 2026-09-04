@@ -1,39 +1,38 @@
-import type { VirtualScheduler } from '@pkgs/dst';
+import type { VirtualScheduler } from '@pkgs/sim';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { reconcileOptimisticPeerMarkers } from '../client/optimistic-peer-rows';
-import type { SimClientHandle } from './client-handle';
 import type { SimDomainPack } from './domain-pack';
 import { RELIABLE_FAULTS } from './faults';
 import {
-  checkPostConvergeInvariants,
+  checkPostInSyncInvariants,
   type InvariantViolation,
   isClosedDatabaseError,
   isDbOpen,
 } from './invariants';
 import type { NetEffectRegistry } from './net-effect';
-
 import type { SyncNetwork } from './network';
 import type { SimServer } from './server';
+import type { SimClient } from './sim-client';
 
-export type ReviveCtx = {
+export type RecoverAllCtx = {
   readonly network: SyncNetwork;
-  readonly clients: ReadonlyMap<string, SimClientHandle>;
+  readonly clients: ReadonlyMap<string, SimClient>;
   readonly netEffects: NetEffectRegistry;
   /** Restore server/broker after chaos commands. */
-  readonly healInfra?: () => Promise<void>;
-  /** Drop armed one-shot boundary faults before heal. */
-  readonly clearBoundaryFaults?: () => void;
+  readonly restoreInfra?: () => Promise<void>;
+  /** Drop armed one-shot boundary faults before restoreNetwork. */
+  readonly clearEdgeFaults?: () => void;
 };
 
-export type DomainConvergedCtx = {
-  readonly clients: ReadonlyMap<string, SimClientHandle>;
+export type DomainInSyncCtx = {
+  readonly clients: ReadonlyMap<string, SimClient>;
   readonly server: SimServer;
   readonly domain: SimDomainPack;
 };
 
 export type DrainUntilConvergedCtx = {
   readonly scheduler: VirtualScheduler;
-  readonly clients: ReadonlyMap<string, SimClientHandle>;
+  readonly clients: ReadonlyMap<string, SimClient>;
   readonly server: SimServer;
   readonly seed: bigint;
   readonly domain: SimDomainPack;
@@ -41,7 +40,7 @@ export type DrainUntilConvergedCtx = {
 };
 
 async function openClientSnapshots(
-  clients: ReadonlyMap<string, SimClientHandle>
+  clients: ReadonlyMap<string, SimClient>
 ): Promise<readonly { readonly label: string; readonly db: SqlClient }[]> {
   const out: { label: string; db: SqlClient }[] = [];
   for (const c of clients.values()) {
@@ -50,7 +49,7 @@ async function openClientSnapshots(
   return out;
 }
 
-function nudgeClients(clients: ReadonlyMap<string, SimClientHandle>): void {
+function nudgeClients(clients: ReadonlyMap<string, SimClient>): void {
   for (const client of clients.values()) {
     client.engine.wakeUploads();
     void client.engine.refreshQueries().catch(() => {
@@ -62,17 +61,17 @@ function nudgeClients(clients: ReadonlyMap<string, SimClientHandle>): void {
 /**
  * Heal network, neutralize faults, restore infra, force clients online/connected.
  * Stimulus only — no domain check, no reconcile (reconcile only after domain
- * agreement inside {@link drainUntilConvergedImpl}).
+ * agreement inside {@link drainUntilInSyncImpl}).
  */
-export async function reviveImpl(ctx: ReviveCtx): Promise<void> {
-  ctx.clearBoundaryFaults?.();
+export async function recoverAllImpl(ctx: RecoverAllCtx): Promise<void> {
+  ctx.clearEdgeFaults?.();
   ctx.network.releaseAll();
-  ctx.network.healAll();
+  ctx.network.restoreAllNetwork();
   ctx.network.clearNodeFaults();
   ctx.network.setDefaultFaults(RELIABLE_FAULTS);
   ctx.netEffects.neutralizeAll();
-  if (ctx.healInfra !== undefined) {
-    await ctx.healInfra();
+  if (ctx.restoreInfra !== undefined) {
+    await ctx.restoreInfra();
   }
   for (const client of ctx.clients.values()) {
     client.lifecycle.setOnline(true);
@@ -82,15 +81,15 @@ export async function reviveImpl(ctx: ReviveCtx): Promise<void> {
 }
 
 /**
- * Pure domain agreement + post-heal invariant reads. Never heals, never advances
+ * Pure domain agreement + post-restoreNetwork invariant reads. Never heals, never advances
  * time, never nudges — safe for observations.
  */
-export async function checkDomainConverged(
-  ctx: DomainConvergedCtx
+export async function checkDomainInSync(
+  ctx: DomainInSyncCtx
 ): Promise<InvariantViolation | null> {
   let domain: InvariantViolation | null;
   try {
-    domain = await ctx.domain.checkAllConverged({
+    domain = await ctx.domain.checkAllInSync({
       clients: await openClientSnapshots(ctx.clients),
       serverDb: ctx.server.db,
     });
@@ -107,7 +106,7 @@ export async function checkDomainConverged(
   for (const client of ctx.clients.values()) {
     let post: InvariantViolation | null;
     try {
-      post = await checkPostConvergeInvariants(client.db);
+      post = await checkPostInSyncInvariants(client.db);
     } catch (error) {
       if (isClosedDatabaseError(error)) continue;
       throw error;
@@ -126,7 +125,7 @@ async function checkDomainOnly(
   ctx: DrainUntilConvergedCtx
 ): Promise<InvariantViolation | null> {
   try {
-    return await ctx.domain.checkAllConverged({
+    return await ctx.domain.checkAllInSync({
       clients: await openClientSnapshots(ctx.clients),
       serverDb: ctx.server.db,
     });
@@ -176,7 +175,7 @@ async function settleOnce(
   for (const client of ctx.clients.values()) {
     let post: InvariantViolation | null;
     try {
-      post = await checkPostConvergeInvariants(client.db);
+      post = await checkPostInSyncInvariants(client.db);
     } catch (error) {
       if (isClosedDatabaseError(error)) continue;
       throw error;
@@ -192,8 +191,8 @@ async function settleOnce(
   return checkDomainOnly(ctx);
 }
 
-/** Drain until domain + post invariants agree (no heal — call revive first). */
-export async function drainUntilConvergedImpl(
+/** Drain until domain + post invariants agree (no restoreNetwork — call recoverAll first). */
+export async function drainUntilInSyncImpl(
   ctx: DrainUntilConvergedCtx
 ): Promise<void> {
   let last: InvariantViolation | null = null;

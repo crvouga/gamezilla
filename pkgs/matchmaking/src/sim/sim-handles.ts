@@ -4,18 +4,18 @@
 
 import type { Matchmaking, TickOptions } from '../interface/matchmaking';
 import type { DistanceFormula, JoinInput } from '../interface/types';
-import type { ParticipantHandle, ReplicaHandle } from './sim-api';
+import type { SimParticipant, SimReplica } from './sim-api';
 
 export type ReplicaOps = {
   readonly getMm: (replicaId: string) => Matchmaking;
   readonly defaultReplicaId: string;
 };
 
-export function buildParticipantHandle(
+export function buildSimParticipant(
   ops: ReplicaOps,
   participantId: string,
   joinedOn: string
-): ParticipantHandle {
+): SimParticipant {
   return {
     participantId,
     joinedOn,
@@ -30,32 +30,32 @@ export function buildParticipantHandle(
   };
 }
 
-export function buildReplicaHandle(
+export function buildSimReplica(
   ops: ReplicaOps,
   id: string,
   mm: Matchmaking
-): ReplicaHandle {
+): SimReplica {
   return {
     id,
     mm,
     join: async (input: JoinInput) => {
       const { participantId } = await mm.join(input);
-      return buildParticipantHandle(ops, participantId, id);
+      return buildSimParticipant(ops, participantId, id);
     },
     tick: (opts?: TickOptions) => mm.tick(opts),
   };
 }
 
 export type FacadeDeps = {
-  readonly replicas: Map<string, ReplicaHandle>;
+  readonly replicas: Map<string, SimReplica>;
   readonly ops: ReplicaOps;
   readonly firstId: string;
 };
 
 export function resolveReplica(
-  replicas: ReadonlyMap<string, ReplicaHandle>,
+  replicas: ReadonlyMap<string, SimReplica>,
   id: string
-): ReplicaHandle {
+): SimReplica {
   const r = replicas.get(id);
   if (r === undefined) {
     throw new Error(`matchmaking sim: unknown replica ${id}`);
@@ -68,6 +68,6 @@ export async function joinOnReplica(
   deps: FacadeDeps,
   input: JoinInput,
   replicaId?: string
-): Promise<ParticipantHandle> {
+): Promise<SimParticipant> {
   return resolveReplica(deps.replicas, replicaId ?? deps.firstId).join(input);
 }

@@ -6,7 +6,7 @@ export {
   ACTION_TAG,
   type Action,
   type ActionDef,
-  type ArgsGen,
+  type ArgsSampler,
   type CatalogAction,
   type CatalogProperty,
   isAction,
@@ -19,22 +19,22 @@ export {
 } from './effect';
 export type { Gen } from './gen';
 export {
+  parseRecording,
+  RECORDING_VERSION,
+  type Recording,
+  type RecordingMeta,
+  type Step,
+  stringifyRecording,
+} from './recording';
+export {
   type ActionSlice,
   getSystemRegistry,
-  type HostDef,
   poolActions,
+  type RuntimeDef,
   resolveActions,
-  resolveHost,
+  resolveRuntime,
   type SystemCore,
   type SystemCreate,
-  type SystemHostEntry,
   type SystemRegistry,
+  type SystemRuntimeEntry,
 } from './registry';
-export {
-  type Choice,
-  parseRepro,
-  REPRO_VERSION,
-  type Repro,
-  type ReproMeta,
-  stringifyRepro,
-} from './repro';

@@ -13,7 +13,7 @@ Inputs: catalog (body, not the overview counts), SUT analysis at `ddde94db466ae7
 
 ## Method
 
-1. Walk SUT sections `[architecture]` … `[wildcard]` and the numbered **Failure-prone areas**.
+1. RandomActionsReport SUT sections `[architecture]` … `[wildcard]` and the numbered **Failure-prone areas**.
 2. For each high-risk or claimed guarantee, ask whether the first-pass catalog (High + Medium) has a corresponding property, a deferred evidence-only slug, or nothing.
 3. Compare density to risk, not to “number of interesting bugs we already pinned.”
 4. Check safety / liveness / reachability mix, then component coverage against the six-container topology.

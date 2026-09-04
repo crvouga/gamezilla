@@ -1,13 +1,13 @@
 import {
   type Action,
   asSeededRng,
-  type Host,
   type NetworkFaults,
   type Ports,
+  type Runtime,
   type Session,
   type System,
-  virtualHost,
-} from '@pkgs/dst';
+  virtualTimeRuntime,
+} from '@pkgs/sim';
 
 import type { LocalDomainSchema } from '../../client/local-schema-migrate';
 import type { MutationRegistry } from '../../mutations/core/types';
@@ -15,20 +15,16 @@ import type { QueryRegistry } from '../../queries/core/types';
 import type { SyncBootDeps } from '../boot-deps';
 import type { SimSessionQuery } from '../domain-pack';
 import { RELIABLE_FAULTS } from '../faults';
-import type { SyncKit } from '../kit-api';
-import { bootSimInfra, bootSimServer } from '../kit-boot';
-import { buildKitFacade } from '../kit-facade';
-import type { KitClientOpts } from '../kit-types';
 import { toKernelFaults, wrapSimNetwork } from '../network';
+import type { SyncSimRuntime } from '../sim-api';
+import { bootSimInfra, bootSimServer } from '../sim-boot';
+import { buildKitFacade } from '../sim-facade';
+import type { SimClientOpts } from '../sim-types';
 import type { SyncApp } from './app';
 import type { SyncArgs } from './args';
 import { SYNC_POOL_ACTIONS } from './sync-actions';
 import { SYNC_PROPERTY_DEFS } from './sync-properties';
-import {
-  createOwedRestart,
-  type SyncRuntime,
-  type SyncSurface,
-} from './system';
+import { createOwedRestart, type SyncRuntime, type SyncSim } from './system';
 
 export const SIM_START_MS = 1_700_000_000_000;
 /** Post-topology settle window so clients finish initial hydration. */
@@ -37,35 +33,35 @@ const PREPARE_HYDRATION_MS = 200;
 const RELIABLE_KERNEL_FAULTS: NetworkFaults = toKernelFaults(RELIABLE_FAULTS);
 
 /**
- * Sync host: `virtualHost` with a settle that does not wait for heartbeat
- * quiescence. Register it with `system.host({ create: () => syncVirtual() })`.
+ * Sync runtime: `virtualTimeRuntime` with a settle that does not wait for heartbeat
+ * quiescence. Register it with `system.runtime({ create: () => syncVirtual() })`.
  */
-export function syncVirtual(network?: NetworkFaults): Host<Ports> {
-  return virtualHost({
+export function syncVirtual(network?: NetworkFaults): Runtime<Ports> {
+  return virtualTimeRuntime({
     startTime: SIM_START_MS,
     network: network ?? RELIABLE_KERNEL_FAULTS,
     // Sync clients schedule heartbeat / upload timers indefinitely.
-    settle: async (session) => {
+    waitForIdle: async (session) => {
       await session.scheduler.underlying.runFor(0);
     },
   });
 }
 
 /** Every sync app system has the same surface and args shape. */
-export type SyncSystemDef = System<SyncSurface, SyncArgs>;
+export type SyncSystemDef = System<SyncSim, SyncArgs>;
 
 /** Register the shared explore pool + standing properties on `system`. */
 export function registerSyncLibrary(system: SyncSystemDef): void {
   for (const action of SYNC_POOL_ACTIONS) {
     // Existential registration — the pool holds mixed action arities.
-    system.action(action as unknown as Action<SyncSurface>);
+    system.action(action as unknown as Action<SyncSim>);
   }
   for (const def of SYNC_PROPERTY_DEFS) system.property(def);
 }
 
 /**
  * Non-JSON per-system fixtures. Anything JSON-able belongs on {@link SyncArgs}
- * so it survives a Repro round-trip; schemas and registries close over the
+ * so it survives a Recording round-trip; schemas and registries close over the
  * literal `defineSystem` instead.
  */
 export type SyncBootOverrides = {
@@ -79,7 +75,7 @@ function clientOptsFor(
   app: SyncApp,
   args: SyncArgs,
   overrides: SyncBootOverrides
-): KitClientOpts {
+): SimClientOpts {
   const sessionQuery = args.sessionQuery ?? overrides.sessionQuery;
   return {
     domain: app.pack,
@@ -110,9 +106,9 @@ function bootDeps(session: Session): SyncBootDeps {
 
 function buildSurface(
   session: Session,
-  kit: SyncKit,
+  kit: SyncSimRuntime,
   runtime: SyncRuntime
-): SyncSurface {
+): SyncSim {
   return {
     session,
     runtime,
@@ -131,7 +127,7 @@ function buildSurface(
     },
     isSchedulerQuiescent: kit.isSchedulerQuiescent,
     pendingEventCount: kit.pendingEventCount,
-    revive: () => kit.revive(),
+    recoverAll: () => kit.recoverAll(),
     tamperLocalStorage: kit.tamperLocalStorage,
     armStoragePressure: kit.armStoragePressure,
     clearStoragePressure: kit.clearStoragePressure,
@@ -139,8 +135,8 @@ function buildSurface(
     clearFailNextOpen: kit.clearFailNextOpen,
     brokerCrash: kit.brokerCrash,
     brokerRestart: kit.brokerRestart,
-    clearBoundaryFaults: kit.clearBoundaryFaults,
-    advance: (ms) => session.elapse(ms),
+    clearEdgeFaults: kit.clearEdgeFaults,
+    advance: (ms) => session.advanceTime(ms),
     dispose: () => kit.dispose(),
   };
 }
@@ -149,12 +145,12 @@ function buildSurface(
  * Boot broker + server + `args.clientCount` clients and return the sync
  * surface. This is the `create` body of every sync `defineSystem`.
  */
-export async function createSyncSurface(
+export async function createSyncSim(
   session: Session,
   app: SyncApp,
   args: SyncArgs,
   overrides: SyncBootOverrides = {}
-): Promise<SyncSurface> {
+): Promise<SyncSim> {
   const clientOpts = clientOptsFor(app, args, overrides);
   const deps = bootDeps(session);
   const network = wrapSimNetwork(session.network, RELIABLE_FAULTS);
@@ -193,6 +189,6 @@ export async function createSyncSurface(
     await kit.addClient({ id, actorId: id });
   }
 
-  await session.elapse(PREPARE_HYDRATION_MS);
+  await session.advanceTime(PREPARE_HYDRATION_MS);
   return buildSurface(session, kit, runtime);
 }

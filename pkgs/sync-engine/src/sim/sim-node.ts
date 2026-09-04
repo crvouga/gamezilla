@@ -1,21 +1,21 @@
+import type { SimAuthStatus, SimClient } from './client-factory';
+import { SIM_SERVER_NODE_ID } from './clock-skew';
 import type {
   SimCrashEvent,
   SimHttpFault,
   SimPubsubFault,
-} from './boundary-faults';
-import type { SimAuthStatus, SimClientHandle } from './client-factory';
-import { SIM_SERVER_NODE_ID } from './clock-skew';
-import type { RestartClientOpts } from './kit-lifecycle';
-import type { BootedSimKernel } from './kit-types';
+} from './edge-faults';
+import type { RestartClientOpts } from './sim-lifecycle';
+import type { BootedSimKernel } from './sim-types';
 
 export type SkewEffect = Disposable & { restore(): void };
 
-export type SimNodeHandle = {
+export type SimNode = {
   /** Immediate crash. */
   crash(): Promise<void>;
   /** Arm a boundary crash; dispose un-arms. */
   crash(opts: { readonly at: SimCrashEvent }): SkewEffect;
-  restart(opts?: RestartClientOpts): Promise<SimClientHandle | undefined>;
+  restart(opts?: RestartClientOpts): Promise<SimClient | undefined>;
   auth(status: SimAuthStatus): void;
   skewClock(ms: number): SkewEffect;
   now(): number;
@@ -34,7 +34,7 @@ function syncDisposable(restore: () => void): SkewEffect {
   return { restore: run, [Symbol.dispose]: run };
 }
 
-export function createSimNodeHandle(
+export function createSimNode(
   k: BootedSimKernel,
   nodeId: string,
   ops: {
@@ -42,7 +42,7 @@ export function createSimNodeHandle(
     readonly restartClient: (
       id: string,
       opts?: RestartClientOpts
-    ) => Promise<SimClientHandle>;
+    ) => Promise<SimClient>;
     readonly crashServer: () => Promise<void>;
     readonly restartServer: (opts?: {
       readonly preserveDb?: boolean;
@@ -52,7 +52,7 @@ export function createSimNodeHandle(
     }) => Promise<void>;
     readonly armCrashHook: (id: string, event: SimCrashEvent) => void;
   }
-): SimNodeHandle {
+): SimNode {
   function crash(): Promise<void>;
   function crash(opts: { readonly at: SimCrashEvent }): SkewEffect;
   function crash(opts?: {
@@ -91,7 +91,7 @@ export function createSimNodeHandle(
     },
     auth(status) {
       if (nodeId === SIM_SERVER_NODE_ID) {
-        throw new Error('SyncKit.node(server).auth: clients only');
+        throw new Error('SyncSimRuntime.node(server).auth: clients only');
       }
       const meta = k.metas.get(nodeId);
       if (meta === undefined) throw new Error(`unknown client ${nodeId}`);

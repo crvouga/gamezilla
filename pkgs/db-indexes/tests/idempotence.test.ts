@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import { assertProperty } from '@pkgs/dst/fast-check';
+import { assertProperty } from '@pkgs/sim/fast-check';
 import fc from 'fast-check';
-import { planIndexes } from '../../core/plan';
-import { reconcileIndexes } from '../../core/reconcile';
-import { genSchema, genSmallManifest } from '../generators';
-import { fixedClock, RecordingPort } from '../helpers/recording-port';
+import { planIndexes } from '../src/core/plan';
+import { reconcileIndexes } from '../src/core/reconcile';
+import { genSchema, genSmallManifest } from './generators';
+import { fixedClock, RecordingPort } from './helpers/recording-port';
 
 describe('analyzer idempotence PBT', () => {
   test('apply creates → re-plan → empty actions', async () => {

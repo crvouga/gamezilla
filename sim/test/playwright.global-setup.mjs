@@ -1,8 +1,8 @@
-/** Playwright global setup — boot max-fidelity sidecars once per run. */
+/** Playwright global setup — boot real-mode sidecars once per run. */
 export default async function globalSetup() {
-  process.env['SIM_FIDELITY'] = 'max';
+  process.env['SIM_MODE'] = 'max';
   const { ensureMaxFidelityStack } = await import(
-    './src/setup/max-fidelity-stack.ts'
+    './src/setup/real-mode-stack.ts'
   );
   await ensureMaxFidelityStack();
 }

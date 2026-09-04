@@ -1,4 +1,4 @@
-import { Handles } from '@libs/dst-handles';
+import { Handles } from '@libs/test-ids';
 import type { useLingui } from '@lingui/react/macro';
 import { Trans } from '@lingui/react/macro';
 import { Sounds } from '@pkgs/sounds';

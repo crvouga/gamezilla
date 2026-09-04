@@ -1,8 +1,8 @@
-import { gen } from '@pkgs/dst/fast-check';
+import { gen } from '@pkgs/sim/fast-check';
 import fc from 'fast-check';
 import type { TickOptions } from '../../interface/matchmaking';
 import type { DistanceFormula, JoinInput } from '../../interface/types';
-import type { MatchmakingSurface } from './facade';
+import type { MatchmakingSim } from './facade';
 import { SIM_AUTH_HEADERS, simRequireAuth } from './http';
 import { asJson, caps } from './observations';
 import { mmOf, type ParticipantTarget, targetId } from './refs';
@@ -14,7 +14,7 @@ export type JoinSpec = {
   readonly replicaId?: string;
 };
 
-async function joinInto(s: MatchmakingSurface, one: JoinSpec): Promise<void> {
+async function joinInto(s: MatchmakingSim, one: JoinSpec): Promise<void> {
   const handle = await s.join(one.input, one.replicaId);
   s.refs.set(one.ref, handle.participantId);
 }
@@ -70,15 +70,15 @@ export const tickAllWith = matchmaking.action({
 });
 
 /**
- * Advance virtual time and tick all replicas — use between `s.observe(matched,
+ * Advance virtual time and tick all replicas — use between `s.read(matched,
  * …)` polls when radius growth needs ticks (plain `s.elapse` does not tick).
  */
 export const stepTime = matchmaking.action({
   name: 'stepTime',
   enabled: (s) => caps(s).includes('virtualTime'),
-  draw: () => gen(fc.tuple(fc.integer({ min: 0, max: 5_000 }))),
+  sample: () => gen(fc.tuple(fc.integer({ min: 0, max: 5_000 }))),
   act: async (s, ms: number) => {
-    await s.session.elapse(ms);
+    await s.session.advanceTime(ms);
     await s.tickAll({ maxPassesPerPartition: 4 });
   },
 });
@@ -123,7 +123,7 @@ export const joinsDuringTick = matchmaking.action({
       s.replica(plan.tickReplicaId).tick(plan.tickOpts),
       (async () => {
         for (const one of plan.joins) {
-          await s.session.elapse(plan.gapMs ?? 1);
+          await s.session.advanceTime(plan.gapMs ?? 1);
           await joinInto(s, one);
         }
       })(),
@@ -140,7 +140,7 @@ export type HttpSpec = {
   readonly replicaId?: string;
 };
 
-function appFor(s: MatchmakingSurface, replicaId?: string) {
+function appFor(s: MatchmakingSim, replicaId?: string) {
   const key = replicaId ?? '*';
   const cached = s.apps.get(key);
   if (cached !== undefined) return cached;

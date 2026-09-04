@@ -1,4 +1,4 @@
-import { Handles } from '@libs/dst-handles';
+import { Handles } from '@libs/test-ids';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { MenuList, MenuRow, ScreenBase, useRouter } from '@pkgs/ui';
 import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';

@@ -1,6 +1,6 @@
 /**
  * Web real fabric: PGlite server + SQLite WASM clients.
- * Loaded by Metro instead of {@link ./sim-sql-fabric-real.ts} on platform web
+ * Loaded by Metro instead of {@link ./sim-sql-backend-real.ts} on platform web
  * so Node engines (better-sqlite3 / bun:sqlite / PGlite worker) never enter the
  * Hermes classic-script bundle.
  */
@@ -12,7 +12,7 @@ import {
   openPgliteSqlClient,
   type PgliteSqlBundle,
 } from '@pkgs/sql-client/postgres/impl-pglite';
-import { nextSimSqlDatabaseName, type SimSqlHandle } from './sim-sql-handle';
+import { nextSimSqlDatabaseName, type SimSql } from './sim-sql-types';
 
 export const REAL_CHECKPOINT_SQL_FORMAT: SimCheckpointSqlFormat =
   'mixed-pglite-sqlite';
@@ -40,7 +40,7 @@ async function openBrowserSqliteClient(bytes?: Uint8Array): Promise<{
 export async function openRealClientSql(
   logicalName: string,
   clock: Clock
-): Promise<SimSqlHandle> {
+): Promise<SimSql> {
   void clock;
   let databaseName = nextSimSqlDatabaseName(logicalName);
   let live = await openBrowserSqliteClient();
@@ -70,7 +70,7 @@ export async function openRealClientSql(
 function wrapPgliteBundle(
   logicalName: string,
   openFresh: () => Promise<PgliteSqlBundle>
-): Promise<SimSqlHandle> {
+): Promise<SimSql> {
   return (async () => {
     let databaseName = nextSimSqlDatabaseName(logicalName);
     let live = await openFresh();
@@ -102,7 +102,7 @@ function wrapPgliteBundle(
 export async function openRealServerSql(
   logicalName: string,
   clock: Clock
-): Promise<SimSqlHandle> {
+): Promise<SimSql> {
   void clock;
   return wrapPgliteBundle(logicalName, () => openPgliteSqlClient());
 }
@@ -111,7 +111,7 @@ export async function openRealServerSqlFromSeed(
   logicalName: string,
   clock: Clock,
   seedBytes: Uint8Array
-): Promise<SimSqlHandle> {
+): Promise<SimSql> {
   return wrapPgliteBundle(logicalName, () =>
     openSimPgliteFromSeed({ seedBytes, clock })
   );

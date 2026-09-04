@@ -1,4 +1,4 @@
-import { type Handle, Handles } from '@libs/dst-handles';
+import { type Handle, Handles } from '@libs/test-ids';
 import type { Driver } from '@pkgs/ui-testing';
 
 export class ProfileFlows {

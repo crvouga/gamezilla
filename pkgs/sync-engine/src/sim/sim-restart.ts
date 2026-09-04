@@ -4,19 +4,19 @@ import { createLogger } from '@pkgs/logger';
 import type { LocalDomainSchema } from '../client/local-schema-migrate';
 import type { MutationRegistry } from '../mutations/core/types';
 import type { QueryRegistry } from '../queries/core/types';
-import type { SimClientHandle } from './client-factory';
+import type { SimClient } from './client-factory';
 import { SIM_SERVER_NODE_ID } from './clock-skew';
 import { bindSimHttpServer } from './http-bridge';
 import { isDbOpen } from './invariants';
-import { resolveAuthForDevice } from './kit-boot-parts';
+import { openSimServer } from './server';
+import { resolveAuthForDevice } from './sim-boot-parts';
 import {
   crashClientImpl,
   fireCrashIfArmed,
   type RestartClientOpts,
-} from './kit-lifecycle';
-import { addClientImpl } from './kit-ops-add-client';
-import type { AddClientArgs, BootedSimKernel, ClientMeta } from './kit-types';
-import { openSimServer } from './server';
+} from './sim-lifecycle';
+import { addClientImpl } from './sim-ops-add-client';
+import type { AddClientArgs, BootedSimKernel, ClientMeta } from './sim-types';
 import { SERVER_HTTP } from './traffic';
 
 /** Silent migrate logger — level silent; `now` unused but required by createLogger. */
@@ -77,7 +77,7 @@ function resolveStickySchemaArgs(
 
 function finalizeRestartMeta(
   live: ClientMeta | undefined,
-  handle: SimClientHandle,
+  handle: SimClient,
   opts: RestartClientOpts | undefined,
   preserve: boolean
 ): void {
@@ -98,7 +98,7 @@ export async function restartClientImpl(
   k: BootedSimKernel,
   id: string,
   opts?: RestartClientOpts
-): Promise<SimClientHandle> {
+): Promise<SimClient> {
   const meta = k.metas.get(id);
   if (meta === undefined) throw new Error(`unknown client meta ${id}`);
   const existing = k.clients.get(id);
@@ -158,7 +158,7 @@ export async function restartServerImpl(
     await new SqliteSchemaDatabaseMigration(opts.localSchema.domainSchema, {
       ownership: 'declared-only',
     }).migrate({ sqlClient: existingDb, logger: serverMigrateLogger });
-    // Keep domain pack in sync so later heal/settle restarts use the new schema.
+    // Keep domain pack in sync so later restoreNetwork/settle restarts use the new schema.
     (k as { domain: BootedSimKernel['domain'] }).domain = {
       ...k.domain,
       localSchema,

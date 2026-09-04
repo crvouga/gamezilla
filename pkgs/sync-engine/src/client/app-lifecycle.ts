@@ -1,4 +1,4 @@
-/** Host-injected foreground / connectivity signals for event-driven sync. */
+/** Runtime-injected foreground / connectivity signals for event-driven sync. */
 export type AppLifecycleEvent =
   | 'foreground'
   | 'background'

@@ -17,7 +17,7 @@ import type {
 
 export type MatchmakingSimBackend = 'sqlite' | 'postgres';
 
-export type ParticipantHandle = {
+export type SimParticipant = {
   readonly participantId: string;
   readonly joinedOn: string;
   readonly status: (replicaId?: string) => Promise<StatusResult | null>;
@@ -28,24 +28,24 @@ export type ParticipantHandle = {
   ) => Promise<UpdateFormulasResult>;
 };
 
-export type ReplicaHandle = {
+export type SimReplica = {
   readonly id: string;
   readonly mm: Matchmaking;
-  readonly join: (input: JoinInput) => Promise<ParticipantHandle>;
+  readonly join: (input: JoinInput) => Promise<SimParticipant>;
   readonly tick: (opts?: TickOptions) => Promise<TickResult>;
 };
 
 /** Kit methods on the matchmaking surface. */
-export type MatchmakingSimKit = {
-  readonly replicas: ReadonlyMap<string, ReplicaHandle>;
-  readonly replica: (id: string) => ReplicaHandle;
-  readonly addReplica: (id: string) => Promise<ReplicaHandle>;
+export type MatchmakingSimRuntime = {
+  readonly replicas: ReadonlyMap<string, SimReplica>;
+  readonly replica: (id: string) => SimReplica;
+  readonly addReplica: (id: string) => Promise<SimReplica>;
   /** Convenience: first replica's Matchmaking port. */
   readonly mm: Matchmaking;
   readonly join: (
     input: JoinInput,
     replicaId?: string
-  ) => Promise<ParticipantHandle>;
+  ) => Promise<SimParticipant>;
   readonly tick: (
     opts?: TickOptions,
     replicaId?: string

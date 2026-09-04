@@ -1,14 +1,13 @@
 /**
- * One actor's slice of a {@link Script}: the run-backed driver plus the two
+ * One actor's slice of a {@link Run}: the run-backed driver plus the two
  * time verbs flows need — `elapse` and `pollUntil`. Virtual time only; no
  * wall deadlines live in product flows.
  */
 
-import type { Script } from '@pkgs/dst';
+import type { Run } from '@pkgs/sim';
 import type { Driver } from '@pkgs/ui-testing';
-
-import type { ProductSurface } from '../scenario/surface';
 import { createScriptDriver } from '../setup/script-driver';
+import type { ProductSim } from '../sim/sim';
 
 const DEFAULT_STEP_MS = 100;
 
@@ -24,7 +23,7 @@ export class ActorScript {
   readonly ui: Driver;
 
   constructor(
-    readonly s: Script<ProductSurface>,
+    readonly s: Run<ProductSim>,
     readonly actorId: string
   ) {
     this.ui = createScriptDriver(s, actorId);
@@ -32,7 +31,7 @@ export class ActorScript {
 
   /** Advance the run one checkpoint; invalidates memoised reads. */
   async elapse(ms: number = DEFAULT_STEP_MS): Promise<void> {
-    await this.s.elapse(ms);
+    await this.s.advanceTime(ms);
   }
 
   /**

@@ -1,14 +1,14 @@
 import type { LocalDomainSchema } from '../client/local-schema-migrate';
 import type { MutationRegistry } from '../mutations/core/types';
 import type { QueryRegistry } from '../queries/core/types';
+import type { SimClient } from './client-factory';
 import type {
-  BoundaryFaultController,
+  EdgeFaultController,
   SimCrashEvent,
   SimHttpFault,
   SimPubsubFault,
-} from './boundary-faults';
-import type { SimClientHandle } from './client-factory';
-import type { BootedSimKernel } from './kit-types';
+} from './edge-faults';
+import type { BootedSimKernel } from './sim-types';
 
 export type RestartClientOpts = {
   readonly preserveLocalDb?: boolean;
@@ -24,7 +24,7 @@ export type RestartClientOpts = {
 
 /** True when another live engine still holds the same sqlite handle. */
 export function otherClientsShareRawDb(
-  clients: ReadonlyMap<string, SimClientHandle>,
+  clients: ReadonlyMap<string, SimClient>,
   id: string
 ): boolean {
   return peerClientIdsSharingRawDb(clients, id).length > 0;
@@ -32,7 +32,7 @@ export function otherClientsShareRawDb(
 
 /** Peer engines from addPeerEngine that share the donor sqlite handle. */
 export function peerClientIdsSharingRawDb(
-  clients: ReadonlyMap<string, SimClientHandle>,
+  clients: ReadonlyMap<string, SimClient>,
   id: string
 ): readonly string[] {
   const raw = clients.get(id)?.dbBundle.raw;
@@ -77,8 +77,8 @@ export async function fireCrashIfArmed(
 
 export function wireMutateCrashArm(
   k: BootedSimKernel,
-  handle: SimClientHandle
-): SimClientHandle {
+  handle: SimClient
+): SimClient {
   const baseMutate = handle.mutate.bind(handle);
   return {
     ...handle,
@@ -101,7 +101,7 @@ export type KitFaultApi = {
   readonly clearPubsubFaults: () => void;
 };
 
-export function kitFaultApi(faults: BoundaryFaultController): KitFaultApi {
+export function kitFaultApi(faults: EdgeFaultController): KitFaultApi {
   return {
     armCrash: (nodeId, event) => faults.armCrash(nodeId, event),
     clearCrashArms: (nodeId) => faults.clearCrashArms(nodeId),

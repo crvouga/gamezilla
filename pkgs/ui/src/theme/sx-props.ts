@@ -2,7 +2,7 @@
  * Standalone style language for `@pkgs/ui`.
  *
  * No React Native `ViewStyle` / `TextStyle` / `StyleSheet` types.
- * Host adapters compile this to RN styles; reports compile it to CSS.
+ * Runtime adapters compile this to RN styles; reports compile it to CSS.
  */
 
 import type { ColorTokens } from './colors';

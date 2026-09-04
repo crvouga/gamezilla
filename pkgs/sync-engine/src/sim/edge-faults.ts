@@ -4,14 +4,13 @@
  */
 
 import type { Topic } from '@pkgs/pubsub/topic';
-
+import type { SimCorruptionVariant } from './corruption-faults';
 import {
   createPubsubFaultArms,
   type SimPubsubFault,
-} from './boundary-fault-pubsub';
-import type { SimCorruptionVariant } from './corruption-faults';
+} from './edge-fault-pubsub';
 
-export type { SimPubsubFault } from './boundary-fault-pubsub';
+export type { SimPubsubFault } from './edge-fault-pubsub';
 
 export type SimCrashEvent =
   | 'afterNextSyncResponseDelivered'
@@ -64,7 +63,7 @@ export type SimHttpFault =
       readonly route: 'mutations' | 'query';
     };
 
-export type BoundaryFaultController = {
+export type EdgeFaultController = {
   readonly armCrash: (nodeId: string, event: SimCrashEvent) => void;
   readonly clearCrashArms: (nodeId?: string) => void;
   readonly takeCrash: (nodeId: string, event: SimCrashEvent) => boolean;
@@ -90,7 +89,7 @@ export type BoundaryFaultController = {
 };
 
 /** In-memory one-shot fault arms keyed by node id. */
-export function createBoundaryFaultController(): BoundaryFaultController {
+export function createBoundaryFaultController(): EdgeFaultController {
   const crashes = new Map<string, Set<SimCrashEvent>>();
   const httpFaults = new Map<string, SimHttpFault[]>();
   let publishRemaining = 0;

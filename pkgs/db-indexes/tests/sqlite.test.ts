@@ -1,12 +1,12 @@
 import { Database } from 'bun:sqlite';
 import { describe, expect, test } from 'bun:test';
+import { createSimClock } from '@pkgs/db-indexes/sim';
+import { createSqlitePort } from '@pkgs/db-indexes/sqlite';
 import { defineTable, registerTables } from '@pkgs/db-schema';
 import { emitSqliteCreateStatements } from '@pkgs/db-schema/sqlite';
-import { fingerprintSql } from '../../core/fingerprint';
-import { reconcileIndexes } from '../../core/reconcile';
-import type { WorkloadManifest } from '../../core/types';
-import { createSimClock } from '../../sim';
-import { createSqlitePort } from '../../sqlite';
+import { fingerprintSql } from '../src/core/fingerprint';
+import { reconcileIndexes } from '../src/core/reconcile';
+import type { WorkloadManifest } from '../src/core/types';
 
 function stmt(sql: string) {
   return {

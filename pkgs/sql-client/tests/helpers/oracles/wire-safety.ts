@@ -1,4 +1,4 @@
-import type { RunResult } from '../../interface';
+import type { RunResult } from '../../../src/interface';
 
 export type WireSafetyViolation = {
   readonly path: string;

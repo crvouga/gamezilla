@@ -6,7 +6,7 @@
  * with a durable pending marker across redirect/popup handoff.
  */
 
-import { Handles } from '@libs/dst-handles';
+import { Handles } from '@libs/test-ids';
 import { useLingui } from '@lingui/react/macro';
 import {
   Box,

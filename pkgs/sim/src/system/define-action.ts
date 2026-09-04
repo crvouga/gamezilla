@@ -20,7 +20,7 @@ export function defineAction<S, const A extends unknown[] = []>(
     enabled: def.enabled ?? (() => true),
     weight: weightFn,
     args: def.args,
-    draw: def.draw,
+    sample: def.sample,
     pool: def.pool !== false,
     act: def.act,
   };

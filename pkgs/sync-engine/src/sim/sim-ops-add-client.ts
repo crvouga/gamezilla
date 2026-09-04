@@ -1,14 +1,14 @@
 import type { PubSub } from '@pkgs/pubsub/interface';
 
-import { buildSimClient, type SimClientHandle } from './client-factory';
+import { buildSimClient, type SimClient } from './client-factory';
 import { createSimHttpClient } from './http-bridge';
-import { fireCrashIfArmed, wireMutateCrashArm } from './kit-lifecycle';
-import type { AddClientArgs, BootedSimKernel, ClientMeta } from './kit-types';
+import { fireCrashIfArmed, wireMutateCrashArm } from './sim-lifecycle';
+import type { AddClientArgs, BootedSimKernel, ClientMeta } from './sim-types';
 import { SERVER_HTTP } from './traffic';
 
 async function waitForSessionSync(
   scheduler: BootedSimKernel['scheduler'],
-  handle: SimClientHandle,
+  handle: SimClient,
   clientId: string
 ): Promise<void> {
   await Promise.resolve();
@@ -22,7 +22,7 @@ async function waitForSessionSync(
     maxSteps: 50_000,
   });
   if (!ok) {
-    throw new Error(`SyncKit: session sync timeout for ${clientId}`);
+    throw new Error(`SyncSimRuntime: session sync timeout for ${clientId}`);
   }
   await sessionSync;
 }
@@ -238,9 +238,9 @@ function simClientBuildArgs(
 export async function addClientImpl(
   ctx: BootedSimKernel,
   clientArgs: AddClientArgs
-): Promise<SimClientHandle> {
+): Promise<SimClient> {
   if (ctx.clients.has(clientArgs.id)) {
-    throw new Error(`SyncKit: client ${clientArgs.id} already exists`);
+    throw new Error(`SyncSimRuntime: client ${clientArgs.id} already exists`);
   }
   const args = withSharedDbSticky(ctx, clientArgs);
   const ids = registerClientMeta(ctx, args);

@@ -6,7 +6,7 @@ import type {
   RoomState,
 } from '../types';
 
-export type RoomSimClientHandle<
+export type RoomSimClient<
   S extends RoomState = RoomState,
   C extends RoomCommandPayload = RoomCommandPayload,
   E extends RoomEvent = RoomEvent,
@@ -34,7 +34,7 @@ export type RoomSimClientHandle<
   readonly injectFromServer: (raw: unknown) => void;
 };
 
-export type RoomSimNodeHandle = {
+export type RoomSimNode = {
   readonly disconnect: () => Promise<void>;
   readonly reconnect: () => Promise<void>;
   /**

@@ -3,7 +3,7 @@ import {
   defineAction,
   type PropertyDef,
   type Rng,
-} from '@pkgs/dst';
+} from '@pkgs/sim';
 import type { Driver } from '../driver/driver';
 import {
   EMPTY_INVENTORY,
@@ -39,7 +39,7 @@ export function tap<S>(actor: Actor<S>): Action<S, [InventoryItem]> {
   return defineAction<S, [InventoryItem]>({
     name: 'tap',
     enabled: async (s) => (await inventory(s, actor)).pressables.length > 0,
-    draw: async (s) => {
+    sample: async (s) => {
       const inv = await inventory(s, actor);
       return (rng: Rng) => {
         const i = Math.floor(rng.next() * inv.pressables.length);
@@ -58,7 +58,7 @@ export function fill<S>(actor: Actor<S>): Action<S, [InventoryItem, string]> {
   return defineAction<S, [InventoryItem, string]>({
     name: 'fill',
     enabled: async (s) => (await inventory(s, actor)).inputs.length > 0,
-    draw: async (s) => {
+    sample: async (s) => {
       const inv = await inventory(s, actor);
       return (rng: Rng) => {
         const i = Math.floor(rng.next() * inv.inputs.length);
@@ -97,7 +97,7 @@ export function scroll<S>(actor: Actor<S>): Action<S, [ScrollDir]> {
       const inv = await inventory(s, actor);
       return inv.pressables.length > 0 || inv.inputs.length > 0;
     },
-    draw: () => (rng: Rng) =>
+    sample: () => (rng: Rng) =>
       SCROLL_DIRS[Math.floor(rng.next() * SCROLL_DIRS.length)]!,
     act: async (s, dir) => {
       const d = actor(s);

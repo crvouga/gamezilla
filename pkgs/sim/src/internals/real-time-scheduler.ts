@@ -1,10 +1,10 @@
-// @io-wall-ok — wall-clock scheduler for wallHost
+// @io-wall-ok — wall-clock scheduler for realTimeRuntime
 import type { VirtualClock } from './clock';
 import type { TaskBody, Scheduler as VirtualScheduler } from './scheduler';
 import type { Scheduler } from './scheduler-api';
 
 /**
- * Wall-clock scheduler. `advance(ms)` waits real time; `settle` yields briefly.
+ * Wall-clock scheduler. `advance(ms)` waits real time; `waitForIdle` yields briefly.
  */
 export function createWallScheduler(opts?: {
   readonly settleMs?: number;
@@ -93,7 +93,7 @@ export function createWallScheduler(opts?: {
       await new Promise<void>((r) => setTimeout(r, Math.max(0, ms)));
       nowMs = Date.now();
     },
-    async settle() {
+    async waitForIdle() {
       await new Promise<void>((r) => setTimeout(r, settleMs));
       nowMs = Date.now();
     },

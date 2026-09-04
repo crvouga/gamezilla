@@ -1,7 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { ROOM_ERROR_TYPE, type RoomCommand, type RoomState } from '@pkgs/room';
-
-import { ChessModule } from './chess-module';
+import { ChessModule } from '@libs/chess/public/chess-module';
 import {
   CHESS_PUZZLE_PLAY_STATUS,
   ChessPuzzlePlayAttr,
@@ -15,7 +13,8 @@ import {
   StepBackChessPuzzlePlay,
   StepForwardChessPuzzlePlay,
   SubmitChessPuzzleMove,
-} from './chess-puzzle-play';
+} from '@libs/chess/public/chess-puzzle-play';
+import { ROOM_ERROR_TYPE, type RoomCommand, type RoomState } from '@pkgs/room';
 
 const HOST = 'host-1';
 const GUEST = 'guest-1';

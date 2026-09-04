@@ -1,6 +1,6 @@
-import type { Network, VirtualScheduler } from '@pkgs/dst';
+import type { Network, VirtualScheduler } from '@pkgs/sim';
 
-import type { SimPollablePromise } from './client-surface';
+import type { SimPollablePromise } from './decorate-sim-client';
 
 export type WaitUntilOptions = { readonly withinMs?: number };
 export type NeverOptions = { readonly forMs: number };

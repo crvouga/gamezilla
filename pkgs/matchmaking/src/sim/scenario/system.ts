@@ -1,12 +1,12 @@
-import { asSeededRng, defineSystem, virtualHost } from '@pkgs/dst';
-import { gen } from '@pkgs/dst/fast-check';
+import { asSeededRng, defineSystem, virtualTimeRuntime } from '@pkgs/sim';
+import { gen } from '@pkgs/sim/fast-check';
 import fc from 'fast-check';
 import type { MatchmakingTuning } from '../../interface/matchmaking';
 import type { MatchmakingSchema } from '../../interface/schema';
 import type { RadiusOptions } from '../../interface/types';
 import type { ReplicaBootConfig } from '../boot-replica';
 import type { MatchmakingSimBackend } from '../sim-api';
-import { buildMatchmakingKit, type MatchmakingSurface } from './facade';
+import { buildMatchmakingSim, type MatchmakingSim } from './facade';
 import { startReplica, startStore } from './node-kinds';
 
 /** Typed topology + tuning for one matchmaking script. */
@@ -38,7 +38,7 @@ export const matchmaking = defineSystem({
     radius: undefined,
     tuning: {},
   } satisfies MatchmakingArgs,
-  draw: () =>
+  sample: () =>
     gen(
       fc.record({
         replicas: fc.integer({ min: 1, max: 3 }),
@@ -48,7 +48,7 @@ export const matchmaking = defineSystem({
         tuning: fc.constant<Partial<MatchmakingTuning>>({}),
       })
     ),
-  async create(session, args: MatchmakingArgs): Promise<MatchmakingSurface> {
+  async create(session, args: MatchmakingArgs): Promise<MatchmakingSim> {
     const { store } = await startStore(session.fork('store'), args.backend);
     session.onDispose(() => store.close());
     const config = replicaConfig(args);
@@ -58,7 +58,7 @@ export const matchmaking = defineSystem({
         return startReplica(session.fork(id), store, id, config);
       })
     );
-    return buildMatchmakingKit({
+    return buildMatchmakingSim({
       session,
       store,
       boots,
@@ -68,10 +68,10 @@ export const matchmaking = defineSystem({
   },
 });
 
-matchmaking.host({
+matchmaking.runtime({
   default: true,
   name: 'virtual',
-  create: () => virtualHost({ startTime: MATCHMAKING_START_MS }),
+  create: () => virtualTimeRuntime({ startTime: MATCHMAKING_START_MS }),
 });
 
-export type { MatchmakingSurface };
+export type { MatchmakingSim };

@@ -1,5 +1,5 @@
-import type { VirtualScheduler } from '@pkgs/dst';
 import { HttpNetworkError } from '@pkgs/http-client';
+import type { VirtualScheduler } from '@pkgs/sim';
 import type { SimHttpRequestBody, SimHttpResponse } from './http-bridge-types';
 
 import type { EndpointId, SyncNetwork } from './network';

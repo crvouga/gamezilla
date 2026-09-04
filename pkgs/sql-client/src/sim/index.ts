@@ -1,6 +1,6 @@
 /**
  * Harness-only DST surface for multi-tab web SQL. Tests and sim consoles only —
- * product code must never import this (it would pull `@pkgs/dst` in).
+ * product code must never import this (it would pull `@pkgs/sim` in).
  */
 export { startStore, startTab } from './nodes';
 export {

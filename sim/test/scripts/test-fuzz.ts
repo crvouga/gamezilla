@@ -8,21 +8,42 @@ const REPO_ROOT = join(import.meta.dirname, '../../..');
 
 function collectSimTests(): string[] {
   const roots = [
-    join(REPO_ROOT, 'libs'),
+    join(REPO_ROOT, 'sim/test/tests'),
     join(REPO_ROOT, 'pkgs'),
-    join(REPO_ROOT, 'sim'),
+    join(REPO_ROOT, 'libs'),
   ];
   const files: string[] = [];
   function walk(dir: string): void {
-    for (const name of readdirSync(dir)) {
+    let entries: string[];
+    try {
+      entries = readdirSync(dir);
+    } catch {
+      return;
+    }
+    for (const name of entries) {
       const path = join(dir, name);
       const st = statSync(path);
       if (st.isDirectory()) {
-        if (name === 'node_modules' || name === '.git') continue;
+        if (
+          name === 'node_modules' ||
+          name === '.git' ||
+          name === 'dist' ||
+          name === '.turbo'
+        ) {
+          continue;
+        }
         walk(path);
         continue;
       }
-      if (name.endsWith('.sim.test.ts')) files.push(path);
+      // Prefer package-level tests/ suites.
+      const underTests = path.includes('/tests/');
+      if (
+        underTests &&
+        (name.endsWith('.test.ts') || name.endsWith('.test.tsx')) &&
+        !name.endsWith('.contract.test.ts')
+      ) {
+        files.push(path);
+      }
     }
   }
   for (const root of roots) walk(root);
@@ -37,7 +58,7 @@ const seedCount = Number(
 
 const files = collectSimTests();
 if (files.length === 0) {
-  console.error('No *.sim.test.ts files found');
+  console.error('No sim test files found under tests/');
   process.exit(1);
 }
 

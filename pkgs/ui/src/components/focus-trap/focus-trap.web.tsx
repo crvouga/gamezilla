@@ -1,7 +1,7 @@
 /**
  * Web focus trap via `react-focus-lock`. Traps Tab within the subtree, moves
  * focus in on activate, restores it on deactivate, and dismisses via Escape
- * when {@link FocusTrapProps.onEscape} is set. Host exposes dialog semantics
+ * when {@link FocusTrapProps.onEscape} is set. Runtime exposes dialog semantics
  * (`role="dialog"`, `aria-modal`).
  */
 

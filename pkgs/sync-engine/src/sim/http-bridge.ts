@@ -1,4 +1,4 @@
-import type { VirtualScheduler } from '@pkgs/dst';
+import type { VirtualScheduler } from '@pkgs/sim';
 import type {
   MutationUploadResult,
   MutationUploadRow,
@@ -8,7 +8,7 @@ import type { QueryRequest } from '../client/subscription-runtime';
 import { SyncApiAuthError } from '../client/sync-http-client';
 import { SyncHttpRateLimitError } from '../client/sync-http-rate-limit-error';
 import type { QueryResponse } from '../queries/core/types';
-import type { BoundaryFaultController } from './boundary-faults';
+import type { EdgeFaultController } from './edge-faults';
 import { dispatchSimHttpRequest } from './http-bridge-dispatch';
 import {
   abortAllPending,
@@ -52,7 +52,7 @@ export function bindSimHttpServer(args: {
   readonly network: SyncNetwork;
   readonly serverId: EndpointId;
   readonly handlers: SimHttpServerHandlers;
-  readonly faults?: BoundaryFaultController;
+  readonly faults?: EdgeFaultController;
   readonly onMutationsAccepted?: (clientNodeId: string) => void | Promise<void>;
 }): () => void {
   args.network.register(args.serverId, async (payload) => {

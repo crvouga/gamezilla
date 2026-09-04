@@ -1,15 +1,15 @@
-import type { PropertyDef } from '@pkgs/dst';
+import type { PropertyDef } from '@pkgs/sim';
 
 import {
-  converged,
+  inSync,
   invariantViolations,
   partitioned,
   quiet,
 } from './sync-observations';
-import type { SyncSurface } from './system';
+import type { SyncSim } from './system';
 
 /** always(invariants hold) — read-only kit.checkInvariants */
-export const invariantsHold: PropertyDef<SyncSurface> = {
+export const invariantsHold: PropertyDef<SyncSim> = {
   name: 'invariants',
   check: async (s) => {
     const violations = await invariantViolations(s);
@@ -20,17 +20,17 @@ export const invariantsHold: PropertyDef<SyncSurface> = {
 };
 
 /**
- * always(quiet ∧ healed ⇒ domain-agreed). Uses the pure `converged`
- * read (no heal / revive side effects).
+ * always(quiet ∧ healed ⇒ domain-agreed). Uses the pure `inSync`
+ * read (no restoreNetwork / recoverAll side effects).
  */
-export const converges: PropertyDef<SyncSurface> = {
-  name: 'converges',
+export const staysInSync: PropertyDef<SyncSim> = {
+  name: 'staysInSync',
   check: async (s) => {
-    if (quiet(s) && partitioned(s).length === 0 && !(await converged(s))) {
-      throw new Error('quiet and healed but not converged');
+    if (quiet(s) && partitioned(s).length === 0 && !(await inSync(s))) {
+      throw new Error('quiet and healed but not inSync');
     }
   },
 };
 
 /** Standing properties registered on every sync system. */
-export const SYNC_PROPERTY_DEFS = [invariantsHold, converges] as const;
+export const SYNC_PROPERTY_DEFS = [invariantsHold, staysInSync] as const;

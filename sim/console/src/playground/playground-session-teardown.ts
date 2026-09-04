@@ -11,7 +11,7 @@ import type {
 } from '@pkgs/sim-console/client';
 import { makePlaygroundRoomNode } from '@sim/console/playground/playground-session-nodes';
 import type { Sim } from '@sim/console/sim/create-sim';
-import type { SimSqlHandle } from '@sim/console/sim/sim-sql';
+import type { SimSql } from '@sim/console/sim/sim-sql';
 
 export type SessionTeardownArgs = {
   readonly sim: Sim;
@@ -180,9 +180,6 @@ export async function disposeSession(
   maps.listeners.clear();
 }
 
-export function sqlHandleForClient(
-  sim: Sim,
-  id: string
-): SimSqlHandle | undefined {
+export function sqlHandleForClient(sim: Sim, id: string): SimSql | undefined {
   return sim.clientSql(id);
 }

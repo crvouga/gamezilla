@@ -2,27 +2,26 @@
  * App-independent explore / walk pool. Every entry reads the booted app from
  * `s.runtime`, so one catalog registers on every sync system via
  * `registerSyncLibrary`. Pool actions fold in the care a random walk needs
- * (heal before restart, remake crashed clients on `connect`, tolerate the
+ * (restoreNetwork before restart, remake crashed clients on `connect`, tolerate the
  * faults chaos deliberately races into) — the raw one-call pins live in
- * `sync-pin-actions.ts` / `pin-chaos-actions.ts`.
+ * `regression-actions.ts` / `regression-random-faults-actions.ts`.
  */
 
 import {
   type Action,
-  type ArgsGen,
+  type ArgsSampler,
   type CatalogAction,
   defineAction,
-} from '@pkgs/dst';
-import { gen } from '@pkgs/dst/fast-check';
+} from '@pkgs/sim';
+import { gen } from '@pkgs/sim/fast-check';
 import fc from 'fast-check';
-
+import type { SimAuthStatus } from '../client-factory';
+import type { SimSessionQuery } from '../domain-pack';
 import type {
   SimCrashEvent,
   SimHttpFault,
   SimPubsubFault,
-} from '../boundary-faults';
-import type { SimAuthStatus } from '../client-factory';
-import type { SimSessionQuery } from '../domain-pack';
+} from '../edge-faults';
 import type { LocalStorageTamper } from '../storage-faults';
 import type { StoragePressureKind } from '../storage-pressure';
 import type { SimTraffic } from '../traffic';
@@ -42,45 +41,45 @@ import {
 } from './catalog';
 import {
   forgetOwedRestart,
-  healAll,
-  healNetworkForSettle,
   isExpectedRestartFault,
   isToleratedPoolError,
   oweRestart,
   oweRevokedRestart,
   prepareRestart,
   restartClientForConverge,
+  restoreAllNetwork,
+  restoreNetworkForIdle,
 } from './pool-support';
 import { clientIds, partitioned } from './sync-observations';
-import type { SyncSurface } from './system';
+import type { SyncSim } from './system';
 
 type Awaitable<T> = T | Promise<T>;
 
 type PoolDef<A extends unknown[]> = {
   readonly name: string;
   /** Defaults to "at least one client is booted". */
-  readonly enabled?: (s: SyncSurface) => boolean;
-  readonly weight?: (s: SyncSurface) => number;
-  readonly draw: (s: SyncSurface) => ArgsGen<A>;
-  readonly act: (s: SyncSurface, ...args: A) => Awaitable<void>;
+  readonly enabled?: (s: SyncSim) => boolean;
+  readonly weight?: (s: SyncSim) => number;
+  readonly sample: (s: SyncSim) => ArgsSampler<A>;
+  readonly act: (s: SyncSim, ...args: A) => Awaitable<void>;
 };
 
-function hasClients(s: SyncSurface): boolean {
+function hasClients(s: SyncSim): boolean {
   return clientIds(s).length > 0;
 }
 
 /**
  * Pool wrapper: tolerate chaos-vs-constraint races and record any client the
- * step tore down so `connect` / `restart` / `revive` remake it later.
+ * step tore down so `connect` / `restart` / `recoverAll` remake it later.
  */
 function poolAction<const A extends unknown[]>(
   def: PoolDef<A>
-): Action<SyncSurface, A> {
-  return defineAction<SyncSurface, A>({
+): Action<SyncSim, A> {
+  return defineAction<SyncSim, A>({
     name: def.name,
     enabled: def.enabled ?? hasClients,
     ...(def.weight !== undefined ? { weight: def.weight } : {}),
-    draw: def.draw,
+    sample: def.sample,
     act: async (s, ...args) => {
       const aliveBefore = new Set(s.clients.keys());
       try {
@@ -96,11 +95,11 @@ function poolAction<const A extends unknown[]>(
   });
 }
 
-const pickClient = (s: SyncSurface) => fc.constantFrom(...clientIds(s));
+const pickClient = (s: SyncSim) => fc.constantFrom(...clientIds(s));
 const pickTraffic = fc.constantFrom(...HOLD_TRAFFIC);
-const pickClientAndTraffic = (s: SyncSurface) =>
+const pickClientAndTraffic = (s: SyncSim) =>
   gen(fc.tuple(pickClient(s), pickTraffic));
-const drawClient = (s: SyncSurface) => gen(pickClient(s));
+const drawClient = (s: SyncSim) => gen(pickClient(s));
 
 function nextPeerEngineId(ids: readonly string[]): string {
   let max = -1;
@@ -111,7 +110,7 @@ function nextPeerEngineId(ids: readonly string[]): string {
   return `c${String(max + 1)}`;
 }
 
-function sessionQueryOf(s: SyncSurface): SimSessionQuery {
+function sessionQueryOf(s: SyncSim): SimSessionQuery {
   return s.runtime.sessionQuery ?? s.runtime.app.pack.sessionQuery;
 }
 
@@ -119,19 +118,19 @@ function sessionQueryOf(s: SyncSurface): SimSessionQuery {
 
 const offline = poolAction<[string]>({
   name: 'offline',
-  draw: drawClient,
+  sample: drawClient,
   act: (s, clientId) => s.clients.get(clientId)?.online(false),
 });
 
 const online = poolAction<[string]>({
   name: 'online',
-  draw: drawClient,
+  sample: drawClient,
   act: (s, clientId) => s.clients.get(clientId)?.online(true),
 });
 
 const disconnect = poolAction<[string]>({
   name: 'disconnect',
-  draw: drawClient,
+  sample: drawClient,
   act: async (s, clientId) => {
     await s.clients.get(clientId)?.disconnect();
   },
@@ -140,11 +139,11 @@ const disconnect = poolAction<[string]>({
 /** Reconnect; a client the pool crashed / revoked / cut is remade first. */
 const connect = poolAction<[string]>({
   name: 'connect',
-  draw: drawClient,
+  sample: drawClient,
   act: async (s, clientId) => {
     if (s.runtime.owed.restart.has(clientId)) {
-      s.clearBoundaryFaults();
-      healNetworkForSettle(s);
+      s.clearEdgeFaults();
+      restoreNetworkForIdle(s);
       await restartClientForConverge(s, clientId, {
         preserveLocalDb: !s.runtime.owed.fresh.has(clientId),
       });
@@ -157,13 +156,13 @@ const connect = poolAction<[string]>({
 
 const background = poolAction<[string]>({
   name: 'background',
-  draw: drawClient,
+  sample: drawClient,
   act: (s, clientId) => s.clients.get(clientId)?.foreground(false),
 });
 
 const foreground = poolAction<[string]>({
   name: 'foreground',
-  draw: drawClient,
+  sample: drawClient,
   act: (s, clientId) => s.clients.get(clientId)?.foreground(true),
 });
 
@@ -171,23 +170,23 @@ const foreground = poolAction<[string]>({
 
 const partition = poolAction<[string, SimTraffic]>({
   name: 'partition',
-  draw: pickClientAndTraffic,
+  sample: pickClientAndTraffic,
   act: (s, nodeId, traffic) => {
     s.net(nodeId, traffic).set('down');
   },
 });
 
-const hold = poolAction<[string, SimTraffic]>({
-  name: 'hold',
-  draw: pickClientAndTraffic,
+const pauseNetwork = poolAction<[string, SimTraffic]>({
+  name: 'pauseNetwork',
+  sample: pickClientAndTraffic,
   act: (s, nodeId, traffic) => {
     s.net(nodeId, traffic).set('hold');
   },
 });
 
-const release = poolAction<[string, SimTraffic]>({
-  name: 'release',
-  draw: pickClientAndTraffic,
+const resumeNetwork = poolAction<[string, SimTraffic]>({
+  name: 'resumeNetwork',
+  sample: pickClientAndTraffic,
   act: (s, nodeId, traffic) => {
     s.net(nodeId, traffic).set('ok');
   },
@@ -195,23 +194,23 @@ const release = poolAction<[string, SimTraffic]>({
 
 const setFaults = poolAction<[string, SimTraffic]>({
   name: 'setFaults',
-  draw: pickClientAndTraffic,
+  sample: pickClientAndTraffic,
   act: (s, nodeId, traffic) => {
     s.net(nodeId, traffic).set(MILD_NET_FAULTS);
   },
 });
 
-/** Full fabric heal — walks draw it only while links are down, weighted by count. */
-const heal = poolAction<[]>({
-  name: 'heal',
+/** Full fabric restoreNetwork — walks draw it only while links are down, weighted by count. */
+const restoreNetwork = poolAction<[]>({
+  name: 'restoreNetwork',
   weight: (s) => partitioned(s).length,
-  draw: () => gen(fc.constant([] as const)),
-  act: (s) => healAll(s),
+  sample: () => gen(fc.constant([] as const)),
+  act: (s) => restoreAllNetwork(s),
 });
 
 const freeze = poolAction<[string]>({
   name: 'freeze',
-  draw: drawClient,
+  sample: drawClient,
   act: (s, clientId) => {
     s.net(clientId, 'sync').set('hold');
   },
@@ -219,7 +218,7 @@ const freeze = poolAction<[string]>({
 
 const thaw = poolAction<[string]>({
   name: 'thaw',
-  draw: drawClient,
+  sample: drawClient,
   act: (s, clientId) => {
     s.net(clientId, 'sync').set('ok');
     void s.clients.get(clientId)?.nudge();
@@ -230,7 +229,7 @@ const thaw = poolAction<[string]>({
 
 const armHttpFault = poolAction<[string, SimHttpFault]>({
   name: 'armHttpFault',
-  draw: (s) => gen(fc.tuple(pickClient(s), fc.constantFrom(...HTTP_FAULTS))),
+  sample: (s) => gen(fc.tuple(pickClient(s), fc.constantFrom(...HTTP_FAULTS))),
   act: (s, clientId, fault) => {
     s.node(clientId).httpFault(fault);
   },
@@ -238,7 +237,7 @@ const armHttpFault = poolAction<[string, SimHttpFault]>({
 
 const armCrashAt = poolAction<[string, SimCrashEvent]>({
   name: 'armCrashAt',
-  draw: (s) =>
+  sample: (s) =>
     gen(fc.tuple(pickClient(s), fc.constantFrom(...SIM_PBT_CRASH_EVENTS))),
   act: (s, clientId, event) => {
     s.node(clientId).crash({ at: event });
@@ -247,7 +246,7 @@ const armCrashAt = poolAction<[string, SimCrashEvent]>({
 
 const publishFault = poolAction<[number | 'next']>({
   name: 'publishFault',
-  draw: () => gen(fc.constantFrom(1, 2, 'next' as const)),
+  sample: () => gen(fc.constantFrom(1, 2, 'next' as const)),
   act: (s, count) => {
     s.node('server').publishFault(count);
   },
@@ -255,7 +254,7 @@ const publishFault = poolAction<[number | 'next']>({
 
 const armPubsubFault = poolAction<[SimPubsubFault]>({
   name: 'armPubsubFault',
-  draw: (s) =>
+  sample: (s) =>
     gen(
       fc.oneof(
         fc.constantFrom(...pubsubFaults(s.runtime.app.pack.fuzzDropTopic)),
@@ -273,7 +272,8 @@ const armPubsubFault = poolAction<[SimPubsubFault]>({
 /** Revoked auth tears the session down and owes a fresh-db restart. */
 const auth = poolAction<[string, SimAuthStatus]>({
   name: 'auth',
-  draw: (s) => gen(fc.tuple(pickClient(s), fc.constantFrom(...AUTH_STATUSES))),
+  sample: (s) =>
+    gen(fc.tuple(pickClient(s), fc.constantFrom(...AUTH_STATUSES))),
   act: async (s, clientId, status) => {
     s.node(clientId).auth(status);
     if (status !== 'revoked') return;
@@ -285,7 +285,7 @@ const auth = poolAction<[string, SimAuthStatus]>({
 /** Pending mutations survive the cut; settle remakes the engine after it. */
 const protocolCut = poolAction<[string]>({
   name: 'protocolCut',
-  draw: drawClient,
+  sample: drawClient,
   act: (s, clientId) => {
     s.node(clientId).auth('upgrade_required');
     oweRestart(s, clientId);
@@ -296,7 +296,7 @@ const protocolCut = poolAction<[string]>({
 
 const crash = poolAction<[string]>({
   name: 'crash',
-  draw: drawClient,
+  sample: drawClient,
   act: async (s, clientId) => {
     if (!s.clients.has(clientId)) return;
     await s.node(clientId).crash();
@@ -305,7 +305,7 @@ const crash = poolAction<[string]>({
 });
 
 async function remake(
-  s: SyncSurface,
+  s: SyncSim,
   clientId: string,
   restart: () => Promise<unknown>
 ): Promise<void> {
@@ -321,13 +321,13 @@ async function remake(
 
 const restart = poolAction<[string]>({
   name: 'restart',
-  draw: drawClient,
+  sample: drawClient,
   act: (s, clientId) => remake(s, clientId, () => s.node(clientId).restart()),
 });
 
 const restartWithSchema = poolAction<[string, string]>({
   name: 'restartWithSchema',
-  draw: (s) =>
+  sample: (s) =>
     gen(fc.tuple(pickClient(s), fc.constantFrom(...SCHEMA_VARIANTS))),
   act: (s, clientId, variant) =>
     remake(s, clientId, () =>
@@ -341,7 +341,7 @@ const restartWithSchema = poolAction<[string, string]>({
 
 const clearLocalData = poolAction<[string]>({
   name: 'clearLocalData',
-  draw: drawClient,
+  sample: drawClient,
   act: async (s, clientId) => {
     await s.clients.get(clientId)?.clearLocalData('pbt');
   },
@@ -349,7 +349,7 @@ const clearLocalData = poolAction<[string]>({
 
 const subscribe = poolAction<[string]>({
   name: 'subscribe',
-  draw: drawClient,
+  sample: drawClient,
   act: (s, clientId) => {
     const client = s.clients.get(clientId);
     if (client === undefined) return;
@@ -360,7 +360,7 @@ const subscribe = poolAction<[string]>({
 
 const serverCrash = poolAction<[]>({
   name: 'serverCrash',
-  draw: () => gen(fc.constant([] as const)),
+  sample: () => gen(fc.constant([] as const)),
   act: async (s) => {
     await s.node('server').crash();
   },
@@ -369,9 +369,9 @@ const serverCrash = poolAction<[]>({
 /** Bring the server back and reconnect every client that is not owed a remake. */
 const serverRestart = poolAction<[]>({
   name: 'serverRestart',
-  draw: () => gen(fc.constant([] as const)),
+  sample: () => gen(fc.constant([] as const)),
   act: async (s) => {
-    healNetworkForSettle(s);
+    restoreNetworkForIdle(s);
     for (const [id, client] of s.clients) {
       if (s.runtime.owed.restart.has(id)) continue;
       await client.connect();
@@ -382,7 +382,7 @@ const serverRestart = poolAction<[]>({
 
 const skew = poolAction<[string, number]>({
   name: 'skew',
-  draw: (s) =>
+  sample: (s) =>
     gen(
       fc.tuple(
         fc.constantFrom(...clientIds(s), 'server'),
@@ -399,14 +399,14 @@ const skew = poolAction<[string, number]>({
 /** Tamper, then remake the client immediately so the run can still settle. */
 const tamperLocalStorage = poolAction<[string, LocalStorageTamper]>({
   name: 'tamperLocalStorage',
-  draw: (s) =>
+  sample: (s) =>
     gen(fc.tuple(pickClient(s), fc.constantFrom(...STORAGE_TAMPERS))),
   act: async (s, clientId, tamper) => {
     await s.tamperLocalStorage(clientId, tamper);
-    // Disarm before heal so a pending upload cannot crash the live engine
+    // Disarm before restoreNetwork so a pending upload cannot crash the live engine
     // in the gap before restartClientForConverge clears arms.
-    s.clearBoundaryFaults();
-    healNetworkForSettle(s);
+    s.clearEdgeFaults();
+    restoreNetworkForIdle(s);
     await restartClientForConverge(s, clientId);
     forgetOwedRestart(s, clientId);
   },
@@ -414,7 +414,7 @@ const tamperLocalStorage = poolAction<[string, LocalStorageTamper]>({
 
 const armStoragePressure = poolAction<[string, StoragePressureKind]>({
   name: 'armStoragePressure',
-  draw: (s) =>
+  sample: (s) =>
     gen(fc.tuple(pickClient(s), fc.constantFrom(...STORAGE_PRESSURES))),
   act: (s, clientId, pressure) => {
     if (!s.clients.has(clientId)) return;
@@ -424,7 +424,7 @@ const armStoragePressure = poolAction<[string, StoragePressureKind]>({
 
 const failNextOpen = poolAction<[string]>({
   name: 'failNextOpen',
-  draw: drawClient,
+  sample: drawClient,
   act: (s, clientId) => {
     if (!s.clients.has(clientId)) return;
     s.armFailNextOpen(clientId);
@@ -433,22 +433,22 @@ const failNextOpen = poolAction<[string]>({
 
 const brokerCrash = poolAction<[]>({
   name: 'brokerCrash',
-  draw: () => gen(fc.constant([] as const)),
+  sample: () => gen(fc.constant([] as const)),
   act: (s) => s.brokerCrash(),
 });
 
 const brokerRestart = poolAction<[]>({
   name: 'brokerRestart',
-  draw: () => gen(fc.constant([] as const)),
+  sample: () => gen(fc.constant([] as const)),
   act: async (s) => {
-    healNetworkForSettle(s);
+    restoreNetworkForIdle(s);
     await s.brokerRestart();
   },
 });
 
 const pruneServerArtifacts = poolAction<[number]>({
   name: 'pruneServerArtifacts',
-  draw: () => gen(fc.constant(-1_000_000)),
+  sample: () => gen(fc.constant(-1_000_000)),
   act: async (s, olderThanMs) => {
     await s.server.pruneArtifacts(olderThanMs);
   },
@@ -457,7 +457,7 @@ const pruneServerArtifacts = poolAction<[number]>({
 /** Boot a second engine over a donor's local db (multi-tab / shared cache). */
 const addPeerEngine = poolAction<[string, string]>({
   name: 'addPeerEngine',
-  draw: (s) => {
+  sample: (s) => {
     const ids = clientIds(s);
     return gen(
       fc.tuple(fc.constant(nextPeerEngineId(ids)), fc.constantFrom(...ids))
@@ -485,7 +485,7 @@ const domain = poolAction<[DomainOp]>({
   enabled: (s) =>
     hasClients(s) &&
     s.runtime.app.domainOpArbs({ clientIds: clientIds(s) }).length > 0,
-  draw: (s) =>
+  sample: (s) =>
     gen(fc.oneof(...s.runtime.app.domainOpArbs({ clientIds: clientIds(s) }))),
   act: async (s, op) => {
     const client = s.clients.get(op.clientId);
@@ -503,7 +503,7 @@ const server = poolAction<[ServerOp]>({
   name: 'server',
   enabled: (s) =>
     (s.runtime.app.serverOpArbs?.({ clientIds: clientIds(s) }).length ?? 0) > 0,
-  draw: (s) => {
+  sample: (s) => {
     const arbs = s.runtime.app.serverOpArbs;
     if (arbs === undefined) {
       throw new Error('server pool action: app has no serverOpArbs');
@@ -520,7 +520,7 @@ const server = poolAction<[ServerOp]>({
 });
 
 /**
- * Pool actions by name. Repro pins apply these (`s.apply(pool.restart,
+ * Pool actions by name. Recording pins apply these (`s.apply(pool.restart,
  * 'c0')`) to keep walk semantics; explore slices name them as strings.
  */
 export const pool = {
@@ -531,10 +531,10 @@ export const pool = {
   background,
   foreground,
   partition,
-  hold,
-  release,
+  pauseNetwork,
+  resumeNetwork,
   setFaults,
-  heal,
+  restoreNetwork,
   freeze,
   thaw,
   armHttpFault,
@@ -563,5 +563,5 @@ export const pool = {
 } as const;
 
 /** Existential view of {@link pool} — mixed arities in one registration list. */
-export const SYNC_POOL_ACTIONS: readonly CatalogAction<SyncSurface>[] =
-  Object.values(pool) as unknown as readonly CatalogAction<SyncSurface>[];
+export const SYNC_POOL_ACTIONS: readonly CatalogAction<SyncSim>[] =
+  Object.values(pool) as unknown as readonly CatalogAction<SyncSim>[];

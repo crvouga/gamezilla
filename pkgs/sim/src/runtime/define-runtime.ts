@@ -1,15 +1,15 @@
-import type { Capability, Host, Ports, Session } from './types';
+import type { Capability, Ports, Runtime, Session } from './types';
 
-export function defineHost<P extends Ports>(def: {
+export function defineRuntime<P extends Ports>(def: {
   readonly caps: ReadonlySet<Capability> | readonly Capability[];
   readonly open: (seed: number | bigint | string) => Promise<Session<P>>;
-}): Host<P> {
+}): Runtime<P> {
   const caps = def.caps instanceof Set ? def.caps : new Set(def.caps);
 
   const make = <Q extends Ports>(
     open: (seed: number | bigint | string) => Promise<Session<Q>>,
     hostCaps: ReadonlySet<Capability>
-  ): Host<Q> => ({
+  ): Runtime<Q> => ({
     caps: hostCaps,
     open,
     with(extra) {
@@ -28,7 +28,7 @@ export function defineHost<P extends Ports>(def: {
             };
           },
         } as Session<Q & typeof added>;
-      }, hostCaps) as unknown as Host<Q & Awaited<ReturnType<typeof extra>>>;
+      }, hostCaps) as unknown as Runtime<Q & Awaited<ReturnType<typeof extra>>>;
     },
   });
 

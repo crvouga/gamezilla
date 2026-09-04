@@ -1,8 +1,8 @@
-import type { Script } from '@pkgs/dst';
+import type { Run } from '@pkgs/sim';
 
-import { spawnActor } from '../scenario/actions';
-import { actorIds } from '../scenario/observations';
-import type { ProductSurface } from '../scenario/surface';
+import { spawnActor } from '../sim/actions';
+import { actorIds } from '../sim/observations';
+import type { ProductSim } from '../sim/sim';
 import { ActorScript } from './actor-script';
 import { AuthFlows } from './auth-flows';
 import { ChessFlows } from './chess-flows';
@@ -14,7 +14,7 @@ import { SpaceFlows } from './space-flows';
 
 /** Product UI flows for one sim actor, spoken entirely through the run. */
 export class AppDriver {
-  readonly s: Script<ProductSurface>;
+  readonly s: Run<ProductSim>;
   readonly actorId: string;
   readonly auth: AuthFlows;
   readonly profile: ProfileFlows;
@@ -37,10 +37,10 @@ export class AppDriver {
   }
 
   static async forActor(
-    s: Script<ProductSurface>,
+    s: Run<ProductSim>,
     actorId: string
   ): Promise<AppDriver> {
-    const ids = await s.observe(actorIds);
+    const ids = await s.read(actorIds);
     if (!ids.includes(actorId)) {
       await s.apply(spawnActor, actorId);
     }

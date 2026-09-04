@@ -1,25 +1,25 @@
 import type { Clock } from '@pkgs/clock';
 import { createSeededCreateId } from '@pkgs/uuid';
-import { createVirtualClock } from '../kernel/clock';
-import { createRngInternal } from '../kernel/rng';
-import { createVirtualScheduler } from '../kernel/scheduler-api';
-import { createTimers } from '../kernel/timers';
-import { createTraceRecorder, type TraceRecorder } from '../kernel/trace';
+import { createVirtualClock } from '../internals/clock';
+import { createRngInternal } from '../internals/rng';
+import { createVirtualScheduler } from '../internals/scheduler-api';
+import { createTimers } from '../internals/timers';
+import { createTraceRecorder, type TraceRecorder } from '../internals/trace';
 import {
   createNetwork,
   type Network,
   type NetworkFaults,
   RELIABLE_NETWORK,
 } from '../models/network';
-import { defineHost } from './define-host';
+import { defineRuntime } from './define-runtime';
 import {
   type Capability,
   CapabilityError,
   type Endpoint,
-  type Host,
   type Ports,
+  type Runtime,
   type Session,
-  type VirtualHostOptions,
+  type VirtualTimeRuntimeOptions,
 } from './types';
 
 const VIRTUAL_CAPS: readonly Capability[] = [
@@ -69,14 +69,16 @@ function wrapNetworkCaps(
 
 type RngInternal = ReturnType<typeof createRngInternal>;
 
-export function virtualHost(opts?: VirtualHostOptions): Host<Ports> {
+export function virtualTimeRuntime(
+  opts?: VirtualTimeRuntimeOptions
+): Runtime<Ports> {
   const faults: NetworkFaults = opts?.network ?? RELIABLE_NETWORK;
   const startTime = opts?.startTime ?? 0;
   const caps = new Set<Capability>(VIRTUAL_CAPS);
-  const settleOverride = opts?.settle;
-  const elapseOverride = opts?.elapse;
+  const waitForIdleOverride = opts?.waitForIdle;
+  const advanceTimeOverride = opts?.advanceTime;
 
-  return defineHost({
+  return defineRuntime({
     caps,
     async open(seed) {
       const rootRng = createRngInternal(seed);
@@ -128,16 +130,16 @@ export function virtualHost(opts?: VirtualHostOptions): Host<Ports> {
             forks.set(childName, child);
             return child;
           },
-          async settle() {
-            if (settleOverride !== undefined) {
-              await settleOverride(session);
+          async waitForIdle() {
+            if (waitForIdleOverride !== undefined) {
+              await waitForIdleOverride(session);
               return;
             }
-            await scheduler.settle();
+            await scheduler.waitForIdle();
           },
-          async elapse(ms) {
-            if (elapseOverride !== undefined) {
-              await elapseOverride(session, ms);
+          async advanceTime(ms) {
+            if (advanceTimeOverride !== undefined) {
+              await advanceTimeOverride(session, ms);
               return;
             }
             await scheduler.advance(ms);

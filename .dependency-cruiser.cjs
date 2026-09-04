@@ -13,11 +13,10 @@ module.exports = {
       name: 'no-test-from-prod',
       severity: 'error',
       from: {
-        pathNot:
-          '(\\.(test|spec)\\.|/(__tests__|testkit|fixtures?|tests?|e2e)/|(apps|libs|pkgs)/[^/]+/src/(simulator|testkit)\\.ts)',
+        pathNot: '(\\.test\\.|\\.spec\\.|/tests/|/e2e/)',
       },
       to: {
-        path: '(\\.(test|spec)\\.|/(__tests__|testkit|fixtures?|tests?|e2e)/)',
+        path: '(\\.test\\.|\\.spec\\.|/tests/|/e2e/)',
         pathNot: 'smoke-tests',
       },
     },
@@ -38,8 +37,7 @@ module.exports = {
       severity: 'error',
       from: {
         path: '/client/',
-        pathNot:
-          '(\\.(test|spec)\\.|/(__tests__|testkit|fixtures?|tests?|e2e)/)',
+        pathNot: '(\\.test\\.|\\.spec\\.|/tests/|/e2e/)',
       },
       to: { path: '/server/' },
     },
@@ -68,7 +66,7 @@ module.exports = {
       severity: 'error',
       from: {
         path: '^(apps|libs|pkgs|sim)/[^/]+/src/',
-        pathNot: '\\.(test|spec|example)\\.',
+        pathNot: '(\\.test\\.|\\.spec\\.|/tests/|/e2e/)',
       },
       to: { dependencyTypes: ['npm-dev'] },
     },
@@ -130,8 +128,7 @@ module.exports = {
         'Shared game/domain logic must not import networking or wall Io construction. Inject Io ports from composition roots. See DETERMINISM.md.',
       from: {
         path: '(^libs/[^/]+/src/shared/|^libs/[^/]+/src/use-cases/[^/]+/shared/|^pkgs/room/src/(client/core|server/core|types\\.ts|hash-room-state\\.ts))',
-        pathNot:
-          '(\\.(test|spec|sim\\.test)\\.|/(test|tests|testing|testkit|__tests__)/)',
+        pathNot: '(\\.test\\.|\\.spec\\.|/tests/|/e2e/)',
       },
       to: {
         path: '(^pkgs/http-client/|^pkgs/pubsub/|^pkgs/pubsub-emqx/|/wall-io\\.ts$|/src/wall\\.ts$)',
@@ -141,37 +138,50 @@ module.exports = {
       name: 'product-no-sim-deps',
       severity: 'error',
       comment:
-        'Session / @pkgs/dst is harness-only. Product apps and non-test product libs must receive unpacked clock/timers/createId/random/http. DST package tests and @sim/* may import @pkgs/dst.',
+        'Session / @pkgs/sim is harness-only. Product apps and non-test product libs must receive unpacked clock/timers/createId/random/http. DST package tests and @sim/* may import @pkgs/sim.',
       from: {
         path: '^(apps/|libs/)',
-        pathNot:
-          '(\\.(test|spec|sim\\.test)\\.|/(test|tests|testing|testkit|__tests__|sim)/)',
+        pathNot: '(\\.test\\.|\\.spec\\.|/tests/|/e2e/|/src/sim/)',
       },
       to: {
-        path: '^pkgs/dst/',
+        path: '^pkgs/sim/',
       },
     },
     {
-      name: 'dst-kernel-harness-only',
+      name: 'sim-seam-harness-only',
       severity: 'error',
       comment:
-        'Only pkgs/dst/** (host + kernel + dst tests) may import @pkgs/dst/kernel.',
+        'Package src/sim/** is harness-only: import from src/sim/**, tests/**, or the package ./sim export (index). Product/runtime code must not deep-import sim internals.',
       from: {
-        pathNot: '^pkgs/dst/',
+        pathNot: '(/src/sim/|/tests/|\\.test\\.|\\.spec\\.|/e2e/)',
       },
       to: {
-        path: '^pkgs/dst/src/kernel/',
-        pathNot: '\\.(test|spec)\\.',
+        path: '/src/sim/',
+        // Allow the public ./sim seam entry (…/src/sim/index.ts).
+        pathNot: '/src/sim/index\\.ts$',
       },
     },
     {
-      name: 'dst-core-no-fast-check',
+      name: 'sim-internals-harness-only',
       severity: 'error',
       comment:
-        '@pkgs/dst core (except the fast-check adapter and tests) must not import fast-check.',
+        'Only pkgs/sim/** (runtime + internals + sim tests) may import @pkgs/sim/internals.',
       from: {
-        path: '^pkgs/dst/src/',
-        pathNot: '^pkgs/dst/src/fast-check/|\\.(test|spec)\\.|/test/',
+        pathNot: '^pkgs/sim/',
+      },
+      to: {
+        path: '^pkgs/sim/src/internals/',
+        pathNot: '(\\.test\\.|\\.spec\\.|/tests/)',
+      },
+    },
+    {
+      name: 'sim-core-no-fast-check',
+      severity: 'error',
+      comment:
+        '@pkgs/sim core (except the fast-check adapter and tests) must not import fast-check.',
+      from: {
+        path: '^pkgs/sim/src/',
+        pathNot: '^pkgs/sim/src/fast-check/|(\\.test\\.|\\.spec\\.|/tests/)',
       },
       to: {
         path: 'node_modules/fast-check/',

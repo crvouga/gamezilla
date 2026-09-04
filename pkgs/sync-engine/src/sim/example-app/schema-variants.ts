@@ -1,26 +1,29 @@
-import { SCHEMA_EPOCH } from '@pkgs/sync-engine/test';
+import { SCHEMA_EPOCH } from '@pkgs/sync-engine/sim';
 
-import type { LocalDomainSchema } from '../../../client/local-schema-migrate';
-import type { RestartClientOpts } from '../../../sim/kit-lifecycle';
+import type { LocalDomainSchema } from '../../client/local-schema-migrate';
+import type { RestartClientOpts } from '../sim-lifecycle';
 import {
-  acmeLocalSchemaExtraColumn,
-  acmeLocalSchemaExtraTable,
+  exampleLocalSchemaExtraColumn,
+  exampleLocalSchemaExtraTable,
   notesAllWithColorQuery,
   setNoteColor,
   setTag,
   tagsAllQuery,
 } from './shared/hardening-fixtures';
-import { acmeMutationRegistry, acmeQueryRegistry } from './shared/registries';
+import {
+  exampleMutationRegistry,
+  exampleQueryRegistry,
+} from './shared/registries';
 
-export type AcmeSchemaVariant =
+export type ExampleSchemaVariant =
   | 'baseline'
   | 'extraColumn'
   | 'extraTable'
   | 'epochBump';
 
 /** Registries that exercise extra-column / extra-table mutations under DST. */
-export function acmeRestartOptsForVariant(
-  variant: AcmeSchemaVariant
+export function exampleRestartOptsForVariant(
+  variant: ExampleSchemaVariant
 ): RestartClientOpts {
   const preserve = { preserveLocalDb: true as const };
   switch (variant) {
@@ -29,13 +32,13 @@ export function acmeRestartOptsForVariant(
     case 'extraColumn':
       return {
         ...preserve,
-        localSchema: acmeLocalSchemaExtraColumn,
+        localSchema: exampleLocalSchemaExtraColumn,
         mutationRegistry: {
-          ...acmeMutationRegistry,
+          ...exampleMutationRegistry,
           [setNoteColor.name]: setNoteColor,
         },
         queryRegistry: {
-          ...acmeQueryRegistry,
+          ...exampleQueryRegistry,
           [notesAllWithColorQuery.name]: notesAllWithColorQuery,
         },
         // Keep notesAll session so baseline servers still hydrate;
@@ -45,13 +48,13 @@ export function acmeRestartOptsForVariant(
     case 'extraTable':
       return {
         ...preserve,
-        localSchema: acmeLocalSchemaExtraTable,
+        localSchema: exampleLocalSchemaExtraTable,
         mutationRegistry: {
-          ...acmeMutationRegistry,
+          ...exampleMutationRegistry,
           [setTag.name]: setTag,
         },
         queryRegistry: {
-          ...acmeQueryRegistry,
+          ...exampleQueryRegistry,
           [tagsAllQuery.name]: tagsAllQuery,
         },
         // Keep notesAll as session so converge still compares notes/folders;
@@ -67,17 +70,17 @@ export function acmeRestartOptsForVariant(
   }
 }
 
-export function acmeSchemaForVariant(
-  variant: AcmeSchemaVariant
+export function exampleSchemaForVariant(
+  variant: ExampleSchemaVariant
 ): LocalDomainSchema | undefined {
   switch (variant) {
     case 'baseline':
     case 'epochBump':
       return undefined;
     case 'extraColumn':
-      return acmeLocalSchemaExtraColumn;
+      return exampleLocalSchemaExtraColumn;
     case 'extraTable':
-      return acmeLocalSchemaExtraTable;
+      return exampleLocalSchemaExtraTable;
     default: {
       const _exhaustive: never = variant;
       return _exhaustive;

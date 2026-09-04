@@ -18,7 +18,7 @@ This is the HTTP counterpart of room-gateway identity: two write planes, same cl
 | `pkgs/sync-engine/src/mutations/server/replay-mutation.ts` `applyReplayMutationInTxn` | `MutationEnv` is copied from `deps.auth` (session). `now` pinned to `m.createdAt`. Args are schema-parsed `parsedValue` only. |
 | `pkgs/sync-engine/src/mutations/client/create-mutation-client.ts` | Local apply uses engine `options.env`, not args. |
 | `libs/chess/src/use-cases/append-puzzle-interaction/shared/append-puzzle-interaction-mutation.ts` | Args include `ownerId`; run throws `CHESS_WRITE_DENIED` unless `args.ownerId === env.actorId`. Same pattern in `upsert-puzzle-profile-mutation.ts`. |
-| `libs/spaces/src/shared/space/space-mutation-helpers.ts` `accountId` | Anon / missing `accountId` → `SPACE_NOT_SIGNED_IN`. Host checks use `env`, not args. |
+| `libs/spaces/src/shared/space/space-mutation-helpers.ts` `accountId` | Anon / missing `accountId` → `SPACE_NOT_SIGNED_IN`. Runtime checks use `env`, not args. |
 | `libs/auth/src/root/server/auth-routes.ts` `POST /identity/refresh` | Account id from `BearerAuthResolver.resolveAccountId`, not body. Body is device metadata allowlist only. |
 | `libs/auth/src/root/server/auth-routes.ts` `POST /identity/anon/ensure` | **Does** accept optional `userId` in JSON (UUID). Passed to `EnsureAnonUserUseCase` → `AnonUserService.ensureForDevice`. This is the one identity-shaped body field on the auth HTTP surface. |
 

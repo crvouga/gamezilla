@@ -1,5 +1,5 @@
 {
-  "name": "@libs/dst-handles",
+  "name": "@libs/test-ids",
   "version": "0.0.0",
   "private": true,
   "exports": {

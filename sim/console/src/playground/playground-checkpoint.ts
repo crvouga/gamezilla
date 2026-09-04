@@ -16,7 +16,7 @@ import {
   restoreCheckpointRooms,
 } from '@sim/console/playground/playground-checkpoint-state';
 import { awaitPlaygroundMutationDrain } from '@sim/console/playground/playground-snapshot-sync';
-import { getSimSqlFabric } from '@sim/console/sim/sim-sql-fabric';
+import { getSimSqlEngines } from '@sim/console/sim/sim-sql-engines';
 
 export type { CheckpointSessionCtx } from '@sim/console/playground/playground-checkpoint-state';
 
@@ -38,7 +38,7 @@ export async function captureCheckpoint(
     clientIds,
     roomTopics,
     ...collectFaultFields(ctx),
-    sqlFormat: getSimSqlFabric().checkpointSqlFormat,
+    sqlFormat: getSimSqlEngines().checkpointSqlFormat,
     ...blobs,
     rooms: collectRooms(ctx, roomTopics),
   };
@@ -48,7 +48,7 @@ export async function restoreCheckpoint(
   ctx: CheckpointSessionCtx,
   checkpoint: SimCheckpoint
 ): Promise<void> {
-  const expected = getSimSqlFabric().checkpointSqlFormat;
+  const expected = getSimSqlEngines().checkpointSqlFormat;
   if (checkpoint.sqlFormat === 'sqlm') {
     throw new Error(
       'restoreCheckpoint: legacy all-sqlm checkpoints are incompatible with the current server SQL fabric'

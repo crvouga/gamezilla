@@ -93,7 +93,7 @@ Friends still see the leaver in the live room roster / puzzle host seat. The lea
 #### Is a room seat without a live `spaces_users` row ever intentional (spectator who never got an ACL row)?
 
 - Examined: `create-space-mutation.ts`, `join-space-mutation.ts` (both INSERT `spaces_users`); `useAnnounceJoinedOnSync` (requires `session.isOpen`); `space-members-messages.ts` (seat join is `memberId === identity` only); `createRoomApp` (open gateway); lobby SQL that lists host spaces without an ACL row.
-- Found: product join/create always write ACL before an open session, then announce-seat. There is no UI spectator-without-ACL path. Host-without-`spaces_users` is a lobby listing OR, not a room seat. Raw WS can still `JoinSpaceSeat` because the gateway never checks ACL.
+- Found: product join/create always write ACL before an open session, then announce-seat. There is no UI spectator-without-ACL path. Runtime-without-`spaces_users` is a lobby listing OR, not a room seat. Raw WS can still `JoinSpaceSeat` because the gateway never checks ACL.
 - Not found: a product “watch without joining” seat command.
 - Conclusion: resolved — extra seats without ACL are an open-gateway artifact, not an intentional spectator feature. Always for leave stays scoped to users who had a live membership; converse join Always requires join mutation applied.
 

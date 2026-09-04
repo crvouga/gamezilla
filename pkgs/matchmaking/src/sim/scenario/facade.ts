@@ -2,21 +2,21 @@
  * Kit methods built in system `create` over a shared store + replicas.
  */
 
-import { asSeededRng, type JsonValue, type Session } from '@pkgs/dst';
+import { asSeededRng, type JsonValue, type Session } from '@pkgs/sim';
 import type { SeededRng } from '@pkgs/uuid';
 import type { Hono } from 'hono';
 
 import type { TickResult } from '../../interface/matchmaking';
 import type { LeaveResult, UpdateFormulasResult } from '../../interface/types';
 import { bootReplicaOnStore, type ReplicaBootConfig } from '../boot-replica';
+import type { MatchmakingSimRuntime, SimReplica } from '../sim-api';
 import {
-  buildReplicaHandle,
+  buildSimReplica,
   joinOnReplica,
   type ReplicaOps,
   resolveReplica,
-} from '../handles';
-import type { MatchmakingSimKit, ReplicaHandle } from '../sim-api';
-import type { MmReplicaBootHandle } from './node-kinds';
+} from '../sim-handles';
+import type { MmReplicaBoot } from './node-kinds';
 
 /** Last result of each write action — read back through observations. */
 export type MatchmakingLastResults = {
@@ -27,7 +27,7 @@ export type MatchmakingLastResults = {
   http: { readonly status: number; readonly body: JsonValue } | null;
 };
 
-export type MatchmakingSurface = MatchmakingSimKit & {
+export type MatchmakingSim = MatchmakingSimRuntime & {
   readonly session: Session;
   readonly ports: {
     readonly rng: SeededRng;
@@ -40,25 +40,25 @@ export type MatchmakingSurface = MatchmakingSimKit & {
   readonly apps: Map<string, Hono>;
 };
 
-export function buildMatchmakingKit(args: {
+export function buildMatchmakingSim(args: {
   readonly session: Session;
   readonly store: import('../store').SimStore;
-  readonly boots: readonly MmReplicaBootHandle[];
+  readonly boots: readonly MmReplicaBoot[];
   readonly config: ReplicaBootConfig;
   readonly rng: SeededRng;
-}): MatchmakingSurface {
+}): MatchmakingSim {
   const { session, store, boots, config, rng } = args;
   if (boots.length === 0) {
-    throw new Error('buildMatchmakingKit: no replicas booted');
+    throw new Error('buildMatchmakingSim: no replicas booted');
   }
   const firstId = boots[0]!.id;
-  const replicas = new Map<string, ReplicaHandle>();
+  const replicas = new Map<string, SimReplica>();
   const ops: ReplicaOps = {
     getMm: (replicaId) => resolveReplica(replicas, replicaId).mm,
     defaultReplicaId: firstId,
   };
   for (const boot of boots) {
-    replicas.set(boot.id, buildReplicaHandle(ops, boot.id, boot.mm));
+    replicas.set(boot.id, buildSimReplica(ops, boot.id, boot.mm));
   }
 
   return {
@@ -89,7 +89,7 @@ export function buildMatchmakingKit(args: {
         replicaId: id,
         config,
       });
-      const handle = buildReplicaHandle(ops, id, mm);
+      const handle = buildSimReplica(ops, id, mm);
       replicas.set(id, handle);
       return handle;
     },
@@ -106,7 +106,7 @@ export function buildMatchmakingKit(args: {
 }
 
 export async function assertReplicaAgreement(
-  surface: MatchmakingSurface
+  surface: MatchmakingSim
 ): Promise<void> {
   const replicaIds = [...surface.replicas.keys()];
   if (replicaIds.length === 0) {
@@ -130,5 +130,5 @@ export async function assertReplicaAgreement(
   }
 }
 
-export type { ReplicaHandle };
+export type { SimReplica };
 export { asSeededRng };

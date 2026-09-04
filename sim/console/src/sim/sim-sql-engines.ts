@@ -11,30 +11,27 @@ import {
   openMemClientSql,
   openMemServerSql,
   openMemServerSqlFromSeed,
-} from './sim-sql-fabric-mem';
+} from './sim-sql-backend-mem';
 import {
   openRealClientSql,
   openRealServerSql,
   openRealServerSqlFromSeed,
   REAL_CHECKPOINT_SQL_FORMAT,
-} from './sim-sql-fabric-real';
-import type { SimSqlHandle } from './sim-sql-handle';
+} from './sim-sql-backend-real';
+import type { SimSql } from './sim-sql-types';
 
-export type SimSqlFabric = {
+export type SimSqlEngines = {
   readonly id: SimSqlBackend;
   readonly checkpointSqlFormat: SimCheckpointSqlFormat;
   openServer(args: {
     clock: Clock;
     seedBytes?: Uint8Array;
     logicalName?: string;
-  }): Promise<SimSqlHandle>;
-  openClient(args: {
-    logicalName: string;
-    clock: Clock;
-  }): Promise<SimSqlHandle>;
+  }): Promise<SimSql>;
+  openClient(args: { logicalName: string; clock: Clock }): Promise<SimSql>;
 };
 
-function createMemFabric(): SimSqlFabric {
+function createMemSqlEngines(): SimSqlEngines {
   return {
     id: 'mem',
     checkpointSqlFormat: MEM_CHECKPOINT_SQL_FORMAT,
@@ -55,7 +52,7 @@ function createMemFabric(): SimSqlFabric {
   };
 }
 
-function createRealFabric(): SimSqlFabric {
+function createRealSqlEngines(): SimSqlEngines {
   return {
     id: 'real',
     checkpointSqlFormat: REAL_CHECKPOINT_SQL_FORMAT,
@@ -72,17 +69,17 @@ function createRealFabric(): SimSqlFabric {
   };
 }
 
-let cached: SimSqlFabric | null = null;
+let cached: SimSqlEngines | null = null;
 
 /** Resolve once per process (env is stable for a sim run). */
-export function getSimSqlFabric(): SimSqlFabric {
+export function getSimSqlEngines(): SimSqlEngines {
   if (cached !== null) return cached;
   const backend = resolveSimSqlBackend();
-  cached = backend === 'mem' ? createMemFabric() : createRealFabric();
+  cached = backend === 'mem' ? createMemSqlEngines() : createRealSqlEngines();
   return cached;
 }
 
 /** Tests only — clear fabric cache after mutating `SIM_SQL_BACKEND`. */
-export function clearSimSqlFabricCache(): void {
+export function clearSimSqlEnginesCache(): void {
   cached = null;
 }

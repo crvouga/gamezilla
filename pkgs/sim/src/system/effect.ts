@@ -7,9 +7,9 @@ export const SYSTEM_TAG = Symbol.for('dst.System');
 
 /**
  * Draw Gen may return the args tuple `A`, or (for a single parameter) the
- * unwrapped element. Walk normalizes with Array.isArray.
+ * unwrapped element. RandomActionsReport normalizes with Array.isArray.
  */
-export type ArgsGen<A extends unknown[]> = Gen<
+export type ArgsSampler<A extends unknown[]> = Gen<
   A | (A extends [infer U] ? U : never)
 >;
 
@@ -19,9 +19,9 @@ export type ActionDef<S, A extends unknown[] = []> = {
   readonly weight?: number | ((s: S) => Awaitable<number>);
   /** Default apply values when `s.apply(action)` is called with no rest args. */
   readonly args?: A;
-  /** Walk / explore sampler. */
-  readonly draw?: (s: S) => Awaitable<ArgsGen<A>>;
-  /** When false, excluded from explore / walk pools (still replayable). Default true. */
+  /** RandomActionsReport / explore sampler. */
+  readonly sample?: (s: S) => Awaitable<ArgsSampler<A>>;
+  /** When false, excluded from explore / randomActions pools (still replayable). Default true. */
   readonly pool?: boolean;
   readonly act: (s: S, ...args: A) => Awaitable<void>;
 };
@@ -32,7 +32,7 @@ export type Action<S, A extends unknown[] = []> = {
   readonly enabled: (s: S) => Awaitable<boolean>;
   readonly weight: (s: S) => Awaitable<number>;
   readonly args: A | undefined;
-  readonly draw: ((s: S) => Awaitable<ArgsGen<A>>) | undefined;
+  readonly sample: ((s: S) => Awaitable<ArgsSampler<A>>) | undefined;
   readonly pool: boolean;
   readonly act: (s: S, ...args: A) => Awaitable<void>;
 };
@@ -52,7 +52,7 @@ export type CatalogAction<S> = {
   readonly enabled: (s: S) => Awaitable<boolean>;
   readonly weight: (s: S) => Awaitable<number>;
   readonly args: readonly unknown[] | undefined;
-  readonly draw: ((s: S) => Awaitable<Gen<unknown>>) | undefined;
+  readonly sample: ((s: S) => Awaitable<Gen<unknown>>) | undefined;
   readonly pool: boolean;
   readonly act: BivariantFn<(s: S, ...args: unknown[]) => Awaitable<void>>;
 };

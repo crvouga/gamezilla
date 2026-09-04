@@ -1,32 +1,32 @@
-import type { JsonValue, Read, Script } from '@pkgs/dst';
-import type { SyncSurface } from '../../../sim/scenario';
+import type { JsonValue, Read, Run } from '@pkgs/sim';
+import type { SyncSim } from '../scenario';
 
 /** Sync default step — hydrate / upload / pubsub each need a scheduler slice. */
-const ACME_STEP_MS = 25;
+const EXAMPLE_STEP_MS = 25;
 
-export type UntilAcmeOpts = {
+export type UntilExampleOpts = {
   readonly stepMs?: number;
   readonly maxMs?: number;
   readonly pred?: (value: JsonValue) => boolean;
 };
 
-export type NeverAcmeOpts = {
+export type NeverExampleOpts = {
   readonly forMs: number;
   readonly stepMs?: number;
   readonly pred?: (value: JsonValue) => boolean;
 };
 
 /**
- * Thin acme defaults over `s.until`. Prefer calling dst directly with a
+ * Thin example defaults over `s.until`. Prefer calling dst directly with a
  * zero-arg read (or wrap args: `s.until((s) => liveNote(s, id, n))`).
  */
-export async function untilAcme<T extends JsonValue>(
-  s: Script<SyncSurface>,
-  read: Read<SyncSurface, [], T>,
-  opts?: UntilAcmeOpts
+export async function untilExample<T extends JsonValue>(
+  s: Run<SyncSim>,
+  read: Read<SyncSim, [], T>,
+  opts?: UntilExampleOpts
 ): Promise<T> {
   return s.until(read, {
-    stepMs: opts?.stepMs ?? ACME_STEP_MS,
+    stepMs: opts?.stepMs ?? EXAMPLE_STEP_MS,
     ...(opts?.maxMs !== undefined ? { maxMs: opts.maxMs } : {}),
     ...(opts?.pred !== undefined
       ? { pred: opts.pred as (t: T) => boolean }
@@ -34,15 +34,15 @@ export async function untilAcme<T extends JsonValue>(
   });
 }
 
-/** Thin acme defaults over `s.never`. Prefer calling dst directly. */
-export async function neverAcme<T extends JsonValue>(
-  s: Script<SyncSurface>,
-  read: Read<SyncSurface, [], T>,
-  opts: NeverAcmeOpts
+/** Thin example defaults over `s.never`. Prefer calling dst directly. */
+export async function neverExample<T extends JsonValue>(
+  s: Run<SyncSim>,
+  read: Read<SyncSim, [], T>,
+  opts: NeverExampleOpts
 ): Promise<void> {
   return s.never(read, {
     forMs: opts.forMs,
-    stepMs: opts.stepMs ?? ACME_STEP_MS,
+    stepMs: opts.stepMs ?? EXAMPLE_STEP_MS,
     ...(opts.pred !== undefined
       ? { pred: opts.pred as (t: T) => boolean }
       : {}),

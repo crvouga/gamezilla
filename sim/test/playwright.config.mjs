@@ -3,16 +3,16 @@ import { fileURLToPath } from 'node:url';
 import { defineConfig } from '@playwright/test';
 
 const e2eDir = dirname(fileURLToPath(import.meta.url));
-const pkgRoot = join(e2eDir, '..');
+const pkgRoot = e2eDir;
 
 const WEB_PORT = Number(process.env['PREVIEW_PORT'] ?? 5173);
 const API_PORT = Number(process.env['SIM_HTTP_PORT'] ?? 8787);
 
 /** @type {import('@playwright/test').PlaywrightTestConfig} */
 export default defineConfig({
-  testDir: join(pkgRoot, 'src/scenarios'),
-  testMatch: ['**/*.sim.test.ts', '**/*.sim.test.tsx'],
-  testIgnore: ['**/auth-oauth-port.sim.test.ts'],
+  testDir: join(e2eDir, 'tests'),
+  testMatch: ['**/*.test.ts', '**/*.test.tsx'],
+  testIgnore: ['**/auth-oauth-port.test.ts'],
   fullyParallel: false,
   workers: 1,
   timeout: 120_000,

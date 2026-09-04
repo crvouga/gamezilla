@@ -2,11 +2,11 @@
  * Scripted invariant mutants — delete I1/I3 guards in a temp copy of plan.ts
  * logic and assert the suite oracle would catch them.
  *
- * Run: bun src/tests/mutants/scripted-mutants.ts
+ * Run: bun tests/mutants/scripted-mutants.ts
  * Not part of default `bun test` (documentation / local audit).
  */
 import { assert } from '@pkgs/assert';
-import { isOwnedName } from '../../core/naming';
+import { isOwnedName } from '../../src/core/naming';
 
 type PlanAction = {
   readonly kind: string;

@@ -19,7 +19,7 @@ import {
   type SweepEntry,
 } from './subscription-runtime-sweep';
 
-/** Host/port alias of protocol {@link QueryRequestItem}. */
+/** Runtime/port alias of protocol {@link QueryRequestItem}. */
 export type QueryRequest = QueryRequestItem;
 
 export type QuerySubscriptionSpec = {
@@ -180,7 +180,7 @@ export class SubscriptionRuntime {
         this.cleanScopes.clear();
       });
     } catch (error) {
-      // Host stubbed getMergeDeps — skip dirty tracking until merge deps exist.
+      // Runtime stubbed getMergeDeps — skip dirty tracking until merge deps exist.
       this.options.onError(error);
     }
   }

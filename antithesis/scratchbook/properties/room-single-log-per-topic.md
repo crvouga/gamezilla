@@ -52,7 +52,7 @@ Swallowed `storageChain` errors (`sut-analysis` A3) can leave memory
 ahead or behind storage.
 
 **Auth fallback during partition:** bearer resolve throws (DB hiccup) →
-actor becomes `anonId` (`resolveRoomActorId`). Host checks see the wrong
+actor becomes `anonId` (`resolveRoomActorId`). Runtime checks see the wrong
 identity. Coordination bug adjacent to split-brain: two “hosts.”
 
 ## Partition / heal instrumentation (SUT)

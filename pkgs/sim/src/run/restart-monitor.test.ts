@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { virtualHost } from '../host';
+import { virtualTimeRuntime } from '../runtime';
 import { defineSystem } from '../system';
 
 type S = { n: number };
@@ -11,10 +11,10 @@ const sys = defineSystem({
   },
 });
 
-sys.host({
+sys.runtime({
   default: true,
   name: 'virtual',
-  create: () => virtualHost(),
+  create: () => virtualTimeRuntime(),
 });
 
 const bump = sys.action({
@@ -57,7 +57,7 @@ describe('property setup / check / close', () => {
 
     const steps = 20;
     {
-      await using s = await sys.script({ seed: 1 });
+      await using s = await sys.run({ seed: 1 });
       expect(setups).toBe(1);
       expect(checks).toBe(1);
       expect(closes).toBe(0);

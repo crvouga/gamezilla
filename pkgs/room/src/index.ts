@@ -14,8 +14,8 @@
  * - `@pkgs/room/client/adapters/storage/key-value` — async KV (web +
  *   React Native AsyncStorage).
  *
- * Server entry: `@pkgs/room/server`. Test helpers: `@pkgs/room/tests`
- * (re-exports from `src/testkit.ts` → `src/tests/`).
+ * Server entry: `@pkgs/room/server`. Test helpers: `@pkgs/room/sim`
+ * (re-exports from `./sim`).
  *
  * Adding a new transport (WebRTC, SSE, …) or storage backend (SQLite,
  * IndexedDB, …) means dropping a new folder under

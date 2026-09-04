@@ -1,4 +1,4 @@
-import { Handles } from '@libs/dst-handles';
+import { Handles } from '@libs/test-ids';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useSyncEngine } from '@pkgs/sync-engine/client';
 import {

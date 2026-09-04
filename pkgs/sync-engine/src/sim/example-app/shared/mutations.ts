@@ -2,7 +2,7 @@ import { sql } from '@pkgs/sql';
 import { defineMutation, MutationError } from '@pkgs/sync-engine/shared';
 import { z } from 'zod';
 
-/** Upsert a folder (revive clears tombstone). */
+/** Upsert a folder (recoverAll clears tombstone). */
 export const setFolder = defineMutation({
   name: 'setFolder',
   args: z.object({ id: z.string(), title: z.string() }),
@@ -40,7 +40,7 @@ export const deleteFolder = defineMutation({
   },
 });
 
-/** Upsert a note (revive clears tombstone). */
+/** Upsert a note (recoverAll clears tombstone). */
 export const setNote = defineMutation({
   name: 'setNote',
   args: z.object({

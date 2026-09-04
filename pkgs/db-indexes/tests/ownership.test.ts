@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import { assertProperty } from '@pkgs/dst/fast-check';
+import { assertProperty } from '@pkgs/sim/fast-check';
 import fc from 'fast-check';
-import { isOwnedName, ownedIndexName } from '../../core/naming';
-import { planIndexes } from '../../core/plan';
-import { genDbState, genSchema, genSmallManifest } from '../generators';
-import { fixedClock, RecordingPort } from '../helpers/recording-port';
+import { isOwnedName, ownedIndexName } from '../src/core/naming';
+import { planIndexes } from '../src/core/plan';
+import { genDbState, genSchema, genSmallManifest } from './generators';
+import { fixedClock, RecordingPort } from './helpers/recording-port';
 
 describe('ownership PBT', () => {
   test('no action references non-owned or unique imposters', async () => {

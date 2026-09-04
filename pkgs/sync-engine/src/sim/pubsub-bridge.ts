@@ -1,8 +1,7 @@
 import type { PubSub } from '@pkgs/pubsub/interface';
 import type { Topic } from '@pkgs/pubsub/topic';
-
-import type { BoundaryFaultController } from './boundary-faults';
 import { corruptUnknownPayload } from './corruption-faults';
+import type { EdgeFaultController } from './edge-faults';
 import type { EndpointId, SyncNetwork } from './network';
 import {
   createOfflineBuffers,
@@ -44,7 +43,7 @@ export type SimPubSubBroker = {
 export type CreateSimPubSubBrokerArgs = {
   readonly network: SyncNetwork;
   readonly brokerId: EndpointId;
-  readonly faults?: BoundaryFaultController;
+  readonly faults?: EdgeFaultController;
   readonly rng?: SeededRng;
   /**
    * When true, buffer publishes for a peer's last topics while closed and
@@ -68,7 +67,7 @@ function deliverTo(args: {
 }
 
 function wireDataForDelivery(args: {
-  readonly faults?: BoundaryFaultController;
+  readonly faults?: EdgeFaultController;
   readonly rng?: SeededRng;
   readonly topic: Topic;
   readonly data: unknown;
@@ -86,7 +85,7 @@ function fanoutPublish(args: {
   readonly buffers: OfflineBuffers;
   readonly network: SyncNetwork;
   readonly brokerId: EndpointId;
-  readonly faults?: BoundaryFaultController;
+  readonly faults?: EdgeFaultController;
   readonly rng?: SeededRng;
   readonly wire: PubWire;
 }): void {

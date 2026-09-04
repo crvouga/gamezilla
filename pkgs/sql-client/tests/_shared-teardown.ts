@@ -1,6 +1,6 @@
 import { afterAll } from 'bun:test';
 
-import { closeSharedPglite } from '../backends';
+import { closeSharedPglite } from './helpers/backends';
 
 afterAll(async () => {
   await closeSharedPglite();

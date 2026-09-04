@@ -19,11 +19,11 @@ Privilege escalation is sequential, not a single forged request: accept friend, 
 
 | File | What it does |
 |---|---|
-| `libs/spaces/src/use-cases/join-space/shared/join-space-mutation.ts` | After `SPACE_ENDED` check: if `visibility !== 'public'` and no live `spaces_users` for actor and not host and not `areFriends` → `SPACE_VISIBILITY_DENIED`. Else upsert membership + `openSession`. Host join also rewrites `host_member_id` / `host_account_id`. |
+| `libs/spaces/src/use-cases/join-space/shared/join-space-mutation.ts` | After `SPACE_ENDED` check: if `visibility !== 'public'` and no live `spaces_users` for actor and not host and not `areFriends` → `SPACE_VISIBILITY_DENIED`. Else upsert membership + `openSession`. Runtime join also rewrites `host_member_id` / `host_account_id`. |
 | `libs/spaces/src/shared/space/friendship-sql.ts` `areFriends` | Live friendship between viewer member id and host account/member id. |
-| `libs/spaces/src/shared/space/space-mutation-helpers.ts` `accountId` / `isHost` | Anon cannot join (`SPACE_NOT_SIGNED_IN`). Host uses `isSpaceHostActor`. |
-| `libs/spaces/src/shared/space/participation/space-participation-policy.ts` `decideJoin` / `isSpaceHostActor` | Policy twin of the mutation. Host via device or account drift. `hasSpaceUser` → `already` without visibility re-check. Friend → `friend`. Else private → denied. |
-| `libs/spaces/src/use-cases/add-space-user/shared/add-space-user-mutation.ts` | Host-only ACL grant (`requireHost`). Inserts/un-tombstones `spaces_users`. |
+| `libs/spaces/src/shared/space/space-mutation-helpers.ts` `accountId` / `isHost` | Anon cannot join (`SPACE_NOT_SIGNED_IN`). Runtime uses `isSpaceHostActor`. |
+| `libs/spaces/src/shared/space/participation/space-participation-policy.ts` `decideJoin` / `isSpaceHostActor` | Policy twin of the mutation. Runtime via device or account drift. `hasSpaceUser` → `already` without visibility re-check. Friend → `friend`. Else private → denied. |
+| `libs/spaces/src/use-cases/add-space-user/shared/add-space-user-mutation.ts` | Runtime-only ACL grant (`requireHost`). Inserts/un-tombstones `spaces_users`. |
 | `libs/spaces/src/test/space-participation-policy.test.ts` | Pins: private + no friend + no ACL denied; friend allowed; already-seated allowed; host device/account drift allowed. |
 | `libs/spaces/src/shared/space/space-visibility.ts` | `'public' \| 'private'` only (no `'friends'` visibility enum). |
 
@@ -66,14 +66,14 @@ After every `joinSpace` apply (local + server replay):
 #### After unfriend, must the host also tombstone `spaces_users`?
 
 - Examined: `remove-friend-mutation.ts`; `remove-space-user-mutation.ts`; `join-space-mutation.ts`; `decideJoin` / policy comments; `space-participation-policy.test.ts`.
-- Found: `removeFriend` only soft-deletes `friends_friendships`. It does not touch `spaces_users`. Host-only `removeSpaceUser` is the ACL revoke. Policy: existing ACL may reopen without a friendship re-check.
+- Found: `removeFriend` only soft-deletes `friends_friendships`. It does not touch `spaces_users`. Runtime-only `removeSpaceUser` is the ACL revoke. Policy: existing ACL may reopen without a friendship re-check.
 - Not found: a friends mutation that tombstones seats, or a comment that unfriend implies kick.
 - Conclusion: resolved — “friend-only private” is false. Invariant keeps the ACL disjunct (as written). Property unchanged.
 
 #### Can a device-drift host rewrite `host_account_id` to a different account?
 
 - Examined: `join-space-mutation.ts` host `UPDATE`; `isSpaceHostActor`; policy tests “creating device may join when member id drifted”; `set-visibility` also rewrites `host_id` / `host_member_id`.
-- Found: `host_id === deviceId` is host even when `host_account_id` is another user. Host join writes `host_member_id` / `host_account_id` to the current actor. Policy treats creating-device join after member-id drift as **allowed**.
+- Found: `host_id === deviceId` is host even when `host_account_id` is another user. Runtime join writes `host_member_id` / `host_account_id` to the current actor. Policy treats creating-device join after member-id drift as **allowed**.
 - Not found: a comment or test that a later signed-in account on the creating device must **not** take `host_account_id`.
 - Conclusion: tagged `(needs human input)` — code allows the rewrite; whether that is intended recovery vs space takeover is not in this tree. This property keeps host-via-device as an allow; do not tighten until confirmed.
 

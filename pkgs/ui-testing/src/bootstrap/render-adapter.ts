@@ -3,7 +3,7 @@ import type { ReactElement } from 'react';
 import type { ElementLayout, TapPosition } from '../driver/driver';
 
 /**
- * Host-agnostic node handle returned by a {@link RenderAdapter}.
+ * Runtime-agnostic node handle returned by a {@link RenderAdapter}.
  * DOM adapters use `Element`; RNTL uses `ReactTestInstance`.
  */
 export type HostNode = unknown;

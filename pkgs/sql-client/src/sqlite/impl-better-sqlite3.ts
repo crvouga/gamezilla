@@ -9,6 +9,18 @@ import BetterSqlite3 from 'better-sqlite3';
 import type { PreparedStatement, RunResult, SqlClient } from '../interface';
 import { applySqliteConnectionPragmas } from './connection-pragmas';
 
+/**
+ * better-sqlite3 rejects `boolean` / `undefined`. Domain SQL binds JS booleans
+ * for INTEGER columns (e.g. `join_announced`); coerce at the engine boundary.
+ */
+function toBetterSqliteBinds(values: readonly Value[]): unknown[] {
+  return values.map((value) => {
+    if (value === undefined) return null;
+    if (typeof value === 'boolean') return value ? 1 : 0;
+    return value;
+  });
+}
+
 export class SqlClientImplBetterSqlite implements SqlClient {
   constructor(private db: BetterSqlite3.Database) {}
 
@@ -56,12 +68,16 @@ export class SqlClientImplBetterSqlite implements SqlClient {
   }
 
   query<T extends Record<string, unknown>>(query: Sql<T>): Promise<T[]> {
-    const rows = this.db.prepare(query.sql).all(...query.values) as T[];
+    const rows = this.db
+      .prepare(query.sql)
+      .all(...toBetterSqliteBinds(query.values)) as T[];
     return Promise.resolve(rows);
   }
 
   run(query: Sql<unknown>): Promise<RunResult> {
-    const result = this.db.prepare(query.sql).run(...query.values);
+    const result = this.db
+      .prepare(query.sql)
+      .run(...toBetterSqliteBinds(query.values));
     return Promise.resolve({
       changes: Number(result.changes),
       lastInsertRowid: Number(result.lastInsertRowid),
@@ -74,10 +90,12 @@ export class SqlClientImplBetterSqlite implements SqlClient {
     const stmt = this.db.prepare(query.sql);
     return {
       query: <R = Record<string, unknown>>(params?: Value[]) => {
-        return Promise.resolve(stmt.all(...(params ?? [])) as R[]);
+        return Promise.resolve(
+          stmt.all(...toBetterSqliteBinds(params ?? [])) as R[]
+        );
       },
       run: (params?: Value[]) => {
-        const result = stmt.run(...(params ?? []));
+        const result = stmt.run(...toBetterSqliteBinds(params ?? []));
         return Promise.resolve({
           changes: Number(result.changes),
           lastInsertRowid: Number(result.lastInsertRowid),

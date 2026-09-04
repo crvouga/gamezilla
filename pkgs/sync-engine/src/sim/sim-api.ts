@@ -1,19 +1,18 @@
-import type { VirtualScheduler } from '@pkgs/dst';
-
-import type { SimClientHandle } from './client-handle';
+import type { VirtualScheduler } from '@pkgs/sim';
 import type { InvariantViolation } from './invariants';
-import type { AddClientArgs } from './kit-types';
-import type { SimNetHandle } from './net-effect';
+import type { SimNet } from './net-effect';
 import type { SyncNetwork } from './network';
-import type { SimNodeHandle } from './node-handle';
 import type { SeededRng } from './rng';
 import type { SimServer } from './server';
+import type { SimClient } from './sim-client';
+import type { SimNode } from './sim-node';
+import type { AddClientArgs } from './sim-types';
 import type { LocalStorageTamper } from './storage-faults';
 import type { StoragePressureKind } from './storage-pressure';
 import type { SimTraffic } from './traffic';
 
 /** Internal kit surface wired by sync.server node boot — not the merged DST surface. */
-export type SyncKit = {
+export type SyncSimRuntime = {
   readonly seed: bigint;
   /** @internal Lab / harness */
   readonly clock: { now(): number };
@@ -24,18 +23,18 @@ export type SyncKit = {
   /** @internal Lab / harness */
   readonly network: SyncNetwork;
   readonly server: SimServer;
-  readonly clients: ReadonlyMap<string, SimClientHandle>;
+  readonly clients: ReadonlyMap<string, SimClient>;
   readonly nextId: () => string;
-  readonly addClient: (args: AddClientArgs) => Promise<SimClientHandle>;
-  readonly net: (nodeId: string, traffic?: SimTraffic) => SimNetHandle;
-  readonly node: (id: string) => SimNodeHandle;
+  readonly addClient: (args: AddClientArgs) => Promise<SimClient>;
+  readonly net: (nodeId: string, traffic?: SimTraffic) => SimNet;
+  readonly node: (id: string) => SimNode;
   readonly isSchedulerQuiescent: () => boolean;
   readonly pendingEventCount: () => number;
   readonly checkInvariants: () => Promise<InvariantViolation | null>;
   /** Heal network / infra / reconnect clients — stimulus only. */
-  readonly revive: () => Promise<void>;
-  /** Drain until domain agreement (no heal — call revive first). */
-  readonly drainUntilConverged: () => Promise<void>;
+  readonly recoverAll: () => Promise<void>;
+  /** Drain until domain agreement (no restoreNetwork — call recoverAll first). */
+  readonly drainUntilInSync: () => Promise<void>;
   readonly tamperLocalStorage: (
     clientId: string,
     tamper: LocalStorageTamper
@@ -50,7 +49,7 @@ export type SyncKit = {
   readonly clearFailNextOpen: (clientId?: string) => void;
   readonly brokerCrash: () => void;
   readonly brokerRestart: () => Promise<void>;
-  readonly clearBoundaryFaults: () => void;
+  readonly clearEdgeFaults: () => void;
   readonly dispose: () => Promise<void>;
   readonly [Symbol.asyncDispose]: () => Promise<void>;
 };

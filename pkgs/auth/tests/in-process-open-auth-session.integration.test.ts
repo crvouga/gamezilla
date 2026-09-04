@@ -4,11 +4,11 @@ import { createNoopLogger } from '@pkgs/logger';
 import { SqlClientImplPostgresMem } from '@pkgs/sql-client/postgres/impl-postgres-mem';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres/schema';
 import { Hono } from 'hono';
-import { createInMemoryAuthClientStorage } from '../client/bearer-token-store';
-import { createAuthClientAdapter } from '../client/create-auth-client-adapter';
-import { createInProcessOpenAuthSession } from '../client/in-process-open-auth-session';
-import { AuthPostgresDatabaseMigration } from '../server/auth-database-migration';
-import { createAuthApp } from '../server/create-auth-app';
+import { createInMemoryAuthClientStorage } from '../src/client/bearer-token-store';
+import { createAuthClientAdapter } from '../src/client/create-auth-client-adapter';
+import { createInProcessOpenAuthSession } from '../src/client/in-process-open-auth-session';
+import { AuthPostgresDatabaseMigration } from '../src/server/auth-database-migration';
+import { createAuthApp } from '../src/server/create-auth-app';
 
 const BASE_URL = 'http://sim.local';
 const CALLBACK = 'gamezilla://sso-callback';

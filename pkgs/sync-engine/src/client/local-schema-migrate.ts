@@ -186,7 +186,7 @@ export async function migrateLocalSchema(
 
   try {
     await onPhase?.('before');
-    // Interrupted epoch bump: CACHE wiped but user_version not advanced — heal in place.
+    // Interrupted epoch bump: CACHE wiped but user_version not advanced — restoreNetwork in place.
     if (
       previousEpoch >= epoch &&
       previous >= targetVersion &&

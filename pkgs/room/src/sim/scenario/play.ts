@@ -1,8 +1,10 @@
-import type { RoomKit } from '../kit-api';
+import type { RoomSimRuntime } from '../sim-api';
 
 /** Restart crashed clients / server so settle is meaningful. */
-export async function prepareClientsForConverge(kit: RoomKit): Promise<void> {
-  kit.clearBoundaryFaults();
+export async function prepareClientsForInSync(
+  kit: RoomSimRuntime
+): Promise<void> {
+  kit.clearEdgeFaults();
   if (kit.isServerCrashed()) {
     await kit.serverRestart();
   }

@@ -1,6 +1,6 @@
 import { canonicalJsonStringify, type JsonValue } from './json';
 
-/** One entry in a Trace: a resolved Choice or a Scheduler / Network event. */
+/** One entry in a Trace: a resolved Step or a Scheduler / Network event. */
 export type TraceRecord =
   | {
       readonly type: 'choice';
@@ -28,7 +28,7 @@ export type TraceRecord =
       readonly detail?: JsonValue;
     };
 
-/** Sink that receives TraceRecords while a Script executes. */
+/** Sink that receives TraceRecords while a Run executes. */
 export type TraceRecorder = {
   readonly enabled: boolean;
   readonly record: (e: TraceRecord) => void;

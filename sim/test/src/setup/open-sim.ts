@@ -3,13 +3,13 @@
  * host registered by the product system.
  */
 
-import type { Script } from '@pkgs/dst';
-import { defineAction } from '@pkgs/dst';
+import type { Run } from '@pkgs/sim';
+import { defineAction } from '@pkgs/sim';
 import type { SimulationReporter } from '@pkgs/sim-console';
 import type { SimSystemSnapshot } from '@pkgs/sim-console/shared/sim-system-snapshot';
 import type { UiTestCtx } from '@pkgs/ui-testing';
 import type { Sim } from '@sim/console/sim/create-sim';
-import type { SimSqlHandle } from '@sim/console/sim/sim-sql';
+import type { SimSql } from '@sim/console/sim/sim-sql';
 import {
   restoreSystemSnapshot,
   type SystemSnapshotCtx,
@@ -17,18 +17,9 @@ import {
 
 import '@apps/client/i18n/i18n';
 
-import type { ProductExtra, ProductUi } from '../host/ports';
-import type {
-  ProductRuntime,
-  ProductSurface,
-  SimActorHandle,
-} from '../scenario';
-import { product, productExtra } from '../scenario';
-import {
-  type OpenSimFidelity,
-  type OpenSimOptions,
-  resolveOpenSimFidelity,
-} from './fidelity';
+import type { ProductExtra, ProductUi } from '../runtime/ports';
+import type { ProductRuntime, ProductSim, SimActor } from '../sim';
+import { product, productExtra } from '../sim';
 import {
   type ActorEntry,
   closeActorEntry,
@@ -39,13 +30,14 @@ import {
   simReportEnabled,
   writeKeysIndex,
 } from './launch-actor';
+import { type OpenSimOptions, resolveSimMode, type SimMode } from './mode';
 import { ensureNodeLocalStoragePolyfill } from './node-local-storage-polyfill';
 import { simNodeTimers } from './sim-actor-overrides';
 import { listenSimHttpServer, type SimHttpListener } from './sim-http-listener';
 import { readSimSystemSnapshot } from './sim-snapshot-fixture';
 
-export type { SimActorHandle };
-export type OpenSimHandle = Script<ProductSurface>;
+export type { SimActor };
+export type OpenSim = Run<ProductSim>;
 
 function isUiTestCtx(value: unknown): value is UiTestCtx {
   if (typeof value !== 'object' || value === null) return false;
@@ -62,9 +54,15 @@ function resolveHostName(
   ctx: UiTestCtx | undefined,
   options: OpenSimOptions | undefined
 ): 'rntl' | 'playwright' {
-  const fidelity = ctx?.fidelity ?? resolveOpenSimFidelity(options);
+  // UiTestCtx exposes fidelity ('sim'|'max'); OpenSimOptions uses mode.
+  const mode =
+    ctx?.fidelity === 'max'
+      ? 'real'
+      : ctx?.fidelity === 'sim'
+        ? 'fast'
+        : resolveSimMode(options);
   const driverKind =
-    ctx?.driverKind ?? (fidelity === 'max' ? 'playwright' : 'rntl');
+    ctx?.driverKind ?? (mode === 'real' ? 'playwright' : 'rntl');
   return driverKind === 'playwright' ? 'playwright' : 'rntl';
 }
 
@@ -79,7 +77,7 @@ function rntlOf(ui: ProductUi) {
 }
 
 function makeRuntime(args: {
-  readonly surface: ProductSurface;
+  readonly surface: ProductSim;
   readonly extra: ProductExtra;
   readonly reporter: SimulationReporter | null;
   readonly snapshot: SimSystemSnapshot | undefined;
@@ -148,7 +146,7 @@ async function restoreSnapshot(
   sim: Sim,
   snapshot: SimSystemSnapshot
 ): Promise<void> {
-  const clientSqlByAddress = new Map<string, SimSqlHandle>();
+  const clientSqlByAddress = new Map<string, SimSql>();
   const liveClients = new Map<string, ReturnType<Sim['spawnClient']>>();
   const snapshotCtx: SystemSnapshotCtx = {
     sim,
@@ -159,8 +157,8 @@ async function restoreSnapshot(
   await restoreSystemSnapshot(snapshotCtx, snapshot);
 }
 
-async function wireSurface(args: {
-  readonly surface: ProductSurface;
+async function wireSim(args: {
+  readonly surface: ProductSim;
   readonly testId: string;
   readonly snapshot?: SimSystemSnapshot;
 }): Promise<void> {
@@ -197,14 +195,14 @@ async function wireSurface(args: {
 }
 
 /**
- * Pin the surface for setup wiring only. `Script` is the sole public handle —
+ * Pin the surface for setup wiring only. `Run` is the sole public handle —
  * scenarios never see this, and nothing outside this module may call it.
  */
-async function pinSurface(s: Script<ProductSurface>): Promise<ProductSurface> {
-  let pinned: ProductSurface | null = null;
+async function pinSim(s: Run<ProductSim>): Promise<ProductSim> {
+  let pinned: ProductSim | null = null;
   const capture = defineAction({
-    name: 'openSim.pinSurface',
-    act: (s: ProductSurface) => {
+    name: 'openSim.pinSim',
+    act: (s: ProductSim) => {
       pinned = s;
     },
   });
@@ -237,19 +235,19 @@ export async function openSim(
   testId: string,
   ctxOrOptions?: UiTestCtx | OpenSimOptions,
   maybeOptions?: OpenSimOptions
-): Promise<OpenSimHandle> {
+): Promise<OpenSim> {
   const { ctx, options } = resolveArgs(ctxOrOptions, maybeOptions);
   ensureNodeLocalStoragePolyfill();
-  const s = await product.script({
+  const s = await product.run({
     seed: 1,
-    host: resolveHostName(ctx, options),
+    runtime: resolveHostName(ctx, options),
   });
-  const surface = await pinSurface(s);
+  const surface = await pinSim(s);
   const snapshot =
     options?.snapshot !== undefined
       ? readSimSystemSnapshot(options.snapshot)
       : undefined;
-  await wireSurface({
+  await wireSim({
     surface,
     testId,
     ...(snapshot !== undefined ? { snapshot } : {}),
@@ -259,4 +257,4 @@ export async function openSim(
   return s;
 }
 
-export type { OpenSimFidelity, OpenSimOptions };
+export type { OpenSimOptions, SimMode };

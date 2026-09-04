@@ -5,10 +5,10 @@
  * boolean verdict.
  */
 
-import { defineAction } from '@pkgs/dst';
+import { defineAction } from '@pkgs/sim';
 
-import type { SyncEnginePoolApi } from '../../../client/sync-engine-pool';
-import type { SyncSurface } from '../../../sim/scenario';
+import type { SyncEnginePoolApi } from '../../client/sync-engine-pool';
+import type { SyncSim } from '../scenario';
 
 /** One `getOrCreate` call: which identity, and which client owns the engine. */
 export type PoolActivation = {
@@ -21,9 +21,9 @@ type Verdicts = {
   overlappingCreates: number;
 };
 
-const verdictsBySurface = new WeakMap<SyncSurface, Verdicts>();
+const verdictsBySurface = new WeakMap<SyncSim, Verdicts>();
 
-function verdicts(s: SyncSurface): Verdicts {
+function verdicts(s: SyncSim): Verdicts {
   const existing = verdictsBySurface.get(s);
   if (existing !== undefined) return existing;
   const next: Verdicts = { matched: new Map(), overlappingCreates: 0 };
@@ -31,7 +31,7 @@ function verdicts(s: SyncSurface): Verdicts {
   return next;
 }
 
-function engineOf(s: SyncSurface, clientId: string) {
+function engineOf(s: SyncSim, clientId: string) {
   const client = s.clients.get(clientId);
   if (client === undefined) {
     throw new Error(`pool action: unknown client '${clientId}'`);
@@ -47,7 +47,7 @@ function engineOf(s: SyncSurface, clientId: string) {
 export const poolActivate = defineAction({
   name: 'poolActivate',
   act: async (
-    s: SyncSurface,
+    s: SyncSim,
     pool: SyncEnginePoolApi,
     activation: PoolActivation
   ) => {
@@ -68,7 +68,7 @@ export const poolActivate = defineAction({
 export const poolActivateConcurrently = defineAction({
   name: 'poolActivateConcurrently',
   act: async (
-    s: SyncSurface,
+    s: SyncSim,
     pool: SyncEnginePoolApi,
     activations: readonly PoolActivation[],
     delayMs: number
@@ -97,11 +97,11 @@ export const poolActivateConcurrently = defineAction({
 });
 
 /** True when the pool handed back that client's own engine for an identity. */
-export function poolMatched(s: SyncSurface, identity: string): boolean {
+export function poolMatched(s: SyncSim, identity: string): boolean {
   return verdicts(s).matched.get(identity) ?? false;
 }
 
 /** How many creates ever ran concurrently — a serialized pool keeps this at 0. */
-export function poolOverlappingCreates(s: SyncSurface): number {
+export function poolOverlappingCreates(s: SyncSim): number {
   return verdicts(s).overlappingCreates;
 }

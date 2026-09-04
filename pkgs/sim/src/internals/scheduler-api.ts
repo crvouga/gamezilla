@@ -9,15 +9,15 @@ import type { TraceRecorder } from './trace';
 export type TaskBody = () => void | Promise<void>;
 
 /**
- * Session-facing scheduler: schedule work, advance time, settle ready events.
+ * Session-facing scheduler: schedule work, advance time, wait for idle.
  * `virtual: true` means advance is free (virtual clock); false means wall wait.
  */
 export type Scheduler = {
   readonly virtual: boolean;
   readonly schedule: (task: TaskBody, atMs?: number) => { dispose(): void };
   readonly advance: (ms: number) => Promise<void>;
-  readonly settle: () => Promise<void>;
-  /** Escape hatch for hosts / legacy adapters that need the heap API. */
+  readonly waitForIdle: () => Promise<void>;
+  /** Escape hatch for runtimes / legacy adapters that need the heap API. */
   readonly underlying: VirtualScheduler;
   readonly clock: VirtualClock;
 };
@@ -62,7 +62,7 @@ export function createVirtualScheduler(
     async advance(ms) {
       await underlying.runFor(ms);
     },
-    async settle() {
+    async waitForIdle() {
       // Due-at-now + in-flight only — do not advance virtual time to future
       // timers (match-clock FlagFall, delayed net frames). Explicit
       // `advance` / `runFor` owns time travel.

@@ -1,18 +1,18 @@
-import { fingerprint } from '../kernel/fingerprint';
-import type { Rng } from '../kernel/rng';
+import { fingerprint } from '../internals/fingerprint';
+import type { Rng } from '../internals/rng';
 import { ACTION_TAG, type Action, type CatalogAction } from '../system/effect';
 import { type ActionSlice, resolveActions } from '../system/registry';
 import { checkpoint } from './checkpoint';
 import { type ProbeResult, probeAll } from './probe';
 import {
-  getScriptInternal,
-  type Script,
-  type ScriptInternal,
-  type Walk,
-  type WalkOptions,
-} from './script-types';
+  getRunInternal,
+  type RandomActionsOptions,
+  type RandomActionsReport,
+  type Run,
+  type RunInternal,
+} from './run-types';
 
-export type { Walk, WalkOptions } from './script-types';
+export type { RandomActionsOptions, RandomActionsReport } from './run-types';
 
 type Cand<S> = {
   readonly action: Action<S, unknown[]>;
@@ -50,9 +50,9 @@ function budgetExceeded(
 
 function collectEnabled<S>(
   probed: readonly { action: Action<S, unknown[]>; result: ProbeResult }[],
-  time: WalkOptions<S>['time'],
+  time: RandomActionsOptions<S>['time'],
   next: () => number,
-  elapse: (ms: number) => Promise<void>
+  advanceTime: (ms: number) => Promise<void>
 ): Cand<S>[] {
   const enabled: Cand<S>[] = [];
   for (const { action, result } of probed) {
@@ -70,10 +70,10 @@ function collectEnabled<S>(
       enabled: () => true,
       weight: () => time.weight,
       args: undefined,
-      draw: undefined,
+      sample: undefined,
       pool: true,
       act: async () => {
-        await elapse(ms);
+        await advanceTime(ms);
       },
     } as Action<S, unknown[]>,
     weight: time.weight,
@@ -83,20 +83,20 @@ function collectEnabled<S>(
   return enabled;
 }
 
-async function drawArgs<S>(
+async function sampleArgs<S>(
   picked: Cand<S>,
   surface: S,
   fork: (name: string) => Rng,
-  steps: number
+  count: number
 ): Promise<readonly unknown[]> {
   if (picked.kind === 'elapse') return [picked.elapseMs!];
-  if (picked.action.draw === undefined) return [];
-  const gen = await picked.action.draw(surface);
-  return normalizeArgs(gen(fork(`args:${picked.action.name}:${steps}`)));
+  if (picked.action.sample === undefined) return [];
+  const gen = await picked.action.sample(surface);
+  return normalizeArgs(gen(fork(`args:${picked.action.name}:${count}`)));
 }
 
 async function applyPicked<S>(args: {
-  readonly internal: ScriptInternal<S>;
+  readonly internal: RunInternal<S>;
   readonly picked: Cand<S>;
   readonly applyArgs: readonly unknown[];
   readonly actionCounts: Record<string, number>;
@@ -112,12 +112,12 @@ async function applyPicked<S>(args: {
       applyArgs,
       act: (s, ...a) => picked.action.act(s, ...(a as never[])),
       surface: internal.surface,
-      settle: () => internal.session.settle(),
+      waitForIdle: () => internal.session.waitForIdle(),
       monitors: internal.monitors,
       t: internal.step,
     });
     internal.transitions.push(result.transition);
-    internal.choices.push(result.choice);
+    internal.steps.push(result.step);
     args.actionCounts[picked.action.name] =
       (args.actionCounts[picked.action.name] ?? 0) + 1;
     args.states.add(fingerprint(result.transition.after as never));
@@ -128,7 +128,7 @@ async function applyPicked<S>(args: {
   } catch (e) {
     // The step that threw is part of the repro — without it `replay` stops one
     // action short and reports a clean run.
-    internal.choices.push({ action: picked.action.name, args: applyArgs });
+    internal.steps.push({ action: picked.action.name, args: applyArgs });
     args.violations.push({
       error: e instanceof Error ? e.message : String(e),
     });
@@ -137,19 +137,19 @@ async function applyPicked<S>(args: {
   return 'continue';
 }
 
-/** Package-internal — preferred entry is `s.walk`. */
-export async function walk<S>(
-  s: Script<S>,
-  opts: WalkOptions<S> = {}
-): Promise<Walk> {
-  const internal = getScriptInternal(s);
+/** Package-internal — preferred entry is `s.randomActions`. */
+export async function randomActions<S>(
+  s: Run<S>,
+  opts: RandomActionsOptions<S> = {}
+): Promise<RandomActionsReport> {
+  const internal = getRunInternal(s);
   const maxSteps = opts.steps ?? 40;
   const stopOnViolation = opts.stopOnViolation ?? true;
-  const walkRng = internal.rng.fork('walk');
+  const walkRng = internal.rng.fork('randomActions');
   const actionCounts: Record<string, number> = {};
   const states = new Set<string>();
   const violations: { error: string }[] = [];
-  let steps = 0;
+  let count = 0;
   const clockNow = () => internal.session.ports.clock.now();
   const t0 = clockNow();
 
@@ -158,7 +158,7 @@ export async function walk<S>(
     opts.actions as ActionSlice<unknown> | undefined
   ) as readonly CatalogAction<S>[];
 
-  while (steps < maxSteps) {
+  while (count < maxSteps) {
     if (budgetExceeded(clockNow, t0, opts.budgetMs)) break;
 
     const probed = await probeAll(
@@ -171,16 +171,16 @@ export async function walk<S>(
       probed,
       opts.time,
       () => walkRng.next(),
-      (ms) => internal.session.elapse(ms)
+      (ms) => internal.session.advanceTime(ms)
     );
     if (enabled.length === 0) break;
 
     const picked = pickWeighted(enabled, () => walkRng.next());
-    const applyArgs = await drawArgs(
+    const applyArgs = await sampleArgs(
       picked,
       internal.surface,
       (name) => walkRng.fork(name),
-      steps
+      count
     );
     const next = await applyPicked({
       internal,
@@ -192,12 +192,12 @@ export async function walk<S>(
       stopOnViolation,
     });
     if (next === 'stop') break;
-    steps += 1;
+    count += 1;
   }
 
   return {
-    steps,
-    choices: internal.choices.slice(),
+    count,
+    steps: internal.steps.slice(),
     transitions: internal.transitions.slice(),
     args: internal.args,
     coverage: { states, actions: actionCounts },

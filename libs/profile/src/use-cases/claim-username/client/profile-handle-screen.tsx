@@ -1,5 +1,5 @@
 import { useMutationClient } from '@libs/auth/public/mutation-client-provider';
-import { Handles } from '@libs/dst-handles';
+import { Handles } from '@libs/test-ids';
 import { Trans, useLingui } from '@lingui/react/macro';
 import {
   type BodyContentProps,

@@ -2,15 +2,16 @@
  * Scripted-pin actions for `s.apply(action, ...args)`. Typed act
  * parameters replace the old `pin()` draws. Randomised coverage lives in
  * the `pool` catalog (`sync-actions.ts`). Network / fault / crash pins live
- * in `pin-chaos-actions.ts`.
+ * in `regression-random-faults-actions.ts`.
  */
 
-import { defineAction } from '@pkgs/dst';
+import { defineAction } from '@pkgs/sim';
 import { unsafe } from '@pkgs/sql';
 
 import type { Mutation } from '../../mutations/core/types';
-import { pumpConverge } from '../kit-pump';
-import type { AddClientArgs } from '../kit-types';
+import { pumpInSync } from '../sim-pump';
+import type { AddClientArgs } from '../sim-types';
+import { prepareClientsForInSync, resetClockSkews } from './pool-support';
 import {
   driveToSettled,
   driveWhilePending,
@@ -21,9 +22,8 @@ import {
   SYNC_STEP_MS,
   subscriptionKey,
   subscriptions,
-} from './pin-support';
-import { prepareClientsForConverge, resetClockSkews } from './pool-support';
-import type { SyncSurface } from './system';
+} from './regression-support';
+import type { SyncSim } from './system';
 
 export {
   addPeerEngine,
@@ -35,28 +35,28 @@ export {
   crash,
   crashAt,
   failNextOpen,
-  heal,
-  hold,
   httpFault,
   net,
   netSet,
   partition,
+  pauseNetwork,
   publishFault,
   pubsubFault,
-  release,
   restart,
   restartWithSchema,
+  restoreNetwork,
+  resumeNetwork,
   serverOp,
   serverPrune,
   skewClock,
   tamperLocalStorage,
-} from './pin-chaos-actions';
+} from './regression-random-faults-actions';
 export { SYNC_STEP_MS };
 
 /** `s.apply(addClient, 'alice')` or `s.apply(addClient, { id, actorId })`. */
 export const addClient = defineAction({
   name: 'addClient',
-  act: async (s: SyncSurface, arg: string | AddClientArgs) => {
+  act: async (s: SyncSim, arg: string | AddClientArgs) => {
     const args: AddClientArgs =
       typeof arg === 'string' ? { id: arg, actorId: arg } : arg;
     await s.addClient(args);
@@ -70,7 +70,7 @@ export const addClient = defineAction({
 export const mutate = defineAction({
   name: 'mutate',
   act: async (
-    s: SyncSurface,
+    s: SyncSim,
     clientId: string,
     named: Mutation<unknown> | string,
     args: unknown
@@ -88,41 +88,41 @@ export const mutate = defineAction({
 
 export const connect = defineAction({
   name: 'connect',
-  act: async (s: SyncSurface, clientId: string) => {
+  act: async (s: SyncSim, clientId: string) => {
     await requireClient(s, clientId).connect();
   },
 });
 
 export const disconnect = defineAction({
   name: 'disconnect',
-  act: (s: SyncSurface, clientId: string) =>
+  act: (s: SyncSim, clientId: string) =>
     requireClient(s, clientId).disconnect(),
 });
 
 export const online = defineAction({
   name: 'online',
-  act: (s: SyncSurface, clientId: string, value: boolean) => {
+  act: (s: SyncSim, clientId: string, value: boolean) => {
     requireClient(s, clientId).online(value);
   },
 });
 
 export const foreground = defineAction({
   name: 'foreground',
-  act: (s: SyncSurface, clientId: string, value: boolean) => {
+  act: (s: SyncSim, clientId: string, value: boolean) => {
     requireClient(s, clientId).foreground(value);
   },
 });
 
 export const clearLocalData = defineAction({
   name: 'clearLocalData',
-  act: async (s: SyncSurface, clientId: string, reason: string) => {
+  act: async (s: SyncSim, clientId: string, reason: string) => {
     await requireClient(s, clientId).clearLocalData(reason);
   },
 });
 
 export const nudge = defineAction({
   name: 'nudge',
-  act: async (s: SyncSurface, clientId: string) => {
+  act: async (s: SyncSim, clientId: string) => {
     const client = requireClient(s, clientId);
     // A nudge issued while sync is held never resolves — drive it as far as
     // virtual time allows and leave the wake in flight.
@@ -133,7 +133,7 @@ export const nudge = defineAction({
 export const subscribe = defineAction({
   name: 'subscribe',
   act: async (
-    s: SyncSurface,
+    s: SyncSim,
     clientId: string,
     queryName: string,
     params?: Record<string, unknown>
@@ -156,7 +156,7 @@ export const subscribe = defineAction({
 export const subscribeAll = defineAction({
   name: 'subscribeAll',
   act: async (
-    s: SyncSurface,
+    s: SyncSim,
     clientId: string,
     queryName: string,
     paramsList: readonly Record<string, unknown>[]
@@ -179,7 +179,7 @@ export const subscribeAll = defineAction({
 
 export const unsubscribe = defineAction({
   name: 'unsubscribe',
-  act: (s: SyncSurface, clientId: string, queryName: string) => {
+  act: (s: SyncSim, clientId: string, queryName: string) => {
     const key = subscriptionKey(clientId, queryName);
     const bag = subscriptions(s);
     bag.get(key)?.[Symbol.dispose]();
@@ -187,7 +187,7 @@ export const unsubscribe = defineAction({
   },
 });
 
-function recordPost(s: SyncSurface, clientId: string, rows: PostRows): void {
+function recordPost(s: SyncSim, clientId: string, rows: PostRows): void {
   s.runtime.lastPost.delete(clientId);
   void requireClient(s, clientId)
     .postMutations(rows)
@@ -216,7 +216,7 @@ function recordPost(s: SyncSurface, clientId: string, rows: PostRows): void {
 
 export const postMutations = defineAction({
   name: 'postMutations',
-  act: (s: SyncSurface, clientId: string, rows: PostRows) => {
+  act: (s: SyncSim, clientId: string, rows: PostRows) => {
     recordPost(s, clientId, rows);
   },
 });
@@ -228,7 +228,7 @@ export const postMutations = defineAction({
  */
 export const serverReplay = defineAction({
   name: 'serverReplay',
-  act: async (s: SyncSurface, actorId: string, rows: PostRows) => {
+  act: async (s: SyncSim, actorId: string, rows: PostRows) => {
     const first = rows[0];
     if (first === undefined) return;
     s.server.setAuth({
@@ -250,7 +250,7 @@ export const serverReplay = defineAction({
 
 export const execSql = defineAction({
   name: 'execSql',
-  act: async (s: SyncSurface, nodeId: string, statement: string) => {
+  act: async (s: SyncSim, nodeId: string, statement: string) => {
     const db = nodeId === 'server' ? s.server.db : requireClient(s, nodeId).db;
     await db.run(unsafe(statement));
   },
@@ -260,21 +260,21 @@ export const runSql = execSql;
 
 /**
  * Heal owed clients, clear faults, reconnect — stimulus only. Pair with
- * `s.until(converged)` (or {@link expectConverged}).
+ * `s.until(inSync)` (or {@link expectInSync}).
  */
-export const revive = defineAction({
-  name: 'revive',
-  act: async (s: SyncSurface) => {
-    await prepareClientsForConverge(s);
+export const recoverAll = defineAction({
+  name: 'recoverAll',
+  act: async (s: SyncSim) => {
+    await prepareClientsForInSync(s);
     resetClockSkews(s);
-    await s.revive();
+    await s.recoverAll();
   },
 });
 
 /** Wake uploads / refresh on every live client — stimulus for drain waits. */
 export const wakeAll = defineAction({
   name: 'wakeAll',
-  act: (s: SyncSurface) => {
+  act: (s: SyncSim) => {
     for (const client of s.clients.values()) {
       client.engine.wakeUploads();
       void client.engine.refreshQueries().catch(() => undefined);
@@ -284,11 +284,11 @@ export const wakeAll = defineAction({
 
 /**
  * One converge pump: wake + drain scheduler (stimulus only).
- * Pair with `s.until(converged)` / {@link expectConverged}.
+ * Pair with `s.until(inSync)` / {@link expectInSync}.
  */
 export const pump = defineAction({
   name: 'pump',
-  act: async (s: SyncSurface) => {
-    await pumpConverge(s);
+  act: async (s: SyncSim) => {
+    await pumpInSync(s);
   },
 });

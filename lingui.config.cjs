@@ -24,9 +24,8 @@ module.exports = {
       exclude: [
         '**/node_modules/**',
         '**/dist/**',
-        '**/*.test.ts',
-        '**/*.test.tsx',
-        '**/*.sim.test.ts',
+        '**/tests/**',
+        '**/*.test.{ts,tsx}',
       ],
     },
   ],

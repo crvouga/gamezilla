@@ -1,14 +1,14 @@
-export { defineHost } from './define-host';
+export { defineRuntime } from './define-runtime';
+export { realTimeRuntime } from './real-time-runtime';
 export type {
   Capability,
   Endpoint,
-  Host,
   NetworkMode,
   Ports,
+  RealTimeRuntimeOptions,
+  Runtime,
   Session,
-  VirtualHostOptions,
-  WallHostOptions,
+  VirtualTimeRuntimeOptions,
 } from './types';
 export { CapabilityError } from './types';
-export { virtualHost } from './virtual-host';
-export { wallHost } from './wall-host';
+export { virtualTimeRuntime } from './virtual-time-runtime';

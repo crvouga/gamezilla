@@ -6,7 +6,7 @@ import { ROOM_WIRE_KIND } from '../protocol/wire';
 import type { RoomServer } from '../server/core/room-server';
 import type { RoomCommandPayload, RoomEvent, RoomState } from '../types';
 
-import type { RoomBoundaryFaultController } from './boundary-faults';
+import type { RoomEdgeFaultController } from './edge-faults';
 import type { SimRoomNetwork } from './network';
 import type { SerialQueue } from './serial-queue';
 
@@ -22,7 +22,7 @@ export type SimLoopbackRoomTransportArgs<
   readonly clientKey: string;
   readonly network: SimRoomNetwork;
   readonly serverQueue: SerialQueue;
-  readonly boundary?: RoomBoundaryFaultController;
+  readonly boundary?: RoomEdgeFaultController;
   /** Fired when a one-shot crash arm trips for this client. */
   readonly onBoundaryCrash?: (clientKey: string) => void;
 };
@@ -56,7 +56,7 @@ export class SimLoopbackRoomTransport<
   private readonly clientKey: string;
   private readonly network: SimRoomNetwork;
   private readonly serverQueue: SerialQueue;
-  private readonly boundary: RoomBoundaryFaultController | undefined;
+  private readonly boundary: RoomEdgeFaultController | undefined;
   private readonly onBoundaryCrash: ((clientKey: string) => void) | undefined;
 
   constructor(args: SimLoopbackRoomTransportArgs<S, C, E>) {

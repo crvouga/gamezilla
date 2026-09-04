@@ -24,9 +24,9 @@ A stale-bearer or spoofed-`anonId` connection can therefore present as the wrong
 
 ## Failure scenario
 
-1. Host H is signed in (account `A`). Puzzle `hostIdentity` is `A`.
+1. Runtime H is signed in (account `A`). Puzzle `hostIdentity` is `A`.
 2. During WS reconnect, bearer is stale **or** `BearerAuthResolver.resolveAccountId` throws (Postgres pause, isolate SQL disconnect). Gateway sets `x-actor-id` to H's install `anonId` `D` (or a fresh UUID).
-3. Host-gated chess commands from this socket now compare `D` vs `A` → denied (availability). **Worse:** a second client connects with **only** `anonId=A` (no bearer). Gateway returns `A` unchanged. Seat join and chess host checks treat them as H.
+3. Runtime-gated chess commands from this socket now compare `D` vs `A` → denied (availability). **Worse:** a second client connects with **only** `anonId=A` (no bearer). Gateway returns `A` unchanged. Seat join and chess host checks treat them as H.
 4. Independently, any peer on `topic=space:{id}` can send `reclaim` and become puzzle host (`handleReclaim`). Combined with an open gateway, knowing the topic is enough.
 
 Client frames cannot override identity (gateway overwrites the header; DO reads only that header). The hole is **who the gateway writes**, not frame forgery.
@@ -78,7 +78,7 @@ SUT analysis [failure] / [wildcard]: "Room stale bearer → anon actor — host 
 - Examined: `apps/room-server/src/app/create-room-server.ts`; `create-room-server-durable-object.ts`; `pkgs/room` DO adapter; `libs/spaces` for `authorize:`.
 - Found: `createRoomServer` constructs `new RoomServer({ topic, module, storage, clock, effectHandlers })` with no `authorize`. DO adapter likewise. No `authorize:` in spaces or `apps/room-server`.
 - Not found: a product composition that passes `spaces_users` into `RoomServer.authorize`.
-- Conclusion: resolved — product never wires the hook. Host/seat checks are module string equality only.
+- Conclusion: resolved — product never wires the hook. Runtime/seat checks are module string equality only.
 
 #### Is `anonId` on the no-bearer path supposed to be UUID-only?
 

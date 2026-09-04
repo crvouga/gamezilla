@@ -5,11 +5,6 @@ import { warnPush } from '../shared/is-pubsub-closed-error';
 import type { PushMessage } from '../shared/push-payload';
 import { filterAcceptableImages } from '../shared/row-image-guard';
 import type { TopicMapCtx } from '../shared/topic-map';
-import {
-  filterScopesByTables,
-  type PushBag,
-  parsePush,
-} from './attach-push-bag';
 import { rowsWithinReceiveCap } from './attach-push-rows-cap';
 import { applyRowImages, type RowImageCheckpointRaise } from './merge';
 import {
@@ -20,8 +15,13 @@ import {
   readLastPushSeq,
   recordPushApplied,
 } from './push-applied';
+import {
+  filterScopesByTables,
+  type PushSubscriptions,
+  parsePush,
+} from './push-subscriptions';
 
-function topicMapCtxFromBag(bag: PushBag): TopicMapCtx {
+function topicMapCtxFromSubscriptions(bag: PushSubscriptions): TopicMapCtx {
   const channels = bag.options.getChannelsCtx();
   return {
     actorId: channels.actorId,
@@ -32,7 +32,7 @@ function topicMapCtxFromBag(bag: PushBag): TopicMapCtx {
 }
 
 async function tryApplyOptimisticRows(
-  bag: PushBag,
+  bag: PushSubscriptions,
   topic: Topic,
   payload: PushMessage
 ): Promise<boolean> {
@@ -49,7 +49,7 @@ async function tryApplyOptimisticRows(
       bag.options.db,
       capped as Record<string, readonly QueryRow[]>,
       bag.options.topicMap,
-      topicMapCtxFromBag(bag)
+      topicMapCtxFromSubscriptions(bag)
     );
     if (Object.keys(rows).length === 0) return true;
     await applyRowImages(getMergeDeps(), rows, { optimistic: true });
@@ -65,7 +65,7 @@ async function tryApplyOptimisticRows(
  * scopes at the push checkpoint so an older in-flight snapshot is dropped.
  */
 async function fenceScopesAtPush(
-  bag: PushBag,
+  bag: PushSubscriptions,
   topic: Topic,
   payload: PushMessage
 ): Promise<void> {
@@ -85,7 +85,7 @@ async function fenceScopesAtPush(
 }
 
 function raiseFor(
-  bag: PushBag,
+  bag: PushSubscriptions,
   topic: Topic,
   payload: PushMessage
 ): { readonly raise: RowImageCheckpointRaise } | Record<string, never> {
@@ -95,7 +95,7 @@ function raiseFor(
 }
 
 async function tryApplyFanoutRows(
-  bag: PushBag,
+  bag: PushSubscriptions,
   topic: Topic,
   payload: PushMessage
 ): Promise<boolean> {
@@ -130,7 +130,7 @@ function isDuplicatePushSeq(lastPushSeq: string, pushSeq: string): boolean {
 }
 
 function wakeRefetch(
-  bag: PushBag,
+  bag: PushSubscriptions,
   topic: Topic,
   payload: PushMessage,
   scopes: Set<string>
@@ -144,7 +144,7 @@ function wakeRefetch(
 }
 
 export async function handlePush(
-  bag: PushBag,
+  bag: PushSubscriptions,
   topic: Topic,
   data: unknown
 ): Promise<void> {
@@ -182,7 +182,7 @@ export async function handlePush(
 }
 
 export async function commitPendingPushSeqs(
-  bag: PushBag,
+  bag: PushSubscriptions,
   sweptScopes: readonly string[]
 ): Promise<void> {
   if (bag.pendingTopicPushSeqs.size === 0) return;

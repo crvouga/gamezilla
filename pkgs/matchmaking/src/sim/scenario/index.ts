@@ -44,6 +44,6 @@ export type { ParticipantTarget } from './refs';
 export {
   MATCHMAKING_START_MS,
   type MatchmakingArgs,
-  type MatchmakingSurface,
+  type MatchmakingSim,
   matchmaking,
 } from './system';

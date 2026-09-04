@@ -1,4 +1,4 @@
-import { Handles } from '@libs/dst-handles';
+import { Handles } from '@libs/test-ids';
 import { useLingui } from '@lingui/react/macro';
 import { Box, Button } from '@pkgs/ui';
 import { type ReactNode, useCallback } from 'react';

@@ -1,4 +1,4 @@
-import { gen } from '@pkgs/dst/fast-check';
+import { gen } from '@pkgs/sim/fast-check';
 import fc from 'fast-check';
 
 export type RoomArgs = {

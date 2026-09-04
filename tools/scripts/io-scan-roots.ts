@@ -74,6 +74,7 @@ export async function collectIoScanFiles(
       if (
         /\/src\//.test(key) ||
         /\/scripts\//.test(key) ||
+        /\/tests\//.test(key) ||
         /\/e2e\//.test(key)
       ) {
         files.push(key);
@@ -83,6 +84,7 @@ export async function collectIoScanFiles(
       if (
         /\/src\//.test(key) ||
         /\/scripts\//.test(key) ||
+        /\/tests\//.test(key) ||
         /\/db\//.test(key) ||
         /\/e2e\//.test(key)
       ) {
@@ -90,16 +92,17 @@ export async function collectIoScanFiles(
       }
     }
     if (key.startsWith('sim/') && hasExt(key, TS_JS_EXTS)) {
-      if (/\/src\//.test(key) || /\/scripts\//.test(key)) {
+      if (
+        /\/src\//.test(key) ||
+        /\/scripts\//.test(key) ||
+        /\/tests\//.test(key)
+      ) {
         files.push(key);
       }
     }
   }
 
-  files.push(
-    ...(await keysUnder(store, 'test', TS_EXTS)),
-    ...(await keysUnder(store, 'tools', TS_EXTS))
-  );
+  files.push(...(await keysUnder(store, 'tools', TS_EXTS)));
 
   return [...new Set(toAbs(files))].sort();
 }

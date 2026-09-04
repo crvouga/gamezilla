@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { defineTable, registerTables } from '@pkgs/db-schema';
 import { applySqliteSchema } from '@pkgs/db-schema/sqlite';
-import { createInMemoryPubSub } from '@pkgs/pubsub/testing';
+import { createInMemoryPubSub } from '@pkgs/pubsub/in-memory';
 import { raw, sql } from '@pkgs/sql';
 import { createSimAdapters } from '@pkgs/uuid';
 import { SqlClientWithPubSub } from './impl-with-pub-sub';

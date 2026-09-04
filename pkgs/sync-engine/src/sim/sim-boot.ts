@@ -1,10 +1,12 @@
 import type { SyncBootDeps } from './boot-deps';
-import {
-  type BoundaryFaultController,
-  createBoundaryFaultController,
-} from './boundary-faults';
 import type { SimAuthStatus } from './client-factory';
+import {
+  createBoundaryFaultController,
+  type EdgeFaultController,
+} from './edge-faults';
 import { bindSimHttpServer } from './http-bridge';
+import type { SyncNetwork } from './network';
+import { openSimServer } from './server';
 import {
   type BootRuntime,
   createBootRuntime,
@@ -12,31 +14,29 @@ import {
   resolveAuthForDevice,
   resolveBootDomain,
   SIM_SERVER_NODE_ID,
-} from './kit-boot-parts';
-import { fireCrashIfArmed } from './kit-lifecycle';
-import type { BootedSimKernel, ClientMeta, KitClientOpts } from './kit-types';
-import type { SyncNetwork } from './network';
-import { openSimServer } from './server';
+} from './sim-boot-parts';
+import { fireCrashIfArmed } from './sim-lifecycle';
+import type { BootedSimKernel, ClientMeta, SimClientOpts } from './sim-types';
 import { createStoragePressureController } from './storage-pressure';
 import { SERVER_HTTP, SERVER_PUB } from './traffic';
 
-export type { BootedSimKernel } from './kit-types';
+export type { BootedSimKernel } from './sim-types';
 
 /** Deps + network + broker + boundary faults, before the server exists. */
 export type SimInfra = {
   readonly deps: SyncBootDeps;
-  readonly boundaryFaults: BoundaryFaultController;
+  readonly boundaryFaults: EdgeFaultController;
   readonly runtime: BootRuntime;
 };
 
-/** Session-derived deps + network for `createSyncSurface` boot. */
+/** Session-derived deps + network for `createSyncSim` boot. */
 export type InjectedSimPorts = {
   readonly deps: SyncBootDeps;
   readonly network: SyncNetwork;
 };
 
 export function bootSimInfra(args: {
-  readonly clientOpts: KitClientOpts;
+  readonly clientOpts: SimClientOpts;
   readonly injected: InjectedSimPorts;
 }): SimInfra {
   const deps = args.injected.deps;
@@ -53,7 +53,7 @@ export function bootSimInfra(args: {
 /** In-memory SQLite server + HTTP bind on top of {@link bootSimInfra}. */
 export async function bootSimServer(args: {
   readonly infra: SimInfra;
-  readonly clientOpts: KitClientOpts;
+  readonly clientOpts: SimClientOpts;
 }): Promise<BootedSimKernel> {
   const { runtime, boundaryFaults } = args.infra;
   const rng = args.infra.deps.rng;

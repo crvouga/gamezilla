@@ -1,5 +1,5 @@
-import { defineSystem, virtualHost } from '@pkgs/dst';
-import { gen } from '@pkgs/dst/fast-check';
+import { defineSystem, virtualTimeRuntime } from '@pkgs/sim';
+import { gen } from '@pkgs/sim/fast-check';
 import fc from 'fast-check';
 import {
   corruptSimOpfsStore,
@@ -58,7 +58,7 @@ export const sqlClientWeb = defineSystem<SqlClientWebSurface, SqlClientWebArgs>(
   {
     name: 'sql-client.web',
     args: SQL_CLIENT_WEB_ARGS,
-    draw: () => gen(arbSqlClientWebArgs()),
+    sample: () => gen(arbSqlClientWebArgs()),
     create(session, args) {
       const storeSession = session.fork('store');
       const { board } = startStore(storeSession, {
@@ -75,10 +75,10 @@ export const sqlClientWeb = defineSystem<SqlClientWebSurface, SqlClientWebArgs>(
   }
 );
 
-sqlClientWeb.host({
+sqlClientWeb.runtime({
   default: true,
   name: 'virtual',
-  create: () => virtualHost(),
+  create: () => virtualTimeRuntime(),
 });
 
 export function caps(s: SqlClientWebSurface): string[] {
@@ -129,7 +129,7 @@ export const connect = sqlClientWeb.action({
   name: 'connect',
   enabled: (s) => tabIdList(s).length > 0,
   weight: 3,
-  draw: (s) => gen(fc.constantFrom(...tabIdList(s))),
+  sample: (s) => gen(fc.constantFrom(...tabIdList(s))),
   act: async (s, tabId: string) => {
     await connectTab(boardOf(s), tabId);
   },
@@ -139,7 +139,7 @@ export const disconnect = sqlClientWeb.action({
   name: 'disconnect',
   enabled: (s) => tabIdList(s).length > 0,
   weight: 3,
-  draw: (s) => gen(fc.constantFrom(...tabIdList(s))),
+  sample: (s) => gen(fc.constantFrom(...tabIdList(s))),
   act: async (s, tabId: string) => {
     await disconnectTab(boardOf(s), tabId);
   },
@@ -155,7 +155,7 @@ export const put = sqlClientWeb.action({
   name: 'put',
   enabled: (s) => tabIdList(s).length > 0,
   weight: 3,
-  draw: (s) =>
+  sample: (s) =>
     gen(
       fc.record({
         tabId: fc.constantFrom(...tabIdList(s)),
@@ -176,7 +176,7 @@ export const put = sqlClientWeb.action({
 export const killTabAction = sqlClientWeb.action({
   name: 'killTab',
   enabled: (s) => tabIdList(s).length > 0,
-  draw: (s) => gen(fc.constantFrom(...tabIdList(s))),
+  sample: (s) => gen(fc.constantFrom(...tabIdList(s))),
   act: async (s, tabId: string) => {
     await killTab(boardOf(s), tabId);
   },
@@ -203,8 +203,8 @@ export const bumpEpoch = sqlClientWeb.action({
   },
 });
 
-export const converged = sqlClientWeb.property({
-  name: 'converged',
+export const inSync = sqlClientWeb.property({
+  name: 'inSync',
   check: async (s) => {
     const owners = openOwnerCount(s);
     if (owners > 1) {

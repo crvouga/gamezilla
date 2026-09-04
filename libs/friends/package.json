@@ -18,10 +18,10 @@
   },
   "dependencies": {
     "@libs/auth": "workspace:*",
-    "@libs/dst-handles": "workspace:*",
     "@libs/notifications": "workspace:*",
     "@libs/profile": "workspace:*",
     "@libs/spaces": "workspace:*",
+    "@libs/test-ids": "workspace:*",
     "@libs/user-search": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",
@@ -43,7 +43,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@pkgs/dst": "workspace:*",
+    "@pkgs/sim": "workspace:*",
     "@types/react": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",

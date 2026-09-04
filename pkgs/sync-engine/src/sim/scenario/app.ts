@@ -1,8 +1,8 @@
 import type fc from 'fast-check';
 
 import type { SimDomainPack } from '../domain-pack';
-import type { RestartClientOpts } from '../kit-lifecycle';
-import type { SyncSurfaceBase } from './surface-types';
+import type { RestartClientOpts } from '../sim-lifecycle';
+import type { SyncSimBase } from './sim-types';
 
 /** One app mutation from one client — the `domain` pool action's argument. */
 export type DomainOp = {
@@ -44,7 +44,7 @@ export type SyncApp = {
   }) => fc.Arbitrary<ServerOp>[];
   readonly serverOps?: Record<
     string,
-    (surface: SyncSurfaceBase, args: Record<string, unknown>) => Promise<void>
+    (surface: SyncSimBase, args: Record<string, unknown>) => Promise<void>
   >;
   /** App-specific schema restart options for `restartWithSchema` actions. */
   readonly restartOptsForVariant?: (variant: string) => RestartClientOpts;

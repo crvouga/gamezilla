@@ -4,8 +4,8 @@
 
 import type { Client } from '@apps/client/product/create-client';
 import type { ObjectStore } from '@pkgs/object-store/interface';
+import { createInMemoryPublishOnlyPubSub } from '@pkgs/pubsub/in-memory';
 import type { Topic } from '@pkgs/pubsub/interface';
-import { createInMemoryPublishOnlyPubSub } from '@pkgs/pubsub/testing/in-memory';
 import {
   createPlaygroundLogBuffer,
   type PlaygroundActor,

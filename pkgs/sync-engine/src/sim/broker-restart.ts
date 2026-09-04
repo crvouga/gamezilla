@@ -1,5 +1,5 @@
-import type { BootedSimKernel } from './kit-types';
 import { createSimPubSubBroker } from './pubsub-bridge';
+import type { BootedSimKernel } from './sim-types';
 import { BROKER, SERVER_PUB } from './traffic';
 
 function createBroker(k: BootedSimKernel) {
@@ -44,7 +44,7 @@ async function drainDisconnect(
     maxSteps: 50_000,
   });
   if (!ok) {
-    throw new Error('SyncKit: disconnect timeout during broker restart');
+    throw new Error('SyncSimRuntime: disconnect timeout during broker restart');
   }
   await disconnect;
 }

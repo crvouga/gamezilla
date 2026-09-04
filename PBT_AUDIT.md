@@ -22,7 +22,7 @@
 | Artifact | Path |
 |---|---|
 | Audit / findings | repo root `PBT_AUDIT.md`, `PBT_FINDINGS.md` |
-| Runner + shared arbitraries | `@pkgs/dst/fast-check` (`assertProperty`, `gen`, JSON arbs) |
+| Runner + shared arbitraries | `@pkgs/sim/fast-check` (`assertProperty`, `gen`, JSON arbs) |
 | Domain arbitraries | co-located under each package’s `tests/arbitraries/` or `test/arbitraries/` |
 | Property tests | `*.pbt.test.ts` alongside existing example tests |
 
@@ -147,8 +147,8 @@ Zod 4: hand-write from domain types (no maintained Zod-4→fast-check bridge ass
 | Phase | Status | Notes |
 |---|---|---|
 | 0 Audit | done | this file |
-| 1 Infra | done | `@pkgs/dst/fast-check` + catalog `fast-check@^4.9.0` |
-| 2 Arbitraries | done | shared in `@pkgs/dst/fast-check`; co-located under room/sync/spaces/friends |
+| 1 Infra | done | `@pkgs/sim/fast-check` + catalog `fast-check@^4.9.0` |
+| 2 Arbitraries | done | shared in `@pkgs/sim/fast-check`; co-located under room/sync/spaces/friends |
 | 3 DST | done | stateful fuzz via `system.explore` / `s.walk` (no `fc.commands`); room chaos; matchmaking workload |
 | 4 Tier 1 | done | 13 `*.pbt.test.ts` files, 31 properties, all green |
 

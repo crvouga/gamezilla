@@ -3,7 +3,7 @@ import { expect, test } from 'bun:test';
 import {
   extractInlinedApiUrlFromBundleSource,
   productionClientApiOrigin,
-} from './production-client-bundle-guard';
+} from '@libs/client-config/public/production-client-bundle-guard';
 
 test('extractInlinedApiUrlFromBundleSource parses minified getApiBaseUrl chunks', () => {
   const prod = productionClientApiOrigin();

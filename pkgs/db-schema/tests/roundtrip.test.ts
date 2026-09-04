@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'bun:test';
 import { raw } from '@pkgs/sql';
-import { planClient } from '../../core/plan';
-import { defineTable, registerTables } from '../../index';
-import { readPostgresCatalog } from '../../postgres/catalog';
-import { postgres } from '../../postgres/driver';
-import { readSqliteCatalog } from '../../sqlite/catalog';
-import { sqlite } from '../../sqlite/driver';
-import { createPglitePostgresClient } from '../../test/pglite-postgres-client';
+import { planClient } from '../src/core/plan';
+import { defineTable, registerTables } from '../src/index';
+import { readPostgresCatalog } from '../src/postgres/catalog';
+import { postgres } from '../src/postgres/driver';
+import { readSqliteCatalog } from '../src/sqlite/catalog';
+import { sqlite } from '../src/sqlite/driver';
+import { createPglitePostgresClient } from '../src/test/pglite-postgres-client';
 
 describe('db-schema roundtrip PBT pins', () => {
   test('sqlite: apply then re-plan is empty', async () => {
@@ -53,7 +53,7 @@ describe('db-schema roundtrip PBT pins', () => {
         harness.sqlClient,
         schema._declared
       );
-      const plan = await import('../../core/plan').then((m) =>
+      const plan = await import('../src/core/plan').then((m) =>
         m.planServer(schema._declared, catalog)
       );
       expect(plan.ok).toBe(true);

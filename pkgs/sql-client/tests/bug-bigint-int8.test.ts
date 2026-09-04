@@ -8,10 +8,10 @@ import { defineTable, registerTables } from '@pkgs/db-schema';
 import { applyPostgresSchema } from '@pkgs/db-schema/postgres';
 import { applySqliteSchema } from '@pkgs/db-schema/sqlite';
 import { raw } from '@pkgs/sql';
-import { createPostgresDbScope } from '../../postgres/schema';
-import { ALWAYS_FACTORIES, openBackend } from '../backends';
-import { dropTables } from '../backends/drop-tables';
-import { assertWireSafeRows, assertWireSafeRunResult } from '../oracles';
+import { createPostgresDbScope } from '../src/postgres/schema';
+import { ALWAYS_FACTORIES, openBackend } from './helpers/backends';
+import { dropTables } from './helpers/backends/drop-tables';
+import { assertWireSafeRows, assertWireSafeRunResult } from './helpers/oracles';
 
 describe('bug-bigint-int8.pbt', () => {
   test('int8 / INTEGER / COUNT(*) never surface as bigint', async () => {

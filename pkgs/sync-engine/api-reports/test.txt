@@ -9,14 +9,14 @@ NeverOptions
 pruneMutationArtifacts
 SCHEMA_EPOCH
 SeededRng
-SimClientHandle
+SimClient
 SimClock
 SimDomainPack
 SimSessionQuery
 SyncAction
 SyncApp
 SyncArgs
-SyncSurface
+SyncSim
 UntilTarget
 WaitUntilOptions
 withFrameworkMutations

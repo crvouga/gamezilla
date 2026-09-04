@@ -1,6 +1,6 @@
 /**
  * Room system kernel. Each app declares a literal `defineSystem` whose
- * `create` calls {@link bootRoomSurface} and then {@link registerRoomLibrary};
+ * `create` calls {@link bootRoomSim} and then {@link registerRoomLibrary};
  * scripts run through `system.script` / `.explore` / `.replay`.
  */
 
@@ -11,18 +11,18 @@ export type { RoomArgs } from './args';
 export { ROOM_ARGS, ROOM_DRAW } from './args';
 export type { BootRoomOpts, RoomSystemDef } from './boot';
 export {
-  bootRoomSurface,
+  bootRoomSim,
   registerRoomLibrary,
   roomEpoch,
   roomVirtual,
   SIM_START_MS,
 } from './boot';
-export {
-  BYZANTINE_INJECT_KINDS,
-  type ByzantineInjectKind,
-  buildByzantineRaw,
-} from './byzantine';
 export { MILD_NET_FAULTS, NET_FAULT_PROFILES } from './faults';
+export {
+  buildMalformedMessageRaw,
+  MALFORMED_MESSAGE_INJECT_KINDS,
+  type MalformedMessageInjectKind,
+} from './malformed-messages';
 export {
   allLiveConnected,
   caps,
@@ -31,12 +31,11 @@ export {
   clientState,
   clock,
   connected,
-  converged,
-  converges,
   crashedIds,
   downClients,
   heldClients,
   impairedClients,
+  inSync,
   invariants,
   invariantViolations,
   lastRejection,
@@ -51,14 +50,14 @@ export {
   serverCrashed,
   serverHash,
   serverState,
+  staysInSync,
 } from './observations';
-export { prepareClientsForConverge } from './play';
+export { prepareClientsForInSync } from './play';
 export {
   addClient,
   addSpectator,
   armCrashAt,
   asymmetricLink,
-  byzantine,
   clearFaults,
   clearLocalData,
   connect,
@@ -68,18 +67,19 @@ export {
   domain,
   domainAction,
   down,
-  heal,
-  hold,
   injectFromServer,
   injectToServer,
+  malformedMessages,
   partition,
-  release,
+  pauseNetwork,
+  recoverAll,
   restart,
-  revive,
+  restoreNetwork,
+  resumeNetwork,
   serverCrash,
   serverRestart,
   setFaults,
   setNet,
   takeOver,
 } from './room-actions';
-export type { RoomSurface } from './surface';
+export type { RoomSim } from './sim';

@@ -1,5 +1,5 @@
 import type { Clock, Timers } from '@pkgs/clock';
-import type { VirtualScheduler } from '@pkgs/dst';
+import type { VirtualScheduler } from '@pkgs/sim';
 import type { SeededRng } from '@pkgs/uuid';
 
 /**

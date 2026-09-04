@@ -1,5 +1,5 @@
 import type { Clock, Timers } from '@pkgs/clock';
-import type { VirtualScheduler } from '@pkgs/dst';
+import type { VirtualScheduler } from '@pkgs/sim';
 import type { CreateId, SeededRng } from '@pkgs/uuid';
 
 import { InMemoryClientStorage } from '../client/adapters/storage/memory';
@@ -16,16 +16,16 @@ import type {
   RoomState,
 } from '../types';
 
-import type { RoomBoundaryFaultController } from './boundary-faults';
-import type { RoomSimClientHandle, RoomSimNodeHandle } from './handles';
+import type { RoomEdgeFaultController } from './edge-faults';
 import type { SimRoomNetwork } from './network';
 import type { SerialQueue } from './serial-queue';
+import type { RoomSimClient, RoomSimNode } from './sim-handles';
+import { SimLoopbackRoomTransport } from './sim-loopback-transport';
 import {
   clientDomainHash,
   drainRoomSim,
   type RoomSimClientSlot,
-} from './settle';
-import { SimLoopbackRoomTransport } from './sim-loopback-transport';
+} from './wait-for-idle';
 
 export type RoomKernel<
   S extends RoomState,
@@ -46,8 +46,8 @@ export type RoomKernel<
   readonly network: SimRoomNetwork;
   readonly serverQueue: SerialQueue;
   readonly slots: Map<string, RoomSimClientSlot<S, C, E>>;
-  readonly handles: Map<string, RoomSimClientHandle<S, C, E>>;
-  readonly boundary: RoomBoundaryFaultController;
+  readonly handles: Map<string, RoomSimClient<S, C, E>>;
+  readonly boundary: RoomEdgeFaultController;
   serverCrashed: boolean;
   scheduleDispose: () => void;
   /** Rebind schedule inject after server recreate. */
@@ -343,14 +343,14 @@ export function rebindLiveConnections<
   }
 }
 
-export function buildClientHandle<
+export function buildRoomSimClient<
   S extends RoomState,
   C extends RoomCommandPayload,
   E extends RoomEvent,
 >(
   k: RoomKernel<S, C, E>,
   slot: RoomSimClientSlot<S, C, E>
-): RoomSimClientHandle<S, C, E> {
+): RoomSimClient<S, C, E> {
   return {
     id: slot.key,
     identity: slot.identity,
@@ -410,11 +410,11 @@ export function buildClientHandle<
   };
 }
 
-export function buildNodeHandle<
+export function buildRoomSimNode<
   S extends RoomState,
   C extends RoomCommandPayload,
   E extends RoomEvent,
->(k: RoomKernel<S, C, E>, key: string): RoomSimNodeHandle {
+>(k: RoomKernel<S, C, E>, key: string): RoomSimNode {
   return {
     now: () => k.clock.now(),
     disconnect: async () => {

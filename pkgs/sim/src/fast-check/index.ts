@@ -1,6 +1,6 @@
 import type { Arbitrary } from 'fast-check';
 import fc from 'fast-check';
-import { createRng, type Rng } from '../kernel/rng';
+import { createRng, type Rng } from '../internals/rng';
 import type { Gen } from '../system/gen';
 
 export {

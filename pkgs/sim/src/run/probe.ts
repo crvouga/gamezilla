@@ -34,12 +34,12 @@ export async function probe<S>(
   if (!(weight > 0)) return { enabled: false };
 
   let args: readonly unknown[] = [];
-  if (opts?.drawArgs === true && action.draw !== undefined) {
+  if (opts?.drawArgs === true && action.sample !== undefined) {
     const rng = opts.rng;
     if (rng === undefined) {
       throw new Error('probe: drawArgs requires rng');
     }
-    const gen = await action.draw(surface);
+    const gen = await action.sample(surface);
     args = gen(rng as never) as unknown as readonly unknown[];
     if (!Array.isArray(args)) {
       // Gen may return a single value or a tuple — normalize to args list.

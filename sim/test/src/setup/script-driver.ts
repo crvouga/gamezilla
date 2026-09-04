@@ -1,11 +1,11 @@
 /**
- * A {@link Driver} whose every step is a {@link Script} step: mutations are
+ * A {@link Driver} whose every step is a {@link Run} step: mutations are
  * `s.apply` checkpoints, waits are `s.until` / `s.elapse`, reads are
  * `s.observe`. Nothing here touches the product surface — that is the
  * scenario system's job.
  */
 
-import type { Script } from '@pkgs/dst';
+import type { Run } from '@pkgs/sim';
 import type {
   AssertionOptions,
   Driver,
@@ -20,17 +20,12 @@ import type {
 } from '@pkgs/ui-testing';
 import { isWaitTextCondition } from '@pkgs/ui-testing';
 
-import { type UiOp, uiOp } from '../scenario/actions';
-import {
-  actorHtml,
-  nodeLayout,
-  nodeText,
-  visible,
-} from '../scenario/observations';
-import type { ProductSurface } from '../scenario/surface';
+import { type UiOp, uiOp } from '../sim/actions';
+import { actorHtml, nodeLayout, nodeText, visible } from '../sim/observations';
+import type { ProductSim } from '../sim/sim';
 
 type Extra = UiOp['extra'];
-type ProductScript = Script<ProductSurface>;
+type ProductScript = Run<ProductSim>;
 
 const DEFAULT_UI_WAIT_MS = 5_000;
 const UI_STEP_MS = 50;
@@ -157,7 +152,7 @@ function wrapNode(
         toX: to.xRatio,
         toY: to.yRatio,
       }),
-    layout: () => s.observe(nodeLayout, actorId, path),
+    layout: () => s.read(nodeLayout, actorId, path),
     input: (text, options) => op('input', extraOf(options, { text })),
     clear: () => op('clear', {}),
     key: (key: DriverKey) => op('key', { key }),
@@ -178,8 +173,8 @@ function wrapNode(
         ...(options !== undefined ? { options } : {}),
       }),
     expect: nodeExpect(s, actorId, path),
-    isVisible: () => s.observe(visible, actorId, path),
-    text: () => s.observe(nodeText, actorId, path),
+    isVisible: () => s.read(visible, actorId, path),
+    text: () => s.read(nodeText, actorId, path),
   };
 }
 
@@ -198,7 +193,7 @@ export function createScriptDriver(s: ProductScript, actorId: string): Driver {
     // Memo keys fingerprint the args, so pass `stylesheetHref` only when set.
     snapshotHtml: (options) =>
       options?.stylesheetHref === undefined
-        ? s.observe(actorHtml, actorId)
-        : s.observe(actorHtml, actorId, options.stylesheetHref),
+        ? s.read(actorHtml, actorId)
+        : s.read(actorHtml, actorId, options.stylesheetHref),
   };
 }

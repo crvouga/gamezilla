@@ -1,6 +1,6 @@
-import type { Session } from '@pkgs/dst';
-import type { ReconcileReport, WorkloadManifest } from '../../core/types';
-import type { SimDb } from '../../sim/sim-db';
+import type { Session } from '@pkgs/sim';
+import type { ReconcileReport, WorkloadManifest } from '../../src/core/types';
+import type { SimDb } from '../../src/sim/sim-db';
 import type { IndexesReconcilerHandle } from './nodes';
 
 export type IndexesSurface = {

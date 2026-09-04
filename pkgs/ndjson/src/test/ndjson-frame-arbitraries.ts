@@ -1,4 +1,4 @@
-import { arbJsonValue } from '@pkgs/dst/fast-check';
+import { arbJsonValue } from '@pkgs/sim/fast-check';
 import fc from 'fast-check';
 
 export type NdjsonResultLike = {

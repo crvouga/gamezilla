@@ -1,11 +1,12 @@
 import { describe, expect, test } from 'bun:test';
-import { decodePayload, encodePayload, PAYLOAD_MAX_BYTES } from './payload';
+import { wallClock, wallTimers } from '@pkgs/clock';
 import {
   createInMemoryBus,
   createInMemoryPubSub,
   InMemoryPubSub,
-  runPubSubContractTests,
-} from './testing';
+} from './in-memory';
+import { runPubSubContractTests } from './in-memory/contract';
+import { decodePayload, encodePayload, PAYLOAD_MAX_BYTES } from './payload';
 import { assertValidTopic } from './topic';
 
 runPubSubContractTests('in-memory', async () => {
@@ -18,6 +19,8 @@ runPubSubContractTests('in-memory', async () => {
       }
       subscriber.deliverRawForTest(topic, 'not-json{{{');
     },
+    clock: wallClock,
+    timers: wallTimers,
     teardown: async () => undefined,
   };
 });

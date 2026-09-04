@@ -1,4 +1,4 @@
-import type { Session } from '@pkgs/dst';
+import type { Session } from '@pkgs/sim';
 
 import type { LocalDomainSchema } from '../../client/local-schema-migrate';
 import type {
@@ -6,13 +6,13 @@ import type {
   MutationRegistry,
 } from '../../mutations/core/types';
 import type { QueryRegistry } from '../../queries/core/types';
-import type { SimSubscription } from '../client-handle';
 import type { SimSessionQuery } from '../domain-pack';
-import type { SyncKit } from '../kit-api';
-import type { SimInfra } from '../kit-boot';
-import type { BootedSimKernel, KitClientOpts } from '../kit-types';
+import type { SyncSimRuntime } from '../sim-api';
+import type { SimInfra } from '../sim-boot';
+import type { SimSubscription } from '../sim-client';
+import type { BootedSimKernel, SimClientOpts } from '../sim-types';
 import type { SyncApp } from './app';
-import type { SyncSurfaceBase } from './surface-types';
+import type { SyncSimBase } from './sim-types';
 
 /** Outcome of the most recent `mutate` pin on one client. */
 
@@ -55,9 +55,9 @@ export type SyncRuntime = {
   readonly localSchema?: LocalDomainSchema;
   readonly mutationRegistry?: MutationRegistry;
   readonly queryRegistry?: QueryRegistry;
-  /** Clients the pool crashed / revoked / cut — remade by `connect`, `restart`, `revive`. */
+  /** Clients the pool crashed / revoked / cut — remade by `connect`, `restart`, `recoverAll`. */
   readonly owed: OwedRestart;
-  /** Subscriptions opened by the `subscribe` pool action; dropped on `heal`. */
+  /** Subscriptions opened by the `subscribe` pool action; dropped on `restoreNetwork`. */
   readonly poolSubscriptions: Set<Disposable>;
   /** Client id → last `mutate` pin result, read by `lastMutationId`. */
   readonly lastMutation: Map<string, LastMutation>;
@@ -65,18 +65,18 @@ export type SyncRuntime = {
   readonly subscriptions: Map<string, PinnedSubscription>;
   /** Client id → settled `postMutationsAsync` response, read by `postOutcome`. */
   readonly lastPost: Map<string, LastPost>;
-  clientOpts: KitClientOpts;
+  clientOpts: SimClientOpts;
   infra: SimInfra;
   kernel: BootedSimKernel;
-  kit: SyncKit;
+  kit: SyncSimRuntime;
 };
 
-export function requireKit(runtime: SyncRuntime): SyncKit {
+export function requireKit(runtime: SyncRuntime): SyncSimRuntime {
   return runtime.kit;
 }
 
 /** Domain surface returned by every sync system's `create`. */
-export type SyncSurface = SyncSurfaceBase & {
+export type SyncSim = SyncSimBase & {
   readonly session: Session;
   readonly runtime: SyncRuntime;
   readonly dispose: () => Promise<void>;

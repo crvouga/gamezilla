@@ -307,7 +307,7 @@ export function createMatchmakingApp(opts: CreateMatchmakingAppOptions): Hono {
   });
 
   /**
-   * Host-driven match pass + sweep. Stateless workers may call this
+   * Runtime-driven match pass + sweep. Stateless workers may call this
    * concurrently; correctness uses transactional row claims.
    */
   app.post('/tick', async (c) => {

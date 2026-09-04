@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
 import { createSeededRng } from '@pkgs/uuid';
-import { createVirtualClock } from '../kernel/clock';
-import { createScheduler } from '../kernel/scheduler';
-import { createTraceRecorder } from '../kernel/trace';
+import { createVirtualClock } from '../internals/clock';
+import { createScheduler } from '../internals/scheduler';
+import { createTraceRecorder } from '../internals/trace';
 import { createNetwork, RELIABLE_NETWORK } from './network';
 
 describe('Network contract', () => {

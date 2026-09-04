@@ -1,4 +1,4 @@
-import { Handles } from '@libs/dst-handles';
+import { Handles } from '@libs/test-ids';
 
 import type { ActorScript } from './actor-script';
 
@@ -23,17 +23,21 @@ export class SearchFlows {
   }
 
   /**
-   * Wait until any of `handles` is visible. Re-queries search on every poll
-   * (rate limit is generous) so a late username hydrate still shows up.
+   * Type the query once, then poll visibility. Re-typing every tick cancels
+   * the 300ms debounce and clears results before they can be observed.
    */
   private async waitForSearchHit(
     username: string,
     handles: readonly string[],
     description: string
   ): Promise<string> {
+    let queried = false;
     return this.actor.pollUntil(
       async () => {
-        await this.searchUsername(username);
+        if (!queried) {
+          await this.searchUsername(username);
+          queried = true;
+        }
         for (const handle of handles) {
           if (await this.actor.ui.get(handle).isVisible()) return handle;
         }

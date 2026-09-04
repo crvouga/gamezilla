@@ -113,7 +113,7 @@ export type CreateWritableScriptSecretStoreOptions = {
 };
 
 /**
- * Script-side store: reads from injected env, writes via the configured
+ * Run-side store: reads from injected env, writes via the configured
  * provider when a bearer token is available (`SECRETS_TOKEN` / GitHub OIDC).
  */
 export async function createWritableScriptSecretStore(

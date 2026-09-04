@@ -1,20 +1,20 @@
-import type { SyncApp } from '../../../sim/scenario/app';
-import { acmeDomainOpArbs, acmeServerOpArbs } from './domain-arbs';
-import { acmeDomainPack } from './domain-pack';
+import type { SyncApp } from '../scenario/app';
+import { exampleDomainOpArbs, exampleServerOpArbs } from './domain-arbs';
+import { exampleDomainPack } from './domain-pack';
 import { insertCatalogNote } from './insert-catalog-note';
 import {
-  type AcmeSchemaVariant,
-  acmeRestartOptsForVariant,
+  type ExampleSchemaVariant,
+  exampleRestartOptsForVariant,
 } from './schema-variants';
 import { seedLargeCatalogNotes } from './seed-large-catalog';
 import { writeNoteBody } from './write-note-body';
 
-export const acmeApp: SyncApp = {
-  pack: acmeDomainPack,
-  domainOpArbs: acmeDomainOpArbs,
-  serverOpArbs: acmeServerOpArbs,
+export const exampleApp: SyncApp = {
+  pack: exampleDomainPack,
+  domainOpArbs: exampleDomainOpArbs,
+  serverOpArbs: exampleServerOpArbs,
   restartOptsForVariant: (variant) =>
-    acmeRestartOptsForVariant(variant as AcmeSchemaVariant),
+    exampleRestartOptsForVariant(variant as ExampleSchemaVariant),
   serverOps: {
     writeNoteBodySilent: async (surface, args) => {
       const noteId = args['noteId'];

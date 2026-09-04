@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
-import { fingerprintSql } from '../../core/fingerprint';
-import { reconcileIndexes } from '../../core/reconcile';
-import { createSimClock, SimDb } from '../../sim';
+import { createSimClock, SimDb } from '@pkgs/db-indexes/sim';
+import { fingerprintSql } from '../src/core/fingerprint';
+import { reconcileIndexes } from '../src/core/reconcile';
 
 /**
  * Postgres live differential — requires DATABASE_URL (embedded or secrets-run).
@@ -12,7 +12,7 @@ const HAS_DB = DATABASE_URL.length > 0;
 
 describe('postgres port contract', () => {
   test('createPostgresPort is exported', async () => {
-    const mod = await import('../../postgres');
+    const mod = await import('@pkgs/db-indexes/postgres');
     expect(typeof mod.createPostgresPort).toBe('function');
   });
 
@@ -119,7 +119,7 @@ describe.skipIf(!HAS_DB)('postgres live differential', () => {
   test('skipped without DATABASE_URL; with URL runs createPostgresPort smoke', async () => {
     // Live hypopg differential is CD-gated; document presence of URL.
     expect(HAS_DB).toBe(true);
-    const { createPostgresPort } = await import('../../postgres');
+    const { createPostgresPort } = await import('@pkgs/db-indexes/postgres');
     expect(typeof createPostgresPort).toBe('function');
   });
 });

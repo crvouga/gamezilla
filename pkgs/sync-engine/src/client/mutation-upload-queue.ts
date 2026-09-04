@@ -21,13 +21,13 @@ const IDLE_DELAY_MS = 100;
 const ERROR_DELAY_MS = 2_000;
 const MAX_ERROR_DELAY_MS = 60_000;
 
-/** Host/port alias of protocol {@link MutationRequestItem}. */
+/** Runtime/port alias of protocol {@link MutationRequestItem}. */
 export type MutationUploadRow = MutationRequestItem;
 
-/** Host/port alias of protocol {@link MutationVerdict}. */
+/** Runtime/port alias of protocol {@link MutationVerdict}. */
 export type MutationUploadVerdict = MutationVerdict;
 
-/** Host/port alias of protocol {@link MutationBatchResponse}. */
+/** Runtime/port alias of protocol {@link MutationBatchResponse}. */
 export type MutationUploadResult = MutationBatchResponse;
 
 type StoredMutation = {

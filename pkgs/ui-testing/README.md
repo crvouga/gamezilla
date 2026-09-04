@@ -33,7 +33,7 @@ import {
 
 | Surface | Purpose |
 | --- | --- |
-| `describe` / `UiTestCtx` | Host-agnostic scenario registration (Jest, Playwright, Detox) |
+| `describe` / `UiTestCtx` | Runtime-agnostic scenario registration (Jest, Playwright, Detox) |
 | `Driver` | Portable user-intent ops via locator nodes |
 | `DriverNode` | Element-scoped tap / wait / expect / text |
 | `createDriver(config)` | Factory over a discriminated `DriverConfig` |
@@ -231,7 +231,7 @@ Driver poll hook).
 Scenario files import `describe` from `@pkgs/ui-testing` and register tests
 via `ctx.test`. A host adapter is installed once per process:
 
-| Fidelity | Host | Driver | Install |
+| Fidelity | Runtime | Driver | Install |
 | --- | --- | --- | --- |
 | `sim` | Jest + jest-expo | `RntlDriver` | `installJestUiTestRunner()` in sim/test `jest.setup.ts` |
 | `max` | Playwright Test | `PlaywrightDriver` (one browser context per actor) | `installPlaywrightUiTestRunner()` in sim/test `playwright.setup.ts` |

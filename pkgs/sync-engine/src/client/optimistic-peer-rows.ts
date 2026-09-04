@@ -66,7 +66,7 @@ export function omitAlreadyLiveRows(
   return out;
 }
 
-/** Record peer-applied optimistic row images so a later snapshot can heal orphans. */
+/** Record peer-applied optimistic row images so a later snapshot can restoreNetwork orphans. */
 export async function recordOptimisticPeerRows(
   tx: SqlClient,
   tables: Readonly<Record<string, readonly QueryRow[]>>,

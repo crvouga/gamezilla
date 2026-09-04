@@ -1,11 +1,11 @@
 /**
- * Sim SQL handles — thin wrappers over {@link getSimSqlFabric}.
+ * Sim SQL handles — thin wrappers over {@link getSimSqlEngines}.
  * Engine imports live only in fabric-mem / fabric-real.
  */
 
 import type { Clock } from '@pkgs/clock';
-import { getSimSqlFabric } from './sim-sql-fabric';
-import type { SimSqlHandle } from './sim-sql-handle';
+import { getSimSqlEngines } from './sim-sql-engines';
+import type { SimSql } from './sim-sql-types';
 
 export {
   DEFAULT_SIM_SQL_BACKEND,
@@ -15,25 +15,25 @@ export {
   type SimSqlRuntime,
 } from './sim-sql-backend';
 export {
-  clearSimSqlFabricCache,
-  getSimSqlFabric,
-  type SimSqlFabric,
-} from './sim-sql-fabric';
-export type { SimSqlHandle } from './sim-sql-handle';
-export { handleBoundSqlClient, sharedSqlClient } from './sim-sql-handle';
+  clearSimSqlEnginesCache,
+  getSimSqlEngines,
+  type SimSqlEngines,
+} from './sim-sql-engines';
+export type { SimSql } from './sim-sql-types';
+export { handleBoundSqlClient, sharedSqlClient } from './sim-sql-types';
 
 export async function openFreshSimClientSql(
   logicalName: string,
   clock: Clock
-): Promise<SimSqlHandle> {
-  return getSimSqlFabric().openClient({ logicalName, clock });
+): Promise<SimSql> {
+  return getSimSqlEngines().openClient({ logicalName, clock });
 }
 
 export async function openFreshSimServerSql(
   logicalName: string,
   clock: Clock
-): Promise<SimSqlHandle> {
-  return getSimSqlFabric().openServer({ logicalName, clock });
+): Promise<SimSql> {
+  return getSimSqlEngines().openServer({ logicalName, clock });
 }
 
 /**
@@ -44,8 +44,8 @@ export async function openSimServerSqlFromSeedBytes(
   logicalName: string,
   clock: Clock,
   seedBytes: Uint8Array
-): Promise<SimSqlHandle> {
-  return getSimSqlFabric().openServer({
+): Promise<SimSql> {
+  return getSimSqlEngines().openServer({
     logicalName,
     clock,
     seedBytes,

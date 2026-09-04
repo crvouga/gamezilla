@@ -1,6 +1,6 @@
 import type { Topic } from '@pkgs/pubsub/interface';
 
-/** Shared topic so all acme-app sim clients receive the same push stream. */
+/** Shared topic so all example-app sim clients receive the same push stream. */
 export const NOTES_ALL_TOPIC = 'user:notes-all' as Topic;
 
 export function userTopic(actorId: string): Topic {

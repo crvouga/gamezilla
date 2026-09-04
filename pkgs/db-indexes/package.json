@@ -9,10 +9,10 @@
     "./sim": "./src/sim/index.ts"
   },
   "scripts": {
-    "mutants": "bun src/tests/mutants/scripted-mutants.ts",
+    "mutants": "bun tests/mutants/scripted-mutants.ts",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test",
-    "test:sim": "bun test src/tests/scenario"
+    "test:sim": "bun test tests/scenario"
   },
   "dependencies": {
     "@noble/hashes": "catalog:",
@@ -24,8 +24,8 @@
     "node-sql-parser": "catalog:"
   },
   "devDependencies": {
-    "@pkgs/dst": "workspace:*",
     "@pkgs/postgres-embedded": "workspace:*",
+    "@pkgs/sim": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",

@@ -3,9 +3,8 @@
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-
-import { virtualHost } from '@pkgs/dst';
 import { createNoopLogger } from '@pkgs/logger';
+import { virtualTimeRuntime } from '@pkgs/sim';
 import { SqlClientImplSqliteMem } from '@pkgs/sql-client/sqlite/impl-sqlite-mem';
 
 import { AuthSqliteDatabaseMigration } from '../src/server/auth-database-migration';
@@ -22,7 +21,7 @@ const authState = {
   googleFault: false,
 };
 
-const session = await virtualHost().open(1);
+const session = await virtualTimeRuntime().open(1);
 const sql = SqlClientImplSqliteMem.open({ seed: 1 });
 await new AuthSqliteDatabaseMigration().migrate({
   sqlClient: sql,

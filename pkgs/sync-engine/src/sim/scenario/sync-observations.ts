@@ -1,44 +1,44 @@
-import type { JsonValue } from '@pkgs/dst';
+import type { JsonValue } from '@pkgs/sim';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import { mutationStatus } from '../../mutations/client/mutation-status';
-import type { SimClientHandle } from '../client-handle';
 import { isClosedDatabaseError } from '../invariants';
-import { checkDomainConverged } from '../kit-converge';
-import type { SyncSurface } from './system';
+import type { SimClient } from '../sim-client';
+import { checkDomainInSync } from '../wait-for-in-sync';
+import type { SyncSim } from './system';
 
-export function clientIds(s: SyncSurface): string[] {
+export function clientIds(s: SyncSim): string[] {
   return [...s.clients.keys()].sort();
 }
 
-export function pending(s: SyncSurface): number {
+export function pending(s: SyncSim): number {
   return s.pendingEventCount();
 }
 
 /** Spelled-out alias of {@link pending} for scripted reads. */
 export const pendingEventCount = pending;
 
-export function schedulerQuiescent(s: SyncSurface): boolean {
+export function schedulerQuiescent(s: SyncSim): boolean {
   return s.isSchedulerQuiescent();
 }
 
-export function quiet(s: SyncSurface): boolean {
+export function quiet(s: SyncSim): boolean {
   return s.isSchedulerQuiescent() && s.pendingEventCount() === 0;
 }
 
-export function caps(s: SyncSurface): string[] {
+export function caps(s: SyncSim): string[] {
   return [...s.session.caps] as string[];
 }
 
-export function partitioned(s: SyncSurface): string[] {
+export function partitioned(s: SyncSim): string[] {
   return s.session.network.partitions().map(([a, b]) => `${a}|${b}`);
 }
 
-export function clock(s: SyncSurface): number {
+export function clock(s: SyncSim): number {
   return s.session.ports.clock.now();
 }
 
-export async function invariantViolations(s: SyncSurface): Promise<string[]> {
+export async function invariantViolations(s: SyncSim): Promise<string[]> {
   try {
     const inv = await s.runtime.kit.checkInvariants();
     if (inv === null) return [];
@@ -49,9 +49,9 @@ export async function invariantViolations(s: SyncSurface): Promise<string[]> {
 }
 
 /** Pure domain agreement check — never heals or advances time. */
-export async function converged(s: SyncSurface): Promise<boolean> {
+export async function inSync(s: SyncSim): Promise<boolean> {
   try {
-    const v = await checkDomainConverged({
+    const v = await checkDomainInSync({
       clients: s.clients,
       server: s.server,
       domain: s.runtime.app.pack,
@@ -63,23 +63,23 @@ export async function converged(s: SyncSurface): Promise<boolean> {
   }
 }
 
-export function healWeight(s: SyncSurface): number {
+export function restoreNetworkWeight(s: SyncSim): number {
   return partitioned(s).length > 0 ? 1 : 0;
 }
 
 /** `'server'` or a client id → that node's SQL handle (null when gone). */
-function dbFor(s: SyncSurface, nodeId: string): SqlClient | null {
+function dbFor(s: SyncSim, nodeId: string): SqlClient | null {
   if (nodeId === 'server') return s.server.db;
   return s.clients.get(nodeId)?.db ?? null;
 }
 
-function clientFor(s: SyncSurface, clientId: string): SimClientHandle | null {
+function clientFor(s: SyncSim, clientId: string): SimClient | null {
   return s.clients.get(clientId) ?? null;
 }
 
 /** Upload verdict for a queued mutation — null while still pending. */
 export async function outcome(
-  s: SyncSurface,
+  s: SyncSim,
   clientId: string,
   mutationId: string
 ): Promise<'confirmed' | 'rejected' | null> {
@@ -98,7 +98,7 @@ export type RejectionRow = {
 
 /** Unacknowledged write rejections stored on a client. */
 export async function rejections(
-  s: SyncSurface,
+  s: SyncSim,
   clientId: string
 ): Promise<RejectionRow[]> {
   const client = clientFor(s, clientId);
@@ -113,33 +113,33 @@ export async function rejections(
 }
 
 /** Live pubsub handler topics for a client. */
-export function subscribedTopics(s: SyncSurface, clientId: string): string[] {
+export function subscribedTopics(s: SyncSim, clientId: string): string[] {
   return [...(clientFor(s, clientId)?.subscribedTopics() ?? [])].sort();
 }
 
 /** createPubSub invocations (bootstrap + each remake) for a client. */
-export function pubsubRemakeCount(s: SyncSurface, clientId: string): number {
+export function pubsubRemakeCount(s: SyncSim, clientId: string): number {
   return clientFor(s, clientId)?.pubsubRemakeCount() ?? 0;
 }
 
 /** Sync status connection string for a client. */
-export function connection(s: SyncSurface, clientId: string): string | null {
+export function connection(s: SyncSim, clientId: string): string | null {
   return clientFor(s, clientId)?.connection() ?? null;
 }
 
 /** Last sync error surfaced on a client's status snapshot. */
-export function lastError(s: SyncSurface, clientId: string): string | null {
+export function lastError(s: SyncSim, clientId: string): string | null {
   return clientFor(s, clientId)?.lastError() ?? null;
 }
 
 /** True once a client has completed at least one hydrate. */
-export function hasSynced(s: SyncSurface, clientId: string): boolean {
+export function hasSynced(s: SyncSim, clientId: string): boolean {
   return clientFor(s, clientId)?.hasSynced() ?? false;
 }
 
 /** True while `nodeId`'s `traffic` edge is held. */
 export function netHeld(
-  s: SyncSurface,
+  s: SyncSim,
   nodeId: string,
   traffic: 'sync' | 'live' | 'all'
 ): boolean {
@@ -147,7 +147,7 @@ export function netHeld(
 }
 
 /** Skew-adjusted wall time seen by one node. */
-export function nodeNow(s: SyncSurface, nodeId: string): number {
+export function nodeNow(s: SyncSim, nodeId: string): number {
   return s.node(nodeId).now();
 }
 
@@ -156,7 +156,7 @@ export function nodeNow(s: SyncSurface, nodeId: string): number {
  * call site so memo keys stay stable across restarts of the same query shape.
  */
 export async function rows(
-  s: SyncSurface,
+  s: SyncSim,
   _label: string,
   nodeId: string,
   statement: Parameters<SqlClient['query']>[0]
@@ -167,39 +167,33 @@ export async function rows(
 }
 
 /** Install identity for a client — distinct per device, stable across restart. */
-export function deviceId(s: SyncSurface, clientId: string): string | null {
+export function deviceId(s: SyncSim, clientId: string): string | null {
   return clientFor(s, clientId)?.deviceId ?? null;
 }
 
 /** Actor id for a live client. */
-export function actorId(s: SyncSurface, clientId: string): string | null {
+export function actorId(s: SyncSim, clientId: string): string | null {
   return clientFor(s, clientId)?.actorId ?? null;
 }
 
 /** Settled response of the last {@link postMutations} pin on a client. */
-export function postOutcome(s: SyncSurface, clientId: string): JsonValue {
+export function postOutcome(s: SyncSim, clientId: string): JsonValue {
   return (s.runtime.lastPost.get(clientId) as JsonValue | undefined) ?? null;
 }
 
 /** Mutation id returned by the last {@link mutate} pin on this client. */
-export function lastMutationId(
-  s: SyncSurface,
-  clientId: string
-): string | null {
+export function lastMutationId(s: SyncSim, clientId: string): string | null {
   return s.runtime.lastMutation.get(clientId)?.mutationId ?? null;
 }
 
 /** Local-apply failure codes from the last {@link mutate} pin on a client. */
-export function lastMutationFailures(
-  s: SyncSurface,
-  clientId: string
-): string[] {
+export function lastMutationFailures(s: SyncSim, clientId: string): string[] {
   return (s.runtime.lastMutation.get(clientId)?.failures ?? []).map(
     (f) => f.code
   );
 }
 
 /** True when the last {@link mutate} pin on this client applied locally. */
-export function lastMutationOk(s: SyncSurface, clientId: string): boolean {
+export function lastMutationOk(s: SyncSim, clientId: string): boolean {
   return s.runtime.lastMutation.get(clientId)?.ok ?? false;
 }

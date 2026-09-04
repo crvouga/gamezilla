@@ -1,5 +1,5 @@
 /**
- * Extra acme-app defs for production-hardening scenarios (schema drift,
+ * Extra example-app defs for production-hardening scenarios (schema drift,
  * unknown names, constraint mapping, authorize throw, channel drift).
  */
 
@@ -12,11 +12,11 @@ import {
 } from '@pkgs/sync-engine/shared';
 import { z } from 'zod';
 
-import type { LocalDomainSchema } from '../../../../client/local-schema-migrate';
+import type { LocalDomainSchema } from '../../../client/local-schema-migrate';
 import { NOTES_ALL_TOPIC } from './topics';
 
 /** Schema with optional `notes.color` for column-intersect scenarios. */
-export const acmeAppSchemaExtraColumn = registerTables([
+export const exampleAppSchemaExtraColumn = registerTables([
   defineTable({
     domain: 'folders',
     name: 'folders',
@@ -59,7 +59,7 @@ export const acmeAppSchemaExtraColumn = registerTables([
   }),
 ]);
 
-export const ACME_APP_TABLES_EXTRA_COLUMN = [
+export const EXAMPLE_APP_TABLES_EXTRA_COLUMN = [
   'folders',
   'notes',
   'spaces',
@@ -67,13 +67,13 @@ export const ACME_APP_TABLES_EXTRA_COLUMN = [
   'spaces_open_sessions',
 ] as const;
 
-export const acmeLocalSchemaExtraColumn: LocalDomainSchema = {
-  domainSchema: acmeAppSchemaExtraColumn,
-  cacheTableNames: ACME_APP_TABLES_EXTRA_COLUMN,
+export const exampleLocalSchemaExtraColumn: LocalDomainSchema = {
+  domainSchema: exampleAppSchemaExtraColumn,
+  cacheTableNames: EXAMPLE_APP_TABLES_EXTRA_COLUMN,
 };
 
 /** Schema with an extra `tags` table for mid-life migrate scenarios. */
-export const acmeAppSchemaExtraTable = registerTables([
+export const exampleAppSchemaExtraTable = registerTables([
   defineTable({
     domain: 'folders',
     name: 'folders',
@@ -123,7 +123,7 @@ export const acmeAppSchemaExtraTable = registerTables([
   }),
 ]);
 
-export const ACME_APP_TABLES_EXTRA_TABLE = [
+export const EXAMPLE_APP_TABLES_EXTRA_TABLE = [
   'folders',
   'notes',
   'tags',
@@ -132,13 +132,13 @@ export const ACME_APP_TABLES_EXTRA_TABLE = [
   'spaces_open_sessions',
 ] as const;
 
-export const acmeLocalSchemaExtraTable: LocalDomainSchema = {
-  domainSchema: acmeAppSchemaExtraTable,
-  cacheTableNames: ACME_APP_TABLES_EXTRA_TABLE,
+export const exampleLocalSchemaExtraTable: LocalDomainSchema = {
+  domainSchema: exampleAppSchemaExtraTable,
+  cacheTableNames: EXAMPLE_APP_TABLES_EXTRA_TABLE,
 };
 
 /** Both `notes.color` and `tags` — mixed-schema multi-client systems. */
-export const acmeAppSchemaExtraColumnAndTable = registerTables([
+export const exampleAppSchemaExtraColumnAndTable = registerTables([
   defineTable({
     domain: 'folders',
     name: 'folders',
@@ -186,7 +186,7 @@ export const acmeAppSchemaExtraColumnAndTable = registerTables([
   }),
 ]);
 
-export const ACME_APP_TABLES_EXTRA_COLUMN_AND_TABLE = [
+export const EXAMPLE_APP_TABLES_EXTRA_COLUMN_AND_TABLE = [
   'folders',
   'notes',
   'tags',
@@ -195,9 +195,9 @@ export const ACME_APP_TABLES_EXTRA_COLUMN_AND_TABLE = [
   'spaces_open_sessions',
 ] as const;
 
-export const acmeLocalSchemaExtraColumnAndTable: LocalDomainSchema = {
-  domainSchema: acmeAppSchemaExtraColumnAndTable,
-  cacheTableNames: ACME_APP_TABLES_EXTRA_COLUMN_AND_TABLE,
+export const exampleLocalSchemaExtraColumnAndTable: LocalDomainSchema = {
+  domainSchema: exampleAppSchemaExtraColumnAndTable,
+  cacheTableNames: EXAMPLE_APP_TABLES_EXTRA_COLUMN_AND_TABLE,
 };
 
 /** V2 query name — same hydrate as notesAll. */
@@ -232,7 +232,7 @@ export const notesAllV2Query = defineQuery({
 
 /**
  * Like notesAll but SELECTs `color` — for server-extra-column / client-base
- * intersect scenarios (requires acmeLocalSchemaExtraColumn on the server).
+ * intersect scenarios (requires exampleLocalSchemaExtraColumn on the server).
  */
 export const notesAllWithColorQuery = defineQuery({
   name: 'notesAllWithColor',

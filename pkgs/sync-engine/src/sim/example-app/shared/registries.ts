@@ -47,7 +47,7 @@ import {
 } from './queries';
 
 /** Product-only registry; createLocalSyncEngine / createSyncApp merge framework mutations. */
-export const acmeMutationRegistry = mutationRegistry([
+export const exampleMutationRegistry = mutationRegistry([
   setFolder,
   deleteFolder,
   setNote,
@@ -74,7 +74,7 @@ export const acmeMutationRegistry = mutationRegistry([
   retouchNotes,
 ]);
 
-export const acmeQueryRegistry = queryRegistry([
+export const exampleQueryRegistry = queryRegistry([
   notesAllQuery,
   notesLargeAllQuery,
   notesAllV2Query,

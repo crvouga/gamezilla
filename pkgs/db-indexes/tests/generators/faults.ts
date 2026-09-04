@@ -1,5 +1,5 @@
 import fc from 'fast-check';
-import type { SimFault } from '../../sim/sim-db';
+import type { SimFault } from '../../src/sim/sim-db';
 
 export type FaultScheduleItem = {
   readonly kind:

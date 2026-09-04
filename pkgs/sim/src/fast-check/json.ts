@@ -1,6 +1,6 @@
 import fc from 'fast-check';
 
-import type { JsonValue } from '../kernel/json';
+import type { JsonValue } from '../internals/json';
 
 /** Finite JSON numbers (no NaN / ±Infinity / -0 — JSON.stringify collapses -0 to 0). */
 export const arbFiniteNumber = (): fc.Arbitrary<number> =>

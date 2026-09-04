@@ -40,7 +40,7 @@ Domain tables from host schema; managed `deleted_at`; UI filters live rows (`del
 
 `defineQuery` / `defineMutation`, registries, `MutationEnv` / `MutationError`, `defineTopicMap`, `entryChannel?` (or `false` for reconcile-only), `constraintErrors`, `pendingUx`, `requiresOnline`. Write sets and wake topics are derived from AST capture + topic map — no authoring `hydrates` / `declaredWrites` / `affectedRows` / `invalidates`. Query `limit` defaults to `DEFAULT_QUERY_LIMIT` (2000); sim + `SECRETS_ENV=dev` set `strictQueryLimits` so clipping a **default** budget throws `QueryLimitExceeded` (explicit budgets still truncate-and-serve).
 
-### Host wiring / ports
+### Runtime wiring / ports
 
 `postQueries` / `postMutations` (aliases of protocol types), pubsub, auth, SQL clients, lifecycle, `sessionQueries`, `rowImageFanout`, sim `now`/`timers`/`createId`, opaque server migrate.
 
@@ -149,7 +149,7 @@ export function pruneMutationArtifacts(db, olderThanMs, now?): Promise<void>;
 export type SyncAppAuth = { actorId; deviceId; accountId; isAnon };
 ```
 
-### `@pkgs/sync-engine/test`
+### `@pkgs/sync-engine/sim`
 
 ```ts
 export function createInMemorySyncEngine(options): Promise<SyncEngine>;
@@ -201,8 +201,8 @@ Internal change possible with **zero** edits outside `pkgs/sync-engine/src/` (af
 | Change | Guaranteeing contract |
 |--------|----------------------|
 | Rename/restructure framework tables | Code API observables + opaque migrate; Biome `no-sync-engine-framework-leak.grit` (via `bun run lint`) |
-| Rewrite merge/rebase/subscription/upload | Code API + Extension + Host ports only |
-| Swap pubsub transport | Host `pubsub` / `push.createPubSub` ports |
+| Rewrite merge/rebase/subscription/upload | Code API + Extension + Runtime ports only |
+| Swap pubsub transport | Runtime `pubsub` / `push.createPubSub` ports |
 | Change coalesce/batching/retry/single-flight | Internal (bounds constants are Wire if they change wire caps) |
 | Change `SCHEMA_EPOCH` / cache-wipe | Internal; `/test` `SCHEMA_EPOCH` + `schemaEpoch` option |
 | Change hash algorithms | Internal (Fork A); wire = opaque equality |

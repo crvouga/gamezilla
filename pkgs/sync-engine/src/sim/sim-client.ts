@@ -25,7 +25,7 @@ export type SimRejection = {
   readonly meta: string | null;
 };
 
-export type SimClientHandle = {
+export type SimClient = {
   readonly id: string;
   readonly actorId: string;
   readonly deviceId: string;

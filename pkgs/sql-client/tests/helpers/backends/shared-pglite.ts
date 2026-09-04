@@ -6,8 +6,8 @@
 import { afterAll } from 'bun:test';
 import { PGlite } from '@electric-sql/pglite';
 import { installPostgresSqliteCompat } from '@pkgs/postgres-sqlite-compat';
-import type { SqlClient } from '../../interface';
-import { createPgliteSqlClient } from '../../postgres/impl-pglite';
+import type { SqlClient } from '../../../src/interface';
+import { createPgliteSqlClient } from '../../../src/postgres/impl-pglite';
 import { dropTables } from './drop-tables';
 import type { MatrixBackend } from './types';
 

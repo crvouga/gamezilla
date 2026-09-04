@@ -30,16 +30,13 @@ import {
   reconcileServerProfilesFromClients,
 } from '@sim/console/playground/playground-snapshot-sync';
 import { type Sim, simClientNamespace } from '@sim/console/sim/create-sim';
-import {
-  openFreshSimClientSql,
-  type SimSqlHandle,
-} from '@sim/console/sim/sim-sql';
+import { openFreshSimClientSql, type SimSql } from '@sim/console/sim/sim-sql';
 
 export type SystemSnapshotCtx = {
   readonly sim: Sim;
   readonly clientIds: readonly string[];
   readonly liveClients: ReadonlyMap<string, Client>;
-  readonly clientSqlByAddress: Map<string, SimSqlHandle>;
+  readonly clientSqlByAddress: Map<string, SimSql>;
   readonly getClockPaused?: () => boolean;
   readonly setClockPaused?: (paused: boolean) => void;
 };
@@ -63,7 +60,7 @@ function drainCtx(ctx: SystemSnapshotCtx) {
 async function ensureClientSqlHandle(
   ctx: SystemSnapshotCtx,
   clientId: string
-): Promise<SimSqlHandle> {
+): Promise<SimSql> {
   const existing =
     ctx.clientSqlByAddress.get(clientId) ?? ctx.sim.clientSql(clientId);
   if (existing !== undefined) return existing;

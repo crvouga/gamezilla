@@ -1,7 +1,7 @@
 // @io-wall-ok — composition root: createSim + wall-driven sim clock advance.
 
 import { wallClock, wallTimers } from '@pkgs/clock';
-import { virtualHost } from '@pkgs/dst';
+import { virtualTimeRuntime } from '@pkgs/sim';
 import {
   createPlaygroundLogBuffer,
   type PlaygroundSession,
@@ -46,7 +46,9 @@ function startSimClockTick(sim: Sim): {
 export async function bootPlaygroundSession(
   opts?: BootPlaygroundOptions
 ): Promise<PlaygroundSession> {
-  const session = await virtualHost({ startTime: wallClock.now() }).open(1);
+  const session = await virtualTimeRuntime({ startTime: wallClock.now() }).open(
+    1
+  );
   const sim = await createSim(session);
   await sim.spawnServer();
   const clock = startSimClockTick(sim);

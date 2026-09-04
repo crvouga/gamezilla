@@ -1,8 +1,9 @@
 import { describe, expect, test } from 'bun:test';
-import { kv } from './examples/acme-kv/scenario';
 import * as fcAdapter from './fast-check';
-import * as dst from './index';
-import * as kernel from './kernel';
+import * as sim from './index';
+import * as kernel from './internals';
+import { virtualTimeRuntime } from './runtime';
+import { defineSystem } from './system';
 
 const FORBIDDEN = [
   'defineScenario',
@@ -10,7 +11,7 @@ const FORBIDDEN = [
   'defineSurface',
   'defineProperty',
   'draw',
-  'observe',
+  'read',
   'untilObserved',
   'neverObserved',
   'actions',
@@ -22,6 +23,8 @@ const FORBIDDEN = [
   'arbSeed',
   'checkSystem',
   'replaySystem',
+  'getRunInternal',
+  'RunInternal',
   'getScriptInternal',
   'ScriptInternal',
   'Body',
@@ -29,49 +32,66 @@ const FORBIDDEN = [
   'check',
   'CheckFailedError',
   'CampaignReport',
-  'script',
-  'walk',
+  'run',
+  'randomActions',
   'explore',
   'replay',
+  'script',
+  'walk',
+  'Host',
+  'defineHost',
+  'virtualHost',
+  'wallHost',
 ] as const;
 
 describe('public-api', () => {
-  test('@pkgs/dst exports the algebra only', () => {
+  test('@pkgs/sim exports the algebra only', () => {
     for (const k of [
       'defineSystem',
       'defineAction',
       'ExploreFailedError',
-      'virtualHost',
-      'wallHost',
-      'defineHost',
-      'REPRO_VERSION',
-      'parseRepro',
-      'stringifyRepro',
+      'virtualTimeRuntime',
+      'realTimeRuntime',
+      'defineRuntime',
+      'RECORDING_VERSION',
+      'parseRecording',
+      'stringifyRecording',
       'RELIABLE_NETWORK',
       'asSeededRng',
     ]) {
-      expect(dst).toHaveProperty(k);
+      expect(sim).toHaveProperty(k);
     }
     for (const k of FORBIDDEN) {
-      expect(dst).not.toHaveProperty(k);
+      expect(sim).not.toHaveProperty(k);
     }
   });
 
-  test('Script has no _internal escape hatch', async () => {
-    await using s = await kv.script({ seed: 1, args: { clients: 1 } });
+  test('Run has no _internal escape hatch', async () => {
+    const sys = defineSystem({
+      name: 'api-contract',
+      create: () => ({ n: 0 }),
+    });
+    sys.runtime({
+      default: true,
+      name: 'virtual',
+      create: () => virtualTimeRuntime(),
+    });
+    await using s = await sys.run({ seed: 1 });
     expect(s).not.toHaveProperty('_internal');
-    expect(Object.keys(s).sort()).toEqual([
-      'apply',
-      'assert',
-      'elapse',
-      'never',
-      'observe',
-      'until',
-      'walk',
-    ]);
+    expect(Object.keys(s).sort()).toEqual(
+      [
+        'apply',
+        'assert',
+        'advanceTime',
+        'never',
+        'read',
+        'until',
+        'randomActions',
+      ].sort()
+    );
   });
 
-  test('@pkgs/dst/kernel exports factories', () => {
+  test('@pkgs/sim/internals exports factories', () => {
     for (const k of [
       'createVirtualClock',
       'createVirtualScheduler',
@@ -86,7 +106,7 @@ describe('public-api', () => {
     expect(kernel).not.toHaveProperty('createScriptedDraws');
   });
 
-  test('@pkgs/dst/fast-check exports adapters, assertProperty, JSON arbs', () => {
+  test('@pkgs/sim/fast-check exports adapters, assertProperty, JSON arbs', () => {
     expect(Object.keys(fcAdapter).sort()).toEqual(
       [
         'arbitrary',

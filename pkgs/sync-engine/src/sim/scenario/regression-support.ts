@@ -1,16 +1,13 @@
 /** Shared helpers for the scripted-pin action modules. */
 
 import type { Mutation } from '../../mutations/core/types';
-import type { SimClientHandle, SimSubscription } from '../client-handle';
-import type { SyncSurface } from './system';
+import type { SimClient, SimSubscription } from '../sim-client';
+import type { SyncSim } from './system';
 
 /** Virtual-time slice between scripted chaos steps. */
 export const SYNC_STEP_MS = 10;
 
-export function requireClient(
-  s: SyncSurface,
-  clientId: string
-): SimClientHandle {
+export function requireClient(s: SyncSim, clientId: string): SimClient {
   const client = s.clients.get(clientId);
   if (client === undefined) {
     throw new Error(`sync pin: unknown client '${clientId}'`);
@@ -19,7 +16,7 @@ export function requireClient(
 }
 
 export function resolveMutation(
-  s: SyncSurface,
+  s: SyncSim,
   m: Mutation<unknown> | string
 ): Mutation<unknown> {
   if (typeof m !== 'string') return m;
@@ -38,7 +35,7 @@ const DRIVE_BUDGET_MS = 2_000;
 export const SUBSCRIBE_ALL_BUDGET_MS = 30_000;
 
 export async function driveToSettled(
-  s: SyncSurface,
+  s: SyncSim,
   label: string,
   op: () => Promise<unknown>,
   budgetMs = DRIVE_BUDGET_MS
@@ -65,7 +62,7 @@ export async function driveToSettled(
  * and return whether the op finished.
  */
 export async function driveWhilePending(
-  s: SyncSurface,
+  s: SyncSim,
   op: () => Promise<unknown>,
   budgetMs = DRIVE_BUDGET_MS
 ): Promise<boolean> {
@@ -86,7 +83,7 @@ export function subscriptionKey(clientId: string, queryName: string): string {
   return `${clientId}:${queryName}`;
 }
 
-export function subscriptions(s: SyncSurface): Map<string, SimSubscription> {
+export function subscriptions(s: SyncSim): Map<string, SimSubscription> {
   const existing = subsBySurface.get(s);
   if (existing !== undefined) return existing;
   const next = new Map<string, SimSubscription>();
@@ -94,4 +91,4 @@ export function subscriptions(s: SyncSurface): Map<string, SimSubscription> {
   return next;
 }
 
-export type PostRows = Parameters<SimClientHandle['postMutations']>[0];
+export type PostRows = Parameters<SimClient['postMutations']>[0];

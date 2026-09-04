@@ -20,8 +20,8 @@ import { createDriver, getUiTestBrowser } from '@pkgs/ui-testing';
 import type { Page } from '@playwright/test';
 import { type Sim, simClientNamespace } from '@sim/console/sim/create-sim';
 
-import type { ProductUi } from '../host/ports';
-import type { SimActorHandle } from '../scenario/surface';
+import type { ProductUi } from '../runtime/ports';
+import type { SimActor } from '../sim/sim';
 import { injectPlaywrightSnapshotAuth } from './playwright-snapshot-auth';
 import { simNodeTimers } from './sim-actor-overrides';
 import { simReportTopology } from './sim-report-topology';
@@ -56,7 +56,7 @@ export async function writeKeysIndex(): Promise<void> {
 }
 
 export type ActorEntry = {
-  readonly handle: SimActorHandle;
+  readonly handle: SimActor;
   readonly raw: Driver;
   readonly closeResources: () => Promise<void>;
 };

@@ -3,7 +3,7 @@
  */
 
 import type { RoomServerApp } from '@apps/room-server/app/create-room-server';
-import type { InMemoryBus } from '@pkgs/pubsub/testing/in-memory';
+import type { InMemoryBus } from '@pkgs/pubsub/in-memory';
 import type {
   createPlaygroundLogBuffer,
   PlaygroundPubSubNode,

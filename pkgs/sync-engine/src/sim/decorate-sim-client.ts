@@ -1,9 +1,5 @@
-import type {
-  SimClientHandle,
-  SimRejection,
-  SimSubscription,
-} from './client-handle';
 import type { SimHttpClient } from './http-bridge';
+import type { SimClient, SimRejection, SimSubscription } from './sim-client';
 
 /** Promise brand used by sync client.outcome() — polled by {@link waitUntil}. */
 export type SimPollablePromise<T> = Promise<T> & {
@@ -11,7 +7,7 @@ export type SimPollablePromise<T> = Promise<T> & {
 };
 
 function createOutcomePromise(
-  engine: SimClientHandle['engine'],
+  engine: SimClient['engine'],
   mutationId: string
 ): SimPollablePromise<'confirmed' | 'rejected'> {
   let settled = false;
@@ -48,7 +44,7 @@ function createOutcomePromise(
 }
 
 type ClientCore = Omit<
-  SimClientHandle,
+  SimClient,
   | 'online'
   | 'foreground'
   | 'connect'
@@ -75,7 +71,7 @@ async function abortHttpThen(
 }
 
 /** Add flattened scenario-facing methods onto a built client handle. */
-export function decorateClientSurface(handle: ClientCore): SimClientHandle {
+export function decorateSimClient(handle: ClientCore): SimClient {
   const subscribe = (
     name: string,
     params: Readonly<Record<string, unknown>>

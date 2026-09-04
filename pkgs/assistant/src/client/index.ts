@@ -1,6 +1,7 @@
 export {
   type AssistantSpeakingUpdate,
   emitAssistantSpeakingMessage,
+  subscribeAssistantSpeaking,
 } from './_internal/assistant-speaking-bridge';
 export { createNoopRenderer } from './_internal/noop-renderer';
 export {

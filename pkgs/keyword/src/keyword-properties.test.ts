@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { assertProperty } from '@pkgs/dst/fast-check';
+import { assertProperty } from '@pkgs/sim/fast-check';
 import fc from 'fast-check';
 import { asKeyword, isNamespacedKeyword, joinKeywordSegments } from './keyword';
 import {

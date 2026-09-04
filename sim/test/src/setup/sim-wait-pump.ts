@@ -1,14 +1,14 @@
 /**
  * Virtual-time drain pump for rntl sim waits.
- * Advances scheduled work via the Host session's underlying scheduler
+ * Advances scheduled work via the Runtime session's underlying scheduler
  * without wall sleep.
  */
 
 import { setImmediate as nodeSetImmediate } from 'node:timers';
-import type { Session } from '@pkgs/dst';
+import type { Session } from '@pkgs/sim';
 import type { WaitPump } from '@pkgs/ui-testing';
 
-/** Heap scheduler behind `session.scheduler` (Host public API). */
+/** Heap scheduler behind `session.scheduler` (Runtime public API). */
 type UnderlyingScheduler = Session['scheduler']['underlying'];
 
 /**
@@ -33,7 +33,11 @@ function yieldEventLoop(): Promise<void> {
  * wait-pump callers queue instead of racing the drain gate.
  */
 export function createSerializedRunFor(
-  scheduler: UnderlyingScheduler
+  scheduler: UnderlyingScheduler,
+  opts?: {
+    /** Await after each tick (e.g. in-process Hono serializeFetch.drain). */
+    readonly after?: () => Promise<void>;
+  }
 ): (durationMs: number) => Promise<void> {
   let tail: Promise<void> = Promise.resolve();
   return (durationMs: number): Promise<void> => {
@@ -44,6 +48,9 @@ export function createSerializedRunFor(
       // while the tree stays stale.
       await flushMicrotasks();
       await yieldEventLoop();
+      if (opts?.after !== undefined) {
+        await opts.after();
+      }
     });
     tail = run.then(
       () => undefined,

@@ -3,7 +3,7 @@
  * React Navigation `Tabs` navigator.
  */
 
-import { Handles } from '@libs/dst-handles';
+import { Handles } from '@libs/test-ids';
 import { Box, getTopBarContentHeight, useTheme } from '@pkgs/ui';
 import type {
   BottomTabBarProps,

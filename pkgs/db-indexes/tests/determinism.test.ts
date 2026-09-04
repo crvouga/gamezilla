@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import { assertProperty } from '@pkgs/dst/fast-check';
+import { assertProperty } from '@pkgs/sim/fast-check';
 import fc from 'fast-check';
-import { compareNames } from '../../core/compare';
-import { planIndexes } from '../../core/plan';
-import { genSchema, genSmallManifest } from '../generators';
-import { fixedClock, RecordingPort } from '../helpers/recording-port';
+import { compareNames } from '../src/core/compare';
+import { planIndexes } from '../src/core/plan';
+import { genSchema, genSmallManifest } from './generators';
+import { fixedClock, RecordingPort } from './helpers/recording-port';
 
 function canonicalizePlan(plan: Awaited<ReturnType<typeof planIndexes>>) {
   return JSON.stringify({
@@ -82,7 +82,7 @@ describe('analyzer determinism PBT', () => {
   });
 
   test('introspect name order does not affect plan', async () => {
-    const { fingerprintSql } = await import('../../core/fingerprint');
+    const { fingerprintSql } = await import('../src/core/fingerprint');
     const sql = 'SELECT id FROM notes WHERE user_id = ?';
     const manifest = {
       version: 1 as const,

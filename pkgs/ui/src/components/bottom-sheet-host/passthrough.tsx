@@ -55,7 +55,7 @@ function PassthroughView(props: BottomSheetHostViewProps): ReactElement {
   return <Passthrough>{props.children}</Passthrough>;
 }
 
-/** Host for sim ClientEnv and any tree that must not load `@gorhom/bottom-sheet`. */
+/** Runtime for sim ClientEnv and any tree that must not load `@gorhom/bottom-sheet`. */
 export function createPassthroughBottomSheetHost(): BottomSheetHost {
   return {
     Provider: Passthrough,

@@ -31,7 +31,7 @@ export type AttachPushOptions = {
   ) => readonly Topic[];
 };
 
-export type PushBag = {
+export type PushSubscriptions = {
   readonly options: AttachPushOptions;
   readonly timers: Timers;
   pubsub: PubSub;
@@ -52,7 +52,9 @@ export type PushBag = {
   remakeFlushQueued: boolean;
 };
 
-export function createPushBag(options: AttachPushOptions): PushBag {
+export function createPushSubscriptions(
+  options: AttachPushOptions
+): PushSubscriptions {
   return {
     options,
     timers: options.timers,
@@ -130,7 +132,7 @@ export function parsePush(data: unknown): PushMessage | null {
 }
 
 export function filterScopesByTables(
-  bag: PushBag,
+  bag: PushSubscriptions,
   scopes: ReadonlySet<string>,
   tables: readonly string[] | undefined
 ): Set<string> {

@@ -7,4 +7,4 @@ export {
   openRealServerSql,
   openRealServerSqlFromSeed,
   REAL_CHECKPOINT_SQL_FORMAT,
-} from './sim-sql-fabric-real.impl';
+} from './sim-sql-backend-real.impl';

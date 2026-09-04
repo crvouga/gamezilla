@@ -9,7 +9,7 @@
  *
  * Native Expo (iOS/Android) always uses mem engines: Hermes cannot load
  * better-sqlite3, bun:sqlite, or PGlite WASM. `SIM_SQL_BACKEND=real` still
- * maps to mem on native via `sim-sql-fabric-real.native.ts`.
+ * maps to mem on native via `sim-sql-backend-real.native.ts`.
  */
 
 export type SimSqlBackend = 'mem' | 'real';

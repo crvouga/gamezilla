@@ -1,4 +1,4 @@
-import { type Session, virtualHost } from '@pkgs/dst';
+import { type Session, virtualTimeRuntime } from '@pkgs/sim';
 
 import type { Timers } from '../client/sim-ports';
 
@@ -18,7 +18,7 @@ export type SimTestDriver = {
 
 /** Lightweight driver for unit tests that inject timers into runtime/push. */
 export async function createSimTestDriver(): Promise<SimTestDriver> {
-  const session = await virtualHost().open(0);
+  const session = await virtualTimeRuntime().open(0);
   const scheduler = session.scheduler.underlying;
   const timers = session.ports.timers;
   const clock = session.ports.clock;

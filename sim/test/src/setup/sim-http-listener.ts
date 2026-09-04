@@ -1,5 +1,5 @@
 /**
- * Loopback HTTP listener for max-fidelity Playwright sims.
+ * Loopback HTTP listener for real-mode Playwright sims.
  * Exposes the in-process Hono app on a real port so browser clients hit the wire.
  */
 

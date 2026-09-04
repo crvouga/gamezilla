@@ -1,26 +1,11 @@
 // Public API — algebra of singular primitives
 
 export type { Clock } from '@pkgs/clock';
-export type {
-  Capability,
-  Endpoint,
-  Host,
-  Ports,
-  Session,
-  VirtualHostOptions,
-  WallHostOptions,
-} from './host';
-export {
-  CapabilityError,
-  defineHost,
-  virtualHost,
-  wallHost,
-} from './host';
-export type { JsonPrimitive, JsonValue } from './kernel/json';
-export type { Rng } from './kernel/rng';
-export { asSeededRng } from './kernel/rng';
-export type { Scheduler as VirtualScheduler } from './kernel/scheduler';
-export type { Scheduler } from './kernel/scheduler-api';
+export type { JsonPrimitive, JsonValue } from './internals/json';
+export type { Rng } from './internals/rng';
+export { asSeededRng } from './internals/rng';
+export type { Scheduler as VirtualScheduler } from './internals/scheduler';
+export type { Scheduler } from './internals/scheduler-api';
 export type {
   Deliver,
   EndpointId,
@@ -31,42 +16,57 @@ export type {
 export { RELIABLE_NETWORK } from './models/network';
 export type {
   ExploreOptions,
+  RandomActionsOptions,
+  RandomActionsReport,
   ReplayOptions,
   Report,
-  Script,
-  ScriptOptions,
+  Run,
+  RunOptions,
   Transition,
-  Walk,
-  WalkOptions,
-} from './script';
+} from './run';
 export {
   ActionNotEnabled,
   ExploreFailedError,
   PropertyViolation,
-} from './script';
+} from './run';
+export type {
+  Capability,
+  Endpoint,
+  Ports,
+  RealTimeRuntimeOptions,
+  Runtime,
+  Session,
+  VirtualTimeRuntimeOptions,
+} from './runtime';
+export {
+  CapabilityError,
+  defineRuntime,
+  realTimeRuntime,
+  virtualTimeRuntime,
+} from './runtime';
 export type {
   Action,
   ActionDef,
   ActionSlice,
-  ArgsGen,
+  ArgsSampler,
   Awaitable,
   CatalogAction,
   CatalogProperty,
-  Choice,
   Gen,
-  HostDef,
   Property,
   PropertyDef,
   Read,
-  Repro,
-  ReproMeta,
+  Recording,
+  RecordingMeta,
+  RuntimeDef,
+  Step,
   System,
   SystemCreate,
 } from './system';
 export {
   defineAction,
   defineSystem,
-  parseRepro,
-  REPRO_VERSION,
-  stringifyRepro,
+  parseRecording,
+  RECORDING_VERSION,
+  stringifyRecording,
 } from './system';

@@ -1,4 +1,4 @@
-import { Handles } from '@libs/dst-handles';
+import { Handles } from '@libs/test-ids';
 import { Box, Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 import { SpaceField, useSpaceColumn } from '../../../public/use-space-column';

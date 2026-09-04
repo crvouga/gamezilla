@@ -1,8 +1,8 @@
 import { installPostgresSqliteCompat } from '@pkgs/postgres-sqlite-compat';
-import { SqlClientImplPostgresMem } from '../../postgres/impl-postgres-mem';
-import { createPostgresDbScope } from '../../postgres/schema';
-import { SqlClientImplBunSqlite } from '../../sqlite/impl-bun-sqlite';
-import { SqlClientImplSqliteMem } from '../../sqlite/impl-sqlite-mem';
+import { SqlClientImplPostgresMem } from '../../../src/postgres/impl-postgres-mem';
+import { createPostgresDbScope } from '../../../src/postgres/schema';
+import { SqlClientImplBunSqlite } from '../../../src/sqlite/impl-bun-sqlite';
+import { SqlClientImplSqliteMem } from '../../../src/sqlite/impl-sqlite-mem';
 import { dropTables } from './drop-tables';
 import { openSharedPgliteBackend } from './shared-pglite';
 import type { BackendFactory, MatrixBackend } from './types';
@@ -100,7 +100,7 @@ export const PGLITE_FACTORY: BackendFactory = {
 async function trySqliteWasm(): Promise<BackendFactory | null> {
   try {
     const { SqlClientImplSqliteWasm } = await import(
-      '../../sqlite/impl-sqlite-wasm'
+      '../../../src/sqlite/impl-sqlite-wasm'
     );
     return {
       kind: 'sqlite-wasm',

@@ -1,9 +1,9 @@
-import { Handles } from '@libs/dst-handles';
 import type {
   Notification,
   NotificationCardActions,
 } from '@libs/notifications/public';
 import { NotificationCardDefault } from '@libs/notifications/public';
+import { Handles } from '@libs/test-ids';
 import { type ReactNode, useCallback, useMemo, useState } from 'react';
 
 import { FriendProfileAvatar } from '../../public/friend-profile-avatar';

@@ -1,17 +1,17 @@
 import type { SeededRng } from '@pkgs/uuid';
 import type { SyncBootDeps } from './boot-deps';
-import type { BoundaryFaultController } from './boundary-faults';
 import type { SimAuthStatus } from './client-factory';
 import { createClockSkewTable, SIM_SERVER_NODE_ID } from './clock-skew';
 import type { SimDomainPack } from './domain-pack';
+import type { EdgeFaultController } from './edge-faults';
 import type { SimFaultOptions } from './faults';
 import { DST_FAULTS, RELIABLE_FAULTS, sampleFaultOptions } from './faults';
-import type { ClientMeta, KitClientOpts, SimClock } from './kit-types';
 import type { SyncNetwork } from './network';
 import { createSimPubSubBroker } from './pubsub-bridge';
+import type { ClientMeta, SimClientOpts, SimClock } from './sim-types';
 import { BROKER } from './traffic';
 
-export function resolveBootDomain(clientOpts: KitClientOpts): SimDomainPack {
+export function resolveBootDomain(clientOpts: SimClientOpts): SimDomainPack {
   const baseDomain = clientOpts.domain;
   return {
     ...baseDomain,
@@ -28,9 +28,9 @@ export type BootRuntimeDeps = SyncBootDeps;
 
 export type CreateBootRuntimeArgs = {
   readonly deps: BootRuntimeDeps;
-  readonly clientOpts: KitClientOpts;
-  readonly boundaryFaults?: BoundaryFaultController;
-  /** Framework-owned network (framework systems wrap `@pkgs/dst`'s kernel). */
+  readonly clientOpts: SimClientOpts;
+  readonly boundaryFaults?: EdgeFaultController;
+  /** Framework-owned network (framework systems wrap `@pkgs/sim`'s kernel). */
   readonly network: SyncNetwork;
 };
 

@@ -1,5 +1,5 @@
 import { useIsSignedIn } from '@libs/auth/public/use-current-user';
-import { Handles } from '@libs/dst-handles';
+import { Handles } from '@libs/test-ids';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useSyncEngineActions } from '@pkgs/sync-engine/client';
 import {

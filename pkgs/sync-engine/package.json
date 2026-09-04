@@ -6,13 +6,12 @@
     "./client": "./src/client/index.ts",
     "./server": "./src/server/index.ts",
     "./shared": "./src/shared/index.ts",
-    "./test": "./src/test/index.ts"
+    "./sim": "./src/sim/index.ts"
   },
   "scripts": {
-    "bench": "bun src/tests/bench/hot-paths.bench.ts",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test",
-    "test:sim": "bun test src/tests/scenarios"
+    "test:sim": "bun test tests"
   },
   "dependencies": {
     "@noble/hashes": "catalog:",
@@ -21,11 +20,11 @@
     "@pkgs/db-indexes": "workspace:*",
     "@pkgs/db-migrate": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
-    "@pkgs/dst": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/outbox": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
+    "@pkgs/sim": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/uuid": "workspace:*",

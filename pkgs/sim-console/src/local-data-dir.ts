@@ -16,7 +16,7 @@ export const SIM_CONSOLE_REPORTS_DIRNAME = 'sim/console/public/reports';
 export type PathExists = (absolutePath: string) => boolean;
 
 /**
- * Walk up from `startDir` and return the outermost directory that contains
+ * RandomActionsReport up from `startDir` and return the outermost directory that contains
  * `turbo.json` (true monorepo root). Package-level `turbo.json` files
  * (`extends: ["//"]`) must not win over the workspace root.
  */

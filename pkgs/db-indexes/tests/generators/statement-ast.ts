@@ -1,6 +1,6 @@
 import { assert } from '@pkgs/assert';
 import fc from 'fast-check';
-import type { AccessPath } from '../../core/types';
+import type { AccessPath } from '../../src/core/types';
 import type { GenSchema, GenTable } from './schema';
 
 export type StatementAst = {

@@ -1,12 +1,12 @@
 /**
- * Product sim system. Hosts own fidelity (`rntl` → `simHost`, `playwright`
- * → `maxHost`); {@link openSim} starts this system and returns a {@link Script}.
+ * Product sim system. Hosts own mode (`rntl` → `simRuntime`, `playwright`
+ * → `maxRuntime`); {@link openSim} starts this system and returns a {@link Run}.
  */
 
 export {
-  heal,
   partition,
   resetActor,
+  restoreNetwork,
   spawnActor,
   type UiOp,
   uiOp,
@@ -27,14 +27,14 @@ export {
 } from './observations';
 export { captureSnapshot, devOauthSignIn } from './probes';
 export {
-  createProductSurface,
+  createProductSim,
   type ProductProbes,
   type ProductRuntime,
   productExtra,
-  type SimActorHandle,
-} from './surface';
+  type SimActor,
+} from './sim';
 export {
   noErrorBoundaryAnyActor,
-  type ProductSurface,
+  type ProductSim,
   product,
 } from './system';

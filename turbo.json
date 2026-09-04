@@ -72,6 +72,7 @@
       "inputs": [
         "**/*.ts",
         "**/*.tsx",
+        "tests/**",
         "package.json",
         "jest.config.*",
         "*.cjs"
@@ -84,6 +85,7 @@
       "inputs": [
         "**/*.ts",
         "**/*.tsx",
+        "tests/**",
         "package.json",
         "jest.config.*",
         "*.cjs"

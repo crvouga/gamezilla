@@ -1,43 +1,43 @@
-export const REPRO_VERSION = 6 as const;
+export const RECORDING_VERSION = 6 as const;
 
-export type Choice = {
+export type Step = {
   readonly action: string;
   readonly args: readonly unknown[];
 };
 
-export type ReproMeta = {
+export type RecordingMeta = {
   readonly system: string;
-  readonly host?: string;
+  readonly runtime?: string;
 };
 
-export type Repro = {
-  readonly version: typeof REPRO_VERSION;
+export type Recording = {
+  readonly version: typeof RECORDING_VERSION;
   readonly seed: number | string;
   /** Typed system args supplied to create (JSON-projected). */
   readonly args: unknown;
-  readonly choices: readonly Choice[];
-  readonly meta: ReproMeta;
+  readonly steps: readonly Step[];
+  readonly meta: RecordingMeta;
 };
 
-export function parseRepro(raw: string | Repro): Repro {
+export function parseRecording(raw: string | Recording): Recording {
   const obj = typeof raw === 'string' ? (JSON.parse(raw) as unknown) : raw;
   if (
     typeof obj !== 'object' ||
     obj === null ||
     !('version' in obj) ||
-    (obj as { version: unknown }).version !== REPRO_VERSION
+    (obj as { version: unknown }).version !== RECORDING_VERSION
   ) {
     throw new Error(
-      `parseRepro: expected Repro v${String(REPRO_VERSION)} (got ${String(
+      `parseRecording: expected Recording v${String(RECORDING_VERSION)} (got ${String(
         typeof obj === 'object' && obj !== null && 'version' in obj
           ? (obj as { version: unknown }).version
           : typeof obj
       )})`
     );
   }
-  return obj as Repro;
+  return obj as Recording;
 }
 
-export function stringifyRepro(repro: Repro): string {
+export function stringifyRecording(repro: Recording): string {
   return JSON.stringify(repro);
 }

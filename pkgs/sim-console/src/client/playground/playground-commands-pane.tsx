@@ -10,7 +10,7 @@ import {
 import type { PlaygroundSession } from '../../shared/ports';
 
 /**
- * Host-registered server commands (seed, etc.). Faults live in the palette (⌘K).
+ * Runtime-registered server commands (seed, etc.). Faults live in the palette (⌘K).
  */
 export function PlaygroundCommandsPane(props: {
   readonly session: PlaygroundSession;

@@ -3,8 +3,8 @@ import fc from 'fast-check';
 
 import { createSeededRng } from './seeded-rng';
 
-// `@pkgs/dst` depends on this package, so use fast-check directly (no
-// `@pkgs/dst/fast-check` runner) to keep the workspace graph acyclic.
+// `@pkgs/sim` depends on this package, so use fast-check directly (no
+// `@pkgs/sim/fast-check` runner) to keep the workspace graph acyclic.
 const PARAMS: fc.Parameters<unknown> = { numRuns: 40, seed: 424_242 };
 
 describe('createSeededRng properties', () => {

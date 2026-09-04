@@ -1,6 +1,6 @@
 import fc from 'fast-check';
-import { fingerprintSql } from '../../core/fingerprint';
-import type { WorkloadManifest, WorkloadQuery } from '../../core/types';
+import { fingerprintSql } from '../../src/core/fingerprint';
+import type { WorkloadManifest, WorkloadQuery } from '../../src/core/types';
 import type { GenSchema } from './schema';
 import { genStatement } from './statement-ast';
 

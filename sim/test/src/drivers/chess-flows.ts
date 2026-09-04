@@ -1,4 +1,4 @@
-import { Handles } from '@libs/dst-handles';
+import { Handles } from '@libs/test-ids';
 import { ChessBoardFlows } from '@pkgs/chess-board/chess-board-flows';
 import type { ChessBoardProbe } from '@pkgs/chess-board/chess-board-probe';
 import type { Square } from '@pkgs/chess-board/chess-board-types';
@@ -30,7 +30,7 @@ export class ChessFlows {
   }
 
   /**
-   * Host path: ensure an active space, pick Chess → Puzzle, wait for board.
+   * Runtime path: ensure an active space, pick Chess → Puzzle, wait for board.
    */
   async openPuzzleFromSpace(): Promise<void> {
     await this.space.expectActiveSpace();

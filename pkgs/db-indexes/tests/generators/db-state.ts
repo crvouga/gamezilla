@@ -1,12 +1,12 @@
 import fc from 'fast-check';
-import { ownedIndexName } from '../../core/naming';
+import { ownedIndexName } from '../../src/core/naming';
 import type {
   IndexDefinition,
   IndexInfo,
   OwnedMeta,
   TableInfo,
-} from '../../core/types';
-import { asOwnedIndexName } from '../../core/types';
+} from '../../src/core/types';
+import { asOwnedIndexName } from '../../src/core/types';
 import type { GenSchema } from './schema';
 
 export type GenDbState = {

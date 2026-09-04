@@ -1,6 +1,6 @@
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
-import type { InvariantViolation } from '../../../sim/invariants';
+import type { InvariantViolation } from '../invariants';
 import {
   type LiveFolder,
   type LiveNote,

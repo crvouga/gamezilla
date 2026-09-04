@@ -1,7 +1,7 @@
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '../../protocol/wire';
 import { ROOM_ERROR_TYPE } from '../../types';
 
-export type ByzantineInjectKind =
+export type MalformedMessageInjectKind =
   | 'malformed'
   | 'unknownKind'
   | 'staleSync'
@@ -12,20 +12,21 @@ export type ByzantineInjectKind =
   | 'forgedRoster'
   | 'garbagePong';
 
-export const BYZANTINE_INJECT_KINDS: readonly ByzantineInjectKind[] = [
-  'malformed',
-  'unknownKind',
-  'staleSync',
-  'ping',
-  'forgedCommitted',
-  'staleWelcome',
-  'forgedRejected',
-  'forgedRoster',
-  'garbagePong',
-] as const;
+export const MALFORMED_MESSAGE_INJECT_KINDS: readonly MalformedMessageInjectKind[] =
+  [
+    'malformed',
+    'unknownKind',
+    'staleSync',
+    'ping',
+    'forgedCommitted',
+    'staleWelcome',
+    'forgedRejected',
+    'forgedRoster',
+    'garbagePong',
+  ] as const;
 
-export function buildByzantineRaw(
-  kind: ByzantineInjectKind,
+export function buildMalformedMessageRaw(
+  kind: MalformedMessageInjectKind,
   now: number
 ): { readonly direction: 'toServer' | 'toClient'; readonly raw: unknown } {
   switch (kind) {

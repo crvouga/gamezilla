@@ -1,16 +1,15 @@
-export type OpenSimFidelity = 'sim' | 'max';
+export type SimMode = 'fast' | 'real';
 
 export type OpenSimOptions = {
-  readonly fidelity?: OpenSimFidelity;
+  readonly mode?: SimMode;
   /** Committed fixture id under sim/test/fixtures/snapshots/<id>.json */
   readonly snapshot?: string;
 };
 
-export function resolveOpenSimFidelity(
-  options?: OpenSimOptions
-): OpenSimFidelity {
-  if (options?.fidelity !== undefined) return options.fidelity;
-  const fromEnv = process.env['SIM_FIDELITY']?.trim();
-  if (fromEnv === 'max') return 'max';
-  return 'sim';
+export function resolveSimMode(options?: OpenSimOptions): SimMode {
+  if (options?.mode !== undefined) return options.mode;
+  const fromEnv = process.env['SIM_MODE']?.trim();
+  // Accept legacy SIM_FIDELITY / SIM_MODE=max
+  if (fromEnv === 'real' || fromEnv === 'max') return 'real';
+  return 'fast';
 }

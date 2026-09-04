@@ -1,6 +1,6 @@
 import type { SeededRng } from '@pkgs/uuid';
-import type { Scheduler } from '../kernel/scheduler';
-import type { TraceRecorder } from '../kernel/trace';
+import type { Scheduler } from '../internals/scheduler';
+import type { TraceRecorder } from '../internals/trace';
 import { networkSend, releaseHeldKey } from './network-send';
 import {
   effectiveFaults,

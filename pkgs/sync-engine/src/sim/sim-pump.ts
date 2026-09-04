@@ -1,7 +1,7 @@
-import type { SyncSurfaceBase } from './scenario/surface-types';
+import type { SyncSimBase } from './scenario/sim-types';
 
 /** One settle pump: wake + drain scheduler (stimulus only; no reconcile). */
-export async function pumpConverge(surface: SyncSurfaceBase): Promise<void> {
+export async function pumpInSync(surface: SyncSimBase): Promise<void> {
   for (const client of surface.clients.values()) {
     client.engine.wakeUploads();
     void client.engine.refreshQueries().catch(() => undefined);

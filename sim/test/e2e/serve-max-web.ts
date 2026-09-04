@@ -1,4 +1,4 @@
-// @io-wall-ok — max-fidelity Playwright web stack for @sim/test
+// @io-wall-ok — real-mode Playwright web stack for @sim/test
 
 process.env['EXPO_PUBLIC_API_URL'] =
   process.env['EXPO_PUBLIC_API_URL'] ?? 'http://127.0.0.1:8787';

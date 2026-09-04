@@ -8,14 +8,14 @@ import type {
   Rng,
   Scheduler,
   TraceRecorder,
-} from '../kernel';
+} from '../internals';
 
 export type Capability = 'virtualTime' | 'partition' | 'trace';
 
 export class CapabilityError extends Error {
   readonly capability: Capability;
   constructor(capability: Capability, message?: string) {
-    super(message ?? `CapabilityError: host lacks '${capability}'`);
+    super(message ?? `CapabilityError: runtime lacks '${capability}'`);
     this.name = 'CapabilityError';
     this.capability = capability;
   }
@@ -47,35 +47,35 @@ export type Session<P extends Ports = Ports> = {
   readonly fork: (name: string) => Session<P>;
   readonly dispose: () => Promise<void>;
   /** Drain ready scheduler events without advancing time. */
-  readonly settle: () => Promise<void>;
-  /** Host-defined time step (virtual: advance; wall: wait / driver runFor). */
-  readonly elapse: (ms: number) => Promise<void>;
+  readonly waitForIdle: () => Promise<void>;
+  /** Runtime-defined time step (virtual: advance; wall: wait / driver runFor). */
+  readonly advanceTime: (ms: number) => Promise<void>;
   /** Register dispose hook (runs before session teardown). */
   readonly onDispose: (fn: () => void | Promise<void>) => void;
 };
 
-export type Host<P extends Ports = Ports> = {
+export type Runtime<P extends Ports = Ports> = {
   readonly caps: ReadonlySet<Capability>;
   readonly open: (seed: number | bigint | string) => Promise<Session<P>>;
   readonly with: <Q extends Record<string, unknown>>(
     extra: (s: Session<P>) => Q | Promise<Q>
-  ) => Host<P & Q>;
+  ) => Runtime<P & Q>;
 };
 
 export type NetworkMode = 'model' | 'none';
 
-export type VirtualHostOptions = {
+export type VirtualTimeRuntimeOptions = {
   readonly network?: NetworkFaults;
   readonly startTime?: number;
-  /** Override settle (e.g. sync heartbeats). */
-  readonly settle?: (session: Session) => Promise<void>;
-  /** Override elapse (e.g. RNTL serialized runFor). */
-  readonly elapse?: (session: Session, ms: number) => Promise<void>;
+  /** Override waitForIdle (e.g. sync heartbeats). */
+  readonly waitForIdle?: (session: Session) => Promise<void>;
+  /** Override advanceTime (e.g. RNTL serialized runFor). */
+  readonly advanceTime?: (session: Session, ms: number) => Promise<void>;
 };
 
-export type WallHostOptions = {
+export type RealTimeRuntimeOptions = {
   readonly network: NetworkMode;
   readonly settleMs?: number;
   readonly networkFaults?: NetworkFaults;
-  readonly settle?: (session: Session) => Promise<void>;
+  readonly waitForIdle?: (session: Session) => Promise<void>;
 };

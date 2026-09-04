@@ -1,6 +1,6 @@
-import { fingerprintSql } from '../../core/fingerprint';
-import type { ReconcileReport, WorkloadManifest } from '../../core/types';
-import { createSimClock, SimDb } from '../../sim';
+import { createSimClock, SimDb } from '@pkgs/db-indexes/sim';
+import { fingerprintSql } from '../../src/core/fingerprint';
+import type { ReconcileReport, WorkloadManifest } from '../../src/core/types';
 
 const SEED_SQL = 'SELECT id FROM notes WHERE user_id = ?';
 

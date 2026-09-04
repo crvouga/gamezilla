@@ -1,4 +1,4 @@
-import { Handles } from '@libs/dst-handles';
+import { Handles } from '@libs/test-ids';
 import type { Driver } from '@pkgs/ui-testing';
 
 const WAIT_MS = 10_000;

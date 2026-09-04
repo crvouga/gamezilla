@@ -20,7 +20,7 @@ export type UiTestRunnerConfig = {
   readonly driverKind: UiDriverKind;
 };
 
-/** Host test runner installed once per process (Jest, Playwright, Detox). */
+/** Runtime test runner installed once per process (Jest, Playwright, Detox). */
 export type UiTestRunner = {
   readonly config: UiTestRunnerConfig;
   describe(name: string, fn: (ctx: UiTestCtx) => void): void;

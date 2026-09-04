@@ -1,4 +1,4 @@
-import type { VirtualScheduler } from '@pkgs/dst';
+import type { VirtualScheduler } from '@pkgs/sim';
 
 import type { InMemoryClientStorage } from '../client/adapters/storage/memory';
 import type { RoomClient } from '../client/core/room-client';
@@ -179,8 +179,8 @@ export type ConvergeCtx<
   /** Live server lookup — must not capture a pre-restart reference. */
   readonly getServer: () => RoomServer<S, C, E, string>;
   readonly ensureConnected: (key: string) => Promise<void>;
-  /** Clear one-shot arms + revive crashed nodes before hash settle. */
-  readonly prepareForSettle?: () => Promise<void>;
+  /** Clear one-shot arms + recoverAll crashed nodes before hash settle. */
+  readonly prepareForIdle?: () => Promise<void>;
 };
 
 function clientsAllSynced<
@@ -207,15 +207,15 @@ async function nudgeUntilSynced<
   }
 }
 
-export async function reviveRoom<
+export async function recoverAllRoom<
   S extends RoomState,
   C extends RoomCommandPayload,
   E extends RoomEvent,
 >(ctx: ConvergeCtx<S, C, E>): Promise<void> {
-  if (ctx.prepareForSettle !== undefined) {
-    await ctx.prepareForSettle();
+  if (ctx.prepareForIdle !== undefined) {
+    await ctx.prepareForIdle();
   }
-  ctx.network.healAll();
+  ctx.network.restoreAllNetwork();
   // Deliver frames released from hold/delay BEFORE soft-cycling connections
   // (otherwise pending deliver callbacks see a stale/missing connectionId).
   await drainRoomSim(ctx);

@@ -15,7 +15,7 @@ import {
   openSimPgliteFromSeed,
   type SimPgliteSqlBundle,
 } from '@pkgs/sql-client/postgres/boot-sim-pglite';
-import type { SimSqlHandle } from '@sim/console/sim/sim-sql';
+import type { SimSql } from '@sim/console/sim/sim-sql';
 
 import { simPostgresSeedFingerprintSource } from './sim-postgres-seed-fingerprint';
 
@@ -67,12 +67,12 @@ function uniqueName(base: string): string {
 }
 
 /**
- * Open a SimSqlHandle from the cached post-migrate PGlite seed (no migrate).
+ * Open a SimSql from the cached post-migrate PGlite seed (no migrate).
  */
 export async function openSeededSimServerSqlPglite(
   logicalName: string,
   clock: Clock
-): Promise<SimSqlHandle> {
+): Promise<SimSql> {
   const { seedBytes } = await ensureSimPgliteSeed();
   let databaseName = uniqueName(logicalName);
   let live: SimPgliteSqlBundle = await openSimPgliteFromSeed({

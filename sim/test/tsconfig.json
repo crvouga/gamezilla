@@ -4,7 +4,9 @@
     "../../pkgs/ts-reset/src/index.ts",
     "./src/**/*.ts",
     "./src/**/*.tsx",
-    "./scripts/**/*.ts"
+    "./scripts/**/*.ts",
+    "./tests/**/*.ts",
+    "./tests/**/*.tsx"
   ],
   "compilerOptions": {
     "types": ["jest", "bun"],
@@ -17,8 +19,8 @@
       "@libs/notifications": ["../../libs/notifications/src/public/index.ts"],
       "@libs/notifications/*": ["../../libs/notifications/src/*"],
       "@libs/search/*": ["../../libs/search/src/*"],
-      "@libs/dst-handles": ["../../libs/dst-handles/src/index.ts"],
-      "@libs/dst-handles/*": ["../../libs/dst-handles/src/*"],
+      "@libs/test-ids": ["../../libs/test-ids/src/index.ts"],
+      "@libs/test-ids/*": ["../../libs/test-ids/src/*"],
       "@libs/runtime/*": ["../../libs/runtime/src/*"],
       "@pkgs/assistant/shared": ["../../pkgs/assistant/src/shared/index.ts"],
       "@pkgs/assistant/client": ["../../pkgs/assistant/src/client/index.ts"],
@@ -75,7 +77,7 @@
       "@pkgs/matchmaking/client": [
         "../../pkgs/matchmaking/src/client/index.ts"
       ],
-      "@pkgs/matchmaking/testing": ["../../pkgs/matchmaking/src/testkit.ts"],
+      "@pkgs/matchmaking/sim": ["../../pkgs/matchmaking/src/sim/index.ts"],
       "@pkgs/message": ["../../pkgs/message/src/index.ts"],
       "@pkgs/message/*": ["../../pkgs/message/src/*"],
       "@pkgs/object-store/*": ["../../pkgs/object-store/src/*"],
@@ -83,7 +85,7 @@
       "@pkgs/polyfill": ["../../pkgs/polyfill/src/index.ts"],
       "@pkgs/polyfill/*": ["../../pkgs/polyfill/src/*"],
       "@pkgs/pubsub/*": ["../../pkgs/pubsub/src/*"],
-      "@pkgs/pubsub/testing": ["../../pkgs/pubsub/src/testing/index.ts"],
+      "@pkgs/pubsub/in-memory": ["../../pkgs/pubsub/src/in-memory/index.ts"],
       "@pkgs/room": ["../../pkgs/room/src/index.ts"],
       "@pkgs/room/server": ["../../pkgs/room/src/server.ts"],
       "@pkgs/room/*": ["../../pkgs/room/src/*"],
@@ -109,8 +111,8 @@
       "@pkgs/uuid/*": ["../../pkgs/uuid/src/*"],
       "@pkgs/clock": ["../../pkgs/clock/src/index.ts"],
       "@pkgs/clock/*": ["../../pkgs/clock/src/*"],
-      "@pkgs/dst": ["../../pkgs/dst/src/index.ts"],
-      "@pkgs/dst/*": ["../../pkgs/dst/src/*"],
+      "@pkgs/sim": ["../../pkgs/sim/src/index.ts"],
+      "@pkgs/sim/*": ["../../pkgs/sim/src/*"],
       "@pkgs/http-client": ["../../pkgs/http-client/src/index.ts"],
       "@pkgs/http-client/*": ["../../pkgs/http-client/src/*"],
       "@pkgs/ui-testing": ["../../pkgs/ui-testing/src/index.ts"],

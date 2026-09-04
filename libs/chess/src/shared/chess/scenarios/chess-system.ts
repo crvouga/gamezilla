@@ -1,12 +1,12 @@
-import { defineSystem } from '@pkgs/dst';
-import type { RoomApp, RoomArgs, RoomSurface } from '@pkgs/room/tests';
+import type { RoomApp, RoomArgs, RoomSim } from '@pkgs/room/sim';
 import {
-  bootRoomSurface,
+  bootRoomSim,
   ROOM_ARGS,
   ROOM_DRAW,
   registerRoomLibrary,
   roomVirtual,
-} from '@pkgs/room/tests';
+} from '@pkgs/room/sim';
+import { defineSystem } from '@pkgs/sim';
 
 import { ChessModule } from '../chess-module';
 
@@ -23,11 +23,11 @@ export const chessApp: RoomApp = {
 };
 
 /** Chess puzzle room system: server + `clientCount` clients. */
-export const chessSystem = defineSystem<RoomSurface, RoomArgs>({
+export const chessSystem = defineSystem<RoomSim, RoomArgs>({
   name: 'chess.puzzle',
   args: ROOM_ARGS,
-  draw: ROOM_DRAW,
-  create: (session, args) => bootRoomSurface(session, chessApp, args),
+  sample: ROOM_DRAW,
+  create: (session, args) => bootRoomSim(session, chessApp, args),
 });
-chessSystem.host({ default: true, name: 'virtual', create: roomVirtual });
+chessSystem.runtime({ default: true, name: 'virtual', create: roomVirtual });
 registerRoomLibrary(chessSystem, chessApp);

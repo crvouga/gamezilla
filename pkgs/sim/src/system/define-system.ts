@@ -1,7 +1,7 @@
-import type { Session } from '../host/types';
-import type { ExploreOptions, ReplayOptions, Report } from '../script/explore';
-import type { Script, ScriptOptions } from '../script/script';
-import type { Walk } from '../script/walk';
+import type { ExploreOptions, ReplayOptions, Report } from '../run/explore';
+import type { RandomActionsReport } from '../run/random-actions';
+import type { Run, RunOptions } from '../run/run';
+import type { Session } from '../runtime/types';
 import type { Awaitable } from './awaitable';
 import { defineAction } from './define-action';
 import { defineProperty } from './define-property';
@@ -17,19 +17,19 @@ import {
   SYSTEM_TAG,
 } from './effect';
 import type { Gen } from './gen';
+import type { Recording } from './recording';
 import {
   attachSystemRegistry,
-  type HostDef,
+  type RuntimeDef,
   type SystemCore,
   type SystemRegistry,
 } from './registry';
-import type { Repro } from './repro';
 
 export type System<S, Args = void> = SystemCore<S, Args> & {
-  script(opts: ScriptOptions<S, Args>): Promise<Script<S>>;
+  run(opts: RunOptions<S, Args>): Promise<Run<S>>;
   explore(opts?: ExploreOptions<S, Args>): Promise<Report>;
   replay(
-    input: Repro | Walk | string,
+    input: Recording | RandomActionsReport | string,
     opts?: ReplayOptions<S>
   ): Promise<Report>;
 };
@@ -38,49 +38,49 @@ export function defineSystem<S, Args = void>(def: {
   readonly name: string;
   readonly create: (session: Session, args: Args) => Awaitable<S>;
   readonly args?: Args;
-  readonly draw?: () => Gen<Args>;
+  readonly sample?: () => Gen<Args>;
 }): System<S, Args> {
   if (!def.name) throw new Error('defineSystem: name is required');
 
   const registry: SystemRegistry<S> = {
     actions: [],
     properties: [],
-    hostEntries: [],
-    defaultHostName: undefined,
+    runtimeEntries: [],
+    defaultRuntimeName: undefined,
   };
 
-  const hosts: string[] = [];
+  const runtimes: string[] = [];
 
   const system = {
     [SYSTEM_TAG]: true as const,
     name: def.name,
     create: def.create,
     args: def.args as Args | undefined,
-    draw: def.draw as (() => Gen<Args>) | undefined,
-    get hosts(): readonly string[] {
-      return hosts;
+    sample: def.sample as (() => Gen<Args>) | undefined,
+    get runtimes(): readonly string[] {
+      return runtimes;
     },
-    host(hostDef: HostDef): void {
-      if (!hostDef.name) throw new Error('system.host: name is required');
-      if (registry.hostEntries.some((h) => h.name === hostDef.name)) {
+    runtime(runtimeDef: RuntimeDef): void {
+      if (!runtimeDef.name) throw new Error('system.runtime: name is required');
+      if (registry.runtimeEntries.some((h) => h.name === runtimeDef.name)) {
         throw new Error(
-          `system.host: duplicate host '${hostDef.name}' on '${def.name}'`
+          `system.runtime: duplicate runtime '${runtimeDef.name}' on '${def.name}'`
         );
       }
-      if (hostDef.default === true) {
-        if (registry.defaultHostName !== undefined) {
+      if (runtimeDef.default === true) {
+        if (registry.defaultRuntimeName !== undefined) {
           throw new Error(
-            `system.host: second default host on '${def.name}' (already '${registry.defaultHostName}')`
+            `system.runtime: second default runtime on '${def.name}' (already '${registry.defaultRuntimeName}')`
           );
         }
-        registry.defaultHostName = hostDef.name;
+        registry.defaultRuntimeName = runtimeDef.name;
       }
-      registry.hostEntries.push({
-        name: hostDef.name,
-        isDefault: hostDef.default === true,
-        create: hostDef.create,
+      registry.runtimeEntries.push({
+        name: runtimeDef.name,
+        isDefault: runtimeDef.default === true,
+        create: runtimeDef.create,
       });
-      hosts.push(hostDef.name);
+      runtimes.push(runtimeDef.name);
     },
     action<const A extends unknown[] = []>(
       actionDef: ActionDef<S, A> | Action<S, A>
@@ -110,19 +110,19 @@ export function defineSystem<S, Args = void>(def: {
       registry.properties.push(property as unknown as CatalogProperty<S>);
       return property;
     },
-    async script(opts: ScriptOptions<S, Args>): Promise<Script<S>> {
-      const { script } = await import('../script/script');
-      return script(system, opts);
+    async run(opts: RunOptions<S, Args>): Promise<Run<S>> {
+      const { run } = await import('../run/run');
+      return run(system, opts);
     },
     async explore(opts?: ExploreOptions<S, Args>): Promise<Report> {
-      const { explore } = await import('../script/explore');
+      const { explore } = await import('../run/explore');
       return explore(system, opts ?? {});
     },
     async replay(
-      input: Repro | Walk | string,
+      input: Recording | RandomActionsReport | string,
       opts?: ReplayOptions<S>
     ): Promise<Report> {
-      const { replay } = await import('../script/explore');
+      const { replay } = await import('../run/explore');
       return replay(system, input, opts ?? {});
     },
   } satisfies System<S, Args>;

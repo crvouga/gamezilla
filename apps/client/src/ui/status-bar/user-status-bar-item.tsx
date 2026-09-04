@@ -2,8 +2,8 @@ import {
   useHasAuthSession,
   useIsAnon,
 } from '@libs/auth/public/use-current-user';
-import { Handles } from '@libs/dst-handles';
 import { MyProfileAvatar } from '@libs/profile/root/client/my-profile-avatar';
+import { Handles } from '@libs/test-ids';
 import { useLingui } from '@lingui/react/macro';
 import { RegisterStatusBarItem, useRouter, useStatusBar } from '@pkgs/ui';
 import { type ReactNode, useCallback } from 'react';

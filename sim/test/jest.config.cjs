@@ -17,14 +17,13 @@ const reactNativeRoot = path.dirname(
 /** @type {import('jest').Config} */
 module.exports = {
   preset: 'jest-expo',
-  testMatch: [
-    '<rootDir>/src/scenarios/**/*.sim.test.ts',
-    '<rootDir>/src/scenarios/**/*.sim.test.tsx',
-    '<rootDir>/src/scenario/**/*.test.ts',
-  ],
+  testMatch: ['<rootDir>/tests/**/*.test.ts', '<rootDir>/tests/**/*.test.tsx'],
   setupFiles: ['<rootDir>/jest.setup-env.cjs'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   // UI waits default to 2–5s fail-fast ceilings; auth + PGlite boot need headroom.
+  // Native addons (better-sqlite3, PGlite) keep the event loop alive after
+  // dispose; exit the worker once suites finish instead of hanging.
+  forceExit: true,
   testTimeout: 90_000,
   // Narrow allowlist (shared with @pkgs/ui-testing): transform RN/Expo/Bun-nested
   // ESM that Jest cannot load as-is. Everything else — including better-sqlite3

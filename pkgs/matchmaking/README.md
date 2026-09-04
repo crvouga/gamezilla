@@ -53,26 +53,22 @@ const { participantId } = await mm.join({
 | `@pkgs/matchmaking/impl-sql` | `MatchmakingImplSql`, `MatchmakingDatabaseMigration` |
 | `@pkgs/matchmaking/wire` | `FormulaWire` types for HTTP / RPC |
 | `@pkgs/matchmaking/client` | `MatchmakingClient` |
-| `@pkgs/matchmaking/testing` | Framework sim (`matchmaking` system + actions / reads, fixtures) |
+| `@pkgs/matchmaking/sim` | Framework sim (`matchmaking` system + actions / reads, fixtures) |
 
 Anything outside these subpaths is internal.
 
 ## Testing
 
-All tests live under `src/tests/`. Deterministic scenarios use a seeded
-`@pkgs/dst` system that boots **N Matchmaking replicas sharing one DB** —
-the horizontal-scale composition root. Tests only ever `script` a run and
-drive it with `apply` / `observe`; there is no direct surface access.
+All tests live under `tests/`. Deterministic scenarios use a seeded
+`@pkgs/sim` system that boots **N Matchmaking replicas sharing one DB** —
+the horizontal-scale composition root. Tests only ever `run` a system and
+drive it with `apply` / `read`; there is no direct access to `S` internals.
 
 ```text
-pkgs/matchmaking/src/
-  sim/scenario/                   # matchmaking system + node kinds
-  testkit.ts                    # @pkgs/matchmaking/testing facade
-  tests/
-    fixtures/
-    hygiene/
-    adapter/
-    scenarios/                  # *.sim.test.ts + *.scenario.pbt.test.ts
+pkgs/matchmaking/
+  src/sim/                        # exported as `@pkgs/matchmaking/sim`
+    scenario/                     # matchmaking system + node kinds
+  tests/                          # black-box against package exports
 ```
 
 ```ts
@@ -82,9 +78,9 @@ import {
   RatingAttr,
   statusOf,
   tickAllWith,
-} from '@pkgs/matchmaking/testing';
+} from '@pkgs/matchmaking/sim';
 
-await using s = await matchmaking.script({
+await using s = await matchmaking.run({
   seed: 3,
   // backend: 'postgres' — required for concurrent tickAll claim races
   args: { replicas: 3 },
@@ -99,12 +95,12 @@ await s.apply(join, {
   },
 });
 await s.apply(tickAllWith, { maxPassesPerPartition: 4 });
-expect(await s.observe(statusOf, 'a')).not.toBeNull();
+expect(await s.read(statusOf, 'a')).not.toBeNull();
 ```
 
 | Concept | API |
 |---------|-----|
-| Time | `s.elapse`; radius waits via `stepTime` + `s.observe(matched, …)` |
+| Time | `s.advanceTime`; radius waits via `stepTime` + `s.read(matched, …)` |
 | Replicas | `addReplica`, `tick` / `tickAll` / `tickAllWith` actions |
 | Port | `join` / `leave` / `ready` / `updateFormulas` / `httpRequest` actions; `statusOf` / `statuses` / `lastTick` / `lastHttp` reads |
 

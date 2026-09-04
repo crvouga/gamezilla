@@ -1,21 +1,21 @@
-# Sim tests (DST)
+# Sim tests
 
-Product system lives in `sim/test/src/scenario/`. Hosts are registered on the
-system as `rntl` (default, `simHost`) and `playwright` (`maxHost`)
-(`virtualHost().with({ sql, ui, http })` / `wallHost({ network: 'none' }).with(…)`).
+Product system lives in `sim/test/src/sim/`. Runtimes are registered on the
+system as `rntl` (default, `simRuntime`) and `playwright` (`maxRuntime`)
+(`virtualTimeRuntime().with({ sql, ui, http })` / `realTimeRuntime({ network: 'none' }).with(…)`).
 Open a run with `openSim` from `sim/test/src/setup/open-sim.ts` — it calls
-`product.script({ seed, host })`, picking the host name from `ctx.driverKind` /
-fidelity, and returns a `Script`. Standing properties (`noErrorBoundary`) are
+`product.run({ seed, runtime })`, picking the runtime name from `ctx.driverKind` /
+mode, and returns a `Run`. Standing properties (`noErrorBoundary`) are
 registered with `product.property` in `scenario/observations.ts`.
-Playground opens `virtualHost()` and passes the `Session` to `createSim`.
+Playground opens `virtualTimeRuntime()` and passes the `Session` to `createSim`.
 
 **Authoring** — scenarios import `describe` from `@pkgs/ui-testing` and pass
 `ctx` into `openSim(testId, ctx)`. Never import `@jest/globals` / `@playwright/test`
 in scenario files. Drive UI through `AppDriver` (taps checkpoint via `s.apply`;
-waits via `s.until` / `s.elapse`; visibility / text via `s.observe(read, …args)`).
+waits via `s.until` / `s.advanceTime`; visibility / text via `s.read(read, …args)`).
 Register more properties with `product.property` if needed. Flows that poll go through
-`ActorScript.pollUntil`, which calls `s.elapse` between reads — never a wall-clock
-deadline. Reads are plain functions of the surface.
+`ActorScript.pollUntil`, which calls `s.advanceTime` between reads — never a wall-clock
+deadline. Reads are plain functions of `S`.
 
 ```tsx
 import { describe } from '@pkgs/ui-testing';
@@ -29,8 +29,8 @@ describe('space create', (ctx) => {
 });
 ```
 
-Faults (partition / heal) are `product.action`s gated by the `caps` read —
-do not branch on `ctx.fidelity`. On the `playwright` host (no `partition` cap),
+Faults (partition / restoreNetwork) are `product.action`s gated by the `caps` read —
+do not branch on `ctx.mode`. On the `playwright` runtime (no `partition` cap),
 `s.apply(partition, …)` throws `ActionNotEnabled`.
 
 **SQL fabric** (`SIM_SQL_BACKEND=real|mem`, default **`real`**):
@@ -42,7 +42,7 @@ do not branch on `ctx.fidelity`. On the `playwright` host (no `partition` cap),
 - `mem` — legacy **postgres-mem** + **sqlite-mem**. Seed:
   `sim/test/.cache/sim-backend-seed.pgmm.json`
 
-Engine selection is only in `@sim/console` `getSimSqlFabric()` — not in product
+Engine selection is only in `@sim/console` `getSimSqlEngines()` — not in product
 libs. Playground web loads PGlite/SQLite WASM from
 `sim/console/public/generated/` (`bun run --filter @sim/console bundle:sim-sql-wasm`;
 wired into `predev` / `setup`) so Metro's Hermes classic bundle never sees
@@ -61,12 +61,12 @@ wired into `predev` / `setup`) so Metro's Hermes classic bundle never sees
 Builders live in `sim/test/src/snapshots/builders/` (same AppDriver DSL as scenarios).
 Catalog: `signed-in-alice`, `signed-in-pair`, `friends-pair`, `both-in-space`.
 
-**Hosts** (`ctx.driverKind` from the installed runner, or `openSim` options for snapshot builders):
+**Runtimes** (`ctx.driverKind` from the installed runner, or `openSim` options for snapshot builders):
 
-| Host name | Factory | Command | UI driver | SQL / HTTP |
+| Runtime name | Factory | Command | UI driver | SQL / HTTP |
 | --- | --- | --- | --- | --- |
-| `rntl` (default) | `simHost` | `bun run --filter @sim/test test` | RNTL in-process | Seed PGlite/SQLite; in-process Hono `fetch`; caps include `partition` |
-| `playwright` | `maxHost` | `bun run --filter @sim/test test:max` | Playwright (one context per actor) | Real Postgres + MinIO/EMQX; Hono on loopback HTTP; Expo web on `:5173`; no `partition` cap |
+| `rntl` (default) | `simRuntime` | `bun run --filter @sim/test test` | RNTL in-process | Seed PGlite/SQLite; in-process Hono `fetch`; caps include `partition` |
+| `playwright` | `maxRuntime` | `bun run --filter @sim/test test:max` | Playwright (one context per actor) | Real Postgres + MinIO/EMQX; Hono on loopback HTTP; Expo web on `:5173`; no `partition` cap |
 
 - **`rntl`** — the network mesh (`partition`) is first-class. Server schema is migrated
   **once** into the seed file (Jest `globalSetup` /

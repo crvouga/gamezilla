@@ -4,18 +4,18 @@
 
 import type { Client } from '@apps/client/product/create-client';
 import type { Clock } from '@pkgs/clock';
-import type { Session } from '@pkgs/dst';
+import type { Session } from '@pkgs/sim';
 import { sql } from '@pkgs/sql';
-import type { SimSqlHandle } from '@sim/console/sim/sim-sql';
+import type { SimSql } from '@sim/console/sim/sim-sql';
 
 type UnderlyingScheduler = Session['scheduler']['underlying'];
 
 type DrainCtx = {
   readonly clock: Clock;
   readonly scheduler: UnderlyingScheduler;
-  readonly serverHandle: SimSqlHandle;
-  readonly sim: { clientSql(id: string): SimSqlHandle | undefined };
-  readonly clientSqlByAddress: Map<string, SimSqlHandle>;
+  readonly serverHandle: SimSql;
+  readonly sim: { clientSql(id: string): SimSql | undefined };
+  readonly clientSqlByAddress: Map<string, SimSql>;
   readonly maps: {
     readonly lives: {
       readonly get: (id: string) => Client | undefined;
@@ -77,10 +77,7 @@ type ProfileSnapRow = {
   readonly username_norm: string | null;
 };
 
-function clientSqlHandle(
-  ctx: DrainCtx,
-  clientId: string
-): SimSqlHandle | undefined {
+function clientSqlHandle(ctx: DrainCtx, clientId: string): SimSql | undefined {
   return ctx.clientSqlByAddress.get(clientId) ?? ctx.sim.clientSql(clientId);
 }
 

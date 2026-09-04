@@ -20,7 +20,7 @@
     "@dicebear/collection": "catalog:",
     "@dicebear/core": "catalog:",
     "@libs/auth": "workspace:*",
-    "@libs/dst-handles": "workspace:*",
+    "@libs/test-ids": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",
     "@pkgs/attribute": "workspace:*",

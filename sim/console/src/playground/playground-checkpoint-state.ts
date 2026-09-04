@@ -8,7 +8,7 @@ import { migrateSimPostgres } from '@apps/server/sim/migrate-sim-postgres';
 import { migrateSimClientSqlite } from '@apps/server/sim/migrate-sim-sqlite';
 import { assert } from '@pkgs/assert';
 import type { Clock } from '@pkgs/clock';
-import type { Session } from '@pkgs/dst';
+import type { Session } from '@pkgs/sim';
 import type {
   SimCheckpoint,
   SimCheckpointRoomDump,
@@ -19,10 +19,7 @@ import {
 } from '@sim/console/playground/playground-checkpoint-durable';
 import { reconcileServerProfilesFromClients } from '@sim/console/playground/playground-snapshot-sync';
 import { type Sim, simClientNamespace } from '@sim/console/sim/create-sim';
-import {
-  openFreshSimClientSql,
-  type SimSqlHandle,
-} from '@sim/console/sim/sim-sql';
+import { openFreshSimClientSql, type SimSql } from '@sim/console/sim/sim-sql';
 
 export type CheckpointSessionMaps = {
   readonly clients: {
@@ -43,8 +40,8 @@ export type CheckpointSessionCtx = {
   readonly clock: Clock;
   readonly scheduler: UnderlyingScheduler;
   readonly roomNode: RoomServerApp;
-  readonly serverHandle: SimSqlHandle;
-  readonly clientSqlByAddress: Map<string, SimSqlHandle>;
+  readonly serverHandle: SimSql;
+  readonly clientSqlByAddress: Map<string, SimSql>;
   readonly maps: CheckpointSessionMaps;
   readonly getClockPaused: () => boolean;
   readonly setClockPaused: (paused: boolean) => void;
@@ -122,7 +119,7 @@ export function collectRooms(
 async function ensureClientSqlHandle(
   ctx: CheckpointSessionCtx,
   clientId: string
-): Promise<SimSqlHandle> {
+): Promise<SimSql> {
   const existing =
     ctx.clientSqlByAddress.get(clientId) ?? ctx.sim.clientSql(clientId);
   if (existing !== undefined) return existing;

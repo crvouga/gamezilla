@@ -1,19 +1,19 @@
-import type { VirtualScheduler } from '@pkgs/dst';
+import type { VirtualScheduler } from '@pkgs/sim';
 import type { SeededRng } from '@pkgs/uuid';
 
 import type { LocalDomainSchema } from '../client/local-schema-migrate';
 import type { Timers } from '../client/sim-ports';
 import type { MutationRegistry } from '../mutations/core/types';
 import type { QueryRegistry } from '../queries/core/types';
-import type { BoundaryFaultController } from './boundary-faults';
 import type { SimAuthStatus } from './client-factory-parts';
-import type { SimClientDbBundle, SimClientHandle } from './client-handle';
 import type { ClockSkewTable } from './clock-skew';
 import type { SimDomainPack } from './domain-pack';
+import type { EdgeFaultController } from './edge-faults';
 import type { SimFaultOptions } from './faults';
 import type { SyncNetwork } from './network';
 import type { SimPubSubBroker } from './pubsub-bridge';
 import type { SimServer } from './server';
+import type { SimClient, SimClientDbBundle } from './sim-client';
 
 export type ClientMeta = {
   readonly id: string;
@@ -36,7 +36,7 @@ export type ClientMeta = {
   lastSchemaEpoch?: number;
 };
 
-export type KitClientOpts = {
+export type SimClientOpts = {
   readonly faults?: SimFaultOptions;
   readonly sampleFaults?: boolean;
   /**
@@ -85,7 +85,7 @@ export type AddClientArgs = {
   readonly existingDb?: SimClientDbBundle;
 };
 
-/** Virtual clock used by the sim scheduler (see `@pkgs/dst` `VirtualClock`). */
+/** Virtual clock used by the sim scheduler (see `@pkgs/sim` `VirtualClock`). */
 export type SimClock = VirtualScheduler['clock'];
 
 /** Clock, network, broker, and in-memory SQLite server for a sim surface. */
@@ -98,7 +98,7 @@ export type BootedSimKernel = {
   readonly network: SyncNetwork;
   server: SimServer;
   broker: SimPubSubBroker;
-  readonly clients: Map<string, SimClientHandle>;
+  readonly clients: Map<string, SimClient>;
   readonly metas: Map<string, ClientMeta>;
   readonly authByDevice: Map<string, ClientMeta>;
   /** Per-device auth token status for expired/revoked scenarios. */
@@ -108,10 +108,10 @@ export type BootedSimKernel = {
   readonly frozenClients: Set<string>;
   readonly failNextOpenClients: Set<string>;
   readonly nextId: () => string;
-  readonly clientOpts: KitClientOpts;
+  readonly clientOpts: SimClientOpts;
   readonly domain: SimDomainPack;
   readonly nowFor: (nodeId: string) => number;
-  readonly faults: BoundaryFaultController;
+  readonly faults: EdgeFaultController;
   unbindHttp: () => void;
   serverPub: ReturnType<SimPubSubBroker['createPubSub']>;
 };

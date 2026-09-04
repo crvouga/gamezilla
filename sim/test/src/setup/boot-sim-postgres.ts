@@ -1,5 +1,5 @@
 /**
- * Live embedded Postgres handle for fidelity-max DST (migrated by the stack boot).
+ * Live embedded Postgres handle for mode-real DST (migrated by the stack boot).
  */
 import { appPostgresDbScope } from '@libs/db/public/scope';
 import { LOCAL_DATABASE_URL } from '@pkgs/postgres-embedded/ports';

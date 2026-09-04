@@ -26,7 +26,7 @@ export type SimDomainPack = {
   readonly mutationRegistry: MutationRegistry;
   readonly queryRegistry: QueryRegistry;
   readonly sessionQuery: SimSessionQuery;
-  readonly checkAllConverged: (args: {
+  readonly checkAllInSync: (args: {
     readonly clients: readonly {
       readonly label: string;
       readonly db: SqlClient;

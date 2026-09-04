@@ -11,7 +11,7 @@ import { notifyChannels } from '../server/notify-channels';
 import { createMonotonicCheckpoint } from '../shared/commit-checkpoint';
 import { withFrameworkTopicMap } from '../shared/framework-topic-map';
 import type { TopicMap } from '../shared/topic-map';
-import type { BoundaryFaultController } from './boundary-faults';
+import type { EdgeFaultController } from './edge-faults';
 import type { SimHttpServerHandlers } from './http-bridge';
 import { openSimSqliteServer } from './open-sim-sqlite';
 import {
@@ -51,7 +51,7 @@ export type OpenSimServerArgs = {
   readonly queryRegistry: QueryRegistry;
   readonly localSchema: LocalDomainSchema;
   readonly rowImageFanout?: boolean;
-  readonly faults?: BoundaryFaultController;
+  readonly faults?: EdgeFaultController;
   readonly topicMap?: TopicMap;
   /** Reuse an existing server DB (server crash/restart with preserveDb). */
   readonly existingDb?: SqlClient;
@@ -74,7 +74,7 @@ function buildHandlerCtx(args: {
   readonly setAuth: (auth: SimServerAuth) => void;
   readonly nextCheckpoint: () => string;
   readonly rowImageFanout: boolean;
-  readonly faults?: BoundaryFaultController;
+  readonly faults?: EdgeFaultController;
   readonly topicMap?: TopicMap;
 }): SimServerHandlerCtx {
   const topicMap = withFrameworkTopicMap(args.topicMap);

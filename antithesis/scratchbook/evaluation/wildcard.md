@@ -39,7 +39,7 @@ Production room state lives in Durable Object SQLite (`room.do.v3.*` event keys 
 
 `sut-analysis.md` `[wildcard]`: `accountId === userId`; sync `clientId === deviceId`; presence has used `profileId={deviceId}`; room actor can become the install id on a DB hiccup during WS upgrade; room `clientId` is a per-tab UUID.
 
-The catalog has a full evidence file for this (`presence-online-matches-room-actor-id`) and then defers it: “Naming bug; overlaps gateway fallback.” That is the wrong merge. `room-gateway-fallback-not-host` is **privilege** (who may pass host-gated commands). Presence is **naming** (online / You / Host badges key a different id than the socket). Relationships put both in “Room identity vs social membership” and then the catalog drops the naming half from the first-pass table.
+The catalog has a full evidence file for this (`presence-online-matches-room-actor-id`) and then defers it: “Naming bug; overlaps gateway fallback.” That is the wrong merge. `room-gateway-fallback-not-host` is **privilege** (who may pass host-gated commands). Presence is **naming** (online / You / Runtime badges key a different id than the socket). Relationships put both in “Room identity vs social membership” and then the catalog drops the naming half from the first-pass table.
 
 A reader of Coverage Balance could honestly say “identity is covered by gateway + seats-agree.” The user-visible failure the SUT analysis named (“You” off while still in the puzzle room) is the deferred file.
 

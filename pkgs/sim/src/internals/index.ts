@@ -9,7 +9,6 @@ export {
   type NodeId,
   RELIABLE_NETWORK,
 } from '../models/network';
-export { choose } from './choice';
 export { createVirtualClock, type VirtualClock } from './clock';
 export { fingerprint } from './fingerprint';
 export {
@@ -18,6 +17,7 @@ export {
   type JsonPrimitive,
   type JsonValue,
 } from './json';
+export { createWallScheduler } from './real-time-scheduler';
 export {
   asSeededRng,
   createRecordingRng,
@@ -41,6 +41,7 @@ export {
   type TaskBody,
 } from './scheduler-api';
 export type { Task } from './scheduler-types';
+export { choose } from './step';
 export { createTimers } from './timers';
 export {
   createTraceRecorder,
@@ -49,4 +50,3 @@ export {
   type TraceRecord,
   type TraceRecorder,
 } from './trace';
-export { createWallScheduler } from './wall-scheduler';

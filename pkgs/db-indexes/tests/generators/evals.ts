@@ -1,6 +1,6 @@
 import fc from 'fast-check';
-import type { Candidate, Eval, OwnedIndexName } from '../../core/types';
-import { asOwnedIndexName } from '../../core/types';
+import type { Candidate, Eval, OwnedIndexName } from '../../src/core/types';
+import { asOwnedIndexName } from '../../src/core/types';
 
 /**
  * Adversarial eval responses: all equal, exactly minImprovementFactor, ±ε.

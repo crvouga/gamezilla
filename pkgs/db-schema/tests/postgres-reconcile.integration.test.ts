@@ -3,11 +3,11 @@ import { defineTable, registerTables } from '@pkgs/db-schema';
 import { applyPostgresSchema } from '@pkgs/db-schema/postgres';
 import { raw, sql } from '@pkgs/sql';
 import type { PostgresSqlClient } from '@pkgs/sql-client/interface';
-import { defineSchema } from '../core/define-schema';
-import { createRecordingSqlClient } from '../test/fake-sql-client';
-import { createPglitePostgresClient } from '../test/pglite-postgres-client';
-import { readPostgresCatalog } from './catalog';
-import { postgres } from './driver';
+import { defineSchema } from '../src/core/define-schema';
+import { readPostgresCatalog } from '../src/postgres/catalog';
+import { postgres } from '../src/postgres/driver';
+import { createRecordingSqlClient } from '../src/test/fake-sql-client';
+import { createPglitePostgresClient } from '../src/test/pglite-postgres-client';
 
 describe('postgres reconcile integration', () => {
   let sqlClient: PostgresSqlClient;

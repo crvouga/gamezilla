@@ -2,7 +2,7 @@ import type { SeededRng } from '@pkgs/uuid';
 import type { TraceRecorder } from './trace';
 
 /**
- * Resolve one Choice: pick among `alternatives` at the choice site `choiceId`.
+ * Resolve one Step: pick among `alternatives` at the choice site `choiceId`.
  * A forced choice (one alternative) consumes no entropy so the choice stream
  * does not depend on transient pool sizes.
  */

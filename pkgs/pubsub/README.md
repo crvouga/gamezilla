@@ -37,7 +37,8 @@ Stateless environments (e.g. Cloudflare Workers HTTP → EMQX) return the **same
 | Import                   | Purpose                                          |
 | ------------------------ | ------------------------------------------------ |
 | `@pkgs/pubsub/interface` | `PubSub`, errors, `assertValidTopic`, codec      |
-| `@pkgs/pubsub/testing`   | `createInMemoryPubSub`, `runPubSubContractTests` |
+| `@pkgs/pubsub/in-memory`   | `createInMemoryPubSub` (runtime; no bun:test)    |
+| `@pkgs/pubsub/in-memory/contract` | `runPubSubContractTests` (adapter contract) |
 
 ## How to implement an adapter
 
@@ -45,7 +46,8 @@ Stateless environments (e.g. Cloudflare Workers HTTP → EMQX) return the **same
 2. Pass the contract suite:
 
 ```ts
-import { runPubSubContractTests } from '@pkgs/pubsub/testing';
+import { wallClock, wallTimers } from '@pkgs/clock';
+import { runPubSubContractTests } from '@pkgs/pubsub/in-memory/contract';
 
 runPubSubContractTests('my-adapter', async () => ({
   make: async () => createMyFullDuplex(),
@@ -56,6 +58,8 @@ runPubSubContractTests('my-adapter', async () => ({
   injectMalformedInbound: async (p, topic) => {
     /* deliver a non-JSON frame onto the decode path */
   },
+  clock: wallClock,
+  timers: wallTimers,
   teardown: async () => {
     /* dispose shared resources */
   },

@@ -1,17 +1,17 @@
 import { untilAll, untilAny } from './wait-until';
 
+export type { SimAuthStatus } from './client-factory';
+export type { SimDomainPack } from './domain-pack';
 export type {
   SimCrashEvent,
   SimHttpFault,
-} from './boundary-faults';
-export type { SimAuthStatus } from './client-factory';
-export type { SimDomainPack } from './domain-pack';
-export type { SyncKit } from './kit-api';
-export type { RestartClientOpts } from './kit-lifecycle';
-export type { NetEffect, NetState, SimNetHandle } from './net-effect';
-export type { SimNodeHandle } from './node-handle';
+} from './edge-faults';
+export type { NetEffect, NetState, SimNet } from './net-effect';
 export type { SyncApp, SyncArgs } from './scenario';
 export { arbSeed, arbSyncArgs } from './scenario';
+export type { SyncSimRuntime } from './sim-api';
+export type { RestartClientOpts } from './sim-lifecycle';
+export type { SimNode } from './sim-node';
 export type { SimTraffic } from './traffic';
 export type {
   NeverOptions,

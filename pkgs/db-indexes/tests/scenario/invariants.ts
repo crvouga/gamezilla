@@ -1,7 +1,7 @@
-import { fingerprintSql } from '../../core/fingerprint';
-import { isOwnedName } from '../../core/naming';
-import type { WorkloadManifest } from '../../core/types';
-import { checkInvariantsAsync } from '../../sim/invariants';
+import { fingerprintSql } from '../../src/core/fingerprint';
+import { isOwnedName } from '../../src/core/naming';
+import type { WorkloadManifest } from '../../src/core/types';
+import { checkInvariantsAsync } from '../../src/sim/invariants';
 import type { IndexesReconcilerHandle } from './nodes';
 
 export async function checkIndexesInvariants(

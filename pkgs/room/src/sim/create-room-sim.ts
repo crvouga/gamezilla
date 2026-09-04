@@ -1,4 +1,4 @@
-import { asSeededRng, type Session } from '@pkgs/dst';
+import { asSeededRng, type Session } from '@pkgs/sim';
 
 import { InMemoryClientStorage } from '../client/adapters/storage/memory';
 import { createTimerScheduleStack } from '../effects/timer-schedule-stack';
@@ -6,45 +6,45 @@ import { InMemoryRoomStorage } from '../server/adapters/memory';
 import { RoomServer } from '../server/core/room-server';
 import type { RoomCommandPayload, RoomEvent, RoomState } from '../types';
 
-import { createRoomBoundaryFaultController } from './boundary-faults';
+import { createRoomEdgeFaultController } from './edge-faults';
 import { checkRoomInvariants } from './invariants';
-import type {
-  OpenKitArgs,
-  RoomKit,
-  RoomKitDeps,
-  RoomSimAuthorize,
-  RoomSimClientHandle,
-} from './kit-api';
-import {
-  attachClient,
-  buildClientHandle,
-  crashClientSync,
-  destroyClient,
-  type RoomKernel,
-  restartClient,
-  softDisconnectClient,
-  softReconnectClient,
-} from './kit-clients';
-import { assembleKit } from './kit-facade';
 import {
   MILD_ROOM_FAULTS,
   type SimRoomNetwork,
   wrapRoomNetwork,
 } from './network';
 import { SerialQueue } from './serial-queue';
+import type {
+  OpenRoomSimArgs,
+  RoomSimAuthorize,
+  RoomSimClient,
+  RoomSimRuntime,
+  RoomSimRuntimeDeps,
+} from './sim-api';
+import {
+  attachClient,
+  buildRoomSimClient,
+  crashClientSync,
+  destroyClient,
+  type RoomKernel,
+  restartClient,
+  softDisconnectClient,
+  softReconnectClient,
+} from './sim-clients';
+import { assembleRoomSimRuntime } from './sim-facade';
 import {
   drainRoomSim,
   foldServerDomainState,
   type RoomSimClientSlot,
-  reviveRoom,
+  recoverAllRoom,
   serverDomainHash,
-} from './settle';
+} from './wait-for-idle';
 
 type KernelBootArgs<
   S extends RoomState,
   C extends RoomCommandPayload,
   E extends RoomEvent,
-> = OpenKitArgs<S, C, E>;
+> = OpenRoomSimArgs<S, C, E>;
 
 type BoundSchedule = ReturnType<typeof createTimerScheduleStack>;
 
@@ -101,7 +101,7 @@ function createKitServer<
 function resolveKitPorts(
   session: Session,
   mildFaults: boolean
-): { readonly deps: RoomKitDeps; readonly network: SimRoomNetwork } {
+): { readonly deps: RoomSimRuntimeDeps; readonly network: SimRoomNetwork } {
   const node = session.fork('server');
   const rng = asSeededRng(node.ports.rng);
   const scheduler = session.scheduler.underlying;
@@ -147,7 +147,7 @@ async function createRoomKernel<
   const topic = args.topic ?? `sim:${deps.createId()}`;
   const storage = args.storage ?? new InMemoryRoomStorage();
   const serverQueue = new SerialQueue();
-  const boundary = createRoomBoundaryFaultController();
+  const boundary = createRoomEdgeFaultController();
   // Holder so schedule wake can see the kernel before assignment completes.
   const holder: { k: RoomKernel<S, C, E> | null } = { k: null };
   const schedule = createTimerScheduleStack({
@@ -233,7 +233,7 @@ async function addKitClient<
     readonly identity?: string;
     readonly clientId?: string;
   }
-): Promise<RoomSimClientHandle<S, C, E>> {
+): Promise<RoomSimClient<S, C, E>> {
   if (k.handles.has(args.id)) {
     throw new Error(`addClient: duplicate id ${args.id}`);
   }
@@ -249,7 +249,7 @@ async function addKitClient<
   };
   k.slots.set(args.id, slot);
   await attachClient(k, slot);
-  const handle = buildClientHandle(k, slot);
+  const handle = buildRoomSimClient(k, slot);
   k.handles.set(args.id, handle);
   return handle;
 }
@@ -410,7 +410,7 @@ async function ensureKitClientConnected<
     await restartClient(k, slot);
     return;
   }
-  // Soft cycle so a welcome is resent after heal (e.g. takeOver under down).
+  // Soft cycle so a welcome is resent after restoreNetwork (e.g. takeOver under down).
   await softDisconnectClient(k, slot);
   await softReconnectClient(k, slot);
 }
@@ -419,39 +419,36 @@ async function reviveKit<
   S extends RoomState,
   C extends RoomCommandPayload,
   E extends RoomEvent,
->(
-  k: RoomKernel<S, C, E>,
-  prepareForSettle: () => Promise<void>
-): Promise<void> {
-  await reviveRoom({
+>(k: RoomKernel<S, C, E>, prepareForIdle: () => Promise<void>): Promise<void> {
+  await recoverAllRoom({
     ...makeDrainCtx(k)(),
     module: k.module,
     storage: k.storage,
     topic: k.topic,
     getServer: () => k.server,
-    prepareForSettle,
+    prepareForIdle,
     ensureConnected: (key) => ensureKitClientConnected(k, key),
   });
 }
 
 /**
  * Boot the multi-client kit room from a DST session.
- * Clients are added explicitly via {@link RoomKit.addClient}.
+ * Clients are added explicitly via {@link RoomSimRuntime.addClient}.
  */
-export async function createRoomKit<
+export async function createRoomSimRuntime<
   S extends RoomState,
   C extends RoomCommandPayload,
   E extends RoomEvent,
->(args: OpenKitArgs<S, C, E>): Promise<RoomKit<S, C, E>> {
+>(args: OpenRoomSimArgs<S, C, E>): Promise<RoomSimRuntime<S, C, E>> {
   const k = await createRoomKernel(args);
   const recreateServer = (): Promise<void> => recreateKitServer(k, args);
-  const prepareForSettle = (): Promise<void> =>
+  const prepareForIdle = (): Promise<void> =>
     prepareKitForSettle(k, recreateServer);
-  const kit = assembleKit(k, {
+  const kit = assembleRoomSimRuntime(k, {
     addClient: (a) => addKitClient(k, a),
     recreateServer,
-    prepareForSettle,
-    revive: () => reviveKit(k, prepareForSettle),
+    prepareForIdle,
+    recoverAll: () => reviveKit(k, prepareForIdle),
     serverCrash: () => serverCrashImpl(k),
     dispose: makeKitDispose(k),
     domainQueries: domainQueriesOf(k),

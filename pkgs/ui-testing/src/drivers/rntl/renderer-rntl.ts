@@ -176,7 +176,7 @@ function asInstance(node: HostNode): ReactTestInstance {
   return node as ReactTestInstance;
 }
 
-/** Walk to a host that implements `onChangeText` (label hits the wrapper). */
+/** RandomActionsReport to a host that implements `onChangeText` (label hits the wrapper). */
 function findHostTextInput(instance: ReactTestInstance): ReactTestInstance {
   if (typeof instance.props['onChangeText'] === 'function') {
     return instance;
@@ -307,7 +307,7 @@ function nodeOmitsFromTextRead(instance: ReactTestInstance): boolean {
   return false;
 }
 
-/** Walk the RNTL host tree (nested Text nodes under Pressable, etc.). */
+/** RandomActionsReport the RNTL host tree (nested Text nodes under Pressable, etc.). */
 function collectInstanceText(element: ReactTestInstance): string {
   let out = '';
   for (const child of element.children) {

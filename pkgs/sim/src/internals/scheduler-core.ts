@@ -1,13 +1,13 @@
 import type { SeededRng } from '@pkgs/uuid';
-import { choose } from './choice';
 import type { VirtualClock } from './clock';
-import { waitQuiescence } from './quiescence';
+import { waitQuiescence } from './idle';
 import {
   advanceToNextDue,
   assertQuiescentBudget,
   withinRunUntilBudget,
 } from './scheduler-limits';
 import type { InFlightTask, Task } from './scheduler-types';
+import { choose } from './step';
 import type { TraceRecorder } from './trace';
 
 export type { InFlightTask, Task, TaskBody } from './scheduler-types';
@@ -94,7 +94,7 @@ function deadlockMessage(ctx: DrainContext): string {
 }
 
 /**
- * Fire one due Task (same-time ties resolved by the scheduling Choice), then
+ * Fire one due Task (same-time ties resolved by the scheduling Step), then
  * wait until either the Task settles or the microtask queue is quiescent.
  * Unsettled Tasks stay in-flight (suspended on unmanaged promises).
  */

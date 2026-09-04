@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import { asOwnedIndexName } from '../../core/types';
+import { asOwnedIndexName } from '../src/core/types';
 import {
   isConcurrentlyUnsupportedError,
   renderCreateIndexSql,
   renderDropIndexSql,
-} from '../../postgres/render-ddl';
+} from '../src/postgres/render-ddl';
 
 const def = {
   table: 'notes',

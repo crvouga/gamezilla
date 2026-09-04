@@ -17,7 +17,7 @@ export type ComputeFloatingMenuPositionOptions = {
   menuHeight: number;
   menuWidth: number;
   insets: FloatingMenuInsets;
-  /** Host-local viewport (portal panel size), not necessarily the window. */
+  /** Runtime-local viewport (portal panel size), not necessarily the window. */
   viewport: FloatingMenuViewport;
   gap?: number;
 };

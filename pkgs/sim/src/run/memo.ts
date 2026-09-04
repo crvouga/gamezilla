@@ -1,4 +1,4 @@
-import { fingerprint } from '../kernel/fingerprint';
+import { fingerprint } from '../internals/fingerprint';
 
 type MemoFrame = {
   readonly cache: Map<string, unknown>;

@@ -1,21 +1,21 @@
 /**
- * Shared plumbing for the explore pool (`sync-actions.ts`) and the `revive`
- * pin: heal the fabric, remake clients that owe a restart, and tolerate the
+ * Shared plumbing for the explore pool (`sync-actions.ts`) and the `recoverAll`
+ * pin: restoreNetwork the fabric, remake clients that owe a restart, and tolerate the
  * faults chaos actions deliberately race into.
  */
 
 import { isStorageFullError } from '../../client/storage-full-error';
-import { peerClientIdsSharingRawDb } from '../kit-lifecycle';
-import type { SyncSurfaceBase } from './surface-types';
-import type { SyncSurface } from './system';
+import { peerClientIdsSharingRawDb } from '../sim-lifecycle';
+import type { SyncSimBase } from './sim-types';
+import type { SyncSim } from './system';
 
 /**
  * Clients that must be remade before convergence is expected: crashed,
  * auth-revoked (fresh db), tampered, or protocol-cut. Pool actions record
- * here; `connect` / `restart` pool actions and `revive` consume it.
+ * here; `connect` / `restart` pool actions and `recoverAll` consume it.
  */
 export function oweRestart(
-  s: SyncSurface,
+  s: SyncSim,
   clientId: string,
   opts: { readonly fresh?: boolean } = {}
 ): void {
@@ -23,13 +23,13 @@ export function oweRestart(
   if (opts.fresh === true) s.runtime.owed.fresh.add(clientId);
 }
 
-export function forgetOwedRestart(s: SyncSurface, clientId: string): void {
+export function forgetOwedRestart(s: SyncSim, clientId: string): void {
   s.runtime.owed.restart.delete(clientId);
   s.runtime.owed.fresh.delete(clientId);
 }
 
 /** Revoking one client's auth wipes the raw db every peer engine shares. */
-export function oweRevokedRestart(s: SyncSurface, clientId: string): void {
+export function oweRevokedRestart(s: SyncSim, clientId: string): void {
   oweRestart(s, clientId, { fresh: true });
   for (const peerId of peerClientIdsSharingRawDb(s.clients, clientId)) {
     oweRestart(s, peerId, { fresh: true });
@@ -37,14 +37,14 @@ export function oweRevokedRestart(s: SyncSurface, clientId: string): void {
 }
 
 /** Clear partitions / holds / faults so restart and sync can complete. */
-export function healNetworkForSettle(surface: SyncSurfaceBase): void {
+export function restoreNetworkForIdle(surface: SyncSimBase): void {
   const network = surface.kit.network;
   network.releaseAll();
-  network.healAll();
+  network.restoreAllNetwork();
   network.clearNodeFaults();
 }
 
-export async function ensureServerUp(surface: SyncSurfaceBase): Promise<void> {
+export async function ensureServerUp(surface: SyncSimBase): Promise<void> {
   try {
     await surface.node('server').restart({ preserveLocalDb: true });
   } catch {
@@ -52,7 +52,7 @@ export async function ensureServerUp(surface: SyncSurfaceBase): Promise<void> {
   }
 }
 
-/** Injected sim faults that tear the client down mid-restart; heal retries. */
+/** Injected sim faults that tear the client down mid-restart; restoreNetwork retries. */
 export function isExpectedRestartFault(error: unknown): boolean {
   const msg = error instanceof Error ? error.message : String(error);
   return (
@@ -62,7 +62,7 @@ export function isExpectedRestartFault(error: unknown): boolean {
 
 /** Remake a client; retry when failNextOpen / epoch-migrate arms fire. */
 export async function restartClientWithRetry(
-  surface: SyncSurfaceBase,
+  surface: SyncSimBase,
   clientId: string,
   opts?: { readonly preserveLocalDb?: boolean }
 ): Promise<void> {
@@ -84,28 +84,28 @@ export async function restartClientWithRetry(
  * client so it can take part in convergence.
  */
 export async function restartClientForConverge(
-  surface: SyncSurfaceBase,
+  surface: SyncSimBase,
   clientId: string,
   opts?: { readonly preserveLocalDb?: boolean }
 ): Promise<void> {
-  surface.clearBoundaryFaults();
+  surface.clearEdgeFaults();
   await ensureServerUp(surface);
   surface.node(clientId).auth('valid');
   await restartClientWithRetry(surface, clientId, opts);
 }
 
 /** Pre-care for restart-shaped actions: nothing may tear the remake down. */
-export async function prepareRestart(surface: SyncSurfaceBase): Promise<void> {
-  surface.clearBoundaryFaults();
-  healNetworkForSettle(surface);
+export async function prepareRestart(surface: SyncSimBase): Promise<void> {
+  surface.clearEdgeFaults();
+  restoreNetworkForIdle(surface);
   await ensureServerUp(surface);
 }
 
 /**
- * Full fabric heal: drop pool subscriptions, clear storage arms, open every
+ * Full fabric restoreNetwork: drop pool subscriptions, clear storage arms, open every
  * link, and bring broker + server back.
  */
-export async function healAll(s: SyncSurface): Promise<void> {
+export async function restoreAllNetwork(s: SyncSim): Promise<void> {
   for (const sub of s.runtime.poolSubscriptions) sub[Symbol.dispose]();
   s.runtime.poolSubscriptions.clear();
   s.clearStoragePressure();
@@ -116,40 +116,40 @@ export async function healAll(s: SyncSurface): Promise<void> {
 }
 
 /** Skew arms are fire-and-forget — zero before settle. */
-export function resetClockSkews(surface: SyncSurfaceBase): void {
+export function resetClockSkews(surface: SyncSimBase): void {
   surface.node('server').skewClock(0);
   for (const id of surface.clients.keys()) {
     surface.node(id).skewClock(0);
   }
 }
 
-function isKnownClient(s: SyncSurface, id: string): boolean {
+function isKnownClient(s: SyncSim, id: string): boolean {
   return s.clients.has(id) || s.runtime.kernel.metas.has(id);
 }
 
 /** `upgrade_required` / expired: restore so queued mutations can drain. */
-function restoreSettleAuth(s: SyncSurface, skip: ReadonlySet<string>): void {
+function restoreSettleAuth(s: SyncSim, skip: ReadonlySet<string>): void {
   for (const id of s.clients.keys()) {
     if (skip.has(id)) continue;
     s.node(id).auth('valid');
   }
 }
 
-/** Revoked / crashed / protocol-cut clients — restore auth, restart, heal. */
-export async function prepareClientsForConverge(s: SyncSurface): Promise<void> {
+/** Revoked / crashed / protocol-cut clients — restore auth, restart, restoreNetwork. */
+export async function prepareClientsForInSync(s: SyncSim): Promise<void> {
   const owed = s.runtime.owed;
   const ids = [...owed.restart].filter((id) => isKnownClient(s, id));
   // Unfired armCrashAt (e.g. onNextEngineOpenAfterCacheWipe) must not hit
-  // revoke / fresh-db migrate during heal — chaos ends before converge prep.
-  s.clearBoundaryFaults();
+  // revoke / fresh-db migrate during restoreNetwork — chaos ends before converge prep.
+  s.clearEdgeFaults();
   restoreSettleAuth(s, owed.fresh);
   if (ids.length === 0) {
     owed.restart.clear();
     owed.fresh.clear();
     return;
   }
-  // Remake revoked / crashed clients before heal so a shared-db peer is not
-  // wiped by revokeDatabase while heal nudges pending uploads.
+  // Remake revoked / crashed clients before restoreNetwork so a shared-db peer is not
+  // wiped by revokeDatabase while restoreNetwork nudges pending uploads.
   for (const id of ids) {
     await restartClientForConverge(s, id, {
       preserveLocalDb: !owed.fresh.has(id),
@@ -158,12 +158,12 @@ export async function prepareClientsForConverge(s: SyncSurface): Promise<void> {
   owed.restart.clear();
   owed.fresh.clear();
   if (s.clients.size > 0) await s.advance(50);
-  await healAll(s);
-  healNetworkForSettle(s);
+  await restoreAllNetwork(s);
+  restoreNetworkForIdle(s);
   resetClockSkews(s);
 }
 
-/** Chaos actions race domain constraints and armed faults; heal later. */
+/** Chaos actions race domain constraints and armed faults; restoreNetwork later. */
 export function isToleratedPoolError(error: unknown): boolean {
   if (isStorageFullError(error)) return true;
   const msg = error instanceof Error ? error.message : String(error);

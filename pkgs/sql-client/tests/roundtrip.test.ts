@@ -1,18 +1,18 @@
 import './_shared-teardown';
 import { describe, expect, test } from 'bun:test';
-import { assertProperty } from '@pkgs/dst/fast-check';
+import { assertProperty } from '@pkgs/sim/fast-check';
 import fc from 'fast-check';
-import { ALWAYS_FACTORIES } from '../backends';
+import { ALWAYS_FACTORIES } from './helpers/backends';
+import { forEachBackendSample } from './helpers/for-each-backend';
 import {
   arbLogicalSchema,
   arbRowForTable,
   renderCreateTable,
   renderInsert,
   renderSelectAll,
-} from '../generators';
-import { forEachBackendSample } from '../helpers/for-each-backend';
-import { canonicalizeRows, stableJson } from '../oracles/canonical-dump';
-import { assertWireSafeRows } from '../oracles/wire-safety';
+} from './helpers/generators';
+import { canonicalizeRows, stableJson } from './helpers/oracles/canonical-dump';
+import { assertWireSafeRows } from './helpers/oracles/wire-safety';
 
 describe('roundtrip.pbt', () => {
   test('insert then select matches canonical dump of bound row', async () => {

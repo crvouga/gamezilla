@@ -5,7 +5,7 @@ import {
   type NetworkFaults,
   RELIABLE_NETWORK,
   type VirtualScheduler,
-} from '@pkgs/dst';
+} from '@pkgs/sim';
 
 import { createNetEffect, type NetEffect } from './net-effect';
 
@@ -117,7 +117,7 @@ type RoomNetCtx = RoomNetMaps & {
 
 /**
  * Room-domain network: hold/down/faults keyed by client + direction.
- * Mechanics (delay/loss/dup/hold queues) live in `@pkgs/dst`.
+ * Mechanics (delay/loss/dup/hold queues) live in `@pkgs/sim`.
  */
 export type SimRoomNetwork = {
   readonly registerServer: (
@@ -132,7 +132,7 @@ export type SimRoomNetwork = {
   readonly sendToClient: (clientKey: string, payload: unknown) => void;
   readonly setDefaultFaults: (faults: RoomFaultProfile) => void;
   readonly set: (clientKey: string, next: RoomNetSetArg) => RoomNetEffect;
-  readonly healAll: () => void;
+  readonly restoreAllNetwork: () => void;
   readonly linkState: (clientKey: string) => RoomNetLinkState;
   /** True while any hold / down / directional override / fault profile is set. */
   readonly impaired: (clientKey: string) => boolean;
@@ -144,11 +144,11 @@ export type SimRoomNetwork = {
   readonly netPendingCount: () => number;
 };
 
-export type SimRoomNetHandle = {
+export type RoomSimNet = {
   readonly set: (next: RoomNetSetArg) => RoomNetEffect;
   readonly state: () => RoomNetLinkState;
   readonly impaired: () => boolean;
-  /** Frames are being dropped — only `heal` (revive) recovers this link. */
+  /** Frames are being dropped — only `restoreNetwork` (recoverAll) recovers this link. */
   readonly down: () => boolean;
 };
 
@@ -393,7 +393,7 @@ function buildRoomNetworkApi(args: {
         }
       );
     },
-    healAll() {
+    restoreAllNetwork() {
       kernel.releaseAll();
       kernel.healAll();
       kernel.clearFaults();
@@ -422,7 +422,7 @@ function buildRoomNetworkApi(args: {
 }
 
 /**
- * Adapt a framework-owned `@pkgs/dst` network kernel to the room-domain
+ * Adapt a framework-owned `@pkgs/sim` network kernel to the room-domain
  * client/direction-keyed surface. Framework systems pass `ctx.network`.
  */
 export function wrapRoomNetwork(args: {

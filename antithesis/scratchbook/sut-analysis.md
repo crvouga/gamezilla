@@ -20,7 +20,7 @@ Two write planes must not be confused:
 1. **`@pkgs/sync-engine`** — SQLite ↔ Postgres via HTTP (`POST /api/query`, `POST /api/mutations`, protocol **v3**) plus optional MQTT row-image fanout. The system claims **server-authoritative LWW by upload arrival**, not a CRDT. Snapshots are the claimed truth path; MQTT is a lossy optimization.
 2. **`@pkgs/room` + `RoomServerDurableObject`** — WebSocket event log per `space:{id}`, wire `v=1`, `commandId` dedup, `RoomModule.hash(state)`.
 
-The in-house `@pkgs/dst` sim already injects clock, RNG, HTTP, and an in-process network mesh. `SIM_FIDELITY=max` boots real Postgres/MinIO/EMQX **and skips world-mesh partitions**. Antithesis is not a duplicate of that sim: it is the class of faults (real sockets, process kill, disk, wall-clock, asymmetric partitions) that PBT policy declined (`PBT_AUDIT.md`: Hono/Wrangler/live Neon/e2e “not isolated”).
+The in-house `@pkgs/sim` sim already injects clock, RNG, HTTP, and an in-process network mesh. `SIM_FIDELITY=max` boots real Postgres/MinIO/EMQX **and skips world-mesh partitions**. Antithesis is not a duplicate of that sim: it is the class of faults (real sockets, process kill, disk, wall-clock, asymmetric partitions) that PBT policy declined (`PBT_AUDIT.md`: Hono/Wrangler/live Neon/e2e “not isolated”).
 
 No Antithesis SDK is present. See `existing-assertions.md`.
 

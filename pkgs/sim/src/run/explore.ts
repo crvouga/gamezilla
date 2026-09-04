@@ -1,17 +1,17 @@
-import { createRng } from '../kernel/rng';
+import { createRng } from '../internals/rng';
 import type { Action, CatalogAction, CatalogProperty } from '../system/effect';
 import type { Gen } from '../system/gen';
+import type { Recording, Step } from '../system/recording';
+import { parseRecording, RECORDING_VERSION } from '../system/recording';
 import {
   type ActionSlice,
   getSystemRegistry,
   resolveActions,
   type SystemCore as System,
 } from '../system/registry';
-import type { Choice, Repro } from '../system/repro';
-import { parseRepro, REPRO_VERSION } from '../system/repro';
 import { closeMonitors } from './checkpoint';
-import { getScriptInternal, script } from './script';
-import { type Walk, walk } from './walk';
+import { type RandomActionsReport, randomActions } from './random-actions';
+import { getRunInternal, run } from './run';
 
 export class ExploreFailedError extends Error {
   readonly report: Report;
@@ -33,7 +33,7 @@ export type Report = {
   readonly episodes: number;
   readonly failures: readonly {
     readonly seed: number;
-    readonly repro: Repro;
+    readonly repro: Recording;
     readonly error: string;
   }[];
   readonly vacuity: readonly string[];
@@ -45,7 +45,7 @@ export type Report = {
 
 export type ExploreOptions<S, Args = void> = {
   /** Registered host name. Omit → system default. */
-  readonly host?: string;
+  readonly runtime?: string;
   /**
    * Slice of the walk: registered action names and/or action objects.
    * Default: every registered action with `pool !== false`.
@@ -82,8 +82,8 @@ function resolveEpisodeArgs<Args>(
   if (typeof overlay === 'function') {
     return (overlay as Gen<Args>)(rng);
   }
-  if (system.draw !== undefined && overlay === undefined) {
-    return system.draw()(rng);
+  if (system.sample !== undefined && overlay === undefined) {
+    return system.sample()(rng);
   }
   if (
     system.args !== undefined &&
@@ -109,7 +109,7 @@ type EpisodeAcc = {
   readonly allStates: Set<string>;
 };
 
-function mergeCoverage(acc: EpisodeAcc, w: Walk): void {
+function mergeCoverage(acc: EpisodeAcc, w: RandomActionsReport): void {
   for (const [k, v] of Object.entries(w.coverage.actions)) {
     acc.allActions[k] = (acc.allActions[k] ?? 0) + v;
   }
@@ -124,9 +124,9 @@ function recordEndViolations(args: {
     message: string;
   }[];
   readonly epSeed: number;
-  readonly w: Walk;
+  readonly w: RandomActionsReport;
   readonly systemName: string;
-  readonly hostName: string;
+  readonly runtimeName: string;
 }): void {
   for (const v of args.endViolations) {
     if (v.at === 'end') {
@@ -139,11 +139,11 @@ function recordEndViolations(args: {
     args.acc.failures.push({
       seed: args.epSeed,
       repro: {
-        version: REPRO_VERSION,
+        version: RECORDING_VERSION,
         seed: args.epSeed,
         args: args.w.args,
-        choices: args.w.choices,
-        meta: { system: args.systemName, host: args.hostName },
+        steps: args.w.steps,
+        meta: { system: args.systemName, runtime: args.runtimeName },
       },
       error: v.message,
     });
@@ -157,7 +157,7 @@ async function scriptEpisode<S, Args>(args: {
   readonly steps: number;
   readonly acc: EpisodeAcc;
   readonly episodeRng: ReturnType<typeof createRng>;
-  readonly hostName: string;
+  readonly runtimeName: string;
   readonly actions: readonly CatalogAction<S>[];
 }): Promise<'ok' | 'fail'> {
   const { system, opts, epSeed, steps, acc } = args;
@@ -168,12 +168,12 @@ async function scriptEpisode<S, Args>(args: {
     args.episodeRng
   );
   try {
-    s = await script(system, {
+    s = await run(system, {
       seed: epSeed,
-      host: args.hostName,
+      runtime: args.runtimeName,
       ...(systemArgs !== undefined ? { args: systemArgs as never } : {}),
-    } as Parameters<typeof script<S, Args>>[1]);
-    const w = await walk(s, {
+    } as Parameters<typeof run<S, Args>>[1]);
+    const w = await randomActions(s, {
       actions: args.actions,
       steps,
       ...(opts.budgetMs !== undefined ? { budgetMs: opts.budgetMs } : {}),
@@ -182,7 +182,7 @@ async function scriptEpisode<S, Args>(args: {
     });
 
     mergeCoverage(acc, w);
-    const endViolations = await closeMonitors(getScriptInternal(s).monitors);
+    const endViolations = await closeMonitors(getRunInternal(s).monitors);
     await s[Symbol.asyncDispose]().catch(() => {});
     recordEndViolations({
       acc,
@@ -190,16 +190,16 @@ async function scriptEpisode<S, Args>(args: {
       epSeed,
       w,
       systemName: system.name,
-      hostName: args.hostName,
+      runtimeName: args.runtimeName,
     });
 
     if (w.violations.length > 0) {
-      let repro: Repro = {
-        version: REPRO_VERSION,
+      let repro: Recording = {
+        version: RECORDING_VERSION,
         seed: epSeed,
         args: w.args,
-        choices: w.choices,
-        meta: { system: system.name, host: args.hostName },
+        steps: w.steps,
+        meta: { system: system.name, runtime: args.runtimeName },
       };
       const error = w.violations[0]!.error;
       if (opts.shrink !== false) {
@@ -222,11 +222,11 @@ async function scriptEpisode<S, Args>(args: {
     acc.failures.push({
       seed: epSeed,
       repro: {
-        version: REPRO_VERSION,
+        version: RECORDING_VERSION,
         seed: epSeed,
         args: systemArgs ?? null,
-        choices: [],
-        meta: { system: system.name, host: args.hostName },
+        steps: [],
+        meta: { system: system.name, runtime: args.runtimeName },
       },
       error: msg,
     });
@@ -247,10 +247,10 @@ export async function explore<S, Args = void>(
   const seed = campaignSeed(opts as ExploreOptions<unknown, unknown>);
   const rng = createRng(seed);
   const registry = getSystemRegistry(system as System<S, unknown>);
-  const hostName = opts.host ?? registry.defaultHostName;
-  if (hostName === undefined) {
+  const runtimeName = opts.runtime ?? registry.defaultRuntimeName;
+  if (runtimeName === undefined) {
     throw new Error(
-      `explore: system '${system.name}' has no default host (register with system.host)`
+      `explore: system '${system.name}' has no default runtime (register with system.runtime)`
     );
   }
   const properties = registry.properties as readonly CatalogProperty<S>[];
@@ -278,7 +278,7 @@ export async function explore<S, Args = void>(
       steps,
       acc,
       episodeRng: createRng(`${String(seed)}:ep:${ep}`),
-      hostName,
+      runtimeName,
       actions,
     });
     if (status === 'fail') break;
@@ -308,19 +308,19 @@ type ShrinkCtx = {
   readonly error: string;
 };
 
-async function deltaDebugChoices(
+async function deltaDebugSteps(
   ctx: ShrinkCtx,
-  repro: Repro,
-  choices: Choice[]
-): Promise<Choice[]> {
-  let cur = choices;
+  repro: Recording,
+  steps: Step[]
+): Promise<Step[]> {
+  let cur = steps;
   let changed = true;
   while (changed && cur.length > 1) {
     changed = false;
     const mid = Math.ceil(cur.length / 2);
     for (const part of [cur.slice(0, mid), cur.slice(mid)]) {
       if (part.length === 0 || part.length === cur.length) continue;
-      if (await fails(ctx, { ...repro, choices: part })) {
+      if (await fails(ctx, { ...repro, steps: part })) {
         cur = part;
         changed = true;
         break;
@@ -339,8 +339,11 @@ function minifyJsonValue(v: unknown): unknown {
   return v;
 }
 
-async function shrinkRepro(ctx: ShrinkCtx, repro: Repro): Promise<Repro> {
-  const choices = await deltaDebugChoices(ctx, repro, repro.choices.slice());
+async function shrinkRepro(
+  ctx: ShrinkCtx,
+  repro: Recording
+): Promise<Recording> {
+  const steps = await deltaDebugSteps(ctx, repro, repro.steps.slice());
 
   let systemArgs = repro.args;
   if (
@@ -351,34 +354,32 @@ async function shrinkRepro(ctx: ShrinkCtx, repro: Repro): Promise<Repro> {
     const obj = { ...(systemArgs as Record<string, unknown>) };
     for (const key of Object.keys(obj)) {
       const trial = { ...obj, [key]: minifyJsonValue(obj[key]) };
-      if (await fails(ctx, { ...repro, args: trial, choices })) {
+      if (await fails(ctx, { ...repro, args: trial, steps })) {
         obj[key] = trial[key];
       }
     }
     systemArgs = obj;
   }
 
-  const shrunkChoices: Choice[] = [];
-  for (const c of choices) {
-    const choiceArgs = c.args.map((a) => a);
-    for (let i = 0; i < choiceArgs.length; i++) {
-      const trial = choiceArgs.slice();
-      trial[i] = minifyJsonValue(choiceArgs[i]);
-      const trialChoices = [
-        ...shrunkChoices,
+  const shrunkSteps: Step[] = [];
+  for (const c of steps) {
+    const stepArgs = c.args.map((a) => a);
+    for (let i = 0; i < stepArgs.length; i++) {
+      const trial = stepArgs.slice();
+      trial[i] = minifyJsonValue(stepArgs[i]);
+      const trialSteps = [
+        ...shrunkSteps,
         { action: c.action, args: trial },
-        ...choices.slice(shrunkChoices.length + 1),
+        ...steps.slice(shrunkSteps.length + 1),
       ];
-      if (
-        await fails(ctx, { ...repro, args: systemArgs, choices: trialChoices })
-      ) {
-        choiceArgs[i] = trial[i];
+      if (await fails(ctx, { ...repro, args: systemArgs, steps: trialSteps })) {
+        stepArgs[i] = trial[i];
       }
     }
-    shrunkChoices.push({ action: c.action, args: choiceArgs });
+    shrunkSteps.push({ action: c.action, args: stepArgs });
   }
 
-  return { ...repro, args: systemArgs, choices: shrunkChoices };
+  return { ...repro, args: systemArgs, steps: shrunkSteps };
 }
 
 const PROPERTY_VIOLATION_PREFIX = /^PropertyViolation: ([^ ]+) at /;
@@ -395,10 +396,10 @@ function sameFailure(original: string, candidate: string): boolean {
   return PROPERTY_VIOLATION_PREFIX.exec(candidate)?.[1] === property;
 }
 
-async function fails(ctx: ShrinkCtx, repro: Repro): Promise<boolean> {
+async function fails(ctx: ShrinkCtx, repro: Recording): Promise<boolean> {
   try {
     const r = await replay(ctx.system, repro, {
-      ...(ctx.opts.host !== undefined ? { host: ctx.opts.host } : {}),
+      ...(ctx.opts.runtime !== undefined ? { runtime: ctx.opts.runtime } : {}),
       actions: ctx.actions,
     });
     if (r.ok) return false;
@@ -409,22 +410,22 @@ async function fails(ctx: ShrinkCtx, repro: Repro): Promise<boolean> {
 }
 
 export type ReplayOptions<S> = {
-  readonly host?: string;
+  readonly runtime?: string;
   /** Slice to dispatch from (names or objects). Default: every registered action. */
   readonly actions?: ActionSlice<S>;
 };
 
 function toRepro<S, Args>(
   system: System<S, Args>,
-  input: Repro | Walk | string
-): Repro {
-  if (typeof input === 'string') return parseRepro(input);
-  if ('version' in input) return input as Repro;
+  input: Recording | RandomActionsReport | string
+): Recording {
+  if (typeof input === 'string') return parseRecording(input);
+  if ('version' in input) return input as Recording;
   return {
-    version: REPRO_VERSION,
+    version: RECORDING_VERSION,
     seed: 0,
-    args: (input as Walk).args,
-    choices: (input as Walk).choices,
+    args: (input as RandomActionsReport).args,
+    steps: (input as RandomActionsReport).steps,
     meta: { system: system.name },
   };
 }
@@ -432,7 +433,7 @@ function toRepro<S, Args>(
 /** Package-internal — preferred entry is `system.replay`. */
 export async function replay<S, Args = void>(
   system: System<S, Args>,
-  input: Repro | Walk | string,
+  input: Recording | RandomActionsReport | string,
   opts: ReplayOptions<S> = {}
 ): Promise<Report> {
   const repro = toRepro(system, input);
@@ -444,10 +445,11 @@ export async function replay<S, Args = void>(
           system as System<S, unknown>,
           opts.actions
         ) as readonly CatalogAction<S>[]);
-  const hostName = opts.host ?? repro.meta.host ?? registry.defaultHostName;
-  if (hostName === undefined) {
+  const runtimeName =
+    opts.runtime ?? repro.meta.runtime ?? registry.defaultRuntimeName;
+  if (runtimeName === undefined) {
     throw new Error(
-      `replay: system '${system.name}' has no default host (register with system.host)`
+      `replay: system '${system.name}' has no default runtime (register with system.runtime)`
     );
   }
 
@@ -455,27 +457,27 @@ export async function replay<S, Args = void>(
     actions.map((a) => [a.name, a as Action<S, unknown[]>])
   );
 
-  const s = await script(system, {
+  const s = await run(system, {
     seed: repro.seed,
-    host: hostName,
+    runtime: runtimeName,
     ...(repro.args !== undefined && repro.args !== null
       ? { args: repro.args as never }
       : {}),
-  } as Parameters<typeof script<S, Args>>[1]);
+  } as Parameters<typeof run<S, Args>>[1]);
 
   const failures: Report['failures'][number][] = [];
   try {
-    for (const choice of repro.choices) {
-      if (choice.action === 'elapse') {
-        const ms = Number(choice.args[0] ?? 0);
-        await s.elapse(ms);
+    for (const step of repro.steps) {
+      if (step.action === 'elapse') {
+        const ms = Number(step.args[0] ?? 0);
+        await s.advanceTime(ms);
         continue;
       }
-      const action = actionByName.get(choice.action);
+      const action = actionByName.get(step.action);
       if (action === undefined) {
-        throw new Error(`replay: unknown action '${choice.action}'`);
+        throw new Error(`replay: unknown action '${step.action}'`);
       }
-      await s.apply(action, ...(choice.args as never[]));
+      await s.apply(action, ...(step.args as never[]));
     }
   } catch (e) {
     failures.push({

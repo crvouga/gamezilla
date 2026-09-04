@@ -1,8 +1,8 @@
-import type { JsonValue, Rng } from '@pkgs/dst';
+import type { JsonValue, Rng } from '@pkgs/sim';
 import type { DriverKey, DriverNode, ScrollDirection } from '@pkgs/ui-testing';
 
 import { caps, clientIds, partitioned } from './observations';
-import type { ProductSurface } from './surface';
+import type { ProductSim } from './sim';
 import { product } from './system';
 import { nodeAt } from './ui-nodes';
 
@@ -26,7 +26,7 @@ export const partition = product.action({
   name: 'partition',
   enabled: (s) => caps(s).includes('partition') && clientIds(s).length > 0,
   weight: (s) => (partitioned(s).length === 0 ? 2 : 1),
-  draw: (s) => {
+  sample: (s) => {
     const ids = clientIds(s);
     return (rng: Rng) => ids[Math.floor(rng.next() * ids.length)]!;
   },
@@ -35,8 +35,8 @@ export const partition = product.action({
   },
 });
 
-export const heal = product.action({
-  name: 'heal',
+export const restoreNetwork = product.action({
+  name: 'restoreNetwork',
   enabled: (s) => caps(s).includes('partition'),
   weight: (s) => Math.max(partitioned(s).length, 0),
   act: (s) => {
@@ -58,7 +58,7 @@ export const uiOp = product.action({
   },
 });
 
-async function performUiOp(s: ProductSurface, op: UiOp): Promise<void> {
+async function performUiOp(s: ProductSim, op: UiOp): Promise<void> {
   const handle = s.actors.get(op.actorId);
   if (handle === undefined) return;
   const timeoutMs =

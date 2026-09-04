@@ -5,7 +5,7 @@ import type { Pool } from '@pkgs/sql-client/postgres/pg-types';
  * Opaque SQL handle for sim server / actor DBs. Dump format is fabric-specific
  * (`mixed-pgmm-sqlm` vs `mixed-pglite-sqlite`).
  */
-export type SimSqlHandle = {
+export type SimSql = {
   readonly sqlClient: SqlClient;
   readonly databaseName: string;
   /** Present when Better Auth / Kysely migrate needs a `pg.Pool` facade. */
@@ -36,7 +36,7 @@ export function sharedSqlClient(sqlClient: SqlClient): SqlClient {
   };
 }
 
-export function handleBoundSqlClient(handle: SimSqlHandle): SqlClient {
+export function handleBoundSqlClient(handle: SimSql): SqlClient {
   return sharedSqlClient({
     connect: async () => undefined,
     disconnect: async () => undefined,

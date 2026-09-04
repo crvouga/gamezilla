@@ -1,10 +1,10 @@
+import type { SimAuthStatus } from '../client-factory';
+import type { SimCorruptionVariant } from '../corruption-faults';
 import type {
   SimCrashEvent,
   SimHttpFault,
   SimPubsubFault,
-} from '../boundary-faults';
-import type { SimAuthStatus } from '../client-factory';
-import type { SimCorruptionVariant } from '../corruption-faults';
+} from '../edge-faults';
 import type { SimTraffic } from '../traffic';
 
 export const CLIENT_IDS = ['c0', 'c1', 'c2'] as const;

@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import { assertProperty } from '@pkgs/dst/fast-check';
+import { assertProperty } from '@pkgs/sim/fast-check';
 import fc from 'fast-check';
-import { isPrefixCovered } from '../../core/consolidate';
-import { fingerprintSql } from '../../core/fingerprint';
-import { definitionsEqual, ownedIndexName } from '../../core/naming';
-import type { Candidate, IndexDefinition } from '../../core/types';
+import { isPrefixCovered } from '../src/core/consolidate';
+import { fingerprintSql } from '../src/core/fingerprint';
+import { definitionsEqual, ownedIndexName } from '../src/core/naming';
+import type { Candidate, IndexDefinition } from '../src/core/types';
 
 const arbCol = fc
   .stringMatching(/^[a-z][a-z0-9_]{0,15}$/)

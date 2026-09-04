@@ -12,21 +12,21 @@
     "./client/adapters/storage/key-value": "./src/client/adapters/storage/key-value/index.ts",
     "./client/adapters/transport/websocket": "./src/client/adapters/transport/websocket/index.ts",
     "./client/adapters/transport/loopback": "./src/client/adapters/transport/loopback/index.ts",
-    "./tests": "./src/testkit.ts"
+    "./sim": "./src/sim/index.ts"
   },
   "scripts": {
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test",
-    "test:sim": "bun test src/tests/scenarios src/tests/kit"
+    "test": "bun test tests",
+    "test:sim": "bun test tests"
   },
   "dependencies": {
     "@pkgs/assert": "workspace:*",
     "@pkgs/attribute": "workspace:*",
     "@pkgs/clock": "workspace:*",
-    "@pkgs/dst": "workspace:*",
     "@pkgs/keyword": "workspace:*",
     "@pkgs/kv": "workspace:*",
     "@pkgs/message": "workspace:*",
+    "@pkgs/sim": "workspace:*",
     "@pkgs/uuid": "workspace:*"
   },
   "devDependencies": {

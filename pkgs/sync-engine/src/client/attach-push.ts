@@ -3,16 +3,16 @@ import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import { warnPush } from '../shared/is-pubsub-closed-error';
-import {
-  type AttachPushOptions,
-  createPushBag,
-  type PushBag,
-} from './attach-push-bag';
 import { commitPendingPushSeqs, handlePush } from './attach-push-handle';
 import { deriveScopeRowTopics } from './attach-push-held-rows';
 import { clearRemovedPushApplied } from './push-applied';
+import {
+  type AttachPushOptions,
+  createPushSubscriptions,
+  type PushSubscriptions,
+} from './push-subscriptions';
 
-export type { AttachPushOptions } from './attach-push-bag';
+export type { AttachPushOptions } from './push-subscriptions';
 
 async function countPendingMutations(db: SqlClient): Promise<number> {
   const rows = await db.query(sql<{ c: number | string }>`
@@ -22,12 +22,12 @@ async function countPendingMutations(db: SqlClient): Promise<number> {
   return Number(rows[0]?.c ?? 0);
 }
 
-function scheduleTopicSync(bag: PushBag): void {
+function scheduleTopicSync(bag: PushSubscriptions): void {
   bag.membershipRemakePending = true;
   void flushTopicSync(bag);
 }
 
-async function flushTopicSync(bag: PushBag): Promise<void> {
+async function flushTopicSync(bag: PushSubscriptions): Promise<void> {
   if (bag.disposed || !bag.membershipRemakePending || bag.remakeFlushInFlight) {
     return;
   }
@@ -51,7 +51,7 @@ async function flushTopicSync(bag: PushBag): Promise<void> {
   }
 }
 
-async function refreshHeldRowTopics(bag: PushBag): Promise<void> {
+async function refreshHeldRowTopics(bag: PushSubscriptions): Promise<void> {
   const derived = await deriveScopeRowTopics({
     db: bag.options.db,
     queryRegistry: bag.options.queryRegistry,
@@ -70,7 +70,7 @@ async function refreshHeldRowTopics(bag: PushBag): Promise<void> {
  * Desired topics = entryChannel ∪ held-row topic-map projection.
  * Subscription-driving tables are those with `subscribeTopics` on the map.
  */
-function collectDesiredTopics(bag: PushBag): Map<Topic, Set<string>> {
+function collectDesiredTopics(bag: PushSubscriptions): Map<Topic, Set<string>> {
   const ctx = bag.options.getChannelsCtx();
   const desired = new Map<Topic, Set<string>>();
   const defaultEntry = bag.options.defaultEntryChannel;
@@ -102,13 +102,13 @@ function topicKey(desired: Map<Topic, Set<string>>): string {
   return [...desired.keys()].sort().join('\0');
 }
 
-function clearTopicState(bag: PushBag): void {
+function clearTopicState(bag: PushSubscriptions): void {
   for (const unsub of bag.topicUnsubs.values()) unsub();
   bag.topicUnsubs.clear();
   bag.topicToScopes.clear();
 }
 
-function subscribeTopic(bag: PushBag, topic: Topic): void {
+function subscribeTopic(bag: PushSubscriptions, topic: Topic): void {
   const unsub = bag.pubsub.subscribe(topic, (data) => {
     void handlePush(bag, topic, data).catch((error) => {
       if (bag.disposed) return;
@@ -123,7 +123,10 @@ function subscribeTopic(bag: PushBag, topic: Topic): void {
  * call this: close() wipes the MQTT session (sessionExpiry 0) and drops
  * in-flight peer creates during reconnect.
  */
-function remake(bag: PushBag, desired: Map<Topic, Set<string>>): void {
+function remake(
+  bag: PushSubscriptions,
+  desired: Map<Topic, Set<string>>
+): void {
   if (bag.disposed) return;
   clearTopicState(bag);
   bag.unbindStatus?.();
@@ -154,7 +157,7 @@ function remake(bag: PushBag, desired: Map<Topic, Set<string>>): void {
  * subscriptions in place so peer pushes during membership churn are not lost.
  */
 function syncTopicsIncremental(
-  bag: PushBag,
+  bag: PushSubscriptions,
   desired: Map<Topic, Set<string>>
 ): void {
   let changed = false;
@@ -186,7 +189,7 @@ function syncTopicsIncremental(
   if (changed) bag.options.runtime.wakeAll();
 }
 
-function syncTopics(bag: PushBag): void {
+function syncTopics(bag: PushSubscriptions): void {
   if (bag.disposed) return;
   const desired = collectDesiredTopics(bag);
   const nextKey = topicKey(desired);
@@ -199,7 +202,7 @@ function syncTopics(bag: PushBag): void {
   syncTopicsIncremental(bag, desired);
 }
 
-function onStatus(bag: PushBag, next: PubSubStatus): void {
+function onStatus(bag: PushSubscriptions, next: PubSubStatus): void {
   if (bag.disposed) return;
   const prev = bag.lastStatus;
   bag.lastStatus = next;
@@ -208,12 +211,12 @@ function onStatus(bag: PushBag, next: PubSubStatus): void {
   }
 }
 
-function bindStatus(bag: PushBag, instance: PubSub): void {
+function bindStatus(bag: PushSubscriptions, instance: PubSub): void {
   bag.lastStatus = instance.status();
   bag.unbindStatus = instance.onStatus((next) => onStatus(bag, next));
 }
 
-function disposeBag(bag: PushBag): void {
+function disposePushSubscriptions(bag: PushSubscriptions): void {
   if (bag.disposed) return;
   bag.disposed = true;
   clearTopicState(bag);
@@ -240,7 +243,7 @@ function tablesOverlapSubscribe(
  * `sync_engine_mutations` is idle so upload fanout is not racing topic updates.
  */
 export function attachPush(options: AttachPushOptions): () => void {
-  const bag = createPushBag(options);
+  const bag = createPushSubscriptions(options);
   options.runtime.setAfterSweep((scopes) => {
     void commitPendingPushSeqs(bag, scopes).catch((error) => {
       if (bag.disposed) return;
@@ -275,5 +278,5 @@ export function attachPush(options: AttachPushOptions): () => void {
       scheduleTopicSync(bag);
     })
   );
-  return () => disposeBag(bag);
+  return () => disposePushSubscriptions(bag);
 }

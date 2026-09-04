@@ -1,4 +1,4 @@
-import { Handles } from '@libs/dst-handles';
+import { Handles } from '@libs/test-ids';
 import { Trans } from '@lingui/react/macro';
 import { useLogger } from '@pkgs/logger/react';
 import { MutationModal } from '@pkgs/ui';

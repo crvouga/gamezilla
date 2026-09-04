@@ -1,5 +1,5 @@
 import { useIsSignedIn } from '@libs/auth/public/use-current-user';
-import { Handles } from '@libs/dst-handles';
+import { Handles } from '@libs/test-ids';
 import { useLingui } from '@lingui/react/macro';
 import { Sounds } from '@pkgs/sounds';
 import { Button, useMutationButton } from '@pkgs/ui';

@@ -1,30 +1,30 @@
 import { formatCheckpoint } from '../shared/commit-checkpoint';
 import { crashBrokerImpl, restartBrokerImpl } from './broker-restart';
-import type { SimClientHandle } from './client-handle';
 import { SIM_SERVER_NODE_ID } from './clock-skew';
 import {
   checkClientFrameworkInvariants,
   type InvariantViolation,
   isClosedDatabaseError,
 } from './invariants';
-import type { SyncKit } from './kit-api';
+import type { NetEffectRegistry } from './net-effect';
+import { createSimNet } from './net-effect';
+import { unregisterKit } from './scenario-dispose-hook';
+import type { SyncSimRuntime } from './sim-api';
+import type { SimClient } from './sim-client';
 import {
   crashClientImpl,
   fireCrashIfArmed,
   type KitFaultApi,
-} from './kit-lifecycle';
-import { drainUntilConvergedImpl, reviveImpl } from './kit-ops';
-import { addClientImpl } from './kit-ops-add-client';
-import { restartClientImpl, restartServerImpl } from './kit-restart';
-import type { BootedSimKernel } from './kit-types';
-import type { NetEffectRegistry } from './net-effect';
-import { createSimNetHandle } from './net-effect';
-import { createSimNodeHandle } from './node-handle';
-import { unregisterKit } from './scenario-dispose-hook';
+} from './sim-lifecycle';
+import { createSimNode } from './sim-node';
+import { drainUntilInSyncImpl, recoverAllImpl } from './sim-ops';
+import { addClientImpl } from './sim-ops-add-client';
+import { restartClientImpl, restartServerImpl } from './sim-restart';
+import type { BootedSimKernel } from './sim-types';
 import { tamperClientLocalStorage } from './storage-faults';
 
 export async function checkClientSeqs(
-  clients: ReadonlyMap<string, SimClientHandle>,
+  clients: ReadonlyMap<string, SimClient>,
   seed: bigint,
   now: () => number
 ): Promise<InvariantViolation | null> {
@@ -76,12 +76,12 @@ function bindNodeAndNet(args: {
   readonly netEffects: NetEffectRegistry;
   readonly armCrashHook: ReturnType<typeof createArmCrashHook>;
   readonly crashServer: () => Promise<void>;
-}): Pick<SyncKit, 'net' | 'node'> {
+}): Pick<SyncSimRuntime, 'net' | 'node'> {
   const { k, netEffects, armCrashHook, crashServer } = args;
   const { clients, network } = k;
   return {
     net: (nodeId, traffic = 'all') =>
-      createSimNetHandle({
+      createSimNet({
         network,
         nodeId,
         traffic,
@@ -91,7 +91,7 @@ function bindNodeAndNet(args: {
         },
       }),
     node: (id) =>
-      createSimNodeHandle(k, id, {
+      createSimNode(k, id, {
         crashClient: (cid) => crashClientImpl(k, cid, { keepDb: true }),
         restartClient: (cid, opts) => restartClientImpl(k, cid, opts),
         crashServer,
@@ -101,7 +101,7 @@ function bindNodeAndNet(args: {
   };
 }
 
-function clearBoundaryFaults(faultApi: KitFaultApi): void {
+function clearEdgeFaults(faultApi: KitFaultApi): void {
   faultApi.clearCrashArms();
   faultApi.clearHttpFaults();
   faultApi.clearPublishFault();
@@ -109,7 +109,7 @@ function clearBoundaryFaults(faultApi: KitFaultApi): void {
 }
 
 function clearFaultArms(k: BootedSimKernel, faultApi: KitFaultApi): void {
-  clearBoundaryFaults(faultApi);
+  clearEdgeFaults(faultApi);
   k.storagePressure.clear();
 }
 
@@ -136,7 +136,7 @@ async function healInfraForSettle(k: BootedSimKernel): Promise<void> {
 
 function createKitDispose(args: {
   readonly k: BootedSimKernel;
-  readonly kitRef: { current: SyncKit | null };
+  readonly kitRef: { current: SyncSimRuntime | null };
   readonly markDisposed: () => boolean;
 }): () => Promise<void> {
   const { k, kitRef, markDisposed } = args;
@@ -144,7 +144,7 @@ function createKitDispose(args: {
     if (markDisposed()) return;
     const kit = kitRef.current;
     if (kit !== null) unregisterKit(kit);
-    const closedRaw = new Set<SimClientHandle['dbBundle']['raw']>();
+    const closedRaw = new Set<SimClient['dbBundle']['raw']>();
     for (const c of [...k.clients.values()]) {
       const raw = c.dbBundle.raw;
       await c.dispose({ keepDb: closedRaw.has(raw) });
@@ -163,9 +163,9 @@ export function bindKitMethods(args: {
   readonly armCrashHook: ReturnType<typeof createArmCrashHook>;
   readonly crashServer: () => Promise<void>;
   readonly faultApi: KitFaultApi;
-  readonly kitRef: { current: SyncKit | null };
+  readonly kitRef: { current: SyncSimRuntime | null };
   readonly markDisposed: () => boolean;
-}): Omit<SyncKit, typeof Symbol.asyncDispose> & {
+}): Omit<SyncSimRuntime, typeof Symbol.asyncDispose> & {
   [Symbol.asyncDispose](): Promise<void>;
 } {
   const { k, netEffects, armCrashHook, crashServer, faultApi } = args;
@@ -196,16 +196,16 @@ export function bindKitMethods(args: {
     pendingEventCount: () => scheduler.pendingTaskCount(),
     checkInvariants: () =>
       checkClientSeqs(clients, rng.seed, () => k.clock.now()),
-    revive: () =>
-      reviveImpl({
+    recoverAll: () =>
+      recoverAllImpl({
         network,
         clients,
         netEffects,
-        clearBoundaryFaults: () => clearFaultArms(k, faultApi),
-        healInfra: () => healInfraForSettle(k),
+        clearEdgeFaults: () => clearFaultArms(k, faultApi),
+        restoreInfra: () => healInfraForSettle(k),
       }),
-    drainUntilConverged: () =>
-      drainUntilConvergedImpl({
+    drainUntilInSync: () =>
+      drainUntilInSyncImpl({
         scheduler,
         clients,
         server: k.server,
@@ -235,7 +235,7 @@ export function bindKitMethods(args: {
       crashBrokerImpl(k);
     },
     brokerRestart: () => restartBrokerImpl(k),
-    clearBoundaryFaults: () => clearFaultArms(k, faultApi),
+    clearEdgeFaults: () => clearFaultArms(k, faultApi),
     dispose,
     async [Symbol.asyncDispose]() {
       await dispose();

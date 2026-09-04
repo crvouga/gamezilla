@@ -1,25 +1,25 @@
 /**
  * Scripted-pin actions for network, boundary faults, crashes, and storage
- * pressure. Companion to `sync-pin-actions.ts` (client / data vocabulary).
+ * pressure. Companion to `regression-actions.ts` (client / data vocabulary).
  */
 
-import { type Action, defineAction } from '@pkgs/dst';
+import { type Action, defineAction } from '@pkgs/sim';
 
 import type {
   SimCrashEvent,
   SimHttpFault,
   SimPubsubFault,
-} from '../boundary-faults';
-import type { RestartClientOpts } from '../kit-lifecycle';
+} from '../edge-faults';
 import type { NetState } from '../net-effect';
+import type { RestartClientOpts } from '../sim-lifecycle';
 import type { StoragePressureKind } from '../storage-pressure';
 import type { SimTraffic } from '../traffic';
-import { requireClient } from './pin-support';
-import type { SyncSurface } from './system';
+import { requireClient } from './regression-support';
+import type { SyncSim } from './system';
 
 export const netSet = defineAction({
   name: 'netSet',
-  act: (s: SyncSurface, nodeId: string, traffic: string, state: NetState) => {
+  act: (s: SyncSim, nodeId: string, traffic: string, state: NetState) => {
     s.net(nodeId, traffic as SimTraffic).set(state);
   },
 });
@@ -29,50 +29,50 @@ export const net = netSet;
 function netStatePin(
   name: string,
   state: NetState
-): Action<SyncSurface, [string, string]> {
+): Action<SyncSim, [string, string]> {
   return defineAction({
     name,
-    act: (s: SyncSurface, nodeId: string, traffic: string) => {
+    act: (s: SyncSim, nodeId: string, traffic: string) => {
       s.net(nodeId, traffic as SimTraffic).set(state);
     },
   });
 }
 
-export const hold = netStatePin('hold', 'hold');
-export const release = netStatePin('release', 'ok');
+export const pauseNetwork = netStatePin('pauseNetwork', 'hold');
+export const resumeNetwork = netStatePin('resumeNetwork', 'ok');
 export const partition = netStatePin('partition', 'down');
 
-export const heal = defineAction({
-  name: 'heal',
-  act: (s: SyncSurface) => {
+export const restoreNetwork = defineAction({
+  name: 'restoreNetwork',
+  act: (s: SyncSim) => {
     for (const id of s.clients.keys()) s.net(id, 'all').set('ok');
   },
 });
 
 export const crash = defineAction({
   name: 'crash',
-  act: async (s: SyncSurface, nodeId: string) => {
+  act: async (s: SyncSim, nodeId: string) => {
     await s.node(nodeId).crash();
   },
 });
 
 export const crashAt = defineAction({
   name: 'crashAt',
-  act: (s: SyncSurface, clientId: string, event: string) => {
+  act: (s: SyncSim, clientId: string, event: string) => {
     void s.node(clientId).crash({ at: event as SimCrashEvent });
   },
 });
 
 export const restart = defineAction({
   name: 'restart',
-  act: async (s: SyncSurface, nodeId: string, opts?: RestartClientOpts) => {
+  act: async (s: SyncSim, nodeId: string, opts?: RestartClientOpts) => {
     await s.node(nodeId).restart(opts);
   },
 });
 
 export const restartWithSchema = defineAction({
   name: 'restartWithSchema',
-  act: async (s: SyncSurface, clientId: string, variant: string) => {
+  act: async (s: SyncSim, clientId: string, variant: string) => {
     const opts = s.runtime.app.restartOptsForVariant?.(variant) ?? {
       preserveLocalDb: true,
     };
@@ -82,14 +82,14 @@ export const restartWithSchema = defineAction({
 
 export const skewClock = defineAction({
   name: 'skewClock',
-  act: (s: SyncSurface, nodeId: string, skewMs: number) => {
+  act: (s: SyncSim, nodeId: string, skewMs: number) => {
     s.node(nodeId).skewClock(skewMs);
   },
 });
 
 export const httpFault = defineAction({
   name: 'httpFault',
-  act: (s: SyncSurface, clientId: string, fault: SimHttpFault) => {
+  act: (s: SyncSim, clientId: string, fault: SimHttpFault) => {
     s.node(clientId).httpFault(fault);
   },
 });
@@ -100,7 +100,7 @@ export const httpFault = defineAction({
  */
 export const publishFault = defineAction({
   name: 'publishFault',
-  act: (s: SyncSurface, count: number | 'next') => {
+  act: (s: SyncSim, count: number | 'next') => {
     s.node('server').publishFault(count);
   },
 });
@@ -108,21 +108,21 @@ export const publishFault = defineAction({
 /** Arm a server pubsub-boundary fault — `s.apply(pubsubFault, fault)`. */
 export const pubsubFault = defineAction({
   name: 'pubsubFault',
-  act: (s: SyncSurface, fault: SimPubsubFault) => {
+  act: (s: SyncSim, fault: SimPubsubFault) => {
     s.node('server').pubsubFault(fault);
   },
 });
 
 export const brokerCrash = defineAction({
   name: 'brokerCrash',
-  act: (s: SyncSurface) => {
+  act: (s: SyncSim) => {
     s.brokerCrash();
   },
 });
 
 export const brokerRestart = defineAction({
   name: 'brokerRestart',
-  act: async (s: SyncSurface) => {
+  act: async (s: SyncSim) => {
     await s.brokerRestart();
   },
 });
@@ -135,7 +135,7 @@ export const brokerRestart = defineAction({
 export const armStoragePressure = defineAction({
   name: 'armStoragePressure',
   act: (
-    s: SyncSurface,
+    s: SyncSim,
     clientId: string,
     pressure: StoragePressureKind | { kind: StoragePressureKind; after: number }
   ) => {
@@ -149,7 +149,7 @@ export const armStoragePressure = defineAction({
 
 export const clearStoragePressure = defineAction({
   name: 'clearStoragePressure',
-  act: (s: SyncSurface, clientId: string) => {
+  act: (s: SyncSim, clientId: string) => {
     s.clearStoragePressure(clientId);
   },
 });
@@ -157,9 +157,9 @@ export const clearStoragePressure = defineAction({
 export const tamperLocalStorage = defineAction({
   name: 'tamperLocalStorage',
   act: async (
-    s: SyncSurface,
+    s: SyncSim,
     clientId: string,
-    tamper: Parameters<SyncSurface['tamperLocalStorage']>[1]
+    tamper: Parameters<SyncSim['tamperLocalStorage']>[1]
   ) => {
     await s.tamperLocalStorage(clientId, tamper);
   },
@@ -167,21 +167,21 @@ export const tamperLocalStorage = defineAction({
 
 export const failNextOpen = defineAction({
   name: 'failNextOpen',
-  act: (s: SyncSurface, clientId: string) => {
+  act: (s: SyncSim, clientId: string) => {
     s.armFailNextOpen(clientId);
   },
 });
 
 export const serverPrune = defineAction({
   name: 'serverPrune',
-  act: async (s: SyncSurface, olderThanMs: number) => {
+  act: async (s: SyncSim, olderThanMs: number) => {
     await s.server.pruneArtifacts(olderThanMs);
   },
 });
 
 export const addPeerEngine = defineAction({
   name: 'addPeerEngine',
-  act: async (s: SyncSurface, clientId: string, donorId: string) => {
+  act: async (s: SyncSim, clientId: string, donorId: string) => {
     const donor = requireClient(s, donorId);
     await s.addClient({
       id: clientId,
@@ -193,7 +193,7 @@ export const addPeerEngine = defineAction({
 
 export const serverOp = defineAction({
   name: 'serverOp',
-  act: async (s: SyncSurface, name: string, args: Record<string, unknown>) => {
+  act: async (s: SyncSim, name: string, args: Record<string, unknown>) => {
     const handler = s.runtime.app.serverOps?.[name];
     if (handler === undefined) {
       throw new Error(`sync pin: unknown server op '${name}'`);
@@ -204,7 +204,7 @@ export const serverOp = defineAction({
 
 export const auth = defineAction({
   name: 'auth',
-  act: async (s: SyncSurface, clientId: string, status: string) => {
+  act: async (s: SyncSim, clientId: string, status: string) => {
     const authStatus = status as
       | 'valid'
       | 'expired'

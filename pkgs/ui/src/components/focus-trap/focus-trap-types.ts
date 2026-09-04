@@ -16,7 +16,7 @@ export type FocusTrapProps = PropsWithChildren<{
   /** Optional accessible name for the dialog host (web). */
   accessibilityLabel?: string;
   /**
-   * Host layout (web).
+   * Runtime layout (web).
    * - `cover` (default): absolute-fill for full-screen modal backdrops.
    * - `sheet`: in-flow stretch for bottom sheets (absolute-fill hides content).
    */

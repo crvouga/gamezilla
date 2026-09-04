@@ -4,7 +4,7 @@
  * imports the module that (lazily) imports the runtime.
  */
 
-import type { Host, Ports, Session } from '../host/types';
+import type { Ports, Runtime, Session } from '../runtime/types';
 import type { Awaitable } from './awaitable';
 import type {
   Action,
@@ -22,24 +22,24 @@ export type SystemCreate<S, Args = void> = (
   args: Args
 ) => Awaitable<S>;
 
-export type HostDef = {
+export type RuntimeDef = {
   readonly name: string;
   readonly default?: boolean;
-  readonly create: () => Awaitable<Host<Ports>>;
+  readonly create: () => Awaitable<Runtime<Ports>>;
 };
 
-export type SystemHostEntry = {
+export type SystemRuntimeEntry = {
   readonly name: string;
   readonly isDefault: boolean;
-  readonly create: () => Awaitable<Host<Ports>>;
+  readonly create: () => Awaitable<Runtime<Ports>>;
 };
 
 /** Package-internal catalogs hung on the system instance. */
 export type SystemRegistry<S> = {
   readonly actions: CatalogAction<S>[];
   readonly properties: CatalogProperty<S>[];
-  readonly hostEntries: SystemHostEntry[];
-  defaultHostName: string | undefined;
+  readonly runtimeEntries: SystemRuntimeEntry[];
+  defaultRuntimeName: string | undefined;
 };
 
 /** Declaration + registration surface; `System` adds `script` / `explore` / `replay`. */
@@ -48,9 +48,9 @@ export type SystemCore<S, Args = void> = {
   readonly name: string;
   readonly create: SystemCreate<S, Args>;
   readonly args: Args | undefined;
-  readonly draw: (() => Gen<Args>) | undefined;
-  readonly hosts: readonly string[];
-  host(def: HostDef): void;
+  readonly sample: (() => Gen<Args>) | undefined;
+  readonly runtimes: readonly string[];
+  runtime(def: RuntimeDef): void;
   action<const A extends unknown[] = []>(
     def: ActionDef<S, A> | Action<S, A>
   ): Action<S, A>;
@@ -109,21 +109,21 @@ export function resolveActions<S>(
   });
 }
 
-export async function resolveHost(
+export async function resolveRuntime(
   system: SystemCore<unknown, unknown>,
-  hostName: string | undefined
-): Promise<Host<Ports>> {
+  runtimeName: string | undefined
+): Promise<Runtime<Ports>> {
   const reg = getSystemRegistry(system);
-  const name = hostName ?? reg.defaultHostName;
+  const name = runtimeName ?? reg.defaultRuntimeName;
   if (name === undefined) {
     throw new Error(
-      `system '${system.name}': no host registered (call system.host)`
+      `system '${system.name}': no runtime registered (call system.runtime)`
     );
   }
-  const entry = reg.hostEntries.find((h) => h.name === name);
+  const entry = reg.runtimeEntries.find((h) => h.name === name);
   if (entry === undefined) {
     throw new Error(
-      `system '${system.name}': unknown host '${name}' (have: ${reg.hostEntries.map((h) => h.name).join(', ')})`
+      `system '${system.name}': unknown runtime '${name}' (have: ${reg.runtimeEntries.map((h) => h.name).join(', ')})`
     );
   }
   return await entry.create();

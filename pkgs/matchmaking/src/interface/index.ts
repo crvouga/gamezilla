@@ -3,7 +3,7 @@
  *
  * Import via `@pkgs/matchmaking/interface`. Adapters live at
  * `@pkgs/matchmaking/impl-sql`.
- * Sim / scenario tests import only this surface (+ `@pkgs/matchmaking/testing`).
+ * Sim / scenario tests import only this surface (+ `@pkgs/matchmaking/sim`).
  */
 
 export { createAttrNamespace } from '@pkgs/attribute';

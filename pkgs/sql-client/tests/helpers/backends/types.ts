@@ -1,4 +1,4 @@
-import type { SqlClient } from '../../interface';
+import type { SqlClient } from '../../../src/interface';
 
 export type SqlDialect = 'sqlite' | 'postgres';
 

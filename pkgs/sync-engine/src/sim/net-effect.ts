@@ -71,11 +71,11 @@ function applyPartition(args: {
   const { network, nodeId, traffic, sync, live } = args;
   if (traffic === 'sync' || traffic === 'all') {
     if (sync) network.partition(syncEndpoint(nodeId), SERVER_HTTP);
-    else network.heal(syncEndpoint(nodeId), SERVER_HTTP);
+    else network.restoreNetwork(syncEndpoint(nodeId), SERVER_HTTP);
   }
   if (traffic === 'live' || traffic === 'all') {
     if (live) network.partition(liveEndpoint(nodeId), BROKER);
-    else network.heal(liveEndpoint(nodeId), BROKER);
+    else network.restoreNetwork(liveEndpoint(nodeId), BROKER);
   }
 }
 
@@ -148,18 +148,18 @@ export function createNetEffectRegistry(): NetEffectRegistry {
   };
 }
 
-export type SimNetHandle = {
+export type SimNet = {
   set(state: NetState): NetEffect;
 };
 
-export function createSimNetHandle(args: {
+export function createSimNet(args: {
   readonly network: SyncNetwork;
   readonly nodeId: string;
   readonly traffic: SimTraffic;
   readonly registry: NetEffectRegistry;
   /** Fired when a hold is released (restore or set('ok')). */
   readonly onHoldReleased?: (nodeId: string) => void;
-}): SimNetHandle {
+}): SimNet {
   const notifyRelease = (wasHeld: boolean, nowHeld: boolean) => {
     if (wasHeld && !nowHeld) args.onHoldReleased?.(args.nodeId);
   };

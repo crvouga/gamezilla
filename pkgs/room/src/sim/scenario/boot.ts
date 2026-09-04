@@ -1,25 +1,25 @@
-import type { Action, CatalogAction, Session, System } from '@pkgs/dst';
-import { virtualHost } from '@pkgs/dst';
+import type { Action, CatalogAction, Session, System } from '@pkgs/sim';
+import { virtualTimeRuntime } from '@pkgs/sim';
 import type { InMemoryRoomStorage } from '../../server/adapters/memory';
-import { createRoomKit } from '../kit';
+import { createRoomSimRuntime } from '../create-room-sim';
 import type { RoomApp } from './app';
 import type { RoomArgs } from './args';
-import { converges, invariants } from './observations';
+import { invariants, staysInSync } from './observations';
 import {
   domainAction,
   LIBRARY_ACTIONS,
   SCRIPTED_ACTIONS,
 } from './room-actions';
-import type { RoomSurface } from './surface';
+import type { RoomSim } from './sim';
 
 export const SIM_START_MS = 1_700_000_000_000;
 
 /** Every room app system has the same surface and args shape. */
-export type RoomSystemDef = System<RoomSurface, RoomArgs>;
+export type RoomSystemDef = System<RoomSim, RoomArgs>;
 
 /** Default virtual host for room systems. */
 export function roomVirtual() {
-  return virtualHost({ startTime: SIM_START_MS });
+  return virtualTimeRuntime({ startTime: SIM_START_MS });
 }
 
 /**
@@ -28,8 +28,8 @@ export function roomVirtual() {
  */
 export function roomEpoch(system: RoomSystemDef, startTime: number): string {
   const name = `virtual@${String(startTime)}`;
-  if (!system.hosts.includes(name)) {
-    system.host({ name, create: () => virtualHost({ startTime }) });
+  if (!system.runtimes.includes(name)) {
+    system.runtime({ name, create: () => virtualTimeRuntime({ startTime }) });
   }
   return name;
 }
@@ -43,13 +43,13 @@ export type BootRoomOpts = {
  * Domain boot for a room system `create`: one kit, `clientCount` clients, and
  * a session that settles through `kit.drain` rather than the bare scheduler.
  */
-export async function bootRoomSurface(
+export async function bootRoomSim(
   session: Session,
   app: RoomApp,
   args: RoomArgs,
   opts?: BootRoomOpts
-): Promise<RoomSurface> {
-  const kit = await createRoomKit({
+): Promise<RoomSim> {
+  const kit = await createRoomSimRuntime({
     session,
     module: app.module,
     mildFaults: args.mildFaults,
@@ -60,24 +60,24 @@ export async function bootRoomSurface(
   for (let i = 0; i < args.clientCount; i += 1) {
     await kit.addClient({ id: `c${String(i)}` });
   }
-  const mutable = session as { settle: () => Promise<void> };
-  mutable.settle = () => kit.drain();
+  const mutable = session as { waitForIdle: () => Promise<void> };
+  mutable.waitForIdle = () => kit.drain();
   return {
     session,
     app,
     kit,
     clients: kit.clients,
     server: kit.server,
-  } satisfies RoomSurface;
+  } satisfies RoomSim;
 }
 
 /** Existential registration — the shared catalogs hold mixed action arities. */
 function registerActions(
   system: RoomSystemDef,
-  actions: readonly CatalogAction<RoomSurface>[]
+  actions: readonly CatalogAction<RoomSim>[]
 ): void {
   for (const action of actions) {
-    system.action(action as unknown as Action<RoomSurface>);
+    system.action(action as unknown as Action<RoomSim>);
   }
 }
 
@@ -87,7 +87,7 @@ export function registerRoomLibrary(system: RoomSystemDef, app: RoomApp): void {
   registerActions(system, LIBRARY_ACTIONS);
   registerActions(system, SCRIPTED_ACTIONS);
   system.property(invariants);
-  system.property(converges);
+  system.property(staysInSync);
 }
 
-export type { RoomSurface };
+export type { RoomSim };

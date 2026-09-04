@@ -1,12 +1,12 @@
-import type { Session } from '../host/types';
-import type { Rng } from '../kernel/rng';
+import type { Rng } from '../internals/rng';
+import type { Session } from '../runtime/types';
 import type { Action, CatalogProperty, Property, Read } from '../system/effect';
+import type { Step } from '../system/recording';
 import {
   getSystemRegistry,
-  resolveHost,
+  resolveRuntime,
   type SystemCore as System,
 } from '../system/registry';
-import type { Choice } from '../system/repro';
 import {
   assertProperty,
   bootMonitors,
@@ -20,23 +20,19 @@ import {
 } from './checkpoint';
 import { memoRead, popMemoFrame, pushMemoFrame } from './memo';
 import { ActionNotEnabled } from './probe';
-import {
-  type Script,
-  type ScriptInternal,
-  setScriptInternal,
-} from './script-types';
+import { type Run, type RunInternal, setRunInternal } from './run-types';
 
-export type { Script, ScriptInternal } from './script-types';
-export { getScriptInternal } from './script-types';
+export type { Run, RunInternal } from './run-types';
+export { getRunInternal } from './run-types';
 
 type ArgsOption<Args> = [Args] extends [void]
   ? { readonly args?: undefined }
   : { readonly args?: Partial<Args> };
 
-export type ScriptOptions<_S, Args = void> = {
+export type RunOptions<_S, Args = void> = {
   readonly seed: number | bigint | string;
-  /** Registered host name. Omit → system default host. */
-  readonly host?: string;
+  /** Registered runtime name. Omit → system default runtime. */
+  readonly runtime?: string;
 } & ArgsOption<Args>;
 
 const ELAPSE_ACTION = 'elapse';
@@ -70,8 +66,8 @@ function resolveApplyArgs<S, A extends unknown[]>(
   return [] as unknown as A;
 }
 
-async function scriptCheckpoint<S>(
-  internal: ScriptInternal<S>,
+async function runCheckpoint<S>(
+  internal: RunInternal<S>,
   actionName: string,
   applyArgs: readonly unknown[],
   act: (s: S, ...a: unknown[]) => unknown | Promise<unknown>
@@ -82,17 +78,17 @@ async function scriptCheckpoint<S>(
     applyArgs,
     act,
     surface: internal.surface,
-    settle: () => internal.session.settle(),
+    waitForIdle: () => internal.session.waitForIdle(),
     monitors: internal.monitors,
     t: internal.step,
   });
   internal.transitions.push(result.transition);
-  internal.choices.push(result.choice);
+  internal.steps.push(result.step);
   if (result.violations.length > 0) throw result.violations[0]!;
 }
 
-async function scriptUntil<S, T>(
-  s: Script<S>,
+async function runUntil<S, T>(
+  s: Run<S>,
   read: Read<S, [], T>,
   opts?: {
     readonly maxMs?: number;
@@ -105,18 +101,18 @@ async function scriptUntil<S, T>(
   const pred = opts?.pred ?? ((t: unknown) => Boolean(t));
   let waited = 0;
   for (;;) {
-    const value = await s.observe(read);
+    const value = await s.read(read);
     if (pred(value)) return value;
     if (waited >= maxMs) {
       throw new Error(`until: predicate not met within ${String(maxMs)}ms`);
     }
-    await s.elapse(stepMs);
+    await s.advanceTime(stepMs);
     waited += stepMs;
   }
 }
 
-async function scriptNever<S, T>(
-  s: Script<S>,
+async function runNever<S, T>(
+  s: Run<S>,
   read: Read<S, [], T>,
   opts: {
     readonly forMs: number;
@@ -128,48 +124,48 @@ async function scriptNever<S, T>(
   const pred = opts.pred ?? ((t: unknown) => Boolean(t));
   let waited = 0;
   while (waited < opts.forMs) {
-    const value = await s.observe(read);
+    const value = await s.read(read);
     if (pred(value)) {
       throw new Error(`never: predicate became true at ${String(waited)}ms`);
     }
-    await s.elapse(stepMs);
+    await s.advanceTime(stepMs);
     waited += stepMs;
   }
 }
 
-function buildScript<S>(args: {
+function buildRun<S>(args: {
   readonly surface: S;
   readonly session: Session;
   readonly system: System<S, unknown>;
   readonly systemArgs: unknown;
-  readonly hostName: string;
+  readonly runtimeName: string;
   readonly monitors: MonitorState[];
   readonly actionRng: Rng;
-}): Script<S> {
+}): Run<S> {
   const transitions: Transition[] = [];
-  const choices: Choice[] = [];
-  const internal: ScriptInternal<S> = {
+  const steps: Step[] = [];
+  const internal: RunInternal<S> = {
     surface: args.surface,
     session: args.session,
     system: args.system,
     systemName: args.system.name,
     args: args.systemArgs,
-    hostName: args.hostName,
+    runtimeName: args.runtimeName,
     monitors: args.monitors,
     transitions,
-    choices,
+    steps,
     rng: args.actionRng,
     step: 0,
   };
 
-  const s: Script<S> = {
+  const s: Run<S> = {
     async apply(action, ...applyArgs) {
       const resolved = resolveApplyArgs(
         action as Action<S, unknown[]>,
         applyArgs as unknown[]
       );
       // Scripted apply is gated by `enabled` only — `weight` 0 merely keeps
-      // an action out of walks (probe), so pins can still drive it.
+      // an action out of randomActions (probe), so pins can still drive it.
       pushMemoFrame();
       let enabled: boolean;
       try {
@@ -178,14 +174,14 @@ function buildScript<S>(args: {
         popMemoFrame();
       }
       if (!enabled) throw new ActionNotEnabled(action.name);
-      await scriptCheckpoint(internal, action.name, resolved, (surf, ...a) =>
+      await runCheckpoint(internal, action.name, resolved, (surf, ...a) =>
         (action as Action<S, unknown[]>).act(surf, ...(a as never[]))
       );
     },
-    async observe(read, ...observeArgs) {
+    async read(readFn, ...readArgs) {
       pushMemoFrame();
       try {
-        return await observeRead(read, args.surface, observeArgs);
+        return await observeRead(readFn, args.surface, readArgs);
       } finally {
         popMemoFrame();
       }
@@ -193,16 +189,16 @@ function buildScript<S>(args: {
     async assert(p) {
       await assertProperty(p, args.surface, internal.step);
     },
-    async elapse(ms) {
-      await scriptCheckpoint(internal, ELAPSE_ACTION, [ms], async () => {
-        await args.session.elapse(ms);
+    async advanceTime(ms) {
+      await runCheckpoint(internal, ELAPSE_ACTION, [ms], async () => {
+        await args.session.advanceTime(ms);
       });
     },
-    until: (read, opts) => scriptUntil(s, read, opts),
-    never: (read, opts) => scriptNever(s, read, opts),
-    async walk(opts) {
-      const { walk } = await import('./walk');
-      return walk(s, opts ?? {});
+    until: (readFn, opts) => runUntil(s, readFn, opts),
+    never: (readFn, opts) => runNever(s, readFn, opts),
+    async randomActions(opts) {
+      const { randomActions } = await import('./random-actions');
+      return randomActions(s, opts ?? {});
     },
     async [Symbol.asyncDispose]() {
       const endViolations = await closeMonitors(args.monitors);
@@ -210,25 +206,28 @@ function buildScript<S>(args: {
       if (endViolations.length > 0) throw endViolations[0]!;
     },
   };
-  setScriptInternal(s, internal);
+  setRunInternal(s, internal);
   return s;
 }
 
-/** Package-internal — preferred entry is `system.script`. */
-export async function script<S, Args = void>(
+/** Package-internal — preferred entry is `system.run`. */
+export async function run<S, Args = void>(
   system: System<S, Args>,
-  opts: ScriptOptions<S, Args>
-): Promise<Script<S>> {
-  const hostName =
-    opts.host ??
-    getSystemRegistry(system as System<S, unknown>).defaultHostName;
-  if (hostName === undefined) {
+  opts: RunOptions<S, Args>
+): Promise<Run<S>> {
+  const runtimeName =
+    opts.runtime ??
+    getSystemRegistry(system as System<S, unknown>).defaultRuntimeName;
+  if (runtimeName === undefined) {
     throw new Error(
-      `script: system '${system.name}' has no default host (register with system.host)`
+      `run: system '${system.name}' has no default runtime (register with system.runtime)`
     );
   }
-  const host = await resolveHost(system as System<unknown, unknown>, hostName);
-  const session = await host.open(opts.seed);
+  const runtime = await resolveRuntime(
+    system as System<unknown, unknown>,
+    runtimeName
+  );
+  const session = await runtime.open(opts.seed);
   const systemArgs = mergeArgs(
     system.args,
     ('args' in opts ? opts.args : undefined) as Partial<Args> | undefined
@@ -251,12 +250,12 @@ export async function script<S, Args = void>(
     popMemoFrame();
   }
 
-  return buildScript({
+  return buildRun({
     surface,
     session,
     system: system as System<S, unknown>,
     systemArgs,
-    hostName,
+    runtimeName,
     monitors,
     actionRng: session.ports.rng.fork('actions'),
   });

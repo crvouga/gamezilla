@@ -2,10 +2,9 @@ import { Database } from 'bun:sqlite';
 import { describe, expect, test } from 'bun:test';
 import { defineTable, registerTables } from '@pkgs/db-schema';
 import { emitSqliteCreateStatements } from '@pkgs/db-schema/sqlite';
+import { bunSqliteDumpToSqlm } from '@pkgs/sim-console/server/bun-sqlite-dump-to-sqlm';
 import { raw } from '@pkgs/sql';
 import { SqlClientImplSqliteMem } from '@pkgs/sql-client/sqlite/impl-sqlite-mem';
-
-import { bunSqliteDumpToSqlm } from './bun-sqlite-dump-to-sqlm';
 
 const tSchema = registerTables([
   defineTable({

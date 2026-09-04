@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
-import { fingerprintSql } from '../../core/fingerprint';
-import { planIndexes } from '../../core/plan';
-import { fixedClock, RecordingPort } from '../helpers/recording-port';
+import { fingerprintSql } from '../src/core/fingerprint';
+import { planIndexes } from '../src/core/plan';
+import { fixedClock, RecordingPort } from './helpers/recording-port';
 
 /**
  * BUG-1 pin: unique index whose name matches owned regex must be ignored.

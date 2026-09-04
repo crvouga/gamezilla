@@ -1,11 +1,11 @@
-import type { Session } from '../host/types';
-import type { Rng } from '../kernel/rng';
+import type { Rng } from '../internals/rng';
+import type { Session } from '../runtime/types';
 import type { Action, Property, Read } from '../system/effect';
+import type { Step } from '../system/recording';
 import type { ActionSlice, SystemCore as System } from '../system/registry';
-import type { Choice } from '../system/repro';
 import type { MonitorState, Transition } from './checkpoint';
 
-export type WalkOptions<S> = {
+export type RandomActionsOptions<S> = {
   /**
    * Slice of the walk: registered action names and/or action objects.
    * Default: system actions with `pool !== false`.
@@ -21,9 +21,11 @@ export type WalkOptions<S> = {
   };
 };
 
-export type Walk = {
-  readonly steps: number;
-  readonly choices: readonly Choice[];
+export type RandomActionsReport = {
+  /** Number of actions executed. */
+  readonly count: number;
+  /** Recorded steps (action + args). */
+  readonly steps: readonly Step[];
   readonly transitions: readonly Transition[];
   readonly args: unknown;
   readonly coverage: {
@@ -36,7 +38,7 @@ export type Walk = {
 /** Rest args: full override, or empty to use `action.args` defaults. */
 type ApplyRest<A extends unknown[]> = A | [];
 
-export type Script<S> = {
+export type Run<S> = {
   /**
    * `A` is inferred from the action alone (`NoInfer` on the rest), so
    * `s.apply(auth, 'c0', 'revoked')` checks the literal against the
@@ -46,12 +48,12 @@ export type Script<S> = {
     action: Action<S, A>,
     ...args: NoInfer<ApplyRest<A>>
   ) => Promise<void>;
-  readonly observe: <T, A extends unknown[]>(
+  readonly read: <T, A extends unknown[]>(
     read: Read<S, A, T>,
     ...args: A
   ) => Promise<T>;
   readonly assert: (p: Property<S>) => Promise<void>;
-  readonly elapse: (ms: number) => Promise<void>;
+  readonly advanceTime: (ms: number) => Promise<void>;
   readonly until: <T>(
     read: Read<S, [], T>,
     opts?: {
@@ -68,39 +70,38 @@ export type Script<S> = {
       readonly pred?: (t: T) => boolean;
     }
   ) => Promise<void>;
-  readonly walk: (opts?: WalkOptions<S>) => Promise<Walk>;
+  readonly randomActions: (
+    opts?: RandomActionsOptions<S>
+  ) => Promise<RandomActionsReport>;
   readonly [Symbol.asyncDispose]: () => Promise<void>;
 };
 
-/** Module-private script state — walk / explore / replay only. */
-export type ScriptInternal<S> = {
+/** Module-private run state — randomActions / explore / replay only. */
+export type RunInternal<S> = {
   readonly surface: S;
   readonly session: Session;
   readonly system: System<S, unknown>;
   readonly systemName: string;
   readonly args: unknown;
-  readonly hostName: string;
+  readonly runtimeName: string;
   readonly monitors: MonitorState[];
   readonly transitions: Transition[];
-  readonly choices: Choice[];
+  readonly steps: Step[];
   rng: Rng;
   step: number;
 };
 
-const scriptInternals = new WeakMap<object, ScriptInternal<unknown>>();
+const runInternals = new WeakMap<object, RunInternal<unknown>>();
 
-export function setScriptInternal<S>(
-  s: Script<S>,
-  internal: ScriptInternal<S>
-): void {
-  scriptInternals.set(s as object, internal as ScriptInternal<unknown>);
+export function setRunInternal<S>(s: Run<S>, internal: RunInternal<S>): void {
+  runInternals.set(s as object, internal as RunInternal<unknown>);
 }
 
-/** Package-internal accessor — not part of the public `Script` surface. */
-export function getScriptInternal<S>(s: Script<S>): ScriptInternal<S> {
-  const internal = scriptInternals.get(s as object);
+/** Package-internal accessor — not part of the public `Run` surface. */
+export function getRunInternal<S>(s: Run<S>): RunInternal<S> {
+  const internal = runInternals.get(s as object);
   if (internal === undefined) {
-    throw new Error('getScriptInternal: script is not registered');
+    throw new Error('getRunInternal: run is not registered');
   }
-  return internal as ScriptInternal<S>;
+  return internal as RunInternal<S>;
 }

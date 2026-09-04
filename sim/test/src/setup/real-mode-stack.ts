@@ -1,5 +1,5 @@
 /**
- * Process-wide Postgres + MinIO + EMQX for `openSim` fidelity `max`.
+ * Process-wide Postgres + MinIO + EMQX for `openSim` mode `real`.
  * Default `test` never calls this.
  */
 import {

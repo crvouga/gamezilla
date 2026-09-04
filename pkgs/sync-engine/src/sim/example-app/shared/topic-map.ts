@@ -1,7 +1,7 @@
 import type { Topic } from '@pkgs/pubsub/interface';
 import { sql } from '@pkgs/sql';
-import type { MutationDb } from '../../../../mutations/core/types';
-import { defineTopicMap } from '../../../../shared/topic-map';
+import type { MutationDb } from '../../../mutations/core/types';
+import { defineTopicMap } from '../../../shared/topic-map';
 import { NOTES_ALL_TOPIC, roomTopic, userTopic } from './topics';
 
 async function ownerFriendTopics(
@@ -40,7 +40,7 @@ function usernameNonEmpty(row: Record<string, unknown>): boolean {
   return typeof username === 'string' && username.length > 0;
 }
 
-export const acmeTopicMap = defineTopicMap({
+export const exampleTopicMap = defineTopicMap({
   notes: {
     topics(row, ctx) {
       const spaceId = row['space_id'];
@@ -133,7 +133,7 @@ export const acmeTopicMap = defineTopicMap({
   },
 });
 
-export function acmeDefaultEntryChannel(
+export function exampleDefaultEntryChannel(
   _params: unknown,
   ctx: { readonly actorId: string }
 ) {

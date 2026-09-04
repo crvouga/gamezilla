@@ -1,6 +1,6 @@
 /**
  * Mem fabric: postgres-mem server + sqlite-mem clients.
- * Only imported from {@link getSimSqlFabric}.
+ * Only imported from {@link getSimSqlEngines}.
  */
 
 import type { Clock } from '@pkgs/clock';
@@ -13,7 +13,7 @@ import { openSimPostgresMemFromSeed } from '@pkgs/sql-client/postgres/open-sim-p
 import type { Pool } from '@pkgs/sql-client/postgres/pg-types';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres/schema';
 import { SqlClientImplSqliteMem } from '@pkgs/sql-client/sqlite/impl-sqlite-mem';
-import { nextSimSqlDatabaseName, type SimSqlHandle } from './sim-sql-handle';
+import { nextSimSqlDatabaseName, type SimSql } from './sim-sql-types';
 
 function openSqliteMem(clock: Clock): SqlClientImplSqliteMem {
   return SqlClientImplSqliteMem.open({
@@ -34,10 +34,7 @@ function openPostgresMem(clock: Clock): {
   return { client, pool: adaptPostgresMemAsPool(() => client.rawDb) };
 }
 
-export function openMemClientSql(
-  logicalName: string,
-  clock: Clock
-): SimSqlHandle {
+export function openMemClientSql(logicalName: string, clock: Clock): SimSql {
   let databaseName = nextSimSqlDatabaseName(logicalName);
   let live = openSqliteMem(clock);
   return {
@@ -62,10 +59,7 @@ export function openMemClientSql(
   };
 }
 
-export function openMemServerSql(
-  logicalName: string,
-  clock: Clock
-): SimSqlHandle {
+export function openMemServerSql(logicalName: string, clock: Clock): SimSql {
   let databaseName = nextSimSqlDatabaseName(logicalName);
   let live = openPostgresMem(clock);
   return {
@@ -97,7 +91,7 @@ export async function openMemServerSqlFromSeed(
   logicalName: string,
   clock: Clock,
   seedBytes: Uint8Array
-): Promise<SimSqlHandle> {
+): Promise<SimSql> {
   let databaseName = nextSimSqlDatabaseName(logicalName);
   let live = openSimPostgresMemFromSeed({ seedBytes, clock });
   await live.sqlClient.connect();

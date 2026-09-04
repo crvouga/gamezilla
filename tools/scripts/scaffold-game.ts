@@ -61,10 +61,6 @@ const files: Array<{ from: string; to: string }> = [
     from: 'src/shared/__GAME__-module.test.ts',
     to: `src/shared/${game}/${game}-module.test.ts`,
   },
-  {
-    from: 'src/shared/__GAME__-module.sim.test.ts',
-    to: `src/shared/${game}/${game}-module.sim.test.ts`,
-  },
   { from: 'src/root/client/.gitkeep', to: 'src/root/client/.gitkeep' },
   { from: 'src/root/server/.gitkeep', to: 'src/root/server/.gitkeep' },
   { from: 'src/public/.gitkeep', to: 'src/public/.gitkeep' },

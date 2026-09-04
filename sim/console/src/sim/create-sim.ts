@@ -24,7 +24,6 @@ import {
 } from '@pkgs/auth/client';
 import { InMemoryBilling } from '@pkgs/billing';
 import type { Clock, Timers } from '@pkgs/clock';
-import type { Session } from '@pkgs/dst';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
 import { KvImplWebNamespaced } from '@pkgs/kv/impl-kv-web-namespaced';
 import { InMemoryLlmProvider } from '@pkgs/llm/server';
@@ -33,11 +32,12 @@ import { createNoopObservability } from '@pkgs/observability/impl-noop/impl-noop
 import {
   createInMemoryBus,
   createInMemoryPubSub,
-} from '@pkgs/pubsub/testing/in-memory';
+} from '@pkgs/pubsub/in-memory';
 import { createRecordSecretStore } from '@pkgs/secret-store/record-secret-store';
 import { createInMemorySecureStorage } from '@pkgs/secure-storage/impl-memory';
 import { createNamespacedWebSecureStorage } from '@pkgs/secure-storage/impl-web';
 import { createSecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
+import type { Session } from '@pkgs/sim';
 import { createInMemoryAudioPlaybackPort } from '@pkgs/sounds/audio-playback/in-memory-audio-playback-port';
 import { InMemoryTtsProvider } from '@pkgs/tts/server';
 import { createPassthroughBottomSheetHost } from '@pkgs/ui';
@@ -48,7 +48,7 @@ import {
   openFreshSimClientSql,
   openFreshSimServerSql,
   openSimServerSqlFromSeedBytes,
-  type SimSqlHandle,
+  type SimSql,
   sharedSqlClient,
 } from './sim-sql';
 
@@ -59,8 +59,8 @@ function hasWebLocalStorage(): boolean {
 export type CreateSimOptions = {
   /** Override virtual timers (openSim injects node timers for RNTL). */
   readonly timers?: Timers;
-  /** Max-fidelity host injects embedded Postgres; playground uses fabric server SQL. */
-  readonly serverSql?: SimSqlHandle;
+  /** Real-mode host injects embedded Postgres; playground uses sqlBackend server SQL. */
+  readonly serverSql?: SimSql;
   /**
    * Post-migrate server seed bytes (PGlite dump or PGMM). When set (and
    * `serverSql` is not), opens by import and skips {@link migrateSimPostgres}.
@@ -88,10 +88,16 @@ export type Sim = {
   restart(id: string): void;
   partition(a: string, b: string): void;
   heal(a?: string, b?: string): void;
+  /**
+   * Wait until every in-flight (and queued) in-process server HTTP request
+   * settles. Virtual-time waits must call this after advancing so scripted
+   * polls cannot burn their budget while serialized Hono is still draining.
+   */
+  drainServerFetch(): Promise<void>;
   dispose(): Promise<void>;
   readonly roomNode: RoomServerApp;
-  readonly serverSql: SimSqlHandle;
-  clientSql(id: string): SimSqlHandle | undefined;
+  readonly serverSql: SimSql;
+  clientSql(id: string): SimSql | undefined;
 };
 
 let clientDurableEpoch = 0;
@@ -112,15 +118,15 @@ function sessionSeed(session: Session): bigint {
   return rng._seeded?.seed ?? 1n;
 }
 
-function portSql(session: Session): SimSqlHandle | undefined {
-  return (session.ports as { readonly sql?: SimSqlHandle }).sql;
+function portSql(session: Session): SimSql | undefined {
+  return (session.ports as { readonly sql?: SimSql }).sql;
 }
 
 async function buildServerEnv(args: {
   readonly session: Session;
   readonly seed: bigint;
   readonly timers: Timers;
-  readonly serverSql: SimSqlHandle;
+  readonly serverSql: SimSql;
   readonly pubSubBus: ReturnType<typeof createInMemoryBus>;
 }): Promise<ServerEnv> {
   const { session, seed, timers, serverSql, pubSubBus } = args;
@@ -181,7 +187,7 @@ type SimKernel = {
   readonly timers: Timers;
   readonly net: ReturnType<typeof createSimNet>;
   readonly pubSubBus: ReturnType<typeof createInMemoryBus>;
-  readonly serverSql: SimSqlHandle;
+  readonly serverSql: SimSql;
   readonly roomNode: RoomServerApp;
   readonly serverEnv: ServerEnv;
 };
@@ -189,7 +195,7 @@ type SimKernel = {
 async function openServerSql(
   session: Session,
   opts?: CreateSimOptions
-): Promise<SimSqlHandle> {
+): Promise<SimSql> {
   const clock = session.ports.clock;
   if (opts?.serverSql !== undefined) return opts.serverSql;
   const fromPorts = portSql(session);
@@ -249,7 +255,7 @@ function makeSimClientEnv(
   args: {
     readonly id: string;
     readonly serverFetch: ClientEnv['server'];
-    readonly clientSql: Map<string, SimSqlHandle>;
+    readonly clientSql: Map<string, SimSql>;
   }
 ): ClientEnv {
   const { session, seed, timers, net, pubSubBus, roomNode } = kernel;
@@ -330,8 +336,8 @@ async function disposeSim(args: {
   disposed: { value: boolean };
   liveClients: Map<string, Client>;
   roomNode: RoomServerApp;
-  clientSql: Map<string, SimSqlHandle>;
-  serverSql: SimSqlHandle;
+  clientSql: Map<string, SimSql>;
+  serverSql: SimSql;
   /** Wait for in-flight Hono work before closing the DB. */
   drainServerFetch: () => Promise<void>;
   /** Drop HTTP after clients close so late auth cannot hit a closed DB. */
@@ -352,7 +358,7 @@ async function disposeSim(args: {
 
 function createSimHandle(kernel: SimKernel): Sim {
   const { session, net, pubSubBus, serverSql, roomNode, serverEnv } = kernel;
-  const clientSql = new Map<string, SimSqlHandle>();
+  const clientSql = new Map<string, SimSql>();
   const liveClients = new Map<string, Client>();
   const disposed = { value: false };
   let rawServerFetch: ReturnType<typeof serveFetch> | null = null;
@@ -412,6 +418,7 @@ function createSimHandle(kernel: SimKernel): Sim {
     heal: (a, b) => {
       net.heal(a, b);
     },
+    drainServerFetch: () => serialized.drain(),
     dispose: async () => {
       await disposeSim({
         disposed,
@@ -434,7 +441,7 @@ function createSimHandle(kernel: SimKernel): Sim {
 
 /**
  * Playground + openSim fabric. Production never calls this.
- * Caller opens a {@link Session} (`virtualHost` / `wallHost` / product host).
+ * Caller opens a {@link Session} (`virtualTimeRuntime` / `realTimeRuntime` / product host).
  */
 export async function createSim(
   session: Session,

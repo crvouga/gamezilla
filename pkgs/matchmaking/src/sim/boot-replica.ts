@@ -11,7 +11,7 @@ import type { RadiusOptions } from '../interface/types';
 import { createSeededCreateId } from './create-id';
 import type { SimStore } from './store';
 
-/** Minimal clock — works with `@pkgs/dst` and `@pkgs/clock` SimClock. */
+/** Minimal clock — works with `@pkgs/sim` and `@pkgs/clock` SimClock. */
 export type ReplicaClock = {
   readonly now: () => number;
 };

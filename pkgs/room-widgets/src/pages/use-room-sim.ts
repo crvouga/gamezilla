@@ -12,7 +12,7 @@ import {
   Increment,
   LoopbackRoomTransport,
   TestCounterModule,
-} from '@pkgs/room/tests';
+} from '@pkgs/room/sim';
 import { createSimAdapters } from '@pkgs/uuid';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 

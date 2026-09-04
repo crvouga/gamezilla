@@ -1,12 +1,12 @@
 import type { RoomCommandPayload, RoomEvent, RoomState } from '../types';
 
-import type { RoomCrashEvent } from './boundary-faults';
-import type { RoomSimClientHandle } from './handles';
-import type { RoomKit } from './kit-api';
-import type { RoomKernel } from './kit-clients';
-import { buildNodeHandle } from './kit-clients';
-import type { RoomNetSetArg, SimRoomNetHandle } from './network';
-import { type DrainCtx, drainRoomSim, flushRoomAux } from './settle';
+import type { RoomCrashEvent } from './edge-faults';
+import type { RoomNetSetArg, RoomSimNet } from './network';
+import type { RoomSimRuntime } from './sim-api';
+import type { RoomKernel } from './sim-clients';
+import { buildRoomSimNode } from './sim-clients';
+import type { RoomSimClient } from './sim-handles';
+import { type DrainCtx, drainRoomSim, flushRoomAux } from './wait-for-idle';
 import {
   type NeverOptions,
   type UntilPredicate,
@@ -24,25 +24,28 @@ export type AssembleKitOpts<
     readonly id: string;
     readonly identity?: string;
     readonly clientId?: string;
-  }) => Promise<RoomSimClientHandle<S, C, E>>;
+  }) => Promise<RoomSimClient<S, C, E>>;
   readonly recreateServer: () => Promise<void>;
-  readonly prepareForSettle: () => Promise<void>;
-  readonly revive: () => Promise<void>;
+  readonly prepareForIdle: () => Promise<void>;
+  readonly recoverAll: () => Promise<void>;
   readonly serverCrash: () => Promise<void>;
   readonly dispose: () => Promise<void>;
   readonly domainQueries: Pick<
-    RoomKit<S, C, E>,
+    RoomSimRuntime<S, C, E>,
     'serverSnapshot' | 'serverHash' | 'checkInvariants'
   >;
   readonly drainCtx: () => DrainCtx<S, C, E>;
 };
 
-/** Wire kernel ports into the public RoomKit facade. */
-export function assembleKit<
+/** Wire kernel ports into the public RoomSimRuntime facade. */
+export function assembleRoomSimRuntime<
   S extends RoomState,
   C extends RoomCommandPayload,
   E extends RoomEvent,
->(k: RoomKernel<S, C, E>, opts: AssembleKitOpts<S, C, E>): RoomKit<S, C, E> {
+>(
+  k: RoomKernel<S, C, E>,
+  opts: AssembleKitOpts<S, C, E>
+): RoomSimRuntime<S, C, E> {
   const drainCtx = () => opts.drainCtx();
   const waitKit = () => ({
     seed: k.seed,
@@ -69,7 +72,7 @@ export function assembleKit<
     };
   };
 
-  const kit: RoomKit<S, C, E> = {
+  const kit: RoomSimRuntime<S, C, E> = {
     seed: k.seed,
     topic: k.topic,
     module: k.module,
@@ -82,13 +85,13 @@ export function assembleKit<
     },
     clients: k.handles,
     addClient: opts.addClient,
-    net: (clientId: string): SimRoomNetHandle => ({
+    net: (clientId: string): RoomSimNet => ({
       set: (next: RoomNetSetArg) => k.network.set(clientId, next),
       state: () => k.network.linkState(clientId),
       impaired: () => k.network.impaired(clientId),
       down: () => k.network.down(clientId),
     }),
-    node: (clientId: string) => buildNodeHandle(k, clientId),
+    node: (clientId: string) => buildRoomSimNode(k, clientId),
     runFor,
     until: (target, optsUntil?: WaitUntilOptions) =>
       waitUntil(waitKit(), withAuxFlush(target), optsUntil),
@@ -105,7 +108,7 @@ export function assembleKit<
     armCrashAt: (clientId: string, event: RoomCrashEvent) => {
       k.boundary.armCrash(clientId, event);
     },
-    clearBoundaryFaults: () => {
+    clearEdgeFaults: () => {
       k.boundary.clearCrashArms();
     },
     serverCrash: opts.serverCrash,
@@ -114,7 +117,7 @@ export function assembleKit<
       await drainRoomSim(drainCtx());
     },
     isServerCrashed: () => k.serverCrashed,
-    revive: opts.revive,
+    recoverAll: opts.recoverAll,
     dispose: opts.dispose,
     [Symbol.asyncDispose]: opts.dispose,
   };

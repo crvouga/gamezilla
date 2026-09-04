@@ -37,7 +37,7 @@ export function buildPlaygroundPaletteCommands(
     id: 'net:heal',
     title: 'session · heal',
     category: 'Network',
-    keywords: ['heal', 'partition'],
+    keywords: ['heal', 'restoreNetwork', 'partition'],
     run: () => session.heal(),
   });
 

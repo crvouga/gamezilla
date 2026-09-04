@@ -139,7 +139,7 @@ export async function checkOptimisticMarkersHealed(
   };
 }
 
-/** After heal+converge, online clients must have drained upload queues. */
+/** After restoreNetwork+converge, online clients must have drained upload queues. */
 export async function checkHealedQueueDrained(
   db: SqlClient
 ): Promise<InvariantViolation | null> {

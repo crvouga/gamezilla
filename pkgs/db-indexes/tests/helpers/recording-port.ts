@@ -1,6 +1,6 @@
 import { assert } from '@pkgs/assert';
 import type { Clock } from '@pkgs/clock';
-import { parseWithNodeSqlParser } from '../../core/parse-node-sql';
+import { parseWithNodeSqlParser } from '../../src/core/parse-node-sql';
 import type {
   ActionResult,
   Candidate,
@@ -13,7 +13,7 @@ import type {
   Stmt,
   TableInfo,
   UsageInfo,
-} from '../../core/types';
+} from '../../src/core/types';
 
 export type RecordingPortSeed = {
   readonly indexes: readonly IndexInfo[];

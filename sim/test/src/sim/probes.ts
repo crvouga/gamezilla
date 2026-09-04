@@ -7,13 +7,13 @@ import {
   createAuthClientAdapter,
   createInMemoryAuthClientStorage,
 } from '@pkgs/auth/client';
-import type { SimSqlHandle } from '@sim/console/sim/sim-sql';
+import type { SimSql } from '@sim/console/sim/sim-sql';
 import {
   captureSystemSnapshot,
   type SystemSnapshotCtx,
 } from '@sim/console/sim/system-snapshot';
 
-import type { ProductSurface } from './surface';
+import type { ProductSim } from './sim';
 import { product } from './system';
 
 /** Sign in through the client auth port wired to the in-process sim server. */
@@ -43,12 +43,9 @@ export const captureSnapshot = product.action({
   },
 });
 
-async function captureSnapshotOf(
-  s: ProductSurface,
-  clientIds: readonly string[]
-) {
+async function captureSnapshotOf(s: ProductSim, clientIds: readonly string[]) {
   const sim = s.sim;
-  const clientSqlByAddress = new Map<string, SimSqlHandle>();
+  const clientSqlByAddress = new Map<string, SimSql>();
   const liveClients = new Map<string, ReturnType<typeof sim.spawnClient>>();
   for (const id of clientIds) {
     liveClients.set(id, sim.spawnClient(id));

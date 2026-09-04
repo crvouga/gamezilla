@@ -1,23 +1,23 @@
-import { defineSystem } from '@pkgs/dst';
-import { gen } from '@pkgs/dst/fast-check';
+import { defineSystem } from '@pkgs/sim';
+import { gen } from '@pkgs/sim/fast-check';
 
-import { DST_FAULTS } from '../../../sim/faults';
-import { toKernelFaults } from '../../../sim/network';
+import { DST_FAULTS } from '../faults';
+import { toKernelFaults } from '../network';
 import {
   arbSyncArgs,
-  createSyncSurface,
+  createSyncSim,
   registerSyncLibrary,
   type SyncArgs,
-  type SyncSurface,
+  type SyncSim,
   syncVirtual,
-} from '../../../sim/scenario';
-import { acmeApp } from './app';
+} from '../scenario';
+import { exampleApp } from './app';
 
-/** Host name for the mild fixed reorder / loss profile ({@link DST_FAULTS}). */
-export const ACME_DST_FAULTS_HOST = 'virtual-dst-faults';
+/** Runtime name for the mild fixed reorder / loss profile ({@link DST_FAULTS}). */
+export const EXAMPLE_DST_FAULTS_HOST = 'virtual-dst-faults';
 
 /** System defaults; scripted tests overlay a partial. */
-export const ACME_DEFAULT_ARGS: SyncArgs = {
+export const EXAMPLE_DEFAULT_ARGS: SyncArgs = {
   rowImageFanout: true,
   liveResendOnReconnect: false,
   bufferOutboundLive: false,
@@ -25,49 +25,49 @@ export const ACME_DEFAULT_ARGS: SyncArgs = {
 };
 
 /**
- * Framework-owned acme system: broker + server + `args.clientCount` clients.
+ * Framework-owned example system: broker + server + `args.clientCount` clients.
  *
  * Scripted pin shape:
  *
  * ```ts
- * await using s = await acmeSystem.script({
+ * await using s = await exampleSystem.run({
  *   seed,
  *   args: { clientCount: 0, rowImageFanout: false },
  * });
  * await s.apply(addClient, 'alice');
  * await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'hi' });
- * await s.elapse(500);
- * expect(await s.observe(liveNote, 'server', 'n1')).toEqual({
+ * await s.advanceTime(500);
+ * expect(await s.read(liveNote, 'server', 'n1')).toEqual({
  *   body: 'hi',
  *   title: 'hi',
  *   deletedAt: null,
  * });
- * await expectConverged(s);
+ * await expectInSync(s);
  * ```
  *
- * Poll with `s.until` / `untilAcme` (`./until`).
+ * Poll with `s.until` / `untilExample` (`./until`).
  */
-export const acmeSystem = defineSystem<SyncSurface, SyncArgs>({
-  name: 'sync.acme',
-  args: ACME_DEFAULT_ARGS,
-  draw: () => gen(arbSyncArgs()),
-  create: (session, args) => createSyncSurface(session, acmeApp, args),
+export const exampleSystem = defineSystem<SyncSim, SyncArgs>({
+  name: 'sync.example',
+  args: EXAMPLE_DEFAULT_ARGS,
+  sample: () => gen(arbSyncArgs()),
+  create: (session, args) => createSyncSim(session, exampleApp, args),
 });
 
-acmeSystem.host({
+exampleSystem.runtime({
   default: true,
   name: 'virtual',
   create: () => syncVirtual(),
 });
-acmeSystem.host({
-  name: ACME_DST_FAULTS_HOST,
+exampleSystem.runtime({
+  name: EXAMPLE_DST_FAULTS_HOST,
   create: () => syncVirtual(toKernelFaults(DST_FAULTS)),
 });
-registerSyncLibrary(acmeSystem);
+registerSyncLibrary(exampleSystem);
 
 /** Hydrates the ~2k row catalog query instead of the pack default. */
-export const ACME_LARGE_CATALOG_ARGS: Partial<SyncArgs> = {
+export const EXAMPLE_LARGE_CATALOG_ARGS: Partial<SyncArgs> = {
   sessionQuery: { name: 'notesLargeAll', params: {} },
 };
 
-export type { SyncArgs, SyncSurface };
+export type { SyncArgs, SyncSim };

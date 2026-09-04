@@ -21,7 +21,7 @@ export const ALL_ROOM_CRASH_EVENTS: readonly RoomCrashEvent[] = [
   'onNextScheduleWake',
 ] as const;
 
-export type RoomBoundaryFaultController = {
+export type RoomEdgeFaultController = {
   readonly armCrash: (nodeId: string, event: RoomCrashEvent) => void;
   readonly clearCrashArms: (nodeId?: string) => void;
   readonly takeCrash: (nodeId: string, event: RoomCrashEvent) => boolean;
@@ -29,7 +29,7 @@ export type RoomBoundaryFaultController = {
 };
 
 /** In-memory one-shot crash arms keyed by client node id (or `server`). */
-export function createRoomBoundaryFaultController(): RoomBoundaryFaultController {
+export function createRoomEdgeFaultController(): RoomEdgeFaultController {
   const crashes = new Map<string, Set<RoomCrashEvent>>();
 
   return {

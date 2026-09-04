@@ -77,13 +77,13 @@ Adapted from [TigerBeetle Tiger Style](https://github.com/tigerbeetle/tigerbeetl
 | `MAX_MUTATIONS_BATCH` | 64 | route + parser | upload `LIMIT` + verdict pairing |
 | `MAX_FANOUT_ROWS` / `MAX_FANOUT_BYTES` | 64 / 32KiB | server fanout emit | push receive drops over-cap `rows` |
 
-**DST invariants** (`queries/shared/tiger-invariants.ts` + `sim/invariants.ts`):
+**Sim invariants** (`queries/shared/tiger-invariants.ts` + `sim/invariants.ts`):
 `seq-monotonicity`, `permanent-vs-transient-verdicts`,
 `push-seq-monotonic-per-topic`, `checkpoint-monotonic-per-scope`,
 `optimistic-markers-healed-after-converge`, `healed-queue-drained`.
 
 Query registry compile-time rules (hard `limit`, no duplicate names, tombstone SQL)
-are enforced in `queryRegistry()` / AST capture — not duplicated in the DST list.
+are enforced in `queryRegistry()` / AST capture — not duplicated in the sim list.
 
 **Anti-goal:** cargo-cult Zig (no static-allocation requirement in TS). Hot paths
 use `hotAssert()` when per-call validation would dominate.
@@ -121,7 +121,7 @@ Deep imports under `src/` are **not** public. `package.json` `exports`:
 | `@pkgs/sync-engine/client` | Expo / React Native engine, React hooks, HTTP client |
 | `@pkgs/sync-engine/server` | Hono sync app (`POST /query`, `POST /mutations`), `notifyChannels` |
 | `@pkgs/sync-engine/shared` | `defineQuery` / `defineMutation`, registries, soft-delete helpers, **protocol v3**, opaque migrate |
-| `@pkgs/sync-engine/test` | In-memory engine + sim/test controls (`SCHEMA_EPOCH`, controllable lifecycle) |
+| `@pkgs/sync-engine/sim` | In-memory engine + sim controls (`SCHEMA_EPOCH`, controllable lifecycle) |
 
 Full contract map, cutover runbook, authoring drift close-out, and refactor-freedom
 checklist: [`CONTRACTS.md`](./CONTRACTS.md). Checked-in API reports:
@@ -135,11 +135,11 @@ checklist: [`CONTRACTS.md`](./CONTRACTS.md). Checked-in API reports:
 | **Wire protocol** | Cross-version freeze (`src/protocol/v2.ts`); shape changes need a version bump | `QueryResponse`, mutation batch, `PushMessage`, `MAX_*`, `upgrade_required` |
 | **Local domain SQL** | Deliberate local-first contract | Domain tables, `deleted_at`, `LIVE_ROW_SQL`, `useQuery` |
 | **Extension** | Domain plug-in vocabulary | `defineQuery` / `defineMutation`, `defineTopicMap`, `MutationEnv` |
-| **Host wiring** | Injected ports | `postQueries`/`postMutations` (protocol-derived), pubsub, auth, SQL, lifecycle |
+| **Runtime wiring** | Injected ports | `postQueries`/`postMutations` (protocol-derived), pubsub, auth, SQL, lifecycle |
 | **Internal** | Free to change; must not leak | Framework tables, merge/upload, seq alloc, hash algorithms, epoch |
 
 **Do not depend on:** framework table names/shapes (`sync_engine_mutations`, `sync_engine_write_rejections`, …),
-`SCHEMA_EPOCH` (except via `/test`), DDL text, `allocateTopicPushSeq`, or deep
+`SCHEMA_EPOCH` (except via `/sim`), DDL text, `allocateTopicPushSeq`, or deep
 `@pkgs/sync-engine/src/...` imports. Use `mutationOutcome` / `listRejections` /
 `pendingMutationCount` instead of SQL on framework tables.
 
@@ -150,7 +150,7 @@ checklist: [`CONTRACTS.md`](./CONTRACTS.md). Checked-in API reports:
 `MutationClientProvider`, `useMutationClient`, `SyncEnginePaintGateContext`,
 `AppLifecycle` **types**, status types, `SyncEngine.mutationOutcome` /
 `listRejections` / `pendingMutationCount`. Optional create opts `schemaEpoch` /
-`onLocalMigratePhase` for sim (constants live on `/test`).
+`onLocalMigratePhase` for sim (constants live on `/sim`).
 
 **server:** `createSyncApp`, `notifyChannels({ pubsub, sql, topics, … })` (await
 while `sql` is connected; allocates pushSeqs then fire-and-forgets publish),
@@ -324,7 +324,7 @@ Rules:
 
 **Session queries vs product paint:**
 - `sessionQueries` are held for the engine lifetime; `waitForFirstSync()`
-  awaits their first successful sync (sim / DST / `subscribeQueries`).
+  awaits their first successful sync (sim / `subscribeQueries`).
 - Product boot does **not** wait on first-sync. It paints as soon as the
   identity-scoped SQLite engine is open and `connect()` has started session
   watches. `paintReady` is **not** computed inside the engine. Product boot
@@ -338,7 +338,7 @@ host — see app wiring docs. The package only receives `sessionQueries` /
 
 ### Topics (host convention)
 
-Host registers `defineTopicMap` plus `defaultEntryChannel`. Typical helpers:
+Runtime registers `defineTopicMap` plus `defaultEntryChannel`. Typical helpers:
 
 | Helper | Topics |
 |--------|--------|
@@ -367,7 +367,7 @@ is the safety net so peers do not stay forever-stale.
 | `createSyncApp({ rowImageFanout })` | **false** | Opt-in |
 | Client `push.rowImageFanout` | **false** | Opt-in |
 | Product host (`apps/*`) | **true** | Both API + client set true |
-| `acmeSystem.script(...)` | **true** | algebra entry |
+| `exampleSystem.run(...)` | **true** | algebra entry |
 
 When off, pushes are wake+refetch only (still correct). When on, contiguous
 `pushSeq` + `rows` may apply via `applyRowImages` without updating
@@ -534,7 +534,7 @@ in-flight pre-replay query sweeps (reject-only batches do not fence).
 - Background (`AppLifecycle`) pauses sweeps; foreground resumes with `wakeAll`
 - Safety-net reconcile tick (`QUERY_RECONCILE_INTERVAL_MS`, sim shorter) → `wakeAll`
 - Session queries held for engine life; `waitForFirstSync` waits on them
-  (sim / DST / `subscribeQueries` — not product paint)
+  (sim / `subscribeQueries` — not product paint)
 
 ### `attachPush`
 
@@ -544,7 +544,7 @@ in-flight pre-replay query sweeps (reject-only batches do not fence).
   remove) — does **not** `close()` the MQTT session (avoids sessionExpiry-0
   queue wipe during create-after-end peer fanout)
 - Topic sync **waits until local `sync_engine_mutations` drain** (membership pending gate)
-- After incremental topic add/remove → `wakeAll()` once (heal subscribe races)
+- After incremental topic add/remove → `wakeAll()` once (restoreNetwork subscribe races)
 - Reconnect → `wakeAll()`
 - Local writes to subscription-driving tables (`subscribeTopics`) refresh held-row topics
 - Optional `bufferOutboundLive` queues optimistic fanout while detached
@@ -559,7 +559,7 @@ in-flight pre-replay query sweeps (reject-only batches do not fence).
 | `defineQuery.run` | **Include** tombstones (`SELECT …, deleted_at`, no live filter) |
 | UI / `useQuery` SQL | Filter `deleted_at IS NULL` (or `LIVE_ROW_SQL`) |
 | Merge | Upsert `deleted_at` as a normal column |
-| Framework tables | Soft-delete too (`defineTable` managed cols); revive on unique-key upsert |
+| Framework tables | Soft-delete too (`defineTable` managed cols); recoverAll on unique-key upsert |
 
 Inbox is slightly different product-wise (`active` flag) but still a sync query;
 don’t invent a second delete model without review.
@@ -647,7 +647,7 @@ Ordered by leverage for **simplicity + reliability** (not raw speed):
    remake). Waits for pending `sync_engine_mutations` drain; tiny subscribe-race window
    healed by `wakeAll`; true dispose still closes with sessionExpiry 0.
 6. **Product paint is local-open** — `waitForFirstSync` still waits on all
-   session queries for sim/DST/`subscribeQueries`. Product `paintReady` is an
+   session queries for sim/`subscribeQueries`. Product `paintReady` is an
    identity-match context set once the local engine is mounted, not after
    first-sync.
 7. **Rebase swallows errors** — pending mutation that fails against new
@@ -782,28 +782,26 @@ bun run lint
 
 | Suite | Path | Role |
 |-------|------|------|
-| Scenarios | `src/tests/scenarios/*.sim.test.ts` | Black-box multi-client pins via `acmeSystem.script(...)` + `s.apply` / `s.until` |
-| Property / system | `src/tests/scenarios/*.scenario.pbt.test.ts` / `*.pbt.test.ts` | Shrinking `acmeSystem.explore` / `.replay`; scripted `s.apply(pool.*)` pins |
-| Unit PBT | `src/tests/unit/*.pbt.test.ts` | Pure helpers (checkpoints, topic map, …) |
-| Kernel harness | `src/tests/harness/*.test.ts` | RNG / scheduler / timers; membership topic sync |
-| Public unit helper | `@pkgs/sync-engine/test` | `createInMemorySyncEngine` (no full kit surface) |
+| Scenarios | `tests/*.test.ts` | Black-box multi-client pins via `exampleSystem.run(...)` + `s.apply` / `s.until` |
+| Property / system | `tests/*.pbt.test.ts` | Shrinking `exampleSystem.explore` / `.replay`; scripted `s.apply(pool.*)` pins |
+| Public unit helper | `@pkgs/sync-engine/sim` | `createInMemorySyncEngine` (no full kit surface) |
 
 **Two layers:** named scenarios document specific safety claims (`never`, authz,
 protocol cut, flicker). `*.pbt.test.ts` files explore the fault state space with
-`acmeSystem.explore(...)` (the system is a literal `defineSystem` in
-`src/tests/apps/acme/system.ts`; boot lives in `src/sim/scenario/boot.ts` — see
-also `pkgs/dst/README.md`).
+`exampleSystem.explore(...)` (the system is a literal `defineSystem` in
+`src/sim/example-app/system.ts`; boot lives in `src/sim/scenario/boot.ts` — see
+also `pkgs/sim/README.md`).
 When a property fails, capture `seed` / `path` / `replayPath`, pin `examples`,
 add a named scenario, and log in repo-root `PBT_FINDINGS.md`.
 
 ```bash
 # all sync-engine PBT (pinned seed)
-bun test pkgs/sync-engine/src/tests/scenarios/*.pbt.test.ts
+bun test pkgs/sync-engine/tests/*.pbt.test.ts
 
-# replay one failure: paste the shrunk Repro from the failure into acmeSystem.replay(...)
+# replay one failure: paste the shrunk Recording from the failure into exampleSystem.replay(...)
 
 # seeded fuzz harness (non-shrinking corpus)
-bun test pkgs/sync-engine/src/tests/scenarios/seeded-workload-fuzz-determinism.sim.test.ts
+bun test pkgs/sync-engine/tests/seeded-workload-fuzz-determinism.test.ts
 ```
 
 | Pool action layer | Actions (`pool.*` in `sim/scenario/sync-actions.ts`) |
@@ -811,26 +809,27 @@ bun test pkgs/sync-engine/src/tests/scenarios/seeded-workload-fuzz-determinism.s
 | Domain (injected `SyncApp`) | `domain` — one `DomainOp` drawn from `app.domainOpArbs` |
 | Server OOB (injected `SyncApp`) | `server` — one `ServerOp` drawn from `app.serverOpArbs` |
 | Connectivity triad | `online`, `offline`, `connect`, `disconnect`, `background`, `foreground` |
-| Network | `partition`, `heal`, `hold`, `release`, `setFaults` |
+| Network | `partition`, `restoreNetwork`, `hold`, `release`, `setFaults` |
 | Boundary faults | `armHttpFault`, `armCrashAt`, `publishFault`, `auth`, `protocolCut` |
 | Lifecycle / storage | `crash`, `restart`, `clearLocalData`, `subscribe`, `skew`, `tamperLocalStorage`, `armStoragePressure`, `addPeerEngine` |
 
-App fixtures (e.g. acme) supply `domainOpArbs` and `serverOpArbs` under
-`src/tests/apps/<name>/` — the system kernel has no app nouns. Every pool
-action has a `draw`, so `explore` walks the whole catalog and slice PBTs pick
-subsets by name (`actions: ['domain', 'offline', 'heal']`).
+App fixtures (e.g. example) supply `domainOpArbs` and `serverOpArbs` under
+`src/sim/example-app/` — the system kernel has no app nouns. Every pool
+action has a `sample`, so `explore` walks the whole catalog and slice PBTs pick
+subsets by name (`actions: ['domain', 'offline', 'restoreNetwork']`).
 
-`queries/shared/tiger-invariants.ts` lists DST-checked invariants; see
+`queries/shared/tiger-invariants.ts` lists sim-checked invariants; see
 [Tiger Style](#tiger-style-safety--bounds) for the full error/bound matrix.
 
 ### Deterministic simulator
 
-TigerBeetle-style deterministic simulation in `src/sim/` (not a public export). **One seed →
-identical timeline.** Systems are **owned by `@pkgs/dst`**:
-`acmeSystem` (a `defineSystem` over `createSyncSurface`) declares the
+TigerBeetle-style deterministic simulation in `src/sim/` (exported as
+`@pkgs/sync-engine/sim`). **One seed → identical timeline.** Systems are
+**owned by `@pkgs/sim`**:
+`exampleSystem` (a `defineSystem` over `createSyncSim`) declares the
 broker/server/client topology, args, action pool, and model, and tests drive it
-with `acmeSystem.explore(...)` / `.replay(...)` / `.script(...)` + `s.apply` /
-`s.observe`; fuzz is a seeded `s.walk` over the pool. Assert **live domain
+with `exampleSystem.explore(...)` / `.replay(...)` / `.run(...)` + `s.apply` /
+`s.read`; fuzz is a seeded `s.randomActions` over the pool. Assert **live domain
 rows only** — never framework tables or private modules.
 
 ```text
@@ -849,8 +848,8 @@ seed ──► SeededRng ──► Network (delay/loss/reorder/replay)
 
 | Boundary | Implementation |
 |----------|----------------|
-| Time | `s.elapse` / `s.until` / `s.never` over Host virtual clock + scheduler |
-| Wall clocks | `s.apply(skewClock, id, ms)` / `s.observe(nodeNow, id)` |
+| Time | `s.advanceTime` / `s.until` / `s.never` over Runtime virtual clock + scheduler |
+| Wall clocks | `s.apply(skewClock, id, ms)` / `s.read(nodeNow, id)` |
 | Timers | `createTimers` implements the production `Timers` port |
 | RNG | `createSeededRng` (splitmix64); `fork(label)` for independent streams |
 | Network | `s.apply(net, nodeId, traffic, state)` — hold / down / fault profiles |
@@ -864,29 +863,29 @@ server uses SQLite dialect; production server is Postgres.
 
 Scenarios are plain `bun:test` (`describe` / `test` / `test.each`). Cleanup uses
 `await using` / `using` (`AsyncDisposable` / `Disposable`). No custom test
-runner. Failures from `expectConverged` / `s.until` / `s.never` / property
+runner. Failures from `expectInSync` / `s.until` / `s.never` / property
 asserts embed `seed=<hex>` and virtual `now=` for replay.
 
 **Five concepts:**
 
-1. **Time** — `s.elapse(ms)`,
+1. **Time** — `s.advanceTime(ms)`,
    `s.until(read, { maxMs?, pred? })` (positive wait; wrap args in a
    zero-arg read),
    `s.never(read, { forMs })` (fail if the predicate holds within the
-   window). Thin acme helpers `untilAcme` / `neverAcme` only set default
+   window). Thin example helpers `untilExample` / `neverExample` only set default
    `stepMs`. All scheduler-driven — never wall-clock.
 2. **Network** — `s.apply(net, nodeId, traffic, state)` /
-   `hold` / `release` / `partition` / `heal`; settle neutralizes
+   `hold` / `release` / `partition` / `restoreNetwork`; settle neutralizes
    outstanding net effects.
 3. **Node** — `s.apply(crash, id)` / `crashAt` / `restart` /
    `auth` / `skewClock` (and related fault pins). Server id is `'server'`.
 4. **Client** — `s.apply(mutate, id, mutation, args)`, connectivity triad
    (below), `subscribe`, `outcome` / `rejections` reads, `nudge`
    (rare; needs `// nudge:` comment).
-5. **Revive + observe** — `expectConverged(run)` (or `revive` + `s.until(converged)`) clears holds/partitions/faults, forces
+5. **Revive + observe** — `expectInSync(run)` (or `recoverAll` + `s.until(inSync)`) clears holds/partitions/faults, forces
    online/foreground/connect, wakes uploads + refreshes, diffs each client vs
    server (differential oracle). Does **not** absorb negative-timing windows —
-   use `s.never` / `neverAcme` for those.
+   use `s.never` / `neverExample` for those.
 
 #### Connectivity triad (do not conflate)
 
@@ -901,81 +900,80 @@ asserts embed `seed=<hex>` and virtual `now=` for replay.
 ```ts
 import { describe, expect, test } from 'bun:test';
 import {
-  acmeSystem,
+  exampleSystem,
   addClient,
-  expectConverged,
+  expectInSync,
   liveNote,
   mutate,
   setNote,
-} from '../apps/acme';
+} from '../apps/example';
 
 describe('example', () => {
-  test('mutate converges', async () => {
-    await using s = await acmeSystem.script({
+  test('mutate staysInSync', async () => {
+    await using s = await exampleSystem.run({
       seed: 42,
       args: { clientCount: 0 },
     });
     await s.apply(addClient, 'alice');
     await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'hi' });
-    await expectConverged(s);
-    expect(await s.observe(liveNote, 'alice', 'n1')).toMatchObject({
+    await expectInSync(s);
+    expect(await s.read(liveNote, 'alice', 'n1')).toMatchObject({
       body: 'hi',
     });
   });
 });
 ```
 
-PBT / system pins (`acmeSystem.explore` / `s.apply(pool.*)` / `acmeSystem.replay`):
+PBT / system pins (`exampleSystem.explore` / `s.apply(pool.*)` / `exampleSystem.replay`):
 
 ```ts
-import { gen } from '@pkgs/dst/fast-check';
-import { arbSyncArgs } from '../../sim/scenario';
-import { acmeSystem, pool } from '../apps/acme';
+import { gen } from '@pkgs/sim/fast-check';
+import { arbSyncArgs, EXAMPLE_DST_FAULTS_HOST, exampleSystem, pool } from '@pkgs/sync-engine/sim';
 
-// Host, action pool, and properties are registered on the system.
-await acmeSystem.explore({
+// Runtime, action pool, and properties are registered on the system.
+await exampleSystem.explore({
   args: gen(arbSyncArgs()),
   episodes: 12,
   steps: 14,
 });
 
-// Slice PBT over a few pool actions on the lossy host.
-await acmeSystem.explore({
-  host: ACME_DST_FAULTS_HOST,
-  actions: ['domain', 'offline', 'online', 'heal'],
+// Slice PBT over a few pool actions on the lossy runtime.
+await exampleSystem.explore({
+  runtime: EXAMPLE_DST_FAULTS_HOST,
+  actions: ['domain', 'offline', 'online', 'restoreNetwork'],
   episodes: 8,
   steps: 12,
 });
 
 // Scripted pin — the same pool actions, applied by hand.
-await using s = await acmeSystem.script({ seed: 42, args: { clientCount: 2 } });
+await using s = await exampleSystem.run({ seed: 42, args: { clientCount: 2 } });
 await s.apply(pool.domain, {
   clientId: 'c0',
   mutation: 'setNote',
   args: { id: 'n0', body: 'x', title: '' },
 });
-await s.apply(pool.heal);
+await s.apply(pool.restoreNetwork);
 ```
 
 Scoped hold + latency budget + negative window:
 
 ```ts
 {
-  await s.apply(hold, 'bob', 'sync');
-  const t0 = await s.observe(nodeNow, 'bob');
+  await s.apply(pauseNetwork, 'bob', 'sync');
+  const t0 = await s.read(nodeNow, 'bob');
   await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'x' });
   await s.never((s) => liveNote(s, 'bob', 'n1'), {
     forMs: 200,
     pred: (n) => n != null && n.deletedAt == null,
   });
-  await s.apply(release, 'bob', 'sync');
+  await s.apply(resumeNetwork, 'bob', 'sync');
   await s.until((s) => liveNote(s, 'bob', 'n1'), {
     pred: (n) => n != null && n.deletedAt == null,
   });
-  const at = await s.observe(nodeNow, 'bob');
+  const at = await s.read(nodeNow, 'bob');
   expect(at - t0).toBeLessThan(200);
 }
-await expectConverged(s);
+await expectInSync(s);
 ```
 
 Lightweight clock/timers without a full kit:
@@ -1008,12 +1006,12 @@ settle, not push ordering. Prefer `hold` on `sync` to script push↔query races.
 ```ts
 await s.apply(skewClock, 'alice', -60_000);
 await s.apply(skewClock, 'server', 60_000);
-await s.observe(nodeNow, 'alice'); // base + skew
+await s.read(nodeNow, 'alice'); // base + skew
 ```
 
 #### Args
 
-**System open** — `acmeSystem.script({ seed, args })`. `args` is a partial
+**System open** — `exampleSystem.run({ seed, args })`. `args` is a partial
 overlay on the system defaults; the registered `virtual` host supplies the clock
 and network:
 
@@ -1064,16 +1062,16 @@ handles, `getSyncEngine` (except account-switch pool), `postMutations` (except
 duplicate-mutation-id). Prefer observations (`liveNote`, `rows`, `outcome`) and
 pin actions.
 
-**Fuzz / replay** — a seeded `s.walk` over the pool (or an `actions:` slice),
-then `expectConverged`; the same seed must reproduce identical `w.choices`:
+**Fuzz / replay** — a seeded `s.randomActions` over the pool (or an `actions:` slice),
+then `expectInSync`; the same seed must reproduce identical `w.choices`:
 
 ```ts
-await using s = await acmeSystem.script({ seed: 42, args: { clientCount: 3 } });
-const w = await s.walk({ steps: 40, time: { weight: 1, minMs: 0, maxMs: 40 } });
-await expectConverged(s);
+await using s = await exampleSystem.run({ seed: 42, args: { clientCount: 3 } });
+const w = await s.randomActions({ steps: 40, time: { weight: 1, minMs: 0, maxMs: 40 } });
+await expectInSync(s);
 ```
 
-`explore` failures carry a shrunk `Repro`; replay with `acmeSystem.replay(repro)`.
+`explore` failures carry a shrunk `Recording`; replay with `exampleSystem.replay(repro)`.
 
 #### Scenario-writing guide (patterns, not primitives)
 
@@ -1083,7 +1081,7 @@ Keep these as snippets — do **not** promote into API members:
 
 ```ts
 await s.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
-await expectConverged(s);
+await expectInSync(s);
 ```
 
 **Offline queue (AppLifecycle)**
@@ -1096,7 +1094,7 @@ await s.never((s) => liveNote(s, 'server', 'n1'), {
   pred: (n) => n != null && n.deletedAt == null,
 });
 await s.apply(online, 'alice', true);
-await expectConverged(s);
+await expectInSync(s);
 ```
 
 **Engine offline queue (session stop)**
@@ -1105,33 +1103,33 @@ await expectConverged(s);
 await s.apply(disconnect, 'alice');
 await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'queued' });
 await s.apply(connect, 'alice');
-await expectConverged(s);
+await expectInSync(s);
 ```
 
 **Sync hold race**
 
 ```ts
 {
-  await s.apply(hold, 'bob', 'sync');
+  await s.apply(pauseNetwork, 'bob', 'sync');
   await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'x' });
   await s.never((s) => liveNote(s, 'bob', 'n1'), {
     forMs: 300,
     pred: (n) => n != null && n.deletedAt == null,
   });
-  await s.apply(release, 'bob', 'sync');
+  await s.apply(resumeNetwork, 'bob', 'sync');
 }
-await expectConverged(s);
+await expectInSync(s);
 ```
 
-**Partition heal**
+**Partition restoreNetwork**
 
 ```ts
 {
   await s.apply(partition, 'bob');
   await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'x' });
-  await s.apply(heal);
+  await s.apply(restoreNetwork);
 }
-await expectConverged(s);
+await expectInSync(s);
 ```
 
 **Crash + preserve DB**
@@ -1139,7 +1137,7 @@ await expectConverged(s);
 ```ts
 await s.apply(crash, 'bob');
 await s.apply(restart, 'bob', { preserveLocalDb: true });
-await expectConverged(s);
+await expectInSync(s);
 ```
 
 **Subscribe scope**
@@ -1154,8 +1152,8 @@ await s.apply(unsubscribe, 'alice', 'notesDenied', {});
 
 ```ts
 for (let i = 0; i < 8; i += 1) {
-  await s.elapse(25);
-  expect(await s.observe(liveNote, 'alice', 'n1')).toMatchObject({
+  await s.advanceTime(25);
+  expect(await s.read(liveNote, 'alice', 'n1')).toMatchObject({
     body: 'optimistic',
   });
 }
@@ -1171,21 +1169,13 @@ await s.apply(nudge, 'bob');
 #### Sim layout
 
 ```text
-src/sim/                             # domain-agnostic DST harness (not public)
-  rng.ts clock.ts scheduler.ts timers.ts
-  network.ts traffic.ts http-bridge.ts pubsub-bridge.ts
-  kit.ts kit-facade.ts kit-boot.ts server.ts open-sim-sqlite.ts
-  domain-pack.ts                     # SimDomainPack type (no built-in packs)
-  faults.ts invariants.ts wait-until.ts
-  test-driver.ts
-  scenario/                          # boot (host + surface), pool + pin actions, observations
+src/sim/                             # exported as `@pkgs/sync-engine/sim`
+  …                                  # harness (rng, network, bridges, server, …)
+  scenario/                          # boot (runtime + S), pool + pin actions, reads
+  example-app/                       # example fixture
 
-src/tests/
-  apps/
-    acme/                            # acme fixture: pack, reads, pool slice, walkThenConverge
-
-  scenarios/                         # black-box correctness suite
-  harness/                           # sim kernel self-tests + scenario-api
+tests/                               # black-box against package exports
+  …                                  # scenario pins + harness
 ```
 
 Full per-file scenario catalog: [Scenario catalog](#scenario-catalog) at the
@@ -1304,11 +1294,10 @@ Three distinct monotonic sequences — do not conflate them:
 
 ## Scenario catalog
 
-Black-box correctness under `src/tests/scenarios/` (`*.sim.test.ts` +
-`*.scenario.pbt.test.ts`) plus harness `src/tests/harness/kernel.test.ts`.
-Most pins use `acmeSystem.script({ seed, args: {…} })`
-with `s.apply` / `s.observe` / `s.until`, and domain reads from
-`src/tests/apps/acme/`.
+Black-box correctness under `tests/` (`*.test.ts` + `*.pbt.test.ts`).
+Most pins use `exampleSystem.run({ seed, args: {…} })`
+with `s.apply` / `s.read` / `s.until`, and domain reads from
+`src/sim/example-app/`.
 
 ### Happy path / multi-client (10)
 
@@ -1323,7 +1312,7 @@ with `s.apply` / `s.observe` / `s.until`, and domain reads from
 | `peer-visibility-under-200ms-sim-budget.test.ts` | Peer visibility under 200ms simulated time with fixed one-way delay |
 | `set-note-v1-v2-interleaved-converge.test.ts` | `setNote` + `setNoteV2` interleaved; V1-only client still replays |
 | `mutation-batch-over-max-drains-without-dupes.test.ts` | Queue > `MAX_MUTATIONS_BATCH` drains across batches without dupes |
-| `hard-query-limit-truncates-hydrate.test.ts` | Hard query `limit` truncates; multi-table shrink converges fully |
+| `hard-query-limit-truncates-hydrate.test.ts` | Hard query `limit` truncates; multi-table shrink staysInSync fully |
 
 ### Tombstones / soft-delete (3)
 
@@ -1337,7 +1326,7 @@ with `s.apply` / `s.observe` / `s.until`, and domain reads from
 
 | File | Proves |
 |------|--------|
-| `non-owner-mutation-denied-owner-converges.test.ts` | Non-owner delete forbidden; owner soft-delete peers converge |
+| `non-owner-mutation-denied-owner-staysInSync.test.ts` | Non-owner delete forbidden; owner soft-delete peers converge |
 | `permanent-reject-stored-peer-never-applies.test.ts` | Permanent reject stored; peer never applies bad body; ack clears |
 | `requires-online-fails-offline-without-queue.test.ts` | Requires-online mutations fail offline without queueing |
 | `denied-query-detaches-scope-keeps-rows.test.ts` | Denied query detaches scope without wiping domain rows |
@@ -1352,7 +1341,7 @@ with `s.apply` / `s.observe` / `s.until`, and domain reads from
 | `two-offline-same-id-single-winner.test.ts` | Two-offline conflict on same id → single winner everywhere |
 | `remote-fanout-races-local-pending-mutation.test.ts` | Remote fanout races a locally pending mutation; no stuck divergence |
 | `crash-restart-rehydrates-and-drains-queue.test.ts` | Offline queue drains on reconnect; crash+restart rehydrates from server |
-| `full-partition-during-write-then-heal.test.ts` | Full partition during write; heal converges |
+| `full-partition-during-write-then-restoreNetwork.test.ts` | Full partition during write; restoreNetwork staysInSync |
 | `offline-crash-partition-lifecycle-matrix.test.ts` | Offline, crash, partition, flip-flop contest matrix |
 | `reupload-idempotent-no-duplicate-rows.test.ts` | Re-upload / repeated sets do not duplicate domain rows |
 | `cache-clear-preserves-pending-mutations.test.ts` | Cache clear wipes domain; durable pending uploads still converge |
@@ -1363,14 +1352,14 @@ with `s.apply` / `s.observe` / `s.until`, and domain reads from
 | File | Proves |
 |------|--------|
 | `dropped-live-repaired-by-refetch.test.ts` | Dropped live repaired by refetch; reorder; duplicate delivery |
-| `live-loss-dup-reorder-still-converges.test.ts` | Live loss/dup/reorder/asymmetric faults; live-loss + sync-hold converge after repair |
-| `sync-hold-reorder-dup-still-converges.test.ts` | Sync hold, reorder, and duplicate delivery still converge |
+| `live-loss-dup-reorder-still-staysInSync.test.ts` | Live loss/dup/reorder/asymmetric faults; live-loss + sync-hold converge after repair |
+| `sync-hold-reorder-dup-still-staysInSync.test.ts` | Sync pauseNetwork, reorder, and duplicate delivery still converge |
 | `sync-partitioned-while-live-delivers.test.ts` | Sync partitioned while live can deliver (refetch fanout mode) |
 | `held-sync-upload-retries-on-release.test.ts` | Held sync keeps upload pending; release + wake confirms |
 | `live-resend-on-reconnect-vs-drop.test.ts` | Default live drop vs `liveResendOnReconnect` while sync held |
 | `buffer-outbound-live-flush-on-reconnect.test.ts` | Default skip vs `bufferOutboundLive` flush on reconnect; live-before-sync + latency budget |
 | `oversized-fanout-falls-back-to-refetch.test.ts` | Oversized fanout images fall back to pushSeq-only; peers converge |
-| `push-without-row-images-wakes-refetch.test.ts` | No capture images → pushSeq-only wake+refetch still converges |
+| `push-without-row-images-wakes-refetch.test.ts` | No capture images → pushSeq-only wake+refetch still staysInSync |
 | `push-tables-filter-wakes-overlapping-scopes.test.ts` | Push `tables` filter skips non-overlapping scopes; overlapping wakes |
 
 ### Membership topics / room live (8)
@@ -1407,7 +1396,7 @@ with `s.apply` / `s.observe` / `s.until`, and domain reads from
 | `client-column-missing-from-server-snapshot-not-clobbered.test.ts` | Local-only column not nulled by intersection merge |
 | `new-domain-table-added-mid-life-hydrates-after-migrate.test.ts` | New table hydrates after migrate; old data intact |
 | `query-v1-v2-mixed-clients-converge.test.ts` | Mixed query wire names converge on live rows |
-| `unknown-mutation-name-rejected-and-rolled-back.test.ts` | Unknown mutation → reject + merge heal |
+| `unknown-mutation-name-rejected-and-rolled-back.test.ts` | Unknown mutation → reject + merge restoreNetwork |
 | `unknown-query-name-denied-detaches-scope.test.ts` | Unknown query → denied; domain kept; engine healthy |
 | `args-schema-tightened-server-rejects-stale-args.test.ts` | Tightened zod args → permanent reject; no crash loop |
 | `scope-hash-stable-under-param-key-order.test.ts` | Param key order does not double-subscribe |
@@ -1416,13 +1405,13 @@ with `s.apply` / `s.observe` / `s.until`, and domain reads from
 | `mixed-schema-tombstone-and-pending-rebase.test.ts` | Pending color mutate revives peer tombstone; color kept |
 | `server-schema-upgrade-mid-session.test.ts` | Server adds column mid-life; old clients ignore color |
 | `client-ahead-column-mutation-no-wipe.test.ts` | Client writes new column before server DDL; no wipe |
-| `schema-drift.pbt.test.ts` | DST restartWithSchema + mixed-variant clients converge |
+| `schema-drift.pbt.test.ts` | sim restartWithSchema + mixed-variant clients converge |
 
 ### Corruption / poison payloads (5)
 
 | File | Proves |
 |------|--------|
-| `corruption-safety.pbt.test.ts` | HTTP/pubsub corruption + storage tampers (incl. queued args / last_hash) heal |
+| `corruption-safety.pbt.test.ts` | HTTP/pubsub corruption + storage tampers (incl. queued args / last_hash) restoreNetwork |
 | `corrupt-queued-args-permanent-reject.test.ts` | Non-JSON queued args → `INVALID_ARGS`; healthy mutate drains |
 | `merge-snapshot-and-row-images.unit.test.ts` | Intersect, poison snapshot rollback, row-image skip bad ids |
 | `replay-malformed-args.unit.test.ts` | `JSON.parse` SyntaxError → permanent reject |
@@ -1482,7 +1471,7 @@ with `s.apply` / `s.observe` / `s.until`, and domain reads from
 
 | File | Proves |
 |------|--------|
-| `pubsub-publish-fails-after-commit-heals-by-refetch.test.ts` | Publish loss after commit; heal by refetch |
+| `pubsub-publish-fails-after-commit-heals-by-refetch.test.ts` | Publish loss after commit; restoreNetwork by refetch |
 | `replay-txn-rollback-no-pushseq-leak.test.ts` | In-txn rollback; no push leak; retry ok |
 | `concurrent-topic-seq-allocation-monotonic.test.ts` | Concurrent topic seq stays monotonic |
 | `authorize-throw-equals-denied.test.ts` | Authorize throw ≡ denied |
@@ -1514,7 +1503,7 @@ with `s.apply` / `s.observe` / `s.until`, and domain reads from
 | `seeded-workload-fuzz-determinism.test.ts` | Seeded workload determinism; corpus/env seeds |
 | `long-horizon-fuzz-hours-of-virtual-time.test.ts` | Long virtual-time fuzz with converge checkpoints |
 | `scope-churn-no-leaked-timers-or-subscriptions.test.ts` | Rapid scope churn; scheduler quiescent |
-| `tombstone-accumulation-still-converges.test.ts` | Many tombstones still converge (limitation 1) |
+| `tombstone-accumulation-still-staysInSync.test.ts` | Many tombstones still converge (limitation 1) |
 | `connect-disconnect-flapping-under-load.test.ts` | Connect/disconnect flap under load |
 | `mutation-storm-batching-order-preserved.test.ts` | Large offline queue drains in seq order |
 
@@ -1523,9 +1512,9 @@ with `s.apply` / `s.observe` / `s.until`, and domain reads from
 | File | Proves |
 |------|--------|
 | `undeclared-table-write-misses-table-filter-heals-on-wakeall.test.ts` | Undeclared write stale until wake (limitation 8) |
-| `wrong-topic-map-heals-on-refetch.test.ts` | Wrong topic-map wake; heal on refetch |
+| `wrong-topic-map-heals-on-refetch.test.ts` | Wrong topic-map wake; restoreNetwork on refetch |
 | `non-mutation-server-write-without-notify-stale-until-sweep.test.ts` | Direct server write without notify; heals via reconcile tick |
-| `non-mutation-catalog-insert-wakes-empty-hydrate.test.ts` | Empty hydrate + catalog INSERT; notify fast path + tick heal |
+| `non-mutation-catalog-insert-wakes-empty-hydrate.test.ts` | Empty hydrate + catalog INSERT; notify fast path + tick restoreNetwork |
 | `oob-empty-hydrate-heals-via-reconcile-tick.test.ts` | Chess-puzzle shaped empty hydrate + silent OOB INSERT/UPDATE heals without nudge |
 
 ### Unit / harness (3)
@@ -1571,7 +1560,7 @@ epoch-bump-mid-offline-session-then-drain
 epoch-bump-wipes-cache-preserves-pending-uploads
 fanout-row-cap-boundary-64-vs-65
 multi-table-converge
-full-partition-during-write-then-heal
+full-partition-during-write-then-restoreNetwork
 hard-query-limit-truncates-hydrate
 held-sync-upload-retries-on-release
 in-memory-watch-reacts-to-local-insert
@@ -1583,7 +1572,7 @@ late-retry-after-prune-idempotent
 leave-drops-room-topic-until-rejoin
 leave-join-topics-without-pubsub-remake
 live-fanout-peer-visibility-within-budget
-live-loss-dup-reorder-still-converges
+live-loss-dup-reorder-still-staysInSync
 live-resend-on-reconnect-vs-drop
 live-vs-sync-ordering-races-converge
 logout-login-same-device-no-bleed
@@ -1596,7 +1585,7 @@ mutation-storm-batching-order-preserved
 new-domain-table-added-mid-life-hydrates-after-migrate
 non-mutation-catalog-insert-wakes-empty-hydrate
 non-mutation-server-write-without-notify-stale-until-sweep
-non-owner-mutation-denied-owner-converges
+non-owner-mutation-denied-owner-staysInSync
 not-modified-does-not-clobber-pending
 null-vs-missing-column-in-snapshot
 offline-crash-partition-lifecycle-matrix
@@ -1643,9 +1632,9 @@ server-snapshot-with-unknown-column-merges-cleanly
 set-note-v1-v2-interleaved-converge
 single-client-mutate-uploads-and-persists
 soft-delete-tombstone-propagates-and-revives
-sync-hold-reorder-dup-still-converges
+sync-hold-reorder-dup-still-staysInSync
 sync-partitioned-while-live-delivers
-tombstone-accumulation-still-converges
+tombstone-accumulation-still-staysInSync
 tombstone-membership-wakes-removed-user-topic
 tombstone-row-image-deletes-live-row
 topic-sync-waits-for-mutations-drain

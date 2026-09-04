@@ -10,7 +10,7 @@ import type {
   RoomState,
 } from '../types';
 
-import { foldServerDomainState, serverDomainHash } from './settle';
+import { foldServerDomainState, serverDomainHash } from './wait-for-idle';
 
 export type RoomInvariantViolation = {
   readonly invariant: TigerInvariant | string;
@@ -100,7 +100,7 @@ export async function checkDurableQueueMatchesMemory(
 
 /**
  * Per-step invariants (always true mid-chaos). Client hash equality is only
- * checked at settle after heal.
+ * checked at settle after restoreNetwork.
  */
 export async function checkRoomInvariants<
   S extends RoomState,

@@ -1,27 +1,27 @@
 /**
- * Jest-only: jest-expo resolves `./sim-sql-fabric-real` to the Hermes mem stub
+ * Jest-only: jest-expo resolves `./sim-sql-backend-real` to the Hermes mem stub
  * after preset plugins run. Rewrite require/import strings on Program exit.
  */
 const path = require('node:path');
 
 const FABRIC_RE =
-  /^(\.\/sim-sql-fabric-real)(?:\.native)?(?:\.(tsx|ts|jsx|js))?$/;
+  /^(\.\/sim-sql-backend-real)(?:\.native)?(?:\.(tsx|ts|jsx|js))?$/;
 
 function rewriteFabricSource(value) {
   if (typeof value !== 'string') return value;
   const m = value.match(FABRIC_RE);
   if (m === null) return value;
-  return './sim-sql-fabric-real.node';
+  return './sim-sql-backend-real.node';
 }
 
 module.exports = function simSqlFabricJestPlugin() {
   return {
-    name: 'sim-sql-fabric-jest',
+    name: 'sim-sql-engines-jest',
     visitor: {
       Program: {
         exit(programPath, state) {
           const file = state.filename ?? state.file?.opts?.filename ?? '';
-          if (!file.endsWith(`${path.sep}sim-sql-fabric.ts`)) return;
+          if (!file.endsWith(`${path.sep}sim-sql-engines.ts`)) return;
           programPath.traverse({
             ImportDeclaration(importPath) {
               importPath.node.source.value = rewriteFabricSource(

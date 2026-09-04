@@ -1,5 +1,5 @@
-import type { BoundaryFaultController, SimHttpFault } from './boundary-faults';
 import { corruptJsonString } from './corruption-faults';
+import type { EdgeFaultController, SimHttpFault } from './edge-faults';
 import type {
   SimHttpRequest,
   SimHttpResponse,
@@ -40,7 +40,7 @@ function sendError(args: {
 }
 
 function takeMatchingRouteFault(
-  faults: BoundaryFaultController | undefined,
+  faults: EdgeFaultController | undefined,
   clientNode: string | undefined,
   kind: SimHttpFault['kind'],
   route: 'mutations' | 'query'
@@ -57,7 +57,7 @@ function applyPreRouteFaults(args: {
   readonly payload: SimHttpRequest;
   readonly serverId: EndpointId;
   readonly network: SyncNetwork;
-  readonly faults?: BoundaryFaultController;
+  readonly faults?: EdgeFaultController;
   readonly clientNode: string | undefined;
 }): 'continue' | 'done' {
   const { route, payload, serverId, network, faults, clientNode } = args;
@@ -122,7 +122,7 @@ async function dispatchQuery(args: {
   readonly serverId: EndpointId;
   readonly network: SyncNetwork;
   readonly handlers: SimHttpServerHandlers;
-  readonly faults?: BoundaryFaultController;
+  readonly faults?: EdgeFaultController;
   readonly clientNode: string | undefined;
 }): Promise<void> {
   const { payload, serverId, network, handlers, faults, clientNode } = args;
@@ -185,7 +185,7 @@ function applyMutationsPreHandlerFaults(args: {
   readonly payload: Extract<SimHttpRequest, { kind: 'mutations' }>;
   readonly serverId: EndpointId;
   readonly network: SyncNetwork;
-  readonly faults?: BoundaryFaultController;
+  readonly faults?: EdgeFaultController;
   readonly clientNode: string | undefined;
 }): 'continue' | 'done' {
   const { payload, serverId, network, faults, clientNode } = args;
@@ -237,7 +237,7 @@ type MutationsResponseFaults = {
 };
 
 function peekMutationsResponseFaults(
-  faults: BoundaryFaultController | undefined,
+  faults: EdgeFaultController | undefined,
   clientNode: string | undefined
 ): MutationsResponseFaults {
   if (clientNode === undefined) {
@@ -268,7 +268,7 @@ function peekMutationsResponseFaults(
 
 function wireMutationsBody(
   body: Awaited<ReturnType<SimHttpServerHandlers['handleMutations']>>,
-  faults: BoundaryFaultController | undefined,
+  faults: EdgeFaultController | undefined,
   clientNode: string | undefined
 ): typeof body {
   const corrupt = clientNode
@@ -289,7 +289,7 @@ async function dispatchMutations(args: {
   readonly serverId: EndpointId;
   readonly network: SyncNetwork;
   readonly handlers: SimHttpServerHandlers;
-  readonly faults?: BoundaryFaultController;
+  readonly faults?: EdgeFaultController;
   readonly clientNode: string | undefined;
   readonly onMutationsAccepted?: (clientNodeId: string) => void | Promise<void>;
 }): Promise<void> {
@@ -348,7 +348,7 @@ export async function dispatchSimHttpRequest(args: {
   readonly serverId: EndpointId;
   readonly network: SyncNetwork;
   readonly handlers: SimHttpServerHandlers;
-  readonly faults?: BoundaryFaultController;
+  readonly faults?: EdgeFaultController;
   readonly onMutationsAccepted?: (clientNodeId: string) => void | Promise<void>;
 }): Promise<void> {
   const { payload, serverId, network, handlers, faults } = args;

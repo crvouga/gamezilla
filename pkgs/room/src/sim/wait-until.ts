@@ -1,4 +1,4 @@
-import type { VirtualScheduler } from '@pkgs/dst';
+import type { VirtualScheduler } from '@pkgs/sim';
 
 /** Poll target for room kit wait helpers — predicates only. */
 export type UntilPredicate = () => boolean | Promise<boolean>;

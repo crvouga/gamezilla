@@ -1,15 +1,18 @@
-import { type Action, defineAction } from '@pkgs/dst';
-import { gen } from '@pkgs/dst/fast-check';
+import { type Action, defineAction } from '@pkgs/sim';
+import { gen } from '@pkgs/sim/fast-check';
 import fc from 'fast-check';
-import type { RoomCrashEvent } from '../boundary-faults';
-import { SIM_PBT_CRASH_EVENTS } from '../boundary-faults';
+import type { RoomCrashEvent } from '../edge-faults';
+import { SIM_PBT_CRASH_EVENTS } from '../edge-faults';
 import type { RoomFaultProfile, RoomNetSetArg } from '../network';
 import { ROOM_SERVER_ENDPOINT, roomClientEndpoint } from '../network';
 import type { DomainOp } from './actions';
 import type { RoomApp } from './app';
-import type { ByzantineInjectKind } from './byzantine';
-import { BYZANTINE_INJECT_KINDS, buildByzantineRaw } from './byzantine';
 import { NET_FAULT_PROFILES } from './faults';
+import type { MalformedMessageInjectKind } from './malformed-messages';
+import {
+  buildMalformedMessageRaw,
+  MALFORMED_MESSAGE_INJECT_KINDS,
+} from './malformed-messages';
 import {
   caps,
   clientIds,
@@ -23,8 +26,8 @@ import {
   releasableClients,
   serverCrashed,
 } from './observations';
-import { prepareClientsForConverge } from './play';
-import type { RoomSurface } from './surface';
+import { prepareClientsForInSync } from './play';
+import type { RoomSim } from './sim';
 
 type AddClientSpec = {
   readonly id: string;
@@ -42,9 +45,9 @@ type SetFaultsSpec = {
   readonly faults: RoomFaultProfile;
 };
 
-type ByzantineSpec = {
+type MalformedMessageSpec = {
   readonly clientId: string;
-  readonly kind: ByzantineInjectKind;
+  readonly kind: MalformedMessageInjectKind;
 };
 
 function arbClientId(ids: readonly string[]) {
@@ -55,7 +58,7 @@ function pickClientId(ids: readonly string[]) {
   return gen(arbClientId(ids));
 }
 
-export const addClient = defineAction<RoomSurface, [AddClientSpec]>({
+export const addClient = defineAction<RoomSim, [AddClientSpec]>({
   name: 'addClient',
   pool: false,
   act: async (s, spec) => {
@@ -65,7 +68,7 @@ export const addClient = defineAction<RoomSurface, [AddClientSpec]>({
 });
 
 export const dispatch = defineAction<
-  RoomSurface,
+  RoomSim,
   [{ readonly clientId: string; readonly payload: unknown }]
 >({
   name: 'dispatch',
@@ -78,7 +81,7 @@ export const dispatch = defineAction<
 });
 
 /** Scripted domain op — `s.apply(domain, { kind: 'domain', clientId, … })`. */
-export const domain = defineAction<RoomSurface, [DomainOp]>({
+export const domain = defineAction<RoomSim, [DomainOp]>({
   name: 'domain',
   pool: false,
   act: (s, op) => {
@@ -89,15 +92,15 @@ export const domain = defineAction<RoomSurface, [DomainOp]>({
 });
 
 /** Random pool domain action — draws from the app's domainOpArbs. */
-export function domainAction(app: RoomApp): Action<RoomSurface, [DomainOp]> {
-  return defineAction<RoomSurface, [DomainOp]>({
+export function domainAction(app: RoomApp): Action<RoomSim, [DomainOp]> {
+  return defineAction<RoomSim, [DomainOp]>({
     name: 'domain',
     enabled: (s) => {
       const ids = connected(s);
       return ids.length > 0 && app.domainOpArbs({ clientIds: ids }).length > 0;
     },
     weight: 3,
-    draw: (s) => {
+    sample: (s) => {
       const ids = connected(s);
       const arbs = app.domainOpArbs({ clientIds: ids });
       return gen(fc.oneof(...arbs));
@@ -110,11 +113,11 @@ export function domainAction(app: RoomApp): Action<RoomSurface, [DomainOp]> {
   });
 }
 
-export const hold = defineAction<RoomSurface, [string]>({
-  name: 'hold',
+export const pauseNetwork = defineAction<RoomSim, [string]>({
+  name: 'pauseNetwork',
   enabled: (s) => clientIds(s).length > 0,
   weight: (s) => (linkUpClients(s).length > 0 ? 1 : 0),
-  draw: (s) => pickClientId(linkUpClients(s)),
+  sample: (s) => pickClientId(linkUpClients(s)),
   act: (s, id) => {
     s.kit.net(id).set('hold');
   },
@@ -122,62 +125,62 @@ export const hold = defineAction<RoomSurface, [string]>({
 
 /**
  * Restore a link to `ok`. Walks only release held / lossy links: the loopback
- * transport has no heartbeat, so a `down` link resyncs only through `heal`
- * (revive) — scripted pins that release a down link reconnect explicitly.
+ * transport has no heartbeat, so a `down` link resyncs only through `restoreNetwork`
+ * (recoverAll) — scripted pins that release a down link reconnect explicitly.
  */
-export const release = defineAction<RoomSurface, [string]>({
-  name: 'release',
+export const resumeNetwork = defineAction<RoomSim, [string]>({
+  name: 'resumeNetwork',
   enabled: (s) => clientIds(s).length > 0,
   weight: (s) => (releasableClients(s).length > 0 ? 1 : 0),
-  draw: (s) => pickClientId(releasableClients(s)),
+  sample: (s) => pickClientId(releasableClients(s)),
   act: (s, id) => {
     s.kit.net(id).set('ok');
   },
 });
 
-export const down = defineAction<RoomSurface, [string]>({
+export const down = defineAction<RoomSim, [string]>({
   name: 'down',
   enabled: (s) => clientIds(s).length > 0,
-  draw: (s) => pickClientId(clientIds(s)),
+  sample: (s) => pickClientId(clientIds(s)),
   act: (s, id) => {
     s.kit.net(id).set('down');
   },
 });
 
-export const disconnect = defineAction<RoomSurface, [string]>({
+export const disconnect = defineAction<RoomSim, [string]>({
   name: 'disconnect',
   enabled: (s) => clientIds(s).length > 0,
-  draw: (s) => pickClientId(clientIds(s)),
+  sample: (s) => pickClientId(clientIds(s)),
   act: async (s, id) => {
     await s.kit.clients.get(id)?.disconnect();
   },
 });
 
-export const connect = defineAction<RoomSurface, [string]>({
+export const connect = defineAction<RoomSim, [string]>({
   name: 'connect',
   enabled: (s) => clientIds(s).length > 0,
-  draw: (s) => pickClientId(clientIds(s)),
+  sample: (s) => pickClientId(clientIds(s)),
   act: async (s, id) => {
     await s.kit.clients.get(id)?.connect();
   },
 });
 
-export const takeOver = defineAction<RoomSurface, [string]>({
+export const takeOver = defineAction<RoomSim, [string]>({
   name: 'takeOver',
   enabled: (s) => clientIds(s).length > 0,
-  draw: (s) => pickClientId(clientIds(s)),
+  sample: (s) => pickClientId(clientIds(s)),
   act: async (s, id) => {
     await s.kit.node(id).takeOver();
   },
 });
 
-export const crash = defineAction<RoomSurface, [string]>({
+export const crash = defineAction<RoomSim, [string]>({
   name: 'crash',
   enabled: (s) => {
     const crashed = new Set(crashedIds(s));
     return clientIds(s).some((id) => !crashed.has(id));
   },
-  draw: (s) => {
+  sample: (s) => {
     const crashed = new Set(crashedIds(s));
     return pickClientId(clientIds(s).filter((id) => !crashed.has(id)));
   },
@@ -186,10 +189,10 @@ export const crash = defineAction<RoomSurface, [string]>({
   },
 });
 
-export const restart = defineAction<RoomSurface, [string]>({
+export const restart = defineAction<RoomSim, [string]>({
   name: 'restart',
   enabled: (s) => clientIds(s).length > 0,
-  draw: (s) => pickClientId(clientIds(s)),
+  sample: (s) => pickClientId(clientIds(s)),
   act: async (s, id) => {
     const c = s.kit.clients.get(id);
     if (c !== undefined && !c.isCrashed()) await s.kit.node(id).crash();
@@ -197,21 +200,21 @@ export const restart = defineAction<RoomSurface, [string]>({
   },
 });
 
-export const clearLocalData = defineAction<RoomSurface, [string]>({
+export const clearLocalData = defineAction<RoomSim, [string]>({
   name: 'clearLocalData',
   enabled: (s) => clientIds(s).length > 0,
-  draw: (s) => pickClientId(clientIds(s)),
+  sample: (s) => pickClientId(clientIds(s)),
   act: async (s, id) => {
     await s.kit.node(id).clearLocalData();
   },
 });
 
 /** Mild lossy / reordering / duplicating link on one client. */
-export const setFaults = defineAction<RoomSurface, [SetFaultsSpec]>({
+export const setFaults = defineAction<RoomSim, [SetFaultsSpec]>({
   name: 'setFaults',
   enabled: (s) => clientIds(s).length > 0,
   weight: (s) => (linkUpClients(s).length > 0 ? 1 : 0),
-  draw: (s) =>
+  sample: (s) =>
     gen(
       fc.record({
         clientId: arbClientId(linkUpClients(s)),
@@ -223,17 +226,17 @@ export const setFaults = defineAction<RoomSurface, [SetFaultsSpec]>({
   },
 });
 
-export const asymmetricLink = defineAction<RoomSurface, [string]>({
+export const asymmetricLink = defineAction<RoomSim, [string]>({
   name: 'asymmetricLink',
   enabled: (s) => clientIds(s).length > 0,
   weight: (s) => (linkUpClients(s).length > 0 ? 1 : 0),
-  draw: (s) => pickClientId(linkUpClients(s)),
+  sample: (s) => pickClientId(linkUpClients(s)),
   act: (s, id) => {
     s.kit.net(id).set({ toClient: 'hold', toServer: 'ok' });
   },
 });
 
-export const serverCrash = defineAction<RoomSurface>({
+export const serverCrash = defineAction<RoomSim>({
   name: 'serverCrash',
   enabled: (s) => !serverCrashed(s),
   act: async (s) => {
@@ -241,7 +244,7 @@ export const serverCrash = defineAction<RoomSurface>({
   },
 });
 
-export const serverRestart = defineAction<RoomSurface>({
+export const serverRestart = defineAction<RoomSim>({
   name: 'serverRestart',
   enabled: (s) => serverCrashed(s),
   act: async (s) => {
@@ -249,18 +252,18 @@ export const serverRestart = defineAction<RoomSurface>({
   },
 });
 
-export const partition = defineAction<RoomSurface, [string]>({
+export const partition = defineAction<RoomSim, [string]>({
   name: 'partition',
   enabled: (s) => caps(s).includes('partition') && clientIds(s).length > 0,
   weight: (s) => (partitioned(s).length === 0 ? 2 : 1),
-  draw: (s) => pickClientId(clientIds(s)),
+  sample: (s) => pickClientId(clientIds(s)),
   act: (s, id) => {
     s.session.network.partition(ROOM_SERVER_ENDPOINT, roomClientEndpoint(id));
   },
 });
 
-export const heal = defineAction<RoomSurface>({
-  name: 'heal',
+export const restoreNetwork = defineAction<RoomSim>({
+  name: 'restoreNetwork',
   weight: (s) =>
     Math.max(
       1,
@@ -268,34 +271,34 @@ export const heal = defineAction<RoomSurface>({
     ),
   act: async (s) => {
     if (caps(s).includes('partition')) s.session.network.healAll();
-    await prepareClientsForConverge(s.kit);
-    await s.kit.revive();
+    await prepareClientsForInSync(s.kit);
+    await s.kit.recoverAll();
   },
 });
 
-export const revive = defineAction<RoomSurface>({
-  name: 'revive',
+export const recoverAll = defineAction<RoomSim>({
+  name: 'recoverAll',
   pool: false,
   act: async (s) => {
-    await prepareClientsForConverge(s.kit);
-    await s.kit.revive();
+    await prepareClientsForInSync(s.kit);
+    await s.kit.recoverAll();
   },
 });
 
-export const clearFaults = defineAction<RoomSurface>({
+export const clearFaults = defineAction<RoomSim>({
   name: 'clearFaults',
   pool: false,
   act: (s) => {
-    s.kit.clearBoundaryFaults();
+    s.kit.clearEdgeFaults();
   },
 });
 
-/** Arm a boundary crash on a live client; `restart` / `heal` bring it back. */
-export const armCrashAt = defineAction<RoomSurface, [ArmCrashAtSpec]>({
+/** Arm a boundary crash on a live client; `restart` / `restoreNetwork` bring it back. */
+export const armCrashAt = defineAction<RoomSim, [ArmCrashAtSpec]>({
   name: 'armCrashAt',
   enabled: (s) => connected(s).length > 0,
   weight: 1,
-  draw: (s) =>
+  sample: (s) =>
     gen(
       fc.record({
         clientId: arbClientId(connected(s)),
@@ -308,21 +311,21 @@ export const armCrashAt = defineAction<RoomSurface, [ArmCrashAtSpec]>({
 });
 
 /** Inject one catalogued hostile / malformed frame on a client's link. */
-export const byzantine = defineAction<RoomSurface, [ByzantineSpec]>({
-  name: 'byzantine',
+export const malformedMessages = defineAction<RoomSim, [MalformedMessageSpec]>({
+  name: 'malformedMessages',
   enabled: (s) => connected(s).length > 0,
   weight: 1,
-  draw: (s) =>
+  sample: (s) =>
     gen(
       fc.record({
         clientId: arbClientId(connected(s)),
-        kind: fc.constantFrom(...BYZANTINE_INJECT_KINDS),
+        kind: fc.constantFrom(...MALFORMED_MESSAGE_INJECT_KINDS),
       })
     ),
   act: (s, spec) => {
     const c = s.kit.clients.get(spec.clientId);
     if (c === undefined) return;
-    const built = buildByzantineRaw(spec.kind, clock(s));
+    const built = buildMalformedMessageRaw(spec.kind, clock(s));
     if (built.direction === 'toServer') {
       c.injectToServer(built.raw, { direct: true });
       return;
@@ -332,7 +335,7 @@ export const byzantine = defineAction<RoomSurface, [ByzantineSpec]>({
 });
 
 export const injectToServer = defineAction<
-  RoomSurface,
+  RoomSim,
   [
     {
       readonly clientId: string;
@@ -351,7 +354,7 @@ export const injectToServer = defineAction<
 });
 
 export const injectFromServer = defineAction<
-  RoomSurface,
+  RoomSim,
   [{ readonly clientId: string; readonly raw: unknown }]
 >({
   name: 'injectFromServer',
@@ -362,7 +365,7 @@ export const injectFromServer = defineAction<
 });
 
 export const setNet = defineAction<
-  RoomSurface,
+  RoomSim,
   [{ readonly clientId: string; readonly next: RoomNetSetArg }]
 >({
   name: 'setNet',
@@ -372,7 +375,7 @@ export const setNet = defineAction<
   },
 });
 
-export const addSpectator = defineAction<RoomSurface>({
+export const addSpectator = defineAction<RoomSim>({
   name: 'addSpectator',
   enabled: (s) => !s.kit.clients.has('spec0'),
   act: async (s) => {
@@ -385,12 +388,12 @@ export const addSpectator = defineAction<RoomSurface>({
   },
 });
 
-/** Walk / explore pool — one entry per randomly sampled library fault. */
+/** RandomActionsReport / explore pool — one entry per randomly sampled library fault. */
 export const LIBRARY_ACTIONS = [
-  hold,
-  release,
+  pauseNetwork,
+  resumeNetwork,
   down,
-  heal,
+  restoreNetwork,
   partition,
   crash,
   restart,
@@ -404,7 +407,7 @@ export const LIBRARY_ACTIONS = [
   addSpectator,
   clearLocalData,
   armCrashAt,
-  byzantine,
+  malformedMessages,
 ] as const;
 
 /**
@@ -418,5 +421,5 @@ export const SCRIPTED_ACTIONS = [
   injectFromServer,
   setNet,
   clearFaults,
-  revive,
+  recoverAll,
 ] as const;

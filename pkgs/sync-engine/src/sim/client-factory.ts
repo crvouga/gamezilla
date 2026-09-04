@@ -13,27 +13,27 @@ import type {
 import type { QueryRegistry } from '../queries/core/types';
 import type { QueryChannelsCtx } from '../shared/push-payload';
 import type { TopicMap } from '../shared/topic-map';
-import type { BoundaryFaultController } from './boundary-faults';
 import {
   createEngineFromParts,
   createMutationSide,
   type SimAuthControl,
 } from './client-factory-parts';
-import type { SimClientHandle, SimClientLifecycle } from './client-handle';
-import { decorateClientSurface } from './client-surface';
+import { decorateSimClient } from './decorate-sim-client';
 import type { SimPushChannels } from './domain-pack';
+import type { EdgeFaultController } from './edge-faults';
 import type { SimHttpClient } from './http-bridge';
 import { createSerialSqlClient } from './serial-sql';
 import type { SimServer, SimServerAuth } from './server';
+import type { SimClient, SimClientLifecycle } from './sim-client';
 
 export type { SimAuthControl, SimAuthStatus } from './client-factory-parts';
 export type {
+  SimClient,
   SimClientDbBundle,
-  SimClientHandle,
   SimClientLifecycle,
   SimRejection,
   SimSubscription,
-} from './client-handle';
+} from './sim-client';
 
 export type BuildSimClientArgs = {
   readonly id: string;
@@ -69,7 +69,7 @@ export type BuildSimClientArgs = {
   readonly bufferOutboundLive?: boolean;
   readonly authControl?: SimAuthControl;
   readonly schemaEpoch?: number;
-  readonly faults?: BoundaryFaultController;
+  readonly faults?: EdgeFaultController;
   readonly storagePressure?: import('./storage-pressure').StoragePressureController;
   /** Reuse an existing serial SqlClient (preserveLocalDb restart). */
   readonly existingDb?: {
@@ -176,7 +176,7 @@ async function connectEngine(
 /** Build one local sync engine + mutation client on Bun SQLite. */
 export async function buildSimClient(
   args: BuildSimClientArgs
-): Promise<SimClientHandle> {
+): Promise<SimClient> {
   const rawDb = args.existingDb?.raw ?? (await openMemoryDb());
   let db: SqlClient;
   if (args.existingDb !== undefined) {
@@ -220,5 +220,5 @@ export async function buildSimClient(
       await rawDb.disconnect();
     },
   };
-  return decorateClientSurface(base);
+  return decorateSimClient(base);
 }

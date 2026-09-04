@@ -8,9 +8,10 @@
       "./src/*.tsx",
       "./src/*/index.ts"
     ],
-    "./testing": [
-      "./src/testing/index.ts"
-    ]
+    "./in-memory": [
+      "./src/in-memory/index.ts"
+    ],
+    "./in-memory/contract": "./src/in-memory/contract.ts"
   },
   "scripts": {
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",

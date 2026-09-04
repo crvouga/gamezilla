@@ -22,7 +22,7 @@ package. Prefer scenarios + fixtures over speculation about “how room works.�
 | Multi-device / multi-tab | Roster keyed by `(identity, clientId)`; session take-over on reconnect |
 | Time-sensitive rules (flag / deadline) | Modules emit `Schedule` effects; server wake injects commands; clients may arm optimistic timers |
 | Cloudflare hosting | DO adapter multiplexes modules, hibernates sockets, persists per-key log + pending schedules |
-| Deterministic regression | Private DST harness (`src/sim/`) — one seed → identical timeline |
+| Deterministic regression | Sim harness (`src/sim/`, `@pkgs/room/sim`) — one seed → identical timeline |
 
 **Out of scope:** cross-topic SQL sync, auth sessions, REST CRUD,
 bandwidth/clock-drift compensation beyond server `command.ts`, broadcasting
@@ -52,7 +52,7 @@ effects on the wire, real chess competition UI clocks.
 client-only checks (`never`, lagging peer) stay client-scoped.
 
 **Required on every `RoomModule`:** `hash(state)` — deterministic domain hash
-(see root [`DETERMINISM.md`](../../../DETERMINISM.md)). Used by DST settle and
+(see root [`DETERMINISM.md`](../../../DETERMINISM.md)). Used by sim settle and
 by game modules in product.
 
 ---
@@ -64,13 +64,13 @@ by game modules in product.
 2. **Offline-first open** — `RoomClient.open` hydrates local storage and attaches
    transport even when connect fails; UI can dispatch while disconnected.
 3. **Playgrounds / widgets** — `@pkgs/room-widgets` and tests use
-   `@pkgs/room/tests` (`openLoopbackRoom`, `TestCounterModule`) for in-process
+   `@pkgs/room/sim` (`openLoopbackRoom`, `TestCounterModule`) for in-process
    multi-client demos without a Worker.
 4. **Authoring a game** — implement `RoomModule` (`initialState` / `handle` /
    `reduce` / `hash`), optionally emit `Schedule` / `CancelSchedule` effects for
    clocks; register in spaces’ module list + DO `modules: […]`.
 5. **Module conformance** — games call `runModuleConformance` from
-   `@pkgs/room/tests` (hash / totality / fold / fuzz / optional deadline hooks).
+   `@pkgs/room/sim` (hash / totality / fold / fuzz / optional deadline hooks).
 
 ---
 
@@ -88,38 +88,32 @@ Core vs adapters stay split so callers opt into a runtime explicitly.
 | `@pkgs/room/client/adapters/storage/key-value` | `KeyValueClientRoomStorage` (async `Kv`) |
 | `@pkgs/room/server/adapters/memory` | `InMemoryRoomStorage` |
 | `@pkgs/room/server/adapters/durable-object` | `createDurableObjectAdapter`, DO storage + alarm schedule |
-| `@pkgs/room/tests` | `openLoopbackRoom`, **`bootRoomSurface` / `registerRoomLibrary` / `roomVirtual`**, kit (`runModuleConformance`, …), fixtures (counter / deadline / authz / match-clock) |
+| `@pkgs/room/sim` | `openLoopbackRoom`, **`bootRoomSim` / `registerRoomLibrary` / `roomVirtual`**, kit (`runModuleConformance`, …), fixtures (counter / deadline / authz / match-clock) |
 
-`src/sim/` implementation stays **private** (relative imports from package
-tests). Games should declare their own `defineSystem` from `@pkgs/dst` over
-`bootRoomSurface` / `roomVirtual` / `registerRoomLibrary` (`@pkgs/room/tests`)
-and drive scripts with `system.script` / `.explore` / `.replay`, not deep `sim/`
-paths.
+`src/sim/` implementation is exported as `@pkgs/room/sim`. Games should declare
+their own `defineSystem` from `@pkgs/sim` over
+`bootRoomSim` / `roomVirtual` / `registerRoomLibrary` (`@pkgs/room/sim`)
+and drive runs with `system.run` / `.explore` / `.replay`, not deep relative
+`sim/` paths.
 
 ---
 
 ## Layout
 
 ```text
-pkgs/room/src/
-├── client/core/          RoomClient engine, fold, meta, ports, optimistic effects
-├── client/adapters/      websocket transport; memory/web/key-value storage
-├── client/react/         snapshot + registry hooks
-├── server/core/          RoomServer, auth/storage ports, injectCommand
-├── server/adapters/      memory + durable-object (alarms, KV schedules)
-├── protocol/             wire frames + ids
-├── effects/              Schedule/CancelSchedule + RoomEffectHandler port
-├── sim/                  private sim harness (kit, net, settle)
-│   └── scenario/         boot + actions / properties / surface
-└── tests/
-    ├── fixtures/         Counter, Deadline, Authz, MatchClock modules
-    ├── harness/          openLoopbackRoom + LoopbackRoomTransport
-    ├── kit/              Module-conformance API + M1–M8 scenarios
-    ├── scenario/         runRoomSeed / read-state helpers
-    └── scenarios/        Engine scenarios *.sim.test.ts
+pkgs/room/
+├── src/
+│   ├── client/core/          RoomClient engine, fold, meta, ports, optimistic effects
+│   ├── client/adapters/      websocket transport; memory/web/key-value storage
+│   ├── client/react/         snapshot + registry hooks
+│   ├── server/core/          RoomServer, auth/storage ports, injectCommand
+│   ├── server/adapters/      memory + durable-object (alarms, KV schedules)
+│   ├── protocol/             wire frames + ids
+│   ├── effects/              Schedule/CancelSchedule + RoomEffectHandler port
+│   └── sim/                  sim harness (exported as `@pkgs/room/sim`)
+│       └── scenario/         boot + actions / properties / S
+└── tests/                    black-box against package exports
 ```
-
-Facade: [`testkit.ts`](./testkit.ts) → package export `@pkgs/room/tests`.
 
 ---
 
@@ -203,7 +197,7 @@ Helper stacks:
 
 ### Where wakes land
 
-| Host | Wake | Inject path |
+| Runtime | Wake | Inject path |
 |------|------|-------------|
 | Cloudflare DO | `storage.setAlarm` → `alarm()` | `RoomServer.injectCommand` |
 | Sim / loopback server | `io.timers` (+ sim `serverQueue`) | `RoomServer.injectCommand` |
@@ -284,9 +278,9 @@ replays are idempotent.
 
 | Tool | When to use |
 |------|-------------|
-| **`openLoopbackRoom`** (`@pkgs/room/tests`) | Fast in-process unit/integration with injected `Io`; real `RoomClient` + `RoomServer`, no net faults; Schedule via timers |
-| **`system.script`** (`@pkgs/dst`) | Room virtual host → `Script<RoomSurface>` driven by `apply` / `observe` / `until`: partitions, delays, soft disconnect, crash/restart, hash converge, Schedule wakes |
-| **`system.explore` / `s.walk`** | Weighted walk over the registered pool (or an `actions:` slice) + shrink; seeded `s.walk` for determinism / long workloads |
+| **`openLoopbackRoom`** (`@pkgs/room/sim`) | Fast in-process unit/integration with injected `Io`; real `RoomClient` + `RoomServer`, no net faults; Schedule via timers |
+| **`system.run`** (`@pkgs/sim`) | Room virtual runtime → `Run<RoomSim>` driven by `apply` / `read` / `until`: partitions, delays, soft disconnect, crash/restart, hash converge, Schedule wakes |
+| **`system.explore` / `s.randomActions`** | Weighted walk over the registered pool (or an `actions:` slice) + shrink; seeded `s.randomActions` for determinism / long workloads |
 | **DO / adapter tests** | Hibernation, session take-over, per-key storage, alarms, WS heartbeat |
 | **`runModuleConformance`** | Game-module kit (purity, hash, totality, fold, fuzz) |
 
@@ -301,20 +295,20 @@ bun run test:pbt:random                # nightly random exploration
 
 ### Shrinking system kernel (`sim/scenario/`)
 
-Runs and action replay are owned by `@pkgs/dst`. A room app declares its own
-`defineSystem`, boots the surface with `bootRoomSurface`, registers the virtual
-host, and picks up the shared library + domain action pool and standing
+Runs and action replay are owned by `@pkgs/sim`. A room app declares its own
+`defineSystem`, boots `S` with `bootRoomSim`, registers the virtual
+runtime, and picks up the shared library + domain action pool and standing
 properties via `registerRoomLibrary`:
 
 ```ts
 // tests/apps/counter/system.ts
-export const counterSystem = defineSystem<RoomSurface, RoomArgs>({
+export const counterSystem = defineSystem<RoomSim, RoomArgs>({
   name: 'room.counter',
   args: ROOM_ARGS,
-  draw: ROOM_DRAW,
-  create: (session, args) => bootRoomSurface(session, counterApp, args),
+  sample: ROOM_DRAW,
+  create: (session, args) => bootRoomSim(session, counterApp, args),
 });
-counterSystem.host({ default: true, name: 'virtual', create: roomVirtual });
+counterSystem.runtime({ default: true, name: 'virtual', create: roomVirtual });
 registerRoomLibrary(counterSystem, counterApp);
 
 // shrinking PBT — script + weighted walk + shrink
@@ -325,29 +319,29 @@ await counterSystem.explore({
   seed: 31,
   episodes: 8,
   steps: 14,
-  actions: ['hold', 'down', 'release', 'domain', 'heal'],
+  actions: ['hold', 'down', 'release', 'domain', 'restoreNetwork'],
 });
 
 // scripted pin
-await using s = await counterSystem.script({
+await using s = await counterSystem.run({
   seed,
   args: { clientCount: 2 },
 });
-await s.apply(hold, 'c0');
+await s.apply(pauseNetwork, 'c0');
 await s.apply(domain, domainOp('c0', 'increment'));
-await s.apply(release, 'c0');
-await expectConverged(s);
+await s.apply(resumeNetwork, 'c0');
+await expectInSync(s);
 ```
 
 1. Every library action (`hold`, `down`, `crash`, `armCrashAt`, `injectToServer`,
-   …) is a pool action with its own `draw`; `app.domainOpArbs` feeds `domain`
-2. Const fault catalogs (`NET_FAULT_PROFILES`, `BYZANTINE_INJECT_KINDS`,
+   …) is a pool action with its own `sample`; `app.domainOpArbs` feeds `domain`
+2. Const fault catalogs (`NET_FAULT_PROFILES`, `MALFORMED_MESSAGE_INJECT_KINDS`,
    crash events) are drawn by the pool actions and exhausted by slice PBTs via
    `explore({ actions: [...] })`
-3. Determinism / long workloads: `s.walk({ steps, time })` twice with the same
-   seed must yield identical `choices` and converged hashes
+3. Determinism / long workloads: `s.randomActions({ steps, time })` twice with the same
+   seed must yield identical `choices` and inSync hashes
 
-On find: `explore` returns a shrunk `Repro`; replay it with
+On find: `explore` returns a shrunk `Recording`; replay it with
 `counterSystem.replay(repro)` → pin in `room-system.scenario.pbt.test.ts` or a
 named `.sim.test.ts` → log in [`PBT_FINDINGS.md`](../../../PBT_FINDINGS.md).
 
@@ -355,13 +349,13 @@ named `.sim.test.ts` → log in [`PBT_FINDINGS.md`](../../../PBT_FINDINGS.md).
 
 | Concept | API | Notes |
 |---------|-----|-------|
-| Time | `s.elapse` / `s.until` / `s.never` | Virtual clock + net queue; timers fire on scheduler advance |
-| Network | `s.apply(hold\|release\|…)` / mesh actions | Asymmetric `{ toServer, toClient }` links; heal restores |
+| Time | `s.advanceTime` / `s.until` / `s.never` | Virtual clock + net queue; timers fire on scheduler advance |
+| Network | `s.apply(pauseNetwork\|release\|…)` / mesh actions | Asymmetric `{ toServer, toClient }` links; restoreNetwork restores |
 | Node | `disconnect` / `reconnect` / `takeOver` / `crash` / `restart` / `clearLocalData` | Soft session + hard crash with persisted client storage |
 | Client | `dispatch`, `snapshot`, `hash`, `isSynced`, `isConnected`, `isCrashed`, inject helpers | Black-box |
 | Server | `serverSnapshot()`, `serverHash()`, `serverCrash` / `serverRestart`, `storage` | Storage log fold (authority); hydrate on restart |
-| Settle | `expectConverged(s)` / `revive` + `s.until(converged)` | Clear arms, revive crashed nodes, heal nets, soft-cycle, drain; hashes == log fold; queues drained; lastSeq == tip |
-| Invariants | `s.observe(invariantViolations)` / properties | Mid-chaos: seq contiguity, live-vs-log, dedup stable, durable≈memory queue |
+| Settle | `expectInSync(s)` / `recoverAll` + `s.until(inSync)` | Clear arms, recoverAll crashed nodes, restoreNetwork nets, soft-cycle, drain; hashes == log fold; queues drained; lastSeq == tip |
+| Invariants | `s.read(invariantViolations)` / properties | Mid-chaos: seq contiguity, live-vs-log, dedup stable, durable≈memory queue |
 
 Connectivity triad — do not conflate:
 
@@ -371,7 +365,7 @@ Connectivity triad — do not conflate:
 
 **Not simulated:** real WebSocket, full CF DO hibernation runtime (covered by DO unit tests).
 
-### Fixtures (`@pkgs/room/tests`)
+### Fixtures (`@pkgs/room/sim`)
 
 | Fixture | Purpose |
 |---------|---------|
@@ -384,21 +378,21 @@ Connectivity triad — do not conflate:
 
 ```ts
 import { describe, expect, test } from 'bun:test';
-import { expectConverged } from '@pkgs/room/tests';
-import { addClient, dispatch, hold, release } from '../../sim/scenario';
+import { expectInSync } from '@pkgs/room/sim';
+import { addClient, dispatch, pauseNetwork, resumeNetwork } from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
 import { Increment, counterValue } from '../fixtures/counter-module';
-import { readClient, readServer } from '../scenario/read-state';
+import { readClient, readServer } from '../sim/read-state';
 
 describe('room sim', () => {
-  test('partition then heal', async () => {
-    await using s = await counterSystem.script({ seed: 3 });
+  test('partition then restoreNetwork', async () => {
+    await using s = await counterSystem.run({ seed: 3 });
     await s.apply(addClient, { id: 'alice' });
     await s.apply(addClient, { id: 'bob' });
-    await s.apply(hold, 'bob');
+    await s.apply(pauseNetwork, 'bob');
     await s.apply(dispatch, { clientId: 'alice', payload: Increment({}) });
-    await s.apply(release, 'bob');
-    await expectConverged(s);
+    await s.apply(resumeNetwork, 'bob');
+    await expectInSync(s);
     expect(counterValue(await readServer(s))).toBe(1);
     expect(counterValue(await readClient(s, 'alice'))).toBe(1);
   });
@@ -409,14 +403,14 @@ Games outside this package:
 
 ```ts
 import {
-  bootRoomSurface,
+  bootRoomSim,
   registerRoomLibrary,
   ROOM_ARGS,
   ROOM_DRAW,
   roomVirtual,
   runModuleConformance,
-} from '@pkgs/room/tests';
-import { defineSystem } from '@pkgs/dst';
+} from '@pkgs/room/sim';
+import { defineSystem } from '@pkgs/sim';
 ```
 
 ---
@@ -428,10 +422,10 @@ import { defineSystem } from '@pkgs/dst';
   Wall helpers only in tests / `@io-wall-ok` entry roots (repo-wide rule).
 - Tiger size caps (`biome.json`) — split helpers; no size-rule ignores.
 - Domain hard-delete rules belong to sync-engine SQL; room uses event fold only.
-- Prefer extending `tests/scenarios/*.sim.test.ts` for multi-client / partition /
+- Prefer extending `tests/*.test.ts` for multi-client / partition /
   offline / clock regressions before adding wall sleeps to loopback tests.
 - When changing `handle` / wire / schedule semantics, update this catalog and
-  keep **server-first** asserts in DST.
+  keep **server-first** asserts in sim.
 
 ### Feedback / design checklist
 
@@ -441,7 +435,7 @@ When proposing a change, check:
 2. If time is involved, is the wake a `Schedule` effect (not a client-only timer)?
 3. Are effects optional on success and absent on reject?
 4. Will unknown custom effects fail loudly (handler claim protocol)?
-5. Is there a DST scenario (or kit row) that would catch the regression?
+5. Is there a sim scenario (or kit row) that would catch the regression?
 6. Does `hash(state)` stay deterministic (see `DETERMINISM.md`)?
 
 ---
@@ -478,16 +472,16 @@ When proposing a change, check:
 Complete inventory of what this package currently proves. Prefer adding rows
 here when you add coverage. Paths are under `pkgs/room/src/` unless noted.
 
-### Engine DST — connectivity / converge (`tests/scenarios/`)
+### Engine sim — connectivity / converge (`tests/)
 
 | File | ID | Asserts / use case |
 |------|----|--------------------|
 | `single-client-increment.sim.test.ts` | E1 | One client increments; settles; domain count/hash matches server |
 | `two-client-converge.sim.test.ts` | E1 | Alice+Bob mutual increments → equal hashes, count=3, roster size 2 |
-| `partition-then-heal.sim.test.ts` | E1 | `net(bob).hold` during Alice write → Bob `never` sees update → heal → converge |
+| `partition-then-restoreNetwork.sim.test.ts` | E1 | `net(bob).hold` during Alice write → Bob `never` sees update → restoreNetwork → converge |
 | `offline-dispatch-then-sync.sim.test.ts` | E1/E6 | Soft disconnect → optimistic increment → peer `never` sees → reconnect → converge |
-| `hold-during-flush.sim.test.ts` | E1/E6 | Offline queue + peer hold during flush → heal → converge |
-| `down-then-heal.sim.test.ts` | E1 | `net.down` drops frames; soft cycle + heal → converge |
+| `hold-during-flush.sim.test.ts` | E1/E6 | Offline queue + peer hold during flush → restoreNetwork → converge |
+| `down-then-restoreNetwork.sim.test.ts` | E1 | `net.down` drops frames; soft cycle + restoreNetwork → converge |
 | `down-during-welcome.sim.test.ts` | E1/E3 | Join under down; reconnect → converge |
 | `hold-during-sync.sim.test.ts` | E1/E3 | Long hold then release mid catch-up → converge |
 | `triad-matrix-smoke.sim.test.ts` | E1/E6 | Soft disconnect ∩ hold ∩ down remain independent |
@@ -499,7 +493,7 @@ here when you add coverage. Paths are under `pkgs/room/src/` unless noted.
 | `two-topic-shared-storage.sim.test.ts` | H | Shared storage, two topics; A faults leave B alone |
 | `spectator-fanout-no-domain-perturb.sim.test.ts` | E1/H | Extra joiners do not change domain hash |
 
-### Engine DST — ordering / offline queues / chaos
+### Engine sim — ordering / offline queues / chaos
 
 | File | ID | Asserts / use case |
 |------|----|--------------------|
@@ -510,20 +504,20 @@ here when you add coverage. Paths are under `pkgs/room/src/` unless noted.
 | `long-chaos-determinism.sim.test.ts` | E1/E9 | ≥3 clients seeded chaos (hold/down/soft) → hash ×2 |
 | `crash-restart.sim.test.ts` | E8 | Client crash keeps queue; server crash+hydrate; boundary arm; invariants |
 
-### Engine DST — shrinking PBT / fault catalogs (`tests/scenarios/*.pbt.test.ts`)
+### Engine sim — shrinking PBT / fault catalogs (`tests/*.pbt.test.ts)
 
 | File | Asserts / use case |
 |------|--------------------|
 | `room-world.pbt.test.ts` | `fc.commands` over counter + library chaos → converge; pin slots (incl. ghost-queue) |
 | `net-faults.pbt.test.ts` | Exhaust hold/down/asymmetric/`NET_FAULT_PROFILES` → converge |
-| `byzantine-wire.pbt.test.ts` | Exhaust `BYZANTINE_INJECT_KINDS` → settle restores server hash |
+| `malformedMessages-wire.pbt.test.ts` | Exhaust `MALFORMED_MESSAGE_INJECT_KINDS` → settle restores server hash |
 | `session-lifecycle.pbt.test.ts` | takeOver / crash / clearLocalData / serverCrash / commandId / multi-tab |
 | `schedule-anticheat.pbt.test.ts` | MatchClock start/move/flag under hold; early FlagFall; lagging move |
 | `authz-graph.pbt.test.ts` | Owner claim+bump; non-owner bump rejected across reconnect/takeOver |
 | `long-chaos.pbt.test.ts` | `runRoomSeed` determinism + converge (replaces ad-hoc chaos loop) |
-| `arm-crash-at.pbt.test.ts` | Scripted `armCrashAt` slice (out of random pool) → settle converges |
+| `arm-crash-at.pbt.test.ts` | Scripted `armCrashAt` slice (out of random pool) → settle staysInSync |
 
-### Engine DST — identity / dedup / authz / adversarial
+### Engine sim — identity / dedup / authz / adversarial
 
 | File | ID | Asserts / use case |
 |------|----|--------------------|
@@ -534,11 +528,11 @@ here when you add coverage. Paths are under `pkgs/room/src/` unless noted.
 | `malformed-frame-reject.sim.test.ts` | E4 | Non-Message / unknown kind → reject or ignore; no mutate |
 | `authorize-reject.sim.test.ts` | E4/E7 | World `authorize` denies → unauthorized; no mutate |
 | `unknown-command-reject.sim.test.ts` | E4 | Unknown message type → invalid-command |
-| `byzantine-committed-inject.sim.test.ts` | E1/E3 | Forged committed → soft cycle restores server truth |
+| `malformedMessages-committed-inject.sim.test.ts` | E1/E3 | Forged committed → soft cycle restores server truth |
 
-### Engine DST — match-clock / Schedule anti-cheat
+### Engine sim — match-clock / Schedule anti-cheat
 
-File: `tests/scenarios/match-clock-schedule.sim.test.ts` (`MatchClockFixtureModule`).
+File: `tests/match-clock-schedule.test.ts` (`MatchClockFixtureModule`).
 
 | ID | Asserts |
 |----|---------|
@@ -549,7 +543,7 @@ File: `tests/scenarios/match-clock-schedule.sim.test.ts` (`MatchClockFixtureModu
 | MC-05 | Soft disconnect during tick; reconnect after flag → same terminal |
 | MC-06 | Seeded clock workload ×2 identical `serverHash` |
 
-### Module kit DST (`tests/kit/`)
+### Module kit sim (`/room/sim` kit)
 
 | File | ID | Asserts / use case |
 |------|----|--------------------|
@@ -568,7 +562,7 @@ File: `tests/scenarios/match-clock-schedule.sim.test.ts` (`MatchClockFixtureModu
 |------|----|--------------------|
 | `tests/fixtures/counter-module.sim.test.ts` | M8 | Pure `TestCounterModule` under `createSimAdapters` seed-stable |
 
-### Game-layer DST (outside this package)
+### Game-layer sim (outside this package)
 
 | File | ID | Asserts / use case |
 |------|----|--------------------|
@@ -582,7 +576,7 @@ File: `tests/scenarios/match-clock-schedule.sim.test.ts` (`MatchClockFixtureModu
 
 | File | Kind | Asserts / use case |
 |------|------|--------------------|
-| `room.test.ts` | Loopback | Welcome + increment converges; unknown command rejected locally |
+| `room.test.ts` | Loopback | Welcome + increment staysInSync; unknown command rejected locally |
 | `room-roster.test.ts` | Loopback | Roster grow/shrink; multi-tab same actor; actor+ts stamped on log |
 | `client/core/room-offline-dispatch.test.ts` | Offline fake transport | `RoomClient.open` survives connect throw; optimistic queue while disconnected |
 | `client/core/room-server-reset.test.ts` | Loopback / reset | Ignore duplicate committed ≤ tip; recover short/stale welcome; idempotent re-welcome |
@@ -617,5 +611,5 @@ File: `tests/scenarios/match-clock-schedule.sim.test.ts` (`MatchClockFixtureModu
 | `tests/client-storage.pbt.test.ts` | PBT | Memory/web/KV queue append/remove round-trip + serial remove |
 | `tests/bench/hot-paths.bench.test.ts` | Hang-only | Dispatch burst, welcome-256, hash nested state |
 
-Curated exports for games: `@pkgs/room/tests` (`bootRoomSurface`,
+Curated exports for games: `@pkgs/room/sim` (`bootRoomSim`,
 `registerRoomLibrary`, `roomVirtual`, kit helpers, fixtures). Prefer adding a row above whenever you add coverage.

@@ -1,10 +1,10 @@
 {
-  "name": "@pkgs/dst",
+  "name": "@pkgs/sim",
   "version": "0.0.0",
   "private": true,
   "exports": {
     ".": "./src/index.ts",
-    "./kernel": "./src/kernel/index.ts",
+    "./internals": "./src/internals/index.ts",
     "./fast-check": "./src/fast-check/index.ts"
   },
   "scripts": {

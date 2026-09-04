@@ -3,7 +3,7 @@ import { currentOs } from './current-os';
 import type { Installer } from './installer';
 
 export interface CurlScriptInstallerOptions {
-  /** Script URL piped through `curl -fsSL <url> | <shell> [extraShellArgs]`. */
+  /** Run URL piped through `curl -fsSL <url> | <shell> [extraShellArgs]`. */
   readonly url: string;
   /** Extra args appended after `<shell> -s --` so they reach the install script. */
   readonly scriptArgs?: readonly string[];

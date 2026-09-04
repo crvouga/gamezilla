@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 
-import { updatePuzzleRating } from './chess-puzzle-rating';
+import { updatePuzzleRating } from '@libs/chess/public/chess-puzzle-rating';
 
 describe('updatePuzzleRating', () => {
   test('clean win vs equal puzzle raises rating', () => {

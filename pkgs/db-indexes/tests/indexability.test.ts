@@ -1,13 +1,13 @@
 import { describe, expect, test } from 'bun:test';
-import { assertProperty } from '@pkgs/dst/fast-check';
-import fc from 'fast-check';
-import type { WorkloadManifest } from '../../core/types';
 import {
   analyzeIndexability,
   assertIndexableWorkload,
   fingerprintSql,
   pkSchemaIndexes,
-} from '../../index';
+} from '@pkgs/db-indexes';
+import { assertProperty } from '@pkgs/sim/fast-check';
+import fc from 'fast-check';
+import type { WorkloadManifest } from '../src/core/types';
 
 function stmt(sql: string) {
   return {

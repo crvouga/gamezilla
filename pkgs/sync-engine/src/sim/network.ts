@@ -3,7 +3,7 @@ import type {
   EndpointId,
   FlowKey,
   Network as KernelNetwork,
-} from '@pkgs/dst';
+} from '@pkgs/sim';
 
 import type { SimFaultOptions } from './faults';
 import { type ClientTraffic, clientForHop, type SimTraffic } from './traffic';
@@ -12,7 +12,7 @@ export type { Deliver, EndpointId };
 
 /**
  * Sync-domain network: hold/faults keyed by node + {@link SimTraffic}.
- * Mechanics (delay/loss/dup/partition/hold queues) live in `@pkgs/dst`.
+ * Mechanics (delay/loss/dup/partition/hold queues) live in `@pkgs/sim`.
  */
 export type SyncNetwork = {
   readonly register: (id: EndpointId, deliver: Deliver) => void;
@@ -20,9 +20,9 @@ export type SyncNetwork = {
   /** Schedule delivery (fire-and-forget). Drops when partitioned / lost. */
   readonly send: (from: EndpointId, to: EndpointId, payload: unknown) => void;
   readonly partition: (a: EndpointId, b: EndpointId) => void;
-  readonly heal: (a: EndpointId, b: EndpointId) => void;
-  readonly healAll: () => void;
-  /** SyncKit default fault profile (fallback when no per-node override). */
+  readonly restoreNetwork: (a: EndpointId, b: EndpointId) => void;
+  readonly restoreAllNetwork: () => void;
+  /** SyncSimRuntime default fault profile (fallback when no per-node override). */
   readonly setDefaultFaults: (faults: SimFaultOptions) => void;
   readonly faults: () => SimFaultOptions;
   readonly hold: (nodeId: string, traffic: SimTraffic) => void;
@@ -158,7 +158,7 @@ function clearNodeOverrides(
 }
 
 /**
- * Adapt a framework-owned `@pkgs/dst` network kernel to the sync-domain
+ * Adapt a framework-owned `@pkgs/sim` network kernel to the sync-domain
  * traffic-keyed surface. Framework systems pass `ctx.network`.
  */
 export function wrapSimNetwork(
@@ -188,8 +188,8 @@ export function wrapSimNetwork(
       kernel.send(from, to, payload, { key });
     },
     partition: (a, b) => kernel.partition(a, b),
-    heal: (a, b) => kernel.heal(a, b),
-    healAll: () => kernel.healAll(),
+    restoreNetwork: (a, b) => kernel.heal(a, b),
+    restoreAllNetwork: () => kernel.healAll(),
     setDefaultFaults(next) {
       kernel.setFaults(toKernelFaults(next));
     },
