@@ -4,7 +4,7 @@ Wishlist / known gaps for `@crvouga/postgres-mem` and `@crvouga/sqlite-mem`
 when used as the sim SQL fabric (`SIM_SQL_BACKEND=mem`).
 
 Playground default today is **mem** (`DEFAULT_SIM_SQL_BACKEND = 'mem'` in
-`sim/console/src/sim/sim-sql-backend.ts`) even when docs say plan-default
+`product/console/src/sim/sim-sql-backend.ts`) even when docs say plan-default
 `real`. Native Expo always uses mem (Hermes cannot load PGlite / better-sqlite3).
 
 Product schema maps logical `integer` → Postgres physical **`bigint`**

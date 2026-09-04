@@ -57,7 +57,7 @@ export function createPlaywrightUiTestRunner(
   };
 }
 
-/** Install Playwright adapter — call from sim/test playwright setup (worker-loaded). */
+/** Install Playwright adapter — call from product/test playwright setup (worker-loaded). */
 export function installPlaywrightUiTestRunner(
   config: UiTestRunnerConfig = {
     fidelity: 'max',

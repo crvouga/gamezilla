@@ -19,7 +19,7 @@ module.exports = {
         '<rootDir>/apps/client/src',
         '<rootDir>/libs',
         '<rootDir>/pkgs',
-        '<rootDir>/sim/console/src',
+        '<rootDir>/product/console/src',
       ],
       exclude: [
         '**/node_modules/**',

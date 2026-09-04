@@ -1,7 +1,7 @@
 // @io-wall-ok
 /**
  * Foreground entry for `@apps/client` `dev`: Expo web only (product app).
- * Sim Console + local reports live in `@sim/console`.
+ * Sim Console + local reports live in `@product/console`.
  */
 
 import { type ChildProcess, spawn } from 'node:child_process';

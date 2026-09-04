@@ -94,8 +94,8 @@ export function ReportViews(props: {
       <Box sx={appShellSx}>
         <Box sx={appBodyFrameSx}>
           <Text sx={emptySx}>
-            No report dump yet. Run `@sim/test` to write the latest results into
-            `sim/console/public/reports`.
+            No report dump yet. Run `@product/test` to write the latest results into
+            `product/console/public/reports`.
           </Text>
         </Box>
       </Box>
@@ -147,7 +147,7 @@ function TestOrLoading(props: {
         <ScrollView frameSx={appBodyFrameSx} sx={bodySx}>
           <Text sx={emptySx}>
             {data.runs.length === 0
-              ? 'No report dump yet. Run `@sim/test` to generate reports.'
+              ? 'No report dump yet. Run `@product/test` to generate reports.'
               : data.error
                 ? `Failed to resolve run: ${data.error}`
                 : 'Loading run…'}

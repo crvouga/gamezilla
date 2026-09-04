@@ -233,8 +233,8 @@ via `ctx.test`. A host adapter is installed once per process:
 
 | Fidelity | Runtime | Driver | Install |
 | --- | --- | --- | --- |
-| `sim` | Jest + jest-expo | `RntlDriver` | `installJestUiTestRunner()` in sim/test `jest.setup.ts` |
-| `max` | Playwright Test | `PlaywrightDriver` (one browser context per actor) | `installPlaywrightUiTestRunner()` in sim/test `playwright.setup.ts` |
+| `sim` | Jest + jest-expo | `RntlDriver` | `installJestUiTestRunner()` in product/test `jest.setup.ts` |
+| `max` | Playwright Test | `PlaywrightDriver` (one browser context per actor) | `installPlaywrightUiTestRunner()` in product/test `playwright.setup.ts` |
 | native (future) | Jest / Detox | `DetoxDriver` stub | `installDetoxUiTestRunner()` |
 
 ```ts

@@ -6,7 +6,7 @@
     "apps/*",
     "libs/*",
     "pkgs/*",
-    "sim/*",
+    "product/*",
     "tools"
   ],
   "scripts": {
@@ -29,7 +29,7 @@
     "chess:puzzles:export-load": "SECRETS_ENV=prd bun run tools/scripts/secrets-run.ts -- bun run --filter @libs/chess export:puzzles-load -- --confirm-prod",
     "chess:puzzles:seed": "bun run tools/scripts/secrets-run.ts -- bun run --filter @libs/chess seed:puzzles",
     "ci:audit": "bun run tools/scripts/ci-audit.ts",
-    "ci:depcruise": "NODE_OPTIONS=--max-old-space-size=4096 dependency-cruise apps libs pkgs sim --validate .dependency-cruiser.cjs --output-type err",
+    "ci:depcruise": "NODE_OPTIONS=--max-old-space-size=4096 dependency-cruise apps libs pkgs product --validate .dependency-cruiser.cjs --output-type err",
     "ci:i18n": "bun run tools/scripts/ci-i18n.ts",
     "ci:setup-secrets-auth": "bun run tools/scripts/setup-ci-secrets-auth.ts",
     "ci:syncpack": "syncpack lint --dependency-types prod,dev",
@@ -40,10 +40,10 @@
     "deploy:dev": "SECRETS_ENV=dev TURBO_UI=tui bun run deploy",
     "deploy:prd": "SECRETS_ENV=prd TURBO_UI=tui bun run deploy",
     "deps:graph": "bun run tools/scripts/render-package-deps-graph.ts",
-    "dev": "SECRETS_ENV=dev bun run tools/scripts/secrets-run.ts -- turbo dev --ui=tui --filter=@sim/console",
+    "dev": "SECRETS_ENV=dev bun run tools/scripts/secrets-run.ts -- turbo dev --ui=tui --filter=@product/console",
     "dev:client": "SECRETS_ENV=dev bun run tools/scripts/secrets-run.ts -- turbo dev --ui=stream --filter=@apps/client",
     "fc": "clear && bun run fmt && bun run check",
-    "fmt": "sort-package-json \"package.json\" \"apps/*/package.json\" \"libs/*/package.json\" \"pkgs/*/package.json\" \"sim/*/package.json\" \"tools/package.json\" && bunx biome check --write . && bun run tools/scripts/remove-empty-dirs.ts",
+    "fmt": "sort-package-json \"package.json\" \"apps/*/package.json\" \"libs/*/package.json\" \"pkgs/*/package.json\" \"product/*/package.json\" \"tools/package.json\" && bunx biome check --write . && bun run tools/scripts/remove-empty-dirs.ts",
     "gh": "bun x open https://github.com/crvouga/gamezilla/actions/workflows/deployment-pipeline.yml",
     "i18n:compile": "lingui compile --typescript --strict && bun run tools/scripts/ensure-trailing-newline.ts apps/client/src/i18n/locales/en/messages.ts",
     "i18n:extract": "lingui extract --clean --overwrite",
@@ -59,8 +59,8 @@
     "sims:setup": "bun run tools/scripts/sims/setup-sims.ts",
     "test:pbt": "bun run tools/scripts/test-pbt-random.ts",
     "test:pbt:random": "bun run tools/scripts/test-pbt-random.ts",
-    "test:sim": "SIM_REPORT=0 turbo test -F @sim/test --force",
-    "test:sim:report": "SIM_REPORT=1 turbo test -F @sim/test --force",
+    "test:sim": "SIM_REPORT=0 turbo test -F @product/test --force",
+    "test:sim:report": "SIM_REPORT=1 turbo test -F @product/test --force",
     "wipe": "git clean -xfd"
   },
   "overrides": {

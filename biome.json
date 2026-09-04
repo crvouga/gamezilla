@@ -409,7 +409,7 @@
         "**/apps/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
         "**/pkgs/**/*.{ts,tsx}",
-        "**/sim/**/*.{ts,tsx}",
+        "**/product/**/*.{ts,tsx}",
         "**/tools/**/*.{ts,tsx}"
       ]
     },
@@ -600,7 +600,7 @@
         "**/apps/**/*.{tsx}",
         "**/libs/**/*.{tsx}",
         "**/pkgs/**/*.{tsx}",
-        "**/sim/test/tests/**/*.{tsx}",
+        "**/product/test/tests/**/*.{tsx}",
         "!**/pkgs/ui/src/components/box/box.tsx",
         "!**/pkgs/ui/src/components/text/text.tsx",
         "!**/pkgs/ui/src/components/pressable/pressable.tsx",
@@ -646,8 +646,8 @@
     {
       "path": "./tools/biome-plugins/no-dst-raw-selectors.grit",
       "includes": [
-        "**/sim/test/tests/**/*.{ts,tsx}",
-        "**/sim/test/src/drivers/**/*.{ts,tsx}",
+        "**/product/test/tests/**/*.{ts,tsx}",
+        "**/product/test/src/drivers/**/*.{ts,tsx}",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
         "!**/src/sim/**"
@@ -659,7 +659,7 @@
         "**/pkgs/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
         "**/apps/**/*.{ts,tsx}",
-        "**/sim/**/*.{ts,tsx}",
+        "**/product/**/*.{ts,tsx}",
         "!**/pkgs/sim/src/script/**"
       ]
     },
@@ -669,7 +669,7 @@
         "**/pkgs/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
         "**/apps/**/*.{ts,tsx}",
-        "**/sim/**/*.{ts,tsx}",
+        "**/product/**/*.{ts,tsx}",
         "!**/pkgs/sim/src/script/**"
       ]
     },
@@ -679,7 +679,7 @@
         "**/pkgs/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
         "**/apps/**/*.{ts,tsx}",
-        "**/sim/**/*.{ts,tsx}"
+        "**/product/**/*.{ts,tsx}"
       ]
     },
     {
@@ -688,7 +688,7 @@
         "**/apps/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
         "**/pkgs/**/*.{ts,tsx}",
-        "**/sim/**/*.{ts,tsx}",
+        "**/product/**/*.{ts,tsx}",
         "!**/pkgs/db-schema/src/postgres/emit.ts",
         "!**/pkgs/db-schema/src/sqlite/emit.ts",
         "!**/pkgs/sql-client/src/agnostic-sql.test.ts",
@@ -880,7 +880,7 @@
       }
     },
     {
-      "includes": ["sim/test/tests/**"],
+      "includes": ["product/test/tests/**"],
       "linter": {
         "rules": {
           "style": {
@@ -897,7 +897,7 @@
                       "DetoxDriver",
                       "createMultiAppRntlSession"
                     ],
-                    "message": "Scenarios must use AppDriver / openSim (see sim/test/src/setup/TESTING.md). Import only describe from @pkgs/ui-testing."
+                    "message": "Scenarios must use AppDriver / openSim (see product/test/src/setup/TESTING.md). Import only describe from @pkgs/ui-testing."
                   }
                 }
               }

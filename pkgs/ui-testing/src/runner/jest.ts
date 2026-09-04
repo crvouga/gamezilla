@@ -57,7 +57,7 @@ export function createJestUiTestRunner(
   };
 }
 
-/** Install Jest adapter — call from sim/test jest.setup. */
+/** Install Jest adapter — call from product/test jest.setup. */
 export function installJestUiTestRunner(
   config: UiTestRunnerConfig = { fidelity: 'sim', driverKind: 'rntl' }
 ): UiTestRunner {

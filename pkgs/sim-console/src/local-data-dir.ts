@@ -9,9 +9,9 @@ export const LOCAL_REPORT_DATA_DIRNAME = '.cache/sim-console-data';
 
 /**
  * Expo static assets directory for the latest sim test report dump
- * (`@sim/console` `public/reports`).
+ * (`@product/console` `public/reports`).
  */
-export const SIM_CONSOLE_REPORTS_DIRNAME = 'sim/console/public/reports';
+export const SIM_CONSOLE_REPORTS_DIRNAME = 'product/console/public/reports';
 
 export type PathExists = (absolutePath: string) => boolean;
 
@@ -47,7 +47,7 @@ export function resolveLocalReportDataDir(
 }
 
 /**
- * Absolute path to `<repo>/sim/console/public/reports` for the static-bundle
+ * Absolute path to `<repo>/product/console/public/reports` for the static-bundle
  * report dump consumed by the Expo client.
  */
 export function resolveSimConsoleReportsDir(

@@ -1,5 +1,5 @@
 /**
- * Seeded PGlite boot for in-process simulations (playground + `@sim/test`).
+ * Seeded PGlite boot for in-process simulations (playground + `@product/test`).
  *
  * Migrated schema is cached via an injected {@link ObjectStore}. Each open
  * clones that seed (`loadDataDir`) instead of re-running migrations.

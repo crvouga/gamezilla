@@ -10,7 +10,7 @@ authoritative contract map + redesign target. Runtime docs stay in
 |------|----------|
 | **A — content/scope hash algorithms** | **Internal.** Wire promises opaque string equality for `lastHash`/`hash` / `not_modified` only. Algorithm changes may cause temporary cache misses across mixed versions, not incorrect merges. |
 | **B — CI framework table names** | Opaque `assertDomainTablesAvoidFrameworkNames(names)` on `/shared`. Unexport `FRAMEWORK_*` constants. Channel CI merges framework mutations inside `assertChannelExhaustiveness`. |
-| **C — sim/test seam** | Expand `/test` for epoch, controllable lifecycle, `withFrameworkMutations` (CI escape), prune. Sim should prefer public + `/test` seams; deep `src/` imports are an in-package debt to shrink. |
+| **C — product/test seam** | Expand `/test` for epoch, controllable lifecycle, `withFrameworkMutations` (CI escape), prune. Sim should prefer public + `/test` seams; deep `src/` imports are an in-package debt to shrink. |
 
 ---
 

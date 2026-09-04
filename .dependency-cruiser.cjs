@@ -65,12 +65,12 @@ module.exports = {
       name: 'not-to-dev-dep-from-src',
       severity: 'error',
       from: {
-        path: '^(apps|libs|pkgs|sim)/[^/]+/src/',
+        path: '^(apps|libs|pkgs|product)/[^/]+/src/',
         pathNot: '(\\.test\\.|\\.spec\\.|/tests/|/e2e/)',
       },
       to: { dependencyTypes: ['npm-dev'] },
     },
-    // Tier import pyramid: sim -> apps, libs, pkgs; apps -> libs, pkgs; libs -> pkgs; pkgs -> pkgs.
+    // Tier import pyramid: product -> apps, libs, pkgs; apps -> libs, pkgs; libs -> pkgs; pkgs -> pkgs.
     // Path-based tier rules catch the relative `../../libs/...` escape hatch.
     // Workspace @scope imports are not reliably traversed by depcruise (bun symlinks).
     {
@@ -90,12 +90,12 @@ module.exports = {
       to: { path: '^apps/' },
     },
     {
-      name: 'pkgs-not-sim',
+      name: 'pkgs-not-product',
       severity: 'error',
       comment:
-        'pkgs/ must not import sim/ (tier boundary). Sim is the composition hub above product.',
+        'pkgs/ must not import product/ (tier boundary). Product is the composition hub above apps.',
       from: { path: '^pkgs/' },
-      to: { path: '^sim/' },
+      to: { path: '^product/' },
     },
     {
       name: 'libs-not-apps',
@@ -106,20 +106,20 @@ module.exports = {
       to: { path: '^apps/' },
     },
     {
-      name: 'libs-not-sim',
+      name: 'libs-not-product',
       severity: 'error',
       comment:
-        'libs/ must not import sim/ (tier boundary). Sim composes libs; not the reverse.',
+        'libs/ must not import product/ (tier boundary). Product composes libs; not the reverse.',
       from: { path: '^libs/' },
-      to: { path: '^sim/' },
+      to: { path: '^product/' },
     },
     {
-      name: 'apps-not-sim',
+      name: 'apps-not-product',
       severity: 'error',
       comment:
-        'apps/ must not import sim/ (tier boundary). Sim composes apps; product must not depend on the harness.',
+        'apps/ must not import product/ (tier boundary). Product composes apps; apps must not depend on the composition hub.',
       from: { path: '^apps/' },
-      to: { path: '^sim/' },
+      to: { path: '^product/' },
     },
     {
       name: 'shared-no-wall-io-packages',
@@ -138,7 +138,7 @@ module.exports = {
       name: 'product-no-sim-deps',
       severity: 'error',
       comment:
-        'Session / @pkgs/sim is harness-only. Product apps and non-test product libs must receive unpacked clock/timers/createId/random/http. DST package tests and @sim/* may import @pkgs/sim.',
+        'Session / @pkgs/sim is harness-only. Product apps and non-test product libs must receive unpacked clock/timers/createId/random/http. DST package tests and @product/* may import @pkgs/sim.',
       from: {
         path: '^(apps/|libs/)',
         pathNot: '(\\.test\\.|\\.spec\\.|/tests/|/e2e/|/src/sim/)',
@@ -198,6 +198,6 @@ module.exports = {
     // (e.g. wrangler dev stages `.wrangler/` inside a package directory).
     exclude: '(^|/)(\\.wrangler|\\.turbo|\\.expo|dist|build|coverage)/',
     tsPreCompilationDeps: true,
-    includeOnly: '^(apps|libs|pkgs|sim)/',
+    includeOnly: '^(apps|libs|pkgs|product)/',
   },
 };

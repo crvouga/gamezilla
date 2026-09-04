@@ -22,7 +22,7 @@ isProject: false
 
 # Get voice synth working in the sim playground
 
-The SpeakingAvatar bubble is already live. Audio is not: playground [`create-sim.ts`](sim/console/src/sim/create-sim.ts) injects `InMemoryTtsProvider` (fake MP3, not decodable) and `createInMemoryAudioPlaybackPort()` (records `play()` but never hits speakers). The in-process sim server also runs **in the browser**, so it cannot call `api.elevenlabs.io` directly (CORS + API key must not ship in the client bundle).
+The SpeakingAvatar bubble is already live. Audio is not: playground [`create-sim.ts`](product/console/src/sim/create-sim.ts) injects `InMemoryTtsProvider` (fake MP3, not decodable) and `createInMemoryAudioPlaybackPort()` (records `play()` but never hits speakers). The in-process sim server also runs **in the browser**, so it cannot call `api.elevenlabs.io` directly (CORS + API key must not ship in the client bundle).
 
 `bun run dev` already injects Infisical secrets into the Metro/Node process (`SECRETS_ENV=dev` + `secrets-run`). That is the right place to hold `ELEVEN_LABS_API_KEY`.
 
@@ -48,9 +48,9 @@ sequenceDiagram
 
 ## 1. Playground-only overrides on `createSim`
 
-Keep tests deterministic. Extend [`CreateSimOptions`](sim/console/src/sim/create-sim.ts) with optional `audio` and `tts` (and pass them through `buildServerEnv` / `makeSimClientEnv`). Defaults stay `InMemoryTtsProvider` + `createInMemoryAudioPlaybackPort`.
+Keep tests deterministic. Extend [`CreateSimOptions`](product/console/src/sim/create-sim.ts) with optional `audio` and `tts` (and pass them through `buildServerEnv` / `makeSimClientEnv`). Defaults stay `InMemoryTtsProvider` + `createInMemoryAudioPlaybackPort`.
 
-[`boot-playground.ts`](sim/console/src/playground/boot-playground.ts) is already `@io-wall-ok` and an io-scan entry. Wire the real adapters only there:
+[`boot-playground.ts`](product/console/src/playground/boot-playground.ts) is already `@io-wall-ok` and an io-scan entry. Wire the real adapters only there:
 
 - `audio: createExpoAudioPlaybackPort()` from [`expo-audio-playback-port.ts`](pkgs/sounds/src/audio-playback/expo-audio-playback-port.ts)
 - `tts: new ElevenLabsTtsProvider({ apiKey: 'playground', fetch: globalThis.fetch, baseUrl: `${origin}/__sim/elevenlabs/v1` })`
@@ -61,9 +61,9 @@ If `window.location` is missing, skip the override (keep stubs).
 
 ## 2. Metro same-origin ElevenLabs proxy
 
-Extend [`sim/console/metro.config.js`](sim/console/metro.config.js) `enhanceMiddleware` (already used for COOP/COEP) to intercept `POST /__sim/elevenlabs/v1/*` **before** the default Metro handler.
+Extend [`product/console/metro.config.js`](product/console/metro.config.js) `enhanceMiddleware` (already used for COOP/COEP) to intercept `POST /__sim/elevenlabs/v1/*` **before** the default Metro handler.
 
-Extract a small Node helper (e.g. [`sim/console/scripts/elevenlabs-tts-proxy.ts`](sim/console/scripts/elevenlabs-tts-proxy.ts), `@io-wall-ok`) that:
+Extract a small Node helper (e.g. [`product/console/scripts/elevenlabs-tts-proxy.ts`](product/console/scripts/elevenlabs-tts-proxy.ts), `@io-wall-ok`) that:
 
 - Rewrites to `https://api.elevenlabs.io/v1/...`
 - Sets `xi-api-key` from `process.env.ELEVEN_LABS_API_KEY`
@@ -87,7 +87,7 @@ Web `play()` can throw `NotAllowedError` (already swallowed). Two small UX fixes
 
 ## 5. Out of scope
 
-- `@sim/test` / DST stay on in-memory TTS and silent audio.
+- `@product/test` / DST stay on in-memory TTS and silent audio.
 - No SpeechSynthesis fallback (different voice, bypasses the product pipeline). If the Infisical key is missing, synthesize 503s and the bubble still shows text — same as production without secrets.
 - Unused `SpeakingAvatar` props (`voice`, `speak`) are a separate drift; not required to hear audio.
 

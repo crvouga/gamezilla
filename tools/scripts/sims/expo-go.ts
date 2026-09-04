@@ -42,7 +42,7 @@ function defaultLog(message: string): void {
 export function resolveExpoSdkVersion(packageRoot: string = repoRoot): string {
   const candidates = [
     join(packageRoot, 'node_modules/expo/package.json'),
-    join(repoRoot, 'sim/console/node_modules/expo/package.json'),
+    join(repoRoot, 'product/console/node_modules/expo/package.json'),
     join(repoRoot, 'apps/client/node_modules/expo/package.json'),
     join(repoRoot, 'node_modules/expo/package.json'),
   ];

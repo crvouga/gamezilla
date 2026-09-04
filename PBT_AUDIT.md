@@ -33,7 +33,7 @@ Do **not** create a root `test/pbt/` folder. Do **not** add `@fast-check/jest` (
 1. Never delete example tests; properties are additive.
 2. Do not replace `SimClock` / timers with `fc.scheduler`.
 3. Do not claim CRDT commutativity for sync merge (server-authoritative LWW).
-4. Do not rebuild `@sim/test` RNTL UI scripts on `fc.commands`.
+4. Do not rebuild `@product/test` RNTL UI scripts on `fc.commands`.
 5. Do not silently fix production bugs — pin `examples` + log in `PBT_FINDINGS.md`.
 
 ---
@@ -51,7 +51,7 @@ Do **not** create a root `test/pbt/` folder. Do **not** add `@fast-check/jest` (
 | `libs/chess` | 20 | unit + sim | Tier 3 / later |
 | `libs/auth` | 13 | unit / integration | Tier 3 |
 | `pkgs/sim-console` | 11 | UI / helpers | Tier 3 |
-| `sim/test` | 10 | example UI DST | Tier 3 (do not convert) |
+| `product/test` | 10 | example UI DST | Tier 3 (do not convert) |
 | `pkgs/ndjson` | 6 | unit | Tier 1 |
 | `pkgs/db-schema` | 8 | unit | Tier 1 (type-map) |
 | `pkgs/keyword` | 1 | unit | Tier 1 |
@@ -85,11 +85,11 @@ Do **not** create a root `test/pbt/` folder. Do **not** add `@fast-check/jest` (
 | **sync-engine notes** | `runNotesSeed` + `pickWorkloadAction` / `generateWorkload`; `checkInvariants` per step | `SYNC_SIM_SEED` replay; **no shrink** | `fc.commands` + `asyncModelRun`; reuse invariants as postcondition |
 | **room chaos / kit** | `long-chaos-determinism.sim.test.ts` (RNG steps); `runModuleConformance` + `generateCommand` | `SIM_SEED`; no shrink | Add `fc.commands` chaos beside existing; keep same-seed-twice test |
 | **matchmaking** | `seeded-workload.sim.test.ts` joins/ticks fingerprint | `SIM_SEED`; no shrink | Short command sequences; fingerprint + no double-match |
-| **sim/test UI** | Fixed RNTL flows; `openSim` seed often frozen | N/A | **Decline** — keep as example regression scripts |
+| **product/test UI** | Fixed RNTL flows; `openSim` seed often frozen | N/A | **Decline** — keep as example regression scripts |
 
 ### DST findings (detail)
 
-1. **Product UI (`sim/test`)** — example-based; not a conversion target.  
+1. **Product UI (`product/test`)** — example-based; not a conversion target.  
 2. **Sync-engine** — real randomized workload; biggest shrink win via `fc.commands`. Model = tiny safety spec (seq monotonicity, heal-before-assert-converge), not a reimplementation of merge.  
 3. **Room** — kit already does seeded fuzz; chaos loop is hand-rolled. Add shrinking commands; do not replace kit in v1.  
 4. **Matchmaking** — smaller surface; same pattern.
@@ -103,7 +103,7 @@ Do **not** create a root `test/pbt/` folder. Do **not** add `@fast-check/jest` (
 | Class | Why |
 |---|---|
 | `@pkgs/ui` / RNTL / snapshots / React hooks | Noisy, flaky, not pure correctness |
-| `sim/test` product UI scenarios | Fixed drivers; seed=1; not action generators |
+| `product/test` product UI scenarios | Fixed drivers; seed=1; not action generators |
 | Named bug-scenario files in sync-engine/room | Regression documentation — keep; optionally add properties later |
 | Hono / Wrangler / live Neon / Playwright e2e | I/O / env; not isolated |
 | Tautological `defineMutation` wiring | Typechecker already covers |
@@ -135,7 +135,7 @@ Zod 4: hand-write from domain types (no maintained Zod-4→fast-check bridge ass
 ## Existing test smells
 
 - Hand-rolled DST does not shrink (seed replay only).  
-- `sim/test` fuzz-across-seeds is weak if `openSim` seed is hardcoded.  
+- `product/test` fuzz-across-seeds is weak if `openSim` seed is hardcoded.  
 - Many sync scenarios assert “converged / didn’t crash” without a reference model.  
 - Some scripts use wall `Math.random` for seed picks (`@io-wall-ok`) — fine for scripts, but nightly PBT must log the seed.  
 - Snapshot / UI tests that would pass against a stubbed implementation.
@@ -167,6 +167,6 @@ property runs show non-trivial coverage for:
 
 - **Candidates found:** ~10 Tier 1 + 3 DST harnesses + large Tier 3 decline set  
 - **Converted:** 10 Tier 1 domains + 3 DST suites (31 properties / 13 files)  
-- **Declined:** UI / RNTL / e2e / tautology / CRDT-merge / `@sim/test` UI scripts  
+- **Declined:** UI / RNTL / e2e / tautology / CRDT-merge / `@product/test` UI scripts  
 - **Bugs found:** none (see `PBT_FINDINGS.md`)  
 - **CI time delta:** full PBT suite ~0.5–2s locally; DST subset ~1.6s — well under the ~2 min budget. Default `numRuns` is 10 local / 40 CI; nightly via `bun run test:pbt:random`.

@@ -16,7 +16,7 @@ const REPO_ROOT = join(import.meta.dirname, '../..');
 const PO_REL = 'apps/client/src/i18n/locales/en/messages.po';
 const COMPILED_REL = 'apps/client/src/i18n/locales/en/messages.ts';
 const MACRO_FROM = /from\s+['"]@lingui\/(?:core|react)\/macro['"]/;
-const SCAN_ROOTS = ['apps', 'libs', 'pkgs', 'sim'] as const;
+const SCAN_ROOTS = ['apps', 'libs', 'pkgs', 'product'] as const;
 const SKIP_DIR_NAMES = new Set([
   'node_modules',
   'dist',
@@ -128,8 +128,8 @@ function loadLinguiConfig(): LinguiCatalogConfig {
 
 const BABEL_CONFIG_RELS = [
   'apps/client/babel.config.js',
-  'sim/console/babel.config.js',
-  'sim/test/babel.jest.config.js',
+  'product/console/babel.config.js',
+  'product/test/babel.jest.config.js',
 ] as const;
 
 function assertStripMessageFieldKept(): void {

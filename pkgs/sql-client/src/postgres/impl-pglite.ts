@@ -201,7 +201,7 @@ function isBrowserPlayground(): boolean {
 
 /**
  * Expo web: fetch WASM + fs bundle from `/generated/pglite` (copied by
- * `sim/console/scripts/bundle-sim-sql-wasm.ts`) so the CJS build does not
+ * `product/console/scripts/bundle-sim-sql-wasm.ts`) so the CJS build does not
  * resolve assets via `new URL(..., document.currentScript)`.
  */
 async function createBrowserPglite(seedBytes?: Uint8Array): Promise<PGlite> {

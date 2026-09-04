@@ -45,7 +45,7 @@ function printNextSteps(): void {
   log('Next steps:');
   log('  bun run sims:open     — boot Simulator.app for chosen devices');
   log(
-    '  bun run dev           — @sim/console; press i / Shift+I for iPad Expo Go'
+    '  bun run dev           — @product/console; press i / Shift+I for iPad Expo Go'
   );
   log(
     '  bun run client:ios    — product app on the project iPhone (dev client)'
