@@ -1,4 +1,4 @@
-import { defineSystem } from '@pkgs/dst';
+import { defineSystem, virtualHost } from '@pkgs/dst';
 import { gen } from '@pkgs/dst/fast-check';
 import fc from 'fast-check';
 import { applyAdvance, applyForbidden } from './dispatch';
@@ -15,16 +15,25 @@ function range(n: number): number[] {
 
 const PLAN_HASH_HEX_LENGTH = 64;
 
-export type SchemaKnobs = {
+/** Typed topology for one schema-reconcile script. */
+export type SchemaArgs = {
   readonly clients: number;
 };
 
-export const schema = defineSystem({
+export const SCHEMA_ARGS: SchemaArgs = { clients: 2 };
+
+export const arbSchemaArgs = (): fc.Arbitrary<SchemaArgs> =>
+  fc.record({ clients: fc.integer({ min: 1, max: 3 }) });
+
+/** One server peer plus `clients` lagging client peers. */
+export const schema = defineSystem<SchemaSurface, SchemaArgs>({
   name: 'db-schema.reconcile',
-  async generate(session, knobs: SchemaKnobs) {
+  args: SCHEMA_ARGS,
+  draw: () => gen(arbSchemaArgs()),
+  async create(session, args) {
     const server = await startServer(session.fork('server'));
     const clients = await Promise.all(
-      range(knobs.clients).map((i) =>
+      range(args.clients).map((i) =>
         startClient(session.fork(`client:${i}`), i)
       )
     );
@@ -32,7 +41,7 @@ export const schema = defineSystem({
   },
 });
 
-const { defineAction, defineProperty } = schema;
+schema.host({ default: true, name: 'virtual', create: () => virtualHost() });
 
 export function clientIds(s: SchemaSurface): string[] {
   return s.clients.map((c) => c.id);
@@ -74,11 +83,11 @@ export async function alignmentViolations(s: SchemaSurface): Promise<string[]> {
   return out;
 }
 
-export const advance = defineAction({
+export const advance = schema.action({
   name: 'advance',
   enabled: (s) => peerIdList(s).length > 0,
   weight: 3,
-  args: (s) =>
+  draw: (s) =>
     gen(
       fc.record({
         target: fc.constantFrom(...peerIdList(s)),
@@ -93,26 +102,19 @@ export const advance = defineAction({
   },
 });
 
-export const forbidden = defineAction({
+export const forbidden = schema.action({
   name: 'forbidden',
   act: async (s) => {
     await applyForbidden(s);
   },
 });
 
-export const SCHEMA_ACTIONS = [advance, forbidden];
-
-export const aligned = defineProperty({
+export const aligned = schema.property({
   name: 'aligned',
   check: async (s) => {
     const v = await alignmentViolations(s);
     if (v.length > 0) throw new Error(v[0]!);
   },
 });
-
-export const SCHEMA_PROPERTIES = [aligned];
-
-export const arbSchemaKnobs = (): fc.Arbitrary<SchemaKnobs> =>
-  fc.record({ clients: fc.integer({ min: 1, max: 3 }) });
 
 export { SCHEMA_SERVER_ID };

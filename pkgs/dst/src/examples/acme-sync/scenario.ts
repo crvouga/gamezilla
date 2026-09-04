@@ -121,8 +121,6 @@ export const heal = sync.action({
   },
 });
 
-export const SYNC_ACTIONS = [createNote, partition, heal] as const;
-
 export const converges = sync.property({
   name: 'converges',
   check: (s) => {
@@ -131,8 +129,6 @@ export const converges = sync.property({
     }
   },
 });
-
-export const SYNC_PROPERTIES = [converges];
 
 export const arbSyncArgs = (): fc.Arbitrary<SyncArgs> =>
   fc.record({ clients: fc.integer({ min: 1, max: 3 }) });

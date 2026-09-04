@@ -13,8 +13,9 @@ export type FileRunResult = {
 export type RunPbtFileArgs = {
   readonly repoRoot: string;
   readonly file: string;
+  readonly seed: number;
   readonly numRuns: number;
-  readonly dstInterruptMs: number;
+  readonly sampleInterruptMs: number;
 };
 
 function collectStream(stream: NodeJS.ReadableStream | null): Promise<string> {
@@ -36,9 +37,9 @@ export function runPbtFile(args: RunPbtFileArgs): Promise<FileRunResult> {
       cwd: args.repoRoot,
       env: withForcedColorEnv({
         ...process.env,
-        PBT_RANDOM: '1',
+        FC_SEED: String(args.seed),
         PBT_NUM_RUNS: String(args.numRuns),
-        PBT_DST_INTERRUPT_MS: String(args.dstInterruptMs),
+        PBT_SAMPLE_INTERRUPT_MS: String(args.sampleInterruptMs),
       }),
       stdio: ['ignore', 'pipe', 'pipe'],
     });

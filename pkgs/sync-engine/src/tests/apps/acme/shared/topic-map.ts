@@ -35,6 +35,11 @@ async function ownerFriendTopics(
   return topics;
 }
 
+function usernameNonEmpty(row: Record<string, unknown>): boolean {
+  const username = row['username'];
+  return typeof username === 'string' && username.length > 0;
+}
+
 export const acmeTopicMap = defineTopicMap({
   notes: {
     topics(row, ctx) {
@@ -45,29 +50,15 @@ export const acmeTopicMap = defineTopicMap({
           : [];
       return [NOTES_ALL_TOPIC, userTopic(ctx.actorId), ...room];
     },
-    subscribeTopics(row, ctx) {
-      const spaceId = row['space_id'];
-      const room =
-        typeof spaceId === 'string' && spaceId.length > 0
-          ? [roomTopic(spaceId)]
-          : [];
-      return [userTopic(ctx.actorId), ...room];
-    },
   },
   folders: {
     topics(_row, ctx) {
       return [NOTES_ALL_TOPIC, userTopic(ctx.actorId)];
     },
-    subscribeTopics(_row, ctx) {
-      return [userTopic(ctx.actorId)];
-    },
   },
   tags: {
     topics(_row, ctx) {
       return [NOTES_ALL_TOPIC, userTopic(ctx.actorId)];
-    },
-    subscribeTopics(_row, ctx) {
-      return [userTopic(ctx.actorId)];
     },
   },
   spaces: {
@@ -94,6 +85,12 @@ export const acmeTopicMap = defineTopicMap({
         userTopic(ctx.actorId),
       ];
     },
+    // Held-row subscribe: only the actor's membership rows drive room topics.
+    subscribeTopics(row, ctx) {
+      if (row['user_id'] !== ctx.actorId) return [];
+      const spaceId = String(row['space_id'] ?? '');
+      return spaceId.length > 0 ? [roomTopic(spaceId)] : [];
+    },
   },
   // Device-private: writer has the local mutation row; hydrate via
   // openSpaceSessions (device_id filter). Empty topics so row images do not
@@ -109,6 +106,19 @@ export const acmeTopicMap = defineTopicMap({
   profile: {
     topics(row, ctx) {
       return [userTopic(String(row['id'] ?? ctx.actorId))];
+    },
+    rowImage: {
+      publish(row) {
+        return usernameNonEmpty(row);
+      },
+      accept(incoming, local) {
+        if (usernameNonEmpty(incoming)) return true;
+        const localUsername = local?.['username'];
+        if (typeof localUsername === 'string' && localUsername.length > 0) {
+          return false;
+        }
+        return true;
+      },
     },
   },
   friends_friendships: {

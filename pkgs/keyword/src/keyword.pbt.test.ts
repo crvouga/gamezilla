@@ -1,12 +1,11 @@
 import { describe, expect, test } from 'bun:test';
+import { assertProperty } from '@pkgs/dst/fast-check';
+import fc from 'fast-check';
+import { asKeyword, isNamespacedKeyword, joinKeywordSegments } from './keyword';
 import {
   arbKebabSegment,
   arbNamespacedKeyword,
-  assertProperty,
-  fc,
-} from '@pkgs/pbt';
-
-import { asKeyword, isNamespacedKeyword, joinKeywordSegments } from './keyword';
+} from './test/keyword-arbitraries';
 
 describe('keyword properties', () => {
   test('constructed namespaced keywords are accepted', () => {

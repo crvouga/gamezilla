@@ -60,7 +60,7 @@ describe('room sim: triad matrix smoke (E-A06)', () => {
     await s.apply(disconnect, 'carol');
     await s.apply(connect, 'carol');
     await expectConverged(s);
-    expect(counterValue(await readServer(run))).toBe(3);
+    expect(counterValue(await readServer(s))).toBe(3);
     expect(counterValue(await readClient(s, 'alice'))).toBe(3);
     const h = await s.observe(serverHash);
     const hashes = (await s.observe(clientHash)) as Record<string, string>;

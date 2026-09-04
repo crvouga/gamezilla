@@ -43,6 +43,13 @@ export type SimDomainPack = {
     params: unknown,
     ctx: QueryChannelsCtx
   ) => readonly Topic[];
+  /**
+   * Corrupt one domain row for storage-tamper chaos. Required when fuzzing
+   * `flipDomainRow`.
+   */
+  readonly tamperDomainRow?: (db: SqlClient) => Promise<void>;
+  /** Topic to drop in pubsub chaos arbs (`dropTopic` fault). */
+  readonly fuzzDropTopic?: Topic;
 };
 
 /** Default push channels when a pack does not supply membership wiring. */

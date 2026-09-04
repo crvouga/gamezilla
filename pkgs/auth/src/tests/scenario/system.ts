@@ -1,4 +1,4 @@
-import { defineSystem } from '@pkgs/dst';
+import { defineSystem, virtualHost } from '@pkgs/dst';
 import { gen } from '@pkgs/dst/fast-check';
 import fc from 'fast-check';
 import {
@@ -30,23 +30,43 @@ const CALLBACK_URLS = [
   'https://evil.example/sso',
 ] as const;
 
-export type AuthKnobs = {
+/** Typed topology for one IdP script. */
+export type AuthArgs = {
   readonly fabric: AuthFabric;
   readonly clientCount: number;
   readonly enableDev: boolean;
   readonly enableGoogle: boolean;
 };
 
-export const auth = defineSystem({
+/** sqlite-mem, two clients, both providers on. */
+export const AUTH_ARGS: AuthArgs = {
+  fabric: 'sqlite-mem',
+  clientCount: 2,
+  enableDev: true,
+  enableGoogle: true,
+};
+
+export const arbAuthArgs = (): fc.Arbitrary<AuthArgs> =>
+  fc.record({
+    fabric: fc.constantFrom<AuthFabric>('sqlite-mem', 'postgres-mem'),
+    clientCount: fc.integer({ min: 1, max: 3 }),
+    enableDev: fc.boolean(),
+    enableGoogle: fc.boolean(),
+  });
+
+/** One IdP store (sqlite-mem / postgres-mem) plus `clientCount` actors. */
+export const auth = defineSystem<AuthSurface, AuthArgs>({
   name: 'auth.idp',
-  async generate(session, knobs: AuthKnobs): Promise<AuthSurface> {
+  args: AUTH_ARGS,
+  draw: () => gen(arbAuthArgs()),
+  async create(session, args): Promise<AuthSurface> {
     const store = await startStore(session.fork('store'), {
-      fabric: knobs.fabric,
-      enableDev: knobs.enableDev,
-      enableGoogle: knobs.enableGoogle,
+      fabric: args.fabric,
+      enableDev: args.enableDev,
+      enableGoogle: args.enableGoogle,
     });
     const clients = new Map(
-      range(knobs.clientCount).map((i) => [`c${i}`, startActor()] as const)
+      range(args.clientCount).map((i) => [`c${i}`, startActor()] as const)
     );
     return {
       session,
@@ -58,7 +78,7 @@ export const auth = defineSystem({
   },
 });
 
-const { defineAction, defineProperty } = auth;
+auth.host({ default: true, name: 'virtual', create: () => virtualHost() });
 
 export function caps(s: AuthSurface): string[] {
   return [...s.session.caps];
@@ -110,19 +130,19 @@ export async function invariantViolations(s: AuthSurface): Promise<string[]> {
   }
 }
 
-export const advanceClock = defineAction({
+export const advanceClock = auth.action<[number]>({
   name: 'advanceClock',
   enabled: (s) => caps(s).includes('virtualTime'),
-  args: (_s) => gen(fc.constantFrom(1_000, AUTH_SESSION_TTL_MS + 1)),
-  act: async (s, ms: number) => {
+  draw: () => gen(fc.constantFrom(1_000, AUTH_SESSION_TTL_MS + 1)),
+  act: async (s, ms) => {
     await s.session.elapse(ms);
   },
 });
 
-export const setGoogleFault = defineAction({
+export const setGoogleFault = auth.action<[boolean]>({
   name: 'setGoogleFault',
-  args: (_s) => gen(fc.boolean()),
-  act: (s, fault: boolean) => {
+  draw: () => gen(fc.boolean()),
+  act: (s, fault) => {
     s.store.sim.googleFault = fault;
   },
 });
@@ -133,11 +153,11 @@ export type OauthStartArgs = {
   readonly callbackUrl: string;
 };
 
-export const oauthStart = defineAction({
+export const oauthStart = auth.action({
   name: 'oauthStart',
   enabled: (s) => clientIds(s).length > 0,
   weight: 3,
-  args: (s) =>
+  draw: (s) =>
     gen(
       fc.record({
         clientId: fc.constantFrom(...clientIds(s)),
@@ -156,11 +176,11 @@ export type OauthApproveArgs = {
   readonly subject: string;
 };
 
-export const oauthApprove = defineAction({
+export const oauthApprove = auth.action({
   name: 'oauthApprove',
   enabled: (s) => clientIds(s).length > 0,
   weight: 3,
-  args: (s) =>
+  draw: (s) =>
     gen(
       fc.record({
         clientId: fc.constantFrom(...clientIds(s)),
@@ -173,48 +193,38 @@ export const oauthApprove = defineAction({
   },
 });
 
-export const sessionExchange = defineAction({
+export const sessionExchange = auth.action({
   name: 'sessionExchange',
   enabled: (s) => clientIds(s).length > 0,
   weight: 3,
-  args: (s) => gen(fc.constantFrom(...clientIds(s))),
+  draw: (s) => gen(fc.constantFrom(...clientIds(s))),
   act: async (s, clientId: string) => {
     await dispatchSessionExchange(s, clientId);
   },
 });
 
-export const signOut = defineAction({
+export const signOut = auth.action({
   name: 'signOut',
   enabled: (s) => clientIds(s).length > 0,
   weight: 3,
-  args: (s) => gen(fc.constantFrom(...clientIds(s))),
+  draw: (s) => gen(fc.constantFrom(...clientIds(s))),
   act: async (s, clientId: string) => {
     await dispatchSignOut(s, clientId);
   },
 });
 
-export const stealBearer = defineAction({
+export const stealBearer = auth.action({
   name: 'stealBearer',
   enabled: (s) => clientIds(s).length > 0,
   weight: 3,
-  args: (s) => gen(fc.constantFrom(...clientIds(s))),
+  draw: (s) => gen(fc.constantFrom(...clientIds(s))),
   act: async (s, clientId: string) => {
     await dispatchStealBearer(s, clientId, clientId);
   },
 });
 
-export const AUTH_ACTIONS = [
-  advanceClock,
-  setGoogleFault,
-  oauthStart,
-  oauthApprove,
-  sessionExchange,
-  signOut,
-  stealBearer,
-];
-
 /** Re-run the schema migration against the live store (idempotence pin). */
-export const migrateSchema = defineAction({
+export const migrateSchema = auth.action({
   name: 'migrateSchema',
   act: async (s) => {
     await migrateAuthSchema(s.store.fabric, s.store.sql);
@@ -226,7 +236,7 @@ export type FetchAuthArgs = {
   readonly init?: RequestInit;
 };
 
-export const fetchAuth = defineAction({
+export const fetchAuth = auth.action({
   name: 'fetchAuth',
   act: async (s, req: FetchAuthArgs) => {
     const res = await s.store.fetch(req.path, req.init);
@@ -234,22 +244,12 @@ export const fetchAuth = defineAction({
   },
 });
 
-export const invariantsHold = defineProperty({
+export const invariantsHold = auth.property({
   name: 'invariants',
   check: async (s) => {
     const v = await invariantViolations(s);
     if (v.length > 0) throw new Error(v[0]!);
   },
 });
-
-export const AUTH_PROPERTIES = [invariantsHold];
-
-export const arbAuthKnobs = (): fc.Arbitrary<AuthKnobs> =>
-  fc.record({
-    fabric: fc.constantFrom<AuthFabric>('sqlite-mem', 'postgres-mem'),
-    clientCount: fc.integer({ min: 1, max: 3 }),
-    enableDev: fc.boolean(),
-    enableGoogle: fc.boolean(),
-  });
 
 export type { AuthSurface };

@@ -1,12 +1,12 @@
-import type { JsonValue } from '@pkgs/dst';
+import type { JsonValue, Rng } from '@pkgs/dst';
 import type { DriverKey, DriverNode, ScrollDirection } from '@pkgs/ui-testing';
 
 import { caps, clientIds, partitioned } from './observations';
 import type { ProductSurface } from './surface';
-import { defineAction } from './system';
+import { product } from './system';
 import { nodeAt } from './ui-nodes';
 
-export const spawnActor = defineAction({
+export const spawnActor = product.action({
   name: 'spawnActor',
   act: async (s, id: string) => {
     if (s.actors.has(id)) return;
@@ -15,27 +15,27 @@ export const spawnActor = defineAction({
   },
 });
 
-export const resetActor = defineAction({
+export const resetActor = product.action({
   name: 'resetActor',
   act: async (s, id: string) => {
     await s.runtime.resetActor(id);
   },
 });
 
-export const partition = defineAction({
+export const partition = product.action({
   name: 'partition',
   enabled: (s) => caps(s).includes('partition') && clientIds(s).length > 0,
   weight: (s) => (partitioned(s).length === 0 ? 2 : 1),
-  args: (s) => {
+  draw: (s) => {
     const ids = clientIds(s);
-    return (rng) => ids[Math.floor(rng.next() * ids.length)]!;
+    return (rng: Rng) => ids[Math.floor(rng.next() * ids.length)]!;
   },
   act: (s, id: string) => {
     s.session.network.partition('server', id);
   },
 });
 
-export const heal = defineAction({
+export const heal = product.action({
   name: 'heal',
   enabled: (s) => caps(s).includes('partition'),
   weight: (s) => Math.max(partitioned(s).length, 0),
@@ -51,7 +51,7 @@ export type UiOp = {
   readonly extra: { readonly [k: string]: JsonValue };
 };
 
-export const uiOp = defineAction({
+export const uiOp = product.action({
   name: 'uiOp',
   act: async (s, op: UiOp) => {
     await performUiOp(s, op);

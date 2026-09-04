@@ -1,16 +1,5 @@
 import type { SyncApp } from '../../../sim/scenario/app';
-import {
-  acmeDomainOpArbs,
-  acmeServerOpArbs,
-  pickAcmeDomainOrServerOp,
-} from './domain-arbs';
-import {
-  type AcmeDomainModel,
-  acmeDomainAllows,
-  acmeDomainApply,
-  acmeDomainOnHeal,
-  initialAcmeDomainModel,
-} from './domain-model';
+import { acmeDomainOpArbs, acmeServerOpArbs } from './domain-arbs';
 import { acmeDomainPack } from './domain-pack';
 import { insertCatalogNote } from './insert-catalog-note';
 import {
@@ -24,7 +13,6 @@ export const acmeApp: SyncApp = {
   pack: acmeDomainPack,
   domainOpArbs: acmeDomainOpArbs,
   serverOpArbs: acmeServerOpArbs,
-  pickDomainOrServerOp: pickAcmeDomainOrServerOp,
   restartOptsForVariant: (variant) =>
     acmeRestartOptsForVariant(variant as AcmeSchemaVariant),
   serverOps: {
@@ -59,11 +47,5 @@ export const acmeApp: SyncApp = {
       if (typeof count !== 'number') return;
       await seedLargeCatalogNotes(surface.server, { count, notify: true });
     },
-  },
-  domainModel: {
-    initial: initialAcmeDomainModel,
-    allows: (model, op) => acmeDomainAllows(model as AcmeDomainModel, op),
-    apply: (model, op) => acmeDomainApply(model as AcmeDomainModel, op),
-    onHeal: (model) => acmeDomainOnHeal(model as AcmeDomainModel),
   },
 };

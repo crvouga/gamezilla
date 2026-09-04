@@ -135,7 +135,7 @@ export function createSyncEnginePool(
         return created;
       };
 
-      const result = pool.opChain.then(s, run);
+      const result = pool.opChain.then(run, run);
       pool.opChain = result.then(
         () => undefined,
         () => undefined

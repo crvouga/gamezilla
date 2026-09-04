@@ -1,8 +1,7 @@
 import { asSeededRng, type Session } from '@pkgs/dst';
-import { bootReplicaOnStore } from '../boot-replica';
+import { bootReplicaOnStore, type ReplicaBootConfig } from '../boot-replica';
 import type { MatchmakingSimBackend } from '../sim-api';
 import { openSimStore, type SimStore } from '../store';
-import type { MatchmakingSystemConfig } from './system';
 
 export type MmStoreHandle = { readonly store: SimStore };
 
@@ -23,22 +22,14 @@ export async function startReplica(
   session: Session,
   store: SimStore,
   replicaId: string,
-  config: MatchmakingSystemConfig
+  config: ReplicaBootConfig
 ): Promise<MmReplicaBootHandle> {
   const mm = await bootReplicaOnStore({
     store,
     clock: session.ports.clock,
     rng: asSeededRng(session.ports.rng as never),
     replicaId,
-    config: {
-      schema: config.schema,
-      radius: config.radius,
-      tuning: config.tuning,
-    },
+    config,
   });
   return { id: replicaId, mm };
-}
-
-export async function disposeStore(handle: MmStoreHandle): Promise<void> {
-  await handle.store.close();
 }

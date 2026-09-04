@@ -15,7 +15,7 @@ SimDomainPack
 SimSessionQuery
 SyncAction
 SyncApp
-SyncKnobs
+SyncArgs
 SyncSurface
 UntilTarget
 WaitUntilOptions

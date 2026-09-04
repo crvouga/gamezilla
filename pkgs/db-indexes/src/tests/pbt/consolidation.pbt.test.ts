@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { assertProperty, fc } from '@pkgs/pbt';
+import { assertProperty } from '@pkgs/dst/fast-check';
+import fc from 'fast-check';
 import { resolveConfig } from '../../core/config';
 import { consolidateCandidates, isPrefixCovered } from '../../core/consolidate';
 import { ownedIndexName } from '../../core/naming';

@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test';
+import { assertProperty } from '@pkgs/dst/fast-check';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
-import { assertProperty, fc } from '@pkgs/pbt';
+import fc from 'fast-check';
 import { keyValueRoomClientKeywords } from '../client/adapters/storage/key-value/keys';
 import { KeyValueClientRoomStorage } from '../client/adapters/storage/key-value/storage';
 import { InMemoryClientStorage } from '../client/adapters/storage/memory';

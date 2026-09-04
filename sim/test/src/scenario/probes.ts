@@ -14,10 +14,10 @@ import {
 } from '@sim/console/sim/system-snapshot';
 
 import type { ProductSurface } from './surface';
-import { defineAction } from './system';
+import { product } from './system';
 
 /** Sign in through the client auth port wired to the in-process sim server. */
-export const devOauthSignIn = defineAction({
+export const devOauthSignIn = product.action({
   name: 'devOauthSignIn',
   act: async (s, actorId: string) => {
     const env = s.sim.client(actorId);
@@ -36,7 +36,7 @@ export const devOauthSignIn = defineAction({
 });
 
 /** Dump server + client SQL / kv / rooms into `probes.snapshot`. */
-export const captureSnapshot = defineAction({
+export const captureSnapshot = product.action({
   name: 'captureSnapshot',
   act: async (s, clientIds: readonly string[]) => {
     s.probes.snapshot = await captureSnapshotOf(s, clientIds);

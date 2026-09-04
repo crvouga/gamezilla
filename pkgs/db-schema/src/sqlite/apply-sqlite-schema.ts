@@ -5,8 +5,8 @@ import { type SqliteOwnership, sqlite } from './driver';
 
 export type ApplySqliteSchemaOptions = {
   /**
-   * `whole-db` (default): drop undeclared tables.
-   * `declared-only`: leave undeclared tables alone.
+   * `declared-only` (default): leave undeclared tables alone.
+   * `whole-db`: drop undeclared tables.
    */
   readonly ownership?: SqliteOwnership;
 };

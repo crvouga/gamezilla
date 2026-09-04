@@ -1,11 +1,12 @@
 import { createRng } from '../kernel/rng';
-import {
-  getSystemRegistry,
-  poolActions,
-  type System,
-} from '../system/define-system';
 import type { Action, CatalogAction, CatalogProperty } from '../system/effect';
 import type { Gen } from '../system/gen';
+import {
+  type ActionSlice,
+  getSystemRegistry,
+  resolveActions,
+  type SystemCore as System,
+} from '../system/registry';
 import type { Choice, Repro } from '../system/repro';
 import { parseRepro, REPRO_VERSION } from '../system/repro';
 import { closeMonitors } from './checkpoint';
@@ -45,7 +46,11 @@ export type Report = {
 export type ExploreOptions<S, Args = void> = {
   /** Registered host name. Omit → system default. */
   readonly host?: string;
-  readonly actions?: readonly CatalogAction<S>[];
+  /**
+   * Slice of the walk: registered action names and/or action objects.
+   * Default: every registered action with `pool !== false`.
+   */
+  readonly actions?: ActionSlice<S>;
   readonly seed?: number;
   /** Fixed args, Partial overlay, or a Gen that draws per episode. */
   readonly args?: [Args] extends [void]
@@ -196,14 +201,19 @@ async function scriptEpisode<S, Args>(args: {
         choices: w.choices,
         meta: { system: system.name, host: args.hostName },
       };
+      const error = w.violations[0]!.error;
       if (opts.shrink !== false) {
-        repro = await shrinkRepro(system, opts, repro, args.actions);
+        repro = await shrinkRepro(
+          {
+            system: system as System<unknown, unknown>,
+            opts: opts as ExploreOptions<unknown, unknown>,
+            actions: args.actions as readonly CatalogAction<unknown>[],
+            error,
+          },
+          repro
+        );
       }
-      acc.failures.push({
-        seed: epSeed,
-        repro,
-        error: w.violations[0]!.error,
-      });
+      acc.failures.push({ seed: epSeed, repro, error });
       return 'fail';
     }
     return 'ok';
@@ -244,9 +254,10 @@ export async function explore<S, Args = void>(
     );
   }
   const properties = registry.properties as readonly CatalogProperty<S>[];
-  const actions =
-    opts.actions ??
-    (poolActions(system as System<S, unknown>) as readonly CatalogAction<S>[]);
+  const actions = resolveActions(
+    system as System<S, unknown>,
+    opts.actions
+  ) as readonly CatalogAction<S>[];
 
   const acc: EpisodeAcc = {
     failures: [],
@@ -289,12 +300,18 @@ export async function explore<S, Args = void>(
   return report;
 }
 
+/** What every shrink trial replays against: system, host, slice, and the failure to match. */
+type ShrinkCtx = {
+  readonly system: System<unknown, unknown>;
+  readonly opts: ExploreOptions<unknown, unknown>;
+  readonly actions: readonly CatalogAction<unknown>[];
+  readonly error: string;
+};
+
 async function deltaDebugChoices(
-  system: System<unknown, unknown>,
-  opts: ExploreOptions<unknown, unknown>,
+  ctx: ShrinkCtx,
   repro: Repro,
-  choices: Choice[],
-  actions: readonly CatalogAction<unknown>[]
+  choices: Choice[]
 ): Promise<Choice[]> {
   let cur = choices;
   let changed = true;
@@ -303,7 +320,7 @@ async function deltaDebugChoices(
     const mid = Math.ceil(cur.length / 2);
     for (const part of [cur.slice(0, mid), cur.slice(mid)]) {
       if (part.length === 0 || part.length === cur.length) continue;
-      if (await fails(system, opts, { ...repro, choices: part }, actions)) {
+      if (await fails(ctx, { ...repro, choices: part })) {
         cur = part;
         changed = true;
         break;
@@ -322,22 +339,8 @@ function minifyJsonValue(v: unknown): unknown {
   return v;
 }
 
-async function shrinkRepro<S, Args>(
-  system: System<S, Args>,
-  opts: ExploreOptions<S, Args>,
-  repro: Repro,
-  actions: readonly CatalogAction<S>[]
-): Promise<Repro> {
-  const sys = system as System<unknown, unknown>;
-  const o = opts as ExploreOptions<unknown, unknown>;
-  const acts = actions as readonly CatalogAction<unknown>[];
-  const choices = await deltaDebugChoices(
-    sys,
-    o,
-    repro,
-    repro.choices.slice(),
-    acts
-  );
+async function shrinkRepro(ctx: ShrinkCtx, repro: Repro): Promise<Repro> {
+  const choices = await deltaDebugChoices(ctx, repro, repro.choices.slice());
 
   let systemArgs = repro.args;
   if (
@@ -348,7 +351,7 @@ async function shrinkRepro<S, Args>(
     const obj = { ...(systemArgs as Record<string, unknown>) };
     for (const key of Object.keys(obj)) {
       const trial = { ...obj, [key]: minifyJsonValue(obj[key]) };
-      if (await fails(sys, o, { ...repro, args: trial, choices }, acts)) {
+      if (await fails(ctx, { ...repro, args: trial, choices })) {
         obj[key] = trial[key];
       }
     }
@@ -367,16 +370,7 @@ async function shrinkRepro<S, Args>(
         ...choices.slice(shrunkChoices.length + 1),
       ];
       if (
-        await fails(
-          sys,
-          o,
-          {
-            ...repro,
-            args: systemArgs,
-            choices: trialChoices,
-          },
-          acts
-        )
+        await fails(ctx, { ...repro, args: systemArgs, choices: trialChoices })
       ) {
         choiceArgs[i] = trial[i];
       }
@@ -387,18 +381,28 @@ async function shrinkRepro<S, Args>(
   return { ...repro, args: systemArgs, choices: shrunkChoices };
 }
 
-async function fails<S, Args>(
-  system: System<S, Args>,
-  opts: ExploreOptions<S, Args>,
-  repro: Repro,
-  actions: readonly CatalogAction<S>[]
-): Promise<boolean> {
+const PROPERTY_VIOLATION_PREFIX = /^PropertyViolation: ([^ ]+) at /;
+
+/**
+ * A shrink candidate only counts when it reproduces the *same* failure: the
+ * same property for a `PropertyViolation`, or any failure for a thrown error.
+ * Otherwise minified args (empty ids, zero clients) "fail" for unrelated
+ * reasons and the repro degenerates.
+ */
+function sameFailure(original: string, candidate: string): boolean {
+  const property = PROPERTY_VIOLATION_PREFIX.exec(original)?.[1];
+  if (property === undefined) return true;
+  return PROPERTY_VIOLATION_PREFIX.exec(candidate)?.[1] === property;
+}
+
+async function fails(ctx: ShrinkCtx, repro: Repro): Promise<boolean> {
   try {
-    const r = await replay(system, repro, {
-      ...(opts.host !== undefined ? { host: opts.host } : {}),
-      actions,
+    const r = await replay(ctx.system, repro, {
+      ...(ctx.opts.host !== undefined ? { host: ctx.opts.host } : {}),
+      actions: ctx.actions,
     });
-    return !r.ok;
+    if (r.ok) return false;
+    return r.failures.some((f) => sameFailure(ctx.error, f.error));
   } catch {
     return false;
   }
@@ -406,7 +410,8 @@ async function fails<S, Args>(
 
 export type ReplayOptions<S> = {
   readonly host?: string;
-  readonly actions?: readonly CatalogAction<S>[];
+  /** Slice to dispatch from (names or objects). Default: every registered action. */
+  readonly actions?: ActionSlice<S>;
 };
 
 function toRepro<S, Args>(
@@ -433,7 +438,12 @@ export async function replay<S, Args = void>(
   const repro = toRepro(system, input);
   const registry = getSystemRegistry(system as System<S, unknown>);
   const actions =
-    opts.actions ?? (registry.actions as readonly CatalogAction<S>[]);
+    opts.actions === undefined
+      ? (registry.actions as readonly CatalogAction<S>[])
+      : (resolveActions(
+          system as System<S, unknown>,
+          opts.actions
+        ) as readonly CatalogAction<S>[]);
   const hostName = opts.host ?? repro.meta.host ?? registry.defaultHostName;
   if (hostName === undefined) {
     throw new Error(

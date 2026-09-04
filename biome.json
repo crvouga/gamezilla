@@ -273,7 +273,6 @@
         "!**/testing/**"
       ]
     },
-
     {
       "path": "./tools/biome-plugins/no-locale-apis.grit",
       "includes": [
@@ -537,7 +536,8 @@
         "!**/*.example.tsx",
         "!**/e2e/harness/tab-app.ts",
         "!**/e2e/harness/harness-client.ts",
-        "!**/sql-host-entry.ts"
+        "!**/sql-host-entry.ts",
+        "!**/cf-dns.ts"
       ]
     },
     {
@@ -672,8 +672,7 @@
         "**/libs/**/*.{ts,tsx}",
         "**/apps/**/*.{ts,tsx}",
         "**/sim/**/*.{ts,tsx}",
-        "!**/pkgs/dst/src/run/**",
-        "!**/pkgs/dst/src/pbt/**"
+        "!**/pkgs/dst/src/script/**"
       ]
     },
     {
@@ -683,7 +682,7 @@
         "**/libs/**/*.{ts,tsx}",
         "**/apps/**/*.{ts,tsx}",
         "**/sim/**/*.{ts,tsx}",
-        "!**/pkgs/dst/src/run/**"
+        "!**/pkgs/dst/src/script/**"
       ]
     },
     {
@@ -764,6 +763,18 @@
           "style": {
             "noExcessiveClassesPerFile": "off"
           },
+          "suspicious": {
+            "noConsole": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "libs/stripe/src/use-cases/sync-catalog/server/sync/catalog.ts"
+      ],
+      "linter": {
+        "rules": {
           "suspicious": {
             "noConsole": "off"
           }
@@ -902,6 +913,33 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "pkgs/room/src/sim/world.ts",
+        "pkgs/room/src/tests/dst/pick-library-action.ts",
+        "pkgs/sql-client/src/postgres/pglite-worker-client.ts",
+        "pkgs/sql-client/src/postgres/pglite-worker-host.cjs",
+        "pkgs/sql-client/src/tests/contract/portable-contract.ts",
+        "pkgs/sync-engine/src/mutations/server/replay-mutation.ts",
+        "pkgs/sync-engine/src/sim/http-bridge-dispatch.ts",
+        "pkgs/sync-engine/src/sim/world-facade-parts.ts",
+        "pkgs/sync-engine/src/tests/arbitraries/world-commands/index.ts",
+        "pkgs/system-console/src/client/runs-page.tsx",
+        "pkgs/ui-testing/src/drivers/in-process/multi-app-rntl-session.ts",
+        "apps/client/src/sim/create-sim.ts"
+      ],
+      "linter": {
+        "rules": {
+          "complexity": {
+            "noExcessiveLinesPerFunction": "off",
+            "noExcessiveCognitiveComplexity": "off"
+          },
+          "nursery": {
+            "noExcessiveNestedCallbacks": "off"
           }
         }
       }

@@ -286,8 +286,7 @@ replays are idempotent.
 |------|-------------|
 | **`openLoopbackRoom`** (`@pkgs/room/tests`) | Fast in-process unit/integration with injected `Io`; real `RoomClient` + `RoomServer`, no net faults; Schedule via timers |
 | **`system.script`** (`@pkgs/dst`) | Room virtual host → `Script<RoomSurface>` driven by `apply` / `observe` / `until`: partitions, delays, soft disconnect, crash/restart, hash converge, Schedule wakes |
-| **`system.explore` / `system.script` + `applyTaggedSequence`** | Weighted walk / scripted pins + fault-catalog slice PBTs |
-| **`runRoomSeed`** | Non-shrinking seeded fuzz (`ROOM_SIM_SEED` / `SIM_SEED`); determinism + long workloads |
+| **`system.explore` / `s.walk`** | Weighted walk over the registered pool (or an `actions:` slice) + shrink; seeded `s.walk` for determinism / long workloads |
 | **DO / adapter tests** | Hibernation, session take-over, per-key storage, alarms, WS heartbeat |
 | **`runModuleConformance`** | Game-module kit (purity, hash, totality, fold, fuzz) |
 
@@ -321,25 +320,36 @@ registerRoomLibrary(counterSystem, counterApp);
 // shrinking PBT — script + weighted walk + shrink
 await counterSystem.explore({ episodes: 12, steps: 14 });
 
+// focused slice PBT — only these registered actions are walked
+await counterSystem.explore({
+  seed: 31,
+  episodes: 8,
+  steps: 14,
+  actions: ['hold', 'down', 'release', 'domain', 'heal'],
+});
+
 // scripted pin
 await using s = await counterSystem.script({
   seed,
   args: { clientCount: 2 },
 });
-await applyTaggedSequence(s, [/* RoomSystemAction */]);
+await s.apply(hold, 'c0');
+await s.apply(domain, domainOp('c0', 'increment'));
+await s.apply(release, 'c0');
 await expectConverged(s);
 ```
 
+1. Every library action (`hold`, `down`, `crash`, `armCrashAt`, `injectToServer`,
+   …) is a pool action with its own `draw`; `app.domainOpArbs` feeds `domain`
+2. Const fault catalogs (`NET_FAULT_PROFILES`, `BYZANTINE_INJECT_KINDS`,
+   crash events) are drawn by the pool actions and exhausted by slice PBTs via
+   `explore({ actions: [...] })`
+3. Determinism / long workloads: `s.walk({ steps, time })` twice with the same
+   seed must yield identical `choices` and converged hashes
 
-1. `RoomSystemAction` union (domain + library chaos) under `sim/scenario/`
-2. `WorldModel` + `modelAllowsAction` so shrinks stay legal
-3. `libraryActionArbs` + `app.domainOpArbs` feed the framework command pool;
-   `armCrashAt` / wire injects stay out of it and are covered by slice PBTs
-4. Const fault catalogs (`NET_FAULT_PROFILES`, `BYZANTINE_INJECT_KINDS`, `WORLD_PBT_CRASH_EVENTS`) exhausted by slice PBTs
-5. `runRoomSeed` (`tests/scenario/script-seed.ts`) boots the same topology via
-   `system.script` for non-shrinking seeded fuzz
-
-On find: capture `FC_SEED` / `replayPath` → pin in `room-system.scenario.pbt.test.ts` or a named `.sim.test.ts` → log in [`PBT_FINDINGS.md`](../../../PBT_FINDINGS.md).
+On find: `explore` returns a shrunk `Repro`; replay it with
+`counterSystem.replay(repro)` → pin in `room-system.scenario.pbt.test.ts` or a
+named `.sim.test.ts` → log in [`PBT_FINDINGS.md`](../../../PBT_FINDINGS.md).
 
 ### System five concepts (room-shaped)
 

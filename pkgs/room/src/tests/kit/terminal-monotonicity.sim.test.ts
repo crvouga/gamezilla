@@ -29,13 +29,13 @@ describe('kit: terminal monotonicity (M-F06)', () => {
       clientId: 'alice',
       payload: StartDeadline({ durationMs: 100 }),
     });
-    expect(deadlineStatus(await readServer(run))).toBe('open');
+    expect(deadlineStatus(await readServer(s))).toBe('open');
     expect(deadlineStatus(await readClient(s, 'alice'))).toBe('open');
 
     await s.elapse(120);
     await expectConverged(s);
 
-    const outcome = deadlineOutcome(await readServer(run));
+    const outcome = deadlineOutcome(await readServer(s));
     expect(outcome).toBe('expired');
     expect(deadlineOutcome(await readClient(s, 'alice'))).toBe(outcome);
     expect(deadlineOutcome(await readClient(s, 'bob'))).toBe(outcome);
@@ -49,7 +49,7 @@ describe('kit: terminal monotonicity (M-F06)', () => {
       clientId: 'alice',
       payload: ActBeforeDeadline({}),
     });
-    expect(deadlineOutcome(await readServer(run))).toBe('expired');
+    expect(deadlineOutcome(await readServer(s))).toBe('expired');
     expect(deadlineOutcome(await readClient(s, 'alice'))).toBe('expired');
   });
 });

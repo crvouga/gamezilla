@@ -253,8 +253,7 @@ export function runDbSchemaContractTests(
         if (factory.dialect === 'postgres') {
           await expect(reconcile(bad)).rejects.toThrow(/type mismatch/i);
         } else {
-          // SQLite rebuilds physical mismatch for declared columns.
-          await reconcile(bad);
+          await expect(reconcile(bad)).rejects.toThrow(/type mismatch/i);
         }
         void v2;
       } finally {

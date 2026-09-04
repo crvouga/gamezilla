@@ -27,7 +27,7 @@ describe('room sim: two client converge', () => {
       payload: Increment({}),
     });
     await expectConverged(s);
-    expect(counterValue(await readServer(run))).toBe(3);
+    expect(counterValue(await readServer(s))).toBe(3);
     expect(counterValue(await readClient(s, 'alice'))).toBe(3);
     expect(counterValue(await readClient(s, 'bob'))).toBe(3);
     await expectHashMatch(s, 'alice');

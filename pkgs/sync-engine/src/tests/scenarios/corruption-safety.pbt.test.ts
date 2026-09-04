@@ -1,110 +1,95 @@
-import { describe, test } from 'bun:test';
-import { assertProperty, fc } from '@pkgs/pbt';
-import {
-  CORRUPTION_VARIANTS,
-  HTTP_FAULTS,
-  PUBSUB_FAULTS,
-  STORAGE_TAMPERS,
-} from '../../sim/scenario';
-import { arbKnobs, arbSeed } from '../../sim/scenario/knobs';
-import { playAcmePin } from '../apps/acme';
-import { acmeSetNoteOp } from '../apps/acme/domain-model';
-import type { LibraryAction, SyncAction } from '../scenario/actions';
+import { describe, expect, test } from 'bun:test';
 
-const TRIGGER = acmeSetNoteOp('c0', 'n0', 'corruption');
-
-function corruptionSequence(arm: LibraryAction): SyncAction[] {
-  return [arm, TRIGGER, { kind: 'idle', ms: 40 }, { kind: 'heal' }];
-}
+import { CORRUPTION_VARIANTS, STORAGE_TAMPERS } from '../../sim/scenario';
+import { acmeSystem, expectConverged, pool } from '../apps/acme';
+import { walkThenConverge } from '../apps/acme/walk-converge';
 
 describe('corruption safety PBT', () => {
   test(
-    'HTTP response corruption then mutate converges',
+    'HTTP response corruption then mutate converges (every variant)',
     async () => {
-      await assertProperty(
-        'http corruption sequences converge',
-        fc.asyncProperty(
-          arbSeed(),
-          arbKnobs(),
-          fc
-            .constantFrom(...HTTP_FAULTS)
-            .filter(
-              (f) =>
-                f.kind === 'corruptMutationsResponse' ||
-                f.kind === 'corruptQueryResponse'
-            ),
-          async (seed, knobs, fault) => {
-            await playAcmePin({
-              seed,
-              knobs,
-              actions: corruptionSequence({
-                kind: 'armHttpFault',
-                clientId: 'c0',
-                fault,
-              }),
-            });
-          }
-        ),
-        { numRuns: 6 }
-      );
+      for (const [i, variant] of CORRUPTION_VARIANTS.entries()) {
+        for (const kind of [
+          'corruptMutationsResponse',
+          'corruptQueryResponse',
+        ] as const) {
+          await using s = await acmeSystem.script({ seed: 500 + i });
+          await s.apply(pool.armHttpFault, 'c0', { kind, variant });
+          await s.apply(pool.domain, {
+            clientId: 'c0',
+            mutation: 'setNote',
+            args: { id: 'n0', body: 'corruption', title: '' },
+          });
+          await s.elapse(40);
+          await s.apply(pool.heal);
+          await expectConverged(s);
+        }
+      }
     },
     { timeout: 120_000 }
   );
 
   test(
-    'pubsub corruption then mutate converges',
+    'pubsub payload corruption then mutate converges (every variant)',
     async () => {
-      await assertProperty(
-        'pubsub corruption sequences converge',
-        fc.asyncProperty(
-          arbSeed(),
-          arbKnobs(),
-          fc
-            .constantFrom(...PUBSUB_FAULTS)
-            .filter((f) => f.kind === 'corruptPubsubPayload'),
-          fc.constantFrom(...CORRUPTION_VARIANTS),
-          async (seed, knobs, _fault, variant) => {
-            await playAcmePin({
-              seed,
-              knobs,
-              actions: corruptionSequence({
-                kind: 'armPubsubFault',
-                fault: { kind: 'corruptPubsubPayload', variant },
-              }),
-            });
-          }
-        ),
-        { numRuns: 6 }
-      );
+      for (const [i, variant] of CORRUPTION_VARIANTS.entries()) {
+        await using s = await acmeSystem.script({ seed: 520 + i });
+        await s.apply(pool.armPubsubFault, {
+          kind: 'corruptPubsubPayload',
+          variant,
+        });
+        await s.apply(pool.domain, {
+          clientId: 'c0',
+          mutation: 'setNote',
+          args: { id: 'n0', body: 'corruption', title: '' },
+        });
+        await s.elapse(40);
+        await s.apply(pool.heal);
+        await expectConverged(s);
+      }
     },
     { timeout: 120_000 }
   );
 
   test(
-    'local storage tamper then restart converges',
+    'local storage tamper then restart converges (every tamper)',
     async () => {
-      await assertProperty(
-        'storage tamper sequences converge',
-        fc.asyncProperty(
-          arbSeed(),
-          arbKnobs(),
-          fc.constantFrom(...STORAGE_TAMPERS),
-          async (seed, knobs, tamper) => {
-            await playAcmePin({
-              seed,
-              knobs,
-              actions: [
-                TRIGGER,
-                { kind: 'tamperLocalStorage', clientId: 'c0', tamper },
-                { kind: 'restart', clientId: 'c0' },
-                { kind: 'idle', ms: 40 },
-                { kind: 'heal' },
-              ],
-            });
-          }
-        ),
-        { numRuns: 6 }
-      );
+      for (const [i, tamper] of STORAGE_TAMPERS.entries()) {
+        await using s = await acmeSystem.script({ seed: 540 + i });
+        await s.apply(pool.domain, {
+          clientId: 'c0',
+          mutation: 'setNote',
+          args: { id: 'n0', body: 'corruption', title: '' },
+        });
+        await s.apply(pool.tamperLocalStorage, 'c0', tamper);
+        await s.apply(pool.restart, 'c0');
+        await s.elapse(40);
+        await s.apply(pool.heal);
+        await expectConverged(s);
+      }
+    },
+    { timeout: 120_000 }
+  );
+
+  test(
+    'corruption arms interleaved with mutates converge on heal',
+    async () => {
+      let tampered = 0;
+      for (const seed of [561, 562, 563]) {
+        const walk = await walkThenConverge({
+          seed,
+          actions: [
+            'armHttpFault',
+            'armPubsubFault',
+            'tamperLocalStorage',
+            'domain',
+            'heal',
+          ],
+          steps: 10,
+        });
+        tampered += walk.coverage.actions['tamperLocalStorage'] ?? 0;
+      }
+      expect(tampered).toBeGreaterThan(0);
     },
     { timeout: 120_000 }
   );

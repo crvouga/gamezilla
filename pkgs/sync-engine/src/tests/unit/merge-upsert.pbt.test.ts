@@ -1,7 +1,8 @@
 import { describe, expect, test } from 'bun:test';
-import { arbJsonValue, assertProperty, fc } from '@pkgs/pbt';
+import { arbJsonValue, assertProperty } from '@pkgs/dst/fast-check';
 import { sql } from '@pkgs/sql';
 import { SqlClientImplSqliteMem } from '@pkgs/sql-client/sqlite/impl-sqlite-mem';
+import fc from 'fast-check';
 import { migrateLocalSchema } from '../../client/local-schema-migrate';
 import {
   sqliteWireValue,

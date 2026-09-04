@@ -1,5 +1,4 @@
-import { fc } from '@pkgs/pbt';
-import type { SeededRng } from '@pkgs/uuid';
+import fc from 'fast-check';
 import type { DomainOp, RoomApp } from '../../../sim/scenario';
 import { domainOp } from '../../../sim/scenario';
 import { AuthzFixtureModule, Bump, Claim } from '../../fixtures/authz-module';
@@ -14,14 +13,6 @@ export function authzDomainOpArbs(ctx: {
   ];
 }
 
-export function pickAuthzDomainOp(
-  rng: SeededRng,
-  clientIds: readonly string[]
-): DomainOp {
-  const clientId = clientIds[rng.int(clientIds.length)] ?? 'c0';
-  return domainOp(clientId, rng.random() < 0.4 ? 'claim' : 'bump');
-}
-
 export function authzToPayload(op: DomainOp) {
   if (op.command === 'bump') return Bump({});
   return Claim({});
@@ -30,6 +21,5 @@ export function authzToPayload(op: DomainOp) {
 export const authzApp: RoomApp = {
   module: AuthzFixtureModule,
   domainOpArbs: authzDomainOpArbs,
-  pickDomainOp: pickAuthzDomainOp,
   toPayload: authzToPayload,
 };

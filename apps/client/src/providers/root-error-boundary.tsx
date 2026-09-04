@@ -68,32 +68,9 @@ export class RootErrorBoundary extends Component<Props, State> {
   }
 
   override componentDidCatch(
-    error: Error,
-    info: { componentStack?: string }
-  ): void {
-    // #region agent log
-    fetch('http://127.0.0.1:7911/ingest/d4edd39e-6094-44db-a7a5-6f18ec22b1a0', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Debug-Session-Id': 'ad8a49',
-      },
-      body: JSON.stringify({
-        sessionId: 'ad8a49',
-        runId: 'pre-fix',
-        hypothesisId: 'stack',
-        location: 'root-error-boundary.tsx:componentDidCatch',
-        message: 'caught render error',
-        data: {
-          err: String(error?.message ?? error),
-          stack: String(error?.stack ?? '').slice(0, 4000),
-          componentStack: String(info?.componentStack ?? '').slice(0, 2000),
-        },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {});
-    // #endregion
-  }
+    _error: Error,
+    _info: { componentStack?: string }
+  ): void {}
 
   override render(): ReactNode {
     const { error } = this.state;

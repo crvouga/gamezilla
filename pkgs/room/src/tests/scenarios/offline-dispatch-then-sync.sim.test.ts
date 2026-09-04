@@ -37,7 +37,7 @@ describe('room sim: offline dispatch then sync', () => {
 
     await s.apply(connect, 'alice');
     await expectConverged(s);
-    expect(counterValue(await readServer(run))).toBe(1);
+    expect(counterValue(await readServer(s))).toBe(1);
     expect(counterValue(await readClient(s, 'alice'))).toBe(1);
     expect(counterValue(await readClient(s, 'bob'))).toBe(1);
     await expectHashMatch(s, 'alice');

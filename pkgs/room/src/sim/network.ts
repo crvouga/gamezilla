@@ -134,6 +134,10 @@ export type SimRoomNetwork = {
   readonly set: (clientKey: string, next: RoomNetSetArg) => RoomNetEffect;
   readonly healAll: () => void;
   readonly linkState: (clientKey: string) => RoomNetLinkState;
+  /** True while any hold / down / directional override / fault profile is set. */
+  readonly impaired: (clientKey: string) => boolean;
+  /** True while the shared link or either direction is `down` (frames dropped). */
+  readonly down: (clientKey: string) => boolean;
   readonly heldSummary: () => readonly string[];
   readonly pendingCount: () => number;
   /** In-flight + held net work (excludes unrelated scheduler timers). */
@@ -143,6 +147,9 @@ export type SimRoomNetwork = {
 export type SimRoomNetHandle = {
   readonly set: (next: RoomNetSetArg) => RoomNetEffect;
   readonly state: () => RoomNetLinkState;
+  readonly impaired: () => boolean;
+  /** Frames are being dropped — only `heal` (revive) recovers this link. */
+  readonly down: () => boolean;
 };
 
 function linkStateOf(ctx: RoomNetCtx, clientKey: string): RoomNetLinkState {
@@ -308,6 +315,24 @@ function applySet(
   applyLinkState(ctx, clientKey, next);
 }
 
+function isImpaired(ctx: RoomNetCtx, clientKey: string): boolean {
+  const snap = snapshotOf(ctx, clientKey);
+  return (
+    snap.shared !== 'ok' ||
+    (snap.toServer !== undefined && snap.toServer !== 'ok') ||
+    (snap.toClient !== undefined && snap.toClient !== 'ok') ||
+    snap.faults !== undefined
+  );
+}
+
+function isDown(ctx: RoomNetCtx, clientKey: string): boolean {
+  return (
+    linkStateOf(ctx, clientKey) === 'down' ||
+    effectiveLink(ctx, clientKey, 'toServer') === 'down' ||
+    effectiveLink(ctx, clientKey, 'toClient') === 'down'
+  );
+}
+
 function buildRoomNetworkApi(args: {
   readonly scheduler: VirtualScheduler;
   readonly ctx: RoomNetCtx;
@@ -379,6 +404,8 @@ function buildRoomNetworkApi(args: {
       ctx.nodeFaults.clear();
     },
     linkState: (clientKey) => linkStateOf(ctx, clientKey),
+    impaired: (clientKey) => isImpaired(ctx, clientKey),
+    down: (clientKey) => isDown(ctx, clientKey),
     heldSummary() {
       return kernel
         .held()

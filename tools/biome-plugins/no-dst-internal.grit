@@ -23,6 +23,6 @@ or {
     register_diagnostic(span=$x, message="play*Actions is forbidden — use s.apply or check/replay.", severity="error")
   },
   `playRoomActions` as $x where {
-    register_diagnostic(span=$x, message="play*Actions is forbidden — use system.script + s.apply / applyTaggedSequence / system.explore / system.replay.", severity="error")
+    register_diagnostic(span=$x, message="play*Actions is forbidden — use system.script + s.apply / system.explore / system.replay.", severity="error")
   }
 }

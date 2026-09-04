@@ -47,7 +47,7 @@ type StickySchemaArgs = Pick<
 
 /**
  * Peer engines that share a donor DB must remigrate with the donor's sticky
- * upgrade schema. Pack baseline rejects leftover extras (e.g. notes.color).
+ * upgrade schema. Pack baseline rejects leftover extras (e.g. undeclared columns).
  */
 function stickyFromSharedDb(
   ctx: BootedSimKernel,

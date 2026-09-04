@@ -1,4 +1,5 @@
-import { arbJsonValue, fc } from '@pkgs/pbt';
+import { arbJsonValue } from '@pkgs/dst/fast-check';
+import fc from 'fast-check';
 import type { LogicalColumnType } from '../oracles/canonical-dump';
 
 /** Integer landmines that surface as Postgres int8 / SQLite INTEGER. */

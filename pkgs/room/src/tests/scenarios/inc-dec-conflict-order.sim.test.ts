@@ -39,7 +39,7 @@ describe('room sim: inc-dec conflict order (E-B04)', () => {
     }
     await s.elapse(0);
     await expectConverged(s);
-    expect(counterValue(await readServer(run))).toBe(0);
+    expect(counterValue(await readServer(s))).toBe(0);
     expect(counterValue(await readClient(s, 'alice'))).toBe(0);
     await expectHashMatch(s, 'alice');
     await expectHashMatch(s, 'bob');

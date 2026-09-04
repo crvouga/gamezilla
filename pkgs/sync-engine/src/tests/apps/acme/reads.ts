@@ -1,7 +1,7 @@
 /**
- * Domain reads for acme scenarios, built on the framework `rows` / `liveNote`
- * functions. Scenario tests stay on `s.apply` / `s.observe` — the run
- * API hands out no live database handles.
+ * Domain reads for acme scenarios, built on the framework `rows` observation.
+ * Scenario tests stay on `s.apply` / `s.observe` — the run API hands out no
+ * live database handles.
  */
 
 import { expect } from 'bun:test';
@@ -10,13 +10,7 @@ import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { SyncSurface } from '../../../sim/scenario';
-import {
-  clientIds,
-  deviceId,
-  liveNote,
-  liveSpace,
-  rows as rowsObs,
-} from '../../../sim/scenario';
+import { clientIds, deviceId, rows as rowsObs } from '../../../sim/scenario';
 
 async function rows<T extends Record<string, JsonValue>>(
   s: SyncSurface,
@@ -25,6 +19,59 @@ async function rows<T extends Record<string, JsonValue>>(
   statement: Parameters<SqlClient['query']>[0]
 ): Promise<T[]> {
   return (await rowsObs(s, label, nodeId, statement)) as T[];
+}
+
+export type LiveNoteRow = {
+  readonly body: string;
+  readonly title: string;
+  readonly deletedAt: string | null;
+};
+
+/**
+ * Note row on `nodeId` (`'server'` or a client id). `null` means the row is
+ * absent; a non-null `deletedAt` means present but tombstoned.
+ */
+export async function liveNote(
+  s: SyncSurface,
+  nodeId: string,
+  id: string
+): Promise<LiveNoteRow | null> {
+  const found = await rows<LiveNoteRow>(
+    s,
+    'liveNote',
+    nodeId,
+    sql<LiveNoteRow>`
+      SELECT body, title, deleted_at AS "deletedAt"
+      FROM notes
+      WHERE id = ${id}
+    `
+  );
+  return found[0] ?? null;
+}
+
+export type LiveSpaceRow = {
+  readonly title: string;
+  readonly ownerId: string;
+  readonly deletedAt: string | null;
+};
+
+/** Space row on `nodeId` — same absent / tombstoned rules as {@link liveNote}. */
+export async function liveSpace(
+  s: SyncSurface,
+  nodeId: string,
+  id: string
+): Promise<LiveSpaceRow | null> {
+  const found = await rows<LiveSpaceRow>(
+    s,
+    'liveSpace',
+    nodeId,
+    sql<LiveSpaceRow>`
+      SELECT title, owner_id AS "ownerId", deleted_at AS "deletedAt"
+      FROM spaces
+      WHERE id = ${id}
+    `
+  );
+  return found[0] ?? null;
 }
 
 export type NoteRow = {

@@ -1,4 +1,4 @@
-import { fc } from '@pkgs/pbt';
+import fc from 'fast-check';
 import { fingerprintSql } from '../../core/fingerprint';
 import type { WorkloadManifest, WorkloadQuery } from '../../core/types';
 import type { GenSchema } from './schema';

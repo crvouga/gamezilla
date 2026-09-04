@@ -1,4 +1,4 @@
-import { arbJsonValue } from '@pkgs/pbt';
+import { arbJsonValue } from '@pkgs/dst/fast-check';
 import type { Arbitrary } from 'fast-check';
 import fc from 'fast-check';
 

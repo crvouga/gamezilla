@@ -7,16 +7,10 @@
  */
 
 export {
-  defineMatchmakingSystem,
   join,
-  MATCHMAKING_ACTIONS,
-  MATCHMAKING_PROPERTIES,
-  MATCHMAKING_SYSTEM,
-  type MatchmakingKnobs,
+  type MatchmakingArgs,
   type MatchmakingSurface,
-  type MatchmakingSystemDef,
   matchmaking,
-  matchmakingKnobs,
   participantIds,
   SIM_AUTH_HEADERS,
   simRequireAuth,

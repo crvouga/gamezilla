@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { assertProperty, fc } from '@pkgs/pbt';
+import { assertProperty } from '@pkgs/dst/fast-check';
+import fc from 'fast-check';
 import { planIndexes } from '../../core/plan';
 import { reconcileIndexes } from '../../core/reconcile';
 import { genSchema, genSmallManifest } from '../generators';

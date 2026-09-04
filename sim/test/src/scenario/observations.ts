@@ -1,8 +1,7 @@
 import type { ElementLayout } from '@pkgs/ui-testing';
 import type { Actor } from '@pkgs/ui-testing/explore';
-import { noErrorBoundary } from '@pkgs/ui-testing/explore';
 
-import type { ProductSurface } from './system';
+import type { ProductSurface } from './surface';
 import { nodeAt } from './ui-nodes';
 
 export function actor(id: string): Actor<ProductSurface> {
@@ -90,5 +89,3 @@ export function oauthTokenLength(s: ProductSurface): number | null {
 export function capturedSnapshot(s: ProductSurface) {
   return s.probes.snapshot;
 }
-
-export const PRODUCT_PROPERTIES = [noErrorBoundary(anyActor)];

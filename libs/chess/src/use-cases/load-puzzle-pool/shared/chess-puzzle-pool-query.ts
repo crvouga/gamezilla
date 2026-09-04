@@ -11,6 +11,7 @@ export const chessPuzzlePool = defineQuery({
       ratingMax: z.number().int().min(0).max(4000).default(4000),
     })
     .refine((p) => p.ratingMin <= p.ratingMax),
+  sampleParams: { ratingMin: 0, ratingMax: 4000 },
   limit: 5000,
   entryChannel: () => chessPuzzlesChannels(),
   async run(ctx, { ratingMin, ratingMax }) {

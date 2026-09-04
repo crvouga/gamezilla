@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { arbJsonValue, assertProperty, fc } from '@pkgs/pbt';
+import { arbJsonValue, assertProperty } from '@pkgs/dst/fast-check';
+import fc from 'fast-check';
 
 import {
   compareCheckpoint,

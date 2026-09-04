@@ -1,13 +1,12 @@
-import type { Action } from '@pkgs/dst';
+import { gen } from '@pkgs/dst/fast-check';
+import fc from 'fast-check';
 import type { TickOptions } from '../../interface/matchmaking';
 import type { DistanceFormula, JoinInput } from '../../interface/types';
-import { matchmaking } from './define-matchmaking-system';
 import type { MatchmakingSurface } from './facade';
 import { SIM_AUTH_HEADERS, simRequireAuth } from './http';
-import { asJson } from './observations';
+import { asJson, caps } from './observations';
 import { mmOf, type ParticipantTarget, targetId } from './refs';
-
-const { defineAction } = matchmaking;
+import { matchmaking } from './system';
 
 export type JoinSpec = {
   readonly ref: string;
@@ -20,20 +19,23 @@ async function joinInto(s: MatchmakingSurface, one: JoinSpec): Promise<void> {
   s.refs.set(one.ref, handle.participantId);
 }
 
-export const join = defineAction({
+export const join = matchmaking.action({
   name: 'join',
+  pool: false,
   act: (s, one: JoinSpec) => joinInto(s, one),
 });
 
-export const leave = defineAction({
+export const leave = matchmaking.action({
   name: 'leave',
+  pool: false,
   act: async (s, target: ParticipantTarget) => {
     s.last.leave = await mmOf(s, target.replicaId).leave(targetId(s, target));
   },
 });
 
-export const ready = defineAction({
+export const ready = matchmaking.action({
   name: 'ready',
+  pool: false,
   act: (s, on: { readonly replicaId?: string }) =>
     mmOf(s, on.replicaId).ready(),
 });
@@ -43,14 +45,15 @@ export type TickSpec = {
   readonly replicaId?: string;
 };
 
-export const tick = defineAction({
+export const tick = matchmaking.action({
   name: 'tick',
+  pool: false,
   act: async (s, on: TickSpec) => {
     s.last.tick = await s.tick(on.opts, on.replicaId);
   },
 });
 
-export const tickAll = defineAction({
+export const tickAll = matchmaking.action({
   name: 'tickAll',
   act: async (s) => {
     s.last.tickAll = [...(await s.tickAll({ maxPassesPerPartition: 2 }))];
@@ -58,8 +61,9 @@ export const tickAll = defineAction({
 });
 
 /** Scripted variant of {@link tickAll} that takes tick options. */
-export const tickAllWith = defineAction({
+export const tickAllWith = matchmaking.action({
   name: 'tickAllWith',
+  pool: false,
   act: async (s, opts: TickOptions) => {
     s.last.tickAll = [...(await s.tickAll(opts))];
   },
@@ -69,8 +73,10 @@ export const tickAllWith = defineAction({
  * Advance virtual time and tick all replicas — use between `s.observe(matched,
  * …)` polls when radius growth needs ticks (plain `s.elapse` does not tick).
  */
-export const stepTime = defineAction({
+export const stepTime = matchmaking.action({
   name: 'stepTime',
+  enabled: (s) => caps(s).includes('virtualTime'),
+  draw: () => gen(fc.tuple(fc.integer({ min: 0, max: 5_000 }))),
   act: async (s, ms: number) => {
     await s.session.elapse(ms);
     await s.tickAll({ maxPassesPerPartition: 4 });
@@ -81,8 +87,9 @@ export type UpdateFormulasSpec = ParticipantTarget & {
   readonly formulas: readonly DistanceFormula[];
 };
 
-export const updateFormulas = defineAction({
+export const updateFormulas = matchmaking.action({
   name: 'updateFormulas',
+  pool: false,
   act: async (s, on: UpdateFormulasSpec) => {
     s.last.update = await mmOf(s, on.replicaId).updateFormulas(
       targetId(s, on),
@@ -91,8 +98,9 @@ export const updateFormulas = defineAction({
   },
 });
 
-export const addReplica = defineAction({
+export const addReplica = matchmaking.action({
   name: 'addReplica',
+  pool: false,
   act: async (s, on: { readonly id: string }) => {
     await s.addReplica(on.id);
   },
@@ -107,8 +115,9 @@ export type JoinsDuringTickSpec = {
 };
 
 /** Race one replica's tick against joins landing on other replicas. */
-export const joinsDuringTick = defineAction({
+export const joinsDuringTick = matchmaking.action({
   name: 'joinsDuringTick',
+  pool: false,
   act: async (s, plan: JoinsDuringTickSpec) => {
     await Promise.all([
       s.replica(plan.tickReplicaId).tick(plan.tickOpts),
@@ -150,8 +159,9 @@ async function readBody(res: Response): Promise<unknown> {
   }
 }
 
-export const httpRequest = defineAction({
+export const httpRequest = matchmaking.action({
   name: 'httpRequest',
+  pool: false,
   act: async (s, req: HttpSpec) => {
     const method = req.method ?? 'GET';
     const res = await appFor(s, req.replicaId).request(req.path, {
@@ -165,7 +175,3 @@ export const httpRequest = defineAction({
     s.last.http = { status: res.status, body: asJson(await readBody(res)) };
   },
 });
-
-export const MATCHMAKING_ACTIONS: readonly Action<MatchmakingSurface, []>[] = [
-  tickAll,
-];

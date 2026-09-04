@@ -2,39 +2,50 @@ import type fc from 'fast-check';
 
 import type { SimDomainPack } from '../domain-pack';
 import type { RestartClientOpts } from '../kit-lifecycle';
-import type { SeededRng } from '../rng';
-import type { DomainOp, ServerOp } from './actions';
 import type { SyncSurfaceBase } from './surface-types';
 
-export type DomainModelHooks = {
-  readonly initial: () => unknown;
-  readonly allows: (model: unknown, op: DomainOp | ServerOp) => boolean;
-  readonly apply: (model: unknown, op: DomainOp | ServerOp) => void;
-  readonly clientAllows?: (
-    model: unknown,
-    op: DomainOp,
-    clientLive: boolean
-  ) => boolean;
-  readonly onHeal?: (model: unknown) => void;
+/** One app mutation from one client — the `domain` pool action's argument. */
+export type DomainOp = {
+  readonly clientId: string;
+  readonly mutation: string;
+  readonly args: Record<string, unknown>;
 };
+
+/** One out-of-band server write — the `server` pool action's argument. */
+export type ServerOp = {
+  readonly name: string;
+  readonly args: Record<string, unknown>;
+};
+
+export function domainOp(
+  clientId: string,
+  mutation: string,
+  args: Record<string, unknown>
+): DomainOp {
+  return { clientId, mutation, args };
+}
+
+export function serverOp(
+  name: string,
+  args: Record<string, unknown>
+): ServerOp {
+  return { name, args };
+}
 
 export type SyncApp = {
   readonly pack: SimDomainPack;
+  /** Arbitraries the `domain` pool action draws from (one per mutation shape). */
   readonly domainOpArbs: (ctx: {
     readonly clientIds: readonly string[];
   }) => fc.Arbitrary<DomainOp>[];
+  /** Arbitraries the `server` pool action draws from. */
   readonly serverOpArbs?: (ctx: {
     readonly clientIds: readonly string[];
   }) => fc.Arbitrary<ServerOp>[];
-  readonly pickDomainOrServerOp: (
-    rng: SeededRng,
-    clientIds: readonly string[]
-  ) => DomainOp | ServerOp;
   readonly serverOps?: Record<
     string,
     (surface: SyncSurfaceBase, args: Record<string, unknown>) => Promise<void>
   >;
-  readonly domainModel?: DomainModelHooks;
   /** App-specific schema restart options for `restartWithSchema` actions. */
   readonly restartOptsForVariant?: (variant: string) => RestartClientOpts;
 };

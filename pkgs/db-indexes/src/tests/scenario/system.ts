@@ -1,4 +1,4 @@
-import { defineSystem } from '@pkgs/dst';
+import { defineSystem, virtualHost } from '@pkgs/dst';
 import { gen } from '@pkgs/dst/fast-check';
 import fc from 'fast-check';
 import { reconcileIndexes } from '../../core/reconcile';
@@ -22,9 +22,10 @@ const CFG = {
   maxIndexesPerTable: 6,
 } as const;
 
-export const indexes = defineSystem({
+/** One in-memory reconciler behind a virtual clock; no topology args. */
+export const indexes = defineSystem<IndexesSurface>({
   name: 'db-indexes.reconcile',
-  generate(session) {
+  create(session) {
     return {
       session,
       reconciler: startReconciler(),
@@ -32,7 +33,7 @@ export const indexes = defineSystem({
   },
 });
 
-const { defineAction, defineProperty } = indexes;
+indexes.host({ default: true, name: 'virtual', create: () => virtualHost() });
 
 export function ownedIndexCount(s: IndexesSurface): number {
   return reconcilerOf(s).db.getOwnedIndexNames().length;
@@ -101,28 +102,28 @@ async function runReconcile(s: IndexesSurface): Promise<void> {
   }
 }
 
-export const reconcile = defineAction({
+export const reconcile = indexes.action({
   name: 'reconcile',
   act: async (s) => {
     await runReconcile(s);
   },
 });
 
-export const advanceClock = defineAction({
+export const advanceClock = indexes.action<[number]>({
   name: 'advanceClock',
-  args: (_s) => gen(fc.constantFrom(1, 2, 40)),
-  act: (s, days: number) => {
+  draw: () => gen(fc.constantFrom(1, 2, 40)),
+  act: (s, days) => {
     reconcilerOf(s).clock.advance(days * 24 * 60 * 60 * 1000);
   },
 });
 
 export type ManifestMode = 'user' | 'owner' | 'empty';
 
-export const setManifest = defineAction({
+export const setManifest = indexes.action<[string]>({
   name: 'setManifest',
   weight: 3,
-  args: (_s) => gen(fc.constantFrom('user', 'owner', 'empty')),
-  act: (s, mode: string) => {
+  draw: () => gen(fc.constantFrom('user', 'owner', 'empty')),
+  act: (s, mode) => {
     const state = reconcilerOf(s);
     if (mode === 'empty') {
       state.manifest = emptyManifest();
@@ -133,7 +134,7 @@ export const setManifest = defineAction({
   },
 });
 
-export const bumpUsage = defineAction({
+export const bumpUsage = indexes.action({
   name: 'bumpUsage',
   enabled: (s) => ownedIndexCount(s) > 0,
   act: (s) => {
@@ -145,7 +146,7 @@ export const bumpUsage = defineAction({
   },
 });
 
-export const externalAdd = defineAction({
+export const externalAdd = indexes.action({
   name: 'externalAdd',
   act: (s) => {
     reconcilerOf(s).db.externalAddIndex({
@@ -162,20 +163,10 @@ export const externalAdd = defineAction({
   },
 });
 
-export const INDEXES_ACTIONS = [
-  reconcile,
-  advanceClock,
-  setManifest,
-  bumpUsage,
-  externalAdd,
-];
-
-export const invariantsHold = defineProperty({
+export const invariantsHold = indexes.property({
   name: 'invariants',
   check: async (s) => {
     const v = await invariantViolations(s);
     if (v.length > 0) throw new Error(v[0]!);
   },
 });
-
-export const INDEXES_PROPERTIES = [invariantsHold];

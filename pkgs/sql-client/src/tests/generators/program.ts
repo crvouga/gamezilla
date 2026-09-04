@@ -1,5 +1,5 @@
-import { fc } from '@pkgs/pbt';
 import { ident, join, raw, type Sql, sql, type Value } from '@pkgs/sql';
+import fc from 'fast-check';
 import type { SqlDialect } from '../backends/types';
 import {
   type LogicalColumnType,

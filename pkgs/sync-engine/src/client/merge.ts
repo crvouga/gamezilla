@@ -16,6 +16,8 @@ import { isValidTableName, mergeTable } from './merge-upsert';
 import {
   clearOptimisticPeerRows,
   healOptimisticPeerOrphans,
+  loadLiveRowIds,
+  omitAlreadyLiveRows,
   recordOptimisticPeerRows,
 } from './optimistic-peer-rows';
 import { compareCheckpoint } from './push-applied';
@@ -241,6 +243,8 @@ export async function applyRowImages(
   await withMergeSingleFlight(deps.db, async () => {
     const changed = new Set<string>();
     await deps.db.transaction(async (tx) => {
+      const preexisting =
+        opts?.optimistic === true ? await loadLiveRowIds(tx, filtered) : {};
       for (const [table, rows] of Object.entries(filtered)) {
         if (rows.length === 0) continue;
         // Skip unknown tables (empty PRAGMA); skip bad ids. Do not
@@ -257,7 +261,7 @@ export async function applyRowImages(
       if (opts?.optimistic === true) {
         await recordOptimisticPeerRows(
           tx,
-          filtered,
+          omitAlreadyLiveRows(filtered, preexisting),
           deps.env.now().toISOString()
         );
       } else {

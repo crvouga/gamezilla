@@ -165,16 +165,16 @@ module.exports = {
       },
     },
     {
-      name: 'dst-core-no-pbt-library',
+      name: 'dst-core-no-fast-check',
       severity: 'error',
       comment:
-        '@pkgs/dst core (except fast-check adapter and tests) must not import fast-check or @pkgs/pbt.',
+        '@pkgs/dst core (except the fast-check adapter and tests) must not import fast-check.',
       from: {
         path: '^pkgs/dst/src/',
         pathNot: '^pkgs/dst/src/fast-check/|\\.(test|spec)\\.|/test/',
       },
       to: {
-        path: 'node_modules/(fast-check|@pkgs/pbt)/|^pkgs/pbt/',
+        path: 'node_modules/fast-check/',
       },
     },
   ],

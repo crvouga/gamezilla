@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import { wallTimers } from '@pkgs/clock';
 import { defineTable, registerTables } from '@pkgs/db-schema';
 import { applySqliteSchema } from '@pkgs/db-schema/sqlite';
-import { wallTimers } from '@pkgs/clock';
 import { raw, sql } from '@pkgs/sql';
 import type { SqlClient } from '../../interface';
 import { createBunSqlOwner } from '../web/owners/bun-sql-owner';

@@ -48,7 +48,7 @@ describe('room sim: lossy profile converge (E-A04)', () => {
       await s.apply(connect, id);
     }
     await expectConverged(s);
-    expect(counterValue(await readServer(run))).toBe(10);
+    expect(counterValue(await readServer(s))).toBe(10);
     const h = await s.observe(serverHash);
     const hashes = (await s.observe(clientHash)) as Record<string, string>;
     for (const id of ids) {

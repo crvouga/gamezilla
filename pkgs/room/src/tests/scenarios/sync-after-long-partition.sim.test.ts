@@ -31,7 +31,7 @@ describe('room sim: sync after long partition (E-C01)', () => {
     await s.elapse(0);
 
     await expectConverged(s);
-    expect(counterValue(await readServer(run))).toBe(20);
+    expect(counterValue(await readServer(s))).toBe(20);
     expect(counterValue(await readClient(s, 'alice'))).toBe(20);
     expect(counterValue(await readClient(s, 'bob'))).toBe(20);
     await expectHashMatch(s, 'alice');

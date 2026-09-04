@@ -33,7 +33,7 @@ function startAuth(
 }
 
 async function signIn(
-  run: Awaited<ReturnType<typeof startAuth>>,
+  s: Awaited<ReturnType<typeof startAuth>>,
   clientId: string,
   provider: typeof IDP_PROVIDER_DEV | typeof IDP_PROVIDER_GOOGLE,
   subject: string

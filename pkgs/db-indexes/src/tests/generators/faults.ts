@@ -1,4 +1,4 @@
-import { fc } from '@pkgs/pbt';
+import fc from 'fast-check';
 import type { SimFault } from '../../sim/sim-db';
 
 export type FaultScheduleItem = {

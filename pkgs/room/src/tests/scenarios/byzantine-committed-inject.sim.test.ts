@@ -56,7 +56,7 @@ describe('room sim: byzantine committed inject (E-D05)', () => {
     await s.apply(disconnect, 'bob');
     await s.apply(connect, 'bob');
     await expectConverged(s);
-    expect(counterValue(await readServer(run))).toBe(1);
+    expect(counterValue(await readServer(s))).toBe(1);
     expect(counterValue(await readClient(s, 'alice'))).toBe(1);
     expect(counterValue(await readClient(s, 'bob'))).toBe(1);
     await expectHashMatch(s, 'alice');

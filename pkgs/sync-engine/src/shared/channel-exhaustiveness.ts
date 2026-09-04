@@ -40,7 +40,7 @@ export async function findChannelExhaustivenessGaps(
         entryEmpty &&
         hydrates.every((t) => reconcile.has(t) || topicMap[t] === undefined)
       ) {
-        // reconcile-only query (e.g. chessPuzzlePool)
+        // reconcile-only query (empty entryChannel, no topicMap tables)
         continue;
       }
       if (topicMap[table] === undefined) {

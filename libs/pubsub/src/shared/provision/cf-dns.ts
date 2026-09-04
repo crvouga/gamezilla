@@ -1,8 +1,8 @@
-// @io-wall-ok
 /**
  * Cloudflare DNS upsert helpers for EMQX Railway provisioning.
  */
 import { assert } from '@pkgs/assert';
+import type { HttpClient } from '@pkgs/http-client';
 
 const CF_API = 'https://api.cloudflare.com/client/v4';
 
@@ -23,6 +23,7 @@ type CfListBody = {
 };
 
 async function listRecords(
+  http: HttpClient,
   zoneId: string,
   name: string,
   type: string
@@ -32,7 +33,7 @@ async function listRecords(
   url.searchParams.set('name', name);
   url.searchParams.set('type', type);
   url.searchParams.set('per_page', '50');
-  const res = await fetch(url, { headers });
+  const res = await http.fetch(url, { headers });
   if (!res.ok) {
     throw new Error(`CF DNS list failed: HTTP ${String(res.status)}`);
   }
@@ -40,15 +41,19 @@ async function listRecords(
   return (body.result ?? []).map((r) => ({ id: r.id, content: r.content }));
 }
 
-export async function upsertDnsRecord(options: {
-  readonly zoneId: string;
-  readonly type: 'CNAME' | 'TXT';
-  readonly name: string;
-  readonly content: string;
-  readonly proxied?: boolean;
-}): Promise<void> {
+export async function upsertDnsRecord(
+  http: HttpClient,
+  options: {
+    readonly zoneId: string;
+    readonly type: 'CNAME' | 'TXT';
+    readonly name: string;
+    readonly content: string;
+    readonly proxied?: boolean;
+  }
+): Promise<void> {
   const headers = cfHeaders();
   const existing = await listRecords(
+    http,
     options.zoneId,
     options.name,
     options.type
@@ -63,7 +68,7 @@ export async function upsertDnsRecord(options: {
 
   if (existing.length > 0) {
     const id = existing[0]!.id;
-    const res = await fetch(
+    const res = await http.fetch(
       `${CF_API}/zones/${options.zoneId}/dns_records/${id}`,
       {
         method: 'PUT',
@@ -75,11 +80,14 @@ export async function upsertDnsRecord(options: {
     return;
   }
 
-  const res = await fetch(`${CF_API}/zones/${options.zoneId}/dns_records`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify(payload),
-  });
+  const res = await http.fetch(
+    `${CF_API}/zones/${options.zoneId}/dns_records`,
+    {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(payload),
+    }
+  );
   assert.ok(res.ok, `CF DNS create failed: HTTP ${String(res.status)}`);
 }
 

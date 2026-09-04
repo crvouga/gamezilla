@@ -36,7 +36,7 @@ describe('room sim: multi-tab same identity (E-C03)', () => {
       payload: Increment({}),
     });
     await expectConverged(s);
-    expect(counterValue(await readServer(run))).toBe(2);
+    expect(counterValue(await readServer(s))).toBe(2);
     expect(counterValue(await readClient(s, 'tab1'))).toBe(2);
     expect(counterValue(await readClient(s, 'tab2'))).toBe(2);
     await expectHashMatch(s, 'tab1');

@@ -1,395 +1,338 @@
-import { describe, test } from 'bun:test';
-import { explore } from '@pkgs/dst';
-import { gen } from '@pkgs/dst/fast-check';
-import { assertProperty, fc } from '@pkgs/pbt';
+import { describe, expect, test } from 'bun:test';
+
+import type { SyncArgs } from '../../sim/scenario';
 import {
-  arbKnobs,
-  createSyncActions,
-  SYNC_PROPERTIES,
-  syncVirtualHost,
-} from '../../sim/scenario';
-import { playAcmePin, runAcmeSeed } from '../apps/acme';
-import { acmeApp } from '../apps/acme/app';
-import { acmeSystem } from '../apps/acme/system';
+  acmeSystem,
+  armStoragePressure,
+  expectConverged,
+  pool,
+  SYNC_STEP_MS,
+} from '../apps/acme';
+
+const STEP = SYNC_STEP_MS;
+
+/** Boot acme for a repro pin; each `s.apply(pool.*)` mirrors one walk step. */
+function pin(seed: number, args?: Partial<SyncArgs>) {
+  return acmeSystem.script({ seed, ...(args !== undefined ? { args } : {}) });
+}
 
 describe('acme system PBT', () => {
   test(
-    'fc.commands sequences replay on SyncKit and converge',
+    'explore draws args + walks the registered pool and converges',
     async () => {
-      await explore(acmeSystem, {
-        host: syncVirtualHost(),
-        properties: [...SYNC_PROPERTIES],
-        actions: [...createSyncActions(acmeApp, acmeApp.pack.sessionQuery)],
-        knobs: gen(arbKnobs()),
+      const report = await acmeSystem.explore({
         steps: 14,
         episodes: 8,
         seed: 42,
         stopOnViolation: true,
         time: { weight: 1, minMs: 0, maxMs: 40 },
       });
+      expect(report.ok).toBe(true);
     },
     { timeout: 120_000 }
   );
 
   test('armCrash partition leaveSpace tamper still session-syncs', async () => {
-    await playAcmePin({
-      seed: 999992,
-      knobs: { rowImageFanout: true },
-      actions: [
-        {
-          kind: 'armCrashAt',
-          clientId: 'c1',
-          event: 'afterNextMutationsPostAccepted',
-        },
-        { kind: 'partition', nodeId: 'c1', traffic: 'all' },
-        {
-          kind: 'domain',
-          clientId: 'c1',
-          mutation: 'leaveSpace',
-          args: { spaceId: 's0' },
-        },
-        {
-          kind: 'tamperLocalStorage',
-          clientId: 'c1',
-          tamper: 'corruptCheckpoint',
-        },
-        {
-          kind: 'domain',
-          clientId: 'c0',
-          mutation: 'setNote',
-          args: { id: 'n0', body: 'pbt', title: '' },
-        },
-      ],
+    await using s = await pin(999992, { rowImageFanout: true });
+    await s.apply(pool.armCrashAt, 'c1', 'afterNextMutationsPostAccepted');
+    await s.elapse(STEP);
+    await s.apply(pool.partition, 'c1', 'all');
+    await s.elapse(STEP);
+    await s.apply(pool.domain, {
+      clientId: 'c1',
+      mutation: 'leaveSpace',
+      args: { spaceId: 's0' },
     });
+    await s.elapse(STEP);
+    await s.apply(pool.tamperLocalStorage, 'c1', 'corruptCheckpoint');
+    await s.elapse(STEP);
+    await s.apply(pool.domain, {
+      clientId: 'c0',
+      mutation: 'setNote',
+      args: { id: 'n0', body: 'pbt', title: '' },
+    });
+    await s.elapse(STEP);
+    await expectConverged(s);
   });
 
   test('serverCrash hold brokerRestart clearLocalData does not hang', async () => {
-    await playAcmePin({
-      seed: 11,
-      knobs: { rowImageFanout: true, liveResendOnReconnect: true },
-      actions: [
-        {
-          kind: 'domain',
-          clientId: 'c0',
-          mutation: 'setFolder',
-          args: { id: 'f0', title: 'cB7*B' },
-        },
-        { kind: 'serverCrash' },
-        { kind: 'hold', nodeId: 'c0', traffic: 'all' },
-        { kind: 'brokerRestart' },
-        {
-          kind: 'domain',
-          clientId: 'c1',
-          mutation: 'setFolder',
-          args: { id: 'f0', title: 'ir' },
-        },
-        { kind: 'serverCrash' },
-        { kind: 'clearLocalData', clientId: 'c0', reason: 'pbt' },
-        {
-          kind: 'domain',
-          clientId: 'c1',
-          mutation: 'setNote',
-          args: { id: 'n0', body: '7PH*6rhc', title: '' },
-        },
-      ],
+    await using s = await pin(11, {
+      rowImageFanout: true,
+      liveResendOnReconnect: true,
     });
+    await s.apply(pool.domain, {
+      clientId: 'c0',
+      mutation: 'setFolder',
+      args: { id: 'f0', title: 'cB7*B' },
+    });
+    await s.elapse(STEP);
+    await s.apply(pool.serverCrash);
+    await s.elapse(STEP);
+    await s.apply(pool.hold, 'c0', 'all');
+    await s.elapse(STEP);
+    await s.apply(pool.brokerRestart);
+    await s.elapse(STEP);
+    await s.apply(pool.domain, {
+      clientId: 'c1',
+      mutation: 'setFolder',
+      args: { id: 'f0', title: 'ir' },
+    });
+    await s.elapse(STEP);
+    await s.apply(pool.serverCrash);
+    await s.elapse(STEP);
+    await s.apply(pool.clearLocalData, 'c0');
+    await s.elapse(STEP);
+    await s.apply(pool.domain, {
+      clientId: 'c1',
+      mutation: 'setNote',
+      args: { id: 'n0', body: '7PH*6rhc', title: '' },
+    });
+    await s.elapse(STEP);
+    await expectConverged(s);
   });
 
   test('serverCrash then corruptQueuedArgs of new note still converges', async () => {
-    await playAcmePin({
-      seed: 65161,
-      knobs: { liveResendOnReconnect: true, bufferOutboundLive: true },
-      actions: [
-        { kind: 'serverCrash' },
-        {
-          kind: 'domain',
-          clientId: 'c0',
-          mutation: 'setNote',
-          args: { id: 'n0', body: '', title: '' },
-        },
-        {
-          kind: 'tamperLocalStorage',
-          clientId: 'c0',
-          tamper: 'corruptQueuedArgs',
-        },
-        {
-          kind: 'domain',
-          clientId: 'c0',
-          mutation: 'setNote',
-          args: { id: 'n2', body: 'pbt', title: '' },
-        },
-      ],
+    await using s = await pin(65161, {
+      liveResendOnReconnect: true,
+      bufferOutboundLive: true,
     });
+    await s.apply(pool.serverCrash);
+    await s.elapse(STEP);
+    await s.apply(pool.domain, {
+      clientId: 'c0',
+      mutation: 'setNote',
+      args: { id: 'n0', body: '', title: '' },
+    });
+    await s.elapse(STEP);
+    await s.apply(pool.tamperLocalStorage, 'c0', 'corruptQueuedArgs');
+    await s.elapse(STEP);
+    await s.apply(pool.domain, {
+      clientId: 'c0',
+      mutation: 'setNote',
+      args: { id: 'n2', body: 'pbt', title: '' },
+    });
+    await s.elapse(STEP);
+    await expectConverged(s);
   });
 
   test('serverCrash then pending setNote drains after client crash', async () => {
-    await playAcmePin({
-      seed: 420184,
-      knobs: { rowImageFanout: true },
-      actions: [
-        { kind: 'serverCrash' },
-        {
-          kind: 'domain',
-          clientId: 'c0',
-          mutation: 'setNote',
-          args: { id: 'n0', body: 'pbt', title: '' },
-        },
-        { kind: 'crash', clientId: 'c0' },
-      ],
+    await using s = await pin(420184, { rowImageFanout: true });
+    await s.apply(pool.serverCrash);
+    await s.elapse(STEP);
+    await s.apply(pool.domain, {
+      clientId: 'c0',
+      mutation: 'setNote',
+      args: { id: 'n0', body: 'pbt', title: '' },
     });
+    await s.elapse(STEP);
+    await s.apply(pool.crash, 'c0');
+    await s.elapse(STEP);
+    await expectConverged(s);
   });
 
   test('serverCrash then restartWithSchema waits for HTTP again', async () => {
-    await playAcmePin({
-      seed: 1,
-      actions: [
-        { kind: 'serverCrash' },
-        {
-          kind: 'restartWithSchema',
-          clientId: 'c0',
-          variant: 'baseline',
-        },
-        { kind: 'publishFault', count: 1 },
-      ],
-    });
+    await using s = await pin(1);
+    await s.apply(pool.serverCrash);
+    await s.elapse(STEP);
+    await s.apply(pool.restartWithSchema, 'c0', 'baseline');
+    await s.elapse(STEP);
+    await s.apply(pool.publishFault, 1);
+    await s.elapse(STEP);
+    await expectConverged(s);
   });
 
   test('protocolCut then pending setFolder drains after settle', async () => {
-    await playAcmePin({
-      seed: 410988,
-      knobs: { liveResendOnReconnect: true, bufferOutboundLive: true },
-      actions: [
-        { kind: 'protocolCut', clientId: 'c0' },
-        {
-          kind: 'domain',
-          clientId: 'c0',
-          mutation: 'setFolder',
-          args: { id: 'f0', title: '' },
-        },
-        { kind: 'foreground', clientId: 'c0' },
-      ],
+    await using s = await pin(410988, {
+      liveResendOnReconnect: true,
+      bufferOutboundLive: true,
     });
+    await s.apply(pool.protocolCut, 'c0');
+    await s.elapse(STEP);
+    await s.apply(pool.domain, {
+      clientId: 'c0',
+      mutation: 'setFolder',
+      args: { id: 'f0', title: '' },
+    });
+    await s.elapse(STEP);
+    await s.apply(pool.foreground, 'c0');
+    await s.elapse(STEP);
+    await expectConverged(s);
   });
 
   // FC_SEED=201419579 shrink: armCrashAt + protocolCut + mutate +
   // restartWithSchema must not hang waitForSessionSync on pending upload.
   test('armCrashAt protocolCut restartWithSchema still session-syncs', async () => {
-    await playAcmePin({
-      seed: 892161,
-      knobs: { liveResendOnReconnect: true },
-      actions: [
-        {
-          kind: 'armCrashAt',
-          clientId: 'c0',
-          event: 'afterNextMutationsPostAccepted',
-        },
-        { kind: 'protocolCut', clientId: 'c0' },
-        {
-          kind: 'domain',
-          clientId: 'c0',
-          mutation: 'createSpace',
-          args: { id: 's0', title: '' },
-        },
-        {
-          kind: 'restartWithSchema',
-          clientId: 'c0',
-          variant: 'baseline',
-        },
-        {
-          kind: 'tamperLocalStorage',
-          clientId: 'c0',
-          tamper: 'corruptCheckpoint',
-        },
-      ],
+    await using s = await pin(892161, { liveResendOnReconnect: true });
+    await s.apply(pool.armCrashAt, 'c0', 'afterNextMutationsPostAccepted');
+    await s.elapse(STEP);
+    await s.apply(pool.protocolCut, 'c0');
+    await s.elapse(STEP);
+    await s.apply(pool.domain, {
+      clientId: 'c0',
+      mutation: 'createSpace',
+      args: { id: 's0', title: '' },
     });
+    await s.elapse(STEP);
+    await s.apply(pool.restartWithSchema, 'c0', 'baseline');
+    await s.elapse(STEP);
+    await s.apply(pool.tamperLocalStorage, 'c0', 'corruptCheckpoint');
+    await s.elapse(STEP);
+    await expectConverged(s);
   });
 
   test('auth revoked then serverRestart skips closed-db seq checks', async () => {
-    await playAcmePin({
-      seed: 546326,
-      knobs: {
-        rowImageFanout: true,
-        liveResendOnReconnect: true,
-        clientCount: 3,
-      },
-      actions: [
-        { kind: 'auth', clientId: 'c0', status: 'revoked' },
-        { kind: 'serverRestart' },
-      ],
+    await using s = await pin(546326, {
+      rowImageFanout: true,
+      liveResendOnReconnect: true,
+      clientCount: 3,
     });
+    await s.apply(pool.auth, 'c0', 'revoked');
+    await s.elapse(STEP);
+    await s.apply(pool.serverRestart);
+    await s.elapse(STEP);
+    await expectConverged(s);
   });
 
   test('in-txn fail then auth revoke heals peer optimistic orphan', async () => {
-    await playAcmePin({
-      seed: 1037633887,
-      knobs: { rowImageFanout: true },
-      actions: [
-        {
-          kind: 'armHttpFault',
-          clientId: 'c1',
-          fault: { kind: 'failMutationsInsideTxnAfter', after: 0 },
-        },
-        {
-          kind: 'domain',
-          clientId: 'c1',
-          mutation: 'setNote',
-          args: { id: 'n0', body: 'pbt', title: '' },
-        },
-        { kind: 'auth', clientId: 'c1', status: 'revoked' },
-        { kind: 'serverRestart' },
-      ],
+    await using s = await pin(1037633887, { rowImageFanout: true });
+    await s.apply(pool.armHttpFault, 'c1', {
+      kind: 'failMutationsInsideTxnAfter',
+      after: 0,
     });
+    await s.elapse(STEP);
+    await s.apply(pool.domain, {
+      clientId: 'c1',
+      mutation: 'setNote',
+      args: { id: 'n0', body: 'pbt', title: '' },
+    });
+    await s.elapse(STEP);
+    await s.apply(pool.auth, 'c1', 'revoked');
+    await s.elapse(STEP);
+    await s.apply(pool.serverRestart);
+    await s.elapse(STEP);
+    await expectConverged(s);
   });
 
   test('auth revoked then setNote then restartWithSchema opens fresh db', async () => {
-    await playAcmePin({
-      seed: 956276660,
-      knobs: { liveResendOnReconnect: true, bufferOutboundLive: true },
-      actions: [
-        { kind: 'auth', clientId: 'c0', status: 'revoked' },
-        {
-          kind: 'domain',
-          clientId: 'c1',
-          mutation: 'setNote',
-          args: { id: 'n0', body: 'pbt', title: '' },
-        },
-        {
-          kind: 'restartWithSchema',
-          clientId: 'c0',
-          variant: 'baseline',
-        },
-      ],
+    await using s = await pin(956276660, {
+      liveResendOnReconnect: true,
+      bufferOutboundLive: true,
     });
+    await s.apply(pool.auth, 'c0', 'revoked');
+    await s.elapse(STEP);
+    await s.apply(pool.domain, {
+      clientId: 'c1',
+      mutation: 'setNote',
+      args: { id: 'n0', body: 'pbt', title: '' },
+    });
+    await s.elapse(STEP);
+    await s.apply(pool.restartWithSchema, 'c0', 'baseline');
+    await s.elapse(STEP);
+    await expectConverged(s);
   });
 
   test('server skew backwards then peer setNote still converges', async () => {
-    await playAcmePin({
-      seed: 6593,
-      knobs: { liveResendOnReconnect: true, bufferOutboundLive: true },
-      actions: [
-        {
-          kind: 'domain',
-          clientId: 'c1',
-          mutation: 'setNote',
-          args: { id: 'n2', body: 'b49', title: '' },
-        },
-        { kind: 'skew', nodeId: 'server', skewMs: -60_000 },
-        { kind: 'partition', nodeId: 'c1', traffic: 'live' },
-        {
-          kind: 'domain',
-          clientId: 'c0',
-          mutation: 'setNote',
-          args: { id: 'n2', body: 'b70', title: '' },
-        },
-      ],
+    await using s = await pin(6593, {
+      liveResendOnReconnect: true,
+      bufferOutboundLive: true,
     });
+    await s.apply(pool.domain, {
+      clientId: 'c1',
+      mutation: 'setNote',
+      args: { id: 'n2', body: 'b49', title: '' },
+    });
+    await s.elapse(STEP);
+    await s.apply(pool.skew, 'server', -60_000);
+    await s.elapse(STEP);
+    await s.apply(pool.partition, 'c1', 'live');
+    await s.elapse(STEP);
+    await s.apply(pool.domain, {
+      clientId: 'c0',
+      mutation: 'setNote',
+      args: { id: 'n2', body: 'b70', title: '' },
+    });
+    await s.elapse(STEP);
+    await expectConverged(s);
   });
 
   test('server skew forward then silent insert still converges', async () => {
-    await playAcmePin({
-      seed: 3,
-      knobs: { bufferOutboundLive: true },
-      actions: [
-        { kind: 'skew', nodeId: 'server', skewMs: 60_000 },
-        {
-          kind: 'domain',
-          clientId: 'c0',
-          mutation: 'setFolder',
-          args: { id: 'f0', title: '' },
-        },
-        {
-          kind: 'server',
-          name: 'insertCatalogNoteSilent',
-          args: { noteId: 'n0', body: '' },
-        },
-        { kind: 'protocolCut', clientId: 'c0' },
-      ],
+    await using s = await pin(3, { bufferOutboundLive: true });
+    await s.apply(pool.skew, 'server', 60_000);
+    await s.elapse(STEP);
+    await s.apply(pool.domain, {
+      clientId: 'c0',
+      mutation: 'setFolder',
+      args: { id: 'f0', title: '' },
     });
+    await s.elapse(STEP);
+    await s.apply(pool.server, {
+      name: 'insertCatalogNoteSilent',
+      args: { noteId: 'n0', body: '' },
+    });
+    await s.elapse(STEP);
+    await s.apply(pool.protocolCut, 'c0');
+    await s.elapse(STEP);
+    await expectConverged(s);
   });
 
   // FC_SEED=14836507 counterexample [5230]: addPeerEngine then restart
   // donor must not close sqlite still held by the peer (settle closed-db).
   test('addPeerEngine then restart donor still session-syncs', async () => {
-    await playAcmePin({
-      seed: 5230,
-      actions: [
-        {
-          kind: 'domain',
-          clientId: 'c0',
-          mutation: 'setNote',
-          args: { id: 'n6', body: 'b947', title: '' },
-        },
-        {
-          kind: 'server',
-          name: 'insertCatalogNoteSilent',
-          args: { noteId: 'n4', body: 'c125' },
-        },
-        {
-          kind: 'server',
-          name: 'insertCatalogNoteSilent',
-          args: { noteId: 'n1', body: 'c658' },
-        },
-        {
-          kind: 'addPeerEngine',
-          clientId: 'c2',
-          shareWithClientId: 'c0',
-        },
-        { kind: 'restart', clientId: 'c0' },
-        {
-          kind: 'armStoragePressure',
-          clientId: 'c1',
-          pressure: 'sqliteFull',
-          afterStatements: 2,
-        },
-        {
-          kind: 'domain',
-          clientId: 'c0',
-          mutation: 'deleteNote',
-          args: { id: 'n5' },
-        },
-        {
-          kind: 'domain',
-          clientId: 'c1',
-          mutation: 'setFolder',
-          args: { id: 'f3', title: 't70' },
-        },
-      ],
+    await using s = await pin(5230);
+    await s.apply(pool.domain, {
+      clientId: 'c0',
+      mutation: 'setNote',
+      args: { id: 'n6', body: 'b947', title: '' },
     });
+    await s.elapse(STEP);
+    await s.apply(pool.server, {
+      name: 'insertCatalogNoteSilent',
+      args: { noteId: 'n4', body: 'c125' },
+    });
+    await s.elapse(STEP);
+    await s.apply(pool.server, {
+      name: 'insertCatalogNoteSilent',
+      args: { noteId: 'n1', body: 'c658' },
+    });
+    await s.elapse(STEP);
+    await s.apply(pool.addPeerEngine, 'c2', 'c0');
+    await s.elapse(STEP);
+    await s.apply(pool.restart, 'c0');
+    await s.elapse(STEP);
+    await s.apply(armStoragePressure, 'c1', { kind: 'sqliteFull', after: 2 });
+    await s.elapse(STEP);
+    await s.apply(pool.domain, {
+      clientId: 'c0',
+      mutation: 'deleteNote',
+      args: { id: 'n5' },
+    });
+    await s.elapse(STEP);
+    await s.apply(pool.domain, {
+      clientId: 'c1',
+      mutation: 'setFolder',
+      args: { id: 'f3', title: 't70' },
+    });
+    await s.elapse(STEP);
+    await expectConverged(s);
   });
 
   test(
-    'runAcmeSeed is deterministic for a generated seed',
+    'same seed → identical walk choices',
     async () => {
-      await assertProperty(
-        'runAcmeSeed determinism',
-        fc.asyncProperty(fc.integer({ min: 1, max: 10_000 }), async (seed) => {
-          const a = await runAcmeSeed({
-            seed,
-            steps: 8,
-            clientCount: 2,
-            sampleFaults: false,
-          });
-          const b = await runAcmeSeed({
-            seed,
-            steps: 8,
-            clientCount: 2,
-            sampleFaults: false,
-          });
-          if (!a.ok) {
-            throw new Error(`runAcmeSeed failed: ${a.error}`);
-          }
-          if (!b.ok) {
-            throw new Error(`runAcmeSeed failed: ${b.error}`);
-          }
-          if (a.ok !== b.ok || a.steps !== b.steps) {
-            throw new Error('runAcmeSeed not deterministic');
-          }
-          if (a.ok && b.ok && a.seed !== b.seed) {
-            throw new Error('runAcmeSeed seed mismatch');
-          }
-        }),
-        { numRuns: 5 }
-      );
+      const choices = async (seed: number) => {
+        await using s = await acmeSystem.script({
+          seed,
+          args: { clientCount: 2 },
+        });
+        const w = await s.walk({
+          steps: 8,
+          time: { weight: 1, minMs: 0, maxMs: 40 },
+        });
+        return JSON.stringify(w.choices);
+      };
+      for (const seed of [17, 4242, 9001]) {
+        expect(await choices(seed)).toBe(await choices(seed));
+      }
     },
     { timeout: 120_000 }
   );

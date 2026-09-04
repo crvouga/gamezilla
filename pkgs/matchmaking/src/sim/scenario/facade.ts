@@ -1,5 +1,5 @@
 /**
- * Kit methods built in system `generate` over a shared store + replicas.
+ * Kit methods built in system `create` over a shared store + replicas.
  */
 
 import { asSeededRng, type JsonValue, type Session } from '@pkgs/dst';
@@ -8,7 +8,7 @@ import type { Hono } from 'hono';
 
 import type { TickResult } from '../../interface/matchmaking';
 import type { LeaveResult, UpdateFormulasResult } from '../../interface/types';
-import { bootReplicaOnStore } from '../boot-replica';
+import { bootReplicaOnStore, type ReplicaBootConfig } from '../boot-replica';
 import {
   buildReplicaHandle,
   joinOnReplica,
@@ -17,7 +17,6 @@ import {
 } from '../handles';
 import type { MatchmakingSimKit, ReplicaHandle } from '../sim-api';
 import type { MmReplicaBootHandle } from './node-kinds';
-import type { MatchmakingSystemConfig } from './system';
 
 /** Last result of each write action — read back through observations. */
 export type MatchmakingLastResults = {
@@ -45,7 +44,7 @@ export function buildMatchmakingKit(args: {
   readonly session: Session;
   readonly store: import('../store').SimStore;
   readonly boots: readonly MmReplicaBootHandle[];
-  readonly config: MatchmakingSystemConfig;
+  readonly config: ReplicaBootConfig;
   readonly rng: SeededRng;
 }): MatchmakingSurface {
   const { session, store, boots, config, rng } = args;

@@ -29,7 +29,7 @@ export type SimInfra = {
   readonly runtime: BootRuntime;
 };
 
-/** Session-derived deps + network for `defineSyncSystem` boot. */
+/** Session-derived deps + network for `createSyncSurface` boot. */
 export type InjectedSimPorts = {
   readonly deps: SyncBootDeps;
   readonly network: SyncNetwork;

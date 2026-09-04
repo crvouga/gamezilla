@@ -8,13 +8,9 @@ import {
   type WorkloadStatement,
 } from '@pkgs/db-indexes';
 import type { Sql } from '@pkgs/sql';
+import { resolveQueryStubParams } from '../queries/core/define-query';
 import type { QueryCtx, QueryDef, QueryRegistry } from '../queries/core/types';
 import { classify } from '../sql-ast';
-import {
-  emptyObjectSchema,
-  parseStandardSchema,
-  QUERY_PARAM_STUB,
-} from './standard-schema';
 
 export type EnvFixture = {
   readonly actorId: string;
@@ -31,11 +27,7 @@ const DEFAULT_ENV: EnvFixture = {
 };
 
 async function stubParams(query: QueryDef<unknown>): Promise<unknown> {
-  const schema = query.params ?? emptyObjectSchema;
-  const empty = await parseStandardSchema(schema, {});
-  if (empty.ok) return empty.value;
-  const stubbed = await parseStandardSchema(schema, QUERY_PARAM_STUB);
-  return stubbed.ok ? stubbed.value : QUERY_PARAM_STUB;
+  return resolveQueryStubParams(query);
 }
 
 function capturingCtx(env: EnvFixture): {

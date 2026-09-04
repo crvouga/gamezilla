@@ -1,4 +1,4 @@
-import { fc } from '@pkgs/pbt';
+import fc from 'fast-check';
 import type { Candidate, Eval, OwnedIndexName } from '../../core/types';
 import { asOwnedIndexName } from '../../core/types';
 

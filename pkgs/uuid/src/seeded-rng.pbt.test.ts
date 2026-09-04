@@ -1,12 +1,15 @@
 import { describe, expect, test } from 'bun:test';
-import { assertProperty, fc } from '@pkgs/pbt';
+import fc from 'fast-check';
 
 import { createSeededRng } from './seeded-rng';
 
+// `@pkgs/dst` depends on this package, so use fast-check directly (no
+// `@pkgs/dst/fast-check` runner) to keep the workspace graph acyclic.
+const PARAMS: fc.Parameters<unknown> = { numRuns: 40, seed: 424_242 };
+
 describe('createSeededRng properties', () => {
   test('same seed yields the same int/random sequence', () => {
-    assertProperty(
-      'seeded RNG determinism',
+    fc.assert(
       fc.property(
         fc.integer({ min: 1, max: 2 ** 31 - 1 }),
         fc.integer({ min: 1, max: 40 }),
@@ -19,13 +22,13 @@ describe('createSeededRng properties', () => {
             expect(a.bool(0.37)).toBe(b.bool(0.37));
           }
         }
-      )
+      ),
+      PARAMS
     );
   });
 
   test('distinct fork labels diverge', () => {
-    assertProperty(
-      'fork labels diverge',
+    fc.assert(
       fc.property(
         fc.integer({ min: 1, max: 2 ** 31 - 1 }),
         fc.stringMatching(/^[a-z]{2,8}$/),
@@ -39,7 +42,8 @@ describe('createSeededRng properties', () => {
           const seqB = Array.from({ length: 8 }, () => b.int(1_000_000));
           expect(seqA).not.toEqual(seqB);
         }
-      )
+      ),
+      PARAMS
     );
   });
 });

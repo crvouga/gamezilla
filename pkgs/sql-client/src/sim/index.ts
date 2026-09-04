@@ -13,10 +13,8 @@ export {
 export {
   ownerId,
   ownerRows,
-  SQL_CLIENT_WEB_ACTIONS,
-  SQL_CLIENT_WEB_PROPERTIES,
-  SQL_CLIENT_WEB_SYSTEM,
-  type SqlClientWebSystemDef,
+  SQL_CLIENT_WEB_ARGS,
+  type SqlClientWebArgs,
   sqlClientWeb,
   tabIdList,
 } from './system';

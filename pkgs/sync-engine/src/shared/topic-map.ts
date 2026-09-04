@@ -11,6 +11,20 @@ export type TopicMapCtx = {
   readonly isAnon: boolean;
 };
 
+export type TopicMapRowImageGuard = {
+  /** Veto publishing this local post-image as an optimistic hint. */
+  readonly publish?: (row: QueryRow, ctx: TopicMapCtx) => boolean;
+  /**
+   * Veto applying an incoming optimistic image; `local` is the current row
+   * (by `id`) or null when absent.
+   */
+  readonly accept?: (
+    incoming: QueryRow,
+    local: QueryRow | null,
+    ctx: TopicMapCtx
+  ) => boolean;
+};
+
 export type TopicMapEntry = {
   /**
    * Derive topics from a post-image row. Async + db requires a
@@ -22,9 +36,10 @@ export type TopicMapEntry = {
     db?: MutationDb
   ) => readonly Topic[] | Promise<readonly Topic[]>;
   /**
-   * Subscribe projection for held-row topic sync. Defaults to `topics`.
-   * Use this to omit publish-only firehose channels (entryChannel still
-   * subscribes clients that should hear them).
+   * Opt-in subscribe projection for held-row topic sync.
+   * When defined, local writes to this table resync subscriptions and each
+   * live row is projected. When omitted, the table never drives subscriptions
+   * (entry channel only) — publish still uses `topics`.
    */
   readonly subscribeTopics?: (
     row: QueryRow,
@@ -32,12 +47,23 @@ export type TopicMapEntry = {
   ) => readonly Topic[];
   /** Used when the table was touched but no row images/ids were captured. */
   readonly fallbackTopics?: (ctx: TopicMapCtx) => readonly Topic[];
+  /** Optional publish / accept filters for optimistic row-image fanout. */
+  readonly rowImage?: TopicMapRowImageGuard;
 };
 
 export type TopicMap = Readonly<Record<string, TopicMapEntry>>;
 
 export function defineTopicMap(map: TopicMap): TopicMap {
   return map;
+}
+
+/** Tables whose topic-map entry opts into held-row subscription projection. */
+export function subscribeTables(topicMap: TopicMap): ReadonlySet<string> {
+  const out = new Set<string>();
+  for (const [table, entry] of Object.entries(topicMap)) {
+    if (entry.subscribeTopics !== undefined) out.add(table);
+  }
+  return out;
 }
 
 export function topicMapCtxFromEnv(env: MutationEnv): TopicMapCtx {
@@ -91,7 +117,8 @@ export async function topicsFromWriteCapture(args: {
 
 /**
  * Derive subscribe topics from live held rows + entry channel.
- * `liveRows` must already be filtered (no tombstones; spaces non-ended).
+ * `liveRows` must already be filtered (no tombstones). Only tables with
+ * `subscribeTopics` contribute row-derived topics.
  */
 export function topicsFromHeldRows(args: {
   readonly topicMap: TopicMap;
@@ -111,15 +138,9 @@ export function topicsFromHeldRows(args: {
   add(args.entryTopics);
   for (const [table, rows] of Object.entries(args.liveRowsByTable)) {
     const entry = args.topicMap[table];
-    if (entry === undefined) continue;
+    if (entry === undefined || entry.subscribeTopics === undefined) continue;
     for (const row of rows) {
-      const result =
-        entry.subscribeTopics?.(row, args.ctx) ?? entry.topics(row, args.ctx);
-      if (result instanceof Promise) {
-        // Channel derivation is sync — async maps are mutation-only.
-        continue;
-      }
-      add(result);
+      add(entry.subscribeTopics(row, args.ctx));
     }
   }
   return out.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));

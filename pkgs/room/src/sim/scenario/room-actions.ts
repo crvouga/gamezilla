@@ -2,19 +2,25 @@ import { type Action, defineAction } from '@pkgs/dst';
 import { gen } from '@pkgs/dst/fast-check';
 import fc from 'fast-check';
 import type { RoomCrashEvent } from '../boundary-faults';
-import type { RoomNetSetArg } from '../network';
+import { SIM_PBT_CRASH_EVENTS } from '../boundary-faults';
+import type { RoomFaultProfile, RoomNetSetArg } from '../network';
 import { ROOM_SERVER_ENDPOINT, roomClientEndpoint } from '../network';
 import type { DomainOp } from './actions';
 import type { RoomApp } from './app';
-import { MILD_NET_FAULTS } from './library-arbs';
+import type { ByzantineInjectKind } from './byzantine';
+import { BYZANTINE_INJECT_KINDS, buildByzantineRaw } from './byzantine';
+import { NET_FAULT_PROFILES } from './faults';
 import {
   caps,
   clientIds,
+  clock,
   connected,
   crashedIds,
   downClients,
   heldClients,
+  linkUpClients,
   partitioned,
+  releasableClients,
   serverCrashed,
 } from './observations';
 import { prepareClientsForConverge } from './play';
@@ -31,8 +37,22 @@ type ArmCrashAtSpec = {
   readonly event: RoomCrashEvent;
 };
 
+type SetFaultsSpec = {
+  readonly clientId: string;
+  readonly faults: RoomFaultProfile;
+};
+
+type ByzantineSpec = {
+  readonly clientId: string;
+  readonly kind: ByzantineInjectKind;
+};
+
+function arbClientId(ids: readonly string[]) {
+  return fc.constantFrom(...(ids as [string, ...string[]]));
+}
+
 function pickClientId(ids: readonly string[]) {
-  return gen(fc.constantFrom(...(ids as [string, ...string[]])));
+  return gen(arbClientId(ids));
 }
 
 export const addClient = defineAction<RoomSurface, [AddClientSpec]>({
@@ -93,16 +113,23 @@ export function domainAction(app: RoomApp): Action<RoomSurface, [DomainOp]> {
 export const hold = defineAction<RoomSurface, [string]>({
   name: 'hold',
   enabled: (s) => clientIds(s).length > 0,
-  draw: (s) => pickClientId(clientIds(s)),
+  weight: (s) => (linkUpClients(s).length > 0 ? 1 : 0),
+  draw: (s) => pickClientId(linkUpClients(s)),
   act: (s, id) => {
     s.kit.net(id).set('hold');
   },
 });
 
+/**
+ * Restore a link to `ok`. Walks only release held / lossy links: the loopback
+ * transport has no heartbeat, so a `down` link resyncs only through `heal`
+ * (revive) — scripted pins that release a down link reconnect explicitly.
+ */
 export const release = defineAction<RoomSurface, [string]>({
   name: 'release',
   enabled: (s) => clientIds(s).length > 0,
-  draw: (s) => pickClientId(clientIds(s)),
+  weight: (s) => (releasableClients(s).length > 0 ? 1 : 0),
+  draw: (s) => pickClientId(releasableClients(s)),
   act: (s, id) => {
     s.kit.net(id).set('ok');
   },
@@ -179,19 +206,28 @@ export const clearLocalData = defineAction<RoomSurface, [string]>({
   },
 });
 
-export const setFaults = defineAction<RoomSurface, [string]>({
+/** Mild lossy / reordering / duplicating link on one client. */
+export const setFaults = defineAction<RoomSurface, [SetFaultsSpec]>({
   name: 'setFaults',
   enabled: (s) => clientIds(s).length > 0,
-  draw: (s) => pickClientId(clientIds(s)),
-  act: (s, id) => {
-    s.kit.net(id).set(MILD_NET_FAULTS);
+  weight: (s) => (linkUpClients(s).length > 0 ? 1 : 0),
+  draw: (s) =>
+    gen(
+      fc.record({
+        clientId: arbClientId(linkUpClients(s)),
+        faults: fc.constantFrom(...NET_FAULT_PROFILES),
+      })
+    ),
+  act: (s, spec) => {
+    s.kit.net(spec.clientId).set(spec.faults);
   },
 });
 
 export const asymmetricLink = defineAction<RoomSurface, [string]>({
   name: 'asymmetricLink',
   enabled: (s) => clientIds(s).length > 0,
-  draw: (s) => pickClientId(clientIds(s)),
+  weight: (s) => (linkUpClients(s).length > 0 ? 1 : 0),
+  draw: (s) => pickClientId(linkUpClients(s)),
   act: (s, id) => {
     s.kit.net(id).set({ toClient: 'hold', toServer: 'ok' });
   },
@@ -254,11 +290,44 @@ export const clearFaults = defineAction<RoomSurface>({
   },
 });
 
+/** Arm a boundary crash on a live client; `restart` / `heal` bring it back. */
 export const armCrashAt = defineAction<RoomSurface, [ArmCrashAtSpec]>({
   name: 'armCrashAt',
-  pool: false,
+  enabled: (s) => connected(s).length > 0,
+  weight: 1,
+  draw: (s) =>
+    gen(
+      fc.record({
+        clientId: arbClientId(connected(s)),
+        event: fc.constantFrom(...SIM_PBT_CRASH_EVENTS),
+      })
+    ),
   act: (s, spec) => {
     s.kit.armCrashAt(spec.clientId, spec.event);
+  },
+});
+
+/** Inject one catalogued hostile / malformed frame on a client's link. */
+export const byzantine = defineAction<RoomSurface, [ByzantineSpec]>({
+  name: 'byzantine',
+  enabled: (s) => connected(s).length > 0,
+  weight: 1,
+  draw: (s) =>
+    gen(
+      fc.record({
+        clientId: arbClientId(connected(s)),
+        kind: fc.constantFrom(...BYZANTINE_INJECT_KINDS),
+      })
+    ),
+  act: (s, spec) => {
+    const c = s.kit.clients.get(spec.clientId);
+    if (c === undefined) return;
+    const built = buildByzantineRaw(spec.kind, clock(s));
+    if (built.direction === 'toServer') {
+      c.injectToServer(built.raw, { direct: true });
+      return;
+    }
+    c.injectFromServer(built.raw);
   },
 });
 
@@ -334,6 +403,8 @@ export const LIBRARY_ACTIONS = [
   asymmetricLink,
   addSpectator,
   clearLocalData,
+  armCrashAt,
+  byzantine,
 ] as const;
 
 /**
@@ -343,7 +414,6 @@ export const LIBRARY_ACTIONS = [
 export const SCRIPTED_ACTIONS = [
   addClient,
   dispatch,
-  armCrashAt,
   injectToServer,
   injectFromServer,
   setNet,

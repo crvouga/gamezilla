@@ -24,8 +24,12 @@ import {
 import { runAsync } from '@libs/secrets/shared/subprocess';
 import { wranglerArgs, wranglerEnv } from '@libs/secrets/shared/wrangler-env';
 import { assert } from '@pkgs/assert';
+import { wallClock } from '@pkgs/clock';
+import { createLogger } from '@pkgs/logger';
 import { isProductionSecretsEnv } from '../../../tools/src/deploy-mode';
 import { readDevVarsDatabaseUrl } from './dev-vars';
+
+const log = createLogger({ name: 'server:deploy', now: wallClock.now });
 
 const apiDir = join(REPO_ROOT, 'apps/server');
 
@@ -176,23 +180,19 @@ async function deploy(): Promise<void> {
   await pushWorkerSecrets(env);
   await deployProductionWorker(env, false);
 
-  await runAsync(
-    'bun',
-    ['run', '--filter', '@apps/server', '--elide-lines=0', 'billing:sync'],
-    {
-      cwd: REPO_ROOT,
-      label: 'billing: catalog reconcile',
-    }
-  );
+  await runAsync('bun', ['run', '--filter', '@libs/billing', 'billing:sync'], {
+    cwd: REPO_ROOT,
+    label: 'billing: catalog reconcile',
+  });
 
-  console.log(
+  log.info(
     'API Worker deployed on api.gamezilla.app (Hono + Durable Objects).'
   );
 }
 
 const production = isProductionSecretsEnv();
 if (!production) {
-  console.log('[server:deploy] dry-run (SECRETS_ENV is not prd)');
+  log.info('[server:deploy] dry-run (SECRETS_ENV is not prd)');
   await dryRun();
 } else {
   await deploy();

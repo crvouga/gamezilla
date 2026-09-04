@@ -1,5 +1,4 @@
-import { fc } from '@pkgs/pbt';
-import type { SeededRng } from '@pkgs/uuid';
+import fc from 'fast-check';
 import type { DomainOp, RoomApp } from '../../../sim/scenario';
 import { domainOp } from '../../../sim/scenario';
 import {
@@ -18,14 +17,6 @@ export function counterDomainOpArbs(ctx: {
   ];
 }
 
-export function pickCounterDomainOp(
-  rng: SeededRng,
-  clientIds: readonly string[]
-): DomainOp {
-  const clientId = clientIds[rng.int(clientIds.length)] ?? 'c0';
-  return domainOp(clientId, rng.random() < 0.7 ? 'increment' : 'decrement');
-}
-
 export function counterToPayload(op: DomainOp) {
   if (op.command === 'decrement') return Decrement({});
   return Increment({});
@@ -34,6 +25,5 @@ export function counterToPayload(op: DomainOp) {
 export const counterApp: RoomApp = {
   module: TestCounterModule,
   domainOpArbs: counterDomainOpArbs,
-  pickDomainOp: pickCounterDomainOp,
   toPayload: counterToPayload,
 };

@@ -25,7 +25,7 @@ describe('room sim: unknown command reject (E-D04)', () => {
       ROOM_ERROR_TYPE.invalidCommand
     );
     expect(await s.observe(logSeq)).toBe(0);
-    expect(counterValue(await readServer(run))).toBe(0);
+    expect(counterValue(await readServer(s))).toBe(0);
     expect(counterValue(await readClient(s, 'alice'))).toBe(0);
   });
 });

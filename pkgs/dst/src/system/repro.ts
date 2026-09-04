@@ -1,4 +1,4 @@
-export const REPRO_VERSION = 5 as const;
+export const REPRO_VERSION = 6 as const;
 
 export type Choice = {
   readonly action: string;

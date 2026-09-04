@@ -1,37 +1,45 @@
 import { describe, expect, test } from 'bun:test';
+import { defineSystem } from '@pkgs/dst';
 import { InMemoryRoomStorage } from '../../server/adapters/memory';
 import {
   addClient,
-  defineRoomSystem,
+  bootRoomSurface,
   dispatch,
   hold,
+  ROOM_ARGS,
+  type RoomArgs,
+  type RoomSurface,
+  registerRoomLibrary,
   release,
+  roomVirtual,
 } from '../../sim/scenario';
 import { counterApp } from '../apps/counter/app';
 import { expectConverged } from '../expect-converged';
 import { counterValue, Increment } from '../fixtures/counter-module';
-import { openRoom } from '../scenario/open-room';
 import {
   expectHashMatch,
   readClient,
   readServer,
 } from '../scenario/read-state';
 
+/** Counter system pinned to one topic on a storage shared across systems. */
+function topicSystem(topic: string, storage: InMemoryRoomStorage) {
+  const system = defineSystem<RoomSurface, RoomArgs>({
+    name: `room.${topic}`,
+    args: ROOM_ARGS,
+    create: (session, args) =>
+      bootRoomSurface(session, counterApp, args, { topic, storage }),
+  });
+  system.host({ default: true, name: 'virtual', create: roomVirtual });
+  registerRoomLibrary(system, counterApp);
+  return system;
+}
+
 describe('room sim: two-topic shared storage (E-H01)', () => {
   test('faults on topic A do not affect topic B', async () => {
     const storage = new InMemoryRoomStorage();
-    const systemA = defineRoomSystem(counterApp, {
-      name: 'room.topic-a',
-      topic: 'topic-a',
-      storage,
-    });
-    const systemB = defineRoomSystem(counterApp, {
-      name: 'room.topic-b',
-      topic: 'topic-b',
-      storage,
-    });
-    await using sA = await openRoom(systemA);
-    await using sB = await openRoom(systemB, { seed: '43' });
+    await using sA = await topicSystem('topic-a', storage).script({ seed: 42 });
+    await using sB = await topicSystem('topic-b', storage).script({ seed: 43 });
     await sA.apply(addClient, { id: 'alice' });
     await sA.apply(addClient, { id: 'bob' });
     await sB.apply(addClient, { id: 'carol' });

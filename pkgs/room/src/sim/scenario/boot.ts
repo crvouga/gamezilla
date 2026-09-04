@@ -1,15 +1,15 @@
 import type { Action, CatalogAction, Session, System } from '@pkgs/dst';
-import { virtualHost } '@pkgs/dst';
+import { virtualHost } from '@pkgs/dst';
 import type { InMemoryRoomStorage } from '../../server/adapters/memory';
-import { createRoomKit } '../kit';
+import { createRoomKit } from '../kit';
 import type { RoomApp } from './app';
 import type { RoomArgs } from './args';
-import { ROOM_PROPERTIES } './observations';
+import { converges, invariants } from './observations';
 import {
   domainAction,
   LIBRARY_ACTIONS,
   SCRIPTED_ACTIONS,
-} './room-actions';
+} from './room-actions';
 import type { RoomSurface } from './surface';
 
 export const SIM_START_MS = 1_700_000_000_000;
@@ -86,9 +86,8 @@ export function registerRoomLibrary(system: RoomSystemDef, app: RoomApp): void {
   system.action(domainAction(app));
   registerActions(system, LIBRARY_ACTIONS);
   registerActions(system, SCRIPTED_ACTIONS);
-  for (const property of ROOM_PROPERTIES) {
-    system.property(property as never);
-  }
+  system.property(invariants);
+  system.property(converges);
 }
 
 export type { RoomSurface };

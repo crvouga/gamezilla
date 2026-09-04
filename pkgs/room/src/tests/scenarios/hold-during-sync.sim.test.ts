@@ -31,7 +31,7 @@ describe('room sim: hold during sync (E-A05)', () => {
     await s.apply(release, 'bob');
     await s.elapse(0);
     await expectConverged(s);
-    expect(counterValue(await readServer(run))).toBe(12);
+    expect(counterValue(await readServer(s))).toBe(12);
     expect(counterValue(await readClient(s, 'alice'))).toBe(12);
     expect(counterValue(await readClient(s, 'bob'))).toBe(12);
     await expectHashMatch(s, 'alice');

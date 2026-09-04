@@ -36,15 +36,13 @@ UI ◄── useQuery(watch) ◄── SQLite ◄── merge(upsert + rebase) �
 ```
 
 **This package is not a CRDT, not OT, not a realtime game bus.** Realtime
-shared play lives on the **Room Durable Object** (spaces). Sync-engine is the
-authoritative **durable domain mirror** (friends, profile, spaces metadata,
-puzzle catalog/progress, client config, inbox rows, auth entities).
+shared play belongs on a separate realtime host. Sync-engine is the
+authoritative **durable domain mirror** (membership, documents, config,
+inbox rows, auth entities — whatever the product registers).
 
 **Latency goal:** sub-200ms p95 peer-visible domain writes (device A mutates →
-device B’s SQLite reflects it) via immediate upload drain + row-image fanout.
-**Anti-goal:** sub-50ms shared realtime state stays on the Room DO.
-
----
+device B's SQLite reflects it) via immediate upload drain + row-image fanout.
+**Anti-goal:** sub-50ms shared realtime state stays off this package.
 
 ## Design goals (priority order)
 
@@ -109,9 +107,8 @@ custom per-feature REST sync; peer mutation replay.
 | Deterministic sim + scenarios | Product REST exceptions |
 
 **Tier rule:** this is a flat `pkgs/` package — **no** product imports
-(`@libs/*`, `gamezilla`, apps). Product topics and schemas live in `@libs/runtime`
-/ feature packages; the engine only sees registries + SQL clients + pubsub
-ports.
+(`@libs/*`, apps). Product topics and schemas live in the host composition
+layer; the engine only sees registries + SQL clients + pubsub ports.
 
 ---
 
@@ -212,8 +209,8 @@ bun run --filter @pkgs/sync-engine test
                             │
         ┌───────────────────┼───────────────────┐
         ▼                   ▼                   ▼
-   Room DO             billing/etc            REST exceptions
-   (realtime play)     (external)            friends/search
+   Realtime host       billing/etc            REST exceptions
+   (shared play)       (external)            search / vendors
 ```
 
 **Wire path layering:** the package Hono app mounts `POST /query` and
@@ -221,9 +218,9 @@ bun run --filter @pkgs/sync-engine test
 `/api/mutations` (host mount prefix). Both names appear in docs — they are
 the same routes at different layers.
 
-**Absolute REST exceptions** (do not casually grow — see `AGENTS.md`):
-`POST /friends/search`, billing/external APIs.
-Username claims and profile bootstrap are **mutations**, not REST.
+**Absolute REST exceptions** (do not casually grow — see host `AGENTS.md`):
+cross-user search and billing/external APIs. Identity bootstrap writes are
+**mutations**, not REST.
 
 ---
 
@@ -250,13 +247,13 @@ domain tables.
 
 ```ts
 defineQuery({
-  name: 'friends_friendships',
+  name: 'memberships',
   params: z.object({}), // optional; default empty object
   // hydrates derived from first run() return keys — not authored
   // limit omitted → DEFAULT_QUERY_LIMIT (2000); no inline LIMIT in run SQL
   entryChannel: undefined, // omit → host defaultEntryChannel; false = reconcile-only
   authorize: async (ctx) => ..., // real authz only; deny-anon by default
-  run: async (ctx, params) => ({ friends_friendships: rows }),
+  run: async (ctx, params) => ({ memberships: rows }),
 });
 ```
 
@@ -284,7 +281,7 @@ A mutation is the **only** legal domain write path (client + server).
 
 ```ts
 defineMutation({
-  name: 'removeFriend',
+  name: 'removeMembership',
   args: z.object({ ... }),
   requiresOnline: false,
   pendingUx: 'instant',
@@ -335,23 +332,22 @@ Rules:
   `useSyncEngine().paintReady` reads that context (identity-match gate
   during account switch).
 
-Product session list today (`apps/client` `SESSION_QUERIES`): `ownUser`,
-`ownDevices`, `ownExternalAccounts`, `ownProfile`, `clientConfig`,
-`openSpaceSessions`, `mySpaces`, `mySpaceUsers`, `friends_friendships`,
-`friendRequests`, `userBlocks`, `inboxActive`, `chessPuzzleProfile`,
-`chessPuzzleInteractions`. Feature screens may still `subscribeQueries`
-dynamically (e.g. `chessPuzzlePool`).
+Product session lists and dynamic feature subscriptions are owned by the
+host — see app wiring docs. The package only receives `sessionQueries` /
+`subscribeQueries` by name.
 
-### Topics (product convention)
+### Topics (host convention)
 
-Host registers `defineTopicMap` (`@libs/runtime/shared/app-topic-map`) plus
-`defaultEntryChannel`. Helpers in `@libs/runtime/shared/sync-topics`:
+Host registers `defineTopicMap` plus `defaultEntryChannel`. Typical helpers:
 
 | Helper | Topics |
 |--------|--------|
 | `userChannels` / `userTopic` | `user:{actorId}` |
-| `roomTopic` | `room:{spaceId}` |
-| `clientConfigChannels` | singleton client-config topic |
+| `groupTopic` | `group:{groupId}` |
+| `configChannels` | singleton config topic |
+
+Tables that drive held-row subscriptions opt in via `subscribeTopics` on
+their topic-map entry. Optimistic row-image filters use optional `rowImage`.
 
 Pushes carry optional `tables` from **AST capture** so the client wakes only
 scopes whose derived hydrate tables overlap.
@@ -366,11 +362,11 @@ is the safety net so peers do not stay forever-stale.
 
 ### `rowImageFanout` defaults (important)
 
-| Surface | Default | Notes |
+| Surface | Default | Detail |
 |---------|---------|-------|
 | `createSyncApp({ rowImageFanout })` | **false** | Opt-in |
 | Client `push.rowImageFanout` | **false** | Opt-in |
-| Product Gamezilla (`apps/*`) | **true** | Both API + client set true |
+| Product host (`apps/*`) | **true** | Both API + client set true |
 | `acmeSystem.script(...)` | **true** | algebra entry |
 
 When off, pushes are wake+refetch only (still correct). When on, contiguous
@@ -550,7 +546,7 @@ in-flight pre-replay query sweeps (reject-only batches do not fence).
 - Topic sync **waits until local `sync_engine_mutations` drain** (membership pending gate)
 - After incremental topic add/remove → `wakeAll()` once (heal subscribe races)
 - Reconnect → `wakeAll()`
-- Local `spaces` / `spaces_users` changes refresh membership topics
+- Local writes to subscription-driving tables (`subscribeTopics`) refresh held-row topics
 - Optional `bufferOutboundLive` queues optimistic fanout while detached
 
 ---
@@ -612,7 +608,7 @@ soft-ack + generation fence); see
 
 ### Open (reasonable improvement territory)
 
-- Local **prune / size policy** for catalogs + old tombstones (chess puzzles)
+- Local **prune / size policy** for catalogs + old tombstones
 - Stronger CI that `defineQuery.run` selects `deleted_at` / omits live filters
 - Incremental/delta protocol *if* full snapshots become a measured bottleneck
 - Server-side tombstone windows / “deleted since checkpoint” for huge tables
@@ -644,7 +640,7 @@ Ordered by leverage for **simplicity + reliability** (not raw speed):
    they can apply without a pending rebase shield. Queue row is still deleted
    on ack (no write-epoch). Post-ack `wakeAll` is intentionally not wired
    (disturbs concurrent multi-writer settle in sim).
-4. **Full snapshot cost** — large `chessPuzzlePool` / interactions payloads.
+4. **Full snapshot cost** — large catalog / interactions payloads.
    `not_modified` helps when unchanged; first fetch / rating band change is
    heavy. Deltas are a last resort after measuring.
 5. **Membership topic sync** — incremental subscribe/unsubscribe (no MQTT
@@ -727,25 +723,9 @@ single-flight (it does) — mainly HTTP/server load then.
 
 ---
 
-## App wiring (Gamezilla)
+## App wiring
 
-**Client** (`apps/client/src/sync/create-local-sync-engine.ts`)
-
-1. Open identity SQLite → `createLocalSyncEngine({ sessionQueries, postQueries,
-   postMutations, push: { rowImageFanout: true, … }, lifecycle, … })`
-2. `SyncEngineProvider` + `SqlClientProvider` + `SyncEnginePaintGateContext`
-3. `MutationClientProvider` with `MutationEnv` + `{ clientId: deviceId }`
-4. Feature: `useQuery(sql\`… AND deleted_at IS NULL\`)` +
-   `useMutationClient().mutate(def, args)`
-
-**API** (`apps/server/src/sync/sync-app.ts`)
-
-1. `SyncEngineDatabaseMigration` during migrate (package-local `defineTable` schema)
-2. `createSyncApp({ resolveAuth, getSql, queries, mutations, pubsub,
-   rowImageFanout: true })`
-3. Non-mutation DOMAIN writes must `notifyChannels({ pubsub, sql, topics, … })`
-
-Registries: `apps/client|api/src/sync/app-queries.ts` + `app-mutations.ts`.
+See [`docs/sync-engine-app-wiring.md`](../../docs/sync-engine-app-wiring.md) for product composition.
 
 ---
 
@@ -803,7 +783,7 @@ bun run lint
 | Suite | Path | Role |
 |-------|------|------|
 | Scenarios | `src/tests/scenarios/*.sim.test.ts` | Black-box multi-client pins via `acmeSystem.script(...)` + `s.apply` / `s.until` |
-| Property / system | `src/tests/scenarios/*.scenario.pbt.test.ts` / `*.pbt.test.ts` | Shrinking `acmeSystem.explore` / `.replay` / `playAcmePin` |
+| Property / system | `src/tests/scenarios/*.scenario.pbt.test.ts` / `*.pbt.test.ts` | Shrinking `acmeSystem.explore` / `.replay`; scripted `s.apply(pool.*)` pins |
 | Unit PBT | `src/tests/unit/*.pbt.test.ts` | Pure helpers (checkpoints, topic map, …) |
 | Kernel harness | `src/tests/harness/*.test.ts` | RNG / scheduler / timers; membership topic sync |
 | Public unit helper | `@pkgs/sync-engine/test` | `createInMemorySyncEngine` (no full kit surface) |
@@ -820,24 +800,25 @@ add a named scenario, and log in repo-root `PBT_FINDINGS.md`.
 # all sync-engine PBT (pinned seed)
 bun test pkgs/sync-engine/src/tests/scenarios/*.pbt.test.ts
 
-# replay one failure
-FC_SEED=<n> bun test pkgs/sync-engine/src/tests/scenarios/acme-system.scenario.pbt.test.ts
+# replay one failure: paste the shrunk Repro from the failure into acmeSystem.replay(...)
 
 # seeded fuzz harness (non-shrinking corpus)
-SYNC_SIM_SEED=42 bun test pkgs/sync-engine/src/tests/scenarios/seeded-workload-fuzz-determinism.sim.test.ts
+bun test pkgs/sync-engine/src/tests/scenarios/seeded-workload-fuzz-determinism.sim.test.ts
 ```
 
-| Action layer | Kinds (library kernel) |
-|--------------|------------------------|
-| Domain (injected `SyncApp`) | `{ kind: 'domain', mutation, args }` — wire mutation name + JSON args |
-| Server OOB (injected `SyncApp.serverOps`) | `{ kind: 'server', name, args }` |
+| Pool action layer | Actions (`pool.*` in `sim/scenario/sync-actions.ts`) |
+|-------------------|------------------------------------------------------|
+| Domain (injected `SyncApp`) | `domain` — one `DomainOp` drawn from `app.domainOpArbs` |
+| Server OOB (injected `SyncApp`) | `server` — one `ServerOp` drawn from `app.serverOpArbs` |
 | Connectivity triad | `online`, `offline`, `connect`, `disconnect`, `background`, `foreground` |
-| Network | `partition`, `heal`, `hold`, `release`, `setFaults`, `idle` |
-| Boundary faults | `armHttpFault`, `armCrashAt`, `publishFault`, `auth` |
-| Lifecycle | `crash`, `restart`, `clearLocalData`, `subscribe`, `skew` |
+| Network | `partition`, `heal`, `hold`, `release`, `setFaults` |
+| Boundary faults | `armHttpFault`, `armCrashAt`, `publishFault`, `auth`, `protocolCut` |
+| Lifecycle / storage | `crash`, `restart`, `clearLocalData`, `subscribe`, `skew`, `tamperLocalStorage`, `armStoragePressure`, `addPeerEngine` |
 
-App fixtures (e.g. acme) supply `domainOpArbs`, `pickDomainOrServerOp`, and
-`serverOps` under `src/tests/apps/<name>/` — the system kernel has no app nouns.
+App fixtures (e.g. acme) supply `domainOpArbs` and `serverOpArbs` under
+`src/tests/apps/<name>/` — the system kernel has no app nouns. Every pool
+action has a `draw`, so `explore` walks the whole catalog and slice PBTs pick
+subsets by name (`actions: ['domain', 'offline', 'heal']`).
 
 `queries/shared/tiger-invariants.ts` lists DST-checked invariants; see
 [Tiger Style](#tiger-style-safety--bounds) for the full error/bound matrix.
@@ -849,7 +830,7 @@ identical timeline.** Systems are **owned by `@pkgs/dst`**:
 `acmeSystem` (a `defineSystem` over `createSyncSurface`) declares the
 broker/server/client topology, args, action pool, and model, and tests drive it
 with `acmeSystem.explore(...)` / `.replay(...)` / `.script(...)` + `s.apply` /
-`s.observe`; fuzz calls `runSeed({ system: acmeSystem })`. Assert **live domain
+`s.observe`; fuzz is a seeded `s.walk` over the pool. Assert **live domain
 rows only** — never framework tables or private modules.
 
 ```text
@@ -944,13 +925,12 @@ describe('example', () => {
 });
 ```
 
-PBT / system pins (`acmeSystem.explore` / `playAcmePin` / `acmeSystem.replay`):
+PBT / system pins (`acmeSystem.explore` / `s.apply(pool.*)` / `acmeSystem.replay`):
 
 ```ts
 import { gen } from '@pkgs/dst/fast-check';
 import { arbSyncArgs } from '../../sim/scenario';
-import { playAcmePin } from '../apps/acme';
-import { acmeSystem } from '../apps/acme/system';
+import { acmeSystem, pool } from '../apps/acme';
 
 // Host, action pool, and properties are registered on the system.
 await acmeSystem.explore({
@@ -959,23 +939,22 @@ await acmeSystem.explore({
   steps: 14,
 });
 
-await playAcmePin({
-  seed: 42,
-  args: {
-    rowImageFanout: true,
-    liveResendOnReconnect: false,
-    bufferOutboundLive: false,
-    clientCount: 2,
-  },
-  actions: [
-    {
-      kind: 'domain',
-      clientId: 'c0',
-      mutation: 'setNote',
-      args: { id: 'n0', body: 'x', title: '' },
-    },
-  ],
+// Slice PBT over a few pool actions on the lossy host.
+await acmeSystem.explore({
+  host: ACME_DST_FAULTS_HOST,
+  actions: ['domain', 'offline', 'online', 'heal'],
+  episodes: 8,
+  steps: 12,
 });
+
+// Scripted pin — the same pool actions, applied by hand.
+await using s = await acmeSystem.script({ seed: 42, args: { clientCount: 2 } });
+await s.apply(pool.domain, {
+  clientId: 'c0',
+  mutation: 'setNote',
+  args: { id: 'n0', body: 'x', title: '' },
+});
+await s.apply(pool.heal);
 ```
 
 Scoped hold + latency budget + negative window:
@@ -1076,7 +1055,7 @@ fields for fuzz profiles.
 `node('server').publishFault(count)` — both `Disposable`.
 
 **Server ops:** `server.pruneArtifacts(olderThanMs)`,
-`server.notifyFanout({ topics, tables, label })`. Notes fixture
+`server.notifyFanout({ topics, tables, label })`. Domain fixture
 `writeNoteBody(server, { id, body, notify? })` (`notify: false` pins the
 non-mutation path; reconcile tick heals).
 
@@ -1085,28 +1064,16 @@ handles, `getSyncEngine` (except account-switch pool), `postMutations` (except
 duplicate-mutation-id). Prefer observations (`liveNote`, `rows`, `outcome`) and
 pin actions.
 
-**Fuzz / replay** (`runSeed({ app: acmeApp })` or `runAcmeSeed` shorthand):
-
-| Knob | Default | Meaning |
-|------|---------|---------|
-| `seed` | required | Universe seed |
-| `clientCount` | `2` | Clients `c0..cN-1` |
-| `steps` | `40` | Workload actions |
-| `sampleFaults` | `false` | Apply sampled default faults after clients up |
-| `SYNC_SIM_SEED` | — | Env: single decimal seed replay |
-| `SYNC_SIM_SEEDS` | — | Env: comma-separated decimal seeds |
-
-Fuzz failures print `seed=<hex>`. Replay:
-
-```bash
-SYNC_SIM_SEED=42 bun test pkgs/sync-engine/src/tests/scenarios/seeded-workload-fuzz-determinism.test.ts
-```
+**Fuzz / replay** — a seeded `s.walk` over the pool (or an `actions:` slice),
+then `expectConverged`; the same seed must reproduce identical `w.choices`:
 
 ```ts
-import { acmeApp } from '../apps/acme/app';
-import { runSeed } from '../scenario/script-seed';
-await runSeed({ app: acmeApp, seed: 0x2a, steps: 16 });
+await using s = await acmeSystem.script({ seed: 42, args: { clientCount: 3 } });
+const w = await s.walk({ steps: 40, time: { weight: 1, minMs: 0, maxMs: 40 } });
+await expectConverged(s);
 ```
+
+`explore` failures carry a shrunk `Repro`; replay with `acmeSystem.replay(repro)`.
 
 #### Scenario-writing guide (patterns, not primitives)
 
@@ -1209,14 +1176,13 @@ src/sim/                             # domain-agnostic DST harness (not public)
   network.ts traffic.ts http-bridge.ts pubsub-bridge.ts
   kit.ts kit-facade.ts kit-boot.ts server.ts open-sim-sqlite.ts
   domain-pack.ts                     # SimDomainPack type (no built-in packs)
-  faults.ts invariants.ts until.ts replay-steps.ts
+  faults.ts invariants.ts wait-until.ts
   test-driver.ts
-  scenario/                          # boot (host + surface), pin actions, observations
+  scenario/                          # boot (host + surface), pool + pin actions, observations
 
 src/tests/
-  scenario/                          # run-seed / play-pin helpers
   apps/
-    acme/                            # acme fixture: pack, observations, acmeApp
+    acme/                            # acme fixture: pack, reads, pool slice, walkThenConverge
 
   scenarios/                         # black-box correctness suite
   harness/                           # sim kernel self-tests + scenario-api
@@ -1351,7 +1317,7 @@ with `s.apply` / `s.observe` / `s.until`, and domain reads from
 | `single-client-mutate-uploads-and-persists.test.ts` | Single-client mutate uploads and persists title/body |
 | `two-client-mutual-writes-converge.test.ts` | Two-client converge + seed sweep of mutual writes |
 | `live-fanout-peer-visibility-within-budget.test.ts` | Happy-path live visibility within sim-time budget; restart rehydrates |
-| `folders-and-notes-multi-table-converge.test.ts` | Folders + notes, `moveNote`, soft-delete folder leaves notes |
+| `multi-table-converge.test.ts` | Folders + notes, `moveNote`, soft-delete folder leaves notes |
 | `same-actor-two-devices-converge.test.ts` | Two devices, same `actorId`, concurrent writes converge |
 | `same-actor-empty-profile-fanout-does-not-wipe-peer.test.ts` | Empty `ensureProfile` seed fanout does not blank peer username |
 | `peer-visibility-under-200ms-sim-budget.test.ts` | Peer visibility under 200ms simulated time with fixed one-way delay |
@@ -1604,7 +1570,7 @@ entry-channel-wakes-never-held-row
 epoch-bump-mid-offline-session-then-drain
 epoch-bump-wipes-cache-preserves-pending-uploads
 fanout-row-cap-boundary-64-vs-65
-folders-and-notes-multi-table-converge
+multi-table-converge
 full-partition-during-write-then-heal
 hard-query-limit-truncates-hydrate
 held-sync-upload-retries-on-release

@@ -50,7 +50,7 @@ describe('room sim: session take-over (E-C04)', () => {
     });
     await expectConverged(s);
 
-    expect(counterValue(await readServer(run))).toBe(2);
+    expect(counterValue(await readServer(s))).toBe(2);
     expect(counterValue(await readClient(s, 'alice'))).toBe(2);
     expect(counterValue(await readClient(s, 'bob'))).toBe(2);
     await expectHashMatch(s, 'alice');

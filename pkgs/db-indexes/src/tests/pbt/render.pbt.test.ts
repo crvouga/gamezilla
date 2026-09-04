@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { assertProperty, fc } from '@pkgs/pbt';
+import { assertProperty } from '@pkgs/dst/fast-check';
+import fc from 'fast-check';
 import { fingerprintSql } from '../../core/fingerprint';
 import { planIndexes } from '../../core/plan';
 import { renderPlanMarkdown } from '../../core/render';

@@ -1,6 +1,6 @@
 import { unsafe } from '@pkgs/sql';
 
-import type { BootedSimKernel } from './world-types';
+import type { BootedSimKernel } from './kit-types';
 
 export type LocalStorageTamper =
   | 'corruptCheckpoint'
@@ -30,13 +30,14 @@ export async function tamperClientLocalStorage(
         )
       );
       break;
-    case 'flipDomainRow':
-      await db.run(
-        unsafe(
-          `UPDATE notes SET body = 'sim-tampered' WHERE deleted_at IS NULL LIMIT 1`
-        )
-      );
+    case 'flipDomainRow': {
+      const flip = k.domain.tamperDomainRow;
+      if (flip === undefined) {
+        throw new Error('flipDomainRow requires SimDomainPack.tamperDomainRow');
+      }
+      await flip(db);
       break;
+    }
     case 'corruptQueuedArgs':
       await db.run(
         unsafe(

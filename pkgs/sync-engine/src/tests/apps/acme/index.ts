@@ -37,11 +37,10 @@ export {
   lastMutationFailures,
   lastMutationId,
   lastMutationOk,
-  liveNote,
-  liveSpace,
   mutate,
   net,
   netHeld,
+  netSet,
   nodeNow,
   nudge,
   online,
@@ -50,7 +49,7 @@ export {
   partitioned,
   pending,
   pendingEventCount,
-  playActions,
+  pool,
   postMutations,
   postOutcome,
   publishFault,
@@ -64,7 +63,6 @@ export {
   revive,
   rows,
   runSql,
-  SYNC_PIN_ACTIONS,
   SYNC_STEP_MS,
   schedulerQuiescent,
   serverOp,
@@ -108,7 +106,6 @@ export { acmeDomainPack } from './domain-pack';
 export { expectConverged } from './expect-converged';
 export { insertCatalogNote } from './insert-catalog-note';
 export { createSimMembershipChannels } from './membership-channels';
-export { type PlayAcmePinOpts, playAcmePin } from './play-pin';
 export {
   type PoolActivation,
   poolActivate,
@@ -132,10 +129,14 @@ export {
   hasTopic,
   isNoteLiveAt,
   isSpaceLiveAt,
+  type LiveNoteRow,
+  type LiveSpaceRow,
   lacksTopic,
   liveFolders,
+  liveNote,
   liveNotes,
   liveOpenSessions,
+  liveSpace,
   liveTags,
   localTable,
   type NoteRow,
@@ -233,9 +234,8 @@ export {
 } from './shared/topics';
 export {
   ACME_DEFAULT_ARGS,
+  ACME_DST_FAULTS_HOST,
   ACME_LARGE_CATALOG_ARGS,
-  ACME_POOL_ACTIONS,
-  ACME_PROPERTIES,
   acmeSystem,
   type SyncArgs,
   type SyncSurface,
@@ -247,15 +247,3 @@ export {
   untilAcme,
 } from './until';
 export { writeNoteBody } from './write-note-body';
-
-import { runSeed, seedsFromEnv } from '../../scenario/script-seed';
-import { acmeSystem } from './system';
-
-/** Seeded fuzz entrypoint bound to the acme fixture. */
-export async function runAcmeSeed(
-  opts: Omit<import('../../scenario/script-seed').RunSeedOptions, 'system'>
-): Promise<import('../../scenario/script-seed').RunSeedResult> {
-  return runSeed({ ...opts, system: acmeSystem });
-}
-
-export { seedsFromEnv };

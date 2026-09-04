@@ -1,11 +1,11 @@
 import type { Session } from '../host/types';
 import type { Rng } from '../kernel/rng';
+import type { Action, CatalogProperty, Property, Read } from '../system/effect';
 import {
   getSystemRegistry,
   resolveHost,
-  type System,
-} from '../system/define-system';
-import type { Action, CatalogProperty, Property, Read } from '../system/effect';
+  type SystemCore as System,
+} from '../system/registry';
 import type { Choice } from '../system/repro';
 import {
   assertProperty,
@@ -19,68 +19,15 @@ import {
   type Transition,
 } from './checkpoint';
 import { memoRead, popMemoFrame, pushMemoFrame } from './memo';
-import { ActionNotEnabled, probe } from './probe';
-import type { Walk, WalkOptions } from './walk';
+import { ActionNotEnabled } from './probe';
+import {
+  type Script,
+  type ScriptInternal,
+  setScriptInternal,
+} from './script-types';
 
-/** Rest args: full override, or empty to use `action.args` defaults. */
-type ApplyRest<A extends unknown[]> = A | [];
-
-export type Script<S> = {
-  readonly apply: <A extends unknown[]>(
-    action: Action<S, A>,
-    ...args: ApplyRest<A>
-  ) => Promise<void>;
-  readonly observe: <T, A extends unknown[]>(
-    read: Read<S, A, T>,
-    ...args: A
-  ) => Promise<T>;
-  readonly assert: (p: Property<S>) => Promise<void>;
-  readonly elapse: (ms: number) => Promise<void>;
-  readonly until: <T>(
-    read: Read<S, [], T>,
-    opts?: {
-      readonly maxMs?: number;
-      readonly stepMs?: number;
-      readonly pred?: (t: T) => boolean;
-    }
-  ) => Promise<T>;
-  readonly never: <T>(
-    read: Read<S, [], T>,
-    opts: {
-      readonly forMs: number;
-      readonly stepMs?: number;
-      readonly pred?: (t: T) => boolean;
-    }
-  ) => Promise<void>;
-  readonly walk: (opts?: WalkOptions<S>) => Promise<Walk>;
-  readonly [Symbol.asyncDispose]: () => Promise<void>;
-};
-
-/** Module-private script state — walk / explore / replay only. */
-export type ScriptInternal<S> = {
-  readonly surface: S;
-  readonly session: Session;
-  readonly system: System<S, unknown>;
-  readonly systemName: string;
-  readonly args: unknown;
-  readonly hostName: string;
-  readonly monitors: MonitorState[];
-  readonly transitions: Transition[];
-  readonly choices: Choice[];
-  rng: Rng;
-  step: number;
-};
-
-const scriptInternals = new WeakMap<object, ScriptInternal<unknown>>();
-
-/** Package-internal accessor — not part of the public `Script` surface. */
-export function getScriptInternal<S>(s: Script<S>): ScriptInternal<S> {
-  const internal = scriptInternals.get(s as object);
-  if (internal === undefined) {
-    throw new Error('getScriptInternal: script is not registered');
-  }
-  return internal as ScriptInternal<S>;
-}
+export type { Script, ScriptInternal } from './script-types';
+export { getScriptInternal } from './script-types';
 
 type ArgsOption<Args> = [Args] extends [void]
   ? { readonly args?: undefined }
@@ -144,6 +91,52 @@ async function scriptCheckpoint<S>(
   if (result.violations.length > 0) throw result.violations[0]!;
 }
 
+async function scriptUntil<S, T>(
+  s: Script<S>,
+  read: Read<S, [], T>,
+  opts?: {
+    readonly maxMs?: number;
+    readonly stepMs?: number;
+    readonly pred?: (t: T) => boolean;
+  }
+): Promise<T> {
+  const maxMs = opts?.maxMs ?? 5_000;
+  const stepMs = opts?.stepMs ?? 50;
+  const pred = opts?.pred ?? ((t: unknown) => Boolean(t));
+  let waited = 0;
+  for (;;) {
+    const value = await s.observe(read);
+    if (pred(value)) return value;
+    if (waited >= maxMs) {
+      throw new Error(`until: predicate not met within ${String(maxMs)}ms`);
+    }
+    await s.elapse(stepMs);
+    waited += stepMs;
+  }
+}
+
+async function scriptNever<S, T>(
+  s: Script<S>,
+  read: Read<S, [], T>,
+  opts: {
+    readonly forMs: number;
+    readonly stepMs?: number;
+    readonly pred?: (t: T) => boolean;
+  }
+): Promise<void> {
+  const stepMs = opts.stepMs ?? 50;
+  const pred = opts.pred ?? ((t: unknown) => Boolean(t));
+  let waited = 0;
+  while (waited < opts.forMs) {
+    const value = await s.observe(read);
+    if (pred(value)) {
+      throw new Error(`never: predicate became true at ${String(waited)}ms`);
+    }
+    await s.elapse(stepMs);
+    waited += stepMs;
+  }
+}
+
 function buildScript<S>(args: {
   readonly surface: S;
   readonly session: Session;
@@ -175,20 +168,18 @@ function buildScript<S>(args: {
         action as Action<S, unknown[]>,
         applyArgs as unknown[]
       );
+      // Scripted apply is gated by `enabled` only — `weight` 0 merely keeps
+      // an action out of walks (probe), so pins can still drive it.
       pushMemoFrame();
       let enabled: boolean;
       try {
-        const probed = await probe(
-          action as Action<S, unknown[]>,
-          args.surface
-        );
-        enabled = probed.enabled;
+        enabled = await action.enabled(args.surface);
       } finally {
         popMemoFrame();
       }
       if (!enabled) throw new ActionNotEnabled(action.name);
-      await scriptCheckpoint(internal, action.name, resolved, (s, ...a) =>
-        (action as Action<S, unknown[]>).act(s, ...(a as never[]))
+      await scriptCheckpoint(internal, action.name, resolved, (surf, ...a) =>
+        (action as Action<S, unknown[]>).act(surf, ...(a as never[]))
       );
     },
     async observe(read, ...observeArgs) {
@@ -207,36 +198,8 @@ function buildScript<S>(args: {
         await args.session.elapse(ms);
       });
     },
-    async until(read, opts) {
-      const maxMs = opts?.maxMs ?? 5_000;
-      const stepMs = opts?.stepMs ?? 50;
-      const pred = opts?.pred ?? ((t: unknown) => Boolean(t));
-      let waited = 0;
-      for (;;) {
-        const value = await s.observe(read);
-        if (pred(value)) return value;
-        if (waited >= maxMs) {
-          throw new Error(`until: predicate not met within ${String(maxMs)}ms`);
-        }
-        await s.elapse(stepMs);
-        waited += stepMs;
-      }
-    },
-    async never(read, opts) {
-      const stepMs = opts.stepMs ?? 50;
-      const pred = opts.pred ?? ((t: unknown) => Boolean(t));
-      let waited = 0;
-      while (waited < opts.forMs) {
-        const value = await s.observe(read);
-        if (pred(value)) {
-          throw new Error(
-            `never: predicate became true at ${String(waited)}ms`
-          );
-        }
-        await s.elapse(stepMs);
-        waited += stepMs;
-      }
-    },
+    until: (read, opts) => scriptUntil(s, read, opts),
+    never: (read, opts) => scriptNever(s, read, opts),
     async walk(opts) {
       const { walk } = await import('./walk');
       return walk(s, opts ?? {});
@@ -247,7 +210,7 @@ function buildScript<S>(args: {
       if (endViolations.length > 0) throw endViolations[0]!;
     },
   };
-  scriptInternals.set(s as object, internal as ScriptInternal<unknown>);
+  setScriptInternal(s, internal);
   return s;
 }
 

@@ -1,16 +1,20 @@
 import { defineSystem } from '@pkgs/dst';
 import { gen } from '@pkgs/dst/fast-check';
 
+import { DST_FAULTS } from '../../../sim/faults';
+import { toKernelFaults } from '../../../sim/network';
 import {
   arbSyncArgs,
   createSyncSurface,
-  SYNC_POOL_ACTIONS,
-  SYNC_PROPERTY_DEFS,
+  registerSyncLibrary,
   type SyncArgs,
   type SyncSurface,
   syncVirtual,
 } from '../../../sim/scenario';
 import { acmeApp } from './app';
+
+/** Host name for the mild fixed reorder / loss profile ({@link DST_FAULTS}). */
+export const ACME_DST_FAULTS_HOST = 'virtual-dst-faults';
 
 /** System defaults; scripted tests overlay a partial. */
 export const ACME_DEFAULT_ARGS: SyncArgs = {
@@ -43,7 +47,7 @@ export const ACME_DEFAULT_ARGS: SyncArgs = {
  *
  * Poll with `s.until` / `untilAcme` (`./until`).
  */
-export const acmeSystem = defineSystem({
+export const acmeSystem = defineSystem<SyncSurface, SyncArgs>({
   name: 'sync.acme',
   args: ACME_DEFAULT_ARGS,
   draw: () => gen(arbSyncArgs()),
@@ -55,14 +59,11 @@ acmeSystem.host({
   name: 'virtual',
   create: () => syncVirtual(),
 });
-
-/** Explore / walk pool + standing monitors for acme. */
-export const ACME_POOL_ACTIONS = SYNC_POOL_ACTIONS.map((def) =>
-  acmeSystem.action(def)
-);
-export const ACME_PROPERTIES = SYNC_PROPERTY_DEFS.map((def) =>
-  acmeSystem.property(def)
-);
+acmeSystem.host({
+  name: ACME_DST_FAULTS_HOST,
+  create: () => syncVirtual(toKernelFaults(DST_FAULTS)),
+});
+registerSyncLibrary(acmeSystem);
 
 /** Hydrates the ~2k row catalog query instead of the pack default. */
 export const ACME_LARGE_CATALOG_ARGS: Partial<SyncArgs> = {

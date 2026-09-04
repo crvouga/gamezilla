@@ -68,7 +68,7 @@ async function refreshHeldRowTopics(bag: PushBag): Promise<void> {
 
 /**
  * Desired topics = entryChannel ∪ held-row topic-map projection.
- * No separate membership SQL — live `spaces_users` / `spaces` rows drive rooms.
+ * Subscription-driving tables are those with `subscribeTopics` on the map.
  */
 function collectDesiredTopics(bag: PushBag): Map<Topic, Set<string>> {
   const ctx = bag.options.getChannelsCtx();
@@ -141,12 +141,12 @@ function remake(bag: PushBag, desired: Map<Topic, Set<string>>): void {
     bag.topicToScopes.set(topic, scopes);
     subscribeTopic(bag, topic);
   }
-  void clearRemovedPushApplied(bag.options.db, new Set(desired.keys())).catch(
-    (error) => {
-      if (bag.disposed) return;
-      warnPush('[push] clearRemovedPushApplied failed', error);
-    }
-  );
+  void clearRemovedPushApplied(bag.options.db, new Set(desired.keys()), {
+    now: bag.options.now,
+  }).catch((error) => {
+    if (bag.disposed) return;
+    warnPush('[push] clearRemovedPushApplied failed', error);
+  });
 }
 
 /**
@@ -175,12 +175,12 @@ function syncTopicsIncremental(
   }
 
   bag.lastTopicKey = topicKey(desired);
-  void clearRemovedPushApplied(bag.options.db, new Set(desired.keys())).catch(
-    (error) => {
-      if (bag.disposed) return;
-      warnPush('[push] clearRemovedPushApplied failed', error);
-    }
-  );
+  void clearRemovedPushApplied(bag.options.db, new Set(desired.keys()), {
+    now: bag.options.now,
+  }).catch((error) => {
+    if (bag.disposed) return;
+    warnPush('[push] clearRemovedPushApplied failed', error);
+  });
 
   // Heal any push lost in the tiny subscribe race without tearing down MQTT.
   if (changed) bag.options.runtime.wakeAll();
@@ -223,6 +223,16 @@ function disposeBag(bag: PushBag): void {
   bag.disposers.length = 0;
 }
 
+function tablesOverlapSubscribe(
+  tables: ReadonlySet<string>,
+  subscribe: ReadonlySet<string>
+): boolean {
+  for (const table of tables) {
+    if (subscribe.has(table)) return true;
+  }
+  return false;
+}
+
 /**
  * Subscribes to query-derived pubsub topics and wakes SubscriptionRuntime.
  * Initial bind remakes pubsub once. Later held-row / subscription changes
@@ -244,14 +254,9 @@ export function attachPush(options: AttachPushOptions): () => void {
     bag.disposers.push(
       options.onTablesChanged((tables) => {
         if (bag.disposed) return;
-        // Room / session subscribe sets change with membership tables.
-        // World-topic queries (notes/folders) stay on entryChannel and must
-        // not resync on every row write (deterministic fuzz refetch races).
-        if (
-          tables.has('spaces') ||
-          tables.has('spaces_users') ||
-          tables.has('spaces_open_sessions')
-        ) {
+        // Subscription-driving tables (topic-map `subscribeTopics`) resync
+        // held-row topics. Other domain writes stay on entryChannel only.
+        if (tablesOverlapSubscribe(tables, bag.subscribeTables)) {
           scheduleTopicSync(bag);
         }
         if (tables.has('sync_engine_mutations')) {

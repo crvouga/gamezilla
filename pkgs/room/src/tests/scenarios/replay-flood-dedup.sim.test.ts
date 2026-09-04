@@ -29,7 +29,7 @@ describe('room sim: replay flood dedup (E-D01)', () => {
       });
     }
     await expectConverged(s);
-    expect(counterValue(await readServer(run))).toBe(1);
+    expect(counterValue(await readServer(s))).toBe(1);
     expect(counterValue(await readClient(s, 'alice'))).toBe(1);
     await expectHashMatch(s, 'alice');
     expect(await s.observe(logSeq)).toBe(1);

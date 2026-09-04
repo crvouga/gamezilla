@@ -194,8 +194,8 @@ await s.observe(liveNote, 'bob', 'n1');
 
 | Field | Default | Meaning |
 | --- | --- | --- |
-| `enabled(s)` | `() => true` | Probe; false ⇒ not in the pool |
-| `weight(s)` | `() => 1` | Live weight this step. A number `n` is `() => n` |
+| `enabled(s)` | `() => true` | Probe; false ⇒ not in the pool and `s.apply` throws `ActionNotEnabled` |
+| `weight(s)` | `() => 1` | Live weight this step. A number `n` is `() => n`; `0` ⇒ skipped by walks, still scriptable |
 | `args` | none | Default apply tuple when `s.apply(action)` has no rest |
 | `draw(s)` | none | Walk / explore sampler (`Gen<A>`) |
 | `pool` | `true` | `false` ⇒ scripted/replay only (excluded from explore / walk) |
@@ -279,10 +279,13 @@ type Script<S> = {
 ### Walk / explore / replay
 
 - `s.walk({ actions?, steps?, … })` — defaults to the registered pool
-  (`pool !== false`). Product-walk may pass actor-bound `tap(actor)`.
-- `system.explore({ episodes?, steps?, time?, seed?, args? })` —
-  catalogs and default host come from the system. Throws
-  `ExploreFailedError`.
+  (`pool !== false`). `actions` is a slice: registered action **names**
+  (`['hold', 'domain', 'heal']`) and/or action objects (product-walk
+  passes actor-bound `tap(actor)`).
+- `system.explore({ episodes?, steps?, time?, seed?, args?, actions? })` —
+  catalogs and default host come from the system; `actions` narrows the
+  walk to a named slice of the registry (a focused PBT over one fault
+  family). Throws `ExploreFailedError`.
 - `system.replay(repro, { host? })` — boots with the Repro’s `args` and
   re-applies each `Choice`.
 

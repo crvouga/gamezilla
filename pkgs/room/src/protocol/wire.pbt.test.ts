@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { assertProperty, fc } from '@pkgs/pbt';
+import { assertProperty } from '@pkgs/dst/fast-check';
+import fc from 'fast-check';
 import { ROOM_ERROR_TYPE } from '../types';
 import {
   parseClientToServerWire,

@@ -6,17 +6,26 @@ const {
 
 const repoRoot = path.join(__dirname, '../..');
 
+// Bun nests multiple `react-native@0.83.10+<hash>` copies. jest-expo mocks
+// NativeModules on the copy this package resolves; `@react-native/virtualized-lists`
+// otherwise loads a different copy and crashes with
+// `__fbBatchedBridgeConfig is not set` (Reanimated mock → FlatList).
+const reactNativeRoot = path.dirname(
+  require.resolve('react-native/package.json', { paths: [__dirname] })
+);
+
 /** @type {import('jest').Config} */
 module.exports = {
   preset: 'jest-expo',
   testMatch: [
     '<rootDir>/src/scenarios/**/*.sim.test.ts',
     '<rootDir>/src/scenarios/**/*.sim.test.tsx',
+    '<rootDir>/src/scenario/**/*.test.ts',
   ],
   setupFiles: ['<rootDir>/jest.setup-env.cjs'],
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.cjs'],
-  // UI waits default to 2–5s fail-fast ceilings; keep headroom for boot.
-  testTimeout: 30_000,
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
+  // UI waits default to 2–5s fail-fast ceilings; auth + PGlite boot need headroom.
+  testTimeout: 90_000,
   // Narrow allowlist (shared with @pkgs/ui-testing): transform RN/Expo/Bun-nested
   // ESM that Jest cannot load as-is. Everything else — including better-sqlite3
   // (native addon) — stays untransformed.
@@ -35,6 +44,8 @@ module.exports = {
   },
   // Jest 29 does not honor package.json "exports" the way Bun/Metro do.
   moduleNameMapper: {
+    '^react-native$': require.resolve('react-native', { paths: [__dirname] }),
+    '^react-native/(.*)$': `${reactNativeRoot}/$1`,
     // expo-router/testing-library jest.mocks reanimated → `…/mock`. Bun's
     // nested install can fail that subpath (factory falls back to `{}`).
     // Bridge file ≠ `/mock` module id (avoids circular empty exports) but both
@@ -60,6 +71,8 @@ module.exports = {
       paths: [path.join(repoRoot, 'apps/client')],
     }),
     '^@shopify/react-native-skia$': '<rootDir>/jest-skia-mock.cjs',
+    '^@legendapp/list$': '<rootDir>/jest-legend-list-mock.cjs',
+    '^@legendapp/list/(.*)$': '<rootDir>/jest-legend-list-mock.cjs',
     '^@apps/([^/]+)$': `${repoRoot}/apps/$1/src/index.ts`,
     '^@apps/([^/]+)/(.*)$': `${repoRoot}/apps/$1/src/$2`,
     '^@sim/([^/]+)$': `${repoRoot}/sim/$1/src/index.ts`,

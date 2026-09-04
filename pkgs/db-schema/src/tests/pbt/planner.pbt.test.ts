@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { assertProperty } from '@pkgs/pbt';
+import { assertProperty } from '@pkgs/dst/fast-check';
 import { SERVER_OPERATION_KINDS } from '../../core/operations';
 import { planClient, planServer } from '../../core/plan';
 import { emptyCatalog } from '../../test/fixtures';

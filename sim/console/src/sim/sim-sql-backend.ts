@@ -6,6 +6,10 @@
  * - `mem`: postgres-mem + sqlite-mem (legacy A/B)
  *
  * Override: `SIM_SQL_BACKEND=mem|real`
+ *
+ * Native Expo (iOS/Android) always uses mem engines: Hermes cannot load
+ * better-sqlite3, bun:sqlite, or PGlite WASM. `SIM_SQL_BACKEND=real` still
+ * maps to mem on native via `sim-sql-fabric-real.native.ts`.
  */
 
 export type SimSqlBackend = 'mem' | 'real';
@@ -13,7 +17,7 @@ export type SimSqlBackend = 'mem' | 'real';
 export type SimSqlRuntime = 'browser' | 'node';
 
 /** Default when env is unset — plan default is real engines. */
-export const DEFAULT_SIM_SQL_BACKEND: SimSqlBackend = 'mem';
+export const DEFAULT_SIM_SQL_BACKEND: SimSqlBackend = 'real';
 
 export function resolveSimSqlRuntime(): SimSqlRuntime {
   // Real browser playground (no Jest): WASM clients.

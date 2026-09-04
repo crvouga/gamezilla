@@ -1,6 +1,12 @@
-import type { RoomApp, RoomSystemDef } from '@pkgs/room/tests';
-import { defineRoomSystem, domainOp } from '@pkgs/room/tests';
-import type { SeededRng } from '@pkgs/uuid';
+import { defineSystem } from '@pkgs/dst';
+import type { RoomApp, RoomArgs, RoomSurface } from '@pkgs/room/tests';
+import {
+  bootRoomSurface,
+  ROOM_ARGS,
+  ROOM_DRAW,
+  registerRoomLibrary,
+  roomVirtual,
+} from '@pkgs/room/tests';
 
 import { ChessModule } from '../chess-module';
 
@@ -11,13 +17,17 @@ import { ChessModule } from '../chess-module';
 export const chessApp: RoomApp = {
   module: ChessModule,
   domainOpArbs: () => [],
-  pickDomainOp: (_rng: SeededRng, clientIds) =>
-    domainOp(clientIds[0] ?? 'c0', 'noop'),
   toPayload: () => {
     throw new Error('chess system: scripted pins only');
   },
 };
 
-export const chessSystem: RoomSystemDef = defineRoomSystem(chessApp, {
+/** Chess puzzle room system: server + `clientCount` clients. */
+export const chessSystem = defineSystem<RoomSurface, RoomArgs>({
   name: 'chess.puzzle',
+  args: ROOM_ARGS,
+  draw: ROOM_DRAW,
+  create: (session, args) => bootRoomSurface(session, chessApp, args),
 });
+chessSystem.host({ default: true, name: 'virtual', create: roomVirtual });
+registerRoomLibrary(chessSystem, chessApp);

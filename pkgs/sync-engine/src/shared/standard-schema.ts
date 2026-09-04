@@ -72,13 +72,3 @@ export const emptyObjectSchema: StandardSchemaV1<
     },
   },
 };
-
-/** Fixed stub params for CI / boot topic checks (no Zod introspection). */
-export const QUERY_PARAM_STUB: Readonly<Record<string, unknown>> = {
-  spaceId: 'space_x',
-  userId: 'user_x',
-  folderId: 'folder_x',
-  ids: ['id_x'],
-  username: 'user_x',
-  rejectionId: 'rejection_x',
-};

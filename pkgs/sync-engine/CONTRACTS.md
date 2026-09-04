@@ -241,10 +241,10 @@ are independent name-versioning, not a dual-wire period.
 ## 9. Authoring drift (closed)
 
 **Mutations:** Hand-declared `declaredWrites` / `affectedRows` / `invalidates`
-are gone. Historical misses (e.g. `endSpace` omitting sessions from
-`affectedRows`, friends actor-only invalidates) are fixed by AST capture +
+are gone. Historical misses (hand-declared write sets omitting related tables
+from `affectedRows`, actor-only invalidates) are fixed by AST capture +
 `defineTopicMap` / `fallbackTopics`. Escape remains `fallbackTopics` +
-`// topic-map-db:` only where needed (e.g. end-space party wake).
+`// topic-map-db:` only where needed (e.g. end-entity party wake).
 
 **Queries:**
 
@@ -253,4 +253,4 @@ are gone. Historical misses (e.g. `endSpace` omitting sessions from
 | Hydrate tables | Derived from `run` return keys (`resolveQueryHydrates` for CI) |
 | Limit | Default 2000; no inline `LIMIT`; explicit overrides for real budgets |
 | Channels | `entryChannel` ∪ topic-map(held rows); `entryChannel: false` = reconcile-only |
-| Equivalence | spaces queries ≡ `userTopic(actor)` entry ∪ topic-map(held); empty / N rooms / host-only covered by leave/join + entry-channel scenarios. Topic-map wake peers for a table must be cold-hydratable by some `defineQuery` (`friend-hosted-space-cold-hydrate`) |
+| Equivalence | membership / list queries ≡ `userTopic(actor)` entry ∪ topic-map(held); empty / N groups / host-only covered by leave/join + entry-channel scenarios. Topic-map wake peers for a table must be cold-hydratable by some `defineQuery` |

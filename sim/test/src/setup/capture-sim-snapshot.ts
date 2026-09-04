@@ -5,7 +5,7 @@ import { captureSnapshot } from '../scenario/probes';
 import type { OpenSimHandle } from './open-sim';
 
 export async function captureOpenSimSnapshot(
-  run: OpenSimHandle,
+  s: OpenSimHandle,
   clientIds: readonly string[]
 ): Promise<SimSystemSnapshot> {
   await s.apply(captureSnapshot, [...clientIds]);

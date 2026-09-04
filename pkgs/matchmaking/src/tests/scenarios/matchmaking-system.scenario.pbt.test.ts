@@ -1,12 +1,6 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { explore } from '@pkgs/dst';
 
-import {
-  genMatchmakingKnobs,
-  MATCHMAKING_ACTIONS,
-  MATCHMAKING_PROPERTIES,
-  MATCHMAKING_SYSTEM,
-} from '../../sim/scenario';
+import { matchmaking } from '../../sim/scenario';
 import { registerTestCrashHandler } from '../fixtures';
 
 describe('matchmaking system PBT', () => {
@@ -19,12 +13,9 @@ describe('matchmaking system PBT', () => {
   });
 
   test(
-    'check explores knobs + tick/advance library',
+    'explore draws replica topology + walks the registered pool',
     async () => {
-      const report = await explore(MATCHMAKING_SYSTEM, {
-        properties: MATCHMAKING_PROPERTIES,
-        actions: MATCHMAKING_ACTIONS,
-        knobs: genMatchmakingKnobs(),
+      const report = await matchmaking.explore({
         time: { weight: 1, minMs: 0, maxMs: 5_000 },
         episodes: 2,
         steps: 6,

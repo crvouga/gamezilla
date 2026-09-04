@@ -58,7 +58,7 @@ describe('room sim: authorize reject (E-D03)', () => {
       ROOM_ERROR_TYPE.unauthorized
     );
     expect(await s.observe(logSeq)).toBe(1);
-    expect(authzCount(await readServer(run))).toBe(0);
+    expect(authzCount(await readServer(s))).toBe(0);
     expect(authzCount(await readClient(s, 'alice'))).toBe(0);
   });
 });

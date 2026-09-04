@@ -8,7 +8,7 @@ import {
   type PostgresDbScope,
 } from '@pkgs/sql-client/postgres/schema';
 
-import { EntityStoreNullabilityCutoverMigration } from './nullability-cutover-migration';
+import { EntityStoreCutoverMigration } from './cutover-migration';
 import { entityStoreSchema } from './schema/tables';
 
 export type EntityStorePostgresDatabaseMigrationOptions = {
@@ -17,7 +17,7 @@ export type EntityStorePostgresDatabaseMigrationOptions = {
   readonly alreadyInTransaction?: boolean;
 };
 
-/** Applies `entity_store` via defineTable reconcile (after nullability cutover). */
+/** Applies `entity_store` via defineTable reconcile (after type cutover). */
 export class EntityStorePostgresDatabaseMigration implements DatabaseMigration {
   private readonly options: EntityStorePostgresDatabaseMigrationOptions;
 
@@ -28,7 +28,7 @@ export class EntityStorePostgresDatabaseMigration implements DatabaseMigration {
   async migrate(ctx: DatabaseMigrationContext): Promise<void> {
     const dbScope = this.options.dbScope ?? createPostgresDbScope('public');
     ctx.logger.info('applying entity_store schema (postgres)');
-    await new EntityStoreNullabilityCutoverMigration().migrate(ctx);
+    await new EntityStoreCutoverMigration().migrate(ctx);
     await new PostgresSchemaDatabaseMigration(entityStoreSchema, dbScope, {
       skipAdvisoryLock: this.options.skipAdvisoryLock ?? true,
       alreadyInTransaction: this.options.alreadyInTransaction ?? true,

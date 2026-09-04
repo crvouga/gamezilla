@@ -1,5 +1,4 @@
-import { fc } from '@pkgs/pbt';
-import type { SeededRng } from '@pkgs/uuid';
+import fc from 'fast-check';
 import type { DomainOp, RoomApp } from '../../../sim/scenario';
 import { domainOp } from '../../../sim/scenario';
 import {
@@ -23,23 +22,6 @@ export function matchClockDomainOpArbs(ctx: {
   ];
 }
 
-export function pickMatchClockDomainOp(
-  rng: SeededRng,
-  clientIds: readonly string[]
-): DomainOp {
-  const clientId = clientIds[rng.int(clientIds.length)] ?? 'c0';
-  const roll = rng.random();
-  if (roll < 0.25) {
-    return domainOp(clientId, 'start', { whiteMs: 3_000, blackMs: 3_000 });
-  }
-  if (roll < 0.7) {
-    return domainOp(clientId, 'move');
-  }
-  return domainOp(clientId, 'flag-fall', {
-    seat: rng.random() < 0.5 ? 'white' : 'black',
-  });
-}
-
 export function matchClockToPayload(op: DomainOp) {
   if (op.command === 'start') {
     const whiteMs =
@@ -58,6 +40,5 @@ export function matchClockToPayload(op: DomainOp) {
 export const matchClockApp: RoomApp = {
   module: MatchClockFixtureModule,
   domainOpArbs: matchClockDomainOpArbs,
-  pickDomainOp: pickMatchClockDomainOp,
   toPayload: matchClockToPayload,
 };

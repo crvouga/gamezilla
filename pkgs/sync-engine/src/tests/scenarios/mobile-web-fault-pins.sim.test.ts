@@ -6,12 +6,17 @@ import {
   expectConverged,
   mutate,
   online,
-  playAcmePin,
+  pool,
   restart,
+  SYNC_STEP_MS,
+  serverPrune,
   setNote,
 } from '../apps/acme';
-import { acmeSetNoteOp } from '../apps/acme/domain-model';
 import { expectLiveNoteAt } from '../apps/acme/reads';
+
+const STEP = SYNC_STEP_MS;
+const note = (clientId: string, id: string, body: string) =>
+  ({ clientId, mutation: 'setNote', args: { id, body, title: '' } }) as const;
 
 describe('online lifecycle wakes query refetch', () => {
   test('online after offline triggers nudge path', async () => {
@@ -46,7 +51,7 @@ describe('storage full merge abort', () => {
 
 describe('shared db peer engine', () => {
   test('two engines on one db converge', async () => {
-    await playAcmePin({
+    await using s = await acmeSystem.script({
       seed: 55003,
       args: {
         rowImageFanout: true,
@@ -54,47 +59,49 @@ describe('shared db peer engine', () => {
         bufferOutboundLive: false,
         clientCount: 2,
       },
-      actions: [
-        { kind: 'addPeerEngine', clientId: 'c2', shareWithClientId: 'c0' },
-        acmeSetNoteOp('c0', 'n0', 'shared'),
-        { kind: 'idle', ms: 30 },
-        { kind: 'heal' },
-      ],
     });
+    await s.apply(pool.addPeerEngine, 'c2', 'c0');
+    await s.elapse(STEP);
+    await s.apply(pool.domain, note('c0', 'n0', 'shared'));
+    await s.elapse(30);
+    await s.apply(pool.heal);
+    await expectConverged(s);
   });
 
-  // runAcmeSeed 5230: restart donor must not close sqlite still held by c2.
+  // Seed 5230: restart donor must not close sqlite still held by c2.
   test('restart donor after addPeerEngine still converges', async () => {
-    await playAcmePin({
-      seed: 5230,
-      actions: [
-        acmeSetNoteOp('c0', 'n6', 'b947'),
-        { kind: 'addPeerEngine', clientId: 'c2', shareWithClientId: 'c0' },
-        { kind: 'restart', clientId: 'c0' },
-      ],
-    });
+    await using s = await acmeSystem.script({ seed: 5230 });
+    await s.apply(pool.domain, note('c0', 'n6', 'b947'));
+    await s.elapse(STEP);
+    await s.apply(pool.addPeerEngine, 'c2', 'c0');
+    await s.elapse(STEP);
+    await s.apply(pool.restart, 'c0');
+    await s.elapse(STEP);
+    await expectConverged(s);
   });
 });
 
 describe('fail next open', () => {
   test('restart survives failNextOpen arm', async () => {
-    await playAcmePin({
-      seed: 55004,
-      actions: [
-        acmeSetNoteOp('c0', 'n0', 'before'),
-        { kind: 'crash', clientId: 'c0' },
-        { kind: 'failNextOpen', clientId: 'c0' },
-        { kind: 'restart', clientId: 'c0' },
-        { kind: 'restart', clientId: 'c0' },
-        { kind: 'heal' },
-      ],
-    });
+    await using s = await acmeSystem.script({ seed: 55004 });
+    await s.apply(pool.domain, note('c0', 'n0', 'before'));
+    await s.elapse(STEP);
+    await s.apply(pool.crash, 'c0');
+    await s.elapse(STEP);
+    await s.apply(pool.failNextOpen, 'c0');
+    await s.elapse(STEP);
+    await s.apply(pool.restart, 'c0');
+    await s.elapse(STEP);
+    await s.apply(pool.restart, 'c0');
+    await s.elapse(STEP);
+    await s.apply(pool.heal);
+    await expectConverged(s);
   });
 
   // Shrunk: failNextOpen then restartWithSchema must not leak
   // `sim: fail next open`.
   test('restartWithSchema survives failNextOpen arm', async () => {
-    await playAcmePin({
+    await using s = await acmeSystem.script({
       seed: 55007,
       args: {
         rowImageFanout: false,
@@ -102,48 +109,43 @@ describe('fail next open', () => {
         bufferOutboundLive: true,
         clientCount: 3,
       },
-      actions: [
-        { kind: 'failNextOpen', clientId: 'c0' },
-        { kind: 'restartWithSchema', clientId: 'c0', variant: 'baseline' },
-        {
-          kind: 'subscribe',
-          clientId: 'c0',
-          queryName: 'notesAll',
-          params: {},
-        },
-      ],
     });
+    await s.apply(pool.failNextOpen, 'c0');
+    await s.elapse(STEP);
+    await s.apply(pool.restartWithSchema, 'c0', 'baseline');
+    await s.elapse(STEP);
+    await s.apply(pool.subscribe, 'c0');
+    await s.elapse(STEP);
+    await expectConverged(s);
   });
 });
 
 describe('prune server artifacts interleaved', () => {
   test('prune during session then mutate converges', async () => {
-    await playAcmePin({
-      seed: 55005,
-      actions: [
-        acmeSetNoteOp('c0', 'n0', 'keep'),
-        { kind: 'pruneServerArtifacts', olderThanMs: -2_000_000_000_000 },
-        acmeSetNoteOp('c1', 'n1', 'after-prune'),
-        { kind: 'heal' },
-      ],
-    });
+    await using s = await acmeSystem.script({ seed: 55005 });
+    await s.apply(pool.domain, note('c0', 'n0', 'keep'));
+    await s.elapse(STEP);
+    await s.apply(serverPrune, -2_000_000_000_000);
+    await s.elapse(STEP);
+    await s.apply(pool.domain, note('c1', 'n1', 'after-prune'));
+    await s.elapse(STEP);
+    await s.apply(pool.heal);
+    await expectConverged(s);
   });
 });
 
 describe('large snapshot hydrate', () => {
   test('~2k row catalog seed converges after heal', async () => {
-    await playAcmePin({
-      args: ACME_LARGE_CATALOG_ARGS,
+    await using s = await acmeSystem.script({
       seed: 55006,
-      actions: [
-        {
-          kind: 'server',
-          name: 'seedLargeCatalogSilent',
-          args: { count: 2_000 },
-        },
-        { kind: 'idle', ms: 100 },
-        { kind: 'heal' },
-      ],
+      args: ACME_LARGE_CATALOG_ARGS,
     });
+    await s.apply(pool.server, {
+      name: 'seedLargeCatalogSilent',
+      args: { count: 2_000 },
+    });
+    await s.elapse(100);
+    await s.apply(pool.heal);
+    await expectConverged(s);
   });
 });

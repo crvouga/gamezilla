@@ -49,7 +49,7 @@ describe('room sim: stale welcome recover (E-C02)', () => {
     await s.apply(disconnect, 'alice');
     await s.apply(connect, 'alice');
     await expectConverged(s);
-    expect(counterValue(await readServer(run))).toBe(5);
+    expect(counterValue(await readServer(s))).toBe(5);
     expect(counterValue(await readClient(s, 'alice'))).toBe(5);
     expect(counterValue(await readClient(s, 'bob'))).toBe(5);
     await expectHashMatch(s, 'alice');

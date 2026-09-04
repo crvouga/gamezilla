@@ -1,4 +1,4 @@
-import { defineSystem } from '@pkgs/dst';
+import { defineSystem, virtualHost } from '@pkgs/dst';
 import { gen } from '@pkgs/dst/fast-check';
 import fc from 'fast-check';
 import {
@@ -29,31 +29,57 @@ function range(n: number): number[] {
 const KEYS = ['a', 'b', 'c'] as const;
 const VALUES = ['1', '2', ''] as const;
 
-export type SqlClientWebKnobs = {
+/** Typed topology for one multi-tab web SQL script. */
+export type SqlClientWebArgs = {
   readonly tabCount: number;
   readonly poolCapacity: number;
   readonly schemaEpoch: number;
   readonly backend: SqlClientWebBackend;
 };
 
-export const sqlClientWeb = defineSystem({
-  name: 'sql-client.web',
-  generate(session, knobs: SqlClientWebKnobs) {
-    const storeSession = session.fork('store');
-    const { board } = startStore(storeSession, {
-      poolCapacity: knobs.poolCapacity,
-      schemaEpoch: knobs.schemaEpoch,
-      backend: knobs.backend,
-    });
-    const tabIds = range(knobs.tabCount).map((i) => `t${String(i)}`);
-    for (const id of tabIds) {
-      startTab(session.fork(id), board, id);
-    }
-    return { session, board, tabIds } satisfies SqlClientWebSurface;
-  },
-});
+/** tabCount=2, poolCapacity=6, schemaEpoch=1, backend=web-sim-opfs */
+export const SQL_CLIENT_WEB_ARGS: SqlClientWebArgs = {
+  tabCount: 2,
+  poolCapacity: 6,
+  schemaEpoch: 1,
+  backend: 'web-sim-opfs',
+};
 
-const { defineAction, defineProperty } = sqlClientWeb;
+export const arbSqlClientWebArgs = (): fc.Arbitrary<SqlClientWebArgs> =>
+  fc.record({
+    tabCount: fc.integer({ min: 1, max: 3 }),
+    poolCapacity: fc.constantFrom(2, 6),
+    schemaEpoch: fc.constant(1),
+    backend: fc.constantFrom<SqlClientWebBackend>('web-sim-opfs', 'sqlite-mem'),
+  });
+
+/** One simulated OPFS / mem store + `tabCount` browser tabs racing for ownership. */
+export const sqlClientWeb = defineSystem<SqlClientWebSurface, SqlClientWebArgs>(
+  {
+    name: 'sql-client.web',
+    args: SQL_CLIENT_WEB_ARGS,
+    draw: () => gen(arbSqlClientWebArgs()),
+    create(session, args) {
+      const storeSession = session.fork('store');
+      const { board } = startStore(storeSession, {
+        poolCapacity: args.poolCapacity,
+        schemaEpoch: args.schemaEpoch,
+        backend: args.backend,
+      });
+      const tabIds = range(args.tabCount).map((i) => `t${String(i)}`);
+      for (const id of tabIds) {
+        startTab(session.fork(id), board, id);
+      }
+      return { session, board, tabIds } satisfies SqlClientWebSurface;
+    },
+  }
+);
+
+sqlClientWeb.host({
+  default: true,
+  name: 'virtual',
+  create: () => virtualHost(),
+});
 
 export function caps(s: SqlClientWebSurface): string[] {
   return [...s.session.caps];
@@ -99,21 +125,21 @@ export async function get(
   return readToyRow(client, key);
 }
 
-export const connect = defineAction({
+export const connect = sqlClientWeb.action({
   name: 'connect',
   enabled: (s) => tabIdList(s).length > 0,
   weight: 3,
-  args: (s) => gen(fc.constantFrom(...tabIdList(s))),
+  draw: (s) => gen(fc.constantFrom(...tabIdList(s))),
   act: async (s, tabId: string) => {
     await connectTab(boardOf(s), tabId);
   },
 });
 
-export const disconnect = defineAction({
+export const disconnect = sqlClientWeb.action({
   name: 'disconnect',
   enabled: (s) => tabIdList(s).length > 0,
   weight: 3,
-  args: (s) => gen(fc.constantFrom(...tabIdList(s))),
+  draw: (s) => gen(fc.constantFrom(...tabIdList(s))),
   act: async (s, tabId: string) => {
     await disconnectTab(boardOf(s), tabId);
   },
@@ -125,11 +151,11 @@ export type PutArgs = {
   readonly value: string;
 };
 
-export const put = defineAction({
+export const put = sqlClientWeb.action({
   name: 'put',
   enabled: (s) => tabIdList(s).length > 0,
   weight: 3,
-  args: (s) =>
+  draw: (s) =>
     gen(
       fc.record({
         tabId: fc.constantFrom(...tabIdList(s)),
@@ -147,47 +173,37 @@ export const put = defineAction({
   },
 });
 
-export const killTabAction = defineAction({
+export const killTabAction = sqlClientWeb.action({
   name: 'killTab',
   enabled: (s) => tabIdList(s).length > 0,
-  args: (s) => gen(fc.constantFrom(...tabIdList(s))),
+  draw: (s) => gen(fc.constantFrom(...tabIdList(s))),
   act: async (s, tabId: string) => {
     await killTab(boardOf(s), tabId);
   },
 });
 
-export const fillPool = defineAction({
+export const fillPool = sqlClientWeb.action({
   name: 'fillPool',
   act: (s) => {
     fillSimOpfsPool(requireStore(boardOf(s)));
   },
 });
 
-export const corruptStore = defineAction({
+export const corruptStore = sqlClientWeb.action({
   name: 'corruptStore',
   act: (s) => {
     corruptSimOpfsStore(requireStore(boardOf(s)));
   },
 });
 
-export const bumpEpoch = defineAction({
+export const bumpEpoch = sqlClientWeb.action({
   name: 'bumpEpoch',
   act: (s) => {
     boardOf(s).epoch += 1;
   },
 });
 
-export const SQL_CLIENT_WEB_ACTIONS = [
-  connect,
-  disconnect,
-  put,
-  killTabAction,
-  fillPool,
-  corruptStore,
-  bumpEpoch,
-];
-
-export const converged = defineProperty({
+export const converged = sqlClientWeb.property({
   name: 'converged',
   check: async (s) => {
     const owners = openOwnerCount(s);
@@ -208,16 +224,4 @@ export const converged = defineProperty({
   },
 });
 
-export const SQL_CLIENT_WEB_PROPERTIES = [converged];
-
-export const arbSqlClientWebKnobs = (): fc.Arbitrary<SqlClientWebKnobs> =>
-  fc.record({
-    tabCount: fc.integer({ min: 1, max: 3 }),
-    poolCapacity: fc.constantFrom(2, 6),
-    schemaEpoch: fc.constant(1),
-    backend: fc.constantFrom<SqlClientWebBackend>('web-sim-opfs', 'sqlite-mem'),
-  });
-
-export const SQL_CLIENT_WEB_SYSTEM = sqlClientWeb;
-export type SqlClientWebSystemDef = typeof sqlClientWeb;
 export type { SqlClientWebSurface };

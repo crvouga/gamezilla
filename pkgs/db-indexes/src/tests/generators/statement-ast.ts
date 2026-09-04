@@ -1,5 +1,5 @@
 import { assert } from '@pkgs/assert';
-import { fc } from '@pkgs/pbt';
+import fc from 'fast-check';
 import type { AccessPath } from '../../core/types';
 import type { GenSchema, GenTable } from './schema';
 

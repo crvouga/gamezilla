@@ -1,60 +1,30 @@
-export type {
-  DomainOp,
-  LibraryAction,
-  ServerOp,
-  SyncAction,
-} from './actions';
+export type { DomainOp, ServerOp, SyncApp } from './app';
+export type { SyncArgs } from './args';
+export { arbSeed, arbSyncArgs } from './args';
+export type { SyncBootOverrides, SyncSystemDef } from './boot';
 export {
-  isDomainOp,
-  isLibraryAction,
-  isServerOp,
-} from './actions';
-export type { DomainModelHooks, SyncApp } from './app';
-export type {
-  DefineSyncSystemOpts,
-  SyncSystemDef,
-} from './define-sync-system';
-export {
-  defineSyncSystem,
-  syncKnobs,
-  syncVirtualHost,
-} from './define-sync-system';
-export type { SyncKnobs } from './knobs';
-export { arbKnobs, arbSeed, DEFAULT_SYNC_KNOBS } from './knobs';
-export { libraryActionArbs, MILD_NET_FAULTS } from './library-arbs';
-export type { SyncModel, SyncReal } from './model';
+  createSyncSurface,
+  registerSyncLibrary,
+  SIM_START_MS,
+  syncVirtual,
+} from './boot';
 export {
   AUTH_STATUSES,
-  applyActionToModel,
   CLIENT_IDS,
   CORRUPTION_VARIANTS,
   CRASH_EVENTS,
-  clientLive,
-  domainOp,
   HOLD_TRAFFIC,
   HTTP_FAULTS,
-  initialSyncModel,
-  modelAllowsAction,
-  PUBSUB_FAULTS,
+  MILD_NET_FAULTS,
+  pubsubFaults,
   SCHEMA_VARIANTS,
   SIM_PBT_CRASH_EVENTS,
   SKEW_MS_VALUES,
   STORAGE_PRESSURES,
   STORAGE_TAMPERS,
-  serverOp as modelServerOp,
-} from './model';
-export {
-  prepareClientsForConverge,
-  replayStep,
-  resetClockSkews,
-} from './play';
-export { replaySyncRepro, syncRepro } from './replay';
-export { createSyncActions } from './sync-actions';
-export type {
-  LiveNoteRow,
-  LiveSpaceRow,
-  RejectionRow,
-} from './sync-observations';
+} from './catalog';
+export { pool, SYNC_POOL_ACTIONS } from './sync-actions';
+export type { RejectionRow } from './sync-observations';
 export {
   actorId,
   caps,
@@ -69,8 +39,6 @@ export {
   lastMutationFailures,
   lastMutationId,
   lastMutationOk,
-  liveNote,
-  liveSpace,
   netHeld,
   nodeNow,
   outcome,
@@ -110,7 +78,6 @@ export {
   nudge,
   online,
   partition,
-  playActions,
   postMutations,
   publishFault,
   pubsubFault,
@@ -120,7 +87,6 @@ export {
   restartWithSchema,
   revive,
   runSql,
-  SYNC_PIN_ACTIONS,
   SYNC_STEP_MS,
   serverOp,
   serverPrune,
@@ -132,7 +98,7 @@ export {
   unsubscribe,
   wakeAll,
 } from './sync-pin-actions';
-export { SYNC_PROPERTIES } from './sync-properties';
+export { converges, invariantsHold } from './sync-properties';
 export type {
   LastMutation,
   LastPost,

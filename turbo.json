@@ -1,5 +1,5 @@
 {
-  "$schema": "https://v2-10-1.turborepo.dev/schema.json",
+  "$schema": "https://v2-10-12.turborepo.dev/schema.json",
   "ui": "stream",
   "concurrency": "100%",
   "globalDependencies": ["tsconfig.json"],
@@ -13,7 +13,6 @@
     "LOCAL_PREVIEW_API_ORIGIN",
     "DATABASE_URL",
     "AUTH_*",
-    "BETTER_AUTH_*",
     "LOCAL_SECRETS",
     "STRIPE_*",
     "CLOUDFLARE_*",
@@ -28,8 +27,12 @@
     "SECRETS_*",
     "INFISICAL_*",
     "ACTIONS_ID_TOKEN_*",
+    "WEB_CLIENT_*",
+    "EMQX_*",
+    "OBSERVABILITY_*",
     "TURBO_*",
     "SIM_FIDELITY",
+    "SIM_REPORT",
     "PLAYWRIGHT_BASE_URL",
     "TMPDIR"
   ],
@@ -127,11 +130,42 @@
       "outputLogs": "new-only",
       "outputs": []
     },
+    "test:contract": {
+      "inputs": [
+        "**/*.ts",
+        "**/*.tsx",
+        "package.json",
+        "jest.config.*",
+        "*.cjs"
+      ],
+      "outputLogs": "new-only",
+      "outputs": []
+    },
+    "test:e2e": {
+      "inputs": [
+        "**/*.ts",
+        "**/*.tsx",
+        "**/*.mjs",
+        "package.json",
+        "e2e/**",
+        "jest.config.*",
+        "*.cjs"
+      ],
+      "outputLogs": "new-only",
+      "outputs": []
+    },
+    "billing:check": {
+      "inputs": ["**/*.ts", "**/*.tsx", "package.json", "scripts/**"],
+      "outputLogs": "new-only",
+      "outputs": []
+    },
     "lint": {
       "inputs": [
         "apps/**/*.{ts,tsx,js,jsx}",
         "libs/**/*.{ts,tsx,js,jsx}",
         "pkgs/**/*.{ts,tsx,js,jsx}",
+        "sim/**/*.{ts,tsx,js,jsx,cjs}",
+        "tools/**/*.{ts,tsx,js,cjs}",
         "biome.json",
         "tools/biome-plugins/**"
       ],
@@ -139,39 +173,25 @@
       "outputLogs": "new-only"
     },
     "//#check": {
+      "dependsOn": ["lint", "tc", "test"],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#check:full": {
       "dependsOn": [
+        "//#check",
         "//#ci:syncpack",
-        "//#ci:database-url-policy",
-        "//#ci:local-dev-self-contained",
-        "//#ci:no-local-tables",
-        "//#ci:no-raw-schema-sql",
-        "//#ci:domain-table-prefixes",
-        "//#ci:dst-selector-discipline",
-        "//#ci:no-domain-hard-delete",
-        "//#ci:no-top-level-di-functions",
-        "//#ci:no-eager-di-construction",
-        "//#ci:layer-c-sql-tx",
-        "//#ci:fanout-rows-from-reads",
-        "//#ci:mutation-determinism",
-        "//#ci:channel-exhaustiveness",
-        "//#ci:sync-engine-terminology",
-        "//#ci:sync-engine-blackbox-tests",
-        "//#ci:matchmaking-blackbox-tests",
-        "//#ci:sync-engine-protocol-freeze",
-        "//#ci:sync-engine-public-api",
-        "//#ci:server-isomorphic",
-        "//#ci:no-sql-wall-io",
-        "//#ci:no-vendor-sql",
-        "//#ci:sim-determinism",
         "//#ci:depcruise",
-        "//#ci:circular-deps",
-        "//#ci:tier-imports",
-        "//#ci:use-case-isolation",
-        "//#ci:libs-import-surface",
-        "//#ci:component-ids",
-        "//#ci:no-rn-style-api",
-        "//#ci:no-size-limit-overrides",
-        "//#ci:audit"
+        "//#ci:audit",
+        "//#ci:i18n",
+        "@libs/secrets#check",
+        "@apps/server#build",
+        "@apps/room-server#build",
+        "test:contract",
+        "test:e2e",
+        "@libs/billing#billing:check",
+        "@tools#check:static",
+        "@apps/server#check:api"
       ],
       "outputs": [],
       "outputLogs": "new-only"
@@ -189,17 +209,18 @@
       "outputLogs": "new-only"
     },
     "@libs/secrets#provision": {
-      "cache": false
+      "cache": false,
+      "dependsOn": ["@tools#install:cli"]
     },
     "@libs/db#provision": {
       "cache": false,
       "dependsOn": ["@libs/secrets#provision"]
     },
-    "@pkgs/object-store#provision": {
+    "@libs/object-store#provision": {
       "cache": false,
       "dependsOn": ["@libs/secrets#provision"]
     },
-    "@pkgs/emqx-server#provision": {
+    "@libs/pubsub#provision": {
       "cache": false,
       "dependsOn": ["@libs/secrets#provision"]
     },
@@ -207,8 +228,8 @@
       "cache": false,
       "dependsOn": [
         "@libs/db#provision",
-        "@pkgs/object-store#provision",
-        "@pkgs/emqx-server#provision"
+        "@libs/object-store#provision",
+        "@libs/pubsub#provision"
       ]
     },
     "@libs/secrets#check": {
@@ -232,13 +253,21 @@
       "cache": false,
       "dependsOn": ["@apps/server#deploy"]
     },
-    "@apps/server#billing:sync": {
+    "@sim/console#deploy": {
+      "cache": false,
+      "dependsOn": ["@apps/server#deploy"]
+    },
+    "@libs/billing#billing:sync": {
       "cache": false,
       "dependsOn": ["@apps/server#deploy"]
     },
     "@apps/server#smoke": {
       "cache": false,
-      "dependsOn": ["@apps/client#deploy", "@apps/server#billing:sync"]
+      "dependsOn": [
+        "@apps/client#deploy",
+        "@sim/console#deploy",
+        "@libs/billing#billing:sync"
+      ]
     },
     "@apps/client#deploy:ota": {
       "cache": false,
@@ -250,42 +279,22 @@
         "lint",
         "tc",
         "test",
-        "build",
-        "//#check",
+        "@apps/server#build",
+        "@apps/room-server#build",
+        "//#ci:syncpack",
+        "//#ci:depcruise",
+        "//#ci:audit",
+        "//#ci:i18n",
+        "test:contract",
+        "test:e2e",
+        "@libs/billing#billing:check",
         "@tools#check:static",
         "@apps/server#check:api",
         "@libs/secrets#check",
         "@tools#install:cli",
-        "@apps/server#billing:sync",
+        "@libs/billing#billing:sync",
         "@apps/client#deploy:ota"
       ]
-    },
-    "//#ci:lint": {
-      "inputs": [
-        "apps/**/*.{ts,tsx,js,jsx}",
-        "libs/**/*.{ts,tsx,js,jsx}",
-        "pkgs/**/*.{ts,tsx,js,jsx}",
-        "biome.json",
-        "tools/biome-plugins/**"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:fmt": {
-      "inputs": ["$TURBO_DEFAULT$", "biome.json", "tools/biome-plugins/**"],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:no-size-limit-overrides": {
-      "inputs": [
-        "biome.json",
-        "apps/**/*.{ts,tsx,js,jsx}",
-        "libs/**/*.{ts,tsx,js,jsx}",
-        "pkgs/**/*.{ts,tsx,js,jsx}",
-        "tools/scripts/check-no-size-limit-overrides.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
     },
     "//#ci:syncpack": {
       "inputs": [
@@ -295,15 +304,8 @@
         "pkgs/*/package.json",
         "sim/*/package.json",
         "tools/package.json",
-        ".syncpackrc.cjs",
-        "tools/scripts/check-catalog-deps.ts",
-        "tools/scripts/check-no-patches.ts"
+        ".syncpackrc.cjs"
       ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:knip": {
-      "inputs": ["$TURBO_DEFAULT$", "!**/*.md", "!**/*.test.ts"],
       "outputs": [],
       "outputLogs": "new-only"
     },
@@ -315,358 +317,35 @@
         "libs/**/*.tsx",
         "pkgs/**/*.ts",
         "pkgs/**/*.tsx",
+        "sim/**/*.ts",
+        "sim/**/*.tsx",
         ".dependency-cruiser.cjs"
       ],
       "outputs": [],
       "outputLogs": "new-only"
     },
-    "//#ci:circular-deps": {
+    "//#ci:audit": {
+      "inputs": ["bun.lock", "tools/scripts/ci-audit.ts"],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:i18n": {
       "inputs": [
+        "lingui.config.cjs",
         "apps/**/*.ts",
         "apps/**/*.tsx",
         "libs/**/*.ts",
         "libs/**/*.tsx",
         "pkgs/**/*.ts",
         "pkgs/**/*.tsx",
-        "apps/*/package.json",
-        "libs/*/package.json",
-        "pkgs/*/package.json",
-        "sim/*/package.json",
-        "tools/scripts/check-circular-deps.ts",
-        "tools/scripts/workspace-package-import-graph.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:database-url-policy": {
-      "inputs": [
-        "apps/server/scripts/setup-dev-vars.ts",
-        "apps/server/src/db/migrate.ts",
-        "apps/server/src/app/request-db-middleware.ts",
-        "libs/chess/src/root/server/seed-chess-puzzles/chess-puzzle-seeder.ts",
-        "tools/scripts/check-database-url-policy.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:local-dev-self-contained": {
-      "inputs": [
-        "apps/server/scripts/setup-dev-vars.ts",
-        "apps/server/scripts/dev-vars.ts",
-        "apps/client/scripts/setup-env.ts",
-        "sim/console/package.json",
-        "package.json",
-        "tools/scripts/check-local-dev-self-contained.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:tier-imports": {
-      "inputs": [
-        "apps/**/*.ts",
-        "apps/**/*.tsx",
-        "apps/**/*.mts",
-        "apps/**/*.cts",
-        "libs/**/*.ts",
-        "libs/**/*.tsx",
-        "libs/**/*.mts",
-        "libs/**/*.cts",
-        "pkgs/**/*.ts",
-        "pkgs/**/*.tsx",
-        "pkgs/**/*.mts",
-        "pkgs/**/*.cts",
         "sim/**/*.ts",
         "sim/**/*.tsx",
-        "sim/**/*.mts",
-        "sim/**/*.cts",
-        "apps/*/package.json",
-        "libs/*/package.json",
-        "pkgs/*/package.json",
-        "sim/*/package.json",
-        "tools/scripts/check-tier-imports.ts",
-        "tools/scripts/workspace-package-import-graph.ts"
+        "apps/client/src/i18n/locales/**",
+        "apps/client/babel.config.js",
+        "sim/console/babel.config.js",
+        "sim/test/babel.jest.config.js",
+        "tools/scripts/ci-i18n.ts"
       ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:use-case-isolation": {
-      "inputs": [
-        "libs/**/*.ts",
-        "libs/**/*.tsx",
-        "tools/scripts/check-use-case-isolation.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:libs-import-surface": {
-      "inputs": [
-        "apps/**/*.ts",
-        "apps/**/*.tsx",
-        "libs/**/*.ts",
-        "libs/**/*.tsx",
-        "tools/scripts/check-libs-import-surface.ts",
-        "tools/scripts/workspace-package-import-graph.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:component-ids": {
-      "inputs": [
-        "pkgs/ui/src/components/**/*.ts",
-        "pkgs/ui/src/components/**/*.tsx",
-        "pkgs/ui/src/component-id/**/*.ts",
-        "tools/scripts/check-component-ids.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:no-rn-style-api": {
-      "inputs": [
-        "apps/**/*.ts",
-        "apps/**/*.tsx",
-        "libs/**/*.ts",
-        "libs/**/*.tsx",
-        "pkgs/**/*.ts",
-        "pkgs/**/*.tsx",
-        "tools/scripts/check-no-rn-style-api.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:no-local-tables": {
-      "inputs": [
-        "libs/runtime/src/root/app-schema.ts",
-        "libs/**/public/schema.ts",
-        "pkgs/sync-engine/src/shared/assert-domain-tables.ts",
-        "pkgs/sync-engine/src/shared/framework-server-ddl.ts",
-        "tools/scripts/check-local-table-categories.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:no-raw-schema-sql": {
-      "inputs": [
-        "libs/**/*.sql",
-        "pkgs/**/*.sql",
-        "apps/**/*.sql",
-        "tools/scripts/check-no-raw-schema-sql.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:domain-table-prefixes": {
-      "inputs": [
-        "libs/runtime/src/root/app-schema.ts",
-        "libs/**/public/schema.ts",
-        "pkgs/sync-engine/src/shared/framework-server-ddl.ts",
-        "pkgs/auth-better-auth/src/server/better-auth-table-names.ts",
-        "tools/scripts/check-domain-table-prefixes.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:dst-selector-discipline": {
-      "inputs": [
-        "sim/test/src/**/*.ts",
-        "sim/test/src/**/*.tsx",
-        "tools/scripts/check-dst-selector-discipline.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:no-domain-hard-delete": {
-      "inputs": [
-        "libs/**/shared/mutations/**/*.ts",
-        "libs/**/shared/mutations/**/*.tsx",
-        "libs/**/shared/**/*-sql/**/*.ts",
-        "libs/friends/src/server/friend-repository.ts",
-        "libs/friends/src/server/block-service.ts",
-        "tools/scripts/check-no-domain-hard-delete.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:no-top-level-di-functions": {
-      "inputs": [
-        "libs/**/src/**/*.ts",
-        "libs/**/src/**/*.tsx",
-        "tools/scripts/check-no-top-level-di-functions.ts",
-        "tools/scripts/no-top-level-di-baseline.json"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:no-eager-di-construction": {
-      "inputs": [
-        "libs/**/src/**/*.ts",
-        "libs/**/src/**/*.tsx",
-        "apps/**/src/**/*.ts",
-        "apps/**/src/**/*.tsx",
-        "tools/scripts/check-no-eager-di-construction.ts",
-        "tools/scripts/di-baseline-ratchet.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:layer-c-sql-tx": {
-      "inputs": [
-        "libs/**/src/**/*.ts",
-        "libs/**/src/**/*.tsx",
-        "apps/**/src/**/*.ts",
-        "apps/**/src/**/*.tsx",
-        "tools/scripts/check-layer-c-sql-tx.ts",
-        "tools/scripts/di-baseline-ratchet.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:fanout-rows-from-reads": {
-      "inputs": [
-        "pkgs/sync-engine/src/server/**/*.ts",
-        "pkgs/sync-engine/src/sim/server-handlers.ts",
-        "tools/scripts/check-fanout-rows-from-reads.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:mutation-determinism": {
-      "inputs": [
-        "libs/**/mutations/**/*.ts",
-        "libs/**/mutations/**/*.tsx",
-        "pkgs/**/mutations/**/*.ts",
-        "pkgs/**/mutations/**/*.tsx",
-        "tools/scripts/check-mutation-idempotency.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:channel-exhaustiveness": {
-      "inputs": [
-        "apps/server/src/sync/app-mutations.ts",
-        "apps/server/src/sync/app-queries.ts",
-        "libs/**/mutations/**/*.ts",
-        "libs/**/queries/**/*.ts",
-        "pkgs/**/mutations/**/*.ts",
-        "pkgs/**/queries/**/*.ts",
-        "pkgs/sync-engine/src/shared/channel-exhaustiveness.ts",
-        "tools/scripts/check-channel-exhaustiveness.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:sync-engine-terminology": {
-      "inputs": [
-        "pkgs/sync-engine/**",
-        "apps/client/src/sync/**",
-        "apps/server/src/sync/**",
-        "libs/**/shared/mutations/**",
-        "libs/runtime/src/public/sync-topics.ts",
-        "libs/runtime/src/root/app-topic-map.ts",
-        "AGENTS.md",
-        "tools/scripts/check-sync-engine-terminology.ts",
-        "tools/scripts/check-no-domain-hard-delete.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:sync-engine-blackbox-tests": {
-      "inputs": [
-        "pkgs/sync-engine/**/*.test.ts",
-        "pkgs/sync-engine/src/tests/**",
-        "tools/scripts/check-sync-engine-blackbox-tests.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:matchmaking-blackbox-tests": {
-      "inputs": [
-        "pkgs/matchmaking/**/*.test.ts",
-        "pkgs/matchmaking/src/tests/**",
-        "tools/scripts/check-matchmaking-blackbox-tests.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:sync-engine-protocol-freeze": {
-      "inputs": [
-        "pkgs/sync-engine/src/protocol/v1.ts",
-        "pkgs/sync-engine/api-reports/protocol-v1.sha256",
-        "tools/scripts/check-sync-engine-protocol-freeze.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:sync-engine-public-api": {
-      "inputs": [
-        "pkgs/sync-engine/src/client/index.ts",
-        "pkgs/sync-engine/src/server/index.ts",
-        "pkgs/sync-engine/src/shared/index.ts",
-        "pkgs/sync-engine/src/test/index.ts",
-        "pkgs/sync-engine/api-reports/**",
-        "tools/scripts/check-sync-engine-public-api.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:server-isomorphic": {
-      "inputs": [
-        "tools/scripts/check-server-isomorphic.ts",
-        "apps/server/src/**/*.ts",
-        "apps/server/src/**/*.tsx"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:sim-determinism": {
-      "inputs": [
-        "tools/scripts/run-sim-determinism.ts",
-        "libs/**/*.sim.test.ts",
-        "pkgs/**/*.sim.test.ts",
-        "sim/test/**/*.sim.test.ts",
-        "sim/test/**/*.sim.test.tsx"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:no-sql-wall-io": {
-      "inputs": [
-        "tools/scripts/check-no-sql-wall-io.ts",
-        "tools/scripts/io-scan-roots.ts",
-        "tools/scripts/io-scan-pragma.ts",
-        "apps/**/*.ts",
-        "apps/**/*.tsx",
-        "apps/**/*.sql",
-        "libs/**/*.ts",
-        "libs/**/*.tsx",
-        "libs/**/*.sql",
-        "pkgs/**/*.ts",
-        "pkgs/**/*.tsx",
-        "pkgs/**/*.sql"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:no-vendor-sql": {
-      "inputs": [
-        "tools/scripts/check-no-vendor-sql.ts",
-        "tools/scripts/io-scan-roots.ts",
-        "pkgs/sql-client/src/agnostic-sql.ts",
-        "apps/**/*.ts",
-        "apps/**/*.tsx",
-        "apps/**/*.sql",
-        "libs/**/*.ts",
-        "libs/**/*.tsx",
-        "libs/**/*.sql",
-        "pkgs/**/*.ts",
-        "pkgs/**/*.tsx",
-        "pkgs/**/*.sql"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:audit": {
-      "env": ["CI", "GITHUB_ACTIONS"],
-      "inputs": ["bun.lock", "tools/scripts/ci-audit.ts"],
       "outputs": [],
       "outputLogs": "new-only"
     },

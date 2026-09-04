@@ -1,4 +1,4 @@
-import { fc } from '@pkgs/pbt';
+import fc from 'fast-check';
 import { ownedIndexName } from '../../core/naming';
 import type {
   IndexDefinition,

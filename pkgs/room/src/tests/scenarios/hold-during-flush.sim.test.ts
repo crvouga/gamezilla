@@ -40,7 +40,7 @@ describe('room sim: hold during flush (E-A01)', () => {
     await s.apply(release, 'bob');
 
     await expectConverged(s);
-    expect(counterValue(await readServer(run))).toBe(1);
+    expect(counterValue(await readServer(s))).toBe(1);
     expect(counterValue(await readClient(s, 'alice'))).toBe(1);
     expect(counterValue(await readClient(s, 'bob'))).toBe(1);
     await expectHashMatch(s, 'alice');

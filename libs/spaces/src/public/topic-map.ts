@@ -113,6 +113,12 @@ export const SPACES_TOPIC_MAP = {
       if (userId.length > 0) out.push(`user:${userId}`);
       return out;
     },
+    // Held-row subscribe: only the actor's membership rows drive room topics.
+    subscribeTopics(row, ctx) {
+      if (row['user_id'] !== ctx.actorId) return [];
+      const spaceId = String(row['space_id'] ?? '');
+      return spaceId.length > 0 ? [`room:${spaceId}` as Topic] : [];
+    },
   },
   spaces_open_sessions: {
     topics() {

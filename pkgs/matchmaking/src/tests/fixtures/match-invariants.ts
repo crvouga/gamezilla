@@ -99,7 +99,7 @@ export async function assertMatchInvariants(
 ): Promise<{ readonly matchCount: number; readonly waiting: number }> {
   const groupSize = opts?.groupSize ?? 2;
   const { byMatch, waiting } = await collectMatchGroups(
-    run,
+    s,
     participantIds,
     groupSize
   );

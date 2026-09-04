@@ -39,7 +39,7 @@ export async function notifyUserChannels(
     ...(deferPublish
       ? {
           schedulePublish: (run: () => void) => {
-            store.timers.setTimeout(s, 0);
+            store.timers.setTimeout(run, 0);
           },
         }
       : {}),

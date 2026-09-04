@@ -7,12 +7,7 @@ export type { SimClientHandle } from '../sim/client-handle';
 export type { SimDomainPack, SimSessionQuery } from '../sim/domain-pack';
 export { emptySimPushChannels } from '../sim/domain-pack';
 export type { SeededRng } from '../sim/rng';
-export type {
-  SyncAction,
-  SyncApp,
-  SyncKnobs,
-  SyncSurface,
-} from '../sim/scenario';
+export type { SyncApp, SyncArgs, SyncSurface } from '../sim/scenario';
 export type {
   NeverOptions,
   UntilTarget,

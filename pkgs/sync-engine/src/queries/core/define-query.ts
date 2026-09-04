@@ -3,7 +3,6 @@ import { assert } from '@pkgs/assert';
 import {
   emptyObjectSchema,
   parseStandardSchema,
-  QUERY_PARAM_STUB,
 } from '../../shared/standard-schema';
 import {
   DEFAULT_QUERY_LIMIT,
@@ -73,6 +72,22 @@ const resolveStubCtx: QueryCtx = {
   },
 };
 
+/** Resolve boot/workload stub params: `{}` then optional `sampleParams`. */
+export async function resolveQueryStubParams(
+  query: QueryDef<unknown>
+): Promise<unknown> {
+  const paramsSchema = query.params ?? emptyObjectSchema;
+  const empty = await parseStandardSchema(paramsSchema, {});
+  if (empty.ok) return empty.value;
+  if (query.sampleParams !== undefined) {
+    const stubbed = await parseStandardSchema(paramsSchema, query.sampleParams);
+    if (stubbed.ok) return stubbed.value;
+  }
+  throw new Error(
+    `Query ${query.name}: params schema rejects {} and sampleParams is missing or invalid — add sampleParams`
+  );
+}
+
 /**
  * Force-resolve `hydrates` by executing `run` against an empty stub DB.
  * Used by channel-exhaustiveness CI (no authoring `hydrates` field).
@@ -81,15 +96,7 @@ export async function resolveQueryHydrates(
   query: QueryDef<unknown>
 ): Promise<readonly string[]> {
   if (query.hydrates.length > 0) return query.hydrates;
-  const paramsSchema = query.params ?? emptyObjectSchema;
-  const empty = await parseStandardSchema(paramsSchema, {});
-  let resolved: unknown;
-  if (empty.ok) {
-    resolved = empty.value;
-  } else {
-    const stubbed = await parseStandardSchema(paramsSchema, QUERY_PARAM_STUB);
-    resolved = stubbed.ok ? stubbed.value : QUERY_PARAM_STUB;
-  }
+  const resolved = await resolveQueryStubParams(query);
   await query.run(resolveStubCtx, resolved);
   return query.hydrates;
 }

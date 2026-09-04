@@ -3,6 +3,17 @@ import fc from 'fast-check';
 import { createRng, type Rng } from '../kernel/rng';
 import type { Gen } from '../system/gen';
 
+export {
+  type AssertPropertyParams,
+  assertProperty,
+} from './assert-property';
+export {
+  arbFiniteNumber,
+  arbJsonKey,
+  arbJsonObject,
+  arbJsonValue,
+} from './json';
+
 /**
  * pure-rand-compatible RandomGenerator over our Rng, so every fast-check
  * value is a function of recorded draws.

@@ -7,25 +7,29 @@ export type { RoomSimClientHandle } from './sim/kit-api';
 export type {
   DomainOp,
   RoomApp,
+  RoomArgs,
   RoomSurface,
   RoomSystemDef,
 } from './sim/scenario';
 export {
   addClient,
+  bootRoomSurface,
   clientHash,
   clientState,
   crash,
-  defineRoomSystem,
   dispatch,
   domainOp,
   heal,
   hold,
   lastRejection,
   partition,
-  ROOM_PROPERTIES,
+  ROOM_ARGS,
+  ROOM_DRAW,
+  registerRoomLibrary,
   release,
   restart,
   revive,
+  roomVirtual,
   SIM_START_MS,
   serverHash,
   serverState,
@@ -72,4 +76,3 @@ export {
   assertTotality,
   runModuleConformance,
 } from './tests/kit';
-export { type OpenRoomOpts, openRoom } from './tests/scenario/open-room';

@@ -43,7 +43,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@pkgs/pbt": "workspace:*",
+    "@pkgs/dst": "workspace:*",
     "@types/react": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",

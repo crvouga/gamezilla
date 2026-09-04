@@ -79,7 +79,7 @@ export async function closeMonitors(
     m.closed = true;
     if (m.property.close === undefined) continue;
     try {
-      await m.property.close(m.ctx);
+      await Promise.resolve(m.property.close(m.ctx));
     } catch (e) {
       violations.push(
         e instanceof PropertyViolation

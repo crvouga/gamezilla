@@ -1,49 +1,30 @@
 /**
- * Room system kernel. Scripts and action replay are framework-owned:
- * {@link defineRoomSystem} + `system.script` / `.explore` / `.replay`.
+ * Room system kernel. Each app declares a literal `defineSystem` whose
+ * `create` calls {@link bootRoomSurface} and then {@link registerRoomLibrary};
+ * scripts run through `system.script` / `.explore` / `.replay`.
  */
 
-export type {
-  DomainOp,
-  LibraryAction,
-  RoomSystemAction,
-} from './actions';
-export { isDomainOp, isLibraryAction } from './actions';
-export type { DomainModelHooks, RoomApp } from './app';
-export { applyTaggedRoomAction } from './apply-tagged';
+export type { DomainOp } from './actions';
+export { domainOp } from './actions';
+export type { RoomApp } from './app';
 export type { RoomArgs } from './args';
+export { ROOM_ARGS, ROOM_DRAW } from './args';
+export type { BootRoomOpts, RoomSystemDef } from './boot';
 export {
-  arbRoomArgs,
-  arbSeed,
-  ROOM_ARGS,
-  ROOM_DRAW,
-} from './args';
-export type {
-  DefineRoomSystemOpts,
-  RoomSystemDef,
-} from './define-room-system';
-export {
-  defineRoomSystem,
+  bootRoomSurface,
+  registerRoomLibrary,
+  roomEpoch,
+  roomVirtual,
   SIM_START_MS,
-} from './define-room-system';
-export { dispatchRoomSystemAction } from './dispatch';
-export { MILD_NET_FAULTS } from './library-arbs';
+} from './boot';
 export {
-  applyActionToModel,
   BYZANTINE_INJECT_KINDS,
   type ByzantineInjectKind,
   buildByzantineRaw,
-  CLIENT_IDS,
-  clientLive,
-  domainOp,
-  initialRoomModel,
-  modelAllowsAction,
-  NET_FAULT_PROFILES,
-  type RoomModel,
-  type RoomReal,
-  SIM_PBT_CRASH_EVENTS,
-} from './model';
+} from './byzantine';
+export { MILD_NET_FAULTS, NET_FAULT_PROFILES } from './faults';
 export {
+  allLiveConnected,
   caps,
   clientHash,
   clientIds,
@@ -55,13 +36,16 @@ export {
   crashedIds,
   downClients,
   heldClients,
+  impairedClients,
   invariants,
   invariantViolations,
   lastRejection,
+  linkUpClients,
   logSeq,
+  lossyNetwork,
   partitioned,
   quiet,
-  ROOM_PROPERTIES,
+  releasableClients,
   rosterSize,
   seed,
   serverCrashed,
@@ -74,6 +58,7 @@ export {
   addSpectator,
   armCrashAt,
   asymmetricLink,
+  byzantine,
   clearFaults,
   clearLocalData,
   connect,
@@ -87,13 +72,10 @@ export {
   hold,
   injectFromServer,
   injectToServer,
-  LIBRARY_ACTIONS,
   partition,
-  ROOM_ACTIONS,
   release,
   restart,
   revive,
-  roomActions,
   serverCrash,
   serverRestart,
   setFaults,

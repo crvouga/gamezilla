@@ -1,12 +1,21 @@
 /**
- * Portable logical World snapshot capture / restore for createSim.
+ * Portable logical system snapshot capture / restore for createSim.
  */
 
 import type { Client } from '@apps/client/product/create-client';
-import { migrateSimSqlite } from '@apps/server/sim/migrate-sim-sqlite';
-import type { SimSystemSnapshot } from '@pkgs/sim-console/shared/sim-system-snapshot';
-import { dumpData, loadData } from '@pkgs/sql-client/interface';
+import { migrateSimClientSqlite } from '@apps/server/sim/migrate-sim-sqlite';
+import { LOCAL_DOMAIN_TABLE_NAMES } from '@libs/runtime/root/app-schema';
+import type {
+  SimSystemSnapshot,
+  SimSystemSnapshotClientSlice,
+} from '@pkgs/sim-console/shared/sim-system-snapshot';
+import { dumpData, loadData } from '@pkgs/sql-client/sql-data-snapshot';
+import type {
+  SqlDataDump,
+  SqlTableDump,
+} from '@pkgs/sql-client/sql-data-snapshot/types';
 import { getLocalSchemaTargetVersion } from '@pkgs/sync-engine/client';
+import { FRAMEWORK_CACHE_TABLE_NAMES } from '@pkgs/sync-engine/shared';
 import {
   dumpPlaygroundClientDurable,
   restorePlaygroundClientDurable,
@@ -38,6 +47,7 @@ export type SystemSnapshotCtx = {
 function drainCtx(ctx: SystemSnapshotCtx) {
   return {
     clock: ctx.sim.clock,
+    scheduler: ctx.sim.scheduler,
     serverHandle: ctx.sim.serverSql,
     sim: ctx.sim,
     clientSqlByAddress: ctx.clientSqlByAddress,
@@ -71,6 +81,26 @@ async function ensureClientSqlHandle(
   return opened;
 }
 
+const CLIENT_RESTORE_SKIP_TABLES = new Set<string>([
+  ...FRAMEWORK_CACHE_TABLE_NAMES,
+]);
+
+function shouldSkipClientRestoreTable(name: string): boolean {
+  if (CLIENT_RESTORE_SKIP_TABLES.has(name)) return true;
+  if (name.startsWith('auth_')) return false;
+  return LOCAL_DOMAIN_TABLE_NAMES.includes(name);
+}
+
+/** Domain + sync cache re-hydrate from server; keep auth/durable rows. */
+function clientTablesForRestore(dump: SqlDataDump): SqlDataDump {
+  const tables: Record<string, SqlTableDump> = {};
+  for (const [name, slice] of Object.entries(dump.tables)) {
+    if (shouldSkipClientRestoreTable(name)) continue;
+    tables[name] = slice;
+  }
+  return { ...dump, tables };
+}
+
 export async function captureSystemSnapshot(
   ctx: SystemSnapshotCtx
 ): Promise<SimSystemSnapshot> {
@@ -79,7 +109,7 @@ export async function captureSystemSnapshot(
   await awaitPlaygroundMutationDrain(drainCtx(ctx), clientIds);
 
   const server = await dumpData(ctx.sim.serverSql.sqlClient);
-  const clients: SimSystemSnapshot['clients'] = {};
+  const clients: Record<string, SimSystemSnapshotClientSlice> = {};
 
   for (const clientId of clientIds) {
     const handle = await ensureClientSqlHandle(ctx, clientId);
@@ -108,6 +138,7 @@ export async function captureSystemSnapshot(
       {
         sim: ctx.sim,
         clock: ctx.sim.clock,
+        scheduler: ctx.sim.scheduler,
         roomNode: ctx.sim.roomNode,
         serverHandle: ctx.sim.serverSql,
         clientSqlByAddress: ctx.clientSqlByAddress,
@@ -164,21 +195,18 @@ export async function restoreSystemSnapshot(
       ...slice.kv,
     });
     const handle = await ensureClientSqlHandle(ctx, clientId);
-    await migrateSimSqlite({
+    await migrateSimClientSqlite({
       sqlClient: handle.sqlClient,
       now: () => ctx.sim.clock.now(),
     });
-    await loadData(handle.sqlClient, slice.tables);
+    // Client domain/sync cache re-hydrates from server; auth + durable SQL restored.
+    await loadData(handle.sqlClient, clientTablesForRestore(slice.tables));
   }
 
   await reconcileServerProfilesFromClients(drainCtx(ctx), snapshot.clientIds);
 
-  for (const clientId of snapshot.clientIds) {
-    ctx.sim.spawnClient(clientId);
-  }
-
   await restoreSystemSnapshotRooms(ctx, snapshot);
-  resetSimClock(ctx.sim.clock, snapshot.clockMs);
+  resetSimClock(ctx.sim.scheduler, snapshot.clockMs);
   ctx.setClockPaused?.(snapshot.clockPaused);
   applyCheckpointFaults(ctx.sim, {
     label: '',

@@ -10,8 +10,8 @@ export type { SyncKit } from './kit-api';
 export type { RestartClientOpts } from './kit-lifecycle';
 export type { NetEffect, NetState, SimNetHandle } from './net-effect';
 export type { SimNodeHandle } from './node-handle';
-export type { SyncAction, SyncApp, SyncKnobs } from './scenario';
-export { arbKnobs, arbSeed } from './scenario';
+export type { SyncApp, SyncArgs } from './scenario';
+export { arbSeed, arbSyncArgs } from './scenario';
 export type { SimTraffic } from './traffic';
 export type {
   NeverOptions,

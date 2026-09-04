@@ -1,44 +1,41 @@
 import { describe, expect, test } from 'bun:test';
 import {
+  ACME_DST_FAULTS_HOST,
   acmeSystem,
   addClient,
   expectConverged,
   mutate,
-  runAcmeSeed,
-  seedsFromEnv,
   setNote,
 } from '../apps/acme';
+import { walkThenConverge } from '../apps/acme/walk-converge';
+
+const TIME = { weight: 1, minMs: 0, maxMs: 40 } as const;
+
+/** Seeded walk over the whole pool; the recorded choices are the fingerprint. */
+async function walkChoices(seed: number, steps: number): Promise<string> {
+  await using s = await acmeSystem.script({ seed, args: { clientCount: 2 } });
+  const w = await s.walk({ steps, time: TIME });
+  return JSON.stringify(w.choices);
+}
 
 describe('seeded workload fuzz determinism', () => {
-  test('same seed runAcmeSeed is deterministic', async () => {
-    const first = await runAcmeSeed({ seed: 123, steps: 12, clientCount: 2 });
-    const second = await runAcmeSeed({ seed: 123, steps: 12, clientCount: 2 });
-    expect(first.ok).toBe(true);
-    expect(second.ok).toBe(true);
-    expect(first).toEqual(second);
+  test('same seed → identical walk choices', async () => {
+    expect(await walkChoices(123, 12)).toBe(await walkChoices(123, 12));
   });
 
   test(
-    'seed corpus + env seeds converge',
+    'seed corpus converges (explore, one episode per seed)',
     async () => {
-      const corpus = [1, 2, 3, 7, 11, 13, 17, 31, 42, 99];
-      const fromEnv = seedsFromEnv(
-        process.env as { SYNC_SIM_SEED?: string; SYNC_SIM_SEEDS?: string }
-      );
-      const seeds = fromEnv.length > 0 ? fromEnv : corpus;
-      for (const seed of seeds) {
-        const result = await runAcmeSeed({
+      for (const seed of [1, 2, 3, 7, 11, 13, 17, 31, 42, 99]) {
+        const report = await acmeSystem.explore({
           seed,
+          episodes: 1,
           steps: 16,
-          clientCount: 2,
-          sampleFaults: false,
+          args: { clientCount: 2 },
+          stopOnViolation: true,
+          time: TIME,
         });
-        if (!result.ok) {
-          throw new Error(
-            `fuzz failed seed=${result.seed.toString(16)} steps=${result.steps}: ${result.error}`
-          );
-        }
-        expect(result.ok).toBe(true);
+        expect(report.failures.map((f) => f.error)).toEqual([]);
       }
     },
     { timeout: 180_000 }
@@ -47,18 +44,11 @@ describe('seeded workload fuzz determinism', () => {
   test(
     'three clients with longer skew/crash workload converge',
     async () => {
-      const result = await runAcmeSeed({
+      await walkThenConverge({
         seed: 404,
         steps: 32,
-        clientCount: 3,
-        sampleFaults: false,
+        args: { clientCount: 3 },
       });
-      if (!result.ok) {
-        throw new Error(
-          `fuzz failed seed=${result.seed.toString(16)} steps=${result.steps}: ${result.error}`
-        );
-      }
-      expect(result.ok).toBe(true);
     },
     { timeout: 120_000 }
   );
@@ -66,39 +56,28 @@ describe('seeded workload fuzz determinism', () => {
   test(
     'extended corpus profile (3 clients / 36 steps) converges',
     async () => {
-      const corpus = [101, 202, 404, 505];
-      for (const seed of corpus) {
-        const result = await runAcmeSeed({
-          seed,
-          steps: 36,
-          clientCount: 3,
-          sampleFaults: false,
-        });
-        if (!result.ok) {
-          throw new Error(
-            `extended fuzz failed seed=${result.seed.toString(16)} steps=${result.steps}: ${result.error}`
-          );
-        }
-        expect(result.ok).toBe(true);
+      for (const seed of [101, 202, 404, 505]) {
+        await walkThenConverge({ seed, steps: 36, args: { clientCount: 3 } });
       }
     },
     { timeout: 180_000 }
   );
 
   test(
-    'lossy faults sample still settles (best-effort)',
+    'lossy faults host still settles (best-effort)',
     async () => {
-      const result = await runAcmeSeed({
+      const report = await acmeSystem.explore({
+        host: ACME_DST_FAULTS_HOST,
         seed: 777,
+        episodes: 1,
         steps: 12,
-        clientCount: 2,
-        sampleFaults: true,
+        args: { clientCount: 2 },
+        stopOnViolation: true,
+        time: TIME,
       });
-      if (!result.ok) {
-        expect(result.error.includes('seq-monotonicity')).toBe(false);
-        return;
+      for (const failure of report.failures) {
+        expect(failure.error.includes('seq-monotonicity')).toBe(false);
       }
-      expect(result.ok).toBe(true);
     },
     { timeout: 60_000 }
   );

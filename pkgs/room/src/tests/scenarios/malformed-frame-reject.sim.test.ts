@@ -34,7 +34,7 @@ describe('room sim: malformed frame reject (E-D02)', () => {
     expect(err).not.toBeNull();
     expect(err?.type).toBe(ROOM_ERROR_TYPE.invalidCommand);
     expect(await s.observe(logSeq)).toBe(0);
-    expect(counterValue(await readServer(run))).toBe(0);
+    expect(counterValue(await readServer(s))).toBe(0);
     expect(counterValue(await readClient(s, 'alice'))).toBe(0);
     expect(await readClientHash(s, 'alice')).toBe(before);
   });
@@ -52,7 +52,7 @@ describe('room sim: malformed frame reject (E-D02)', () => {
       direct: true,
     });
     expect(await s.observe(logSeq)).toBe(0);
-    expect(counterValue(await readServer(run))).toBe(0);
+    expect(counterValue(await readServer(s))).toBe(0);
     expect(await readClientHash(s, 'alice')).toBe(before);
   });
 });

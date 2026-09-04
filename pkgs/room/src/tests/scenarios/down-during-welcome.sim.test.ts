@@ -41,7 +41,7 @@ describe('room sim: down during welcome (E-A03)', () => {
     await s.apply(disconnect, 'bob');
     await s.apply(connect, 'bob');
     await expectConverged(s);
-    expect(counterValue(await readServer(run))).toBe(2);
+    expect(counterValue(await readServer(s))).toBe(2);
     expect(counterValue(await readClient(s, 'alice'))).toBe(2);
     expect(counterValue(await readClient(s, 'bob'))).toBe(2);
     await expectHashMatch(s, 'alice');

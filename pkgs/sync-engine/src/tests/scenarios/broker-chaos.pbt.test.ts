@@ -1,86 +1,64 @@
-import { describe, test } from 'bun:test';
-import { assertDstProperty, fc } from '@pkgs/pbt';
-import { acmeSetNoteOp } from '../apps/acme/domain-model';
-import { acmeDstApp } from '../apps/acme/dst-app';
-import type { DstAction, LibraryAction } from '../dst/actions';
-import { PUBSUB_FAULTS, replayActionsOnWorld } from '../dst/commands';
-import { arbWorldKnobs, arbWorldSeed, openPbtWorld } from '../dst/world-config';
+import { describe, expect, test } from 'bun:test';
 
-const TRIGGER = acmeSetNoteOp('c0', 'n0', 'broker-chaos');
-
-function brokerSequence(arm: LibraryAction): DstAction[] {
-  return [arm, TRIGGER, { kind: 'idle', ms: 40 }, { kind: 'heal' }];
-}
+import { acmeSystem, expectConverged, netSet, pool } from '../apps/acme';
+import { walkThenConverge } from '../apps/acme/walk-converge';
 
 describe('broker chaos PBT', () => {
   test(
-    'pubsub fault arms then mutate converges',
+    'brokerRestart then peer faults still converges (pin)',
     async () => {
-      await assertDstProperty(
-        'pubsub fault sequences converge',
-        fc.asyncProperty(
-          arbWorldSeed(),
-          arbWorldKnobs(),
-          fc.constantFrom(...PUBSUB_FAULTS),
-          async (seed, knobs, fault) => {
-            const arm: LibraryAction = { kind: 'armPubsubFault', fault };
-            const opened = await openPbtWorld({
-              app: acmeDstApp,
-              seed,
-              knobs,
-            });
-            try {
-              await replayActionsOnWorld(
-                acmeDstApp,
-                opened.world,
-                brokerSequence(arm)
-              );
-              await opened.world.assertConverged();
-            } finally {
-              await opened.world.dispose();
-            }
-          }
-        ),
-        { numRuns: 6 }
-      );
+      await using s = await acmeSystem.script({
+        seed: 1_000_000,
+        args: {
+          liveResendOnReconnect: true,
+          bufferOutboundLive: true,
+          clientCount: 3,
+        },
+      });
+      await s.apply(pool.brokerRestart);
+      await s.elapse(10);
+      await s.apply(netSet, 'c1', 'all', {
+        dropProbability: 0.05,
+        reorderWindow: 2,
+        partitionProbability: 0.02,
+      });
+      await s.elapse(10);
+      await expectConverged(s);
+    },
+    { timeout: 30_000 }
+  );
+
+  test(
+    'pubsub fault arms interleaved with mutates converge on heal',
+    async () => {
+      let armed = 0;
+      for (const seed of [401, 402, 403]) {
+        const walk = await walkThenConverge({
+          seed,
+          actions: ['armPubsubFault', 'domain', 'heal'],
+          steps: 10,
+        });
+        armed += walk.coverage.actions['armPubsubFault'] ?? 0;
+      }
+      expect(armed).toBeGreaterThan(0);
     },
     { timeout: 120_000 }
   );
 
   test(
-    'broker crash/restart then mutate converges',
+    'broker crash / restart interleaved with mutates converge on heal',
     async () => {
-      await assertDstProperty(
-        'broker restart sequences converge',
-        fc.asyncProperty(
-          arbWorldSeed(),
-          arbWorldKnobs(),
-          fc.constantFrom(
-            { kind: 'brokerCrash' } as const,
-            { kind: 'brokerRestart' } as const
-          ),
-          async (seed, knobs, arm) => {
-            const opened = await openPbtWorld({
-              app: acmeDstApp,
-              seed,
-              knobs,
-            });
-            try {
-              await replayActionsOnWorld(acmeDstApp, opened.world, [
-                arm,
-                TRIGGER,
-                { kind: 'brokerRestart' },
-                { kind: 'idle', ms: 40 },
-                { kind: 'heal' },
-              ]);
-              await opened.world.assertConverged();
-            } finally {
-              await opened.world.dispose();
-            }
-          }
-        ),
-        { numRuns: 6 }
-      );
+      let restarts = 0;
+      for (const seed of [411, 412, 413]) {
+        const walk = await walkThenConverge({
+          seed,
+          args: { liveResendOnReconnect: true },
+          actions: ['brokerCrash', 'brokerRestart', 'domain', 'heal'],
+          steps: 10,
+        });
+        restarts += walk.coverage.actions['brokerRestart'] ?? 0;
+      }
+      expect(restarts).toBeGreaterThan(0);
     },
     { timeout: 120_000 }
   );

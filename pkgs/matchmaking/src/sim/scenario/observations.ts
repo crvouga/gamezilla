@@ -1,9 +1,7 @@
 import type { JsonValue } from '@pkgs/dst';
-import { matchmaking } from './define-matchmaking-system';
 import { assertReplicaAgreement, type MatchmakingSurface } from './facade';
 import { mmOf } from './refs';
-
-const { defineProperty } = matchmaking;
+import { matchmaking } from './system';
 
 export function asJson(value: unknown): JsonValue {
   return (
@@ -114,12 +112,10 @@ export async function matched(
   return false;
 }
 
-export const replicasAgree = defineProperty({
+export const replicasAgree = matchmaking.property({
   name: 'replicasAgree',
   check: async (s) => {
     const v = await agreementViolations(s);
     if (v.length > 0) throw new Error(v[0]!);
   },
 });
-
-export const MATCHMAKING_PROPERTIES = [replicasAgree];

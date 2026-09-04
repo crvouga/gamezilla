@@ -22,14 +22,6 @@ export {
 export type { SimSqlHandle } from './sim-sql-handle';
 export { handleBoundSqlClient, sharedSqlClient } from './sim-sql-handle';
 
-/** @deprecated Prefer {@link openFreshSimClientSql}. */
-export async function openFreshSimSql(
-  logicalName: string,
-  clock: Clock
-): Promise<SimSqlHandle> {
-  return openFreshSimClientSql(logicalName, clock);
-}
-
 export async function openFreshSimClientSql(
   logicalName: string,
   clock: Clock
@@ -58,24 +50,4 @@ export async function openSimServerSqlFromSeedBytes(
     clock,
     seedBytes,
   });
-}
-
-/** @deprecated Sync open removed — use {@link openFreshSimClientSql}. */
-export function openSimSqlHandle(
-  _logicalName: string,
-  _clock: Clock
-): SimSqlHandle {
-  throw new Error(
-    'openSimSqlHandle is async-only now; use openFreshSimClientSql'
-  );
-}
-
-/** @deprecated Sync open removed — use {@link openFreshSimServerSql}. */
-export function openSimServerSqlHandle(
-  _logicalName: string,
-  _clock: Clock
-): SimSqlHandle {
-  throw new Error(
-    'openSimServerSqlHandle is async-only now; use openFreshSimServerSql'
-  );
 }

@@ -60,6 +60,11 @@ export type QueryDef<P = unknown> = {
   readonly limitIsDefault?: boolean;
   /** Wire params; defaults to empty object schema at registry time. */
   readonly params?: StandardSchemaV1<unknown, P>;
+  /**
+   * Sample params for hydrate / workload / topic boot checks when `{}` fails
+   * the params schema. Prefer shape-valid placeholders (no product stubs).
+   */
+  readonly sampleParams?: P;
   /** Real authz only — default deny-anon when omitted. */
   readonly authorize?: QueryAuthorize<P>;
   /** Opt out of default signed-in requirement. */

@@ -17,7 +17,7 @@ describe('kit: authz survives reconnect (M-F05)', () => {
       clientId: 'alice',
       payload: Claim({}),
     });
-    expect(authzOwner(await readServer(run))).toBe('alice');
+    expect(authzOwner(await readServer(s))).toBe('alice');
     expect(authzOwner(await readClient(s, 'alice'))).toBe('alice');
 
     await s.apply(dispatch, {
@@ -37,7 +37,7 @@ describe('kit: authz survives reconnect (M-F05)', () => {
     expect((await readRejection(s, 'bob'))?.type).toBe(
       ROOM_ERROR_TYPE.unauthorized
     );
-    expect(authzCount(await readServer(run))).toBe(0);
+    expect(authzCount(await readServer(s))).toBe(0);
     expect(authzCount(await readClient(s, 'alice'))).toBe(0);
   });
 });

@@ -34,7 +34,7 @@ describe('room sim: n-client partition (E-A07)', () => {
     await s.apply(release, 'd');
 
     await expectConverged(s);
-    expect(counterValue(await readServer(run))).toBe(2);
+    expect(counterValue(await readServer(s))).toBe(2);
     const h = await s.observe(serverHash);
     const hashes = (await s.observe(clientHash)) as Record<string, string>;
     for (const id of ids) {

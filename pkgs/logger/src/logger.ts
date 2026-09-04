@@ -71,11 +71,9 @@ function buildLogger(
     const payload = JSON.stringify(entry);
     switch (lvl) {
       case 'debug':
-        // biome-ignore lint/suspicious/noConsole: logger sink writes structured JSON
         console.debug(payload);
         return;
       case 'info':
-        // biome-ignore lint/suspicious/noConsole: logger sink writes structured JSON
         console.info(payload);
         return;
       case 'warn':

@@ -1,5 +1,4 @@
 import type { JsonValue } from '@pkgs/dst';
-import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import { mutationStatus } from '../../mutations/client/mutation-status';
@@ -76,53 +75,6 @@ function dbFor(s: SyncSurface, nodeId: string): SqlClient | null {
 
 function clientFor(s: SyncSurface, clientId: string): SimClientHandle | null {
   return s.clients.get(clientId) ?? null;
-}
-
-export type LiveNoteRow = {
-  readonly body: string;
-  readonly title: string;
-  readonly deletedAt: string | null;
-};
-
-/**
- * Note row on `nodeId` (`'server'` or a client id). `null` means the row is
- * absent; a non-null `deletedAt` means present but tombstoned.
- */
-export async function liveNote(
-  s: SyncSurface,
-  nodeId: string,
-  id: string
-): Promise<LiveNoteRow | null> {
-  const db = dbFor(s, nodeId);
-  if (db === null) return null;
-  const found = await db.query(sql<LiveNoteRow>`
-    SELECT body, title, deleted_at AS "deletedAt"
-    FROM notes
-    WHERE id = ${id}
-  `);
-  return found[0] ?? null;
-}
-
-export type LiveSpaceRow = {
-  readonly title: string;
-  readonly ownerId: string;
-  readonly deletedAt: string | null;
-};
-
-/** Space row on `nodeId` — same absent / tombstoned rules as {@link liveNote}. */
-export async function liveSpace(
-  s: SyncSurface,
-  nodeId: string,
-  id: string
-): Promise<LiveSpaceRow | null> {
-  const db = dbFor(s, nodeId);
-  if (db === null) return null;
-  const found = await db.query(sql<LiveSpaceRow>`
-    SELECT title, owner_id AS "ownerId", deleted_at AS "deletedAt"
-    FROM spaces
-    WHERE id = ${id}
-  `);
-  return found[0] ?? null;
 }
 
 /** Upload verdict for a queued mutation — null while still pending. */

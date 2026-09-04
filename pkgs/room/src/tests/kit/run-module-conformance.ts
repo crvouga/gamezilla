@@ -57,9 +57,6 @@ function conformanceApp<
   return {
     module: module as RoomApp['module'],
     domainOpArbs: () => [],
-    pickDomainOp: () => {
-      throw new Error('conformance: domain ops unused');
-    },
     toPayload: () => {
       throw new Error('conformance: domain ops unused');
     },

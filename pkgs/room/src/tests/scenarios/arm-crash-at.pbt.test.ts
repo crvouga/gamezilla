@@ -1,51 +1,21 @@
-import { describe, test } from 'bun:test';
-import { assertProperty, fc } from '@pkgs/pbt';
-import { SIM_PBT_CRASH_EVENTS } from '../../sim/boundary-faults';
-import {
-  arbSeed,
-  armCrashAt,
-  clearFaults,
-  domain,
-  restart,
-} from '../../sim/scenario';
-import { counterSystem } from '../apps/counter/system';
-import { expectConverged } from '../expect-converged';
-import { openRoom } from '../scenario/open-room';
+import { describe, expect, test } from 'bun:test';
 
-const increment = (clientId: string) =>
-  ({
-    kind: 'domain',
-    clientId,
-    command: 'increment',
-    args: {},
-  }) as const;
+import { counterSystem } from '../apps/counter/system';
 
 describe('room armCrashAt slice PBT', () => {
   test(
-    'each armCrashAt event then settle converges',
+    'boundary crashes interleaved with domain ops converge after restart',
     async () => {
-      await assertProperty(
-        'armCrashAt slice converges',
-        fc.asyncProperty(
-          arbSeed(),
-          fc.constantFrom(...SIM_PBT_CRASH_EVENTS),
-          async (seed, event) => {
-            await using s = await openRoom(counterSystem, {
-              seed,
-              clientCount: 2,
-              mildFaults: false,
-            });
-            await s.apply(armCrashAt, { clientId: 'c1', event });
-            await s.apply(domain, increment('c0'));
-            await s.elapse(30);
-            await s.apply(clearFaults);
-            await s.apply(restart, 'c1');
-            await s.apply(domain, increment('c1'));
-            await expectConverged(s);
-          }
-        ),
-        { numRuns: 6 }
-      );
+      const report = await counterSystem.explore({
+        seed: 5,
+        episodes: 8,
+        steps: 12,
+        args: { clientCount: 2, mildFaults: false },
+        actions: ['armCrashAt', 'domain', 'restart', 'heal'],
+        time: { weight: 1, minMs: 1, maxMs: 30 },
+      });
+      expect(report.ok).toBe(true);
+      expect(report.coverage.actions['armCrashAt'] ?? 0).toBeGreaterThan(0);
     },
     { timeout: 120_000 }
   );

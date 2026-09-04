@@ -22,7 +22,6 @@
   "devDependencies": {
     "@electric-sql/pglite": "catalog:",
     "@pkgs/dst": "workspace:*",
-    "@pkgs/pbt": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",

@@ -260,11 +260,16 @@ describe('merge snapshot and row images unit', () => {
         ],
       },
     });
-    await recordOptimisticOwnRows(db, 'm-n0', {
-      tables: ['notes'],
-      ids: { notes: ['n0'] },
-      images: {},
-    }, '2020-01-01T00:00:00.000Z');
+    await recordOptimisticOwnRows(
+      db,
+      'm-n0',
+      {
+        tables: ['notes'],
+        ids: { notes: ['n0'] },
+        images: {},
+      },
+      '2020-01-01T00:00:00.000Z'
+    );
     await applyFullMerge(deps, {
       scopeHash: 's1',
       checkpoint: '2',

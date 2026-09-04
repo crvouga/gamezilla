@@ -85,6 +85,8 @@ export function assembleKit<
     net: (clientId: string): SimRoomNetHandle => ({
       set: (next: RoomNetSetArg) => k.network.set(clientId, next),
       state: () => k.network.linkState(clientId),
+      impaired: () => k.network.impaired(clientId),
+      down: () => k.network.down(clientId),
     }),
     node: (clientId: string) => buildNodeHandle(k, clientId),
     runFor,

@@ -1,4 +1,4 @@
-import { fc } from '@pkgs/pbt';
+import fc from 'fast-check';
 
 export type GenTable = {
   readonly name: string;

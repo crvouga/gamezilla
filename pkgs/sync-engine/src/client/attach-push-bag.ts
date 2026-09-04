@@ -3,7 +3,7 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { QueryRegistry, QueryRow } from '../queries/core/types';
 import type { PushMessage, QueryChannelsCtx } from '../shared/push-payload';
-import type { TopicMap } from '../shared/topic-map';
+import { subscribeTables, type TopicMap } from '../shared/topic-map';
 import type { MergeApplierDeps } from './merge';
 import type { Timers } from './sim-ports';
 import type { SubscriptionRuntime } from './subscription-runtime';
@@ -43,6 +43,8 @@ export type PushBag = {
   readonly pendingTopicPushSeqs: Map<Topic, string>;
   /** Row-derived topics per scope (live projection after merge). */
   readonly scopeRowTopics: Map<string, readonly Topic[]>;
+  /** Tables with `subscribeTopics` — local writes resync held-row topics. */
+  readonly subscribeTables: ReadonlySet<string>;
   readonly disposers: Array<() => void>;
   lastTopicKey: string;
   membershipRemakePending: boolean;
@@ -62,6 +64,10 @@ export function createPushBag(options: AttachPushOptions): PushBag {
     topicToScopes: new Map(),
     pendingTopicPushSeqs: new Map(),
     scopeRowTopics: new Map(),
+    subscribeTables:
+      options.topicMap !== undefined
+        ? subscribeTables(options.topicMap)
+        : new Set(),
     disposers: [],
     lastTopicKey: '',
     membershipRemakePending: false,

@@ -43,7 +43,7 @@ describe('room sim: client/server crash restart', () => {
 
     await s.apply(restart, 'alice');
     await expectConverged(s);
-    expect(counterValue(await readServer(run))).toBe(2);
+    expect(counterValue(await readServer(s))).toBe(2);
     expect(counterValue(await readClient(s, 'alice'))).toBe(2);
     await expectHashMatch(s, 'alice');
   });
@@ -63,13 +63,13 @@ describe('room sim: client/server crash restart', () => {
       payload: Increment({}),
     });
     await s.elapse(0);
-    expect(counterValue(await readServer(run))).toBe(2);
+    expect(counterValue(await readServer(s))).toBe(2);
 
     await s.apply(serverCrash);
     expect(await s.observe(serverCrashed)).toBe(true);
     await s.apply(serverRestart);
     expect(await s.observe(serverCrashed)).toBe(false);
-    expect(counterValue(await readServer(run))).toBe(2);
+    expect(counterValue(await readServer(s))).toBe(2);
 
     await expectConverged(s);
     await expectHashMatch(s, 'alice');
@@ -91,7 +91,7 @@ describe('room sim: client/server crash restart', () => {
     });
     await s.elapse(0);
     await expectConverged(s);
-    expect(counterValue(await readServer(run))).toBe(1);
+    expect(counterValue(await readServer(s))).toBe(1);
   });
 
   test('checkInvariants passes on healthy run', async () => {

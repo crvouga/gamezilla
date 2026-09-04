@@ -1,4 +1,4 @@
-import { fc } from '@pkgs/pbt';
+import fc from 'fast-check';
 import type { LogicalColumnType } from '../oracles/canonical-dump';
 
 export type LogicalColumn = {

@@ -86,9 +86,18 @@ describe('public-api', () => {
     expect(kernel).not.toHaveProperty('createScriptedDraws');
   });
 
-  test('@pkgs/dst/fast-check exports gen + arbitrary', () => {
+  test('@pkgs/dst/fast-check exports adapters, assertProperty, JSON arbs', () => {
     expect(Object.keys(fcAdapter).sort()).toEqual(
-      ['arbitrary', 'gen', 'randomGeneratorOver'].sort()
+      [
+        'arbitrary',
+        'gen',
+        'randomGeneratorOver',
+        'assertProperty',
+        'arbFiniteNumber',
+        'arbJsonKey',
+        'arbJsonObject',
+        'arbJsonValue',
+      ].sort()
     );
   });
 });

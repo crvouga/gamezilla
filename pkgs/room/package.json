@@ -30,7 +30,6 @@
     "@pkgs/uuid": "workspace:*"
   },
   "devDependencies": {
-    "@pkgs/pbt": "workspace:*",
     "@types/bun": "catalog:",
     "@types/react": "catalog:",
     "@typescript/native": "catalog:",

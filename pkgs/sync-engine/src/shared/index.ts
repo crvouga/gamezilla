@@ -85,12 +85,18 @@ export {
   FRAMEWORK_TOPIC_MAP,
   withFrameworkTopicMap,
 } from './framework-topic-map';
+export {
+  filterAcceptableImages,
+  filterPublishableImages,
+} from './row-image-guard';
 export { SyncEngineDatabaseMigration } from './sync-engine-database-migration';
 export {
   defineTopicMap,
+  subscribeTables,
   type TopicMap,
   type TopicMapCtx,
   type TopicMapEntry,
+  type TopicMapRowImageGuard,
   topicMapCtxFromEnv,
   topicsFromHeldRows,
   topicsFromWriteCapture,

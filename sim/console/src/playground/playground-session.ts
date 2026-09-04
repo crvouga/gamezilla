@@ -133,7 +133,7 @@ async function runPlaygroundCommand(
             : {}),
           label: wake.label,
           schedulePublish: (run) => {
-            buildArgs.sim.server.timers.setTimeout(s, 0);
+            buildArgs.sim.server.timers.setTimeout(run, 0);
           },
         });
       },

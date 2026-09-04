@@ -6,7 +6,7 @@ identical logic. Hidden nondeterminism is a production correctness bug.
 
 ## Core rule
 
-**Same seed → same path.** Given the same `Session` / `script(system, { seed })`
+**Same seed → same path.** Given the same `Session` / `system.script({ seed })`
 seed (and the same system draws + action choices), reducers, merges, and derived
 game/social state must match bit-for-bit across clients and runs.
 

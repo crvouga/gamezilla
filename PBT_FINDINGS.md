@@ -34,8 +34,9 @@ Room system kernel expansion (`pkgs/room/src/tests/scenario/`):
 If a future property fails:
 
 1. Capture `seed`, `path`, and (for `fc.commands`) `replayPath` from the failure.
-2. Pin the shrunk counterexample via `examples` on `assertProperty` / a scripted
-   `world.playActions` pin in `room-world.pbt.test.ts`.
+2. Pin the shrunk counterexample via `examples` on `assertProperty`, or for
+   `explore` failures replay the printed repro with `system.replay(...)` and pin
+   it as a scripted `s.apply` sequence in a `*.sim.test.ts`.
 3. Add a row here with the minimal case — **do not silently patch production**.
 
 | Date | Property | Seed | Path | Minimal counterexample | Status |

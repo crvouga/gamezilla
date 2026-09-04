@@ -1,4 +1,7 @@
-import type { Host, Ports, Session } from '../host/types';
+import type { Session } from '../host/types';
+import type { ExploreOptions, ReplayOptions, Report } from '../script/explore';
+import type { Script, ScriptOptions } from '../script/script';
+import type { Walk } from '../script/walk';
 import type { Awaitable } from './awaitable';
 import { defineAction } from './define-action';
 import { defineProperty } from './define-property';
@@ -14,104 +17,22 @@ import {
   SYSTEM_TAG,
 } from './effect';
 import type { Gen } from './gen';
+import {
+  attachSystemRegistry,
+  type HostDef,
+  type SystemCore,
+  type SystemRegistry,
+} from './registry';
 import type { Repro } from './repro';
 
-export type SystemCreate<S, Args = void> = (
-  session: Session,
-  args: Args
-) => Awaitable<S>;
-
-export type HostDef = {
-  readonly name: string;
-  readonly default?: boolean;
-  readonly create: () => Awaitable<Host<Ports>>;
-};
-
-export type SystemHostEntry = {
-  readonly name: string;
-  readonly isDefault: boolean;
-  readonly create: () => Awaitable<Host<Ports>>;
-};
-
-/** Package-internal catalogs hung on the system instance. */
-export type SystemRegistry<S> = {
-  readonly actions: CatalogAction<S>[];
-  readonly properties: CatalogProperty<S>[];
-  readonly hostEntries: SystemHostEntry[];
-  defaultHostName: string | undefined;
-};
-
-export type System<S, Args = void> = {
-  readonly [SYSTEM_TAG]: true;
-  readonly name: string;
-  readonly create: SystemCreate<S, Args>;
-  readonly args: Args | undefined;
-  readonly draw: (() => Gen<Args>) | undefined;
-  readonly hosts: readonly string[];
-  host(def: HostDef): void;
-  action<const A extends unknown[] = []>(
-    def: ActionDef<S, A> | Action<S, A>
-  ): Action<S, A>;
-  property<C = unknown>(
-    def: PropertyDef<S, C> | Property<S, C>
-  ): Property<S, C>;
-  script(opts: ScriptOptionsPublic<S, Args>): Promise<ScriptPublic<S>>;
-  explore(opts?: ExploreOptionsPublic<S, Args>): Promise<ReportPublic>;
+export type System<S, Args = void> = SystemCore<S, Args> & {
+  script(opts: ScriptOptions<S, Args>): Promise<Script<S>>;
+  explore(opts?: ExploreOptions<S, Args>): Promise<Report>;
   replay(
-    input: Repro | WalkPublic | string,
-    opts?: ReplayOptionsPublic<S>
-  ): Promise<ReportPublic>;
+    input: Repro | Walk | string,
+    opts?: ReplayOptions<S>
+  ): Promise<Report>;
 };
-
-/** Avoid circular type imports — mirror public Script / Report shapes. */
-type ScriptPublic<S> = import('../script/script').Script<S>;
-type WalkPublic = import('../script/walk').Walk;
-type ReportPublic = import('../script/explore').Report;
-type ScriptOptionsPublic<S, Args> = import('../script/script').ScriptOptions<
-  S,
-  Args
->;
-type ExploreOptionsPublic<S, Args> = import('../script/explore').ExploreOptions<
-  S,
-  Args
->;
-type ReplayOptionsPublic<S> = import('../script/explore').ReplayOptions<S>;
-
-const registries = new WeakMap<object, SystemRegistry<unknown>>();
-
-export function getSystemRegistry<S>(
-  system: System<S, unknown>
-): SystemRegistry<S> {
-  const reg = registries.get(system as object);
-  if (reg === undefined) {
-    throw new Error('getSystemRegistry: system is not registered');
-  }
-  return reg as SystemRegistry<S>;
-}
-
-export function poolActions<S>(system: System<S, unknown>): CatalogAction<S>[] {
-  return getSystemRegistry(system).actions.filter((a) => a.pool !== false);
-}
-
-export async function resolveHost(
-  system: System<unknown, unknown>,
-  hostName: string | undefined
-): Promise<Host<Ports>> {
-  const reg = getSystemRegistry(system);
-  const name = hostName ?? reg.defaultHostName;
-  if (name === undefined) {
-    throw new Error(
-      `system '${system.name}': no host registered (call system.host)`
-    );
-  }
-  const entry = reg.hostEntries.find((h) => h.name === name);
-  if (entry === undefined) {
-    throw new Error(
-      `system '${system.name}': unknown host '${name}' (have: ${reg.hostEntries.map((h) => h.name).join(', ')})`
-    );
-  }
-  return await entry.create();
-}
 
 export function defineSystem<S, Args = void>(def: {
   readonly name: string;
@@ -189,25 +110,23 @@ export function defineSystem<S, Args = void>(def: {
       registry.properties.push(property as unknown as CatalogProperty<S>);
       return property;
     },
-    async script(opts: ScriptOptionsPublic<S, Args>): Promise<ScriptPublic<S>> {
+    async script(opts: ScriptOptions<S, Args>): Promise<Script<S>> {
       const { script } = await import('../script/script');
-      return script(system as System<S, Args>, opts);
+      return script(system, opts);
     },
-    async explore(opts?: ExploreOptionsPublic<S, Args>): Promise<ReportPublic> {
+    async explore(opts?: ExploreOptions<S, Args>): Promise<Report> {
       const { explore } = await import('../script/explore');
-      return explore(system as System<S, Args>, opts ?? {});
+      return explore(system, opts ?? {});
     },
     async replay(
-      input: Repro | WalkPublic | string,
-      opts?: ReplayOptionsPublic<S>
-    ): Promise<ReportPublic> {
+      input: Repro | Walk | string,
+      opts?: ReplayOptions<S>
+    ): Promise<Report> {
       const { replay } = await import('../script/explore');
-      return replay(system as System<S, Args>, input, opts ?? {});
+      return replay(system, input, opts ?? {});
     },
   } satisfies System<S, Args>;
 
-  registries.set(system as object, registry as SystemRegistry<unknown>);
+  attachSystemRegistry(system as SystemCore<S, unknown>, registry);
   return system;
 }
-
-export type { SystemCreate as SystemGenerate };

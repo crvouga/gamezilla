@@ -10,10 +10,14 @@ import type {
 import {
   AUTH_NETWORK_ERROR,
   AUTH_SSO_CANCELLED_ERROR,
+  AUTH_SSO_POPUP_BLOCKED_ERROR,
   apiUrl,
+  buildOauthLaunchUrl,
   extractCodeFromCallbackUrl,
+  isPopupBlockedError,
   postJson,
   type SessionBody,
+  strategyToOauthProvider,
   toVerified,
 } from './auth-client-http';
 import type { AuthClientPort, GetFreshTokenOptions } from './auth-client-port';
@@ -41,13 +45,17 @@ export type AuthClientAdapterConfig = {
   readonly fetch: HttpFetch;
   readonly storage?: AuthClientStorage;
   readonly bearerStore?: BearerTokenStore;
-  /** Required for Google OAuth; unused for Dev social. */
+  /** Required for OAuth providers; unused only when every strategy is stubbed. */
   readonly openAuthSession?: OpenAuthSession;
   /** Absolute client callback URL (e.g. https://app/sso-callback). */
   readonly callbackUrl?: string;
 };
 
-export { AUTH_NETWORK_ERROR, AUTH_SSO_CANCELLED_ERROR };
+export {
+  AUTH_NETWORK_ERROR,
+  AUTH_SSO_CANCELLED_ERROR,
+  AUTH_SSO_POPUP_BLOCKED_ERROR,
+};
 
 type SessionBus = {
   readonly subscribe: (listener: () => void) => () => void;
@@ -101,6 +109,7 @@ function useAuthSessionState(args: {
         }
       );
       if (!res.ok) {
+        await clearBearerOnUnauthorizedSession(args.bearerStore, res.status);
         setState({ session: null, isHydrated: true, error: null });
         return;
       }
@@ -131,6 +140,20 @@ function useAuthSessionState(args: {
   }, [refresh, tick]);
 
   return state;
+}
+
+/**
+ * Drop a dead IdP bearer after `/auth/session` rejects it. Sync
+ * {@link AuthClientPort.getFreshToken} reads this store — leaving a 401'd token
+ * poisons `/api/query` and blocks `client_config` hydrate (sign-in methods).
+ */
+export async function clearBearerOnUnauthorizedSession(
+  bearerStore: BearerTokenStore,
+  status: number
+): Promise<void> {
+  if (status === 401 || status === 403) {
+    await bearerStore.clear();
+  }
 }
 
 type SignInCtx = {
@@ -180,53 +203,43 @@ async function exchangeCode(ctx: SignInCtx, code: string): Promise<void> {
   await persistSessionFromResponse(ctx, res);
 }
 
-async function signInDev(
+async function signInOauth(
   ctx: SignInCtx,
-  credentials?: SignInCredentials
+  strategy: SignInStrategy
 ): Promise<void> {
-  const subject = credentials?.subject?.trim() ?? '';
-  if (subject.length === 0) {
-    throw new Error('Dev sign-in requires subject');
-  }
-  await ctx.bearerStore.clear();
-  const res = await postJson(
-    ctx.config.fetch,
-    apiUrl(ctx.config.baseURL, '/auth/oauth/dev/complete'),
-    {
-      subject,
-      name: credentials?.name,
-      email: credentials?.email,
-    }
-  );
-  await persistSessionFromResponse(ctx, res);
-}
-
-async function signInGoogle(ctx: SignInCtx): Promise<void> {
   if (ctx.config.openAuthSession === undefined) {
-    throw new Error('openAuthSession is required for Google OAuth');
+    throw new Error('openAuthSession is required for OAuth sign-in');
   }
-  await ctx.bearerStore.clear();
-  const startRes = await postJson(
-    ctx.config.fetch,
-    apiUrl(ctx.config.baseURL, '/auth/oauth/start'),
-    { provider: 'google', callbackUrl: ctx.callbackUrl }
-  );
-  if (!startRes.ok) {
-    throw new Error(await signInHttpFailureMessage(startRes));
-  }
-  const startBody = (await startRes.json()) as {
-    readonly authorizationUrl?: string;
-  };
-  if (
-    typeof startBody.authorizationUrl !== 'string' ||
-    startBody.authorizationUrl.length === 0
-  ) {
-    throw new Error(`${AUTH_NETWORK_ERROR} (missing authorizationUrl)`);
-  }
-  const result = await ctx.config.openAuthSession(
-    startBody.authorizationUrl,
+  const provider = strategyToOauthProvider(strategy);
+  const launchUrl = buildOauthLaunchUrl(
+    ctx.config.baseURL,
+    provider,
     ctx.callbackUrl
   );
+
+  // Open the auth session synchronously from the user gesture — no await first.
+  let sessionPromise: Promise<OpenAuthSessionResult>;
+  try {
+    sessionPromise = ctx.config.openAuthSession(launchUrl, ctx.callbackUrl);
+  } catch (err) {
+    if (isPopupBlockedError(err)) {
+      throw new Error(AUTH_SSO_POPUP_BLOCKED_ERROR);
+    }
+    throw err;
+  }
+
+  await ctx.bearerStore.clear();
+
+  let result: OpenAuthSessionResult;
+  try {
+    result = await sessionPromise;
+  } catch (err) {
+    if (isPopupBlockedError(err)) {
+      throw new Error(AUTH_SSO_POPUP_BLOCKED_ERROR);
+    }
+    throw err;
+  }
+
   if (result.type !== 'success' || result.url == null) {
     throw new Error(AUTH_SSO_CANCELLED_ERROR);
   }
@@ -239,7 +252,7 @@ async function signInGoogle(ctx: SignInCtx): Promise<void> {
 
 /**
  * Isomorphic AuthClientPort. Hosts inject fetch, storage, timers, and
- * (for Google) openAuthSession — no Expo SDK imports in this package.
+ * openAuthSession — no Expo SDK imports in this package.
  */
 export function createAuthClientAdapter(
   config: AuthClientAdapterConfig
@@ -259,13 +272,9 @@ export function createAuthClientAdapter(
         bearerStore,
         bus,
       }),
-    async signIn(strategy: SignInStrategy, credentials?: SignInCredentials) {
-      if (strategy === 'oauth-dev') {
-        await signInDev(ctx, credentials);
-        return;
-      }
-      if (strategy === 'oauth-google') {
-        await signInGoogle(ctx);
+    async signIn(strategy: SignInStrategy, _credentials?: SignInCredentials) {
+      if (strategy === 'oauth-dev' || strategy === 'oauth-google') {
+        await signInOauth(ctx, strategy);
         return;
       }
       throw new Error(`Unsupported sign-in strategy: ${String(strategy)}`);

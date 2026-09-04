@@ -1,37 +1,18 @@
 import { fingerprint } from '../kernel/fingerprint';
 import type { Rng } from '../kernel/rng';
-import { poolActions } from '../system/define-system';
 import { ACTION_TAG, type Action, type CatalogAction } from '../system/effect';
-import type { Choice } from '../system/repro';
-import type { Transition } from './checkpoint';
+import { type ActionSlice, resolveActions } from '../system/registry';
 import { checkpoint } from './checkpoint';
 import { type ProbeResult, probeAll } from './probe';
-import { getScriptInternal, type Script, type ScriptInternal } from './script';
+import {
+  getScriptInternal,
+  type Script,
+  type ScriptInternal,
+  type Walk,
+  type WalkOptions,
+} from './script-types';
 
-export type WalkOptions<S> = {
-  /** Override the registered pool (default: system actions with pool !== false). */
-  readonly actions?: readonly CatalogAction<S>[];
-  readonly steps?: number;
-  readonly budgetMs?: number;
-  readonly stopOnViolation?: boolean;
-  readonly time?: {
-    readonly weight: number;
-    readonly minMs: number;
-    readonly maxMs: number;
-  };
-};
-
-export type Walk = {
-  readonly steps: number;
-  readonly choices: readonly Choice[];
-  readonly transitions: readonly Transition[];
-  readonly args: unknown;
-  readonly coverage: {
-    readonly states: ReadonlySet<string>;
-    readonly actions: Readonly<Record<string, number>>;
-  };
-  readonly violations: readonly { readonly error: string }[];
-};
+export type { Walk, WalkOptions } from './script-types';
 
 type Cand<S> = {
   readonly action: Action<S, unknown[]>;
@@ -145,6 +126,9 @@ async function applyPicked<S>(args: {
       if (args.stopOnViolation) return 'stop';
     }
   } catch (e) {
+    // The step that threw is part of the repro — without it `replay` stops one
+    // action short and reports a clean run.
+    internal.choices.push({ action: picked.action.name, args: applyArgs });
     args.violations.push({
       error: e instanceof Error ? e.message : String(e),
     });
@@ -169,9 +153,10 @@ export async function walk<S>(
   const clockNow = () => internal.session.ports.clock.now();
   const t0 = clockNow();
 
-  const catalog =
-    opts.actions ??
-    (poolActions(internal.system) as readonly CatalogAction<S>[]);
+  const catalog = resolveActions(
+    internal.system as never,
+    opts.actions as ActionSlice<unknown> | undefined
+  ) as readonly CatalogAction<S>[];
 
   while (steps < maxSteps) {
     if (budgetExceeded(clockNow, t0, opts.budgetMs)) break;

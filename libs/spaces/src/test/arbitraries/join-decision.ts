@@ -1,8 +1,7 @@
-import { arbDistinctUserPair, arbUserId } from '@pkgs/pbt';
 import type { Arbitrary } from 'fast-check';
 import fc from 'fast-check';
-
 import type { SpaceAccessInput } from '../../shared/space/participation/space-participation-policy';
+import { arbDistinctUserPair, arbUserId } from './user-pair';
 
 export const arbJoinDecisionInput = (): Arbitrary<SpaceAccessInput> =>
   fc

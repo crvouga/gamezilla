@@ -1,6 +1,6 @@
 /**
- * Product sim system. Hosts own fidelity (`simHost` / `maxHost`);
- * {@link openSim} starts this system and returns a {@link Script}.
+ * Product sim system. Hosts own fidelity (`rntl` → `simHost`, `playwright`
+ * → `maxHost`); {@link openSim} starts this system and returns a {@link Script}.
  */
 
 export {
@@ -22,7 +22,6 @@ export {
   nodeLayout,
   nodeText,
   oauthTokenLength,
-  PRODUCT_PROPERTIES,
   partitioned,
   visible,
 } from './observations';
@@ -34,4 +33,8 @@ export {
   productExtra,
   type SimActorHandle,
 } from './surface';
-export { type ProductSurface, product } from './system';
+export {
+  noErrorBoundaryAnyActor,
+  type ProductSurface,
+  product,
+} from './system';

@@ -1,5 +1,4 @@
-import { fc } from '@pkgs/pbt';
-import type { SeededRng } from '@pkgs/uuid';
+import fc from 'fast-check';
 import type { DomainOp, RoomApp } from '../../../sim/scenario';
 import { domainOp } from '../../../sim/scenario';
 import {
@@ -20,21 +19,6 @@ export function deadlineDomainOpArbs(ctx: {
   ];
 }
 
-export function pickDeadlineDomainOp(
-  rng: SeededRng,
-  clientIds: readonly string[]
-): DomainOp {
-  const clientId = clientIds[rng.int(clientIds.length)] ?? 'c0';
-  const roll = rng.random();
-  if (roll < 0.4) {
-    return domainOp(clientId, 'start', { durationMs: 100 });
-  }
-  if (roll < 0.7) {
-    return domainOp(clientId, 'act');
-  }
-  return domainOp(clientId, 'expire');
-}
-
 export function deadlineToPayload(op: DomainOp) {
   if (op.command === 'start') {
     const durationMs =
@@ -48,6 +32,5 @@ export function deadlineToPayload(op: DomainOp) {
 export const deadlineApp: RoomApp = {
   module: DeadlineFixtureModule,
   domainOpArbs: deadlineDomainOpArbs,
-  pickDomainOp: pickDeadlineDomainOp,
   toPayload: deadlineToPayload,
 };

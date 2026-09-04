@@ -15,7 +15,7 @@ export type SyncHttpFetch = (
   init?: RequestInit
 ) => Promise<Response>;
 
-/** Async session refresh — same role as room reconnect `getFreshToken`. */
+/** Async session refresh — same role as reconnect `getFreshToken`. */
 export type GetFreshAuthToken = (options?: {
   readonly skipCache?: boolean;
 }) => Promise<string | null>;

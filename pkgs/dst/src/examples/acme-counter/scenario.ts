@@ -110,17 +110,6 @@ export const reset = counter.action({
   },
 });
 
-export const COUNTER_ACTIONS = [
-  increment,
-  decrement,
-  openSettings,
-  setStep,
-  leaveSettings,
-  openReset,
-  confirmReset,
-  reset,
-] as const;
-
 export const knownScreen = counter.property({
   name: 'knownScreen',
   check: async (s) => {
@@ -137,8 +126,6 @@ export const nonNegative = counter.property({
     }
   },
 });
-
-export const COUNTER_PROPERTIES = [knownScreen, nonNegative];
 
 /** Lazy-import so Bun.WebView tests never load happy-dom (spawn breaks after it). */
 export function happyDomHost() {

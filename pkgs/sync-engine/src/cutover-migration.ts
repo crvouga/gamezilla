@@ -16,7 +16,7 @@ const LEGACY_SERVER_QUEUE_TABLES = ['_mutations'] as const;
 /**
  * One-shot Postgres cutover from raw framework DDL to defineTable shape:
  * drop legacy server queue tables, rebuild topic/mutation-id PK tables with
- * managed `id`, add managed columns on write_rejections.
+ * managed `id`, rebuild write_rejections from TEXT onto jsonb/timestamptz.
  */
 export class SyncEngineCutoverMigration implements DatabaseMigration {
   async migrate(ctx: DatabaseMigrationContext): Promise<void> {
@@ -48,9 +48,17 @@ async function hasColumn(
   table: string,
   column: string
 ): Promise<boolean> {
-  const rows = await ctx.sqlClient.query<{ one: number }>(
+  return (await columnUdt(ctx, table, column)) !== null;
+}
+
+async function columnUdt(
+  ctx: DatabaseMigrationContext,
+  table: string,
+  column: string
+): Promise<string | null> {
+  const rows = await ctx.sqlClient.query<{ udt_name: string }>(
     unsafe(`
-      SELECT 1 AS one
+      SELECT udt_name
       FROM information_schema.columns
       WHERE table_schema = current_schema()
         AND table_name = '${table}'
@@ -58,7 +66,7 @@ async function hasColumn(
       LIMIT 1
     `)
   );
-  return rows.length > 0;
+  return rows[0]?.udt_name ?? null;
 }
 
 async function dropNotNullNonPk(
@@ -187,29 +195,84 @@ async function cutoverWriteRejections(
     ctx.logger.info('sync-engine cutover: write_rejections missing (fresh)');
     return;
   }
-  await dropNotNullNonPk(ctx, SYNC_ENGINE_WRITE_REJECTIONS);
-  if (!(await hasColumn(ctx, SYNC_ENGINE_WRITE_REJECTIONS, 'updated_at'))) {
-    await ctx.sqlClient.run(
-      unsafe(
-        `ALTER TABLE ${SYNC_ENGINE_WRITE_REJECTIONS} ADD COLUMN IF NOT EXISTS updated_at text`
-      )
-    );
-    await ctx.sqlClient.run(
-      unsafe(`
-        UPDATE ${SYNC_ENGINE_WRITE_REJECTIONS}
-        SET updated_at = created_at
-        WHERE updated_at IS NULL
-      `)
-    );
+  if (!(await writeRejectionsNeedsRebuild(ctx))) {
+    await dropNotNullNonPk(ctx, SYNC_ENGINE_WRITE_REJECTIONS);
+    ctx.logger.info('sync-engine cutover: write_rejections already typed');
+    return;
   }
-  if (!(await hasColumn(ctx, SYNC_ENGINE_WRITE_REJECTIONS, 'deleted_at'))) {
-    await ctx.sqlClient.run(
-      unsafe(
-        `ALTER TABLE ${SYNC_ENGINE_WRITE_REJECTIONS} ADD COLUMN IF NOT EXISTS deleted_at text`
+  await rebuildWriteRejections(ctx);
+}
+
+async function writeRejectionsNeedsRebuild(
+  ctx: DatabaseMigrationContext
+): Promise<boolean> {
+  const meta = await columnUdt(ctx, SYNC_ENGINE_WRITE_REJECTIONS, 'meta');
+  const createdAt = await columnUdt(
+    ctx,
+    SYNC_ENGINE_WRITE_REJECTIONS,
+    'created_at'
+  );
+  return meta !== 'jsonb' || createdAt !== 'timestamptz';
+}
+
+async function rebuildWriteRejections(
+  ctx: DatabaseMigrationContext
+): Promise<void> {
+  const table = SYNC_ENGINE_WRITE_REJECTIONS;
+  const next = `${table}_next`;
+  await ctx.sqlClient.run(unsafe(`DROP TABLE IF EXISTS ${next}`));
+  await ctx.sqlClient.run(
+    unsafe(`
+      CREATE TABLE ${next} (
+        id text PRIMARY KEY,
+        mutation_id text,
+        client_id text,
+        code text,
+        message text,
+        meta jsonb,
+        acknowledged bigint,
+        created_at timestamptz,
+        updated_at timestamptz,
+        deleted_at timestamptz
       )
-    );
-  }
-  ctx.logger.info('sync-engine cutover: write_rejections ready');
+    `)
+  );
+  await copyWriteRejectionsRows(ctx, next);
+  await ctx.sqlClient.run(unsafe(`DROP TABLE ${table} CASCADE`));
+  await ctx.sqlClient.run(unsafe(`ALTER TABLE ${next} RENAME TO ${table}`));
+  ctx.logger.info('sync-engine cutover: write_rejections rebuilt');
+}
+
+async function copyWriteRejectionsRows(
+  ctx: DatabaseMigrationContext,
+  next: string
+): Promise<void> {
+  const table = SYNC_ENGINE_WRITE_REJECTIONS;
+  const updatedAt = (await hasColumn(ctx, table, 'updated_at'))
+    ? 'COALESCE(updated_at::timestamptz, created_at::timestamptz)'
+    : 'created_at::timestamptz';
+  const deletedAt = (await hasColumn(ctx, table, 'deleted_at'))
+    ? 'deleted_at::timestamptz'
+    : 'NULL';
+  await ctx.sqlClient.run(
+    unsafe(`
+      INSERT INTO ${next} (
+        id, mutation_id, client_id, code, message, meta, acknowledged,
+        created_at, updated_at, deleted_at
+      )
+      SELECT
+        id, mutation_id, client_id, code, message,
+        CASE
+          WHEN btrim(COALESCE(meta::text, '')) = '' THEN NULL
+          ELSE meta::text::jsonb
+        END,
+        acknowledged,
+        created_at::timestamptz,
+        ${updatedAt},
+        ${deletedAt}
+      FROM ${table}
+    `)
+  );
 }
 
 async function cutoverTopicSeq(ctx: DatabaseMigrationContext): Promise<void> {
@@ -244,7 +307,9 @@ async function cutoverTopicSeq(ctx: DatabaseMigrationContext): Promise<void> {
       FROM ${SYNC_ENGINE_TOPIC_SEQ}
     `)
   );
-  await ctx.sqlClient.run(unsafe(`DROP TABLE ${SYNC_ENGINE_TOPIC_SEQ} CASCADE`));
+  await ctx.sqlClient.run(
+    unsafe(`DROP TABLE ${SYNC_ENGINE_TOPIC_SEQ} CASCADE`)
+  );
   await ctx.sqlClient.run(
     unsafe(`ALTER TABLE ${next} RENAME TO ${SYNC_ENGINE_TOPIC_SEQ}`)
   );

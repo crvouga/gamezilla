@@ -1,7 +1,8 @@
 import './_shared-teardown';
 import { describe, expect, test } from 'bun:test';
-import { assertProperty, fc } from '@pkgs/pbt';
+import { assertProperty } from '@pkgs/dst/fast-check';
 import { sql } from '@pkgs/sql';
+import fc from 'fast-check';
 import { ALWAYS_FACTORIES, openBackend } from '../backends';
 import { assertWireSafeRows } from '../oracles/wire-safety';
 

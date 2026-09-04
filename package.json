@@ -55,7 +55,7 @@
     "preview": "bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/boot-embedded-postgres.ts",
     "psql": "bun ./pkgs/postgres-embedded/scripts/psql.ts",
     "scaffold:game": "bun run tools/scripts/scaffold-game.ts",
-    "sims:open": "",
+    "sims:open": "bun run tools/scripts/sims/open-sims.ts",
     "sims:setup": "bun run tools/scripts/sims/setup-sims.ts",
     "test:pbt": "bun test $(find pkgs libs -name \"*.pbt.test.ts\")",
     "test:pbt:random": "bun run tools/scripts/test-pbt-random.ts",
@@ -66,8 +66,9 @@
   "overrides": {
     "@babel/plugin-transform-modules-systemjs": "^7.29.4",
     "brace-expansion": "5.0.9",
+    "browserslist": "4.28.8",
     "esbuild": "^0.28.1",
-    "fast-uri": "^3.1.5",
+    "fast-uri": "^3.1.6",
     "ip-address": "^10.3.1",
     "js-cookie": "^3.0.7",
     "js-yaml": "^4.3.1",
@@ -80,6 +81,7 @@
     "ws": "^8.21.0"
   },
   "devDependencies": {
+    "@antithesishq/bombadil": "^0.7.2",
     "@biomejs/biome": "catalog:",
     "@lingui/cli": "catalog:",
     "@lingui/conf": "catalog:",
@@ -196,7 +198,6 @@
     "mqtt": "^5.14.1",
     "node-sql-parser": "^5.4.0",
     "pg": "^8.16.3",
-    "pg-mem": "^3.0.14",
     "picocolors": "^1.1.1",
     "react": "19.2.0",
     "react-dom": "19.2.0",
@@ -212,7 +213,6 @@
     "react-scan": "^0.5.7",
     "web-vitals": "^5.1.0",
     "@legendapp/list": "^2.0.19",
-    "@fontsource/nunito": "^5.2.7",
     "@welldone-software/why-did-you-render": "^10.0.1",
     "react-test-renderer": "19.2.0",
     "sort-package-json": "^3.6.1",
@@ -226,7 +226,8 @@
     "workbox-window": "^7.4.0",
     "wrangler": "^4.54.0",
     "zod": "^4.3.6",
-    "@biomejs/biome": "2.5.7"
+    "@biomejs/biome": "2.5.7",
+    "@clack/prompts": "^1.7.0"
   },
   "trustedDependencies": [
     "@shopify/react-native-skia",

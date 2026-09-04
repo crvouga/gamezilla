@@ -30,7 +30,7 @@ describe('room sim: concurrent increment burst (E-B01)', () => {
     }
     await expectConverged(s);
     const expected = perClient * ids.length;
-    expect(counterValue(await readServer(run))).toBe(expected);
+    expect(counterValue(await readServer(s))).toBe(expected);
     const h = await s.observe(serverHash);
     const hashes = (await s.observe(clientHash)) as Record<string, string>;
     for (const id of ids) {

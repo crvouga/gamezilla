@@ -1,5 +1,7 @@
 import { describe, expect, test } from 'bun:test';
-import { arbNdjsonFrame, assertProperty, fc } from '@pkgs/pbt';
+import { assertProperty } from '@pkgs/dst/fast-check';
+import fc from 'fast-check';
+import { arbNdjsonFrame } from '../test/ndjson-frame-arbitraries';
 
 import { NdjsonStreamDecoder } from './decode';
 import { encodeNdjsonFrame } from './encode';

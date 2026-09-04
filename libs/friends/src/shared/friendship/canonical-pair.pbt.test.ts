@@ -1,5 +1,7 @@
 import { describe, expect, test } from 'bun:test';
-import { arbDistinctUserPair, assertProperty, fc } from '@pkgs/pbt';
+import { assertProperty } from '@pkgs/dst/fast-check';
+import fc from 'fast-check';
+import { arbDistinctUserPair } from '../../test/arbitraries/user-pair';
 
 import { canonicalUserPair, otherUserInPair } from './canonical-pair';
 

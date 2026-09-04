@@ -35,7 +35,7 @@ describe('kit: deadline vs action (M-F07)', () => {
       clientId: 'alice',
       payload: StartDeadline({ durationMs: 50 }),
     });
-    const dl = deadlineAt(await readServer(run));
+    const dl = deadlineAt(await readServer(s));
 
     await s.apply(hold, 'bob');
     await s.elapse(80);
@@ -47,7 +47,7 @@ describe('kit: deadline vs action (M-F07)', () => {
     await s.apply(release, 'bob');
 
     await expectConverged(s);
-    expect(deadlineOutcome(await readServer(run))).toBe('expired');
+    expect(deadlineOutcome(await readServer(s))).toBe('expired');
     expect(deadlineOutcome(await readClient(s, 'alice'))).toBe('expired');
     expect(deadlineOutcome(await readClient(s, 'bob'))).toBe('expired');
     await expectHashMatch(s, 'alice');

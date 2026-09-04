@@ -10,13 +10,13 @@ export async function setupFriendsPair(sim: OpenSimResult): Promise<{
   readonly bob: AppDriver;
 }> {
   const alice = await AppDriver.forActor(sim, 'alice');
-  await alice.auth.signUpWithEmail(aliceCreds);
+  await alice.auth.signInWithDev(aliceCreds);
   await alice.auth.returnToTabs();
 
   // Signup username matches aliceUsername — ensureProfile already claimed it.
 
   const bob = await AppDriver.forActor(sim, 'bob');
-  await bob.auth.signUpWithEmail(bobCreds);
+  await bob.auth.signInWithDev(bobCreds);
   await bob.auth.returnToTabs();
 
   await alice.search.expectUserVisible(bobUsername);

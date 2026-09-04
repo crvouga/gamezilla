@@ -42,7 +42,7 @@ describe('room sim: offline queues interleave (E-B03)', () => {
     await s.apply(connect, 'alice');
     await s.apply(connect, 'bob');
     await expectConverged(s);
-    expect(counterValue(await readServer(run))).toBe(4);
+    expect(counterValue(await readServer(s))).toBe(4);
     expect(counterValue(await readClient(s, 'alice'))).toBe(4);
     await expectHashMatch(s, 'alice');
     await expectHashMatch(s, 'bob');

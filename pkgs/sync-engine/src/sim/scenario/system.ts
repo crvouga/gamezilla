@@ -11,12 +11,21 @@ import type { SimSessionQuery } from '../domain-pack';
 import type { SyncKit } from '../kit-api';
 import type { SimInfra } from '../kit-boot';
 import type { BootedSimKernel, KitClientOpts } from '../kit-types';
-import type { ActionShadow } from './action-shadow';
 import type { SyncApp } from './app';
-import type { ReplayRestartState } from './play';
 import type { SyncSurfaceBase } from './surface-types';
 
 /** Outcome of the most recent `mutate` pin on one client. */
+
+/** Clients that must restart (crash / revoke / tamper / cut) before converge. */
+export type OwedRestart = {
+  readonly restart: Set<string>;
+  readonly fresh: Set<string>;
+};
+
+export function createOwedRestart(): OwedRestart {
+  return { restart: new Set(), fresh: new Set() };
+}
+
 export type LastMutation = {
   readonly ok: boolean;
   readonly mutationId: string | null;
@@ -39,14 +48,17 @@ export type PinnedSubscription = {
   ready: boolean;
 };
 
-/** Per-run mutable bag for action replay + converge prep. */
+/** Per-run mutable bag for pin results + converge prep. */
 export type SyncRuntime = {
   readonly app: SyncApp;
   readonly sessionQuery?: SimSessionQuery;
   readonly localSchema?: LocalDomainSchema;
   readonly mutationRegistry?: MutationRegistry;
   readonly queryRegistry?: QueryRegistry;
-  readonly replay: ReplayRestartState;
+  /** Clients the pool crashed / revoked / cut — remade by `connect`, `restart`, `revive`. */
+  readonly owed: OwedRestart;
+  /** Subscriptions opened by the `subscribe` pool action; dropped on `heal`. */
+  readonly poolSubscriptions: Set<Disposable>;
   /** Client id → last `mutate` pin result, read by `lastMutationId`. */
   readonly lastMutation: Map<string, LastMutation>;
   /** `clientId:label` → live subscription, read by `subscriptionReady`. */
@@ -63,10 +75,9 @@ export function requireKit(runtime: SyncRuntime): SyncKit {
   return runtime.kit;
 }
 
-/** Domain surface returned by `defineSyncSystem` / `start`. */
+/** Domain surface returned by every sync system's `create`. */
 export type SyncSurface = SyncSurfaceBase & {
   readonly session: Session;
   readonly runtime: SyncRuntime;
-  readonly shadow: ActionShadow;
   readonly dispose: () => Promise<void>;
 };

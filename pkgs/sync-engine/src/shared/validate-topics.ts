@@ -2,7 +2,6 @@ import { assertValidTopic, type Topic } from '@pkgs/pubsub/interface';
 
 import type { QueryDef } from '../queries/core/types';
 import type { QueryChannelsCtx } from './push-payload';
-import { QUERY_PARAM_STUB } from './standard-schema';
 
 const SENTINEL_CHANNELS_CTX: QueryChannelsCtx = {
   actorId: 'actor_x',
@@ -23,9 +22,9 @@ function assertTopics(label: string, topics: readonly Topic[]): void {
 export function validateQueryChannels(q: QueryDef<unknown>): void {
   if (q.entryChannel === undefined || q.entryChannel === false) return;
   const entryChannel = q.entryChannel;
-  // Fixed stub — no schema introspection; topic grammar only needs shape-ish keys.
+  const params = (q.sampleParams ?? {}) as never;
   assertTopics(
     `Query ${q.name} entryChannel`,
-    entryChannel(QUERY_PARAM_STUB as never, SENTINEL_CHANNELS_CTX)
+    entryChannel(params, SENTINEL_CHANNELS_CTX)
   );
 }

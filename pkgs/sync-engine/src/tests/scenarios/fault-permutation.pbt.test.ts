@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { gen } from '@pkgs/dst/fast-check';
-import { arbSyncArgs } from '../../sim/scenario';
+
 import {
   acmeSystem,
   armStoragePressure,
@@ -8,59 +7,50 @@ import {
   lastMutationFailures,
   lastMutationOk,
   mutate,
-  playAcmePin,
-  playActions,
+  pool,
   setNote,
 } from '../apps/acme';
-import { acmeSetNoteOp } from '../apps/acme/domain-model';
-import type { DomainOp, LibraryAction, SyncAction } from '../scenario/actions';
+
+const NOTE = (clientId: string, body: string) =>
+  ({
+    clientId,
+    mutation: 'setNote',
+    args: { id: 'n0', body, title: '' },
+  }) as const;
 
 describe('fault permutation PBT', () => {
   test(
     'full fault pool interleaves and converges',
     async () => {
-      await acmeSystem.explore({
-        args: gen(arbSyncArgs()),
+      const report = await acmeSystem.explore({
         steps: 20,
         episodes: 6,
         seed: 44000,
         stopOnViolation: true,
         time: { weight: 1, minMs: 0, maxMs: 40 },
       });
+      expect(report.ok).toBe(true);
     },
     { timeout: 180_000 }
   );
 });
 
-function multiFaultSequence(
-  arms: readonly LibraryAction[],
-  trigger: DomainOp = acmeSetNoteOp('c0', 'n0', 'perm')
-): SyncAction[] {
-  return [...arms, trigger, { kind: 'idle', ms: 40 }, { kind: 'heal' }];
-}
-
 describe('fault permutation pins', () => {
   test('rate limit then mutate converges', async () => {
-    await playAcmePin({
-      seed: 44001,
-      actions: multiFaultSequence([
-        {
-          kind: 'armHttpFault',
-          clientId: 'c0',
-          fault: {
-            kind: 'rateLimited',
-            route: 'mutations',
-            retryAfterMs: 5,
-          },
-        },
-      ]),
+    await using s = await acmeSystem.script({ seed: 44001 });
+    await s.apply(pool.armHttpFault, 'c0', {
+      kind: 'rateLimited',
+      route: 'mutations',
+      retryAfterMs: 5,
     });
+    await s.apply(pool.domain, NOTE('c0', 'perm'));
+    await s.elapse(40);
+    await s.apply(pool.heal);
+    await expectConverged(s);
   });
 
   test('storage full then restart converges', async () => {
-    await using s = await acmeSystem.script({
-      seed: 44002,
-    });
+    await using s = await acmeSystem.script({ seed: 44002 });
 
     await s.apply(armStoragePressure, 'c0', 'sqliteFull');
     await s.apply(mutate, 'c0', setNote, { id: 'n0', body: 'quota' });
@@ -69,37 +59,37 @@ describe('fault permutation pins', () => {
       'STORAGE_FULL'
     );
 
-    await s.apply(playActions, [
-      { kind: 'restart', clientId: 'c0' },
-      acmeSetNoteOp('c0', 'n0', 'after-restart'),
-      { kind: 'heal' },
-    ]);
+    await s.apply(pool.restart, 'c0');
+    await s.elapse(10);
+    await s.apply(pool.domain, NOTE('c0', 'after-restart'));
+    await s.elapse(10);
+    await s.apply(pool.heal);
     await expectConverged(s);
   });
 
   test('freeze sync then thaw catches up', async () => {
-    await playAcmePin({
-      seed: 44003,
-      actions: [
-        { kind: 'freeze', clientId: 'c0' },
-        acmeSetNoteOp('c0', 'n1', 'frozen'),
-        { kind: 'thaw', clientId: 'c0' },
-        { kind: 'idle', ms: 50 },
-        { kind: 'heal' },
-      ],
+    await using s = await acmeSystem.script({ seed: 44003 });
+    await s.apply(pool.freeze, 'c0');
+    await s.apply(pool.domain, {
+      clientId: 'c0',
+      mutation: 'setNote',
+      args: { id: 'n1', body: 'frozen', title: '' },
     });
+    await s.apply(pool.thaw, 'c0');
+    await s.elapse(50);
+    await s.apply(pool.heal);
+    await expectConverged(s);
   });
 
   test('auth expired in flight refreshes', async () => {
-    await playAcmePin({
-      seed: 44004,
-      actions: multiFaultSequence([
-        {
-          kind: 'armHttpFault',
-          clientId: 'c0',
-          fault: { kind: 'authExpiredInFlight', route: 'mutations' },
-        },
-      ]),
+    await using s = await acmeSystem.script({ seed: 44004 });
+    await s.apply(pool.armHttpFault, 'c0', {
+      kind: 'authExpiredInFlight',
+      route: 'mutations',
     });
+    await s.apply(pool.domain, NOTE('c0', 'perm'));
+    await s.elapse(40);
+    await s.apply(pool.heal);
+    await expectConverged(s);
   });
 });

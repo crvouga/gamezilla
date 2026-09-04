@@ -1,5 +1,10 @@
 import type { TopicMap } from '@pkgs/sync-engine/shared';
 
+function usernameNonEmpty(row: Record<string, unknown>): boolean {
+  const username = row['username'];
+  return typeof username === 'string' && username.length > 0;
+}
+
 export const PROFILE_TOPIC_MAP = {
   profile: {
     topics(row, ctx) {
@@ -8,6 +13,19 @@ export const PROFILE_TOPIC_MAP = {
     },
     fallbackTopics(ctx) {
       return [`user:${ctx.actorId}`];
+    },
+    rowImage: {
+      publish(row) {
+        return usernameNonEmpty(row);
+      },
+      accept(incoming, local) {
+        if (usernameNonEmpty(incoming)) return true;
+        const localUsername = local?.['username'];
+        if (typeof localUsername === 'string' && localUsername.length > 0) {
+          return false;
+        }
+        return true;
+      },
     },
   },
 } satisfies TopicMap;

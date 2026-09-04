@@ -1,13 +1,21 @@
-import { addClient } from '../../sim/scenario';
+import { addClient, type RoomArgs } from '../../sim/scenario';
 import { counterSystem } from '../apps/counter/system';
 import { expectConverged } from '../expect-converged';
-import { type OpenRoomOpts, openRoom } from './open-room';
 
-export type { OpenRoomOpts };
-export { openRoom };
+export type BootCounterOpts = {
+  readonly seed?: number | bigint | string;
+  readonly args?: Partial<RoomArgs>;
+};
 
-export async function bootCounter(ids: readonly string[], opts?: OpenRoomOpts) {
-  const s = await openRoom(counterSystem, opts);
+/** Counter script with named clients joined and converged. */
+export async function bootCounter(
+  ids: readonly string[],
+  opts?: BootCounterOpts
+) {
+  const s = await counterSystem.script({
+    seed: opts?.seed ?? 42,
+    args: opts?.args ?? {},
+  });
   for (const id of ids) {
     await s.apply(addClient, { id });
   }

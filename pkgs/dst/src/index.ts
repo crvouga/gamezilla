@@ -47,6 +47,8 @@ export {
 export type {
   Action,
   ActionDef,
+  ActionSlice,
+  ArgsGen,
   Awaitable,
   CatalogAction,
   CatalogProperty,
@@ -60,7 +62,6 @@ export type {
   ReproMeta,
   System,
   SystemCreate,
-  SystemGenerate,
 } from './system';
 export {
   defineAction,

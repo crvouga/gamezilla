@@ -1,9 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import { arbDistinctUserPair, assertProperty, fc } from '@pkgs/pbt';
-
+import { assertProperty } from '@pkgs/dst/fast-check';
+import fc from 'fast-check';
 import { canonicalUserPair } from '../shared/space/canonical-user-pair';
 import { decideJoin } from '../shared/space/participation/space-participation-policy';
 import { arbJoinDecisionInput } from './arbitraries/join-decision';
+import { arbDistinctUserPair } from './arbitraries/user-pair';
 
 describe('decideJoin properties', () => {
   test('host viewer is always allowed', () => {

@@ -1,6 +1,7 @@
 /**
- * Matchmaking system kernel. Topologies are framework-owned via
- * {@link defineMatchmakingSystem} + `script` / `explore` / `replay`.
+ * Matchmaking system kernel. One `defineSystem` (`matchmaking`) with typed
+ * args; actions / properties / hosts are registered on it. Drive with
+ * `matchmaking.script` / `matchmaking.explore` / `matchmaking.replay`.
  */
 
 export {
@@ -12,7 +13,6 @@ export {
   join,
   joinsDuringTick,
   leave,
-  MATCHMAKING_ACTIONS,
   ready,
   stepTime,
   type TickSpec,
@@ -22,21 +22,7 @@ export {
   type UpdateFormulasSpec,
   updateFormulas,
 } from './actions';
-export {
-  arbMatchmakingKnobs,
-  DEFAULT_MATCHMAKING_KNOBS,
-  type DefineMatchmakingSystemOpts,
-  defineMatchmakingSystem,
-  genMatchmakingKnobs,
-  MATCHMAKING_SYSTEM,
-  type MatchmakingKnobs,
-  type MatchmakingSurface,
-  type MatchmakingSystemDef,
-  matchmaking,
-  matchmakingKnobs,
-} from './define-matchmaking-system';
 export { SIM_AUTH_HEADER, SIM_AUTH_HEADERS, simRequireAuth } from './http';
-export { startReplica, startStore } from './node-kinds';
 export {
   agreementViolations,
   caps,
@@ -45,7 +31,6 @@ export {
   lastTick,
   lastTickAll,
   lastUpdate,
-  MATCHMAKING_PROPERTIES,
   matched,
   participantIds,
   replicaIds,
@@ -57,7 +42,8 @@ export {
 } from './observations';
 export type { ParticipantTarget } from './refs';
 export {
-  createMatchmakingSystemConfig,
-  type MatchmakingSystemConfig,
-  type MatchmakingSystemOpts,
+  MATCHMAKING_START_MS,
+  type MatchmakingArgs,
+  type MatchmakingSurface,
+  matchmaking,
 } from './system';

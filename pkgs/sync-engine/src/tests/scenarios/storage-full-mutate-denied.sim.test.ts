@@ -7,7 +7,7 @@ import {
   lastMutationFailures,
   lastMutationOk,
   mutate,
-  playActions,
+  pool,
   rows,
   type SyncSurface,
   setNote,
@@ -41,10 +41,9 @@ describe('storage full mutate denied', () => {
     const pending = await s.observe(pendingMutations);
     expect(Number(pending[0]?.c ?? 0)).toBe(0);
 
-    await s.apply(playActions, [
-      { kind: 'restart', clientId: 'c0' },
-      { kind: 'heal' },
-    ]);
+    await s.apply(pool.restart, 'c0');
+    await s.elapse(10);
+    await s.apply(pool.heal);
     await expectConverged(s);
   });
 });

@@ -1,7 +1,7 @@
 /**
  * Scripted-pin actions for `s.apply(action, ...args)`. Typed act
  * parameters replace the old `pin()` draws. Randomised coverage lives in
- * `SYNC_POOL_ACTIONS` (`sync-actions.ts`). Network / fault / crash pins live
+ * the `pool` catalog (`sync-actions.ts`). Network / fault / crash pins live
  * in `pin-chaos-actions.ts`.
  */
 
@@ -11,8 +11,6 @@ import { unsafe } from '@pkgs/sql';
 import type { Mutation } from '../../mutations/core/types';
 import { pumpConverge } from '../kit-pump';
 import type { AddClientArgs } from '../kit-types';
-import { applyActionToShadow } from './action-shadow';
-import type { SyncAction } from './actions';
 import {
   driveToSettled,
   driveWhilePending,
@@ -24,7 +22,7 @@ import {
   subscriptionKey,
   subscriptions,
 } from './pin-support';
-import { prepareClientsForConverge, replayStep, resetClockSkews } from './play';
+import { prepareClientsForConverge, resetClockSkews } from './pool-support';
 import type { SyncSurface } from './system';
 
 export {
@@ -54,32 +52,6 @@ export {
   tamperLocalStorage,
 } from './pin-chaos-actions';
 export { SYNC_STEP_MS };
-
-import {
-  addPeerEngine,
-  armStoragePressure,
-  auth,
-  brokerCrash,
-  brokerRestart,
-  clearStoragePressure,
-  crash,
-  crashAt,
-  failNextOpen,
-  heal,
-  hold,
-  httpFault,
-  net,
-  partition,
-  publishFault,
-  pubsubFault,
-  release,
-  restart,
-  restartWithSchema,
-  serverOp,
-  serverPrune,
-  skewClock,
-  tamperLocalStorage,
-} from './pin-chaos-actions';
 
 /** `s.apply(addClient, 'alice')` or `s.apply(addClient, { id, actorId })`. */
 export const addClient = defineAction({
@@ -286,26 +258,6 @@ export const execSql = defineAction({
 
 export const runSql = execSql;
 
-export const playActions = defineAction({
-  name: 'playActions',
-  act: async (s: SyncSurface, actions: readonly SyncAction[]) => {
-    for (const action of actions) {
-      await replayStep({
-        surface: s,
-        app: s.runtime.app,
-        action,
-        state: s.runtime.replay,
-      });
-      applyActionToShadow(s.runtime.app, s.shadow, action);
-      const inv = await s.runtime.kit.checkInvariants();
-      if (inv !== null) {
-        throw new Error(`${inv.invariant}: ${inv.detail}`);
-      }
-      await s.advance(SYNC_STEP_MS);
-    }
-  },
-});
-
 /**
  * Heal owed clients, clear faults, reconnect — stimulus only. Pair with
  * `s.until(converged)` (or {@link expectConverged}).
@@ -313,7 +265,7 @@ export const playActions = defineAction({
 export const revive = defineAction({
   name: 'revive',
   act: async (s: SyncSurface) => {
-    await prepareClientsForConverge(s.runtime.app, s, s.runtime.replay);
+    await prepareClientsForConverge(s);
     resetClockSkews(s);
     await s.revive();
   },
@@ -340,49 +292,3 @@ export const pump = defineAction({
     await pumpConverge(s);
   },
 });
-
-/** Every scripted pin, for callers that need the whole vocabulary. */
-export const SYNC_PIN_ACTIONS = [
-  addClient,
-  mutate,
-  connect,
-  disconnect,
-  online,
-  foreground,
-  clearLocalData,
-  nudge,
-  subscribe,
-  subscribeAll,
-  unsubscribe,
-  postMutations,
-  serverReplay,
-  execSql,
-  runSql,
-  playActions,
-  revive,
-  wakeAll,
-  pump,
-  net,
-  hold,
-  release,
-  partition,
-  heal,
-  crash,
-  crashAt,
-  restart,
-  restartWithSchema,
-  skewClock,
-  httpFault,
-  publishFault,
-  pubsubFault,
-  brokerCrash,
-  brokerRestart,
-  armStoragePressure,
-  clearStoragePressure,
-  tamperLocalStorage,
-  failNextOpen,
-  serverPrune,
-  addPeerEngine,
-  serverOp,
-  auth,
-] as const;

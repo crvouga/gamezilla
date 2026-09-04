@@ -191,7 +191,7 @@ export async function migrate(opts: MigrateOptions): Promise<void> {
   assert.defined(opts, 'migrate: options required');
   assert.defined(opts.sqlClient, 'migrate: sqlClient required');
   const run = (): Promise<void> => migrateInner(opts);
-  const next = migrateChain.then(s, run);
+  const next = migrateChain.then(run, run);
   migrateChain = next.then(
     () => undefined,
     () => undefined

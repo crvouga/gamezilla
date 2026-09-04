@@ -5,6 +5,7 @@
     "": {
       "name": "gamezilla",
       "devDependencies": {
+        "@antithesishq/bombadil": "^0.7.2",
         "@biomejs/biome": "catalog:",
         "@lingui/cli": "catalog:",
         "@lingui/conf": "catalog:",
@@ -428,7 +429,7 @@
         "zod": "catalog:",
       },
       "devDependencies": {
-        "@pkgs/pbt": "workspace:*",
+        "@pkgs/dst": "workspace:*",
         "@types/react": "catalog:",
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
@@ -670,7 +671,7 @@
       },
       "devDependencies": {
         "@happy-dom/global-registrator": "catalog:",
-        "@pkgs/pbt": "workspace:*",
+        "@pkgs/dst": "workspace:*",
         "@types/react": "catalog:",
         "@types/react-dom": "catalog:",
         "@typescript/native": "catalog:",
@@ -785,7 +786,6 @@
         "react": "catalog:",
       },
       "devDependencies": {
-        "@pkgs/pbt": "workspace:*",
         "@playwright/test": "catalog:",
         "@types/bun": "catalog:",
         "@types/react": "catalog:",
@@ -960,7 +960,6 @@
       },
       "devDependencies": {
         "@pkgs/dst": "workspace:*",
-        "@pkgs/pbt": "workspace:*",
         "@pkgs/postgres-embedded": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
@@ -996,7 +995,6 @@
       "devDependencies": {
         "@electric-sql/pglite": "catalog:",
         "@pkgs/dst": "workspace:*",
-        "@pkgs/pbt": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
@@ -1140,7 +1138,7 @@
         "@pkgs/assert": "workspace:*",
       },
       "devDependencies": {
-        "@pkgs/pbt": "workspace:*",
+        "@pkgs/dst": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
@@ -1226,7 +1224,6 @@
       },
       "devDependencies": {
         "@electric-sql/pglite": "catalog:",
-        "@pkgs/pbt": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
@@ -1267,7 +1264,7 @@
         "@pkgs/clock": "workspace:*",
       },
       "devDependencies": {
-        "@pkgs/pbt": "workspace:*",
+        "@pkgs/dst": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
@@ -1340,18 +1337,6 @@
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/uuid": "workspace:*",
-      },
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "@typescript/native": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "pkgs/pbt": {
-      "name": "@pkgs/pbt",
-      "version": "0.0.0",
-      "dependencies": {
-        "fast-check": "catalog:",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -1442,7 +1427,6 @@
         "@pkgs/uuid": "workspace:*",
       },
       "devDependencies": {
-        "@pkgs/pbt": "workspace:*",
         "@types/bun": "catalog:",
         "@types/react": "catalog:",
         "@typescript/native": "catalog:",
@@ -1641,7 +1625,6 @@
       },
       "devDependencies": {
         "@happy-dom/global-registrator": "catalog:",
-        "@pkgs/pbt": "workspace:*",
         "@playwright/test": "catalog:",
         "@types/better-sqlite3": "catalog:",
         "@types/bun": "catalog:",
@@ -1703,7 +1686,6 @@
         "react": "catalog:",
       },
       "devDependencies": {
-        "@pkgs/pbt": "workspace:*",
         "@types/bun": "catalog:",
         "@types/react": "catalog:",
         "@typescript/native": "catalog:",
@@ -1839,7 +1821,6 @@
         "react": "catalog:",
       },
       "devDependencies": {
-        "@pkgs/pbt": "workspace:*",
         "@types/bun": "catalog:",
         "@types/react": "catalog:",
         "@typescript/native": "catalog:",
@@ -1855,11 +1836,14 @@
         "@apps/room-server": "workspace:*",
         "@apps/server": "workspace:*",
         "@expo/metro-runtime": "catalog:",
+        "@libs/auth": "workspace:*",
         "@libs/chess": "workspace:*",
+        "@libs/db": "workspace:*",
         "@libs/dst-handles": "workspace:*",
         "@libs/games": "workspace:*",
         "@libs/notifications": "workspace:*",
         "@libs/runtime": "workspace:*",
+        "@libs/secrets": "workspace:*",
         "@libs/spaces": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
@@ -1872,6 +1856,7 @@
         "@pkgs/dst": "workspace:*",
         "@pkgs/emqx-server": "workspace:*",
         "@pkgs/entity-store": "workspace:*",
+        "@pkgs/git": "workspace:*",
         "@pkgs/http-client": "workspace:*",
         "@pkgs/kv": "workspace:*",
         "@pkgs/llm": "workspace:*",
@@ -1899,6 +1884,7 @@
         "@shopify/react-native-skia": "catalog:",
         "better-sqlite3": "catalog:",
         "expo": "catalog:",
+        "expo-constants": "catalog:",
         "expo-crypto": "catalog:",
         "expo-secure-store": "catalog:",
         "expo-sqlite": "catalog:",
@@ -1936,11 +1922,17 @@
         "@apps/client": "workspace:*",
         "@apps/room-server": "workspace:*",
         "@apps/server": "workspace:*",
+        "@libs/chess": "workspace:*",
         "@libs/db": "workspace:*",
         "@libs/dst-handles": "workspace:*",
         "@lingui/core": "catalog:",
+        "@pkgs/assert": "workspace:*",
+        "@pkgs/async-local": "workspace:*",
+        "@pkgs/auth": "workspace:*",
         "@pkgs/clock": "workspace:*",
+        "@pkgs/dst": "workspace:*",
         "@pkgs/emqx-server": "workspace:*",
+        "@pkgs/invariants": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/minio-server": "workspace:*",
         "@pkgs/object-store": "workspace:*",
@@ -1948,6 +1940,7 @@
         "@pkgs/sim-console": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/ui-testing": "workspace:*",
+        "@pkgs/uuid": "workspace:*",
         "@sim/console": "workspace:*",
         "@testing-library/react-native": "catalog:",
         "better-sqlite3": "catalog:",
@@ -1972,6 +1965,7 @@
         "@types/react-test-renderer": "catalog:",
         "babel-jest": "catalog:",
         "babel-plugin-macros": "catalog:",
+        "fast-check": "catalog:",
         "jest": "catalog:",
         "jest-expo": "catalog:",
         "typescript": "catalog:",
@@ -1984,6 +1978,7 @@
         "jingle": "./jingle.ts",
       },
       "dependencies": {
+        "@clack/prompts": "catalog:",
         "@pkgs/object-store": "workspace:*",
         "@pkgs/os": "workspace:*",
         "@pkgs/secret-provider": "workspace:*",
@@ -2007,8 +2002,9 @@
   "overrides": {
     "@babel/plugin-transform-modules-systemjs": "^7.29.4",
     "brace-expansion": "5.0.9",
+    "browserslist": "4.28.8",
     "esbuild": "^0.28.1",
-    "fast-uri": "^3.1.5",
+    "fast-uri": "^3.1.6",
     "ip-address": "^10.3.1",
     "js-cookie": "^3.0.7",
     "js-yaml": "^4.3.1",
@@ -2025,6 +2021,7 @@
     "@babel/plugin-transform-explicit-resource-management": "^7.28.6",
     "@babel/runtime": "^7.29.7",
     "@biomejs/biome": "2.5.7",
+    "@clack/prompts": "^1.7.0",
     "@crvouga/postgres-mem": "^1.1.1",
     "@crvouga/sqlite-mem": "^1.14.0",
     "@dicebear/collection": "^9.4.2",
@@ -2032,7 +2029,6 @@
     "@electric-sql/pglite": "^0.4.3",
     "@expo-google-fonts/nunito": "^0.4.2",
     "@expo/metro-runtime": "~55.0.12",
-    "@fontsource/nunito": "^5.2.7",
     "@gorhom/bottom-sheet": "^5.1.6",
     "@happy-dom/global-registrator": "^20.0.0",
     "@hono/zod-validator": "^0.7.6",
@@ -2120,7 +2116,6 @@
     "mqtt": "^5.14.1",
     "node-sql-parser": "^5.4.0",
     "pg": "^8.16.3",
-    "pg-mem": "^3.0.14",
     "picocolors": "^1.1.1",
     "react": "19.2.0",
     "react-dom": "19.2.0",
@@ -2152,6 +2147,8 @@
     "@0no-co/graphql.web": ["@0no-co/graphql.web@1.3.4", "", { "peerDependencies": { "graphql": "^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0" }, "optionalPeers": ["graphql"] }, "sha512-imSwulOeDQodRy/olQmVEo2PiY6ntjkZ9eiGdw6lMYylh/tay9b7MusyJBmEnkL8GiKRKr6ltr+D42mY5bd8Bg=="],
 
     "@0no-co/graphqlsp": ["@0no-co/graphqlsp@1.17.5", "", { "dependencies": { "@gql.tada/internal": "^1.2.1", "graphql": "^15.5.0 || ^16.0.0 || ^17.0.0" }, "peerDependencies": { "typescript": "^5.0.0 || ^6.0.0" } }, "sha512-wsygfTO3pdkz4idDw8BxdMdgB9AB8nuJDJTUwYy87BiZEZRXS4bEfn4oNl9VtxTo6j2lzX/gED+IvOgxsSy2Jg=="],
+
+    "@antithesishq/bombadil": ["@antithesishq/bombadil@0.7.2", "", { "bin": { "bombadil": "bin/bombadil.js" } }, "sha512-Irhtv8XcMewxwZTZA4lURJHq12XLVRJXs6x6mc0M0NnBRpgaTaRP8HmMB/zjlA0GD9QvSXUInPqnQ5tDwyyzTQ=="],
 
     "@apideck/better-ajv-errors": ["@apideck/better-ajv-errors@0.3.7", "", { "dependencies": { "jsonpointer": "^5.0.1", "leven": "^3.1.0" }, "peerDependencies": { "ajv": ">=8" } }, "sha512-TajUJwGWbDwkCx/CZi7tRE8PVB7simCvKJfHUsSdvps+aTM/PDPP4gkLmKnc+x3CE//y9i/nj74GqdL/hwk7Iw=="],
 
@@ -2490,6 +2487,10 @@
     "@biomejs/cli-win32-arm64": ["@biomejs/cli-win32-arm64@2.5.7", "", { "os": "win32", "cpu": "arm64" }, "sha512-Oq4x0CCwP4jirrcTywXs5kOGZ4v5vuEP+gWrbtjApOA2CL9F3F9GlIdQIci8AKSCa/zURanMRpX/4wQ7Am6hHg=="],
 
     "@biomejs/cli-win32-x64": ["@biomejs/cli-win32-x64@2.5.7", "", { "os": "win32", "cpu": "x64" }, "sha512-V+0wu/nrj2S+MhP4EQ0uHNolP0IALEsz45pg0WoKkHfDeh0+ItHwP/p7bX5RPoMOl9NkpHYWdYPhIcy2mACHvQ=="],
+
+    "@clack/core": ["@clack/core@1.4.3", "", { "dependencies": { "fast-wrap-ansi": "^0.2.0", "sisteransi": "^1.0.5" } }, "sha512-/kr3UWNtdJfxZtPgDqUOmG2pvwlmcLGheex5yiZKdwbzZJxhV+HMNR9QNmyY5cGwTNV6LrR7Jtp+KjhUAP1qBQ=="],
+
+    "@clack/prompts": ["@clack/prompts@1.7.0", "", { "dependencies": { "@clack/core": "1.4.3", "fast-string-width": "^3.0.2", "fast-wrap-ansi": "^0.2.0", "sisteransi": "^1.0.5" } }, "sha512-y7/yvZ2TPAnR9+jnc00klvNNLkJiXFFrQA/hlLCcxA9a2A4zQIOimyFQ9XfwYKiGD1fb5GY8vbKIIgO8d5Tb2A=="],
 
     "@cloudflare/kv-asset-handler": ["@cloudflare/kv-asset-handler@0.5.0", "", {}, "sha512-jxQYkj8dSIzc0cD6cMMNdOc1UVjqSqu8BZdor5s8cGjW2I8BjODt/kWPVdY+u9zj3ms75Q5qaZgnxUad83+eAg=="],
 
@@ -3144,8 +3145,6 @@
     "@pkgs/os": ["@pkgs/os@workspace:pkgs/os"],
 
     "@pkgs/outbox": ["@pkgs/outbox@workspace:pkgs/outbox"],
-
-    "@pkgs/pbt": ["@pkgs/pbt@workspace:pkgs/pbt"],
 
     "@pkgs/polyfill": ["@pkgs/polyfill@workspace:pkgs/polyfill"],
 
@@ -3937,9 +3936,15 @@
 
     "fast-levenshtein": ["fast-levenshtein@2.0.6", "", {}, "sha512-DCXu6Ifhqcks7TZKY3Hxp3y6qphY5SJZmrWMDrKcERSOXWQdMhU9Ig/PYrzyw/ul9jOIyh0N4M0tbC5hodg8dw=="],
 
+    "fast-string-truncated-width": ["fast-string-truncated-width@3.0.3", "", {}, "sha512-0jjjIEL6+0jag3l2XWWizO64/aZVtpiGE3t0Zgqxv0DPuxiMjvB3M24fCyhZUO4KomJQPj3LTSUnDP3GpdwC0g=="],
+
+    "fast-string-width": ["fast-string-width@3.0.2", "", { "dependencies": { "fast-string-truncated-width": "^3.0.2" } }, "sha512-gX8LrtNEI5hq8DVUfRQMbr5lpaS4nMIWV+7XEbXk2b8kiQIizgnlr12B4dA3ZEx3308ze0O4Q1R+cHts8kyUJg=="],
+
     "fast-unique-numbers": ["fast-unique-numbers@9.0.27", "", { "dependencies": { "@babel/runtime": "^7.29.2", "tslib": "^2.8.1" } }, "sha512-nDA9ADeINN8SA2u2wCtU+siWFTTDqQR37XvgPIDDmboWQeExz7X0mImxuaN+kJddliIqy2FpVRmnvRZ+j8i1/A=="],
 
     "fast-uri": ["fast-uri@3.1.7", "", {}, "sha512-dOvZVzjdZdz7phd9v6jCbwxrBW3fK6n8Rc0CtdmM4bumzMnxywBYhuph6J819RRw/ku+rLbelwfMunktuzVVHg=="],
+
+    "fast-wrap-ansi": ["fast-wrap-ansi@0.2.2", "", { "dependencies": { "fast-string-width": "^3.0.2" } }, "sha512-7F2Fl+TjRSenLqlU3UjSH0iyqopqoZIu7eZVpEirP2g1GtWa2G/ecEmBdgz31+Mxr+ELclgg6sokpSFIQiZ02Q=="],
 
     "fast-xml-builder": ["fast-xml-builder@1.2.0", "", { "dependencies": { "path-expression-matcher": "^1.5.0", "xml-naming": "^0.1.0" } }, "sha512-00aAWieqff+ZJhsXA4g1g7M8k+7AYoMUUHF+/zFb5U6Uv/P0Vl4QZo84/IcufzYalLuEj9928bXN9PbbFzMF0Q=="],
 

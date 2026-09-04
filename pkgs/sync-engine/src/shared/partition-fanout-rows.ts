@@ -42,7 +42,7 @@ function addRowToTopics(
 /**
  * Restrict fanout row images to topics that the topic map assigns to each
  * row. Prevents device-private tables (empty / device topics) from riding
- * along on a sibling table's user/room wake in the same mutation.
+ * along on a sibling table's user wake in the same mutation.
  */
 export async function partitionFanoutRowsByTopic(args: {
   readonly topicMap: TopicMap;

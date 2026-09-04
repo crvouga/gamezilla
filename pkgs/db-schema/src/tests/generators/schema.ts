@@ -1,4 +1,4 @@
-import { fc } from '@pkgs/pbt';
+import fc from 'fast-check';
 import { defineTable } from '../../core/define-table';
 import { registerTables } from '../../core/register-tables';
 import { isReservedSchemaKeyword } from '../../core/snake-case';
