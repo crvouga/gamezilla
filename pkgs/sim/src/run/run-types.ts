@@ -1,4 +1,6 @@
 import type { Rng } from '../internals/rng';
+import type { RunReporter } from '../report/reporter';
+import type { RecordStepMeta, RunReport } from '../report/types';
 import type { Session } from '../runtime/types';
 import type { Action, Property, Read } from '../system/effect';
 import type { Step } from '../system/recording';
@@ -73,6 +75,19 @@ export type Run<S> = {
   readonly randomActions: (
     opts?: RandomActionsOptions<S>
   ) => Promise<RandomActionsReport>;
+  /**
+   * Open one labeled report step, run `fn`, capture snapshots after
+   * (or before when `snapshotBefore`). Nested `apply` / `advanceTime`
+   * attach frames to this step instead of minting new ones.
+   */
+  readonly record: <T>(
+    meta: RecordStepMeta,
+    fn: () => Promise<T>
+  ) => Promise<T>;
+  /** Capture registered snapshotters onto the current/open step. */
+  readonly snapshot: () => Promise<void>;
+  /** In-memory report so far (empty when reporting is disabled). */
+  readonly report: () => RunReport | null;
   readonly [Symbol.asyncDispose]: () => Promise<void>;
 };
 
@@ -87,6 +102,7 @@ export type RunInternal<S> = {
   readonly monitors: MonitorState[];
   readonly transitions: Transition[];
   readonly steps: Step[];
+  readonly reporter: RunReporter | null;
   rng: Rng;
   step: number;
 };

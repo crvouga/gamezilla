@@ -1,4 +1,7 @@
 import type { Rng } from '../internals/rng';
+import type { CatalogSnapshot } from '../report/define-snapshot';
+import { RunReporter } from '../report/reporter';
+import { type RunReportOptions, resolveReportOptions } from '../report/types';
 import type { Session } from '../runtime/types';
 import type { Action, CatalogProperty, Property, Read } from '../system/effect';
 import type { Step } from '../system/recording';
@@ -33,6 +36,11 @@ export type RunOptions<_S, Args = void> = {
   readonly seed: number | bigint | string;
   /** Registered runtime name. Omit → system default runtime. */
   readonly runtime?: string;
+  /**
+   * Timeline reporting. Default off.
+   * Pass `true` for in-memory only, or `{ store, testId, … }` to persist.
+   */
+  readonly report?: boolean | RunReportOptions;
 } & ArgsOption<Args>;
 
 const ELAPSE_ACTION = 'elapse';
@@ -133,6 +141,54 @@ async function runNever<S, T>(
   }
 }
 
+async function applyAction<S>(
+  internal: RunInternal<S>,
+  surface: S,
+  action: Action<S, unknown[]>,
+  applyArgs: unknown[]
+): Promise<void> {
+  const resolved = resolveApplyArgs(action, applyArgs);
+  // Scripted apply is gated by `enabled` only — `weight` 0 merely keeps
+  // an action out of randomActions (probe), so pins can still drive it.
+  pushMemoFrame();
+  let enabled: boolean;
+  try {
+    enabled = await action.enabled(surface);
+  } finally {
+    popMemoFrame();
+  }
+  if (!enabled) throw new ActionNotEnabled(action.name);
+
+  const doCheckpoint = () =>
+    runCheckpoint(internal, action.name, resolved, (surf, ...a) =>
+      action.act(surf, ...(a as never[]))
+    );
+
+  const reporter = internal.reporter;
+  if (reporter !== null && reporter.shouldCaptureApply) {
+    await reporter.recordApply({
+      action: action.name,
+      applyArgs: resolved,
+      run: doCheckpoint,
+    });
+    return;
+  }
+  await doCheckpoint();
+}
+
+async function disposeRun(
+  monitors: MonitorState[],
+  reporter: RunReporter | null,
+  session: Session
+): Promise<void> {
+  const endViolations = await closeMonitors(monitors);
+  if (reporter !== null) {
+    await reporter.flush();
+  }
+  await session.dispose();
+  if (endViolations.length > 0) throw endViolations[0]!;
+}
+
 function buildRun<S>(args: {
   readonly surface: S;
   readonly session: Session;
@@ -141,6 +197,7 @@ function buildRun<S>(args: {
   readonly runtimeName: string;
   readonly monitors: MonitorState[];
   readonly actionRng: Rng;
+  readonly reporter: RunReporter | null;
 }): Run<S> {
   const transitions: Transition[] = [];
   const steps: Step[] = [];
@@ -154,30 +211,19 @@ function buildRun<S>(args: {
     monitors: args.monitors,
     transitions,
     steps,
+    reporter: args.reporter,
     rng: args.actionRng,
     step: 0,
   };
 
   const s: Run<S> = {
-    async apply(action, ...applyArgs) {
-      const resolved = resolveApplyArgs(
+    apply: (action, ...applyArgs) =>
+      applyAction(
+        internal,
+        args.surface,
         action as Action<S, unknown[]>,
         applyArgs as unknown[]
-      );
-      // Scripted apply is gated by `enabled` only — `weight` 0 merely keeps
-      // an action out of randomActions (probe), so pins can still drive it.
-      pushMemoFrame();
-      let enabled: boolean;
-      try {
-        enabled = await action.enabled(args.surface);
-      } finally {
-        popMemoFrame();
-      }
-      if (!enabled) throw new ActionNotEnabled(action.name);
-      await runCheckpoint(internal, action.name, resolved, (surf, ...a) =>
-        (action as Action<S, unknown[]>).act(surf, ...(a as never[]))
-      );
-    },
+      ),
     async read(readFn, ...readArgs) {
       pushMemoFrame();
       try {
@@ -190,6 +236,7 @@ function buildRun<S>(args: {
       await assertProperty(p, args.surface, internal.step);
     },
     async advanceTime(ms) {
+      // Never opens a report step (avoids poll spam during until/expect).
       await runCheckpoint(internal, ELAPSE_ACTION, [ms], async () => {
         await args.session.advanceTime(ms);
       });
@@ -200,11 +247,24 @@ function buildRun<S>(args: {
       const { randomActions } = await import('./random-actions');
       return randomActions(s, opts ?? {});
     },
-    async [Symbol.asyncDispose]() {
-      const endViolations = await closeMonitors(args.monitors);
-      await args.session.dispose();
-      if (endViolations.length > 0) throw endViolations[0]!;
+    async record(meta, fn) {
+      const reporter = internal.reporter;
+      if (reporter === null) return fn();
+      let result!: Awaited<ReturnType<typeof fn>>;
+      await reporter.record(meta, async () => {
+        result = await fn();
+      });
+      return result;
     },
+    async snapshot() {
+      if (internal.reporter === null) return;
+      await internal.reporter.snapshot();
+    },
+    report() {
+      return internal.reporter?.toReport() ?? null;
+    },
+    [Symbol.asyncDispose]: () =>
+      disposeRun(args.monitors, internal.reporter, args.session),
   };
   setRunInternal(s, internal);
   return s;
@@ -250,6 +310,20 @@ export async function run<S, Args = void>(
     popMemoFrame();
   }
 
+  const reportOpts = resolveReportOptions(opts.report);
+  const reporter =
+    reportOpts === null
+      ? null
+      : new RunReporter({
+          system: system.name,
+          runtime: runtimeName,
+          seed: String(opts.seed),
+          options: reportOpts,
+          snapshots: registry.snapshots as readonly CatalogSnapshot<unknown>[],
+          surface,
+          sessionNow: () => session.ports.clock.now(),
+        });
+
   return buildRun({
     surface,
     session,
@@ -258,6 +332,7 @@ export async function run<S, Args = void>(
     runtimeName,
     monitors,
     actionRng: session.ports.rng.fork('actions'),
+    reporter,
   });
 }
 

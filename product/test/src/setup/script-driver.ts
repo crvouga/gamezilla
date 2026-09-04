@@ -1,8 +1,8 @@
 /**
  * A {@link Driver} whose every step is a {@link Run} step: mutations are
- * `s.apply` checkpoints, waits are `s.until` / `s.elapse`, reads are
- * `s.observe`. Nothing here touches the product surface — that is the
- * scenario system's job.
+ * `s.apply` checkpoints, waits are `s.until` / `s.elapse` wrapped in
+ * `s.record`, reads are `s.read`. Nothing here touches the product surface —
+ * that is the scenario system's job.
  */
 
 import type { Run } from '@pkgs/sim';
@@ -18,7 +18,7 @@ import type {
   WaitState,
   WaitTextCondition,
 } from '@pkgs/ui-testing';
-import { isWaitTextCondition } from '@pkgs/ui-testing';
+import { formatTestIdPath, isWaitTextCondition } from '@pkgs/ui-testing';
 
 import {
   actorHtml,
@@ -91,28 +91,79 @@ async function waitText(args: {
   });
 }
 
+function recordWait(
+  s: ProductScript,
+  meta: {
+    readonly title: string;
+    readonly actorId: string;
+    readonly path: readonly string[];
+    readonly detail: string;
+  },
+  fn: () => Promise<void>
+): Promise<void> {
+  return s.record(
+    {
+      kind: 'waitFor',
+      title: meta.title,
+      actorId: meta.actorId,
+      selector: formatTestIdPath(meta.path),
+      detail: meta.detail,
+    },
+    fn
+  );
+}
+
 function nodeExpect(
   s: ProductScript,
   actorId: string,
   path: readonly string[]
 ): DriverNode['expect'] {
+  const selector = formatTestIdPath(path);
   return {
     visible: (options?: AssertionOptions) =>
-      waitVisible(s, actorId, path, options),
+      recordWait(
+        s,
+        {
+          title: `expect.visible ${selector}`,
+          actorId,
+          path,
+          detail: 'visible',
+        },
+        () => waitVisible(s, actorId, path, options)
+      ),
     hidden: (options?: AssertionOptions) =>
-      waitHidden(s, actorId, path, options),
+      recordWait(
+        s,
+        {
+          title: `expect.hidden ${selector}`,
+          actorId,
+          path,
+          detail: 'hidden',
+        },
+        () => waitHidden(s, actorId, path, options)
+      ),
     text: (
       expected: string,
       options?: AssertionOptions & { exact?: boolean }
     ) =>
-      waitText({
+      recordWait(
         s,
-        actorId,
-        path,
-        expected,
-        exact: options?.exact ?? true,
-        ...(options !== undefined ? { options } : {}),
-      }),
+        {
+          title: `expect.text ${selector}`,
+          actorId,
+          path,
+          detail: `text=${JSON.stringify(expected)}`,
+        },
+        () =>
+          waitText({
+            s,
+            actorId,
+            path,
+            expected,
+            exact: options?.exact ?? true,
+            ...(options !== undefined ? { options } : {}),
+          })
+      ),
   };
 }
 
@@ -123,20 +174,50 @@ function runWait(args: {
   readonly state: WaitState | WaitTextCondition;
   readonly options?: DriverWaitOptions;
 }): Promise<void> {
+  const selector = formatTestIdPath(args.path);
   if (!isWaitTextCondition(args.state)) {
     if (args.state === 'visible') {
-      return waitVisible(args.s, args.actorId, args.path, args.options);
+      return recordWait(
+        args.s,
+        {
+          title: `waitFor visible ${selector}`,
+          actorId: args.actorId,
+          path: args.path,
+          detail: 'visible',
+        },
+        () => waitVisible(args.s, args.actorId, args.path, args.options)
+      );
     }
-    return waitHidden(args.s, args.actorId, args.path, args.options);
+    return recordWait(
+      args.s,
+      {
+        title: `waitFor hidden ${selector}`,
+        actorId: args.actorId,
+        path: args.path,
+        detail: 'hidden',
+      },
+      () => waitHidden(args.s, args.actorId, args.path, args.options)
+    );
   }
-  return waitText({
-    s: args.s,
-    actorId: args.actorId,
-    path: args.path,
-    expected: args.state.text,
-    exact: args.state.exact ?? true,
-    ...(args.options !== undefined ? { options: args.options } : {}),
-  });
+  const textState = args.state;
+  return recordWait(
+    args.s,
+    {
+      title: `waitFor text ${selector}`,
+      actorId: args.actorId,
+      path: args.path,
+      detail: `text=${JSON.stringify(textState.text)}`,
+    },
+    () =>
+      waitText({
+        s: args.s,
+        actorId: args.actorId,
+        path: args.path,
+        expected: textState.text,
+        exact: textState.exact ?? true,
+        ...(args.options !== undefined ? { options: args.options } : {}),
+      })
+  );
 }
 
 function wrapNode(

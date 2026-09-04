@@ -4,6 +4,11 @@
  * imports the module that (lazily) imports the runtime.
  */
 
+import type {
+  CatalogSnapshot,
+  Snapshot,
+  SnapshotDef,
+} from '../report/define-snapshot';
 import type { Ports, Runtime, Session } from '../runtime/types';
 import type { Awaitable } from './awaitable';
 import type {
@@ -38,11 +43,12 @@ export type SystemRuntimeEntry = {
 export type SystemRegistry<S> = {
   readonly actions: CatalogAction<S>[];
   readonly properties: CatalogProperty<S>[];
+  readonly snapshots: CatalogSnapshot<S>[];
   readonly runtimeEntries: SystemRuntimeEntry[];
   defaultRuntimeName: string | undefined;
 };
 
-/** Declaration + registration surface; `System` adds `script` / `explore` / `replay`. */
+/** Declaration + registration surface; `System` adds `run` / `explore` / `replay`. */
 export type SystemCore<S, Args = void> = {
   readonly [SYSTEM_TAG]: true;
   readonly name: string;
@@ -57,6 +63,9 @@ export type SystemCore<S, Args = void> = {
   property<C = unknown>(
     def: PropertyDef<S, C> | Property<S, C>
   ): Property<S, C>;
+  snapshot<T = unknown>(
+    def: SnapshotDef<S, T> | Snapshot<S, T>
+  ): Snapshot<S, T>;
 };
 
 const registries = new WeakMap<object, SystemRegistry<unknown>>();

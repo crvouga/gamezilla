@@ -16,7 +16,7 @@ const IGNORE_ADVISORIES = [
   'GHSA-5p2g-fcmc-qvqq', // image-size JXL/HEIF infinite loop (CVE-2025-71329)
 ] as const;
 
-const AUDIT_TIMEOUT_MS = 60_000;
+const AUDIT_TIMEOUT_MS = 300_000;
 
 function timedOut(output: string, err: unknown): boolean {
   if (output.includes('ETIMEDOUT') || output.includes('timed out')) return true;

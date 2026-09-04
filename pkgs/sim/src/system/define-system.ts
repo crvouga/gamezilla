@@ -1,23 +1,24 @@
+import type { Snapshot, SnapshotDef } from '../report/define-snapshot';
 import type { ExploreOptions, ReplayOptions, Report } from '../run/explore';
 import type { RandomActionsReport } from '../run/random-actions';
 import type { Run, RunOptions } from '../run/run';
 import type { Session } from '../runtime/types';
 import type { Awaitable } from './awaitable';
-import { defineAction } from './define-action';
-import { defineProperty } from './define-property';
 import {
   type Action,
   type ActionDef,
-  type CatalogAction,
-  type CatalogProperty,
-  isAction,
-  isProperty,
   type Property,
   type PropertyDef,
   SYSTEM_TAG,
 } from './effect';
 import type { Gen } from './gen';
 import type { Recording } from './recording';
+import {
+  registerAction,
+  registerProperty,
+  registerRuntime,
+  registerSnapshot,
+} from './register-catalog';
 import {
   attachSystemRegistry,
   type RuntimeDef,
@@ -45,10 +46,10 @@ export function defineSystem<S, Args = void>(def: {
   const registry: SystemRegistry<S> = {
     actions: [],
     properties: [],
+    snapshots: [],
     runtimeEntries: [],
     defaultRuntimeName: undefined,
   };
-
   const runtimes: string[] = [];
 
   const system = {
@@ -61,54 +62,27 @@ export function defineSystem<S, Args = void>(def: {
       return runtimes;
     },
     runtime(runtimeDef: RuntimeDef): void {
-      if (!runtimeDef.name) throw new Error('system.runtime: name is required');
-      if (registry.runtimeEntries.some((h) => h.name === runtimeDef.name)) {
-        throw new Error(
-          `system.runtime: duplicate runtime '${runtimeDef.name}' on '${def.name}'`
-        );
-      }
-      if (runtimeDef.default === true) {
-        if (registry.defaultRuntimeName !== undefined) {
-          throw new Error(
-            `system.runtime: second default runtime on '${def.name}' (already '${registry.defaultRuntimeName}')`
-          );
-        }
-        registry.defaultRuntimeName = runtimeDef.name;
-      }
-      registry.runtimeEntries.push({
-        name: runtimeDef.name,
-        isDefault: runtimeDef.default === true,
-        create: runtimeDef.create,
-      });
-      runtimes.push(runtimeDef.name);
+      registerRuntime(
+        registry as SystemRegistry<unknown>,
+        def.name,
+        runtimes,
+        runtimeDef
+      );
     },
     action<const A extends unknown[] = []>(
       actionDef: ActionDef<S, A> | Action<S, A>
     ): Action<S, A> {
-      const action = isAction(actionDef)
-        ? (actionDef as Action<S, A>)
-        : defineAction(actionDef as ActionDef<S, A>);
-      if (registry.actions.some((a) => a.name === action.name)) {
-        throw new Error(
-          `system.action: duplicate action '${action.name}' on '${def.name}'`
-        );
-      }
-      registry.actions.push(action as unknown as CatalogAction<S>);
-      return action;
+      return registerAction(registry, def.name, actionDef);
     },
     property<C = unknown>(
       propertyDef: PropertyDef<S, C> | Property<S, C>
     ): Property<S, C> {
-      const property = isProperty(propertyDef)
-        ? (propertyDef as Property<S, C>)
-        : defineProperty(propertyDef as PropertyDef<S, C>);
-      if (registry.properties.some((p) => p.name === property.name)) {
-        throw new Error(
-          `system.property: duplicate property '${property.name}' on '${def.name}'`
-        );
-      }
-      registry.properties.push(property as unknown as CatalogProperty<S>);
-      return property;
+      return registerProperty(registry, def.name, propertyDef);
+    },
+    snapshot<T = unknown>(
+      snapshotDef: SnapshotDef<S, T> | Snapshot<S, T>
+    ): Snapshot<S, T> {
+      return registerSnapshot(registry, def.name, snapshotDef);
     },
     async run(opts: RunOptions<S, Args>): Promise<Run<S>> {
       const { run } = await import('../run/run');

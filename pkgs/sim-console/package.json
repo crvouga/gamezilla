@@ -21,6 +21,7 @@
     "@pkgs/clock": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/object-store": "workspace:*",
+    "@pkgs/sim": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/ui": "workspace:*",

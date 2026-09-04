@@ -3,9 +3,9 @@
 Deterministic simulation testing for TypeScript. Same seed + args + action
 choices ⇒ the same timeline. Packages declare a **System** that boots a typed
 surface `S` behind a **Runtime**; the framework drives **Actions**, checks
-**Properties**, and records a **Recording** for replay. The algebra does not
-know about clients, browsers, SQL, rooms, or networks — a Runtime supplies
-those. Root policy: [`DETERMINISM.md`](../../DETERMINISM.md).
+**Properties**, captures **Snapshots**, and records a **Recording** for replay.
+The algebra does not know about clients, browsers, SQL, rooms, or networks — a
+Runtime supplies those. Root policy: [`DETERMINISM.md`](../../DETERMINISM.md).
 
 ---
 
@@ -15,18 +15,21 @@ those. Root policy: [`DETERMINISM.md`](../../DETERMINISM.md).
 | --- | --- |
 | **Runtime** | Fidelity factory (`virtualTimeRuntime` / `realTimeRuntime` / `defineRuntime`). Registered on the System by name; opens a Session. |
 | **Session** | Kernel + ports for one node (`clock`, `timers`, `createId`, `random`, `network`, `fork`, `waitForIdle`, `advanceTime`). Harness-only. |
-| **System** | `defineSystem({ name, create, args?, sample? })` — recipe → `S`; catalogs Actions / Properties / Runtimes via methods. |
+| **System** | `defineSystem({ name, create, args?, sample? })` — recipe → `S`; catalogs Actions / Properties / Snapshots / Runtimes via methods. |
 | **sim `S`** | Typed surface returned by `create(session, args)`. Data only — no wait/drain methods. |
 | **Action** | Named stimulus `{ enabled, weight, args?, sample?, pool?, act }`, registered with `system.action`. |
 | **Property** | Checkpoint predicate `{ setup?, check, close? }`, registered with `system.property`. |
-| **Run** | Opened by `system.run({ seed, runtime?, args? })`. Drive with `apply` / `read` / `assert` / `advanceTime` / `until` / `never` / `randomActions`. |
+| **Snapshot** | Named capture `{ media?, capture }` registered with `system.snapshot`. Value may be any type; `media` (`json` / `html` / `png` / `text` / `bytes`) controls encoding and UI. |
+| **Run** | Opened by `system.run({ seed, runtime?, args?, report? })`. Drive with `apply` / `read` / `assert` / `advanceTime` / `until` / `never` / `randomActions` / `record` / `snapshot`. |
+| **RunReport** | Timeline of report steps + frames for one test. Built when `report` is enabled; optionally persisted to an ObjectStore. |
+| **record** | `s.record({ kind, title, … }, fn)` — one labeled report step; nested `apply` / `advanceTime` attach frames to it. |
 | **randomActions** | Weighted random walk over the action pool (`s.randomActions`). Returns a `RandomActionsReport`. |
 | **explore** | `system.explore` — search (episodes × randomActions + shrink). Throws `ExploreFailedError`. |
 | **replay** | `system.replay(recording)` — re-apply a Recording / report path. |
-| **Recording** | `{ version, seed, args, steps, meta }` — shrinkable repro artifact. |
+| **Recording** | `{ version, seed, args, steps, meta }` — shrinkable repro artifact (action log, not UI frames). |
 | **sample** | How explore / randomActions draws system args (`sample: () => Gen<Args>`) or action args (`sample: (s) => Gen<A>`). |
 | **waitForIdle** | `session.waitForIdle()` — drain the scheduler to quiescence (also runs after each checkpoint). |
-| **advanceTime** | `s.advanceTime(ms)` — virtual (or wall) clock tick as a checkpoint. |
+| **advanceTime** | `s.advanceTime(ms)` — virtual (or wall) clock tick as a checkpoint. Does **not** open a report step. |
 | **read** | Plain `(s: S, ...args) => T`. Observed via `s.read(fn, …args)`. |
 
 ---
@@ -35,13 +38,14 @@ those. Root policy: [`DETERMINISM.md`](../../DETERMINISM.md).
 
 | Import | Contents |
 | --- | --- |
-| `@pkgs/sim` | `defineSystem` / `defineAction` / `virtualTimeRuntime` / `realTimeRuntime` / `defineRuntime` / Recording helpers + types (`Run`, `System`, `Action`, …) |
+| `@pkgs/sim` | `defineSystem` / `defineAction` / `virtualTimeRuntime` / `realTimeRuntime` / `defineRuntime` / Recording helpers + report types (`RunReport`, `RunReportOptions`, …) + types (`Run`, `System`, `Action`, …) |
 | `@pkgs/sim/internals` | Clock / scheduler / rng / network factories. **Runtime authors only.** |
 | `@pkgs/sim/fast-check` | `gen(arbitrary)`, `arbitrary(gen)`, `randomGeneratorOver`, JSON arbs |
 
-Free `explore` / `replay` / `defineProperty` are **not** exported from the root —
-use `system.explore` / `system.replay` / `system.property`. Unbound
-`defineAction` exists for walk-time helpers that cannot be pre-registered.
+Free `explore` / `replay` / `defineProperty` / `defineSnapshot` are **not**
+exported from the root — use `system.explore` / `system.replay` /
+`system.property` / `system.snapshot`. Unbound `defineAction` exists for
+walk-time helpers that cannot be pre-registered.
 
 ---
 
@@ -71,6 +75,11 @@ kv.runtime({
   create: () => virtualTimeRuntime(),
 });
 
+kv.snapshot({
+  name: 'store',
+  capture: (s) => s.server.dump(),
+});
+
 export const put = kv.action({
   name: 'put',
   enabled: (s) => s.clients.length > 0,
@@ -92,7 +101,7 @@ export const put = kv.action({
 export const get = (s: KvSim, client: string, key: string) =>
   s.clients.find((c) => c.id === client)!.get(key);
 
-await using s = await kv.run({ seed: 7 });
+await using s = await kv.run({ seed: 7, report: true });
 await s.apply(put);
 await s.apply(put, 'client:1', 'b', '2');
 expect(await s.read(get, 'client:0', 'a')).toBe('1');
@@ -113,6 +122,7 @@ Omit `sample` on the system when every episode should use `args`.
 src/index.ts       public algebra
 src/runtime/       virtualTimeRuntime / realTimeRuntime / defineRuntime / Session
 src/system/        defineSystem / defineAction / defineProperty / recording
+src/report/        Snapshot / RunReport / RunReporter / ObjectStore persist
 src/run/           run / randomActions / explore / checkpoint (internal)
 src/internals/     clocks, schedulers, rng, fingerprint, json, timers
 src/models/        in-process network
@@ -123,7 +133,7 @@ src/fast-check/    gen / arbitrary adapters
 
 ## Do / don't
 
-- **Do** register actions, properties, and runtimes on the System.
+- **Do** register actions, properties, snapshots, and runtimes on the System.
 - **Do** keep `S` as data. Reads = functions; stimuli = actions.
 - **Do** put defaults on `args` and samplers on `sample`.
 - **Do** wait with `s.until` / `s.never`; advance with `s.advanceTime`.

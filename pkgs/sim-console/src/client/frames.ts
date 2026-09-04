@@ -1,67 +1,59 @@
 import type {
-  SimulationFrame,
-  SimulationFrameAttribute,
-  SimulationFrameCheckpoint,
-  SimulationFrameDatabase,
-  SimulationFrameView,
-  SimulationStep,
+  ReportFrame,
+  ReportSnapshotBlob,
+  ReportStep,
+  SnapshotMedia,
 } from '../types';
 
 export type FlatFrame = {
-  readonly file: string;
   readonly capturedAtMs: number;
   readonly durationMs: number;
   readonly stepIndex: number;
-  readonly step: SimulationStep;
+  readonly step: ReportStep;
   readonly globalIndex: number;
-  readonly databases?: readonly SimulationFrameDatabase[];
-  readonly views?: readonly SimulationFrameView[];
-  readonly attributes?: readonly SimulationFrameAttribute[];
-  readonly checkpoint?: SimulationFrameCheckpoint;
+  readonly snapshots: readonly ReportSnapshotBlob[];
+  /** Primary html/png file for the acting actor (back-compat scrubber). */
+  readonly file: string | null;
 };
 
-export function flattenFrames(steps: readonly SimulationStep[]): FlatFrame[] {
+export function flattenFrames(steps: readonly ReportStep[]): FlatFrame[] {
   const frames: FlatFrame[] = [];
   steps.forEach((step, stepIndex) => {
-    for (const frame of framesForStep(step)) {
+    for (const frame of step.frames) {
       frames.push(toFlatFrame(frame, step, stepIndex, frames.length));
     }
   });
   return frames;
 }
 
-function framesForStep(step: SimulationStep): SimulationFrame[] {
-  if (step.frames && step.frames.length > 0) return [...step.frames];
-  if (step.snapshotFile) {
-    return [
-      {
-        file: step.snapshotFile,
-        capturedAtMs: step.endedAtMs || step.startedAtMs || 0,
-        durationMs: step.durationMs || 0,
-      },
-    ];
-  }
-  return [];
-}
-
 function toFlatFrame(
-  frame: SimulationFrame,
-  step: SimulationStep,
+  frame: ReportFrame,
+  step: ReportStep,
   stepIndex: number,
   globalIndex: number
 ): FlatFrame {
   return {
-    file: frame.file,
     capturedAtMs: frame.capturedAtMs,
     durationMs: frame.durationMs ?? 0,
     stepIndex,
     step,
     globalIndex,
-    ...(frame.databases !== undefined ? { databases: frame.databases } : {}),
-    ...(frame.views !== undefined ? { views: frame.views } : {}),
-    ...(frame.attributes !== undefined ? { attributes: frame.attributes } : {}),
-    ...(frame.checkpoint !== undefined ? { checkpoint: frame.checkpoint } : {}),
+    snapshots: frame.snapshots,
+    file: primaryUiFile(frame.snapshots, step.actorId),
   };
+}
+
+function primaryUiFile(
+  snapshots: readonly ReportSnapshotBlob[],
+  actorId: string | undefined
+): string | null {
+  const ui = snapshots.filter((s) => s.media === 'html' || s.media === 'png');
+  if (ui.length === 0) return null;
+  if (actorId !== undefined) {
+    const match = ui.find((s) => s.nodeId === actorId);
+    if (match) return match.file;
+  }
+  return ui[0]?.file ?? null;
 }
 
 export function formatMs(ms: number | null | undefined): string {
@@ -80,7 +72,6 @@ export function formatMsStable(ms: number | null | undefined): string {
   return `${(ms / 1000).toFixed(2)}s`.padStart(6, '\u2007');
 }
 
-/** Stable UTC stamp for run ids / header meta. */
 export function formatRunUpdatedAt(
   ms: number | null | undefined
 ): string | null {
@@ -108,8 +99,8 @@ export function firstFrameForStep(
 /** Explicit selection from URL only; null when nothing is selected. */
 export function resolveSelectedFrameIndex(
   frames: readonly FlatFrame[],
-  _steps: readonly SimulationStep[],
-  nav: { frame: number | null }
+  _steps: readonly ReportStep[],
+  nav: { readonly frame: number | null }
 ): number | null {
   if (nav.frame != null && nav.frame >= 1 && nav.frame <= frames.length) {
     return nav.frame - 1;
@@ -129,28 +120,21 @@ export function playheadFrameIndex(
   return 0;
 }
 
-/**
- * Whether this frame carries content for `nodeId` (views / attributes /
- * databases) or was captured under that actor (legacy single-file dumps).
- */
 export function frameOwnedByNode(frame: FlatFrame, nodeId: string): boolean {
-  if (frame.views?.some((v) => v.nodeId === nodeId)) return true;
   if (
-    frame.attributes?.some(
-      (a) => a.nodeId === nodeId && (a.kind === 'html' || a.kind === 'sqlite')
+    frame.snapshots.some(
+      (s) =>
+        s.nodeId === nodeId &&
+        (s.media === 'html' || s.media === 'png' || s.media === 'bytes')
     )
   ) {
     return true;
   }
-  if (frame.databases?.some((d) => d.nodeId === nodeId)) return true;
   return frame.step.actorId === nodeId;
 }
 
 /**
  * Latest frame at or before `playheadIdx` owned by `nodeId`.
- * Prefers frames that carry that node's HTML/db views (multi-actor
- * captures update every client on each step) so parked clients track the
- * playhead instead of freezing on the last step they authored.
  */
 export function resolveFrameForNode(
   frames: readonly FlatFrame[],
@@ -164,4 +148,29 @@ export function resolveFrameForNode(
     if (frameOwnedByNode(frame, nodeId)) return frame;
   }
   return null;
+}
+
+export function resolveSnapshotFile(
+  frame: FlatFrame | null,
+  args: {
+    readonly name?: string;
+    readonly media?: SnapshotMedia;
+    readonly nodeId?: string | null;
+  }
+): string | null {
+  if (frame == null) return null;
+  const match = frame.snapshots.find((s) => {
+    if (args.name !== undefined && s.name !== args.name) return false;
+    if (args.media !== undefined && s.media !== args.media) return false;
+    if (
+      args.nodeId != null &&
+      s.nodeId !== undefined &&
+      s.nodeId !== args.nodeId
+    ) {
+      return false;
+    }
+    if (args.nodeId != null && s.nodeId === undefined) return false;
+    return true;
+  });
+  return match?.file ?? null;
 }

@@ -119,6 +119,30 @@ function run(cmd: string, args: string[]): void {
   }
 }
 
+/**
+ * Lingui extract uses worker threads that occasionally fail to init under
+ * heavy turbo concurrency ("Did not receive an init message from worker").
+ * Retry a few times before failing the gate.
+ */
+function runWithRetries(cmd: string, args: string[], attempts = 3): void {
+  let lastStatus = 1;
+  for (let i = 1; i <= attempts; i++) {
+    const result = spawnSync(cmd, args, {
+      cwd: REPO_ROOT,
+      stdio: 'inherit',
+      env: process.env,
+    });
+    lastStatus = result.status ?? 1;
+    if (lastStatus === 0) return;
+    if (i < attempts) {
+      console.error(
+        `[ci:i18n] ${cmd} ${args.join(' ')} failed (attempt ${String(i)}/${String(attempts)}); retrying…`
+      );
+    }
+  }
+  process.exit(lastStatus);
+}
+
 function loadLinguiConfig(): LinguiCatalogConfig {
   const requireConfig = createRequire(join(REPO_ROOT, 'package.json'));
   return requireConfig(
@@ -163,7 +187,7 @@ function assertMacrosCovered(): void {
 function assertCatalogsFresh(): void {
   const poBefore = readFileSync(join(REPO_ROOT, PO_REL), 'utf8');
   const compiledBefore = readFileSync(join(REPO_ROOT, COMPILED_REL), 'utf8');
-  run('bun', ['run', 'i18n:extract']);
+  runWithRetries('bun', ['run', 'i18n:extract']);
   run('bun', ['run', 'i18n:compile']);
   const poAfter = readFileSync(join(REPO_ROOT, PO_REL), 'utf8');
   const compiledAfter = readFileSync(join(REPO_ROOT, COMPILED_REL), 'utf8');

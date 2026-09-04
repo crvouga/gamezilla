@@ -6,25 +6,21 @@ import type { Timers } from '@pkgs/clock';
 import { wallClock } from '@pkgs/clock';
 import { writeUtf8 } from '@pkgs/object-store/helpers';
 import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
+import type { ObjectStore } from '@pkgs/object-store/interface';
 import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';
-import {
-  createReportingDriver,
-  projectReportTopology,
-  resolveSimConsoleReportsDir,
-  SimulationReporter,
-  wallPathExists,
-} from '@pkgs/sim-console';
+import { resolveSimConsoleReportsDir, wallPathExists } from '@pkgs/sim-console';
 import type { SimSystemSnapshot } from '@pkgs/sim-console/shared/sim-system-snapshot';
-import type { Driver, UiTestCtx } from '@pkgs/ui-testing';
+import type { Driver } from '@pkgs/ui-testing';
 import { createDriver, getUiTestBrowser } from '@pkgs/ui-testing';
+import { SNAPSHOT_SHELL_CSS } from '@pkgs/ui-testing/drivers/rntl/serialize-host-tree-html';
 import type { Page } from '@playwright/test';
-import { type Sim, simClientNamespace } from '@product/console/sim/create-sim';
+import type { Sim } from '@product/console/sim/create-sim';
+import { simClientNamespace } from '@product/console/sim/create-sim';
 
 import type { ProductUi } from '../runtime/ports';
 import type { SimActor } from '../sim';
 import { injectPlaywrightSnapshotAuth } from './playwright-snapshot-auth';
 import { simNodeTimers } from './sim-actor-overrides';
-import { simReportTopology } from './sim-report-topology';
 import { createSimWaitPump } from './sim-wait-pump';
 
 const reportFs = wallNodeFs();
@@ -38,11 +34,24 @@ const reportStore = createNodeFsObjectStore({
   layout: 'tree',
 });
 
-const STATIC_REPORT_RUN_ID = 'latest_run';
-const FRAME_STYLESHEET_HREF = '../../snapshot-shell.css';
+export const STATIC_REPORT_RUN_ID = 'latest_run';
 
 export function simReportEnabled(): boolean {
   return process.env['SIM_REPORT'] !== '0';
+}
+
+export function getReportStore(): ObjectStore {
+  return reportStore;
+}
+
+export async function prepareReportStore(): Promise<void> {
+  await reportFs.mkdir(reportDataDir, { recursive: true });
+  await writeUtf8(
+    reportStore,
+    `runs/${STATIC_REPORT_RUN_ID}/snapshot-shell.css`,
+    SNAPSHOT_SHELL_CSS,
+    'text/css; charset=utf-8'
+  );
 }
 
 export async function writeKeysIndex(): Promise<void> {
@@ -62,38 +71,6 @@ export type ActorEntry = {
 };
 
 type MultiAppRntlSession = Extract<ProductUi, { kind: 'rntl' }>['rntl'];
-
-export function createSimReporter(args: {
-  readonly testId: string;
-  readonly sim: Sim;
-  readonly driverKind: UiTestCtx['driverKind'];
-  readonly rntl: MultiAppRntlSession | null;
-}): SimulationReporter | null {
-  if (!simReportEnabled()) return null;
-  return new SimulationReporter({
-    seed: '1',
-    store: reportStore,
-    runId: STATIC_REPORT_RUN_ID,
-    testId: args.testId,
-    now: () => wallClock.now(),
-    maxFramesPerStep: 1,
-    frameIntervalMs: 250,
-    publishThrottleMs: Number.POSITIVE_INFINITY,
-    ui: args.driverKind,
-    snapshotTopology: () =>
-      projectReportTopology(simReportTopology(args.sim), '1'),
-    snapshotViews: async () => {
-      if (args.rntl === null) return [];
-      const snapshots = await args.rntl.snapshotAllActors({
-        stylesheetHref: FRAME_STYLESHEET_HREF,
-      });
-      return [...snapshots.entries()].map(([nodeId, html]) => ({
-        nodeId,
-        html,
-      }));
-    },
-  });
-}
 
 function createRntlClientDriver(args: {
   readonly sim: Sim;
@@ -166,7 +143,6 @@ export async function launchActor(args: {
   readonly ui: ProductUi;
   readonly sim: Sim;
   readonly id: string;
-  readonly reporter: SimulationReporter | null;
   readonly snapshot?: SimSystemSnapshot;
 }): Promise<ActorEntry> {
   let raw: Driver;
@@ -186,16 +162,9 @@ export async function launchActor(args: {
       runFor: args.ui.runFor,
     });
   }
-  const ui =
-    args.reporter === null
-      ? raw
-      : createReportingDriver(raw, {
-          actorId: args.id,
-          reporter: args.reporter,
-        });
-  await ui.launch();
+  await raw.launch();
   return {
-    handle: { id: args.id, ui },
+    handle: { id: args.id, ui: raw },
     raw,
     closeResources,
   };

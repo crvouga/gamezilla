@@ -15,6 +15,40 @@ export type {
 } from './models/network';
 export { RELIABLE_NETWORK } from './models/network';
 export type {
+  CatalogSnapshot,
+  RecordStepMeta,
+  ReportCaptureMode,
+  ReportFrame,
+  ReportSnapshotBlob,
+  ReportStep,
+  ReportStepStatus,
+  RunReport,
+  RunReportMeta,
+  RunReportOptions,
+  RunSummary,
+  RunsIndex,
+  Snapshot,
+  SnapshotDef,
+  SnapshotMedia,
+  SuiteManifest,
+  SuiteTestSummary,
+} from './report';
+export {
+  GENERATION_KEY,
+  isLatestRunId,
+  LATEST_RUN_ID,
+  mediaExtension,
+  mintRunId,
+  RUNS_INDEX_KEY,
+  resolveReportOptions,
+  runManifestKey,
+  runPrefix,
+  sanitizeRunId,
+  sanitizeTestId,
+  testFrameKey,
+  testReportKey,
+} from './report';
+export type {
   ExploreOptions,
   RandomActionsOptions,
   RandomActionsReport,

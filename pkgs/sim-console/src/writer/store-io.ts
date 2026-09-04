@@ -5,7 +5,7 @@ import {
   GENERATION_KEY,
   RUNS_INDEX_KEY,
   runManifestKey,
-  testStepsKey,
+  testReportKey,
 } from './keys';
 
 const TEXT_ENCODER = new TextEncoder();
@@ -135,4 +135,4 @@ export function upsertTestSummary(
   return next;
 }
 
-export { testStepsKey };
+export { testReportKey, testReportKey as testStepsKey };

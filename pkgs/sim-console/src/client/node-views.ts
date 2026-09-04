@@ -57,26 +57,32 @@ export function resolveSelectedView(
   return defaultViewFor(views);
 }
 
-/** HTML blob path for a node on this frame (attributes → views → legacy file). */
+/** HTML / PNG blob path for a node on this frame. */
 export function resolveHtmlFile(
   frame: FlatFrame | null,
   nodeId: string | null,
   node: TopologyNodeInfo | null
 ): string | null {
   if (frame == null || nodeId == null) return null;
-  const fromAttr = frame.attributes?.find(
-    (a) => a.kind === 'html' && a.nodeId === nodeId && a.file
-  );
-  if (fromAttr?.file) return fromAttr.file;
-  const fromView = frame.views?.find((v) => v.nodeId === nodeId);
-  if (fromView) return fromView.file;
   const wantsHtml =
     node != null &&
     (node.attributes.includes('html') ||
       coerceSimNodeKind(node.kind) === 'client');
-  // Legacy single-file dumps: only the acting actor owns frame.file.
-  if (wantsHtml && frame.file && frame.step.actorId === nodeId) {
-    return frame.file;
+  if (!wantsHtml && node != null) return null;
+  const html = frame.snapshots.find(
+    (s) => s.media === 'html' && s.nodeId === nodeId
+  );
+  if (html) return html.file;
+  const png = frame.snapshots.find(
+    (s) => s.media === 'png' && s.nodeId === nodeId
+  );
+  if (png) return png.file;
+  // Single-blob dumps without nodeId: only the acting actor owns them.
+  if (frame.step.actorId === nodeId) {
+    const anyUi = frame.snapshots.find(
+      (s) => (s.media === 'html' || s.media === 'png') && s.nodeId === undefined
+    );
+    if (anyUi) return anyUi.file;
   }
   return null;
 }

@@ -1,12 +1,12 @@
 import { Box, Text } from '@pkgs/ui';
 
-import type { SimulationFrameDatabase } from '../types';
 import type { FlatFrame } from './frames';
+import { resolveSnapshotFile } from './frames';
 import { emptySx, paneSx } from './tokens';
 
 /**
  * SQLite dump browser placeholder. Interactive SQL browse is not wired;
- * report playback uses HTML frames only.
+ * report playback uses HTML / JSON frames.
  */
 export function SqlitePane(props: {
   readonly bucketId: string;
@@ -15,8 +15,11 @@ export function SqlitePane(props: {
   readonly frame: FlatFrame | null;
   readonly nodeId: string | null;
 }) {
-  const dump = resolveDatabase(props.frame, props.nodeId);
-  if (dump == null) {
+  const file = resolveSnapshotFile(props.frame, {
+    name: 'sqlite',
+    nodeId: props.nodeId,
+  });
+  if (file == null) {
     return (
       <Box sx={paneSx}>
         <Text sx={emptySx}>
@@ -27,32 +30,7 @@ export function SqlitePane(props: {
   }
   return (
     <Box sx={paneSx}>
-      <Text sx={emptySx}>SQLite pane requires web.</Text>
+      <Text sx={emptySx}>SQLite pane requires web (`{file}`).</Text>
     </Box>
   );
-}
-
-function resolveDatabase(
-  frame: FlatFrame | null,
-  nodeId: string | null
-): SimulationFrameDatabase | null {
-  if (frame == null || nodeId == null) return null;
-  const fromDatabases = frame.databases?.find((d) => d.nodeId === nodeId);
-  if (fromDatabases) return fromDatabases;
-  const fromAttrs = frame.attributes?.find(
-    (a) => a.kind === 'sqlite' && a.nodeId === nodeId
-  );
-  if (
-    fromAttrs?.file == null ||
-    fromAttrs.sha256 == null ||
-    fromAttrs.byteLength == null
-  ) {
-    return null;
-  }
-  return {
-    nodeId: fromAttrs.nodeId,
-    file: fromAttrs.file,
-    sha256: fromAttrs.sha256,
-    byteLength: fromAttrs.byteLength,
-  };
 }

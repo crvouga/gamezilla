@@ -85,6 +85,9 @@ describe('public-api', () => {
         'advanceTime',
         'never',
         'read',
+        'record',
+        'report',
+        'snapshot',
         'until',
         'randomActions',
       ].sort()

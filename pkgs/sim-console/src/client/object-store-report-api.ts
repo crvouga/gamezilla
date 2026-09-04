@@ -14,7 +14,7 @@ import type {
   SuiteManifest,
 } from '../types';
 import { LATEST_RUN_ID } from '../types';
-import { runManifestKey, testStepsKey } from '../writer/keys';
+import { runManifestKey, testReportKey } from '../writer/keys';
 import {
   loadRunsIndex,
   readGeneration,
@@ -128,7 +128,7 @@ async function publishManifestAndTest(args: {
 
   const data = await storeGetJson<SimulationReportData>(
     args.store,
-    testStepsKey(args.resolvedRunId, args.testId)
+    testReportKey(args.resolvedRunId, args.testId)
   );
   args.handlers.onTest?.({
     resolvedRunId: args.resolvedRunId,

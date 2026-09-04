@@ -1,6 +1,7 @@
 /**
- * `@pkgs/sim-console` — capture sim/DST timelines into an ObjectStore.
- * Browse them via `SimConsoleApp` (`@pkgs/sim-console/client`) and
+ * `@pkgs/sim-console` — browse `@pkgs/sim` RunReports from an ObjectStore.
+ * Capture is owned by `@pkgs/sim` (`system.snapshot` / `run({ report })`).
+ * Browse via `SimConsoleApp` (`@pkgs/sim-console/client`) and
  * `createSimConsoleApp` (`@pkgs/sim-console/server`).
  */
 
@@ -18,38 +19,36 @@ export {
   DEFAULT_MAX_FRAMES_PER_STEP,
   DEFAULT_PUBLISH_THROTTLE_MS,
   DEFAULT_REPORT_SERVER_PORT,
+  GENERATION_KEY,
   isLatestRunId,
   LATEST_RUN_ID,
   mintRunId,
   PLAYGROUND_SNAPSHOT_OBJECTS_PATH,
+  type ReportFrame,
+  type ReportSnapshotBlob,
+  type ReportStep,
+  type ReportStepStatus,
+  RUNS_INDEX_KEY,
+  type RunReport,
+  type RunReportMeta,
+  type RunReportOptions,
   type RunSummary,
   type RunsIndex,
   resolveReportOptions,
-  type SimulationFrame,
-  type SimulationFrameAttribute,
-  type SimulationFrameCheckpoint,
-  type SimulationFrameDatabase,
-  type SimulationFrameView,
+  runManifestKey,
   type SimulationReportData,
   type SimulationReportEvent,
-  type SimulationReportMeta,
-  type SimulationReportOptions,
+  type SimulationReportTopology,
   type SimulationStep,
-  type SimulationStepKind,
   type SimulationStepStatus,
+  type SnapshotMedia,
   type SuiteManifest,
   type SuiteTestSummary,
   sanitizeRunId,
   sanitizeTestId,
-  type UiAttribution,
+  testFrameKey,
+  testReportKey,
 } from './types';
 export { wallPathExists } from './wall-path-exists';
 export { projectReportTopology } from './writer/project-topology';
 export { deleteRun, type PruneOptions, pruneRuns } from './writer/prune';
-export {
-  type FrameCaptureState,
-  hashString,
-  SimulationReporter,
-  type SimulationReporterOptions,
-} from './writer/reporter';
-export { createReportingDriver } from './writer/reporting-driver';

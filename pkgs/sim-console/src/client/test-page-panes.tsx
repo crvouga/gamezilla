@@ -8,6 +8,7 @@ import { EventsPane } from './events-pane';
 import type { FlatFrame } from './frames';
 import { resolveFrameForNode } from './frames';
 import { HtmlPane } from './html-pane';
+import { JsonPane } from './json-pane';
 import type { TopologyNodeInfo } from './node-views';
 import { SqlitePane } from './sqlite-pane';
 import { emptySx, paneSx } from './tokens';
@@ -38,6 +39,18 @@ export function ReportKindPane(props: {
         testId={props.testId}
         frame={props.frame}
         nodeId={props.nodeId}
+      />
+    );
+  }
+  if (props.kind === 'server' || props.kind === 'room') {
+    return (
+      <JsonPane
+        api={props.api}
+        bucketId={props.bucketId}
+        runId={props.runId}
+        testId={props.testId}
+        frame={props.frame}
+        name="topology"
       />
     );
   }

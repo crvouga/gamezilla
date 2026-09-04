@@ -67,7 +67,7 @@ export function Timeline(props: {
       >
         {props.frames.map((frame, index) => (
           <FrameChip
-            key={`${frame.file}-${index}`}
+            key={`${frame.file ?? frame.globalIndex}-${index}`}
             index={index}
             title={frame.step.title}
             durationMs={frame.durationMs}

@@ -1,12 +1,12 @@
 import type { ObjectStore } from '@pkgs/object-store/interface';
 
-import type { RunsIndex, SimulationReportData, SimulationStep } from '../types';
+import type { ReportStep, RunReport, RunsIndex } from '../types';
 import {
   RUNS_INDEX_KEY,
   runManifestKey,
   snapshotShellKey,
   testFrameKey,
-  testStepsKey,
+  testReportKey,
 } from './keys';
 import {
   bumpGeneration,
@@ -24,7 +24,7 @@ export type PruneOptions = {
 };
 
 /**
- * Delete one run's known keys (index + manifest + per-test steps/frames + shell).
+ * Delete one run's known keys (index + manifest + per-test report/frames + shell).
  */
 export async function deleteRun(
   store: ObjectStore,
@@ -32,16 +32,16 @@ export async function deleteRun(
 ): Promise<void> {
   const manifest = await loadRunManifest(store, runId);
   for (const test of manifest.tests) {
-    const steps = await storeGetJson<SimulationReportData>(
+    const report = await storeGetJson<RunReport>(
       store,
-      testStepsKey(runId, test.testId)
+      testReportKey(runId, test.testId)
     );
-    if (steps) {
-      for (const step of steps.steps) {
+    if (report) {
+      for (const step of report.steps) {
         await deleteStepFrames(store, runId, test.testId, step);
       }
     }
-    await store.delete(testStepsKey(runId, test.testId));
+    await store.delete(testReportKey(runId, test.testId));
   }
   await store.delete(runManifestKey(runId));
   await store.delete(snapshotShellKey(runId));
@@ -56,12 +56,13 @@ async function deleteStepFrames(
   store: ObjectStore,
   runId: string,
   testId: string,
-  step: SimulationStep
+  step: ReportStep
 ): Promise<void> {
   const files = new Set<string>();
-  if (step.snapshotFile) files.add(step.snapshotFile);
-  for (const frame of step.frames ?? []) {
-    files.add(frame.file);
+  for (const frame of step.frames) {
+    for (const snap of frame.snapshots) {
+      files.add(snap.file);
+    }
   }
   for (const file of files) {
     await store.delete(testFrameKey(runId, testId, file));

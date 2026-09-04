@@ -117,8 +117,46 @@ export function HtmlPane(props: {
   readonly node: TopologyNodeInfo | null;
 }) {
   const file = resolveHtmlFile(props.frame, props.nodeId, props.node);
+  const media =
+    props.frame?.snapshots.find((s) => s.file === file)?.media ?? 'html';
+
+  if (file == null) {
+    return <HtmlPaneEmpty kind="missing" nodeId={props.nodeId} />;
+  }
+
+  if (media === 'png') {
+    const url = props.api.testFrameUrl(
+      props.bucketId,
+      props.runId,
+      props.testId,
+      file
+    );
+    const srcdoc = `<!doctype html><html><body style="margin:0;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#111"><img src="${url}" alt="" style="max-width:100%;max-height:100vh;object-fit:contain"/></body></html>`;
+    return <HtmlSrcdocFrame title={`frame ${file}`} srcdoc={srcdoc} />;
+  }
+
+  return (
+    <HtmlPaneHtml
+      file={file}
+      api={props.api}
+      bucketId={props.bucketId}
+      runId={props.runId}
+      testId={props.testId}
+      nodeId={props.nodeId}
+    />
+  );
+}
+
+function HtmlPaneHtml(props: {
+  readonly file: string;
+  readonly api: ReportApiClient;
+  readonly bucketId: string;
+  readonly runId: string;
+  readonly testId: string;
+  readonly nodeId: string | null;
+}) {
   const { srcdoc, error, blankSnapshot } = useHtmlPaneSrcdoc({
-    file,
+    file: props.file,
     fetchFn: props.api.fetch,
     api: props.api,
     bucketId: props.bucketId,
@@ -126,9 +164,6 @@ export function HtmlPane(props: {
     testId: props.testId,
   });
 
-  if (file == null) {
-    return <HtmlPaneEmpty kind="missing" nodeId={props.nodeId} />;
-  }
   if (blankSnapshot && srcdoc == null) {
     return <HtmlPaneEmpty kind="blank" nodeId={props.nodeId} />;
   }
@@ -139,5 +174,5 @@ export function HtmlPane(props: {
     return <HtmlPaneEmpty kind="loading" />;
   }
 
-  return <HtmlSrcdocFrame title={`frame ${file}`} srcdoc={srcdoc} />;
+  return <HtmlSrcdocFrame title={`frame ${props.file}`} srcdoc={srcdoc} />;
 }

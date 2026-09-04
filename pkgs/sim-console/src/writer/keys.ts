@@ -1,37 +1,29 @@
 /** Object-store key layout for one report bucket. */
 
-export const RUNS_INDEX_KEY = 'runs/index.json';
-export const GENERATION_KEY = 'runs/generation';
+import { testReportKey } from '@pkgs/sim';
 
-export function runPrefix(runId: string): string {
-  return `runs/${runId}`;
-}
-
-export function runManifestKey(runId: string): string {
-  return `${runPrefix(runId)}/manifest.json`;
-}
+export {
+  GENERATION_KEY,
+  RUNS_INDEX_KEY,
+  runManifestKey,
+  runPrefix,
+  testFrameKey,
+  testReportKey,
+} from '@pkgs/sim';
 
 export function snapshotShellKey(runId: string): string {
-  return `${runPrefix(runId)}/snapshot-shell.css`;
+  return `runs/${runId}/snapshot-shell.css`;
 }
 
+/** @deprecated Prefer {@link testReportKey}. */
 export function testStepsKey(runId: string, testId: string): string {
-  return `${runPrefix(runId)}/tests/${testId}/steps.json`;
+  return testReportKey(runId, testId);
 }
 
 export function testEventsKey(runId: string, testId: string): string {
-  return `${runPrefix(runId)}/tests/${testId}/events.json`;
+  return `runs/${runId}/tests/${testId}/events.json`;
 }
 
 export function testTopologyKey(runId: string, testId: string): string {
-  return `${runPrefix(runId)}/tests/${testId}/topology.json`;
-}
-
-export function testFrameKey(
-  runId: string,
-  testId: string,
-  frameFile: string
-): string {
-  const rel = frameFile.replace(/^\/+/, '');
-  return `${runPrefix(runId)}/tests/${testId}/${rel}`;
+  return `runs/${runId}/tests/${testId}/topology.json`;
 }

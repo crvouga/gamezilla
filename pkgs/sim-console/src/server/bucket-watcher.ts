@@ -1,8 +1,8 @@
 import type { Timers } from '@pkgs/clock';
 
-import type { RunSummary, SimulationReportData, SuiteManifest } from '../types';
+import type { RunReport, RunSummary, SuiteManifest } from '../types';
 import { LATEST_RUN_ID } from '../types';
-import { runManifestKey, testStepsKey } from '../writer/keys';
+import { runManifestKey, testReportKey } from '../writer/keys';
 import {
   loadRunsIndex,
   readGeneration,
@@ -124,9 +124,9 @@ async function publishToSubscriber(
 
   if (sub.testId == null) return;
 
-  const data = await storeGetJson<SimulationReportData>(
+  const data = await storeGetJson<RunReport>(
     bucket.store,
-    testStepsKey(resolvedRunId, sub.testId)
+    testReportKey(resolvedRunId, sub.testId)
   );
   if (!data) {
     sub.send('test', {
@@ -143,7 +143,7 @@ async function publishToSubscriber(
   });
 }
 
-export function resolveRunId(
+function resolveRunId(
   runId: string,
   runs: readonly RunSummary[]
 ): string | null {

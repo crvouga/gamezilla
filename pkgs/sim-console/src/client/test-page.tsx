@@ -56,7 +56,13 @@ export function TestPage(props: {
       ? (frames[selectedIdx] ?? null)
       : null;
 
-  const topology = useTopology(api, bucketId, runId, data.meta.testId);
+  const topology = useTopology({
+    api,
+    bucketId,
+    runId,
+    testId: data.meta.testId,
+    frames,
+  });
   const nodes = useMemo(
     () => resolveNodeList({ topology, actorIds: data.meta.actorIds }),
     [topology, data.meta.actorIds]
@@ -240,24 +246,51 @@ const testTitleSx = {
   minWidth: 0,
 } as const;
 
-function useTopology(
-  api: ReportApiClient,
-  bucketId: string,
-  runId: string,
-  testId: string
-): SimulationReportTopology | null {
+function useTopology(args: {
+  readonly api: ReportApiClient;
+  readonly bucketId: string;
+  readonly runId: string;
+  readonly testId: string;
+  readonly frames: ReturnType<typeof flattenFrames>;
+}): SimulationReportTopology | null {
+  const { api, bucketId, runId, testId, frames } = args;
   const [topology, setTopology] = useState<SimulationReportTopology | null>(
     null
   );
+  const topologyFile = useMemo(() => {
+    for (let i = frames.length - 1; i >= 0; i--) {
+      const snap = frames[i]?.snapshots.find(
+        (s) => s.name === 'topology' && s.media === 'json'
+      );
+      if (snap) return snap.file;
+    }
+    return null;
+  }, [frames]);
+
   useEffect(() => {
     let cancelled = false;
+    if (topologyFile != null) {
+      const url = api.testFrameUrl(bucketId, runId, testId, topologyFile);
+      void api
+        .fetch(url)
+        .then(async (res) => {
+          if (!res.ok) return null;
+          return (await res.json()) as SimulationReportTopology;
+        })
+        .then((topo) => {
+          if (!cancelled) setTopology(topo);
+        });
+      return () => {
+        cancelled = true;
+      };
+    }
     void api.fetchTestTopology(bucketId, runId, testId).then((topo) => {
       if (!cancelled) setTopology(topo);
     });
     return () => {
       cancelled = true;
     };
-  }, [api, bucketId, runId, testId]);
+  }, [api, bucketId, runId, testId, topologyFile]);
   return topology;
 }
 

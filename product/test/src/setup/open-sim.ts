@@ -1,11 +1,11 @@
 /**
- * Open a product UI simulation: `product.script` on the `rntl` / `playwright`
- * host registered by the product system.
+ * Open a product UI simulation: `product.run` on the `rntl` / `playwright`
+ * runtime registered by the product system.
  */
 
+import { wallClock } from '@pkgs/clock';
 import type { Run } from '@pkgs/sim';
 import { defineAction } from '@pkgs/sim';
-import type { SimulationReporter } from '@pkgs/sim-console';
 import type { SimSystemSnapshot } from '@pkgs/sim-console/shared/sim-system-snapshot';
 import type { UiTestCtx } from '@pkgs/ui-testing';
 import type { Sim } from '@product/console/sim/create-sim';
@@ -23,10 +23,10 @@ import { product, productExtra } from '../sim';
 import {
   type ActorEntry,
   closeActorEntry,
-  createSimReporter,
+  getReportStore,
   launchActor as launchActorEntry,
-  reportDataDir,
-  reportFs,
+  prepareReportStore,
+  STATIC_REPORT_RUN_ID,
   simReportEnabled,
   writeKeysIndex,
 } from './launch-actor';
@@ -68,7 +68,6 @@ function resolveHostName(
 
 type WiredRuntime = {
   readonly entries: Map<string, ActorEntry>;
-  readonly reporter: SimulationReporter | null;
   httpListener: SimHttpListener | null;
 };
 
@@ -79,18 +78,16 @@ function rntlOf(ui: ProductUi) {
 function makeRuntime(args: {
   readonly surface: ProductSim;
   readonly extra: ProductExtra;
-  readonly reporter: SimulationReporter | null;
   readonly snapshot: SimSystemSnapshot | undefined;
   readonly wired: WiredRuntime;
 }): ProductRuntime {
-  const { surface, extra, reporter, snapshot, wired } = args;
+  const { surface, extra, snapshot, wired } = args;
   return {
     async launchActor(id) {
       const entry = await launchActorEntry({
         ui: extra.ui,
         sim: surface.sim,
         id,
-        reporter,
         ...(snapshot !== undefined ? { snapshot } : {}),
       });
       wired.entries.set(id, entry);
@@ -125,13 +122,12 @@ async function disposeProduct(
   if (wired.httpListener !== null) {
     await wired.httpListener.stop();
   }
-  if (wired.reporter !== null) {
+  if (simReportEnabled()) {
     try {
-      await wired.reporter.flush();
       await writeKeysIndex();
     } catch (err) {
       console.error(
-        '[openSim] report flush failed:',
+        '[openSim] report keys index failed:',
         err instanceof Error ? err.message : err
       );
     }
@@ -159,7 +155,6 @@ async function restoreSnapshot(
 
 async function wireSim(args: {
   readonly surface: ProductSim;
-  readonly testId: string;
   readonly snapshot?: SimSystemSnapshot;
 }): Promise<void> {
   const { surface } = args;
@@ -167,19 +162,8 @@ async function wireSim(args: {
   if (args.snapshot !== undefined) {
     await restoreSnapshot(surface.sim, args.snapshot);
   }
-  if (simReportEnabled()) {
-    await reportFs.mkdir(reportDataDir, { recursive: true });
-  }
-  const rntl = rntlOf(extra.ui);
-  const reporter = createSimReporter({
-    testId: args.testId,
-    sim: surface.sim,
-    driverKind: extra.ui.kind === 'playwright' ? 'playwright' : 'rntl',
-    rntl,
-  });
   const wired: WiredRuntime = {
     entries: new Map(),
-    reporter,
     httpListener: null,
   };
   if (extra.http.kind === 'loopback') {
@@ -188,7 +172,6 @@ async function wireSim(args: {
   surface.runtime = makeRuntime({
     surface,
     extra,
-    reporter,
     snapshot: args.snapshot,
     wired,
   });
@@ -238,9 +221,22 @@ export async function openSim(
 ): Promise<OpenSim> {
   const { ctx, options } = resolveArgs(ctxOrOptions, maybeOptions);
   ensureNodeLocalStoragePolyfill();
+  if (simReportEnabled()) {
+    await prepareReportStore();
+  }
   const s = await product.run({
     seed: 1,
     runtime: resolveHostName(ctx, options),
+    ...(simReportEnabled()
+      ? {
+          report: {
+            store: getReportStore(),
+            runId: STATIC_REPORT_RUN_ID,
+            testId,
+            now: () => wallClock.now(),
+          },
+        }
+      : {}),
   });
   const surface = await pinSim(s);
   const snapshot =
@@ -249,7 +245,6 @@ export async function openSim(
       : undefined;
   await wireSim({
     surface,
-    testId,
     ...(snapshot !== undefined ? { snapshot } : {}),
   });
   // Product resources tear down with the session the run owns.
