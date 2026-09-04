@@ -81,7 +81,7 @@ None remaining after the investigation below.
 
 #### Instrumentation vs `existing-assertions.md` (2026-09-01 re-check)
 
-- Examined: `antithesis/scratchbook/existing-assertions.md` (HEAD scan: no `@antithesis` / SDK assert APIs in `apps/`, `libs/`, `pkgs/`, `sim/`).
+- Examined: `antithesis/scratchbook/existing-assertions.md` (HEAD scan: no `@antithesis` / SDK assert APIs in `apps/`, `libs/`, `pkgs/`, `product/`).
 - Found: still no Antithesis SDK. Every suggested Always / AlwaysOrUnreachable / Reachable above remains **missing**.
 - Not found: a partial SUT-side assertion that this file should have credited.
 - Conclusion: instrumentation status unchanged — all missing.

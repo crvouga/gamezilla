@@ -1,8 +1,6 @@
 import type { Run } from '@pkgs/sim';
 
-import { spawnActor } from '../sim/actions';
-import { actorIds } from '../sim/observations';
-import type { ProductSim } from '../sim/sim';
+import { actorIds, type ProductSim, spawnActor } from '../sim';
 import { ActorScript } from './actor-script';
 import { AuthFlows } from './auth-flows';
 import { ChessFlows } from './chess-flows';

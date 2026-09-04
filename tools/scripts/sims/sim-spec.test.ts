@@ -75,4 +75,17 @@ describe('reconcileAction', () => {
     };
     expect(reconcileAction(iphone, existing)).toBe('recreate');
   });
+
+  test('recreate when device data is missing on disk', () => {
+    const existing: SimDeviceRecord = {
+      udid: 'abc',
+      name: iphone.name,
+      state: 'Shutdown',
+      deviceTypeIdentifier: iphone.deviceType,
+      runtimeIdentifier: iphone.runtime,
+    };
+    expect(reconcileAction(iphone, existing, { dataPresent: false })).toBe(
+      'recreate'
+    );
+  });
 });

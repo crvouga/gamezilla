@@ -8,9 +8,11 @@ export function reconcileAction(
     readonly deviceType: string;
     readonly runtime: string;
   },
-  existing: SimDeviceRecord | undefined
+  existing: SimDeviceRecord | undefined,
+  opts?: { readonly dataPresent?: boolean }
 ): ReconcileAction {
   if (existing === undefined) return 'create';
+  if (opts?.dataPresent === false) return 'recreate';
   if (
     existing.deviceTypeIdentifier === spec.deviceType &&
     existing.runtimeIdentifier === spec.runtime

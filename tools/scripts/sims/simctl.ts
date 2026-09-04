@@ -1,6 +1,9 @@
 // @io-wall-ok
 
 import { execFileSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
 import { reconcileAction } from './reconcile-sim';
 import { isProjectSimName } from './sim-project';
 import type { SimSpecEntry } from './sim-spec';
@@ -117,6 +120,23 @@ export function findDeviceByName(name: string): SimDeviceRecord | undefined {
   return listDevices().find((device) => device.name === name);
 }
 
+/** CoreSimulator data dir for a UDID. Missing means the device is a ghost. */
+function coreSimulatorDataDir(udid: string): string {
+  return join(
+    homedir(),
+    'Library',
+    'Developer',
+    'CoreSimulator',
+    'Devices',
+    udid,
+    'data'
+  );
+}
+
+export function isSimDataPresent(udid: string): boolean {
+  return existsSync(coreSimulatorDataDir(udid));
+}
+
 export function listProjectDevices(): SimDeviceRecord[] {
   return listDevices().filter((device) => isProjectSimName(device.name));
 }
@@ -147,7 +167,9 @@ export function deleteDevice(udid: string): void {
 
 export function reconcileSim(entry: SimSpecEntry): SimDeviceRecord {
   const existing = findDeviceByName(entry.name);
-  const action = reconcileAction(entry, existing);
+  const dataPresent =
+    existing === undefined ? true : isSimDataPresent(existing.udid);
+  const action = reconcileAction(entry, existing, { dataPresent });
 
   if (action === 'reuse' && existing !== undefined) {
     log(`Reusing "${entry.name}" (${existing.udid}, state=${existing.state}).`);
@@ -155,9 +177,15 @@ export function reconcileSim(entry: SimSpecEntry): SimDeviceRecord {
   }
 
   if (action === 'recreate' && existing !== undefined) {
-    log(
-      `Recreating "${entry.name}" — type/runtime changed (${existing.deviceTypeIdentifier} / ${existing.runtimeIdentifier}).`
-    );
+    if (!dataPresent) {
+      log(
+        `Recreating "${entry.name}" — device data missing on disk (${existing.udid}).`
+      );
+    } else {
+      log(
+        `Recreating "${entry.name}" — type/runtime changed (${existing.deviceTypeIdentifier} / ${existing.runtimeIdentifier}).`
+      );
+    }
     if (existing.state === 'Booted') {
       shutdownDevice(existing.udid);
     }

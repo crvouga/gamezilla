@@ -21,7 +21,7 @@ import type { Page } from '@playwright/test';
 import { type Sim, simClientNamespace } from '@product/console/sim/create-sim';
 
 import type { ProductUi } from '../runtime/ports';
-import type { SimActor } from '../sim/sim';
+import type { SimActor } from '../sim';
 import { injectPlaywrightSnapshotAuth } from './playwright-snapshot-auth';
 import { simNodeTimers } from './sim-actor-overrides';
 import { simReportTopology } from './sim-report-topology';

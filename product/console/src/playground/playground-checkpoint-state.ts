@@ -19,7 +19,10 @@ import {
 } from '@product/console/playground/playground-checkpoint-durable';
 import { reconcileServerProfilesFromClients } from '@product/console/playground/playground-snapshot-sync';
 import { type Sim, simClientNamespace } from '@product/console/sim/create-sim';
-import { openFreshSimClientSql, type SimSql } from '@product/console/sim/sim-sql';
+import {
+  openFreshSimClientSql,
+  type SimSql,
+} from '@product/console/sim/sim-sql';
 
 export type CheckpointSessionMaps = {
   readonly clients: {

@@ -3,7 +3,12 @@
 import { execFileSync } from 'node:child_process';
 import type { SimSpecId } from './sim-spec';
 import { simSpecById } from './sim-spec';
-import { findDeviceByName, listDevices } from './simctl';
+import {
+  findDeviceByName,
+  isSimDataPresent,
+  listDevices,
+  reconcileSim,
+} from './simctl';
 
 export function resolveProjectSim(id: SimSpecId): {
   udid: string;
@@ -15,6 +20,10 @@ export function resolveProjectSim(id: SimSpecId): {
     throw new Error(
       `Simulator "${spec.name}" is missing. Run \`bun run sims:setup\` first.`
     );
+  }
+  if (!isSimDataPresent(existing.udid)) {
+    const healed = reconcileSim(spec);
+    return { udid: healed.udid, name: spec.name };
   }
   return { udid: existing.udid, name: spec.name };
 }
@@ -28,6 +37,11 @@ export function bootSimIfNeeded(
   if (dev?.state === 'Booted') {
     log(`Simulator "${simName}" already booted.`);
     return;
+  }
+  if (!isSimDataPresent(udid)) {
+    throw new Error(
+      `Simulator "${simName}" data is missing on disk. Run \`bun run sims:setup\` to recreate it.`
+    );
   }
   log(`Booting simulator "${simName}"…`);
   try {

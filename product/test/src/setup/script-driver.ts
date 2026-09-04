@@ -20,9 +20,15 @@ import type {
 } from '@pkgs/ui-testing';
 import { isWaitTextCondition } from '@pkgs/ui-testing';
 
-import { type UiOp, uiOp } from '../sim/actions';
-import { actorHtml, nodeLayout, nodeText, visible } from '../sim/observations';
-import type { ProductSim } from '../sim/sim';
+import {
+  actorHtml,
+  nodeLayout,
+  nodeText,
+  type ProductSim,
+  type UiOp,
+  uiOp,
+  visible,
+} from '../sim';
 
 type Extra = UiOp['extra'];
 type ProductScript = Run<ProductSim>;

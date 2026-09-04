@@ -58,7 +58,7 @@ None. SDK missing (`existing-assertions.md`).
 
 #### Other isAuthRevoked hosts besides apps/client and the sim?
 
-- Examined: grep of `isAuthRevoked` / `SyncApiAuthError` under `apps/`, `libs/`, `pkgs/sync-engine`, `sim/`.
+- Examined: grep of `isAuthRevoked` / `SyncApiAuthError` under `apps/`, `libs/`, `pkgs/sync-engine`, `product/`.
 - Found: product wiring in `apps/client/src/sync/create-local-sync-engine.ts`; sim in `client-factory-parts.ts`. Both require `reason === 'revoked'`.
 - Not found: a third host that remaps all `SyncApiAuthError` to wipe.
 - Conclusion: resolved for this tree. Topology question about an old-protocol *binary* remains.

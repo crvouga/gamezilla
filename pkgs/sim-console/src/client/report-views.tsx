@@ -94,8 +94,8 @@ export function ReportViews(props: {
       <Box sx={appShellSx}>
         <Box sx={appBodyFrameSx}>
           <Text sx={emptySx}>
-            No report dump yet. Run `@product/test` to write the latest results into
-            `product/console/public/reports`.
+            No report dump yet. Run `@product/test` to write the latest results
+            into `product/console/public/reports`.
           </Text>
         </Box>
       </Box>

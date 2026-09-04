@@ -11,9 +11,9 @@ import {
   isAppInstalled,
   openSimulatorApp,
   openUrlOnSim,
+  resolveProjectSim,
 } from '../../../tools/scripts/sims/sim-runtime';
 import { simSpecById } from '../../../tools/scripts/sims/sim-spec';
-import { findDeviceByName } from '../../../tools/scripts/sims/simctl';
 import { ensurePodsMatchNodeModules } from './ios-pods';
 
 /**
@@ -40,17 +40,9 @@ export function resolveSimName(): string {
 }
 
 export function resolveDedicatedSim(): { udid: string; name: string } {
-  const spec = simSpecById(CLIENT_IOS_SIM_ID);
-  const existing = findDeviceByName(spec.name);
-  if (existing === undefined) {
-    throw new Error(
-      `Simulator "${spec.name}" is missing. Run \`bun run sims:setup\` first.`
-    );
-  }
-  log(
-    `Using simulator "${spec.name}" (${existing.udid}, state=${existing.state}).`
-  );
-  return { udid: existing.udid, name: spec.name };
+  const resolved = resolveProjectSim(CLIENT_IOS_SIM_ID);
+  log(`Using simulator "${resolved.name}" (${resolved.udid}).`);
+  return resolved;
 }
 
 async function pingDevServer(url: URL, signal: AbortSignal): Promise<boolean> {

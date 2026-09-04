@@ -1,7 +1,6 @@
 import type { SimSystemSnapshot } from '@pkgs/sim-console/shared/sim-system-snapshot';
 
-import { capturedSnapshot } from '../sim/observations';
-import { captureSnapshot } from '../sim/probes';
+import { capturedSnapshot, captureSnapshot } from '../sim';
 import type { OpenSim } from './open-sim';
 
 export async function captureOpenSimSnapshot(

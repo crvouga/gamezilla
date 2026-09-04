@@ -17,7 +17,7 @@ Searched for:
 - Assertion APIs: `assertAlways`, `assertSometimes`, `assertReachable`, `assertUnreachable`, `assert_always`, `assert_sometimes`, `assert_reachable`, `assert_unreachable`, `assert_always!`, `assert_sometimes!`
 - `package.json` / lockfile mentions of Antithesis SDKs
 
-No matches in `apps/`, `libs/`, `pkgs/`, or `sim/` product or test code.
+No matches in `apps/`, `libs/`, `pkgs/`, or `product/` product or test code.
 
 ## False positives (not Antithesis)
 

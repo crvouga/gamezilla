@@ -1828,8 +1828,8 @@
         "typescript": "catalog:",
       },
     },
-    "sim/console": {
-      "name": "@sim/console",
+    "product/console": {
+      "name": "@product/console",
       "version": "1.0.0",
       "dependencies": {
         "@apps/client": "workspace:*",
@@ -1915,8 +1915,8 @@
         "typescript": "catalog:",
       },
     },
-    "sim/test": {
-      "name": "@sim/test",
+    "product/test": {
+      "name": "@product/test",
       "version": "1.0.0",
       "dependencies": {
         "@apps/client": "workspace:*",
@@ -1941,7 +1941,7 @@
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/ui-testing": "workspace:*",
         "@pkgs/uuid": "workspace:*",
-        "@sim/console": "workspace:*",
+        "@product/console": "workspace:*",
         "@testing-library/react-native": "catalog:",
         "better-sqlite3": "catalog:",
         "react": "catalog:",
@@ -3210,6 +3210,10 @@
 
     "@preact/signals-core": ["@preact/signals-core@1.14.3", "", {}, "sha512-m0K3vnbSLC5rHs2ZVfeAMvBtT1zIyq4mxx5OlNncSgMj5Iz6W5Rn3kPrDxAC+iIKmiVe0lSl6U37t5ZkEWoVAw=="],
 
+    "@product/console": ["@product/console@workspace:product/console"],
+
+    "@product/test": ["@product/test@workspace:product/test"],
+
     "@react-grab/cli": ["@react-grab/cli@0.1.47", "", { "dependencies": { "agent-install": "^0.0.6", "commander": "^14.0.3", "ignore": "^7.0.5", "ora": "^9.4.0", "package-manager-detector": "^1.6.0", "picocolors": "^1.1.1", "prompts": "^2.4.2", "tinyexec": "^1.1.2" }, "bin": { "react-grab": "bin/cli.js" } }, "sha512-Cc7d8mSwvoV8gpeTQbE8dMPdeXIyO6w+yIhzgi3jY06i03WLNhb/6jIxNBNF1cVRI7ujnFQXZA66BbnBNTpBSw=="],
 
     "@react-native-async-storage/async-storage": ["@react-native-async-storage/async-storage@2.2.0", "", { "dependencies": { "merge-options": "^3.0.4" }, "peerDependencies": { "react-native": "^0.0.0-0 || >=0.65 <1.0" } }, "sha512-gvRvjR5JAaUZF8tv2Kcq/Gbt3JHwbKFYfmb445rhOj6NUMx3qPLixmDx5pZAyb9at1bYvJ4/eTUipU5aki45xw=="],
@@ -3273,10 +3277,6 @@
     "@sentry/server-utils": ["@sentry/server-utils@10.62.0", "", { "dependencies": { "@apm-js-collab/code-transformer": "^0.15.0", "@apm-js-collab/code-transformer-bundler-plugins": "^0.5.0", "@apm-js-collab/tracing-hooks": "^0.10.0", "@sentry/conventions": "^0.12.0", "@sentry/core": "10.62.0", "magic-string": "~0.30.0" } }, "sha512-S5szsj6kKBhxw97b2HA98fYp/PpWXvSizlisEzb2rnL4IH6RAJ8wP05/fnth8pSywTH+gtUu+i6Wn8e8rX5HvA=="],
 
     "@shopify/react-native-skia": ["@shopify/react-native-skia@2.4.21", "", { "dependencies": { "canvaskit-wasm": "0.40.0", "react-reconciler": "0.31.0" }, "peerDependencies": { "react": ">=19.0", "react-native": ">=0.78", "react-native-reanimated": ">=3.19.1" }, "optionalPeers": ["react-native", "react-native-reanimated"], "bin": { "setup-skia-web": "scripts/setup-canvaskit.js" } }, "sha512-US1dIpHbnU63k1S1oOAJ1x4oyuQJ6XDHIAs1kXiDSA4g2jWdH7UPoUHvEllqip2MI2Oc2ZNLsip5Ftegz714oA=="],
-
-    "@sim/console": ["@sim/console@workspace:sim/console"],
-
-    "@sim/test": ["@sim/test@workspace:sim/test"],
 
     "@sinclair/typebox": ["@sinclair/typebox@0.27.10", "", {}, "sha512-MTBk/3jGLNB2tVxv6uLlFh1iu64iYOQ2PbdOSK3NW8JZsmlaOh2q6sdtKowBhfw8QFLmYNzTW4/oK4uATIi6ZA=="],
 

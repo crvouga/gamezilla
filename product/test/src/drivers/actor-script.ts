@@ -7,7 +7,7 @@
 import type { Run } from '@pkgs/sim';
 import type { Driver } from '@pkgs/ui-testing';
 import { createScriptDriver } from '../setup/script-driver';
-import type { ProductSim } from '../sim/sim';
+import type { ProductSim } from '../sim';
 
 const DEFAULT_STEP_MS = 100;
 

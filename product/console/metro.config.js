@@ -41,15 +41,16 @@ config.resolver = {
   useWatchman: process.env['EXPO_USE_WATCHMAN'] === '1',
 };
 
-// Workspace sources for HMR. With Watchman, also include the Bun store so Metro
-// can SHA-1 deps resolved via `product/console/node_modules` symlinks (after
-// realpath). Node crawl must never watch `node_modules` directly.
+// Workspace sources for HMR. Paths must exist — Watchman crashes on ENOENT
+// (the old top-level `sim/` tree now lives at `pkgs/sim`). With Watchman, also
+// include the Bun store so Metro can SHA-1 deps resolved via
+// `product/console/node_modules` symlinks (after realpath). Node crawl must
+// never watch `node_modules` directly.
 /** @type {string[]} */
 const watchFolders = [
   path.resolve(monorepoRoot, 'apps'),
   path.resolve(monorepoRoot, 'libs'),
   path.resolve(monorepoRoot, 'pkgs'),
-  path.resolve(monorepoRoot, 'sim'),
 ];
 if (process.env['EXPO_USE_WATCHMAN'] === '1') {
   watchFolders.push(path.resolve(monorepoRoot, 'node_modules/.bun'));
