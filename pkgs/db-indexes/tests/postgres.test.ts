@@ -1,0 +1,13 @@
+import { describe, expect, test } from 'bun:test';
+
+/**
+ * Postgres port integration is exercised against Neon/embedded with hypopg
+ * in CD environments. Unit coverage of the reconcile loop lives in SimDb DST.
+ * This placeholder documents the contract and stays green without a live PG.
+ */
+describe('postgres port contract', () => {
+  test('createPostgresPort is exported', async () => {
+    const mod = await import('../../postgres');
+    expect(typeof mod.createPostgresPort).toBe('function');
+  });
+});
