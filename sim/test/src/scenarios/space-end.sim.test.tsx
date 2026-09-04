@@ -23,17 +23,13 @@ async function setupBothInActiveSpace(
 }
 
 describe('space end', (ctx) => {
-  ctx.test(
-    'host ends; guest sees ended state',
-    async () => {
-      await using sim = await openSim('space-end', ctx);
-      const { alice, bob } = await setupBothInActiveSpace(sim);
+  ctx.test('host ends; guest sees ended state', async () => {
+    await using sim = await openSim('space-end', ctx);
+    const { alice, bob } = await setupBothInActiveSpace(sim);
 
-      await alice.space.reenterActiveSpace(aliceUsername);
-      await alice.space.endSpace();
+    await alice.space.reenterActiveSpace(aliceUsername);
+    await alice.space.endSpace();
 
-      await bob.space.expectLobbyCardGone(aliceUsername);
-    },
-    30_000
-  );
+    await bob.space.expectLobbyCardGone(aliceUsername);
+  });
 });

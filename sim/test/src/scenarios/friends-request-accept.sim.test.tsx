@@ -9,7 +9,6 @@ describe('friends request → accept', (ctx) => {
     async () => {
       await using sim = await openSim('friends-request-accept', ctx);
       await setupFriendsPair(sim);
-    },
-    30_000
+    }
   );
 });

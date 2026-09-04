@@ -32,7 +32,6 @@ describe('chess puzzle spectate', (ctx) => {
       await bob.chess.resumePuzzlePlay(aliceUsername);
       await bob.chess.board.drag('a2', 'a3');
       await alice.chess.expectProbeMatchesPeer(bob.chess, aliceUsername);
-    },
-    90_000
+    }
   );
 });

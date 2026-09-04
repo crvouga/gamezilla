@@ -23,22 +23,18 @@ async function setupBothInActiveSpace(
 }
 
 describe('space leave', (ctx) => {
-  ctx.test(
-    'guest leaves and host space stays live',
-    async () => {
-      await using sim = await openSim('space-leave', ctx);
-      const { alice, bob } = await setupBothInActiveSpace(sim);
+  ctx.test('guest leaves and host space stays live', async () => {
+    await using sim = await openSim('space-leave', ctx);
+    const { alice, bob } = await setupBothInActiveSpace(sim);
 
-      await bob.space.reenterActiveSpace(aliceUsername);
-      await bob.space.leaveSpace();
-      await bob.space.ensureLobby();
-      await bob.space.expectNotInActiveSpace();
-      await bob.space.openLobbyCard(aliceUsername);
-      await bob.space.expectJoinPrompt();
+    await bob.space.reenterActiveSpace(aliceUsername);
+    await bob.space.leaveSpace();
+    await bob.space.ensureLobby();
+    await bob.space.expectNotInActiveSpace();
+    await bob.space.openLobbyCard(aliceUsername);
+    await bob.space.expectJoinPrompt();
 
-      await alice.space.reenterActiveSpace(aliceUsername);
-      await alice.space.expectActiveSpace();
-    },
-    30_000
-  );
+    await alice.space.reenterActiveSpace(aliceUsername);
+    await alice.space.expectActiveSpace();
+  });
 });

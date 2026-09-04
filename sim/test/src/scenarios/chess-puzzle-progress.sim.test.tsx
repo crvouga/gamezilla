@@ -26,7 +26,6 @@ describe('chess puzzle progress', (ctx) => {
       await alice.chess.tapNext();
       await alice.chess.expectPlayReady();
       await alice.chess.playExpectedMove();
-    },
-    60_000
+    }
   );
 });

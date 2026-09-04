@@ -26,7 +26,6 @@ describe('chess puzzle history', (ctx) => {
       await alice.chess.expectGameLogEntry(puzzleId);
       await alice.chess.openReview(puzzleId);
       await alice.chess.expectMoveHistoryVisible();
-    },
-    90_000
+    }
   );
 });
