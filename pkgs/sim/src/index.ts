@@ -34,8 +34,10 @@ export type {
   SuiteTestSummary,
 } from './report';
 export {
+  defineSnapshot,
   GENERATION_KEY,
   isLatestRunId,
+  isSnapshot,
   LATEST_RUN_ID,
   mediaExtension,
   mintRunId,

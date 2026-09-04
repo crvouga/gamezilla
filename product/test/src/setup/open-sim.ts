@@ -1,6 +1,6 @@
 /**
- * Open a product UI simulation: `product.run` on the `rntl` / `playwright`
- * runtime registered by the product system.
+ * Open a product UI simulation: `product.run` on a registered host
+ * (`in-process` / `bun-webview` / `playwright`).
  */
 
 import { wallClock } from '@pkgs/clock';
@@ -8,18 +8,27 @@ import type { Run } from '@pkgs/sim';
 import { defineAction } from '@pkgs/sim';
 import type { SimSystemSnapshot } from '@pkgs/sim-console/shared/sim-system-snapshot';
 import type { UiTestCtx } from '@pkgs/ui-testing';
-import type { Sim } from '@product/console/sim/create-sim';
-import type { SimSql } from '@product/console/sim/sim-sql';
+import type {
+  ProductExtra,
+  ProductHostName,
+  ProductRuntime,
+  ProductSim,
+  ProductUi,
+  Sim,
+  SimActor,
+  SimHttpListener,
+  SimSql,
+} from '@product/sim';
 import {
+  listenSimHttpServer,
+  product,
+  productExtra,
   restoreSystemSnapshot,
   type SystemSnapshotCtx,
-} from '@product/console/sim/system-snapshot';
+} from '@product/sim';
 
 import '@apps/client/i18n/i18n';
 
-import type { ProductExtra, ProductUi } from '../runtime/ports';
-import type { ProductRuntime, ProductSim, SimActor } from '../sim';
-import { product, productExtra } from '../sim';
 import {
   type ActorEntry,
   closeActorEntry,
@@ -33,7 +42,6 @@ import {
 import { type OpenSimOptions, resolveSimMode, type SimMode } from './mode';
 import { ensureNodeLocalStoragePolyfill } from './node-local-storage-polyfill';
 import { simNodeTimers } from './sim-actor-overrides';
-import { listenSimHttpServer, type SimHttpListener } from './sim-http-listener';
 import { readSimSystemSnapshot } from './sim-snapshot-fixture';
 
 export type { SimActor };
@@ -49,12 +57,11 @@ function isUiTestCtx(value: unknown): value is UiTestCtx {
   );
 }
 
-/** Registered host name — driver kind is the host identity. */
+/** Map ui-testing driver / fidelity onto a registered product host name. */
 function resolveHostName(
   ctx: UiTestCtx | undefined,
   options: OpenSimOptions | undefined
-): 'rntl' | 'playwright' {
-  // UiTestCtx exposes fidelity ('sim'|'max'); OpenSimOptions uses mode.
+): ProductHostName {
   const mode =
     ctx?.fidelity === 'max'
       ? 'real'
@@ -63,7 +70,9 @@ function resolveHostName(
         : resolveSimMode(options);
   const driverKind =
     ctx?.driverKind ?? (mode === 'real' ? 'playwright' : 'rntl');
-  return driverKind === 'playwright' ? 'playwright' : 'rntl';
+  if (driverKind === 'playwright') return 'playwright';
+  if (driverKind === 'bun-webview') return 'bun-webview';
+  return 'in-process';
 }
 
 type WiredRuntime = {
@@ -72,7 +81,7 @@ type WiredRuntime = {
 };
 
 function rntlOf(ui: ProductUi) {
-  return ui.kind === 'rntl' ? ui.rntl : null;
+  return ui.kind === 'react-tree' ? (ui.rntl ?? null) : null;
 }
 
 function makeRuntime(args: {
@@ -166,7 +175,7 @@ async function wireSim(args: {
     entries: new Map(),
     httpListener: null,
   };
-  if (extra.http.kind === 'loopback') {
+  if (extra.http.kind === 'localhost') {
     wired.httpListener = await listenSimHttpServer(surface.sim);
   }
   surface.runtime = makeRuntime({
@@ -247,7 +256,6 @@ export async function openSim(
     surface,
     ...(snapshot !== undefined ? { snapshot } : {}),
   });
-  // Product resources tear down with the session the run owns.
   surface.session.onDispose(() => surface.runtime.disposeResources());
   return s;
 }

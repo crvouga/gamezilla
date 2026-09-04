@@ -1,5 +1,5 @@
 /**
- * Single flag for which SQL engines `@product/console` / `@product/test` use.
+ * Single flag for which SQL engines `@product/sim` use.
  *
  * - `real` (default): PGlite server + real SQLite clients
  *   (browser → SQLite WASM; Node/Jest → better-sqlite3 / bun:sqlite)

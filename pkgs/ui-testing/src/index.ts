@@ -30,6 +30,7 @@ export {
 } from './core/wait';
 export {
   createDriver,
+  type BunWebviewDriverConfig,
   type DetoxDriverConfig,
   type DriverConfig,
   type PlaywrightDriverConfig,

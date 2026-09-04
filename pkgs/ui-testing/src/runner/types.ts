@@ -2,7 +2,7 @@
 export type UiTestFidelity = 'sim' | 'max';
 
 /** UI driver backend bound to a fidelity tier. */
-export type UiDriverKind = 'rntl' | 'playwright' | 'detox';
+export type UiDriverKind = 'rntl' | 'playwright' | 'bun-webview' | 'detox';
 
 /** Describe-scoped surface passed to scenario authors. */
 export type UiTestCtx = {

@@ -18,7 +18,7 @@ import {
   captureCheckpoint,
   restoreCheckpoint,
 } from '@product/console/playground/playground-checkpoint';
-import { clearPlaygroundClientDurable } from '@product/console/playground/playground-checkpoint-durable';
+import { clearPlaygroundClientDurable } from '@product/sim/fabric/client-durable';
 import { createPlaygroundChessCommands } from '@product/console/playground/playground-chess-seed';
 import { buildSnapshotLoadCommands } from '@product/console/playground/playground-fault-commands';
 import { loggingFetch } from '@product/console/playground/playground-logging-fetch';
@@ -43,7 +43,7 @@ import {
   type SnapshotSessionCtx,
 } from '@product/console/playground/playground-snapshots';
 import { installPlaygroundStickyAutosave } from '@product/console/playground/playground-sticky-autosave';
-import { type Sim, simClientNamespace } from '@product/console/sim/create-sim';
+import { type Sim, simClientNamespace } from '@product/sim/fabric/create-sim';
 
 const DEFAULT_CLIENT_IDS = ['alice', 'bob'] as const;
 
@@ -89,7 +89,7 @@ function liveToActor(
     address: id,
     sqlClient,
     logs,
-    App: live.App,
+    view: { kind: 'react', App: live.App },
   };
 }
 

@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": [
+    "../../pkgs/ts-reset/src/index.ts",
+    "./src/**/*.ts",
+    "./src/**/*.tsx",
+    "./scripts/**/*.ts"
+  ],
+  "compilerOptions": {
+    "types": ["bun", "node"]
+  }
+}

@@ -11,6 +11,8 @@
   "compilerOptions": {
     "types": ["jest", "bun"],
     "paths": {
+      "@product/sim": ["../sim/src/index.ts"],
+      "@product/sim/*": ["../sim/src/*"],
       "@product/console/*": ["../console/src/*"],
       "@product/test/*": ["./src/*"],
       "@apps/server/*": ["../../apps/server/src/*"],

@@ -1,40 +1,33 @@
 /**
- * Product sim system. Hosts own mode (`rntl` → `simRuntime`, `playwright`
- * → `maxRuntime`); {@link openSim} starts this system and returns a {@link Run}.
+ * Product sim system — re-exported from `@product/sim`.
  */
-
-export {
-  partition,
-  resetActor,
-  restoreNetwork,
-  spawnActor,
-  type UiOp,
-  uiOp,
-} from './actions';
 export {
   actor,
   actorHtml,
   actorIds,
   anyActor,
   caps,
+  captureSnapshot,
   capturedSnapshot,
   clientIds,
+  createProductSim,
+  devOauthSignIn,
+  noErrorBoundaryAnyActor,
   nodeLayout,
   nodeText,
   oauthTokenLength,
+  partition,
   partitioned,
-  visible,
-} from './observations';
-export { captureSnapshot, devOauthSignIn } from './probes';
-export {
-  createProductSim,
+  product,
+  productExtra,
   type ProductProbes,
   type ProductRuntime,
-  productExtra,
-  type SimActor,
-} from './sim';
-export {
-  noErrorBoundaryAnyActor,
   type ProductSim,
-  product,
-} from './system';
+  resetActor,
+  restoreNetwork,
+  type SimActor,
+  spawnActor,
+  type UiOp,
+  uiOp,
+  visible,
+} from '@product/sim';

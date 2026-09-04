@@ -4,7 +4,7 @@
 
 import type { SimCheckpoint } from '@pkgs/sim-console/client';
 import { getLocalSchemaTargetVersion } from '@pkgs/sync-engine/client';
-import type { CheckpointSessionCtx } from '@product/console/playground/playground-checkpoint-state';
+import type { CheckpointSessionCtx } from '@product/sim/fabric/checkpoint-state';
 import {
   applyCheckpointFaults,
   collectFaultFields,
@@ -14,11 +14,11 @@ import {
   resetSimClock,
   restoreCheckpointKv,
   restoreCheckpointRooms,
-} from '@product/console/playground/playground-checkpoint-state';
-import { awaitPlaygroundMutationDrain } from '@product/console/playground/playground-snapshot-sync';
-import { getSimSqlEngines } from '@product/console/sim/sim-sql-engines';
+} from '@product/sim/fabric/checkpoint-state';
+import { awaitPlaygroundMutationDrain } from '@product/sim/fabric/snapshot-sync';
+import { getSimSqlEngines } from '@product/sim/fabric/sim-sql-engines';
 
-export type { CheckpointSessionCtx } from '@product/console/playground/playground-checkpoint-state';
+export type { CheckpointSessionCtx } from '@product/sim/fabric/checkpoint-state';
 
 export async function captureCheckpoint(
   ctx: CheckpointSessionCtx,

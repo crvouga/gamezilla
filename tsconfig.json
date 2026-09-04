@@ -22,6 +22,8 @@
       "@apps/server/*": ["./apps/server/src/*"],
       "@apps/client/*": ["./apps/client/src/*"],
       "@product/console/*": ["./product/console/src/*"],
+      "@product/sim": ["./product/sim/src/index.ts"],
+      "@product/sim/*": ["./product/sim/src/*"],
       "@product/test/*": ["./product/test/src/*"],
       "@pkgs/billing": ["./pkgs/billing/src/index.ts"],
       "@pkgs/billing/*": ["./pkgs/billing/src/*"],

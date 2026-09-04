@@ -39,7 +39,7 @@ const fallbackInitialMetrics = {
 } as const;
 
 /**
- * Defer `@product/console/sim/create-sim` until Playground boots. Eager import of
+ * Defer `@product/sim/fabric/create-sim` until Playground boots. Eager import of
  * that graph makes Metro's iOS delta bundler throw `nullthrows` and leaves
  * Expo Go blank. Uses `import()` (async chunk) so the heavy graph stays out
  * of the initial bundle — do not stub `location` on native or Expo builds

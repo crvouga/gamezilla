@@ -19,21 +19,21 @@ import { FRAMEWORK_CACHE_TABLE_NAMES } from '@pkgs/sync-engine/shared';
 import {
   dumpPlaygroundClientDurable,
   restorePlaygroundClientDurable,
-} from '@product/console/playground/playground-checkpoint-durable';
+} from './client-durable';
 import {
   applyCheckpointFaults,
   collectRooms,
   resetSimClock,
-} from '@product/console/playground/playground-checkpoint-state';
+} from './checkpoint-state';
 import {
   awaitPlaygroundMutationDrain,
   reconcileServerProfilesFromClients,
-} from '@product/console/playground/playground-snapshot-sync';
-import { type Sim, simClientNamespace } from '@product/console/sim/create-sim';
+} from './snapshot-sync';
+import { type Sim, simClientNamespace } from './create-sim';
 import {
   openFreshSimClientSql,
   type SimSql,
-} from '@product/console/sim/sim-sql';
+} from './sim-sql';
 
 export type SystemSnapshotCtx = {
   readonly sim: Sim;

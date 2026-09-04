@@ -9,6 +9,8 @@
   "compilerOptions": {
     "types": ["bun"],
     "paths": {
+      "@product/sim": ["../sim/src/index.ts"],
+      "@product/sim/*": ["../sim/src/*"],
       "@product/console/*": ["./src/*"],
       "@apps/server/*": ["../../apps/server/src/*"],
       "@apps/client/*": ["../../apps/client/src/*"],

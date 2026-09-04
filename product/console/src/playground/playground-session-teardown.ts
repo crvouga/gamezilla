@@ -10,8 +10,8 @@ import type {
   PlaygroundRoomNode,
 } from '@pkgs/sim-console/client';
 import { makePlaygroundRoomNode } from '@product/console/playground/playground-session-nodes';
-import type { Sim } from '@product/console/sim/create-sim';
-import type { SimSql } from '@product/console/sim/sim-sql';
+import type { Sim } from '@product/sim/fabric/create-sim';
+import type { SimSql } from '@product/sim/fabric/sim-sql';
 
 export type SessionTeardownArgs = {
   readonly sim: Sim;

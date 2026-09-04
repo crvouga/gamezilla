@@ -1,25 +1,21 @@
-// @io-wall-ok — warm UI-sim SQL seed cache before Jest
+// @io-wall-ok — warm UI-sim SQL seed via shared @product/sim
 /**
- * Builds the active sim backend seed when missing or fingerprint-stale.
- * Default (`SIM_SQL_BACKEND=real`): `sim-backend-seed.pglite.bin`
- * Override `SIM_SQL_BACKEND=mem`: `sim-backend-seed.pgmm.json`
- *
- * Usage: `bun run --filter @product/test seed:sim-db`
+ * Re-exports the shared seed builder. Prefer:
+ * `bun run --filter @product/sim seed:sim-db`
  */
-
 import { wallClock } from '@pkgs/clock';
 import { createLogger } from '@pkgs/logger';
-import { resolveSimSqlBackend } from '@product/console/sim/sim-sql-backend';
+import { resolveSimSqlBackend } from '@product/sim/fabric/sim-sql-backend';
 import {
   computeSimPgliteSeedFp,
   ensureSimPgliteSeed,
   SIM_SEED_PGLITE_PATH,
-} from '../src/setup/boot-sim-pglite';
+} from '@product/sim/setup/boot-sim-pglite';
 import {
   computeSimPostgresMemSeedFp,
   ensureSimPostgresMemSeed,
   SIM_SEED_PGMM_PATH,
-} from '../src/setup/boot-sim-postgres-mem';
+} from '@product/sim/setup/boot-sim-postgres-mem';
 
 const log = createLogger({ name: 'sim:seed-db', now: wallClock.now });
 

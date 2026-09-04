@@ -2,6 +2,7 @@ export { createPlaygroundLogBuffer } from '../shared/playground-log-buffer';
 export type {
   BootPlaygroundOptions,
   PlaygroundActor,
+  PlaygroundActorView,
   PlaygroundCommand,
   PlaygroundLogBuffer,
   PlaygroundLogEntry,

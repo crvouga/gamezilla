@@ -1,0 +1,73 @@
+{
+  "name": "@product/sim",
+  "version": "1.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./fabric/*": [
+      "./src/fabric/*.ts",
+      "./src/fabric/*/index.ts"
+    ],
+    "./hosts/*": [
+      "./src/hosts/*.ts",
+      "./src/hosts/*/index.ts"
+    ],
+    "./setup/*": [
+      "./src/setup/*.ts",
+      "./src/setup/*/index.ts"
+    ],
+    "./system/*": [
+      "./src/system/*.ts",
+      "./src/system/*/index.ts"
+    ]
+  },
+  "scripts": {
+    "tc": "tsc --noEmit -p ./tsconfig.json",
+    "seed:sim-db": "bun scripts/build-sim-seed.ts"
+  },
+  "dependencies": {
+    "@apps/client": "workspace:*",
+    "@apps/room-server": "workspace:*",
+    "@apps/server": "workspace:*",
+    "@libs/auth": "workspace:*",
+    "@libs/chess": "workspace:*",
+    "@libs/db": "workspace:*",
+    "@libs/runtime": "workspace:*",
+    "@libs/test-ids": "workspace:*",
+    "@pkgs/assert": "workspace:*",
+    "@pkgs/auth": "workspace:*",
+    "@pkgs/billing": "workspace:*",
+    "@pkgs/clock": "workspace:*",
+    "@pkgs/emqx-server": "workspace:*",
+    "@pkgs/http-client": "workspace:*",
+    "@pkgs/kv": "workspace:*",
+    "@pkgs/llm": "workspace:*",
+    "@pkgs/minio-server": "workspace:*",
+    "@pkgs/object-store": "workspace:*",
+    "@pkgs/observability": "workspace:*",
+    "@pkgs/postgres-embedded": "workspace:*",
+    "@pkgs/pubsub": "workspace:*",
+    "@pkgs/secret-store": "workspace:*",
+    "@pkgs/secure-storage": "workspace:*",
+    "@pkgs/sim": "workspace:*",
+    "@pkgs/sim-console": "workspace:*",
+    "@pkgs/sounds": "workspace:*",
+    "@pkgs/sql": "workspace:*",
+    "@pkgs/sql-client": "workspace:*",
+    "@pkgs/sync-engine": "workspace:*",
+    "@pkgs/tts": "workspace:*",
+    "@pkgs/ui": "workspace:*",
+    "@pkgs/ui-testing": "workspace:*",
+    "@pkgs/uuid": "workspace:*",
+    "better-sqlite3": "catalog:",
+    "react": "catalog:",
+    "react-native": "catalog:",
+    "@pkgs/logger": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "catalog:",
+    "@types/bun": "catalog:",
+    "@types/react": "catalog:",
+    "typescript": "catalog:"
+  }
+}

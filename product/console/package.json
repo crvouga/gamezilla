@@ -3,11 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "exports": {
-    "./sim/*": [
-      "./src/sim/*.ts",
-      "./src/sim/*.tsx",
-      "./src/sim/*/index.ts"
-    ],
     "./playground/*": [
       "./src/playground/*.ts",
       "./src/playground/*.tsx",
@@ -109,7 +104,8 @@
     "react-native-web": "catalog:",
     "react-native-worklets": "catalog:",
     "whatwg-fetch": "catalog:",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "@product/sim": "workspace:*"
   },
   "devDependencies": {
     "@babel/plugin-transform-explicit-resource-management": "catalog:",

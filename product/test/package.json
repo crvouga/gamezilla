@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "seed:sim-db": "bun scripts/build-sim-seed.ts",
+    "seed:sim-db": "bun run --filter @product/sim seed:sim-db",
     "tc": "tsc --noEmit -p tsconfig.json",
     "test": "NODE_OPTIONS=--max-old-space-size=8192 bunx jest --config ./jest.config.cjs --runInBand",
     "test:debug-handles": "NODE_OPTIONS=--max-old-space-size=8192 bunx jest --config ./jest.config.cjs --runInBand --detectOpenHandles",
@@ -33,7 +33,6 @@
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/ui-testing": "workspace:*",
     "@pkgs/uuid": "workspace:*",
-    "@product/console": "workspace:*",
     "@testing-library/react-native": "catalog:",
     "better-sqlite3": "catalog:",
     "react": "catalog:",
@@ -42,7 +41,8 @@
     "react-native-gesture-handler": "catalog:",
     "react-native-reanimated": "catalog:",
     "react-native-worklets": "catalog:",
-    "react-test-renderer": "catalog:"
+    "react-test-renderer": "catalog:",
+    "@product/sim": "workspace:*"
   },
   "devDependencies": {
     "@babel/plugin-transform-explicit-resource-management": "catalog:",

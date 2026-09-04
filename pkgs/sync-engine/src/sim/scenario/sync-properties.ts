@@ -9,7 +9,7 @@ import {
 import type { SyncSim } from './system';
 
 /** always(invariants hold) — read-only kit.checkInvariants */
-export const invariantsHold: PropertyDef<SyncSim> = {
+export const invariantsHold = defineProperty<SyncSim>({
   name: 'invariants',
   check: async (s) => {
     const violations = await invariantViolations(s);
@@ -17,20 +17,20 @@ export const invariantsHold: PropertyDef<SyncSim> = {
       throw new Error(violations.join('; '));
     }
   },
-};
+});
 
 /**
  * always(quiet ∧ healed ⇒ domain-agreed). Uses the pure `inSync`
  * read (no restoreNetwork / recoverAll side effects).
  */
-export const staysInSync: PropertyDef<SyncSim> = {
+export const staysInSync = defineProperty<SyncSim>({
   name: 'staysInSync',
   check: async (s) => {
     if (quiet(s) && partitioned(s).length === 0 && !(await inSync(s))) {
       throw new Error('quiet and healed but not inSync');
     }
   },
-};
+});
 
 /** Standing properties registered on every sync system. */
 export const SYNC_PROPERTY_DEFS = [invariantsHold, staysInSync] as const;

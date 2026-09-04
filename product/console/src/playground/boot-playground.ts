@@ -1,7 +1,6 @@
-// @io-wall-ok — composition root: createSim + wall-driven sim clock advance.
+// @io-wall-ok — composition root: product.run + wall-driven sim clock advance.
 
 import { wallClock, wallTimers } from '@pkgs/clock';
-import { virtualTimeRuntime } from '@pkgs/sim';
 import {
   createPlaygroundLogBuffer,
   type PlaygroundSession,
@@ -11,7 +10,13 @@ import {
   buildPlaygroundSession,
 } from '@product/console/playground/playground-session';
 import { createPlaygroundSnapshotStore } from '@product/console/playground/playground-snapshot-store';
-import { createSim, type Sim } from '@product/console/sim/create-sim';
+import {
+  product,
+  productExtra,
+  type ProductSim,
+  type Sim,
+} from '@product/sim';
+import { defineAction, type Run } from '@pkgs/sim';
 
 function startSimClockTick(sim: Sim): {
   readonly disposeTick: () => void;
@@ -43,25 +48,47 @@ function startSimClockTick(sim: Sim): {
   };
 }
 
+async function pinSim(s: Run<ProductSim>): Promise<ProductSim> {
+  let pinned: ProductSim | null = null;
+  const capture = defineAction({
+    name: 'bootPlayground.pinSim',
+    act: (surface: ProductSim) => {
+      pinned = surface;
+    },
+  });
+  await s.apply(capture);
+  if (pinned === null) {
+    throw new Error('bootPlayground: surface pin did not run');
+  }
+  return pinned;
+}
+
+/**
+ * Boot the shared product System on the `in-process` host and adapt it to a
+ * PlaygroundSession. Console must not open a Session / createSim itself.
+ */
 export async function bootPlaygroundSession(
   opts?: BootPlaygroundOptions
 ): Promise<PlaygroundSession> {
-  const session = await virtualTimeRuntime({ startTime: wallClock.now() }).open(
-    1
-  );
-  const sim = await createSim(session);
-  await sim.spawnServer();
+  const run = await product.run({ seed: 1, runtime: 'in-process' });
+  const surface = await pinSim(run);
+  // Playground never uses RNTL; ensure drain hook is wired (system create did).
+  void productExtra(surface);
+  const sim = surface.sim;
   const clock = startSimClockTick(sim);
   const domainWake: { fire: (label: string) => void } = {
     fire() {},
   };
-  return buildPlaygroundSession({
+  const session = await buildPlaygroundSession({
     sim,
     serverLogs: createPlaygroundLogBuffer(),
     pubsubLogs: createPlaygroundLogBuffer(),
     roomLogs: createPlaygroundLogBuffer(),
     snapshotStore: createPlaygroundSnapshotStore(),
-    disposeTick: clock.disposeTick,
+    disposeTick: () => {
+      clock.disposeTick();
+      void run[Symbol.asyncDispose]();
+    },
     getClockPaused: clock.getClockPaused,
     setClockPaused: clock.setClockPaused,
     skipSnapshotLoad: opts?.skipSnapshotLoad === true,
@@ -69,4 +96,5 @@ export async function bootPlaygroundSession(
       domainWake.fire = fire;
     },
   });
+  return session;
 }

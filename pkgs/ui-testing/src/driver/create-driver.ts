@@ -2,6 +2,7 @@ import type { Timers } from '@pkgs/clock';
 import type { AppHarness } from '../bootstrap/app-harness';
 import type { RenderAdapter } from '../bootstrap/render-adapter';
 import type { WaitPump } from '../core/wait';
+import type { BunWebviewDriverOptions } from '../drivers/bun-webview/bun-webview-driver';
 import {
   DetoxDriver,
   type DetoxDriverOptions,
@@ -26,6 +27,10 @@ export type PlaywrightDriverConfig = {
   kind: 'playwright';
 } & PlaywrightDriverOptions;
 
+export type BunWebviewDriverConfig = {
+  kind: 'bun-webview';
+} & BunWebviewDriverOptions;
+
 export type DetoxDriverConfig = {
   kind: 'detox';
 } & DetoxDriverOptions;
@@ -38,6 +43,7 @@ export type DetoxDriverConfig = {
 export type DriverConfig<TContext = void> =
   | RntlDriverConfig<TContext>
   | PlaywrightDriverConfig
+  | BunWebviewDriverConfig
   | DetoxDriverConfig;
 
 /** Create a {@link Driver} from a discriminated config. */
@@ -53,6 +59,11 @@ export function createDriver<TContext = void>(
     }
     case 'playwright':
       return new PlaywrightDriver(config);
+    case 'bun-webview': {
+      const { BunWebviewDriver } =
+        require('../drivers/bun-webview/bun-webview-driver') as typeof import('../drivers/bun-webview/bun-webview-driver');
+      return new BunWebviewDriver(config);
+    }
     case 'detox':
       return new DetoxDriver(config);
   }

@@ -38,51 +38,34 @@ Runtime supplies those. Root policy: [`DETERMINISM.md`](../../DETERMINISM.md).
 
 | Import | Contents |
 | --- | --- |
-| `@pkgs/sim` | `defineSystem` / `defineAction` / `virtualTimeRuntime` / `realTimeRuntime` / `defineRuntime` / Recording helpers + report types (`RunReport`, `RunReportOptions`, …) + types (`Run`, `System`, `Action`, …) |
+| `@pkgs/sim` | `defineSystem` / `defineAction` / `defineProperty` / `defineSnapshot` / `defineRuntime` / `virtualTimeRuntime` / `realTimeRuntime` / Recording helpers + report types (`RunReport`, `RunReportOptions`, …) + types (`Run`, `System`, `Action`, …) |
 | `@pkgs/sim/internals` | Clock / scheduler / rng / network factories. **Runtime authors only.** |
 | `@pkgs/sim/fast-check` | `gen(arbitrary)`, `arbitrary(gen)`, `randomGeneratorOver`, JSON arbs |
 
-Free `explore` / `replay` / `defineProperty` / `defineSnapshot` are **not**
-exported from the root — use `system.explore` / `system.replay` /
-`system.property` / `system.snapshot`. Unbound `defineAction` exists for
-walk-time helpers that cannot be pre-registered.
+Free `explore` / `replay` / `run` are **not** exported from the root — use
+`system.explore` / `system.replay` / `system.run`. Catalog nouns use
+`defineAction` / `defineProperty` / `defineSnapshot` / `defineRuntime` and are
+passed into `defineSystem` upfront.
 
 ---
 
 ## Authoring
 
 ```ts
-import { defineSystem, virtualTimeRuntime } from '@pkgs/sim';
+import {
+  defineAction,
+  defineProperty,
+  defineRuntime,
+  defineSnapshot,
+  defineSystem,
+  virtualTimeRuntime,
+} from '@pkgs/sim';
 import { gen } from '@pkgs/sim/fast-check';
 import fc from 'fast-check';
 
-export const kv = defineSystem({
-  name: 'kv',
-  args: { clients: 2 },
-  sample: () => gen(fc.record({ clients: fc.integer({ min: 1, max: 3 }) })),
-  create(session, args: { clients: number }) {
-    const server = startServer(session.fork('server'));
-    const clients = range(args.clients).map((i) =>
-      startClient(session.fork(`client:${i}`), server)
-    );
-    return { session, server, clients };
-  },
-});
-
-kv.runtime({
-  default: true,
-  name: 'virtual',
-  create: () => virtualTimeRuntime(),
-});
-
-kv.snapshot({
-  name: 'store',
-  capture: (s) => s.server.dump(),
-});
-
-export const put = kv.action({
+export const put = defineAction({
   name: 'put',
-  enabled: (s) => s.clients.length > 0,
+  enabled: (s: KvSim) => s.clients.length > 0,
   weight: 3,
   args: ['client:0', 'a', '1'] as const,
   sample: (s) =>
@@ -96,6 +79,41 @@ export const put = kv.action({
   act: (s, client: string, key: string, value: string) => {
     /* ... */
   },
+});
+
+export const kv = defineSystem({
+  name: 'kv',
+  args: { clients: 2 },
+  sample: () => gen(fc.record({ clients: fc.integer({ min: 1, max: 3 }) })),
+  create(session, args: { clients: number }) {
+    const server = startServer(session.fork('server'));
+    const clients = range(args.clients).map((i) =>
+      startClient(session.fork(`client:${i}`), server)
+    );
+    return { session, server, clients };
+  },
+  runtimes: [
+    defineRuntime({
+      default: true,
+      name: 'virtual',
+      create: () => virtualTimeRuntime(),
+    }),
+  ],
+  actions: [put],
+  properties: [
+    defineProperty({
+      name: 'invariants',
+      check: async (s) => {
+        /* ... */
+      },
+    }),
+  ],
+  snapshots: [
+    defineSnapshot({
+      name: 'store',
+      capture: (s) => s.server.dump(),
+    }),
+  ],
 });
 
 export const get = (s: KvSim, client: string, key: string) =>
@@ -120,8 +138,8 @@ Omit `sample` on the system when every episode should use `args`.
 
 ```
 src/index.ts       public algebra
-src/runtime/       virtualTimeRuntime / realTimeRuntime / defineRuntime / Session
-src/system/        defineSystem / defineAction / defineProperty / recording
+src/runtime/       virtualTimeRuntime / realTimeRuntime / createRuntime (internal) / Session
+src/system/        defineSystem / defineAction / defineProperty / defineRuntime / recording
 src/report/        Snapshot / RunReport / RunReporter / ObjectStore persist
 src/run/           run / randomActions / explore / checkpoint (internal)
 src/internals/     clocks, schedulers, rng, fingerprint, json, timers
@@ -133,7 +151,7 @@ src/fast-check/    gen / arbitrary adapters
 
 ## Do / don't
 
-- **Do** register actions, properties, snapshots, and runtimes on the System.
+- **Do** pass actions, properties, snapshots, and runtimes into `defineSystem` upfront.
 - **Do** keep `S` as data. Reads = functions; stimuli = actions.
 - **Do** put defaults on `args` and samplers on `sample`.
 - **Do** wait with `s.until` / `s.never`; advance with `s.advanceTime`.

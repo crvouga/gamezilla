@@ -40,8 +40,18 @@ export type PlaygroundSqlNode = PlaygroundNode & {
   readonly sqlClient: SqlClient;
 };
 
+export type PlaygroundActorView =
+  | {
+      readonly kind: 'react';
+      readonly App: ComponentType<{ readonly embedded?: boolean }>;
+    }
+  | {
+      readonly kind: 'url';
+      readonly url: string;
+    };
+
 export type PlaygroundActor = PlaygroundSqlNode & {
-  readonly App: ComponentType<{ readonly embedded?: boolean }>;
+  readonly view: PlaygroundActorView;
 };
 
 export type PlaygroundRoomSnapshot = {

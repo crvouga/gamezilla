@@ -14,6 +14,7 @@ import type {
 } from '../../shared/ports';
 import type { PaneNavPatch, PaneNavValue } from '../debugger-chrome';
 import { debuggerViewTabItem } from '../debugger-chrome';
+import { ActorUrlFrame } from './actor-url-frame';
 import { PlaygroundCommandsPane } from './playground-commands-pane';
 import { PlaygroundDbPane } from './playground-db-pane';
 import { PlaygroundLogsPane } from './playground-logs-pane';
@@ -42,6 +43,15 @@ const fillSx = {
   minHeight: 0,
   minWidth: 0,
 } as const;
+
+function ActorView(props: { readonly actor: PlaygroundActor }) {
+  const { actor } = props;
+  if (actor.view.kind === 'url') {
+    return <ActorUrlFrame title={actor.id} url={actor.view.url} />;
+  }
+  const ActorApp = actor.view.App;
+  return <ActorApp embedded />;
+}
 
 function hiddenWhen(active: boolean) {
   return {
@@ -78,7 +88,6 @@ export function ClientPlaygroundPanel(props: {
   const pane = resolvePane(props.pane, 'client');
   const tab = pane.view;
   const productKey = `${actor.id}:${snapshotEpoch ?? 0}`;
-  const ActorApp = actor.App;
   const views = viewsForKind('client');
 
   return (
@@ -96,7 +105,7 @@ export function ClientPlaygroundPanel(props: {
           pointerEvents: tab === 'ui' ? 'auto' : 'none',
         }}
       >
-        <ActorApp key={productKey} embedded />
+        <ActorView key={productKey} actor={actor} />
       </Box>
       <Box sx={hiddenWhen(tab === 'db')}>
         <PlaygroundDbPane

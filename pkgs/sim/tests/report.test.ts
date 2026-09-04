@@ -3,6 +3,9 @@ import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 import { readUtf8 } from '@pkgs/object-store/helpers';
 
 import {
+  defineAction,
+  defineRuntime,
+  defineSnapshot,
   defineSystem,
   RUNS_INDEX_KEY,
   testReportKey,
@@ -12,35 +15,40 @@ import {
 type Kv = { values: Record<string, string>; clients: string[] };
 
 function makeKv() {
-  const sys = defineSystem({
-    name: 'report-kv',
-    create: (): Kv => ({ values: {}, clients: ['alice', 'bob'] }),
-  });
-  sys.runtime({
-    default: true,
-    name: 'virtual',
-    create: () => virtualTimeRuntime(),
-  });
-  const put = sys.action({
+  const put = defineAction({
     name: 'put',
-    act: (s, key: string, value: string) => {
+    act: (s: Kv, key: string, value: string) => {
       s.values[key] = value;
     },
   });
-  sys.snapshot({
-    name: 'store',
-    capture: (s) => ({ ...s.values }),
-  });
-  sys.snapshot({
-    name: 'html',
-    media: 'html',
-    capture: (s) => {
-      const map: Record<string, string> = {};
-      for (const id of s.clients) {
-        map[id] = `<html><body>${id}:${s.values.x ?? ''}</body></html>`;
-      }
-      return map;
-    },
+  const sys = defineSystem({
+    name: 'report-kv',
+    create: (): Kv => ({ values: {}, clients: ['alice', 'bob'] }),
+    runtimes: [
+      defineRuntime({
+        default: true,
+        name: 'virtual',
+        create: () => virtualTimeRuntime(),
+      }),
+    ],
+    actions: [put],
+    snapshots: [
+      defineSnapshot({
+        name: 'store',
+        capture: (s: Kv) => ({ ...s.values }),
+      }),
+      defineSnapshot({
+        name: 'html',
+        media: 'html',
+        capture: (s: Kv) => {
+          const map: Record<string, string> = {};
+          for (const id of s.clients) {
+            map[id] = `<html><body>${id}:${s.values.x ?? ''}</body></html>`;
+          }
+          return map;
+        },
+      }),
+    ],
   });
   return { sys, put };
 }
@@ -120,26 +128,31 @@ describe('run reporting', () => {
   });
 
   test('png snapshot encodes Uint8Array', async () => {
-    const sys = defineSystem({
-      name: 'png-sys',
-      create: () => ({ n: 0 }),
-    });
-    sys.runtime({
-      default: true,
-      name: 'virtual',
-      create: () => virtualTimeRuntime(),
-    });
-    const bump = sys.action({
+    const bump = defineAction({
       name: 'bump',
-      act: (s) => {
+      act: (s: { n: number }) => {
         s.n += 1;
       },
     });
     const pngBytes = new Uint8Array([137, 80, 78, 71]);
-    sys.snapshot({
-      name: 'screen',
-      media: 'png',
-      capture: () => pngBytes,
+    const sys = defineSystem({
+      name: 'png-sys',
+      create: () => ({ n: 0 }),
+      runtimes: [
+        defineRuntime({
+          default: true,
+          name: 'virtual',
+          create: () => virtualTimeRuntime(),
+        }),
+      ],
+      actions: [bump],
+      snapshots: [
+        defineSnapshot({
+          name: 'screen',
+          media: 'png',
+          capture: () => pngBytes,
+        }),
+      ],
     });
     const store = new ObjectStoreImplInMemory();
     await using s = await sys.run({

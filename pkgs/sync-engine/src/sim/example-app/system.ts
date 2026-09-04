@@ -24,6 +24,19 @@ export const EXAMPLE_DEFAULT_ARGS: SyncArgs = {
   clientCount: 2,
 };
 
+const SYNC_RUNTIMES: Runtime<Ports>[] = [
+  defineRuntime({
+    default: true,
+    name: 'virtual',
+    create: () => syncVirtual(),
+  }),
+  defineRuntime({
+    default: false,
+    name: EXAMPLE_DST_FAULTS_HOST,
+    create: () => syncVirtual(toKernelFaults(DST_FAULTS)),
+  }),
+] as const;
+
 /**
  * Framework-owned example system: broker + server + `args.clientCount` clients.
  *
@@ -52,18 +65,10 @@ export const exampleSystem = defineSystem<SyncSim, SyncArgs>({
   args: EXAMPLE_DEFAULT_ARGS,
   sample: () => gen(arbSyncArgs()),
   create: (session, args) => createSyncSim(session, exampleApp, args),
+  properties: SYNC_PROPERTY_DEFS,
+  actions: SYNC_POOL_ACTIONS,
+  runtimes: SYNC_RUNTIMES,
 });
-
-exampleSystem.runtime({
-  default: true,
-  name: 'virtual',
-  create: () => syncVirtual(),
-});
-exampleSystem.runtime({
-  name: EXAMPLE_DST_FAULTS_HOST,
-  create: () => syncVirtual(toKernelFaults(DST_FAULTS)),
-});
-registerSyncLibrary(exampleSystem);
 
 /** Hydrates the ~2k row catalog query instead of the pack default. */
 export const EXAMPLE_LARGE_CATALOG_ARGS: Partial<SyncArgs> = {
