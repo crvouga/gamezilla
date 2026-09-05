@@ -22,10 +22,10 @@ export const PRODUCT_CONFIG = {
      */
     clientWorker: 'gamezilla-client-production',
     /**
-     * Assets-only Sim Console Worker. Top-level `name` in `product/console/wrangler.toml`
-     * is `gamezilla-sim`; `wrangler deploy --env production` publishes as this.
+     * Assets-only Console Worker. Top-level `name` in `product/console/wrangler.toml`
+     * is `gamezilla-console`; `wrangler deploy --env production` publishes as this.
      */
-    simWorker: 'gamezilla-sim-production',
+    consoleWorker: 'gamezilla-console-production',
   },
 
   postgres: {

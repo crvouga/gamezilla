@@ -1,20 +1,20 @@
 {
   "expo": {
-    "name": "sim",
-    "slug": "sim",
+    "name": "console",
+    "slug": "console",
     "owner": "crvouga",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
-    "scheme": "gamezilla-sim",
+    "scheme": "gamezilla-console",
     "platforms": ["ios", "android", "web"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "app.gamezilla.sim",
+      "bundleIdentifier": "app.gamezilla.console",
       "deploymentTarget": "17.0"
     },
     "android": {
-      "package": "app.gamezilla.sim"
+      "package": "app.gamezilla.console"
     },
     "web": {
       "output": "single"

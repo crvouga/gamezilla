@@ -4,7 +4,8 @@ import { rmSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { join } from 'node:path';
 import { PRODUCT_CONFIG } from '@libs/db/public/product-config';
-import { productionSimOrigin } from '@libs/secrets/shared/deploy-origins';
+import { deleteWorkerByName } from '@libs/secrets/shared/cloudflare-worker-lifecycle';
+import { productionConsoleOrigin } from '@libs/secrets/shared/deploy-origins';
 import { withNodeMaxOldSpaceSize } from '@libs/secrets/shared/eas-mobile';
 import { ok } from '@libs/secrets/shared/fmt';
 import { REPO_ROOT } from '@libs/secrets/shared/paths';
@@ -17,7 +18,7 @@ import { assertCommitDateIso, COMMIT_HASH_HEX_REGEX } from '@pkgs/git';
 import { createLogger } from '@pkgs/logger';
 import { isProductionSecretsEnv } from '../../../tools/src/deploy-mode';
 
-const log = createLogger({ name: 'sim:deploy', now: wallClock.now });
+const log = createLogger({ name: 'console:deploy', now: wallClock.now });
 
 const require = createRequire(import.meta.url);
 const {
@@ -28,14 +29,20 @@ const {
   EXPO_SQLITE_WEB_COOP: string;
 } = require('./expo-sqlite-web-headers.js');
 
-const simDir = join(import.meta.dirname, '..');
+const consoleDir = join(import.meta.dirname, '..');
+
+/** Pre-cutover script names; delete after the new console worker is live. */
+const LEGACY_SIM_WORKER_SCRIPT_NAMES = [
+  'gamezilla-sim',
+  'gamezilla-sim-production',
+] as const;
 
 function resolveCommitHash(): string {
   const rawSha = runCapture('git', ['rev-parse', 'HEAD'], { cwd: REPO_ROOT });
   const commitHash = rawSha.trim().toLowerCase();
   assert.ok(
     COMMIT_HASH_HEX_REGEX.test(commitHash),
-    'sim-worker: git HEAD must be a valid lowercase hex commit SHA',
+    'console-worker: git HEAD must be a valid lowercase hex commit SHA',
     { rawSha }
   );
   return commitHash;
@@ -50,8 +57,8 @@ function resolveCommitDate(): string {
   return commitDate;
 }
 
-function cleanupSimDist(): void {
-  rmSync(join(simDir, 'dist'), {
+function cleanupConsoleDist(): void {
+  rmSync(join(consoleDir, 'dist'), {
     recursive: true,
     force: true,
   });
@@ -65,12 +72,12 @@ function writeDistIsolationHeaders(): void {
     `\tCross-Origin-Embedder-Policy: ${EXPO_SQLITE_WEB_COEP}`,
     '',
   ].join('\n');
-  writeFileSync(join(simDir, 'dist', '_headers'), body, 'utf8');
+  writeFileSync(join(consoleDir, 'dist', '_headers'), body, 'utf8');
 }
 
-const SIM_EXPORT_MAX_OLD_SPACE_MB = 8192;
+const CONSOLE_EXPORT_MAX_OLD_SPACE_MB = 8192;
 
-async function buildSimWeb(
+async function buildConsoleWeb(
   commitHash: string,
   commitDate: string
 ): Promise<void> {
@@ -80,58 +87,66 @@ async function buildSimWeb(
       EXPO_PUBLIC_COMMIT_HASH: commitHash,
       EXPO_PUBLIC_COMMIT_DATE: commitDate,
     },
-    SIM_EXPORT_MAX_OLD_SPACE_MB
+    CONSOLE_EXPORT_MAX_OLD_SPACE_MB
   );
 
   await runAsync('bun', ['run', 'build'], {
-    cwd: simDir,
-    label: 'sim-worker: expo export (static web assets)',
+    cwd: consoleDir,
+    label: 'console-worker: expo export (static web assets)',
     env: buildEnv,
   });
 
   writeDistIsolationHeaders();
 }
 
+function deleteLegacySimWorkerScripts(): void {
+  for (const name of LEGACY_SIM_WORKER_SCRIPT_NAMES) {
+    deleteWorkerByName(name);
+  }
+}
+
 async function deploy(dryRun: boolean): Promise<void> {
   const commitHash = resolveCommitHash();
   const commitDate = resolveCommitDate();
 
-  await buildSimWeb(commitHash, commitDate);
+  await buildConsoleWeb(commitHash, commitDate);
 
   const wranglerDeployArgs = dryRun
     ? wranglerArgs('deploy', '--dry-run')
     : wranglerArgs('deploy');
   const label = dryRun
-    ? 'sim-worker: Cloudflare Workers deploy (dry-run)'
-    : 'sim-worker: Cloudflare Workers deploy (static assets)';
+    ? 'console-worker: Cloudflare Workers deploy (dry-run)'
+    : 'console-worker: Cloudflare Workers deploy (static assets)';
 
   try {
     await runAsync('wrangler', wranglerDeployArgs, {
-      cwd: simDir,
+      cwd: consoleDir,
       env: wranglerEnv(),
       label,
     });
   } finally {
-    cleanupSimDist();
+    cleanupConsoleDist();
   }
 
   if (dryRun) {
     ok(
-      'sim-worker dry-run',
-      'sim console bundle + assets-only worker validated'
+      'console-worker dry-run',
+      'console bundle + assets-only worker validated'
     );
     return;
   }
 
-  await waitForHttp(productionSimOrigin(), { label: 'Sim Console' });
+  deleteLegacySimWorkerScripts();
+
+  await waitForHttp(productionConsoleOrigin(), { label: 'Console' });
 
   log.info(
-    `Sim Worker deployed (${PRODUCT_CONFIG.cloudflare.simWorker}) on sim.gamezilla.app.`
+    `Console Worker deployed (${PRODUCT_CONFIG.cloudflare.consoleWorker}) on console.gamezilla.app.`
   );
 }
 
 const dryRun = !isProductionSecretsEnv();
 if (dryRun) {
-  log.info('[sim:deploy] dry-run (SECRETS_ENV is not prd)');
+  log.info('[console:deploy] dry-run (SECRETS_ENV is not prd)');
 }
 await deploy(dryRun);

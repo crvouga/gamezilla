@@ -36,7 +36,7 @@ function stubBabelRegexpPlugins(): void {
     exports: exported,
     children: [],
     paths: [],
-  } as NodeModule;
+  } as unknown as NodeModule;
 }
 
 stubBabelRegexpPlugins();

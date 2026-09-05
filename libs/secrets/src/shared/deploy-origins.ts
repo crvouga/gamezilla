@@ -10,9 +10,9 @@ export function productionApiOrigin(): string {
   return `https://api.${PRODUCT_CONFIG.domain}`;
 }
 
-/** Canonical production Sim Console origin (static SPA on sim.). */
-export function productionSimOrigin(): string {
-  return `https://sim.${PRODUCT_CONFIG.domain}`;
+/** Canonical production Console origin (static SPA on console.). */
+export function productionConsoleOrigin(): string {
+  return `https://console.${PRODUCT_CONFIG.domain}`;
 }
 
 /** Canonical production EMQX origin (Railway + Caddy). */
@@ -23,7 +23,7 @@ export function productionEmqxOrigin(): string {
 export type DeployOutputs = {
   readonly client_url: string;
   readonly api_url: string;
-  readonly sim_url: string;
+  readonly console_url: string;
   readonly emqx_url: string;
   readonly cloudflare_nameservers: string;
 };
@@ -32,7 +32,7 @@ export function deployOutputs(nameservers?: readonly string[]): DeployOutputs {
   return {
     client_url: productionClientOrigin(),
     api_url: productionApiOrigin(),
-    sim_url: productionSimOrigin(),
+    console_url: productionConsoleOrigin(),
     emqx_url: productionEmqxOrigin(),
     cloudflare_nameservers: (nameservers ?? []).join(', '),
   };

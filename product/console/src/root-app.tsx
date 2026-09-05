@@ -1,4 +1,4 @@
-// @io-wall-ok — Expo composition root for Sim Console (Reports + Playground).
+// @io-wall-ok — Expo composition root for Console (Reports + Playground).
 
 import { AppI18nProvider } from '@apps/client/i18n/i18n-provider';
 import { AppUiPortals } from '@apps/client/providers/ui/portals';
@@ -134,7 +134,7 @@ function ConsoleSafeShell(): ReactNode {
   );
 }
 
-/** Expo root: Sim Console only (no product Client|Sim host chrome). */
+/** Expo root: Console only (no product Client|Sim host chrome). */
 export function RootApp(): ReactNode {
   const createId = useMemo(() => () => crypto.randomUUID(), []);
   const random = useMemo(() => () => Math.random(), []);
