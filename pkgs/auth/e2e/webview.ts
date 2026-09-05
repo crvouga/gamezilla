@@ -45,3 +45,8 @@ export async function waitForHttp(
   }
   throw new Error(`timed out waiting for ${url}`);
 }
+
+export async function fetchRedirectLocation(url: string): Promise<string> {
+  const res = await fetch(url, { redirect: 'manual' });
+  return res.headers.get('location') ?? '';
+}

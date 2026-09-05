@@ -1,11 +1,6 @@
 import { beforeAll, describe, expect, test } from 'bun:test';
-import {
-  evalFn,
-  openView,
-  waitFor,
-  waitForHttp,
-} from '@pkgs/sql-client-sqlite/webview';
 import { kvDdl } from '../helpers/kv-schema';
+import { closeView, evalFn, openView, waitFor, waitForHttp } from '../webview';
 
 const ORIGIN = 'http://127.0.0.1:4177';
 
@@ -15,7 +10,7 @@ beforeAll(async () => {
 
 describe('expo-sqlite OPFS via sql-host iframe', () => {
   test('open user_* db, write, read', async () => {
-    const page = openView(`${ORIGIN}/sql-workers/sql-host.html`);
+    const page = await openView(`${ORIGIN}/sql-workers/sql-host.html`);
     try {
       await waitFor(page, 'window.__sqlHost !== undefined');
       await evalFn(
@@ -36,12 +31,12 @@ describe('expo-sqlite OPFS via sql-host iframe', () => {
       );
       expect(rows).toEqual([{ k: 'a', v: '1' }]);
     } finally {
-      page.close();
+      closeView(page);
     }
   });
 
   test('resetStore clears OPFS; remount reopen is empty', async () => {
-    const page = openView(`${ORIGIN}/sql-workers/sql-host.html`);
+    const page = await openView(`${ORIGIN}/sql-workers/sql-host.html`);
     try {
       await waitFor(page, 'window.__sqlHost !== undefined');
       await evalFn(
@@ -71,12 +66,12 @@ describe('expo-sqlite OPFS via sql-host iframe', () => {
       );
       expect(tables).toEqual([]);
     } finally {
-      page.close();
+      closeView(page);
     }
   });
 
   test('iframe recycle releases handles; second mount opens', async () => {
-    const page = openView(`${ORIGIN}/`);
+    const page = await openView(`${ORIGIN}/`);
     try {
       const result = await evalFn(
         page,
@@ -122,12 +117,12 @@ describe('expo-sqlite OPFS via sql-host iframe', () => {
       );
       expect(result).toEqual([{ k: '1' }]);
     } finally {
-      page.close();
+      closeView(page);
     }
   });
 
   test('pre-seeded OPFS junk beyond pool capacity auto-recovers via remount wipe', async () => {
-    const page = openView(`${ORIGIN}/`);
+    const page = await openView(`${ORIGIN}/`);
     try {
       await evalFn(
         page,
@@ -203,7 +198,7 @@ describe('expo-sqlite OPFS via sql-host iframe', () => {
       );
       expect(opened).toBe(true);
     } finally {
-      page.close();
+      closeView(page);
     }
   });
 });

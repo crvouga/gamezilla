@@ -51,6 +51,7 @@ const watchFolders = [
   path.resolve(monorepoRoot, 'apps'),
   path.resolve(monorepoRoot, 'libs'),
   path.resolve(monorepoRoot, 'pkgs'),
+  path.resolve(monorepoRoot, 'product'),
 ];
 if (process.env['EXPO_USE_WATCHMAN'] === '1') {
   watchFolders.push(path.resolve(monorepoRoot, 'node_modules/.bun'));

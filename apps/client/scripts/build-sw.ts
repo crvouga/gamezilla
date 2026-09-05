@@ -2,11 +2,47 @@
 /**
  * Post-process step after `expo export -p web`: generates `dist/sw.js` via Workbox.
  */
+import { createRequire } from 'node:module';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { wallClock } from '@pkgs/clock';
 import { createLogger } from '@pkgs/logger';
-import { generateSW } from 'workbox-build';
+
+const require = createRequire(import.meta.url);
+
+/**
+ * Workbox's Babel preset-env loads regexp plugins → regenerate.
+ * A second `regenerate` copy (outside this repo) makes `instanceof` fail.
+ * Stub the shared helper so those plugins never touch regenerate.
+ */
+function stubBabelRegexpPlugins(): void {
+  const createRegExpFeaturePlugin = () => ({ visitor: {} });
+  const exported = Object.assign(createRegExpFeaturePlugin, {
+    createRegExpFeaturePlugin,
+    default: createRegExpFeaturePlugin,
+  });
+  const workboxDir = dirname(require.resolve('workbox-build/package.json'));
+  const presetEnvDir = dirname(
+    require.resolve('@babel/preset-env/package.json', { paths: [workboxDir] })
+  );
+  const filename = require.resolve(
+    '@babel/helper-create-regexp-features-plugin',
+    { paths: [presetEnvDir] }
+  );
+  require.cache[filename] = {
+    id: filename,
+    filename,
+    loaded: true,
+    exports: exported,
+    children: [],
+    paths: [],
+  } as NodeModule;
+}
+
+stubBabelRegexpPlugins();
+const { generateSW } = require('workbox-build') as {
+  generateSW: typeof import('workbox-build').generateSW;
+};
 
 const log = createLogger({ name: 'client:build-sw', now: wallClock.now });
 

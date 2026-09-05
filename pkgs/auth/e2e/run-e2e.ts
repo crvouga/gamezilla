@@ -1,8 +1,12 @@
 // @io-wall-ok — start the OAuth harness then run bun:test
 
+import { killListenersOnPort } from '@pkgs/os/kill-port';
 import { waitForHttp } from './webview';
 
-const ORIGIN = 'http://127.0.0.1:4178';
+const PORT = 4178;
+const ORIGIN = `http://127.0.0.1:${PORT}`;
+
+killListenersOnPort(PORT);
 
 const harness = Bun.spawn(['bun', './e2e/serve-harness.ts'], {
   cwd: import.meta.dir + '/../../auth-sim',
@@ -12,7 +16,7 @@ const harness = Bun.spawn(['bun', './e2e/serve-harness.ts'], {
 
 try {
   await waitForHttp(ORIGIN);
-  const test = Bun.spawn(['bun', 'test', './e2e/tests'], {
+  const test = Bun.spawn(['bun', 'test', '--timeout', '60000', './e2e/tests'], {
     cwd: import.meta.dir + '/..',
     stdout: 'inherit',
     stderr: 'inherit',

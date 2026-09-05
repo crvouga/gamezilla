@@ -1,6 +1,12 @@
 import { beforeAll, describe, expect, test } from 'bun:test';
 
-import { evalJson, openView, waitFor, waitForHttp } from '../webview';
+import {
+  evalJson,
+  fetchRedirectLocation,
+  openView,
+  waitFor,
+  waitForHttp,
+} from '../webview';
 
 const PORT = 4178;
 const ORIGIN = `http://127.0.0.1:${PORT}`;
@@ -126,9 +132,11 @@ describe('auth oauth harness', () => {
         `document.querySelector("[data-testid=harness-sign-in-google]").click()`
       );
       await waitFor(page, 'window.__openedUrl != null');
-      const url = await evalJson<string>(page, 'window.__openedUrl');
-      expect(url).toContain('accounts.google.com');
-      expect(url).toContain('client_id=cid');
+      const launchUrl = await evalJson<string>(page, 'window.__openedUrl');
+      expect(launchUrl).toContain('/auth/oauth/launch');
+      const location = await fetchRedirectLocation(launchUrl);
+      expect(location).toContain('accounts.google.com');
+      expect(location).toContain('client_id=cid');
     } finally {
       page.close();
     }

@@ -16,6 +16,7 @@ const DEV_PORTS = [
   9231, // wrangler inspector
   5173, // Expo web / Metro + static preview (PREVIEW_PORT)
   5174, // legacy Expo web / Metro
+  4177, // @pkgs/sql-client-sqlite-web e2e harness
   4178, // @pkgs/auth OAuth e2e harness
   8799, // observability collector
   7789, // @apps/client local report console

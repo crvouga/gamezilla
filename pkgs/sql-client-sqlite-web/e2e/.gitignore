@@ -1,3 +1,4 @@
 public/
 test-results/
 playwright-report/
+.webview-profile/

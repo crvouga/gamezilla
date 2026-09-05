@@ -42,6 +42,7 @@
   },
   "devDependencies": {
     "@pkgs/logger": "workspace:*",
+    "@pkgs/os": "workspace:*",
     "@pkgs/sim": "workspace:*",
     "@pkgs/sql-client-postgres": "workspace:*",
     "@pkgs/sql-client-sqlite": "workspace:*",

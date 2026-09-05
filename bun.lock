@@ -855,6 +855,7 @@
       },
       "devDependencies": {
         "@pkgs/logger": "workspace:*",
+        "@pkgs/os": "workspace:*",
         "@pkgs/sim": "workspace:*",
         "@pkgs/sql-client-postgres": "workspace:*",
         "@pkgs/sql-client-sqlite": "workspace:*",
@@ -2145,6 +2146,7 @@
       },
       "devDependencies": {
         "@happy-dom/global-registrator": "catalog:",
+        "@pkgs/os": "workspace:*",
         "@types/bun": "catalog:",
         "@types/react": "catalog:",
         "@typescript/native": "catalog:",
