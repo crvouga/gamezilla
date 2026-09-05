@@ -17,7 +17,7 @@
 Default backends (always on in bun):
 
 - `sqlite-mem`, `bun-sqlite`
-- `postgres-mem`, shared process-wide **PGlite**
+- `postgres-mem`
 
 Invariants:
 
@@ -38,7 +38,6 @@ bun run test:pbt:random
 
 | Backend | Notes |
 | --- | --- |
-| PGlite | One process-wide instance (`shared-pglite.ts`); samples use unique table names + `DROP TABLE … CASCADE` |
 | postgres-mem | Fresh instance per sample; in-memory Postgres for unit / PBT |
 | Expo / better-sqlite3 / WASM | Optional; skipped when the engine cannot load |
 | Live `pg` / Bun postgres | Int8 pin in `postgres.contract.test.ts` when `DATABASE_URL` is set |

@@ -3,6 +3,10 @@
  *
  * Console and test couple only to this package's public API (`product.run`,
  * actions, reads). Hosts are registered runtimes: `in-process`, `bun-webview`.
+ *
+ * Isomorphism: fabric + `in-process` + system/actions must run under Expo web
+ * (playground). Node-only seed / HTTP helpers live under `setup/` and
+ * `hosts/localhost-http` (`.web.ts` stubs) and are dynamic-imported from tests.
  */
 
 export {

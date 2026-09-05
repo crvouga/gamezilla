@@ -14,7 +14,6 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@electric-sql/pglite": "catalog:",
     "@pkgs/assert": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
     "@pkgs/db-schema-sqlite": "workspace:*",
@@ -27,7 +26,6 @@
     "@pkgs/uuid": "workspace:*"
   },
   "devDependencies": {
-    "@electric-sql/pglite": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "expo-sqlite": "catalog:",

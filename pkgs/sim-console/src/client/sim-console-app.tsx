@@ -11,12 +11,14 @@ import type { SimConsolePorts } from '../shared/ports';
 import type { SimChromeKind } from '../shared/sim-node';
 import type { ReportApiClient } from './api-client';
 import { createReportApiClient } from './api-client';
+import { ClientLayoutPreferenceProvider } from './debugger/client-layout-preference';
 import type { PaneNavPatch, PaneNavValue } from './debugger-chrome';
 import { createObjectStoreReportApiClient } from './object-store-report-api';
 import { PlaygroundScreen } from './playground/playground-screen';
 import { usePlaygroundSession } from './playground/use-playground-session';
 import { ReportViews } from './report-views';
 import type { ReportNavState } from './router';
+import { NotebookStoreProvider } from './sql-notebook/notebook-store-context';
 import { appShellSx } from './tokens';
 import { useReportData } from './use-report-data';
 
@@ -123,35 +125,43 @@ export function SimConsoleApp(props: {
   );
 
   return (
-    <Box sx={appShellSx}>
-      <TabStrip
-        accessibilityLabel="Console sections"
-        items={[...SECTIONS]}
-        selectedId={section}
-        onSelect={(id) => onSectionChange(id as ConsoleSection)}
-      />
-      <Box sx={{ flex: 1, minHeight: 0, background: 'background' }}>
-        {reportsVisited ? (
-          <Box sx={sectionVisibilitySx(section === 'reports')}>
-            <ReportsSection api={api} nav={reports} onNav={onReportsNav} />
+    <ClientLayoutPreferenceProvider>
+      <NotebookStoreProvider
+        {...(ports.notebookStore !== undefined
+          ? { store: ports.notebookStore }
+          : {})}
+      >
+        <Box sx={appShellSx}>
+          <TabStrip
+            accessibilityLabel="Console sections"
+            items={[...SECTIONS]}
+            selectedId={section}
+            onSelect={(id) => onSectionChange(id as ConsoleSection)}
+          />
+          <Box sx={{ flex: 1, minHeight: 0, background: 'background' }}>
+            {reportsVisited ? (
+              <Box sx={sectionVisibilitySx(section === 'reports')}>
+                <ReportsSection api={api} nav={reports} onNav={onReportsNav} />
+              </Box>
+            ) : null}
+            {playgroundPinned ? (
+              <Box sx={sectionVisibilitySx(section === 'playground')}>
+                <PlaygroundScreen
+                  state={sessionState}
+                  kind={kind}
+                  instance={instance}
+                  panes={panes}
+                  onKindChange={onKindChange}
+                  onInstanceChange={onInstanceChange}
+                  onPanePatch={onPanePatch}
+                  onReload={reboot}
+                />
+              </Box>
+            ) : null}
           </Box>
-        ) : null}
-        {playgroundPinned ? (
-          <Box sx={sectionVisibilitySx(section === 'playground')}>
-            <PlaygroundScreen
-              state={sessionState}
-              kind={kind}
-              instance={instance}
-              panes={panes}
-              onKindChange={onKindChange}
-              onInstanceChange={onInstanceChange}
-              onPanePatch={onPanePatch}
-              onReload={reboot}
-            />
-          </Box>
-        ) : null}
-      </Box>
-    </Box>
+        </Box>
+      </NotebookStoreProvider>
+    </ClientLayoutPreferenceProvider>
   );
 }
 

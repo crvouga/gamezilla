@@ -1,19 +1,23 @@
 import type { SimChromeKind } from '../../shared/sim-node';
 
+/** User preference for multi-client layout on tablet/desktop. */
+export type ClientLayoutMode = 'columns' | 'tabs';
+
 export type SimConsoleLayout = {
   /** Mobile (&lt; 768): compact chrome + single client column. */
   readonly compactChrome: boolean;
-  /** Tablet/desktop: side-by-side client columns. */
+  /** Side-by-side client columns (tablet/desktop preference, never on mobile). */
   readonly multiClientColumns: boolean;
 };
 
 export function simConsoleLayoutFromBreakpoint(
-  breakpoint: 'mobile' | 'tablet' | 'desktop'
+  breakpoint: 'mobile' | 'tablet' | 'desktop',
+  clientLayout: ClientLayoutMode = 'columns'
 ): SimConsoleLayout {
   const compactChrome = breakpoint === 'mobile';
   return {
     compactChrome,
-    multiClientColumns: !compactChrome,
+    multiClientColumns: !compactChrome && clientLayout === 'columns',
   };
 }
 

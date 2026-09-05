@@ -4,7 +4,6 @@ import { AccountDevicesScreen } from '@libs/auth/root/client/account-device/acco
 import { ClientConfigScreen } from '@libs/client-config/root/client/client-config-screen';
 import { FriendUserScreen } from '@libs/friends/root/client/friend-user-screen-view';
 import { FriendsListScreen } from '@libs/friends/root/client/friends-list-screen-view';
-import { NotificationsTabIcon } from '@libs/notifications/public';
 import { NotificationsScreen } from '@libs/notifications/root/client/notifications-screen';
 import { ProfileHandleScreen } from '@libs/profile/root/client/claim-username/profile-handle-screen';
 import { AvatarEditorScreen } from '@libs/profile/root/client/patch-avatar/avatar-editor-screen';
@@ -12,14 +11,7 @@ import { ProfileEditScreen } from '@libs/profile/root/client/profile-edit-screen
 import { SearchScreen } from '@libs/search/root/client/search-screen';
 import { SpaceDetailScreen } from '@libs/spaces/root/client/space-detail-screen';
 import { SpacesScreen } from '@libs/spaces/root/client/spaces-screen';
-import { useLingui } from '@lingui/react/macro';
-import {
-  Gamepad2Icon,
-  SearchIcon,
-  UserIcon,
-  useStackProps,
-  useTabsProps,
-} from '@pkgs/ui';
+import { useStackProps, useTabsProps } from '@pkgs/ui';
 import {
   type BottomTabNavigationOptions,
   createBottomTabNavigator,
@@ -37,6 +29,7 @@ import { ThemeSettingsScreen } from '../settings/theme-screen';
 import { SyncScreen } from '../sync/sync-screen';
 import { UiExplorerDetailScreen } from '../ui/explorer/ui-explorer-detail-screen';
 import { UiExplorerScreen } from '../ui/explorer/ui-explorer-screen';
+import { useAppTabs } from './app-tabs';
 import AccountIndexScreen from './screens/account-index';
 import AccountProvidersScreen from './screens/account-providers';
 import ProfileTabScreen from './screens/profile-tab';
@@ -48,56 +41,40 @@ enableFreeze(true);
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 const Tabs = createBottomTabNavigator<TabsParamList>();
 
+const TAB_SCREENS = {
+  Spaces: SpacesScreen,
+  Search: SearchScreen,
+  Notifications: NotificationsScreen,
+  ProfileTab: ProfileTabScreen,
+} as const;
+
 function MainTabs(): ReactNode {
-  const { t } = useLingui();
   const tabsProps = useTabsProps();
+  const tabs = useAppTabs();
   return (
     <Tabs.Navigator
       {...tabsProps}
       tabBar={(props) => <AppTabBarBridge {...props} />}
     >
-      <Tabs.Screen
-        name="Spaces"
-        component={SpacesScreen}
-        options={
-          {
-            title: t`Spaces`,
-            tabBarIcon: ({ color, size }) => (
-              <Gamepad2Icon color={color} size={size ?? 24} />
-            ),
-          } satisfies BottomTabNavigationOptions
-        }
-      />
-      <Tabs.Screen
-        name="Search"
-        component={SearchScreen}
-        options={{
-          title: t`Search`,
-          tabBarIcon: ({ color, size }) => (
-            <SearchIcon color={color} size={size ?? 24} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="Notifications"
-        component={NotificationsScreen}
-        options={{
-          title: t`Notifications`,
-          tabBarIcon: ({ color, size }) => (
-            <NotificationsTabIcon color={color} size={size ?? 24} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="ProfileTab"
-        component={ProfileTabScreen}
-        options={{
-          title: t`Profile`,
-          tabBarIcon: ({ color, size }) => (
-            <UserIcon color={color} size={size ?? 24} />
-          ),
-        }}
-      />
+      {tabs.map((tab) => {
+        const Screen = TAB_SCREENS[tab.name];
+        const Icon = tab.Icon;
+        return (
+          <Tabs.Screen
+            key={tab.name}
+            name={tab.name}
+            component={Screen}
+            options={
+              {
+                title: tab.label,
+                tabBarIcon: ({ color, size }) => (
+                  <Icon color={color} size={size ?? 24} />
+                ),
+              } satisfies BottomTabNavigationOptions
+            }
+          />
+        );
+      })}
     </Tabs.Navigator>
   );
 }

@@ -3,6 +3,7 @@ import {
   Button,
   Checkbox,
   CONTENT_EDGE_PADDING_STEP,
+  Columns2Icon,
   IconButton,
   MutationModal,
   Pressable,
@@ -11,6 +12,7 @@ import {
   SearchIcon,
   SegmentedControl,
   Select,
+  SquareStackIcon,
   Text,
   Trash2Icon,
   useCommandPalette,
@@ -20,7 +22,11 @@ import type {
   PlaygroundSession,
   PlaygroundSnapshotInfo,
 } from '../../shared/ports';
-import { useSimConsoleLayout } from '../debugger/use-sim-console-layout';
+import type { ClientLayoutMode } from '../debugger/sim-console-layout';
+import {
+  useClientLayoutPreference,
+  useSimConsoleLayout,
+} from '../debugger/use-sim-console-layout';
 import {
   formatSnapshotAge,
   formatSnapshotBytes,
@@ -403,12 +409,51 @@ function SnapshotChromeActions(props: {
   );
 }
 
+function ClientLayoutToggle(props: {
+  readonly preference: ClientLayoutMode;
+  readonly onSelect: (mode: ClientLayoutMode) => void;
+}) {
+  const { preference, onSelect } = props;
+  return (
+    <Box sx={layoutToggleSx}>
+      <IconButton
+        label="Tab clients"
+        size={ICON_SIZE}
+        {...(preference === 'tabs' ? { background: 'surfaceMuted' } : {})}
+        onPress={() => {
+          onSelect('tabs');
+        }}
+      >
+        <SquareStackIcon size={GLYPH_SIZE} />
+      </IconButton>
+      <IconButton
+        label="Column clients"
+        size={ICON_SIZE}
+        {...(preference === 'columns' ? { background: 'surfaceMuted' } : {})}
+        onPress={() => {
+          onSelect('columns');
+        }}
+      >
+        <Columns2Icon size={GLYPH_SIZE} />
+      </IconButton>
+    </Box>
+  );
+}
+
+const layoutToggleSx = {
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: 0.25,
+  flexShrink: 0,
+} as const;
+
 /** Snapshot Select + save / reload / palette icon buttons. */
 export function PlaygroundSnapshotChrome(props: {
   readonly session: PlaygroundSession;
 }) {
   const { session } = props;
   const { compactChrome } = useSimConsoleLayout();
+  const { preference, setPreference } = useClientLayoutPreference();
   const list = usePlaygroundSnapshots(session);
   const state = useSnapshotChromeState(list);
   const { open: openPalette } = useCommandPalette();
@@ -416,6 +461,9 @@ export function PlaygroundSnapshotChrome(props: {
 
   return (
     <Box sx={compactChrome ? chromeRowCompactSx : chromeRowDesktopSx}>
+      {compactChrome ? null : (
+        <ClientLayoutToggle preference={preference} onSelect={setPreference} />
+      )}
       <SnapshotSelect
         list={list}
         sortedSnaps={state.sortedSnaps}

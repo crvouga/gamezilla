@@ -1,17 +1,11 @@
-import { DefineBackButton } from '@libs/spaces/public/nav/spaces-nav-context';
 import { SpeakingAvatarAssistant } from '@pkgs/assistant/client';
 import { ChessBoard } from '@pkgs/chess-board/chess-board';
-import { Box, componentDataSet, SpeakingAvatar } from '@pkgs/ui';
-import { memo, type ReactNode, useCallback, useState } from 'react';
-import { ChessPuzzleActionBar } from './chess-puzzle-action-bar';
-import { ChessPuzzleBoardFrame } from './chess-puzzle-board-frame';
+import { Box, SpeakingAvatar } from '@pkgs/ui';
+import { memo, type ReactNode } from 'react';
 import { ChessPuzzleBoardLoadingState } from './chess-puzzle-board-loading-state';
-import { ChessPuzzleCelebrationOverlay } from './chess-puzzle-celebration-overlay';
 import { ChessPuzzleE2EHints } from './chess-puzzle-e2e-hints';
 import { ChessPuzzleE2ELoadingStatus } from './chess-puzzle-e2e-loading-status';
-import { ChessPuzzleFeedBar } from './chess-puzzle-feed-bar';
-import { ChessPuzzleFeedSettingsModal } from './chess-puzzle-feed-settings-modal';
-import { ChessPuzzleMoveHistoryBar } from './chess-puzzle-move-history-bar';
+import { PuzzlePlayLayout } from './chess-puzzle-play-layout';
 import { ChessPuzzleStatusHeader } from './chess-puzzle-status-header';
 import type { SolveStatus } from './use-chess-puzzle-solver';
 import type { HintStage } from './use-hint-stage';
@@ -25,92 +19,6 @@ const LOADING_SHELL_STATUS = 'loading' as const satisfies SolveStatus;
 const LOADING_SHELL_HINT_STAGE = 'none' as const satisfies HintStage;
 
 const noop = (): void => {};
-const noopElo = (_rating: number): void => {};
-
-type PuzzlePlayLayoutProps = {
-  backToRoot: () => void;
-  assistant: ReactNode;
-  boardSlot: (size: number) => ReactNode;
-  puzzleId?: string;
-  puzzleRating?: number;
-  status: SolveStatus;
-  hintStage: HintStage;
-  canGoBack: boolean;
-  canGoForward: boolean;
-  onHint: () => void;
-  onSolution: () => void;
-  onBack: () => void;
-  onForward: () => void;
-  onRetry: () => void;
-  onNext: () => void;
-  onFeedConfigApplied: () => void;
-  completion: PuzzlePlayerChromeModel['completion'];
-  e2eHints?: ReactNode;
-  e2eLoadingStatus?: ReactNode;
-};
-
-function PuzzlePlayLayout(p: PuzzlePlayLayoutProps): ReactNode {
-  const [feedSettingsOpen, setFeedSettingsOpen] = useState(false);
-  const openFeedSettings = useCallback(() => setFeedSettingsOpen(true), []);
-  const closeFeedSettings = useCallback(() => setFeedSettingsOpen(false), []);
-  const showCelebration = p.completion !== null;
-  const puzzleRating =
-    p.puzzleRating !== undefined && p.puzzleRating > 0
-      ? p.puzzleRating
-      : undefined;
-  return (
-    <Box
-      sx={{ flex: 1, minHeight: 0, alignSelf: 'stretch' }}
-      {...componentDataSet('ChessPuzzlePlayScreen', {
-        screen: 'chess-puzzle-play',
-      })}
-    >
-      <DefineBackButton onPress={p.backToRoot} />
-      {p.e2eLoadingStatus}
-      <Box sx={{ flex: 1, minHeight: 0, gap: 4, pt: 4 }}>
-        <ChessPuzzleFeedBar
-          puzzleId={p.puzzleId}
-          rating={puzzleRating}
-          onOpenFeedSettings={openFeedSettings}
-        />
-        {p.assistant}
-        <ChessPuzzleBoardFrame
-          overlay={
-            showCelebration && p.completion !== null ? (
-              <ChessPuzzleCelebrationOverlay
-                completion={p.completion}
-                onDisplayEloChange={noopElo}
-              />
-            ) : null
-          }
-        >
-          {(size) => p.boardSlot(size)}
-        </ChessPuzzleBoardFrame>
-        <Box sx={{ alignSelf: 'stretch', gap: 2 }}>
-          <ChessPuzzleMoveHistoryBar />
-          <ChessPuzzleActionBar
-            status={p.status}
-            hintStage={p.hintStage}
-            canGoBack={p.canGoBack}
-            canGoForward={p.canGoForward}
-            onHint={p.onHint}
-            onSolution={p.onSolution}
-            onBack={p.onBack}
-            onForward={p.onForward}
-            onRetry={p.onRetry}
-            onNext={p.onNext}
-          />
-        </Box>
-        {p.e2eHints}
-      </Box>
-      <ChessPuzzleFeedSettingsModal
-        visible={feedSettingsOpen}
-        onClose={closeFeedSettings}
-        onFeedConfigApplied={p.onFeedConfigApplied}
-      />
-    </Box>
-  );
-}
 
 const PuzzleBoardSlot = memo(function PuzzleBoardSlot(
   p: Pick<

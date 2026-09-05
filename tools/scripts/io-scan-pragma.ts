@@ -51,7 +51,6 @@ const ENTRY_BASENAMES = new Set([
   'export-chess-puzzles-load.ts',
   'serve-harness.ts',
   'example-root.tsx',
-  'impl-pglite.ts',
   'app.tsx',
   'boot-playground.ts',
   'root-app.tsx',

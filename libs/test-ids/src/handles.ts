@@ -6,6 +6,8 @@
 export const Handles = {
   // status / chrome
   statusCurrentUser: 'status-current-user',
+  /** "Account" row inside the current-user avatar menu. */
+  globalMenuAccount: 'global-menu-account',
   navBack: 'nav-back',
   tabProfile: 'tab-profile',
   tabSearch: 'tab-search',

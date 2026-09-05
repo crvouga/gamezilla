@@ -146,13 +146,15 @@ function TopBarFlexLayout({
       {hasTrailing ? (
         <Box
           sx={{
-            // Absorb remaining width when there is no center slot so trailing
-            // ActionBars can measure overflow against the real budget.
-            ...(hasCenter
-              ? {}
-              : { flex: 1, minWidth: 0, alignSelf: 'stretch' }),
+            // Always absorb width so trailing ActionBars measure overflow
+            // against a real budget (a content-sized slot collapses them into
+            // a lone More menu). With a center slot the two share the row.
+            flex: 1,
+            minWidth: 0,
+            alignSelf: 'stretch',
             flexDirection: 'row',
             alignItems: 'center',
+            justifyContent: 'flex-end',
             gap: 2,
           }}
         >

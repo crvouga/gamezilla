@@ -1,0 +1,45 @@
+import { describe, expect, test } from 'bun:test';
+import { raw } from '@pkgs/sql';
+import { SqlClientImplSqliteMem } from '@pkgs/sql-client-sqlite/impl-sqlite-mem';
+
+import { runSqlCell } from './run-sql-cell';
+
+describe('runSqlCell', () => {
+  test('select and dml in one cell transaction', async () => {
+    const client = SqlClientImplSqliteMem.open();
+    await client.connect();
+    await client.run(raw('CREATE TABLE t (id INTEGER PRIMARY KEY, n INTEGER)'));
+    const now = (() => {
+      let t = 0;
+      return () => {
+        t += 5;
+        return t;
+      };
+    })();
+    const ok = await runSqlCell({
+      sqlClient: client,
+      sql: `INSERT INTO t (id, n) VALUES (1, 10);\nSELECT n FROM t;`,
+      now,
+    });
+    expect(ok.error).toBeNull();
+    expect(ok.statements).toHaveLength(2);
+    expect(ok.statements[0]).toMatchObject({ kind: 'changes', changes: 1 });
+    expect(ok.statements[1]).toMatchObject({
+      kind: 'rows',
+      rows: [{ n: 10 }],
+    });
+    expect(ok.durationMs).toBeGreaterThan(0);
+
+    const fail = await runSqlCell({
+      sqlClient: client,
+      sql: `INSERT INTO t (id, n) VALUES (2, 20);\nINSERT INTO t (id, n) VALUES (1, 99);`,
+      now,
+    });
+    expect(fail.error).not.toBeNull();
+    const rows = await client.query<{ c: number }>(
+      raw('SELECT COUNT(*) AS c FROM t')
+    );
+    expect(Number(rows[0]?.c)).toBe(1);
+    await client.disconnect();
+  });
+});

@@ -1,11 +1,14 @@
 /**
- * `OverflowMenuButton` -- icon trigger + anchored {@link FloatingMenu}.
+ * `OverflowMenuButton` -- icon (or custom) trigger + anchored {@link FloatingMenu}.
  *
  * Encapsulates the standard "more actions" dropdown used throughout chrome.
  * Each entry in `actions` becomes a `FloatingMenuItemRow`; `endsGroup`
  * inserts a divider after the row. The trigger renders nothing when
  * `actions` is empty so consumers can keep the component mounted
  * conditionally without juggling visibility props.
+ *
+ * Pass {@link OverflowMenuButtonProps.trigger} to replace the default
+ * {@link IconButton} (e.g. an avatar for the app global menu).
  *
  * @example
  * ```tsx
@@ -35,6 +38,7 @@ import {
 import { IconButton } from '../icon-button';
 import type { IconComponent } from '../icons';
 import { EllipsisIcon, MenuIcon } from '../icons';
+import { Pressable } from '../pressable';
 import { useAnchoredMenu } from './use-anchored-menu';
 
 const ZERO_SAFE_AREA = { top: 0, right: 0, bottom: 0, left: 0 };
@@ -69,12 +73,17 @@ export type OverflowMenuButtonProps = {
   actions: readonly OverflowMenuAction[];
   /** Panel header (title + optional subtitle). */
   header: OverflowMenuHeader;
-  /** Trigger diameter in px. Defaults to 40. */
+  /** Trigger diameter in px. Defaults to 40. Ignored when `trigger` is set. */
   size?: number;
-  /** Trigger background token. Defaults to `'surface'`. */
+  /** Trigger background token. Defaults to `'surface'`. Ignored when `trigger`. */
   background?: string;
-  /** Trigger icon. Defaults to {@link MenuIcon}. */
+  /** Trigger icon. Defaults to {@link MenuIcon}. Ignored when `trigger`. */
   icon?: IconComponent;
+  /**
+   * Custom trigger face. When set, wraps the node in a pressable that opens
+   * the menu (default IconButton is skipped).
+   */
+  trigger?: ReactNode;
   /** Trigger accessibility label. */
   accessibilityLabel: LocalizedString;
   /** Width of the dropdown panel in px. */
@@ -132,6 +141,7 @@ export function OverflowMenuButton({
   size = 40,
   background = 'surface',
   icon = MenuIcon,
+  trigger,
   accessibilityLabel,
   width = FLOATING_MENU_DEFAULT_WIDTH,
   testID,
@@ -150,6 +160,30 @@ export function OverflowMenuButton({
 
   if (actions.length === 0) return null;
 
+  const triggerFace =
+    trigger !== undefined ? (
+      <Pressable
+        onPress={menu.openMenu}
+        accessibilityRole="button"
+        accessibilityLabel={accessibilityLabel}
+        {...(testID !== undefined ? { testID } : {})}
+        sx={{ borderRadius: 'full', overflow: 'hidden' }}
+      >
+        {trigger}
+      </Pressable>
+    ) : (
+      <IconButton
+        size={size}
+        background={background}
+        onPress={menu.openMenu}
+        label={accessibilityLabel}
+        accessibilityLabel={accessibilityLabel}
+        {...(testID !== undefined ? { testID } : {})}
+      >
+        <TriggerIcon size={iconSize} color={theme.colors.icon} />
+      </IconButton>
+    );
+
   return (
     <>
       <Box
@@ -157,16 +191,7 @@ export function OverflowMenuButton({
         collapsable={false}
         {...componentDataSet('OverflowMenuButton', dataSet)}
       >
-        <IconButton
-          size={size}
-          background={background}
-          onPress={menu.openMenu}
-          label={accessibilityLabel}
-          accessibilityLabel={accessibilityLabel}
-          {...(testID !== undefined ? { testID } : {})}
-        >
-          <TriggerIcon size={iconSize} color={theme.colors.icon} />
-        </IconButton>
+        {triggerFace}
       </Box>
       <FloatingMenu
         open={menu.open}

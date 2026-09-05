@@ -1,10 +1,9 @@
 /**
- * Virtual-time drain pump for rntl sim waits.
+ * Virtual-time drain pump for rntl / in-process sim waits.
  * Advances scheduled work via the Runtime session's underlying scheduler
- * without wall sleep.
+ * without wall sleep. Isomorphic — no `node:timers`.
  */
 
-import { setImmediate as nodeSetImmediate } from 'node:timers';
 import type { Session } from '@pkgs/sim';
 import type { WaitPump } from '@pkgs/ui-testing';
 
@@ -21,9 +20,25 @@ async function flushMicrotasks(): Promise<void> {
   for (let i = 0; i < 32; i += 1) await Promise.resolve();
 }
 
+/** Macrotask hop after microtasks (React 18 / RNTL apply updates). */
 function yieldEventLoop(): Promise<void> {
   return new Promise((resolve) => {
-    nodeSetImmediate(resolve);
+    const g = globalThis as typeof globalThis & {
+      setImmediate?: (fn: () => void) => unknown;
+    };
+    if (typeof g.setImmediate === 'function') {
+      g.setImmediate(resolve);
+      return;
+    }
+    if (typeof MessageChannel !== 'undefined') {
+      const { port1, port2 } = new MessageChannel();
+      port1.onmessage = () => {
+        resolve();
+      };
+      port2.postMessage(null);
+      return;
+    }
+    queueMicrotask(resolve);
   });
 }
 

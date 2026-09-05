@@ -111,6 +111,7 @@ export function ScreenBaseHeader({
   actions: actionsProp,
   leading: leadingProp,
   largeTitle = false,
+  globalTrailing,
 }: ScreenBaseHeaderProps) {
   const insets = useSafeAreaInsetsCompat();
   const chrome = useActionBarChrome();
@@ -139,7 +140,7 @@ export function ScreenBaseHeader({
     </>
   );
 
-  const trailingSlot =
+  const actionsBar =
     iconItems.length > 0 || textActions.length > 0 ? (
       <ActionBar
         items={iconItems}
@@ -150,6 +151,14 @@ export function ScreenBaseHeader({
         showInlineLabels={chrome.showInlineLabels}
         overflowTestID="header-overflow-menu"
       />
+    ) : null;
+
+  const trailingSlot =
+    actionsBar !== null || globalTrailing != null ? (
+      <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 1 }}>
+        {actionsBar}
+        {globalTrailing}
+      </Box>
     ) : null;
 
   return (

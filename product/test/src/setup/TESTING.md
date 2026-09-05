@@ -5,7 +5,7 @@ runtimes on that System:
 
 | Host name | Factory | Command | UI | SQL / HTTP |
 | --- | --- | --- | --- | --- |
-| `in-process` (default) | `inProcessRuntime` | `bun run --filter @product/test test` | React tree (RNTL under bun:test; embedded `App` in playground) | Seed PGlite/SQLite; in-process Hono `fetch`; caps include `partition` |
+| `in-process` (default) | `inProcessRuntime` | `bun run --filter @product/test test` | React tree (RNTL under bun:test; embedded `App` in playground) | Seed postgres-mem + sqlite-mem; in-process Hono `fetch`; caps include `partition` |
 | `bun-webview` | `bunWebviewRuntime` | `SIM_MODE=real` / `bun run --filter @product/test test:max` | `Bun.WebView` per actor (tests); playground embeds actor **URL** (iframe) | Seed SQL + model network by default; `SIM_MODE=real` uses real Postgres + MinIO/EMQX and no `partition` cap. Hono on loopback HTTP via `listenSimHttpServer` |
 
 Open a run with `openSim` from `product/test/src/setup/open-sim.ts` — a thin
@@ -42,17 +42,13 @@ Faults (partition / restoreNetwork) are `defineAction`s gated by the `caps` read
 On the bun-webview real-mode host (no `partition` cap), `s.apply(partition, …)`
 throws `ActionNotEnabled`.
 
-**SQL fabric** (`SIM_SQL_BACKEND=real|mem`, default **`real`**):
-
-- `real` — server **PGlite** + client **better-sqlite3** (Node) or
-  **bun:sqlite** when `Bun` is present; playground browser clients use
-  **SQLite WASM**. Seed:
-  `product/test/.cache/sim-backend-seed.pglite.bin`
-- `mem` — legacy **postgres-mem** + **sqlite-mem**. Seed:
-  `product/test/.cache/sim-backend-seed.pgmm.json`
+**SQL fabric** — in-process sim always uses **postgres-mem** + **sqlite-mem**
+(checkpoint format `mixed-pgmm-sqlm`). Seed:
+`product/test/.cache/sim-backend-seed.pgmm.json`. Fidelity-max /
+`SIM_MODE=real` uses **postgres-embedded** (+ MinIO/EMQX) outside this fabric.
 
 Engine selection lives in `@product/sim` (`getSimSqlEngines` / fabric) — not in
-product libs. Playground web loads PGlite/SQLite WASM from
+product libs. Playground web may still load SQLite WASM from
 `product/console/public/generated/` (`bun run --filter @product/console bundle:sim-sql-wasm`;
 wired into `predev` / `setup`) so Metro's Hermes classic bundle never sees
 `import.meta`. Seed with `bun run --filter @product/sim seed:sim-db` (also
@@ -95,7 +91,7 @@ View captured timelines in **`bun run dev`** (`@product/console` → Reports).
 Production browsing of reports stays on the API Worker `/sim-console` mount
 (B2).
 
-Mem-engine wishlist (when `SIM_SQL_BACKEND=mem`):
+Mem-engine wishlist:
 [`docs/sim-mem-engine-wishlist.md`](../../../docs/sim-mem-engine-wishlist.md).
 
 Do not use a local Wrangler + API Worker stack for manual feature work. That is

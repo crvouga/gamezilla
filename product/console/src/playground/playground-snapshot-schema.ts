@@ -1,7 +1,7 @@
 /**
  * Zod schemas for playground ObjectStore snapshots.
- * Server/client SQL blobs are opaque per fabric (`mixed-pglite-sqlite` or
- * `mixed-pgmm-sqlm` JSON envelopes).
+ * Server/client SQL blobs are opaque `mixed-pgmm-sqlm` JSON envelopes
+ * (postgres-mem PGMM + sqlite-mem SQLM).
  */
 
 import { z } from 'zod';
@@ -28,9 +28,7 @@ const playgroundSnapshotManifestShared = {
   downAddresses: z.array(z.string()),
   evictedAddresses: z.array(z.string()),
   /** Optional for legacy sticky snaps; load path defaults by blob magic. */
-  sqlFormat: z
-    .enum(['mixed-pgmm-sqlm', 'mixed-pglite-sqlite', 'sqlm', 'sqlite3-image'])
-    .optional(),
+  sqlFormat: z.enum(['mixed-pgmm-sqlm', 'sqlm', 'sqlite3-image']).optional(),
   keys: z.object({
     serverSql: z.string().min(1),
     clientSql: z.record(z.string(), z.string()),

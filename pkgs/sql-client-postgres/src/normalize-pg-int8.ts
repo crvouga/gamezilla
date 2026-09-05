@@ -1,5 +1,5 @@
 /**
- * PGlite / postgres-mem return int8 as bigint. Product paths (JSON, Math.*)
+ * postgres-mem (and node-pg) return int8 as bigint. Product paths (JSON, Math.*)
  * expect number when the value fits, else a decimal string.
  *
  * Convert via decimal text. Hermes `Number(bigint)` / unary `+bigint` throw

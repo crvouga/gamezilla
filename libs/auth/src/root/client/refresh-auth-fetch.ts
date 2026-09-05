@@ -83,6 +83,13 @@ export async function refreshAuth(
         : `auth/refresh failed (${String(res.status)}): ${text}`
     );
   }
+  if (json === null || typeof json !== 'object' || Array.isArray(json)) {
+    // Empty 2xx (Hono/RN wiped body) — recoverable like a dead session.
+    throw new RefreshAuthError(
+      401,
+      `auth/refresh empty/non-object body (status ${String(res.status)}, bytes ${String(text.length)}): ${text}`
+    );
+  }
   assert.record(json, 'auth/refresh success body');
   const accountId = json['accountId'];
   assert.string(accountId, 'auth/refresh accountId');

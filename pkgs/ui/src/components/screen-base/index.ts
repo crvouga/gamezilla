@@ -8,6 +8,7 @@ export type {
   ScreenBaseHeaderProps,
   ScreenBasePrimaryAction,
   ScreenBaseProps,
+  ScreenBaseSurface,
 } from './screen-base-types';
 export {
   ScreenBodyFlatList,
@@ -15,6 +16,7 @@ export {
 } from './screen-body-flat-list';
 export {
   ScreenBodyLegendList,
+  type ScreenBodyLegendListColumns,
   type ScreenBodyLegendListProps,
 } from './screen-body-legend-list';
 export { SCREEN_BODY_PADDING_STEP } from './screen-body-padding';

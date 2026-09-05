@@ -2,8 +2,26 @@ import { describe, expect, it } from 'bun:test';
 
 import {
   isSpaceMiniplayerHidden,
+  MINIPLAYER_WIDE_MAX_WIDTH,
+  resolveMiniplayerFrame,
   resolveMiniplayerMode,
 } from './space-miniplayer-layout';
+
+describe('resolveMiniplayerFrame', () => {
+  it('spans full width with square corners on compact', () => {
+    expect(resolveMiniplayerFrame('compact')).toEqual({
+      rounded: false,
+      maxWidth: null,
+    });
+  });
+
+  it('centers a rounded card with a max width on wide', () => {
+    expect(resolveMiniplayerFrame('wide')).toEqual({
+      rounded: true,
+      maxWidth: MINIPLAYER_WIDE_MAX_WIDTH,
+    });
+  });
+});
 
 describe('isSpaceMiniplayerHidden', () => {
   it('hides when there are no active spaces', () => {

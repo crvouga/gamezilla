@@ -5,10 +5,7 @@ import {
   type SimSql,
   sharedSqlClient,
 } from '@product/sim/fabric/sim-sql';
-import { resolveSimSqlBackend } from '@product/sim/fabric/sim-sql-backend';
 
-import { ensureSimPgliteSeed } from '../setup/boot-sim-pglite';
-import { ensureSimPostgresMemSeed } from '../setup/boot-sim-postgres-mem';
 import type { ProductExtra } from './ports';
 
 function isRealMode(): boolean {
@@ -18,12 +15,15 @@ function isRealMode(): boolean {
 
 async function openSeededServerSql(): Promise<SimSql> {
   const { wallClock } = await import('@pkgs/clock');
-  const backend = resolveSimSqlBackend();
-  const seedBytes =
-    backend === 'mem'
-      ? (await ensureSimPostgresMemSeed()).seedBytes
-      : (await ensureSimPgliteSeed()).seedBytes;
-  return openSimServerSqlFromSeedBytes('sim_server', wallClock, seedBytes);
+  // Lazy: Node seed modules must not load in Expo web.
+  const { ensureSimPostgresMemSeed } = await import(
+    '../setup/boot-sim-postgres-mem'
+  );
+  return openSimServerSqlFromSeedBytes(
+    'sim_server',
+    wallClock,
+    (await ensureSimPostgresMemSeed()).seedBytes
+  );
 }
 
 async function openRealPostgresSql(): Promise<SimSql> {

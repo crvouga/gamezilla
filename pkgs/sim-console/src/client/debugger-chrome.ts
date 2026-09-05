@@ -21,12 +21,10 @@ import { simNodeIcon } from './sim-node-chrome';
 
 export type PaneNavValue = {
   readonly view: DebuggerViewId;
-  readonly table: string | null;
 };
 
 export type PaneNavPatch = {
   readonly view?: string;
-  readonly table?: string | null;
 };
 
 export type DebuggerChromeNav = {
@@ -50,7 +48,7 @@ const VIEW_CHROME: Readonly<
   >
 > = {
   ui: { label: 'UI', icon: PaintbrushIcon },
-  db: { label: 'DB', icon: DatabaseIcon },
+  db: { label: 'SQL', icon: DatabaseIcon },
   events: { label: 'Events', icon: RadioIcon },
   commands: { label: 'Commands', icon: TerminalIcon },
   topics: { label: 'Topics', icon: CodeIcon },

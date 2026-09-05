@@ -75,17 +75,15 @@ export function resolvePlaygroundPane(
   if (direct !== undefined) {
     return {
       view: coerceDebuggerView(kind, direct.view),
-      table: direct.table,
     };
   }
   if ((kind === 'server' || kind === 'events') && panes[kind] !== undefined) {
     const byKind = panes[kind]!;
     return {
       view: coerceDebuggerView(kind, byKind.view),
-      table: byKind.table,
     };
   }
-  return { view: defaultViewForKind(kind), table: null };
+  return { view: defaultViewForKind(kind) };
 }
 
 export function playgroundPaneKey(
@@ -262,6 +260,7 @@ function ClientLiveColumns(props: {
         const panel = (
           <ClientPlaygroundPanel
             actor={actor}
+            session={session}
             snapshotEpoch={snapshotEpoch}
             reloadToken={session.revision}
             pane={resolvePlaygroundPane(panes, actor.id, 'client')}

@@ -4,6 +4,8 @@ import { useSyncEngine } from '@pkgs/sync-engine/client';
 import {
   Box,
   Button,
+  Island,
+  IslandGrid,
   ScreenBase,
   ScreenBodyScrollView,
   useRouter,
@@ -30,6 +32,7 @@ export function ProfileScreen({
   return (
     <ScreenBase
       screenId="profile"
+      surface="canvas"
       breadcrumbs={[{ name: <Trans>Profile</Trans> }]}
       content={({ sx }) => (
         <ScreenBodyScrollView
@@ -61,31 +64,43 @@ function ProfileScreenContent({
   const router = useRouter();
 
   return (
-    <Box
-      sx={{
-        alignItems: 'center',
-        gap: 3,
-        pt: 2,
-      }}
-    >
-      <MyProfileAvatar size={96} />
-      <Box sx={{ alignItems: 'center', gap: 1, alignSelf: 'stretch' }}>
-        <MyUsername variant="title" sx={{ textAlign: 'center' }} />
-      </Box>
-      {friendsStats !== undefined && friendsStats !== null ? (
-        <Box sx={{ alignSelf: 'stretch', mt: 4 }}>{friendsStats}</Box>
-      ) : null}
-      <Box sx={{ flexDirection: 'row', gap: 2, alignSelf: 'stretch', mt: 4 }}>
-        <Button
-          title={t`Edit profile`}
-          intent="neutral"
-          variant="outline"
-          flex={1}
-          onPress={() => router.push('/profile/edit')}
-          testID={Handles.profileEdit}
-        />
-        {friendsActions}
-      </Box>
-    </Box>
+    <IslandGrid columns={3}>
+      <Island span={1}>
+        <Box
+          sx={{
+            alignItems: 'center',
+            gap: 3,
+            pt: 2,
+          }}
+        >
+          <MyProfileAvatar size={96} />
+          <Box sx={{ alignItems: 'center', gap: 1, alignSelf: 'stretch' }}>
+            <MyUsername variant="title" sx={{ textAlign: 'center' }} />
+          </Box>
+          <Box
+            sx={{ flexDirection: 'row', gap: 2, alignSelf: 'stretch', mt: 4 }}
+          >
+            <Button
+              title={t`Edit profile`}
+              intent="neutral"
+              variant="outline"
+              flex={1}
+              onPress={() => router.push('/profile/edit')}
+              testID={Handles.profileEdit}
+            />
+          </Box>
+        </Box>
+      </Island>
+      <Island span={2} title={<Trans>Friends</Trans>}>
+        <Box sx={{ gap: 3, alignSelf: 'stretch' }}>
+          {friendsStats !== undefined && friendsStats !== null
+            ? friendsStats
+            : null}
+          {friendsActions !== undefined && friendsActions !== null ? (
+            <Box sx={{ flexDirection: 'row', gap: 2 }}>{friendsActions}</Box>
+          ) : null}
+        </Box>
+      </Island>
+    </IslandGrid>
   );
 }

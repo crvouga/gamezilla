@@ -8,17 +8,15 @@ import {
   openSimServerSqlFromSeedBytes,
   type SimSql,
 } from '@product/sim/fabric/sim-sql';
-import { resolveSimSqlBackend } from '@product/sim/fabric/sim-sql-backend';
 
-import { ensureSimPgliteSeed } from '../setup/boot-sim-pglite';
-import { ensureSimPostgresMemSeed } from '../setup/boot-sim-postgres-mem';
 import { createSerializedRunFor } from '../setup/sim-wait-pump';
+import { loadRntlSessionFactory } from './in-process-rntl';
 import { type ProductExtra, SIM_START_MS } from './ports';
 
 // @io-wall-ok — host factory; wallClock only when skipSeed (playground).
 
 type MultiAppRntlSession = ReturnType<
-  typeof import('@pkgs/ui-testing-rntl')['createMultiAppRntlSession']
+  ReturnType<typeof loadRntlSessionFactory>
 >;
 
 export type InProcessRuntimeOptions = {
@@ -38,10 +36,6 @@ export type InProcessRuntimeOptions = {
   readonly skipSeed?: boolean;
 };
 
-function loadRntlSessionFactory(): typeof import('@pkgs/ui-testing-rntl')['createMultiAppRntlSession'] {
-  return require('@pkgs/ui-testing-rntl').createMultiAppRntlSession;
-}
-
 function defaultWithRntl(): boolean {
   return (
     process.env['SIM_WITH_RNTL'] === '1' || process.env['BUN_TEST'] === '1'
@@ -49,12 +43,15 @@ function defaultWithRntl(): boolean {
 }
 
 async function openSeededServerSql(clock: Clock): Promise<SimSql> {
-  const backend = resolveSimSqlBackend();
-  const seedBytes =
-    backend === 'mem'
-      ? (await ensureSimPostgresMemSeed()).seedBytes
-      : (await ensureSimPgliteSeed()).seedBytes;
-  return openSimServerSqlFromSeedBytes('sim_server', clock, seedBytes);
+  // Lazy: Node seed modules use `__dirname` / node:fs — never load in Expo web.
+  const { ensureSimPostgresMemSeed } = await import(
+    '../setup/boot-sim-postgres-mem'
+  );
+  return openSimServerSqlFromSeedBytes(
+    'sim_server',
+    clock,
+    (await ensureSimPostgresMemSeed()).seedBytes
+  );
 }
 
 async function openMigratedFreshServerSql(clock: Clock): Promise<SimSql> {

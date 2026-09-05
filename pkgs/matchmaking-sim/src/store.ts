@@ -1,12 +1,11 @@
 /**
- * Shared SQL store for matchmaking sim replicas (sqlite or PGlite).
+ * Shared SQL store for matchmaking sim replicas (sqlite or postgres-mem).
  */
 
 import { Database } from 'bun:sqlite';
-import { PGlite } from '@electric-sql/pglite';
 import { SqlClientImplAgnostic } from '@pkgs/sql-client/impl-agnostic';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { createPgliteSqlClient } from '@pkgs/sql-client-postgres/impl-pglite';
+import { SqlClientImplPostgresMem } from '@pkgs/sql-client-postgres/impl-postgres-mem';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite/impl-bun-sqlite';
 import type { MatchmakingSimBackend } from './sim-api';
 
@@ -31,12 +30,12 @@ export async function openSimStore(
       },
     };
   }
-  const db = await PGlite.create();
+  const client = SqlClientImplPostgresMem.open({ seed: 1 });
+  await client.connect();
+  const shared = new SqlClientImplAgnostic(client);
   return {
     backend,
-    openClient: () => new SqlClientImplAgnostic(createPgliteSqlClient(db)),
-    close: async () => {
-      await db.close();
-    },
+    openClient: () => shared,
+    close: () => client.disconnect(),
   };
 }

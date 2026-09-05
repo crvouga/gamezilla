@@ -204,4 +204,9 @@ export type SimConsolePorts = {
   readonly reportsStore?: ObjectStore;
   /** Public URL base for report assets (default `/reports`). */
   readonly reportsPublicBaseUrl?: string;
+  /**
+   * Durable store for per-node SQL notebooks (OPFS / Expo FS). When omitted,
+   * notebooks fall back to an in-memory ObjectStore (lost on reload).
+   */
+  readonly notebookStore?: ObjectStore;
 };

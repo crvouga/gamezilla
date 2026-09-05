@@ -64,7 +64,7 @@ function cleanupConsoleDist(): void {
   });
 }
 
-/** COOP/COEP for SharedArrayBuffer (expo-sqlite / PGlite) on Workers assets. */
+/** COOP/COEP for SharedArrayBuffer (expo-sqlite / sqlite-wasm) on Workers assets. */
 function writeDistIsolationHeaders(): void {
   const body = [
     '/*',

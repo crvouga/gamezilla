@@ -1,6 +1,5 @@
 /**
  * Open each factory, run `fn`, cleanup sample tables, close ephemeral engines.
- * PGlite stays process-shared (close is a no-op).
  */
 
 import {

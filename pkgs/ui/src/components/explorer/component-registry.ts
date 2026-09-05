@@ -1,5 +1,7 @@
 import { type ComponentType, useSyncExternalStore } from 'react';
 import { default as ActionBarExample } from '../action-bar/action-bar.example';
+import { default as AppFrameExample } from '../app-frame/app-frame.example';
+import { default as AppHeaderIslandExample } from '../app-header-island/app-header-island.example';
 import { default as AppLogoExample } from '../app-logo/app-logo.example';
 import { default as AvatarExample } from '../avatar/avatar.example';
 import { default as AvatarGroupExample } from '../avatar-group/avatar-group.example';
@@ -15,6 +17,7 @@ import { default as CenterExample } from '../center/center.example';
 import { default as CheckboxExample } from '../checkbox/checkbox.example';
 import { default as ChipExample } from '../chip/chip.example';
 import { default as ChipGroupExample } from '../chip-group/chip-group.example';
+import { default as CodeEditorExample } from '../code-editor/code-editor.example';
 import { default as CollapsibleExample } from '../collapsible/collapsible.example';
 import { default as CommandPaletteExample } from '../command-palette/command-palette.example';
 import { default as CopyToClipboardFieldExample } from '../copy-to-clipboard-field/copy-to-clipboard-field.example';
@@ -28,6 +31,8 @@ import { default as FormActionsFooterExample } from '../form-actions-footer/form
 import { default as GradientBoxExample } from '../gradient-box/gradient-box.example';
 import { default as HorizontalPickerExample } from '../horizontal-picker/horizontal-picker.example';
 import { default as IconButtonExample } from '../icon-button/icon-button.example';
+import { default as IslandExample } from '../island/island.example';
+import { default as IslandGridExample } from '../island-grid/island-grid.example';
 import { default as JsonViewExample } from '../json-view/json-view.example';
 import { default as ListExample } from '../list/list.example';
 import { default as LoadingStateExample } from '../loading-state/loading-state.example';
@@ -36,6 +41,7 @@ import { default as ModalExample } from '../modal/modal.example';
 import { default as MultiSelectSwatchGridExample } from '../multi-select-swatch/multi-select-swatch-grid.example';
 import { default as MutationModalExample } from '../mutation-modal/mutation-modal.example';
 import { default as NumberStepperExample } from '../number-stepper/number-stepper.example';
+import { default as OverflowMenuButtonExample } from '../overflow-menu-button/overflow-menu-button.example';
 import { default as PaginationControlsExample } from '../pagination-controls/pagination-controls.example';
 import { default as PickerExample } from '../picker/picker.example';
 import { default as PickerSectionExample } from '../picker-section/picker-section.example';
@@ -57,7 +63,6 @@ import { default as SpacerExample } from '../spacer/spacer.example';
 import { default as SpeakingAvatarExample } from '../speaking-avatar/speaking-avatar.example';
 import { default as SpinnerExample } from '../spinner/spinner.example';
 import { default as StackExample } from '../stack/stack.example';
-import { default as StatusBarExample } from '../status-bar/status-bar.example';
 import { default as StatusDotExample } from '../status-dot/status-dot.example';
 import { default as SuccessStateExample } from '../success-state/success-state.example';
 import { default as SwitchExample } from '../switch/switch.example';
@@ -97,6 +102,14 @@ const builtInEntries: ComponentEntry[] = [
     category: 'Layout',
     Example: ScreenTitleExample,
   },
+  { name: 'AppFrame', category: 'Layout', Example: AppFrameExample },
+  {
+    name: 'AppHeaderIsland',
+    category: 'Layout',
+    Example: AppHeaderIslandExample,
+  },
+  { name: 'Island', category: 'Layout', Example: IslandExample },
+  { name: 'IslandGrid', category: 'Layout', Example: IslandGridExample },
   { name: 'Catalog', category: 'Layout', Example: CatalogExample },
   {
     name: 'FormActionsFooter',
@@ -115,6 +128,11 @@ const builtInEntries: ComponentEntry[] = [
     Example: FloatingActionButtonExample,
   },
   { name: 'IconButton', category: 'Inputs', Example: IconButtonExample },
+  {
+    name: 'OverflowMenuButton',
+    category: 'Inputs',
+    Example: OverflowMenuButtonExample,
+  },
   { name: 'ActionBar', category: 'Inputs', Example: ActionBarExample },
   {
     name: 'BottomActionBar',
@@ -128,6 +146,7 @@ const builtInEntries: ComponentEntry[] = [
     Example: SocialSignInButtonExample,
   },
   { name: 'TextInput', category: 'Inputs', Example: TextInputExample },
+  { name: 'CodeEditor', category: 'Inputs', Example: CodeEditorExample },
   {
     name: 'CopyToClipboardField',
     category: 'Inputs',
@@ -210,7 +229,6 @@ const builtInEntries: ComponentEntry[] = [
 
   // Status
   { name: 'StatusDot', category: 'Data Display', Example: StatusDotExample },
-  { name: 'StatusBar', category: 'Overlay', Example: StatusBarExample },
 
   // Overlay
   { name: 'Modal', category: 'Overlay', Example: ModalExample },

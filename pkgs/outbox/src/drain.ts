@@ -13,7 +13,7 @@ import type { OutboxConsumerDef } from './types';
 type PendingEventRow = {
   readonly id: string;
   readonly type: string;
-  /** Text on SQLite; often already-parsed object on Postgres/PGlite json. */
+  /** Text on SQLite; often already-parsed object on Postgres json. */
   readonly payload: unknown;
 };
 
@@ -175,7 +175,7 @@ async function runDelivery(args: {
   const policy = resolveRetryPolicy(consumer);
   let payload: unknown;
   try {
-    // Postgres/PGlite `json` columns often return already-parsed objects;
+    // Postgres `json` columns often return already-parsed objects;
     // SQLite stores JSON as text. Accept both wire shapes.
     payload =
       typeof event.payload === 'string'

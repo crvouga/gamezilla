@@ -1,6 +1,7 @@
 /**
  * Persistent single-line bar showing the latest collaborative event.
- * Press to open a fuller log surface (caller owns that).
+ * Press to open a fuller log surface (caller owns that). Unframed: the host
+ * decides the surface (card / island) it sits in.
  */
 
 import type { LogLine, ParticipantColor } from '@pkgs/collab';
@@ -215,13 +216,8 @@ export function EventLogBar({
       {...componentDataSet('EventLogBar', dataSet)}
       onPress={onPress}
       disabled={onPress === undefined}
-      sx={{
-        borderBottomWidth: 1,
-        borderBottomColor: 'border',
-        background: 'surface',
-      }}
     >
-      <Box sx={{ px: 2, py: 1 }}>
+      <Box sx={{ px: 3, py: 2 }}>
         <Stack
           direction="horizontal"
           spacing={1.5}

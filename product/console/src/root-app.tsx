@@ -10,6 +10,8 @@ import {
   wallTimers,
 } from '@pkgs/clock';
 import { createStaticObjectStore } from '@pkgs/object-store/impl-static';
+import { createClientFsObjectStore } from '@pkgs/object-store-expo-fs/impl-client-fs';
+import { wallExpoFs } from '@pkgs/object-store-expo-fs/wall-expo-fs';
 import {
   type BootPlaygroundOptions,
   type PlaygroundSession,
@@ -89,6 +91,10 @@ function ConsoleBody(): ReactNode {
         fetch: fetchFn,
       }),
       reportsPublicBaseUrl: reportsBase,
+      notebookStore: createClientFsObjectStore({
+        baseDir: 'sql-notebooks',
+        expoFs: wallExpoFs(),
+      }),
     };
   }, [clock, timers]);
   return (

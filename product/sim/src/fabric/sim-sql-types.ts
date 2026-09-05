@@ -2,8 +2,8 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { Pool } from '@pkgs/sql-client-postgres/pg-types';
 
 /**
- * Opaque SQL handle for sim server / actor DBs. Dump format is fabric-specific
- * (`mixed-pgmm-sqlm` vs `mixed-pglite-sqlite`).
+ * Opaque SQL handle for sim server / actor DBs.
+ * Dump format is `mixed-pgmm-sqlm` (postgres-mem + sqlite-mem).
  */
 export type SimSql = {
   readonly sqlClient: SqlClient;

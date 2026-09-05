@@ -65,4 +65,26 @@ describe('refreshAuth', () => {
     });
     expect(result).toEqual({ accountId: 'acc-1' });
   });
+
+  test('throws recoverable RefreshAuthError on empty 200 body', async () => {
+    const fetchFn: HttpFetch = async () =>
+      new Response('', {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    try {
+      await refreshAuth({
+        apiUrl: 'http://localhost',
+        bearerToken: 'live',
+        deviceId: 'device-1',
+        fetchFn,
+        deviceSnapshot: {},
+      });
+      expect.unreachable('expected RefreshAuthError');
+    } catch (e) {
+      expect(e).toBeInstanceOf(RefreshAuthError);
+      expect((e as RefreshAuthError).status).toBe(401);
+      expect(isUnauthorizedRefreshError(e)).toBe(true);
+    }
+  });
 });

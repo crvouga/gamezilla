@@ -2,21 +2,47 @@ import type { ServerHttp } from '@apps/client/product/client-env';
 
 type RnResponse = Response & { _bodyInit?: BodyInit | null };
 
+async function bodyInitToText(
+  init: BodyInit | null | undefined
+): Promise<string | null> {
+  if (init == null) return null;
+  if (typeof init === 'string') return init;
+  if (typeof ArrayBuffer !== 'undefined' && init instanceof ArrayBuffer) {
+    return new TextDecoder().decode(init);
+  }
+  if (typeof Uint8Array !== 'undefined' && ArrayBuffer.isView(init)) {
+    return new TextDecoder().decode(init as ArrayBufferView);
+  }
+  if (typeof Blob !== 'undefined' && init instanceof Blob) {
+    return init.text();
+  }
+  return null;
+}
+
 /**
- * Materialize the body so React Native / Expo Go can read it.
+ * Materialize the body so React Native / Expo can read it.
  *
  * Prefer a string `_bodyInit` / decoded bytes over re-wrapping streams: RN's
- * whatwg-fetch often yields empty `text()` / `arrayBuffer()` for stream bodies.
- * Always rebuild with a string so the client polyfill keeps a readable body.
+ * whatwg-fetch often yields empty `text()` / `arrayBuffer()` for stream bodies,
+ * and Hono may clone via `new Response(res.body, res)` wiping JSON when `body`
+ * is missing. Always rebuild with a string so the client keeps a readable body.
  */
 async function materializeResponse(res: Response): Promise<Response> {
   const rn = res as RnResponse;
-  let text: string;
-  if (typeof rn._bodyInit === 'string') {
-    text = rn._bodyInit;
-  } else {
-    const buf = await res.arrayBuffer();
-    text = new TextDecoder().decode(buf);
+  let text = await bodyInitToText(rn._bodyInit);
+  if (text === null) {
+    try {
+      text = await res.clone().text();
+    } catch {
+      text = null;
+    }
+  }
+  if (text === null || text.length === 0) {
+    try {
+      text = new TextDecoder().decode(await res.arrayBuffer());
+    } catch {
+      text = text ?? '';
+    }
   }
   const headers = new Headers(res.headers);
   headers.delete('content-length');

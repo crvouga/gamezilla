@@ -5,11 +5,9 @@ export {
   factoriesForDialect,
   loadAvailableFactories,
   openBackend,
-  PGLITE_FACTORY,
   POSTGRES_MEM_FACTORY,
   SQLITE_MEM_FACTORY,
 } from './registry';
-export { getSharedPglite } from './shared-pglite';
 export type {
   BackendFactory,
   BackendKind,

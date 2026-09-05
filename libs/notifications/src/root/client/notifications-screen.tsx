@@ -3,8 +3,8 @@ import {
   Box,
   Button,
   EmptyState,
-  SCREEN_BODY_PADDING_STEP,
   ScreenBase,
+  useContentEdgePadding,
   useMutationButton,
 } from '@pkgs/ui';
 import { type ReactNode, useCallback } from 'react';
@@ -26,9 +26,11 @@ function NotificationsSignedInGate({
 }): ReactNode {
   const { t } = useLingui();
   const { isSignedIn, onSignIn } = useNotificationsShell();
+  const edge = useContentEdgePadding();
+  const px = edge?.horizontalStep ?? 0;
   if (isSignedIn) return children;
   return (
-    <Box sx={{ px: SCREEN_BODY_PADDING_STEP }}>
+    <Box sx={px !== 0 ? { px } : undefined}>
       <EmptyState
         variant="compact"
         title={<Trans>Sign in to view your notifications</Trans>}
@@ -51,6 +53,8 @@ function NotificationsScreenBody({
   const { interactions, sections, isLoading, filter, setFilter } =
     useNotifications(inboxOptions);
   const inboxActions = useNotificationsActions();
+  const edge = useContentEdgePadding();
+  const px = edge?.horizontalStep ?? 0;
   const markAllRead = useMutationButton({
     operation: useCallback(async () => {
       await inboxActions.markAllRead();
@@ -66,7 +70,7 @@ function NotificationsScreenBody({
 
   return (
     <Box sx={{ gap: 3 }}>
-      <Box sx={{ px: SCREEN_BODY_PADDING_STEP, gap: 2 }}>
+      <Box sx={[px !== 0 ? { px } : false, { gap: 2 }]}>
         <NotificationsFilterBar filter={filter} onFilterChange={setFilter} />
         {interactions.some((item) => item.isUnread) ? (
           <Box sx={{ alignItems: 'flex-start' }}>
@@ -83,6 +87,43 @@ function NotificationsScreenBody({
   );
 }
 
+function NotificationsBleedBody({
+  sx,
+  initialFilter,
+}: {
+  readonly sx: { flex?: 1; minHeight?: 0 };
+  readonly initialFilter?: NotificationFilter;
+}): ReactNode {
+  const edge = useContentEdgePadding();
+  const h = edge?.horizontalStep ?? 0;
+  const b = edge?.bottomStep ?? 0;
+  return (
+    <Box
+      sx={[
+        sx,
+        h !== 0 || b !== 0
+          ? {
+              ...(h !== 0
+                ? {
+                    mx: -h,
+                    mt: -h,
+                    pt: h,
+                  }
+                : {}),
+              ...(b !== 0 ? { mb: -b, pb: b } : {}),
+            }
+          : false,
+      ]}
+    >
+      <NotificationsSignedInGate>
+        <NotificationsScreenBody
+          {...(initialFilter !== undefined ? { initialFilter } : {})}
+        />
+      </NotificationsSignedInGate>
+    </Box>
+  );
+}
+
 export function NotificationsScreen({
   initialFilter,
 }: NotificationsScreenProps): ReactNode {
@@ -93,24 +134,10 @@ export function NotificationsScreen({
       screenId="notifications"
       breadcrumbs={[{ name: t`Notifications` }]}
       content={({ sx }) => (
-        <Box
-          sx={[
-            sx,
-            {
-              mx: -SCREEN_BODY_PADDING_STEP,
-              mt: -SCREEN_BODY_PADDING_STEP,
-              mb: -SCREEN_BODY_PADDING_STEP,
-              pt: SCREEN_BODY_PADDING_STEP,
-              pb: SCREEN_BODY_PADDING_STEP,
-            },
-          ]}
-        >
-          <NotificationsSignedInGate>
-            <NotificationsScreenBody
-              {...(initialFilter !== undefined ? { initialFilter } : {})}
-            />
-          </NotificationsSignedInGate>
-        </Box>
+        <NotificationsBleedBody
+          sx={sx}
+          {...(initialFilter !== undefined ? { initialFilter } : {})}
+        />
       )}
     />
   );

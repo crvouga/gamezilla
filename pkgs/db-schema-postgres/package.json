@@ -15,7 +15,6 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@electric-sql/pglite": "catalog:",
     "@pkgs/db-migrate": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
     "@pkgs/logger": "workspace:*",

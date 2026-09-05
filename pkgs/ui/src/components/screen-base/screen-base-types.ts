@@ -54,17 +54,27 @@ export type ScreenBasePrimaryAction = {
   testID?: string;
 };
 
+/** Wide-layout body surface: one card vs screen-composed islands. */
+export type ScreenBaseSurface = 'island' | 'canvas';
+
 export type ScreenBaseProps = {
   /** Stable screen identifier for DOM `data-screen` (E2E / dev tooling). */
   screenId: string;
   /**
    * Navigation trail for the header: the last item supplies the centered
-   * title; earlier items with `onPress` drive the back button. Not rendered
-   * as a visible breadcrumb row.
+   * title; earlier items with `onPress` drive the back button. On compact,
+   * not rendered as a visible breadcrumb row. On wide, rendered as a
+   * visible trail in the page header.
    */
   breadcrumbs: ScreenBaseBreadcrumb[];
   actions?: ScreenBaseAction[];
   content: (p: BodyContentProps) => ReactNode;
+  /**
+   * Wide-only body surface. `'island'` (default) wraps content in one card.
+   * `'canvas'` leaves content unwrapped so the screen composes
+   * {@link Island} / {@link IslandGrid}. Ignored on compact.
+   */
+  surface?: ScreenBaseSurface;
   /**
    * When true, the body scrolls as a whole with padding inside the scroller
    * (scrollbar flush with the screen edge). When false (default), the body
@@ -76,10 +86,13 @@ export type ScreenBaseProps = {
   /**
    * When `scroll` is true, attaches themed pull-to-refresh on the body
    * scroller. Omit `refreshing` to manage spinner state for the duration of
-   * the async action.
+   * the async action. Not wired on wide (no pull gesture).
    */
   onRefresh?: (() => void | Promise<void>) | undefined;
-  /** Controlled refreshing flag for whole-body `scroll` pull-to-refresh. */
+  /**
+   * Controlled refreshing flag for whole-body `scroll` pull-to-refresh.
+   * Ignored on wide.
+   */
   refreshing?: boolean | undefined;
   /**
    * Large body title that syncs into the TopBar after scroll. Last breadcrumb
@@ -124,4 +137,9 @@ export type ScreenBaseHeaderProps = {
    * past the reveal threshold (via {@link ScreenTitleProvider}).
    */
   largeTitle?: boolean | undefined;
+  /**
+   * Compact-only trailing chrome after header actions (e.g. avatar menu).
+   * Wide page headers must not duplicate this — the AppFrame island owns it.
+   */
+  globalTrailing?: ReactNode | undefined;
 };

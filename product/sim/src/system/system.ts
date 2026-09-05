@@ -11,7 +11,6 @@ import { createSim } from '@product/sim/fabric/create-sim';
 import { bunWebviewRuntime } from '../hosts/bun-webview';
 import { inProcessRuntime } from '../hosts/in-process';
 import type { ProductExtra } from '../hosts/ports';
-import { seedSimChessPuzzles } from '../setup/seed-sim-chess-puzzles';
 import { simReportTopology } from '../setup/sim-report-topology';
 import {
   partition,
@@ -29,6 +28,29 @@ const FRAME_STYLESHEET_HREF = '../../snapshot-shell.css';
 
 function extraOf(session: { readonly ports: object }): ProductExtra {
   return session.ports as ProductExtra;
+}
+
+function canSeedFromNodeFs(): boolean {
+  return (
+    typeof process !== 'undefined' &&
+    typeof process.versions === 'object' &&
+    process.versions != null &&
+    typeof process.versions.node === 'string'
+  );
+}
+
+async function maybeSeedSimChessPuzzles(sqlClient: {
+  readonly query: unknown;
+}): Promise<void> {
+  // Playground / Expo web: Node fixtures + `__dirname` are unavailable.
+  // Console seeds puzzles via playground command palette instead.
+  if (!canSeedFromNodeFs()) return;
+  const { seedSimChessPuzzles } = await import(
+    '../setup/seed-sim-chess-puzzles'
+  );
+  await seedSimChessPuzzles({
+    sqlClient: sqlClient as import('@pkgs/sql-client/interface').SqlClient,
+  });
 }
 
 async function captureActorHtml(
@@ -103,7 +125,7 @@ export const product = defineSystem<ProductSim>({
     // burn their budget while serialized /api/* requests are still queued.
     extra.drainServerHttp.current = () => sim.drainServerFetch();
     await sim.spawnServer();
-    await seedSimChessPuzzles({ sqlClient: sim.serverSql.sqlClient });
+    await maybeSeedSimChessPuzzles(sim.serverSql.sqlClient);
     return createProductSim(session, sim);
   },
 });

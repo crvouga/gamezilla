@@ -45,3 +45,25 @@ export function resolveMiniplayerMode(
 
 /** Peek layers behind the front stacked card (not including the front). */
 export const MINIPLAYER_STACK_PEEK_COUNT = 2;
+
+/** Wide layouts center the miniplayer in a card no wider than this. */
+export const MINIPLAYER_WIDE_MAX_WIDTH = 640;
+
+export type MiniplayerLayoutMode = 'compact' | 'wide';
+
+export type MiniplayerFrame = {
+  /** Card corners (wide) vs full-bleed strip above the tab bar (compact). */
+  readonly rounded: boolean;
+  /** Centered max width on wide; `null` spans the container. */
+  readonly maxWidth: number | null;
+};
+
+/** Frame the miniplayer takes for a layout mode; pinned to the bottom in both. */
+export function resolveMiniplayerFrame(
+  mode: MiniplayerLayoutMode
+): MiniplayerFrame {
+  if (mode === 'wide') {
+    return { rounded: true, maxWidth: MINIPLAYER_WIDE_MAX_WIDTH };
+  }
+  return { rounded: false, maxWidth: null };
+}

@@ -3,7 +3,7 @@
  *
  * URL search keys:
  * - section
- * - playground: kind, instance, cv (id:view[:table],…)
+ * - playground: kind, instance, cv (id:view,…); legacy trailing `:table` ignored
  * - reports: bucket, run, test, frame, node, rview
  *
  * Defaults are omitted from the built search. Legacy `host=console` is
@@ -32,7 +32,6 @@ export type ConsoleView = DebuggerViewId;
 
 export type PaneNav = {
   readonly view: ConsoleView;
-  readonly table: string | null;
 };
 
 export type PlaygroundNav = {
@@ -49,7 +48,6 @@ export type ConsoleNavState = {
 
 export type PaneNavPatch = {
   readonly view?: string;
-  readonly table?: string | null;
 };
 
 export type PlaygroundNavPatch = {
@@ -144,7 +142,7 @@ export function resolvePaneNav(
     const byKind = playground.panes[singleton];
     if (byKind !== undefined) return coercePaneForKind(kind, byKind);
   }
-  return { view: defaultViewForKind(kind), table: null };
+  return { view: defaultViewForKind(kind) };
 }
 
 export function applyConsoleNavPatch(
@@ -203,7 +201,7 @@ export function parseConsoleNav(search: string): ConsoleNavState {
   ) {
     const view = coerceView(kind, legacyView);
     if (view !== defaultViewForKind(kind)) {
-      panes[focusedId] = { view, table: null };
+      panes[focusedId] = { view };
     }
   }
   return {
@@ -267,7 +265,7 @@ function playgroundEqual(a: PlaygroundNav, b: PlaygroundNav): boolean {
     if (key !== bKeys[i]) return false;
     const ap = a.panes[key]!;
     const bp = b.panes[key]!;
-    if (ap.view !== bp.view || ap.table !== bp.table) return false;
+    if (ap.view !== bp.view) return false;
   }
   return true;
 }
@@ -300,10 +298,6 @@ function applyPlaygroundPatch(
     const { id, patch: panePatch } = patch.pane;
     panes[id] = mergePane(kind, panes[id], panePatch);
   }
-  if (patch.kind !== undefined && patch.kind !== current.kind) {
-    // Drop panes that cannot apply to the new kind's default; keep others for
-    // when the user switches back (per-node isolation).
-  }
   return {
     kind,
     instance: normalizeInstance(kind, instanceRaw),
@@ -316,25 +310,14 @@ function mergePane(
   current: PaneNav | undefined,
   patch: PaneNavPatch
 ): PaneNav {
-  const base = current ?? { view: defaultViewForKind(kind), table: null };
+  const base = current ?? { view: defaultViewForKind(kind) };
   const view =
     patch.view !== undefined ? coerceView(kind, patch.view) : base.view;
-  const table =
-    patch.table !== undefined ? normalizeTable(patch.table) : base.table;
-  return { view, table };
+  return { view };
 }
 
 function coercePaneForKind(kind: ConsoleKind, pane: PaneNav): PaneNav {
-  return {
-    view: coerceView(kind, pane.view),
-    table: normalizeTable(pane.table),
-  };
-}
-
-function normalizeTable(table: string | null): string | null {
-  if (table === null) return null;
-  const trimmed = table.trim();
-  return trimmed.length === 0 ? null : trimmed;
+  return { view: coerceView(kind, pane.view) };
 }
 
 function focusedPaneId(kind: ConsoleKind, instance: string): string {
@@ -380,14 +363,10 @@ function parsePaneMap(
     if (segments.length < 2) continue;
     const id = decodeURIComponent(segments[0] ?? '').trim();
     const viewRaw = decodeURIComponent(segments[1] ?? '').trim();
-    const tableRaw =
-      segments.length >= 3
-        ? decodeURIComponent(segments.slice(2).join(':')).trim()
-        : '';
+    // Legacy `id:view:table` — discard trailing table segment.
     if (id.length === 0 || viewRaw.length === 0) continue;
     out[id] = {
       view: coerceLooseView(viewRaw, kind, id),
-      table: tableRaw.length > 0 ? tableRaw : null,
     };
   }
   return out;
@@ -421,12 +400,8 @@ function buildPaneMap(playground: PlaygroundNav): string {
         : id === 'events'
           ? defaultViewForKind('events')
           : defaultViewForKind(playground.kind === 'room' ? 'room' : 'client');
-    if (pane.view === defaultView && pane.table === null) continue;
-    let entry = `${encodeURIComponent(id)}:${encodeURIComponent(pane.view)}`;
-    if (pane.table !== null) {
-      entry += `:${encodeURIComponent(pane.table)}`;
-    }
-    entries.push(entry);
+    if (pane.view === defaultView) continue;
+    entries.push(`${encodeURIComponent(id)}:${encodeURIComponent(pane.view)}`);
   }
   return entries.join(',');
 }

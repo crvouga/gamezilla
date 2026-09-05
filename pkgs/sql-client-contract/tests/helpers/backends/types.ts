@@ -7,7 +7,6 @@ export type BackendKind =
   | 'bun-sqlite'
   | 'sqlite-wasm'
   | 'postgres-mem'
-  | 'pglite'
   | 'pg-pool'
   | 'pg-client'
   | 'bun-postgres';
@@ -18,7 +17,7 @@ export type MatrixBackend = {
   readonly dialect: SqlDialect;
   readonly client: SqlClient;
   /**
-   * Drop generated tables after a sample. Shared engines (PGlite) must not
+   * Drop generated tables after a sample. Shared engines must not
    * disconnect here — only wipe sample artifacts.
    */
   cleanup(tables: readonly string[]): Promise<void>;

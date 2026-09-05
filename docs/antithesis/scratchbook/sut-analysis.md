@@ -37,7 +37,7 @@ No Antithesis SDK is present. See `existing-assertions.md`.
 | Expo client | `apps/client` → `createClient(wallClientEnv())` | iOS / web. Per-user SQLite `user_<first12HexOfUsersId>`. |
 | Sim console | `product/console` `createSim` | Dev only. In-process Hono + loopback rooms. Reports port 7789. |
 
-Production sidecars: Neon Postgres, Railway EMQX, Backblaze B2. Optional: Stripe, ElevenLabs, OpenAI (503 if secrets missing). Local sim default: PGlite + SQLite; `max` boots embedded Postgres + MinIO + EMQX.
+Production sidecars: Neon Postgres, Railway EMQX, Backblaze B2. Optional: Stripe, ElevenLabs, OpenAI (503 if secrets missing). Local sim default: postgres-mem + sqlite-mem; `max` boots embedded Postgres + MinIO + EMQX.
 
 Sim collapses Worker+DO+EMQX into one process (`serveFetch`, `createInMemoryPubSub`, `createRoomServer`). That is a **fidelity gap**, not the production topology.
 
@@ -251,7 +251,7 @@ Product request path has **almost no timeouts** on Neon connect, S3, EMQX HTTP p
 
 | Dep | Prod | Default sim | `max` |
 |---|---|---|---|
-| Postgres | Neon TCP per request | PGlite / postgres-mem | Embedded Postgres |
+| Postgres | Neon TCP per request | postgres-mem | Embedded Postgres |
 | Client SQL | expo-sqlite / OPFS | bun:sqlite / mem | Real SQLite |
 | Object store | B2 S3 | In-memory | MinIO |
 | PubSub | EMQX HTTP + MQTT WSS | In-memory bus | Embedded EMQX |

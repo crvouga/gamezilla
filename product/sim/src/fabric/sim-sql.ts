@@ -1,6 +1,6 @@
 /**
  * Sim SQL handles — thin wrappers over {@link getSimSqlEngines}.
- * Engine imports live only in fabric-mem / fabric-real.
+ * Engine imports live only in fabric-mem.
  */
 
 import type { Clock } from '@pkgs/clock';

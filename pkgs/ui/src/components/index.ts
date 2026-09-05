@@ -21,6 +21,20 @@ export {
 } from './action-bar';
 // Foundation
 export { AnimatedBox, type AnimatedBoxProps } from './animated-box';
+export {
+  AppFrame,
+  AppFrameChromeProvider,
+  type AppFrameChromeProviderProps,
+  type AppFrameProps,
+  useAppFrameGlobalTrailing,
+  useAppFrameHeader,
+  useSetAppFrameHeader,
+} from './app-frame';
+export {
+  AppHeaderIsland,
+  type AppHeaderIslandItem,
+  type AppHeaderIslandProps,
+} from './app-header-island';
 // Brand
 export { AppLogo, type AppLogoProps } from './app-logo';
 export { AVATAR_BORDER_WIDTH, Avatar, type AvatarProps } from './avatar';
@@ -104,6 +118,13 @@ export {
   CloseIconButton,
   type CloseIconButtonProps,
 } from './close-icon-button';
+export {
+  CodeEditor,
+  type CodeEditorProps,
+  type CodeSelection,
+  type CodeToken,
+  type CodeTokenKind,
+} from './code-editor';
 // Disclosure
 export { Collapsible, type CollapsibleProps } from './collapsible';
 // Compound Inputs
@@ -226,6 +247,12 @@ export {
 } from './icon-button';
 // Icons
 export * from './icons';
+export { Island, type IslandProps, type IslandSpan } from './island';
+export {
+  IslandGrid,
+  type IslandGridColumns,
+  type IslandGridProps,
+} from './island-grid';
 // Data inspection
 export {
   classifyValue,
@@ -379,7 +406,6 @@ export {
 // Layout
 export { Stack, type StackProps } from './stack';
 export * from './state-block';
-export * from './status-bar';
 // Status
 export {
   StatusDot,

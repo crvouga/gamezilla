@@ -12,6 +12,7 @@ import {
   ChevronsRight,
   CircleCheck,
   Code,
+  Columns2,
   Copy,
   Database,
   DoorOpen,
@@ -42,6 +43,7 @@ import {
   Share,
   Shuffle,
   SquarePen,
+  SquareStack,
   Terminal,
   Trash2,
   User,
@@ -63,6 +65,7 @@ export const RotateCcwIcon = createIcon(RotateCcw);
 export const SaveIcon = createIcon(Save);
 export const SendIcon = createIcon(Send);
 export const CodeIcon = createIcon(Code);
+export const Columns2Icon = createIcon(Columns2);
 export const ChevronRightIcon = createIcon(ChevronRight);
 export const ChevronLeftIcon = createIcon(ChevronLeft);
 export const ChevronsLeftIcon = createIcon(ChevronsLeft);
@@ -91,6 +94,7 @@ export const SearchIcon = createIcon(Search);
 export const ShareIcon = createIcon(Share);
 export const ShuffleIcon = createIcon(Shuffle);
 export const SquarePenIcon = createIcon(SquarePen);
+export const SquareStackIcon = createIcon(SquareStack);
 export const Trash2Icon = createIcon(Trash2);
 export const HeartIcon = createIcon(Heart);
 export const BellIcon = createIcon(Bell);

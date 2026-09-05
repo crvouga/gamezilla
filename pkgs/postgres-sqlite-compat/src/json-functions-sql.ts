@@ -4,7 +4,7 @@
  * run via {@link unsafe} (function bodies contain `;`).
  *
  * `LANGUAGE sql` over `#>` / `jsonb_set` / `jsonb_each` — works on real
- * Postgres, PGlite, and `@crvouga/postgres-mem` (no PL/pgSQL / jsonpath).
+ * Postgres and `@crvouga/postgres-mem` (no PL/pgSQL / jsonpath).
  *
  * Common call shapes match SQLite (`json_extract(col, '$.a')`). Postgres
  * type-name collisions (`json`) and VARIADIC quirks are avoided.

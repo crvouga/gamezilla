@@ -8,6 +8,7 @@ import {
 import { createElement, type ReactElement } from 'react';
 import { actorShellTestId, MultiAppHost } from './multi-app-rntl-host';
 import { createRenderedAppFromQueryScope } from './renderer-rntl';
+import { createNodeMock } from './rntl-node-mock';
 import {
   isBlankSnapshotHtml,
   serializeHostTreeHtml,
@@ -189,7 +190,7 @@ export function createMultiAppRntlSession(
         ...(activeActorId !== undefined ? { activeActorId } : {}),
       });
       if (result === undefined) {
-        result = render(host);
+        result = render(host, { createNodeMock });
         return;
       }
       result.rerender(host);

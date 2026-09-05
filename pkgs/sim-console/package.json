@@ -22,6 +22,7 @@
     "@pkgs/clock": "workspace:*",
     "@pkgs/db-schema-sqlite": "workspace:*",
     "@pkgs/http-client": "workspace:*",
+    "@pkgs/i18n": "workspace:*",
     "@pkgs/object-store": "workspace:*",
     "@pkgs/sim": "workspace:*",
     "@pkgs/sql": "workspace:*",
@@ -30,6 +31,8 @@
     "@pkgs/ui": "workspace:*",
     "@pkgs/ui-testing": "workspace:*",
     "@pkgs/ui-testing-rntl": "workspace:*",
+    "@pkgs/uuid": "workspace:*",
+    "expo-clipboard": "catalog:",
     "hono": "catalog:",
     "react": "catalog:",
     "react-native": "catalog:"

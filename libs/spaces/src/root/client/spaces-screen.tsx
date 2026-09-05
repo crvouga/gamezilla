@@ -65,6 +65,7 @@ function SpacesList() {
       keyExtractor={(id) => id}
       estimatedItemSize={160}
       drawDistance={200}
+      columns={{ compact: 1, wide: 2 }}
       onRefresh={() => refreshQueries()}
       sx={{ paddingBottom: 24, gap: 3 }}
       renderItem={renderItem}
@@ -101,9 +102,11 @@ export function SpacesScreen() {
   return (
     <ScreenBase
       screenId="spaces"
+      surface="canvas"
       breadcrumbs={[{ name: t`Spaces` }]}
       primaryAction={primaryAction}
       content={({ sx }) => (
+        // Lobby cards are cards already — never nest them inside an Island.
         <Box sx={sx}>
           <SpacesList />
         </Box>

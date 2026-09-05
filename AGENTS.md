@@ -99,11 +99,11 @@ When adding a new check, assign it to `//#check` (fast) or `//#check:full` (slow
 
 ## Local development
 
-**Manual work is the product console.** `bun run dev` starts **only `@product/console`** (Reports + Playground; default SQL fabric is **PGlite** server + **SQLite WASM** clients — override with `SIM_SQL_BACKEND=mem` for postgres-mem/sqlite-mem; reports on port 7789). It does **not** start Wrangler, real Postgres, MinIO, or EMQX. The product Expo app is separate (`bun run dev:client` → `@apps/client`).
+**Manual work is the product console.** `bun run dev` starts **only `@product/console`** (Reports + Playground; default SQL fabric is **postgres-mem** server + **sqlite-mem** clients; reports on port 7789). It does **not** start Wrangler, real Postgres, MinIO, or EMQX. The product Expo app is separate (`bun run dev:client` → `@apps/client`).
 
-Representativeness of production is **port contract matrices** (PGlite / real SQLite vs mem engines, Kv, ObjectStore, PubSub, billing/TTS/LLM stubs) plus default sim server dialect via **PGlite** (`SIM_SQL_BACKEND=real`), with `@product/test` `openSim({ fidelity: 'max' })` / `SIM_FIDELITY=max` for embedded real Postgres (+ MinIO/EMQX). Sidecar processes live in `@pkgs/postgres-embedded`, `@pkgs/minio-server`, `@pkgs/emqx-server` and are booted from tests/CI (`tools/scripts/boot-local-stack.ts`, `tools/scripts/boot-embedded-postgres.ts`).
+Representativeness of production is **port contract matrices** (postgres-mem / sqlite-mem vs live engines, Kv, ObjectStore, PubSub, billing/TTS/LLM stubs) plus `@product/test` `openSim({ fidelity: 'max' })` / `SIM_FIDELITY=max` for embedded real Postgres (+ MinIO/EMQX). Sidecar processes live in `@pkgs/postgres-embedded`, `@pkgs/minio-server`, `@pkgs/emqx-server` and are booted from tests/CI (`tools/scripts/boot-local-stack.ts`, `tools/scripts/boot-embedded-postgres.ts`).
 
-`@product/test` migrates the active fabric **once** (`ensureSimPgliteSeed` / `seed:sim-db` → `product/test/.cache/sim-backend-seed.pglite.bin` for `real`, or `.pgmm.json` for `mem`) and clones per `openSim`. Mem-engine wishlist: [`docs/sim-mem-engine-wishlist.md`](docs/sim-mem-engine-wishlist.md). Suite notes: [`product/test/src/setup/TESTING.md`](product/test/src/setup/TESTING.md).
+`@product/test` migrates the mem fabric **once** (`seed:sim-db` → `product/test/.cache/sim-backend-seed.pgmm.json`) and clones per `openSim`. Mem-engine wishlist: [`docs/sim-mem-engine-wishlist.md`](docs/sim-mem-engine-wishlist.md). Suite notes: [`product/test/src/setup/TESTING.md`](product/test/src/setup/TESTING.md).
 
 Production (`SECRETS_ENV=prd`) uses Infisical Neon + B2 (+ Railway EMQX) only.
 

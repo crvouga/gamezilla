@@ -23,7 +23,7 @@ describe('parseConsoleNav', () => {
       playground: {
         kind: 'server',
         instance: '',
-        panes: { server: { view: 'commands', table: null } },
+        panes: { server: { view: 'commands' } },
       },
       reports: DEFAULT_CONSOLE_NAV.reports,
     });
@@ -36,26 +36,20 @@ describe('parseConsoleNav', () => {
         kind: 'client',
         instance: 'alice',
         panes: {
-          alice: { view: 'db', table: null },
-          bob: { view: 'events', table: null },
+          alice: { view: 'db' },
+          bob: { view: 'events' },
         },
       },
       reports: DEFAULT_CONSOLE_NAV.reports,
     });
   });
 
-  test('cv with table selection', () => {
+  test('cv with legacy table segment is ignored', () => {
     const state = parseConsoleNav(
       '?section=playground&cv=alice:db:auth_devices,bob:ui'
     );
-    expect(state.playground.panes['alice']).toEqual({
-      view: 'db',
-      table: 'auth_devices',
-    });
-    expect(state.playground.panes['bob']).toEqual({
-      view: 'ui',
-      table: null,
-    });
+    expect(state.playground.panes['alice']).toEqual({ view: 'db' });
+    expect(state.playground.panes['bob']).toEqual({ view: 'ui' });
   });
 
   test('instance query wins over first cv id', () => {
@@ -65,7 +59,7 @@ describe('parseConsoleNav', () => {
         kind: 'client',
         instance: 'bob',
         panes: {
-          alice: { view: 'db', table: null },
+          alice: { view: 'db' },
         },
       },
       reports: DEFAULT_CONSOLE_NAV.reports,
@@ -142,12 +136,12 @@ describe('parseConsoleNav', () => {
     );
   });
 
-  test('round-trips instance and panes via cv', () => {
+  test('round-trips instance and panes via cv (drops legacy table)', () => {
     const state = parseConsoleNav(
       '?kind=client&instance=bob&cv=bob:events,alice:db:auth_users'
     );
     expect(buildConsoleSearch(state)).toBe(
-      '?instance=bob&cv=alice%3Adb%3Aauth_users%2Cbob%3Aevents'
+      '?instance=bob&cv=alice%3Adb%2Cbob%3Aevents'
     );
   });
 
@@ -218,12 +212,12 @@ describe('coerceView / applyConsoleNavPatch', () => {
     expect(parseConsoleNav('?kind=api&view=commands').playground).toEqual({
       kind: 'server',
       instance: '',
-      panes: { server: { view: 'commands', table: null } },
+      panes: { server: { view: 'commands' } },
     });
     expect(parseConsoleNav('?kind=pubsub&view=topics').playground).toEqual({
       kind: 'events',
       instance: '',
-      panes: { events: { view: 'topics', table: null } },
+      panes: { events: { view: 'topics' } },
     });
     expect(
       buildConsoleSearch({
@@ -231,7 +225,7 @@ describe('coerceView / applyConsoleNavPatch', () => {
         playground: {
           kind: 'server',
           instance: '',
-          panes: { server: { view: 'commands', table: null } },
+          panes: { server: { view: 'commands' } },
         },
         reports: DEFAULT_CONSOLE_NAV.reports,
       })
@@ -253,7 +247,7 @@ describe('coerceView / applyConsoleNavPatch', () => {
         playground: {
           kind: 'client',
           instance: 'alice',
-          panes: { alice: { view: 'ui', table: null } },
+          panes: { alice: { view: 'ui' } },
         },
         reports: DEFAULT_CONSOLE_NAV.reports,
       },
@@ -262,7 +256,7 @@ describe('coerceView / applyConsoleNavPatch', () => {
     expect(next.playground).toEqual({
       kind: 'server',
       instance: '',
-      panes: { alice: { view: 'ui', table: null } },
+      panes: { alice: { view: 'ui' } },
     });
     expect(resolvePaneNav(next.playground, 'server').view).toBe('db');
   });
@@ -291,25 +285,23 @@ describe('coerceView / applyConsoleNavPatch', () => {
           kind: 'client',
           instance: 'alice',
           panes: {
-            alice: { view: 'ui', table: null },
-            bob: { view: 'ui', table: null },
+            alice: { view: 'ui' },
+            bob: { view: 'ui' },
           },
         },
         reports: DEFAULT_CONSOLE_NAV.reports,
       },
       {
         playground: {
-          pane: { id: 'bob', patch: { view: 'db', table: 'auth_devices' } },
+          pane: { id: 'bob', patch: { view: 'db' } },
         },
       }
     );
     expect(next.playground.panes['alice']).toEqual({
       view: 'ui',
-      table: null,
     });
     expect(next.playground.panes['bob']).toEqual({
       view: 'db',
-      table: 'auth_devices',
     });
   });
 

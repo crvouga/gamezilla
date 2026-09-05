@@ -15,6 +15,8 @@ import { SpaceEndOrLeaveButton } from './space-end-or-leave-button';
 
 export type SpaceMiniplayerCardProps = {
   spaceId: string;
+  /** Corner radius — `0` for the compact full-bleed strip, card radius on wide. */
+  borderRadius: number;
   requestEndSpace: (spaceId: string, options?: RequestEndSpaceOptions) => void;
   requestLeaveSpace: (
     spaceId: string,
@@ -25,6 +27,7 @@ export type SpaceMiniplayerCardProps = {
 /** A single miniplayer entry — hidden once DB stamps `ended_at`. */
 export function SpaceMiniplayerCard({
   spaceId,
+  borderRadius,
   requestEndSpace,
   requestLeaveSpace,
 }: SpaceMiniplayerCardProps): ReactNode {
@@ -38,7 +41,8 @@ export function SpaceMiniplayerCard({
     <SpaceCardGradientBox
       testID={Handles.spaceMiniplayer}
       sx={{
-        borderRadius: 0,
+        borderRadius,
+        overflow: 'hidden',
         flexDirection: 'row',
         alignItems: 'center',
         gap: 2,

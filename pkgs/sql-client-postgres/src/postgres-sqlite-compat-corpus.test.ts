@@ -1,18 +1,16 @@
 /**
- * Portable SQL corpus: the same DML runs on sqlite-mem and PGlite (+ JSON1
- * compat). Lives here so `@pkgs/postgres-sqlite-compat` stays a leaf.
+ * Portable SQL corpus: the same DML runs on sqlite-mem and postgres-mem
+ * (+ JSON1 compat). Lives here so `@pkgs/postgres-sqlite-compat` stays a leaf.
  */
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { PGlite } from '@electric-sql/pglite';
 import { defineTable, registerTables } from '@pkgs/db-schema';
 import { applyPostgresSchema } from '@pkgs/db-schema-postgres';
 import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
-import { installPostgresSqliteCompat } from '@pkgs/postgres-sqlite-compat';
 import { sql } from '@pkgs/sql';
 import type { PostgresSqlClient, SqlClient } from '@pkgs/sql-client/interface';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
 import { SqlClientImplSqliteMem } from '@pkgs/sql-client-sqlite/impl-sqlite-mem';
-import { createPgliteSqlClient } from './impl-pglite';
+import { SqlClientImplPostgresMem } from './impl-postgres-mem';
 
 type Backend = {
   readonly name: string;
@@ -61,30 +59,29 @@ async function openSqliteMem(): Promise<Backend> {
   };
 }
 
-async function openPglite(): Promise<Backend> {
-  const db = await PGlite.create();
-  const client = createPgliteSqlClient(db);
-  await installPostgresSqliteCompat({ sqlClient: client });
+async function openPostgresMem(): Promise<Backend> {
+  const client = SqlClientImplPostgresMem.open({
+    seed: 1,
+    dbScope: createPostgresDbScope('public'),
+  });
+  await client.connect();
   return {
-    name: 'pglite',
+    name: 'postgres-mem',
     client,
-    close: async () => {
-      await db.close();
-    },
+    close: () => client.disconnect(),
   };
 }
 
 describe('portable SQL corpus', () => {
   const backends: Backend[] = [];
 
-  // PGlite WASM + plpgsql install exceeds bun's 5s default under CI load.
   beforeAll(async () => {
-    backends.push(await openSqliteMem(), await openPglite());
-  }, 120_000);
+    backends.push(await openSqliteMem(), await openPostgresMem());
+  });
 
   afterAll(async () => {
     for (const b of backends) await b.close();
-  }, 120_000);
+  });
 
   test('insert/select/soft-delete timestamps agree', async () => {
     const [sqlite, pg] = backends;
@@ -95,7 +92,7 @@ describe('portable SQL corpus', () => {
     for (const b of backends) {
       await applyNotesSchema(
         b.client,
-        b.name === 'pglite' ? 'postgres' : 'sqlite'
+        b.name === 'postgres-mem' ? 'postgres' : 'sqlite'
       );
       await b.client.run(sql`
         INSERT INTO notes (id, body, deleted_at) VALUES (${'n1'}, ${'hello'}, ${null})
@@ -115,9 +112,9 @@ describe('portable SQL corpus', () => {
     expect(pgRows).toEqual(sqliteRows);
   });
 
-  test('PGlite int8 rows coerce bigint to number', async () => {
-    const pg = backends.find((b) => b.name === 'pglite');
-    if (pg === undefined) throw new Error('pglite backend missing');
+  test('postgres-mem int8 rows coerce bigint to number', async () => {
+    const pg = backends.find((b) => b.name === 'postgres-mem');
+    if (pg === undefined) throw new Error('postgres-mem backend missing');
     const rows = await pg.client.query<{ n: number }>(sql`
       SELECT 42::int8 AS n
     `);

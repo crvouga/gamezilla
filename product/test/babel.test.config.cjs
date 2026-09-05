@@ -21,7 +21,6 @@ module.exports = function (api) {
   return {
     plugins: [
       ['@lingui/babel-plugin-lingui-macro', { stripMessageField: false }],
-      require('./babel-plugin-sim-sql-backend.cjs'),
       [
         fromExpo('@babel/plugin-transform-typescript'),
         { isTSX: true, allowNamespaces: true },

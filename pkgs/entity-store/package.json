@@ -26,7 +26,6 @@
     "@pkgs/sql-client-postgres": "workspace:*"
   },
   "devDependencies": {
-    "@electric-sql/pglite": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"

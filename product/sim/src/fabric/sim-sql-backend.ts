@@ -1,26 +1,16 @@
 /**
- * Single flag for which SQL engines `@product/sim` use.
- *
- * - `real` (default): PGlite server + real SQLite clients
- *   (browser → SQLite WASM; Node/bun → better-sqlite3 / bun:sqlite)
- * - `mem`: postgres-mem + sqlite-mem (legacy A/B)
- *
- * Override: `SIM_SQL_BACKEND=mem|real`
- *
- * Native Expo (iOS/Android) always uses mem engines: Hermes cannot load
- * better-sqlite3, bun:sqlite, or PGlite WASM. `SIM_SQL_BACKEND=real` still
- * maps to mem on native via `sim-sql-backend-real.native.ts`.
+ * Sim SQL fabric id. In-process sim always uses postgres-mem + sqlite-mem.
+ * Fidelity-max / `SIM_MODE=real` uses postgres-embedded outside this fabric.
  */
 
-export type SimSqlBackend = 'mem' | 'real';
+export type SimSqlBackend = 'mem';
 
 export type SimSqlRuntime = 'browser' | 'node';
 
-/** Default when env is unset — plan default is real engines. */
-export const DEFAULT_SIM_SQL_BACKEND: SimSqlBackend = 'real';
+export const DEFAULT_SIM_SQL_BACKEND: SimSqlBackend = 'mem';
 
 export function resolveSimSqlRuntime(): SimSqlRuntime {
-  // Real browser playground (no bun:test): WASM clients.
+  // Real browser playground (no bun:test): WASM clients if ever needed.
   if (
     typeof window !== 'undefined' &&
     typeof document !== 'undefined' &&
@@ -31,14 +21,9 @@ export function resolveSimSqlRuntime(): SimSqlRuntime {
   return 'node';
 }
 
+/** Always `mem` — in-process sim fabric is postgres-mem only. */
 export function resolveSimSqlBackend(
-  env:
-    | NodeJS.ProcessEnv
-    | Record<string, string | undefined> = typeof process !== 'undefined'
-    ? process.env
-    : {}
+  _env?: NodeJS.ProcessEnv | Record<string, string | undefined>
 ): SimSqlBackend {
-  const raw = env['SIM_SQL_BACKEND']?.trim().toLowerCase();
-  if (raw === 'mem' || raw === 'real') return raw;
   return DEFAULT_SIM_SQL_BACKEND;
 }

@@ -13,7 +13,6 @@ import { AppSpaceRoomsProvider } from './app-space-rooms-provider';
 import { AppUiProvider } from './app-ui-provider';
 import { EmbeddedAppProvider } from './embedded-app-context';
 import { BootPaintGate } from './shell/boot-paint-gate';
-import { AppStatusBarRegistry } from './ui/status-bar-registry';
 
 void preventSplashAutoHide();
 
@@ -30,7 +29,6 @@ void preventSplashAutoHide();
  * - Games (SpaceModule) before space room host (opens WebSockets with that module).
  * - Space rooms after sync + games so presence + module are available, and
  *   before UI modals (leave/end dispatch into the open-room host).
- * - Status bar after inbox so notification items can read unread counts.
  */
 const appProviders = [
   AppShellProvider,
@@ -42,7 +40,6 @@ const appProviders = [
   AppSpaceRoomsProvider,
   AppUiProvider,
   AppNotificationsProvider,
-  AppStatusBarRegistry,
 ];
 const USE_REACT_SCAN_DEV = false;
 

@@ -5,12 +5,6 @@
  */
 import { wallClock } from '@pkgs/clock';
 import { createLogger } from '@pkgs/logger';
-import { resolveSimSqlBackend } from '@product/sim/fabric/sim-sql-backend';
-import {
-  computeSimPgliteSeedFp,
-  ensureSimPgliteSeed,
-  SIM_SEED_PGLITE_PATH,
-} from '@product/sim/setup/boot-sim-pglite';
 import {
   computeSimPostgresMemSeedFp,
   ensureSimPostgresMemSeed,
@@ -20,21 +14,11 @@ import {
 const log = createLogger({ name: 'sim:seed-db', now: wallClock.now });
 
 async function main(): Promise<void> {
-  const backend = resolveSimSqlBackend();
-  if (backend === 'mem') {
-    const fingerprint = await computeSimPostgresMemSeedFp();
-    const { didMigrate } = await ensureSimPostgresMemSeed();
-    const action = didMigrate ? 'rebuilt' : 'cached';
-    log.info(
-      `[seed:sim-db] mem ${action} ${SIM_SEED_PGMM_PATH} (fingerprint=${fingerprint.slice(0, 12)}…)`
-    );
-    return;
-  }
-  const fingerprint = await computeSimPgliteSeedFp();
-  const { didMigrate } = await ensureSimPgliteSeed();
+  const fingerprint = await computeSimPostgresMemSeedFp();
+  const { didMigrate } = await ensureSimPostgresMemSeed();
   const action = didMigrate ? 'rebuilt' : 'cached';
   log.info(
-    `[seed:sim-db] real ${action} ${SIM_SEED_PGLITE_PATH} (fingerprint=${fingerprint.slice(0, 12)}…)`
+    `[seed:sim-db] mem ${action} ${SIM_SEED_PGMM_PATH} (fingerprint=${fingerprint.slice(0, 12)}…)`
   );
 }
 

@@ -129,7 +129,7 @@ export function primaryBucket(rating: number, bucketWidth: number): number {
 
 export const PARTITION_SIGNATURE_SEPARATOR = String.fromCharCode(0x1f);
 
-/** Non-empty signature when schema has no partitionKeys (PGlite binds '' as NULL). */
+/** Non-empty signature when schema has no partitionKeys (empty string binds as NULL on some engines). */
 export const GLOBAL_PARTITION_SIGNATURE = '\x1e';
 
 export function partitionSignatureFor(

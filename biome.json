@@ -24,8 +24,7 @@
       "!pkgs/emqx-server/src/railway/railway-graphql/schema.graphql",
       "!pkgs/emqx-server/src/railway/railway-graphql/graphql-env.d.ts",
       "!qa",
-      "!!pkgs/postgres/.postgres",
-      "!!pkgs/postgres/.pglite"
+      "!!pkgs/postgres/.postgres"
     ]
   },
   "formatter": {
@@ -506,7 +505,6 @@
         "!**/export-chess-puzzles-load.ts",
         "!**/serve-harness.ts",
         "!**/example-root.tsx",
-        "!**/impl-pglite.ts",
         "!**/app.tsx",
         "!**/boot-playground.ts",
         "!**/root-app.tsx",
@@ -577,7 +575,6 @@
         "!**/export-chess-puzzles-load.ts",
         "!**/serve-harness.ts",
         "!**/example-root.tsx",
-        "!**/impl-pglite.ts",
         "!**/app.tsx",
         "!**/boot-playground.ts",
         "!**/root-app.tsx",
@@ -611,6 +608,7 @@
         "!**/pkgs/ui/src/components/scroll-view/scroll-view.tsx",
         "!**/pkgs/ui/src/components/flat-list/flat-list.tsx",
         "!**/pkgs/ui/src/components/text-input/text-input.tsx",
+        "!**/pkgs/ui/src/components/code-editor/code-editor.tsx",
         "!**/pkgs/ui/src/components/safe-area-view/safe-area-view.tsx",
         "!**/pkgs/ui/src/components/keyboard-avoiding-view/keyboard-avoiding-view.tsx",
         "!**/pkgs/ui/src/components/gradient-box/gradient-box.tsx",
@@ -623,8 +621,6 @@
         "!**/pkgs/ui/src/theme/app-status-bar.tsx",
         "!**/pkgs/ui/src/components/avatar/avatar.tsx",
         "!**/pkgs/ui/src/components/skeleton/skeleton.tsx",
-        "!**/pkgs/ui/src/components/status-bar/status-bar-frost-backdrop.tsx",
-        "!**/pkgs/ui/src/components/status-bar/status-bar-overlay.tsx",
         "!**/pkgs/ui/src/components/fade-switch/fade-switch.tsx",
         "!**/pkgs/ui/src/components/mutation-modal/mutation-modal-transition.tsx",
         "!**/pkgs/ui/src/components/horizontal-picker/horizontal-picker-cell.tsx",
@@ -915,9 +911,7 @@
     },
     {
       "includes": [
-        "pkgs/sql-client/src/postgres/pglite-worker-client.ts",
-        "pkgs/sql-client/src/postgres/pglite-worker-host.cjs",
-        "pkgs/sql-client/tests/helpers/contract/portable-contract.ts",
+        "pkgs/sql-client-contract/tests/helpers/contract/portable-contract.ts",
         "pkgs/sync-engine/src/mutations/server/replay-mutation.ts",
         "pkgs/sync-engine/src/sim/http-bridge-dispatch.ts"
       ],

@@ -14,9 +14,9 @@ import type {
 } from '../../shared/ports';
 import type { PaneNavPatch, PaneNavValue } from '../debugger-chrome';
 import { debuggerViewTabItem } from '../debugger-chrome';
+import { SqlNotebookPane } from '../sql-notebook/sql-notebook-pane';
 import { ActorUrlFrame } from './actor-url-frame';
 import { PlaygroundCommandsPane } from './playground-commands-pane';
-import { PlaygroundDbPane } from './playground-db-pane';
 import { PlaygroundLogsPane } from './playground-logs-pane';
 import { PlaygroundPubSubTopicsPane } from './playground-pubsub-topics-pane';
 import { PlaygroundRoomDbPane } from './playground-room-db-pane';
@@ -66,16 +66,14 @@ function resolvePane(
   kind: 'client' | 'server' | 'events' | 'room'
 ): PaneNavValue {
   if (pane !== undefined) {
-    return {
-      view: coerceDebuggerView(kind, pane.view),
-      table: pane.table,
-    };
+    return { view: coerceDebuggerView(kind, pane.view) };
   }
-  return { view: defaultViewForKind(kind), table: null };
+  return { view: defaultViewForKind(kind) };
 }
 
 export function ClientPlaygroundPanel(props: {
   readonly actor: PlaygroundActor;
+  readonly session: PlaygroundSession;
   readonly snapshotEpoch?: number;
   readonly reloadToken?: number;
   readonly pane: PaneNavValue | undefined;
@@ -84,7 +82,7 @@ export function ClientPlaygroundPanel(props: {
     mode?: 'push' | 'replace'
   ) => void;
 }) {
-  const { actor, snapshotEpoch, reloadToken, onPanePatch } = props;
+  const { actor, session, snapshotEpoch, reloadToken, onPanePatch } = props;
   const pane = resolvePane(props.pane, 'client');
   const tab = pane.view;
   const productKey = `${actor.id}:${snapshotEpoch ?? 0}`;
@@ -108,11 +106,13 @@ export function ClientPlaygroundPanel(props: {
         <ActorView key={productKey} actor={actor} />
       </Box>
       <Box sx={hiddenWhen(tab === 'db')}>
-        <PlaygroundDbPane
+        <SqlNotebookPane
           sqlClient={actor.sqlClient}
+          nodeId={actor.id}
           active={tab === 'db'}
-          selectedTable={pane.table}
-          onSelectTable={(table) => onPanePatch({ table }, 'replace')}
+          subscribeDomainWake={(listener) =>
+            session.subscribeDomainWake(listener)
+          }
           {...(reloadToken !== undefined ? { reloadToken } : {})}
         />
       </Box>
@@ -132,18 +132,20 @@ export function ServerPlaygroundPanel(props: {
     mode?: 'push' | 'replace'
   ) => void;
 }) {
-  const { session, node, onPanePatch } = props;
+  const { session, node } = props;
   const pane = resolvePane(props.pane, 'server');
   const tab = pane.view;
   return (
     <Box sx={panelSx}>
       <Box sx={hiddenWhen(tab === 'db')}>
-        <PlaygroundDbPane
+        <SqlNotebookPane
           sqlClient={node.sqlClient}
+          nodeId={node.id}
           active={tab === 'db'}
-          selectedTable={pane.table}
-          onSelectTable={(table) => onPanePatch({ table }, 'replace')}
           reloadToken={session.revision}
+          subscribeDomainWake={(listener) =>
+            session.subscribeDomainWake(listener)
+          }
         />
       </Box>
       <Box sx={hiddenWhen(tab === 'events')}>

@@ -29,6 +29,13 @@ export {
 } from './colors';
 export { type FontStacks, fonts } from './fonts';
 export {
+  APP_FRAME_GUTTER_STEP,
+  APP_MAX_WIDTH,
+  ISLAND_GAP_STEP,
+  ISLAND_PADDING_STEP,
+  ISLAND_RADIUS,
+} from './layout';
+export {
   MODAL_CONTENT_MARGIN_STEP,
   MODAL_WIDTH_PX,
   type ModalSize,
@@ -121,4 +128,9 @@ export {
   withPointerEvents,
 } from './use-host-sx';
 export { useHoverCapable } from './use-hover-capable';
+export {
+  getLayoutMode,
+  type LayoutMode,
+  useLayoutMode,
+} from './use-layout-mode';
 export { WebScrollbarTheme } from './web-scrollbar-theme';

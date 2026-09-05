@@ -9,6 +9,8 @@ import { MINIPLAYER_STACK_PEEK_COUNT } from './space-miniplayer-layout';
 
 export type MiniplayerStackedBarProps = {
   spaceIds: readonly string[];
+  /** Corner radius — `0` for the compact full-bleed strip, card radius on wide. */
+  borderRadius: number;
   onPressOpenPicker: () => void;
 };
 
@@ -17,7 +19,13 @@ const PEEK_OFFSET = 5;
 const AVATAR_SIZE = 40;
 const AVATAR_MAX = 3;
 
-function StackPeek({ index }: { index: number }): ReactNode {
+function StackPeek({
+  index,
+  borderRadius,
+}: {
+  index: number;
+  borderRadius: number;
+}): ReactNode {
   const inset = (index + 1) * 6;
   const bottom = (index + 1) * PEEK_OFFSET;
   return (
@@ -28,7 +36,7 @@ function StackPeek({ index }: { index: number }): ReactNode {
         right: inset,
         bottom,
         height: FRONT_HEIGHT,
-        borderRadius: 0,
+        borderRadius,
         opacity: 0.55 - index * 0.15,
         pointerEvents: 'none',
       }}
@@ -61,6 +69,7 @@ function StackedHostAvatars({
 /** Multi-space miniplayer: stacked deck that only opens the picker. */
 export function MiniplayerStackedBar({
   spaceIds,
+  borderRadius,
   onPressOpenPicker,
 }: MiniplayerStackedBarProps): ReactNode {
   const { t } = useLingui();
@@ -75,7 +84,11 @@ export function MiniplayerStackedBar({
     <Box sx={{ paddingTop: stackPad }}>
       <Box sx={{ position: 'relative', minHeight: FRONT_HEIGHT }}>
         {Array.from({ length: peekCount }, (_, i) => (
-          <StackPeek key={i} index={peekCount - 1 - i} />
+          <StackPeek
+            key={i}
+            index={peekCount - 1 - i}
+            borderRadius={borderRadius}
+          />
         ))}
         <Pressable
           onPress={onPressOpenPicker}
@@ -88,7 +101,8 @@ export function MiniplayerStackedBar({
         >
           <SpaceCardGradientBox
             sx={{
-              borderRadius: 0,
+              borderRadius,
+              overflow: 'hidden',
               flexDirection: 'row',
               alignItems: 'center',
               gap: 2,

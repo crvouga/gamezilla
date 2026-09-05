@@ -31,7 +31,15 @@ export function useAnchoredMenu(): AnchoredMenuController {
   }, []);
 
   const openMenu = useCallback(() => {
-    triggerRef.current?.measureInWindow((x, y, width, height) => {
+    const node = triggerRef.current;
+    if (node == null) {
+      // Ref not attached yet (common under heavy RNTL load) — still open so
+      // menu rows with testIDs become findable; position is best-effort.
+      setAnchor({ x: 0, y: 0, width: 0, height: 0 });
+      setOpen(true);
+      return;
+    }
+    node.measureInWindow((x, y, width, height) => {
       setAnchor({ x, y, width, height });
       setOpen(true);
     });

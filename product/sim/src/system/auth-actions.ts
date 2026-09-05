@@ -4,13 +4,17 @@ import { actorUi, scenarioAction } from './actor-ui';
 
 const WAIT_MS = 15_000;
 
-/** Tap Dev on the account modal and dismiss the signed-in success. */
+/**
+ * Open the avatar menu → Account, tap Dev on the sign-in modal, then dismiss
+ * the signed-in success.
+ */
 export const signInWithDev = scenarioAction({
   name: 'signInWithDev',
   act: async (s, actorId: string) => {
     const ui = await actorUi(s, actorId);
-    await ui.get(Handles.statusCurrentUser).tap();
-    await ui.get(Handles.accountSignIn).tap();
+    await ui.get(Handles.statusCurrentUser).tap({ timeoutMs: WAIT_MS });
+    await ui.get(Handles.globalMenuAccount).tap({ timeoutMs: WAIT_MS });
+    await ui.get(Handles.accountSignIn).tap({ timeoutMs: WAIT_MS });
     await ui.get(Handles.authMethodDev).tap({ timeoutMs: WAIT_MS });
     await ui.get(Handles.authSignedInDone).tap({ timeoutMs: WAIT_MS });
     if (await ui.get(Handles.authModalClose).isVisible()) {

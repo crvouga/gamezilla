@@ -13,7 +13,7 @@ import {
   useMemo,
 } from 'react';
 
-const PERF_HUD_ROW_KEY = asKeyword('ui.prefs/perf-hud');
+const PERF_HUD_ROW_KEY = asKeyword('ui.prefs/perf-hud-enabled');
 const PERF_HUD_VALUE_ATTR = asKeyword('ui.prefs/value');
 const PERF_HUD_CODEC = booleanKvCodec(PERF_HUD_VALUE_ATTR);
 

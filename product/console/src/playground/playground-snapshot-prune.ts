@@ -121,7 +121,7 @@ async function isServerSqlBlob(
   ) {
     return true;
   }
-  // PGlite gzip dump (opaque)
+  // Opaque non-JSON seed blobs (legacy); accept non-empty payload
   return bytes.byteLength >= 16;
 }
 

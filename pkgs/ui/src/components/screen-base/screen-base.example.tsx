@@ -21,7 +21,7 @@ export default function ScreenBaseExample() {
           <Box sx={sx}>
             <Text
               variant="body"
-              label="Body content uses fixed padding and max width from ScreenBase."
+              label="Body content uses fixed padding from ScreenBase. On desktop, content sits in a card island under the page header."
             />
           </Box>
         )}

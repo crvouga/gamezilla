@@ -19,7 +19,7 @@ export type PortableClientFactory = () => SqlClient | Promise<SqlClient>;
 export type PortableContractOpts = {
   readonly dialect: 'sqlite' | 'postgres';
   readonly name: string;
-  /** Shared engines (PGlite) — do not disconnect between tests. */
+  /** Shared engines — do not disconnect between tests. */
   readonly shared?: boolean;
 };
 

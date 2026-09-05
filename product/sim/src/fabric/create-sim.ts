@@ -63,7 +63,7 @@ export type CreateSimOptions = {
   /** Real-mode host injects embedded Postgres; playground uses sqlBackend server SQL. */
   readonly serverSql?: SimSql;
   /**
-   * Post-migrate server seed bytes (PGlite dump or PGMM). When set (and
+   * Post-migrate server seed bytes (PGMM). When set (and
    * `serverSql` is not), opens by import and skips {@link migrateSimPostgres}.
    */
   readonly serverSqlSeedBytes?: Uint8Array;

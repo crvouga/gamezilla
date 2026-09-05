@@ -1,7 +1,7 @@
 // @io-wall-ok — composition-root wall FS for Expo public WASM assets
 /**
- * Copies PGlite + SQLite WASM builds into `product/console/public/generated/` so
- * the Expo web playground can load them as native ESM (import.meta.url works)
+ * Copies SQLite WASM builds into `product/console/public/generated/` so the
+ * Expo web playground can load them as native ESM (import.meta.url works)
  * instead of through Metro's Hermes classic-script bundle (which cannot).
  */
 import {
@@ -47,15 +47,6 @@ function copyIfNeeded(sourcePath: string, destPath: string): void {
   } else {
     log.info(`Up-to-date: ${destPath}`);
   }
-}
-
-const pglitePkg = dirname(
-  sqlClientRequire.resolve('@electric-sql/pglite/package.json')
-);
-const pgliteDist = join(pglitePkg, 'dist');
-const pgliteOut = join(consoleRoot, 'public', 'generated', 'pglite');
-for (const name of ['pglite.wasm', 'initdb.wasm', 'pglite.data'] as const) {
-  copyIfNeeded(join(pgliteDist, name), join(pgliteOut, name));
 }
 
 const sqlitePkg = dirname(

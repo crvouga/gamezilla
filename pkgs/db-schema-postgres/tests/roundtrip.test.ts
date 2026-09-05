@@ -6,7 +6,7 @@ import { sqlite } from '@pkgs/db-schema-sqlite/driver';
 import { raw } from '@pkgs/sql';
 import { readPostgresCatalog } from '../src/catalog';
 import { postgres } from '../src/driver';
-import { createPglitePostgresClient } from '../src/test/pglite-postgres-client';
+import { createPostgresMemTestClient } from '../src/test/postgres-mem-test-client';
 
 describe('db-schema roundtrip PBT pins', () => {
   test('sqlite: apply then re-plan is empty', async () => {
@@ -36,7 +36,7 @@ describe('db-schema roundtrip PBT pins', () => {
   });
 
   test('postgres: apply then re-plan is empty', async () => {
-    const harness = await createPglitePostgresClient('roundtrip');
+    const harness = await createPostgresMemTestClient('roundtrip');
     try {
       const schema = registerTables([
         defineTable({

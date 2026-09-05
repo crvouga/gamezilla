@@ -37,8 +37,8 @@ FC_SEED=424242 bun test pkgs/db-schema/src/tests/pbt/conventions.pbt.test.ts
 | --- | --- |
 | sqlite-mem | Default PBT + contract matrix |
 | postgres-mem | Default PBT + contract matrix |
-| PGlite | Postgres integration pin (`@pkgs/db-schema-postgres` `tests/`) |
 | bun:sqlite | SQLite integration pin |
+| Live `pg` | Postgres integration pin when `DATABASE_URL` is set |
 
 Postgres catalog FK introspection falls back to `[]` on engines that lack
 `pg_constraint` array columns (postgres-mem). Real Postgres uses full catalog.

@@ -72,14 +72,20 @@ export class KvImplPostgres implements Kv {
     assertKvKey(key);
     assertKvRecord(hotAssert(), value, 'kv postgres put');
     const iso = new Date(this.now()).toISOString();
+    const payload = JSON.stringify(value);
+    // Avoid ON CONFLICT … DO UPDATE — postgres-mem mishandles excluded.* on
+    // second upsert. UPDATE-then-INSERT matches soft-delete resurrect semantics.
+    const updated = await this.sqlClient.run(
+      sql<void>`
+        UPDATE kv
+        SET value = ${payload}, updated_at = ${iso}, deleted_at = NULL
+        WHERE key = ${key}`
+    );
+    if (updated.changes > 0) return;
     await this.sqlClient.run(
       sql<void>`
         INSERT INTO kv (id, key, value, created_at, updated_at, deleted_at)
-        VALUES (${key}, ${key}, ${JSON.stringify(value)}, ${iso}, ${iso}, ${null})
-        ON CONFLICT (key) DO UPDATE SET
-          value = excluded.value,
-          updated_at = excluded.updated_at,
-          deleted_at = NULL`
+        VALUES (${key}, ${key}, ${payload}, ${iso}, ${iso}, ${null})`
     );
   }
 

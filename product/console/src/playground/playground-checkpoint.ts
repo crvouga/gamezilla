@@ -56,7 +56,7 @@ export async function restoreCheckpoint(
   }
   if (checkpoint.sqlFormat !== expected) {
     throw new Error(
-      `restoreCheckpoint: checkpoint sqlFormat '${checkpoint.sqlFormat}' does not match active fabric '${expected}' (clear sticky snapshot or switch SIM_SQL_BACKEND)`
+      `restoreCheckpoint: checkpoint sqlFormat '${checkpoint.sqlFormat}' does not match active fabric '${expected}' (clear sticky snapshot)`
     );
   }
   ctx.setClockPaused(true);

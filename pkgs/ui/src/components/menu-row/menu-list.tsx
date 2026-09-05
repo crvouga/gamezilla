@@ -1,8 +1,8 @@
 /**
  * `MenuList` -- full-bleed stack of {@link MenuRow}s for ScreenBase menu screens.
  *
- * Cancels ScreenBase body horizontal padding (`p: 4` / 16px) via
- * `mx: -SCREEN_BODY_PADDING_STEP` so rows span the full content width. Pass
+ * Cancels the nearest shell's horizontal edge padding via
+ * `useContentEdgePaddingStep` so rows span the full content width. Pass
  * `sx` to forward the ScreenBase `content` render-prop `sx` (e.g.
  * `{ flex: 1 }` on non-scroll bodies).
  *
@@ -21,6 +21,7 @@ import type { ReactNode } from 'react';
 import type { ComponentDataSet } from '../../component-id';
 import type { SxInput } from '../../theme';
 import { Box } from '../box';
+import { useContentEdgePaddingStep } from '../content-edge-padding';
 import { SCREEN_BODY_PADDING_STEP } from '../screen-base/screen-body-padding';
 
 export type MenuListProps = {
@@ -32,9 +33,10 @@ export type MenuListProps = {
 };
 
 export function MenuList({ children, sx, dataSet }: MenuListProps) {
+  const edgeStep = useContentEdgePaddingStep() ?? SCREEN_BODY_PADDING_STEP;
   return (
     <Box
-      sx={[sx, { mx: -SCREEN_BODY_PADDING_STEP }]}
+      sx={[sx, edgeStep !== 0 ? { mx: -edgeStep } : false]}
       dataSet={{ component: 'MenuList', ...dataSet }}
     >
       {children}

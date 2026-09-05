@@ -60,8 +60,8 @@
     "sims:setup": "bun run tools/scripts/sims/setup-sims.ts",
     "test:pbt": "bun run tools/scripts/test-pbt-random.ts",
     "test:pbt:random": "bun run tools/scripts/test-pbt-random.ts",
-    "test:sim": "SIM_REPORT=0 turbo test -F @product/test --force",
-    "test:sim:report": "SIM_REPORT=1 turbo test -F @product/test --force",
+    "test:product": "SIM_REPORT=0 turbo test -F @product/test --force",
+    "test:product:report": "SIM_REPORT=1 turbo test -F @product/test --force",
     "wipe": "git clean -xfd"
   },
   "overrides": {
@@ -113,7 +113,6 @@
     "better-sqlite3": "^13.0.3",
     "@dicebear/collection": "^9.4.2",
     "@dicebear/core": "^9.4.2",
-    "@electric-sql/pglite": "^0.4.3",
     "@sqlite.org/sqlite-wasm": "3.53.0-build1",
     "@expo-google-fonts/nunito": "^0.4.2",
     "@expo/metro-runtime": "~55.0.12",

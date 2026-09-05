@@ -1,36 +1,19 @@
 /**
  * Tab bar slot for React Navigation's `Tabs` navigator.
- * Miniplayer only mounts on the Spaces tab.
+ * Compact: bottom tabs + miniplayer. Wide: miniplayer only (header owns nav).
  */
 
-import { SpaceMiniplayer } from '@libs/spaces/root/client/miniplayer/space-miniplayer';
-import { Box } from '@pkgs/ui';
-import {
-  BottomTabBarHeightCallbackContext,
-  type BottomTabBarProps,
-} from '@react-navigation/bottom-tabs';
-import { type ReactNode, useCallback, useContext } from 'react';
+import { useLayoutMode } from '@pkgs/ui';
+import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import type { ReactNode } from 'react';
 
-import { AppTabBar } from './app-tab-bar';
+import { AppTabBarBridgeCompact } from './app-tab-bar-bridge.compact';
+import { AppTabBarBridgeWide } from './app-tab-bar-bridge.wide';
 
 export function AppTabBarBridge(props: BottomTabBarProps): ReactNode {
-  const onHeightChange = useContext(BottomTabBarHeightCallbackContext);
-  const reportLayout = useCallback(
-    (height: number) => {
-      onHeightChange?.(height);
-    },
-    [onHeightChange]
-  );
-  const onSpaces = props.state.routes[props.state.index]?.name === 'Spaces';
-
-  return (
-    <Box
-      onLayout={(e) => {
-        reportLayout(e.nativeEvent.layout.height);
-      }}
-    >
-      {onSpaces ? <SpaceMiniplayer /> : null}
-      <AppTabBar {...props} />
-    </Box>
-  );
+  const mode = useLayoutMode();
+  if (mode === 'wide') {
+    return <AppTabBarBridgeWide />;
+  }
+  return <AppTabBarBridgeCompact {...props} />;
 }

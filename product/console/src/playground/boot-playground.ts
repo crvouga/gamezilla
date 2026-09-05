@@ -11,14 +11,7 @@ import {
   buildPlaygroundSession,
 } from '@product/console/playground/playground-session';
 import { createPlaygroundSnapshotStore } from '@product/console/playground/playground-snapshot-store';
-import {
-  listenSimHttpServer,
-  type ProductSim,
-  product,
-  productExtra,
-  type Sim,
-  type SimHttpListener,
-} from '@product/sim';
+import { type ProductSim, product, productExtra, type Sim } from '@product/sim';
 
 function startSimClockTick(sim: Sim): {
   readonly disposeTick: () => void;
@@ -79,9 +72,12 @@ export async function bootPlaygroundSession(
   const surface = await pinSim(run);
   const extra = productExtra(surface);
   const sim = surface.sim;
-  let httpListener: SimHttpListener | null = null;
+  let httpListener: { stop(): Promise<void> } | null = null;
   let actorWebOrigin: string | undefined;
   if (extra.http.kind === 'localhost') {
+    const { listenSimHttpServer } = await import(
+      '@product/sim/hosts/localhost-http'
+    );
     httpListener = await listenSimHttpServer(sim);
   }
   if (extra.ui.kind === 'bun-webview') {

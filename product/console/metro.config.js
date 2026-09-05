@@ -313,39 +313,19 @@ const emptyNativeSqlStub = path.join(
   'empty-native-sql.js'
 );
 /**
- * Hermes classic scripts cannot parse `import.meta`. PGlite's ESM build
- * and `@sqlite.org/sqlite-wasm` both use it. On web:
- * - resolve PGlite to the CommonJS build (no import.meta)
- * - stub Node engines + the sqlite-wasm *package* (loaded via /generated/… ESM)
- * On native, stub Node engines so better-sqlite3 never enters the Hermes bundle.
+ * Hermes classic scripts cannot parse `import.meta`. `@sqlite.org/sqlite-wasm`
+ * uses it. On web: stub Node engines + the sqlite-wasm *package* (loaded via
+ * /generated/… ESM). On native, stub Node engines so better-sqlite3 never
+ * enters the Hermes bundle.
  */
 function resolveUnavailableSqlEngines(moduleName, platform) {
-  if (platform === 'web') {
-    if (
-      moduleName === '@electric-sql/pglite' ||
-      moduleName === '@electric-sql/pglite/dist/index.js'
-    ) {
-      // Node's require condition → dist/index.cjs (no import.meta). Do not use
-      // package.json / dist subpaths — those are blocked by "exports".
-      const filePath = require.resolve('@electric-sql/pglite', {
-        paths: [
-          path.resolve(projectRoot, 'node_modules'),
-          path.resolve(monorepoRoot, 'pkgs/sql-client/node_modules'),
-          path.resolve(monorepoRoot, 'node_modules'),
-        ],
-      });
-      return { filePath: metroResolvedPath(filePath), type: 'sourceFile' };
-    }
-  }
   if (
     moduleName === 'better-sqlite3' ||
     moduleName === 'bun:sqlite' ||
     moduleName === '@sqlite.org/sqlite-wasm' ||
     moduleName.startsWith('@sqlite.org/sqlite-wasm/') ||
     moduleName.includes('impl-better-sqlite3') ||
-    moduleName.includes('impl-bun-sqlite') ||
-    moduleName.includes('pglite-worker-client') ||
-    moduleName.includes('pglite-worker-host')
+    moduleName.includes('impl-bun-sqlite')
   ) {
     return {
       filePath: metroResolvedPath(emptyNativeSqlStub),
@@ -503,11 +483,8 @@ function normalizeHmrEntryUrl(url) {
 config.server.rewriteRequestUrl = (/** @type {string} */ url) =>
   previousRewrite(normalizeHmrEntryUrl(url));
 
-// Add wasm / pglite.data asset support (also served from public/generated/)
+// Add wasm asset support (also served from public/generated/)
 config.resolver.assetExts.push('wasm');
-if (!config.resolver.assetExts.includes('data')) {
-  config.resolver.assetExts.push('data');
-}
 if (!config.resolver.sourceExts.includes('mjs')) {
   config.resolver.sourceExts.push('mjs');
 }

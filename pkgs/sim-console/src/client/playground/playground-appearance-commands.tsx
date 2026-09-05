@@ -1,9 +1,18 @@
-import { PaintbrushIcon, RegisterCommand, useThemePreference } from '@pkgs/ui';
+import {
+  Columns2Icon,
+  PaintbrushIcon,
+  RegisterCommand,
+  SquareStackIcon,
+  useThemePreference,
+} from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
-/** Theme preference commands for the sim-console command palette. */
+import { useClientLayoutPreference } from '../debugger/client-layout-preference';
+
+/** Theme + client-layout commands for the sim-console command palette. */
 export function PlaygroundAppearanceCommands(): ReactNode {
   const { setPreference } = useThemePreference();
+  const { setPreference: setClientLayout } = useClientLayoutPreference();
   return (
     <>
       <RegisterCommand
@@ -34,6 +43,26 @@ export function PlaygroundAppearanceCommands(): ReactNode {
         keywords={['system', 'auto', 'os']}
         run={async () => {
           setPreference('system');
+        }}
+      />
+      <RegisterCommand
+        id="client-layout-tabs"
+        title="Tab clients"
+        category="Appearance"
+        icon={SquareStackIcon}
+        keywords={['tabs', 'clients', 'layout', 'stack']}
+        run={async () => {
+          setClientLayout('tabs');
+        }}
+      />
+      <RegisterCommand
+        id="client-layout-columns"
+        title="Column clients"
+        category="Appearance"
+        icon={Columns2Icon}
+        keywords={['columns', 'clients', 'layout', 'side by side']}
+        run={async () => {
+          setClientLayout('columns');
         }}
       />
     </>

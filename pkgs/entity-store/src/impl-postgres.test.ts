@@ -1,26 +1,23 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { PGlite } from '@electric-sql/pglite';
 import { createLogger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { createPgliteSqlClient } from '@pkgs/sql-client-postgres/impl-pglite';
+import { SqlClientImplPostgresMem } from '@pkgs/sql-client-postgres/impl-postgres-mem';
 import { createSimAdapters } from '@pkgs/uuid';
 import { EntityStoreImplPostgres } from './impl-postgres';
 
 const adapters = createSimAdapters({ seed: 1 });
 
 describe('EntityStoreImplPostgres', () => {
-  let db: PGlite;
   let sqlClient: SqlClient;
 
-  // PGlite WASM exceeds bun's 5s default under CI load.
   beforeAll(async () => {
-    db = await PGlite.create();
-    sqlClient = createPgliteSqlClient(db);
-  }, 120_000);
+    sqlClient = SqlClientImplPostgresMem.open({ seed: 1 });
+    await sqlClient.connect();
+  });
 
   afterAll(async () => {
-    await db.close();
-  }, 120_000);
+    await sqlClient.disconnect();
+  });
 
   test('migrateUp + upsert + get + delete', async () => {
     const logger = createLogger({

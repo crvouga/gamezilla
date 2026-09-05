@@ -30,7 +30,7 @@ msgid "{0} matching · {1} local puzzles"
 msgstr "{0} matching · {1} local puzzles"
 
 #. placeholder {0}: health.latencyMs
-#: apps/client/src/ui/status-bar/ping-status-bar-item.tsx
+#: apps/client/src/ui/app-header/app-header-global-menu.tsx
 msgid "{0} ms"
 msgstr "{0} ms"
 
@@ -97,7 +97,7 @@ msgstr "{spaceLabel} · hosted by {hostUsername}"
 msgid "{streak} puzzle streak"
 msgstr "{streak} puzzle streak"
 
-#: apps/client/src/ui/status-bar/notifications-status-bar-item.tsx
+#: apps/client/src/ui/app-header/app-header-global-menu.tsx
 msgid "{unread} unread"
 msgstr "{unread} unread"
 
@@ -136,7 +136,7 @@ msgstr "💻 System"
 msgid "1 guest"
 msgstr "1 guest"
 
-#: apps/client/src/ui/status-bar/notifications-status-bar-item.tsx
+#: apps/client/src/ui/app-header/app-header-global-menu.tsx
 msgid "1 unread"
 msgstr "1 unread"
 
@@ -166,7 +166,8 @@ msgstr "Accepting…"
 #: apps/client/src/navigation/screens/account-providers.tsx
 #: apps/client/src/settings/settings-screen.tsx
 #: apps/client/src/ui/app-commands/account-command.tsx
-#: apps/client/src/ui/status-bar/user-status-bar-item.tsx
+#: apps/client/src/ui/app-header/app-header-global-menu.tsx
+#: apps/client/src/ui/app-header/app-header-global-menu.tsx
 #: libs/auth/src/root/client/account-device/account-device-detail-screen.tsx
 #: libs/auth/src/root/client/account-device/account-devices-screen.tsx
 #: libs/auth/src/root/client/account-screen.tsx
@@ -176,6 +177,10 @@ msgstr "Account"
 #: libs/auth/src/root/client/account-device/account-devices-card.tsx
 msgid "Account ID"
 msgstr "Account ID"
+
+#: apps/client/src/ui/app-header/app-header-global-menu.tsx
+msgid "Account menu"
+msgstr "Account menu"
 
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-stats-cards.tsx
 msgid "Accuracy"
@@ -384,7 +389,7 @@ msgstr "Check again"
 
 #: apps/client/src/connection/server-status-screen.tsx
 #: apps/client/src/connection/server-status-screen.tsx
-#: apps/client/src/ui/status-bar/ping-status-bar-item.tsx
+#: apps/client/src/ui/app-header/app-header-global-menu.tsx
 msgid "Checking…"
 msgstr "Checking…"
 
@@ -638,10 +643,6 @@ msgstr "Current"
 msgid "Current streak"
 msgstr "Current streak"
 
-#: apps/client/src/ui/status-bar/user-status-bar-item.tsx
-msgid "Current user"
-msgstr "Current user"
-
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-settings-modal.tsx
 msgid "Custom"
 msgstr "Custom"
@@ -658,7 +659,7 @@ msgstr "Custom Games"
 msgid "dark"
 msgstr "dark"
 
-#: apps/client/src/ui/status-bar/theme-status-bar-item.tsx
+#: apps/client/src/ui/app-header/app-header-global-menu.tsx
 msgid "Dark"
 msgstr "Dark"
 
@@ -847,7 +848,7 @@ msgstr "Ending space…"
 msgid "Enter at least {USER_SEARCH_MIN_LENGTH} characters"
 msgstr "Enter at least {USER_SEARCH_MIN_LENGTH} characters"
 
-#: apps/client/src/ui/status-bar/connectivity-status-bar-item.tsx
+#: apps/client/src/ui/app-header/app-header-global-menu.tsx
 msgid "Error"
 msgstr "Error"
 
@@ -928,6 +929,7 @@ msgstr "Friend request"
 #: libs/friends/src/root/client/friends-list-screen-view.tsx
 #: libs/friends/src/root/client/friends-signed-in-gate.tsx
 #: libs/friends/src/root/client/profile-friends-stats-view.tsx
+#: libs/profile/src/root/client/profile-screen.tsx
 msgid "Friends"
 msgstr "Friends"
 
@@ -978,7 +980,7 @@ msgstr "Google"
 msgid "guest"
 msgstr "guest"
 
-#: apps/client/src/ui/status-bar/user-status-bar-item.tsx
+#: apps/client/src/ui/app-header/app-header-global-menu.tsx
 msgid "Guest"
 msgstr "Guest"
 
@@ -1132,7 +1134,7 @@ msgstr "Leaving…"
 msgid "light"
 msgstr "light"
 
-#: apps/client/src/ui/status-bar/theme-status-bar-item.tsx
+#: apps/client/src/ui/app-header/app-header-global-menu.tsx
 msgid "Light"
 msgstr "Light"
 
@@ -1241,7 +1243,7 @@ msgstr "Move the white pawn to a8 to trigger the inline canvas promotion picker.
 msgid "multiplayer"
 msgstr "multiplayer"
 
-#: apps/client/src/ui/status-bar/sound-status-bar-item.tsx
+#: apps/client/src/ui/app-header/app-header-global-menu.tsx
 msgid "Muted"
 msgstr "Muted"
 
@@ -1364,12 +1366,12 @@ msgstr "No shared spaces"
 
 #: apps/client/src/connection/server-status-screen.tsx
 #: apps/client/src/sync/sync-screen.tsx
-#: apps/client/src/ui/status-bar/notifications-status-bar-item.tsx
+#: apps/client/src/ui/app-header/app-header-global-menu.tsx
 msgid "None"
 msgstr "None"
 
-#: apps/client/src/navigation/root-navigator.tsx
-#: apps/client/src/ui/status-bar/notifications-status-bar-item.tsx
+#: apps/client/src/navigation/app-tabs.ts
+#: apps/client/src/ui/app-header/app-header-global-menu.tsx
 #: libs/notifications/src/public/notifications-header-button.tsx
 #: libs/notifications/src/public/notifications-header-button.tsx
 #: libs/notifications/src/root/client/notifications-screen.tsx
@@ -1378,17 +1380,17 @@ msgstr "Notifications"
 
 #: apps/client/src/connection/offline-indicator.tsx
 #: apps/client/src/connection/server-status-screen.tsx
-#: apps/client/src/ui/status-bar/connectivity-status-bar-item.tsx
+#: apps/client/src/ui/app-header/app-header-global-menu.tsx
 msgid "Offline"
 msgstr "Offline"
 
-#: apps/client/src/ui/status-bar/sound-status-bar-item.tsx
+#: apps/client/src/ui/app-header/app-header-global-menu.tsx
 msgid "On"
 msgstr "On"
 
 #: apps/client/src/connection/server-status-screen.tsx
 #: apps/client/src/sync/sync-screen.tsx
-#: apps/client/src/ui/status-bar/connectivity-status-bar-item.tsx
+#: apps/client/src/ui/app-header/app-header-global-menu.tsx
 msgid "Online"
 msgstr "Online"
 
@@ -1538,7 +1540,7 @@ msgstr "Private spaces only sync for people you add here."
 msgid "production"
 msgstr "production"
 
-#: apps/client/src/navigation/root-navigator.tsx
+#: apps/client/src/navigation/app-tabs.ts
 #: libs/friends/src/root/client/friend-user-screen-view.tsx
 #: libs/friends/src/root/client/friends-list-screen-view.tsx
 #: libs/profile/src/root/client/profile-edit-screen.tsx
@@ -1709,7 +1711,7 @@ msgstr "Saved"
 msgid "Saving…"
 msgstr "Saving…"
 
-#: apps/client/src/navigation/root-navigator.tsx
+#: apps/client/src/navigation/app-tabs.ts
 #: libs/search/src/root/client/search-screen-view.tsx
 #: libs/search/src/root/client/search-screen-view.tsx
 msgid "Search"
@@ -1761,7 +1763,7 @@ msgstr "Select style…"
 msgid "Select…"
 msgstr "Select…"
 
-#: apps/client/src/ui/status-bar/ping-status-bar-item.tsx
+#: apps/client/src/ui/app-header/app-header-global-menu.tsx
 #: pkgs/room-widgets/src/pages/playground-page.tsx
 msgid "Server"
 msgstr "Server"
@@ -1892,7 +1894,7 @@ msgstr "Sign-in was cancelled or didn't finish."
 msgid "Sign-out failed"
 msgstr "Sign-out failed"
 
-#: apps/client/src/ui/status-bar/user-status-bar-item.tsx
+#: apps/client/src/ui/app-header/app-header-global-menu.tsx
 #: libs/auth/src/public/sign-in-modal.tsx
 msgid "Signed in"
 msgstr "Signed in"
@@ -1945,21 +1947,13 @@ msgstr "Something went wrong"
 
 #: apps/client/src/settings/settings-screen.tsx
 #: apps/client/src/settings/sound-screen.tsx
-#: apps/client/src/ui/status-bar/sound-status-bar-item.tsx
+#: apps/client/src/ui/app-header/app-header-global-menu.tsx
 msgid "Sound"
 msgstr "Sound"
 
 #: apps/client/src/settings/sound-screen.tsx
 msgid "Sound effects"
 msgstr "Sound effects"
-
-#: apps/client/src/ui/status-bar/sound-status-bar-item.tsx
-msgid "Sound muted"
-msgstr "Sound muted"
-
-#: apps/client/src/ui/status-bar/sound-status-bar-item.tsx
-msgid "Sound on"
-msgstr "Sound on"
 
 #: apps/client/src/ui/app-commands/space-commands.tsx
 #: apps/client/src/ui/app-commands/space-commands.tsx
@@ -1993,7 +1987,7 @@ msgid "Space renamed"
 msgstr "Space renamed"
 
 #: apps/client/src/connection/server-status-screen.tsx
-#: apps/client/src/navigation/root-navigator.tsx
+#: apps/client/src/navigation/app-tabs.ts
 #: apps/client/src/navigation/screens/account-providers.tsx
 #: apps/client/src/settings/about-screen.tsx
 #: apps/client/src/settings/performance-screen.tsx
@@ -2043,14 +2037,6 @@ msgstr "Starting simulation…"
 msgid "Stats"
 msgstr "Stats"
 
-#: apps/client/src/providers/ui/status-bar-registry.tsx
-msgid "Status"
-msgstr "Status"
-
-#: apps/client/src/providers/ui/status-bar-registry.tsx
-msgid "Status bar"
-msgstr "Status bar"
-
 #: apps/client/src/connection/server-status-screen.tsx
 msgid "Status: {networkLine}"
 msgstr "Status: {networkLine}"
@@ -2073,7 +2059,7 @@ msgid "Style"
 msgstr "Style"
 
 #: apps/client/src/connection/offline-indicator.tsx
-#: apps/client/src/ui/status-bar/connectivity-status-bar-item.tsx
+#: apps/client/src/ui/app-header/app-header-global-menu.tsx
 msgid "Sync issue"
 msgstr "Sync issue"
 
@@ -2087,7 +2073,7 @@ msgid "Synced client_config key/value scalar rows"
 msgstr "Synced client_config key/value scalar rows"
 
 #: apps/client/src/sync/sync-screen.tsx
-#: apps/client/src/ui/status-bar/connectivity-status-bar-item.tsx
+#: apps/client/src/ui/app-header/app-header-global-menu.tsx
 msgid "Syncing"
 msgstr "Syncing"
 
@@ -2095,7 +2081,7 @@ msgstr "Syncing"
 msgid "system"
 msgstr "system"
 
-#: apps/client/src/ui/status-bar/theme-status-bar-item.tsx
+#: apps/client/src/ui/app-header/app-header-global-menu.tsx
 msgid "System"
 msgstr "System"
 
@@ -2133,13 +2119,9 @@ msgstr "The host picks the game for this space."
 msgid "The OS reports the device as offline, but the server is reachable. This is usually a quirk of the platform's network reporting and can be ignored."
 msgstr "The OS reports the device as offline, but the server is reachable. This is usually a quirk of the platform's network reporting and can be ignored."
 
-#: apps/client/src/ui/status-bar/theme-status-bar-item.tsx
+#: apps/client/src/ui/app-header/app-header-global-menu.tsx
 msgid "Theme"
 msgstr "Theme"
-
-#: apps/client/src/ui/status-bar/theme-status-bar-item.tsx
-msgid "Theme: {caption}"
-msgstr "Theme: {caption}"
 
 #: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Themed boards"

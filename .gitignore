@@ -61,7 +61,6 @@ apps/minio/.cache/
 
 # Legacy local PostgreSQL cluster paths (kept ignored so old checkouts don't dirty the tree)
 pkgs/postgres/.postgres/
-pkgs/postgres/.pglite/
 
 # typescript
 *.tsbuildinfo

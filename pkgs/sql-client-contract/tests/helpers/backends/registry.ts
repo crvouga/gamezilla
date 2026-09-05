@@ -4,7 +4,6 @@ import { SqlClientImplPostgresMem } from '@pkgs/sql-client-postgres/impl-postgre
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite/impl-bun-sqlite';
 import { SqlClientImplSqliteMem } from '@pkgs/sql-client-sqlite/impl-sqlite-mem';
 import { dropTables } from './drop-tables';
-import { openSharedPgliteBackend } from './shared-pglite';
 import type { BackendFactory, MatrixBackend } from './types';
 
 const FIXED_NOW = () => new Date('2020-01-01T00:00:00.000Z');
@@ -89,14 +88,6 @@ export const POSTGRES_MEM_FACTORY: BackendFactory = {
   },
 };
 
-export const PGLITE_FACTORY: BackendFactory = {
-  kind: 'pglite',
-  name: 'pglite',
-  dialect: 'postgres',
-  always: false,
-  open: () => openSharedPgliteBackend(),
-};
-
 async function trySqliteWasm(): Promise<BackendFactory | null> {
   try {
     const { SqlClientImplSqliteWasm } = await import(
@@ -157,10 +148,6 @@ export async function openBackend(
   factory: BackendFactory
 ): Promise<MatrixBackend> {
   const backend = await factory.open();
-  if (factory.dialect === 'postgres' && factory.kind === 'pglite') {
-    // Shared PGlite already installed JSON1 compat at boot.
-    return backend;
-  }
   if (factory.dialect === 'postgres' && factory.kind === 'postgres-mem') {
     // postgres-mem installs mem JSON1 shims in open().
     return backend;

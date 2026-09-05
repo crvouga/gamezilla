@@ -4,10 +4,10 @@
 
 - **Property / pin:** `bug-bigint-int8.pbt` / `wire-safety.pbt` / portable contract
 - **Symptom:** Expo Go playground hydrate logged `Cannot convert BigInt to number`
-  when postgres-mem / PGlite returned `bigint` for domain `integer` (physical
+  when postgres-mem returned `bigint` for domain `integer` (physical
   `bigint`) columns. Hermes rejects `Number(bigint)` / `JSON.stringify(bigint)`.
 - **Fix:** `normalizePgInt8Value` converts via decimal text (Hermes-safe);
-  applied on PGlite, postgres-mem, and shared `pgQueryRows` (node-pg).
+  applied on postgres-mem and shared `pgQueryRows` (node-pg).
 - **Pin:** `src/tests/pbt/bug-bigint-int8.pbt.test.ts`,
   `src/tests/contract/portable-contract.ts`, live int8 case in
   `src/postgres/postgres.contract.test.ts`.

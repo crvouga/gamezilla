@@ -124,7 +124,7 @@ function run(cmd: string, args: string[]): void {
  * heavy turbo concurrency ("Did not receive an init message from worker").
  * Retry a few times before failing the gate.
  */
-function runWithRetries(cmd: string, args: string[], attempts = 3): void {
+function runWithRetries(cmd: string, args: string[], attempts = 5): void {
   let lastStatus = 1;
   for (let i = 1; i <= attempts; i++) {
     const result = spawnSync(cmd, args, {
@@ -135,9 +135,11 @@ function runWithRetries(cmd: string, args: string[], attempts = 3): void {
     lastStatus = result.status ?? 1;
     if (lastStatus === 0) return;
     if (i < attempts) {
+      const backoffMs = 2000 * i;
       console.error(
-        `[ci:i18n] ${cmd} ${args.join(' ')} failed (attempt ${String(i)}/${String(attempts)}); retrying…`
+        `[ci:i18n] ${cmd} ${args.join(' ')} failed (attempt ${String(i)}/${String(attempts)}); retrying in ${String(backoffMs)}ms…`
       );
+      Bun.sleepSync(backoffMs);
     }
   }
   process.exit(lastStatus);

@@ -15,6 +15,7 @@ import {
 import type { ReactElement } from 'react';
 import type { ReactTestInstance } from 'react-test-renderer';
 import { ensureElementLayout, fireDrag, fireTapAt } from './rntl-gestures';
+import { createNodeMock } from './rntl-node-mock';
 import { serializeHostTreeHtml } from './serialize-host-tree-html';
 
 type RntlUser = ReturnType<typeof userEvent.setup>;
@@ -162,7 +163,7 @@ export function createRntlRenderAdapter(): RenderAdapter {
   return {
     async render(element: ReactElement): Promise<RenderedApp> {
       const user = userEvent.setup({ delay: 0 });
-      const result = render(element);
+      const result = render(element, { createNodeMock });
       // No per-poll rerender — activate is only the microtask act flush in
       // createRenderedAppFromQueryScope. Multi-root focus lives in
       // createMultiAppRntlSession's activate.
