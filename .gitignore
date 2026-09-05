@@ -101,7 +101,6 @@ apps/client/android/
 
 # Check / Playwright artifacts (reports, traces, videos)
 /check/
-**/playwright-report/
 **/test-results/
 **/blob-report/
 # Simulation report local ObjectStore data (repo root)
