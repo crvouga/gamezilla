@@ -3,14 +3,16 @@ import * as http from 'node:http';
 import * as https from 'node:https';
 import { cliClock } from './cli-io';
 
-interface HealthResult {
+export type HealthResult = {
   ok: boolean;
   status?: number;
   durationMs: number;
   resolvedIp?: string;
   error?: string;
   body?: string;
-}
+  /** Response `Location` header when present (redirects). */
+  location?: string;
+};
 
 export async function httpProbe(
   rawUrl: string,
@@ -61,6 +63,13 @@ export async function httpProbe(
       (res) => {
         let body = '';
         res.setEncoding('utf8');
+        const locationHeader = res.headers['location'];
+        const location =
+          typeof locationHeader === 'string'
+            ? locationHeader
+            : Array.isArray(locationHeader)
+              ? locationHeader[0]
+              : undefined;
         res.on('data', (chunk: string) => {
           if (body.length < 4096) body += chunk;
         });
@@ -78,6 +87,9 @@ export async function httpProbe(
           }
           if (body.length > 0) {
             out = { ...out, body };
+          }
+          if (location !== undefined && location.length > 0) {
+            out = { ...out, location };
           }
           resolve(out);
         });

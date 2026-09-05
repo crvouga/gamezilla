@@ -3,7 +3,7 @@ import { PRODUCT_CONFIG } from '@libs/db/public/product-config';
 import { assert } from '@pkgs/assert';
 import { createLogger } from '@pkgs/logger';
 import { cliClock, cliTimers } from './cli-io';
-import type { DeployOutputs } from './deploy-origins';
+import { type DeployOutputs, productionClientOrigin } from './deploy-origins';
 import { fmtElapsed, ok, warn } from './fmt';
 import { httpProbe } from './http-probe';
 
@@ -348,6 +348,8 @@ export async function runHttpSmokeTests(outputs: DeployOutputs): Promise<void> {
 
   log.info('HTTP smoke: all checks passed.');
 
+  await checkGoogleOauthLaunch(outputs);
+
   const emqxUrl = probeUrl(outputs.emqx_url, '/healthz');
   const emqx = await httpProbe(emqxUrl);
   if (emqx.ok) {
@@ -357,5 +359,74 @@ export async function runHttpSmokeTests(outputs: DeployOutputs): Promise<void> {
       'EMQX /healthz',
       `${emqxUrl} not healthy yet (HTTP ${String(emqx.status ?? 0)}) — provision Railway emqx if missing`
     );
+  }
+}
+
+/**
+ * Production Google sign-in must launch with the www HTTPS client callback and
+ * API redirect_uri. Catches disabled Google, wrong API_URL, or untrusted www.
+ */
+async function checkGoogleOauthLaunch(outputs: DeployOutputs): Promise<void> {
+  const api = normalizeUrl(outputs.api_url).replace(/\/$/, '');
+  const callbackUrl = `${productionClientOrigin()}/sso-callback`;
+  const launchUrl = `${api}/api/auth/oauth/launch?provider=google&callbackUrl=${encodeURIComponent(callbackUrl)}`;
+  const expectedRedirectUri = `${api}/api/auth/callback/google`;
+  const started = cliClock.now();
+  const maxWaitStr = fmtElapsed(POST_DEPLOY_HTTP_MAX_WAIT_MS);
+  const maxAttempts = Math.ceil(
+    POST_DEPLOY_HTTP_MAX_WAIT_MS / POST_DEPLOY_HTTP_RETRY_MS
+  );
+
+  for (let attempt = 1; ; attempt++) {
+    const elapsed = cliClock.now() - started;
+    const elapsedStr = fmtElapsed(elapsed);
+    const result = await httpProbe(launchUrl, 15_000);
+
+    if (result.status === 302 && result.location !== undefined) {
+      let authorize: URL;
+      try {
+        authorize = new URL(result.location);
+      } catch {
+        assert.fail(
+          `smoke-test: Google OAuth launch Location is not a URL: ${result.location}`
+        );
+      }
+      assert.ok(
+        authorize.hostname === 'accounts.google.com',
+        `smoke-test: Google OAuth launch must redirect to accounts.google.com, got ${authorize.hostname}`
+      );
+      const redirectUri = authorize.searchParams.get('redirect_uri');
+      assert.ok(
+        redirectUri === expectedRedirectUri,
+        `smoke-test: Google OAuth redirect_uri must be ${expectedRedirectUri}, got ${redirectUri ?? '(missing)'}`
+      );
+      log.info(
+        `Smoke: Google OAuth launch ${launchUrl} — 302 to accounts.google.com with redirect_uri OK (${elapsedStr}).`
+      );
+      return;
+    }
+
+    if (result.status === 404) {
+      assert.fail(
+        `smoke-test: Google OAuth provider disabled (HTTP 404) at ${launchUrl}`
+      );
+    }
+
+    if (result.status === 400) {
+      assert.fail(
+        `smoke-test: Google OAuth launch rejected callbackUrl ${callbackUrl} (HTTP 400) — www origin may be untrusted`
+      );
+    }
+
+    if (elapsed >= POST_DEPLOY_HTTP_MAX_WAIT_MS) {
+      assert.fail(
+        `smoke-test: Google OAuth launch at ${launchUrl} returned HTTP ${String(result.status ?? 0)}${result.error ? `: ${result.error}` : ''} after ${elapsedStr}`
+      );
+    }
+
+    log.info(
+      `Waiting for Google OAuth launch ${launchUrl} — attempt ${attempt}/${maxAttempts}, HTTP ${String(result.status ?? 0)}, ${elapsedStr} elapsed (max ${maxWaitStr})`
+    );
+    await sleep(POST_DEPLOY_HTTP_RETRY_MS);
   }
 }

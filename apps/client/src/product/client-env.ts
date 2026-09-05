@@ -53,6 +53,12 @@ export type ClientEnv = {
   readonly observability: Observability;
   readonly serverUrl: string;
   readonly authBaseURL: string;
+  /**
+   * Absolute OAuth client return URL passed to the IdP at launch
+   * (`https://…/sso-callback` when a browser origin exists; else
+   * `gamezilla://sso-callback`).
+   */
+  readonly authCallbackUrl: string;
   /** OAuth popup / auth-session (Expo on wall; in-process stub in sim). */
   readonly openAuthSession: OpenAuthSession;
   /** Sync-engine pool key / local DB name (sim: per-actor; prod: per-user). */

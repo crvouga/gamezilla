@@ -20,7 +20,7 @@ function AuthStack({ children }: { children: ReactNode }): ReactNode {
         fetch: (input, init) => env.server(input, init),
         storage: env.authStorage,
         openAuthSession: env.openAuthSession,
-        callbackUrl: 'gamezilla://sso-callback',
+        callbackUrl: env.authCallbackUrl,
       }),
     [env]
   );

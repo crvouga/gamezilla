@@ -33,7 +33,12 @@ export type TabsParamList = {
 };
 
 export const appLinking: LinkingOptions<RootStackParamList> = {
-  prefixes: ['gamezilla://', 'https://gamezilla.app', 'http://localhost'],
+  prefixes: [
+    'gamezilla://',
+    'https://www.gamezilla.app',
+    'https://gamezilla.app',
+    'http://localhost',
+  ],
   config: {
     screens: {
       Tabs: {

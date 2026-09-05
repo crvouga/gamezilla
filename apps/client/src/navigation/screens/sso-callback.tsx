@@ -63,6 +63,16 @@ function delay(
   });
 }
 
+/**
+ * Popup returns: `maybeCompleteAuthSession` succeeds and the parent
+ * `openAuthSessionAsync` exchanges the one-shot code — do not exchange again.
+ * Same-tab / native: completion is `failed` (or no-op), so exchange here.
+ */
+function shouldExchangeOnCallbackPage(): boolean {
+  const result = WebBrowser.maybeCompleteAuthSession();
+  return result.type !== 'success';
+}
+
 async function completeSsoCallbackAndNavigate(args: {
   readonly store: SecureStorageStore;
   readonly port: AuthClientPort;
@@ -71,13 +81,13 @@ async function completeSsoCallbackAndNavigate(args: {
   readonly nowMs: number;
   readonly now: () => number;
   readonly setTimeout: (fn: () => void, ms: number) => unknown;
+  readonly exchangeOnPage: boolean;
 }): Promise<void> {
   writePendingMarker(args.store, args.nowMs, args.now);
   args.openSignInModal();
-  // Better Auth already set the session cookie on the API during Google return.
-  // Settle bearer in parallel; don't block leaving `/sso-callback` on a slow
-  // get-session (wrangler often takes multiple seconds per call).
-  const settle = finishHostedAuthRedirect(args.port).catch(() => undefined);
+  const settle = args.exchangeOnPage
+    ? finishHostedAuthRedirect(args.port).catch(() => undefined)
+    : Promise.resolve();
   await Promise.race([settle, delay(SSO_HANDOFF_NAVIGATE_MS, args.setTimeout)]);
   const target = signInReturnHrefFromPending(readSignInPendingSync(args.now));
   args.replace(target as Href);
@@ -99,12 +109,9 @@ export default function SsoCallbackScreen(): ReactNode {
   const didFinishRef = useRef(false);
 
   useEffect(() => {
-    WebBrowser.maybeCompleteAuthSession();
-  }, []);
-
-  useEffect(() => {
     if (didFinishRef.current) return;
     didFinishRef.current = true;
+    const exchangeOnPage = shouldExchangeOnCallbackPage();
     void completeSsoCallbackAndNavigate({
       store,
       port,
@@ -115,6 +122,7 @@ export default function SsoCallbackScreen(): ReactNode {
       nowMs: clock.now(),
       now: clock.now,
       setTimeout: timers.setTimeout,
+      exchangeOnPage,
     });
   }, [clock, openSignInModal, port, router, store, timers]);
 

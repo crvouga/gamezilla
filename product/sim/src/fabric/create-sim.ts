@@ -22,6 +22,7 @@ import {
   createInProcessOpenAuthSession,
   createNamespacedAuthClientStorage,
 } from '@pkgs/auth/client';
+import { AUTH_NATIVE_SSO_CALLBACK_URL } from '@pkgs/auth/shared';
 import { InMemoryBilling } from '@pkgs/billing';
 import type { Clock, Timers } from '@pkgs/clock';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
@@ -314,6 +315,7 @@ function makeSimClientEnv(
     observability: createNoopObservability(`sim-client:${id}`),
     serverUrl: SIM_SERVER_URL,
     authBaseURL: SIM_SERVER_URL,
+    authCallbackUrl: AUTH_NATIVE_SSO_CALLBACK_URL,
     openAuthSession: (() => {
       const completeDevAuth = createInProcessOpenAuthSession({
         fetch: (input, init) =>

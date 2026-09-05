@@ -9,6 +9,7 @@ import {
 } from '@apps/client/storage/open-main-sql-client';
 import { WebSocketRoomTransportFactory } from '@libs/spaces/root/client/room/room-transport-factory';
 import type { AuthClientStorage, OpenAuthSession } from '@pkgs/auth/client';
+import { oauthClientCallbackUrl } from '@pkgs/auth/shared';
 import { wallClock, wallTimers } from '@pkgs/clock';
 import {
   createHealthOriginAvailability,
@@ -57,6 +58,14 @@ function mintWallSeed(): bigint {
 
 function apiHealthUrl(serverUrl: string): string {
   return `${serverUrl.replace(/\/+$/, '')}/api/health`;
+}
+
+/** Browser `location.origin` when present; undefined on native / non-DOM. */
+function readBrowserOrigin(): string | undefined {
+  const loc = (globalThis as { location?: { origin?: unknown } }).location;
+  if (loc === undefined || typeof loc.origin !== 'string') return undefined;
+  const origin = loc.origin.trim();
+  return origin.length > 0 ? origin : undefined;
 }
 
 function createWallOpenAuthSession(): OpenAuthSession {
@@ -129,6 +138,7 @@ export function wallClientEnv(args?: {
     observability: createNoopObservability('gamezilla-client'),
     serverUrl,
     authBaseURL: serverUrl,
+    authCallbackUrl: oauthClientCallbackUrl(readBrowserOrigin()),
     openAuthSession: createWallOpenAuthSession(),
     resolveDatabaseName: ({ userId }) => getMainSqliteDbName(userId, createId),
     mutationSuccessHoldMs: 900,

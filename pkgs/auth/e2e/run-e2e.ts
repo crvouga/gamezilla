@@ -14,6 +14,7 @@ const harness = Bun.spawn(['bun', './e2e/serve-harness.ts'], {
   stderr: 'inherit',
 });
 
+let code = 1;
 try {
   await waitForHttp(ORIGIN);
   const test = Bun.spawn(['bun', 'test', '--timeout', '60000', './e2e/tests'], {
@@ -21,8 +22,15 @@ try {
     stdout: 'inherit',
     stderr: 'inherit',
   });
-  const code = await test.exited;
-  process.exit(code ?? 1);
+  code = (await test.exited) ?? 1;
 } finally {
   harness.kill();
+  try {
+    await harness.exited;
+  } catch {
+    // already dead
+  }
+  killListenersOnPort(PORT);
 }
+
+process.exit(code);
