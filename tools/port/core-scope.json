@@ -10,6 +10,7 @@
     "pkgs/billing-stripe/src",
     "pkgs/billing/src",
     "pkgs/browser/src",
+    "pkgs/chess-board-core/src",
     "pkgs/collab/src",
     "pkgs/colors/src",
     "pkgs/database-url-policy/src",

@@ -1,0 +1,216 @@
+/**
+ * Stable piece identities across position changes so renderers can slide a
+ * piece between squares instead of unmounting / remounting it.
+ *
+ * {@link createPieceRowsTracker} is the stateful entry point: feed it each
+ * new position (+ the move that produced it when known) and it returns rows
+ * whose `id`s survive moves, captures, castling, promotions and resets.
+ */
+
+import { squareFromIndex } from './geometry';
+import { inferLastMoveFromPositionDiff } from './infer-move';
+import { pieceCode } from './piece-svgs';
+import { positionsEqual } from './position';
+import type { Move, PieceCode, Position, Square } from './types';
+
+export type ChessPieceRow = {
+  id: string;
+  square: Square;
+  code: PieceCode;
+  /** True once for newly spawned pieces (promotion / fresh id). */
+  fadeIn?: boolean;
+};
+
+type IdAllocator = () => string;
+
+function createIdAllocator(prefix: string): IdAllocator {
+  let next = 1;
+  return () => `${prefix}-${next++}`;
+}
+
+function scanRows(pos: Position, allocId: IdAllocator): ChessPieceRow[] {
+  const rows: ChessPieceRow[] = [];
+  for (let i = 0; i < 64; i++) {
+    const p = pos[i];
+    if (!p) continue;
+    const code = pieceCode(p.color, p.type);
+    if (!code) continue;
+    rows.push({ id: allocId(), square: squareFromIndex(i), code });
+  }
+  return rows;
+}
+
+type ResolvePieceArgs = {
+  sq: Square;
+  code: PieceCode;
+  active: readonly ChessPieceRow[];
+  lastMove: Move;
+  mover: ChessPieceRow | undefined;
+  allocId: IdAllocator;
+};
+
+function resolvePieceId(args: ResolvePieceArgs): {
+  id: string;
+  fadeIn: boolean;
+} {
+  const { sq, code, active, lastMove, mover, allocId } = args;
+  if (mover && sq === lastMove.to) {
+    return { id: mover.id, fadeIn: false };
+  }
+  const castle = lastMove.castle;
+  if (castle && sq === castle.rookTo) {
+    const rook = active.find((r) => r.square === castle.rookFrom);
+    return rook
+      ? { id: rook.id, fadeIn: false }
+      : { id: allocId(), fadeIn: true };
+  }
+  const same = active.find((r) => r.square === sq && r.code === code);
+  return same
+    ? { id: same.id, fadeIn: false }
+    : { id: allocId(), fadeIn: true };
+}
+
+function buildNextRows(
+  position: Position,
+  active: readonly ChessPieceRow[],
+  lastMove: Move,
+  allocId: IdAllocator
+): ChessPieceRow[] {
+  const mover = active.find((r) => r.square === lastMove.from);
+  const next: ChessPieceRow[] = [];
+  for (let i = 0; i < 64; i++) {
+    const p = position[i];
+    if (!p) continue;
+    const sq = squareFromIndex(i);
+    const code = pieceCode(p.color, p.type);
+    if (!code) continue;
+    const { id, fadeIn } = resolvePieceId({
+      sq,
+      code,
+      active,
+      lastMove,
+      mover,
+      allocId,
+    });
+    next.push({ id, square: sq, code, ...(fadeIn ? { fadeIn: true } : {}) });
+  }
+  return next;
+}
+
+function indexPrevRows(prevRows: readonly ChessPieceRow[]): {
+  bySquareCode: Map<string, ChessPieceRow>;
+  byCode: Map<PieceCode, ChessPieceRow[]>;
+} {
+  const bySquareCode = new Map<string, ChessPieceRow>();
+  const byCode = new Map<PieceCode, ChessPieceRow[]>();
+  for (const r of prevRows) {
+    bySquareCode.set(`${r.square}:${r.code}`, r);
+    const list = byCode.get(r.code) ?? [];
+    list.push(r);
+    byCode.set(r.code, list);
+  }
+  return { bySquareCode, byCode };
+}
+
+type Unmatched = { square: Square; code: PieceCode };
+
+function claimSquareMatches(
+  position: Position,
+  bySquareCode: Map<string, ChessPieceRow>,
+  usedIds: Set<string>
+): { matched: ChessPieceRow[]; unmatched: Unmatched[] } {
+  const matched: ChessPieceRow[] = [];
+  const unmatched: Unmatched[] = [];
+  for (let i = 0; i < 64; i++) {
+    const p = position[i];
+    if (!p) continue;
+    const code = pieceCode(p.color, p.type);
+    if (!code) continue;
+    const square = squareFromIndex(i);
+    const hit = bySquareCode.get(`${square}:${code}`);
+    if (hit && !usedIds.has(hit.id)) {
+      usedIds.add(hit.id);
+      matched.push({ id: hit.id, square, code });
+    } else {
+      unmatched.push({ square, code });
+    }
+  }
+  return { matched, unmatched };
+}
+
+function claimCodeFallback(
+  unmatched: readonly Unmatched[],
+  byCode: Map<PieceCode, ChessPieceRow[]>,
+  usedIds: Set<string>,
+  allocId: IdAllocator
+): ChessPieceRow[] {
+  const out: ChessPieceRow[] = [];
+  for (const row of unmatched) {
+    const hit = byCode.get(row.code)?.find((r) => !usedIds.has(r.id));
+    if (hit) {
+      usedIds.add(hit.id);
+      out.push({ id: hit.id, square: row.square, code: row.code });
+    } else {
+      out.push({
+        id: allocId(),
+        square: row.square,
+        code: row.code,
+        fadeIn: true,
+      });
+    }
+  }
+  return out;
+}
+
+/**
+ * Rematch piece ids across a non-ply position swap (puzzle reset / fen jump)
+ * so resting pieces keep identity and can slide instead of remounting.
+ */
+export function rematchRows(
+  prevRows: readonly ChessPieceRow[],
+  position: Position,
+  allocId: IdAllocator
+): ChessPieceRow[] {
+  const { bySquareCode, byCode } = indexPrevRows(prevRows);
+  const usedIds = new Set<string>();
+  const { matched, unmatched } = claimSquareMatches(
+    position,
+    bySquareCode,
+    usedIds
+  );
+  return [
+    ...matched,
+    ...claimCodeFallback(unmatched, byCode, usedIds, allocId),
+  ];
+}
+
+export type PieceRowsTracker = {
+  /** Rows for `position`; identical position returns the cached rows. */
+  readonly next: (position: Position, lastMove: Move | null) => ChessPieceRow[];
+  readonly current: () => readonly ChessPieceRow[];
+};
+
+/**
+ * Stateful identity tracker. Ids are scoped to the tracker (`<prefix>-N`) so
+ * two boards on one screen never collide.
+ */
+export function createPieceRowsTracker(prefix = 'cp'): PieceRowsTracker {
+  const allocId = createIdAllocator(prefix);
+  let cache: { position: Position; rows: ChessPieceRow[] } | null = null;
+  return {
+    next(position, lastMove) {
+      if (cache === null) {
+        cache = { position, rows: scanRows(position, allocId) };
+      } else if (!positionsEqual(cache.position, position)) {
+        const move =
+          lastMove ?? inferLastMoveFromPositionDiff(cache.position, position);
+        const rows = move
+          ? buildNextRows(position, cache.rows, move, allocId)
+          : rematchRows(cache.rows, position, allocId);
+        cache = { position, rows };
+      }
+      return cache.rows;
+    },
+    current: () => cache?.rows ?? [],
+  };
+}

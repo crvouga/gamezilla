@@ -145,6 +145,8 @@
     "pkgs/object-store-expo-fs/src/**/*.ts",
     "pkgs/object-store-opfs/src/**/*.ts",
     "pkgs/device/src/**/*.ts",
+    "pkgs/chess-board-core/src/**/*.ts",
+    "pkgs/chess-board-core/tests/**/*.ts",
     "pkgs/device/tests/**/*.ts",
     "pkgs/object-store-opfs/tests/**/*.ts",
     "pkgs/object-store-node-fs/src/**/*.ts",

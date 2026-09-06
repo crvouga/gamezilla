@@ -986,6 +986,18 @@
         "typescript": "catalog:",
       },
     },
+    "pkgs/chess-board-core": {
+      "name": "@pkgs/chess-board-core",
+      "version": "0.0.0",
+      "dependencies": {
+        "chess.js": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "pkgs/clock": {
       "name": "@pkgs/clock",
       "version": "0.0.0",
@@ -3873,6 +3885,8 @@
     "@pkgs/browser": ["@pkgs/browser@workspace:pkgs/browser"],
 
     "@pkgs/chess-board": ["@pkgs/chess-board@workspace:pkgs/chess-board"],
+
+    "@pkgs/chess-board-core": ["@pkgs/chess-board-core@workspace:pkgs/chess-board-core"],
 
     "@pkgs/clock": ["@pkgs/clock@workspace:pkgs/clock"],
 
