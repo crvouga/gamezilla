@@ -20,6 +20,7 @@
     "pkgs/db-schema-postgres/src",
     "pkgs/db-schema-sqlite/src",
     "pkgs/db-schema/src",
+    "pkgs/device/src",
     "pkgs/distributed-lock/src",
     "pkgs/emqx-server/src",
     "pkgs/entity-store/src",

@@ -1182,6 +1182,18 @@
         "typescript": "catalog:",
       },
     },
+    "pkgs/device": {
+      "name": "@pkgs/device",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/sync-engine": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "pkgs/distributed-lock": {
       "name": "@pkgs/distributed-lock",
       "version": "0.0.0",
@@ -3885,6 +3897,8 @@
     "@pkgs/db-schema-postgres": ["@pkgs/db-schema-postgres@workspace:pkgs/db-schema-postgres"],
 
     "@pkgs/db-schema-sqlite": ["@pkgs/db-schema-sqlite@workspace:pkgs/db-schema-sqlite"],
+
+    "@pkgs/device": ["@pkgs/device@workspace:pkgs/device"],
 
     "@pkgs/distributed-lock": ["@pkgs/distributed-lock@workspace:pkgs/distributed-lock"],
 
