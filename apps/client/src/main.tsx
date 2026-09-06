@@ -1,21 +1,27 @@
 /** @jsxImportSource solid-js */
 // @io-wall-ok — browser composition root
-import { I18nProvider } from '@lingui/solid';
-import { wallClock, wallTimers } from '@pkgs/clock/wall';
+/**
+ * Web entry: builds the wall `ClientEnv` from browser APIs, creates the
+ * client and mounts `client.App` (browser `Router`; the URL is the source of
+ * truth). `pagehide` releases the sync engines (web OPFS handles).
+ */
+
 import { render } from 'solid-js/web';
-import { ExemplarsApp } from './exemplars/exemplars-app';
-import { i18n } from './i18n/i18n';
+
+import { createClient } from './shell/create-client';
+import { wallClientEnv } from './shell/wall-client-env';
 
 const root = document.getElementById('root');
 if (root === null) {
   throw new Error('#root element missing from index.html');
 }
 
-render(
-  () => (
-    <I18nProvider i18n={i18n}>
-      <ExemplarsApp clock={wallClock} timers={wallTimers} />
-    </I18nProvider>
-  ),
-  root
-);
+const client = createClient(wallClientEnv(), {
+  poolGlobalKey: '__gamezilla_sync_engine_pool__',
+});
+
+window.addEventListener('pagehide', () => {
+  void client.close();
+});
+
+render(() => <client.App />, root);

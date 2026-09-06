@@ -1,0 +1,190 @@
+/* Host resets shared by the primitives. Flex-column defaults mirror the
+   layout contract the rest of the design system assumes. */
+
+.box {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  flex-shrink: 0;
+  position: relative;
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0 solid transparent;
+}
+
+.text {
+  display: inline;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  text-decoration: none;
+  color: inherit;
+  font: inherit;
+}
+
+.clickable {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  flex-shrink: 0;
+  position: relative;
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0 solid transparent;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
+  appearance: none;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  outline: none;
+}
+
+.clickable:disabled {
+  cursor: default;
+}
+
+.clickable:focus-visible {
+  outline: 2px solid var(--ui-color-tint);
+  outline-offset: 2px;
+}
+
+/* Tint feedback: overlay layered above children. */
+.clickableTint::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: transparent;
+  transition: background-color var(--ui-duration-fast) var(--ui-easing-standard);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .clickableTint:not(:disabled):hover::after {
+    background: var(--ui-color-interactive-hover);
+  }
+}
+
+.clickableTint:not(:disabled):active::after {
+  background: var(--ui-color-interactive-press);
+}
+
+.clickableOpacity {
+  transition: opacity var(--ui-duration-fast) var(--ui-easing-standard);
+}
+
+.clickableOpacity:not(:disabled):active {
+  opacity: 0.7;
+}
+
+.scroll {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-gutter: auto;
+}
+
+.scrollHorizontal {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.scrollHideBar {
+  scrollbar-width: none;
+}
+
+.scrollHideBar::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollContent {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.scrollContentHorizontal {
+  flex-direction: row;
+}
+
+.input {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  appearance: none;
+  outline: none;
+  font: inherit;
+  color: var(--ui-color-text);
+  background: var(--ui-color-surface);
+  border: 1px solid var(--ui-color-outline);
+  border-radius: var(--ui-radius-md);
+  transition: border-color var(--ui-duration-fast) var(--ui-easing-standard);
+}
+
+.input::placeholder {
+  color: var(--ui-color-text-secondary);
+}
+
+.input:focus-visible {
+  border-color: var(--ui-color-tint);
+  box-shadow: 0 0 0 1px var(--ui-color-tint);
+}
+
+.inputError,
+.inputError:focus-visible {
+  border-color: var(--ui-color-destructive);
+  box-shadow: none;
+}
+
+.inputTextarea {
+  resize: vertical;
+}
+
+.switchTrack {
+  transition: background-color var(--ui-duration-fast) var(--ui-easing-standard);
+}
+
+.switchThumb {
+  transition: transform var(--ui-duration-fast) var(--ui-easing-standard);
+}
+
+/* Safe-area insets (notch / home indicator). Classes because happy-dom and
+   some inline-style sanitizers drop `env()` values. */
+.safeTop {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.safeBottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* RN `pointerEvents="box-none"`: the layer is transparent to the pointer but
+   its direct children are interactive again. */
+.boxNone {
+  pointer-events: none;
+}
+
+.boxNone > * {
+  pointer-events: auto;
+}

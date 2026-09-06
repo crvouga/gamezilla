@@ -1,0 +1,159 @@
+/** @jsxImportSource solid-js */
+import { Box, Text } from '@pkgs/ui';
+import {
+  createMultiAppSolidDomSession,
+  createSolidDomDriver,
+  isBlankSnapshotHtml,
+  type MultiAppSolidDomSession,
+} from '@pkgs/ui-testing-solid-dom';
+import { createSignal, type JSX, onCleanup } from 'solid-js';
+import { afterEach, describe, expect, test } from 'vitest';
+import { createDemoClock, DemoApp, DemoProviders } from './support/demo-app';
+
+function actorContainer(actorId: string): Element | null {
+  return document.querySelector(`[data-actor="${actorId}"]`);
+}
+
+describe('createMultiAppSolidDomSession', () => {
+  let session: MultiAppSolidDomSession | undefined;
+
+  afterEach(() => {
+    session?.dispose();
+    session = undefined;
+  });
+
+  test('mounts one actor at a time and reports focus hooks', () => {
+    const events: string[] = [];
+    session = createMultiAppSolidDomSession({
+      onActorFocus: (id) => events.push(`focus:${id}`),
+      onActorBlur: (id) => events.push(`blur:${id}`),
+    });
+    const sim = createDemoClock();
+    const alice = session.mountActor('alice', () => <DemoApp sim={sim} />);
+    expect(session.activeActorId()).toBe('alice');
+    expect(actorContainer('alice')).not.toBeNull();
+    expect(alice.query('email')).not.toBeNull();
+
+    const bob = session.mountActor('bob', () => <DemoApp sim={sim} />);
+    expect(session.activeActorId()).toBe('bob');
+    expect(actorContainer('alice')).toBeNull();
+    expect(actorContainer('bob')).not.toBeNull();
+    expect(alice.query('email')).toBeNull();
+    expect(bob.query('email')).not.toBeNull();
+    expect(events).toEqual(['focus:alice', 'blur:alice', 'focus:bob']);
+  });
+
+  test('drivers over actor facades refocus their actor before acting', async () => {
+    session = createMultiAppSolidDomSession();
+    const live = session;
+    const sim = createDemoClock();
+    const driverFor = (id: string) =>
+      createSolidDomDriver({
+        clock: sim.clock,
+        pump: sim.pump,
+        harness: {
+          mount: () =>
+            Promise.resolve(live.mountActor(id, () => <DemoApp sim={sim} />)),
+        },
+      });
+    const alice = driverFor('alice');
+    const bob = driverFor('bob');
+    await alice.launch();
+    await bob.launch();
+    expect(session.activeActorId()).toBe('bob');
+
+    await alice.get('inc').tap();
+    expect(session.activeActorId()).toBe('alice');
+    await alice.get('count').expect.text('1');
+
+    await bob.get('count').expect.text('0');
+    expect(session.activeActorId()).toBe('bob');
+
+    // Parked actors dispose their Solid root: state resets on refocus.
+    await alice.get('count').expect.text('0');
+    await alice.close();
+    expect(session.activeActorId()).toBeUndefined();
+    await bob.close();
+    expect(
+      document.querySelector('[data-component="MultiAppHost"]')
+    ).toBeNull();
+  });
+
+  test('snapshotAllActors captures the active actor and reuses parked HTML', async () => {
+    session = createMultiAppSolidDomSession();
+    const sim = createDemoClock();
+    session.mountActor('alice', () => (
+      <DemoProviders sim={sim}>
+        <Box dataSet={{ testid: 'a' }}>
+          <Text label="Alice was here with plenty of copy" />
+        </Box>
+      </DemoProviders>
+    ));
+    session.mountActor('bob', () => (
+      <DemoProviders sim={sim}>
+        <Box dataSet={{ testid: 'b' }}>
+          <Text label="Bob was here with plenty of copy" />
+        </Box>
+      </DemoProviders>
+    ));
+    const snapshots = await session.snapshotAllActors({
+      stylesheetHref: 'frame.css',
+    });
+    expect([...snapshots.keys()].sort()).toEqual(['alice', 'bob']);
+    expect(snapshots.get('alice')).toContain('Alice was here');
+    expect(snapshots.get('bob')).toContain('Bob was here');
+    expect(snapshots.get('bob')).toContain('href="frame.css"');
+    expect(isBlankSnapshotHtml(snapshots.get('alice'))).toBe(false);
+    expect(session.activeActorId()).toBe('bob');
+
+    session.clearFocus();
+    expect(session.activeActorId()).toBeUndefined();
+    expect(actorContainer('bob')).toBeNull();
+    const parked = await session.snapshotAllActors();
+    expect(parked.get('bob')).toContain('Bob was here');
+    expect(parked.get('alice')).toContain('Alice was here');
+  });
+
+  test('mounts uncached parked actors for snapshot when nothing is focused', async () => {
+    session = createMultiAppSolidDomSession();
+    const sim = createDemoClock();
+    const [copy, setCopy] = createSignal('');
+    session.mountActor('alice', () => (
+      <DemoProviders sim={sim}>
+        <Text label={copy()} />
+      </DemoProviders>
+    ));
+    // Blank shell at blur time: nothing is cached.
+    session.clearFocus();
+    expect((await session.snapshotAllActors()).size).toBe(0);
+    setCopy('Alice rendered a real screen this time');
+    // Still nothing focused → the actor is mounted just for the snapshot.
+    const out = await session.snapshotAllActors();
+    expect(out.get('alice')).toContain('Alice rendered');
+    expect(session.activeActorId()).toBe('alice');
+  });
+
+  test('unmountActor disposes the root and dispose clears everything', () => {
+    let disposed = 0;
+    session = createMultiAppSolidDomSession();
+    const Tracked = (): JSX.Element => {
+      onCleanup(() => {
+        disposed += 1;
+      });
+      return <div data-testid="tracked" />;
+    };
+    const app = session.mountActor('alice', () => <Tracked />);
+    session.mountActor('bob', () => <Tracked />);
+    expect(disposed).toBe(1);
+    session.unmountActor('bob');
+    expect(disposed).toBe(2);
+    expect(session.activeActorId()).toBeUndefined();
+    expect(app.query('tracked')).toBeNull();
+    session.unmountActor('missing');
+    session.dispose();
+    expect(
+      document.querySelector('[data-component="MultiAppHost"]')
+    ).toBeNull();
+    expect(() => session?.mountActor('alice', () => <Tracked />)).not.toThrow();
+  });
+});

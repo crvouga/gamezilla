@@ -1,11 +1,5 @@
-import { Box, Gamepad2Icon, ListChecksIcon, TabStrip } from '@pkgs/ui-rn';
-import {
-  type ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import { Box, Gamepad2Icon, ListChecksIcon, TabStrip } from '@pkgs/ui';
+import { type JSX, createEffect, createMemo, createSignal } from 'solid-js';
 
 import type { SimConsolePorts } from '../shared/ports';
 import type { SimChromeKind } from '../shared/sim-node';
@@ -72,28 +66,16 @@ export function SimConsoleApp(props: {
     next: ReportNavState,
     mode?: 'push' | 'replace'
   ) => void;
-}): ReactNode {
-  const {
-    ports,
-    section,
-    kind,
-    instance,
-    panes,
-    reports,
-    onSectionChange,
-    onKindChange,
-    onInstanceChange,
-    onPanePatch,
-    onReportsNav,
-  } = props;
+}): JSX.Element {
   // Keep the playground session alive across Reports ↔ Playground; dispose only
   // when this console root unmounts (live state is lost; snapshots remain).
-  const [playgroundPinned, setPlaygroundPinned] = useState(false);
-  const [reportsVisited, setReportsVisited] = useState(
-    () => section === 'reports'
+  const [playgroundPinned, setPlaygroundPinned] = createSignal(false);
+  const [reportsVisited, setReportsVisited] = createSignal(
+    props.section === 'reports'
   );
 
-  const api = useMemo((): ReportApiClient => {
+  const api = createMemo((): ReportApiClient => {
+    const ports = props.ports;
     if (ports.reportsStore) {
       return createObjectStoreReportApiClient({
         store: ports.reportsStore,
@@ -107,54 +89,53 @@ export function SimConsoleApp(props: {
       basePath: DEFAULT_BASE_PATH,
       fetch: (input, init) => ports.fetch(input, init),
     });
-  }, [
-    ports.fetch,
-    ports.reportsPublicBaseUrl,
-    ports.reportsStore,
-    ports.timers,
-  ]);
+  });
 
-  useEffect(() => {
-    if (section === 'playground') setPlaygroundPinned(true);
-    if (section === 'reports') setReportsVisited(true);
-  }, [section]);
+  createEffect(() => {
+    if (props.section === 'playground') setPlaygroundPinned(true);
+    if (props.section === 'reports') setReportsVisited(true);
+  });
 
-  const { state: sessionState, reboot } = usePlaygroundSession(
-    ports.bootPlayground,
+  const session = usePlaygroundSession(
+    (opts) => props.ports.bootPlayground(opts),
     playgroundPinned
   );
 
   return (
     <ClientLayoutPreferenceProvider>
       <NotebookStoreProvider
-        {...(ports.notebookStore !== undefined
-          ? { store: ports.notebookStore }
+        {...(props.ports.notebookStore !== undefined
+          ? { store: props.ports.notebookStore }
           : {})}
       >
         <Box sx={appShellSx}>
           <TabStrip
-            accessibilityLabel="Console sections"
+            aria-label="Console sections"
             items={[...SECTIONS]}
-            selectedId={section}
-            onSelect={(id) => onSectionChange(id as ConsoleSection)}
+            selectedId={props.section}
+            onSelect={(id) => props.onSectionChange(id as ConsoleSection)}
           />
           <Box sx={{ flex: 1, minHeight: 0, background: 'background' }}>
-            {reportsVisited ? (
-              <Box sx={sectionVisibilitySx(section === 'reports')}>
-                <ReportsSection api={api} nav={reports} onNav={onReportsNav} />
+            {reportsVisited() ? (
+              <Box sx={sectionVisibilitySx(props.section === 'reports')}>
+                <ReportsSection
+                  api={api()}
+                  nav={props.reports}
+                  onNav={props.onReportsNav}
+                />
               </Box>
             ) : null}
-            {playgroundPinned ? (
-              <Box sx={sectionVisibilitySx(section === 'playground')}>
+            {playgroundPinned() ? (
+              <Box sx={sectionVisibilitySx(props.section === 'playground')}>
                 <PlaygroundScreen
-                  state={sessionState}
-                  kind={kind}
-                  instance={instance}
-                  panes={panes}
-                  onKindChange={onKindChange}
-                  onInstanceChange={onInstanceChange}
-                  onPanePatch={onPanePatch}
-                  onReload={reboot}
+                  state={session.state}
+                  kind={props.kind}
+                  instance={props.instance}
+                  panes={props.panes}
+                  onKindChange={props.onKindChange}
+                  onInstanceChange={props.onInstanceChange}
+                  onPanePatch={props.onPanePatch}
+                  onReload={session.reboot}
                 />
               </Box>
             ) : null}
@@ -170,27 +151,18 @@ function ReportsSection(props: {
   readonly nav: ReportNavState;
   readonly onNav: (next: ReportNavState, mode?: 'push' | 'replace') => void;
 }) {
-  const { api, nav, onNav } = props;
-  const handleNav = useCallback(
-    (next: ReportNavState, mode: 'push' | 'replace' = 'push') => {
-      onNav(next, mode);
-    },
-    [onNav]
+  const data = useReportData(
+    () => props.nav,
+    (next) => props.onNav(next, 'push'),
+    () => props.api
   );
-  const setNav = useCallback(
-    (next: ReportNavState) => {
-      onNav(next, 'push');
-    },
-    [onNav]
-  );
-  const data = useReportData(nav, setNav, api);
   return (
     <ReportViews
-      nav={nav}
+      nav={props.nav}
       data={data}
       generation={data.generation}
-      onNav={handleNav}
-      api={api}
+      onNav={props.onNav}
+      api={props.api}
     />
   );
 }

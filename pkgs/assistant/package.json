@@ -17,17 +17,22 @@
   "scripts": {
     "lint": "bunx biome check --error-on-warnings .",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test"
+    "test": "bun test tests && vitest run"
   },
   "dependencies": {
     "@pkgs/clock": "workspace:*",
-    "@pkgs/ui-rn": "workspace:*",
-    "react": "catalog:"
+    "@pkgs/ui": "workspace:*",
+    "solid-js": "catalog:"
   },
   "devDependencies": {
+    "@pkgs/vitest-solid": "workspace:*",
+    "@solidjs/testing-library": "catalog:",
+    "@testing-library/jest-dom": "catalog:",
     "@types/bun": "catalog:",
-    "@types/react": "catalog:",
     "@typescript/native": "catalog:",
-    "typescript": "catalog:"
+    "happy-dom": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
   }
 }

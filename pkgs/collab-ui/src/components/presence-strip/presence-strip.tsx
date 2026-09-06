@@ -4,12 +4,8 @@
 
 import type { ParticipantColor } from '@pkgs/collab';
 import type { RoomActor } from '@pkgs/room';
-import {
-  AvatarGroup,
-  type ComponentDataSet,
-  componentDataSet,
-} from '@pkgs/ui-rn';
-import type { ReactElement, ReactNode } from 'react';
+import { AvatarGroup, type ComponentDataSet, componentDataSet } from '@pkgs/ui';
+import { For, type JSX } from 'solid-js';
 
 import { ParticipantColorRing } from '../participant-color-ring';
 
@@ -17,7 +13,7 @@ export type PresenceStripProps = {
   /** Flat per-client roster (same order as the server snapshot). */
   clients: readonly RoomActor[];
   colorForParticipant: (participantId: string) => ParticipantColor | string;
-  renderAvatar: (actor: RoomActor, size: number) => ReactNode;
+  renderAvatar: (actor: RoomActor, size: number) => JSX.Element;
   size?: number;
   maxVisible?: number;
   onPress?: () => void;
@@ -32,33 +28,26 @@ function resolveColor(
   return typeof c === 'string' ? c : c.css;
 }
 
-export function PresenceStrip({
-  clients,
-  colorForParticipant,
-  renderAvatar,
-  size = 32,
-  maxVisible = 5,
-  onPress,
-  dataSet,
-}: PresenceStripProps): ReactElement {
-  const ringSize = size + 4;
+export function PresenceStrip(props: PresenceStripProps): JSX.Element {
+  const ringSize = () => (props.size ?? 32) + 4;
   return (
     <AvatarGroup
-      size={ringSize}
-      maxVisible={maxVisible}
-      {...(onPress !== undefined ? { onPress } : {})}
-      {...componentDataSet('PresenceStrip', dataSet)}
+      size={ringSize()}
+      maxVisible={props.maxVisible ?? 5}
+      onPress={props.onPress}
+      {...componentDataSet('PresenceStrip', props.dataSet)}
     >
-      {clients.map((client) => (
-        <ParticipantColorRing
-          key={client.clientId}
-          color={resolveColor(colorForParticipant, client.id)}
-          size={ringSize}
-          borderWidth={2}
-        >
-          {renderAvatar(client, size)}
-        </ParticipantColorRing>
-      ))}
+      <For each={props.clients}>
+        {(client) => (
+          <ParticipantColorRing
+            color={resolveColor(props.colorForParticipant, client.id)}
+            size={ringSize()}
+            borderWidth={2}
+          >
+            {props.renderAvatar(client, props.size ?? 32)}
+          </ParticipantColorRing>
+        )}
+      </For>
     </AvatarGroup>
   );
 }

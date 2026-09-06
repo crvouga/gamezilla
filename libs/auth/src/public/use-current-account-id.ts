@@ -1,14 +1,13 @@
-import { useHydratedSecureStorageItem } from '@pkgs/secure-storage/use-secure-storage-item';
+import { createSecureStorageItem } from '@pkgs/secure-storage/solid';
+import type { Accessor } from 'solid-js';
 import { LAST_LOCAL_ACCOUNT_ID_KEY } from './auth-storage-keys';
 import { isUuid } from './device-id';
 
-/**
- * Internal `accountId` of the locally signed-in user, or `null` when signed
- * out. Sourced from secure storage so cold-starts resolve before any HTTP
- * round-trip. Suspends until the key has been read (same as {@link useDeviceId}).
- */
-export function useCurrentAccountId(): string | null {
-  const { value } = useHydratedSecureStorageItem(LAST_LOCAL_ACCOUNT_ID_KEY);
-  if (typeof value === 'string' && isUuid(value)) return value;
-  return null;
+/** Local users.id, including anonymous accounts; null until storage hydrates. */
+export function useCurrentAccountId(): Accessor<string | null> {
+  const item = createSecureStorageItem(LAST_LOCAL_ACCOUNT_ID_KEY);
+  return () => {
+    const value = item.value();
+    return value !== null && isUuid(value) ? value : null;
+  };
 }

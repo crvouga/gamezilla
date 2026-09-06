@@ -22,10 +22,7 @@
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@sqlite.org/sqlite-wasm": "catalog:",
-    "better-sqlite3": "catalog:",
-    "expo-sqlite": "catalog:",
-    "react": "catalog:",
-    "react-native": "catalog:"
+    "better-sqlite3": "catalog:"
   },
   "devDependencies": {
     "@types/better-sqlite3": "catalog:",

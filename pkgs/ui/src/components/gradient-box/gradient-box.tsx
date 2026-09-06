@@ -1,0 +1,90 @@
+/** @jsxImportSource solid-js */
+/**
+ * `GradientBox` -- `Box` with a CSS linear-gradient fill. Children read a
+ * contrast-safe on-color set (defaults to `onPrimary`) via `OnColorProvider`.
+ */
+
+import { createMemo, type JSX, splitProps } from 'solid-js';
+import { type ComponentDataSet, componentDataAttrs } from '../../component-id';
+import {
+  bestOnColor,
+  ON_DARK,
+  OnColorProvider,
+  type OnColorSet,
+  type SxInput,
+  useThemeTokens,
+} from '../../theme';
+import { joinClass } from '../box/box';
+import styles from '../hosts.module.css';
+import { type GradientPoint, linearGradientCss } from './gradient-css';
+
+export type GradientBoxProps = Omit<
+  JSX.HTMLAttributes<HTMLDivElement>,
+  'style' | 'children'
+> & {
+  /** Utility-first style shorthand (padding, radius, flex — not solid fills). */
+  sx?: SxInput | undefined;
+  /** At least two colors. Defaults to the theme primary gradient. */
+  colors?: readonly [string, string, ...string[]] | undefined;
+  /** Normalized 0–1; default horizontal left → right. */
+  start?: GradientPoint | undefined;
+  end?: GradientPoint | undefined;
+  /**
+   * Derive child text/icon colors via `bestOnColor` from this concrete color
+   * instead of the default `onPrimary` set.
+   */
+  onColor?: string | undefined;
+  /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet | undefined;
+  class?: string | undefined;
+  children?: JSX.Element | undefined;
+};
+
+const DEFAULT_START: GradientPoint = { x: 0, y: 0.5 };
+const DEFAULT_END: GradientPoint = { x: 1, y: 0.5 };
+
+export function GradientBox(props: GradientBoxProps): JSX.Element {
+  const tokens = useThemeTokens();
+  const [local, rest] = splitProps(props, [
+    'sx',
+    'colors',
+    'start',
+    'end',
+    'onColor',
+    'dataSet',
+    'class',
+    'children',
+  ]);
+  const colors = (): readonly string[] =>
+    local.colors ?? [tokens.colors.tintHover, tokens.colors.tintActive];
+  const style = createMemo(() => {
+    const base = tokens.css(local.sx);
+    const gradient = linearGradientCss(
+      colors(),
+      local.start ?? DEFAULT_START,
+      local.end ?? DEFAULT_END
+    );
+    return base === '' ? gradient : `${base}${gradient}`;
+  });
+  const onColor = createMemo(
+    (): OnColorSet =>
+      local.onColor !== undefined
+        ? bestOnColor(local.onColor)
+        : {
+            fg: tokens.colors.onPrimary,
+            fgMuted: ON_DARK.fgMuted,
+            icon: tokens.colors.onPrimary,
+          }
+  );
+  return (
+    <div
+      class={joinClass(styles['box'], local.class)}
+      style={style()}
+      {...componentDataAttrs('GradientBox', local.dataSet)}
+      {...rest}
+    >
+      {/* eslint-disable-next-line solid/reactivity -- OnColorProvider reads `value` inside a memo */}
+      <OnColorProvider value={onColor()}>{local.children}</OnColorProvider>
+    </div>
+  );
+}

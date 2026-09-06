@@ -12,5 +12,5 @@ export async function captureOpenSimSnapshot(
   if (snapshot === null) {
     throw new Error('captureOpenSimSnapshot: no snapshot recorded');
   }
-  return snapshot as unknown as SimSystemSnapshot;
+  return snapshot;
 }

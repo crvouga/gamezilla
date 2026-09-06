@@ -1,5 +1,5 @@
-import { Box, Text } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Box, Text } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 
 import { useSimConsoleLayout } from './debugger/use-sim-console-layout';
 import {
@@ -11,30 +11,29 @@ import {
 
 /** Shared top chrome for every simulation-report screen. */
 export function ReportHeader(props: {
-  readonly leading?: ReactNode;
-  readonly badge?: ReactNode;
-  readonly title?: ReactNode;
-  readonly meta?: ReactNode;
-  readonly end?: ReactNode;
+  readonly leading?: JSX.Element;
+  readonly badge?: JSX.Element;
+  readonly title?: JSX.Element;
+  readonly meta?: JSX.Element;
+  readonly end?: JSX.Element;
 }) {
-  const { leading, badge, title, meta, end } = props;
-  const { compactChrome } = useSimConsoleLayout();
-  const showMeta =
-    !compactChrome && meta !== undefined && meta !== null && meta !== '';
+  const layout = useSimConsoleLayout();
+  const showMeta = () =>
+    !layout.compactChrome && props.meta != null && props.meta !== '';
   return (
     <Box sx={appHeaderSx}>
-      {leading}
-      {badge}
+      {props.leading}
+      {props.badge}
       <Box sx={appHeaderMiddleSx}>
-        {title}
-        {showMeta ? (
+        {props.title}
+        {showMeta() ? (
           <Text sx={[metaSx, { flexShrink: 1, minWidth: 0 }]} numberOfLines={1}>
-            {meta}
+            {props.meta}
           </Text>
         ) : null}
       </Box>
-      {end != null ? (
-        <Box sx={[appHeaderTrailingSx, { flexShrink: 0 }]}>{end}</Box>
+      {props.end != null ? (
+        <Box sx={[appHeaderTrailingSx, { flexShrink: 0 }]}>{props.end}</Box>
       ) : null}
     </Box>
   );

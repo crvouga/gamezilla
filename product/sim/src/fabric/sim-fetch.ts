@@ -1,4 +1,4 @@
-import type { ServerHttp } from '@apps/client/product/client-env';
+import type { ServerHttp } from '@apps/client/shell/client-env';
 
 export type SerializedFetch = {
   readonly fetch: ServerHttp;

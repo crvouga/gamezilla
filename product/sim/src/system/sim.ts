@@ -33,8 +33,8 @@ export type ProductSim = {
   runtime: ProductRuntime;
 };
 
-function unwired(method: string): never {
-  throw new Error(`product runtime: ${method} not wired`);
+function unwiredError(method: string): Error {
+  return new Error(`product runtime: ${method} not wired`);
 }
 
 /** Runtime extras (`sql` / `ui` / `http`) merged onto the session ports. */
@@ -45,9 +45,9 @@ export function productExtra(s: ProductSim): ProductExtra {
 export function createProductSim(session: Session, sim: Sim): ProductSim {
   const actors = new Map<string, SimActor>();
   const runtime: ProductRuntime = {
-    launchActor: async () => unwired('launchActor'),
-    resetActor: async () => unwired('resetActor'),
-    disposeResources: async () => unwired('disposeResources'),
+    launchActor: () => Promise.reject(unwiredError('launchActor')),
+    resetActor: () => Promise.reject(unwiredError('resetActor')),
+    disposeResources: () => Promise.reject(unwiredError('disposeResources')),
   };
   return {
     session,

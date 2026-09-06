@@ -1,6 +1,6 @@
 // @io-wall-ok
 /**
- * Post-process step after `expo export -p web`: generates `dist/sw.js` via Workbox.
+ * Post-process step after `vite build`: generates `dist/sw.js` via Workbox.
  */
 import { createRequire } from 'node:module';
 import { dirname, join, resolve } from 'node:path';
@@ -52,7 +52,7 @@ const distDir = resolve(__dirname, '..', 'dist');
 const { count, size, warnings } = await generateSW({
   swDest: join(distDir, 'sw.js'),
   globDirectory: distDir,
-  /** Metro web bundles can exceed Workbox's default 2 MiB cap; offline shell needs the main chunk. */
+  /** The offline shell includes the main chunk and SQL WASM assets. */
   maximumFileSizeToCacheInBytes: 16 * 1024 * 1024,
   globPatterns: [
     '**/*.{html,js,css,wasm,ttf,woff2,png,jpg,jpeg,svg,ico,webmanifest,json}',

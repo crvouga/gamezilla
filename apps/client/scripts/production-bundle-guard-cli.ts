@@ -12,22 +12,11 @@ import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
 const clientRoot = join(fileURLToPath(import.meta.url), '..', '..');
 const fs = wallNodeFs();
 
-const USAGE = `usage: production-bundle-guard-cli.ts <check-env|check-dist|check-native-dir>
+const USAGE = `usage: production-bundle-guard-cli.ts <check-env|check-dist>
 
-  check-env          Assert EXPO_PUBLIC_API_URL is the production API origin.
+  check-env          Assert VITE_API_URL is the production API origin.
   check-dist         Scan apps/client/dist for a loopback inlined API URL.
-  check-native-dir   Scan apps/client/.check-native for a loopback inlined API URL.
 `;
-
-function resolveDir(subcommand: string): string {
-  if (subcommand === 'check-dist') {
-    return join(clientRoot, 'dist');
-  }
-  if (subcommand === 'check-native-dir') {
-    return join(clientRoot, '.check-native');
-  }
-  throw new Error(`unknown dir subcommand: ${subcommand}`);
-}
 
 function dirStore(dir: string) {
   return createNodeFsObjectStore({ rootDir: dir, fs, layout: 'tree' });
@@ -43,23 +32,15 @@ switch (subcommand) {
   case 'check-env':
     assertProductionClientBuildEnv();
     process.stdout.write(
-      `[production-bundle-guard] EXPO_PUBLIC_API_URL=${productionClientApiOrigin()}\n`
+      `[production-bundle-guard] VITE_API_URL=${productionClientApiOrigin()}\n`
     );
     break;
   case 'check-dist':
-    await new ProductionBundleGuard(dirStore(resolveDir(subcommand))).assert(
+    await new ProductionBundleGuard(dirStore(join(clientRoot, 'dist'))).assert(
       'production web dist'
     );
     process.stdout.write(
       '[production-bundle-guard] production web dist API URL OK\n'
-    );
-    break;
-  case 'check-native-dir':
-    await new ProductionBundleGuard(dirStore(resolveDir(subcommand))).assert(
-      'production native export'
-    );
-    process.stdout.write(
-      '[production-bundle-guard] production native export API URL OK\n'
     );
     break;
   default:

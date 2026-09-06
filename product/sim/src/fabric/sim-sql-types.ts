@@ -27,8 +27,8 @@ export function nextSimSqlDatabaseName(logicalName: string): string {
 /** Ignore request-middleware disconnect on shared process-lifetime DBs. */
 export function sharedSqlClient(sqlClient: SqlClient): SqlClient {
   return {
-    connect: async () => undefined,
-    disconnect: async () => undefined,
+    connect: () => Promise.resolve(),
+    disconnect: () => Promise.resolve(),
     query: (query) => sqlClient.query(query),
     run: (query) => sqlClient.run(query),
     prepare: (query) => sqlClient.prepare(query),
@@ -38,8 +38,8 @@ export function sharedSqlClient(sqlClient: SqlClient): SqlClient {
 
 export function handleBoundSqlClient(handle: SimSql): SqlClient {
   return sharedSqlClient({
-    connect: async () => undefined,
-    disconnect: async () => undefined,
+    connect: () => Promise.resolve(),
+    disconnect: () => Promise.resolve(),
     query: (query) => handle.sqlClient.query(query),
     run: (query) => handle.sqlClient.run(query),
     prepare: (query) => handle.sqlClient.prepare(query),

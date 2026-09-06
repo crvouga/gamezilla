@@ -12,8 +12,14 @@ import {
   writeSecureStorageItem,
 } from '@pkgs/secure-storage/use-secure-storage-item';
 import { useCreateId } from '@pkgs/uuid';
-import type { PropsWithChildren } from 'react';
-import { type ReactNode, useEffect, useMemo, useRef } from 'react';
+import {
+  type PropsWithChildren,
+  type ReactNode,
+  useEffect,
+  useMemo,
+  useRef,
+  useSyncExternalStore,
+} from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
 import { useAuthClientPort } from '../../public/auth-client-provider';
 import {
@@ -245,7 +251,10 @@ function useRefreshOnAppForeground(args: {
 export function AuthBridge(props: PropsWithChildren): ReactNode {
   const apiUrl = useConfigService().getApiUrl();
   const port = useAuthClientPort();
-  const authState = port.useAuthSession();
+  const authState = useSyncExternalStore(
+    port.session.subscribe,
+    port.session.getSnapshot
+  );
   const store = useSecureStorageStore();
   const deviceId = useDeviceId();
   const { fetch: fetchFn } = useHttpClient();

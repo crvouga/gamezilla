@@ -1,9 +1,16 @@
 import { useSignInModal } from '@libs/auth/public/auth-modals-provider';
 import { useIsSignedIn } from '@libs/auth/public/use-current-user';
-import { Trans, useLingui } from '@lingui/react/macro';
-import { useTimers } from '@pkgs/clock';
-import { EmptyState, Text, UsersIcon } from '@pkgs/ui-rn';
-import { type ReactNode, useEffect, useRef, useState } from 'react';
+import { Trans, useLingui } from '@lingui/solid/macro';
+import { useTimers } from '@pkgs/clock/solid';
+import { EmptyState, Text, UsersIcon } from '@pkgs/ui';
+import {
+  type Accessor,
+  createEffect,
+  createSignal,
+  type JSX,
+  onCleanup,
+  Show,
+} from 'solid-js';
 import { UserSearchClient } from './search-users';
 import { useUserSearchClientDeps } from './use-user-search-deps';
 import {
@@ -12,24 +19,19 @@ import {
 } from './user-search-types';
 
 export function useDebouncedUserSearchEffect(
-  query: string,
+  query: Accessor<string>,
   onCompleted?: (query: string) => void
 ) {
   const signedIn = useIsSignedIn();
   const deps = useUserSearchClientDeps();
   const timers = useTimers();
-  const [results, setResults] = useState<readonly UserSearchResult[]>([]);
-  const [searching, setSearching] = useState(false);
-  const onCompletedRef = useRef(onCompleted);
-  onCompletedRef.current = onCompleted;
-  // Keep the client out of the effect deps — a new `auth` / `fetch` identity
-  // every render would reset the debounce forever and leave `searching` stuck.
-  const depsRef = useRef(deps);
-  depsRef.current = deps;
+  const [results, setResults] = createSignal<readonly UserSearchResult[]>([]);
+  const [searching, setSearching] = createSignal(false);
+  const client = new UserSearchClient(deps);
 
-  useEffect(() => {
-    const trimmed = query.trim();
-    if (!signedIn || trimmed.length < USER_SEARCH_MIN_LENGTH) {
+  createEffect(() => {
+    const trimmed = query().trim();
+    if (!signedIn() || trimmed.length < USER_SEARCH_MIN_LENGTH) {
       setResults([]);
       setSearching(false);
       return;
@@ -38,12 +40,12 @@ export function useDebouncedUserSearchEffect(
     let cancelled = false;
     const handle = timers.setTimeout(() => {
       setSearching(true);
-      void new UserSearchClient(depsRef.current)
+      void client
         .search(trimmed)
         .then((next) => {
           if (cancelled) return;
           setResults(next);
-          onCompletedRef.current?.(trimmed);
+          onCompleted?.(trimmed);
         })
         .catch(() => {
           if (cancelled) return;
@@ -55,17 +57,27 @@ export function useDebouncedUserSearchEffect(
         });
     }, 300);
 
-    return () => {
+    onCleanup(() => {
       cancelled = true;
       timers.clearTimeout(handle);
       setSearching(false);
-    };
-  }, [query, signedIn, timers]);
+    });
+  });
 
-  return { results, searching, signedIn };
+  return {
+    get results() {
+      return results();
+    },
+    get searching() {
+      return searching();
+    },
+    get signedIn() {
+      return signedIn();
+    },
+  };
 }
 
-export function UserSearchSignInPrompt(): ReactNode {
+export function UserSearchSignInPrompt(): JSX.Element {
   const { open: openSignInModal } = useSignInModal();
   const { t } = useLingui();
 
@@ -80,28 +92,29 @@ export function UserSearchSignInPrompt(): ReactNode {
   );
 }
 
-export function UserSearchQueryHint({
-  query,
-  signedIn,
-}: {
+export function UserSearchQueryHint(props: {
   query: string;
   signedIn: boolean;
-}): ReactNode {
-  const trimmed = query.trim();
-  if (trimmed.length === 0 || trimmed.length >= USER_SEARCH_MIN_LENGTH) {
-    return null;
-  }
-  if (!signedIn) return null;
+}): JSX.Element {
+  const trimmed = () => props.query.trim();
 
   return (
-    <Text
-      variant="caption"
-      sx={{ px: 1 }}
-      label={
-        <Trans>
-          Keep typing — at least {USER_SEARCH_MIN_LENGTH} characters
-        </Trans>
+    <Show
+      when={
+        props.signedIn &&
+        trimmed().length > 0 &&
+        trimmed().length < USER_SEARCH_MIN_LENGTH
       }
-    />
+    >
+      <Text
+        variant="caption"
+        sx={{ px: 1 }}
+        label={
+          <Trans>
+            Keep typing — at least {USER_SEARCH_MIN_LENGTH} characters
+          </Trans>
+        }
+      />
+    </Show>
   );
 }

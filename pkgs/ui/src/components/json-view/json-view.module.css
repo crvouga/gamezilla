@@ -1,0 +1,17 @@
+.chevron {
+  transition: transform var(--ui-duration-fast) var(--ui-easing-standard);
+}
+
+.chevron[data-expanded="true"] {
+  transform: rotate(90deg);
+}
+
+.rotated {
+  transform: rotate(90deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chevron {
+    transition: none;
+  }
+}

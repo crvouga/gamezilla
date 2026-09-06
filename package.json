@@ -250,7 +250,9 @@
     "eslint-plugin-solid": "^0.17.0",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "typescript-eslint": "^8.69.0",
-    "jiti": "^2.7.0"
+    "jiti": "^2.7.0",
+    "babel-preset-solid": "^1.9.15",
+    "@babel/preset-typescript": "^7.28.5"
   },
   "trustedDependencies": [
     "@shopify/react-native-skia",

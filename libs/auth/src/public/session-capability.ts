@@ -4,7 +4,6 @@
  */
 
 import type { SecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
-import { writeSecureStorageItem } from '@pkgs/secure-storage/use-secure-storage-item';
 
 import {
   SESSION_EXPIRES_AT_KEY,
@@ -52,18 +51,9 @@ export class SessionCapabilityStore {
 
   /** Persist bearer + optional session meta after mint / refresh. */
   async write(capability: SessionCapability): Promise<void> {
-    await writeSecureStorageItem(
-      this.store,
-      SESSION_TOKEN_KEY,
-      capability.token
-    );
-    await writeSecureStorageItem(
-      this.store,
-      SESSION_EXPIRES_AT_KEY,
-      capability.expiresAt
-    );
-    await writeSecureStorageItem(
-      this.store,
+    await this.store.write(SESSION_TOKEN_KEY, capability.token);
+    await this.store.write(SESSION_EXPIRES_AT_KEY, capability.expiresAt);
+    await this.store.write(
       SESSION_EXTERNAL_USER_ID_KEY,
       capability.externalUserId
     );
@@ -71,13 +61,9 @@ export class SessionCapabilityStore {
 
   /** Clear bearer and session meta (sign-out / wipe / anon ensure). */
   async clear(): Promise<void> {
-    await writeSecureStorageItem(this.store, SESSION_TOKEN_KEY, null);
-    await writeSecureStorageItem(this.store, SESSION_EXPIRES_AT_KEY, null);
-    await writeSecureStorageItem(
-      this.store,
-      SESSION_EXTERNAL_USER_ID_KEY,
-      null
-    );
+    await this.store.write(SESSION_TOKEN_KEY, null);
+    await this.store.write(SESSION_EXPIRES_AT_KEY, null);
+    await this.store.write(SESSION_EXTERNAL_USER_ID_KEY, null);
   }
 }
 

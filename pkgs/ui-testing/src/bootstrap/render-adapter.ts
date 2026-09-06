@@ -1,22 +1,17 @@
-import type { ReactElement } from 'react';
-
 import type { ElementLayout, TapPosition } from '../driver/driver';
 
 /**
- * Runtime-agnostic node handle returned by a {@link RenderAdapter}.
- * DOM adapters use `Element`; RNTL uses `ReactTestInstance`.
+ * Runtime-agnostic node handle. DOM adapters use `Element`.
  */
 export type HostNode = unknown;
 
 /**
- * Handle returned by a {@link RenderAdapter} after mounting a tree.
- * Drivers interact through this port — never through Testing Library /
- * React Native APIs directly — so alternate renderers can plug in.
+ * Handle returned after mounting a tree. Drivers interact through this port
+ * rather than renderer-specific APIs, so alternate renderers can plug in.
  */
 export interface RenderedApp {
   /**
-   * Make this tree the active interaction target when multiple rntl
-   * roots are mounted (RNTL only delivers pointer events to the latest root).
+   * Make this tree the active interaction target in a multi-actor session.
    */
   activate?(): void | Promise<void>;
 
@@ -68,18 +63,9 @@ export interface RenderedApp {
 
   /**
    * Optional HTML preview of the current host tree for simulation reports.
-   * RNTL serializes RN hosts to readable HTML; DOM adapters may
-   * return `document.documentElement.outerHTML`.
+   * DOM adapters may return `document.documentElement.outerHTML`.
    */
   snapshotHtml?(options?: {
     readonly stylesheetHref?: string;
   }): string | undefined;
-}
-
-/**
- * Pluggable renderer. The shipped implementation is
- * {@link createRntlRenderAdapter} (React Native Testing Library).
- */
-export interface RenderAdapter {
-  render(element: ReactElement): Promise<RenderedApp>;
 }

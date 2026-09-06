@@ -38,9 +38,9 @@ async function openRealPostgresSql(): Promise<SimSql> {
     },
     databaseName: 'sim_postgres',
     disconnect: () => pg.stop(),
-    reset: async () => undefined,
-    exportBytes: async () => new Uint8Array(),
-    importBytes: async () => undefined,
+    reset: () => Promise.resolve(),
+    exportBytes: () => Promise.resolve(new Uint8Array()),
+    importBytes: () => Promise.resolve(),
   };
 }
 
@@ -57,14 +57,13 @@ export function bunWebviewRuntime(): Runtime<Ports & ProductExtra> {
         ? await openRealPostgresSql()
         : await openSeededServerSql();
       const webOrigin =
-        process.env['SIM_WEB_ORIGIN'] ?? 'http://127.0.0.1:5173';
-      const apiOrigin =
-        process.env['EXPO_PUBLIC_API_URL'] ?? 'http://127.0.0.1:8787';
+        process.env['SIM_WEB_ORIGIN'] ?? 'http://127.0.0.1:8081';
+      const apiOrigin = process.env['VITE_API_URL'] ?? 'http://127.0.0.1:8787';
       return {
         sql,
         ui: { kind: 'bun-webview' as const, webOrigin },
         http: { kind: 'localhost' as const, origin: apiOrigin },
-        drainServerHttp: { current: async () => undefined },
+        drainServerHttp: { current: () => Promise.resolve() },
       };
     }
   );

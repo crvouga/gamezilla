@@ -1,4 +1,3 @@
-import { useEffect, useMemo } from 'react';
 import { playAudioOrIgnoreAutoplayBlock } from './safe-audio-play';
 
 export type PlayableAudioPlayer = {
@@ -47,53 +46,4 @@ export function createPlayFromStart(
       })();
     },
   };
-}
-
-async function warmPlayer(player: PlayableAudioPlayer): Promise<void> {
-  try {
-    await player.seekTo(0);
-    player.pause?.();
-  } catch {
-    // Ignore warmup failures; normal playback path still works.
-  }
-}
-
-/** Warm players once; cancel in-flight plays on unmount / player identity change. */
-export function useWarmAudioPlayers(
-  players: readonly PlayableAudioPlayer[],
-  handles: readonly PlayFromStartHandle[]
-): void {
-  useEffect(() => {
-    let cancelled = false;
-    async function warmAll() {
-      for (const player of players) {
-        if (cancelled) return;
-        await warmPlayer(player);
-      }
-    }
-    void warmAll();
-    return () => {
-      cancelled = true;
-      for (const handle of handles) {
-        handle.cancel();
-      }
-    };
-  }, [handles, players]);
-}
-
-/**
- * Stable play handles keyed by `keys`, always reading the latest player from
- * `playersRef` so remounts don't leave stale SharedObject refs in closures.
- */
-export function usePlayFromStartHandles<K extends string>(
-  keys: readonly K[],
-  playersRef: { readonly current: Record<K, PlayableAudioPlayer> }
-): Record<K, PlayFromStartHandle> {
-  return useMemo(() => {
-    const handles = {} as Record<K, PlayFromStartHandle>;
-    for (const key of keys) {
-      handles[key] = createPlayFromStart(() => playersRef.current[key]);
-    }
-    return handles;
-  }, [keys, playersRef]);
 }

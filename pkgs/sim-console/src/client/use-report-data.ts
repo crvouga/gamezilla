@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js';
 
 import type {
   RunSummary,
@@ -32,37 +32,50 @@ type SetNav = (nav: ReportNavState) => void;
  * identity — not frame/view/node scrub.
  */
 export function useReportData(
-  nav: ReportNavState,
+  nav: Accessor<ReportNavState>,
   setNav: SetNav,
-  api: ReportApiClient
+  api: Accessor<ReportApiClient>
 ): ReportDataApi {
-  const [buckets, setBuckets] = useState<readonly BucketInfo[]>([]);
-  const [runs, setRuns] = useState<readonly RunSummary[]>([]);
-  const [tests, setTests] = useState<readonly SuiteTestSummary[]>([]);
-  const [generation, setGeneration] = useState(0);
-  const [suiteUpdatedAtMs, setSuiteUpdatedAtMs] = useState(0);
-  const [resolvedRunId, setResolvedRunId] = useState<string | null>(null);
-  const [testData, setTestData] = useState<SimulationReportData | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const navRef = useRef(nav);
-  navRef.current = nav;
+  const [buckets, setBuckets] = createSignal<readonly BucketInfo[]>([]);
+  const [runs, setRuns] = createSignal<readonly RunSummary[]>([]);
+  const [tests, setTests] = createSignal<readonly SuiteTestSummary[]>([]);
+  const [generation, setGeneration] = createSignal(0);
+  const [suiteUpdatedAtMs, setSuiteUpdatedAtMs] = createSignal(0);
+  const [resolvedRunId, setResolvedRunId] = createSignal<string | null>(null);
+  const [testData, setTestData] = createSignal<SimulationReportData | null>(
+    null
+  );
+  const [error, setError] = createSignal<string | null>(null);
+  const navRef = {
+    get current() {
+      return nav();
+    },
+  };
 
-  useEffect(() => {
-    const handle = api.openBucketsEvents({
+  createEffect(() => {
+    const handle = api().openBucketsEvents({
       onBuckets: (list) => {
         setBuckets(list);
         setError(null);
       },
       onError: () => setError('buckets stream error'),
     });
-    return () => handle.close();
-  }, [api]);
+    onCleanup(() => handle.close());
+  });
 
   useBucketEvents({
-    api,
-    bucketId: nav.bucketId,
-    runId: nav.runId,
-    testId: nav.testId,
+    get api() {
+      return api();
+    },
+    get bucketId() {
+      return nav().bucketId;
+    },
+    get runId() {
+      return nav().runId;
+    },
+    get testId() {
+      return nav().testId;
+    },
     navRef,
     setNav,
     setRuns,
@@ -75,16 +88,33 @@ export function useReportData(
   });
 
   return {
-    buckets,
-    runs,
-    tests,
-    generation,
-    suiteUpdatedAtMs,
-    resolvedRunId:
-      resolvedRunId ??
-      (nav.runId && !isLatestRunId(nav.runId) ? nav.runId : null),
-    testData,
-    error,
+    get buckets() {
+      return buckets();
+    },
+    get runs() {
+      return runs();
+    },
+    get tests() {
+      return tests();
+    },
+    get generation() {
+      return generation();
+    },
+    get suiteUpdatedAtMs() {
+      return suiteUpdatedAtMs();
+    },
+    get resolvedRunId() {
+      return (
+        resolvedRunId() ??
+        (nav().runId && !isLatestRunId(nav().runId!) ? nav().runId : null)
+      );
+    },
+    get testData() {
+      return testData();
+    },
+    get error() {
+      return error();
+    },
   };
 }
 
@@ -103,23 +133,23 @@ function useBucketEvents(args: {
   readonly setResolvedRunId: (id: string | null) => void;
   readonly setError: (error: string | null) => void;
 }): void {
-  const {
-    api,
-    bucketId,
-    runId,
-    testId,
-    navRef,
-    setNav,
-    setRuns,
-    setGeneration,
-    setSuiteUpdatedAtMs,
-    setTests,
-    setTestData,
-    setResolvedRunId,
-    setError,
-  } = args;
+  createEffect(() => {
+    const {
+      api,
+      bucketId,
+      runId,
+      testId,
+      navRef,
+      setNav,
+      setRuns,
+      setGeneration,
+      setSuiteUpdatedAtMs,
+      setTests,
+      setTestData,
+      setResolvedRunId,
+      setError,
+    } = args;
 
-  useEffect(() => {
     if (!bucketId) {
       setRuns([]);
       setGeneration(0);
@@ -148,22 +178,8 @@ function useBucketEvents(args: {
       }),
     });
 
-    return () => handle.close();
-  }, [
-    api,
-    bucketId,
-    runId,
-    testId,
-    navRef,
-    setNav,
-    setRuns,
-    setGeneration,
-    setSuiteUpdatedAtMs,
-    setTests,
-    setTestData,
-    setResolvedRunId,
-    setError,
-  ]);
+    onCleanup(() => handle.close());
+  });
 }
 
 function bucketEventHandlers(args: {

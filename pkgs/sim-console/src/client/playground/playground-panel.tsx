@@ -20,6 +20,7 @@ import { PlaygroundCommandsPane } from './playground-commands-pane';
 import { PlaygroundLogsPane } from './playground-logs-pane';
 import { PlaygroundPubSubTopicsPane } from './playground-pubsub-topics-pane';
 import { PlaygroundRoomDbPane } from './playground-room-db-pane';
+import { SolidActorHost } from './solid-actor-host';
 
 const panelSx = {
   flex: 1,
@@ -49,8 +50,7 @@ function ActorView(props: { readonly actor: PlaygroundActor }) {
   if (actor.view.kind === 'url') {
     return <ActorUrlFrame title={actor.id} url={actor.view.url} />;
   }
-  const ActorApp = actor.view.App;
-  return <ActorApp embedded />;
+  return <SolidActorHost title={actor.id} App={actor.view.App} />;
 }
 
 function hiddenWhen(active: boolean) {

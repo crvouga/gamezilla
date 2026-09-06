@@ -1,0 +1,59 @@
+/* Speech bubble entrance: whole bubble (tail + surface) slides in from the
+   left and fades in. Restarted by remounting on every message change. */
+
+@keyframes ui-bubble-enter {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.bubbleEnter {
+  animation: ui-bubble-enter 560ms var(--ui-easing-decelerate) both;
+}
+
+/* Typing dots: staggered opacity pulse. */
+
+@keyframes ui-typing-dot {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.dot {
+  opacity: 0.55;
+  animation: ui-typing-dot 900ms var(--ui-easing-inOut) infinite;
+}
+
+.dot1 {
+  animation-delay: 0ms;
+}
+
+.dot2 {
+  animation-delay: 150ms;
+}
+
+.dot3 {
+  animation-delay: 300ms;
+}
+
+/* DiceBear head rendered as an <img> data URI. */
+.head {
+  display: block;
+  flex-shrink: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bubbleEnter,
+  .dot {
+    animation: none;
+  }
+}

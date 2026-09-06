@@ -5,8 +5,8 @@ import { join } from 'node:path';
 import { PRODUCT_CONFIG } from '@libs/db/public/product-config';
 import { deleteLegacyWorkerScripts } from '@libs/secrets/shared/cloudflare-worker-lifecycle';
 import { productionApiOrigin } from '@libs/secrets/shared/deploy-origins';
-import { withNodeMaxOldSpaceSize } from '@libs/secrets/shared/eas-mobile';
 import { ok } from '@libs/secrets/shared/fmt';
+import { withNodeMaxOldSpaceSize } from '@libs/secrets/shared/node-options';
 import { REPO_ROOT } from '@libs/secrets/shared/paths';
 import { runAsync, runCapture } from '@libs/secrets/shared/subprocess';
 import { wranglerArgs, wranglerEnv } from '@libs/secrets/shared/wrangler-env';
@@ -57,9 +57,9 @@ async function buildClientWeb(
   const buildEnv = withNodeMaxOldSpaceSize(
     {
       ...process.env,
-      EXPO_PUBLIC_API_URL: apiUrl,
-      EXPO_PUBLIC_COMMIT_HASH: commitHash,
-      EXPO_PUBLIC_COMMIT_DATE: commitDate,
+      VITE_API_URL: apiUrl,
+      VITE_COMMIT_HASH: commitHash,
+      VITE_COMMIT_DATE: commitDate,
     },
     CLIENT_EXPORT_MAX_OLD_SPACE_MB
   );
@@ -72,7 +72,7 @@ async function buildClientWeb(
 
   await runAsync('bun', ['run', 'build'], {
     cwd: clientDir,
-    label: 'client-worker: expo export (static web assets)',
+    label: 'client-worker: Vite build (static web assets)',
     env: buildEnv,
   });
 

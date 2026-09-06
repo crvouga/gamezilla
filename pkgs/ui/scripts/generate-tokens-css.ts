@@ -1,0 +1,22 @@
+// @io-wall-ok — generator script (composition root); writes src/theme/tokens.css
+import path from 'node:path';
+import { renderTokensCss } from '../src/theme/css-vars';
+
+const OUT = path.join(import.meta.dir, '..', 'src', 'theme', 'tokens.css');
+const check = process.argv.includes('--check');
+const next = renderTokensCss();
+
+if (check) {
+  const file = Bun.file(OUT);
+  const current = (await file.exists()) ? await file.text() : '';
+  if (current !== next) {
+    console.error(
+      `tokens.css is stale — run \`bun run --filter @pkgs/ui tokens:generate\``
+    );
+    process.exit(1);
+  }
+  console.log('tokens.css up to date');
+} else {
+  await Bun.write(OUT, next);
+  console.log(`wrote ${path.relative(process.cwd(), OUT)}`);
+}

@@ -1,6 +1,5 @@
-import { Trans } from '@lingui/react/macro';
-import { Box, ScreenBase } from '@pkgs/ui-rn';
-import { useBreadcrumbNav } from '@pkgs/ui-rn/components/use-breadcrumb-nav';
+import { Trans } from '@lingui/solid/macro';
+import { Box, ScreenBase, useBreadcrumbNav } from '@pkgs/ui';
 
 import { ClientConfigEntityCard } from './client-config-entity-card';
 

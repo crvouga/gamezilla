@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js';
 
 import type {
   BootPlaygroundOptions,
@@ -13,102 +13,80 @@ export type PlaygroundSessionState =
 
 export type UsePlaygroundSessionResult = {
   readonly state: PlaygroundSessionState;
-  /** Tear down the live session; next {@link reboot} skips snapshot auto-load. */
   readonly wipe: () => Promise<void>;
-  /** Remount a fresh session after {@link wipe}. */
   readonly reboot: () => void;
 };
 
-/**
- * Boot a playground session while `active`, disposing it on unmount
- * or when `active` becomes false. There are no wall fallbacks — a missing /
- * failing boot surfaces an error state.
- *
- * Live SQL/auth/KV are ephemeral. ObjectStore snapshots are the only durable
- * state; boot auto-loads the newest snapshot unless {@link wipe} set
- * `skipSnapshotLoad` for the next reboot.
- *
- * Boots are serialized through {@link disposeGate}: React Strict Mode remounts
- * wait for the prior in-flight boot to finish and dispose before opening SQLite
- * again (avoids AccessHandle / "Error finalizing statement" races).
- */
+/** Serialize teardown and boot so SQLite handles never overlap. */
 export function usePlaygroundSession(
   bootPlayground: (opts?: BootPlaygroundOptions) => Promise<PlaygroundSession>,
-  active: boolean
+  active: Accessor<boolean>
 ): UsePlaygroundSessionResult {
-  const [state, setState] = useState<PlaygroundSessionState>({
+  const [state, setState] = createSignal<PlaygroundSessionState>({
     status: 'idle',
   });
-  const [bootGeneration, setBootGeneration] = useState(0);
-  const liveRef = useRef<PlaygroundSession | null>(null);
-  const disposeGate = useRef(Promise.resolve());
-  const skipSnapshotLoadRef = useRef(false);
-
-  useEffect(() => {
-    if (!active) {
-      liveRef.current = null;
+  const [generation, setGeneration] = createSignal(0);
+  let current: PlaygroundSession | null = null;
+  let disposeGate = Promise.resolve();
+  let skipSnapshotLoad = false;
+  createEffect(() => {
+    generation();
+    if (!active()) {
       setState({ status: 'idle' });
       return;
     }
     let cancelled = false;
     let live: PlaygroundSession | null = null;
     setState({ status: 'booting' });
-    const skipSnapshotLoad = skipSnapshotLoadRef.current;
-    skipSnapshotLoadRef.current = false;
-
-    const run = disposeGate.current.then(async () => {
+    const skip = skipSnapshotLoad;
+    skipSnapshotLoad = false;
+    const run = disposeGate.then(async () => {
       if (cancelled) return;
       try {
         const session = await bootPlayground(
-          skipSnapshotLoad ? { skipSnapshotLoad: true } : undefined
+          skip ? { skipSnapshotLoad: true } : undefined
         );
         if (cancelled) {
           await session.dispose().catch(() => {});
           return;
         }
         live = session;
-        liveRef.current = session;
+        current = session;
         setState({ status: 'ready', session });
       } catch (err) {
-        if (cancelled) return;
-        setState({
-          status: 'error',
-          error: err instanceof Error ? err.message : String(err),
-        });
+        if (!cancelled)
+          setState({
+            status: 'error',
+            error: err instanceof Error ? err.message : String(err),
+          });
       }
     });
-
-    return () => {
+    onCleanup(() => {
       cancelled = true;
-      liveRef.current = null;
-      disposeGate.current = run
+      current = null;
+      disposeGate = run
         .then(async () => {
           if (live !== null) await live.dispose();
         })
-        .catch(() => {
-          // Teardown races (already-wiped run) must not crash the console.
-        });
-    };
-  }, [bootPlayground, active, bootGeneration]);
-
-  const wipe = useCallback(async () => {
-    skipSnapshotLoadRef.current = true;
-    const current = liveRef.current;
-    liveRef.current = null;
-    setState({ status: 'booting' });
-    if (current !== null) {
-      try {
-        await current.wipe();
-      } catch {
-        // Live run may already be partially torn down.
+        .catch(() => {});
+    });
+  });
+  return {
+    get state() {
+      return state();
+    },
+    async wipe() {
+      skipSnapshotLoad = true;
+      const live = current;
+      current = null;
+      setState({ status: 'booting' });
+      if (live !== null) {
+        disposeGate = disposeGate.then(() => live.wipe()).catch(() => {});
+        await disposeGate;
       }
-    }
-  }, []);
-
-  const reboot = useCallback(() => {
-    setState({ status: 'booting' });
-    setBootGeneration((n) => n + 1);
-  }, []);
-
-  return { state, wipe, reboot };
+    },
+    reboot() {
+      setGeneration((n) => n + 1);
+    },
+  };
 }

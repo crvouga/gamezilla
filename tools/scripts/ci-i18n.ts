@@ -152,9 +152,7 @@ async function loadLinguiConfig(): Promise<LinguiCatalogConfig> {
 }
 
 const BABEL_CONFIG_RELS = [
-  'apps/client/babel.config.js',
   'apps/client/vite.config.mts',
-  'product/console/babel.config.js',
   'product/test/babel.test.config.cjs',
 ] as const;
 

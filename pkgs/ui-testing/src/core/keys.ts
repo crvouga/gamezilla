@@ -1,6 +1,6 @@
 /**
  * Portable key names. Drivers map these to their native key identifiers
- * (DOM `KeyboardEvent.key`, Bun.WebView, Detox, …).
+ * (DOM `KeyboardEvent.key`, Bun.WebView, …).
  */
 export type DriverKey =
   | 'enter'

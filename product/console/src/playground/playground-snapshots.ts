@@ -1,6 +1,6 @@
 /**
  * Full-runtime playground snapshot save / list / load via ObjectStore
- * (ClientFs — OPFS on web / Expo FS on native).
+ * (injected browser ObjectStore, normally OPFS).
  */
 
 import type { ObjectStore } from '@pkgs/object-store/interface';

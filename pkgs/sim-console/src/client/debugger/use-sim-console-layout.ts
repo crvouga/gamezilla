@@ -1,4 +1,4 @@
-import { useBreakpoint } from '@pkgs/ui-rn';
+import { useBreakpoint } from '@pkgs/ui';
 
 import { useClientLayoutPreference } from './client-layout-preference';
 import {
@@ -17,6 +17,16 @@ export {
 } from './sim-console-layout';
 
 export function useSimConsoleLayout(): SimConsoleLayout {
-  const { preference } = useClientLayoutPreference();
-  return simConsoleLayoutFromBreakpoint(useBreakpoint(), preference);
+  const preference = useClientLayoutPreference();
+  const breakpoint = useBreakpoint();
+  const layout = () =>
+    simConsoleLayoutFromBreakpoint(breakpoint(), preference.preference);
+  return {
+    get compactChrome() {
+      return layout().compactChrome;
+    },
+    get multiClientColumns() {
+      return layout().multiClientColumns;
+    },
+  };
 }

@@ -2,7 +2,7 @@ import type {
   SignInCredentials,
   SignInStrategy,
 } from '../shared/sign-in-strategy';
-import type { AuthSessionState } from './auth-session-state';
+import type { AuthSessionStore } from './auth-session-state';
 
 export type GetFreshTokenOptions = {
   /** Force a network mint (adapter `skipCache`) after an auth 401. */
@@ -10,13 +10,14 @@ export type GetFreshTokenOptions = {
 };
 
 /**
- * Client-side auth port. Adapters implement this and mount it through
- * {@link AuthClientPortProviderProps}.
+ * Client-side auth port. Framework-free: adapters expose the reactive
+ * session through {@link AuthSessionStore}; UI bindings subscribe to it.
  */
 export interface AuthClientPort {
   /** Slug stored in `auth_external_accounts.provider` for this adapter. */
   readonly providerLabel: string;
-  useAuthSession(): AuthSessionState;
+  /** Reactive session snapshot (hydrated lazily on first `refresh()`). */
+  readonly session: AuthSessionStore;
   signIn(
     strategy: SignInStrategy,
     credentials?: SignInCredentials

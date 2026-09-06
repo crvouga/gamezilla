@@ -1,5 +1,5 @@
 /**
- * Resolve optional LogLine.icon keys to @pkgs/ui-rn icon components.
+ * Resolve optional LogLine.icon keys to @pkgs/ui icon components.
  */
 
 import {
@@ -16,8 +16,9 @@ import {
   SquarePenIcon,
   UserIcon,
   XIcon,
-} from '@pkgs/ui-rn';
-import type { ReactElement } from 'react';
+} from '@pkgs/ui';
+import { type JSX, Show } from 'solid-js';
+import { Dynamic } from 'solid-js/web';
 
 const EVENT_LOG_ICON_MAP: Readonly<Record<string, IconComponent>> = {
   'log-in': LogInIcon,
@@ -34,15 +35,14 @@ const EVENT_LOG_ICON_MAP: Readonly<Record<string, IconComponent>> = {
   'circle-check': CircleCheckIcon,
 };
 
-export function EventLogIcon({
-  name,
-  size = 14,
-}: {
+export function EventLogIcon(props: {
   name: string | undefined;
   size?: number;
-}): ReactElement | null {
-  if (name === undefined) return null;
-  const Icon = EVENT_LOG_ICON_MAP[name];
-  if (Icon === undefined) return null;
-  return <Icon size={size} />;
+}): JSX.Element {
+  const icon = () => EVENT_LOG_ICON_MAP[props.name ?? ''];
+  return (
+    <Show when={icon()}>
+      {(Icon) => <Dynamic component={Icon()} size={props.size ?? 14} />}
+    </Show>
+  );
 }

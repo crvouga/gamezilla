@@ -1,5 +1,5 @@
 /**
- * Jest-immune wall timers for openSim (RNTL needs real Node timers).
+ * Wall Node timers for openSim teardown (settle after the sim disposes).
  */
 
 import {

@@ -1,13 +1,27 @@
 {
   "$comment": "Directories that are Solid-only. ESLint (solid + a11y + type-checked) runs on these; depcruise forbids RN/React imports from them. Grows per phase; at Phase 5 it is the whole repo and this file is deleted.",
   "dirs": [
+    "apps/client/src/chrome",
     "apps/client/src/exemplars",
+    "apps/client/src/routes",
+    "apps/client/src/screens",
+    "apps/client/src/shell",
+    "apps/client/tests",
+    "pkgs/chess-board/src",
+    "pkgs/chess-board/tests",
     "pkgs/llm/src/solid",
     "pkgs/room/src/client/solid",
     "pkgs/solid-context/src",
     "pkgs/solid-context/tests",
     "pkgs/sync-engine/src/solid",
-    "pkgs/vitest-solid/src"
+    "pkgs/ui-testing-solid-dom/src",
+    "pkgs/ui-testing-solid-dom/tests",
+    "pkgs/ui/src",
+    "pkgs/ui/tests",
+    "pkgs/vitest-solid/src",
+    "product/sim/src",
+    "product/test/src",
+    "product/test/tests"
   ],
   "files": [
     "apps/client/src/main.tsx",

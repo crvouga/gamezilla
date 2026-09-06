@@ -1,0 +1,52 @@
+{
+  "name": "@pkgs/ui",
+  "version": "0.0.0",
+  "private": true,
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./tokens.css": "./src/theme/tokens.css",
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*/index.ts"
+    ]
+  },
+  "scripts": {
+    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "test": "vitest run",
+    "tokens:check": "bun run ./scripts/generate-tokens-css.ts --check",
+    "tokens:generate": "bun run ./scripts/generate-tokens-css.ts"
+  },
+  "dependencies": {
+    "@dicebear/collection": "catalog:",
+    "@dicebear/core": "catalog:",
+    "@lingui/core": "catalog:",
+    "@lingui/solid": "catalog:",
+    "@pkgs/async": "workspace:*",
+    "@pkgs/clock": "workspace:*",
+    "@pkgs/colors": "workspace:*",
+    "@pkgs/i18n": "workspace:*",
+    "@pkgs/keyword": "workspace:*",
+    "@pkgs/kv": "workspace:*",
+    "@pkgs/solid-context": "workspace:*",
+    "@solidjs/router": "catalog:",
+    "@tanstack/solid-virtual": "catalog:",
+    "lucide-solid": "catalog:",
+    "solid-js": "catalog:"
+  },
+  "devDependencies": {
+    "@pkgs/vitest-solid": "workspace:*",
+    "@solidjs/testing-library": "catalog:",
+    "@testing-library/jest-dom": "catalog:",
+    "@testing-library/user-event": "catalog:",
+    "@types/bun": "catalog:",
+    "happy-dom": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}

@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@lingui/core": "catalog:",
-    "@lingui/react": "catalog:",
+    "@lingui/solid": "catalog:",
     "@pkgs/assert": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
@@ -29,15 +29,13 @@
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
-    "@pkgs/ui-rn": "workspace:*",
+    "@pkgs/ui": "workspace:*",
     "@pkgs/uuid": "workspace:*",
     "hono": "catalog:",
-    "react": "catalog:",
-    "react-native": "catalog:",
+    "solid-js": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@types/react": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
   }

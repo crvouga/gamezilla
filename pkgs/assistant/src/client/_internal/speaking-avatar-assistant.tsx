@@ -1,5 +1,12 @@
-import { SpeakingAvatar, type SpeakingAvatarProps } from '@pkgs/ui-rn';
-import { type ReactNode, useEffect, useState } from 'react';
+import { SpeakingAvatar, type SpeakingAvatarProps } from '@pkgs/ui';
+import {
+  batch,
+  createEffect,
+  createSignal,
+  type JSX,
+  onCleanup,
+  splitProps,
+} from 'solid-js';
 
 import type { Assistant } from '../../shared/index';
 import { subscribeAssistantSpeaking } from './assistant-speaking-bridge';
@@ -13,24 +20,30 @@ export type SpeakingAvatarAssistantProps<TPayload = unknown> = {
  * {@link SpeakingAvatar} whose `message` is driven by the paired
  * {@link Assistant} renderer via {@link emitAssistantSpeakingMessage}.
  */
-export function SpeakingAvatarAssistant<TPayload = unknown>({
-  assistant,
-  ...avatarProps
-}: SpeakingAvatarAssistantProps<TPayload>): ReactNode {
-  const [message, setMessage] = useState('');
-  const [bubbleResolving, setBubbleResolving] = useState(false);
+export function SpeakingAvatarAssistant<TPayload = unknown>(
+  props: SpeakingAvatarAssistantProps<TPayload>
+): JSX.Element {
+  const [local, avatarProps] = splitProps(props, ['assistant']);
+  const [message, setMessage] = createSignal('');
+  const [bubbleResolving, setBubbleResolving] = createSignal(false);
 
-  useEffect(() => {
-    return subscribeAssistantSpeaking(assistant, (u) => {
-      setMessage(u.message ?? '');
-      setBubbleResolving(u.bubbleResolving ?? false);
-    });
-  }, [assistant]);
+  createEffect(() => {
+    setMessage('');
+    setBubbleResolving(false);
+    onCleanup(
+      subscribeAssistantSpeaking(local.assistant, (u) => {
+        batch(() => {
+          setMessage(u.message ?? '');
+          setBubbleResolving(u.bubbleResolving ?? false);
+        });
+      })
+    );
+  });
 
   return (
     <SpeakingAvatar
-      message={message}
-      bubbleResolving={bubbleResolving}
+      message={message()}
+      bubbleResolving={bubbleResolving()}
       {...avatarProps}
     />
   );

@@ -21,15 +21,13 @@
     "@libs/auth": "workspace:*",
     "@libs/profile": "workspace:*",
     "@lingui/core": "catalog:",
-    "@lingui/react": "catalog:",
+    "@lingui/solid": "catalog:",
     "@pkgs/clock": "workspace:*",
     "@pkgs/http-client": "workspace:*",
-    "@pkgs/ui-rn": "workspace:*",
-    "react": "catalog:",
-    "react-native": "catalog:"
+    "@pkgs/ui": "workspace:*",
+    "solid-js": "catalog:"
   },
   "devDependencies": {
-    "@types/react": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
   }

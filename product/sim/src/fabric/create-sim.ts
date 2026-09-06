@@ -1,8 +1,6 @@
-import { createInMemoryDevMenuPort } from '@apps/client/device/in-memory-dev-menu-port';
-import { createInMemoryNetworkStatePort } from '@apps/client/device/in-memory-network-state-port';
-import type { ClientEnv } from '@apps/client/product/client-env';
-import { type Client, createClient } from '@apps/client/product/create-client';
-import { SimGestureRoot } from '@apps/client/product/sim-gesture-root';
+import type { ClientEnv } from '@apps/client/shell/client-env';
+import { type Client, createClient } from '@apps/client/shell/create-client';
+import { createInMemoryClientPorts } from '@apps/client/shell/in-memory-client-ports';
 import {
   createRoomServer,
   type RoomServerApp,
@@ -22,7 +20,6 @@ import {
   createInProcessOpenAuthSession,
   createNamespacedAuthClientStorage,
 } from '@pkgs/auth/client';
-import { AUTH_NATIVE_SSO_CALLBACK_URL } from '@pkgs/auth/shared';
 import { InMemoryBilling } from '@pkgs/billing';
 import type { Clock, Timers } from '@pkgs/clock';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
@@ -39,9 +36,7 @@ import { createInMemorySecureStorage } from '@pkgs/secure-storage/impl-memory';
 import { createSecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
 import { createNamespacedWebSecureStorage } from '@pkgs/secure-storage-web';
 import type { Session } from '@pkgs/sim';
-import { createInMemoryAudioPlaybackPort } from '@pkgs/sounds/audio-playback/in-memory-audio-playback-port';
 import { InMemoryTtsProvider } from '@pkgs/tts/server';
-import { createPassthroughBottomSheetHost } from '@pkgs/ui-rn';
 import { serializeFetch } from './sim-fetch';
 import { createSimNet } from './sim-net';
 import {
@@ -58,7 +53,7 @@ function hasWebLocalStorage(): boolean {
 }
 
 export type CreateSimOptions = {
-  /** Override virtual timers (openSim injects node timers for RNTL). */
+  /** Override virtual timers (hosts that need wall timers for a live UI). */
   readonly timers?: Timers;
   /** Real-mode host injects embedded Postgres; playground uses sqlBackend server SQL. */
   readonly serverSql?: SimSql;
@@ -87,7 +82,8 @@ export type Sim = {
   dropClient(id: string): Promise<void>;
   clientIds(): readonly string[];
   bumpClientEpoch(): void;
-  crash(id: 'server' | string): void;
+  /** `'server'` or a client id. */
+  crash(id: string): void;
   restart(id: string): void;
   partition(a: string, b: string): void;
   heal(a?: string, b?: string): void;
@@ -150,7 +146,7 @@ async function buildServerEnv(args: {
     createId: session.ports.createId,
     random: session.ports.random,
     seed,
-    openSqlClient: async () => shared,
+    openSqlClient: () => Promise.resolve(shared),
     events: createInMemoryPubSub({ bus: pubSubBus }),
     kv: new KvImplInMemory(),
     blob: new ObjectStoreImplInMemory(),
@@ -163,9 +159,10 @@ async function buildServerEnv(args: {
     secretsEnv: 'dev',
     serverUrl: SIM_SERVER_URL,
     skipDatabaseUrlPolicy: true,
-    fetch: async () => {
-      throw new Error('sim ServerEnv.fetch: vendor HTTP not configured');
-    },
+    fetch: () =>
+      Promise.reject(
+        new Error('sim ServerEnv.fetch: vendor HTTP not configured')
+      ),
   };
 }
 
@@ -307,15 +304,10 @@ function makeSimClientEnv(
       net.assertReachable(id, 'server');
       return roomNode.createTransport(roomArgs);
     },
-    network: createInMemoryNetworkStatePort(),
-    audio: createInMemoryAudioPlaybackPort(),
-    devMenu: createInMemoryDevMenuPort(),
-    gestureRoot: SimGestureRoot,
-    bottomSheetHost: createPassthroughBottomSheetHost(),
-    observability: createNoopObservability(`sim-client:${id}`),
+    ...createInMemoryClientPorts(`sim-client:${id}`),
     serverUrl: SIM_SERVER_URL,
     authBaseURL: SIM_SERVER_URL,
-    authCallbackUrl: AUTH_NATIVE_SSO_CALLBACK_URL,
+    authCallbackUrl: `${SIM_SERVER_URL}/sso-callback`,
     openAuthSession: (() => {
       const completeDevAuth = createInProcessOpenAuthSession({
         fetch: (input, init) =>
@@ -386,9 +378,10 @@ function createSimHandle(kernel: SimKernel): Sim {
     client,
     async spawnServer() {
       if (hono !== null) return hono;
-      hono = await createServer(serverEnv);
-      rawServerFetch = serveFetch((request) => hono!.fetch(request));
-      return hono;
+      const booted = await createServer(serverEnv);
+      hono = booted;
+      rawServerFetch = serveFetch((request) => booted.fetch(request));
+      return booted;
     },
     spawnClient(id, env = client(id)) {
       const existing = liveClients.get(id);

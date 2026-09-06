@@ -1,4 +1,4 @@
-import { createContext, useContext } from 'react';
+import { createContext, useContext } from 'solid-js';
 
 export type SyncLocalDataActions = {
   /** Wipe the entire local SQLite (`main`) database and reload the app. */

@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
+import { wallTimers } from '@pkgs/clock';
 import { sql } from '@pkgs/sql';
 import {
   attachSqliteWorkerHost,
@@ -214,7 +215,11 @@ describe('createSqliteWorkerSqlOwner', () => {
     const { events, spawnWorker } = createTrackedSpawner(
       createMemorySqliteWorkerBackend(sqlite3)
     );
-    const owner = createSqliteWorkerSqlOwner({ dbName: 'user_a', spawnWorker });
+    const owner = createSqliteWorkerSqlOwner({
+      dbName: 'user_a',
+      spawnWorker,
+      timers: wallTimers,
+    });
     expect(owner.getOpenInfo()).toBeNull();
 
     const client = await owner.open();
@@ -236,7 +241,11 @@ describe('createSqliteWorkerSqlOwner', () => {
     const { events, spawnWorker } = createTrackedSpawner(
       createMemorySqliteWorkerBackend(sqlite3)
     );
-    const owner = createSqliteWorkerSqlOwner({ dbName: 'user_a', spawnWorker });
+    const owner = createSqliteWorkerSqlOwner({
+      dbName: 'user_a',
+      spawnWorker,
+      timers: wallTimers,
+    });
     const client = await owner.open();
     await client.disconnect();
     expect(events).toEqual(['spawn:user_a', 'terminate']);
@@ -246,7 +255,11 @@ describe('createSqliteWorkerSqlOwner', () => {
     const { events, spawnWorker } = createTrackedSpawner(
       createMemorySqliteWorkerBackend(sqlite3)
     );
-    const owner = createSqliteWorkerSqlOwner({ dbName: 'user_a', spawnWorker });
+    const owner = createSqliteWorkerSqlOwner({
+      dbName: 'user_a',
+      spawnWorker,
+      timers: wallTimers,
+    });
     await owner.open();
     await owner.open();
     expect(events).toEqual(['spawn:user_a', 'terminate', 'spawn:user_a']);
@@ -264,7 +277,11 @@ describe('createSqliteWorkerSqlOwner', () => {
       },
     };
     const { events, spawnWorker } = createTrackedSpawner(backend);
-    const owner = createSqliteWorkerSqlOwner({ dbName: 'user_a', spawnWorker });
+    const owner = createSqliteWorkerSqlOwner({
+      dbName: 'user_a',
+      spawnWorker,
+      timers: wallTimers,
+    });
     await owner.open();
     await owner.resetStore();
     expect(wiped).toEqual(['user_a']);
@@ -283,7 +300,11 @@ describe('createSqliteWorkerSqlOwner', () => {
       wipe: () => Promise.resolve(),
     };
     const { events, spawnWorker } = createTrackedSpawner(backend);
-    const owner = createSqliteWorkerSqlOwner({ dbName: 'user_a', spawnWorker });
+    const owner = createSqliteWorkerSqlOwner({
+      dbName: 'user_a',
+      spawnWorker,
+      timers: wallTimers,
+    });
     const failed = await rejectionOf(owner.open());
     expect(failed.message).toBe('cannot create file');
     expect(events).toEqual(['spawn:user_a', 'terminate']);

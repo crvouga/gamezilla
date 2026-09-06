@@ -19,7 +19,13 @@ import { useClock, useTimers } from '@pkgs/clock';
 import type { SecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
 import { useSecureStorageStore } from '@pkgs/secure-storage/use-secure-storage-item';
 import { usePathname } from '@pkgs/ui-rn';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from 'react';
 
 import { useAuthClientPort } from './auth-client-provider';
 import { authSessionError, isAuthSessionSignedIn } from './session-snapshot';
@@ -282,7 +288,10 @@ export function useSignInModalLifecycle({
   const port = useAuthClientPort();
   const pathname = usePathname();
   const { now } = useClock();
-  const authState = port.useAuthSession();
+  const authState = useSyncExternalStore(
+    port.session.subscribe,
+    port.session.getSnapshot
+  );
   const localToken = useFreshAuthToken();
   const startInFlightRef = useRef(false);
   const [phase, setPhase] = useState<SignInPhase>(() =>

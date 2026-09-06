@@ -1,32 +1,27 @@
-import { useEffect, useRef, useState } from 'react';
+import { type Accessor, createEffect, createSignal, on } from 'solid-js';
 import type { AssistantAction } from '../../shared/_internal/action';
 import type { Assistant } from '../../shared/_internal/engine';
 import type { AssistantSignal } from '../../shared/_internal/signals';
 
 /**
  * Re-runs `observe` when `watch` changes (e.g. `${status}:${solveIdx}`).
- * `buildSignal` should close over the latest game fields via refs.
+ * Pass live getters for `assistant` and `watch`; `buildSignal` reads current game state.
  */
 export function useAssistant<TPayload>(args: {
   readonly assistant: Assistant<TPayload>;
   readonly buildSignal: () => AssistantSignal<TPayload> | null;
   readonly watch: string;
-}): AssistantAction | null {
-  const [action, setAction] = useState<AssistantAction | null>(null);
-  const assistantRef = useRef(args.assistant);
-  assistantRef.current = args.assistant;
-
-  const buildSignalRef = useRef(args.buildSignal);
-  buildSignalRef.current = args.buildSignal;
-
-  useEffect(() => {
-    const s = buildSignalRef.current();
-    if (s === null) {
-      setAction(null);
-      return;
-    }
-    setAction(assistantRef.current.observe(s));
-  }, [args.assistant, args.watch, args.buildSignal]);
+}): Accessor<AssistantAction | null> {
+  const [action, setAction] = createSignal<AssistantAction | null>(null);
+  createEffect(
+    on(
+      () => [args.assistant, args.watch, args.buildSignal] as const,
+      ([assistant]) => {
+        const signal = args.buildSignal();
+        setAction(signal === null ? null : assistant.observe(signal));
+      }
+    )
+  );
 
   return action;
 }

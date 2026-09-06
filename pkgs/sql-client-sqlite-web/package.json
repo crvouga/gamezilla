@@ -24,16 +24,12 @@
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sql-client-sqlite": "workspace:*",
-    "@sqlite.org/sqlite-wasm": "catalog:",
-    "expo-sqlite": "catalog:",
-    "react": "catalog:",
-    "react-native": "catalog:"
+    "@sqlite.org/sqlite-wasm": "catalog:"
   },
   "devDependencies": {
     "@happy-dom/global-registrator": "catalog:",
     "@pkgs/os": "workspace:*",
     "@types/bun": "catalog:",
-    "@types/react": "catalog:",
     "@typescript/native": "catalog:",
     "esbuild": "catalog:",
     "happy-dom": "catalog:",

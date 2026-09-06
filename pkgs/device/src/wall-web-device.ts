@@ -6,6 +6,7 @@
  */
 
 import type { AppLifecycle } from '@pkgs/sync-engine/client';
+import type { ClipboardPort } from './clipboard';
 import {
   createVibrationHaptics,
   type HapticsPort,
@@ -20,6 +21,7 @@ type BrowserGlobals = {
     onLine?: boolean;
     connection?: { type?: string };
     vibrate?: (pattern: number | readonly number[]) => boolean;
+    clipboard?: { writeText(text: string): Promise<void> };
   };
   window?: {
     addEventListener(type: string, listener: () => void): void;
@@ -73,4 +75,17 @@ export function wallWebAppLifecycle(): AppLifecycle {
       addEventListener: win.addEventListener.bind(win),
     },
   });
+}
+
+/** Async Clipboard API; rejects when the browser has no clipboard surface. */
+export function wallWebClipboard(): ClipboardPort {
+  return {
+    writeText: (text) => {
+      const clipboard = browser().navigator?.clipboard;
+      if (clipboard === undefined) {
+        return Promise.reject(new Error('clipboard unavailable'));
+      }
+      return clipboard.writeText(text);
+    },
+  };
 }

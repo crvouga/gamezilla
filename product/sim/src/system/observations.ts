@@ -55,8 +55,8 @@ export async function nodeText(
 }
 
 /**
- * Bounding box of the node at `path`. RNTL synthesizes `onLayout` on read so
- * measured canvases (chess board) become interactive.
+ * Bounding box of the node at `path`. The DOM driver synthesizes layout on
+ * read so measured canvases (chess board) become interactive.
  */
 export async function nodeLayout(
   s: ProductSim,
@@ -65,7 +65,7 @@ export async function nodeLayout(
 ): Promise<ElementLayout | null> {
   const node = nodeAt(s, actorId, path);
   if (node === null) return null;
-  return (await node.layout()) as ElementLayout | null;
+  return await node.layout();
 }
 
 export async function actorHtml(

@@ -1,4 +1,4 @@
-import type { ServerHttp } from '@apps/client/product/client-env';
+import type { ServerHttp } from '@apps/client/shell/client-env';
 
 type RnResponse = Response & { _bodyInit?: BodyInit | null };
 

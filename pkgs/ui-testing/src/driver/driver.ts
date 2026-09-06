@@ -49,14 +49,14 @@ export function isWaitTextCondition(
 
 /**
  * User-intent driver. Models what a person does with an app, not host /
- * Detox / DOM primitives. Every concrete driver must satisfy this interface.
+ * DOM primitives. Every concrete driver must satisfy this interface.
  *
  * Targets are resolved via {@link Driver.get} → {@link DriverNode}.
  * `tap` / `input` on a node auto-wait until visible before acting.
  *
  * {@link DriverNode.wait} is the sole waiting API — each implementation uses
- * the host framework's fastest mechanism (Bun.WebView evaluate, rntl virtual
- * pump, Detox `waitFor`, …). Do not reintroduce shared poll intervals here.
+ * the host framework's fastest mechanism (Bun.WebView evaluate, Solid DOM /
+ * rntl virtual pump, …). Do not reintroduce shared poll intervals here.
  */
 export interface Driver {
   /** Stable identifier for logs and capability errors (`"rntl"`, …). */
@@ -79,7 +79,7 @@ export interface Driver {
 
   /**
    * Capture a readable HTML preview of the current UI for reporting.
-   * Returns `null` when the driver cannot snapshot (e.g. Detox stub).
+   * Returns `null` when the driver cannot snapshot.
    */
   snapshotHtml(options?: {
     readonly stylesheetHref?: string;

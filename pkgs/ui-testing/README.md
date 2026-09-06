@@ -4,7 +4,7 @@ Application-agnostic cross-platform UI testing framework.
 
 This package is designed as if it were an independent open-source library: it
 contains **no product concepts**, imports nothing from `apps/` or `libs/`, and
-models **user intent** rather than browser / Detox / DOM APIs. Suites run under
+models **user intent** rather than browser / DOM APIs. Suites run under
 `bun:test`.
 
 ## Install (in this monorepo)
@@ -51,13 +51,13 @@ Consumer (app / e2e package)
   ├── page objects (LoginPage, …)  — live in the consumer
   ├── AppHarness                   — createRoot / mount / setup / teardown
   └── createDriver({ kind, … })
+        ├── SolidDomDriver    → harness.mount (Solid in happy-dom / browser DOM)
         ├── RntlDriver        → RenderAdapter (RNTL) or harness.mount
-        ├── BunWebviewDriver  → injected Bun.WebView
-        └── DetoxDriver       → stub (documented Detox mapping)
+        └── BunWebviewDriver  → injected Bun.WebView
 ```
 
 Dependency direction is always **apps → pkgs**. Drivers receive their underlying
-handles (`Bun.WebView`, Detox device, harness) from the consumer.
+handles (`Bun.WebView`, harness) from the consumer.
 
 **No mocking of product deps.** RNTL rendering uses
 [React Native Testing Library](https://oss.callstack.com/react-native-testing-library/)
@@ -77,7 +77,7 @@ await driver.get('home').expect.visible();
 await driver.get('modal').get('ok').expect.visible();
 ```
 
-Every action and assertion maps to `testID` / `data-testid` / Detox `by.id`.
+Every action and assertion maps to `testID` / `data-testid`.
 There is no public `by.text` / `by.role` / `by.label` selection API.
 
 `tap` and `input` auto-wait until the target is visible before acting
@@ -171,39 +171,33 @@ await driver.launch();
 await driver.get('app-root').expect.visible();
 ```
 
-## Detox driver (stub)
-
-`DetoxDriver` satisfies the `Driver` interface and documents the Detox mapping
-for every operation, but throws `NotImplementedError` until a consumer that
-owns the `detox` dependency completes the integration. Classic Detox has no
-first-class text read-back — `text()` remains unsupported by design.
-
 ## Driver capability matrix
 
-| Operation | RNTL | Bun.WebView | Detox (stub) |
+| Operation | Solid DOM | RNTL | Bun.WebView |
 | --- | --- | --- | --- |
-| `launch` / `close` | yes | yes (`baseUrl` optional) | stub → `device.launchApp` / `terminateApp` |
-| `get` / nested `get` | yes | yes | stub → `by.id` / `withDescendant` |
-| `tap` / `input` (auto-wait) | yes | yes | stub → `element().tap()` / `typeText` |
-| `tapAt` | yes (RNGH / press+location) | yes | stub → `element().tap({ x, y })` |
-| `drag` | yes (RNGH pan stream) | yes | stub → `longPressAndDrag` |
-| `layout` | yes (style / synthetic onLayout) | yes | stub → `getAttributes` |
-| `clear` | yes | yes | stub → `clearText` |
-| `key` (driver + node) | yes (no-op host) | yes | stub (platform-limited) |
-| `scroll` | yes | yes | stub → `element().scroll` |
-| `wait` / `isVisible` | virtual pump + query | `evaluate` poll | stub → native `waitFor` |
-| `expect.visible` / `hidden` / `text` | thin wrappers over `wait` | same | stub |
-| `text()` | yes | yes | unsupported in Detox |
-| `snapshotHtml` | RN host → HTML | `documentElement.outerHTML` | returns `null` |
+| `launch` / `close` | yes | yes | yes (`baseUrl` optional) |
+| `get` / nested `get` | yes | yes | yes |
+| `tap` / `input` (auto-wait) | yes (user-event) | yes | yes |
+| `tapAt` | yes (synthetic PointerEvents) | yes (RNGH / press+location) | yes |
+| `drag` | yes (PointerEvent stream) | yes (RNGH pan stream) | yes |
+| `layout` | yes (synthetic layout provider) | yes (style / synthetic onLayout) | yes |
+| `clear` | yes | yes | yes |
+| `key` (driver + node) | yes (user-event keyboard) | yes (no-op host) | yes |
+| `scroll` | yes | yes | yes |
+| `wait` / `isVisible` | MutationObserver + pump | virtual pump + query | `evaluate` poll |
+| `expect.visible` / `hidden` / `text` | thin wrappers over `wait` | thin wrappers over `wait` | same |
+| `text()` | yes | yes | yes |
+| `snapshotHtml` | DOM → HTML | RN host → HTML | `documentElement.outerHTML` |
 
-`DriverNode.wait` is host-native for speed: rntl uses a constructor `pump`
-(sim virtual clock) instead of RNTL `findBy` / wall 50ms sleeps. Public options
+`DriverNode.wait` is host-native for speed: Solid DOM and rntl use a
+constructor `pump` (sim virtual clock) instead of `findBy` / wall 50ms sleeps. Public options
 are only `timeoutMs` / `description` — no shared poll interval.
 
 ### UI snapshots for reports
 
 `Driver.snapshotHtml(options?)` / optional `RenderedApp.snapshotHtml(options?)`
-produce a readable HTML preview of the current UI. RNTL serializes the
+produce a readable HTML preview of the current UI. Solid DOM serializes the
+live document (plus body-level portals); RNTL serializes the
 `react-test-renderer` host tree (component tags + inline styles from `style`
 props) — not a browser DOM. Pass `stylesheetHref` to link shared shell CSS
 instead of inlining it (used by `@pkgs/simulation` multi-frame reports).
@@ -229,8 +223,9 @@ pkgs/ui-testing/src/
   driver/         Driver interface + createDriver
   assertions/     shared expect* helpers for DriverNode implementations
   bootstrap/      AppHarness + RenderAdapter ports
-  drivers/
-    rntl/         RntlDriver + RNTL renderer + RntlDriverNode
-    bun-webview/  BunWebviewDriver + BunWebviewDriverNode
-    detox/        DetoxDriver stub
+  explore/        exploration helpers
 ```
+
+Drivers live in sibling packages: `@pkgs/ui-testing-solid-dom` (Solid in a
+DOM), `@pkgs/ui-testing-bun-webview` (`Bun.WebView`), `@pkgs/ui-testing-rntl`
+(React Native test renderer).

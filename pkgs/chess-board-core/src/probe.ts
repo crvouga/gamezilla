@@ -8,16 +8,16 @@ import type { BoardOrientation, PieceCode, Square } from './types';
 /** Default outer `testID` when ChessBoard is mounted without one. */
 export const DEFAULT_CHESS_BOARD_TEST_ID = 'chess-board';
 
-export function chessBoardPanTestId(boardTestId: string): string {
-  return `${boardTestId}-pan`;
-}
-
-export function chessBoardTapTestId(boardTestId: string): string {
-  return `${boardTestId}-tap`;
-}
-
 export function chessBoardProbeTestId(boardTestId: string): string {
   return `${boardTestId}-probe`;
+}
+
+/** Per-square button id (`<board>-square-e4`). */
+export function chessBoardSquareTestId(
+  boardTestId: string,
+  square: Square
+): string {
+  return `${boardTestId}-square-${square}`;
 }
 
 export type ChessBoardProbePiece = {

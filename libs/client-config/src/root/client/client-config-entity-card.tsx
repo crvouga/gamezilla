@@ -1,6 +1,6 @@
-import { Trans, useLingui } from '@lingui/react/macro';
-import { Box, MenuRow, MenuSection, Text } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Trans, useLingui } from '@lingui/solid/macro';
+import { Box, MenuRow, MenuSection, Text } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 import { useClientConfig } from '../../public/use-client-config';
 
 function onOff(enabled: boolean, on: string, off: string): string {
@@ -8,23 +8,21 @@ function onOff(enabled: boolean, on: string, off: string): string {
 }
 
 /** Grouped read-only view of the synced `client_config` rows. */
-export function ClientConfigEntityCard(): ReactNode {
+export function ClientConfigEntityCard(): JSX.Element {
   const { t } = useLingui();
-  const { config, rows } = useClientConfig();
-  const on = t`On`;
-  const off = t`Off`;
-  const unset = t`Not set`;
-  const jsonPreview = JSON.stringify(
-    {
-      parsed: config,
-      rows: rows.map((r) => ({
-        id: r.id,
-        value: r.value,
-      })),
-    },
-    null,
-    2
-  );
+  const state = useClientConfig();
+  const jsonPreview = () =>
+    JSON.stringify(
+      {
+        parsed: state.config,
+        rows: state.rows.map((r) => ({
+          id: r.id,
+          value: r.value,
+        })),
+      },
+      null,
+      2
+    );
 
   return (
     <Box sx={{ gap: 5 }}>
@@ -39,38 +37,38 @@ export function ClientConfigEntityCard(): ReactNode {
       >
         <MenuRow
           title={<Trans>Google</Trans>}
-          value={onOff(config.google_enabled, on, off)}
-          {...(config.google_web_client_id !== null
-            ? { caption: config.google_web_client_id }
+          value={onOff(state.config.google_enabled, t`On`, t`Off`)}
+          {...(state.config.google_web_client_id !== null
+            ? { caption: state.config.google_web_client_id }
             : {})}
         />
         <MenuRow
           title={<Trans>Dev OAuth</Trans>}
-          value={onOff(config.dev_oauth_enabled, on, off)}
+          value={onOff(state.config.dev_oauth_enabled, t`On`, t`Off`)}
         />
       </MenuSection>
       <MenuSection title={<Trans>Features</Trans>}>
         <MenuRow
           title={<Trans>Billing</Trans>}
-          value={onOff(config.billing_enabled, on, off)}
+          value={onOff(state.config.billing_enabled, t`On`, t`Off`)}
         />
         <MenuRow
           title={<Trans>Text to speech</Trans>}
-          value={onOff(config.tts_enabled, on, off)}
+          value={onOff(state.config.tts_enabled, t`On`, t`Off`)}
         />
         <MenuRow
           title={<Trans>LLM</Trans>}
-          value={onOff(config.llm_enabled, on, off)}
+          value={onOff(state.config.llm_enabled, t`On`, t`Off`)}
         />
       </MenuSection>
       <MenuSection title={<Trans>Infrastructure</Trans>}>
         <MenuRow
           title={<Trans>EMQX</Trans>}
-          value={config.emqx_wss_url ?? unset}
+          value={state.config.emqx_wss_url ?? t`Not set`}
         />
         <MenuRow
           title={<Trans>Observability</Trans>}
-          value={config.observability_backend}
+          value={state.config.observability_backend}
         />
       </MenuSection>
       <Box sx={{ gap: 2 }}>
@@ -86,7 +84,7 @@ export function ClientConfigEntityCard(): ReactNode {
             p: 3,
           }}
         >
-          <Text variant="mono" selectable label={jsonPreview} />
+          <Text variant="mono" selectable label={jsonPreview()} />
         </Box>
       </Box>
     </Box>

@@ -12,9 +12,8 @@ import {
   FlatList,
   ResponsiveSurface,
   Text,
-} from '@pkgs/ui-rn';
-import type { ReactElement, ReactNode } from 'react';
-import { useMemo } from 'react';
+} from '@pkgs/ui';
+import { createMemo, type JSX } from 'solid-js';
 
 import { buildEventLogRows, type EventLogRow } from './build-event-log-rows';
 import { EventLogLineRow } from './event-log-line-row';
@@ -34,8 +33,8 @@ export type EventLogSurfaceProps = {
   lines: readonly LogLine[];
   copy: EventLogSurfaceCopy;
   colorForActor: (actor: RoomActor) => ParticipantColor | string;
-  renderAvatar: (actor: RoomActor | null, size: number) => ReactNode;
-  renderActorLabel?: (actor: RoomActor | null) => ReactNode;
+  renderAvatar: (actor: RoomActor | null, size: number) => JSX.Element;
+  renderActorLabel?: (actor: RoomActor | null) => JSX.Element;
   formatTime?: (ts: number) => LocalizedString;
   dataSet?: ComponentDataSet;
 };
@@ -54,7 +53,7 @@ function resolveColor(
   return typeof c === 'string' ? c : c.css;
 }
 
-function renderRow(item: EventLogRow, props: RowRenderProps): ReactElement {
+function renderRow(item: EventLogRow, props: RowRenderProps): JSX.Element {
   if (item.kind === 'day') {
     return (
       <Text
@@ -80,43 +79,29 @@ function renderRow(item: EventLogRow, props: RowRenderProps): ReactElement {
   );
 }
 
-export function EventLogSurface({
-  visible,
-  onClose,
-  lines,
-  copy,
-  colorForActor,
-  renderAvatar,
-  renderActorLabel,
-  formatTime,
-  dataSet,
-}: EventLogSurfaceProps): ReactElement {
-  const rows = useMemo(() => buildEventLogRows(lines), [lines]);
-  const rowProps: RowRenderProps = {
-    colorForActor,
-    renderAvatar,
-    ...(renderActorLabel !== undefined ? { renderActorLabel } : {}),
-    ...(formatTime !== undefined ? { formatTime } : {}),
-  };
+export function EventLogSurface(props: EventLogSurfaceProps): JSX.Element {
+  const rows = createMemo(() => buildEventLogRows(props.lines));
 
   return (
     <ResponsiveSurface
-      visible={visible}
-      onClose={onClose}
-      title={copy.title}
+      visible={props.visible}
+      onClose={props.onClose}
+      title={props.copy.title}
       size="medium"
-      {...componentDataSet('EventLogSurface', dataSet)}
+      {...componentDataSet('EventLogSurface', props.dataSet)}
     >
-      {lines.length === 0 ? (
+      {props.lines.length === 0 ? (
         <EmptyState
-          title={copy.emptyTitle}
-          {...(copy.emptyBody !== undefined ? { body: copy.emptyBody } : {})}
+          title={props.copy.emptyTitle}
+          {...(props.copy.emptyBody !== undefined
+            ? { body: props.copy.emptyBody }
+            : {})}
         />
       ) : (
         <FlatList
-          data={[...rows]}
+          data={[...rows()]}
           keyExtractor={(item) => item.key}
-          renderItem={({ item }) => renderRow(item, rowProps)}
+          renderItem={({ item }) => renderRow(item, props)}
           frameSx={{ maxHeight: EVENT_LOG_LIST_MAX_HEIGHT }}
         />
       )}

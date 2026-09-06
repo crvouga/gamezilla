@@ -2,7 +2,7 @@
  * Keep playground snapshot SQL dumps consistent across server + clients.
  */
 
-import type { Client } from '@apps/client/product/create-client';
+import type { Client } from '@apps/client/shell/create-client';
 import type { Clock } from '@pkgs/clock';
 import type { Session } from '@pkgs/sim';
 import { sql } from '@pkgs/sql';

@@ -1,4 +1,6 @@
+import type { Timers } from '@pkgs/clock';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import { withOpenTimeout } from '../open-retry';
 import type { SqlOwner } from '../sql-owner';
 import type { SqliteWorkerOpenResult, SqliteWorkerPort } from './protocol';
 import {
@@ -28,7 +30,8 @@ class SqliteWorkerSqlOwnerImpl implements SqliteWorkerSqlOwner {
 
   constructor(
     private readonly dbName: string,
-    private readonly spawnWorker: (dbName: string) => SqliteWorkerHandle
+    private readonly spawnWorker: (dbName: string) => SqliteWorkerHandle,
+    private readonly timers: Timers
   ) {}
 
   private spawn(): LiveWorker {
@@ -47,7 +50,11 @@ class SqliteWorkerSqlOwnerImpl implements SqliteWorkerSqlOwner {
     const live = this.spawn();
     this.live = live;
     try {
-      this.openInfo = await live.rpc.request('open', { dbName: this.dbName });
+      this.openInfo = await withOpenTimeout(
+        this.dbName,
+        live.rpc.request('open', { dbName: this.dbName }),
+        this.timers
+      );
     } catch (error: unknown) {
       this.live = null;
       this.terminate(live);
@@ -64,11 +71,18 @@ class SqliteWorkerSqlOwnerImpl implements SqliteWorkerSqlOwner {
     if (live === null) return;
     this.live = null;
     this.openInfo = null;
+    let timeout: unknown;
     try {
-      await live.rpc.request('close', {});
+      await Promise.race([
+        live.rpc.request('close', {}),
+        new Promise<void>((resolve) => {
+          timeout = this.timers.setTimeout(resolve, 1000);
+        }),
+      ]);
     } catch {
       // worker already gone; terminate below
     }
+    this.timers.clearTimeout(timeout);
     this.terminate(live);
   }
 
@@ -77,7 +91,11 @@ class SqliteWorkerSqlOwnerImpl implements SqliteWorkerSqlOwner {
     // A fresh worker owns the VFS long enough to wipe it, then dies with it.
     const live = this.spawn();
     try {
-      await live.rpc.request('resetStore', { dbName: this.dbName });
+      await withOpenTimeout(
+        this.dbName,
+        live.rpc.request('resetStore', { dbName: this.dbName }),
+        this.timers
+      );
     } finally {
       this.terminate(live);
     }
@@ -95,7 +113,12 @@ class SqliteWorkerSqlOwnerImpl implements SqliteWorkerSqlOwner {
  */
 export function createSqliteWorkerSqlOwner(args: {
   readonly dbName: string;
+  readonly timers: Timers;
   readonly spawnWorker: (dbName: string) => SqliteWorkerHandle;
 }): SqliteWorkerSqlOwner {
-  return new SqliteWorkerSqlOwnerImpl(args.dbName, args.spawnWorker);
+  return new SqliteWorkerSqlOwnerImpl(
+    args.dbName,
+    args.spawnWorker,
+    args.timers
+  );
 }

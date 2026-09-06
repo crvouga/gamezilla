@@ -1,42 +1,34 @@
 import { sql } from '@pkgs/sql';
-
-import { useQuery, useSyncEngine } from '@pkgs/sync-engine/client';
-import { useMemo } from 'react';
+import { createQuery, useSyncEngine } from '@pkgs/sync-engine/solid';
+import type { Accessor } from 'solid-js';
 
 type PuzzleProfileRatingsRow = {
   readonly rating: number | null;
   readonly rating_deviation: number | null;
 };
 
-export function useChessPuzzleProfileRatings(myId: string): {
-  profileRating: number;
-  profileRd: number;
-} {
+export function useChessPuzzleProfileRatings(myId: Accessor<string>) {
   const { paintReady } = useSyncEngine();
-  const enabled = paintReady && myId.length > 0;
-  const query = useMemo(
-    () =>
-      enabled
-        ? sql<PuzzleProfileRatingsRow>`
-            SELECT rating, rating_deviation
-            FROM chess_puzzle_profiles
-            WHERE id = ${myId}
-          `
-        : sql<PuzzleProfileRatingsRow>`
-            SELECT
-              CAST(NULL AS REAL) AS rating,
-              CAST(NULL AS REAL) AS rating_deviation
-            WHERE false
-          `,
-    [enabled, myId]
+  const { rows } = createQuery(() =>
+    paintReady() && myId().length > 0
+      ? sql<PuzzleProfileRatingsRow>`
+          SELECT rating, rating_deviation
+          FROM chess_puzzle_profiles
+          WHERE id = ${myId()}
+        `
+      : sql<PuzzleProfileRatingsRow>`
+          SELECT
+            CAST(NULL AS REAL) AS rating,
+            CAST(NULL AS REAL) AS rating_deviation
+          WHERE false
+        `
   );
-  const { rows } = useQuery(query);
-  const row = rows[0] ?? null;
-  if (!paintReady) {
-    return { profileRating: 0, profileRd: 0 };
-  }
   return {
-    profileRating: row?.rating ?? 0,
-    profileRd: row?.rating_deviation ?? 0,
+    get profileRating() {
+      return paintReady() ? (rows()[0]?.rating ?? 0) : 0;
+    },
+    get profileRd() {
+      return paintReady() ? (rows()[0]?.rating_deviation ?? 0) : 0;
+    },
   };
 }

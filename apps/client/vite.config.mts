@@ -1,6 +1,10 @@
 // @io-wall-ok — build-tool composition root
 import { resolve } from 'node:path';
 import { getConfig } from '@lingui/conf';
+import {
+  DEFAULT_WORKSPACE_SCOPES,
+  workspaceExportsResolver,
+} from '@pkgs/vite-workspace-resolver';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig, type PluginOption } from 'vite';
 import solid from 'vite-plugin-solid';
@@ -27,6 +31,7 @@ const DEV_PORT = 8081;
 export default defineConfig(({ mode }) => {
   const analyze = process.env['ANALYZE'] === '1';
   const plugins: PluginOption[] = [
+    workspaceExportsResolver({ repoRoot, scopes: DEFAULT_WORKSPACE_SCOPES }),
     solid({
       babel: {
         plugins: [[linguiMacroPlugin[0], { ...linguiMacroPlugin[1] }]],

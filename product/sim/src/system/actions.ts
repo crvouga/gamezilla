@@ -27,7 +27,7 @@ export const partition = defineAction({
   weight: (s: ProductSim) => (partitioned(s).length === 0 ? 2 : 1),
   sample: (s: ProductSim) => {
     const ids = clientIds(s);
-    return (rng: Rng) => ids[Math.floor(rng.next() * ids.length)]!;
+    return (rng: Rng) => ids[Math.floor(rng.next() * ids.length)] ?? '';
   },
   act: (s: ProductSim, id: string) => {
     s.session.network.partition('server', id);
@@ -47,7 +47,7 @@ export type UiOp = {
   readonly actorId: string;
   readonly op: string;
   readonly path: readonly string[];
-  readonly extra: { readonly [k: string]: JsonValue };
+  readonly extra: Readonly<Record<string, JsonValue>>;
 };
 
 export const uiOp = defineAction({
@@ -56,6 +56,16 @@ export const uiOp = defineAction({
     await performUiOp(s, op);
   },
 });
+
+function keyOf(op: UiOp): DriverKey {
+  const key = op.extra['key'];
+  return typeof key === 'string' ? (key as DriverKey) : 'enter';
+}
+
+function textOf(op: UiOp): string {
+  const text = op.extra['text'];
+  return typeof text === 'string' ? text : '';
+}
 
 async function performUiOp(s: ProductSim, op: UiOp): Promise<void> {
   const handle = s.actors.get(op.actorId);
@@ -66,7 +76,7 @@ async function performUiOp(s: ProductSim, op: UiOp): Promise<void> {
       : undefined;
   const opts = timeoutMs !== undefined ? { timeoutMs } : undefined;
   if (op.op === 'key' && op.path.length === 0) {
-    await handle.ui.key((op.extra['key'] as DriverKey) ?? 'enter');
+    await handle.ui.key(keyOf(op));
     return;
   }
   const node = nodeAt(s, op.actorId, op.path);
@@ -84,13 +94,13 @@ async function runNodeOp(
       await node.tap(opts);
       return;
     case 'input':
-      await node.input(String(op.extra['text'] ?? ''), opts);
+      await node.input(textOf(op), opts);
       return;
     case 'clear':
       await node.clear();
       return;
     case 'key':
-      await node.key((op.extra['key'] as DriverKey) ?? 'enter');
+      await node.key(keyOf(op));
       return;
     case 'scroll':
       await node.scroll(op.extra['direction'] as ScrollDirection);

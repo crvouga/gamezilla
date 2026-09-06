@@ -1,30 +1,39 @@
 import type { AuthClientPort } from '@pkgs/auth/client/auth-client-port';
-import { createContext, type ReactNode, useContext } from 'react';
+import type { AuthSessionState } from '@pkgs/auth/client/auth-session-state';
+import { defineContext } from '@pkgs/solid-context/define-context';
+import { createSubscriptionSignal } from '@pkgs/solid-context/subscription-signal';
+import type { JSX, ParentProps } from 'solid-js';
 
 export type { AuthClientPort };
 
-const AuthClientPortContext = createContext<AuthClientPort | null>(null);
+const AuthClientPortContext = defineContext<AuthClientPort>('AuthClientPort');
 
-export function AuthClientProvider({
-  port,
-  children,
-}: {
-  readonly port: AuthClientPort;
-  readonly children: ReactNode;
-}): ReactNode {
+export function AuthClientProvider(
+  props: ParentProps<{ readonly port: AuthClientPort }>
+): JSX.Element {
   return (
-    <AuthClientPortContext.Provider value={port}>
-      {children}
+    <AuthClientPortContext.Provider value={props.port}>
+      {props.children}
     </AuthClientPortContext.Provider>
   );
 }
 
 export function useAuthClientPort(): AuthClientPort {
-  const port = useContext(AuthClientPortContext);
-  if (port === null) {
-    throw new Error(
-      'useAuthClientPort: AuthClientProvider missing — wrap with AppProviders'
-    );
-  }
-  return port;
+  return AuthClientPortContext.use();
+}
+
+/** Live provider session. Keep the object intact; its properties are tracked. */
+export function useAuth(): AuthSessionState {
+  const snapshot = createSubscriptionSignal(useAuthClientPort().session);
+  return {
+    get isHydrated() {
+      return snapshot().isHydrated;
+    },
+    get session() {
+      return snapshot().session;
+    },
+    get error() {
+      return snapshot().error;
+    },
+  };
 }

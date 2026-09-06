@@ -1,0 +1,254 @@
+/** @jsxImportSource solid-js */
+/**
+ * Option list for {@link Picker}: a `role="listbox"` of `role="option"`
+ * buttons (≥44px) with `aria-selected`, arrow / Home / End roving focus and
+ * single-character type-ahead. Focus lands on the selected option when the
+ * list mounts (unless a search box owns focus).
+ */
+
+import { useTimers } from '@pkgs/clock/solid';
+import { createSignal, For, type JSX, onMount, Show } from 'solid-js';
+import { Box } from '../box';
+import { Clickable } from '../clickable';
+import { CheckIcon } from '../icons';
+import { ScrollView } from '../scroll-view';
+import { Text } from '../text';
+import {
+  isTypeAheadKey,
+  nextPickerOptionIndex,
+  typeAheadIndex,
+} from './picker-logic';
+import type {
+  PickerOption,
+  PickerRenderOption,
+  PickerValue,
+} from './picker-types';
+
+/** Every option row is at least this tall (pointer target). */
+export const PICKER_OPTION_MIN_HEIGHT = 44;
+/** Max height of the option scroller before it scrolls internally. */
+export const PICKER_OPTIONS_MAX_HEIGHT = 360;
+/** Idle time after which the type-ahead buffer resets. */
+export const PICKER_TYPE_AHEAD_RESET_MS = 500;
+
+export type PickerOptionsProps<T extends PickerValue> = {
+  options: readonly PickerOption<T>[];
+  value: T;
+  onPick: (next: T) => void;
+  renderOption: PickerRenderOption<T> | undefined;
+  /** Move focus to the selected (or first enabled) option on mount. */
+  /** Move focus to the selected (or first enabled) option on mount. */
+  focusOnMount: boolean;
+  /** Accessible name for the listbox. */
+  label: string | undefined;
+  id?: string | undefined;
+};
+
+function optionElements(host: HTMLElement): HTMLElement[] {
+  return Array.from(
+    host.querySelectorAll<HTMLElement>(
+      '[role="option"]:not(:disabled):not([aria-disabled="true"])'
+    )
+  );
+}
+
+function focusedIndex(items: HTMLElement[]): number {
+  return document.activeElement instanceof HTMLElement
+    ? items.indexOf(document.activeElement)
+    : -1;
+}
+
+/** Roving focus + type-ahead for the listbox host. */
+function createListboxKeyboard(): (
+  host: HTMLElement,
+  ev: KeyboardEvent
+) => void {
+  const timers = useTimers();
+  const [buffer, setBuffer] = createSignal('');
+  let resetHandle: unknown;
+  const scheduleReset = (): void => {
+    if (resetHandle !== undefined) timers.clearTimeout(resetHandle);
+    resetHandle = timers.setTimeout(() => {
+      setBuffer('');
+      resetHandle = undefined;
+    }, PICKER_TYPE_AHEAD_RESET_MS);
+  };
+  return (host, ev) => {
+    const items = optionElements(host);
+    const current = focusedIndex(items);
+    const next = nextPickerOptionIndex({
+      key: ev.key,
+      current,
+      count: items.length,
+    });
+    if (next !== null) {
+      ev.preventDefault();
+      items[next]?.focus();
+      return;
+    }
+    if (!isTypeAheadKey(ev.key)) return;
+    const nextBuffer = buffer() + ev.key;
+    setBuffer(nextBuffer);
+    scheduleReset();
+    const texts = items.map((el) => el.textContent);
+    const match = typeAheadIndex(texts, nextBuffer, current);
+    if (match !== null) {
+      ev.preventDefault();
+      items[match]?.focus();
+    }
+  };
+}
+
+function DefaultOptionRow<T extends PickerValue>(props: {
+  option: PickerOption<T>;
+  selected: boolean;
+  onPick: () => void;
+}): JSX.Element {
+  const disabled = (): boolean => props.option.disabled === true;
+  return (
+    <Clickable
+      role="option"
+      aria-selected={props.selected}
+      disabled={disabled()}
+      onClick={() => props.onPick()}
+      dataSet={{ component: 'PickerOption', ...props.option.dataSet }}
+      sx={{
+        width: '100%',
+        minHeight: PICKER_OPTION_MIN_HEIGHT,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 3,
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        textAlign: 'left',
+        opacity: disabled() ? 0.4 : 1,
+        backgroundColor: props.selected ? 'tintSubtle' : 'transparent',
+      }}
+    >
+      <Show when={props.option.preview !== undefined}>
+        <Box sx={{ flexShrink: 0 }}>{props.option.preview}</Box>
+      </Show>
+      <Text
+        variant="body"
+        numberOfLines={1}
+        sx={{ flex: 1, minWidth: 0 }}
+        label={props.option.label}
+      />
+      <Show when={props.selected}>
+        <CheckIcon size={18} color="tint" />
+      </Show>
+    </Clickable>
+  );
+}
+
+function OptionSeparator(): JSX.Element {
+  return (
+    <Box
+      aria-hidden="true"
+      sx={{
+        borderBottomWidth: 'hairline',
+        borderColor: 'border',
+        marginLeft: 16,
+      }}
+    />
+  );
+}
+
+/** Custom rows get the listbox semantics from a focusable shell. */
+function CustomOptionRow<T extends PickerValue>(props: {
+  option: PickerOption<T>;
+  selected: boolean;
+  onPick: () => void;
+  render: PickerRenderOption<T>;
+}): JSX.Element {
+  return (
+    <Box
+      role="option"
+      tabIndex={-1}
+      aria-selected={props.selected}
+      aria-disabled={props.option.disabled === true ? true : undefined}
+      dataSet={{ component: 'PickerOption', ...props.option.dataSet }}
+      sx={[
+        { minWidth: 0 },
+        props.selected &&
+          props.option.disabled !== true && { backgroundColor: 'tintSubtle' },
+      ]}
+    >
+      {props.render(props.option, props.selected, props.onPick)}
+    </Box>
+  );
+}
+
+function focusInitial<T extends PickerValue>(
+  host: HTMLElement,
+  options: readonly PickerOption<T>[],
+  value: T
+): void {
+  const items = optionElements(host);
+  const selectedIndex = options
+    .filter((o) => o.disabled !== true)
+    .findIndex((o) => o.value === value);
+  (items[selectedIndex] ?? items[0])?.focus();
+}
+
+export function PickerOptions<T extends PickerValue>(
+  props: PickerOptionsProps<T>
+): JSX.Element {
+  let hostEl: HTMLElement | undefined;
+  const onKeyDown = createListboxKeyboard();
+  const pickIfEnabled = (option: PickerOption<T>): void => {
+    if (option.disabled === true) return;
+    props.onPick(option.value);
+  };
+  onMount(() => {
+    if (props.focusOnMount && hostEl !== undefined) {
+      focusInitial(hostEl, props.options, props.value);
+    }
+  });
+  return (
+    <ScrollView
+      frameSx={{ maxHeight: PICKER_OPTIONS_MAX_HEIGHT }}
+      sx={{ px: 0 }}
+    >
+      <Box
+        ref={(el) => {
+          hostEl = el;
+        }}
+        role="listbox"
+        id={props.id}
+        aria-label={props.label}
+        onKeyDown={(ev) => onKeyDown(ev.currentTarget, ev)}
+        dataSet={{ component: 'PickerOptions' }}
+      >
+        <For each={props.options}>
+          {(option, index) => (
+            <>
+              <Show
+                when={props.renderOption}
+                fallback={
+                  <DefaultOptionRow
+                    option={option}
+                    selected={option.value === props.value}
+                    onPick={() => pickIfEnabled(option)}
+                  />
+                }
+              >
+                {(render) => (
+                  <CustomOptionRow
+                    option={option}
+                    selected={option.value === props.value}
+                    onPick={() => pickIfEnabled(option)}
+                    render={render()}
+                  />
+                )}
+              </Show>
+              <Show when={index() < props.options.length - 1}>
+                <OptionSeparator />
+              </Show>
+            </>
+          )}
+        </For>
+      </Box>
+    </ScrollView>
+  );
+}

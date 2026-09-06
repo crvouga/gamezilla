@@ -1,5 +1,3 @@
-import { useMemo } from 'react';
-
 import {
   type ClientRequestAuth,
   clientAuthHeaders,
@@ -16,12 +14,15 @@ export function useClientRequestAuth(): ClientRequestAuth {
   const sessionToken = useFreshAuthToken();
   const deviceId = useDeviceId();
   const accountId = useCurrentAccountId();
-  return useMemo(
-    () => ({
-      sessionToken,
-      deviceId,
-      accountId,
-    }),
-    [sessionToken, deviceId, accountId]
-  );
+  return {
+    get sessionToken() {
+      return sessionToken();
+    },
+    get deviceId() {
+      return deviceId();
+    },
+    get accountId() {
+      return accountId();
+    },
+  };
 }

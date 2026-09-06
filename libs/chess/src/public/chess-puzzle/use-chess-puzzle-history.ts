@@ -1,5 +1,5 @@
 import { useMyId } from '@libs/auth/public/use-current-user';
-import { useMemo } from 'react';
+import { createMemo } from 'solid-js';
 import {
   type ChessPuzzleGameLogEntry,
   type ChessPuzzleStats,
@@ -16,20 +16,25 @@ export function useChessPuzzleHistory(): {
 } {
   const myId = useMyId();
   const interactions = useChessPuzzleAllInteractions();
-  const { profileRating } = useChessPuzzleProfileRatings(myId);
+  const profile = useChessPuzzleProfileRatings(myId);
 
-  const stats = useMemo(
-    () => deriveChessPuzzleStats({ interactions, profileRating }),
-    [interactions, profileRating]
+  const stats = createMemo(() =>
+    deriveChessPuzzleStats({
+      interactions: interactions(),
+      profileRating: profile.profileRating,
+    })
   );
-  const gameLog = useMemo(
-    () => deriveChessPuzzleGameLog(interactions),
-    [interactions]
-  );
+  const gameLog = createMemo(() => deriveChessPuzzleGameLog(interactions()));
 
   return {
-    stats,
-    gameLog,
-    loading: myId.length === 0,
+    get stats() {
+      return stats();
+    },
+    get gameLog() {
+      return gameLog();
+    },
+    get loading() {
+      return myId().length === 0;
+    },
   };
 }

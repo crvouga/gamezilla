@@ -14,10 +14,9 @@ export function nodeAt(
 ): DriverNode | null {
   const handle = s.actors.get(actorId);
   if (handle === undefined) return null;
-  let node = handle.ui.get(path[0] ?? '');
-  for (let i = 1; i < path.length; i += 1) {
-    node = node.get(path[i]!);
-  }
+  const [head, ...rest] = path;
+  let node = handle.ui.get(head ?? '');
+  for (const segment of rest) node = node.get(segment);
   return node;
 }
 

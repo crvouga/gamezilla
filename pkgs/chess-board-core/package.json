@@ -14,8 +14,8 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@pkgs/ui-testing": "workspace:*",
     "@pkgs/clock": "workspace:*",
+    "@pkgs/ui-testing": "workspace:*",
     "chess.js": "catalog:"
   },
   "devDependencies": {

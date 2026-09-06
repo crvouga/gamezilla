@@ -1,5 +1,5 @@
-import { Box, TabStrip, type TabStripItem } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Box, TabStrip, type TabStripItem } from '@pkgs/ui';
+import { type JSX, mergeProps } from 'solid-js';
 import type { DebuggerViewId } from '../../shared/debugger-views';
 import { coerceSimChromeKind, type SimChromeKind } from '../../shared/sim-node';
 import {
@@ -20,9 +20,9 @@ export type DebuggerInstance = {
 };
 
 export type DebuggerShellProps = {
-  readonly header?: ReactNode;
+  readonly header?: JSX.Element;
   /** Kind-strip trailing chrome (e.g. playground snapshot controls). */
-  readonly kindTrailing?: ReactNode;
+  readonly kindTrailing?: JSX.Element;
   /**
    * Kind tabs. Default: client/server/events/room. Pass `[]` (or one item)
    * to hide the strip — trailing chrome still renders.
@@ -43,81 +43,63 @@ export type DebuggerShellProps = {
   readonly views: readonly DebuggerViewId[];
   readonly view: DebuggerViewId | null;
   readonly onViewChange: (view: DebuggerViewId) => void;
-  readonly children: ReactNode;
+  readonly children: JSX.Element;
 };
 
-export function DebuggerShell(props: DebuggerShellProps): ReactNode {
-  const {
-    header,
-    kindTrailing,
-    kindTabs = DEBUGGER_KIND_TABS,
-    showPlayer = true,
-    onChromePointerDown,
-    frames,
-    selectedFrameIndex,
-    onSelectFrame,
-    kind,
-    onKindChange,
-    instances,
-    instanceId,
-    onInstanceChange,
-    views,
-    view,
-    onViewChange,
-    children,
-  } = props;
-  const { compactChrome, multiClientColumns } = useSimConsoleLayout();
-  const showKindStrip = kindTabs.length > 1;
-  const showInstances = showDebuggerInstanceTabs({
-    kind,
-    instanceCount: instances.length,
-    multiClientColumns,
-  });
-  const showViewStrip = views.length > 1;
-  const trailingInStrip = !compactChrome ? kindTrailing : undefined;
-  const trailingAsRow = compactChrome ? kindTrailing : undefined;
+export function DebuggerShell(input: DebuggerShellProps): JSX.Element {
+  const props = mergeProps(
+    { kindTabs: DEBUGGER_KIND_TABS, showPlayer: true },
+    input
+  );
+  const layout = useSimConsoleLayout();
+  const showInstances = () =>
+    showDebuggerInstanceTabs({
+      kind: props.kind,
+      instanceCount: props.instances.length,
+      multiClientColumns: layout.multiClientColumns,
+    });
 
   return (
     <Box sx={shellSx}>
-      {header}
-      <Box onPointerDown={onChromePointerDown}>
-        {showPlayer ? (
+      {props.header}
+      <Box onPointerDown={() => props.onChromePointerDown?.()}>
+        {props.showPlayer ? (
           <PlayerStrip
-            frames={frames}
-            selectedIndex={Math.max(0, selectedFrameIndex)}
-            onSelect={onSelectFrame}
+            frames={props.frames}
+            selectedIndex={Math.max(0, props.selectedFrameIndex)}
+            onSelect={props.onSelectFrame}
           />
         ) : null}
-        {trailingAsRow !== undefined ? (
-          <Box sx={trailingOnlySx}>{trailingAsRow}</Box>
+        {layout.compactChrome && props.kindTrailing !== undefined ? (
+          <Box sx={trailingOnlySx}>{props.kindTrailing}</Box>
         ) : null}
         <KindChrome
-          showStrip={showKindStrip}
-          kindTabs={kindTabs}
-          kind={kind}
-          onKindChange={onKindChange}
-          kindTrailing={trailingInStrip}
+          showStrip={props.kindTabs.length > 1}
+          kindTabs={props.kindTabs}
+          kind={props.kind}
+          onKindChange={props.onKindChange}
+          kindTrailing={!layout.compactChrome ? props.kindTrailing : undefined}
         />
-        {showInstances ? (
+        {showInstances() ? (
           <TabStrip
-            accessibilityLabel="Node instances"
-            items={instances.map((n) =>
+            aria-label="Node instances"
+            items={props.instances.map((n) =>
               debuggerInstanceTabItem({ id: n.id, kind: n.kind })
             )}
-            selectedId={instanceId}
-            onSelect={onInstanceChange}
+            selectedId={props.instanceId}
+            onSelect={props.onInstanceChange}
           />
         ) : null}
-        {showViewStrip ? (
+        {props.views.length > 1 ? (
           <TabStrip
-            accessibilityLabel="Views"
-            items={views.map((v) => debuggerViewTabItem(v))}
-            selectedId={view}
-            onSelect={(id) => onViewChange(id as DebuggerViewId)}
+            aria-label="Views"
+            items={props.views.map((v) => debuggerViewTabItem(v))}
+            selectedId={props.view}
+            onSelect={(id) => props.onViewChange(id as DebuggerViewId)}
           />
         ) : null}
       </Box>
-      <Box sx={paneSx}>{children}</Box>
+      <Box sx={paneSx}>{props.children}</Box>
     </Box>
   );
 }
@@ -127,23 +109,24 @@ function KindChrome(props: {
   readonly kindTabs: readonly TabStripItem[];
   readonly kind: SimChromeKind;
   readonly onKindChange: (kind: SimChromeKind) => void;
-  readonly kindTrailing: ReactNode;
-}): ReactNode {
-  const { showStrip, kindTabs, kind, onKindChange, kindTrailing } = props;
-  if (showStrip) {
-    return (
-      <TabStrip
-        accessibilityLabel="Node kinds"
-        items={[...kindTabs]}
-        selectedId={kind}
-        onSelect={(id) => onKindChange(coerceSimChromeKind(id))}
-        keyboardScope
-        {...(kindTrailing !== undefined ? { trailing: kindTrailing } : {})}
-      />
-    );
-  }
-  if (kindTrailing === undefined) return null;
-  return <Box sx={trailingOnlySx}>{kindTrailing}</Box>;
+  readonly kindTrailing: JSX.Element;
+}): JSX.Element {
+  return (
+    <>
+      {props.showStrip ? (
+        <TabStrip
+          aria-label="Node kinds"
+          items={[...props.kindTabs]}
+          selectedId={props.kind}
+          onSelect={(id) => props.onKindChange(coerceSimChromeKind(id))}
+          keyboardScope
+          trailing={props.kindTrailing}
+        />
+      ) : props.kindTrailing === undefined ? null : (
+        <Box sx={trailingOnlySx}>{props.kindTrailing}</Box>
+      )}
+    </>
+  );
 }
 
 const shellSx = {

@@ -45,8 +45,8 @@ export type SecureStorageItem = {
 };
 
 /**
- * Reactive view over a single secure-storage key (Solid counterpart of the
- * React `useSecureStorageItem`). Kicks off `hydrate(key)` immediately; a read
+ * Reactive view over a single secure-storage key.
+ * Kicks off `hydrate(key)` immediately; a read
  * failure is treated as "absent" so consumers see `null`.
  */
 export function createSecureStorageItem(key: string): SecureStorageItem {

@@ -8,6 +8,8 @@ export const Handles = {
   statusCurrentUser: 'status-current-user',
   /** "Account" row inside the current-user avatar menu. */
   globalMenuAccount: 'global-menu-account',
+  /** "Settings" row inside the global menu (→ `/more`). */
+  globalMenuSettings: 'global-menu-settings',
   navBack: 'nav-back',
   tabProfile: 'tab-profile',
   tabSearch: 'tab-search',

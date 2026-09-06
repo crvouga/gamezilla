@@ -1,12 +1,12 @@
 /**
  * Typed codecs that translate between a TypeScript value and a single-row
- * {@link KvRecord} for {@link useKvState}.
+ * {@link KvRecord} for persisted state.
  *
  * Convention: each preference owns its own row keyed by a unique namespaced
  * {@link Keyword} (e.g. `ui.prefs/speaking-avatar-muted`) and stores its
  * scalar under a shared attribute key (`ui.prefs/value`). `decode` returns
  * `undefined` to signal "fall back to the hook's `default`" instead of
- * throwing — the React layer must stay tolerant of malformed persisted data.
+ * throwing - readers must stay tolerant of malformed persisted data.
  */
 import { hotAssert } from '@pkgs/assert';
 import type { Keyword } from '@pkgs/keyword/keyword';

@@ -1,4 +1,4 @@
-import { createContext, type ReactNode, useContext } from 'react';
+import { createContext, type JSX, useContext } from 'solid-js';
 
 export type SignInCapabilities = {
   readonly google: boolean;
@@ -23,14 +23,11 @@ const Ctx = createContext<SignInCapabilities>(DEFAULT_SIGN_IN_CAPABILITIES);
  * Optional integrations for the sign-in modal. Defaults to all off until a
  * parent provides values (typically from synced `client_config`).
  */
-export function SignInCapabilitiesProvider({
-  value,
-  children,
-}: {
+export function SignInCapabilitiesProvider(props: {
   readonly value: SignInCapabilities;
-  readonly children: ReactNode;
-}): ReactNode {
-  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
+  readonly children: JSX.Element;
+}): JSX.Element {
+  return <Ctx.Provider value={props.value}>{props.children}</Ctx.Provider>;
 }
 
 export function useSignInCapabilities(): SignInCapabilities {

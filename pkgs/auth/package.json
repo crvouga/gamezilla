@@ -37,8 +37,7 @@
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/uuid": "workspace:*",
-    "hono": "catalog:",
-    "react": "catalog:"
+    "hono": "catalog:"
   },
   "devDependencies": {
     "@pkgs/logger": "workspace:*",
@@ -47,12 +46,8 @@
     "@pkgs/sql-client-postgres": "workspace:*",
     "@pkgs/sql-client-sqlite": "workspace:*",
     "@types/bun": "catalog:",
-    "@types/react": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
     "typescript": "catalog:"
-  },
-  "peerDependencies": {
-    "react": "catalog:"
   }
 }

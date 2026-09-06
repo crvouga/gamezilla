@@ -32,12 +32,10 @@ function extraOf(session: { readonly ports: object }): ProductExtra {
 }
 
 function canSeedFromNodeFs(): boolean {
-  return (
-    typeof process !== 'undefined' &&
-    typeof process.versions === 'object' &&
-    process.versions != null &&
-    typeof process.versions.node === 'string'
-  );
+  if (typeof process === 'undefined') return false;
+  // Browser `process` shims may omit `versions`; widen past the Node typings.
+  const shim: { readonly versions?: { readonly node?: unknown } } = process;
+  return typeof shim.versions?.node === 'string';
 }
 
 async function maybeSeedSimChessPuzzles(sqlClient: {
@@ -58,8 +56,8 @@ async function captureActorHtml(
   s: ProductSim
 ): Promise<Record<string, string> | null> {
   const extra = extraOf(s.session);
-  if (extra.ui.kind === 'react-tree' && extra.ui.rntl !== undefined) {
-    const snapshots = await extra.ui.rntl.snapshotAllActors({
+  if (extra.ui.kind === 'solid-dom' && extra.ui.session !== undefined) {
+    const snapshots = await extra.ui.session.snapshotAllActors({
       stylesheetHref: FRAME_STYLESHEET_HREF,
     });
     if (snapshots.size === 0) return null;
@@ -81,7 +79,8 @@ export const noErrorBoundaryAnyActor = defineProperty(
  * Focused UI must expose the global action menu trigger
  * (`Handles.statusCurrentUser`) — including inside an active space on compact.
  *
- * In-process RNTL parks non-focused actors, so only the active tree is probed.
+ * The in-process Solid DOM session parks non-focused actors, so only the
+ * active tree is probed.
  * Bun-webview actors each own a window and are all checked.
  */
 export const globalActionMenuAlwaysVisible = defineProperty({
@@ -89,8 +88,8 @@ export const globalActionMenuAlwaysVisible = defineProperty({
   check: async (s: ProductSim) => {
     const extra = productExtra(s);
     const activeId =
-      extra.ui.kind === 'react-tree'
-        ? extra.ui.rntl?.activeActorId()
+      extra.ui.kind === 'solid-dom'
+        ? extra.ui.session?.activeActorId()
         : undefined;
     const missing: string[] = [];
     for (const [id, handle] of s.actors) {
@@ -116,8 +115,8 @@ export const searchDoesNotHang = defineProperty({
   check: async (s: ProductSim) => {
     const extra = productExtra(s);
     const activeId =
-      extra.ui.kind === 'react-tree'
-        ? extra.ui.rntl?.activeActorId()
+      extra.ui.kind === 'solid-dom'
+        ? extra.ui.session?.activeActorId()
         : undefined;
     for (const [id, handle] of s.actors) {
       if (activeId !== undefined && id !== activeId) continue;

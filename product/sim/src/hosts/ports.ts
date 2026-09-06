@@ -1,18 +1,20 @@
-import type { MultiAppRntlSession } from '@pkgs/ui-testing-rntl';
+import type { MultiAppSolidDomSession } from '@pkgs/ui-testing-solid-dom';
 import type { SimSql } from '@product/sim/fabric/sim-sql';
 
 export const SIM_START_MS = Date.parse('2024-06-01T00:00:00.000Z');
 
 /**
  * UI adapter for a registered product host.
- * - `react-tree` — in-process React App (RNTL in tests; embedded App in playground)
+ * - `solid-dom` — in-process Solid App rendered into a DOM (happy-dom in
+ *   bun:test via `MultiAppSolidDomSession`; the live browser document in the
+ *   playground, where the console mounts `live.App` itself)
  * - `bun-webview` — Bun.WebView per actor against localhost web + API
  */
 export type ProductUi =
   | {
-      readonly kind: 'react-tree';
-      /** Present in bun:test / RNTL tests; omitted in playground / Expo. */
-      readonly rntl?: MultiAppRntlSession;
+      readonly kind: 'solid-dom';
+      /** Present in bun:test (happy-dom); omitted in the playground. */
+      readonly session?: MultiAppSolidDomSession;
       readonly runFor: (durationMs: number) => Promise<void>;
     }
   | {

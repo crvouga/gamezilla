@@ -6,7 +6,7 @@ import {
   RadioIcon,
   type TabStripItem,
   TerminalIcon,
-} from '@pkgs/ui-rn';
+} from '@pkgs/ui';
 
 import type { DebuggerViewId } from '../shared/debugger-views';
 import {

@@ -8,6 +8,6 @@ function readPort(name: string, fallback: number): number {
 }
 
 killListenersOnPorts([
-  readPort('EXPO_METRO_PORT', 5173),
+  8081, // vite.config.mts dev server
   readPort('PREVIEW_PORT', 5173),
 ]);

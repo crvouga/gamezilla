@@ -59,12 +59,10 @@ export async function listenSimHttpServer(sim: Sim): Promise<SimHttpListener> {
     },
   });
   const apiUrl = server.url.origin;
-  process.env['EXPO_PUBLIC_API_URL'] = apiUrl;
+  process.env['VITE_API_URL'] = apiUrl;
   return {
     apiUrl,
-    async stop() {
-      server.stop(true);
-    },
+    stop: () => server.stop(true),
   };
 }
 

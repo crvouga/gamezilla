@@ -1,0 +1,23 @@
+/* Close affordance reveal: hidden on inactive tabs until the tab is hovered
+   or focused; always visible on the active tab and on touch-only devices.
+   `pointer-events: none` while hidden so a stray tap never closes. */
+
+.close {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--ui-duration-fast) var(--ui-easing-standard);
+}
+
+.shell:hover .close,
+.shell:focus-within .close,
+.shell.active .close {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (hover: none) {
+  .close {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}

@@ -9,7 +9,7 @@
  * The allowlist must be empty (and this comment stale) when Phase 5 closes.
  */
 import { spawnSync } from 'node:child_process';
-import { readFileSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
 const REPO_ROOT = join(import.meta.dirname, '../..');
@@ -133,6 +133,8 @@ function main(): void {
     if (selfPath(rel)) continue;
     if (isAllowlisted(rel, allowlist.prefixes, scope)) continue;
     const abs = join(REPO_ROOT, rel);
+    // `git ls-files` still lists files deleted in the worktree but not yet staged.
+    if (!existsSync(abs)) continue;
     if (statSync(abs).size > 4 * 1024 * 1024) continue;
     scanned++;
     for (const hit of scanText(readFileSync(abs, 'utf8'))) {

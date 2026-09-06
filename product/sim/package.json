@@ -27,7 +27,6 @@
     "tc": "tsc --noEmit -p ./tsconfig.json"
   },
   "dependencies": {
-    "@pkgs/chess-board-core": "workspace:*",
     "@apps/client": "workspace:*",
     "@apps/room-server": "workspace:*",
     "@apps/server": "workspace:*",
@@ -40,6 +39,7 @@
     "@pkgs/auth": "workspace:*",
     "@pkgs/billing": "workspace:*",
     "@pkgs/chess-board": "workspace:*",
+    "@pkgs/chess-board-core": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/emqx-server": "workspace:*",
     "@pkgs/http-client": "workspace:*",
@@ -58,7 +58,6 @@
     "@pkgs/secure-storage-web": "workspace:*",
     "@pkgs/sim": "workspace:*",
     "@pkgs/sim-console": "workspace:*",
-    "@pkgs/sounds": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sql-client-postgres": "workspace:*",
@@ -66,18 +65,14 @@
     "@pkgs/sql-client-sqlite": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
     "@pkgs/tts": "workspace:*",
-    "@pkgs/ui-rn": "workspace:*",
     "@pkgs/ui-testing": "workspace:*",
-    "@pkgs/ui-testing-rntl": "workspace:*",
+    "@pkgs/ui-testing-solid-dom": "workspace:*",
     "@pkgs/uuid": "workspace:*",
-    "better-sqlite3": "catalog:",
-    "react": "catalog:",
-    "react-native": "catalog:"
+    "better-sqlite3": "catalog:"
   },
   "devDependencies": {
     "@types/better-sqlite3": "catalog:",
     "@types/bun": "catalog:",
-    "@types/react": "catalog:",
     "typescript": "catalog:"
   }
 }

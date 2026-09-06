@@ -2,6 +2,10 @@
   "name": "@pkgs/chess-board",
   "version": "0.0.0",
   "private": true,
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "type": "module",
   "exports": {
     "./*": [
       "./src/*.ts",
@@ -12,41 +16,27 @@
   "scripts": {
     "lint": "bunx biome check --error-on-warnings .",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test --preload ./bun-babel-plugin.ts --preload ./bun-preload.ts --timeout 30000 tests"
+    "test": "vitest run"
   },
   "dependencies": {
-    "@pkgs/chess-board-core": "workspace:*",
     "@lingui/core": "catalog:",
-    "@lingui/react": "catalog:",
-    "@pkgs/assert": "workspace:*",
+    "@lingui/solid": "catalog:",
+    "@pkgs/chess-board-core": "workspace:*",
     "@pkgs/clock": "workspace:*",
-    "@pkgs/http-client": "workspace:*",
+    "@pkgs/solid-context": "workspace:*",
     "@pkgs/sounds": "workspace:*",
-    "@pkgs/ui-rn": "workspace:*",
-    "@pkgs/ui-testing": "workspace:*",
-    "@shopify/react-native-skia": "catalog:",
-    "chess.js": "catalog:",
-    "expo-haptics": "catalog:",
-    "react": "catalog:",
-    "react-native": "catalog:",
-    "react-native-gesture-handler": "catalog:",
-    "react-native-reanimated": "catalog:",
-    "react-native-screens": "catalog:",
-    "react-native-svg": "catalog:"
+    "@pkgs/ui": "workspace:*",
+    "solid-js": "catalog:"
   },
   "devDependencies": {
-    "@babel/core": "catalog:",
-    "@babel/runtime": "catalog:",
-    "@lingui/babel-plugin-lingui-macro": "catalog:",
-    "@pkgs/ui-testing-rntl": "workspace:*",
-    "@testing-library/react-native": "catalog:",
+    "@pkgs/vitest-solid": "workspace:*",
+    "@solidjs/testing-library": "catalog:",
+    "@testing-library/jest-dom": "catalog:",
+    "@testing-library/user-event": "catalog:",
     "@types/bun": "catalog:",
-    "@types/react": "catalog:",
-    "@types/react-test-renderer": "catalog:",
-    "@typescript/native": "catalog:",
-    "expo": "catalog:",
-    "react-native-worklets": "catalog:",
-    "react-test-renderer": "catalog:",
-    "typescript": "catalog:"
+    "happy-dom": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
   }
 }

@@ -1,4 +1,4 @@
-import type { ServerHttp } from '@apps/client/product/client-env';
+import type { ServerHttp } from '@apps/client/shell/client-env';
 import type { PlaygroundLogBuffer } from '@pkgs/sim-console/client';
 
 function requestMethod(input: RequestInfo | URL, init?: RequestInit): string {

@@ -1,8 +1,8 @@
 /**
  * JSON snapshot preview pane for headless / topology dumps.
  */
-import { Box, ScrollView, Text } from '@pkgs/ui-rn';
-import { useEffect, useState } from 'react';
+import { Box, ScrollView, Text } from '@pkgs/ui';
+import { createEffect, createMemo, createSignal, onCleanup, Match, Switch } from 'solid-js';
 
 import type { ReportApiClient } from './api-client';
 import type { FlatFrame } from './frames';
@@ -18,26 +18,26 @@ export function JsonPane(props: {
   readonly name?: string;
   readonly nodeId?: string | null;
 }) {
-  const file = resolveSnapshotFile(props.frame, {
+  const file = createMemo(() => resolveSnapshotFile(props.frame, {
     media: 'json',
     ...(props.name !== undefined ? { name: props.name } : {}),
     nodeId: props.nodeId ?? null,
-  });
-  const [text, setText] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  }));
+  const [text, setText] = createSignal<string | null>(null);
+  const [error, setError] = createSignal<string | null>(null);
 
-  useEffect(() => {
-    if (file == null) {
-      setText(null);
-      setError(null);
-      return;
-    }
+  createEffect(() => {
+    const selectedFile = file();
+    setText(null);
+    setError(null);
+    if (selectedFile == null) return;
     let cancelled = false;
+    onCleanup(() => { cancelled = true; });
     const url = props.api.testFrameUrl(
       props.bucketId,
       props.runId,
       props.testId,
-      file
+      selectedFile
     );
     void props.api
       .fetch(url)
@@ -60,35 +60,23 @@ export function JsonPane(props: {
         setText(null);
         setError(e instanceof Error ? e.message : String(e));
       });
-    return () => {
-      cancelled = true;
-    };
-  }, [file, props.api, props.bucketId, props.runId, props.testId]);
+  });
 
-  if (file == null) {
-    return (
+  return <Switch fallback={
+    <ScrollView frameSx={paneSx} sx={{ padding: 12 }}>
+      <Text sx={{ fontFamily: 'monospace', fontSize: 12, color: 'text' }}
+        label={text() ?? 'Loading...'} />
+    </ScrollView>
+  }>
+    <Match when={file() == null}>
       <Box sx={paneSx}>
         <Text sx={emptySx}>No JSON snapshot on this frame.</Text>
       </Box>
-    );
-  }
-  if (error != null) {
-    return (
+    </Match>
+    <Match when={error() != null}>
       <Box sx={paneSx}>
-        <Text sx={emptySx}>{error}</Text>
+        <Text sx={emptySx}>{error()}</Text>
       </Box>
-    );
-  }
-  return (
-    <ScrollView frameSx={paneSx} sx={{ padding: 12 }}>
-      <Text
-        sx={{
-          fontFamily: 'monospace',
-          fontSize: 12,
-          color: 'text',
-        }}
-        label={text ?? 'Loading…'}
-      />
-    </ScrollView>
-  );
+    </Match>
+  </Switch>;
 }

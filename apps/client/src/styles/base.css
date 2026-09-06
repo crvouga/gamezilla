@@ -46,3 +46,60 @@ select {
   font: inherit;
   color: inherit;
 }
+
+/* Safe-area inset for shell chrome (chrome/app-tab-bar.tsx). A class because
+   happy-dom and some inline-style sanitizers drop `env()` values. */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Root crash UI (shell/root-error-boundary.tsx): must not depend on theme. */
+.crash-root {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px;
+  overflow: auto;
+  background: #1a0d0d;
+  color: #ffd6d6;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.crash-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #ff8a8a;
+}
+
+.crash-message {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.crash-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.crash-copy {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #ff8a8a;
+  background: #2a1212;
+  color: #ff8a8a;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.crash-copy:active {
+  background: #3a1a1a;
+  opacity: 0.85;
+}

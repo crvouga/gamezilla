@@ -1,4 +1,5 @@
-import { useQuery } from '@pkgs/sync-engine/client';
+import { createQuery } from '@pkgs/sync-engine/solid';
+import { createMemo } from 'solid-js';
 import {
   type ClientConfigDbRow,
   type ClientRuntimeConfig,
@@ -19,13 +20,21 @@ export function useClientConfig(): {
   readonly rows: readonly ClientConfigDbRow[];
   readonly isLoading: boolean;
 } {
-  const { rows, isLoading } = useQuery(clientConfigRowsQuery());
-  if (rows.length === 0) {
-    return { config: DEFAULT_CLIENT_RUNTIME_CONFIG, rows, isLoading };
-  }
+  const query = createQuery(clientConfigRowsQuery);
+  const config = createMemo(() =>
+    query.rows().length === 0
+      ? DEFAULT_CLIENT_RUNTIME_CONFIG
+      : parseClientConfigRows(query.rows())
+  );
   return {
-    config: parseClientConfigRows(rows),
-    rows,
-    isLoading,
+    get config() {
+      return config();
+    },
+    get rows() {
+      return query.rows();
+    },
+    get isLoading() {
+      return query.isLoading();
+    },
   };
 }

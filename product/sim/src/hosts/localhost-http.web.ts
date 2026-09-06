@@ -8,6 +8,6 @@ export type SimHttpListener = {
 export const ACTOR_HEADER = 'x-sim-actor';
 
 /** Expo web cannot bind Bun.serve — use Node host / bun-webview sidecar. */
-export async function listenSimHttpServer(_sim: Sim): Promise<SimHttpListener> {
-  throw new Error('listenSimHttpServer is Node-only');
+export function listenSimHttpServer(_sim: Sim): Promise<SimHttpListener> {
+  return Promise.reject(new Error('listenSimHttpServer is Node-only'));
 }

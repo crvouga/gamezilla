@@ -1,23 +1,19 @@
-import { releaseWebFocus } from '@pkgs/ui-rn';
+import { createSignal, onCleanup } from 'solid-js';
 import {
   applyConsoleNavPatch,
   buildConsoleSearch,
   type ConsoleNavPatch,
   type ConsoleNavState,
   consoleNavEqual,
-  DEFAULT_CONSOLE_NAV,
   parseConsoleNav,
-} from '@product/console/console-nav/console-nav';
+} from './console-nav';
 import {
   type ConsoleNavHistoryMode,
-  isConsoleNavWeb,
-  readConsoleNavFromPopState,
   readConsoleNavSearch,
+  releaseConsoleFocus,
   subscribeConsoleNavPopState,
   writeConsoleNavUrl,
-} from '@product/console/console-nav/console-nav-real';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Platform } from 'react-native';
+} from './console-nav-real';
 
 export type UseConsoleNavResult = {
   readonly state: ConsoleNavState;
@@ -27,55 +23,35 @@ export type UseConsoleNavResult = {
   ) => void;
 };
 
-function initialConsoleNav(): ConsoleNavState {
-  if (Platform.OS !== 'web' || !isConsoleNavWeb()) return DEFAULT_CONSOLE_NAV;
-  return parseConsoleNav(readConsoleNavSearch());
-}
-
-/**
- * Console chrome selection synced to the browser URL on web (push/replace +
- * popstate). Native keeps the same React state without history I/O.
- */
+/** Property-shaped reactive state; URL is authoritative for back/forward. */
 export function useConsoleNav(): UseConsoleNavResult {
-  const [state, setState] = useState(initialConsoleNav);
-  const stateRef = useRef(state);
-  stateRef.current = state;
-
-  useEffect(() => {
-    if (Platform.OS !== 'web' || !isConsoleNavWeb()) return;
-    const boot = parseConsoleNav(readConsoleNavSearch());
-    writeConsoleNavUrl(
-      buildConsoleSearch(boot, readConsoleNavSearch()),
-      boot,
-      'replace'
-    );
-    return subscribeConsoleNavPopState((event) => {
-      const fromState = readConsoleNavFromPopState(event);
-      if (fromState !== null) {
-        setState(fromState);
-        return;
-      }
+  const [state, setState] = createSignal(
+    parseConsoleNav(readConsoleNavSearch())
+  );
+  writeConsoleNavUrl(
+    buildConsoleSearch(state(), readConsoleNavSearch()),
+    state(),
+    'replace'
+  );
+  onCleanup(
+    subscribeConsoleNavPopState(() => {
       setState(parseConsoleNav(readConsoleNavSearch()));
-    });
-  }, []);
-
-  const patch = useCallback(
-    (partial: ConsoleNavPatch, mode: ConsoleNavHistoryMode = 'push') => {
-      const next = applyConsoleNavPatch(stateRef.current, partial);
-      if (consoleNavEqual(stateRef.current, next)) return;
-      releaseWebFocus();
-      if (Platform.OS === 'web' && isConsoleNavWeb()) {
-        writeConsoleNavUrl(
-          buildConsoleSearch(next, readConsoleNavSearch()),
-          next,
-          mode
-        );
-      }
-      stateRef.current = next;
+    })
+  );
+  return {
+    get state() {
+      return state();
+    },
+    patch(partial, mode = 'push') {
+      const next = applyConsoleNavPatch(state(), partial);
+      if (consoleNavEqual(state(), next)) return;
+      releaseConsoleFocus();
+      writeConsoleNavUrl(
+        buildConsoleSearch(next, readConsoleNavSearch()),
+        next,
+        mode
+      );
       setState(next);
     },
-    []
-  );
-
-  return { state, patch };
+  };
 }

@@ -1,5 +1,3 @@
-import { useCallback } from 'react';
-
 import { useAuthClientPort } from './auth-client-provider';
 import type { SignInTriggerResult } from './sign-in-trigger';
 
@@ -13,15 +11,15 @@ export function useSignIn(): {
 } {
   const port = useAuthClientPort();
 
-  const signInWithGoogle = useCallback(async () => {
+  const signInWithGoogle = async () => {
     await port.signIn('oauth-google');
     return 'completed' as const;
-  }, [port]);
+  };
 
-  const signInWithDev = useCallback(async () => {
+  const signInWithDev = async () => {
     await port.signIn('oauth-dev');
     return 'completed' as const;
-  }, [port]);
+  };
 
   return { signInWithGoogle, signInWithDev };
 }

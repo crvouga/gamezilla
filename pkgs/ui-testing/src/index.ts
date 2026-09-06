@@ -3,18 +3,15 @@
  *
  * Primary surface:
  * - {@link Driver} / {@link DriverNode} (`tap`, `wait`, nested `expect.*`)
- * - {@link AppHarness} bootstrap port
+ * - {@link RenderedApp} mounted-tree port
  * - selector / explore / wait primitives
  *
- * Drivers ship as their own packages (`@pkgs/ui-testing-rntl`,
- * `@pkgs/ui-testing-bun-webview`, `@pkgs/ui-testing-detox`) so a suite only
- * loads the platform it drives. Suites run under `bun:test`.
+ * Drivers ship as their own packages (`@pkgs/ui-testing-solid-dom`,
+ * `@pkgs/ui-testing-bun-webview`) so a suite only loads the platform it drives.
  */
 
-export type { AppHarness } from './bootstrap/app-harness';
 export type {
   HostNode,
-  RenderAdapter,
   RenderedApp,
 } from './bootstrap/render-adapter';
 export {

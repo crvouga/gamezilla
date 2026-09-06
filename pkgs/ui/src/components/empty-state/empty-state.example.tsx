@@ -1,0 +1,58 @@
+/** @jsxImportSource solid-js */
+import type { JSX } from 'solid-js';
+import { Box } from '../box';
+import { Card } from '../card';
+import { Divider } from '../divider';
+import { ExampleRoot } from '../explorer/example-root';
+import { SchemePreview } from '../explorer/scheme-preview';
+import { HouseIcon } from '../icons';
+import { Text } from '../text';
+import { EmptyState } from './empty-state';
+
+export default function EmptyStateExample(): JSX.Element {
+  return (
+    <ExampleRoot>
+      <Text variant="label" sx={{ color: 'textSecondary' }} label="Fill" />
+      <SchemePreview>
+        <Box sx={{ height: 280 }}>
+          <EmptyState
+            icon={HouseIcon}
+            title="No live spaces"
+            body="Tap + New space to start one."
+            action={{ label: '+ New space', onClick: () => undefined }}
+          />
+        </Box>
+      </SchemePreview>
+
+      <Divider />
+
+      <Text
+        variant="label"
+        sx={{ color: 'textSecondary' }}
+        label="Compact, no icon"
+      />
+      <SchemePreview>
+        <Card elevation={0}>
+          <EmptyState
+            variant="compact"
+            title="No matching commands"
+            body="Try a different search term."
+          />
+        </Card>
+      </SchemePreview>
+
+      <Divider />
+
+      <Text
+        variant="label"
+        sx={{ color: 'textSecondary' }}
+        label="Title only (list footer)"
+      />
+      <SchemePreview>
+        <Card elevation={0}>
+          <EmptyState variant="compact" title="No rows match filter." />
+        </Card>
+      </SchemePreview>
+    </ExampleRoot>
+  );
+}

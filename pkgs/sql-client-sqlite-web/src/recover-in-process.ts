@@ -1,36 +1,28 @@
 import type { Timers } from '@pkgs/clock';
-import { clearExpoSqliteWebOpfsBestEffort } from '@pkgs/sql-client-sqlite/clear-expo-sqlite-web-opfs';
-import { sleepMs } from '@pkgs/sql-client-sqlite/expo-sqlite-core';
+import type { SqlClient } from '@pkgs/sql-client/interface';
+import { openWithWaitRetry, sleepMs } from './open-retry';
 import {
   SQL_DB_HOST_PROTOCOL_VERSION,
   sqlDbHostSharedWorkerName,
 } from './sql-db-host-protocol';
-import type { SqlOwner } from './sql-owner';
-import { isSqlOwnerWipeWorthyError } from './sql-owner';
+import { isSqlOwnerWipeWorthyError, type SqlOwner } from './sql-owner';
+import { OPFS_SAH_POOL_ROOT } from './sqlite-worker/opfs-sah-pool-backend';
 
 export const DEFAULT_DB_HOST_SHARED_WORKER_URL =
   '/sql-workers/db-host-shared-worker.js';
 
+/**
+ * Same-origin channel so web OPFS recovery can ask live tabs to drop handles.
+ * Peers listen in `web-sql-client.ts` and disconnect their owner on
+ * `prepare-wipe`, which terminates the dedicated sqlite-wasm worker and frees
+ * every OPFS sync access handle.
+ */
+export const OPFS_WIPE_CHANNEL = 'gamezilla-opfs-wipe';
+
 /** Must exceed broker FORCE_RELEASE_OWNER_WAIT_MS so owners can closeAsync. */
 const FORCE_RELEASE_WAIT_MS = 5_000;
 
-const PREPARE_WIPE_CHANNEL = 'gamezilla-opfs-wipe';
 const PREPARE_WIPE_ACK_MS = 2_000;
-
-export type RecoverInProcessOptions = {
-  readonly timers: Timers;
-  /** Close local owner / SQL client before wipe (best-effort). */
-  readonly closeLocal?: () => Promise<void>;
-  /** Wipe backing bytes after close (owner.resetStore / OPFS directory). */
-  readonly resetStore?: () => Promise<void>;
-  readonly sharedWorkerUrl?: string;
-  readonly protocolVersion?: number;
-  /**
-   * Ask peer tabs to drop their owners (BroadcastChannel). Peers should
-   * disconnect / destroy iframes — not navigate away.
-   */
-  readonly notifyPeers?: boolean;
-};
 
 /**
  * Tell the SharedWorker broker to force-release every DB owner slot.
@@ -85,7 +77,7 @@ async function notifyPeersToDropHandles(timers: Timers): Promise<void> {
   if (typeof BroadcastChannel === 'undefined') return;
   wipeRequestSeq += 1;
   const requestId = `wipe_${wipeRequestSeq}`;
-  const channel = new BroadcastChannel(PREPARE_WIPE_CHANNEL);
+  const channel = new BroadcastChannel(OPFS_WIPE_CHANNEL);
   try {
     channel.postMessage({ type: 'prepare-wipe', requestId });
     await sleepMs(timers, PREPARE_WIPE_ACK_MS);
@@ -110,86 +102,100 @@ async function closeLocalBudgeted(
   }
 }
 
+type OpfsGlobals = {
+  readonly navigator?: {
+    readonly storage?: {
+      readonly getDirectory?: () => Promise<{
+        readonly removeEntry: (
+          name: string,
+          options?: { readonly recursive?: boolean }
+        ) => Promise<void>;
+      }>;
+    };
+  };
+};
+
 /**
- * In-process recovery: peers drop handles → force-release SharedWorker →
- * close local owner (iframe teardown) → wipe store → done.
- * Never navigates. Product Window stays put.
+ * Drop every OPFS SAH pool under `sqlite-web/`. All owners must be released
+ * (peers disconnected + broker force-released) before this runs; the pool VFS
+ * holds sync access handles in its worker realm.
  */
-export async function recoverSqlOwnerInProcess(
-  opts: RecoverInProcessOptions
-): Promise<void> {
-  if (opts.notifyPeers !== false) {
-    await notifyPeersToDropHandles(opts.timers);
+export async function wipeOpfsSahPoolStores(): Promise<void> {
+  const global = globalThis as OpfsGlobals;
+  const getDirectory = global.navigator?.storage?.getDirectory;
+  if (typeof getDirectory !== 'function') return;
+  const root = await getDirectory();
+  const dirName = OPFS_SAH_POOL_ROOT.replace(/^\//, '');
+  try {
+    await root.removeEntry(dirName, { recursive: true });
+  } catch (error: unknown) {
+    if (!(error instanceof Error) || error.name !== 'NotFoundError') {
+      throw error;
+    }
   }
+}
+
+export type RunWebOpfsRecoveryOptions = {
+  readonly timers: Timers;
+  /** Ignored — kept for call-site compatibility. Recovery ends in a reload. */
+  readonly returnTo?: string;
+  /** Close local owner / SQL client before wipe (best-effort). */
+  readonly closeLocal?: () => Promise<void>;
+  readonly sharedWorkerUrl?: string;
+};
+
+/**
+ * User-initiated local DB wipe: peer tabs drop owners → broker force-releases →
+ * remove every OPFS SAH pool directory → reload the product Window.
+ */
+export async function runWebOpfsRecoveryAndReload(
+  opts: RunWebOpfsRecoveryOptions
+): Promise<void> {
+  await notifyPeersToDropHandles(opts.timers);
   await forceReleaseSharedWorkerOwners(
     opts.timers,
     opts.sharedWorkerUrl ?? DEFAULT_DB_HOST_SHARED_WORKER_URL,
-    opts.protocolVersion ?? SQL_DB_HOST_PROTOCOL_VERSION
+    SQL_DB_HOST_PROTOCOL_VERSION
   );
   if (opts.closeLocal !== undefined) {
     await closeLocalBudgeted(opts.timers, opts.closeLocal);
   }
-  if (opts.resetStore !== undefined) {
-    await opts.resetStore();
-  } else {
-    const wiped = await clearExpoSqliteWebOpfsBestEffort();
-    if (!wiped.ok) {
-      throw new Error(
-        'Failed to wipe expo-sqlite OPFS directory after releasing owners',
-        { cause: wiped.error }
-      );
-    }
+  await wipeOpfsSahPoolStores();
+  if (typeof window !== 'undefined' && typeof window.location !== 'undefined') {
+    window.location.reload();
+    await new Promise<void>(() => {});
   }
 }
 
-/**
- * Open via {@link SqlOwner}: on wipe-worthy failure, recover in-process once
- * and reopen. Returns a fresh empty cache when recovery ran.
- */
+/** Recover only the owned database, without releasing its broker slot. */
 export async function openSqlOwnerWithRecovery(args: {
+  readonly dbName: string;
   readonly owner: SqlOwner;
   readonly timers: Timers;
-  readonly sharedWorkerUrl?: string;
-  readonly notifyPeers?: boolean;
-  /** Optional post-open migrate; wipe-worthy failures also trigger recovery. */
-  readonly migrate?: (
-    client: import('@pkgs/sql-client/interface').SqlClient
-  ) => Promise<void>;
-}): Promise<import('@pkgs/sql-client/interface').SqlClient> {
-  const tryOnce = async () => {
-    const client = await args.owner.open();
-    if (args.migrate !== undefined) {
-      await args.migrate(client);
-    }
-    return client;
-  };
-
-  try {
-    return await tryOnce();
-  } catch (first: unknown) {
-    if (!isSqlOwnerWipeWorthyError(first)) throw first;
-    await recoverSqlOwnerInProcess({
+  readonly migrate: (client: SqlClient) => Promise<void>;
+}): Promise<SqlClient> {
+  const open = () =>
+    openWithWaitRetry({
+      databaseName: args.dbName,
       timers: args.timers,
-      closeLocal: () => args.owner.close(),
-      resetStore: () => args.owner.resetStore(),
-      ...(args.sharedWorkerUrl !== undefined
-        ? { sharedWorkerUrl: args.sharedWorkerUrl }
-        : {}),
-      ...(args.notifyPeers !== undefined
-        ? { notifyPeers: args.notifyPeers }
-        : {}),
+      openOnce: async () => {
+        try {
+          const client = await args.owner.open();
+          await args.migrate(client);
+          return client;
+        } catch (error: unknown) {
+          await args.owner.close();
+          throw error;
+        }
+      },
     });
-    try {
-      return await tryOnce();
-    } catch (second: unknown) {
-      throw new Error(
-        `SQLite could not open after in-process wipe (${
-          second instanceof Error ? second.message : String(second)
-        })`,
-        { cause: second }
-      );
-    }
+  try {
+    return await open();
+  } catch (error: unknown) {
+    await args.owner.close();
+    // Contention is not corruption. Never erase a database held by another owner.
+    if (!isSqlOwnerWipeWorthyError(error)) throw error;
+    await args.owner.resetStore();
+    return open();
   }
 }
-
-export { PREPARE_WIPE_CHANNEL };

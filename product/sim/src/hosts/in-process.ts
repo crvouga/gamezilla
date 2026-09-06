@@ -3,6 +3,7 @@ import type { Clock } from '@pkgs/clock';
 import { wallClock } from '@pkgs/clock';
 import type { Ports, Runtime } from '@pkgs/sim';
 import { virtualTimeRuntime } from '@pkgs/sim';
+import type { MultiAppSolidDomSession } from '@pkgs/ui-testing-solid-dom';
 import {
   openFreshSimServerSql,
   openSimServerSqlFromSeedBytes,
@@ -10,21 +11,17 @@ import {
 } from '@product/sim/fabric/sim-sql';
 
 import { createSerializedRunFor } from '../setup/sim-wait-pump';
-import { loadRntlSessionFactory } from './in-process-rntl';
+import { loadSolidDomSessionFactory } from './in-process-dom';
 import { type ProductExtra, SIM_START_MS } from './ports';
 
 // @io-wall-ok — host factory; wallClock only when skipSeed (playground).
 
-type MultiAppRntlSession = ReturnType<
-  ReturnType<typeof loadRntlSessionFactory>
->;
-
 export type InProcessRuntimeOptions = {
   /**
-   * Attach MultiAppRntlSession for bun:test / RNTL tests.
-   * Default: true when `SIM_WITH_RNTL=1` or bun:test, else false (playground / Expo).
+   * Attach a `MultiAppSolidDomSession` (happy-dom) for bun:test scenarios.
+   * Default: true when `SIM_WITH_DOM=1` or bun:test, else false (playground).
    */
-  readonly withRntl?: boolean;
+  readonly withDom?: boolean;
   /** Override start time (playground uses wallClock.now()). */
   readonly startTime?: number;
   /** Inject server SQL. */
@@ -36,14 +33,12 @@ export type InProcessRuntimeOptions = {
   readonly skipSeed?: boolean;
 };
 
-function defaultWithRntl(): boolean {
-  return (
-    process.env['SIM_WITH_RNTL'] === '1' || process.env['BUN_TEST'] === '1'
-  );
+function defaultWithDom(): boolean {
+  return process.env['SIM_WITH_DOM'] === '1' || process.env['BUN_TEST'] === '1';
 }
 
 async function openSeededServerSql(clock: Clock): Promise<SimSql> {
-  // Lazy: Node seed modules use `__dirname` / node:fs — never load in Expo web.
+  // Lazy: Node seed modules use `__dirname` / node:fs — never load in the web bundle.
   const { ensureSimPostgresMemSeed } = await import(
     '../setup/boot-sim-postgres-mem'
   );
@@ -68,13 +63,13 @@ async function openMigratedFreshServerSql(clock: Clock): Promise<SimSql> {
 }
 
 /**
- * In-process product host: virtual time, model network, react-tree UI.
+ * In-process product host: virtual time, model network, Solid DOM UI.
  */
 export function inProcessRuntime(
   opts?: InProcessRuntimeOptions
 ): Runtime<Ports & ProductExtra> {
-  const withRntl = opts?.withRntl ?? defaultWithRntl();
-  const skipSeed = opts?.skipSeed ?? !defaultWithRntl();
+  const withDom = opts?.withDom ?? defaultWithDom();
+  const skipSeed = opts?.skipSeed ?? !defaultWithDom();
   const startTime =
     opts?.startTime ?? (skipSeed ? wallClock.now() : SIM_START_MS);
   let runFor: ((durationMs: number) => Promise<void>) | null = null;
@@ -94,19 +89,18 @@ export function inProcessRuntime(
     },
   }).with(async (session) => {
     const sql =
-      opts?.serverSql !== undefined
-        ? opts.serverSql
-        : skipSeed
-          ? await openMigratedFreshServerSql(session.ports.clock)
-          : await openSeededServerSql(session.ports.clock);
+      opts?.serverSql ??
+      (skipSeed
+        ? await openMigratedFreshServerSql(session.ports.clock)
+        : await openSeededServerSql(session.ports.clock));
     const drainServerHttp: { current: () => Promise<void> } = {
-      current: async () => undefined,
+      current: () => Promise.resolve(),
     };
     runFor = createSerializedRunFor(session.scheduler.underlying, {
       after: () => drainServerHttp.current(),
     });
-    const rntl: MultiAppRntlSession | undefined = withRntl
-      ? loadRntlSessionFactory()({
+    const domSession: MultiAppSolidDomSession | undefined = withDom
+      ? (await loadSolidDomSessionFactory())({
           onActorFocus: () => {
             void runFor?.(1_000).catch(() => undefined);
           },
@@ -115,8 +109,8 @@ export function inProcessRuntime(
     return {
       sql,
       ui: {
-        kind: 'react-tree' as const,
-        ...(rntl !== undefined ? { rntl } : {}),
+        kind: 'solid-dom' as const,
+        ...(domSession !== undefined ? { session: domSession } : {}),
         runFor,
       },
       http: { kind: 'in-process' as const },

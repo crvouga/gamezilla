@@ -3,7 +3,7 @@ import type { SecureStorage } from './interface';
 type Listener = () => void;
 
 /**
- * Per-app in-memory mirror of {@link SecureStorage} keys for React sync
+ * Per-app in-memory mirror of {@link SecureStorage} keys for synchronous
  * snapshots. Owned by context — not a module singleton — so tests and
  * identity switches cannot leak values via global getters.
  */
@@ -43,7 +43,7 @@ export class SecureStorageStore {
 
   /**
    * Updates the in-memory mirror and notifies subscribers before any disk I/O.
-   * Use when a render mints a value that other React readers must see now.
+   * Use when a value changes that other subscribers must see immediately.
    */
   setValue(key: string, value: string | null): void {
     this.values.set(key, value);
@@ -97,4 +97,13 @@ export function createSecureStorageStore(
   storage: SecureStorage
 ): SecureStorageStore {
   return new SecureStorageStore(storage);
+}
+
+/** Updates the store mirror before awaiting persistent storage I/O. */
+export async function writeSecureStorageItem(
+  store: SecureStorageStore,
+  key: string,
+  value: string | null
+): Promise<void> {
+  await store.write(key, value);
 }

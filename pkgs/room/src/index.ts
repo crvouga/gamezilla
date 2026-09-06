@@ -2,7 +2,7 @@
  * `@pkgs/room` — server-authoritative sessions + optimistic client queue.
  *
  * This entrypoint exposes only the **core** client surface: the {@link RoomClient}
- * engine, its React binding, the wire protocol helpers, and the abstract
+ * engine, the wire protocol helpers, and the abstract
  * ports (`ClientTransport`, `ClientRoomStorage`) that any adapter must
  * satisfy. Adapters (browser WebSocket, in-memory storage, `localStorage`,
  * async key-value storage, etc.) live in their own packages so callers
@@ -10,10 +10,10 @@
  *
  * - `@pkgs/room-adapter-web` — browser WebSocket + `localStorage`.
  * - `@pkgs/room-adapter-memory` — in-process storage + loopback transport.
- * - `@pkgs/room/client/adapters/storage/key-value` — async KV (web +
- *   React Native AsyncStorage).
+ * - `@pkgs/room/client/adapters/storage/key-value` - async KV storage.
  *
- * Server entry: `@pkgs/room/server`. Test helpers: `@pkgs/room-sim`.
+ * Solid bindings: `@pkgs/room/solid`. Server: `@pkgs/room/server`.
+ * Test helpers: `@pkgs/room-sim`.
  *
  * Adding a new transport (WebRTC, SSE, …) or storage backend (SQLite,
  * IndexedDB, …) means dropping a new `@pkgs/room-adapter-*` package —
@@ -35,24 +35,6 @@ export type {
   ClientTransport,
   ClientTransportHandlers,
 } from './client/core/transport';
-export {
-  type AnyRoomClient,
-  RoomClientsProvider,
-  useRoomFromRegistry,
-} from './client/react/room-clients-context';
-export {
-  useNamedRoomLog,
-  useNamedRoomRoster,
-  useRoomDispatch,
-  useRoomSelector,
-} from './client/react/use-room-registry-hooks';
-export {
-  EMPTY_ROOM_STATE,
-  useRoomLog,
-  useRoomRoster,
-  useRoomSnapshot,
-  useRoomSnapshotSelector,
-} from './client/react/use-room-snapshot';
 export {
   CancelScheduleEffect,
   ROOM_SCHEDULER_IDENTITY,

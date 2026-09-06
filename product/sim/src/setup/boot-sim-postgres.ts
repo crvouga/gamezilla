@@ -12,18 +12,18 @@ export type SimPostgresHandle = {
   stop(): Promise<void>;
 };
 
-export async function bootSimPostgres(): Promise<SimPostgresHandle> {
+export function bootSimPostgres(): Promise<SimPostgresHandle> {
   const dbScope = appPostgresDbScope();
   const { pool, sqlClient } = createPgPool({
     connectionString: LOCAL_DATABASE_URL,
     dbScope,
     max: 4,
   });
-  return {
+  return Promise.resolve({
     sqlClient,
     databaseUrl: LOCAL_DATABASE_URL,
     async stop() {
       await pool.end();
     },
-  };
+  });
 }

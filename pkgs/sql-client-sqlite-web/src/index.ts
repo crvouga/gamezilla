@@ -1,26 +1,8 @@
-export { RESET_DB_QUERY_PARAM } from '@pkgs/sql-client-sqlite/opfs-recover-url';
-export {
-  createExpoWebSqlClient,
-  type ExpoWebSqlClient,
-  type ExpoWebSqlClientOptions,
-} from './impl-expo-web-client';
-export {
-  consumeResetDbQueryParamAndRecover,
-  DEFAULT_DB_HOST_SHARED_WORKER_URL,
-  forceReleaseSharedWorkerOwners,
-  type RunWebOpfsRecoveryOptions,
-  recoverSqlOwnerInProcess,
-  runWebOpfsRecoveryAndReload,
-} from './opfs-recover';
 export {
   type CreateOwnerRuntimeArgs,
   createOwnerRuntime,
   type OwnerRuntime,
 } from './owner-runtime';
-export {
-  createExpoIframeSqlOwner,
-  DEFAULT_SQL_HOST_URL,
-} from './owners/expo-iframe-sql-owner';
 export { createMemorySqlOwner } from './owners/memory-sql-owner';
 export {
   corruptSimOpfsStore,
@@ -29,6 +11,14 @@ export {
   fillSimOpfsPool,
   type SimOpfsStore,
 } from './owners/sim-opfs-sql-owner';
+export {
+  DEFAULT_DB_HOST_SHARED_WORKER_URL,
+  forceReleaseSharedWorkerOwners,
+  openSqlOwnerWithRecovery,
+  type RunWebOpfsRecoveryOptions,
+  runWebOpfsRecoveryAndReload,
+  wipeOpfsSahPoolStores,
+} from './recover-in-process';
 export type { DbChangedNotify, SqlWire } from './rpc';
 export {
   isLeaderLostError,
@@ -51,3 +41,8 @@ export {
   type SqliteWorkerOpenResult,
   type SqliteWorkerSqlOwner,
 } from './sqlite-worker';
+export {
+  createWebSqlClient,
+  type WebSqlClient,
+  type WebSqlClientOptions,
+} from './web-sql-client';

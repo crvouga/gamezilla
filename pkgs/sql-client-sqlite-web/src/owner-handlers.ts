@@ -79,36 +79,38 @@ async function handleBeginTx(
 ): Promise<RpcResponse> {
   let txId = '';
   await new Promise<void>((resolveBegin, rejectBegin) => {
-    void deps.runExclusive(async () => {
-      try {
-        const c = await deps.ensureOpen();
-        const id = deps.nextTxId();
-        let resolveGate!: () => void;
-        let rejectGate!: (error: unknown) => void;
-        deps.setTxGate(
-          new Promise<void>((resolve, reject) => {
-            resolveGate = resolve;
-            rejectGate = reject;
-          })
-        );
-        await c.run(sqlFromWire({ sql: 'BEGIN', values: [] }));
-        const activeTx: ActiveTx = {
-          txId: id,
-          client: deps.createBypassClient(c),
-          idleTimerId: null,
-          resolveGate,
-          rejectGate,
-        };
-        deps.setActiveTx(activeTx);
-        deps.touchTxIdle(activeTx);
-        txId = id;
-        resolveBegin();
-        await deps.getTxGate();
-      } catch (error: unknown) {
-        rejectBegin(error);
-        throw error;
-      }
-    });
+    void deps
+      .runExclusive(async () => {
+        try {
+          const c = await deps.ensureOpen();
+          const id = deps.nextTxId();
+          let resolveGate!: () => void;
+          let rejectGate!: (error: unknown) => void;
+          deps.setTxGate(
+            new Promise<void>((resolve, reject) => {
+              resolveGate = resolve;
+              rejectGate = reject;
+            })
+          );
+          await c.run(sqlFromWire({ sql: 'BEGIN', values: [] }));
+          const activeTx: ActiveTx = {
+            txId: id,
+            client: deps.createBypassClient(c),
+            idleTimerId: null,
+            resolveGate,
+            rejectGate,
+          };
+          deps.setActiveTx(activeTx);
+          deps.touchTxIdle(activeTx);
+          txId = id;
+          resolveBegin();
+          await deps.getTxGate();
+        } catch (error: unknown) {
+          rejectBegin(error);
+          throw error;
+        }
+      })
+      .catch(rejectBegin);
   });
   return { id: request.id, ok: true, result: { txId } };
 }

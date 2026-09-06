@@ -2,7 +2,7 @@ import type {
   ConsoleNavPatch,
   ConsoleNavState,
 } from '@product/console/console-nav/console-nav';
-import { createContext, useContext } from 'react';
+import { createContext, useContext } from 'solid-js';
 
 export type ConsoleChromeContextValue = {
   readonly state: ConsoleNavState;

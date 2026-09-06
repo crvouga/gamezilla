@@ -12,7 +12,20 @@ export function useRulesAuth(): AppRulesAuth {
   const accountId = useMyAccountId();
   const myId = useMyId();
   const isAnon = useIsAnon();
-  return mapAppAuthToRulesAuth({ deviceId, accountId, myId, isAnon });
+  return {
+    get deviceId() {
+      return deviceId();
+    },
+    get accountId() {
+      return accountId();
+    },
+    get userId() {
+      return myId();
+    },
+    get isAnon() {
+      return isAnon();
+    },
+  };
 }
 
 export function buildRulesAuth(args: {

@@ -9,11 +9,6 @@ import {
   isDoMigrationStateError,
   readLatestWranglerLogTail,
 } from '@libs/secrets/shared/cloudflare-worker-lifecycle';
-import { productionApiOrigin } from '@libs/secrets/shared/deploy-origins';
-import {
-  assertExpoTokenPresent,
-  resolveEasProfile,
-} from '@libs/secrets/shared/eas-mobile';
 import { ok } from '@libs/secrets/shared/fmt';
 import { REPO_ROOT } from '@libs/secrets/shared/paths';
 import {
@@ -156,19 +151,6 @@ async function dryRun(): Promise<void> {
   const env = wranglerEnv();
   await validateSecretsForDeploy();
   await deployProductionWorker(env, true);
-
-  if (resolveEasProfile() !== null) {
-    assertExpoTokenPresent();
-    assert.nonEmptyString(
-      process.env['EXPO_PUBLIC_API_URL'] ?? productionApiOrigin(),
-      'EXPO_PUBLIC_API_URL must be set for the EAS OTA update (secrets/env); ' +
-        'a missing value blank-screens the published bundle on launch'
-    );
-    ok(
-      'api-worker dry-run',
-      'EXPO_TOKEN + EXPO_PUBLIC_API_URL present for EAS OTA update'
-    );
-  }
 
   ok('api-worker dry-run', 'worker bindings validated locally');
 }

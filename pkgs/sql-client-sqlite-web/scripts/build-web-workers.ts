@@ -1,25 +1,25 @@
 // @io-wall-ok — build script entry
 
-import { copyFileSync, mkdirSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { copyFileSync, mkdirSync, rmSync } from 'node:fs';
+import { join } from 'node:path';
 import { wallClock } from '@pkgs/clock';
 import { createLogger } from '@pkgs/logger';
 import * as esbuild from 'esbuild';
-import {
-  expoSqliteWorkerEntry,
-  pkgRoot,
-  SQL_WORKERS_PUBLIC_PATH,
-  sqlHostEntry,
-  sqlHostHtml,
-  sqlHostSharedOptions,
-} from './sql-host-build';
 
 const log = createLogger({
   name: 'sql-client:build-web-workers',
   now: wallClock.now,
 });
 
-const entry = join(pkgRoot, 'src/db-host-shared-worker.ts');
+const pkgRoot = join(import.meta.dir, '..');
+
+const sqlHostSharedOptions = (): esbuild.BuildOptions => ({
+  bundle: true,
+  platform: 'browser',
+  target: ['es2022'],
+  format: 'esm',
+  logLevel: 'info',
+});
 
 /** Every `sql-workers/` directory the built assets are published into. */
 export const sqlWorkerDirs = [
@@ -27,66 +27,61 @@ export const sqlWorkerDirs = [
   join(pkgRoot, 'e2e/public/sql-workers'),
 ];
 
-const workerTargets = sqlWorkerDirs.map((dir) =>
-  join(dir, 'db-host-shared-worker.js')
+const dbHostSharedWorkerEntry = join(pkgRoot, 'src/db-host-shared-worker.ts');
+const sqliteWorkerEntry = join(
+  pkgRoot,
+  'src/sqlite-worker/sqlite-worker-entry.ts'
 );
 
-const staticTargets = [{ from: sqlHostHtml, name: 'sql-host.html' }];
+const sqliteWasmSrc = import.meta.resolve(
+  '@sqlite.org/sqlite-wasm/sqlite3.wasm'
+);
 
-/**
- * expo-sqlite's web module hard-codes `new Worker(new URL('./worker', href))`,
- * so the classic worker bundle must land at `<dir>/worker` (extensionless).
- * The `.wasm` file loader also emits `wa-sqlite.wasm` into the same directory.
- */
-async function buildExpoSqliteWorker(outDir: string): Promise<void> {
+/** Stale expo-sqlite-era artifacts the OPFS SAH-pool build no longer emits. */
+const STALE_SQL_WORKER_FILES = [
+  'sqlite-worker-entry.js',
+  'sql-host.html',
+  'sql-host.js',
+  'worker',
+  'worker.js',
+  'wa-sqlite.wasm',
+];
+
+async function buildSharedWorker(outfile: string): Promise<void> {
   await esbuild.build({
     ...sqlHostSharedOptions(),
-    entryPoints: [{ in: expoSqliteWorkerEntry, out: 'worker' }],
-    outdir: outDir,
-    format: 'iife',
-    loader: { '.wasm': 'file' },
-    assetNames: '[name]',
-    publicPath: SQL_WORKERS_PUBLIC_PATH,
+    entryPoints: [dbHostSharedWorkerEntry],
+    outfile,
   });
-  copyFileSync(join(outDir, 'worker.js'), join(outDir, 'worker'));
+  log.info(`wrote ${outfile}`);
 }
 
-async function buildSqlHost(outDir: string): Promise<void> {
+/**
+ * `@sqlite.org/sqlite-wasm` resolves `new URL('sqlite3.wasm', import.meta.url)`
+ * at runtime, so the wasm must live beside the worker bundle.
+ */
+async function buildSqliteWorker(outDir: string): Promise<void> {
   await esbuild.build({
     ...sqlHostSharedOptions(),
-    entryPoints: [sqlHostEntry],
-    outfile: join(outDir, 'sql-host.js'),
-    format: 'esm',
+    entryPoints: [sqliteWorkerEntry],
+    outfile: join(outDir, 'sqlite-worker.js'),
   });
+  const wasmOut = join(outDir, 'sqlite3.wasm');
+  copyFileSync(sqliteWasmSrc.replace(/^file:\/\//, ''), wasmOut);
+  log.info(`wrote ${wasmOut}`);
 }
 
 async function main(): Promise<void> {
-  for (const outfile of workerTargets) {
-    mkdirSync(dirname(outfile), { recursive: true });
-    await esbuild.build({
-      entryPoints: [entry],
-      outfile,
-      bundle: true,
-      format: 'esm',
-      platform: 'browser',
-      target: ['es2022'],
-      logLevel: 'info',
-    });
-    log.info(`wrote ${outfile}`);
-  }
   for (const outDir of sqlWorkerDirs) {
     mkdirSync(outDir, { recursive: true });
-    await buildSqlHost(outDir);
-    await buildExpoSqliteWorker(outDir);
-    log.info(`wrote ${outDir}/{sql-host.js,worker,worker.js,wa-sqlite.wasm}`);
-  }
-  for (const { from, name } of staticTargets) {
-    for (const outDir of sqlWorkerDirs) {
-      const outfile = join(outDir, name);
-      mkdirSync(outDir, { recursive: true });
-      copyFileSync(from, outfile);
-      log.info(`wrote ${outfile}`);
+    for (const stale of STALE_SQL_WORKER_FILES) {
+      rmSync(join(outDir, stale), { force: true });
     }
+    await buildSharedWorker(join(outDir, 'db-host-shared-worker.js'));
+    await buildSqliteWorker(outDir);
+    log.info(
+      `wrote ${outDir}/{db-host-shared-worker.js,sqlite-worker.js,sqlite3.wasm}`
+    );
   }
 }
 

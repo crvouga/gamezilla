@@ -1,6 +1,5 @@
 import { useMyId } from '@libs/auth/public/use-current-user';
-import { useQuery } from '@pkgs/sync-engine/client';
-import { useMemo } from 'react';
+import { createQuery } from '@pkgs/sync-engine/solid';
 import {
   buildPuzzleMatchedCountSql,
   buildPuzzleTotalCountSql,
@@ -19,29 +18,30 @@ export type ChessPuzzleFeedPoolStats = {
 export function useChessPuzzleFeedPoolStats(): ChessPuzzleFeedPoolStats {
   const myId = useMyId();
   const [config] = useChessPuzzleFeedConfig();
-  const { profileRating } = useChessPuzzleProfileRatings(myId);
-  const rating = useMemo(
-    () => resolveEffectivePuzzleRating({ config, profileRating }),
-    [config, profileRating]
-  );
-  const matchedQuery = useMemo(
-    () =>
-      buildPuzzleMatchedCountSql({
-        rating,
-        halfWindow: PUZZLE_NEXT_MAX_BAND,
-        ownerId: myId,
-        historyFilter: config.historyFilter,
-        themes: config.themes,
-        currentPuzzleId: null,
+  const profile = useChessPuzzleProfileRatings(myId);
+  const matched = createQuery(() =>
+    buildPuzzleMatchedCountSql({
+      rating: resolveEffectivePuzzleRating({
+        config: config(),
+        profileRating: profile.profileRating,
       }),
-    [rating, myId, config.historyFilter, config.themes]
+      halfWindow: PUZZLE_NEXT_MAX_BAND,
+      ownerId: myId(),
+      historyFilter: config().historyFilter,
+      themes: config().themes,
+      currentPuzzleId: null,
+    })
   );
-  const totalQuery = useMemo(() => buildPuzzleTotalCountSql(), []);
-  const matched = useQuery(matchedQuery);
-  const total = useQuery(totalQuery);
+  const total = createQuery(buildPuzzleTotalCountSql);
   return {
-    matched: matched.rows[0]?.value ?? 0,
-    total: total.rows[0]?.value ?? 0,
-    isLoading: matched.isLoading || total.isLoading,
+    get matched() {
+      return matched.rows()[0]?.value ?? 0;
+    },
+    get total() {
+      return total.rows()[0]?.value ?? 0;
+    },
+    get isLoading() {
+      return matched.isLoading() || total.isLoading();
+    },
   };
 }

@@ -3,16 +3,14 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 /**
  * Backing store for a web (or test) SQLite owner tab.
  *
- * Browser owners keep the engine in a disposable realm (dedicated worker for
- * sqlite-wasm, iframe for the legacy expo build) so OPFS access handles die
- * with that realm — enabling in-process wipe without navigating the product
- * Window away.
+ * Browser owners keep sqlite-wasm in a dedicated worker so OPFS access handles
+ * die with that realm, enabling in-process wipe without navigation.
  */
 export type SqlOwner = {
   /** Open (or reopen) the named DB and return a connected {@link SqlClient}. */
   open: () => Promise<SqlClient>;
   /**
-   * Release the live connection and any held handles (iframe teardown, sim
+   * Release the live connection and any held handles (worker teardown, sim
    * access-handle release). Does not delete durable bytes by itself.
    */
   close: () => Promise<void>;
@@ -24,15 +22,14 @@ export type SqlOwnerFactory = (args: { readonly dbName: string }) => SqlOwner;
 
 /**
  * Errors that mean the cache is unusable and should be wiped then reopened.
- * Matches AccessHandlePoolVFS exhaustion, corrupt files, and migrate failures.
+ * Matches SAH pool exhaustion, corrupt files, and migration failures.
  */
 export function isSqlOwnerWipeWorthyError(error: unknown): boolean {
   const message =
     error instanceof Error ? `${error.name} ${error.message}` : String(error);
   return (
     /cannot create file/i.test(message) ||
-    /sqlite3_open_v2/i.test(message) ||
-    /Timed out opening SQLite database/i.test(message) ||
+    /SAH pool is full|SQLITE_FULL/i.test(message) ||
     /file is not a database/i.test(message) ||
     /not a database/i.test(message) ||
     /database disk image is malformed/i.test(message) ||

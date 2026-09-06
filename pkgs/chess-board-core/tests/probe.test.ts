@@ -1,17 +1,15 @@
 import { describe, expect, test } from 'bun:test';
 import {
   buildChessBoardProbe,
-  chessBoardPanTestId,
   chessBoardProbeTestId,
-  chessBoardTapTestId,
+  chessBoardSquareTestId,
   DEFAULT_CHESS_BOARD_TEST_ID,
   parseChessBoardProbe,
 } from '@pkgs/chess-board-core/probe';
 
 describe('probe test ids', () => {
   test('derive from the board test id', () => {
-    expect(chessBoardPanTestId('b')).toBe('b-pan');
-    expect(chessBoardTapTestId('b')).toBe('b-tap');
+    expect(chessBoardSquareTestId('b', 'e4')).toBe('b-square-e4');
     expect(chessBoardProbeTestId(DEFAULT_CHESS_BOARD_TEST_ID)).toBe(
       'chess-board-probe'
     );

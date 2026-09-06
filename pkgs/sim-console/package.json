@@ -16,11 +16,12 @@
   "scripts": {
     "lint": "bunx biome check --error-on-warnings .",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test src --pass-with-no-tests"
+    "test": "vitest run"
   },
   "dependencies": {
     "@pkgs/clock": "workspace:*",
     "@pkgs/db-schema-sqlite": "workspace:*",
+    "@pkgs/device": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/i18n": "workspace:*",
     "@pkgs/object-store": "workspace:*",
@@ -28,20 +29,21 @@
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sql-client-sqlite": "workspace:*",
-    "@pkgs/ui-rn": "workspace:*",
+    "@pkgs/ui": "workspace:*",
     "@pkgs/ui-testing": "workspace:*",
-    "@pkgs/ui-testing-rntl": "workspace:*",
     "@pkgs/uuid": "workspace:*",
-    "expo-clipboard": "catalog:",
     "hono": "catalog:",
-    "react": "catalog:",
-    "react-native": "catalog:"
+    "solid-js": "catalog:"
   },
   "devDependencies": {
     "@pkgs/db-schema": "workspace:*",
+    "@solidjs/testing-library": "catalog:",
     "@types/bun": "catalog:",
-    "@types/react": "catalog:",
     "@typescript/native": "catalog:",
-    "typescript": "catalog:"
+    "jsdom": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-solid": "catalog:",
+    "vitest": "catalog:"
   }
 }

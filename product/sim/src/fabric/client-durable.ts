@@ -21,7 +21,7 @@ function dumpStoragePrefix(
   const out: Record<string, string> = {};
   for (let i = 0; i < storage.length; i++) {
     const key = storage.key(i);
-    if (key === null || !key.startsWith(prefix)) continue;
+    if (!key?.startsWith(prefix)) continue;
     const value = storage.getItem(key);
     if (value !== null) out[key.slice(prefix.length)] = value;
   }
@@ -54,9 +54,9 @@ export function restorePlaygroundClientDurable(
   const ss = globalThis.sessionStorage;
   for (const [rel, value] of Object.entries(entries)) {
     if (SESSION_SCOPED_DURABLE_KEYS.has(rel)) {
-      ss?.setItem(`${namespace}.${rel}`, value);
+      ss.setItem(`${namespace}.${rel}`, value);
     } else {
-      ls?.setItem(`${namespace}.${rel}`, value);
+      ls.setItem(`${namespace}.${rel}`, value);
     }
   }
 }

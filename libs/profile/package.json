@@ -13,9 +13,8 @@
     ]
   },
   "scripts": {
-    "lint": "bunx biome check --error-on-warnings .",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test --pass-with-no-tests"
+    "test": "vitest run"
   },
   "dependencies": {
     "@dicebear/collection": "catalog:",
@@ -23,24 +22,25 @@
     "@libs/auth": "workspace:*",
     "@libs/test-ids": "workspace:*",
     "@lingui/core": "catalog:",
-    "@lingui/react": "catalog:",
+    "@lingui/solid": "catalog:",
     "@pkgs/attribute": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
+    "@pkgs/device": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
-    "@pkgs/ui-rn": "workspace:*",
+    "@pkgs/ui": "workspace:*",
     "@pkgs/uuid": "workspace:*",
-    "expo-clipboard": "catalog:",
-    "react": "catalog:",
-    "react-native": "catalog:",
+    "solid-js": "catalog:",
     "unique-names-generator": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@types/react": "catalog:",
+    "@pkgs/vitest-solid": "workspace:*",
+    "@solidjs/testing-library": "catalog:",
     "@typescript/native": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }

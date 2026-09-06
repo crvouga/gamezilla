@@ -2,19 +2,11 @@ import type { Timers } from '@pkgs/clock';
 import type { PreparedStatement, SqlClient } from '@pkgs/sql-client/interface';
 import { applySqliteConnectionPragmas } from '@pkgs/sql-client-sqlite/connection-pragmas';
 import {
-  isLikelyOpfsLockError,
-  openWithWaitRetry,
-} from '@pkgs/sql-client-sqlite/expo-sqlite-core';
-import {
   type ActiveTx,
   handleOwnerRequest,
   type OwnerHandlerDeps,
 } from './owner-handlers';
-import { createExpoIframeSqlOwner } from './owners/expo-iframe-sql-owner';
-import {
-  openSqlOwnerWithRecovery,
-  recoverSqlOwnerInProcess,
-} from './recover-in-process';
+import { openSqlOwnerWithRecovery } from './recover-in-process';
 import {
   createRpcIdFactory,
   type DbChangedNotify,
@@ -25,8 +17,9 @@ import {
   TX_IDLE_TIMEOUT_MS,
 } from './rpc';
 import type { SqlOwner } from './sql-owner';
-import { isSqlOwnerWipeWorthyError } from './sql-owner';
 import { sqlFromWire } from './sql-wire';
+import { spawnSqliteWorker } from './sqlite-worker/spawn-sqlite-worker';
+import { createSqliteWorkerSqlOwner } from './sqlite-worker/sqlite-worker-sql-owner';
 
 export { sqlFromWire } from './sql-wire';
 
@@ -44,12 +37,11 @@ export type OwnerRuntime = {
 export type CreateOwnerRuntimeArgs = {
   readonly dbName: string;
   readonly timers: Timers;
-  /** Override backing owner (tests / DST). Default: expo iframe. */
+  /** Override backing owner (tests / DST). Default: dedicated WASM worker. */
   readonly createOwner?: (args: { readonly dbName: string }) => SqlOwner;
   /** Post-open migrate (sync-engine). Wipe-worthy failures recover in-process. */
   readonly migrate?: (client: SqlClient) => Promise<void>;
-  readonly sharedWorkerUrl?: string;
-  readonly notifyPeersOnRecover?: boolean;
+  readonly sqliteWorkerUrl?: string;
 };
 
 function txError(code: string, message: string): Error {
@@ -80,9 +72,6 @@ function createBypassClient(owner: SqlClient): SqlClient {
 type ClientBytesPort = {
   exportDatabaseBytes?: () => Uint8Array;
   exportDatabaseBytesAsync?: () => Promise<Uint8Array>;
-  getSqliteDatabase?: () => {
-    serializeAsync: (name?: string) => Promise<Uint8Array>;
-  };
   importDatabaseBytes?: (bytes: Uint8Array) => void;
   importDatabaseBytesAsync?: (bytes: Uint8Array) => Promise<void>;
 };
@@ -94,9 +83,6 @@ function exportClientBytes(client: SqlClient): Promise<Uint8Array> {
   }
   if (typeof port.exportDatabaseBytes === 'function') {
     return Promise.resolve(port.exportDatabaseBytes());
-  }
-  if (typeof port.getSqliteDatabase === 'function') {
-    return port.getSqliteDatabase().serializeAsync('main');
   }
   throw new Error('exportBytes is not supported by this SqlOwner');
 }
@@ -121,8 +107,6 @@ class OwnerRuntimeImpl implements OwnerRuntime {
   private readonly timers: Timers;
   private readonly owner: SqlOwner;
   private readonly migrate: ((client: SqlClient) => Promise<void>) | undefined;
-  private readonly sharedWorkerUrl: string | undefined;
-  private readonly notifyPeersOnRecover: boolean;
   private client: SqlClient | null = null;
   private openPromise: Promise<void> | null = null;
   private readonly stmts = new Map<
@@ -142,10 +126,14 @@ class OwnerRuntimeImpl implements OwnerRuntime {
     this.dbName = args.dbName;
     this.timers = args.timers;
     this.migrate = args.migrate;
-    this.sharedWorkerUrl = args.sharedWorkerUrl;
-    this.notifyPeersOnRecover = args.notifyPeersOnRecover !== false;
-    const factory = args.createOwner ?? createExpoIframeSqlOwner;
-    this.owner = factory({ dbName: args.dbName });
+    this.owner =
+      args.createOwner?.({ dbName: args.dbName }) ??
+      createSqliteWorkerSqlOwner({
+        dbName: args.dbName,
+        timers: args.timers,
+        spawnWorker: (dbName) =>
+          spawnSqliteWorker(dbName, args.sqliteWorkerUrl),
+      });
   }
 
   private emitChanged(txId?: string): void {
@@ -186,61 +174,16 @@ class OwnerRuntimeImpl implements OwnerRuntime {
     this.txGate = null;
   }
 
-  private recoverOpts() {
-    return {
-      timers: this.timers,
-      closeLocal: () => this.owner.close(),
-      resetStore: () => this.owner.resetStore(),
-      notifyPeers: this.notifyPeersOnRecover,
-      ...(this.sharedWorkerUrl !== undefined
-        ? { sharedWorkerUrl: this.sharedWorkerUrl }
-        : {}),
-    };
-  }
-
-  private async openOnce(): Promise<SqlClient> {
-    const client = await this.owner.open();
-    if (this.migrate !== undefined) {
-      await this.migrate(client);
-    }
-    await applySqliteConnectionPragmas(client);
-    return client;
-  }
-
   private async openOwnerClient(): Promise<SqlClient> {
-    try {
-      return await openWithWaitRetry({
-        databaseName: this.dbName,
-        timers: this.timers,
-        openOnce: () => this.openOnce(),
-      });
-    } catch (error: unknown) {
-      if (!isSqlOwnerWipeWorthyError(error) && !isLikelyOpfsLockError(error)) {
-        throw error;
-      }
-      // Lock exhausted or pool/corrupt: wipe in-process (no navigation) and reopen.
-      await recoverSqlOwnerInProcess(this.recoverOpts());
-      return openSqlOwnerWithRecovery({
-        owner: this.owner,
-        timers: this.timers,
-        notifyPeers: false,
-        ...(this.sharedWorkerUrl !== undefined
-          ? { sharedWorkerUrl: this.sharedWorkerUrl }
-          : {}),
-        ...(this.migrate !== undefined
-          ? {
-              migrate: async (c) => {
-                await this.migrate?.(c);
-                await applySqliteConnectionPragmas(c);
-              },
-            }
-          : {
-              migrate: async (c) => {
-                await applySqliteConnectionPragmas(c);
-              },
-            }),
-      });
-    }
+    return openSqlOwnerWithRecovery({
+      dbName: this.dbName,
+      owner: this.owner,
+      timers: this.timers,
+      migrate: async (client) => {
+        await applySqliteConnectionPragmas(client);
+        await this.migrate?.(client);
+      },
+    });
   }
 
   private async ensureOpen(): Promise<SqlClient> {
@@ -330,7 +273,12 @@ class OwnerRuntimeImpl implements OwnerRuntime {
     this.stmts.clear();
     this.client = null;
     this.openPromise = null;
-    await recoverSqlOwnerInProcess(this.recoverOpts());
+    await this.runExclusive(async () => {
+      await this.owner.close();
+      await this.owner.resetStore();
+      await this.ensureOpen();
+      this.emitChanged();
+    });
   }
 
   async exportBytes(): Promise<Uint8Array> {
@@ -344,9 +292,11 @@ class OwnerRuntimeImpl implements OwnerRuntime {
         txError(RPC_ERROR_TX_ABORTED, 'Transaction aborted by importBytes')
       );
     }
-    await this.resetDatabase();
+    this.stmts.clear();
     const client = await this.ensureOpen();
     await importClientBytes(client, bytes);
+    await applySqliteConnectionPragmas(client);
+    await this.migrate?.(client);
   }
 
   hasActiveTx(): boolean {

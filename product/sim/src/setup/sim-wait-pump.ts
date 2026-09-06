@@ -1,5 +1,5 @@
 /**
- * Virtual-time drain pump for rntl / in-process sim waits.
+ * Virtual-time drain pump for in-process (Solid DOM) sim waits.
  * Advances scheduled work via the Runtime session's underlying scheduler
  * without wall sleep. Isomorphic — no `node:timers`.
  */
@@ -20,7 +20,7 @@ async function flushMicrotasks(): Promise<void> {
   for (let i = 0; i < 32; i += 1) await Promise.resolve();
 }
 
-/** Macrotask hop after microtasks (React 18 / RNTL apply updates). */
+/** Macrotask hop after microtasks (Solid effects / MutationObserver deliveries). */
 function yieldEventLoop(): Promise<void> {
   return new Promise((resolve) => {
     const g = globalThis as typeof globalThis & {
@@ -58,7 +58,8 @@ export function createSerializedRunFor(
   return (durationMs: number): Promise<void> => {
     const run = tail.then(async () => {
       await scheduler.runFor(durationMs);
-      // React 18 / RNTL apply updates on microtasks + setImmediate.
+      // Solid effects and MutationObserver callbacks settle on microtasks + a
+      // macrotask hop.
       // Without this, `run.elapse` / `run.until` spin virtual time
       // while the tree stays stale.
       await flushMicrotasks();

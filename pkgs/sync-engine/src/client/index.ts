@@ -27,25 +27,11 @@ export {
   getLocalSchemaTargetVersion,
   migrateLocalSchema,
 } from './local-schema-migrate';
-export {
-  MutationClientProvider,
-  type MutationClientProviderProps,
-  useMutationClient,
-} from './mutation-client-provider';
 export type {
   MutationUploadResult,
   MutationUploadRow,
 } from './mutation-upload-queue';
 export type { QueryRequest } from './subscription-runtime';
-export {
-  type SyncEngineApi,
-  SyncEngineProvider,
-  useQuery,
-  useSyncEngine,
-  useSyncEngineActions,
-  useSyncEngineInstance,
-} from './sync-engine-context';
-export { SyncEnginePaintGateContext } from './sync-engine-paint-gate';
 export {
   type CreateSyncEnginePoolOptions,
   createSyncEnginePool,

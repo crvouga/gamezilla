@@ -1,7 +1,7 @@
 import { asKeyword } from '@pkgs/keyword/keyword';
 import type { KvStateCodec } from '@pkgs/kv/kv-state-codec';
-import { useKvState } from '@pkgs/kv/use-kv-state';
-import type { Dispatch, SetStateAction } from 'react';
+import { createKvState, type KvStateSetter } from '@pkgs/kv/solid';
+import type { Accessor } from 'solid-js';
 
 import {
   type ChessPuzzleFeedConfig,
@@ -22,10 +22,10 @@ const PUZZLE_FEED_CODEC: KvStateCodec<ChessPuzzleFeedConfig> = {
 };
 
 export function useChessPuzzleFeedConfig(): [
-  ChessPuzzleFeedConfig,
-  Dispatch<SetStateAction<ChessPuzzleFeedConfig>>,
+  Accessor<ChessPuzzleFeedConfig>,
+  KvStateSetter<ChessPuzzleFeedConfig>,
 ] {
-  return useKvState<ChessPuzzleFeedConfig>({
+  return createKvState<ChessPuzzleFeedConfig>({
     key: PUZZLE_FEED_ROW_KEY,
     default: DEFAULT_CHESS_PUZZLE_FEED_CONFIG,
     codec: PUZZLE_FEED_CODEC,

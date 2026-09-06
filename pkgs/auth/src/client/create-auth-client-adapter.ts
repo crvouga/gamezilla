@@ -1,6 +1,5 @@
 import type { Timers } from '@pkgs/clock';
 import type { HttpFetch } from '@pkgs/http-client';
-import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { IDP_PROVIDER_LABEL } from '../shared/provider-label';
 import type {
@@ -21,7 +20,11 @@ import {
   toVerified,
 } from './auth-client-http';
 import type { AuthClientPort, GetFreshTokenOptions } from './auth-client-port';
-import type { AuthSessionState } from './auth-session-state';
+import {
+  AUTH_SESSION_INITIAL,
+  type AuthSessionState,
+  type AuthSessionStore,
+} from './auth-session-state';
 import {
   type AuthClientStorage,
   type BearerTokenStore,
@@ -57,89 +60,75 @@ export {
   AUTH_SSO_POPUP_BLOCKED_ERROR,
 };
 
-type SessionBus = {
-  readonly subscribe: (listener: () => void) => () => void;
-  readonly bump: () => void;
-};
+/** Verify the stored bearer against `/auth/session`; null when absent / dead. */
+async function loadSessionState(args: {
+  readonly fetch: HttpFetch;
+  readonly baseURL: string;
+  readonly bearerStore: BearerTokenStore;
+}): Promise<AuthSessionState> {
+  const token = await args.bearerStore.read();
+  if (token === null) {
+    return { session: null, isHydrated: true, error: null };
+  }
+  try {
+    const res = await args.fetch(apiUrl(args.baseURL, '/auth/session'), {
+      method: 'GET',
+      headers: { authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) {
+      await clearBearerOnUnauthorizedSession(args.bearerStore, res.status);
+      return { session: null, isHydrated: true, error: null };
+    }
+    const body = (await res.json()) as {
+      readonly user?: SessionBody['user'];
+      readonly expiresAt?: string;
+    };
+    const sessionBody: SessionBody = {
+      ...(body.user !== undefined ? { user: body.user } : {}),
+      ...(body.expiresAt !== undefined ? { expiresAt: body.expiresAt } : {}),
+    };
+    return { session: toVerified(sessionBody), isHydrated: true, error: null };
+  } catch (err) {
+    return {
+      session: null,
+      isHydrated: true,
+      error: err instanceof Error ? err : new Error(String(err)),
+    };
+  }
+}
 
-function createSessionBus(): SessionBus {
+/**
+ * Framework-free session store. `refresh()` calls overlap-safe: the newest
+ * request wins, stale responses are dropped, so a sign-out that lands while a
+ * verify is in flight never resurrects the old session.
+ */
+function createAuthSessionStore(args: {
+  readonly fetch: HttpFetch;
+  readonly baseURL: string;
+  readonly bearerStore: BearerTokenStore;
+}): AuthSessionStore {
   const listeners = new Set<() => void>();
+  let state: AuthSessionState = AUTH_SESSION_INITIAL;
+  let generation = 0;
+  const publish = (next: AuthSessionState): void => {
+    state = next;
+    for (const listener of listeners) listener();
+  };
   return {
+    getSnapshot: () => state,
     subscribe(listener) {
       listeners.add(listener);
       return () => {
         listeners.delete(listener);
       };
     },
-    bump() {
-      for (const listener of listeners) listener();
+    async refresh() {
+      generation += 1;
+      const mine = generation;
+      const next = await loadSessionState(args);
+      if (mine === generation) publish(next);
     },
   };
-}
-
-function useAuthSessionState(args: {
-  readonly fetch: HttpFetch;
-  readonly baseURL: string;
-  readonly bearerStore: BearerTokenStore;
-  readonly bus: SessionBus;
-}): AuthSessionState {
-  const [state, setState] = useState<AuthSessionState>({
-    session: null,
-    isHydrated: false,
-    error: null,
-  });
-  const [tick, setTick] = useState(0);
-  const fetchRef = useRef(args.fetch);
-  fetchRef.current = args.fetch;
-
-  useEffect(() => args.bus.subscribe(() => setTick((n) => n + 1)), [args.bus]);
-
-  const refresh = useCallback(async () => {
-    const token = await args.bearerStore.read();
-    if (token === null) {
-      setState({ session: null, isHydrated: true, error: null });
-      return;
-    }
-    try {
-      const res = await fetchRef.current(
-        apiUrl(args.baseURL, '/auth/session'),
-        {
-          method: 'GET',
-          headers: { authorization: `Bearer ${token}` },
-        }
-      );
-      if (!res.ok) {
-        await clearBearerOnUnauthorizedSession(args.bearerStore, res.status);
-        setState({ session: null, isHydrated: true, error: null });
-        return;
-      }
-      const body = (await res.json()) as {
-        readonly user?: SessionBody['user'];
-        readonly expiresAt?: string;
-      };
-      const sessionBody: SessionBody = {
-        ...(body.user !== undefined ? { user: body.user } : {}),
-        ...(body.expiresAt !== undefined ? { expiresAt: body.expiresAt } : {}),
-      };
-      setState({
-        session: toVerified(sessionBody),
-        isHydrated: true,
-        error: null,
-      });
-    } catch (err) {
-      setState({
-        session: null,
-        isHydrated: true,
-        error: err instanceof Error ? err : new Error(String(err)),
-      });
-    }
-  }, [args.baseURL, args.bearerStore]);
-
-  useEffect(() => {
-    void refresh();
-  }, [refresh, tick]);
-
-  return state;
 }
 
 /**
@@ -160,7 +149,7 @@ type SignInCtx = {
   readonly config: AuthClientAdapterConfig;
   readonly bearerStore: BearerTokenStore;
   readonly callbackUrl: string;
-  readonly bus: SessionBus;
+  readonly session: AuthSessionStore;
 };
 
 async function persistSessionFromResponse(
@@ -175,7 +164,7 @@ async function persistSessionFromResponse(
   if (typeof body.token === 'string' && body.token.length > 0) {
     await ctx.bearerStore.write(body.token);
   }
-  ctx.bus.bump();
+  await ctx.session.refresh();
 }
 
 async function signInHttpFailureMessage(res: Response): Promise<string> {
@@ -260,18 +249,16 @@ export function createAuthClientAdapter(
   const storage = config.storage ?? createInMemoryAuthClientStorage();
   const bearerStore = config.bearerStore ?? createBearerTokenStore({ storage });
   const callbackUrl = config.callbackUrl ?? 'gamezilla://sso-callback';
-  const bus = createSessionBus();
-  const ctx: SignInCtx = { config, bearerStore, callbackUrl, bus };
+  const session = createAuthSessionStore({
+    fetch: config.fetch,
+    baseURL: config.baseURL,
+    bearerStore,
+  });
+  const ctx: SignInCtx = { config, bearerStore, callbackUrl, session };
 
   return {
     providerLabel: IDP_PROVIDER_LABEL,
-    useAuthSession: () =>
-      useAuthSessionState({
-        fetch: config.fetch,
-        baseURL: config.baseURL,
-        bearerStore,
-        bus,
-      }),
+    session,
     async signIn(strategy: SignInStrategy, _credentials?: SignInCredentials) {
       if (strategy === 'oauth-dev' || strategy === 'oauth-google') {
         await signInOauth(ctx, strategy);
@@ -283,7 +270,7 @@ export function createAuthClientAdapter(
       bearerStore.setSuppressCapture(true);
       const token = await bearerStore.read();
       bearerStore.clearSync();
-      bus.bump();
+      await session.refresh();
       try {
         if (token !== null) {
           await postJson(
@@ -295,7 +282,7 @@ export function createAuthClientAdapter(
         }
       } finally {
         await bearerStore.clear();
-        bus.bump();
+        await session.refresh();
         config.timers.setTimeout(() => {
           bearerStore.setSuppressCapture(false);
         }, 500);

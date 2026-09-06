@@ -1,0 +1,8 @@
+/** @jsxImportSource solid-js */
+import type { JSX } from 'solid-js';
+
+import { AboutScreen } from '../../screens/more/about-screen';
+
+export default function MoreAboutRoute(): JSX.Element {
+  return <AboutScreen />;
+}

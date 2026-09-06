@@ -895,13 +895,10 @@
                     "importNames": ["Driver"],
                     "message": "Scenarios must use s.apply(defineAction) / openSim (see product/test/src/setup/TESTING.md)."
                   },
-                  "@pkgs/ui-testing-rntl": {
+                  "@pkgs/ui-testing-solid-dom": {
                     "message": "Scenarios must use s.apply(defineAction) / openSim (see product/test/src/setup/TESTING.md)."
                   },
                   "@pkgs/ui-testing-bun-webview": {
-                    "message": "Scenarios must use s.apply(defineAction) / openSim (see product/test/src/setup/TESTING.md)."
-                  },
-                  "@pkgs/ui-testing-detox": {
                     "message": "Scenarios must use s.apply(defineAction) / openSim (see product/test/src/setup/TESTING.md)."
                   }
                 }

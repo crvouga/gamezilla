@@ -1,8 +1,8 @@
 import { useMyId } from '@libs/auth/public/use-current-user';
 import { sql } from '@pkgs/sql';
 
-import { useQuery } from '@pkgs/sync-engine/client';
-import { useMemo } from 'react';
+import { createQuery } from '@pkgs/sync-engine/solid';
+import { type Accessor, createMemo, mergeProps } from 'solid-js';
 
 import type { ChessPuzzleInteractionRow } from '../chess-puzzle-interaction-entities';
 
@@ -65,33 +65,42 @@ type PuzzleEntityRow = {
   readonly themes: unknown;
 };
 
-export function usePuzzleEntity(puzzleId: string): {
+export function usePuzzleEntity(puzzleId: Accessor<string>): {
   fen: string;
   movesStr: string;
   rating: number;
   themes: readonly string[];
 } {
-  const { rows } = useQuery(sql<PuzzleEntityRow>`
+  const { rows } = createQuery(
+    () => sql<PuzzleEntityRow>`
     SELECT fen, moves, rating, themes
     FROM chess_puzzles
-    WHERE id = ${puzzleId}
-  `);
-  const row = rows[0] ?? null;
+    WHERE id = ${puzzleId()}
+  `
+  );
+  const row = () => rows()[0] ?? null;
 
   return {
-    fen: row?.fen ?? '',
-    movesStr: row?.moves ?? '',
-    rating: row?.rating ?? 0,
-    themes: readStringArray(row?.themes),
+    get fen() {
+      return row()?.fen ?? '';
+    },
+    get movesStr() {
+      return row()?.moves ?? '';
+    },
+    get rating() {
+      return row()?.rating ?? 0;
+    },
+    get themes() {
+      return readStringArray(row()?.themes);
+    },
   };
 }
 
 export function usePuzzleInteractions(
-  puzzleId: string
-): ChessPuzzleInteractionRow[] {
+  puzzleId: Accessor<string>
+): Accessor<ChessPuzzleInteractionRow[]> {
   const myId = useMyId();
-  const query = useMemo(
-    () => sql<InteractionSqlRow>`
+  const query = () => sql<InteractionSqlRow>`
       SELECT
         puzzle_id,
         kind,
@@ -103,21 +112,20 @@ export function usePuzzleInteractions(
         rating_after,
         at
       FROM chess_puzzle_interactions
-      WHERE owner_id = ${myId}
-        AND puzzle_id = ${puzzleId}
+      WHERE owner_id = ${myId()}
+        AND puzzle_id = ${puzzleId()}
       ORDER BY at ASC
       LIMIT 100
-    `,
-    [myId, puzzleId]
-  );
-  const { rows } = useQuery(query);
-  return useMemo(() => rows.map(interactionRowFromSql), [rows]);
+    `;
+  const { rows } = createQuery(query);
+  return createMemo(() => rows().map(interactionRowFromSql));
 }
 
-export function useChessPuzzleAllInteractions(): ChessPuzzleInteractionRow[] {
+export function useChessPuzzleAllInteractions(): Accessor<
+  ChessPuzzleInteractionRow[]
+> {
   const myId = useMyId();
-  const query = useMemo(
-    () => sql<InteractionSqlRow>`
+  const query = () => sql<InteractionSqlRow>`
       SELECT
         puzzle_id,
         kind,
@@ -129,17 +137,15 @@ export function useChessPuzzleAllInteractions(): ChessPuzzleInteractionRow[] {
         rating_after,
         at
       FROM chess_puzzle_interactions
-      WHERE owner_id = ${myId}
+      WHERE owner_id = ${myId()}
       ORDER BY at DESC
       LIMIT 100
-    `,
-    [myId]
-  );
-  const { rows } = useQuery(query);
-  return useMemo(() => rows.map(interactionRowFromSql), [rows]);
+    `;
+  const { rows } = createQuery(query);
+  return createMemo(() => rows().map(interactionRowFromSql));
 }
 
-export function usePuzzleEntityAndInteractions(puzzleId: string): {
+export function usePuzzleEntityAndInteractions(puzzleId: Accessor<string>): {
   fen: string;
   movesStr: string;
   rating: number;
@@ -148,5 +154,9 @@ export function usePuzzleEntityAndInteractions(puzzleId: string): {
 } {
   const base = usePuzzleEntity(puzzleId);
   const interactions = usePuzzleInteractions(puzzleId);
-  return { ...base, interactions };
+  return mergeProps(base, {
+    get interactions() {
+      return interactions();
+    },
+  });
 }

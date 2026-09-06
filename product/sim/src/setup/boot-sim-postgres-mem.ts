@@ -100,9 +100,10 @@ export async function openSeededSimServerSql(
       await live.sqlClient.connect();
       await prev.disconnect();
     },
-    exportBytes: async () => live.exportBytes(),
-    importBytes: async (bytes) => {
+    exportBytes: () => Promise.resolve(live.exportBytes()),
+    importBytes: (bytes) => {
       live.importBytes(bytes);
+      return Promise.resolve();
     },
   };
 }

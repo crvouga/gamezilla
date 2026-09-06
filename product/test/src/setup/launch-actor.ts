@@ -2,7 +2,6 @@
  * Per-actor UI launch / teardown for product {@link openSim}.
  */
 
-import type { Timers } from '@pkgs/clock';
 import { wallClock } from '@pkgs/clock';
 import { writeUtf8 } from '@pkgs/object-store/helpers';
 import type { ObjectStore } from '@pkgs/object-store/interface';
@@ -12,15 +11,17 @@ import { resolveSimConsoleReportsDir, wallPathExists } from '@pkgs/sim-console';
 import type { SimSystemSnapshot } from '@pkgs/sim-console/shared/sim-system-snapshot';
 import type { Driver } from '@pkgs/ui-testing';
 import { BunWebviewDriver } from '@pkgs/ui-testing-bun-webview';
-import type { MultiAppRntlSession } from '@pkgs/ui-testing-rntl';
-import { RntlDriver } from '@pkgs/ui-testing-rntl';
-import { SNAPSHOT_SHELL_CSS } from '@pkgs/ui-testing-rntl/serialize-host-tree-html';
+import {
+  createSolidDomDriver,
+  type MultiAppSolidDomSession,
+  SNAPSHOT_SHELL_CSS,
+} from '@pkgs/ui-testing-solid-dom';
 import type { ProductUi, Sim, SimActor } from '@product/sim';
 import { simClientNamespace } from '@product/sim';
 
 import { injectWebViewSnapshotAuth } from './inject-webview-snapshot-auth';
-import { simNodeTimers } from './sim-actor-overrides';
 import { createSimWaitPump } from './sim-wait-pump';
+import { solidActorRoot } from './solid-actor-root';
 
 const reportFs = wallNodeFs();
 const reportDataDir = resolveSimConsoleReportsDir(
@@ -69,29 +70,28 @@ export type ActorEntry = {
   readonly closeResources: () => Promise<void>;
 };
 
-function createRntlClientDriver(args: {
+/**
+ * Solid DOM driver for one in-process actor. Waits are pump-driven (the sim's
+ * virtual `runFor`), deadlines run on the wall clock so virtual-time stepping
+ * never eats the wait budget.
+ */
+function createSolidDomClientDriver(args: {
   readonly sim: Sim;
   readonly id: string;
-  readonly rntl: MultiAppRntlSession;
+  readonly session: MultiAppSolidDomSession;
   readonly runFor: (durationMs: number) => Promise<void>;
 }): Driver {
-  const { createElement } = require('react') as typeof import('react');
   const live = args.sim.spawnClient(args.id);
   const pump = createSimWaitPump({
     scheduler: args.sim.scheduler,
     runFor: args.runFor,
   });
-  const timers: Timers = simNodeTimers;
-  return new RntlDriver({
-    now: wallClock.now,
-    timers,
+  return createSolidDomDriver({
+    clock: wallClock,
     pump,
     harness: {
       mount: async () => {
-        const app = args.rntl.mountActor(
-          args.id,
-          createElement(live.App, { embedded: true })
-        );
+        const app = args.session.mountActor(args.id, solidActorRoot(live));
         await args.runFor(0);
         return app;
       },
@@ -106,7 +106,7 @@ export async function launchActor(args: {
   readonly snapshot?: SimSystemSnapshot;
 }): Promise<ActorEntry> {
   let raw: Driver;
-  let closeResources: () => Promise<void> = async () => undefined;
+  let closeResources: () => Promise<void> = () => Promise.resolve();
   if (args.ui.kind === 'bun-webview') {
     const webOrigin = args.ui.webOrigin;
     const view = new Bun.WebView({
@@ -119,8 +119,9 @@ export async function launchActor(args: {
       baseUrl: webOrigin,
       actorId: args.id,
     });
-    closeResources = async () => {
+    closeResources = () => {
       view.close();
+      return Promise.resolve();
     };
     await raw.launch();
     if (args.snapshot !== undefined) {
@@ -133,16 +134,16 @@ export async function launchActor(args: {
       });
     }
   } else {
-    const rntl = args.ui.rntl;
-    if (rntl === undefined) {
+    const session = args.ui.session;
+    if (session === undefined) {
       throw new Error(
-        'launchActor: react-tree host requires an RNTL session (in-process tests)'
+        'launchActor: solid-dom host requires a MultiAppSolidDomSession (in-process tests)'
       );
     }
-    raw = createRntlClientDriver({
+    raw = createSolidDomClientDriver({
       sim: args.sim,
       id: args.id,
-      rntl,
+      session,
       runFor: args.ui.runFor,
     });
     await raw.launch();

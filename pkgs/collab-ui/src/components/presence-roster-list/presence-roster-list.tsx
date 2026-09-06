@@ -12,8 +12,8 @@ import {
   ListItem,
   Stack,
   StatusDot,
-} from '@pkgs/ui-rn';
-import type { ReactElement, ReactNode } from 'react';
+} from '@pkgs/ui';
+import { For, type JSX } from 'solid-js';
 
 import { ParticipantColorRing } from '../participant-color-ring';
 
@@ -24,13 +24,13 @@ export type PresenceRosterRow = {
   readonly isYou?: boolean;
   readonly isThisTab?: boolean;
   readonly isHost?: boolean;
-  readonly badges?: ReactNode;
+  readonly badges?: JSX.Element;
 };
 
 export type PresenceRosterListProps = {
   rows: readonly PresenceRosterRow[];
   colorForParticipant: (participantId: string) => ParticipantColor | string;
-  renderAvatar: (actor: RoomActor, size: number) => ReactNode;
+  renderAvatar: (actor: RoomActor, size: number) => JSX.Element;
   dataSet?: ComponentDataSet;
 };
 
@@ -42,34 +42,32 @@ function resolveColor(
   return typeof c === 'string' ? c : c.css;
 }
 
-export function PresenceRosterList({
-  rows,
-  colorForParticipant,
-  renderAvatar,
-  dataSet,
-}: PresenceRosterListProps): ReactElement {
+export function PresenceRosterList(
+  props: PresenceRosterListProps
+): JSX.Element {
   return (
-    <List {...componentDataSet('PresenceRosterList', dataSet)}>
-      {rows.map((row) => (
-        <ListItem
-          key={row.client.clientId}
-          title={row.title}
-          {...(row.subtitle !== undefined ? { subtitle: row.subtitle } : {})}
-          leading={
-            <Stack direction="horizontal" spacing={2} align="center">
-              <ParticipantColorRing
-                color={resolveColor(colorForParticipant, row.client.id)}
-                size={40}
-                borderWidth={2}
-              >
-                {renderAvatar(row.client, 36)}
-              </ParticipantColorRing>
-              <StatusDot status="online" size={8} />
-            </Stack>
-          }
-          trailing={row.badges}
-        />
-      ))}
+    <List {...componentDataSet('PresenceRosterList', props.dataSet)}>
+      <For each={props.rows}>
+        {(row) => (
+          <ListItem
+            title={row.title}
+            {...(row.subtitle !== undefined ? { subtitle: row.subtitle } : {})}
+            leading={
+              <Stack direction="horizontal" spacing={2} align="center">
+                <ParticipantColorRing
+                  color={resolveColor(props.colorForParticipant, row.client.id)}
+                  size={40}
+                  borderWidth={2}
+                >
+                  {props.renderAvatar(row.client, 36)}
+                </ParticipantColorRing>
+                <StatusDot status="online" size={8} />
+              </Stack>
+            }
+            trailing={row.badges}
+          />
+        )}
+      </For>
     </List>
   );
 }

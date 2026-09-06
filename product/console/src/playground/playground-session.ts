@@ -2,7 +2,7 @@
  * Session façade over createSim + room node + snapshot store.
  */
 
-import type { Client } from '@apps/client/product/create-client';
+import type { Client } from '@apps/client/shell/create-client';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import { createInMemoryPublishOnlyPubSub } from '@pkgs/pubsub/in-memory';
 import type { Topic } from '@pkgs/pubsub/interface';
@@ -64,7 +64,7 @@ function playgroundClock(sim: Sim): PlaygroundSession['clock'] {
 export type BootPlaygroundOptions = {
   readonly skipSnapshotLoad?: boolean;
   /**
-   * Product host. Default `in-process` (Expo / WASM SQL).
+   * Product host. Default `in-process` (Solid DOM / mem SQL).
    * `bun-webview` embeds actor URLs (iframe) against a localhost sidecar.
    */
   readonly runtime?: 'in-process' | 'bun-webview';
@@ -81,7 +81,7 @@ export type PlaygroundSessionBuildArgs = {
   readonly setClockPaused: (paused: boolean) => void;
   readonly skipSnapshotLoad?: boolean;
   readonly bindDomainWake?: (fire: (label: string) => void) => void;
-  /** When set, actor panels embed this origin as a URL view (not React App). */
+  /** When set, actor panels embed this origin as a URL view (not the Solid App). */
   readonly actorWebOrigin?: string;
 };
 
@@ -100,7 +100,7 @@ function liveToActor(args: {
     view:
       args.actorWebOrigin !== undefined
         ? { kind: 'url', url: args.actorWebOrigin }
-        : { kind: 'react', App: args.live.App },
+        : { kind: 'solid', App: args.live.App },
   };
 }
 

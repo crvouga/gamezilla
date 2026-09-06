@@ -1,16 +1,9 @@
 /**
  * Tabs vs columns preference for multi-client playground / reports chrome.
- * Session-local React state (shared via context across layout consumers).
+ * Session-local state shared via context across layout consumers.
  */
 
-import {
-  createContext,
-  type ReactNode,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
-} from 'react';
+import { createContext, type JSX, useContext, createSignal } from 'solid-js';
 
 import type { ClientLayoutMode } from './sim-console-layout';
 
@@ -23,22 +16,24 @@ const ClientLayoutPreferenceContext =
   createContext<ClientLayoutPreferenceValue | null>(null);
 
 export function ClientLayoutPreferenceProvider(props: {
-  readonly children: ReactNode;
+  readonly children: JSX.Element;
   readonly defaultPreference?: ClientLayoutMode;
-}): ReactNode {
-  const { children, defaultPreference = 'columns' } = props;
-  const [preference, setPreferenceState] =
-    useState<ClientLayoutMode>(defaultPreference);
-  const setPreference = useCallback((mode: ClientLayoutMode) => {
-    setPreferenceState(mode);
-  }, []);
-  const value = useMemo(
-    (): ClientLayoutPreferenceValue => ({ preference, setPreference }),
-    [preference, setPreference]
+}): JSX.Element {
+  const [preference, setPreferenceState] = createSignal<ClientLayoutMode>(
+    props.defaultPreference ?? 'columns'
   );
+  const setPreference = (mode: ClientLayoutMode) => {
+    setPreferenceState(mode);
+  };
+  const value: ClientLayoutPreferenceValue = {
+    get preference() {
+      return preference();
+    },
+    setPreference,
+  };
   return (
     <ClientLayoutPreferenceContext.Provider value={value}>
-      {children}
+      {props.children}
     </ClientLayoutPreferenceContext.Provider>
   );
 }

@@ -1,0 +1,38 @@
+{
+  "name": "@pkgs/ui-testing-solid-dom",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*/index.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bunx biome check --error-on-warnings .",
+    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@pkgs/clock": "workspace:*",
+    "@pkgs/ui-testing": "workspace:*",
+    "@testing-library/user-event": "catalog:",
+    "solid-js": "catalog:"
+  },
+  "devDependencies": {
+    "@lingui/core": "catalog:",
+    "@lingui/solid": "catalog:",
+    "@pkgs/ui": "workspace:*",
+    "@pkgs/vitest-solid": "workspace:*",
+    "@testing-library/jest-dom": "catalog:",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "happy-dom": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}

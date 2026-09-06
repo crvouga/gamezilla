@@ -2,7 +2,7 @@ import type { AudioPlaybackPort } from './audio-playback/ports';
 import { getManifestVolume } from './manifest';
 import { playAudioOrIgnoreAutoplayBlock } from './safe-audio-play';
 import type { SoundId } from './sound-id';
-import { type SoundAssetSourceId, soundAssetSources } from './sound-sources';
+import { type SoundAssetUrlId, soundAssetUrls } from './sound-urls';
 
 export type SoundEngineOptions = {
   readonly muted?: boolean;
@@ -93,7 +93,7 @@ export function createSoundEngine(options: SoundEngineOptions): SoundEngine {
   function getPlayer(id: SoundId): AudioPlayerLike {
     const existing = players.get(id);
     if (existing) return existing;
-    const source = soundAssetSources[id as SoundAssetSourceId];
+    const source = soundAssetUrls[id as SoundAssetUrlId];
     const player = audio.createPlayer(source);
     players.set(id, player);
     return player;

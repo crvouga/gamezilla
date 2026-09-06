@@ -28,6 +28,7 @@ import {
   setUsername,
 } from './profile-actions';
 import { addFriend, searchUsername } from './search-actions';
+import { expectTabsVisible, focusActor, openSettings } from './shell-actions';
 import {
   createSpace,
   endSpace,
@@ -54,7 +55,9 @@ export {
   expectLobbyCard,
   expectLobbyCardGone,
   expectPuzzleSolved,
+  expectTabsVisible,
   expectUsername,
+  focusActor,
   joinFromPrompt,
   leaveAvatarEditor,
   openAvatarEditor,
@@ -62,6 +65,7 @@ export {
   openLobbyCard,
   openProfileEdit,
   openPuzzleFromSpace,
+  openSettings,
   openSpacesTab,
   playUntilSolved,
   reenterActiveSpace,
@@ -77,6 +81,9 @@ export {
 };
 
 export const productScenarioActions = [
+  expectTabsVisible,
+  openSettings,
+  focusActor,
   signInWithDev,
   signOut,
   returnToTabs,

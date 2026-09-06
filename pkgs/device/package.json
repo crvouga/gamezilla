@@ -5,6 +5,7 @@
   "exports": {
     "./*": [
       "./src/*.ts",
+      "./src/*.tsx",
       "./src/*/index.ts"
     ]
   },
@@ -14,7 +15,9 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@pkgs/sync-engine": "workspace:*"
+    "@pkgs/solid-context": "workspace:*",
+    "@pkgs/sync-engine": "workspace:*",
+    "solid-js": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

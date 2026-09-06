@@ -26,8 +26,6 @@ import {
   type SystemSnapshotCtx,
 } from '@product/sim';
 
-import '@apps/client/i18n/i18n';
-
 import {
   type ActorEntry,
   closeActorEntry,
@@ -55,8 +53,8 @@ type WiredRuntime = {
   httpListener: SimHttpListener | null;
 };
 
-function rntlOf(ui: ProductUi) {
-  return ui.kind === 'react-tree' ? (ui.rntl ?? null) : null;
+function domSessionOf(ui: ProductUi) {
+  return ui.kind === 'solid-dom' ? (ui.session ?? null) : null;
 }
 
 function makeRuntime(args: {
@@ -102,7 +100,7 @@ async function disposeProduct(
     await closeActorEntry(a);
   }
   wired.entries.clear();
-  rntlOf(extra.ui)?.dispose();
+  domSessionOf(extra.ui)?.dispose();
   if (wired.httpListener !== null) {
     await wired.httpListener.stop();
   }
@@ -166,18 +164,18 @@ async function wireSim(args: {
  * scenarios never see this, and nothing outside this module may call it.
  */
 async function pinSim(s: Run<ProductSim>): Promise<ProductSim> {
-  let pinned: ProductSim | null = null;
+  const pin: { current: ProductSim | null } = { current: null };
   const capture = defineAction({
     name: 'openSim.pinSim',
     act: (s: ProductSim) => {
-      pinned = s;
+      pin.current = s;
     },
   });
   await s.apply(capture);
-  if (pinned === null) {
+  if (pin.current === null) {
     throw new Error('openSim: surface pin did not run');
   }
-  return pinned;
+  return pin.current;
 }
 
 export async function openSim(

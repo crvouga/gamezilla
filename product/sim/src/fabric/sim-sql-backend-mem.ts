@@ -52,9 +52,10 @@ export function openMemClientSql(logicalName: string, clock: Clock): SimSql {
       await live.connect();
       await prev.disconnect();
     },
-    exportBytes: async () => live.exportDatabaseBytes(),
-    importBytes: async (bytes) => {
+    exportBytes: () => Promise.resolve(live.exportDatabaseBytes()),
+    importBytes: (bytes) => {
       live.importDatabaseBytes(bytes);
+      return Promise.resolve();
     },
   };
 }
@@ -80,9 +81,10 @@ export function openMemServerSql(logicalName: string, clock: Clock): SimSql {
       await live.client.connect();
       await prev.client.disconnect();
     },
-    exportBytes: async () => live.client.exportDatabaseBytes(),
-    importBytes: async (bytes) => {
+    exportBytes: () => Promise.resolve(live.client.exportDatabaseBytes()),
+    importBytes: (bytes) => {
       live.client.importDatabaseBytes(bytes);
+      return Promise.resolve();
     },
   };
 }
@@ -113,9 +115,10 @@ export async function openMemServerSqlFromSeed(
       await live.sqlClient.connect();
       await prev.disconnect();
     },
-    exportBytes: async () => live.exportBytes(),
-    importBytes: async (bytes) => {
+    exportBytes: () => Promise.resolve(live.exportBytes()),
+    importBytes: (bytes) => {
       live.importBytes(bytes);
+      return Promise.resolve();
     },
   };
 }

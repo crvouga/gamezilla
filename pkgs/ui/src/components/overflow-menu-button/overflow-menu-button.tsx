@@ -1,0 +1,260 @@
+/** @jsxImportSource solid-js */
+/**
+ * `OverflowMenuButton` -- icon (or custom) trigger for a "more actions" menu.
+ *
+ * Owns the trigger face + open/close state ({@link useAnchoredMenu}) and
+ * turns `actions` into a {@link OverflowMenuContent} (rows + optional
+ * dividers). By default the dropdown is a {@link FloatingMenu} anchored to
+ * the trigger; pass `renderMenu` to supply any other anchored panel. The
+ * trigger renders nothing when `actions` is empty so consumers can keep the
+ * component mounted conditionally.
+ *
+ * @example
+ * ```tsx
+ * <OverflowMenuButton
+ *   aria-label={t`More`}
+ *   header={{ title: t`More` }}
+ *   actions={[
+ *     { id: 'devtools', label: 'Developer tools', icon: CodeIcon, onClick: openDebug, endsGroup: true },
+ *     { id: 'leave', label: 'Leave space', icon: LogOutIcon, onClick: leave },
+ *   ]}
+ * />
+ * ```
+ */
+
+import { type JSX, Show } from 'solid-js';
+import { Dynamic } from 'solid-js/web';
+import type { ComponentDataSet } from '../../component-id';
+import { Box } from '../box';
+import { Clickable } from '../clickable';
+import { FloatingMenu } from '../floating-menu';
+import { IconButton } from '../icon-button';
+import { EllipsisIcon, type IconComponent, MenuIcon } from '../icons';
+import {
+  type AnchoredMenuController,
+  useAnchoredMenu,
+} from './use-anchored-menu';
+
+export const OVERFLOW_MENU_DEFAULT_WIDTH = 280;
+
+export type OverflowMenuAction = {
+  /** Stable id used for the row key + a11y. */
+  id: string;
+  label: JSX.Element;
+  /** Secondary line under the label (e.g. email). */
+  subtitle?: JSX.Element | undefined;
+  /** Defaults to the ellipsis icon when omitted. */
+  icon?: IconComponent | undefined;
+  /** When set, replaces the icon glyph in the menu row (e.g. avatar). */
+  leading?: JSX.Element | undefined;
+  onClick: () => void;
+  trailing?: JSX.Element | undefined;
+  disabled?: boolean | undefined;
+  /** When true, inserts a divider row after this action. */
+  endsGroup?: boolean | undefined;
+  'aria-label'?: string | undefined;
+  dataSet?: ComponentDataSet | undefined;
+};
+
+export type OverflowMenuHeader = {
+  title: JSX.Element;
+  subtitle?: JSX.Element | undefined;
+  avatar?: JSX.Element | undefined;
+};
+
+export type OverflowMenuContentRow =
+  | {
+      type: 'item';
+      id: string;
+      label: JSX.Element;
+      icon: IconComponent;
+      onClick: () => void;
+      subtitle?: JSX.Element | undefined;
+      leading?: JSX.Element | undefined;
+      trailing?: JSX.Element | undefined;
+      disabled?: boolean | undefined;
+      'aria-label'?: string | undefined;
+      dataSet?: ComponentDataSet | undefined;
+    }
+  | { type: 'divider'; id: string };
+
+export type OverflowMenuContent = {
+  /** Optional panel header; `ActionBar` overflow menus omit it. */
+  header?: OverflowMenuHeader | undefined;
+  rows: readonly OverflowMenuContentRow[];
+};
+
+/** What `renderMenu` receives: open state, anchor, content, and geometry. */
+export type OverflowMenuRenderProps = {
+  open: boolean;
+  onClose: () => void;
+  anchor: HTMLElement | null;
+  width: number;
+  content: OverflowMenuContent;
+};
+
+export type OverflowMenuButtonProps = {
+  /** Actions rendered inside the dropdown. */
+  actions: readonly OverflowMenuAction[];
+  /** Panel header (title + optional subtitle). */
+  header: OverflowMenuHeader;
+  /** Trigger diameter in px. Defaults to 40. Ignored when `trigger` is set. */
+  size?: number | undefined;
+  /** Trigger background token. Defaults to `'surface'`. Ignored when `trigger`. */
+  background?: string | undefined;
+  /** Trigger icon. Defaults to the hamburger `MenuIcon`. Ignored when `trigger`. */
+  icon?: IconComponent | undefined;
+  /**
+   * Custom trigger face. When set, wraps the node in a `Clickable` that opens
+   * the menu (default IconButton is skipped).
+   */
+  trigger?: JSX.Element | undefined;
+  /** Trigger accessible name. */
+  'aria-label': string;
+  /** Width of the dropdown panel in px. */
+  width?: number | undefined;
+  /** Overrides the default {@link FloatingMenu} dropdown. */
+  renderMenu?: ((menu: OverflowMenuRenderProps) => JSX.Element) | undefined;
+  /** Notified when the trigger is clicked (after the menu opens). */
+  onClick?: (() => void) | undefined;
+  /** DOM `data-*` identifiers, applied to the clickable trigger (`data-testid`, …). */
+  dataSet?: ComponentDataSet | undefined;
+};
+
+const DEFAULT_ACTION_ICON = EllipsisIcon;
+
+/** Pure: turn `actions` into menu rows, closing the menu before each `onClick`. */
+export function buildOverflowMenuContent(
+  actions: readonly OverflowMenuAction[],
+  onClose: () => void,
+  header?: OverflowMenuHeader
+): OverflowMenuContent {
+  const rows: OverflowMenuContentRow[] = [];
+  actions.forEach((a, idx) => {
+    rows.push({
+      type: 'item',
+      id: a.id,
+      label: a.label,
+      icon: a.icon ?? DEFAULT_ACTION_ICON,
+      onClick: () => {
+        onClose();
+        a.onClick();
+      },
+      subtitle: a.subtitle,
+      leading: a.leading,
+      trailing: a.trailing,
+      disabled: a.disabled,
+      'aria-label': a['aria-label'],
+      dataSet: a.dataSet,
+    });
+    if (a.endsGroup === true && idx < actions.length - 1) {
+      rows.push({ type: 'divider', id: `${a.id}-end-group` });
+    }
+  });
+  return header === undefined ? { rows } : { header, rows };
+}
+
+/** Default `renderMenu`: a {@link FloatingMenu} anchored to the trigger. */
+export function renderDefaultOverflowMenu(
+  menu: OverflowMenuRenderProps
+): JSX.Element {
+  return (
+    <FloatingMenu
+      open={menu.open}
+      onClose={menu.onClose}
+      anchor={menu.anchor}
+      width={menu.width}
+      content={menu.content}
+    />
+  );
+}
+
+function TriggerFace(props: {
+  menu: AnchoredMenuController;
+  size: number;
+  background: string;
+  icon: IconComponent;
+  trigger: JSX.Element | undefined;
+  'aria-label': string;
+  onOpen: () => void;
+  dataSet: ComponentDataSet | undefined;
+}): JSX.Element {
+  return (
+    <Show
+      when={props.trigger !== undefined}
+      fallback={
+        <IconButton
+          size={props.size}
+          background={props.background}
+          onClick={props.onOpen}
+          label={props['aria-label']}
+          aria-label={props['aria-label']}
+          aria-haspopup="menu"
+          aria-expanded={props.menu.open()}
+          dataSet={props.dataSet}
+        >
+          <Dynamic
+            component={props.icon}
+            size={Math.round(props.size * 0.5)}
+            color="icon"
+          />
+        </IconButton>
+      }
+    >
+      <Clickable
+        onClick={props.onOpen}
+        aria-label={props['aria-label']}
+        aria-haspopup="menu"
+        aria-expanded={props.menu.open()}
+        dataSet={props.dataSet}
+        sx={{ borderRadius: 'full', overflow: 'hidden' }}
+      >
+        {props.trigger}
+      </Clickable>
+    </Show>
+  );
+}
+
+export function OverflowMenuButton(
+  props: OverflowMenuButtonProps
+): JSX.Element {
+  const menu = useAnchoredMenu();
+  const content = (): OverflowMenuContent =>
+    buildOverflowMenuContent(props.actions, menu.close, props.header);
+  const onOpen = (): void => {
+    menu.openMenu();
+    props.onClick?.();
+  };
+  const renderMenu = () => props.renderMenu ?? renderDefaultOverflowMenu;
+  return (
+    <Show when={props.actions.length > 0}>
+      <Box ref={menu.setTrigger} dataSet={{ component: 'OverflowMenuButton' }}>
+        <TriggerFace
+          menu={menu}
+          size={props.size ?? 40}
+          background={props.background ?? 'surface'}
+          icon={props.icon ?? MenuIcon}
+          trigger={props.trigger}
+          aria-label={props['aria-label']}
+          onOpen={onOpen}
+          dataSet={props.dataSet}
+        />
+      </Box>
+      {renderMenu()({
+        get open() {
+          return menu.open();
+        },
+        onClose: menu.close,
+        get anchor() {
+          return menu.anchor();
+        },
+        get width() {
+          return props.width ?? OVERFLOW_MENU_DEFAULT_WIDTH;
+        },
+        get content() {
+          return content();
+        },
+      })}
+    </Show>
+  );
+}

@@ -1,0 +1,65 @@
+/* Semantic <table> skeleton for DataTable. Cell content is styled with `sx`
+   on Box / Text hosts; this module only owns the table-specific structure
+   that `sx` (a flex-oriented shorthand) cannot express. */
+
+.scroller {
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+  align-self: stretch;
+  overflow: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  table-layout: auto;
+}
+
+.headRow {
+  height: 40px;
+  background: var(--ui-color-surface-muted);
+}
+
+.headRow > th {
+  border-bottom: 1px solid var(--ui-color-border);
+}
+
+.compact {
+  height: 40px;
+}
+
+.comfortable {
+  height: 48px;
+}
+
+.bodyRow > td {
+  border-bottom: 1px solid var(--ui-color-border);
+}
+
+.bodyRow:last-child > td {
+  border-bottom: 0;
+}
+
+.cell {
+  padding: 0;
+  margin: 0;
+  vertical-align: middle;
+  text-align: start;
+  font: inherit;
+  color: inherit;
+  white-space: nowrap;
+}
+
+.cell:first-child > * {
+  padding-left: 12px;
+}
+
+.cell:last-child > * {
+  padding-right: 12px;
+}
+
+.selectionCell {
+  width: 40px;
+}

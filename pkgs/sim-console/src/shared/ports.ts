@@ -5,7 +5,7 @@
 import type { Clock, Timers } from '@pkgs/clock';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import type { ComponentType } from 'react';
+import type { Component as SolidComponent } from 'solid-js';
 
 import type { SimCheckpoint } from './sim-checkpoint';
 
@@ -42,8 +42,9 @@ export type PlaygroundSqlNode = PlaygroundNode & {
 
 export type PlaygroundActorView =
   | {
-      readonly kind: 'react';
-      readonly App: ComponentType<{ readonly embedded?: boolean }>;
+      /** Solid product `App`; the console hosts it in a DOM element (web only). */
+      readonly kind: 'solid';
+      readonly App: SolidComponent<{ readonly embedded?: boolean }>;
     }
   | {
       readonly kind: 'url';

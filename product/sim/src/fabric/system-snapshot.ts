@@ -2,7 +2,7 @@
  * Portable logical system snapshot capture / restore for createSim.
  */
 
-import type { Client } from '@apps/client/product/create-client';
+import type { Client } from '@apps/client/shell/create-client';
 import { migrateSimClientSqlite } from '@apps/server/sim/migrate-sim-sqlite';
 import { LOCAL_DOMAIN_TABLE_NAMES } from '@libs/runtime/root/app-schema';
 import type {
@@ -152,8 +152,8 @@ export async function captureSystemSnapshot(
         },
         getClockPaused: () => ctx.getClockPaused?.() ?? false,
         setClockPaused: () => undefined,
-        spawnClient: async () => ({ id: 'noop' }),
-        detachClientsForSnapshotLoad: async () => undefined,
+        spawnClient: () => Promise.resolve({ id: 'noop' }),
+        detachClientsForSnapshotLoad: () => Promise.resolve(),
         notify: () => undefined,
         endSnapshotRestoring: () => undefined,
         runQuiet: async (fn) => fn(),
@@ -167,9 +167,11 @@ export async function restoreSystemSnapshot(
   ctx: SystemSnapshotCtx,
   snapshot: SimSystemSnapshot
 ): Promise<void> {
-  if (snapshot.version !== 1) {
+  // Snapshots are parsed from disk; the literal type is not a runtime guarantee.
+  const version: number = snapshot.version;
+  if (version !== 1) {
     throw new Error(
-      `restoreSystemSnapshot: unsupported version ${String(snapshot.version)}`
+      `restoreSystemSnapshot: unsupported version ${String(version)}`
     );
   }
   const required = getLocalSchemaTargetVersion();

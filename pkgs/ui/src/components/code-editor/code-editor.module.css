@@ -1,0 +1,60 @@
+/* Transparent textarea over a token-colored mirror; both share font metrics. */
+
+.field,
+.mirror {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  tab-size: 2;
+}
+
+.field {
+  display: block;
+  width: 100%;
+  height: 100%;
+  appearance: none;
+  border: 0;
+  outline: none;
+  resize: none;
+  background: transparent;
+  color: transparent;
+  caret-color: var(--ui-color-text);
+  overflow: hidden;
+}
+
+.field::placeholder {
+  color: var(--ui-color-text-secondary);
+}
+
+.mirror {
+  pointer-events: none;
+  overflow: hidden;
+  color: var(--ui-color-text);
+}
+
+/* Token palette (kept in CSS so the mirror never needs inline styles). */
+.tokKeyword {
+  color: var(--ui-color-tint);
+}
+.tokString {
+  color: var(--ui-color-success);
+}
+.tokNumber {
+  color: var(--ui-color-info);
+}
+.tokOperator,
+.tokParam {
+  color: var(--ui-color-warning);
+}
+.tokComment,
+.tokPunctuation {
+  color: var(--ui-color-text-secondary);
+}
+.tokIdentifier,
+.tokPlain {
+  color: var(--ui-color-text);
+}

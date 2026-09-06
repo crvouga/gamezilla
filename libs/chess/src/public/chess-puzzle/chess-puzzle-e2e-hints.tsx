@@ -34,7 +34,7 @@ function resolveSolutionUci(props: ChessPuzzleE2EHintsProps): string | null {
 }
 
 /**
- * Expose orientation + next human UCI for DST / Detox. `chess-puzzle-expected-uci`
+ * Expose orientation + next human UCI for DST / E2E. `chess-puzzle-expected-uci`
  * is blank until the board is interactive so waits cover opponent unlock.
  */
 export function ChessPuzzleE2EHints(

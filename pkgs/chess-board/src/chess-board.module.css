@@ -1,0 +1,115 @@
+.root {
+  touch-action: none;
+  contain: layout paint;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.svgLayer {
+  pointer-events: none;
+  overflow: visible;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+}
+
+.square {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  color: transparent;
+  cursor: default;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.squareOwn {
+  cursor: grab;
+}
+
+.squareTarget {
+  cursor: pointer;
+}
+
+.square:focus-visible {
+  outline: 3px solid var(--ui-color-focusRing, #3a8cff);
+  outline-offset: -3px;
+  border-radius: 2px;
+}
+
+.piece {
+  will-change: transform;
+}
+
+.pieceAnimated {
+  transition: transform var(--ui-duration-normal) var(--ui-easing-standard);
+}
+
+.pieceFadeIn {
+  animation: chessPieceFadeIn var(--ui-duration-normal)
+    var(--ui-easing-decelerate);
+}
+
+@keyframes chessPieceFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.pulse {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: chessBadgePulse 1.2s var(--ui-easing-inOut) infinite;
+}
+
+@keyframes chessBadgePulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.18);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pieceAnimated {
+    transition: none;
+  }
+  .pieceFadeIn,
+  .pulse {
+    animation: none;
+  }
+}
+
+/* Visually hidden probe: must stay in the accessibility/visibility tree so the
+   E2E driver can read its text; screen readers skip it via the parent's
+   aria-hidden layer. */
+.probe {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0.01;
+  white-space: nowrap;
+  pointer-events: none;
+}

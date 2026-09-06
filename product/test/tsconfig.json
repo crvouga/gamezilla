@@ -2,6 +2,8 @@
   "extends": "../../tsconfig.base.json",
   "include": [
     "../../pkgs/ts-reset/src/index.ts",
+    "../../apps/client/src/vite-env.d.ts",
+    "../../pkgs/ui/src/css-modules.d.ts",
     "./src/**/*.ts",
     "./src/**/*.tsx",
     "./scripts/**/*.ts",
@@ -40,10 +42,10 @@
       "@libs/db/shared/*": ["../../libs/db/src/shared/*.ts"],
       "@libs/user-search/*": ["../../libs/user-search/src/*"],
       "@pkgs/tts/*": ["../../pkgs/tts/src/*"],
-      "@pkgs/ui-testing-rntl": ["../../pkgs/ui-testing-rntl/src/index.ts"],
-      "@pkgs/ui-testing-rntl/*": ["../../pkgs/ui-testing-rntl/src/*"],
-      "@pkgs/ui-testing-detox": ["../../pkgs/ui-testing-detox/src/index.ts"],
-      "@pkgs/ui-testing-detox/*": ["../../pkgs/ui-testing-detox/src/*"],
+      "@pkgs/ui-testing-solid-dom": [
+        "../../pkgs/ui-testing-solid-dom/src/index.ts"
+      ],
+      "@pkgs/ui-testing-solid-dom/*": ["../../pkgs/ui-testing-solid-dom/src/*"],
       "@pkgs/ui-testing-bun-webview": [
         "../../pkgs/ui-testing-bun-webview/src/index.ts"
       ],
@@ -153,6 +155,7 @@
       "@pkgs/sql-client/*": ["../../pkgs/sql-client/src/*"],
       "@pkgs/sql": ["../../pkgs/sql/src/index.ts"],
       "@pkgs/sql/*": ["../../pkgs/sql/src/*"],
+      "@pkgs/solid-context/*": ["../../pkgs/solid-context/src/*"],
       "@pkgs/sync-engine/*": ["../../pkgs/sync-engine/src/*"],
       "@pkgs/static-file-server/*": ["../../pkgs/static-file-server/src/*"],
       "@pkgs/task-dag": ["../../pkgs/task-dag/src/index.ts"],

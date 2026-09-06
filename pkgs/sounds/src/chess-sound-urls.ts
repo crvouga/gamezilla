@@ -1,4 +1,4 @@
-// Vite / browser asset URLs (the `require()` twin lives in chess-sound-sources.ts).
+// Vite / browser asset URLs.
 export const chessSoundUrls = {
   move: new URL('../assets/gameplay/chess/move-2.mp3', import.meta.url).href,
   capture: new URL('../assets/gameplay/chess/capture-2.mp3', import.meta.url)

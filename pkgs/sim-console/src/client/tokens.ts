@@ -1,5 +1,5 @@
-import type { BadgeIntent, SxProps } from '@pkgs/ui-rn';
-import { useTheme } from '@pkgs/ui-rn';
+import type { BadgeIntent, SxProps } from '@pkgs/ui';
+import { useTheme } from '@pkgs/ui';
 
 /** Full-height shell: fill parent, product background. */
 export const appShellSx: SxProps = {
@@ -46,13 +46,19 @@ export const appBodyFrameSx: SxProps = {
 
 /** Responsive body padding — call from components under ThemeProvider. */
 export function useAppBodyContentSx(): SxProps {
-  const { breakpoint } = useTheme();
-  const mobile = breakpoint === 'mobile';
+  const theme = useTheme();
+  const mobile = () => theme.breakpoint() === 'mobile';
   return {
-    paddingHorizontal: mobile ? 12 : 28,
-    paddingTop: mobile ? 16 : 24,
+    get paddingHorizontal() {
+      return mobile() ? 12 : 28;
+    },
+    get paddingTop() {
+      return mobile() ? 16 : 24;
+    },
     paddingBottom: 40,
-    gap: mobile ? 3 : 4,
+    get gap() {
+      return mobile() ? 3 : 4;
+    },
   };
 }
 

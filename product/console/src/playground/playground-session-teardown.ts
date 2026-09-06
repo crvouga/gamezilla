@@ -2,7 +2,7 @@
  * Session map notify / quiet batching + client teardown for playground.
  */
 
-import type { Client } from '@apps/client/product/create-client';
+import type { Client } from '@apps/client/shell/create-client';
 import type { RoomServerApp } from '@apps/room-server/app/create-room-server';
 import type {
   createPlaygroundLogBuffer,

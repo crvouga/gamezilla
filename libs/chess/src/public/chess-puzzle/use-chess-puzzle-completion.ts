@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { type Accessor, createMemo } from 'solid-js';
 
 import {
   derivePuzzleCompletion,
@@ -20,10 +20,10 @@ export function useChessPuzzleCompletion(args: {
   interactions: readonly ChessPuzzleInteractionRow[];
   allInteractions: readonly ChessPuzzleInteractionRow[];
   status: ChessPuzzlePlayStatus | 'loading';
-}): PuzzleCompletion | null {
-  const { puzzleId, interactions, allInteractions, status } = args;
-  return useMemo(() => {
+}): Accessor<PuzzleCompletion | null> {
+  return createMemo(() => {
+    const { puzzleId, interactions, allInteractions, status } = args;
     if (status !== CHESS_PUZZLE_PLAY_STATUS.solved) return null;
     return derivePuzzleCompletion({ interactions, puzzleId, allInteractions });
-  }, [allInteractions, interactions, puzzleId, status]);
+  });
 }

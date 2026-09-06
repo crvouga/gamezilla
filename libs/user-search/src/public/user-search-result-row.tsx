@@ -1,23 +1,21 @@
 import { UserProfileAvatar } from '@libs/profile/public/user-profile-avatar';
 import { UserUsername } from '@libs/profile/public/user-username';
-import { Box, Pressable } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Box, Pressable } from '@pkgs/ui';
+import { type JSX, Show } from 'solid-js';
 
 import type { UserSearchResult } from './user-search-types';
 
 export type UserSearchResultRowProps = {
   readonly user: UserSearchResult;
   readonly onPress?: (() => void) | undefined;
-  readonly trailing?: ReactNode;
+  readonly trailing?: JSX.Element;
 };
 
 /** Avatar + username row for pickers (no friend-action chrome). */
-export function UserSearchResultRow({
-  user,
-  onPress,
-  trailing,
-}: UserSearchResultRowProps): ReactNode {
-  const body = (
+export function UserSearchResultRow(
+  props: UserSearchResultRowProps
+): JSX.Element {
+  const body = () => (
     <Box
       sx={{
         flexDirection: 'row',
@@ -26,18 +24,21 @@ export function UserSearchResultRow({
         py: 2,
       }}
     >
-      <UserProfileAvatar profileId={user.userId} size={44} />
+      <UserProfileAvatar profileId={props.user.userId} size={44} />
       <Box sx={{ flex: 1, minWidth: 0 }}>
         <UserUsername
-          profileId={user.userId}
+          profileId={props.user.userId}
           variant="bodyBold"
           numberOfLines={1}
         />
       </Box>
-      {trailing}
+      {props.trailing}
     </Box>
   );
 
-  if (onPress === undefined) return body;
-  return <Pressable onPress={onPress}>{body}</Pressable>;
+  return (
+    <Show when={props.onPress} fallback={body()}>
+      {(onPress) => <Pressable onPress={() => onPress()()}>{body()}</Pressable>}
+    </Show>
+  );
 }

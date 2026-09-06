@@ -1,6 +1,5 @@
-import { useLogger } from '@pkgs/logger/react';
-import { useSecureStorageStore } from '@pkgs/secure-storage/use-secure-storage-item';
-import { useCallback } from 'react';
+import { useLogger } from '@pkgs/logger/solid';
+import { useSecureStorageStore } from '@pkgs/secure-storage/solid';
 import { useAuthClientPort } from './auth-client-provider';
 import { SessionCapabilityStore } from './session-capability';
 
@@ -14,7 +13,7 @@ export function useSignOut(): () => Promise<void> {
   const port = useAuthClientPort();
   const store = useSecureStorageStore();
 
-  return useCallback(async () => {
+  return async () => {
     // Drop product session capability first so chrome cannot read a stale
     // signed-in token while the auth-port sign-out / session refetch is in flight.
     try {
@@ -39,5 +38,5 @@ export function useSignOut(): () => Promise<void> {
         });
       }
     }
-  }, [port, store, log]);
+  };
 }

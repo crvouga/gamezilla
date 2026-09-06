@@ -5,7 +5,7 @@ runtimes on that System:
 
 | Host name | Factory | Command | UI | SQL / HTTP |
 | --- | --- | --- | --- | --- |
-| `in-process` (default) | `inProcessRuntime` | `bun run --filter @product/test test` | React tree (RNTL under bun:test; embedded `App` in playground) | Seed postgres-mem + sqlite-mem; in-process Hono `fetch`; caps include `partition` |
+| `in-process` (default) | `inProcessRuntime` | `bun run --filter @product/test test` | Solid DOM (`@pkgs/ui-testing-solid-dom` in happy-dom under bun:test; embedded `App` in playground) | Seed postgres-mem + sqlite-mem; in-process Hono `fetch`; caps include `partition` |
 | `bun-webview` | `bunWebviewRuntime` | `SIM_MODE=real` / `bun run --filter @product/test test:max` | `Bun.WebView` per actor (tests); playground embeds actor **URL** (iframe) | Seed SQL + model network by default; `SIM_MODE=real` uses real Postgres + MinIO/EMQX and no `partition` cap. Hono on loopback HTTP via `listenSimHttpServer` |
 
 Open a run with `openSim` from `product/test/src/setup/open-sim.ts` — a thin
@@ -50,9 +50,8 @@ throws `ActionNotEnabled`.
 Engine selection lives in `@product/sim` (`getSimSqlEngines` / fabric) — not in
 product libs. Playground web may still load SQLite WASM from
 `product/console/public/generated/` (`bun run --filter @product/console bundle:sim-sql-wasm`;
-wired into `predev` / `setup`) so Metro's Hermes classic bundle never sees
-`import.meta`. Seed with `bun run --filter @product/sim seed:sim-db` (also
-aliased from `@product/test`).
+wired into `predev` / `setup`). Seed with `bun run --filter @product/sim seed:sim-db`
+(also aliased from `@product/test`).
 
 **System snapshots** (committed fixtures; infrastructure only — scenarios still use UI setup):
 
@@ -71,7 +70,16 @@ Catalog: `signed-in-alice`, `signed-in-pair`, `friends-pair`, `both-in-space`.
 
 - **`in-process`** — the network mesh (`partition`) is first-class. Server schema is migrated
   **once** into the seed file (`bun run --filter @product/sim seed:sim-db`); each
-  `openSim` clones that seed instead of re-running DDL.
+  `openSim` clones that seed instead of re-running DDL. UI runs on **virtual
+  time**: `bun-preload.ts` installs a happy-dom document (phone viewport) and
+  `bun-babel-plugin.ts` compiles workspace `.tsx` with `babel-preset-solid` +
+  the Lingui macro (CSS modules → class-name proxies, media assets → paths);
+  `bun test` runs with `--conditions=browser --conditions=development` so Solid
+  resolves to its browser dev build. Each actor is one `MultiAppSolidDomSession`
+  mount (`launch-actor.ts` → `createSolidDomDriver`); only the focused actor is
+  in the document, parked actors keep their route via a per-actor
+  `MemoryHistory` and re-mount on focus. Waits are pump-driven
+  (`createSimWaitPump` → `runFor`), deadlines on the wall clock.
 - **`bun-webview`** — wall time. Default: model network + seed SQL.
   `listenSimHttpServer` binds Hono on `127.0.0.1:8787` and enforces createSimNet
   crash/partition (actor id via `x-sim-actor`). Tests drive `Bun.WebView`;

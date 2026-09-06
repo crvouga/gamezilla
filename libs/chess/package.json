@@ -17,13 +17,13 @@
     "lint": "bunx biome check --error-on-warnings .",
     "seed:puzzles": "bun run scripts/seed-chess-puzzles.ts",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test --pass-with-no-tests"
+    "test": "bun test tests/puzzle-session && vitest run"
   },
   "dependencies": {
     "@libs/auth": "workspace:*",
     "@libs/spaces": "workspace:*",
     "@lingui/core": "catalog:",
-    "@lingui/react": "catalog:",
+    "@lingui/solid": "catalog:",
     "@pkgs/assert": "workspace:*",
     "@pkgs/assistant": "workspace:*",
     "@pkgs/attribute": "workspace:*",
@@ -52,21 +52,25 @@
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sql-client-postgres": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
-    "@pkgs/ui-rn": "workspace:*",
+    "@pkgs/ui": "workspace:*",
     "@pkgs/uuid": "workspace:*",
     "chess.js": "catalog:",
     "csv-parse": "catalog:",
     "fzstd": "catalog:",
     "pg": "catalog:",
-    "react": "catalog:",
-    "react-native": "catalog:",
+    "solid-js": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@pkgs/vitest-solid": "workspace:*",
+    "@solidjs/testing-library": "catalog:",
+    "@testing-library/jest-dom": "catalog:",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
-    "@types/react": "catalog:",
     "@typescript/native": "catalog:",
-    "typescript": "catalog:"
+    "happy-dom": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
   }
 }
