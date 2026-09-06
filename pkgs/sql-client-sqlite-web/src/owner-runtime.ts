@@ -76,6 +76,46 @@ function createBypassClient(owner: SqlClient): SqlClient {
   return owner;
 }
 
+/** Optional byte-image capabilities a {@link SqlOwner} client may expose. */
+type ClientBytesPort = {
+  exportDatabaseBytes?: () => Uint8Array;
+  exportDatabaseBytesAsync?: () => Promise<Uint8Array>;
+  getSqliteDatabase?: () => {
+    serializeAsync: (name?: string) => Promise<Uint8Array>;
+  };
+  importDatabaseBytes?: (bytes: Uint8Array) => void;
+  importDatabaseBytesAsync?: (bytes: Uint8Array) => Promise<void>;
+};
+
+function exportClientBytes(client: SqlClient): Promise<Uint8Array> {
+  const port = client as SqlClient & ClientBytesPort;
+  if (typeof port.exportDatabaseBytesAsync === 'function') {
+    return port.exportDatabaseBytesAsync();
+  }
+  if (typeof port.exportDatabaseBytes === 'function') {
+    return Promise.resolve(port.exportDatabaseBytes());
+  }
+  if (typeof port.getSqliteDatabase === 'function') {
+    return port.getSqliteDatabase().serializeAsync('main');
+  }
+  throw new Error('exportBytes is not supported by this SqlOwner');
+}
+
+function importClientBytes(
+  client: SqlClient,
+  bytes: Uint8Array
+): Promise<void> {
+  const port = client as SqlClient & ClientBytesPort;
+  if (typeof port.importDatabaseBytesAsync === 'function') {
+    return port.importDatabaseBytesAsync(bytes);
+  }
+  if (typeof port.importDatabaseBytes === 'function') {
+    port.importDatabaseBytes(bytes);
+    return Promise.resolve();
+  }
+  throw new Error('importBytes is not supported by this SqlOwner');
+}
+
 class OwnerRuntimeImpl implements OwnerRuntime {
   readonly dbName: string;
   private readonly timers: Timers;
@@ -295,19 +335,7 @@ class OwnerRuntimeImpl implements OwnerRuntime {
 
   async exportBytes(): Promise<Uint8Array> {
     const client = await this.ensureOpen();
-    const withExport = client as SqlClient & {
-      exportDatabaseBytes?: () => Uint8Array;
-      getSqliteDatabase?: () => {
-        serializeAsync: (name?: string) => Promise<Uint8Array>;
-      };
-    };
-    if (typeof withExport.exportDatabaseBytes === 'function') {
-      return withExport.exportDatabaseBytes();
-    }
-    if (typeof withExport.getSqliteDatabase === 'function') {
-      return withExport.getSqliteDatabase().serializeAsync('main');
-    }
-    throw new Error('exportBytes is not supported by this SqlOwner');
+    return exportClientBytes(client);
   }
 
   async importBytes(bytes: Uint8Array): Promise<void> {
@@ -318,14 +346,7 @@ class OwnerRuntimeImpl implements OwnerRuntime {
     }
     await this.resetDatabase();
     const client = await this.ensureOpen();
-    const withImport = client as SqlClient & {
-      importDatabaseBytes?: (b: Uint8Array) => void;
-    };
-    if (typeof withImport.importDatabaseBytes === 'function') {
-      withImport.importDatabaseBytes(bytes);
-      return;
-    }
-    throw new Error('importBytes is not supported by this SqlOwner');
+    await importClientBytes(client, bytes);
   }
 
   hasActiveTx(): boolean {

@@ -84,11 +84,16 @@ export function isIoCompositionEntryPath(rel: string): boolean {
   ) {
     return true;
   }
-  // SharedWorker process roots (separate JS realm; still require `@io-wall-ok`).
+  // Worker process roots (separate JS realm; still require `@io-wall-ok`).
   if (
     base.endsWith('-shared-worker.ts') ||
-    base.endsWith('-shared-worker.js')
+    base.endsWith('-shared-worker.js') ||
+    base.endsWith('-worker-entry.ts')
   ) {
+    return true;
+  }
+  // Browser worker spawners (`new Worker(new URL(..., import.meta.url))`).
+  if (base.startsWith('spawn-') && base.endsWith('-worker.ts')) {
     return true;
   }
   if (base.endsWith('-boot.js') || base.endsWith('-boot.ts')) {

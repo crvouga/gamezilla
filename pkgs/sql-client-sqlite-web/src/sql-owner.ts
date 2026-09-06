@@ -3,9 +3,10 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 /**
  * Backing store for a web (or test) SQLite owner tab.
  *
- * Product web uses an iframe-hosted expo-sqlite owner so AccessHandlePoolVFS
- * handles die when the iframe is destroyed — enabling in-process OPFS wipe
- * without navigating the product Window away.
+ * Browser owners keep the engine in a disposable realm (dedicated worker for
+ * sqlite-wasm, iframe for the legacy expo build) so OPFS access handles die
+ * with that realm — enabling in-process wipe without navigating the product
+ * Window away.
  */
 export type SqlOwner = {
   /** Open (or reopen) the named DB and return a connected {@link SqlClient}. */

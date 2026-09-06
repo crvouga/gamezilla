@@ -85,6 +85,38 @@ SharedWorker instances are named `sql-db-host-v{protocolVersion}` so a deploy
 that bumps `SQL_DB_HOST_PROTOCOL_VERSION` does not share a stale broker with
 old tabs.
 
+## Owners
+
+The owner tab talks to SQLite through a `SqlOwner` (`open` / `close` /
+`resetStore`). Two browser owners exist during the RN → Solid port:
+
+| Owner | Engine | Storage | Used by |
+| --- | --- | --- | --- |
+| `createSqliteWorkerSqlOwner` (`src/sqlite-worker/`) | `@sqlite.org/sqlite-wasm` in a **dedicated module worker** | OPFS SyncAccessHandle **pool VFS**, one directory per db (`/sqlite-web/<dbName>`); memory fallback when OPFS is unavailable | Solid / Vite app |
+| `createExpoIframeSqlOwner` | expo-sqlite (wa-sqlite) in a disposable iframe | OPFS `expo-sqlite/` | legacy Expo web bundle (deleted with the RN app) |
+
+### Dedicated-worker owner
+
+```mermaid
+sequenceDiagram
+  participant Tab as OwnerTab
+  participant W as SqliteWorker
+  participant Pool as OPFS_SAHPool
+
+  Tab->>W: spawn (spawn-sqlite-worker.ts)
+  Tab->>W: open{dbName}
+  W->>Pool: installOpfsSAHPoolVfs(/sqlite-web/dbName)
+  W-->>Tab: {persistent, vfs}
+  Tab->>W: run / query / exportBytes / importBytes
+  Tab->>W: close
+  Tab->>W: terminate()  # releases every OPFS handle
+```
+
+- Wire protocol: `sqlite-worker/protocol.ts` (`{ id, op, args }` → `{ id, ok, result | error }`); requests are served strictly in order so `BEGIN … COMMIT` never interleave.
+- Host (`sqlite-worker-host.ts`) and client (`sqlite-worker-client.ts`) are framework- and wall-free; tests drive them over a `MessageChannel` with the memory backend (`bun test`).
+- `resetStore` spawns a throwaway worker that wipes the pool directory (`wipeFiles`) and terminates — this is the in-process recovery primitive.
+- Only `sqlite-worker-entry.ts` (worker realm) and `spawn-sqlite-worker.ts` (`new Worker(new URL(...))`) touch browser globals; both are `@io-wall-ok`.
+
 ## Migration (`open-main-sql-client.ts`)
 
 Web calls `createExpoWebSqlClient(dbName, { timers, migrate?, schemaEpoch? })`.

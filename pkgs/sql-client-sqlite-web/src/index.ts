@@ -45,3 +45,9 @@ export {
 } from './sql-db-host-protocol';
 export type { SqlOwner, SqlOwnerFactory } from './sql-owner';
 export { isSqlOwnerWipeWorthyError } from './sql-owner';
+export {
+  createSqliteWorkerSqlOwner,
+  type SqliteWorkerHandle,
+  type SqliteWorkerOpenResult,
+  type SqliteWorkerSqlOwner,
+} from './sqlite-worker';
