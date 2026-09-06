@@ -1,61 +1,32 @@
 #!/usr/bin/env bun
 // @io-wall-ok — composition-root wall FS via ObjectStore migration pending
 import { rmSync, writeFileSync } from 'node:fs';
-import { createRequire } from 'node:module';
 import { join } from 'node:path';
 import { PRODUCT_CONFIG } from '@libs/db/public/product-config';
 import { deleteWorkerByName } from '@libs/secrets/shared/cloudflare-worker-lifecycle';
 import { productionConsoleOrigin } from '@libs/secrets/shared/deploy-origins';
-import { withNodeMaxOldSpaceSize } from '@libs/secrets/shared/eas-mobile';
 import { ok } from '@libs/secrets/shared/fmt';
-import { REPO_ROOT } from '@libs/secrets/shared/paths';
-import { runAsync, runCapture } from '@libs/secrets/shared/subprocess';
+import { withNodeMaxOldSpaceSize } from '@libs/secrets/shared/node-options';
+import { runAsync } from '@libs/secrets/shared/subprocess';
 import { waitForHttp } from '@libs/secrets/shared/wait-for-http';
 import { wranglerArgs, wranglerEnv } from '@libs/secrets/shared/wrangler-env';
-import { assert } from '@pkgs/assert';
 import { wallClock } from '@pkgs/clock';
-import { assertCommitDateIso, COMMIT_HASH_HEX_REGEX } from '@pkgs/git';
 import { createLogger } from '@pkgs/logger';
 import { isProductionSecretsEnv } from '../../../tools/src/deploy-mode';
 
 const log = createLogger({ name: 'console:deploy', now: wallClock.now });
 
-const require = createRequire(import.meta.url);
-const {
-  EXPO_SQLITE_WEB_COEP,
-  EXPO_SQLITE_WEB_COOP,
-}: {
-  EXPO_SQLITE_WEB_COEP: string;
-  EXPO_SQLITE_WEB_COOP: string;
-} = require('./expo-sqlite-web-headers.js');
-
 const consoleDir = join(import.meta.dirname, '..');
+
+/** COOP/COEP for SharedArrayBuffer (sqlite-wasm OPFS SAH pool) on Workers assets. */
+const SQLITE_WEB_COOP = 'same-origin';
+const SQLITE_WEB_COEP = 'require-corp';
 
 /** Pre-cutover script names; delete after the new console worker is live. */
 const LEGACY_SIM_WORKER_SCRIPT_NAMES = [
   'gamezilla-sim',
   'gamezilla-sim-production',
 ] as const;
-
-function resolveCommitHash(): string {
-  const rawSha = runCapture('git', ['rev-parse', 'HEAD'], { cwd: REPO_ROOT });
-  const commitHash = rawSha.trim().toLowerCase();
-  assert.ok(
-    COMMIT_HASH_HEX_REGEX.test(commitHash),
-    'console-worker: git HEAD must be a valid lowercase hex commit SHA',
-    { rawSha }
-  );
-  return commitHash;
-}
-
-function resolveCommitDate(): string {
-  const rawDate = runCapture('git', ['log', '-1', '--format=%cI', 'HEAD'], {
-    cwd: REPO_ROOT,
-  });
-  const commitDate = rawDate.trim();
-  assertCommitDateIso(commitDate);
-  return commitDate;
-}
 
 function cleanupConsoleDist(): void {
   rmSync(join(consoleDir, 'dist'), {
@@ -64,12 +35,12 @@ function cleanupConsoleDist(): void {
   });
 }
 
-/** COOP/COEP for SharedArrayBuffer (expo-sqlite / sqlite-wasm) on Workers assets. */
+/** COOP/COEP for SharedArrayBuffer (sqlite-wasm) on Workers assets. */
 function writeDistIsolationHeaders(): void {
   const body = [
     '/*',
-    `\tCross-Origin-Opener-Policy: ${EXPO_SQLITE_WEB_COOP}`,
-    `\tCross-Origin-Embedder-Policy: ${EXPO_SQLITE_WEB_COEP}`,
+    `\tCross-Origin-Opener-Policy: ${SQLITE_WEB_COOP}`,
+    `\tCross-Origin-Embedder-Policy: ${SQLITE_WEB_COEP}`,
     '',
   ].join('\n');
   writeFileSync(join(consoleDir, 'dist', '_headers'), body, 'utf8');
@@ -77,22 +48,15 @@ function writeDistIsolationHeaders(): void {
 
 const CONSOLE_EXPORT_MAX_OLD_SPACE_MB = 8192;
 
-async function buildConsoleWeb(
-  commitHash: string,
-  commitDate: string
-): Promise<void> {
+async function buildConsoleWeb(): Promise<void> {
   const buildEnv = withNodeMaxOldSpaceSize(
-    {
-      ...process.env,
-      EXPO_PUBLIC_COMMIT_HASH: commitHash,
-      EXPO_PUBLIC_COMMIT_DATE: commitDate,
-    },
+    { ...process.env },
     CONSOLE_EXPORT_MAX_OLD_SPACE_MB
   );
 
   await runAsync('bun', ['run', 'build'], {
     cwd: consoleDir,
-    label: 'console-worker: expo export (static web assets)',
+    label: 'console-worker: vite build (static web assets)',
     env: buildEnv,
   });
 
@@ -106,10 +70,7 @@ function deleteLegacySimWorkerScripts(): void {
 }
 
 async function deploy(dryRun: boolean): Promise<void> {
-  const commitHash = resolveCommitHash();
-  const commitDate = resolveCommitDate();
-
-  await buildConsoleWeb(commitHash, commitDate);
+  await buildConsoleWeb();
 
   const wranglerDeployArgs = dryRun
     ? wranglerArgs('deploy', '--dry-run')
