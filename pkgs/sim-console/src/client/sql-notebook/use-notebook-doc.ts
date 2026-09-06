@@ -1,15 +1,10 @@
-import { useTimers } from '@pkgs/clock';
-import { useCreateId } from '@pkgs/uuid';
-import {
-  type Dispatch,
-  type SetStateAction,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import type { Timers } from '@pkgs/clock';
+import { useTimers } from '@pkgs/clock/solid';
+import { useCreateId } from '@pkgs/uuid/solid';
+import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js';
 
 import { createEmptyNotebook, type SqlNotebookDoc } from './notebook-doc';
+import type { NotebookStore } from './notebook-store';
 import { useNotebookStore } from './notebook-store-context';
 import { type SqlDialect, starterSqlForDialect } from './sql-dialect';
 
@@ -18,40 +13,49 @@ export type NotebookDocState =
   | { readonly status: 'ready'; readonly doc: SqlNotebookDoc }
   | { readonly status: 'error'; readonly message: string };
 
+export type NotebookDocSetter = (
+  next: SqlNotebookDoc | ((prev: SqlNotebookDoc) => SqlNotebookDoc)
+) => void;
+
 export function useNotebookDoc(args: {
-  readonly nodeId: string;
-  readonly dialect: SqlDialect;
-  readonly active: boolean;
+  readonly nodeId: Accessor<string>;
+  readonly dialect: Accessor<SqlDialect>;
+  readonly active: Accessor<boolean>;
 }): {
-  readonly state: NotebookDocState;
-  readonly setDoc: Dispatch<SetStateAction<SqlNotebookDoc>>;
+  readonly state: Accessor<NotebookDocState>;
+  readonly setDoc: NotebookDocSetter;
   readonly resetDoc: () => void;
 } {
   const { nodeId, dialect, active } = args;
   const store = useNotebookStore();
   const createId = useCreateId();
   const timers = useTimers();
-  const [state, setState] = useState<NotebookDocState>({ status: 'loading' });
-  const saveHandle = useRef<unknown>(null);
-  const nodeIdRef = useRef(nodeId);
-  nodeIdRef.current = nodeId;
+  const [state, setState] = createSignal<NotebookDocState>({
+    status: 'loading',
+  });
+  const saveHandle: { current: unknown } = { current: null };
 
-  useEffect(() => {
-    if (!active) return;
+  createEffect(() => {
+    if (!active()) return;
+    const id = nodeId();
+    const dialectValue = dialect();
     let cancelled = false;
+    onCleanup(() => {
+      cancelled = true;
+    });
     setState({ status: 'loading' });
     void (async () => {
       try {
-        const loaded = await store.load(nodeId);
+        const loaded = await store.load(id);
         if (cancelled) return;
         if (loaded !== null) {
           setState({ status: 'ready', doc: loaded });
           return;
         }
         const doc = createEmptyNotebook({
-          nodeId,
+          nodeId: id,
           cellId: createId(),
-          starterSql: starterSqlForDialect(dialect),
+          starterSql: starterSqlForDialect(dialectValue),
         });
         setState({ status: 'ready', doc });
         await store.save(doc);
@@ -63,39 +67,32 @@ export function useNotebookDoc(args: {
         });
       }
     })();
-    return () => {
-      cancelled = true;
-    };
-  }, [active, nodeId, dialect, store, createId]);
+  });
 
-  const setDoc: Dispatch<SetStateAction<SqlNotebookDoc>> = useCallback(
-    (updater) => {
-      setState((prev) => {
-        if (prev.status !== 'ready') return prev;
-        const next =
-          typeof updater === 'function' ? updater(prev.doc) : updater;
-        scheduleSave(store, timers, saveHandle, next);
-        return { status: 'ready', doc: next };
-      });
-    },
-    [store, timers]
-  );
+  const setDoc: NotebookDocSetter = (updater) => {
+    setState((prev) => {
+      if (prev.status !== 'ready') return prev;
+      const next = typeof updater === 'function' ? updater(prev.doc) : updater;
+      scheduleSave(store, timers, saveHandle, next);
+      return { status: 'ready', doc: next };
+    });
+  };
 
-  const resetDoc = useCallback(() => {
+  const resetDoc = (): void => {
     const doc = createEmptyNotebook({
-      nodeId: nodeIdRef.current,
+      nodeId: nodeId(),
       cellId: createId(),
-      starterSql: starterSqlForDialect(dialect),
+      starterSql: starterSqlForDialect(dialect()),
     });
     setDoc(doc);
-  }, [createId, dialect, setDoc]);
+  };
 
   return { state, setDoc, resetDoc };
 }
 
 function scheduleSave(
-  store: ReturnType<typeof useNotebookStore>,
-  timers: ReturnType<typeof useTimers>,
+  store: NotebookStore,
+  timers: Timers,
   handleRef: { current: unknown },
   doc: SqlNotebookDoc
 ): void {

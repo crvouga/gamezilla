@@ -1,15 +1,29 @@
-import { Text } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
 import type { Component as SolidComponent } from 'solid-js';
+import { Dynamic } from 'solid-js/web';
 
-/** Native fallback — Solid actors mount into a DOM element on web only. */
+/**
+ * Hosts a Solid product `App` inside the console (web). `Dynamic` remounts
+ * when `App` changes (snapshot reload also remounts via the parent key).
+ */
 export function SolidActorHost(props: {
   readonly title: string;
   readonly App: SolidComponent<{ readonly embedded?: boolean }>;
-}): ReactNode {
+}) {
   return (
-    <Text sx={{ p: 3, color: 'muted' }}>
-      {props.title}: the Solid product App renders in the web console only.
-    </Text>
+    <div title={props.title} style={hostStyle}>
+      <Dynamic component={props.App} embedded={true} />
+    </div>
   );
 }
+
+const hostStyle = {
+  display: 'flex',
+  'flex-direction': 'column',
+  flex: '1',
+  width: '100%',
+  height: '100%',
+  'min-height': '0',
+  'min-width': '0',
+  position: 'relative',
+  overflow: 'hidden',
+} as const;

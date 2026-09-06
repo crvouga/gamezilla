@@ -17,6 +17,31 @@ export type UsePlaygroundSessionResult = {
   readonly reboot: () => void;
 };
 
+type BootOutcome =
+  | { readonly ok: true; readonly session: PlaygroundSession }
+  | { readonly ok: false; readonly error: string }
+  | null;
+
+async function bootSession(args: {
+  readonly boot: (opts?: BootPlaygroundOptions) => Promise<PlaygroundSession>;
+  readonly skip: boolean;
+  readonly isCancelled: () => boolean;
+}): Promise<BootOutcome> {
+  if (args.isCancelled()) return null;
+  try {
+    const session = await args.boot(
+      args.skip ? { skipSnapshotLoad: true } : undefined
+    );
+    return { ok: true, session };
+  } catch (err) {
+    if (args.isCancelled()) return null;
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : String(err),
+    };
+  }
+}
+
 /** Serialize teardown and boot so SQLite handles never overlap. */
 export function usePlaygroundSession(
   bootPlayground: (opts?: BootPlaygroundOptions) => Promise<PlaygroundSession>,
@@ -40,26 +65,25 @@ export function usePlaygroundSession(
     setState({ status: 'booting' });
     const skip = skipSnapshotLoad;
     skipSnapshotLoad = false;
+    const isCancelled = () => cancelled;
     const run = disposeGate.then(async () => {
-      if (cancelled) return;
-      try {
-        const session = await bootPlayground(
-          skip ? { skipSnapshotLoad: true } : undefined
-        );
-        if (cancelled) {
-          await session.dispose().catch(() => {});
-          return;
-        }
-        live = session;
-        current = session;
-        setState({ status: 'ready', session });
-      } catch (err) {
-        if (!cancelled)
-          setState({
-            status: 'error',
-            error: err instanceof Error ? err.message : String(err),
-          });
+      const outcome = await bootSession({
+        boot: bootPlayground,
+        skip,
+        isCancelled,
+      });
+      if (outcome === null) return;
+      if (!outcome.ok) {
+        setState({ status: 'error', error: outcome.error });
+        return;
       }
+      if (isCancelled()) {
+        await outcome.session.dispose().catch(() => {});
+        return;
+      }
+      live = outcome.session;
+      current = outcome.session;
+      setState({ status: 'ready', session: outcome.session });
     });
     onCleanup(() => {
       cancelled = true;

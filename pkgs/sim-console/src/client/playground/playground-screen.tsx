@@ -8,15 +8,17 @@ import {
   OverlayPortalProvider,
   RegisterCommand,
   SurfaceStackProvider,
-} from '@pkgs/ui-rn';
+} from '@pkgs/ui';
 import {
-  type ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  useSyncExternalStore,
-} from 'react';
+  createEffect,
+  createMemo,
+  createSignal,
+  For,
+  type JSX,
+  Match,
+  onCleanup,
+  Switch,
+} from 'solid-js';
 import type {
   PlaygroundActor,
   PlaygroundPaletteCommand,
@@ -59,45 +61,46 @@ export function PlaygroundScreen(props: {
   /** Retry boot after an error (Metro chunk / sim init). */
   readonly onReload?: () => void;
 }) {
-  const { state, kind, instance, panes, onReload } = props;
-
-  if (state.status === 'error') {
-    return (
-      <Box sx={centerSx}>
-        <ErrorState
-          title="Failed to boot playground"
-          body={state.error}
-          {...(onReload !== undefined
-            ? { retry: { label: 'Reload', onPress: onReload } }
-            : {})}
-        />
-      </Box>
-    );
-  }
-  if (state.status !== 'ready') {
-    return (
-      <Box sx={centerSx}>
-        <LoadingState caption="Booting playground…" />
-      </Box>
-    );
-  }
-
+  const readyState = () =>
+    props.state.status === 'ready' ? props.state : null;
   return (
-    <OverlayPortalProvider>
-      <SurfaceStackProvider>
-        <FocusedPlaygroundScreen
-          session={state.session}
-          chrome={{
-            kind,
-            instance,
-            panes,
-            onKindChange: props.onKindChange,
-            onInstanceChange: props.onInstanceChange,
-            onPanePatch: props.onPanePatch,
-          }}
-        />
-      </SurfaceStackProvider>
-    </OverlayPortalProvider>
+    <Switch>
+      <Match when={props.state.status === 'error'}>
+        <Box sx={centerSx}>
+          <ErrorState
+            title="Failed to boot playground"
+            body={props.state.status === 'error' ? props.state.error : ''}
+            {...(props.onReload !== undefined
+              ? { retry: { label: 'Reload', onClick: props.onReload } }
+              : {})}
+          />
+        </Box>
+      </Match>
+      <Match when={readyState() === null}>
+        <Box sx={centerSx}>
+          <LoadingState caption="Booting playground…" />
+        </Box>
+      </Match>
+      <Match when={readyState()}>
+        {(state) => (
+          <OverlayPortalProvider>
+            <SurfaceStackProvider>
+              <FocusedPlaygroundScreen
+                session={state().session}
+                chrome={{
+                  kind: props.kind,
+                  instance: props.instance,
+                  panes: props.panes,
+                  onKindChange: props.onKindChange,
+                  onInstanceChange: props.onInstanceChange,
+                  onPanePatch: props.onPanePatch,
+                }}
+              />
+            </SurfaceStackProvider>
+          </OverlayPortalProvider>
+        )}
+      </Match>
+    </Switch>
   );
 }
 
@@ -105,20 +108,23 @@ function FocusedPlaygroundScreen(props: {
   readonly session: PlaygroundSession;
   readonly chrome: DebuggerChromeNav;
 }) {
-  const { session, chrome } = props;
-  const [focusedClientId, setFocusedClientId] = useState<string | null>(null);
+  const [focusedClientId, setFocusedClientId] = createSignal<string | null>(
+    null
+  );
 
-  useEffect(() => {
-    if (chrome.kind !== 'client') setFocusedClientId(null);
-  }, [chrome.kind]);
+  createEffect(() => {
+    if (props.chrome.kind !== 'client') setFocusedClientId(null);
+  });
 
   return (
-    <CommandRegistryProvider enableDefaultShortcuts={focusedClientId === null}>
+    <CommandRegistryProvider
+      enableDefaultShortcuts={focusedClientId() === null}
+    >
       <PlaygroundAppearanceCommands />
       <ReadyPlaygroundScreen
-        session={session}
-        chrome={chrome}
-        focusedClientId={focusedClientId}
+        session={props.session}
+        chrome={props.chrome}
+        focusedClientId={focusedClientId()}
         onFocusedClientIdChange={setFocusedClientId}
       />
       <CommandPalette />
@@ -130,14 +136,10 @@ function playgroundClientColumnShell(args: {
   readonly actor: PlaygroundActor;
   readonly focused: boolean;
   readonly onActivate: () => void;
-  readonly children: ReactNode;
+  readonly children: JSX.Element;
 }) {
   return (
-    <DebuggerColumn
-      key={args.actor.id}
-      focused={args.focused}
-      onActivate={args.onActivate}
-    >
+    <DebuggerColumn focused={args.focused} onActivate={args.onActivate}>
       <KeyboardShortcutScope active={args.focused}>
         {args.children}
       </KeyboardShortcutScope>
@@ -151,31 +153,42 @@ function ReadyPlaygroundScreen(props: {
   readonly focusedClientId: string | null;
   readonly onFocusedClientIdChange: (id: string | null) => void;
 }) {
-  const { session, chrome, focusedClientId, onFocusedClientIdChange } = props;
-  const tick = useSyncExternalStore(
-    session.subscribe,
-    () => session.revision,
-    () => session.revision
+  const [revision, setRevision] = createSignal(props.session.revision);
+  createEffect(() => {
+    const session = props.session;
+    setRevision(session.revision);
+    const unsub = session.subscribe(() => setRevision(session.revision));
+    onCleanup(unsub);
+  });
+
+  const kind = () => props.chrome.kind;
+  const clients = createMemo(() =>
+    props.session.snapshotRestoring ? [] : [...props.session.clients.values()]
   );
-  void tick;
-  const kind = chrome.kind;
-  const clients = session.snapshotRestoring
-    ? []
-    : [...session.clients.values()];
-  const instances = playgroundInstancesForKind(session, kind, clients);
-  const instanceId = resolvePlaygroundInstanceId(chrome.instance, instances);
-  const shellPaneKey = playgroundPaneKey(kind, instanceId);
-  const shellPane = resolvePlaygroundPane(chrome.panes, shellPaneKey, kind);
+  const instances = createMemo(() =>
+    playgroundInstancesForKind(props.session, kind(), clients())
+  );
+  const instanceId = createMemo(() =>
+    resolvePlaygroundInstanceId(props.chrome.instance, instances())
+  );
+  const shellPaneKey = createMemo(() =>
+    playgroundPaneKey(kind(), instanceId())
+  );
+  const shellPane = createMemo(() =>
+    resolvePlaygroundPane(props.chrome.panes, shellPaneKey(), kind())
+  );
   // Client columns own their view strips; shell strip only for non-client.
-  const views = kind === 'client' ? [] : playgroundViewsForKind(kind);
-  const paletteCommands = useMemo(
-    () => session.listPaletteCommands(),
-    [session, tick]
+  const views = createMemo(() =>
+    kind() === 'client' ? [] : playgroundViewsForKind(kind())
   );
-  const snapshotEpoch = session.snapshotEpoch;
-  const clearClientFocus = useCallback(() => {
-    onFocusedClientIdChange(null);
-  }, [onFocusedClientIdChange]);
+  const paletteCommands = createMemo(() => {
+    revision();
+    return props.session.listPaletteCommands();
+  });
+  const snapshotEpoch = () => props.session.snapshotEpoch;
+  const clearClientFocus = () => {
+    props.onFocusedClientIdChange(null);
+  };
 
   return (
     <Box
@@ -186,38 +199,38 @@ function ReadyPlaygroundScreen(props: {
         overflow: 'hidden',
       }}
     >
-      <PlaygroundPaletteRegistrations commands={paletteCommands} />
+      <PlaygroundPaletteRegistrations commands={paletteCommands()} />
       <DebuggerShell
         showPlayer={false}
         frames={[]}
         selectedFrameIndex={0}
         onSelectFrame={() => undefined}
         onChromePointerDown={clearClientFocus}
-        kindTrailing={<PlaygroundSnapshotChrome session={session} />}
-        kind={kind}
-        onKindChange={chrome.onKindChange}
-        instances={instances}
-        instanceId={instanceId}
+        kindTrailing={<PlaygroundSnapshotChrome session={props.session} />}
+        kind={kind()}
+        onKindChange={props.chrome.onKindChange}
+        instances={instances()}
+        instanceId={instanceId()}
         onInstanceChange={(id) => {
-          chrome.onInstanceChange(id);
-          if (kind === 'client') onFocusedClientIdChange(id);
+          props.chrome.onInstanceChange(id);
+          if (kind() === 'client') props.onFocusedClientIdChange(id);
         }}
-        views={views}
-        view={shellPane.view}
+        views={views()}
+        view={shellPane().view}
         onViewChange={(next) =>
-          chrome.onPanePatch(shellPaneKey, { view: next })
+          props.chrome.onPanePatch(shellPaneKey(), { view: next })
         }
       >
         <PlaygroundKindPane
-          session={session}
-          kind={kind}
-          panes={chrome.panes}
-          instanceId={instanceId}
-          clients={clients}
-          snapshotEpoch={snapshotEpoch}
-          focusedClientId={focusedClientId}
-          onFocusedClientIdChange={onFocusedClientIdChange}
-          onPanePatch={chrome.onPanePatch}
+          session={props.session}
+          kind={kind()}
+          panes={props.chrome.panes}
+          instanceId={instanceId()}
+          clients={clients()}
+          snapshotEpoch={snapshotEpoch()}
+          focusedClientId={props.focusedClientId}
+          onFocusedClientIdChange={props.onFocusedClientIdChange}
+          onPanePatch={props.chrome.onPanePatch}
           onClientColumnsOutsidePointerDown={clearClientFocus}
           clientColumnShell={playgroundClientColumnShell}
         />
@@ -230,10 +243,9 @@ function PlaygroundPaletteRegistrations(props: {
   readonly commands: readonly PlaygroundPaletteCommand[];
 }) {
   return (
-    <>
-      {props.commands.map((cmd) => (
+    <For each={props.commands}>
+      {(cmd) => (
         <RegisterCommand
-          key={cmd.id}
           id={cmd.id}
           title={cmd.title}
           {...(cmd.subtitle !== undefined ? { subtitle: cmd.subtitle } : {})}
@@ -243,8 +255,8 @@ function PlaygroundPaletteRegistrations(props: {
             : {})}
           run={cmd.run}
         />
-      ))}
-    </>
+      )}
+    </For>
   );
 }
 

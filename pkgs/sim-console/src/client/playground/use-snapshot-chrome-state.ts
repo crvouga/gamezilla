@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { createEffect, createMemo, createSignal } from 'solid-js';
 
 import type { PlaygroundSnapshotInfo } from '../../shared/ports';
 import type { usePlaygroundSnapshots } from './use-playground-snapshots';
@@ -7,145 +7,174 @@ export type SortKey = 'newest' | 'oldest';
 
 type SnapshotListApi = ReturnType<typeof usePlaygroundSnapshots>;
 
-function useSortedSnaps(
+function sortSnaps(
   snaps: readonly PlaygroundSnapshotInfo[],
   sort: SortKey
-) {
-  return useMemo(() => {
-    const copy = [...snaps];
-    copy.sort((a, b) =>
-      sort === 'newest'
-        ? b.createdAtMs - a.createdAtMs
-        : a.createdAtMs - b.createdAtMs
-    );
-    return copy;
-  }, [snaps, sort]);
+): readonly PlaygroundSnapshotInfo[] {
+  const copy = [...snaps];
+  copy.sort((a, b) =>
+    sort === 'newest'
+      ? b.createdAtMs - a.createdAtMs
+      : a.createdAtMs - b.createdAtMs
+  );
+  return copy;
 }
 
-function useSnapById(snaps: readonly PlaygroundSnapshotInfo[]) {
-  return useMemo(() => {
-    const map = new Map<string, PlaygroundSnapshotInfo>();
-    for (const s of snaps) map.set(s.id, s);
-    return map;
-  }, [snaps]);
+function snapByIdMap(
+  snaps: readonly PlaygroundSnapshotInfo[]
+): ReadonlyMap<string, PlaygroundSnapshotInfo> {
+  const map = new Map<string, PlaygroundSnapshotInfo>();
+  for (const s of snaps) map.set(s.id, s);
+  return map;
 }
 
-function useCheckedSnapshotIds(snaps: readonly PlaygroundSnapshotInfo[]) {
-  const [checkedIds, setCheckedIds] = useState<ReadonlySet<string>>(
-    () => new Set()
+function useCheckedSnapshotIds(snaps: () => readonly PlaygroundSnapshotInfo[]) {
+  const [checkedIds, setCheckedIds] = createSignal<ReadonlySet<string>>(
+    new Set<string>()
   );
 
-  useEffect(() => {
-    if (snaps.length === 0) {
-      setCheckedIds(new Set());
+  createEffect(() => {
+    const current = snaps();
+    if (current.length === 0) {
+      setCheckedIds(new Set<string>());
       return;
     }
     setCheckedIds((prev) => {
       const next = new Set<string>();
-      for (const s of snaps) {
+      for (const s of current) {
         if (prev.has(s.id)) next.add(s.id);
       }
       return next.size === prev.size ? prev : next;
     });
-  }, [snaps]);
+  });
 
-  const onToggleChecked = useCallback((id: string, next: boolean) => {
+  const onToggleChecked = (id: string, next: boolean) => {
     setCheckedIds((prev) => {
       const copy = new Set(prev);
       if (next) copy.add(id);
       else copy.delete(id);
       return copy;
     });
-  }, []);
+  };
 
-  const clearChecked = useCallback(() => setCheckedIds(new Set()), []);
+  const clearChecked = () => setCheckedIds(new Set<string>());
 
-  return { checkedIds, setCheckedIds, onToggleChecked, clearChecked };
+  return {
+    get checkedIds() {
+      return checkedIds();
+    },
+    setCheckedIds,
+    onToggleChecked,
+    clearChecked,
+  };
 }
 
-function useSelectedSnapshotId(snaps: readonly PlaygroundSnapshotInfo[]) {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+function useSelectedSnapshotId(snaps: () => readonly PlaygroundSnapshotInfo[]) {
+  const [selectedId, setSelectedId] = createSignal<string | null>(null);
 
-  useEffect(() => {
-    if (snaps.length === 0) {
+  createEffect(() => {
+    const current = snaps();
+    if (current.length === 0) {
       setSelectedId(null);
       return;
     }
     setSelectedId((prev) => {
-      if (prev !== null && snaps.some((s) => s.id === prev)) return prev;
-      const firstCompatible = snaps.find((s) => s.compatible);
-      return (firstCompatible ?? snaps[0])!.id;
+      if (prev !== null && current.some((s) => s.id === prev)) return prev;
+      const firstCompatible = current.find((s) => s.compatible);
+      return (firstCompatible ?? current[0])!.id;
     });
-  }, [snaps]);
+  });
 
-  return { selectedId, setSelectedId };
+  return {
+    get selectedId() {
+      return selectedId();
+    },
+    setSelectedId,
+  };
 }
 
 export function useSnapshotChromeState(list: SnapshotListApi) {
-  const [sort, setSort] = useState<SortKey>('newest');
-  const { selectedId, setSelectedId } = useSelectedSnapshotId(list.snaps);
-  const { checkedIds, setCheckedIds, onToggleChecked, clearChecked } =
-    useCheckedSnapshotIds(list.snaps);
-  const [pendingDeleteIds, setPendingDeleteIds] = useState<
+  const [sort, setSort] = createSignal<SortKey>('newest');
+  const snaps = () => list.snaps;
+  const selected = useSelectedSnapshotId(snaps);
+  const checked = useCheckedSnapshotIds(snaps);
+  const [pendingDeleteIds, setPendingDeleteIds] = createSignal<
     readonly string[] | null
   >(null);
-  const [purgeOpen, setPurgeOpen] = useState(false);
+  const [purgeOpen, setPurgeOpen] = createSignal(false);
 
-  const sortedSnaps = useSortedSnaps(list.snaps, sort);
-  const snapById = useSnapById(list.snaps);
+  const sortedSnaps = createMemo(() => sortSnaps(snaps(), sort()));
+  const snapById = createMemo(() => snapByIdMap(snaps()));
 
-  const onToggleAll = useCallback(
-    (next: boolean) => {
-      if (!next) {
-        clearChecked();
-        return;
-      }
-      setCheckedIds(new Set(sortedSnaps.map((s) => s.id)));
-    },
-    [clearChecked, setCheckedIds, sortedSnaps]
-  );
+  const onToggleAll = (next: boolean) => {
+    if (!next) {
+      checked.clearChecked();
+      return;
+    }
+    checked.setCheckedIds(new Set(sortedSnaps().map((s) => s.id)));
+  };
 
-  const closeDelete = useCallback(() => setPendingDeleteIds(null), []);
-  const runDelete = useCallback(async () => {
-    if (pendingDeleteIds === null || pendingDeleteIds.length === 0) return;
-    const ids = pendingDeleteIds;
+  const closeDelete = () => setPendingDeleteIds(null);
+  const runDelete = async () => {
+    const ids = pendingDeleteIds();
+    if (ids === null || ids.length === 0) return;
     await list.onDeleteMany(ids);
-    clearChecked();
-    setSelectedId((prev) =>
+    checked.clearChecked();
+    selected.setSelectedId((prev) =>
       prev !== null && ids.includes(prev) ? null : prev
     );
     setPendingDeleteIds(null);
-  }, [pendingDeleteIds, list, clearChecked, setSelectedId]);
+  };
 
-  const closePurge = useCallback(() => setPurgeOpen(false), []);
-  const runPurge = useCallback(async () => {
+  const closePurge = () => setPurgeOpen(false);
+  const runPurge = async () => {
     await list.onPurgeIncompatible();
     setPurgeOpen(false);
-  }, [list]);
+  };
 
-  const selectedSnap =
-    selectedId === null ? undefined : snapById.get(selectedId);
+  const selectedSnap = () => {
+    const id = selected.selectedId;
+    return id === null ? undefined : snapById().get(id);
+  };
 
   return {
-    selectedId,
-    setSelectedId,
-    sort,
+    get selectedId() {
+      return selected.selectedId;
+    },
+    setSelectedId: selected.setSelectedId,
+    get sort() {
+      return sort();
+    },
     setSort,
-    checkedIds,
-    pendingDeleteIds,
+    get checkedIds() {
+      return checked.checkedIds;
+    },
+    get pendingDeleteIds() {
+      return pendingDeleteIds();
+    },
     setPendingDeleteIds,
-    purgeOpen,
+    get purgeOpen() {
+      return purgeOpen();
+    },
     setPurgeOpen,
-    sortedSnaps,
-    snapById,
-    onToggleChecked,
+    get sortedSnaps() {
+      return sortedSnaps();
+    },
+    get snapById() {
+      return snapById();
+    },
+    onToggleChecked: checked.onToggleChecked,
     onToggleAll,
     closeDelete,
     runDelete,
     closePurge,
     runPurge,
-    hasCompatibleSelection:
-      selectedSnap !== undefined && selectedSnap.compatible,
-    hasIncompatible: list.snaps.some((s) => !s.compatible),
+    get hasCompatibleSelection() {
+      const snap = selectedSnap();
+      return snap !== undefined && snap.compatible;
+    },
+    get hasIncompatible() {
+      return snaps().some((s) => !s.compatible);
+    },
   };
 }

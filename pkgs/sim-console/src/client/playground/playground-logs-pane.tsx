@@ -1,5 +1,5 @@
-import { Box, EmptyState, ScrollView, Text } from '@pkgs/ui-rn';
-import { useSyncExternalStore } from 'react';
+import { Box, EmptyState, ScrollView, Text } from '@pkgs/ui';
+import { createEffect, createSignal, For, onCleanup, Show } from 'solid-js';
 
 import type {
   PlaygroundLogBuffer,
@@ -12,32 +12,37 @@ import type {
 export function PlaygroundLogsPane(props: {
   readonly logs: PlaygroundLogBuffer;
 }) {
-  const entries = useSyncExternalStore(
-    props.logs.subscribe,
-    props.logs.snapshot,
-    props.logs.snapshot
-  );
+  const [entries, setEntries] = createSignal(props.logs.snapshot());
 
-  if (entries.length === 0) {
-    return (
-      <Box sx={{ flex: 1, minHeight: 0, padding: 8 }}>
-        <EmptyState
-          variant="compact"
-          title="No logs yet"
-          body="HTTP traffic for this node will appear here."
-        />
-      </Box>
-    );
-  }
+  createEffect(() => {
+    const logs = props.logs;
+    setEntries(logs.snapshot());
+    const unsub = logs.subscribe(() => setEntries(logs.snapshot()));
+    onCleanup(unsub);
+  });
 
-  const newestFirst = [...entries].reverse();
+  const newestFirst = () => [...entries()].reverse();
 
   return (
-    <ScrollView frameSx={{ flex: 1, minHeight: 0 }} sx={{ padding: 6, gap: 1 }}>
-      {newestFirst.map((entry, i) => (
-        <LogRow key={`${entry.at}-${i}`} entry={entry} />
-      ))}
-    </ScrollView>
+    <Show
+      when={entries().length > 0}
+      fallback={
+        <Box sx={{ flex: 1, minHeight: 0, padding: 8 }}>
+          <EmptyState
+            variant="compact"
+            title="No logs yet"
+            body="HTTP traffic for this node will appear here."
+          />
+        </Box>
+      }
+    >
+      <ScrollView
+        frameSx={{ flex: 1, minHeight: 0 }}
+        sx={{ padding: 6, gap: 1 }}
+      >
+        <For each={newestFirst()}>{(entry) => <LogRow entry={entry} />}</For>
+      </ScrollView>
+    </Show>
   );
 }
 

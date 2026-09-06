@@ -5,8 +5,8 @@ import {
   ChevronRightIcon,
   IconButton,
   Text,
-} from '@pkgs/ui-rn';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+} from '@pkgs/ui';
+import { createEffect, createMemo, createSignal, onCleanup } from 'solid-js';
 
 import {
   findNodeForInstance,
@@ -46,56 +46,61 @@ export function TestPage(props: {
   readonly onNav: (nav: ReportNavState, mode?: 'push' | 'replace') => void;
   readonly api: ReportApiClient;
 }) {
-  const { data, tests, nav, bucketId, runId, onNav, api } = props;
-  const frames = useMemo(() => flattenFrames(data.steps), [data.steps]);
-  const selectedIdx =
-    resolveSelectedFrameIndex(frames, data.steps, nav) ??
-    playheadFrameIndex(null, frames.length);
-  const frame =
-    selectedIdx >= 0 && selectedIdx < frames.length
-      ? (frames[selectedIdx] ?? null)
-      : null;
+  const frames = createMemo(() => flattenFrames(props.data.steps));
+  const selectedIdx = () =>
+    resolveSelectedFrameIndex(frames(), props.data.steps, props.nav) ??
+    playheadFrameIndex(null, frames().length);
+  const frame = () => {
+    const idx = selectedIdx();
+    return idx >= 0 && idx < frames().length ? (frames()[idx] ?? null) : null;
+  };
 
   const topology = useTopology({
-    api,
-    bucketId,
-    runId,
-    testId: data.meta.testId,
+    api: () => props.api,
+    bucketId: () => props.bucketId,
+    runId: () => props.runId,
+    testId: () => props.data.meta.testId,
     frames,
   });
-  const nodes = useMemo(
-    () => resolveNodeList({ topology, actorIds: data.meta.actorIds }),
-    [topology, data.meta.actorIds]
+  const nodes = createMemo(() =>
+    resolveNodeList({
+      topology: topology(),
+      actorIds: props.data.meta.actorIds,
+    })
   );
-  const instances = instancesForKind(nodes, 'client');
-  const selected =
-    findNodeForInstance(nodes, 'client', nav.node) ?? instances[0] ?? null;
-  const reportView: DebuggerViewId = nav.view ?? 'ui';
+  const instances = createMemo(() => instancesForKind(nodes(), 'client'));
+  const selected = createMemo(
+    () =>
+      findNodeForInstance(nodes(), 'client', props.nav.node) ??
+      instances()[0] ??
+      null
+  );
+  const reportView = createMemo((): DebuggerViewId => props.nav.view ?? 'ui');
 
   useDefaultNav({
-    framesLen: frames.length,
-    nav,
-    onNav,
-    fallbackNode: selected?.id ?? defaultNodeId(nodes),
+    framesLen: () => frames().length,
+    nav: () => props.nav,
+    onNav: (nav, mode) => props.onNav(nav, mode),
+    fallbackNode: () => selected()?.id ?? defaultNodeId(nodes()),
     view: reportView,
   });
 
   return (
     <Box sx={appShellSx}>
       <ReportDebuggerShell
-        data={data}
-        nav={nav}
-        frames={frames}
-        selectedIdx={selectedIdx}
-        instances={instances}
-        selected={selected}
-        tests={tests}
-        onNav={onNav}
-        api={api}
-        bucketId={bucketId}
-        runId={runId}
-        frame={frame}
-        reportView={reportView}
+        data={props.data}
+        nav={props.nav}
+        frames={frames()}
+        selectedIdx={selectedIdx()}
+        instances={instances()}
+        selected={selected()}
+        tests={props.tests}
+        onNav={props.onNav}
+        api={props.api}
+        bucketId={props.bucketId}
+        runId={props.runId}
+        frame={frame()}
+        reportView={reportView()}
       />
     </Box>
   );
@@ -118,13 +123,9 @@ type ReportDebuggerShellProps = {
 };
 
 function ReportDebuggerShell(props: ReportDebuggerShellProps) {
-  const { nav, onNav, reportView } = props;
-  const onSelectFrame = useCallback(
-    (index: number) => {
-      onNav(navigateReport(nav, { frame: index + 1 }), 'replace');
-    },
-    [nav, onNav]
-  );
+  const onSelectFrame = (index: number) => {
+    props.onNav(navigateReport(props.nav, { frame: index + 1 }), 'replace');
+  };
   return (
     <DebuggerShell
       header={<ReportTestHeader {...props} />}
@@ -137,17 +138,17 @@ function ReportDebuggerShell(props: ReportDebuggerShellProps) {
       instances={props.instances}
       instanceId={props.selected?.id ?? null}
       onInstanceChange={(id) => {
-        onNav(navigateReport(nav, { node: id }));
+        props.onNav(navigateReport(props.nav, { node: id }));
       }}
-      views={[reportView]}
-      view={reportView}
+      views={[props.reportView]}
+      view={props.reportView}
       onViewChange={(view) => {
-        onNav(navigateReport(nav, { view }));
+        props.onNav(navigateReport(props.nav, { view }));
       }}
     >
       <ReportKindPane
         kind="client"
-        view={reportView}
+        view={props.reportView}
         instances={props.instances}
         selected={props.selected}
         nodeId={props.selected?.id ?? null}
@@ -164,14 +165,17 @@ function ReportDebuggerShell(props: ReportDebuggerShellProps) {
 }
 
 function ReportTestHeader(props: ReportDebuggerShellProps) {
-  const { nav, onNav, tests, data, frames } = props;
-  const neighbor = resolveTestNeighbor(tests, data.meta.testId);
+  const neighbor = createMemo(() =>
+    resolveTestNeighbor(props.tests, props.data.meta.testId)
+  );
   return (
     <ReportHeader
       leading={
         <BackIconButton
           size={36}
-          onPress={() => onNav(navigateReport(nav, clearPlayerNav()))}
+          onClick={() =>
+            props.onNav(navigateReport(props.nav, clearPlayerNav()))
+          }
         />
       }
       title={
@@ -179,15 +183,27 @@ function ReportTestHeader(props: ReportDebuggerShellProps) {
           variant="navigationTitle"
           numberOfLines={1}
           sx={testTitleSx}
-          label={data.meta.testId}
+          label={props.data.meta.testId}
         />
       }
-      meta={`${data.meta.status} · ${frames.length} frames · seed ${data.meta.seed}`}
+      meta={`${props.data.meta.status} · ${props.frames.length} frames · seed ${props.data.meta.seed}`}
       end={
         <TestNeighborButtons
-          neighbor={neighbor}
-          onPrev={() => goToNeighborTest({ nav, onNav, testId: neighbor.prev })}
-          onNext={() => goToNeighborTest({ nav, onNav, testId: neighbor.next })}
+          neighbor={neighbor()}
+          onPrev={() =>
+            goToNeighborTest({
+              nav: props.nav,
+              onNav: props.onNav,
+              testId: neighbor().prev,
+            })
+          }
+          onNext={() =>
+            goToNeighborTest({
+              nav: props.nav,
+              onNav: props.onNav,
+              testId: neighbor().next,
+            })
+          }
         />
       }
     />
@@ -205,7 +221,7 @@ function TestNeighborButtons(props: {
         label="Previous test"
         size={36}
         disabled={props.neighbor.prev == null}
-        onPress={props.onPrev}
+        onClick={props.onPrev}
         background="surface"
       >
         <ChevronLeftIcon size={18} />
@@ -214,7 +230,7 @@ function TestNeighborButtons(props: {
         label="Next test"
         size={36}
         disabled={props.neighbor.next == null}
-        onPress={props.onNext}
+        onClick={props.onNext}
         background="surface"
       >
         <ChevronRightIcon size={18} />
@@ -247,17 +263,17 @@ const testTitleSx = {
 } as const;
 
 function useTopology(args: {
-  readonly api: ReportApiClient;
-  readonly bucketId: string;
-  readonly runId: string;
-  readonly testId: string;
-  readonly frames: ReturnType<typeof flattenFrames>;
-}): SimulationReportTopology | null {
-  const { api, bucketId, runId, testId, frames } = args;
-  const [topology, setTopology] = useState<SimulationReportTopology | null>(
+  readonly api: () => ReportApiClient;
+  readonly bucketId: () => string;
+  readonly runId: () => string;
+  readonly testId: () => string;
+  readonly frames: () => ReturnType<typeof flattenFrames>;
+}): () => SimulationReportTopology | null {
+  const [topology, setTopology] = createSignal<SimulationReportTopology | null>(
     null
   );
-  const topologyFile = useMemo(() => {
+  const topologyFile = createMemo(() => {
+    const frames = args.frames();
     for (let i = frames.length - 1; i >= 0; i--) {
       const snap = frames[i]?.snapshots.find(
         (s) => s.name === 'topology' && s.media === 'json'
@@ -265,12 +281,17 @@ function useTopology(args: {
       if (snap) return snap.file;
     }
     return null;
-  }, [frames]);
+  });
 
-  useEffect(() => {
+  createEffect(() => {
+    const api = args.api();
+    const bucketId = args.bucketId();
+    const runId = args.runId();
+    const testId = args.testId();
+    const file = topologyFile();
     let cancelled = false;
-    if (topologyFile != null) {
-      const url = api.testFrameUrl(bucketId, runId, testId, topologyFile);
+    if (file != null) {
+      const url = api.testFrameUrl(bucketId, runId, testId, file);
       void api
         .fetch(url)
         .then(async (res) => {
@@ -280,40 +301,45 @@ function useTopology(args: {
         .then((topo) => {
           if (!cancelled) setTopology(topo);
         });
-      return () => {
+      onCleanup(() => {
         cancelled = true;
-      };
+      });
+      return;
     }
     void api.fetchTestTopology(bucketId, runId, testId).then((topo) => {
       if (!cancelled) setTopology(topo);
     });
-    return () => {
+    onCleanup(() => {
       cancelled = true;
-    };
-  }, [api, bucketId, runId, testId, topologyFile]);
+    });
+  });
   return topology;
 }
 
 function useDefaultNav(args: {
-  readonly framesLen: number;
-  readonly nav: ReportNavState;
+  readonly framesLen: () => number;
+  readonly nav: () => ReportNavState;
   readonly onNav: (nav: ReportNavState, mode?: 'push' | 'replace') => void;
-  readonly fallbackNode: string | null;
-  readonly view: DebuggerViewId | null;
+  readonly fallbackNode: () => string | null;
+  readonly view: () => DebuggerViewId | null;
 }): void {
-  const { framesLen, nav, onNav, fallbackNode, view } = args;
-  useEffect(() => {
-    if (nav.frame != null || framesLen === 0) return;
-    onNav(navigateReport(nav, { frame: 1 }), 'replace');
-  }, [framesLen, nav, onNav]);
+  createEffect(() => {
+    const nav = args.nav();
+    if (nav.frame != null || args.framesLen() === 0) return;
+    args.onNav(navigateReport(nav, { frame: 1 }), 'replace');
+  });
 
-  useEffect(() => {
+  createEffect(() => {
+    const nav = args.nav();
+    const fallbackNode = args.fallbackNode();
     if (nav.node != null || fallbackNode == null) return;
-    onNav(navigateReport(nav, { node: fallbackNode }), 'replace');
-  }, [fallbackNode, nav, onNav]);
+    args.onNav(navigateReport(nav, { node: fallbackNode }), 'replace');
+  });
 
-  useEffect(() => {
+  createEffect(() => {
+    const nav = args.nav();
+    const view = args.view();
     if (view == null || nav.view === view) return;
-    onNav(navigateReport(nav, { view }), 'replace');
-  }, [view, nav, onNav]);
+    args.onNav(navigateReport(nav, { view }), 'replace');
+  });
 }

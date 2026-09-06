@@ -7,8 +7,8 @@ import {
   type DataTableOrderDir,
   ScrollView,
   Text,
-} from '@pkgs/ui-rn';
-import { useMemo } from 'react';
+} from '@pkgs/ui';
+import { createMemo } from 'solid-js';
 
 import type { SuiteTestSummary } from '../types';
 import { formatMs, formatRunUpdatedAt } from './frames';
@@ -87,34 +87,40 @@ export function SuitePage(props: {
   readonly updatedAtMs?: number | null;
   readonly onOpenTest: (testId: string) => void;
 }) {
-  const { bucketId, runId, tests, onOpenTest } = props;
-  const passed = tests.filter((tt) => tt.status === 'passed').length;
   const bodySx = useAppBodyContentSx();
-  const updated = formatRunUpdatedAt(props.updatedAtMs);
-  const runLabel = updated != null ? `${runId} · ${updated}` : runId;
+  const passed = createMemo(
+    () => props.tests.filter((tt) => tt.status === 'passed').length
+  );
+  const updated = createMemo(() => formatRunUpdatedAt(props.updatedAtMs));
+  const runLabel = createMemo(() => {
+    const u = updated();
+    return u != null ? `${props.runId} · ${u}` : props.runId;
+  });
 
-  const loadPage = useMemo(
-    () => createMemoryPageLoader(() => tests, compareTests),
-    [tests]
+  const loadPage = createMemo(() =>
+    createMemoryPageLoader(() => props.tests, compareTests)
+  );
+
+  const meta = createMemo(
+    () =>
+      `${props.bucketId} · ${runLabel()} · ${props.tests.length} test${props.tests.length === 1 ? '' : 's'}${props.tests.length ? ` · ${passed()} passed` : ''}`
   );
 
   return (
     <Box sx={appShellSx}>
-      <ReportHeader
-        meta={`${bucketId} · ${runLabel} · ${tests.length} test${tests.length === 1 ? '' : 's'}${tests.length ? ` · ${passed} passed` : ''}`}
-      />
+      <ReportHeader meta={meta()} />
       <ScrollView frameSx={appBodyFrameSx} sx={bodySx}>
         <Box sx={{ flex: 1, minHeight: 280, alignSelf: 'stretch' }}>
           <DataTable
             columns={TEST_COLUMNS}
-            loadPage={loadPage}
+            loadPage={loadPage()}
             getRowId={(tt) => tt.testId}
-            sourceKey={`${bucketId}:${runId}`}
+            sourceKey={`${props.bucketId}:${props.runId}`}
             pageSize={50}
             defaultOrderBy="test"
             emptyTitle="No tests in this run yet"
             density="compact"
-            onRowPress={(tt) => onOpenTest(tt.testId)}
+            onRowClick={(tt) => props.onOpenTest(tt.testId)}
           />
         </Box>
       </ScrollView>

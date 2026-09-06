@@ -1,4 +1,5 @@
-import { Box, Text } from '@pkgs/ui-rn';
+import { Box, Text } from '@pkgs/ui';
+import { Match, Switch } from 'solid-js';
 
 import type { FlatFrame } from './frames';
 import { resolveSnapshotFile } from './frames';
@@ -15,22 +16,25 @@ export function SqlitePane(props: {
   readonly frame: FlatFrame | null;
   readonly nodeId: string | null;
 }) {
-  const file = resolveSnapshotFile(props.frame, {
-    name: 'sqlite',
-    nodeId: props.nodeId,
-  });
-  if (file == null) {
-    return (
-      <Box sx={paneSx}>
-        <Text sx={emptySx}>
-          No SQLite dump for node `{props.nodeId ?? '—'}` on this frame.
-        </Text>
-      </Box>
-    );
-  }
+  const file = () =>
+    resolveSnapshotFile(props.frame, {
+      name: 'sqlite',
+      nodeId: props.nodeId,
+    });
   return (
-    <Box sx={paneSx}>
-      <Text sx={emptySx}>SQLite pane requires web (`{file}`).</Text>
-    </Box>
+    <Switch>
+      <Match when={file() == null}>
+        <Box sx={paneSx}>
+          <Text sx={emptySx}>
+            No SQLite dump for node `{props.nodeId ?? '—'}` on this frame.
+          </Text>
+        </Box>
+      </Match>
+      <Match when={true}>
+        <Box sx={paneSx}>
+          <Text sx={emptySx}>SQLite pane requires web (`{file()}`).</Text>
+        </Box>
+      </Match>
+    </Switch>
   );
 }

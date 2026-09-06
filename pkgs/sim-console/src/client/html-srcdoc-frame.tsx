@@ -9,10 +9,21 @@ export function HtmlSrcdocFrame(props: {
 }) {
   return (
     <Show when={props.srcdoc} fallback={<HtmlPaneEmpty kind="blank" />}>
-      <Box class="snapshot-host" title={props.title}
-        sx={{ position: 'relative', flex: 1, minWidth: 0, minHeight: 0,
-          width: '100%', height: '100%', overflow: 'hidden', background: 'background' }}
-        innerHTML={props.srcdoc ?? ''} />
+      <Box
+        class="snapshot-host"
+        title={props.title}
+        sx={{
+          position: 'relative',
+          flex: 1,
+          minWidth: 0,
+          minHeight: 0,
+          width: '100%',
+          height: '100%',
+          overflow: 'hidden',
+          background: 'background',
+        }}
+        innerHTML={props.srcdoc ?? ''}
+      />
     </Show>
   );
 }

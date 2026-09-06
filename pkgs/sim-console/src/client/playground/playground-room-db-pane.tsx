@@ -1,6 +1,12 @@
-import { useTimers } from '@pkgs/clock';
-import { Box, EmptyState, JsonView, ScrollView, Text } from '@pkgs/ui-rn';
-import { type ReactNode, useEffect, useState } from 'react';
+import { useTimers } from '@pkgs/clock/solid';
+import { Box, EmptyState, JsonView, ScrollView, Text } from '@pkgs/ui';
+import {
+  createEffect,
+  createSignal,
+  type JSX,
+  onCleanup,
+  Show,
+} from 'solid-js';
 
 import type { PlaygroundRoomNode } from '../../shared/ports';
 
@@ -11,69 +17,83 @@ export function PlaygroundRoomDbPane(props: {
   readonly room: PlaygroundRoomNode;
   readonly subscribe: (listener: () => void) => () => void;
 }) {
-  const { room, subscribe } = props;
   const timers = useTimers();
-  const [snap, setSnap] = useState(() => room.inspect());
+  const [snap, setSnap] = createSignal(props.room.inspect());
 
-  useEffect(() => {
+  createEffect(() => {
+    const { room, subscribe } = props;
     const refresh = () => setSnap(room.inspect());
     refresh();
     const unsub = subscribe(refresh);
     const handle = timers.setInterval(refresh, 500);
-    return () => {
+    onCleanup(() => {
       unsub();
       timers.clearInterval(handle);
-    };
-  }, [room, subscribe, timers]);
-
-  if (snap === null) {
-    return (
-      <Box sx={{ flex: 1, minHeight: 0, padding: 8 }}>
-        <EmptyState
-          variant="compact"
-          title="Room gone"
-          body="This room topic is no longer live."
-        />
-      </Box>
-    );
-  }
+    });
+  });
 
   return (
-    <ScrollView frameSx={{ flex: 1, minHeight: 0 }} sx={{ padding: 6, gap: 3 }}>
-      <Section title="Topic" body={snap.topic} />
-      <Section title={`Roster (${snap.roster.length})`}>
-        {snap.roster.length === 0 ? (
-          <Text
-            variant="caption"
-            label="Empty"
-            sx={{ color: 'textSecondary' }}
+    <Show
+      when={snap()}
+      fallback={
+        <Box sx={{ flex: 1, minHeight: 0, padding: 8 }}>
+          <EmptyState
+            variant="compact"
+            title="Room gone"
+            body="This room topic is no longer live."
           />
-        ) : (
-          <JsonView value={snap.roster} initialExpandDepth={1} />
-        )}
-      </Section>
-      <Section title={`Log (seq ${snap.lastSeq}, dedup ${snap.dedupSize})`}>
-        {snap.entries.length === 0 ? (
-          <Text
-            variant="caption"
-            label="No events"
-            sx={{ color: 'textSecondary' }}
-          />
-        ) : (
-          <JsonView value={snap.entries} initialExpandDepth={2} />
-        )}
-      </Section>
-      <Section title="Committed state">
-        <JsonView value={snap.committedState} initialExpandDepth={2} />
-      </Section>
-    </ScrollView>
+        </Box>
+      }
+    >
+      {(current) => (
+        <ScrollView
+          frameSx={{ flex: 1, minHeight: 0 }}
+          sx={{ padding: 6, gap: 3 }}
+        >
+          <Section title="Topic" body={current().topic} />
+          <Section title={`Roster (${current().roster.length})`}>
+            <Show
+              when={current().roster.length > 0}
+              fallback={
+                <Text
+                  variant="caption"
+                  label="Empty"
+                  sx={{ color: 'textSecondary' }}
+                />
+              }
+            >
+              <JsonView value={current().roster} initialExpandDepth={1} />
+            </Show>
+          </Section>
+          <Section
+            title={`Log (seq ${current().lastSeq}, dedup ${current().dedupSize})`}
+          >
+            <Show
+              when={current().entries.length > 0}
+              fallback={
+                <Text
+                  variant="caption"
+                  label="No events"
+                  sx={{ color: 'textSecondary' }}
+                />
+              }
+            >
+              <JsonView value={current().entries} initialExpandDepth={2} />
+            </Show>
+          </Section>
+          <Section title="Committed state">
+            <JsonView value={current().committedState} initialExpandDepth={2} />
+          </Section>
+        </ScrollView>
+      )}
+    </Show>
   );
 }
 
 function Section(props: {
   readonly title: string;
   readonly body?: string;
-  readonly children?: ReactNode;
+  readonly children?: JSX.Element;
 }) {
   return (
     <Box sx={{ gap: 1 }}>

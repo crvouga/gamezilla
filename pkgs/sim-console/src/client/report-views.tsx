@@ -1,5 +1,5 @@
-import { Box, ScrollView, Text } from '@pkgs/ui-rn';
-import { useEffect, useState } from 'react';
+import { Box, ScrollView, Text } from '@pkgs/ui';
+import { createEffect, createSignal, Match, Show, Switch } from 'solid-js';
 import { isLatestRunId, LATEST_RUN_ID } from '../types';
 import type { ReportApiClient } from './api-client';
 import type { ReportNavState } from './router';
@@ -37,98 +37,105 @@ export function ReportViews(props: {
   readonly onNav: (nav: ReportNavState, mode?: 'push' | 'replace') => void;
   readonly api: ReportApiClient;
 }) {
-  const { nav, data, onNav, api } = props;
-  const concreteRunId = data.resolvedRunId;
-  const [testVisited, setTestVisited] = useState(() => nav.testId != null);
+  const [testVisited, setTestVisited] = createSignal(props.nav.testId != null);
 
-  useEffect(() => {
-    if (nav.testId != null) setTestVisited(true);
-  }, [nav.testId]);
+  createEffect(() => {
+    if (props.nav.testId != null) setTestVisited(true);
+  });
 
-  useEffect(() => {
+  createEffect(() => {
+    const nav = props.nav;
     if (nav.bucketId) return;
-    if (!data.buckets.some((b) => b.id === LOCAL_BUCKET)) return;
-    onNav(
+    if (!props.data.buckets.some((b) => b.id === LOCAL_BUCKET)) return;
+    props.onNav(
       navigateReport(
         nav,
         clearPlayerNav({ bucketId: LOCAL_BUCKET, runId: LATEST_RUN_ID })
       ),
       'replace'
     );
-  }, [data.buckets, nav, onNav]);
+  });
 
-  useEffect(() => {
+  createEffect(() => {
+    const nav = props.nav;
     if (!nav.bucketId || nav.runId) return;
-    onNav(
+    props.onNav(
       navigateReport(nav, clearPlayerNav({ runId: LATEST_RUN_ID })),
       'replace'
     );
-  }, [nav, onNav]);
+  });
 
-  if (!nav.bucketId || !nav.runId) {
-    return (
-      <Box sx={appShellSx}>
-        <Box sx={appBodyFrameSx}>
-          <Text sx={emptySx}>
-            {data.buckets.length === 0
-              ? 'Waiting for report bucket…'
-              : 'Opening latest reports…'}
-          </Text>
-        </Box>
-      </Box>
-    );
-  }
+  const showTest = () => props.nav.testId != null;
+  const waiting = () => !props.nav.bucketId || !props.nav.runId;
+  const emptySuite = () =>
+    !showTest() &&
+    props.data.runs.length === 0 &&
+    props.data.tests.length === 0;
 
-  const runLabel = isLatestRunId(nav.runId)
-    ? concreteRunId
-      ? `latest → ${concreteRunId}`
-      : 'latest'
-    : nav.runId;
-
-  const showTest = nav.testId != null;
-  const emptySuite =
-    !showTest && data.runs.length === 0 && data.tests.length === 0;
-
-  if (emptySuite) {
-    return (
-      <Box sx={appShellSx}>
-        <Box sx={appBodyFrameSx}>
-          <Text sx={emptySx}>
-            No report dump yet. Run `@product/test` to write the latest results
-            into `product/console/public/reports`.
-          </Text>
-        </Box>
-      </Box>
-    );
-  }
+  const runLabel = () => {
+    const concreteRunId = props.data.resolvedRunId;
+    return isLatestRunId(props.nav.runId)
+      ? concreteRunId
+        ? `latest → ${concreteRunId}`
+        : 'latest'
+      : props.nav.runId;
+  };
 
   return (
-    <Box sx={fillSx}>
-      <Box sx={visibilitySx(!showTest)}>
-        <SuitePage
-          bucketId={nav.bucketId}
-          runId={runLabel}
-          tests={data.tests}
-          updatedAtMs={data.suiteUpdatedAtMs}
-          onOpenTest={(testId) => {
-            onNav(navigateReport(nav, clearPlayerNav({ testId })));
-          }}
-        />
-      </Box>
-      {testVisited ? (
-        <Box sx={visibilitySx(showTest)}>
-          <TestOrLoading
-            nav={nav}
-            data={data}
-            concreteRunId={concreteRunId}
-            onNav={onNav}
-            api={api}
-          />
+    <Switch>
+      <Match when={waiting()}>
+        <Box sx={appShellSx}>
+          <Box sx={appBodyFrameSx}>
+            <Text sx={emptySx}>
+              {props.data.buckets.length === 0
+                ? 'Waiting for report bucket…'
+                : 'Opening latest reports…'}
+            </Text>
+          </Box>
         </Box>
-      ) : null}
-    </Box>
+      </Match>
+      <Match when={emptySuite()}>
+        <Box sx={appShellSx}>
+          <Box sx={appBodyFrameSx}>
+            <Text sx={emptySx}>
+              No report dump yet. Run `@product/test` to write the latest
+              results into `product/console/public/reports`.
+            </Text>
+          </Box>
+        </Box>
+      </Match>
+      <Match when={true}>
+        <Box sx={fillSx}>
+          <Box sx={visibilitySx(!showTest())}>
+            <SuitePage
+              bucketId={props.nav.bucketId ?? ''}
+              runId={runLabel() ?? ''}
+              tests={props.data.tests}
+              updatedAtMs={props.data.suiteUpdatedAtMs}
+              onOpenTest={(testId) => {
+                props.onNav(
+                  navigateReport(props.nav, clearPlayerNav({ testId }))
+                );
+              }}
+            />
+          </Box>
+          <Show when={testVisited()}>
+            <Box sx={visibilitySx(showTest())}>
+              <TestOrLoading
+                nav={props.nav}
+                data={props.data}
+                concreteRunId={props.data.resolvedRunId}
+                onNav={props.onNav}
+                api={props.api}
+              />
+            </Box>
+          </Show>
+        </Box>
+      </Match>
+    </Switch>
   );
 }
+
 function TestOrLoading(props: {
   readonly nav: ReportNavState;
   readonly data: ReportDataApi;
@@ -136,48 +143,49 @@ function TestOrLoading(props: {
   readonly onNav: (nav: ReportNavState, mode?: 'push' | 'replace') => void;
   readonly api: ReportApiClient;
 }) {
-  const { nav, data, concreteRunId, onNav, api } = props;
   const bodySx = useAppBodyContentSx();
-  if (nav.testId == null) {
-    return <Box sx={fillSx} />;
-  }
-  if (!concreteRunId) {
-    return (
-      <Box sx={appShellSx}>
-        <ScrollView frameSx={appBodyFrameSx} sx={bodySx}>
-          <Text sx={emptySx}>
-            {data.runs.length === 0
-              ? 'No report dump yet. Run `@product/test` to generate reports.'
-              : data.error
-                ? `Failed to resolve run: ${data.error}`
-                : 'Loading run…'}
-          </Text>
-        </ScrollView>
-      </Box>
-    );
-  }
-  if (!data.testData) {
-    return (
-      <Box sx={appShellSx}>
-        <ScrollView frameSx={appBodyFrameSx} sx={bodySx}>
-          <Text sx={emptySx}>
-            {data.error
-              ? `Failed to load test: ${data.error}`
-              : 'Loading test…'}
-          </Text>
-        </ScrollView>
-      </Box>
-    );
-  }
   return (
-    <TestPage
-      data={data.testData}
-      tests={data.tests}
-      nav={nav}
-      bucketId={nav.bucketId!}
-      runId={concreteRunId}
-      onNav={onNav}
-      api={api}
-    />
+    <Switch>
+      <Match when={props.nav.testId == null}>
+        <Box sx={fillSx} />
+      </Match>
+      <Match when={!props.concreteRunId}>
+        <Box sx={appShellSx}>
+          <ScrollView frameSx={appBodyFrameSx} sx={bodySx}>
+            <Text sx={emptySx}>
+              {props.data.runs.length === 0
+                ? 'No report dump yet. Run `@product/test` to generate reports.'
+                : props.data.error
+                  ? `Failed to resolve run: ${props.data.error}`
+                  : 'Loading run…'}
+            </Text>
+          </ScrollView>
+        </Box>
+      </Match>
+      <Match when={props.data.testData}>
+        {(testData) => (
+          <TestPage
+            data={testData()}
+            tests={props.data.tests}
+            nav={props.nav}
+            bucketId={props.nav.bucketId ?? ''}
+            runId={props.concreteRunId ?? ''}
+            onNav={props.onNav}
+            api={props.api}
+          />
+        )}
+      </Match>
+      <Match when={true}>
+        <Box sx={appShellSx}>
+          <ScrollView frameSx={appBodyFrameSx} sx={bodySx}>
+            <Text sx={emptySx}>
+              {props.data.error
+                ? `Failed to load test: ${props.data.error}`
+                : 'Loading test…'}
+            </Text>
+          </ScrollView>
+        </Box>
+      </Match>
+    </Switch>
   );
 }

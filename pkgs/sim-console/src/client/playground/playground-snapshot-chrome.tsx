@@ -2,11 +2,11 @@ import {
   Box,
   Button,
   Checkbox,
+  Clickable,
   CONTENT_EDGE_PADDING_STEP,
   Columns2Icon,
   IconButton,
   MutationModal,
-  Pressable,
   RotateCcwIcon,
   SaveIcon,
   SearchIcon,
@@ -16,7 +16,8 @@ import {
   Text,
   Trash2Icon,
   useCommandPalette,
-} from '@pkgs/ui-rn';
+} from '@pkgs/ui';
+import { Show } from 'solid-js';
 
 import type {
   PlaygroundSession,
@@ -48,7 +49,6 @@ function SnapshotRowMeta(props: {
   readonly snap: PlaygroundSnapshotInfo;
   readonly nowMs: number;
 }) {
-  const { snap, nowMs } = props;
   return (
     <Box
       sx={{
@@ -60,15 +60,15 @@ function SnapshotRowMeta(props: {
     >
       <Text
         variant="caption"
-        label={formatSnapshotAge(snap.createdAtMs, nowMs)}
+        label={formatSnapshotAge(props.snap.createdAtMs, props.nowMs)}
       />
-      {snap.totalBytes !== undefined ? (
+      {props.snap.totalBytes !== undefined ? (
         <Text
           variant="caption"
-          label={`· ${formatSnapshotBytes(snap.totalBytes)}`}
+          label={`· ${formatSnapshotBytes(props.snap.totalBytes)}`}
         />
       ) : null}
-      {snap.compatible ? null : (
+      {props.snap.compatible ? null : (
         <Text variant="caption" sx={{ color: 'warning' }} label="· outdated" />
       )}
     </Box>
@@ -85,16 +85,6 @@ function SnapshotOptionRow(props: {
   readonly onToggleChecked: (next: boolean) => void;
   readonly onPick: () => void;
 }) {
-  const {
-    snap,
-    nowMs,
-    selected,
-    outdated,
-    busy,
-    checked,
-    onToggleChecked,
-    onPick,
-  } = props;
   const body = (
     <Box
       sx={{
@@ -104,8 +94,11 @@ function SnapshotOptionRow(props: {
         gap: 0.5,
       }}
     >
-      <Text variant="body" label={formatSnapshotTitle(snap.createdAtMs)} />
-      <SnapshotRowMeta snap={snap} nowMs={nowMs} />
+      <Text
+        variant="body"
+        label={formatSnapshotTitle(props.snap.createdAtMs)}
+      />
+      <SnapshotRowMeta snap={props.snap} nowMs={props.nowMs} />
     </Box>
   );
   return (
@@ -115,25 +108,27 @@ function SnapshotOptionRow(props: {
         alignItems: 'center',
         gap: 3,
         minWidth: 0,
-        opacity: outdated ? 0.55 : 1,
-        ...(selected && !outdated ? {} : { pr: CONTENT_EDGE_PADDING_STEP }),
+        opacity: props.outdated ? 0.55 : 1,
+        ...(props.selected && !props.outdated
+          ? {}
+          : { pr: CONTENT_EDGE_PADDING_STEP }),
       }}
     >
       <Box sx={{ pl: CONTENT_EDGE_PADDING_STEP }}>
         <Checkbox
-          checked={checked}
-          onToggle={onToggleChecked}
-          disabled={busy}
+          checked={props.checked}
+          onToggle={props.onToggleChecked}
+          disabled={props.busy}
         />
       </Box>
-      {outdated ? (
+      {props.outdated ? (
         body
       ) : (
-        <Pressable sx={{ flex: 1, minWidth: 0 }} onPress={onPick}>
+        <Clickable sx={{ flex: 1, minWidth: 0 }} onClick={props.onPick}>
           {body}
-        </Pressable>
+        </Clickable>
       )}
-      {selected && !outdated ? (
+      {props.selected && !props.outdated ? (
         <Box sx={{ pr: CONTENT_EDGE_PADDING_STEP }}>
           <Text variant="label" sx={{ color: 'tint' }} label="✓" />
         </Box>
@@ -152,16 +147,6 @@ function SnapshotSurfaceExtra(props: {
   readonly onToggleAll: (next: boolean) => void;
   readonly onDeleteChecked: () => void;
 }) {
-  const {
-    sort,
-    onSort,
-    allChecked,
-    someChecked,
-    checkedCount,
-    busy,
-    onToggleAll,
-    onDeleteChecked,
-  } = props;
   return (
     <Box sx={{ gap: 1.5 }}>
       <SegmentedControl
@@ -169,8 +154,8 @@ function SnapshotSurfaceExtra(props: {
           { key: 'newest', label: 'Newest' },
           { key: 'oldest', label: 'Oldest' },
         ]}
-        selected={sort}
-        onSelect={onSort}
+        selected={props.sort}
+        onSelect={props.onSort}
       />
       <Box
         sx={{
@@ -181,19 +166,21 @@ function SnapshotSurfaceExtra(props: {
         }}
       >
         <Checkbox
-          label={allChecked ? 'Clear' : 'Select all'}
-          checked={allChecked || someChecked}
-          onToggle={onToggleAll}
-          disabled={busy}
+          label={props.allChecked ? 'Clear' : 'Select all'}
+          checked={props.allChecked || props.someChecked}
+          onToggle={props.onToggleAll}
+          disabled={props.busy}
         />
         <Button
           size="sm"
           intent="danger"
           title={
-            checkedCount === 0 ? 'Delete' : `Delete ${String(checkedCount)}`
+            props.checkedCount === 0
+              ? 'Delete'
+              : `Delete ${String(props.checkedCount)}`
           }
-          disabled={busy || checkedCount === 0}
-          onPress={onDeleteChecked}
+          disabled={props.busy || props.checkedCount === 0}
+          onClick={props.onDeleteChecked}
         />
       </Box>
     </Box>
@@ -215,66 +202,55 @@ function SnapshotSelect(props: {
   readonly onToggleAll: (next: boolean) => void;
   readonly onDeleteChecked: () => void;
 }) {
-  const {
-    list,
-    sortedSnaps,
-    snapById,
-    selectValue,
-    sort,
-    nowMs,
-    checkedIds,
-    compact,
-    onSelectId,
-    onSort,
-    onToggleChecked,
-    onToggleAll,
-    onDeleteChecked,
-  } = props;
-  const allChecked =
-    sortedSnaps.length > 0 && sortedSnaps.every((s) => checkedIds.has(s.id));
-  const someChecked = sortedSnaps.some((s) => checkedIds.has(s.id));
+  const allChecked = () =>
+    props.sortedSnaps.length > 0 &&
+    props.sortedSnaps.every((s) => props.checkedIds.has(s.id));
+  const someChecked = () =>
+    props.sortedSnaps.some((s) => props.checkedIds.has(s.id));
   return (
-    <Box sx={compact ? selectCompactSx : selectDesktopSx}>
+    <Box sx={props.compact ? selectCompactSx : selectDesktopSx}>
       <Select
         size="sm"
-        options={sortedSnaps.map((s) => ({
+        options={props.sortedSnaps.map((s) => ({
           value: s.id,
-          label: formatSnapshotAge(s.createdAtMs, nowMs),
+          label: formatSnapshotAge(s.createdAtMs, props.nowMs),
           disabled: !s.compatible,
         }))}
-        value={selectValue}
+        value={props.selectValue}
         onValueChange={(id) => {
-          const snap = snapById.get(id);
+          const snap = props.snapById.get(id);
           if (snap === undefined || !snap.compatible) return;
-          onSelectId(id);
-          void list.onLoad(id).catch(() => undefined);
+          props.onSelectId(id);
+          void props.list.onLoad(id).catch(() => undefined);
         }}
         surfaceTitle="Snapshots"
         surfaceExtra={
           <SnapshotSurfaceExtra
-            sort={sort}
-            onSort={onSort}
-            allChecked={allChecked}
-            someChecked={someChecked}
-            checkedCount={checkedIds.size}
-            busy={list.busy}
-            onToggleAll={onToggleAll}
-            onDeleteChecked={onDeleteChecked}
+            sort={props.sort}
+            onSort={props.onSort}
+            allChecked={allChecked()}
+            someChecked={someChecked()}
+            checkedCount={props.checkedIds.size}
+            busy={props.list.busy}
+            onToggleAll={props.onToggleAll}
+            onDeleteChecked={props.onDeleteChecked}
           />
         }
-        loading={list.busy}
-        error={list.error}
+        loading={props.list.busy}
+        error={props.list.error}
         renderOption={(option, selected, onPick) => (
           <SnapshotSelectOption
-            snap={snapById.get(option.value)}
-            nowMs={nowMs}
+            snap={props.snapById.get(option.value)}
+            nowMs={props.nowMs}
             selected={selected}
-            busy={list.busy}
+            busy={props.list.busy}
             checked={
-              snapById.get(option.value) !== undefined &&
-              checkedIds.has(option.value)
+              props.snapById.get(option.value) !== undefined &&
+              props.checkedIds.has(option.value)
             }
-            onToggleChecked={(next) => onToggleChecked(option.value, next)}
+            onToggleChecked={(next) =>
+              props.onToggleChecked(option.value, next)
+            }
             onPick={onPick}
           />
         )}
@@ -292,19 +268,21 @@ function SnapshotSelectOption(props: {
   readonly onToggleChecked: (next: boolean) => void;
   readonly onPick: () => void;
 }) {
-  const { snap } = props;
-  if (snap === undefined) return null;
   return (
-    <SnapshotOptionRow
-      snap={snap}
-      nowMs={props.nowMs}
-      selected={props.selected}
-      outdated={!snap.compatible}
-      busy={props.busy}
-      checked={props.checked}
-      onToggleChecked={props.onToggleChecked}
-      onPick={props.onPick}
-    />
+    <Show when={props.snap}>
+      {(snap) => (
+        <SnapshotOptionRow
+          snap={snap()}
+          nowMs={props.nowMs}
+          selected={props.selected}
+          outdated={!snap().compatible}
+          busy={props.busy}
+          checked={props.checked}
+          onToggleChecked={props.onToggleChecked}
+          onPick={props.onPick}
+        />
+      )}
+    </Show>
   );
 }
 
@@ -351,26 +329,17 @@ function SnapshotChromeActions(props: {
   readonly onPurge: () => void;
   readonly openPalette: () => void;
 }) {
-  const {
-    list,
-    hasCompatibleSelection,
-    selectedId,
-    hasIncompatible,
-    onSaved,
-    onPurge,
-    openPalette,
-  } = props;
   return (
     <>
       <IconButton
         label="Save snapshot"
         size={ICON_SIZE}
-        disabled={list.busy}
-        onPress={() => {
-          void list
+        disabled={props.list.busy}
+        onClick={() => {
+          void props.list
             .onSave()
             .then((info) => {
-              onSaved(info.id);
+              props.onSaved(info.id);
             })
             .catch(() => undefined);
         }}
@@ -380,20 +349,20 @@ function SnapshotChromeActions(props: {
       <IconButton
         label="Reload current snapshot"
         size={ICON_SIZE}
-        disabled={list.busy || !hasCompatibleSelection}
-        onPress={() => {
-          if (selectedId === null) return;
-          void list.onLoad(selectedId);
+        disabled={props.list.busy || !props.hasCompatibleSelection}
+        onClick={() => {
+          if (props.selectedId === null) return;
+          void props.list.onLoad(props.selectedId);
         }}
       >
         <RotateCcwIcon size={GLYPH_SIZE} />
       </IconButton>
-      {hasIncompatible ? (
+      {props.hasIncompatible ? (
         <IconButton
           label="Purge incompatible snapshots"
           size={ICON_SIZE}
-          disabled={list.busy}
-          onPress={onPurge}
+          disabled={props.list.busy}
+          onClick={props.onPurge}
         >
           <Trash2Icon size={GLYPH_SIZE} />
         </IconButton>
@@ -401,7 +370,7 @@ function SnapshotChromeActions(props: {
       <IconButton
         label="Open command palette"
         size={ICON_SIZE}
-        onPress={openPalette}
+        onClick={props.openPalette}
       >
         <SearchIcon size={GLYPH_SIZE} />
       </IconButton>
@@ -413,15 +382,14 @@ function ClientLayoutToggle(props: {
   readonly preference: ClientLayoutMode;
   readonly onSelect: (mode: ClientLayoutMode) => void;
 }) {
-  const { preference, onSelect } = props;
   return (
     <Box sx={layoutToggleSx}>
       <IconButton
         label="Tab clients"
         size={ICON_SIZE}
-        {...(preference === 'tabs' ? { background: 'surfaceMuted' } : {})}
-        onPress={() => {
-          onSelect('tabs');
+        {...(props.preference === 'tabs' ? { background: 'surfaceMuted' } : {})}
+        onClick={() => {
+          props.onSelect('tabs');
         }}
       >
         <SquareStackIcon size={GLYPH_SIZE} />
@@ -429,9 +397,11 @@ function ClientLayoutToggle(props: {
       <IconButton
         label="Column clients"
         size={ICON_SIZE}
-        {...(preference === 'columns' ? { background: 'surfaceMuted' } : {})}
-        onPress={() => {
-          onSelect('columns');
+        {...(props.preference === 'columns'
+          ? { background: 'surfaceMuted' }
+          : {})}
+        onClick={() => {
+          props.onSelect('columns');
         }}
       >
         <Columns2Icon size={GLYPH_SIZE} />
@@ -451,18 +421,24 @@ const layoutToggleSx = {
 export function PlaygroundSnapshotChrome(props: {
   readonly session: PlaygroundSession;
 }) {
-  const { session } = props;
-  const { compactChrome } = useSimConsoleLayout();
-  const { preference, setPreference } = useClientLayoutPreference();
-  const list = usePlaygroundSnapshots(session);
+  const layout = useSimConsoleLayout();
+  const preference = useClientLayoutPreference();
+  const list = usePlaygroundSnapshots(() => props.session);
   const state = useSnapshotChromeState(list);
-  const { open: openPalette } = useCommandPalette();
-  const nowMs = session.clock.now();
+  const palette = useCommandPalette();
+  const nowMs = () => {
+    list.snaps;
+    list.busy;
+    return props.session.clock.now();
+  };
 
   return (
-    <Box sx={compactChrome ? chromeRowCompactSx : chromeRowDesktopSx}>
-      {compactChrome ? null : (
-        <ClientLayoutToggle preference={preference} onSelect={setPreference} />
+    <Box sx={layout.compactChrome ? chromeRowCompactSx : chromeRowDesktopSx}>
+      {layout.compactChrome ? null : (
+        <ClientLayoutToggle
+          preference={preference.preference}
+          onSelect={preference.setPreference}
+        />
       )}
       <SnapshotSelect
         list={list}
@@ -470,9 +446,9 @@ export function PlaygroundSnapshotChrome(props: {
         snapById={state.snapById}
         selectValue={state.selectedId ?? ''}
         sort={state.sort}
-        nowMs={nowMs}
+        nowMs={nowMs()}
         checkedIds={state.checkedIds}
-        compact={compactChrome}
+        compact={layout.compactChrome}
         onSelectId={state.setSelectedId}
         onSort={state.setSort}
         onToggleChecked={state.onToggleChecked}
@@ -486,7 +462,7 @@ export function PlaygroundSnapshotChrome(props: {
         hasIncompatible={state.hasIncompatible}
         onSaved={state.setSelectedId}
         onPurge={() => state.setPurgeOpen(true)}
-        openPalette={openPalette}
+        openPalette={palette.open}
       />
       <SnapshotChromeModals state={state} />
     </Box>
@@ -496,38 +472,37 @@ export function PlaygroundSnapshotChrome(props: {
 function SnapshotChromeModals(props: {
   readonly state: ReturnType<typeof useSnapshotChromeState>;
 }) {
-  const { state } = props;
-  const deleteCount = state.pendingDeleteIds?.length ?? 0;
+  const deleteCount = () => props.state.pendingDeleteIds?.length ?? 0;
   return (
     <>
       <MutationModal
-        visible={state.pendingDeleteIds !== null}
-        onClose={state.closeDelete}
+        visible={props.state.pendingDeleteIds !== null}
+        onClose={props.state.closeDelete}
         title={
-          deleteCount === 1
+          deleteCount() === 1
             ? 'Delete snapshot?'
-            : `Delete ${String(deleteCount)} snapshots?`
+            : `Delete ${String(deleteCount())} snapshots?`
         }
         message="Permanently remove the selected snapshots from ObjectStore. This cannot be undone."
         submitLabel="Delete"
         variant="destructive"
-        operation={state.runDelete}
+        operation={props.state.runDelete}
         successTitle="Deleted"
         successBody="Selected snapshots were removed."
-        onSuccess={state.closeDelete}
+        onSuccess={props.state.closeDelete}
         stackId="playground-snapshot-chrome-delete"
       />
       <MutationModal
-        visible={state.purgeOpen}
-        onClose={state.closePurge}
+        visible={props.state.purgeOpen}
+        onClose={props.state.closePurge}
         title="Purge incompatible?"
         message="Delete every snapshot whose schema no longer matches this app. Compatible snapshots are kept."
         submitLabel="Purge incompatible"
         variant="destructive"
-        operation={state.runPurge}
+        operation={props.state.runPurge}
         successTitle="Purged"
         successBody="Outdated snapshots were removed."
-        onSuccess={state.closePurge}
+        onSuccess={props.state.closePurge}
         stackId="playground-snapshot-chrome-purge"
       />
     </>

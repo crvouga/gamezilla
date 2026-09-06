@@ -1,5 +1,5 @@
-import { Box, EmptyState } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Box, EmptyState } from '@pkgs/ui';
+import { For, type JSX, Show } from 'solid-js';
 import {
   coerceDebuggerView,
   type DebuggerViewId,
@@ -113,72 +113,69 @@ export function PlaygroundKindPane(props: {
     readonly actor: PlaygroundActor;
     readonly focused: boolean;
     readonly onActivate: () => void;
-    readonly children: ReactNode;
-  }) => ReactNode;
-}): ReactNode {
-  const {
-    session,
-    kind,
-    panes,
-    instanceId,
-    clients,
-    snapshotEpoch,
-    focusedClientId,
-    onFocusedClientIdChange,
-    onPanePatch,
-    onClientColumnsOutsidePointerDown,
-    clientColumnShell,
-  } = props;
-
-  const room = resolveRoom(session, instanceId);
-  const serverPaneKey = playgroundPaneKey('server', session.server.id);
-  const eventsPaneKey = playgroundPaneKey('events', session.pubsub.id);
-  const roomPaneKey =
-    room !== null ? playgroundPaneKey('room', room.id) : 'room';
+    readonly children: JSX.Element;
+  }) => JSX.Element;
+}): JSX.Element {
+  const room = () => resolveRoom(props.session, props.instanceId);
+  const serverPaneKey = () =>
+    playgroundPaneKey('server', props.session.server.id);
+  const eventsPaneKey = () =>
+    playgroundPaneKey('events', props.session.pubsub.id);
+  const roomPaneKey = () => {
+    const r = room();
+    return r !== null ? playgroundPaneKey('room', r.id) : 'room';
+  };
 
   return (
     <>
-      <Box sx={kindVisibilitySx(kind === 'client')}>
+      <Box sx={kindVisibilitySx(props.kind === 'client')}>
         <ClientLiveColumns
-          session={session}
-          clients={clients}
-          panes={panes}
-          instanceId={instanceId}
-          snapshotEpoch={snapshotEpoch}
-          focusedClientId={focusedClientId}
-          onFocusedClientIdChange={onFocusedClientIdChange}
-          onPanePatch={onPanePatch}
-          {...(onClientColumnsOutsidePointerDown !== undefined
-            ? { onOutsidePointerDown: onClientColumnsOutsidePointerDown }
+          session={props.session}
+          clients={props.clients}
+          panes={props.panes}
+          instanceId={props.instanceId}
+          snapshotEpoch={props.snapshotEpoch}
+          focusedClientId={props.focusedClientId}
+          onFocusedClientIdChange={props.onFocusedClientIdChange}
+          onPanePatch={props.onPanePatch}
+          {...(props.onClientColumnsOutsidePointerDown !== undefined
+            ? { onOutsidePointerDown: props.onClientColumnsOutsidePointerDown }
             : {})}
-          {...(clientColumnShell !== undefined ? { clientColumnShell } : {})}
+          {...(props.clientColumnShell !== undefined
+            ? { clientColumnShell: props.clientColumnShell }
+            : {})}
         />
       </Box>
-      <Box sx={kindVisibilitySx(kind === 'server')}>
+      <Box sx={kindVisibilitySx(props.kind === 'server')}>
         <ServerPlaygroundPanel
-          session={session}
-          node={session.server}
-          pane={resolvePlaygroundPane(panes, serverPaneKey, 'server')}
-          onPanePatch={(patch, mode) => onPanePatch(serverPaneKey, patch, mode)}
+          session={props.session}
+          node={props.session.server}
+          pane={resolvePlaygroundPane(props.panes, serverPaneKey(), 'server')}
+          onPanePatch={(patch, mode) =>
+            props.onPanePatch(serverPaneKey(), patch, mode)
+          }
         />
       </Box>
-      <Box sx={kindVisibilitySx(kind === 'events')}>
+      <Box sx={kindVisibilitySx(props.kind === 'events')}>
         <PubSubPlaygroundPanel
-          session={session}
-          pubsub={session.pubsub}
-          pane={resolvePlaygroundPane(panes, eventsPaneKey, 'events')}
+          session={props.session}
+          pubsub={props.session.pubsub}
+          pane={resolvePlaygroundPane(props.panes, eventsPaneKey(), 'events')}
         />
       </Box>
-      <Box sx={kindVisibilitySx(kind === 'room')}>
-        {room === null ? (
-          <EmptyKind body="No room instances in this session." />
-        ) : (
-          <RoomPlaygroundPanel
-            session={session}
-            room={room}
-            pane={resolvePlaygroundPane(panes, roomPaneKey, 'room')}
-          />
-        )}
+      <Box sx={kindVisibilitySx(props.kind === 'room')}>
+        <Show
+          when={room()}
+          fallback={<EmptyKind body="No room instances in this session." />}
+        >
+          {(resolvedRoom) => (
+            <RoomPlaygroundPanel
+              session={props.session}
+              room={resolvedRoom()}
+              pane={resolvePlaygroundPane(props.panes, roomPaneKey(), 'room')}
+            />
+          )}
+        </Show>
       </Box>
     </>
   );
@@ -225,76 +222,78 @@ function ClientLiveColumns(props: {
     readonly actor: PlaygroundActor;
     readonly focused: boolean;
     readonly onActivate: () => void;
-    readonly children: ReactNode;
-  }) => ReactNode;
-}): ReactNode {
-  const {
-    session,
-    clients,
-    panes,
-    instanceId,
-    snapshotEpoch,
-    focusedClientId,
-    onFocusedClientIdChange,
-    onPanePatch,
-    onOutsidePointerDown,
-    clientColumnShell,
-  } = props;
-  const { multiClientColumns } = useSimConsoleLayout();
-  if (clients.length === 0) {
-    return <EmptyKind body="No clients in this session." />;
-  }
+    readonly children: JSX.Element;
+  }) => JSX.Element;
+}): JSX.Element {
+  const layout = useSimConsoleLayout();
   return (
-    <DebuggerColumns
-      {...(onOutsidePointerDown !== undefined ? { onOutsidePointerDown } : {})}
+    <Show
+      when={props.clients.length > 0}
+      fallback={<EmptyKind body="No clients in this session." />}
     >
-      {clients.map((actor) => {
-        const selected =
-          instanceId !== null
-            ? actor.id === instanceId
-            : actor.id === clients[0]?.id;
-        const visible = multiClientColumns || selected;
-        const focused = multiClientColumns
-          ? focusedClientId === actor.id
-          : selected;
-        const panel = (
-          <ClientPlaygroundPanel
-            actor={actor}
-            session={session}
-            snapshotEpoch={snapshotEpoch}
-            reloadToken={session.revision}
-            pane={resolvePlaygroundPane(panes, actor.id, 'client')}
-            onPanePatch={(patch, mode) => onPanePatch(actor.id, patch, mode)}
-          />
-        );
-        const body =
-          clientColumnShell !== undefined ? (
-            clientColumnShell({
-              actor,
-              focused,
-              onActivate: () => onFocusedClientIdChange(actor.id),
-              children: panel,
-            })
-          ) : (
-            <DebuggerColumn key={actor.id}>{panel}</DebuggerColumn>
-          );
-        if (multiClientColumns) return body;
-        return (
-          <Box
-            key={actor.id}
-            sx={{
-              flex: 1,
-              minWidth: 0,
-              minHeight: 0,
-              flexDirection: 'column',
-              display: visible ? 'flex' : 'none',
-            }}
-          >
-            {body}
-          </Box>
-        );
-      })}
-    </DebuggerColumns>
+      <DebuggerColumns
+        {...(props.onOutsidePointerDown !== undefined
+          ? { onOutsidePointerDown: props.onOutsidePointerDown }
+          : {})}
+      >
+        <For each={props.clients}>
+          {(actor) => {
+            const selected = () =>
+              props.instanceId !== null
+                ? actor.id === props.instanceId
+                : actor.id === props.clients[0]?.id;
+            const visible = () => layout.multiClientColumns || selected();
+            const focused = () =>
+              layout.multiClientColumns
+                ? props.focusedClientId === actor.id
+                : selected();
+            const panel = (
+              <ClientPlaygroundPanel
+                actor={actor}
+                session={props.session}
+                snapshotEpoch={props.snapshotEpoch}
+                reloadToken={props.session.revision}
+                pane={resolvePlaygroundPane(props.panes, actor.id, 'client')}
+                onPanePatch={(patch, mode) =>
+                  props.onPanePatch(actor.id, patch, mode)
+                }
+              />
+            );
+            const body = () =>
+              props.clientColumnShell !== undefined ? (
+                props.clientColumnShell({
+                  actor,
+                  focused: focused(),
+                  onActivate: () => props.onFocusedClientIdChange(actor.id),
+                  children: panel,
+                })
+              ) : (
+                <DebuggerColumn>{panel}</DebuggerColumn>
+              );
+            return (
+              <Show
+                when={layout.multiClientColumns}
+                fallback={
+                  <Box
+                    sx={{
+                      flex: 1,
+                      minWidth: 0,
+                      minHeight: 0,
+                      flexDirection: 'column',
+                      display: visible() ? 'flex' : 'none',
+                    }}
+                  >
+                    {body()}
+                  </Box>
+                }
+              >
+                {body()}
+              </Show>
+            );
+          }}
+        </For>
+      </DebuggerColumns>
+    </Show>
   );
 }
 

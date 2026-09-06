@@ -1,5 +1,13 @@
-import { Box, ScrollView, Text } from '@pkgs/ui-rn';
-import { useEffect, useMemo, useState } from 'react';
+import { Box, ScrollView, Text } from '@pkgs/ui';
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  For,
+  Match,
+  onCleanup,
+  Switch,
+} from 'solid-js';
 
 import type { SimulationReportEvent } from '../types';
 import type { ReportApiClient } from './api-client';
@@ -15,16 +23,11 @@ export function EventsPane(props: {
   readonly frame: FlatFrame | null;
   readonly nodeId: string | null;
 }) {
-  const { events, error } = useTestEvents(
-    props.api,
-    props.bucketId,
-    props.runId,
-    props.testId
-  );
+  const state = useTestEvents(props);
   return (
     <EventsList
-      events={events}
-      error={error}
+      events={state.events}
+      error={state.error}
       nodeId={props.nodeId}
       cutoffMs={props.frame?.capturedAtMs}
     />
@@ -37,46 +40,39 @@ export function EventsList(props: {
   readonly nodeId: string | null;
   readonly cutoffMs: number | undefined;
 }) {
-  const rows = useMemo(
-    () => filterNodeEvents(props.events, props.nodeId, props.cutoffMs),
-    [props.events, props.nodeId, props.cutoffMs]
+  const rows = createMemo(() =>
+    filterNodeEvents(props.events, props.nodeId, props.cutoffMs)
   );
-  if (props.nodeId == null) {
-    return (
-      <Box sx={paneSx}>
-        <Text sx={emptySx}>Select a node to view events.</Text>
-      </Box>
-    );
-  }
-  if (props.error != null) {
-    return (
-      <Box sx={paneSx}>
-        <Text sx={emptySx}>Failed to load events: {props.error}</Text>
-      </Box>
-    );
-  }
-  if (props.events == null) {
-    return (
-      <Box sx={paneSx}>
-        <Text sx={emptySx}>Loading events…</Text>
-      </Box>
-    );
-  }
-  if (rows.length === 0) {
-    return (
-      <Box sx={paneSx}>
-        <Text sx={emptySx}>
-          No events for node `{props.nodeId}` on this frame.
-        </Text>
-      </Box>
-    );
-  }
   return (
-    <ScrollView frameSx={paneSx} sx={{ gap: 1, padding: 3 }}>
-      {rows.map((row) => (
-        <EventRow key={row.event.id} row={row} />
-      ))}
-    </ScrollView>
+    <Switch>
+      <Match when={props.nodeId == null}>
+        <Box sx={paneSx}>
+          <Text sx={emptySx}>Select a node to view events.</Text>
+        </Box>
+      </Match>
+      <Match when={props.error != null}>
+        <Box sx={paneSx}>
+          <Text sx={emptySx}>Failed to load events: {props.error}</Text>
+        </Box>
+      </Match>
+      <Match when={props.events == null}>
+        <Box sx={paneSx}>
+          <Text sx={emptySx}>Loading events…</Text>
+        </Box>
+      </Match>
+      <Match when={rows().length === 0}>
+        <Box sx={paneSx}>
+          <Text sx={emptySx}>
+            No events for node `{props.nodeId}` on this frame.
+          </Text>
+        </Box>
+      </Match>
+      <Match when={true}>
+        <ScrollView frameSx={paneSx} sx={{ gap: 1, padding: 3 }}>
+          <For each={rows()}>{(row) => <EventRow row={row} />}</For>
+        </ScrollView>
+      </Match>
+    </Switch>
   );
 }
 
@@ -129,21 +125,22 @@ function EventRow(props: {
   );
 }
 
-function useTestEvents(
-  api: ReportApiClient,
-  bucketId: string,
-  runId: string,
-  testId: string
-): {
-  events: readonly SimulationReportEvent[] | null;
-  error: string | null;
+function useTestEvents(props: {
+  readonly api: ReportApiClient;
+  readonly bucketId: string;
+  readonly runId: string;
+  readonly testId: string;
+}): {
+  readonly events: readonly SimulationReportEvent[] | null;
+  readonly error: string | null;
 } {
-  const [events, setEvents] = useState<readonly SimulationReportEvent[] | null>(
-    null
-  );
-  const [error, setError] = useState<string | null>(null);
+  const [events, setEvents] = createSignal<
+    readonly SimulationReportEvent[] | null
+  >(null);
+  const [error, setError] = createSignal<string | null>(null);
 
-  useEffect(() => {
+  createEffect(() => {
+    const { api, bucketId, runId, testId } = props;
     let cancelled = false;
     setEvents(null);
     setError(null);
@@ -157,12 +154,19 @@ function useTestEvents(
           setError(err instanceof Error ? err.message : String(err));
         }
       });
-    return () => {
+    onCleanup(() => {
       cancelled = true;
-    };
-  }, [api, bucketId, runId, testId]);
+    });
+  });
 
-  return { events, error };
+  return {
+    get events() {
+      return events();
+    },
+    get error() {
+      return error();
+    },
+  };
 }
 
 function filterNodeEvents(

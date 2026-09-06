@@ -1,5 +1,5 @@
 import { Box } from '@pkgs/ui';
-import { type JSX, createEffect, onCleanup } from 'solid-js';
+import { createEffect, type JSX, onCleanup } from 'solid-js';
 
 /** Stable web `id` for {@link DebuggerColumns} — used for outside-pointer hit tests. */
 export const DEBUGGER_CLIENT_PANELS_NATIVE_ID = 'sim-debugger-client-panels';
@@ -33,7 +33,7 @@ export function DebuggerColumn(props: {
       {...(props.onActivate !== undefined
         ? { onPointerDown: props.onActivate }
         : {})}
-      dataSet={{ debuggerColumnFocused: props.focused ? '1' : undefined }}
+      {...(props.focused ? { dataSet: { debuggerColumnFocused: '1' } } : {})}
     >
       {props.children}
     </Box>

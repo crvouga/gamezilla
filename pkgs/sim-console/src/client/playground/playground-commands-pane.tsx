@@ -5,7 +5,8 @@ import {
   ScrollView,
   Text,
   useMutationButton,
-} from '@pkgs/ui-rn';
+} from '@pkgs/ui';
+import { For, Show } from 'solid-js';
 
 import type { PlaygroundSession } from '../../shared/ports';
 
@@ -15,7 +16,7 @@ import type { PlaygroundSession } from '../../shared/ports';
 export function PlaygroundCommandsPane(props: {
   readonly session: PlaygroundSession;
 }) {
-  const commands = props.session.listCommands();
+  const commands = () => props.session.listCommands();
 
   return (
     <ScrollView frameSx={{ flex: 1, minHeight: 0 }} sx={{ padding: 6, gap: 3 }}>
@@ -24,22 +25,26 @@ export function PlaygroundCommandsPane(props: {
         label="Faults / partitions / skew / snapshots → command palette (⌘K)."
         sx={{ color: 'textSecondary' }}
       />
-      {commands.length === 0 ? (
-        <EmptyState
-          variant="compact"
-          title="No host commands"
-          body="Register playground commands from the host boot."
-        />
-      ) : (
-        commands.map((cmd) => (
-          <CommandRow
-            key={cmd.id}
-            session={props.session}
-            commandId={cmd.id}
-            label={cmd.label}
+      <Show
+        when={commands().length > 0}
+        fallback={
+          <EmptyState
+            variant="compact"
+            title="No host commands"
+            body="Register playground commands from the host boot."
           />
-        ))
-      )}
+        }
+      >
+        <For each={commands()}>
+          {(cmd) => (
+            <CommandRow
+              session={props.session}
+              commandId={cmd.id}
+              label={cmd.label}
+            />
+          )}
+        </For>
+      </Show>
     </ScrollView>
   );
 }

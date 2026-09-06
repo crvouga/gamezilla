@@ -1,4 +1,5 @@
-import { Box, TabStrip } from '@pkgs/ui-rn';
+import { Box, TabStrip } from '@pkgs/ui';
+import { Match, Show, Switch } from 'solid-js';
 import {
   coerceDebuggerView,
   type DebuggerViewId,
@@ -46,11 +47,26 @@ const fillSx = {
 } as const;
 
 function ActorView(props: { readonly actor: PlaygroundActor }) {
-  const { actor } = props;
-  if (actor.view.kind === 'url') {
-    return <ActorUrlFrame title={actor.id} url={actor.view.url} />;
-  }
-  return <SolidActorHost title={actor.id} App={actor.view.App} />;
+  return (
+    <Switch>
+      <Match when={props.actor.view.kind === 'url'}>
+        <ActorUrlFrame
+          title={props.actor.id}
+          url={props.actor.view.kind === 'url' ? props.actor.view.url : ''}
+        />
+      </Match>
+      <Match when={true}>
+        <SolidActorHost
+          title={props.actor.id}
+          App={
+            props.actor.view.kind === 'solid'
+              ? props.actor.view.App
+              : () => null
+          }
+        />
+      </Match>
+    </Switch>
+  );
 }
 
 function hiddenWhen(active: boolean) {
@@ -82,42 +98,45 @@ export function ClientPlaygroundPanel(props: {
     mode?: 'push' | 'replace'
   ) => void;
 }) {
-  const { actor, session, snapshotEpoch, reloadToken, onPanePatch } = props;
-  const pane = resolvePane(props.pane, 'client');
-  const tab = pane.view;
-  const productKey = `${actor.id}:${snapshotEpoch ?? 0}`;
+  const pane = () => resolvePane(props.pane, 'client');
+  const tab = () => pane().view;
+  const productKey = () => `${props.actor.id}:${props.snapshotEpoch ?? 0}`;
   const views = viewsForKind('client');
 
   return (
-    <Box sx={panelSx} dataSet={{ debuggerClient: actor.address }}>
+    <Box sx={panelSx} dataSet={{ debuggerClient: props.actor.address }}>
       <TabStrip
-        accessibilityLabel="Client views"
+        aria-label="Client views"
         items={views.map((v) => debuggerViewTabItem(v))}
-        selectedId={tab}
-        onSelect={(id) => onPanePatch({ view: id })}
+        selectedId={tab()}
+        onSelect={(id) => props.onPanePatch({ view: id })}
       />
       <Box
         sx={{
           ...uiBodySx,
-          display: tab === 'ui' ? 'flex' : 'none',
-          pointerEvents: tab === 'ui' ? 'auto' : 'none',
+          display: tab() === 'ui' ? 'flex' : 'none',
+          pointerEvents: tab() === 'ui' ? 'auto' : 'none',
         }}
       >
-        <ActorView key={productKey} actor={actor} />
+        <Show when={productKey()} keyed>
+          {(_key: string) => <ActorView actor={props.actor} />}
+        </Show>
       </Box>
-      <Box sx={hiddenWhen(tab === 'db')}>
+      <Box sx={hiddenWhen(tab() === 'db')}>
         <SqlNotebookPane
-          sqlClient={actor.sqlClient}
-          nodeId={actor.id}
-          active={tab === 'db'}
+          sqlClient={props.actor.sqlClient}
+          nodeId={props.actor.id}
+          active={tab() === 'db'}
           subscribeDomainWake={(listener) =>
-            session.subscribeDomainWake(listener)
+            props.session.subscribeDomainWake(listener)
           }
-          {...(reloadToken !== undefined ? { reloadToken } : {})}
+          {...(props.reloadToken !== undefined
+            ? { reloadToken: props.reloadToken }
+            : {})}
         />
       </Box>
-      <Box sx={hiddenWhen(tab === 'events')}>
-        <PlaygroundLogsPane logs={actor.logs} />
+      <Box sx={hiddenWhen(tab() === 'events')}>
+        <PlaygroundLogsPane logs={props.actor.logs} />
       </Box>
     </Box>
   );
@@ -132,27 +151,26 @@ export function ServerPlaygroundPanel(props: {
     mode?: 'push' | 'replace'
   ) => void;
 }) {
-  const { session, node } = props;
-  const pane = resolvePane(props.pane, 'server');
-  const tab = pane.view;
+  const pane = () => resolvePane(props.pane, 'server');
+  const tab = () => pane().view;
   return (
     <Box sx={panelSx}>
-      <Box sx={hiddenWhen(tab === 'db')}>
+      <Box sx={hiddenWhen(tab() === 'db')}>
         <SqlNotebookPane
-          sqlClient={node.sqlClient}
-          nodeId={node.id}
-          active={tab === 'db'}
-          reloadToken={session.revision}
+          sqlClient={props.node.sqlClient}
+          nodeId={props.node.id}
+          active={tab() === 'db'}
+          reloadToken={props.session.revision}
           subscribeDomainWake={(listener) =>
-            session.subscribeDomainWake(listener)
+            props.session.subscribeDomainWake(listener)
           }
         />
       </Box>
-      <Box sx={hiddenWhen(tab === 'events')}>
-        <PlaygroundLogsPane logs={node.logs} />
+      <Box sx={hiddenWhen(tab() === 'events')}>
+        <PlaygroundLogsPane logs={props.node.logs} />
       </Box>
-      <Box sx={hiddenWhen(tab === 'commands')}>
-        <PlaygroundCommandsPane session={session} />
+      <Box sx={hiddenWhen(tab() === 'commands')}>
+        <PlaygroundCommandsPane session={props.session} />
       </Box>
     </Box>
   );
@@ -163,18 +181,17 @@ export function PubSubPlaygroundPanel(props: {
   readonly pubsub: PlaygroundPubSubNode;
   readonly pane: PaneNavValue | undefined;
 }) {
-  const { session, pubsub } = props;
-  const pane = resolvePane(props.pane, 'events');
-  const tab = pane.view;
+  const pane = () => resolvePane(props.pane, 'events');
+  const tab = () => pane().view;
   return (
     <Box sx={panelSx}>
-      <Box sx={hiddenWhen(tab === 'events')}>
-        <PlaygroundLogsPane logs={pubsub.logs} />
+      <Box sx={hiddenWhen(tab() === 'events')}>
+        <PlaygroundLogsPane logs={props.pubsub.logs} />
       </Box>
-      <Box sx={hiddenWhen(tab === 'topics')}>
+      <Box sx={hiddenWhen(tab() === 'topics')}>
         <PlaygroundPubSubTopicsPane
-          pubsub={pubsub}
-          subscribe={session.subscribe}
+          pubsub={props.pubsub}
+          subscribe={props.session.subscribe}
         />
       </Box>
     </Box>
@@ -186,16 +203,18 @@ export function RoomPlaygroundPanel(props: {
   readonly room: PlaygroundRoomNode;
   readonly pane: PaneNavValue | undefined;
 }) {
-  const { session, room } = props;
-  const pane = resolvePane(props.pane, 'room');
-  const tab = pane.view;
+  const pane = () => resolvePane(props.pane, 'room');
+  const tab = () => pane().view;
   return (
     <Box sx={panelSx}>
-      <Box sx={hiddenWhen(tab === 'db')}>
-        <PlaygroundRoomDbPane room={room} subscribe={session.subscribe} />
+      <Box sx={hiddenWhen(tab() === 'db')}>
+        <PlaygroundRoomDbPane
+          room={props.room}
+          subscribe={props.session.subscribe}
+        />
       </Box>
-      <Box sx={hiddenWhen(tab === 'events')}>
-        <PlaygroundLogsPane logs={room.logs} />
+      <Box sx={hiddenWhen(tab() === 'events')}>
+        <PlaygroundLogsPane logs={props.room.logs} />
       </Box>
     </Box>
   );

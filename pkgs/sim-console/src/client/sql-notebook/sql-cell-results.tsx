@@ -6,52 +6,55 @@ import {
   type DataTableColumn,
   OverflowMenuButton,
   Text,
-} from '@pkgs/ui-rn';
+} from '@pkgs/ui';
 import * as Clipboard from 'expo-clipboard';
-import { type ReactNode, useMemo, useState } from 'react';
+import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
 
 import type { SqlStatementResult } from './run-sql-cell';
 import { formatPlaygroundDbCell } from './sql-schema-query';
 
 export function SqlCellResults(props: {
-  readonly results: readonly SqlStatementResult[];
-  readonly durationMs: number;
-  readonly error: string | null;
-}): ReactNode {
-  const { results, durationMs, error } = props;
-  const [collapsed, setCollapsed] = useState(false);
-  if (error != null) {
-    return (
-      <Box sx={{ px: 2, py: 1 }}>
-        <Text sx={{ color: 'destructive', fontSize: 12 }} label={error} />
-      </Box>
-    );
-  }
-  if (results.length === 0) return null;
+  readonly results: () => readonly SqlStatementResult[];
+  readonly durationMs: () => number;
+  readonly error: () => string | null;
+}): JSX.Element {
+  const [collapsed, setCollapsed] = createSignal(false);
   return (
-    <Box sx={{ gap: 1, borderTopWidth: 1, borderColor: 'outline' }}>
-      <ResultsHeader
-        results={results}
-        durationMs={durationMs}
-        collapsed={collapsed}
-        onToggle={() => setCollapsed((v) => !v)}
-      />
-      {collapsed
-        ? null
-        : results.map((r, i) => (
-            <StatementResult key={`${r.kind}-${i}`} result={r} index={i} />
-          ))}
-    </Box>
+    <Show
+      when={props.error() == null}
+      fallback={
+        <Box sx={{ px: 2, py: 1 }}>
+          <Text
+            sx={{ color: 'destructive', fontSize: 12 }}
+            label={props.error()}
+          />
+        </Box>
+      }
+    >
+      <Show when={props.results().length > 0}>
+        <Box sx={{ gap: 1, borderTopWidth: 1, borderColor: 'outline' }}>
+          <ResultsHeader
+            results={props.results}
+            durationMs={props.durationMs}
+            collapsed={collapsed}
+            onToggle={() => setCollapsed((v) => !v)}
+          />
+          <Show when={!collapsed()}>
+            <ResultsList results={props.results} />
+          </Show>
+        </Box>
+      </Show>
+    </Show>
   );
 }
 
 function ResultsHeader(props: {
-  readonly results: readonly SqlStatementResult[];
-  readonly durationMs: number;
-  readonly collapsed: boolean;
+  readonly results: () => readonly SqlStatementResult[];
+  readonly durationMs: () => number;
+  readonly collapsed: () => boolean;
   readonly onToggle: () => void;
-}): ReactNode {
-  const status = summarize(props.results, props.durationMs);
+}): JSX.Element {
+  const status = () => summarize(props.results(), props.durationMs());
   return (
     <Box
       sx={{
@@ -64,33 +67,33 @@ function ResultsHeader(props: {
     >
       <Text
         sx={{ flex: 1, fontSize: 11, color: 'textSecondary' }}
-        label={status}
+        label={status()}
       />
       <OverflowMenuButton
         size={24}
         header={{ title: 'Results' }}
-        accessibilityLabel={asLocalized('Result actions')}
+        aria-label={asLocalized('Result actions')}
         actions={[
           {
             id: 'toggle',
-            label: props.collapsed ? 'Expand results' : 'Collapse results',
-            onPress: props.onToggle,
+            label: props.collapsed() ? 'Expand results' : 'Collapse results',
+            onClick: props.onToggle,
             endsGroup: true,
           },
           {
             id: 'json',
             label: 'Copy as JSON',
-            onPress: () => {
+            onClick: () => {
               void Clipboard.setStringAsync(
-                JSON.stringify(props.results, null, 2)
+                JSON.stringify(props.results(), null, 2)
               );
             },
           },
           {
             id: 'csv',
             label: 'Copy as CSV',
-            onPress: () => {
-              void Clipboard.setStringAsync(resultsToCsv(props.results));
+            onClick: () => {
+              void Clipboard.setStringAsync(resultsToCsv(props.results()));
             },
           },
         ]}
@@ -99,10 +102,22 @@ function ResultsHeader(props: {
   );
 }
 
+function ResultsList(props: {
+  readonly results: () => readonly SqlStatementResult[];
+}): JSX.Element {
+  return (
+    <Show when={props.results().length > 0}>
+      <For each={props.results()}>
+        {(result, index) => <StatementResult result={result} index={index()} />}
+      </For>
+    </Show>
+  );
+}
+
 function StatementResult(props: {
   readonly result: SqlStatementResult;
   readonly index: number;
-}): ReactNode {
+}): JSX.Element {
   const { result, index } = props;
   if (result.kind === 'changes') {
     return (
@@ -120,13 +135,10 @@ function StatementResult(props: {
 function RowsResult(props: {
   readonly result: Extract<SqlStatementResult, { kind: 'rows' }>;
   readonly index: number;
-}): ReactNode {
+}): JSX.Element {
   const { result, index } = props;
-  const columns = useMemo(() => buildColumns(result.columns), [result.columns]);
-  const loadPage = useMemo(
-    () => createMemoryPageLoader(() => result.rows),
-    [result.rows]
-  );
+  const columns = createMemo(() => buildColumns(result.columns));
+  const loadPage = createMemo(() => createMemoryPageLoader(() => result.rows));
   const note = result.truncated ? ` (truncated at ${result.rows.length})` : '';
   return (
     <Box sx={{ gap: 0.5, minHeight: 0 }}>
@@ -141,14 +153,14 @@ function RowsResult(props: {
         />
       ) : (
         <DataTable
-          columns={columns}
-          loadPage={loadPage}
+          columns={columns()}
+          loadPage={loadPage()}
           getRowId={(_row, i) => `${index}-${i}`}
           sourceKey={`${index}:${result.rows.length}:${result.columns.join(',')}`}
           pageSize={50}
           emptyTitle="0 rows"
           density="compact"
-          frameSx={{ borderWidth: 0, borderRadius: 'none', maxHeight: 240 }}
+          sx={{ borderWidth: 0, borderRadius: 'none', maxHeight: 240 }}
         />
       )}
     </Box>

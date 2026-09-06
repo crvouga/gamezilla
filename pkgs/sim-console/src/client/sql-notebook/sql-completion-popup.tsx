@@ -1,15 +1,15 @@
-import { Badge, Box, Pressable, Text } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Badge, Box, Clickable, Text } from '@pkgs/ui';
+import type { Accessor } from 'solid-js';
+import { For, type JSX } from 'solid-js';
 
 import type { CompletionCandidate, CompletionResult } from './sql-completion';
 
 export function SqlCompletionPopup(props: {
   readonly result: CompletionResult;
-  readonly selectedIndex: number;
+  readonly selectedIndex: Accessor<number>;
   readonly onSelect: (label: string) => void;
   readonly onHover: (index: number) => void;
-}): ReactNode {
-  const { result, selectedIndex, onSelect, onHover } = props;
+}): JSX.Element {
   return (
     <Box
       sx={{
@@ -22,15 +22,16 @@ export function SqlCompletionPopup(props: {
       }}
       dataSet={{ component: 'SqlCompletionPopup' }}
     >
-      {result.candidates.map((c, i) => (
-        <CompletionRow
-          key={`${c.kind}:${c.label}`}
-          candidate={c}
-          selected={i === selectedIndex}
-          onPress={() => onSelect(c.label)}
-          onHover={() => onHover(i)}
-        />
-      ))}
+      <For each={props.result.candidates}>
+        {(candidate, index) => (
+          <CompletionRow
+            candidate={candidate}
+            selected={props.selectedIndex() === index()}
+            onPress={() => props.onSelect(candidate.label)}
+            onHover={() => props.onHover(index())}
+          />
+        )}
+      </For>
     </Box>
   );
 }
@@ -40,12 +41,12 @@ function CompletionRow(props: {
   readonly selected: boolean;
   readonly onPress: () => void;
   readonly onHover: () => void;
-}): ReactNode {
+}): JSX.Element {
   const { candidate, selected, onPress, onHover } = props;
   return (
-    <Pressable
-      onPress={onPress}
-      onHoverIn={onHover}
+    <Clickable
+      onClick={onPress}
+      onMouseEnter={onHover}
       sx={{
         flexDirection: 'row',
         alignItems: 'center',
@@ -61,6 +62,6 @@ function CompletionRow(props: {
         label={candidate.label}
       />
       <Badge label={candidate.kind} intent="neutral" size="sm" />
-    </Pressable>
+    </Clickable>
   );
 }

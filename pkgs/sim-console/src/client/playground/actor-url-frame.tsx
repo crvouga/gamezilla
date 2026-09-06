@@ -1,14 +1,15 @@
-import { Text } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
-
-/** Native fallback — embed localhost actor URLs on web only. */
+/** Web host for localhost actor documents (iframe). */
 export function ActorUrlFrame(props: {
   readonly title: string;
   readonly url: string;
-}): ReactNode {
-  return (
-    <Text sx={{ p: 3, color: 'muted' }}>
-      {props.title}: open {props.url} in a browser (URL actors are web-only).
-    </Text>
-  );
+}) {
+  return <iframe title={props.title} src={props.url} style={frameStyle} />;
 }
+
+const frameStyle = {
+  flex: '1',
+  width: '100%',
+  height: '100%',
+  border: 'none',
+  'min-height': '0',
+} as const;

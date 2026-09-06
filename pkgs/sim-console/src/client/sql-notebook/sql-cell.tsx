@@ -1,4 +1,5 @@
-import { useClock } from '@pkgs/clock';
+import { useClock } from '@pkgs/clock/solid';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
   Box,
   ChevronDownIcon,
@@ -10,145 +11,161 @@ import {
   Switch,
   Text,
   Trash2Icon,
-} from '@pkgs/ui-rn';
+} from '@pkgs/ui';
 import {
-  type ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+  type Accessor,
+  createEffect,
+  createMemo,
+  createSignal,
+  type JSX,
+  onCleanup,
+  Show,
+} from 'solid-js';
 
-import { runSqlCell } from './run-sql-cell';
+import type { SqlNotebookCell } from './notebook-doc';
+import { runSqlCell, type SqlCellRun } from './run-sql-cell';
 import { SqlCellEditor } from './sql-cell-editor';
 import { SqlCellResults } from './sql-cell-results';
-import type { SqlCellProps } from './sql-cell-types';
+import type { CellInsertApi } from './sql-cell-types';
 import { completeAt } from './sql-completion';
+import type { SqlDialect } from './sql-dialect';
 import { sqlKeywordsForDialect } from './sql-dialect';
 import { tokenizeSql } from './sql-tokenize';
+import type { SchemaIndex } from './use-schema-index';
 
 export type { CellInsertApi, SqlCellProps } from './sql-cell-types';
 
-export function SqlCell(props: SqlCellProps): ReactNode {
+type SqlCellRenderProps = {
+  readonly cell: Accessor<SqlNotebookCell>;
+  readonly index: Accessor<number>;
+  readonly total: Accessor<number>;
+  readonly sqlClient: SqlClient;
+  readonly dialect: Accessor<SqlDialect>;
+  readonly schema: SchemaIndex;
+  readonly result: Accessor<SqlCellRun | null>;
+  readonly focused: Accessor<boolean>;
+  readonly onFocus: () => void;
+  readonly onChangeSql: (sql: string) => void;
+  readonly onToggleLive: () => void;
+  readonly onRun: (run: SqlCellRun) => void;
+  readonly onRunAndNext: (run: SqlCellRun) => void;
+  readonly onAddBelow: () => void;
+  readonly onRemove: () => void;
+  readonly onMove: (dir: -1 | 1) => void;
+  readonly onDuplicate: () => void;
+  readonly onRegisterInsert: (api: CellInsertApi | null) => void;
+};
+
+export function SqlCell(props: SqlCellRenderProps): JSX.Element {
   const clock = useClock();
-  const [selection, setSelection] = useState<CodeSelection>({
+  const [selection, setSelection] = createSignal<CodeSelection>({
     start: 0,
     end: 0,
   });
-  const [compIndex, setCompIndex] = useState(0);
-  const selectionRef = useRef(selection);
-  selectionRef.current = selection;
-  useRegisterInsert(props, selectionRef);
+  const [compIndex, setCompIndex] = createSignal(0);
+  useRegisterInsert(props, selection);
 
-  const catalog = useMemo(
-    () => ({
-      keywords: sqlKeywordsForDialect(props.dialect),
-      tables: props.schema.tables.map((t) => t.name),
-      columns: props.schema.allColumns,
-    }),
-    [props.dialect, props.schema]
+  const catalog = createMemo(() => ({
+    keywords: sqlKeywordsForDialect(props.dialect()),
+    tables: props.schema.tables().map((t) => t.name),
+    columns: props.schema.allColumns(),
+  }));
+  const completion = createMemo(() =>
+    completeAt(props.cell().sql, selection().start, catalog())
   );
-  const completion = useMemo(
-    () => completeAt(props.cell.sql, selection.start, catalog),
-    [props.cell.sql, selection.start, catalog]
-  );
-  const tokenize = useCallback(
-    (src: string) => tokenizeSql(src, props.dialect),
-    [props.dialect]
-  );
-  const run = useCallback(
-    async (andNext: boolean) => {
-      const out = await runSqlCell({
-        sqlClient: props.sqlClient,
-        sql: props.cell.sql,
-        now: () => clock.now(),
-      });
-      if (andNext) props.onRunAndNext(out);
-      else props.onRun(out);
-    },
-    [clock, props]
-  );
+  const tokenize = (src: string) => tokenizeSql(src, props.dialect());
+  const run = async (andNext: boolean) => {
+    const out = await runSqlCell({
+      sqlClient: props.sqlClient,
+      sql: props.cell().sql,
+      now: () => clock.now(),
+    });
+    if (andNext) props.onRunAndNext(out);
+    else props.onRun(out);
+  };
 
   return (
     <Box
       sx={{
         borderWidth: 1,
-        borderColor: props.focused ? 'tint' : 'outline',
+        borderColor: props.focused() ? 'tint' : 'outline',
         borderRadius: 'md',
         overflow: 'hidden',
         background: 'surface',
       }}
       dataSet={{ component: 'SqlCell' }}
     >
-      <CellChrome {...chromeProps(props, () => void run(false))} />
+      <CellChrome
+        index={props.index}
+        total={props.total}
+        live={() => props.cell().live}
+        onRun={() => void run(false)}
+        onToggleLive={props.onToggleLive}
+        onAddBelow={props.onAddBelow}
+        onRemove={props.onRemove}
+        onMove={props.onMove}
+        onDuplicate={props.onDuplicate}
+      />
       <SqlCellEditor
-        cellProps={props}
+        sql={() => props.cell().sql}
+        index={props.index}
+        onFocus={props.onFocus}
+        onChangeSql={props.onChangeSql}
         tokenize={tokenize}
         completion={completion}
         compIndex={compIndex}
-        setCompIndex={setCompIndex}
-        selectionRef={selectionRef}
-        setSelection={setSelection}
+        setCompIndex={(n) => setCompIndex(n)}
+        selection={selection}
+        setSelection={(s) => setSelection(s)}
         run={run}
       />
-      {props.result != null ? (
-        <SqlCellResults
-          results={props.result.statements}
-          durationMs={props.result.durationMs}
-          error={props.result.error}
-        />
-      ) : null}
+      <Show when={props.result()}>
+        {(result) => (
+          <SqlCellResults
+            results={() => result().statements}
+            durationMs={() => result().durationMs}
+            error={() => result().error}
+          />
+        )}
+      </Show>
     </Box>
   );
 }
 
 function useRegisterInsert(
-  props: SqlCellProps,
-  selectionRef: { current: CodeSelection }
+  props: SqlCellRenderProps,
+  selection: Accessor<CodeSelection>
 ): void {
-  const { onRegisterInsert, onChangeSql, cell, focused } = props;
-  useEffect(() => {
+  const { onRegisterInsert, onChangeSql } = props;
+  createEffect(() => {
+    const cell = props.cell();
+    const focused = props.focused();
     if (!focused) {
       onRegisterInsert(null);
       return;
     }
     onRegisterInsert({
       insertAtCaret: (text) => {
-        const { start, end } = selectionRef.current;
+        const { start, end } = selection();
         onChangeSql(cell.sql.slice(0, start) + text + cell.sql.slice(end));
       },
       setSql: onChangeSql,
     });
-    return () => onRegisterInsert(null);
-  }, [focused, onRegisterInsert, onChangeSql, cell.sql, selectionRef]);
-}
-
-function chromeProps(props: SqlCellProps, onRun: () => void) {
-  return {
-    index: props.index,
-    total: props.total,
-    live: props.cell.live,
-    onRun,
-    onToggleLive: props.onToggleLive,
-    onAddBelow: props.onAddBelow,
-    onRemove: props.onRemove,
-    onMove: props.onMove,
-    onDuplicate: props.onDuplicate,
-  };
+    onCleanup(() => onRegisterInsert(null));
+  });
 }
 
 function CellChrome(props: {
-  readonly index: number;
-  readonly total: number;
-  readonly live: boolean;
+  readonly index: Accessor<number>;
+  readonly total: Accessor<number>;
+  readonly live: Accessor<boolean>;
   readonly onRun: () => void;
   readonly onToggleLive: () => void;
   readonly onAddBelow: () => void;
   readonly onRemove: () => void;
   readonly onMove: (dir: -1 | 1) => void;
   readonly onDuplicate: () => void;
-}): ReactNode {
+}): JSX.Element {
   return (
     <Box
       sx={{
@@ -162,13 +179,13 @@ function CellChrome(props: {
     >
       <Text
         sx={{ fontSize: 11, color: 'textSecondary', px: 1 }}
-        label={`[${props.index + 1}]`}
+        label={`[${props.index() + 1}]`}
       />
       <IconButton
         label="Run cell"
         size={26}
         tooltip="hover"
-        onPress={props.onRun}
+        onClick={props.onRun}
       >
         <PlayIcon size={12} />
       </IconButton>
@@ -176,7 +193,7 @@ function CellChrome(props: {
         label="Add below"
         size={26}
         tooltip="hover"
-        onPress={props.onAddBelow}
+        onClick={props.onAddBelow}
       >
         <PlusIcon size={12} />
       </IconButton>
@@ -184,7 +201,7 @@ function CellChrome(props: {
         label="Move up"
         size={26}
         tooltip="hover"
-        onPress={() => props.onMove(-1)}
+        onClick={() => props.onMove(-1)}
       >
         <ChevronDownIcon size={12} sx={{ transform: [{ rotate: '180deg' }] }} />
       </IconButton>
@@ -192,7 +209,7 @@ function CellChrome(props: {
         label="Move down"
         size={26}
         tooltip="hover"
-        onPress={() => props.onMove(1)}
+        onClick={() => props.onMove(1)}
       >
         <ChevronDownIcon size={12} />
       </IconButton>
@@ -200,7 +217,7 @@ function CellChrome(props: {
         label="Duplicate"
         size={26}
         tooltip="hover"
-        onPress={props.onDuplicate}
+        onClick={props.onDuplicate}
       >
         <CopyIcon size={12} />
       </IconButton>
@@ -208,14 +225,14 @@ function CellChrome(props: {
         label="Delete cell"
         size={26}
         tooltip="hover"
-        onPress={props.onRemove}
+        onClick={props.onRemove}
       >
         <Trash2Icon size={12} />
       </IconButton>
       <Box sx={{ flex: 1 }} />
       <Switch
         label="Live"
-        value={props.live}
+        value={props.live()}
         onValueChange={() => props.onToggleLive()}
       />
     </Box>

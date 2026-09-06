@@ -5,6 +5,6 @@ export default defineConfig({
   plugins: [solid()],
   test: {
     environment: 'happy-dom',
-    include: ['src/**/*.test.{ts,tsx}', 'tests/**/*.test.{ts,tsx}'],
+    include: ['src/**/*.test.tsx', 'tests/**/*.test.tsx'],
   },
 });

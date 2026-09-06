@@ -1,4 +1,4 @@
-import { useBreakpoint } from '@pkgs/ui';
+import { useTheme } from '@pkgs/ui';
 
 import { useClientLayoutPreference } from './client-layout-preference';
 import {
@@ -18,9 +18,9 @@ export {
 
 export function useSimConsoleLayout(): SimConsoleLayout {
   const preference = useClientLayoutPreference();
-  const breakpoint = useBreakpoint();
+  const theme = useTheme();
   const layout = () =>
-    simConsoleLayoutFromBreakpoint(breakpoint(), preference.preference);
+    simConsoleLayoutFromBreakpoint(theme.breakpoint(), preference.preference);
   return {
     get compactChrome() {
       return layout().compactChrome;

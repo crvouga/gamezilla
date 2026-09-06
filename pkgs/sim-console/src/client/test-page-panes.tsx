@@ -1,5 +1,5 @@
-import { Box, Text } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Box, Text } from '@pkgs/ui';
+import { For, type JSX, Match, Switch } from 'solid-js';
 import type { DebuggerViewId } from '../shared/debugger-views';
 import type { ReportApiClient } from './api-client';
 import { DebuggerColumn, DebuggerColumns } from './debugger/debugger-columns';
@@ -26,42 +26,42 @@ export function ReportKindPane(props: {
   readonly frame: FlatFrame | null;
   readonly frames: readonly FlatFrame[];
   readonly selectedIdx: number;
-}): ReactNode {
-  if (props.kind === 'client') {
-    return <ReportClientPane {...props} />;
-  }
-  if (props.view === 'events') {
-    return (
-      <EventsPane
-        api={props.api}
-        bucketId={props.bucketId}
-        runId={props.runId}
-        testId={props.testId}
-        frame={props.frame}
-        nodeId={props.nodeId}
-      />
-    );
-  }
-  if (props.kind === 'server' || props.kind === 'room') {
-    return (
-      <JsonPane
-        api={props.api}
-        bucketId={props.bucketId}
-        runId={props.runId}
-        testId={props.testId}
-        frame={props.frame}
-        name="topology"
-      />
-    );
-  }
+}): JSX.Element {
   return (
-    <SqlitePane
-      bucketId={props.bucketId}
-      runId={props.runId}
-      testId={props.testId}
-      frame={props.frame}
-      nodeId={props.nodeId}
-    />
+    <Switch>
+      <Match when={props.kind === 'client'}>
+        <ReportClientPane {...props} />
+      </Match>
+      <Match when={props.view === 'events'}>
+        <EventsPane
+          api={props.api}
+          bucketId={props.bucketId}
+          runId={props.runId}
+          testId={props.testId}
+          frame={props.frame}
+          nodeId={props.nodeId}
+        />
+      </Match>
+      <Match when={props.kind === 'server' || props.kind === 'room'}>
+        <JsonPane
+          api={props.api}
+          bucketId={props.bucketId}
+          runId={props.runId}
+          testId={props.testId}
+          frame={props.frame}
+          name="topology"
+        />
+      </Match>
+      <Match when={true}>
+        <SqlitePane
+          bucketId={props.bucketId}
+          runId={props.runId}
+          testId={props.testId}
+          frame={props.frame}
+          nodeId={props.nodeId}
+        />
+      </Match>
+    </Switch>
   );
 }
 
@@ -75,97 +75,93 @@ function ReportClientPane(props: {
   readonly testId: string;
   readonly frames: readonly FlatFrame[];
   readonly selectedIdx: number;
-}): ReactNode {
-  const { multiClientColumns } = useSimConsoleLayout();
-  const visibleInstances = visibleReportClients(
-    props.instances,
-    props.selected,
-    multiClientColumns
-  );
-  if (props.view === 'events') {
-    return (
-      <DebuggerColumns>
-        {visibleInstances.map((node) => {
-          const nodeFrame = resolveFrameForNode(
-            props.frames,
-            props.selectedIdx,
-            node.id
-          );
-          return (
-            <DebuggerColumn key={node.id}>
-              <EventsPane
-                api={props.api}
-                bucketId={props.bucketId}
-                runId={props.runId}
-                testId={props.testId}
-                frame={nodeFrame}
-                nodeId={node.id}
-              />
-            </DebuggerColumn>
-          );
-        })}
-      </DebuggerColumns>
+}): JSX.Element {
+  const layout = useSimConsoleLayout();
+  const visibleInstances = () =>
+    visibleReportClients(
+      props.instances,
+      props.selected,
+      layout.multiClientColumns
     );
-  }
-  if (props.view === 'db') {
-    return (
-      <DebuggerColumns>
-        {visibleInstances.map((node) => {
-          const nodeFrame = resolveFrameForNode(
-            props.frames,
-            props.selectedIdx,
-            node.id
-          );
-          return (
-            <DebuggerColumn key={node.id}>
-              <SqlitePane
-                bucketId={props.bucketId}
-                runId={props.runId}
-                testId={props.testId}
-                frame={nodeFrame}
-                nodeId={node.id}
-              />
-            </DebuggerColumn>
-          );
-        })}
-      </DebuggerColumns>
-    );
-  }
-  if (visibleInstances.length === 0) {
-    return (
-      <Box sx={paneSx}>
-        <Text sx={emptySx}>No client nodes for this frame.</Text>
-      </Box>
-    );
-  }
   return (
-    <DebuggerColumns>
-      {visibleInstances.map((node) => {
-        const nodeFrame = resolveFrameForNode(
-          props.frames,
-          props.selectedIdx,
-          node.id
-        );
-        return (
-          <DebuggerColumn key={node.id}>
-            <Box sx={columnSx}>
-              <Text sx={columnLabelSx}>{node.id}</Text>
-              <Box sx={previewSx}>
-                <HtmlPane
+    <Switch>
+      <Match when={props.view === 'events'}>
+        <DebuggerColumns>
+          <For each={visibleInstances()}>
+            {(node) => (
+              <DebuggerColumn>
+                <EventsPane
                   api={props.api}
                   bucketId={props.bucketId}
                   runId={props.runId}
                   testId={props.testId}
-                  frame={nodeFrame}
+                  frame={resolveFrameForNode(
+                    props.frames,
+                    props.selectedIdx,
+                    node.id
+                  )}
                   nodeId={node.id}
-                  node={node}
                 />
-              </Box>
-            </Box>
-          </DebuggerColumn>
-        );
-      })}
-    </DebuggerColumns>
+              </DebuggerColumn>
+            )}
+          </For>
+        </DebuggerColumns>
+      </Match>
+      <Match when={props.view === 'db'}>
+        <DebuggerColumns>
+          <For each={visibleInstances()}>
+            {(node) => (
+              <DebuggerColumn>
+                <SqlitePane
+                  bucketId={props.bucketId}
+                  runId={props.runId}
+                  testId={props.testId}
+                  frame={resolveFrameForNode(
+                    props.frames,
+                    props.selectedIdx,
+                    node.id
+                  )}
+                  nodeId={node.id}
+                />
+              </DebuggerColumn>
+            )}
+          </For>
+        </DebuggerColumns>
+      </Match>
+      <Match when={visibleInstances().length === 0}>
+        <Box sx={paneSx}>
+          <Text sx={emptySx}>No client nodes for this frame.</Text>
+        </Box>
+      </Match>
+      <Match when={true}>
+        <DebuggerColumns>
+          <For each={visibleInstances()}>
+            {(node) => (
+              <DebuggerColumn>
+                <Box sx={columnSx}>
+                  <Text sx={columnLabelSx}>{node.id}</Text>
+                  <Box sx={previewSx}>
+                    <HtmlPane
+                      api={props.api}
+                      bucketId={props.bucketId}
+                      runId={props.runId}
+                      testId={props.testId}
+                      frame={resolveFrameForNode(
+                        props.frames,
+                        props.selectedIdx,
+                        node.id
+                      )}
+                      nodeId={node.id}
+                      node={node}
+                    />
+                  </Box>
+                </Box>
+              </DebuggerColumn>
+            )}
+          </For>
+        </DebuggerColumns>
+      </Match>
+    </Switch>
   );
 }
 

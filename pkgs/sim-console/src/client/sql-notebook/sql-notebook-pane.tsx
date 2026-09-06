@@ -1,18 +1,21 @@
-import { useClock } from '@pkgs/clock';
+import { useClock } from '@pkgs/clock/solid';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { Box, ErrorState, LoadingState, ScrollView } from '@pkgs/ui-rn';
-import { useCreateId } from '@pkgs/uuid';
+import { Box, ErrorState, LoadingState, ScrollView } from '@pkgs/ui';
+import { useCreateId } from '@pkgs/uuid/solid';
 import * as Clipboard from 'expo-clipboard';
 import {
-  type Dispatch,
-  type ReactNode,
-  type SetStateAction,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+  type Accessor,
+  createEffect,
+  createMemo,
+  createSignal,
+  For,
+  type JSX,
+  Match,
+  onCleanup,
+  type Setter,
+  Show,
+  Switch,
+} from 'solid-js';
 
 import {
   addCellAfter,
@@ -20,6 +23,7 @@ import {
   encodeNotebookDoc,
   moveCell,
   removeCell,
+  type SqlNotebookCell,
   type SqlNotebookDoc,
   setCellSql,
   toggleLive,
@@ -30,8 +34,12 @@ import { type CellInsertApi, SqlCell } from './sql-cell';
 import { detectSqlDialect, type SqlDialect } from './sql-dialect';
 import { SqlNotebookToolbar } from './sql-notebook-toolbar';
 import { SqlSchemaDrawer } from './sql-schema-drawer';
-import { useNotebookDoc } from './use-notebook-doc';
-import { type SchemaIndex, useSchemaIndex } from './use-schema-index';
+import { type NotebookDocSetter, useNotebookDoc } from './use-notebook-doc';
+import {
+  type SchemaIndex,
+  type SchemaWakeSubscribe,
+  useSchemaIndex,
+} from './use-schema-index';
 
 /**
  * Per-node SQL notebook. Replaces the table browser. Notebook SQL is
@@ -43,56 +51,60 @@ export function SqlNotebookPane(props: {
   readonly nodeId: string;
   readonly active?: boolean;
   readonly reloadToken?: number;
-  readonly subscribeDomainWake?: (
-    listener: (label: string) => void
-  ) => () => void;
-}): ReactNode {
-  const {
-    sqlClient,
-    nodeId,
-    active = true,
-    reloadToken = 0,
-    subscribeDomainWake,
-  } = props;
-  const dialect = useMemo(() => detectSqlDialect(sqlClient), [sqlClient]);
-  const { state, setDoc, resetDoc } = useNotebookDoc({
-    nodeId,
-    dialect,
-    active,
-  });
+  readonly subscribeDomainWake?: SchemaWakeSubscribe;
+}): JSX.Element {
+  const active = () => props.active ?? true;
+  const reloadToken = () => props.reloadToken ?? 0;
+  const nodeId = () => props.nodeId;
+  const dialect = (): SqlDialect => detectSqlDialect(props.sqlClient);
+  const subscribeDomainWake = () => props.subscribeDomainWake;
+  const nb = useNotebookDoc({ nodeId, dialect, active });
   const schema = useSchemaIndex({
-    sqlClient,
+    sqlClient: props.sqlClient,
     active,
     reloadToken,
-    ...(subscribeDomainWake !== undefined ? { subscribeDomainWake } : {}),
+    subscribeDomainWake,
   });
+  const state = nb.state;
+  const errorMessage = () => {
+    const s = state();
+    return s.status === 'error' ? s.message : null;
+  };
+  const readyDoc = () => {
+    const s = state();
+    return s.status === 'ready' ? s.doc : null;
+  };
 
-  if (state.status === 'loading') {
-    return (
-      <Box sx={fillSx}>
-        <LoadingState variant="compact" caption="Loading notebook…" />
-      </Box>
-    );
-  }
-  if (state.status === 'error') {
-    return (
-      <Box sx={fillSx}>
-        <ErrorState title="Notebook error" body={state.message} />
-      </Box>
-    );
-  }
   return (
-    <ReadyNotebook
-      doc={state.doc}
-      setDoc={setDoc}
-      resetDoc={resetDoc}
-      sqlClient={sqlClient}
-      dialect={dialect}
-      schema={schema}
-      active={active}
-      reloadToken={reloadToken}
-      {...(subscribeDomainWake !== undefined ? { subscribeDomainWake } : {})}
-    />
+    <Box sx={{ flex: 1, minHeight: 0 }}>
+      <Switch>
+        <Match when={state().status === 'loading'}>
+          <Box sx={fillSx}>
+            <LoadingState variant="compact" caption="Loading notebook…" />
+          </Box>
+        </Match>
+        <Match when={errorMessage() != null}>
+          <Box sx={fillSx}>
+            <ErrorState title="Notebook error" body={errorMessage() ?? ''} />
+          </Box>
+        </Match>
+      </Switch>
+      <Show when={readyDoc()}>
+        {(doc) => (
+          <ReadyNotebook
+            doc={doc}
+            setDoc={nb.setDoc}
+            resetDoc={nb.resetDoc}
+            sqlClient={props.sqlClient}
+            dialect={dialect}
+            schema={schema}
+            active={active}
+            reloadToken={reloadToken}
+            subscribeDomainWake={subscribeDomainWake}
+          />
+        )}
+      </Show>
+    </Box>
   );
 }
 
@@ -104,52 +116,39 @@ const fillSx = {
 } as const;
 
 function ReadyNotebook(props: {
-  readonly doc: SqlNotebookDoc;
-  readonly setDoc: Dispatch<SetStateAction<SqlNotebookDoc>>;
+  readonly doc: Accessor<SqlNotebookDoc>;
+  readonly setDoc: NotebookDocSetter;
   readonly resetDoc: () => void;
   readonly sqlClient: SqlClient;
-  readonly dialect: SqlDialect;
+  readonly dialect: Accessor<SqlDialect>;
   readonly schema: SchemaIndex;
-  readonly active: boolean;
-  readonly reloadToken: number;
-  readonly subscribeDomainWake?: (
-    listener: (label: string) => void
-  ) => () => void;
-}): ReactNode {
-  const {
-    doc,
-    setDoc,
-    resetDoc,
-    sqlClient,
-    dialect,
-    schema,
-    active,
-    reloadToken,
-    subscribeDomainWake,
-  } = props;
+  readonly active: Accessor<boolean>;
+  readonly reloadToken: Accessor<number>;
+  readonly subscribeDomainWake: Accessor<SchemaWakeSubscribe | undefined>;
+}): JSX.Element {
   const createId = useCreateId();
   const clock = useClock();
-  const [results, setResults] = useState<Readonly<Record<string, SqlCellRun>>>(
-    {}
-  );
-  const [focusId, setFocusId] = useState<string | null>(null);
-  const insertApi = useRef<CellInsertApi | null>(null);
+  const [results, setResults] = createSignal<
+    Readonly<Record<string, SqlCellRun>>
+  >({});
+  const [focusId, setFocusId] = createSignal<string | null>(null);
+  const insertApi: { current: CellInsertApi | null } = { current: null };
 
   useLiveRerun({
-    active,
-    doc,
-    sqlClient,
+    doc: props.doc,
+    sqlClient: props.sqlClient,
     clock,
     setResults,
-    reloadToken,
-    ...(subscribeDomainWake !== undefined ? { subscribeDomainWake } : {}),
+    reloadToken: props.reloadToken,
+    active: props.active,
+    subscribeDomainWake: props.subscribeDomainWake,
   });
 
   const actions = useNotebookActions({
-    doc,
-    setDoc,
-    resetDoc,
-    sqlClient,
+    doc: props.doc,
+    setDoc: props.setDoc,
+    resetDoc: props.resetDoc,
+    sqlClient: props.sqlClient,
     clock,
     createId,
     setResults,
@@ -163,13 +162,13 @@ function ReadyNotebook(props: {
       sx={{ flex: 1, minHeight: 0, minWidth: 0 }}
       dataSet={{ component: 'SqlNotebookPane' }}
     >
-      <SqlNotebookToolbar dialect={dialect} {...actions.toolbar} />
+      <SqlNotebookToolbar dialect={props.dialect} {...actions.toolbar} />
       <NotebookCells
-        doc={doc}
-        setDoc={setDoc}
-        sqlClient={sqlClient}
-        dialect={dialect}
-        schema={schema}
+        doc={props.doc}
+        setDoc={props.setDoc}
+        sqlClient={props.sqlClient}
+        dialect={props.dialect}
+        schema={props.schema}
         results={results}
         setResults={setResults}
         focusId={focusId}
@@ -177,23 +176,23 @@ function ReadyNotebook(props: {
         createId={createId}
         insertApi={insertApi}
       />
-      <SqlSchemaDrawer schema={schema} {...actions.schema} />
+      <SqlSchemaDrawer schema={props.schema} {...actions.schema} />
     </Box>
   );
 }
 
+type ResultsMap = Readonly<Record<string, SqlCellRun>>;
+
 function useNotebookActions(args: {
-  readonly doc: SqlNotebookDoc;
-  readonly setDoc: Dispatch<SetStateAction<SqlNotebookDoc>>;
+  readonly doc: Accessor<SqlNotebookDoc>;
+  readonly setDoc: NotebookDocSetter;
   readonly resetDoc: () => void;
   readonly sqlClient: SqlClient;
   readonly clock: { now: () => number };
   readonly createId: () => string;
-  readonly setResults: Dispatch<
-    SetStateAction<Readonly<Record<string, SqlCellRun>>>
-  >;
-  readonly focusId: string | null;
-  readonly setFocusId: (id: string | null) => void;
+  readonly setResults: Setter<ResultsMap>;
+  readonly focusId: Accessor<string | null>;
+  readonly setFocusId: Setter<string | null>;
   readonly insertApi: { current: CellInsertApi | null };
 }) {
   const {
@@ -212,26 +211,26 @@ function useNotebookActions(args: {
     toolbar: {
       onRunAll: () => void runAllCells({ doc, sqlClient, clock, setResults }),
       onAddCell: () =>
-        setDoc(
+        setDoc((prev) =>
           addCellAfter({
-            doc,
-            afterId: doc.cells[doc.cells.length - 1]?.id ?? null,
+            doc: prev,
+            afterId: prev.cells[prev.cells.length - 1]?.id ?? null,
             cell: { id: createId(), sql: '', live: false },
           })
         ),
       onClearResults: () => setResults({}),
       onClearNotebook: resetDoc,
       onExport: () => {
-        void Clipboard.setStringAsync(encodeNotebookDoc(doc));
+        void Clipboard.setStringAsync(encodeNotebookDoc(doc()));
       },
     },
     schema: {
       onInsertTable: (table: string) => {
         const id = createId();
-        setDoc(
+        setDoc((prev) =>
           addCellAfter({
-            doc,
-            afterId: focusId ?? doc.cells[doc.cells.length - 1]?.id ?? null,
+            doc: prev,
+            afterId: focusId() ?? prev.cells[prev.cells.length - 1]?.id ?? null,
             cell: {
               id,
               sql: `SELECT * FROM ${table} LIMIT 100;`,
@@ -249,117 +248,114 @@ function useNotebookActions(args: {
 }
 
 function NotebookCells(props: {
-  readonly doc: SqlNotebookDoc;
-  readonly setDoc: Dispatch<SetStateAction<SqlNotebookDoc>>;
+  readonly doc: Accessor<SqlNotebookDoc>;
+  readonly setDoc: NotebookDocSetter;
   readonly sqlClient: SqlClient;
-  readonly dialect: SqlDialect;
+  readonly dialect: Accessor<SqlDialect>;
   readonly schema: SchemaIndex;
-  readonly results: Readonly<Record<string, SqlCellRun>>;
-  readonly setResults: Dispatch<
-    SetStateAction<Readonly<Record<string, SqlCellRun>>>
-  >;
-  readonly focusId: string | null;
-  readonly setFocusId: (id: string | null) => void;
+  readonly results: Accessor<ResultsMap>;
+  readonly setResults: Setter<ResultsMap>;
+  readonly focusId: Accessor<string | null>;
+  readonly setFocusId: Setter<string | null>;
   readonly createId: () => string;
   readonly insertApi: { current: CellInsertApi | null };
-}): ReactNode {
-  const {
-    doc,
-    setDoc,
-    sqlClient,
-    dialect,
-    schema,
-    results,
-    setResults,
-    focusId,
-    setFocusId,
-    createId,
-    insertApi,
-  } = props;
+}): JSX.Element {
+  const cellIds = createMemo(() => props.doc().cells.map((c) => c.id));
   return (
     <ScrollView sx={{ gap: 2, padding: 2 }} frameSx={{ flex: 1, minHeight: 0 }}>
-      {doc.cells.map((cell, index) => (
-        <SqlCell
-          key={cell.id}
-          cell={cell}
-          index={index}
-          total={doc.cells.length}
-          sqlClient={sqlClient}
-          dialect={dialect}
-          schema={schema}
-          result={results[cell.id] ?? null}
-          focused={focusId === cell.id}
-          onFocus={() => setFocusId(cell.id)}
-          onChangeSql={(sql) => setDoc(setCellSql(doc, cell.id, sql))}
-          onToggleLive={() => setDoc(toggleLive(doc, cell.id))}
-          onRun={(run) => setResults((prev) => ({ ...prev, [cell.id]: run }))}
-          onRunAndNext={(run) =>
-            handleRunAndNext({
-              doc,
-              cellId: cell.id,
-              run,
-              createId,
-              setDoc,
-              setResults,
-              setFocusId,
-            })
-          }
-          onAddBelow={() =>
-            setDoc(
-              addCellAfter({
-                doc,
-                afterId: cell.id,
-                cell: { id: createId(), sql: '', live: false },
-              })
-            )
-          }
-          onRemove={() => {
-            setDoc(removeCell(doc, cell.id));
-            setResults((prev) => {
-              const next = { ...prev };
-              delete next[cell.id];
-              return next;
-            });
-          }}
-          onMove={(dir) => setDoc(moveCell(doc, cell.id, dir))}
-          onDuplicate={() =>
-            setDoc(duplicateCell({ doc, cellId: cell.id, newId: createId() }))
-          }
-          onRegisterInsert={(api) => {
-            insertApi.current = api;
-          }}
-        />
-      ))}
+      <For each={cellIds()}>
+        {(id) => {
+          const cell = () =>
+            props.doc().cells.find((c) => c.id === id) ?? missingCell(id);
+          return (
+            <SqlCell
+              cell={cell}
+              index={() => props.doc().cells.findIndex((c) => c.id === id)}
+              total={() => props.doc().cells.length}
+              sqlClient={props.sqlClient}
+              dialect={props.dialect}
+              schema={props.schema}
+              result={() => props.results()[id] ?? null}
+              focused={() => props.focusId() === id}
+              onFocus={() => props.setFocusId(id)}
+              onChangeSql={(sql) =>
+                props.setDoc((prev) => setCellSql(prev, id, sql))
+              }
+              onToggleLive={() => props.setDoc((prev) => toggleLive(prev, id))}
+              onRun={(run) =>
+                props.setResults((prev) => ({ ...prev, [id]: run }))
+              }
+              onRunAndNext={(run) =>
+                handleRunAndNext({
+                  doc: props.doc,
+                  cellId: id,
+                  run,
+                  createId: props.createId,
+                  setDoc: props.setDoc,
+                  setResults: props.setResults,
+                  setFocusId: props.setFocusId,
+                })
+              }
+              onAddBelow={() =>
+                props.setDoc((prev) =>
+                  addCellAfter({
+                    doc: prev,
+                    afterId: id,
+                    cell: { id: props.createId(), sql: '', live: false },
+                  })
+                )
+              }
+              onRemove={() => {
+                props.setDoc((prev) => removeCell(prev, id));
+                props.setResults((prev) => {
+                  const next = { ...prev };
+                  delete next[id];
+                  return next;
+                });
+              }}
+              onMove={(dir) => props.setDoc((prev) => moveCell(prev, id, dir))}
+              onDuplicate={() =>
+                props.setDoc((prev) =>
+                  duplicateCell({
+                    doc: prev,
+                    cellId: id,
+                    newId: props.createId(),
+                  })
+                )
+              }
+              onRegisterInsert={(api) => {
+                props.insertApi.current = api;
+              }}
+            />
+          );
+        }}
+      </For>
     </ScrollView>
   );
 }
 
 function useLiveRerun(args: {
-  readonly active: boolean;
-  readonly doc: SqlNotebookDoc;
+  readonly doc: Accessor<SqlNotebookDoc>;
   readonly sqlClient: SqlClient;
   readonly clock: { now: () => number };
-  readonly setResults: Dispatch<
-    SetStateAction<Readonly<Record<string, SqlCellRun>>>
-  >;
-  readonly reloadToken: number;
-  readonly subscribeDomainWake?: (
-    listener: (label: string) => void
-  ) => () => void;
+  readonly setResults: Setter<ResultsMap>;
+  readonly reloadToken: Accessor<number>;
+  readonly active: Accessor<boolean>;
+  readonly subscribeDomainWake: Accessor<SchemaWakeSubscribe | undefined>;
 }): void {
   const {
-    active,
     doc,
     sqlClient,
     clock,
     setResults,
     reloadToken,
+    active,
     subscribeDomainWake,
   } = args;
-  const liveCount = doc.cells.filter((c) => c.live).length;
-  const rerunLive = useCallback(() => {
-    if (!active) return;
-    for (const cell of doc.cells) {
+  const liveCount = createMemo(() => doc().cells.filter((c) => c.live).length);
+  const rerunLive = (): void => {
+    if (!active()) return;
+    for (const cell of doc().cells) {
       if (!cell.live) continue;
       void runSqlCell({
         sqlClient,
@@ -369,32 +365,35 @@ function useLiveRerun(args: {
         setResults((prev) => ({ ...prev, [cell.id]: run }));
       });
     }
-  }, [active, doc, sqlClient, clock, setResults]);
+  };
 
-  useEffect(() => {
+  createEffect(() => {
+    void reloadToken();
+    void doc();
     rerunLive();
-  }, [rerunLive, reloadToken]);
+  });
 
-  useEffect(() => {
-    if (!active || subscribeDomainWake === undefined || liveCount === 0) {
+  createEffect(() => {
+    const subscribe = subscribeDomainWake();
+    if (!active() || subscribe === undefined || liveCount() === 0) {
       return;
     }
-    return subscribeDomainWake(() => {
+    void doc();
+    const unsub = subscribe(() => {
       rerunLive();
     });
-  }, [active, subscribeDomainWake, liveCount, rerunLive]);
+    onCleanup(() => unsub());
+  });
 }
 
 async function runAllCells(args: {
-  readonly doc: SqlNotebookDoc;
+  readonly doc: Accessor<SqlNotebookDoc>;
   readonly sqlClient: SqlClient;
   readonly clock: { now: () => number };
-  readonly setResults: Dispatch<
-    SetStateAction<Readonly<Record<string, SqlCellRun>>>
-  >;
+  readonly setResults: Setter<ResultsMap>;
 }): Promise<void> {
   const next: Record<string, SqlCellRun> = {};
-  for (const cell of args.doc.cells) {
+  for (const cell of args.doc().cells) {
     next[cell.id] = await runSqlCell({
       sqlClient: args.sqlClient,
       sql: cell.sql,
@@ -405,20 +404,18 @@ async function runAllCells(args: {
 }
 
 function handleRunAndNext(args: {
-  readonly doc: SqlNotebookDoc;
+  readonly doc: Accessor<SqlNotebookDoc>;
   readonly cellId: string;
   readonly run: SqlCellRun;
   readonly createId: () => string;
-  readonly setDoc: Dispatch<SetStateAction<SqlNotebookDoc>>;
-  readonly setResults: Dispatch<
-    SetStateAction<Readonly<Record<string, SqlCellRun>>>
-  >;
-  readonly setFocusId: (id: string | null) => void;
+  readonly setDoc: NotebookDocSetter;
+  readonly setResults: Setter<ResultsMap>;
+  readonly setFocusId: Setter<string | null>;
 }): void {
   const { doc, cellId, run, createId, setDoc, setResults, setFocusId } = args;
   setResults((prev) => ({ ...prev, [cellId]: run }));
-  const idx = doc.cells.findIndex((c) => c.id === cellId);
-  const next = doc.cells[idx + 1];
+  const idx = doc().cells.findIndex((c) => c.id === cellId);
+  const next = doc().cells[idx + 1];
   if (next != null) {
     setFocusId(next.id);
     return;
@@ -432,4 +429,8 @@ function handleRunAndNext(args: {
     })
   );
   setFocusId(id);
+}
+
+function missingCell(id: string): SqlNotebookCell {
+  return { id, sql: '', live: false };
 }

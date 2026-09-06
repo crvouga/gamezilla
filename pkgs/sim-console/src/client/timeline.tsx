@@ -1,16 +1,5 @@
-import { Box, Pressable, ScrollView, Text } from '@pkgs/ui-rn';
-import {
-  memo,
-  type RefObject,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
-import type {
-  LayoutChangeEvent,
-  ScrollView as RNScrollView,
-} from 'react-native';
+import { Box, Clickable, ScrollView, Text } from '@pkgs/ui';
+import { createEffect, createSignal, For, onCleanup, Show } from 'solid-js';
 
 import {
   type ScrubMode,
@@ -33,51 +22,49 @@ export function Timeline(props: {
   readonly onSelect: (index: number) => void;
   readonly mode?: ScrubMode;
 }) {
-  const scroll = useTimelineScroll(props.selectedIndex);
-  if (props.frames.length === 0) {
-    return (
-      <Text sx={{ ...railSx, color: 'textSecondary', padding: 10 }}>
-        No frames.
-      </Text>
-    );
-  }
-
+  const scroll = useTimelineScroll(() => props.selectedIndex);
   return (
-    <Box sx={timelineColumnSx}>
-      <FrameScrubber
-        mode={props.mode ?? 'continuous'}
-        frameCount={props.frames.length}
-        selectedIndex={props.selectedIndex}
-        onSelect={props.onSelect}
-      />
-      <ScrollView
-        ref={scroll.scrollRef}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        frameSx={railSx}
-        sx={chipRowSx}
-        accessibilityLabel="Frames"
-        scrollEventThrottle={100}
-        onLayout={(e) => {
-          scroll.onViewportWidth(e.nativeEvent.layout.width);
-        }}
-        onScroll={(e) => {
-          scroll.onScrollX(e.nativeEvent.contentOffset.x);
-        }}
-      >
-        {props.frames.map((frame, index) => (
-          <FrameChip
-            key={`${frame.file ?? frame.globalIndex}-${index}`}
-            index={index}
-            title={frame.step.title}
-            durationMs={frame.durationMs}
-            selected={index === props.selectedIndex}
-            onSelect={props.onSelect}
-            onLayout={scroll.onChipLayout}
-          />
-        ))}
-      </ScrollView>
-    </Box>
+    <Show
+      when={props.frames.length > 0}
+      fallback={
+        <Text sx={{ ...railSx, color: 'textSecondary', padding: 10 }}>
+          No frames.
+        </Text>
+      }
+    >
+      <Box sx={timelineColumnSx}>
+        <FrameScrubber
+          mode={props.mode ?? 'continuous'}
+          frameCount={props.frames.length}
+          selectedIndex={props.selectedIndex}
+          onSelect={props.onSelect}
+        />
+        <ScrollView
+          ref={scroll.onScroller}
+          horizontal
+          hideScrollbar
+          frameSx={railSx}
+          sx={chipRowSx}
+          aria-label="Frames"
+          onScroll={(e) => {
+            scroll.onScrollX(e.currentTarget.scrollLeft);
+          }}
+        >
+          <For each={props.frames}>
+            {(frame, index) => (
+              <FrameChip
+                index={index()}
+                title={frame.step.title}
+                durationMs={frame.durationMs}
+                selected={index() === props.selectedIndex}
+                onSelect={props.onSelect}
+                onLayout={scroll.onChipLayout}
+              />
+            )}
+          </For>
+        </ScrollView>
+      </Box>
+    </Show>
   );
 }
 
@@ -87,49 +74,64 @@ function FrameScrubber(props: {
   readonly selectedIndex: number;
   readonly onSelect: (index: number) => void;
 }) {
-  const { mode, frameCount, selectedIndex, onSelect } = props;
-  const [trackWidth, setTrackWidth] = useState(0);
-  const scrub = useScrubSelect(frameCount, onSelect);
-  const fraction = scrubThumbFraction({ selectedIndex, frameCount });
-  const thumbLeft =
-    trackWidth <= 0 ? 0 : fraction * Math.max(0, trackWidth - THUMB_SIZE);
-
-  const onTrackLayout = useCallback(
-    (e: LayoutChangeEvent) => {
-      const width = e.nativeEvent.layout.width;
-      scrub.setWidth(width);
-      setTrackWidth(width);
-    },
-    [scrub]
+  const [trackWidth, setTrackWidth] = createSignal(0);
+  const scrub = useScrubSelect(
+    () => props.frameCount,
+    (index) => props.onSelect(index)
   );
+  const fraction = () =>
+    scrubThumbFraction({
+      selectedIndex: props.selectedIndex,
+      frameCount: props.frameCount,
+    });
+  const thumbLeft = () =>
+    trackWidth() <= 0 ? 0 : fraction() * Math.max(0, trackWidth() - THUMB_SIZE);
+
+  const onTrackRef = (el: HTMLElement) => {
+    const apply = () => {
+      scrub.setWidth(el.clientWidth);
+      setTrackWidth(el.clientWidth);
+    };
+    apply();
+    const observer = new ResizeObserver(apply);
+    observer.observe(el);
+    onCleanup(() => observer.disconnect());
+  };
 
   return (
     <Box
-      accessibilityLabel="Frame scrubber"
-      accessibilityRole="adjustable"
-      accessibilityValue={{
-        min: 1,
-        max: frameCount,
-        now: selectedIndex + 1,
-      }}
+      aria-label="Frame scrubber"
+      role="slider"
+      aria-valuemin={1}
+      aria-valuemax={props.frameCount}
+      aria-valuenow={props.selectedIndex + 1}
       sx={{
         ...scrubHitSx,
         cursor: scrub.scrubbing ? 'grabbing' : 'grab',
       }}
-      onLayout={onTrackLayout}
+      ref={onTrackRef}
       onPointerDown={scrub.onPointerDown}
       onPointerMove={scrub.onPointerMove}
       onPointerUp={scrub.onPointerUp}
       onPointerCancel={scrub.onPointerCancel}
-      {...{ onLostPointerCapture: scrub.onLostPointerCapture }}
+      onLostPointerCapture={scrub.onLostPointerCapture}
     >
       <Box sx={scrubTrackSx}>
-        <Box sx={{ ...scrubFillSx, width: `${fraction * 100}%` }} />
+        <Box sx={{ ...scrubFillSx, width: `${fraction() * 100}%` }} />
       </Box>
-      {mode === 'discrete' ? (
-        <DiscreteTicks frameCount={frameCount} trackWidth={trackWidth} />
-      ) : null}
-      <Box pointerEvents="none" sx={{ ...scrubThumbSx, left: thumbLeft }} />
+      <Show when={props.mode === 'discrete'}>
+        <DiscreteTicks
+          frameCount={props.frameCount}
+          trackWidth={trackWidth()}
+        />
+      </Show>
+      <Box
+        sx={{
+          ...scrubThumbSx,
+          pointerEvents: 'none',
+          left: `${thumbLeft()}px`,
+        }}
+      />
     </Box>
   );
 }
@@ -138,26 +140,27 @@ function DiscreteTicks(props: {
   readonly frameCount: number;
   readonly trackWidth: number;
 }) {
-  const { frameCount, trackWidth } = props;
-  if (trackWidth <= 0 || frameCount <= 0) return null;
-  const travel = Math.max(0, trackWidth - THUMB_SIZE);
-  const ticks = scrubTickFractions(frameCount);
+  const travel = () => Math.max(0, props.trackWidth - THUMB_SIZE);
+  const ticks = () => scrubTickFractions(props.frameCount);
   return (
-    <Box pointerEvents="none" sx={ticksLayerSx}>
-      {ticks.map((fraction, index) => (
-        <Box
-          key={index}
-          sx={{
-            ...scrubTickSx,
-            left: fraction * travel + THUMB_SIZE / 2 - TICK_WIDTH / 2,
-          }}
-        />
-      ))}
-    </Box>
+    <Show when={props.trackWidth > 0 && props.frameCount > 0}>
+      <Box sx={{ ...ticksLayerSx, pointerEvents: 'none' }}>
+        <For each={ticks()}>
+          {(fraction) => (
+            <Box
+              sx={{
+                ...scrubTickSx,
+                left: `${fraction * travel() + THUMB_SIZE / 2 - TICK_WIDTH / 2}px`,
+              }}
+            />
+          )}
+        </For>
+      </Box>
+    </Show>
   );
 }
 
-const FrameChip = memo(function FrameChip(props: {
+function FrameChip(props: {
   readonly index: number;
   readonly title: string;
   readonly durationMs: number;
@@ -165,44 +168,41 @@ const FrameChip = memo(function FrameChip(props: {
   readonly onSelect: (index: number) => void;
   readonly onLayout: (index: number, x: number, width: number) => void;
 }) {
-  const { index, selected } = props;
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityState={{ selected }}
+    <Clickable
+      aria-selected={props.selected}
       sx={{
         flexDirection: 'row',
         alignItems: 'center',
         gap: 1,
         paddingVertical: 4,
         paddingHorizontal: 8,
-        background: selected ? 'tintSubtle' : 'background',
+        background: props.selected ? 'tintSubtle' : 'background',
         borderWidth: 1,
-        borderColor: selected ? 'tint' : 'border',
+        borderColor: props.selected ? 'tint' : 'border',
         borderRadius: 'md',
       }}
-      onPress={() => {
-        props.onSelect(index);
+      ref={(el) => {
+        props.onLayout(props.index, el.offsetLeft, el.offsetWidth);
       }}
-      onLayout={(e) => {
-        const { x, width } = e.nativeEvent.layout;
-        props.onLayout(index, x, width);
+      onClick={() => {
+        props.onSelect(props.index);
       }}
     >
       <Text
         sx={{
           fontWeight: '600',
           fontSize: 11,
-          color: selected ? 'tint' : 'textSecondary',
+          color: props.selected ? 'tint' : 'textSecondary',
         }}
-        label={String(index + 1)}
+        label={String(props.index + 1)}
       />
       <Text
         numberOfLines={1}
         sx={{
           fontSize: 11,
           maxWidth: 160,
-          color: selected ? 'text' : 'textSecondary',
+          color: props.selected ? 'text' : 'textSecondary',
         }}
         label={props.title}
       />
@@ -210,49 +210,53 @@ const FrameChip = memo(function FrameChip(props: {
         sx={{ fontSize: 10, color: 'textSecondary' }}
         label={formatMs(props.durationMs)}
       />
-    </Pressable>
+    </Clickable>
   );
-});
+}
 
-function useTimelineScroll(selectedIndex: number): {
-  readonly scrollRef: RefObject<RNScrollView | null>;
-  readonly onViewportWidth: (width: number) => void;
+function useTimelineScroll(selectedIndex: () => number): {
+  readonly onScroller: (el: HTMLDivElement) => void;
   readonly onScrollX: (x: number) => void;
   readonly onChipLayout: (index: number, x: number, width: number) => void;
 } {
-  const scrollRef = useRef<RNScrollView | null>(null);
-  const layoutsRef = useRef(new Map<number, { x: number; width: number }>());
-  const viewportWidthRef = useRef(0);
-  const scrollXRef = useRef(0);
-  const selectedRef = useRef(selectedIndex);
-  selectedRef.current = selectedIndex;
+  let scroller: HTMLDivElement | null = null;
+  const layouts = new Map<number, { x: number; width: number }>();
+  let viewportWidth = 0;
+  let scrollX = 0;
 
   const reveal = () => {
     const x = scrollOffsetToReveal({
-      layout: layoutsRef.current.get(selectedRef.current),
-      viewportWidth: viewportWidthRef.current,
-      scrollX: scrollXRef.current,
+      layout: layouts.get(selectedIndex()),
+      viewportWidth,
+      scrollX,
     });
     if (x == null) return;
-    scrollRef.current?.scrollTo({ x, animated: false });
+    scroller?.scrollTo({ left: x });
   };
 
-  useEffect(() => {
+  createEffect(() => {
+    selectedIndex();
     reveal();
-  }, [selectedIndex]);
+  });
 
   return {
-    scrollRef,
-    onViewportWidth: (width) => {
-      viewportWidthRef.current = width;
+    onScroller: (el) => {
+      scroller = el;
+      viewportWidth = el.clientWidth;
+      const observer = new ResizeObserver(() => {
+        viewportWidth = el.clientWidth;
+        reveal();
+      });
+      observer.observe(el);
+      onCleanup(() => observer.disconnect());
       reveal();
     },
     onScrollX: (x) => {
-      scrollXRef.current = x;
+      scrollX = x;
     },
     onChipLayout: (index, x, width) => {
-      layoutsRef.current.set(index, { x, width });
-      if (index === selectedRef.current) reveal();
+      layouts.set(index, { x, width });
+      if (index === selectedIndex()) reveal();
     },
   };
 }

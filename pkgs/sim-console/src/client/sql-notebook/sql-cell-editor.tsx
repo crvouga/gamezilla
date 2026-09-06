@@ -1,3 +1,4 @@
+import { asLocalized } from '@pkgs/i18n';
 import {
   Box,
   CodeEditor,
@@ -5,78 +6,74 @@ import {
   type CodeToken,
   matchesWebShortcut,
   type WebKeyboardEventLike,
-} from '@pkgs/ui-rn';
-import type { MutableRefObject, ReactNode } from 'react';
-import type { SqlCellProps } from './sql-cell-types';
-import { applyCompletion, type completeAt } from './sql-completion';
+} from '@pkgs/ui';
+import type { Accessor, JSX } from 'solid-js';
+
+import {
+  applyCompletion,
+  type CompletionResult,
+  type completeAt,
+} from './sql-completion';
 import { SqlCompletionPopup } from './sql-completion-popup';
 
 export function SqlCellEditor(props: {
-  readonly cellProps: SqlCellProps;
+  readonly sql: Accessor<string>;
+  readonly index: Accessor<number>;
+  readonly onFocus: () => void;
+  readonly onChangeSql: (sql: string) => void;
   readonly tokenize: (src: string) => readonly CodeToken[];
-  readonly completion: ReturnType<typeof completeAt>;
-  readonly compIndex: number;
+  readonly completion: Accessor<CompletionResult | null>;
+  readonly compIndex: Accessor<number>;
   readonly setCompIndex: (n: number) => void;
-  readonly selectionRef: MutableRefObject<CodeSelection>;
+  readonly selection: Accessor<CodeSelection>;
   readonly setSelection: (s: CodeSelection) => void;
   readonly run: (andNext: boolean) => Promise<void>;
-}): ReactNode {
-  const {
-    cellProps,
-    tokenize,
-    completion,
-    compIndex,
-    setCompIndex,
-    selectionRef,
-    setSelection,
-    run,
-  } = props;
+}): JSX.Element {
   return (
     <Box sx={{ px: 1, pb: 1 }}>
       <CodeEditor
-        value={cellProps.cell.sql}
+        value={props.sql()}
         onChangeText={(v) => {
-          cellProps.onFocus();
-          cellProps.onChangeSql(v);
-          setCompIndex(0);
+          props.onFocus();
+          props.onChangeSql(v);
+          props.setCompIndex(0);
         }}
-        tokenize={tokenize}
+        tokenize={props.tokenize}
         onKeyDown={(ev) =>
           handleCellKeyDown({
             ev,
-            completion,
-            compIndex,
-            setCompIndex,
-            sql: cellProps.cell.sql,
-            selection: selectionRef.current,
-            onChangeSql: cellProps.onChangeSql,
-            run,
+            completion: props.completion(),
+            compIndex: props.compIndex(),
+            setCompIndex: props.setCompIndex,
+            sql: props.sql(),
+            selection: props.selection(),
+            onChangeSql: props.onChangeSql,
+            run: props.run,
           })
         }
-        onSelectionChange={setSelection}
+        onSelectionChange={props.setSelection}
         minLines={3}
-        accessibilityLabel={`SQL cell ${cellProps.index + 1}`}
-        trailing={
-          completion == null ? null : (
+        aria-label={asLocalized(`SQL cell ${props.index() + 1}`)}
+        trailing={(() => {
+          const completion = props.completion();
+          if (completion == null) return null;
+          return (
             <SqlCompletionPopup
               result={completion}
-              selectedIndex={Math.min(
-                compIndex,
-                completion.candidates.length - 1
-              )}
+              selectedIndex={props.compIndex}
               onSelect={(label) => {
                 const { next } = applyCompletion(
-                  cellProps.cell.sql,
+                  props.sql(),
                   completion,
                   label
                 );
-                cellProps.onChangeSql(next);
-                setCompIndex(0);
+                props.onChangeSql(next);
+                props.setCompIndex(0);
               }}
-              onHover={setCompIndex}
+              onHover={props.setCompIndex}
             />
-          )
-        }
+          );
+        })()}
       />
     </Box>
   );

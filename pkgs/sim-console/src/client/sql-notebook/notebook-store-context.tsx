@@ -1,19 +1,28 @@
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 import type { ObjectStore } from '@pkgs/object-store/interface';
-import { createContext, type ReactNode, useContext, useMemo } from 'react';
+import {
+  createContext,
+  createMemo,
+  type JSX,
+  type ParentProps,
+  useContext,
+} from 'solid-js';
 
 import { createNotebookStore, type NotebookStore } from './notebook-store';
 
 const Ctx = createContext<NotebookStore | null>(null);
 
-export function NotebookStoreProvider(props: {
-  readonly store?: ObjectStore;
-  readonly children: ReactNode;
-}): ReactNode {
-  const value = useMemo(
-    () => createNotebookStore(props.store ?? new ObjectStoreImplInMemory()),
-    [props.store]
+export function NotebookStoreProvider(
+  props: ParentProps<{ readonly store?: ObjectStore }>
+): JSX.Element {
+  const store = createMemo(() =>
+    createNotebookStore(props.store ?? new ObjectStoreImplInMemory())
   );
+  const value: NotebookStore = {
+    load: (nodeId) => store().load(nodeId),
+    save: (doc) => store().save(doc),
+    clear: (nodeId) => store().clear(nodeId),
+  };
   return <Ctx.Provider value={value}>{props.children}</Ctx.Provider>;
 }
 

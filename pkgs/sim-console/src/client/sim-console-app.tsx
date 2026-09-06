@@ -1,5 +1,5 @@
 import { Box, Gamepad2Icon, ListChecksIcon, TabStrip } from '@pkgs/ui';
-import { type JSX, createEffect, createMemo, createSignal } from 'solid-js';
+import { createEffect, createMemo, createSignal, type JSX } from 'solid-js';
 
 import type { SimConsolePorts } from '../shared/ports';
 import type { SimChromeKind } from '../shared/sim-node';

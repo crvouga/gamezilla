@@ -1,4 +1,4 @@
-import { type Timers, useTimers } from '@pkgs/clock';
+import { useTimers } from '@pkgs/clock/solid';
 import {
   Box,
   ChevronLeftIcon,
@@ -7,8 +7,8 @@ import {
   PauseIcon,
   PlayIcon,
   Text,
-} from '@pkgs/ui-rn';
-import { useEffect, useRef, useState } from 'react';
+} from '@pkgs/ui';
+import { createEffect, createSignal, onCleanup } from 'solid-js';
 
 import { useSimConsoleLayout } from './debugger/use-sim-console-layout';
 import type { FlatFrame } from './frames';
@@ -30,11 +30,11 @@ export function PlayerStrip(props: {
   readonly onSelect: (index: number) => void;
 }) {
   const playback = usePlayback(props);
-  const { compactChrome } = useSimConsoleLayout();
+  const layout = useSimConsoleLayout();
   return (
     <Box sx={stripSx}>
       <Transport
-        compact={compactChrome}
+        compact={layout.compactChrome}
         playing={playback.playing}
         speed={playback.speed}
         elapsedMs={playback.elapsedMs}
@@ -70,39 +70,51 @@ type PlaybackApi = {
   readonly onPickFrame: (index: number) => void;
 };
 
-function usePlayback(args: {
+function usePlayback(props: {
   readonly frames: readonly FlatFrame[];
   readonly selectedIndex: number;
   readonly onSelect: (index: number) => void;
 }): PlaybackApi {
-  const { frames, selectedIndex, onSelect } = args;
-  const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState<Speed>(1);
-  const restartRef = useRef(false);
-  const atStart = selectedIndex <= 0;
-  const atEnd = frames.length === 0 || selectedIndex >= frames.length - 1;
+  const [playing, setPlaying] = createSignal(false);
+  const [speed, setSpeed] = createSignal<Speed>(1);
+  const restartRef = { current: false };
+  const atStart = () => props.selectedIndex <= 0;
+  const atEnd = () =>
+    props.frames.length === 0 || props.selectedIndex >= props.frames.length - 1;
   usePlaybackAdvance({
     playing,
-    frames,
-    selectedIndex,
+    frames: () => props.frames,
+    selectedIndex: () => props.selectedIndex,
     speed,
-    onSelect,
+    onSelect: (index) => props.onSelect(index),
     restartRef,
     setPlaying,
   });
   return {
-    playing,
-    speed,
-    atStart,
-    atEnd,
-    elapsedMs: elapsedBefore(frames, selectedIndex),
-    totalMs: frames.reduce((sum, f) => sum + f.durationMs, 0),
+    get playing() {
+      return playing();
+    },
+    get speed() {
+      return speed();
+    },
+    get atStart() {
+      return atStart();
+    },
+    get atEnd() {
+      return atEnd();
+    },
+    get elapsedMs() {
+      return elapsedBefore(props.frames, props.selectedIndex);
+    },
+    get totalMs() {
+      return props.frames.reduce((sum, f) => sum + f.durationMs, 0);
+    },
     ...bindPlaybackButtons({
       playing,
       atStart,
       atEnd,
-      selectedIndex,
-      onSelect,
+      selectedIndex: () => props.selectedIndex,
+      onSelect: (index) => props.onSelect(index),
       setPlaying,
       setSpeed,
       restartRef,
@@ -111,57 +123,49 @@ function usePlayback(args: {
 }
 
 function usePlaybackAdvance(args: {
-  readonly playing: boolean;
-  readonly frames: readonly FlatFrame[];
-  readonly selectedIndex: number;
-  readonly speed: Speed;
+  readonly playing: () => boolean;
+  readonly frames: () => readonly FlatFrame[];
+  readonly selectedIndex: () => number;
+  readonly speed: () => Speed;
   readonly onSelect: (index: number) => void;
   readonly restartRef: { current: boolean };
   readonly setPlaying: (playing: boolean) => void;
 }): void {
-  const {
-    playing,
-    frames,
-    selectedIndex,
-    speed,
-    onSelect,
-    restartRef,
-    setPlaying,
-  } = args;
   const timers = useTimers();
-  const timerRef = useRef<unknown>(null);
-  useEffect(() => {
-    clearPlayTimer(timers, timerRef);
+  let timer: unknown = null;
+  const clearTimer = () => {
+    if (timer != null) {
+      timers.clearTimeout(timer);
+      timer = null;
+    }
+  };
+  createEffect(() => {
+    clearTimer();
+    const playing = args.playing();
+    const frames = args.frames();
+    const selectedIndex = args.selectedIndex();
+    const speed = args.speed();
     if (!playing || frames.length === 0) return;
     if (selectedIndex >= frames.length - 1) {
-      if (restartRef.current && selectedIndex !== 0) return;
-      restartRef.current = false;
-      setPlaying(false);
+      if (args.restartRef.current && selectedIndex !== 0) return;
+      args.restartRef.current = false;
+      args.setPlaying(false);
       return;
     }
-    restartRef.current = false;
+    args.restartRef.current = false;
     const waitMs = Math.max(16, frames[selectedIndex]!.durationMs / speed);
-    timerRef.current = timers.setTimeout(() => {
-      onSelect(selectedIndex + 1);
+    timer = timers.setTimeout(() => {
+      args.onSelect(selectedIndex + 1);
     }, waitMs);
-    return () => clearPlayTimer(timers, timerRef);
-  }, [
-    playing,
-    selectedIndex,
-    speed,
-    frames,
-    onSelect,
-    timers,
-    restartRef,
-    setPlaying,
-  ]);
+    onCleanup(clearTimer);
+  });
 }
 
 function bindPlaybackButtons(args: {
-  readonly playing: boolean;
-  readonly atStart: boolean;
-  readonly atEnd: boolean;
-  readonly selectedIndex: number;
+  readonly playing: () => boolean;
+  readonly atStart: () => boolean;
+  readonly atEnd: () => boolean;
+  readonly selectedIndex: () => number;
   readonly onSelect: (index: number) => void;
   readonly setPlaying: (playing: boolean) => void;
   readonly setSpeed: (update: (s: Speed) => Speed) => void;
@@ -177,12 +181,12 @@ function bindPlaybackButtons(args: {
   return {
     onPrev: () => {
       stop();
-      if (!args.atStart) args.onSelect(args.selectedIndex - 1);
+      if (!args.atStart()) args.onSelect(args.selectedIndex() - 1);
     },
     onTogglePlay: () => {
       const action = playbackToggleAction({
-        playing: args.playing,
-        atEnd: args.atEnd,
+        playing: args.playing(),
+        atEnd: args.atEnd(),
       });
       if (action === 'pause') {
         stop();
@@ -196,7 +200,7 @@ function bindPlaybackButtons(args: {
     },
     onNext: () => {
       stop();
-      if (!args.atEnd) args.onSelect(args.selectedIndex + 1);
+      if (!args.atEnd()) args.onSelect(args.selectedIndex() + 1);
     },
     onCycleSpeed: () => args.setSpeed((s) => nextSpeed(s)),
     onPickFrame: (index) => {
@@ -219,8 +223,8 @@ function Transport(props: {
   readonly onNext: () => void;
   readonly onCycleSpeed: () => void;
 }) {
-  const size = props.compact ? TRANSPORT_SIZE_COMPACT : TRANSPORT_SIZE;
-  const icon = props.compact ? TRANSPORT_ICON_COMPACT : TRANSPORT_ICON;
+  const size = () => (props.compact ? TRANSPORT_SIZE_COMPACT : TRANSPORT_SIZE);
+  const icon = () => (props.compact ? TRANSPORT_ICON_COMPACT : TRANSPORT_ICON);
   return (
     <Box
       sx={{
@@ -232,8 +236,8 @@ function Transport(props: {
       }}
     >
       <TransportButtons
-        size={size}
-        icon={icon}
+        size={size()}
+        icon={icon()}
         playing={props.playing}
         atStart={props.atStart}
         atEnd={props.atEnd}
@@ -254,8 +258,8 @@ function Transport(props: {
       )}
       <IconButton
         label="Playback speed"
-        size={size}
-        onPress={props.onCycleSpeed}
+        size={size()}
+        onClick={props.onCycleSpeed}
         background="surface"
       >
         <Text sx={{ fontSize: 12, color: 'text' }}>{`${props.speed}x`}</Text>
@@ -274,14 +278,13 @@ function TransportButtons(props: {
   readonly onTogglePlay: () => void;
   readonly onNext: () => void;
 }) {
-  const PlayFace = props.playing ? PauseIcon : PlayIcon;
   return (
     <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 1.5 }}>
       <IconButton
         label="Previous frame"
         size={props.size}
         disabled={props.atStart}
-        onPress={props.onPrev}
+        onClick={props.onPrev}
         background="surface"
       >
         <ChevronLeftIcon size={props.icon} />
@@ -289,29 +292,26 @@ function TransportButtons(props: {
       <IconButton
         label={props.playing ? 'Pause' : 'Play'}
         size={props.size}
-        onPress={props.onTogglePlay}
+        onClick={props.onTogglePlay}
         background="tintSubtle"
       >
-        <PlayFace size={props.icon} color="tint" />
+        {props.playing ? (
+          <PauseIcon size={props.icon} color="tint" />
+        ) : (
+          <PlayIcon size={props.icon} color="tint" />
+        )}
       </IconButton>
       <IconButton
         label="Next frame"
         size={props.size}
         disabled={props.atEnd}
-        onPress={props.onNext}
+        onClick={props.onNext}
         background="surface"
       >
         <ChevronRightIcon size={props.icon} />
       </IconButton>
     </Box>
   );
-}
-
-function clearPlayTimer(timers: Timers, ref: { current: unknown }): void {
-  if (ref.current != null) {
-    timers.clearTimeout(ref.current);
-    ref.current = null;
-  }
 }
 
 function nextSpeed(current: Speed): Speed {

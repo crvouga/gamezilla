@@ -1,24 +1,18 @@
 import {
   Badge,
   Box,
+  Clickable,
   createMemoryPageLoader,
   DataTable,
   type DataTableColumn,
   type DataTableOrderDir,
   IconButton,
-  Pressable,
   ScrollView,
   Text,
   Trash2Icon,
   useTheme,
-} from '@pkgs/ui-rn';
-import {
-  type Dispatch,
-  type SetStateAction,
-  useCallback,
-  useMemo,
-  useState,
-} from 'react';
+} from '@pkgs/ui';
+import { createMemo, createSignal } from 'solid-js';
 
 import type { RunSummary } from '../types';
 import { formatRunUpdatedAt } from './frames';
@@ -43,13 +37,6 @@ function compareRuns(
   if (orderBy === 'frames') return (a.frameCount - b.frameCount) * dir;
   if (orderBy === 'status') return a.status.localeCompare(b.status) * dir;
   return a.id.localeCompare(b.id) * dir;
-}
-
-function clearSelectedKey(
-  setSelectedKeys: Dispatch<SetStateAction<readonly string[]>>,
-  runId: string
-): void {
-  setSelectedKeys((prev) => prev.filter((k) => k !== runId));
 }
 
 export function RunsPage(props: {
@@ -95,42 +82,42 @@ function useRunsPageState(props: {
   readonly onOpenRun: (runId: string) => void;
   readonly onDeleteRun: (runId: string) => Promise<void>;
 }) {
-  const { runs, onOpenRun, onDeleteRun } = props;
   const theme = useTheme();
-  const [busy, setBusy] = useState(false);
-  const [selectedKeys, setSelectedKeys] = useState<readonly string[]>([]);
+  const [busy, setBusy] = createSignal(false);
+  const [selectedKeys, setSelectedKeys] = createSignal<readonly string[]>([]);
 
-  const loadPage = useMemo(
-    () => createMemoryPageLoader(() => runs, compareRuns),
-    [runs]
+  const loadPage = createMemo(() =>
+    createMemoryPageLoader(() => props.runs, compareRuns)
   );
 
-  const handleDelete = useCallback(
-    (runId: string) => {
-      setBusy(true);
-      void onDeleteRun(runId)
-        .then(() => clearSelectedKey(setSelectedKeys, runId))
-        .finally(() => setBusy(false));
-    },
-    [onDeleteRun]
-  );
+  const handleDelete = (runId: string) => {
+    setBusy(true);
+    void props
+      .onDeleteRun(runId)
+      .then(() => setSelectedKeys((prev) => prev.filter((k) => k !== runId)))
+      .finally(() => setBusy(false));
+  };
 
-  const columns = useMemo(
-    () =>
-      buildRunColumns({
-        busy,
-        iconColor: theme.colors.icon,
-        onOpenRun,
-        onDeleteRun: handleDelete,
-      }),
-    [busy, theme.colors.icon, onOpenRun, handleDelete]
+  const columns = createMemo(() =>
+    buildRunColumns({
+      busy: busy(),
+      iconColor: theme.colors.icon,
+      onOpenRun: props.onOpenRun,
+      onDeleteRun: handleDelete,
+    })
   );
 
   return {
-    selectedKeys,
+    get selectedKeys() {
+      return selectedKeys();
+    },
     setSelectedKeys,
-    loadPage,
-    columns,
+    get loadPage() {
+      return loadPage();
+    },
+    get columns() {
+      return columns();
+    },
   };
 }
 
@@ -148,9 +135,9 @@ function buildRunColumns(args: {
       width: 160,
       sortable: true,
       cell: (r) => (
-        <Pressable onPress={() => onOpenRun(r.id)}>
+        <Clickable onClick={() => onOpenRun(r.id)}>
           <Text sx={testIdSx} label={r.id} />
-        </Pressable>
+        </Clickable>
       ),
     },
     {
@@ -200,7 +187,7 @@ function buildRunColumns(args: {
           background="surface"
           tooltip="hover"
           disabled={busy}
-          onPress={() => onDeleteRun(r.id)}
+          onClick={() => onDeleteRun(r.id)}
         >
           <Trash2Icon size={14} color={iconColor} />
         </IconButton>

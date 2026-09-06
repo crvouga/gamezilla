@@ -3,7 +3,7 @@
  * Session-local state shared via context across layout consumers.
  */
 
-import { createContext, type JSX, useContext, createSignal } from 'solid-js';
+import { createContext, createSignal, type JSX, useContext } from 'solid-js';
 
 import type { ClientLayoutMode } from './sim-console-layout';
 

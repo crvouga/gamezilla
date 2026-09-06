@@ -1,6 +1,12 @@
-import { useTimers } from '@pkgs/clock';
+import { useTimers } from '@pkgs/clock/solid';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  createSignal,
+  onCleanup,
+} from 'solid-js';
 
 import {
   listPlaygroundTables,
@@ -8,38 +14,41 @@ import {
   type SchemaRow,
 } from './sql-schema-query';
 
+export type SchemaWakeSubscribe = (
+  listener: (label: string) => void
+) => () => void;
+
 export type SchemaIndex = {
-  readonly tables: readonly SchemaRow[];
-  readonly columnsByTable: Readonly<Record<string, readonly string[]>>;
-  readonly allColumns: readonly string[];
-  readonly status: 'loading' | 'ready' | 'error';
-  readonly error: string | null;
+  readonly tables: () => readonly SchemaRow[];
+  readonly columnsByTable: () => Readonly<Record<string, readonly string[]>>;
+  readonly allColumns: () => readonly string[];
+  readonly status: () => 'loading' | 'ready' | 'error';
+  readonly error: () => string | null;
   readonly refresh: () => void;
 };
 
 export function useSchemaIndex(args: {
   readonly sqlClient: SqlClient;
-  readonly active: boolean;
-  readonly reloadToken?: number;
-  readonly subscribeDomainWake?: (
-    listener: (label: string) => void
-  ) => () => void;
+  readonly active: Accessor<boolean>;
+  readonly reloadToken?: Accessor<number>;
+  readonly subscribeDomainWake?: Accessor<SchemaWakeSubscribe | undefined>;
 }): SchemaIndex {
-  const { sqlClient, active, reloadToken = 0, subscribeDomainWake } = args;
+  const { sqlClient, active, reloadToken, subscribeDomainWake } = args;
   const timers = useTimers();
-  const [tables, setTables] = useState<readonly SchemaRow[]>([]);
-  const [columnsByTable, setColumnsByTable] = useState<
+  const [tables, setTables] = createSignal<readonly SchemaRow[]>([]);
+  const [columnsByTable, setColumnsByTable] = createSignal<
     Readonly<Record<string, readonly string[]>>
   >({});
-  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>(
+  const [status, setStatus] = createSignal<'loading' | 'ready' | 'error'>(
     'loading'
   );
-  const [error, setError] = useState<string | null>(null);
-  const gen = useRef(0);
+  const [errorMsg, setErrorMsg] = createSignal<string | null>(null);
+  let gen = 0;
+  const reload = reloadToken ?? (() => 0);
 
-  const refresh = useCallback(() => {
-    if (!active) return;
-    const my = ++gen.current;
+  const refresh = (): void => {
+    if (!active()) return;
+    const my = ++gen;
     setStatus((prev) => (prev === 'ready' ? prev : 'loading'));
     void (async () => {
       try {
@@ -48,45 +57,48 @@ export function useSchemaIndex(args: {
         for (const t of nextTables) {
           cols[t.name] = await loadColumnNames(sqlClient, t.name);
         }
-        if (my !== gen.current) return;
+        if (my !== gen) return;
         setTables(nextTables);
         setColumnsByTable(cols);
         setStatus('ready');
-        setError(null);
+        setErrorMsg(null);
       } catch (err) {
-        if (my !== gen.current) return;
+        if (my !== gen) return;
         setStatus('error');
-        setError(err instanceof Error ? err.message : String(err));
+        setErrorMsg(err instanceof Error ? err.message : String(err));
       }
     })();
-  }, [active, sqlClient]);
+  };
 
-  useEffect(() => {
+  createEffect(() => {
+    if (!active()) return;
+    void reload();
     refresh();
-  }, [refresh, reloadToken]);
+  });
 
-  useEffect(() => {
-    if (!active || subscribeDomainWake === undefined) return;
+  createEffect(() => {
+    const subscribe =
+      subscribeDomainWake === undefined ? undefined : subscribeDomainWake();
+    if (!active() || subscribe === undefined) return;
     let handle: unknown = null;
-    const unsub = subscribeDomainWake(() => {
+    const unsub = subscribe(() => {
       if (handle != null) timers.clearTimeout(handle);
-      handle = timers.setTimeout(() => {
-        refresh();
-      }, 50);
+      handle = timers.setTimeout(() => refresh(), 50);
     });
-    return () => {
+    onCleanup(() => {
       unsub();
       if (handle != null) timers.clearTimeout(handle);
-    };
-  }, [active, subscribeDomainWake, refresh, timers]);
+    });
+  });
 
-  const allColumns = uniqueColumns(columnsByTable);
+  const allColumns = createMemo(() => uniqueColumns(columnsByTable()));
+
   return {
     tables,
     columnsByTable,
     allColumns,
     status,
-    error,
+    error: errorMsg,
     refresh,
   };
 }
