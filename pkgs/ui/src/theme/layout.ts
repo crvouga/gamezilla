@@ -22,3 +22,6 @@ export const ISLAND_GAP_STEP = 4;
 
 /** Border radius token for Island / AppHeaderIsland cards. */
 export const ISLAND_RADIUS: BorderRadiusKey = 'xl';
+
+/** Fixed side-rail width for wide two-column shells (CSS px / dp). */
+export const ISLAND_SIDE_RAIL_WIDTH = 360;

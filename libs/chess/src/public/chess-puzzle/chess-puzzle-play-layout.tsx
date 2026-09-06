@@ -2,18 +2,14 @@
  * Puzzle play chrome, split by layout mode.
  *
  * Compact: one column — feed bar, assistant, square board, move strip, actions.
- * Wide: two islands — the board on the left, a fixed rail on the right with
- * the feed bar, assistant, game timeline (move strip) and the action bar.
+ * Wide: board island on the left; feed / assistant / timeline / actions publish
+ * into the shared space side rail (beneath the event log) so both columns of
+ * the active-space shell stay aligned.
  */
 
 import { DefineBackButton } from '@libs/spaces/public/nav/spaces-nav-context';
-import {
-  Box,
-  componentDataSet,
-  ISLAND_GAP_STEP,
-  Island,
-  useLayoutMode,
-} from '@pkgs/ui';
+import { SpaceSideRailExtras } from '@libs/spaces/public/space-event-log-placement';
+import { Box, componentDataSet, Island, useLayoutMode } from '@pkgs/ui';
 import { type ReactNode, useCallback, useState } from 'react';
 import { ChessPuzzleActionBar } from './chess-puzzle-action-bar';
 import { ChessPuzzleBoardFrame } from './chess-puzzle-board-frame';
@@ -24,9 +20,6 @@ import { ChessPuzzleMoveHistoryBar } from './chess-puzzle-move-history-bar';
 import type { SolveStatus } from './use-chess-puzzle-solver';
 import type { HintStage } from './use-hint-stage';
 import type { PuzzlePlayerChromeModel } from './use-puzzle-player-state';
-
-/** Right-hand rail width on wide layouts (board takes the rest). */
-const PUZZLE_RAIL_WIDTH = 360;
 
 const noopElo = (_rating: number): void => {};
 
@@ -125,17 +118,8 @@ function PuzzlePlayCompact({ slots }: { slots: PuzzlePlaySlots }): ReactNode {
 
 function PuzzlePlayWide({ slots }: { slots: PuzzlePlaySlots }): ReactNode {
   return (
-    <Box
-      sx={{
-        flex: 1,
-        minHeight: 0,
-        flexDirection: 'row',
-        alignItems: 'stretch',
-        gap: ISLAND_GAP_STEP,
-      }}
-    >
-      <Island sx={{ flex: 1, minWidth: 0, minHeight: 0 }}>{slots.board}</Island>
-      <Island sx={{ width: PUZZLE_RAIL_WIDTH, minHeight: 0, p: 0 }}>
+    <>
+      <SpaceSideRailExtras>
         <Box sx={{ flex: 1, minHeight: 0 }}>
           {slots.feedBar}
           <Box sx={{ px: 3, pb: 3 }}>{slots.assistant}</Box>
@@ -144,8 +128,9 @@ function PuzzlePlayWide({ slots }: { slots: PuzzlePlaySlots }): ReactNode {
           </Box>
           {slots.actions}
         </Box>
-      </Island>
-    </Box>
+      </SpaceSideRailExtras>
+      <Island sx={{ flex: 1, minWidth: 0, minHeight: 0 }}>{slots.board}</Island>
+    </>
   );
 }
 

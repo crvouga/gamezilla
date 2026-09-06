@@ -3,6 +3,7 @@ import {
   Box,
   Card,
   ISLAND_GAP_STEP,
+  ISLAND_SIDE_RAIL_WIDTH,
   Island,
   TopBar,
   useAppFrameGlobalTrailing,
@@ -10,6 +11,10 @@ import {
   useSetAppFrameHeader,
 } from '@pkgs/ui';
 import type { ReactNode } from 'react';
+import {
+  SpaceSideRailProvider,
+  useSpaceSideRailExtras,
+} from '../../../public/space-event-log-placement';
 import { SpaceTitleText } from '../space-title-text';
 import {
   SpaceChromeLeadingActionBar,
@@ -65,35 +70,66 @@ function SpaceTrailingWithGlobal(): ReactNode {
   );
 }
 
+/**
+ * Wide body: one two-column shell — game canvas | event-log rail (games extras
+ * optionally stack beneath the log via {@link SpaceSideRailExtras}).
+ */
+function SpaceActiveWideBody({
+  spaceId,
+  children,
+}: {
+  spaceId: string;
+  children: ReactNode;
+}): ReactNode {
+  const extras = useSpaceSideRailExtras();
+  return (
+    <Box
+      sx={{
+        flex: 1,
+        minHeight: 0,
+        flexDirection: 'row',
+        alignItems: 'stretch',
+        gap: ISLAND_GAP_STEP,
+      }}
+    >
+      <Box sx={{ flex: 1, minHeight: 0, minWidth: 0 }}>{children}</Box>
+      <Island sx={{ width: ISLAND_SIDE_RAIL_WIDTH, minHeight: 0, p: 0 }}>
+        <Box sx={{ flex: 1, minHeight: 0 }}>
+          <SpaceEventLogChrome spaceId={spaceId} />
+          {extras}
+        </Box>
+      </Island>
+    </Box>
+  );
+}
+
 function SpaceActiveLayoutWide({
   spaceId,
   children,
 }: SpaceActiveLayoutProps & { spaceId: string }): ReactNode {
   return (
-    <Box sx={{ flex: 1, minHeight: 0, gap: ISLAND_GAP_STEP }}>
-      <AppHeaderIsland
-        leading={
-          <Box
-            sx={{
-              flex: 1,
-              minWidth: 0,
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 3,
-            }}
-          >
-            <SpaceChromeLeadingActionBar />
-            <SpaceChromeTitle spaceId={spaceId} />
-          </Box>
-        }
-        trailing={<SpaceTrailingWithGlobal />}
-      />
-      <Island sx={{ p: 0 }}>
-        <SpaceEventLogChrome spaceId={spaceId} />
-      </Island>
-      {/* Games paint their own islands — never a card inside a card. */}
-      <Box sx={{ flex: 1, minHeight: 0, minWidth: 0 }}>{children}</Box>
-    </Box>
+    <SpaceSideRailProvider>
+      <Box sx={{ flex: 1, minHeight: 0, gap: ISLAND_GAP_STEP }}>
+        <AppHeaderIsland
+          leading={
+            <Box
+              sx={{
+                flex: 1,
+                minWidth: 0,
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 3,
+              }}
+            >
+              <SpaceChromeLeadingActionBar />
+              <SpaceChromeTitle spaceId={spaceId} />
+            </Box>
+          }
+          trailing={<SpaceTrailingWithGlobal />}
+        />
+        <SpaceActiveWideBody spaceId={spaceId}>{children}</SpaceActiveWideBody>
+      </Box>
+    </SpaceSideRailProvider>
   );
 }
 
@@ -120,11 +156,10 @@ function SpaceActiveLayoutCompact({
 
 /**
  * Unified active-space chrome: exit + back, space title, members / manage
- * actions, then the events card, then the game body.
+ * actions, then the events card / rail, then the game body.
  *
  * Wide: suppress the AppFrame tab island and paint space chrome as the single
- * top island (in-tree so session context stays valid); events get their own
- * island and the body is an open canvas the game fills with islands.
+ * top island; body is a shared two-column (game | event log + optional extras).
  * Compact: TopBar (no global avatar — the space is a modal over the tabs,
  * which own it), events card, full-bleed body.
  */
