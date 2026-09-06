@@ -2,9 +2,8 @@ import { useClock } from '@pkgs/clock';
 import { AnimatedBox, useTheme } from '@pkgs/ui-rn';
 import { type ReactNode, useCallback, useEffect, useRef } from 'react';
 import type { Animated } from 'react-native';
-
+import { shouldPlayEloTick } from '../../shared/puzzle-session/elo-tick';
 import { ChessPuzzleSummaryCard } from './chess-puzzle-summary-card';
-import { shouldPlayEloTick } from './throttle-elo-tick';
 import { useCelebrationOverlayAnimation } from './use-celebration-overlay-animation';
 import type { PuzzleCompletion } from './use-chess-puzzle-completion';
 import { useChessPuzzleEloAnimation } from './use-chess-puzzle-elo-animation';

@@ -5,11 +5,11 @@ import {
   PUZZLE_PIECE_MOVE_MS,
   PUZZLE_REPLY_PREVIEW_MS,
 } from '@libs/chess/public/chess-puzzle-opponent-stage';
+import { fenAtSolveIdx } from '@libs/chess/public/chess-puzzle-step';
 import {
   createPuzzleOpponentStager,
   type OpponentStagerInput,
-} from '@libs/chess/public/chess-puzzle-opponent-stager';
-import { fenAtSolveIdx } from '@libs/chess/public/chess-puzzle-step';
+} from '@libs/chess/public/puzzle-session';
 import type { Timers } from '@pkgs/clock';
 
 /** Minimal deterministic timers: run callbacks in due order on `advance`. */

@@ -10,7 +10,7 @@ import {
   createPuzzleOpponentStager,
   type OpponentStagerInput,
   type OpponentStagerSnapshot,
-} from '../chess-puzzle-opponent-stager';
+} from '../../shared/puzzle-session/opponent-stager';
 
 export type PuzzleOpponentMoveStage = OpponentStagerSnapshot;
 

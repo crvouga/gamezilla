@@ -1,9 +1,6 @@
-import type {
-  CellHighlight,
-  Square,
-} from '@pkgs/chess-board/chess-board-types';
-import { solvedPuzzleKingSquare } from './chess-puzzle-solved-king-square';
-import type { SolveStatus } from './use-chess-puzzle-solver';
+import type { CellHighlight, Square } from '@pkgs/chess-board-core/types';
+import type { SolveStatus } from './solve-status';
+import { solvedPuzzleKingSquare } from './solved-king-square';
 
 export function deriveChessPuzzleCellHighlights(args: {
   status: SolveStatus;

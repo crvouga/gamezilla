@@ -1,13 +1,12 @@
 import { useMyId } from '@libs/auth/public/use-current-user';
 import { useQuery } from '@pkgs/sync-engine/client';
 import { useMemo } from 'react';
-
-import { resolveEffectivePuzzleRating } from '../chess-puzzle-feed-config';
 import {
   buildPuzzleMatchedCountSql,
   buildPuzzleTotalCountSql,
   PUZZLE_NEXT_MAX_BAND,
-} from './next-puzzle-id-helpers';
+} from '../../shared/puzzle-session/next-puzzle-selection';
+import { resolveEffectivePuzzleRating } from '../chess-puzzle-feed-config';
 import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
 import { useChessPuzzleProfileRatings } from './use-chess-puzzle-profile-ratings';
 

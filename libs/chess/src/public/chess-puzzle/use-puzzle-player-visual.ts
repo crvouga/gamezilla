@@ -1,35 +1,10 @@
 import type { BoardArrow, Square } from '@pkgs/chess-board/chess-board-types';
 import { useMemo } from 'react';
+import type { HintStage } from '../../shared/puzzle-session/hint-stage';
+import { solutionArrows } from '../../shared/puzzle-session/solve-projection';
 import type { ChessPuzzlePlayStatus } from '../chess-puzzle-play';
-import type { HintStage } from './use-hint-stage';
 import { usePuzzlePlayerCellFeedback } from './use-puzzle-player-cell-feedback';
 import { usePuzzlePlayerPresentation } from './use-puzzle-player-presentation';
-
-const EMPTY_ARROWS: readonly BoardArrow[] = Object.freeze([]);
-
-function solutionArrows(args: {
-  atFrontier: boolean;
-  hintStage: HintStage;
-  expectedFromSquare: string | null;
-  expectedToSquare: string | null;
-}): readonly BoardArrow[] {
-  const { atFrontier, hintStage, expectedFromSquare, expectedToSquare } = args;
-  if (
-    !atFrontier ||
-    hintStage !== 'solution' ||
-    expectedFromSquare === null ||
-    expectedToSquare === null
-  ) {
-    return EMPTY_ARROWS;
-  }
-  return [
-    {
-      from: expectedFromSquare as Square,
-      to: expectedToSquare as Square,
-      id: 'puzzle-solution',
-    },
-  ];
-}
 
 export function usePuzzlePlayerVisual(args: {
   puzzleId: string;

@@ -4,17 +4,20 @@ import {
 } from '@libs/spaces/public/room/use-space-room-selector';
 import type { Move } from '@pkgs/chess-board/chess-board-types';
 import { useCallback } from 'react';
-import { tokenize } from '../chess-puzzle-fsm';
 import {
-  CHESS_PUZZLE_PLAY_STATUS,
+  countMoveTokens,
+  nextSolutionUci,
+  projectSolveStatus,
+} from '../../shared/puzzle-session/solve-projection';
+import type { SolveStatus } from '../../shared/puzzle-session/solve-status';
+import {
   ChessPuzzlePlayAttr,
   SubmitChessPuzzleMove,
 } from '../chess-puzzle-play';
-import type { SolveStatus } from '../chess-puzzle-solve-status';
 import { uciFromMove } from './chess-puzzle-play-chess-utils';
 import { usePuzzleOpponentMoveStage } from './use-puzzle-opponent-move-stage';
 
-export type { SolveStatus } from '../chess-puzzle-solve-status';
+export type { SolveStatus } from '../../shared/puzzle-session/solve-status';
 
 function useChessPuzzlePlayRoomSelectors() {
   const roomStatus = useSpaceRoomSelector(ChessPuzzlePlayAttr.status.from);
@@ -63,36 +66,6 @@ function useChessPuzzlePlayRoomSelectors() {
   };
 }
 
-function projectSolveStatus(
-  roomStatus: ReturnType<typeof useChessPuzzlePlayRoomSelectors>['roomStatus'],
-  roomPuzzleId: string | null,
-  puzzleId: string
-): SolveStatus {
-  if (
-    roomStatus === CHESS_PUZZLE_PLAY_STATUS.idle ||
-    roomPuzzleId !== puzzleId
-  ) {
-    return 'loading';
-  }
-  return roomStatus;
-}
-
-function countMoveTokens(roomMoves: string): number {
-  const trimmed = roomMoves.trim();
-  if (trimmed.length === 0) return 0;
-  return trimmed.split(/\s+/).length;
-}
-
-function nextSolutionUci(
-  status: SolveStatus,
-  roomMoves: string,
-  solveIdx: number
-): string | null {
-  if (status !== 'solving') return null;
-  const token = tokenize(roomMoves)[solveIdx];
-  return token !== undefined && token.length >= 4 ? token : null;
-}
-
 /**
  * Bridges the puzzle play screen to the server-authoritative FSM in
  * {@link ChessPuzzlePlayAttr}. `onMove` dispatches `SubmitChessPuzzleMove`;
@@ -134,11 +107,11 @@ export function usePuzzleSolver(args: { puzzleId: string }): {
     [dispatch]
   );
 
-  const status = projectSolveStatus(
-    room.roomStatus,
-    room.roomPuzzleId,
-    puzzleId
-  );
+  const status = projectSolveStatus({
+    roomStatus: room.roomStatus,
+    roomPuzzleId: room.roomPuzzleId,
+    puzzleId,
+  });
   const totalTokens = countMoveTokens(room.roomMoves);
 
   const { boardFen, opponentAnimating } = usePuzzleOpponentMoveStage({
@@ -163,7 +136,11 @@ export function usePuzzleSolver(args: { puzzleId: string }): {
     wrongToSquare: room.wrongToSquare,
     expectedFromSquare: room.expectedFromSquare,
     expectedToSquare: room.expectedToSquare,
-    solutionUci: nextSolutionUci(status, room.roomMoves, room.solveIdx),
+    solutionUci: nextSolutionUci({
+      status,
+      moves: room.roomMoves,
+      solveIdx: room.solveIdx,
+    }),
     solutionRevealed: room.solutionRevealed,
     opponentAnimating,
   };

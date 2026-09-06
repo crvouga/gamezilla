@@ -16,9 +16,9 @@ import type { ReactNode } from 'react';
 import {
   buildChessPuzzleActionBarPlan,
   type ChessPuzzleActionBarSlot,
-} from './chess-puzzle-action-bar-plan';
+} from '../../shared/puzzle-session/action-bar-plan';
+import type { HintStage } from '../../shared/puzzle-session/hint-stage';
 import type { SolveStatus } from './use-chess-puzzle-solver';
-import type { HintStage } from './use-hint-stage';
 
 export type ChessPuzzleActionBarModel = {
   status: SolveStatus;

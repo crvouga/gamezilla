@@ -1,4 +1,4 @@
-import type { Square } from '@pkgs/chess-board/chess-board-types';
+import type { Square } from '@pkgs/chess-board-core/types';
 
 const FILES = 'abcdefgh';
 

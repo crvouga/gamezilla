@@ -1,15 +1,10 @@
 import { Trans } from '@lingui/react/macro';
 import { Box, Spinner, type SxProps, type Theme, useTheme } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
+import type { ChessPuzzleStatusKind } from '../../shared/puzzle-session/status-kind';
 import { ChessPuzzleStatusBadge } from './chess-puzzle-status-badge';
 
-export type ChessPuzzleStatusKind =
-  | 'loading'
-  | 'whiteToMove'
-  | 'blackToMove'
-  | 'correct'
-  | 'wrong'
-  | 'solved';
+export type { ChessPuzzleStatusKind };
 
 const SIZE = 22;
 

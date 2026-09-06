@@ -1,8 +1,11 @@
 import type { Move, Square } from '@pkgs/chess-board/chess-board-types';
 import { useCallback, useRef } from 'react';
+import {
+  type HintStage,
+  hintStageFromRoom,
+} from '../../shared/puzzle-session/hint-stage';
+import { puzzleNavFromState } from '../../shared/puzzle-session/puzzle-nav';
 import type { ChessPuzzlePlayStatus } from '../chess-puzzle-play';
-import { type HintStage, hintStageFromRoom } from './use-hint-stage';
-import { puzzleNavFromState } from './use-puzzle-nav';
 import { usePuzzlePlayerEffects } from './use-puzzle-player-effects';
 import { usePuzzlePlayerHandlers } from './use-puzzle-player-handlers';
 

@@ -1,4 +1,4 @@
-import type { ChessPuzzlePlayStatus } from './chess-puzzle-play';
+import type { ChessPuzzlePlayStatus } from '../chess/chess-puzzle-play';
 
 /**
  * UI-facing status. `'loading'` is a client-side projection of the room's

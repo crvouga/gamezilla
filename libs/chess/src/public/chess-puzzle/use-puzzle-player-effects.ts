@@ -1,7 +1,7 @@
 import type { Square } from '@pkgs/chess-board/chess-board-types';
 import { type MutableRefObject, useEffect, useRef } from 'react';
+import { solvedPuzzleKingSquare } from '../../shared/puzzle-session/solved-king-square';
 import type { ChessPuzzlePlayStatus } from '../chess-puzzle-play';
-import { solvedPuzzleKingSquare } from './chess-puzzle-solved-king-square';
 import { useChessPuzzleFeedback } from './use-chess-puzzle-feedback';
 import { usePuzzleCorrectMoveFlash } from './use-puzzle-correct-move-flash';
 import { usePuzzleSolveCelebration } from './use-puzzle-solve-celebration';

@@ -1,11 +1,10 @@
 import { useQuery } from '@pkgs/sync-engine/client';
 import { useMemo } from 'react';
-
-import type { ChessPuzzleFeedHistoryFilter } from '../chess-puzzle-feed-config';
 import {
   buildPuzzleCandidatesSql,
   PUZZLE_NEXT_MAX_BAND,
-} from './next-puzzle-id-helpers';
+} from '../../shared/puzzle-session/next-puzzle-selection';
+import type { ChessPuzzleFeedHistoryFilter } from '../chess-puzzle-feed-config';
 
 export type PuzzleCandidatesQueryArgs = {
   readonly rating: number;

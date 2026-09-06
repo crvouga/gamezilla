@@ -2,13 +2,13 @@ import { SpeakingAvatarAssistant } from '@pkgs/assistant/client';
 import { ChessBoard } from '@pkgs/chess-board/chess-board';
 import { Box, SpeakingAvatar } from '@pkgs/ui-rn';
 import { memo, type ReactNode } from 'react';
+import type { HintStage } from '../../shared/puzzle-session/hint-stage';
 import { ChessPuzzleBoardLoadingState } from './chess-puzzle-board-loading-state';
 import { ChessPuzzleE2EHints } from './chess-puzzle-e2e-hints';
 import { ChessPuzzleE2ELoadingStatus } from './chess-puzzle-e2e-loading-status';
 import { PuzzlePlayLayout } from './chess-puzzle-play-layout';
 import { ChessPuzzleStatusHeader } from './chess-puzzle-status-header';
 import type { SolveStatus } from './use-chess-puzzle-solver';
-import type { HintStage } from './use-hint-stage';
 import { usePuzzlePlayScreenState } from './use-puzzle-play-screen-state';
 import {
   type PuzzlePlayerChromeModel,

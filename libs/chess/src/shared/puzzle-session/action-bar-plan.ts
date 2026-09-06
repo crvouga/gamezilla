@@ -2,7 +2,7 @@
  * Pure mode → slot plan for the puzzle bottom bar (no React / UI imports).
  */
 
-import type { ChessPuzzlePlayStatus } from '../chess-puzzle-play';
+import type { ChessPuzzlePlayStatus } from '../chess/chess-puzzle-play';
 
 export type ActionBarSolveStatus = 'loading' | ChessPuzzlePlayStatus;
 export type ActionBarHintStage = 'none' | 'highlight' | 'solution';

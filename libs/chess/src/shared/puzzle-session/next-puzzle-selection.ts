@@ -3,10 +3,10 @@ import { empty, join, type Sql, type SqlFragment, sql } from '@pkgs/sql';
 import {
   type ChessPuzzleFeedHistoryFilter,
   PUZZLE_RATING_BAND_SIZE,
-} from '../chess-puzzle-feed-config';
-import { CHESS_PUZZLE_INTERACTION_KIND } from '../chess-puzzle-interaction-entities';
+} from '../chess/chess-puzzle-feed-config';
+import { CHESS_PUZZLE_INTERACTION_KIND } from '../chess/chess-puzzle-interaction-entities';
 
-export { chessPuzzleSyncRatingBands } from '../chess-puzzle-feed-config';
+export { chessPuzzleSyncRatingBands } from '../chess/chess-puzzle-feed-config';
 
 export const PUZZLE_NEXT_MAX_BAND = PUZZLE_RATING_BAND_SIZE;
 export const PUZZLE_CANDIDATE_LIMIT = 50;
@@ -174,4 +174,54 @@ export function pickPuzzleIdFromPool(args: {
   const pool = inBand.length > 0 ? inBand : rows;
   const idx = hashSeed(seed) % pool.length;
   return pool[idx]?.id ?? null;
+}
+
+export const DEFAULT_PUZZLE_RATING = 1200;
+/** Prefer candidates within this many rating points before widening to the whole page. */
+export const PUZZLE_PREFERRED_BAND = 50;
+
+export type PuzzleCandidateQueryResult = {
+  readonly rows: readonly PuzzleCandidateRow[];
+  readonly isLoading: boolean;
+};
+
+/** Deterministic page offset for `seed`, capped so small catalogs still return rows. */
+export function resolvePuzzlePickOffset(
+  seed: string,
+  catalogSize: number
+): number {
+  const rawOffset = hashSeed(seed) % (PUZZLE_CANDIDATE_MAX_OFFSET + 1);
+  return capPuzzleCandidateOffset(rawOffset, catalogSize);
+}
+
+/** Banded page wins while it has rows; otherwise fall back to the unbounded page. */
+export function selectPuzzleCandidates(
+  banded: PuzzleCandidateQueryResult,
+  fallback: PuzzleCandidateQueryResult
+): PuzzleCandidateQueryResult {
+  if (banded.rows.length > 0) return banded;
+  return fallback;
+}
+
+export function computeNextPuzzleLoading(args: {
+  myId: string;
+  banded: PuzzleCandidateQueryResult;
+  fallback: PuzzleCandidateQueryResult;
+  /** Chosen puzzle id after {@link pickPuzzleIdFromPool}. */
+  puzzleId: string | null;
+  /** Local `chess_puzzles` row count; 0 means the catalog has not synced yet. */
+  localPuzzleTotal: number;
+}): boolean {
+  const { myId, banded, fallback, puzzleId, localPuzzleTotal } = args;
+  if (myId.length === 0) return true;
+  if (banded.isLoading) return true;
+  if (banded.rows.length === 0 && fallback.isLoading) return true;
+  const noCandidates = banded.rows.length === 0 && fallback.rows.length === 0;
+  return puzzleId === null && localPuzzleTotal === 0 && noCandidates;
+}
+
+/** Profile rating when recorded (> 0), else the default seed rating. */
+export function resolveProfilePuzzleRating(raw: unknown): number {
+  if (typeof raw === 'number' && raw > 0) return raw;
+  return DEFAULT_PUZZLE_RATING;
 }

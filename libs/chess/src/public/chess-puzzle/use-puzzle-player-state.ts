@@ -8,7 +8,11 @@ import { RoomMetaAttr } from '@pkgs/room';
 import { useEffect, useMemo, useRef } from 'react';
 
 import {
-  CHESS_PUZZLE_PLAY_STATUS,
+  decidePuzzleSessionStart,
+  shouldReclaimPuzzleHost,
+} from '../../shared/puzzle-session/session-start-policy';
+
+import {
   ChessPuzzlePlayAttr,
   ReclaimChessPuzzlePlay,
   StartChessPuzzlePlay,
@@ -45,12 +49,14 @@ function useReclaimStalePuzzleHost(): void {
   const roomSynced = useSpaceRoomSelector(RoomMetaAttr.isSynced.from);
   const { peersByMemberId } = useSpacePresence();
   useEffect(() => {
-    if (memberId.length === 0) return;
-    if (roomStatus === CHESS_PUZZLE_PLAY_STATUS.idle) return;
-    if (hostIdentity === null || hostIdentity === memberId) return;
-    if (!roomSynced) return;
-    if (peersByMemberId.has(hostIdentity)) return;
-    dispatch(ReclaimChessPuzzlePlay({}));
+    const reclaim = shouldReclaimPuzzleHost({
+      memberId,
+      roomStatus,
+      hostIdentity,
+      roomSynced,
+      hostPresent: hostIdentity !== null && peersByMemberId.has(hostIdentity),
+    });
+    if (reclaim) dispatch(ReclaimChessPuzzlePlay({}));
   }, [
     dispatch,
     hostIdentity,
@@ -96,23 +102,22 @@ function useStartPuzzleSessionOnMount(args: {
   const identityReady = usePuzzleSessionIdentityReady();
   const lastStartedNonceRef = useRef(0);
   useEffect(() => {
-    if (!identityReady) return;
-    if (startNonce === 0) return;
-    if (startNonce === lastStartedNonceRef.current) return;
-    if (playGeneration !== readyGeneration) return;
-    if (roomStatus !== CHESS_PUZZLE_PLAY_STATUS.idle) {
-      if (roomPuzzleId !== null) {
-        lastStartedNonceRef.current = startNonce;
-      }
-      return;
-    }
-    if (fen.length === 0 || movesStr.length === 0) return;
-    if (roomPuzzleId !== null) {
-      lastStartedNonceRef.current = startNonce;
-      return;
-    }
+    const decision = decidePuzzleSessionStart({
+      identityReady,
+      startNonce,
+      lastStartedNonce: lastStartedNonceRef.current,
+      playGeneration,
+      readyGeneration,
+      roomStatus,
+      roomPuzzleId,
+      fen,
+      moves: movesStr,
+    });
+    if (decision.kind === 'skip') return;
     lastStartedNonceRef.current = startNonce;
-    dispatch(StartChessPuzzlePlay({ puzzleId, fen, moves: movesStr }));
+    if (decision.kind === 'start') {
+      dispatch(StartChessPuzzlePlay({ puzzleId, fen, moves: movesStr }));
+    }
   }, [
     dispatch,
     fen,

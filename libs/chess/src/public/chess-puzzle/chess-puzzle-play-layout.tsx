@@ -11,6 +11,7 @@ import { DefineBackButton } from '@libs/spaces/public/nav/spaces-nav-context';
 import { SpaceSideRailExtras } from '@libs/spaces/public/space-event-log-placement';
 import { Box, componentDataSet, Island, useLayoutMode } from '@pkgs/ui-rn';
 import { type ReactNode, useCallback, useState } from 'react';
+import type { HintStage } from '../../shared/puzzle-session/hint-stage';
 import { ChessPuzzleActionBar } from './chess-puzzle-action-bar';
 import { ChessPuzzleBoardFrame } from './chess-puzzle-board-frame';
 import { ChessPuzzleCelebrationOverlay } from './chess-puzzle-celebration-overlay';
@@ -18,7 +19,6 @@ import { ChessPuzzleFeedBar } from './chess-puzzle-feed-bar';
 import { ChessPuzzleFeedSettingsModal } from './chess-puzzle-feed-settings-modal';
 import { ChessPuzzleMoveHistoryBar } from './chess-puzzle-move-history-bar';
 import type { SolveStatus } from './use-chess-puzzle-solver';
-import type { HintStage } from './use-hint-stage';
 import type { PuzzlePlayerChromeModel } from './use-puzzle-player-state';
 
 const noopElo = (_rating: number): void => {};

@@ -1,9 +1,9 @@
 import type { Square } from '@pkgs/chess-board/chess-board-types';
 import { useTheme } from '@pkgs/ui-rn';
 import { useMemo } from 'react';
+import { deriveChessPuzzleCellFeedback } from '../../shared/puzzle-session/cell-feedback';
+import { deriveChessPuzzleCellHighlights } from '../../shared/puzzle-session/cell-highlights';
 import type { ChessPuzzlePlayStatus } from '../chess-puzzle-play';
-import { deriveChessPuzzleCellFeedback } from './chess-puzzle-cell-feedback';
-import { deriveChessPuzzleCellHighlights } from './chess-puzzle-cell-highlights';
 
 export function usePuzzlePlayerCellFeedback(args: {
   status: ChessPuzzlePlayStatus | 'loading';

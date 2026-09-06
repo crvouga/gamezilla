@@ -3,48 +3,22 @@ import { sql } from '@pkgs/sql';
 
 import { useQuery } from '@pkgs/sync-engine/client';
 import { useMemo } from 'react';
-
+import {
+  computeNextPuzzleLoading,
+  PUZZLE_NEXT_MAX_BAND,
+  PUZZLE_PREFERRED_BAND,
+  type PuzzleCandidateQueryResult,
+  pickPuzzleIdFromPool,
+  resolveProfilePuzzleRating,
+  resolvePuzzlePickOffset,
+  selectPuzzleCandidates,
+} from '../../shared/puzzle-session/next-puzzle-selection';
 import {
   type ChessPuzzleFeedHistoryFilter,
   resolveEffectivePuzzleRating,
 } from '../chess-puzzle-feed-config';
-import {
-  capPuzzleCandidateOffset,
-  hashSeed,
-  PUZZLE_CANDIDATE_MAX_OFFSET,
-  PUZZLE_NEXT_MAX_BAND,
-  type PuzzleCandidateRow,
-  pickPuzzleIdFromPool,
-} from './next-puzzle-id-helpers';
 import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
 import { usePuzzleCandidatesQuery } from './use-puzzle-candidates-query';
-
-const DEFAULT_RATING = 1200;
-const PREFERRED_BAND = 50;
-
-type CandidateQueryResult = {
-  readonly rows: readonly PuzzleCandidateRow[];
-  readonly isLoading: boolean;
-};
-
-function computeNextPuzzleLoading(args: {
-  myId: string;
-  banded: CandidateQueryResult;
-  fallback: CandidateQueryResult;
-}): boolean {
-  const { myId, banded, fallback } = args;
-  if (myId.length === 0) return true;
-  if (banded.isLoading) return true;
-  return banded.rows.length === 0 && fallback.isLoading;
-}
-
-function selectPuzzleResult(
-  banded: CandidateQueryResult,
-  fallback: CandidateQueryResult
-): CandidateQueryResult {
-  if (banded.rows.length > 0) return banded;
-  return fallback;
-}
 
 type PuzzleRatingValueRow = { readonly value: number };
 
@@ -59,11 +33,7 @@ function usePuzzleProfileRating(): number {
     [myId]
   );
   const { rows } = useQuery(query);
-  const profileRatingRaw = rows[0]?.value;
-  if (typeof profileRatingRaw === 'number' && profileRatingRaw > 0) {
-    return profileRatingRaw;
-  }
-  return DEFAULT_RATING;
+  return resolveProfilePuzzleRating(rows[0]?.value);
 }
 
 function useEffectivePuzzleRating(): number {
@@ -83,8 +53,8 @@ function usePuzzleCandidateQueries(args: {
   historyFilter: ChessPuzzleFeedHistoryFilter;
   themes: readonly string[];
 }): {
-  banded: CandidateQueryResult;
-  fallback: CandidateQueryResult;
+  banded: PuzzleCandidateQueryResult;
+  fallback: PuzzleCandidateQueryResult;
 } {
   const banded = usePuzzleCandidatesQuery({
     rating: args.rating,
@@ -133,9 +103,8 @@ export function useNextPuzzleId(args: {
   const [config] = useChessPuzzleFeedConfig();
   const rating = useEffectivePuzzleRating();
   const localPuzzleTotal = useLocalPuzzleTotal();
-  const rawOffset = hashSeed(seed) % (PUZZLE_CANDIDATE_MAX_OFFSET + 1);
   // Cap OFFSET in JS so a 50-row fixture cannot skip past the end of the table.
-  const pickOffset = capPuzzleCandidateOffset(rawOffset, localPuzzleTotal);
+  const pickOffset = resolvePuzzlePickOffset(seed, localPuzzleTotal);
   const { banded, fallback } = usePuzzleCandidateQueries({
     rating,
     myId,
@@ -144,26 +113,24 @@ export function useNextPuzzleId(args: {
     historyFilter: config.historyFilter,
     themes: config.themes,
   });
-  const puzzleResult = selectPuzzleResult(banded, fallback);
+  const puzzleResult = selectPuzzleCandidates(banded, fallback);
   const puzzleId = useMemo(
     () =>
       pickPuzzleIdFromPool({
         rows: puzzleResult.rows,
         rating,
-        preferredBand: PREFERRED_BAND,
+        preferredBand: PUZZLE_PREFERRED_BAND,
         seed,
       }),
     [puzzleResult.rows, rating, seed]
   );
-  const noCandidates = banded.rows.length === 0 && fallback.rows.length === 0;
-  const waitingForLocalPuzzles =
-    myId.length > 0 &&
-    puzzleId === null &&
-    localPuzzleTotal === 0 &&
-    noCandidates;
-  const loading =
-    computeNextPuzzleLoading({ myId, banded, fallback }) ||
-    waitingForLocalPuzzles;
+  const loading = computeNextPuzzleLoading({
+    myId,
+    banded,
+    fallback,
+    puzzleId,
+    localPuzzleTotal,
+  });
 
   return {
     puzzleId,
@@ -176,4 +143,4 @@ export function useNextPuzzleId(args: {
   };
 }
 
-export { PUZZLE_NEXT_MAX_BAND } from './next-puzzle-id-helpers';
+export { PUZZLE_NEXT_MAX_BAND } from '../../shared/puzzle-session/next-puzzle-selection';

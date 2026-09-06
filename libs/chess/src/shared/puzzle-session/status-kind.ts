@@ -1,5 +1,12 @@
-import type { ChessPuzzleStatusKind } from './chess-puzzle-status-icons';
-import type { SolveStatus } from './use-chess-puzzle-solver';
+import type { SolveStatus } from './solve-status';
+
+export type ChessPuzzleStatusKind =
+  | 'loading'
+  | 'whiteToMove'
+  | 'blackToMove'
+  | 'correct'
+  | 'wrong'
+  | 'solved';
 
 export function chessPuzzleStatusKindFromState(args: {
   status: SolveStatus;

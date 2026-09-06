@@ -1,6 +1,7 @@
 import { useSpaceRoomDispatch } from '@libs/spaces/public/room/use-space-room-selector';
 import type { Move } from '@pkgs/chess-board/chess-board-types';
 import { useCallback } from 'react';
+import type { HintStage } from '../../shared/puzzle-session/hint-stage';
 import { CHESS_SCREEN, SetChessMainMenuScreen } from '../chess-main-menu';
 import {
   CHESS_PUZZLE_PLAY_STATUS,
@@ -13,7 +14,6 @@ import {
   StepForwardChessPuzzlePlay,
 } from '../chess-puzzle-play';
 import { uciFromMove } from './chess-puzzle-play-chess-utils';
-import type { HintStage } from './use-hint-stage';
 
 type HandlersArgs = {
   status: ChessPuzzlePlayStatus | 'loading';

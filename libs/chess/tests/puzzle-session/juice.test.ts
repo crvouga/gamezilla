@@ -1,7 +1,8 @@
 import { describe, expect, test } from 'bun:test';
-
-import { solvedPuzzleKingSquare } from '../../../public/chess-puzzle/chess-puzzle-solved-king-square';
-import { shouldPlayEloTick } from '../../../public/chess-puzzle/throttle-elo-tick';
+import {
+  shouldPlayEloTick,
+  solvedPuzzleKingSquare,
+} from '@libs/chess/public/puzzle-session';
 
 describe('solvedPuzzleKingSquare', () => {
   test('finds black king when black is mated', () => {

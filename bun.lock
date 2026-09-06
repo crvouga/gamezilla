@@ -340,6 +340,7 @@
         "@pkgs/assistant": "workspace:*",
         "@pkgs/attribute": "workspace:*",
         "@pkgs/chess-board": "workspace:*",
+        "@pkgs/chess-board-core": "workspace:*",
         "@pkgs/clock": "workspace:*",
         "@pkgs/collab": "workspace:*",
         "@pkgs/database-url-policy": "workspace:*",
@@ -990,6 +991,7 @@
       "name": "@pkgs/chess-board-core",
       "version": "0.0.0",
       "dependencies": {
+        "@pkgs/clock": "workspace:*",
         "chess.js": "catalog:",
       },
       "devDependencies": {
