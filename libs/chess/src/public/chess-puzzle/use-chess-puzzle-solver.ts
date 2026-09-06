@@ -10,11 +10,11 @@ import {
   ChessPuzzlePlayAttr,
   SubmitChessPuzzleMove,
 } from '../chess-puzzle-play';
+import type { SolveStatus } from '../chess-puzzle-solve-status';
 import { uciFromMove } from './chess-puzzle-play-chess-utils';
-import type { SolveStatus } from './solve-status';
 import { usePuzzleOpponentMoveStage } from './use-puzzle-opponent-move-stage';
 
-export type { SolveStatus } from './solve-status';
+export type { SolveStatus } from '../chess-puzzle-solve-status';
 
 function useChessPuzzlePlayRoomSelectors() {
   const roomStatus = useSpaceRoomSelector(ChessPuzzlePlayAttr.status.from);

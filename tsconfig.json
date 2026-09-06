@@ -44,6 +44,7 @@
     "libs/billing/src/**/*.ts",
     "libs/billing/scripts/**/*.ts",
     "libs/chess/src/**/*.ts",
+    "libs/chess/tests/**/*.ts",
     "libs/chess/src/**/*.tsx",
     "libs/chess/scripts/**/*.ts",
     "pkgs/chess-board/src/**/*.ts",
