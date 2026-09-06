@@ -1,6 +1,6 @@
 import { Handles } from '@libs/test-ids';
-import { Trans, useLingui } from '@lingui/react/macro';
-import { useTimers } from '@pkgs/clock';
+import { Trans, useLingui } from '@lingui/solid/macro';
+import { useTimers } from '@pkgs/clock/solid';
 import {
   Box,
   CircleCheckIcon,
@@ -9,69 +9,62 @@ import {
   PickerSection,
   ShuffleIcon,
   TextInput,
-} from '@pkgs/ui-rn';
-import { useCallback, useEffect, useState } from 'react';
+} from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+import { createEffect, createSignal, onCleanup } from 'solid-js';
 
-export function AvatarEditorSeedField({
-  seed,
-  onSeedChange,
-  onRandomize,
-  onCopy,
-  disabled,
-}: {
+export function AvatarEditorSeedField(props: {
   seed: string;
   onSeedChange: (seed: string) => void;
   onRandomize: () => void;
   onCopy: () => Promise<void>;
-  disabled?: boolean;
-}) {
+  disabled?: boolean | undefined;
+}): JSX.Element {
   const { t } = useLingui();
   const timers = useTimers();
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = createSignal(false);
 
-  useEffect(() => {
-    if (!copied) return;
+  createEffect(() => {
+    if (!copied()) return;
     const id = timers.setTimeout(() => setCopied(false), 2000);
-    return () => timers.clearTimeout(id);
-  }, [copied, timers]);
+    onCleanup(() => timers.clearTimeout(id));
+  });
 
-  const handleCopy = useCallback(() => {
-    void onCopy().then(() => setCopied(true));
-  }, [onCopy]);
+  const handleCopy = () => {
+    void props.onCopy().then(() => setCopied(true));
+  };
 
   return (
     <PickerSection label={<Trans>Seed</Trans>}>
       <Box sx={{ flexDirection: 'row', gap: 2, alignItems: 'flex-end' }}>
         <Box sx={{ flex: 1 }}>
           <TextInput
-            value={seed}
-            onChangeText={onSeedChange}
-            accessibilityLabel={t`Seed`}
-            autoCapitalize="none"
-            autoCorrect={false}
-            editable={disabled !== true}
-            testID={Handles.profileAvatarSeed}
+            value={props.seed}
+            onChangeText={props.onSeedChange}
+            aria-label={t`Seed`}
+            autocapitalize="none"
+            autocorrect="off"
+            disabled={props.disabled === true}
+            dataSet={{ testid: Handles.profileAvatarSeed }}
           />
         </Box>
         <IconButton
           size={44}
           background="surface"
-          onPress={onRandomize}
-          disabled={disabled === true}
+          onClick={props.onRandomize}
+          disabled={props.disabled === true}
           label={t`Randomize`}
-          accessibilityLabel={t`Randomize`}
         >
           <ShuffleIcon size={20} />
         </IconButton>
         <IconButton
           size={44}
           background="surface"
-          onPress={handleCopy}
-          disabled={disabled === true}
-          label={copied ? t`Copied` : t`Copy seed`}
-          accessibilityLabel={copied ? t`Copied` : t`Copy seed`}
+          onClick={handleCopy}
+          disabled={props.disabled === true}
+          label={copied() ? t`Copied` : t`Copy seed`}
         >
-          {copied ? <CircleCheckIcon size={20} /> : <CopyIcon size={20} />}
+          {copied() ? <CircleCheckIcon size={20} /> : <CopyIcon size={20} />}
         </IconButton>
       </Box>
     </PickerSection>

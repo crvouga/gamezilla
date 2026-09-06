@@ -1,69 +1,62 @@
 import { useMutationClient } from '@libs/auth/public/mutation-client-provider';
 import { Handles } from '@libs/test-ids';
-import { Trans, useLingui } from '@lingui/react/macro';
+import { Trans, useLingui } from '@lingui/solid/macro';
 import {
   type BodyContentProps,
   Box,
   FormActionsFooter,
   ScreenBase,
   TextInput,
+  useBreadcrumbNav,
   useRouter,
-} from '@pkgs/ui-rn';
-import { useBreadcrumbNav } from '@pkgs/ui-rn/components/use-breadcrumb-nav';
-import {
-  type ReactNode,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+} from '@pkgs/ui';
+import type { Accessor, JSX } from 'solid-js';
+import { createEffect, createSignal } from 'solid-js';
 import { claimUsernameMutation } from '../shared/claim-username-mutation';
 import { useMyProfileId } from './use-my-profile-id';
 import { type ProfileRow, useProfileRow } from './use-profile-row';
 
-function useSyncedUsername(row: ProfileRow | null) {
-  const [value, setValue] = useState('');
-  const lastPersistedRef = useRef<string | null>(null);
+function useSyncedUsername(row: Accessor<ProfileRow | null>) {
+  const [value, setValue] = createSignal('');
+  const lastPersistedRef = { current: null as string | null };
 
-  useEffect(() => {
-    if (row === null) return;
-    const persisted = typeof row.username === 'string' ? row.username : '';
+  createEffect(() => {
+    const current = row();
+    if (current === null) return;
+    const persisted =
+      typeof current.username === 'string' ? current.username : '';
     const prev = lastPersistedRef.current;
     if (prev === null) {
-      setValue((current) => (current === '' ? persisted : current));
+      setValue((draft) => (draft === '' ? persisted : draft));
       lastPersistedRef.current = persisted;
       return;
     }
     if (persisted !== prev) {
-      setValue((current) => (current === prev ? persisted : current));
+      setValue((draft) => (draft === prev ? persisted : draft));
       lastPersistedRef.current = persisted;
     }
-  }, [row]);
+  });
 
   return [value, setValue] as const;
 }
 
-function ProfileHandleScreenBody({
-  sx,
-  value,
-  setValue,
-}: {
+function ProfileHandleScreenBody(props: {
   sx: BodyContentProps['sx'];
-  value: string;
+  value: Accessor<string>;
   setValue: (v: string) => void;
-}): ReactNode {
+}): JSX.Element {
   const { t } = useLingui();
   return (
-    <Box sx={sx}>
+    <Box sx={props.sx}>
       <TextInput
         label={<Trans>Username</Trans>}
-        accessibilityLabel={t`Username`}
-        value={value}
-        onChangeText={setValue}
+        aria-label={t`Username`}
+        value={props.value()}
+        onChangeText={props.setValue}
         placeholder={t`your_handle`}
-        autoCapitalize="none"
-        autoCorrect={false}
-        testID={Handles.profileUsernameInput}
+        autocapitalize="none"
+        autocorrect="off"
+        dataSet={{ testid: Handles.profileUsernameInput }}
       />
     </Box>
   );
@@ -71,7 +64,7 @@ function ProfileHandleScreenBody({
 
 function usernameErrorLabel(
   error: { readonly code: string } | null
-): ReactNode {
+): JSX.Element {
   if (error === null) {
     return <Trans>Couldn't save</Trans>;
   }
@@ -93,22 +86,23 @@ function usernameErrorLabel(
   }
 }
 
-export function ProfileHandleScreen() {
+export function ProfileHandleScreen(): JSX.Element {
   const router = useRouter();
   const profileId = useMyProfileId();
   const { row } = useProfileRow(profileId);
   const [value, setValue] = useSyncedUsername(row);
   const nav = useBreadcrumbNav();
   const mutationClient = useMutationClient();
-  const [lastError, setLastError] = useState<{ readonly code: string } | null>(
-    null
-  );
+  const [lastError, setLastError] = createSignal<{
+    readonly code: string;
+  } | null>(null);
 
-  const save = useCallback(async () => {
-    if (profileId === null) return;
+  const save = async () => {
+    const id = profileId();
+    if (id === null) return;
     setLastError(null);
     const result = await mutationClient.mutate(claimUsernameMutation, {
-      username: value,
+      username: value(),
     });
     if (!result.ok) {
       const failure = result.failures[0];
@@ -118,32 +112,35 @@ export function ProfileHandleScreen() {
       }
       throw new Error("Couldn't save");
     }
-  }, [mutationClient, profileId, value]);
+  };
 
   return (
     <ScreenBase
       screenId="profile-handle"
       breadcrumbs={[
-        { name: <Trans>Profile</Trans>, onPress: nav('/profile') },
-        { name: <Trans>Edit profile</Trans>, onPress: nav('/profile/edit') },
+        { name: <Trans>Profile</Trans>, onClick: nav('/profile') },
+        { name: <Trans>Edit profile</Trans>, onClick: nav('/profile/edit') },
         { name: <Trans>Username</Trans> },
       ]}
-      keyboardAvoiding
       footer={
         <FormActionsFooter
           cancel={{
             label: <Trans>Cancel</Trans>,
-            onPress: () => router.back(),
-            testID: Handles.profileUsernameCancel,
+            onClick: () => router.back(),
+            dataSet: { testid: Handles.profileUsernameCancel },
           }}
           submit={{
             label: <Trans>Save</Trans>,
             loadingLabel: <Trans>Saving…</Trans>,
             successLabel: <Trans>Saved</Trans>,
-            errorLabel: usernameErrorLabel(lastError),
+            get errorLabel() {
+              return usernameErrorLabel(lastError());
+            },
             operation: save,
-            disabled: profileId === null,
-            testID: Handles.profileUsernameSave,
+            get disabled() {
+              return profileId() === null;
+            },
+            dataSet: { testid: Handles.profileUsernameSave },
           }}
         />
       }

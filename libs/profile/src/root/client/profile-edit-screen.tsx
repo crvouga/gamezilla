@@ -1,9 +1,15 @@
 import { Handles } from '@libs/test-ids';
-import { Trans, useLingui } from '@lingui/react/macro';
-import { MenuList, MenuRow, ScreenBase, useRouter } from '@pkgs/ui-rn';
-import { useBreadcrumbNav } from '@pkgs/ui-rn/components/use-breadcrumb-nav';
+import { Trans, useLingui } from '@lingui/solid/macro';
+import {
+  MenuList,
+  MenuRow,
+  ScreenBase,
+  useBreadcrumbNav,
+  useRouter,
+} from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 
-export function ProfileEditScreen() {
+export function ProfileEditScreen(): JSX.Element {
   const { t } = useLingui();
   const router = useRouter();
   const nav = useBreadcrumbNav();
@@ -12,7 +18,7 @@ export function ProfileEditScreen() {
     <ScreenBase
       screenId="profile-edit"
       breadcrumbs={[
-        { name: <Trans>Profile</Trans>, onPress: nav('/profile') },
+        { name: <Trans>Profile</Trans>, onClick: nav('/profile') },
         { name: <Trans>Edit profile</Trans> },
       ]}
       content={({ sx }) => (
@@ -20,14 +26,14 @@ export function ProfileEditScreen() {
           <MenuRow
             title={t`Username`}
             caption={t`Unique handle for search and invites`}
-            onPress={() => router.push('/profile/handle')}
-            testID={Handles.profileEditUsername}
+            onClick={() => router.push('/profile/handle')}
+            dataSet={{ testid: Handles.profileEditUsername }}
           />
           <MenuRow
             title={t`Avatar`}
             caption={t`Pick a fun emoji look`}
-            onPress={() => router.push('/profile/avatar')}
-            testID={Handles.profileEditAvatar}
+            onClick={() => router.push('/profile/avatar')}
+            dataSet={{ testid: Handles.profileEditAvatar }}
           />
         </MenuList>
       )}

@@ -1,6 +1,5 @@
 import { Handles } from '@libs/test-ids';
-import { Trans, useLingui } from '@lingui/react/macro';
-import { useSyncEngine } from '@pkgs/sync-engine/client';
+import { Trans, useLingui } from '@lingui/solid/macro';
 import {
   Box,
   Button,
@@ -9,26 +8,21 @@ import {
   ScreenBase,
   ScreenBodyScrollView,
   useRouter,
-} from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+} from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 import { MyProfileAvatar } from './my-profile-avatar';
 import { MyUsername } from './my-username';
 
 export type ProfileScreenProps = {
   /** Centered friends stats row (signed-in counts; guests open sign-in on tap). */
-  readonly friendsStats?: ReactNode;
+  readonly friendsStats?: JSX.Element | undefined;
   /** Second action pill beside Edit profile (e.g. Find friends). */
-  readonly friendsActions?: ReactNode;
+  readonly friendsActions?: JSX.Element | undefined;
   /** Extra bottom inset for content padding. */
-  readonly bottomInset?: number;
+  readonly bottomInset?: number | undefined;
 };
 
-export function ProfileScreen({
-  friendsStats,
-  friendsActions,
-  bottomInset = 0,
-}: ProfileScreenProps) {
-  const { refreshQueries } = useSyncEngine();
+export function ProfileScreen(props: ProfileScreenProps): JSX.Element {
   return (
     <ScreenBase
       screenId="profile"
@@ -39,13 +33,14 @@ export function ProfileScreen({
           frameSx={sx}
           sx={[
             { flexGrow: 1 },
-            bottomInset > 0 ? { paddingBottom: bottomInset } : false,
+            props.bottomInset !== undefined && props.bottomInset > 0
+              ? { paddingBottom: props.bottomInset }
+              : false,
           ]}
-          onRefresh={() => refreshQueries()}
         >
           <ProfileScreenContent
-            friendsStats={friendsStats}
-            friendsActions={friendsActions}
+            friendsStats={props.friendsStats}
+            friendsActions={props.friendsActions}
           />
         </ScreenBodyScrollView>
       )}
@@ -53,13 +48,10 @@ export function ProfileScreen({
   );
 }
 
-function ProfileScreenContent({
-  friendsStats,
-  friendsActions,
-}: {
-  friendsStats?: ReactNode;
-  friendsActions?: ReactNode;
-}): ReactNode {
+function ProfileScreenContent(props: {
+  readonly friendsStats?: JSX.Element | undefined;
+  readonly friendsActions?: JSX.Element | undefined;
+}): JSX.Element {
   const { t } = useLingui();
   const router = useRouter();
 
@@ -96,19 +88,22 @@ function ProfileScreenContent({
               intent="neutral"
               variant="outline"
               flex={1}
-              onPress={() => router.push('/profile/edit')}
-              testID={Handles.profileEdit}
+              onClick={() => router.push('/profile/edit')}
+              dataSet={{ testid: Handles.profileEdit }}
             />
           </Box>
         </Box>
       </Island>
       <Island span={2} title={<Trans>Friends</Trans>}>
         <Box sx={{ gap: 3, alignSelf: 'stretch' }}>
-          {friendsStats !== undefined && friendsStats !== null
-            ? friendsStats
+          {props.friendsStats !== undefined && props.friendsStats !== null
+            ? props.friendsStats
             : null}
-          {friendsActions !== undefined && friendsActions !== null ? (
-            <Box sx={{ flexDirection: 'row', gap: 2 }}>{friendsActions}</Box>
+          {props.friendsActions !== undefined &&
+          props.friendsActions !== null ? (
+            <Box sx={{ flexDirection: 'row', gap: 2 }}>
+              {props.friendsActions}
+            </Box>
           ) : null}
         </Box>
       </Island>

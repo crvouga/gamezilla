@@ -1,4 +1,6 @@
-import { useQuery } from '@pkgs/sync-engine/client';
+import { createQuery } from '@pkgs/sync-engine/solid';
+import type { Accessor } from 'solid-js';
+import { createMemo } from 'solid-js';
 
 import { profileRowByIdSql } from './profile-row-sql';
 
@@ -11,18 +13,20 @@ export const ProfileField = {
 export type ProfileFieldKey = keyof typeof ProfileField;
 
 /**
- * Profile column for `profileId`. Uses {@link useQuery} (same display/cache
+ * Profile column for `profileId`. Uses {@link createQuery} (same display/cache
  * path as other account UI).
  */
 export function useProfileColumn(
   profileId: string,
   field: ProfileFieldKey
-): string | null {
+): Accessor<string | null> {
   const column = ProfileField[field];
-  const { rows } = useQuery(profileRowByIdSql(profileId));
-  const row = rows[0] ?? null;
-  if (row === null) return null;
-  const value = row[column];
-  if (typeof value !== 'string') return null;
-  return value;
+  const { rows } = createQuery(() => profileRowByIdSql(profileId));
+  return createMemo(() => {
+    const row = rows()[0] ?? null;
+    if (row === null) return null;
+    const value = row[column];
+    if (typeof value !== 'string') return null;
+    return value;
+  });
 }

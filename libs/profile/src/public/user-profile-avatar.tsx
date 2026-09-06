@@ -1,4 +1,5 @@
-import type { ReactNode } from 'react';
+import type { JSX } from 'solid-js';
+import { createMemo, Show } from 'solid-js';
 
 import { parseAvatarConfig } from './avatar-config';
 import { DeviceAvatar } from './device-avatar';
@@ -8,45 +9,41 @@ export type UserProfileAvatarProps = {
   /** Profile entity id (account or install id). `null` renders nothing. */
   profileId: string | null;
   size: number;
-  vividBackdrop?: boolean;
+  vividBackdrop?: boolean | undefined;
 };
 
 /**
  * Avatar for any profile id. Reads avatar_config inline; falls back to a
  * generic silhouette when no row exists.
  */
-export function UserProfileAvatar({
-  profileId,
-  size,
-  vividBackdrop,
-}: UserProfileAvatarProps): ReactNode {
-  if (profileId === null) return null;
+export function UserProfileAvatar(props: UserProfileAvatarProps): JSX.Element {
+  const profileId = () => (props.profileId === null ? null : props.profileId);
   return (
-    <UserProfileAvatarInner
-      profileId={profileId}
-      size={size}
-      vividBackdrop={vividBackdrop ?? false}
-    />
+    <Show when={profileId()} keyed>
+      {(id) => (
+        <UserProfileAvatarInner
+          profileId={id}
+          size={props.size}
+          vividBackdrop={props.vividBackdrop ?? false}
+        />
+      )}
+    </Show>
   );
 }
 
-function UserProfileAvatarInner({
-  profileId,
-  size,
-  vividBackdrop,
-}: {
+function UserProfileAvatarInner(props: {
   profileId: string;
   size: number;
   vividBackdrop: boolean;
-}): ReactNode {
-  const raw = useProfileColumn(profileId, 'avatarConfig');
-  const avatarConfig = parseAvatarConfig(raw);
+}): JSX.Element {
+  const raw = useProfileColumn(props.profileId, 'avatarConfig');
+  const avatarConfig = createMemo(() => parseAvatarConfig(raw()));
   return (
     <DeviceAvatar
-      avatarConfig={avatarConfig}
-      seedFallback={profileId}
-      size={size}
-      vividBackdrop={vividBackdrop}
+      avatarConfig={avatarConfig()}
+      seedFallback={props.profileId}
+      size={props.size}
+      vividBackdrop={props.vividBackdrop}
     />
   );
 }

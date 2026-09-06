@@ -1,5 +1,5 @@
 import { Handles } from '@libs/test-ids';
-import { Trans, useLingui } from '@lingui/react/macro';
+import { Trans, useLingui } from '@lingui/solid/macro';
 import {
   AvatarHero,
   Box,
@@ -12,8 +12,9 @@ import {
   ScreenBase,
   Skeleton,
   Text,
-} from '@pkgs/ui-rn';
-import { useMemo } from 'react';
+} from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+import { createMemo, For, Show } from 'solid-js';
 import type { AvatarConfig } from '../../../shared/profile/avatar-config';
 import { AvatarEditorSeedField } from './avatar-editor-seed-field';
 import type { SchemaField } from './dicebear-schema';
@@ -38,31 +39,31 @@ const HERO_SIZE = 160;
 const PREVIEW_SIZE = 32;
 const RANDOM = '__random__' as const;
 
-function BackgroundColorPicker({
-  field,
-  editor,
-}: {
+function BackgroundColorPicker(props: {
   field: ColorField;
   editor: UseAvatarEditor;
-}) {
-  const { draft, updateOptions } = editor;
-  const current = Array.isArray(draft.options[field.key])
-    ? (draft.options[field.key] as string[])
-    : field.default;
-
+}): JSX.Element {
+  const current = (): string[] => {
+    const value = props.editor.draft.options[props.field.key];
+    return Array.isArray(value) ? (value as string[]) : props.field.default;
+  };
+  const palette = (): string[] => [
+    ...new Set([...props.field.default, ...current()]),
+  ];
   return (
-    <PickerSection label={humanizeOptionKey(field.key)}>
+    <PickerSection label={humanizeOptionKey(props.field.key)}>
       <MultiSelectSwatchGrid
         label={null}
-        palette={[...new Set([...field.default, ...current])]}
-        defaultPalette={field.default}
-        value={current}
+        palette={palette()}
+        defaultPalette={props.field.default}
+        value={current()}
         allowTransparent
         allowCustomEntry={false}
         onChange={(next) => {
-          updateOptions((o) => ({
+          props.editor.updateOptions((o) => ({
             ...o,
-            [field.key]: next.length <= 1 ? next : [next[next.length - 1]!],
+            [props.field.key]:
+              next.length <= 1 ? next : [next[next.length - 1]!],
           }));
         }}
       />
@@ -70,93 +71,77 @@ function BackgroundColorPicker({
   );
 }
 
-function AvatarPreviewSlot({
-  ready,
-  config,
-  seedFallback,
-}: {
+function AvatarPreviewSlot(props: {
   ready: boolean;
   config: AvatarConfig;
   seedFallback: string;
-}) {
-  if (!ready) {
-    return (
-      <Skeleton
-        width={HERO_SIZE}
-        height={HERO_SIZE}
-        borderRadius={HERO_SIZE / 2}
-      />
-    );
-  }
+}): JSX.Element {
   return (
-    <ProfileDiceBearAvatar
-      config={config}
-      fallbackSeed={seedFallback}
-      size={HERO_SIZE}
-    />
+    <Show
+      when={props.ready}
+      fallback={
+        <Skeleton
+          width={HERO_SIZE}
+          height={HERO_SIZE}
+          borderRadius={HERO_SIZE / 2}
+        />
+      }
+    >
+      <ProfileDiceBearAvatar
+        config={props.config}
+        fallbackSeed={props.seedFallback}
+        size={HERO_SIZE}
+      />
+    </Show>
   );
 }
 
-function StyleCombobox({
-  styleKey,
-  seed,
-  seedFallback,
-  onChange,
-}: {
+function StyleCombobox(props: {
   styleKey: StyleKey;
   seed: string;
   seedFallback: string;
   onChange: (key: StyleKey) => void;
-}) {
+}): JSX.Element {
   const { t } = useLingui();
-  const options = useMemo((): ComboboxOption<StyleKey>[] => {
-    return STYLE_KEYS.map((key) => {
+  const options = createMemo((): ComboboxOption<StyleKey>[] =>
+    STYLE_KEYS.map((key) => {
       const option: ComboboxOption<StyleKey> = {
         value: key,
         label: styleLabel(key),
         searchText: styleLabel(key),
         preview: (
           <ProfileDiceBearAvatar
-            config={{ style: key, seed, options: {} }}
-            fallbackSeed={seedFallback}
+            config={{ style: key, seed: props.seed, options: {} }}
+            fallbackSeed={props.seedFallback}
             size={PREVIEW_SIZE}
           />
         ),
       };
       if (key === 'bottts') {
-        option.testID = Handles.profileAvatarStyleBottts;
+        option.dataSet = { testid: Handles.profileAvatarStyleBottts };
       }
       return option;
-    });
-  }, [seed, seedFallback]);
+    })
+  );
 
   return (
     <Combobox
       label={<Trans>Style</Trans>}
-      options={options}
-      value={styleKey}
+      options={options()}
+      value={props.styleKey}
       onValueChange={(key) => {
-        if (isStyleKey(key)) onChange(key);
+        if (isStyleKey(key)) props.onChange(key);
       }}
       placeholder={t`Select style…`}
       searchPlaceholder={t`Search styles…`}
       emptyMessage={t`No matching styles`}
       surfaceTitle={<Trans>Style</Trans>}
-      testID={Handles.profileAvatarStyle}
+      triggerDataSet={{ testid: Handles.profileAvatarStyle }}
     />
   );
 }
 
-function TraitCombobox({
-  field,
-  styleKey,
-  seed,
-  options,
-  selectedVariant,
-  seedFallback,
-  triggerTestId,
-  onSelect,
-}: {
+function TraitCombobox(props: {
   field: EnumField;
   styleKey: StyleKey;
   seed: string;
@@ -165,14 +150,13 @@ function TraitCombobox({
   seedFallback: string;
   triggerTestId: string | null;
   onSelect: (variant: string | null) => void;
-}) {
+}): JSX.Element {
   const { t } = useLingui();
-  const randomCaption = t`Random`;
-  const comboboxOptions = useMemo((): ComboboxOption<string>[] => {
+  const comboboxOptions = createMemo((): ComboboxOption<string>[] => {
     const random: ComboboxOption<string> = {
       value: RANDOM,
-      label: randomCaption,
-      searchText: randomCaption,
+      label: t`Random`,
+      searchText: t`Random`,
       preview: (
         <Box
           sx={{
@@ -186,180 +170,149 @@ function TraitCombobox({
         </Box>
       ),
     };
-    const variants = field.values.map((variant) => ({
+    const variants = props.field.values.map((variant) => ({
       value: variant,
       label: variant.replace(/^variant/i, ''),
       searchText: variant,
       preview: (
         <ProfileDiceBearAvatar
           config={{
-            style: styleKey,
-            seed,
+            style: props.styleKey,
+            seed: props.seed,
             options: buildThumbnailEnumOptions(
-              styleKey,
-              field.key,
+              props.styleKey,
+              props.field.key,
               variant,
-              options
+              props.options
             ),
           }}
-          fallbackSeed={seedFallback}
+          fallbackSeed={props.seedFallback}
           size={PREVIEW_SIZE}
         />
       ),
     }));
     return [random, ...variants];
-  }, [
-    field.key,
-    field.values,
-    options,
-    randomCaption,
-    seed,
-    seedFallback,
-    styleKey,
-  ]);
+  });
 
   return (
     <Combobox
-      label={humanizeOptionKey(field.key)}
-      options={comboboxOptions}
-      value={selectedVariant ?? RANDOM}
+      label={humanizeOptionKey(props.field.key)}
+      options={comboboxOptions()}
+      value={props.selectedVariant ?? RANDOM}
       onValueChange={(value) => {
-        onSelect(value === RANDOM ? null : value);
+        props.onSelect(value === RANDOM ? null : value);
       }}
       placeholder={t`Select…`}
       searchPlaceholder={t`Search…`}
       emptyMessage={t`No matching options`}
-      surfaceTitle={humanizeOptionKey(field.key)}
-      {...(triggerTestId !== null ? { testID: triggerTestId } : {})}
+      surfaceTitle={humanizeOptionKey(props.field.key)}
+      triggerDataSet={
+        props.triggerTestId !== null
+          ? { testid: props.triggerTestId }
+          : undefined
+      }
     />
   );
 }
 
-function StyleAndTraits({
-  editor,
-  seed,
-}: {
+function StyleAndTraits(props: {
   editor: UseAvatarEditor;
   seed: string;
-}) {
-  const {
-    seedFallback,
-    setDraft,
-    styleKey,
-    featureEnums,
-    colorFields,
-    draft,
-    updateOptions,
-  } = editor;
+}): JSX.Element {
   return (
     <>
       <StyleCombobox
-        styleKey={styleKey}
-        seed={seed}
-        seedFallback={seedFallback}
+        styleKey={props.editor.styleKey}
+        seed={props.seed}
+        seedFallback={props.editor.seedFallback}
         onChange={(key) => {
-          setDraft((d) => ({ ...d, style: key, options: {} }));
+          props.editor.setDraft((d) => ({ ...d, style: key, options: {} }));
         }}
       />
-      {featureEnums.map((field, index) => (
-        <TraitCombobox
-          key={`${styleKey}:${field.key}`}
-          field={field}
-          styleKey={styleKey}
-          seed={seed}
-          options={draft.options}
-          selectedVariant={selectedVariantForField(
-            field,
-            draft.options[field.key]
-          )}
-          seedFallback={seedFallback}
-          triggerTestId={index === 0 ? Handles.profileAvatarTrait : null}
-          onSelect={(variant) => {
-            updateOptions((o) => {
-              const next = { ...o };
-              if (variant === null) delete next[field.key];
-              else next[field.key] = [variant];
-              return next;
-            });
-          }}
-        />
-      ))}
-      {colorFields.map((field) => (
-        <BackgroundColorPicker key={field.key} field={field} editor={editor} />
-      ))}
+      <For each={props.editor.featureEnums}>
+        {(field, index) => (
+          <TraitCombobox
+            field={field}
+            styleKey={props.editor.styleKey}
+            seed={props.seed}
+            options={props.editor.draft.options}
+            selectedVariant={selectedVariantForField(
+              field,
+              props.editor.draft.options[field.key]
+            )}
+            seedFallback={props.editor.seedFallback}
+            triggerTestId={index() === 0 ? Handles.profileAvatarTrait : null}
+            onSelect={(variant) => {
+              props.editor.updateOptions((o) => {
+                const next = { ...o };
+                if (variant === null) delete next[field.key];
+                else next[field.key] = [variant];
+                return next;
+              });
+            }}
+          />
+        )}
+      </For>
+      <For each={props.editor.colorFields}>
+        {(field) => (
+          <BackgroundColorPicker field={field} editor={props.editor} />
+        )}
+      </For>
     </>
   );
 }
 
-function EditorContent({ editor }: { editor: UseAvatarEditor }) {
-  const {
-    seedFallback,
-    ready,
-    shuffleSeed,
-    draft,
-    styleKey,
-    effectiveSeed,
-    setSeed,
-    copySeed,
-  } = editor;
-  const seed = draft.seed.trim() || seedFallback;
-  const heroConfig: AvatarConfig = {
-    style: styleKey,
-    seed: effectiveSeed,
-    options: draft.options,
-  };
+function EditorContent(props: { editor: UseAvatarEditor }): JSX.Element {
+  const seed = () =>
+    props.editor.draft.seed.trim() || props.editor.seedFallback;
+  const heroConfig = createMemo<AvatarConfig>(() => ({
+    style: props.editor.styleKey,
+    seed: props.editor.effectiveSeed,
+    options: props.editor.draft.options,
+  }));
 
   return (
     <Box sx={{ gap: 2, pb: 4 }}>
       <AvatarHero size={HERO_SIZE}>
         <AvatarPreviewSlot
-          ready={ready}
-          config={heroConfig}
-          seedFallback={seedFallback}
+          ready={props.editor.ready}
+          config={heroConfig()}
+          seedFallback={props.editor.seedFallback}
         />
       </AvatarHero>
-      {ready ? (
+      <Show when={props.editor.ready}>
         <Box sx={{ gap: 2 }}>
           <AvatarEditorSeedField
-            seed={effectiveSeed}
-            onSeedChange={setSeed}
-            onRandomize={shuffleSeed}
-            onCopy={copySeed}
+            seed={props.editor.effectiveSeed}
+            onSeedChange={props.editor.setSeed}
+            onRandomize={props.editor.shuffleSeed}
+            onCopy={props.editor.copySeed}
           />
-          <StyleAndTraits editor={editor} seed={seed} />
+          <StyleAndTraits editor={props.editor} seed={seed()} />
         </Box>
-      ) : null}
+      </Show>
     </Box>
   );
 }
 
-export function AvatarEditorScreen() {
+export function AvatarEditorScreen(): JSX.Element {
   const editor = useAvatarEditor();
-  const {
-    profileId,
-    showDiscard,
-    setShowDiscard,
-    confirmDiscard,
-    onBack,
-    dirty,
-    save,
-  } = editor;
 
   return (
     <>
       <ConfirmationModal
-        visible={showDiscard}
+        visible={editor.showDiscard}
         title={<Trans>Discard changes?</Trans>}
         message={<Trans>You have unsaved avatar changes.</Trans>}
         confirmLabel={<Trans>Discard</Trans>}
         variant="destructive"
-        onConfirm={confirmDiscard}
-        onCancel={() => setShowDiscard(false)}
+        onConfirm={editor.confirmDiscard}
+        onCancel={() => editor.setShowDiscard(false)}
       />
       <ScreenBase
         screenId="avatar-editor"
         breadcrumbs={[
-          { name: <Trans>Profile</Trans>, onPress: onBack },
+          { name: <Trans>Profile</Trans>, onClick: editor.onBack },
           { name: <Trans>Avatar</Trans> },
         ]}
         scroll
@@ -367,17 +320,19 @@ export function AvatarEditorScreen() {
           <FormActionsFooter
             cancel={{
               label: <Trans>Cancel</Trans>,
-              onPress: onBack,
-              testID: Handles.profileAvatarCancel,
+              onClick: editor.onBack,
+              dataSet: { testid: Handles.profileAvatarCancel },
             }}
             submit={{
               label: <Trans>Save</Trans>,
               loadingLabel: <Trans>Saving…</Trans>,
               successLabel: <Trans>Saved</Trans>,
               errorLabel: <Trans>Couldn't save</Trans>,
-              operation: save,
-              disabled: !dirty || profileId === null,
-              testID: Handles.profileAvatarSave,
+              operation: editor.save,
+              get disabled() {
+                return !editor.dirty || editor.profileId === null;
+              },
+              dataSet: { testid: Handles.profileAvatarSave },
             }}
           />
         }

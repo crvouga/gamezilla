@@ -1,5 +1,6 @@
-import { Avatar, UserIcon } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Avatar, UserIcon } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+import { Show } from 'solid-js';
 import type { AvatarConfig } from './avatar-config';
 
 import { ProfileDiceBearAvatar } from './profile-dicebear-avatar';
@@ -14,7 +15,7 @@ export type DeviceAvatarProps = {
    * glyph for vivid backgrounds (e.g. space card), matching other
    * chrome on that surface.
    */
-  vividBackdrop?: boolean;
+  vividBackdrop?: boolean | undefined;
 };
 
 /**
@@ -22,27 +23,27 @@ export type DeviceAvatarProps = {
  * config (e.g. not synced); otherwise the persisted DiceBear avatar. Uses
  * `seedFallback` only when persisted config has an empty legacy seed.
  */
-export function DeviceAvatar({
-  avatarConfig,
-  seedFallback,
-  size,
-  vividBackdrop = false,
-}: DeviceAvatarProps): ReactNode {
-  if (avatarConfig === null) {
-    return (
-      <Avatar
-        size={size}
-        icon={UserIcon}
-        background={vividBackdrop ? 'onTintScrim' : 'outline'}
-        foreground={vividBackdrop ? 'onPrimary' : 'tabIconDefault'}
-      />
-    );
-  }
+export function DeviceAvatar(props: DeviceAvatarProps): JSX.Element {
   return (
-    <ProfileDiceBearAvatar
-      config={avatarConfig}
-      fallbackSeed={seedFallback}
-      size={size}
-    />
+    <Show
+      when={props.avatarConfig}
+      keyed
+      fallback={
+        <Avatar
+          size={props.size}
+          icon={UserIcon}
+          background={props.vividBackdrop ? 'onTintScrim' : 'outline'}
+          foreground={props.vividBackdrop ? 'onPrimary' : 'tabIconDefault'}
+        />
+      }
+    >
+      {(config) => (
+        <ProfileDiceBearAvatar
+          config={config}
+          fallbackSeed={props.seedFallback}
+          size={props.size}
+        />
+      )}
+    </Show>
   );
 }

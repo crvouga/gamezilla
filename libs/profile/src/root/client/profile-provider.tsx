@@ -1,6 +1,7 @@
 import { useMutationClient } from '@libs/auth/public/mutation-client-provider';
 import { useMyId } from '@libs/auth/public/use-current-user';
-import { type ReactNode, useEffect } from 'react';
+import type { JSX, ParentProps } from 'solid-js';
+import { createEffect } from 'solid-js';
 
 import { ProfileEnsurer } from '../../use-cases/ensure-profile/client/ensure-profile';
 
@@ -9,25 +10,17 @@ import { ProfileEnsurer } from '../../use-cases/ensure-profile/client/ensure-pro
  * current `users.id`. Upload via `/api/mutations` assigns uniqueness on
  * Postgres.
  */
-function ProfileEntityBootstrap(): null {
+function ProfileEntityBootstrap(): JSX.Element {
   const myId = useMyId();
   const mutationClient = useMutationClient();
 
-  useEffect(() => {
-    let cancelled = false;
-    void (async () => {
-      try {
-        if (myId.length === 0) return;
-        await new ProfileEnsurer(mutationClient).ensure();
-        if (cancelled) return;
-      } catch {
-        // Best-effort: re-asserted on the next identity change.
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [mutationClient, myId]);
+  createEffect(() => {
+    const id = myId();
+    if (id.length === 0) return;
+    void new ProfileEnsurer(mutationClient).ensure().catch(() => {
+      // Best-effort: re-asserted on the next identity change.
+    });
+  });
 
   return null;
 }
@@ -36,15 +29,11 @@ function ProfileEntityBootstrap(): null {
  * Mounts {@link ProfileEntityBootstrap}. Reacts to identity changes via
  * {@link useMyId}.
  */
-export function ProfileProvider({
-  children,
-}: {
-  children: ReactNode;
-}): ReactNode {
+export function ProfileProvider(props: ParentProps): JSX.Element {
   return (
     <>
       <ProfileEntityBootstrap />
-      {children}
+      {props.children}
     </>
   );
 }

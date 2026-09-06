@@ -1,18 +1,23 @@
-import { type SxProps, Text, type TextVariant } from '@pkgs/ui-rn';
-import { optionalProps } from '@pkgs/ui-rn/components/optional-props';
-import type { ReactNode } from 'react';
+import {
+  type ComponentDataSet,
+  type SxProps,
+  Text,
+  type TextVariant,
+} from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+import { createMemo, Show } from 'solid-js';
 
 import { useProfileColumn } from './use-profile-column';
 
 export type UserUsernameProps = {
   /** Profile entity id (account or install id). `null` renders nothing. */
   profileId: string | null;
-  variant?: TextVariant;
-  sx?: SxProps;
-  numberOfLines?: number;
+  variant?: TextVariant | undefined;
+  sx?: SxProps | undefined;
+  numberOfLines?: number | undefined;
   /** When true, prefix with `@`. Default true. */
-  withAt?: boolean;
-  testID?: string;
+  withAt?: boolean | undefined;
+  dataSet?: ComponentDataSet | undefined;
 };
 
 /**
@@ -20,50 +25,48 @@ export type UserUsernameProps = {
  * Returns `null` when no profile id is supplied; renders an empty `Text` when
  * the row hasn't synced (so layout positioning stays stable).
  */
-export function UserUsername({
-  profileId,
-  variant,
-  sx,
-  numberOfLines,
-  withAt = true,
-  testID,
-}: UserUsernameProps): ReactNode {
-  if (profileId === null) return null;
+export function UserUsername(props: UserUsernameProps): JSX.Element {
+  const profileId = () => (props.profileId === null ? null : props.profileId);
   return (
-    <UserUsernameInner
-      profileId={profileId}
-      withAt={withAt}
-      {...optionalProps({ variant, sx, numberOfLines, testID })}
-    />
+    <Show when={profileId()} keyed>
+      {(id) => (
+        <UserUsernameInner
+          profileId={id}
+          withAt={props.withAt ?? true}
+          variant={props.variant}
+          sx={props.sx}
+          numberOfLines={props.numberOfLines}
+          dataSet={props.dataSet}
+        />
+      )}
+    </Show>
   );
 }
 
-function UserUsernameInner({
-  profileId,
-  variant,
-  sx,
-  numberOfLines,
-  withAt,
-  testID,
-}: {
+function UserUsernameInner(props: {
   profileId: string;
-  variant?: TextVariant;
-  sx?: SxProps;
-  numberOfLines?: number;
   withAt: boolean;
-  testID?: string;
-}): ReactNode {
-  const username = useProfileColumn(profileId, 'username');
-  const label =
-    username === null || username.length === 0
+  variant?: TextVariant | undefined;
+  sx?: SxProps | undefined;
+  numberOfLines?: number | undefined;
+  dataSet?: ComponentDataSet | undefined;
+}): JSX.Element {
+  const username = useProfileColumn(props.profileId, 'username');
+  const label = createMemo(() => {
+    const value = username();
+    return value === null || value.length === 0
       ? ''
-      : withAt
-        ? `@${username}`
-        : username;
+      : props.withAt
+        ? `@${value}`
+        : value;
+  });
   return (
     <Text
-      {...optionalProps({ variant, sx, numberOfLines, testID })}
-      label={label}
+      variant={props.variant}
+      sx={props.sx}
+      numberOfLines={props.numberOfLines}
+      dataSet={props.dataSet}
+      label={label()}
     />
   );
 }

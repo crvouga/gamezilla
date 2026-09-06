@@ -1,5 +1,6 @@
-import { useSyncEngine } from '@pkgs/sync-engine/client';
-import type { ReactNode } from 'react';
+import { useSyncEngine } from '@pkgs/sync-engine/solid';
+import type { JSX } from 'solid-js';
+import { Show } from 'solid-js';
 
 import { DeviceAvatar } from '../../public/device-avatar';
 import { useMyProfileId } from '../../public/use-my-profile-id';
@@ -7,7 +8,7 @@ import { UserProfileAvatar } from '../../public/user-profile-avatar';
 
 export type MyProfileAvatarProps = {
   size: number;
-  vividBackdrop?: boolean;
+  vividBackdrop?: boolean | undefined;
 };
 
 /**
@@ -15,27 +16,30 @@ export type MyProfileAvatarProps = {
  * While SyncEngineBoot is sticky on a prior identity, shows a silhouette
  * instead of querying the wrong SQLite.
  */
-export function MyProfileAvatar({
-  size,
-  vividBackdrop,
-}: MyProfileAvatarProps): ReactNode {
+export function MyProfileAvatar(props: MyProfileAvatarProps): JSX.Element {
   const { paintReady } = useSyncEngine();
   const profileId = useMyProfileId();
-  if (!paintReady) {
-    return (
-      <DeviceAvatar
-        avatarConfig={null}
-        seedFallback="pending"
-        size={size}
-        vividBackdrop={vividBackdrop ?? false}
-      />
-    );
-  }
   return (
-    <UserProfileAvatar
-      profileId={profileId}
-      size={size}
-      vividBackdrop={vividBackdrop ?? false}
-    />
+    <Show
+      when={paintReady()}
+      fallback={
+        <DeviceAvatar
+          avatarConfig={null}
+          seedFallback="pending"
+          size={props.size}
+          vividBackdrop={props.vividBackdrop ?? false}
+        />
+      }
+    >
+      <Show when={profileId()} keyed>
+        {(id) => (
+          <UserProfileAvatar
+            profileId={id}
+            size={props.size}
+            vividBackdrop={props.vividBackdrop ?? false}
+          />
+        )}
+      </Show>
+    </Show>
   );
 }
