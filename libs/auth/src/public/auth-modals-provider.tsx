@@ -1,35 +1,36 @@
-import { useLogger } from '@pkgs/logger/react';
+import { useLogger } from '@pkgs/logger/solid';
 import {
+  type Accessor,
   createContext,
-  type ReactNode,
-  useCallback,
+  createEffect,
+  createMemo,
+  createSignal,
+  type JSX,
+  on,
   useContext,
-  useLayoutEffect,
-  useMemo,
-  useState,
-} from 'react';
+} from 'solid-js';
 import {
   HOSTED_SIGN_IN_UNAVAILABLE_REASON,
   NO_SIGN_IN_METHODS_REASON,
 } from './auth-errors';
 import { useConfigService } from './config-service-context';
 import { useSignInCapabilities } from './sign-in-capabilities-context';
-import { SignInModal, type SignInModalProps } from './sign-in-modal';
+import { SignInModal } from './sign-in-modal';
 import { useSignInPending } from './sign-in-pending';
 import { useSignIn } from './use-sign-in';
 import { useSignOut } from './use-sign-out';
 import { useSignOutConfirmationModal } from './use-sign-out-confirmation';
 
 export type AuthModals = {
-  signInModalOpen: boolean;
+  signInModalOpen: Accessor<boolean>;
   openSignInModal: () => void;
   closeSignInModal: () => void;
-  signOutConfirmOpen: boolean;
+  signOutConfirmOpen: Accessor<boolean>;
   openSignOutConfirm: () => void;
   closeSignOutConfirm: () => void;
 };
 
-const Ctx = createContext<AuthModals | null>(null);
+const Ctx = createContext<AuthModals>();
 
 /**
  * Owns just the open/close state for the sign-in modal and the sign-out
@@ -37,28 +38,22 @@ const Ctx = createContext<AuthModals | null>(null);
  * (`useCurrentUser`, `useFreshAuthToken`, etc.) is intentionally not exposed
  * here — components read those hooks directly.
  */
-export function AuthModalsProvider({
-  children,
-}: {
-  children: ReactNode;
-}): ReactNode {
-  const [signInModalOpen, setSignInModalOpen] = useState(false);
-  const [signOutConfirmOpen, setSignOutConfirmOpen] = useState(false);
+export function AuthModalsProvider(props: {
+  children: JSX.Element;
+}): JSX.Element {
+  const [signInModalOpen, setSignInModalOpen] = createSignal(false);
+  const [signOutConfirmOpen, setSignOutConfirmOpen] = createSignal(false);
   const signOut = useSignOut();
 
-  const openSignInModal = useCallback(() => setSignInModalOpen(true), []);
-  const closeSignInModal = useCallback(() => setSignInModalOpen(false), []);
-  const signInModalProps = useSignInModalConnection({
+  const openSignInModal = () => setSignInModalOpen(true);
+  const closeSignInModal = () => setSignInModalOpen(false);
+  const connection = useSignInModalConnection({
     signInModalOpen,
     openSignInModal,
     closeSignInModal,
   });
 
-  const {
-    openSignOutConfirm,
-    closeSignOutConfirm,
-    modal: signOutModal,
-  } = useSignOutConfirmationModal({
+  const signOutConfirm = useSignOutConfirmationModal({
     // Stay on the current screen — UI reacts to signed-out state.
     signOut,
     signOutConfirmOpen,
@@ -66,30 +61,31 @@ export function AuthModalsProvider({
     closeSignOutConfirmBase: () => setSignOutConfirmOpen(false),
   });
 
-  const value = useMemo<AuthModals>(
-    () => ({
-      signInModalOpen,
-      openSignInModal,
-      closeSignInModal,
-      signOutConfirmOpen,
-      openSignOutConfirm,
-      closeSignOutConfirm,
-    }),
-    [
-      signInModalOpen,
-      openSignInModal,
-      closeSignInModal,
-      signOutConfirmOpen,
-      openSignOutConfirm,
-      closeSignOutConfirm,
-    ]
-  );
+  const value: AuthModals = {
+    signInModalOpen,
+    openSignInModal,
+    closeSignInModal,
+    signOutConfirmOpen,
+    openSignOutConfirm: signOutConfirm.openSignOutConfirm,
+    closeSignOutConfirm: signOutConfirm.closeSignOutConfirm,
+  };
 
   return (
     <Ctx.Provider value={value}>
-      {children}
-      <SignInModal {...signInModalProps} />
-      {signOutModal}
+      {props.children}
+      <SignInModal
+        visible={connection.visible()}
+        onClose={connection.onClose}
+        resumePending={connection.resumePending()}
+        methodsLoading={connection.methodsLoading()}
+        googleAvailable={connection.googleAvailable()}
+        devOauthAvailable={connection.devOauthAvailable()}
+        signInUnavailableReason={connection.signInUnavailableReason()}
+        onSignInWithGoogle={connection.onSignInWithGoogle}
+        onSignInWithDev={connection.onSignInWithDev}
+        onError={connection.onError}
+      />
+      {signOutConfirm.modal}
     </Ctx.Provider>
   );
 }
@@ -100,46 +96,51 @@ export function AuthModalsProvider({
  * in flight before an OAuth redirect unloaded the page.
  */
 function useSignInModalConnection(args: {
-  signInModalOpen: boolean;
+  signInModalOpen: Accessor<boolean>;
   openSignInModal: () => void;
   closeSignInModal: () => void;
-}): SignInModalProps {
-  const { signInModalOpen, openSignInModal, closeSignInModal } = args;
+}) {
   const apiUrl = useConfigService().getApiUrl();
   const { signInWithGoogle, signInWithDev } = useSignIn();
   const capabilities = useSignInCapabilities();
   const signInLog = useLogger('auth-sign-in');
   const { pending, isHydrated } = useSignInPending();
-  const resumePending = isHydrated && pending !== null;
+  const resumePending = createMemo(() => isHydrated() && pending() !== null);
 
-  useLayoutEffect(() => {
-    if (resumePending) openSignInModal();
-  }, [resumePending, openSignInModal]);
-
-  const onError = useCallback(
-    (err: Error) => {
-      signInLog.error('sign in failed', { error: err.message });
-    },
-    [signInLog]
+  createEffect(
+    on(
+      resumePending,
+      (value) => {
+        if (value) args.openSignInModal();
+      },
+      { defer: true }
+    )
   );
 
+  const onError = (err: Error) => {
+    signInLog.error('sign in failed', { error: err.message });
+  };
+
   const apiReachable = apiUrl.trim().length > 0;
-  const methodsLoading = !capabilities.ready;
-  const googleAvailable =
-    !methodsLoading && apiReachable && capabilities.google;
-  const devOauthAvailable =
-    !methodsLoading && apiReachable && capabilities.devOauth;
-  const anyMethod = googleAvailable || devOauthAvailable;
-  const signInModalVisible = signInModalOpen || resumePending;
-  const signInUnavailableReason =
-    methodsLoading || anyMethod
+  const methodsLoading = createMemo(() => !capabilities.ready);
+  const googleAvailable = createMemo(
+    () => !methodsLoading() && apiReachable && capabilities.google
+  );
+  const devOauthAvailable = createMemo(
+    () => !methodsLoading() && apiReachable && capabilities.devOauth
+  );
+  const anyMethod = createMemo(() => googleAvailable() || devOauthAvailable());
+  const visible = createMemo(() => args.signInModalOpen() || resumePending());
+  const signInUnavailableReason = createMemo<string | null>(() =>
+    methodsLoading() || anyMethod()
       ? null
       : apiReachable
         ? NO_SIGN_IN_METHODS_REASON
-        : HOSTED_SIGN_IN_UNAVAILABLE_REASON;
+        : HOSTED_SIGN_IN_UNAVAILABLE_REASON
+  );
   return {
-    visible: signInModalVisible,
-    onClose: closeSignInModal,
+    visible,
+    onClose: args.closeSignInModal,
     resumePending,
     methodsLoading,
     googleAvailable,
@@ -157,7 +158,7 @@ function useSignInModalConnection(args: {
 
 export function useAuthModals(): AuthModals {
   const v = useContext(Ctx);
-  if (v === null) {
+  if (v === undefined) {
     throw new Error(
       'useAuthModals: AuthModalsProvider missing — wrap with AppProviders'
     );
@@ -171,7 +172,7 @@ export function useAuthModals(): AuthModals {
 export function useSignInModal(): {
   open: () => void;
   close: () => void;
-  isOpen: boolean;
+  isOpen: Accessor<boolean>;
 } {
   const m = useAuthModals();
   return {
@@ -185,7 +186,7 @@ export function useSignInModal(): {
 export function useSignOutModal(): {
   open: () => void;
   close: () => void;
-  isOpen: boolean;
+  isOpen: Accessor<boolean>;
 } {
   const m = useAuthModals();
   return {

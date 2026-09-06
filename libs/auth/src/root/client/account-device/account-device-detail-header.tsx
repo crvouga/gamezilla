@@ -1,5 +1,5 @@
-import { Box } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Box } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 import { AccountDeviceCurrentBadge } from './account-device-current-badge';
 import { AccountDeviceListTitleText } from './account-device-list-title-text';
 
@@ -8,9 +8,9 @@ export type AccountDeviceDetailHeaderProps = {
 };
 
 /** Heading row for the device detail page: title + current badge. */
-export function AccountDeviceDetailHeader({
-  deviceId,
-}: AccountDeviceDetailHeaderProps): ReactNode {
+export function AccountDeviceDetailHeader(
+  props: AccountDeviceDetailHeaderProps
+): JSX.Element {
   return (
     <Box
       sx={{
@@ -21,11 +21,11 @@ export function AccountDeviceDetailHeader({
       }}
     >
       <AccountDeviceListTitleText
-        deviceId={deviceId}
+        deviceId={props.deviceId}
         variant="heading"
         numberOfLines={2}
       />
-      <AccountDeviceCurrentBadge deviceId={deviceId} />
+      <AccountDeviceCurrentBadge deviceId={props.deviceId} />
     </Box>
   );
 }

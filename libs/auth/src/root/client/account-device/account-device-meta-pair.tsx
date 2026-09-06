@@ -1,26 +1,25 @@
-import { Box, MenuRow } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Box, MenuRow } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 
 export type AccountDeviceMetaPairProps = {
-  label: ReactNode;
+  label: JSX.Element;
   /** Atom that renders the value for this pair (e.g. `<AccountDeviceOsText>`). */
-  valueAtom: ReactNode;
+  valueAtom: JSX.Element;
 };
 
 /** Cap so a long value never crowds the label out of the row. */
 const VALUE_MAX_WIDTH = '55%';
 
 /** Detail row — label on the left, atom-rendered value right-aligned. */
-export function AccountDeviceMetaPair({
-  label,
-  valueAtom,
-}: AccountDeviceMetaPairProps): ReactNode {
+export function AccountDeviceMetaPair(
+  props: AccountDeviceMetaPairProps
+): JSX.Element {
   return (
     <MenuRow
-      title={label}
+      title={props.label}
       trailing={
         <Box sx={{ maxWidth: VALUE_MAX_WIDTH, alignItems: 'flex-end' }}>
-          {valueAtom}
+          {props.valueAtom}
         </Box>
       }
     />

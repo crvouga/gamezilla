@@ -6,7 +6,7 @@ import type { Timers } from '@pkgs/clock';
 import type { HttpFetch } from '@pkgs/http-client';
 import { HttpNetworkError } from '@pkgs/http-client';
 import type { SecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
-import { writeSecureStorageItem } from '@pkgs/secure-storage/use-secure-storage-item';
+import { writeSecureStorageItem } from '@pkgs/secure-storage/secure-storage-store';
 import type { CreateId } from '@pkgs/uuid';
 
 import { LAST_LOCAL_ACCOUNT_ID_KEY } from '../../public/auth-storage-keys';

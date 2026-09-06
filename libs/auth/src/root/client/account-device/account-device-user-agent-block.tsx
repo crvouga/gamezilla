@@ -1,5 +1,6 @@
-import { Text } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Text } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+import { Show } from 'solid-js';
 import { useDeviceColumn } from '../use-device-column';
 
 export type AccountDeviceUserAgentBlockProps = {
@@ -7,12 +8,20 @@ export type AccountDeviceUserAgentBlockProps = {
 };
 
 /** Web user-agent string when present. */
-export function AccountDeviceUserAgentBlock({
-  deviceId,
-}: AccountDeviceUserAgentBlockProps): ReactNode {
-  const userAgent = useDeviceColumn(deviceId, 'userAgent');
-  if (userAgent === null) return null;
+export function AccountDeviceUserAgentBlock(
+  props: AccountDeviceUserAgentBlockProps
+): JSX.Element {
+  const userAgent = useDeviceColumn(props.deviceId, 'userAgent');
   return (
-    <Text variant="caption" selectable numberOfLines={6} label={userAgent} />
+    <Show when={userAgent()}>
+      {(ua) => (
+        <Text
+          variant="caption"
+          numberOfLines={6}
+          sx={{ userSelect: 'text' }}
+          label={ua()}
+        />
+      )}
+    </Show>
   );
 }

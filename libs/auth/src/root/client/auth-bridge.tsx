@@ -1,26 +1,26 @@
 import type { AuthClientPort } from '@pkgs/auth/client/auth-client-port';
 import type { AuthSessionState } from '@pkgs/auth/client/auth-session-state';
-import { useTimers } from '@pkgs/clock';
+import { useTimers } from '@pkgs/clock/solid';
 import {
   useHttpClient,
   useOptionalOriginAvailability,
-} from '@pkgs/http-client';
-import { useLogger } from '@pkgs/logger/react';
+} from '@pkgs/http-client/solid';
+import { useLogger } from '@pkgs/logger/solid';
+import { writeSecureStorageItem } from '@pkgs/secure-storage/secure-storage-store';
 import {
-  useSecureStorageItem,
+  createSecureStorageItem,
   useSecureStorageStore,
-  writeSecureStorageItem,
-} from '@pkgs/secure-storage/use-secure-storage-item';
-import { useCreateId } from '@pkgs/uuid';
+} from '@pkgs/secure-storage/solid';
+import { createSubscriptionSignal } from '@pkgs/solid-context/subscription-signal';
+import { useCreateId } from '@pkgs/uuid/solid';
 import {
-  type PropsWithChildren,
-  type ReactNode,
-  useEffect,
-  useMemo,
-  useRef,
-  useSyncExternalStore,
-} from 'react';
-import { AppState, type AppStateStatus } from 'react-native';
+  type Accessor,
+  createEffect,
+  createMemo,
+  type JSX,
+  onCleanup,
+  type ParentProps,
+} from 'solid-js';
 import { useAuthClientPort } from '../../public/auth-client-provider';
 import {
   LAST_LOCAL_ACCOUNT_ID_KEY,
@@ -46,10 +46,6 @@ import {
 } from './auth-bridge-refresh';
 import { SessionBearerTokenResolver } from './resolve-session-bearer-token';
 
-type TokenRef = { current: string | null };
-type ExpiresAtRef = { current: string | null };
-type ExternalUserIdRef = { current: string | null };
-
 function normalizeExpiresAt(raw: unknown): string | null {
   if (raw instanceof Date) return raw.toISOString();
   if (typeof raw === 'string' && raw.length > 0) return raw;
@@ -57,22 +53,24 @@ function normalizeExpiresAt(raw: unknown): string | null {
 }
 
 function useClearStaleAccountOnExternalUserChange(args: {
-  authState: AuthSessionState;
-  deps: AuthBridgeRefreshDeps;
+  authState: Accessor<AuthSessionState>;
+  deps: Accessor<AuthBridgeRefreshDeps>;
 }): void {
-  const { authState, deps } = args;
-  const isHydrated = authState.isHydrated;
-  const isSignedIn = isAuthSessionSignedIn(authState);
-  const externalUserId = authState.session?.externalUserId ?? null;
-  const previousExternalUserIdRef = useRef<string | null>(null);
+  const previousExternalUserIdRef = { current: null as string | null };
 
-  useEffect(() => {
+  createEffect(() => {
+    const authState = args.authState();
+    const isHydrated = authState.isHydrated;
+    const isSignedIn = isAuthSessionSignedIn(authState);
+    const externalUserId = authState.session?.externalUserId ?? null;
     if (!isHydrated) return;
     if (!isSignedIn || externalUserId === null) {
       if (!isSignedIn) previousExternalUserIdRef.current = null;
       return;
     }
-    const stored = new SessionCapabilityStore(deps.store).readExternalUserId();
+    const stored = new SessionCapabilityStore(
+      args.deps().store
+    ).readExternalUserId();
     const previous = previousExternalUserIdRef.current ?? stored;
     previousExternalUserIdRef.current = externalUserId;
     if (
@@ -84,9 +82,10 @@ function useClearStaleAccountOnExternalUserChange(args: {
     ) {
       return;
     }
+    const deps = args.deps();
     deps.lastSyncedTokenRef.current = null;
     void writeSecureStorageItem(deps.store, LAST_LOCAL_ACCOUNT_ID_KEY, null);
-  }, [deps, externalUserId, isHydrated, isSignedIn]);
+  });
 }
 
 async function handleBaSignedIn(args: {
@@ -116,15 +115,21 @@ async function handleBaSignedIn(args: {
 }
 
 function useStorageFirstBoot(args: {
-  deps: AuthBridgeRefreshDeps;
-  tokenHydrated: boolean;
-  accountIdHydrated: boolean;
+  deps: Accessor<AuthBridgeRefreshDeps>;
+  tokenHydrated: Accessor<boolean>;
+  accountIdHydrated: Accessor<boolean>;
 }): void {
-  const { deps, tokenHydrated, accountIdHydrated } = args;
-  const bootedRef = useRef(false);
+  const bootedRef = { current: false };
 
-  useEffect(() => {
-    if (!tokenHydrated || !accountIdHydrated || bootedRef.current) return;
+  createEffect(() => {
+    if (
+      !args.tokenHydrated() ||
+      !args.accountIdHydrated() ||
+      bootedRef.current
+    ) {
+      return;
+    }
+    const deps = args.deps();
     const session = new SessionCapabilityStore(deps.store);
     const token = session.readToken();
     bootedRef.current = true;
@@ -141,34 +146,30 @@ function useStorageFirstBoot(args: {
       externalUserId,
       force: true,
     });
-  }, [accountIdHydrated, deps, tokenHydrated]);
+  });
 }
 
 function useReconcileAuthSession(args: {
-  authState: AuthSessionState;
+  authState: Accessor<AuthSessionState>;
   port: AuthClientPort;
-  deps: AuthBridgeRefreshDeps;
+  deps: Accessor<AuthBridgeRefreshDeps>;
 }): void {
-  const { authState, port, deps } = args;
-  const isHydrated = authState.isHydrated;
-  const isSignedIn = isAuthSessionSignedIn(authState);
-  const sessionError = authSessionError(authState);
-  const expiresAt = normalizeExpiresAt(authState.session?.expiresAt ?? null);
-  const externalUserId = authState.session?.externalUserId ?? null;
-  const wasBaSignedInRef = useRef(false);
-  const chainRef = useRef(Promise.resolve());
+  const wasBaSignedInRef = { current: false };
+  const chainRef = { current: Promise.resolve() };
 
-  useEffect(() => {
-    if (!isHydrated) return;
-    const signedIn = isSignedIn;
-    const exp = expiresAt;
-    const ext = externalUserId;
-    const err = sessionError;
+  createEffect(() => {
+    const authState = args.authState();
+    if (!authState.isHydrated) return;
+    const signedIn = isAuthSessionSignedIn(authState);
+    const expiresAt = normalizeExpiresAt(authState.session?.expiresAt ?? null);
+    const externalUserId = authState.session?.externalUserId ?? null;
+    const sessionError = authSessionError(authState);
+    const deps = args.deps();
     chainRef.current = chainRef.current
       .catch(() => undefined)
       .then(async () => {
-        if (err !== null) {
-          deps.log.warn('auth session error', { error: err.message });
+        if (sessionError !== null) {
+          deps.log.warn('auth session error', { error: sessionError.message });
         }
         if (!signedIn) {
           const storedToken = new SessionCapabilityStore(
@@ -194,53 +195,51 @@ function useReconcileAuthSession(args: {
         }
         await handleBaSignedIn({
           deps,
-          port,
-          expiresAt: exp,
-          externalUserId: ext,
+          port: args.port,
+          expiresAt,
+          externalUserId,
         });
       });
-  }, [
-    isHydrated,
-    isSignedIn,
-    sessionError,
-    expiresAt,
-    externalUserId,
-    port,
-    deps,
-  ]);
+  });
+}
+
+function subscribeToForeground(onForeground: () => void): () => void {
+  if (typeof document === 'undefined') return () => undefined;
+  const onVisibilityChange = (): void => {
+    if (document.visibilityState === 'visible') onForeground();
+  };
+  document.addEventListener('visibilitychange', onVisibilityChange);
+  return () => {
+    document.removeEventListener('visibilitychange', onVisibilityChange);
+  };
 }
 
 function useRefreshOnAppForeground(args: {
-  enabled: boolean;
+  enabled: Accessor<boolean>;
   port: AuthClientPort;
-  tokenRef: TokenRef;
-  expiresAtRef: ExpiresAtRef;
-  externalUserIdRef: ExternalUserIdRef;
-  deps: AuthBridgeRefreshDeps;
+  expiresAt: Accessor<string | null>;
+  externalUserId: Accessor<string | null>;
+  deps: Accessor<AuthBridgeRefreshDeps>;
 }): void {
-  const { enabled, port, tokenRef, expiresAtRef, externalUserIdRef, deps } =
-    args;
-  useEffect(() => {
-    if (!enabled) return;
-    const onChange = (state: AppStateStatus): void => {
-      if (state !== 'active') return;
+  createEffect(() => {
+    if (!args.enabled()) return;
+    const unsubscribe = subscribeToForeground(() => {
       void (async () => {
+        const deps = args.deps();
         const token = await new SessionBearerTokenResolver(deps.timers).resolve(
-          port
+          args.port
         );
         if (token === null) return;
-        tokenRef.current = token;
         await new AuthBridgeRefresh(deps).runRefresh({
           token,
-          expiresAt: expiresAtRef.current,
-          externalUserId: externalUserIdRef.current,
+          expiresAt: args.expiresAt(),
+          externalUserId: args.externalUserId(),
           force: true,
         });
       })();
-    };
-    const sub = AppState.addEventListener('change', onChange);
-    return () => sub.remove();
-  }, [enabled, port, tokenRef, expiresAtRef, externalUserIdRef, deps]);
+    });
+    onCleanup(unsubscribe);
+  });
 }
 
 /**
@@ -248,82 +247,69 @@ function useRefreshOnAppForeground(args: {
  * refresh. IdP `useSession` is a ceremony/reconcile trigger only —
  * chrome reads secure storage.
  */
-export function AuthBridge(props: PropsWithChildren): ReactNode {
+export function AuthBridge(props: ParentProps): JSX.Element {
   const apiUrl = useConfigService().getApiUrl();
   const port = useAuthClientPort();
-  const authState = useSyncExternalStore(
-    port.session.subscribe,
-    port.session.getSnapshot
-  );
+  const authState = createSubscriptionSignal(port.session);
   const store = useSecureStorageStore();
   const deviceId = useDeviceId();
   const { fetch: fetchFn } = useHttpClient();
   const originAvailability = useOptionalOriginAvailability();
   const authToken = useFreshAuthToken();
-  const { isHydrated: tokenHydrated } = useSecureStorageItem(SESSION_TOKEN_KEY);
-  const { isHydrated: accountIdHydrated } = useSecureStorageItem(
-    LAST_LOCAL_ACCOUNT_ID_KEY
-  );
+  const tokenItem = createSecureStorageItem(SESSION_TOKEN_KEY);
+  const accountItem = createSecureStorageItem(LAST_LOCAL_ACCOUNT_ID_KEY);
+  const expiresItem = createSecureStorageItem(SESSION_EXPIRES_AT_KEY);
   const currentAccountId = useCurrentAccountId();
   const log = useLogger('auth-bridge');
   const timers = useTimers();
   const createId = useCreateId();
-  const lastSyncedTokenRef = useRef<string | null>(null);
-  const inFlightRef = useRef(false);
-  const pendingTokenRef = useRef<string | null>(null);
-  const tokenRef = useRef<string | null>(null);
-  const expiresAtRef = useRef<string | null>(null);
-  const externalUserIdRef = useRef<string | null>(null);
+  const lastSyncedTokenRef = { current: null as string | null };
+  const inFlightRef = { current: false };
+  const pendingTokenRef = { current: null as string | null };
 
-  tokenRef.current = authToken;
-  const storedExpires = useSecureStorageItem(SESSION_EXPIRES_AT_KEY);
-  expiresAtRef.current =
-    normalizeExpiresAt(authState.session?.expiresAt ?? null) ??
-    (typeof storedExpires.value === 'string' ? storedExpires.value : null);
-  externalUserIdRef.current =
-    authState.session?.externalUserId ??
-    new SessionCapabilityStore(store).readExternalUserId();
-
-  const deps = useMemo<AuthBridgeRefreshDeps>(
-    () => ({
-      apiUrl,
-      deviceId,
-      fetchFn,
-      store,
-      log,
-      timers,
-      createId,
-      lastSyncedTokenRef,
-      inFlightRef,
-      pendingTokenRef,
-      ...(originAvailability?.kind === 'health'
-        ? {
-            waitUntilAvailable: (signal?: AbortSignal | null) =>
-              originAvailability.waitUntilAvailable(signal),
-          }
-        : {}),
-    }),
-    [
-      apiUrl,
-      createId,
-      deviceId,
-      fetchFn,
-      originAvailability,
-      store,
-      log,
-      timers,
-    ]
+  const expiresAt = createMemo(
+    () =>
+      normalizeExpiresAt(authState().session?.expiresAt ?? null) ??
+      (typeof expiresItem.value() === 'string' ? expiresItem.value() : null)
   );
+  const externalUserId = createMemo(
+    () =>
+      authState().session?.externalUserId ??
+      new SessionCapabilityStore(store).readExternalUserId()
+  );
+  const deps = createMemo<AuthBridgeRefreshDeps>(() => ({
+    apiUrl,
+    deviceId: deviceId(),
+    fetchFn,
+    store,
+    log,
+    timers,
+    createId,
+    lastSyncedTokenRef,
+    inFlightRef,
+    pendingTokenRef,
+    ...(originAvailability?.kind === 'health'
+      ? {
+          waitUntilAvailable: (signal?: AbortSignal | null) =>
+            originAvailability.waitUntilAvailable(signal),
+        }
+      : {}),
+  }));
 
-  useStorageFirstBoot({ deps, tokenHydrated, accountIdHydrated });
+  useStorageFirstBoot({
+    deps,
+    tokenHydrated: tokenItem.isHydrated,
+    accountIdHydrated: accountItem.isHydrated,
+  });
   useClearStaleAccountOnExternalUserChange({ authState, deps });
   useReconcileAuthSession({ authState, port, deps });
   useRefreshOnAppForeground({
-    enabled: authToken !== null && currentAccountId !== null,
+    enabled: createMemo(
+      () => authToken() !== null && currentAccountId() !== null
+    ),
     port,
-    tokenRef,
-    expiresAtRef,
-    externalUserIdRef,
+    expiresAt,
+    externalUserId,
     deps,
   });
 

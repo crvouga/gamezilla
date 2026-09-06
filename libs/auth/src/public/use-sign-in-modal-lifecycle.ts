@@ -15,17 +15,12 @@
  */
 
 import type { AuthSessionState } from '@pkgs/auth/client/auth-session-state';
-import { useClock, useTimers } from '@pkgs/clock';
+import { useClock, useTimers } from '@pkgs/clock/solid';
 import type { SecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
-import { useSecureStorageStore } from '@pkgs/secure-storage/use-secure-storage-item';
-import { usePathname } from '@pkgs/ui-rn';
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  useSyncExternalStore,
-} from 'react';
+import { useSecureStorageStore } from '@pkgs/secure-storage/solid';
+import { createSubscriptionSignal } from '@pkgs/solid-context/subscription-signal';
+import { usePathname } from '@pkgs/ui';
+import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js';
 
 import { useAuthClientPort } from './auth-client-provider';
 import { authSessionError, isAuthSessionSignedIn } from './session-snapshot';
@@ -36,15 +31,15 @@ export type SignInPhase = 'idle' | 'loading' | 'success' | 'error';
 
 export type UseSignInModalLifecycleParams = {
   /** True once a non-stale pending marker is found on mount; resumes loading. */
-  resumePending: boolean;
+  resumePending: Accessor<boolean>;
   /** Side-effect notified on failure (e.g. structured logging). */
   onError?: ((error: Error) => void) | undefined;
 };
 
 export type UseSignInModalLifecycleResult = {
-  phase: SignInPhase;
-  /** Populated only while `phase === 'error'`; `null` for cancelled OAuth. */
-  error: Error | null;
+  phase: Accessor<SignInPhase>;
+  /** Populated only while `phase() === 'error'`; `null` for cancelled OAuth. */
+  error: Accessor<Error | null>;
   /** Begin a sign-in. Marks pending, then runs the redirect trigger. */
   start: (runner: () => Promise<void>) => Promise<void>;
   /** Return to the provider picker (idle) and drop any captured error. */
@@ -57,7 +52,7 @@ export type UseSignInModalLifecycleResult = {
 const RESUME_PENDING_TIMEOUT_MS = 12_000;
 
 function useResumePendingEffect(args: {
-  resumePending: boolean;
+  resumePending: Accessor<boolean>;
   /** True while `start()` is running on this page (pre-redirect). */
   startInFlightRef: { current: boolean };
   store: SecureStorageStore;
@@ -65,45 +60,29 @@ function useResumePendingEffect(args: {
   setAwaitingCallback: (value: boolean) => void;
   setError: (error: Error | null) => void;
 }): void {
-  const {
-    resumePending,
-    startInFlightRef,
-    store,
-    setPhase,
-    setAwaitingCallback,
-    setError,
-  } = args;
   const timers = useTimers();
-  useEffect(() => {
-    if (!resumePending) return;
+  createEffect(() => {
+    if (!args.resumePending()) return;
     // `markSignInPending` during start() flips resumePending on this same page
     // before Google loads — do not treat that as a completed OAuth return.
-    if (startInFlightRef.current) return;
-    setPhase('loading');
-    setAwaitingCallback(true);
-  }, [resumePending, startInFlightRef, setPhase, setAwaitingCallback]);
+    if (args.startInFlightRef.current) return;
+    args.setPhase('loading');
+    args.setAwaitingCallback(true);
+  });
 
-  useEffect(() => {
-    if (!resumePending || startInFlightRef.current) return;
+  createEffect(() => {
+    if (!args.resumePending() || args.startInFlightRef.current) return;
     const timer = timers.setTimeout(() => {
-      if (startInFlightRef.current) return;
-      void new SignInPendingStore(store).clear();
-      setAwaitingCallback(false);
-      setError(new Error('Sign-in timed out. Please try again.'));
-      setPhase('error');
+      if (args.startInFlightRef.current) return;
+      void new SignInPendingStore(args.store).clear();
+      args.setAwaitingCallback(false);
+      args.setError(new Error('Sign-in timed out. Please try again.'));
+      args.setPhase('error');
     }, RESUME_PENDING_TIMEOUT_MS);
-    return () => {
+    onCleanup(() => {
       timers.clearTimeout(timer);
-    };
-  }, [
-    resumePending,
-    startInFlightRef,
-    store,
-    setPhase,
-    setAwaitingCallback,
-    setError,
-    timers,
-  ]);
+    });
+  });
 }
 
 function isLocalOrBaSignedIn(args: {
@@ -122,108 +101,76 @@ function resolveSignInOutcome(args: {
   setError: (error: Error | null) => void;
   setPhase: (phase: SignInPhase) => void;
 }): void {
-  const {
-    authState,
-    localToken,
-    store,
-    onError,
-    setAwaitingCallback,
-    setError,
-    setPhase,
-  } = args;
-  if (isLocalOrBaSignedIn({ authState, localToken })) {
-    setAwaitingCallback(false);
-    setPhase('success');
+  if (isLocalOrBaSignedIn(args)) {
+    args.setAwaitingCallback(false);
+    args.setPhase('success');
     return;
   }
-  const err = authSessionError(authState);
+  const err = authSessionError(args.authState);
   if (err !== null) {
-    setAwaitingCallback(false);
-    void new SignInPendingStore(store).clear();
-    onError?.(err);
-    setError(err);
-    setPhase('error');
+    args.setAwaitingCallback(false);
+    void new SignInPendingStore(args.store).clear();
+    args.onError?.(err);
+    args.setError(err);
+    args.setPhase('error');
     return;
   }
   // Resume path only (awaitingCallback): hydrated signed-out with no error means
   // OAuth did not establish a session (cancel / handoff race). Do not hang.
-  if (!authState.isHydrated) return;
-  setAwaitingCallback(false);
-  void new SignInPendingStore(store).clear();
-  setError(null);
-  setPhase('error');
+  if (!args.authState.isHydrated) return;
+  args.setAwaitingCallback(false);
+  void new SignInPendingStore(args.store).clear();
+  args.setError(null);
+  args.setPhase('error');
 }
 
 function useSignInOutcomeEffect(args: {
-  phase: SignInPhase;
-  awaitingCallback: boolean;
-  resumePending: boolean;
+  phase: Accessor<SignInPhase>;
+  awaitingCallback: Accessor<boolean>;
+  resumePending: Accessor<boolean>;
   startInFlightRef: { current: boolean };
-  authState: AuthSessionState;
-  localToken: string | null;
+  authState: Accessor<AuthSessionState>;
+  localToken: Accessor<string | null>;
   store: SecureStorageStore;
   onError: ((error: Error) => void) | undefined;
   setAwaitingCallback: (value: boolean) => void;
   setError: (error: Error | null) => void;
   setPhase: (phase: SignInPhase) => void;
 }): void {
-  const {
-    phase,
-    awaitingCallback,
-    resumePending,
-    startInFlightRef,
-    authState,
-    localToken,
-    store,
-    onError,
-    setAwaitingCallback,
-    setError,
-    setPhase,
-  } = args;
-  useEffect(() => {
+  createEffect(() => {
+    const authState = args.authState();
+    const localToken = args.localToken();
     if (!authState.isHydrated && localToken === null) return;
     // Same-page redirect handoff: keep loading until the document unloads.
-    if (startInFlightRef.current) return;
+    if (args.startInFlightRef.current) return;
 
     // OAuth return: never leave the provider picker up once the session exists.
     if (
-      resumePending &&
+      args.resumePending() &&
       isLocalOrBaSignedIn({ authState, localToken }) &&
-      phase !== 'success'
+      args.phase() !== 'success'
     ) {
-      setAwaitingCallback(false);
-      setPhase('success');
+      args.setAwaitingCallback(false);
+      args.setPhase('success');
       return;
     }
 
-    if (phase !== 'loading' || !awaitingCallback) return;
+    if (args.phase() !== 'loading' || !args.awaitingCallback()) return;
     resolveSignInOutcome({
       authState,
       localToken,
-      store,
-      onError,
-      setAwaitingCallback,
-      setError,
-      setPhase,
+      store: args.store,
+      onError: args.onError,
+      setAwaitingCallback: args.setAwaitingCallback,
+      setError: args.setError,
+      setPhase: args.setPhase,
     });
-  }, [
-    phase,
-    awaitingCallback,
-    resumePending,
-    startInFlightRef,
-    authState,
-    localToken,
-    store,
-    onError,
-    setAwaitingCallback,
-    setError,
-    setPhase,
-  ]);
+  });
 }
 
-function useSignInStart(args: {
+function createSignInStart(args: {
   store: SecureStorageStore;
-  pathname: string;
+  pathname: Accessor<string>;
   now: () => number;
   startInFlightRef: { current: boolean };
   onError: ((error: Error) => void) | undefined;
@@ -231,53 +178,31 @@ function useSignInStart(args: {
   setError: (error: Error | null) => void;
   setPhase: (phase: SignInPhase) => void;
 }): (runner: () => Promise<void>) => Promise<void> {
-  const {
-    store,
-    pathname,
-    now,
-    startInFlightRef,
-    onError,
-    setAwaitingCallback,
-    setError,
-    setPhase,
-  } = args;
-  return useCallback(
-    async (runner: () => Promise<void>): Promise<void> => {
-      setError(null);
-      setPhase('loading');
-      startInFlightRef.current = true;
-      const returnHref = resolveSignInReturnHref(pathname);
-      try {
-        void new SignInPendingStore(store).mark(now, {
-          ...(returnHref !== undefined ? { returnHref } : {}),
-        });
-        await runner();
-      } catch (e) {
-        startInFlightRef.current = false;
-        await new SignInPendingStore(store).clear();
-        const err = e instanceof Error ? e : new Error(String(e));
-        onError?.(err);
-        setError(err);
-        setPhase('error');
-        return;
-      }
-      // Native AuthSession: runner only resolves after SSO finalize. Web
-      // same-tab redirect never reaches here (`location.assign` + waitUntilUnload).
-      startInFlightRef.current = false;
-      setAwaitingCallback(false);
-      setPhase('success');
-    },
-    [
-      store,
-      now,
-      onError,
-      pathname,
-      startInFlightRef,
-      setAwaitingCallback,
-      setError,
-      setPhase,
-    ]
-  );
+  return async (runner: () => Promise<void>): Promise<void> => {
+    args.setError(null);
+    args.setPhase('loading');
+    args.startInFlightRef.current = true;
+    const returnHref = resolveSignInReturnHref(args.pathname());
+    try {
+      void new SignInPendingStore(args.store).mark(args.now, {
+        ...(returnHref !== undefined ? { returnHref } : {}),
+      });
+      await runner();
+    } catch (e) {
+      args.startInFlightRef.current = false;
+      await new SignInPendingStore(args.store).clear();
+      const err = e instanceof Error ? e : new Error(String(e));
+      args.onError?.(err);
+      args.setError(err);
+      args.setPhase('error');
+      return;
+    }
+    // Native AuthSession: runner only resolves after SSO finalize. Web
+    // same-tab redirect never reaches here (`location.assign` + waitUntilUnload).
+    args.startInFlightRef.current = false;
+    args.setAwaitingCallback(false);
+    args.setPhase('success');
+  };
 }
 
 export function useSignInModalLifecycle({
@@ -287,18 +212,15 @@ export function useSignInModalLifecycle({
   const store = useSecureStorageStore();
   const port = useAuthClientPort();
   const pathname = usePathname();
-  const { now } = useClock();
-  const authState = useSyncExternalStore(
-    port.session.subscribe,
-    port.session.getSnapshot
-  );
+  const clock = useClock();
+  const authState = createSubscriptionSignal(port.session);
   const localToken = useFreshAuthToken();
-  const startInFlightRef = useRef(false);
-  const [phase, setPhase] = useState<SignInPhase>(() =>
-    resumePending ? 'loading' : 'idle'
+  const startInFlightRef = { current: false };
+  const [phase, setPhase] = createSignal<SignInPhase>(
+    resumePending() ? 'loading' : 'idle'
   );
-  const [error, setError] = useState<Error | null>(null);
-  const [awaitingCallback, setAwaitingCallback] = useState(resumePending);
+  const [error, setError] = createSignal<Error | null>(null);
+  const [awaitingCallback, setAwaitingCallback] = createSignal(resumePending());
 
   useResumePendingEffect({
     resumePending,
@@ -322,10 +244,10 @@ export function useSignInModalLifecycle({
     setPhase,
   });
 
-  const start = useSignInStart({
+  const start = createSignInStart({
     store,
     pathname,
-    now,
+    now: () => clock.now(),
     startInFlightRef,
     onError,
     setAwaitingCallback,
@@ -333,17 +255,17 @@ export function useSignInModalLifecycle({
     setPhase,
   });
 
-  const reset = useCallback(() => {
+  const reset = () => {
     startInFlightRef.current = false;
     setPhase('idle');
     setError(null);
     setAwaitingCallback(false);
-  }, [startInFlightRef]);
+  };
 
-  const dismiss = useCallback(() => {
+  const dismiss = () => {
     void new SignInPendingStore(store).clear();
     reset();
-  }, [store, reset]);
+  };
 
   return { phase, error, start, reset, dismiss };
 }

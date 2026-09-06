@@ -1,52 +1,41 @@
-import { useClock } from '@pkgs/clock';
+import { useClock } from '@pkgs/clock/solid';
+import type { MutationRegistry } from '@pkgs/sync-engine/shared';
 import {
   MutationClientProvider as SyncMutationClientProvider,
   useMutationClient,
-} from '@pkgs/sync-engine/client';
-import type { MutationRegistry } from '@pkgs/sync-engine/shared';
-import { useCreateId } from '@pkgs/uuid';
-import { type ReactNode, useMemo } from 'react';
+} from '@pkgs/sync-engine/solid';
+import { useCreateId } from '@pkgs/uuid/solid';
+import { type JSX, type ParentProps, untrack } from 'solid-js';
 
 import { useRulesAuth } from './use-rules-auth';
 
 export { useMutationClient };
 
 /** Product wrapper: injects rules auth into the sync-engine mutation client. */
-export function MutationClientProvider({
-  children,
-  registry,
-}: {
-  readonly children: ReactNode;
-  readonly registry: MutationRegistry;
-}): ReactNode {
+export function MutationClientProvider(
+  props: ParentProps<{ readonly registry: MutationRegistry }>
+): JSX.Element {
   const auth = useRulesAuth();
   const clock = useClock();
   const createId = useCreateId();
-  const env = useMemo(
-    () => ({
-      actorId: auth.userId,
-      deviceId: auth.deviceId,
-      accountId: auth.accountId,
-      isAnon: auth.isAnon,
-      now: () => new Date(clock.now()),
-      createId,
-    }),
-    [auth.accountId, auth.deviceId, auth.isAnon, auth.userId, clock, createId]
-  );
-  const ids = useMemo(
-    () => ({
-      clientId: auth.deviceId,
-    }),
-    [auth.deviceId]
-  );
+  // Configuration for the sync provider: read once on mount by design.
+  const env = untrack(() => ({
+    actorId: auth.userId,
+    deviceId: auth.deviceId,
+    accountId: auth.accountId,
+    isAnon: auth.isAnon,
+    now: () => new Date(clock.now()),
+    createId,
+  }));
+  const ids = untrack(() => ({ clientId: auth.deviceId }));
   return (
     <SyncMutationClientProvider
-      registry={registry}
+      registry={props.registry}
       env={env}
       ids={ids}
       createId={createId}
     >
-      {children}
+      {props.children}
     </SyncMutationClientProvider>
   );
 }

@@ -1,30 +1,25 @@
-import { Trans } from '@lingui/react/macro';
-import { Box, type Href, ScreenBase, useRouter } from '@pkgs/ui-rn';
-import { useBreadcrumbNav } from '@pkgs/ui-rn/components/use-breadcrumb-nav';
-import { useCallback } from 'react';
+import { Trans } from '@lingui/solid/macro';
+import { Box, ScreenBase, useRouter } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 import { useMyAccountId } from '../../../public/use-current-user';
 import { AccountDevicesCard } from './account-devices-card';
 
-export function AccountDevicesScreen() {
-  const nav = useBreadcrumbNav();
+export function AccountDevicesScreen(): JSX.Element {
   const router = useRouter();
   const accountId = useMyAccountId();
-  const onOpenDevice = useCallback(
-    (deviceId: string) => {
-      router.push(`/more/account/device/${deviceId}` as Href);
-    },
-    [router]
-  );
+  const onOpenDevice = (deviceId: string) => {
+    router.push(`/more/account/device/${deviceId}`);
+  };
 
   return (
     <ScreenBase
       screenId="account-devices"
       breadcrumbs={[
-        { name: <Trans>Spaces</Trans>, onPress: nav('/') },
-        { name: <Trans>Settings</Trans>, onPress: nav('/more') },
+        { name: <Trans>Spaces</Trans>, href: '/' },
+        { name: <Trans>Settings</Trans>, href: '/more' },
         {
           name: <Trans>Account</Trans>,
-          onPress: nav('/more/account'),
+          href: '/more/account',
         },
         { name: <Trans>Devices</Trans> },
       ]}
@@ -32,7 +27,7 @@ export function AccountDevicesScreen() {
       content={({ sx }) => (
         <Box sx={[sx, { gap: 5 }]}>
           <AccountDevicesCard
-            accountId={accountId}
+            accountId={accountId()}
             onOpenDevice={onOpenDevice}
           />
         </Box>

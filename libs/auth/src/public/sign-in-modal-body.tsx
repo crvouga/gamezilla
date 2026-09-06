@@ -1,73 +1,70 @@
 import { Handles } from '@libs/test-ids';
 import { t } from '@lingui/core/macro';
-import { Trans } from '@lingui/react/macro';
+import { Trans } from '@lingui/solid/macro';
 import {
   Box,
   LoadingState,
   ModalBody,
   SocialSignInButton,
   Text,
-} from '@pkgs/ui-rn';
+} from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+import { Show } from 'solid-js';
 
 export function SignInModalBody(props: {
-  methodsLoading?: boolean;
+  methodsLoading?: boolean | undefined;
   googleAvailable: boolean;
   devOauthAvailable: boolean;
   signInUnavailableReason: string | null;
   onPressGoogle: () => void;
   onPressDev: () => void;
-}) {
-  const {
-    methodsLoading = false,
-    googleAvailable,
-    devOauthAvailable,
-    signInUnavailableReason,
-    onPressGoogle,
-    onPressDev,
-  } = props;
-  const anyMethod = googleAvailable || devOauthAvailable;
+}): JSX.Element {
+  const methodsLoading = () => props.methodsLoading === true;
+  const anyMethod = () => props.googleAvailable || props.devOauthAvailable;
 
   return (
     <ModalBody>
       <Box sx={{ marginTop: 3, alignSelf: 'stretch', gap: 2 }}>
-        {methodsLoading ? (
+        <Show when={methodsLoading()}>
           <LoadingState caption={<Trans>Loading sign-in methods…</Trans>} />
-        ) : null}
+        </Show>
 
-        {!methodsLoading && anyMethod ? (
+        <Show when={!methodsLoading() && anyMethod()}>
           <Text
             variant="caption"
             sx={{ color: 'textSecondary' }}
             label={<Trans>Choose a sign-in method</Trans>}
           />
-        ) : null}
+        </Show>
 
-        {!methodsLoading && googleAvailable ? (
+        <Show when={!methodsLoading() && props.googleAvailable}>
           <SocialSignInButton
             provider="google"
             action="signIn"
-            theme={'light' as const}
-            onPress={onPressGoogle}
+            theme="light"
+            onClick={() => props.onPressGoogle()}
           />
-        ) : null}
+        </Show>
 
-        {!methodsLoading && devOauthAvailable ? (
+        <Show when={!methodsLoading() && props.devOauthAvailable}>
           <SocialSignInButton
             provider="dev"
             action="signIn"
-            theme={'neutral' as const}
-            onPress={onPressDev}
-            testID={Handles.authMethodDev}
+            theme="neutral"
+            onClick={() => props.onPressDev()}
+            dataSet={{ testid: Handles.authMethodDev }}
           />
-        ) : null}
+        </Show>
 
-        {!methodsLoading && !anyMethod ? (
+        <Show when={!methodsLoading() && !anyMethod()}>
           <Text
             variant="caption"
             sx={{ color: 'textSecondary' }}
-            label={signInUnavailableReason ?? t`Sign-in is not available.`}
+            label={
+              props.signInUnavailableReason ?? t`Sign-in is not available.`
+            }
           />
-        ) : null}
+        </Show>
       </Box>
     </ModalBody>
   );

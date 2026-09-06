@@ -1,5 +1,6 @@
-import { Text } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Text } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+import { createMemo } from 'solid-js';
 import { EM_DASH } from '../device-parsers';
 import { useDeviceColumn } from '../use-device-column';
 
@@ -8,9 +9,10 @@ export type AccountDevicePlatformTextProps = {
 };
 
 /** `devices.platform` value, with em-dash fallback. */
-export function AccountDevicePlatformText({
-  deviceId,
-}: AccountDevicePlatformTextProps): ReactNode {
-  const platform = useDeviceColumn(deviceId, 'platform');
-  return <Text variant="body" numberOfLines={4} label={platform ?? EM_DASH} />;
+export function AccountDevicePlatformText(
+  props: AccountDevicePlatformTextProps
+): JSX.Element {
+  const platform = useDeviceColumn(props.deviceId, 'platform');
+  const label = createMemo(() => platform() ?? EM_DASH);
+  return <Text variant="body" numberOfLines={4} label={label()} />;
 }

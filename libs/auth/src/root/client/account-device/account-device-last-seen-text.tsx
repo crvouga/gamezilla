@@ -1,5 +1,6 @@
-import { Text } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Text } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+import { createMemo } from 'solid-js';
 import { formatTimestamp } from '../device-parsers';
 import { useDeviceColumn } from '../use-device-column';
 
@@ -8,15 +9,10 @@ export type AccountDeviceLastSeenTextProps = {
 };
 
 /** Last-seen timestamp. */
-export function AccountDeviceLastSeenText({
-  deviceId,
-}: AccountDeviceLastSeenTextProps): ReactNode {
-  const lastSeenAt = useDeviceColumn(deviceId, 'lastSeenAt');
-  return (
-    <Text
-      variant="body"
-      numberOfLines={4}
-      label={formatTimestamp(lastSeenAt)}
-    />
-  );
+export function AccountDeviceLastSeenText(
+  props: AccountDeviceLastSeenTextProps
+): JSX.Element {
+  const lastSeenAt = useDeviceColumn(props.deviceId, 'lastSeenAt');
+  const label = createMemo(() => formatTimestamp(lastSeenAt()));
+  return <Text variant="body" numberOfLines={4} label={label()} />;
 }

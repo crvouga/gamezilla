@@ -6,7 +6,7 @@ import {
   SIGN_IN_RETURN_FALLBACK_HREF,
   sanitizeSignInReturnHref,
   signInReturnHrefFromPending,
-} from '../../public/sign-in-pending';
+} from '../../public/sign-in-pending-parse';
 
 const adapters = createSimAdapters({ seed: 1 });
 

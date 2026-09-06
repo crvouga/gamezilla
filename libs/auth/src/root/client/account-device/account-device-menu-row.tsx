@@ -1,6 +1,5 @@
-import { Box, ChevronRightIcon, MenuRow, SmartphoneIcon } from '@pkgs/ui-rn';
-import { useTheme } from '@pkgs/ui-rn/theme';
-import type { ReactNode } from 'react';
+import { Box, ChevronRightIcon, MenuRow, SmartphoneIcon } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 import { AccountDeviceCurrentBadge } from './account-device-current-badge';
 import { AccountDeviceListCaptionText } from './account-device-list-caption-text';
 import { AccountDeviceListTitleText } from './account-device-list-title-text';
@@ -14,37 +13,36 @@ export type AccountDeviceMenuRowProps = {
 /** Composed device row: title + captions + current badge + chevron. */
 const ROW_ICON_SIZE = 20;
 
-export function AccountDeviceMenuRow({
-  deviceId,
-  onOpenDevice,
-}: AccountDeviceMenuRowProps): ReactNode {
-  const theme = useTheme();
+export function AccountDeviceMenuRow(
+  props: AccountDeviceMenuRowProps
+): JSX.Element {
   return (
     <MenuRow
       title={
-        <AccountDeviceListTitleText deviceId={deviceId} numberOfLines={1} />
+        <AccountDeviceListTitleText
+          deviceId={props.deviceId}
+          numberOfLines={1}
+        />
       }
       caption={
         <Box sx={{ gap: 0.5 }}>
           <AccountDeviceListCaptionText
-            deviceId={deviceId}
+            deviceId={props.deviceId}
             variant="caption"
             numberOfLines={1}
             sx={{ color: 'textSecondary' }}
           />
-          <AccountDeviceSessionCaptionText deviceId={deviceId} />
+          <AccountDeviceSessionCaptionText deviceId={props.deviceId} />
         </Box>
       }
-      leading={
-        <SmartphoneIcon size={ROW_ICON_SIZE} color={theme.colors.icon} />
-      }
+      leading={<SmartphoneIcon size={ROW_ICON_SIZE} color="icon" />}
       trailing={
         <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
-          <AccountDeviceCurrentBadge deviceId={deviceId} />
-          <ChevronRightIcon size={20} color={theme.colors.icon} />
+          <AccountDeviceCurrentBadge deviceId={props.deviceId} />
+          <ChevronRightIcon size={20} color="icon" />
         </Box>
       }
-      onPress={() => onOpenDevice(deviceId)}
+      onClick={() => props.onOpenDevice(props.deviceId)}
     />
   );
 }

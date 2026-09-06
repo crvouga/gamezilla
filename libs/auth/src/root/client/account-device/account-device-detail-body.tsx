@@ -1,6 +1,6 @@
-import { Trans } from '@lingui/react/macro';
-import { Box, MenuSection } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Trans } from '@lingui/solid/macro';
+import { MenuSection } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 import { AccountDeviceActiveSessionLine } from './account-device-active-session-line';
 import { AccountDeviceIdField } from './account-device-id-field';
 import { AccountDeviceMetaGrid } from './account-device-meta-grid';
@@ -11,21 +11,19 @@ export type AccountDeviceDetailBodyProps = {
 };
 
 /** Pure layout for a device detail body — meta rows, sessions, id, UA. */
-export function AccountDeviceDetailBody({
-  deviceId,
-}: AccountDeviceDetailBodyProps): ReactNode {
+export function AccountDeviceDetailBody(
+  props: AccountDeviceDetailBodyProps
+): JSX.Element {
   return (
     <>
-      <AccountDeviceMetaGrid deviceId={deviceId} />
+      <AccountDeviceMetaGrid deviceId={props.deviceId} />
       <MenuSection
         title={<Trans>Sessions</Trans>}
-        footer={<AccountDeviceUserAgentBlock deviceId={deviceId} />}
+        footer={<AccountDeviceUserAgentBlock deviceId={props.deviceId} />}
       >
-        <AccountDeviceActiveSessionLine deviceId={deviceId} />
+        <AccountDeviceActiveSessionLine deviceId={props.deviceId} />
       </MenuSection>
-      <Box>
-        <AccountDeviceIdField deviceId={deviceId} />
-      </Box>
+      <AccountDeviceIdField deviceId={props.deviceId} />
     </>
   );
 }

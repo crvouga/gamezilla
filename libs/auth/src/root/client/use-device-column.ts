@@ -1,6 +1,8 @@
 import { sql } from '@pkgs/sql';
 
-import { useQuery } from '@pkgs/sync-engine/client';
+import { createQuery } from '@pkgs/sync-engine/solid';
+import type { Accessor } from 'solid-js';
+import { createMemo } from 'solid-js';
 
 export const DeviceField = {
   id: 'id',
@@ -61,10 +63,12 @@ function deviceRowByIdSql(deviceId: string) {
 export function useDeviceColumn(
   deviceId: string,
   field: DeviceFieldKey
-): string | null {
+): Accessor<string | null> {
   const column = DeviceField[field];
-  const { rows } = useQuery(deviceRowByIdSql(deviceId));
-  const row = rows[0] ?? null;
-  const value = row?.[column];
-  return typeof value === 'string' ? value : null;
+  const { rows } = createQuery(() => deviceRowByIdSql(deviceId));
+  return createMemo(() => {
+    const row = rows()[0] ?? null;
+    const value = row?.[column];
+    return typeof value === 'string' ? value : null;
+  });
 }

@@ -1,6 +1,7 @@
-import { Trans } from '@lingui/react/macro';
-import { Badge } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Trans } from '@lingui/solid/macro';
+import { Badge } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+import { Show } from 'solid-js';
 import { useDeviceIsCurrent } from '../use-device-is-current';
 
 export type AccountDeviceCurrentBadgeProps = {
@@ -8,10 +9,13 @@ export type AccountDeviceCurrentBadgeProps = {
 };
 
 /** "This device" badge — renders only when `deviceId` is the current install. */
-export function AccountDeviceCurrentBadge({
-  deviceId,
-}: AccountDeviceCurrentBadgeProps): ReactNode {
-  const isCurrent = useDeviceIsCurrent(deviceId);
-  if (!isCurrent) return null;
-  return <Badge label={<Trans>This device</Trans>} intent="info" size="sm" />;
+export function AccountDeviceCurrentBadge(
+  props: AccountDeviceCurrentBadgeProps
+): JSX.Element {
+  const isCurrent = useDeviceIsCurrent(props.deviceId);
+  return (
+    <Show when={isCurrent()}>
+      <Badge label={<Trans>This device</Trans>} intent="info" size="sm" />
+    </Show>
+  );
 }

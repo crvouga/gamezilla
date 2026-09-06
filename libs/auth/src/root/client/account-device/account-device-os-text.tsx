@@ -1,5 +1,6 @@
-import { Text } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Text } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+import { createMemo } from 'solid-js';
 import { EM_DASH } from '../device-parsers';
 import { useDeviceColumn } from '../use-device-column';
 
@@ -8,14 +9,17 @@ export type AccountDeviceOsTextProps = {
 };
 
 /** OS name + version. */
-export function AccountDeviceOsText({
-  deviceId,
-}: AccountDeviceOsTextProps): ReactNode {
-  const osName = useDeviceColumn(deviceId, 'osName');
-  const osVersion = useDeviceColumn(deviceId, 'osVersion');
-  const label =
-    osName === null && osVersion === null
+export function AccountDeviceOsText(
+  props: AccountDeviceOsTextProps
+): JSX.Element {
+  const osName = useDeviceColumn(props.deviceId, 'osName');
+  const osVersion = useDeviceColumn(props.deviceId, 'osVersion');
+  const label = createMemo(() => {
+    const name = osName();
+    const version = osVersion();
+    return name === null && version === null
       ? EM_DASH
-      : [osName, osVersion].filter((v) => v !== null).join(' ');
-  return <Text variant="body" numberOfLines={4} label={label} />;
+      : [name, version].filter((v) => v !== null).join(' ');
+  });
+  return <Text variant="body" numberOfLines={4} label={label()} />;
 }

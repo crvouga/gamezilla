@@ -1,6 +1,6 @@
-import { Trans } from '@lingui/react/macro';
-import { MenuSection } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Trans } from '@lingui/solid/macro';
+import { MenuSection } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 import { AccountDeviceAppText } from './account-device-app-text';
 import { AccountDeviceCreatedText } from './account-device-created-text';
 import { AccountDeviceFirstSeenText } from './account-device-first-seen-text';
@@ -16,45 +16,45 @@ export type AccountDeviceMetaGridProps = {
 };
 
 /** Detail rows for a device's meta attributes. */
-export function AccountDeviceMetaGrid({
-  deviceId,
-}: AccountDeviceMetaGridProps): ReactNode {
+export function AccountDeviceMetaGrid(
+  props: AccountDeviceMetaGridProps
+): JSX.Element {
   return (
     <>
       <MenuSection title={<Trans>Device</Trans>}>
         <AccountDeviceMetaPair
           label={<Trans>Platform</Trans>}
-          valueAtom={<AccountDevicePlatformText deviceId={deviceId} />}
+          valueAtom={<AccountDevicePlatformText deviceId={props.deviceId} />}
         />
         <AccountDeviceMetaPair
           label={<Trans>OS</Trans>}
-          valueAtom={<AccountDeviceOsText deviceId={deviceId} />}
+          valueAtom={<AccountDeviceOsText deviceId={props.deviceId} />}
         />
         <AccountDeviceMetaPair
           label={<Trans>Device name</Trans>}
-          valueAtom={<AccountDeviceNameText deviceId={deviceId} />}
+          valueAtom={<AccountDeviceNameText deviceId={props.deviceId} />}
         />
         <AccountDeviceMetaPair
           label={<Trans>Model</Trans>}
-          valueAtom={<AccountDeviceModelText deviceId={deviceId} />}
+          valueAtom={<AccountDeviceModelText deviceId={props.deviceId} />}
         />
         <AccountDeviceMetaPair
           label={<Trans>App</Trans>}
-          valueAtom={<AccountDeviceAppText deviceId={deviceId} />}
+          valueAtom={<AccountDeviceAppText deviceId={props.deviceId} />}
         />
       </MenuSection>
       <MenuSection title={<Trans>Activity</Trans>}>
         <AccountDeviceMetaPair
           label={<Trans>First seen</Trans>}
-          valueAtom={<AccountDeviceFirstSeenText deviceId={deviceId} />}
+          valueAtom={<AccountDeviceFirstSeenText deviceId={props.deviceId} />}
         />
         <AccountDeviceMetaPair
           label={<Trans>Last seen</Trans>}
-          valueAtom={<AccountDeviceLastSeenText deviceId={deviceId} />}
+          valueAtom={<AccountDeviceLastSeenText deviceId={props.deviceId} />}
         />
         <AccountDeviceMetaPair
           label={<Trans>Created</Trans>}
-          valueAtom={<AccountDeviceCreatedText deviceId={deviceId} />}
+          valueAtom={<AccountDeviceCreatedText deviceId={props.deviceId} />}
         />
       </MenuSection>
     </>

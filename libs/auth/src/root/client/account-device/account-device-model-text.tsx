@@ -1,5 +1,6 @@
-import { Text } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Text } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+import { createMemo } from 'solid-js';
 import { EM_DASH } from '../device-parsers';
 import { useDeviceColumn } from '../use-device-column';
 
@@ -8,9 +9,10 @@ export type AccountDeviceModelTextProps = {
 };
 
 /** Device model name. */
-export function AccountDeviceModelText({
-  deviceId,
-}: AccountDeviceModelTextProps): ReactNode {
-  const model = useDeviceColumn(deviceId, 'deviceModelName');
-  return <Text variant="body" numberOfLines={4} label={model ?? EM_DASH} />;
+export function AccountDeviceModelText(
+  props: AccountDeviceModelTextProps
+): JSX.Element {
+  const model = useDeviceColumn(props.deviceId, 'deviceModelName');
+  const label = createMemo(() => model() ?? EM_DASH);
+  return <Text variant="body" numberOfLines={4} label={label()} />;
 }

@@ -7,18 +7,25 @@
  */
 
 import { Handles } from '@libs/test-ids';
-import { useLingui } from '@lingui/react/macro';
+import { useLingui } from '@lingui/solid/macro';
 import {
   Box,
   ErrorState,
+  FadeSwitch,
   LoadingState,
   ModalButton,
   ModalFooter,
-  MutationStateTransition,
   ResponsiveSurface,
   SuccessState,
-} from '@pkgs/ui-rn';
-import { type ReactNode, useCallback, useEffect, useRef } from 'react';
+} from '@pkgs/ui';
+import {
+  type Accessor,
+  createEffect,
+  type JSX,
+  Match,
+  on,
+  Switch,
+} from 'solid-js';
 import { SignInIdleBody, SignInIdleFooter } from './sign-in-idle-content';
 import {
   type SignInPhase,
@@ -31,7 +38,7 @@ export type SignInModalProps = {
   /** True when resuming a sign-in that began before an OAuth redirect. */
   resumePending: boolean;
   /** True while synced sign-in method flags are still loading. */
-  methodsLoading?: boolean;
+  methodsLoading?: boolean | undefined;
   googleAvailable: boolean;
   devOauthAvailable: boolean;
   signInUnavailableReason: string | null;
@@ -42,120 +49,120 @@ export type SignInModalProps = {
 
 const STATE_AREA_MIN_HEIGHT = 200;
 
-function useResetOnClose(
-  visible: boolean,
-  phase: SignInPhase,
-  reset: () => void,
-  _resetStep: () => void
-): void {
-  const phaseRef = useRef<SignInPhase>(phase);
-  phaseRef.current = phase;
-  const wasVisibleRef = useRef(false);
-  useEffect(() => {
-    if (visible) {
-      wasVisibleRef.current = true;
-      return;
-    }
-    if (!wasVisibleRef.current) return;
-    if (phaseRef.current === 'loading') return;
-    if (phaseRef.current === 'success') return;
-    reset();
-  }, [visible, reset]);
+function useResetOnClose(args: {
+  visible: () => boolean;
+  phase: Accessor<SignInPhase>;
+  reset: () => void;
+}): void {
+  const wasVisibleRef = { current: false };
+  createEffect(
+    on(
+      args.visible,
+      (visible) => {
+        if (visible) {
+          wasVisibleRef.current = true;
+          return;
+        }
+        if (!wasVisibleRef.current) return;
+        const phase = args.phase();
+        if (phase === 'loading') return;
+        if (phase === 'success') return;
+        args.reset();
+      },
+      { defer: true }
+    )
+  );
 }
 
-export function SignInModal(props: SignInModalProps): ReactNode {
+export function SignInModal(props: SignInModalProps): JSX.Element {
   const { t } = useLingui();
-  const {
-    visible,
-    onClose,
-    resumePending,
-    methodsLoading = false,
-    googleAvailable,
-    devOauthAvailable,
-    onError,
-  } = props;
-  const { phase, error, start, reset, dismiss } = useSignInModalLifecycle({
-    resumePending,
-    ...(onError !== undefined ? { onError } : {}),
+  const lifecycle = useSignInModalLifecycle({
+    resumePending: () => props.resumePending,
+    ...(props.onError !== undefined ? { onError: props.onError } : {}),
   });
-  useResetOnClose(visible, phase, reset, () => undefined);
+  useResetOnClose({
+    visible: () => props.visible,
+    phase: lifecycle.phase,
+    reset: lifecycle.reset,
+  });
 
-  const anyMethod = googleAvailable || devOauthAvailable;
-  const trigger = useCallback(
-    (runner: () => Promise<void>) => {
-      if (!anyMethod || phase === 'loading') return;
-      void start(runner);
-    },
-    [anyMethod, phase, start]
-  );
+  const anyMethod = () => props.googleAvailable || props.devOauthAvailable;
+  const trigger = (runner: () => Promise<void>) => {
+    if (!anyMethod() || lifecycle.phase() === 'loading') return;
+    void lifecycle.start(runner);
+  };
 
-  const dismissModal = useCallback(() => {
-    dismiss();
-    onClose();
-  }, [dismiss, onClose]);
+  const dismissModal = () => {
+    lifecycle.dismiss();
+    props.onClose();
+  };
 
-  const surfaceClose =
-    phase === 'loading' && !resumePending ? () => undefined : dismissModal;
+  const surfaceClose = () => {
+    if (lifecycle.phase() === 'loading' && !props.resumePending) return;
+    dismissModal();
+  };
 
   return (
     <ResponsiveSurface
-      visible={visible}
+      visible={props.visible}
       onClose={surfaceClose}
       title={t`Sign in`}
       presentation="modal"
-      closeTestID={Handles.authModalClose}
+      closeDataSet={{ testid: Handles.authModalClose }}
     >
-      <MutationStateTransition stateKey={phase} active={visible}>
+      <FadeSwitch stateKey={lifecycle.phase()}>
         <SignInPhaseContent
-          phase={phase}
-          error={error}
-          onClose={onClose}
+          phase={lifecycle.phase}
+          error={lifecycle.error}
+          onClose={props.onClose}
           onDismiss={dismissModal}
-          onRetry={reset}
+          onRetry={lifecycle.reset}
           idleBody={
             <SignInIdleBody
-              methodsLoading={methodsLoading}
-              googleAvailable={googleAvailable}
-              devOauthAvailable={devOauthAvailable}
+              methodsLoading={props.methodsLoading}
+              googleAvailable={props.googleAvailable}
+              devOauthAvailable={props.devOauthAvailable}
               signInUnavailableReason={props.signInUnavailableReason}
-              onPressGoogle={() => trigger(props.onSignInWithGoogle)}
-              onPressDev={() => trigger(props.onSignInWithDev)}
+              onPressGoogle={() => {
+                trigger(props.onSignInWithGoogle);
+              }}
+              onPressDev={() => {
+                trigger(props.onSignInWithDev);
+              }}
             />
           }
-          idleFooter={<SignInIdleFooter onClose={onClose} />}
+          idleFooter={<SignInIdleFooter onClose={props.onClose} />}
         />
-      </MutationStateTransition>
+      </FadeSwitch>
     </ResponsiveSurface>
   );
 }
 
-function SignInPhaseContent({
-  phase,
-  error,
-  onClose,
-  onDismiss,
-  onRetry,
-  idleBody,
-  idleFooter,
-}: {
-  phase: SignInPhase;
-  error: Error | null;
+function SignInPhaseContent(props: {
+  phase: Accessor<SignInPhase>;
+  error: Accessor<Error | null>;
   onClose: () => void;
   onDismiss: () => void;
   onRetry: () => void;
-  idleBody: ReactNode;
-  idleFooter: ReactNode;
-}): ReactNode {
+  idleBody: JSX.Element;
+  idleFooter: JSX.Element;
+}): JSX.Element {
   const { t } = useLingui();
-  switch (phase) {
-    case 'loading':
-      return (
+  return (
+    <Switch
+      fallback={
+        <>
+          {props.idleBody}
+          <ModalFooter>{props.idleFooter}</ModalFooter>
+        </>
+      }
+    >
+      <Match when={props.phase() === 'loading'}>
         <StateArea>
           <LoadingState caption={t`Signing in…`} />
         </StateArea>
-      );
-    case 'success':
-      return (
+      </Match>
+      <Match when={props.phase() === 'success'}>
         <>
           <StateArea>
             <SuccessState
@@ -166,56 +173,55 @@ function SignInPhaseContent({
           <ModalFooter>
             <ModalButton
               label={t`Done`}
-              onPress={onDismiss}
-              testID={Handles.authSignedInDone}
+              onClick={props.onDismiss}
+              dataSet={{ testid: Handles.authSignedInDone }}
             />
           </ModalFooter>
         </>
-      );
-    case 'error':
-      return (
-        <SignInErrorContent error={error} onClose={onClose} onRetry={onRetry} />
-      );
-    default:
-      return (
-        <>
-          {idleBody}
-          <ModalFooter>{idleFooter}</ModalFooter>
-        </>
-      );
-  }
+      </Match>
+      <Match when={props.phase() === 'error'}>
+        <SignInErrorContent
+          error={props.error}
+          onClose={props.onClose}
+          onRetry={props.onRetry}
+        />
+      </Match>
+    </Switch>
+  );
 }
 
-function SignInErrorContent({
-  error,
-  onClose,
-  onRetry,
-}: {
-  error: Error | null;
+function SignInErrorContent(props: {
+  error: Accessor<Error | null>;
   onClose: () => void;
   onRetry: () => void;
-}): ReactNode {
+}): JSX.Element {
   const { t } = useLingui();
   return (
     <>
       <StateArea>
         <ErrorState
           title={t`Sign-in failed`}
-          body={error?.message ?? t`Sign-in was cancelled or didn't finish.`}
-          retry={{ label: t`Try again`, onPress: onRetry }}
+          body={
+            props.error()?.message ?? t`Sign-in was cancelled or didn't finish.`
+          }
+          retry={{ label: t`Try again`, onClick: props.onRetry }}
         />
       </StateArea>
       <ModalFooter>
-        <ModalButton label={t`Close`} variant="cancel" onPress={onClose} />
+        <ModalButton
+          label={t`Close`}
+          variant="cancel"
+          onClick={props.onClose}
+        />
       </ModalFooter>
     </>
   );
 }
 
-function StateArea({ children }: { children: ReactNode }): ReactNode {
+function StateArea(props: { children: JSX.Element }): JSX.Element {
   return (
     <Box sx={{ justifyContent: 'center', minHeight: STATE_AREA_MIN_HEIGHT }}>
-      {children}
+      {props.children}
     </Box>
   );
 }

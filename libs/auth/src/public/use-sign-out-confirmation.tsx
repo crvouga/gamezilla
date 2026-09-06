@@ -1,8 +1,8 @@
 import { Handles } from '@libs/test-ids';
-import { Trans } from '@lingui/react/macro';
-import { useLogger } from '@pkgs/logger/react';
-import { MutationModal } from '@pkgs/ui-rn';
-import { type ReactNode, useCallback, useMemo } from 'react';
+import { Trans } from '@lingui/solid/macro';
+import { useLogger } from '@pkgs/logger/solid';
+import { MutationModal } from '@pkgs/ui';
+import type { Accessor, JSX } from 'solid-js';
 
 /**
  * Wraps the sign-out {@link MutationModal}: runs the (offline-safe) `signOut`,
@@ -13,58 +13,46 @@ import { type ReactNode, useCallback, useMemo } from 'react';
  */
 export function useSignOutConfirmationModal(args: {
   signOut: () => Promise<void>;
-  signOutConfirmOpen: boolean;
+  signOutConfirmOpen: Accessor<boolean>;
   openSignOutConfirmBase: () => void;
   closeSignOutConfirmBase: () => void;
 }): {
   openSignOutConfirm: () => void;
   closeSignOutConfirm: () => void;
-  modal: ReactNode;
+  modal: JSX.Element;
 } {
-  const {
-    signOut,
-    signOutConfirmOpen,
-    openSignOutConfirmBase,
-    closeSignOutConfirmBase,
-  } = args;
   const log = useLogger('auth-sign-out');
 
-  const operation = useCallback(async () => {
-    await signOut();
-  }, [signOut]);
+  const operation = async () => {
+    await args.signOut();
+  };
 
-  const onError = useCallback(
-    (err: Error) => {
-      log.error('sign out failed', { error: err.message });
-    },
-    [log]
-  );
+  const onError = (err: Error) => {
+    log.error('sign out failed', { error: err.message });
+  };
 
-  const modal = useMemo(
-    () => (
-      <MutationModal
-        visible={signOutConfirmOpen}
-        onClose={closeSignOutConfirmBase}
-        title={<Trans>Sign out?</Trans>}
-        message={<Trans>You'll be signed out on this device.</Trans>}
-        submitLabel={<Trans>Sign out</Trans>}
-        variant="destructive"
-        operation={operation}
-        loadingLabel={<Trans>Signing out…</Trans>}
-        successTitle={<Trans>Signed out</Trans>}
-        successBody={<Trans>You're signed out on this device.</Trans>}
-        errorTitle={<Trans>Sign-out failed</Trans>}
-        onError={onError}
-        submitTestID={Handles.authSignOutConfirm}
-        successTestID={Handles.authSignedOut}
-      />
-    ),
-    [signOutConfirmOpen, closeSignOutConfirmBase, operation, onError]
+  const modal = (
+    <MutationModal
+      visible={args.signOutConfirmOpen()}
+      onClose={args.closeSignOutConfirmBase}
+      title={<Trans>Sign out?</Trans>}
+      message={<Trans>You'll be signed out on this device.</Trans>}
+      submitLabel={<Trans>Sign out</Trans>}
+      variant="destructive"
+      operation={operation}
+      loadingLabel={<Trans>Signing out…</Trans>}
+      successTitle={<Trans>Signed out</Trans>}
+      successBody={<Trans>You're signed out on this device.</Trans>}
+      errorTitle={<Trans>Sign-out failed</Trans>}
+      onError={onError}
+      submitDataSet={{ testid: Handles.authSignOutConfirm }}
+      successDataSet={{ testid: Handles.authSignedOut }}
+    />
   );
 
   return {
-    openSignOutConfirm: openSignOutConfirmBase,
-    closeSignOutConfirm: closeSignOutConfirmBase,
+    openSignOutConfirm: args.openSignOutConfirmBase,
+    closeSignOutConfirm: args.closeSignOutConfirmBase,
     modal,
   };
 }

@@ -1,7 +1,8 @@
 import { sql } from '@pkgs/sql';
 
-import { useQuery, useSyncEngine } from '@pkgs/sync-engine/client';
-import { useMemo } from 'react';
+import { createQuery, useSyncEngine } from '@pkgs/sync-engine/solid';
+import type { Accessor } from 'solid-js';
+import { createMemo } from 'solid-js';
 import { useMyDeviceId } from '../../public/use-current-user';
 
 type DeviceRow = {
@@ -52,34 +53,42 @@ function sortDeviceIds(
  * signed in. Sorted with the current device first, then by `last_seen_at`
  * descending (falling back to `created_at`).
  */
-export function useAccountDeviceIds(accountId: string | null): string[] {
+export function useAccountDeviceIds(
+  accountId: Accessor<string | null>
+): Accessor<string[]> {
   const { paintReady } = useSyncEngine();
   const currentDeviceId = useMyDeviceId();
-  const scopedAccountId = paintReady ? accountId : null;
-  const scopedDeviceId = paintReady ? currentDeviceId : '';
+  const scopedAccountId = createMemo(() => (paintReady() ? accountId() : null));
+  const scopedDeviceId = createMemo(() =>
+    paintReady() ? currentDeviceId() : ''
+  );
 
-  const { rows: localRows } = useQuery(sql<DeviceRow>`
+  const localRows = createQuery(
+    () => sql<DeviceRow>`
     SELECT id, last_seen_at, created_at
     FROM auth_devices
-    WHERE id = ${scopedDeviceId}
-  `);
+    WHERE id = ${scopedDeviceId()}
+  `
+  );
 
-  const { rows: remoteRows } = useQuery(sql<DeviceRow>`
+  const remoteRows = createQuery(
+    () => sql<DeviceRow>`
     SELECT id, last_seen_at, created_at
     FROM auth_devices
-    WHERE user_id = ${scopedAccountId}
+    WHERE user_id = ${scopedAccountId()}
     LIMIT 500
-  `);
+  `
+  );
 
-  return useMemo(() => {
-    if (!paintReady) return [];
+  return createMemo(() => {
+    if (!paintReady()) return [];
     return sortDeviceIds(
       buildLastSeenMap({
-        accountId,
-        remoteDevices: remoteRows,
-        localDevices: localRows,
+        accountId: accountId(),
+        remoteDevices: remoteRows.rows(),
+        localDevices: localRows.rows(),
       }),
-      currentDeviceId
+      currentDeviceId()
     );
-  }, [paintReady, accountId, remoteRows, localRows, currentDeviceId]);
+  });
 }

@@ -1,4 +1,6 @@
-import { useHydratedSecureStorageItem } from '@pkgs/secure-storage/use-secure-storage-item';
+import { createSecureStorageItem } from '@pkgs/secure-storage/solid';
+import type { Accessor } from 'solid-js';
+import { createMemo } from 'solid-js';
 
 import { SESSION_EXPIRES_AT_KEY } from '../../public/auth-storage-keys';
 import {
@@ -13,13 +15,15 @@ import {
  */
 export function useDeviceLatestSessionExpiresAt(
   deviceId: string
-): string | null {
+): Accessor<string | null> {
   const currentDeviceId = useMyDeviceId();
   const hasSession = useHasAuthSession();
-  const { value } = useHydratedSecureStorageItem(SESSION_EXPIRES_AT_KEY);
-  if (deviceId !== currentDeviceId || !hasSession) {
-    return null;
-  }
-  if (typeof value === 'string' && value.length > 0) return value;
-  return null;
+  const expiresItem = createSecureStorageItem(SESSION_EXPIRES_AT_KEY);
+  return createMemo(() => {
+    if (deviceId !== currentDeviceId() || !hasSession()) {
+      return null;
+    }
+    const value = expiresItem.value();
+    return typeof value === 'string' && value.length > 0 ? value : null;
+  });
 }
