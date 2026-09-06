@@ -1,6 +1,6 @@
 import { UserProfileAvatar } from '@libs/profile/public/user-profile-avatar';
 import { UserUsername } from '@libs/profile/public/user-username';
-import { Box, Pressable } from '@pkgs/ui';
+import { Box, Pressable } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 import type { UserSearchResult } from './user-search-types';

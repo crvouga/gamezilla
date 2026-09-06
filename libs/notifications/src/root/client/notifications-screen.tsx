@@ -8,7 +8,7 @@ import {
   ScreenBase,
   useContentEdgePadding,
   useMutationButton,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import { type ReactNode, useCallback } from 'react';
 import { useNotificationsShell } from '../../public/notifications-provider-registry';
 import { useNotifications } from '../../public/use-notifications';

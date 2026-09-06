@@ -2,7 +2,7 @@ import { DevicePortsProvider } from '@apps/client/device/device-ports-provider';
 import { useClientEnv } from '@apps/client/product/client-env-provider';
 import { KvProvider } from '@pkgs/kv/kv-provider';
 import { AudioPlaybackProvider } from '@pkgs/sounds/audio-playback/audio-playback-context';
-import { ComposeProviders, SpinnerProvider } from '@pkgs/ui';
+import { ComposeProviders, SpinnerProvider } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 import { PerfRoot } from '../perf/perf-root';

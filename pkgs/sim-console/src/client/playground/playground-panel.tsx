@@ -1,4 +1,4 @@
-import { Box, TabStrip } from '@pkgs/ui';
+import { Box, TabStrip } from '@pkgs/ui-rn';
 import {
   coerceDebuggerView,
   type DebuggerViewId,

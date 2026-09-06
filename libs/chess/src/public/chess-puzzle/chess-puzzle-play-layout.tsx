@@ -9,7 +9,7 @@
 
 import { DefineBackButton } from '@libs/spaces/public/nav/spaces-nav-context';
 import { SpaceSideRailExtras } from '@libs/spaces/public/space-event-log-placement';
-import { Box, componentDataSet, Island, useLayoutMode } from '@pkgs/ui';
+import { Box, componentDataSet, Island, useLayoutMode } from '@pkgs/ui-rn';
 import { type ReactNode, useCallback, useState } from 'react';
 import { ChessPuzzleActionBar } from './chess-puzzle-action-bar';
 import { ChessPuzzleBoardFrame } from './chess-puzzle-board-frame';

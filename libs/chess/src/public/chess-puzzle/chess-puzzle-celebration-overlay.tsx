@@ -1,5 +1,5 @@
 import { useClock } from '@pkgs/clock';
-import { AnimatedBox, useTheme } from '@pkgs/ui';
+import { AnimatedBox, useTheme } from '@pkgs/ui-rn';
 import { type ReactNode, useCallback, useEffect, useRef } from 'react';
 import type { Animated } from 'react-native';
 

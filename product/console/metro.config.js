@@ -122,7 +122,7 @@ const clientPkgRequire = require('module').createRequire(dedupeAliasOrigin);
 const skiaResolveOrigins = [
   dedupeAliasOrigin,
   path.join(monorepoRoot, 'apps/client/package.json'),
-  path.join(monorepoRoot, 'pkgs/ui/package.json'),
+  path.join(monorepoRoot, 'pkgs/ui-rn/package.json'),
 ];
 let skiaWebOrigin = dedupeAliasOrigin;
 for (const origin of skiaResolveOrigins) {

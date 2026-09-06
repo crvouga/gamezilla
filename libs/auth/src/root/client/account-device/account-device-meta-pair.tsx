@@ -1,4 +1,4 @@
-import { Box, MenuRow } from '@pkgs/ui';
+import { Box, MenuRow } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 export type AccountDeviceMetaPairProps = {

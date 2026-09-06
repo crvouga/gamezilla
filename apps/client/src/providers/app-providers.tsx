@@ -1,4 +1,4 @@
-import { ComposeProviders, preventSplashAutoHide } from '@pkgs/ui';
+import { ComposeProviders, preventSplashAutoHide } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 import { ReactScanDev } from '../dev/react-scan-dev';

@@ -5,7 +5,7 @@ import {
   DismissibleBannerPortalProvider,
   OverlayPortalProvider,
   SurfaceStackProvider,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 /**

@@ -5,7 +5,7 @@ import {
   EmptyState,
   MenuSection,
   SmartphoneIcon,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 import { useIsSignedIn } from '../../../public/use-current-user';
 import { useAccountDeviceIds } from '../use-account-device-ids';

@@ -8,7 +8,7 @@ import {
   useAppFrameGlobalTrailing,
   useLayoutMode,
   useSetAppFrameHeader,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 import {
   SpaceSideRailProvider,

@@ -1,4 +1,4 @@
-import { Box, EmptyState } from '@pkgs/ui';
+import { Box, EmptyState } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 import {
   coerceDebuggerView,

@@ -4,7 +4,7 @@ import {
   RegisterCommand,
   SquareStackIcon,
   useThemePreference,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 import { useClientLayoutPreference } from '../debugger/client-layout-preference';

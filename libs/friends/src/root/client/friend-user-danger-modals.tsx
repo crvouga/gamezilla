@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/react/macro';
-import { ConfirmationModal } from '@pkgs/ui';
+import { ConfirmationModal } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 export function FriendUserDangerModals({

@@ -11,7 +11,7 @@ import {
   StatusDot,
   type StatusDotStatus,
   Text,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import { useCallback } from 'react';
 
 const STATUS_DOT_SIZE = 12;

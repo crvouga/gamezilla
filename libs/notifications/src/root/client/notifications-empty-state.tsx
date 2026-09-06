@@ -4,7 +4,7 @@ import {
   EmptyState,
   ListChecksIcon,
   SquareStackIcon,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 import type { NotificationFilter } from '../../shared/notifications/notification';

@@ -6,7 +6,7 @@ import {
   LoadingState,
   Text,
   useMutationButton,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import { type ReactNode, useCallback } from 'react';
 
 import { useSpaceHostMembershipDisplay } from '../members/use-space-host-membership-display';

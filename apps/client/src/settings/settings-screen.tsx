@@ -21,7 +21,7 @@ import {
   Volume2Icon,
   VolumeXIcon,
   WifiIcon,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import Constants from 'expo-constants';
 import type { ReactNode } from 'react';
 

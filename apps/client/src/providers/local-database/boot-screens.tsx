@@ -5,7 +5,7 @@ import {
   isLeaderLostError,
   runWebOpfsRecoveryAndReload,
 } from '@pkgs/sql-client-sqlite-web';
-import { Center, ErrorState } from '@pkgs/ui';
+import { Center, ErrorState } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 import { ThemedBlankShell } from '../shell/blank-shell';

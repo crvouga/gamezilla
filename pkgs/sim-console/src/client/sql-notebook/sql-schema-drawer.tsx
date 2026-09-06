@@ -1,4 +1,4 @@
-import { Box, Collapsible, Pressable, Text } from '@pkgs/ui';
+import { Box, Collapsible, Pressable, Text } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 import type { SchemaIndex } from './use-schema-index';

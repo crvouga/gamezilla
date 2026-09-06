@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/react/macro';
-import { Box, borderRadius, StatusDot, Text } from '@pkgs/ui';
+import { Box, borderRadius, StatusDot, Text } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 import { useIsSpaceOpenLocally } from '../use-cases/list-open-sessions/client/use-open-space-session-ids';

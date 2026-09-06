@@ -1,5 +1,5 @@
 import { Trans, useLingui } from '@lingui/react/macro';
-import { Box, MenuRow, MenuSection, Text } from '@pkgs/ui';
+import { Box, MenuRow, MenuSection, Text } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 import { useClientConfig } from '../../public/use-client-config';
 

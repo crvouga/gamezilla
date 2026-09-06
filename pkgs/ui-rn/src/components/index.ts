@@ -1,8 +1,8 @@
 /**
- * @pkgs/ui -- application-agnostic React Native design system.
+ * @pkgs/ui-rn -- application-agnostic React Native design system.
  *
  * Usage:
- *   import { Box, Text, Stack, Button } from '@pkgs/ui';
+ *   import { Box, Text, Stack, Button } from '@pkgs/ui-rn';
  */
 
 export {

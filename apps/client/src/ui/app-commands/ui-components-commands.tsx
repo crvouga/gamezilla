@@ -1,5 +1,5 @@
 import { useLingui } from '@lingui/react/macro';
-import { componentRegistry, RegisterCommand, useRouter } from '@pkgs/ui';
+import { componentRegistry, RegisterCommand, useRouter } from '@pkgs/ui-rn';
 
 export function UiComponentsCommands() {
   const { t } = useLingui();

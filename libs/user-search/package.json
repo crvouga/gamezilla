@@ -24,7 +24,7 @@
     "@lingui/react": "catalog:",
     "@pkgs/clock": "workspace:*",
     "@pkgs/http-client": "workspace:*",
-    "@pkgs/ui": "workspace:*",
+    "@pkgs/ui-rn": "workspace:*",
     "react": "catalog:",
     "react-native": "catalog:"
   },

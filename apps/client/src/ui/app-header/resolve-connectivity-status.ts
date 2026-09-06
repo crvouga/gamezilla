@@ -1,5 +1,5 @@
 import type { SyncConnectionState } from '@pkgs/sync-engine/client';
-import type { StatusDotStatus } from '@pkgs/ui';
+import type { StatusDotStatus } from '@pkgs/ui-rn';
 
 export function resolveConnectivityStatus(args: {
   readonly browserOnline: boolean;

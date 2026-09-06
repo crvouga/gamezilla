@@ -1,5 +1,5 @@
-import type { SxProps, TextVariant } from '@pkgs/ui';
-import { optionalProps } from '@pkgs/ui/components/optional-props';
+import type { SxProps, TextVariant } from '@pkgs/ui-rn';
+import { optionalProps } from '@pkgs/ui-rn/components/optional-props';
 import type { ReactNode } from 'react';
 import { NoGuestsText } from './no-guests-text';
 import { SpaceGuestMembershipUsernamesJoined } from './space-guest-membership-usernames-joined';

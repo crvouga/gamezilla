@@ -16,7 +16,7 @@ module.exports = function (api) {
       ],
     ],
     plugins: [
-      ['@lingui/babel-plugin-lingui-macro', { stripMessageField: false }],
+      ['@lingui/babel-plugin-lingui-macro', { descriptorFields: 'all' }],
       require('./babel-plugin-dynamic-import-to-require.cjs'),
     ],
   };

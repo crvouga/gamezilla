@@ -1,4 +1,4 @@
-import { Box } from '@pkgs/ui';
+import { Box } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 import { MemberHostBadge } from './member-host-badge';
 import { MemberSessionCountBadge } from './member-session-count-badge';

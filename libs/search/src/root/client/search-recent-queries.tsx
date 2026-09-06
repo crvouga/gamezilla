@@ -7,7 +7,7 @@ import {
   MenuRow,
   Text,
   useTheme,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 const ROW_ICON_SIZE = 18;

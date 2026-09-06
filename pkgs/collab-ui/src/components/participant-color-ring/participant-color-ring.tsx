@@ -2,7 +2,7 @@
  * Colored ring around a child (typically an avatar) identifying a participant.
  */
 
-import { Box, type ComponentDataSet, componentDataSet } from '@pkgs/ui';
+import { Box, type ComponentDataSet, componentDataSet } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 export type ParticipantColorRingProps = {

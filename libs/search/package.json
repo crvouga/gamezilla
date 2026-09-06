@@ -25,7 +25,7 @@
     "@lingui/react": "catalog:",
     "@pkgs/keyword": "workspace:*",
     "@pkgs/kv": "workspace:*",
-    "@pkgs/ui": "workspace:*",
+    "@pkgs/ui-rn": "workspace:*",
     "react": "catalog:",
     "react-native": "catalog:"
   },

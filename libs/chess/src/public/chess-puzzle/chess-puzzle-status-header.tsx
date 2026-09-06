@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/react/macro';
-import { Box, Text } from '@pkgs/ui';
+import { Box, Text } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 import {

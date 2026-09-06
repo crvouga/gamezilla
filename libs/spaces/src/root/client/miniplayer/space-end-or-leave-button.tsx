@@ -1,5 +1,5 @@
 import { Trans, useLingui } from '@lingui/react/macro';
-import { borderRadius, Pressable, Text } from '@pkgs/ui';
+import { borderRadius, Pressable, Text } from '@pkgs/ui-rn';
 import { type ReactNode, useCallback } from 'react';
 import type { RequestEndSpaceOptions } from '../end-space/end-space-modal-provider';
 import type { RequestLeaveSpaceOptions } from '../leave-space/leave-space-modal-provider';

@@ -1,6 +1,6 @@
 import { useLingui } from '@lingui/react/macro';
 import { useSyncEngine } from '@pkgs/sync-engine/client';
-import { Box, borderRadius, Pressable, Text } from '@pkgs/ui';
+import { Box, borderRadius, Pressable, Text } from '@pkgs/ui-rn';
 import { type ReactNode, useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 

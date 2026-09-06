@@ -9,7 +9,7 @@
  *   - `'compact'` -> intrinsic height with generous padding. Used inline as
  *                    a card or inside a scrolled section.
  *
- * Exported from `@pkgs/ui` so feature teams can compose custom statuses
+ * Exported from `@pkgs/ui-rn` so feature teams can compose custom statuses
  * with the same layout contract (e.g. a payment-failed card with a custom
  * icon set).
  */

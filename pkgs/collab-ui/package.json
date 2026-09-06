@@ -20,7 +20,7 @@
     "@pkgs/collab": "workspace:*",
     "@pkgs/i18n": "workspace:*",
     "@pkgs/room": "workspace:*",
-    "@pkgs/ui": "workspace:*",
+    "@pkgs/ui-rn": "workspace:*",
     "react": "catalog:",
     "react-native": "catalog:"
   },

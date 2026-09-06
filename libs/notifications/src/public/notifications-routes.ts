@@ -1,4 +1,4 @@
-import { type Href, router } from '@pkgs/ui';
+import { type Href, router } from '@pkgs/ui-rn';
 
 export type InboxRouteFilter = 'all' | 'action_required' | 'archived';
 

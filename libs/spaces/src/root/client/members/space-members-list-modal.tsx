@@ -6,7 +6,7 @@ import { groupRosterByParticipant } from '@pkgs/collab';
 import { PresenceRosterList, type PresenceRosterRow } from '@pkgs/collab-ui';
 import { asLocalized } from '@pkgs/i18n';
 import { useRoomFromRegistry, useRoomRoster } from '@pkgs/room';
-import { Badge, ResponsiveSurface, ScrollView, Stack } from '@pkgs/ui';
+import { Badge, ResponsiveSurface, ScrollView, Stack } from '@pkgs/ui-rn';
 import { type ReactNode, useMemo } from 'react';
 import { useSpaceRoomClientId } from '../../../public/room/space-room-context';
 import { SPACE_ROOM_NAME } from '../../../public/room/use-space-room-selector';

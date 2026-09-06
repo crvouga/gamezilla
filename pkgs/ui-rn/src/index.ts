@@ -1,11 +1,11 @@
 /**
- * `@pkgs/ui` public API.
+ * `@pkgs/ui-rn` public API.
  *
  * Consumers import every component, prop type, hook, and theme helper from
  * here. Implementations live under `./components/**` and are re-exported
  * directly -- there is no adapter indirection.
  *
- *   import { Button, Text, useTheme, type BoxProps } from '@pkgs/ui';
+ *   import { Button, Text, useTheme, type BoxProps } from '@pkgs/ui-rn';
  */
 
 import './lingui-augmentation';

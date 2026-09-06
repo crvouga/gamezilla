@@ -4,7 +4,7 @@ import { Trans } from '@lingui/react/macro';
 import {
   type MainMenuItem,
   MainMenuScreen,
-} from '@pkgs/ui/components/main-menu-screen';
+} from '@pkgs/ui-rn/components/main-menu-screen';
 import { type ReactNode, useCallback, useMemo } from 'react';
 import { CHESS_SCREEN, SetChessMainMenuScreen } from '../chess-main-menu';
 

@@ -1,4 +1,4 @@
-import { ComposeProviders } from '@pkgs/ui';
+import { ComposeProviders } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 import { AppConfigService } from './auth/config-service';

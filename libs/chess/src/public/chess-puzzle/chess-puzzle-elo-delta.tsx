@@ -1,4 +1,4 @@
-import { Text, useTheme } from '@pkgs/ui';
+import { Text, useTheme } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 function formatSignedDelta(delta: number): string {

@@ -1,7 +1,7 @@
 import { Handles } from '@libs/test-ids';
 import { useLingui } from '@lingui/react/macro';
-import { Pressable, useRouter } from '@pkgs/ui';
-import { optionalProps } from '@pkgs/ui/components/optional-props';
+import { Pressable, useRouter } from '@pkgs/ui-rn';
+import { optionalProps } from '@pkgs/ui-rn/components/optional-props';
 import type { ReactNode } from 'react';
 import { openSpaceDetail } from '../../../public/space-routes';
 import { useIsSpaceOpenLocally } from '../../../use-cases/list-open-sessions/client/use-open-space-session-ids';

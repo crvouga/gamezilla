@@ -3,7 +3,7 @@
  * Uses sx only — no RN style prop.
  */
 
-import { Box, Pressable, Text } from '@pkgs/ui';
+import { Box, Pressable, Text } from '@pkgs/ui-rn';
 import { type ReactNode, startTransition, useEffect, useState } from 'react';
 
 import { usePerfHudPreference } from './perf-hud-preference';

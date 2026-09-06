@@ -1,4 +1,4 @@
-import { Box, useRouter } from '@pkgs/ui';
+import { Box, useRouter } from '@pkgs/ui-rn';
 import { type ReactNode, useCallback, useContext, useState } from 'react';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import { closeSpaceDetail } from '../../../public/space-routes';

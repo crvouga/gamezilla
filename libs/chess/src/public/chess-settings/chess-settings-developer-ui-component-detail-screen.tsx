@@ -4,7 +4,7 @@ import {
   useSpaceRoomSelector,
 } from '@libs/spaces/public/room/use-space-room-selector';
 import { Trans } from '@lingui/react/macro';
-import { Box, EmptyState, ExplorerDetail } from '@pkgs/ui';
+import { Box, EmptyState, ExplorerDetail } from '@pkgs/ui-rn';
 import { type ReactNode, useCallback, useEffect } from 'react';
 import {
   CHESS_SCREEN,

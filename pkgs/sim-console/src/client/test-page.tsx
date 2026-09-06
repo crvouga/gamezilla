@@ -5,7 +5,7 @@ import {
   ChevronRightIcon,
   IconButton,
   Text,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import {

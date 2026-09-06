@@ -12,7 +12,7 @@ import type {
   BottomSheetHostModalProps,
   BottomSheetHostViewProps,
   BottomSheetModalMethods,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import type { ReactElement } from 'react';
 import { createElement, forwardRef } from 'react';
 

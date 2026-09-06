@@ -1,6 +1,9 @@
-import { snapAnimatedValue, startTiming } from '@pkgs/ui/animation/run-timing';
-import { USE_NATIVE_DRIVER } from '@pkgs/ui/animation/use-native-driver';
-import { motion } from '@pkgs/ui/theme/motion';
+import {
+  snapAnimatedValue,
+  startTiming,
+} from '@pkgs/ui-rn/animation/run-timing';
+import { USE_NATIVE_DRIVER } from '@pkgs/ui-rn/animation/use-native-driver';
+import { motion } from '@pkgs/ui-rn/theme/motion';
 import { useEffect, useRef } from 'react';
 import { Animated, Easing } from 'react-native';
 

@@ -1,4 +1,4 @@
-import { Avatar } from '@pkgs/ui';
+import { Avatar } from '@pkgs/ui-rn';
 import { memo, type ReactNode, useMemo } from 'react';
 import type { AvatarConfig } from '../shared/profile/avatar-config';
 import { resolveAvatarSeed } from '../shared/profile/avatar-config';

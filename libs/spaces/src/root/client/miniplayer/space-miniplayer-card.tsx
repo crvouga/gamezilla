@@ -1,5 +1,5 @@
 import { Handles } from '@libs/test-ids';
-import { Box, Text } from '@pkgs/ui';
+import { Box, Text } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 import { SpaceField, useSpaceColumn } from '../../../public/use-space-column';
 import { SpaceCardGradientBox } from '../card/space-card-gradient';

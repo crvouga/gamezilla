@@ -57,7 +57,7 @@ const SVG_ROOT_DEFAULTS = 'display:block;overflow:visible;flex-shrink:0';
 const BUTTON_RESET =
   'appearance:none;border:none;background:transparent;padding:0;margin:0;font:inherit;color:inherit;text-align:inherit;cursor:pointer';
 
-/** Dark app chrome (matches `@pkgs/ui` dark palette surfaces / text). */
+/** Dark app chrome (matches `@pkgs/ui-rn` dark palette surfaces / text). */
 const SNAPSHOT_BG = 'hsla(240, 5%, 4%, 1)';
 const SNAPSHOT_FG = 'hsla(0, 0%, 98%, 1)';
 const BODY_FONT =

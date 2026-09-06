@@ -1,4 +1,4 @@
-import { Box, Text } from '@pkgs/ui';
+import { Box, Text } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 import { useSimConsoleLayout } from './debugger/use-sim-console-layout';

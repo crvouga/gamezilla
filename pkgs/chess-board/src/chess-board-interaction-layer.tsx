@@ -1,4 +1,4 @@
-import { Box } from '@pkgs/ui';
+import { Box } from '@pkgs/ui-rn';
 import { memo, type ReactNode, useMemo } from 'react';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import {

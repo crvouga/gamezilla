@@ -6,7 +6,12 @@
  */
 
 import { useLingui } from '@lingui/react/macro';
-import { Box, LoadingState, TopBar, useAppFrameGlobalTrailing } from '@pkgs/ui';
+import {
+  Box,
+  LoadingState,
+  TopBar,
+  useAppFrameGlobalTrailing,
+} from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 import { useLocalPaintLatch } from './local-paint-latch';

@@ -167,7 +167,7 @@ export const RN_NODE_MODULE_FILTER =
 
 /** Workspace sources that use Lingui macros / RN JSX. */
 export const WORKSPACE_TSX_FILTER =
-  /\/(apps|libs|product)\/.*\.[jt]sx?$|\/pkgs\/(?:chess-board|ui|room-widgets)\/src\/.*\.[jt]sx?$/;
+  /\/(apps|libs|product)\/.*\.[jt]sx?$|\/pkgs\/(?:chess-board|ui-rn|room-widgets)\/src\/.*\.[jt]sx?$/;
 
 export const MEDIA_ASSET_FILTER =
   /\.(?:mp3|wav|m4a|png|jpe?g|gif|webp|svg|ttf|otf|woff2?)$/;

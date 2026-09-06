@@ -8,7 +8,7 @@ import {
   MainMenuScreenHeader,
   ScrollView,
   Text,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import { type ReactNode, useCallback } from 'react';
 
 import {

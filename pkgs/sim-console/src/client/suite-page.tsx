@@ -7,7 +7,7 @@ import {
   type DataTableOrderDir,
   ScrollView,
   Text,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import { useMemo } from 'react';
 
 import type { SuiteTestSummary } from '../types';

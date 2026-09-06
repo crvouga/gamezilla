@@ -1,5 +1,5 @@
 import { useLingui } from '@lingui/react/macro';
-import { Text } from '@pkgs/ui';
+import { Text } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 import { useSpaceMemberCount } from '../members/use-space-member-count';
 

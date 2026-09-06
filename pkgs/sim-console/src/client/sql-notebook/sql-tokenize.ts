@@ -1,4 +1,4 @@
-import type { CodeToken, CodeTokenKind } from '@pkgs/ui';
+import type { CodeToken, CodeTokenKind } from '@pkgs/ui-rn';
 
 import { type SqlDialect, sqlKeywordSet } from './sql-dialect';
 

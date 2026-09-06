@@ -5,11 +5,11 @@ import {
 } from '@libs/spaces/public/room/use-space-room-selector';
 import { Trans } from '@lingui/react/macro';
 import { ChessBoardCanvasBootstrap } from '@pkgs/chess-board/chess-board-canvas-bootstrap';
-import { Box, FadeSwitch } from '@pkgs/ui';
+import { Box, FadeSwitch } from '@pkgs/ui-rn';
 import {
   type MainMenuItem,
   MainMenuScreen,
-} from '@pkgs/ui/components/main-menu-screen';
+} from '@pkgs/ui-rn/components/main-menu-screen';
 import { type ReactNode, useMemo } from 'react';
 import {
   CHESS_SCREEN,

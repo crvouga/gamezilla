@@ -13,7 +13,7 @@ import {
   type ThemePreference,
   useTheme,
   useThemePreference,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 const ROW_ICON_SIZE = 20;

@@ -1,4 +1,4 @@
-import type { FontStacks } from '@pkgs/ui';
+import type { FontStacks } from '@pkgs/ui-rn';
 import { createContext, useContext } from 'react';
 
 export type AppFontsContextValue = {

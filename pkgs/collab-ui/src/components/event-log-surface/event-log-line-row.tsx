@@ -1,7 +1,7 @@
 import type { LogLine } from '@pkgs/collab';
 import type { LocalizedString } from '@pkgs/i18n';
 import type { RoomActor } from '@pkgs/room';
-import { Stack, Text } from '@pkgs/ui';
+import { Stack, Text } from '@pkgs/ui-rn';
 import type { ReactElement, ReactNode } from 'react';
 
 import { EventLogIcon } from '../event-log-icon';

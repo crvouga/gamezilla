@@ -6,7 +6,7 @@ import {
   Nunito_800ExtraBold,
   useFonts,
 } from '@expo-google-fonts/nunito';
-import type { FontStacks } from '@pkgs/ui';
+import type { FontStacks } from '@pkgs/ui-rn';
 import { type ReactNode, useEffect, useMemo } from 'react';
 
 import { AppFontsContext } from './fonts-context';

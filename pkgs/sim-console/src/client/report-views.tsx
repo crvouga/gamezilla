@@ -1,4 +1,4 @@
-import { Box, ScrollView, Text } from '@pkgs/ui';
+import { Box, ScrollView, Text } from '@pkgs/ui-rn';
 import { useEffect, useState } from 'react';
 import { isLatestRunId, LATEST_RUN_ID } from '../types';
 import type { ReportApiClient } from './api-client';

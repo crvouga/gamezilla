@@ -1,4 +1,4 @@
-import { Box, Text } from '@pkgs/ui';
+import { Box, Text } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 /** Circular outcome badge: semantic fill + contrast-safe mark. */

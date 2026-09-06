@@ -1,5 +1,5 @@
 /**
- * Resolve optional LogLine.icon keys to @pkgs/ui icon components.
+ * Resolve optional LogLine.icon keys to @pkgs/ui-rn icon components.
  */
 
 import {
@@ -16,7 +16,7 @@ import {
   SquarePenIcon,
   UserIcon,
   XIcon,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import type { ReactElement } from 'react';
 
 const EVENT_LOG_ICON_MAP: Readonly<Record<string, IconComponent>> = {

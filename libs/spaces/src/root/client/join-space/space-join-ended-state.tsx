@@ -3,8 +3,8 @@ import {
   useProfileColumn,
 } from '@libs/profile/public/use-profile-column';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { EmptyState, Gamepad2Icon } from '@pkgs/ui';
-import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
+import { EmptyState, Gamepad2Icon } from '@pkgs/ui-rn';
+import { useBreadcrumbNav } from '@pkgs/ui-rn/components/use-breadcrumb-nav';
 import type { ReactNode } from 'react';
 import { useSpaceHostMembershipDisplay } from '../../../root/client/members/use-space-host-membership-display';
 import { useSpaceCommandLabel } from '../../../root/client/use-space-command-label';

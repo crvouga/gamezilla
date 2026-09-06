@@ -12,7 +12,7 @@
     "**/*.bench.ts",
     "apps/client/babel.config.js",
     "pkgs/eslint-rules/**/*.cjs",
-    "lingui.config.cjs",
+    "lingui.config.ts",
     "libs/infra/src/cli/secrets/planetscale.ts",
     "apps/client/src/connection/offline-indicator.tsx"
   ],
@@ -53,10 +53,23 @@
   ],
   "workspaces": {
     ".": {
-      "entry": ["package.json", "tools/scripts/*.ts", "tools/*.ts"]
+      "entry": [
+        "package.json",
+        "eslint.config.mjs",
+        "lingui.config.ts",
+        "lingui.solid.config.ts",
+        "tools/scripts/*.ts",
+        "tools/*.ts"
+      ]
     },
     "apps/client": {
-      "entry": ["src/integration/*.test.ts"]
+      "entry": [
+        "src/main.tsx",
+        "src/integration/*.test.ts",
+        "vite.config.mts",
+        "vitest.config.mts",
+        "tests/support/*.ts"
+      ]
     },
     "libs/object-store": {
       "entry": "src/scripts/provision.ts"

@@ -5,7 +5,7 @@ import {
   MonitorIcon,
   RadioIcon,
   ServerIcon,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 
 import type { SimNodeKind } from '../shared/sim-node';
 

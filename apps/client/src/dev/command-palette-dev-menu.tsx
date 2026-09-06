@@ -1,4 +1,4 @@
-import { useCommandPalette } from '@pkgs/ui';
+import { useCommandPalette } from '@pkgs/ui-rn';
 import { useEffect } from 'react';
 
 import { useDevMenuPort } from '../device/device-ports-provider';

@@ -1,7 +1,7 @@
 import { Handles } from '@libs/test-ids';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { MenuList, MenuRow, ScreenBase, useRouter } from '@pkgs/ui';
-import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
+import { MenuList, MenuRow, ScreenBase, useRouter } from '@pkgs/ui-rn';
+import { useBreadcrumbNav } from '@pkgs/ui-rn/components/use-breadcrumb-nav';
 
 export function ProfileEditScreen() {
   const { t } = useLingui();

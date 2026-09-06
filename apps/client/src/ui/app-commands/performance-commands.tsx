@@ -1,5 +1,5 @@
 import { useLingui } from '@lingui/react/macro';
-import { MonitorIcon, RegisterCommand } from '@pkgs/ui';
+import { MonitorIcon, RegisterCommand } from '@pkgs/ui-rn';
 
 import { usePerfHudPreference } from '../../perf/perf-hud-preference';
 

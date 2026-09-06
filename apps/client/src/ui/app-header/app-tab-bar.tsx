@@ -4,7 +4,7 @@
  */
 
 import { Handles } from '@libs/test-ids';
-import { Box, getTopBarContentHeight, useTheme } from '@pkgs/ui';
+import { Box, getTopBarContentHeight, useTheme } from '@pkgs/ui-rn';
 import type {
   BottomTabBarProps,
   BottomTabNavigationOptions,

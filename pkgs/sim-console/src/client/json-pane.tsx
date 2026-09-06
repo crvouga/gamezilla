@@ -1,7 +1,7 @@
 /**
  * JSON snapshot preview pane for headless / topology dumps.
  */
-import { Box, ScrollView, Text } from '@pkgs/ui';
+import { Box, ScrollView, Text } from '@pkgs/ui-rn';
 import { useEffect, useState } from 'react';
 
 import type { ReportApiClient } from './api-client';

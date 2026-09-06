@@ -1,6 +1,6 @@
 import { useLingui } from '@lingui/react/macro';
-import type { IconProps } from '@pkgs/ui';
-import { Badge, BellIcon, Box, IconButton, useRouter } from '@pkgs/ui';
+import type { IconProps } from '@pkgs/ui-rn';
+import { Badge, BellIcon, Box, IconButton, useRouter } from '@pkgs/ui-rn';
 import { type ReactNode, useCallback } from 'react';
 
 import { notificationsPath } from './notifications-routes';

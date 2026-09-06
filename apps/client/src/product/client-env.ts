@@ -9,7 +9,7 @@ import type { Observability } from '@pkgs/observability/port/observability';
 import type { PubSub } from '@pkgs/pubsub/interface';
 import type { SecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
 import type { AudioPlaybackPort } from '@pkgs/sounds/audio-playback/ports';
-import type { BottomSheetHost } from '@pkgs/ui';
+import type { BottomSheetHost } from '@pkgs/ui-rn';
 import type { ComponentType } from 'react';
 
 /** HTTP to the server app only — not a generic fetch. */

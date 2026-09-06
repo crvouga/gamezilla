@@ -1,4 +1,4 @@
-import { Badge, Box, Pressable, Text } from '@pkgs/ui';
+import { Badge, Box, Pressable, Text } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 import type { CompletionCandidate, CompletionResult } from './sql-completion';

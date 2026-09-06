@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/react/macro';
-import { Text } from '@pkgs/ui';
+import { Text } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 import { useMemberIsYou } from './use-member-is-you';
 

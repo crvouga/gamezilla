@@ -1,4 +1,4 @@
-import { Box, type SxInput, useTheme } from '@pkgs/ui';
+import { Box, type SxInput, useTheme } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 export const SPACE_CARD_BORDER_RADIUS = 16;

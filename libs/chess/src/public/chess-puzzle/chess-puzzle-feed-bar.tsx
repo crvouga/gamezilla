@@ -1,7 +1,7 @@
 import { useMyId } from '@libs/auth/public/use-current-user';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
-import { Box, Pressable, Text } from '@pkgs/ui';
+import { Box, Pressable, Text } from '@pkgs/ui-rn';
 import { type ReactNode, useMemo } from 'react';
 
 import {

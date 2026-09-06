@@ -1,4 +1,4 @@
-import { Box, ScrollView, Text } from '@pkgs/ui';
+import { Box, ScrollView, Text } from '@pkgs/ui-rn';
 import { useEffect, useMemo, useState } from 'react';
 
 import type { SimulationReportEvent } from '../types';

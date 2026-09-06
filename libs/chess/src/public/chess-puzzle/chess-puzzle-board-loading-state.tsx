@@ -1,4 +1,4 @@
-import { Box, Spinner } from '@pkgs/ui';
+import { Box, Spinner } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 /**

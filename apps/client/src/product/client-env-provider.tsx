@@ -1,7 +1,7 @@
 import type { AppSyncEnginePool } from '@apps/client/sync/sync-engine-pool';
 import { ClockProvider } from '@pkgs/clock';
 import { HttpClientProvider } from '@pkgs/http-client';
-import { MutationSuccessHoldProvider } from '@pkgs/ui/components/button/mutation-success-hold';
+import { MutationSuccessHoldProvider } from '@pkgs/ui-rn/components/button/mutation-success-hold';
 import { IdProvider } from '@pkgs/uuid';
 import { createContext, type ReactNode, useContext, useMemo } from 'react';
 import type { ClientEnv } from './client-env';

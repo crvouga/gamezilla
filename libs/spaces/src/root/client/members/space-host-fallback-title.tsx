@@ -1,5 +1,5 @@
-import { type SxProps, Text, type TextVariant } from '@pkgs/ui';
-import { optionalProps } from '@pkgs/ui/components/optional-props';
+import { type SxProps, Text, type TextVariant } from '@pkgs/ui-rn';
+import { optionalProps } from '@pkgs/ui-rn/components/optional-props';
 import type { ReactNode } from 'react';
 
 import { useSpaceDisplayTitle } from '../use-space-display-title';

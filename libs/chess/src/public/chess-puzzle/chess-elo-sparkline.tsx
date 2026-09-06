@@ -1,5 +1,5 @@
-import { Box, useTheme } from '@pkgs/ui';
-import Svg, { Polyline } from '@pkgs/ui/svg';
+import { Box, useTheme } from '@pkgs/ui-rn';
+import Svg, { Polyline } from '@pkgs/ui-rn/svg';
 import { type ReactNode, useMemo } from 'react';
 
 const SPARKLINE_HEIGHT = 48;

@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/react/macro';
-import { ChipGroup, type ChipGroupOption } from '@pkgs/ui';
+import { ChipGroup, type ChipGroupOption } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 import type { NotificationFilter } from '../../shared/notifications/notification';

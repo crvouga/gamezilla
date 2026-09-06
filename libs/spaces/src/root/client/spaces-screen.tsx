@@ -12,7 +12,7 @@ import {
   type ScreenBasePrimaryAction,
   ScreenBodyLegendList,
   useRouter,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import { memo, useCallback, useMemo } from 'react';
 import { openSpaceDetail } from '../../public/space-routes';
 import { useCreateSpace } from '../../use-cases/create-space/client/use-create-space';

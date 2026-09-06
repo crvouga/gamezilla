@@ -1,5 +1,5 @@
 import { useLingui } from '@lingui/react/macro';
-import { Box, Pressable, XIcon } from '@pkgs/ui';
+import { Box, Pressable, XIcon } from '@pkgs/ui-rn';
 import {
   Canvas,
   FilterMode,

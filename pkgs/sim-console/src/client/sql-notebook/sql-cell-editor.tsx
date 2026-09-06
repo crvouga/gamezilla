@@ -5,7 +5,7 @@ import {
   type CodeToken,
   matchesWebShortcut,
   type WebKeyboardEventLike,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import type { MutableRefObject, ReactNode } from 'react';
 import type { SqlCellProps } from './sql-cell-types';
 import { applyCompletion, type completeAt } from './sql-completion';

@@ -1,7 +1,7 @@
 // @io-wall-ok — composition-root wall FS for Expo public assets
 /**
  * Copies Skia's CanvasKit wasm into `product/console/public/generated/skia/` for
- * `loadSkiaWebOnce` in `@pkgs/ui/components/skia-web-root`.
+ * `loadSkiaWebOnce` in `@pkgs/ui-rn/components/skia-web-root`.
  *
  * Resolves `canvaskit-wasm` from inside `@shopify/react-native-skia` via
  * `@apps/client` (which declares the dep) so the WASM ABI matches Shopify's

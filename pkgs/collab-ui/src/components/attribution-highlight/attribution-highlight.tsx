@@ -10,7 +10,7 @@ import {
   type ComponentDataSet,
   componentDataSet,
   type SxProps,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import type { ReactElement, ReactNode } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { Platform } from 'react-native';

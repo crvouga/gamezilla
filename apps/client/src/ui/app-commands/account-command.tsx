@@ -5,7 +5,7 @@ import {
 import { useHasAuthSession } from '@libs/auth/public/use-current-user';
 import { useLingui } from '@lingui/react/macro';
 import { useAsync } from '@pkgs/async/use-async';
-import { LogInIcon, LogOutIcon, RegisterCommand } from '@pkgs/ui';
+import { LogInIcon, LogOutIcon, RegisterCommand } from '@pkgs/ui-rn';
 
 export function AccountCommand() {
   const { t } = useLingui();

@@ -1,4 +1,4 @@
-import { Box } from '@pkgs/ui';
+import { Box } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 import { SpaceGuestAvatarGroup } from './space-guest-avatar-group';
 import { SpaceGuestCountText } from './space-guest-count-text';

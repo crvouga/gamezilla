@@ -1,5 +1,5 @@
 import { Trans, useLingui } from '@lingui/react/macro';
-import { MutationModal, TextInput } from '@pkgs/ui';
+import { MutationModal, TextInput } from '@pkgs/ui-rn';
 import { type ReactNode, useCallback, useEffect, useState } from 'react';
 
 import { SpaceField, useSpaceColumn } from '../../../public/use-space-column';

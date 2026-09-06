@@ -12,7 +12,7 @@ import {
   ListItem,
   Stack,
   StatusDot,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import type { ReactElement, ReactNode } from 'react';
 
 import { ParticipantColorRing } from '../participant-color-ring';

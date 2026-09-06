@@ -1,5 +1,5 @@
 import { useTimers } from '@pkgs/clock';
-import { Box, EmptyState, JsonView, ScrollView, Text } from '@pkgs/ui';
+import { Box, EmptyState, JsonView, ScrollView, Text } from '@pkgs/ui-rn';
 import { type ReactNode, useEffect, useState } from 'react';
 
 import type { PlaygroundRoomNode } from '../../shared/ports';

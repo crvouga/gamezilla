@@ -7,7 +7,7 @@ import {
   PauseIcon,
   PlayIcon,
   Text,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import { useEffect, useRef, useState } from 'react';
 
 import { useSimConsoleLayout } from './debugger/use-sim-console-layout';

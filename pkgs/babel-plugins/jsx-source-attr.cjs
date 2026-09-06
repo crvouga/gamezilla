@@ -3,8 +3,8 @@
  * elements so react-native-web surfaces a `data-src` attribute in the DOM.
  *
  * Gated to web + (dev || EXPO_PUBLIC_E2E=1). Only touches elements whose
- * import source is in the allowlist (`react-native`, `@pkgs/ui`, or a
- * relative import inside `pkgs/ui`) to avoid handing `dataSet` to libraries
+ * import source is in the allowlist (`react-native`, `@pkgs/ui-rn`, or a
+ * relative import inside `pkgs/ui-rn`) to avoid handing `dataSet` to libraries
  * that spread props onto real DOM/SVG nodes.
  *
  * Injected attributes are inserted FIRST so later `{...componentDataSet(...)}`
@@ -16,7 +16,7 @@ const path = require('node:path');
 const REPO_ROOT = path.resolve(__dirname, '../..');
 
 /** Import sources whose JSX hosts accept (or forward) `dataSet`. */
-const ALLOWED_SOURCES = new Set(['react-native', '@pkgs/ui']);
+const ALLOWED_SOURCES = new Set(['react-native', '@pkgs/ui-rn']);
 
 /**
  * @param {string | null | undefined} source
@@ -25,7 +25,7 @@ const ALLOWED_SOURCES = new Set(['react-native', '@pkgs/ui']);
 function isAllowedSource(source, filename) {
   if (source == null) return false;
   if (ALLOWED_SOURCES.has(source)) return true;
-  if (source.startsWith('@pkgs/ui/')) return true;
+  if (source.startsWith('@pkgs/ui-rn/')) return true;
   if (
     (source.startsWith('./') || source.startsWith('../')) &&
     filename.includes(`${path.sep}pkgs${path.sep}ui${path.sep}`)

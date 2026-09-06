@@ -1,6 +1,6 @@
 /**
  * Tappable row inside {@link FloatingMenu}.
- * @internal Used only by {@link FloatingMenu}; not exported from `@pkgs/ui`.
+ * @internal Used only by {@link FloatingMenu}; not exported from `@pkgs/ui-rn`.
  */
 
 import type { LocalizedString } from '@pkgs/i18n';

@@ -6,7 +6,7 @@ import {
   type DataTableColumn,
   OverflowMenuButton,
   Text,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import * as Clipboard from 'expo-clipboard';
 import { type ReactNode, useMemo, useState } from 'react';
 

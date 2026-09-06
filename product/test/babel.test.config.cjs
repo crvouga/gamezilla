@@ -20,7 +20,7 @@ module.exports = function (api) {
   );
   return {
     plugins: [
-      ['@lingui/babel-plugin-lingui-macro', { stripMessageField: false }],
+      ['@lingui/babel-plugin-lingui-macro', { descriptorFields: 'all' }],
       [
         fromExpo('@babel/plugin-transform-typescript'),
         { isTSX: true, allowNamespaces: true },

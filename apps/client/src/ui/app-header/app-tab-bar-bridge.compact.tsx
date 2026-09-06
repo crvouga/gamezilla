@@ -4,7 +4,7 @@
  */
 
 import { SpaceMiniplayer } from '@libs/spaces/root/client/miniplayer/space-miniplayer';
-import { Box } from '@pkgs/ui';
+import { Box } from '@pkgs/ui-rn';
 import {
   BottomTabBarHeightCallbackContext,
   type BottomTabBarProps,

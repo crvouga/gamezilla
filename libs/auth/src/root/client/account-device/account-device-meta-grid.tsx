@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/react/macro';
-import { MenuSection } from '@pkgs/ui';
+import { MenuSection } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 import { AccountDeviceAppText } from './account-device-app-text';
 import { AccountDeviceCreatedText } from './account-device-created-text';

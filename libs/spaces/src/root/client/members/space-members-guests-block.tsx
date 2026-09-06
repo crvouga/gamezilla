@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/react/macro';
-import { Box, Text } from '@pkgs/ui';
+import { Box, Text } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 import { SpaceGuestMembershipTileRail } from './space-guest-membership-tile-rail';
 import { useSpaceGuestMembershipIds } from './use-space-guest-membership-ids';

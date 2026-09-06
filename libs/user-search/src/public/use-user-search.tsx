@@ -2,7 +2,7 @@ import { useSignInModal } from '@libs/auth/public/auth-modals-provider';
 import { useIsSignedIn } from '@libs/auth/public/use-current-user';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useTimers } from '@pkgs/clock';
-import { EmptyState, Text, UsersIcon } from '@pkgs/ui';
+import { EmptyState, Text, UsersIcon } from '@pkgs/ui-rn';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { UserSearchClient } from './search-users';
 import { useUserSearchClientDeps } from './use-user-search-deps';

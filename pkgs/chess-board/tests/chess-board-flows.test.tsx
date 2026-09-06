@@ -15,8 +15,8 @@ import type {
   AudioPlayerHandle,
   AudioPlayerStatus,
 } from '@pkgs/sounds/audio-playback/ports';
-import { OverlayPortalProvider } from '@pkgs/ui/components/overlay-portal';
-import { ThemeProvider } from '@pkgs/ui/theme';
+import { OverlayPortalProvider } from '@pkgs/ui-rn/components/overlay-portal';
+import { ThemeProvider } from '@pkgs/ui-rn/theme';
 import type { Driver } from '@pkgs/ui-testing';
 import { createRenderedAppFromRntl, RntlDriver } from '@pkgs/ui-testing-rntl';
 import { act, type RenderResult, render } from '@testing-library/react-native';

@@ -42,7 +42,7 @@
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sql-client-sqlite": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
-    "@pkgs/ui": "workspace:*",
+    "@pkgs/ui-rn": "workspace:*",
     "@pkgs/uuid": "workspace:*",
     "expo-clipboard": "catalog:",
     "hono": "catalog:",

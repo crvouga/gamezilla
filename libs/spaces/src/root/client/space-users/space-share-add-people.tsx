@@ -6,7 +6,7 @@ import {
 } from '@libs/user-search/public/use-user-search';
 import { USER_SEARCH_MIN_LENGTH } from '@libs/user-search/public/user-search-types';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { Box, Combobox, type ComboboxOption, Text } from '@pkgs/ui';
+import { Box, Combobox, type ComboboxOption, Text } from '@pkgs/ui-rn';
 import { type ReactNode, useCallback, useMemo, useState } from 'react';
 
 import { useAddSpaceUser } from './use-space-users';

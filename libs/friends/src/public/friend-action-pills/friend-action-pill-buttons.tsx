@@ -1,6 +1,6 @@
 import { Trans, useLingui } from '@lingui/react/macro';
 import type { SoundId } from '@pkgs/sounds';
-import { Box, Button, useMutationButton } from '@pkgs/ui';
+import { Box, Button, useMutationButton } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 export function ConfirmDeletePills({

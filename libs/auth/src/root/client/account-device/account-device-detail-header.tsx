@@ -1,4 +1,4 @@
-import { Box } from '@pkgs/ui';
+import { Box } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 import { AccountDeviceCurrentBadge } from './account-device-current-badge';
 import { AccountDeviceListTitleText } from './account-device-list-title-text';

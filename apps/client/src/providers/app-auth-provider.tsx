@@ -6,7 +6,7 @@ import {
   createAuthClientAdapter,
   isPopupBlockedError,
 } from '@pkgs/auth/client';
-import { ComposeProviders } from '@pkgs/ui';
+import { ComposeProviders } from '@pkgs/ui-rn';
 import { type ReactNode, useMemo } from 'react';
 import { AppApiClient } from './auth/api-client';
 

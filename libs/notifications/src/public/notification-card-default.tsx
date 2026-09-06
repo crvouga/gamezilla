@@ -14,7 +14,7 @@ import {
   useMutationButton,
   useRelativeTimeLabel,
   useTheme,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import { type ReactNode, useCallback } from 'react';
 
 import type { Notification } from '../shared/notifications/notification';

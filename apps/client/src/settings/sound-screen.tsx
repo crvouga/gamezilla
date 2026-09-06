@@ -10,7 +10,7 @@ import {
   useTheme,
   Volume2Icon,
   VolumeXIcon,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 
 const ROW_ICON_SIZE = 20;
 

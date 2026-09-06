@@ -1,5 +1,5 @@
 import { useLingui } from '@lingui/react/macro';
-import { Box } from '@pkgs/ui';
+import { Box } from '@pkgs/ui-rn';
 import { type ReactNode, useCallback } from 'react';
 
 import type { FriendshipStatus } from '../../shared/friendship/friends-types';

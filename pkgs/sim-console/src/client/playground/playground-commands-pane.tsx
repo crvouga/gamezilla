@@ -5,7 +5,7 @@ import {
   ScrollView,
   Text,
   useMutationButton,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 
 import type { PlaygroundSession } from '../../shared/ports';
 

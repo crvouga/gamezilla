@@ -20,7 +20,7 @@ import {
   StatusDot,
   Text,
   useTheme,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import { type ReactNode, useEffect, useMemo, useState } from 'react';
 
 import {

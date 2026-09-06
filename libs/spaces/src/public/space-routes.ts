@@ -2,7 +2,7 @@ import {
   type AppRouter,
   releaseWebFocus,
   useLocalSearchParams,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import { useRef } from 'react';
 
 /** Path href for `/space/:id`. */

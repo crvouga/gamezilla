@@ -1,4 +1,4 @@
-import { useRouter } from '@pkgs/ui';
+import { useRouter } from '@pkgs/ui-rn';
 import { type ReactNode, useCallback } from 'react';
 import { NotificationCardDefault } from '../../public/notification-card-default';
 import { useNotificationRenderProvider } from '../../public/notifications-provider-registry';

@@ -27,7 +27,7 @@ describe('client babel Lingui plugin', () => {
     });
     expect(plugin).toEqual([
       '@lingui/babel-plugin-lingui-macro',
-      { stripMessageField: false },
+      { descriptorFields: 'all' },
     ]);
   });
 });

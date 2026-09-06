@@ -19,7 +19,7 @@ import {
   TextInput,
   UsersIcon,
   useTheme,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import { memo, type ReactNode, useCallback, useState } from 'react';
 
 import { SearchRecentQueries } from './search-recent-queries';

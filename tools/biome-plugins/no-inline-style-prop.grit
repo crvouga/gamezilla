@@ -1,0 +1,22 @@
+language js
+
+or {
+  `<$name style={$value} />` as $el where {
+    register_diagnostic(span=$el, message="Do not pass style= — inline style is allowed only inside @pkgs/ui host components; use sx elsewhere.", severity="error")
+  },
+  `<$name style={$value}>$children</$name>` as $el where {
+    register_diagnostic(span=$el, message="Do not pass style= — inline style is allowed only inside @pkgs/ui host components; use sx elsewhere.", severity="error")
+  },
+  `<$name contentContainerStyle={$value} />` as $el where {
+    register_diagnostic(span=$el, message="Do not pass contentContainerStyle= — use frameSx on @pkgs/ui-rn ScrollView/FlatList.", severity="error")
+  },
+  `<$name contentContainerStyle={$value}>$children</$name>` as $el where {
+    register_diagnostic(span=$el, message="Do not pass contentContainerStyle= — use frameSx on @pkgs/ui-rn ScrollView/FlatList.", severity="error")
+  },
+  `<$name columnWrapperStyle={$value} />` as $el where {
+    register_diagnostic(span=$el, message="Do not pass columnWrapperStyle= — use @pkgs/ui-rn hosts.", severity="error")
+  },
+  `<$name columnWrapperStyle={$value}>$children</$name>` as $el where {
+    register_diagnostic(span=$el, message="Do not pass columnWrapperStyle= — use @pkgs/ui-rn hosts.", severity="error")
+  }
+}

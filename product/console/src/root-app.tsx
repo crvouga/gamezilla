@@ -18,7 +18,11 @@ import {
   SimConsoleApp,
   type SimConsolePorts,
 } from '@pkgs/sim-console/client';
-import { AppThemeRoot, Box, createPassthroughBottomSheetHost } from '@pkgs/ui';
+import {
+  AppThemeRoot,
+  Box,
+  createPassthroughBottomSheetHost,
+} from '@pkgs/ui-rn';
 import { IdProvider } from '@pkgs/uuid';
 import {
   ConsoleChromeProvider,

@@ -7,7 +7,7 @@ import {
   ModalBody,
   SocialSignInButton,
   Text,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 
 export function SignInModalBody(props: {
   methodsLoading?: boolean;

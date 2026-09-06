@@ -2,7 +2,7 @@ import { useMyId } from '@libs/auth/public/use-current-user';
 import { UserProfileAvatar } from '@libs/profile/public/user-profile-avatar';
 import { UserUsername } from '@libs/profile/public/user-username';
 import { Trans } from '@lingui/react/macro';
-import { Box, CONTENT_EDGE_PADDING_STEP, Text } from '@pkgs/ui';
+import { Box, CONTENT_EDGE_PADDING_STEP, Text } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 import { useSpaceGuestMembershipIds } from '../members/use-space-guest-membership-ids';

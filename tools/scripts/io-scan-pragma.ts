@@ -54,6 +54,7 @@ const ENTRY_BASENAMES = new Set([
   'app.tsx',
   'boot-playground.ts',
   'root-app.tsx',
+  'main.tsx',
 ]);
 
 /** Strip RN platform suffixes so `wall.web.ts` matches `wall.ts`. */

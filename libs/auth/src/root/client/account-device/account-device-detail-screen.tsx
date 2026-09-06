@@ -5,8 +5,8 @@ import {
   ScreenBase,
   SmartphoneIcon,
   useLocalSearchParams,
-} from '@pkgs/ui';
-import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
+} from '@pkgs/ui-rn';
+import { useBreadcrumbNav } from '@pkgs/ui-rn/components/use-breadcrumb-nav';
 import { AccountDeviceDetailBody } from './account-device-detail-body';
 import { AccountDeviceDetailHeader } from './account-device-detail-header';
 

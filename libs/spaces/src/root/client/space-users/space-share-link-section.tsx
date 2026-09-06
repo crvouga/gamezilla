@@ -1,5 +1,5 @@
 import { Trans, useLingui } from '@lingui/react/macro';
-import { Box, Button, Text, useMutationButton } from '@pkgs/ui';
+import { Box, Button, Text, useMutationButton } from '@pkgs/ui-rn';
 import { type ReactNode, useCallback } from 'react';
 import { Platform, Share } from 'react-native';
 

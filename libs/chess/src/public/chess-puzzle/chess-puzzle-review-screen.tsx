@@ -9,7 +9,7 @@ import {
   componentDataSet,
   EmptyState,
   MainMenuScreenHeader,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import { type ReactNode, useCallback, useMemo } from 'react';
 
 import {

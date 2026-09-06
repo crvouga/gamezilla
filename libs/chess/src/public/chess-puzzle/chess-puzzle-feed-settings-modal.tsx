@@ -11,7 +11,7 @@ import {
   ResponsiveSurface,
   SegmentedControl,
   Text,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import { type ReactNode, useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   type ChessPuzzleFeedConfig,

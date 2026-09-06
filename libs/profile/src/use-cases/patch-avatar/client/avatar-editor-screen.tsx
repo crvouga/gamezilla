@@ -12,7 +12,7 @@ import {
   ScreenBase,
   Skeleton,
   Text,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import { useMemo } from 'react';
 import type { AvatarConfig } from '../../../shared/profile/avatar-config';
 import { AvatarEditorSeedField } from './avatar-editor-seed-field';

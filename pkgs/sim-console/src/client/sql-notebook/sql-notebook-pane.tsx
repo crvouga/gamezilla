@@ -1,6 +1,6 @@
 import { useClock } from '@pkgs/clock';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { Box, ErrorState, LoadingState, ScrollView } from '@pkgs/ui';
+import { Box, ErrorState, LoadingState, ScrollView } from '@pkgs/ui-rn';
 import { useCreateId } from '@pkgs/uuid';
 import * as Clipboard from 'expo-clipboard';
 import {

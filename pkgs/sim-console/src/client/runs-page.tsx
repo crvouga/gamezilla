@@ -11,7 +11,7 @@ import {
   Text,
   Trash2Icon,
   useTheme,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import {
   type Dispatch,
   type SetStateAction,

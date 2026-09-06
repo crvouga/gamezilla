@@ -5,7 +5,7 @@ import { i18n } from './i18n';
 
 /**
  * Unstyled host so `<Trans>` inherits ambient Text styles (TopBar titles,
- * EmptyState, etc.). A styled `@pkgs/ui` `variant="body"` wrapper previously
+ * EmptyState, etc.). A styled `@pkgs/ui-rn` `variant="body"` wrapper previously
  * reset fontWeight inside parents like `navigationTitle`.
  */
 function LinguiDefaultText(props: TransRenderProps): ReactNode {

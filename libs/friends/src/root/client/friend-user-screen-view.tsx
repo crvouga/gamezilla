@@ -4,8 +4,8 @@ import {
   type ScreenBaseAction,
   useLocalSearchParams,
   useRouter,
-} from '@pkgs/ui';
-import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
+} from '@pkgs/ui-rn';
+import { useBreadcrumbNav } from '@pkgs/ui-rn/components/use-breadcrumb-nav';
 import { type ReactNode, useCallback, useMemo, useState } from 'react';
 import { useFriendRequestIdsForUser } from '../../public/use-friend-request-ids';
 import { useFriendshipStatus } from '../../public/use-friendship-status';

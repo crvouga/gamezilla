@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/react/macro';
-import { ResponsiveSurface, ScrollView } from '@pkgs/ui';
+import { ResponsiveSurface, ScrollView } from '@pkgs/ui-rn';
 import { type ReactNode, useMemo } from 'react';
 
 import { useCurrentSpaceRole } from '../use-current-space-role';

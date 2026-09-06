@@ -4,7 +4,7 @@ const path = require('path');
 /** @type {string} */
 const RN_SCREENS_SCREEN_WEB_SHIM = path.resolve(
   __dirname,
-  '../../pkgs/ui/src/web/rn-screens-screen.web.tsx'
+  '../../pkgs/ui-rn/src/web/rn-screens-screen.web.tsx'
 );
 
 /**

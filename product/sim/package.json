@@ -65,7 +65,7 @@
     "@pkgs/sql-client-sqlite": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
     "@pkgs/tts": "workspace:*",
-    "@pkgs/ui": "workspace:*",
+    "@pkgs/ui-rn": "workspace:*",
     "@pkgs/ui-testing": "workspace:*",
     "@pkgs/ui-testing-rntl": "workspace:*",
     "@pkgs/uuid": "workspace:*",

@@ -1,4 +1,4 @@
-import { Box, TabStrip, type TabStripItem } from '@pkgs/ui';
+import { Box, TabStrip, type TabStripItem } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 import type { DebuggerViewId } from '../../shared/debugger-views';
 import { coerceSimChromeKind, type SimChromeKind } from '../../shared/sim-node';

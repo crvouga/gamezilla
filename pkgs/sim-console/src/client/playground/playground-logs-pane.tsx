@@ -1,4 +1,4 @@
-import { Box, EmptyState, ScrollView, Text } from '@pkgs/ui';
+import { Box, EmptyState, ScrollView, Text } from '@pkgs/ui-rn';
 import { useSyncExternalStore } from 'react';
 
 import type {

@@ -1,5 +1,5 @@
 import { Trans, useLingui } from '@lingui/react/macro';
-import { DismissibleBanner } from '@pkgs/ui';
+import { DismissibleBanner } from '@pkgs/ui-rn';
 import { type ReactNode, useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 import {

@@ -1,5 +1,5 @@
 import { ChessBoard } from '@pkgs/chess-board/chess-board';
-import { Box } from '@pkgs/ui';
+import { Box } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 import { ChessPuzzleBoardFrame } from './chess-puzzle-board-frame';

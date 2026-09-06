@@ -9,8 +9,8 @@ import {
   ScreenBodyLegendList,
   UserPlusIcon,
   useRouter,
-} from '@pkgs/ui';
-import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
+} from '@pkgs/ui-rn';
+import { useBreadcrumbNav } from '@pkgs/ui-rn/components/use-breadcrumb-nav';
 import { type ReactNode, useCallback } from 'react';
 import { FriendUserRow } from '../../public/friend-user-row';
 import type { Friend } from '../../shared/friendship/friends-types';

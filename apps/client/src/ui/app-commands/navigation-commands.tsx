@@ -1,5 +1,5 @@
 import { useLingui } from '@lingui/react/macro';
-import { RegisterCommand, useRouter } from '@pkgs/ui';
+import { RegisterCommand, useRouter } from '@pkgs/ui-rn';
 
 const NAV_TARGETS: ReadonlyArray<{
   readonly href: string;

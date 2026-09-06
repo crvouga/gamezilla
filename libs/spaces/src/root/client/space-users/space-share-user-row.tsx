@@ -1,6 +1,6 @@
 import { UserProfileAvatar } from '@libs/profile/public/user-profile-avatar';
 import { UserUsername } from '@libs/profile/public/user-username';
-import { Box } from '@pkgs/ui';
+import { Box } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 export function SpaceShareUserRow({

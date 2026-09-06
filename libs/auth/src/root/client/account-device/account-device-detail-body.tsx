@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/react/macro';
-import { Box, MenuSection } from '@pkgs/ui';
+import { Box, MenuSection } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 import { AccountDeviceActiveSessionLine } from './account-device-active-session-line';
 import { AccountDeviceIdField } from './account-device-id-field';

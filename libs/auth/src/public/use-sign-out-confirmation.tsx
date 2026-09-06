@@ -1,7 +1,7 @@
 import { Handles } from '@libs/test-ids';
 import { Trans } from '@lingui/react/macro';
 import { useLogger } from '@pkgs/logger/react';
-import { MutationModal } from '@pkgs/ui';
+import { MutationModal } from '@pkgs/ui-rn';
 import { type ReactNode, useCallback, useMemo } from 'react';
 
 /**

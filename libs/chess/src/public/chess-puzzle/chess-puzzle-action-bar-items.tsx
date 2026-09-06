@@ -10,7 +10,7 @@ import {
   type IconComponent,
   LightbulbIcon,
   RotateCcwIcon,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 import {

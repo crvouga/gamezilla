@@ -1,5 +1,5 @@
 import { useMyProfileId } from '@libs/profile/public/use-my-profile-id';
-import { useLocalSearchParams, useRouter } from '@pkgs/ui';
+import { useLocalSearchParams, useRouter } from '@pkgs/ui-rn';
 import { useCallback, useEffect, useMemo } from 'react';
 
 import type { FriendProfile } from '../../shared/friendship/friends-types';

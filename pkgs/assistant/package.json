@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@pkgs/clock": "workspace:*",
-    "@pkgs/ui": "workspace:*",
+    "@pkgs/ui-rn": "workspace:*",
     "react": "catalog:"
   },
   "devDependencies": {

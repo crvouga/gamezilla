@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/react/macro';
-import { AnimatedBox, Box, Text } from '@pkgs/ui';
-import { USE_NATIVE_DRIVER } from '@pkgs/ui/animation/use-native-driver';
+import { AnimatedBox, Box, Text } from '@pkgs/ui-rn';
+import { USE_NATIVE_DRIVER } from '@pkgs/ui-rn/animation/use-native-driver';
 import { type ReactNode, useEffect, useRef } from 'react';
 import { Animated } from 'react-native';
 

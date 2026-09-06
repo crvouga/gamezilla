@@ -1,6 +1,6 @@
 /**
  * Composition-root projection of ClientEnv.mutationSuccessHoldMs.
- * Not part of the public `@pkgs/ui` barrel — only ClientEnvProvider mounts this;
+ * Not part of the public `@pkgs/ui-rn` barrel — only ClientEnvProvider mounts this;
  * useMutationButton reads it when `successHoldMs` is omitted.
  */
 

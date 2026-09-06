@@ -1,4 +1,4 @@
-import { StatusDot } from '@pkgs/ui';
+import { StatusDot } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 import { useMemberIsOnline } from './use-member-is-online';
 

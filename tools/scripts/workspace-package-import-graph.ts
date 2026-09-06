@@ -3,7 +3,7 @@
  * Package-level graph of @apps|@libs|@pkgs|@product / * imports discovered from source.
  * Shared by deps:graph.
  *
- * Graph keys are full scoped names (`@pkgs/ui`, `@product/console`) so short-name
+ * Graph keys are full scoped names (`@pkgs/ui-rn`, `@product/console`) so short-name
  * collisions across tiers do not merge unrelated packages.
  */
 
@@ -17,13 +17,13 @@ export const TIER_DIRS = ['apps', 'libs', 'pkgs', 'product'] as const;
 export type Tier = (typeof TIER_DIRS)[number];
 const MAX_IMPORTER_SAMPLES = 3;
 
-/** Full scoped workspace package name, e.g. `@pkgs/ui`. */
+/** Full scoped workspace package name, e.g. `@pkgs/ui-rn`. */
 export type PackageName = string;
 
 /** from -> to -> sample importer paths (relative to repo root) */
 export type PackageImportGraph = Map<PackageName, Map<PackageName, string[]>>;
 
-/** Captures the full scoped import (`@apps/server`, `@pkgs/ui`, …). */
+/** Captures the full scoped import (`@apps/server`, `@pkgs/ui-rn`, …). */
 export const IMPORT_PATTERN =
   /(?:\bfrom|\bimport\s*\(|\brequire\s*\()\s*['"](@(?:apps|libs|pkgs|product)\/[^/'"\s)]+)/g;
 

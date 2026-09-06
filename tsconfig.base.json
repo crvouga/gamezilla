@@ -231,7 +231,7 @@
       "@pkgs/ui-testing-rntl": ["./pkgs/ui-testing-rntl/src/index.ts"],
       "@pkgs/ui-testing-rntl/*": ["./pkgs/ui-testing-rntl/src/*"],
       "@pkgs/ui-testing/*": ["./pkgs/ui-testing/src/*"],
-      "@pkgs/ui/*": ["./pkgs/ui/src/*"],
+      "@pkgs/ui-rn/*": ["./pkgs/ui-rn/src/*"],
       "@pkgs/uuid": ["./pkgs/uuid/src/index.ts"],
       "@pkgs/uuid/*": ["./pkgs/uuid/src/*"],
       "@product/console/*": ["./product/console/src/*"],

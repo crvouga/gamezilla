@@ -3,7 +3,7 @@
  * Compact: bottom tabs + miniplayer. Wide: miniplayer only (header owns nav).
  */
 
-import { useLayoutMode } from '@pkgs/ui';
+import { useLayoutMode } from '@pkgs/ui-rn';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import type { ReactNode } from 'react';
 

@@ -1,5 +1,5 @@
 import { useLingui } from '@lingui/react/macro';
-import { MenuRow } from '@pkgs/ui';
+import { MenuRow } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 import { formatTimestamp } from '../device-parsers';
 import { useDeviceActiveSessionCount } from '../use-device-active-session-count';

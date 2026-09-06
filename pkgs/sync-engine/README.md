@@ -766,7 +766,7 @@ pkgs/sync-engine/src/
 | `SyncEnginePaintGateContext` | Product sets identity-match gate |
 | `createSyncEnginePool` | Multi-identity engine pool (account switch) |
 
-Mutation UX (product/`@pkgs/ui`, not this package): destructive →
+Mutation UX (product/`@pkgs/ui-rn`, not this package): destructive →
 `MutationModal`; light → `useMutationButton`. Don’t `router.back()` from
 mutation `onSuccess` — stay and let SQLite drive UI.
 

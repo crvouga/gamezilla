@@ -14,7 +14,7 @@ import {
   Text,
   useMutationButton,
   useRouter,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import { type ReactNode, useCallback, useMemo } from 'react';
 
 import { FriendProfileAvatar } from '../../public/friend-profile-avatar';

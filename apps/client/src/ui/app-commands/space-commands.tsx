@@ -17,7 +17,7 @@ import {
   usePathname,
   useRouter,
   XIcon,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 const SPACE_ROUTE_RE = /^\/space\/([^/?#]+)/;

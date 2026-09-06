@@ -1,6 +1,6 @@
 /**
  * Single import boundary for Lucide icons. Every other file must import
- * named icons from `@pkgs/ui`, never from `lucide-react-native` directly.
+ * named icons from `@pkgs/ui-rn`, never from `lucide-react-native` directly.
  */
 
 import {

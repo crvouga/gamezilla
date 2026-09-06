@@ -1,7 +1,7 @@
 import { useMutationClient } from '@libs/auth/public/mutation-client-provider';
 
 import { useMyId } from '@libs/auth/public/use-current-user';
-import { useRouter } from '@pkgs/ui';
+import { useRouter } from '@pkgs/ui-rn';
 import { useCallback } from 'react';
 import { useSpaceOpenRooms } from '../../../public/room/space-open-rooms-context';
 import { closeSpaceDetail } from '../../../public/space-routes';

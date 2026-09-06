@@ -14,7 +14,7 @@ import {
   MenuRow,
   MenuSection,
   ScreenBase,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 

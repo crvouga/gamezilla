@@ -1,4 +1,4 @@
-import { Box, useOverlayPortal, useOverlayPortalHostFrame } from '@pkgs/ui';
+import { Box, useOverlayPortal, useOverlayPortalHostFrame } from '@pkgs/ui-rn';
 import { memo, type ReactNode, useCallback, useEffect, useRef } from 'react';
 import type { LayoutChangeEvent, View } from 'react-native';
 import { Platform } from 'react-native';

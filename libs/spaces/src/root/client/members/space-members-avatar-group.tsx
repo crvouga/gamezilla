@@ -1,4 +1,4 @@
-import { AvatarGroup } from '@pkgs/ui';
+import { AvatarGroup } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 import { SpaceGuestMembershipAvatar } from './space-guest-membership-avatar';
 import { SpaceHostAvatar } from './space-host-avatar';

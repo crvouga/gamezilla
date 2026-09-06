@@ -1,4 +1,4 @@
-import { SpeakingAvatar, type SpeakingAvatarProps } from '@pkgs/ui';
+import { SpeakingAvatar, type SpeakingAvatarProps } from '@pkgs/ui-rn';
 import { type ReactNode, useEffect, useState } from 'react';
 
 import type { Assistant } from '../../shared/index';

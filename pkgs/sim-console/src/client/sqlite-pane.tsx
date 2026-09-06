@@ -1,4 +1,4 @@
-import { Box, Text } from '@pkgs/ui';
+import { Box, Text } from '@pkgs/ui-rn';
 
 import type { FlatFrame } from './frames';
 import { resolveSnapshotFile } from './frames';

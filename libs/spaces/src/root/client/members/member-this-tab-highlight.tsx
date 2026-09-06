@@ -1,4 +1,4 @@
-import { Box } from '@pkgs/ui';
+import { Box } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 import { useMemberIsThisTab } from './use-member-is-this-tab';
 

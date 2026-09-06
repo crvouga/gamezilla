@@ -28,7 +28,7 @@
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sql-client-sqlite": "workspace:*",
-    "@pkgs/ui": "workspace:*",
+    "@pkgs/ui-rn": "workspace:*",
     "@pkgs/ui-testing": "workspace:*",
     "@pkgs/ui-testing-rntl": "workspace:*",
     "@pkgs/uuid": "workspace:*",

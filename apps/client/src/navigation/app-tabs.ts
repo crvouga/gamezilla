@@ -11,7 +11,7 @@ import {
   type IconComponent,
   SearchIcon,
   UserIcon,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import { useMemo } from 'react';
 
 import type { TabsParamList } from './types';

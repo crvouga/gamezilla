@@ -5,7 +5,7 @@
  */
 
 import { SpaceMiniplayer } from '@libs/spaces/root/client/miniplayer/space-miniplayer';
-import { Box } from '@pkgs/ui';
+import { Box } from '@pkgs/ui-rn';
 import { BottomTabBarHeightCallbackContext } from '@react-navigation/bottom-tabs';
 import { type ReactNode, useCallback, useContext } from 'react';
 

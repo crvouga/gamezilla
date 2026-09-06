@@ -1,6 +1,6 @@
 import { UserUsername } from '@libs/profile/public/user-username';
-import type { SxProps, TextVariant } from '@pkgs/ui';
-import { optionalProps } from '@pkgs/ui/components/optional-props';
+import type { SxProps, TextVariant } from '@pkgs/ui-rn';
+import { optionalProps } from '@pkgs/ui-rn/components/optional-props';
 import type { ReactNode } from 'react';
 
 import { useSpaceHostMembershipDisplay } from './use-space-host-membership-display';

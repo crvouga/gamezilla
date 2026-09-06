@@ -10,7 +10,7 @@ import {
   useAppFrameGlobalTrailing,
   usePathname,
   useRouter,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import { type ReactNode, useMemo } from 'react';
 
 import { isAppTabActive, useAppTabs } from '../../navigation/app-tabs';

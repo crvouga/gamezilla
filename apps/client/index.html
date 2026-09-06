@@ -1,45 +1,16 @@
 <!doctype html>
-<html lang="%LANG_ISO_CODE%">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <link rel="manifest" href="/pwa/manifest.webmanifest" />
     <meta name="theme-color" content="#0A0A0A" />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
-    <title>%WEB_TITLE%</title>
+    <title>Gamezilla</title>
 
-    <!-- The `react-native-web` recommended style reset: https://necolas.github.io/react-native-web/docs/setup/#root-element -->
-    <style id="expo-reset">
-      /* These styles make the body full-height */
-      html,
-      body {
-        height: 100%;
-      }
-      /* These styles disable body scrolling if you are using <ScrollView> */
-      body {
-        overflow: hidden;
-      }
-      /* These styles make the root element full-height */
-      #root {
-        display: flex;
-        height: 100%;
-        flex: 1;
-      }
-      /* Disable text selection by default; inputs stay selectable */
-      * {
-        -webkit-user-select: none;
-        user-select: none;
-      }
-      input,
-      textarea,
-      [contenteditable='true'] {
-        -webkit-user-select: text;
-        user-select: text;
-      }
-    </style>
+    <link rel="stylesheet" href="/src/styles/base.css" />
     <meta name="mobile-web-app-capable" content="yes" />
     <link
       rel="icon"
@@ -251,10 +222,9 @@
     />
   </head>
   <body>
-    <!-- Use static rendering with Expo Router to support running without JavaScript. -->
     <noscript> You need to enable JavaScript to run this app. </noscript>
 
-    <!-- The root element for your Expo app. -->
     <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

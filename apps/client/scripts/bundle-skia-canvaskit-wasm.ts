@@ -1,7 +1,7 @@
 // @io-wall-ok — composition-root wall FS via ObjectStore migration pending
 /**
  * Copies Skia's CanvasKit wasm into `public/generated/skia/` for
- * `loadSkiaWebOnce` in `@pkgs/ui/components/skia-web-root`.
+ * `loadSkiaWebOnce` in `@pkgs/ui-rn/components/skia-web-root`.
  *
  * Skia web defaults to fetching from same-origin assets, so we serve it from
  * `/generated/skia/canvaskit.wasm`.

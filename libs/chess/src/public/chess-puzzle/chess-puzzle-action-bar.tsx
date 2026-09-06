@@ -1,4 +1,4 @@
-import { BottomActionBar } from '@pkgs/ui';
+import { BottomActionBar } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 import {

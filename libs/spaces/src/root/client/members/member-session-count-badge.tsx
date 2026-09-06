@@ -1,4 +1,4 @@
-import { Text } from '@pkgs/ui';
+import { Text } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 import { useMemberSessionCount } from './use-member-session-count';
 

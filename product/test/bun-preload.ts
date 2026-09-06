@@ -32,7 +32,7 @@ i18n.loadAndActivate({ locale: 'en', messages: {} });
 
 const linguiReact = require(
   require.resolve('@lingui/react', {
-    paths: [require.resolve('../../pkgs/ui/package.json')],
+    paths: [require.resolve('../../pkgs/ui-rn/package.json')],
   })
 ) as typeof import('@lingui/react');
 mock.module('@lingui/react/macro', () => ({

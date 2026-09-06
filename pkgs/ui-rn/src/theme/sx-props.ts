@@ -1,5 +1,5 @@
 /**
- * Standalone style language for `@pkgs/ui`.
+ * Standalone style language for `@pkgs/ui-rn`.
  *
  * No React Native `ViewStyle` / `TextStyle` / `StyleSheet` types.
  * Runtime adapters compile this to RN styles; reports compile it to CSS.

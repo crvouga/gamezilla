@@ -13,7 +13,7 @@ import { MyProfileAvatar } from '@libs/profile/root/client/my-profile-avatar';
 import { useLingui } from '@lingui/react/macro';
 import type { LocalizedString } from '@pkgs/i18n';
 import { useSyncEngine } from '@pkgs/sync-engine/client';
-import { MenuRow, MenuSection } from '@pkgs/ui';
+import { MenuRow, MenuSection } from '@pkgs/ui-rn';
 import { type ReactNode, useMemo } from 'react';
 
 const IDENTITY_AVATAR_SIZE = 40;

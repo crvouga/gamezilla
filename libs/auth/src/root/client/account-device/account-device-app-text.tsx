@@ -1,4 +1,4 @@
-import { Text } from '@pkgs/ui';
+import { Text } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 import { EM_DASH } from '../device-parsers';
 import { useDeviceColumn } from '../use-device-column';

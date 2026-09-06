@@ -8,8 +8,8 @@ import {
   ScreenBase,
   TextInput,
   useRouter,
-} from '@pkgs/ui';
-import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
+} from '@pkgs/ui-rn';
+import { useBreadcrumbNav } from '@pkgs/ui-rn/components/use-breadcrumb-nav';
 import {
   type ReactNode,
   useCallback,

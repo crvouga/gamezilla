@@ -1,4 +1,4 @@
-import { Box } from '@pkgs/ui';
+import { Box } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 /** Full-bleed themed canvas — no spinner. Used while splash still covers native. */

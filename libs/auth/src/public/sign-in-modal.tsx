@@ -17,7 +17,7 @@ import {
   MutationStateTransition,
   ResponsiveSurface,
   SuccessState,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import { type ReactNode, useCallback, useEffect, useRef } from 'react';
 import { SignInIdleBody, SignInIdleFooter } from './sign-in-idle-content';
 import {

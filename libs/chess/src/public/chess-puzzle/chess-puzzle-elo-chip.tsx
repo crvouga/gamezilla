@@ -1,7 +1,7 @@
-import { AnimatedBox, Box, Text } from '@pkgs/ui';
-import { startTiming } from '@pkgs/ui/animation/run-timing';
-import { USE_NATIVE_DRIVER } from '@pkgs/ui/animation/use-native-driver';
-import { motion } from '@pkgs/ui/theme/motion';
+import { AnimatedBox, Box, Text } from '@pkgs/ui-rn';
+import { startTiming } from '@pkgs/ui-rn/animation/run-timing';
+import { USE_NATIVE_DRIVER } from '@pkgs/ui-rn/animation/use-native-driver';
+import { motion } from '@pkgs/ui-rn/theme/motion';
 import { type ReactNode, useEffect, useRef } from 'react';
 import { Animated } from 'react-native';
 

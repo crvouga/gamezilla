@@ -8,8 +8,8 @@ import {
   SmartphoneIcon,
   useRouter,
   useTheme,
-} from '@pkgs/ui';
-import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
+} from '@pkgs/ui-rn';
+import { useBreadcrumbNav } from '@pkgs/ui-rn/components/use-breadcrumb-nav';
 import type { ReactNode } from 'react';
 
 import { AccountActionsRow } from './account-actions-row';

@@ -1,4 +1,4 @@
-import { releaseWebFocus } from '@pkgs/ui';
+import { releaseWebFocus } from '@pkgs/ui-rn';
 import {
   applyConsoleNavPatch,
   buildConsoleSearch,

@@ -1,5 +1,5 @@
 import { useLingui } from '@lingui/react/macro';
-import { AvatarGroup, Box, Pressable, Text } from '@pkgs/ui';
+import { AvatarGroup, Box, Pressable, Text } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 import { SpaceCardGradientBox } from '../card/space-card-gradient';

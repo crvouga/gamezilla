@@ -1,5 +1,5 @@
 import type { Square } from '@pkgs/chess-board/chess-board-types';
-import { useTheme } from '@pkgs/ui';
+import { useTheme } from '@pkgs/ui-rn';
 import { useMemo } from 'react';
 import type { ChessPuzzlePlayStatus } from '../chess-puzzle-play';
 import { deriveChessPuzzleCellFeedback } from './chess-puzzle-cell-feedback';

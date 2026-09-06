@@ -1,4 +1,4 @@
-import { Avatar, UserIcon } from '@pkgs/ui';
+import { Avatar, UserIcon } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 import type { AvatarConfig } from './avatar-config';
 

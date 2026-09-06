@@ -9,7 +9,7 @@ import {
   ScreenBase,
   ScreenBodyScrollView,
   useRouter,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 import { MyProfileAvatar } from './my-profile-avatar';
 import { MyUsername } from './my-username';

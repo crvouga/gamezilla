@@ -1,6 +1,6 @@
 import { DefineBackButton } from '@libs/spaces/public/nav/spaces-nav-context';
 import { useSpaceRoomDispatch } from '@libs/spaces/public/room/use-space-room-selector';
-import { Box, ExplorerList } from '@pkgs/ui';
+import { Box, ExplorerList } from '@pkgs/ui-rn';
 import { type ReactNode, useCallback, useEffect } from 'react';
 import {
   CHESS_SCREEN,

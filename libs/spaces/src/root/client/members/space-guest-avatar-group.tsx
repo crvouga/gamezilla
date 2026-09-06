@@ -1,5 +1,5 @@
-import { AvatarGroup } from '@pkgs/ui';
-import { optionalProps } from '@pkgs/ui/components/optional-props';
+import { AvatarGroup } from '@pkgs/ui-rn';
+import { optionalProps } from '@pkgs/ui-rn/components/optional-props';
 import type { ReactNode } from 'react';
 import { SpaceGuestMembershipAvatar } from './space-guest-membership-avatar';
 import { useSpaceGuestMembershipIds } from './use-space-guest-membership-ids';

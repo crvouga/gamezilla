@@ -1,6 +1,6 @@
 import { SpeakingAvatarAssistant } from '@pkgs/assistant/client';
 import { ChessBoard } from '@pkgs/chess-board/chess-board';
-import { Box, SpeakingAvatar } from '@pkgs/ui';
+import { Box, SpeakingAvatar } from '@pkgs/ui-rn';
 import { memo, type ReactNode } from 'react';
 import { ChessPuzzleBoardLoadingState } from './chess-puzzle-board-loading-state';
 import { ChessPuzzleE2EHints } from './chess-puzzle-e2e-hints';

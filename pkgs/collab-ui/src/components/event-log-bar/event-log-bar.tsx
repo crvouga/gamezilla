@@ -15,7 +15,7 @@ import {
   Pressable,
   Stack,
   Text,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 import { EventLogIcon } from '../event-log-icon';

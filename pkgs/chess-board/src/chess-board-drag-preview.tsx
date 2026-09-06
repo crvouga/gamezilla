@@ -1,4 +1,4 @@
-import { Box, useOverlayPortal, useOverlayPortalSlot } from '@pkgs/ui';
+import { Box, useOverlayPortal, useOverlayPortalSlot } from '@pkgs/ui-rn';
 import { memo, type ReactNode, useId } from 'react';
 import { Platform } from 'react-native';
 import Animated, {

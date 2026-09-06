@@ -1,4 +1,4 @@
-import { Box, CONTENT_EDGE_PADDING_STEP, Text } from '@pkgs/ui';
+import { Box, CONTENT_EDGE_PADDING_STEP, Text } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 import type { RequestEndSpaceOptions } from '../end-space/end-space-modal-provider';
 import type { RequestLeaveSpaceOptions } from '../leave-space/leave-space-modal-provider';

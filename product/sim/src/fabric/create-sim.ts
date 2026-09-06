@@ -41,7 +41,7 @@ import { createNamespacedWebSecureStorage } from '@pkgs/secure-storage-web';
 import type { Session } from '@pkgs/sim';
 import { createInMemoryAudioPlaybackPort } from '@pkgs/sounds/audio-playback/in-memory-audio-playback-port';
 import { InMemoryTtsProvider } from '@pkgs/tts/server';
-import { createPassthroughBottomSheetHost } from '@pkgs/ui';
+import { createPassthroughBottomSheetHost } from '@pkgs/ui-rn';
 import { serializeFetch } from './sim-fetch';
 import { createSimNet } from './sim-net';
 import {

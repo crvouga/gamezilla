@@ -1,4 +1,4 @@
-import { Box, Text } from '@pkgs/ui';
+import { Box, Text } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 import type { DebuggerViewId } from '../shared/debugger-views';
 import type { ReportApiClient } from './api-client';

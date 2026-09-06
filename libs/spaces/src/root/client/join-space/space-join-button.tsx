@@ -2,8 +2,8 @@ import { useIsSignedIn } from '@libs/auth/public/use-current-user';
 import { Handles } from '@libs/test-ids';
 import { useLingui } from '@lingui/react/macro';
 import { Sounds } from '@pkgs/sounds';
-import { Button, useMutationButton } from '@pkgs/ui';
-import { optionalProps } from '@pkgs/ui/components/optional-props';
+import { Button, useMutationButton } from '@pkgs/ui-rn';
+import { optionalProps } from '@pkgs/ui-rn/components/optional-props';
 import { type ReactNode, useCallback } from 'react';
 import { useJoinSpace } from './use-join-space';
 

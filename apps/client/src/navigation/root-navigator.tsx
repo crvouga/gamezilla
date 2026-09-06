@@ -11,7 +11,7 @@ import { ProfileEditScreen } from '@libs/profile/root/client/profile-edit-screen
 import { SearchScreen } from '@libs/search/root/client/search-screen';
 import { SpaceDetailScreen } from '@libs/spaces/root/client/space-detail-screen';
 import { SpacesScreen } from '@libs/spaces/root/client/spaces-screen';
-import { useStackProps, useTabsProps } from '@pkgs/ui';
+import { useStackProps, useTabsProps } from '@pkgs/ui-rn';
 import {
   type BottomTabNavigationOptions,
   createBottomTabNavigator,

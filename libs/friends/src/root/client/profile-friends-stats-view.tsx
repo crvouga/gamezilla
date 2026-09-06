@@ -1,6 +1,6 @@
 import { Handles } from '@libs/test-ids';
 import { Plural } from '@lingui/react/macro';
-import { Box, ChevronRightIcon, Pressable, Text, useTheme } from '@pkgs/ui';
+import { Box, ChevronRightIcon, Pressable, Text, useTheme } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 import { useFriends } from '../../use-cases/list-friends/client/use-friends';
 import { FriendsProfileRoute } from './friends-profile-routes';

@@ -1,6 +1,6 @@
 # Sound Style Guide — Gamezilla
 
-Aligned with the visual palette in `@pkgs/ui` (Radix zinc neutrals + saturated blue brand).
+Aligned with the visual palette in `@pkgs/ui-rn` (Radix zinc neutrals + saturated blue brand).
 
 ## Emotional tone
 

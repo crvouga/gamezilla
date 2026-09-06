@@ -1,4 +1,4 @@
-import { Box, ScrollView } from '@pkgs/ui';
+import { Box, ScrollView } from '@pkgs/ui-rn';
 import {
   type ReactNode,
   type Ref,

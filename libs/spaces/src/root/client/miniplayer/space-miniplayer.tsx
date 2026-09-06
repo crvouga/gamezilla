@@ -1,5 +1,5 @@
 import { useSyncEngine } from '@pkgs/sync-engine/client';
-import { Box, ISLAND_GAP_STEP, useLayoutMode } from '@pkgs/ui';
+import { Box, ISLAND_GAP_STEP, useLayoutMode } from '@pkgs/ui-rn';
 import { type ReactNode, useCallback, useEffect, useState } from 'react';
 import { SPACE_CARD_BORDER_RADIUS } from '../card/space-card-gradient';
 import { useRequestEndSpace } from '../end-space/end-space-modal-provider';

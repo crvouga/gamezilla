@@ -1,6 +1,6 @@
 import { UserProfileAvatar } from '@libs/profile/public/user-profile-avatar';
 import { UserUsername } from '@libs/profile/public/user-username';
-import { Box, Text } from '@pkgs/ui';
+import { Box, Text } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 import { MemberPresenceBadgesRow } from './member-presence-badges-row';
 import { MemberPresenceDot } from './member-presence-dot';

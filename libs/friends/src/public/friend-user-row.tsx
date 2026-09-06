@@ -1,5 +1,5 @@
 import { Handles } from '@libs/test-ids';
-import { Box, Pressable, Text } from '@pkgs/ui';
+import { Box, Pressable, Text } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 import type { FriendProfile } from '../shared/friendship/friends-types';

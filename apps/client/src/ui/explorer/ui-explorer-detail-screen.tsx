@@ -7,12 +7,12 @@ import {
   ScreenBase,
   useLocalSearchParams,
   useRouter,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import {
   type ComponentEntry,
   ExplorerDetail,
   useComponentRegistry,
-} from '@pkgs/ui/explorer';
+} from '@pkgs/ui-rn/explorer';
 import { useCallback, useMemo } from 'react';
 
 function toCatalogItems(entries: readonly ComponentEntry[]): CatalogItem[] {

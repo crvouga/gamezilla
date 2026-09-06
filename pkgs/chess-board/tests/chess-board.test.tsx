@@ -18,8 +18,8 @@ import type {
   AudioPlayerHandle,
   AudioPlayerStatus,
 } from '@pkgs/sounds/audio-playback/ports';
-import { OverlayPortalProvider } from '@pkgs/ui/components/overlay-portal';
-import { ThemeProvider } from '@pkgs/ui/theme';
+import { OverlayPortalProvider } from '@pkgs/ui-rn/components/overlay-portal';
+import { ThemeProvider } from '@pkgs/ui-rn/theme';
 import { act, type RenderResult, render } from '@testing-library/react-native';
 import { type ReactElement, type ReactNode, useMemo } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';

@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/react/macro';
-import { Box, Spinner, type SxProps, type Theme, useTheme } from '@pkgs/ui';
+import { Box, Spinner, type SxProps, type Theme, useTheme } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 import { ChessPuzzleStatusBadge } from './chess-puzzle-status-badge';
 

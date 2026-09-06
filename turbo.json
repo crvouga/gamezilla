@@ -238,7 +238,9 @@
         "**/*.css",
         "**/*.json",
         "**/*.html",
-        "vite.config.ts",
+        "vite.config.mts",
+        "index.html",
+        "public/**",
         "tsconfig.json",
         "tsconfig.tc.json",
         "babel.config.js",
@@ -312,8 +314,55 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
+    "//#lint:eslint": {
+      "inputs": [
+        "eslint.config.mjs",
+        "tools/port/solid-scope.json",
+        "tsconfig.base.json",
+        "apps/**/*.{ts,tsx}",
+        "apps/*/tsconfig.json",
+        "libs/**/*.{ts,tsx}",
+        "pkgs/**/*.{ts,tsx}",
+        "product/**/*.{ts,tsx}"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:purge-scan": {
+      "inputs": [
+        "tools/scripts/purge-scan.ts",
+        "tools/port/**",
+        "apps/**",
+        "libs/**",
+        "pkgs/**",
+        "product/**",
+        "tools/**",
+        "docs/**",
+        "*.json",
+        "*.jsonc",
+        "*.md",
+        "*.cjs",
+        "*.mjs",
+        "*.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "@apps/client#check:bundle-budget": {
+      "dependsOn": ["@apps/client#build"],
+      "inputs": ["../../tools/scripts/bundle-budget.ts"],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
     "//#check": {
-      "dependsOn": ["lint", "//#lint:vocab", "tc", "test"],
+      "dependsOn": [
+        "lint",
+        "//#lint:vocab",
+        "//#lint:eslint",
+        "//#ci:purge-scan",
+        "tc",
+        "test"
+      ],
       "outputs": [],
       "outputLogs": "new-only"
     },
@@ -331,7 +380,8 @@
         "test:e2e",
         "@libs/billing#billing:check",
         "@tools#check:static",
-        "@apps/server#check:api"
+        "@apps/server#check:api",
+        "@apps/client#check:bundle-budget"
       ],
       "outputs": [],
       "outputLogs": "new-only"
@@ -431,6 +481,9 @@
         "@libs/billing#billing:check",
         "@tools#check:static",
         "@apps/server#check:api",
+        "@apps/client#check:bundle-budget",
+        "//#lint:eslint",
+        "//#ci:purge-scan",
         "@libs/secrets#check",
         "@tools#install:cli",
         "@libs/billing#billing:sync",
@@ -460,7 +513,9 @@
         "pkgs/**/*.tsx",
         "product/**/*.ts",
         "product/**/*.tsx",
-        ".dependency-cruiser.cjs"
+        ".dependency-cruiser.cjs",
+        "tools/port/solid-scope.json",
+        "tools/port/core-scope.json"
       ],
       "outputs": [],
       "outputLogs": "new-only"
@@ -472,7 +527,8 @@
     },
     "//#ci:i18n": {
       "inputs": [
-        "lingui.config.cjs",
+        "lingui.config.ts",
+        "lingui.solid.config.ts",
         "apps/**/*.ts",
         "apps/**/*.tsx",
         "libs/**/*.ts",

@@ -5,7 +5,7 @@ import {
   KeyRoundIcon,
   ScreenBase,
   useBreadcrumbNav,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 
 /**
  * Stub — linked sign-in providers UI previously read synced `entity_store`

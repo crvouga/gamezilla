@@ -1,4 +1,4 @@
-import { LoadingState } from '@pkgs/ui';
+import { LoadingState } from '@pkgs/ui-rn';
 import { type ReactNode, Suspense, use } from 'react';
 import {
   preloadChessBoardCanvas,

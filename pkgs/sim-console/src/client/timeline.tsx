@@ -1,4 +1,4 @@
-import { Box, Pressable, ScrollView, Text } from '@pkgs/ui';
+import { Box, Pressable, ScrollView, Text } from '@pkgs/ui-rn';
 import {
   memo,
   type RefObject,

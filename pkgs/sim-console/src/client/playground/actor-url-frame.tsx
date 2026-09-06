@@ -1,4 +1,4 @@
-import { Text } from '@pkgs/ui';
+import { Text } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 /** Native fallback — embed localhost actor URLs on web only. */

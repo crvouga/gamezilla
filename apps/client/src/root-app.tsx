@@ -3,7 +3,7 @@
 import { createClient } from '@apps/client/product/create-client';
 import { wallClientEnv } from '@apps/client/product/wall-client-env';
 import { ClockProvider, wallClock, wallTimers } from '@pkgs/clock';
-import { AppThemeRoot, Box } from '@pkgs/ui';
+import { AppThemeRoot, Box } from '@pkgs/ui-rn';
 import { IdProvider } from '@pkgs/uuid';
 import { type ReactNode, useEffect, useMemo } from 'react';
 

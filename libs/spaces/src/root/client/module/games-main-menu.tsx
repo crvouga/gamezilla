@@ -1,9 +1,9 @@
 import { Trans } from '@lingui/react/macro';
-import { FadeSwitch } from '@pkgs/ui';
+import { FadeSwitch } from '@pkgs/ui-rn';
 import {
   type MainMenuItem,
   MainMenuScreen,
-} from '@pkgs/ui/components/main-menu-screen';
+} from '@pkgs/ui-rn/components/main-menu-screen';
 import type { ReactNode } from 'react';
 import { useCallback, useEffect, useMemo } from 'react';
 import {

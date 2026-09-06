@@ -1,6 +1,6 @@
 import { Handles } from '@libs/test-ids';
 import { useLingui } from '@lingui/react/macro';
-import { Box, Button, LogInIcon, LogOutIcon } from '@pkgs/ui';
+import { Box, Button, LogInIcon, LogOutIcon } from '@pkgs/ui-rn';
 import { type ReactNode, useCallback } from 'react';
 
 const BUTTON_ICON_SIZE = 16;

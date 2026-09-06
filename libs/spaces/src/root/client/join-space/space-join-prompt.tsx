@@ -5,8 +5,8 @@ import {
   Gamepad2Icon,
   LoadingState,
   ScreenBase,
-} from '@pkgs/ui';
-import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
+} from '@pkgs/ui-rn';
+import { useBreadcrumbNav } from '@pkgs/ui-rn/components/use-breadcrumb-nav';
 import type { ReactNode } from 'react';
 import { SpaceTitleText } from '../../../root/client/space-title-text';
 import { SpaceEndedScreen } from './space-ended-screen';

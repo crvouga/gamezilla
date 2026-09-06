@@ -1,5 +1,5 @@
-import type { BadgeIntent, SxProps } from '@pkgs/ui';
-import { useTheme } from '@pkgs/ui';
+import type { BadgeIntent, SxProps } from '@pkgs/ui-rn';
+import { useTheme } from '@pkgs/ui-rn';
 
 /** Full-height shell: fill parent, product background. */
 export const appShellSx: SxProps = {

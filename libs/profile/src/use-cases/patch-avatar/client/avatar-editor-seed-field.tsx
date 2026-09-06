@@ -9,7 +9,7 @@ import {
   PickerSection,
   ShuffleIcon,
   TextInput,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import { useCallback, useEffect, useState } from 'react';
 
 export function AvatarEditorSeedField({

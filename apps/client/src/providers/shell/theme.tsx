@@ -1,4 +1,4 @@
-import { AppThemeRoot } from '@pkgs/ui';
+import { AppThemeRoot } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 import { useAppFonts } from './fonts-context';

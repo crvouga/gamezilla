@@ -1,4 +1,4 @@
-import { Box } from '@pkgs/ui';
+import { Box } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 import { SpaceLiveBadge } from '../../../public/space-live-badge';
 import { SpaceHostAvatar } from '../members/space-host-avatar';

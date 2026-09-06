@@ -3,7 +3,7 @@ import { FriendUserRow } from '@libs/friends/public/friend-user-row';
 import { useFriendRequestIdsForUser } from '@libs/friends/public/use-friend-request-ids';
 import { useFriendshipStatus } from '@libs/friends/public/use-friendship-status';
 import type { UserSearchResult } from '@libs/user-search/public/user-search-types';
-import { Box, useRouter } from '@pkgs/ui';
+import { Box, useRouter } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 export function SearchUserResultRow({

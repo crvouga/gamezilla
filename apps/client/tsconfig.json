@@ -4,9 +4,14 @@
     "../../pkgs/ts-reset/src/index.ts",
     "./src/**/*.ts",
     "./src/**/*.tsx",
-    "./scripts/**/*.ts"
+    "./scripts/**/*.ts",
+    "./tests/**/*.ts",
+    "./tests/**/*.tsx",
+    "./vite.config.mts",
+    "./vitest.config.mts"
   ],
   "compilerOptions": {
+    "allowImportingTsExtensions": true,
     "paths": {
       "@apps/server/*": ["../../apps/server/src/*"],
       "@apps/client/*": ["../../apps/client/src/*"],
@@ -156,7 +161,7 @@
       "@pkgs/chess-board/*": ["../../pkgs/chess-board/src/*"],
       "@pkgs/sounds": ["../../pkgs/sounds/src/index.ts"],
       "@pkgs/sounds/*": ["../../pkgs/sounds/src/*"],
-      "@pkgs/ui/*": ["../../pkgs/ui/src/*"],
+      "@pkgs/ui-rn/*": ["../../pkgs/ui-rn/src/*"],
       "@pkgs/uuid": ["../../pkgs/uuid/src/index.ts"],
       "@pkgs/uuid/*": ["../../pkgs/uuid/src/*"],
       "@pkgs/clock": ["../../pkgs/clock/src/index.ts"],

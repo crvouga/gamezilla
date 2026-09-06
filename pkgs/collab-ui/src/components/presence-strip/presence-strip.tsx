@@ -4,7 +4,11 @@
 
 import type { ParticipantColor } from '@pkgs/collab';
 import type { RoomActor } from '@pkgs/room';
-import { AvatarGroup, type ComponentDataSet, componentDataSet } from '@pkgs/ui';
+import {
+  AvatarGroup,
+  type ComponentDataSet,
+  componentDataSet,
+} from '@pkgs/ui-rn';
 import type { ReactElement, ReactNode } from 'react';
 
 import { ParticipantColorRing } from '../participant-color-ring';

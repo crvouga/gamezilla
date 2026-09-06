@@ -10,7 +10,7 @@ import {
   Switch,
   Text,
   Trash2Icon,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import {
   type ReactNode,
   useCallback,

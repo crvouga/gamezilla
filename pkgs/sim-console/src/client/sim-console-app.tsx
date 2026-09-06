@@ -1,4 +1,4 @@
-import { Box, Gamepad2Icon, ListChecksIcon, TabStrip } from '@pkgs/ui';
+import { Box, Gamepad2Icon, ListChecksIcon, TabStrip } from '@pkgs/ui-rn';
 import {
   type ReactNode,
   useCallback,

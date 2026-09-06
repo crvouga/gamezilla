@@ -37,7 +37,7 @@ import {
   useThemePreference,
   Volume2Icon,
   VolumeXIcon,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import {
   type ReactNode,
   useCallback,

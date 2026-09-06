@@ -2,20 +2,19 @@
 // @io-wall-ok — tools composition root
 /**
  * Fail if Lingui catalogs are stale vs source macros, or if a `t` / `<Trans>`
- * file sits outside `lingui.config.cjs` `catalogs.include`.
+ * file sits outside `lingui.config.ts` `catalogs.include`.
  *
  * Production Lingui looks up a hashed id (`iDNBZe`). A missing catalog key
  * renders that hash instead of English — keep extract/compile in lockstep.
  */
 import { spawnSync } from 'node:child_process';
 import { readdirSync, readFileSync } from 'node:fs';
-import { createRequire } from 'node:module';
 import { join, relative, sep } from 'node:path';
 
 const REPO_ROOT = join(import.meta.dirname, '../..');
 const PO_REL = 'apps/client/src/i18n/locales/en/messages.po';
 const COMPILED_REL = 'apps/client/src/i18n/locales/en/messages.ts';
-const MACRO_FROM = /from\s+['"]@lingui\/(?:core|react)\/macro['"]/;
+const MACRO_FROM = /from\s+['"]@lingui\/(?:core|react|solid)\/macro['"]/;
 const SCAN_ROOTS = ['apps', 'libs', 'pkgs', 'product'] as const;
 const SKIP_DIR_NAMES = new Set([
   'node_modules',
@@ -145,25 +144,26 @@ function runWithRetries(cmd: string, args: string[], attempts = 5): void {
   process.exit(lastStatus);
 }
 
-function loadLinguiConfig(): LinguiCatalogConfig {
-  const requireConfig = createRequire(join(REPO_ROOT, 'package.json'));
-  return requireConfig(
-    join(REPO_ROOT, 'lingui.config.cjs')
-  ) as LinguiCatalogConfig;
+async function loadLinguiConfig(): Promise<LinguiCatalogConfig> {
+  const mod = (await import(join(REPO_ROOT, 'lingui.config.ts'))) as {
+    default: LinguiCatalogConfig;
+  };
+  return mod.default;
 }
 
 const BABEL_CONFIG_RELS = [
   'apps/client/babel.config.js',
+  'apps/client/vite.config.mts',
   'product/console/babel.config.js',
   'product/test/babel.test.config.cjs',
 ] as const;
 
-function assertStripMessageFieldKept(): void {
+function assertDescriptorFieldsKept(): void {
   for (const rel of BABEL_CONFIG_RELS) {
     const text = readFileSync(join(REPO_ROOT, rel), 'utf8');
-    if (text.includes('stripMessageField: false')) continue;
+    if (text.includes("descriptorFields: 'all'")) continue;
     console.error(
-      `[ci:i18n] ${rel} must pass stripMessageField: false to ` +
+      `[ci:i18n] ${rel} must pass descriptorFields: 'all' to ` +
         `@lingui/babel-plugin-lingui-macro. Production otherwise strips ` +
         `source text and missing catalog keys render hashed ids.`
     );
@@ -171,8 +171,8 @@ function assertStripMessageFieldKept(): void {
   }
 }
 
-function assertMacrosCovered(): void {
-  const includes = catalogIncludeRelPaths(loadLinguiConfig());
+async function assertMacrosCovered(): Promise<void> {
+  const includes = catalogIncludeRelPaths(await loadLinguiConfig());
   const outside = macrosOutsideCatalogInclude(
     listLinguiMacroRelFiles(REPO_ROOT),
     includes
@@ -180,7 +180,7 @@ function assertMacrosCovered(): void {
   if (outside.length === 0) return;
   console.error(
     '[ci:i18n] Lingui macro files are outside catalogs.include.\n' +
-      'Add the package src dir to lingui.config.cjs or they will render hashed ids in production:\n' +
+      'Add the package src dir to lingui.config.ts or they will render hashed ids in production:\n' +
       outside.map((file) => `  ${file}`).join('\n')
   );
   process.exit(1);
@@ -207,7 +207,7 @@ function assertCatalogsFresh(): void {
 }
 
 if (import.meta.main) {
-  assertStripMessageFieldKept();
-  assertMacrosCovered();
+  assertDescriptorFieldsKept();
+  await assertMacrosCovered();
   assertCatalogsFresh();
 }

@@ -12,7 +12,7 @@ import {
   ScreenBase,
   StatusDot,
   Text,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import { useCallback, useEffect } from 'react';
 
 const REFRESH_INTERVAL_MS = 15_000;

@@ -1,5 +1,5 @@
-import { Box, ChevronRightIcon, MenuRow, SmartphoneIcon } from '@pkgs/ui';
-import { useTheme } from '@pkgs/ui/theme';
+import { Box, ChevronRightIcon, MenuRow, SmartphoneIcon } from '@pkgs/ui-rn';
+import { useTheme } from '@pkgs/ui-rn/theme';
 import type { ReactNode } from 'react';
 import { AccountDeviceCurrentBadge } from './account-device-current-badge';
 import { AccountDeviceListCaptionText } from './account-device-list-caption-text';

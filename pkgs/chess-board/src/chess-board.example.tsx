@@ -9,7 +9,7 @@ import {
   Stack,
   Switch,
   Text,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import { type ReactNode, useMemo, useState } from 'react';
 import { ChessBoard } from './chess-board';
 import type {

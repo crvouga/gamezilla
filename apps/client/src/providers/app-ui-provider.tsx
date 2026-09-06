@@ -2,7 +2,7 @@ import { AuthModalsProvider } from '@libs/auth/public/auth-modals-provider';
 import { EndSpaceModalProvider } from '@libs/spaces/root/client/end-space/end-space-modal-provider';
 import { LeaveSpaceModalProvider } from '@libs/spaces/root/client/leave-space/leave-space-modal-provider';
 import { ReconcileEndedOpenSessions } from '@libs/spaces/root/client/reconcile-ended-open-sessions';
-import { ComposeProviders } from '@pkgs/ui';
+import { ComposeProviders } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 import { AppSignInCapabilities } from './auth/sign-in-capabilities';

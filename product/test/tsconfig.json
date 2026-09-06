@@ -161,7 +161,7 @@
       "@pkgs/chess-board/*": ["../../pkgs/chess-board/src/*"],
       "@pkgs/sounds": ["../../pkgs/sounds/src/index.ts"],
       "@pkgs/sounds/*": ["../../pkgs/sounds/src/*"],
-      "@pkgs/ui/*": ["../../pkgs/ui/src/*"],
+      "@pkgs/ui-rn/*": ["../../pkgs/ui-rn/src/*"],
       "@pkgs/uuid": ["../../pkgs/uuid/src/index.ts"],
       "@pkgs/uuid/*": ["../../pkgs/uuid/src/*"],
       "@pkgs/clock": ["../../pkgs/clock/src/index.ts"],

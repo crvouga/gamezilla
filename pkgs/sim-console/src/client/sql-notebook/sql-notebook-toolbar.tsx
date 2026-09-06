@@ -6,7 +6,7 @@ import {
   PlayIcon,
   PlusIcon,
   Text,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 import type { SqlDialect } from './sql-dialect';

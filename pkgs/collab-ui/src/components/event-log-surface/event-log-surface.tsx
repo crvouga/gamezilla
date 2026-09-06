@@ -12,7 +12,7 @@ import {
   FlatList,
   ResponsiveSurface,
   Text,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import type { ReactElement, ReactNode } from 'react';
 import { useMemo } from 'react';
 

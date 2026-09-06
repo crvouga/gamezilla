@@ -1,6 +1,6 @@
 import { assert } from '@pkgs/assert';
-import { Box, Text, useTheme } from '@pkgs/ui';
-import { assertSkiaWebLoaded } from '@pkgs/ui/components/skia-web-root';
+import { Box, Text, useTheme } from '@pkgs/ui-rn';
+import { assertSkiaWebLoaded } from '@pkgs/ui-rn/components/skia-web-root';
 import { memo, type ReactNode, useCallback, useMemo, useState } from 'react';
 import type { LayoutChangeEvent } from 'react-native';
 import type { ChessBoardCanvasProps } from './chess-board-canvas';

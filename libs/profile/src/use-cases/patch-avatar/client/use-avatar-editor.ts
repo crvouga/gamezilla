@@ -1,6 +1,6 @@
 import { useMutationClient } from '@libs/auth/public/mutation-client-provider';
 import { useDeviceId } from '@libs/auth/public/use-device-id';
-import { useRouter } from '@pkgs/ui';
+import { useRouter } from '@pkgs/ui-rn';
 import { type Random, useRandom } from '@pkgs/uuid';
 import * as Clipboard from 'expo-clipboard';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';

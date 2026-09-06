@@ -1,6 +1,6 @@
 /**
  * Header block inside {@link FloatingMenu} (title + optional subtitle).
- * @internal Used only by {@link FloatingMenu}; not exported from `@pkgs/ui`.
+ * @internal Used only by {@link FloatingMenu}; not exported from `@pkgs/ui-rn`.
  */
 
 import type { ReactNode } from 'react';

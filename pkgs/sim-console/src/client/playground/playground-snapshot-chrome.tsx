@@ -16,7 +16,7 @@ import {
   Text,
   Trash2Icon,
   useCommandPalette,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 
 import type {
   PlaygroundSession,

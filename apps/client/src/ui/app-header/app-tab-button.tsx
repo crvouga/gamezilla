@@ -3,7 +3,7 @@
  * (icon over label, 13pt label, brand tint when selected).
  */
 
-import { getTopBarContentHeight, Pressable, Text, useTheme } from '@pkgs/ui';
+import { getTopBarContentHeight, Pressable, Text, useTheme } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 
 const TAB_ICON_SIZE = 24;

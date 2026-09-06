@@ -21,7 +21,7 @@
     "@pkgs/clock": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/sounds": "workspace:*",
-    "@pkgs/ui": "workspace:*",
+    "@pkgs/ui-rn": "workspace:*",
     "@pkgs/ui-testing": "workspace:*",
     "@shopify/react-native-skia": "catalog:",
     "chess.js": "catalog:",

@@ -16,7 +16,7 @@ import {
   useSecureStorageStore,
   writeSecureStorageItem,
 } from '@pkgs/secure-storage/use-secure-storage-item';
-import { Center, type Href, LoadingState, useRouter } from '@pkgs/ui';
+import { Center, type Href, LoadingState, useRouter } from '@pkgs/ui-rn';
 import * as WebBrowser from 'expo-web-browser';
 import { type ReactNode, useEffect, useRef } from 'react';
 

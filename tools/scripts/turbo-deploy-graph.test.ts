@@ -28,6 +28,15 @@ function turboCiRunTaskArgs(checkScript: string): string[] {
     .split(/\s+/);
 }
 
+const FAST_TIER = [
+  'lint',
+  '//#lint:vocab',
+  '//#lint:eslint',
+  '//#ci:purge-scan',
+  'tc',
+  'test',
+];
+
 describe('turbo deploy graph invariants', () => {
   test('deploy.dependsOn never includes //#check or //#check:full', () => {
     const turbo = loadTurboJson();
@@ -48,7 +57,7 @@ describe('turbo deploy graph invariants', () => {
     const turbo = loadTurboJson();
     const deps = turbo.tasks?.['//#check']?.dependsOn;
     expect(Array.isArray(deps)).toBe(true);
-    expect(deps as string[]).toEqual(['lint', 'tc', 'test']);
+    expect(deps as string[]).toEqual(FAST_TIER);
     expect(deps as string[]).not.toContain('//#ci:i18n');
   });
 
@@ -70,6 +79,7 @@ describe('turbo deploy graph invariants', () => {
     expect(list).toContain('@libs/billing#billing:check');
     expect(list).toContain('@tools#check:static');
     expect(list).toContain('@apps/server#check:api');
+    expect(list).toContain('@apps/client#check:bundle-budget');
   });
 
   test('bun check invokes turbo-ci-run with check aggregator only', () => {
@@ -96,7 +106,7 @@ describe('turbo deploy graph invariants', () => {
     const tasks = turbo.tasks ?? {};
     const fast = flattenCheckAggregators(['check'], tasks);
     const full = flattenCheckAggregators(['check:full'], tasks);
-    expect(fast).toEqual(['lint', 'tc', 'test']);
+    expect(fast).toEqual(FAST_TIER);
     for (const leaf of fast) {
       expect(full).toContain(leaf);
     }

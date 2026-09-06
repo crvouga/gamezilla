@@ -1,5 +1,5 @@
 import { useLingui } from '@lingui/react/macro';
-import { ModalButton } from '@pkgs/ui';
+import { ModalButton } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 import { SignInModalBody } from './sign-in-modal-body';
 

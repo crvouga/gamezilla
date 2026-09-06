@@ -4,7 +4,7 @@ import {
   SCREEN_BODY_PADDING_STEP,
   ScreenBodyLegendList,
   Text,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import { type ReactNode, useCallback, useMemo } from 'react';
 
 import type {

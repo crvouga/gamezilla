@@ -11,7 +11,7 @@ import {
   SquarePenIcon,
   useActionBarChrome,
   XIcon,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import { type ReactNode, useCallback, useMemo, useState } from 'react';
 import { useSpacesNavBack } from '../../../public/nav/spaces-nav-context';
 import { SpaceMembersListModal } from '../members/space-members-list-modal';

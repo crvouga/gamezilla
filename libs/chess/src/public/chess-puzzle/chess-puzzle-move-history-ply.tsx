@@ -1,4 +1,4 @@
-import { Box, Pressable, Text } from '@pkgs/ui';
+import { Box, Pressable, Text } from '@pkgs/ui-rn';
 import { memo, type ReactNode, type Ref, useCallback } from 'react';
 import type { LayoutChangeEvent, View } from 'react-native';
 

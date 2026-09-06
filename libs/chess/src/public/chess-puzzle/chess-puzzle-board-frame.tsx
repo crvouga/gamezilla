@@ -1,4 +1,4 @@
-import { Box } from '@pkgs/ui';
+import { Box } from '@pkgs/ui-rn';
 import { type ReactNode, useCallback, useState } from 'react';
 import type { LayoutChangeEvent } from 'react-native';
 

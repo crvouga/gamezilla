@@ -17,7 +17,7 @@ import {
   NavigationRefProvider,
   navigationRef,
   setAppLinkingConfig,
-} from '@pkgs/ui';
+} from '@pkgs/ui-rn';
 import {
   NavigationContainer,
   NavigationIndependentTree,

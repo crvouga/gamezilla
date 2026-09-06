@@ -1,5 +1,5 @@
 import { preloadChessBoardCanvas } from '@pkgs/chess-board/chess-board-canvas-runtime';
-import { hideSplash } from '@pkgs/ui';
+import { hideSplash } from '@pkgs/ui-rn';
 import {
   createContext,
   type ReactNode,

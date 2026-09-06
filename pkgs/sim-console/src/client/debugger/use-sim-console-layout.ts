@@ -1,4 +1,4 @@
-import { useBreakpoint } from '@pkgs/ui';
+import { useBreakpoint } from '@pkgs/ui-rn';
 
 import { useClientLayoutPreference } from './client-layout-preference';
 import {

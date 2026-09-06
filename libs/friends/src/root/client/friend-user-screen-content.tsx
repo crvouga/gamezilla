@@ -1,4 +1,4 @@
-import { Box, type SxInput } from '@pkgs/ui';
+import { Box, type SxInput } from '@pkgs/ui-rn';
 import type { ReactNode } from 'react';
 import { FriendActionPills } from '../../public/friend-action-pills/friend-action-pills';
 import type {

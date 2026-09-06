@@ -1,4 +1,4 @@
-import { Box } from '@pkgs/ui';
+import { Box } from '@pkgs/ui-rn';
 import { type ReactNode, useEffect } from 'react';
 
 /** Stable web `id` for {@link DebuggerColumns} — used for outside-pointer hit tests. */
