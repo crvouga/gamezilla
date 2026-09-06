@@ -19,8 +19,10 @@
     "@pkgs/clock": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
+    "@pkgs/solid-context": "workspace:*",
     "@pkgs/sql": "workspace:*",
-    "react": "catalog:"
+    "react": "catalog:",
+    "solid-js": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

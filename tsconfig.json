@@ -118,6 +118,8 @@
     "pkgs/uuid/src/**/*.tsx",
     "pkgs/clock/src/**/*.ts",
     "pkgs/clock/src/**/*.tsx",
+    "pkgs/vitest-solid/src/**/*.ts",
+    "pkgs/vitest-solid/src/**/*.tsx",
     "pkgs/http-client/src/**/*.ts",
     "pkgs/http-client/src/**/*.tsx",
     "pkgs/db-schema/src/**/*.ts",

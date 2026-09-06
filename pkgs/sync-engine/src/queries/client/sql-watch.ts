@@ -1,8 +1,16 @@
 import type { Sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { startTransition } from 'react';
 
 import type { TableChangeBus } from './table-change-bus';
+
+/**
+ * Schedules watch listener notification. The default runs listeners
+ * synchronously; a UI host may inject a lower-priority scheduler so
+ * scroll/tap paint wins over snapshot apply (INP).
+ */
+export type ScheduleNotify = (notify: () => void) => void;
+
+export const notifySynchronously: ScheduleNotify = (notify) => notify();
 
 export type SqlWatchHandle<T extends Record<string, unknown>> = {
   readonly getSnapshot: () => readonly T[];
@@ -39,14 +47,16 @@ function logWatchError(error: unknown): void {
 
 /**
  * Event-driven SQL watch. Reads once immediately, then only after a relevant
- * post-commit table notification. Listener notifies run inside
- * `startTransition` so scroll/tap paint wins over snapshot apply (INP).
+ * post-commit table notification. Listener notifies run through the injected
+ * {@link ScheduleNotify} (synchronous by default).
  */
 export function createSqlWatch<T extends Record<string, unknown>>(args: {
   readonly db: Pick<SqlClient, 'query'>;
   readonly bus: TableChangeBus;
   readonly query: Sql<T>;
+  readonly scheduleNotify?: ScheduleNotify;
 }): SqlWatchHandle<T> {
+  const scheduleNotify = args.scheduleNotify ?? notifySynchronously;
   const listeners = new Set<() => void>();
   const dependencies = queryTableNames(args.query.sql);
   let snapshot: readonly T[] = [];
@@ -56,7 +66,7 @@ export function createSqlWatch<T extends Record<string, unknown>>(args: {
   let pending = false;
 
   const notify = (): void => {
-    startTransition(() => {
+    scheduleNotify(() => {
       for (const listener of listeners) listener();
     });
   };

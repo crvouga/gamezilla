@@ -84,10 +84,3 @@ export function useAudioPlayerStatus(
   }, [port, player]);
   return status;
 }
-
-/** Imperative resolve for non-React engines (SoundEngine). */
-export function resolveAudioPlaybackPort(
-  override?: AudioPlaybackPort
-): AudioPlaybackPort {
-  return override ?? getDefaultPort();
-}

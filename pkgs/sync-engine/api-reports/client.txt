@@ -17,7 +17,9 @@ MutationConnectivity
 MutationStatus
 MutationUploadResult
 MutationUploadRow
+notifySynchronously
 QueryRequest
+ScheduleNotify
 SyncApiAuthError
 SyncClientAuth
 SyncConnectionState

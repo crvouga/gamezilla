@@ -14,7 +14,10 @@ import type {
   MutationRegistry,
 } from '../mutations/core/types';
 import { withFrameworkMutations } from '../mutations/shared/with-framework-mutations';
-import { createSqlWatch } from '../queries/client/sql-watch';
+import {
+  createSqlWatch,
+  type ScheduleNotify,
+} from '../queries/client/sql-watch';
 import { createTableChangeBus } from '../queries/client/table-change-bus';
 import type { QueryResponse } from '../queries/core/types';
 import '../queries/shared/tiger-invariants';
@@ -121,6 +124,11 @@ export type CreateLocalSyncEngineOptions = {
    * When false, skip the mutation upload loop (sync-follower tabs). Default true.
    */
   readonly enableMutationUpload?: boolean;
+  /**
+   * Scheduler for watch listener notification (default synchronous). A UI
+   * host may inject a deferred scheduler so input paint beats snapshot apply.
+   */
+  readonly scheduleNotify?: ScheduleNotify;
 };
 
 type LocalEngineState = {
@@ -261,7 +269,14 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
     runtime,
     uploadQueue,
     watches: createSharedWatchRegistry((query) =>
-      createSqlWatch({ db: appDb, bus, query })
+      createSqlWatch({
+        db: appDb,
+        bus,
+        query,
+        ...(options.scheduleNotify === undefined
+          ? {}
+          : { scheduleNotify: options.scheduleNotify }),
+      })
     ),
     sessionHandles,
     outboundLive: bufferOutbound ? createOutboundLiveBuffer() : null,

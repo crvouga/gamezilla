@@ -1,6 +1,7 @@
 export type AudioPlayerHandle = {
   volume: number;
-  play: () => void;
+  /** May return a promise (web `HTMLMediaElement.play`) so autoplay blocks can be observed. */
+  play: () => void | Promise<void>;
   pause: () => void;
   seekTo: (seconds: number) => Promise<void>;
   replace: (source: unknown) => void;

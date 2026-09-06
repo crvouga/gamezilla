@@ -147,6 +147,7 @@
         "@happy-dom/global-registrator": "catalog:",
         "@lingui/babel-plugin-lingui-macro": "catalog:",
         "@pkgs/os": "workspace:*",
+        "@pkgs/vitest-solid": "workspace:*",
         "@solidjs/testing-library": "catalog:",
         "@testing-library/jest-dom": "catalog:",
         "@types/bun": "catalog:",
@@ -823,13 +824,19 @@
         "@pkgs/clock": "workspace:*",
         "@pkgs/http-client": "workspace:*",
         "@pkgs/logger": "workspace:*",
+        "@pkgs/solid-context": "workspace:*",
         "react": "catalog:",
+        "solid-js": "catalog:",
       },
       "devDependencies": {
+        "@pkgs/vitest-solid": "workspace:*",
+        "@solidjs/testing-library": "catalog:",
+        "@testing-library/jest-dom": "catalog:",
         "@types/bun": "catalog:",
         "@types/react": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
+        "vitest": "catalog:",
       },
     },
     "pkgs/async-local": {
@@ -983,13 +990,19 @@
       "name": "@pkgs/clock",
       "version": "0.0.0",
       "dependencies": {
+        "@pkgs/solid-context": "workspace:*",
         "react": "catalog:",
+        "solid-js": "catalog:",
       },
       "devDependencies": {
+        "@pkgs/vitest-solid": "workspace:*",
+        "@solidjs/testing-library": "catalog:",
+        "@testing-library/jest-dom": "catalog:",
         "@types/bun": "catalog:",
         "@types/react": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
+        "vitest": "catalog:",
       },
     },
     "pkgs/collab": {
@@ -1251,13 +1264,19 @@
       "version": "0.0.0",
       "dependencies": {
         "@pkgs/clock": "workspace:*",
+        "@pkgs/solid-context": "workspace:*",
         "react": "catalog:",
+        "solid-js": "catalog:",
       },
       "devDependencies": {
+        "@pkgs/vitest-solid": "workspace:*",
+        "@solidjs/testing-library": "catalog:",
+        "@testing-library/jest-dom": "catalog:",
         "@types/bun": "catalog:",
         "@types/react": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
+        "vitest": "catalog:",
       },
     },
     "pkgs/i18n": {
@@ -1304,13 +1323,19 @@
         "@pkgs/db-schema-sqlite": "workspace:*",
         "@pkgs/keyword": "workspace:*",
         "@pkgs/logger": "workspace:*",
+        "@pkgs/solid-context": "workspace:*",
         "react": "catalog:",
+        "solid-js": "catalog:",
       },
       "devDependencies": {
+        "@pkgs/vitest-solid": "workspace:*",
+        "@solidjs/testing-library": "catalog:",
+        "@testing-library/jest-dom": "catalog:",
         "@types/bun": "catalog:",
         "@types/react": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
+        "vitest": "catalog:",
       },
     },
     "pkgs/kv-expo": {
@@ -1376,10 +1401,12 @@
         "@pkgs/kv": "workspace:*",
         "@pkgs/kv-postgres": "workspace:*",
         "@pkgs/secret-store": "workspace:*",
+        "@pkgs/solid-context": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "hono": "catalog:",
         "react": "catalog:",
         "react-native": "catalog:",
+        "solid-js": "catalog:",
       },
       "devDependencies": {
         "@types/react": "catalog:",
@@ -1406,7 +1433,9 @@
       "name": "@pkgs/logger",
       "version": "0.0.0",
       "dependencies": {
+        "@pkgs/solid-context": "workspace:*",
         "react": "catalog:",
+        "solid-js": "catalog:",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -1526,7 +1555,9 @@
       "name": "@pkgs/object-store",
       "version": "0.0.0",
       "dependencies": {
+        "@pkgs/solid-context": "workspace:*",
         "react": "catalog:",
+        "solid-js": "catalog:",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -1586,9 +1617,11 @@
         "@pkgs/async-local": "workspace:*",
         "@pkgs/clock": "workspace:*",
         "@pkgs/logger": "workspace:*",
+        "@pkgs/solid-context": "workspace:*",
         "@pkgs/uuid": "workspace:*",
         "hono": "catalog:",
         "react": "catalog:",
+        "solid-js": "catalog:",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -1892,13 +1925,19 @@
       "version": "0.0.0",
       "dependencies": {
         "@pkgs/assert": "workspace:*",
+        "@pkgs/solid-context": "workspace:*",
         "react": "catalog:",
+        "solid-js": "catalog:",
       },
       "devDependencies": {
+        "@pkgs/vitest-solid": "workspace:*",
+        "@solidjs/testing-library": "catalog:",
+        "@testing-library/jest-dom": "catalog:",
         "@types/bun": "catalog:",
         "@types/react": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
+        "vitest": "catalog:",
       },
     },
     "pkgs/secure-storage-expo": {
@@ -1982,6 +2021,22 @@
         "typescript": "catalog:",
       },
     },
+    "pkgs/solid-context": {
+      "name": "@pkgs/solid-context",
+      "version": "0.0.0",
+      "dependencies": {
+        "solid-js": "catalog:",
+      },
+      "devDependencies": {
+        "@pkgs/vitest-solid": "workspace:*",
+        "@solidjs/testing-library": "catalog:",
+        "@testing-library/jest-dom": "catalog:",
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+        "vitest": "catalog:",
+      },
+    },
     "pkgs/sounds": {
       "name": "@pkgs/sounds",
       "version": "0.0.0",
@@ -1990,15 +2045,21 @@
         "@pkgs/keyword": "workspace:*",
         "@pkgs/kv": "workspace:*",
         "@pkgs/logger": "workspace:*",
+        "@pkgs/solid-context": "workspace:*",
         "expo-audio": "catalog:",
         "react": "catalog:",
         "react-native": "catalog:",
+        "solid-js": "catalog:",
       },
       "devDependencies": {
+        "@pkgs/vitest-solid": "workspace:*",
+        "@solidjs/testing-library": "catalog:",
+        "@testing-library/jest-dom": "catalog:",
         "@types/bun": "catalog:",
         "@types/react": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
+        "vitest": "catalog:",
       },
     },
     "pkgs/sql": {
@@ -2038,8 +2099,10 @@
         "@pkgs/clock": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/pubsub": "workspace:*",
+        "@pkgs/solid-context": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "react": "catalog:",
+        "solid-js": "catalog:",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -2212,6 +2275,7 @@
         "@pkgs/outbox": "workspace:*",
         "@pkgs/pubsub": "workspace:*",
         "@pkgs/sim": "workspace:*",
+        "@pkgs/solid-context": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/sql-client-sqlite": "workspace:*",
@@ -2220,13 +2284,18 @@
         "hono": "catalog:",
         "node-sql-parser": "catalog:",
         "react": "catalog:",
+        "solid-js": "catalog:",
       },
       "devDependencies": {
+        "@pkgs/vitest-solid": "workspace:*",
+        "@solidjs/testing-library": "catalog:",
+        "@testing-library/jest-dom": "catalog:",
         "@types/bun": "catalog:",
         "@types/react": "catalog:",
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
         "typescript": "catalog:",
+        "vitest": "catalog:",
         "zod": "catalog:",
       },
     },
@@ -2261,10 +2330,12 @@
         "@pkgs/http-client": "workspace:*",
         "@pkgs/object-store": "workspace:*",
         "@pkgs/secret-store": "workspace:*",
+        "@pkgs/solid-context": "workspace:*",
         "@pkgs/sounds": "workspace:*",
         "hono": "catalog:",
         "react": "catalog:",
         "react-native": "catalog:",
+        "solid-js": "catalog:",
       },
       "devDependencies": {
         "@types/react": "catalog:",
@@ -2405,13 +2476,50 @@
       "dependencies": {
         "@pkgs/assert": "workspace:*",
         "@pkgs/clock": "workspace:*",
+        "@pkgs/solid-context": "workspace:*",
         "react": "catalog:",
+        "solid-js": "catalog:",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
         "@types/react": "catalog:",
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/vite-workspace-resolver": {
+      "name": "@pkgs/vite-workspace-resolver",
+      "version": "0.0.0",
+      "dependencies": {
+        "vite": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/vitest-solid": {
+      "name": "@pkgs/vitest-solid",
+      "version": "0.0.0",
+      "dependencies": {
+        "@lingui/babel-plugin-lingui-macro": "catalog:",
+        "@lingui/conf": "catalog:",
+        "@lingui/core": "catalog:",
+        "@lingui/solid": "catalog:",
+        "@pkgs/vite-workspace-resolver": "workspace:*",
+        "@solidjs/testing-library": "catalog:",
+        "@testing-library/jest-dom": "catalog:",
+        "happy-dom": "catalog:",
+        "solid-js": "catalog:",
+        "vite": "catalog:",
+        "vite-plugin-solid": "catalog:",
+        "vitest": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -3866,6 +3974,8 @@
 
     "@pkgs/sim-console": ["@pkgs/sim-console@workspace:pkgs/sim-console"],
 
+    "@pkgs/solid-context": ["@pkgs/solid-context@workspace:pkgs/solid-context"],
+
     "@pkgs/sounds": ["@pkgs/sounds@workspace:pkgs/sounds"],
 
     "@pkgs/sql": ["@pkgs/sql@workspace:pkgs/sql"],
@@ -3909,6 +4019,10 @@
     "@pkgs/ui-testing-rntl": ["@pkgs/ui-testing-rntl@workspace:pkgs/ui-testing-rntl"],
 
     "@pkgs/uuid": ["@pkgs/uuid@workspace:pkgs/uuid"],
+
+    "@pkgs/vite-workspace-resolver": ["@pkgs/vite-workspace-resolver@workspace:pkgs/vite-workspace-resolver"],
+
+    "@pkgs/vitest-solid": ["@pkgs/vitest-solid@workspace:pkgs/vitest-solid"],
 
     "@poppinss/colors": ["@poppinss/colors@4.1.6", "", { "dependencies": { "kleur": "^4.1.5" } }, "sha512-H9xkIdFswbS8n1d6vmRd8+c10t2Qe+rZITbbDHHkQixH5+2x1FDGmi/0K+WgWiqQFKPSlIYB7jlH6Kpfn6Fleg=="],
 

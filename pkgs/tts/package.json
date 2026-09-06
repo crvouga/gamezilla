@@ -16,12 +16,13 @@
     "./shared/*": [
       "./src/shared/*.ts",
       "./src/shared/*.tsx"
-    ]
+    ],
+    "./solid": "./src/client/solid.tsx"
   },
   "scripts": {
     "lint": "bunx biome check --error-on-warnings .",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test --pass-with-no-tests"
+    "test": "bun test"
   },
   "dependencies": {
     "@lingui/core": "catalog:",
@@ -30,10 +31,12 @@
     "@pkgs/http-client": "workspace:*",
     "@pkgs/object-store": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
+    "@pkgs/solid-context": "workspace:*",
     "@pkgs/sounds": "workspace:*",
     "hono": "catalog:",
     "react": "catalog:",
-    "react-native": "catalog:"
+    "react-native": "catalog:",
+    "solid-js": "catalog:"
   },
   "devDependencies": {
     "@types/react": "catalog:",

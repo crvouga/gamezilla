@@ -8,6 +8,10 @@ export type {
   MutationClientIds,
   MutationConnectivity,
 } from '../mutations/client/create-mutation-client';
+export {
+  notifySynchronously,
+  type ScheduleNotify,
+} from '../queries/client/sql-watch';
 export type {
   AppLifecycle,
   AppLifecycleEvent,

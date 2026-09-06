@@ -38,9 +38,11 @@
     "@pkgs/async-local": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/logger": "workspace:*",
+    "@pkgs/solid-context": "workspace:*",
     "@pkgs/uuid": "workspace:*",
     "hono": "catalog:",
-    "react": "catalog:"
+    "react": "catalog:",
+    "solid-js": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

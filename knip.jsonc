@@ -67,8 +67,7 @@
         "src/main.tsx",
         "src/integration/*.test.ts",
         "vite.config.mts",
-        "vitest.config.mts",
-        "tests/support/*.ts"
+        "vitest.config.mts"
       ]
     },
     "libs/object-store": {

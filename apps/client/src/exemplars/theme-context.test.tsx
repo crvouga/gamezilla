@@ -1,8 +1,9 @@
 /** @jsxImportSource solid-js */
+
+import { renderWithI18n } from '@pkgs/vitest-solid/render';
 import { fireEvent, screen, waitFor } from '@solidjs/testing-library';
 import { ErrorBoundary, lazy, Suspense } from 'solid-js';
 import { describe, expect, test } from 'vitest';
-import { renderWithI18n } from '../../tests/support/render';
 import { ThemeSchemeProvider, ThemeToggle } from './theme-context';
 
 const ThemedBadge = lazy(() => import('./themed-badge'));

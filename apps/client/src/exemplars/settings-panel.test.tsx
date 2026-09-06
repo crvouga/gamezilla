@@ -1,7 +1,8 @@
 /** @jsxImportSource solid-js */
+
+import { renderWithI18n } from '@pkgs/vitest-solid/render';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import { describe, expect, test, vi } from 'vitest';
-import { renderWithI18n } from '../../tests/support/render';
 import { type Settings, SettingsPanel } from './settings-panel';
 
 const INITIAL: Settings = {

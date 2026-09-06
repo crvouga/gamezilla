@@ -18,7 +18,9 @@
   "dependencies": {
     "@pkgs/assert": "workspace:*",
     "@pkgs/clock": "workspace:*",
-    "react": "catalog:"
+    "@pkgs/solid-context": "workspace:*",
+    "react": "catalog:",
+    "solid-js": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

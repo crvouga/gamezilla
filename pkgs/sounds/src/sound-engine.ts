@@ -1,5 +1,3 @@
-import { Platform } from 'react-native';
-import { resolveAudioPlaybackPort } from './audio-playback/audio-playback-context';
 import type { AudioPlaybackPort } from './audio-playback/ports';
 import { getManifestVolume } from './manifest';
 import { playAudioOrIgnoreAutoplayBlock } from './safe-audio-play';
@@ -10,8 +8,8 @@ export type SoundEngineOptions = {
   readonly muted?: boolean;
   readonly masterVolume?: number;
   readonly respectReducedMotion?: boolean;
-  /** Inject for sims; defaults to Expo wall audio port. */
-  readonly audio?: AudioPlaybackPort;
+  /** Injected audio port (web / native adapter, or the in-memory sim port). */
+  readonly audio: AudioPlaybackPort;
 };
 
 export type PlaySoundOptions = {
@@ -58,10 +56,13 @@ async function playFromStart(player: AudioPlayerLike): Promise<void> {
 }
 
 function isReducedMotionEnabled(): boolean {
-  if (Platform.OS === 'web' && typeof window !== 'undefined') {
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (
+    typeof window === 'undefined' ||
+    typeof window.matchMedia !== 'function'
+  ) {
+    return false;
   }
-  return false;
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
 export type SoundEngine = {
@@ -78,15 +79,8 @@ function createNoopSoundEngine(): SoundEngine {
   };
 }
 
-export function createSoundEngine(
-  options: SoundEngineOptions = {}
-): SoundEngine {
-  let audio: AudioPlaybackPort;
-  try {
-    audio = resolveAudioPlaybackPort(options.audio);
-  } catch {
-    return createNoopSoundEngine();
-  }
+export function createSoundEngine(options: SoundEngineOptions): SoundEngine {
+  const audio = options.audio;
   if (typeof audio.createPlayer !== 'function') {
     return createNoopSoundEngine();
   }

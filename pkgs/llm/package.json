@@ -19,7 +19,8 @@
     ],
     "./shared/adapters/*": [
       "./src/shared/adapters/*.ts"
-    ]
+    ],
+    "./solid": "./src/solid/index.tsx"
   },
   "scripts": {
     "lint": "bunx biome check --error-on-warnings .",
@@ -34,10 +35,12 @@
     "@pkgs/kv": "workspace:*",
     "@pkgs/kv-postgres": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
+    "@pkgs/solid-context": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "hono": "catalog:",
     "react": "catalog:",
-    "react-native": "catalog:"
+    "react-native": "catalog:",
+    "solid-js": "catalog:"
   },
   "devDependencies": {
     "@types/react": "catalog:",

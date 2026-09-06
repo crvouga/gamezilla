@@ -196,6 +196,7 @@
     "@happy-dom/global-registrator": "catalog:",
     "@lingui/babel-plugin-lingui-macro": "catalog:",
     "@pkgs/os": "workspace:*",
+    "@pkgs/vitest-solid": "workspace:*",
     "@solidjs/testing-library": "catalog:",
     "@testing-library/jest-dom": "catalog:",
     "@types/bun": "catalog:",

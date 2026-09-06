@@ -8,7 +8,7 @@ import { formatter } from '@lingui/format-po';
  * cannot ship hashed ids just because this file was not updated.
  *
  * Runtime macro output is JSX-runtime specific. This root config emits the
- * React shape (used by Metro / bun:test until the RN tree is deleted);
+ * React shape (used by the legacy bundler / bun:test until the RN tree is deleted);
  * `lingui.solid.config.ts` layers the Solid shape on top for Vite / Vitest.
  */
 export const LINGUI_CATALOG_INCLUDE = [

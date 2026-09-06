@@ -1,5 +1,5 @@
 import { useClientEnv } from '@apps/client/product/client-env-provider';
-import { SecureStorageContextProvider } from '@pkgs/secure-storage/interface';
+import { SecureStorageContextProvider } from '@pkgs/secure-storage/react-context';
 import { SecureStorageStoreProvider } from '@pkgs/secure-storage/use-secure-storage-item';
 import type { ReactNode } from 'react';
 

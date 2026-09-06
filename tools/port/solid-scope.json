@@ -1,5 +1,33 @@
 {
   "$comment": "Directories that are Solid-only. ESLint (solid + a11y + type-checked) runs on these; depcruise forbids RN/React imports from them. Grows per phase; at Phase 5 it is the whole repo and this file is deleted.",
-  "dirs": ["apps/client/src/exemplars", "apps/client/tests"],
-  "files": ["apps/client/src/main.tsx"]
+  "dirs": [
+    "apps/client/src/exemplars",
+    "pkgs/llm/src/solid",
+    "pkgs/solid-context/src",
+    "pkgs/solid-context/tests",
+    "pkgs/sync-engine/src/solid",
+    "pkgs/vitest-solid/src"
+  ],
+  "files": [
+    "apps/client/src/main.tsx",
+    "pkgs/async/src/solid.ts",
+    "pkgs/async/tests/solid.test.tsx",
+    "pkgs/clock/src/solid.tsx",
+    "pkgs/clock/tests/solid.test.tsx",
+    "pkgs/http-client/src/solid.tsx",
+    "pkgs/http-client/tests/solid.test.tsx",
+    "pkgs/kv/src/solid.tsx",
+    "pkgs/kv/tests/solid-kv-state.test.tsx",
+    "pkgs/logger/src/solid.tsx",
+    "pkgs/object-store/src/solid.tsx",
+    "pkgs/observability/src/client/solid.tsx",
+    "pkgs/secure-storage/src/solid.tsx",
+    "pkgs/secure-storage/tests/solid.test.tsx",
+    "pkgs/sounds/src/solid.tsx",
+    "pkgs/sounds/tests/solid.test.tsx",
+    "pkgs/sql-client/src/solid.tsx",
+    "pkgs/sync-engine/tests/solid-bindings.test.tsx",
+    "pkgs/tts/src/client/solid.tsx",
+    "pkgs/uuid/src/solid.tsx"
+  ]
 }

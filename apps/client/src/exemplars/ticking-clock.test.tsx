@@ -1,8 +1,8 @@
 /** @jsxImportSource solid-js */
 import { createSimClock, type SimClockBundle } from '@pkgs/clock/sim-clock';
+import { renderWithI18n } from '@pkgs/vitest-solid/render';
 import { screen } from '@solidjs/testing-library';
 import { describe, expect, test } from 'vitest';
-import { renderWithI18n } from '../../tests/support/render';
 import { ClockProvider } from './clock-context';
 import { TickingClock } from './ticking-clock';
 

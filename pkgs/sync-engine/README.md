@@ -112,7 +112,7 @@ layer; the engine only sees registries + SQL clients + pubsub ports.
 
 ---
 
-## Public API (four entrypoints only)
+## Public API (five entrypoints only)
 
 Deep imports under `src/` are **not** public. `package.json` `exports`:
 
@@ -122,6 +122,7 @@ Deep imports under `src/` are **not** public. `package.json` `exports`:
 | `@pkgs/sync-engine/server` | Hono sync app (`POST /query`, `POST /mutations`), `notifyChannels` |
 | `@pkgs/sync-engine/shared` | `defineQuery` / `defineMutation`, registries, soft-delete helpers, **protocol v3**, opaque migrate |
 | `@pkgs/sync-engine/sim` | In-memory engine + sim controls (`SCHEMA_EPOCH`, controllable lifecycle) |
+| `@pkgs/sync-engine/solid` | Solid bindings: `SyncEngineProvider`, `createQuery`, `useSyncEngine`, `MutationClientProvider` / `useMutationClient` |
 
 Full contract map, cutover runbook, authoring drift close-out, and refactor-freedom
 checklist: [`CONTRACTS.md`](./CONTRACTS.md). Checked-in API reports:
@@ -131,7 +132,7 @@ checklist: [`CONTRACTS.md`](./CONTRACTS.md). Checked-in API reports:
 
 | Class | Promise | Examples |
 |-------|---------|----------|
-| **Code API** | Four entrypoints; coordinated monorepo refactors OK | `createLocalSyncEngine`, hooks, `createSyncApp`, `notifyChannels` |
+| **Code API** | Five entrypoints; coordinated monorepo refactors OK | `createLocalSyncEngine`, hooks, `createSyncApp`, `notifyChannels` |
 | **Wire protocol** | Cross-version freeze (`src/protocol/v2.ts`); shape changes need a version bump | `QueryResponse`, mutation batch, `PushMessage`, `MAX_*`, `upgrade_required` |
 | **Local domain SQL** | Deliberate local-first contract | Domain tables, `deleted_at`, `LIVE_ROW_SQL`, `useQuery` |
 | **Extension** | Domain plug-in vocabulary | `defineQuery` / `defineMutation`, `defineTopicMap`, `MutationEnv` |
@@ -1198,7 +1199,7 @@ bottom of this README.
 7. No delta / resync / gone **query** wire shapes (`POST /query` stays
    `ok` / `not_modified` / `denied`).
 8. No feature REST for sync-scoped data (tiny exception list in `AGENTS.md`).
-9. No deep public imports — four entrypoints only.
+9. No deep public imports — five entrypoints only.
 10. No dependency patches; no biome size-rule disables for app code.
 11. No pkgs → libs/apps imports.
 12. Actor identity comes from session auth only (never trust client-supplied

@@ -1,7 +1,8 @@
 /** @jsxImportSource solid-js */
+
+import { renderWithI18n } from '@pkgs/vitest-solid/render';
 import { screen } from '@solidjs/testing-library';
 import { describe, expect, test } from 'vitest';
-import { renderWithI18n } from '../../tests/support/render';
 import { VirtualizedList } from './virtualized-list';
 
 describe('VirtualizedList', () => {

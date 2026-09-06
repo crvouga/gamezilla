@@ -6,12 +6,13 @@
     "./client": "./src/client/index.ts",
     "./server": "./src/server/index.ts",
     "./shared": "./src/shared/index.ts",
-    "./sim": "./src/sim/index.ts"
+    "./sim": "./src/sim/index.ts",
+    "./solid": "./src/solid/index.ts"
   },
   "scripts": {
     "lint": "bunx biome check --error-on-warnings .",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test",
+    "test": "bun test --path-ignore-patterns='**/*.test.tsx' && vitest run",
     "test:sim": "bun test tests"
   },
   "dependencies": {
@@ -28,6 +29,7 @@
     "@pkgs/outbox": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
     "@pkgs/sim": "workspace:*",
+    "@pkgs/solid-context": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sql-client-sqlite": "workspace:*",
@@ -35,14 +37,19 @@
     "@standard-schema/spec": "catalog:",
     "hono": "catalog:",
     "node-sql-parser": "catalog:",
-    "react": "catalog:"
+    "react": "catalog:",
+    "solid-js": "catalog:"
   },
   "devDependencies": {
+    "@pkgs/vitest-solid": "workspace:*",
+    "@solidjs/testing-library": "catalog:",
+    "@testing-library/jest-dom": "catalog:",
     "@types/bun": "catalog:",
     "@types/react": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
     "typescript": "catalog:",
+    "vitest": "catalog:",
     "zod": "catalog:"
   }
 }

@@ -18,6 +18,7 @@ import {
   type SyncEngine,
 } from '@pkgs/sync-engine/client';
 import type { CreateId, Random } from '@pkgs/uuid';
+import { startTransition } from 'react';
 import { Platform } from 'react-native';
 
 import { deleteLegacySidecarDb } from '../storage/delete-legacy-sidecar-db';
@@ -224,6 +225,9 @@ export async function createAppLocalSyncEngine(
       now: args.clock.now,
       timers: args.timers,
       createId: args.createId,
+      // React host: apply watch snapshots at transition priority so
+      // scroll/tap paint wins (INP).
+      scheduleNotify: startTransition,
       enableMutationUpload: syncLease.isOwner,
       // Injected openSqlClient marks sim/playground — use the short reconcile
       // safety net so missed OOB notifies heal inside DST wait budgets.
