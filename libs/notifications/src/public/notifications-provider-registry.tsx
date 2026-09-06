@@ -1,4 +1,11 @@
-import { createContext, type ReactNode, useContext, useMemo } from 'react';
+/** @jsxImportSource solid-js */
+import {
+  type Accessor,
+  createContext,
+  createMemo,
+  type JSX,
+  useContext,
+} from 'solid-js';
 
 import type { NotificationProvider } from '../shared/notifications/notification-provider';
 import type { NotificationsClientDeps } from './notifications-actions';
@@ -10,51 +17,55 @@ export type NotificationsShellContextValue = {
   readonly isAuthReady: boolean;
   readonly deps: NotificationsClientDeps;
   readonly providers: readonly NotificationProvider[];
-  readonly onSignIn?: () => void;
+  readonly onSignIn?: (() => void) | undefined;
 };
 
 const NotificationsShellContext =
-  createContext<NotificationsShellContextValue | null>(null);
+  createContext<NotificationsShellContextValue>();
 
 export type NotificationsProviderRegistryProps = {
   readonly userId: string;
   readonly isSignedIn: boolean;
-  readonly isAuthReady?: boolean;
+  readonly isAuthReady?: boolean | undefined;
   readonly deps: NotificationsClientDeps;
-  readonly providers?: readonly NotificationProvider[];
-  readonly onSignIn?: () => void;
-  readonly children: ReactNode;
+  readonly providers?: readonly NotificationProvider[] | undefined;
+  readonly onSignIn?: (() => void) | undefined;
+  readonly children: JSX.Element;
 };
 
-export function NotificationsProviderRegistry({
-  userId,
-  isSignedIn,
-  isAuthReady = isSignedIn,
-  deps,
-  providers = [],
-  onSignIn,
-  children,
-}: NotificationsProviderRegistryProps): ReactNode {
-  const value = useMemo((): NotificationsShellContextValue => {
-    const base: NotificationsShellContextValue = {
-      userId,
-      isSignedIn,
-      isAuthReady,
-      deps,
-      providers,
-    };
-    return onSignIn !== undefined ? { ...base, onSignIn } : base;
-  }, [userId, isSignedIn, isAuthReady, deps, providers, onSignIn]);
+export function NotificationsProviderRegistry(
+  props: NotificationsProviderRegistryProps
+): JSX.Element {
+  const value: NotificationsShellContextValue = {
+    get userId() {
+      return props.userId;
+    },
+    get isSignedIn() {
+      return props.isSignedIn;
+    },
+    get isAuthReady() {
+      return props.isAuthReady ?? props.isSignedIn;
+    },
+    get deps() {
+      return props.deps;
+    },
+    get providers() {
+      return props.providers ?? [];
+    },
+    get onSignIn() {
+      return props.onSignIn;
+    },
+  };
   return (
     <NotificationsShellContext.Provider value={value}>
-      {children}
+      {props.children}
     </NotificationsShellContext.Provider>
   );
 }
 
 export function useNotificationsShell(): NotificationsShellContextValue {
   const ctx = useContext(NotificationsShellContext);
-  if (ctx === null) {
+  if (ctx === undefined) {
     throw new Error(
       'useNotificationsShell requires NotificationsProviderRegistry'
     );
@@ -63,8 +74,10 @@ export function useNotificationsShell(): NotificationsShellContextValue {
 }
 
 export function useNotificationRenderProvider(
-  namespace: string
-): NotificationProvider | undefined {
-  const { providers } = useNotificationsShell();
-  return providers.find((provider) => provider.id === namespace);
+  namespace: Accessor<string>
+): Accessor<NotificationProvider | undefined> {
+  const shell = useNotificationsShell();
+  return createMemo(() =>
+    shell.providers.find((provider) => provider.id === namespace())
+  );
 }

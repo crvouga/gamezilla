@@ -1,11 +1,6 @@
-import {
-  Box,
-  LoadingState,
-  SCREEN_BODY_PADDING_STEP,
-  ScreenBodyLegendList,
-  Text,
-} from '@pkgs/ui-rn';
-import { type ReactNode, useCallback, useMemo } from 'react';
+/** @jsxImportSource solid-js */
+import { Box, LoadingState, ScreenBodyVirtualList, Text } from '@pkgs/ui';
+import { createMemo, type JSX, Show } from 'solid-js';
 
 import type {
   NotificationFilter,
@@ -23,7 +18,11 @@ type NotificationsListProps = {
 };
 
 type ListRow =
-  | { readonly kind: 'header'; readonly key: string; readonly title: ReactNode }
+  | {
+      readonly kind: 'header';
+      readonly key: string;
+      readonly title: JSX.Element;
+    }
   | {
       readonly kind: 'item';
       readonly key: string;
@@ -31,18 +30,16 @@ type ListRow =
     }
   | { readonly kind: 'loading'; readonly key: 'loading' };
 
-export function NotificationsList({
-  sections,
-  isLoading,
-  filter,
-  actions,
-}: NotificationsListProps): ReactNode {
-  const empty =
-    !isLoading && sections.every((section) => section.items.length === 0);
+export function NotificationsList(props: NotificationsListProps): JSX.Element {
+  const empty = createMemo(
+    () =>
+      !props.isLoading &&
+      props.sections.every((section) => section.items.length === 0)
+  );
 
-  const rows = useMemo((): ListRow[] => {
+  const rows = createMemo((): ListRow[] => {
     const out: ListRow[] = [];
-    for (const section of sections) {
+    for (const section of props.sections) {
       if (section.items.length === 0) continue;
       out.push({
         kind: 'header',
@@ -50,60 +47,52 @@ export function NotificationsList({
         title: section.title,
       });
       for (const interaction of section.items) {
-        out.push({
-          kind: 'item',
-          key: interaction.id,
-          interaction,
-        });
+        out.push({ kind: 'item', key: interaction.id, interaction });
       }
     }
-    if (isLoading) {
+    if (props.isLoading) {
       out.push({ kind: 'loading', key: 'loading' });
     }
     return out;
-  }, [isLoading, sections]);
+  });
 
-  const renderItem = useCallback(
-    ({ item }: { item: ListRow }) => {
-      if (item.kind === 'header') {
-        return (
-          <Text
-            variant="label"
-            label={item.title}
-            sx={{
-              color: 'textSecondary',
-              px: SCREEN_BODY_PADDING_STEP,
-              pb: 1,
-              pt: 3,
-            }}
-          />
-        );
-      }
-      if (item.kind === 'loading') {
-        return <LoadingState variant="compact" size="small" />;
-      }
+  const renderItem = (row: ListRow): JSX.Element => {
+    if (row.kind === 'header') {
       return (
-        <NotificationCard interaction={item.interaction} actions={actions} />
+        <Text
+          variant="label"
+          label={row.title}
+          sx={{
+            color: 'textSecondary',
+            pb: 1,
+            pt: 3,
+          }}
+        />
       );
-    },
-    [actions]
-  );
-
-  if (empty) {
+    }
+    if (row.kind === 'loading') {
+      return <LoadingState variant="compact" size="small" />;
+    }
     return (
-      <Box sx={{ flex: 1, px: SCREEN_BODY_PADDING_STEP }}>
-        <NotificationsEmptyState filter={filter} />
-      </Box>
+      <NotificationCard interaction={row.interaction} actions={props.actions} />
     );
-  }
+  };
 
   return (
-    <ScreenBodyLegendList
-      data={rows}
-      keyExtractor={(row) => row.key}
-      estimatedItemSize={88}
-      drawDistance={200}
-      renderItem={renderItem}
-    />
+    <Show
+      when={!empty()}
+      fallback={
+        <Box sx={{ flex: 1 }}>
+          <NotificationsEmptyState filter={props.filter} />
+        </Box>
+      }
+    >
+      <ScreenBodyVirtualList
+        items={rows()}
+        keyExtractor={(row) => row.key}
+        estimateSize={88}
+        renderItem={renderItem}
+      />
+    </Show>
   );
 }

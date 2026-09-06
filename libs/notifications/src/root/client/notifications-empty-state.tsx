@@ -1,46 +1,47 @@
-import { Trans } from '@lingui/react/macro';
+/** @jsxImportSource solid-js */
+import { Trans } from '@lingui/solid/macro';
 import {
   BellIcon,
   EmptyState,
   ListChecksIcon,
   SquareStackIcon,
-} from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+} from '@pkgs/ui';
+import { type JSX, Match, Switch } from 'solid-js';
 
 import type { NotificationFilter } from '../../shared/notifications/notification';
 
-export function NotificationsEmptyState({
-  filter,
-}: {
+export function NotificationsEmptyState(props: {
   readonly filter: NotificationFilter;
-}): ReactNode {
-  if (filter === 'archived') {
-    return (
-      <EmptyState
-        icon={SquareStackIcon}
-        title={<Trans>Nothing archived</Trans>}
-        body={<Trans>Notifications you archive are kept here.</Trans>}
-      />
-    );
-  }
-  if (filter === 'action_required') {
-    return (
-      <EmptyState
-        icon={ListChecksIcon}
-        title={<Trans>Nothing needs your attention</Trans>}
-        body={<Trans>Requests and invites that need a reply land here.</Trans>}
-      />
-    );
-  }
+}): JSX.Element {
   return (
-    <EmptyState
-      icon={BellIcon}
-      title={<Trans>You&apos;re all caught up</Trans>}
-      body={
-        <Trans>
-          New notifications will show up here when someone reaches out.
-        </Trans>
-      }
-    />
+    <Switch>
+      <Match when={props.filter === 'archived'}>
+        <EmptyState
+          icon={SquareStackIcon}
+          title={<Trans>Nothing archived</Trans>}
+          body={<Trans>Notifications you archive are kept here.</Trans>}
+        />
+      </Match>
+      <Match when={props.filter === 'action_required'}>
+        <EmptyState
+          icon={ListChecksIcon}
+          title={<Trans>Nothing needs your attention</Trans>}
+          body={
+            <Trans>Requests and invites that need a reply land here.</Trans>
+          }
+        />
+      </Match>
+      <Match when={true}>
+        <EmptyState
+          icon={BellIcon}
+          title={<Trans>You're all caught up</Trans>}
+          body={
+            <Trans>
+              New notifications will show up here when someone reaches out.
+            </Trans>
+          }
+        />
+      </Match>
+    </Switch>
   );
 }

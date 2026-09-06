@@ -1,21 +1,23 @@
-import { useLingui } from '@lingui/react/macro';
-import { isSoundId } from '@pkgs/sounds';
+/** @jsxImportSource solid-js */
+import { useLingui } from '@lingui/solid/macro';
+import { isSoundId, type SoundId, Sounds } from '@pkgs/sounds';
+import { useOptionalSoundEngine } from '@pkgs/sounds/solid';
 import {
   Avatar,
   Box,
   Button,
   ChevronRightIcon,
   CircleCheckIcon,
-  Pressable,
-  SCREEN_BODY_PADDING_STEP,
+  Clickable,
+  type MutationStateTransition,
   Text,
   Trash2Icon,
   UserIcon,
   useMutationButton,
   useRelativeTimeLabel,
   useTheme,
-} from '@pkgs/ui-rn';
-import { type ReactNode, useCallback } from 'react';
+} from '@pkgs/ui';
+import { createMemo, For, type JSX, Match, Show, Switch } from 'solid-js';
 
 import type { Notification } from '../shared/notifications/notification';
 import type {
@@ -23,8 +25,6 @@ import type {
   NotificationCardActions,
 } from '../shared/notifications/notification-action';
 
-/** Matches ScreenBase body inset once the list bleeds to the screen edge. */
-const ROW_EDGE_PADDING = SCREEN_BODY_PADDING_STEP;
 const ROW_VERTICAL_PADDING = 4;
 const LEADING_SIZE = 48;
 
@@ -32,10 +32,10 @@ type NotificationActionButtonProps = {
   readonly interaction: Notification;
   readonly action: NotificationAction;
   readonly actions: NotificationCardActions;
-  readonly testID?: string;
+  readonly testID?: string | undefined;
 };
 
-function actionStartIcon(action: NotificationAction): ReactNode {
+function actionStartIcon(action: NotificationAction): JSX.Element | undefined {
   if (action.id === 'accept' || action.id === 'confirm') {
     return <CircleCheckIcon />;
   }
@@ -50,45 +50,73 @@ function actionStartIcon(action: NotificationAction): ReactNode {
   return undefined;
 }
 
-function NotificationActionButton({
-  interaction,
-  action,
-  actions,
-  testID,
-}: NotificationActionButtonProps): ReactNode {
+type MutationSoundIds = {
+  readonly success?: SoundId | undefined;
+  readonly error?: SoundId | undefined;
+};
+
+function useMutationPhaseSounds(
+  sounds: () => MutationSoundIds
+): (transition: MutationStateTransition) => void {
+  const engine = useOptionalSoundEngine();
+  return (transition) => {
+    const current = engine?.();
+    if (current === undefined) return;
+    if (transition.to === 'success') {
+      current.play(sounds().success ?? Sounds.feedback.success);
+    } else if (transition.to === 'error') {
+      current.play(sounds().error ?? Sounds.feedback.error);
+    }
+  };
+}
+
+function NotificationActionButton(
+  props: NotificationActionButtonProps
+): JSX.Element {
   const { t } = useLingui();
-  const successSound =
-    action.soundKey !== undefined && isSoundId(action.soundKey)
-      ? action.soundKey
-      : undefined;
+  const successSound = (): SoundId | undefined => {
+    const soundKey = props.action.soundKey;
+    return soundKey !== undefined && isSoundId(soundKey) ? soundKey : undefined;
+  };
+  const onPhaseChange = useMutationPhaseSounds(() => ({
+    ...(successSound() !== undefined ? { success: successSound() } : {}),
+    error: Sounds.feedback.error,
+  }));
   const mutation = useMutationButton({
-    operation: useCallback(async () => {
-      await actions.performAction(interaction.id, action.id);
-    }, [actions, interaction.id, action.id]),
+    operation: () =>
+      props.actions.performAction(props.interaction.id, props.action.id),
     labels: {
-      idle: action.label,
-      loading: t`Working…`,
-      success: t`Done`,
-      error: t`Failed`,
+      get idle() {
+        return props.action.label;
+      },
+      get loading() {
+        return t`Working…`;
+      },
+      get success() {
+        return t`Done`;
+      },
+      get error() {
+        return t`Failed`;
+      },
     },
     successHoldMs: 0,
-    ...(successSound !== undefined
-      ? { sounds: { success: successSound, error: 'feedback.error' as const } }
-      : { sounds: { error: 'feedback.error' as const } }),
+    get disabled() {
+      return props.action.disabled === true;
+    },
+    onPhaseChange,
   });
-  const startIcon = actionStartIcon(action);
+  const startIcon = createMemo(() => actionStartIcon(props.action));
 
   return (
     <Button
       {...mutation.buttonProps}
       variant="ghost"
       size="sm"
-      intent={action.destructive === true ? 'danger' : 'primary'}
-      {...(startIcon !== undefined ? { startIcon } : {})}
-      disabled={
-        action.disabled === true || mutation.buttonProps.disabled === true
+      intent={props.action.destructive === true ? 'danger' : 'primary'}
+      startIcon={startIcon()}
+      dataSet={
+        props.testID !== undefined ? { testid: props.testID } : undefined
       }
-      {...(testID !== undefined ? { testID } : {})}
     />
   );
 }
@@ -99,168 +127,183 @@ function avatarInitials(fallbackLabel: string): string {
   return trimmed.slice(0, 2).toUpperCase();
 }
 
-function DefaultLeading({
-  interaction,
-}: {
+function DefaultLeading(props: {
   readonly interaction: Notification;
-}): ReactNode {
-  const label = interaction.avatar?.fallbackLabel;
-  if (label === undefined) {
-    return (
-      <Avatar size={LEADING_SIZE} icon={UserIcon} background="surfaceMuted" />
-    );
-  }
-  return <Avatar size={LEADING_SIZE} initials={avatarInitials(label)} />;
+}): JSX.Element {
+  return (
+    <Show
+      when={props.interaction.avatar?.fallbackLabel}
+      keyed
+      fallback={
+        <Avatar size={LEADING_SIZE} icon={UserIcon} background="surfaceMuted" />
+      }
+    >
+      {(label) => (
+        <Avatar size={LEADING_SIZE} initials={avatarInitials(label)} />
+      )}
+    </Show>
+  );
 }
 
-function InteractionRowText({
-  interaction,
-}: {
+function InteractionRowText(props: {
   readonly interaction: Notification;
-}): ReactNode {
-  const relative = useRelativeTimeLabel(interaction.createdAt);
-  const detailParts = [interaction.subtitle, interaction.body].filter(
-    (part): part is string => part !== undefined && part.length > 0
+}): JSX.Element {
+  const relative = useRelativeTimeLabel(() => props.interaction.createdAt);
+  const detailParts = createMemo(() =>
+    [props.interaction.subtitle, props.interaction.body].filter(
+      (part): part is string => part !== undefined && part.length > 0
+    )
   );
   return (
     <Box sx={{ flex: 1, minWidth: 0, gap: 1 }}>
       <Text
-        variant={interaction.isUnread ? 'bodyBold' : 'body'}
+        variant={props.interaction.isUnread ? 'bodyBold' : 'body'}
         numberOfLines={3}
-        label={interaction.title}
+        label={props.interaction.title}
       />
       <Text
         variant="caption"
         sx={{ color: 'textSecondary' }}
-        label={relative}
+        label={relative()}
       />
-      {detailParts.length > 0 ? (
+      <Show when={detailParts().length > 0}>
         <Text
           variant="caption"
           sx={{ color: 'textSecondary' }}
-          label={detailParts.join(' · ')}
+          label={detailParts().join(' · ')}
           numberOfLines={2}
         />
-      ) : null}
+      </Show>
     </Box>
   );
 }
 
-function InteractionRowTrailing({
-  interaction,
-  actions,
-  showInlineActions,
-  showChevron,
-  actionTestID,
-}: {
+function InteractionRowTrailing(props: {
   readonly interaction: Notification;
   readonly actions: NotificationCardActions;
   readonly showInlineActions: boolean;
   readonly showChevron: boolean;
-  readonly actionTestID?: (action: NotificationAction) => string | undefined;
-}): ReactNode {
+  readonly actionTestID?:
+    | ((action: NotificationAction) => string | undefined)
+    | undefined;
+}): JSX.Element {
   const theme = useTheme();
-  if (showInlineActions && interaction.actions.length > 0) {
-    return (
-      <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 0.5 }}>
-        {interaction.actions.map((action) => {
-          const testID = actionTestID?.(action);
-          return (
-            <NotificationActionButton
-              key={action.id}
-              interaction={interaction}
-              action={action}
-              actions={actions}
-              {...(testID !== undefined ? { testID } : {})}
-            />
-          );
-        })}
-      </Box>
-    );
-  }
-  if (showChevron) {
-    return <ChevronRightIcon size={18} color={theme.colors.icon} />;
-  }
-  return null;
+  return (
+    <Switch>
+      <Match
+        when={props.showInlineActions && props.interaction.actions.length > 0}
+      >
+        <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 0.5 }}>
+          <For each={props.interaction.actions}>
+            {(action) => (
+              <NotificationActionButton
+                interaction={props.interaction}
+                action={action}
+                actions={props.actions}
+                testID={props.actionTestID?.(action)}
+              />
+            )}
+          </For>
+        </Box>
+      </Match>
+      <Match when={props.showChevron}>
+        <ChevronRightIcon size={18} color={theme.colors.icon} />
+      </Match>
+    </Switch>
+  );
 }
 
 export type NotificationCardDefaultProps = {
   readonly interaction: Notification;
   readonly actions: NotificationCardActions;
   /** Opens the deep-link / profile when the row (or text area) is pressed. */
-  readonly onOpen?: () => void;
+  readonly onOpen?: (() => void) | undefined;
   /**
    * Whole-row press (summary mode). Takes precedence over {@link onOpen}.
    * Prefer this when inline actions are hidden and the row has a custom handler.
    */
-  readonly onPress?: () => void;
+  readonly onPress?: (() => void) | undefined;
   /**
    * When false, hides published action buttons.
    * Defaults to true.
    */
-  readonly showInlineActions?: boolean;
-  readonly leading?: ReactNode;
-  readonly actionTestID?: (action: NotificationAction) => string | undefined;
-  readonly testID?: string;
+  readonly showInlineActions?: boolean | undefined;
+  readonly leading?: JSX.Element | undefined;
+  readonly actionTestID?:
+    | ((action: NotificationAction) => string | undefined)
+    | undefined;
+  readonly testID?: string | undefined;
 };
 
-export function NotificationCardDefault({
-  interaction,
-  actions,
-  onOpen,
-  onPress,
-  showInlineActions = true,
-  leading,
-  actionTestID,
-  testID,
-}: NotificationCardDefaultProps): ReactNode {
-  const hasInlineActions = showInlineActions && interaction.actions.length > 0;
+export function NotificationCardDefault(
+  props: NotificationCardDefaultProps
+): JSX.Element {
+  const hasInlineActions = createMemo(
+    () =>
+      (props.showInlineActions ?? true) && props.interaction.actions.length > 0
+  );
   // Whole row like MenuRow when no inline buttons compete for presses.
   // With inline actions, only the text area opens so Accept/Decline stay tappable.
-  const rowPress = onPress ?? (hasInlineActions ? undefined : onOpen);
-  const textPress =
-    rowPress === undefined && onOpen !== undefined ? onOpen : undefined;
-  const main = (
+  const rowPress = createMemo<(() => void) | undefined>(() =>
+    props.onPress !== undefined
+      ? props.onPress
+      : hasInlineActions()
+        ? undefined
+        : props.onOpen
+  );
+  const textPress = createMemo<(() => void) | undefined>(() =>
+    rowPress() === undefined && props.onOpen !== undefined
+      ? props.onOpen
+      : undefined
+  );
+
+  const main = (): JSX.Element => (
     <Box
       sx={{
         flexDirection: 'row',
         alignItems: 'center',
         gap: 3,
-        px: ROW_EDGE_PADDING,
         py: ROW_VERTICAL_PADDING,
       }}
     >
-      {leading ?? <DefaultLeading interaction={interaction} />}
-      {textPress !== undefined ? (
-        <Pressable onPress={textPress} sx={{ flex: 1, minWidth: 0 }}>
-          <InteractionRowText interaction={interaction} />
-        </Pressable>
-      ) : (
-        <InteractionRowText interaction={interaction} />
-      )}
+      {props.leading ?? <DefaultLeading interaction={props.interaction} />}
+      <Show
+        when={textPress()}
+        keyed
+        fallback={<InteractionRowText interaction={props.interaction} />}
+      >
+        {(press) => (
+          <Clickable onClick={press} sx={{ flex: 1, minWidth: 0 }}>
+            <InteractionRowText interaction={props.interaction} />
+          </Clickable>
+        )}
+      </Show>
       <InteractionRowTrailing
-        interaction={interaction}
-        actions={actions}
-        showInlineActions={showInlineActions}
-        showChevron={rowPress !== undefined}
-        {...(actionTestID !== undefined ? { actionTestID } : {})}
+        interaction={props.interaction}
+        actions={props.actions}
+        showInlineActions={props.showInlineActions ?? true}
+        showChevron={rowPress() !== undefined}
+        actionTestID={props.actionTestID}
       />
     </Box>
   );
 
-  if (rowPress !== undefined) {
-    return (
-      <Pressable
-        onPress={rowPress}
-        accessibilityRole="button"
-        {...(testID !== undefined ? { testID } : {})}
-      >
-        {main}
-      </Pressable>
-    );
-  }
-  if (testID !== undefined) {
-    return <Box testID={testID}>{main}</Box>;
-  }
-  return main;
+  return (
+    <Switch>
+      <Match when={rowPress() !== undefined}>
+        <Clickable
+          onClick={() => rowPress()?.()}
+          dataSet={
+            props.testID !== undefined ? { testid: props.testID } : undefined
+          }
+        >
+          {main()}
+        </Clickable>
+      </Match>
+      <Match when={props.testID} keyed>
+        {(testID) => <Box dataSet={{ testid: testID }}>{main()}</Box>}
+      </Match>
+      <Match when={true}>{main()}</Match>
+    </Switch>
+  );
 }

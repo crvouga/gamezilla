@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { JSX } from 'solid-js';
 import type { Notification } from './notification';
 import type { NotificationCardActions } from './notification-action';
 
@@ -11,7 +11,7 @@ export interface NotificationProvider {
   renderCard?(
     interaction: Notification,
     actions: NotificationCardActions
-  ): ReactNode | null;
+  ): JSX.Element | null;
   /**
    * Card-press handler for the default card. When set (and `renderCard` is
    * omitted/null), the default card becomes a summary surface with no inline

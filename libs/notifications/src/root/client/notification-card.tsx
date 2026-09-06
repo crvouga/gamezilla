@@ -1,5 +1,6 @@
-import { useRouter } from '@pkgs/ui-rn';
-import { type ReactNode, useCallback } from 'react';
+/** @jsxImportSource solid-js */
+import { useRouter } from '@pkgs/ui';
+import { createMemo, type JSX, Match, Switch } from 'solid-js';
 import { NotificationCardDefault } from '../../public/notification-card-default';
 import { useNotificationRenderProvider } from '../../public/notifications-provider-registry';
 import type { Notification } from '../../shared/notifications/notification';
@@ -10,46 +11,54 @@ export type NotificationCardProps = {
   readonly actions: NotificationCardActions;
 };
 
-export function NotificationCard({
-  interaction,
-  actions,
-}: NotificationCardProps): ReactNode {
+export function NotificationCard(props: NotificationCardProps): JSX.Element {
   const router = useRouter();
-  const provider = useNotificationRenderProvider(interaction.sourceNamespace);
+  const provider = useNotificationRenderProvider(
+    () => props.interaction.sourceNamespace
+  );
 
-  const onOpen = useCallback(() => {
-    void actions.markRead(interaction.id);
-    if (interaction.deepLink === undefined) return;
+  const onOpen = (): void => {
+    void props.actions.markRead(props.interaction.id);
+    const deepLink = props.interaction.deepLink;
+    if (deepLink === undefined) return;
     router.push({
-      pathname: interaction.deepLink.path as never,
-      params: interaction.deepLink.params as never,
+      pathname: deepLink.path,
+      ...(deepLink.params === undefined
+        ? {}
+        : { params: { ...deepLink.params } }),
     });
-  }, [actions, interaction.deepLink, interaction.id, router]);
+  };
 
-  const onCardPress = useCallback(() => {
-    void actions.markRead(interaction.id);
-    provider?.onCardPress?.(interaction, actions);
-  }, [actions, interaction, provider]);
+  const onCardPress = (): void => {
+    void props.actions.markRead(props.interaction.id);
+    provider()?.onCardPress?.(props.interaction, props.actions);
+  };
 
-  const custom = provider?.renderCard?.(interaction, actions);
-  if (custom !== undefined && custom !== null) return custom;
-
-  if (provider?.onCardPress !== undefined) {
-    return (
-      <NotificationCardDefault
-        interaction={interaction}
-        actions={actions}
-        showInlineActions={false}
-        onPress={onCardPress}
-      />
-    );
-  }
+  const customCard = createMemo<JSX.Element | null>(() => {
+    const rendered = provider()?.renderCard?.(props.interaction, props.actions);
+    return rendered === undefined || rendered === null ? null : rendered;
+  });
 
   return (
-    <NotificationCardDefault
-      interaction={interaction}
-      actions={actions}
-      onOpen={onOpen}
-    />
+    <Switch>
+      <Match when={customCard()} keyed>
+        {(card) => card}
+      </Match>
+      <Match when={provider()?.onCardPress !== undefined}>
+        <NotificationCardDefault
+          interaction={props.interaction}
+          actions={props.actions}
+          showInlineActions={false}
+          onPress={onCardPress}
+        />
+      </Match>
+      <Match when={true}>
+        <NotificationCardDefault
+          interaction={props.interaction}
+          actions={props.actions}
+          onOpen={onOpen}
+        />
+      </Match>
+    </Switch>
   );
 }

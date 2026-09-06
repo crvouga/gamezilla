@@ -1,5 +1,3 @@
-import { useCallback } from 'react';
-
 import {
   archiveInteractionRemote,
   dismissInteractionRemote,
@@ -19,29 +17,21 @@ export function useNotificationsActions(): {
     actionId: string
   ) => Promise<void>;
 } {
-  const { deps } = useNotificationsShell();
+  const shell = useNotificationsShell();
 
-  const markRead = useCallback(
-    (interactionId: string) => markInteractionReadRemote(deps, interactionId),
-    [deps]
-  );
-  const markAllRead = useCallback(
-    () => markAllInteractionsReadRemote(deps),
-    [deps]
-  );
-  const archive = useCallback(
-    (interactionId: string) => archiveInteractionRemote(deps, interactionId),
-    [deps]
-  );
-  const dismiss = useCallback(
-    (interactionId: string) => dismissInteractionRemote(deps, interactionId),
-    [deps]
-  );
-  const performAction = useCallback(
-    (interactionId: string, actionId: string) =>
-      performNotificationActionRemote(deps, interactionId, actionId),
-    [deps]
-  );
+  const markRead = (interactionId: string): Promise<void> =>
+    markInteractionReadRemote(shell.deps, interactionId);
+  const markAllRead = (): Promise<void> =>
+    markAllInteractionsReadRemote(shell.deps);
+  const archive = (interactionId: string): Promise<void> =>
+    archiveInteractionRemote(shell.deps, interactionId);
+  const dismiss = (interactionId: string): Promise<void> =>
+    dismissInteractionRemote(shell.deps, interactionId);
+  const performAction = (
+    interactionId: string,
+    actionId: string
+  ): Promise<void> =>
+    performNotificationActionRemote(shell.deps, interactionId, actionId);
 
   return { markRead, markAllRead, archive, dismiss, performAction };
 }

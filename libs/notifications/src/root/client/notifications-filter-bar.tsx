@@ -1,6 +1,7 @@
-import { Trans } from '@lingui/react/macro';
-import { ChipGroup, type ChipGroupOption } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+/** @jsxImportSource solid-js */
+import { useLingui } from '@lingui/solid/macro';
+import { ChipGroup, type ChipGroupOption } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 
 import type { NotificationFilter } from '../../shared/notifications/notification';
 import {
@@ -14,24 +15,23 @@ type NotificationsFilterBarProps = {
   readonly onFilterChange: (filter: NotificationFilter) => void;
 };
 
-const FILTER_OPTIONS: readonly ChipGroupOption<NotificationFilter>[] = [
-  { key: NOTIFICATIONS_FILTER_ALL, label: <Trans>All</Trans> },
-  {
-    key: NOTIFICATIONS_FILTER_ACTION_REQUIRED,
-    label: <Trans>Action required</Trans>,
-  },
-  { key: NOTIFICATIONS_FILTER_ARCHIVED, label: <Trans>Archived</Trans> },
-];
-
-export function NotificationsFilterBar({
-  filter,
-  onFilterChange,
-}: NotificationsFilterBarProps): ReactNode {
+export function NotificationsFilterBar(
+  props: NotificationsFilterBarProps
+): JSX.Element {
+  const { t } = useLingui();
+  const options = (): readonly ChipGroupOption<NotificationFilter>[] => [
+    { key: NOTIFICATIONS_FILTER_ALL, label: t`All` },
+    {
+      key: NOTIFICATIONS_FILTER_ACTION_REQUIRED,
+      label: t`Action required`,
+    },
+    { key: NOTIFICATIONS_FILTER_ARCHIVED, label: t`Archived` },
+  ];
   return (
     <ChipGroup
-      options={FILTER_OPTIONS}
-      selected={filter}
-      onSelect={onFilterChange}
+      options={options()}
+      selected={props.filter}
+      onSelect={props.onFilterChange}
     />
   );
 }

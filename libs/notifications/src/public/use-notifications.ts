@@ -1,6 +1,6 @@
-import { useClock } from '@pkgs/clock';
-import { useQuery } from '@pkgs/sync-engine/client';
-import { useEffect, useMemo, useState } from 'react';
+import { useClock } from '@pkgs/clock/solid';
+import { createQuery } from '@pkgs/sync-engine/solid';
+import { createEffect, createMemo, createSignal } from 'solid-js';
 import type {
   Notification,
   NotificationFilter,
@@ -11,7 +11,7 @@ import { inboxListSql } from './notifications-queries';
 import { buildNotificationSections } from './notifications-sections';
 
 export function useNotifications(options?: {
-  readonly filter?: NotificationFilter;
+  readonly filter?: NotificationFilter | undefined;
 }): {
   readonly interactions: readonly Notification[];
   readonly sections: ReturnType<typeof buildNotificationSections>;
@@ -19,26 +19,40 @@ export function useNotifications(options?: {
   readonly filter: NotificationFilter;
   readonly setFilter: (filter: NotificationFilter) => void;
 } {
-  const { userId } = useNotificationsShell();
+  const shell = useNotificationsShell();
   const clock = useClock();
-  const [filter, setFilter] = useState<NotificationFilter>(
+  const [filter, setFilter] = createSignal<NotificationFilter>(
     options?.filter ?? 'all'
   );
 
-  useEffect(() => {
-    if (options?.filter !== undefined) {
-      setFilter(options.filter);
+  createEffect(() => {
+    const external = options?.filter;
+    if (external !== undefined) {
+      setFilter(external);
     }
-  }, [options?.filter]);
-  const query = useMemo(() => inboxListSql(userId, filter), [userId, filter]);
-  const { rows, isLoading } = useQuery(query);
-  const interactions = useMemo(
-    () => rows.map((row) => clientRowToInteraction({ ...row })),
-    [rows]
+  });
+  const { rows, isLoading } = createQuery(() =>
+    inboxListSql(shell.userId, filter())
   );
-  const sections = useMemo(
-    () => buildNotificationSections(interactions, clock.now),
-    [interactions, clock.now]
+  const interactions = createMemo(() =>
+    rows().map((row) => clientRowToInteraction({ ...row }))
   );
-  return { interactions, sections, isLoading, filter, setFilter };
+  const sections = createMemo(() =>
+    buildNotificationSections(interactions(), clock.now)
+  );
+  return {
+    get interactions() {
+      return interactions();
+    },
+    get sections() {
+      return sections();
+    },
+    get isLoading() {
+      return isLoading();
+    },
+    get filter() {
+      return filter();
+    },
+    setFilter,
+  };
 }

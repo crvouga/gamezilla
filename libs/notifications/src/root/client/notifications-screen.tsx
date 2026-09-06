@@ -1,4 +1,5 @@
-import { Trans, useLingui } from '@lingui/react/macro';
+/** @jsxImportSource solid-js */
+import { Trans, useLingui } from '@lingui/solid/macro';
 import {
   BellIcon,
   Box,
@@ -6,10 +7,9 @@ import {
   CheckIcon,
   EmptyState,
   ScreenBase,
-  useContentEdgePadding,
   useMutationButton,
-} from '@pkgs/ui-rn';
-import { type ReactNode, useCallback } from 'react';
+} from '@pkgs/ui';
+import { type JSX, Show } from 'solid-js';
 import { useNotificationsShell } from '../../public/notifications-provider-registry';
 import { useNotifications } from '../../public/use-notifications';
 import { useNotificationsActions } from '../../public/use-notifications-actions';
@@ -18,79 +18,87 @@ import { NotificationsFilterBar } from './notifications-filter-bar';
 import { NotificationsList } from './notifications-list';
 
 export type NotificationsScreenProps = {
-  readonly initialFilter?: NotificationFilter;
+  readonly initialFilter?: NotificationFilter | undefined;
 };
 
-function NotificationsSignedInGate({
-  children,
-}: {
-  readonly children: ReactNode;
-}): ReactNode {
+function NotificationsSignedInGate(props: {
+  readonly children: JSX.Element;
+}): JSX.Element {
   const { t } = useLingui();
-  const { isSignedIn, onSignIn } = useNotificationsShell();
-  const edge = useContentEdgePadding();
-  const px = edge?.horizontalStep ?? 0;
-  if (isSignedIn) return children;
+  const shell = useNotificationsShell();
   return (
-    <Box sx={px !== 0 ? { px } : undefined}>
-      <EmptyState
-        variant="compact"
-        icon={BellIcon}
-        title={<Trans>Sign in to see notifications</Trans>}
-        body={<Trans>Friend requests and space invites will land here.</Trans>}
-        {...(onSignIn !== undefined
-          ? { action: { label: t`Sign in`, onPress: onSignIn } }
-          : {})}
-      />
-    </Box>
+    <Show
+      when={shell.isSignedIn}
+      fallback={
+        <EmptyState
+          variant="compact"
+          icon={BellIcon}
+          title={<Trans>Sign in to see notifications</Trans>}
+          body={
+            <Trans>Friend requests and space invites will land here.</Trans>
+          }
+          action={
+            shell.onSignIn !== undefined
+              ? { label: t`Sign in`, onClick: () => shell.onSignIn?.() }
+              : undefined
+          }
+        />
+      }
+    >
+      {props.children}
+    </Show>
   );
 }
 
-function NotificationsScreenBody({
-  initialFilter,
-}: {
-  readonly initialFilter?: NotificationFilter;
-}): ReactNode {
+function NotificationsScreenBody(props: {
+  readonly initialFilter?: NotificationFilter | undefined;
+}): JSX.Element {
   const { t } = useLingui();
-  const inboxOptions =
-    initialFilter !== undefined ? { filter: initialFilter } : {};
-  const { interactions, sections, isLoading, filter, setFilter } =
-    useNotifications(inboxOptions);
+  const inbox = useNotifications({
+    get filter() {
+      return props.initialFilter;
+    },
+  });
   const inboxActions = useNotificationsActions();
-  const edge = useContentEdgePadding();
-  const px = edge?.horizontalStep ?? 0;
   const markAllRead = useMutationButton({
-    operation: useCallback(async () => {
-      await inboxActions.markAllRead();
-    }, [inboxActions]),
+    operation: () => inboxActions.markAllRead(),
     labels: {
-      idle: t`Mark all read`,
-      loading: t`Marking…`,
-      success: t`Marked read`,
-      error: t`Failed`,
+      get idle() {
+        return t`Mark all read`;
+      },
+      get loading() {
+        return t`Marking…`;
+      },
+      get success() {
+        return t`Marked read`;
+      },
+      get error() {
+        return t`Failed`;
+      },
     },
     successHoldMs: 0,
   });
 
-  const hasUnread = interactions.some((item) => item.isUnread);
+  const hasUnread = (): boolean =>
+    inbox.interactions.some((item) => item.isUnread);
 
   return (
     <Box sx={{ flex: 1, minHeight: 0, gap: 2 }}>
       <Box
-        sx={[
-          px !== 0 ? { px } : false,
-          {
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 3,
-          },
-        ]}
+        sx={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 3,
+        }}
       >
         <Box sx={{ flex: 1, minWidth: 0 }}>
-          <NotificationsFilterBar filter={filter} onFilterChange={setFilter} />
+          <NotificationsFilterBar
+            filter={inbox.filter}
+            onFilterChange={inbox.setFilter}
+          />
         </Box>
-        {hasUnread ? (
+        <Show when={hasUnread()}>
           <Button
             variant="ghost"
             intent="neutral"
@@ -98,69 +106,33 @@ function NotificationsScreenBody({
             startIcon={<CheckIcon size={16} />}
             {...markAllRead.buttonProps}
           />
-        ) : null}
+        </Show>
       </Box>
       <NotificationsList
-        sections={sections}
-        isLoading={isLoading}
-        filter={filter}
+        sections={inbox.sections}
+        isLoading={inbox.isLoading}
+        filter={inbox.filter}
         actions={inboxActions}
       />
     </Box>
   );
 }
 
-function NotificationsBleedBody({
-  sx,
-  initialFilter,
-}: {
-  readonly sx: { flex?: 1; minHeight?: 0 };
-  readonly initialFilter?: NotificationFilter;
-}): ReactNode {
-  const edge = useContentEdgePadding();
-  const h = edge?.horizontalStep ?? 0;
-  const b = edge?.bottomStep ?? 0;
-  return (
-    <Box
-      sx={[
-        sx,
-        h !== 0 || b !== 0
-          ? {
-              ...(h !== 0
-                ? {
-                    mx: -h,
-                    mt: -h,
-                    pt: h,
-                  }
-                : {}),
-              ...(b !== 0 ? { mb: -b, pb: b } : {}),
-            }
-          : false,
-      ]}
-    >
-      <NotificationsSignedInGate>
-        <NotificationsScreenBody
-          {...(initialFilter !== undefined ? { initialFilter } : {})}
-        />
-      </NotificationsSignedInGate>
-    </Box>
-  );
-}
-
-export function NotificationsScreen({
-  initialFilter,
-}: NotificationsScreenProps): ReactNode {
+export function NotificationsScreen(
+  props: NotificationsScreenProps
+): JSX.Element {
   const { t } = useLingui();
 
   return (
     <ScreenBase
       screenId="notifications"
       breadcrumbs={[{ name: t`Notifications` }]}
-      content={({ sx }) => (
-        <NotificationsBleedBody
-          sx={sx}
-          {...(initialFilter !== undefined ? { initialFilter } : {})}
-        />
+      content={(body) => (
+        <Box sx={body.sx}>
+          <NotificationsSignedInGate>
+            <NotificationsScreenBody initialFilter={props.initialFilter} />
+          </NotificationsSignedInGate>
+        </Box>
       )}
     />
   );
