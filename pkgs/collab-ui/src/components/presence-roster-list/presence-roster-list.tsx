@@ -7,7 +7,7 @@ import type { LocalizedString } from '@pkgs/i18n';
 import type { RoomActor } from '@pkgs/room';
 import {
   type ComponentDataSet,
-  componentDataSet,
+  componentDataAttrs,
   List,
   ListItem,
   Stack,
@@ -46,7 +46,7 @@ export function PresenceRosterList(
   props: PresenceRosterListProps
 ): JSX.Element {
   return (
-    <List {...componentDataSet('PresenceRosterList', props.dataSet)}>
+    <List {...componentDataAttrs('PresenceRosterList', props.dataSet)}>
       <For each={props.rows}>
         {(row) => (
           <ListItem

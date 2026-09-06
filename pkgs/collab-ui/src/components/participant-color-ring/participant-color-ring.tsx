@@ -2,7 +2,7 @@
  * Colored ring around a child (typically an avatar) identifying a participant.
  */
 
-import { Box, type ComponentDataSet, componentDataSet } from '@pkgs/ui';
+import { Box, type ComponentDataSet, componentDataAttrs } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 
 export type ParticipantColorRingProps = {
@@ -17,7 +17,7 @@ export type ParticipantColorRingProps = {
 export function ParticipantColorRing(props: ParticipantColorRingProps) {
   return (
     <Box
-      {...componentDataSet('ParticipantColorRing', props.dataSet)}
+      {...componentDataAttrs('ParticipantColorRing', props.dataSet)}
       sx={{
         ...(props.size !== undefined
           ? {

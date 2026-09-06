@@ -7,13 +7,13 @@ import { asLocalized, type LocalizedString } from '@pkgs/i18n';
 import type { RoomActor } from '@pkgs/room';
 import {
   type ComponentDataSet,
-  componentDataSet,
+  componentDataAttrs,
   EmptyState,
-  FlatList,
   ResponsiveSurface,
+  ScrollView,
   Text,
 } from '@pkgs/ui';
-import { createMemo, type JSX } from 'solid-js';
+import { createMemo, For, type JSX } from 'solid-js';
 
 import { buildEventLogRows, type EventLogRow } from './build-event-log-rows';
 import { EventLogLineRow } from './event-log-line-row';
@@ -88,7 +88,7 @@ export function EventLogSurface(props: EventLogSurfaceProps): JSX.Element {
       onClose={props.onClose}
       title={props.copy.title}
       size="medium"
-      {...componentDataSet('EventLogSurface', props.dataSet)}
+      {...componentDataAttrs('EventLogSurface', props.dataSet)}
     >
       {props.lines.length === 0 ? (
         <EmptyState
@@ -98,12 +98,9 @@ export function EventLogSurface(props: EventLogSurfaceProps): JSX.Element {
             : {})}
         />
       ) : (
-        <FlatList
-          data={[...rows()]}
-          keyExtractor={(item) => item.key}
-          renderItem={({ item }) => renderRow(item, props)}
-          frameSx={{ maxHeight: EVENT_LOG_LIST_MAX_HEIGHT }}
-        />
+        <ScrollView frameSx={{ maxHeight: EVENT_LOG_LIST_MAX_HEIGHT }}>
+          <For each={[...rows()]}>{(item) => renderRow(item, props)}</For>
+        </ScrollView>
       )}
     </ResponsiveSurface>
   );

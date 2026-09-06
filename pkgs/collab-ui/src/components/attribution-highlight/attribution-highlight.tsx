@@ -1,6 +1,6 @@
 import { useTimers } from '@pkgs/clock/solid';
 import type { AttributionHit, ParticipantColor } from '@pkgs/collab';
-import { Box, type ComponentDataSet, componentDataSet } from '@pkgs/ui';
+import { Box, type ComponentDataSet, componentDataAttrs } from '@pkgs/ui';
 import {
   createEffect,
   createSignal,
@@ -43,15 +43,15 @@ export function AttributionHighlight(
   };
   return (
     <Box
-      {...componentDataSet('AttributionHighlight', props.dataSet)}
+      {...componentDataAttrs('AttributionHighlight', props.dataSet)}
       sx={{ position: 'relative' }}
     >
       {props.children}
       <Show when={color()}>
         {(ringColor) => (
           <Box
-            pointerEvents="none"
             sx={{
+              pointerEvents: 'none',
               absoluteFill: true,
               borderRadius: props.borderRadius ?? 8,
               borderWidth: props.borderWidth ?? 2,

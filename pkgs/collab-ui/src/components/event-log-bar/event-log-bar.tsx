@@ -3,10 +3,10 @@ import type { LocalizedString } from '@pkgs/i18n';
 import type { RoomActor } from '@pkgs/room';
 import {
   Box,
+  Clickable,
   type ComponentDataSet,
-  componentDataSet,
+  componentDataAttrs,
   FadeSwitch,
-  Pressable,
   Stack,
   Text,
 } from '@pkgs/ui';
@@ -91,9 +91,9 @@ export function EventLogBar(props: EventLogBarProps): JSX.Element {
       : null;
   };
   return (
-    <Pressable
-      {...componentDataSet('EventLogBar', props.dataSet)}
-      onPress={props.onPress}
+    <Clickable
+      {...componentDataAttrs('EventLogBar', props.dataSet)}
+      onClick={props.onPress}
       disabled={props.onPress === undefined}
     >
       <Box sx={{ minWidth: 0, py: 0.5 }}>
@@ -137,6 +137,6 @@ export function EventLogBar(props: EventLogBarProps): JSX.Element {
           </Show>
         </Stack>
       </Box>
-    </Pressable>
+    </Clickable>
   );
 }

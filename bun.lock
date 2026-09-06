@@ -983,9 +983,8 @@
         "@pkgs/collab": "workspace:*",
         "@pkgs/i18n": "workspace:*",
         "@pkgs/room": "workspace:*",
-        "@pkgs/ui-rn": "workspace:*",
-        "react": "catalog:",
-        "react-native": "catalog:",
+        "@pkgs/ui": "workspace:*",
+        "solid-js": "catalog:",
       },
       "devDependencies": {
         "@types/bun": "catalog:",

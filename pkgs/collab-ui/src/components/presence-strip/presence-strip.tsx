@@ -4,7 +4,11 @@
 
 import type { ParticipantColor } from '@pkgs/collab';
 import type { RoomActor } from '@pkgs/room';
-import { AvatarGroup, type ComponentDataSet, componentDataSet } from '@pkgs/ui';
+import {
+  AvatarGroup,
+  type ComponentDataSet,
+  componentDataAttrs,
+} from '@pkgs/ui';
 import { For, type JSX } from 'solid-js';
 
 import { ParticipantColorRing } from '../participant-color-ring';
@@ -34,8 +38,8 @@ export function PresenceStrip(props: PresenceStripProps): JSX.Element {
     <AvatarGroup
       size={ringSize()}
       maxVisible={props.maxVisible ?? 5}
-      onPress={props.onPress}
-      {...componentDataSet('PresenceStrip', props.dataSet)}
+      onClick={props.onPress}
+      {...componentDataAttrs('PresenceStrip', props.dataSet)}
     >
       <For each={props.clients}>
         {(client) => (
