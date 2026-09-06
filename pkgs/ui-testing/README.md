@@ -227,5 +227,4 @@ pkgs/ui-testing/src/
 ```
 
 Drivers live in sibling packages: `@pkgs/ui-testing-solid-dom` (Solid in a
-DOM), `@pkgs/ui-testing-bun-webview` (`Bun.WebView`), `@pkgs/ui-testing-rntl`
-(React Native test renderer).
+DOM), `@pkgs/ui-testing-bun-webview` (`Bun.WebView`).

@@ -1,5 +1,5 @@
 import type { HttpFetch } from '@pkgs/http-client';
-import { SNAPSHOT_SHELL_CSS } from '@pkgs/ui-testing-rntl/serialize-host-tree-html';
+import { SNAPSHOT_SHELL_CSS } from '@pkgs/ui-testing-solid-dom';
 
 /** Same family weights as snapshot HTML; `display=block` avoids FOUT swap. */
 export const NUNITO_FONT_CSS_URL =

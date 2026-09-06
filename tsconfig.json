@@ -203,8 +203,6 @@
     "apps/room-server/src/**/*.ts",
     "apps/room-server/scripts/**/*.ts",
     "pkgs/object-store/scripts/**/*.ts",
-    "pkgs/ui-testing-rntl/src/**/*.ts",
-    "pkgs/ui-testing-rntl/src/**/*.tsx",
     "pkgs/ui-testing-solid-dom/src/**/*.ts",
     "pkgs/ui-testing-solid-dom/src/**/*.tsx",
     "pkgs/ui-testing-bun-webview/src/**/*.ts",

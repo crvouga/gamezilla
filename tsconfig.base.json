@@ -238,8 +238,6 @@
         "./pkgs/ui-testing-bun-webview/src/index.ts"
       ],
       "@pkgs/ui-testing-bun-webview/*": ["./pkgs/ui-testing-bun-webview/src/*"],
-      "@pkgs/ui-testing-rntl": ["./pkgs/ui-testing-rntl/src/index.ts"],
-      "@pkgs/ui-testing-rntl/*": ["./pkgs/ui-testing-rntl/src/*"],
       "@pkgs/ui-testing-solid-dom": [
         "./pkgs/ui-testing-solid-dom/src/index.ts"
       ],
