@@ -3,6 +3,7 @@
   "dirs": [
     "apps/client/src/exemplars",
     "pkgs/llm/src/solid",
+    "pkgs/room/src/client/solid",
     "pkgs/solid-context/src",
     "pkgs/solid-context/tests",
     "pkgs/sync-engine/src/solid",
@@ -21,6 +22,8 @@
     "pkgs/logger/src/solid.tsx",
     "pkgs/object-store/src/solid.tsx",
     "pkgs/observability/src/client/solid.tsx",
+    "pkgs/room/src/solid.ts",
+    "pkgs/room/tests/solid.test.tsx",
     "pkgs/secure-storage/src/solid.tsx",
     "pkgs/secure-storage/tests/solid.test.tsx",
     "pkgs/sounds/src/solid.tsx",

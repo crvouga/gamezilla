@@ -165,7 +165,6 @@
     "pkgs/sql-client-sim/src/**/*.ts",
     "pkgs/sql-client-sqlite-web/scripts/**/*.ts",
     "pkgs/sql-client-sqlite-web/src/**/*.ts",
-    "pkgs/sql-client-sqlite-web/tests/**/*.ts",
     "pkgs/sql-client-sqlite/src/**/*.ts",
     "pkgs/sql-client-postgres/src/**/*.ts",
     "pkgs/sql-client/tests/**/*.ts",
