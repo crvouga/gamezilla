@@ -15,6 +15,7 @@
     "test": "bun test --preload ./bun-babel-plugin.ts --preload ./bun-preload.ts --timeout 30000 tests"
   },
   "dependencies": {
+    "@pkgs/chess-board-core": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",
     "@pkgs/assert": "workspace:*",

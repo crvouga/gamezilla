@@ -1,6 +1,6 @@
 import { Handles } from '@libs/test-ids';
-import { ChessBoardFlows } from '@pkgs/chess-board/chess-board-flows';
 import type { Square } from '@pkgs/chess-board/chess-board-types';
+import { ChessBoardFlows } from '@pkgs/chess-board-core/flows';
 import type { DriverNode } from '@pkgs/ui-testing';
 
 import { actorUi, pollUntil } from './actor-ui';

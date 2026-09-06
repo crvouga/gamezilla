@@ -1,3 +1,7 @@
+import {
+  chessBoardPanTestId,
+  chessBoardTapTestId,
+} from '@pkgs/chess-board-core/probe';
 import { memo, type ReactNode, useMemo } from 'react';
 import type { ChessBoardCanvasContentProps } from './chess-board-canvas-content';
 import { squareFromIndex } from './chess-board-geometry';
@@ -7,7 +11,6 @@ import {
   type ChessPieceRow,
   useChessPieceRows,
 } from './chess-board-piece-identities';
-import { chessBoardPanTestId, chessBoardTapTestId } from './chess-board-probe';
 import { useChessBoardSounds } from './chess-board-sounds';
 import type {
   BoardArrow,

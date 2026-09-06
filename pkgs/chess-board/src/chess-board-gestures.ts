@@ -1,16 +1,15 @@
 import type { BoardOrientation } from '@pkgs/chess-board/chess-board-types';
+import {
+  chessBoardPanTestId,
+  chessBoardTapTestId,
+  DEFAULT_CHESS_BOARD_TEST_ID,
+} from '@pkgs/chess-board-core/probe';
 import { DeviceEventEmitter } from 'react-native';
 import { State } from 'react-native-gesture-handler';
 import {
   fireGestureHandler,
   getByGestureTestId,
 } from 'react-native-gesture-handler/jest-utils';
-
-import {
-  chessBoardPanTestId,
-  chessBoardTapTestId,
-  DEFAULT_CHESS_BOARD_TEST_ID,
-} from './chess-board-probe';
 import { squareCenter } from './chess-board-squares';
 
 export type PointerUp = 'end' | 'cancel';

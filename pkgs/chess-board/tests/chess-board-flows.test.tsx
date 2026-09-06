@@ -6,8 +6,8 @@ import { afterEach, beforeAll, describe, expect, it, mock } from 'bun:test';
 import { ChessBoard } from '@pkgs/chess-board/chess-board';
 import { ChessBoardCanvasBootstrap } from '@pkgs/chess-board/chess-board-canvas-bootstrap';
 import { preloadChessBoardCanvas } from '@pkgs/chess-board/chess-board-canvas-runtime';
-import { ChessBoardFlows } from '@pkgs/chess-board/chess-board-flows';
 import type { Move } from '@pkgs/chess-board/chess-board-types';
+import { ChessBoardFlows } from '@pkgs/chess-board-core/flows';
 import { ClockProvider, wallClock, wallTimers } from '@pkgs/clock';
 import { AudioPlaybackProvider } from '@pkgs/sounds/audio-playback/audio-playback-context';
 import type {

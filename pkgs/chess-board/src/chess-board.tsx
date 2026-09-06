@@ -1,15 +1,15 @@
 import { assert } from '@pkgs/assert';
+import {
+  buildChessBoardProbe,
+  chessBoardProbeTestId,
+  DEFAULT_CHESS_BOARD_TEST_ID,
+} from '@pkgs/chess-board-core/probe';
 import { Box, Text, useTheme } from '@pkgs/ui-rn';
 import { assertSkiaWebLoaded } from '@pkgs/ui-rn/components/skia-web-root';
 import { memo, type ReactNode, useCallback, useMemo, useState } from 'react';
 import type { LayoutChangeEvent } from 'react-native';
 import type { ChessBoardCanvasProps } from './chess-board-canvas';
 import { useChessBoardCanvas } from './chess-board-canvas-runtime';
-import {
-  buildChessBoardProbe,
-  chessBoardProbeTestId,
-  DEFAULT_CHESS_BOARD_TEST_ID,
-} from './chess-board-probe';
 import type {
   BoardArrowPalette,
   BoardPromotionPalette,

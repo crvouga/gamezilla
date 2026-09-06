@@ -98,7 +98,7 @@ function trackDragPointer(x: number, y: number, a: PanFactoryArgs): void {
 export {
   chessBoardPanTestId,
   chessBoardTapTestId,
-} from './chess-board-probe';
+} from '@pkgs/chess-board-core/probe';
 
 function createBoardPanGesture(a: PanFactoryArgs) {
   const { drag, hoverSquareIndex, legalMarkersOpacity, panTestId } = a;

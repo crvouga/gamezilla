@@ -1,10 +1,9 @@
 import { Chess } from 'chess.js';
 
-import { squareFromIndex } from './chess-board-geometry';
-import { positionFromChess } from './chess-board-position-from-chess';
-import { squareCenter } from './chess-board-squares';
-import type { BoardOrientation, PieceCode, Square } from './chess-board-types';
-import { pieceCode } from './chess-pieces-svg';
+import { squareCenter, squareFromIndex } from './geometry';
+import { pieceCode } from './piece-svgs';
+import { positionFromChess } from './position';
+import type { BoardOrientation, PieceCode, Square } from './types';
 
 /** Default outer `testID` when ChessBoard is mounted without one. */
 export const DEFAULT_CHESS_BOARD_TEST_ID = 'chess-board';

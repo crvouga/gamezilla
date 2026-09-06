@@ -956,6 +956,7 @@
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
         "@pkgs/assert": "workspace:*",
+        "@pkgs/chess-board-core": "workspace:*",
         "@pkgs/clock": "workspace:*",
         "@pkgs/http-client": "workspace:*",
         "@pkgs/sounds": "workspace:*",
@@ -992,6 +993,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@pkgs/clock": "workspace:*",
+        "@pkgs/ui-testing": "workspace:*",
         "chess.js": "catalog:",
       },
       "devDependencies": {
@@ -2673,6 +2675,7 @@
         "@pkgs/auth": "workspace:*",
         "@pkgs/billing": "workspace:*",
         "@pkgs/chess-board": "workspace:*",
+        "@pkgs/chess-board-core": "workspace:*",
         "@pkgs/clock": "workspace:*",
         "@pkgs/emqx-server": "workspace:*",
         "@pkgs/http-client": "workspace:*",

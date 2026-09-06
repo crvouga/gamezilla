@@ -1,13 +1,12 @@
-import type { Driver } from '@pkgs/ui-testing';
-
+import type { Driver } from '@pkgs/ui-testing/driver/driver';
+import { squareCenter } from './geometry';
 import {
   type ChessBoardProbe,
   chessBoardProbeTestId,
   DEFAULT_CHESS_BOARD_TEST_ID,
   parseChessBoardProbe,
-} from './chess-board-probe';
-import { squareCenter } from './chess-board-squares';
-import type { BoardOrientation, PieceCode, Square } from './chess-board-types';
+} from './probe';
+import type { BoardOrientation, PieceCode, Square } from './types';
 
 const WAIT_MS = 10_000;
 const POLL_MS = 100;
