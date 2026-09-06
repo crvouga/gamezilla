@@ -38,6 +38,7 @@
     "pkgs/minio-server/src",
     "pkgs/ndjson/src",
     "pkgs/object-store-node-fs/src",
+    "pkgs/object-store-opfs/src",
     "pkgs/object-store-s3/src",
     "pkgs/observability-impl-local-file/src",
     "pkgs/os/src",

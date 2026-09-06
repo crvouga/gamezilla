@@ -32,6 +32,7 @@ const ENTRY_BASENAMES = new Set([
   'wall-node-fs.ts',
   'wall-os-fs.ts',
   'wall-expo-fs.ts',
+  'wall-browser-fs.ts',
   'wall-path-exists.ts',
   'build-web.ts',
   'repo-tree-store.ts',

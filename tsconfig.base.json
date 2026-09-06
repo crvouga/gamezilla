@@ -145,6 +145,7 @@
       "@pkgs/minio-server": ["./pkgs/minio-server/src/index.ts"],
       "@pkgs/ndjson/*": ["./pkgs/ndjson/src/*"],
       "@pkgs/object-store-expo-fs/*": ["./pkgs/object-store-expo-fs/src/*"],
+      "@pkgs/object-store-opfs/*": ["./pkgs/object-store-opfs/src/*"],
       "@pkgs/object-store-node-fs/*": ["./pkgs/object-store-node-fs/src/*"],
       "@pkgs/object-store-s3/*": ["./pkgs/object-store-s3/src/*"],
       "@pkgs/object-store/*": ["./pkgs/object-store/src/*"],

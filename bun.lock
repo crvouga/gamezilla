@@ -1592,6 +1592,18 @@
         "typescript": "catalog:",
       },
     },
+    "pkgs/object-store-opfs": {
+      "name": "@pkgs/object-store-opfs",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/object-store": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "pkgs/object-store-s3": {
       "name": "@pkgs/object-store-s3",
       "version": "0.0.0",
@@ -3923,6 +3935,8 @@
     "@pkgs/object-store-expo-fs": ["@pkgs/object-store-expo-fs@workspace:pkgs/object-store-expo-fs"],
 
     "@pkgs/object-store-node-fs": ["@pkgs/object-store-node-fs@workspace:pkgs/object-store-node-fs"],
+
+    "@pkgs/object-store-opfs": ["@pkgs/object-store-opfs@workspace:pkgs/object-store-opfs"],
 
     "@pkgs/object-store-s3": ["@pkgs/object-store-s3@workspace:pkgs/object-store-s3"],
 
