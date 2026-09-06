@@ -31,6 +31,8 @@ export type LoadingStateProps = {
   variant?: StateBlockVariant;
   /** Spinner size preset. Defaults to `'medium'`. */
   size?: SpinnerProps['size'];
+  /** Host test id for DST / E2E (e.g. stuck-search probes). */
+  testID?: string;
   /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet;
 };
@@ -39,11 +41,13 @@ export function LoadingState({
   caption,
   variant = 'fill',
   size = 'medium',
+  testID,
   dataSet,
 }: LoadingStateProps): ReactNode {
   return (
     <StateBlock
       variant={variant}
+      {...(testID !== undefined ? { testID } : {})}
       {...componentDataSet('LoadingState', dataSet)}
     >
       <Spinner size={size} />

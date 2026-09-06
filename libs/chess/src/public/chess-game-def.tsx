@@ -16,5 +16,6 @@ import { ChessMainMenu } from './chess-main-menu-view';
 export const chessGameClient: GameClientDefinition = {
   id: CHESS_GAME_ID,
   title: <Trans>Chess</Trans>,
+  caption: <Trans>Puzzles, stats, and custom games</Trans>,
   MainMenu: ChessMainMenu,
 };

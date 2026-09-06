@@ -1,68 +1,164 @@
 import { useBreadcrumbNav } from '@apps/client/ui/use-breadcrumb-nav';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { type Href, MenuList, MenuRow, ScreenBase, useRouter } from '@pkgs/ui';
+import { useSoundsPreference } from '@pkgs/sounds';
+import {
+  Box,
+  GaugeIcon,
+  type Href,
+  type IconComponent,
+  InfoIcon,
+  MenuRow,
+  MenuSection,
+  PaintbrushIcon,
+  RefreshCwIcon,
+  ScreenBase,
+  SlidersHorizontalIcon,
+  SquareStackIcon,
+  UserIcon,
+  useRouter,
+  useTheme,
+  useThemePreference,
+  Volume2Icon,
+  VolumeXIcon,
+  WifiIcon,
+} from '@pkgs/ui';
+import Constants from 'expo-constants';
+import type { ReactNode } from 'react';
 
-type MoreRow = {
-  title: string;
-  caption: string;
-  href: Href;
+import { usePerfHudPreference } from '../perf/perf-hud-preference';
+
+const ROW_ICON_SIZE = 20;
+
+type SettingsRow = {
+  readonly title: string;
+  readonly caption?: string;
+  readonly value?: string;
+  readonly icon: IconComponent;
+  readonly href: Href;
 };
 
-function useMoreRows(): readonly MoreRow[] {
+type SettingsGroup = {
+  readonly key: string;
+  readonly title: string;
+  readonly rows: readonly SettingsRow[];
+};
+
+function useThemeValue(): string {
   const { t } = useLingui();
+  const { preference } = useThemePreference();
+  if (preference === 'light') return t`Light`;
+  if (preference === 'dark') return t`Dark`;
+  return t`System`;
+}
+
+function useSettingsGroups(): readonly SettingsGroup[] {
+  const { t } = useLingui();
+  const themeValue = useThemeValue();
+  const { muted } = useSoundsPreference();
+  const { enabled: perfEnabled } = usePerfHudPreference();
+  const appVersion = Constants.expoConfig?.version ?? '';
   return [
     {
+      key: 'account',
       title: t`Account`,
-      caption: t`Devices, sign-in methods, and sign out`,
-      href: '/more/account' as Href,
+      rows: [
+        {
+          title: t`Account`,
+          caption: t`Sign-in methods, devices, sign out`,
+          icon: UserIcon,
+          href: '/more/account' as Href,
+        },
+      ],
     },
     {
-      title: t`Appearance`,
-      caption: t`Light, dark, or system theme`,
-      href: '/more/theme',
+      key: 'preferences',
+      title: t`Preferences`,
+      rows: [
+        {
+          title: t`Appearance`,
+          value: themeValue,
+          icon: PaintbrushIcon,
+          href: '/more/theme',
+        },
+        {
+          title: t`Sound`,
+          value: muted ? t`Muted` : t`On`,
+          icon: muted ? VolumeXIcon : Volume2Icon,
+          href: '/more/sound',
+        },
+        {
+          title: t`Performance`,
+          value: perfEnabled ? t`On` : t`Off`,
+          icon: GaugeIcon,
+          href: '/more/performance',
+        },
+      ],
     },
     {
-      title: t`Sound`,
-      caption: t`In-app sound effects`,
-      href: '/more/sound',
+      key: 'status',
+      title: t`Status`,
+      rows: [
+        {
+          title: t`Connection`,
+          caption: t`Network reachability and server health`,
+          icon: WifiIcon,
+          href: '/more/server-status',
+        },
+        {
+          title: t`Sync`,
+          caption: t`Local database and sync state`,
+          icon: RefreshCwIcon,
+          href: '/more/sync',
+        },
+        {
+          title: t`Client config`,
+          caption: t`Synced runtime configuration`,
+          icon: SlidersHorizontalIcon,
+          href: '/more/client-config',
+        },
+      ],
     },
     {
-      title: t`Performance`,
-      caption: t`FPS / INP monitor overlay`,
-      href: '/more/performance',
-    },
-    {
-      title: t`Connection`,
-      caption: t`Network reachability and API server health`,
-      href: '/more/server-status',
-    },
-    {
-      title: t`UI Components`,
-      caption: t`Shared UI explorer`,
-      href: '/ui',
-    },
-    {
-      title: t`Sync status`,
-      caption: t`Local database and API sync state`,
-      href: '/more/sync',
-    },
-    {
-      title: t`Client config`,
-      caption: t`Synced client_config key/value scalar rows`,
-      href: '/more/client-config',
-    },
-    {
+      key: 'about',
       title: t`About`,
-      caption: t`App version, build, commit hash, and commit date`,
-      href: '/more/about' as Href,
+      rows: [
+        {
+          title: t`About`,
+          value: appVersion,
+          icon: InfoIcon,
+          href: '/more/about' as Href,
+        },
+        {
+          title: t`UI components`,
+          caption: t`Design system explorer`,
+          icon: SquareStackIcon,
+          href: '/ui',
+        },
+      ],
     },
   ];
 }
 
-export function SettingsScreen() {
+function SettingsRowItem({ row }: { readonly row: SettingsRow }): ReactNode {
   const router = useRouter();
+  const theme = useTheme();
+  const Icon = row.icon;
+  return (
+    <MenuRow
+      title={row.title}
+      {...(row.caption !== undefined ? { caption: row.caption } : {})}
+      {...(row.value !== undefined && row.value.length > 0
+        ? { value: row.value }
+        : {})}
+      leading={<Icon size={ROW_ICON_SIZE} color={theme.colors.icon} />}
+      onPress={() => router.push(row.href)}
+    />
+  );
+}
+
+export function SettingsScreen() {
   const nav = useBreadcrumbNav();
-  const rows = useMoreRows();
+  const groups = useSettingsGroups();
 
   return (
     <ScreenBase
@@ -71,17 +167,17 @@ export function SettingsScreen() {
         { name: <Trans>Spaces</Trans>, onPress: nav('/') },
         { name: <Trans>Settings</Trans> },
       ]}
+      scroll
       content={({ sx }) => (
-        <MenuList sx={sx}>
-          {rows.map((row) => (
-            <MenuRow
-              key={row.title}
-              title={row.title}
-              caption={row.caption}
-              onPress={() => router.push(row.href)}
-            />
+        <Box sx={[sx, { gap: 5 }]}>
+          {groups.map((group) => (
+            <MenuSection key={group.key} title={group.title}>
+              {group.rows.map((row) => (
+                <SettingsRowItem key={row.title} row={row} />
+              ))}
+            </MenuSection>
           ))}
-        </MenuList>
+        </Box>
       )}
     />
   );

@@ -3,10 +3,11 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import { useSyncEngineActions } from '@pkgs/sync-engine/client';
 import {
   Box,
-  Button,
+  EmptyState,
+  LoadingState,
   ScreenBase,
   ScreenBodyLegendList,
-  Text,
+  UserPlusIcon,
   useRouter,
 } from '@pkgs/ui';
 import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
@@ -20,10 +21,14 @@ function FriendsEmptyState(): ReactNode {
   const { t } = useLingui();
   const router = useRouter();
   return (
-    <Box sx={{ gap: 2, py: 4, alignItems: 'center' }}>
-      <Text variant="body" label={t`No friends yet`} />
-      <Button title={t`Find friends`} onPress={() => router.push('/search')} />
-    </Box>
+    <EmptyState
+      icon={UserPlusIcon}
+      title={<Trans>No friends yet</Trans>}
+      body={
+        <Trans>Search for people by username to send a friend request.</Trans>
+      }
+      action={{ label: t`Find friends`, onPress: () => router.push('/search') }}
+    />
   );
 }
 
@@ -63,7 +68,9 @@ function FriendsListBody(): ReactNode {
             drawDistance={200}
             onRefresh={() => refreshQueries()}
             sx={{ flexGrow: 1 }}
-            ListEmptyComponent={isLoading ? null : <FriendsEmptyState />}
+            ListEmptyComponent={
+              isLoading ? <LoadingState /> : <FriendsEmptyState />
+            }
             renderItem={({ item }) => (
               <FriendUserRow
                 profile={item}

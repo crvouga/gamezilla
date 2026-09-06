@@ -34,6 +34,12 @@ export type ChipProps = {
   dataSet?: ComponentDataSet;
 };
 
+/** Fixed pill height so every chip in a row shares one baseline. */
+export const CHIP_HEIGHT = 32;
+/** Short labels ("All") stay pill-shaped instead of collapsing to a circle. */
+const CHIP_MIN_WIDTH = 56;
+const CHIP_ICON_SIZE = 16;
+
 export function Chip({
   label,
   selected = false,
@@ -51,9 +57,11 @@ export function Chip({
         alignSelf: 'flex-start',
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center',
         gap: 1.5,
         px: 3,
-        py: 1.5,
+        height: CHIP_HEIGHT,
+        minWidth: CHIP_MIN_WIDTH,
         borderRadius: 'full',
         borderWidth: 1,
         borderColor: selected ? 'tint' : 'border',
@@ -66,16 +74,19 @@ export function Chip({
           sx={{
             alignItems: 'center',
             justifyContent: 'center',
-            height: 16,
+            height: CHIP_ICON_SIZE,
           }}
         >
           {startIcon}
         </Box>
       ) : null}
       <Text
+        variant="label"
+        numberOfLines={1}
         sx={{
           color: selected ? 'tint' : 'text',
           fontSize: 13,
+          lineHeight: 18,
           fontWeight: '600',
         }}
         label={label}

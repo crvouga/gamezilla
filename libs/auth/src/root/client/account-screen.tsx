@@ -2,15 +2,19 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import {
   Box,
   type Href,
-  MenuList,
   MenuRow,
+  MenuSection,
   ScreenBase,
+  SmartphoneIcon,
   useRouter,
+  useTheme,
 } from '@pkgs/ui';
 import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
 import type { ReactNode } from 'react';
 
 import { AccountActionsRow } from './account-actions-row';
+
+const ROW_ICON_SIZE = 20;
 
 export type AccountScreenProps = {
   /** Profile identity block (avatar + username + email). */
@@ -19,6 +23,7 @@ export type AccountScreenProps = {
 
 export function AccountScreen({ identity }: AccountScreenProps) {
   const { t } = useLingui();
+  const theme = useTheme();
   const nav = useBreadcrumbNav();
   const router = useRouter();
 
@@ -32,17 +37,23 @@ export function AccountScreen({ identity }: AccountScreenProps) {
       ]}
       scroll
       content={({ sx }) => (
-        <Box sx={[sx, { gap: 3 }]}>
+        <Box sx={[sx, { gap: 5 }]}>
           {identity}
-          <MenuList>
+          <MenuSection title={<Trans>Security</Trans>}>
             <MenuRow
               title={t`Devices`}
               caption={t`Installs signed into this account`}
+              leading={
+                <SmartphoneIcon
+                  size={ROW_ICON_SIZE}
+                  color={theme.colors.icon}
+                />
+              }
               onPress={() => {
                 router.push('/more/account/devices' as Href);
               }}
             />
-          </MenuList>
+          </MenuSection>
           <AccountActionsRow />
         </Box>
       )}

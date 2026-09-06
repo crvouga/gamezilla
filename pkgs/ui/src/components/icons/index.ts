@@ -4,7 +4,10 @@
  */
 
 import {
+  Activity,
+  ArrowUpLeft,
   Bell,
+  Check,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -18,9 +21,12 @@ import {
   DoorOpen,
   Ellipsis,
   Gamepad2,
+  Gauge,
   Heart,
   History,
   House,
+  Info,
+  KeyRound,
   Lightbulb,
   ListChecks,
   LogIn,
@@ -28,11 +34,13 @@ import {
   Mail,
   Menu,
   Monitor,
+  Moon,
   Paintbrush,
   Pause,
   Play,
   Plus,
   Radio,
+  RefreshCw,
   RotateCcw,
   Save,
   ScrollText,
@@ -42,14 +50,20 @@ import {
   Settings,
   Share,
   Shuffle,
+  SlidersHorizontal,
+  Smartphone,
   SquarePen,
   SquareStack,
+  Sun,
   Terminal,
   Trash2,
   User,
+  UserPlus,
+  Users,
   Volume2,
   VolumeX,
   Wifi,
+  WifiOff,
   X,
 } from 'lucide-react-native';
 
@@ -104,3 +118,17 @@ export const RadioIcon = createIcon(Radio);
 export const ScrollTextIcon = createIcon(ScrollText);
 export const HistoryIcon = createIcon(History);
 export const MonitorIcon = createIcon(Monitor);
+export const ActivityIcon = createIcon(Activity);
+export const ArrowUpLeftIcon = createIcon(ArrowUpLeft);
+export const CheckIcon = createIcon(Check);
+export const GaugeIcon = createIcon(Gauge);
+export const InfoIcon = createIcon(Info);
+export const KeyRoundIcon = createIcon(KeyRound);
+export const MoonIcon = createIcon(Moon);
+export const RefreshCwIcon = createIcon(RefreshCw);
+export const SlidersHorizontalIcon = createIcon(SlidersHorizontal);
+export const SmartphoneIcon = createIcon(Smartphone);
+export const SunIcon = createIcon(Sun);
+export const UserPlusIcon = createIcon(UserPlus);
+export const UsersIcon = createIcon(Users);
+export const WifiOffIcon = createIcon(WifiOff);

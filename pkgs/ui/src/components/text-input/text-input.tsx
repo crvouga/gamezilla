@@ -31,6 +31,11 @@ export type TextInputProps = Omit<
   helperText?: LocalizedString;
   placeholder?: LocalizedString;
   accessibilityLabel?: LocalizedString;
+  /**
+   * Leading glyph inside the field (e.g. a search icon). Rendered
+   * non-interactive; the text inset grows to make room.
+   */
+  startAdornment?: ReactNode;
   /** Utility-first style shorthand for the outer wrapper. */
   sx?: SxInput;
   /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
@@ -49,13 +54,19 @@ function resolveBorderColor(args: {
   return args.outline;
 }
 
+/** Horizontal inset of the field text (`px: 4`). */
+const FIELD_PX_STEP = 4;
+/** Width reserved for a leading adornment (glyph + gap). */
+const ADORNMENT_WIDTH_STEP = 7;
+
 function fieldSx(args: {
   theme: Theme;
   hasError: boolean;
   focused: boolean;
   borderColor: string;
+  hasStartAdornment: boolean;
 }): SxProps {
-  const { theme, hasError, focused, borderColor } = args;
+  const { theme, hasError, focused, borderColor, hasStartAdornment } = args;
   const webRing =
     focused && Platform.OS === 'web'
       ? {
@@ -71,7 +82,8 @@ function fieldSx(args: {
     focused && Platform.OS !== 'web' ? { borderWidth: 2, margin: -1 } : {};
   return {
     py: 2.5,
-    px: 4,
+    px: FIELD_PX_STEP,
+    ...(hasStartAdornment ? { pl: FIELD_PX_STEP + ADORNMENT_WIDTH_STEP } : {}),
     fontSize: 'base',
     borderRadius: 'md',
     borderWidth: 1,
@@ -105,7 +117,17 @@ function FieldFooter({
 
 export const TextInput = forwardRef<RNTextInput, TextInputProps>(
   function TextInput(
-    { label, error, helperText, sx: sxProp, dataSet, onFocus, onBlur, ...rest },
+    {
+      label,
+      error,
+      helperText,
+      startAdornment,
+      sx: sxProp,
+      dataSet,
+      onFocus,
+      onBlur,
+      ...rest
+    },
     ref
   ) {
     const theme = useTheme();
@@ -118,9 +140,11 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
       tint: theme.colors.tint,
       outline: theme.colors.outline,
     });
+    const hasStartAdornment =
+      startAdornment !== undefined && startAdornment !== null;
     const field = useHostSx(
       'TextInputField',
-      fieldSx({ theme, hasError, focused, borderColor })
+      fieldSx({ theme, hasError, focused, borderColor, hasStartAdornment })
     );
 
     return (
@@ -129,21 +153,38 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
         dataSet={{ component: 'TextInput', ...dataSet }}
       >
         {label ? <Text variant="label" label={label} /> : null}
-        <RNTextInput
-          ref={ref}
-          placeholderTextColor={theme.colors.textSecondary}
-          onFocus={(e) => {
-            setFocused(true);
-            onFocus?.(e);
-          }}
-          onBlur={(e) => {
-            setFocused(false);
-            onBlur?.(e);
-          }}
-          style={field.style}
-          {...rest}
-          {...field.dataSet}
-        />
+        <Box sx={{ position: 'relative' }}>
+          <RNTextInput
+            ref={ref}
+            placeholderTextColor={theme.colors.textSecondary}
+            onFocus={(e) => {
+              setFocused(true);
+              onFocus?.(e);
+            }}
+            onBlur={(e) => {
+              setFocused(false);
+              onBlur?.(e);
+            }}
+            style={field.style}
+            {...rest}
+            {...field.dataSet}
+          />
+          {hasStartAdornment ? (
+            <Box
+              pointerEvents="none"
+              sx={{
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                bottom: 0,
+                pl: FIELD_PX_STEP,
+                justifyContent: 'center',
+              }}
+            >
+              {startAdornment}
+            </Box>
+          ) : null}
+        </Box>
         <FieldFooter error={error} helperText={helperText} />
       </Box>
     );

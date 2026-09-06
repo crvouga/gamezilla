@@ -1,4 +1,4 @@
-import { Box, ChevronRightIcon, MenuRow } from '@pkgs/ui';
+import { Box, ChevronRightIcon, MenuRow, SmartphoneIcon } from '@pkgs/ui';
 import { useTheme } from '@pkgs/ui/theme';
 import type { ReactNode } from 'react';
 import { AccountDeviceCurrentBadge } from './account-device-current-badge';
@@ -12,6 +12,8 @@ export type AccountDeviceMenuRowProps = {
 };
 
 /** Composed device row: title + captions + current badge + chevron. */
+const ROW_ICON_SIZE = 20;
+
 export function AccountDeviceMenuRow({
   deviceId,
   onOpenDevice,
@@ -19,12 +21,22 @@ export function AccountDeviceMenuRow({
   const theme = useTheme();
   return (
     <MenuRow
-      title={<AccountDeviceListTitleText deviceId={deviceId} />}
+      title={
+        <AccountDeviceListTitleText deviceId={deviceId} numberOfLines={1} />
+      }
       caption={
         <Box sx={{ gap: 0.5 }}>
-          <AccountDeviceListCaptionText deviceId={deviceId} />
+          <AccountDeviceListCaptionText
+            deviceId={deviceId}
+            variant="caption"
+            numberOfLines={1}
+            sx={{ color: 'textSecondary' }}
+          />
           <AccountDeviceSessionCaptionText deviceId={deviceId} />
         </Box>
+      }
+      leading={
+        <SmartphoneIcon size={ROW_ICON_SIZE} color={theme.colors.icon} />
       }
       trailing={
         <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>

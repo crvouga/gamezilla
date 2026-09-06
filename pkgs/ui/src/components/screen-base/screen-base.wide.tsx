@@ -187,6 +187,10 @@ function WideIslandBody({
     return (
       <IslandWide sx={{ flex: 1, minHeight: 0, p: 0 }}>
         <ScrollView
+          // The island has `p: 0`; the scroller owns the padding itself, so it
+          // must not also cancel the island's edge step (that would shift the
+          // content outside the clipped card).
+          flushEdge={false}
           frameSx={{ flex: 1 }}
           sx={{
             flexGrow: 1,

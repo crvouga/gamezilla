@@ -217,7 +217,7 @@ export function EventLogBar({
       onPress={onPress}
       disabled={onPress === undefined}
     >
-      <Box sx={{ px: 3, py: 2 }}>
+      <Box sx={{ minWidth: 0, py: 0.5 }}>
         <Stack
           direction="horizontal"
           spacing={1.5}

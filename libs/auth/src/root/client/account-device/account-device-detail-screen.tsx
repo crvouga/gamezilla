@@ -1,5 +1,11 @@
 import { Trans } from '@lingui/react/macro';
-import { Box, Card, ScreenBase, Text, useLocalSearchParams } from '@pkgs/ui';
+import {
+  Box,
+  EmptyState,
+  ScreenBase,
+  SmartphoneIcon,
+  useLocalSearchParams,
+} from '@pkgs/ui';
 import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
 import { AccountDeviceDetailBody } from './account-device-detail-body';
 import { AccountDeviceDetailHeader } from './account-device-detail-header';
@@ -30,14 +36,18 @@ export function AccountDeviceDetailScreen() {
       ]}
       scroll
       content={({ sx }) => (
-        <Box sx={[sx, { gap: 3 }]}>
+        <Box sx={[sx, { gap: 5 }]}>
           {deviceId === null ? (
-            <Text variant="body" label={<Trans>Missing device id.</Trans>} />
+            <EmptyState
+              icon={SmartphoneIcon}
+              title={<Trans>Device not found</Trans>}
+              body={<Trans>This link is missing a device id.</Trans>}
+            />
           ) : (
-            <Card elevation={1} sx={{ p: 4, gap: 3 }}>
+            <>
               <AccountDeviceDetailHeader deviceId={deviceId} />
               <AccountDeviceDetailBody deviceId={deviceId} />
-            </Card>
+            </>
           )}
         </Box>
       )}

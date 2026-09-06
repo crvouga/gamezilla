@@ -1,3 +1,4 @@
+import { useSignInModal } from '@libs/auth/public/auth-modals-provider';
 import { useIsSignedIn } from '@libs/auth/public/use-current-user';
 import { Handles } from '@libs/test-ids';
 import { Trans, useLingui } from '@lingui/react/macro';
@@ -38,7 +39,35 @@ const MemoSpaceCard = memo(function MemoSpaceCard({
   return <SpaceCard spaceId={spaceId} />;
 });
 
-function SpacesList() {
+function SpacesEmptyState({ onCreateSpace }: { onCreateSpace: () => void }) {
+  const { t } = useLingui();
+  const canCreateSpace = useIsSignedIn();
+  const { open: openSignInModal } = useSignInModal();
+  if (canCreateSpace) {
+    return (
+      <EmptyState
+        icon={Gamepad2Icon}
+        title={<Trans>No spaces yet</Trans>}
+        body={
+          <Trans>
+            Start a space to play with friends. Spaces you join show up here.
+          </Trans>
+        }
+        action={{ label: t`Start a space`, onPress: onCreateSpace }}
+      />
+    );
+  }
+  return (
+    <EmptyState
+      icon={Gamepad2Icon}
+      title={<Trans>No spaces yet</Trans>}
+      body={<Trans>Sign in to start a space or join one from a friend.</Trans>}
+      action={{ label: t`Sign in`, onPress: openSignInModal }}
+    />
+  );
+}
+
+function SpacesList({ onCreateSpace }: { onCreateSpace: () => void }) {
   const { refreshQueries } = useSyncEngineActions();
   const { spaceIds } = useJoinableLiveSpaceIds();
   const { spaceIds: openSpaceIds } = useOpenSpaceSessionIds();
@@ -54,9 +83,7 @@ function SpacesList() {
   );
 
   if (orderedIds.length === 0) {
-    return (
-      <EmptyState icon={Gamepad2Icon} title={<Trans>No shared spaces</Trans>} />
-    );
+    return <SpacesEmptyState onCreateSpace={onCreateSpace} />;
   }
 
   return (
@@ -79,6 +106,12 @@ export function SpacesScreen() {
   const createSpace = useCreateSpace();
   const { t } = useLingui();
 
+  const startSpace = useCallback(async () => {
+    await createSpace((id) => {
+      openSpaceDetail(router, id);
+    });
+  }, [createSpace, router]);
+
   const primaryAction = useMemo((): ScreenBasePrimaryAction => {
     return {
       labels: {
@@ -87,17 +120,17 @@ export function SpacesScreen() {
         success: t`Ready`,
         error: t`Couldn't open`,
       },
-      operation: async () => {
-        await createSpace((id) => {
-          openSpaceDetail(router, id);
-        });
-      },
+      operation: startSpace,
       successHoldMs: 0,
       icon: PlusIcon,
       disabled: !canCreateSpace,
       testID: Handles.spaceCreate,
     };
-  }, [canCreateSpace, createSpace, router, t]);
+  }, [canCreateSpace, startSpace, t]);
+
+  const onCreateSpace = useCallback(() => {
+    void startSpace();
+  }, [startSpace]);
 
   return (
     <ScreenBase
@@ -108,7 +141,7 @@ export function SpacesScreen() {
       content={({ sx }) => (
         // Lobby cards are cards already — never nest them inside an Island.
         <Box sx={sx}>
-          <SpacesList />
+          <SpacesList onCreateSpace={onCreateSpace} />
         </Box>
       )}
     />

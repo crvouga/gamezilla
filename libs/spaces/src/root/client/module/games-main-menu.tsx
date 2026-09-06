@@ -30,6 +30,7 @@ function buildSpaceGameMenuItems(
   return games.map((game) => ({
     key: game.id,
     title: game.title,
+    ...(game.caption !== undefined ? { caption: game.caption } : {}),
     testID: `game-menu-${game.id}`,
     selected: selectedGame === game.id,
     ...(isHost ? { onPress: () => onSelectGame(game.id) } : {}),

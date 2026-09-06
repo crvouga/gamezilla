@@ -1,7 +1,9 @@
 import { Trans, useLingui } from '@lingui/react/macro';
 import {
+  BellIcon,
   Box,
   Button,
+  CheckIcon,
   EmptyState,
   ScreenBase,
   useContentEdgePadding,
@@ -33,7 +35,9 @@ function NotificationsSignedInGate({
     <Box sx={px !== 0 ? { px } : undefined}>
       <EmptyState
         variant="compact"
-        title={<Trans>Sign in to view your notifications</Trans>}
+        icon={BellIcon}
+        title={<Trans>Sign in to see notifications</Trans>}
+        body={<Trans>Friend requests and space invites will land here.</Trans>}
         {...(onSignIn !== undefined
           ? { action: { label: t`Sign in`, onPress: onSignIn } }
           : {})}
@@ -68,19 +72,38 @@ function NotificationsScreenBody({
     successHoldMs: 0,
   });
 
+  const hasUnread = interactions.some((item) => item.isUnread);
+
   return (
-    <Box sx={{ gap: 3 }}>
-      <Box sx={[px !== 0 ? { px } : false, { gap: 2 }]}>
-        <NotificationsFilterBar filter={filter} onFilterChange={setFilter} />
-        {interactions.some((item) => item.isUnread) ? (
-          <Box sx={{ alignItems: 'flex-start' }}>
-            <Button variant="ghost" size="sm" {...markAllRead.buttonProps} />
-          </Box>
+    <Box sx={{ flex: 1, minHeight: 0, gap: 2 }}>
+      <Box
+        sx={[
+          px !== 0 ? { px } : false,
+          {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 3,
+          },
+        ]}
+      >
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <NotificationsFilterBar filter={filter} onFilterChange={setFilter} />
+        </Box>
+        {hasUnread ? (
+          <Button
+            variant="ghost"
+            intent="neutral"
+            size="sm"
+            startIcon={<CheckIcon size={16} />}
+            {...markAllRead.buttonProps}
+          />
         ) : null}
       </Box>
       <NotificationsList
         sections={sections}
         isLoading={isLoading}
+        filter={filter}
         actions={inboxActions}
       />
     </Box>

@@ -1,7 +1,6 @@
 import {
   AppHeaderIsland,
   Box,
-  Card,
   ISLAND_GAP_STEP,
   ISLAND_SIDE_RAIL_WIDTH,
   Island,
@@ -28,27 +27,29 @@ export type SpaceActiveLayoutProps = {
   children: ReactNode;
 };
 
-/** Horizontal step for compact chrome (matches TopBar's `px`). */
-const COMPACT_EDGE_STEP = 3;
+/** Title never eats the whole header row; the event log needs its share. */
+const WIDE_TITLE_MAX_WIDTH = 280;
 
-function SpaceChromeTitle({ spaceId }: { spaceId: string }): ReactNode {
+function SpaceChromeTitle({
+  spaceId,
+  variant,
+}: {
+  spaceId: string;
+  variant: 'subtitle' | 'navigationTitle';
+}): ReactNode {
   return (
     <Box sx={{ flexShrink: 1, minWidth: 0 }}>
       <SpaceTitleAttribution spaceId={spaceId}>
-        <SpaceTitleText
-          spaceId={spaceId}
-          variant="subtitle"
-          numberOfLines={1}
-        />
+        <SpaceTitleText spaceId={spaceId} variant={variant} numberOfLines={1} />
       </SpaceTitleAttribution>
     </Box>
   );
 }
 
 /**
- * Wide trailing: the space ActionBar must own a real width budget (a
- * content-sized slot collapses every action into a lone More menu), then the
- * global avatar menu sits at the far edge like on the tab island it replaces.
+ * Space ActionBar owns a real width budget (a content-sized slot collapses
+ * every action into a lone More menu), then the global avatar menu sits at
+ * the far edge — same on wide island trailing and compact TopBar trailing.
  */
 function SpaceTrailingWithGlobal(): ReactNode {
   const globalTrailing = useAppFrameGlobalTrailing();
@@ -70,18 +71,23 @@ function SpaceTrailingWithGlobal(): ReactNode {
   );
 }
 
+function SpaceHeaderEventLog({ spaceId }: { spaceId: string }): ReactNode {
+  return (
+    <Box sx={{ flex: 1, minWidth: 0 }}>
+      <SpaceEventLogChrome spaceId={spaceId} />
+    </Box>
+  );
+}
+
 /**
- * Wide body: one two-column shell — game canvas | event-log rail (games extras
- * optionally stack beneath the log via {@link SpaceSideRailExtras}).
+ * Wide body: game canvas, plus optional extras rail (games chrome via
+ * {@link SpaceSideRailExtras}). Event log lives in the header island.
  */
-function SpaceActiveWideBody({
-  spaceId,
-  children,
-}: {
-  spaceId: string;
-  children: ReactNode;
-}): ReactNode {
+function SpaceActiveWideBody({ children }: { children: ReactNode }): ReactNode {
   const extras = useSpaceSideRailExtras();
+  if (extras === null) {
+    return <Box sx={{ flex: 1, minHeight: 0, minWidth: 0 }}>{children}</Box>;
+  }
   return (
     <Box
       sx={{
@@ -94,10 +100,7 @@ function SpaceActiveWideBody({
     >
       <Box sx={{ flex: 1, minHeight: 0, minWidth: 0 }}>{children}</Box>
       <Island sx={{ width: ISLAND_SIDE_RAIL_WIDTH, minHeight: 0, p: 0 }}>
-        <Box sx={{ flex: 1, minHeight: 0 }}>
-          <SpaceEventLogChrome spaceId={spaceId} />
-          {extras}
-        </Box>
+        <Box sx={{ flex: 1, minHeight: 0 }}>{extras}</Box>
       </Island>
     </Box>
   );
@@ -118,16 +121,19 @@ function SpaceActiveLayoutWide({
                 minWidth: 0,
                 flexDirection: 'row',
                 alignItems: 'center',
-                gap: 3,
+                gap: 4,
               }}
             >
               <SpaceChromeLeadingActionBar />
-              <SpaceChromeTitle spaceId={spaceId} />
+              <Box sx={{ maxWidth: WIDE_TITLE_MAX_WIDTH, minWidth: 0 }}>
+                <SpaceChromeTitle spaceId={spaceId} variant="subtitle" />
+              </Box>
+              <SpaceHeaderEventLog spaceId={spaceId} />
             </Box>
           }
           trailing={<SpaceTrailingWithGlobal />}
         />
-        <SpaceActiveWideBody spaceId={spaceId}>{children}</SpaceActiveWideBody>
+        <SpaceActiveWideBody>{children}</SpaceActiveWideBody>
       </Box>
     </SpaceSideRailProvider>
   );
@@ -141,27 +147,36 @@ function SpaceActiveLayoutCompact({
     <Box sx={{ flex: 1, minHeight: 0 }}>
       <TopBar
         leading={<SpaceChromeLeadingActionBar />}
-        center={<SpaceChromeTitle spaceId={spaceId} />}
-        trailing={<SpaceChromeTrailingActionBar />}
+        center={
+          <Box
+            sx={{
+              flex: 1,
+              minWidth: 0,
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 2,
+            }}
+          >
+            <SpaceChromeTitle spaceId={spaceId} variant="navigationTitle" />
+            <SpaceHeaderEventLog spaceId={spaceId} />
+          </Box>
+        }
+        trailing={<SpaceTrailingWithGlobal />}
       />
-      <Box sx={{ px: COMPACT_EDGE_STEP, pt: 2 }}>
-        <Card sx={{ p: 0, overflow: 'hidden' }}>
-          <SpaceEventLogChrome spaceId={spaceId} />
-        </Card>
-      </Box>
       <Box sx={{ flex: 1, minHeight: 0, minWidth: 0 }}>{children}</Box>
     </Box>
   );
 }
 
 /**
- * Unified active-space chrome: exit + back, space title, members / manage
- * actions, then the events card / rail, then the game body.
+ * Unified active-space chrome: exit + back, event log, members / manage
+ * actions, then the game body.
  *
  * Wide: suppress the AppFrame tab island and paint space chrome as the single
- * top island; body is a shared two-column (game | event log + optional extras).
- * Compact: TopBar (no global avatar — the space is a modal over the tabs,
- * which own it), events card, full-bleed body.
+ * top island (nav · title · event log · actions · avatar); body is the game
+ * canvas plus an optional extras rail.
+ * Compact: TopBar nests the same chrome (nav · title · event log · actions ·
+ * avatar), then the full-bleed body.
  */
 export function SpaceActiveLayout({
   children,

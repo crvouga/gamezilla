@@ -49,12 +49,7 @@ function buildLeadingItems(args: {
   callbacks: SpaceChromeNavCallbacks;
 }): ActionBarItem[] {
   const { labels, callbacks } = args;
-  const onPressBack =
-    callbacks.onPressBack !== null
-      ? callbacks.onPressBack
-      : callbacks.onPressHome;
-
-  return [
+  const items: ActionBarItem[] = [
     {
       id: 'home',
       label: labels.home,
@@ -65,17 +60,22 @@ function buildLeadingItems(args: {
       priority: 100,
       testID: Handles.spaceClose,
     },
-    {
+  ];
+  // Back only exists when there is somewhere inside the space to go back to;
+  // at the games menu it would duplicate Close.
+  if (callbacks.onPressBack !== null) {
+    items.push({
       id: 'back',
       label: labels.back,
       shortLabel: labels.back,
       icon: ChevronLeftIcon,
-      onPress: onPressBack,
+      onPress: callbacks.onPressBack,
       overflow: 'never',
       priority: 95,
       testID: Handles.navBack,
-    },
-  ];
+    });
+  }
+  return items;
 }
 
 function buildTrailingItems(args: {

@@ -1,6 +1,16 @@
 import { Trans, useLingui } from '@lingui/react/macro';
-import { Box, Button, Pressable, Text } from '@pkgs/ui';
+import {
+  Box,
+  Button,
+  HistoryIcon,
+  MenuList,
+  MenuRow,
+  Text,
+  useTheme,
+} from '@pkgs/ui';
 import type { ReactNode } from 'react';
+
+const ROW_ICON_SIZE = 18;
 
 export function SearchRecentQueries({
   queries,
@@ -12,6 +22,7 @@ export function SearchRecentQueries({
   onClear: () => void;
 }): ReactNode {
   const { t } = useLingui();
+  const theme = useTheme();
 
   if (queries.length === 0) return null;
 
@@ -22,21 +33,37 @@ export function SearchRecentQueries({
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'space-between',
+          minHeight: 32,
         }}
       >
-        <Text variant="bodyBold" label={<Trans>Recent searches</Trans>} />
+        <Text
+          variant="label"
+          sx={{ color: 'textSecondary' }}
+          label={<Trans>Recent</Trans>}
+        />
         <Button
           title={t`Clear`}
           intent="neutral"
           variant="ghost"
+          size="sm"
           onPress={onClear}
         />
       </Box>
-      {queries.map((query) => (
-        <Pressable key={query} onPress={() => onSelect(query)}>
-          <Text variant="body" label={query} />
-        </Pressable>
-      ))}
+      <MenuList>
+        {queries.map((query) => (
+          <MenuRow
+            key={query}
+            title={query}
+            leading={
+              <HistoryIcon
+                size={ROW_ICON_SIZE}
+                color={theme.colors.textSecondary}
+              />
+            }
+            onPress={() => onSelect(query)}
+          />
+        ))}
+      </MenuList>
     </Box>
   );
 }

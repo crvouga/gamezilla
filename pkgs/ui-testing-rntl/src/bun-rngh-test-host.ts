@@ -3,6 +3,11 @@ import { mock } from 'bun:test';
 
 import { installDomTestGlobals } from './bun-rn-test-mocks';
 
+/** Flow-only package (no `.d.ts`): CSS color → RGBA uint32, or null when invalid. */
+const normalizeColor = require('@react-native/normalize-colors') as (
+  color: string | number
+) => number | null | undefined;
+
 const VIEW_CONFIG_REGISTRY =
   'react-native/Libraries/Renderer/shims/ReactNativeViewConfigRegistry';
 
@@ -23,6 +28,20 @@ export function mockRnViewConfigRegistry(): void {
     const codegen = (name: string) => name;
     return { default: codegen, __esModule: true };
   });
+}
+
+/**
+ * RN `processColor` without the native PlatformColor branch: CSS color →
+ * ARGB uint32 (react-native-svg `extractBrush` needs a number or it drops the
+ * paint as `none`). Numbers are assumed already processed.
+ */
+export function processColorForTest(color: unknown): number | null | undefined {
+  if (color === undefined || color === null) return color;
+  if (typeof color === 'number') return color;
+  const normalized = normalizeColor(color as string);
+  if (typeof normalized !== 'number') return undefined;
+  // 0xrrggbbaa → 0xaarrggbb
+  return ((normalized << 24) | (normalized >>> 8)) >>> 0;
 }
 
 function defineHost(reactNative: object, name: string, value: unknown): void {
@@ -212,7 +231,7 @@ export function stubReactNativeHostApis(reactNative: object): void {
   defineHost(reactNative, 'UIManager', uiManager);
   defineHost(reactNative, 'DeviceEventEmitter', deviceEventEmitter);
   defineHost(reactNative, 'Touchable', { Mixin: touchableMixin() });
-  defineHost(reactNative, 'processColor', (color: unknown) => color);
+  defineHost(reactNative, 'processColor', processColorForTest);
   defineHost(reactNative, 'codegenNativeComponent', (name: string) => name);
   defineHost(reactNative, 'PanResponder', {
     create: () => ({ panHandlers: {} }),
@@ -233,7 +252,7 @@ export function stubReactNativeHostApis(reactNative: object): void {
     setColorScheme: () => undefined,
     addChangeListener: () => ({ remove: () => undefined }),
   });
-  defineHost(reactNative, 'useColorScheme', () => 'light');
+  defineHost(reactNative, 'useColorScheme', () => 'dark');
   defineHost(reactNative, 'Easing', rnEasing());
   defineHost(reactNative, 'Animated', rnAnimated());
   defineHost(reactNative, 'I18nManager', rnI18nManager());

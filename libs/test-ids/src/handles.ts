@@ -60,6 +60,8 @@ export const Handles = {
 
   // search
   searchInput: 'search-input',
+  /** Inline "Searching…" state on the people search screen. */
+  searchLoading: 'search-loading',
 
   /** Add Friend pill scoped by peer username (search / friend-user). */
   friendAdd: (username: string) => `friend-add-${username}`,

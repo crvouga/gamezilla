@@ -1,5 +1,11 @@
-import { Trans, useLingui } from '@lingui/react/macro';
-import { Box, ScreenBase, Text, useBreadcrumbNav } from '@pkgs/ui';
+import { Trans } from '@lingui/react/macro';
+import {
+  Box,
+  EmptyState,
+  KeyRoundIcon,
+  ScreenBase,
+  useBreadcrumbNav,
+} from '@pkgs/ui';
 
 /**
  * Stub — linked sign-in providers UI previously read synced `entity_store`
@@ -7,7 +13,6 @@ import { Box, ScreenBase, Text, useBreadcrumbNav } from '@pkgs/ui';
  * `@pkgs/entity-store`.
  */
 export default function AccountProvidersStubScreen() {
-  const { t } = useLingui();
   const nav = useBreadcrumbNav();
   return (
     <ScreenBase
@@ -19,9 +24,16 @@ export default function AccountProvidersStubScreen() {
         { name: <Trans>Sign-in providers</Trans> },
       ]}
       content={({ sx }) => (
-        <Box sx={[sx, { gap: 2, p: 3 }]}>
-          <Text
-            label={t`Sign-in provider details are temporarily unavailable.`}
+        <Box sx={sx}>
+          <EmptyState
+            icon={KeyRoundIcon}
+            title={<Trans>Sign-in providers unavailable</Trans>}
+            body={
+              <Trans>
+                Linked provider details are temporarily unavailable. Check back
+                soon.
+              </Trans>
+            }
           />
         </Box>
       )}

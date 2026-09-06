@@ -6,6 +6,7 @@
 
 import { AppProviders } from '@apps/client/providers/app-providers';
 import { RootErrorBoundary } from '@apps/client/providers/root-error-boundary';
+import { BootPaintGate } from '@apps/client/providers/shell/boot-paint-gate';
 import { AppHeaderGlobalMenu } from '@apps/client/ui/app-header/app-header-global-menu';
 import { AppHeaderIslandHost } from '@apps/client/ui/app-header/app-header-island';
 import { OriginAvailabilityProvider } from '@pkgs/http-client';
@@ -85,9 +86,11 @@ export function ProductApp(props: ProductAppProps): ReactNode {
         <AppNavigation embedded={embedded}>
           <AppProviders embedded={embedded}>
             <AppFrameChromeProvider globalTrailing={<AppHeaderGlobalMenu />}>
-              <AppFrame header={<AppHeaderIslandHost />}>
-                <RootNavigator />
-              </AppFrame>
+              <BootPaintGate>
+                <AppFrame header={<AppHeaderIslandHost />}>
+                  <RootNavigator />
+                </AppFrame>
+              </BootPaintGate>
             </AppFrameChromeProvider>
           </AppProviders>
         </AppNavigation>

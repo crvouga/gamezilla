@@ -1,5 +1,6 @@
 // @io-wall-ok — bun:test module mocks for RN / Expo packages without natives
 import { mock } from 'bun:test';
+import type { StyleProp, ViewStyle } from 'react-native';
 
 /** RNTL host: SafeArea native component is unavailable under bun:test. */
 export function mockSafeAreaContext(): void {
@@ -8,8 +9,16 @@ export function mockSafeAreaContext(): void {
     const { View } = require('react-native') as typeof import('react-native');
     const insets = { top: 0, right: 0, bottom: 0, left: 0 };
     const frame = { x: 0, y: 0, width: 390, height: 844 };
+    /** Library provider fills its parent (`styles.fill`); keep the height chain. */
+    const SafeAreaProvider = ({
+      style,
+      ...rest
+    }: {
+      style?: StyleProp<ViewStyle>;
+      children?: React.ReactNode;
+    }) => React.createElement(View, { ...rest, style: [{ flex: 1 }, style] });
     return {
-      SafeAreaProvider: View,
+      SafeAreaProvider,
       SafeAreaView: View,
       SafeAreaInsetsContext: React.createContext(insets),
       SafeAreaFrameContext: React.createContext(frame),

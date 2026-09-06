@@ -1,3 +1,4 @@
+import { Handles } from '@libs/test-ids';
 import {
   defineProperty,
   defineRuntime,
@@ -22,7 +23,7 @@ import {
 import { anyActor } from './observations';
 import { captureSnapshot, devOauthSignIn } from './probes';
 import { productScenarioActions } from './scenario-actions';
-import { createProductSim, type ProductSim } from './sim';
+import { createProductSim, type ProductSim, productExtra } from './sim';
 
 const FRAME_STYLESHEET_HREF = '../../snapshot-shell.css';
 
@@ -77,6 +78,60 @@ export const noErrorBoundaryAnyActor = defineProperty(
 );
 
 /**
+ * Focused UI must expose the global action menu trigger
+ * (`Handles.statusCurrentUser`) — including inside an active space on compact.
+ *
+ * In-process RNTL parks non-focused actors, so only the active tree is probed.
+ * Bun-webview actors each own a window and are all checked.
+ */
+export const globalActionMenuAlwaysVisible = defineProperty({
+  name: 'globalActionMenuAlwaysVisible',
+  check: async (s: ProductSim) => {
+    const extra = productExtra(s);
+    const activeId =
+      extra.ui.kind === 'react-tree'
+        ? extra.ui.rntl?.activeActorId()
+        : undefined;
+    const missing: string[] = [];
+    for (const [id, handle] of s.actors) {
+      if (activeId !== undefined && id !== activeId) continue;
+      if (!(await handle.ui.get(Handles.statusCurrentUser).isVisible())) {
+        missing.push(id);
+      }
+    }
+    if (missing.length > 0) {
+      throw new Error(
+        `global action menu not visible for actor(s): ${missing.join(', ')}`
+      );
+    }
+  },
+});
+
+/**
+ * People search must not leave the focused actor on an eternal "Searching…"
+ * spinner after the run has drained timers + in-process HTTP.
+ */
+export const searchDoesNotHang = defineProperty({
+  name: 'searchDoesNotHang',
+  check: async (s: ProductSim) => {
+    const extra = productExtra(s);
+    const activeId =
+      extra.ui.kind === 'react-tree'
+        ? extra.ui.rntl?.activeActorId()
+        : undefined;
+    for (const [id, handle] of s.actors) {
+      if (activeId !== undefined && id !== activeId) continue;
+      const loading = handle.ui.get(Handles.searchLoading);
+      if (!(await loading.isVisible())) continue;
+      await loading.expect.hidden({
+        timeoutMs: 10_000,
+        description: `search settle for actor ${id}`,
+      });
+    }
+  },
+});
+
+/**
  * Product system: one sim (createSim + spawnServer) on the opened session.
  * UI actors spawn lazily via spawnActor. Hosts are registered runtimes:
  * `in-process` (default), `bun-webview`.
@@ -94,7 +149,11 @@ export const product = defineSystem<ProductSim>({
       create: () => bunWebviewRuntime(),
     }),
   ],
-  properties: [noErrorBoundaryAnyActor],
+  properties: [
+    noErrorBoundaryAnyActor,
+    globalActionMenuAlwaysVisible,
+    searchDoesNotHang,
+  ],
   actions: [
     spawnActor,
     resetActor,

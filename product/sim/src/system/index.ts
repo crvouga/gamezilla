@@ -68,7 +68,9 @@ export {
   type SimActor,
 } from './sim';
 export {
+  globalActionMenuAlwaysVisible,
   noErrorBoundaryAnyActor,
   type ProductSim,
   product,
+  searchDoesNotHang,
 } from './system';

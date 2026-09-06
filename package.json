@@ -126,6 +126,7 @@
     "@monaco-editor/react": "^4.7.0",
     "@noble/hashes": "^2.2.0",
     "@react-native-async-storage/async-storage": "~2.2.0",
+    "@react-native/normalize-colors": "0.83.10",
     "@react-native/virtualized-lists": "0.83.10",
     "@react-navigation/bottom-tabs": "^7.4.0",
     "@react-navigation/elements": "^2.6.3",

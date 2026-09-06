@@ -1,13 +1,16 @@
-import { Trans } from '@lingui/react/macro';
 import {
   Box,
+  LoadingState,
   SCREEN_BODY_PADDING_STEP,
   ScreenBodyLegendList,
   Text,
 } from '@pkgs/ui';
 import { type ReactNode, useCallback, useMemo } from 'react';
 
-import type { NotificationSection } from '../../shared/notifications/notification';
+import type {
+  NotificationFilter,
+  NotificationSection,
+} from '../../shared/notifications/notification';
 import type { NotificationCardActions } from '../../shared/notifications/notification-action';
 import { NotificationCard } from './notification-card';
 import { NotificationsEmptyState } from './notifications-empty-state';
@@ -15,6 +18,7 @@ import { NotificationsEmptyState } from './notifications-empty-state';
 type NotificationsListProps = {
   readonly sections: readonly NotificationSection[];
   readonly isLoading: boolean;
+  readonly filter: NotificationFilter;
   readonly actions: NotificationCardActions;
 };
 
@@ -30,6 +34,7 @@ type ListRow =
 export function NotificationsList({
   sections,
   isLoading,
+  filter,
   actions,
 }: NotificationsListProps): ReactNode {
   const empty =
@@ -63,25 +68,19 @@ export function NotificationsList({
       if (item.kind === 'header') {
         return (
           <Text
-            variant="caption"
+            variant="label"
             label={item.title}
             sx={{
               color: 'textSecondary',
               px: SCREEN_BODY_PADDING_STEP,
-              pb: 0.5,
-              pt: 2,
+              pb: 1,
+              pt: 3,
             }}
           />
         );
       }
       if (item.kind === 'loading') {
-        return (
-          <Text
-            variant="body"
-            label={<Trans>Loading…</Trans>}
-            sx={{ color: 'textSecondary', px: SCREEN_BODY_PADDING_STEP }}
-          />
-        );
+        return <LoadingState variant="compact" size="small" />;
       }
       return (
         <NotificationCard interaction={item.interaction} actions={actions} />
@@ -92,8 +91,8 @@ export function NotificationsList({
 
   if (empty) {
     return (
-      <Box sx={{ px: SCREEN_BODY_PADDING_STEP }}>
-        <NotificationsEmptyState />
+      <Box sx={{ flex: 1, px: SCREEN_BODY_PADDING_STEP }}>
+        <NotificationsEmptyState filter={filter} />
       </Box>
     );
   }

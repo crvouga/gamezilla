@@ -1,15 +1,15 @@
 import { Trans, useLingui } from '@lingui/react/macro';
-import { Box, Card, CopyToClipboardField, Text } from '@pkgs/ui';
+import {
+  Box,
+  CopyToClipboardField,
+  EmptyState,
+  MenuSection,
+  SmartphoneIcon,
+} from '@pkgs/ui';
 import type { ReactNode } from 'react';
 import { useIsSignedIn } from '../../../public/use-current-user';
 import { useAccountDeviceIds } from '../use-account-device-ids';
 import { AccountDeviceMenuRow } from './account-device-menu-row';
-
-function CaptionLine({ label }: { label: ReactNode }) {
-  return (
-    <Text variant="caption" sx={{ color: 'textSecondary' }} label={label} />
-  );
-}
 
 export type AccountDevicesCardProps = {
   accountId: string | null;
@@ -25,34 +25,47 @@ export function AccountDevicesCard({
   const signedIn = useIsSignedIn();
   const deviceIds = useAccountDeviceIds(signedIn ? accountId : null);
 
+  if (!signedIn || accountId === null) {
+    return (
+      <EmptyState
+        icon={SmartphoneIcon}
+        title={<Trans>Sign in to see your devices</Trans>}
+        body={
+          <Trans>Every install signed into your account shows up here.</Trans>
+        }
+      />
+    );
+  }
+
+  if (deviceIds.length === 0) {
+    return (
+      <EmptyState
+        icon={SmartphoneIcon}
+        title={<Trans>No devices yet</Trans>}
+        body={<Trans>Devices appear here after they sign in.</Trans>}
+      />
+    );
+  }
+
   return (
-    <Card elevation={1} sx={{ p: 4, gap: 3 }}>
-      <Text variant="bodyBold" label={<Trans>Devices</Trans>} />
-      <CaptionLine label={<Trans>Tap a device for details.</Trans>} />
-      {signedIn && accountId !== null ? (
-        <CopyToClipboardField
-          label={<Trans>Account ID</Trans>}
-          helperText={t`Tap to copy`}
-          value={accountId}
-        />
-      ) : (
-        <CaptionLine
-          label={<Trans>Sign in to see devices linked to your account.</Trans>}
-        />
-      )}
-      {deviceIds.length === 0 ? (
-        <CaptionLine label={<Trans>No devices yet.</Trans>} />
-      ) : (
-        <Box sx={{ gap: 0, pt: 2 }}>
-          {deviceIds.map((deviceId) => (
-            <AccountDeviceMenuRow
-              key={deviceId}
-              deviceId={deviceId}
-              onOpenDevice={onOpenDevice}
-            />
-          ))}
-        </Box>
-      )}
-    </Card>
+    <Box sx={{ gap: 5 }}>
+      <MenuSection
+        title={<Trans>Devices</Trans>}
+        footer={<Trans>Tap a device for details.</Trans>}
+      >
+        {deviceIds.map((deviceId) => (
+          <AccountDeviceMenuRow
+            key={deviceId}
+            deviceId={deviceId}
+            onOpenDevice={onOpenDevice}
+          />
+        ))}
+      </MenuSection>
+      <CopyToClipboardField
+        label={<Trans>Account ID</Trans>}
+        helperText={t`Tap to copy`}
+        value={accountId}
+      />
+    </Box>
   );
 }

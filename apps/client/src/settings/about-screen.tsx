@@ -8,7 +8,13 @@ import { i18n } from '@apps/client/i18n/i18n';
 import { useBreadcrumbNav } from '@apps/client/ui/use-breadcrumb-nav';
 import { APP_IDENTITY } from '@libs/auth/public/app-identity';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { Box, Card, CopyToClipboardField, ScreenBase, Text } from '@pkgs/ui';
+import {
+  Box,
+  CopyToClipboardField,
+  MenuRow,
+  MenuSection,
+  ScreenBase,
+} from '@pkgs/ui';
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 
@@ -24,7 +30,7 @@ export function AboutScreen() {
     APP_IDENTITY.displayName;
   const appVersion = Constants.expoConfig?.version ?? '—';
 
-  const buildMode = __DEV__ ? t`development` : t`production`;
+  const buildMode = __DEV__ ? t`Development` : t`Production`;
   const platformOs = Platform.OS;
 
   return (
@@ -37,32 +43,25 @@ export function AboutScreen() {
       ]}
       scroll
       content={({ sx }) => (
-        <Box sx={[sx, { gap: 3 }]}>
-          <Card elevation={1} sx={{ p: 4, gap: 2 }}>
-            <Text variant="bodyBold" label={<Trans>App</Trans>} />
-            <Text variant="body" label={t`Name: ${appName}`} />
-            <Text variant="body" label={t`Version: ${appVersion}`} />
-          </Card>
+        <Box sx={[sx, { gap: 5 }]}>
+          <MenuSection title={<Trans>App</Trans>}>
+            <MenuRow title={t`Name`} value={appName} />
+            <MenuRow title={t`Version`} value={appVersion} />
+            <MenuRow title={t`Platform`} value={platformOs} />
+            <MenuRow title={t`Build mode`} value={buildMode} />
+          </MenuSection>
 
-          <Card elevation={1} sx={{ p: 4, gap: 2 }}>
-            <Text variant="bodyBold" label={<Trans>Build</Trans>} />
-            <Text
-              variant="caption"
-              label={t`Commit (short): ${shortCommitHash}`}
-            />
-            <Text
-              variant="caption"
-              label={t`Committed: ${formattedCommitDate}`}
-            />
-            <CopyToClipboardField
-              label={<Trans>Full commit</Trans>}
-              helperText={t`Tap to copy`}
-              value={fullCommitHash}
-              selectable
-            />
-            <Text variant="caption" label={t`Build mode: ${buildMode}`} />
-            <Text variant="caption" label={t`Platform: ${platformOs}`} />
-          </Card>
+          <MenuSection title={<Trans>Build</Trans>}>
+            <MenuRow title={t`Commit`} value={shortCommitHash} />
+            <MenuRow title={t`Committed`} value={formattedCommitDate} />
+          </MenuSection>
+
+          <CopyToClipboardField
+            label={<Trans>Full commit</Trans>}
+            helperText={t`Tap to copy`}
+            value={fullCommitHash}
+            selectable
+          />
         </Box>
       )}
     />

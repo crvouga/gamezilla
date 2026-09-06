@@ -1,7 +1,9 @@
 import { Handles } from '@libs/test-ids';
 import { useLingui } from '@lingui/react/macro';
-import { Box, Button } from '@pkgs/ui';
+import { Box, Button, LogInIcon, LogOutIcon } from '@pkgs/ui';
 import { type ReactNode, useCallback } from 'react';
+
+const BUTTON_ICON_SIZE = 16;
 
 import {
   useSignInModal,
@@ -24,17 +26,20 @@ export function AccountActionsRow(): ReactNode {
   }, [openSignOutConfirm]);
 
   return (
-    <Box sx={{ gap: 2 }}>
+    <Box sx={{ alignSelf: 'stretch' }}>
       {isSignedIn ? (
         <Button
           title={t`Sign out`}
           intent="danger"
+          variant="outline"
+          startIcon={<LogOutIcon size={BUTTON_ICON_SIZE} />}
           onPress={onRequestSignOut}
           testID={Handles.accountSignOut}
         />
       ) : (
         <Button
           title={t`Sign in`}
+          startIcon={<LogInIcon size={BUTTON_ICON_SIZE} />}
           onPress={onSignIn}
           testID={Handles.accountSignIn}
         />

@@ -104,6 +104,7 @@ function RootMainMenu({ onBackToGames }: ChessMainMenuProps): ReactNode {
       {
         key: 'puzzle',
         title: <Trans>Puzzle</Trans>,
+        caption: <Trans>Solve rated puzzles and climb the ladder</Trans>,
         testID: 'chess-menu-puzzle',
         onPress: () =>
           dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.puzzle })),
@@ -111,7 +112,7 @@ function RootMainMenu({ onBackToGames }: ChessMainMenuProps): ReactNode {
       {
         key: 'stats',
         title: <Trans>Stats</Trans>,
-        caption: <Trans>Elo trend and game log.</Trans>,
+        caption: <Trans>Elo trend and game log</Trans>,
         testID: 'chess-menu-stats',
         onPress: () =>
           dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.stats })),
@@ -131,7 +132,7 @@ function RootMainMenu({ onBackToGames }: ChessMainMenuProps): ReactNode {
       {
         key: 'settings',
         title: <Trans>Settings</Trans>,
-        caption: <Trans>Preferences and developer tools.</Trans>,
+        caption: <Trans>Preferences and developer tools</Trans>,
         onPress: () =>
           dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.settings })),
       },

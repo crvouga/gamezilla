@@ -1,12 +1,40 @@
 import { Trans } from '@lingui/react/macro';
-import { BellIcon, EmptyState } from '@pkgs/ui';
+import {
+  BellIcon,
+  EmptyState,
+  ListChecksIcon,
+  SquareStackIcon,
+} from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
-export function NotificationsEmptyState(): ReactNode {
+import type { NotificationFilter } from '../../shared/notifications/notification';
+
+export function NotificationsEmptyState({
+  filter,
+}: {
+  readonly filter: NotificationFilter;
+}): ReactNode {
+  if (filter === 'archived') {
+    return (
+      <EmptyState
+        icon={SquareStackIcon}
+        title={<Trans>Nothing archived</Trans>}
+        body={<Trans>Notifications you archive are kept here.</Trans>}
+      />
+    );
+  }
+  if (filter === 'action_required') {
+    return (
+      <EmptyState
+        icon={ListChecksIcon}
+        title={<Trans>Nothing needs your attention</Trans>}
+        body={<Trans>Requests and invites that need a reply land here.</Trans>}
+      />
+    );
+  }
   return (
     <EmptyState
       icon={BellIcon}
-      variant="compact"
       title={<Trans>You&apos;re all caught up</Trans>}
       body={
         <Trans>

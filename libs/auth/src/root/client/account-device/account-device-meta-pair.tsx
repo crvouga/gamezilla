@@ -1,4 +1,4 @@
-import { Box, Text } from '@pkgs/ui';
+import { Box, MenuRow } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
 export type AccountDeviceMetaPairProps = {
@@ -7,15 +7,22 @@ export type AccountDeviceMetaPairProps = {
   valueAtom: ReactNode;
 };
 
-/** Pure layout cell — caption label above an atom-rendered value. */
+/** Cap so a long value never crowds the label out of the row. */
+const VALUE_MAX_WIDTH = '55%';
+
+/** Detail row — label on the left, atom-rendered value right-aligned. */
 export function AccountDeviceMetaPair({
   label,
   valueAtom,
 }: AccountDeviceMetaPairProps): ReactNode {
   return (
-    <Box sx={{ flex: 1, minWidth: 140, gap: 1 }}>
-      <Text variant="caption" sx={{ color: 'textSecondary' }} label={label} />
-      {valueAtom}
-    </Box>
+    <MenuRow
+      title={label}
+      trailing={
+        <Box sx={{ maxWidth: VALUE_MAX_WIDTH, alignItems: 'flex-end' }}>
+          {valueAtom}
+        </Box>
+      }
+    />
   );
 }

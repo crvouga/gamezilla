@@ -1,7 +1,8 @@
 /**
- * Current-user avatar dropdown: sync, server, account, theme, sound,
- * notifications. Mounted as AppFrame `globalTrailing` so every top bar
- * shares the same menu.
+ * Current-user avatar dropdown. The panel header is the identity block
+ * (avatar + `@username` + session state); rows are grouped as
+ * account / settings, connectivity, then quick preferences. Mounted as
+ * AppFrame `globalTrailing` so every top bar shares the same menu.
  */
 
 import { useServerStatus } from '@apps/client/connection/use-server-status';
@@ -13,6 +14,8 @@ import {
   notificationsPath,
   useNotificationsUnreadCount,
 } from '@libs/notifications/public';
+import { useMyProfileId } from '@libs/profile/public/use-my-profile-id';
+import { useProfileColumn } from '@libs/profile/public/use-profile-column';
 import { MyProfileAvatar } from '@libs/profile/root/client/my-profile-avatar';
 import { Handles } from '@libs/test-ids';
 import { useLingui } from '@lingui/react/macro';
@@ -25,13 +28,15 @@ import {
   type OverflowMenuAction,
   OverflowMenuButton,
   PaintbrushIcon,
+  ServerIcon,
+  SettingsIcon,
   StatusDot,
   type StatusDotStatus,
+  UserIcon,
   useRouter,
   useThemePreference,
   Volume2Icon,
   VolumeXIcon,
-  WifiIcon,
 } from '@pkgs/ui';
 import {
   type ReactNode,
@@ -114,6 +119,8 @@ function useServerCaption(): string {
 }
 
 type MenuCopy = {
+  readonly identityTitle: string;
+  readonly identityCaption: string;
   readonly connectivity: {
     readonly title: string;
     readonly caption: string;
@@ -128,6 +135,7 @@ type MenuCopy = {
   readonly labels: {
     readonly server: string;
     readonly account: string;
+    readonly settings: string;
     readonly theme: string;
     readonly sound: string;
     readonly notifications: string;
@@ -140,6 +148,25 @@ function buildGlobalMenuActions(
 ): readonly OverflowMenuAction[] {
   return [
     {
+      id: 'account',
+      label: copy.labels.account,
+      subtitle: copy.accountCaption,
+      icon: UserIcon,
+      onPress: () => {
+        push('/more/account');
+      },
+      testID: Handles.globalMenuAccount,
+    },
+    {
+      id: 'settings',
+      label: copy.labels.settings,
+      icon: SettingsIcon,
+      onPress: () => {
+        push('/more');
+      },
+      endsGroup: true,
+    },
+    {
       id: 'connectivity',
       label: copy.connectivity.title,
       subtitle: copy.connectivity.caption,
@@ -147,27 +174,16 @@ function buildGlobalMenuActions(
       onPress: () => {
         push('/more/sync');
       },
-      endsGroup: true,
     },
     {
       id: 'server',
       label: copy.labels.server,
       subtitle: copy.serverCaption,
-      icon: WifiIcon,
+      icon: ServerIcon,
       onPress: () => {
         push('/more/server-status');
       },
-    },
-    {
-      id: 'account',
-      label: copy.labels.account,
-      subtitle: copy.accountCaption,
-      leading: <MyProfileAvatar size={20} />,
-      onPress: () => {
-        push('/more/account');
-      },
       endsGroup: true,
-      testID: Handles.globalMenuAccount,
     },
     {
       id: 'theme',
@@ -199,19 +215,29 @@ function buildGlobalMenuActions(
   ];
 }
 
+function useMyUsername(): string | null {
+  const profileId = useMyProfileId();
+  const username = useProfileColumn(profileId ?? '', 'username');
+  return username !== null && username.length > 0 ? username : null;
+}
+
 function useGlobalMenuCopy(): MenuCopy {
   const { t } = useLingui();
   const connectivity = useConnectivityLabels();
   const serverCaption = useServerCaption();
   const isAnon = useIsAnon();
   const signedIn = useHasAuthSession();
+  const username = useMyUsername();
   const { preference } = useThemePreference();
   const { muted } = useSoundsPreference();
   const unread = useNotificationsUnreadCount();
+  const isMember = signedIn && !isAnon;
   return {
+    identityTitle: username === null ? t`Guest` : `@${username}`,
+    identityCaption: isMember ? t`Signed in` : t`Playing as guest`,
     connectivity,
     serverCaption,
-    accountCaption: signedIn && !isAnon ? t`Signed in` : t`Guest`,
+    accountCaption: isMember ? t`Sign-in, devices` : t`Sign in to sync`,
     themeCaption:
       preference === 'light'
         ? t`Light`
@@ -225,6 +251,7 @@ function useGlobalMenuCopy(): MenuCopy {
     labels: {
       server: t`Server`,
       account: t`Account`,
+      settings: t`Settings`,
       theme: t`Theme`,
       sound: t`Sound`,
       notifications: t`Notifications`,
@@ -251,8 +278,8 @@ export function AppHeaderGlobalMenu(): ReactNode {
     <OverflowMenuButton
       actions={actions}
       header={{
-        title: t`Account`,
-        subtitle: copy.accountCaption,
+        title: copy.identityTitle,
+        subtitle: copy.identityCaption,
         avatar: <MyProfileAvatar size={40} />,
       }}
       accessibilityLabel={t`Account menu`}

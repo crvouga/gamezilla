@@ -65,6 +65,8 @@ export type GameClientDefinition = {
   readonly id: string;
   /** Display title shown in the games picker (already-localized node). */
   readonly title: ReactNode;
+  /** One-line description under the title in the games picker. */
+  readonly caption?: ReactNode;
   /** Mounted when this game is the currently selected game in the space. */
   readonly MainMenu: ComponentType<GameClientMenuProps>;
   /**

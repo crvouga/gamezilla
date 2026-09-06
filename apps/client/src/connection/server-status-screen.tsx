@@ -3,10 +3,21 @@ import { NetworkStateType } from '@apps/client/device/ports';
 import { useBreadcrumbNav } from '@apps/client/ui/use-breadcrumb-nav';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useTimers } from '@pkgs/clock';
-import { Box, Button, Card, ScreenBase, StatusDot, Text } from '@pkgs/ui';
+import {
+  Box,
+  Button,
+  MenuRow,
+  MenuSection,
+  RefreshCwIcon,
+  ScreenBase,
+  StatusDot,
+  Text,
+} from '@pkgs/ui';
 import { useCallback, useEffect } from 'react';
 
 const REFRESH_INTERVAL_MS = 15_000;
+const STATUS_DOT_SIZE = 12;
+const BUTTON_ICON_SIZE = 16;
 
 function useNetworkTypeLabel(): (type: NetworkStateType | undefined) => string {
   const { t } = useLingui();
@@ -29,7 +40,7 @@ function useNetworkTypeLabel(): (type: NetworkStateType | undefined) => string {
 
 type ServerStatus = ReturnType<typeof useServerStatus>;
 
-function OverallRow({
+function OverallSection({
   aggregateStatus,
 }: {
   aggregateStatus: ServerStatus['aggregateStatus'];
@@ -42,15 +53,17 @@ function OverallRow({
         ? t`Offline`
         : t`Limited or checking`;
   return (
-    <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
-      <StatusDot status={aggregateStatus} size={12} />
-      <Text variant="bodyBold" label={<Trans>Overall</Trans>} />
-      <Text variant="body" label={label} />
-    </Box>
+    <MenuSection>
+      <MenuRow
+        title={<Trans>Overall</Trans>}
+        value={label}
+        trailing={<StatusDot status={aggregateStatus} size={STATUS_DOT_SIZE} />}
+      />
+    </MenuSection>
   );
 }
 
-function DeviceNetworkCard({
+function DeviceNetworkSection({
   networkState,
   health,
 }: {
@@ -74,32 +87,33 @@ function DeviceNetworkCard({
   const networkTypeLabel = formatNetworkType(networkState.type);
   // The OS-reported network state can disagree with reality (especially on
   // web). When the server is actually reachable, surface a note explaining
-  // the discrepancy instead of leaving the card looking contradictory.
+  // the discrepancy instead of leaving the section looking contradictory.
   const osReportsOffline =
     networkState.isConnected === false ||
     networkState.isInternetReachable === false;
   const showDiscrepancyNote = health.phase === 'success' && osReportsOffline;
   return (
-    <Card elevation={1} sx={{ p: 4, gap: 2 }}>
-      <Text variant="bodyBold" label={<Trans>Device network</Trans>} />
-      <Text variant="body" label={t`Status: ${networkLine}`} />
-      <Text variant="caption" label={t`Type: ${networkTypeLabel}`} />
-      <Text variant="caption" label={t`Internet reachable: ${reachable}`} />
-      {showDiscrepancyNote ? (
-        <Text
-          variant="caption"
-          sx={{ color: 'textSecondary' }}
-          label={t`The OS reports the device as offline, but the server is reachable. This is usually a quirk of the platform's network reporting and can be ignored.`}
-        />
-      ) : null}
-    </Card>
+    <MenuSection
+      title={<Trans>Device network</Trans>}
+      {...(showDiscrepancyNote
+        ? {
+            footer: t`The OS reports the device as offline, but the server is reachable. This is usually a quirk of the platform's network reporting and can be ignored.`,
+          }
+        : {})}
+    >
+      <MenuRow title={t`Status`} value={networkLine} />
+      <MenuRow title={t`Type`} value={networkTypeLabel} />
+      <MenuRow title={t`Internet reachable`} value={reachable} />
+    </MenuSection>
   );
 }
 
-function ServerHealthCard({
+function ServerHealthSection({
+  apiUrl,
   healthUrl,
   health,
 }: {
+  apiUrl: string;
   healthUrl: string;
   health: ServerStatus['health'];
 }) {
@@ -114,21 +128,28 @@ function ServerHealthCard({
           : '…';
   const latencyMs = health.latencyMs;
   return (
-    <Card elevation={1} sx={{ p: 4, gap: 2 }}>
-      <Text variant="bodyBold" label={<Trans>Server health</Trans>} />
-      <Text variant="caption" selectable label={healthUrl} />
-      <Text variant="body" label={t`Status: ${serverLine}`} />
-      {latencyMs !== null ? (
-        <Text variant="caption" label={t`Latency: ${latencyMs} ms`} />
-      ) : null}
-      {health.errorMessage !== null ? (
-        <Text
-          variant="caption"
-          sx={{ color: 'destructive' }}
-          label={health.errorMessage}
-        />
-      ) : null}
-    </Card>
+    <MenuSection
+      title={<Trans>Server</Trans>}
+      {...(health.errorMessage !== null
+        ? {
+            footer: (
+              <Text
+                variant="caption"
+                sx={{ color: 'destructive' }}
+                label={health.errorMessage}
+              />
+            ),
+          }
+        : {})}
+    >
+      <MenuRow title={t`Status`} value={serverLine} />
+      <MenuRow
+        title={t`Latency`}
+        value={latencyMs === null ? '—' : t`${latencyMs} ms`}
+      />
+      <MenuRow title={t`API endpoint`} caption={apiUrl} />
+      <MenuRow title={t`Health check`} caption={healthUrl} />
+    </MenuSection>
   );
 }
 
@@ -160,19 +181,24 @@ export function ServerStatusScreen() {
       ]}
       scroll
       content={({ sx }) => (
-        <Box sx={[sx, { gap: 3 }]}>
-          <OverallRow aggregateStatus={aggregateStatus} />
-          <DeviceNetworkCard networkState={networkState} health={health} />
-          <Card elevation={1} sx={{ p: 4, gap: 2 }}>
-            <Text variant="bodyBold" label={<Trans>API endpoint</Trans>} />
-            <Text variant="body" selectable label={apiUrl} />
-          </Card>
-          <ServerHealthCard healthUrl={healthUrl} health={health} />
-          <Button
-            title={t`Check again`}
-            onPress={stableRefresh}
-            disabled={health.phase === 'loading'}
+        <Box sx={[sx, { gap: 5 }]}>
+          <OverallSection aggregateStatus={aggregateStatus} />
+          <DeviceNetworkSection networkState={networkState} health={health} />
+          <ServerHealthSection
+            apiUrl={apiUrl}
+            healthUrl={healthUrl}
+            health={health}
           />
+          <Box sx={{ alignSelf: 'stretch' }}>
+            <Button
+              title={t`Check again`}
+              intent="neutral"
+              variant="outline"
+              startIcon={<RefreshCwIcon size={BUTTON_ICON_SIZE} />}
+              onPress={stableRefresh}
+              loading={health.phase === 'loading'}
+            />
+          </Box>
         </Box>
       )}
     />

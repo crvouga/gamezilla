@@ -74,11 +74,22 @@ function ProfileScreenContent({
           }}
         >
           <MyProfileAvatar size={96} />
-          <Box sx={{ alignItems: 'center', gap: 1, alignSelf: 'stretch' }}>
-            <MyUsername variant="title" sx={{ textAlign: 'center' }} />
+          <Box
+            sx={{
+              alignItems: 'center',
+              gap: 1,
+              alignSelf: 'stretch',
+              minWidth: 0,
+            }}
+          >
+            <MyUsername
+              variant="heading"
+              numberOfLines={1}
+              sx={{ textAlign: 'center' }}
+            />
           </Box>
           <Box
-            sx={{ flexDirection: 'row', gap: 2, alignSelf: 'stretch', mt: 4 }}
+            sx={{ flexDirection: 'row', gap: 2, alignSelf: 'stretch', mt: 2 }}
           >
             <Button
               title={t`Edit profile`}

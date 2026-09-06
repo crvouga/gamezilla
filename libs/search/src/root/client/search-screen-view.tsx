@@ -11,10 +11,14 @@ import {
 import { Trans, useLingui } from '@lingui/react/macro';
 import {
   Box,
+  EmptyState,
+  LoadingState,
   ScreenBase,
   ScreenBodyLegendList,
-  Text,
+  SearchIcon,
   TextInput,
+  UsersIcon,
+  useTheme,
 } from '@pkgs/ui';
 import { memo, type ReactNode, useCallback, useState } from 'react';
 
@@ -30,8 +34,67 @@ const MemoSearchUserResultRow = memo(function MemoSearchUserResultRow({
   return <SearchUserResultRow user={user} />;
 });
 
+const FIELD_ICON_SIZE = 18;
+
+function SearchResults({
+  query,
+  searching,
+  results,
+  renderItem,
+}: {
+  query: string;
+  searching: boolean;
+  results: readonly UserSearchResult[];
+  renderItem: (args: { item: UserSearchResult }) => ReactNode;
+}): ReactNode {
+  const { t } = useLingui();
+  if (searching && results.length === 0) {
+    return (
+      <LoadingState
+        variant="compact"
+        caption={t`Searching…`}
+        testID={Handles.searchLoading}
+      />
+    );
+  }
+  if (results.length === 0) {
+    return (
+      <EmptyState
+        variant="compact"
+        icon={SearchIcon}
+        title={<Trans>No people found for “{query}”</Trans>}
+        body={<Trans>Check the spelling or try a different username.</Trans>}
+      />
+    );
+  }
+  return (
+    <ScreenBodyLegendList
+      data={results}
+      keyExtractor={(user) => user.userId}
+      estimatedItemSize={72}
+      drawDistance={160}
+      renderItem={renderItem}
+    />
+  );
+}
+
+function SearchIdleState(): ReactNode {
+  return (
+    <EmptyState
+      icon={UsersIcon}
+      title={<Trans>Find people</Trans>}
+      body={
+        <Trans>
+          Search by username or name to add friends and invite them to spaces.
+        </Trans>
+      }
+    />
+  );
+}
+
 function SearchScreenBody(): ReactNode {
   const { t } = useLingui();
+  const theme = useTheme();
   const { queries, touch, clear } = useSearchHistory();
   const [query, setQuery] = useState('');
   const recordSearch = useCallback(
@@ -58,18 +121,27 @@ function SearchScreenBody(): ReactNode {
   );
 
   return (
-    <Box sx={{ flex: 1, minHeight: 0, gap: 2 }}>
+    <Box sx={{ flex: 1, minHeight: 0, gap: 4 }}>
       <TextInput
-        label={<Trans>Search</Trans>}
         value={query}
         onChangeText={setQuery}
         placeholder={t`Search by username or name`}
+        accessibilityLabel={t`Search people`}
+        startAdornment={
+          <SearchIcon
+            size={FIELD_ICON_SIZE}
+            color={theme.colors.textSecondary}
+          />
+        }
         autoCapitalize="none"
         autoCorrect={false}
         autoFocus
+        returnKeyType="search"
+        clearButtonMode="while-editing"
         testID={Handles.searchInput}
       />
-      {showRecent ? (
+      {showRecent && queries.length === 0 ? <SearchIdleState /> : null}
+      {showRecent && queries.length > 0 ? (
         <SearchRecentQueries
           queries={queries}
           onSelect={setQuery}
@@ -78,15 +150,11 @@ function SearchScreenBody(): ReactNode {
       ) : null}
       <UserSearchQueryHint query={query} signedIn={signedIn} />
       {showSignInPrompt ? <UserSearchSignInPrompt /> : null}
-      {showResults && searching ? (
-        <Text variant="body" label={t`Searching…`} />
-      ) : null}
-      {showResults && !searching && results.length > 0 ? (
-        <ScreenBodyLegendList
-          data={results}
-          keyExtractor={(user) => user.userId}
-          estimatedItemSize={72}
-          drawDistance={160}
+      {showResults ? (
+        <SearchResults
+          query={trimmed}
+          searching={searching}
+          results={results}
           renderItem={renderItem}
         />
       ) : null}

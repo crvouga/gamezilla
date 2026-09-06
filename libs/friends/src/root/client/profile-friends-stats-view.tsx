@@ -1,30 +1,43 @@
 import { Handles } from '@libs/test-ids';
-import { useLingui } from '@lingui/react/macro';
-import { Box, Pressable, Text } from '@pkgs/ui';
+import { Plural } from '@lingui/react/macro';
+import { Box, ChevronRightIcon, Pressable, Text, useTheme } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 import { useFriends } from '../../use-cases/list-friends/client/use-friends';
 import { FriendsProfileRoute } from './friends-profile-routes';
 import { useFriendsProfileNavigation } from './use-friends-profile-chrome';
 
+const CHEVRON_SIZE = 18;
+
 export function ProfileFriendsStats(): ReactNode {
   const navigate = useFriendsProfileNavigation();
-  const { t } = useLingui();
+  const theme = useTheme();
   const { friends } = useFriends();
+  const count = friends.length;
 
   return (
     <Pressable
       onPress={() => navigate(FriendsProfileRoute.Friends)}
-      sx={{ alignSelf: 'stretch' }}
+      accessibilityRole="button"
+      sx={{
+        alignSelf: 'stretch',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 3,
+        py: 1,
+        borderRadius: 'md',
+      }}
       testID={Handles.profileFriendsStats}
     >
-      <Box sx={{ alignItems: 'center', py: 1 }}>
-        <Text variant="title" label={String(friends.length)} />
+      <Box sx={{ flexDirection: 'row', alignItems: 'baseline', gap: 2 }}>
+        <Text variant="heading" label={String(count)} />
         <Text
-          variant="caption"
+          variant="body"
           sx={{ color: 'textSecondary' }}
-          label={t`Friends`}
+          label={<Plural value={count} one="friend" other="friends" />}
         />
       </Box>
+      <ChevronRightIcon size={CHEVRON_SIZE} color={theme.colors.icon} />
     </Pressable>
   );
 }

@@ -145,9 +145,6 @@ mock.module('@shopify/react-native-skia', () =>
   require('./jest-skia-mock.cjs')
 );
 mock.module('@legendapp/list', () => require('./legend-list-mock.esm.js'));
-mock.module('react-native/Libraries/Utilities/useColorScheme', () => ({
-  default: () => 'dark',
-}));
 
 const ReactNativeNs = require('react-native') as {
   default?: typeof import('react-native');

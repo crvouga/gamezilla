@@ -4,12 +4,14 @@
  * `session.advanceTime` between probes.
  */
 
+import { Handles } from '@libs/test-ids';
 import { type Action, type ActionDef, defineAction } from '@pkgs/sim';
 import type { Driver } from '@pkgs/ui-testing';
 
 import type { ProductSim } from './sim';
 
 const DEFAULT_STEP_MS = 100;
+const ACTOR_READY_MAX_MS = 15_000;
 
 export function scenarioAction<const A extends unknown[] = []>(
   def: ActionDef<ProductSim, A>
@@ -25,6 +27,11 @@ export async function ensureActor(
   const handle = await s.runtime.launchActor(actorId);
   s.actors.set(actorId, handle);
   await s.session.waitForIdle();
+  // Boot gates (SQLite / fonts / assets) can paint before the global menu.
+  // Spawn is not complete until chrome is addressable for properties + scenarios.
+  await handle.ui.get(Handles.statusCurrentUser).expect.visible({
+    timeoutMs: ACTOR_READY_MAX_MS,
+  });
 }
 
 export async function actorUi(s: ProductSim, actorId: string): Promise<Driver> {

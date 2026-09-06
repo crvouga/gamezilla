@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/react/macro';
-import { Box } from '@pkgs/ui';
+import { MenuSection } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 import { AccountDeviceAppText } from './account-device-app-text';
 import { AccountDeviceCreatedText } from './account-device-created-text';
@@ -15,44 +15,48 @@ export type AccountDeviceMetaGridProps = {
   deviceId: string;
 };
 
-/** Grid of label / atom rows for a device's meta attributes. */
+/** Detail rows for a device's meta attributes. */
 export function AccountDeviceMetaGrid({
   deviceId,
 }: AccountDeviceMetaGridProps): ReactNode {
   return (
-    <Box sx={{ flexDirection: 'row', flexWrap: 'wrap', gap: 3 }}>
-      <AccountDeviceMetaPair
-        label={<Trans>Platform</Trans>}
-        valueAtom={<AccountDevicePlatformText deviceId={deviceId} />}
-      />
-      <AccountDeviceMetaPair
-        label={<Trans>OS</Trans>}
-        valueAtom={<AccountDeviceOsText deviceId={deviceId} />}
-      />
-      <AccountDeviceMetaPair
-        label={<Trans>Device name</Trans>}
-        valueAtom={<AccountDeviceNameText deviceId={deviceId} />}
-      />
-      <AccountDeviceMetaPair
-        label={<Trans>Model</Trans>}
-        valueAtom={<AccountDeviceModelText deviceId={deviceId} />}
-      />
-      <AccountDeviceMetaPair
-        label={<Trans>App</Trans>}
-        valueAtom={<AccountDeviceAppText deviceId={deviceId} />}
-      />
-      <AccountDeviceMetaPair
-        label={<Trans>First seen</Trans>}
-        valueAtom={<AccountDeviceFirstSeenText deviceId={deviceId} />}
-      />
-      <AccountDeviceMetaPair
-        label={<Trans>Last seen</Trans>}
-        valueAtom={<AccountDeviceLastSeenText deviceId={deviceId} />}
-      />
-      <AccountDeviceMetaPair
-        label={<Trans>Created</Trans>}
-        valueAtom={<AccountDeviceCreatedText deviceId={deviceId} />}
-      />
-    </Box>
+    <>
+      <MenuSection title={<Trans>Device</Trans>}>
+        <AccountDeviceMetaPair
+          label={<Trans>Platform</Trans>}
+          valueAtom={<AccountDevicePlatformText deviceId={deviceId} />}
+        />
+        <AccountDeviceMetaPair
+          label={<Trans>OS</Trans>}
+          valueAtom={<AccountDeviceOsText deviceId={deviceId} />}
+        />
+        <AccountDeviceMetaPair
+          label={<Trans>Device name</Trans>}
+          valueAtom={<AccountDeviceNameText deviceId={deviceId} />}
+        />
+        <AccountDeviceMetaPair
+          label={<Trans>Model</Trans>}
+          valueAtom={<AccountDeviceModelText deviceId={deviceId} />}
+        />
+        <AccountDeviceMetaPair
+          label={<Trans>App</Trans>}
+          valueAtom={<AccountDeviceAppText deviceId={deviceId} />}
+        />
+      </MenuSection>
+      <MenuSection title={<Trans>Activity</Trans>}>
+        <AccountDeviceMetaPair
+          label={<Trans>First seen</Trans>}
+          valueAtom={<AccountDeviceFirstSeenText deviceId={deviceId} />}
+        />
+        <AccountDeviceMetaPair
+          label={<Trans>Last seen</Trans>}
+          valueAtom={<AccountDeviceLastSeenText deviceId={deviceId} />}
+        />
+        <AccountDeviceMetaPair
+          label={<Trans>Created</Trans>}
+          valueAtom={<AccountDeviceCreatedText deviceId={deviceId} />}
+        />
+      </MenuSection>
+    </>
   );
 }

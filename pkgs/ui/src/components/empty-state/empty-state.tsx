@@ -22,6 +22,7 @@ import type { ReactNode } from 'react';
 
 import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
+import { Box } from '../box';
 import { Button } from '../button';
 import type { IconComponent } from '../icons';
 import { StateBlock, type StateBlockVariant } from '../state-block';
@@ -45,7 +46,39 @@ export type EmptyStateProps = {
   dataSet?: ComponentDataSet;
 };
 
-const ICON_SIZE = 32;
+const FILL_ICON_SIZE = 28;
+const FILL_ICON_DISC = 64;
+const COMPACT_ICON_SIZE = 24;
+/** Keeps body copy to a readable measure on wide layouts. */
+const BODY_MAX_WIDTH = 360;
+
+function EmptyStateIcon({
+  icon: Icon,
+  variant,
+}: {
+  icon: IconComponent;
+  variant: StateBlockVariant;
+}): ReactNode {
+  const theme = useTheme();
+  if (variant === 'compact') {
+    return <Icon size={COMPACT_ICON_SIZE} color={theme.colors.textSecondary} />;
+  }
+  return (
+    <Box
+      sx={{
+        width: FILL_ICON_DISC,
+        height: FILL_ICON_DISC,
+        borderRadius: 'full',
+        backgroundColor: 'surfaceMuted',
+        alignItems: 'center',
+        justifyContent: 'center',
+        mb: 1,
+      }}
+    >
+      <Icon size={FILL_ICON_SIZE} color={theme.colors.textSecondary} />
+    </Box>
+  );
+}
 
 export function EmptyState({
   icon,
@@ -55,37 +88,38 @@ export function EmptyState({
   variant = 'fill',
   dataSet,
 }: EmptyStateProps): ReactNode {
-  const theme = useTheme();
-  const Icon = icon;
+  const isFill = variant === 'fill';
   return (
     <StateBlock variant={variant} {...componentDataSet('EmptyState', dataSet)}>
-      {Icon !== undefined ? (
-        <Icon size={ICON_SIZE} color={theme.colors.textSecondary} />
+      {icon !== undefined ? (
+        <EmptyStateIcon icon={icon} variant={variant} />
       ) : null}
       <Text
-        variant="bodyBold"
+        variant={isFill ? 'subtitle' : 'bodyBold'}
         sx={{ color: 'text', textAlign: 'center' }}
         label={title}
       />
       {body !== undefined && body !== null ? (
         <Text
-          variant="caption"
-          sx={{ color: 'textSecondary', textAlign: 'center' }}
+          variant={isFill ? 'body' : 'caption'}
+          sx={{
+            color: 'textSecondary',
+            textAlign: 'center',
+            maxWidth: BODY_MAX_WIDTH,
+          }}
           label={body}
         />
       ) : null}
-      {action !== undefined ? <EmptyStateActionButton action={action} /> : null}
+      {action !== undefined ? (
+        <Box sx={{ mt: 2 }}>
+          <Button
+            title={action.label}
+            intent="primary"
+            size={isFill ? 'md' : 'sm'}
+            onPress={action.onPress}
+          />
+        </Box>
+      ) : null}
     </StateBlock>
-  );
-}
-
-function EmptyStateActionButton({ action }: { action: EmptyStateAction }) {
-  return (
-    <Button
-      title={action.label}
-      intent="primary"
-      size="sm"
-      onPress={action.onPress}
-    />
   );
 }

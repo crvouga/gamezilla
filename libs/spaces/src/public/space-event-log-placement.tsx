@@ -1,7 +1,7 @@
 /**
- * Wide active-space body is a two-column shell: game canvas | side rail.
- * The rail always hosts the event log; games may inject extra chrome beneath
- * it (feed bar, assistant, actions) via {@link SpaceSideRailExtras}.
+ * Wide active-space body may host an optional side rail for game chrome.
+ * The event log lives in the space header; games inject extras into the rail
+ * via {@link SpaceSideRailExtras}.
  */
 
 import {
@@ -86,8 +86,8 @@ function SpaceSideRailExtrasHost({
 }
 
 /**
- * Publish nodes into the wide side rail (beneath the event log). Cleared on
- * unmount. No-op outside {@link SpaceSideRailProvider} / compact layouts.
+ * Publish nodes into the wide side rail. Cleared on unmount. No-op outside
+ * {@link SpaceSideRailProvider} / compact layouts.
  */
 export function SpaceSideRailExtras({
   children,

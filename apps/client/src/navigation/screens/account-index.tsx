@@ -13,7 +13,7 @@ import { MyProfileAvatar } from '@libs/profile/root/client/my-profile-avatar';
 import { useLingui } from '@lingui/react/macro';
 import type { LocalizedString } from '@pkgs/i18n';
 import { useSyncEngine } from '@pkgs/sync-engine/client';
-import { MenuList, MenuRow } from '@pkgs/ui';
+import { MenuRow, MenuSection } from '@pkgs/ui';
 import { type ReactNode, useMemo } from 'react';
 
 const IDENTITY_AVATAR_SIZE = 40;
@@ -60,17 +60,16 @@ function AccountIdentityBlock(): ReactNode {
     [username, email, accountLabel]
   );
 
+  const caption = identity.caption ?? (isAnon ? t`Guest` : t`Signed in`);
+
   return (
-    <MenuList>
+    <MenuSection>
       <MenuRow
         title={identity.title}
-        {...(identity.caption !== undefined
-          ? { caption: identity.caption }
-          : {})}
+        caption={caption}
         leading={<MyProfileAvatar size={IDENTITY_AVATAR_SIZE} />}
-        hideChevron
       />
-    </MenuList>
+    </MenuSection>
   );
 }
 

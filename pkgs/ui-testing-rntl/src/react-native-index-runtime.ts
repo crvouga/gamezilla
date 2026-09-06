@@ -169,13 +169,34 @@ Object.defineProperty(module.exports, 'NativeModules', {
     },
   },
 });
+function rnFlattenStyle(style) {
+  if (style == null || typeof style !== 'object') return undefined;
+  if (!Array.isArray(style)) return style;
+  const result = {};
+  for (const entry of style) {
+    const flat = rnFlattenStyle(entry);
+    if (flat == null) continue;
+    for (const key of Object.keys(flat)) result[key] = flat[key];
+  }
+  return result;
+}
+const rnAbsoluteFillObject = Object.freeze({
+  position: 'absolute',
+  left: 0,
+  right: 0,
+  top: 0,
+  bottom: 0,
+});
 Object.defineProperty(module.exports, 'StyleSheet', {
   configurable: true,
   enumerable: true,
   writable: true,
   value: {
     create: (styles) => styles,
-    flatten: (styles) => styles,
+    flatten: rnFlattenStyle,
+    compose: (a, b) => (a != null && b != null ? [a, b] : (a ?? b)),
+    absoluteFill: rnAbsoluteFillObject,
+    absoluteFillObject: rnAbsoluteFillObject,
     hairlineWidth: 1,
   },
 });
@@ -191,7 +212,7 @@ Object.defineProperty(module.exports, 'useColorScheme', {
   configurable: true,
   enumerable: true,
   writable: true,
-  value: () => 'light',
+  value: () => 'dark',
 });
 function unwrapLazyRnValue(value) {
   let current = value;
@@ -213,6 +234,17 @@ function unwrapLazyRnValue(value) {
   }
   return current;
 }
+/** Plain functions on the RN index: calling them must not create an element. */
+const RN_CALLABLE_EXPORTS = new Set([
+  'processColor',
+  'findNodeHandle',
+  'requireNativeComponent',
+  'registerCallableModule',
+  'unstable_batchedUpdates',
+]);
+function isRnCallableExport(name) {
+  return RN_CALLABLE_EXPORTS.has(name) || name.startsWith('use');
+}
 function lazyExport(name) {
   return new Proxy(function lazyRnExport() {}, {
       get(_target, prop) {
@@ -232,8 +264,11 @@ function lazyExport(name) {
         if (prop === 'create') return (input) => input;
         return inner;
       },
-      apply(_target, _thisArg, args) {
+      apply(_target, thisArg, args) {
         const value = unwrapLazyRnValue(module.exports[name]);
+        if (typeof value === 'function' && isRnCallableExport(name)) {
+          return Reflect.apply(value, thisArg, args);
+        }
         const React = require('react');
         const type =
           typeof value === 'function' || typeof value === 'string'

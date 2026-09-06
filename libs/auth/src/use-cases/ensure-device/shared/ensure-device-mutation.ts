@@ -34,21 +34,21 @@ export const ensureDeviceMutation = defineMutation({
       )
       ON CONFLICT (id) DO UPDATE SET
         last_seen_at = excluded.last_seen_at,
-        platform = COALESCE(excluded.platform, devices.platform),
-        os_name = COALESCE(excluded.os_name, devices.os_name),
-        os_version = COALESCE(excluded.os_version, devices.os_version),
+        platform = COALESCE(excluded.platform, auth_devices.platform),
+        os_name = COALESCE(excluded.os_name, auth_devices.os_name),
+        os_version = COALESCE(excluded.os_version, auth_devices.os_version),
         device_model_name = COALESCE(
           excluded.device_model_name,
-          devices.device_model_name
+          auth_devices.device_model_name
         ),
-        device_brand = COALESCE(excluded.device_brand, devices.device_brand),
-        device_name = COALESCE(excluded.device_name, devices.device_name),
-        app_version = COALESCE(excluded.app_version, devices.app_version),
+        device_brand = COALESCE(excluded.device_brand, auth_devices.device_brand),
+        device_name = COALESCE(excluded.device_name, auth_devices.device_name),
+        app_version = COALESCE(excluded.app_version, auth_devices.app_version),
         app_build_number = COALESCE(
           excluded.app_build_number,
-          devices.app_build_number
+          auth_devices.app_build_number
         ),
-        user_agent = COALESCE(excluded.user_agent, devices.user_agent)
+        user_agent = COALESCE(excluded.user_agent, auth_devices.user_agent)
     `);
   },
 });

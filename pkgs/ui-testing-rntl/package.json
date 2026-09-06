@@ -19,6 +19,7 @@
     "@babel/runtime": "catalog:",
     "@pkgs/clock": "workspace:*",
     "@pkgs/ui-testing": "workspace:*",
+    "@react-native/normalize-colors": "catalog:",
     "@testing-library/react-native": "catalog:",
     "react": "catalog:",
     "react-native": "catalog:",

@@ -296,6 +296,8 @@ export {
   type MenuListProps,
   MenuRow,
   type MenuRowProps,
+  MenuSection,
+  type MenuSectionProps,
 } from './menu-row';
 // Overlay
 export {

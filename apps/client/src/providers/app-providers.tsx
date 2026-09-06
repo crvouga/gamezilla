@@ -12,7 +12,6 @@ import { AppShellProvider } from './app-shell-provider';
 import { AppSpaceRoomsProvider } from './app-space-rooms-provider';
 import { AppUiProvider } from './app-ui-provider';
 import { EmbeddedAppProvider } from './embedded-app-context';
-import { BootPaintGate } from './shell/boot-paint-gate';
 
 void preventSplashAutoHide();
 
@@ -29,6 +28,9 @@ void preventSplashAutoHide();
  * - Games (SpaceModule) before space room host (opens WebSockets with that module).
  * - Space rooms after sync + games so presence + module are available, and
  *   before UI modals (leave/end dispatch into the open-room host).
+ *
+ * Boot paint gating lives in {@link ProductApp} under
+ * {@link AppFrameChromeProvider} so the global action menu stays mounted.
  */
 const appProviders = [
   AppShellProvider,
@@ -53,9 +55,7 @@ export function AppProviders({
   return (
     <EmbeddedAppProvider embedded={embedded}>
       {USE_REACT_SCAN_DEV ? <ReactScanDev /> : null}
-      <ComposeProviders providers={appProviders}>
-        <BootPaintGate>{children}</BootPaintGate>
-      </ComposeProviders>
+      <ComposeProviders providers={appProviders}>{children}</ComposeProviders>
     </EmbeddedAppProvider>
   );
 }

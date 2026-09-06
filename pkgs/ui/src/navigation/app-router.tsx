@@ -156,15 +156,20 @@ function pathnameFromRootState(ref: AppNavigationRef): string {
   }
 }
 
+/**
+ * `createNavigationContainerRef` queues listeners added before the container
+ * attaches and replays them once it does, so subscribing while not-yet-ready
+ * is safe — and required: the header chrome mounts before the navigator, and
+ * a one-shot notify here would leave `usePathname` pinned to `/` forever.
+ */
 function subscribeRootNavigationState(
   ref: AppNavigationRef,
   onStoreChange: () => void
 ): () => void {
-  if (!ref.isReady()) {
-    onStoreChange();
-    return () => undefined;
-  }
-  return ref.addListener('state', onStoreChange);
+  const unsubscribe = ref.addListener('state', onStoreChange);
+  return () => {
+    unsubscribe();
+  };
 }
 
 function createRouterForRef(ref: AppNavigationRef): AppRouter {

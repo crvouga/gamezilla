@@ -1,34 +1,30 @@
 import { useBreadcrumbNav } from '@apps/client/ui/use-breadcrumb-nav';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useSyncEngine } from '@pkgs/sync-engine/client';
-import { Box, Button, Card, ScreenBase, Text } from '@pkgs/ui';
-import { type ReactNode, useCallback } from 'react';
+import {
+  Box,
+  Button,
+  MenuRow,
+  MenuSection,
+  RefreshCwIcon,
+  ScreenBase,
+  StatusDot,
+  type StatusDotStatus,
+  Text,
+} from '@pkgs/ui';
+import { useCallback } from 'react';
 
-function StatusRow({ label, value }: { label: string; value: ReactNode }) {
-  return (
-    <Box
-      sx={{
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        gap: 3,
-        py: 2,
-      }}
-    >
-      <Text variant="body" sx={{ flexShrink: 0 }} label={label} />
-      <Text
-        variant="body"
-        selectable
-        sx={{
-          fontWeight: '600',
-          flex: 1,
-          minWidth: 0,
-          textAlign: 'right',
-        }}
-        label={value}
-      />
-    </Box>
-  );
+const STATUS_DOT_SIZE = 12;
+const BUTTON_ICON_SIZE = 16;
+
+function connectionDotStatus(
+  connection: string,
+  hasError: boolean
+): StatusDotStatus {
+  if (hasError) return 'warning';
+  if (connection === 'connected') return 'online';
+  if (connection === 'disconnected') return 'offline';
+  return 'pending';
 }
 
 export function SyncScreen() {
@@ -53,6 +49,8 @@ export function SyncScreen() {
     status.lastError !== null && status.lastError.length > 0
       ? status.lastError
       : null;
+  const yes = t`Yes`;
+  const no = t`No`;
 
   return (
     <ScreenBase
@@ -60,35 +58,64 @@ export function SyncScreen() {
       breadcrumbs={[
         { name: <Trans>Spaces</Trans>, onPress: nav('/') },
         { name: <Trans>Settings</Trans>, onPress: nav('/more') },
-        { name: <Trans>Sync status</Trans> },
+        { name: <Trans>Sync</Trans> },
       ]}
       scroll
       content={({ sx }) => (
-        <Box sx={[sx, { gap: 3 }]}>
-          <StatusRow label={t`Connection`} value={connectionLabel} />
-          <StatusRow label={t`Online`} value={status.online ? t`Yes` : t`No`} />
-          <StatusRow
-            label={t`Has synced`}
-            value={status.hasSynced ? t`Yes` : t`No`}
-          />
-          <StatusRow
-            label={t`Has ever synced`}
-            value={status.hasEverSynced ? t`Yes` : t`No`}
-          />
-          {lastError !== null ? (
-            <Card elevation={1} sx={{ p: 4, gap: 2 }}>
-              <Text variant="bodyBold" label={<Trans>Last error</Trans>} />
-              <Text
-                variant="caption"
-                selectable
-                sx={{ color: 'destructive' }}
-                label={lastError}
-              />
-            </Card>
-          ) : (
-            <StatusRow label={t`Last error`} value={t`None`} />
-          )}
-          <Button title={t`Retry sync`} onPress={onRetry} />
+        <Box sx={[sx, { gap: 5 }]}>
+          <MenuSection>
+            <MenuRow
+              title={t`Connection`}
+              value={connectionLabel}
+              trailing={
+                <StatusDot
+                  status={connectionDotStatus(
+                    status.connection,
+                    lastError !== null
+                  )}
+                  size={STATUS_DOT_SIZE}
+                />
+              }
+            />
+          </MenuSection>
+          <MenuSection
+            title={<Trans>State</Trans>}
+            {...(lastError !== null
+              ? {
+                  footer: (
+                    <Text
+                      variant="caption"
+                      selectable
+                      sx={{ color: 'destructive' }}
+                      label={lastError}
+                    />
+                  ),
+                }
+              : {})}
+          >
+            <MenuRow title={t`Online`} value={status.online ? yes : no} />
+            <MenuRow
+              title={t`Has synced`}
+              value={status.hasSynced ? yes : no}
+            />
+            <MenuRow
+              title={t`Has ever synced`}
+              value={status.hasEverSynced ? yes : no}
+            />
+            <MenuRow
+              title={t`Last error`}
+              value={lastError === null ? t`None` : t`See below`}
+            />
+          </MenuSection>
+          <Box sx={{ alignSelf: 'stretch' }}>
+            <Button
+              title={t`Retry sync`}
+              intent="neutral"
+              variant="outline"
+              startIcon={<RefreshCwIcon size={BUTTON_ICON_SIZE} />}
+              onPress={onRetry}
+            />
+          </Box>
         </Box>
       )}
     />

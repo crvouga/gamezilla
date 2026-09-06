@@ -2,7 +2,7 @@ import { useSignInModal } from '@libs/auth/public/auth-modals-provider';
 import { useIsSignedIn } from '@libs/auth/public/use-current-user';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useTimers } from '@pkgs/clock';
-import { Box, Button, Text } from '@pkgs/ui';
+import { EmptyState, Text, UsersIcon } from '@pkgs/ui';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { UserSearchClient } from './search-users';
 import { useUserSearchClientDeps } from './use-user-search-deps';
@@ -22,6 +22,10 @@ export function useDebouncedUserSearchEffect(
   const [searching, setSearching] = useState(false);
   const onCompletedRef = useRef(onCompleted);
   onCompletedRef.current = onCompleted;
+  // Keep the client out of the effect deps — a new `auth` / `fetch` identity
+  // every render would reset the debounce forever and leave `searching` stuck.
+  const depsRef = useRef(deps);
+  depsRef.current = deps;
 
   useEffect(() => {
     const trimmed = query.trim();
@@ -31,10 +35,10 @@ export function useDebouncedUserSearchEffect(
       return;
     }
 
-    setSearching(true);
     let cancelled = false;
     const handle = timers.setTimeout(() => {
-      void new UserSearchClient(deps)
+      setSearching(true);
+      void new UserSearchClient(depsRef.current)
         .search(trimmed)
         .then((next) => {
           if (cancelled) return;
@@ -54,8 +58,9 @@ export function useDebouncedUserSearchEffect(
     return () => {
       cancelled = true;
       timers.clearTimeout(handle);
+      setSearching(false);
     };
-  }, [deps, query, signedIn, timers]);
+  }, [query, signedIn, timers]);
 
   return { results, searching, signedIn };
 }
@@ -65,10 +70,13 @@ export function UserSearchSignInPrompt(): ReactNode {
   const { t } = useLingui();
 
   return (
-    <Box sx={{ gap: 2, py: 2, alignItems: 'center' }}>
-      <Text variant="body" label={t`Sign in to search for people`} />
-      <Button title={t`Sign in`} onPress={openSignInModal} />
-    </Box>
+    <EmptyState
+      variant="compact"
+      icon={UsersIcon}
+      title={<Trans>Sign in to search for people</Trans>}
+      body={<Trans>Find friends by username and send requests.</Trans>}
+      action={{ label: t`Sign in`, onPress: openSignInModal }}
+    />
   );
 }
 
@@ -88,7 +96,12 @@ export function UserSearchQueryHint({
   return (
     <Text
       variant="caption"
-      label={<Trans>Enter at least {USER_SEARCH_MIN_LENGTH} characters</Trans>}
+      sx={{ px: 1 }}
+      label={
+        <Trans>
+          Keep typing — at least {USER_SEARCH_MIN_LENGTH} characters
+        </Trans>
+      }
     />
   );
 }
