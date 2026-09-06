@@ -1,6 +1,7 @@
 import { type Sql, sql } from '@pkgs/sql';
 
-import { useQuery } from '@pkgs/sync-engine/client';
+import { createQuery } from '@pkgs/sync-engine/solid';
+import { type Accessor, createMemo } from 'solid-js';
 
 export const SpaceField = {
   title: 'title',
@@ -36,18 +37,23 @@ function spaceRowByIdSql(spaceId: string): Sql<SpaceColumnRow> {
 }
 
 /**
- * Space column for `spaceId`. Uses {@link useQuery} (same path as profile
+ * Space column for `spaceId`. Uses {@link createQuery} (same path as profile
  * columns) — field-only subscriptions can stick on an empty snapshot after create and
  * leave host ids null forever (ID-suffix titles).
  */
 export function useSpaceColumn(
-  spaceId: string,
+  spaceId: string | Accessor<string>,
   field: SpaceFieldColumn
-): string | null {
-  const { rows } = useQuery(spaceRowByIdSql(spaceId));
-  const row = rows[0] ?? null;
-  if (row === null) return null;
-  const value = row[field];
-  if (typeof value !== 'string') return null;
-  return value;
+): Accessor<string | null> {
+  const resolveId = (): string =>
+    typeof spaceId === 'string' ? spaceId : spaceId();
+  const query = createQuery(() => spaceRowByIdSql(resolveId()));
+  const row = createMemo(() => query.rows()[0] ?? null);
+  return createMemo(() => {
+    const current = row();
+    if (current === null) return null;
+    const value = current[field];
+    if (typeof value !== 'string') return null;
+    return value;
+  });
 }

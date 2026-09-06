@@ -4,8 +4,8 @@ import {
 } from '@libs/auth/public/use-current-user';
 import { sql } from '@pkgs/sql';
 
-import { useQuery } from '@pkgs/sync-engine/client';
-import { useMemo } from 'react';
+import { createQuery } from '@pkgs/sync-engine/solid';
+import { type Accessor, createMemo } from 'solid-js';
 
 import {
   resolveSpaceJoinSnapshot,
@@ -20,42 +20,39 @@ export type {
   SpaceJoinSnapshotStatus,
 } from '../shared/resolve-space-join-snapshot';
 
-export function useSpaceJoinSnapshot(spaceId: string): SpaceJoinSnapshot {
-  const enabled = spaceId.length > 0;
+export function useSpaceJoinSnapshot(
+  spaceId: string | Accessor<string>
+): Accessor<SpaceJoinSnapshot> {
+  const resolveId = (): string =>
+    typeof spaceId === 'string' ? spaceId : spaceId();
   const viewerAccountId = useMyAccountId();
   const viewerDeviceId = useMyDeviceId();
-  const { rows, isLoading } = useQuery(sql<SpaceJoinLocalRow>`
-    SELECT host_id, host_member_id, host_account_id, ended_at, visibility
-    FROM spaces
-    WHERE id = ${spaceId}
-  `);
-  const row = rows[0] ?? null;
+  const query = createQuery(
+    () => sql<SpaceJoinLocalRow>`
+      SELECT host_id, host_member_id, host_account_id, ended_at, visibility
+      FROM spaces
+      WHERE id = ${resolveId()}
+    `
+  );
+  const row = createMemo(() => query.rows()[0] ?? null);
+  const hostAccountId = createMemo(() => row()?.host_account_id ?? null);
+  const hostMemberId = createMemo(() => row()?.host_member_id ?? null);
   const hasSpaceUser = useHasSpaceUserLocal(spaceId, viewerAccountId);
   const isFriendOfHost = useIsFriendOfHostLocal(
-    row?.host_account_id ?? null,
-    row?.host_member_id ?? null,
+    hostAccountId,
+    hostMemberId,
     viewerAccountId
   );
 
-  return useMemo(
-    () =>
-      resolveSpaceJoinSnapshot({
-        enabled,
-        rowLoading: isLoading,
-        row,
-        hasSpaceUser,
-        isFriendOfHost,
-        viewerAccountId,
-        viewerDeviceId,
-      }),
-    [
-      enabled,
-      isLoading,
-      row,
-      hasSpaceUser,
-      isFriendOfHost,
-      viewerAccountId,
-      viewerDeviceId,
-    ]
+  return createMemo(() =>
+    resolveSpaceJoinSnapshot({
+      enabled: resolveId().length > 0,
+      rowLoading: query.isLoading(),
+      row: row(),
+      hasSpaceUser: hasSpaceUser(),
+      isFriendOfHost: isFriendOfHost(),
+      viewerAccountId: viewerAccountId(),
+      viewerDeviceId: viewerDeviceId(),
+    })
   );
 }

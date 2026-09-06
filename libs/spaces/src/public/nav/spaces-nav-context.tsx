@@ -13,16 +13,16 @@
  */
 
 import {
+  type Accessor,
   createContext,
-  type ReactNode,
-  useCallback,
+  createEffect,
+  createMemo,
+  createSignal,
+  createUniqueId,
+  type JSX,
+  onCleanup,
   useContext,
-  useEffect,
-  useId,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+} from 'solid-js';
 
 export type SpacesNavBackHandler = () => void;
 
@@ -44,36 +44,35 @@ type SpacesNavContextValue = {
 const SpacesNavContext = createContext<SpacesNavContextValue | null>(null);
 
 export type SpacesNavProviderProps = {
-  children: ReactNode;
+  children: JSX.Element;
 };
 
-export function SpacesNavProvider({
-  children,
-}: SpacesNavProviderProps): ReactNode {
-  const [entries, setEntries] = useState<readonly Entry[]>([]);
+export function SpacesNavProvider(props: SpacesNavProviderProps): JSX.Element {
+  const [entries, setEntries] = createSignal<readonly Entry[]>([]);
 
-  const setHandler = useCallback<SpacesNavContextValue['setHandler']>(
-    (id, handler) => {
-      setEntries((prev) => {
-        const filtered = prev.filter((e) => e.id !== id);
-        if (handler === null) return filtered;
-        return [...filtered, { id, handler }];
-      });
+  const setHandler: SpacesNavContextValue['setHandler'] = (id, handler) => {
+    setEntries((prev) => {
+      const filtered = prev.filter((e) => e.id !== id);
+      if (handler === null) return filtered;
+      return [...filtered, { id, handler }];
+    });
+  };
+
+  const current = createMemo<SpacesNavBackHandler | null>(() => {
+    const list = entries();
+    return list.length > 0 ? (list[list.length - 1]?.handler ?? null) : null;
+  });
+
+  const value: SpacesNavContextValue = {
+    get current() {
+      return current();
     },
-    []
-  );
-
-  const current: SpacesNavBackHandler | null =
-    entries.length > 0 ? (entries[entries.length - 1]?.handler ?? null) : null;
-
-  const value = useMemo<SpacesNavContextValue>(
-    () => ({ current, setHandler }),
-    [current, setHandler]
-  );
+    setHandler,
+  };
 
   return (
     <SpacesNavContext.Provider value={value}>
-      {children}
+      {props.children}
     </SpacesNavContext.Provider>
   );
 }
@@ -89,8 +88,9 @@ function useSpacesNavContext(): SpacesNavContextValue {
 }
 
 /** Read-only accessor used by the chrome to render the back affordance. */
-export function useSpacesNavBack(): SpacesNavBackHandler | null {
-  return useSpacesNavContext().current;
+export function useSpacesNavBack(): Accessor<SpacesNavBackHandler | null> {
+  const nav = useSpacesNavContext();
+  return () => nav.current;
 }
 
 export type DefineBackButtonProps = {
@@ -117,18 +117,16 @@ export type DefineBackButtonProps = {
  * }
  * ```
  */
-export function DefineBackButton({ onPress }: DefineBackButtonProps): null {
+export function DefineBackButton(props: DefineBackButtonProps): null {
   const { setHandler } = useSpacesNavContext();
-  const id = useId();
-  const onPressRef = useRef(onPress);
-  onPressRef.current = onPress;
+  const id = createUniqueId();
 
-  useEffect(() => {
-    setHandler(id, () => onPressRef.current());
-    return () => {
+  createEffect(() => {
+    setHandler(id, () => props.onPress());
+    onCleanup(() => {
       setHandler(id, null);
-    };
-  }, [id, setHandler]);
+    });
+  });
 
   return null;
 }

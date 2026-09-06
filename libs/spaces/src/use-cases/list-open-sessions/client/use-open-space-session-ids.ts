@@ -1,7 +1,7 @@
 import { useDeviceId } from '@libs/auth/public/use-device-id';
 import { type Sql, sql } from '@pkgs/sql';
-import { useQuery, useSyncEngine } from '@pkgs/sync-engine/client';
-import { useMemo } from 'react';
+import { createQuery, useSyncEngine } from '@pkgs/sync-engine/solid';
+import { type Accessor, createMemo } from 'solid-js';
 
 type SessionIdRow = {
   readonly space_id: string;
@@ -15,6 +15,10 @@ type SessionRow = {
 
 const EMPTY_IDS: readonly string[] = [];
 
+function readSpaceId(spaceId: string | Accessor<string>): string {
+  return typeof spaceId === 'string' ? spaceId : spaceId();
+}
+
 /**
  * Space ids with an open-session row for this install (newest first).
  * Source of truth for miniplayer + room host lifetime.
@@ -25,92 +29,91 @@ export function useOpenSpaceSessionIds(): {
 } {
   const { paintReady } = useSyncEngine();
   const localDeviceId = useDeviceId();
-  const query = useMemo(
-    () =>
-      paintReady
-        ? sql<SessionIdRow>`
-            SELECT space_id FROM spaces_open_sessions
-            WHERE deleted_at IS NULL AND device_id = ${localDeviceId}
-            ORDER BY opened_at DESC
-          `
-        : sql<SessionIdRow>`
-            SELECT space_id FROM spaces_open_sessions WHERE false
-          `,
-    [paintReady, localDeviceId]
+  const query = createQuery(() =>
+    paintReady()
+      ? sql<SessionIdRow>`
+          SELECT space_id FROM spaces_open_sessions
+          WHERE deleted_at IS NULL AND device_id = ${localDeviceId()}
+          ORDER BY opened_at DESC
+        `
+      : sql<SessionIdRow>`
+          SELECT space_id FROM spaces_open_sessions WHERE false
+        `
   );
-  const { rows, isLoading } = useQuery(query);
-  if (!paintReady) {
-    return { spaceIds: EMPTY_IDS, isLoading: true };
-  }
+  const spaceIds = createMemo(() => query.rows().map((row) => row.space_id));
   return {
-    spaceIds: rows.map((row) => row.space_id),
-    isLoading,
+    get spaceIds() {
+      return paintReady() ? spaceIds() : EMPTY_IDS;
+    },
+    get isLoading() {
+      return paintReady() ? query.isLoading() : true;
+    },
   };
 }
 
 /** Whether this install currently has `spaceId` open. */
-export function useIsSpaceOpenLocally(spaceId: string): boolean {
+export function useIsSpaceOpenLocally(
+  spaceId: string | Accessor<string>
+): Accessor<boolean> {
   const { paintReady } = useSyncEngine();
   const localDeviceId = useDeviceId();
-  const enabled = paintReady && spaceId.length > 0;
-  const query = useMemo(
-    () =>
-      enabled
-        ? sql<SessionIdRow>`
-            SELECT space_id FROM spaces_open_sessions
-            WHERE space_id = ${spaceId}
-              AND device_id = ${localDeviceId}
-              AND deleted_at IS NULL
-            LIMIT 1
-          `
-        : sql<SessionIdRow>`
-            SELECT space_id FROM spaces_open_sessions WHERE false
-          `,
-    [enabled, spaceId, localDeviceId]
+  const enabled = createMemo(
+    () => paintReady() && readSpaceId(spaceId).length > 0
   );
-  const { rows } = useQuery(query);
-  const row = rows[0] ?? null;
-  return row !== null;
+  const query = createQuery(() =>
+    enabled()
+      ? sql<SessionIdRow>`
+          SELECT space_id FROM spaces_open_sessions
+          WHERE space_id = ${readSpaceId(spaceId)}
+            AND device_id = ${localDeviceId()}
+            AND deleted_at IS NULL
+          LIMIT 1
+        `
+      : sql<SessionIdRow>`
+          SELECT space_id FROM spaces_open_sessions WHERE false
+        `
+  );
+  const row = createMemo(() => query.rows()[0] ?? null);
+  return createMemo(() => row() !== null);
 }
 
 /** Open-session fields for join announce (room clientId is per-tab in-memory). */
-export function useSpaceOpenSession(spaceId: string): {
+export function useSpaceOpenSession(spaceId: string | Accessor<string>): {
   readonly joinAnnounced: boolean;
   readonly isOpen: boolean;
   readonly isLoading: boolean;
 } {
   const { paintReady } = useSyncEngine();
   const localDeviceId = useDeviceId();
-  const enabled = paintReady && spaceId.length > 0;
-  const query = useMemo(
-    (): Sql<SessionRow> =>
-      enabled
-        ? sql<SessionRow>`
-            SELECT space_id, device_id, join_announced
-            FROM spaces_open_sessions
-            WHERE space_id = ${spaceId}
-              AND device_id = ${localDeviceId}
-              AND deleted_at IS NULL
-            LIMIT 1
-          `
-        : sql<SessionRow>`
-            SELECT space_id, device_id, join_announced
-            FROM spaces_open_sessions WHERE false
-          `,
-    [enabled, spaceId, localDeviceId]
+  const enabled = createMemo(
+    () => paintReady() && readSpaceId(spaceId).length > 0
   );
-  const { rows, isLoading } = useQuery(query);
-  const row = rows[0] ?? null;
-  if (!paintReady) {
-    return {
-      joinAnnounced: false,
-      isOpen: false,
-      isLoading: true,
-    };
-  }
+  const query = createQuery(
+    (): Sql<SessionRow> =>
+      enabled()
+        ? sql<SessionRow>`
+          SELECT space_id, device_id, join_announced
+          FROM spaces_open_sessions
+          WHERE space_id = ${readSpaceId(spaceId)}
+            AND device_id = ${localDeviceId()}
+            AND deleted_at IS NULL
+          LIMIT 1
+        `
+        : sql<SessionRow>`
+          SELECT space_id, device_id, join_announced
+          FROM spaces_open_sessions WHERE false
+        `
+  );
+  const row = createMemo(() => query.rows()[0] ?? null);
   return {
-    joinAnnounced: Boolean(row?.join_announced),
-    isOpen: row !== null,
-    isLoading,
+    get joinAnnounced() {
+      return paintReady() && Boolean(row()?.join_announced);
+    },
+    get isOpen() {
+      return paintReady() && row() !== null;
+    },
+    get isLoading() {
+      return paintReady() ? query.isLoading() : true;
+    },
   };
 }

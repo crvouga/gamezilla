@@ -1,15 +1,16 @@
 import type { Message } from '@pkgs/message';
 import type { RoomModule, RoomState } from '@pkgs/room';
-import { createContext, type ReactNode, useContext } from 'react';
+import { defineContext } from '@pkgs/solid-context/define-context';
+import type { JSX } from 'solid-js';
 
 export type SpaceRoomModule = RoomModule<RoomState, Message, Message, string>;
 
-const SpaceModuleContext = createContext<SpaceRoomModule | null>(null);
+const SpaceModuleContext = defineContext<SpaceRoomModule>('SpaceModule');
 
 export type SpaceModuleProviderProps = {
   /** Composed `SpaceModule`, built by the composition root via `createSpaceModule(name, games)`. */
   readonly value: SpaceRoomModule;
-  readonly children: ReactNode;
+  readonly children: JSX.Element;
 };
 
 /**
@@ -25,13 +26,12 @@ export type SpaceModuleProviderProps = {
  * Keeps `@libs/spaces` ignorant of any specific game and lets the
  * composition root own the full game registry.
  */
-export function SpaceModuleProvider({
-  value,
-  children,
-}: SpaceModuleProviderProps): ReactNode {
+export function SpaceModuleProvider(
+  props: SpaceModuleProviderProps
+): JSX.Element {
   return (
-    <SpaceModuleContext.Provider value={value}>
-      {children}
+    <SpaceModuleContext.Provider value={props.value}>
+      {props.children}
     </SpaceModuleContext.Provider>
   );
 }
@@ -41,11 +41,5 @@ export function SpaceModuleProvider({
  * mounted -- the composition root is required to wire one.
  */
 export function useSpaceModule(): SpaceRoomModule {
-  const module = useContext(SpaceModuleContext);
-  if (module === null) {
-    throw new Error(
-      'useSpaceModule: no <SpaceModuleProvider> in tree. Wrap the app root in one.'
-    );
-  }
-  return module;
+  return SpaceModuleContext.use();
 }

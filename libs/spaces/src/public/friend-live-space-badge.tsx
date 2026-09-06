@@ -1,5 +1,6 @@
-import { Box, Pressable, useRouter } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Box, Clickable, useRouter } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+import { Show } from 'solid-js';
 import { SpaceLiveBadge } from './space-live-badge';
 import { openSpaceDetail } from './space-routes';
 import { useFriendLiveSpaceId } from './use-friend-live-space-id';
@@ -9,17 +10,20 @@ export type FriendLiveSpaceBadgeProps = {
 };
 
 /** Shows a live badge when this friend hosts a discoverable live space. */
-export function FriendLiveSpaceBadge({
-  hostAccountId,
-}: FriendLiveSpaceBadgeProps): ReactNode {
-  const spaceId = useFriendLiveSpaceId(hostAccountId);
+export function FriendLiveSpaceBadge(
+  props: FriendLiveSpaceBadgeProps
+): JSX.Element {
+  const spaceId = useFriendLiveSpaceId(props.hostAccountId);
   const router = useRouter();
-  if (spaceId === null) return null;
   return (
-    <Pressable onPress={() => openSpaceDetail(router, spaceId)}>
-      <Box sx={{ px: 1 }}>
-        <SpaceLiveBadge spaceId={spaceId} />
-      </Box>
-    </Pressable>
+    <Show when={spaceId()} keyed>
+      {(space) => (
+        <Clickable onClick={() => openSpaceDetail(router, space)}>
+          <Box sx={{ px: 1 }}>
+            <SpaceLiveBadge spaceId={space} />
+          </Box>
+        </Clickable>
+      )}
+    </Show>
   );
 }

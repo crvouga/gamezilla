@@ -1,9 +1,9 @@
 import { useMutationClient } from '@libs/auth/public/mutation-client-provider';
 import { useDeviceId } from '@libs/auth/public/use-device-id';
-import { useTimers } from '@pkgs/clock';
+import { useTimers } from '@pkgs/clock/solid';
 import { sql } from '@pkgs/sql';
-import { useQuery, useSyncEngine } from '@pkgs/sync-engine/client';
-import { type ReactNode, useEffect, useMemo, useRef } from 'react';
+import { createQuery, useSyncEngine } from '@pkgs/sync-engine/solid';
+import { createEffect, onCleanup } from 'solid-js';
 
 import { closeEndedOpenSessionsMutation } from '../shared/close-ended-open-sessions-mutation';
 
@@ -15,32 +15,30 @@ type EndedSessionRow = {
  * When sync delivers `ended_at` for a still-open session, delete the
  * session row so rooms/miniplayer drop.
  */
-export function ReconcileEndedOpenSessions(): ReactNode {
+export function ReconcileEndedOpenSessions(): null {
   const { paintReady } = useSyncEngine();
   const deviceId = useDeviceId();
   const mutationClient = useMutationClient();
   const timers = useTimers();
-  const runningRef = useRef(false);
-  const query = useMemo(
-    () =>
-      paintReady
-        ? sql<EndedSessionRow>`
-            SELECT o.space_id
-            FROM spaces_open_sessions AS o
-            INNER JOIN spaces AS s ON s.id = o.space_id
-            WHERE o.deleted_at IS NULL
-              AND o.device_id = ${deviceId}
-              AND s.ended_at IS NOT NULL
-          `
-        : sql<EndedSessionRow>`
-            SELECT space_id FROM spaces_open_sessions WHERE false
-          `,
-    [paintReady, deviceId]
+  const runningRef = { current: false };
+  const query = createQuery(() =>
+    paintReady()
+      ? sql<EndedSessionRow>`
+          SELECT o.space_id
+          FROM spaces_open_sessions AS o
+          INNER JOIN spaces AS s ON s.id = o.space_id
+          WHERE o.deleted_at IS NULL
+            AND o.device_id = ${deviceId()}
+            AND s.ended_at IS NOT NULL
+        `
+      : sql<EndedSessionRow>`
+          SELECT space_id FROM spaces_open_sessions WHERE false
+        `
   );
-  const { rows } = useQuery(query);
 
-  useEffect(() => {
-    if (!paintReady || rows.length === 0 || runningRef.current) return;
+  createEffect(() => {
+    const rows = query.rows();
+    if (!paintReady() || rows.length === 0 || runningRef.current) return;
     runningRef.current = true;
     let cancelled = false;
     const timeoutId = timers.setTimeout(() => {
@@ -51,12 +49,12 @@ export function ReconcileEndedOpenSessions(): ReactNode {
           if (!cancelled) runningRef.current = false;
         });
     }, 0);
-    return () => {
+    onCleanup(() => {
       cancelled = true;
       timers.clearTimeout(timeoutId);
       runningRef.current = false;
-    };
-  }, [paintReady, rows, mutationClient, timers]);
+    });
+  });
 
   return null;
 }

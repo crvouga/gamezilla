@@ -2,8 +2,8 @@ import { useMyAccountId } from '@libs/auth/public/use-current-user';
 import { useDeviceId } from '@libs/auth/public/use-device-id';
 import { type Sql, sql } from '@pkgs/sql';
 
-import { useQuery, useSyncEngine } from '@pkgs/sync-engine/client';
-import { useMemo } from 'react';
+import { createQuery, useSyncEngine } from '@pkgs/sync-engine/solid';
+import { type Accessor, createMemo } from 'solid-js';
 
 import {
   resolveSpacePresence,
@@ -68,34 +68,38 @@ function presenceSql(
  * Resolves whether this install has `spaceId` open.
  * One SQL watch joins `spaces` + this device's `spaces_open_sessions`.
  */
-export function useSpacePresence(spaceId: string): SpacePresence {
-  const accountId = useMyAccountId() ?? '';
+export function useSpacePresence(
+  spaceId: string | Accessor<string>
+): Accessor<SpacePresence> {
+  const accountId = useMyAccountId();
   const deviceId = useDeviceId();
   const { paintReady } = useSyncEngine();
-  const spaceEnabled = paintReady && spaceId.length > 0;
-  const query = useMemo(
-    () => presenceSql(spaceId, spaceEnabled, deviceId, accountId),
-    [spaceId, spaceEnabled, deviceId, accountId]
+  const resolveId = (): string =>
+    typeof spaceId === 'string' ? spaceId : spaceId();
+  const spaceEnabled = createMemo(() => paintReady() && resolveId().length > 0);
+  const query = createQuery(() =>
+    presenceSql(resolveId(), spaceEnabled(), deviceId(), accountId() ?? '')
   );
-  const { rows, isLoading } = useQuery(query);
-  const row = rows[0] ?? null;
-  if (!paintReady) {
-    return { status: 'loading' };
-  }
-  const presence = resolveSpacePresence({
-    spaceEnabled: spaceId.length > 0,
-    spaceLoading: isLoading,
-    spaceRow:
-      row === null
-        ? null
-        : {
-            host_member_id: row.host_member_id,
-            host_account_id: row.host_account_id,
-            ended_at: row.ended_at,
-          },
-    isOpenLocally: row?.is_open === 1,
-    isMember: row?.is_member === 1,
-    myId: accountId,
+  const row = createMemo(() => query.rows()[0] ?? null);
+  return createMemo<SpacePresence>(() => {
+    if (!paintReady()) {
+      return { status: 'loading' };
+    }
+    const current = row();
+    return resolveSpacePresence({
+      spaceEnabled: resolveId().length > 0,
+      spaceLoading: query.isLoading(),
+      spaceRow:
+        current === null
+          ? null
+          : {
+              host_member_id: current.host_member_id,
+              host_account_id: current.host_account_id,
+              ended_at: current.ended_at,
+            },
+      isOpenLocally: current?.is_open === 1,
+      isMember: current?.is_member === 1,
+      myId: accountId() ?? '',
+    });
   });
-  return presence;
 }

@@ -1,7 +1,7 @@
 import type { LogLineContext, LogLineDraft } from '@pkgs/collab';
 import type { MessageNamespace, MessageRouter } from '@pkgs/message';
 import type { HandleResult, RoomState } from '@pkgs/room';
-import type { ComponentType, ReactNode } from 'react';
+import type { JSX } from 'solid-js';
 
 /**
  * One sub-router contributed by a game to the composed space command/event
@@ -64,11 +64,11 @@ export type GameClientMenuProps = {
 export type GameClientDefinition = {
   readonly id: string;
   /** Display title shown in the games picker (already-localized node). */
-  readonly title: ReactNode;
+  readonly title: JSX.Element;
   /** One-line description under the title in the games picker. */
-  readonly caption?: ReactNode;
+  readonly caption?: JSX.Element;
   /** Mounted when this game is the currently selected game in the space. */
-  readonly MainMenu: ComponentType<GameClientMenuProps>;
+  readonly MainMenu: (props: GameClientMenuProps) => JSX.Element;
   /**
    * Optional: warm heavy, lazily-loaded assets (WASM, dynamic chunks) before
    * the user selects this game. Fired by the games picker while the list is
