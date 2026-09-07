@@ -56,16 +56,10 @@
       "@pkgs/observability-impl-local-file/*": [
         "../../pkgs/observability-impl-local-file/src/*"
       ],
-      "@pkgs/secure-storage-expo": [
-        "../../pkgs/secure-storage-expo/src/index.ts"
-      ],
-      "@pkgs/secure-storage-expo/*": ["../../pkgs/secure-storage-expo/src/*"],
       "@pkgs/secure-storage-web": [
         "../../pkgs/secure-storage-web/src/index.ts"
       ],
       "@pkgs/secure-storage-web/*": ["../../pkgs/secure-storage-web/src/*"],
-      "@pkgs/assert-crash-expo": ["../../pkgs/assert-crash-expo/src/index.ts"],
-      "@pkgs/assert-crash-expo/*": ["../../pkgs/assert-crash-expo/src/*"],
       "@pkgs/assert-crash-browser": [
         "../../pkgs/assert-crash-browser/src/index.ts"
       ],
@@ -112,7 +106,6 @@
       "@pkgs/message": ["../../pkgs/message/src/index.ts"],
       "@pkgs/message/*": ["../../pkgs/message/src/*"],
       "@pkgs/object-store/*": ["../../pkgs/object-store/src/*"],
-      "@pkgs/object-store-expo-fs/*": ["../../pkgs/object-store-expo-fs/src/*"],
       "@pkgs/object-store-node-fs/*": ["../../pkgs/object-store-node-fs/src/*"],
       "@pkgs/observability/*": ["../../pkgs/observability/src/*"],
       "@pkgs/os": ["../../pkgs/os/src/index.ts"],
@@ -146,7 +139,6 @@
       "@pkgs/room-adapter-web/*": ["../../pkgs/room-adapter-web/src/*"],
       "@pkgs/room-sim": ["../../pkgs/room-sim/src/index.ts"],
       "@pkgs/room-sim/*": ["../../pkgs/room-sim/src/*"],
-      "@pkgs/room-widgets/*": ["../../pkgs/room-widgets/src/*"],
       "@pkgs/secret-store": ["../../pkgs/secret-store/src/index.ts"],
       "@pkgs/secret-store/*": ["../../pkgs/secret-store/src/*"],
       "@pkgs/secret-string/*": ["../../pkgs/secret-string/src/*"],
@@ -164,7 +156,6 @@
       "@pkgs/chess-board/*": ["../../pkgs/chess-board/src/*"],
       "@pkgs/sounds": ["../../pkgs/sounds/src/index.ts"],
       "@pkgs/sounds/*": ["../../pkgs/sounds/src/*"],
-      "@pkgs/ui-rn/*": ["../../pkgs/ui-rn/src/*"],
       "@pkgs/uuid": ["../../pkgs/uuid/src/index.ts"],
       "@pkgs/uuid/*": ["../../pkgs/uuid/src/*"],
       "@pkgs/clock": ["../../pkgs/clock/src/index.ts"],
@@ -173,7 +164,6 @@
       "@pkgs/http-client/*": ["../../pkgs/http-client/src/*"],
       "@pkgs/kv-postgres/*": ["../../pkgs/kv-postgres/src/*"],
       "@pkgs/kv-web/*": ["../../pkgs/kv-web/src/*"],
-      "@pkgs/kv-expo/*": ["../../pkgs/kv-expo/src/*"],
       "@pkgs/db-schema-postgres": [
         "../../pkgs/db-schema-postgres/src/index.ts"
       ],

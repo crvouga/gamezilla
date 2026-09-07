@@ -7,11 +7,11 @@ import {
   OverflowMenuButton,
   Text,
 } from '@pkgs/ui';
-import * as Clipboard from 'expo-clipboard';
 import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
 
 import type { SqlStatementResult } from './run-sql-cell';
 import { formatPlaygroundDbCell } from './sql-schema-query';
+import { writeClipboard } from './copy-to-clipboard';
 
 export function SqlCellResults(props: {
   readonly results: () => readonly SqlStatementResult[];
@@ -84,16 +84,14 @@ function ResultsHeader(props: {
             id: 'json',
             label: 'Copy as JSON',
             onClick: () => {
-              void Clipboard.setStringAsync(
-                JSON.stringify(props.results(), null, 2)
-              );
+              void writeClipboard(JSON.stringify(props.results(), null, 2));
             },
           },
           {
             id: 'csv',
             label: 'Copy as CSV',
             onClick: () => {
-              void Clipboard.setStringAsync(resultsToCsv(props.results()));
+              void writeClipboard(resultsToCsv(props.results()));
             },
           },
         ]}

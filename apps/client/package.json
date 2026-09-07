@@ -3,11 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "exports": {
-    "./providers/*": [
-      "./src/providers/*.ts",
-      "./src/providers/*.tsx",
-      "./src/providers/*/index.ts"
-    ],
     "./sync/*": [
       "./src/sync/*.ts",
       "./src/sync/*.tsx",
@@ -102,7 +97,6 @@
     "@pkgs/pubsub-emqx": "workspace:*",
     "@pkgs/room": "workspace:*",
     "@pkgs/room-adapter-web": "workspace:*",
-    "@pkgs/room-widgets": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
     "@pkgs/secure-storage": "workspace:*",
     "@pkgs/secure-storage-web": "workspace:*",

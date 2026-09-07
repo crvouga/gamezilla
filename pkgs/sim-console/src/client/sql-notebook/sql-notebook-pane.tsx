@@ -2,7 +2,6 @@ import { useClock } from '@pkgs/clock/solid';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { Box, ErrorState, LoadingState, ScrollView } from '@pkgs/ui';
 import { useCreateId } from '@pkgs/uuid/solid';
-import * as Clipboard from 'expo-clipboard';
 import {
   type Accessor,
   createEffect,
@@ -32,6 +31,7 @@ import type { SqlCellRun } from './run-sql-cell';
 import { runSqlCell } from './run-sql-cell';
 import { type CellInsertApi, SqlCell } from './sql-cell';
 import { detectSqlDialect, type SqlDialect } from './sql-dialect';
+import { writeClipboard } from './copy-to-clipboard';
 import { SqlNotebookToolbar } from './sql-notebook-toolbar';
 import { SqlSchemaDrawer } from './sql-schema-drawer';
 import { type NotebookDocSetter, useNotebookDoc } from './use-notebook-doc';
@@ -221,7 +221,7 @@ function useNotebookActions(args: {
       onClearResults: () => setResults({}),
       onClearNotebook: resetDoc,
       onExport: () => {
-        void Clipboard.setStringAsync(encodeNotebookDoc(doc()));
+        void writeClipboard(encodeNotebookDoc(doc()));
       },
     },
     schema: {

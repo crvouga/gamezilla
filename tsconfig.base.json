@@ -62,12 +62,8 @@
       "@pkgs/observability-impl-local-file/*": [
         "./pkgs/observability-impl-local-file/src/*"
       ],
-      "@pkgs/secure-storage-expo": ["./pkgs/secure-storage-expo/src/index.ts"],
-      "@pkgs/secure-storage-expo/*": ["./pkgs/secure-storage-expo/src/*"],
       "@pkgs/secure-storage-web": ["./pkgs/secure-storage-web/src/index.ts"],
       "@pkgs/secure-storage-web/*": ["./pkgs/secure-storage-web/src/*"],
-      "@pkgs/assert-crash-expo": ["./pkgs/assert-crash-expo/src/index.ts"],
-      "@pkgs/assert-crash-expo/*": ["./pkgs/assert-crash-expo/src/*"],
       "@pkgs/assert-crash-browser": [
         "./pkgs/assert-crash-browser/src/index.ts"
       ],
@@ -133,7 +129,6 @@
       "@pkgs/invariants/*": ["./pkgs/invariants/src/*"],
       "@pkgs/keyword": ["./pkgs/keyword/src/index.ts"],
       "@pkgs/keyword/*": ["./pkgs/keyword/src/*"],
-      "@pkgs/kv-expo/*": ["./pkgs/kv-expo/src/*"],
       "@pkgs/kv-postgres/*": ["./pkgs/kv-postgres/src/*"],
       "@pkgs/kv-web/*": ["./pkgs/kv-web/src/*"],
       "@pkgs/kv/*": ["./pkgs/kv/src/*"],
@@ -153,7 +148,6 @@
       "@pkgs/message/*": ["./pkgs/message/src/*"],
       "@pkgs/minio-server": ["./pkgs/minio-server/src/index.ts"],
       "@pkgs/ndjson/*": ["./pkgs/ndjson/src/*"],
-      "@pkgs/object-store-expo-fs/*": ["./pkgs/object-store-expo-fs/src/*"],
       "@pkgs/object-store-opfs/*": ["./pkgs/object-store-opfs/src/*"],
       "@pkgs/device/*": ["./pkgs/device/src/*"],
       "@pkgs/chess-board-core/*": ["./pkgs/chess-board-core/src/*"],
@@ -189,7 +183,6 @@
       "@pkgs/room-adapter-web/*": ["./pkgs/room-adapter-web/src/*"],
       "@pkgs/room-sim": ["./pkgs/room-sim/src/index.ts"],
       "@pkgs/room-sim/*": ["./pkgs/room-sim/src/*"],
-      "@pkgs/room-widgets/*": ["./pkgs/room-widgets/src/*"],
       "@pkgs/room/*": ["./pkgs/room/src/*"],
       "@pkgs/room/server": ["./pkgs/room/src/server.ts"],
       "@pkgs/secret-provider": ["./pkgs/secret-provider/src/index.ts"],
@@ -243,7 +236,6 @@
       ],
       "@pkgs/ui-testing-solid-dom/*": ["./pkgs/ui-testing-solid-dom/src/*"],
       "@pkgs/ui-testing/*": ["./pkgs/ui-testing/src/*"],
-      "@pkgs/ui-rn/*": ["./pkgs/ui-rn/src/*"],
       "@pkgs/solid-context/*": ["./pkgs/solid-context/src/*"],
       "@pkgs/ui": ["./pkgs/ui/src/index.ts"],
       "@pkgs/ui/*": ["./pkgs/ui/src/*", "./pkgs/ui/src/*/index.ts"],
