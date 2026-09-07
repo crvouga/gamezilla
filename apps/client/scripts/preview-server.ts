@@ -1,13 +1,13 @@
 /**
- * Serves the Expo web export on `PREVIEW_PORT` (default :5173).
- * API traffic uses `EXPO_PUBLIC_API_URL` (wrangler on :8788) with Bearer auth.
+ * Serves the production web build on `PREVIEW_PORT` (default :5173).
+ * API traffic uses `VITE_API_URL` (wrangler on :8788) with Bearer auth.
  */
 
 import { join } from 'node:path';
 import { assert } from '@pkgs/assert';
 import { file } from 'bun';
 
-import { applyExpoSqliteWebIsolationHeadersToFetch } from './expo-sqlite-web-headers.js';
+import { applySqliteWebIsolationHeadersToFetch } from './sqlite-web-headers.js';
 import { previewStackReadyResponse } from './preview-stack-ready';
 
 const DIST_DIR = join(import.meta.dir, '..', 'dist');
@@ -41,7 +41,7 @@ async function serveStatic(pathname: string): Promise<Response> {
   const candidate = file(diskPath);
   const body = (await candidate.exists()) ? candidate : indexFile;
   const headers = new Headers();
-  applyExpoSqliteWebIsolationHeadersToFetch(headers);
+  applySqliteWebIsolationHeadersToFetch(headers);
   return new Response(body, { headers });
 }
 

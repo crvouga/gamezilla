@@ -1,4 +1,5 @@
-import { ANON_ID_HEADER, BearerAuthResolver } from '@libs/auth/root/server';
+import { BearerAuthResolver } from '@libs/auth/public/bearer-resolve';
+import { ANON_ID_HEADER } from '@libs/auth/public/session-middleware';
 import { isUuid } from '@pkgs/uuid';
 import type { Context } from 'hono';
 import { Hono } from 'hono';

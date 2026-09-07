@@ -15,15 +15,12 @@ import { assert } from '@pkgs/assert';
 import { assertCommitDateIso, COMMIT_HASH_HEX_REGEX } from '@pkgs/git';
 import { createScriptSecretStore, type SecretStore } from '@pkgs/secret-store';
 
-import { resolveExpoUseWatchmanForSetup } from './metro-watchman-env';
-
 const clientRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
-const monorepoRoot = join(clientRoot, '../..');
 const outPath = join(clientRoot, '.env.local');
 const tmpPath = `${outPath}.${process.pid}.tmp`;
 
 // `setup-env.ts` runs under the `setup` turbo task (dependency of `dev` / `preview`).
-// Production builds do not invoke this script — they read `EXPO_PUBLIC_*` at bundle time.
+// Production builds do not invoke this script — they read `VITE_*` at bundle time.
 
 function isProductionHostname(rawUrl: string): boolean {
   try {
@@ -43,11 +40,11 @@ function trimStringOrNull(v: string | undefined): string | null {
 }
 
 function readApiOriginFromProcessEnv(): string | null {
-  return trimStringOrNull(process.env['EXPO_PUBLIC_API_URL']);
+  return trimStringOrNull(process.env['VITE_API_URL']);
 }
 
 function readLocalPreviewApiOriginFromProcessEnv(): string | null {
-  return trimStringOrNull(process.env['LOCAL_PREVIEW_API_ORIGIN']);
+  return trimStringOrNull(process.env['VITE_LOCAL_PREVIEW_API_ORIGIN']);
 }
 
 function createSecretsStore(): SecretStore {
@@ -57,11 +54,11 @@ function createSecretsStore(): SecretStore {
 async function resolveApiOriginFromSecrets(
   store: SecretStore
 ): Promise<string | null> {
-  const expo = (
-    await store.getOptional('EXPO_PUBLIC_API_URL')
+  const value = (
+    await store.getOptional('VITE_API_URL')
   )?.readSecretValue();
-  if (typeof expo === 'string' && expo.trim().length > 0) {
-    return expo.trim();
+  if (typeof value === 'string' && value.trim().length > 0) {
+    return value.trim();
   }
   return null;
 }
@@ -73,7 +70,7 @@ async function resolveLoopbackPreviewOrigin(
   if (fromEnv !== null) return fromEnv;
   const s = store ?? createSecretsStore();
   const fromSecrets = (
-    await s.getOptional('LOCAL_PREVIEW_API_ORIGIN')
+    await s.getOptional('VITE_LOCAL_PREVIEW_API_ORIGIN')
   )?.readSecretValue();
   const trimmed =
     typeof fromSecrets === 'string' && fromSecrets.trim().length > 0
@@ -81,7 +78,7 @@ async function resolveLoopbackPreviewOrigin(
       : null;
   if (trimmed !== null) return trimmed;
   process.stdout.write(
-    '[setup-env] LOCAL_PREVIEW_API_ORIGIN missing in env and secrets; ' +
+    '[setup-env] VITE_LOCAL_PREVIEW_API_ORIGIN missing in env and secrets; ' +
       `using default ${DEFAULT_LOCAL_PREVIEW_API_ORIGIN} (wrangler dev in apps/server).\n`
   );
   return DEFAULT_LOCAL_PREVIEW_API_ORIGIN;
@@ -100,23 +97,23 @@ async function applyProductionHostnameGuard(
     process.stdout.write(
       `[setup-env] ${sourceLabel}=${trimmed} resolves to a production hostname; ` +
         `using loopback preview origin (${replacement}). ` +
-        'Set EXPO_PUBLIC_ALLOW_PRODUCTION_API_URL=1 to opt in to production.\n'
+        'Set VITE_ALLOW_PRODUCTION_API_URL=1 to opt in to production.\n'
     );
     return replacement;
   }
   return trimmed;
 }
 
-async function resolveExpoPublicApiUrl(): Promise<string> {
+async function resolveViteApiUrl(): Promise<string> {
   const fromInjectedEnv = readApiOriginFromProcessEnv();
   if (fromInjectedEnv !== null) {
     process.stdout.write(
-      '[setup-env] EXPO_PUBLIC_API_URL from process env (e.g. secrets-run).\n'
+      '[setup-env] VITE_API_URL from process env (e.g. secrets-run).\n'
     );
     return applyProductionHostnameGuard(
       null,
       fromInjectedEnv,
-      'process env EXPO_PUBLIC_API_URL'
+      'process env VITE_API_URL'
     );
   }
 
@@ -132,29 +129,27 @@ async function resolveExpoPublicApiUrl(): Promise<string> {
 
   const fromSecrets = await resolveApiOriginFromSecrets(store);
   if (fromSecrets !== null) {
-    process.stdout.write(
-      '[setup-env] EXPO_PUBLIC_API_URL from secret store API.\n'
-    );
+    process.stdout.write('[setup-env] VITE_API_URL from secret store.\n');
     return applyProductionHostnameGuard(
       store,
       fromSecrets,
-      'secret store EXPO_PUBLIC_API_URL'
+      'secret store VITE_API_URL'
     );
   }
 
   process.stdout.write(
-    '[setup-env] EXPO_PUBLIC_API_URL unset in env and secret store; using local preview API origin.\n'
+    '[setup-env] VITE_API_URL unset in env and secret store; using local preview API origin.\n'
   );
   return resolveLoopbackPreviewOrigin(store);
 }
 
-function resolveExpoPublicCommitHash(): string {
-  const v = process.env['EXPO_PUBLIC_COMMIT_HASH'];
+function resolveViteCommitHash(): string {
+  const v = process.env['VITE_COMMIT_HASH'];
   if (typeof v === 'string' && v.trim().length > 0) {
     const normalized = v.trim().toLowerCase();
     assert.ok(
       COMMIT_HASH_HEX_REGEX.test(normalized),
-      `EXPO_PUBLIC_COMMIT_HASH must match ${COMMIT_HASH_HEX_REGEX}`,
+      `VITE_COMMIT_HASH must match ${COMMIT_HASH_HEX_REGEX}`,
       { value: v, normalized }
     );
     return normalized;
@@ -166,7 +161,7 @@ function resolveExpoPublicCommitHash(): string {
       cwd: clientRoot,
       encoding: 'utf8',
     });
-  }, 'EXPO_PUBLIC_COMMIT_HASH is required and git rev-parse HEAD failed');
+  }, 'VITE_COMMIT_HASH is required and git rev-parse HEAD failed');
   const normalized = stdout.trim().toLowerCase();
   assert.ok(
     COMMIT_HASH_HEX_REGEX.test(normalized),
@@ -174,13 +169,13 @@ function resolveExpoPublicCommitHash(): string {
     { value: stdout.trim(), normalized }
   );
   process.stdout.write(
-    `[setup-env] EXPO_PUBLIC_COMMIT_HASH unset; using git HEAD ${normalized.slice(0, 7)}…\n`
+    `[setup-env] VITE_COMMIT_HASH unset; using git HEAD ${normalized.slice(0, 7)}…\n`
   );
   return normalized;
 }
 
-function resolveExpoPublicCommitDate(): string {
-  const v = process.env['EXPO_PUBLIC_COMMIT_DATE'];
+function resolveViteCommitDate(): string {
+  const v = process.env['VITE_COMMIT_DATE'];
   if (typeof v === 'string' && v.trim().length > 0) {
     const normalized = v.trim();
     assertCommitDateIso(normalized);
@@ -193,23 +188,23 @@ function resolveExpoPublicCommitDate(): string {
       cwd: clientRoot,
       encoding: 'utf8',
     });
-  }, 'EXPO_PUBLIC_COMMIT_DATE is required and git log -1 --format=%cI HEAD failed');
+  }, 'VITE_COMMIT_DATE is required and git log -1 --format=%cI HEAD failed');
   const normalized = stdout.trim();
   assertCommitDateIso(normalized);
   process.stdout.write(
-    `[setup-env] EXPO_PUBLIC_COMMIT_DATE unset; using git HEAD committer date ${normalized}\n`
+    `[setup-env] VITE_COMMIT_DATE unset; using git HEAD committer date ${normalized}\n`
   );
   return normalized;
 }
 
 async function main(): Promise<void> {
-  const raw = await resolveExpoPublicApiUrl();
+  const raw = await resolveViteApiUrl();
   let origin = '';
   assert.notThrows(
     () => {
       origin = new URL(raw).origin;
     },
-    'EXPO_PUBLIC_API_URL must be a valid URL',
+    'VITE_API_URL must be a valid URL',
     { value: raw }
   );
 
@@ -217,34 +212,29 @@ async function main(): Promise<void> {
 
   assertTigerPolicyForResolvedApiOrigin(origin, 'forbid-prod-on-this-machine');
 
-  // Expo prefers process.env over `.env.local`. secrets-run may inject a
-  // production EXPO_PUBLIC_API_URL; keep the resolved loopback in-process so
-  // `expo export` cannot bake api.gamezilla.app after we rewrote `.env.local`.
-  process.env['EXPO_PUBLIC_API_URL'] = origin;
+  // Vite reads `.env.local`; secrets-run may inject a production VITE_API_URL —
+  // keep the resolved loopback in-process so `vite build` cannot bake
+  // api.gamezilla.app after we rewrote `.env.local`.
+  process.env['VITE_API_URL'] = origin;
 
-  const commitHash = resolveExpoPublicCommitHash();
-  const commitDate = resolveExpoPublicCommitDate();
-  const e2eFlag = trimStringOrNull(process.env['EXPO_PUBLIC_E2E']);
-  const expoUseWatchman = resolveExpoUseWatchmanForSetup({
-    clientRoot,
-    monorepoRoot,
-  });
+  const commitHash = resolveViteCommitHash();
+  const commitDate = resolveViteCommitDate();
+  const e2eFlag = trimStringOrNull(process.env['VITE_E2E']);
 
   // Runtime knobs (EMQX / observability backend) come from synced
-  // `client_config`, not Expo env — do not write them here.
+  // `client_config`, not build env — do not write them here.
   let body =
-    `EXPO_PUBLIC_API_URL=${JSON.stringify(origin)}\n` +
-    `EXPO_PUBLIC_COMMIT_HASH=${JSON.stringify(commitHash)}\n` +
-    `EXPO_PUBLIC_COMMIT_DATE=${JSON.stringify(commitDate)}\n` +
-    `EXPO_USE_WATCHMAN=${JSON.stringify(expoUseWatchman)}\n`;
+    `VITE_API_URL=${JSON.stringify(origin)}\n` +
+    `VITE_COMMIT_HASH=${JSON.stringify(commitHash)}\n` +
+    `VITE_COMMIT_DATE=${JSON.stringify(commitDate)}\n`;
   if (e2eFlag !== null) {
-    body += `EXPO_PUBLIC_E2E=${JSON.stringify(e2eFlag)}\n`;
+    body += `VITE_E2E=${JSON.stringify(e2eFlag)}\n`;
   }
   writeFileSync(tmpPath, body, { encoding: 'utf8' });
   renameSync(tmpPath, outPath);
 
   process.stdout.write(
-    `[setup-env] wrote .env.local with EXPO_PUBLIC_API_URL=${origin} EXPO_PUBLIC_COMMIT_HASH=${commitHash.slice(0, 7)}… EXPO_PUBLIC_COMMIT_DATE=${commitDate} EXPO_USE_WATCHMAN=${expoUseWatchman}\n`
+    `[setup-env] wrote .env.local with VITE_API_URL=${origin} VITE_COMMIT_HASH=${commitHash.slice(0, 7)}… VITE_COMMIT_DATE=${commitDate}\n`
   );
 }
 

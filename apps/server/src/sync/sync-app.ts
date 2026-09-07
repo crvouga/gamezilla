@@ -38,9 +38,11 @@ function createRequestScopedPubSub(): PubSub {
 }
 
 /** Product mount: `POST /api/query` (batch body), `/api/mutations`. */
-export function createSyncApp(time: {
+export function createSyncApp(deps: {
   readonly now: () => number;
   readonly createId: () => string;
+  /** Enables dev-only query limit strictness (injected from `ServerEnv.secretsEnv`). */
+  readonly strictQueryLimits?: boolean;
 }) {
   let checkpointSeq = 0;
   return createSyncEngineApp({
@@ -48,17 +50,15 @@ export function createSyncApp(time: {
     getSql: openRequestSqlClient,
     queries: APP_QUERIES,
     mutations: APP_MUTATIONS,
-    now: time.now,
-    createId: time.createId,
+    now: deps.now,
+    createId: deps.createId,
     pubsub: createRequestScopedPubSub(),
     rowImageFanout: true,
     topicMap: appTopicMap,
     nextCheckpoint: () => {
       checkpointSeq += 1;
-      return `${String(time.now())}${String(checkpointSeq).padStart(6, '0')}`;
+      return `${String(deps.now())}${String(checkpointSeq).padStart(6, '0')}`;
     },
-    ...(process.env['SECRETS_ENV'] === 'dev'
-      ? { strictQueryLimits: true }
-      : {}),
+    ...(deps.strictQueryLimits === true ? { strictQueryLimits: true } : {}),
   });
 }

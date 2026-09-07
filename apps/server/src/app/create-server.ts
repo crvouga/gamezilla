@@ -224,6 +224,14 @@ async function buildDesiredClientConfig(args: {
   };
 }
 
+function createSyncAppMount(env: ServerEnv) {
+  return createSyncApp({
+    now: () => env.clock.now(),
+    createId: env.createId,
+    ...(env.secretsEnv === 'dev' ? { strictQueryLimits: true } : {}),
+  });
+}
+
 function createServerRouter(args: {
   readonly env: ServerEnv;
   readonly desiredClientConfig: DesiredClientConfig;
@@ -289,10 +297,7 @@ function createServerRouter(args: {
         createId: store.createId,
       });
     })
-    .route(
-      '/',
-      createSyncApp({ now: () => env.clock.now(), createId: env.createId })
-    )
+    .route('/', createSyncAppMount(env))
     .route('/', createPubSubTokenRoutes())
     .route('/', tts.app)
     .route('/', llm.app)

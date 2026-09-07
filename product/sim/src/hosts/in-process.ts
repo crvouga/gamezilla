@@ -33,6 +33,7 @@ export type InProcessRuntimeOptions = {
 };
 
 function defaultWithDom(): boolean {
+  if (typeof process === 'undefined') return false;
   return process.env['SIM_WITH_DOM'] === '1' || process.env['BUN_TEST'] === '1';
 }
 
