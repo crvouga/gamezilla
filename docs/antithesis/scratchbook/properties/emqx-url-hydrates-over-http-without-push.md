@@ -38,7 +38,7 @@ A second boot hazard: health is 200 without materializing `client_config`. Origi
 1. Fresh install: local `client_config` empty. Engine connects poll-only (`createPubSub` → null).
 2. Antithesis partitions MQTT (or never starts EMQX). HTTP to the API is up.
 3. **Bug if** session `clientConfig` query never runs, or `waitUntilAvailable` / connect waits on push attach — URL never hydrates; client stays poll-only **and** never queries. Deadlock.
-4. Query runs, materialize writes `emqx_wss_url`, snapshot merges. React effect calls `ensurePush`. **Bug if** `ensurePush` is never invoked after a non-null local URL (effect unmounted, follower tab, `!state.connected`).
+4. Query runs, materialize writes `emqx_wss_url`, snapshot merges. Solid effect calls `ensurePush`. **Bug if** `ensurePush` is never invoked after a non-null local URL (effect unmounted, follower tab, `!state.connected`).
 5. Materialize fails (secrets missing) → URL stays null. That is **not** a deadlock: HTTP sync must still proceed. MQTT attach is optional. The safety is “HTTP progress without MQTT,” not “MQTT always attaches.”
 
 Web follower: `tryAcquireSyncOwnerLease` false → no `pushOptions` at all. Followers must still receive `client_config` via the shared SQLite (owner query) or they stay URL-less. If the owner is hung-not-dead, no one hydrates the row — that is the existing Web Lock hazard applied to the broker URL.

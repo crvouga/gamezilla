@@ -67,7 +67,7 @@ None remaining after code investigation.
 
 - Abandoned `user_<anon12>` is **not** deleted on returning-Google. Switch-back reopens that file (stale queue can drain under the anon session). Isolation is “A’s pending ∉ B,” not “old file gone.”
 - `useCurrentAccountId()` can be null (hydration, external-user clear, token race). `SyncEngineBoot` renders the blank screen and does **not** call `getMainSqliteDbName(null)`. `user_pending` exists as a fallback in `open-main-sql-client.ts` / `userId ?? 'pending'` in wall env, but product boot with a bound user never opens it.
-- `deactivatePrevious` still runs on iOS: stop upload + `db.disconnect` before the next name. Needed so the sticky engine cannot query/upload A after the React tree is B. The OPFS “handle held” error is web-only.
+- `deactivatePrevious` still runs on iOS: stop upload + `db.disconnect` before the next name. Needed so the sticky engine cannot query/upload A after the Solid tree is B. The OPFS “handle held” error is web-only.
 
 ## Synthesis merge (orchestrator)
 

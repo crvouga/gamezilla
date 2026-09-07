@@ -94,7 +94,7 @@ SDK (`existing-assertions.md`): **missing**. Suggested assertions remain new.
 #### Do product `useQuery` live reads observe the same SQLite the probe would sample?
 
 - Examined: `pkgs/sync-engine/src/client/sync-engine-context.tsx` `useQuery`.
-- Found: comment and implementation: “always returns the current SQLite snapshot (no process row cache).” `engine.watch` + `useSyncExternalStore` on the watch snapshot. First topology is headless (no React).
+- Found: comment and implementation: “always returns the current SQLite snapshot (no process row cache).” `engine.watch` on the watch snapshot. First topology is headless (no Solid UI).
 - Not found: a product hook cache of domain rows that can diverge from SQLite.
 - Conclusion: resolved — probe SQLite is what `useQuery` would paint. No independent flicker cache.
 

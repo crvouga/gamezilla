@@ -29,7 +29,7 @@ SUT analysis A11 and failure mode: “crash mid-txn can corrupt; recovery delete
 4. Recovery deletes the file (or OPFS directory) and opens a fresh empty DB.
 5. Engine migrates from scratch, `paintReady` on identity match, hydrates via `POST /query`.
 
-If recovery assumes a still-present queue (the epoch-bump mental model), the client waits forever for an upload that will never happen. If optimistic UI cache outlives the file (room Kv, in-memory React state, a second tab’s handle), the user sees local-only writes that the server never got and never will.
+If recovery assumes a still-present queue (the epoch-bump mental model), the client waits forever for an upload that will never happen. If optimistic UI cache outlives the file (room Kv, in-memory Solid state, a second tab’s handle), the user sees local-only writes that the server never got and never will.
 
 False-positive wipe of a *healthy* file with a live queue is the worst case: silent loss of acknowledged-to-the-user work.
 

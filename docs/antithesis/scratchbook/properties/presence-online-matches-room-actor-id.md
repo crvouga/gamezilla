@@ -1,6 +1,6 @@
 # presence-online-matches-room-actor-id
 
-Focus: Wildcard (identity planes). Reformulated for first topology (headless, no React). Confidence: high.
+Focus: Wildcard (identity planes). Reformulated for first topology (headless, no Solid UI). Confidence: high.
 
 Existing Antithesis SDK: **missing**. All suggested assertions are new.
 
@@ -10,7 +10,7 @@ Do **not** require Durable Object storage. First topology RoomServer is in-proce
 
 ## Why this property (reformulation)
 
-Implementability deferred the old write-up as “UI-only (`SpaceMemberTileRail` / badges).” The React rail is motivation, not the oracle. Headless clients already have:
+Implementability deferred the old write-up as “UI-only (`SpaceMemberTileRail` / badges).” The Solid UI rail is motivation, not the oracle. Headless clients already have:
 
 | Probe | API |
 |---|---|
@@ -21,7 +21,7 @@ Implementability deferred the old write-up as “UI-only (`SpaceMemberTileRail` 
 
 `useMemberIsOnline(spaceId, profileId)` is `peersByMemberId.get(profileId).length > 0` — the same grouping: roster actors keyed by `RoomActor.id`. Product often passes **account** as that key. Happy path: `X === A`, lookup hits. Demotion: `X === D` (install / minted UUID), lookup of `A` is false while the user is still in the room.
 
-Workload iff (no React):
+Workload iff (no Solid UI):
 
 ```
 accountOnline ≡ (ownActor === A)
@@ -37,7 +37,7 @@ Gateway fallback (`resolveRoomActorId`: bearer fail → `anonId` → `createId()
 |---|---|
 | `apps/server/src/room/route.ts` `resolveRoomActorId` | `x-actor-id` = account if bearer+device resolve, else `anonId`, else minted UUID. Never blocks on auth. |
 | `pkgs/room/src/types.ts` `RoomActor` | `id` = participant; `clientId` = tab. |
-| `pkgs/room/src/client/core/room-client.ts` `getRoster()` | Last `roster` wire frame. Public, no React. |
+| `pkgs/room/src/client/core/room-client.ts` `getRoster()` | Last `roster` wire frame. Public, no Solid UI. |
 | `pkgs/room/src/server/core/room-server-fanout.ts` | Fanout `kind: roster`. |
 | `libs/spaces/src/root/client/members/use-member-is-online.ts` | Spec for what UI would look up (not the oracle). |
 | `libs/spaces/src/root/client/members/space-member-tile-rail.tsx` | Documents `deviceId` as presence key; callers often stuff account. |
@@ -63,7 +63,7 @@ For every signed-in RoomClient that has received a roster (or welcome that impli
 - `Unreachable`: `accountOnline` while no live roster actor equals `A` (ghost account online) — equivalent to the Always failing one way.
 - After api kill + remake: empty roster ⇒ `accountOnline` false; Always holds if `own` is absent.
 
-`Always` on each roster snapshot, not after a React paint. First topology does not run web.
+`Always` on each roster snapshot, not after a Solid paint. First topology does not run web.
 
 ## Antithesis angle
 
@@ -77,7 +77,7 @@ Alice is in the puzzle room under install id `D` while every account-keyed “on
 
 - `Always("space.presence.account_online_iff_actor_is_account")` when applying a roster frame (SUT) or in the workload after `getRoster()`.
 - `Sometimes("space.presence.actor_ne_account")` when `resolveRoomActorId` returns non-account after a bearer was offered.
-- Do not add React/`useMemberIsOnline` assertions; they are not in the Node image.
+- Do not add Solid/`useMemberIsOnline` assertions; they are not in the Node image.
 
 ## Open questions
 
@@ -110,6 +110,6 @@ SDK (`existing-assertions.md`): **missing**. Suggested assertions remain new.
 
 ## Assumptions
 
-- Workload mints and records `clientId`; `getRoster()` is enough (no React, no `useMyId`).
+- Workload mints and records `clientId`; `getRoster()` is enough (no Solid UI, no `useMyId`).
 - In-process RoomServer still goes through `createRoomApp` / `resolveRoomActorId` in this topology (same assumption as `room-gateway-fallback-not-host`). If setup uses raw loopback identity, demotion is Unreachable and the Always is only the happy path.
 - Room persistence across api kill is **out of scope**.
