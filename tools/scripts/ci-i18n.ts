@@ -21,7 +21,6 @@ const SKIP_DIR_NAMES = new Set([
   'dist',
   '.turbo',
   '.git',
-  '.expo',
   'coverage',
   'ios',
   'android',

@@ -1,16 +1,16 @@
 import type { MiddlewareHandler } from 'hono';
 
 /**
- * CORS for browser / Expo web clients calling the API.
+ * CORS for browser / web clients calling the API.
  *
  * Better Auth’s web client always sends `credentials: 'include'` (OAuth state
  * cookies on the API origin). Browsers reject credentialed responses when
  * `Access-Control-Allow-Origin` is `*`, which surfaces as "Failed to fetch".
  * Reflect the request Origin and allow credentials so BA (and Bearer
- * `set-auth-token`) work cross-origin from Expo web.
+ * `set-auth-token`) work cross-origin from the web app.
  *
  * Do **not** use `hono/cors` here: it reads `c.res` before `next()` and calls
- * `c.header()` after. On React Native, `Response.body` is undefined, so Hono’s
+ * `c.header()` after. On some runtimes, `Response.body` is undefined, so Hono’s
  * `c.res` setter / finalized `c.header()` recreate the response as
  * `new Response(undefined, …)` — status 200 with an empty body
  * (`auth/anon/ensure empty/non-object body`). Set headers only via `c.header()`

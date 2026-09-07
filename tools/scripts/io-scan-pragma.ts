@@ -31,7 +31,6 @@ const ENTRY_BASENAMES = new Set([
   'real-time-scheduler.ts',
   'wall-node-fs.ts',
   'wall-os-fs.ts',
-  'wall-expo-fs.ts',
   'wall-browser-fs.ts',
   'wall-web-device.ts',
   'wall-path-exists.ts',
@@ -75,7 +74,7 @@ export function isIoCompositionEntryPath(rel: string): boolean {
   if (rel.includes('/scripts/')) return true;
   // Infra CLI is a process composition root (secrets seed, deploy, GHA).
   if (rel.startsWith('libs/secrets/src/shared/')) return true;
-  // Expo crypto wall polyfill (RNG/UUID for RN).
+  // Browser crypto wall polyfill (RNG/UUID for web).
   if (rel === 'pkgs/polyfill/src/crypto.ts') return true;
   const base = rel.split('/').pop() ?? '';
   if (
@@ -112,7 +111,7 @@ export function isIoCompositionEntryPath(rel: string): boolean {
   ) {
     return true;
   }
-  // Browser iframe entry for expo-sqlite OPFS owner (bundled sql-host page).
+  // Browser iframe entry for the web SQLite OPFS owner (bundled sql-host page).
   if (base === 'sql-host-entry.ts') {
     return true;
   }

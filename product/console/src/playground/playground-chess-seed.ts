@@ -1,7 +1,7 @@
 /**
  * Browser-safe chess puzzle seed for the playground Commands tab.
  * Avoids `@libs/chess/server` seeder modules that pull `import.meta` / Node paths
- * into the Expo web bundle.
+ * into the web bundle.
  */
 
 import { chessPuzzlesTopic } from '@libs/chess/public/sync-topics';

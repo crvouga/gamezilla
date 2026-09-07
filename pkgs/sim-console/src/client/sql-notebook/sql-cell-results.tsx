@@ -8,10 +8,9 @@ import {
   Text,
 } from '@pkgs/ui';
 import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
-
+import { writeClipboard } from './copy-to-clipboard';
 import type { SqlStatementResult } from './run-sql-cell';
 import { formatPlaygroundDbCell } from './sql-schema-query';
-import { writeClipboard } from './copy-to-clipboard';
 
 export function SqlCellResults(props: {
   readonly results: () => readonly SqlStatementResult[];

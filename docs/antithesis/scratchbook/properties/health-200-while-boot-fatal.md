@@ -4,7 +4,7 @@ Focus: Lifecycle Transitions (startup). Claimed isolate-only health vs one-shot 
 
 ## Why this property
 
-`handleWorkerFetch` answers `GET|HEAD /api/health` **before** `ensureApp`. A config/secret failure latches `bootState = { kind: 'fatal' }` and every later product request returns 503 `{ error: 'api misconfigured' }`, while health stays `{ status: 'ok' }` 200. The Expo client origin gate treats that 200 as “API available” and then issues `/api/query` and `/api/mutations`.
+`handleWorkerFetch` answers `GET|HEAD /api/health` **before** `ensureApp`. A config/secret failure latches `bootState = { kind: 'fatal' }` and every later product request returns 503 `{ error: 'api misconfigured' }`, while health stays `{ status: 'ok' }` 200. The web client origin gate treats that 200 as “API available” and then issues `/api/query` and `/api/mutations`.
 
 This is the startup window the focus asks for: requests during boot, plus a health signal that does not track readiness.
 

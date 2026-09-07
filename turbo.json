@@ -6,7 +6,7 @@
   "globalPassThroughEnv": [
     "GITHUB_*",
     "POST_DEPLOY_*",
-    "EXPO_PUBLIC_*",
+    "VITE_*",
     "PREVIEW_PORT",
     "POSTGRES_SCHEMA",
     "API_URL",
@@ -22,8 +22,6 @@
     "ELEVEN_LABS_*",
     "OPENAI_*",
     "PS_*",
-    "EXPO_TOKEN",
-    "EXPO_USE_WATCHMAN",
     "SECRETS_*",
     "INFISICAL_*",
     "ACTIONS_ID_TOKEN_*",
@@ -227,11 +225,7 @@
     },
     "build": {
       "dependsOn": ["^build"],
-      "env": [
-        "EXPO_PUBLIC_API_URL",
-        "EXPO_PUBLIC_E2E",
-        "EXPO_PUBLIC_ALLOW_PRODUCTION_API_URL"
-      ],
+      "env": ["VITE_API_URL", "VITE_E2E", "VITE_ALLOW_PRODUCTION_API_URL"],
       "inputs": [
         "**/*.ts",
         "**/*.tsx",
@@ -243,8 +237,7 @@
         "public/**",
         "tsconfig.json",
         "tsconfig.tc.json",
-        "babel.config.js",
-        "metro.config.js"
+        "babel.config.js"
       ],
       "outputLogs": "new-only",
       "outputs": ["dist/**"]

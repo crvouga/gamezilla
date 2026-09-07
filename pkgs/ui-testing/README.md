@@ -39,10 +39,9 @@ import {
 | `node.tap` / `input` / … | Actions on the resolved node |
 | `node.expect.visible` / `hidden` / `text` | Nested assertions |
 | `node.get(childTestId)` | Scope to a descendant |
-| `AppHarness` | App-supplied bootstrap port (rntl only) |
+| `AppHarness` | App-supplied bootstrap port (driver only) |
 
-Direct driver constructors are also available under deep imports, e.g.
-`@pkgs/ui-testing/drivers/rntl/rntl-driver`.
+
 
 ## Architecture
 
@@ -52,18 +51,15 @@ Consumer (app / e2e package)
   ├── AppHarness                   — createRoot / mount / setup / teardown
   └── createDriver({ kind, … })
         ├── SolidDomDriver    → harness.mount (Solid in happy-dom / browser DOM)
-        ├── RntlDriver        → RenderAdapter (RNTL) or harness.mount
         └── BunWebviewDriver  → injected Bun.WebView
 ```
 
 Dependency direction is always **apps → pkgs**. Drivers receive their underlying
 handles (`Bun.WebView`, harness) from the consumer.
 
-**No mocking of product deps.** RNTL rendering uses
-[React Native Testing Library](https://oss.callstack.com/react-native-testing-library/)
-over a real React Native host (`react-test-renderer` / `test-renderer`). Inject
-alternate implementations via DI / harness setup — never `mock.module` or
-hand-rolled module stubs in this package.
+**No mocking of product deps.** Rendering uses the host render adapter over a
+real DOM host. Inject alternate implementations via DI / harness setup — never
+`mock.module` or hand-rolled module stubs in this package.
 
 ## Targeting elements
 
@@ -101,15 +97,14 @@ class LoginPage {
 }
 ```
 
-## RNTL driver
+## DOM driver
 
-Boots a real React Native tree via RNTL — no browser, emulator, IPC,
-or HTTP server, and no `react-native` → `react-native-web` remapping.
+Boots a real DOM tree via the render adapter — no browser emulator or IPC.
 
 ### 1. Implement an `AppHarness`
 
 ```ts
-import { createElement } from 'react';
+import { render } from 'solid-js/web';
 import type { AppHarness } from '@pkgs/ui-testing';
 import { AppRoot } from './app-root'; // your app
 
@@ -117,18 +112,14 @@ export const harness: AppHarness = {
   async setup() {
     // DI seams, env, seed data — owned by the app
   },
-  createRoot() {
-    return createElement(AppRoot);
+  createRoot(container: HTMLElement) {
+    return render(() => <AppRoot />, container);
   },
   async teardown() {
     // dispose seams
   },
 };
 ```
-
-For Expo Router trees, prefer harness `mount()` with
-`expo-router/testing-library` `renderRouter`, then wrap the result with
-`createRenderedAppFromRntl`.
 
 ### 2. Write a test
 
@@ -137,7 +128,7 @@ import { createDriver } from '@pkgs/ui-testing';
 import { harness } from './harness';
 
 const driver = createDriver({
-  kind: 'rntl',
+  kind: 'solid-dom',
   harness,
   now: () => Date.now(),
   timers,
@@ -173,33 +164,31 @@ await driver.get('app-root').expect.visible();
 
 ## Driver capability matrix
 
-| Operation | Solid DOM | RNTL | Bun.WebView |
-| --- | --- | --- | --- |
-| `launch` / `close` | yes | yes | yes (`baseUrl` optional) |
-| `get` / nested `get` | yes | yes | yes |
-| `tap` / `input` (auto-wait) | yes (user-event) | yes | yes |
-| `tapAt` | yes (synthetic PointerEvents) | yes (RNGH / press+location) | yes |
-| `drag` | yes (PointerEvent stream) | yes (RNGH pan stream) | yes |
-| `layout` | yes (synthetic layout provider) | yes (style / synthetic onLayout) | yes |
-| `clear` | yes | yes | yes |
-| `key` (driver + node) | yes (user-event keyboard) | yes (no-op host) | yes |
-| `scroll` | yes | yes | yes |
-| `wait` / `isVisible` | MutationObserver + pump | virtual pump + query | `evaluate` poll |
-| `expect.visible` / `hidden` / `text` | thin wrappers over `wait` | thin wrappers over `wait` | same |
-| `text()` | yes | yes | yes |
-| `snapshotHtml` | DOM → HTML | RN host → HTML | `documentElement.outerHTML` |
+| Operation | Solid DOM | Bun.WebView |
+| --- | --- | --- |
+| `launch` / `close` | yes | yes (`baseUrl` optional) |
+| `get` / nested `get` | yes | yes |
+| `tap` / `input` (auto-wait) | yes (user-event) | yes |
+| `tapAt` | yes (synthetic PointerEvents) | yes |
+| `drag` | yes (PointerEvent stream) | yes |
+| `layout` | yes (synthetic layout provider) | yes |
+| `clear` | yes | yes |
+| `key` (driver + node) | yes (user-event keyboard) | yes |
+| `scroll` | yes | yes |
+| `wait` / `isVisible` | MutationObserver + pump | `evaluate` poll |
+| `expect.visible` / `hidden` / `text` | thin wrappers over `wait` | same |
+| `text()` | yes | yes |
+| `snapshotHtml` | DOM → HTML | `documentElement.outerHTML` |
 
-`DriverNode.wait` is host-native for speed: Solid DOM and rntl use a
-constructor `pump` (sim virtual clock) instead of `findBy` / wall 50ms sleeps. Public options
+`DriverNode.wait` is host-native for speed: Solid DOM uses a constructor
+`pump` (sim virtual clock) instead of `findBy` / wall 50ms sleeps. Public options
 are only `timeoutMs` / `description` — no shared poll interval.
 
 ### UI snapshots for reports
 
 `Driver.snapshotHtml(options?)` / optional `RenderedApp.snapshotHtml(options?)`
 produce a readable HTML preview of the current UI. Solid DOM serializes the
-live document (plus body-level portals); RNTL serializes the
-`react-test-renderer` host tree (component tags + inline styles from `style`
-props) — not a browser DOM. Pass `stylesheetHref` to link shared shell CSS
+live document (plus body-level portals). Pass `stylesheetHref` to link shared shell CSS
 instead of inlining it (used by `@pkgs/simulation` multi-frame reports).
 Reporting wraps waits with `pollFrames` on the simulation recorder (not a
 Driver poll hook).

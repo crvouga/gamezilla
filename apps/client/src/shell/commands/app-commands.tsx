@@ -3,7 +3,7 @@
  * App-wide command palette commands available in the shell: navigation and
  * appearance. Space / UI-components / performance / wipe-local-database /
  * account commands join with their screen ports (they read lib contexts that
- * are still React-bound).
+ * are still UI-bound).
  *
  * The RN dev menu (`command-palette-dev-menu.web.tsx`) is a no-op on web —
  * the palette opens via `mod+k` / `mod+shift+p` from `CommandRegistryProvider`.

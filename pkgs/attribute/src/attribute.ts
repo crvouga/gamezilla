@@ -163,7 +163,7 @@ export interface AttributeTag<
   }): AttributeTag<T, K, D, Nullable>;
 }
 
-/** Generic / unbranded view used by sync entity store indexes, react hooks, etc. */
+/** Generic / unbranded view used by sync entity store indexes, UI hooks, etc. */
 export type AnyAttributeTag<T = unknown> = AttributeTag<
   T,
   string,

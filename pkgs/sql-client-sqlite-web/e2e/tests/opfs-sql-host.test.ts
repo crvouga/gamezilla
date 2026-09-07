@@ -8,7 +8,7 @@ beforeAll(async () => {
   await waitForHttp(ORIGIN);
 });
 
-describe('expo-sqlite OPFS via sql-host iframe', () => {
+describe('web SQLite OPFS via sql-host iframe', () => {
   test('open user_* db, write, read', async () => {
     const page = await openView(`${ORIGIN}/sql-workers/sql-host.html`);
     try {
@@ -128,7 +128,7 @@ describe('expo-sqlite OPFS via sql-host iframe', () => {
         page,
         `async () => {
           const root = await navigator.storage.getDirectory();
-          const dir = await root.getDirectoryHandle('expo-sqlite', { create: true });
+          const dir = await root.getDirectoryHandle('sqlite', { create: true });
           for (let i = 0; i < 12; i++) {
             const file = await dir.getFileHandle('junk-' + i, { create: true });
             const writable = await file.createWritable();
@@ -168,7 +168,7 @@ describe('expo-sqlite OPFS via sql-host iframe', () => {
               frame.remove();
               const root = await navigator.storage.getDirectory();
               try {
-                await root.removeEntry('expo-sqlite', { recursive: true });
+                await root.removeEntry('sqlite', { recursive: true });
               } catch {}
               const retry = document.createElement('iframe');
               retry.src = '/sql-workers/sql-host.html';

@@ -2,9 +2,9 @@
  * postgres-mem (and node-pg) return int8 as bigint. Product paths (JSON, Math.*)
  * expect number when the value fits, else a decimal string.
  *
- * Convert via decimal text. Hermes `Number(bigint)` / unary `+bigint` throw
- * `Cannot convert BigInt to number` (ToNumber) — Expo Go hits that on every
- * hydrate query that selects a Postgres bigint column.
+ * Convert via decimal text. `Number(bigint)` / unary `+bigint` throw
+ * `Cannot convert BigInt to number` (ToNumber) — the web engine hits that on
+ * every hydrate query that selects a Postgres bigint column.
  */
 export function bigintToJsonSafe(value: bigint): number | string {
   const text = value.toString();

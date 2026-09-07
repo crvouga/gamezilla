@@ -13,7 +13,7 @@ HEAD: `ddde94db466ae77df20385c54ead0c79ae20b2c8`. The working tree has substanti
 
 ## Summary
 
-Gamezilla is a social lobby + games product (Expo iOS/web). A fresh install is a real anonymous `users` row with a per-user local SQLite file. Signed-in users create/join spaces and play **chess puzzles inside a space** (host solves, guests spectate). Durable social state (profile, spaces metadata, friends, puzzle stats, notifications, `client_config`) is a **local-first sync-engine**. Live play is a **separate room event log** on a Cloudflare Durable Object.
+Gamezilla is a social lobby + games product (web). A fresh install is a real anonymous `users` row with a per-user local SQLite file. Signed-in users create/join spaces and play **chess puzzles inside a space** (host solves, guests spectate). Durable social state (profile, spaces metadata, friends, puzzle stats, notifications, `client_config`) is a **local-first sync-engine**. Live play is a **separate room event log** on a Cloudflare Durable Object.
 
 Two write planes must not be confused:
 
@@ -34,7 +34,7 @@ No Antithesis SDK is present. See `existing-assertions.md`.
 |---|---|---|
 | API Worker `gamezilla-api` | `apps/server/src/server.ts` | Cloudflare Worker; prod `api.gamezilla.app`. Cron `*/1 * * * *` drains outbox. |
 | Room Worker `gamezilla-room` | `apps/room-server/src/room.ts` | Separate Worker; owns `RoomServerDurableObject`. API binds it cross-script (`script_name = "gamezilla-room"`). |
-| Expo client | `apps/client` → `createClient(wallClientEnv())` | iOS / web. Per-user SQLite `user_<first12HexOfUsersId>`. |
+| Web client | `apps/client` → `createClient(wallClientEnv())` | web. Per-user SQLite `user_<first12HexOfUsersId>`. |
 | Sim console | `product/console` `createSim` | Dev only. In-process Hono + loopback rooms. Reports port 7789. |
 
 Production sidecars: Neon Postgres, Railway EMQX, Backblaze B2. Optional: Stripe, ElevenLabs, OpenAI (503 if secrets missing). Local sim default: postgres-mem + sqlite-mem; `max` boots embedded Postgres + MinIO + EMQX.
@@ -121,7 +121,7 @@ Wire JSON `WIRE_VERSION = 1`. Committed events have monotonic `seq` per topic. P
 ### Not synced
 
 - **IdP** (`idp_*`): sessions, OAuth state, provider codes. Postgres only.
-- **Room log:** Durable Object SQLite keys `room.do.v3.*`. Client room cache is platform Kv (localStorage / AsyncStorage), **not** the identity SQLite file.
+- **Room log:** Durable Object SQLite keys `room.do.v3.*`. Client room cache is platform Kv (localStorage), **not** the identity SQLite file.
 - **Object store:** S3/B2 with prefix `gamezilla/`; missing secrets → in-memory (isolate-local).
 - **EMQX:** ephemeral. Publish is HTTP from the Worker (publish-only port). Subscribe is MQTT WSS from the client. Broker URL is a **synced `client_config` row** — cold start is poll-only until that row hydrates.
 
@@ -192,7 +192,7 @@ Confirmed, pinned defects cluster in four framework packages. `PBT_FINDINGS.md` 
 1. **sync-engine wipe/clobber/same-account fanout** — empty profile fanout blanking peer username; device-private open-session leaking across devices; friend-hosted space missing on cold hydrate; `not_modified` clobbering pending; client-ahead columns overwritten; empty secondary snapshot wiping live rows; wrong topic-map silent staleness; account-switch SQLite close order.
 2. **db-schema rebuild data-loss** — five documented planner/emit bugs in `bugs-found.md` (indexes lost after rebuild, backfill omitted, `copyColumns: []`, in-place type change, `_meta` ident). All marked fixed with pins.
 3. **db-indexes planner crashes** — unique `autoidx_*` imposter; stale fingerprint assert.
-4. **sql-client Hermes bigint** — Postgres `int8` as `bigint` crashed Expo hydrate.
+4. **sql-client engine bigint** — Postgres `int8` as `bigint` crashed web hydrate.
 
 Room/chess/matchmaking have large **designed** failure catalogs (not a bug graveyard). Chess competition races Gc4–Gc6 are `test.skip`.
 
@@ -208,7 +208,7 @@ Unvalidated git subjects (do **not** treat as confirmed defects): SQL injection 
 
 The determinism harness: virtual `SimClock`, in-process `SimNetwork` (delay/loss/dup/hold/undirected partition), in-process crash = dispose+remake (often `preserveLocalDb: true`). Settle **heals then checks**. Mid-fault safety lives in named `never` pins, not in shrinking PBT postconditions.
 
-Auth PBT: no partitions, no crash, fake Google. Product Playwright: auth OAuth harness + sql-client OPFS only — **no product Expo/web e2e**. Load: none as a campaign. `fidelity: max` skips mesh.
+Auth PBT: no partitions, no crash, fake Google. Product Playwright: auth OAuth harness + sql-client OPFS only — **no product web e2e**. Load: none as a campaign. `fidelity: max` skips mesh.
 
 **Antithesis unique value (do not duplicate named sim pins):**
 
@@ -252,7 +252,7 @@ Product request path has **almost no timeouts** on Neon connect, S3, EMQX HTTP p
 | Dep | Prod | Default sim | `max` |
 |---|---|---|---|
 | Postgres | Neon TCP per request | postgres-mem | Embedded Postgres |
-| Client SQL | expo-sqlite / OPFS | bun:sqlite / mem | Real SQLite |
+| Client SQL | web SQLite / OPFS | bun:sqlite / mem | Real SQLite |
 | Object store | B2 S3 | In-memory | MinIO |
 | PubSub | EMQX HTTP + MQTT WSS | In-memory bus | Embedded EMQX |
 | Room | Cross-script DO | In-process RoomServer | Still in-process |
@@ -260,7 +260,7 @@ Product request path has **almost no timeouts** on Neon connect, S3, EMQX HTTP p
 
 Missing EMQX secrets: HTTP pubsub `get()` undefined → **silent no-op** while `status()` reports `'connected'`. Missing S3 → in-memory. Optional vendors → 503.
 
-Infisical, Cloudflare API, Railway, Expo, Turbo are control-plane, not request path.
+Infisical, Cloudflare API, Railway, Turbo are control-plane, not request path.
 
 ## Product context
 
@@ -301,10 +301,10 @@ Anon users cannot create/join spaces. Default space visibility is private. Write
 - **Dual testing religions.** The sim looks like Antithesis and can create false confidence. `max` fidelity **drops** the faults the fake tier injects. Native “real” fabric opens **mem** engines. PBT explicitly declined Wrangler/Neon.
 - **Identity collapsed then forked.** `accountId === userId` in product auth; sync `clientId === deviceId`; presence UI has used `profileId={deviceId}`; room actor can silently become the install id on a **DB hiccup** during WS upgrade; room `clientId` is a per-tab UUID, not the sync clientId.
 - **Protocol archaeology.** Wire v3 lives in `protocol/v2.ts`. Version mismatch is `{ error: 'auth', reason: 'upgrade_required' }` — a protocol cut classified as auth.
-- **Dialect inversion.** Shared SQL is SQLite-shaped; Postgres is shimmed (`postgres-sqlite-compat`). Engine detect: `SELECT sqlite_version()` success ⇒ SQLite, catch ⇒ Postgres. Nested txs flattened — no SAVEPOINT. Hermes int8 already bit.
+- **Dialect inversion.** Shared SQL is SQLite-shaped; Postgres is shimmed (`postgres-sqlite-compat`). Engine detect: `SELECT sqlite_version()` success ⇒ SQLite, catch ⇒ Postgres. Nested txs flattened — no SAVEPOINT. Engine int8 already bit.
 - **Push URL is a synced row.** You need sync to learn how to receive push.
 - **Two merge theories.** Rooms: deterministic replay + hash. Social: LWW by arrival. Pending mutations can rebase onto tombstones and **revive** deleted rows. Two hashers (`hashRoomState` vs `canonicalJson`) may not share integer-key sort rules (`PBT_AUDIT.md`).
-- **Isomorphic fiction.** Local `cloudflare.d.ts` stubs `WebSocketPair` / `blockConcurrencyWhile` because workers-types fight Expo DOM. Constructing `Request` wrong **strips Upgrade** → 426.
+- **Isomorphic fiction.** Local `cloudflare.d.ts` stubs `WebSocketPair` / `blockConcurrencyWhile` because workers-types fight the web DOM. Constructing `Request` wrong **strips Upgrade** → 426.
 
 ## Failure-prone areas (Antithesis priority)
 
@@ -328,7 +328,7 @@ Anon users cannot create/join spaces. Default space visibility is private. Write
 - Confirm whether Antithesis should target the **sim composition** (already deterministic, misses prod walls) or a **containerized Node API + Postgres + EMQX + real client SQLite** (the declined PBT class). Downstream setup should prefer the latter for unique value.
 - Live Neon URL shape (pooler vs compute, suspend, statement timeout) is not in-repo.
 - Whether product UI treats `upgrade_required` as a blocking screen.
-- Whether `journal_mode=MEMORY` applies on native expo-sqlite (shared pragma path suggests yes).
+- Whether `journal_mode=MEMORY` applies on native SQLite (shared pragma path suggests yes).
 - Whether two Worker isolates in production make the unlocked outbox claim real (CF concurrency is expected).
 - Matchmaking / billing / TTS appear unshipped in the client — out of first-pass topology unless properties demand them.
 - Chess “multiplayer” is shared puzzle play, not 1v1. No second chess mode registered.

@@ -1,7 +1,7 @@
 /**
- * Isomorphic Postgres schema ensure — safe for Expo web / postgres-mem migrate.
+ * Isomorphic Postgres schema ensure — safe for web / postgres-mem migrate.
  *
- * Lives outside {@link ./connect} so Metro never loads wall `pg` via
+ * Lives outside {@link ./connect} so the bundler never loads wall `pg` via
  * `EnsurePostgresSchemaMigration` → `ensurePostgresSchema`.
  */
 

@@ -8,14 +8,14 @@ A process kill under `PRAGMA journal_mode = MEMORY` must not leave a **successfu
 
 Two recovery surfaces (do not conflate):
 
-1. **Expo wipe-on-corrupt** (`impl-expo-sqlite` / web owner recovery): a failed open (native: any first failure; web: wipe-worthy matcher) deletes the identity file, including `sync_engine_mutations`. After that wipe the client reopens empty, hydrates **server-authoritative** rows, ids that existed only in the deleted queue must not appear on the server, and the UI must not keep presenting pre-crash optimistic state as durable.
-2. **First Antithesis topology** (`impl-bun-sqlite` / `impl-better-sqlite3`): the same MEMORY pragma runs on `connect()`, but open/connect failure **asserts** — there is no delete-and-retry. A successful open must still be last-commit (or the process must fail closed). Empty-queue-after-wipe is **not** this image unless setup adds Expo recovery.
+1. **web SQLite wipe-on-corrupt** (`web-sqlite-impl` / web owner recovery): a failed open (native: any first failure; web: wipe-worthy matcher) deletes the identity file, including `sync_engine_mutations`. After that wipe the client reopens empty, hydrates **server-authoritative** rows, ids that existed only in the deleted queue must not appear on the server, and the UI must not keep presenting pre-crash optimistic state as durable.
+2. **First Antithesis topology** (`impl-bun-sqlite` / `impl-better-sqlite3`): the same MEMORY pragma runs on `connect()`, but open/connect failure **asserts** — there is no delete-and-retry. A successful open must still be last-commit (or the process must fail closed). Empty-queue-after-wipe is **not** this image unless setup adds web SQLite recovery.
 
 This is a different recovery procedure from `SCHEMA_EPOCH` cache wipe, which **claims** to preserve `sync_engine_mutations`. File delete does not.
 
 ## Why this property
 
-Every new SQLite connection runs `PRAGMA journal_mode = MEMORY` (`connection-pragmas.ts`). A process kill mid-txn can tear the DB without a rollback journal. First open failure on expo-sqlite calls `deleteDatabaseAsync` and retries. Web owner-runtime wipe-worthy errors call `recoverSqlOwnerInProcess` → `resetStore` / OPFS directory wipe.
+Every new SQLite connection runs `PRAGMA journal_mode = MEMORY` (`connection-pragmas.ts`). A process kill mid-txn can tear the DB without a rollback journal. First open failure on web SQLite calls `deleteDatabaseAsync` and retries. Web owner-runtime wipe-worthy errors call `recoverSqlOwnerInProcess` → `resetStore` / OPFS directory wipe.
 
 SUT analysis A11 and failure mode: “crash mid-txn can corrupt; recovery deletes the DB file (pending queue gone).” Epoch-bump pin `epoch-bump-wipes-cache-preserves-pending-uploads` is the *other* recovery path — do not confuse them.
 
@@ -37,11 +37,11 @@ False-positive wipe of a *healthy* file with a live queue is the worst case: sil
 
 | Path | Role |
 |---|---|
-| `pkgs/sql-client/src/sqlite/connection-pragmas.ts` `applySqliteConnectionPragmas` | `PRAGMA journal_mode = MEMORY` and `temp_store = MEMORY` on every Bun/Expo connection. Comment: web OPFS must not create `-journal` / WAL sidecars. |
+| `pkgs/sql-client/src/sqlite/connection-pragmas.ts` `applySqliteConnectionPragmas` | `PRAGMA journal_mode = MEMORY` and `temp_store = MEMORY` on every Bun/web SQLite connection. Comment: web OPFS must not create `-journal` / WAL sidecars. |
 | `pkgs/sql-client/src/sqlite/impl-sqlite-mem.ts` | Same MEMORY pragma in the mem engine. |
-| `pkgs/sql-client/src/sqlite/impl-expo-sqlite.ts` `openAfterFirstFailure` / `deleteDbFile` | First open failure → `SQLite.deleteDatabaseAsync` → retry once. All platforms. |
+| `pkgs/sql-client/src/sqlite/web-sqlite-impl.ts` `openAfterFirstFailure` / `deleteDbFile` | First open failure → `SQLite.deleteDatabaseAsync` → retry once. All platforms. |
 | `pkgs/sql-client/src/sqlite/web/recover-in-process.ts` `recoverSqlOwnerInProcess` / `openSqlOwnerWithRecovery` | Wipe-worthy error → peer drop → force-release SharedWorker → `resetStore` or OPFS wipe. Returns a fresh empty cache. |
-| `pkgs/sql-client/src/sqlite/expo-web-recovery-core.ts` | Message matcher includes `database corruption` and `automatic recovery is blocked`. |
+| `pkgs/sql-client/src/sqlite/web-recovery-core.ts` | Message matcher includes `database corruption` and `automatic recovery is blocked`. |
 | `pkgs/sql-client/src/sqlite/web/sql-owner.ts` `isSqlOwnerWipeWorthyError` | Classifies lock exhaustion / corrupt / migrate failure as wipe-worthy. |
 | `pkgs/sync-engine/src/shared/framework-server-ddl.ts` `FRAMEWORK_DURABLE_TABLE_NAMES` | Only `sync_engine_mutations` survives **CACHE** / epoch wipe — irrelevant once the *file* is deleted. |
 | `pkgs/sync-engine/src/client/local-schema-migrate.ts` | Epoch bump wipes cache tables, keeps durable queue. Opposite of file delete. |
@@ -73,7 +73,7 @@ Safety / liveness:
 
 ## Open questions
 
-- Does native expo-sqlite’s iOS VFS actually switch to MEMORY (vs silently staying delete/WAL)? `(partial: pragma issued on every Expo connect; no in-tree WAL override; runtime honor not empirically verified)`
+- Does native web SQLite’s iOS VFS actually switch to MEMORY (vs silently staying delete/WAL)? `(partial: pragma issued on every web SQLite connect; no in-tree WAL override; runtime honor not empirically verified)`
 - After owner wipe, can a follower that missed `prepare-wipe` later become owner and POST ids that existed only in the deleted file? `(partial: followers do not start uploadQueue; prepare-wipe disconnects SQL; handoff+stale-handle not proven; first topology has no tabs)`
 
 ## Related
@@ -85,41 +85,41 @@ Safety / liveness:
 
 Also covers: `sqlite-memory-journal-wipe-on-corrupt`.
 
-Safety split: a successful post-crash open is last-commit or (Expo only) a freshly wiped empty DB — never a torn file served as live state. If Expo wipe ran, the pending queue is gone. First topology: MEMORY journal + fail-closed on connect error; no auto-wipe unless setup adds it.
+Safety split: a successful post-crash open is last-commit or (web only) a freshly wiped empty DB — never a torn file served as live state. If web SQLite wipe ran, the pending queue is gone. First topology: MEMORY journal + fail-closed on connect error; no auto-wipe unless setup adds it.
 
 ### Investigation Log
 
-#### Does native expo-sqlite (iOS) honor `journal_mode=MEMORY`, or does the native VFS ignore it?
+#### Does native web SQLite (iOS) honor `journal_mode=MEMORY`, or does the native VFS ignore it?
 
-- Examined: `connection-pragmas.ts` (unconditional `PRAGMA journal_mode = MEMORY` + `temp_store = MEMORY`); `impl-expo-sqlite.ts` `connect()` → `applySqliteConnectionPragmas`; `impl-bun-sqlite.ts` / `impl-better-sqlite3.ts` / `impl-sqlite-wasm.ts` / web `owner-runtime.ts` same helper; ripgrep for `WAL` / `journal_mode` under `pkgs/sql-client`.
+- Examined: `connection-pragmas.ts` (unconditional `PRAGMA journal_mode = MEMORY` + `temp_store = MEMORY`); `web-sqlite-impl.ts` `connect()` → `applySqliteConnectionPragmas`; `impl-bun-sqlite.ts` / `impl-better-sqlite3.ts` / `impl-sqlite-wasm.ts` / web `owner-runtime.ts` same helper; ripgrep for `WAL` / `journal_mode` under `pkgs/sql-client`.
 - Found: every product SQLite engine issues MEMORY on connect. Comment motivation is web OPFS sidecars, but the pragma is not web-gated. No later `journal_mode=WAL` / DELETE override in-tree.
-- Not found: an iOS/Android runtime probe that reads `PRAGMA journal_mode` after connect; expo-sqlite native source that would ignore the pragma.
-- Conclusion: tagged `(partial: pragma issued on every Expo connect; no in-tree WAL override; runtime honor not empirically verified)`. If native ignored MEMORY, the kill-mid-txn tear window shrinks and Expo wipe-on-kill is mostly web/OPFS.
+- Not found: an iOS/Android runtime probe that reads `PRAGMA journal_mode` after connect; web SQLite native source that would ignore the pragma.
+- Conclusion: tagged `(partial: pragma issued on every web SQLite connect; no in-tree WAL override; runtime honor not empirically verified)`. If native ignored MEMORY, the kill-mid-txn tear window shrinks and web SQLite wipe-on-kill is mostly web/OPFS.
 
 #### Which open errors are wipe-worthy vs retried without delete?
 
-- Examined: `impl-expo-sqlite.ts` `openWithRecovery` / `openAfterFirstFailure`; `sql-owner.ts` `isSqlOwnerWipeWorthyError`; `expo-web-recovery-core.ts` message matcher; `impl-bun-sqlite.ts` / `impl-better-sqlite3.ts` `connect()`.
-- Found: native Expo deletes on **any** first `openDatabaseAsync` failure (no matcher) then retries once. Web owner wipe requires the matcher (`cannot create file`, `sqlite3_open_v2`, timeout, not-a-database / malformed, `schema epoch`, `migrateLocalSchema failed`, `ensureDomainTables/migrate`). Web message matcher also includes corruption / `SQLITE_IOERR` / OPFS handle held. Bun/better-sqlite3: `SELECT 1` + pragmas, then `assert.ok(false)` — no delete.
-- Not found: a retry-without-delete path on native Expo first open; wipe-on-corrupt in the first topology’s Node engines.
+- Examined: `web-sqlite-impl.ts` `openWithRecovery` / `openAfterFirstFailure`; `sql-owner.ts` `isSqlOwnerWipeWorthyError`; `web-recovery-core.ts` message matcher; `impl-bun-sqlite.ts` / `impl-better-sqlite3.ts` `connect()`.
+- Found: native web deletes on **any** first `openDatabaseAsync` failure (no matcher) then retries once. Web owner wipe requires the matcher (`cannot create file`, `sqlite3_open_v2`, timeout, not-a-database / malformed, `schema epoch`, `migrateLocalSchema failed`, `ensureDomainTables/migrate`). Web message matcher also includes corruption / `SQLITE_IOERR` / OPFS handle held. Bun/better-sqlite3: `SELECT 1` + pragmas, then `assert.ok(false)` — no delete.
+- Not found: a retry-without-delete path on native web first open; wipe-on-corrupt in the first topology’s Node engines.
 - Conclusion: resolved — native matcher is “any open error”; web is classified; Node topology fail-closes. Too-wide native delete of a healthy file is an Antithesis case (`Unreachable` false-positive wipe), not an open definition.
 
 #### After wipe, does account-scoped file naming reopen the same path?
 
-- Examined: `resolve-sqlite-db-name.ts` (`user_${12 hex}`); `open-main-sql-client.ts`; `impl-expo-sqlite.ts` `deleteDbFile` then `openDatabaseOnce` with the same `databaseName` / directory; `wall-client-env.ts` `resolveDatabaseName`.
+- Examined: `resolve-sqlite-db-name.ts` (`user_${12 hex}`); `open-main-sql-client.ts`; `web-sqlite-impl.ts` `deleteDbFile` then `openDatabaseOnce` with the same `databaseName` / directory; `wall-client-env.ts` `resolveDatabaseName`.
 - Found: name is a pure function of `users.id`. Wipe deletes that name and retries that name. No remapping to `user_pending` or another account’s file.
 - Not found: a recovery path that opens a different `databaseName` after delete.
 - Conclusion: resolved — same path; cannot “revive” another identity’s queue by renaming.
 
 #### Can a follower tab (no `sync-owner` lock) still hold a pre-wipe image and upload after the owner wiped?
 
-- Examined: `sync-owner-lock.ts`; `create-local-sync-engine.ts` `enableMutationUpload: syncLease.isOwner`; `create-local-sync-engine.ts` (engine) skip `uploadQueue.start()` when false; `recover-in-process.ts` BroadcastChannel `prepare-wipe`; `impl-expo-web-client.ts` `onPrepareWipeMessage` → `client.disconnect()`.
+- Examined: `sync-owner-lock.ts`; `create-local-sync-engine.ts` `enableMutationUpload: syncLease.isOwner`; `create-local-sync-engine.ts` (engine) skip `uploadQueue.start()` when false; `recover-in-process.ts` BroadcastChannel `prepare-wipe`; `web-client.ts` `onPrepareWipeMessage` → `client.disconnect()`.
 - Found: followers never start the upload loop. Owner wipe asks peers to drop SQL handles (same `gamezilla-opfs-wipe` channel). First topology is Node — no Web Locks / extra tabs.
 - Not found: a follower that re-acquires `sync-owner` without remounting; a test that a missed `prepare-wipe` plus later handoff POSTs pre-wipe mutation ids.
 - Conclusion: tagged `(partial: followers do not start uploadQueue; prepare-wipe disconnects SQL; handoff+stale-handle not proven; first topology has no tabs)`. Isolation of “ids only in the deleted file never reach the server” is still the invariant; multi-tab is a later Chromium variant.
 
-#### Does the first topology’s SQLite engine honor MEMORY journal and the Expo wipe-on-corrupt path?
+#### Does the first topology’s SQLite engine honor MEMORY journal and the web SQLite wipe-on-corrupt path?
 
-- Examined: `deployment-topology.md` client image (bun/better-sqlite3); `impl-bun-sqlite.ts` / `impl-better-sqlite3.ts` `connect()`; Expo `openAfterFirstFailure`.
-- Found: Node engines call `applySqliteConnectionPragmas` (MEMORY). They do **not** delete-and-retry on open failure. Topology already notes Expo wipe may not apply.
-- Not found: a planned Node wrapper that copies Expo `deleteDatabaseAsync` recovery.
-- Conclusion: resolved — MEMORY yes; Expo wipe **no**. Property prose split: first campaign is last-commit or fail-closed; wipe-empties-queue is Expo (or a setup add-on).
+- Examined: `deployment-topology.md` client image (bun/better-sqlite3); `impl-bun-sqlite.ts` / `impl-better-sqlite3.ts` `connect()`; web `openAfterFirstFailure`.
+- Found: Node engines call `applySqliteConnectionPragmas` (MEMORY). They do **not** delete-and-retry on open failure. Topology already notes web SQLite wipe may not apply.
+- Not found: a planned Node wrapper that copies web `deleteDatabaseAsync` recovery.
+- Conclusion: resolved — MEMORY yes; web SQLite wipe **no**. Property prose split: first campaign is last-commit or fail-closed; wipe-empties-queue is web (or a setup add-on).

@@ -61,7 +61,7 @@ export function resetAsyncLocalNativeCtorCacheForTests(): void {
 
 /**
  * Drop-in for Node's `AsyncLocalStorage` that is safe to import from browser
- * / Metro bundles (no `node:async_hooks` specifier).
+ * bundles (no `node:async_hooks` specifier).
  */
 export class AsyncLocalStorage<T> {
   private impl: AlsImpl<T> | undefined;

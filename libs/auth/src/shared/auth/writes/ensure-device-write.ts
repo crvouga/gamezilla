@@ -102,7 +102,7 @@ function buildDeviceUpdates(
 
 /**
  * Ensures a `devices` row exists and refreshes last-seen + changed metadata.
- * Snapshot values are collected on the client (expo/platform); shared stays pure.
+ * Snapshot values are collected on the client (device platform); shared stays pure.
  */
 export class DeviceWriteRepository {
   constructor(private readonly db: SqlTx) {}

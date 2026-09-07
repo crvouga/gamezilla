@@ -6,7 +6,7 @@
  *
  * Deferred: the Account row + identity header (`@username`, avatar trigger)
  * join with the auth / profile screen ports (`useMyProfileId`,
- * `MyProfileAvatar` are React-bound). The trigger is the plain user glyph
+ * `MyProfileAvatar` are UI-bound). The trigger is the plain user glyph
  * until then; the header shows guest / signed-in from the local identity.
  */
 

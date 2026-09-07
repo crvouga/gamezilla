@@ -84,9 +84,9 @@ await bus.publish('space:abc', { type: 'push' });
 bus.close();
 ```
 
-## Expo / Metro polyfill inventory
+## Polyfill inventory
 
-`mqtt.js` over WSS needs platform `WebSocket` (already used by `@pkgs/room`) and `Buffer` (already in `@pkgs/polyfill`). It typically also pulls Node-core names (`events`, `process`, `stream`) that **this repo does not polyfill today**. Do not silently add them here — composition-root wiring owns any Metro aliases if/when a client consumer is added.
+`mqtt.js` over WSS needs platform `WebSocket` (already used by `@pkgs/room`) and `Buffer` (already in `@pkgs/polyfill`). It typically also pulls Node-core names (`events`, `process`, `stream`) that **this repo does not polyfill today**. Do not silently add them here — composition-root wiring owns any bundler aliases if/when a client consumer is added.
 
 ## Broker contract tests
 

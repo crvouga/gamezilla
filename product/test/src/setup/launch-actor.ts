@@ -7,8 +7,9 @@ import { writeUtf8 } from '@pkgs/object-store/helpers';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
-import { resolveSimConsoleReportsDir, wallPathExists } from '@pkgs/sim-console';
+import { resolveSimConsoleReportsDir } from '@pkgs/sim-console/local-data-dir';
 import type { SimSystemSnapshot } from '@pkgs/sim-console/shared/sim-system-snapshot';
+import { wallPathExists } from '@pkgs/sim-console/wall-path-exists';
 import type { Driver } from '@pkgs/ui-testing';
 import { BunWebviewDriver } from '@pkgs/ui-testing-bun-webview';
 import {

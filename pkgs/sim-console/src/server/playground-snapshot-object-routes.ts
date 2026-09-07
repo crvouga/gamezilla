@@ -1,7 +1,7 @@
 /**
  * HTTP ObjectStore proxy for playground snapshots.
  * Bun local report servers hold the backing store (Node-FS locally);
- * Expo web uses impl-http against this proxy.
+ * The web bundle uses impl-http against this proxy.
  */
 
 import { readBytes } from '@pkgs/object-store/helpers';

@@ -54,8 +54,9 @@ const mime: Record<string, string> = {
 };
 
 /**
- * expo-sqlite resolves its worker as `./worker` (no extension), so bare paths
- * under `sql-workers/` must still be served with a script content type.
+ * The web SQLite host resolves its worker as `./worker` (no extension), so
+ * bare paths under `sql-workers/` must still be served with a script content
+ * type.
  */
 function contentTypeFor(path: string): string {
   const base = path.slice(path.lastIndexOf('/') + 1);

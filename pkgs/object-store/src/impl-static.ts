@@ -1,5 +1,5 @@
 /**
- * Read-only {@link ObjectStore} over static HTTP URLs (Expo `public/` bundle).
+ * Read-only {@link ObjectStore} over static HTTP URLs (`public/` bundle).
  *
  * `get` / `head` / `getUri` fetch `${baseUrl}/${key}`. Writes throw.
  * `listKeys` reads a committed `keys.json` (array of strings) because static

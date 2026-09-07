@@ -446,7 +446,7 @@ function toEngine(state: LocalEngineState): SyncEngine {
   };
 }
 
-/** Creates the migrated expo-sqlite-backed local sync engine. */
+/** Creates the migrated web-SQLite-backed local sync engine. */
 export async function createLocalSyncEngine(
   options: CreateLocalSyncEngineOptions
 ): Promise<SyncEngine> {

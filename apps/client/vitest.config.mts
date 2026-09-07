@@ -13,7 +13,7 @@ export default defineSolidVitestConfig({
       exclude: [
         '**/node_modules/**',
         '**/dist/**',
-        // React-era test; removed with the RN tree.
+        // Legacy test; removed with the native tree.
         'src/providers/local-database/use-sync-engine-boot-state.test.tsx',
       ],
     },

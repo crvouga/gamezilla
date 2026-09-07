@@ -10,7 +10,8 @@ const SESSION_SCOPED_KEYS = new Set(['lastLocalAccountId']);
 /**
  * Web `SecureStorage` backed by `localStorage` (or `sessionStorage` for
  * tab-scoped keys). Wrapped with `wrapSecureStorage` so key/value validation
- * matches expo-secure-store (key charset + 2048-byte value cap) on every call.
+ * matches the secure-store contract (key charset + 2048-byte value cap) on
+ * every call.
  *
  * Neither web store is encrypted; keep this for small identifiers only.
  */

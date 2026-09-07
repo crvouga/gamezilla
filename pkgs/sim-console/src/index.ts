@@ -6,15 +6,6 @@
  */
 
 export {
-  findMonorepoRoot,
-  LOCAL_REPORT_DATA_DIRNAME,
-  type PathExists,
-  resolveLocalReportDataDir,
-  resolveSimConsoleReportsDir,
-  SIM_CONSOLE_REPORTS_DIRNAME,
-  toRepoRelativePath,
-} from './local-data-dir';
-export {
   DEFAULT_FRAME_INTERVAL_MS,
   DEFAULT_MAX_FRAMES_PER_STEP,
   DEFAULT_PUBLISH_THROTTLE_MS,
@@ -49,6 +40,5 @@ export {
   testFrameKey,
   testReportKey,
 } from './types';
-export { wallPathExists } from './wall-path-exists';
 export { projectReportTopology } from './writer/project-topology';
 export { deleteRun, type PruneOptions, pruneRuns } from './writer/prune';

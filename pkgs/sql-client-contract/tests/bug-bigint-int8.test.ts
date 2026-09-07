@@ -1,5 +1,5 @@
 /**
- * Pin for BUG-1: Hermes `Cannot convert BigInt to number` on Postgres int8.
+ * Pin for BUG-1: JS engine `Cannot convert BigInt to number` on Postgres int8.
  * Every default backend must return safe integers as number (never bigint).
  */
 import { describe, expect, test } from 'bun:test';

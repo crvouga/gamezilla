@@ -241,7 +241,7 @@ async function signInOauth(
 
 /**
  * Isomorphic AuthClientPort. Hosts inject fetch, storage, timers, and
- * openAuthSession — no Expo SDK imports in this package.
+ * openAuthSession — no platform SDK imports in this package.
  */
 export function createAuthClientAdapter(
   config: AuthClientAdapterConfig

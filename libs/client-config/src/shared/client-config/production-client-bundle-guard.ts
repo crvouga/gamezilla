@@ -9,48 +9,38 @@ export function productionClientApiOrigin(): string {
   return `https://${APP_IDENTITY.apiHost}`;
 }
 
-/** Marker Metro leaves in the `getApiBaseUrl()` chunk when env is inlined. */
-export const INLINED_API_URL_SENTINEL = 'EXPO_PUBLIC_API_URL is required';
+/** Marker the bundler leaves in the `getServerBaseUrl()` chunk when env is inlined. */
+export const INLINED_API_URL_SENTINEL = 'VITE_API_URL is required';
 
 /**
  * Minified production bundles assign the inlined env read to a `const` immediately
- * before the `assert.nonEmptyString` guard in `getApiBaseUrl()`.
+ * before the `assert.nonEmptyString` guard in `getServerBaseUrl()`.
  */
 export const INLINED_API_URL_RE =
-  /const (\w+)="(https?:\/\/[^"]+)";\w+\.assert\.nonEmptyString\(\1,'EXPO_PUBLIC_API_URL is required/;
+  /const (\w+)="(https?:\/\/[^"]+)";\w+\.assert\.nonEmptyString\(\1,'VITE_API_URL is required/;
 
 export function extractInlinedApiUrlFromBundleSource(
   source: string
 ): string | null {
   const match = source.match(INLINED_API_URL_RE);
   if (match?.[2] !== undefined) return match[2];
-  return extractInlinedApiUrlFromHermesBundle(source);
-}
-
-/**
- * Hermes `.hbc` bundles embed string-table entries as raw UTF-8 — the minified
- * JS pattern above does not survive bytecode compilation.
- */
-function extractInlinedApiUrlFromHermesBundle(source: string): string | null {
-  const expected = productionClientApiOrigin();
-  if (source.includes(expected)) return expected;
   return null;
 }
 
 export function assertProductionClientBuildEnv(
   env: NodeJS.ProcessEnv = process.env
 ): void {
-  const raw = env['EXPO_PUBLIC_API_URL'];
+  const raw = env['VITE_API_URL'];
   assert.nonEmptyString(
     raw,
-    'EXPO_PUBLIC_API_URL is required for a production client build'
+    'VITE_API_URL is required for a production client build'
   );
   let origin = '';
   assert.notThrows(
     () => {
       origin = new URL(raw).origin;
     },
-    'EXPO_PUBLIC_API_URL must be a valid absolute URL',
+    'VITE_API_URL must be a valid absolute URL',
     { raw }
   );
   assert.ok(
@@ -62,14 +52,14 @@ export function assertProductionClientBuildEnv(
   assert.equals(
     origin,
     expected,
-    'Production client build EXPO_PUBLIC_API_URL must match the deployed API origin',
+    'Production client build VITE_API_URL must match the deployed API origin',
     { expected, got: origin, raw }
   );
 }
 
 async function listBundleFiles(store: ObjectStore): Promise<readonly string[]> {
   const keys = await store.listKeys();
-  return keys.filter((key) => key.endsWith('.js') || key.endsWith('.hbc'));
+  return keys.filter((key) => key.endsWith('.js'));
 }
 
 /**
@@ -90,11 +80,10 @@ export class ProductionBundleGuard {
       assert.defined(source, `${label}: bundle disappeared during scan`, {
         file,
       });
-      // Babel jsx-source-attr injects `dataSet: { src: "…:line" }` only in
-      // dev/e2e. Production must not contain those `data-src` path markers.
+      // Dev/E2E `data-src` path markers must not ship in production bundles.
       assert.ok(
         !source.includes('data-src') && !/"src":"[^"]+\.tsx?:\d+"/.test(source),
-        `${label}: production bundle still contains jsx-source-attr data-src markers`,
+        `${label}: production bundle still contains data-src markers`,
         { file }
       );
       if (!source.includes(INLINED_API_URL_SENTINEL)) continue;
@@ -102,7 +91,7 @@ export class ProductionBundleGuard {
       const inlined = extractInlinedApiUrlFromBundleSource(source);
       assert.ok(
         inlined !== null,
-        `${label}: could not parse inlined EXPO_PUBLIC_API_URL`,
+        `${label}: could not parse inlined VITE_API_URL`,
         { file }
       );
       assert.ok(
@@ -113,14 +102,14 @@ export class ProductionBundleGuard {
       assert.equals(
         inlined,
         productionClientApiOrigin(),
-        `${label}: bundle inlined EXPO_PUBLIC_API_URL does not match production origin`,
+        `${label}: bundle inlined VITE_API_URL does not match production origin`,
         { file, inlined, expected: productionClientApiOrigin() }
       );
     }
 
     assert.ok(
       scannedChunks > 0,
-      `${label}: no getApiBaseUrl() bundle chunk found — cannot verify API URL was inlined`,
+      `${label}: no getServerBaseUrl() bundle chunk found — cannot verify API URL was inlined`,
       { fileCount: files.length }
     );
   }

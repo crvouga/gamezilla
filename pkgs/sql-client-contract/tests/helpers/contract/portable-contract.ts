@@ -137,7 +137,7 @@ function registerPostgresInt8CastTest(
   });
 }
 
-/** Example-based portable contract (Hermes int8 pin + soft-delete DML). */
+/** Example-based portable contract (int8 pin + soft-delete DML). */
 export function runPortableContractTests(
   factory: PortableClientFactory,
   opts: PortableContractOpts

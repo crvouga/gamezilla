@@ -108,5 +108,5 @@ No third client: two is enough for same-actor and friend-pair. Add a third only 
 ## Open Questions
 
 - Exact Node vs Bun base image (repo is Bun-first).
-- Whether native expo-sqlite MEMORY journal is in scope (this topology uses bun/better-sqlite3 — may not apply `impl-expo-sqlite` wipe-on-corrupt). Setup must pick an engine that still sets `journal_mode=MEMORY` via `applySqliteConnectionPragmas`.
+- Whether native SQLite MEMORY journal is in scope (this topology uses bun/better-sqlite3 — may not apply the web SQLite wipe-on-corrupt). Setup must pick an engine that still sets `journal_mode=MEMORY` via `applySqliteConnectionPragmas`.
 - Process-fault availability on the tenant.

@@ -1,5 +1,5 @@
 {
-  "$comment": "Directories that are Solid-only. ESLint (solid + a11y + type-checked) runs on these; depcruise forbids RN/React imports from them. Grows per phase; at Phase 5 it is the whole repo and this file is deleted.",
+  "$comment": "Directories that are Solid-only. ESLint (solid + a11y + type-checked) runs on these.",
   "dirs": [
     "apps/client/src/chrome",
     "apps/client/src/exemplars",

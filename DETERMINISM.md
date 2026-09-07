@@ -44,8 +44,8 @@ All file **content** I/O goes through an injected {@link ObjectStore}:
 | `sidecar` | Product blob cache (TTS, etc.) with `.meta.json` content-types |
 | `tree` | Git trees / CI scans / NDJSON logs (keys = relative paths) |
 
-Wall `node:fs` / `expo-file-system` live only in `@io-wall-ok` adapters
-(`wall-node-fs.ts`, `wall-expo-fs.ts`). Composition roots pass
+Wall `node:fs` lives only in `@io-wall-ok` adapters (`wall-node-fs.ts`).
+Composition roots pass
 `createNodeFsObjectStore({ rootDir, fs: wallNodeFs(), layout })`.
 
 **Not** ObjectStore (process / OS I/O — keep on existing ports):

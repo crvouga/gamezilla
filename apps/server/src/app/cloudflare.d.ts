@@ -2,7 +2,7 @@
  * Minimal Cloudflare Workers type stubs for api.ts.
  *
  * We intentionally avoid pulling in @cloudflare/workers-types because
- * the full package conflicts with the DOM types required by the Expo
+ * the full package conflicts with the DOM types required by the web bundle
  * web build that shares this tsconfig.
  */
 

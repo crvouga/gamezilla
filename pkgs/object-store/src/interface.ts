@@ -3,7 +3,7 @@
  *
  * Tiny, async, transport-agnostic surface — exactly what a "blob keyed by id"
  * cache needs (TTS audio, exported files, derived avatars, etc.). Implementations
- * live in sibling `impl-*.ts` files (S3/B2, in-memory, expo file-system).
+ * live in sibling `impl-*.ts` files (S3/B2, in-memory, file-system).
  *
  * Mirrors the {@link ../sql-client/interface.ts SqlClient} shape: one interface,
  * multiple `impl-*.ts` siblings, plus a conformance suite in `interface.test.ts`.

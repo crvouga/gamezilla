@@ -56,7 +56,7 @@ Crash window (pinned in sim via `onLocalMigratePhase` / `onNextEngineOpenAfterCa
 
 ## Open questions
 
-- On native expo-sqlite, does a crash mid-`DROP`/`CREATE` make the next open hit file-delete recovery instead of interrupted-epoch heal? `(partial: MEMORY journal means no WAL; native deletes on any open failure; heal only if open succeeds)`
+- On native web SQLite, does a crash mid-`DROP`/`CREATE` make the next open hit file-delete recovery instead of interrupted-epoch heal? `(partial: MEMORY journal means no WAL; native deletes on any open failure; heal only if open succeeds)`
 - Can an old binary still upload into a file the new binary is epoch-migrating? `(partial: one process serializes via the pool; no cross-process file lock; first topology is one process per client volume)`
 
 ### Investigation Log
@@ -80,11 +80,11 @@ Crash window (pinned in sim via `onLocalMigratePhase` / `onNextEngineOpenAfterCa
 - Found: those keys are domain tables only (`auth_*`, profile, spaces, friends, chess, client_config, notifications). Framework tables are not in `appSchema`.
 - Conclusion: resolved — product host list cannot drop the durable queue; only `FRAMEWORK_CACHE_TABLE_NAMES` / a future durable-set miss could.
 
-#### On native expo-sqlite, does a crash mid-DROP/CREATE leave WAL such that the next open deletes the entire DB?
+#### On native web SQLite, does a crash mid-DROP/CREATE leave WAL such that the next open deletes the entire DB?
 
-- Examined: `connection-pragmas.ts` MEMORY journal; `local-schema-migrate.ts` `dropCacheTables` / heal (`previousEpoch >= epoch && cache missing`); `impl-expo-sqlite.ts` any-first-open-failure delete; `isSqlOwnerWipeWorthyError` (`migrateLocalSchema failed`, `schema epoch`); `ensureFrameworkSchema` (`applySqliteSchema` declared-only — no `DROP` of durable).
-- Found: MEMORY journal implies there is typically **no WAL** to tear. Crash mid-`DROP` can still corrupt the main file (no durable rollback). Native Expo: if `openDatabaseAsync` fails, the **whole file** is deleted (A11 / `memory-journal-crash-wipes-queue` dominates — epoch policy never runs). If open succeeds with cache tables gone and `user_version` already at target, the heal branch recreates schema without dropping `sync_engine_mutations`. Web migrate failures are wipe-worthy after a successful open.
-- Not found: a pin that kills mid-`DROP` on real expo-sqlite native and observes open-fail vs heal; an in-tree WAL mode that would change the artifact.
+- Examined: `connection-pragmas.ts` MEMORY journal; `local-schema-migrate.ts` `dropCacheTables` / heal (`previousEpoch >= epoch && cache missing`); `web-sqlite-impl.ts` any-first-open-failure delete; `isSqlOwnerWipeWorthyError` (`migrateLocalSchema failed`, `schema epoch`); `ensureFrameworkSchema` (`applySqliteSchema` declared-only — no `DROP` of durable).
+- Found: MEMORY journal implies there is typically **no WAL** to tear. Crash mid-`DROP` can still corrupt the main file (no durable rollback). Native web: if `openDatabaseAsync` fails, the **whole file** is deleted (A11 / `memory-journal-crash-wipes-queue` dominates — epoch policy never runs). If open succeeds with cache tables gone and `user_version` already at target, the heal branch recreates schema without dropping `sync_engine_mutations`. Web migrate failures are wipe-worthy after a successful open.
+- Not found: a pin that kills mid-`DROP` on real web SQLite native and observes open-fail vs heal; an in-tree WAL mode that would change the artifact.
 - Conclusion: tagged `(partial: MEMORY journal means no WAL; native deletes on any open failure; heal only if open succeeds)`. Property stays “when epoch migrate/heal runs, the queue survives.” Process-kill-during-migrate that fails open is the other property.
 
 #### Can an old binary still upload into a file the new binary is epoch-migrating?

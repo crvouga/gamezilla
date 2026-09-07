@@ -4,7 +4,7 @@ import type { SqlOwner } from '../sql-owner';
 
 /**
  * Simulated AccessHandlePoolVFS for DST / Happy DOM.
- * Capacity defaults to 6 (expo-sqlite web). Extra associated paths or a
+ * Capacity defaults to 6 (web SQLite). Extra associated paths or a
  * corrupted image throw the same messages production surfaces.
  */
 export type SimOpfsStore = {
@@ -42,7 +42,7 @@ export function corruptSimOpfsStore(store: SimOpfsStore): void {
 /**
  * Memory SQL behind a simulated OPFS pool. `open` associates `dbName` with a
  * pool slot (or throws `cannot create file` / corrupt errors). `resetStore`
- * clears the whole pool like wiping `expo-sqlite/`.
+ * clears the whole pool like wiping the SQLite pool dir.
  */
 export function createSimOpfsSqlOwner(args: {
   readonly dbName: string;
@@ -77,7 +77,7 @@ export function createSimOpfsSqlOwner(args: {
       try {
         associate();
       } catch (error: unknown) {
-        // Match expo worker wrap of pool exhaustion.
+        // Match the web worker wrap of pool exhaustion.
         if (
           error instanceof Error &&
           /cannot create file/i.test(error.message)

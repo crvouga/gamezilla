@@ -1,5 +1,5 @@
 {
-  "$comment": "Framework-agnostic core: these directories must not import any UI framework stack (see REACT_STACK_PATH / SOLID_STACK_PATH in .dependency-cruiser.cjs; depcruise `core-no-framework`). Grows in Phase 2 as UI contexts are stripped from sync-engine / room / clock / http / uuid / kv / etc.; by Phase 5 every pkgs/*/src/shared, libs/*/src/shared and pure pkg is listed.",
+  "$comment": "Framework-agnostic core: these directories must not import any UI framework stack (see SOLID_STACK_PATH in .dependency-cruiser.cjs; depcruise `core-no-framework`).",
   "dirs": [
     "libs/chess/src/shared/puzzle-session",
     "pkgs/assert-crash-browser/src",

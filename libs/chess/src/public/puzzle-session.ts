@@ -1,7 +1,7 @@
 /**
  * Framework-free puzzle session logic (status projection, hints, nav,
  * completion, next-puzzle selection, session start policy). Consumed by the
- * React and Solid bindings alike; no UI imports.
+ * Solid bindings; no UI imports.
  */
 export * from '../shared/puzzle-session/action-bar-plan';
 export * from '../shared/puzzle-session/cell-feedback';

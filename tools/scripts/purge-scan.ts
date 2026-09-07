@@ -3,10 +3,9 @@
 /**
  * Fail if any React Native / Expo / React token survives in the repo.
  *
- * `tools/port/purge-allowlist.json` lists path prefixes that are still
- * allowed to contain those tokens while the Solid port is in flight.
- * Directories in `tools/port/solid-scope.json` are always scanned.
- * The allowlist must be empty (and this comment stale) when Phase 5 closes.
+ * The allowlist (`tools/port/purge-allowlist.json`) is empty — the Solid port
+ * is complete and every banned token has been purged. `solid-scope.json` paths
+ * are always scanned.
  */
 import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync, statSync } from 'node:fs';

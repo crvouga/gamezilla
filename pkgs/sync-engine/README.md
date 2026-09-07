@@ -118,7 +118,7 @@ Deep imports under `src/` are **not** public. `package.json` `exports`:
 
 | Import | Role |
 |--------|------|
-| `@pkgs/sync-engine/client` | Expo / React Native engine, React hooks, HTTP client |
+| `@pkgs/sync-engine/client` | Web engine, Solid hooks, HTTP client |
 | `@pkgs/sync-engine/server` | Hono sync app (`POST /query`, `POST /mutations`), `notifyChannels` |
 | `@pkgs/sync-engine/shared` | `defineQuery` / `defineMutation`, registries, soft-delete helpers, **protocol v3**, opaque migrate |
 | `@pkgs/sync-engine/sim` | In-memory engine + sim controls (`SCHEMA_EPOCH`, controllable lifecycle) |

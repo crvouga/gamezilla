@@ -94,14 +94,14 @@ Merge/upsert, crash, tombstones, optimistic reject/ack. Highest density of confi
 |---|---|
 | **Priority** | High |
 | **Type** | Safety |
-| **Property** | After a process kill under MEMORY journal, a successful SQLite open is last-commit (Node) or a freshly wiped empty DB (Expo wipe-on-corrupt) — never a torn mix. If Expo wipe ran, un-acked local writes are gone and must not still look durable on screen. |
-| **Invariant** | `Always`: successful post-crash open is last-commit or (Expo) empty. `Unreachable`: open succeeds on a torn mix. `Sometimes(wipe.lost_pending_queue)` on Expo. Distinct from epoch cache wipe, which claims to **keep** the queue. First topology: MEMORY yes, Expo auto-wipe no (fail-closed). |
+| **Property** | After a process kill under MEMORY journal, a successful SQLite open is last-commit (Node) or a freshly wiped empty DB (web SQLite wipe-on-corrupt) — never a torn mix. If the wipe ran, un-acked local writes are gone and must not still look durable on screen. |
+| **Invariant** | `Always`: successful post-crash open is last-commit or (web) empty. `Unreachable`: open succeeds on a torn mix. `Sometimes(wipe.lost_pending_queue)` on web SQLite. Distinct from epoch cache wipe, which claims to **keep** the queue. First topology: MEMORY yes, web SQLite auto-wipe no (fail-closed). |
 | **Antithesis Angle** | SIGKILL mid-txn with `PRAGMA journal_mode=MEMORY`. Sim crash is dispose+remake, often `preserveLocalDb`. |
-| **Why It Matters** | Expo recovery deletes the identity file — domain **and** pending uploads. Silent loss with no rejection inbox. Node image must not serve torn pages. |
+| **Why It Matters** | Web SQLite recovery deletes the identity file — domain **and** pending uploads. Silent loss with no rejection inbox. Node image must not serve torn pages. |
 
 **Open Questions:**
 
-- Does native iOS expo-sqlite honor MEMORY journal in practice? `(partial: pragma is issued; no WAL override; not empirically verified)`
+- Does native SQLite honor MEMORY journal in practice? `(partial: pragma is issued; no WAL override; not empirically verified)`
 - Can a follower tab POST a pre-wipe queue image? `(partial: followers do not upload; first topology has no tabs)`
 
 
@@ -434,7 +434,7 @@ No Raft. Coordination is LWW + lossy MQTT + HTTP snapshots.
 | **Type** | Safety |
 | **Property** | For a signed-in connection, the account is online on the room roster iff that connection’s server-assigned actor id is the account — not privilege, not React badges. |
 | **Invariant** | `Always` after each roster snapshot: `roster.some(p => p.id === A) === (own !== undefined && own.id === A)` where `A` is session `users.id` and `own` is the roster row for this `clientId`. `Sometimes(space.presence.actor_ne_account)` when a bearer was offered and `own.id !== A` (anonId after failed resolve, or minted UUID when anonId is missing). Api kill wipes in-memory RoomServer; empty roster is offline for everyone (iff holds). Do not require durable DO storage. |
-| **Antithesis Angle** | Pause/kill Postgres during `/api/room` upgrade (gateway fallback). Sample `RoomClient.getRoster()` + session id — no Expo. Bob’s roster is a second observer of Alice’s actor. |
+| **Antithesis Angle** | Pause/kill Postgres during `/api/room` upgrade (gateway fallback). Sample `RoomClient.getRoster()` + session id — no web SQLite. Bob’s roster is a second observer of Alice’s actor. |
 | **Why It Matters** | Demotion makes the user still in the puzzle room while account-keyed “online” is false (or a ghost account tile stays online). Distinct from `room-gateway-fallback-not-host`. |
 
 **Open Questions:**
@@ -555,7 +555,7 @@ No Raft. Coordination is LWW + lossy MQTT + HTTP snapshots.
 
 **Open Questions:**
 
-- Crash mid-DROP vs Expo wipe-on-corrupt? `(partial: MEMORY has no WAL; native deletes on any open failure; heal only if open succeeds)`
+- Crash mid-DROP vs web SQLite wipe-on-corrupt? `(partial: MEMORY has no WAL; native deletes on any open failure; heal only if open succeeds)`
 - Can an old binary upload while a new binary epoch-migrates the same file? `(partial: in-process pool serializes; first topology is one process per volume)`
 
 

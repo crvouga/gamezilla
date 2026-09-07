@@ -26,7 +26,6 @@
   },
   "dependencies": {
     "@lingui/core": "catalog:",
-    "@lingui/react": "catalog:",
     "@pkgs/assert": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/object-store": "workspace:*",

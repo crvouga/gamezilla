@@ -1,6 +1,6 @@
 /**
  * Isomorphic Postgres pool / client shapes used across Worker, sims, and
- * Expo web (postgres-mem). Hand-written so Metro never resolves `node-postgres`
+ * web (postgres-mem). Hand-written so the bundler never resolves `node-postgres`
  * (`pg`) via type re-exports — that package is Node-only and crashes in the
  * browser (`util.deprecate`).
  *

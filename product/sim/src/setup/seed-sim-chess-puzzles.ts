@@ -5,7 +5,7 @@
  * int8 column slots so `WHERE rating …` fails after import. Three rows are
  * cheap to insert on each {@link openSim}.
  *
- * Node-only (fixtures on disk). Callers must not import this from Expo web.
+ * Node-only (fixtures on disk). Callers must not import this from the web bundle.
  */
 
 import { join } from 'node:path';

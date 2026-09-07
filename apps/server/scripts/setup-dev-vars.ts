@@ -76,12 +76,12 @@ const OPTIONAL_FEATURE_WORKER_SECRETS: ReadonlySet<string> = new Set([
   'EMQX_API_SECRET',
   'EMQX_JWT_SECRET',
   'OBSERVABILITY_BACKEND',
-  'EXPO_PUBLIC_OBSERVABILITY_BACKEND',
+  'VITE_OBSERVABILITY_BACKEND',
   'API_URL',
-  'EXPO_PUBLIC_API_URL',
+  'VITE_API_URL',
   'LOCAL_PREVIEW_API_ORIGIN',
-  'EXPO_PUBLIC_COMMIT_HASH',
-  'EXPO_PUBLIC_COMMIT_DATE',
+  'VITE_COMMIT_HASH',
+  'VITE_COMMIT_DATE',
 ]);
 
 function readApiUrlForDevVars(): string {
@@ -89,9 +89,9 @@ function readApiUrlForDevVars(): string {
   if (localPreview.length > 0) {
     return normalizeLoopbackOriginToLocalhost(localPreview);
   }
-  const expo = process.env['EXPO_PUBLIC_API_URL']?.trim() ?? '';
-  if (expo.length > 0 && /127\.0\.0\.1|localhost/i.test(expo)) {
-    return normalizeLoopbackOriginToLocalhost(expo);
+  const vite = process.env['VITE_API_URL']?.trim() ?? '';
+  if (vite.length > 0 && /127\.0\.0\.1|localhost/i.test(vite)) {
+    return normalizeLoopbackOriginToLocalhost(vite);
   }
   return DEFAULT_LOCAL_PREVIEW_API_ORIGIN;
 }
@@ -185,7 +185,7 @@ async function main(): Promise<void> {
   written.add('AUTH_SECRET');
 
   // Only Worker-bound secrets belong in `.dev.vars`. Infra-only keys
-  // (CLOUDFLARE_*, EXPO_TOKEN, TURBO_*, B2_MASTER_*, …) are skipped.
+  // (CLOUDFLARE_*, TURBO_*, B2_MASTER_*, …) are skipped.
   for (const entry of getApiWorkerSecrets()) {
     if (written.has(entry.name)) continue;
     const value = (process.env[entry.name] ?? '').trim();

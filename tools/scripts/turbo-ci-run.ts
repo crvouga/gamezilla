@@ -8,7 +8,7 @@
  * - CI requires `TURBO_TOKEN` + `TURBO_TEAM`. Locally, missing creds (Infisical
  *   login/network fallback) use `local:rw` so `bun check` still runs.
  * - Disables framework inference so only explicit `turbo.json` `env` /
- *   `globalEnv` enter the hash (avoids Expo `EXPO_PUBLIC_*` skew).
+ *   `globalEnv` enter the hash (avoids `VITE_*` skew).
  * - Unsets orphan `TURBO_API` so a leftover self-hosted origin cannot
  *   override Vercel's default cache endpoint.
  * - Optional `TURBO_AFFECTED_BASE` (git ref/SHA) adds

@@ -3,12 +3,12 @@ import { assert } from '@pkgs/assert';
 import type { SecureStorage } from './interface';
 
 /**
- * Same rules as expo-secure-store: non-empty, only `[A-Za-z0-9_.-]`.
+ * Same rules as the secure-store contract: non-empty, only `[A-Za-z0-9_.-]`.
  * Web localStorage allows any string; we enforce this so behavior matches native.
  */
 const KEY_RE = /^[\w.-]+$/;
 
-/** Same limit as expo-secure-store value storage (UTF-8 bytes). */
+/** Same limit as the secure-store value storage (UTF-8 bytes). */
 export const SECURE_STORAGE_VALUE_MAX_BYTES = 2048;
 
 export function assertSecureStorageKey(key: string): void {
@@ -29,7 +29,7 @@ export function assertSecureStorageValue(value: string): void {
   );
 }
 
-/** Wraps a backend so every call runs the same validation as expo-secure-store. */
+/** Wraps a backend so every call runs the same validation as the secure-store contract. */
 export function wrapSecureStorage(storage: SecureStorage): SecureStorage {
   return {
     async getItem(key: string): Promise<string | null> {

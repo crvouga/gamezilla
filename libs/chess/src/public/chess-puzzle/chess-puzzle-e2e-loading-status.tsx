@@ -2,7 +2,8 @@ import { Text } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 
 const E2E_ENABLED =
-  process.env['EXPO_PUBLIC_E2E'] === '1' || process.env['NODE_ENV'] === 'test';
+  typeof process !== 'undefined' &&
+  (process.env['VITE_E2E'] === '1' || process.env['NODE_ENV'] === 'test');
 
 export type ChessPuzzleE2ELoadingStatusProps = {
   myId: string;

@@ -21,7 +21,7 @@ export type ActiveSpacesSheetProps = {
 /**
  * Lists every live space the user is in. Bottom sheet on mobile, centered
  * modal on wider viewports. End/Leave requestors are injected from outside
- * the portal so `@gorhom/bottom-sheet` does not drop modal context.
+ * the portal so modal context is not dropped.
  */
 export function ActiveSpacesSheet(props: ActiveSpacesSheetProps): JSX.Element {
   return (

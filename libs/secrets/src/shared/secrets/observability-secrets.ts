@@ -27,15 +27,15 @@ export const OBSERVABILITY_BACKEND = new Secret({
   seed: async () => DEFAULT_BACKEND,
 });
 
-export const EXPO_PUBLIC_OBSERVABILITY_BACKEND = new Secret({
-  name: 'EXPO_PUBLIC_OBSERVABILITY_BACKEND',
+export const VITE_OBSERVABILITY_BACKEND = new Secret({
+  name: 'VITE_OBSERVABILITY_BACKEND',
   hint: 'Client observability backend: console | noop',
   optional: true,
   validate: async (input) => {
     const v = input.secretValue.trim().toLowerCase();
     if (!BACKEND_VALUES.has(v) && v.length > 0) {
       throw new Error(
-        `EXPO_PUBLIC_OBSERVABILITY_BACKEND must be console|noop (got ${JSON.stringify(v)})`
+        `VITE_OBSERVABILITY_BACKEND must be console|noop (got ${JSON.stringify(v)})`
       );
     }
   },

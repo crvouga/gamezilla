@@ -2,9 +2,6 @@
 
 # dependencies
 node_modules/
-
-# Expo
-.expo/
 **/dist/
 web-build/
 
@@ -19,9 +16,6 @@ web-build/
 
 .cache
 data
-
-# Metro
-.metro-health-check*
 
 # debug
 npm-debug.*

@@ -50,7 +50,7 @@ describe('apiCors', () => {
 
   test('document: recreating Response with undefined body empties JSON (RN/Hono)', async () => {
     // Hono’s finalized `c.header` / `c.res` setter does
-    // `new Response(res.body, res)`. On React Native, `res.body` is undefined.
+    // `new Response(res.body, res)`. On some runtimes, `res.body` is undefined.
     const original = new Response(JSON.stringify({ userId: 'u1' }), {
       status: 200,
       headers: { 'content-type': 'application/json' },

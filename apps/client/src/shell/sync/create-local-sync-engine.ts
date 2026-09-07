@@ -1,7 +1,7 @@
 /**
  * Web port of the RN `sync/create-local-sync-engine.ts`: opens the identity
  * DB and builds the push-driven local sync engine. Framework-free — Solid
- * watch snapshots notify synchronously (no React transition scheduling).
+ * watch snapshots notify synchronously (no transition scheduling).
  */
 
 import { APP_MUTATIONS } from '@apps/client/sync/app-mutations';

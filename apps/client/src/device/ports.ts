@@ -1,6 +1,6 @@
 /**
  * Device / platform ports for the client composition root.
- * Production wall adapters are the only modules that import Expo APIs.
+ * Production wall adapters are the only modules that import platform APIs.
  */
 
 export type NetworkStateType =

@@ -5,14 +5,8 @@ import type { Timers } from '@pkgs/clock';
 import { CRASH_OVERLAY_STYLES } from './crash-handler-browser-styles';
 
 function isBrowser() {
-  // RN / Expo often define window+document stubs. Never treat them as a DOM
-  // browser — BrowserCrashHandler must not win over ExpoCrashHandler.
-  if (
-    typeof navigator !== 'undefined' &&
-    (navigator as { product?: string }).product === 'ReactNative'
-  ) {
-    return false;
-  }
+  // Some environments define window+document stubs; never treat them as a real
+  // DOM browser — BrowserCrashHandler must not win over a platform handler.
   return (
     typeof window !== 'undefined' &&
     typeof document !== 'undefined' &&

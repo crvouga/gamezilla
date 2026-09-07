@@ -41,7 +41,7 @@ This is not “detect the engine.” It is “treat infra failure as engine kind
 | `libs/runtime/src/server/postgres-sqlite-compat-migration.ts` | API migrate path. |
 | `pkgs/sql-client/src/postgres/postgres-sqlite-compat.json.test.ts` | Goldens assume install is a no-op on Bun SQLite because the probe succeeds. |
 
-Product Expo clients do **not** call install today (they are SQLite and speak JSON1 natively). The SUT surface is **API / matchmaking SQL** and any future shared installer pointed at a client DB.
+Product web clients do **not** call install today (they are SQLite and speak JSON1 natively). The SUT surface is **API / matchmaking SQL** and any future shared installer pointed at a client DB.
 
 ## Failure scenario
 
@@ -51,7 +51,7 @@ Product Expo clients do **not** call install today (they are SQLite and speak JS
 4. **Bug if** install returns success, or migrate proceeds, or subsequent `SELECT sqlite_version()` succeeds on the same client (it was SQLite all along) after PG DDL was attempted.
 5. On Postgres: probe throw because Neon is paused is *correct* classification, but then install DDL also fails. **Bug if** install reports success without the functions existing (`json_extract` missing). That is the dual: exception during **install** must not be ignored.
 
-Hermes bigint / dialect shims are already a known bit (SUT analysis). This property is the detect step, not the JSON1 semantics.
+engine bigint / dialect shims are already a known bit (SUT analysis). This property is the detect step, not the JSON1 semantics.
 
 ## Invariant (checkable)
 
@@ -79,7 +79,7 @@ Matchmaking/API boot applies the wrong DDL, then portable migrate runs against a
 
 - Does Antithesis first topology include matchmaking-on-SQLite, or only Node API + Postgres? If only Postgres, the dangerous SQLite-throw path is Reachable only if a second SQLite client is in the cluster. The Always on “install ⇒ json_extract” still applies to Postgres.
 - Do `sqlClient.query` wrappers turn “undefined function” and “busy” into the same error type? If they are distinguishable, the probe could be tightened; the property still tests current catch-all behavior.
-- Is `installPostgresSqliteCompat` ever pointed at the Expo per-user file? Not found. If that appears, MEMORY-journal wipe-on-corrupt plus this probe is a wipe + wrong-DDL pair.
+- Is `installPostgresSqliteCompat` ever pointed at the web per-user file? Not found. If that appears, MEMORY-journal wipe-on-corrupt plus this probe is a wipe + wrong-DDL pair.
 
 ## Assumptions
 

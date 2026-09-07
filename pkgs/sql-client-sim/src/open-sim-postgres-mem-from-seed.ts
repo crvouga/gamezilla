@@ -1,7 +1,7 @@
 /**
  * Open a postgres-mem DB from a post-migrate PGMM seed.
- * Kept separate from {@link ./boot-sim-postgres-mem.ts} so Expo native
- * (Hermes) can restore seeds without bundling `node:crypto`.
+ * Kept separate from {@link ./boot-sim-postgres-mem.ts} so the browser
+ * can restore seeds without bundling `node:crypto`.
  */
 
 import type { Clock } from '@pkgs/clock';

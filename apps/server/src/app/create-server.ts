@@ -209,7 +209,7 @@ async function buildDesiredClientConfig(args: {
     }),
     readOptionalSecretValue(
       secretStore,
-      ApiSecretName.expoPublicObservabilityBackend
+      ApiSecretName.viteObservabilityBackend
     ),
   ]);
   return {

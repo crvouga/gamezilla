@@ -20,7 +20,7 @@ Scope answer used: **"Just this directory"**. External references: none. Catalog
 | **Checkable** | Topology can produce the faults; an oracle exists or can be built from existing product tables once a read path is added |
 | **Checkable if setup adds X** | Topology is the right shape, but the current compose + product surfaces do not expose the observation or the precondition |
 | **Partial** | Some clauses of the invariant are checkable; a named clause is not |
-| **Not in first topology** | Needs OPFS/Chromium, Expo wipe path, a second binary, a DO, a proxy, or UI that this compose does not run |
+| **Not in first topology** | Needs OPFS/Chromium, web SQLite wipe path, a second binary, a DO, a proxy, or UI that this compose does not run |
 
 ---
 
@@ -40,7 +40,7 @@ Scope answer used: **"Just this directory"**. External references: none. Catalog
 
 **Properties:** catalog-wide (every client-SQLite Always / every mutate driver)
 
-**Concern:** Product clients are Expo/React. Topology specifies “headless `createClient` / sync-engine + RoomClient” but does not define an HTTP control plane. The workload is supposed to “drive both clients + probe API.” There is nothing in-tree to: enqueue a named mutation, wait for first-sync (not `paintReady`), dump `sync_engine_*` / domain tables, read `last_push_seq`, flip `AppLifecycle` foreground, call `ensurePush`, or switch `users.id`.
+**Concern:** Product clients are web/Solid. Topology specifies “headless `createClient` / sync-engine + RoomClient” but does not define an HTTP control plane. The workload is supposed to “drive both clients + probe API.” There is nothing in-tree to: enqueue a named mutation, wait for first-sync (not `paintReady`), dump `sync_engine_*` / domain tables, read `last_push_seq`, flip `AppLifecycle` foreground, call `ensurePush`, or switch `users.id`.
 
 **Evidence:** `apps/client` has no Antithesis/debug listener. `createLocalSyncEngine` is a library entry, not a container API. Room inspect (`RoomServerApp.inspect`) exists only on the in-process sim host, not as an HTTP route.
 
@@ -118,11 +118,11 @@ Lost HTTP ack: kill `api` after commit, before the client reads 200 — **proces
 
 #### memory-journal-crash-wipes-queue — **Partial (Node last-commit / fail-closed only)**
 
-Topology clients are bun/better-sqlite3. They issue `PRAGMA journal_mode=MEMORY` and **assert** on connect failure — no `deleteDatabaseAsync`. Catalog already splits: first topology MEMORY yes, Expo wipe no.
+Topology clients are bun/better-sqlite3. They issue `PRAGMA journal_mode=MEMORY` and **assert** on connect failure — no `deleteDatabaseAsync`. Catalog already splits: first topology MEMORY yes, web SQLite wipe no.
 
 Checkable: SIGKILL mid-txn; next successful open is last-commit or the process dies. `Unreachable(torn mix served)`. Needs process faults + durable vs ephemeral volume (topology already notes both).
 
-**Not** checkable here: Expo wipe-empties-queue, `Sometimes(wipe.lost_pending_queue)`, follower-tab POST of a pre-wipe image (no tabs). Do not treat a green Node run as Expo A11 coverage.
+**Not** checkable here: web SQLite wipe-empties-queue, `Sometimes(wipe.lost_pending_queue)`, follower-tab POST of a pre-wipe image (no tabs). Do not treat a green Node run as web SQLite A11 coverage.
 
 #### overlapping-handle-push-seq-toc-tou — **Partial (post-hoc Always yes; overlap Reachable needs SDK/pause)**
 
@@ -278,7 +278,7 @@ Single binary bakes `SCHEMA_EPOCH = 12`. Product has no runtime bump. DST alread
 
 Always “mutation ids unchanged after wipe” is client SQL. `Unreachable(DROP sync_engine_mutations)` is SDK or a schema dump.
 
-Kill between `dropCacheTables` and `PRAGMA user_version`: process faults. On Node, connect failure **asserts** (no Expo file delete) — heal-if-open-succeeds is the Node clause. Two binaries on one volume are **not** required (evidence: first topology is one process per volume).
+Kill between `dropCacheTables` and `PRAGMA user_version`: process faults. On Node, connect failure **asserts** (no web SQLite file delete) — heal-if-open-succeeds is the Node clause. Two binaries on one volume are **not** required (evidence: first topology is one process per volume).
 
 #### mixed-schema-column-intersect-merge — **Partial (omitted-key on one schema yes; two binaries not in first topology)**
 
@@ -315,7 +315,7 @@ Assumes setup adds: client command/probe HTTP, workload `POST /api/query` (or po
 | lww-merge-no-wipe-clobber | Checkable if probe | Client SQL |
 | lww-upload-arrival-under-partition | Checkable if probe | Query-as-oracle or Postgres; clock faults optional |
 | mutation-id-first-wins-ack-applied | Partial | Process faults; applied-count oracle |
-| memory-journal-crash-wipes-queue | Partial | Process faults; Expo wipe **out** |
+| memory-journal-crash-wipes-queue | Partial | Process faults; web SQLite wipe **out** |
 | overlapping-handle-push-seq-toc-tou | Partial | SDK/pause for overlap Reachable |
 | mqtt-http-independent-fault-domains | Checkable if probe | 30s window; query oracle |
 | upgrade-required-no-local-wipe | Checkable if probe | Client SQL |
@@ -352,7 +352,7 @@ Assumes setup adds: client command/probe HTTP, workload `POST /api/query` (or po
 - Independent EMQX vs API vs Postgres vs two clients is the right fault-domain split for the High sync properties. Folding pubsub in-process would make `mqtt-http-independent-fault-domains` and `emqx-url-hydrates-over-http-without-push` unimplementable; the topology refused that.
 - `upgrade-required-no-local-wipe` is one of the few High properties that is almost workload-only (header + “file still there”).
 - `health-ok-db-down-opens-gate` and `private-space-join-requires-acl` / `mutation-actor-from-session-only` do not need MQTT, room, or a second binary.
-- Deferred set is mostly honest about topology blocks (web owner, Expo wipe, matchmaking-on-SQLite, two schema binaries, UI presence). Exception: `mixed-schema-column-intersect-merge` stayed Medium while `lagging-client-schema-catchup` was deferred for the same two-binary requirement.
+- Deferred set is mostly honest about topology blocks (web owner, web SQLite wipe, matchmaking-on-SQLite, two schema binaries, UI presence). Exception: `mixed-schema-column-intersect-merge` stayed Medium while `lagging-client-schema-catchup` was deferred for the same two-binary requirement.
 - In-tree sim pins are correctly treated as oracles to port, not as existing Antithesis assertions (`existing-assertions.md`).
 - Clock-fault “all containers equally” still lets `lww-upload-arrival-under-partition` test “jump does not change winner if arrival order is unchanged.”
 
@@ -363,8 +363,8 @@ Assumes setup adds: client command/probe HTTP, workload `POST /api/query` (or po
 - **Exact Node entry + ROOM stub.** Topology leaves “`apps/server` vs a new `antithesis/` adapter” open. If the adapter skips `createRoomApp`, three High/Medium room properties change verdict together. Not verified in this tree (no Antithesis Dockerfile yet).
 - **Tenant process-fault and clock-fault bits.** Catalog already flags this. This lens cannot see the webhook.
 - **Whether setup will punch postgres or impersonate `/api/query`.** Both work; they change which High oracles are cheap.
-- **Headless `AppLifecycle`.** If the image accidentally wires Expo `AppState`, backgrounding could stall every 30s heal without the workload knowing.
-- **better-sqlite3 vs bun:sqlite MEMORY honor.** Same uncertainty as Expo native: pragma is issued; this lens did not empirically `PRAGMA journal_mode` after connect in a container.
+- **Headless `AppLifecycle`.** If the image accidentally wires `AppState`, backgrounding could stall every 30s heal without the workload knowing.
+- **better-sqlite3 vs bun:sqlite MEMORY honor.** Same uncertainty as the web SQLite engine: pragma is issued; this lens did not empirically `PRAGMA journal_mode` after connect in a container.
 - **OAuth-dev code mint in a headless container.** Topology says fake Google; the exact HTTP sequence for a double-consume race is setup work, not blocked in principle.
 - **Room inspect over HTTP.** `RoomServerApp.inspect` exists in-process; whether the Node api image exports it is unset.
 - **Catalog commit drift (resolved).** This lens originally saw catalog frontmatter at `b2cd713c…`; synthesis aligned it to `ddde94db…`. Slugs were not re-diffed against the intervening product commits. Uncommitted working-tree work was not treated as changing implementability.

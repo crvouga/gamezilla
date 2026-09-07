@@ -11,7 +11,7 @@ Local DB name is `user_${users.id with dashes stripped, first 12 hex}`. Anon ins
 ## Code paths
 
 - `apps/client/src/storage/resolve-sqlite-db-name.ts` — `user_${shortId}`; `shortId` = 12 hex. Not memoized across identity.
-- `apps/client/src/storage/open-main-sql-client.ts` — `userId === null` → `user_pending` (boot blank path should not open this for product reads). Web: `createExpoWebSqlClient` + connect; native: expo-sqlite.
+- `apps/client/src/storage/open-main-sql-client.ts` — `userId === null` → `user_pending` (boot blank path should not open this for product reads). Web: `createWebSqlClient` + connect; native: web SQLite.
 - `pkgs/sync-engine/src/client/sync-engine-pool.ts`
   - `opChain` serializes `getOrCreate` so two identity opens never overlap.
   - `deactivatePrevious`: if `activeName !== nextName`, soft-stop (`engine.disconnect`) **then** `db.disconnect`, delete from `ready`. Comments name OPFS single-session and wipe-recovery.
@@ -91,7 +91,7 @@ Also covers: `account-switch-opfs-exclusive-open`. Close-then-open is the lifecy
 
 #### Does `deactivatePrevious` still matter on iOS, or only web?
 
-- Examined: `sync-engine-pool.ts` `deactivatePrevious` (always: `engine.disconnect` then `db.disconnect`); `sync-owner-lock.ts` native always `isOwner`; `impl-expo-sqlite.ts` native file (not OPFS single-session); `sync-engine-boot.tsx` sticky engine cleared on `dbName` change.
+- Examined: `sync-engine-pool.ts` `deactivatePrevious` (always: `engine.disconnect` then `db.disconnect`); `sync-owner-lock.ts` native always `isOwner`; `web-sqlite-impl.ts` native file (not OPFS single-session); `sync-engine-boot.tsx` sticky engine cleared on `dbName` change.
 - Found: native can have two files open at once, but the pool still serializes and closes the prior engine so A’s upload loop / handle cannot stay live after the tree is B. OPFS “another tab holding the handle” is web-only.
 - Not found: an iOS-only skip of `deactivatePrevious`.
 - Conclusion: resolved — close-then-open is required on iOS for handle/upload isolation; OPFS exclusivity is web-only. Property invariant (pending A ∉ B, one active name) is platform-common.

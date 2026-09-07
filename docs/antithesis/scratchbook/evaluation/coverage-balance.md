@@ -44,7 +44,7 @@ The catalog overview table says High 12 / Medium 17 / Low 9. Counting the body:
 | # | SUT risk | First-pass coverage | Density vs risk |
 |---|---|---|---|
 | 1 | Sync merge/fanout isolation under real MQTT+HTTP partition | `lww-merge-no-wipe-clobber`, `lww-upload-arrival-under-partition`, `tombstone-sync-and-pending-revive`, `device-private-rows-stay-local`, `stale-push-images-after-snapshot-merge`, `mixed-schema-column-intersect-merge`, `multi-device-same-actor-converge` | Highest density. Matches confirmed wipe/clobber pin cluster. Relationships already warn not to drop wipe because arrival-order does not cover omitted-key / empty-image. Appropriate, not over-weight. |
-| 2 | Mutation idempotency + MEMORY-journal crash | `mutation-id-first-wins-ack-applied`, `memory-journal-crash-wipes-queue` | Right count. Expo wipe-on-corrupt (the silent queue-loss half) is **fail-closed** in the first Node topology — see Finding F2. |
+| 2 | Mutation idempotency + MEMORY-journal crash | `mutation-id-first-wins-ack-applied`, `memory-journal-crash-wipes-queue` | Right count. Web SQLite wipe-on-corrupt (the silent queue-loss half) is **fail-closed** in the first Node topology — see Finding F2. |
 | 3 | `pushSeq` allocate-then-drop + overlapping `handlePush` + 30s foreground gate | `overlapping-handle-push-seq-toc-tou`, `mqtt-http-independent-fault-domains` | PushSeq race + HTTP heal are present. The third sequence space and isolate-local **checkpoint** remake live only in deferred `three-seq-spaces-unconflated` — see F1. |
 | 4 | Outbox unlocked claim + cron skip-notify | `outbox-handler-at-most-once`, `outbox-processed-without-notify` | Matches the two named messy states. Exhausted park `available_at + 365d` is called out in evidence as a *different* hole and has no card — see F3. |
 | 5 | OAuth double-consume; revoke/expire/`upgrade_required` wipe; returning-user file switch | `oauth-exchange-code-consumed-once`, `upgrade-required-no-local-wipe`, `unclassified-401-defaults-expired`, `account-switch-close-then-open-sqlite`, `mutation-actor-from-session-only` | Strong on wipe policy and consume-once. SUT messy state “Google code consumed, attach failed — user exists, client has no session” is explicitly **out of scope** in the OAuth evidence file — see F4. Token-refresh → queue drain is a claimed liveness with no card — see F5. |
@@ -90,7 +90,7 @@ Three of four have a dedicated social/identity card. Chess is the ranked play wo
 | `client_config` materialize | URL bootstrap only (`emqx-url-hydrates-over-http-without-push`) |
 | `@pkgs/auth` (young DST) | OAuth consume + 401 wipe policy; not attach-fail, sign-out-one-session, `upsertExternalAccount` never reassigns, anon mint |
 | Billing / matchmaking / TTS / LLM | None — matches topology (503 / no UI) |
-| `db-schema` planner, Hermes bigint | None — secondary / Expo-native; first topology is Node + Postgres |
+| `db-schema` planner, engine bigint | None — secondary / web-native; first topology is Node + Postgres |
 
 ### Topology containers vs property weight
 
@@ -127,10 +127,10 @@ Two topology-vs-set tensions:
 ### F2 — MEMORY-journal High card’s user-visible half is fail-closed
 
 - **Property/Properties:** `memory-journal-crash-wipes-queue`
-- **Concern:** SUT #2 and A11 care about Expo wipe-on-corrupt deleting the identity file (pending queue gone, no rejection inbox). Catalog High invariant: first topology is MEMORY journal **yes**, Expo auto-wipe **no** (fail-closed). Search will mostly check “Node must not serve torn pages.” The silent-loss outcome that makes this High is not in the VM.
+- **Concern:** SUT #2 and A11 care about web SQLite wipe-on-corrupt deleting the identity file (pending queue gone, no rejection inbox). Catalog High invariant: first topology is MEMORY journal **yes**, web SQLite auto-wipe **no** (fail-closed). Search will mostly check “Node must not serve torn pages.” The silent-loss outcome that makes this High is not in the VM.
 - **Scope:** Property-specific (also set-composition: a High slot that cannot fire its worst Sometimes)
-- **Evidence:** Catalog invariant line; topology open question on bun/better-sqlite3 vs `impl-expo-sqlite`; SUT `[failure]` MEMORY + wipe-on-corrupt.
-- **Suggested action:** Keep the Node torn-page Always, but do not treat this High as covering Expo queue wipe until the client image uses the Expo wipe path — or drop the Expo Sometimes from campaign-1 expectations.
+- **Evidence:** Catalog invariant line; topology open question on bun/better-sqlite3 vs the web SQLite impl; SUT `[failure]` MEMORY + wipe-on-corrupt.
+- **Suggested action:** Keep the Node torn-page Always, but do not treat this High as covering web SQLite queue wipe until the client image uses the wipe path — or drop the web SQLite Sometimes from campaign-1 expectations.
 
 ### F3 — Outbox park +365d is a named SUT messy state with no card
 
@@ -235,7 +235,7 @@ Two topology-vs-set tensions:
 - **In-process RoomServer storage durability.** If room KV is memory-only, `room-command-id` kill-between-append-and-dedup is meaningless (whole log dies with `api`). If it is a file next to the process, reconnect-after-kill is closer to DO eviction. Topology does not specify. Affects how much of F6 is “blocked” vs “degraded.”
 - **Workload persona plan.** F8 is a set problem only if one test template tries to hold all Medium cards. A serial_driver that re-roles alice/bob per command would cover the SET sequentially. That plan is not in the catalog or topology.
 - **Friends/chess tables on the converge Always.** `multi-device-same-actor-converge` says “user-scoped rows match server.” If that includes friends + chess stats, F7/F11 shrink for the *heal* case and remain open only mid-fault.
-- **Expo MEMORY journal on the client image.** Topology open question. F2 depends on engine choice.
+- **Web SQLite MEMORY journal on the client image.** Topology open question. F2 depends on engine choice.
 - **Process-fault + clock-fault availability** (catalog-wide open question). F1, F2, F5, and health-ok hang all assume those faults exist on the tenant.
 - **Uncommitted tree vs HEAD `ddde94d`.** SUT notes working-tree auth/db-indexes/sync-notify work. This evaluation did not re-scan those diffs for new risk areas.
 - **Overview Medium count (17 vs 19).** Clerical; does not change the set, but any downstream “second wave is 17 cards” plan is off by two.

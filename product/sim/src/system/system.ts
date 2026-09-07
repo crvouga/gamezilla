@@ -41,7 +41,7 @@ function canSeedFromNodeFs(): boolean {
 async function maybeSeedSimChessPuzzles(sqlClient: {
   readonly query: unknown;
 }): Promise<void> {
-  // Playground / Expo web: Node fixtures + `__dirname` are unavailable.
+  // Playground / web: Node fixtures + `__dirname` are unavailable.
   // Console seeds puzzles via playground command palette instead.
   if (!canSeedFromNodeFs()) return;
   const { seedSimChessPuzzles } = await import(

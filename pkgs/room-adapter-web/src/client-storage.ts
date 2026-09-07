@@ -17,7 +17,7 @@ function readJson<T>(raw: string | null): T | null {
  * Synchronous `localStorage`-backed room cache (topic-scoped keys). Web only.
  *
  * Use {@link KeyValueClientRoomStorage} instead when the same code must run
- * on React Native (AsyncStorage) — `Storage` is not available in Hermes.
+ * in a non-DOM environment — `localStorage` is not available there.
  */
 export class WebClientStorage implements ClientRoomStorage {
   constructor(

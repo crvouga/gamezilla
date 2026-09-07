@@ -84,9 +84,9 @@ Suggested (do not exist today):
 
 #### After a mid-merge process kill, is the SQLite transaction atomic under `journal_mode=MEMORY`?
 
-- Examined: `pkgs/sql-client/src/sqlite/connection-pragmas.ts` (MEMORY + temp_store MEMORY on every Bun/Expo connection); `impl-expo-sqlite.ts` first-open-failure → `deleteDatabaseAsync`; `impl-sqlite-mem.ts` same pragma; `memory-journal-crash-wipes-queue.md`.
+- Examined: `pkgs/sql-client/src/sqlite/connection-pragmas.ts` (MEMORY + temp_store MEMORY on every Bun/web SQLite connection); `web-sqlite-impl.ts` first-open-failure → `deleteDatabaseAsync`; `impl-sqlite-mem.ts` same pragma; `memory-journal-crash-wipes-queue.md`.
 - Found: the tree does not claim crash-atomicity. MEMORY stores the rollback journal in RAM (pragma comment: avoid OPFS `-journal` sidecars). Wipe-on-corrupt deletes the identity file on open failure. `merge.ts` `runMerge` / `applyRowImages` wrap upsert+rebase in one `db.transaction`, which is atomic only if the commit finishes.
-- Not found: an in-tree test that a SIGKILL mid-`applyFullMerge` leaves a consistent file under native expo-sqlite. Sibling property still asks whether iOS honors MEMORY.
+- Not found: an in-tree test that a SIGKILL mid-`applyFullMerge` leaves a consistent file under native web SQLite. Sibling property still asks whether iOS honors MEMORY.
 - Conclusion: resolved for this property — mid-merge kill is **not** treated as atomic. Always is scoped to a successful open of an intact file. Torn/wiped files belong to `memory-journal-crash-wipes-queue`.
 
 #### Is “unrelated” defined as rows whose `id` is absent from the incoming batch, or also columns present locally but omitted on the wire?

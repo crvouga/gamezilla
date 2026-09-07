@@ -21,7 +21,7 @@ export type InProcessOpenAuthSessionConfig = {
 };
 
 /**
- * Deterministic auth-session stub for in-process sim / RNTL. Follows the launch
+ * Deterministic auth-session stub for in-process sim / UI tests. Follows the launch
  * redirect chain and completes the Dev IdP chooser without a real popup.
  */
 export function createInProcessOpenAuthSession(

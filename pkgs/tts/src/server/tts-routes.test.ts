@@ -180,7 +180,7 @@ describe('createTtsApp', () => {
     expect(audio.status).toBe(200);
     expect(audio.headers.get('Content-Type')).toBe('audio/wav');
     expect(audio.headers.get('Cache-Control')).toContain('immutable');
-    // COEP=`require-corp` clients (expo-sqlite web) can't load this cross-origin
+    // COEP=`require-corp` clients (web SQLite) can't load this cross-origin
     // without a CORP header; regression-guard it.
     expect(audio.headers.get('Cross-Origin-Resource-Policy')).toBe(
       'cross-origin'

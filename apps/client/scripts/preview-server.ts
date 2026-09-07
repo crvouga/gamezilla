@@ -7,8 +7,8 @@ import { join } from 'node:path';
 import { assert } from '@pkgs/assert';
 import { file } from 'bun';
 
-import { applySqliteWebIsolationHeadersToFetch } from './sqlite-web-headers.js';
 import { previewStackReadyResponse } from './preview-stack-ready';
+import { applySqliteWebIsolationHeadersToFetch } from './sqlite-web-headers.js';
 
 const DIST_DIR = join(import.meta.dir, '..', 'dist');
 const INDEX_HTML = join(DIST_DIR, 'index.html');

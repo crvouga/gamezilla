@@ -16,7 +16,7 @@ export type RoomSocketAttachment = {
 
 /**
  * Workers-only methods on hibernatable WebSockets. Absent from the DOM
- * `WebSocket` lib used by the Expo web build, so we cast structurally.
+ * `WebSocket` lib used by the web build, so we cast structurally.
  */
 type HibernatableWebSocket = WebSocket & {
   serializeAttachment(value: unknown): void;

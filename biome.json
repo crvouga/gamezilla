@@ -12,7 +12,6 @@
       "!.github/workflows",
       "!**/node_modules",
       "!!**/dist",
-      "!!**/.expo",
       "!!**/.wrangler",
       "!!**/.turbo",
       "!!**/.cache",
@@ -20,7 +19,6 @@
       "!apps/client/src/i18n/locales/*/messages.ts",
       "!apps/client/public/sql-workers/**/*.js",
       "!.agents/skills/**/assets/**",
-      "!apps/client/expo-env.d.ts",
       "!pkgs/emqx-server/src/railway/railway-graphql/schema.graphql",
       "!pkgs/emqx-server/src/railway/railway-graphql/graphql-env.d.ts",
       "!qa",
@@ -66,8 +64,6 @@
       "**",
       "!tools/**",
       "!**/.wrangler/**",
-      "!**/.expo/**",
-      "!**/metro.config.js",
       "!**/babel.config.js",
       "!**/lingui.config.*",
       "!**/*.html",
@@ -139,11 +135,7 @@
         "noRestrictedImports": {
           "level": "error",
           "options": {
-            "paths": {
-              "lucide-react-native": {
-                "message": "Import icons from @pkgs/ui-rn (e.g. SearchIcon), not lucide-react-native directly."
-              }
-            }
+            "paths": {}
           }
         },
         "useConst": "error",
@@ -189,7 +181,6 @@
       "path": "./tools/biome-plugins/text-use-label.grit",
       "includes": [
         "**/*.{ts,tsx}",
-        "!pkgs/ui-rn/src/**",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
         "!**/src/sim/**"
@@ -436,7 +427,6 @@
         "!**/scripts/**",
         "!**/libs/secrets/src/shared/**",
         "!**/wall-node-fs.ts",
-        "!**/wall-expo-fs.ts",
         "!**/wall-path-exists.ts",
         "!**/wall-os-fs.ts",
         "!**/repo-tree-store.ts",
@@ -484,7 +474,6 @@
         "!**/real-time-scheduler.ts",
         "!**/wall-node-fs.ts",
         "!**/wall-os-fs.ts",
-        "!**/wall-expo-fs.ts",
         "!**/wall-path-exists.ts",
         "!**/build-web.ts",
         "!**/repo-tree-store.ts",
@@ -555,7 +544,6 @@
         "!**/wall-room-server-env.ts",
         "!**/wall-node-fs.ts",
         "!**/wall-os-fs.ts",
-        "!**/wall-expo-fs.ts",
         "!**/wall-path-exists.ts",
         "!**/build-web.ts",
         "!**/repo-tree-store.ts",
@@ -603,30 +591,8 @@
         "**/libs/**/*.{tsx}",
         "**/pkgs/**/*.{tsx}",
         "**/product/test/tests/**/*.{tsx}",
-        "!**/pkgs/ui-rn/src/components/box/box.tsx",
-        "!**/pkgs/ui-rn/src/components/text/text.tsx",
-        "!**/pkgs/ui-rn/src/components/pressable/pressable.tsx",
-        "!**/pkgs/ui-rn/src/components/scroll-view/scroll-view.tsx",
-        "!**/pkgs/ui-rn/src/components/flat-list/flat-list.tsx",
-        "!**/pkgs/ui-rn/src/components/text-input/text-input.tsx",
-        "!**/pkgs/ui-rn/src/components/code-editor/code-editor.tsx",
-        "!**/pkgs/ui-rn/src/components/safe-area-view/safe-area-view.tsx",
-        "!**/pkgs/ui-rn/src/components/keyboard-avoiding-view/keyboard-avoiding-view.tsx",
-        "!**/pkgs/ui-rn/src/components/gradient-box/gradient-box.tsx",
-        "!**/pkgs/ui-rn/src/components/animated-box/animated-box.tsx",
-        "!**/pkgs/ui-rn/src/theme/theme-context.tsx",
-        "!**/pkgs/ui-rn/src/theme/use-host-sx.ts",
         "!**/apps/client/src/providers/root-error-boundary.tsx",
         "!**/apps/client/src/i18n/i18n-provider.tsx",
-        "!**/apps/client/src/providers/shell/gesture-handler.tsx",
-        "!**/pkgs/ui-rn/src/theme/app-status-bar.tsx",
-        "!**/pkgs/ui-rn/src/components/avatar/avatar.tsx",
-        "!**/pkgs/ui-rn/src/components/skeleton/skeleton.tsx",
-        "!**/pkgs/ui-rn/src/components/fade-switch/fade-switch.tsx",
-        "!**/pkgs/ui-rn/src/components/mutation-modal/mutation-modal-transition.tsx",
-        "!**/pkgs/ui-rn/src/components/horizontal-picker/horizontal-picker-cell.tsx",
-        "!**/pkgs/ui-rn/src/components/horizontal-picker/horizontal-picker-list.tsx",
-        "!**/pkgs/ui-rn/src/components/responsive-surface/responsive-surface.tsx",
         "!**/apps/client/src/exemplars/virtualized-list.tsx",
         "!**/pkgs/chess-board/src/chess-board-canvas-content.tsx",
         "!**/pkgs/chess-board/src/chess-board-promotion.tsx",
@@ -841,10 +807,7 @@
       }
     },
     {
-      "includes": [
-        "**/pkgs/ui-rn/src/components/icons/**",
-        "**/src/components/icons/**"
-      ],
+      "includes": ["**/src/components/icons/**"],
       "linter": {
         "rules": {
           "style": {
@@ -861,20 +824,7 @@
             "noRestrictedImports": {
               "level": "error",
               "options": {
-                "paths": {
-                  "lucide-react-native": {
-                    "message": "Import icons from @pkgs/ui-rn (e.g. SearchIcon), not lucide-react-native directly."
-                  },
-                  "expo-status-bar": {
-                    "message": "Use AppStatusBar from @pkgs/ui-rn."
-                  },
-                  "expo-splash-screen": {
-                    "message": "Use preventSplashAutoHide or hideSplash from @pkgs/ui-rn."
-                  },
-                  "expo-symbols": {
-                    "message": "Import icons from @pkgs/ui-rn (e.g. HouseIcon), not expo-symbols."
-                  }
-                }
+                "paths": {}
               }
             }
           }

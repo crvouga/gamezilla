@@ -35,7 +35,7 @@ type NestProps = ParentProps<{
 }>;
 
 function Nest(props: NestProps): JSX.Element {
-  // The provider list is static composition config (like a React tree shape);
+  // The provider list is static composition config (like a component tree shape);
   // only `children` stays reactive.
   const providers = untrack(() => props.providers);
   const index = untrack(() => props.index);

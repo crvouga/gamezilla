@@ -6,7 +6,7 @@ export type WireSafetyViolation = {
 };
 
 /**
- * Hermes-safe wire oracle: rows must never contain bigint (Expo throws
+ * Wire oracle: rows must never contain bigint (the web engine throws
  * `Cannot convert BigInt to number` on Number(bigint) / JSON.stringify).
  */
 export function findWireSafetyViolations(
@@ -21,7 +21,7 @@ export function findWireSafetyViolations(
     if (!Number.isFinite(value)) {
       return [{ path, reason: `non-finite number ${String(value)}` }];
     }
-    // Stand-in for Hermes: Math.max must accept every number cell.
+    // Math.max must accept every number cell.
     void Math.max(0, value);
     return [];
   }

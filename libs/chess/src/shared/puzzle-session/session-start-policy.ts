@@ -1,7 +1,7 @@
 /**
  * Pure decisions for the puzzle session lifecycle: when a client should
  * dispatch `StartChessPuzzlePlay` and when it should reclaim a stale host.
- * UI bindings (React / Solid) own the effect scheduling and the
+ * UI bindings own the effect scheduling and the
  * `lastStartedNonce` memory; this module owns the rules.
  */
 

@@ -2,11 +2,11 @@
  * In-memory SQLite WASM {@link SqlClient} for browser sim clients (playground).
  *
  * Uses `@sqlite.org/sqlite-wasm` Memory VFS (`:memory:`) so Alice/Bob can
- * coexist without OPFS locks. Not for product Expo OPFS paths.
+ * coexist without OPFS locks. Not for product web OPFS paths.
  *
  * Browser: load from `/generated/sqlite-wasm/index.mjs` as a *native* ESM
- * (import.meta.url works). Never value-import the npm package into Metro —
- * Hermes classic scripts reject `import.meta`.
+ * (import.meta.url works). Never value-import the npm package into the classic
+ * bundle — classic scripts reject `import.meta`.
  */
 
 import { assert } from '@pkgs/assert';
@@ -35,7 +35,7 @@ function isBrowserPlayground(): boolean {
 
 async function importSqlite3Init(): Promise<Sqlite3InitModule> {
   if (isBrowserPlayground()) {
-    // Runtime URL — Metro must not rewrite this into the classic bundle.
+    // Runtime URL — the bundler must not rewrite this into the classic bundle.
     const href = new URL(
       '/generated/sqlite-wasm/index.mjs',
       window.location.href

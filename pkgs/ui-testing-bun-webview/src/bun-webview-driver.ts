@@ -1,6 +1,6 @@
 /**
  * Bun.WebView driver — localhost / headless browser actors.
- * Lazy-imported so RNTL tests never load Bun.WebView.
+ * Lazy-imported so UI tests never load Bun.WebView.
  */
 
 import { DRIVER_KEY_TO_DOM, type DriverKey } from '@pkgs/ui-testing/core/keys';

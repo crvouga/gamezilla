@@ -58,7 +58,7 @@ export function PlaygroundScreen(props: {
     patch: PaneNavPatch,
     mode?: 'push' | 'replace'
   ) => void;
-  /** Retry boot after an error (Metro chunk / sim init). */
+  /** Retry boot after an error (chunk load / sim init). */
   readonly onReload?: () => void;
 }) {
   const readyState = () =>

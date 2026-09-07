@@ -2,7 +2,7 @@
  * Minimal structural types for the Cloudflare Workers Durable Object APIs
  * the adapter depends on. Defined locally as named exports rather than
  * pulling `@cloudflare/workers-types`, which conflicts with the DOM types
- * required by the Expo web build that shares this workspace's tsconfig.
+ * required by the web build that shares this workspace's tsconfig.
  *
  * Keep these in sync with the equivalent ambient declarations that the
  * host worker uses (e.g. `cloudflare.d.ts`).

@@ -71,7 +71,7 @@ reconnect. Assert queue depth after every enqueue. `Reachable` the
 
 ## Open questions
 
-- Is `bufferOutboundLive` enabled on the product Expo / web client, or only
+- Is `bufferOutboundLive` enabled on the product web client, or only
   in sim? If product default is false, the 256 queue is unused in production
   and the connected fire-and-forget path is the real leak surface. That would
   narrow this property to sim/web-lock owners that opt in, and raise the

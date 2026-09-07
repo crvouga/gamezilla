@@ -1,8 +1,8 @@
-// @io-wall-ok — composition-root wall FS for Expo public WASM assets
+// @io-wall-ok — composition-root wall FS for web public WASM assets
 /**
  * Copies SQLite WASM builds into `product/console/public/generated/` so the
- * Expo web playground can load them as native ESM (import.meta.url works)
- * instead of through Metro's Hermes classic-script bundle (which cannot).
+ * web playground can load them as native ESM (import.meta.url works)
+ * instead of through a classic-script bundle (which cannot).
  */
 import {
   copyFileSync,

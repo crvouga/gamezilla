@@ -11,7 +11,7 @@ export type MiniplayerOpenSpacePressableProps = {
   onAfterOpen?: () => void;
 };
 
-/** Pressable that returns to a space — owns the route mapping. */
+/** A press target that returns to a space — owns the route mapping. */
 export function MiniplayerOpenSpacePressable(
   props: MiniplayerOpenSpacePressableProps
 ): JSX.Element {

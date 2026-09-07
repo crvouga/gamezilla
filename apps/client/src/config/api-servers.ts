@@ -53,10 +53,7 @@ export function assertTigerPolicyForResolvedApiOrigin(
 
   if (!isProductionApiHttpHostname(hostname)) return;
 
-  if (
-    policy === 'forbid-prod-in-dev-bundle' &&
-    !isViteDevelopmentBundle()
-  ) {
+  if (policy === 'forbid-prod-in-dev-bundle' && !isViteDevelopmentBundle()) {
     return;
   }
 
@@ -102,10 +99,7 @@ function readViteApiUrlOrigin(): string {
   );
   origin = coerceDevBundleApiOrigin(origin);
   origin = normalizeLoopbackOriginToLocalhost(origin);
-  assertTigerPolicyForResolvedApiOrigin(
-    origin,
-    'forbid-prod-in-dev-bundle'
-  );
+  assertTigerPolicyForResolvedApiOrigin(origin, 'forbid-prod-in-dev-bundle');
   return origin;
 }
 

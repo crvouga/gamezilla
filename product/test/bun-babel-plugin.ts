@@ -4,7 +4,7 @@
  *
  * - Workspace `.tsx` → Babel (`babel.test.config.cjs`: TypeScript strip,
  *   Lingui macro for the Solid runtime, `babel-preset-solid` DOM output).
- *   Bun's native `tsx` loader emits React-style `jsx()` calls, which Solid
+ *   Bun's native `tsx` loader emits JSX `jsx()` calls, which Solid
  *   cannot render — every JSX file must go through Babel.
  * - Solid's browser **dev** build is selected by the `--conditions=browser
  *   --conditions=development` flags on every `bun test` script (Bun's default

@@ -4,7 +4,7 @@ import { TimeoutError } from '@pkgs/ui-testing/core/errors';
 /**
  * Advance product work between wait checks (the sim's `runFor(0)`).
  * Structurally identical to `@pkgs/ui-testing`'s `WaitPump`; declared here so
- * this Solid package does not pull the React `@pkgs/clock` root into its
+ * this Solid package does not pull the UI `@pkgs/clock` root into its
  * type program.
  */
 export type WaitPump = () => void | Promise<void>;

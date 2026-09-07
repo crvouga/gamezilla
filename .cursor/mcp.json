@@ -1,7 +1,7 @@
 {
   "mcpServers": {
     "Sentry": {
-      "url": "https://mcp.sentry.dev/mcp/gamezilla/react-native"
+      "url": "https://mcp.sentry.dev/mcp/gamezilla"
     }
   }
 }

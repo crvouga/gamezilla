@@ -37,7 +37,7 @@ const sqliteWasmSrc = import.meta.resolve(
   '@sqlite.org/sqlite-wasm/sqlite3.wasm'
 );
 
-/** Stale expo-sqlite-era artifacts the OPFS SAH-pool build no longer emits. */
+/** Stale SQLite-era artifacts the OPFS SAH-pool build no longer emits. */
 const STALE_SQL_WORKER_FILES = [
   'sqlite-worker-entry.js',
   'sql-host.html',

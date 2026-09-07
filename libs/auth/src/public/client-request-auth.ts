@@ -1,5 +1,5 @@
 /**
- * Auth snapshot for non-React HTTP callers. Built from hooks at the React
+ * Auth snapshot for non-UI HTTP callers. Built from hooks at the
  * boundary — never read via global secure-storage getters.
  */
 

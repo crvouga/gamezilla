@@ -1,6 +1,6 @@
 /**
  * Stack + promise-`finally` ALS used when `globalThis.AsyncLocalStorage` is
- * missing or non-constructable (browser / Metro).
+ * missing or non-constructable (browser).
  */
 
 export class StackAsyncLocalStorage<T> {

@@ -121,7 +121,6 @@ const INJECTED_SECRET_MARKERS = [
   'DATABASE_URL',
   'CLOUDFLARE_API_TOKEN',
   StripeSecretKeys.secretKey,
-  'EXPO_TOKEN',
 ] as const;
 
 function hasInjectedSecrets(): boolean {

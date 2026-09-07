@@ -15,7 +15,7 @@ import {
   Show,
   Switch,
 } from 'solid-js';
-
+import { writeClipboard } from './copy-to-clipboard';
 import {
   addCellAfter,
   duplicateCell,
@@ -31,7 +31,6 @@ import type { SqlCellRun } from './run-sql-cell';
 import { runSqlCell } from './run-sql-cell';
 import { type CellInsertApi, SqlCell } from './sql-cell';
 import { detectSqlDialect, type SqlDialect } from './sql-dialect';
-import { writeClipboard } from './copy-to-clipboard';
 import { SqlNotebookToolbar } from './sql-notebook-toolbar';
 import { SqlSchemaDrawer } from './sql-schema-drawer';
 import { type NotebookDocSetter, useNotebookDoc } from './use-notebook-doc';

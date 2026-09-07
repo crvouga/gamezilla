@@ -27,8 +27,8 @@ export function isValidRowId(id: unknown): id is string {
 }
 
 /**
- * Postgres jsonb / JSON wire values arrive as objects or arrays. expo-sqlite
- * only accepts string | number | null | Uint8Array binds.
+ * Postgres jsonb / JSON wire values arrive as objects or arrays. The web
+ * SQLite only accepts string | number | null | Uint8Array binds.
  */
 export function sqliteWireValue(value: unknown): Value {
   if (value === null || value === undefined) return null;

@@ -1,5 +1,5 @@
 /**
- * Pure identity resolution for signed-in / myId. Kept free of React so unit
+ * Pure identity resolution for signed-in / myId. Kept framework-free so unit
  * tests can cover the race matrix without mounting hooks.
  */
 

@@ -12,7 +12,7 @@
  * - `verify` — same as fast `bun check` leaves (lint/tc/test)
  *
  * Builds use package-scoped entrypoints (`@apps/server#build` etc.) so
- * `@apps/client` still gets `tc`/`test` without Expo `build`, in one
+ * `@apps/client` still gets `tc`/`test` without the web `build`, in one
  * `turbo run` (no second filtered pass).
  * Live-server checks (`check:api`) stay on `check:full` / deploy.
  */
@@ -30,7 +30,7 @@ const CI_GATE_TASKS = [
   'ci:i18n',
 ] as const;
 
-/** No-op app builds only — never `@apps/client#build` (Expo export). */
+/** No-op app builds only — never `@apps/client#build` (web export). */
 const CHECK_BUILD_TASKS = [
   '@apps/server#build',
   '@apps/room-server#build',

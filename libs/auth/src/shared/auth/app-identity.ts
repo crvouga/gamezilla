@@ -5,14 +5,14 @@
  * product display name, and auth sits low in the dependency graph (every
  * surface that needs identity already depends on it, with no cycle).
  *
- * `apps/client/app.json` (Expo `name` / `slug` / `scheme`) must be kept in
- * sync with these values by hand — Expo requires static JSON, so it cannot
- * import this module at config-resolution time.
+ * `apps/client/app.json` (`name` / `slug` / `scheme`) must be kept in sync
+ * with these values by hand — static config cannot import this module at
+ * config-resolution time.
  */
 export const APP_IDENTITY = {
   /** Human-facing product name (titles, auth app name fallback). */
   displayName: 'Gamezilla',
-  /** Lowercase identifier (Expo slug, secure-storage prefix). */
+  /** Lowercase identifier (slug, secure-storage prefix). */
   slug: 'gamezilla',
   /** Mobile deep-link scheme (`scheme://`). */
   urlScheme: 'gamezilla',

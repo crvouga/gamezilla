@@ -15,7 +15,7 @@ function isRealMode(): boolean {
 
 async function openSeededServerSql(): Promise<SimSql> {
   const { wallClock } = await import('@pkgs/clock');
-  // Lazy: Node seed modules must not load in Expo web.
+  // Lazy: Node seed modules must not load in the web bundle.
   const { ensureSimPostgresMemSeed } = await import(
     '../setup/boot-sim-postgres-mem'
   );

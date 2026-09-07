@@ -5,8 +5,8 @@ Browser tabs share one OPFS SQLite database per `dbName` without fighting exclus
 
 ## Architecture
 
-Exactly **one disposable iframe** owns expo-sqlite (wa-sqlite + OPFS in its
-dedicated worker). The product Window never imports expo-sqlite. Peers never call
+Exactly **one disposable iframe** owns the web SQLite (wa-sqlite + OPFS in its
+dedicated worker). The product Window never imports the web SQLite module. Peers never call
 `SQLite.openDatabaseAsync` on the Window.
 
 ### SharedWorker path (default)
@@ -16,7 +16,7 @@ sequenceDiagram
   participant TabA
   participant TabB
   participant SW as SharedWorkerBroker
-  participant Opfs as ExpoSqliteWorker_OPFS
+  participant Opfs as SqliteWorker_OPFS
 
   TabA->>SW: connect(db)
   SW-->>TabA: role=owner
@@ -30,7 +30,7 @@ sequenceDiagram
   SW-->>TabB: result + db-changed
 ```
 
-- Broker script: `/sql-workers/db-host-shared-worker.js` (esbuild prebuild; no Metro worker config).
+- Broker script: `/sql-workers/db-host-shared-worker.js` (esbuild prebuild; no bundler worker config).
 - Build: `bun run --filter @pkgs/sql-client-sqlite-web build:web-workers`
 - Heartbeat: tabs ping every 5s; silent ports reaped after 15s; owner promoted.
 
@@ -60,21 +60,21 @@ sequenceDiagram
 
 ## Nested transactions
 
-Flattened (`fn(tx)`), matching Expo / node-pg session clients — no `SAVEPOINT`.
+Flattened (`fn(tx)`), matching node-pg session clients — no `SAVEPOINT`.
 
 ## Recovery (local DB is a rehydratable cache)
 
-expo-sqlite’s AccessHandlePoolVFS pre-allocates **6** sync access handles under
-OPFS `expo-sqlite/`. Leftover files / pool exhaustion / corrupt headers make
+The web SQLite AccessHandlePoolVFS pre-allocates **6** sync access handles under
+OPFS `sqlite/`. Leftover files / pool exhaustion / corrupt headers make
 `sqlite3_open_v2` fail. `closeAsync` does **not** release those handles — only
-destroying the document that loaded expo-sqlite does.
+destroying the document that loaded the SQLite module does.
 
 Product web therefore:
 
-1. Loads expo-sqlite **only** inside a disposable iframe (`/sql-workers/sql-host.html`)
+1. Loads the web SQLite **only** inside a disposable iframe (`/sql-workers/sql-host.html`)
 2. On pool / corrupt / migrate / schema-epoch failure: peers drop iframes via
    BroadcastChannel → force-release SharedWorker → destroy owner iframe → wipe
-   OPFS `expo-sqlite/` **in-process** → remount iframe → reopen empty cache
+   OPFS `sqlite/` **in-process** → remount iframe → reopen empty cache
 3. Never navigates to a wipe HTML document; soft `sessionStorage` + reload loops
    are gone
 
@@ -88,12 +88,11 @@ old tabs.
 ## Owners
 
 The owner tab talks to SQLite through a `SqlOwner` (`open` / `close` /
-`resetStore`). Two browser owners exist during the RN → Solid port:
+`resetStore`). The production browser owner is:
 
 | Owner | Engine | Storage | Used by |
 | --- | --- | --- | --- |
 | `createSqliteWorkerSqlOwner` (`src/sqlite-worker/`) | `@sqlite.org/sqlite-wasm` in a **dedicated module worker** | OPFS SyncAccessHandle **pool VFS**, one directory per db (`/sqlite-web/<dbName>`); memory fallback when OPFS is unavailable | Solid / Vite app |
-| `createExpoIframeSqlOwner` | expo-sqlite (wa-sqlite) in a disposable iframe | OPFS `expo-sqlite/` | legacy Expo web bundle (deleted with the RN app) |
 
 ### Dedicated-worker owner
 
@@ -119,11 +118,11 @@ sequenceDiagram
 
 ## Migration (`open-main-sql-client.ts`)
 
-Web calls `createExpoWebSqlClient(dbName, { timers, migrate?, schemaEpoch? })`.
-Native is unchanged. Sync upload/push is gated by `sync-owner:<dbName>`.
+Web calls `createWebSqlClient(dbName, { timers, migrate?, schemaEpoch? })`.
+Sync upload/push is gated by `sync-owner:<dbName>`.
 
 ### Legacy session lock
 
-`expo-web-session-lock*` remains for older clients and boot-error matching, but
+`web-session-lock*` remains for older clients and boot-error matching, but
 **web open no longer acquires** that exclusive Web Lock. Multi-tab coordination
 is SharedWorker (or leader-election fallback) only.

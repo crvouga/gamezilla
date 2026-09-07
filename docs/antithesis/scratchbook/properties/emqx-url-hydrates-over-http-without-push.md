@@ -15,7 +15,7 @@ Product MQTT is created only when a WSS URL is known:
 - `clientConfig` is a normal `defineQuery` session query (`POST /api/query`). The Worker materializes desired rows in `materializeClientConfigIfNeeded` on the first **non-health** request (not on `/api/health`).
 - `attachPushIfConfigured`: `createPubSub() === null` is poll-only; `ensurePush` retries later.
 
-There is no compile-time EMQX URL in the Expo bundle. The only production path to the broker address is a **synced domain row**.
+There is no compile-time EMQX URL in the web bundle. The only production path to the broker address is a **synced domain row**.
 
 That is a chicken-and-egg if anyone later gates session queries on push attach, or if a cold client treats “no MQTT” as “not ready to query.” Today HTTP query does not wait for push. The property pins that bootstrap so it cannot invert under faults.
 

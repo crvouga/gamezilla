@@ -43,13 +43,13 @@ The catalog has a full evidence file for this (`presence-online-matches-room-act
 
 A reader of Coverage Balance could honestly say “identity is covered by gateway + seats-agree.” The user-visible failure the SUT analysis named (“You” off while still in the puzzle room) is the deferred file.
 
-### F4. Headless Node clients vs Expo/web product
+### F4. Headless Node clients vs web product
 
-Topology clients are `createClient` + bun/better-sqlite3. Product is Expo iOS/web. Several High/Medium properties are Expo- or Worker-isolate-shaped:
+Topology clients are `createClient` + bun/better-sqlite3. Product is web. Several High/Medium properties are Worker-isolate-shaped:
 
 | Property | Written against | First topology actually is |
 |---|---|---|
-| `memory-journal-crash-wipes-queue` | Expo wipe-on-corrupt deletes the identity file | Node engines fail-closed; no auto-wipe (evidence already splits this) |
+| `memory-journal-crash-wipes-queue` | web SQLite wipe-on-corrupt deletes the identity file | Node engines fail-closed; no auto-wipe (evidence already splits this) |
 | `health-200-while-boot-fatal` | CF Worker isolate latch, overlapping `ensureApp` | One Node process; isolate remake ≠ process remake |
 | `upgrade-required-no-local-wipe` | Lagging binary / host that treats every `error: 'auth'` as revoke | Same headless image; workload forges `x-sync-protocol: 2` |
 | `web-sync-owner-single-uploader` | Chromium Web Locks / OPFS | Explicitly not in topology, but still **Medium** in the “same topology, second wave” bucket |
@@ -60,7 +60,7 @@ The catalog knows most of this in footnotes. The **frame** still presents 12 Hig
 
 High liveness/safety checks are repeatedly “after HTTP heal + foreground refetch / reconcile,” not “a replica must not look caught-up on a gapped push.” The latter exists (`overlapping-handle-push-seq-toc-tou`, `stale-push-images-after-snapshot-merge`). The former dominates Why-It-Matters (“username gone,” “confirmed-then-contradicted”).
 
-That is a coherent product safety story **if** the user is foregrounded and the 30s tick runs. SUT analysis: sweeps pause while backgrounded; `notificationsActive` is a session query; product is a mobile app. The catalog treats foreground as a **precondition for the oracle**, not as a usage pattern to explore. A timeline that keeps both clients focused so `Always` after heal can fire will not represent “user backgrounds during partition,” which is the default Expo life.
+That is a coherent product safety story **if** the user is foregrounded and the 30s tick runs. SUT analysis: sweeps pause while backgrounded; `notificationsActive` is a session query; product is a mobile app. The catalog treats foreground as a **precondition for the oracle**, not as a usage pattern to explore. A timeline that keeps both clients focused so `Always` after heal can fire will not represent “user backgrounds during partition,” which is the default web life.
 
 ---
 
@@ -129,7 +129,7 @@ Fit: isolate remake + clock jump is the class sim declines. Implementability: co
 
 ### X3. `memory-journal-crash-wipes-queue` × Node fail-closed
 
-Fit: process kill + MEMORY journal is unique vs `preserveLocalDb` sim crashes. Implementability: Expo wipe is not in the image. Evidence already splits the property. Catalog still lists it High with Why-It-Matters “Expo recovery deletes the identity file.” **Reformulation for wave 1:** Node last-commit-or-fail-closed only; move wipe-empties-queue to an Expo/OPFS variant next to `web-sync-owner-single-uploader`.
+Fit: process kill + MEMORY journal is unique vs `preserveLocalDb` sim crashes. Implementability: web SQLite wipe is not in the image. Evidence already splits the property. Catalog still lists it High with Why-It-Matters “web SQLite recovery deletes the identity file.” **Reformulation for wave 1:** Node last-commit-or-fail-closed only; move wipe-empties-queue to an web/OPFS variant next to `web-sync-owner-single-uploader`.
 
 ### X4. `presence-online-matches-room-actor-id` × “overlaps gateway”
 
@@ -178,7 +178,7 @@ Relationships talk about “two devices of one actor” and “friend-pair” as
 - The catalog is explicit that claims are claims, that no Antithesis SDK exists, and that sim pins are not coverage of this topology. That honesty is load-bearing.
 - Dual write planes (LWW vs room log) are separated in the catalog structure; `sync-membership-and-room-seat-agree` is the one cross-plane property and is the right *kind* of thing, even if puzzle-solve is missing.
 - MQTT-vs-HTTP as independent fault domains is the correct Antithesis-shaped center of gravity for social state; topology justifies separate `postgres` / `emqx` / `api` / two clients for that center.
-- Several evidence files already contain the splits this lens would demand (`memory-journal` Node vs Expo; `upgrade-required` synthetic header; `oauth` lost-ack orphan; `three-seq` isolate remake). The problem is what the **catalog table** did with those splits (High / None / deferred), not that discovery never looked.
+- Several evidence files already contain the splits this lens would demand (`memory-journal` Node vs web; `upgrade-required` synthetic header; `oauth` lost-ack orphan; `three-seq` isolate remake). The problem is what the **catalog table** did with those splits (High / None / deferred), not that discovery never looked.
 - `existing-assertions.md` correctly treats in-house DST invariants as non-portable. No phantom “already instrumented” claim.
 
 ---

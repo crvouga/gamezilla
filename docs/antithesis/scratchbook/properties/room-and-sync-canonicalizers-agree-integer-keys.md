@@ -25,7 +25,7 @@ If one hasher is later “fixed” to numeric sort (reading DETERMINISM.md’s e
 - Sync `hashQueryTables` / `scopeHash` would not match a room-side digest of the same JSON (oracles become incomparable).
 - Room seats are a `Record<memberId, Seat>`. Member ids are UUIDs today (not integer-like). Chess / counter attrs could still grow integer-like keys (`"2"`, `"10"`). `hashQueryTables` stringifies each row through the same `sortValue`.
 
-Antithesis value is not “run a unit test.” It is: under real engines (Hermes vs V8 vs Bun) and after reconnect/hibernate restore, **the same object must not hash two ways** if both libraries are asked to canonicalize it. A workload fixture with keys `"2"` and `"10"` is enough.
+Antithesis value is not “run a unit test.” It is: under real engines (engine vs V8 vs Bun) and after reconnect/hibernate restore, **the same object must not hash two ways** if both libraries are asked to canonicalize it. A workload fixture with keys `"2"` and `"10"` is enough.
 
 ## Code paths
 
@@ -45,7 +45,7 @@ Room and sync `sortValue` bodies are copies (undefined → null, arrays keep ord
 1. Workload (or SUT self-check) builds `{ "10": 1, "2": 2, a: 3 }` (and nested copies).
 2. `canonicalRoomJson` vs `canonicalJson` vs `canonicalJsonStringify` must be **identical strings**.
 3. After a room reconnect, `hashRoomState(live)` vs `hashRoomState(fold(log))` must match **and** `canonicalRoomJson(live)` must still equal `canonicalJson(live)` for the attribute object.
-4. **Bug if** one path starts using `Object.keys` without `.sort()`, or sorts with `Number(key)`, or uses `localeCompare`. Hermes vs V8 would then disagree on the same logical seats/attrs.
+4. **Bug if** one path starts using `Object.keys` without `.sort()`, or sorts with `Number(key)`, or uses `localeCompare`. engine vs V8 would then disagree on the same logical seats/attrs.
 
 Integer-like keys on **row `id`** in `hashQueryTables` use `String` `<` / `>` — `"10" < "2"` is true. A numeric sort there would change snapshot hashes across versions (Version Compatibility adjacent). This property only requires **the two object-key canonicalizers** to stay aligned; row-id sort is a documented sync rule.
 

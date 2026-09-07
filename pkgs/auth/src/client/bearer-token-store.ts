@@ -2,7 +2,7 @@ const BEARER_STORAGE_KEY = 'gamezilla.auth.bearer';
 
 /**
  * Storage backend for bearer tokens. Hosts inject SecureStore / localStorage /
- * namespaced sim storage — this package never imports Expo or React Native.
+ * namespaced sim storage — this package never imports a platform SDK.
  */
 export type AuthClientStorage = {
   getItem(key: string): string | null;

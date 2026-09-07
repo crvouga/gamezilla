@@ -1,5 +1,5 @@
 /**
- * Pure mode → slot plan for the puzzle bottom bar (no React / UI imports).
+ * Pure mode → slot plan for the puzzle bottom bar (no UI imports).
  */
 
 import type { ChessPuzzlePlayStatus } from '../chess/chess-puzzle-play';

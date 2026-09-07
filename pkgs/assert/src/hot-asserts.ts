@@ -41,7 +41,7 @@ let enabled: boolean = isDevBuild();
 
 /**
  * `true` when the current bundle was produced for development:
- * - React Native / Expo bundles set `globalThis.__DEV__ = true` in dev.
+ * - Web bundles set `globalThis.__DEV__ = true` in dev.
  * - Node / Cloudflare Worker bundles substitute `process.env.NODE_ENV`
  *   at build time; anything other than `'production'` counts as dev.
  *

@@ -43,7 +43,7 @@ describe('sqlite-db-bytes', () => {
     expect(() => coerceSqliteDbBytes(bad)).toThrow(/missing header/);
   });
 
-  test('isNotADatabaseError matches expo messages', () => {
+  test('isNotADatabaseError matches SQLite messages', () => {
     expect(
       isNotADatabaseError(new Error('Error code 26: file is not a database'))
     ).toBe(true);

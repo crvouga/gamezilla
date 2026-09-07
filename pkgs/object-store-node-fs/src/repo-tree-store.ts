@@ -15,7 +15,6 @@ export const REPO_TREE_SKIP_DIRS: ReadonlySet<string> = new Set([
   '.git',
   '.turbo',
   'coverage',
-  '.expo',
   '.wrangler',
   'ios',
   'android',

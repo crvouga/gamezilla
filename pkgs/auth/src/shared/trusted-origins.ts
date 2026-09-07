@@ -1,5 +1,5 @@
 /**
- * Origins the IdP may redirect to after OAuth (Expo scheme + web + API).
+ * Origins the IdP may redirect to after OAuth (scheme + web + API).
  */
 export function buildAuthTrustedOrigins(args: {
   readonly apiBaseURL: string;

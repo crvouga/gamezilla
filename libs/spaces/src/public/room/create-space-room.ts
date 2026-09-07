@@ -29,8 +29,8 @@ export type CreateSpaceRoomParams = {
    */
   module: SpaceRoomModule;
   /**
-   * Client {@link Kv} (e.g. `KvPlatform` — localStorage on web, AsyncStorage on
-   * native). Must not use `SecureStorage` / expo-secure-store for this blob:
+   * Client {@link Kv} (e.g. `KvPlatform` — localStorage on web, a key-value
+   * store on native). Must not use `SecureStorage` / secure-store for this blob:
    * room committed log + outbound queue exceed the 2048-byte per-value cap
    * once a handful of entries accumulate.
    */

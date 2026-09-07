@@ -26,7 +26,6 @@ const SKIP_DIRS = new Set([
   'Pods',
   'ios',
   'android',
-  '.expo',
 ]);
 
 const PATTERN =

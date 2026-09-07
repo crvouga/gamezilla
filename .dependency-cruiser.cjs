@@ -1,13 +1,8 @@
 'use strict';
 
 /**
- * Solid-only scope (grows per port phase). Files here must not import React,
- * React Native, Expo, or the legacy `@pkgs/ui-rn` design system.
- */
-const solidScope = require('./tools/port/solid-scope.json');
-/**
  * Framework-agnostic core (grows per port phase). Files here must not import
- * any UI framework — neither React/RN/Expo nor solid-js.
+ * any UI framework — including solid-js.
  */
 const coreScope = require('./tools/port/core-scope.json');
 
@@ -15,11 +10,8 @@ const scopeToPathRegex = (scope) =>
   `^(${[...scope.dirs.map((dir) => `${dir}/`), ...scope.files]
     .map((p) => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
     .join('|')})`;
-const solidScopePath = scopeToPathRegex(solidScope);
 const coreScopePath = scopeToPathRegex(coreScope);
 
-const REACT_STACK_PATH =
-  'node_modules/(react|react-dom|react-native|react-native-[^/]+|expo|expo-[^/]+|@expo|@react-navigation|@react-native|@shopify/react-native-skia|@gorhom|@legendapp|lucide-react|lucide-react-native|@lingui/react)/';
 const SOLID_STACK_PATH =
   'node_modules/(solid-js|@solidjs/[^/]+|@lingui/solid|lucide-solid|@tanstack/solid-[^/]+)/';
 
@@ -27,20 +19,12 @@ const SOLID_STACK_PATH =
 module.exports = {
   forbidden: [
     {
-      name: 'solid-no-react-native',
-      severity: 'error',
-      comment:
-        'Solid code must not import React / React Native / Expo / @pkgs/ui-rn. See tools/port/solid-scope.json.',
-      from: { path: solidScopePath },
-      to: { path: `(${REACT_STACK_PATH}|^pkgs/ui-rn/)` },
-    },
-    {
       name: 'core-no-framework',
       severity: 'error',
       comment:
-        'Framework-agnostic core must not import React / RN / Expo or solid-js. See tools/port/core-scope.json.',
+        'Framework-agnostic core must not import solid-js. See tools/port/core-scope.json.',
       from: { path: coreScopePath },
-      to: { path: `(${REACT_STACK_PATH}|${SOLID_STACK_PATH}|^pkgs/ui-rn/)` },
+      to: { path: `(${SOLID_STACK_PATH})` },
     },
     {
       name: 'no-circular',
@@ -235,7 +219,7 @@ module.exports = {
     // Skip generated build artifacts that bundlers/wranglers stage inside
     // a package directory. These are not source and produce false positives
     // (e.g. wrangler dev stages `.wrangler/` inside a package directory).
-    exclude: '(^|/)(\\.wrangler|\\.turbo|\\.expo|dist|build|coverage)/',
+    exclude: '(^|/)(\\.wrangler|\\.turbo|dist|build|coverage)/',
     tsPreCompilationDeps: true,
     includeOnly: '^(apps|libs|pkgs|product)/',
   },

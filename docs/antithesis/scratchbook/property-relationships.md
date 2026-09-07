@@ -29,7 +29,7 @@ No dominance: passing same-id idempotency does not serialize friend-request uniq
 
 Properties: `memory-journal-crash-wipes-queue`, `schema-epoch-preserves-durable-queue`, `account-switch-close-then-open-sqlite`
 
-Notes: Three different fates of `sync_engine_mutations`. Expo MEMORY crash may **delete the file** (queue gone — claimed); first Node topology applies MEMORY journal but fail-closes (no auto-wipe). Epoch bump must **keep** the queue when migrate/heal runs. Account switch must not **copy** A’s queue into B; the abandoned `user_<anon12>` file is left on disk.
+Notes: Three different fates of `sync_engine_mutations`. web SQLite MEMORY crash may **delete the file** (queue gone — claimed); first Node topology applies MEMORY journal but fail-closes (no auto-wipe). Epoch bump must **keep** the queue when migrate/heal runs. Account switch must not **copy** A’s queue into B; the abandoned `user_<anon12>` file is left on disk.
 
 Do not merge: a pass on epoch-preserve can still fail MEMORY-wipe (opposite intended outcomes).
 

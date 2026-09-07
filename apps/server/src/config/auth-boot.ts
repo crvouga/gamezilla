@@ -16,7 +16,7 @@ function trimOrNull(raw: string | undefined | null): string | null {
 export type AuthBootConfig = {
   readonly secret: string;
   readonly baseURL: string;
-  /** Expo web / production www origin for OAuth return. */
+  /** Web / production www origin for OAuth return. */
   readonly webClientOrigin: string;
   readonly googleClientId: string | null;
   readonly googleClientSecret: string | null;

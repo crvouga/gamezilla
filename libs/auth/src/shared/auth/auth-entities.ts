@@ -24,7 +24,7 @@ export const DeviceAttr = {
   /** Indexed: the device ABAC read policy scopes every query to `id = deviceId`. */
   id: deviceNs.text('id', readString).indexed(),
   createdAt: deviceNs.timestampOrNull('created-at', readTrimmedNullableString),
-  /** 'ios' | 'android' | 'web' — from React Native Platform.OS */
+  /** 'ios' | 'android' | 'web' — device platform */
   platform: deviceNs.textOrNull('platform', readTrimmedNullableString),
   osName: deviceNs.textOrNull('os-name', readTrimmedNullableString),
   osVersion: deviceNs.textOrNull('os-version', readTrimmedNullableString),

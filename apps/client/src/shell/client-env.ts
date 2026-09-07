@@ -30,7 +30,7 @@ export type ServerHttp = (
 /**
  * Outcome of an OAuth popup / auth-session round trip. Mirrors the
  * `@pkgs/auth` client contract (`OpenAuthSessionResult`), declared here so
- * the Solid shell never imports the React-bound adapter module.
+ * the Solid shell never imports the UI-bound adapter module.
  */
 export type OpenAuthSessionResult = {
   readonly type: 'success' | 'cancel' | 'dismiss' | 'locked';
@@ -45,7 +45,7 @@ export type OpenAuthSession = (
 /**
  * Room WebSocket transport factory. Mirrors
  * `@libs/spaces` `CreateRoomTransport`; declared locally because the spaces
- * factory module still carries React context helpers.
+ * factory module still carries context helpers.
  */
 export type CreateRoomTransportArgs = {
   readonly spaceId: string;

@@ -1,12 +1,12 @@
 # Bugs found during sql-client PBT matrix
 
-## BUG-1: Hermes `Number(bigint)` / Postgres int8 rows (fixed)
+## BUG-1: `Number(bigint)` / Postgres int8 rows (fixed)
 
 - **Property / pin:** `bug-bigint-int8.pbt` / `wire-safety.pbt` / portable contract
-- **Symptom:** Expo Go playground hydrate logged `Cannot convert BigInt to number`
+- **Symptom:** Web playground hydrate logged `Cannot convert BigInt to number`
   when postgres-mem returned `bigint` for domain `integer` (physical
-  `bigint`) columns. Hermes rejects `Number(bigint)` / `JSON.stringify(bigint)`.
-- **Fix:** `normalizePgInt8Value` converts via decimal text (Hermes-safe);
+  `bigint`) columns. The engine rejects `Number(bigint)` / `JSON.stringify(bigint)`.
+- **Fix:** `normalizePgInt8Value` converts via decimal text (engine-safe);
   applied on postgres-mem and shared `pgQueryRows` (node-pg).
 - **Pin:** `src/tests/pbt/bug-bigint-int8.pbt.test.ts`,
   `src/tests/contract/portable-contract.ts`, live int8 case in

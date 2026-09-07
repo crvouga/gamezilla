@@ -18,7 +18,7 @@ not upload (`enableMutationUpload: false`) and do not get `pushOptions`
 (no MQTT). If the owner tab is **hung** not dead, Web Locks do not
 release (`sut-analysis` A12) and the durable queue stalls.
 
-Native (`Platform.OS !== 'web'`) always owns. Injected sim
+Native (`platform !== 'web'`) always owns. Injected sim
 `openSqlClient` also skips the lock so a leftover lease cannot pin
 playground reload as a permanent follower
 (`create-local-sync-engine.ts` lines 190–196).
@@ -31,7 +31,7 @@ playground reload as a permanent follower
 | `apps/client/src/sync/create-local-sync-engine.ts` | `enableMutationUpload: syncLease.isOwner`; `pushOptions` only if owner. |
 | `pkgs/sync-engine/src/client/create-local-sync-engine.ts` | `enableMutationUpload === false` skips `uploadQueue.start()` (line 334). |
 | `pkgs/sql-client/src/sqlite/web/db-host-leader.ts` | Separate leader election for the DB host. |
-| `pkgs/sql-client/src/sqlite/expo-web-session-lock-core.ts` | Drop memo so a restored document cannot skip Web Locks after release. |
+| `pkgs/sql-client/src/sqlite/web-session-lock-core.ts` | Drop memo so a restored document cannot skip Web Locks after release. |
 
 ## Failure scenario
 

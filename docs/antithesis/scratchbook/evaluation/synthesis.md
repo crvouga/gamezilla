@@ -33,7 +33,7 @@ Chess-in-a-space / “puzzle solved then not” was **not** added: first topolog
 | `unclassified-401-defaults-expired` Always on `revoked` wipe may never be encountered | fit F4 | Product still never emits `revoked`; left Always on non-revoked bodies; revoked wipe is `AlwaysOrUnreachable` in evidence. |
 | `room-single-log-per-topic` split-brain Unreachable in first topology | fit F7, coverage F6, impl | Deferred. |
 | `web-sync-owner-single-uploader` not in Node topology | coverage F12, impl | Deferred (was Medium in the body). |
-| Expo wipe vs Node fail-closed | fit uncertainty, impl | Catalog invariant already splits Node vs Expo. |
+| web SQLite wipe vs Node fail-closed | fit uncertainty, impl | Catalog invariant already splits Node vs web. |
 | Catalog SHA drift | all lenses | Fixed to `ddde94db…`. |
 | Mixed-schema two-binary half not in first topology | impl | Left Medium; omitted-key merge is also `lww-merge-no-wipe-clobber`. Client-ahead extra column needs a later two-image topology. |
 
@@ -69,7 +69,7 @@ These are orientation problems evaluation can name but not pick.
 
 3. **Two clients vs four identity pairings.** alice/bob cannot simultaneously be same-actor, friends, strangers, and anon→Google. Workload must re-role sequentially; paper pairings are not coverage.
 
-4. **Headless Node vs Expo / Worker-shaped Highs.** MEMORY wipe-on-corrupt, CF boot latch, Web Locks, OPFS are not this image. Footnotes know this; a green Node run is not A11 Expo wipe.
+4. **Headless Node vs web / Worker-shaped Highs.** MEMORY wipe-on-corrupt, CF boot latch, Web Locks, OPFS are not this image. Footnotes know this; a green Node run is not A11 web SQLite wipe.
 
 5. **Always-after-heal is sim settle.** Oracles assume foreground + 30s tick. Product backgrounds. Treat background-during-partition as a default timeline, not a precondition you disable so Always can fire.
 

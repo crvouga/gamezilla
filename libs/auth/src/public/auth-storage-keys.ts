@@ -1,7 +1,7 @@
 /**
  * The complete list of secure-storage keys owned by the auth package.
  *
- * Keys must satisfy `expo-secure-store`'s charset (alphanumerics + `._-`),
+ * Keys must satisfy the secure-store charset (alphanumerics + `._-`),
  * so they cannot use the `prefix/local` keyword grammar from
  * {@link @pkgs/keyword}. Each value is a small identifier (UUID or
  * short JWT) and fits well inside the 2048-byte cap enforced by

@@ -1,6 +1,6 @@
 /**
  * Async {@link Kv} `ClientRoomStorage` adapter — works on web (`localStorage`)
- * and React Native (AsyncStorage). The same code path runs in both.
+ * and in a non-DOM key-value store. The same code path runs in both.
  * Subpath import: `@pkgs/room/client/adapters/storage/key-value`.
  */
 export { keyValueRoomClientKeywords } from './keys';

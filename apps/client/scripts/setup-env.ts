@@ -54,9 +54,7 @@ function createSecretsStore(): SecretStore {
 async function resolveApiOriginFromSecrets(
   store: SecretStore
 ): Promise<string | null> {
-  const value = (
-    await store.getOptional('VITE_API_URL')
-  )?.readSecretValue();
+  const value = (await store.getOptional('VITE_API_URL'))?.readSecretValue();
   if (typeof value === 'string' && value.trim().length > 0) {
     return value.trim();
   }

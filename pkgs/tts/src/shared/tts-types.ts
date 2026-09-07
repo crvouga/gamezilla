@@ -4,14 +4,14 @@ import type { Voice } from './tts-voice';
  * Audio container the TTS pipeline emits and the client expects.
  * `mp3` is the universal default; `wav` is for callers that need lossless
  * (preview tools, integration tests). `format` is required at every layer —
- * the routes / client / React hook all crash when it's missing.
+ * the routes / client / hook all crash when it's missing.
  */
 export const TTS_AUDIO_FORMATS = ['mp3', 'wav'] as const;
 export type TtsAudioFormat = (typeof TTS_AUDIO_FORMATS)[number];
 
 /**
  * Canonical synthesize request. Every field is required at every layer:
- * the React `useTts.play` hook, the `TtsClient` HTTP wrapper, and the
+ * the `useTts.play` hook, the `TtsClient` HTTP wrapper, and the
  * `POST /tts/synthesize` route all reject the call when `text`, `voice`, or
  * `format` is missing. There are no server-side defaults to fall back to.
  */

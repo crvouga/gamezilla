@@ -56,10 +56,10 @@ export function isWaitTextCondition(
  *
  * {@link DriverNode.wait} is the sole waiting API — each implementation uses
  * the host framework's fastest mechanism (Bun.WebView evaluate, Solid DOM /
- * rntl virtual pump, …). Do not reintroduce shared poll intervals here.
+ * test-driver virtual pump, …). Do not reintroduce shared poll intervals here.
  */
 export interface Driver {
-  /** Stable identifier for logs and capability errors (`"rntl"`, …). */
+  /** Stable identifier for logs and capability errors (`"test-driver"`, …). */
   readonly kind: string;
 
   /** Boot / attach to the application under test. */
@@ -108,7 +108,7 @@ export type DriverNode = {
 
   /**
    * Read the element's bounding box, or `null` when the host cannot measure.
-   * May synthesize layout (RNTL) so measured canvases become interactive.
+   * May synthesize layout (test driver) so measured canvases become interactive.
    */
   layout(): Promise<ElementLayout | null>;
 

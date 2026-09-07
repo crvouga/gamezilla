@@ -170,7 +170,7 @@ async function seedSecrets(): Promise<void> {
     }
     const current = (storedActive.get(entry.name) ?? '').trim();
     const shouldRewriteLegacyWww =
-      (entry.name === 'API_URL' || entry.name === 'EXPO_PUBLIC_API_URL') &&
+      (entry.name === 'API_URL' || entry.name === 'VITE_API_URL') &&
       current === legacyWwwApiOrigin();
 
     if (current.length > 0 && !shouldRewriteLegacyWww) continue;

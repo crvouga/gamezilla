@@ -36,11 +36,11 @@ export const API_URL = new Secret({
   seed: async () => productionApiPublicOrigin(),
 });
 
-export const EXPO_PUBLIC_API_URL = new Secret({
-  name: 'EXPO_PUBLIC_API_URL',
+export const VITE_API_URL = new Secret({
+  name: 'VITE_API_URL',
   hint: 'Client-facing API origin (mirrors API_URL in production)',
   optional: true,
-  validate: (input) => validateApiOrigin(input, 'EXPO_PUBLIC_API_URL'),
+  validate: (input) => validateApiOrigin(input, 'VITE_API_URL'),
   seed: async () => productionApiPublicOrigin(),
 });
 
@@ -53,20 +53,20 @@ export const LOCAL_PREVIEW_API_ORIGIN = new Secret({
   },
 });
 
-export const EXPO_PUBLIC_COMMIT_HASH = new Secret({
-  name: 'EXPO_PUBLIC_COMMIT_HASH',
+export const VITE_COMMIT_HASH = new Secret({
+  name: 'VITE_COMMIT_HASH',
   hint: 'Git commit hash injected at client build time',
   optional: true,
   validate: async (input) => {
-    requireNonEmpty(input.secretValue, 'EXPO_PUBLIC_COMMIT_HASH');
+    requireNonEmpty(input.secretValue, 'VITE_COMMIT_HASH');
   },
 });
 
-export const EXPO_PUBLIC_COMMIT_DATE = new Secret({
-  name: 'EXPO_PUBLIC_COMMIT_DATE',
+export const VITE_COMMIT_DATE = new Secret({
+  name: 'VITE_COMMIT_DATE',
   hint: 'Git commit date injected at client build time',
   optional: true,
   validate: async (input) => {
-    requireNonEmpty(input.secretValue, 'EXPO_PUBLIC_COMMIT_DATE');
+    requireNonEmpty(input.secretValue, 'VITE_COMMIT_DATE');
   },
 });

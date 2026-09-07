@@ -279,7 +279,7 @@ function listGlueStrings(
 export class Sql<out T = void> {
   /**
    * Phantom row type — never read at runtime; preserves `T` so `Sql<A>` is not
-   * assignable to `Sql<B>`. Use `!` (not `declare`): Metro's Flow strip-types
+   * assignable to `Sql<B>`. Use `!` (not `declare`): the Flow strip-types
    * plugin rejects `declare` class fields.
    */
   readonly $row!: T;

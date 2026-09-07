@@ -4,11 +4,11 @@
  * Walks via injected {@link ObjectStore} tree layout — no direct `node:fs`.
  */
 import { join } from 'node:path';
-import type { ObjectStore } from '../../pkgs/object-store/src/interface';
 import {
   createRepoTreeObjectStore,
   REPO_TREE_SKIP_DIRS,
 } from '@pkgs/object-store-node-fs/repo-tree-store';
+import type { ObjectStore } from '../../pkgs/object-store/src/interface';
 
 export const REPO_ROOT = join(import.meta.dirname, '../..');
 

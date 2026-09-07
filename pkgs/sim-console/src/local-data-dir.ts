@@ -8,7 +8,7 @@ import { dirname, join, resolve } from 'node:path';
 export const LOCAL_REPORT_DATA_DIRNAME = '.cache/sim-console-data';
 
 /**
- * Expo static assets directory for the latest sim test report dump
+ * Static assets directory for the latest sim test report dump
  * (`@product/console` `public/reports`).
  */
 export const SIM_CONSOLE_REPORTS_DIRNAME = 'product/console/public/reports';
@@ -48,7 +48,7 @@ export function resolveLocalReportDataDir(
 
 /**
  * Absolute path to `<repo>/product/console/public/reports` for the static-bundle
- * report dump consumed by the Expo client.
+ * report dump consumed by the console client.
  */
 export function resolveSimConsoleReportsDir(
   startDir: string,

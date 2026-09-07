@@ -14,7 +14,7 @@
  *
  * Uses `crypto.subtle` which is available in every runtime that hosts the
  * server (Workers, Bun, Node 18+, browsers). This module is `shared/` so it
- * also runs in the React-Native client bundle for tests; production clients
+ * also runs in the web client bundle for tests; production clients
  * never call it because the server is the single source of truth for the key.
  */
 

@@ -21,7 +21,7 @@ export type CreateSimConsoleAppOptions = {
   readonly now?: () => number;
   /**
    * Optional: serve `?format=sqlm` on gzipped native dumps (Bun local report
-   * servers). Workers leave this unset — Expo cannot load sqlite-wasm.
+   * servers). Workers leave this unset — the browser cannot load sqlite-wasm.
    */
   readonly convertSqliteDumpToSqlm?: ConvertSqliteDumpToSqlm;
   /**

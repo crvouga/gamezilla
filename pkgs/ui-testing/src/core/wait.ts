@@ -4,12 +4,12 @@ import { TimeoutError } from './errors';
 
 /**
  * Advance product work between wait polls (virtual-time drain). When set on
- * an rntl driver constructor, replaces the default wall sleep between
+ * a test-driver constructor, replaces the default wall sleep between
  * checks. Not part of the public {@link Driver.wait} options.
  */
 export type WaitPump = () => void | Promise<void>;
 
-/** Internal options for {@link waitUntil} (rntl helper only). */
+/** Internal options for {@link waitUntil} (test-driver helper only). */
 export type WaitUntilOptions = {
   /** Maximum wall time to poll. Default 5_000. */
   timeoutMs?: number;
@@ -30,7 +30,7 @@ const DEFAULT_INTERVAL_MS = 50;
 
 /**
  * Poll `fn` until it returns a truthy value (or resolves to one).
- * RNTL-only helper — Bun.WebView / Solid DOM must not call this.
+ * Test-driver helper — Bun.WebView / Solid DOM must not call this.
  * Throws {@link TimeoutError} on failure.
  */
 export async function waitUntil<T>(

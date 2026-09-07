@@ -43,7 +43,7 @@ function trimBaseUrl(url: string): string {
  * Cache-first thin fetch wrapper for `POST /tts/synthesize`. Every call
  * computes the SHA-256 cache key locally; when the bound {@link ObjectStore}
  * already has bytes for that key, no network I/O happens — the synthesised
- * response points at a local URI that `expo-audio` can play directly. On a
+ * response points at a local URI that the audio player can play directly. On a
  * miss the JSON synth call runs, the audio bytes are streamed to the local
  * store, and the returned `url` is rewritten to the local URI so playback
  * never hits the network for the same utterance again.

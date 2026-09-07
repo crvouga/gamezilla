@@ -53,7 +53,7 @@ function isBunGlobalPath(binPath: string): boolean {
 }
 
 /**
- * Global install for npm-published CLIs (`wrangler`, `eas-cli`, …).
+ * Global install for npm-published CLIs (`wrangler`, `turbo`, …).
  * Prefers `npm install -g` for fresh installs; when {@link NpmGlobalInstallerOptions.bin}
  * resolves to a bun-managed binary, uses `bun add -g` so upgrade updates PATH.
  */

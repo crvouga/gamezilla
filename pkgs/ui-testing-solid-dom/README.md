@@ -2,7 +2,7 @@
 
 `Driver` / `DriverNode` implementation from `@pkgs/ui-testing` over a Solid
 tree rendered into a DOM (happy-dom under Vitest). `kind: 'solid-dom'`. It is
-the in-process replacement for the React Native Testing Library driver: no
+the in-process replacement for the old native driver: no
 browser, emulator, IPC, or HTTP server.
 
 - `get(testId)` resolves `[data-testid="…"]` inside the active actor's

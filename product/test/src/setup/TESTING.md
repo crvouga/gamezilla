@@ -84,7 +84,7 @@ Catalog: `signed-in-alice`, `signed-in-pair`, `friends-pair`, `both-in-space`.
   `listenSimHttpServer` binds Hono on `127.0.0.1:8787` and enforces createSimNet
   crash/partition (actor id via `x-sim-actor`). Tests drive `Bun.WebView`;
   playground embeds the web origin URL. `SIM_MODE=real` boots sidecars via
-  `ensureMaxFidelityStack` (real Postgres + MinIO/EMQX), serves Expo web
+  `ensureMaxFidelityStack` (real Postgres + MinIO/EMQX), serves web web
   (`e2e/serve-max-web.ts`), and does not enable `partition`. Snapshot auth KV
   is injected per actor WebView before hydrate.
 

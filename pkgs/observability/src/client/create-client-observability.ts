@@ -33,8 +33,8 @@ export type CreateClientObservabilityArgs = {
 };
 
 /**
- * Framework-free client {@link Observability} factory shared by the React and
- * Solid providers. Resolves the backend from `backendEnv` / build mode.
+ * Framework-free client {@link Observability} factory shared by the UI
+ * providers. Resolves the backend from `backendEnv` / build mode.
  */
 export function createClientObservability(
   args: CreateClientObservabilityArgs

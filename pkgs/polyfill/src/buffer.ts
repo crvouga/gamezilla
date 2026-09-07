@@ -1,8 +1,8 @@
 import { Buffer as BufferImpl } from 'buffer';
 
 /**
- * Hermes / RN omit Node's `Buffer`. Room wire helpers and `timingSafeEqual`
- * use `Buffer.from` on globalThis.
+ * Some web runtimes omit Node's `Buffer`. Room wire helpers and
+ * `timingSafeEqual` use `Buffer.from` on globalThis.
  */
 export function polyfillBuffer(): void {
   const g = globalThis as typeof globalThis & { Buffer?: typeof BufferImpl };

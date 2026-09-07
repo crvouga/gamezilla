@@ -1,6 +1,6 @@
 /**
  * better-sqlite3 for Jest / Node product simulations. Bun-native tests use
- * {@link SqlClientImplBunSqlite}; Expo apps use {@link SqlClientImplExpoSqlite}.
+ * {@link SqlClientImplBunSqlite}; web apps use the `@pkgs/sql-client-sqlite-web` client.
  */
 
 import { assert } from '@pkgs/assert';

@@ -33,7 +33,7 @@ Do **not** create a root `test/pbt/` folder. Do **not** add `@fast-check/jest` (
 1. Never delete example tests; properties are additive.
 2. Do not replace `SimClock` / timers with `fc.scheduler`.
 3. Do not claim CRDT commutativity for sync merge (server-authoritative LWW).
-4. Do not rebuild `@product/test` RNTL UI scripts on `fc.commands`.
+4. Do not rebuild `@product/test` UI scripts on `fc.commands`.
 5. Do not silently fix production bugs — pin `examples` + log in `PBT_FINDINGS.md`.
 
 ---
@@ -85,7 +85,7 @@ Do **not** create a root `test/pbt/` folder. Do **not** add `@fast-check/jest` (
 | **sync-engine notes** | `runNotesSeed` + `pickWorkloadAction` / `generateWorkload`; `checkInvariants` per step | `SYNC_SIM_SEED` replay; **no shrink** | `fc.commands` + `asyncModelRun`; reuse invariants as postcondition |
 | **room chaos / kit** | `long-chaos-determinism.sim.test.ts` (RNG steps); `runModuleConformance` + `generateCommand` | `SIM_SEED`; no shrink | Add `fc.commands` chaos beside existing; keep same-seed-twice test |
 | **matchmaking** | `seeded-workload.sim.test.ts` joins/ticks fingerprint | `SIM_SEED`; no shrink | Short command sequences; fingerprint + no double-match |
-| **product/test UI** | Fixed RNTL flows; `openSim` seed often frozen | N/A | **Decline** — keep as example regression scripts |
+| **product/test UI** | Fixed UI driver flows; `openSim` seed often frozen | N/A | **Decline** — keep as example regression scripts |
 
 ### DST findings (detail)
 
@@ -102,7 +102,7 @@ Do **not** create a root `test/pbt/` folder. Do **not** add `@fast-check/jest` (
 
 | Class | Why |
 |---|---|
-| `@pkgs/ui` / RNTL / snapshots / React hooks | Noisy, flaky, not pure correctness |
+| `@pkgs/ui` / UI driver / snapshots / Solid hooks | Noisy, flaky, not pure correctness |
 | `product/test` product UI scenarios | Fixed drivers; seed=1; not action generators |
 | Named bug-scenario files in sync-engine/room | Regression documentation — keep; optionally add properties later |
 | Hono / Wrangler / live Neon / Playwright e2e | I/O / env; not isolated |
@@ -167,6 +167,6 @@ property runs show non-trivial coverage for:
 
 - **Candidates found:** ~10 Tier 1 + 3 DST harnesses + large Tier 3 decline set  
 - **Converted:** 10 Tier 1 domains + 3 DST suites (31 properties / 13 files)  
-- **Declined:** UI / RNTL / e2e / tautology / CRDT-merge / `@product/test` UI scripts  
+- **Declined:** UI / e2e / tautology / CRDT-merge / `@product/test` UI scripts  
 - **Bugs found:** none (see `PBT_FINDINGS.md`)  
 - **CI time delta:** full PBT suite ~0.5–2s locally; DST subset ~1.6s — well under the ~2 min budget. Default `numRuns` is 10 local / 40 CI; nightly via `bun run test:pbt:random`.

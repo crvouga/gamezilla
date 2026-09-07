@@ -18,7 +18,6 @@ const SKIP_NAMES = new Set([
   '.vscode',
   'node_modules',
   '.turbo',
-  '.expo',
   '.wrangler',
   'dist',
   'web-build',

@@ -6,7 +6,7 @@ import {
 } from './normalize-pg-int8';
 
 describe('bigintToJsonSafe', () => {
-  test('safe int8 becomes number via decimal text (Hermes-safe)', () => {
+  test('safe int8 becomes number via decimal text (engine-safe)', () => {
     expect(bigintToJsonSafe(42n)).toBe(42);
     expect(typeof bigintToJsonSafe(42n)).toBe('number');
     expect(bigintToJsonSafe(-7n)).toBe(-7);

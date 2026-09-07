@@ -122,14 +122,14 @@ db.query(`SELECT n + 1 AS x FROM t WHERE id = 'b'`);
 // JS after query: avoid Number(bigint) / bigint + number without coercion
 ```
 
-### Browser / Metro
+### Browser
 
 If Node `1.1.2` does not throw, still run the ON CONFLICT case under the
-playground bundler (Metro). Int4 stored as number may only mix after migrate
+playground bundler. Int4 stored as number may only mix after migrate
 binds or a different engine build.
 
 ### Related (already mitigated in gamezilla)
 
-- **BUG-1** (wire): Hermes `Cannot convert BigInt to number` on returned int8 —
+- **BUG-1** (wire): engine `Cannot convert BigInt to number` on returned int8 —
   fixed via `normalizePgInt8*` (`pkgs/sql-client/src/tests/bugs-found.md`).
 - **BUG-2** (in-engine mix): this document + `bug-bigint-mix.pbt.test.ts`.

@@ -21,7 +21,7 @@ Default backends (always on in bun):
 
 Invariants:
 
-1. **Wire-safety** — no `bigint` in query rows / `RunResult`; `JSON.stringify` succeeds; numbers work with `Math.max` (Hermes stand-in).
+1. **Wire-safety** — no `bigint` in query rows / `RunResult`; `JSON.stringify` succeeds; numbers work with `Math.max` (engine stand-in).
 2. **Intra-dialect agreement** — SQLite engines agree; Postgres engines agree (canonical dump).
 3. **Cross-dialect agreement** — sqlite-mem ↔ postgres-mem after type-map + dump codec.
 
@@ -39,7 +39,7 @@ bun run test:pbt:random
 | Backend | Notes |
 | --- | --- |
 | postgres-mem | Fresh instance per sample; in-memory Postgres for unit / PBT |
-| Expo / better-sqlite3 / WASM | Optional; skipped when the engine cannot load |
+| better-sqlite3 / WASM | Optional; skipped when the engine cannot load |
 | Live `pg` / Bun postgres | Int8 pin in `postgres.contract.test.ts` when `DATABASE_URL` is set |
 
 ## Findings

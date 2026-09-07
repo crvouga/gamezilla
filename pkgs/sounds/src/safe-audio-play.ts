@@ -4,8 +4,8 @@ export function isAutoplayBlockedError(error: unknown): boolean {
 }
 
 /**
- * `expo-audio` SharedObjects are released on unmount / Fast Refresh. An
- * in-flight `seekTo` → `play()` that outlives that release throws
+ * Shared audio objects are released on unmount / Fast Refresh. An in-flight
+ * `seekTo` → `play()` that outlives that release throws
  * `NativeSharedObjectNotFoundException` — treat as a no-op, not a crash.
  */
 export function isReleasedSharedObjectError(error: unknown): boolean {

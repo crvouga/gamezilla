@@ -128,7 +128,7 @@ The `onErrorFrame` hook fires the moment an `error` frame is decoded — useful 
 This package is a leaf utility:
 
 - It does not depend on any other workspace package.
-- It does not import Hono, React Native, Cloudflare Workers types, or any HTTP framework.
+- It does not import Hono, Cloudflare Workers types, or any HTTP framework.
 - All `client` / `server` boundary affordances are stateless functions plus one small class — no singletons.
 
 Higher tiers (libs, apps) compose these primitives into their own indexed batch endpoints.

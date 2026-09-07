@@ -1,11 +1,11 @@
-/** Native / non-browser OAuth return for Expo auth sessions. */
+/** Native / non-browser OAuth return for auth sessions. */
 export const AUTH_NATIVE_SSO_CALLBACK_URL = 'gamezilla://sso-callback';
 
 /**
  * Client OAuth return URL for `openAuthSession`.
  *
  * When a browser origin is present (`http:` / `https:`), return same-origin
- * `/sso-callback` so Expo's web popup can complete via
+ * `/sso-callback` so the web popup can complete via
  * `maybeCompleteAuthSession`. Otherwise return the native custom scheme.
  */
 export function oauthClientCallbackUrl(origin: string | undefined): string {

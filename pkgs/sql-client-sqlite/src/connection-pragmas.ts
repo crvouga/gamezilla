@@ -2,13 +2,13 @@ import { raw } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 /**
- * Run on every new SQLite connection (Bun, Expo) so FKs are enforced like
+ * Run on every new SQLite connection (Bun, browser) so FKs are enforced like
  * PostgreSQL and accidental orphan rows fail fast instead of corrupting state.
  *
  * `busy_timeout` lets concurrent readers/writers (sync push + poll + hydration)
- * retry briefly instead of failing immediately with SQLITE_BUSY on native expo-sqlite.
+ * retry briefly instead of failing immediately with SQLITE_BUSY on the native backend.
  *
- * On web, keep the rollback journal and temp tables in memory so expo-sqlite's OPFS
+ * On web, keep the rollback journal and temp tables in memory so the OPFS
  * VFS does not need to create sidecar `-journal` / WAL files (a common source of
  * "cannot create file" failures in production).
  */

@@ -1,7 +1,7 @@
 /**
  * In-memory {@link SqlClient} backed by `@crvouga/sqlite-mem`.
  *
- * Browser playground sims use this instead of Expo OPFS SQLite. Snapshots are
+ * Browser playground sims use this instead of the web OPFS SQLite. Snapshots are
  * sqlite-mem SQLM blobs wrapped with `PRAGMA user_version` (not encoded in SQLM).
  */
 

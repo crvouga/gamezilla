@@ -1,4 +1,4 @@
-// @io-wall-ok — real-mode bun-webview: serve Expo web, then bun:test
+// @io-wall-ok — real-mode bun-webview: serve the web bundle, then bun:test
 
 process.env['SIM_MODE'] = 'real';
 process.env['VITE_API_URL'] =

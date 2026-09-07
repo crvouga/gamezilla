@@ -24,5 +24,5 @@ export const ApiSecretName = {
   s3Bucket: 'S3_BUCKET',
   s3Endpoint: 'S3_ENDPOINT',
   s3Region: 'S3_REGION',
-  expoPublicObservabilityBackend: 'EXPO_PUBLIC_OBSERVABILITY_BACKEND',
+  viteObservabilityBackend: 'VITE_OBSERVABILITY_BACKEND',
 } as const;

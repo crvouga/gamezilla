@@ -5,7 +5,7 @@ import { ghCliDep } from './gh';
 import { gitleaksCliDep } from './gitleaks';
 import { infisicalCliDep } from './infisical';
 import { nodeCliDep } from './node';
-import { easCliDep, wranglerCliDep } from './npm-globals';
+import { wranglerCliDep } from './npm-globals';
 import { turboCliDep } from './turbo';
 import { workspaceCliDep } from './workspace';
 
@@ -17,7 +17,6 @@ export const ALL_CLI_DEPS: readonly CliDep[] = [
   turboCliDep,
   infisicalCliDep,
   wranglerCliDep,
-  easCliDep,
   gitleaksCliDep,
   actionlintCliDep,
   ghCliDep,

@@ -48,8 +48,8 @@ export function sqlite(
         await client.run(raw(`PRAGMA foreign_keys = ON`));
       }
       // Do not wrap in `client.transaction()`: SQLite auto-commits DDL
-      // (CREATE/ALTER/DROP), which fights expo-sqlite web's BEGIN/COMMIT and
-      // surfaces as "Error finalizing statement" on OPFS.
+      // (CREATE/ALTER/DROP), which fights the web SQLite backend's BEGIN/COMMIT
+      // and surfaces as "Error finalizing statement" on OPFS.
       const catalog = await readSqliteCatalog(client, declared);
       const plan = planClient(declared, catalog, { ownership });
       if (!plan.ok) {

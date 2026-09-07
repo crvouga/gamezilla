@@ -20,7 +20,7 @@ async function bodyInitToText(
 }
 
 /**
- * Materialize the body so React Native / Expo can read it.
+ * Materialize the body so the web client can read it.
  *
  * Prefer a string `_bodyInit` / decoded bytes over re-wrapping streams: RN's
  * whatwg-fetch often yields empty `text()` / `arrayBuffer()` for stream bodies,

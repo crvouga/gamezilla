@@ -6,7 +6,7 @@
  *
  * Ignored CVEs must stay empty unless there is no published patched release
  * (`first_patched_version: null`). Revisit when image-size ships a fix past
- * 2.0.2 (metro → expo transitive).
+ * 2.0.2 (transitive).
  */
 import { spawnSync } from 'node:child_process';
 

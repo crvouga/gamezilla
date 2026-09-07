@@ -63,7 +63,7 @@ For every signed-in RoomClient that has received a roster (or welcome that impli
 - `Unreachable`: `accountOnline` while no live roster actor equals `A` (ghost account online) — equivalent to the Always failing one way.
 - After api kill + remake: empty roster ⇒ `accountOnline` false; Always holds if `own` is absent.
 
-`Always` on each roster snapshot, not after a React paint. First topology does not run Expo.
+`Always` on each roster snapshot, not after a React paint. First topology does not run web.
 
 ## Antithesis angle
 

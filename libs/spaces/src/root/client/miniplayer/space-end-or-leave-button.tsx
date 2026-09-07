@@ -19,7 +19,7 @@ export type SpaceEndOrLeaveButtonProps = {
 
 /**
  * Miniplayer control: ends as host or leaves as guest. Requestors are injected
- * from above portal boundaries (`@gorhom/bottom-sheet` loses React context).
+ * from above portal boundaries (portals lose context).
  */
 export function SpaceEndOrLeaveButton(
   props: SpaceEndOrLeaveButtonProps

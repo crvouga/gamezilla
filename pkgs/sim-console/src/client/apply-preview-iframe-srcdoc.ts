@@ -1,6 +1,6 @@
 /**
  * Assign `srcdoc` on a real DOM iframe.
- * React Native Web does not reliably apply the React `srcDoc` prop (especially
+ * The web host does not reliably apply the `srcDoc` prop (especially
  * on the first of several client preview iframes), so the viewer must write
  * the DOM property + attribute after mount.
  */

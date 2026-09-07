@@ -1,6 +1,6 @@
 /**
- * ReportApiClient backed by a read-only ObjectStore (static Expo `public/reports`).
- * Polls instead of SSE so the Expo console needs no report server.
+ * ReportApiClient backed by a read-only ObjectStore (static `public/reports`).
+ * Polls instead of SSE so the console needs no report server.
  */
 
 import type { Timers } from '@pkgs/clock';

@@ -23,11 +23,3 @@ export const wranglerCliDep = defineCliDep({
     installOrUpgradeNpmGlobal('wrangler', 'wrangler');
   },
 });
-
-export const easCliDep = defineCliDep({
-  id: 'eas',
-  dependsOn: ['bun', 'node'],
-  installOrUpgrade() {
-    installOrUpgradeNpmGlobal('eas-cli', 'eas');
-  },
-});

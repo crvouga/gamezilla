@@ -6,7 +6,7 @@ type Translate = (
 ) => string;
 
 /**
- * Pure formatter for tests / non-React callers.
+ * Pure formatter for tests / non-UI callers.
  * Prefer {@link useSpaceDisplayTitle} in UI so Lingui macros extract strings.
  */
 export function formatSpaceDisplayTitle(

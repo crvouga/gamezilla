@@ -26,7 +26,7 @@ function ProfileEntityBootstrap(): JSX.Element {
 }
 
 /**
- * Mounts {@link ProfileEntityBootstrap}. Reacts to identity changes via
+ * Mounts {@link ProfileEntityBootstrap}. Responds to identity changes via
  * {@link useMyId}.
  */
 export function ProfileProvider(props: ParentProps): JSX.Element {

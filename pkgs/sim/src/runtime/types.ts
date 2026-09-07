@@ -69,7 +69,7 @@ export type VirtualTimeRuntimeOptions = {
   readonly startTime?: number;
   /** Override waitForIdle (e.g. sync heartbeats). */
   readonly waitForIdle?: (session: Session) => Promise<void>;
-  /** Override advanceTime (e.g. RNTL serialized runFor). */
+  /** Override advanceTime (e.g. a serialized runFor). */
   readonly advanceTime?: (session: Session, ms: number) => Promise<void>;
 };
 
