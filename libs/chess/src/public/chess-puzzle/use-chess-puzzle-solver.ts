@@ -3,7 +3,8 @@ import {
   useSpaceRoomSelector,
 } from '@libs/spaces/public/room/use-space-room-selector';
 import type { Move } from '@pkgs/chess-board/chess-board-types';
-import { useCallback } from 'react';
+import { type Accessor, createMemo } from 'solid-js';
+
 import {
   countMoveTokens,
   nextSolutionUci,
@@ -62,69 +63,56 @@ function useChessPuzzlePlayRoomSelectors() {
     wrongToSquare,
     expectedFromSquare,
     expectedToSquare,
-    solutionRevealed: solutionRevealedRaw > 0,
+    solutionRevealed: () => solutionRevealedRaw() > 0,
   };
 }
 
-/**
- * Bridges the puzzle play screen to the server-authoritative FSM in
- * {@link ChessPuzzlePlayAttr}. `onMove` dispatches `SubmitChessPuzzleMove`;
- * the server validates host identity, expected token, and move legality
- * before mutating room state.
- *
- * Note: starting a session (`StartChessPuzzlePlay`) is owned by
- * `PuzzlePlayScreen` — keeping a single dispatcher prevents a race where
- * both the screen and this hook fire `Start` in the same idle window.
- */
-export function usePuzzleSolver(args: { puzzleId: string }): {
-  displayFen: string | null;
-  /** Bumps on wrong move / reset so the board remounts when FEN string is unchanged. */
-  layoutKey: number;
-  status: SolveStatus;
-  orientation: 'white' | 'black';
+export function usePuzzleSolver(args: { puzzleId: Accessor<string> }): {
+  displayFen: Accessor<string | null>;
+  layoutKey: Accessor<number>;
+  status: Accessor<SolveStatus>;
+  orientation: Accessor<'white' | 'black'>;
   onMove: (m: Move) => void;
-  solveIdx: number;
-  furthestSolveIdx: number;
-  totalTokens: number;
-  wrongFromSquare: string | null;
-  wrongToSquare: string | null;
-  expectedFromSquare: string | null;
-  expectedToSquare: string | null;
-  /** Next human solution UCI from room moves[solveIdx], or null. */
-  solutionUci: string | null;
-  solutionRevealed: boolean;
-  /** True while opponent opening/reply is staged on the board. */
-  opponentAnimating: boolean;
+  solveIdx: Accessor<number>;
+  furthestSolveIdx: Accessor<number>;
+  totalTokens: Accessor<number>;
+  wrongFromSquare: Accessor<string | null>;
+  wrongToSquare: Accessor<string | null>;
+  expectedFromSquare: Accessor<string | null>;
+  expectedToSquare: Accessor<string | null>;
+  solutionUci: Accessor<string | null>;
+  solutionRevealed: Accessor<boolean>;
+  opponentAnimating: Accessor<boolean>;
 } {
-  const { puzzleId } = args;
   const dispatch = useSpaceRoomDispatch();
   const room = useChessPuzzlePlayRoomSelectors();
 
-  const onMove = useCallback(
-    (m: Move) => {
-      dispatch(SubmitChessPuzzleMove({ uci: uciFromMove(m) }));
-    },
-    [dispatch]
+  const onMove = (m: Move): void => {
+    dispatch(SubmitChessPuzzleMove({ uci: uciFromMove(m) }));
+  };
+
+  const status = createMemo<SolveStatus>(() =>
+    projectSolveStatus({
+      roomStatus: room.roomStatus(),
+      roomPuzzleId: room.roomPuzzleId(),
+      puzzleId: args.puzzleId(),
+    })
   );
 
-  const status = projectSolveStatus({
-    roomStatus: room.roomStatus,
-    roomPuzzleId: room.roomPuzzleId,
-    puzzleId,
-  });
-  const totalTokens = countMoveTokens(room.roomMoves);
+  const totalTokens = createMemo(() => countMoveTokens(room.roomMoves()));
 
-  const { boardFen, opponentAnimating } = usePuzzleOpponentMoveStage({
-    startFen: room.startFen,
-    moves: room.roomMoves,
-    displayFen: room.displayFen,
-    solveIdx: room.solveIdx,
-    furthestSolveIdx: room.furthestSolveIdx,
-    status,
-  });
+  const opponentInput = createMemo(() => ({
+    startFen: room.startFen(),
+    moves: room.roomMoves(),
+    displayFen: room.displayFen(),
+    solveIdx: room.solveIdx(),
+    furthestSolveIdx: room.furthestSolveIdx(),
+    status: status(),
+  }));
+  const opponent = usePuzzleOpponentMoveStage(opponentInput);
 
   return {
-    displayFen: boardFen,
+    displayFen: () => opponent().boardFen,
     layoutKey: room.layoutKey,
     status,
     orientation: room.orientation,
@@ -136,12 +124,14 @@ export function usePuzzleSolver(args: { puzzleId: string }): {
     wrongToSquare: room.wrongToSquare,
     expectedFromSquare: room.expectedFromSquare,
     expectedToSquare: room.expectedToSquare,
-    solutionUci: nextSolutionUci({
-      status,
-      moves: room.roomMoves,
-      solveIdx: room.solveIdx,
-    }),
+    solutionUci: createMemo(() =>
+      nextSolutionUci({
+        status: status(),
+        moves: room.roomMoves(),
+        solveIdx: room.solveIdx(),
+      })
+    ),
     solutionRevealed: room.solutionRevealed,
-    opponentAnimating,
+    opponentAnimating: () => opponent().opponentAnimating,
   };
 }

@@ -2,7 +2,8 @@ import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
 } from '@libs/spaces/public/room/use-space-room-selector';
-import { useCallback, useEffect, useMemo } from 'react';
+import type { Accessor } from 'solid-js';
+import { createEffect, createMemo } from 'solid-js';
 
 import {
   ChessMainMenuScreenAttr,
@@ -15,11 +16,11 @@ import { buildPuzzleMoveHistory } from '../chess-puzzle-move-history';
 import { fenAtSolveIdx, puzzleTokensLength } from '../chess-puzzle-step';
 
 export type PuzzleReviewBoardModel = {
-  readonly ready: boolean;
-  readonly displayFen: string;
-  readonly orientation: ChessPuzzleOrientation;
-  readonly plies: readonly PuzzleHistoryPly[];
-  readonly solveIdx: number;
+  readonly ready: Accessor<boolean>;
+  readonly displayFen: Accessor<string>;
+  readonly orientation: Accessor<ChessPuzzleOrientation>;
+  readonly plies: Accessor<readonly PuzzleHistoryPly[]>;
+  readonly solveIdx: Accessor<number>;
   readonly onSeek: (solveIdx: number) => void;
 };
 
@@ -31,51 +32,44 @@ export function usePuzzleReviewBoard(
   const roomSolveIdx = useSpaceRoomSelector(
     ChessMainMenuScreenAttr.selectedReviewSolveIdx.from
   );
-  const setup = useMemo(() => setupPuzzleStart(fen, moves), [fen, moves]);
-  const tokensLength = useMemo(() => puzzleTokensLength(moves), [moves]);
+  const setup = createMemo(() => setupPuzzleStart(fen, moves));
+  const tokensLength = createMemo(() => puzzleTokensLength(moves));
 
-  useEffect(() => {
-    if (tokensLength <= 0) return;
-    if (roomSolveIdx !== 0) return;
-    dispatch(SeekChessPuzzleReview({ solveIdx: tokensLength }));
-  }, [dispatch, roomSolveIdx, tokensLength]);
+  createEffect(() => {
+    if (tokensLength() <= 0) return;
+    if (roomSolveIdx() !== 0) return;
+    dispatch(SeekChessPuzzleReview({ solveIdx: tokensLength() }));
+  });
 
-  const solveIdx = roomSolveIdx > 0 ? roomSolveIdx : tokensLength;
-
-  const plies = useMemo(
-    () =>
-      buildPuzzleMoveHistory({
-        fen,
-        moves,
-        throughIdx: tokensLength,
-      }),
-    [fen, moves, tokensLength]
+  const solveIdx = createMemo(() =>
+    roomSolveIdx() > 0 ? roomSolveIdx() : tokensLength()
   );
 
-  const displayFen = useMemo(() => {
-    const atIdx = fenAtSolveIdx({ fen, moves, solveIdx });
+  const plies = createMemo(() =>
+    buildPuzzleMoveHistory({ fen, moves, throughIdx: tokensLength() })
+  );
+
+  const displayFen = createMemo(() => {
+    const atIdx = fenAtSolveIdx({ fen, moves, solveIdx: solveIdx() });
     if (atIdx !== null) return atIdx;
-    return setup.kind === 'ready' ? setup.displayFen : '';
-  }, [fen, moves, setup, solveIdx]);
+    const s = setup();
+    return s.kind === 'ready' ? s.displayFen : '';
+  });
 
-  const orientation: ChessPuzzleOrientation =
-    setup.kind === 'ready' ? setup.orientation : 'white';
+  const orientation = createMemo<ChessPuzzleOrientation>(() => {
+    const s = setup();
+    return s.kind === 'ready' ? s.orientation : 'white';
+  });
 
-  const onSeek = useCallback(
-    (targetSolveIdx: number) => {
-      if (targetSolveIdx < 1 || targetSolveIdx > tokensLength) return;
-      if (targetSolveIdx === roomSolveIdx) return;
-      dispatch(SeekChessPuzzleReview({ solveIdx: targetSolveIdx }));
-    },
-    [dispatch, roomSolveIdx, tokensLength]
+  const ready = createMemo(
+    () => setup().kind === 'ready' && displayFen().length > 0
   );
 
-  return {
-    ready: setup.kind === 'ready' && displayFen.length > 0,
-    displayFen,
-    orientation,
-    plies,
-    solveIdx,
-    onSeek,
+  const onSeek = (targetSolveIdx: number): void => {
+    if (targetSolveIdx < 1 || targetSolveIdx > tokensLength()) return;
+    if (targetSolveIdx === roomSolveIdx()) return;
+    dispatch(SeekChessPuzzleReview({ solveIdx: targetSolveIdx }));
   };
+
+  return { ready, displayFen, orientation, plies, solveIdx, onSeek };
 }

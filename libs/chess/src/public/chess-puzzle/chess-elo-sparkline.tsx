@@ -1,6 +1,5 @@
-import { Box, useTheme } from '@pkgs/ui-rn';
-import Svg, { Polyline } from '@pkgs/ui-rn/svg';
-import { type ReactNode, useMemo } from 'react';
+import { Box, useTheme } from '@pkgs/ui';
+import { createMemo, type JSX, Show } from 'solid-js';
 
 const SPARKLINE_HEIGHT = 48;
 const SPARKLINE_WIDTH = 280;
@@ -25,26 +24,29 @@ export type ChessEloSparklineProps = {
   testID?: string;
 };
 
-export function ChessEloSparkline({
-  series,
-  testID,
-}: ChessEloSparklineProps): ReactNode {
+export function ChessEloSparkline(props: ChessEloSparklineProps): JSX.Element {
   const theme = useTheme();
-  const points = useMemo(() => buildPoints(series), [series]);
-  if (points.length === 0) return null;
+  const points = createMemo(() => buildPoints(props.series));
 
   return (
-    <Box testID={testID} sx={{ alignSelf: 'stretch', alignItems: 'center' }}>
-      <Svg width={SPARKLINE_WIDTH} height={SPARKLINE_HEIGHT}>
-        <Polyline
-          points={points}
-          fill="none"
-          stroke={theme.colors.tint}
-          strokeWidth={2}
-          strokeLinejoin="round"
-          strokeLinecap="round"
-        />
-      </Svg>
-    </Box>
+    <Show when={points().length > 0}>
+      <Box
+        dataSet={
+          props.testID !== undefined ? { testid: props.testID } : undefined
+        }
+        sx={{ alignSelf: 'stretch', alignItems: 'center' }}
+      >
+        <svg width={SPARKLINE_WIDTH} height={SPARKLINE_HEIGHT}>
+          <polyline
+            points={points()}
+            fill="none"
+            stroke={theme.palette().tint}
+            stroke-width={2}
+            stroke-linejoin="round"
+            stroke-linecap="round"
+          />
+        </svg>
+      </Box>
+    </Show>
   );
 }

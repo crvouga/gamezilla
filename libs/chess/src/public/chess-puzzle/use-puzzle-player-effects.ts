@@ -1,5 +1,6 @@
 import type { Square } from '@pkgs/chess-board/chess-board-types';
-import { type MutableRefObject, useEffect, useRef } from 'react';
+import { type Accessor, createEffect } from 'solid-js';
+
 import { solvedPuzzleKingSquare } from '../../shared/puzzle-session/solved-king-square';
 import type { ChessPuzzlePlayStatus } from '../chess-puzzle-play';
 import { useChessPuzzleFeedback } from './use-chess-puzzle-feedback';
@@ -8,48 +9,44 @@ import { usePuzzleSolveCelebration } from './use-puzzle-solve-celebration';
 import { usePuzzleStatusFeedback } from './use-puzzle-status-feedback';
 
 export function usePuzzlePlayerEffects(args: {
-  puzzleId: string;
-  solveIdx: number;
-  status: ChessPuzzlePlayStatus | 'loading';
-  displayFen: string | null;
-  lastSubmittedToRef: MutableRefObject<Square | null>;
+  puzzleId: Accessor<string>;
+  solveIdx: Accessor<number>;
+  status: Accessor<ChessPuzzlePlayStatus | 'loading'>;
+  displayFen: Accessor<string | null>;
+  lastSubmittedToRef: { current: Square | null };
 }): {
-  showCorrectFlash: boolean;
-  solvedCrownSquare: Square | null;
-  lastCorrectToSquare: Square | null;
+  showCorrectFlash: Accessor<boolean>;
+  solvedCrownSquare: Accessor<Square | null>;
+  lastCorrectToSquare: Accessor<Square | null>;
 } {
-  const { puzzleId, solveIdx, status, displayFen, lastSubmittedToRef } = args;
   const feedback = useChessPuzzleFeedback();
-  const prevSolveIdxRef = useRef(solveIdx);
+  const prevSolveIdxRef: { current: number } = { current: 0 };
 
-  useEffect(() => {
+  createEffect(() => {
+    void args.puzzleId();
     prevSolveIdxRef.current = 0;
-    lastSubmittedToRef.current = null;
-  }, [lastSubmittedToRef, puzzleId]);
+    args.lastSubmittedToRef.current = null;
+  });
 
   usePuzzleStatusFeedback({
-    puzzleId,
-    status,
+    puzzleId: args.puzzleId,
+    status: args.status,
     feedback,
   });
   const { showCorrectFlash, lastCorrectToSquare } = usePuzzleCorrectMoveFlash({
-    puzzleId,
-    solveIdx,
-    status,
+    puzzleId: args.puzzleId,
+    solveIdx: args.solveIdx,
+    status: args.status,
     feedback,
-    lastSubmittedToRef,
+    lastSubmittedToRef: args.lastSubmittedToRef,
     prevSolveIdxRef,
   });
   const solvedCrownSquare = usePuzzleSolveCelebration({
-    puzzleId,
-    status,
-    displayFen,
+    puzzleId: args.puzzleId,
+    status: args.status,
+    displayFen: args.displayFen,
     solvedKingSquare: solvedPuzzleKingSquare,
   });
 
-  return {
-    showCorrectFlash,
-    solvedCrownSquare,
-    lastCorrectToSquare,
-  };
+  return { showCorrectFlash, solvedCrownSquare, lastCorrectToSquare };
 }

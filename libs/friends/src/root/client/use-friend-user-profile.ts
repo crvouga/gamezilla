@@ -1,6 +1,6 @@
 import { useMyProfileId } from '@libs/profile/public/use-my-profile-id';
-import { useLocalSearchParams, useRouter } from '@pkgs/ui-rn';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useLocalSearchParams, useRouter } from '@pkgs/ui';
+import { createEffect, createMemo } from 'solid-js';
 
 import type { FriendProfile } from '../../shared/friendship/friends-types';
 import { useFriends } from '../../use-cases/list-friends/client/use-friends';
@@ -19,35 +19,36 @@ export function useFriendUserProfile(userId: string) {
   const router = useRouter();
   const myProfileId = useMyProfileId();
   const { friends } = useFriends();
-  const cachedFriend = useMemo(
-    () => friends.find((f) => f.userId === userId) ?? null,
-    [friends, userId]
+  const cachedFriend = createMemo(
+    () => friends.find((f) => f.userId === userId) ?? null
   );
   const params = useLocalSearchParams<{
     username?: string;
     avatarConfig?: string;
   }>();
-  const seedProfile = useMemo<FriendProfile>(
-    () => ({
-      userId,
-      username: readRouteParam(params.username),
-      avatarConfig: readRouteParam(params.avatarConfig) || null,
-    }),
-    [params.avatarConfig, params.username, userId]
-  );
-  const profile = cachedFriend ?? seedProfile;
+  const seedProfile = createMemo<FriendProfile>(() => ({
+    userId,
+    username: readRouteParam(params().username),
+    avatarConfig: readRouteParam(params().avatarConfig) || null,
+  }));
+  const profile = createMemo(() => cachedFriend() ?? seedProfile());
 
-  useEffect(() => {
-    if (myProfileId !== null && userId === myProfileId) {
+  createEffect(() => {
+    if (myProfileId() !== null && userId === myProfileId()) {
       router.replace('/profile');
     }
-  }, [myProfileId, router, userId]);
+  });
 
-  const refreshProfile = useCallback(() => {
+  const refreshProfile = () => {
     // Friends list / route params are already live; no-op for API compat.
-  }, []);
+  };
 
-  return { profile, refreshProfile };
+  return {
+    get profile() {
+      return profile();
+    },
+    refreshProfile,
+  };
 }
 
 export function friendUserBreadcrumbName(

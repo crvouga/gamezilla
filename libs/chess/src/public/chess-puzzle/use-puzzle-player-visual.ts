@@ -1,5 +1,6 @@
 import type { BoardArrow, Square } from '@pkgs/chess-board/chess-board-types';
-import { useMemo } from 'react';
+import { type Accessor, createMemo } from 'solid-js';
+
 import type { HintStage } from '../../shared/puzzle-session/hint-stage';
 import { solutionArrows } from '../../shared/puzzle-session/solve-projection';
 import type { ChessPuzzlePlayStatus } from '../chess-puzzle-play';
@@ -7,24 +8,24 @@ import { usePuzzlePlayerCellFeedback } from './use-puzzle-player-cell-feedback';
 import { usePuzzlePlayerPresentation } from './use-puzzle-player-presentation';
 
 export function usePuzzlePlayerVisual(args: {
-  puzzleId: string;
-  status: ChessPuzzlePlayStatus | 'loading';
-  solveIdx: number;
-  themes: readonly string[];
-  layoutKey: number;
-  orientation: 'white' | 'black';
-  showCorrectFlash: boolean;
-  displayFen: string | null;
-  totalTokens: number;
-  wrongFromSquare: string | null;
-  wrongToSquare: string | null;
-  expectedFromSquare: string | null;
-  expectedToSquare: string | null;
-  solvedCrownSquare: Square | null;
-  lastCorrectToSquare: Square | null;
-  hintStage: HintStage;
-  atFrontier: boolean;
-  rating: number;
+  puzzleId: Accessor<string>;
+  status: Accessor<ChessPuzzlePlayStatus | 'loading'>;
+  solveIdx: Accessor<number>;
+  themes: Accessor<readonly string[]>;
+  layoutKey: Accessor<number>;
+  orientation: Accessor<'white' | 'black'>;
+  showCorrectFlash: Accessor<boolean>;
+  displayFen: Accessor<string | null>;
+  totalTokens: Accessor<number>;
+  wrongFromSquare: Accessor<string | null>;
+  wrongToSquare: Accessor<string | null>;
+  expectedFromSquare: Accessor<string | null>;
+  expectedToSquare: Accessor<string | null>;
+  solvedCrownSquare: Accessor<Square | null>;
+  lastCorrectToSquare: Accessor<Square | null>;
+  hintStage: Accessor<HintStage>;
+  atFrontier: Accessor<boolean>;
+  rating: Accessor<number>;
 }): {
   assistant: ReturnType<typeof usePuzzlePlayerPresentation>['assistant'];
   statusKind: ReturnType<typeof usePuzzlePlayerPresentation>['statusKind'];
@@ -32,7 +33,7 @@ export function usePuzzlePlayerVisual(args: {
   cellHighlights: ReturnType<
     typeof usePuzzlePlayerCellFeedback
   >['cellHighlights'];
-  arrows: readonly BoardArrow[];
+  arrows: Accessor<readonly BoardArrow[]>;
 } {
   const { assistant, statusKind } = usePuzzlePlayerPresentation({
     puzzleId: args.puzzleId,
@@ -57,20 +58,13 @@ export function usePuzzlePlayerVisual(args: {
     lastCorrectToSquare: args.lastCorrectToSquare,
     displayFen: args.displayFen,
   });
-  const arrows = useMemo(
-    () =>
-      solutionArrows({
-        atFrontier: args.atFrontier,
-        hintStage: args.hintStage,
-        expectedFromSquare: args.expectedFromSquare,
-        expectedToSquare: args.expectedToSquare,
-      }),
-    [
-      args.atFrontier,
-      args.hintStage,
-      args.expectedFromSquare,
-      args.expectedToSquare,
-    ]
+  const arrows = createMemo(() =>
+    solutionArrows({
+      atFrontier: args.atFrontier(),
+      hintStage: args.hintStage(),
+      expectedFromSquare: args.expectedFromSquare(),
+      expectedToSquare: args.expectedToSquare(),
+    })
   );
   return { assistant, statusKind, cellFeedback, cellHighlights, arrows };
 }

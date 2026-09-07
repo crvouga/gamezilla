@@ -1,17 +1,18 @@
-import { useLingui } from '@lingui/react/macro';
-import { useMemo } from 'react';
+import { useLingui } from '@lingui/solid/macro';
+import type { Accessor } from 'solid-js';
+import { createMemo } from 'solid-js';
 
 import type { FriendshipStatus } from '../../shared/friendship/friends-types';
 
 export function useFriendUserOverflowMenu(
-  status: FriendshipStatus,
+  status: Accessor<FriendshipStatus>,
   onRemove: () => void,
   onBlock: () => void
 ) {
   const { t } = useLingui();
 
-  return useMemo(() => {
-    if (status !== 'friends') return [];
+  return createMemo(() => {
+    if (status() !== 'friends') return [];
     return [
       {
         id: 'remove',
@@ -25,5 +26,5 @@ export function useFriendUserOverflowMenu(
         endsGroup: true as const,
       },
     ];
-  }, [onBlock, onRemove, status, t]);
+  });
 }

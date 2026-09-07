@@ -17,7 +17,7 @@
     "lint": "bunx biome check --error-on-warnings .",
     "seed:puzzles": "bun run scripts/seed-chess-puzzles.ts",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test tests/puzzle-session && vitest run"
+    "test": "bun test --pass-with-no-tests --path-ignore-patterns='**/*.test.tsx' && vitest run --passWithNoTests"
   },
   "dependencies": {
     "@libs/auth": "workspace:*",
@@ -47,6 +47,7 @@
     "@pkgs/secret-store": "workspace:*",
     "@pkgs/secrets-config": "workspace:*",
     "@pkgs/sim": "workspace:*",
+    "@pkgs/solid-context": "workspace:*",
     "@pkgs/sounds": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",

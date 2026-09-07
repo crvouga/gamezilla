@@ -1,6 +1,11 @@
-import { Box } from '@pkgs/ui-rn';
-import { type ReactNode, useCallback, useState } from 'react';
-import type { LayoutChangeEvent } from 'react-native';
+import { Box } from '@pkgs/ui';
+import {
+  createEffect,
+  createSignal,
+  type JSX,
+  onCleanup,
+  Show,
+} from 'solid-js';
 
 function squareFitSize(
   width: number,
@@ -11,43 +16,39 @@ function squareFitSize(
 }
 
 export type ChessPuzzleBoardFrameProps = {
-  children: (size: number) => ReactNode;
-  /** Optional overlays (celebration scrim, etc.) pinned to the square slot. */
-  overlay?: ReactNode;
-  /** Slim chrome stacked immediately above the square board (same width). */
-  topAccessory?: ReactNode;
-  /** Height reserved for `topAccessory` when fitting the square. */
+  children: (size: number) => JSX.Element;
+  overlay?: JSX.Element;
+  topAccessory?: JSX.Element;
   topAccessoryHeight?: number;
 };
 
-/**
- * Fits a 1:1 chess board slot inside the remaining viewport height. Uses full
- * container width until the square height would exceed the allotted space,
- * then shrinks width to preserve aspect ratio.
- */
-export function ChessPuzzleBoardFrame({
-  children,
-  overlay,
-  topAccessory,
-  topAccessoryHeight = 0,
-}: ChessPuzzleBoardFrameProps): ReactNode {
-  const [size, setSize] = useState(0);
-  const reserveTop = Math.max(0, topAccessoryHeight);
+export function ChessPuzzleBoardFrame(
+  props: ChessPuzzleBoardFrameProps
+): JSX.Element {
+  const [size, setSize] = createSignal(0);
+  const [hostEl, setHostEl] = createSignal<HTMLElement>();
+  const reserveTop = (): number => Math.max(0, props.topAccessoryHeight ?? 0);
 
-  const onLayout = useCallback(
-    (event: LayoutChangeEvent) => {
-      const { width, height } = event.nativeEvent.layout;
-      const next = squareFitSize(width, height, reserveTop);
+  createEffect(() => {
+    const el = hostEl();
+    if (el === undefined) return;
+    const measure = (): void => {
+      const rect = el.getBoundingClientRect();
+      const next = squareFitSize(rect.width, rect.height, reserveTop());
       if (next > 0) {
         setSize((prev) => (prev === next ? prev : next));
       }
-    },
-    [reserveTop]
-  );
+    };
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    measure();
+    onCleanup(() => ro.disconnect());
+  });
 
   return (
     <Box
-      testID="chess-puzzle-board-frame"
+      ref={setHostEl}
+      dataSet={{ testid: 'chess-puzzle-board-frame' }}
       sx={{
         flex: 1,
         minHeight: 0,
@@ -55,21 +56,18 @@ export function ChessPuzzleBoardFrame({
         alignItems: 'center',
         justifyContent: 'center',
       }}
-      onLayout={onLayout}
     >
-      {size > 0 ? (
-        <Box sx={{ width: size }}>
-          {reserveTop > 0 ? (
-            <Box sx={{ height: reserveTop }}>{topAccessory}</Box>
-          ) : (
-            topAccessory
-          )}
-          <Box sx={{ width: size, height: size, position: 'relative' }}>
-            {children(size)}
-            {overlay}
+      <Show when={size() > 0}>
+        <Box sx={{ width: size() }}>
+          <Show when={reserveTop() > 0} fallback={props.topAccessory}>
+            <Box sx={{ height: reserveTop() }}>{props.topAccessory}</Box>
+          </Show>
+          <Box sx={{ width: size(), height: size(), position: 'relative' }}>
+            {props.children(size())}
+            {props.overlay}
           </Box>
         </Box>
-      ) : null}
+      </Show>
     </Box>
   );
 }

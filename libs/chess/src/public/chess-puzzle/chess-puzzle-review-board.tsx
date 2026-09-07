@@ -1,54 +1,43 @@
 import { ChessBoard } from '@pkgs/chess-board/chess-board';
-import { Box } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Box } from '@pkgs/ui';
+import { type JSX, Show } from 'solid-js';
 
 import { ChessPuzzleBoardFrame } from './chess-puzzle-board-frame';
 import { ChessPuzzleBoardLoadingState } from './chess-puzzle-board-loading-state';
 import { ChessPuzzleMoveHistory } from './chess-puzzle-move-history';
-import {
-  type PuzzleReviewBoardModel,
-  usePuzzleReviewBoard,
-} from './use-puzzle-review-board';
-
-function ReviewBoardSlot({
-  size,
-  model,
-}: {
-  size: number;
-  model: PuzzleReviewBoardModel;
-}): ReactNode {
-  if (!model.ready) {
-    return <ChessPuzzleBoardLoadingState size={size} />;
-  }
-  return (
-    <ChessBoard
-      controlled
-      testID="chess-puzzle-review-board"
-      size={size}
-      fen={model.displayFen}
-      fenSyncKey={model.solveIdx}
-      orientation={model.orientation}
-      interactive={false}
-      showCoordinates
-      highlightLastMove
-    />
-  );
-}
+import { usePuzzleReviewBoard } from './use-puzzle-review-board';
 
 export function ChessPuzzleReviewBoard(props: {
   fen: string;
   moves: string;
-}): ReactNode {
+}): JSX.Element {
   const model = usePuzzleReviewBoard(props.fen, props.moves);
   return (
     <Box sx={{ flex: 1, minHeight: 0, alignSelf: 'stretch', gap: 2 }}>
       <ChessPuzzleBoardFrame>
-        {(size) => <ReviewBoardSlot size={size} model={model} />}
+        {(size) => (
+          <Show
+            when={model.ready()}
+            fallback={<ChessPuzzleBoardLoadingState size={size} />}
+          >
+            <ChessBoard
+              controlled
+              dataSet={{ testid: 'chess-puzzle-review-board' }}
+              size={size}
+              fen={model.displayFen()}
+              fenSyncKey={model.solveIdx()}
+              orientation={model.orientation()}
+              interactive={false}
+              showCoordinates
+              highlightLastMove
+            />
+          </Show>
+        )}
       </ChessPuzzleBoardFrame>
       <ChessPuzzleMoveHistory
-        plies={model.plies}
-        selectedSolveIdx={model.solveIdx}
-        interactive={model.ready}
+        plies={model.plies()}
+        selectedSolveIdx={model.solveIdx()}
+        interactive={model.ready()}
         onSeek={model.onSeek}
       />
     </Box>

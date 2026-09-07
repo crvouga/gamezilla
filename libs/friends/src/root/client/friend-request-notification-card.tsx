@@ -4,7 +4,8 @@ import type {
 } from '@libs/notifications/public';
 import { NotificationCardDefault } from '@libs/notifications/public';
 import { Handles } from '@libs/test-ids';
-import { type ReactNode, useCallback, useMemo, useState } from 'react';
+import type { JSX } from 'solid-js';
+import { createMemo, createSignal } from 'solid-js';
 
 import { FriendProfileAvatar } from '../../public/friend-profile-avatar';
 import { FriendRequestDecisionModal } from './friend-request-decision-modal';
@@ -18,25 +19,24 @@ type FriendRequestNotificationCardProps = {
 export function FriendRequestNotificationCard({
   interaction,
   actions,
-}: FriendRequestNotificationCardProps): ReactNode {
-  const [modalOpen, setModalOpen] = useState(false);
-  const profile = useMemo(
-    () => profileFromFriendRequestNotification(interaction),
-    [interaction]
+}: FriendRequestNotificationCardProps): JSX.Element {
+  const [modalOpen, setModalOpen] = createSignal(false);
+  const profile = createMemo(() =>
+    profileFromFriendRequestNotification(interaction)
   );
 
-  const onPress = useCallback(() => {
+  const onPress = () => {
     void actions.markRead(interaction.id);
     setModalOpen(true);
-  }, [actions, interaction.id]);
+  };
 
-  const onClose = useCallback(() => {
+  const onClose = () => {
     setModalOpen(false);
-  }, []);
+  };
 
-  const leading =
-    profile.userId.length > 0 ? (
-      <FriendProfileAvatar profile={profile} size={48} />
+  const leading = () =>
+    profile().userId.length > 0 ? (
+      <FriendProfileAvatar profile={profile()} size={48} />
     ) : undefined;
 
   return (
@@ -46,13 +46,17 @@ export function FriendRequestNotificationCard({
         actions={actions}
         showInlineActions={false}
         onPress={onPress}
-        {...(leading !== undefined ? { leading } : {})}
-        {...(profile.username.length > 0
-          ? { testID: Handles.notificationsFriendRequestCard(profile.username) }
+        {...(leading() !== undefined ? { leading: leading() } : {})}
+        {...(profile().username.length > 0
+          ? {
+              testID: Handles.notificationsFriendRequestCard(
+                profile().username
+              ),
+            }
           : {})}
       />
       <FriendRequestDecisionModal
-        visible={modalOpen}
+        visible={modalOpen()}
         interaction={interaction}
         actions={actions}
         onClose={onClose}

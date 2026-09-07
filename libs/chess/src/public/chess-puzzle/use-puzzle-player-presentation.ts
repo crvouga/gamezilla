@@ -1,4 +1,5 @@
-import { useMemo } from 'react';
+import { type Accessor, createMemo } from 'solid-js';
+
 import { chessPuzzleStatusKindFromState } from '../../shared/puzzle-session/status-kind';
 import {
   type ChessPuzzleDialogueBoardContext,
@@ -7,69 +8,45 @@ import {
 import type { ChessPuzzlePlayStatus } from '../chess-puzzle-play';
 
 export function usePuzzlePlayerPresentation(args: {
-  puzzleId: string;
-  status: ChessPuzzlePlayStatus | 'loading';
-  solveIdx: number;
-  themes: readonly string[];
-  layoutKey: number;
-  orientation: 'white' | 'black';
-  showCorrectFlash: boolean;
-  displayFen: string | null;
-  totalTokens: number;
-  wrongFromSquare: string | null;
-  wrongToSquare: string | null;
-  rating: number;
+  puzzleId: Accessor<string>;
+  status: Accessor<ChessPuzzlePlayStatus | 'loading'>;
+  solveIdx: Accessor<number>;
+  themes: Accessor<readonly string[]>;
+  layoutKey: Accessor<number>;
+  orientation: Accessor<'white' | 'black'>;
+  showCorrectFlash: Accessor<boolean>;
+  displayFen: Accessor<string | null>;
+  totalTokens: Accessor<number>;
+  wrongFromSquare: Accessor<string | null>;
+  wrongToSquare: Accessor<string | null>;
+  rating: Accessor<number>;
 }) {
-  const {
-    puzzleId,
-    status,
-    solveIdx,
-    themes,
-    layoutKey,
-    orientation,
-    showCorrectFlash,
-    displayFen,
-    totalTokens,
-    wrongFromSquare,
-    wrongToSquare,
-    rating,
-  } = args;
-
-  const board = useMemo<ChessPuzzleDialogueBoardContext>(
-    () => ({
-      orientation,
-      displayFen,
-      solveIdx,
-      totalTokens,
-      wrongFromSquare,
-      wrongToSquare,
-      ...(rating > 0 ? { puzzleRating: rating } : {}),
-    }),
-    [
-      orientation,
-      displayFen,
-      solveIdx,
-      totalTokens,
-      wrongFromSquare,
-      wrongToSquare,
-      rating,
-    ]
-  );
+  const board = createMemo<ChessPuzzleDialogueBoardContext>(() => ({
+    orientation: args.orientation(),
+    displayFen: args.displayFen(),
+    solveIdx: args.solveIdx(),
+    totalTokens: args.totalTokens(),
+    wrongFromSquare: args.wrongFromSquare(),
+    wrongToSquare: args.wrongToSquare(),
+    ...(args.rating() > 0 ? { puzzleRating: args.rating() } : {}),
+  }));
 
   const assistant = useChessPuzzleAssistant({
-    puzzleId,
-    status,
-    solveIdx,
-    themes,
-    layoutKey,
+    puzzleId: args.puzzleId,
+    status: args.status,
+    solveIdx: args.solveIdx,
+    themes: args.themes,
+    layoutKey: args.layoutKey,
     board,
   });
 
-  const statusKind = chessPuzzleStatusKindFromState({
-    status,
-    orientation,
-    showCorrectFlash,
-  });
+  const statusKind = createMemo(() =>
+    chessPuzzleStatusKindFromState({
+      status: args.status(),
+      orientation: args.orientation(),
+      showCorrectFlash: args.showCorrectFlash(),
+    })
+  );
 
   return { assistant, statusKind };
 }

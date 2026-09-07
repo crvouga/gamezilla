@@ -16,14 +16,17 @@ export type {
 } from '../../shared/puzzle-session/completion';
 
 export function useChessPuzzleCompletion(args: {
-  puzzleId: string;
-  interactions: readonly ChessPuzzleInteractionRow[];
-  allInteractions: readonly ChessPuzzleInteractionRow[];
-  status: ChessPuzzlePlayStatus | 'loading';
+  puzzleId: Accessor<string>;
+  interactions: Accessor<readonly ChessPuzzleInteractionRow[]>;
+  allInteractions: Accessor<readonly ChessPuzzleInteractionRow[]>;
+  status: Accessor<ChessPuzzlePlayStatus | 'loading'>;
 }): Accessor<PuzzleCompletion | null> {
   return createMemo(() => {
-    const { puzzleId, interactions, allInteractions, status } = args;
-    if (status !== CHESS_PUZZLE_PLAY_STATUS.solved) return null;
-    return derivePuzzleCompletion({ interactions, puzzleId, allInteractions });
+    if (args.status() !== CHESS_PUZZLE_PLAY_STATUS.solved) return null;
+    return derivePuzzleCompletion({
+      interactions: args.interactions(),
+      puzzleId: args.puzzleId(),
+      allInteractions: args.allInteractions(),
+    });
   });
 }

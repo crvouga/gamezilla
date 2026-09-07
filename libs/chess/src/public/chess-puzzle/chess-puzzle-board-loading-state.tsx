@@ -1,21 +1,16 @@
-import { Box, Spinner } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Box, Spinner } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 
-/**
- * Reserves the exact square the {@link ChessBoard} would occupy while a new
- * puzzle's FEN is being fetched. Centers a spinner so loading reads clearly
- * without changing the board slot footprint.
- */
 export type ChessPuzzleBoardLoadingStateProps = {
   size?: number;
 };
 
-export function ChessPuzzleBoardLoadingState({
-  size,
-}: ChessPuzzleBoardLoadingStateProps = {}): ReactNode {
+export function ChessPuzzleBoardLoadingState(
+  props: ChessPuzzleBoardLoadingStateProps = {}
+): JSX.Element {
   const dimensionSx =
-    size !== undefined
-      ? { width: size, height: size }
+    props.size !== undefined
+      ? { width: props.size, height: props.size }
       : { width: '100%' as const, aspectRatio: 1 };
   return (
     <Box

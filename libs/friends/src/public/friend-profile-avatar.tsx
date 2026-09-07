@@ -1,6 +1,6 @@
 import { parseAvatarConfig } from '@libs/profile/public/avatar-config';
 import { DeviceAvatar } from '@libs/profile/public/device-avatar';
-import type { ReactNode } from 'react';
+import type { JSX } from 'solid-js';
 
 import type { FriendProfile } from '../shared/friendship/friends-types';
 
@@ -12,7 +12,7 @@ export type FriendProfileAvatarProps = {
 export function FriendProfileAvatar({
   profile,
   size,
-}: FriendProfileAvatarProps): ReactNode {
+}: FriendProfileAvatarProps): JSX.Element {
   return (
     <DeviceAvatar
       avatarConfig={parseAvatarConfig(profile.avatarConfig)}

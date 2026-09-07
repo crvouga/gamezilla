@@ -1,12 +1,13 @@
-import { Trans } from '@lingui/react/macro';
+import { Trans } from '@lingui/solid/macro';
 import {
   ScreenBase,
   type ScreenBaseAction,
+  useBreadcrumbNav,
   useLocalSearchParams,
   useRouter,
-} from '@pkgs/ui-rn';
-import { useBreadcrumbNav } from '@pkgs/ui-rn/components/use-breadcrumb-nav';
-import { type ReactNode, useCallback, useMemo, useState } from 'react';
+} from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+import { createMemo, createSignal, Show } from 'solid-js';
 import { useFriendRequestIdsForUser } from '../../public/use-friend-request-ids';
 import { useFriendshipStatus } from '../../public/use-friendship-status';
 import { useBlockUser } from '../../use-cases/block-user/client/use-block-user';
@@ -21,22 +22,22 @@ import {
   useFriendUserProfile,
 } from './use-friend-user-profile';
 
-function FriendUserScreenBody({ userId }: { userId: string }): ReactNode {
+function FriendUserScreenBody(props: { userId: string }): JSX.Element {
   const router = useRouter();
   const nav = useBreadcrumbNav();
-  const status = useFriendshipStatus(userId);
-  const requestIds = useFriendRequestIdsForUser(userId);
-  const { profile, refreshProfile } = useFriendUserProfile(userId);
-  const [removeOpen, setRemoveOpen] = useState(false);
-  const [blockOpen, setBlockOpen] = useState(false);
+  const status = useFriendshipStatus(props.userId);
+  const requestIds = useFriendRequestIdsForUser(props.userId);
+  const userProfile = useFriendUserProfile(props.userId);
+  const [removeOpen, setRemoveOpen] = createSignal(false);
+  const [blockOpen, setBlockOpen] = createSignal(false);
   const removeFriend = useRemoveFriend();
   const blockUser = useBlockUser();
-  const removeFriendForUser = useCallback(async () => {
-    await removeFriend(userId);
-  }, [removeFriend, userId]);
-  const blockUserForUser = useCallback(async () => {
-    await blockUser(userId);
-  }, [blockUser, userId]);
+  const removeFriendForUser = async () => {
+    await removeFriend(props.userId);
+  };
+  const blockUserForUser = async () => {
+    await blockUser(props.userId);
+  };
   const dangerHandlers = createFriendUserDangerHandlers({
     removeFriend: removeFriendForUser,
     blockUser: blockUserForUser,
@@ -49,35 +50,36 @@ function FriendUserScreenBody({ userId }: { userId: string }): ReactNode {
     () => setRemoveOpen(true),
     () => setBlockOpen(true)
   );
-  const headerActions = useMemo((): ScreenBaseAction[] => {
-    return menuActions.map((action) => ({
+  const headerActions = createMemo((): ScreenBaseAction[] => {
+    return menuActions().map((action) => ({
       type: 'default' as const,
       label: action.label,
-      onPress: action.onPress,
+      onClick: action.onPress,
       overflow: 'always' as const,
       ...(action.endsGroup === true ? { endsGroup: true } : {}),
     }));
-  }, [menuActions]);
+  });
+  const breadcrumbs = createMemo(() => [
+    { name: <Trans>Profile</Trans>, onClick: nav('/profile') },
+    { name: friendUserBreadcrumbName(userProfile.profile, props.userId) },
+  ]);
 
   return (
     <ScreenBase
       screenId="friend-user"
-      breadcrumbs={[
-        { name: <Trans>Profile</Trans>, onPress: nav('/profile') },
-        { name: friendUserBreadcrumbName(profile, userId) },
-      ]}
-      actions={headerActions}
+      breadcrumbs={breadcrumbs()}
+      actions={headerActions()}
       content={({ sx }) => (
         <FriendUserScreenContent
           sx={sx}
-          profile={profile}
-          userId={userId}
-          status={status}
+          profile={userProfile.profile}
+          userId={props.userId}
+          status={status()}
           incomingRequestId={requestIds.incomingRequestId}
           outgoingRequestId={requestIds.outgoingRequestId}
-          onChanged={refreshProfile}
-          removeOpen={removeOpen}
-          blockOpen={blockOpen}
+          onChanged={userProfile.refreshProfile}
+          removeOpen={removeOpen()}
+          blockOpen={blockOpen()}
           onCloseRemove={() => setRemoveOpen(false)}
           onCloseBlock={() => setBlockOpen(false)}
           onRemove={dangerHandlers.onRemove}
@@ -88,12 +90,14 @@ function FriendUserScreenBody({ userId }: { userId: string }): ReactNode {
   );
 }
 
-export function FriendUserScreen(): ReactNode {
-  const { userId: rawUserId } = useLocalSearchParams<{ userId: string }>();
-  const userId = readRouteParam(rawUserId);
+export function FriendUserScreen(): JSX.Element {
+  const params = useLocalSearchParams<{ userId: string }>();
+  const userId = () => readRouteParam(params().userId);
   return (
     <FriendsSignedInGate>
-      {userId.length > 0 ? <FriendUserScreenBody userId={userId} /> : null}
+      <Show when={userId().length > 0}>
+        <FriendUserScreenBody userId={userId()} />
+      </Show>
     </FriendsSignedInGate>
   );
 }

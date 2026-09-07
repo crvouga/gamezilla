@@ -1,110 +1,47 @@
-import {
-  snapAnimatedValue,
-  startTiming,
-} from '@pkgs/ui-rn/animation/run-timing';
-import { USE_NATIVE_DRIVER } from '@pkgs/ui-rn/animation/use-native-driver';
-import { motion } from '@pkgs/ui-rn/theme/motion';
-import { useEffect, useRef } from 'react';
-import { Animated, Easing } from 'react-native';
+import { useTimers } from '@pkgs/clock/solid';
+import { motion } from '@pkgs/ui';
+import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js';
 
-type OverlayValues = {
-  scrimOpacity: Animated.Value;
-  cardOpacity: Animated.Value;
-  cardScale: Animated.Value;
-  vignetteOpacity: Animated.Value;
+export type CelebrationOverlayAnimation = {
+  scrimOpacity: Accessor<number>;
+  cardOpacity: Accessor<number>;
+  cardScale: Accessor<number>;
+  vignetteOpacity: Accessor<number>;
 };
-
-function snapCelebration(values: OverlayValues): void {
-  snapAnimatedValue(values.scrimOpacity, 1);
-  snapAnimatedValue(values.cardOpacity, 1);
-  snapAnimatedValue(values.cardScale, 1);
-  snapAnimatedValue(values.vignetteOpacity, 0.25);
-}
-
-function startCardTimings(values: OverlayValues): () => void {
-  const card = startTiming(values.cardOpacity, {
-    toValue: 1,
-    duration: motion.duration.slow,
-    easing: Easing.bezier(0, 0, 0, 1),
-    useNativeDriver: USE_NATIVE_DRIVER,
-  });
-  const scale = startTiming(values.cardScale, {
-    toValue: 1,
-    duration: motion.duration.slow,
-    easing: Easing.bezier(0, 0, 0, 1),
-    useNativeDriver: USE_NATIVE_DRIVER,
-  });
-  return () => {
-    card.stop();
-    scale.stop();
-  };
-}
-
-function startVignette(values: OverlayValues): () => void {
-  if (motion.duration.slower <= 0) {
-    snapAnimatedValue(values.vignetteOpacity, 0.25);
-    return () => undefined;
-  }
-  const loop = Animated.loop(
-    Animated.sequence([
-      Animated.timing(values.vignetteOpacity, {
-        toValue: 0.35,
-        duration: motion.duration.slower,
-        easing: Easing.inOut(Easing.ease),
-        useNativeDriver: USE_NATIVE_DRIVER,
-      }),
-      Animated.timing(values.vignetteOpacity, {
-        toValue: 0.15,
-        duration: motion.duration.slower,
-        easing: Easing.inOut(Easing.ease),
-        useNativeDriver: USE_NATIVE_DRIVER,
-      }),
-    ])
-  );
-  loop.start();
-  return () => loop.stop();
-}
-
-function runCelebrationTimings(values: OverlayValues): () => void {
-  const scrim = startTiming(values.scrimOpacity, {
-    toValue: 1,
-    duration: motion.duration.fast,
-    useNativeDriver: USE_NATIVE_DRIVER,
-  });
-  const stopCard = startCardTimings(values);
-  const stopVignette = startVignette(values);
-  return () => {
-    scrim.stop();
-    stopCard();
-    stopVignette();
-  };
-}
 
 export function useCelebrationOverlayAnimation(
   completionKey: string
-): OverlayValues {
-  const scrimOpacity = useRef(new Animated.Value(0)).current;
-  const cardOpacity = useRef(new Animated.Value(0)).current;
-  const cardScale = useRef(new Animated.Value(0.92)).current;
-  const vignetteOpacity = useRef(new Animated.Value(0)).current;
-  const values: OverlayValues = {
-    scrimOpacity,
-    cardOpacity,
-    cardScale,
-    vignetteOpacity,
-  };
+): CelebrationOverlayAnimation {
+  const timers = useTimers();
+  const [scrimOpacity, setScrimOpacity] = createSignal(0);
+  const [cardOpacity, setCardOpacity] = createSignal(0);
+  const [cardScale, setCardScale] = createSignal(0.92);
+  const [vignetteOpacity, setVignetteOpacity] = createSignal(0.15);
 
-  useEffect(() => {
-    scrimOpacity.setValue(0);
-    cardOpacity.setValue(0);
-    cardScale.setValue(0.92);
-    vignetteOpacity.setValue(0);
-    if (motion.duration.fast <= 0) {
-      snapCelebration(values);
-      return;
-    }
-    return runCelebrationTimings(values);
-  }, [cardOpacity, cardScale, completionKey, scrimOpacity, vignetteOpacity]);
+  createEffect(() => {
+    void completionKey;
+    setScrimOpacity(0);
+    setCardOpacity(0);
+    setCardScale(0.92);
+    setVignetteOpacity(0.15);
 
-  return values;
+    const enterId = timers.setTimeout(() => {
+      setScrimOpacity(1);
+      setCardOpacity(1);
+      setCardScale(1);
+    }, 0);
+
+    let pulse = true;
+    const loopId = timers.setInterval(() => {
+      pulse = !pulse;
+      setVignetteOpacity(pulse ? 0.35 : 0.15);
+    }, motion.duration.slower);
+
+    onCleanup(() => {
+      timers.clearTimeout(enterId);
+      timers.clearInterval(loopId);
+    });
+  });
+
+  return { scrimOpacity, cardOpacity, cardScale, vignetteOpacity };
 }

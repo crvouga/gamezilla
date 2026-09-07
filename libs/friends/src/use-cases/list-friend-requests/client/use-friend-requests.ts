@@ -2,8 +2,8 @@ import { useMyId } from '@libs/auth/public/use-current-user';
 import type { Sql } from '@pkgs/sql';
 import { sql } from '@pkgs/sql';
 
-import { useQuery, useSyncEngine } from '@pkgs/sync-engine/client';
-import { useMemo } from 'react';
+import { createQuery, useSyncEngine } from '@pkgs/sync-engine/solid';
+import { createMemo } from 'solid-js';
 
 import type { FriendRequest } from '../../../shared/friendship/friends-types';
 
@@ -89,53 +89,65 @@ function mapRequestRow(row: FriendRequestRow): FriendRequest {
 }
 
 export function useIncomingFriendRequests(): {
-  requests: readonly FriendRequest[];
-  isLoading: boolean;
+  readonly requests: readonly FriendRequest[];
+  readonly isLoading: boolean;
 } {
   const { paintReady } = useSyncEngine();
   const myId = useMyId();
-  const enabled = paintReady && myId.length > 0;
-  const query = useMemo(
-    () => pendingIncomingSql(myId, enabled),
-    [myId, enabled]
+  const enabled = createMemo(() => paintReady() && myId().length > 0);
+  const { rows, isLoading } = createQuery(() =>
+    pendingIncomingSql(myId(), enabled())
   );
-  const { rows, isLoading } = useQuery(query);
-  const requests = useMemo(() => rows.map(mapRequestRow), [rows]);
-  if (!paintReady) {
-    return { requests: [], isLoading: true };
-  }
-  return { requests, isLoading: myId.length === 0 ? false : isLoading };
+  const requests = createMemo(() => rows().map(mapRequestRow));
+  return {
+    get requests() {
+      return paintReady() ? requests() : [];
+    },
+    get isLoading() {
+      if (!paintReady()) return true;
+      return myId().length === 0 ? false : isLoading();
+    },
+  };
 }
 
 export function useOutgoingFriendRequests(): {
-  requests: readonly FriendRequest[];
-  isLoading: boolean;
+  readonly requests: readonly FriendRequest[];
+  readonly isLoading: boolean;
 } {
   const { paintReady } = useSyncEngine();
   const myId = useMyId();
-  const enabled = paintReady && myId.length > 0;
-  const query = useMemo(
-    () => pendingOutgoingSql(myId, enabled),
-    [myId, enabled]
+  const enabled = createMemo(() => paintReady() && myId().length > 0);
+  const { rows, isLoading } = createQuery(() =>
+    pendingOutgoingSql(myId(), enabled())
   );
-  const { rows, isLoading } = useQuery(query);
-  const requests = useMemo(() => rows.map(mapRequestRow), [rows]);
-  if (!paintReady) {
-    return { requests: [], isLoading: true };
-  }
-  return { requests, isLoading: myId.length === 0 ? false : isLoading };
+  const requests = createMemo(() => rows().map(mapRequestRow));
+  return {
+    get requests() {
+      return paintReady() ? requests() : [];
+    },
+    get isLoading() {
+      if (!paintReady()) return true;
+      return myId().length === 0 ? false : isLoading();
+    },
+  };
 }
 
 export function useFriendRequests(): {
-  incoming: readonly FriendRequest[];
-  outgoing: readonly FriendRequest[];
-  isLoading: boolean;
+  readonly incoming: readonly FriendRequest[];
+  readonly outgoing: readonly FriendRequest[];
+  readonly isLoading: boolean;
 } {
   const incomingState = useIncomingFriendRequests();
   const outgoingState = useOutgoingFriendRequests();
   return {
-    incoming: incomingState.requests,
-    outgoing: outgoingState.requests,
-    isLoading: incomingState.isLoading || outgoingState.isLoading,
+    get incoming() {
+      return incomingState.requests;
+    },
+    get outgoing() {
+      return outgoingState.requests;
+    },
+    get isLoading() {
+      return incomingState.isLoading || outgoingState.isLoading;
+    },
   };
 }

@@ -1,8 +1,4 @@
-/**
- * Maps {@link buildChessPuzzleActionBarPlan} slots to BottomActionBar items.
- */
-
-import { Trans } from '@lingui/react/macro';
+import { Trans } from '@lingui/solid/macro';
 import {
   type BottomActionBarItem,
   ChevronLeftIcon,
@@ -10,8 +6,8 @@ import {
   type IconComponent,
   LightbulbIcon,
   RotateCcwIcon,
-} from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+} from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 
 import {
   buildChessPuzzleActionBarPlan,
@@ -48,14 +44,14 @@ function mapHintSlot(
       ),
     icon: LightbulbIcon,
     disabled: slot.disabled,
-    onPress: onHint,
-    testID: 'chess-puzzle-action-hint',
+    onClick: onHint,
+    dataSet: { testid: 'chess-puzzle-action-hint' },
   };
 }
 
 function mapNavAction(args: {
   id: 'back' | 'forward' | 'next' | 'retry' | 'solution';
-  label: ReactNode;
+  label: JSX.Element;
   icon: IconComponent;
   disabled: boolean;
   onPress: () => void;
@@ -66,8 +62,8 @@ function mapNavAction(args: {
     label: args.label,
     icon: args.icon,
     disabled: args.disabled,
-    onPress: args.onPress,
-    testID: `chess-puzzle-action-${args.id}`,
+    onClick: args.onPress,
+    dataSet: { testid: `chess-puzzle-action-${args.id}` },
   };
 }
 
@@ -110,8 +106,8 @@ function mapSlot(
       title: <Trans>Retry</Trans>,
       intent: 'danger',
       startIcon: <RotateCcwIcon />,
-      onPress: p.onRetry,
-      testID: 'chess-puzzle-action-retry',
+      onClick: p.onRetry,
+      dataSet: { testid: 'chess-puzzle-action-retry' },
     };
   }
   if (slot.id === 'retry') {
@@ -130,8 +126,8 @@ function mapSlot(
       title: <Trans>Next</Trans>,
       intent: 'success',
       endIcon: <ChevronRightIcon />,
-      onPress: p.onNext,
-      testID: 'chess-puzzle-action-next',
+      onClick: p.onNext,
+      dataSet: { testid: 'chess-puzzle-action-next' },
     };
   }
   return mapNavAction({
@@ -143,7 +139,6 @@ function mapSlot(
   });
 }
 
-/** Builds mode-specific bottom-bar items. */
 export function buildChessPuzzleActionBarItems(
   p: ChessPuzzleActionBarModel
 ): BottomActionBarItem[] {

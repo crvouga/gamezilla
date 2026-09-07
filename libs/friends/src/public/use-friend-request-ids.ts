@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { createMemo } from 'solid-js';
 
 import {
   useIncomingFriendRequests,
@@ -12,7 +12,7 @@ export function useFriendRequestIdsForUser(targetUserId: string): {
   const { requests: incoming } = useIncomingFriendRequests();
   const { requests: outgoing } = useOutgoingFriendRequests();
 
-  return useMemo(() => {
+  const ids = createMemo(() => {
     if (targetUserId.length === 0) {
       return { incomingRequestId: null, outgoingRequestId: null };
     }
@@ -22,5 +22,14 @@ export function useFriendRequestIdsForUser(targetUserId: string): {
       incomingRequestId: incomingMatch?.id ?? null,
       outgoingRequestId: outgoingMatch?.id ?? null,
     };
-  }, [incoming, outgoing, targetUserId]);
+  });
+
+  return {
+    get incomingRequestId() {
+      return ids().incomingRequestId;
+    },
+    get outgoingRequestId() {
+      return ids().outgoingRequestId;
+    },
+  };
 }

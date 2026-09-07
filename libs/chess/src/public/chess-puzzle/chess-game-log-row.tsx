@@ -1,15 +1,15 @@
-import { Trans } from '@lingui/react/macro';
+import { Trans } from '@lingui/solid/macro';
 import {
   Box,
   ChevronRightIcon,
   CircleCheckIcon,
-  Pressable,
+  Clickable,
   Text,
   useRelativeTimeLabel,
   useTheme,
   XIcon,
-} from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+} from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 
 import type { ChessPuzzleGameLogEntry } from '../chess-puzzle-stats';
 
@@ -18,57 +18,48 @@ function formatSignedDelta(delta: number): string {
   return String(delta);
 }
 
-function GameLogTitle({
-  solved,
-  puzzleRating,
-}: {
+function GameLogTitle(props: {
   solved: boolean;
   puzzleRating: number;
-}): ReactNode {
-  if (solved) return <Trans>Solved · {puzzleRating}</Trans>;
-  return <Trans>Abandoned · {puzzleRating}</Trans>;
+}): JSX.Element {
+  if (props.solved) return <Trans>Solved · {props.puzzleRating}</Trans>;
+  return <Trans>Abandoned · {props.puzzleRating}</Trans>;
 }
 
-function GameLogCaption({
-  puzzleId,
-  timeLabel,
-}: {
+function GameLogCaption(props: {
   puzzleId: string;
   timeLabel: string;
-}): ReactNode {
+}): JSX.Element {
   return (
     <Trans>
-      {puzzleId} · {timeLabel}
+      {props.puzzleId} · {props.timeLabel}
     </Trans>
   );
 }
 
 export type ChessGameLogRowProps = {
   entry: ChessPuzzleGameLogEntry;
-  onPress: () => void;
+  onClick: () => void;
 };
 
-export function ChessGameLogRow({
-  entry,
-  onPress,
-}: ChessGameLogRowProps): ReactNode {
+export function ChessGameLogRow(props: ChessGameLogRowProps): JSX.Element {
   const theme = useTheme();
-  const solved = entry.outcome === 'solved';
-  const puzzleRating = entry.puzzleRating;
-  const timeLabel = useRelativeTimeLabel(entry.at);
+  const solved = props.entry.outcome === 'solved';
+  const puzzleRating = props.entry.puzzleRating;
+  const timeLabel = useRelativeTimeLabel(() => props.entry.at);
   const deltaColor =
-    entry.delta > 0
+    props.entry.delta > 0
       ? theme.colors.success
-      : entry.delta < 0
+      : props.entry.delta < 0
         ? theme.colors.destructive
         : theme.colors.textSecondary;
   const Icon = solved ? CircleCheckIcon : XIcon;
 
   return (
-    <Pressable
-      onPress={onPress}
-      accessibilityRole="button"
-      testID={`chess-game-log-row-${entry.puzzleId}`}
+    <Clickable
+      onClick={props.onClick}
+      role="button"
+      dataSet={{ testid: `chess-game-log-row-${props.entry.puzzleId}` }}
     >
       <Box
         sx={{
@@ -80,10 +71,7 @@ export function ChessGameLogRow({
           background: 'surfaceMuted',
         }}
       >
-        <Icon
-          size={18}
-          color={solved ? theme.colors.success : theme.colors.destructive}
-        />
+        <Icon size={18} color={solved ? 'success' : 'destructive'} />
         <Box sx={{ flex: 1, gap: 1 }}>
           <Text
             variant="bodyBold"
@@ -94,17 +82,20 @@ export function ChessGameLogRow({
             variant="caption"
             sx={{ color: 'textSecondary' }}
             label={
-              <GameLogCaption puzzleId={entry.puzzleId} timeLabel={timeLabel} />
+              <GameLogCaption
+                puzzleId={props.entry.puzzleId}
+                timeLabel={timeLabel()}
+              />
             }
           />
         </Box>
         <Text
           variant="bodyBold"
           sx={{ color: deltaColor }}
-          label={formatSignedDelta(entry.delta)}
+          label={formatSignedDelta(props.entry.delta)}
         />
-        <ChevronRightIcon size={20} color={theme.colors.icon} />
+        <ChevronRightIcon size={20} color="icon" />
       </Box>
-    </Pressable>
+    </Clickable>
   );
 }

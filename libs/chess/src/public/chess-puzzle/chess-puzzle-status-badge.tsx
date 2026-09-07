@@ -1,16 +1,11 @@
-import { Box, Text } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Box, Text } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 
-/** Circular outcome badge: semantic fill + contrast-safe mark. */
-export function ChessPuzzleStatusBadge({
-  bg,
-  fg,
-  mark,
-}: {
+export function ChessPuzzleStatusBadge(props: {
   bg: string;
   fg: string;
-  mark: ReactNode;
-}): ReactNode {
+  mark: JSX.Element;
+}): JSX.Element {
   return (
     <Box
       sx={{
@@ -19,12 +14,17 @@ export function ChessPuzzleStatusBadge({
         borderRadius: 10,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: bg,
+        backgroundColor: props.bg,
       }}
     >
       <Text
-        sx={{ fontSize: 12, fontWeight: '700', lineHeight: 14, color: fg }}
-        label={mark}
+        sx={{
+          fontSize: 12,
+          fontWeight: '700',
+          lineHeight: 14,
+          color: props.fg,
+        }}
+        label={props.mark}
       />
     </Box>
   );

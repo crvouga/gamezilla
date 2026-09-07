@@ -3,5 +3,5 @@ import { defineSolidVitestConfig } from '@pkgs/vitest-solid/config';
 
 export default defineSolidVitestConfig({
   root: import.meta.dirname,
-  include: ['tests/**/*.test.tsx'],
+  include: ['src/**/*.test.tsx', 'tests/**/*.test.tsx'],
 });

@@ -1,10 +1,4 @@
-import {
-  hapticError,
-  hapticSelection,
-  hapticSuccess,
-} from '@pkgs/chess-board/chess-board-haptics';
-import { useChessBoardSounds } from '@pkgs/chess-board/chess-board-sounds';
-import { useCallback, useMemo } from 'react';
+import { createChessBoardSounds } from '@pkgs/chess-board/chess-board-sounds';
 
 import { useChessPuzzleSounds } from './use-chess-puzzle-sounds';
 
@@ -15,50 +9,34 @@ export function useChessPuzzleFeedback(): {
   onEloTick: () => void;
   onEloComplete: (delta: number) => void;
 } {
-  const boardSounds = useChessBoardSounds();
+  const boardSounds = createChessBoardSounds();
   const puzzleSounds = useChessPuzzleSounds();
 
-  const onCorrectMove = useCallback(() => {
+  const onCorrectMove = (): void => {
     puzzleSounds.playCorrectMove();
-    hapticSelection();
-  }, [puzzleSounds]);
+  };
 
-  const onWrongMove = useCallback(() => {
+  const onWrongMove = (): void => {
     boardSounds.playIllegal();
-    hapticError();
-  }, [boardSounds]);
+  };
 
-  const onSolved = useCallback(() => {
+  const onSolved = (): void => {
     puzzleSounds.playSolved();
-    hapticSuccess();
-  }, [puzzleSounds]);
+  };
 
-  const onEloTick = useCallback(() => {
+  const onEloTick = (): void => {
     puzzleSounds.playEloTick();
-  }, [puzzleSounds]);
+  };
 
-  const onEloComplete = useCallback(
-    (delta: number) => {
-      if (delta > 0) {
-        puzzleSounds.playEloCompleteGain();
-        hapticSuccess();
-        return;
-      }
-      if (delta < 0) {
-        puzzleSounds.playEloCompleteLoss();
-      }
-    },
-    [puzzleSounds]
-  );
+  const onEloComplete = (delta: number): void => {
+    if (delta > 0) {
+      puzzleSounds.playEloCompleteGain();
+      return;
+    }
+    if (delta < 0) {
+      puzzleSounds.playEloCompleteLoss();
+    }
+  };
 
-  return useMemo(
-    () => ({
-      onCorrectMove,
-      onWrongMove,
-      onSolved,
-      onEloTick,
-      onEloComplete,
-    }),
-    [onCorrectMove, onEloComplete, onEloTick, onSolved, onWrongMove]
-  );
+  return { onCorrectMove, onWrongMove, onSolved, onEloTick, onEloComplete };
 }

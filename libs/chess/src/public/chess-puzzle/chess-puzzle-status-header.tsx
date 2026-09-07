@@ -1,6 +1,6 @@
-import { Trans } from '@lingui/react/macro';
-import { Box, Text } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Trans } from '@lingui/solid/macro';
+import { Box, Text } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 
 import {
   ChessPuzzleStatusIcon,
@@ -11,7 +11,7 @@ const HEADER_ROW_HEIGHT = 22;
 
 export { HEADER_ROW_HEIGHT };
 
-function statusLabel(kind: ChessPuzzleStatusKind): ReactNode {
+function statusLabel(kind: ChessPuzzleStatusKind): JSX.Element | null {
   switch (kind) {
     case 'loading':
       return <Trans>Loading puzzle…</Trans>;
@@ -34,9 +34,9 @@ export type ChessPuzzleStatusHeaderProps = {
   kind: ChessPuzzleStatusKind;
 };
 
-export function ChessPuzzleStatusHeader({
-  kind,
-}: ChessPuzzleStatusHeaderProps): ReactNode {
+export function ChessPuzzleStatusHeader(
+  props: ChessPuzzleStatusHeaderProps
+): JSX.Element {
   return (
     <Box
       sx={{
@@ -47,11 +47,11 @@ export function ChessPuzzleStatusHeader({
         alignSelf: 'stretch',
       }}
     >
-      <ChessPuzzleStatusIcon kind={kind} />
+      <ChessPuzzleStatusIcon kind={props.kind} />
       <Text
         variant="bodyBold"
         sx={{ flex: 1, color: 'text' }}
-        label={statusLabel(kind)}
+        label={statusLabel(props.kind)}
       />
     </Box>
   );

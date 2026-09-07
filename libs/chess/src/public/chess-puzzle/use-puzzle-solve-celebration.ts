@@ -1,6 +1,7 @@
 import type { Square } from '@pkgs/chess-board/chess-board-types';
-import { useTimers } from '@pkgs/clock';
-import { useEffect, useState } from 'react';
+import { useTimers } from '@pkgs/clock/solid';
+import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js';
+
 import {
   CHESS_PUZZLE_PLAY_STATUS,
   type ChessPuzzlePlayStatus,
@@ -9,31 +10,31 @@ import {
 const SOLVED_CELEBRATION_MS = 1500;
 
 export function usePuzzleSolveCelebration(args: {
-  puzzleId: string;
-  status: ChessPuzzlePlayStatus | 'loading';
-  displayFen: string | null;
+  puzzleId: Accessor<string>;
+  status: Accessor<ChessPuzzlePlayStatus | 'loading'>;
+  displayFen: Accessor<string | null>;
   solvedKingSquare: (fen: string) => Square;
-}): Square | null {
-  const { puzzleId, status, displayFen, solvedKingSquare } = args;
+}): Accessor<Square | null> {
   const timers = useTimers();
-  const [solvedCrownSquare, setSolvedCrownSquare] = useState<Square | null>(
+  const [solvedCrownSquare, setSolvedCrownSquare] = createSignal<Square | null>(
     null
   );
 
-  useEffect(() => {
+  createEffect(() => {
+    void args.puzzleId();
     setSolvedCrownSquare(null);
-  }, [puzzleId]);
+  });
 
-  useEffect(() => {
-    if (status !== CHESS_PUZZLE_PLAY_STATUS.solved) return;
-    const kingSq = solvedKingSquare(displayFen ?? '');
+  createEffect(() => {
+    if (args.status() !== CHESS_PUZZLE_PLAY_STATUS.solved) return;
+    const kingSq = args.solvedKingSquare(args.displayFen() ?? '');
     setSolvedCrownSquare(kingSq);
     const t = timers.setTimeout(
       () => setSolvedCrownSquare(null),
       SOLVED_CELEBRATION_MS
     );
-    return () => timers.clearTimeout(t);
-  }, [displayFen, solvedKingSquare, status, timers]);
+    onCleanup(() => timers.clearTimeout(t));
+  });
 
   return solvedCrownSquare;
 }

@@ -5,7 +5,8 @@ import {
   useSpaceRoomSelector,
 } from '@libs/spaces/public/room/use-space-room-selector';
 import { RoomMetaAttr } from '@pkgs/room';
-import { useEffect, useMemo, useRef } from 'react';
+import type { Accessor } from 'solid-js';
+import { createEffect, createMemo } from 'solid-js';
 
 import {
   decidePuzzleSessionStart,
@@ -30,15 +31,6 @@ import { usePuzzlePlayerVisual } from './use-puzzle-player-visual';
 
 const DEFAULT_PLAYER_ELO = 1200;
 
-function usePuzzleSessionIdentityReady(): boolean {
-  return useMyId().length > 0;
-}
-
-/**
- * Reclaim host only when the recorded host is no longer in the live room
- * roster (stale / disconnected). Never steal from another connected player —
- * that caused an infinite reclaim ping-pong and event-log spam.
- */
 function useReclaimStalePuzzleHost(): void {
   const memberId = useMyId();
   const dispatch = useSpaceRoomDispatch();
@@ -48,176 +40,189 @@ function useReclaimStalePuzzleHost(): void {
   );
   const roomSynced = useSpaceRoomSelector(RoomMetaAttr.isSynced.from);
   const { peersByMemberId } = useSpacePresence();
-  useEffect(() => {
+  createEffect(() => {
     const reclaim = shouldReclaimPuzzleHost({
-      memberId,
-      roomStatus,
-      hostIdentity,
-      roomSynced,
-      hostPresent: hostIdentity !== null && peersByMemberId.has(hostIdentity),
+      memberId: memberId(),
+      roomStatus: roomStatus(),
+      hostIdentity: hostIdentity(),
+      roomSynced: roomSynced(),
+      hostPresent:
+        hostIdentity() !== null && peersByMemberId().has(hostIdentity()!),
     });
     if (reclaim) dispatch(ReclaimChessPuzzlePlay({}));
-  }, [
-    dispatch,
-    hostIdentity,
-    memberId,
-    peersByMemberId,
-    roomStatus,
-    roomSynced,
-  ]);
+  });
 }
 
-/**
- * Dispatches `StartChessPuzzlePlay` once the room is idle for `puzzleId`
- * and the entity data has been hydrated. Lives inside the player (not the
- * screen) so the screen never needs its own duplicate `usePuzzleEntity`
- * subscription — the player already owns one via
- * {@link usePuzzleEntityAndInteractions}.
- */
 function useStartPuzzleSessionOnMount(args: {
-  puzzleId: string;
-  fen: string;
-  movesStr: string;
-  /** Bumps on every "Next" press so we re-dispatch Start even when `puzzleId` is unchanged. */
-  playGeneration: number;
-  /** Screen bumps this after puzzle-id swap lands so Start never races ahead of the parent. */
-  readyGeneration: number;
-  /**
-   * Only Start when the screen arms a new placement. Prevents Clear→idle from
-   * re-Starting the previous puzzle on every connected client.
-   */
-  startNonce: number;
+  puzzleId: Accessor<string>;
+  fen: Accessor<string>;
+  movesStr: Accessor<string>;
+  playGeneration: Accessor<number>;
+  readyGeneration: Accessor<number>;
+  startNonce: Accessor<number>;
 }): void {
-  const {
-    puzzleId,
-    fen,
-    movesStr,
-    playGeneration,
-    readyGeneration,
-    startNonce,
-  } = args;
   const dispatch = useSpaceRoomDispatch();
   const roomStatus = useSpaceRoomSelector(ChessPuzzlePlayAttr.status.from);
   const roomPuzzleId = useSpaceRoomSelector(ChessPuzzlePlayAttr.puzzleId.from);
-  const identityReady = usePuzzleSessionIdentityReady();
-  const lastStartedNonceRef = useRef(0);
-  useEffect(() => {
+  const myId = useMyId();
+  const lastStartedNonceRef: { current: number } = { current: 0 };
+  createEffect(() => {
     const decision = decidePuzzleSessionStart({
-      identityReady,
-      startNonce,
+      identityReady: myId().length > 0,
+      startNonce: args.startNonce(),
       lastStartedNonce: lastStartedNonceRef.current,
-      playGeneration,
-      readyGeneration,
-      roomStatus,
-      roomPuzzleId,
-      fen,
-      moves: movesStr,
+      playGeneration: args.playGeneration(),
+      readyGeneration: args.readyGeneration(),
+      roomStatus: roomStatus(),
+      roomPuzzleId: roomPuzzleId(),
+      fen: args.fen(),
+      moves: args.movesStr(),
     });
     if (decision.kind === 'skip') return;
-    lastStartedNonceRef.current = startNonce;
+    lastStartedNonceRef.current = args.startNonce();
     if (decision.kind === 'start') {
-      dispatch(StartChessPuzzlePlay({ puzzleId, fen, moves: movesStr }));
+      dispatch(
+        StartChessPuzzlePlay({
+          puzzleId: args.puzzleId(),
+          fen: args.fen(),
+          moves: args.movesStr(),
+        })
+      );
     }
-  }, [
-    dispatch,
-    fen,
-    movesStr,
-    playGeneration,
-    readyGeneration,
-    puzzleId,
-    roomPuzzleId,
-    roomStatus,
-    identityReady,
-    startNonce,
-  ]);
+  });
 }
 
-function usePuzzlePlayerModel(
-  puzzleId: string,
-  playGeneration: number,
-  readyGeneration: number,
-  startNonce: number
-) {
+function usePuzzlePlayerModel(args: {
+  puzzleId: Accessor<string>;
+  playGeneration: Accessor<number>;
+  readyGeneration: Accessor<number>;
+  startNonce: Accessor<number>;
+}) {
   const myId = useMyId();
-  const { profileRating, profileRd } = useChessPuzzleProfileRatings(myId);
-  const playerElo = profileRating > 0 ? profileRating : DEFAULT_PLAYER_ELO;
-  const { fen, movesStr, rating, themes, interactions } =
-    usePuzzleEntityAndInteractions(puzzleId);
+  const profile = useChessPuzzleProfileRatings(myId);
+  const playerElo = createMemo(() =>
+    profile.profileRating > 0 ? profile.profileRating : DEFAULT_PLAYER_ELO
+  );
+  const entity = usePuzzleEntityAndInteractions(args.puzzleId);
+  const fen = createMemo(() => entity.fen);
+  const movesStr = createMemo(() => entity.movesStr);
+  const rating = createMemo(() => entity.rating);
+  const themes = createMemo(() => entity.themes);
+  const interactions = createMemo(() => entity.interactions);
   useReclaimStalePuzzleHost();
   useStartPuzzleSessionOnMount({
-    puzzleId,
+    puzzleId: args.puzzleId,
     fen,
     movesStr,
-    playGeneration,
-    readyGeneration,
-    startNonce,
+    playGeneration: args.playGeneration,
+    readyGeneration: args.readyGeneration,
+    startNonce: args.startNonce,
   });
-  const {
-    displayFen,
-    layoutKey,
-    status,
-    orientation,
-    onMove: onMoveRaw,
-    solveIdx,
-    furthestSolveIdx,
-    totalTokens,
-    wrongFromSquare,
-    wrongToSquare,
-    expectedFromSquare,
-    expectedToSquare,
-    solutionUci,
-    solutionRevealed,
-    opponentAnimating,
-  } = usePuzzleSolver({ puzzleId });
-  const { appendUsedHint, appendAbandoned, setLastUci } =
-    useChessPuzzleInteractionRecorder({
-      puzzleId,
-      puzzleRating: rating,
-      status,
-      solveIdx,
-      interactions,
-    });
+  const solver = usePuzzleSolver({ puzzleId: args.puzzleId });
+  const recorder = useChessPuzzleInteractionRecorder({
+    puzzleId: args.puzzleId,
+    puzzleRating: rating,
+    status: solver.status,
+    solveIdx: solver.solveIdx,
+    interactions,
+  });
+
   return {
+    puzzleId: args.puzzleId,
     rating,
     playerElo,
-    profileRd,
     themes,
     interactions,
     movesStr,
-    displayFen,
-    layoutKey,
-    status,
-    orientation,
-    onMoveRaw,
-    solveIdx,
-    furthestSolveIdx,
-    totalTokens,
-    wrongFromSquare,
-    wrongToSquare,
-    expectedFromSquare,
-    expectedToSquare,
-    solutionUci,
-    appendUsedHint,
-    appendAbandoned,
-    setLastUci,
-    opponentAnimating,
-    solutionRevealed,
+    displayFen: solver.displayFen,
+    layoutKey: solver.layoutKey,
+    status: solver.status,
+    orientation: solver.orientation,
+    onMoveRaw: solver.onMove,
+    solveIdx: solver.solveIdx,
+    furthestSolveIdx: solver.furthestSolveIdx,
+    totalTokens: solver.totalTokens,
+    wrongFromSquare: solver.wrongFromSquare,
+    wrongToSquare: solver.wrongToSquare,
+    expectedFromSquare: solver.expectedFromSquare,
+    expectedToSquare: solver.expectedToSquare,
+    solutionUci: solver.solutionUci,
+    solutionRevealed: solver.solutionRevealed,
+    opponentAnimating: solver.opponentAnimating,
+    appendUsedHint: recorder.appendUsedHint,
+    appendAbandoned: recorder.appendAbandoned,
+    setLastUci: recorder.setLastUci,
   };
 }
 
-type PlayerControls = ReturnType<typeof usePuzzlePlayerControls>;
-type PlayerVisual = ReturnType<typeof usePuzzlePlayerVisual>;
+function usePuzzlePlayerUi(args: {
+  puzzleId: Accessor<string>;
+  onRequestNext: () => void;
+  m: ReturnType<typeof usePuzzlePlayerModel>;
+}) {
+  const allInteractions = useChessPuzzleAllInteractions();
+  const completion = useChessPuzzleCompletion({
+    puzzleId: args.m.puzzleId,
+    interactions: args.m.interactions,
+    allInteractions,
+    status: args.m.status,
+  });
+  const controls = usePuzzlePlayerControls({
+    puzzleId: args.m.puzzleId,
+    moves: args.m.movesStr,
+    solveIdx: args.m.solveIdx,
+    furthestSolveIdx: args.m.furthestSolveIdx,
+    status: args.m.status,
+    displayFen: args.m.displayFen,
+    expectedFromSquare: args.m.expectedFromSquare,
+    expectedToSquare: args.m.expectedToSquare,
+    solutionRevealed: args.m.solutionRevealed,
+    onMoveRaw: args.m.onMoveRaw,
+    setLastUci: args.m.setLastUci,
+    appendUsedHint: args.m.appendUsedHint,
+    appendAbandoned: args.m.appendAbandoned,
+    onRequestNext: args.onRequestNext,
+  });
+  const visual = usePuzzlePlayerVisual({
+    puzzleId: args.m.puzzleId,
+    status: args.m.status,
+    solveIdx: args.m.solveIdx,
+    themes: args.m.themes,
+    layoutKey: args.m.layoutKey,
+    orientation: args.m.orientation,
+    showCorrectFlash: controls.showCorrectFlash,
+    displayFen: args.m.displayFen,
+    totalTokens: args.m.totalTokens,
+    wrongFromSquare: args.m.wrongFromSquare,
+    wrongToSquare: args.m.wrongToSquare,
+    expectedFromSquare: args.m.expectedFromSquare,
+    expectedToSquare: args.m.expectedToSquare,
+    solvedCrownSquare: controls.solvedCrownSquare,
+    lastCorrectToSquare: controls.lastCorrectToSquare,
+    hintStage: controls.hintStage,
+    atFrontier: controls.atFrontier,
+    rating: args.m.rating,
+  });
+
+  return frozenPlayerModel({
+    m: args.m,
+    controls,
+    visual,
+    completion,
+    puzzleId: args.m.puzzleId,
+  });
+}
 
 function frozenPlayerModel(args: {
   m: ReturnType<typeof usePuzzlePlayerModel>;
-  controls: PlayerControls;
-  visual: PlayerVisual;
+  controls: ReturnType<typeof usePuzzlePlayerControls>;
+  visual: ReturnType<typeof usePuzzlePlayerVisual>;
   completion: ReturnType<typeof useChessPuzzleCompletion>;
-  puzzleId: string;
+  puzzleId: Accessor<string>;
 }) {
-  const { m, controls, visual, completion, puzzleId } = args;
+  const { m, controls, visual, completion } = args;
   return {
-    puzzleId,
+    puzzleId: m.puzzleId,
     rating: m.rating,
     playerElo: m.playerElo,
     completion,
@@ -251,59 +256,7 @@ function frozenPlayerModel(args: {
   };
 }
 
-function usePuzzlePlayerUi(
-  puzzleId: string,
-  onRequestNext: () => void,
-  m: ReturnType<typeof usePuzzlePlayerModel>
-) {
-  const allInteractions = useChessPuzzleAllInteractions();
-  const completion = useChessPuzzleCompletion({
-    puzzleId,
-    interactions: m.interactions,
-    allInteractions,
-    status: m.status,
-  });
-  const controls = usePuzzlePlayerControls({
-    puzzleId,
-    moves: m.movesStr,
-    solveIdx: m.solveIdx,
-    furthestSolveIdx: m.furthestSolveIdx,
-    status: m.status,
-    displayFen: m.displayFen,
-    expectedFromSquare: m.expectedFromSquare,
-    expectedToSquare: m.expectedToSquare,
-    solutionRevealed: m.solutionRevealed,
-    onMoveRaw: m.onMoveRaw,
-    setLastUci: m.setLastUci,
-    appendUsedHint: m.appendUsedHint,
-    appendAbandoned: m.appendAbandoned,
-    onRequestNext,
-  });
-  const visual = usePuzzlePlayerVisual({
-    puzzleId,
-    status: m.status,
-    solveIdx: m.solveIdx,
-    themes: m.themes,
-    layoutKey: m.layoutKey,
-    orientation: m.orientation,
-    showCorrectFlash: controls.showCorrectFlash,
-    displayFen: m.displayFen,
-    totalTokens: m.totalTokens,
-    wrongFromSquare: m.wrongFromSquare,
-    wrongToSquare: m.wrongToSquare,
-    expectedFromSquare: m.expectedFromSquare,
-    expectedToSquare: m.expectedToSquare,
-    solvedCrownSquare: controls.solvedCrownSquare,
-    lastCorrectToSquare: controls.lastCorrectToSquare,
-    hintStage: controls.hintStage,
-    atFrontier: controls.atFrontier,
-    rating: m.rating,
-  });
-  return useMemo(
-    () => frozenPlayerModel({ m, controls, visual, completion, puzzleId }),
-    [m, controls, visual, completion, puzzleId]
-  );
-}
+export type PuzzlePlayerChromeModel = ReturnType<typeof frozenPlayerModel>;
 
 export function usePuzzlePlayerState(args: {
   puzzleId: string;
@@ -311,14 +264,16 @@ export function usePuzzlePlayerState(args: {
   readyGeneration: number;
   startNonce: number;
   onRequestNext: () => void;
-}) {
-  const m = usePuzzlePlayerModel(
-    args.puzzleId,
-    args.playGeneration,
-    args.readyGeneration,
-    args.startNonce
-  );
-  return usePuzzlePlayerUi(args.puzzleId, args.onRequestNext, m);
+}): PuzzlePlayerChromeModel {
+  const puzzleId = createMemo(() => args.puzzleId);
+  const playGeneration = createMemo(() => args.playGeneration);
+  const readyGeneration = createMemo(() => args.readyGeneration);
+  const startNonce = createMemo(() => args.startNonce);
+  const m = usePuzzlePlayerModel({
+    puzzleId,
+    playGeneration,
+    readyGeneration,
+    startNonce,
+  });
+  return usePuzzlePlayerUi({ puzzleId, onRequestNext: args.onRequestNext, m });
 }
-
-export type PuzzlePlayerChromeModel = ReturnType<typeof usePuzzlePlayerState>;

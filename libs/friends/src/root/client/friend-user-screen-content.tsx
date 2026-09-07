@@ -1,5 +1,5 @@
-import { Box, type SxInput } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Box, type SxInput } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 import { FriendActionPills } from '../../public/friend-action-pills/friend-action-pills';
 import type {
   FriendProfile,
@@ -36,7 +36,7 @@ export function FriendUserScreenContent({
   onCloseBlock: () => void;
   onRemove: () => Promise<void>;
   onBlock: () => Promise<void>;
-}): ReactNode {
+}): JSX.Element {
   return (
     <Box sx={[sx, { alignItems: 'center', gap: 4, paddingTop: 8 }]}>
       <FriendProfileHeader profile={profile} />

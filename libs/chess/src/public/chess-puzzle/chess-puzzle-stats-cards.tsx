@@ -1,15 +1,15 @@
-import { Trans } from '@lingui/react/macro';
-import { Box, Text } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Trans } from '@lingui/solid/macro';
+import { Box, Text } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 
 import type { ChessPuzzleStats } from '../chess-puzzle-stats';
 
 type StatTileProps = {
-  label: ReactNode;
+  label: JSX.Element;
   value: string;
 };
 
-function StatTile({ label, value }: StatTileProps): ReactNode {
+function StatTile(props: StatTileProps): JSX.Element {
   return (
     <Box
       sx={{
@@ -20,8 +20,12 @@ function StatTile({ label, value }: StatTileProps): ReactNode {
         background: 'surfaceMuted',
       }}
     >
-      <Text variant="caption" sx={{ color: 'textSecondary' }} label={label} />
-      <Text variant="bodyBold" sx={{ color: 'text' }} label={value} />
+      <Text
+        variant="caption"
+        sx={{ color: 'textSecondary' }}
+        label={props.label}
+      />
+      <Text variant="bodyBold" sx={{ color: 'text' }} label={props.value} />
     </Box>
   );
 }
@@ -30,27 +34,30 @@ export type ChessPuzzleStatsCardsProps = {
   stats: ChessPuzzleStats;
 };
 
-export function ChessPuzzleStatsCards({
-  stats,
-}: ChessPuzzleStatsCardsProps): ReactNode {
+export function ChessPuzzleStatsCards(
+  props: ChessPuzzleStatsCardsProps
+): JSX.Element {
   return (
     <Box sx={{ flexDirection: 'row', flexWrap: 'wrap', gap: 2 }}>
       <StatTile
         label={<Trans>Played</Trans>}
-        value={String(stats.totalPlayed)}
+        value={String(props.stats.totalPlayed)}
       />
       <StatTile
         label={<Trans>Solved</Trans>}
-        value={String(stats.totalSolved)}
+        value={String(props.stats.totalSolved)}
       />
-      <StatTile label={<Trans>Accuracy</Trans>} value={`${stats.accuracy}%`} />
+      <StatTile
+        label={<Trans>Accuracy</Trans>}
+        value={`${props.stats.accuracy}%`}
+      />
       <StatTile
         label={<Trans>Best streak</Trans>}
-        value={String(stats.bestStreak)}
+        value={String(props.stats.bestStreak)}
       />
       <StatTile
         label={<Trans>Current streak</Trans>}
-        value={String(stats.currentStreak)}
+        value={String(props.stats.currentStreak)}
       />
     </Box>
   );

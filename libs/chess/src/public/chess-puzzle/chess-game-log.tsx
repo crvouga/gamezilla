@@ -1,6 +1,6 @@
-import { Trans } from '@lingui/react/macro';
-import { Box, Text } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Trans } from '@lingui/solid/macro';
+import { Box, Text } from '@pkgs/ui';
+import { For, type JSX, Show } from 'solid-js';
 
 import type { ChessPuzzleGameLogEntry } from '../chess-puzzle-stats';
 import { ChessGameLogRow } from './chess-game-log-row';
@@ -10,28 +10,28 @@ export type ChessGameLogProps = {
   onSelectEntry: (entry: ChessPuzzleGameLogEntry) => void;
 };
 
-export function ChessGameLog({
-  entries,
-  onSelectEntry,
-}: ChessGameLogProps): ReactNode {
-  if (entries.length === 0) {
-    return (
-      <Text
-        variant="body"
-        sx={{ color: 'textSecondary' }}
-        label={<Trans>No puzzles played yet.</Trans>}
-      />
-    );
-  }
+export function ChessGameLog(props: ChessGameLogProps): JSX.Element {
   return (
-    <Box sx={{ gap: 2, alignSelf: 'stretch' }}>
-      {entries.map((entry) => (
-        <ChessGameLogRow
-          key={`${entry.puzzleId}-${entry.at}`}
-          entry={entry}
-          onPress={() => onSelectEntry(entry)}
+    <Show
+      when={props.entries.length > 0}
+      fallback={
+        <Text
+          variant="body"
+          sx={{ color: 'textSecondary' }}
+          label={<Trans>No puzzles played yet.</Trans>}
         />
-      ))}
-    </Box>
+      }
+    >
+      <Box sx={{ gap: 2, alignSelf: 'stretch' }}>
+        <For each={props.entries}>
+          {(entry) => (
+            <ChessGameLogRow
+              entry={entry}
+              onClick={() => props.onSelectEntry(entry)}
+            />
+          )}
+        </For>
+      </Box>
+    </Show>
   );
 }

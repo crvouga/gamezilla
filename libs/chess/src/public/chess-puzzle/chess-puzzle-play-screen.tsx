@@ -1,7 +1,8 @@
 import { SpeakingAvatarAssistant } from '@pkgs/assistant/client';
 import { ChessBoard } from '@pkgs/chess-board/chess-board';
-import { Box, SpeakingAvatar } from '@pkgs/ui-rn';
-import { memo, type ReactNode } from 'react';
+import { Box, SpeakingAvatar } from '@pkgs/ui';
+import { type Accessor, type JSX, Show } from 'solid-js';
+
 import type { HintStage } from '../../shared/puzzle-session/hint-stage';
 import { ChessPuzzleBoardLoadingState } from './chess-puzzle-board-loading-state';
 import { ChessPuzzleE2EHints } from './chess-puzzle-e2e-hints';
@@ -20,58 +21,64 @@ const LOADING_SHELL_HINT_STAGE = 'none' as const satisfies HintStage;
 
 const noop = (): void => {};
 
-const PuzzleBoardSlot = memo(function PuzzleBoardSlot(
-  p: Pick<
-    PuzzlePlayerChromeModel,
-    | 'displayFen'
-    | 'layoutKey'
-    | 'orientation'
-    | 'status'
-    | 'atFrontier'
-    | 'opponentAnimating'
-    | 'onMove'
-    | 'cellFeedback'
-    | 'cellHighlights'
-    | 'arrows'
-  > & { size: number }
-): ReactNode {
-  if (p.displayFen === null || p.displayFen.length === 0) {
-    return <ChessPuzzleBoardLoadingState size={p.size} />;
-  }
+function PuzzleBoardSlot(props: {
+  size: number;
+  displayFen: Accessor<string | null>;
+  layoutKey: Accessor<number>;
+  orientation: Accessor<'white' | 'black'>;
+  status: Accessor<SolveStatus>;
+  atFrontier: Accessor<boolean>;
+  opponentAnimating: Accessor<boolean>;
+  onMove: (
+    m: Parameters<NonNullable<Parameters<typeof ChessBoard>[0]['onMove']>>[0]
+  ) => void;
+  cellFeedback: PuzzlePlayerChromeModel['cellFeedback'];
+  cellHighlights: PuzzlePlayerChromeModel['cellHighlights'];
+  arrows: PuzzlePlayerChromeModel['arrows'];
+}): JSX.Element {
   return (
-    <ChessBoard
-      controlled
-      testID="chess-puzzle-board"
-      size={p.size}
-      fen={p.displayFen}
-      fenSyncKey={p.layoutKey}
-      orientation={p.orientation}
-      interactive={
-        p.status === 'solving' && p.atFrontier && !p.opponentAnimating
-      }
-      onMove={p.onMove}
-      showCoordinates
-      highlightLastMove
-      highlightLegalMoves
-      cellFeedback={p.cellFeedback}
-      cellHighlights={p.cellHighlights}
-      arrows={p.arrows}
-    />
+    <Show
+      when={props.displayFen() !== null && props.displayFen()!.length > 0}
+      fallback={<ChessPuzzleBoardLoadingState size={props.size} />}
+    >
+      <ChessBoard
+        controlled
+        dataSet={{ testid: 'chess-puzzle-board' }}
+        size={props.size}
+        fen={props.displayFen() ?? ''}
+        fenSyncKey={props.layoutKey()}
+        orientation={props.orientation()}
+        interactive={
+          props.status() === 'solving' &&
+          props.atFrontier() &&
+          !props.opponentAnimating()
+        }
+        onMove={props.onMove}
+        showCoordinates
+        highlightLastMove
+        highlightLegalMoves
+        cellFeedback={props.cellFeedback()}
+        cellHighlights={props.cellHighlights()}
+        arrows={props.arrows()}
+      />
+    </Show>
   );
-});
+}
 
-function PuzzlePlayerChrome(
-  p: PuzzlePlayerChromeModel & { onFeedConfigApplied: () => void }
-): ReactNode {
+function PuzzlePlayerChrome(props: {
+  model: PuzzlePlayerChromeModel;
+  onFeedConfigApplied: () => void;
+}): JSX.Element {
+  const p = props.model;
   return (
     <PuzzlePlayLayout
       backToRoot={p.backToRoot}
-      puzzleId={p.puzzleId}
-      puzzleRating={p.rating}
+      puzzleId={p.puzzleId()}
+      puzzleRating={p.rating()}
       assistant={
         <SpeakingAvatarAssistant
-          assistant={p.assistant}
-          header={<ChessPuzzleStatusHeader kind={p.statusKind} />}
+          assistant={p.assistant()}
+          header={<ChessPuzzleStatusHeader kind={p.statusKind()} />}
           numberOfLines={2}
         />
       }
@@ -100,7 +107,7 @@ function PuzzlePlayerChrome(
       onForward={p.onForward}
       onRetry={p.onRetry}
       onNext={p.onNext}
-      onFeedConfigApplied={p.onFeedConfigApplied}
+      onFeedConfigApplied={props.onFeedConfigApplied}
       completion={p.completion}
       e2eHints={
         <ChessPuzzleE2EHints
@@ -108,8 +115,8 @@ function PuzzlePlayerChrome(
           status={p.status}
           solveIdx={p.solveIdx}
           moves={p.movesStr}
-          interactive={
-            p.status === 'solving' && p.atFrontier && !p.opponentAnimating
+          interactive={() =>
+            p.status() === 'solving' && p.atFrontier() && !p.opponentAnimating()
           }
           solutionUci={p.solutionUci}
           expectedFromSquare={p.expectedFromSquare}
@@ -129,43 +136,31 @@ type PuzzlePlayerProps = {
   onFeedConfigApplied: () => void;
 };
 
-/**
- * The player itself is the long-lived component: it owns the Skia board,
- * the chess.js game instance, the assistant, and all per-attempt local
- * state. Cycling puzzles updates the `puzzleId` prop in place — the
- * component instance survives, so we never tear down + rebuild the Skia
- * canvas, re-rasterize the piece SVGs, or replay the slide-from-zero
- * mount animation.
- */
-function PuzzlePlayer({
-  puzzleId,
-  playGeneration,
-  readyGeneration,
-  startNonce,
-  onRequestNext,
-  onFeedConfigApplied,
-}: PuzzlePlayerProps): ReactNode {
+function PuzzlePlayer(props: PuzzlePlayerProps): JSX.Element {
   const p = usePuzzlePlayerState({
-    puzzleId,
-    playGeneration,
-    readyGeneration,
-    startNonce,
-    onRequestNext,
+    puzzleId: props.puzzleId,
+    playGeneration: props.playGeneration,
+    readyGeneration: props.readyGeneration,
+    startNonce: props.startNonce,
+    onRequestNext: props.onRequestNext,
   });
   return (
-    <PuzzlePlayerChrome {...p} onFeedConfigApplied={onFeedConfigApplied} />
+    <PuzzlePlayerChrome
+      model={p}
+      onFeedConfigApplied={props.onFeedConfigApplied}
+    />
   );
 }
 
-function PuzzlePlayLoadingShell(p: {
+function PuzzlePlayLoadingShell(props: {
   backToChessRoot: () => void;
-  e2eLoadingStatus: ReactNode;
+  e2eLoadingStatus: JSX.Element;
   onFeedConfigApplied: () => void;
-}): ReactNode {
+}): JSX.Element {
   return (
     <PuzzlePlayLayout
-      backToRoot={p.backToChessRoot}
-      e2eLoadingStatus={p.e2eLoadingStatus}
+      backToRoot={props.backToChessRoot}
+      e2eLoadingStatus={props.e2eLoadingStatus}
       assistant={
         <SpeakingAvatar
           message=""
@@ -175,23 +170,23 @@ function PuzzlePlayLoadingShell(p: {
         />
       }
       boardSlot={(size) => <ChessPuzzleBoardLoadingState size={size} />}
-      status={LOADING_SHELL_STATUS}
-      hintStage={LOADING_SHELL_HINT_STAGE}
-      canGoBack={false}
-      canGoForward={false}
+      status={() => LOADING_SHELL_STATUS}
+      hintStage={() => LOADING_SHELL_HINT_STAGE}
+      canGoBack={() => false}
+      canGoForward={() => false}
       onHint={noop}
       onSolution={noop}
       onBack={noop}
       onForward={noop}
       onRetry={noop}
       onNext={noop}
-      onFeedConfigApplied={p.onFeedConfigApplied}
-      completion={null}
+      onFeedConfigApplied={props.onFeedConfigApplied}
+      completion={() => null}
     />
   );
 }
 
-export function PuzzlePlayScreen(): ReactNode {
+export function PuzzlePlayScreen(): JSX.Element {
   const {
     backToChessRoot,
     activePuzzleId,
@@ -203,37 +198,33 @@ export function PuzzlePlayScreen(): ReactNode {
     e2eLoadingStatus,
   } = usePuzzlePlayScreenState();
 
-  const e2ePickStatus = <ChessPuzzleE2ELoadingStatus {...e2eLoadingStatus} />;
-
-  if (activePuzzleId === null) {
-    return (
-      <Box
-        testID="chess-puzzle-play-screen"
-        sx={{ flex: 1, minHeight: 0, alignSelf: 'stretch' }}
-      >
-        <PuzzlePlayLoadingShell
-          backToChessRoot={backToChessRoot}
-          e2eLoadingStatus={e2ePickStatus}
-          onFeedConfigApplied={reselectActivePuzzleFromFeed}
-        />
-      </Box>
-    );
-  }
+  const e2ePickStatus = <ChessPuzzleE2ELoadingStatus {...e2eLoadingStatus()} />;
 
   return (
     <Box
-      testID="chess-puzzle-play-screen"
+      dataSet={{ testid: 'chess-puzzle-play-screen' }}
       sx={{ flex: 1, minHeight: 0, alignSelf: 'stretch' }}
     >
-      {e2ePickStatus}
-      <PuzzlePlayer
-        puzzleId={activePuzzleId}
-        playGeneration={attemptSeed}
-        readyGeneration={readyGeneration}
-        startNonce={startNonce}
-        onRequestNext={onRequestNext}
-        onFeedConfigApplied={reselectActivePuzzleFromFeed}
-      />
+      <Show
+        when={activePuzzleId() !== null}
+        fallback={
+          <PuzzlePlayLoadingShell
+            backToChessRoot={backToChessRoot}
+            e2eLoadingStatus={e2ePickStatus}
+            onFeedConfigApplied={reselectActivePuzzleFromFeed}
+          />
+        }
+      >
+        {e2ePickStatus}
+        <PuzzlePlayer
+          puzzleId={activePuzzleId()!}
+          playGeneration={attemptSeed()}
+          readyGeneration={readyGeneration()}
+          startNonce={startNonce()}
+          onRequestNext={onRequestNext}
+          onFeedConfigApplied={reselectActivePuzzleFromFeed}
+        />
+      </Show>
     </Box>
   );
 }

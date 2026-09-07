@@ -1,6 +1,6 @@
 import { useMyId } from '@libs/auth/public/use-current-user';
 import { t } from '@lingui/core/macro';
-import { Trans } from '@lingui/react/macro';
+import { Trans } from '@lingui/solid/macro';
 import {
   Box,
   Combobox,
@@ -11,8 +11,9 @@ import {
   ResponsiveSurface,
   SegmentedControl,
   Text,
-} from '@pkgs/ui-rn';
-import { type ReactNode, useCallback, useEffect, useMemo, useRef } from 'react';
+} from '@pkgs/ui';
+import { createEffect, createMemo, type JSX } from 'solid-js';
+
 import {
   type ChessPuzzleFeedConfig,
   type ChessPuzzleFeedHistoryFilter,
@@ -51,14 +52,11 @@ function PuzzleFeedModeSection(props: {
   config: ChessPuzzleFeedConfig;
   profileCaption: string;
   onSelectMode: (mode: ChessPuzzleFeedMode) => void;
-}): ReactNode {
-  const modeSegments = useMemo(
-    (): Array<{ key: ChessPuzzleFeedMode; label: string }> => [
-      { key: 'auto', label: t`Auto` },
-      { key: 'custom', label: t`Custom` },
-    ],
-    []
-  );
+}): JSX.Element {
+  const modeSegments: Array<{ key: ChessPuzzleFeedMode; label: string }> = [
+    { key: 'auto', label: t`Auto` },
+    { key: 'custom', label: t`Custom` },
+  ];
   return (
     <Box sx={{ gap: 2 }}>
       <Text variant="label" label={t`Difficulty mode`} />
@@ -78,16 +76,16 @@ function PuzzleFeedModeSection(props: {
 function PuzzleFeedHistorySection(props: {
   historyFilter: ChessPuzzleFeedHistoryFilter;
   onSelect: (filter: ChessPuzzleFeedHistoryFilter) => void;
-}): ReactNode {
-  const segments = useMemo(
-    (): Array<{ key: ChessPuzzleFeedHistoryFilter; label: string }> => [
-      { key: 'any', label: t`Any` },
-      { key: 'neverSeen', label: t`Unseen` },
-      { key: 'seen', label: t`Seen` },
-      { key: 'failed', label: t`Failed` },
-    ],
-    []
-  );
+}): JSX.Element {
+  const segments: Array<{
+    key: ChessPuzzleFeedHistoryFilter;
+    label: string;
+  }> = [
+    { key: 'any', label: t`Any` },
+    { key: 'neverSeen', label: t`Unseen` },
+    { key: 'seen', label: t`Seen` },
+    { key: 'failed', label: t`Failed` },
+  ];
   return (
     <Box sx={{ gap: 2 }}>
       <Text variant="label" label={t`Play history`} />
@@ -107,16 +105,12 @@ function PuzzleFeedHistorySection(props: {
 function PuzzleFeedThemesSection(props: {
   themes: readonly ChessPuzzleTheme[];
   onChange: (themes: ChessPuzzleTheme[]) => void;
-}): ReactNode {
-  const options = useMemo(
-    () =>
-      CHESS_PUZZLE_THEMES.map((theme) => ({
-        value: theme,
-        label: formatChessPuzzleThemeLabel(theme),
-        searchText: formatChessPuzzleThemeLabel(theme),
-      })),
-    []
-  );
+}): JSX.Element {
+  const options = CHESS_PUZZLE_THEMES.map((theme) => ({
+    value: theme,
+    label: formatChessPuzzleThemeLabel(theme),
+    searchText: formatChessPuzzleThemeLabel(theme),
+  }));
   return (
     <Combobox
       label={t`Themes`}
@@ -139,7 +133,7 @@ function PuzzleFeedRatingSection(props: {
   targetRating: number;
   onChangeCustomRating: (rating: number) => void;
   onChangeAutoOffset: (offset: number) => void;
-}): ReactNode {
+}): JSX.Element {
   if (props.config.mode === 'auto') {
     return (
       <Box sx={{ gap: 2 }}>
@@ -170,98 +164,73 @@ function PuzzleFeedRatingSection(props: {
   );
 }
 
-function useFeedSettingsHandlers(
-  setConfig: ReturnType<typeof useChessPuzzleFeedConfig>[1]
-) {
-  const onSelectMode = useCallback(
-    (mode: ChessPuzzleFeedMode) => {
-      setConfig((prev) => ({ ...prev, mode }));
-    },
-    [setConfig]
-  );
-  const onChangeCustomRating = useCallback(
-    (customRating: number) => {
-      setConfig((prev) => ({
-        ...prev,
-        customRating: clampPuzzleFeedRating(customRating),
-      }));
-    },
-    [setConfig]
-  );
-  const onChangeAutoOffset = useCallback(
-    (autoOffset: number) => {
-      setConfig((prev) => ({
-        ...prev,
-        autoOffset: clampPuzzleFeedAutoOffset(autoOffset),
-      }));
-    },
-    [setConfig]
-  );
-  const onSelectHistory = useCallback(
-    (historyFilter: ChessPuzzleFeedHistoryFilter) => {
-      setConfig((prev) => ({ ...prev, historyFilter }));
-    },
-    [setConfig]
-  );
-  const onChangeThemes = useCallback(
-    (themes: ChessPuzzleTheme[]) => {
-      setConfig((prev) => ({ ...prev, themes }));
-    },
-    [setConfig]
-  );
-  return {
-    onSelectMode,
-    onChangeCustomRating,
-    onChangeAutoOffset,
-    onSelectHistory,
-    onChangeThemes,
-  };
-}
-
 export type ChessPuzzleFeedSettingsModalProps = {
   visible: boolean;
   onClose: () => void;
-  /** Called from Done when config changed since the modal opened. */
   onFeedConfigApplied?: () => void;
 };
 
-export function ChessPuzzleFeedSettingsModal({
-  visible,
-  onClose,
-  onFeedConfigApplied,
-}: ChessPuzzleFeedSettingsModalProps): ReactNode {
+export function ChessPuzzleFeedSettingsModal(
+  props: ChessPuzzleFeedSettingsModalProps
+): JSX.Element {
   const myId = useMyId();
   const { profileRating } = useChessPuzzleProfileRatings(myId);
   const [config, setConfig] = useChessPuzzleFeedConfig();
   const pool = useChessPuzzleFeedPoolStats();
-  const handlers = useFeedSettingsHandlers(setConfig);
-  const openFingerprintRef = useRef<string | null>(null);
   const profileCaption = profileRating > 0 ? String(profileRating) : '—';
-  const targetRating = resolveEffectivePuzzleRating({ config, profileRating });
+  const targetRating = createMemo(() =>
+    resolveEffectivePuzzleRating({ config: config(), profileRating })
+  );
+  const openFingerprintRef: { current: string | null } = { current: null };
 
-  useEffect(() => {
+  createEffect(() => {
+    const visible = props.visible;
     if (!visible) {
       openFingerprintRef.current = null;
       return;
     }
     if (openFingerprintRef.current === null) {
-      openFingerprintRef.current = chessPuzzleFeedConfigFingerprint(config);
+      openFingerprintRef.current = chessPuzzleFeedConfigFingerprint(config());
     }
-  }, [visible, config]);
+  });
 
-  const onDone = useCallback(() => {
+  const onSelectMode = (mode: ChessPuzzleFeedMode): void => {
+    setConfig((prev) => ({ ...prev, mode }));
+  };
+  const onChangeCustomRating = (customRating: number): void => {
+    setConfig((prev) => ({
+      ...prev,
+      customRating: clampPuzzleFeedRating(customRating),
+    }));
+  };
+  const onChangeAutoOffset = (autoOffset: number): void => {
+    setConfig((prev) => ({
+      ...prev,
+      autoOffset: clampPuzzleFeedAutoOffset(autoOffset),
+    }));
+  };
+  const onSelectHistory = (
+    historyFilter: ChessPuzzleFeedHistoryFilter
+  ): void => {
+    setConfig((prev) => ({ ...prev, historyFilter }));
+  };
+  const onChangeThemes = (themes: ChessPuzzleTheme[]): void => {
+    setConfig((prev) => ({ ...prev, themes }));
+  };
+
+  const onDone = (): void => {
     const opened = openFingerprintRef.current;
-    const current = chessPuzzleFeedConfigFingerprint(config);
+    const current = chessPuzzleFeedConfigFingerprint(config());
     if (opened !== null && opened !== current) {
-      onFeedConfigApplied?.();
+      props.onFeedConfigApplied?.();
     }
-    onClose();
-  }, [config, onClose, onFeedConfigApplied]);
+    props.onClose();
+  };
 
   return (
     <ResponsiveSurface
-      visible={visible}
-      onClose={onClose}
+      visible={props.visible}
+      onClose={props.onClose}
       title={<Trans>Puzzle feed</Trans>}
       presentation="modal"
     >
@@ -280,28 +249,28 @@ export function ChessPuzzleFeedSettingsModal({
             <Text variant="bodyBold" label={profileCaption} />
           </Box>
           <PuzzleFeedModeSection
-            config={config}
+            config={config()}
             profileCaption={profileCaption}
-            onSelectMode={handlers.onSelectMode}
+            onSelectMode={onSelectMode}
           />
           <PuzzleFeedRatingSection
-            config={config}
-            targetRating={targetRating}
-            onChangeCustomRating={handlers.onChangeCustomRating}
-            onChangeAutoOffset={handlers.onChangeAutoOffset}
+            config={config()}
+            targetRating={targetRating()}
+            onChangeCustomRating={onChangeCustomRating}
+            onChangeAutoOffset={onChangeAutoOffset}
           />
           <PuzzleFeedHistorySection
-            historyFilter={config.historyFilter}
-            onSelect={handlers.onSelectHistory}
+            historyFilter={config().historyFilter}
+            onSelect={onSelectHistory}
           />
           <PuzzleFeedThemesSection
-            themes={config.themes}
-            onChange={handlers.onChangeThemes}
+            themes={config().themes}
+            onChange={onChangeThemes}
           />
         </Box>
       </ModalBody>
       <ModalFooter>
-        <ModalButton label={t`Done`} onPress={onDone} />
+        <ModalButton label={t`Done`} onClick={onDone} />
       </ModalFooter>
     </ResponsiveSurface>
   );

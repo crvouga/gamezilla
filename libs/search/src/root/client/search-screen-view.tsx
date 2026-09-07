@@ -8,77 +8,61 @@ import {
   USER_SEARCH_MIN_LENGTH,
   type UserSearchResult,
 } from '@libs/user-search/public/user-search-types';
-import { Trans, useLingui } from '@lingui/react/macro';
+import { Trans, useLingui } from '@lingui/solid/macro';
 import {
   Box,
   EmptyState,
   LoadingState,
   ScreenBase,
-  ScreenBodyLegendList,
+  ScreenBodyVirtualList,
   SearchIcon,
   TextInput,
   UsersIcon,
-  useTheme,
-} from '@pkgs/ui-rn';
-import { memo, type ReactNode, useCallback, useState } from 'react';
+} from '@pkgs/ui';
+import { createSignal, type JSX, Match, Show, Switch } from 'solid-js';
 
 import { SearchRecentQueries } from './search-recent-queries';
 import { SearchUserResultRow } from './search-user-result-row';
 import { useSearchHistory } from './use-search-history';
 
-const MemoSearchUserResultRow = memo(function MemoSearchUserResultRow({
-  user,
-}: {
-  user: UserSearchResult;
-}) {
-  return <SearchUserResultRow user={user} />;
-});
-
 const FIELD_ICON_SIZE = 18;
 
-function SearchResults({
-  query,
-  searching,
-  results,
-  renderItem,
-}: {
+function SearchResults(props: {
   query: string;
   searching: boolean;
   results: readonly UserSearchResult[];
-  renderItem: (args: { item: UserSearchResult }) => ReactNode;
-}): ReactNode {
+}): JSX.Element {
   const { t } = useLingui();
-  if (searching && results.length === 0) {
-    return (
-      <LoadingState
-        variant="compact"
-        caption={t`Searching…`}
-        testID={Handles.searchLoading}
-      />
-    );
-  }
-  if (results.length === 0) {
-    return (
-      <EmptyState
-        variant="compact"
-        icon={SearchIcon}
-        title={<Trans>No people found for “{query}”</Trans>}
-        body={<Trans>Check the spelling or try a different username.</Trans>}
-      />
-    );
-  }
   return (
-    <ScreenBodyLegendList
-      data={results}
-      keyExtractor={(user) => user.userId}
-      estimatedItemSize={72}
-      drawDistance={160}
-      renderItem={renderItem}
-    />
+    <Switch>
+      <Match when={props.searching && props.results.length === 0}>
+        <LoadingState
+          variant="compact"
+          caption={t`Searching…`}
+          dataSet={{ testid: Handles.searchLoading }}
+        />
+      </Match>
+      <Match when={props.results.length === 0}>
+        <EmptyState
+          variant="compact"
+          icon={SearchIcon}
+          title={<Trans>No people found for “{props.query}”</Trans>}
+          body={<Trans>Check the spelling or try a different username.</Trans>}
+        />
+      </Match>
+      <Match when={true}>
+        <ScreenBodyVirtualList
+          items={props.results}
+          keyExtractor={(user) => user.userId}
+          estimateSize={72}
+          renderItem={(user) => <SearchUserResultRow user={user} />}
+        />
+      </Match>
+    </Switch>
   );
 }
 
-function SearchIdleState(): ReactNode {
+function SearchIdleState(): JSX.Element {
   return (
     <EmptyState
       icon={UsersIcon}
@@ -92,77 +76,62 @@ function SearchIdleState(): ReactNode {
   );
 }
 
-function SearchScreenBody(): ReactNode {
+function SearchScreenBody(): JSX.Element {
   const { t } = useLingui();
-  const theme = useTheme();
   const { queries, touch, clear } = useSearchHistory();
-  const [query, setQuery] = useState('');
-  const recordSearch = useCallback(
-    (completedQuery: string) => {
-      touch(completedQuery);
-    },
-    [touch]
-  );
-  const { results, searching, signedIn } = useDebouncedUserSearchEffect(
-    query,
-    recordSearch
-  );
-  const trimmed = query.trim();
-  const showRecent = trimmed.length === 0;
-  const showSignInPrompt =
-    !signedIn && trimmed.length >= USER_SEARCH_MIN_LENGTH;
-  const showResults = signedIn && trimmed.length >= USER_SEARCH_MIN_LENGTH;
-
-  const renderItem = useCallback(
-    ({ item }: { item: UserSearchResult }) => (
-      <MemoSearchUserResultRow user={item} />
-    ),
-    []
-  );
+  const [query, setQuery] = createSignal('');
+  const recordSearch = (completedQuery: string) => {
+    touch(completedQuery);
+  };
+  const state = useDebouncedUserSearchEffect(query, recordSearch);
+  const trimmed = () => query().trim();
+  const showRecent = () => trimmed().length === 0;
+  const showSignInPrompt = () =>
+    !state.signedIn && trimmed().length >= USER_SEARCH_MIN_LENGTH;
+  const showResults = () =>
+    state.signedIn && trimmed().length >= USER_SEARCH_MIN_LENGTH;
 
   return (
     <Box sx={{ flex: 1, minHeight: 0, gap: 4 }}>
       <TextInput
-        value={query}
+        value={query()}
         onChangeText={setQuery}
         placeholder={t`Search by username or name`}
-        accessibilityLabel={t`Search people`}
+        aria-label={t`Search people`}
         startAdornment={
-          <SearchIcon
-            size={FIELD_ICON_SIZE}
-            color={theme.colors.textSecondary}
-          />
+          <SearchIcon size={FIELD_ICON_SIZE} color="textSecondary" />
         }
-        autoCapitalize="none"
-        autoCorrect={false}
-        autoFocus
-        returnKeyType="search"
-        clearButtonMode="while-editing"
-        testID={Handles.searchInput}
+        autocapitalize="none"
+        autocorrect="off"
+        autofocus
+        dataSet={{ testid: Handles.searchInput }}
       />
-      {showRecent && queries.length === 0 ? <SearchIdleState /> : null}
-      {showRecent && queries.length > 0 ? (
+      <Show when={showRecent() && queries.length === 0}>
+        <SearchIdleState />
+      </Show>
+      <Show when={showRecent() && queries.length > 0}>
         <SearchRecentQueries
           queries={queries}
           onSelect={setQuery}
           onClear={clear}
         />
-      ) : null}
-      <UserSearchQueryHint query={query} signedIn={signedIn} />
-      {showSignInPrompt ? <UserSearchSignInPrompt /> : null}
-      {showResults ? (
+      </Show>
+      <UserSearchQueryHint query={query()} signedIn={state.signedIn} />
+      <Show when={showSignInPrompt()}>
+        <UserSearchSignInPrompt />
+      </Show>
+      <Show when={showResults()}>
         <SearchResults
-          query={trimmed}
-          searching={searching}
-          results={results}
-          renderItem={renderItem}
+          query={trimmed()}
+          searching={state.searching}
+          results={state.results}
         />
-      ) : null}
+      </Show>
     </Box>
   );
 }
 
-export function SearchScreen(): ReactNode {
+export function SearchScreen(): JSX.Element {
   const { t } = useLingui();
 
   return (

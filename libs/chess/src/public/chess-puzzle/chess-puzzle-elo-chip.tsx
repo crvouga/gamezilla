@@ -1,9 +1,8 @@
-import { AnimatedBox, Box, Text } from '@pkgs/ui-rn';
-import { startTiming } from '@pkgs/ui-rn/animation/run-timing';
-import { USE_NATIVE_DRIVER } from '@pkgs/ui-rn/animation/use-native-driver';
-import { motion } from '@pkgs/ui-rn/theme/motion';
-import { type ReactNode, useEffect, useRef } from 'react';
-import { Animated } from 'react-native';
+import { useTimers } from '@pkgs/clock/solid';
+import { Box, motion, Text } from '@pkgs/ui';
+import { createEffect, createSignal, type JSX, onCleanup } from 'solid-js';
+
+const PULSE_SCALE = 1.14;
 
 export type ChessPuzzleEloChipProps = {
   elo: number;
@@ -12,52 +11,48 @@ export type ChessPuzzleEloChipProps = {
   pulseNonce?: number;
 };
 
-export function ChessPuzzleEloChip({
-  elo,
-  variant = 'primary',
-  testID,
-  pulseNonce = 0,
-}: ChessPuzzleEloChipProps): ReactNode {
-  const isPrimary = variant === 'primary';
-  const scale = useRef(new Animated.Value(1)).current;
+export function ChessPuzzleEloChip(
+  props: ChessPuzzleEloChipProps
+): JSX.Element {
+  const timers = useTimers();
+  const isPrimary = () =>
+    props.variant === undefined || props.variant === 'primary';
+  const [scale, setScale] = createSignal(1);
 
-  useEffect(() => {
-    if (pulseNonce === 0) return;
-    scale.setValue(1);
-    startTiming(
-      scale,
-      {
-        toValue: 1.14,
-        duration: motion.duration.fast,
-        useNativeDriver: USE_NATIVE_DRIVER,
-      },
-      () => {
-        startTiming(scale, {
-          toValue: 1,
-          duration: motion.duration.fast,
-          useNativeDriver: USE_NATIVE_DRIVER,
-        });
-      }
-    );
-  }, [pulseNonce, scale]);
+  createEffect(() => {
+    const nonce = props.pulseNonce ?? 0;
+    if (nonce === 0) return;
+    setScale(PULSE_SCALE);
+    const id = timers.setTimeout(() => setScale(1), motion.duration.fast);
+    onCleanup(() => timers.clearTimeout(id));
+  });
 
   return (
-    <AnimatedBox sx={{ transform: [{ scale }] }}>
+    <Box
+      sx={{
+        transform: [{ scale: scale() }],
+        transitionProperty: 'transform',
+        transitionDuration: 'var(--ui-duration-fast)',
+        transitionTimingFunction: 'var(--ui-easing-standard)',
+      }}
+    >
       <Box
-        testID={testID}
+        dataSet={
+          props.testID !== undefined ? { testid: props.testID } : undefined
+        }
         sx={{
           px: 2,
           py: 1,
           borderRadius: 6,
-          background: isPrimary ? 'tintMuted' : 'surfaceMuted',
+          background: isPrimary() ? 'tintMuted' : 'surfaceMuted',
         }}
       >
         <Text
-          variant={isPrimary ? 'bodyBold' : 'caption'}
-          sx={{ color: isPrimary ? 'tint' : 'textSecondary' }}
-          label={String(elo)}
+          variant={isPrimary() ? 'bodyBold' : 'caption'}
+          sx={{ color: isPrimary() ? 'tint' : 'textSecondary' }}
+          label={String(props.elo)}
         />
       </Box>
-    </AnimatedBox>
+    </Box>
   );
 }

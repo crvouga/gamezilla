@@ -1,66 +1,46 @@
 import type { Square } from '@pkgs/chess-board/chess-board-types';
-import { useTheme } from '@pkgs/ui-rn';
-import { useMemo } from 'react';
+import { useTheme } from '@pkgs/ui';
+import { type Accessor, createMemo } from 'solid-js';
+
 import { deriveChessPuzzleCellFeedback } from '../../shared/puzzle-session/cell-feedback';
 import { deriveChessPuzzleCellHighlights } from '../../shared/puzzle-session/cell-highlights';
 import type { ChessPuzzlePlayStatus } from '../chess-puzzle-play';
 
 export function usePuzzlePlayerCellFeedback(args: {
-  status: ChessPuzzlePlayStatus | 'loading';
-  wrongFromSquare: string | null;
-  wrongToSquare: string | null;
-  expectedFromSquare: string | null;
-  solvedCrownSquare: Square | null;
-  lastCorrectToSquare: Square | null;
-  displayFen: string | null;
-}) {
+  status: Accessor<ChessPuzzlePlayStatus | 'loading'>;
+  wrongFromSquare: Accessor<string | null>;
+  wrongToSquare: Accessor<string | null>;
+  expectedFromSquare: Accessor<string | null>;
+  solvedCrownSquare: Accessor<Square | null>;
+  lastCorrectToSquare: Accessor<Square | null>;
+  displayFen: Accessor<string | null>;
+}): {
+  cellFeedback: Accessor<ReturnType<typeof deriveChessPuzzleCellFeedback>>;
+  cellHighlights: Accessor<ReturnType<typeof deriveChessPuzzleCellHighlights>>;
+} {
   const theme = useTheme();
-  const {
-    status,
-    wrongFromSquare,
-    wrongToSquare,
-    expectedFromSquare,
-    solvedCrownSquare,
-    lastCorrectToSquare,
-    displayFen,
-  } = args;
 
-  const cellFeedback = useMemo(
-    () =>
-      deriveChessPuzzleCellFeedback({
-        status,
-        wrongFromSquare,
-        wrongToSquare,
-        expectedFromSquare,
-        showSolvedCrownOn: solvedCrownSquare,
-        lastCorrectToSquare,
-      }),
-    [
-      status,
-      wrongFromSquare,
-      wrongToSquare,
-      expectedFromSquare,
-      solvedCrownSquare,
-      lastCorrectToSquare,
-    ]
+  const cellFeedback = createMemo(() =>
+    deriveChessPuzzleCellFeedback({
+      status: args.status(),
+      wrongFromSquare: args.wrongFromSquare(),
+      wrongToSquare: args.wrongToSquare(),
+      expectedFromSquare: args.expectedFromSquare(),
+      showSolvedCrownOn: args.solvedCrownSquare(),
+      lastCorrectToSquare: args.lastCorrectToSquare(),
+    })
   );
 
-  const cellHighlights = useMemo(
-    () =>
-      deriveChessPuzzleCellHighlights({
-        status,
-        lastCorrectToSquare,
-        solvedKingSquare:
-          status === 'solved' && displayFen !== null ? solvedCrownSquare : null,
-        successColor: theme.colors.success,
-      }),
-    [
-      displayFen,
-      lastCorrectToSquare,
-      solvedCrownSquare,
-      status,
-      theme.colors.success,
-    ]
+  const cellHighlights = createMemo(() =>
+    deriveChessPuzzleCellHighlights({
+      status: args.status(),
+      lastCorrectToSquare: args.lastCorrectToSquare(),
+      solvedKingSquare:
+        args.status() === 'solved' && args.displayFen() !== null
+          ? args.solvedCrownSquare()
+          : null,
+      successColor: theme.palette().success,
+    })
   );
 
   return { cellFeedback, cellHighlights };

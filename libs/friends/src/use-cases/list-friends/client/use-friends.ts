@@ -2,8 +2,8 @@ import { useMyId } from '@libs/auth/public/use-current-user';
 import type { Sql } from '@pkgs/sql';
 import { sql } from '@pkgs/sql';
 
-import { useQuery, useSyncEngine } from '@pkgs/sync-engine/client';
-import { useMemo } from 'react';
+import { createQuery, useSyncEngine } from '@pkgs/sync-engine/solid';
+import { type Accessor, createMemo } from 'solid-js';
 
 import { otherUserInPair } from '../../../shared/friendship/canonical-pair';
 import type { Friend } from '../../../shared/friendship/friends-types';
@@ -51,27 +51,32 @@ function mapFriendRow(row: FriendRow): Friend {
 }
 
 export function useFriends(): {
-  friends: readonly Friend[];
-  isLoading: boolean;
+  readonly friends: readonly Friend[];
+  readonly isLoading: boolean;
 } {
   const { paintReady } = useSyncEngine();
   const myId = useMyId();
-  const enabled = paintReady && myId.length > 0;
-  const query = useMemo(() => friendsSql(myId, enabled), [myId, enabled]);
-  const { rows, isLoading } = useQuery(query);
-  const friends = useMemo(
-    () => rows.filter((row) => row.friend_id.length > 0).map(mapFriendRow),
-    [rows]
+  const enabled = createMemo(() => paintReady() && myId().length > 0);
+  const { rows, isLoading } = createQuery(() => friendsSql(myId(), enabled()));
+  const friends = createMemo(() =>
+    rows()
+      .filter((row) => row.friend_id.length > 0)
+      .map(mapFriendRow)
   );
-  if (!paintReady) {
-    return { friends: [], isLoading: true };
-  }
-  return { friends, isLoading: myId.length === 0 ? false : isLoading };
+  return {
+    get friends() {
+      return paintReady() ? friends() : [];
+    },
+    get isLoading() {
+      if (!paintReady()) return true;
+      return myId().length === 0 ? false : isLoading();
+    },
+  };
 }
 
-export function useFriendIds(): readonly string[] {
+export function useFriendIds(): Accessor<readonly string[]> {
   const { friends } = useFriends();
-  return useMemo(() => friends.map((friend) => friend.userId), [friends]);
+  return createMemo(() => friends.map((friend) => friend.userId));
 }
 
 export { otherUserInPair };

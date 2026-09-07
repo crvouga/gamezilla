@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { JSX } from 'solid-js';
 
 import type { FriendshipStatus } from '../../shared/friendship/friends-types';
 
@@ -23,4 +23,4 @@ export type FriendActionMutations = {
 
 export type FriendActionPillsComponent = (
   props: FriendActionPillsProps
-) => ReactNode;
+) => JSX.Element;

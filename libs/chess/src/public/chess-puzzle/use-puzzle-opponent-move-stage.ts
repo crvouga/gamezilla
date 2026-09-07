@@ -1,10 +1,6 @@
-import { useTimers } from '@pkgs/clock';
-import {
-  useEffect,
-  useLayoutEffect,
-  useState,
-  useSyncExternalStore,
-} from 'react';
+import { useTimers } from '@pkgs/clock/solid';
+import { createSubscriptionSignal } from '@pkgs/solid-context/subscription-signal';
+import { type Accessor, createEffect, onCleanup } from 'solid-js';
 
 import {
   createPuzzleOpponentStager,
@@ -14,36 +10,16 @@ import {
 
 export type PuzzleOpponentMoveStage = OpponentStagerSnapshot;
 
-/**
- * Stages opponent opening / reply plies on the board before unlocking input,
- * matching chess.com puzzle UX. Room state stays authoritative; this only
- * delays the fen shown to the board. Thin React binding over
- * {@link createPuzzleOpponentStager}.
- */
 export function usePuzzleOpponentMoveStage(
-  args: OpponentStagerInput
-): PuzzleOpponentMoveStage {
+  args: Accessor<OpponentStagerInput>
+): Accessor<PuzzleOpponentMoveStage> {
   const timers = useTimers();
-  const [stager] = useState(() => createPuzzleOpponentStager(timers));
-  useEffect(() => () => stager.dispose(), [stager]);
+  const stager = createPuzzleOpponentStager(timers);
+  onCleanup(() => stager.dispose());
 
-  // Layout effect: the first paint after a room change must already show
-  // the staged (pre-ply) FEN, not the authoritative one.
-  useLayoutEffect(() => {
-    stager.update(args);
-  }, [
-    stager,
-    args.startFen,
-    args.moves,
-    args.displayFen,
-    args.solveIdx,
-    args.furthestSolveIdx,
-    args.status,
-  ]);
+  createEffect(() => {
+    stager.update(args());
+  });
 
-  return useSyncExternalStore(
-    stager.subscribe,
-    stager.getSnapshot,
-    stager.getSnapshot
-  );
+  return createSubscriptionSignal(stager);
 }

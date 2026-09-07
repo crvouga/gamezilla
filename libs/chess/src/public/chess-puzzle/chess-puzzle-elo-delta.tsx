@@ -1,5 +1,5 @@
-import { Text, useTheme } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Text, useTheme } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 
 function formatSignedDelta(delta: number): string {
   if (delta > 0) return `+${delta}`;
@@ -13,16 +13,15 @@ export type ChessPuzzleEloDeltaProps = {
   displayRating: number;
 };
 
-export function ChessPuzzleEloDelta({
-  delta,
-  displayRating,
-}: ChessPuzzleEloDeltaProps): ReactNode {
+export function ChessPuzzleEloDelta(
+  props: ChessPuzzleEloDeltaProps
+): JSX.Element {
   const theme = useTheme();
 
   const deltaColor =
-    delta > 0
+    props.delta > 0
       ? theme.colors.success
-      : delta < 0
+      : props.delta < 0
         ? theme.colors.destructive
         : theme.colors.textSecondary;
 
@@ -31,12 +30,12 @@ export function ChessPuzzleEloDelta({
       <Text
         variant="heading"
         sx={{ color: 'text', textAlign: 'center' }}
-        label={String(displayRating)}
+        label={String(props.displayRating)}
       />
       <Text
         variant="bodyBold"
         sx={{ color: deltaColor, textAlign: 'center' }}
-        label={formatSignedDelta(delta)}
+        label={formatSignedDelta(props.delta)}
       />
     </>
   );

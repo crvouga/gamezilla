@@ -3,19 +3,22 @@ import type {
   NotificationCardActions,
 } from '@libs/notifications/public';
 import { Handles } from '@libs/test-ids';
-import { Trans, useLingui } from '@lingui/react/macro';
-import { isSoundId } from '@pkgs/sounds';
+import { Trans, useLingui } from '@lingui/solid/macro';
+import { isSoundId, type SoundId, Sounds } from '@pkgs/sounds';
+import { useOptionalSoundEngine } from '@pkgs/sounds/solid';
 import {
   Box,
   Button,
   ModalBody,
   ModalFooter,
+  type MutationStateTransition,
   ResponsiveSurface,
   Text,
   useMutationButton,
   useRouter,
-} from '@pkgs/ui-rn';
-import { type ReactNode, useCallback, useMemo } from 'react';
+} from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+import { createMemo, Show } from 'solid-js';
 
 import { FriendProfileAvatar } from '../../public/friend-profile-avatar';
 import { profileFromFriendRequestNotification } from './friend-request-notification-profile';
@@ -33,30 +36,45 @@ function findAction(
   };
 }
 
-function AcceptButton({
-  interaction,
-  actions,
-  onDone,
-}: {
+function usernameFrom(interaction: Notification): string {
+  return typeof interaction.payload['fromUsername'] === 'string'
+    ? interaction.payload['fromUsername']
+    : '';
+}
+
+function useDecisionSounds(
+  successSound: () => SoundId | undefined
+): (transition: MutationStateTransition) => void {
+  const engine = useOptionalSoundEngine();
+  return (transition) => {
+    const current = engine?.();
+    if (current === undefined) return;
+    if (transition.to === 'success') {
+      current.play(successSound() ?? Sounds.feedback.success);
+    } else if (transition.to === 'error') {
+      current.play(Sounds.feedback.error);
+    }
+  };
+}
+
+function AcceptButton(props: {
   interaction: Notification;
   actions: NotificationCardActions;
   onDone: () => void;
-}): ReactNode {
+}): JSX.Element {
   const { t } = useLingui();
-  const accept = findAction(interaction, 'accept');
-  const successSound =
+  const accept = findAction(props.interaction, 'accept');
+  const successSound = (): SoundId | undefined =>
     accept?.soundKey !== undefined && isSoundId(accept.soundKey)
       ? accept.soundKey
       : undefined;
-  const username =
-    typeof interaction.payload['fromUsername'] === 'string'
-      ? interaction.payload['fromUsername']
-      : '';
+  const onPhaseChange = useDecisionSounds(successSound);
+  const username = usernameFrom(props.interaction);
   const mutation = useMutationButton({
-    operation: useCallback(async () => {
-      await actions.performAction(interaction.id, 'accept');
-      onDone();
-    }, [actions, interaction.id, onDone]),
+    operation: async () => {
+      await props.actions.performAction(props.interaction.id, 'accept');
+      props.onDone();
+    },
     labels: {
       idle: accept?.label ?? t`Accept`,
       loading: t`Accepting…`,
@@ -64,9 +82,7 @@ function AcceptButton({
       error: t`Couldn't accept`,
     },
     successHoldMs: 0,
-    ...(successSound !== undefined
-      ? { sounds: { success: successSound, error: 'feedback.error' as const } }
-      : { sounds: { error: 'feedback.error' as const } }),
+    onPhaseChange,
   });
   return (
     <Button
@@ -74,32 +90,30 @@ function AcceptButton({
       intent="primary"
       size="md"
       {...(username.length > 0
-        ? { testID: Handles.notificationsFriendRequestAccept(username) }
+        ? {
+            dataSet: {
+              testid: Handles.notificationsFriendRequestAccept(username),
+            },
+          }
         : {})}
     />
   );
 }
 
-function DeclineButton({
-  interaction,
-  actions,
-  onDone,
-}: {
+function DeclineButton(props: {
   interaction: Notification;
   actions: NotificationCardActions;
   onDone: () => void;
-}): ReactNode {
+}): JSX.Element {
   const { t } = useLingui();
-  const decline = findAction(interaction, 'decline');
-  const username =
-    typeof interaction.payload['fromUsername'] === 'string'
-      ? interaction.payload['fromUsername']
-      : '';
+  const decline = findAction(props.interaction, 'decline');
+  const username = usernameFrom(props.interaction);
+  const onPhaseChange = useDecisionSounds(() => undefined);
   const mutation = useMutationButton({
-    operation: useCallback(async () => {
-      await actions.performAction(interaction.id, 'decline');
-      onDone();
-    }, [actions, interaction.id, onDone]),
+    operation: async () => {
+      await props.actions.performAction(props.interaction.id, 'decline');
+      props.onDone();
+    },
     labels: {
       idle: decline?.label ?? t`Decline`,
       loading: t`Declining…`,
@@ -107,7 +121,7 @@ function DeclineButton({
       error: t`Couldn't decline`,
     },
     successHoldMs: 0,
-    sounds: { error: 'feedback.error' },
+    onPhaseChange,
   });
   return (
     <Button
@@ -116,7 +130,11 @@ function DeclineButton({
       variant="ghost"
       size="md"
       {...(username.length > 0
-        ? { testID: Handles.notificationsFriendRequestDecline(username) }
+        ? {
+            dataSet: {
+              testid: Handles.notificationsFriendRequestDecline(username),
+            },
+          }
         : {})}
     />
   );
@@ -134,21 +152,27 @@ export function FriendRequestDecisionModal({
   interaction,
   actions,
   onClose,
-}: FriendRequestDecisionModalProps): ReactNode {
+}: FriendRequestDecisionModalProps): JSX.Element {
   const router = useRouter();
-  const profile = useMemo(
-    () => profileFromFriendRequestNotification(interaction),
-    [interaction]
+  const profile = createMemo(() =>
+    profileFromFriendRequestNotification(interaction)
   );
 
-  const onViewProfile = useCallback(() => {
+  const onViewProfile = () => {
     onClose();
     if (interaction.deepLink === undefined) return;
     router.push({
-      pathname: interaction.deepLink.path as never,
-      params: interaction.deepLink.params as never,
+      pathname: interaction.deepLink.path,
+      ...(interaction.deepLink.params !== undefined
+        ? {
+            params: interaction.deepLink.params as Record<
+              string,
+              string | undefined
+            >,
+          }
+        : {}),
     });
-  }, [interaction.deepLink, onClose, router]);
+  };
 
   return (
     <ResponsiveSurface
@@ -160,9 +184,9 @@ export function FriendRequestDecisionModal({
     >
       <ModalBody>
         <Box sx={{ alignItems: 'center', gap: 2 }}>
-          {profile.userId.length > 0 ? (
-            <FriendProfileAvatar profile={profile} size={64} />
-          ) : null}
+          <Show when={profile().userId.length > 0}>
+            <FriendProfileAvatar profile={profile()} size={64} />
+          </Show>
           <Text
             variant="bodyBold"
             label={interaction.title}
@@ -186,7 +210,7 @@ export function FriendRequestDecisionModal({
           intent="neutral"
           variant="ghost"
           size="md"
-          onPress={onViewProfile}
+          onClick={onViewProfile}
         />
       </ModalFooter>
     </ResponsiveSurface>

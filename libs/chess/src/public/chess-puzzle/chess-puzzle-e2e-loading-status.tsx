@@ -1,5 +1,5 @@
-import { Text } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Text } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 
 const E2E_ENABLED =
   process.env['EXPO_PUBLIC_E2E'] === '1' || process.env['NODE_ENV'] === 'test';
@@ -16,8 +16,8 @@ export type ChessPuzzleE2ELoadingStatusProps = {
 
 export function ChessPuzzleE2ELoadingStatus(
   props: ChessPuzzleE2ELoadingStatusProps
-): ReactNode {
-  if (!E2E_ENABLED) return null;
+): JSX.Element {
+  if (!E2E_ENABLED) return <></>;
   const label = [
     `myId=${props.myId.length > 0 ? 'set' : 'empty'}`,
     `pick=${props.nextId ?? 'null'}`,
@@ -29,7 +29,7 @@ export function ChessPuzzleE2ELoadingStatus(
   ].join(' ');
   return (
     <Text
-      testID="chess-puzzle-pick-status"
+      dataSet={{ testid: 'chess-puzzle-pick-status' }}
       sx={{ position: 'absolute', width: 1, height: 1, opacity: 0 }}
       label={label}
     />

@@ -1,23 +1,22 @@
 import { FriendLiveSpaceBadge } from '@libs/spaces/public/friend-live-space-badge';
-import { Trans, useLingui } from '@lingui/react/macro';
-import { useSyncEngineActions } from '@pkgs/sync-engine/client';
+import { Trans, useLingui } from '@lingui/solid/macro';
 import {
   Box,
   EmptyState,
   LoadingState,
   ScreenBase,
-  ScreenBodyLegendList,
+  ScreenBodyVirtualList,
   UserPlusIcon,
+  useBreadcrumbNav,
   useRouter,
-} from '@pkgs/ui-rn';
-import { useBreadcrumbNav } from '@pkgs/ui-rn/components/use-breadcrumb-nav';
-import { type ReactNode, useCallback } from 'react';
+} from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 import { FriendUserRow } from '../../public/friend-user-row';
 import type { Friend } from '../../shared/friendship/friends-types';
 import { useFriends } from '../../use-cases/list-friends/client/use-friends';
 import { FriendsSignedInGate } from './friends-signed-in-gate';
 
-function FriendsEmptyState(): ReactNode {
+function FriendsEmptyState(): JSX.Element {
   const { t } = useLingui();
   const router = useRouter();
   return (
@@ -27,51 +26,44 @@ function FriendsEmptyState(): ReactNode {
       body={
         <Trans>Search for people by username to send a friend request.</Trans>
       }
-      action={{ label: t`Find friends`, onPress: () => router.push('/search') }}
+      action={{ label: t`Find friends`, onClick: () => router.push('/search') }}
     />
   );
 }
 
-function FriendsListBody(): ReactNode {
+function FriendsListBody(): JSX.Element {
   const router = useRouter();
   const nav = useBreadcrumbNav();
-  const { friends, isLoading } = useFriends();
-  const { refreshQueries } = useSyncEngineActions();
+  const friendsState = useFriends();
 
-  const openUser = useCallback(
-    (friend: Friend) => {
-      router.push({
-        pathname: '/profile/user/[userId]',
-        params: {
-          userId: friend.userId,
-          username: friend.username,
-          avatarConfig: friend.avatarConfig ?? '',
-        },
-      });
-    },
-    [router]
-  );
+  const openUser = (friend: Friend) => {
+    router.push({
+      pathname: '/profile/user/[userId]',
+      params: {
+        userId: friend.userId,
+        username: friend.username,
+        avatarConfig: friend.avatarConfig ?? '',
+      },
+    });
+  };
 
   return (
     <ScreenBase
       screenId="friends-list"
       breadcrumbs={[
-        { name: <Trans>Profile</Trans>, onPress: nav('/profile') },
+        { name: <Trans>Profile</Trans>, onClick: nav('/profile') },
         { name: <Trans>Friends</Trans> },
       ]}
       content={({ sx }) => (
         <Box sx={sx}>
-          <ScreenBodyLegendList
-            data={friends}
+          <ScreenBodyVirtualList
+            items={friendsState.friends}
             keyExtractor={(item) => item.userId}
-            estimatedItemSize={72}
-            drawDistance={200}
-            onRefresh={() => refreshQueries()}
-            sx={{ flexGrow: 1 }}
-            ListEmptyComponent={
-              isLoading ? <LoadingState /> : <FriendsEmptyState />
+            estimateSize={72}
+            empty={
+              friendsState.isLoading ? <LoadingState /> : <FriendsEmptyState />
             }
-            renderItem={({ item }) => (
+            renderItem={(item) => (
               <FriendUserRow
                 profile={item}
                 onPress={() => openUser(item)}
@@ -86,7 +78,7 @@ function FriendsListBody(): ReactNode {
   );
 }
 
-export function FriendsListScreen(): ReactNode {
+export function FriendsListScreen(): JSX.Element {
   return (
     <FriendsSignedInGate>
       <FriendsListBody />

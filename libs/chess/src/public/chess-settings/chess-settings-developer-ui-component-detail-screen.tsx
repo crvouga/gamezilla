@@ -3,63 +3,48 @@ import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
 } from '@libs/spaces/public/room/use-space-room-selector';
-import { Trans } from '@lingui/react/macro';
-import { Box, EmptyState, ExplorerDetail } from '@pkgs/ui-rn';
-import { type ReactNode, useCallback, useEffect } from 'react';
+import { Trans } from '@lingui/solid/macro';
+import { Box, EmptyState, ExplorerDetail } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+
 import {
   CHESS_SCREEN,
   ChessMainMenuScreenAttr,
   SetChessMainMenuScreen,
   SetChessSelectedUiComponent,
 } from '../chess-main-menu';
-import {
-  CHESS_COMPONENT_ENTRIES,
-  ensureChessBoardExampleRegistered,
-} from './chess-board-register-example';
+import { CHESS_COMPONENT_ENTRIES } from './chess-board-register-example';
 
-export function ChessSettingsDeveloperUiComponentDetailScreen(): ReactNode {
+export function ChessSettingsDeveloperUiComponentDetailScreen(): JSX.Element {
   const dispatch = useSpaceRoomDispatch();
   const selectedName = useSpaceRoomSelector(
     ChessMainMenuScreenAttr.selectedUiComponentName.from
   );
 
-  /**
-   * Idempotent: ensures the chess board example is registered so it can be
-   * looked up directly when this screen is the first to mount (e.g. via deep
-   * link or reload while a chess UI component was selected).
-   */
-  useEffect(() => {
-    ensureChessBoardExampleRegistered();
-  }, []);
-
-  const back = useCallback(() => {
+  const back = (): void => {
     dispatch(SetChessSelectedUiComponent({ name: null }));
     dispatch(
       SetChessMainMenuScreen({ screen: CHESS_SCREEN.settingsDeveloperUi })
     );
-  }, [dispatch]);
+  };
 
-  const onNavigate = useCallback(
-    (name: string) => {
-      dispatch(SetChessSelectedUiComponent({ name }));
-    },
-    [dispatch]
-  );
+  const onNavigate = (id: string): void => {
+    dispatch(SetChessSelectedUiComponent({ name: id }));
+  };
 
   return (
     <Box sx={{ alignSelf: 'stretch', flex: 1, minHeight: 0 }}>
       <DefineBackButton onPress={back} />
-      {selectedName === null ? (
+      {selectedName() === null ? (
         <EmptyState
           title={<Trans>No component selected</Trans>}
           body={<Trans>Pick one from the previous screen.</Trans>}
         />
       ) : (
         <ExplorerDetail
-          componentName={selectedName}
+          componentId={selectedName()!}
           entries={CHESS_COMPONENT_ENTRIES}
           onNavigate={onNavigate}
-          largeTitle
         />
       )}
     </Box>

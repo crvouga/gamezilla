@@ -1,7 +1,7 @@
-import { useClock } from '@pkgs/clock';
-import { AnimatedBox, useTheme } from '@pkgs/ui-rn';
-import { type ReactNode, useCallback, useEffect, useRef } from 'react';
-import type { Animated } from 'react-native';
+import { useClock } from '@pkgs/clock/solid';
+import { Box, useTheme } from '@pkgs/ui';
+import { type Accessor, createEffect, type JSX } from 'solid-js';
+
 import { shouldPlayEloTick } from '../../shared/puzzle-session/elo-tick';
 import { ChessPuzzleSummaryCard } from './chess-puzzle-summary-card';
 import { useCelebrationOverlayAnimation } from './use-celebration-overlay-animation';
@@ -9,92 +9,54 @@ import type { PuzzleCompletion } from './use-chess-puzzle-completion';
 import { useChessPuzzleEloAnimation } from './use-chess-puzzle-elo-animation';
 import { useChessPuzzleFeedback } from './use-chess-puzzle-feedback';
 
-function CelebrationScrim(p: {
-  scrimOpacity: Animated.Value;
-  vignetteOpacity: Animated.Value;
-  vignetteColor: string;
-}): ReactNode {
-  return (
-    <>
-      <AnimatedBox
-        pointerEvents="none"
-        sx={{
-          absoluteFill: true,
-          backgroundColor: 'rgba(0,0,0,0.55)',
-          opacity: p.scrimOpacity,
-        }}
-      />
-      <AnimatedBox
-        pointerEvents="none"
-        sx={{
-          absoluteFill: true,
-          backgroundColor: p.vignetteColor,
-          opacity: p.vignetteOpacity,
-        }}
-      />
-    </>
-  );
-}
-
 function useCelebrationEloFeedback(args: {
   completion: PuzzleCompletion;
   onDisplayEloChange: (rating: number) => void;
   onEloCompletePulse?: () => void;
-}): {
-  displayRating: number;
-  completePulse: Animated.Value;
-} {
-  const { completion, onDisplayEloChange, onEloCompletePulse } = args;
+}): { displayRating: Accessor<number>; completePulse: Accessor<number> } {
   const feedback = useChessPuzzleFeedback();
   const clock = useClock();
-  const lastTickAtRef = useRef(0);
-  const lastTickRatingRef = useRef(completion.ratingBefore);
-  const completionKey = `${completion.outcome}-${completion.ratingAfter}`;
+  const lastTickAtRef: { current: number } = { current: 0 };
+  const lastTickRatingRef: { current: number } = {
+    current: args.completion.ratingBefore,
+  };
+  const completionKey = `${args.completion.outcome}-${args.completion.ratingAfter}`;
 
-  const onRatingStep = useCallback(
-    (rating: number) => {
-      onDisplayEloChange(rating);
-      const now = clock.now();
-      if (
-        shouldPlayEloTick({
-          nextRating: rating,
-          prevDisplayedRating: lastTickRatingRef.current,
-          lastTickAtMs: lastTickAtRef.current,
-          nowMs: now,
-        })
-      ) {
-        lastTickAtRef.current = now;
-        lastTickRatingRef.current = rating;
-        feedback.onEloTick();
-      }
-    },
-    [clock, feedback, onDisplayEloChange]
-  );
+  const onRatingStep = (rating: number): void => {
+    args.onDisplayEloChange(rating);
+    const now = clock.now();
+    if (
+      shouldPlayEloTick({
+        nextRating: rating,
+        prevDisplayedRating: lastTickRatingRef.current,
+        lastTickAtMs: lastTickAtRef.current,
+        nowMs: now,
+      })
+    ) {
+      lastTickAtRef.current = now;
+      lastTickRatingRef.current = rating;
+      feedback.onEloTick();
+    }
+  };
 
-  const onComplete = useCallback(() => {
-    onDisplayEloChange(completion.ratingAfter);
-    feedback.onEloComplete(completion.delta);
-    onEloCompletePulse?.();
-  }, [
-    completion.delta,
-    completion.ratingAfter,
-    feedback,
-    onDisplayEloChange,
-    onEloCompletePulse,
-  ]);
+  const onComplete = (): void => {
+    args.onDisplayEloChange(args.completion.ratingAfter);
+    feedback.onEloComplete(args.completion.delta);
+    args.onEloCompletePulse?.();
+  };
 
   const anim = useChessPuzzleEloAnimation({
-    ratingBefore: completion.ratingBefore,
-    ratingAfter: completion.ratingAfter,
+    ratingBefore: args.completion.ratingBefore,
+    ratingAfter: args.completion.ratingAfter,
     animationKey: completionKey,
     enabled: true,
     onRatingStep,
     onComplete,
   });
 
-  useEffect(() => {
-    onDisplayEloChange(completion.ratingBefore);
-  }, [completion.ratingBefore, onDisplayEloChange]);
+  createEffect(() => {
+    args.onDisplayEloChange(args.completion.ratingBefore);
+  });
 
   return anim;
 }
@@ -106,48 +68,69 @@ export type ChessPuzzleCelebrationOverlayProps = {
 };
 
 export function ChessPuzzleCelebrationOverlay(
-  p: ChessPuzzleCelebrationOverlayProps
-): ReactNode {
+  props: ChessPuzzleCelebrationOverlayProps
+): JSX.Element {
   const theme = useTheme();
-  const completionKey = `${p.completion.outcome}-${p.completion.ratingAfter}`;
+  const completionKey = `${props.completion.outcome}-${props.completion.ratingAfter}`;
   const overlayAnim = useCelebrationOverlayAnimation(completionKey);
   const eloAnim = useCelebrationEloFeedback({
-    completion: p.completion,
-    onDisplayEloChange: p.onDisplayEloChange,
-    ...(p.onEloCompletePulse !== undefined
-      ? { onEloCompletePulse: p.onEloCompletePulse }
+    completion: props.completion,
+    onDisplayEloChange: props.onDisplayEloChange,
+    ...(props.onEloCompletePulse !== undefined
+      ? { onEloCompletePulse: props.onEloCompletePulse }
       : {}),
   });
 
   return (
-    <AnimatedBox
-      pointerEvents="box-none"
+    <Box
       sx={{
-        absoluteFill: true,
+        position: 'absolute',
+        inset: 0,
         justifyContent: 'center',
         alignItems: 'center',
         paddingHorizontal: 12,
       }}
     >
-      <CelebrationScrim
-        scrimOpacity={overlayAnim.scrimOpacity}
-        vignetteOpacity={overlayAnim.vignetteOpacity}
-        vignetteColor={theme.colors.successSurface}
+      <Box
+        sx={{
+          position: 'absolute',
+          inset: 0,
+          backgroundColor: 'rgba(0,0,0,0.55)',
+          opacity: overlayAnim.scrimOpacity(),
+          transitionProperty: 'opacity',
+          transitionDuration: 'var(--ui-duration-fast)',
+          pointerEvents: 'none',
+        }}
       />
-      <AnimatedBox
-        testID="chess-puzzle-summary"
+      <Box
+        sx={{
+          position: 'absolute',
+          inset: 0,
+          backgroundColor: theme.colors.successSurface,
+          opacity: overlayAnim.vignetteOpacity(),
+          transitionProperty: 'opacity',
+          transitionDuration: 'var(--ui-duration-slower)',
+          transitionTimingFunction: 'var(--ui-easing-inOut)',
+          pointerEvents: 'none',
+        }}
+      />
+      <Box
+        dataSet={{ testid: 'chess-puzzle-summary' }}
         sx={{
           alignSelf: 'stretch',
-          opacity: overlayAnim.cardOpacity,
-          transform: [{ scale: overlayAnim.cardScale }],
+          opacity: overlayAnim.cardOpacity(),
+          transform: [{ scale: overlayAnim.cardScale() }],
+          transitionProperty: 'opacity, transform',
+          transitionDuration: 'var(--ui-duration-slow)',
+          transitionTimingFunction: 'var(--ui-easing-decelerate)',
         }}
       >
         <ChessPuzzleSummaryCard
-          completion={p.completion}
-          displayRating={eloAnim.displayRating}
+          completion={props.completion}
+          displayRating={eloAnim.displayRating()}
           deltaPulse={eloAnim.completePulse}
         />
-      </AnimatedBox>
-    </AnimatedBox>
+      </Box>
+    </Box>
   );
 }

@@ -1,6 +1,7 @@
 import { useSpaceRoomDispatch } from '@libs/spaces/public/room/use-space-room-selector';
 import type { Move } from '@pkgs/chess-board/chess-board-types';
-import { useCallback } from 'react';
+import type { Accessor } from 'solid-js';
+
 import type { HintStage } from '../../shared/puzzle-session/hint-stage';
 import { CHESS_SCREEN, SetChessMainMenuScreen } from '../chess-main-menu';
 import {
@@ -16,8 +17,8 @@ import {
 import { uciFromMove } from './chess-puzzle-play-chess-utils';
 
 type HandlersArgs = {
-  status: ChessPuzzlePlayStatus | 'loading';
-  hintStage: HintStage;
+  status: Accessor<ChessPuzzlePlayStatus | 'loading'>;
+  hintStage: Accessor<HintStage>;
   onMoveRaw: (m: Move) => void;
   setLastUci: (uci: string) => void;
   appendUsedHint: () => Promise<void>;
@@ -25,30 +26,32 @@ type HandlersArgs = {
   onRequestNext: () => void;
 };
 
-function useHintSolutionHandlers(
-  args: Pick<HandlersArgs, 'hintStage' | 'appendUsedHint'>
-): { onHint: () => void; onSolution: () => void } {
+function useHintSolutionHandlers(args: {
+  hintStage: Accessor<HintStage>;
+  appendUsedHint: () => Promise<void>;
+}): { onHint: () => void; onSolution: () => void } {
   const dispatch = useSpaceRoomDispatch();
-  const { hintStage, appendUsedHint } = args;
 
-  const onHint = useCallback(() => {
+  const onHint = (): void => {
+    const hintStage = args.hintStage();
     if (hintStage === 'none') {
       dispatch(RequestChessPuzzleHint({}));
-      void appendUsedHint();
+      void args.appendUsedHint();
       return;
     }
     if (hintStage === 'highlight') {
       dispatch(RevealChessPuzzleSolution({}));
     }
-  }, [appendUsedHint, dispatch, hintStage]);
+  };
 
-  const onSolution = useCallback(() => {
+  const onSolution = (): void => {
+    const hintStage = args.hintStage();
     if (hintStage === 'solution') return;
     if (hintStage === 'none') {
-      void appendUsedHint();
+      void args.appendUsedHint();
     }
     dispatch(RevealChessPuzzleSolution({}));
-  }, [appendUsedHint, dispatch, hintStage]);
+  };
 
   return { onHint, onSolution };
 }
@@ -63,56 +66,44 @@ export function usePuzzlePlayerHandlers(args: HandlersArgs): {
   onForward: () => void;
   backToRoot: () => void;
 } {
-  const {
-    status,
-    onMoveRaw,
-    setLastUci,
-    appendAbandoned,
-    onRequestNext,
-    hintStage,
-    appendUsedHint,
-  } = args;
   const dispatch = useSpaceRoomDispatch();
   const { onHint, onSolution } = useHintSolutionHandlers({
-    hintStage,
-    appendUsedHint,
+    hintStage: args.hintStage,
+    appendUsedHint: args.appendUsedHint,
   });
 
-  const onMove = useCallback(
-    (m: Move) => {
-      setLastUci(uciFromMove(m));
-      onMoveRaw(m);
-    },
-    [onMoveRaw, setLastUci]
-  );
+  const onMove = (m: Move): void => {
+    args.setLastUci(uciFromMove(m));
+    args.onMoveRaw(m);
+  };
 
-  const backToRoot = useCallback(() => {
+  const backToRoot = (): void => {
     dispatch(ClearChessPuzzlePlay({}));
     dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.root }));
-  }, [dispatch]);
+  };
 
-  const onRetry = useCallback(() => {
-    if (status !== CHESS_PUZZLE_PLAY_STATUS.solved) {
-      void appendAbandoned();
+  const onRetry = (): void => {
+    if (args.status() !== CHESS_PUZZLE_PLAY_STATUS.solved) {
+      void args.appendAbandoned();
     }
     dispatch(ResetChessPuzzlePlay({}));
-  }, [appendAbandoned, dispatch, status]);
+  };
 
-  const onNext = useCallback((): void => {
-    if (status !== CHESS_PUZZLE_PLAY_STATUS.solved) {
-      void appendAbandoned();
+  const onNext = (): void => {
+    if (args.status() !== CHESS_PUZZLE_PLAY_STATUS.solved) {
+      void args.appendAbandoned();
     }
     dispatch(ClearChessPuzzlePlay({}));
-    onRequestNext();
-  }, [appendAbandoned, dispatch, onRequestNext, status]);
+    args.onRequestNext();
+  };
 
-  const onBack = useCallback(() => {
+  const onBack = (): void => {
     dispatch(StepBackChessPuzzlePlay({}));
-  }, [dispatch]);
+  };
 
-  const onForward = useCallback(() => {
+  const onForward = (): void => {
     dispatch(StepForwardChessPuzzlePlay({}));
-  }, [dispatch]);
+  };
 
   return {
     onMove,

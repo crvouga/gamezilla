@@ -1,8 +1,8 @@
 import { Handles } from '@libs/test-ids';
-import type { useLingui } from '@lingui/react/macro';
-import { Trans } from '@lingui/react/macro';
+import type { useLingui } from '@lingui/solid/macro';
+import { Trans } from '@lingui/solid/macro';
 import { Sounds } from '@pkgs/sounds';
-import type { ReactNode } from 'react';
+import type { JSX } from 'solid-js';
 
 import type { FriendshipStatus } from '../../shared/friendship/friends-types';
 import {
@@ -14,7 +14,7 @@ import type { FriendActionMutations } from './friend-action-types';
 type LinguiT = ReturnType<typeof useLingui>['t'];
 type WrapMutation = (fn: () => Promise<void>) => () => Promise<void>;
 
-function renderBlockedByThem(t: LinguiT): ReactNode {
+function renderBlockedByThem(t: LinguiT): JSX.Element {
   return (
     <SingleActionPill
       operation={async () => {}}
@@ -32,7 +32,7 @@ function renderBlockedByMe(
   wrap: WrapMutation,
   mutations: FriendActionMutations,
   t: LinguiT
-): ReactNode {
+): JSX.Element {
   return (
     <SingleActionPill
       operation={wrap(mutations.unblock)}
@@ -48,7 +48,7 @@ function renderPendingIncoming(
   wrap: WrapMutation,
   mutations: FriendActionMutations,
   username: string | undefined
-): ReactNode {
+): JSX.Element {
   return (
     <ConfirmDeletePills
       onConfirm={wrap(mutations.confirmRequest)}
@@ -64,7 +64,7 @@ function renderPendingOutgoing(
   wrap: WrapMutation,
   mutations: FriendActionMutations,
   t: LinguiT
-): ReactNode {
+): JSX.Element {
   return (
     <SingleActionPill
       operation={wrap(mutations.cancelRequest)}
@@ -77,7 +77,7 @@ function renderPendingOutgoing(
   );
 }
 
-function renderFriends(t: LinguiT, username: string | undefined): ReactNode {
+function renderFriends(t: LinguiT, username: string | undefined): JSX.Element {
   return (
     <SingleActionPill
       operation={async () => {}}
@@ -99,7 +99,7 @@ function renderNone(
   mutations: FriendActionMutations,
   t: LinguiT,
   username: string | undefined
-): ReactNode {
+): JSX.Element {
   return (
     <SingleActionPill
       operation={wrap(mutations.addFriend)}
@@ -130,7 +130,7 @@ export function renderFriendActionPillsForStatus({
   wrap: WrapMutation;
   t: LinguiT;
   username?: string | undefined;
-}): ReactNode {
+}): JSX.Element {
   switch (status) {
     case 'blocked_by_them':
       return renderBlockedByThem(t);

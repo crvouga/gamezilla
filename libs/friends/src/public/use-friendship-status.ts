@@ -2,8 +2,8 @@ import { useMyId } from '@libs/auth/public/use-current-user';
 import type { Sql } from '@pkgs/sql';
 import { sql } from '@pkgs/sql';
 
-import { useQuery, useSyncEngine } from '@pkgs/sync-engine/client';
-import { useMemo } from 'react';
+import { createQuery, useSyncEngine } from '@pkgs/sync-engine/solid';
+import { type Accessor, createMemo } from 'solid-js';
 
 import { canonicalUserPair } from '../shared/friendship/canonical-pair';
 import type { FriendshipStatus } from '../shared/friendship/friends-types';
@@ -57,20 +57,24 @@ function friendshipStatusSql(
   `;
 }
 
-export function useFriendshipStatus(targetUserId: string): FriendshipStatus {
+export function useFriendshipStatus(
+  targetUserId: string
+): Accessor<FriendshipStatus> {
   const { paintReady } = useSyncEngine();
   const myId = useMyId();
-  const enabled =
-    paintReady &&
-    myId.length > 0 &&
-    targetUserId.length > 0 &&
-    myId !== targetUserId;
-  const query = useMemo(
-    () => (enabled ? friendshipStatusSql(myId, targetUserId) : noneStatusSql()),
-    [enabled, myId, targetUserId]
+  const enabled = createMemo(
+    () =>
+      paintReady() &&
+      myId().length > 0 &&
+      targetUserId.length > 0 &&
+      myId() !== targetUserId
   );
-  const { rows } = useQuery(query);
-  const row = rows[0] ?? null;
-  if (!paintReady || !enabled) return 'none';
-  return row?.status ?? 'none';
+  const query = createQuery(() =>
+    enabled() ? friendshipStatusSql(myId(), targetUserId) : noneStatusSql()
+  );
+  const row = createMemo(() => query.rows()[0] ?? null);
+  return createMemo(() => {
+    if (!paintReady() || !enabled()) return 'none';
+    return row()?.status ?? 'none';
+  });
 }

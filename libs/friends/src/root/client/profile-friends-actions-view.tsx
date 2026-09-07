@@ -1,8 +1,8 @@
-import { useLingui } from '@lingui/react/macro';
-import { Button, useRouter } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { useLingui } from '@lingui/solid/macro';
+import { Button, useRouter } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 
-export function ProfileFriendsActions(): ReactNode {
+export function ProfileFriendsActions(): JSX.Element {
   const router = useRouter();
   const { t } = useLingui();
 
@@ -12,7 +12,7 @@ export function ProfileFriendsActions(): ReactNode {
       intent="neutral"
       variant="outline"
       flex={1}
-      onPress={() => router.push('/search')}
+      onClick={() => router.push('/search')}
     />
   );
 }

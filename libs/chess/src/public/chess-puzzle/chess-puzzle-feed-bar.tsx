@@ -1,8 +1,8 @@
 import { useMyId } from '@libs/auth/public/use-current-user';
 import { t } from '@lingui/core/macro';
-import { Trans } from '@lingui/react/macro';
-import { Box, Pressable, Text } from '@pkgs/ui-rn';
-import { type ReactNode, useMemo } from 'react';
+import { Trans } from '@lingui/solid/macro';
+import { Box, Clickable, Text } from '@pkgs/ui';
+import { createMemo, type JSX, Show } from 'solid-js';
 
 import {
   type ChessPuzzleFeedHistoryFilter,
@@ -44,44 +44,45 @@ function themesSummary(themes: readonly string[]): string {
   return t`${themes.length} themes`;
 }
 
-function FeedBarSep(): ReactNode {
+function FeedBarSep(): JSX.Element {
   return <Text variant="caption" sx={{ color: 'textSecondary' }} label="·" />;
 }
 
-export function ChessPuzzleFeedBar({
-  puzzleId,
-  rating,
-  onOpenFeedSettings,
-}: ChessPuzzleFeedBarProps): ReactNode {
+export function ChessPuzzleFeedBar(
+  props: ChessPuzzleFeedBarProps
+): JSX.Element {
   const myId = useMyId();
   const { profileRating } = useChessPuzzleProfileRatings(myId);
   const [config] = useChessPuzzleFeedConfig();
   const pool = useChessPuzzleFeedPoolStats();
-  const effectiveRating = useMemo(
-    () => resolveEffectivePuzzleRating({ config, profileRating }),
-    [config, profileRating]
+  const effectiveRating = createMemo(() =>
+    resolveEffectivePuzzleRating({ config: config(), profileRating })
   );
-  const feedLabel =
-    config.mode === 'auto' ? (
-      <Trans>Auto · {effectiveRating}</Trans>
+  const feedLabel = createMemo(() =>
+    config().mode === 'auto' ? (
+      <Trans>Auto · {effectiveRating()}</Trans>
     ) : (
-      <Trans>Custom · {effectiveRating}</Trans>
-    );
-  const showPuzzleRating = rating !== undefined && rating > 0;
-  const puzzleElo = showPuzzleRating ? rating : 0;
+      <Trans>Custom · {effectiveRating()}</Trans>
+    )
+  );
+  const showPuzzleRating = () =>
+    props.rating !== undefined && (props.rating ?? 0) > 0;
+  const puzzleElo = () => (showPuzzleRating() ? (props.rating ?? 0) : 0);
   const idLabel =
-    puzzleId !== undefined && puzzleId.length > 0 ? puzzleId : '—';
+    props.puzzleId !== undefined && props.puzzleId.length > 0
+      ? props.puzzleId
+      : '—';
   const muted = { color: 'textSecondary' } as const;
 
   return (
-    <Pressable
-      onPress={onOpenFeedSettings}
-      accessibilityRole="button"
-      testID="chess-puzzle-feed-summary"
+    <Clickable
+      onClick={props.onOpenFeedSettings}
+      role="button"
+      dataSet={{ testid: 'chess-puzzle-feed-summary' }}
       sx={{ alignSelf: 'stretch' }}
     >
       <Box
-        testID="chess-puzzle-board-elo-bar"
+        dataSet={{ testid: 'chess-puzzle-board-elo-bar' }}
         sx={{
           flexDirection: 'row',
           alignItems: 'center',
@@ -94,29 +95,27 @@ export function ChessPuzzleFeedBar({
         }}
       >
         <Text variant="caption" sx={muted} label={idLabel} />
-        {showPuzzleRating ? (
-          <>
-            <FeedBarSep />
-            <ChessPuzzleEloChip
-              elo={puzzleElo}
-              variant="muted"
-              testID="chess-puzzle-board-elo"
-            />
-          </>
-        ) : null}
+        <Show when={showPuzzleRating()}>
+          <FeedBarSep />
+          <ChessPuzzleEloChip
+            elo={puzzleElo()}
+            variant="muted"
+            testID="chess-puzzle-board-elo"
+          />
+        </Show>
         <FeedBarSep />
-        <Text variant="caption" sx={muted} label={feedLabel} />
+        <Text variant="caption" sx={muted} label={feedLabel()} />
         <FeedBarSep />
         <Text
           variant="caption"
           sx={muted}
-          label={historyFilterLabel(config.historyFilter)}
+          label={historyFilterLabel(config().historyFilter)}
         />
         <FeedBarSep />
         <Text
           variant="caption"
           sx={muted}
-          label={themesSummary(config.themes)}
+          label={themesSummary(config().themes)}
         />
         <FeedBarSep />
         <Text
@@ -129,6 +128,6 @@ export function ChessPuzzleFeedBar({
           }
         />
       </Box>
-    </Pressable>
+    </Clickable>
   );
 }

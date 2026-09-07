@@ -1,6 +1,7 @@
 import { Handles } from '@libs/test-ids';
-import { Box, Pressable, Text } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Box, Clickable, Text } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+import { Show } from 'solid-js';
 
 import type { FriendProfile } from '../shared/friendship/friends-types';
 import { FriendProfileAvatar } from './friend-profile-avatar';
@@ -8,7 +9,7 @@ import { FriendProfileAvatar } from './friend-profile-avatar';
 export type FriendUserRowProps = {
   readonly profile: FriendProfile;
   readonly onPress?: (() => void) | undefined;
-  readonly trailing?: ReactNode;
+  readonly trailing?: JSX.Element;
   /** When true, sets the friends-list DST handle from `profile.username`. */
   readonly friendsListHandle?: boolean;
 };
@@ -18,16 +19,11 @@ function usernameLabel(profile: FriendProfile): string {
   return profile.userId.slice(0, 8);
 }
 
-export function FriendUserRow({
-  profile,
-  onPress,
-  trailing,
-  friendsListHandle = false,
-}: FriendUserRowProps): ReactNode {
-  const title = usernameLabel(profile);
+export function FriendUserRow(props: FriendUserRowProps): JSX.Element {
+  const title = usernameLabel(props.profile);
   const rowTestID =
-    friendsListHandle && profile.username.length > 0
-      ? Handles.friendsListRow(profile.username)
+    props.friendsListHandle && props.profile.username.length > 0
+      ? Handles.friendsListRow(props.profile.username)
       : undefined;
 
   const body = (
@@ -39,24 +35,29 @@ export function FriendUserRow({
         py: 2,
       }}
     >
-      <FriendProfileAvatar profile={profile} size={44} />
+      <FriendProfileAvatar profile={props.profile} size={44} />
       <Box sx={{ flex: 1, minWidth: 0, gap: 0.5 }}>
         <Text variant="bodyBold" label={title} numberOfLines={1} />
       </Box>
-      {trailing}
+      {props.trailing}
     </Box>
   );
 
-  if (onPress === undefined) {
-    if (rowTestID === undefined) return body;
-    return <Box testID={rowTestID}>{body}</Box>;
-  }
   return (
-    <Pressable
-      onPress={onPress}
-      {...(rowTestID !== undefined ? { testID: rowTestID } : {})}
+    <Show
+      when={props.onPress !== undefined}
+      fallback={
+        <Show when={rowTestID} keyed fallback={body}>
+          {(testID) => <Box dataSet={{ testid: testID }}>{body}</Box>}
+        </Show>
+      }
     >
-      {body}
-    </Pressable>
+      <Clickable
+        onClick={() => props.onPress?.()}
+        {...(rowTestID !== undefined ? { dataSet: { testid: rowTestID } } : {})}
+      >
+        {body}
+      </Clickable>
+    </Show>
   );
 }

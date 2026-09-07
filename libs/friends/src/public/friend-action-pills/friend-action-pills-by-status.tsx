@@ -1,41 +1,34 @@
-import { useLingui } from '@lingui/react/macro';
-import { Box } from '@pkgs/ui-rn';
-import { type ReactNode, useCallback } from 'react';
+import { useLingui } from '@lingui/solid/macro';
+import { Box } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+import { Show } from 'solid-js';
 
 import type { FriendshipStatus } from '../../shared/friendship/friends-types';
 import { renderFriendActionPillsForStatus } from './friend-action-status-renderers';
 import type { FriendActionMutations } from './friend-action-types';
 
-export function FriendActionPillsForStatus({
-  status,
-  mutations,
-  onChanged,
-  username,
-}: {
+export function FriendActionPillsForStatus(props: {
   status: FriendshipStatus;
   mutations: FriendActionMutations;
   onChanged?: (() => void) | undefined;
   username?: string | undefined;
-}): ReactNode {
+}): JSX.Element {
   const { t } = useLingui();
-  const wrap = useCallback(
-    (fn: () => Promise<void>) => async () => {
-      await fn();
-      onChanged?.();
-    },
-    [onChanged]
-  );
+  const wrap = (fn: () => Promise<void>) => async () => {
+    await fn();
+    props.onChanged?.();
+  };
   const pills = renderFriendActionPillsForStatus({
-    status,
-    mutations,
+    status: props.status,
+    mutations: props.mutations,
     wrap,
     t,
-    username,
+    username: props.username,
   });
 
-  if (status === 'blocked_by_them') {
-    return <Box sx={{ alignSelf: 'stretch' }}>{pills}</Box>;
-  }
-
-  return pills;
+  return (
+    <Show when={props.status === 'blocked_by_them'} fallback={pills}>
+      <Box sx={{ alignSelf: 'stretch' }}>{pills}</Box>
+    </Show>
+  );
 }

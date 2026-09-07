@@ -3,14 +3,10 @@ import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
 } from '@libs/spaces/public/room/use-space-room-selector';
-import { Trans } from '@lingui/react/macro';
-import { ChessBoardCanvasBootstrap } from '@pkgs/chess-board/chess-board-canvas-bootstrap';
-import { Box, FadeSwitch } from '@pkgs/ui-rn';
-import {
-  type MainMenuItem,
-  MainMenuScreen,
-} from '@pkgs/ui-rn/components/main-menu-screen';
-import { type ReactNode, useMemo } from 'react';
+import { Trans } from '@lingui/solid/macro';
+import { Box, FadeSwitch, type MainMenuItem, MainMenuScreen } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+
 import {
   CHESS_SCREEN,
   type ChessMainMenuScreen,
@@ -27,18 +23,14 @@ import { ChessSettingsDeveloperUiComponentsScreen } from './chess-settings/chess
 import { ChessSettingsScreen } from './chess-settings/chess-settings-screen';
 
 export type ChessMainMenuProps = {
-  /** Called by chess's root menu to return to the games picker. */
   onBackToGames: () => void;
 };
 
-function ChessScreenContent({
-  screen,
-  onBackToGames,
-}: {
+function ChessScreenContent(props: {
   screen: ChessMainMenuScreen;
   onBackToGames: () => void;
-}): ReactNode {
-  switch (screen) {
+}): JSX.Element {
+  switch (props.screen) {
     case CHESS_SCREEN.puzzle:
       return <PuzzlePlayScreen />;
     case CHESS_SCREEN.stats:
@@ -54,94 +46,74 @@ function ChessScreenContent({
     case CHESS_SCREEN.settingsDeveloperUiDetail:
       return <ChessSettingsDeveloperUiComponentDetailScreen />;
     default:
-      return <RootMainMenu onBackToGames={onBackToGames} />;
+      return <RootMainMenu onBackToGames={props.onBackToGames} />;
   }
 }
 
-function ChessScreenSwitch({ onBackToGames }: ChessMainMenuProps): ReactNode {
+function ChessScreenSwitch(props: ChessMainMenuProps): JSX.Element {
   const screen = useSpaceRoomSelector(ChessMainMenuScreenAttr.screen.from);
 
   return (
-    <FadeSwitch stateKey={screen}>
-      <ChessScreenContent screen={screen} onBackToGames={onBackToGames} />
+    <FadeSwitch stateKey={screen()}>
+      <ChessScreenContent
+        screen={screen()}
+        onBackToGames={props.onBackToGames}
+      />
     </FadeSwitch>
   );
 }
 
-/**
- * Chess entry point. Wraps the entire chess subtree in
- * `ChessBoardCanvasBootstrap` so CanvasKit (web) and the Skia canvas chunk
- * start loading the moment the user opens any chess screen — by the time
- * they reach a board (puzzle play, picker preview, etc.) the chunk is
- * cached and the per-board mount reads it synchronously via the runtime
- * singleton (no Suspense flash).
- *
- * Bootstrap is mounted here — the highest point inside the chess package —
- * so `@apps/client` does not import any Skia code; non-chess routes never
- * pay the CanvasKit WASM load cost.
- *
- * `onBackToGames` is supplied by the games registry host
- * (`<GamesMainMenu>` in `@libs/spaces`) so chess never has to import
- * the spaces-specific `SelectGame` command.
- */
-export function ChessMainMenu({
-  onBackToGames,
-}: ChessMainMenuProps): ReactNode {
+export function ChessMainMenu(props: ChessMainMenuProps): JSX.Element {
   useChessPuzzleFeedSubscription();
   return (
-    <ChessBoardCanvasBootstrap>
-      <Box sx={{ flex: 1, minHeight: 0, alignSelf: 'stretch' }}>
-        <ChessScreenSwitch onBackToGames={onBackToGames} />
-      </Box>
-    </ChessBoardCanvasBootstrap>
+    <Box sx={{ flex: 1, minHeight: 0, alignSelf: 'stretch' }}>
+      <ChessScreenSwitch onBackToGames={props.onBackToGames} />
+    </Box>
   );
 }
 
-function RootMainMenu({ onBackToGames }: ChessMainMenuProps): ReactNode {
+function RootMainMenu(props: ChessMainMenuProps): JSX.Element {
   const dispatch = useSpaceRoomDispatch();
-  const items = useMemo(
-    (): readonly MainMenuItem[] => [
-      {
-        key: 'puzzle',
-        title: <Trans>Puzzle</Trans>,
-        caption: <Trans>Solve rated puzzles and climb the ladder</Trans>,
-        testID: 'chess-menu-puzzle',
-        onPress: () =>
-          dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.puzzle })),
-      },
-      {
-        key: 'stats',
-        title: <Trans>Stats</Trans>,
-        caption: <Trans>Elo trend and game log</Trans>,
-        testID: 'chess-menu-stats',
-        onPress: () =>
-          dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.stats })),
-      },
-      {
-        key: 'custom-games',
-        title: <Trans>Custom Games</Trans>,
-        caption: <Trans>Coming soon</Trans>,
-        disabled: true,
-      },
-      {
-        key: 'matchmaking',
-        title: <Trans>Matchmaking</Trans>,
-        caption: <Trans>Coming soon</Trans>,
-        disabled: true,
-      },
-      {
-        key: 'settings',
-        title: <Trans>Settings</Trans>,
-        caption: <Trans>Preferences and developer tools</Trans>,
-        onPress: () =>
-          dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.settings })),
-      },
-    ],
-    [dispatch]
-  );
+  const items: readonly MainMenuItem[] = [
+    {
+      key: 'puzzle',
+      title: <Trans>Puzzle</Trans>,
+      caption: <Trans>Solve rated puzzles and climb the ladder</Trans>,
+      dataSet: { testid: 'chess-menu-puzzle' },
+      onClick: () =>
+        dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.puzzle })),
+    },
+    {
+      key: 'stats',
+      title: <Trans>Stats</Trans>,
+      caption: <Trans>Elo trend and game log</Trans>,
+      dataSet: { testid: 'chess-menu-stats' },
+      onClick: () =>
+        dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.stats })),
+    },
+    {
+      key: 'custom-games',
+      title: <Trans>Custom Games</Trans>,
+      caption: <Trans>Coming soon</Trans>,
+      disabled: true,
+    },
+    {
+      key: 'matchmaking',
+      title: <Trans>Matchmaking</Trans>,
+      caption: <Trans>Coming soon</Trans>,
+      disabled: true,
+    },
+    {
+      key: 'settings',
+      title: <Trans>Settings</Trans>,
+      caption: <Trans>Preferences and developer tools</Trans>,
+      onClick: () =>
+        dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.settings })),
+    },
+  ];
   return (
     <>
-      <DefineBackButton onPress={onBackToGames} />
+      <DefineBackButton onPress={props.onBackToGames} />
       <MainMenuScreen
         screenId="chess-main-menu"
         title={<Trans>Chess</Trans>}

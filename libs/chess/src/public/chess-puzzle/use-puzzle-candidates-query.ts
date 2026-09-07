@@ -1,4 +1,6 @@
 import { createQuery } from '@pkgs/sync-engine/solid';
+import type { Accessor } from 'solid-js';
+
 import {
   buildPuzzleCandidatesSql,
   PUZZLE_NEXT_MAX_BAND,
@@ -6,27 +8,26 @@ import {
 import type { ChessPuzzleFeedHistoryFilter } from '../chess-puzzle-feed-config';
 
 export type PuzzleCandidatesQueryArgs = {
-  readonly rating: number;
-  readonly ownerId: string;
+  readonly rating: Accessor<number>;
+  readonly ownerId: Accessor<string>;
   readonly currentPuzzleId: string | null;
-  readonly historyFilter: ChessPuzzleFeedHistoryFilter;
-  readonly themes: readonly string[];
+  readonly historyFilter: Accessor<ChessPuzzleFeedHistoryFilter>;
+  readonly themes: Accessor<readonly string[]>;
   readonly halfWindow?: number | null;
-  readonly pickOffset?: number;
+  readonly pickOffset?: Accessor<number>;
 };
 
 export function usePuzzleCandidatesQuery(args: PuzzleCandidatesQueryArgs) {
   const query = createQuery(() =>
     buildPuzzleCandidatesSql({
-      rating: args.rating,
-      // null is the unbounded fallback, not the default band.
+      rating: args.rating(),
       halfWindow:
         args.halfWindow === undefined ? PUZZLE_NEXT_MAX_BAND : args.halfWindow,
-      ownerId: args.ownerId,
-      historyFilter: args.historyFilter,
-      themes: args.themes,
+      ownerId: args.ownerId(),
+      historyFilter: args.historyFilter(),
+      themes: args.themes(),
       currentPuzzleId: args.currentPuzzleId,
-      pickOffset: args.pickOffset ?? 0,
+      pickOffset: args.pickOffset?.() ?? 0,
     })
   );
   return {

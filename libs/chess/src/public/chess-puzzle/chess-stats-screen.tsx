@@ -1,15 +1,14 @@
 import { DefineBackButton } from '@libs/spaces/public/nav/spaces-nav-context';
 import { useSpaceRoomDispatch } from '@libs/spaces/public/room/use-space-room-selector';
-import { Trans } from '@lingui/react/macro';
+import { Trans } from '@lingui/solid/macro';
 import {
   Box,
-  componentDataSet,
   MAIN_MENU_SCREEN_MAX_WIDTH,
   MainMenuScreenHeader,
   ScrollView,
   Text,
-} from '@pkgs/ui-rn';
-import { type ReactNode, useCallback } from 'react';
+} from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 
 import {
   CHESS_SCREEN,
@@ -23,33 +22,30 @@ import { ChessPuzzleEloChip } from './chess-puzzle-elo-chip';
 import { ChessPuzzleStatsCards } from './chess-puzzle-stats-cards';
 import { useChessPuzzleHistory } from './use-chess-puzzle-history';
 
-export function ChessStatsScreen(): ReactNode {
+export function ChessStatsScreen(): JSX.Element {
   const dispatch = useSpaceRoomDispatch();
-  const { stats, gameLog } = useChessPuzzleHistory();
+  const history = useChessPuzzleHistory();
 
-  const backToRoot = useCallback(() => {
+  const backToRoot = (): void => {
     dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.root }));
-  }, [dispatch]);
+  };
 
-  const openReview = useCallback(
-    (entry: ChessPuzzleGameLogEntry) => {
-      dispatch(
-        SetChessSelectedReviewPuzzle({
-          puzzleId: entry.puzzleId,
-          solveIdx: 0,
-        })
-      );
-      dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.statsReview }));
-    },
-    [dispatch]
-  );
+  const openReview = (entry: ChessPuzzleGameLogEntry): void => {
+    dispatch(
+      SetChessSelectedReviewPuzzle({
+        puzzleId: entry.puzzleId,
+        solveIdx: 0,
+      })
+    );
+    dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.statsReview }));
+  };
 
   return (
     <>
       <DefineBackButton onPress={backToRoot} />
       <ScrollView
         sx={{ flex: 1, alignSelf: 'stretch' }}
-        {...componentDataSet('ChessStatsScreen', { screen: 'chess-stats' })}
+        dataSet={{ screen: 'chess-stats' }}
       >
         <Box
           sx={{
@@ -64,22 +60,22 @@ export function ChessStatsScreen(): ReactNode {
           <MainMenuScreenHeader title={<Trans>Puzzle stats</Trans>} />
           <Box sx={{ alignItems: 'center', gap: 2 }}>
             <ChessPuzzleEloChip
-              elo={stats.currentElo}
+              elo={history.stats.currentElo}
               variant="primary"
               testID="chess-stats-elo"
             />
             <ChessEloSparkline
-              series={stats.eloSeries}
+              series={history.stats.eloSeries}
               testID="chess-stats-sparkline"
             />
           </Box>
-          <ChessPuzzleStatsCards stats={stats} />
+          <ChessPuzzleStatsCards stats={history.stats} />
           <Text
             variant="heading"
             sx={{ color: 'text' }}
             label={<Trans>Game log</Trans>}
           />
-          <ChessGameLog entries={gameLog} onSelectEntry={openReview} />
+          <ChessGameLog entries={history.gameLog} onSelectEntry={openReview} />
         </Box>
       </ScrollView>
     </>

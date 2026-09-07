@@ -1,5 +1,5 @@
-import { BottomActionBar } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { BottomActionBar } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 
 import {
   buildChessPuzzleActionBarItems,
@@ -10,6 +10,6 @@ export type ChessPuzzleActionBarProps = ChessPuzzleActionBarModel;
 
 export function ChessPuzzleActionBar(
   props: ChessPuzzleActionBarProps
-): ReactNode {
+): JSX.Element {
   return <BottomActionBar items={buildChessPuzzleActionBarItems(props)} />;
 }

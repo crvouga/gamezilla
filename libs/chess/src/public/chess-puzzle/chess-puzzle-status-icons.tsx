@@ -1,6 +1,7 @@
-import { Trans } from '@lingui/react/macro';
-import { Box, Spinner, type SxProps, type Theme, useTheme } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Trans } from '@lingui/solid/macro';
+import { Box, Spinner, type SxProps, useTheme } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+
 import type { ChessPuzzleStatusKind } from '../../shared/puzzle-session/status-kind';
 import { ChessPuzzleStatusBadge } from './chess-puzzle-status-badge';
 
@@ -8,7 +9,6 @@ export type { ChessPuzzleStatusKind };
 
 const SIZE = 22;
 
-// Literal chess piece colors (side to move), not theme UI chrome.
 const PIECE_WHITE = '#ffffff';
 const PIECE_BLACK = '#1a1a1a';
 
@@ -40,9 +40,8 @@ const CENTER_DOT_SX: SxProps = {
   backgroundColor: PIECE_BLACK,
 };
 
-/** Semantic outcome badge tokens (fill + contrast-safe mark) by kind. */
 function outcomeColors(
-  theme: Theme,
+  theme: ReturnType<typeof useTheme>,
   kind: 'correct' | 'wrong' | 'solved'
 ): { bg: string; fg: string } {
   const c = theme.colors;
@@ -51,7 +50,7 @@ function outcomeColors(
   return { bg: c.warning, fg: c.onWarning };
 }
 
-function outcomeMark(kind: 'correct' | 'wrong' | 'solved'): ReactNode {
+function outcomeMark(kind: 'correct' | 'wrong' | 'solved'): JSX.Element {
   if (kind === 'correct') {
     return <Trans id="chess.puzzleStatus.correctMark">✓</Trans>;
   }
@@ -61,20 +60,18 @@ function outcomeMark(kind: 'correct' | 'wrong' | 'solved'): ReactNode {
   return <Trans id="chess.puzzleStatus.solvedMark">★</Trans>;
 }
 
-export function ChessPuzzleStatusIcon({
-  kind,
-}: {
+export function ChessPuzzleStatusIcon(props: {
   kind: ChessPuzzleStatusKind;
-}): ReactNode {
+}): JSX.Element {
   const theme = useTheme();
-  if (kind === 'loading') {
+  if (props.kind === 'loading') {
     return (
       <Box sx={ROOT_SX}>
         <Spinner size="small" />
       </Box>
     );
   }
-  if (kind === 'whiteToMove') {
+  if (props.kind === 'whiteToMove') {
     return (
       <Box sx={ROOT_SX}>
         <Box sx={WHITE_SQUARE_SX} />
@@ -82,17 +79,17 @@ export function ChessPuzzleStatusIcon({
       </Box>
     );
   }
-  if (kind === 'blackToMove') {
+  if (props.kind === 'blackToMove') {
     return (
       <Box sx={ROOT_SX}>
         <Box sx={BLACK_SQUARE_SX} />
       </Box>
     );
   }
-  const { bg, fg } = outcomeColors(theme, kind);
+  const { bg, fg } = outcomeColors(theme, props.kind);
   return (
     <Box sx={ROOT_SX}>
-      <ChessPuzzleStatusBadge bg={bg} fg={fg} mark={outcomeMark(kind)} />
+      <ChessPuzzleStatusBadge bg={bg} fg={fg} mark={outcomeMark(props.kind)} />
     </Box>
   );
 }

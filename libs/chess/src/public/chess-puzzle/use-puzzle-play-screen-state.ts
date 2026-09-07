@@ -3,7 +3,13 @@ import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
 } from '@libs/spaces/public/room/use-space-room-selector';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  createSignal,
+} from 'solid-js';
+
 import { CHESS_SCREEN, SetChessMainMenuScreen } from '../chess-main-menu';
 import {
   ChessPuzzlePlayAttr,
@@ -14,149 +20,92 @@ import { useNextPuzzleId } from './use-next-puzzle-id';
 
 export type PuzzlePlayScreenModel = {
   backToChessRoot: () => void;
-  activePuzzleId: string | null;
-  attemptSeed: number;
-  readyGeneration: number;
-  /** Bumps only when the screen intentionally places a puzzle to Start. */
-  startNonce: number;
+  activePuzzleId: Accessor<string | null>;
+  attemptSeed: Accessor<number>;
+  readyGeneration: Accessor<number>;
+  startNonce: Accessor<number>;
   onRequestNext: () => void;
-  /**
-   * Feed settings Done with a real config change: Clear room play then bump
-   * seed so placement re-picks from the updated candidate pool (same path as
-   * Next, without abandon recording).
-   */
   reselectActivePuzzleFromFeed: () => void;
-  e2eLoadingStatus: ChessPuzzleE2ELoadingStatusProps;
+  e2eLoadingStatus: Accessor<ChessPuzzleE2ELoadingStatusProps>;
 };
-
-type CommitAttempt = (seed: number, armStart: boolean) => void;
-
-type PuzzlePlacementArgs = {
-  activePuzzleId: string | null;
-  attemptSeed: number;
-  commitAttempt: CommitAttempt;
-  nextId: string | null;
-  roomPuzzleId: string | null;
-  placedAttemptRef: { current: number };
-  setActivePuzzleId: (id: string) => void;
-};
-
-/**
- * Atomic puzzle-id swap: never null `activePuzzleId` between puzzles,
- * so `PuzzlePlayer` stays mounted across the entire session.
- *
- * Start is armed only via `startNonce` (not merely idle room status) so a
- * remote/local Clear cannot re-Start the previous puzzle on every client.
- *
- * Room puzzle id is authoritative whenever it diverges from local
- * `activePuzzleId` — otherwise the board FEN (from room) updates while
- * status projection stays `'loading'` (puzzleIdMismatch).
- */
-function applyPuzzlePlacement(args: PuzzlePlacementArgs): void {
-  const {
-    activePuzzleId,
-    attemptSeed,
-    commitAttempt,
-    nextId,
-    roomPuzzleId,
-    placedAttemptRef,
-    setActivePuzzleId,
-  } = args;
-
-  if (activePuzzleId === null) {
-    placeWhenNoActivePuzzle(args);
-    return;
-  }
-  if (roomPuzzleId !== null && roomPuzzleId !== activePuzzleId) {
-    setActivePuzzleId(roomPuzzleId);
-    commitAttempt(attemptSeed, false);
-    return;
-  }
-  if (attemptSeed === placedAttemptRef.current) return;
-  if (roomPuzzleId !== null) {
-    commitAttempt(attemptSeed, false);
-    return;
-  }
-  if (nextId === null || nextId === activePuzzleId) return;
-  setActivePuzzleId(nextId);
-  commitAttempt(attemptSeed, true);
-}
-
-function placeWhenNoActivePuzzle(args: PuzzlePlacementArgs): void {
-  const {
-    attemptSeed,
-    commitAttempt,
-    nextId,
-    roomPuzzleId,
-    setActivePuzzleId,
-  } = args;
-  if (attemptSeed === 0 && roomPuzzleId !== null) {
-    setActivePuzzleId(roomPuzzleId);
-    commitAttempt(attemptSeed, false);
-    return;
-  }
-  if (nextId !== null) {
-    setActivePuzzleId(nextId);
-    commitAttempt(attemptSeed, true);
-  }
-}
 
 export function usePuzzlePlayScreenState(): PuzzlePlayScreenModel {
   const myId = useMyId();
   const dispatch = useSpaceRoomDispatch();
   const roomPuzzleId = useSpaceRoomSelector(ChessPuzzlePlayAttr.puzzleId.from);
-  const backToChessRoot = useCallback(() => {
+  const backToChessRoot = (): void => {
     dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.root }));
-  }, [dispatch]);
+  };
 
-  const [activePuzzleId, setActivePuzzleId] = useState<string | null>(null);
-  const [attemptSeed, setAttemptSeed] = useState(0);
-  /** Player may Start only after the screen commits puzzle placement for this seed. */
-  const [readyGeneration, setReadyGeneration] = useState(0);
-  const [startNonce, setStartNonce] = useState(0);
+  const [activePuzzleId, setActivePuzzleId] = createSignal<string | null>(null);
+  const [attemptSeed, setAttemptSeed] = createSignal(0);
+  const [readyGeneration, setReadyGeneration] = createSignal(0);
+  const [startNonce, setStartNonce] = createSignal(0);
 
-  /** Last attemptSeed value we've already swapped `activePuzzleId` for. */
-  const placedAttemptRef = useRef(0);
+  const placedAttemptRef: { current: number } = { current: 0 };
 
-  const commitAttempt = useCallback((seed: number, armStart: boolean): void => {
+  const commitAttempt = (seed: number, armStart: boolean): void => {
     placedAttemptRef.current = seed;
     setReadyGeneration(seed);
     if (armStart) {
       setStartNonce((n) => n + 1);
     }
-  }, []);
+  };
 
-  const {
-    puzzleId: nextId,
-    loading: nextLoading,
-    bandedCount,
-    fallbackCount,
-    replayCount,
-  } = useNextPuzzleId({
-    currentPuzzleId: activePuzzleId ?? roomPuzzleId,
-    seed: `${myId}-${attemptSeed}`,
+  const next = useNextPuzzleId({
+    currentPuzzleId: activePuzzleId() ?? roomPuzzleId(),
+    seed: `${myId()}-${attemptSeed()}`,
   });
 
-  useEffect(() => {
-    applyPuzzlePlacement({
-      activePuzzleId,
-      attemptSeed,
-      commitAttempt,
-      nextId,
-      roomPuzzleId,
-      placedAttemptRef,
-      setActivePuzzleId,
-    });
-  }, [activePuzzleId, attemptSeed, commitAttempt, nextId, roomPuzzleId]);
+  createEffect(() => {
+    const active = activePuzzleId();
+    const seed = attemptSeed();
+    const nextId = next.puzzleId();
+    const room = roomPuzzleId();
 
-  const onRequestNext = useCallback(() => {
+    if (active === null) {
+      if (seed === 0 && room !== null) {
+        setActivePuzzleId(room);
+        commitAttempt(seed, false);
+      } else if (nextId !== null) {
+        setActivePuzzleId(nextId);
+        commitAttempt(seed, true);
+      }
+      return;
+    }
+    if (room !== null && room !== active) {
+      setActivePuzzleId(room);
+      commitAttempt(seed, false);
+      return;
+    }
+    if (seed === placedAttemptRef.current) return;
+    if (room !== null) {
+      commitAttempt(seed, false);
+      return;
+    }
+    if (nextId === null || nextId === active) return;
+    setActivePuzzleId(nextId);
+    commitAttempt(seed, true);
+  });
+
+  const onRequestNext = (): void => {
     setAttemptSeed((s) => s + 1);
-  }, []);
+  };
 
-  const reselectActivePuzzleFromFeed = useCallback(() => {
+  const reselectActivePuzzleFromFeed = (): void => {
     dispatch(ClearChessPuzzlePlay({}));
     onRequestNext();
-  }, [dispatch, onRequestNext]);
+  };
+
+  const e2eLoadingStatus = createMemo<ChessPuzzleE2ELoadingStatusProps>(() => ({
+    myId: myId(),
+    nextId: next.puzzleId(),
+    activePuzzleId: activePuzzleId(),
+    bandedCount: next.bandedCount(),
+    fallbackCount: next.fallbackCount(),
+    replayCount: next.replayCount,
+    loading: next.loading(),
+  }));
 
   return {
     backToChessRoot,
@@ -166,14 +115,6 @@ export function usePuzzlePlayScreenState(): PuzzlePlayScreenModel {
     startNonce,
     onRequestNext,
     reselectActivePuzzleFromFeed,
-    e2eLoadingStatus: {
-      myId,
-      nextId,
-      activePuzzleId,
-      bandedCount,
-      fallbackCount,
-      replayCount,
-      loading: nextLoading,
-    },
+    e2eLoadingStatus,
   };
 }

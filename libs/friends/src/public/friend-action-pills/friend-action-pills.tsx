@@ -1,5 +1,4 @@
-import { type ReactNode, useCallback } from 'react';
-
+import type { JSX } from 'solid-js';
 import { useAcceptFriendRequest } from '../../use-cases/friend-request-accept/client/use-accept-friend-request';
 import { useCancelFriendRequest } from '../../use-cases/friend-request-cancel/client/use-cancel-friend-request';
 import { useDeclineFriendRequest } from '../../use-cases/friend-request-decline/client/use-decline-friend-request';
@@ -20,31 +19,31 @@ export type {
 export function FriendActionPills({
   onChanged,
   ...ctx
-}: FriendActionPillsProps): ReactNode {
+}: FriendActionPillsProps): JSX.Element {
   const sendFriendRequest = useSendFriendRequest();
   const acceptFriendRequest = useAcceptFriendRequest();
   const declineFriendRequest = useDeclineFriendRequest();
   const cancelFriendRequest = useCancelFriendRequest();
   const unblockUser = useUnblockUser();
 
-  const addFriend = useCallback(async () => {
+  const addFriend = async () => {
     await sendFriendRequest(ctx.userId);
-  }, [sendFriendRequest, ctx.userId]);
-  const confirmRequest = useCallback(async () => {
+  };
+  const confirmRequest = async () => {
     if (ctx.incomingRequestId === null) return;
     await acceptFriendRequest(ctx.incomingRequestId);
-  }, [acceptFriendRequest, ctx.incomingRequestId]);
-  const deleteRequest = useCallback(async () => {
+  };
+  const deleteRequest = async () => {
     if (ctx.incomingRequestId === null) return;
     await declineFriendRequest(ctx.incomingRequestId);
-  }, [declineFriendRequest, ctx.incomingRequestId]);
-  const cancelRequest = useCallback(async () => {
+  };
+  const cancelRequest = async () => {
     if (ctx.outgoingRequestId === null) return;
     await cancelFriendRequest(ctx.outgoingRequestId);
-  }, [cancelFriendRequest, ctx.outgoingRequestId]);
-  const unblock = useCallback(async () => {
+  };
+  const unblock = async () => {
     await unblockUser(ctx.userId);
-  }, [unblockUser, ctx.userId]);
+  };
 
   const mutations: FriendActionMutations = {
     addFriend,

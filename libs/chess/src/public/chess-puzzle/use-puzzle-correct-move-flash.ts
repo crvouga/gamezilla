@@ -1,6 +1,7 @@
 import type { Square } from '@pkgs/chess-board/chess-board-types';
-import { useTimers } from '@pkgs/clock';
-import { type MutableRefObject, useEffect, useState } from 'react';
+import { useTimers } from '@pkgs/clock/solid';
+import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js';
+
 import {
   CHESS_PUZZLE_PLAY_STATUS,
   type ChessPuzzlePlayStatus,
@@ -12,54 +13,53 @@ type CorrectMoveFeedback = {
   onCorrectMove: () => void;
 };
 
-export function usePuzzleCorrectMoveFlash(args: {
-  puzzleId: string;
-  solveIdx: number;
-  status: ChessPuzzlePlayStatus | 'loading';
-  feedback: CorrectMoveFeedback;
-  lastSubmittedToRef: MutableRefObject<Square | null>;
-  prevSolveIdxRef: MutableRefObject<number>;
-}): { showCorrectFlash: boolean; lastCorrectToSquare: Square | null } {
-  const {
-    puzzleId,
-    solveIdx,
-    status,
-    feedback,
-    lastSubmittedToRef,
-    prevSolveIdxRef,
-  } = args;
-  const timers = useTimers();
-  const [showCorrectFlash, setShowCorrectFlash] = useState(false);
-  const [lastCorrectToSquare, setLastCorrectToSquare] = useState<Square | null>(
-    null
-  );
+type Ref<T> = { current: T };
 
-  useEffect(() => {
+export function usePuzzleCorrectMoveFlash(args: {
+  puzzleId: Accessor<string>;
+  solveIdx: Accessor<number>;
+  status: Accessor<ChessPuzzlePlayStatus | 'loading'>;
+  feedback: CorrectMoveFeedback;
+  lastSubmittedToRef: Ref<Square | null>;
+  prevSolveIdxRef: Ref<number>;
+}): {
+  showCorrectFlash: Accessor<boolean>;
+  lastCorrectToSquare: Accessor<Square | null>;
+} {
+  const timers = useTimers();
+  const [showCorrectFlash, setShowCorrectFlash] = createSignal(false);
+  const [lastCorrectToSquare, setLastCorrectToSquare] =
+    createSignal<Square | null>(null);
+
+  createEffect(() => {
+    void args.puzzleId();
     setShowCorrectFlash(false);
     setLastCorrectToSquare(null);
-  }, [puzzleId]);
+  });
 
-  useEffect(() => {
+  createEffect(() => {
+    const solveIdx = args.solveIdx();
+    const status = args.status();
     if (
       status !== CHESS_PUZZLE_PLAY_STATUS.solving ||
-      solveIdx <= prevSolveIdxRef.current ||
-      prevSolveIdxRef.current <= 0
+      solveIdx <= args.prevSolveIdxRef.current ||
+      args.prevSolveIdxRef.current <= 0
     ) {
-      prevSolveIdxRef.current = solveIdx;
+      args.prevSolveIdxRef.current = solveIdx;
       return;
     }
     setShowCorrectFlash(true);
-    feedback.onCorrectMove();
-    if (lastSubmittedToRef.current !== null) {
-      setLastCorrectToSquare(lastSubmittedToRef.current);
+    args.feedback.onCorrectMove();
+    if (args.lastSubmittedToRef.current !== null) {
+      setLastCorrectToSquare(args.lastSubmittedToRef.current);
     }
     const t = timers.setTimeout(() => {
       setShowCorrectFlash(false);
       setLastCorrectToSquare(null);
     }, CORRECT_FLASH_MS);
-    prevSolveIdxRef.current = solveIdx;
-    return () => timers.clearTimeout(t);
-  }, [feedback, lastSubmittedToRef, prevSolveIdxRef, solveIdx, status, timers]);
+    args.prevSolveIdxRef.current = solveIdx;
+    onCleanup(() => timers.clearTimeout(t));
+  });
 
   return { showCorrectFlash, lastCorrectToSquare };
 }

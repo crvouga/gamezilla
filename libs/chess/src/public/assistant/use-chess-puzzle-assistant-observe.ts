@@ -1,57 +1,42 @@
 import { emitAssistantSpeakingMessage } from '@pkgs/assistant/client';
 import type { Assistant, AssistantSignal } from '@pkgs/assistant/shared';
-import { useEffect, useRef } from 'react';
+import { type Accessor, createEffect } from 'solid-js';
+
 import type { SolveStatus } from '../chess-puzzle/use-chess-puzzle-solver';
 import type { ChessPuzzleAssistantPayload } from './chess-puzzle-assistant-adapter';
 
 export function useChessPuzzleAssistantObserve(args: {
-  readonly assistant: Assistant<ChessPuzzleAssistantPayload>;
+  readonly assistant: Accessor<Assistant<ChessPuzzleAssistantPayload>>;
   readonly buildSignal: () => AssistantSignal<ChessPuzzleAssistantPayload> | null;
-  readonly puzzleId: string;
-  readonly status: SolveStatus;
-  readonly solveIdx: number;
-  readonly themesKey: string;
-  readonly layoutKey: number;
+  readonly puzzleId: Accessor<string>;
+  readonly status: Accessor<SolveStatus>;
+  readonly solveIdx: Accessor<number>;
+  readonly themesKey: Accessor<string>;
+  readonly layoutKey: Accessor<number>;
 }): void {
-  const {
-    assistant,
-    buildSignal,
-    puzzleId,
-    status,
-    solveIdx,
-    themesKey,
-    layoutKey,
-  } = args;
+  const lastSignalFpRef: { current: string } = { current: '' };
 
-  const lastSignalFpRef = useRef('');
-
-  useEffect(() => {
+  createEffect(() => {
+    void args.puzzleId();
     lastSignalFpRef.current = '';
-  }, [puzzleId]);
+  });
 
-  useEffect(() => {
-    const s = buildSignal();
+  createEffect(() => {
+    const assistant = args.assistant();
+    const s = args.buildSignal();
     if (s === null) {
-      if (status === 'loading') {
+      if (args.status() === 'loading') {
         emitAssistantSpeakingMessage(assistant, null, {
           bubbleResolving: false,
         });
       }
       return;
     }
-    const fp = `${puzzleId}:${s.kind}:${themesKey}:${solveIdx}:${layoutKey}`;
+    const fp = `${args.puzzleId()}:${s.kind}:${args.themesKey()}:${args.solveIdx()}:${args.layoutKey()}`;
     if (fp === lastSignalFpRef.current) {
       return;
     }
     lastSignalFpRef.current = fp;
     assistant.observe(s);
-  }, [
-    assistant,
-    buildSignal,
-    puzzleId,
-    status,
-    solveIdx,
-    themesKey,
-    layoutKey,
-  ]);
+  });
 }

@@ -3,14 +3,9 @@ import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
 } from '@libs/spaces/public/room/use-space-room-selector';
-import { Trans } from '@lingui/react/macro';
-import {
-  Box,
-  componentDataSet,
-  EmptyState,
-  MainMenuScreenHeader,
-} from '@pkgs/ui-rn';
-import { type ReactNode, useCallback, useMemo } from 'react';
+import { Trans } from '@lingui/solid/macro';
+import { Box, EmptyState, MainMenuScreenHeader } from '@pkgs/ui';
+import { createMemo, type JSX, Show } from 'solid-js';
 
 import {
   CHESS_SCREEN,
@@ -23,34 +18,29 @@ import { usePuzzleEntity } from './chess-puzzle-play-queries';
 import { ChessPuzzleReviewBoard } from './chess-puzzle-review-board';
 import { useChessPuzzleHistory } from './use-chess-puzzle-history';
 
-function ReviewTitle({
-  entry,
-}: {
+function ReviewTitle(props: {
   entry: ChessPuzzleGameLogEntry | null;
-}): ReactNode {
-  if (entry === null) return <Trans>Puzzle review</Trans>;
-  const puzzleRating = entry.puzzleRating;
-  if (entry.outcome === 'solved') {
+}): JSX.Element {
+  if (props.entry === null) return <Trans>Puzzle review</Trans>;
+  const puzzleRating = props.entry.puzzleRating;
+  if (props.entry.outcome === 'solved') {
     return <Trans>Solved · {puzzleRating}</Trans>;
   }
   return <Trans>Abandoned · {puzzleRating}</Trans>;
 }
 
-function ReviewSubtitle({
-  puzzleId,
-  rating,
-}: {
+function ReviewSubtitle(props: {
   puzzleId: string;
   rating: number;
-}): ReactNode {
-  if (rating > 0) {
+}): JSX.Element {
+  if (props.rating > 0) {
     return (
       <Trans>
-        {puzzleId} · {rating}
+        {props.puzzleId} · {props.rating}
       </Trans>
     );
   }
-  return puzzleId;
+  return <>{props.puzzleId}</>;
 }
 
 function findLogEntry(
@@ -60,64 +50,67 @@ function findLogEntry(
   return gameLog.find((e) => e.puzzleId === puzzleId) ?? null;
 }
 
-function ChessPuzzleReviewBody({ puzzleId }: { puzzleId: string }): ReactNode {
-  const { fen, movesStr, rating } = usePuzzleEntity(puzzleId);
-  const { gameLog } = useChessPuzzleHistory();
-  const entry = useMemo(
-    () => findLogEntry(gameLog, puzzleId),
-    [gameLog, puzzleId]
-  );
-  const hasPuzzle = fen.length > 0 && movesStr.length > 0;
+function ChessPuzzleReviewBody(props: { puzzleId: string }): JSX.Element {
+  const entity = usePuzzleEntity(() => props.puzzleId);
+  const history = useChessPuzzleHistory();
+  const entry = createMemo(() => findLogEntry(history.gameLog, props.puzzleId));
+  const hasPuzzle = () => entity.fen.length > 0 && entity.movesStr.length > 0;
 
   return (
     <Box
       sx={{ flex: 1, minHeight: 0, alignSelf: 'stretch', gap: 4, p: 4, pb: 8 }}
-      {...componentDataSet('ChessPuzzleReviewScreen', {
-        screen: 'chess-stats-review',
-      })}
+      dataSet={{ screen: 'chess-stats-review' }}
     >
       <MainMenuScreenHeader
-        title={<ReviewTitle entry={entry} />}
-        subtitle={<ReviewSubtitle puzzleId={puzzleId} rating={rating} />}
+        title={<ReviewTitle entry={entry()} />}
+        subtitle={
+          <ReviewSubtitle puzzleId={props.puzzleId} rating={entity.rating} />
+        }
       />
-      {hasPuzzle ? (
-        <ChessPuzzleReviewBoard fen={fen} moves={movesStr} />
-      ) : (
-        <EmptyState
-          title={<Trans>Puzzle unavailable</Trans>}
-          body={
-            <Trans>
-              This puzzle is not in your local feed yet. Try again after sync.
-            </Trans>
-          }
-        />
-      )}
+      <Show
+        when={hasPuzzle()}
+        fallback={
+          <EmptyState
+            title={<Trans>Puzzle unavailable</Trans>}
+            body={
+              <Trans>
+                This puzzle is not in your local feed yet. Try again after sync.
+              </Trans>
+            }
+          />
+        }
+      >
+        <ChessPuzzleReviewBoard fen={entity.fen} moves={entity.movesStr} />
+      </Show>
     </Box>
   );
 }
 
-export function ChessPuzzleReviewScreen(): ReactNode {
+export function ChessPuzzleReviewScreen(): JSX.Element {
   const dispatch = useSpaceRoomDispatch();
   const puzzleId = useSpaceRoomSelector(
     ChessMainMenuScreenAttr.selectedReviewPuzzleId.from
   );
 
-  const backToStats = useCallback(() => {
+  const backToStats = (): void => {
     dispatch(SetChessSelectedReviewPuzzle({ puzzleId: null, solveIdx: 0 }));
     dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.stats }));
-  }, [dispatch]);
+  };
 
   return (
     <Box sx={{ flex: 1, minHeight: 0, alignSelf: 'stretch' }}>
       <DefineBackButton onPress={backToStats} />
-      {puzzleId === null ? (
-        <EmptyState
-          title={<Trans>No puzzle selected</Trans>}
-          body={<Trans>Pick one from the game log.</Trans>}
-        />
-      ) : (
-        <ChessPuzzleReviewBody puzzleId={puzzleId} />
-      )}
+      <Show
+        when={puzzleId() !== null}
+        fallback={
+          <EmptyState
+            title={<Trans>No puzzle selected</Trans>}
+            body={<Trans>Pick one from the game log.</Trans>}
+          />
+        }
+      >
+        <ChessPuzzleReviewBody puzzleId={puzzleId()!} />
+      </Show>
     </Box>
   );
 }

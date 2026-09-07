@@ -1,5 +1,5 @@
 import { useMyId } from '@libs/auth/public/use-current-user';
-import { useCallback, useEffect, useRef } from 'react';
+import { type Accessor, createEffect } from 'solid-js';
 
 import { sliceCurrentPlay } from '../chess-puzzle-derive';
 import {
@@ -11,16 +11,13 @@ import { syncInteractionForRoomStatus } from './chess-puzzle-interaction-status-
 import { useChessPuzzleInteractionWrites } from './use-chess-puzzle-interaction-writes';
 
 export type InteractionRecorderArgs = {
-  puzzleId: string;
-  puzzleRating: number;
-  status: ChessPuzzlePlayStatus | 'loading';
-  solveIdx: number;
-  interactions: readonly ChessPuzzleInteractionRow[];
+  puzzleId: Accessor<string>;
+  puzzleRating: Accessor<number>;
+  status: Accessor<ChessPuzzlePlayStatus | 'loading'>;
+  solveIdx: Accessor<number>;
+  interactions: Accessor<readonly ChessPuzzleInteractionRow[]>;
 };
 
-/**
- * Appends interaction rows on room transitions; updates profile on terminal events.
- */
 export function useChessPuzzleInteractionRecorder(
   args: InteractionRecorderArgs
 ): {
@@ -28,37 +25,39 @@ export function useChessPuzzleInteractionRecorder(
   appendAbandoned: () => Promise<void>;
   setLastUci: (uci: string) => void;
 } {
-  const { puzzleId, puzzleRating, status, solveIdx, interactions } = args;
   const myId = useMyId();
   const { appendInteraction, finalizePlay } = useChessPuzzleInteractionWrites({
-    puzzleId,
-    puzzleRating,
-    solveIdx,
-    interactions,
+    puzzleId: args.puzzleId,
+    puzzleRating: args.puzzleRating,
+    solveIdx: args.solveIdx,
+    interactions: args.interactions,
   });
 
-  const prevStatusRef = useRef<ChessPuzzlePlayStatus | 'loading' | null>(null);
-  const prevSolveIdxRef = useRef<number | null>(null);
-  const lastUciRef = useRef<string | null>(null);
+  const prevStatusRef: {
+    current: ChessPuzzlePlayStatus | 'loading' | null;
+  } = { current: null };
+  const prevSolveIdxRef: { current: number | null } = { current: null };
+  const lastUciRef: { current: string | null } = { current: null };
 
-  useEffect(() => {
+  createEffect(() => {
+    void args.puzzleId();
     prevStatusRef.current = null;
     prevSolveIdxRef.current = null;
     lastUciRef.current = null;
-  }, [puzzleId]);
+  });
 
-  useEffect(() => {
+  createEffect(() => {
     const prev = prevStatusRef.current;
-    prevStatusRef.current = status;
-    const play = sliceCurrentPlay(interactions, puzzleId);
+    prevStatusRef.current = args.status();
+    const play = sliceCurrentPlay(args.interactions(), args.puzzleId());
     const playAlreadySolved = play.some(
       (r) => r.kind === CHESS_PUZZLE_INTERACTION_KIND.solved
     );
     syncInteractionForRoomStatus({
       prev,
-      status,
-      myId,
-      solveIdx,
+      status: args.status(),
+      myId: myId(),
+      solveIdx: args.solveIdx(),
       prevSolveIdx: prevSolveIdxRef.current,
       lastUci: lastUciRef.current,
       playAlreadySolved,
@@ -70,31 +69,23 @@ export function useChessPuzzleInteractionRecorder(
       },
     });
     lastUciRef.current = null;
-  }, [
-    appendInteraction,
-    finalizePlay,
-    interactions,
-    myId,
-    puzzleId,
-    solveIdx,
-    status,
-  ]);
+  });
 
-  useEffect(() => {
-    prevSolveIdxRef.current = solveIdx;
-  }, [solveIdx]);
+  createEffect(() => {
+    prevSolveIdxRef.current = args.solveIdx();
+  });
 
-  const setLastUci = useCallback((uci: string) => {
+  const setLastUci = (uci: string): void => {
     lastUciRef.current = uci;
-  }, []);
+  };
 
-  const appendUsedHint = useCallback(async () => {
+  const appendUsedHint = async (): Promise<void> => {
     await appendInteraction(CHESS_PUZZLE_INTERACTION_KIND.usedHint);
-  }, [appendInteraction]);
+  };
 
-  const appendAbandoned = useCallback(async () => {
+  const appendAbandoned = async (): Promise<void> => {
     await finalizePlay('abandoned');
-  }, [finalizePlay]);
+  };
 
   return { appendUsedHint, appendAbandoned, setLastUci };
 }

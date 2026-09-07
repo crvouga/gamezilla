@@ -1,6 +1,6 @@
-import { Trans } from '@lingui/react/macro';
-import { ConfirmationModal } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Trans } from '@lingui/solid/macro';
+import { ConfirmationModal } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 
 export function FriendUserDangerModals({
   removeOpen,
@@ -16,7 +16,7 @@ export function FriendUserDangerModals({
   onCloseBlock: () => void;
   onRemove: () => Promise<void>;
   onBlock: () => Promise<void>;
-}): ReactNode {
+}): JSX.Element {
   return (
     <>
       <ConfirmationModal

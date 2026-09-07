@@ -1,7 +1,6 @@
 import { useSignInModal } from '@libs/auth/public/auth-modals-provider';
 import { useIsSignedIn } from '@libs/auth/public/use-current-user';
-import { type Href, useRouter } from '@pkgs/ui-rn';
-import { useCallback } from 'react';
+import { type Href, useRouter } from '@pkgs/ui';
 
 import {
   type FriendsProfileRouteValue,
@@ -14,14 +13,11 @@ export function useFriendsProfileNavigation() {
   const router = useRouter();
   const { open: openSignInModal } = useSignInModal();
 
-  return useCallback(
-    (route: FriendsProfileRouteValue) => {
-      if (!signedIn) {
-        openSignInModal();
-        return;
-      }
-      router.push(friendsProfilePath(route) as Href);
-    },
-    [openSignInModal, router, signedIn]
-  );
+  return (route: FriendsProfileRouteValue) => {
+    if (!signedIn()) {
+      openSignInModal();
+      return;
+    }
+    router.push(friendsProfilePath(route) as Href);
+  };
 }

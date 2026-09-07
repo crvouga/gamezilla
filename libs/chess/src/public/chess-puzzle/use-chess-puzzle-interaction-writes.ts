@@ -1,8 +1,8 @@
 import { useMutationClient } from '@libs/auth/public/mutation-client-provider';
 import { useMyId } from '@libs/auth/public/use-current-user';
-import { useClock } from '@pkgs/clock';
-import { useCreateId } from '@pkgs/uuid';
-import { useCallback, useMemo } from 'react';
+import { useClock } from '@pkgs/clock/solid';
+import { useCreateId } from '@pkgs/uuid/solid';
+import type { Accessor } from 'solid-js';
 
 import type {
   ChessPuzzleInteractionKind,
@@ -18,10 +18,10 @@ type AppendExtra = {
 };
 
 export function useChessPuzzleInteractionWrites(args: {
-  puzzleId: string;
-  puzzleRating: number;
-  solveIdx: number;
-  interactions: readonly ChessPuzzleInteractionRow[];
+  puzzleId: Accessor<string>;
+  puzzleRating: Accessor<number>;
+  solveIdx: Accessor<number>;
+  interactions: Accessor<readonly ChessPuzzleInteractionRow[]>;
 }): {
   appendInteraction: (
     kind: ChessPuzzleInteractionKind,
@@ -29,60 +29,45 @@ export function useChessPuzzleInteractionWrites(args: {
   ) => Promise<void>;
   finalizePlay: (terminalKind: 'solved' | 'abandoned') => Promise<void>;
 } {
-  const { puzzleId, puzzleRating, solveIdx, interactions } = args;
   const myId = useMyId();
   const mutationClient = useMutationClient();
   const createId = useCreateId();
   const clock = useClock();
-  const { profileRating, profileRd } = useChessPuzzleProfileRatings(myId);
-  const interactionDb = useMemo(
-    () => new ChessPuzzleInteractionDb(mutationClient, createId),
-    [mutationClient, createId]
-  );
+  const profile = useChessPuzzleProfileRatings(myId);
+  const interactionDb = new ChessPuzzleInteractionDb(mutationClient, createId);
 
-  const appendInteraction = useCallback(
-    async (kind: ChessPuzzleInteractionKind, extra?: AppendExtra) => {
-      if (myId.length === 0) return;
-      await interactionDb.appendRow({
-        ownerId: myId,
-        puzzleId,
-        puzzleRating,
-        kind,
-        solveIdx: extra?.solveIdx ?? solveIdx,
-        uci: extra?.uci ?? null,
-        correct: extra?.correct ?? null,
-      });
-    },
-    [interactionDb, myId, puzzleId, puzzleRating, solveIdx]
-  );
+  const appendInteraction = async (
+    kind: ChessPuzzleInteractionKind,
+    extra?: AppendExtra
+  ): Promise<void> => {
+    if (myId().length === 0) return;
+    await interactionDb.appendRow({
+      ownerId: myId(),
+      puzzleId: args.puzzleId(),
+      puzzleRating: args.puzzleRating(),
+      kind,
+      solveIdx: extra?.solveIdx ?? args.solveIdx(),
+      uci: extra?.uci ?? null,
+      correct: extra?.correct ?? null,
+    });
+  };
 
-  const finalizePlay = useCallback(
-    async (terminalKind: 'solved' | 'abandoned') => {
-      if (myId.length === 0) return;
-      await interactionDb.finalizePlayWithProfile({
-        ownerId: myId,
-        puzzleId,
-        puzzleRating,
-        solveIdx,
-        interactions,
-        terminalKind,
-        profileRating,
-        profileRd,
-        clock,
-      });
-    },
-    [
-      interactionDb,
-      interactions,
-      myId,
-      profileRating,
-      profileRd,
-      puzzleId,
-      puzzleRating,
-      solveIdx,
+  const finalizePlay = async (
+    terminalKind: 'solved' | 'abandoned'
+  ): Promise<void> => {
+    if (myId().length === 0) return;
+    await interactionDb.finalizePlayWithProfile({
+      ownerId: myId(),
+      puzzleId: args.puzzleId(),
+      puzzleRating: args.puzzleRating(),
+      solveIdx: args.solveIdx(),
+      interactions: args.interactions(),
+      terminalKind,
+      profileRating: profile.profileRating,
+      profileRd: profile.profileRd,
       clock,
-    ]
-  );
+    });
+  };
 
   return { appendInteraction, finalizePlay };
 }

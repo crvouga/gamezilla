@@ -1,5 +1,6 @@
 import type { Move, Square } from '@pkgs/chess-board/chess-board-types';
-import { useCallback, useRef } from 'react';
+import { type Accessor, createMemo } from 'solid-js';
+
 import {
   type HintStage,
   hintStageFromRoom,
@@ -11,27 +12,24 @@ import { usePuzzlePlayerHandlers } from './use-puzzle-player-handlers';
 
 function useTrackedOnMove(
   onMove: (m: Move) => void,
-  lastSubmittedToRef: ReturnType<typeof useRef<Square | null>>
+  lastSubmittedToRef: { current: Square | null }
 ): (m: Move) => void {
-  return useCallback(
-    (m: Move) => {
-      lastSubmittedToRef.current = m.to as Square;
-      onMove(m);
-    },
-    [lastSubmittedToRef, onMove]
-  );
+  return (m: Move): void => {
+    lastSubmittedToRef.current = m.to as Square;
+    onMove(m);
+  };
 }
 
 type ControlsArgs = {
-  puzzleId: string;
-  moves: string;
-  solveIdx: number;
-  furthestSolveIdx: number;
-  status: ChessPuzzlePlayStatus | 'loading';
-  displayFen: string | null;
-  expectedFromSquare: string | null;
-  expectedToSquare: string | null;
-  solutionRevealed: boolean;
+  puzzleId: Accessor<string>;
+  moves: Accessor<string>;
+  solveIdx: Accessor<number>;
+  furthestSolveIdx: Accessor<number>;
+  status: Accessor<ChessPuzzlePlayStatus | 'loading'>;
+  displayFen: Accessor<string | null>;
+  expectedFromSquare: Accessor<string | null>;
+  expectedToSquare: Accessor<string | null>;
+  solutionRevealed: Accessor<boolean>;
   onMoveRaw: (m: Move) => void;
   setLastUci: (uci: string) => void;
   appendUsedHint: () => Promise<void>;
@@ -40,17 +38,13 @@ type ControlsArgs = {
 };
 
 export function usePuzzlePlayerControls(args: ControlsArgs): {
-  showCorrectFlash: boolean;
-  solvedCrownSquare: ReturnType<
-    typeof usePuzzlePlayerEffects
-  >['solvedCrownSquare'];
-  lastCorrectToSquare: ReturnType<
-    typeof usePuzzlePlayerEffects
-  >['lastCorrectToSquare'];
-  hintStage: HintStage;
-  atFrontier: boolean;
-  canGoBack: boolean;
-  canGoForward: boolean;
+  showCorrectFlash: Accessor<boolean>;
+  solvedCrownSquare: Accessor<Square | null>;
+  lastCorrectToSquare: Accessor<Square | null>;
+  hintStage: Accessor<HintStage>;
+  atFrontier: Accessor<boolean>;
+  canGoBack: Accessor<boolean>;
+  canGoForward: Accessor<boolean>;
   onBack: () => void;
   onForward: () => void;
   onMove: (m: Move) => void;
@@ -60,7 +54,7 @@ export function usePuzzlePlayerControls(args: ControlsArgs): {
   onNext: () => void;
   backToRoot: () => void;
 } {
-  const lastSubmittedToRef = useRef<Square | null>(null);
+  const lastSubmittedToRef: { current: Square | null } = { current: null };
   const effects = usePuzzlePlayerEffects({
     puzzleId: args.puzzleId,
     solveIdx: args.solveIdx,
@@ -68,16 +62,20 @@ export function usePuzzlePlayerControls(args: ControlsArgs): {
     displayFen: args.displayFen,
     lastSubmittedToRef,
   });
-  const hintStage = hintStageFromRoom({
-    expectedFromSquare: args.expectedFromSquare,
-    solutionRevealed: args.solutionRevealed,
-  });
-  const nav = puzzleNavFromState({
-    status: args.status,
-    solveIdx: args.solveIdx,
-    furthestSolveIdx: args.furthestSolveIdx,
-    moves: args.moves,
-  });
+  const hintStage = createMemo(() =>
+    hintStageFromRoom({
+      expectedFromSquare: args.expectedFromSquare(),
+      solutionRevealed: args.solutionRevealed(),
+    })
+  );
+  const nav = createMemo(() =>
+    puzzleNavFromState({
+      status: args.status(),
+      solveIdx: args.solveIdx(),
+      furthestSolveIdx: args.furthestSolveIdx(),
+      moves: args.moves(),
+    })
+  );
   const handlers = usePuzzlePlayerHandlers({
     status: args.status,
     hintStage,
@@ -91,7 +89,9 @@ export function usePuzzlePlayerControls(args: ControlsArgs): {
   return {
     ...effects,
     hintStage,
-    ...nav,
+    atFrontier: () => nav().atFrontier,
+    canGoBack: () => nav().canGoBack,
+    canGoForward: () => nav().canGoForward,
     onMove,
     onHint: handlers.onHint,
     onSolution: handlers.onSolution,

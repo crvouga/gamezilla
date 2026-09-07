@@ -2,7 +2,8 @@ import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
 } from '@libs/spaces/public/room/use-space-room-selector';
-import { type ReactNode, useCallback, useMemo } from 'react';
+import { createMemo, type JSX } from 'solid-js';
+
 import { buildPuzzleMoveHistory } from '../chess-puzzle-move-history';
 import {
   CHESS_PUZZLE_PLAY_STATUS,
@@ -11,10 +12,7 @@ import {
 } from '../chess-puzzle-play';
 import { ChessPuzzleMoveHistory } from './chess-puzzle-move-history';
 
-/**
- * Room-backed chess.com-style move history for the active puzzle session.
- */
-export function ChessPuzzleMoveHistoryBar(): ReactNode {
+export function ChessPuzzleMoveHistoryBar(): JSX.Element {
   const dispatch = useSpaceRoomDispatch();
   const fen = useSpaceRoomSelector(ChessPuzzlePlayAttr.fen.from);
   const moves = useSpaceRoomSelector(ChessPuzzlePlayAttr.moves.from);
@@ -24,32 +22,29 @@ export function ChessPuzzleMoveHistoryBar(): ReactNode {
   );
   const status = useSpaceRoomSelector(ChessPuzzlePlayAttr.status.from);
 
-  const plies = useMemo(
+  const plies = createMemo(() =>
+    buildPuzzleMoveHistory({
+      fen: fen(),
+      moves: moves(),
+      throughIdx: furthestSolveIdx(),
+    })
+  );
+
+  const interactive = createMemo(
     () =>
-      buildPuzzleMoveHistory({
-        fen,
-        moves,
-        throughIdx: furthestSolveIdx,
-      }),
-    [fen, furthestSolveIdx, moves]
+      status() === CHESS_PUZZLE_PLAY_STATUS.solving ||
+      status() === CHESS_PUZZLE_PLAY_STATUS.solved
   );
 
-  const interactive =
-    status === CHESS_PUZZLE_PLAY_STATUS.solving ||
-    status === CHESS_PUZZLE_PLAY_STATUS.solved;
-
-  const onSeek = useCallback(
-    (targetSolveIdx: number) => {
-      dispatch(SeekChessPuzzlePlay({ solveIdx: targetSolveIdx }));
-    },
-    [dispatch]
-  );
+  const onSeek = (targetSolveIdx: number): void => {
+    dispatch(SeekChessPuzzlePlay({ solveIdx: targetSolveIdx }));
+  };
 
   return (
     <ChessPuzzleMoveHistory
-      plies={plies}
-      selectedSolveIdx={solveIdx}
-      interactive={interactive}
+      plies={plies()}
+      selectedSolveIdx={solveIdx()}
+      interactive={interactive()}
       onSeek={onSeek}
     />
   );

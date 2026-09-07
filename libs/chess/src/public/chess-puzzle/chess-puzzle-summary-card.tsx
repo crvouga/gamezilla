@@ -1,49 +1,36 @@
-import { Trans } from '@lingui/react/macro';
-import { AnimatedBox, Box, Text } from '@pkgs/ui-rn';
-import { USE_NATIVE_DRIVER } from '@pkgs/ui-rn/animation/use-native-driver';
-import { type ReactNode, useEffect, useRef } from 'react';
-import { Animated } from 'react-native';
+import { Trans } from '@lingui/solid/macro';
+import { useTimers } from '@pkgs/clock/solid';
+import { Box, Text } from '@pkgs/ui';
+import {
+  type Accessor,
+  createEffect,
+  createSignal,
+  type JSX,
+  onCleanup,
+} from 'solid-js';
 
 import { ChessPuzzleEloDelta } from './chess-puzzle-elo-delta';
 import type { PuzzleCompletion } from './use-chess-puzzle-completion';
 
-function StreakBadge({ streak }: { streak: number }): ReactNode {
-  const scale = useRef(new Animated.Value(0.85)).current;
-  const glow = useRef(new Animated.Value(0)).current;
+function StreakBadge(props: { streak: number }): JSX.Element {
+  const timers = useTimers();
+  const [shown, setShown] = createSignal(false);
 
-  useEffect(() => {
-    scale.setValue(0.85);
-    glow.setValue(0);
-    Animated.parallel([
-      Animated.spring(scale, {
-        toValue: 1,
-        friction: 5,
-        tension: 120,
-        useNativeDriver: USE_NATIVE_DRIVER,
-      }),
-      Animated.sequence([
-        Animated.timing(glow, {
-          toValue: 1,
-          duration: 200,
-          useNativeDriver: USE_NATIVE_DRIVER,
-        }),
-        Animated.timing(glow, {
-          toValue: 0.4,
-          duration: 400,
-          useNativeDriver: USE_NATIVE_DRIVER,
-        }),
-      ]),
-    ]).start();
-  }, [glow, scale, streak]);
+  createEffect(() => {
+    void props.streak;
+    setShown(false);
+    const id = timers.setTimeout(() => setShown(true), 0);
+    onCleanup(() => timers.clearTimeout(id));
+  });
 
   return (
-    <AnimatedBox
+    <Box
       sx={{
-        transform: [{ scale }],
-        opacity: glow.interpolate({
-          inputRange: [0, 1],
-          outputRange: [0.85, 1],
-        }),
+        transform: [{ scale: shown() ? 1 : 0.85 }],
+        opacity: shown() ? 1 : 0.85,
+        transitionProperty: 'transform, opacity',
+        transitionDuration: 'var(--ui-duration-slow)',
+        transitionTimingFunction: 'var(--ui-easing-standard)',
       }}
     >
       <Box
@@ -52,20 +39,16 @@ function StreakBadge({ streak }: { streak: number }): ReactNode {
         <Text
           variant="bodyBold"
           sx={{ color: 'success' }}
-          label={<Trans>{streak} puzzle streak</Trans>}
+          label={<Trans>{props.streak} puzzle streak</Trans>}
         />
       </Box>
-    </AnimatedBox>
+    </Box>
   );
 }
 
-function SummaryMeta({
-  completion,
-}: {
-  completion: PuzzleCompletion;
-}): ReactNode {
-  const streak = completion.streak;
-  const puzzleRating = completion.puzzleRating;
+function SummaryMeta(props: { completion: PuzzleCompletion }): JSX.Element {
+  const streak = props.completion.streak;
+  const puzzleRating = props.completion.puzzleRating;
   return (
     <Box sx={{ gap: 2, alignItems: 'center' }}>
       {streak > 1 ? <StreakBadge streak={streak} /> : null}
@@ -78,7 +61,7 @@ function SummaryMeta({
   );
 }
 
-function outcomeLabel(outcome: PuzzleCompletion['outcome']): ReactNode {
+function outcomeLabel(outcome: PuzzleCompletion['outcome']): JSX.Element {
   if (outcome === 'solved') return <Trans>Puzzle solved!</Trans>;
   return <Trans>Puzzle abandoned</Trans>;
 }
@@ -86,15 +69,14 @@ function outcomeLabel(outcome: PuzzleCompletion['outcome']): ReactNode {
 export type ChessPuzzleSummaryCardProps = {
   completion: PuzzleCompletion;
   displayRating: number;
-  deltaPulse?: Animated.Value;
+  deltaPulse?: Accessor<number>;
 };
 
-export function ChessPuzzleSummaryCard({
-  completion,
-  displayRating,
-  deltaPulse,
-}: ChessPuzzleSummaryCardProps): ReactNode {
-  const isSolved = completion.outcome === 'solved';
+export function ChessPuzzleSummaryCard(
+  props: ChessPuzzleSummaryCardProps
+): JSX.Element {
+  const isSolved = props.completion.outcome === 'solved';
+  const scale = (): number => props.deltaPulse?.() ?? 1;
 
   return (
     <Box
@@ -114,23 +96,24 @@ export function ChessPuzzleSummaryCard({
           color: isSolved ? 'success' : 'text',
           textAlign: 'center',
         }}
-        label={outcomeLabel(completion.outcome)}
+        label={outcomeLabel(props.completion.outcome)}
       />
-      <AnimatedBox
-        sx={
-          deltaPulse !== undefined
-            ? { transform: [{ scale: deltaPulse }] }
-            : undefined
-        }
+      <Box
+        sx={{
+          transform: [{ scale: scale() }],
+          transitionProperty: 'transform',
+          transitionDuration: 'var(--ui-duration-fast)',
+          transitionTimingFunction: 'var(--ui-easing-standard)',
+        }}
       >
         <ChessPuzzleEloDelta
-          ratingBefore={completion.ratingBefore}
-          ratingAfter={completion.ratingAfter}
-          delta={completion.delta}
-          displayRating={displayRating}
+          ratingBefore={props.completion.ratingBefore}
+          ratingAfter={props.completion.ratingAfter}
+          delta={props.completion.delta}
+          displayRating={props.displayRating}
         />
-      </AnimatedBox>
-      <SummaryMeta completion={completion} />
+      </Box>
+      <SummaryMeta completion={props.completion} />
     </Box>
   );
 }

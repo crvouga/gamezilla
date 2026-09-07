@@ -1,13 +1,12 @@
 import { useMyId } from '@libs/auth/public/use-current-user';
 import { sql } from '@pkgs/sql';
+import { createQuery } from '@pkgs/sync-engine/solid';
+import { type Accessor, createMemo } from 'solid-js';
 
-import { useQuery } from '@pkgs/sync-engine/client';
-import { useMemo } from 'react';
 import {
   computeNextPuzzleLoading,
   PUZZLE_NEXT_MAX_BAND,
   PUZZLE_PREFERRED_BAND,
-  type PuzzleCandidateQueryResult,
   pickPuzzleIdFromPool,
   resolveProfilePuzzleRating,
   resolvePuzzlePickOffset,
@@ -22,40 +21,38 @@ import { usePuzzleCandidatesQuery } from './use-puzzle-candidates-query';
 
 type PuzzleRatingValueRow = { readonly value: number };
 
-function usePuzzleProfileRating(): number {
+function usePuzzleProfileRating(): Accessor<number> {
   const myId = useMyId();
-  const query = useMemo(
+  const query = createMemo(
     () => sql<PuzzleRatingValueRow>`
       SELECT rating AS value
       FROM chess_puzzle_profiles
-      WHERE id = ${myId}
-    `,
-    [myId]
+      WHERE id = ${myId()}
+    `
   );
-  const { rows } = useQuery(query);
-  return resolveProfilePuzzleRating(rows[0]?.value);
+  const { rows } = createQuery(query);
+  return createMemo(() => resolveProfilePuzzleRating(rows()[0]?.value));
 }
 
-function useEffectivePuzzleRating(): number {
+function useEffectivePuzzleRating(): Accessor<number> {
   const [config] = useChessPuzzleFeedConfig();
   const profileRating = usePuzzleProfileRating();
-  return useMemo(
-    () => resolveEffectivePuzzleRating({ config, profileRating }),
-    [config, profileRating]
+  return createMemo(() =>
+    resolveEffectivePuzzleRating({
+      config: config(),
+      profileRating: profileRating(),
+    })
   );
 }
 
 function usePuzzleCandidateQueries(args: {
-  rating: number;
-  myId: string;
+  rating: Accessor<number>;
+  myId: Accessor<string>;
   currentPuzzleId: string | null;
-  pickOffset: number;
-  historyFilter: ChessPuzzleFeedHistoryFilter;
-  themes: readonly string[];
-}): {
-  banded: PuzzleCandidateQueryResult;
-  fallback: PuzzleCandidateQueryResult;
-} {
+  pickOffset: Accessor<number>;
+  historyFilter: Accessor<ChessPuzzleFeedHistoryFilter>;
+  themes: Accessor<readonly string[]>;
+}) {
   const banded = usePuzzleCandidatesQuery({
     rating: args.rating,
     ownerId: args.myId,
@@ -79,66 +76,67 @@ function usePuzzleCandidateQueries(args: {
 
 type PuzzleCountRow = { readonly value: number };
 
-function useLocalPuzzleTotal(): number {
-  const { rows } = useQuery(sql<PuzzleCountRow>`
-    SELECT COUNT(*) AS value
-    FROM chess_puzzles
-  `);
-  return Number(rows[0]?.value ?? 0);
+function useLocalPuzzleTotal(): Accessor<number> {
+  const { rows } = createQuery(
+    () => sql<PuzzleCountRow>`
+      SELECT COUNT(*) AS value
+      FROM chess_puzzles
+    `
+  );
+  return createMemo(() => Number(rows()[0]?.value ?? 0));
 }
 
 export function useNextPuzzleId(args: {
   currentPuzzleId: string | null;
   seed: string;
 }): {
-  puzzleId: string | null;
-  rating: number;
-  loading: boolean;
-  bandedCount: number;
-  fallbackCount: number;
+  puzzleId: Accessor<string | null>;
+  rating: Accessor<number>;
+  loading: Accessor<boolean>;
+  bandedCount: Accessor<number>;
+  fallbackCount: Accessor<number>;
   replayCount: number;
 } {
-  const { currentPuzzleId, seed } = args;
   const myId = useMyId();
   const [config] = useChessPuzzleFeedConfig();
   const rating = useEffectivePuzzleRating();
   const localPuzzleTotal = useLocalPuzzleTotal();
-  // Cap OFFSET in JS so a 50-row fixture cannot skip past the end of the table.
-  const pickOffset = resolvePuzzlePickOffset(seed, localPuzzleTotal);
+  const pickOffset = createMemo(() =>
+    resolvePuzzlePickOffset(args.seed, localPuzzleTotal())
+  );
   const { banded, fallback } = usePuzzleCandidateQueries({
     rating,
     myId,
-    currentPuzzleId,
+    currentPuzzleId: args.currentPuzzleId,
     pickOffset,
-    historyFilter: config.historyFilter,
-    themes: config.themes,
+    historyFilter: () => config().historyFilter,
+    themes: () => config().themes,
   });
   const puzzleResult = selectPuzzleCandidates(banded, fallback);
-  const puzzleId = useMemo(
-    () =>
-      pickPuzzleIdFromPool({
-        rows: puzzleResult.rows,
-        rating,
-        preferredBand: PUZZLE_PREFERRED_BAND,
-        seed,
-      }),
-    [puzzleResult.rows, rating, seed]
+  const puzzleId = createMemo(() =>
+    pickPuzzleIdFromPool({
+      rows: puzzleResult.rows,
+      rating: rating(),
+      preferredBand: PUZZLE_PREFERRED_BAND,
+      seed: args.seed,
+    })
   );
-  const loading = computeNextPuzzleLoading({
-    myId,
-    banded,
-    fallback,
-    puzzleId,
-    localPuzzleTotal,
-  });
+  const loading = createMemo(() =>
+    computeNextPuzzleLoading({
+      myId: myId(),
+      banded,
+      fallback,
+      puzzleId: puzzleId(),
+      localPuzzleTotal: localPuzzleTotal(),
+    })
+  );
 
   return {
     puzzleId,
     rating,
     loading,
-    bandedCount: banded.rows.length,
-    fallbackCount: fallback.rows.length,
-    // Legacy field: replay path removed; filters always apply.
+    bandedCount: () => banded.rows.length,
+    fallbackCount: () => fallback.rows.length,
     replayCount: 0,
   };
 }

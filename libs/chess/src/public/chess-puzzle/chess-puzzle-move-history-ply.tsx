@@ -1,6 +1,5 @@
-import { Box, Pressable, Text } from '@pkgs/ui-rn';
-import { memo, type ReactNode, type Ref, useCallback } from 'react';
-import type { LayoutChangeEvent, View } from 'react-native';
+import { Box, Clickable, Text } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 
 import type { PuzzleHistoryPly } from '../chess-puzzle-move-history';
 
@@ -11,11 +10,13 @@ type HistoryPlyChipProps = {
   onSeek: (solveIdx: number) => void;
 };
 
-function MoveNumberLabel(p: {
+function MoveNumberLabel(props: {
   moveNumber: number;
   ellipsis: boolean;
-}): ReactNode {
-  const label = p.ellipsis ? `${p.moveNumber}...` : `${p.moveNumber}.`;
+}): JSX.Element {
+  const label = props.ellipsis
+    ? `${props.moveNumber}...`
+    : `${props.moveNumber}.`;
   return (
     <Text
       variant="caption"
@@ -25,7 +26,6 @@ function MoveNumberLabel(p: {
   );
 }
 
-/** Show `N.` before White, or `N...` when Black opens a fullmove (common in puzzles). */
 export function moveNumberPrefix(
   ply: PuzzleHistoryPly
 ): { moveNumber: number; ellipsis: boolean } | null {
@@ -38,60 +38,49 @@ export function moveNumberPrefix(
   return null;
 }
 
-const HistoryPlyChip = memo(function HistoryPlyChip(
-  p: HistoryPlyChipProps
-): ReactNode {
-  const { ply, selected, interactive, onSeek } = p;
-  const handlePress = useCallback(() => {
-    onSeek(ply.solveIdxAfter);
-  }, [onSeek, ply.solveIdxAfter]);
+function HistoryPlyChip(props: HistoryPlyChipProps): JSX.Element {
+  const handlePress = (): void => {
+    props.onSeek(props.ply.solveIdxAfter);
+  };
   return (
-    <Pressable
-      testID={`chess-puzzle-move-ply-${ply.plyIndex}`}
-      disabled={!interactive || selected}
+    <Clickable
+      dataSet={{ testid: `chess-puzzle-move-ply-${props.ply.plyIndex}` }}
+      disabled={!props.interactive || props.selected}
       feedback="none"
-      onPress={handlePress}
+      onClick={handlePress}
       sx={{
         px: 1.5,
         py: 0.5,
         borderRadius: 4,
-        background: selected ? 'successSurface' : 'transparent',
+        background: props.selected ? 'successSurface' : 'transparent',
       }}
-      accessibilityRole="button"
-      accessibilityState={{ selected }}
-      accessibilityLabel={ply.san}
+      role="button"
+      aria-pressed={props.selected}
+      aria-label={props.ply.san}
     >
       <Text
         variant="mono"
-        label={ply.san}
+        label={props.ply.san}
         sx={{
-          color: selected ? 'success' : 'text',
-          fontWeight: selected ? '700' : '600',
+          color: props.selected ? 'success' : 'text',
+          fontWeight: props.selected ? '700' : '600',
         }}
       />
-    </Pressable>
+    </Clickable>
   );
-});
+}
 
-export function HistoryPlyCluster(p: {
+export function HistoryPlyCluster(props: {
   ply: PuzzleHistoryPly;
   selectedSolveIdx: number;
   interactive: boolean;
   onSeek: (solveIdx: number) => void;
-  onPlyLayout: (solveIdxAfter: number, event: LayoutChangeEvent) => void;
-  selectedRef?: Ref<View>;
-}): ReactNode {
-  const { ply, onPlyLayout, selectedRef } = p;
-  const prefix = moveNumberPrefix(ply);
-  const handleLayout = useCallback(
-    (event: LayoutChangeEvent) => {
-      onPlyLayout(ply.solveIdxAfter, event);
-    },
-    [onPlyLayout, ply.solveIdxAfter]
-  );
+  selectedRef?: (el: HTMLElement) => void;
+}): JSX.Element {
+  const prefix = moveNumberPrefix(props.ply);
   return (
     <Box
-      ref={selectedRef}
+      ref={props.selectedRef}
       sx={{
         flexDirection: 'row',
         alignItems: 'center',
@@ -99,7 +88,6 @@ export function HistoryPlyCluster(p: {
         flexShrink: 0,
         flexGrow: 0,
       }}
-      onLayout={handleLayout}
     >
       {prefix !== null ? (
         <MoveNumberLabel
@@ -108,10 +96,10 @@ export function HistoryPlyCluster(p: {
         />
       ) : null}
       <HistoryPlyChip
-        ply={ply}
-        selected={ply.solveIdxAfter === p.selectedSolveIdx}
-        interactive={p.interactive}
-        onSeek={p.onSeek}
+        ply={props.ply}
+        selected={props.ply.solveIdxAfter === props.selectedSolveIdx}
+        interactive={props.interactive}
+        onSeek={props.onSeek}
       />
     </Box>
   );

@@ -1,27 +1,21 @@
-import { startTiming } from '@pkgs/ui-rn/animation/run-timing';
-import { USE_NATIVE_DRIVER } from '@pkgs/ui-rn/animation/use-native-driver';
-import { motion } from '@pkgs/ui-rn/theme/motion';
-import { useEffect, useRef, useState } from 'react';
-import { Animated, Easing } from 'react-native';
+import { useClock, useTimers } from '@pkgs/clock/solid';
+import { motion } from '@pkgs/ui';
+import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js';
 
 const COUNT_UP_MS = 1200;
+const TICK_INTERVAL_MS = 50;
 
-function runCompletePulse(completePulse: Animated.Value): void {
-  startTiming(
-    completePulse,
-    {
-      toValue: 1.12,
-      duration: motion.duration.fast,
-      useNativeDriver: USE_NATIVE_DRIVER,
-    },
-    () => {
-      startTiming(completePulse, {
-        toValue: 1,
-        duration: motion.duration.fast,
-        useNativeDriver: USE_NATIVE_DRIVER,
-      });
-    }
-  );
+function easeOutCubic(t: number): number {
+  return 1 - Math.pow(1 - t, 3);
+}
+
+function runCompletePulse(
+  setCompletePulse: (next: number) => void,
+  timers: ReturnType<typeof useTimers>
+): () => void {
+  setCompletePulse(1.12);
+  const id = timers.setTimeout(() => setCompletePulse(1), motion.duration.fast);
+  return () => timers.clearTimeout(id);
 }
 
 export function useChessPuzzleEloAnimation(args: {
@@ -31,31 +25,22 @@ export function useChessPuzzleEloAnimation(args: {
   enabled: boolean;
   onRatingStep?: (rating: number) => void;
   onComplete?: () => void;
-}): {
-  displayRating: number;
-  completePulse: Animated.Value;
-} {
-  const {
-    ratingBefore,
-    ratingAfter,
-    animationKey,
-    enabled,
-    onRatingStep,
-    onComplete,
-  } = args;
-  const progress = useRef(new Animated.Value(0)).current;
-  const completePulse = useRef(new Animated.Value(1)).current;
-  const [displayRating, setDisplayRating] = useState(ratingBefore);
-  const lastReportedRef = useRef(ratingBefore);
+}): { displayRating: Accessor<number>; completePulse: Accessor<number> } {
+  const clock = useClock();
+  const timers = useTimers();
+  const [displayRating, setDisplayRating] = createSignal(args.ratingBefore);
+  const [completePulse, setCompletePulse] = createSignal(1);
+  const lastReportedRef: { current: number } = { current: args.ratingBefore };
 
-  useEffect(() => {
-    if (!enabled) {
-      setDisplayRating(ratingBefore);
-      lastReportedRef.current = ratingBefore;
+  createEffect(() => {
+    void args.animationKey;
+    if (!args.enabled) {
+      setDisplayRating(args.ratingBefore);
+      lastReportedRef.current = args.ratingBefore;
       return;
     }
-    progress.setValue(0);
-    completePulse.setValue(1);
+    const ratingBefore = args.ratingBefore;
+    const ratingAfter = args.ratingAfter;
     setDisplayRating(ratingBefore);
     lastReportedRef.current = ratingBefore;
 
@@ -63,38 +48,26 @@ export function useChessPuzzleEloAnimation(args: {
       setDisplayRating(next);
       if (next === lastReportedRef.current) return;
       lastReportedRef.current = next;
-      onRatingStep?.(next);
+      args.onRatingStep?.(next);
     };
 
-    const listenerId = progress.addListener(({ value }) => {
-      report(Math.round(ratingBefore + (ratingAfter - ratingBefore) * value));
-    });
-
-    Animated.timing(progress, {
-      toValue: 1,
-      duration: COUNT_UP_MS,
-      easing: Easing.bezier(0, 0, 0, 1),
-      useNativeDriver: USE_NATIVE_DRIVER,
-    }).start(({ finished }) => {
-      if (!finished) return;
+    const startMs = clock.now();
+    const id = timers.setInterval(() => {
+      const elapsed = clock.now() - startMs;
+      const t = Math.min(1, elapsed / COUNT_UP_MS);
+      report(
+        Math.round(
+          ratingBefore + (ratingAfter - ratingBefore) * easeOutCubic(t)
+        )
+      );
+      if (t < 1) return;
+      timers.clearInterval(id);
       report(ratingAfter);
-      onComplete?.();
-      runCompletePulse(completePulse);
-    });
-
-    return () => {
-      progress.removeListener(listenerId);
-    };
-  }, [
-    animationKey,
-    completePulse,
-    enabled,
-    onComplete,
-    onRatingStep,
-    progress,
-    ratingAfter,
-    ratingBefore,
-  ]);
+      args.onComplete?.();
+      onCleanup(runCompletePulse(setCompletePulse, timers));
+    }, TICK_INTERVAL_MS);
+    onCleanup(() => timers.clearInterval(id));
+  });
 
   return { displayRating, completePulse };
 }

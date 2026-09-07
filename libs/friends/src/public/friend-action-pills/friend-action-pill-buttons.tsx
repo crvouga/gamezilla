@@ -1,7 +1,28 @@
-import { Trans, useLingui } from '@lingui/react/macro';
-import type { SoundId } from '@pkgs/sounds';
-import { Box, Button, useMutationButton } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Trans, useLingui } from '@lingui/solid/macro';
+import { type SoundId, Sounds } from '@pkgs/sounds';
+import { useOptionalSoundEngine } from '@pkgs/sounds/solid';
+import {
+  Box,
+  Button,
+  type MutationStateTransition,
+  useMutationButton,
+} from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+
+function usePillSounds(
+  sounds: () => { success?: SoundId; error?: SoundId }
+): (transition: MutationStateTransition) => void {
+  const engine = useOptionalSoundEngine();
+  return (transition) => {
+    const current = engine?.();
+    if (current === undefined) return;
+    if (transition.to === 'success') {
+      current.play(sounds().success ?? Sounds.feedback.success);
+    } else if (transition.to === 'error') {
+      current.play(sounds().error ?? Sounds.feedback.error);
+    }
+  };
+}
 
 export function ConfirmDeletePills({
   onConfirm,
@@ -11,7 +32,7 @@ export function ConfirmDeletePills({
   onConfirm: () => Promise<void>;
   onDelete: () => Promise<void>;
   confirmTestID?: string;
-}): ReactNode {
+}): JSX.Element {
   const { t } = useLingui();
   const confirm = useMutationButton({
     operation: onConfirm,
@@ -39,7 +60,9 @@ export function ConfirmDeletePills({
         <Button
           variant="solid"
           {...confirm.buttonProps}
-          {...(confirmTestID !== undefined ? { testID: confirmTestID } : {})}
+          {...(confirmTestID !== undefined
+            ? { dataSet: { testid: confirmTestID } }
+            : {})}
         />
       </Box>
       <Box sx={{ flex: 1 }}>
@@ -61,7 +84,7 @@ export function SingleActionPill({
   testID,
 }: {
   operation: () => Promise<void>;
-  idle: ReactNode;
+  idle: JSX.Element;
   loading: string;
   success: string;
   error: string;
@@ -69,19 +92,20 @@ export function SingleActionPill({
   disabled?: boolean;
   sounds?: { success?: SoundId; error?: SoundId };
   testID?: string;
-}): ReactNode {
+}): JSX.Element {
+  const onPhaseChange = usePillSounds(() => sounds ?? {});
   const mutation = useMutationButton({
     operation,
     labels: { idle, loading, success, error },
     successHoldMs: 0,
     disabled,
-    sounds,
+    onPhaseChange,
   });
   return (
     <Button
       variant={variant}
       {...mutation.buttonProps}
-      {...(testID !== undefined ? { testID } : {})}
+      {...(testID !== undefined ? { dataSet: { testid: testID } } : {})}
     />
   );
 }

@@ -1,4 +1,5 @@
-import { useEffect, useRef } from 'react';
+import { type Accessor, createEffect } from 'solid-js';
+
 import {
   CHESS_PUZZLE_PLAY_STATUS,
   type ChessPuzzlePlayStatus,
@@ -10,26 +11,29 @@ type PuzzleFeedback = {
 };
 
 export function usePuzzleStatusFeedback(args: {
-  puzzleId: string;
-  status: ChessPuzzlePlayStatus | 'loading';
+  puzzleId: Accessor<string>;
+  status: Accessor<ChessPuzzlePlayStatus | 'loading'>;
   feedback: PuzzleFeedback;
 }): void {
-  const { puzzleId, status, feedback } = args;
-  const prevStatusRef = useRef<ChessPuzzlePlayStatus | 'loading' | null>(null);
+  const prevStatusRef: { current: ChessPuzzlePlayStatus | 'loading' | null } = {
+    current: null,
+  };
 
-  useEffect(() => {
+  createEffect(() => {
+    void args.puzzleId();
     prevStatusRef.current = null;
-  }, [puzzleId]);
+  });
 
-  useEffect(() => {
+  createEffect(() => {
     const prev = prevStatusRef.current;
+    const status = args.status();
     prevStatusRef.current = status;
     if (prev === status) return;
     if (status === CHESS_PUZZLE_PLAY_STATUS.wrong) {
-      feedback.onWrongMove();
+      args.feedback.onWrongMove();
     }
     if (status === CHESS_PUZZLE_PLAY_STATUS.solved) {
-      feedback.onSolved();
+      args.feedback.onSolved();
     }
-  }, [feedback, status]);
+  });
 }
