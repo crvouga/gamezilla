@@ -4,7 +4,6 @@
 
 import type { Client } from '@apps/client/shell/create-client';
 import type { RoomServerApp } from '@apps/room-server/app/create-room-server';
-import { migrateSimPostgres } from '@apps/server/sim/migrate-sim-postgres';
 import { migrateSimClientSqlite } from '@apps/server/sim/migrate-sim-sqlite';
 import { assert } from '@pkgs/assert';
 import type { Clock } from '@pkgs/clock';
@@ -148,6 +147,11 @@ export async function importCheckpointSql(
   assert.defined(
     pool,
     'importCheckpointSql: server handle requires pool for remigrate'
+  );
+  // Lazy: Postgres migration runs against the node pool — never in the web
+  // bundle.
+  const { migrateSimPostgres } = await import(
+    '@apps/server/sim/migrate-sim-postgres'
   );
   await migrateSimPostgres({
     sqlClient: ctx.serverHandle.sqlClient,

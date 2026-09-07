@@ -1,4 +1,3 @@
-import { migrateSimPostgres } from '@apps/server/sim/migrate-sim-postgres';
 import type { Clock } from '@pkgs/clock';
 import { wallClock } from '@pkgs/clock';
 import type { Ports, Runtime } from '@pkgs/sim';
@@ -53,6 +52,11 @@ async function openMigratedFreshServerSql(clock: Clock): Promise<SimSql> {
   const serverSql = await openFreshSimServerSql('sim_server', clock);
   const pool = serverSql.pool;
   if (pool !== undefined) {
+    // Lazy: migrations run against the node Postgres pool — never load in the
+    // web bundle.
+    const { migrateSimPostgres } = await import(
+      '@apps/server/sim/migrate-sim-postgres'
+    );
     await migrateSimPostgres({
       sqlClient: serverSql.sqlClient,
       pool,
