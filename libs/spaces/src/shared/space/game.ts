@@ -63,10 +63,10 @@ export type GameClientMenuProps = {
  */
 export type GameClientDefinition = {
   readonly id: string;
-  /** Display title shown in the games picker (already-localized node). */
-  readonly title: JSX.Element;
+  /** Display title shown in the games picker (localized string or node). */
+  readonly title: JSX.Element | string;
   /** One-line description under the title in the games picker. */
-  readonly caption?: JSX.Element;
+  readonly caption?: JSX.Element | string;
   /** Mounted when this game is the currently selected game in the space. */
   readonly MainMenu: (props: GameClientMenuProps) => JSX.Element;
   /**

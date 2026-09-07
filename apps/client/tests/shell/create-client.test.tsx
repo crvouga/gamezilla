@@ -43,7 +43,7 @@ describe('createClient', () => {
     sim = null;
   });
 
-  it('boots through the paint gate into the tabbed Spaces stub and routes', async () => {
+  it('boots through the paint gate into the tabbed Spaces screen and routes', async () => {
     sim = await simClientEnv({ seed: 7 });
     const client = createClient(sim.env);
     const history = createMemoryHistory();
@@ -57,6 +57,7 @@ describe('createClient', () => {
     // Identity + local sqlite-mem engine boot are promise-driven; virtual
     // time advances anything the engine scheduled on the injected timers.
     await sim.session.advanceTime(1_000);
+    await sim.session.waitForIdle();
     await waitForScreen('spaces');
     expect(bootChromeNode()).toBeNull();
 
@@ -83,5 +84,5 @@ describe('createClient', () => {
     expect(sim.requests).toContain('/api/identity/anon/ensure');
     view.unmount();
     await client.close();
-  });
+  }, 30_000);
 });

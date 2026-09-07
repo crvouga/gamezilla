@@ -1,4 +1,4 @@
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@lingui/solid';
 import type { Accessor } from 'solid-js';
 import { createMemo } from 'solid-js';
 
@@ -9,19 +9,19 @@ export function useFriendUserOverflowMenu(
   onRemove: () => void,
   onBlock: () => void
 ) {
-  const { t } = useLingui();
+  const { _ } = useLingui();
 
   return createMemo(() => {
     if (status() !== 'friends') return [];
     return [
       {
         id: 'remove',
-        label: t`Remove friend`,
+        label: _({ id: 'Remove friend', message: 'Remove friend' }),
         onPress: onRemove,
       },
       {
         id: 'block',
-        label: t`Block`,
+        label: _({ id: 'Block', message: 'Block' }),
         onPress: onBlock,
         endsGroup: true as const,
       },

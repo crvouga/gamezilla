@@ -84,7 +84,11 @@ export function ClientConfigEntityCard(): JSX.Element {
             p: 3,
           }}
         >
-          <Text variant="mono" selectable label={jsonPreview()} />
+          <Text
+            variant="mono"
+            sx={{ userSelect: 'text' }}
+            label={jsonPreview()}
+          />
         </Box>
       </Box>
     </Box>

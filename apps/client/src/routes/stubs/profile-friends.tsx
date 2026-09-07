@@ -1,15 +1,8 @@
 /** @jsxImportSource solid-js */
-import { Trans } from '@lingui/solid/macro';
+
+import { FriendsListScreen } from '@libs/friends/root/client/friends-list-screen-view';
 import type { JSX } from 'solid-js';
 
-import { RouteStub } from '../route-stub';
-
-export default function ProfileFriendsStub(): JSX.Element {
-  return (
-    <RouteStub
-      screenId="profile-friends"
-      title={<Trans>Friends</Trans>}
-      parent={{ name: <Trans>Profile</Trans>, href: '/profile' }}
-    />
-  );
+export default function ProfileFriendsRoute(): JSX.Element {
+  return <FriendsListScreen />;
 }

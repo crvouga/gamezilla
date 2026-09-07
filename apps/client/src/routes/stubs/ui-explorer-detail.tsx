@@ -1,15 +1,15 @@
 /** @jsxImportSource solid-js */
-import { Trans } from '@lingui/solid/macro';
+import { ExplorerDetail, type Href, useLocalSearchParams } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 
-import { RouteStub } from '../route-stub';
-
-export default function UiExplorerDetailStub(): JSX.Element {
+export default function UiExplorerDetailRoute(): JSX.Element {
+  const params = useLocalSearchParams<{ component?: string | undefined }>();
+  const componentId = () => params().component ?? '';
   return (
-    <RouteStub
-      screenId="ui-explorer-detail"
-      title={<Trans>Component</Trans>}
-      parent={{ name: <Trans>UI explorer</Trans>, href: '/ui' }}
+    <ExplorerDetail
+      componentId={componentId()}
+      hrefFor={(id) => `/ui/${id}` as Href}
+      listHref="/ui"
     />
   );
 }

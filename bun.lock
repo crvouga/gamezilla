@@ -314,6 +314,7 @@
         "@pkgs/secret-store": "workspace:*",
         "@pkgs/secrets-config": "workspace:*",
         "@pkgs/sim": "workspace:*",
+        "@pkgs/solid-context": "workspace:*",
         "@pkgs/sounds": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",

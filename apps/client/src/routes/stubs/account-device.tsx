@@ -1,15 +1,8 @@
 /** @jsxImportSource solid-js */
-import { Trans } from '@lingui/solid/macro';
+
+import { AccountDeviceDetailScreen } from '@libs/auth/root/client/account-device/account-device-detail-screen';
 import type { JSX } from 'solid-js';
 
-import { RouteStub } from '../route-stub';
-
-export default function AccountDeviceStub(): JSX.Element {
-  return (
-    <RouteStub
-      screenId="account-device"
-      title={<Trans>Device</Trans>}
-      parent={{ name: <Trans>Devices</Trans>, href: '/more/account/devices' }}
-    />
-  );
+export default function AccountDeviceRoute(): JSX.Element {
+  return <AccountDeviceDetailScreen />;
 }

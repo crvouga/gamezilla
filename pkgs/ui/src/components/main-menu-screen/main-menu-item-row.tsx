@@ -17,8 +17,8 @@ import { resolveNeutralGradient } from './main-menu-gradient';
 export type MainMenuItem = {
   /** Stable id for list keys. */
   key: string;
-  title: JSX.Element;
-  caption?: JSX.Element | undefined;
+  title: JSX.Element | string;
+  caption?: JSX.Element | string | undefined;
   /** Overrides the default trailing affordance (chevron / selection check). */
   trailing?: JSX.Element | undefined;
   selected?: boolean | undefined;

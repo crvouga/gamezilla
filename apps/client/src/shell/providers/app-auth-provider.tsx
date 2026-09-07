@@ -1,4 +1,5 @@
 import { AuthClientProvider } from '@libs/auth/public/auth-client-provider';
+import { AuthModalsProvider } from '@libs/auth/public/auth-modals-provider';
 import { AuthBridge } from '@libs/auth/root/client/auth-bridge';
 import { createAuthClientAdapter } from '@pkgs/auth/client';
 import type { JSX } from 'solid-js';
@@ -21,7 +22,9 @@ export function AppAuthProvider(props: {
   return (
     <AuthClientProvider port={port}>
       <AuthBridge>
-        <LocalIdentityProvider>{props.children}</LocalIdentityProvider>
+        <AuthModalsProvider>
+          <LocalIdentityProvider>{props.children}</LocalIdentityProvider>
+        </AuthModalsProvider>
       </AuthBridge>
     </AuthClientProvider>
   );

@@ -51,9 +51,7 @@ export default function ReadyEngineTree(
           <SqlClientProvider value={ready.engine.db}>
             <AuthSyncBridge>
               <MutationClientProvider registry={ready.registry}>
-                <AppClientConfig databaseName={ready.engine.databaseName}>
-                  {props.children}
-                </AppClientConfig>
+                <AppClientConfig>{props.children}</AppClientConfig>
               </MutationClientProvider>
             </AuthSyncBridge>
           </SqlClientProvider>

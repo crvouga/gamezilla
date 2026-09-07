@@ -459,10 +459,6 @@
         "@libs/billing#billing:sync"
       ]
     },
-    "@apps/client#deploy:ota": {
-      "cache": false,
-      "dependsOn": ["@apps/server#smoke"]
-    },
     "deploy": {
       "cache": false,
       "dependsOn": [
@@ -486,8 +482,7 @@
         "//#ci:purge-scan",
         "@libs/secrets#check",
         "@tools#install:cli",
-        "@libs/billing#billing:sync",
-        "@apps/client#deploy:ota"
+        "@libs/billing#billing:sync"
       ]
     },
     "//#ci:syncpack": {

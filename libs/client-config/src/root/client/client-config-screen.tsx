@@ -10,8 +10,8 @@ export function ClientConfigScreen() {
     <ScreenBase
       screenId="client-config"
       breadcrumbs={[
-        { name: <Trans>Spaces</Trans>, onPress: nav('/') },
-        { name: <Trans>Settings</Trans>, onPress: nav('/more') },
+        { name: <Trans>Spaces</Trans>, onClick: nav('/') },
+        { name: <Trans>Settings</Trans>, onClick: nav('/more') },
         { name: <Trans>Client config</Trans> },
       ]}
       scroll
