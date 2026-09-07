@@ -87,7 +87,7 @@ function createWatchSubscription<T extends Record<string, unknown>>(
         listener();
       };
       entry.listeners.add(wrapped);
-      // Do not call listener synchronously — useSyncExternalStore forbids it
+      // Do not call listener synchronously — the store subscription forbids it
       // and an unstable handle snapshot would infinite-loop via forceStoreRerender.
       return () => {
         entry.listeners.delete(wrapped);

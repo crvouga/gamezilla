@@ -80,7 +80,7 @@ Core vs adapters stay split so callers opt into a runtime explicitly.
 
 | Import | Purpose |
 |--------|---------|
-| `@pkgs/room` | Client core: `RoomClient`, `RoomMetaAttr`, React hooks/registry, ports, wire helpers, effect builtins / handlers |
+| `@pkgs/room` | Client core: `RoomClient`, `RoomMetaAttr`, Solid hooks/registry, ports, wire helpers, effect builtins / handlers |
 | `@pkgs/room/server` | `RoomServer`, `RoomStorage`, `RoomAuth`, effect types/builtins |
 | `@pkgs/room/client/adapters/storage/key-value` | `KeyValueClientRoomStorage` (async `Kv`) |
 | `@pkgs/room-adapter-web` | `WebSocketRoomTransport` (+ heartbeat / `probeLiveness`), `WebClientStorage` (`localStorage`) |
@@ -103,7 +103,7 @@ pkgs/room/
 ├── src/
 │   ├── client/core/          RoomClient engine, fold, meta, ports, optimistic effects
 │   ├── client/adapters/      key-value storage (async `Kv`)
-│   ├── client/react/         snapshot + registry hooks
+│   ├── client/solid/         snapshot + registry hooks
 │   ├── server/core/          RoomServer, auth/storage ports, injectCommand
 │   ├── protocol/             wire frames + ids
 │   └── effects/              Schedule/CancelSchedule + RoomEffectHandler port

@@ -53,7 +53,7 @@ Suspected dominance: product `isAuthRevoked === reason === 'revoked'` is the sha
 
 Properties: `room-gateway-fallback-not-host`, `presence-online-matches-room-actor-id`, `sync-membership-and-room-seat-agree`, `room-command-id-applies-once`, `room-single-log-per-topic`, `room-welcome-truncation-resync`, `private-space-join-requires-acl`, `denied-scope-no-fanout-leak`
 
-Notes: Gateway fallback can change who `x-actor-id` is; that feeds host checks **and** leave-seat vs leave-mutation disagreement. Presence is **naming**: account online iff roster actor is the account (`getRoster()` + session — no React). Room commandId/log/welcome are the event-log plane. Private join and denied fanout are the SQL/sync plane. Cross-plane: `sync-membership-and-room-seat-agree`. First topology RoomServer is memory; api kill wipes the log — presence Always is on the live roster only.
+Notes: Gateway fallback can change who `x-actor-id` is; that feeds host checks **and** leave-seat vs leave-mutation disagreement. Presence is **naming**: account online iff roster actor is the account (`getRoster()` + session — no Solid UI). Room commandId/log/welcome are the event-log plane. Private join and denied fanout are the SQL/sync plane. Cross-plane: `sync-membership-and-room-seat-agree`. First topology RoomServer is memory; api kill wipes the log — presence Always is on the live roster only.
 
 Suspected dominance: gateway-not-host is a precondition for “host checks are meaningful”; it does not imply seats match `spaces_users` or that the online bit tracks the actor. Presence does not imply host privilege.
 

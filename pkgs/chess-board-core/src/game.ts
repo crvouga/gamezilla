@@ -1,9 +1,8 @@
 /**
  * Framework-free chess game state over chess.js: position + status snapshot,
  * legal-move queries, move application, external-FEN sync and last-move
- * tracking. Exposes `getSnapshot` / `subscribe` so UI bindings
- * (`useSyncExternalStore`) and Solid (`createSubscriptionSignal`) bind to it
- * without duplicating game logic.
+ * tracking. Exposes `getSnapshot` / `subscribe` so the Solid binding
+ * (`createSubscriptionSignal`) binds to it without duplicating game logic.
  */
 
 import {

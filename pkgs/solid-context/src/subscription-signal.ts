@@ -6,9 +6,8 @@ export type ExternalSubscription<T> = {
 };
 
 /**
- * Bridge an external `getSnapshot` / `subscribe` store into a Solid signal
- * (the Solid counterpart of `useSyncExternalStore`). Unsubscribes when
- * the owning reactive scope is disposed.
+ * Bridge an external `getSnapshot` / `subscribe` store into a Solid signal.
+ * Unsubscribes when the owning reactive scope is disposed.
  */
 export function createSubscriptionSignal<T>(
   source: ExternalSubscription<T>

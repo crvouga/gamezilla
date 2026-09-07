@@ -198,7 +198,7 @@ Same as overlapping handlePush: post-snapshot row-age vs server is Finding 1/2 +
 
 #### emqx-url-hydrates-over-http-without-push — **Checkable if headless driver calls `ensurePush`**
 
-Cut EMQX, leave HTTP up, cold SQLite: topology + seed note. Safety (session `clientConfig` merge with MQTT down) is HTTP + client SQL. Liveness “owner calls `ensurePush`” is **SUT-internal**. Evidence already warns: a headless driver that never calls `ensurePush` false-fails. Product path is a React effect (`SyncEmqxPushFromClientConfig`). Node image must invoke the same hook after hydrate.
+Cut EMQX, leave HTTP up, cold SQLite: topology + seed note. Safety (session `clientConfig` merge with MQTT down) is HTTP + client SQL. Liveness “owner calls `ensurePush`” is **SUT-internal**. Evidence already warns: a headless driver that never calls `ensurePush` false-fails. Product path is a Solid effect (`SyncEmqxPushFromClientConfig`). Node image must invoke the same hook after hydrate.
 
 `Unreachable(waiting on pubsub before clientConfig query)` needs SDK on the query path or a watchdog that session queries ran while `createPubSub` was null.
 

@@ -293,6 +293,7 @@ const WRITERS = {
   alignSelf: keyword('align-self'),
   alignContent: keyword('align-content'),
   justifyContent: keyword('justify-content'),
+  display: keyword('display'),
   background: writeBg,
   backgroundColor: writeBackgroundColor,
   color: color('color'),

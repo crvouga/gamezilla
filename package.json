@@ -32,7 +32,6 @@
     "ci:depcruise": "NODE_OPTIONS=--max-old-space-size=4096 dependency-cruise apps libs pkgs product --validate .dependency-cruiser.cjs --output-type err",
     "ci:i18n": "bun run tools/scripts/ci-i18n.ts",
     "ci:knip": "knip --dependencies --files --no-progress --no-config-hints",
-    "ci:purge-scan": "bun run tools/scripts/purge-scan.ts",
     "ci:setup-secrets-auth": "bun run tools/scripts/setup-ci-secrets-auth.ts",
     "ci:syncpack": "syncpack lint --dependency-types prod,dev",
     "db:migrate": "bun run tools/scripts/secrets-run.ts -- bun run --filter @libs/db migrate",

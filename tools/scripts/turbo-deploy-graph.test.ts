@@ -32,7 +32,6 @@ const FAST_TIER = [
   'lint',
   '//#lint:vocab',
   '//#lint:eslint',
-  '//#ci:purge-scan',
   'tc',
   'test',
 ];

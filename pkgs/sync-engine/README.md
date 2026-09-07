@@ -102,7 +102,7 @@ custom per-feature REST sync; peer mutation replay.
 | Query/mutation registries API | Query + mutation **defs** per feature |
 | Framework tables + DDL | Topic naming (`user:`, `room:`, …) |
 | `createSyncApp` Hono routes | Auth resolution, Postgres client |
-| Client engine + React hooks | Session query list, paint gate wiring |
+| Client engine + Solid hooks | Session query list, paint gate wiring |
 | Push apply / optimistic fanout | MQTT/EMQX pubsub adapter |
 | Deterministic sim + scenarios | Product REST exceptions |
 
@@ -317,7 +317,7 @@ Rules:
 2. `SubscriptionRuntime` — coalesce → `POST /query` → merge
 3. `MutationUploadQueue` — drain `sync_engine_mutations` → `POST /mutations`
 4. Optional `attachPush` — MQTT topics from held-row topic-map ∪ entryChannel
-5. Table-change bus + `watch` / React `useQuery`
+5. Table-change bus + `watch` / Solid `useQuery`
 
 **Injected ports** (product or sim): `db`, `postQueries`, `postMutations`,
 `getMutationEnv`, `getClientId`, `isAuthRevoked`, `deleteDatabase`, optional
@@ -734,7 +734,7 @@ See [`docs/sync-engine-app-wiring.md`](../../docs/sync-engine-app-wiring.md) for
 
 ```text
 pkgs/sync-engine/src/
-  client/           # engine, merge, subscriptions, push, React, HTTP, pool
+  client/           # engine, merge, subscriptions, push, Solid, HTTP, pool
   mutations/
     core/           # defineMutation, types, registry
     client/         # createMutationClient, mutation-status
@@ -756,7 +756,7 @@ pkgs/sync-engine/src/
 
 ---
 
-## React hooks (client)
+## Solid hooks (client)
 
 | Hook / API | Use |
 |------------|-----|

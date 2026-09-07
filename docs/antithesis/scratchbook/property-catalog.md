@@ -432,7 +432,7 @@ No Raft. Coordination is LWW + lossy MQTT + HTTP snapshots.
 |---|---|
 | **Priority** | Medium |
 | **Type** | Safety |
-| **Property** | For a signed-in connection, the account is online on the room roster iff that connection’s server-assigned actor id is the account — not privilege, not React badges. |
+| **Property** | For a signed-in connection, the account is online on the room roster iff that connection’s server-assigned actor id is the account — not privilege, not UI badges. |
 | **Invariant** | `Always` after each roster snapshot: `roster.some(p => p.id === A) === (own !== undefined && own.id === A)` where `A` is session `users.id` and `own` is the roster row for this `clientId`. `Sometimes(space.presence.actor_ne_account)` when a bearer was offered and `own.id !== A` (anonId after failed resolve, or minted UUID when anonId is missing). Api kill wipes in-memory RoomServer; empty roster is offline for everyone (iff holds). Do not require durable DO storage. |
 | **Antithesis Angle** | Pause/kill Postgres during `/api/room` upgrade (gateway fallback). Sample `RoomClient.getRoster()` + session id — no web SQLite. Bob’s roster is a second observer of Alice’s actor. |
 | **Why It Matters** | Demotion makes the user still in the puzzle room while account-keyed “online” is false (or a ghost account tile stays online). Distinct from `room-gateway-fallback-not-host`. |

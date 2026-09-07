@@ -1,4 +1,0 @@
-{
-  "$comment": "Path prefixes allowed to contain React Native / Expo / React tokens during the Solid port. Empty — the port is complete and every banned token is purged.",
-  "prefixes": []
-}

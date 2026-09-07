@@ -14,7 +14,7 @@ import { join, relative, sep } from 'node:path';
 const REPO_ROOT = join(import.meta.dirname, '../..');
 const PO_REL = 'apps/client/src/i18n/locales/en/messages.po';
 const COMPILED_REL = 'apps/client/src/i18n/locales/en/messages.ts';
-const MACRO_FROM = /from\s+['"]@lingui\/(?:core|react|solid)\/macro['"]/;
+const MACRO_FROM = /from\s+['"]@lingui\/(?:core|solid)\/macro['"]/;
 const SCAN_ROOTS = ['apps', 'libs', 'pkgs', 'product'] as const;
 const SKIP_DIR_NAMES = new Set([
   'node_modules',

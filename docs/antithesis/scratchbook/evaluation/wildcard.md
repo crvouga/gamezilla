@@ -133,7 +133,7 @@ Fit: process kill + MEMORY journal is unique vs `preserveLocalDb` sim crashes. I
 
 ### X4. `presence-online-matches-room-actor-id` × “overlaps gateway”
 
-Fit: demotion under Postgres pause is timing-sensitive. Implementability: headless clients can compare `x-actor-id` to `users.id` and roster keys **without React** (evidence already says this). Deferral reason (“naming bug; overlaps gateway”) is a Coverage-Balance merge, not an implementability block. **Keep a workload-visible Always:** account tile online iff gateway actor equals account. That is cheaper than the React rail and does not duplicate host-privilege.
+Fit: demotion under Postgres pause is timing-sensitive. Implementability: headless clients can compare `x-actor-id` to `users.id` and roster keys **without the Solid UI** (evidence already says this). Deferral reason (“naming bug; overlaps gateway”) is a Coverage-Balance merge, not an implementability block. **Keep a workload-visible Always:** account tile online iff gateway actor equals account. That is cheaper than the Solid UI rail and does not duplicate host-privilege.
 
 ### X5. `health-200-while-boot-fatal` × Node process
 

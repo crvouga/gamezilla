@@ -79,7 +79,7 @@ Product web therefore:
    are gone
 
 User-initiated reset (`runWebOpfsRecoveryAndReload` / `?reset-db=1`) uses the
-same in-process path, then `location.reload()` so React remounts.
+same in-process path, then `location.reload()` so Solid remounts.
 
 SharedWorker instances are named `sql-db-host-v{protocolVersion}` so a deploy
 that bumps `SQL_DB_HOST_PROTOCOL_VERSION` does not share a stale broker with

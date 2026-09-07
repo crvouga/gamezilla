@@ -105,7 +105,7 @@ export function assertChannelExhaustiveness(mutations, queries, topicMap): Promi
 export function createLocalSyncEngine(options: CreateLocalSyncEngineOptions): Promise<SyncEngine>;
 export function createSyncHttpClient(options): SyncHttpClient;
 export function createSyncEnginePool(options): SyncEnginePoolApi;
-// React: SyncEngineProvider, MutationClientProvider, useSyncEngine, useQuery, …
+// Solid: SyncEngineProvider, MutationClientProvider, useSyncEngine, useQuery, …
 export type SyncEngine = {
   db: SqlClient;
   watch(query): WatchSubscription;

@@ -321,26 +321,6 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
-    "//#ci:purge-scan": {
-      "inputs": [
-        "tools/scripts/purge-scan.ts",
-        "tools/port/**",
-        "apps/**",
-        "libs/**",
-        "pkgs/**",
-        "product/**",
-        "tools/**",
-        "docs/**",
-        "*.json",
-        "*.jsonc",
-        "*.md",
-        "*.cjs",
-        "*.mjs",
-        "*.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
     "@apps/client#check:bundle-budget": {
       "dependsOn": ["@apps/client#build"],
       "inputs": ["../../tools/scripts/bundle-budget.ts"],
@@ -352,7 +332,6 @@
         "lint",
         "//#lint:vocab",
         "//#lint:eslint",
-        "//#ci:purge-scan",
         "tc",
         "test"
       ],
@@ -472,7 +451,6 @@
         "@apps/server#check:api",
         "@apps/client#check:bundle-budget",
         "//#lint:eslint",
-        "//#ci:purge-scan",
         "@libs/secrets#check",
         "@tools#install:cli",
         "@libs/billing#billing:sync"
