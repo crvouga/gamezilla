@@ -1,10 +1,11 @@
 import { useIsSignedIn } from '@libs/auth/public/use-current-user';
 import { Handles } from '@libs/test-ids';
-import { useLingui } from '@lingui/react/macro';
+import { useLingui } from '@lingui/solid/macro';
 import { Sounds } from '@pkgs/sounds';
-import { Button, useMutationButton } from '@pkgs/ui-rn';
-import { optionalProps } from '@pkgs/ui-rn/components/optional-props';
-import { type ReactNode, useCallback } from 'react';
+import { useOptionalSoundEngine } from '@pkgs/sounds/solid';
+import { Button, useMutationButton } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+
 import { useJoinSpace } from './use-join-space';
 
 export type SpaceJoinButtonProps = {
@@ -14,36 +15,41 @@ export type SpaceJoinButtonProps = {
   flex?: number;
 };
 
-export function SpaceJoinButton({
-  spaceId,
-  joinable,
-  flex,
-}: SpaceJoinButtonProps): ReactNode {
+export function SpaceJoinButton(props: SpaceJoinButtonProps): JSX.Element {
   const { t } = useLingui();
   const joinSpace = useJoinSpace();
   const signedIn = useIsSignedIn();
-  const disabled = !signedIn || !joinable || spaceId.length === 0;
+  const disabled = (): boolean =>
+    !signedIn() || !props.joinable || props.spaceId.length === 0;
+  const engine = useOptionalSoundEngine();
 
   const join = useMutationButton({
-    operation: useCallback(() => joinSpace(spaceId), [joinSpace, spaceId]),
+    operation: () => joinSpace(props.spaceId),
     labels: {
       idle: t`Join space`,
       loading: t`Joining…`,
       success: t`Joined`,
       error: t`Couldn't join`,
     },
-    disabled,
-    sounds: {
-      success: Sounds.social.roomJoined,
-      error: Sounds.feedback.error,
+    get disabled() {
+      return disabled();
+    },
+    onPhaseChange: (transition) => {
+      const current = engine?.();
+      if (current === undefined) return;
+      if (transition.to === 'success') {
+        current.play(Sounds.social.roomJoined);
+      } else if (transition.to === 'error') {
+        current.play(Sounds.feedback.error);
+      }
     },
   });
 
   return (
     <Button
       {...join.buttonProps}
-      {...optionalProps({ flex })}
-      testID={Handles.spaceJoin}
+      flex={props.flex}
+      dataSet={{ testid: Handles.spaceJoin }}
     />
   );
 }

@@ -87,7 +87,7 @@ export function UserSearchSignInPrompt(): JSX.Element {
       icon={UsersIcon}
       title={<Trans>Sign in to search for people</Trans>}
       body={<Trans>Find friends by username and send requests.</Trans>}
-      action={{ label: t`Sign in`, onPress: openSignInModal }}
+      action={{ label: t`Sign in`, onClick: openSignInModal }}
     />
   );
 }

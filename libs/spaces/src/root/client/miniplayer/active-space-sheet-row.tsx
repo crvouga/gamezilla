@@ -1,5 +1,5 @@
-import { Box, CONTENT_EDGE_PADDING_STEP, Text } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Box, CONTENT_EDGE_PADDING_STEP, Text } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 import type { RequestEndSpaceOptions } from '../end-space/end-space-modal-provider';
 import type { RequestLeaveSpaceOptions } from '../leave-space/leave-space-modal-provider';
 
@@ -25,12 +25,9 @@ export type ActiveSpaceSheetRowProps = {
 const ROW_EDGE_PADDING_STEP = CONTENT_EDGE_PADDING_STEP + 2;
 
 /** One live space in the active-spaces sheet — open, end, or leave. */
-export function ActiveSpaceSheetRow({
-  spaceId,
-  onOpen,
-  requestEndSpace,
-  requestLeaveSpace,
-}: ActiveSpaceSheetRowProps): ReactNode {
+export function ActiveSpaceSheetRow(
+  props: ActiveSpaceSheetRowProps
+): JSX.Element {
   return (
     <Box
       sx={{
@@ -38,13 +35,14 @@ export function ActiveSpaceSheetRow({
         alignItems: 'center',
         gap: 3,
         minHeight: 72,
-        // Use `borderColor` (resolved by sx) — `borderBottomColor: 'border'` is
-        // passed through as the literal string and falls back to currentColor.
         borderBottomWidth: 'hairline',
         borderColor: 'border',
       }}
     >
-      <MiniplayerOpenSpacePressable spaceId={spaceId} onAfterOpen={onOpen}>
+      <MiniplayerOpenSpacePressable
+        spaceId={props.spaceId}
+        onAfterOpen={props.onOpen}
+      >
         <Box
           sx={{
             flexDirection: 'row',
@@ -57,9 +55,9 @@ export function ActiveSpaceSheetRow({
             alignSelf: 'stretch',
           }}
         >
-          <SpaceHostAvatar spaceId={spaceId} size={40} vividBackdrop />
+          <SpaceHostAvatar spaceId={props.spaceId} size={40} vividBackdrop />
           <Box sx={{ flex: 1, minWidth: 0, gap: 0.5 }}>
-            <MiniplayerSpaceTitle spaceId={spaceId} />
+            <MiniplayerSpaceTitle spaceId={props.spaceId} />
             <Box
               sx={{
                 flexDirection: 'row',
@@ -68,9 +66,9 @@ export function ActiveSpaceSheetRow({
                 minWidth: 0,
               }}
             >
-              <MiniplayerHostNameLine spaceId={spaceId} />
+              <MiniplayerHostNameLine spaceId={props.spaceId} />
               <Text variant="caption" label="·" />
-              <MiniplayerMemberCountText spaceId={spaceId} />
+              <MiniplayerMemberCountText spaceId={props.spaceId} />
             </Box>
           </Box>
         </Box>
@@ -78,9 +76,9 @@ export function ActiveSpaceSheetRow({
       </MiniplayerOpenSpacePressable>
       <Box sx={{ pr: ROW_EDGE_PADDING_STEP, pl: 1 }}>
         <SpaceEndOrLeaveButton
-          spaceId={spaceId}
-          requestEndSpace={requestEndSpace}
-          requestLeaveSpace={requestLeaveSpace}
+          spaceId={props.spaceId}
+          requestEndSpace={props.requestEndSpace}
+          requestLeaveSpace={props.requestLeaveSpace}
         />
       </Box>
     </Box>

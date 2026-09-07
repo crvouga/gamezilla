@@ -1,7 +1,8 @@
-import { useLingui } from '@lingui/react/macro';
-import { type SxProps, Text, type TextVariant } from '@pkgs/ui-rn';
-import { optionalProps } from '@pkgs/ui-rn/components/optional-props';
-import type { ReactNode } from 'react';
+import { useLingui } from '@lingui/solid/macro';
+import { type SxProps, Text, type TextVariant } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+import { createMemo } from 'solid-js';
+
 import { useSpaceGuestMembershipIds } from './use-space-guest-membership-ids';
 
 export type SpaceGuestCountTextProps = {
@@ -11,14 +12,14 @@ export type SpaceGuestCountTextProps = {
 };
 
 /** Localized "1 guest" / "N guests" line for a space. */
-export function SpaceGuestCountText({
-  spaceId,
-  variant,
-  sx,
-}: SpaceGuestCountTextProps): ReactNode {
+export function SpaceGuestCountText(
+  props: SpaceGuestCountTextProps
+): JSX.Element {
   const { t } = useLingui();
-  const ids = useSpaceGuestMembershipIds(spaceId);
-  const count = ids.length;
-  const label = count === 1 ? t`1 guest` : t`${count} guests`;
-  return <Text {...optionalProps({ variant, sx })} label={label} />;
+  const ids = useSpaceGuestMembershipIds(props.spaceId);
+  const label = createMemo(() => {
+    const count = ids().length;
+    return count === 1 ? t`1 guest` : t`${count} guests`;
+  });
+  return <Text variant={props.variant} sx={props.sx} label={label()} />;
 }

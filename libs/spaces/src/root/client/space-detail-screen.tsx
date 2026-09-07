@@ -1,4 +1,5 @@
-import type { ReactNode } from 'react';
+import type { JSX } from 'solid-js';
+import { Match, Show, Switch } from 'solid-js';
 import { SpacesNavProvider } from '../../public/nav/spaces-nav-context';
 import { SpaceRoomProvider } from '../../public/room/space-room-context';
 import { useSpaceRouteId } from '../../public/space-routes';
@@ -9,46 +10,48 @@ import { SpaceJoinPrompt } from './join-space/space-join-prompt';
 import { SpaceDetailInitialLoading } from './space-detail-initial-loading';
 
 /** Route entry point — reads `id` from the route and dispatches to atoms. */
-export function SpaceDetailScreen(): ReactNode {
+export function SpaceDetailScreen(): JSX.Element {
   const spaceId = useSpaceRouteId();
 
-  if (spaceId.length === 0) {
-    return (
-      <SpacesNavProvider>
-        <SpaceDetailInitialLoading spaceId="" />
-      </SpacesNavProvider>
-    );
-  }
-
   return (
-    <SpacesNavProvider>
-      <SpaceRoomProvider spaceId={spaceId}>
-        <SpaceDetailBody spaceId={spaceId} />
-      </SpaceRoomProvider>
-    </SpacesNavProvider>
+    <Show
+      when={spaceId().length > 0}
+      fallback={
+        <SpacesNavProvider>
+          <SpaceDetailInitialLoading spaceId="" />
+        </SpacesNavProvider>
+      }
+    >
+      <SpacesNavProvider>
+        <SpaceRoomProvider spaceId={spaceId()}>
+          <SpaceDetailBody spaceId={spaceId()} />
+        </SpaceRoomProvider>
+      </SpacesNavProvider>
+    </Show>
   );
 }
 
-type SpaceDetailBodyProps = {
-  spaceId: string;
-};
+function SpaceDetailBody(props: { readonly spaceId: string }): JSX.Element {
+  const presence = useSpacePresence(() => props.spaceId);
 
-function SpaceDetailBody({ spaceId }: SpaceDetailBodyProps): ReactNode {
-  const presence = useSpacePresence(spaceId);
-
-  if (presence.status === 'loading') {
-    return <SpaceDetailInitialLoading spaceId={spaceId} />;
-  }
-
-  if (presence.status === 'active') {
-    return <ActiveSpace spaceId={spaceId} />;
-  }
-
-  // Presence already knows the space ended — skip join hydration so we
-  // never flash / stick on a spinner after end/leave.
-  if (presence.ended) {
-    return <SpaceEndedScreen spaceId={spaceId} />;
-  }
-
-  return <SpaceJoinPrompt spaceId={spaceId} />;
+  const joinedEnded = (): boolean => {
+    const current = presence();
+    return current.status === 'join' && current.ended;
+  };
+  return (
+    <Switch>
+      <Match when={presence().status === 'loading'}>
+        <SpaceDetailInitialLoading spaceId={props.spaceId} />
+      </Match>
+      <Match when={presence().status === 'active'}>
+        <ActiveSpace spaceId={props.spaceId} />
+      </Match>
+      <Match when={joinedEnded()}>
+        <SpaceEndedScreen spaceId={props.spaceId} />
+      </Match>
+      <Match when={true}>
+        <SpaceJoinPrompt spaceId={props.spaceId} />
+      </Match>
+    </Switch>
+  );
 }

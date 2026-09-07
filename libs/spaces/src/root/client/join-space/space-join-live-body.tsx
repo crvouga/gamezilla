@@ -1,6 +1,6 @@
-import { Trans } from '@lingui/react/macro';
-import { Box, Text } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Trans } from '@lingui/solid/macro';
+import { Box, Text } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 import {
   SPACE_CARD_BORDER_RADIUS,
   SpaceCardGradientBox,
@@ -13,9 +13,7 @@ export type SpaceJoinLiveBodyProps = {
 };
 
 /** Live (not joined) preview: summary card and helper copy. */
-export function SpaceJoinLiveBody({
-  spaceId,
-}: SpaceJoinLiveBodyProps): ReactNode {
+export function SpaceJoinLiveBody(props: SpaceJoinLiveBodyProps): JSX.Element {
   return (
     <Box sx={{ gap: 4 }}>
       <SpaceCardGradientBox
@@ -24,8 +22,8 @@ export function SpaceJoinLiveBody({
           p: 4,
         }}
       >
-        <SpaceSummaryHeader spaceId={spaceId} />
-        <SpaceGuestSection spaceId={spaceId} />
+        <SpaceSummaryHeader spaceId={props.spaceId} />
+        <SpaceGuestSection spaceId={props.spaceId} />
       </SpaceCardGradientBox>
       <Text
         variant="body"

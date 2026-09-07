@@ -1,6 +1,6 @@
 import type { ConfigService } from '@libs/auth/public/config-service-types';
 import type { Clock, Timers } from '@pkgs/clock';
-import { useClock, useTimers } from '@pkgs/clock';
+import { useClock, useTimers } from '@pkgs/clock/solid';
 import type { Kv } from '@pkgs/kv/interface';
 import type {
   ClientTransport,
@@ -9,16 +9,16 @@ import type {
   RoomEvent,
   RoomState,
 } from '@pkgs/room';
-import { type CreateId, type Random, useCreateId, useRandom } from '@pkgs/uuid';
+import type { CreateId, Random } from '@pkgs/uuid/create-id';
+import { useCreateId, useRandom } from '@pkgs/uuid/solid';
 import {
-  type Dispatch,
-  type MutableRefObject,
-  type SetStateAction,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+  type Accessor,
+  createEffect,
+  createMemo,
+  createSignal,
+  onCleanup,
+  untrack,
+} from 'solid-js';
 import { useSpaceModule } from '../module/space-module-context';
 import {
   type CreateSpaceRoomResult,
@@ -61,18 +61,20 @@ function raceFreshToken(
   });
 }
 
-function destroyRoomPair(args: {
-  roomRef: MutableRefObject<SpaceRoom | null>;
-  transportRef: MutableRefObject<ClientTransport | null>;
-  setRoom: Dispatch<SetStateAction<SpaceRoom | null>>;
-  setTransport: Dispatch<SetStateAction<ClientTransport | null>>;
-}): void {
-  const room = args.roomRef.current;
-  const transport = args.transportRef.current;
-  args.roomRef.current = null;
-  args.transportRef.current = null;
-  args.setRoom(null);
-  args.setTransport(null);
+type RoomRefs = {
+  roomRef: { current: SpaceRoom | null };
+  transportRef: { current: ClientTransport | null };
+  setRoom: (room: SpaceRoom | null) => void;
+  setTransport: (transport: ClientTransport | null) => void;
+};
+
+function destroyRoomPair(refs: RoomRefs): void {
+  const room = refs.roomRef.current;
+  const transport = refs.transportRef.current;
+  refs.roomRef.current = null;
+  refs.transportRef.current = null;
+  refs.setRoom(null);
+  refs.setTransport(null);
   room?.destroy();
   transport?.destroy();
 }
@@ -83,18 +85,16 @@ type OpenSpaceRoomArgs = {
   configService: ConfigService;
   kv: Kv;
   module: ReturnType<typeof useSpaceModule>;
-  getSessionToken: () => string | null | Promise<string | null>;
+  getSessionToken: () => Promise<string | null>;
   createTransport: ReturnType<typeof useCreateRoomTransport>;
   clock: Clock;
   timers: Timers;
   createId: CreateId;
   random: Random;
-  roomRef: MutableRefObject<SpaceRoom | null>;
-  transportRef: MutableRefObject<ClientTransport | null>;
-  setRoom: Dispatch<SetStateAction<SpaceRoom | null>>;
-  setTransport: Dispatch<SetStateAction<ClientTransport | null>>;
-  connectedKeyRef: MutableRefObject<string | null>;
-  openingKeyRef: MutableRefObject<string | null>;
+  refs: RoomRefs;
+  connectedKeyRef: { current: string | null };
+  openingKeyRef: { current: string | null };
+  tearDown: () => void;
 };
 
 function commitOpenedRoom(
@@ -102,14 +102,14 @@ function commitOpenedRoom(
   nextRoom: SpaceRoom,
   nextTransport: ClientTransport
 ): void {
-  const prevRoom = args.roomRef.current;
-  const prevTransport = args.transportRef.current;
-  args.roomRef.current = nextRoom;
-  args.transportRef.current = nextTransport;
+  const prevRoom = args.refs.roomRef.current;
+  const prevTransport = args.refs.transportRef.current;
+  args.refs.roomRef.current = nextRoom;
+  args.refs.transportRef.current = nextTransport;
   args.connectedKeyRef.current = args.bootstrapKey;
   args.openingKeyRef.current = null;
-  args.setRoom(nextRoom);
-  args.setTransport(nextTransport);
+  args.refs.setRoom(nextRoom);
+  args.refs.setTransport(nextTransport);
   if (prevRoom !== null && prevRoom !== nextRoom) prevRoom.destroy();
   if (prevTransport !== null && prevTransport !== nextTransport) {
     prevTransport.destroy();
@@ -146,8 +146,8 @@ function openSpaceRoom(args: OpenSpaceRoomArgs): () => void {
         createTransport: args.createTransport,
       });
     } catch {
-      // RoomClient.open is hardened to avoid this; if it still throws, clear the
-      // latch so a later bootstrap key change / remount can retry.
+      // RoomClient.open is hardened to avoid this; if it still throws, clear
+      // the latch so a later bootstrap key change / remount can retry.
       clearOpeningKey(args);
       return;
     }
@@ -176,7 +176,6 @@ function shouldSkipOpen(args: {
 
 function beginOpenSpaceRoom(
   args: OpenSpaceRoomArgs & {
-    tearDown: () => void;
     hasBearerOrAnon: boolean;
   }
 ): () => void {
@@ -185,7 +184,7 @@ function beginOpenSpaceRoom(
       bootstrapKey: args.bootstrapKey,
       hasBearerOrAnon: args.hasBearerOrAnon,
       connectedKey: args.connectedKeyRef.current,
-      currentRoom: args.roomRef.current,
+      currentRoom: args.refs.roomRef.current,
     })
   ) {
     return () => {
@@ -206,124 +205,95 @@ function beginOpenSpaceRoom(
   };
 }
 
-function makeGetSessionToken(args: {
-  getFreshTokenRef: MutableRefObject<() => Promise<string | null>>;
-  sessionTokenRef: MutableRefObject<string | null>;
-  timersRef: MutableRefObject<Timers>;
-}): () => Promise<string | null> {
-  return async () => {
-    let fresh: string | null = null;
-    try {
-      fresh = await raceFreshToken(args.timersRef.current, () =>
-        args.getFreshTokenRef.current()
-      );
-    } catch {
-      fresh = null;
-    }
-    return normalizeSessionToken(fresh ?? args.sessionTokenRef.current);
-  };
-}
-
-function useRenderRef<T>(value: T): MutableRefObject<T> {
-  const ref = useRef(value);
-  ref.current = value;
-  return ref;
-}
-
 export type UseSpaceRoomConnectionArgs = {
-  bootstrap: SpaceRoomConnectionBootstrap | null;
+  bootstrap: Accessor<SpaceRoomConnectionBootstrap | null>;
   configService: ConfigService;
   kv: Kv;
   /** Bearer for `/room`; re-run when bearer availability changes, not on JWT rotation. */
-  sessionToken: string | null;
+  sessionToken: Accessor<string | null>;
   /** Async refresh used on every socket open so reconnects do not reuse a stale JWT. */
   getFreshToken: () => Promise<string | null>;
 };
 
 export function useSpaceRoomConnection(args: UseSpaceRoomConnectionArgs): {
-  room: SpaceRoom | null;
-  roomRef: MutableRefObject<SpaceRoom | null>;
-  transport: ClientTransport | null;
+  room: Accessor<SpaceRoom | null>;
+  transport: Accessor<ClientTransport | null>;
 } {
   const { bootstrap, configService, kv, sessionToken, getFreshToken } = args;
-  const [room, setRoom] = useState<SpaceRoom | null>(null);
-  const [transport, setTransport] = useState<ClientTransport | null>(null);
-  const transportRef = useRef<ClientTransport | null>(null);
-  const roomRef = useRef<SpaceRoom | null>(null);
+  const [room, setRoom] = createSignal<SpaceRoom | null>(null);
+  const [transport, setTransport] = createSignal<ClientTransport | null>(null);
+  const refs: RoomRefs = {
+    roomRef: { current: null },
+    transportRef: { current: null },
+    setRoom,
+    setTransport,
+  };
   const module = useSpaceModule();
   const createTransport = useCreateRoomTransport();
   const clock = useClock();
   const timers = useTimers();
   const createId = useCreateId();
   const random = useRandom();
-  const sessionTokenRef = useRenderRef(sessionToken);
-  const getFreshTokenRef = useRenderRef(getFreshToken);
-  const timersRef = useRenderRef(timers);
-  const clockRef = useRenderRef(clock);
-  const createIdRef = useRenderRef(createId);
-  const randomRef = useRenderRef(random);
-  const createTransportRef = useRenderRef(createTransport);
-  const connectedKeyRef = useRef<string | null>(null);
-  const openingKeyRef = useRef<string | null>(null);
+  const connectedKeyRef = { current: null as string | null };
+  const openingKeyRef = { current: null as string | null };
 
-  const bootstrapKey =
-    bootstrap === null
-      ? null
-      : `${bootstrap.spaceId}:${bootstrap.myId}:${bootstrap.installId}:${bootstrap.clientId}`;
-  const hasBearer = normalizeSessionToken(sessionToken) !== null;
-  const hasBearerOrAnon =
-    hasBearer || (bootstrap !== null && bootstrap.myId.length > 0);
-
-  // Keep open args off the effect dep list so JWT/token/provider identity
-  // churn cannot destroy+recreate the WebSocket.
-  const bootstrapRef = useRenderRef(bootstrap);
-  const configServiceRef = useRenderRef(configService);
-  const kvRef = useRenderRef(kv);
-  const moduleRef = useRenderRef(module);
-  const hasBearerOrAnonRef = useRenderRef(hasBearerOrAnon);
-
-  const tearDown = useCallback(() => {
+  const tearDown = (): void => {
     connectedKeyRef.current = null;
     openingKeyRef.current = null;
-    destroyRoomPair({ roomRef, transportRef, setRoom, setTransport });
-  }, []);
+    destroyRoomPair(refs);
+  };
 
-  useEffect(() => {
-    if (bootstrapKey !== null) return;
-    tearDown();
-  }, [bootstrapKey, tearDown]);
+  const bootstrapKey = createMemo((): string | null => {
+    const current = bootstrap();
+    if (current === null) return null;
+    return `${current.spaceId}:${current.myId}:${current.installId}:${current.clientId}`;
+  });
+  const hasBearerOrAnon = createMemo(() => {
+    const hasBearer = normalizeSessionToken(sessionToken()) !== null;
+    const current = bootstrap();
+    return hasBearer || (current !== null && current.myId.length > 0);
+  });
 
-  useEffect(() => {
-    const current = bootstrapRef.current;
-    if (current === null || bootstrapKey === null) return;
-    return beginOpenSpaceRoom({
-      bootstrap: current,
-      bootstrapKey,
-      configService: configServiceRef.current,
-      kv: kvRef.current,
-      module: moduleRef.current,
-      hasBearerOrAnon: hasBearerOrAnonRef.current,
-      getSessionToken: makeGetSessionToken({
-        getFreshTokenRef,
-        sessionTokenRef,
-        timersRef,
-      }),
-      createTransport: createTransportRef.current,
-      clock: clockRef.current,
-      timers: timersRef.current,
-      createId: createIdRef.current,
-      random: randomRef.current,
-      roomRef,
-      transportRef,
-      setRoom,
-      setTransport,
+  // Fresh bearer on every socket open; falls back to the ambient token when
+  // refresh is unavailable (offline) or times out.
+  const getSessionToken = async (): Promise<string | null> => {
+    let fresh: string | null = null;
+    try {
+      fresh = await raceFreshToken(timers, getFreshToken);
+    } catch {
+      fresh = null;
+    }
+    return normalizeSessionToken(fresh ?? sessionToken());
+  };
+
+  createEffect(() => {
+    const key = bootstrapKey();
+    if (key === null) {
+      tearDown();
+      return;
+    }
+    const stop = beginOpenSpaceRoom({
+      bootstrap: untrack(() => bootstrap())!,
+      bootstrapKey: key,
+      configService,
+      kv,
+      module,
+      hasBearerOrAnon: untrack(() => hasBearerOrAnon()),
+      getSessionToken,
+      createTransport,
+      clock,
+      timers,
+      createId,
+      random,
+      refs,
       connectedKeyRef,
       openingKeyRef,
       tearDown,
     });
     // Intentionally keyed only on bootstrapKey: one live socket per open
-    // space identity. Token refresh is via refs + URL factory on reconnect.
-  }, [bootstrapKey, tearDown]);
+    // space identity. Token refresh flows through accessors on reconnect.
+    onCleanup(stop);
+  });
 
-  return { room, roomRef, transport };
+  return { room, transport };
 }

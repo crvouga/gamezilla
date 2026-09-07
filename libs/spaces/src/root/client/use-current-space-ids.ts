@@ -2,54 +2,24 @@ import { useMyId } from '@libs/auth/public/use-current-user';
 import { useDeviceId } from '@libs/auth/public/use-device-id';
 import { type Sql, sql } from '@pkgs/sql';
 
-import { useQuery, useSyncEngine } from '@pkgs/sync-engine/client';
-import { useMemo } from 'react';
+import { createQuery, useSyncEngine } from '@pkgs/sync-engine/solid';
+import { type Accessor, createMemo } from 'solid-js';
 
-import { isViewerSpaceHost } from '../../shared/space/resolve-space-presence';
+import {
+  buildCurrentSpaceEntries,
+  type CurrentSpaceEntry,
+  type CurrentSpaceRow,
+} from './build-current-space-entries';
 
-export type CurrentSpaceEntry = {
-  spaceId: string;
-  role: 'host' | 'guest';
-};
+export type { CurrentSpaceEntry } from './build-current-space-entries';
 
-type SpaceRow = {
-  readonly id: string;
-  readonly host_member_id: string | null;
-  readonly host_account_id: string | null;
-  readonly ended_at: string | null;
-};
+type SpaceRow = CurrentSpaceRow;
 
 /**
  * Build miniplayer entries from open-session JOIN live space rows.
  * Ended rows are never included — DB `ended_at` is authoritative.
  */
-export function buildCurrentSpaceEntries(
-  spaceRows: readonly SpaceRow[],
-  memberId: string
-): CurrentSpaceEntry[] {
-  const entries: CurrentSpaceEntry[] = [];
-  const seen = new Set<string>();
-  for (const space of spaceRows) {
-    if (space.id.length === 0 || seen.has(space.id)) continue;
-    // Some drivers omit null columns → undefined; treat like SQL NULL.
-    if (space.ended_at != null) continue;
-    seen.add(space.id);
-    entries.push({
-      spaceId: space.id,
-      role: isViewerSpaceHost(
-        {
-          host_member_id: space.host_member_id,
-          host_account_id: space.host_account_id,
-          ended_at: space.ended_at,
-        },
-        memberId
-      )
-        ? 'host'
-        : 'guest',
-    });
-  }
-  return entries;
-}
+export { buildCurrentSpaceEntries };
 
 function currentSpacesSql(
   enabled: boolean,
@@ -90,32 +60,38 @@ function currentSpacesSql(
  * Visibility is the SQL join of this device's open sessions × live spaces.
  */
 export function useCurrentSpaceIds(): {
-  entries: CurrentSpaceEntry[];
-  isLoading: boolean;
+  readonly entries: readonly CurrentSpaceEntry[];
+  readonly isLoading: boolean;
 } {
   const myId = useMyId();
   const deviceId = useDeviceId();
   const { paintReady } = useSyncEngine();
-  const enabled = paintReady && myId.length > 0;
-  const query = useMemo(
-    () => currentSpacesSql(enabled, deviceId, myId),
-    [enabled, deviceId, myId]
+  const enabled = createMemo(
+    () => paintReady() && myId().length > 0 && deviceId().length > 0
   );
-  const { rows, isLoading } = useQuery(query);
-  if (!paintReady) {
-    return { entries: [], isLoading: true };
-  }
-  const entries = buildCurrentSpaceEntries(rows, myId);
+  const query = createQuery(() =>
+    currentSpacesSql(enabled(), deviceId(), myId())
+  );
+  const entries = createMemo(() =>
+    buildCurrentSpaceEntries(query.rows(), myId())
+  );
+
   return {
-    entries,
-    isLoading: entries.length === 0 && isLoading,
+    get entries() {
+      return paintReady() ? entries() : [];
+    },
+    get isLoading() {
+      if (!paintReady()) return true;
+      const current = entries();
+      return current.length === 0 && query.isLoading();
+    },
   };
 }
 
 /** User ids used for space host/guest checks. */
-export function useReplicationIdentityIds(): readonly string[] {
+export function useReplicationIdentityIds(): Accessor<readonly string[]> {
   const myId = useMyId();
-  return useMemo(() => (myId.length > 0 ? [myId] : []), [myId]);
+  return createMemo(() => (myId().length > 0 ? [myId()] : []));
 }
 
 export function isReplicationHost(

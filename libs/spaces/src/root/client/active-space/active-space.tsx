@@ -1,18 +1,11 @@
-import { Box, useRouter } from '@pkgs/ui-rn';
-import { type ReactNode, useCallback, useContext, useState } from 'react';
-import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
+import { Box, useRouter } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+import { createSignal } from 'solid-js';
 import { closeSpaceDetail } from '../../../public/space-routes';
 import { useRequestEndSpace } from '../end-space/end-space-modal-provider';
 import { useRequestLeaveSpace } from '../leave-space/leave-space-modal-provider';
 import { RenameSpaceModal } from '../rename-space/rename-space-modal';
 import { ActiveSpaceBody } from './active-space-body';
-
-const ZERO_SAFE_AREA = { top: 0, right: 0, bottom: 0, left: 0 };
-
-/** Prefer context over the hook so Metro cannot bundle two copies of the library. */
-function useSafeAreaBottom(): number {
-  return (useContext(SafeAreaInsetsContext) ?? ZERO_SAFE_AREA).bottom;
-}
 
 export type ActiveSpaceProps = {
   spaceId: string;
@@ -24,38 +17,30 @@ export type ActiveSpaceProps = {
  * through loading → success when membership changes.
  *
  * Top inset comes from {@link TopBar}'s `safeAreaTop` (same as ScreenBase);
- * bottom inset is applied here so content clears the home indicator on all
- * platforms — RN `SafeAreaView` only pads on iOS and left web flush.
+ * the web shell has no home-indicator inset, so the body runs flush.
  */
-export function ActiveSpace({ spaceId }: ActiveSpaceProps): ReactNode {
+export function ActiveSpace(props: ActiveSpaceProps): JSX.Element {
   const router = useRouter();
-  const bottomInset = useSafeAreaBottom();
   const requestEndSpace = useRequestEndSpace();
   const requestLeaveSpace = useRequestLeaveSpace();
-  const [renameOpen, setRenameOpen] = useState(false);
-  const onPressHome = useCallback(() => {
+  const [renameOpen, setRenameOpen] = createSignal(false);
+  const onPressHome = (): void => {
     closeSpaceDetail(router);
-  }, [router]);
-  const onRequestEnd = useCallback(() => {
-    requestEndSpace(spaceId);
-  }, [requestEndSpace, spaceId]);
-  const onRequestLeave = useCallback(() => {
-    requestLeaveSpace(spaceId);
-  }, [requestLeaveSpace, spaceId]);
+  };
 
   return (
-    <Box sx={{ flex: 1, background: 'background', paddingBottom: bottomInset }}>
+    <Box sx={{ flex: 1, background: 'background' }}>
       <Box sx={{ flex: 1, minHeight: 0 }}>
         <ActiveSpaceBody
-          spaceId={spaceId}
-          onRequestEnd={onRequestEnd}
-          onRequestLeave={onRequestLeave}
+          spaceId={props.spaceId}
+          onRequestEnd={() => requestEndSpace(props.spaceId)}
+          onRequestLeave={() => requestLeaveSpace(props.spaceId)}
           onRequestRename={() => setRenameOpen(true)}
           onPressHome={onPressHome}
         />
         <RenameSpaceModal
-          spaceId={spaceId}
-          visible={renameOpen}
+          spaceId={props.spaceId}
+          visible={renameOpen()}
           onClose={() => setRenameOpen(false)}
         />
       </Box>

@@ -1,21 +1,30 @@
 import type { ClientTransport } from '@pkgs/room';
-import { useEffect } from 'react';
-import { AppState, type AppStateStatus } from 'react-native';
+import { type Accessor, createEffect, onCleanup } from 'solid-js';
 
 /**
- * When the app returns to the foreground, probe the room WebSocket so a
+ * When the tab returns to the foreground, probe the room WebSocket so a
  * zombie socket (still OPEN locally but orphaned after DO hibernation / OS
  * networking pause) is detected and reconnected without a full reload.
  */
-export function useRoomResumeLiveness(transport: ClientTransport | null): void {
-  useEffect(() => {
-    if (transport === null) return;
-    const probe = transport.probeLiveness?.bind(transport);
+export function useRoomResumeLiveness(
+  transport: Accessor<ClientTransport | null>
+): void {
+  createEffect(() => {
+    const current = transport();
+    if (current === null) return;
+    const probe = current.probeLiveness?.bind(current);
     if (probe === undefined) return;
-    const onChange = (state: AppStateStatus): void => {
-      if (state === 'active') probe();
+    const onVisible = (): void => {
+      if (document.visibilityState === 'visible') probe();
     };
-    const sub = AppState.addEventListener('change', onChange);
-    return () => sub.remove();
-  }, [transport]);
+    const onFocus = (): void => {
+      probe();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('focus', onFocus);
+    onCleanup(() => {
+      document.removeEventListener('visibilitychange', onVisible);
+      window.removeEventListener('focus', onFocus);
+    });
+  });
 }

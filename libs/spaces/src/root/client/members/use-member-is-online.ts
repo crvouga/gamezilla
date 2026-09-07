@@ -1,3 +1,5 @@
+import { type Accessor, createMemo } from 'solid-js';
+
 import { useSpacePresence } from '../../../public/room/use-space-presence';
 
 /**
@@ -7,7 +9,9 @@ import { useSpacePresence } from '../../../public/room/use-space-presence';
 export function useMemberIsOnline(
   _spaceId: string,
   profileId: string
-): boolean {
-  const { peersByMemberId } = useSpacePresence();
-  return (peersByMemberId.get(profileId) ?? []).length > 0;
+): Accessor<boolean> {
+  const presence = useSpacePresence();
+  return createMemo(
+    () => (presence.peersByMemberId().get(profileId) ?? []).length > 0
+  );
 }

@@ -1,3 +1,4 @@
+import { type Accessor, createMemo } from 'solid-js';
 import { useCurrentSpaceIds } from '../use-current-space-ids';
 
 /**
@@ -7,10 +8,13 @@ import { useCurrentSpaceIds } from '../use-current-space-ids';
  * so the tab bar (and miniplayer) are already covered. Unmounting on that
  * route forced a remount after dismiss and left the bar empty in playground.
  */
-export function useSpaceMiniplayerVisibleSpaceIds(): string[] {
-  const { entries, isLoading } = useCurrentSpaceIds();
-  if (isLoading || entries.length === 0) {
-    return [];
-  }
-  return entries.map((e) => e.spaceId);
+export function useSpaceMiniplayerVisibleSpaceIds(): Accessor<string[]> {
+  const current = useCurrentSpaceIds();
+  return createMemo(() => {
+    const { entries, isLoading } = current;
+    if (isLoading || entries.length === 0) {
+      return [];
+    }
+    return entries.map((e) => e.spaceId);
+  });
 }

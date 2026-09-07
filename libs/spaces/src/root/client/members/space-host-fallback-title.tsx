@@ -1,6 +1,5 @@
-import { type SxProps, Text, type TextVariant } from '@pkgs/ui-rn';
-import { optionalProps } from '@pkgs/ui-rn/components/optional-props';
-import type { ReactNode } from 'react';
+import { type SxProps, Text, type TextVariant } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 
 import { useSpaceDisplayTitle } from '../use-space-display-title';
 
@@ -15,14 +14,16 @@ export type SpaceHostFallbackTitleProps = {
  * Localized fallback title for a space that hasn't been explicitly named:
  * `${hostName}'s space`, or `Space` when the host username is still loading.
  */
-export function SpaceHostFallbackTitle({
-  spaceId,
-  variant,
-  sx,
-  numberOfLines,
-}: SpaceHostFallbackTitleProps): ReactNode {
-  const label = useSpaceDisplayTitle(spaceId);
+export function SpaceHostFallbackTitle(
+  props: SpaceHostFallbackTitleProps
+): JSX.Element {
+  const label = useSpaceDisplayTitle(props.spaceId);
   return (
-    <Text {...optionalProps({ variant, sx, numberOfLines })} label={label} />
+    <Text
+      variant={props.variant}
+      sx={props.sx}
+      numberOfLines={props.numberOfLines}
+      label={label()}
+    />
   );
 }

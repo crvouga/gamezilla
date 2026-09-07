@@ -1,5 +1,5 @@
 import { UserProfileAvatar } from '@libs/profile/public/user-profile-avatar';
-import type { ReactNode } from 'react';
+import type { JSX } from 'solid-js';
 
 export type SpaceGuestMembershipAvatarProps = {
   /** Guest member / account id (also the profile id). */
@@ -8,16 +8,14 @@ export type SpaceGuestMembershipAvatarProps = {
   vividBackdrop?: boolean;
 };
 
-export function SpaceGuestMembershipAvatar({
-  membershipId,
-  size,
-  vividBackdrop,
-}: SpaceGuestMembershipAvatarProps): ReactNode {
+export function SpaceGuestMembershipAvatar(
+  props: SpaceGuestMembershipAvatarProps
+): JSX.Element {
   return (
     <UserProfileAvatar
-      profileId={membershipId}
-      size={size}
-      vividBackdrop={vividBackdrop ?? false}
+      profileId={props.membershipId}
+      size={props.size}
+      vividBackdrop={props.vividBackdrop ?? false}
     />
   );
 }

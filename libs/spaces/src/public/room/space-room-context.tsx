@@ -1,12 +1,18 @@
-import { type AnyRoomClient, RoomClientsProvider } from '@pkgs/room';
-import { createContext, type ReactNode, useContext, useMemo } from 'react';
+import { type AnyRoomClient, RoomClientsProvider } from '@pkgs/room/solid';
+import {
+  type Accessor,
+  createContext,
+  createMemo,
+  type JSX,
+  useContext,
+} from 'solid-js';
 
 import { SPACE_ROOM_MODULE_NAME } from '../../shared/space/space-room-module-name';
 import { useSpaceOpenRoomEntry } from './space-open-rooms-context';
 
 export type SpaceRoomProviderProps = {
-  spaceId: string;
-  children: ReactNode;
+  readonly spaceId: string | Accessor<string>;
+  readonly children: JSX.Element;
 };
 
 type SpaceRoomSession = {
@@ -16,14 +22,20 @@ type SpaceRoomSession = {
 
 const SpaceRoomSessionContext = createContext<SpaceRoomSession | null>(null);
 
+function resolveId(spaceId: string | Accessor<string>): string {
+  return typeof spaceId === 'string' ? spaceId : spaceId();
+}
+
 /** Per-tab client id for the open space room (stable across reconnects). */
-export function useSpaceRoomClientId(): string | null {
-  return useContext(SpaceRoomSessionContext)?.clientId ?? null;
+export function useSpaceRoomClientId(): Accessor<string | null> {
+  const ctx = useContext(SpaceRoomSessionContext);
+  return () => (ctx === null ? null : ctx.clientId);
 }
 
 /** Space id for the detail session (null outside {@link SpaceRoomProvider}). */
-export function useSpaceRoomSessionId(): string | null {
-  return useContext(SpaceRoomSessionContext)?.spaceId ?? null;
+export function useSpaceRoomSessionId(): Accessor<string | null> {
+  const ctx = useContext(SpaceRoomSessionContext);
+  return () => (ctx === null ? null : ctx.spaceId);
 }
 
 /**
@@ -31,26 +43,29 @@ export function useSpaceRoomSessionId(): string | null {
  * detail UI. Does not open or destroy sockets — that is owned by
  * {@link SpaceOpenRoomsProvider}.
  */
-export function SpaceRoomProvider({
-  spaceId,
-  children,
-}: SpaceRoomProviderProps): ReactNode {
+export function SpaceRoomProvider(props: SpaceRoomProviderProps): JSX.Element {
+  const spaceId = createMemo(() => resolveId(props.spaceId));
   const entry = useSpaceOpenRoomEntry(spaceId);
-  const roomMap = useMemo((): ReadonlyMap<string, AnyRoomClient> | null => {
-    if (entry === null) return null;
+  const roomMap = createMemo((): ReadonlyMap<string, AnyRoomClient> | null => {
+    const current = entry();
+    if (current === null) return null;
     const m = new Map<string, AnyRoomClient>();
-    m.set(SPACE_ROOM_MODULE_NAME, entry.room as AnyRoomClient);
+    m.set(SPACE_ROOM_MODULE_NAME, current.room as AnyRoomClient);
     return m;
-  }, [entry]);
-  const session = useMemo((): SpaceRoomSession => {
-    return {
-      spaceId,
-      clientId: entry?.clientId ?? null,
-    };
-  }, [entry, spaceId]);
+  });
+  const session: SpaceRoomSession = {
+    get spaceId() {
+      return spaceId();
+    },
+    get clientId() {
+      return entry()?.clientId ?? null;
+    },
+  };
   return (
     <SpaceRoomSessionContext.Provider value={session}>
-      <RoomClientsProvider rooms={roomMap}>{children}</RoomClientsProvider>
+      <RoomClientsProvider rooms={roomMap()}>
+        {props.children}
+      </RoomClientsProvider>
     </SpaceRoomSessionContext.Provider>
   );
 }

@@ -1,3 +1,5 @@
+import { type Accessor, createMemo } from 'solid-js';
+
 import { useSpacePresence } from '../../../public/room/use-space-presence';
 
 /**
@@ -6,7 +8,9 @@ import { useSpacePresence } from '../../../public/room/use-space-presence';
 export function useMemberSessionCount(
   _spaceId: string,
   profileId: string
-): number {
-  const { peersByMemberId } = useSpacePresence();
-  return (peersByMemberId.get(profileId) ?? []).length;
+): Accessor<number> {
+  const presence = useSpacePresence();
+  return createMemo(
+    () => (presence.peersByMemberId().get(profileId) ?? []).length
+  );
 }

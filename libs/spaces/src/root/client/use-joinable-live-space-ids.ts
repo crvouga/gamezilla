@@ -1,6 +1,6 @@
 import { useMyId } from '@libs/auth/public/use-current-user';
-import { useQuery } from '@pkgs/sync-engine/client';
-import { useMemo } from 'react';
+import { createQuery } from '@pkgs/sync-engine/solid';
+import { createMemo } from 'solid-js';
 
 import { sharedLiveSpaceIdsSql } from './my-live-space-seat-sql';
 
@@ -10,12 +10,19 @@ export function useJoinableLiveSpaceIds(): {
   readonly isLoading: boolean;
 } {
   const memberId = useMyId();
-  const enabled = memberId.length > 0;
-  const query = useMemo(() => sharedLiveSpaceIdsSql({ memberId }), [memberId]);
-  const { rows, isLoading } = useQuery(query);
-  const spaceIds = useMemo(
-    () => (enabled ? rows.map((r) => r.id) : []),
-    [enabled, rows]
+  const enabled = createMemo(() => memberId().length > 0);
+  const query = createQuery(() =>
+    sharedLiveSpaceIdsSql({ memberId: memberId() })
   );
-  return { spaceIds, isLoading: enabled && isLoading };
+  const spaceIds = createMemo(() =>
+    enabled() ? query.rows().map((r) => r.id) : []
+  );
+  return {
+    get spaceIds() {
+      return spaceIds();
+    },
+    get isLoading() {
+      return enabled() && query.isLoading();
+    },
+  };
 }

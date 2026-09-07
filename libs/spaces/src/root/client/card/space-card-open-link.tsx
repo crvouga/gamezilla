@@ -1,8 +1,8 @@
 import { Handles } from '@libs/test-ids';
-import { useLingui } from '@lingui/react/macro';
-import { Pressable, useRouter } from '@pkgs/ui-rn';
-import { optionalProps } from '@pkgs/ui-rn/components/optional-props';
-import type { ReactNode } from 'react';
+import { useLingui } from '@lingui/solid/macro';
+import { Clickable, useRouter } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+import { createMemo } from 'solid-js';
 import { openSpaceDetail } from '../../../public/space-routes';
 import { useIsSpaceOpenLocally } from '../../../use-cases/list-open-sessions/client/use-open-space-session-ids';
 import { useSpaceDisplayTitle } from '../use-space-display-title';
@@ -10,36 +10,34 @@ import { useSpaceHostUsername } from '../use-space-host-username';
 
 export type SpaceCardOpenLinkProps = {
   spaceId: string;
-  children: ReactNode;
+  children: JSX.Element;
   accessibilityLabelOverride?: string;
 };
 
-export function SpaceCardOpenLink({
-  spaceId,
-  children,
-  accessibilityLabelOverride,
-}: SpaceCardOpenLinkProps): ReactNode {
+export function SpaceCardOpenLink(props: SpaceCardOpenLinkProps): JSX.Element {
   const router = useRouter();
   const { t } = useLingui();
-  const isOpen = useIsSpaceOpenLocally(spaceId);
-  const resolvedTitle = useSpaceDisplayTitle(spaceId);
-  const hostUsername = useSpaceHostUsername(spaceId);
-  const accessibilityLabel =
-    accessibilityLabelOverride ??
-    (isOpen
-      ? t`Open current space ${resolvedTitle}`
-      : t`Open space ${resolvedTitle}`);
+  const isOpen = useIsSpaceOpenLocally(() => props.spaceId);
+  const resolvedTitle = useSpaceDisplayTitle(() => props.spaceId);
+  const hostUsername = useSpaceHostUsername(() => props.spaceId);
+  const accessibilityLabel = createMemo(() => {
+    const override = props.accessibilityLabelOverride;
+    if (override !== undefined) return override;
+    return isOpen()
+      ? t`Open current space ${resolvedTitle()}`
+      : t`Open space ${resolvedTitle()}`;
+  });
   return (
-    <Pressable
-      onPress={() => openSpaceDetail(router, spaceId)}
-      accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel}
-      {...optionalProps({
-        testID:
-          hostUsername !== null ? Handles.spaceCard(hostUsername) : undefined,
-      })}
+    <Clickable
+      onClick={() => openSpaceDetail(router, props.spaceId)}
+      aria-label={accessibilityLabel()}
+      dataSet={
+        hostUsername() !== null
+          ? { testid: Handles.spaceCard(hostUsername() ?? '') }
+          : undefined
+      }
     >
-      {children}
-    </Pressable>
+      {props.children}
+    </Clickable>
   );
 }

@@ -1,11 +1,7 @@
-import { Trans } from '@lingui/react/macro';
-import { FadeSwitch } from '@pkgs/ui-rn';
-import {
-  type MainMenuItem,
-  MainMenuScreen,
-} from '@pkgs/ui-rn/components/main-menu-screen';
-import type { ReactNode } from 'react';
-import { useCallback, useEffect, useMemo } from 'react';
+import { Trans } from '@lingui/solid/macro';
+import { FadeSwitch, type MainMenuItem, MainMenuScreen } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+import { createMemo, onMount, Show } from 'solid-js';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
@@ -31,39 +27,33 @@ function buildSpaceGameMenuItems(
     key: game.id,
     title: game.title,
     ...(game.caption !== undefined ? { caption: game.caption } : {}),
-    testID: `game-menu-${game.id}`,
+    dataSet: { testid: `game-menu-${game.id}` },
     selected: selectedGame === game.id,
-    ...(isHost ? { onPress: () => onSelectGame(game.id) } : {}),
+    ...(isHost ? { onClick: () => onSelectGame(game.id) } : {}),
   }));
 }
 
-function GameListMenu({
-  games,
-}: {
+function GameListMenu(props: {
   games: readonly GameClientDefinition[];
-}): ReactNode {
+}): JSX.Element {
   const { spaceId } = useSpaceSessionUi();
   const role = useCurrentSpaceRole(spaceId);
-  const isHost = role === 'host';
+  const isHost = createMemo(() => role() === 'host');
   const selectedGame = useSpaceRoomSelector(GamesRoomAttr.selected.from);
 
   const dispatch = useSpaceRoomDispatch();
-  const onSelectGame = useCallback(
-    (game: SelectedGameId) => {
-      dispatch(SelectGame({ game }));
-    },
-    [dispatch]
-  );
+  const onSelectGame = (game: SelectedGameId): void => {
+    dispatch(SelectGame({ game }));
+  };
 
   // Warm each game's heavy assets while the picker is shown so selecting a
   // game does not block on a first-time load (no Suspense spinner on entry).
-  useEffect(() => {
-    for (const game of games) game.preload?.();
-  }, [games]);
+  onMount(() => {
+    for (const game of props.games) game.preload?.();
+  });
 
-  const items = useMemo(
-    () => buildSpaceGameMenuItems(games, isHost, selectedGame, onSelectGame),
-    [games, isHost, onSelectGame, selectedGame]
+  const items = createMemo(() =>
+    buildSpaceGameMenuItems(props.games, isHost(), selectedGame(), onSelectGame)
   );
 
   return (
@@ -73,11 +63,11 @@ function GameListMenu({
         title={<Trans>Games</Trans>}
         subtitle={<Trans>Pick a game to play.</Trans>}
         helper={
-          !isHost ? (
+          !isHost() ? (
             <Trans>The host picks the game for this space.</Trans>
           ) : undefined
         }
-        items={items}
+        items={items()}
       />
     </GamesMenuAttribution>
   );
@@ -86,47 +76,33 @@ function GameListMenu({
 /** FadeSwitch key when no game is selected (not user-facing copy). */
 const GAMES_LIST_FADE_KEY = 'games-list';
 
-function GamesMainMenuContent({
-  games,
-  selectedGame,
-  onBackToGames,
-}: {
-  games: readonly GameClientDefinition[];
-  selectedGame: SelectedGameId;
-  onBackToGames: () => void;
-}): ReactNode {
-  if (selectedGame !== null) {
-    const game = games.find((g) => g.id === selectedGame);
-    if (game !== undefined) {
-      const SelectedMenu = game.MainMenu;
-      return <SelectedMenu onBackToGames={onBackToGames} />;
-    }
-  }
-  return <GameListMenu games={games} />;
-}
-
 /**
  * Top-level games menu for a space. Routes to the selected game's main menu
  * (via {@link GameClientDefinition.MainMenu}) or shows the game list when no
  * game is selected. Game registry is provided by the composition root via
  * {@link GamesRegistryProvider}.
  */
-export function GamesMainMenu(): ReactNode {
+export function GamesMainMenu(): JSX.Element {
   const games = useGamesRegistry();
   const selectedGame = useSpaceRoomSelector(GamesRoomAttr.selected.from);
   const dispatch = useSpaceRoomDispatch();
-  const onBackToGames = useCallback(() => {
+  const onBackToGames = (): void => {
     dispatch(SelectGame({ game: null }));
-  }, [dispatch]);
-  const fadeKey = selectedGame ?? GAMES_LIST_FADE_KEY;
+  };
+  const fadeKey = createMemo(() => selectedGame() ?? GAMES_LIST_FADE_KEY);
+  const selectedMenu = createMemo(
+    () => games.find((g) => g.id === selectedGame()) ?? null
+  );
 
   return (
-    <FadeSwitch stateKey={fadeKey}>
-      <GamesMainMenuContent
-        games={games}
-        selectedGame={selectedGame}
-        onBackToGames={onBackToGames}
-      />
+    <FadeSwitch stateKey={fadeKey()}>
+      <Show
+        when={selectedMenu()}
+        keyed
+        fallback={<GameListMenu games={games} />}
+      >
+        {(game) => <game.MainMenu onBackToGames={onBackToGames} />}
+      </Show>
     </FadeSwitch>
   );
 }

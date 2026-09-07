@@ -1,5 +1,7 @@
-import { Box } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Box } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+import { Show } from 'solid-js';
+
 import { SpaceGuestAvatarGroup } from './space-guest-avatar-group';
 import { SpaceGuestCountText } from './space-guest-count-text';
 import { SpaceGuestNamesLine } from './space-guest-names-line';
@@ -17,27 +19,24 @@ const AVATAR_MAX_VISIBLE = 6;
  * Count line, avatar stack, and joined names for space-card guests.
  * Renders nothing when the space has no guests — no placeholder, no spacer.
  */
-export function SpaceGuestSection({
-  spaceId,
-}: SpaceGuestSectionProps): ReactNode {
-  const membershipIds = useSpaceGuestMembershipIds(spaceId);
-  if (membershipIds.length === 0) {
-    return null;
-  }
+export function SpaceGuestSection(props: SpaceGuestSectionProps): JSX.Element {
+  const membershipIds = useSpaceGuestMembershipIds(props.spaceId);
   return (
-    <Box sx={{ mt: 3, gap: 1.5 }}>
-      <SpaceGuestCountText spaceId={spaceId} variant="caption" />
-      <SpaceGuestAvatarGroup
-        spaceId={spaceId}
-        size={AVATAR_SIZE}
-        maxVisible={AVATAR_MAX_VISIBLE}
-        ringColor={AVATAR_GROUP_RING}
-      />
-      <SpaceGuestNamesLine
-        spaceId={spaceId}
-        variant="caption"
-        numberOfLines={1}
-      />
-    </Box>
+    <Show when={membershipIds().length > 0}>
+      <Box sx={{ mt: 3, gap: 1.5 }}>
+        <SpaceGuestCountText spaceId={props.spaceId} variant="caption" />
+        <SpaceGuestAvatarGroup
+          spaceId={props.spaceId}
+          size={AVATAR_SIZE}
+          maxVisible={AVATAR_MAX_VISIBLE}
+          ringColor={AVATAR_GROUP_RING}
+        />
+        <SpaceGuestNamesLine
+          spaceId={props.spaceId}
+          variant="caption"
+          numberOfLines={1}
+        />
+      </Box>
+    </Show>
   );
 }

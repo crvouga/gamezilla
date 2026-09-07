@@ -1,31 +1,30 @@
-import { useLingui } from '@lingui/react/macro';
-import { Pressable, useRouter } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { useLingui } from '@lingui/solid/macro';
+import { Clickable, useRouter } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+
 import { openSpaceDetail } from '../../../public/space-routes';
 
 export type MiniplayerOpenSpacePressableProps = {
   spaceId: string;
-  children: ReactNode;
+  children: JSX.Element;
   /** Optional hook after navigation is triggered (e.g. close a sheet). */
   onAfterOpen?: () => void;
 };
 
 /** Pressable that returns to a space — owns the route mapping. */
-export function MiniplayerOpenSpacePressable({
-  spaceId,
-  children,
-  onAfterOpen,
-}: MiniplayerOpenSpacePressableProps): ReactNode {
+export function MiniplayerOpenSpacePressable(
+  props: MiniplayerOpenSpacePressableProps
+): JSX.Element {
   const router = useRouter();
   const { t } = useLingui();
   return (
-    <Pressable
-      onPress={() => {
-        openSpaceDetail(router, spaceId);
-        onAfterOpen?.();
+    <Clickable
+      onClick={() => {
+        openSpaceDetail(router, props.spaceId);
+        props.onAfterOpen?.();
       }}
-      accessibilityRole="button"
-      accessibilityLabel={t`Tap to return to your space`}
+      role="button"
+      aria-label={t`Tap to return to your space`}
       sx={{
         flex: 1,
         alignSelf: 'stretch',
@@ -35,7 +34,7 @@ export function MiniplayerOpenSpacePressable({
         minWidth: 0,
       }}
     >
-      {children}
-    </Pressable>
+      {props.children}
+    </Clickable>
   );
 }

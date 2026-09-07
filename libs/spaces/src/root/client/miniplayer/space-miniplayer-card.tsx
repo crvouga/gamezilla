@@ -1,6 +1,7 @@
 import { Handles } from '@libs/test-ids';
-import { Box, Text } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Box, Text } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+import { createMemo, Show } from 'solid-js';
 import { SpaceField, useSpaceColumn } from '../../../public/use-space-column';
 import { SpaceCardGradientBox } from '../card/space-card-gradient';
 import type { RequestEndSpaceOptions } from '../end-space/end-space-modal-provider';
@@ -25,68 +26,67 @@ export type SpaceMiniplayerCardProps = {
 };
 
 /** A single miniplayer entry — hidden once DB stamps `ended_at`. */
-export function SpaceMiniplayerCard({
-  spaceId,
-  borderRadius,
-  requestEndSpace,
-  requestLeaveSpace,
-}: SpaceMiniplayerCardProps): ReactNode {
-  const endedAt = useSpaceColumn(spaceId, SpaceField.endedAt);
+export function SpaceMiniplayerCard(
+  props: SpaceMiniplayerCardProps
+): JSX.Element {
+  const endedAt = useSpaceColumn(props.spaceId, SpaceField.endedAt);
   // Treat only real timestamps as ended (empty/undefined → still live).
-  const hide = endedAt != null && endedAt.length > 0;
-  if (hide) {
-    return null;
-  }
+  const live = createMemo((): boolean => {
+    const current = endedAt();
+    return current === null || current.length === 0;
+  });
   return (
-    <SpaceCardGradientBox
-      testID={Handles.spaceMiniplayer}
-      sx={{
-        borderRadius,
-        overflow: 'hidden',
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 2,
-        minHeight: 72,
-      }}
-    >
-      <MiniplayerOpenSpacePressable spaceId={spaceId}>
-        <Box
-          sx={{
-            p: 3,
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 3,
-            flex: 1,
-            minWidth: 0,
-            alignSelf: 'stretch',
-          }}
-        >
-          <SpaceHostAvatar spaceId={spaceId} size={40} vividBackdrop />
-          <Box sx={{ flex: 1, minWidth: 0, gap: 0.5 }}>
-            <MiniplayerSpaceTitle spaceId={spaceId} />
-            <Box
-              sx={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 1.5,
-                minWidth: 0,
-              }}
-            >
-              <MiniplayerHostNameLine spaceId={spaceId} />
-              <Text variant="caption" label="·" />
-              <MiniplayerMemberCountText spaceId={spaceId} />
+    <Show when={live()}>
+      <SpaceCardGradientBox
+        dataSet={{ testid: Handles.spaceMiniplayer }}
+        sx={{
+          borderRadius: props.borderRadius,
+          overflow: 'hidden',
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 2,
+          minHeight: 72,
+        }}
+      >
+        <MiniplayerOpenSpacePressable spaceId={props.spaceId}>
+          <Box
+            sx={{
+              p: 3,
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 3,
+              flex: 1,
+              minWidth: 0,
+              alignSelf: 'stretch',
+            }}
+          >
+            <SpaceHostAvatar spaceId={props.spaceId} size={40} vividBackdrop />
+            <Box sx={{ flex: 1, minWidth: 0, gap: 0.5 }}>
+              <MiniplayerSpaceTitle spaceId={props.spaceId} />
+              <Box
+                sx={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 1.5,
+                  minWidth: 0,
+                }}
+              >
+                <MiniplayerHostNameLine spaceId={props.spaceId} />
+                <Text variant="caption" label="·" />
+                <MiniplayerMemberCountText spaceId={props.spaceId} />
+              </Box>
             </Box>
           </Box>
+          <MiniplayerLiveBadge />
+        </MiniplayerOpenSpacePressable>
+        <Box sx={{ pr: 3 }}>
+          <SpaceEndOrLeaveButton
+            spaceId={props.spaceId}
+            requestEndSpace={props.requestEndSpace}
+            requestLeaveSpace={props.requestLeaveSpace}
+          />
         </Box>
-        <MiniplayerLiveBadge />
-      </MiniplayerOpenSpacePressable>
-      <Box sx={{ pr: 3 }}>
-        <SpaceEndOrLeaveButton
-          spaceId={spaceId}
-          requestEndSpace={requestEndSpace}
-          requestLeaveSpace={requestLeaveSpace}
-        />
-      </Box>
-    </SpaceCardGradientBox>
+      </SpaceCardGradientBox>
+    </Show>
   );
 }

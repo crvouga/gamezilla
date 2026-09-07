@@ -1,7 +1,7 @@
 import { useMutationClient } from '@libs/auth/public/mutation-client-provider';
 import { useMyId } from '@libs/auth/public/use-current-user';
 import { RoomMetaAttr } from '@pkgs/room';
-import { useEffect, useRef } from 'react';
+import { createEffect } from 'solid-js';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
@@ -31,17 +31,17 @@ export function useAnnounceJoinedOnSync(spaceId: string): void {
   const synced = useSpaceRoomSelector(RoomMetaAttr.isSynced.from);
   const session = useSpaceOpenSession(spaceId);
   const mutationClient = useMutationClient();
-  const announcedSpaceRef = useRef<string | null>(null);
-  const mutatingRef = useRef(false);
+  const announcedSpaceRef = { current: null as string | null };
+  const mutatingRef = { current: false };
 
-  useEffect(() => {
-    if (!synced || myId.length === 0 || spaceId.length === 0) return;
+  createEffect(() => {
+    if (!synced() || myId().length === 0 || spaceId.length === 0) return;
     if (!session.isOpen) return;
     if (announcedSpaceRef.current === spaceId) return;
 
     if (session.joinAnnounced) {
       announcedSpaceRef.current = spaceId;
-      dispatchJoinAnnounce(dispatch, myId);
+      dispatchJoinAnnounce(dispatch, myId());
       return;
     }
 
@@ -52,18 +52,10 @@ export function useAnnounceJoinedOnSync(spaceId: string): void {
       .then((result) => {
         if (!result.ok) return;
         announcedSpaceRef.current = spaceId;
-        dispatchJoinAnnounce(dispatch, myId);
+        dispatchJoinAnnounce(dispatch, myId());
       })
       .finally(() => {
         mutatingRef.current = false;
       });
-  }, [
-    synced,
-    myId,
-    spaceId,
-    dispatch,
-    mutationClient,
-    session.isOpen,
-    session.joinAnnounced,
-  ]);
+  });
 }

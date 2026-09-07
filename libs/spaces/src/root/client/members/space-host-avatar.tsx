@@ -1,5 +1,5 @@
 import { UserProfileAvatar } from '@libs/profile/public/user-profile-avatar';
-import type { ReactNode } from 'react';
+import type { JSX } from 'solid-js';
 
 import { useSpaceHostMembershipDisplay } from './use-space-host-membership-display';
 
@@ -9,17 +9,13 @@ export type SpaceHostAvatarProps = {
   vividBackdrop?: boolean;
 };
 
-export function SpaceHostAvatar({
-  spaceId,
-  size,
-  vividBackdrop,
-}: SpaceHostAvatarProps): ReactNode {
-  const host = useSpaceHostMembershipDisplay(spaceId);
+export function SpaceHostAvatar(props: SpaceHostAvatarProps): JSX.Element {
+  const host = useSpaceHostMembershipDisplay(props.spaceId);
   return (
     <UserProfileAvatar
-      profileId={host?.profileId ?? null}
-      size={size}
-      vividBackdrop={vividBackdrop ?? false}
+      profileId={host()?.profileId ?? null}
+      size={props.size}
+      vividBackdrop={props.vividBackdrop ?? false}
     />
   );
 }

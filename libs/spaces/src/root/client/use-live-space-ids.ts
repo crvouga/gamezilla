@@ -1,6 +1,6 @@
 import { sql } from '@pkgs/sql';
-
-import { useQuery } from '@pkgs/sync-engine/client';
+import { createQuery } from '@pkgs/sync-engine/solid';
+import { createMemo } from 'solid-js';
 
 type SpaceIdRow = { readonly id: string };
 
@@ -11,13 +11,22 @@ export function useLiveSpaceIds(): {
   readonly spaceIds: readonly string[];
   readonly isLoading: boolean;
 } {
-  const { rows, isLoading } = useQuery(
-    sql<SpaceIdRow>`
-      SELECT id
-      FROM spaces
-      WHERE ended_at IS NULL
-      ORDER BY created_at DESC
-    `
+  const query = createQuery(
+    () =>
+      sql<SpaceIdRow>`
+        SELECT id
+        FROM spaces
+        WHERE ended_at IS NULL
+        ORDER BY created_at DESC
+      `
   );
-  return { spaceIds: rows.map((r) => r.id), isLoading };
+  const spaceIds = createMemo(() => query.rows().map((r) => r.id));
+  return {
+    get spaceIds() {
+      return spaceIds();
+    },
+    get isLoading() {
+      return query.isLoading();
+    },
+  };
 }

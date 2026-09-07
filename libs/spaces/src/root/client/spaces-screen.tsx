@@ -1,8 +1,7 @@
 import { useSignInModal } from '@libs/auth/public/auth-modals-provider';
 import { useIsSignedIn } from '@libs/auth/public/use-current-user';
 import { Handles } from '@libs/test-ids';
-import { Trans, useLingui } from '@lingui/react/macro';
-import { useSyncEngineActions } from '@pkgs/sync-engine/client';
+import { Trans, useLingui } from '@lingui/solid/macro';
 import {
   Box,
   EmptyState,
@@ -10,10 +9,12 @@ import {
   PlusIcon,
   ScreenBase,
   type ScreenBasePrimaryAction,
-  ScreenBodyLegendList,
+  ScreenBodyScrollView,
+  useLayoutMode,
   useRouter,
-} from '@pkgs/ui-rn';
-import { memo, useCallback, useMemo } from 'react';
+} from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+import { createMemo, For, Show } from 'solid-js';
 import { openSpaceDetail } from '../../public/space-routes';
 import { useCreateSpace } from '../../use-cases/create-space/client/use-create-space';
 import { useOpenSpaceSessionIds } from '../../use-cases/list-open-sessions/client/use-open-space-session-ids';
@@ -31,20 +32,25 @@ function sortCurrentSpacesFirst(
   });
 }
 
-const MemoSpaceCard = memo(function MemoSpaceCard({
-  spaceId,
-}: {
-  spaceId: string;
-}) {
-  return <SpaceCard spaceId={spaceId} />;
-});
-
-function SpacesEmptyState({ onCreateSpace }: { onCreateSpace: () => void }) {
-  const { t } = useLingui();
+function SpacesEmptyState(props: {
+  readonly onCreateSpace: () => void;
+}): JSX.Element {
   const canCreateSpace = useIsSignedIn();
   const { open: openSignInModal } = useSignInModal();
-  if (canCreateSpace) {
-    return (
+  return (
+    <Show
+      when={canCreateSpace()}
+      fallback={
+        <EmptyState
+          icon={Gamepad2Icon}
+          title={<Trans>No spaces yet</Trans>}
+          body={
+            <Trans>Sign in to start a space or join one from a friend.</Trans>
+          }
+          action={{ label: <Trans>Sign in</Trans>, onClick: openSignInModal }}
+        />
+      }
+    >
       <EmptyState
         icon={Gamepad2Icon}
         title={<Trans>No spaces yet</Trans>}
@@ -53,66 +59,61 @@ function SpacesEmptyState({ onCreateSpace }: { onCreateSpace: () => void }) {
             Start a space to play with friends. Spaces you join show up here.
           </Trans>
         }
-        action={{ label: t`Start a space`, onPress: onCreateSpace }}
+        action={{
+          label: <Trans>Start a space</Trans>,
+          onClick: props.onCreateSpace,
+        }}
       />
-    );
-  }
-  return (
-    <EmptyState
-      icon={Gamepad2Icon}
-      title={<Trans>No spaces yet</Trans>}
-      body={<Trans>Sign in to start a space or join one from a friend.</Trans>}
-      action={{ label: t`Sign in`, onPress: openSignInModal }}
-    />
+    </Show>
   );
 }
 
-function SpacesList({ onCreateSpace }: { onCreateSpace: () => void }) {
-  const { refreshQueries } = useSyncEngineActions();
-  const { spaceIds } = useJoinableLiveSpaceIds();
-  const { spaceIds: openSpaceIds } = useOpenSpaceSessionIds();
-  const openSet = useMemo(() => new Set(openSpaceIds), [openSpaceIds]);
-  const orderedIds = useMemo(
-    () => sortCurrentSpacesFirst(spaceIds, openSet),
-    [spaceIds, openSet]
+function SpacesList(props: {
+  readonly onCreateSpace: () => void;
+}): JSX.Element {
+  const joinable = useJoinableLiveSpaceIds();
+  const open = useOpenSpaceSessionIds();
+  const mode = useLayoutMode();
+  const orderedIds = createMemo(() =>
+    sortCurrentSpacesFirst(joinable.spaceIds, new Set(open.spaceIds))
   );
-
-  const renderItem = useCallback(
-    ({ item }: { item: string }) => <MemoSpaceCard spaceId={item} />,
-    []
-  );
-
-  if (orderedIds.length === 0) {
-    return <SpacesEmptyState onCreateSpace={onCreateSpace} />;
-  }
 
   return (
-    <ScreenBodyLegendList
-      data={orderedIds}
-      keyExtractor={(id) => id}
-      estimatedItemSize={160}
-      drawDistance={200}
-      columns={{ compact: 1, wide: 2 }}
-      onRefresh={() => refreshQueries()}
-      sx={{ paddingBottom: 24, gap: 3 }}
-      renderItem={renderItem}
-    />
+    <Show
+      when={orderedIds().length > 0}
+      fallback={<SpacesEmptyState onCreateSpace={props.onCreateSpace} />}
+    >
+      <ScreenBodyScrollView
+        sx={{
+          display: 'grid',
+          alignItems: 'flex-start',
+          gridTemplateColumns:
+            mode() === 'wide' ? 'repeat(2, minmax(0, 1fr))' : 'minmax(0, 1fr)',
+          gap: 3,
+          paddingBottom: 24,
+        }}
+      >
+        <For each={orderedIds()}>
+          {(spaceId) => <SpaceCard spaceId={spaceId} />}
+        </For>
+      </ScreenBodyScrollView>
+    </Show>
   );
 }
 
-export function SpacesScreen() {
+export function SpacesScreen(): JSX.Element {
   const canCreateSpace = useIsSignedIn();
   const router = useRouter();
   const createSpace = useCreateSpace();
   const { t } = useLingui();
 
-  const startSpace = useCallback(async () => {
+  const startSpace = async (): Promise<void> => {
     await createSpace((id) => {
       openSpaceDetail(router, id);
     });
-  }, [createSpace, router]);
+  };
 
-  const primaryAction = useMemo((): ScreenBasePrimaryAction => {
+  const primaryAction = createMemo((): ScreenBasePrimaryAction => {
     return {
       labels: {
         idle: t`New space`,
@@ -123,21 +124,21 @@ export function SpacesScreen() {
       operation: startSpace,
       successHoldMs: 0,
       icon: PlusIcon,
-      disabled: !canCreateSpace,
-      testID: Handles.spaceCreate,
+      disabled: !canCreateSpace(),
+      dataSet: { testid: Handles.spaceCreate },
     };
-  }, [canCreateSpace, startSpace, t]);
+  });
 
-  const onCreateSpace = useCallback(() => {
+  const onCreateSpace = (): void => {
     void startSpace();
-  }, [startSpace]);
+  };
 
   return (
     <ScreenBase
       screenId="spaces"
       surface="canvas"
-      breadcrumbs={[{ name: t`Spaces` }]}
-      primaryAction={primaryAction}
+      breadcrumbs={[{ name: <Trans>Spaces</Trans> }]}
+      primaryAction={primaryAction()}
       content={({ sx }) => (
         // Lobby cards are cards already — never nest them inside an Island.
         <Box sx={sx}>

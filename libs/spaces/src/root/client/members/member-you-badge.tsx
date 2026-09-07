@@ -1,6 +1,8 @@
-import { Trans } from '@lingui/react/macro';
-import { Text } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Trans } from '@lingui/solid/macro';
+import { Text } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+import { Show } from 'solid-js';
+
 import { useMemberIsYou } from './use-member-is-you';
 
 export type MemberYouBadgeProps = {
@@ -8,14 +10,15 @@ export type MemberYouBadgeProps = {
 };
 
 /** "You" caption; renders nothing unless the seat is this install. */
-export function MemberYouBadge({ profileId }: MemberYouBadgeProps): ReactNode {
-  const isYou = useMemberIsYou(profileId);
-  if (!isYou) return null;
+export function MemberYouBadge(props: MemberYouBadgeProps): JSX.Element {
+  const isYou = useMemberIsYou(props.profileId);
   return (
-    <Text
-      variant="caption"
-      sx={{ color: 'textSecondary' }}
-      label={<Trans>You</Trans>}
-    />
+    <Show when={isYou()}>
+      <Text
+        variant="caption"
+        sx={{ color: 'textSecondary' }}
+        label={<Trans>You</Trans>}
+      />
+    </Show>
   );
 }

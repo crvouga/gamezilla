@@ -1,6 +1,8 @@
-import { useLingui } from '@lingui/react/macro';
-import { Text } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { useLingui } from '@lingui/solid/macro';
+import { Text } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+import { createMemo } from 'solid-js';
+
 import { useSpaceMemberCount } from '../members/use-space-member-count';
 
 export type MiniplayerMemberCountTextProps = {
@@ -8,12 +10,11 @@ export type MiniplayerMemberCountTextProps = {
 };
 
 /** "N people here" caption inside a miniplayer card. */
-export function MiniplayerMemberCountText({
-  spaceId,
-}: MiniplayerMemberCountTextProps): ReactNode {
+export function MiniplayerMemberCountText(
+  props: MiniplayerMemberCountTextProps
+): JSX.Element {
   const { t } = useLingui();
-  const count = useSpaceMemberCount(spaceId);
-  return (
-    <Text variant="caption" numberOfLines={1} label={t`${count} people here`} />
-  );
+  const count = useSpaceMemberCount(props.spaceId);
+  const label = createMemo(() => t`${count()} people here`);
+  return <Text variant="caption" numberOfLines={1} label={label()} />;
 }

@@ -1,7 +1,7 @@
 import { sql } from '@pkgs/sql';
 
-import { useQuery } from '@pkgs/sync-engine/client';
-import { useMemo } from 'react';
+import { createQuery } from '@pkgs/sync-engine/solid';
+import { type Accessor, createMemo } from 'solid-js';
 
 export type SpaceUserEntry = {
   readonly userId: string;
@@ -16,28 +16,24 @@ type SpaceUserRow = {
 };
 
 export function useSpaceUserEntries(spaceId: string): {
-  readonly entries: readonly SpaceUserEntry[];
-  readonly isLoading: boolean;
+  readonly entries: Accessor<readonly SpaceUserEntry[]>;
+  readonly isLoading: Accessor<boolean>;
 } {
-  const query = useMemo(
+  const query = createQuery(
     () => sql<SpaceUserRow>`
       SELECT a.user_id, p.username, p.avatar_config
       FROM spaces_users AS a
       INNER JOIN profile AS p ON p.id = a.user_id
       WHERE a.space_id = ${spaceId} AND a.deleted_at IS NULL
       ORDER BY p.username COLLATE NOCASE ASC
-    `,
-    [spaceId]
+    `
   );
-  const { rows, isLoading } = useQuery(query);
-  const entries = useMemo(
-    () =>
-      rows.map((row) => ({
-        userId: row.user_id,
-        username: row.username ?? '',
-        avatarConfig: row.avatar_config,
-      })),
-    [rows]
+  const entries = createMemo(() =>
+    query.rows().map((row) => ({
+      userId: row.user_id,
+      username: row.username ?? '',
+      avatarConfig: row.avatar_config,
+    }))
   );
-  return { entries, isLoading };
+  return { entries, isLoading: query.isLoading };
 }

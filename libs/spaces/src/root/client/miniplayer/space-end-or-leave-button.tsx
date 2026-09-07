@@ -1,6 +1,7 @@
-import { Trans, useLingui } from '@lingui/react/macro';
-import { borderRadius, Pressable, Text } from '@pkgs/ui-rn';
-import { type ReactNode, useCallback } from 'react';
+import { Trans, useLingui } from '@lingui/solid/macro';
+import { borderRadius, Clickable, Text } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+import { createMemo, Show } from 'solid-js';
 import type { RequestEndSpaceOptions } from '../end-space/end-space-modal-provider';
 import type { RequestLeaveSpaceOptions } from '../leave-space/leave-space-modal-provider';
 import { useCurrentSpaceRole } from '../use-current-space-role';
@@ -20,27 +21,25 @@ export type SpaceEndOrLeaveButtonProps = {
  * Miniplayer control: ends as host or leaves as guest. Requestors are injected
  * from above portal boundaries (`@gorhom/bottom-sheet` loses React context).
  */
-export function SpaceEndOrLeaveButton({
-  spaceId,
-  requestEndSpace,
-  requestLeaveSpace,
-}: SpaceEndOrLeaveButtonProps): ReactNode {
-  const role = useCurrentSpaceRole(spaceId);
-  const isHost = role === 'host';
+export function SpaceEndOrLeaveButton(
+  props: SpaceEndOrLeaveButtonProps
+): JSX.Element {
+  const role = useCurrentSpaceRole(props.spaceId);
+  const isHost = createMemo(() => role() === 'host');
   const { t } = useLingui();
-  const onPress = useCallback(() => {
-    if (isHost) {
-      requestEndSpace(spaceId);
+  const onPress = (): void => {
+    if (isHost()) {
+      props.requestEndSpace(props.spaceId);
       return;
     }
-    requestLeaveSpace(spaceId);
-  }, [isHost, requestEndSpace, requestLeaveSpace, spaceId]);
+    props.requestLeaveSpace(props.spaceId);
+  };
 
   return (
-    <Pressable
-      onPress={onPress}
-      accessibilityRole="button"
-      accessibilityLabel={isHost ? t`End space` : t`Leave space`}
+    <Clickable
+      onClick={onPress}
+      role="button"
+      aria-label={isHost() ? t`End space` : t`Leave space`}
       sx={{
         py: 2,
         px: 4,
@@ -51,8 +50,12 @@ export function SpaceEndOrLeaveButton({
       <Text
         variant="caption"
         sx={{ color: 'onPrimary', fontWeight: '600' }}
-        label={isHost ? <Trans>End</Trans> : <Trans>Leave</Trans>}
+        label={
+          <Show when={isHost()} fallback={<Trans>Leave</Trans>}>
+            <Trans>End</Trans>
+          </Show>
+        }
       />
-    </Pressable>
+    </Clickable>
   );
 }

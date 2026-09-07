@@ -1,4 +1,5 @@
-import type { ReactNode } from 'react';
+import type { JSX } from 'solid-js';
+
 import { SpaceTitleText } from '../space-title-text';
 
 export type MiniplayerSpaceTitleProps = {
@@ -6,10 +7,14 @@ export type MiniplayerSpaceTitleProps = {
 };
 
 /** Title row inside a miniplayer card. */
-export function MiniplayerSpaceTitle({
-  spaceId,
-}: MiniplayerSpaceTitleProps): ReactNode {
+export function MiniplayerSpaceTitle(
+  props: MiniplayerSpaceTitleProps
+): JSX.Element {
   return (
-    <SpaceTitleText spaceId={spaceId} variant="bodyBold" numberOfLines={1} />
+    <SpaceTitleText
+      spaceId={props.spaceId}
+      variant="bodyBold"
+      numberOfLines={1}
+    />
   );
 }

@@ -1,5 +1,7 @@
-import { AvatarGroup } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { AvatarGroup } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+import { For } from 'solid-js';
+
 import { SpaceGuestMembershipAvatar } from './space-guest-membership-avatar';
 import { SpaceHostAvatar } from './space-host-avatar';
 import { useSpaceGuestMembershipIds } from './use-space-guest-membership-ids';
@@ -18,22 +20,24 @@ const AVATAR_GROUP_RING = 'surface' as const;
  * Stacked host + guest faces for space chrome. Press handling belongs on the
  * surrounding {@link IconButton} / ActionBar avatar item.
  */
-export function SpaceMembersAvatarGroup({
-  spaceId,
-  size = DEFAULT_SIZE,
-}: SpaceMembersAvatarGroupProps): ReactNode {
-  const membershipIds = useSpaceGuestMembershipIds(spaceId);
+export function SpaceMembersAvatarGroup(
+  props: SpaceMembersAvatarGroupProps
+): JSX.Element {
+  const membershipIds = useSpaceGuestMembershipIds(props.spaceId);
+  const size = () => props.size ?? DEFAULT_SIZE;
 
   return (
     <AvatarGroup
-      size={size}
+      size={size()}
       maxVisible={MAX_VISIBLE}
       ringColor={AVATAR_GROUP_RING}
     >
-      <SpaceHostAvatar spaceId={spaceId} size={size} />
-      {membershipIds.map((mid) => (
-        <SpaceGuestMembershipAvatar key={mid} membershipId={mid} size={size} />
-      ))}
+      <SpaceHostAvatar spaceId={props.spaceId} size={size()} />
+      <For each={membershipIds()}>
+        {(mid) => (
+          <SpaceGuestMembershipAvatar membershipId={mid} size={size()} />
+        )}
+      </For>
     </AvatarGroup>
   );
 }

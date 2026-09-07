@@ -1,5 +1,12 @@
 import { useMyDeviceId } from '@libs/auth/public/use-current-user';
-import { type ReactNode, useEffect, useRef } from 'react';
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  For,
+  type JSX,
+  onCleanup,
+} from 'solid-js';
 
 import { useOpenSpaceSessionIds } from '../../use-cases/list-open-sessions/client/use-open-space-session-ids';
 import {
@@ -8,7 +15,7 @@ import {
   useSpaceOpenRoomsRegistry,
 } from './space-open-rooms-store';
 import { clearSpaceOpenSession } from './space-open-session-store';
-import { useSpaceRoom } from './use-space-room';
+import { type SpaceRoomUiState, useSpaceRoom } from './use-space-room';
 
 export type {
   SpaceOpenRoomEntry,
@@ -21,30 +28,27 @@ export {
   useSpaceOpenRoomsRegistry,
 } from './space-open-rooms-store';
 
-function SpaceOpenRoomSlot({ spaceId }: { readonly spaceId: string }): null {
+function SpaceOpenRoomSlot(props: { readonly spaceId: string }): null {
   const setEntry = useSpaceOpenRoomsRegistry();
   const clearPending = useSpaceOpenRoomsPendingClear();
-  const state = useSpaceRoom(spaceId);
+  const state: SpaceRoomUiState = useSpaceRoom(props.spaceId);
   const deviceId = useMyDeviceId();
 
-  useEffect(() => {
-    if (state.room === null) {
+  createEffect(() => {
+    const room = state.room;
+    if (room === null) {
       // Keep any buffered commands — Room may still be hydrating locally.
-      setEntry(spaceId, null);
+      setEntry(props.spaceId, null);
       return;
     }
-    setEntry(spaceId, { room: state.room, clientId: state.clientId });
-    return () => {
-      setEntry(spaceId, null);
-    };
-  }, [setEntry, spaceId, state.room, state.clientId]);
+    setEntry(props.spaceId, { room, clientId: state.clientId });
+  });
 
-  useEffect(() => {
-    return () => {
-      clearPending?.(spaceId);
-      clearSpaceOpenSession(spaceId, deviceId);
-    };
-  }, [spaceId, deviceId, clearPending]);
+  onCleanup(() => {
+    setEntry(props.spaceId, null);
+    clearPending?.(props.spaceId);
+    clearSpaceOpenSession(props.spaceId, deviceId());
+  });
 
   return null;
 }
@@ -54,30 +58,31 @@ function SpaceOpenRoomSlot({ spaceId }: { readonly spaceId: string }): null {
  * Close/minimize does not tear down; leave/end deletes the
  * `spaces_open_sessions` row and unmounts that slot.
  */
-export function SpaceOpenRoomsProvider({
-  children,
-}: {
-  readonly children: ReactNode;
-}): ReactNode {
-  const { spaceIds, isLoading } = useOpenSpaceSessionIds();
-  const stableIdsRef = useRef<readonly string[]>([]);
-  if (!isLoading) {
-    stableIdsRef.current = spaceIds;
-  }
+export function SpaceOpenRoomsProvider(props: {
+  readonly children: JSX.Element;
+}): JSX.Element {
+  const sessions = useOpenSpaceSessionIds();
+  const [stableIds, setStableIds] = createSignal<readonly string[]>([]);
+  createEffect(() => {
+    if (!sessions.isLoading) setStableIds(sessions.spaceIds);
+  });
   // While the open-session query is loading, keep prior ids mounted and also
   // include any ids already present in `spaceIds` so an optimistic create
   // cannot unmount a brand-new room slot (which stuck the event log on
   // "Connecting…" / "Reconnecting…" with no WebSocket).
-  const mountedIds = isLoading
-    ? Array.from(new Set([...stableIdsRef.current, ...spaceIds]))
-    : spaceIds;
+  const mountedIds = createMemo(() => {
+    if (sessions.isLoading) {
+      return Array.from(new Set([...stableIds(), ...sessions.spaceIds]));
+    }
+    return sessions.spaceIds;
+  });
 
   return (
     <SpaceOpenRoomsStoreProvider>
-      {mountedIds.map((spaceId) => (
-        <SpaceOpenRoomSlot key={spaceId} spaceId={spaceId} />
-      ))}
-      {children}
+      <For each={mountedIds()}>
+        {(spaceId) => <SpaceOpenRoomSlot spaceId={spaceId} />}
+      </For>
+      {props.children}
     </SpaceOpenRoomsStoreProvider>
   );
 }

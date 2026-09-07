@@ -1,4 +1,5 @@
 import { useMyId } from '@libs/auth/public/use-current-user';
+import { type Accessor, createMemo } from 'solid-js';
 
 import { useSpacePresence } from '../../../public/room/use-space-presence';
 
@@ -9,9 +10,11 @@ import { useSpacePresence } from '../../../public/room/use-space-presence';
 export function useMemberIsThisTab(
   _spaceId: string,
   memberId: string
-): boolean {
+): Accessor<boolean> {
   const myId = useMyId();
-  const { selfPeerId } = useSpacePresence();
-  if (myId !== memberId) return false;
-  return selfPeerId !== null;
+  const presence = useSpacePresence();
+  return createMemo(() => {
+    if (myId() !== memberId) return false;
+    return presence.selfPeerId !== null;
+  });
 }

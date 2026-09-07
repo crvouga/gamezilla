@@ -1,6 +1,8 @@
-import { Trans } from '@lingui/react/macro';
-import { Text } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Trans } from '@lingui/solid/macro';
+import { Text } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+import { Show } from 'solid-js';
+
 import { useMemberRole } from './use-member-role';
 
 export type MemberHostBadgeProps = {
@@ -9,17 +11,15 @@ export type MemberHostBadgeProps = {
 };
 
 /** "Host" caption; renders nothing unless `profileId` is the host. */
-export function MemberHostBadge({
-  spaceId,
-  profileId,
-}: MemberHostBadgeProps): ReactNode {
-  const role = useMemberRole(spaceId, profileId);
-  if (role !== 'host') return null;
+export function MemberHostBadge(props: MemberHostBadgeProps): JSX.Element {
+  const role = useMemberRole(props.spaceId, props.profileId);
   return (
-    <Text
-      variant="caption"
-      sx={{ color: 'textSecondary' }}
-      label={<Trans>Host</Trans>}
-    />
+    <Show when={role() === 'host'}>
+      <Text
+        variant="caption"
+        sx={{ color: 'textSecondary' }}
+        label={<Trans>Host</Trans>}
+      />
+    </Show>
   );
 }

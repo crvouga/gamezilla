@@ -1,15 +1,12 @@
 import { UserProfileAvatar } from '@libs/profile/public/user-profile-avatar';
 import { UserUsername } from '@libs/profile/public/user-username';
-import { Box } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Box } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 
-export function SpaceShareUserRow({
-  userId,
-  trailing,
-}: {
+export function SpaceShareUserRow(props: {
   readonly userId: string;
-  readonly trailing: ReactNode;
-}): ReactNode {
+  readonly trailing: JSX.Element | null;
+}): JSX.Element {
   return (
     <Box
       sx={{
@@ -19,11 +16,15 @@ export function SpaceShareUserRow({
         py: 2,
       }}
     >
-      <UserProfileAvatar profileId={userId} size={44} />
+      <UserProfileAvatar profileId={props.userId} size={44} />
       <Box sx={{ flex: 1, minWidth: 0 }}>
-        <UserUsername profileId={userId} variant="bodyBold" numberOfLines={1} />
+        <UserUsername
+          profileId={props.userId}
+          variant="bodyBold"
+          numberOfLines={1}
+        />
       </Box>
-      {trailing}
+      {props.trailing}
     </Box>
   );
 }

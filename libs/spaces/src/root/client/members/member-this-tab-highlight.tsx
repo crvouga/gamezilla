@@ -1,12 +1,13 @@
-import { Box } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Box } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+
 import { useMemberIsThisTab } from './use-member-is-this-tab';
 
 export type MemberThisTabHighlightProps = {
   spaceId: string;
   profileId: string;
   borderRadius: number;
-  children: ReactNode;
+  children: JSX.Element;
 };
 
 /**
@@ -14,22 +15,19 @@ export type MemberThisTabHighlightProps = {
  * children when the member's active session is this tab; otherwise renders
  * children with no border.
  */
-export function MemberThisTabHighlight({
-  spaceId,
-  profileId,
-  borderRadius,
-  children,
-}: MemberThisTabHighlightProps): ReactNode {
-  const isThisTab = useMemberIsThisTab(spaceId, profileId);
+export function MemberThisTabHighlight(
+  props: MemberThisTabHighlightProps
+): JSX.Element {
+  const isThisTab = useMemberIsThisTab(props.spaceId, props.profileId);
   return (
     <Box
       sx={{
-        borderRadius,
-        borderWidth: isThisTab ? 2 : 0,
-        borderColor: isThisTab ? 'primary' : 'transparent',
+        borderRadius: props.borderRadius,
+        borderWidth: isThisTab() ? 2 : 0,
+        borderColor: isThisTab() ? 'primary' : 'transparent',
       }}
     >
-      {children}
+      {props.children}
     </Box>
   );
 }

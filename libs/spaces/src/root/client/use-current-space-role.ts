@@ -1,13 +1,16 @@
+import { type Accessor, createMemo } from 'solid-js';
 import { useSpacePresence } from '../../public/use-space-presence';
 
 /**
  * Returns the current user's role on `spaceId` — `'host'`, `'guest'`, or
  * `null` when they aren't in the space (or presence is still loading).
  */
-export function useCurrentSpaceRole(spaceId: string): 'host' | 'guest' | null {
+export function useCurrentSpaceRole(
+  spaceId: string | Accessor<string>
+): Accessor<'host' | 'guest' | null> {
   const presence = useSpacePresence(spaceId);
-  if (presence.status === 'active') {
-    return presence.role;
-  }
-  return null;
+  return createMemo(() => {
+    const current = presence();
+    return current.status === 'active' ? current.role : null;
+  });
 }

@@ -1,4 +1,5 @@
-import type { ReactNode } from 'react';
+import type { JSX } from 'solid-js';
+
 import { SpaceHostNameText } from '../members/space-host-name-text';
 
 export type MiniplayerHostNameLineProps = {
@@ -6,12 +7,12 @@ export type MiniplayerHostNameLineProps = {
 };
 
 /** Host username line inside a miniplayer card. */
-export function MiniplayerHostNameLine({
-  spaceId,
-}: MiniplayerHostNameLineProps): ReactNode {
+export function MiniplayerHostNameLine(
+  props: MiniplayerHostNameLineProps
+): JSX.Element {
   return (
     <SpaceHostNameText
-      spaceId={spaceId}
+      spaceId={props.spaceId}
       variant="caption"
       sx={{ flexShrink: 1 }}
       numberOfLines={1}

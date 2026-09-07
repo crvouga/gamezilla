@@ -1,7 +1,6 @@
 import { UserUsername } from '@libs/profile/public/user-username';
-import type { SxProps, TextVariant } from '@pkgs/ui-rn';
-import { optionalProps } from '@pkgs/ui-rn/components/optional-props';
-import type { ReactNode } from 'react';
+import type { SxProps, TextVariant } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 
 export type SpaceGuestMembershipUsernameProps = {
   /** Guest member / account id (also the profile id). */
@@ -11,17 +10,16 @@ export type SpaceGuestMembershipUsernameProps = {
   numberOfLines?: number;
 };
 
-export function SpaceGuestMembershipUsername({
-  membershipId,
-  variant,
-  sx,
-  numberOfLines,
-}: SpaceGuestMembershipUsernameProps): ReactNode {
+export function SpaceGuestMembershipUsername(
+  props: SpaceGuestMembershipUsernameProps
+): JSX.Element {
   return (
     <UserUsername
-      profileId={membershipId}
+      profileId={props.membershipId}
       withAt={false}
-      {...optionalProps({ variant, sx, numberOfLines })}
+      variant={props.variant}
+      sx={props.sx}
+      numberOfLines={props.numberOfLines}
     />
   );
 }

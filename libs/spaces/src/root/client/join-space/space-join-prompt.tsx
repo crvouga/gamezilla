@@ -1,13 +1,14 @@
-import { Trans, useLingui } from '@lingui/react/macro';
+import { Trans, useLingui } from '@lingui/solid/macro';
 import {
   Box,
   EmptyState,
   Gamepad2Icon,
   LoadingState,
   ScreenBase,
-} from '@pkgs/ui-rn';
-import { useBreadcrumbNav } from '@pkgs/ui-rn/components/use-breadcrumb-nav';
-import type { ReactNode } from 'react';
+  useBreadcrumbNav,
+} from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+import { Match, Show, Switch } from 'solid-js';
 import { SpaceTitleText } from '../../../root/client/space-title-text';
 import { SpaceEndedScreen } from './space-ended-screen';
 import { SpaceJoinButton } from './space-join-button';
@@ -18,68 +19,75 @@ export type SpaceJoinPromptProps = {
   spaceId: string;
 };
 
-export function SpaceJoinPrompt({ spaceId }: SpaceJoinPromptProps): ReactNode {
+export function SpaceJoinPrompt(props: SpaceJoinPromptProps): JSX.Element {
   const nav = useBreadcrumbNav();
-  const snapshot = useSpaceJoinSnapshot(spaceId);
-
-  if (snapshot.status === 'ended') {
-    return <SpaceEndedScreen spaceId={spaceId} />;
-  }
+  const snapshot = useSpaceJoinSnapshot(() => props.spaceId);
 
   return (
-    <ScreenBase
-      screenId="space-join"
-      breadcrumbs={[
-        { name: <Trans>Spaces</Trans>, onPress: nav('/') },
-        {
-          name: <SpaceTitleText spaceId={spaceId} variant="navigationTitle" />,
-        },
-      ]}
-      footer={
-        snapshot.status === 'live' ? (
-          <Box sx={{ flexDirection: 'row' }}>
-            <SpaceJoinButton
-              spaceId={spaceId}
-              joinable={snapshot.joinable}
-              flex={1}
-            />
+    <Show
+      when={snapshot().status !== 'ended'}
+      fallback={<SpaceEndedScreen spaceId={props.spaceId} />}
+    >
+      <ScreenBase
+        screenId="space-join"
+        breadcrumbs={[
+          { name: <Trans>Spaces</Trans>, onClick: nav('/') },
+          {
+            name: (
+              <SpaceTitleText
+                spaceId={props.spaceId}
+                variant="navigationTitle"
+              />
+            ),
+          },
+        ]}
+        footer={
+          <Show when={snapshot().status === 'live'}>
+            <Box sx={{ flexDirection: 'row' }}>
+              <SpaceJoinButton
+                spaceId={props.spaceId}
+                joinable={snapshot().joinable}
+                flex={1}
+              />
+            </Box>
+          </Show>
+        }
+        content={({ sx }) => (
+          <Box sx={sx}>
+            <JoinPromptBody spaceId={props.spaceId} snapshot={snapshot} />
           </Box>
-        ) : undefined
-      }
-      content={({ sx }) => (
-        <Box sx={sx}>
-          <JoinPromptBody spaceId={spaceId} snapshot={snapshot} />
-        </Box>
-      )}
-    />
+        )}
+      />
+    </Show>
   );
 }
 
-function JoinPromptBody({
-  spaceId,
-  snapshot,
-}: {
-  spaceId: string;
-  snapshot: ReturnType<typeof useSpaceJoinSnapshot>;
-}): ReactNode {
+function JoinPromptBody(props: {
+  readonly spaceId: string;
+  readonly snapshot: ReturnType<typeof useSpaceJoinSnapshot>;
+}): JSX.Element {
   const nav = useBreadcrumbNav();
   const { t } = useLingui();
 
-  if (snapshot.status === 'loading') {
-    return <LoadingState />;
-  }
-  if (snapshot.status === 'unavailable') {
-    return (
-      <EmptyState
-        icon={Gamepad2Icon}
-        title={t`Space not available`}
-        body={t`Ask the host to add you to the allow list, or check the link.`}
-        action={{
-          label: t`Back to spaces`,
-          onPress: nav('/'),
-        }}
-      />
-    );
-  }
-  return <SpaceJoinLiveBody spaceId={spaceId} />;
+  return (
+    <Switch>
+      <Match when={props.snapshot().status === 'loading'}>
+        <LoadingState />
+      </Match>
+      <Match when={props.snapshot().status === 'unavailable'}>
+        <EmptyState
+          icon={Gamepad2Icon}
+          title={t`Space not available`}
+          body={t`Ask the host to add you to the allow list, or check the link.`}
+          action={{
+            label: t`Back to spaces`,
+            onClick: nav('/'),
+          }}
+        />
+      </Match>
+      <Match when={props.snapshot().status === 'live'}>
+        <SpaceJoinLiveBody spaceId={props.spaceId} />
+      </Match>
+    </Switch>
+  );
 }

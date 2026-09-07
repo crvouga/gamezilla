@@ -1,29 +1,21 @@
-import { Trans, useLingui } from '@lingui/react/macro';
-import { Box, Button, Text, useMutationButton } from '@pkgs/ui-rn';
-import { type ReactNode, useCallback } from 'react';
-import { Platform, Share } from 'react-native';
+import { Trans, useLingui } from '@lingui/solid/macro';
+import { Box, Button, Text, useMutationButton } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 
 function spaceShareUrl(spaceId: string): string {
-  if (Platform.OS === 'web' && typeof window !== 'undefined') {
+  if (typeof window !== 'undefined') {
     return `${window.location.origin}/space/${spaceId}`;
   }
   return `/space/${spaceId}`;
 }
 
-export function SpaceShareLinkSection({
-  spaceId,
-}: {
+export function SpaceShareLinkSection(props: {
   readonly spaceId: string;
-}): ReactNode {
+}): JSX.Element {
   const { t } = useLingui();
-  const copyLink = useCallback(async () => {
-    const url = spaceShareUrl(spaceId);
-    if (Platform.OS === 'web' && typeof navigator !== 'undefined') {
-      await navigator.clipboard.writeText(url);
-      return;
-    }
-    await Share.share({ message: url, url });
-  }, [spaceId]);
+  const copyLink = async (): Promise<void> => {
+    await navigator.clipboard.writeText(spaceShareUrl(props.spaceId));
+  };
   const copyButton = useMutationButton({
     operation: copyLink,
     labels: {

@@ -1,7 +1,6 @@
-import { Trans } from '@lingui/react/macro';
-import { type SxProps, Text, type TextVariant } from '@pkgs/ui-rn';
-import { optionalProps } from '@pkgs/ui-rn/components/optional-props';
-import type { ReactNode } from 'react';
+import { Trans } from '@lingui/solid/macro';
+import { type SxProps, Text, type TextVariant } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 
 export type NoGuestsTextProps = {
   variant?: TextVariant;
@@ -10,14 +9,12 @@ export type NoGuestsTextProps = {
 };
 
 /** Static localized "No guests yet" line. */
-export function NoGuestsText({
-  variant,
-  sx,
-  numberOfLines,
-}: NoGuestsTextProps): ReactNode {
+export function NoGuestsText(props: NoGuestsTextProps): JSX.Element {
   return (
     <Text
-      {...optionalProps({ variant, sx, numberOfLines })}
+      variant={props.variant}
+      sx={props.sx}
+      numberOfLines={props.numberOfLines}
       label={<Trans>No guests yet</Trans>}
     />
   );

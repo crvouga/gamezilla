@@ -1,5 +1,6 @@
 import { useMyDeviceId, useMyId } from '@libs/auth/public/use-current-user';
-import { useMemo } from 'react';
+import { type Accessor, createMemo } from 'solid-js';
+
 import { SpaceField, useSpaceColumn } from '../../../public/use-space-column';
 import { resolveSpaceHostProfileId } from '../../../shared/space/resolve-space-host-profile-id';
 
@@ -12,23 +13,24 @@ export type SpaceHostMembershipDisplay = {
 
 /** Host member display fields from the spaces row (member id = profile id). */
 export function useSpaceHostMembershipDisplay(
-  spaceId: string
-): SpaceHostMembershipDisplay | null {
+  spaceId: string | Accessor<string>
+): Accessor<SpaceHostMembershipDisplay | null> {
   const hostMemberId = useSpaceColumn(spaceId, SpaceField.hostMemberId);
   const hostAccountId = useSpaceColumn(spaceId, SpaceField.hostAccountId);
   const hostId = useSpaceColumn(spaceId, SpaceField.hostId);
   const myDeviceId = useMyDeviceId();
   const myId = useMyId();
-  return useMemo(() => {
-    let profileId = resolveSpaceHostProfileId(hostMemberId, hostAccountId);
+  return createMemo(() => {
+    const deviceColumn = hostId();
+    let profileId = resolveSpaceHostProfileId(hostMemberId(), hostAccountId());
     if (
       profileId === null &&
-      hostId !== null &&
-      hostId.length > 0 &&
-      hostId === myDeviceId &&
-      myId.length > 0
+      deviceColumn !== null &&
+      deviceColumn.length > 0 &&
+      deviceColumn === myDeviceId() &&
+      myId().length > 0
     ) {
-      profileId = myId;
+      profileId = myId();
     }
     if (profileId === null) return null;
     return {
@@ -37,5 +39,5 @@ export function useSpaceHostMembershipDisplay(
       profileId,
       deviceLabel: null,
     };
-  }, [hostMemberId, hostAccountId, hostId, myDeviceId, myId]);
+  });
 }

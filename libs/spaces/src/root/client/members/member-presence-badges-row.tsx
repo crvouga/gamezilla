@@ -1,5 +1,6 @@
-import { Box } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Box } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+
 import { MemberHostBadge } from './member-host-badge';
 import { MemberSessionCountBadge } from './member-session-count-badge';
 import { MemberThisTabBadge } from './member-this-tab-badge';
@@ -11,10 +12,9 @@ export type MemberPresenceBadgesRowProps = {
 };
 
 /** Wrapped row of presence badges (each badge self-gates). */
-export function MemberPresenceBadgesRow({
-  spaceId,
-  profileId,
-}: MemberPresenceBadgesRowProps): ReactNode {
+export function MemberPresenceBadgesRow(
+  props: MemberPresenceBadgesRowProps
+): JSX.Element {
   return (
     <Box
       sx={{
@@ -24,10 +24,13 @@ export function MemberPresenceBadgesRow({
         alignItems: 'center',
       }}
     >
-      <MemberSessionCountBadge spaceId={spaceId} profileId={profileId} />
-      <MemberYouBadge profileId={profileId} />
-      <MemberThisTabBadge spaceId={spaceId} profileId={profileId} />
-      <MemberHostBadge spaceId={spaceId} profileId={profileId} />
+      <MemberSessionCountBadge
+        spaceId={props.spaceId}
+        profileId={props.profileId}
+      />
+      <MemberYouBadge profileId={props.profileId} />
+      <MemberThisTabBadge spaceId={props.spaceId} profileId={props.profileId} />
+      <MemberHostBadge spaceId={props.spaceId} profileId={props.profileId} />
     </Box>
   );
 }

@@ -4,7 +4,7 @@ import {
   useFreshAuthToken,
   useGetFreshAuthToken,
 } from '@libs/auth/public/use-fresh-auth-token';
-import { useKv } from '@pkgs/kv/kv-context';
+import { useKv } from '@pkgs/kv/solid';
 import type {
   ClientTransport,
   RoomClient,
@@ -12,9 +12,10 @@ import type {
   RoomEvent,
   RoomState,
 } from '@pkgs/room';
-import { RoomMetaAttr, useRoomSnapshot } from '@pkgs/room';
-import { useCreateId } from '@pkgs/uuid';
-import { useMemo } from 'react';
+import { RoomMetaAttr } from '@pkgs/room';
+import { createRoomSnapshot } from '@pkgs/room/solid';
+import { useCreateId } from '@pkgs/uuid/solid';
+import { type Accessor, createMemo } from 'solid-js';
 import { SpaceOpenSessionStore } from './space-open-session-store';
 import type { SpaceRoomConnectionBootstrap } from './space-room-connection-bootstrap';
 import { useRoomResumeLiveness } from './use-room-resume-liveness';
@@ -28,15 +29,21 @@ export type SpaceRoomUiState = {
    * hydrate finishes (or if open failed hard). Not tied to WebSocket /
    * Connecting… — once set, optimistic dispatch works offline.
    */
-  room: SpaceRoom | null;
-  transport: ClientTransport | null;
-  isSynced: boolean;
-  roomActive: boolean;
+  readonly room: SpaceRoom | null;
+  readonly transport: ClientTransport | null;
+  readonly isSynced: boolean;
+  readonly roomActive: boolean;
   /** Stable per open-session client id for the live roster. */
-  clientId: string;
+  readonly clientId: string;
 };
 
-export function useSpaceRoom(spaceId: string): SpaceRoomUiState {
+function resolveId(spaceId: string | Accessor<string>): string {
+  return typeof spaceId === 'string' ? spaceId : spaceId();
+}
+
+export function useSpaceRoom(
+  spaceId: string | Accessor<string>
+): SpaceRoomUiState {
   const deviceId = useMyDeviceId();
   const memberId = useMyId();
   const configService = useConfigService();
@@ -44,29 +51,36 @@ export function useSpaceRoom(spaceId: string): SpaceRoomUiState {
   const sessionToken = useFreshAuthToken();
   const getFreshToken = useGetFreshAuthToken();
   const createId = useCreateId();
-  const clientId =
-    spaceId.length > 0 && deviceId.length > 0
-      ? new SpaceOpenSessionStore(createId).getOrCreate(spaceId, deviceId)
+  const clientId = createMemo(() => {
+    const id = resolveId(spaceId);
+    const device = deviceId();
+    return id.length > 0 && device.length > 0
+      ? new SpaceOpenSessionStore(createId).getOrCreate(id, device)
       : '';
+  });
 
   // Lifetime is owned by SpaceOpenRoomSlot (open-session row). Do not gate on
   // presence/paintReady — those flap and were destroying the single WS.
-  const bootstrap = useMemo((): SpaceRoomConnectionBootstrap | null => {
+  const bootstrap = createMemo((): SpaceRoomConnectionBootstrap | null => {
+    const id = resolveId(spaceId);
+    const device = deviceId();
+    const member = memberId();
+    const client = clientId();
     if (
-      spaceId.length === 0 ||
-      deviceId.length === 0 ||
-      memberId.length === 0 ||
-      clientId.length === 0
+      id.length === 0 ||
+      device.length === 0 ||
+      member.length === 0 ||
+      client.length === 0
     ) {
       return null;
     }
     return {
-      spaceId,
-      myId: memberId,
-      installId: deviceId,
-      clientId,
+      spaceId: id,
+      myId: member,
+      installId: device,
+      clientId: client,
     };
-  }, [spaceId, deviceId, memberId, clientId]);
+  });
 
   const { room, transport } = useSpaceRoomConnection({
     bootstrap,
@@ -76,13 +90,23 @@ export function useSpaceRoom(spaceId: string): SpaceRoomUiState {
     getFreshToken,
   });
   useRoomResumeLiveness(transport);
-  const snap = useRoomSnapshot(room);
-  const isSynced = RoomMetaAttr.isSynced.from(snap);
+  const snapshot = createRoomSnapshot(room);
+  const isSynced = createMemo(() => RoomMetaAttr.isSynced.from(snapshot()));
   return {
-    room,
-    transport,
-    roomActive: room !== null,
-    isSynced,
-    clientId,
+    get room() {
+      return room();
+    },
+    get transport() {
+      return transport();
+    },
+    get roomActive() {
+      return room() !== null;
+    },
+    get isSynced() {
+      return isSynced();
+    },
+    get clientId() {
+      return clientId();
+    },
   };
 }

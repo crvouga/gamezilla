@@ -1,6 +1,6 @@
-import { type SxProps, Text, type TextVariant } from '@pkgs/ui-rn';
-import { optionalProps } from '@pkgs/ui-rn/components/optional-props';
-import type { ReactNode } from 'react';
+import { type SxProps, Text, type TextVariant } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+import { Show } from 'solid-js';
 import { SpaceField, useSpaceColumn } from '../../public/use-space-column';
 import { SpaceHostFallbackTitle } from './members/space-host-fallback-title';
 
@@ -15,25 +15,30 @@ export type SpaceTitleTextProps = {
  * Renders the user-set title for a space, falling back to the localized
  * `${hostName}'s space` template when no custom title is set.
  */
-export function SpaceTitleText({
-  spaceId,
-  variant,
-  sx,
-  numberOfLines,
-}: SpaceTitleTextProps): ReactNode {
-  const customTitle = useSpaceColumn(spaceId, SpaceField.title);
-  if (customTitle !== null && customTitle.length > 0) {
-    return (
-      <Text
-        {...optionalProps({ variant, sx, numberOfLines })}
-        label={customTitle}
-      />
-    );
-  }
+export function SpaceTitleText(props: SpaceTitleTextProps): JSX.Element {
+  const customTitle = useSpaceColumn(props.spaceId, SpaceField.title);
   return (
-    <SpaceHostFallbackTitle
-      spaceId={spaceId}
-      {...optionalProps({ variant, sx, numberOfLines })}
-    />
+    <Show
+      when={customTitle()}
+      fallback={
+        <SpaceHostFallbackTitle
+          spaceId={props.spaceId}
+          {...(props.variant !== undefined ? { variant: props.variant } : {})}
+          {...(props.sx !== undefined ? { sx: props.sx } : {})}
+          {...(props.numberOfLines !== undefined
+            ? { numberOfLines: props.numberOfLines }
+            : {})}
+        />
+      }
+    >
+      <Text
+        {...(props.variant !== undefined ? { variant: props.variant } : {})}
+        {...(props.sx !== undefined ? { sx: props.sx } : {})}
+        {...(props.numberOfLines !== undefined
+          ? { numberOfLines: props.numberOfLines }
+          : {})}
+        label={customTitle() ?? ''}
+      />
+    </Show>
   );
 }

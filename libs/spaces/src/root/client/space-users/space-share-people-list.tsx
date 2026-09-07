@@ -1,4 +1,4 @@
-import { Trans, useLingui } from '@lingui/react/macro';
+import { Trans, useLingui } from '@lingui/solid/macro';
 import {
   Box,
   Button,
@@ -6,8 +6,9 @@ import {
   LoadingState,
   Text,
   useMutationButton,
-} from '@pkgs/ui-rn';
-import { type ReactNode, useCallback } from 'react';
+} from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+import { createMemo, For, Show } from 'solid-js';
 
 import { useSpaceHostMembershipDisplay } from '../members/use-space-host-membership-display';
 import { SpaceShareUserRow } from './space-share-user-row';
@@ -17,16 +18,13 @@ import {
 } from './use-space-user-entries';
 import { useRemoveSpaceUser } from './use-space-users';
 
-export function SpaceSharePeopleList({
-  spaceId,
-  canManage,
-}: {
+export function SpaceSharePeopleList(props: {
   readonly spaceId: string;
   readonly canManage: boolean;
-}): ReactNode {
-  const { entries, isLoading } = useSpaceUserEntries(spaceId);
-  const host = useSpaceHostMembershipDisplay(spaceId);
-  const hostProfileId = host?.profileId ?? null;
+}): JSX.Element {
+  const { entries, isLoading } = useSpaceUserEntries(props.spaceId);
+  const host = useSpaceHostMembershipDisplay(props.spaceId);
+  const hostProfileId = createMemo(() => host()?.profileId ?? null);
 
   return (
     <Box sx={{ gap: 2 }}>
@@ -36,38 +34,51 @@ export function SpaceSharePeopleList({
         sx={{ color: 'textSecondary' }}
         label={<Trans>Private spaces only sync for people you add here.</Trans>}
       />
-      {isLoading ? <LoadingState size="small" /> : null}
-      {!isLoading && entries.length === 0 ? (
+      <Show when={isLoading()}>
+        <LoadingState size="small" />
+      </Show>
+      <Show when={!isLoading() && entries().length === 0}>
         <EmptyState variant="compact" title={<Trans>No one added yet</Trans>} />
-      ) : null}
-      {entries.map((entry) => (
-        <PeopleAccessRow
-          key={entry.userId}
-          spaceId={spaceId}
-          entry={entry}
-          isHost={hostProfileId === entry.userId}
-          canManage={canManage}
-        />
-      ))}
+      </Show>
+      <For each={entries()}>
+        {(entry) => (
+          <PeopleAccessRow
+            spaceId={props.spaceId}
+            entry={entry}
+            isHost={hostProfileId() === entry.userId}
+            canManage={props.canManage}
+          />
+        )}
+      </For>
     </Box>
   );
 }
 
-function PeopleAccessRow({
-  spaceId,
-  entry,
-  isHost,
-  canManage,
-}: {
+function PeopleAccessRow(props: {
   readonly spaceId: string;
   readonly entry: SpaceUserEntry;
   readonly isHost: boolean;
   readonly canManage: boolean;
-}): ReactNode {
-  if (isHost) {
-    return (
+}): JSX.Element {
+  return (
+    <Show
+      when={props.isHost}
+      fallback={
+        <Show
+          when={props.canManage}
+          fallback={
+            <SpaceShareUserRow userId={props.entry.userId} trailing={null} />
+          }
+        >
+          <RemovablePeopleRow
+            spaceId={props.spaceId}
+            userId={props.entry.userId}
+          />
+        </Show>
+      }
+    >
       <SpaceShareUserRow
-        userId={entry.userId}
+        userId={props.entry.userId}
         trailing={
           <Text
             variant="caption"
@@ -76,30 +87,18 @@ function PeopleAccessRow({
           />
         }
       />
-    );
-  }
-
-  if (!canManage) {
-    return <SpaceShareUserRow userId={entry.userId} trailing={null} />;
-  }
-
-  return <RemovablePeopleRow spaceId={spaceId} userId={entry.userId} />;
+    </Show>
+  );
 }
 
-function RemovablePeopleRow({
-  spaceId,
-  userId,
-}: {
+function RemovablePeopleRow(props: {
   readonly spaceId: string;
   readonly userId: string;
-}): ReactNode {
+}): JSX.Element {
   const { t } = useLingui();
   const remove = useRemoveSpaceUser();
   const removeButton = useMutationButton({
-    operation: useCallback(
-      () => remove(spaceId, userId),
-      [remove, spaceId, userId]
-    ),
+    operation: () => remove(props.spaceId, props.userId),
     labels: {
       idle: t`Remove`,
       loading: t`Removing…`,
@@ -110,7 +109,7 @@ function RemovablePeopleRow({
   });
   return (
     <SpaceShareUserRow
-      userId={userId}
+      userId={props.userId}
       trailing={<Button {...removeButton.buttonProps} size="sm" />}
     />
   );

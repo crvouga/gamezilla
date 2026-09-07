@@ -1,7 +1,6 @@
 import { UserUsername } from '@libs/profile/public/user-username';
-import type { SxProps, TextVariant } from '@pkgs/ui-rn';
-import { optionalProps } from '@pkgs/ui-rn/components/optional-props';
-import type { ReactNode } from 'react';
+import type { SxProps, TextVariant } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 
 import { useSpaceHostMembershipDisplay } from './use-space-host-membership-display';
 
@@ -12,18 +11,15 @@ export type SpaceHostNameTextProps = {
   numberOfLines?: number;
 };
 
-export function SpaceHostNameText({
-  spaceId,
-  variant,
-  sx,
-  numberOfLines,
-}: SpaceHostNameTextProps): ReactNode {
-  const host = useSpaceHostMembershipDisplay(spaceId);
+export function SpaceHostNameText(props: SpaceHostNameTextProps): JSX.Element {
+  const host = useSpaceHostMembershipDisplay(props.spaceId);
   return (
     <UserUsername
-      profileId={host?.profileId ?? null}
+      profileId={host()?.profileId ?? null}
       withAt={false}
-      {...optionalProps({ variant, sx, numberOfLines })}
+      variant={props.variant}
+      sx={props.sx}
+      numberOfLines={props.numberOfLines}
     />
   );
 }

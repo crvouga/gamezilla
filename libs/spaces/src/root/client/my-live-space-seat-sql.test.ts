@@ -6,9 +6,8 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite/impl-bun-sqlite';
 import { SPACES_TABLES } from '../../public/schema';
 import { spaceUserEntityId } from '../../shared/space/participation/participation-ids';
-
+import { buildCurrentSpaceEntries } from './build-current-space-entries';
 import { sharedLiveSpaceIdsSql } from './my-live-space-seat-sql';
-import { buildCurrentSpaceEntries } from './use-current-space-ids';
 
 const HOST_SPACE = 'space-host-1';
 const SHARED_SPACE = 'space-shared-1';

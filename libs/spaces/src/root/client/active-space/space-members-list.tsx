@@ -1,9 +1,10 @@
 import { useMyId } from '@libs/auth/public/use-current-user';
 import { UserProfileAvatar } from '@libs/profile/public/user-profile-avatar';
 import { UserUsername } from '@libs/profile/public/user-username';
-import { Trans } from '@lingui/react/macro';
-import { Box, CONTENT_EDGE_PADDING_STEP, Text } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Trans } from '@lingui/solid/macro';
+import { Box, CONTENT_EDGE_PADDING_STEP, Text } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+import { For, Show } from 'solid-js';
 
 import { useSpaceGuestMembershipIds } from '../members/use-space-guest-membership-ids';
 import { useSpaceHostMembershipDisplay } from '../members/use-space-host-membership-display';
@@ -18,52 +19,47 @@ export type SpaceMembersListProps = {
  * Compact member list: one row per seated / ACL guest. Host first; "You" when
  * the member is this account.
  */
-export function SpaceMembersList({
-  spaceId,
-}: SpaceMembersListProps): ReactNode {
-  const host = useSpaceHostMembershipDisplay(spaceId);
-  const guestIds = useSpaceGuestMembershipIds(spaceId);
+export function SpaceMembersList(props: SpaceMembersListProps): JSX.Element {
+  const host = useSpaceHostMembershipDisplay(props.spaceId);
+  const guestIds = useSpaceGuestMembershipIds(props.spaceId);
   return (
     <Box sx={{ gap: 0 }}>
-      {host !== null ? (
-        <SpaceMembersSeatRow
-          profileId={host.profileId}
-          memberId={host.deviceId}
-          deviceLabel={host.deviceLabel}
-          trailing={
-            <Text
-              variant="caption"
-              sx={{ color: 'textSecondary' }}
-              label={<Trans>Host</Trans>}
-            />
-          }
-        />
-      ) : null}
-      {guestIds.map((memberId) => (
-        <SpaceMembersSeatRow
-          key={memberId}
-          profileId={memberId}
-          memberId={memberId}
-          deviceLabel={null}
-        />
-      ))}
+      <Show when={host()} keyed>
+        {(current) => (
+          <SpaceMembersSeatRow
+            profileId={current.profileId}
+            memberId={current.deviceId}
+            deviceLabel={current.deviceLabel}
+            trailing={
+              <Text
+                variant="caption"
+                sx={{ color: 'textSecondary' }}
+                label={<Trans>Host</Trans>}
+              />
+            }
+          />
+        )}
+      </Show>
+      <For each={guestIds()}>
+        {(memberId) => (
+          <SpaceMembersSeatRow
+            profileId={memberId}
+            memberId={memberId}
+            deviceLabel={null}
+          />
+        )}
+      </For>
     </Box>
   );
 }
 
-function SpaceMembersSeatRow({
-  profileId,
-  memberId,
-  deviceLabel,
-  trailing,
-}: {
-  profileId: string;
-  memberId: string;
-  deviceLabel: string | null;
-  trailing?: ReactNode;
-}): ReactNode {
+function SpaceMembersSeatRow(props: {
+  readonly profileId: string;
+  readonly memberId: string;
+  readonly deviceLabel: string | null;
+  readonly trailing?: JSX.Element;
+}): JSX.Element {
   const myId = useMyId();
-  const isYou = memberId === myId;
   return (
     <Box
       sx={{
@@ -74,31 +70,31 @@ function SpaceMembersSeatRow({
         px: CONTENT_EDGE_PADDING_STEP,
       }}
     >
-      <UserProfileAvatar profileId={profileId} size={ROW_AVATAR_SIZE} />
+      <UserProfileAvatar profileId={props.profileId} size={ROW_AVATAR_SIZE} />
       <Box sx={{ flex: 1, minWidth: 0, gap: 0 }}>
         <UserUsername
-          profileId={profileId}
+          profileId={props.profileId}
           withAt={false}
           variant="body"
           numberOfLines={1}
         />
-        {deviceLabel !== null && deviceLabel.length > 0 ? (
+        <Show when={props.deviceLabel !== null && props.deviceLabel.length > 0}>
           <Text
             variant="caption"
             sx={{ color: 'textSecondary' }}
             numberOfLines={1}
-            label={deviceLabel}
+            label={props.deviceLabel ?? ''}
           />
-        ) : null}
+        </Show>
       </Box>
-      {isYou ? (
+      <Show when={props.memberId === myId()}>
         <Text
           variant="caption"
           sx={{ color: 'textSecondary' }}
           label={<Trans>You</Trans>}
         />
-      ) : null}
-      {trailing}
+      </Show>
+      {props.trailing}
     </Box>
   );
 }

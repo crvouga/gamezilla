@@ -1,6 +1,7 @@
-import { AvatarGroup } from '@pkgs/ui-rn';
-import { optionalProps } from '@pkgs/ui-rn/components/optional-props';
-import type { ReactNode } from 'react';
+import { AvatarGroup } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+import { For, Show } from 'solid-js';
+
 import { SpaceGuestMembershipAvatar } from './space-guest-membership-avatar';
 import { useSpaceGuestMembershipIds } from './use-space-guest-membership-ids';
 
@@ -12,23 +13,23 @@ export type SpaceGuestAvatarGroupProps = {
 };
 
 /** Stacked guest avatars for a space, keyed by membership id. */
-export function SpaceGuestAvatarGroup({
-  spaceId,
-  size,
-  maxVisible,
-  ringColor,
-}: SpaceGuestAvatarGroupProps): ReactNode {
-  const membershipIds = useSpaceGuestMembershipIds(spaceId);
-  if (membershipIds.length === 0) return null;
+export function SpaceGuestAvatarGroup(
+  props: SpaceGuestAvatarGroupProps
+): JSX.Element {
+  const membershipIds = useSpaceGuestMembershipIds(props.spaceId);
   return (
-    <AvatarGroup
-      size={size}
-      maxVisible={maxVisible}
-      {...optionalProps({ ringColor })}
-    >
-      {membershipIds.map((mid) => (
-        <SpaceGuestMembershipAvatar key={mid} membershipId={mid} size={size} />
-      ))}
-    </AvatarGroup>
+    <Show when={membershipIds().length > 0}>
+      <AvatarGroup
+        size={props.size}
+        maxVisible={props.maxVisible}
+        ringColor={props.ringColor}
+      >
+        <For each={membershipIds()}>
+          {(mid) => (
+            <SpaceGuestMembershipAvatar membershipId={mid} size={props.size} />
+          )}
+        </For>
+      </AvatarGroup>
+    </Show>
   );
 }

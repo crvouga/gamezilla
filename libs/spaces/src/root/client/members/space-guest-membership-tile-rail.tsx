@@ -1,4 +1,6 @@
-import type { ReactNode } from 'react';
+import type { JSX } from 'solid-js';
+import { Show } from 'solid-js';
+
 import { SpaceMemberTileRail } from './space-member-tile-rail';
 
 export type SpaceGuestMembershipTileRailProps = {
@@ -7,17 +9,17 @@ export type SpaceGuestMembershipTileRailProps = {
   membershipId: string;
 };
 
-export function SpaceGuestMembershipTileRail({
-  spaceId,
-  membershipId,
-}: SpaceGuestMembershipTileRailProps): ReactNode {
-  if (membershipId.length === 0) return null;
+export function SpaceGuestMembershipTileRail(
+  props: SpaceGuestMembershipTileRailProps
+): JSX.Element {
   return (
-    <SpaceMemberTileRail
-      spaceId={spaceId}
-      deviceId={membershipId}
-      profileId={membershipId}
-      deviceLabel={null}
-    />
+    <Show when={props.membershipId.length > 0}>
+      <SpaceMemberTileRail
+        spaceId={props.spaceId}
+        deviceId={props.membershipId}
+        profileId={props.membershipId}
+        deviceLabel={null}
+      />
+    </Show>
   );
 }

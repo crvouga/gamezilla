@@ -1,9 +1,9 @@
-import { Trans } from '@lingui/react/macro';
-import { Box, borderRadius, StatusDot, Text } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Trans } from '@lingui/solid/macro';
+import { Box, borderRadius, StatusDot, Text } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 
 /** Static "Live" pill (no props — miniplayer entries are always live). */
-export function MiniplayerLiveBadge(): ReactNode {
+export function MiniplayerLiveBadge(): JSX.Element {
   return (
     <Box
       sx={{

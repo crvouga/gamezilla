@@ -6,7 +6,7 @@ import type { Timers } from '@pkgs/clock';
 import type { ClientTransport } from '@pkgs/room';
 import { WebSocketRoomTransport } from '@pkgs/room-adapter-web';
 import type { Random } from '@pkgs/uuid';
-import { createContext, type ReactNode, useContext, useMemo } from 'react';
+import { createContext, type JSX, useContext } from 'solid-js';
 
 import { apiUrlToRoomWebSocketUrl } from './space-room-url';
 
@@ -63,21 +63,17 @@ function defaultCreateTransport(
 
 const Ctx = createContext<CreateRoomTransport | null>(null);
 
-export function RoomTransportFactoryProvider({
-  children,
-  createTransport,
-}: {
-  readonly children: ReactNode;
-  readonly createTransport?: CreateRoomTransport;
-}): ReactNode {
-  const value = useMemo(
-    () => createTransport ?? defaultCreateTransport,
-    [createTransport]
+export function RoomTransportFactoryProvider(props: {
+  readonly children: JSX.Element;
+  readonly createTransport?: CreateRoomTransport | undefined;
+}): JSX.Element {
+  return (
+    <Ctx.Provider value={props.createTransport ?? defaultCreateTransport}>
+      {props.children}
+    </Ctx.Provider>
   );
-  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 
 export function useCreateRoomTransport(): CreateRoomTransport {
-  const v = useContext(Ctx);
-  return v ?? defaultCreateTransport;
+  return useContext(Ctx) ?? defaultCreateTransport;
 }

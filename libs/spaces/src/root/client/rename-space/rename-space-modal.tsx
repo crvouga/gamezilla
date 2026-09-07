@@ -1,6 +1,6 @@
-import { Trans, useLingui } from '@lingui/react/macro';
-import { MutationModal, TextInput } from '@pkgs/ui-rn';
-import { type ReactNode, useCallback, useEffect, useState } from 'react';
+import { Trans, useLingui } from '@lingui/solid/macro';
+import { MutationModal, TextInput } from '@pkgs/ui';
+import { createEffect, createSignal, type JSX } from 'solid-js';
 
 import { SpaceField, useSpaceColumn } from '../../../public/use-space-column';
 import { useRenameSpace } from './use-rename-space';
@@ -17,31 +17,26 @@ export type RenameSpaceModalProps = {
  * so an empty input means "clear the custom title"). Submitting runs the
  * rename through the shared mutation lifecycle (loading -> success / error).
  */
-export function RenameSpaceModal({
-  spaceId,
-  visible,
-  onClose,
-}: RenameSpaceModalProps): ReactNode {
+export function RenameSpaceModal(props: RenameSpaceModalProps): JSX.Element {
   const { t } = useLingui();
-  const persistedTitle = useSpaceColumn(spaceId, SpaceField.title);
+  const persistedTitle = useSpaceColumn(() => props.spaceId, SpaceField.title);
   const renameSpace = useRenameSpace();
-  const [value, setValue] = useState<string>('');
+  const [value, setValue] = createSignal<string>('');
 
-  useEffect(() => {
-    if (visible) {
-      setValue(persistedTitle ?? '');
+  createEffect(() => {
+    if (props.visible) {
+      setValue(() => persistedTitle() ?? '');
     }
-  }, [visible, persistedTitle]);
+  });
 
-  const operation = useCallback(
-    () => renameSpace(spaceId, value),
-    [renameSpace, spaceId, value]
-  );
+  const operation = async (): Promise<void> => {
+    await renameSpace(props.spaceId, value());
+  };
 
   return (
     <MutationModal
-      visible={visible}
-      onClose={onClose}
+      visible={props.visible}
+      onClose={props.onClose}
       title={<Trans>Rename space</Trans>}
       submitLabel={<Trans>Save</Trans>}
       operation={operation}
@@ -51,12 +46,11 @@ export function RenameSpaceModal({
     >
       <TextInput
         label={<Trans>Space name</Trans>}
-        value={value}
-        onChangeText={setValue}
+        value={value()}
+        onChangeText={(next) => setValue(() => next)}
         placeholder={t`Give your space a name`}
-        autoFocus
-        autoCapitalize="words"
-        autoCorrect
+        autofocus
+        autocapitalize="words"
       />
     </MutationModal>
   );

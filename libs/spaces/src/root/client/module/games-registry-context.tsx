@@ -1,14 +1,21 @@
-import { createContext, type ReactNode, useContext } from 'react';
+import {
+  type Accessor,
+  createContext,
+  type JSX,
+  type ParentProps,
+  untrack,
+  useContext,
+} from 'solid-js';
 import type { GameClientDefinition } from '../../../shared/space/game';
 
 const GamesRegistryContext = createContext<
-  readonly GameClientDefinition[] | null
->(null);
+  Accessor<readonly GameClientDefinition[]>
+>(() => []);
 
 export type GamesRegistryProviderProps = {
   /** Game client definitions, registered at the composition root. */
   readonly value: readonly GameClientDefinition[];
-  readonly children: ReactNode;
+  readonly children: JSX.Element;
 };
 
 /**
@@ -17,13 +24,14 @@ export type GamesRegistryProviderProps = {
  * spaces UI then reads the registry without `@libs/spaces` knowing
  * anything about specific games.
  */
-export function GamesRegistryProvider({
-  value,
-  children,
-}: GamesRegistryProviderProps): ReactNode {
+export function GamesRegistryProvider(
+  props: ParentProps<GamesRegistryProviderProps>
+): JSX.Element {
+  // Registry is composition-root configuration: read once, not tracked.
+  const value = untrack(() => props.value);
   return (
-    <GamesRegistryContext.Provider value={value}>
-      {children}
+    <GamesRegistryContext.Provider value={() => value}>
+      {props.children}
     </GamesRegistryContext.Provider>
   );
 }
@@ -33,5 +41,5 @@ export function GamesRegistryProvider({
  * mounted (e.g. tests that don't exercise the game list).
  */
 export function useGamesRegistry(): readonly GameClientDefinition[] {
-  return useContext(GamesRegistryContext) ?? [];
+  return useContext(GamesRegistryContext)();
 }

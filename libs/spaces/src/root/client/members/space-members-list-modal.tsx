@@ -1,13 +1,14 @@
 import { useMyId } from '@libs/auth/public/use-current-user';
 import { UserProfileAvatar } from '@libs/profile/public/user-profile-avatar';
 import { UserUsername } from '@libs/profile/public/user-username';
-import { Trans, useLingui } from '@lingui/react/macro';
+import { Trans, useLingui } from '@lingui/solid/macro';
 import { groupRosterByParticipant } from '@pkgs/collab';
 import { PresenceRosterList, type PresenceRosterRow } from '@pkgs/collab-ui';
 import { asLocalized } from '@pkgs/i18n';
-import { useRoomFromRegistry, useRoomRoster } from '@pkgs/room';
-import { Badge, ResponsiveSurface, ScrollView, Stack } from '@pkgs/ui-rn';
-import { type ReactNode, useMemo } from 'react';
+import { useNamedRoomRoster } from '@pkgs/room/solid';
+import { Badge, ResponsiveSurface, ScrollView, Stack } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+import { createMemo, Show } from 'solid-js';
 import { useSpaceRoomClientId } from '../../../public/room/space-room-context';
 import { SPACE_ROOM_NAME } from '../../../public/room/use-space-room-selector';
 import { useSpaceParticipantColors } from '../room/use-space-participant-colors';
@@ -24,20 +25,17 @@ export type SpaceMembersListModalProps = {
  * {@link ResponsiveSurface} (bottom sheet on mobile, centered modal on wider
  * viewports).
  */
-export function SpaceMembersListModal({
-  spaceId,
-  visible,
-  onClose,
-}: SpaceMembersListModalProps): ReactNode {
+export function SpaceMembersListModal(
+  props: SpaceMembersListModalProps
+): JSX.Element {
   const { t } = useLingui();
   const myId = useMyId();
+  const roster = useNamedRoomRoster(SPACE_ROOM_NAME);
+  const colors = useSpaceParticipantColors(props.spaceId);
   const selfClientId = useSpaceRoomClientId();
-  const room = useRoomFromRegistry(SPACE_ROOM_NAME);
-  const roster = useRoomRoster(room);
-  const { colorForParticipant } = useSpaceParticipantColors(spaceId);
 
-  const rows: readonly PresenceRosterRow[] = useMemo(() => {
-    const grouped = groupRosterByParticipant(roster, selfClientId);
+  const rows = createMemo<readonly PresenceRosterRow[]>(() => {
+    const grouped = groupRosterByParticipant(roster(), selfClientId());
     const out: PresenceRosterRow[] = [];
     for (const participant of grouped) {
       for (const client of participant.clients) {
@@ -45,90 +43,86 @@ export function SpaceMembersListModal({
           client,
           title: asLocalized(client.id),
           isYou: participant.isYou,
-          isThisTab: client.clientId === selfClientId,
+          isThisTab: client.clientId === selfClientId(),
           badges: (
             <SpaceMemberBadges
-              spaceId={spaceId}
+              spaceId={props.spaceId}
               memberId={client.id}
-              myId={myId}
-              isThisTab={client.clientId === selfClientId}
+              myId={myId()}
+              isThisTab={client.clientId === selfClientId()}
             />
           ),
         });
       }
     }
     return out;
-  }, [roster, selfClientId, spaceId, myId]);
+  });
+
+  const titledRows = createMemo<readonly PresenceRosterRow[]>(() =>
+    rows().map((row) => ({
+      ...row,
+      title: asLocalized(row.client.id === myId() ? t`You` : row.client.id),
+    }))
+  );
 
   return (
     <ResponsiveSurface
-      visible={visible}
-      onClose={onClose}
+      visible={props.visible}
+      onClose={props.onClose}
       title={<Trans>People in this space</Trans>}
     >
       <ScrollView frameSx={{ maxHeight: 420 }} sx={{ px: 0 }}>
-        {rows.length === 0 ? (
-          <Trans>No one connected yet</Trans>
-        ) : (
+        <Show
+          when={titledRows().length > 0}
+          fallback={<Trans>No one connected yet</Trans>}
+        >
           <PresenceRosterList
-            rows={rows.map((row) => ({
-              ...row,
-              title: asLocalized(
-                // Username component can't be a LocalizedString; show id and
-                // overlay a username via trailing badges / subtitle later.
-                row.client.id === myId ? t`You` : row.client.id
-              ),
-            }))}
-            colorForParticipant={(id) => colorForParticipant(id)}
+            rows={titledRows()}
+            colorForParticipant={(id) => colors.colorForParticipant(id)}
             renderAvatar={(actor, size) => (
               <UserProfileAvatar profileId={actor.id} size={size} />
             )}
           />
-        )}
+        </Show>
       </ScrollView>
     </ResponsiveSurface>
   );
 }
 
-function SpaceMemberBadges({
-  spaceId,
-  memberId,
-  myId,
-  isThisTab,
-}: {
+function SpaceMemberBadges(props: {
   spaceId: string;
   memberId: string;
   myId: string;
   isThisTab: boolean;
-}): ReactNode {
-  const role = useMemberRole(spaceId, memberId);
+}): JSX.Element {
+  const role = useMemberRole(props.spaceId, props.memberId);
   return (
     <Stack direction="horizontal" spacing={1} align="center">
-      {role === 'host' ? (
+      <Show when={role() === 'host'}>
         <Badge
           label={<Trans>Host</Trans>}
           intent="brand"
           tone="subtle"
           size="sm"
         />
-      ) : null}
-      {memberId === myId ? (
+      </Show>
+      <Show when={props.memberId === props.myId}>
         <Badge
           label={<Trans>You</Trans>}
           intent="info"
           tone="subtle"
           size="sm"
         />
-      ) : null}
-      {isThisTab ? (
+      </Show>
+      <Show when={props.isThisTab}>
         <Badge
           label={<Trans>This tab</Trans>}
           intent="success"
           tone="subtle"
           size="sm"
         />
-      ) : null}
-      <UserUsername profileId={memberId} />
+      </Show>
+      <UserUsername profileId={props.memberId} />
     </Stack>
   );
 }

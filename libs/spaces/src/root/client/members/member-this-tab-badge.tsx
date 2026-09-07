@@ -1,6 +1,8 @@
-import { Trans } from '@lingui/react/macro';
-import { Text } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Trans } from '@lingui/solid/macro';
+import { Text } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+import { Show } from 'solid-js';
+
 import { useMemberIsThisTab } from './use-member-is-this-tab';
 
 export type MemberThisTabBadgeProps = {
@@ -9,17 +11,17 @@ export type MemberThisTabBadgeProps = {
 };
 
 /** "This tab" caption; renders nothing unless the active connection is here. */
-export function MemberThisTabBadge({
-  spaceId,
-  profileId,
-}: MemberThisTabBadgeProps): ReactNode {
-  const isThisTab = useMemberIsThisTab(spaceId, profileId);
-  if (!isThisTab) return null;
+export function MemberThisTabBadge(
+  props: MemberThisTabBadgeProps
+): JSX.Element {
+  const isThisTab = useMemberIsThisTab(props.spaceId, props.profileId);
   return (
-    <Text
-      variant="caption"
-      sx={{ color: 'textSecondary' }}
-      label={<Trans>This tab</Trans>}
-    />
+    <Show when={isThisTab()}>
+      <Text
+        variant="caption"
+        sx={{ color: 'textSecondary' }}
+        label={<Trans>This tab</Trans>}
+      />
+    </Show>
   );
 }

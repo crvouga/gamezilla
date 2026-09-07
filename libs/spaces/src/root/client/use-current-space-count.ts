@@ -5,6 +5,13 @@ export function useCurrentSpaceCount(): {
   readonly count: number;
   readonly isLoading: boolean;
 } {
-  const { entries, isLoading } = useCurrentSpaceIds();
-  return { count: entries.length, isLoading };
+  const current = useCurrentSpaceIds();
+  return {
+    get count() {
+      return current.entries.length;
+    },
+    get isLoading() {
+      return current.isLoading;
+    },
+  };
 }

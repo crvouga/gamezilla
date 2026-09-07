@@ -1,7 +1,7 @@
 import { Handles } from '@libs/test-ids';
-import { Trans } from '@lingui/react/macro';
-import { MutationModal } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Trans } from '@lingui/solid/macro';
+import { MutationModal } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 
 export type EndSpaceConfirmModalProps = {
   visible: boolean;
@@ -9,35 +9,35 @@ export type EndSpaceConfirmModalProps = {
   /** Runs the end-space write. Surfaces loading / success / error in place. */
   operation: () => Promise<void>;
   /** Optional hook after the user dismisses the success state. Prefer staying on screen. */
-  onSuccess?: () => void;
+  onSuccess?: (() => void) | undefined;
 };
 
 /** Confirm-end shell (space-agnostic; action wiring lives at the call site). */
-export function EndSpaceConfirmModal({
-  visible,
-  onClose,
-  operation,
-  onSuccess,
-}: EndSpaceConfirmModalProps): ReactNode {
+export function EndSpaceConfirmModal(
+  props: EndSpaceConfirmModalProps
+): JSX.Element {
+  const onSuccess = (): void => {
+    props.onSuccess?.();
+  };
   return (
     <MutationModal
-      visible={visible}
-      onClose={onClose}
+      visible={props.visible}
+      onClose={props.onClose}
       title={<Trans>End space?</Trans>}
       message={
         <Trans>Everyone will leave this space. This cannot be undone.</Trans>
       }
       submitLabel={<Trans>End space</Trans>}
       variant="destructive"
-      operation={operation}
+      operation={() => props.operation()}
       onSuccess={onSuccess}
       loadingLabel={<Trans>Ending space…</Trans>}
       successTitle={<Trans>Space ended</Trans>}
       successBody={<Trans>Everyone has been returned to the lobby.</Trans>}
       errorTitle={<Trans>Couldn't end space</Trans>}
       stackId="end-space-confirm"
-      submitTestID={Handles.spaceEndConfirm}
-      dismissTestID={Handles.spaceMutationDismiss}
+      submitDataSet={{ testid: Handles.spaceEndConfirm }}
+      dismissDataSet={{ testid: Handles.spaceMutationDismiss }}
     />
   );
 }

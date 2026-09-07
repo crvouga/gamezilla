@@ -1,10 +1,6 @@
-import {
-  type RoomCommandPayload,
-  type RoomState,
-  useRoomDispatch,
-  useRoomSelector,
-} from '@pkgs/room';
-import { useCallback } from 'react';
+import type { RoomCommandPayload, RoomState } from '@pkgs/room';
+import { useRoomDispatch, useRoomSelector } from '@pkgs/room/solid';
+import type { Accessor } from 'solid-js';
 
 import { SPACE_ROOM_MODULE_NAME } from '../../shared/space/space-room-module-name';
 import { useSpaceOpenRooms } from './space-open-rooms-context';
@@ -26,7 +22,9 @@ export const SPACE_ROOM_NAME = SPACE_ROOM_MODULE_NAME;
  * space session — chess gets its own slice of state via its room namespace
  * but reads it through this hook.
  */
-export function useSpaceRoomSelector<R>(selector: (state: RoomState) => R): R {
+export function useSpaceRoomSelector<R>(
+  selector: (state: RoomState) => R
+): Accessor<R> {
   return useRoomSelector(SPACE_ROOM_NAME, selector);
 }
 
@@ -34,20 +32,18 @@ export function useSpaceRoomSelector<R>(selector: (state: RoomState) => R): R {
  * Dispatch a command to the default space room (`{@link SPACE_ROOM_NAME}`).
  * Routes through the open-rooms registry so commands issued while the local
  * Room is still hydrating are buffered and flushed on commit (offline-first /
- * Connecting… safe). Falls back to the React registry when no session id.
+ * Connecting… safe). Falls back to the registry when no session id.
  */
 export function useSpaceRoomDispatch(): (payload: RoomCommandPayload) => void {
   const spaceId = useSpaceRoomSessionId();
   const openRooms = useSpaceOpenRooms();
   const registryDispatch = useRoomDispatch(SPACE_ROOM_NAME);
-  return useCallback(
-    (payload: RoomCommandPayload) => {
-      if (spaceId !== null && spaceId.length > 0) {
-        openRooms.dispatch(spaceId, payload);
-        return;
-      }
-      registryDispatch(payload);
-    },
-    [spaceId, openRooms, registryDispatch]
-  );
+  return (payload: RoomCommandPayload) => {
+    const id = spaceId();
+    if (id !== null && id.length > 0) {
+      openRooms.dispatch(id, payload);
+      return;
+    }
+    registryDispatch(payload);
+  };
 }

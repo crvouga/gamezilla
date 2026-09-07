@@ -1,5 +1,5 @@
-import { Box } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Box } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 import { SpaceLiveBadge } from '../../../public/space-live-badge';
 import { SpaceHostAvatar } from '../members/space-host-avatar';
 import { SpaceHostNameText } from '../members/space-host-name-text';
@@ -12,10 +12,9 @@ export type SpaceSummaryHeaderProps = {
 
 const DEFAULT_HOST_AVATAR_SIZE = 44;
 
-export function SpaceSummaryHeader({
-  spaceId,
-  hostAvatarSize = DEFAULT_HOST_AVATAR_SIZE,
-}: SpaceSummaryHeaderProps): ReactNode {
+export function SpaceSummaryHeader(
+  props: SpaceSummaryHeaderProps
+): JSX.Element {
   return (
     <Box sx={{ flexDirection: 'row', justifyContent: 'space-between' }}>
       <Box
@@ -27,20 +26,20 @@ export function SpaceSummaryHeader({
         }}
       >
         <SpaceHostAvatar
-          spaceId={spaceId}
-          size={hostAvatarSize}
+          spaceId={props.spaceId}
+          size={props.hostAvatarSize ?? DEFAULT_HOST_AVATAR_SIZE}
           vividBackdrop
         />
         <Box sx={{ flex: 1, gap: 0.5 }}>
           <SpaceTitleText
-            spaceId={spaceId}
+            spaceId={props.spaceId}
             variant="bodyBold"
             numberOfLines={1}
           />
-          <SpaceHostNameText spaceId={spaceId} variant="caption" />
+          <SpaceHostNameText spaceId={props.spaceId} variant="caption" />
         </Box>
       </Box>
-      <SpaceLiveBadge spaceId={spaceId} />
+      <SpaceLiveBadge spaceId={props.spaceId} />
     </Box>
   );
 }

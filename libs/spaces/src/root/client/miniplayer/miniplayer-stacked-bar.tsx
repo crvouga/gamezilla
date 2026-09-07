@@ -1,6 +1,7 @@
-import { useLingui } from '@lingui/react/macro';
-import { AvatarGroup, Box, Pressable, Text } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { useLingui } from '@lingui/solid/macro';
+import { AvatarGroup, Box, Clickable, Text } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+import { createMemo, For } from 'solid-js';
 
 import { SpaceCardGradientBox } from '../card/space-card-gradient';
 import { SpaceHostAvatar } from '../members/space-host-avatar';
@@ -19,15 +20,12 @@ const PEEK_OFFSET = 5;
 const AVATAR_SIZE = 40;
 const AVATAR_MAX = 3;
 
-function StackPeek({
-  index,
-  borderRadius,
-}: {
+function StackPeek(props: {
   index: number;
   borderRadius: number;
-}): ReactNode {
-  const inset = (index + 1) * 6;
-  const bottom = (index + 1) * PEEK_OFFSET;
+}): JSX.Element {
+  const inset = (props.index + 1) * 6;
+  const bottom = (props.index + 1) * PEEK_OFFSET;
   return (
     <SpaceCardGradientBox
       sx={{
@@ -36,8 +34,8 @@ function StackPeek({
         right: inset,
         bottom,
         height: FRONT_HEIGHT,
-        borderRadius,
-        opacity: 0.55 - index * 0.15,
+        borderRadius: props.borderRadius,
+        opacity: 0.55 - props.index * 0.15,
         pointerEvents: 'none',
       }}
     >
@@ -46,54 +44,47 @@ function StackPeek({
   );
 }
 
-function StackedHostAvatars({
-  spaceIds,
-}: {
+function StackedHostAvatars(props: {
   spaceIds: readonly string[];
-}): ReactNode {
-  const visible = spaceIds.slice(0, AVATAR_MAX);
+}): JSX.Element {
+  const visible = createMemo(() => props.spaceIds.slice(0, AVATAR_MAX));
   return (
     <AvatarGroup size={AVATAR_SIZE} maxVisible={AVATAR_MAX} overlap={14}>
-      {visible.map((spaceId) => (
-        <SpaceHostAvatar
-          key={spaceId}
-          spaceId={spaceId}
-          size={AVATAR_SIZE}
-          vividBackdrop
-        />
-      ))}
+      <For each={visible()}>
+        {(spaceId) => (
+          <SpaceHostAvatar spaceId={spaceId} size={AVATAR_SIZE} vividBackdrop />
+        )}
+      </For>
     </AvatarGroup>
   );
 }
 
 /** Multi-space miniplayer: stacked deck that only opens the picker. */
-export function MiniplayerStackedBar({
-  spaceIds,
-  borderRadius,
-  onPressOpenPicker,
-}: MiniplayerStackedBarProps): ReactNode {
+export function MiniplayerStackedBar(
+  props: MiniplayerStackedBarProps
+): JSX.Element {
   const { t } = useLingui();
-  const count = spaceIds.length;
-  const peekCount = Math.min(
-    MINIPLAYER_STACK_PEEK_COUNT,
-    Math.max(count - 1, 0)
+  const count = createMemo(() => props.spaceIds.length);
+  const peekCount = createMemo(() =>
+    Math.min(MINIPLAYER_STACK_PEEK_COUNT, Math.max(count() - 1, 0))
   );
-  const stackPad = peekCount * PEEK_OFFSET;
+  const stackPad = createMemo(() => peekCount() * PEEK_OFFSET);
+  const peekIndexes = createMemo(() =>
+    Array.from({ length: peekCount() }, (_, i) => peekCount() - 1 - i)
+  );
 
   return (
-    <Box sx={{ paddingTop: stackPad }}>
+    <Box sx={{ paddingTop: stackPad() }}>
       <Box sx={{ position: 'relative', minHeight: FRONT_HEIGHT }}>
-        {Array.from({ length: peekCount }, (_, i) => (
-          <StackPeek
-            key={i}
-            index={peekCount - 1 - i}
-            borderRadius={borderRadius}
-          />
-        ))}
-        <Pressable
-          onPress={onPressOpenPicker}
-          accessibilityRole="button"
-          accessibilityLabel={t`Show your live spaces`}
+        <For each={peekIndexes()}>
+          {(index) => (
+            <StackPeek index={index} borderRadius={props.borderRadius} />
+          )}
+        </For>
+        <Clickable
+          onClick={props.onPressOpenPicker}
+          role="button"
+          aria-label={t`Show your live spaces`}
           sx={{
             position: 'relative',
             zIndex: 1,
@@ -101,7 +92,7 @@ export function MiniplayerStackedBar({
         >
           <SpaceCardGradientBox
             sx={{
-              borderRadius,
+              borderRadius: props.borderRadius,
               overflow: 'hidden',
               flexDirection: 'row',
               alignItems: 'center',
@@ -110,18 +101,18 @@ export function MiniplayerStackedBar({
               px: 3,
             }}
           >
-            <StackedHostAvatars spaceIds={spaceIds} />
+            <StackedHostAvatars spaceIds={props.spaceIds} />
             <Box sx={{ flex: 1, minWidth: 0 }}>
               <Text
                 variant="bodyBold"
                 numberOfLines={1}
                 sx={{ color: 'onPrimary' }}
-                label={t`${count} live spaces`}
+                label={t`${count()} live spaces`}
               />
             </Box>
             <MiniplayerLiveBadge />
           </SpaceCardGradientBox>
-        </Pressable>
+        </Clickable>
       </Box>
     </Box>
   );

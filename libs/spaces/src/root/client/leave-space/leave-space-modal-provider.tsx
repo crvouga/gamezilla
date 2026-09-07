@@ -1,11 +1,4 @@
-import {
-  createContext,
-  type ReactNode,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
-} from 'react';
+import { createContext, createSignal, type JSX, useContext } from 'solid-js';
 
 import { useCurrentSpaceRole } from '../use-current-space-role';
 import { LeaveSpaceConfirmModal } from './leave-space-confirm-modal';
@@ -18,7 +11,7 @@ export type RequestLeaveSpaceOptions = {
 
 type PendingLeave = {
   spaceId: string;
-  onSuccess?: () => void;
+  onSuccess?: (() => void) | undefined;
 };
 
 export type LeaveSpaceModals = {
@@ -35,47 +28,37 @@ const Ctx = createContext<LeaveSpaceModals | null>(null);
  * loading → success even when the space drops out of the user's active list.
  * Host leave ends the space (I4) — confirm copy matches End when still host.
  */
-export function LeaveSpaceModalProvider({
-  children,
-}: {
-  children: ReactNode;
-}): ReactNode {
-  const [pending, setPending] = useState<PendingLeave | null>(null);
+export function LeaveSpaceModalProvider(props: {
+  readonly children: JSX.Element;
+}): JSX.Element {
+  const [pending, setPending] = createSignal<PendingLeave | null>(null);
   const leaveSpace = useLeaveSpace();
-  const spaceId = pending?.spaceId ?? '';
+  const spaceId = () => pending()?.spaceId ?? '';
   const role = useCurrentSpaceRole(spaceId);
-  const asHost = role === 'host';
 
-  const requestLeaveSpace = useCallback(
-    (nextSpaceId: string, options?: RequestLeaveSpaceOptions) => {
-      const onSuccess = options?.onSuccess;
-      setPending(
-        onSuccess === undefined
-          ? { spaceId: nextSpaceId }
-          : { spaceId: nextSpaceId, onSuccess }
-      );
-    },
-    []
-  );
+  const requestLeaveSpace = (
+    nextSpaceId: string,
+    options?: RequestLeaveSpaceOptions
+  ): void => {
+    const onSuccess = options?.onSuccess;
+    setPending(() =>
+      onSuccess === undefined
+        ? { spaceId: nextSpaceId }
+        : { spaceId: nextSpaceId, onSuccess }
+    );
+  };
 
-  const onClose = useCallback(() => setPending(null), []);
-  const operation = useCallback(
-    () => leaveSpace(spaceId),
-    [leaveSpace, spaceId]
-  );
-  const value = useMemo(() => ({ requestLeaveSpace }), [requestLeaveSpace]);
+  const modals: LeaveSpaceModals = { requestLeaveSpace };
 
   return (
-    <Ctx.Provider value={value}>
-      {children}
+    <Ctx.Provider value={modals}>
+      {props.children}
       <LeaveSpaceConfirmModal
-        visible={pending !== null}
-        onClose={onClose}
-        operation={operation}
-        asHost={asHost}
-        {...(pending?.onSuccess !== undefined
-          ? { onSuccess: pending.onSuccess }
-          : {})}
+        visible={pending() !== null}
+        onClose={() => setPending(() => null)}
+        operation={() => leaveSpace(spaceId())}
+        asHost={role() === 'host'}
+        onSuccess={() => pending()?.onSuccess?.()}
       />
     </Ctx.Provider>
   );

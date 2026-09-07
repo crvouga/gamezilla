@@ -1,5 +1,5 @@
-import { Box, type SxInput, useTheme } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Box, type ComponentDataSet, type SxInput, useTheme } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 
 export const SPACE_CARD_BORDER_RADIUS = 16;
 
@@ -10,31 +10,29 @@ export function useSpaceCardGradientColors(): readonly [string, string] {
 }
 
 export type SpaceCardGradientBoxProps = {
-  children: ReactNode;
+  children: JSX.Element;
   sx?: SxInput;
-  testID?: string;
+  dataSet?: ComponentDataSet;
 };
 
 /** Flat tint surface — nuclear overhaul (no LinearGradient / elevation). */
-export function SpaceCardGradientBox({
-  children,
-  sx,
-  testID,
-}: SpaceCardGradientBoxProps): ReactNode {
+export function SpaceCardGradientBox(
+  props: SpaceCardGradientBoxProps
+): JSX.Element {
   const [fill] = useSpaceCardGradientColors();
 
   return (
     <Box
-      {...(testID !== undefined ? { testID } : {})}
+      {...(props.dataSet !== undefined ? { dataSet: props.dataSet } : {})}
       sx={[
         {
           backgroundColor: fill,
           borderRadius: SPACE_CARD_BORDER_RADIUS,
         },
-        sx,
+        props.sx,
       ]}
     >
-      {children}
+      {props.children}
     </Box>
   );
 }

@@ -1,6 +1,7 @@
-import { Trans } from '@lingui/react/macro';
-import { ResponsiveSurface, ScrollView } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Trans } from '@lingui/solid/macro';
+import { ResponsiveSurface, ScrollView } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+import { For } from 'solid-js';
 import type { RequestEndSpaceOptions } from '../end-space/end-space-modal-provider';
 import type { RequestLeaveSpaceOptions } from '../leave-space/leave-space-modal-provider';
 
@@ -22,30 +23,25 @@ export type ActiveSpacesSheetProps = {
  * modal on wider viewports. End/Leave requestors are injected from outside
  * the portal so `@gorhom/bottom-sheet` does not drop modal context.
  */
-export function ActiveSpacesSheet({
-  spaceIds,
-  visible,
-  onClose,
-  requestEndSpace,
-  requestLeaveSpace,
-}: ActiveSpacesSheetProps): ReactNode {
+export function ActiveSpacesSheet(props: ActiveSpacesSheetProps): JSX.Element {
   return (
     <ResponsiveSurface
-      visible={visible}
-      onClose={onClose}
+      visible={props.visible}
+      onClose={props.onClose}
       title={<Trans>Your live spaces</Trans>}
       stackId="active-spaces-sheet"
     >
       <ScrollView frameSx={{ maxHeight: 420 }} sx={{ px: 0 }}>
-        {spaceIds.map((spaceId) => (
-          <ActiveSpaceSheetRow
-            key={spaceId}
-            spaceId={spaceId}
-            onOpen={onClose}
-            requestEndSpace={requestEndSpace}
-            requestLeaveSpace={requestLeaveSpace}
-          />
-        ))}
+        <For each={props.spaceIds}>
+          {(spaceId) => (
+            <ActiveSpaceSheetRow
+              spaceId={spaceId}
+              onOpen={props.onClose}
+              requestEndSpace={props.requestEndSpace}
+              requestLeaveSpace={props.requestLeaveSpace}
+            />
+          )}
+        </For>
       </ScrollView>
     </ResponsiveSurface>
   );

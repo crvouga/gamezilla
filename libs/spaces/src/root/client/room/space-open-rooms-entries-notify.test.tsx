@@ -1,15 +1,14 @@
 /**
- * Regression: open-rooms registry commit must notify React consumers.
- * A stable dispatch API + ref-only getEntry caused Context bailout so
- * SpaceRoomProvider kept rooms=null → permanent Connecting… / dead Chess.
+ * Regression: open-rooms registry commit must notify Solid consumers.
+ * A stable dispatch API alone caused detail UI to keep rooms=null →
+ * permanent Connecting… / dead Chess.
  */
 
-import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
-import { GlobalRegistrator } from '@happy-dom/global-registrator';
 import { asKeyword } from '@pkgs/keyword';
 import type { RoomCommandPayload } from '@pkgs/room';
-import { act, createElement, type ReactNode, useEffect, useState } from 'react';
-import { createRoot, type Root } from 'react-dom/client';
+import { render, screen } from '@solidjs/testing-library';
+import { createEffect, type JSX } from 'solid-js';
+import { describe, expect, it } from 'vitest';
 
 import {
   type SpaceOpenRoomEntry,
@@ -30,113 +29,87 @@ function stubEntry(clientId: string): SpaceOpenRoomEntry {
   };
 }
 
-function EntryProbe({
-  spaceId,
-  onEntry,
-}: {
+function EntryProbe(props: {
   readonly spaceId: string;
   readonly onEntry: (entry: SpaceOpenRoomEntry | null) => void;
-}): ReactNode {
-  const entry = useSpaceOpenRoomEntry(spaceId);
-  useEffect(() => {
-    onEntry(entry);
-  }, [entry, onEntry]);
+}): JSX.Element {
+  const entry = useSpaceOpenRoomEntry(props.spaceId);
+  createEffect(() => {
+    props.onEntry(entry());
+  });
   return null;
 }
 
-function CommitButton({
-  spaceId,
-  entry,
-}: {
+function CommitButton(props: {
   readonly spaceId: string;
   readonly entry: SpaceOpenRoomEntry;
-}): ReactNode {
+}): JSX.Element {
   const setEntry = useSpaceOpenRoomsRegistry();
-  return createElement('button', {
-    'data-testid': 'commit',
-    type: 'button',
-    onClick: () => setEntry(spaceId, entry),
-  });
+  return (
+    <button
+      data-testid="commit"
+      type="button"
+      onClick={() => setEntry(props.spaceId, props.entry)}
+    >
+      commit
+    </button>
+  );
 }
 
-function DispatchProbe({ spaceId }: { readonly spaceId: string }): ReactNode {
+function DispatchProbe(props: { readonly spaceId: string }): JSX.Element {
   const { dispatch } = useSpaceOpenRooms();
-  const [ready, setReady] = useState(false);
-  useEffect(() => {
-    setReady(true);
-  }, []);
-  if (!ready) return null;
-  return createElement('button', {
-    'data-testid': 'dispatch',
-    type: 'button',
-    onClick: () => {
-      const payload: RoomCommandPayload = {
-        type: asKeyword('team-cmd/select-game'),
-        payload: { game: 'chess' },
-      };
-      dispatch(spaceId, payload);
-    },
-  });
+  return (
+    <button
+      data-testid="dispatch"
+      type="button"
+      onClick={() => {
+        const payload: RoomCommandPayload = {
+          type: asKeyword('team-cmd/select-game'),
+          payload: { game: 'chess' },
+        };
+        dispatch(props.spaceId, payload);
+      }}
+    >
+      dispatch
+    </button>
+  );
 }
 
-function mount(node: ReactNode): Root {
-  const el = document.createElement('div');
-  document.body.append(el);
-  const root = createRoot(el);
-  act(() => {
-    root.render(node);
-  });
-  return root;
+function mount(node: () => JSX.Element): () => void {
+  const view = render(node);
+  return () => view.unmount();
 }
 
-function clickTestId(testId: string): void {
-  const el = document.querySelector(`[data-testid="${testId}"]`);
-  if (!(el instanceof HTMLElement)) {
-    throw new Error(`missing [data-testid="${testId}"]`);
-  }
-  act(() => {
-    el.click();
-  });
-}
+const flush = (): Promise<void> =>
+  new Promise((resolve) => setTimeout(resolve, 0));
 
 describe('SpaceOpenRoomsStoreProvider entries notify', () => {
-  beforeAll(() => {
-    GlobalRegistrator.register();
-    Reflect.set(globalThis, 'IS_REACT_ACT_ENVIRONMENT', true);
-  });
-
-  afterAll(() => {
-    GlobalRegistrator.unregister();
-  });
-
-  it('re-renders useSpaceOpenRoomEntry after registry commit', () => {
+  it('re-renders useSpaceOpenRoomEntry after registry commit', async () => {
     const seen: Array<SpaceOpenRoomEntry | null> = [];
     const entry = stubEntry('client-1');
 
-    const root = mount(
-      createElement(
-        SpaceOpenRoomsStoreProvider,
-        null,
-        createElement(EntryProbe, {
-          spaceId: 'space-1',
-          onEntry: (e) => {
+    const unmount = mount(() => (
+      <SpaceOpenRoomsStoreProvider>
+        <EntryProbe
+          spaceId="space-1"
+          onEntry={(e) => {
             seen.push(e);
-          },
-        }),
-        createElement(CommitButton, { spaceId: 'space-1', entry })
-      )
-    );
+          }}
+        />
+        <CommitButton spaceId="space-1" entry={entry} />
+      </SpaceOpenRoomsStoreProvider>
+    ));
+    await flush();
 
     expect(seen.at(-1)).toBeNull();
 
-    clickTestId('commit');
+    screen.getByTestId('commit').click();
+    await flush();
 
     expect(seen.at(-1)).toBe(entry);
     expect(seen.at(-1)?.clientId).toBe('client-1');
 
-    act(() => {
-      root.unmount();
-    });
+    unmount();
   });
 
   it('buffers dispatch until commit then flushes to the room', () => {
@@ -150,24 +123,20 @@ describe('SpaceOpenRoomsStoreProvider entries notify', () => {
       dispatched.push(p);
     };
 
-    const root = mount(
-      createElement(
-        SpaceOpenRoomsStoreProvider,
-        null,
-        createElement(DispatchProbe, { spaceId: 'space-2' }),
-        createElement(CommitButton, { spaceId: 'space-2', entry })
-      )
-    );
+    const unmount = mount(() => (
+      <SpaceOpenRoomsStoreProvider>
+        <DispatchProbe spaceId="space-2" />
+        <CommitButton spaceId="space-2" entry={entry} />
+      </SpaceOpenRoomsStoreProvider>
+    ));
 
-    clickTestId('dispatch');
+    screen.getByTestId('dispatch').click();
     expect(roomDispatchCount).toBe(0);
 
-    clickTestId('commit');
+    screen.getByTestId('commit').click();
     expect(roomDispatchCount).toBe(1);
     expect(dispatched[0]?.payload).toEqual({ game: 'chess' });
 
-    act(() => {
-      root.unmount();
-    });
+    unmount();
   });
 });

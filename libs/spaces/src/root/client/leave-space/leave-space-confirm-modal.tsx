@@ -1,8 +1,10 @@
 import { Handles } from '@libs/test-ids';
-import { Trans } from '@lingui/react/macro';
+import { Trans } from '@lingui/solid/macro';
 import { Sounds } from '@pkgs/sounds';
-import { MutationModal } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { useOptionalSoundEngine } from '@pkgs/sounds/solid';
+import { MutationModal, type MutationStateTransition } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+import { Show } from 'solid-js';
 
 export type LeaveSpaceConfirmModalProps = {
   visible: boolean;
@@ -10,7 +12,7 @@ export type LeaveSpaceConfirmModalProps = {
   /** Runs the leave-membership write. Surfaces loading / success / error in place. */
   operation: () => Promise<void>;
   /** Optional hook after the user dismisses the success state. Prefer staying on screen. */
-  onSuccess?: () => void;
+  onSuccess?: (() => void) | undefined;
   /**
    * Host leave ends the space for everyone (I4). UI normally routes hosts to
    * End; this copy covers the leave write path when the actor is still host.
@@ -19,70 +21,74 @@ export type LeaveSpaceConfirmModalProps = {
 };
 
 /** Confirm-leave shell (space-agnostic; action wiring lives at the call site). */
-export function LeaveSpaceConfirmModal({
-  visible,
-  onClose,
-  operation,
-  onSuccess,
-  asHost = false,
-}: LeaveSpaceConfirmModalProps): ReactNode {
-  if (asHost) {
-    return (
+export function LeaveSpaceConfirmModal(
+  props: LeaveSpaceConfirmModalProps
+): JSX.Element {
+  const engine = useOptionalSoundEngine();
+  const onPhaseChange = (transition: MutationStateTransition): void => {
+    const current = engine?.();
+    if (current === undefined) return;
+    if (transition.to === 'success') {
+      current.play(Sounds.social.roomLeft);
+    } else if (transition.to === 'error') {
+      current.play(Sounds.feedback.error);
+    }
+  };
+  const onSuccess = (): void => {
+    props.onSuccess?.();
+  };
+  return (
+    <Show
+      when={props.asHost ?? false}
+      fallback={
+        <MutationModal
+          visible={props.visible}
+          onClose={props.onClose}
+          title={<Trans>Leave space?</Trans>}
+          message={
+            <Trans>
+              Leave this space on your account. You will leave on every device.
+              You can join again later if the space is still live.
+            </Trans>
+          }
+          submitLabel={<Trans>Leave</Trans>}
+          operation={() => props.operation()}
+          onSuccess={onSuccess}
+          onPhaseChange={onPhaseChange}
+          loadingLabel={<Trans>Leaving…</Trans>}
+          successTitle={<Trans>You left the space</Trans>}
+          successBody={
+            <Trans>
+              You can rejoin from the invite link if the space is still live.
+            </Trans>
+          }
+          errorTitle={<Trans>Couldn't leave space</Trans>}
+          stackId="leave-space-confirm"
+          submitDataSet={{ testid: Handles.spaceLeaveConfirm }}
+          dismissDataSet={{ testid: Handles.spaceMutationDismiss }}
+        />
+      }
+    >
       <MutationModal
-        visible={visible}
-        onClose={onClose}
+        visible={props.visible}
+        onClose={props.onClose}
         title={<Trans>End space?</Trans>}
         message={
           <Trans>Everyone will leave this space. This cannot be undone.</Trans>
         }
         submitLabel={<Trans>End space</Trans>}
         variant="destructive"
-        operation={operation}
+        operation={() => props.operation()}
         onSuccess={onSuccess}
-        sounds={{
-          success: Sounds.social.roomLeft,
-          error: Sounds.feedback.error,
-        }}
+        onPhaseChange={onPhaseChange}
         loadingLabel={<Trans>Ending space…</Trans>}
         successTitle={<Trans>Space ended</Trans>}
         successBody={<Trans>Everyone has been returned to the lobby.</Trans>}
         errorTitle={<Trans>Couldn't end space</Trans>}
         stackId="leave-space-confirm-as-host"
-        submitTestID={Handles.spaceEndConfirm}
-        dismissTestID={Handles.spaceMutationDismiss}
+        submitDataSet={{ testid: Handles.spaceEndConfirm }}
+        dismissDataSet={{ testid: Handles.spaceMutationDismiss }}
       />
-    );
-  }
-
-  return (
-    <MutationModal
-      visible={visible}
-      onClose={onClose}
-      title={<Trans>Leave space?</Trans>}
-      message={
-        <Trans>
-          Leave this space on your account. You will leave on every device. You
-          can join again later if the space is still live.
-        </Trans>
-      }
-      submitLabel={<Trans>Leave</Trans>}
-      operation={operation}
-      onSuccess={onSuccess}
-      sounds={{
-        success: Sounds.social.roomLeft,
-        error: Sounds.feedback.error,
-      }}
-      loadingLabel={<Trans>Leaving…</Trans>}
-      successTitle={<Trans>You left the space</Trans>}
-      successBody={
-        <Trans>
-          You can rejoin from the invite link if the space is still live.
-        </Trans>
-      }
-      errorTitle={<Trans>Couldn't leave space</Trans>}
-      stackId="leave-space-confirm"
-      submitTestID={Handles.spaceLeaveConfirm}
-      dismissTestID={Handles.spaceMutationDismiss}
-    />
+    </Show>
   );
 }

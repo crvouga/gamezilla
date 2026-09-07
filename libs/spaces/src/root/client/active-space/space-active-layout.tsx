@@ -8,8 +8,9 @@ import {
   useAppFrameGlobalTrailing,
   useLayoutMode,
   useSetAppFrameHeader,
-} from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+} from '@pkgs/ui';
+import type { JSX, ParentProps } from 'solid-js';
+import { Show } from 'solid-js';
 import {
   SpaceSideRailProvider,
   useSpaceSideRailExtras,
@@ -23,24 +24,23 @@ import { SpaceEventLogChrome } from './space-event-log-chrome';
 import { useSpaceSessionUi } from './space-session-ui-context';
 import { SpaceTitleAttribution } from './space-title-attribution';
 
-export type SpaceActiveLayoutProps = {
-  children: ReactNode;
-};
+export type SpaceActiveLayoutProps = ParentProps;
 
 /** Title never eats the whole header row; the event log needs its share. */
 const WIDE_TITLE_MAX_WIDTH = 280;
 
-function SpaceChromeTitle({
-  spaceId,
-  variant,
-}: {
-  spaceId: string;
-  variant: 'subtitle' | 'navigationTitle';
-}): ReactNode {
+function SpaceChromeTitle(props: {
+  readonly spaceId: string;
+  readonly variant: 'subtitle' | 'navigationTitle';
+}): JSX.Element {
   return (
     <Box sx={{ flexShrink: 1, minWidth: 0 }}>
-      <SpaceTitleAttribution spaceId={spaceId}>
-        <SpaceTitleText spaceId={spaceId} variant={variant} numberOfLines={1} />
+      <SpaceTitleAttribution spaceId={props.spaceId}>
+        <SpaceTitleText
+          spaceId={props.spaceId}
+          variant={props.variant}
+          numberOfLines={1}
+        />
       </SpaceTitleAttribution>
     </Box>
   );
@@ -51,7 +51,7 @@ function SpaceChromeTitle({
  * every action into a lone More menu), then the global avatar menu sits at
  * the far edge — same on wide island trailing and compact TopBar trailing.
  */
-function SpaceTrailingWithGlobal(): ReactNode {
+function SpaceTrailingWithGlobal(): JSX.Element {
   const globalTrailing = useAppFrameGlobalTrailing();
   return (
     <Box
@@ -66,15 +66,15 @@ function SpaceTrailingWithGlobal(): ReactNode {
       <Box sx={{ flex: 1, minWidth: 0 }}>
         <SpaceChromeTrailingActionBar />
       </Box>
-      {globalTrailing}
+      {globalTrailing()}
     </Box>
   );
 }
 
-function SpaceHeaderEventLog({ spaceId }: { spaceId: string }): ReactNode {
+function SpaceHeaderEventLog(props: { readonly spaceId: string }): JSX.Element {
   return (
     <Box sx={{ flex: 1, minWidth: 0 }}>
-      <SpaceEventLogChrome spaceId={spaceId} />
+      <SpaceEventLogChrome spaceId={props.spaceId} />
     </Box>
   );
 }
@@ -83,33 +83,37 @@ function SpaceHeaderEventLog({ spaceId }: { spaceId: string }): ReactNode {
  * Wide body: game canvas, plus optional extras rail (games chrome via
  * {@link SpaceSideRailExtras}). Event log lives in the header island.
  */
-function SpaceActiveWideBody({ children }: { children: ReactNode }): ReactNode {
+function SpaceActiveWideBody(props: ParentProps): JSX.Element {
   const extras = useSpaceSideRailExtras();
-  if (extras === null) {
-    return <Box sx={{ flex: 1, minHeight: 0, minWidth: 0 }}>{children}</Box>;
-  }
   return (
-    <Box
-      sx={{
-        flex: 1,
-        minHeight: 0,
-        flexDirection: 'row',
-        alignItems: 'stretch',
-        gap: ISLAND_GAP_STEP,
-      }}
+    <Show
+      when={extras() !== null}
+      fallback={
+        <Box sx={{ flex: 1, minHeight: 0, minWidth: 0 }}>{props.children}</Box>
+      }
     >
-      <Box sx={{ flex: 1, minHeight: 0, minWidth: 0 }}>{children}</Box>
-      <Island sx={{ width: ISLAND_SIDE_RAIL_WIDTH, minHeight: 0, p: 0 }}>
-        <Box sx={{ flex: 1, minHeight: 0 }}>{extras}</Box>
-      </Island>
-    </Box>
+      <Box
+        sx={{
+          flex: 1,
+          minHeight: 0,
+          flexDirection: 'row',
+          alignItems: 'stretch',
+          gap: ISLAND_GAP_STEP,
+        }}
+      >
+        <Box sx={{ flex: 1, minHeight: 0, minWidth: 0 }}>{props.children}</Box>
+        <Island sx={{ width: ISLAND_SIDE_RAIL_WIDTH, minHeight: 0, p: 0 }}>
+          <Box sx={{ flex: 1, minHeight: 0 }}>{extras()}</Box>
+        </Island>
+      </Box>
+    </Show>
   );
 }
 
-function SpaceActiveLayoutWide({
-  spaceId,
-  children,
-}: SpaceActiveLayoutProps & { spaceId: string }): ReactNode {
+function SpaceActiveLayoutWide(props: {
+  readonly spaceId: string;
+  readonly children: JSX.Element;
+}): JSX.Element {
   return (
     <SpaceSideRailProvider>
       <Box sx={{ flex: 1, minHeight: 0, gap: ISLAND_GAP_STEP }}>
@@ -126,23 +130,23 @@ function SpaceActiveLayoutWide({
             >
               <SpaceChromeLeadingActionBar />
               <Box sx={{ maxWidth: WIDE_TITLE_MAX_WIDTH, minWidth: 0 }}>
-                <SpaceChromeTitle spaceId={spaceId} variant="subtitle" />
+                <SpaceChromeTitle spaceId={props.spaceId} variant="subtitle" />
               </Box>
-              <SpaceHeaderEventLog spaceId={spaceId} />
+              <SpaceHeaderEventLog spaceId={props.spaceId} />
             </Box>
           }
           trailing={<SpaceTrailingWithGlobal />}
         />
-        <SpaceActiveWideBody>{children}</SpaceActiveWideBody>
+        <SpaceActiveWideBody>{props.children}</SpaceActiveWideBody>
       </Box>
     </SpaceSideRailProvider>
   );
 }
 
-function SpaceActiveLayoutCompact({
-  spaceId,
-  children,
-}: SpaceActiveLayoutProps & { spaceId: string }): ReactNode {
+function SpaceActiveLayoutCompact(props: {
+  readonly spaceId: string;
+  readonly children: JSX.Element;
+}): JSX.Element {
   return (
     <Box sx={{ flex: 1, minHeight: 0 }}>
       <TopBar
@@ -157,15 +161,24 @@ function SpaceActiveLayoutCompact({
               gap: 2,
             }}
           >
-            <SpaceChromeTitle spaceId={spaceId} variant="navigationTitle" />
-            <SpaceHeaderEventLog spaceId={spaceId} />
+            <SpaceChromeTitle
+              spaceId={props.spaceId}
+              variant="navigationTitle"
+            />
+            <SpaceHeaderEventLog spaceId={props.spaceId} />
           </Box>
         }
         trailing={<SpaceTrailingWithGlobal />}
       />
-      <Box sx={{ flex: 1, minHeight: 0, minWidth: 0 }}>{children}</Box>
+      <Box sx={{ flex: 1, minHeight: 0, minWidth: 0 }}>{props.children}</Box>
     </Box>
   );
+}
+
+/** Mounted only while wide: hides the default tab island. */
+function HideAppFrameHeaderWhileWide(): null {
+  useSetAppFrameHeader(false);
+  return null;
 }
 
 /**
@@ -178,24 +191,27 @@ function SpaceActiveLayoutCompact({
  * Compact: TopBar nests the same chrome (nav · title · event log · actions ·
  * avatar), then the full-bleed body.
  */
-export function SpaceActiveLayout({
-  children,
-}: SpaceActiveLayoutProps): ReactNode {
-  const { spaceId } = useSpaceSessionUi();
+export function SpaceActiveLayout(props: SpaceActiveLayoutProps): JSX.Element {
+  const sessionUi = useSpaceSessionUi();
   const mode = useLayoutMode();
-  // Hide default tab island while this space owns the top chrome.
-  useSetAppFrameHeader(mode === 'wide' ? false : null);
 
-  if (mode === 'wide') {
-    return (
-      <SpaceActiveLayoutWide spaceId={spaceId}>
-        {children}
-      </SpaceActiveLayoutWide>
-    );
-  }
   return (
-    <SpaceActiveLayoutCompact spaceId={spaceId}>
-      {children}
-    </SpaceActiveLayoutCompact>
+    <>
+      <Show when={mode() === 'wide'}>
+        <HideAppFrameHeaderWhileWide />
+      </Show>
+      <Show
+        when={mode() === 'wide'}
+        fallback={
+          <SpaceActiveLayoutCompact spaceId={sessionUi.spaceId}>
+            {props.children}
+          </SpaceActiveLayoutCompact>
+        }
+      >
+        <SpaceActiveLayoutWide spaceId={sessionUi.spaceId}>
+          {props.children}
+        </SpaceActiveLayoutWide>
+      </Show>
+    </>
   );
 }

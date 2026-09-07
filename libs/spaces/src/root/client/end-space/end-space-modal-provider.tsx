@@ -1,11 +1,4 @@
-import {
-  createContext,
-  type ReactNode,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
-} from 'react';
+import { createContext, createSignal, type JSX, useContext } from 'solid-js';
 
 import { EndSpaceConfirmModal } from './end-space-confirm-modal';
 import { useEndSpace } from './use-end-space';
@@ -17,7 +10,7 @@ export type RequestEndSpaceOptions = {
 
 type PendingEnd = {
   spaceId: string;
-  onSuccess?: () => void;
+  onSuccess?: (() => void) | undefined;
 };
 
 export type EndSpaceModals = {
@@ -30,39 +23,32 @@ const Ctx = createContext<EndSpaceModals | null>(null);
  * Owns the end-space confirm modal at app scope so it stays mounted through
  * loading → success even when the space drops out of the user's active list.
  */
-export function EndSpaceModalProvider({
-  children,
-}: {
-  children: ReactNode;
-}): ReactNode {
-  const [pending, setPending] = useState<PendingEnd | null>(null);
+export function EndSpaceModalProvider(props: {
+  readonly children: JSX.Element;
+}): JSX.Element {
+  const [pending, setPending] = createSignal<PendingEnd | null>(null);
   const endSpace = useEndSpace();
 
-  const requestEndSpace = useCallback(
-    (spaceId: string, options?: RequestEndSpaceOptions) => {
-      const onSuccess = options?.onSuccess;
-      setPending(
-        onSuccess === undefined ? { spaceId } : { spaceId, onSuccess }
-      );
-    },
-    []
-  );
+  const requestEndSpace = (
+    spaceId: string,
+    options?: RequestEndSpaceOptions
+  ): void => {
+    const onSuccess = options?.onSuccess;
+    setPending(() =>
+      onSuccess === undefined ? { spaceId } : { spaceId, onSuccess }
+    );
+  };
 
-  const onClose = useCallback(() => setPending(null), []);
-  const spaceId = pending?.spaceId ?? '';
-  const operation = useCallback(() => endSpace(spaceId), [endSpace, spaceId]);
-  const value = useMemo(() => ({ requestEndSpace }), [requestEndSpace]);
+  const modals: EndSpaceModals = { requestEndSpace };
 
   return (
-    <Ctx.Provider value={value}>
-      {children}
+    <Ctx.Provider value={modals}>
+      {props.children}
       <EndSpaceConfirmModal
-        visible={pending !== null}
-        onClose={onClose}
-        operation={operation}
-        {...(pending?.onSuccess !== undefined
-          ? { onSuccess: pending.onSuccess }
-          : {})}
+        visible={pending() !== null}
+        onClose={() => setPending(() => null)}
+        operation={() => endSpace(pending()?.spaceId ?? '')}
+        onSuccess={() => pending()?.onSuccess?.()}
       />
     </Ctx.Provider>
   );

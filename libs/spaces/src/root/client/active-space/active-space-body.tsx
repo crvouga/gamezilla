@@ -1,5 +1,5 @@
-import { Box } from '@pkgs/ui-rn';
-import { type ReactNode, useMemo } from 'react';
+import { Box } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 
 import { GamesMainMenu } from '../module/games-main-menu';
 import { useAnnounceJoinedOnSync } from '../room/use-announce-joined-on-sync';
@@ -22,24 +22,25 @@ export type ActiveSpaceBodyProps = {
  * UI is provided via {@link SpaceSessionUiProvider}; room state uses registry
  * hooks under {@link SpaceRoomProvider}.
  */
-export function ActiveSpaceBody({
-  spaceId,
-  onRequestEnd,
-  onRequestLeave,
-  onRequestRename,
-  onPressHome,
-}: ActiveSpaceBodyProps): ReactNode {
-  useAnnounceJoinedOnSync(spaceId);
-  const sessionUi = useMemo(
-    (): SpaceSessionUiValue => ({
-      spaceId,
-      onRequestEnd,
-      onRequestLeave,
-      onRequestRename,
-      onPressHome,
-    }),
-    [spaceId, onRequestEnd, onRequestLeave, onRequestRename, onPressHome]
-  );
+export function ActiveSpaceBody(props: ActiveSpaceBodyProps): JSX.Element {
+  useAnnounceJoinedOnSync(props.spaceId);
+  const sessionUi: SpaceSessionUiValue = {
+    get spaceId() {
+      return props.spaceId;
+    },
+    get onRequestEnd() {
+      return () => props.onRequestEnd();
+    },
+    get onRequestLeave() {
+      return () => props.onRequestLeave();
+    },
+    get onRequestRename() {
+      return () => props.onRequestRename();
+    },
+    get onPressHome() {
+      return () => props.onPressHome();
+    },
+  };
 
   return (
     <SpaceSessionUiProvider value={sessionUi}>

@@ -1,6 +1,7 @@
 import { useMyId } from '@libs/auth/public/use-current-user';
-import { RoomMetaAttr, useRoomFromRegistry, useRoomRoster } from '@pkgs/room';
-import { useMemo } from 'react';
+import { RoomMetaAttr } from '@pkgs/room';
+import { useNamedRoomRoster } from '@pkgs/room/solid';
+import { type Accessor, createMemo } from 'solid-js';
 
 import { useSpaceRoomClientId } from './space-room-context';
 import {
@@ -13,40 +14,37 @@ import {
  * Multiple clients for the same member appear as multiple peer ids.
  */
 export function useSpacePresence(): {
-  peersByMemberId: Map<string, string[]>;
-  selfPeerId: string | null;
-  selfClientId: string | null;
+  readonly peersByMemberId: Accessor<Map<string, string[]>>;
+  readonly selfPeerId: Accessor<string | null>;
+  readonly selfClientId: Accessor<string | null>;
 } {
   const memberId = useMyId();
   const selfClientId = useSpaceRoomClientId();
-  const room = useRoomFromRegistry(SPACE_ROOM_NAME);
-  const roster = useRoomRoster(room);
+  const roster = useNamedRoomRoster(SPACE_ROOM_NAME);
   const roomSynced = useSpaceRoomSelector(RoomMetaAttr.isSynced.from);
 
-  return useMemo(() => {
-    const peersByMemberId = new Map<string, string[]>();
-    if (!roomSynced) {
-      return {
-        peersByMemberId,
-        selfPeerId: null,
-        selfClientId: null,
-      };
-    }
-    for (const client of roster) {
-      const existing = peersByMemberId.get(client.id);
+  const peersByMemberId = createMemo(() => {
+    const peers = new Map<string, string[]>();
+    if (!roomSynced()) return peers;
+    for (const client of roster()) {
+      const existing = peers.get(client.id);
       if (existing === undefined) {
-        peersByMemberId.set(client.id, [client.clientId]);
+        peers.set(client.id, [client.clientId]);
       } else {
         existing.push(client.clientId);
       }
     }
-    const selfInRoster =
-      selfClientId !== null &&
-      roster.some((c) => c.id === memberId && c.clientId === selfClientId);
-    return {
-      peersByMemberId,
-      selfPeerId: selfInRoster ? selfClientId : null,
-      selfClientId: selfInRoster ? selfClientId : null,
-    };
-  }, [roster, roomSynced, memberId, selfClientId]);
+    return peers;
+  });
+  const selfInRoster = createMemo(() => {
+    const client = selfClientId();
+    if (client === null) return false;
+    return roster().some((c) => c.id === memberId() && c.clientId === client);
+  });
+
+  return {
+    peersByMemberId,
+    selfPeerId: createMemo(() => (selfInRoster() ? selfClientId() : null)),
+    selfClientId: createMemo(() => (selfInRoster() ? selfClientId() : null)),
+  };
 }

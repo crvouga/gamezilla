@@ -1,6 +1,8 @@
-import { Trans } from '@lingui/react/macro';
-import { Box, Text } from '@pkgs/ui-rn';
-import type { ReactNode } from 'react';
+import { Trans } from '@lingui/solid/macro';
+import { Box, Text } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+import { Show } from 'solid-js';
+
 import { SpaceMemberTileRail } from './space-member-tile-rail';
 
 import { useSpaceHostMembershipDisplay } from './use-space-host-membership-display';
@@ -9,10 +11,10 @@ export type SpaceMembersHostBlockProps = {
   spaceId: string;
 };
 
-export function SpaceMembersHostBlock({
-  spaceId,
-}: SpaceMembersHostBlockProps): ReactNode {
-  const host = useSpaceHostMembershipDisplay(spaceId);
+export function SpaceMembersHostBlock(
+  props: SpaceMembersHostBlockProps
+): JSX.Element {
+  const host = useSpaceHostMembershipDisplay(props.spaceId);
   return (
     <Box sx={{ gap: 1 }}>
       <Text
@@ -21,20 +23,26 @@ export function SpaceMembersHostBlock({
         label={<Trans>Host</Trans>}
       />
       <Box sx={{ gap: 0 }}>
-        {host !== null ? (
-          <SpaceMemberTileRail
-            spaceId={spaceId}
-            deviceId={host.deviceId}
-            profileId={host.profileId}
-            deviceLabel={host.deviceLabel}
-          />
-        ) : (
-          <Text
-            variant="caption"
-            sx={{ color: 'textSecondary', px: 2 }}
-            label={<Trans>No host listed</Trans>}
-          />
-        )}
+        <Show
+          when={host()}
+          keyed
+          fallback={
+            <Text
+              variant="caption"
+              sx={{ color: 'textSecondary', px: 2 }}
+              label={<Trans>No host listed</Trans>}
+            />
+          }
+        >
+          {(entry) => (
+            <SpaceMemberTileRail
+              spaceId={props.spaceId}
+              deviceId={entry.deviceId}
+              profileId={entry.profileId}
+              deviceLabel={entry.deviceLabel}
+            />
+          )}
+        </Show>
       </Box>
     </Box>
   );

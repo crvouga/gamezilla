@@ -5,8 +5,9 @@
 import { UserProfileAvatar } from '@libs/profile/public/user-profile-avatar';
 import { groupRosterByParticipant } from '@pkgs/collab';
 import { PresenceStrip } from '@pkgs/collab-ui';
-import { useRoomFromRegistry, useRoomRoster } from '@pkgs/room';
-import { type ReactNode, useMemo } from 'react';
+import { useNamedRoomRoster } from '@pkgs/room/solid';
+import type { JSX } from 'solid-js';
+import { createMemo } from 'solid-js';
 
 import { useSpaceRoomClientId } from '../../../public/room/space-room-context';
 import { SPACE_ROOM_NAME } from '../../../public/room/use-space-room-selector';
@@ -22,33 +23,29 @@ export type SpacePresenceStripProps = {
   onPress?: () => void;
 };
 
-export function SpacePresenceStrip({
-  spaceId,
-  size,
-  onPress,
-}: SpacePresenceStripProps): ReactNode {
-  const room = useRoomFromRegistry(SPACE_ROOM_NAME);
-  const roster = useRoomRoster(room);
+export function SpacePresenceStrip(
+  props: SpacePresenceStripProps
+): JSX.Element {
+  const roster = useNamedRoomRoster(SPACE_ROOM_NAME);
+  const colors = useSpaceParticipantColors(props.spaceId);
   const selfClientId = useSpaceRoomClientId();
-  const { colorForParticipant } = useSpaceParticipantColors(spaceId);
 
   // Expand grouped participants back to a flat per-client list so the strip
   // shows one face per connected client (same avatar repeated when needed).
-  const clients = useMemo(() => {
-    const grouped = groupRosterByParticipant(roster, selfClientId);
-    return grouped.flatMap((p) => p.clients);
-  }, [roster, selfClientId]);
+  const clients = createMemo(() =>
+    groupRosterByParticipant(roster(), selfClientId()).flatMap((p) => p.clients)
+  );
 
   return (
     <PresenceStrip
-      clients={clients}
-      colorForParticipant={(id) => colorForParticipant(id)}
+      clients={clients()}
+      colorForParticipant={(id) => colors.colorForParticipant(id)}
       renderAvatar={(actor, avatarSize) => (
         <UserProfileAvatar profileId={actor.id} size={avatarSize} />
       )}
-      size={size}
+      size={props.size}
       maxVisible={4}
-      {...(onPress !== undefined ? { onPress } : {})}
+      {...(props.onPress !== undefined ? { onPress: props.onPress } : {})}
     />
   );
 }

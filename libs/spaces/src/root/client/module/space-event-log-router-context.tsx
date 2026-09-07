@@ -4,22 +4,24 @@
  */
 
 import type { EventLogRouter } from '@pkgs/collab';
-import { createContext, type ReactNode, useContext } from 'react';
+import { defineContext } from '@pkgs/solid-context/define-context';
+import type { JSX, ParentProps } from 'solid-js';
 
-const SpaceEventLogRouterContext = createContext<EventLogRouter | null>(null);
+const SpaceEventLogRouterContext = defineContext<EventLogRouter>(
+  'SpaceEventLogRouter'
+);
 
 export type SpaceEventLogRouterProviderProps = {
   readonly value: EventLogRouter;
-  readonly children: ReactNode;
+  readonly children: JSX.Element;
 };
 
-export function SpaceEventLogRouterProvider({
-  value,
-  children,
-}: SpaceEventLogRouterProviderProps): ReactNode {
+export function SpaceEventLogRouterProvider(
+  props: ParentProps<SpaceEventLogRouterProviderProps>
+): JSX.Element {
   return (
-    <SpaceEventLogRouterContext.Provider value={value}>
-      {children}
+    <SpaceEventLogRouterContext.Provider value={props.value}>
+      {props.children}
     </SpaceEventLogRouterContext.Provider>
   );
 }
@@ -29,11 +31,5 @@ export function SpaceEventLogRouterProvider({
  * {@link GamesBootstrapFromPlugins} must wrap the tree.
  */
 export function useSpaceEventLogRouter(): EventLogRouter {
-  const router = useContext(SpaceEventLogRouterContext);
-  if (router === null) {
-    throw new Error(
-      'useSpaceEventLogRouter: no <SpaceEventLogRouterProvider> in tree'
-    );
-  }
-  return router;
+  return SpaceEventLogRouterContext.use();
 }

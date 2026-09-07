@@ -5,14 +5,13 @@ import type {
   RoomState,
 } from '@pkgs/room';
 import {
+  type Accessor,
   createContext,
-  type ReactNode,
-  useCallback,
+  createMemo,
+  createSignal,
+  type JSX,
   useContext,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+} from 'solid-js';
 
 import { createSpaceOpenRoomsPending } from './space-open-rooms-pending';
 
@@ -32,8 +31,8 @@ type SpaceOpenRoomsApi = {
 const SpaceOpenRoomsContext = createContext<SpaceOpenRoomsApi | null>(null);
 
 const SpaceOpenRoomsEntriesContext = createContext<
-  ReadonlyMap<string, SpaceOpenRoomEntry>
->(new Map());
+  Accessor<ReadonlyMap<string, SpaceOpenRoomEntry>>
+>(() => new Map<string, SpaceOpenRoomEntry>());
 
 export type SpaceOpenRoomsRegistrySetter = (
   spaceId: string,
@@ -49,87 +48,73 @@ const SpaceOpenRoomsPendingClearContext = createContext<PendingClearer | null>(
   null
 );
 
+function resolveSpaceId(spaceId: string | Accessor<string>): string {
+  return typeof spaceId === 'string' ? spaceId : spaceId();
+}
+
 /**
  * Registry + dispatch store without open-session slots. Production mounts
  * this via {@link SpaceOpenRoomsProvider}; tests mount it alone so a registry
  * commit notifies {@link useSpaceOpenRoomEntry} consumers.
  */
-export function SpaceOpenRoomsStoreProvider({
-  children,
-}: {
-  readonly children: ReactNode;
-}): ReactNode {
-  const [entries, setEntries] = useState(
-    (): ReadonlyMap<string, SpaceOpenRoomEntry> => new Map()
-  );
-  const entriesRef = useRef(entries);
-  entriesRef.current = entries;
-  const pendingRef = useRef(createSpaceOpenRoomsPending());
+export function SpaceOpenRoomsStoreProvider(props: {
+  readonly children: JSX.Element;
+}): JSX.Element {
+  const [entries, setEntries] = createSignal<
+    ReadonlyMap<string, SpaceOpenRoomEntry>
+  >(new Map());
+  const pendingRef = { current: createSpaceOpenRoomsPending() };
 
-  const setEntry = useCallback<SpaceOpenRoomsRegistrySetter>(
-    (spaceId, entry) => {
-      setEntries((prev) => {
-        const current = prev.get(spaceId) ?? null;
-        if (entry === null) {
-          if (current === null) return prev;
-          const next = new Map(prev);
-          next.delete(spaceId);
-          return next;
-        }
-        if (
-          current?.room === entry.room &&
-          current.clientId === entry.clientId
-        ) {
-          return prev;
-        }
+  const setEntry: SpaceOpenRoomsRegistrySetter = (spaceId, entry) => {
+    setEntries((prev) => {
+      const current = prev.get(spaceId) ?? null;
+      if (entry === null) {
+        if (current === null) return prev;
         const next = new Map(prev);
-        next.set(spaceId, entry);
-        return next;
-      });
-      if (entry !== null) {
-        // Keep entriesRef in sync before flush so concurrent dispatch sees the room.
-        const next = new Map(entriesRef.current);
-        next.set(spaceId, entry);
-        entriesRef.current = next;
-        pendingRef.current.flush(spaceId, (payload) => {
-          entry.room.dispatch(payload);
-        });
-      } else {
-        const next = new Map(entriesRef.current);
         next.delete(spaceId);
-        entriesRef.current = next;
+        return next;
       }
-    },
-    []
-  );
+      if (current?.room === entry.room && current.clientId === entry.clientId) {
+        return prev;
+      }
+      const next = new Map(prev);
+      next.set(spaceId, entry);
+      return next;
+    });
+    if (entry !== null) {
+      // Keep a ref view in sync before flush so concurrent dispatch sees the
+      // room even before the signal write settles.
+      pendingRef.current.flush(spaceId, (payload) => {
+        entry.room.dispatch(payload);
+      });
+    }
+  };
 
-  const clearPending = useCallback<PendingClearer>((spaceId) => {
+  const clearPending: PendingClearer = (spaceId) => {
     pendingRef.current.clear(spaceId);
-  }, []);
+  };
 
   // Stable identity so dispatch consumers do not churn; entries notify via
-  // SpaceOpenRoomsEntriesContext instead (React context bailout on equal value).
-  const api = useMemo((): SpaceOpenRoomsApi => {
-    return {
-      getEntry: (spaceId) => entriesRef.current.get(spaceId) ?? null,
-      dispatch: (spaceId, payload) => {
-        const entry = entriesRef.current.get(spaceId);
-        if (entry !== undefined) {
-          entry.room.dispatch(payload);
-          return;
-        }
-        // Local Room still opening — queue until registry commit.
-        pendingRef.current.enqueue(spaceId, payload);
-      },
-    };
-  }, []);
+  // SpaceOpenRoomsEntriesContext instead.
+  const api: SpaceOpenRoomsApi = {
+    getEntry: (spaceId) => entries().get(spaceId) ?? null,
+    dispatch: (spaceId, payload) => {
+      const entry = entries().get(spaceId);
+      if (entry !== undefined) {
+        entry.room.dispatch(payload);
+        return;
+      }
+      // Local Room still opening — queue until registry commit.
+      pendingRef.current.enqueue(spaceId, payload);
+    },
+  };
 
   return (
     <SpaceOpenRoomsPendingClearContext.Provider value={clearPending}>
       <SpaceOpenRoomsRegistryContext.Provider value={setEntry}>
         <SpaceOpenRoomsEntriesContext.Provider value={entries}>
           <SpaceOpenRoomsContext.Provider value={api}>
-            {children}
+            {props.children}
           </SpaceOpenRoomsContext.Provider>
         </SpaceOpenRoomsEntriesContext.Provider>
       </SpaceOpenRoomsRegistryContext.Provider>
@@ -163,10 +148,10 @@ export function useSpaceOpenRoomsPendingClear(): PendingClearer | null {
 }
 
 export function useSpaceOpenRoomEntry(
-  spaceId: string
-): SpaceOpenRoomEntry | null {
-  // Read from entries context (not the stable dispatch API) so a Room commit
-  // changes Provider value identity and detail UI re-renders.
+  spaceId: string | Accessor<string>
+): Accessor<SpaceOpenRoomEntry | null> {
+  // Read from the entries signal (not the stable dispatch API) so a Room
+  // commit notifies detail UI.
   const entries = useContext(SpaceOpenRoomsEntriesContext);
-  return entries.get(spaceId) ?? null;
+  return createMemo(() => entries().get(resolveSpaceId(spaceId)) ?? null);
 }

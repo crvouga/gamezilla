@@ -1,6 +1,7 @@
-import { type SxProps, Text, type TextVariant } from '@pkgs/ui-rn';
-import { optionalProps } from '@pkgs/ui-rn/components/optional-props';
-import { Fragment, type ReactNode } from 'react';
+import { type SxProps, Text, type TextVariant } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+import { For, Show } from 'solid-js';
+
 import { SpaceGuestMembershipUsername } from './space-guest-membership-username';
 import { useSpaceGuestMembershipIds } from './use-space-guest-membership-ids';
 
@@ -17,25 +18,31 @@ const SEPARATOR = ', ';
  * Comma-separated guest usernames for a space. Each name is its own atom;
  * the separator is purely typographic glue between atoms.
  */
-export function SpaceGuestMembershipUsernamesJoined({
-  spaceId,
-  variant,
-  sx,
-  numberOfLines,
-}: SpaceGuestMembershipUsernamesJoinedProps): ReactNode {
-  const membershipIds = useSpaceGuestMembershipIds(spaceId);
-  if (membershipIds.length === 0) return null;
+export function SpaceGuestMembershipUsernamesJoined(
+  props: SpaceGuestMembershipUsernamesJoinedProps
+): JSX.Element {
+  const membershipIds = useSpaceGuestMembershipIds(props.spaceId);
   return (
-    <Text {...optionalProps({ variant, sx, numberOfLines })}>
-      {membershipIds.map((mid, idx) => (
-        <Fragment key={mid}>
-          {idx > 0 ? SEPARATOR : null}
-          <SpaceGuestMembershipUsername
-            membershipId={mid}
-            {...optionalProps({ variant })}
-          />
-        </Fragment>
-      ))}
-    </Text>
+    <Show when={membershipIds().length > 0}>
+      <Text
+        variant={props.variant}
+        sx={props.sx}
+        numberOfLines={props.numberOfLines}
+      >
+        <For each={membershipIds()}>
+          {(mid, index) => (
+            <>
+              {index() > 0 ? SEPARATOR : null}
+              <SpaceGuestMembershipUsername
+                membershipId={mid}
+                {...(props.variant !== undefined
+                  ? { variant: props.variant }
+                  : {})}
+              />
+            </>
+          )}
+        </For>
+      </Text>
+    </Show>
   );
 }
