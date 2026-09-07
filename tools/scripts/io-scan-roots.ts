@@ -91,7 +91,7 @@ export async function collectIoScanFiles(
         files.push(key);
       }
     }
-    if (key.startsWith('product/') && hasExt(key, TS_JS_EXTS)) {
+    if (key.startsWith('apps/product/') && hasExt(key, TS_JS_EXTS)) {
       if (
         /\/src\//.test(key) ||
         /\/scripts\//.test(key) ||
@@ -127,7 +127,7 @@ export async function collectSqlWallScanFiles(
     if (
       (key.startsWith('libs/') ||
         key.startsWith('pkgs/') ||
-        key.startsWith('product/')) &&
+        key.startsWith('apps/product/')) &&
       hasExt(key, TS_SQL_EXTS)
     ) {
       files.push(key);

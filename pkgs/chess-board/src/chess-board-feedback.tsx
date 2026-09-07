@@ -35,37 +35,38 @@ function FeedbackMark(props: {
   readonly badge: FeedbackBadge;
   readonly theme: BoardTheme;
 }): JSX.Element {
-  const { badge, theme } = props;
-  const color = badge.feedback.color ?? theme.feedback[badge.feedback.kind];
-  const opacity = badge.feedback.opacity ?? 1;
+  const color = () =>
+    props.badge.feedback.color ??
+    props.theme.feedback[props.badge.feedback.kind];
+  const opacity = () => props.badge.feedback.opacity ?? 1;
   const scale = (BADGE_RADIUS * 2) / 100;
-  const path = GLYPH_PATHS_100[badge.feedback.kind];
-  const text = TEXT_GLYPH[badge.feedback.kind];
+  const path = () => GLYPH_PATHS_100[props.badge.feedback.kind];
+  const text = () => TEXT_GLYPH[props.badge.feedback.kind];
   return (
     <g
-      class={badge.feedback.pulse === true ? styles['pulse'] : undefined}
-      opacity={opacity}
-      transform={`translate(${fmtUnits(badge.cx)} ${fmtUnits(badge.cy)})`}
+      class={props.badge.feedback.pulse === true ? styles['pulse'] : undefined}
+      opacity={opacity()}
+      transform={`translate(${fmtUnits(props.badge.cx)} ${fmtUnits(props.badge.cy)})`}
     >
       <circle
         r={BADGE_RADIUS}
-        fill={color}
-        stroke={theme.lightSquare}
+        fill={color()}
+        stroke={props.theme.lightSquare}
         stroke-width={BADGE_RING_WIDTH}
       />
-      <Show when={path}>
+      <Show when={path()}>
         {(d) => (
           <path
             d={d()}
             transform={`translate(${-BADGE_RADIUS} ${-BADGE_RADIUS}) scale(${scale})`}
             fill={
-              glyphStyle(badge.feedback.kind) === 'fill'
-                ? theme.lightSquare
+              glyphStyle(props.badge.feedback.kind) === 'fill'
+                ? props.theme.lightSquare
                 : 'none'
             }
             stroke={
-              glyphStyle(badge.feedback.kind) === 'stroke'
-                ? theme.lightSquare
+              glyphStyle(props.badge.feedback.kind) === 'stroke'
+                ? props.theme.lightSquare
                 : 'none'
             }
             stroke-width={10}
@@ -74,12 +75,12 @@ function FeedbackMark(props: {
           />
         )}
       </Show>
-      <Show when={text}>
+      <Show when={text()}>
         {(label) => (
           <text
             text-anchor="middle"
             dominant-baseline="central"
-            fill={theme.lightSquare}
+            fill={props.theme.lightSquare}
             font-size={String(BADGE_FONT_SIZE)}
             font-weight={700}
           >

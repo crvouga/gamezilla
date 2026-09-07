@@ -17,7 +17,7 @@
   "scripts": {
     "lint": "bunx biome check --error-on-warnings .",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test tests && vitest run"
+    "test": "bun test tests && vitest run --passWithNoTests"
   },
   "dependencies": {
     "@pkgs/clock": "workspace:*",

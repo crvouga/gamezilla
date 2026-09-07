@@ -224,6 +224,8 @@
       "@pkgs/sync-engine/sim": ["./pkgs/sync-engine/src/sim/index.ts"],
       "@pkgs/task-dag": ["./pkgs/task-dag/src/index.ts"],
       "@pkgs/task-dag/*": ["./pkgs/task-dag/src/*"],
+      "@pkgs/tailwind": ["./pkgs/tailwind/src/index.ts"],
+      "@pkgs/tailwind/*": ["./pkgs/tailwind/src/*"],
       "@pkgs/ts-reset": ["./pkgs/ts-reset/src/index.ts"],
       "@pkgs/tts/*": ["./pkgs/tts/src/*"],
       "@pkgs/ui-testing": ["./pkgs/ui-testing/src/index.ts"],
@@ -241,10 +243,17 @@
       "@pkgs/ui/*": ["./pkgs/ui/src/*", "./pkgs/ui/src/*/index.ts"],
       "@pkgs/uuid": ["./pkgs/uuid/src/index.ts"],
       "@pkgs/uuid/*": ["./pkgs/uuid/src/*"],
-      "@product/console/*": ["./product/console/src/*"],
-      "@product/sim": ["./product/sim/src/index.ts"],
-      "@product/sim/*": ["./product/sim/src/*"],
-      "@product/test/*": ["./product/test/src/*"]
+      "@apps/product": ["./apps/product/src/sim/index.ts"],
+      "@apps/product/sim": ["./apps/product/src/sim/index.ts"],
+      "@apps/product/sim/*": ["./apps/product/src/sim/*"],
+      "@apps/product/console/*": ["./apps/product/src/console/*"],
+      "@apps/product/console-nav/*": [
+        "./apps/product/src/console/console-nav/*"
+      ],
+      "@apps/product/playground/*": ["./apps/product/src/console/playground/*"],
+      "@apps/product/test-setup/*": ["./apps/product/src/test/setup/*"],
+      "@apps/product/test-fixtures/*": ["./apps/product/src/test/fixtures/*"],
+      "@apps/product/test-snapshots/*": ["./apps/product/src/test/snapshots/*"]
     }
   }
 }

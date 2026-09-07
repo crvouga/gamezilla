@@ -163,4 +163,4 @@ src/fast-check/    gen / arbitrary adapters
 - **Don't** import `@pkgs/sim/internals` from product or sim kits.
 - **Don't** read `process.env` for seeds.
 - **Don't** revive `Host` / `defineHost` — a host is a named `defineRuntime` entry on `defineSystem`.
-  Product hosts (`in-process`, `bun-webview`, …) live in `@product/sim`, not here.
+  Product hosts (`in-process`, `bun-webview`, …) live in `@apps/product/sim`, not here.

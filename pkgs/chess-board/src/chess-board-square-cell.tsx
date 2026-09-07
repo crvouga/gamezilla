@@ -32,10 +32,20 @@ export type SquareCellProps = {
   readonly highlightLastMove: boolean;
 };
 
-export function squareFill(props: SquareCellProps): string {
-  const { square, theme, lastMove, selected, checkSquare } = props;
+export type SquareFillInput = {
+  readonly square: Square;
+  readonly theme: BoardTheme;
+  readonly lastMove: Move | null;
+  readonly selected: Square | null;
+  readonly checkSquare: Square | null;
+  readonly highlightLastMove: boolean;
+};
+
+export function squareFill(cell: SquareFillInput): string {
+  const { square, theme, lastMove, selected, checkSquare, highlightLastMove } =
+    cell;
   if (
-    props.highlightLastMove &&
+    highlightLastMove &&
     lastMove !== null &&
     (square === lastMove.from || square === lastMove.to)
   ) {
@@ -53,13 +63,15 @@ function SquareCoords(props: {
   readonly x: number;
   readonly y: number;
 }): JSX.Element {
-  const file = props.square[0]!;
-  const rank = props.square[1]!;
-  const showFile = props.orientation === 'white' ? rank === '1' : rank === '8';
-  const showRank = props.orientation === 'white' ? file === 'a' : file === 'h';
+  const file = () => props.square[0] ?? '';
+  const rank = () => props.square[1] ?? '';
+  const showFile = () =>
+    props.orientation === 'white' ? rank() === '1' : rank() === '8';
+  const showRank = () =>
+    props.orientation === 'white' ? file() === 'a' : file() === 'h';
   return (
     <>
-      <Show when={showFile}>
+      <Show when={showFile()}>
         <text
           x={props.x + CELL_UNITS - 8}
           y={props.y + CELL_UNITS - 6}
@@ -67,17 +79,17 @@ function SquareCoords(props: {
           font-size="14"
           text-anchor="end"
         >
-          {file}
+          {file()}
         </text>
       </Show>
-      <Show when={showRank}>
+      <Show when={showRank()}>
         <text
           x={props.x + 6}
           y={props.y + 16}
           fill={props.theme.coordinates}
           font-size="14"
         >
-          {rank}
+          {rank()}
         </text>
       </Show>
     </>
@@ -85,16 +97,27 @@ function SquareCoords(props: {
 }
 
 export function SquareCell(props: SquareCellProps): JSX.Element {
-  const { x, y } = squareOrigin(props.square, props.orientation);
+  const origin = () => squareOrigin(props.square, props.orientation);
+  const x = () => origin().x;
+  const y = () => origin().y;
   const h = () => props.highlight;
+  const fill = () =>
+    squareFill({
+      square: props.square,
+      theme: props.theme,
+      lastMove: props.lastMove,
+      selected: props.selected,
+      checkSquare: props.checkSquare,
+      highlightLastMove: props.highlightLastMove,
+    });
   return (
     <g>
       <rect
-        x={x}
-        y={y}
+        x={x()}
+        y={y()}
         width={CELL_UNITS}
         height={CELL_UNITS}
-        fill={squareFill(props)}
+        fill={fill()}
       />
       <Show when={h()}>
         {(hl) => (
@@ -102,8 +125,8 @@ export function SquareCell(props: SquareCellProps): JSX.Element {
             when={hl().ring === true}
             fallback={
               <rect
-                x={x}
-                y={y}
+                x={x()}
+                y={y()}
                 width={CELL_UNITS}
                 height={CELL_UNITS}
                 fill={hl().color}
@@ -112,8 +135,8 @@ export function SquareCell(props: SquareCellProps): JSX.Element {
             }
           >
             <rect
-              x={x + 3}
-              y={y + 3}
+              x={x() + 3}
+              y={y() + 3}
               width={CELL_UNITS - 6}
               height={CELL_UNITS - 6}
               fill="none"
@@ -129,8 +152,8 @@ export function SquareCell(props: SquareCellProps): JSX.Element {
           square={props.square}
           orientation={props.orientation}
           theme={props.theme}
-          x={x}
-          y={y}
+          x={x()}
+          y={y()}
         />
       </Show>
     </g>

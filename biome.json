@@ -314,7 +314,11 @@
     },
     {
       "path": "./tools/biome-plugins/no-sync-engine-framework-leak.grit",
-      "includes": ["**/apps/**/*.{ts,tsx}", "**/libs/**/*.{ts,tsx}"]
+      "includes": [
+        "**/apps/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "!**/src/sim/**"
+      ]
     },
     {
       "path": "./tools/biome-plugins/no-legacy-writes.grit",
@@ -397,7 +401,6 @@
         "**/apps/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
         "**/pkgs/**/*.{ts,tsx}",
-        "**/product/**/*.{ts,tsx}",
         "**/tools/**/*.{ts,tsx}"
       ]
     },
@@ -469,6 +472,7 @@
         "!**/sim-io.ts",
         "!**/wall.ts",
         "!**/wall-client-env.ts",
+        "!**/wall-console-env.ts",
         "!**/wall-room-server-env.ts",
         "!**/real-time-runtime.ts",
         "!**/real-time-scheduler.ts",
@@ -541,6 +545,7 @@
         "!**/sim-io.ts",
         "!**/wall.ts",
         "!**/wall-client-env.ts",
+        "!**/wall-console-env.ts",
         "!**/wall-room-server-env.ts",
         "!**/wall-node-fs.ts",
         "!**/wall-os-fs.ts",
@@ -565,6 +570,8 @@
         "!**/example-root.tsx",
         "!**/app.tsx",
         "!**/boot-playground.ts",
+        "!**/open-sim.ts",
+        "!**/launch-actor.ts",
         "!**/root-app.tsx",
         "!**/apps/client/src/main.tsx",
         "!**/pkgs/clock/src/index.ts",
@@ -590,7 +597,7 @@
         "**/apps/**/*.{tsx}",
         "**/libs/**/*.{tsx}",
         "**/pkgs/**/*.{tsx}",
-        "**/product/test/tests/**/*.{tsx}",
+        "**/apps/product/tests/**/*.{tsx}",
         "!**/apps/client/src/providers/root-error-boundary.tsx",
         "!**/apps/client/src/i18n/i18n-provider.tsx",
         "!**/apps/client/src/exemplars/virtualized-list.tsx",
@@ -613,9 +620,9 @@
     {
       "path": "./tools/biome-plugins/no-dst-raw-selectors.grit",
       "includes": [
-        "**/product/test/tests/**/*.{ts,tsx}",
-        "**/product/test/src/fixtures/**/*.{ts,tsx}",
-        "**/product/test/src/snapshots/**/*.{ts,tsx}",
+        "**/apps/product/tests/**/*.{ts,tsx}",
+        "**/apps/product/src/test/fixtures/**/*.{ts,tsx}",
+        "**/apps/product/src/test/snapshots/**/*.{ts,tsx}",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
         "!**/src/sim/**"
@@ -627,7 +634,6 @@
         "**/pkgs/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
         "**/apps/**/*.{ts,tsx}",
-        "**/product/**/*.{ts,tsx}",
         "!**/pkgs/sim/src/script/**"
       ]
     },
@@ -637,7 +643,6 @@
         "**/pkgs/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
         "**/apps/**/*.{ts,tsx}",
-        "**/product/**/*.{ts,tsx}",
         "!**/pkgs/sim/src/script/**"
       ]
     },
@@ -646,8 +651,7 @@
       "includes": [
         "**/pkgs/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
-        "**/apps/**/*.{ts,tsx}",
-        "**/product/**/*.{ts,tsx}"
+        "**/apps/**/*.{ts,tsx}"
       ]
     },
     {
@@ -656,7 +660,6 @@
         "**/apps/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
         "**/pkgs/**/*.{ts,tsx}",
-        "**/product/**/*.{ts,tsx}",
         "!**/pkgs/db-schema-postgres/src/emit.ts",
         "!**/pkgs/db-schema-sqlite/src/emit.ts",
         "!**/pkgs/sql-client/src/agnostic-sql.test.ts",
@@ -832,7 +835,7 @@
       }
     },
     {
-      "includes": ["product/test/tests/**"],
+      "includes": ["apps/product/tests/**"],
       "linter": {
         "rules": {
           "style": {
@@ -842,13 +845,13 @@
                 "paths": {
                   "@pkgs/ui-testing": {
                     "importNames": ["Driver"],
-                    "message": "Scenarios must use s.apply(defineAction) / openSim (see product/test/src/setup/TESTING.md)."
+                    "message": "Scenarios must use s.apply(defineAction) / openSim (see apps/product/src/test/setup/TESTING.md)."
                   },
                   "@pkgs/ui-testing-solid-dom": {
-                    "message": "Scenarios must use s.apply(defineAction) / openSim (see product/test/src/setup/TESTING.md)."
+                    "message": "Scenarios must use s.apply(defineAction) / openSim (see apps/product/src/test/setup/TESTING.md)."
                   },
                   "@pkgs/ui-testing-bun-webview": {
-                    "message": "Scenarios must use s.apply(defineAction) / openSim (see product/test/src/setup/TESTING.md)."
+                    "message": "Scenarios must use s.apply(defineAction) / openSim (see apps/product/src/test/setup/TESTING.md)."
                   }
                 }
               }

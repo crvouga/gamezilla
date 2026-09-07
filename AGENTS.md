@@ -4,7 +4,7 @@
 
 - **Never leave deprecated code.** Do not add `@deprecated` markers, deprecated aliases, shim re-exports, or “kept for migration” optional fields. Delete the old API and update all call sites in the same change. Soft-deprecation / compatibility leftovers are banned.
 
-- **All nondeterministic I/O is injected.** Product runtime (`apps/client`, `apps/server`, `product/console`, `product/test`, `libs/*`, `pkgs/*`, including scripts) must not call bare `Date.now`, zero-arg `new Date()`, `performance.now`, `setTimeout` / `setInterval`, `fetch`, `crypto.randomUUID`, `Math.random`, or `crypto.getRandomValues`. Inject `Clock` / `Timers` (`@pkgs/clock`), HTTP (`@pkgs/http-client`), and `createId` / `random` (`@pkgs/uuid`) from composition roots (`createClient(env)` / `createServer(env)` / `createRoomServer(env)` / `createSim` via harness-only `virtualTimeRuntime()` / `Session` from `@pkgs/sim` / wall adapters at process entry). **`Session` / Runtime are harness-only** — only `@product/*`, package `src/sim/` systems, and tests hold them; product `ClientEnv` / `ServerEnv` / `RoomServerEnv` receive unpacked `clock` / `timers` / `createId` / `random` / `http`. Never an `Io` bag (`wallIo` / `createSimIo` / `useIo` / `getIo` / `runWithIo`). Inject via Solid context (`ClockProvider` / `useClock` / `useTimers` / `useHttpClient` / `useCreateId`) or constructor/param — never silent wall fallbacks. Do **not** reintroduce `resolveNow` / `resolveTimers` / `resolveCreateId` / `resolveRandom` / `resolveClock`, or `cryptoCreateId` / `mathRandom`. `wallClock` / `wallTimers` / `createGlobalHttpClient()` / `crypto.randomUUID` are allowed only in **test files** or **entry-shaped** files marked `// @io-wall-ok` (`**/scripts/**`, wall adapters, `create-app` / `cli-io` / `polyfill-entry`, and similar process roots — see `tools/scripts/io-scan-pragma.ts`). **File content I/O goes through `@pkgs/object-store`:** libraries take an injected `ObjectStore` (sidecar layout for blobs, tree layout for source/CI trees). Wall `node:fs` only in `@io-wall-ok` adapters (`wall-node-fs.ts`). Process I/O (`spawn` / `chmod`) stays on `@pkgs/os` — not ObjectStore. **SQL engines must not mint time or ids:** no `DEFAULT now()`, `gen_random_uuid()`, `randomblob`, `strftime('now')`, `datetime('now')`, or bare SQL `now()` / `gen_random_uuid()` in DML — managed columns and framework timestamps come from injected `now` / `createId` (mutation wrap + store constructors); SQL stubs that must mention engine UUID helpers mark `@io-wall-ok` on an entry-shaped path. CI: Biome plugins under `tools/biome-plugins/` (via `bun run lint`) for bare I/O / FS / wall defaults / hard-determinism. Hard-determinism gotchas (floats, object key order, locale sorts, room `hash(state)`, LWW sync): see [`DETERMINISM.md`](DETERMINISM.md). **Scenario authoring** lives only in `@pkgs/sim`: packages declare `defineSystem` / `defineAction` / `defineProperty` (topology via `session.fork`; reads are plain functions of `S`; converge is a read + property, restoreNetwork/revive are the stimuli); the framework owns the run via `system.run` / `s.randomActions` / `system.explore` / `system.replay`. Do **not** add package-local World openers / kit DSLs. Kernel mechanics: Runtime/Session, virtual/wall schedulers, network, Recording. Fresh-agent guide: [`pkgs/sim/README.md`](pkgs/sim/README.md).
+- **All nondeterministic I/O is injected.** Product runtime (`apps/client`, `apps/server`, `apps/product`, `libs/*`, `pkgs/*`, including scripts) must not call bare `Date.now`, zero-arg `new Date()`, `performance.now`, `setTimeout` / `setInterval`, `fetch`, `crypto.randomUUID`, `Math.random`, or `crypto.getRandomValues`. Inject `Clock` / `Timers` (`@pkgs/clock`), HTTP (`@pkgs/http-client`), and `createId` / `random` (`@pkgs/uuid`) from composition roots (`createClient(env)` / `createServer(env)` / `createRoomServer(env)` / `createSim` via harness-only `virtualTimeRuntime()` / `Session` from `@pkgs/sim` / wall adapters at process entry). **`Session` / Runtime are harness-only** — only `@apps/product`, package `src/sim/` systems, and tests hold them; product `ClientEnv` / `ServerEnv` / `RoomServerEnv` receive unpacked `clock` / `timers` / `createId` / `random` / `http`. Never an `Io` bag (`wallIo` / `createSimIo` / `useIo` / `getIo` / `runWithIo`). Inject via Solid context (`ClockProvider` / `useClock` / `useTimers` / `useHttpClient` / `useCreateId`) or constructor/param — never silent wall fallbacks. Do **not** reintroduce `resolveNow` / `resolveTimers` / `resolveCreateId` / `resolveRandom` / `resolveClock`, or `cryptoCreateId` / `mathRandom`. `wallClock` / `wallTimers` / `createGlobalHttpClient()` / `crypto.randomUUID` are allowed only in **test files** or **entry-shaped** files marked `// @io-wall-ok` (`**/scripts/**`, wall adapters, `create-app` / `cli-io` / `polyfill-entry`, and similar process roots — see `tools/scripts/io-scan-pragma.ts`). **File content I/O goes through `@pkgs/object-store`:** libraries take an injected `ObjectStore` (sidecar layout for blobs, tree layout for source/CI trees). Wall `node:fs` only in `@io-wall-ok` adapters (`wall-node-fs.ts`). Process I/O (`spawn` / `chmod`) stays on `@pkgs/os` — not ObjectStore. **SQL engines must not mint time or ids:** no `DEFAULT now()`, `gen_random_uuid()`, `randomblob`, `strftime('now')`, `datetime('now')`, or bare SQL `now()` / `gen_random_uuid()` in DML — managed columns and framework timestamps come from injected `now` / `createId` (mutation wrap + store constructors); SQL stubs that must mention engine UUID helpers mark `@io-wall-ok` on an entry-shaped path. CI: Biome plugins under `tools/biome-plugins/` (via `bun run lint`) for bare I/O / FS / wall defaults / hard-determinism. Hard-determinism gotchas (floats, object key order, locale sorts, room `hash(state)`, LWW sync): see [`DETERMINISM.md`](DETERMINISM.md). **Scenario authoring** lives only in `@pkgs/sim`: packages declare `defineSystem` / `defineAction` / `defineProperty` (topology via `session.fork`; reads are plain functions of `S`; converge is a read + property, restoreNetwork/revive are the stimuli); the framework owns the run via `system.run` / `s.randomActions` / `system.explore` / `system.replay`. Do **not** add package-local World openers / kit DSLs. Kernel mechanics: Runtime/Session, virtual/wall schedulers, network, Recording. Fresh-agent guide: [`pkgs/sim/README.md`](pkgs/sim/README.md).
 
 - **Never patch dependencies.** Do not use `bun patch`, `patch-package`, `pnpm patch`, or any other dependency-patching mechanism. Do not add a `patches/` directory or a `patchedDependencies` / `pnpm.patchedDependencies` / `resolutions` field to `package.json`. If a third-party library has a bug, work around it in our own code or accept the behavior — never fork the dep in-tree.
 
@@ -98,16 +98,16 @@ When adding a new check, assign it to `//#check` (fast) or `//#check:full` (slow
 
 ## Local development
 
-**Manual work is the product console.** `bun run dev` starts **only `@product/console`** (Reports + Playground; default SQL fabric is **postgres-mem** server + **sqlite-mem** clients; reports on port 7789). It does **not** start Wrangler, real Postgres, MinIO, or EMQX. The product web app is separate (`bun run dev:client` → `@apps/client`).
+**Manual work is the product console.** `bun run dev` starts **only `@apps/product`** (Reports + Playground; default SQL fabric is **postgres-mem** server + **sqlite-mem** clients; reports on port 7789). It does **not** start Wrangler, real Postgres, MinIO, or EMQX. The product web app is separate (`bun run dev:client` → `@apps/client`).
 
-Representativeness of production is **port contract matrices** (postgres-mem / sqlite-mem vs live engines, Kv, ObjectStore, PubSub, billing/TTS/LLM stubs) plus `@product/test` `openSim({ fidelity: 'max' })` / `SIM_FIDELITY=max` for embedded real Postgres (+ MinIO/EMQX). Sidecar processes live in `@pkgs/postgres-embedded`, `@pkgs/minio-server`, `@pkgs/emqx-server` and are booted from tests/CI (`tools/scripts/boot-local-stack.ts`, `tools/scripts/boot-embedded-postgres.ts`).
+Representativeness of production is **port contract matrices** (postgres-mem / sqlite-mem vs live engines, Kv, ObjectStore, PubSub, billing/TTS/LLM stubs) plus `@apps/product` `openSim({ fidelity: 'max' })` / `SIM_FIDELITY=max` for embedded real Postgres (+ MinIO/EMQX). Sidecar processes live in `@pkgs/postgres-embedded`, `@pkgs/minio-server`, `@pkgs/emqx-server` and are booted from tests/CI (`tools/scripts/boot-local-stack.ts`, `tools/scripts/boot-embedded-postgres.ts`).
 
-`@product/test` migrates the mem fabric **once** (`seed:sim-db` → `product/test/.cache/sim-backend-seed.pgmm.json`) and clones per `openSim`. Mem-engine wishlist: [`docs/sim-mem-engine-wishlist.md`](docs/sim-mem-engine-wishlist.md). Suite notes: [`product/test/src/setup/TESTING.md`](product/test/src/setup/TESTING.md).
+`@apps/product` migrates the mem fabric **once** (`seed:sim-db` → `apps/product/.cache/sim-backend-seed.pgmm.json`) and clones per `openSim`. Mem-engine wishlist: [`docs/sim-mem-engine-wishlist.md`](docs/sim-mem-engine-wishlist.md). Suite notes: [`apps/product/src/test/setup/TESTING.md`](apps/product/src/test/setup/TESTING.md).
 
 Production (`SECRETS_ENV=prd`) uses Infisical Neon + B2 (+ Railway EMQX) only.
 
 - **`bun run sims:open`** — multiselect project sims and open Simulator.app.
-- **`bun run dev`** — `@product/console` (Reports + Playground). Press **`i`** or **Shift+I** to open the project iPad in the simulator (bypasses the default simulator picker).
+- **`bun run dev`** — `@apps/product` (Reports + Playground). Press **`i`** or **Shift+I** to open the project iPad in the simulator (bypasses the default simulator picker).
 - **`bun run dev:client`** — `@apps/client` product app only (no console chrome).
 - **Sign-in in the playground** — Dev social against the in-process sim API.
 - **Optional clouds** — still degrade in the real API Worker when secrets are missing.
@@ -139,12 +139,11 @@ Non-deploy contexts must never reach production Postgres. Guards live in `@libs/
 
 ## Per-feature package layout
 
-Workspace packages live under four top-level tier directories with matching npm scopes — pick the tier that fits the package's role:
+Workspace packages live under three top-level tier directories with matching npm scopes — pick the tier that fits the package's role:
 
 | Tier | Path    | Scope    | Contains                                                           |
 | ---- | ------- | -------- | ------------------------------------------------------------------ |
-| Product | `product/` | `@product/` | Composition hub: `@product/sim` (shared System + hosts), `@product/console` (`bun dev` Reports + Playground), `@product/test` (`openSim` / scenarios). |
-| Apps | `apps/` | `@apps/` | Deployed product surfaces (`client`, `server`, `room-server`).     |
+| Apps | `apps/` | `@apps/` | Deployed product surfaces (`client`, `server`, `room-server`) plus the composition hub `product` (shared System + hosts, `bun dev` Reports + Playground, `openSim` / scenarios). |
 | Libs | `libs/` | `@libs/` | Product-flavored reusable code (`chess`, `auth`, `spaces`, …).     |
 | Pkgs | `pkgs/` | `@pkgs/` | Agnostic utilities, framework, CLIs, dev infra, runnable examples. |
 
@@ -192,7 +191,7 @@ Feature-specific scripts (seeders, dev refreshers, migration runners) live in `<
 
 ### Current feature packages
 
-- `@product/sim` — shared product System + fabric (`createSim`, SQL engines, net/fetch, snapshots) and registered hosts (`in-process`, `bun-webview`). Both `@product/test` and `@product/console` call `product.run({ runtime })` only; neither owns a parallel boot.
+- `@apps/product` — shared product System + fabric (`createSim`, SQL engines, net/fetch, snapshots) and registered hosts (`in-process`, `bun-webview`), plus the console (`bun dev` Reports + Playground) and the test harness (`openSim` / scenarios). Console and test call `product.run({ runtime })` only; neither owns a parallel boot.
 
 - `@libs/runtime` — product composition hub: `defineTable` tables from feature libs composed via `registerTables` in `root/app-schema.ts`; sync topic map in `root/app-topic-map.ts`; Postgres migrate runner in `server/run-postgres-migrations.ts`. **`@libs/runtime` is the sole lib allowed to import other `@libs/*`.** Framework tables (`sync_engine_*`, outbox, kv, …) are owned by their packages via package-local `defineTable` schemas + `*DatabaseMigration` (not in `appSchema`). Domain mutations validate and apply their own authorized SQL against declared table names.
 
@@ -227,11 +226,10 @@ Each game is its own package modelled after `@libs/chess`. To add `@libs/connect
 
 ### Layering rules (enforced by depcruise)
 
-**Tier pyramid** — one-way dependencies between tiers, enforced by depcruise rules `pkgs-not-libs`, `pkgs-not-apps`, `libs-not-apps`, `apps-not-product` (path-based; relative-import escape hatch):
+**Tier pyramid** — one-way dependencies between tiers, enforced by depcruise rules `pkgs-not-libs`, `pkgs-not-apps`, `libs-not-apps` (path-based; relative-import escape hatch):
 
 ```text
-product →  apps, libs, pkgs (composition hub; apps/libs/pkgs must not import @product/*)
-apps    →  apps, libs, pkgs (cross-app OK e.g. client → server)
+apps    →  apps, libs, pkgs (cross-app OK e.g. client → server; apps/product is the composition hub and may compose other apps)
 libs    →  pkgs only
 pkgs    →  pkgs only (leaf tier: reusable, app-agnostic)
 ```
@@ -240,7 +238,7 @@ pkgs    →  pkgs only (leaf tier: reusable, app-agnostic)
 
 **Other layering rules:**
 
-- `@product/*` composes product apps (`@product/sim` fabric / hosts, playground, system worlds). Apps/libs/pkgs must not import `@product/*`.
+- `@apps/product` composes product apps (sim fabric / hosts, playground, system worlds, test harness). libs/pkgs must not import `@apps/*`.
 - `@apps/<name>` may import other `@apps/<other>` (e.g. client composing the in-process sim Hono factory). Same-package deep imports and type-only `import type` are fine.
 - **`@apps/server` Hono/runtime source is isomorphic.** Platform engines (`pg`, `node:*`, …) live only behind injected ports (e.g. `OpenSqlClient`) and `@api-wall-ok` adapter/entry modules. Isomorphic files must not import wall modules.
 - `shared/` cannot import from `client/` or `server/` anywhere in the repo (`shared-pure`). Product-lib `shared/` also must not import `use-cases/`, `root/`, or `public/`.

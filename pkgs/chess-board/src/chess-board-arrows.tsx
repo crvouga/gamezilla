@@ -31,8 +31,8 @@ function resolveArrowColor(
   color: string | undefined
 ): string {
   if (color === undefined) return theme.arrows.primary;
-  const keyed = theme.arrows[color as keyof typeof theme.arrows];
-  return keyed ?? color;
+  const palette: Record<string, string | undefined> = theme.arrows;
+  return palette[color] ?? color;
 }
 
 export function ChessBoardArrows(props: ChessBoardArrowsProps): JSX.Element {

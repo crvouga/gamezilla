@@ -60,26 +60,25 @@ function PromotionStack(props: {
   readonly onPick: (p: PromotionKind) => void;
   readonly onCancel: () => void;
 }): JSX.Element {
-  const { layout } = props;
   return (
     <Box
       sx={{
         position: 'absolute',
-        left: layout.left,
-        top: layout.top,
-        width: layout.cell,
+        left: props.layout.left,
+        top: props.layout.top,
+        width: props.layout.cell,
         flexDirection: 'column',
       }}
       onClick={(e) => e.stopPropagation()}
     >
-      <For each={[...layout.kinds]}>
+      <For each={[...props.layout.kinds]}>
         {(kind) => (
           <Clickable
             aria-label={kind}
             onClick={() => props.onPick(kind)}
             sx={{
-              width: layout.cell,
-              height: layout.cell,
+              width: props.layout.cell,
+              height: props.layout.cell,
               p: 0,
               backgroundColor: props.theme.promotion.surface,
             }}
@@ -87,8 +86,8 @@ function PromotionStack(props: {
             <img
               src={pieceImageUri(props.color, kind)}
               alt=""
-              width={layout.cell}
-              height={layout.cell}
+              width={props.layout.cell}
+              height={props.layout.cell}
               draggable={false}
             />
           </Clickable>
@@ -98,8 +97,8 @@ function PromotionStack(props: {
         aria-label="Cancel promotion"
         onClick={() => props.onCancel()}
         sx={{
-          width: layout.cell,
-          height: layout.cell * 0.45,
+          width: props.layout.cell,
+          height: props.layout.cell * 0.45,
           backgroundColor: props.theme.promotion.cancel,
           color: props.theme.promotion.ink,
           alignItems: 'center',

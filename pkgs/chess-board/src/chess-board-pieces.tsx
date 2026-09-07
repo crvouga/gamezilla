@@ -70,9 +70,9 @@ export function ChessBoardPieces(props: ChessBoardPiecesProps): JSX.Element {
           const dragging = () => props.dragFrom() === row.square;
           const at = () => props.dragAt();
           const transform = () => {
-            if (dragging() && at() !== null) {
-              const p = at()!;
-              return `translate(${p.x - CELL_UNITS / 2} ${p.y - CELL_UNITS / 2})`;
+            const atPos = at();
+            if (dragging() && atPos !== null) {
+              return `translate(${atPos.x - CELL_UNITS / 2} ${atPos.y - CELL_UNITS / 2})`;
             }
             return pieceTransform(row.square, props.orientation);
           };

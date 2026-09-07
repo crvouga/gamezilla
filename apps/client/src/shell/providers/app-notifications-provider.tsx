@@ -53,35 +53,33 @@ function useNotificationsClientDeps(): NotificationsClientDeps {
   const sessionToken = useFreshAuthToken();
   const deviceIdRef = () => deviceId();
   const sessionTokenRef = () => sessionToken();
-  return createMemo(
-    () => ({
-      apiBaseUrl,
-      fetchFn: async (path: string, init?: RequestInit) => {
-        const headers = new Headers(init?.headers);
-        let token = await resolveNotificationsBearer(
+  const deps: NotificationsClientDeps = {
+    apiBaseUrl,
+    fetchFn: async (path: string, init?: RequestInit) => {
+      const headers = new Headers(init?.headers);
+      let token = await resolveNotificationsBearer(
+        getFreshToken,
+        sessionTokenRef()
+      );
+      applyNotificationsAuthHeaders(headers, token, deviceIdRef());
+      let response = await httpFetch(path, { ...init, headers });
+      if (response.status === 401) {
+        token = await resolveNotificationsBearer(
           getFreshToken,
-          sessionTokenRef()
+          sessionTokenRef(),
+          { skipCache: true }
         );
-        applyNotificationsAuthHeaders(headers, token, deviceIdRef());
-        let response = await httpFetch(path, { ...init, headers });
-        if (response.status === 401) {
-          token = await resolveNotificationsBearer(
-            getFreshToken,
-            sessionTokenRef(),
-            { skipCache: true }
-          );
-          const retryHeaders = new Headers(init?.headers);
-          applyNotificationsAuthHeaders(retryHeaders, token, deviceIdRef());
-          response = await httpFetch(path, {
-            ...init,
-            headers: retryHeaders,
-          });
-        }
-        return response;
-      },
-    }),
-    [apiBaseUrl, getFreshToken, httpFetch]
-  )();
+        const retryHeaders = new Headers(init?.headers);
+        applyNotificationsAuthHeaders(retryHeaders, token, deviceIdRef());
+        response = await httpFetch(path, {
+          ...init,
+          headers: retryHeaders,
+        });
+      }
+      return response;
+    },
+  };
+  return deps;
 }
 
 export function AppNotificationsProvider(props: {

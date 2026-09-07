@@ -6,7 +6,7 @@ import {
 } from '@libs/auth/public/sign-in-pending';
 import { Trans } from '@lingui/solid/macro';
 import { useClock, useTimers } from '@pkgs/clock/solid';
-import { Center, type Href, LoadingState, useRouter } from '@pkgs/ui';
+import { Center, LoadingState, useRouter } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { onMount } from 'solid-js';
 
@@ -31,7 +31,7 @@ export default function SsoCallbackRoute(): JSX.Element {
     const settle = (
       port.completeHostedAuthRedirect ??
       port.ensureSessionReady ??
-      (async () => undefined)
+      (() => Promise.resolve(undefined))
     )().catch(() => undefined);
     void Promise.race([
       settle,
@@ -40,7 +40,7 @@ export default function SsoCallbackRoute(): JSX.Element {
       const target = signInReturnHrefFromPending(
         readSignInPendingSync(() => clock.now())
       );
-      router.replace(target as Href);
+      router.replace(target);
       await settle;
     });
   });

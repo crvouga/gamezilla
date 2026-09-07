@@ -30,47 +30,46 @@ function BoardBody(args: {
   readonly ctrl: BoardController;
   readonly boardTestId: () => string;
 }): JSX.Element {
-  const { props, ctrl } = args;
   const checkSquare = createMemo(() => {
-    const s = ctrl.model.game();
+    const s = args.ctrl.model.game();
     return s.inCheck ? findKingSquare(s.position, s.turn) : null;
   });
-  const game = () => ctrl.model.game();
-  const ix = () => ctrl.model.interaction();
+  const game = () => args.ctrl.model.game();
+  const ix = () => args.ctrl.model.interaction();
   return (
     <>
       <ChessBoardLayers
-        orientation={ctrl.orientation()}
-        theme={ctrl.theme()}
+        orientation={args.ctrl.orientation()}
+        theme={args.ctrl.theme()}
         position={game().position}
         lastMove={game().lastMove}
         selected={ix().selected}
         legalTargets={ix().legalTargets}
         checkSquare={checkSquare()}
-        cellHighlights={props.cellHighlights}
-        cellFeedback={props.cellFeedback}
-        showCoordinates={props.showCoordinates !== false}
-        highlightLastMove={props.highlightLastMove !== false}
-        highlightLegalMoves={props.highlightLegalMoves !== false}
-        rows={ctrl.model.rows}
-        captureGhost={ctrl.model.captureGhost}
-        snapSquare={ctrl.model.snapSquare}
+        cellHighlights={args.props.cellHighlights}
+        cellFeedback={args.props.cellFeedback}
+        showCoordinates={args.props.showCoordinates !== false}
+        highlightLastMove={args.props.highlightLastMove !== false}
+        highlightLegalMoves={args.props.highlightLegalMoves !== false}
+        rows={args.ctrl.model.rows}
+        captureGhost={args.ctrl.model.captureGhost}
+        snapSquare={args.ctrl.model.snapSquare}
         dragFrom={() => ix().dragFrom}
-        dragAt={ctrl.dragAt}
-        animated={ctrl.animated}
-        arrows={ctrl.arrows()}
+        dragAt={args.ctrl.dragAt}
+        animated={args.ctrl.animated}
+        arrows={args.ctrl.arrows()}
       />
       <ChessBoardHitGrid
         boardTestId={args.boardTestId()}
-        cursor={ctrl.cursor()}
+        cursor={args.ctrl.cursor()}
         position={game().position}
         turn={game().turn}
         legalTargets={ix().legalTargets}
       />
       <ChessBoardOverlays
-        ctrl={ctrl}
+        ctrl={args.ctrl}
         boardTestId={args.boardTestId}
-        size={props.size}
+        size={args.props.size}
       />
     </>
   );
@@ -80,41 +79,44 @@ export function ChessBoardView(args: {
   readonly props: ChessBoardProps;
   readonly ctrl: BoardController;
 }): JSX.Element {
-  const { props, ctrl } = args;
   const boardTestId = () =>
-    props.dataSet?.['testid'] ?? DEFAULT_CHESS_BOARD_TEST_ID;
-  const sizeSx =
-    props.size === undefined
+    args.props.dataSet?.['testid'] ?? DEFAULT_CHESS_BOARD_TEST_ID;
+  const sizeSx = () =>
+    args.props.size === undefined
       ? { width: '100%' as const, aspectRatio: 1 as const }
-      : { width: props.size, height: props.size };
+      : { width: args.props.size, height: args.props.size };
   return (
     <Box
-      ref={ctrl.setHost}
+      ref={args.ctrl.setHost}
       class={styles['root']}
       sx={{
-        ...sizeSx,
+        ...sizeSx(),
         position: 'relative',
         borderWidth: 2,
         borderStyle: 'solid',
-        borderColor: ctrl.theme().border,
+        borderColor: args.ctrl.theme().border,
         overflow: 'hidden',
       }}
       dataSet={{
         component: 'ChessBoard',
         testid: boardTestId(),
-        ...props.dataSet,
+        ...args.props.dataSet,
       }}
-      onPointerDown={ctrl.onPointerDown}
-      onPointerMove={ctrl.onPointerMove}
-      onPointerUp={ctrl.onPointerUp}
-      onPointerCancel={ctrl.onPointerCancel}
-      onKeyDown={ctrl.onKeyDown}
-      onContextMenu={ctrl.onContextMenu}
+      onPointerDown={args.ctrl.onPointerDown}
+      onPointerMove={args.ctrl.onPointerMove}
+      onPointerUp={args.ctrl.onPointerUp}
+      onPointerCancel={args.ctrl.onPointerCancel}
+      onKeyDown={args.ctrl.onKeyDown}
+      onContextMenu={args.ctrl.onContextMenu}
       tabIndex={0}
       role="application"
       aria-label="Chess board"
     >
-      <BoardBody props={props} ctrl={ctrl} boardTestId={boardTestId} />
+      <BoardBody
+        props={args.props}
+        ctrl={args.ctrl}
+        boardTestId={boardTestId}
+      />
     </Box>
   );
 }

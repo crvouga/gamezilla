@@ -15,7 +15,7 @@ const REPO_ROOT = join(import.meta.dirname, '../..');
 const PO_REL = 'apps/client/src/i18n/locales/en/messages.po';
 const COMPILED_REL = 'apps/client/src/i18n/locales/en/messages.ts';
 const MACRO_FROM = /from\s+['"]@lingui\/(?:core|solid)\/macro['"]/;
-const SCAN_ROOTS = ['apps', 'libs', 'pkgs', 'product'] as const;
+const SCAN_ROOTS = ['apps', 'libs', 'pkgs'] as const;
 const SKIP_DIR_NAMES = new Set([
   'node_modules',
   'dist',
@@ -152,7 +152,7 @@ async function loadLinguiConfig(): Promise<LinguiCatalogConfig> {
 
 const BABEL_CONFIG_RELS = [
   'apps/client/vite.config.mts',
-  'product/test/babel.test.config.cjs',
+  'apps/product/babel.test.config.cjs',
 ] as const;
 
 function assertDescriptorFieldsKept(): void {

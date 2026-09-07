@@ -19,9 +19,9 @@
     "pkgs/ui/src",
     "pkgs/ui/tests",
     "pkgs/vitest-solid/src",
-    "product/sim/src",
-    "product/test/src",
-    "product/test/tests"
+    "apps/product/src/sim",
+    "apps/product/src/test",
+    "apps/product/tests"
   ],
   "files": [
     "apps/client/src/main.tsx",

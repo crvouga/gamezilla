@@ -13,5 +13,5 @@ export function DeviceEntityBootstrap(props: {
       log.warn('device bootstrap failed', { error: String(error) });
     });
   });
-  return props.children;
+  return <>{props.children}</>;
 }

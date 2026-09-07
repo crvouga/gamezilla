@@ -40,24 +40,24 @@ function LegalMarker(props: {
   readonly theme: BoardTheme;
   readonly occupied: boolean;
 }): JSX.Element {
-  const { x, y } = squareOrigin(props.square, props.orientation);
-  const cx = x + CELL_UNITS / 2;
-  const cy = y + CELL_UNITS / 2;
+  const origin = () => squareOrigin(props.square, props.orientation);
+  const cx = () => origin().x + CELL_UNITS / 2;
+  const cy = () => origin().y + CELL_UNITS / 2;
   return (
     <Show
       when={props.occupied}
       fallback={
         <circle
-          cx={cx}
-          cy={cy}
+          cx={cx()}
+          cy={cy()}
           r={CELL_UNITS * 0.14}
           fill={props.theme.legalMoveDot}
         />
       }
     >
       <circle
-        cx={cx}
-        cy={cy}
+        cx={cx()}
+        cy={cy()}
         r={CELL_UNITS * 0.42}
         fill="none"
         stroke={props.theme.legalMoveCaptureRing}

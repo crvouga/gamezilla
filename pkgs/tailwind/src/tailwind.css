@@ -1,0 +1,11 @@
+/* Shared Tailwind entry — import from `@pkgs/tailwind/tailwind.css`. */
+@import 'tailwindcss';
+
+/* Scan every workspace tier. Paths are relative to this stylesheet. */
+@source '../../../apps';
+@source '../../../libs';
+@source '../../../pkgs';
+
+/* The repo themes with `[data-theme]` (see `@pkgs/ui` tokens.css), not
+   `prefers-color-scheme`, so route `dark:` through the same attribute. */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));

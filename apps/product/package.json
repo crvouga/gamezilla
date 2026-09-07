@@ -1,0 +1,170 @@
+{
+  "name": "@apps/product",
+  "version": "1.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/sim/index.ts",
+    "./sim": "./src/sim/index.ts",
+    "./sim/fabric/*": [
+      "./src/sim/fabric/*.ts",
+      "./src/sim/fabric/*/index.ts"
+    ],
+    "./sim/hosts/*": [
+      "./src/sim/hosts/*.ts",
+      "./src/sim/hosts/*/index.ts"
+    ],
+    "./sim/setup/*": [
+      "./src/sim/setup/*.ts",
+      "./src/sim/setup/*/index.ts"
+    ],
+    "./sim/system/*": [
+      "./src/sim/system/*.ts",
+      "./src/sim/system/*/index.ts"
+    ],
+    "./console/*": [
+      "./src/console/*.ts",
+      "./src/console/*.tsx",
+      "./src/console/*/index.ts"
+    ],
+    "./console-nav/*": [
+      "./src/console/console-nav/*.ts",
+      "./src/console/console-nav/*.tsx",
+      "./src/console/console-nav/*/index.ts"
+    ],
+    "./playground/*": [
+      "./src/console/playground/*.ts",
+      "./src/console/playground/*.tsx",
+      "./src/console/playground/*/index.ts"
+    ],
+    "./test/*": [
+      "./src/test/*.ts",
+      "./src/test/*.tsx",
+      "./src/test/*/index.ts"
+    ],
+    "./test-setup/*": [
+      "./src/test/setup/*.ts",
+      "./src/test/setup/*.tsx",
+      "./src/test/setup/*/index.ts"
+    ],
+    "./test-fixtures/*": [
+      "./src/test/fixtures/*.ts",
+      "./src/test/fixtures/*.tsx",
+      "./src/test/fixtures/*/index.ts"
+    ],
+    "./test-snapshots/*": [
+      "./src/test/snapshots/*.ts",
+      "./src/test/snapshots/*.tsx",
+      "./src/test/snapshots/*/index.ts"
+    ]
+  },
+  "scripts": {
+    "prebuild": "bun run bundle:sim-sql-wasm && bun run --filter @pkgs/sql-client-sqlite-web build:web-workers && cd ../.. && bun run i18n:compile",
+    "build": "vite build",
+    "bundle:sim-sql-wasm": "bun run scripts/bundle-sim-sql-wasm.ts",
+    "deploy": "bun run scripts/deploy.ts",
+    "predev": "bun run bundle:sim-sql-wasm && bun run --filter @pkgs/sql-client-sqlite-web build:web-workers && cd ../.. && bun run i18n:compile",
+    "dev": "bun run scripts/dev.ts",
+    "kill": "bun run scripts/kill-dev.ts",
+    "kill-dev": "bun run scripts/kill-dev.ts",
+    "lint": "bunx biome check --error-on-warnings .",
+    "seed:sim-db": "bun scripts/build-sim-seed.ts",
+    "setup": "bun run bundle:sim-sql-wasm && bun run --filter @pkgs/sql-client-sqlite-web build:web-workers",
+    "tc": "tsc --noEmit -p tsconfig.json",
+    "test": "bun test src/console/console-nav src/console/playground/playground-snapshot-prune.test.ts && NODE_OPTIONS=--max-old-space-size=8192 bun test --conditions=browser --conditions=development --preload ./bun-babel-plugin.ts --preload ./bun-preload.ts --timeout 90000 tests",
+    "test:auth": "NODE_OPTIONS=--max-old-space-size=8192 bun test --conditions=browser --conditions=development --preload ./bun-babel-plugin.ts --preload ./bun-preload.ts --timeout 90000 tests/auth-login-logout.test.tsx tests/auth-oauth-port.test.ts",
+    "test:chess": "NODE_OPTIONS=--max-old-space-size=8192 bun test --conditions=browser --conditions=development --preload ./bun-babel-plugin.ts --preload ./bun-preload.ts --timeout 90000 tests/chess-puzzle-play.test.tsx",
+    "test:friends": "NODE_OPTIONS=--max-old-space-size=8192 bun test --conditions=browser --conditions=development --preload ./bun-babel-plugin.ts --preload ./bun-preload.ts --timeout 90000 tests/friends-request-accept.test.tsx",
+    "test:fuzz": "bun run scripts/test-fuzz.ts",
+    "test:max": "bun ./scripts/test-max.ts",
+    "test:profile": "NODE_OPTIONS=--max-old-space-size=8192 bun test --conditions=browser --conditions=development --preload ./bun-babel-plugin.ts --preload ./bun-preload.ts --timeout 90000 tests/profile-edit.test.tsx",
+    "test:shell": "NODE_OPTIONS=--max-old-space-size=8192 bun test --conditions=browser --conditions=development --preload ./bun-babel-plugin.ts --preload ./bun-preload.ts --timeout 90000 tests/shell-boot.test.tsx",
+    "test:spaces": "NODE_OPTIONS=--max-old-space-size=8192 bun test --conditions=browser --conditions=development --preload ./bun-babel-plugin.ts --preload ./bun-preload.ts --timeout 90000 tests/space-create.test.tsx tests/space-end.test.tsx tests/space-friend-join.test.tsx",
+    "test:topology": "NODE_OPTIONS=--max-old-space-size=8192 bun test --conditions=browser --conditions=development --preload ./bun-babel-plugin.ts --preload ./bun-preload.ts --timeout 90000 tests/topology-partition.test.tsx",
+    "test:walk": "NODE_OPTIONS=--max-old-space-size=8192 bun test --conditions=browser --conditions=development --preload ./bun-babel-plugin.ts --preload ./bun-preload.ts --timeout 90000 tests/product-walk.test.tsx"
+  },
+  "dependencies": {
+    "@apps/client": "workspace:*",
+    "@apps/room-server": "workspace:*",
+    "@apps/server": "workspace:*",
+    "@libs/auth": "workspace:*",
+    "@libs/chess": "workspace:*",
+    "@libs/db": "workspace:*",
+    "@libs/games": "workspace:*",
+    "@libs/notifications": "workspace:*",
+    "@libs/runtime": "workspace:*",
+    "@libs/secrets": "workspace:*",
+    "@libs/spaces": "workspace:*",
+    "@libs/test-ids": "workspace:*",
+    "@lingui/core": "catalog:",
+    "@lingui/solid": "catalog:",
+    "@pkgs/assert": "workspace:*",
+    "@pkgs/assert-crash-browser": "workspace:*",
+    "@pkgs/async-local": "workspace:*",
+    "@pkgs/auth": "workspace:*",
+    "@pkgs/billing": "workspace:*",
+    "@pkgs/browser": "workspace:*",
+    "@pkgs/chess-board": "workspace:*",
+    "@pkgs/chess-board-core": "workspace:*",
+    "@pkgs/clock": "workspace:*",
+    "@pkgs/emqx-server": "workspace:*",
+    "@pkgs/entity-store": "workspace:*",
+    "@pkgs/git": "workspace:*",
+    "@pkgs/http-client": "workspace:*",
+    "@pkgs/invariants": "workspace:*",
+    "@pkgs/kv": "workspace:*",
+    "@pkgs/kv-web": "workspace:*",
+    "@pkgs/llm": "workspace:*",
+    "@pkgs/logger": "workspace:*",
+    "@pkgs/message": "workspace:*",
+    "@pkgs/minio-server": "workspace:*",
+    "@pkgs/object-store": "workspace:*",
+    "@pkgs/object-store-node-fs": "workspace:*",
+    "@pkgs/object-store-opfs": "workspace:*",
+    "@pkgs/observability": "workspace:*",
+    "@pkgs/polyfill": "workspace:*",
+    "@pkgs/postgres-embedded": "workspace:*",
+    "@pkgs/pubsub": "workspace:*",
+    "@pkgs/room": "workspace:*",
+    "@pkgs/secret-store": "workspace:*",
+    "@pkgs/secure-storage": "workspace:*",
+    "@pkgs/secure-storage-web": "workspace:*",
+    "@pkgs/sim": "workspace:*",
+    "@pkgs/sim-console": "workspace:*",
+    "@pkgs/sounds": "workspace:*",
+    "@pkgs/sql": "workspace:*",
+    "@pkgs/sql-client": "workspace:*",
+    "@pkgs/sql-client-postgres": "workspace:*",
+    "@pkgs/sql-client-sim": "workspace:*",
+    "@pkgs/sql-client-sqlite": "workspace:*",
+    "@pkgs/sync-engine": "workspace:*",
+    "@pkgs/tailwind": "workspace:*",
+    "@pkgs/tts": "workspace:*",
+    "@pkgs/ui-testing": "workspace:*",
+    "@pkgs/ui-testing-bun-webview": "workspace:*",
+    "@pkgs/ui-testing-solid-dom": "workspace:*",
+    "@pkgs/uuid": "workspace:*",
+    "@solidjs/router": "catalog:",
+    "better-sqlite3": "catalog:",
+    "solid-js": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@babel/core": "catalog:",
+    "@babel/plugin-transform-explicit-resource-management": "catalog:",
+    "@babel/preset-typescript": "catalog:",
+    "@babel/runtime": "catalog:",
+    "@happy-dom/global-registrator": "catalog:",
+    "@lingui/babel-plugin-lingui-macro": "catalog:",
+    "@lingui/conf": "catalog:",
+    "@pkgs/os": "workspace:*",
+    "@pkgs/vite-workspace-resolver": "workspace:*",
+    "@tailwindcss/vite": "catalog:",
+    "@types/better-sqlite3": "catalog:",
+    "@types/bun": "catalog:",
+    "babel-preset-solid": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-solid": "catalog:"
+  }
+}

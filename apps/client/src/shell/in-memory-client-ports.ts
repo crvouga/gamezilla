@@ -1,6 +1,6 @@
 /**
  * In-memory device / platform ports shared by every simulated `ClientEnv`
- * (`@product/sim` fabric and the shell test env). One builder so a new port
+ * (`@apps/product/sim` fabric and the shell test env). One builder so a new port
  * on `ClientEnv` is wired in exactly one place for sims.
  */
 
@@ -27,8 +27,9 @@ export type InMemoryClientPorts = Pick<
 function createInMemoryDevMenuPort(): DevMenuPort {
   const items: DevMenuItem[] = [];
   return {
-    registerItems: async (registered) => {
+    registerItems: (registered) => {
       items.splice(0, items.length, ...registered);
+      return Promise.resolve();
     },
   };
 }

@@ -43,9 +43,9 @@ export const EMPTY_PERF_SNAPSHOT: PerfSnapshot = {
 /** No-op sampler for sim / hosts without a frame loop / tests. */
 export function createNoopPerfSampler(): PerfSampler {
   return {
-    start() {},
-    stop() {},
+    start: () => undefined,
+    stop: () => undefined,
     getSnapshot: () => EMPTY_PERF_SNAPSHOT,
-    subscribe: () => () => {},
+    subscribe: () => () => undefined,
   };
 }

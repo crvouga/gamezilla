@@ -315,8 +315,7 @@
         "apps/**/*.{ts,tsx}",
         "apps/*/tsconfig.json",
         "libs/**/*.{ts,tsx}",
-        "pkgs/**/*.{ts,tsx}",
-        "product/**/*.{ts,tsx}"
+        "pkgs/**/*.{ts,tsx}"
       ],
       "outputs": [],
       "outputLogs": "new-only"
@@ -409,7 +408,7 @@
       "cache": false,
       "dependsOn": ["@apps/server#deploy"]
     },
-    "@product/console#deploy": {
+    "@apps/product#deploy": {
       "cache": false,
       "dependsOn": ["@apps/server#deploy"]
     },
@@ -421,7 +420,7 @@
       "cache": false,
       "dependsOn": [
         "@apps/client#deploy",
-        "@product/console#deploy",
+        "@apps/product#deploy",
         "@libs/billing#billing:sync"
       ]
     },
@@ -456,7 +455,6 @@
         "apps/*/package.json",
         "libs/*/package.json",
         "pkgs/*/package.json",
-        "product/*/package.json",
         "tools/package.json",
         ".syncpackrc.cjs"
       ],
@@ -471,8 +469,6 @@
         "libs/**/*.tsx",
         "pkgs/**/*.ts",
         "pkgs/**/*.tsx",
-        "product/**/*.ts",
-        "product/**/*.tsx",
         ".dependency-cruiser.cjs",
         "tools/port/solid-scope.json",
         "tools/port/core-scope.json"
@@ -495,12 +491,9 @@
         "libs/**/*.tsx",
         "pkgs/**/*.ts",
         "pkgs/**/*.tsx",
-        "product/**/*.ts",
-        "product/**/*.tsx",
         "apps/client/src/i18n/locales/**",
         "apps/client/babel.config.js",
-        "product/console/babel.config.js",
-        "product/test/babel.test.config.cjs",
+        "apps/product/babel.test.config.cjs",
         "tools/scripts/ci-i18n.ts"
       ],
       "outputs": [],

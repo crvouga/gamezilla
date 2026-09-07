@@ -8,6 +8,7 @@ import {
 import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig, type PluginOption } from 'vite';
 import solid from 'vite-plugin-solid';
+import tailwindcss from '@tailwindcss/vite';
 
 const clientDir = import.meta.dirname;
 const repoRoot = resolve(clientDir, '../..');
@@ -32,6 +33,7 @@ export default defineConfig(({ mode }) => {
   const analyze = process.env['ANALYZE'] === '1';
   const plugins: PluginOption[] = [
     workspaceExportsResolver({ repoRoot, scopes: DEFAULT_WORKSPACE_SCOPES }),
+    tailwindcss(),
     solid({
       babel: {
         plugins: [[linguiMacroPlugin[0], { ...linguiMacroPlugin[1] }]],

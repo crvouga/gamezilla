@@ -1,5 +1,5 @@
 // @io-wall-ok
-/** Product web app only; console + local reports live in @product/console. */
+/** Product web app only; console + local reports live in @apps/product. */
 import { join } from 'node:path';
 import { run } from '@pkgs/os';
 

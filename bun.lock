@@ -86,6 +86,7 @@
         "@pkgs/sql-client-sqlite": "workspace:*",
         "@pkgs/sql-client-sqlite-web": "workspace:*",
         "@pkgs/sync-engine": "workspace:*",
+        "@pkgs/tailwind": "workspace:*",
         "@pkgs/tts": "workspace:*",
         "@pkgs/ui": "workspace:*",
         "@pkgs/ui-testing": "workspace:*",
@@ -107,6 +108,7 @@
         "@pkgs/vite-workspace-resolver": "workspace:*",
         "@pkgs/vitest-solid": "workspace:*",
         "@solidjs/testing-library": "catalog:",
+        "@tailwindcss/vite": "catalog:",
         "@testing-library/jest-dom": "catalog:",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
@@ -118,6 +120,95 @@
         "vite-plugin-solid": "catalog:",
         "vitest": "catalog:",
         "workbox-build": "catalog:",
+      },
+    },
+    "apps/product": {
+      "name": "@apps/product",
+      "version": "1.0.0",
+      "dependencies": {
+        "@apps/client": "workspace:*",
+        "@apps/room-server": "workspace:*",
+        "@apps/server": "workspace:*",
+        "@libs/auth": "workspace:*",
+        "@libs/chess": "workspace:*",
+        "@libs/db": "workspace:*",
+        "@libs/games": "workspace:*",
+        "@libs/notifications": "workspace:*",
+        "@libs/runtime": "workspace:*",
+        "@libs/secrets": "workspace:*",
+        "@libs/spaces": "workspace:*",
+        "@libs/test-ids": "workspace:*",
+        "@lingui/core": "catalog:",
+        "@lingui/solid": "catalog:",
+        "@pkgs/assert": "workspace:*",
+        "@pkgs/assert-crash-browser": "workspace:*",
+        "@pkgs/async-local": "workspace:*",
+        "@pkgs/auth": "workspace:*",
+        "@pkgs/billing": "workspace:*",
+        "@pkgs/browser": "workspace:*",
+        "@pkgs/chess-board": "workspace:*",
+        "@pkgs/chess-board-core": "workspace:*",
+        "@pkgs/clock": "workspace:*",
+        "@pkgs/emqx-server": "workspace:*",
+        "@pkgs/entity-store": "workspace:*",
+        "@pkgs/git": "workspace:*",
+        "@pkgs/http-client": "workspace:*",
+        "@pkgs/invariants": "workspace:*",
+        "@pkgs/kv": "workspace:*",
+        "@pkgs/kv-web": "workspace:*",
+        "@pkgs/llm": "workspace:*",
+        "@pkgs/logger": "workspace:*",
+        "@pkgs/message": "workspace:*",
+        "@pkgs/minio-server": "workspace:*",
+        "@pkgs/object-store": "workspace:*",
+        "@pkgs/object-store-node-fs": "workspace:*",
+        "@pkgs/object-store-opfs": "workspace:*",
+        "@pkgs/observability": "workspace:*",
+        "@pkgs/polyfill": "workspace:*",
+        "@pkgs/postgres-embedded": "workspace:*",
+        "@pkgs/pubsub": "workspace:*",
+        "@pkgs/room": "workspace:*",
+        "@pkgs/secret-store": "workspace:*",
+        "@pkgs/secure-storage": "workspace:*",
+        "@pkgs/secure-storage-web": "workspace:*",
+        "@pkgs/sim": "workspace:*",
+        "@pkgs/sim-console": "workspace:*",
+        "@pkgs/sounds": "workspace:*",
+        "@pkgs/sql": "workspace:*",
+        "@pkgs/sql-client": "workspace:*",
+        "@pkgs/sql-client-postgres": "workspace:*",
+        "@pkgs/sql-client-sim": "workspace:*",
+        "@pkgs/sql-client-sqlite": "workspace:*",
+        "@pkgs/sync-engine": "workspace:*",
+        "@pkgs/tailwind": "workspace:*",
+        "@pkgs/tts": "workspace:*",
+        "@pkgs/ui-testing": "workspace:*",
+        "@pkgs/ui-testing-bun-webview": "workspace:*",
+        "@pkgs/ui-testing-solid-dom": "workspace:*",
+        "@pkgs/uuid": "workspace:*",
+        "@solidjs/router": "catalog:",
+        "better-sqlite3": "catalog:",
+        "solid-js": "catalog:",
+        "zod": "catalog:",
+      },
+      "devDependencies": {
+        "@babel/core": "catalog:",
+        "@babel/plugin-transform-explicit-resource-management": "catalog:",
+        "@babel/preset-typescript": "catalog:",
+        "@babel/runtime": "catalog:",
+        "@happy-dom/global-registrator": "catalog:",
+        "@lingui/babel-plugin-lingui-macro": "catalog:",
+        "@lingui/conf": "catalog:",
+        "@pkgs/os": "workspace:*",
+        "@pkgs/vite-workspace-resolver": "workspace:*",
+        "@tailwindcss/vite": "catalog:",
+        "@types/better-sqlite3": "catalog:",
+        "@types/bun": "catalog:",
+        "babel-preset-solid": "catalog:",
+        "fast-check": "catalog:",
+        "typescript": "catalog:",
+        "vite": "catalog:",
+        "vite-plugin-solid": "catalog:",
       },
     },
     "apps/room-server": {
@@ -2148,6 +2239,18 @@
         "zod": "catalog:",
       },
     },
+    "pkgs/tailwind": {
+      "name": "@pkgs/tailwind",
+      "version": "0.0.0",
+      "dependencies": {
+        "tailwindcss": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "pkgs/task-dag": {
       "name": "@pkgs/task-dag",
       "version": "0.0.0",
@@ -2335,177 +2438,6 @@
         "typescript": "catalog:",
       },
     },
-    "product/console": {
-      "name": "@product/console",
-      "version": "1.0.0",
-      "dependencies": {
-        "@apps/client": "workspace:*",
-        "@apps/room-server": "workspace:*",
-        "@apps/server": "workspace:*",
-        "@libs/auth": "workspace:*",
-        "@libs/chess": "workspace:*",
-        "@libs/db": "workspace:*",
-        "@libs/games": "workspace:*",
-        "@libs/notifications": "workspace:*",
-        "@libs/runtime": "workspace:*",
-        "@libs/secrets": "workspace:*",
-        "@libs/spaces": "workspace:*",
-        "@libs/test-ids": "workspace:*",
-        "@lingui/core": "catalog:",
-        "@lingui/solid": "catalog:",
-        "@pkgs/assert": "workspace:*",
-        "@pkgs/assert-crash-browser": "workspace:*",
-        "@pkgs/auth": "workspace:*",
-        "@pkgs/billing": "workspace:*",
-        "@pkgs/browser": "workspace:*",
-        "@pkgs/clock": "workspace:*",
-        "@pkgs/emqx-server": "workspace:*",
-        "@pkgs/entity-store": "workspace:*",
-        "@pkgs/git": "workspace:*",
-        "@pkgs/http-client": "workspace:*",
-        "@pkgs/llm": "workspace:*",
-        "@pkgs/logger": "workspace:*",
-        "@pkgs/message": "workspace:*",
-        "@pkgs/minio-server": "workspace:*",
-        "@pkgs/object-store": "workspace:*",
-        "@pkgs/object-store-node-fs": "workspace:*",
-        "@pkgs/object-store-opfs": "workspace:*",
-        "@pkgs/observability": "workspace:*",
-        "@pkgs/polyfill": "workspace:*",
-        "@pkgs/postgres-embedded": "workspace:*",
-        "@pkgs/pubsub": "workspace:*",
-        "@pkgs/room": "workspace:*",
-        "@pkgs/secret-store": "workspace:*",
-        "@pkgs/secure-storage": "workspace:*",
-        "@pkgs/sim": "workspace:*",
-        "@pkgs/sim-console": "workspace:*",
-        "@pkgs/sounds": "workspace:*",
-        "@pkgs/sql": "workspace:*",
-        "@pkgs/sql-client": "workspace:*",
-        "@pkgs/sync-engine": "workspace:*",
-        "@pkgs/tts": "workspace:*",
-        "@pkgs/ui-testing": "workspace:*",
-        "@pkgs/uuid": "workspace:*",
-        "@product/sim": "workspace:*",
-        "better-sqlite3": "catalog:",
-        "solid-js": "catalog:",
-        "zod": "catalog:",
-      },
-      "devDependencies": {
-        "@babel/plugin-transform-explicit-resource-management": "catalog:",
-        "@lingui/babel-plugin-lingui-macro": "catalog:",
-        "@lingui/conf": "catalog:",
-        "@pkgs/os": "workspace:*",
-        "@pkgs/vite-workspace-resolver": "workspace:*",
-        "@types/better-sqlite3": "catalog:",
-        "@types/bun": "catalog:",
-        "typescript": "catalog:",
-        "vite": "catalog:",
-        "vite-plugin-solid": "catalog:",
-      },
-    },
-    "product/sim": {
-      "name": "@product/sim",
-      "version": "1.0.0",
-      "dependencies": {
-        "@apps/client": "workspace:*",
-        "@apps/room-server": "workspace:*",
-        "@apps/server": "workspace:*",
-        "@libs/auth": "workspace:*",
-        "@libs/chess": "workspace:*",
-        "@libs/db": "workspace:*",
-        "@libs/runtime": "workspace:*",
-        "@libs/test-ids": "workspace:*",
-        "@pkgs/assert": "workspace:*",
-        "@pkgs/auth": "workspace:*",
-        "@pkgs/billing": "workspace:*",
-        "@pkgs/chess-board": "workspace:*",
-        "@pkgs/chess-board-core": "workspace:*",
-        "@pkgs/clock": "workspace:*",
-        "@pkgs/emqx-server": "workspace:*",
-        "@pkgs/http-client": "workspace:*",
-        "@pkgs/kv": "workspace:*",
-        "@pkgs/kv-web": "workspace:*",
-        "@pkgs/llm": "workspace:*",
-        "@pkgs/logger": "workspace:*",
-        "@pkgs/minio-server": "workspace:*",
-        "@pkgs/object-store": "workspace:*",
-        "@pkgs/object-store-node-fs": "workspace:*",
-        "@pkgs/observability": "workspace:*",
-        "@pkgs/postgres-embedded": "workspace:*",
-        "@pkgs/pubsub": "workspace:*",
-        "@pkgs/secret-store": "workspace:*",
-        "@pkgs/secure-storage": "workspace:*",
-        "@pkgs/secure-storage-web": "workspace:*",
-        "@pkgs/sim": "workspace:*",
-        "@pkgs/sim-console": "workspace:*",
-        "@pkgs/sql": "workspace:*",
-        "@pkgs/sql-client": "workspace:*",
-        "@pkgs/sql-client-postgres": "workspace:*",
-        "@pkgs/sql-client-sim": "workspace:*",
-        "@pkgs/sql-client-sqlite": "workspace:*",
-        "@pkgs/sync-engine": "workspace:*",
-        "@pkgs/tts": "workspace:*",
-        "@pkgs/ui-testing": "workspace:*",
-        "@pkgs/ui-testing-solid-dom": "workspace:*",
-        "@pkgs/uuid": "workspace:*",
-        "better-sqlite3": "catalog:",
-      },
-      "devDependencies": {
-        "@types/better-sqlite3": "catalog:",
-        "@types/bun": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "product/test": {
-      "name": "@product/test",
-      "version": "1.0.0",
-      "dependencies": {
-        "@apps/client": "workspace:*",
-        "@apps/room-server": "workspace:*",
-        "@apps/server": "workspace:*",
-        "@libs/chess": "workspace:*",
-        "@libs/db": "workspace:*",
-        "@libs/test-ids": "workspace:*",
-        "@lingui/core": "catalog:",
-        "@pkgs/assert": "workspace:*",
-        "@pkgs/async-local": "workspace:*",
-        "@pkgs/auth": "workspace:*",
-        "@pkgs/clock": "workspace:*",
-        "@pkgs/emqx-server": "workspace:*",
-        "@pkgs/invariants": "workspace:*",
-        "@pkgs/logger": "workspace:*",
-        "@pkgs/minio-server": "workspace:*",
-        "@pkgs/object-store": "workspace:*",
-        "@pkgs/object-store-node-fs": "workspace:*",
-        "@pkgs/postgres-embedded": "workspace:*",
-        "@pkgs/sim": "workspace:*",
-        "@pkgs/sim-console": "workspace:*",
-        "@pkgs/sql-client": "workspace:*",
-        "@pkgs/ui-testing": "workspace:*",
-        "@pkgs/ui-testing-bun-webview": "workspace:*",
-        "@pkgs/ui-testing-solid-dom": "workspace:*",
-        "@pkgs/uuid": "workspace:*",
-        "@product/sim": "workspace:*",
-        "@solidjs/router": "catalog:",
-        "better-sqlite3": "catalog:",
-        "solid-js": "catalog:",
-      },
-      "devDependencies": {
-        "@babel/core": "catalog:",
-        "@babel/plugin-transform-explicit-resource-management": "catalog:",
-        "@babel/preset-typescript": "catalog:",
-        "@babel/runtime": "catalog:",
-        "@happy-dom/global-registrator": "catalog:",
-        "@lingui/babel-plugin-lingui-macro": "catalog:",
-        "@lingui/conf": "catalog:",
-        "@types/better-sqlite3": "catalog:",
-        "@types/bun": "catalog:",
-        "babel-preset-solid": "catalog:",
-        "fast-check": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
     "tools": {
       "name": "@tools",
       "version": "0.0.0",
@@ -2576,6 +2508,7 @@
     "@solidjs/testing-library": "^0.8.10",
     "@sqlite.org/sqlite-wasm": "3.53.0-build1",
     "@standard-schema/spec": "^1.1.0",
+    "@tailwindcss/vite": "^4.3.3",
     "@tanstack/solid-virtual": "^3.13.37",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^7.0.1",
@@ -2618,6 +2551,7 @@
     "sort-package-json": "^3.6.1",
     "stripe": "^18.0.0",
     "syncpack": "^14.3.1",
+    "tailwindcss": "^4.3.3",
     "turbo": "^2.10.11",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.69.0",
@@ -2643,6 +2577,8 @@
     "@apideck/better-ajv-errors": ["@apideck/better-ajv-errors@0.3.7", "", { "dependencies": { "jsonpointer": "^5.0.1", "leven": "^3.1.0" }, "peerDependencies": { "ajv": ">=8" } }, "sha512-TajUJwGWbDwkCx/CZi7tRE8PVB7simCvKJfHUsSdvps+aTM/PDPP4gkLmKnc+x3CE//y9i/nj74GqdL/hwk7Iw=="],
 
     "@apps/client": ["@apps/client@workspace:apps/client"],
+
+    "@apps/product": ["@apps/product@workspace:apps/product"],
 
     "@apps/room-server": ["@apps/room-server@workspace:apps/room-server"],
 
@@ -3500,6 +3436,8 @@
 
     "@pkgs/sync-engine": ["@pkgs/sync-engine@workspace:pkgs/sync-engine"],
 
+    "@pkgs/tailwind": ["@pkgs/tailwind@workspace:pkgs/tailwind"],
+
     "@pkgs/task-dag": ["@pkgs/task-dag@workspace:pkgs/task-dag"],
 
     "@pkgs/ts-reset": ["@pkgs/ts-reset@workspace:pkgs/ts-reset"],
@@ -3527,12 +3465,6 @@
     "@poppinss/dumper": ["@poppinss/dumper@0.6.5", "", { "dependencies": { "@poppinss/colors": "^4.1.5", "@sindresorhus/is": "^7.0.2", "supports-color": "^10.0.0" } }, "sha512-NBdYIb90J7LfOI32dOewKI1r7wnkiH6m920puQ3qHUeZkxNkQiFnXVWoE6YtFSv6QOiPPf7ys6i+HWWecDz7sw=="],
 
     "@poppinss/exception": ["@poppinss/exception@1.2.3", "", {}, "sha512-dCED+QRChTVatE9ibtoaxc+WkdzOSjYTKi/+uacHWIsfodVfpsueo3+DKpgU5Px8qXjgmXkSvhXvSCz3fnP9lw=="],
-
-    "@product/console": ["@product/console@workspace:product/console"],
-
-    "@product/sim": ["@product/sim@workspace:product/sim"],
-
-    "@product/test": ["@product/test@workspace:product/test"],
 
     "@rolldown/binding-android-arm-eabi": ["@rolldown/binding-android-arm-eabi@1.2.7", "", { "os": "android", "cpu": "arm" }, "sha512-EypzgnYCwyVY4NDHKzGmNJT5b+XaQEBniHxsMdeIQLB/tcCzZnhqrzHpZFbX9iaxx+5RiB8caATBtfvZP7zVxQ=="],
 
@@ -3609,6 +3541,36 @@
     "@standard-schema/spec": ["@standard-schema/spec@1.1.0", "", {}, "sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w=="],
 
     "@surma/rollup-plugin-off-main-thread": ["@surma/rollup-plugin-off-main-thread@2.2.3", "", { "dependencies": { "ejs": "^3.1.6", "json5": "^2.2.0", "magic-string": "^0.25.0", "string.prototype.matchall": "^4.0.6" } }, "sha512-lR8q/9W7hZpMWweNiAKU7NQerBnzQQLvi8qnTDU/fxItPhtZVMbPV3lbCwjhIlNBe9Bbr5V+KHshvWmVSG9cxQ=="],
+
+    "@tailwindcss/node": ["@tailwindcss/node@4.3.3", "", { "dependencies": { "@jridgewell/remapping": "^2.3.5", "enhanced-resolve": "^5.24.1", "jiti": "^2.7.0", "lightningcss": "1.32.0", "magic-string": "^0.30.21", "source-map-js": "^1.2.1", "tailwindcss": "4.3.3" } }, "sha512-/T8IKEsf9VTU6tLjgC7+sv2mOPtQxzE2jMw7u4Tt40Tx+QSZxpzh95/H6cMKoja9XuW7iMdLJYBB0o9G1CaAgg=="],
+
+    "@tailwindcss/oxide": ["@tailwindcss/oxide@4.3.3", "", { "optionalDependencies": { "@tailwindcss/oxide-android-arm64": "4.3.3", "@tailwindcss/oxide-darwin-arm64": "4.3.3", "@tailwindcss/oxide-darwin-x64": "4.3.3", "@tailwindcss/oxide-freebsd-x64": "4.3.3", "@tailwindcss/oxide-linux-arm-gnueabihf": "4.3.3", "@tailwindcss/oxide-linux-arm64-gnu": "4.3.3", "@tailwindcss/oxide-linux-arm64-musl": "4.3.3", "@tailwindcss/oxide-linux-x64-gnu": "4.3.3", "@tailwindcss/oxide-linux-x64-musl": "4.3.3", "@tailwindcss/oxide-wasm32-wasi": "4.3.3", "@tailwindcss/oxide-win32-arm64-msvc": "4.3.3", "@tailwindcss/oxide-win32-x64-msvc": "4.3.3" } }, "sha512-krXjAikiaFSPaK/FkAQT5UTx3VormQaiZ5hBFlJZ9UFQGB/rwg1MZIhHAG9smMQRTdyJxP6Qt5MwMtdyU5FWrA=="],
+
+    "@tailwindcss/oxide-android-arm64": ["@tailwindcss/oxide-android-arm64@4.3.3", "", { "os": "android", "cpu": "arm64" }, "sha512-Y85A2gmPSkl5Ve5qR86GL4HT509cFqQh1aes9p3sSkyTPwt0Pppf3GkwGe4JPACcRYjgJIEhQgM6dBClnr0NYw=="],
+
+    "@tailwindcss/oxide-darwin-arm64": ["@tailwindcss/oxide-darwin-arm64@4.3.3", "", { "os": "darwin", "cpu": "arm64" }, "sha512-BiaWatpBcERQFDlOjRDpIVXuFK5PJez5SA4JMg6VYZdBYU+qKfV/vqjcIs+IYmtitf1xYQZTwXvU/8y4lfZUGw=="],
+
+    "@tailwindcss/oxide-darwin-x64": ["@tailwindcss/oxide-darwin-x64@4.3.3", "", { "os": "darwin", "cpu": "x64" }, "sha512-fAeUqfV5ndhxRwai8cXGzdLvul9utWOmeTkv69unv4ZXixjn61Z+p9lCWdwOwA3TYboG3BwdVuN/RDjhBRl0mw=="],
+
+    "@tailwindcss/oxide-freebsd-x64": ["@tailwindcss/oxide-freebsd-x64@4.3.3", "", { "os": "freebsd", "cpu": "x64" }, "sha512-iyf5bV6+wnAlflVeEy7R25dupxTNECZN5QMI0qNT6eT+EgaGdZcKhGkr5SdoaWiLJ3spLqIY9VCeSGrwmtg4kw=="],
+
+    "@tailwindcss/oxide-linux-arm-gnueabihf": ["@tailwindcss/oxide-linux-arm-gnueabihf@4.3.3", "", { "os": "linux", "cpu": "arm" }, "sha512-aAYUprJAJQWWbRrPvtjdroZ56Md+JM8pMiopS6xGEwDfLhqj+2ver2p4nU4Mb3CRqcMmNBjo8KkUgcxhkzVQGQ=="],
+
+    "@tailwindcss/oxide-linux-arm64-gnu": ["@tailwindcss/oxide-linux-arm64-gnu@4.3.3", "", { "os": "linux", "cpu": "arm64" }, "sha512-nDxldcEENOxZRzC2uu9jrutZdAAQtb+8WWDCSnWL1zvBk1+FN+x6MtDViPB5AJMfttVCUhehGWus3XBPgatM/w=="],
+
+    "@tailwindcss/oxide-linux-arm64-musl": ["@tailwindcss/oxide-linux-arm64-musl@4.3.3", "", { "os": "linux", "cpu": "arm64" }, "sha512-Md44bD6veX/PC5iyF8cDVnw4HBIANZepRZZ7a8DQOvkfo5WUBwcp6iAuCUz23u+4SUkhJlD3eL7hNdW8ezd/kA=="],
+
+    "@tailwindcss/oxide-linux-x64-gnu": ["@tailwindcss/oxide-linux-x64-gnu@4.3.3", "", { "os": "linux", "cpu": "x64" }, "sha512-tx7us1muwOKAKWao2v/GaafFeQboE6aj88vC6ziN2NCGcRm8gWUhwjzg+YdVB1e4boAtdtma4L43onunI6NS4w=="],
+
+    "@tailwindcss/oxide-linux-x64-musl": ["@tailwindcss/oxide-linux-x64-musl@4.3.3", "", { "os": "linux", "cpu": "x64" }, "sha512-SJxX60smvHgasZoBy11dX6YRjXJFovwWBoedhbQPOBzgFWBHGB+TVPWB9BxzR7TTxU8FQZAI2AyiNCMzFm8Img=="],
+
+    "@tailwindcss/oxide-wasm32-wasi": ["@tailwindcss/oxide-wasm32-wasi@4.3.3", "", { "dependencies": { "@emnapi/core": "^1.11.1", "@emnapi/runtime": "^1.11.1", "@emnapi/wasi-threads": "^1.2.2", "@napi-rs/wasm-runtime": "^1.1.4", "@tybys/wasm-util": "^0.10.2", "tslib": "^2.8.1" }, "cpu": "none" }, "sha512-jx1+rPhY/5Ympkktd656HBWEBLxP7dH06losBLjjf5vgCODXvi9KhtftWcMIwTFIDqBr7cRnQkdLnAG+IOlGvQ=="],
+
+    "@tailwindcss/oxide-win32-arm64-msvc": ["@tailwindcss/oxide-win32-arm64-msvc@4.3.3", "", { "os": "win32", "cpu": "arm64" }, "sha512-3rc292Ca2ceK6Ulcc/bAVnTs/3nDtoPhyEKlgPv+yQJQi/JS/AMJlqzxvlDacL1nekbrcf6bTqp/jV4qgnPxNQ=="],
+
+    "@tailwindcss/oxide-win32-x64-msvc": ["@tailwindcss/oxide-win32-x64-msvc@4.3.3", "", { "os": "win32", "cpu": "x64" }, "sha512-yJ0pwIVc/nYeGoV02WtsN8KYyLQv7kyI2wDnkezyJlGGjkd4QLwDGAwl47YpPJeuI0M0ObaXGSPjvWDPeTPggw=="],
+
+    "@tailwindcss/vite": ["@tailwindcss/vite@4.3.3", "", { "dependencies": { "@tailwindcss/node": "4.3.3", "@tailwindcss/oxide": "4.3.3", "tailwindcss": "4.3.3" }, "peerDependencies": { "vite": "^5.2.0 || ^6 || ^7 || ^8" } }, "sha512-yYU8cogLeSh/ms2jh8Fj7jaba/EWa7Ja6GoUqYZaraEuCI5YS6ms6ObZgjjedm+jm6XZjdNRWBpPP6Z86oOxcw=="],
 
     "@tanstack/solid-virtual": ["@tanstack/solid-virtual@3.13.37", "", { "dependencies": { "@tanstack/virtual-core": "3.17.8" }, "peerDependencies": { "solid-js": "^1.3.0" } }, "sha512-RxJC8n/6nnFHcPvDGMg7ZkqSzCVUco4JNw3ctIChj1HjoKs5I9wt5nsU+DUVtMVEiMfizUxOAx4TPIN8SHjxUQ=="],
 
@@ -4658,6 +4620,8 @@
 
     "syncpack-windows-x64": ["syncpack-windows-x64@14.3.1", "", { "os": "win32", "cpu": "x64" }, "sha512-gjbWwc05RcekcrLHOi5gq0JKvhoIMNqbUnAvPZLu46/+HrYuuJiUqruoj6y/GbCuvoQ880E820GF1pQFW9xNXA=="],
 
+    "tailwindcss": ["tailwindcss@4.3.3", "", {}, "sha512-gOhV3P7ufE62QDGg1zVaTgCR+EtPv92k2nIhVcVKcLmxT1sUBsQGhnZj175j+MqRt4zLF7ic+sCYjfhxMxj7YQ=="],
+
     "tapable": ["tapable@2.3.3", "", {}, "sha512-uxc/zpqFg6x7C8vOE7lh6Lbda8eEL9zmVm/PLeTPBRhh1xCgdWaQ+J1CUieGpIfm2HdtsUpRv+HshiasBMcc6A=="],
 
     "temp-dir": ["temp-dir@2.0.0", "", {}, "sha512-aoBAniQmmwtcKp/7BzsH8Cxzv8OL736p7v1ihGb5e9DJ9kTwGWHrQrVB5+lfVDzfGrdRzXch+ig7LHaY1JTOrg=="],
@@ -4886,6 +4850,24 @@
 
     "@surma/rollup-plugin-off-main-thread/magic-string": ["magic-string@0.25.9", "", { "dependencies": { "sourcemap-codec": "^1.4.8" } }, "sha512-RmF0AsMzgt25qzqqLc1+MbHmhdx0ojF2Fvs4XnOqz2ZOBXzzkEwc/dJQZCYHAn7v1jbVOjAZfK8msRn4BxO4VQ=="],
 
+    "@tailwindcss/node/enhanced-resolve": ["enhanced-resolve@5.24.5", "", { "dependencies": { "graceful-fs": "^4.2.4", "tapable": "^2.3.3" } }, "sha512-L1l8TNvomm6UVW5B253AGxQagSQr+vGwhMlrrfRS2qmhx46AMpMVJKQYLvWYbysTMY8VoicOvzHzoHMbyzB+4A=="],
+
+    "@tailwindcss/node/lightningcss": ["lightningcss@1.32.0", "", { "dependencies": { "detect-libc": "^2.0.3" }, "optionalDependencies": { "lightningcss-android-arm64": "1.32.0", "lightningcss-darwin-arm64": "1.32.0", "lightningcss-darwin-x64": "1.32.0", "lightningcss-freebsd-x64": "1.32.0", "lightningcss-linux-arm-gnueabihf": "1.32.0", "lightningcss-linux-arm64-gnu": "1.32.0", "lightningcss-linux-arm64-musl": "1.32.0", "lightningcss-linux-x64-gnu": "1.32.0", "lightningcss-linux-x64-musl": "1.32.0", "lightningcss-win32-arm64-msvc": "1.32.0", "lightningcss-win32-x64-msvc": "1.32.0" } }, "sha512-NXYBzinNrblfraPGyrbPoD19C1h9lfI/1mzgWYvXUTe414Gz/X1FD2XBZSZM7rRTrMA8JL3OtAaGifrIKhQ5yQ=="],
+
+    "@tailwindcss/node/magic-string": ["magic-string@0.30.21", "", { "dependencies": { "@jridgewell/sourcemap-codec": "^1.5.5" } }, "sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ=="],
+
+    "@tailwindcss/oxide-wasm32-wasi/@emnapi/core": ["@emnapi/core@1.11.3", "", { "dependencies": { "@emnapi/wasi-threads": "1.2.3", "tslib": "^2.4.0" }, "bundled": true }, "sha512-zLpS5asjEb7lq8jYLq37N6XKaE41DIexlY1rF/z4/tIl3wo13Sqm28fRyfIsKZD+NZ8mM5RoKkpW/rBcuoSZSg=="],
+
+    "@tailwindcss/oxide-wasm32-wasi/@emnapi/runtime": ["@emnapi/runtime@1.11.2", "", { "dependencies": { "tslib": "^2.4.0" }, "bundled": true }, "sha512-kyOl3X0DuTiT1h2ft8r2fYO8JYtU9a9Xis/zBSiGArNaagCOWx90N1k2wxp18czFDH+OgcWGb5ZP/XMt3dcyPA=="],
+
+    "@tailwindcss/oxide-wasm32-wasi/@emnapi/wasi-threads": ["@emnapi/wasi-threads@1.2.3", "", { "dependencies": { "tslib": "^2.4.0" }, "bundled": true }, "sha512-ELEBe8PsLvvJ6QMr0zLt8ffvOHW/dc1m3CEzNMg7aJUv3bMaoDtw2TXyDAwkYBuroxxuHEwhRTLJSe5sya547g=="],
+
+    "@tailwindcss/oxide-wasm32-wasi/@napi-rs/wasm-runtime": ["@napi-rs/wasm-runtime@1.1.4", "", { "dependencies": { "@tybys/wasm-util": "^0.10.1" }, "peerDependencies": { "@emnapi/core": "^1.7.1", "@emnapi/runtime": "^1.7.1" }, "bundled": true }, "sha512-3NQNNgA1YSlJb/kMH1ildASP9HW7/7kYnRI2szWJaofaS1hWmbGI4H+d3+22aGzXXN9IJ+n+GiFVcGipJP18ow=="],
+
+    "@tailwindcss/oxide-wasm32-wasi/@tybys/wasm-util": ["@tybys/wasm-util@0.10.2", "", { "dependencies": { "tslib": "^2.4.0" }, "bundled": true }, "sha512-RoBvJ2X0wuKlWFIjrwffGw1IqZHKQqzIchKaadZZfnNpsAYp2mM0h36JtPCjNDAHGgYez/15uMBpfGwchhiMgg=="],
+
+    "@tailwindcss/oxide-wasm32-wasi/tslib": ["tslib@2.8.1", "", { "bundled": true }, "sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w=="],
+
     "@testing-library/dom/aria-query": ["aria-query@5.3.0", "", { "dependencies": { "dequal": "^2.0.3" } }, "sha512-b0P0sZPKtyu8HkeRAfCq0IfURZK+SuwMjY1UXGBU27wpAiTwQAIlq56IbIO+ytk/JjS1fMR14ee5WBBfKi5J6A=="],
 
     "@testing-library/dom/dom-accessibility-api": ["dom-accessibility-api@0.5.16", "", {}, "sha512-X7BJ2yElsnOJ30pZF4uIIDfBEVgF4XEBxL9Bxhy6dnrm5hkzqmsWHGTiHqRiITNhMyFLyAiWndIJP7Z1NTteDg=="],
@@ -4967,6 +4949,28 @@
     "@apideck/better-ajv-errors/ajv/json-schema-traverse": ["json-schema-traverse@1.0.0", "", {}, "sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug=="],
 
     "@rollup/plugin-node-resolve/@rollup/pluginutils/estree-walker": ["estree-walker@2.0.2", "", {}, "sha512-Rfkk/Mp/DL7JVje3u18FxFujQlTNR2q6QfMSMB7AvCBx91NGj/ba3kCfza0f6dVDbw7YlRf/nDrn7pQrCCyQ/w=="],
+
+    "@tailwindcss/node/lightningcss/lightningcss-android-arm64": ["lightningcss-android-arm64@1.32.0", "", { "os": "android", "cpu": "arm64" }, "sha512-YK7/ClTt4kAK0vo6w3X+Pnm0D2cf2vPHbhOXdoNti1Ga0al1P4TBZhwjATvjNwLEBCnKvjJc2jQgHXH0NEwlAg=="],
+
+    "@tailwindcss/node/lightningcss/lightningcss-darwin-arm64": ["lightningcss-darwin-arm64@1.32.0", "", { "os": "darwin", "cpu": "arm64" }, "sha512-RzeG9Ju5bag2Bv1/lwlVJvBE3q6TtXskdZLLCyfg5pt+HLz9BqlICO7LZM7VHNTTn/5PRhHFBSjk5lc4cmscPQ=="],
+
+    "@tailwindcss/node/lightningcss/lightningcss-darwin-x64": ["lightningcss-darwin-x64@1.32.0", "", { "os": "darwin", "cpu": "x64" }, "sha512-U+QsBp2m/s2wqpUYT/6wnlagdZbtZdndSmut/NJqlCcMLTWp5muCrID+K5UJ6jqD2BFshejCYXniPDbNh73V8w=="],
+
+    "@tailwindcss/node/lightningcss/lightningcss-freebsd-x64": ["lightningcss-freebsd-x64@1.32.0", "", { "os": "freebsd", "cpu": "x64" }, "sha512-JCTigedEksZk3tHTTthnMdVfGf61Fky8Ji2E4YjUTEQX14xiy/lTzXnu1vwiZe3bYe0q+SpsSH/CTeDXK6WHig=="],
+
+    "@tailwindcss/node/lightningcss/lightningcss-linux-arm-gnueabihf": ["lightningcss-linux-arm-gnueabihf@1.32.0", "", { "os": "linux", "cpu": "arm" }, "sha512-x6rnnpRa2GL0zQOkt6rts3YDPzduLpWvwAF6EMhXFVZXD4tPrBkEFqzGowzCsIWsPjqSK+tyNEODUBXeeVHSkw=="],
+
+    "@tailwindcss/node/lightningcss/lightningcss-linux-arm64-gnu": ["lightningcss-linux-arm64-gnu@1.32.0", "", { "os": "linux", "cpu": "arm64" }, "sha512-0nnMyoyOLRJXfbMOilaSRcLH3Jw5z9HDNGfT/gwCPgaDjnx0i8w7vBzFLFR1f6CMLKF8gVbebmkUN3fa/kQJpQ=="],
+
+    "@tailwindcss/node/lightningcss/lightningcss-linux-arm64-musl": ["lightningcss-linux-arm64-musl@1.32.0", "", { "os": "linux", "cpu": "arm64" }, "sha512-UpQkoenr4UJEzgVIYpI80lDFvRmPVg6oqboNHfoH4CQIfNA+HOrZ7Mo7KZP02dC6LjghPQJeBsvXhJod/wnIBg=="],
+
+    "@tailwindcss/node/lightningcss/lightningcss-linux-x64-gnu": ["lightningcss-linux-x64-gnu@1.32.0", "", { "os": "linux", "cpu": "x64" }, "sha512-V7Qr52IhZmdKPVr+Vtw8o+WLsQJYCTd8loIfpDaMRWGUZfBOYEJeyJIkqGIDMZPwPx24pUMfwSxxI8phr/MbOA=="],
+
+    "@tailwindcss/node/lightningcss/lightningcss-linux-x64-musl": ["lightningcss-linux-x64-musl@1.32.0", "", { "os": "linux", "cpu": "x64" }, "sha512-bYcLp+Vb0awsiXg/80uCRezCYHNg1/l3mt0gzHnWV9XP1W5sKa5/TCdGWaR/zBM2PeF/HbsQv/j2URNOiVuxWg=="],
+
+    "@tailwindcss/node/lightningcss/lightningcss-win32-arm64-msvc": ["lightningcss-win32-arm64-msvc@1.32.0", "", { "os": "win32", "cpu": "arm64" }, "sha512-8SbC8BR40pS6baCM8sbtYDSwEVQd4JlFTOlaD3gWGHfThTcABnNDBda6eTZeqbofalIJhFx0qKzgHJmcPTnGdw=="],
+
+    "@tailwindcss/node/lightningcss/lightningcss-win32-x64-msvc": ["lightningcss-win32-x64-msvc@1.32.0", "", { "os": "win32", "cpu": "x64" }, "sha512-Amq9B/SoZYdDi1kFrojnoqPLxYhQ4Wo5XiL8EVJrVsB8ARoC1PWW6VGtT0WKCemjy8aC+louJnjS7U18x3b06Q=="],
 
     "@testing-library/dom/pretty-format/ansi-styles": ["ansi-styles@5.2.0", "", {}, "sha512-Cxwpt2SfTzTtXcfOlzGEee8O+c+MmUgGrNiBcXnuWxuFJHe6a5Hz7qwhwe5OgaSYI0IJvkLqWX1ASG+cJOkEiA=="],
 

@@ -22,7 +22,7 @@ export const PRODUCT_CONFIG = {
      */
     clientWorker: 'gamezilla-client-production',
     /**
-     * Assets-only Console Worker. Top-level `name` in `product/console/wrangler.toml`
+     * Assets-only Console Worker. Top-level `name` in `apps/product/wrangler.toml`
      * is `gamezilla-console`; `wrangler deploy --env production` publishes as this.
      */
     consoleWorker: 'gamezilla-console-production',

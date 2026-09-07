@@ -6,7 +6,7 @@
  *   import '@pkgs/ui/tokens.css';
  */
 
-/// <reference path="./css-modules.d.ts" />
+import './css-modules.d.ts';
 import './lingui-augmentation';
 
 export * from './component-id';

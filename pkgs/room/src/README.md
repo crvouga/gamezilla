@@ -259,7 +259,7 @@ replays are idempotent.
 | `RoomStorage` | append/load log, lastSeq, command dedup |
 | `RoomAuth` | upgrade auth; optional per-command `authorize` |
 | `RoomEffectHandler[]` | post-ok side effects (Schedule, custom) |
-| `Io` (`clock` / `timers` / `createId`) | all nondeterministic I/O — no bare wall clocks in product/sim |
+| `Io` (`clock` / `timers` / `createId`) | all nondeterministic I/O — no bare wall clocks in apps/product/src/sim |
 
 ---
 

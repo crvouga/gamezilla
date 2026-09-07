@@ -8,7 +8,7 @@ import type { SecureStorageStore } from '@pkgs/secure-storage/secure-storage-sto
 import { useSecureStorageStore } from '@pkgs/secure-storage/solid';
 import { runWebOpfsRecoveryAndReload } from '@pkgs/sql-client-sqlite-web';
 import { useSyncEngineInstance } from '@pkgs/sync-engine/solid';
-import { createMemo, type JSX } from 'solid-js';
+import type { JSX } from 'solid-js';
 
 export type SyncLocalDataDeps = {
   readonly store: SecureStorageStore;
@@ -36,7 +36,7 @@ export function SyncLocalDataActions(props: {
   const engine = useSyncEngineInstance();
   const timers = useTimers();
 
-  const deps: SyncLocalDataDeps = createMemo(() => ({
+  const deps: SyncLocalDataDeps = {
     store,
     clearLocalData: () => engine.clearLocalData(),
     wipeWebOpfsAndReload: () =>
@@ -44,12 +44,12 @@ export function SyncLocalDataActions(props: {
         timers,
         returnTo: '/',
       }),
-  }))();
+  };
 
-  const actions = createMemo(() => ({
+  const actions = {
     clearLocalDatabaseAndReload: () =>
       clearLocalDatabaseAndReloadWithDeps(deps),
-  }))();
+  };
 
   return (
     <SyncLocalDataActionsContext.Provider value={actions}>

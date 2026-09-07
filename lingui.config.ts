@@ -15,7 +15,7 @@ export const LINGUI_CATALOG_INCLUDE = [
   '<rootDir>/apps/client/src',
   '<rootDir>/libs',
   '<rootDir>/pkgs',
-  '<rootDir>/product/console/src',
+  '<rootDir>/apps/product/src/console',
 ] as const;
 
 export const LINGUI_JSX_MACRO_PACKAGES = ['@lingui/solid/macro'] as const;

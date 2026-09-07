@@ -1,0 +1,11 @@
+import { describe, test } from 'bun:test';
+import { signInWithDev, signOut } from '../src/sim';
+import { openSim } from '../src/test/setup/open-sim';
+
+describe('auth login → logout', () => {
+  test('first login → logout on the account screen', async () => {
+    await using s = await openSim('auth-login-logout');
+    await s.apply(signInWithDev, 'alice');
+    await s.apply(signOut, 'alice');
+  });
+});

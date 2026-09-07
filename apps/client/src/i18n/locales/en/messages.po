@@ -151,6 +151,7 @@ msgstr "Accepted"
 msgid "Accepting…"
 msgstr "Accepting…"
 
+#: apps/client/src/chrome/app-header-global-menu.tsx
 #: apps/client/src/routes/stubs/account-providers.tsx
 #: apps/client/src/screens/more/settings-screen.tsx
 #: libs/auth/src/root/client/account-device/account-device-detail-screen.tsx

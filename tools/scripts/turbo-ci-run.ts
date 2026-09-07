@@ -318,7 +318,6 @@ async function main(): Promise<void> {
       '--filter=./apps/*',
       '--filter=./libs/*',
       '--filter=./pkgs/*',
-      '--filter=./product/*',
       '--filter=./tools'
     );
     if (hasRootTasks) {

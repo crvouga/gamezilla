@@ -1,5 +1,5 @@
 /** @jsxImportSource solid-js */
-import { ExplorerDetail, type Href, useLocalSearchParams } from '@pkgs/ui';
+import { ExplorerDetail, useLocalSearchParams } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 
 export default function UiExplorerDetailRoute(): JSX.Element {
@@ -8,7 +8,7 @@ export default function UiExplorerDetailRoute(): JSX.Element {
   return (
     <ExplorerDetail
       componentId={componentId()}
-      hrefFor={(id) => `/ui/${id}` as Href}
+      hrefFor={(id) => `/ui/${id}`}
       listHref="/ui"
     />
   );

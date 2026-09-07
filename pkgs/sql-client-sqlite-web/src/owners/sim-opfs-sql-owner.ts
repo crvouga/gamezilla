@@ -82,7 +82,9 @@ export function createSimOpfsSqlOwner(args: {
           error instanceof Error &&
           /cannot create file/i.test(error.message)
         ) {
-          throw new Error('Error: sqlite3_open_v2', { cause: error });
+          throw new Error(`Error: sqlite3_open_v2 (${error.message})`, {
+            cause: error,
+          });
         }
         throw error;
       }

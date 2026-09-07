@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": [
+    "../../pkgs/ts-reset/src/index.ts",
+    "../../apps/client/src/vite-env.d.ts",
+    "../../pkgs/ui/src/css-modules.d.ts",
+    "./src/**/*.ts",
+    "./src/**/*.tsx",
+    "./scripts/**/*.ts",
+    "./tests/**/*.ts",
+    "./tests/**/*.tsx",
+    "./bun-preload.ts",
+    "./bun-babel-plugin.ts"
+  ],
+  "compilerOptions": {
+    "types": ["bun", "node"]
+  }
+}

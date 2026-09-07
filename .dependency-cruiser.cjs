@@ -44,7 +44,7 @@ module.exports = {
       },
     },
     // Shared cannot reach into any runtime-specific code, anywhere in the repo
-    // (pkgs triad src/shared and product-lib use-cases/*/shared + src/shared).
+    // (pkgs triad src/shared and libs use-cases/*/shared + src/shared).
     {
       name: 'shared-pure',
       severity: 'error',
@@ -88,12 +88,15 @@ module.exports = {
       name: 'not-to-dev-dep-from-src',
       severity: 'error',
       from: {
-        path: '^(apps|libs|pkgs|product)/[^/]+/src/',
+        path: '^(apps|libs|pkgs)/[^/]+/src/',
         pathNot: '(\\.test\\.|\\.spec\\.|/tests/|/e2e/)',
       },
       to: { dependencyTypes: ['npm-dev'] },
     },
-    // Tier import pyramid: product -> apps, libs, pkgs; apps -> libs, pkgs; libs -> pkgs; pkgs -> pkgs.
+    // Tier import pyramid: apps -> apps, libs, pkgs; libs -> pkgs; pkgs -> pkgs.
+    // apps/product is the composition hub inside apps/ (sim fabric + console +
+    // test harness); it may compose other apps. libs/pkgs must not reach apps/
+    // (covered by libs-not-apps / pkgs-not-apps, which match apps/product/).
     // Path-based tier rules catch the relative `../../libs/...` escape hatch.
     // Workspace @scope imports are not reliably traversed by depcruise (bun symlinks).
     {
@@ -113,36 +116,12 @@ module.exports = {
       to: { path: '^apps/' },
     },
     {
-      name: 'pkgs-not-product',
-      severity: 'error',
-      comment:
-        'pkgs/ must not import product/ (tier boundary). Product is the composition hub above apps.',
-      from: { path: '^pkgs/' },
-      to: { path: '^product/' },
-    },
-    {
       name: 'libs-not-apps',
       severity: 'error',
       comment:
         'libs/ must not import apps/ (tier boundary). Apps compose libs; not the reverse.',
       from: { path: '^libs/' },
       to: { path: '^apps/' },
-    },
-    {
-      name: 'libs-not-product',
-      severity: 'error',
-      comment:
-        'libs/ must not import product/ (tier boundary). Product composes libs; not the reverse.',
-      from: { path: '^libs/' },
-      to: { path: '^product/' },
-    },
-    {
-      name: 'apps-not-product',
-      severity: 'error',
-      comment:
-        'apps/ must not import product/ (tier boundary). Product composes apps; apps must not depend on the composition hub.',
-      from: { path: '^apps/' },
-      to: { path: '^product/' },
     },
     {
       name: 'shared-no-wall-io-packages',
@@ -161,10 +140,11 @@ module.exports = {
       name: 'product-no-sim-deps',
       severity: 'error',
       comment:
-        'Session / @pkgs/sim is harness-only. Product apps and non-test product libs must receive unpacked clock/timers/createId/random/http. DST package tests and @product/* may import @pkgs/sim.',
+        'Session / @pkgs/sim is harness-only. Product apps and non-test product libs must receive unpacked clock/timers/createId/random/http. DST package tests and @apps/product may import @pkgs/sim.',
       from: {
         path: '^(apps/|libs/)',
-        pathNot: '(\\.test\\.|\\.spec\\.|/tests/|/e2e/|/src/sim/)',
+        pathNot:
+          '(\\.test\\.|\\.spec\\.|/tests/|/e2e/|/src/sim/|^apps/product/)',
       },
       to: {
         path: '^pkgs/sim/',
@@ -174,14 +154,15 @@ module.exports = {
       name: 'sim-seam-harness-only',
       severity: 'error',
       comment:
-        'Package src/sim/** is harness-only: import from src/sim/**, tests/**, or the package ./sim export (index). Product/runtime code must not deep-import sim internals.',
+        'Package src/sim/** is harness-only: import from src/sim/**, tests/**, or the package ./sim export (index). Product/runtime code must not deep-import sim internals. apps/product/src/sim/ is the shared product harness itself, not a package-local seam.',
       from: {
         pathNot: '(/src/sim/|/tests/|\\.test\\.|\\.spec\\.|/e2e/)',
       },
       to: {
         path: '/src/sim/',
-        // Allow the public ./sim seam entry (…/src/sim/index.ts).
-        pathNot: '/src/sim/index\\.ts$',
+        // Allow the public ./sim seam entry (…/src/sim/index.ts) and the
+        // shared product harness (apps/product/src/sim/**).
+        pathNot: '(/src/sim/index\\.ts$|^apps/product/src/sim/)',
       },
     },
     {
@@ -221,6 +202,6 @@ module.exports = {
     // (e.g. wrangler dev stages `.wrangler/` inside a package directory).
     exclude: '(^|/)(\\.wrangler|\\.turbo|dist|build|coverage)/',
     tsPreCompilationDeps: true,
-    includeOnly: '^(apps|libs|pkgs|product)/',
+    includeOnly: '^(apps|libs|pkgs)/',
   },
 };

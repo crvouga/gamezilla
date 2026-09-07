@@ -83,7 +83,7 @@ describe('turbo deploy graph invariants', () => {
     expect(tasks).toEqual(['check']);
     expect(tasks).not.toContain('build');
     expect(tasks).not.toContain('@apps/client#build');
-    expect(tasks).not.toContain('@product/console#build');
+    expect(tasks).not.toContain('@apps/product#build');
   });
 
   test('bun check:full invokes turbo-ci-run with check:full aggregator', () => {
@@ -107,14 +107,14 @@ describe('turbo deploy graph invariants', () => {
     expect(full).toContain('@apps/room-server#build');
     expect(full).not.toContain('build');
     expect(full).not.toContain('@apps/client#build');
-    expect(full).not.toContain('@product/console#build');
+    expect(full).not.toContain('@apps/product#build');
   });
 
-  test('smoke depends on @product/console#deploy', () => {
+  test('smoke depends on @apps/product#deploy', () => {
     const turbo = loadTurboJson();
     const deps = turbo.tasks?.['@apps/server#smoke']?.dependsOn;
     expect(Array.isArray(deps)).toBe(true);
-    expect(deps as string[]).toContain('@product/console#deploy');
+    expect(deps as string[]).toContain('@apps/product#deploy');
     expect(deps as string[]).toContain('@apps/client#deploy');
   });
 

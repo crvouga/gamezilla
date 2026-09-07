@@ -25,8 +25,7 @@ export function ChessBoardOverlays(args: {
   readonly boardTestId: Accessor<string>;
   readonly size: number | undefined;
 }): JSX.Element {
-  const { ctrl } = args;
-  const pending = () => ctrl.model.interaction().pendingPromotion;
+  const pending = () => args.ctrl.model.interaction().pendingPromotion;
   return (
     <>
       <Show when={pending()}>
@@ -34,14 +33,14 @@ export function ChessBoardOverlays(args: {
           <ChessBoardPromotion
             color={p().color}
             to={p().to}
-            orientation={ctrl.orientation()}
-            theme={ctrl.theme()}
-            boardPx={ctrl.boardPx() || BOARD_UNITS}
+            orientation={args.ctrl.orientation()}
+            theme={args.ctrl.theme()}
+            boardPx={args.ctrl.boardPx() || BOARD_UNITS}
             onPick={(promo) => {
-              ctrl.model.actions.pickPromotion(promo);
-              ctrl.model.markSnap(p().to);
+              args.ctrl.model.actions.pickPromotion(promo);
+              args.ctrl.model.markSnap(p().to);
             }}
-            onCancel={() => ctrl.model.actions.cancelPromotion()}
+            onCancel={() => args.ctrl.model.actions.cancelPromotion()}
           />
         )}
       </Show>
@@ -52,9 +51,9 @@ export function ChessBoardOverlays(args: {
       >
         {JSON.stringify(
           buildChessBoardProbe({
-            fen: ctrl.model.game().fen,
-            size: ctrl.boardPx() || args.size || 0,
-            orientation: ctrl.orientation(),
+            fen: args.ctrl.model.game().fen,
+            size: (args.ctrl.boardPx() || args.size) ?? 0,
+            orientation: args.ctrl.orientation(),
           })
         )}
       </Box>

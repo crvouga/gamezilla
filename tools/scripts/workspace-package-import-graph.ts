@@ -1,9 +1,9 @@
 // @io-wall-ok — tools composition root
 /**
- * Package-level graph of @apps|@libs|@pkgs|@product / * imports discovered from source.
+ * Package-level graph of @apps|@libs|@pkgs/* imports discovered from source.
  * Shared by deps:graph.
  *
- * Graph keys are full scoped names (`@pkgs/ui-rn`, `@product/console`) so short-name
+ * Graph keys are full scoped names (`@pkgs/ui-rn`, `@apps/product`) so short-name
  * collisions across tiers do not merge unrelated packages.
  */
 
@@ -12,8 +12,8 @@ import { join, relative } from 'node:path';
 import { Glob } from 'bun';
 
 export const REPO_ROOT = join(import.meta.dirname, '../..');
-const SCOPES = ['@apps/', '@libs/', '@pkgs/', '@product/'] as const;
-export const TIER_DIRS = ['apps', 'libs', 'pkgs', 'product'] as const;
+const SCOPES = ['@apps/', '@libs/', '@pkgs/'] as const;
+export const TIER_DIRS = ['apps', 'libs', 'pkgs'] as const;
 export type Tier = (typeof TIER_DIRS)[number];
 const MAX_IMPORTER_SAMPLES = 3;
 
@@ -25,11 +25,11 @@ export type PackageImportGraph = Map<PackageName, Map<PackageName, string[]>>;
 
 /** Captures the full scoped import (`@apps/server`, `@pkgs/ui-rn`, …). */
 export const IMPORT_PATTERN =
-  /(?:\bfrom|\bimport\s*\(|\brequire\s*\()\s*['"](@(?:apps|libs|pkgs|product)\/[^/'"\s)]+)/g;
+  /(?:\bfrom|\bimport\s*\(|\brequire\s*\()\s*['"](@(?:apps|libs|pkgs)\/[^/'"\s)]+)/g;
 
 /** Same as {@link IMPORT_PATTERN} but also captures the tier scope + short name. */
 export const TIER_IMPORT_PATTERN =
-  /(?:\bfrom|\bimport\s*\(|\brequire\s*\()\s*['"]@(apps|libs|pkgs|product)\/([^/'"\s)]+)/g;
+  /(?:\bfrom|\bimport\s*\(|\brequire\s*\()\s*['"]@(apps|libs|pkgs)\/([^/'"\s)]+)/g;
 
 export function stripComments(source: string): string {
   return source

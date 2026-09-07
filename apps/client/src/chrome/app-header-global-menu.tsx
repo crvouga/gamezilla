@@ -4,10 +4,10 @@
  * every top bar shares it. Rows: Settings, connectivity (→ Sync), Server
  * status, Theme, Sound, UI explorer (dev bundles only).
  *
- * Deferred: the Account row + identity header (`@username`, avatar trigger)
- * join with the auth / profile screen ports (`useMyProfileId`,
- * `MyProfileAvatar` are UI-bound). The trigger is the plain user glyph
- * until then; the header shows guest / signed-in from the local identity.
+ * Deferred: the identity header (`@username`, avatar trigger) joins with the
+ * auth / profile screen ports (`useMyProfileId`, `MyProfileAvatar` are
+ * UI-bound). The trigger is the plain user glyph until then; the header shows
+ * guest / signed-in from the local identity, and the Account row opens auth.
  */
 
 import { Handles } from '@libs/test-ids';
@@ -89,6 +89,14 @@ function useGlobalMenuActions(): () => readonly OverflowMenuAction[] {
       icon: ServerIcon,
       onClick: go('/more/server-status'),
       endsGroup: true,
+    },
+    {
+      id: 'account',
+      label: t`Account`,
+      icon: UserIcon,
+      onClick: go('/more/account'),
+      endsGroup: true,
+      dataSet: { testid: Handles.globalMenuAccount },
     },
     {
       id: 'theme',
