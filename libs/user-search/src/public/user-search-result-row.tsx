@@ -1,6 +1,6 @@
 import { UserProfileAvatar } from '@libs/profile/public/user-profile-avatar';
 import { UserUsername } from '@libs/profile/public/user-username';
-import { Box, Pressable } from '@pkgs/ui';
+import { Box, Clickable } from '@pkgs/ui';
 import { type JSX, Show } from 'solid-js';
 
 import type { UserSearchResult } from './user-search-types';
@@ -38,7 +38,7 @@ export function UserSearchResultRow(
 
   return (
     <Show when={props.onPress} fallback={body()}>
-      {(onPress) => <Pressable onPress={() => onPress()()}>{body()}</Pressable>}
+      {(onPress) => <Clickable onClick={() => onPress()()}>{body()}</Clickable>}
     </Show>
   );
 }

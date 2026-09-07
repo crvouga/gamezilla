@@ -21,12 +21,10 @@
     "@pkgs/pubsub": "workspace:*",
     "@pkgs/solid-context": "workspace:*",
     "@pkgs/sql": "workspace:*",
-    "react": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",
-    "@types/react": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
   }

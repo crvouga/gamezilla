@@ -65,7 +65,6 @@ export function startTab(
     timers: session.ports.timers,
     createOwner: () => createTabOwner(board),
     migrate: (client) => migrateToyKv(client, board),
-    notifyPeersOnRecover: false,
   });
   board.tabs.set(id, { id, runtime, open: false });
   requireBroker(board).attachPort(tabPort(id));

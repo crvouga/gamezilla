@@ -8,7 +8,7 @@ import type { ObjectStore } from '../../pkgs/object-store/src/interface';
 import {
   createRepoTreeObjectStore,
   REPO_TREE_SKIP_DIRS,
-} from '../../pkgs/object-store/src/repo-tree-store';
+} from '@pkgs/object-store-node-fs/repo-tree-store';
 
 export const REPO_ROOT = join(import.meta.dirname, '../..');
 

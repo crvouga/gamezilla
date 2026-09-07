@@ -37,7 +37,6 @@
     "@standard-schema/spec": "catalog:",
     "hono": "catalog:",
     "node-sql-parser": "catalog:",
-    "react": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {
@@ -45,7 +44,6 @@
     "@solidjs/testing-library": "catalog:",
     "@testing-library/jest-dom": "catalog:",
     "@types/bun": "catalog:",
-    "@types/react": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
     "typescript": "catalog:",

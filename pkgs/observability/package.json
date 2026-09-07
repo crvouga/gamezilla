@@ -41,12 +41,10 @@
     "@pkgs/solid-context": "workspace:*",
     "@pkgs/uuid": "workspace:*",
     "hono": "catalog:",
-    "react": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",
-    "@types/react": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
   }

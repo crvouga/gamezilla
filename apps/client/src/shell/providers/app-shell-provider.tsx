@@ -2,10 +2,10 @@
 /**
  * Platform shell (outermost stage). Must sit under `ClientEnvProvider`.
  *
- * RN → web deltas: gesture-handler root and safe-area provider are gone (CSS
- * `env()` insets); fonts load via `@font-face` in `styles/base.css` and mark
- * the paint latch through `document.fonts.ready`; the RN suspense root is not
- * needed (Solid `lazy` routes suspend inside the router outlet).
+ * RN → web deltas: the gesture root and safe-area provider are gone
+ * (CSS `env()` insets); fonts load via `@font-face` in `styles/base.css` and
+ * mark the paint latch through `document.fonts.ready`; the RN suspense root is
+ * not needed (Solid `lazy` routes suspend inside the router outlet).
  *
  * `PerfRoot` (perf HUD preference + sampler + overlay) mounts inside the
  * theme so the `/more/performance` toggle and the palette commands share one

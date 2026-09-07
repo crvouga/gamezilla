@@ -16,8 +16,7 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "buffer": "catalog:",
-    "expo-crypto": "catalog:"
+    "buffer": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

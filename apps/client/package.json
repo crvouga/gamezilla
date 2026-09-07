@@ -119,7 +119,6 @@
     "make-plural": "catalog:",
     "solid-js": "catalog:",
     "web-vitals": "catalog:",
-    "whatwg-fetch": "catalog:",
     "workbox-window": "catalog:",
     "zod": "catalog:"
   },

@@ -55,12 +55,9 @@
     "@pkgs/vitest-solid": "workspace:*",
     "@solidjs/testing-library": "catalog:",
     "@testing-library/jest-dom": "catalog:",
-    "@types/react": "catalog:",
-    "@types/react-dom": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
     "happy-dom": "catalog:",
-    "react-dom": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   }

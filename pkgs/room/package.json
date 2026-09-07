@@ -31,14 +31,10 @@
     "@solidjs/testing-library": "catalog:",
     "@testing-library/jest-dom": "catalog:",
     "@types/bun": "catalog:",
-    "@types/react": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
-    "react": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   },
-  "peerDependencies": {
-    "react": "catalog:"
-  }
+  "peerDependencies": {}
 }

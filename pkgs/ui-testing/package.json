@@ -19,12 +19,10 @@
   },
   "dependencies": {
     "@pkgs/clock": "workspace:*",
-    "@pkgs/sim": "workspace:*",
-    "react": "catalog:"
+    "@pkgs/sim": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",
-    "@types/react": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
   }

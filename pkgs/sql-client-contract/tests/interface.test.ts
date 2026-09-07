@@ -49,18 +49,6 @@ async function loadImplementations(): Promise<
         ),
     },
   ];
-  try {
-    const { SqlClientImplExpoSqlite } = await import(
-      '@pkgs/sql-client-sqlite/impl-expo-sqlite'
-    );
-    impls.push({
-      name: 'SqlClientImplExpoSqlite',
-      createClient: () =>
-        SqlClientImplExpoSqlite.open(':memory:', adapters.timers),
-    });
-  } catch {
-    // expo-sqlite requires React Native runtime; skip in Bun test env
-  }
 
   return impls;
 }

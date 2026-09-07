@@ -19,7 +19,6 @@
     "@pkgs/http-client": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/solid-context": "workspace:*",
-    "react": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {
@@ -27,7 +26,6 @@
     "@solidjs/testing-library": "catalog:",
     "@testing-library/jest-dom": "catalog:",
     "@types/bun": "catalog:",
-    "@types/react": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"

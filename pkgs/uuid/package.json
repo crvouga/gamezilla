@@ -19,12 +19,10 @@
     "@pkgs/assert": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/solid-context": "workspace:*",
-    "react": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",
-    "@types/react": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
     "typescript": "catalog:"

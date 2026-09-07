@@ -78,8 +78,6 @@
     "@pkgs/uuid": "workspace:*",
     "@product/sim": "workspace:*",
     "better-sqlite3": "catalog:",
-    "react": "catalog:",
-    "react-dom": "catalog:",
     "solid-js": "catalog:",
     "zod": "catalog:"
   },

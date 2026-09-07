@@ -23,9 +23,6 @@
     "@pkgs/kv": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/solid-context": "workspace:*",
-    "expo-audio": "catalog:",
-    "react": "catalog:",
-    "react-native": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {
@@ -33,7 +30,6 @@
     "@solidjs/testing-library": "catalog:",
     "@testing-library/jest-dom": "catalog:",
     "@types/bun": "catalog:",
-    "@types/react": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"

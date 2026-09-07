@@ -94,7 +94,7 @@ export type ClientEnv = {
   readonly devMenu: DevMenuPort;
   /**
    * Local blob cache (TTS audio, …). Web addition vs the RN env, which built
-   * an expo-file-system store inside its services provider: the browser store
+   * a file-system store inside its services provider: the browser store
    * (OPFS / Cache API) is a wall adapter, so the composition root injects it.
    */
   readonly objectStore: ObjectStore;
