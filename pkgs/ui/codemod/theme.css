@@ -1,0 +1,66 @@
+/* sx-codemod Tailwind v4 theme — emitted by `pkgs/ui/codemod`.
+ *
+ * Token utilities used by converted code (`bg-surface`, `text-text`,
+ * `border-outline`, `bg-elevation-1`, …). Every entry references the same
+ * `var(--ui-color-*)` / `var(--ui-elevation-*)` variables the runtime `sx`
+ * compiler emits, so light/dark scheme switching keeps working unchanged.
+ * This is the Tailwind v4 idiom for CSS-variable-backed themes.
+ *
+ * Spacing, font-size, and line-height need no entries: v4 derives spacing
+ * utilities from `--spacing` (same 4px grid) and the default `text-*`
+ * scale is byte-identical to ours (12/14/16/18/20/24/30/36).
+ *
+ * Import once alongside `@pkgs/ui/tokens.css` (or from the app entry that
+ * already imports `@pkgs/tailwind/tailwind.css`, whose `@source` scan
+ * covers this file's consumers).
+ */
+
+@import "tailwindcss";
+
+@theme {
+  --color-background: var(--ui-color-background);
+  --color-surface: var(--ui-color-surface);
+  --color-surface-sunken: var(--ui-color-surface-sunken);
+  --color-surface-muted: var(--ui-color-surface-muted);
+  --color-surface-elevated: var(--ui-color-surface-elevated);
+  --color-surface-overlay: var(--ui-color-surface-overlay);
+  --color-text: var(--ui-color-text);
+  --color-text-secondary: var(--ui-color-text-secondary);
+  --color-icon: var(--ui-color-icon);
+  --color-tint: var(--ui-color-tint);
+  --color-tint-hover: var(--ui-color-tint-hover);
+  --color-tint-active: var(--ui-color-tint-active);
+  --color-tint-subtle: var(--ui-color-tint-subtle);
+  --color-tint-muted: var(--ui-color-tint-muted);
+  --color-tint-highlight: var(--ui-color-tint-highlight);
+  --color-on-primary: var(--ui-color-on-primary);
+  --color-on-destructive: var(--ui-color-on-destructive);
+  --color-on-success: var(--ui-color-on-success);
+  --color-on-warning: var(--ui-color-on-warning);
+  --color-on-info: var(--ui-color-on-info);
+  --color-on-tint-scrim: var(--ui-color-on-tint-scrim);
+  --color-interactive-hover: var(--ui-color-interactive-hover);
+  --color-interactive-press: var(--ui-color-interactive-press);
+  --color-border: var(--ui-color-border);
+  --color-outline: var(--ui-color-outline);
+  --color-focus-ring: var(--ui-color-focus-ring);
+  --color-tab-icon-default: var(--ui-color-tab-icon-default);
+  --color-tab-icon-selected: var(--ui-color-tab-icon-selected);
+  --color-destructive: var(--ui-color-destructive);
+  --color-destructive-active: var(--ui-color-destructive-active);
+  --color-destructive-surface: var(--ui-color-destructive-surface);
+  --color-success: var(--ui-color-success);
+  --color-success-surface: var(--ui-color-success-surface);
+  --color-warning: var(--ui-color-warning);
+  --color-warning-surface: var(--ui-color-warning-surface);
+  --color-info: var(--ui-color-info);
+  --color-info-surface: var(--ui-color-info-surface);
+  --color-disabled: var(--ui-color-disabled);
+  --color-scrim: var(--ui-color-scrim);
+  --color-shadow-color: var(--ui-color-shadow-color);
+  --color-elevation-1: var(--ui-elevation-1);
+  --color-elevation-2: var(--ui-elevation-2);
+  --color-elevation-3: var(--ui-elevation-3);
+  --color-elevation-4: var(--ui-elevation-4);
+  --color-elevation-5: var(--ui-elevation-5);
+}

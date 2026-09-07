@@ -33,6 +33,11 @@
     "lineWidth": 80,
     "attributePosition": "auto"
   },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
+  },
   "assist": {
     "enabled": true,
     "actions": {

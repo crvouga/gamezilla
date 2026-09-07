@@ -1,0 +1,137 @@
+/* sx-codemod base classes — emitted by `pkgs/ui/codemod`.
+ *
+ * Plain-CSS replicas of the `hosts.module.css` host styles the primitives
+ * apply (flex-column defaults, min-width: 0, press feedback, …). Every
+ * converted element keeps its base class (`box`, `text`, `clickable`, …)
+ * so the unmangled selectors below preserve the exact semantics.
+ *
+ * Import once from the app entry (or a shared stylesheet). Keep in sync
+ * with `pkgs/ui/src/components/hosts.module.css` until the migration of
+ * every usage is complete.
+ */
+
+.box {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  flex-shrink: 0;
+  position: relative;
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0 solid transparent;
+}
+
+.text {
+  display: inline;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  text-decoration: none;
+  color: inherit;
+  font: inherit;
+}
+
+.clickable {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  flex-shrink: 0;
+  position: relative;
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0 solid transparent;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
+  appearance: none;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  outline: none;
+}
+
+.clickable:disabled {
+  cursor: default;
+}
+
+.clickable:focus-visible {
+  outline: 2px solid var(--ui-color-tint);
+  outline-offset: 2px;
+}
+
+.clickableTint::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: transparent;
+  transition: background-color var(--ui-duration-fast) var(--ui-easing-standard);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .clickableTint:not(:disabled):hover::after {
+    background: var(--ui-color-interactive-hover);
+  }
+}
+
+.clickableTint:not(:disabled):active::after {
+  background: var(--ui-color-interactive-press);
+}
+
+.clickableOpacity {
+  transition: opacity var(--ui-duration-fast) var(--ui-easing-standard);
+}
+
+.clickableOpacity:not(:disabled):active {
+  opacity: 0.7;
+}
+
+.scroll {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-gutter: auto;
+}
+
+.scrollHorizontal {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.scrollHideBar {
+  scrollbar-width: none;
+}
+
+.scrollHideBar::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollContent {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.scrollContentHorizontal {
+  flex-direction: row;
+}
