@@ -328,13 +328,7 @@
       "outputLogs": "new-only"
     },
     "//#check": {
-      "dependsOn": [
-        "lint",
-        "//#lint:vocab",
-        "//#lint:eslint",
-        "tc",
-        "test"
-      ],
+      "dependsOn": ["lint", "//#lint:vocab", "//#lint:eslint", "tc", "test"],
       "outputs": [],
       "outputLogs": "new-only"
     },

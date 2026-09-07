@@ -28,13 +28,7 @@ function turboCiRunTaskArgs(checkScript: string): string[] {
     .split(/\s+/);
 }
 
-const FAST_TIER = [
-  'lint',
-  '//#lint:vocab',
-  '//#lint:eslint',
-  'tc',
-  'test',
-];
+const FAST_TIER = ['lint', '//#lint:vocab', '//#lint:eslint', 'tc', 'test'];
 
 describe('turbo deploy graph invariants', () => {
   test('deploy.dependsOn never includes //#check or //#check:full', () => {
