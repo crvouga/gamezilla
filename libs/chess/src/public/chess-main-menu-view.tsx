@@ -6,6 +6,7 @@ import {
 import { Trans } from '@lingui/solid/macro';
 import { Box, FadeSwitch, type MainMenuItem, MainMenuScreen } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
+import { Match, Switch } from 'solid-js';
 
 import {
   CHESS_SCREEN,
@@ -30,24 +31,31 @@ function ChessScreenContent(props: {
   screen: ChessMainMenuScreen;
   onBackToGames: () => void;
 }): JSX.Element {
-  switch (props.screen) {
-    case CHESS_SCREEN.puzzle:
-      return <PuzzlePlayScreen />;
-    case CHESS_SCREEN.stats:
-      return <ChessStatsScreen />;
-    case CHESS_SCREEN.statsReview:
-      return <ChessPuzzleReviewScreen />;
-    case CHESS_SCREEN.settings:
-      return <ChessSettingsScreen />;
-    case CHESS_SCREEN.settingsDeveloper:
-      return <ChessSettingsDeveloperScreen />;
-    case CHESS_SCREEN.settingsDeveloperUi:
-      return <ChessSettingsDeveloperUiComponentsScreen />;
-    case CHESS_SCREEN.settingsDeveloperUiDetail:
-      return <ChessSettingsDeveloperUiComponentDetailScreen />;
-    default:
-      return <RootMainMenu onBackToGames={props.onBackToGames} />;
-  }
+  return (
+    <Switch fallback={<RootMainMenu onBackToGames={props.onBackToGames} />}>
+      <Match when={props.screen === CHESS_SCREEN.puzzle}>
+        <PuzzlePlayScreen />
+      </Match>
+      <Match when={props.screen === CHESS_SCREEN.stats}>
+        <ChessStatsScreen />
+      </Match>
+      <Match when={props.screen === CHESS_SCREEN.statsReview}>
+        <ChessPuzzleReviewScreen />
+      </Match>
+      <Match when={props.screen === CHESS_SCREEN.settings}>
+        <ChessSettingsScreen />
+      </Match>
+      <Match when={props.screen === CHESS_SCREEN.settingsDeveloper}>
+        <ChessSettingsDeveloperScreen />
+      </Match>
+      <Match when={props.screen === CHESS_SCREEN.settingsDeveloperUi}>
+        <ChessSettingsDeveloperUiComponentsScreen />
+      </Match>
+      <Match when={props.screen === CHESS_SCREEN.settingsDeveloperUiDetail}>
+        <ChessSettingsDeveloperUiComponentDetailScreen />
+      </Match>
+    </Switch>
+  );
 }
 
 function ChessScreenSwitch(props: ChessMainMenuProps): JSX.Element {

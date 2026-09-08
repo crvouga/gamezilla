@@ -39,7 +39,7 @@
     "deploy:dev": "SECRETS_ENV=dev TURBO_UI=tui bun run deploy",
     "deploy:prd": "SECRETS_ENV=prd TURBO_UI=tui bun run deploy",
     "deps:graph": "bun run tools/scripts/render-package-deps-graph.ts",
-    "dev": "SECRETS_ENV=dev bun run tools/scripts/secrets-run.ts -- turbo dev --ui=tui --filter=@apps/product",
+    "dev": "bun run --cwd apps/product vite",
     "dev:client": "SECRETS_ENV=dev bun run tools/scripts/secrets-run.ts -- turbo dev --ui=stream --filter=@apps/client",
     "fc": "clear && bun run fmt && bun run check",
     "fmt": "biome format --write . & sort-package-json \"**/package.json\" -i \"**/node_modules/**\" & bun run tools/scripts/remove-empty-dirs.ts & wait",

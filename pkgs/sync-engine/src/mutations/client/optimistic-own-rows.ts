@@ -1,5 +1,5 @@
 import { assert } from '@pkgs/assert';
-import { bulk, ident, sql } from '@pkgs/sql';
+import { bulk, ident, join, sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import {
@@ -43,6 +43,11 @@ export async function recordOptimisticOwnRows(
             null,
           ] as const
       );
+      await tx.run(sql`
+        DELETE FROM ${ident(SYNC_ENGINE_OPTIMISTIC_PEER_ROWS)}
+        WHERE table_name = ${table}
+          AND row_id IN (${join(chunk.map((id) => sql`${id}`))})
+      `);
       await tx.run(sql`
         INSERT INTO ${ident(SYNC_ENGINE_OPTIMISTIC_PEER_ROWS)} (
           id, table_name, row_id, mutation_id,

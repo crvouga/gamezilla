@@ -1,3 +1,4 @@
+import { assert } from '@pkgs/assert';
 import { join, sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -142,6 +143,14 @@ export async function recordPushApplied(
   pushSeq: string,
   clock: PushAppliedClock
 ): Promise<void> {
+  assert.ok(
+    topic.length > 0,
+    'sync_engine_push_applied topic must be non-empty'
+  );
+  assert.ok(
+    pushSeq.length > 0,
+    'sync_engine_push_applied sequence must be non-empty'
+  );
   if (isLegacyWallClockCheckpoint(pushSeq)) {
     return;
   }

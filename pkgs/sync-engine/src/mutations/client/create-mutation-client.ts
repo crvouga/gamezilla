@@ -1,6 +1,8 @@
+import { assert } from '@pkgs/assert';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
+import { assertUuid } from '@pkgs/uuid';
 import { isStorageFullError } from '../../client/storage-full-error';
 import {
   parseStandardSchema,
@@ -50,7 +52,108 @@ async function nextMutationSeq(tx: SqlClient): Promise<number> {
   const rows = await tx.query(sql<{ next: number | null }>`
     SELECT COALESCE(MAX(seq), 0) + 1 AS next FROM sync_engine_mutations
   `);
-  return Number(rows[0]?.next ?? 1);
+  const next = Number(rows[0]?.next ?? 1);
+  assert.integer(next, 'sync_engine_mutations seq must be an integer');
+  assert.ok(next > 0, 'sync_engine_mutations seq must be positive', {
+    table: 'sync_engine_mutations',
+    next,
+  });
+  return next;
+}
+
+async function nextUniqueMutationId(
+  tx: SqlClient,
+  createId: CreateId
+): Promise<string> {
+  for (let attempt = 0; attempt < 64; attempt += 1) {
+    const mutationId = createId();
+    assertUuid(mutationId, 'sync_engine_mutations id must be a UUID');
+    const existing = await tx.query(sql<{ id: string }>`
+      SELECT id FROM sync_engine_mutations WHERE id = ${mutationId} LIMIT 1
+    `);
+    if (existing.length === 0) return mutationId;
+  }
+  assert.fail('sync_engine mutation ID allocator produced collisions', {
+    table: 'sync_engine_mutations',
+    attempts: 64,
+  });
+}
+
+function isMutationQueueUniqueError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return /unique constraint failed:\s*sync_engine_mutations(?:\.id)?/i.test(
+    message
+  );
+}
+
+function assertNoInternalTableError(
+  error: unknown,
+  mutation: string,
+  clientId: string
+): void {
+  const message = error instanceof Error ? error.message : String(error);
+  if (
+    !/sync_engine_[a-z0-9_]+|unique constraint failed: sync_engine/i.test(
+      message
+    )
+  )
+    return;
+  assert.fail('sync-engine internal table operation failed', {
+    table: 'sync_engine_mutations',
+    mutation,
+    clientId,
+    error: message,
+  });
+}
+
+async function queueMutation<A>(args: {
+  readonly db: SqlClient;
+  readonly mutation: Mutation<A>;
+  readonly value: A;
+  readonly env: MutationEnv;
+  readonly clientId: string;
+  readonly createId: CreateId;
+}): Promise<{
+  readonly mutationId: string;
+  readonly capture: WriteCaptureSnapshot;
+}> {
+  let mutationId = '';
+  let capture: WriteCaptureSnapshot = { tables: [], ids: {}, images: {} };
+  let queued = false;
+  for (let attempt = 0; attempt < 8 && !queued; attempt += 1) {
+    try {
+      await args.db.transaction(async (txc) => {
+        mutationId = await nextUniqueMutationId(txc, args.createId);
+        const seq = await nextMutationSeq(txc);
+        const createdAt = args.env.now().toISOString();
+        const wrapped = wrapMutationDb(txc, args.env);
+        await args.mutation.run({ tx: wrapped.tx, env: args.env }, args.value);
+        capture = wrapped.getCapture();
+        await txc.run(sql`
+          INSERT INTO sync_engine_mutations (
+            id, name, args, client_id, seq,
+            created_at, updated_at, deleted_at
+          )
+          VALUES (
+            ${mutationId},
+            ${args.mutation.name},
+            ${JSON.stringify(args.value)},
+            ${args.clientId},
+            ${seq},
+            ${createdAt},
+            ${createdAt},
+            ${null}
+          )
+        `);
+        await recordOptimisticOwnRows(txc, mutationId, capture, createdAt);
+      });
+      queued = true;
+    } catch (e) {
+      if (!isMutationQueueUniqueError(e) || attempt === 7) throw e;
+    }
+  }
+  assert.ok(queued, 'sync_engine_mutations row must be queued');
+  return { mutationId, capture };
 }
 
 function mutateCaughtResult(
@@ -86,125 +189,62 @@ export function createMutationClient(
   options: CreateMutationClientOptions
 ): MutationClient {
   const { db, env, ids, connectivity } = options;
+  let mutationTail: Promise<void> = Promise.resolve();
   return {
     query: db.query.bind(db) as SqlClient['query'],
 
     async mutate<A>(m: Mutation<A>, args: A): Promise<MutateResult> {
-      // #region agent log
-      fetch(
-        'http://127.0.0.1:7911/ingest/d4edd39e-6094-44db-a7a5-6f18ec22b1a0',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Debug-Session-Id': 'ea8352',
-          },
-          body: JSON.stringify({
-            sessionId: 'ea8352',
-            runId: 'run1',
-            hypothesisId: 'B',
-            location: 'create-mutation-client.ts:92',
-            message: 'mutate entry',
-            data: {
-              name: m.name,
-              requiresOnline: m.requiresOnline === true,
-              online: connectivity.isOnline(),
-              clientId: ids.clientId,
-            },
-            timestamp: Date.now(),
-          }),
-        }
-      ).catch(() => {});
-      // #endregion
-      if (m.requiresOnline === true && !connectivity.isOnline()) {
-        return {
-          ok: false,
-          failures: [
-            {
-              rule: m.name,
-              code: 'OFFLINE',
-              message: 'This action needs a connection.',
-            },
-          ],
-        };
-      }
-
-      const mutationId = options.createId();
-      try {
-        const parsed = await parseStandardSchema(m.args, args);
-        if (!parsed.ok) {
+      const run = mutationTail.then(async () => {
+        if (m.requiresOnline === true && !connectivity.isOnline()) {
           return {
-            ok: false,
-            failures: schemaIssuesToFailures(parsed.issues, m.name),
+            ok: false as const,
+            failures: [
+              {
+                rule: m.name,
+                code: 'OFFLINE',
+                message: 'This action needs a connection.',
+              },
+            ],
           };
         }
-        let capture: WriteCaptureSnapshot = {
-          tables: [],
-          ids: {},
-          images: {},
-        };
-        await db.transaction(async (txc) => {
-          const seq = await nextMutationSeq(txc);
-          const createdAt = env.now().toISOString();
-          const wrapped = wrapMutationDb(txc, env);
-          await m.run({ tx: wrapped.tx, env }, parsed.value);
-          capture = wrapped.getCapture();
-          await txc.run(sql`
-            INSERT INTO sync_engine_mutations (
-              id, name, args, client_id, seq,
-              created_at, updated_at, deleted_at
-            )
-            VALUES (
-              ${mutationId},
-              ${m.name},
-              ${JSON.stringify(parsed.value)},
-              ${ids.clientId},
-              ${seq},
-              ${createdAt},
-              ${createdAt},
-              ${null}
-            )
-          `);
-          await recordOptimisticOwnRows(txc, mutationId, capture, createdAt);
-        });
-        options.onQueued?.({
-          mutation: m as Mutation<unknown>,
-          args: parsed.value,
-          capture,
-        });
-        return { ok: true, mutationId };
-      } catch (e) {
-        const caught = mutateCaughtResult(e, m.name);
-        // #region agent log
-        fetch(
-          'http://127.0.0.1:7911/ingest/d4edd39e-6094-44db-a7a5-6f18ec22b1a0',
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-Debug-Session-Id': 'ea8352',
-            },
-            body: JSON.stringify({
-              sessionId: 'ea8352',
-              runId: 'run1',
-              hypothesisId: 'C',
-              location: 'create-mutation-client.ts:152',
-              message: 'mutate threw',
-              data: {
-                name: m.name,
-                caught,
-                errMessage: e instanceof Error ? e.message : String(e),
-                errStack:
-                  e instanceof Error ? (e.stack ?? '').slice(0, 500) : null,
-              },
-              timestamp: Date.now(),
-            }),
+
+        let mutationId = '';
+        try {
+          const parsed = await parseStandardSchema(m.args, args);
+          if (!parsed.ok) {
+            return {
+              ok: false as const,
+              failures: schemaIssuesToFailures(parsed.issues, m.name),
+            };
           }
-        ).catch(() => {});
-        // #endregion
-        if (caught !== null) return caught;
-        throw e;
-      }
+          const queued = await queueMutation({
+            db,
+            mutation: m,
+            value: parsed.value,
+            env,
+            clientId: ids.clientId,
+            createId: options.createId,
+          });
+          mutationId = queued.mutationId;
+          const capture = queued.capture;
+          options.onQueued?.({
+            mutation: m as Mutation<unknown>,
+            args: parsed.value,
+            capture,
+          });
+          return { ok: true as const, mutationId };
+        } catch (e) {
+          assertNoInternalTableError(e, m.name, ids.clientId);
+          const caught = mutateCaughtResult(e, m.name);
+          if (caught !== null) return caught;
+          throw e;
+        }
+      });
+      mutationTail = run.then(
+        () => undefined,
+        () => undefined
+      );
+      return run;
     },
   };
 }

@@ -83,33 +83,9 @@ export function RootErrorBoundary(props: {
 }): JSX.Element {
   return (
     <ErrorBoundary
-      fallback={(error: unknown, reset) => {
-        // #region agent log
-        fetch(
-          'http://127.0.0.1:7911/ingest/d4edd39e-6094-44db-a7a5-6f18ec22b1a0',
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-Debug-Session-Id': 'ea8352',
-            },
-            body: JSON.stringify({
-              sessionId: 'ea8352',
-              runId: 'run1',
-              hypothesisId: 'A',
-              location: 'root-error-boundary.tsx:86',
-              message: 'RootErrorBoundary caught',
-              data: {
-                message: toError(error).message,
-                stack: (toError(error).stack ?? '').slice(0, 600),
-              },
-              timestamp: Date.now(),
-            }),
-          }
-        ).catch(() => {});
-        // #endregion
-        return <CrashScreen error={toError(error)} reset={reset} />;
-      }}
+      fallback={(error: unknown, reset) => (
+        <CrashScreen error={toError(error)} reset={reset} />
+      )}
     >
       {props.children}
     </ErrorBoundary>

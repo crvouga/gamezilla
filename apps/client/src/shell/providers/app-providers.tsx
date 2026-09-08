@@ -19,8 +19,9 @@
  * the global action menu stays mounted while the gate is up.
  */
 
+import { EndSpaceModalProvider } from '@libs/spaces/root/client/end-space/end-space-modal-provider';
+import { LeaveSpaceModalProvider } from '@libs/spaces/root/client/leave-space/leave-space-modal-provider';
 import type { JSX } from 'solid-js';
-
 import { EmbeddedAppProvider } from '../embedded-app-context';
 import { AppAuthProvider } from './app-auth-provider';
 import { AppGamesProvider } from './app-games-provider';
@@ -44,9 +45,13 @@ export function AppProviders(props: {
               <AppLocalDatabaseProvider>
                 <AppGamesProvider>
                   <AppSpaceRoomsProvider>
-                    <AppNotificationsProvider>
-                      {props.children}
-                    </AppNotificationsProvider>
+                    <EndSpaceModalProvider>
+                      <LeaveSpaceModalProvider>
+                        <AppNotificationsProvider>
+                          {props.children}
+                        </AppNotificationsProvider>
+                      </LeaveSpaceModalProvider>
+                    </EndSpaceModalProvider>
                   </AppSpaceRoomsProvider>
                 </AppGamesProvider>
               </AppLocalDatabaseProvider>

@@ -1,3 +1,4 @@
+import { assert } from '@pkgs/assert';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -128,6 +129,13 @@ async function rebasePending(
       AND deleted_at IS NULL
     ORDER BY seq ASC
   `);
+  for (const row of pending) {
+    assert.ok(row.id.length > 0, 'sync_engine_mutations id must be non-empty');
+    assert.ok(
+      row.name.length > 0,
+      'sync_engine_mutations name must be non-empty'
+    );
+  }
   for (const row of pending) {
     const m = deps.registry[row.name] as Mutation<unknown> | undefined;
     // Unknown mutation name after a client upgrade: keep queued; upload rejects.

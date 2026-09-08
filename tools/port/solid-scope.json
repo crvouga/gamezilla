@@ -45,6 +45,7 @@
     "pkgs/sql-client/src/solid.tsx",
     "pkgs/sync-engine/tests/solid-bindings.test.tsx",
     "pkgs/tts/src/client/solid.tsx",
-    "pkgs/uuid/src/solid.tsx"
+    "pkgs/uuid/src/solid.tsx",
+    "libs/chess/src/public/chess-main-menu-view.tsx"
   ]
 }

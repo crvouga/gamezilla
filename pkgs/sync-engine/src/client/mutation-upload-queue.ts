@@ -74,7 +74,7 @@ async function readPending(
   db: SqlClient,
   clientId: string
 ): Promise<readonly StoredMutation[]> {
-  return db.query(sql<StoredMutation>`
+  const rows = await db.query(sql<StoredMutation>`
     SELECT id, name, args, client_id, seq, created_at
     FROM sync_engine_mutations
     WHERE client_id = ${clientId}
@@ -82,6 +82,11 @@ async function readPending(
     ORDER BY seq ASC
     LIMIT ${BATCH_LIMIT}
   `);
+  for (const row of rows) {
+    assert.ok(row.id.length > 0, 'sync_engine_mutations id must be non-empty');
+    assert.ok(row.seq > 0, 'sync_engine_mutations seq must be positive');
+  }
+  return rows;
 }
 
 async function storeRejection(
@@ -136,6 +141,10 @@ async function applyUploadResult(
   }
   const pendingIds = new Set(pending.map((row) => row.id));
   for (const verdict of result.verdicts) {
+    assert.ok(
+      verdict.mutationId.length > 0,
+      'mutation verdict id must be non-empty'
+    );
     if (!pendingIds.has(verdict.mutationId)) {
       throw new Error(
         `mutation upload verdict id not pending: ${verdict.mutationId}`

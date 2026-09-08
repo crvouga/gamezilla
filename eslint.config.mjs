@@ -90,6 +90,17 @@ export default tseslint.config(
       ],
       // Build target is es2022; stores (Proxy) are part of the target stack.
       'solid/no-proxy-apis': 'off',
+      // A JavaScript switch in a component runs only during setup. Render
+      // reactive branches with Solid's <Switch>/<Match> components instead.
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector:
+            ':matches(FunctionDeclaration[id.name=/^[A-Z]/], VariableDeclarator[id.name=/^[A-Z]/] > ArrowFunctionExpression) SwitchStatement',
+          message:
+            'Use Solid <Switch>/<Match> for component rendering instead of a JavaScript switch.',
+        },
+      ],
       // These two rules call `minimatch` v3's default export; the root
       // `overrides` pins minimatch@10 (security), which crashes the linter.
       // Biome's `a11y/noLabelWithoutControl` covers the label case.

@@ -1,4 +1,4 @@
-import type { SeededRng } from '@pkgs/uuid';
+import { createSeededCreateId, type SeededRng } from '@pkgs/uuid';
 import type { SyncBootDeps } from './boot-deps';
 import type { SimAuthStatus } from './client-factory';
 import { createClockSkewTable, SIM_SERVER_NODE_ID } from './clock-skew';
@@ -111,13 +111,9 @@ export function resolveAuthForDevice(
 }
 
 export function makeNextId(rng: SeededRng): () => string {
-  const idRng = rng.fork('ids');
-  let idCounter = 0;
-  return (): string => {
-    idCounter += 1;
-    const n = idRng.int(0x7fffffff);
-    return `id-${idCounter.toString(16)}-${n.toString(16)}`;
-  };
+  // Every framework row uses the same injected allocator. Keep the stream
+  // UUID-shaped so internal-table ids satisfy the same invariant as wall ids.
+  return createSeededCreateId(rng.fork('ids').random);
 }
 
 export type { SimAuthStatus, SimClock };

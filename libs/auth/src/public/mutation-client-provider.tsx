@@ -1,5 +1,5 @@
 import { useClock } from '@pkgs/clock/solid';
-import type { MutationRegistry } from '@pkgs/sync-engine/shared';
+import type { MutationEnv, MutationRegistry } from '@pkgs/sync-engine/shared';
 import {
   MutationClientProvider as SyncMutationClientProvider,
   useMutationClient,
@@ -18,15 +18,26 @@ export function MutationClientProvider(
   const auth = useRulesAuth();
   const clock = useClock();
   const createId = useCreateId();
-  // Configuration for the sync provider: read once on mount by design.
-  const env = untrack(() => ({
-    actorId: auth.userId,
-    deviceId: auth.deviceId,
-    accountId: auth.accountId,
-    isAnon: auth.isAnon,
+  // Live env view: stable identity (bootstrap `ensure*` effects never re-fire)
+  // while identity fields resolve at mutate time — signing in upgrades the
+  // anon user in place, so a mount-time snapshot would pin `isAnon: true`
+  // forever and fail every `accountId(env)` guard with SPACE_NOT_SIGNED_IN.
+  const env: MutationEnv = {
+    get actorId() {
+      return auth.userId;
+    },
+    get deviceId() {
+      return auth.deviceId;
+    },
+    get accountId() {
+      return auth.accountId;
+    },
+    get isAnon() {
+      return auth.isAnon;
+    },
     now: () => new Date(clock.now()),
     createId,
-  }));
+  };
   const ids = untrack(() => ({ clientId: auth.deviceId }));
   return (
     <SyncMutationClientProvider
