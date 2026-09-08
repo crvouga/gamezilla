@@ -25,6 +25,7 @@ import {
 } from './transform-attrs';
 import {
   convertSxEntries,
+  convertSxParts,
   type ExistingClass,
   type NodeConversion,
   readAsElement,
@@ -65,10 +66,14 @@ function finish(args: {
   }
   return {
     kind: 'converted',
-    tier: args.conversion.tier,
+    tier:
+      args.conversion.tier === 'B' || args.conversion.cnExprs.length > 0
+        ? 'B'
+        : 'A',
     element: args.element,
     classes: [args.baseClass, ...args.extraClasses, ...args.conversion.classes],
     styles: args.conversion.styles,
+    cnExprs: args.conversion.cnExprs,
     dataAttrs: args.dataAttrs,
     dropAttrs: [...args.conversion.dropAttrs, ...args.dropAttrs],
     extraAttrs: args.extraAttrs,
@@ -90,7 +95,19 @@ function withExtra(
     tier: extra.tier === 'B' || conversion.tier === 'B' ? 'B' : 'A',
     classes: [...extra.classes, ...conversion.classes],
     styles: [...extra.styles, ...conversion.styles],
+    cnExprs: [...extra.cnExprs, ...conversion.cnExprs],
   };
+}
+
+function readSxConversion(
+  element: ts.JsxOpeningLikeElement,
+  source: ts.SourceFile,
+  attrName: string
+): NodeConversion {
+  const sx = readSxAttr(element, source, attrName);
+  if (sx.kind === 'splices') return convertSxParts(sx.parts, source);
+  const entries = sx.kind === 'record' ? sx.entries : [];
+  return convertSxEntries(entries, source);
 }
 
 function convertBoxLike(args: {
@@ -110,11 +127,8 @@ function convertBoxLike(args: {
   }
   const dataSet = readDataSet(element, args.defaultComponent);
   if (dataSet.kind === 'manual') return dataSet;
-  const sx = readSxAttr(element, source, 'sx');
-  if (sx.kind === 'manual') return sx;
-  const entries = sx.kind === 'record' ? sx.entries : [];
   const conversion = withExtra(
-    convertSxEntries(entries, source),
+    readSxConversion(element, source, 'sx'),
     args.extras,
     source
   );
@@ -124,7 +138,7 @@ function convertBoxLike(args: {
     baseClass: args.baseClass,
     extraClasses: [],
     extraAttrs: args.extraAttrs,
-    dropAttrs: [...args.drops, 'as', 'dataSet'],
+    dropAttrs: [...args.drops, 'as', 'dataSet', 'class'],
     dataAttrs: toDataAttrs(dataSet.attrs),
     existingClass: readExistingClass(element, source),
   });
@@ -164,10 +178,7 @@ function convertClickable(
   }
   const dataSet = readDataSet(element, 'Clickable');
   if (dataSet.kind === 'manual') return dataSet;
-  const sx = readSxAttr(element, source, 'sx');
-  if (sx.kind === 'manual') return sx;
-  const entries = sx.kind === 'record' ? sx.entries : [];
-  const conversion = convertSxEntries(entries, source);
+  const conversion = readSxConversion(element, source, 'sx');
   return finish({
     conversion,
     element: 'button',
@@ -175,7 +186,7 @@ function convertClickable(
     extraClasses: feedbackClasses(feedback),
     extraAttrs:
       getJsxAttr(element, 'type') === undefined ? ['type="button"'] : [],
-    dropAttrs: ['feedback', 'dataSet'],
+    dropAttrs: ['feedback', 'dataSet', 'class'],
     dataAttrs: toDataAttrs(dataSet.attrs),
     existingClass: readExistingClass(element, source),
   });
@@ -215,14 +226,8 @@ function convertText(
   if (lines === undefined) {
     return { kind: 'manual', reason: 'numberOfLines is not static' };
   }
-  const sx = readSxAttr(element, source, 'sx');
-  if (sx.kind === 'manual') return sx;
-  const entries = sx.kind === 'record' ? sx.entries : [];
-  const conversion = withExtra(
-    convertSxEntries(entries, source),
-    lines,
-    source
-  );
+  const sxConversion = readSxConversion(element, source, 'sx');
+  const conversion = withExtra(sxConversion, lines, source);
   return finish({
     conversion,
     element: asElement,

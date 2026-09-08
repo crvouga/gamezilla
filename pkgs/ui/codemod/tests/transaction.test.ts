@@ -23,7 +23,8 @@ describe('all-or-nothing commit', () => {
     expect(result.summary.parseFailures).toBe(0);
     expect(result.unstable).toEqual([]);
     expect(result.summary.totalConvertedA).toBe(1);
-    expect(result.summary.totalManual).toBe(1);
+    expect(result.summary.totalConvertedB).toBe(1);
+    expect(result.summary.totalManual).toBe(0);
     const changed = result.outputs.filter((o) => o.changed);
     expect(changed.length).toBe(2);
   });

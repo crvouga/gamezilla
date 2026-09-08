@@ -90,6 +90,32 @@ export function createMutationClient(
     query: db.query.bind(db) as SqlClient['query'],
 
     async mutate<A>(m: Mutation<A>, args: A): Promise<MutateResult> {
+      // #region agent log
+      fetch(
+        'http://127.0.0.1:7911/ingest/d4edd39e-6094-44db-a7a5-6f18ec22b1a0',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Debug-Session-Id': 'ea8352',
+          },
+          body: JSON.stringify({
+            sessionId: 'ea8352',
+            runId: 'run1',
+            hypothesisId: 'B',
+            location: 'create-mutation-client.ts:92',
+            message: 'mutate entry',
+            data: {
+              name: m.name,
+              requiresOnline: m.requiresOnline === true,
+              online: connectivity.isOnline(),
+              clientId: ids.clientId,
+            },
+            timestamp: Date.now(),
+          }),
+        }
+      ).catch(() => {});
+      // #endregion
       if (m.requiresOnline === true && !connectivity.isOnline()) {
         return {
           ok: false,
@@ -149,6 +175,33 @@ export function createMutationClient(
         return { ok: true, mutationId };
       } catch (e) {
         const caught = mutateCaughtResult(e, m.name);
+        // #region agent log
+        fetch(
+          'http://127.0.0.1:7911/ingest/d4edd39e-6094-44db-a7a5-6f18ec22b1a0',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Debug-Session-Id': 'ea8352',
+            },
+            body: JSON.stringify({
+              sessionId: 'ea8352',
+              runId: 'run1',
+              hypothesisId: 'C',
+              location: 'create-mutation-client.ts:152',
+              message: 'mutate threw',
+              data: {
+                name: m.name,
+                caught,
+                errMessage: e instanceof Error ? e.message : String(e),
+                errStack:
+                  e instanceof Error ? (e.stack ?? '').slice(0, 500) : null,
+              },
+              timestamp: Date.now(),
+            }),
+          }
+        ).catch(() => {});
+        // #endregion
         if (caught !== null) return caught;
         throw e;
       }

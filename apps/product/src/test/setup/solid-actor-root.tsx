@@ -9,10 +9,17 @@
  */
 
 import type { Client } from '@apps/client/shell/create-client';
+import { TestViewportProvider } from '@pkgs/ui';
 import { createMemoryHistory } from '@solidjs/router';
 import type { JSX } from 'solid-js';
 
+const ACTOR_VIEWPORT = { width: 390, height: 844 } as const;
+
 export function solidActorRoot(live: Client): () => JSX.Element {
   const history = createMemoryHistory();
-  return () => <live.App embedded history={history} />;
+  return () => (
+    <TestViewportProvider value={ACTOR_VIEWPORT}>
+      <live.App embedded history={history} />
+    </TestViewportProvider>
+  );
 }

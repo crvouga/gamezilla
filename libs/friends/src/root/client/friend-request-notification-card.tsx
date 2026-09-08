@@ -6,8 +6,8 @@ import { NotificationCardDefault } from '@libs/notifications/public';
 import { Handles } from '@libs/test-ids';
 import type { JSX } from 'solid-js';
 import { createMemo, createSignal } from 'solid-js';
-
 import { FriendProfileAvatar } from '../../public/friend-profile-avatar';
+import { useFriendRequestDecisionOptional } from '../../public/friend-request-decision-state';
 import { FriendRequestDecisionModal } from './friend-request-decision-modal';
 import { profileFromFriendRequestNotification } from './friend-request-notification-profile';
 
@@ -20,18 +20,33 @@ export function FriendRequestNotificationCard({
   interaction,
   actions,
 }: FriendRequestNotificationCardProps): JSX.Element {
-  const [modalOpen, setModalOpen] = createSignal(false);
+  const decision = useFriendRequestDecisionOptional();
+  const [localOpen, setLocalOpen] = createSignal(false);
   const profile = createMemo(() =>
     profileFromFriendRequestNotification(interaction)
   );
 
+  // Modal open state lives above the virtualized row when a provider is
+  // present: row content remounts on data change (mark-read flips) and would
+  // otherwise close the modal from under the user.
+  const isOpen = (): boolean =>
+    decision !== null ? decision.openId() === interaction.id : localOpen();
+  const setOpen = (open: boolean): void => {
+    if (decision !== null) {
+      if (open) decision.open(interaction.id);
+      else decision.close();
+      return;
+    }
+    setLocalOpen(open);
+  };
+
   const onPress = () => {
     void actions.markRead(interaction.id);
-    setModalOpen(true);
+    setOpen(true);
   };
 
   const onClose = () => {
-    setModalOpen(false);
+    setOpen(false);
   };
 
   const leading = () =>
@@ -56,7 +71,7 @@ export function FriendRequestNotificationCard({
           : {})}
       />
       <FriendRequestDecisionModal
-        visible={modalOpen()}
+        visible={isOpen()}
         interaction={interaction}
         actions={actions}
         onClose={onClose}

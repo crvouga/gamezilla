@@ -8,6 +8,7 @@ import {
   useFreshAuthToken,
   useGetFreshAuthToken,
 } from '@libs/auth/public/use-fresh-auth-token';
+import { FriendRequestDecisionProvider } from '@libs/friends/public/friend-request-decision-state';
 import { createFriendsNotificationProvider } from '@libs/friends/root/client/friends-notification-provider';
 import { useFriendsClientDeps } from '@libs/friends/root/client/use-friends-client-deps';
 import {
@@ -110,7 +111,11 @@ export function AppNotificationsProvider(props: {
       providers={providers()}
       onSignIn={openSignInModal}
     >
-      {props.children}
+      {/* Decision-modal open state lives above the virtualized rows so row
+          recycling (read-state flips, sync merges) cannot close it. */}
+      <FriendRequestDecisionProvider>
+        {props.children}
+      </FriendRequestDecisionProvider>
     </NotificationsProviderRegistry>
   );
 }

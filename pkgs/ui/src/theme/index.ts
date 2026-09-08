@@ -1,5 +1,6 @@
 export * from './action-bar-chrome';
 export * from './breakpoints';
+export * from './cn';
 export * from './colors';
 export * from './css-vars';
 export * from './fonts';

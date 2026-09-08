@@ -14,6 +14,14 @@ import {
   type ComponentConversion,
   convertComponent,
 } from './transform-components';
+import {
+  applyEdits,
+  ensureRuntimeImports,
+  parse,
+  pruneImports,
+  type SpanEdit,
+  syntaxErrors,
+} from './transform-imports';
 import type { ExistingClass } from './transform-node';
 
 export type ConvertedNode = {
@@ -36,31 +44,7 @@ export type FileResult = {
   readonly parseError?: string | undefined;
 };
 
-type SpanEdit = {
-  readonly start: number;
-  readonly end: number;
-  readonly text: string;
-};
-
 const TODO_MARKER = 'TODO(sx-codemod)';
-
-function parse(text: string): ts.SourceFile {
-  return ts.createSourceFile(
-    'file.tsx',
-    text,
-    ts.ScriptTarget.Latest,
-    true,
-    ts.ScriptKind.TSX
-  );
-}
-
-/** Syntax error count (`parseDiagnostics` is untyped on the public AST). */
-function syntaxErrors(source: ts.SourceFile): number {
-  const withDiagnostics = source as unknown as {
-    parseDiagnostics?: readonly unknown[] | undefined;
-  };
-  return withDiagnostics.parseDiagnostics?.length ?? 0;
-}
 
 /** Local JSX names bound to `@pkgs/ui` primitive exports. */
 function resolveBindings(source: ts.SourceFile): Map<string, string> {
@@ -162,9 +146,10 @@ function quoteAttr(value: string): string {
 }
 
 function styleBinding(
-  styles: readonly { cssProp: string; exprText: string; wrap: string }[]
-): string {
-  invariant(styles.length > 0, 'styleBinding needs at least one entry');
+  styles: readonly { cssProp: string; exprText: string; wrap: string }[],
+  cnExprs: readonly string[]
+): string | undefined {
+  if (styles.length === 0 && cnExprs.length === 0) return undefined;
   const parts = styles.map((s) => {
     if (s.wrap === 'raw') return `${JSON.stringify(s.cssProp)}: ${s.exprText}`;
     if (s.wrap === 'scaled') {
@@ -175,22 +160,34 @@ function styleBinding(
       `? \`${'${'}(${s.exprText})}px\` : (${s.exprText}))`
     );
   });
-  return `style={{ ${parts.join(', ')} }}`;
+  if (cnExprs.length === 0) {
+    invariant(parts.length > 0, 'styleBinding needs at least one entry');
+    return `style={{ ${parts.join(', ')} }}`;
+  }
+  const spread = `...cnStyle(${cnExprs.join(', ')})`;
+  return `style={{ ${[spread, ...parts].join(', ')} }}`;
 }
 
 function classAttr(
   classes: readonly string[],
-  existing: ExistingClass
+  existing: ExistingClass,
+  cnExprs: readonly string[]
 ): string {
   const merged = [...classes];
   if (existing.kind === 'literal' && existing.value !== '') {
     merged.push(existing.value);
   }
   const deduped = merged.filter((c, i) => merged.indexOf(c) === i);
-  if (existing.kind === 'expr') {
-    return `class={\`${deduped.join(' ')} \${${existing.exprText}}\`}`;
+  const staticPart = deduped.join(' ');
+  if (cnExprs.length === 0) {
+    if (existing.kind === 'expr') {
+      return `class={\`${staticPart} \${${existing.exprText}}\`}`;
+    }
+    return `class=${quoteAttr(staticPart)}`;
   }
-  return `class=${quoteAttr(deduped.join(' '))}`;
+  const args = [JSON.stringify(staticPart), ...cnExprs];
+  if (existing.kind === 'expr') args.push(existing.exprText);
+  return `class={cn(${args.join(', ')})}`;
 }
 
 /** Passthrough attribute slices in original order (drops excluded). */
@@ -224,8 +221,9 @@ function buildOpeningTag(args: {
   const existing: ExistingClass = conversion.existingClass ?? {
     kind: 'absent',
   };
-  parts.push(classAttr(conversion.classes, existing));
-  if (conversion.styles.length > 0) parts.push(styleBinding(conversion.styles));
+  parts.push(classAttr(conversion.classes, existing, conversion.cnExprs));
+  const style = styleBinding(conversion.styles, conversion.cnExprs);
+  if (style !== undefined) parts.push(style);
   for (const key of Object.keys(conversion.dataAttrs)) {
     parts.push(`${key}=${quoteAttr(conversion.dataAttrs[key] ?? '')}`);
   }
@@ -307,78 +305,6 @@ function todoEdit(
     end: lineStart,
     text: `${indent}// ${TODO_MARKER}: manual — ${reason}\n`,
   };
-}
-
-function applyEdits(text: string, edits: readonly SpanEdit[]): string {
-  const sorted = [...edits].sort((a, b) => b.start - a.start);
-  for (let i = 0; i < sorted.length; i++) {
-    const edit = sorted[i];
-    invariant(
-      edit !== undefined && edit.start <= edit.end,
-      'edit span is inverted'
-    );
-    const next = sorted[i + 1];
-    if (next !== undefined && edit !== undefined) {
-      invariant(next.end <= edit.start, 'edits overlap — refusing to corrupt');
-    }
-  }
-  let out = text;
-  for (const edit of sorted) {
-    out = out.slice(0, edit.start) + edit.text + out.slice(edit.end);
-  }
-  return out;
-}
-
-/** Remove import specifiers whose local names no longer occur. */
-export function pruneImports(text: string, removed: readonly string[]): string {
-  if (removed.length === 0) return text;
-  for (const name of removed) nonEmptyString(name, 'pruned import name');
-  const source = parse(text);
-  const edits: SpanEdit[] = [];
-  for (const stmt of source.statements) {
-    if (!ts.isImportDeclaration(stmt)) continue;
-    const module = stmt.moduleSpecifier;
-    if (!ts.isStringLiteral(module) || module.text !== '@pkgs/ui') continue;
-    const clause = stmt.importClause;
-    if (clause?.namedBindings === undefined) continue;
-    if (!ts.isNamedImports(clause.namedBindings)) continue;
-    const kept = clause.namedBindings.elements.filter(
-      (el) =>
-        !removed.includes(el.name.text) || stillUsed(source, stmt, el.name.text)
-    );
-    if (kept.length === clause.namedBindings.elements.length) continue;
-    if (kept.length === 0) {
-      const end = text[stmt.end] === '\n' ? stmt.end + 1 : stmt.end;
-      edits.push({ start: stmt.getStart(), end, text: '' });
-      continue;
-    }
-    const names = kept.map((el) =>
-      el.propertyName === undefined
-        ? el.name.text
-        : `${el.propertyName.text} as ${el.name.text}`
-    );
-    edits.push({
-      start: clause.namedBindings.getStart(),
-      end: clause.namedBindings.end,
-      text: `{ ${names.join(', ')} }`,
-    });
-  }
-  return applyEdits(text, edits);
-}
-
-function stillUsed(
-  source: ts.SourceFile,
-  importStmt: ts.ImportDeclaration,
-  name: string
-): boolean {
-  let used = false;
-  function visit(node: ts.Node): void {
-    if (node === importStmt) return;
-    if (ts.isIdentifier(node) && node.text === name) used = true;
-    if (!used) ts.forEachChild(node, visit);
-  }
-  ts.forEachChild(source, visit);
-  return used;
 }
 
 type NodeOutcome = {
@@ -488,7 +414,8 @@ function finalizeFile(args: {
       parseError: 'output does not parse — left untouched',
     };
   }
-  const pruned = pruneImports(next, removedLocals);
+  const withRuntime = ensureRuntimeImports(next);
+  const pruned = pruneImports(withRuntime, removedLocals);
   if (syntaxErrors(parse(pruned)) > 0) {
     return {
       text,

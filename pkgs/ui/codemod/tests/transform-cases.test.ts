@@ -107,15 +107,18 @@ describe('Box Tier B', () => {
 });
 
 describe('Box Tier C', () => {
-  test('identifier sx is untouched with a TODO marker', () => {
+  test('identifier sx converts via runtime cn', () => {
     const result = run(
       `export const A = (p: { sx: never }) => <Box sx={p.sx} />;`
     );
-    expect(result.converted).toEqual([]);
-    expect(result.manual.length).toBe(1);
-    expect(result.text).toContain('// TODO(sx-codemod): manual');
-    expect(result.text).toContain('<Box sx={p.sx} />');
-    expect(result.text).toContain(`import { Box } from '@pkgs/ui';`);
+    expect(result.converted).toEqual([
+      { line: 2, component: 'Box', tier: 'B' },
+    ]);
+    expect(result.manual).toEqual([]);
+    expect(result.text).toContain('class={cn("box", p.sx)}');
+    expect(result.text).toContain('...cnStyle(p.sx)');
+    expect(result.text).not.toContain('TODO(sx-codemod)');
+    expect(result.text).not.toContain('<Box');
   });
 
   test('spread attributes bail (may hide sx)', () => {
@@ -125,18 +128,23 @@ describe('Box Tier C', () => {
     expect(result.manual[0]?.reason).toBe('spread attributes may carry sx');
   });
 
-  test('sx arrays with dynamic entries bail', () => {
+  test('sx arrays with dynamic entries convert via runtime cn', () => {
     const result = run(
       `export const A = (p: { c: boolean }) => <Box sx={[{ p: 1 }, p.c ? { m: 1 } : null]} />;`
     );
-    expect(result.manual.length).toBe(1);
+    expect(result.manual).toEqual([]);
+    expect(result.converted).toEqual([
+      { line: 2, component: 'Box', tier: 'B' },
+    ]);
+    expect(result.text).toContain('cn("box p-1", p.c ? { m: 1 } : null)');
   });
 
-  test('unmappable props bail instead of approximating', () => {
+  test('runtime-dropped props omit instead of approximating', () => {
     const result = run(
       `export const A = () => <Box sx={{ fontVariant: ['x'] as never }} />;`
     );
-    expect(result.manual.length).toBe(1);
+    expect(result.manual).toEqual([]);
+    expect(result.text).toContain('<div class="box"');
   });
 
   test('dynamic dataSet bails', () => {

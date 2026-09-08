@@ -22,8 +22,10 @@ import {
   useContentEdgePadding,
 } from '../content-edge-padding';
 import styles from '../hosts.module.css';
+import type { VirtualListViewport } from './virtual-list-types';
 
-export type VirtualListViewport = { width: number; height: number };
+export type { VirtualListViewport };
+import { useTestViewport } from './test-viewport';
 
 export type VirtualListProps<ItemT> = Omit<
   JSX.HTMLAttributes<HTMLDivElement>,
@@ -131,10 +133,12 @@ type ListLocal<ItemT> = Pick<
 
 function createListVirtualizer<ItemT>(
   local: ListLocal<ItemT>,
-  getScrollElement: () => HTMLDivElement | null
+  getScrollElement: () => HTMLDivElement | null,
+  testViewport: VirtualListViewport | null
 ): Virtualizer<HTMLDivElement, HTMLDivElement> {
-  // Layout mode is decided once at mount.
-  const fixed = untrack(() => local.fixedViewport);
+  // Layout mode is decided once at mount. The test-host viewport fills in
+  // for happy-dom (no ResizeObserver rects) when the prop is unset.
+  const fixed = untrack(() => local.fixedViewport ?? testViewport);
   const estimate = (index: number): number => {
     const e = local.estimateSize;
     if (typeof e === 'function') return e(index);
@@ -156,7 +160,7 @@ function createListVirtualizer<ItemT>(
       const item = local.items[index];
       return item === undefined ? index : local.keyExtractor(item, index);
     },
-    ...(fixed === undefined
+    ...(fixed === null
       ? {}
       : {
           initialRect: fixed,
@@ -191,7 +195,12 @@ export function VirtualList<ItemT>(
     'ref',
   ]);
   let scroller: HTMLDivElement | undefined;
-  const virtualizer = createListVirtualizer(local, () => scroller ?? null);
+  const testViewport = useTestViewport();
+  const virtualizer = createListVirtualizer(
+    local,
+    () => scroller ?? null,
+    testViewport
+  );
   const flush = () => resolveFlushEdgeStyles(edge, local.flushEdge ?? true);
   const fixedHeight = untrack(() => local.fixedViewport?.height);
 

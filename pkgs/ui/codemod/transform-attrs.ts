@@ -107,6 +107,11 @@ export type ObjectEntry = {
   readonly raw: ts.Expression;
 };
 
+/** Ordered sx content: static chunks map via tables, exprs ride `cn`. */
+export type SplicePart =
+  | { readonly kind: 'static'; readonly entries: readonly ObjectEntry[] }
+  | { readonly kind: 'expr'; readonly exprText: string };
+
 /**
  * Read a plain object literal's entries. Returns `undefined` when the
  * literal contains spreads, shorthand, methods, or computed names.
@@ -127,6 +132,58 @@ export function readObjectEntries(
     });
   }
   return out;
+}
+
+/**
+ * Read an object literal as ordered splices: static runs map via tables,
+ * spreads ride `cn`/`cnStyle` in place (original order preserved).
+ * Shorthand becomes a dynamic entry (Tier B style path). Computed keys and
+ * methods fall back to the whole object as one runtime expr.
+ */
+export function readObjectSplices(
+  node: ts.ObjectLiteralExpression,
+  source: ts.SourceFile
+): readonly SplicePart[] {
+  const parts: SplicePart[] = [];
+  let current: ObjectEntry[] = [];
+  const flush = (): void => {
+    if (current.length > 0) {
+      parts.push({ kind: 'static', entries: current });
+      current = [];
+    }
+  };
+  for (const member of node.properties) {
+    if (ts.isSpreadAssignment(member)) {
+      flush();
+      parts.push({ kind: 'expr', exprText: member.expression.getText(source) });
+      continue;
+    }
+    if (ts.isShorthandPropertyAssignment(member)) {
+      current.push({
+        prop: member.name.text,
+        value: {
+          kind: 'dynamic',
+          exprText: member.name.getText(source),
+        },
+        raw: member.name,
+      });
+      continue;
+    }
+    if (!ts.isPropertyAssignment(member)) {
+      return [{ kind: 'expr', exprText: node.getText(source) }];
+    }
+    const key = propName(member.name);
+    if (key === undefined) {
+      return [{ kind: 'expr', exprText: node.getText(source) }];
+    }
+    current.push({
+      prop: key,
+      value: classifyValue(member.initializer, source),
+      raw: member.initializer,
+    });
+  }
+  flush();
+  return parts;
 }
 
 /** Attribute expression text (for `attr={expr}`), or undefined. */

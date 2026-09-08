@@ -7,6 +7,7 @@
  */
 
 import ts from 'typescript';
+import { CSS_VAR_COLORS, cssVarElevation, sxToCss } from '../src/theme';
 import type { DynamicWrap, StaticValue } from './mapping-types';
 import { compileStaticTransform } from './sx-map-effect';
 import { mapDynamicProp, mapSxRecord } from './sx-mapping';
@@ -17,7 +18,8 @@ import {
   classifyTransform,
   getJsxAttr,
   type ObjectEntry,
-  readObjectEntries,
+  readObjectSplices,
+  type SplicePart,
 } from './transform-attrs';
 
 export type StyleEntry = {
@@ -33,6 +35,8 @@ export type NodeConversion =
       readonly element: string;
       readonly classes: readonly string[];
       readonly styles: readonly StyleEntry[];
+      /** Runtime `SxProps` texts — spliced into `cn(...)` + `cnStyle(...)`. */
+      readonly cnExprs: readonly string[];
       readonly dataAttrs: Readonly<Record<string, string>>;
       /** Attributes to drop (sx, as, dataSet, feedback, label, …). */
       readonly dropAttrs: readonly string[];
@@ -50,7 +54,7 @@ export type ExistingClass =
 
 export type SxRead =
   | { readonly kind: 'record'; readonly entries: readonly ObjectEntry[] }
-  | { readonly kind: 'manual'; readonly reason: string }
+  | { readonly kind: 'splices'; readonly parts: readonly SplicePart[] }
   | { readonly kind: 'absent' };
 
 /** Read an `sx`-shaped attribute (`sx` or `frameSx`) into merged entries. */
@@ -62,42 +66,140 @@ export function readSxAttr(
   const attr = getJsxAttr(element, attrName);
   if (attr === undefined) return { kind: 'absent' };
   const expr = attrExpression(attr);
-  if (expr === undefined) {
-    return { kind: 'manual', reason: `${attrName} is not an expression` };
-  }
+  if (expr === undefined) return { kind: 'record', entries: [] };
   if (ts.isObjectLiteralExpression(expr)) {
-    const entries = readObjectEntries(expr, source);
-    if (entries === undefined) {
-      return { kind: 'manual', reason: `${attrName} object has spread keys` };
+    return splicesOrRecord(readObjectSplices(expr, source));
+  }
+  if (ts.isArrayLiteralExpression(expr)) {
+    return splicesOrRecord(readSxArrayParts(expr, source));
+  }
+  return {
+    kind: 'splices',
+    parts: [{ kind: 'expr', exprText: expr.getText(source) }],
+  };
+}
+
+function splicesOrRecord(parts: readonly SplicePart[]): SxRead {
+  if (parts.every((p) => p.kind === 'static')) {
+    const entries: ObjectEntry[] = [];
+    for (const part of parts) {
+      if (part.kind === 'static') entries.push(...part.entries);
     }
     return { kind: 'record', entries };
   }
-  if (ts.isArrayLiteralExpression(expr)) {
-    return readSxArray(expr, source, attrName);
-  }
-  return { kind: 'manual', reason: `${attrName} is not a literal (Tier C)` };
+  return { kind: 'splices', parts };
 }
 
-function readSxArray(
+function readSxArrayParts(
   expr: ts.ArrayLiteralExpression,
-  source: ts.SourceFile,
-  attrName: string
-): SxRead {
-  const merged: ObjectEntry[] = [];
+  source: ts.SourceFile
+): readonly SplicePart[] {
+  const parts: SplicePart[] = [];
   for (const el of expr.elements) {
     if (ts.isObjectLiteralExpression(el)) {
-      const entries = readObjectEntries(el, source);
-      if (entries === undefined) {
-        return { kind: 'manual', reason: `${attrName} entry is not an object` };
-      }
-      merged.push(...entries);
+      parts.push(...readObjectSplices(el, source));
       continue;
     }
-    if (el.kind === ts.SyntaxKind.NullKeyword) continue;
-    if (el.kind === ts.SyntaxKind.FalseKeyword) continue;
-    return { kind: 'manual', reason: `${attrName} array is dynamic (Tier C)` };
+    if (
+      el.kind === ts.SyntaxKind.NullKeyword ||
+      el.kind === ts.SyntaxKind.FalseKeyword ||
+      el.kind === ts.SyntaxKind.TrueKeyword
+    ) {
+      continue;
+    }
+    parts.push({ kind: 'expr', exprText: el.getText(source) });
   }
-  return { kind: 'record', entries: merged };
+  return parts;
+}
+
+/** Runtime drops this static prop too — omit instead of emitting `cn`. */
+function dropsLikeRuntime(prop: string, value: StaticValue): boolean {
+  const css = sxToCss({ [prop]: value } as Record<string, StaticValue>, {
+    colors: CSS_VAR_COLORS,
+    elevation: cssVarElevation,
+  });
+  return css === '';
+}
+
+function runtimeObj(prop: string, exprText: string): string {
+  return `{ ${prop}: ${exprText} }`;
+}
+
+function entryRawText(entry: ObjectEntry, source: ts.SourceFile): string {
+  try {
+    const raw = (entry as { raw?: unknown }).raw;
+    if (
+      typeof raw === 'object' &&
+      raw !== null &&
+      typeof (raw as { getText?: unknown }).getText === 'function'
+    ) {
+      return (raw as ts.Expression).getText(source);
+    }
+  } catch {
+    // Synthetic entries (layout extras) carry no AST — fall through.
+  }
+  return entry.value.kind === 'static'
+    ? JSON.stringify(entry.value.value)
+    : entry.value.kind === 'dynamic'
+      ? entry.value.exprText
+      : 'undefined';
+}
+
+type EntryAccum = {
+  readonly record: Record<string, StaticValue>;
+  readonly raws: Record<string, string>;
+  readonly styles: StyleEntry[];
+  readonly cnExprs: string[];
+  transformClass: string | undefined;
+  hasDynamic: boolean;
+};
+
+function applyTransformEntry(
+  accum: EntryAccum,
+  entry: ObjectEntry,
+  source: ts.SourceFile
+): void {
+  const compiled = convertTransformEntry(entry, source);
+  if (compiled === undefined) {
+    accum.cnExprs.push(runtimeObj('transform', entryRawText(entry, source)));
+    accum.hasDynamic = true;
+    return;
+  }
+  if (compiled !== '') accum.transformClass = compiled;
+}
+
+function applyValueEntry(accum: EntryAccum, entry: ObjectEntry): void {
+  if (entry.value.kind === 'static') {
+    accum.record[entry.prop] = entry.value.value;
+    return;
+  }
+  if (entry.value.kind === 'spread') return;
+  if (entry.prop === 'fontVariant') return;
+  const mapped = mapDynamicProp(entry.prop);
+  if (mapped.kind === 'bail') {
+    if (mapped.reason.startsWith('unknown sx prop')) return;
+    accum.cnExprs.push(runtimeObj(entry.prop, entry.value.exprText));
+    accum.hasDynamic = true;
+    return;
+  }
+  accum.hasDynamic = true;
+  for (const cssProp of mapped.cssProps) {
+    accum.styles.push({
+      cssProp,
+      exprText: entry.value.exprText,
+      wrap: mapped.wrap,
+    });
+  }
+}
+
+function applyBailedProps(accum: EntryAccum, bailed: readonly string[]): void {
+  for (const prop of bailed) {
+    const value = accum.record[prop];
+    if (value !== undefined && dropsLikeRuntime(prop, value)) continue;
+    const raw = accum.raws[prop] ?? JSON.stringify(value ?? null);
+    accum.cnExprs.push(runtimeObj(prop, raw));
+    accum.hasDynamic = true;
+  }
 }
 
 /** Convert merged sx entries (transform compiled from its raw AST). */
@@ -105,49 +207,72 @@ export function convertSxEntries(
   entries: readonly ObjectEntry[],
   source: ts.SourceFile
 ): NodeConversion {
-  const record: Record<string, StaticValue> = {};
-  const styles: StyleEntry[] = [];
-  let transformClass: string | undefined;
-  let hasDynamic = false;
+  const accum: EntryAccum = {
+    record: {},
+    raws: {},
+    styles: [],
+    cnExprs: [],
+    transformClass: undefined,
+    hasDynamic: false,
+  };
   for (const entry of entries) {
     if (entry.prop === 'transform') {
-      const compiled = convertTransformEntry(entry, source);
-      if (compiled === undefined) {
-        return { kind: 'manual', reason: 'transform is not fully static' };
-      }
-      if (compiled !== '') transformClass = compiled;
+      applyTransformEntry(accum, entry, source);
       continue;
     }
     if (entry.value.kind === 'static') {
-      record[entry.prop] = entry.value.value;
+      accum.record[entry.prop] = entry.value.value;
+      accum.raws[entry.prop] = entryRawText(entry, source);
       continue;
     }
-    if (entry.value.kind === 'spread') {
-      return { kind: 'manual', reason: 'sx has a spread entry' };
-    }
-    const mapped = mapDynamicProp(entry.prop);
-    if (mapped.kind === 'bail') {
-      return { kind: 'manual', reason: mapped.reason };
-    }
-    hasDynamic = true;
-    for (const cssProp of mapped.cssProps) {
-      styles.push({
-        cssProp,
-        exprText: entry.value.exprText,
-        wrap: mapped.wrap,
-      });
-    }
+    applyValueEntry(accum, entry);
   }
-  const mapped = mapSxRecord(record, transformClass);
-  if (mapped.bailed.length > 0) {
-    return { kind: 'manual', reason: `no mapping for ${mapped.bailed[0]}` };
-  }
+  const mapped = mapSxRecord(accum.record, accum.transformClass);
+  applyBailedProps(accum, mapped.bailed);
+  const dynamic = accum.hasDynamic || accum.cnExprs.length > 0;
   return {
     kind: 'converted',
-    tier: hasDynamic ? 'B' : 'A',
+    tier: dynamic ? 'B' : 'A',
     element: '',
     classes: mapped.classes,
+    styles: accum.styles,
+    cnExprs: accum.cnExprs,
+    dataAttrs: {},
+    dropAttrs: ['sx'],
+    extraAttrs: [],
+  };
+}
+
+/** Convert ordered splices: static chunks via tables, exprs via `cn`. */
+export function convertSxParts(
+  parts: readonly SplicePart[],
+  source: ts.SourceFile
+): NodeConversion {
+  const classes: string[] = [];
+  const styles: StyleEntry[] = [];
+  const cnExprs: string[] = [];
+  let tier: 'A' | 'B' = 'A';
+  for (const part of parts) {
+    if (part.kind === 'expr') {
+      cnExprs.push(part.exprText);
+      tier = 'B';
+      continue;
+    }
+    const converted = convertSxEntries(part.entries, source);
+    if (converted.kind === 'manual') return converted;
+    classes.push(...converted.classes);
+    styles.push(...converted.styles);
+    cnExprs.push(...converted.cnExprs);
+    if (converted.tier === 'B') tier = 'B';
+  }
+  if (cnExprs.length > 0) tier = 'B';
+  return {
+    kind: 'converted',
+    tier,
+    element: '',
+    classes,
     styles,
+    cnExprs,
     dataAttrs: {},
     dropAttrs: ['sx'],
     extraAttrs: [],
@@ -158,6 +283,12 @@ function convertTransformEntry(
   entry: ObjectEntry,
   source: ts.SourceFile
 ): string | undefined {
+  if (
+    typeof (entry as { raw?: unknown }).raw !== 'object' ||
+    (entry as { raw?: unknown }).raw === null
+  ) {
+    return '';
+  }
   const ref = classifyTransform(entry.raw, source);
   if (ref.kind === 'dynamic') return undefined;
   return compileStaticTransform(ref.pieces) ?? '';

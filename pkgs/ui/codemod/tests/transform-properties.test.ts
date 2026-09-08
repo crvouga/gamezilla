@@ -42,6 +42,9 @@ const arbSxTier = fc.constantFrom(
   `sx={{ p: 1, width: w, display: d }}`,
   `sx={incoming}`,
   `sx={[{ p: 1 }, extra]}`,
+  `sx={value ? { p: 1 } : null}`,
+  `sx={{ ...extra, p: 1 }}`,
+  `sx={extra}`,
   ``
 );
 const arbExtra = fc.constantFrom(
@@ -135,7 +138,6 @@ describe('preservation property', () => {
 
   test('Tier C nodes keep their JSX text (modulo the TODO line)', async () => {
     const cases: readonly string[] = [
-      `import { Box } from '@pkgs/ui';\nexport const A = (p: { sx: never }) => <Box sx={p.sx} />;`,
       `import { Box } from '@pkgs/ui';\nexport const A = (p: { rest: never }) => <Box sx={{ p: 1 }} {...p.rest} />;`,
       `import { Text } from '@pkgs/ui';\nexport const A = () => <Text variant="heading" label="x" />;`,
       `import { ScrollView } from '@pkgs/ui';\nexport const A = () => <ScrollView frameSx={{ flex: 1 }} />;`,

@@ -184,6 +184,7 @@
     "pkgs/ui-testing/src/**/*.ts",
     "pkgs/ui-testing/src/**/*.tsx",
     "pkgs/sim-console/src/**/*.ts",
+    "pkgs/sim/src/**/*.ts",
     "pkgs/sim-console/tests/**/*.ts",
     "pkgs/sim-console/src/**/*.tsx",
     "pkgs/database-url-policy/src/**/*.ts",
@@ -212,7 +213,11 @@
     "pkgs/tts-elevenlabs/src/**/*.ts",
     "pkgs/tts-elevenlabs/src/**/*.tsx",
     "tools/**/*.ts",
-    "pkgs/ui/codemod/**/*.ts"
+    "pkgs/ui/codemod/**/*.ts",
+    "pkgs/solid-context/src/**/*.ts",
+    "pkgs/solid-context/src/**/*.tsx",
+    "pkgs/vite-workspace-resolver/src/**/*.ts",
+    "libs/test-ids/src/**/*.ts"
   ],
   "exclude": ["node_modules", "dist", "web-build"]
 }
