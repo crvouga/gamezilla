@@ -11,7 +11,8 @@
     "./src/**/*.tsx",
     "./tests/**/*.ts",
     "./tests/**/*.tsx",
-    "./scripts/**/*.ts"
+    "./scripts/**/*.ts",
+    "./codemod/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }

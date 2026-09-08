@@ -7,16 +7,17 @@
  */
 
 import ts from 'typescript';
+import type { DynamicWrap, StaticValue } from './mapping-types';
 import { compileStaticTransform } from './sx-map-effect';
 import { mapDynamicProp, mapSxRecord } from './sx-mapping';
-import type { DynamicWrap, StaticValue } from './mapping-types';
+import { invariant } from './tiger';
 import {
   attrExpression,
   attrStringLiteral,
   classifyTransform,
   getJsxAttr,
-  readObjectEntries,
   type ObjectEntry,
+  readObjectEntries,
 } from './transform-attrs';
 
 export type StyleEntry = {
@@ -35,6 +36,8 @@ export type NodeConversion =
       readonly dataAttrs: Readonly<Record<string, string>>;
       /** Attributes to drop (sx, as, dataSet, feedback, label, …). */
       readonly dropAttrs: readonly string[];
+      /** Literal attributes to inject (e.g. Clickable's default type). */
+      readonly extraAttrs: readonly string[];
       /** Text `label` becomes children (expression text). */
       readonly labelAsChildren?: string | undefined;
     }
@@ -58,7 +61,7 @@ export function readSxAttr(
 ): SxRead {
   const attr = getJsxAttr(element, attrName);
   if (attr === undefined) return { kind: 'absent' };
-  const expr = attrExpression(attr, source);
+  const expr = attrExpression(attr);
   if (expr === undefined) {
     return { kind: 'manual', reason: `${attrName} is not an expression` };
   }
@@ -127,11 +130,13 @@ export function convertSxEntries(
       return { kind: 'manual', reason: mapped.reason };
     }
     hasDynamic = true;
-    styles.push({
-      cssProp: mapped.cssProp,
-      exprText: entry.value.exprText,
-      wrap: mapped.wrap,
-    });
+    for (const cssProp of mapped.cssProps) {
+      styles.push({
+        cssProp,
+        exprText: entry.value.exprText,
+        wrap: mapped.wrap,
+      });
+    }
   }
   const mapped = mapSxRecord(record, transformClass);
   if (mapped.bailed.length > 0) {
@@ -145,6 +150,7 @@ export function convertSxEntries(
     styles,
     dataAttrs: {},
     dropAttrs: ['sx'],
+    extraAttrs: [],
   };
 }
 
@@ -164,13 +170,12 @@ export type DataSetRead =
 /** Materialize `dataSet` to exact `data-*` attributes (dev/E2E parity). */
 export function readDataSet(
   element: ts.JsxOpeningLikeElement,
-  source: ts.SourceFile,
   defaultComponent: string
 ): DataSetRead {
   const merged: Record<string, string> = { component: defaultComponent };
   const attr = getJsxAttr(element, 'dataSet');
   if (attr === undefined) return { kind: 'attrs', attrs: merged };
-  const expr = attrExpression(attr, source);
+  const expr = attrExpression(attr);
   if (expr === undefined || !ts.isObjectLiteralExpression(expr)) {
     return { kind: 'manual', reason: 'dataSet is not an object literal' };
   }
@@ -182,7 +187,11 @@ export function readDataSet(
     const keyText =
       ts.isIdentifier(key) || ts.isStringLiteral(key) ? key.text : undefined;
     const value = member.initializer;
-    if (keyText === undefined || !ts.isStringLiteral(value)) {
+    if (
+      keyText === undefined ||
+      !/^[A-Za-z][\w:.-]*$/.test(keyText) ||
+      !ts.isStringLiteral(value)
+    ) {
       return { kind: 'manual', reason: 'dataSet entry is not static' };
     }
     merged[keyText] = value.text;
@@ -196,12 +205,13 @@ export function toDataAttrs(
 ): Record<string, string> {
   const out: Record<string, string> = {};
   for (const key of Object.keys(attrs)) {
+    invariant(/^[A-Za-z][\w:.-]*$/.test(key), `bad dataSet key ${key}`);
     out[`data-${key}`] = attrs[key] ?? '';
   }
   return out;
 }
 
-/** Read `as="x"`; dynamic markers bail via `undefined`. */
+/** Read `as="x"`; dynamic markers and non-intrinsics bail via `undefined`. */
 export function readAsElement(
   element: ts.JsxOpeningLikeElement,
   fallback: string
@@ -209,7 +219,7 @@ export function readAsElement(
   const attr = getJsxAttr(element, 'as');
   if (attr === undefined) return fallback;
   const literal = attrStringLiteral(attr);
-  if (literal !== undefined) return literal;
+  if (literal !== undefined && /^[a-z][\w-]*$/.test(literal)) return literal;
   return undefined;
 }
 
@@ -222,7 +232,7 @@ export function readExistingClass(
   if (attr === undefined) return { kind: 'absent' };
   const literal = attrStringLiteral(attr);
   if (literal !== undefined) return { kind: 'literal', value: literal };
-  const expr = attrExpression(attr, source);
+  const expr = attrExpression(attr);
   if (expr === undefined) return undefined;
   if (ts.isTemplateExpression(expr)) return undefined;
   if (ts.isNoSubstitutionTemplateLiteral(expr)) {

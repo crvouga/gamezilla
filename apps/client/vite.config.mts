@@ -5,10 +5,10 @@ import {
   DEFAULT_WORKSPACE_SCOPES,
   workspaceExportsResolver,
 } from '@pkgs/vite-workspace-resolver';
+import tailwindcss from '@tailwindcss/vite';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig, type PluginOption } from 'vite';
 import solid from 'vite-plugin-solid';
-import tailwindcss from '@tailwindcss/vite';
 
 const clientDir = import.meta.dirname;
 const repoRoot = resolve(clientDir, '../..');

@@ -1,7 +1,7 @@
 {
   "$schema": "https://v2-10-12.turborepo.dev/schema.json",
   "ui": "stream",
-  "concurrency": "100%",
+  "concurrency": "50%",
   "globalDependencies": ["tsconfig.base.json"],
   "globalPassThroughEnv": [
     "GITHUB_*",
@@ -31,7 +31,6 @@
     "TURBO_*",
     "SIM_FIDELITY",
     "SIM_REPORT",
-    "PLAYWRIGHT_BASE_URL",
     "TMPDIR"
   ],
   "tasks": {

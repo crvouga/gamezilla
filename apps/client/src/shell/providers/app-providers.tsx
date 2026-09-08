@@ -4,10 +4,16 @@
  * `ClientEnvProvider` (`createClient(env)`).
  *
  * Same order as the RN stack (`apps/client/src/providers/app-providers.tsx`):
- * shell → infrastructure → auth → services → local database → space rooms →
- * UI. The games stage (`AppGamesProvider`) joins with the Spaces screen port
+ * shell → infrastructure → auth → services → local database → space rooms.
+ * The games stage (`AppGamesProvider`) joins with the Spaces screen port
  * and the notifications stage (`AppNotificationsProvider`) with the
  * Notifications screen port — neither is stubbed here.
+ *
+ * UI hosts (`AppUiProvider`: surface stack, overlays, command palette) and
+ * the sign-in modal (`AppSignInCapabilities` + `AuthModalsProvider`) mount
+ * inside the identity-scoped sync engine tree (`sync-engine-ready-tree.tsx`):
+ * the modal reads synced `client_config` and must render under
+ * `SurfaceStackProvider`.
  *
  * Boot paint gating lives in `ProductApp` under `AppFrameChromeProvider` so
  * the global action menu stays mounted while the gate is up.
@@ -24,7 +30,6 @@ import { AppNotificationsProvider } from './app-notifications-provider';
 import { AppServicesProvider } from './app-services-provider';
 import { AppShellProvider } from './app-shell-provider';
 import { AppSpaceRoomsProvider } from './app-space-rooms-provider';
-import { AppUiProvider } from './app-ui-provider';
 
 export function AppProviders(props: {
   readonly children: JSX.Element;
@@ -39,11 +44,9 @@ export function AppProviders(props: {
               <AppLocalDatabaseProvider>
                 <AppGamesProvider>
                   <AppSpaceRoomsProvider>
-                    <AppUiProvider>
-                      <AppNotificationsProvider>
-                        {props.children}
-                      </AppNotificationsProvider>
-                    </AppUiProvider>
+                    <AppNotificationsProvider>
+                      {props.children}
+                    </AppNotificationsProvider>
                   </AppSpaceRoomsProvider>
                 </AppGamesProvider>
               </AppLocalDatabaseProvider>

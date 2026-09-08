@@ -14,7 +14,7 @@ export type ApiWorkerEnv = {
   /** `dev` or `prd` — used by DB-safety guards. */
   SECRETS_ENV?: string;
   /**
-   * Loopback wrangler origin written into `.dev.vars` when Playwright / turbo
+   * Loopback wrangler origin written into `.dev.vars` when turbo
    * preview sets `API_URL` in the environment.
    */
   API_URL?: string;

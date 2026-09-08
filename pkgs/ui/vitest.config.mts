@@ -5,5 +5,9 @@ import { defineSolidVitestConfig } from '@pkgs/vitest-solid/config';
 // import through package `exports` that resolve to `.tsx` modules.
 export default defineSolidVitestConfig({
   root: import.meta.dirname,
-  include: ['tests/**/*.test.ts', 'tests/**/*.test.tsx'],
+  include: [
+    'tests/**/*.test.ts',
+    'tests/**/*.test.tsx',
+    'codemod/tests/**/*.test.ts',
+  ],
 });

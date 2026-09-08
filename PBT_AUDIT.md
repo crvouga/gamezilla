@@ -105,7 +105,7 @@ Do **not** create a root `test/pbt/` folder. Do **not** add `@fast-check/jest` (
 | `@pkgs/ui` / UI driver / snapshots / Solid hooks | Noisy, flaky, not pure correctness |
 | `product/test` product UI scenarios | Fixed drivers; seed=1; not action generators |
 | Named bug-scenario files in sync-engine/room | Regression documentation — keep; optionally add properties later |
-| Hono / Wrangler / live Neon / Playwright e2e | I/O / env; not isolated |
+| Hono / Wrangler / live Neon / Bun WebView e2e | I/O / env; not isolated |
 | Tautological `defineMutation` wiring | Typechecker already covers |
 | Sync merge as CRDT commute | Wrong property (server LWW by arrival) |
 | Float room payloads | Forbidden by DETERMINISM.md |

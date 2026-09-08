@@ -1,4 +1,4 @@
-// @io-wall-ok — Playwright harness page entry
+// @io-wall-ok — Bun WebView e2e harness page entry
 import { createHarnessClient, type HarnessClient } from './harness-client';
 
 const OPFS_WIPE_CHANNEL = 'gamezilla-opfs-wipe';

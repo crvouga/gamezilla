@@ -5,9 +5,9 @@ import {
   DEFAULT_WORKSPACE_SCOPES,
   workspaceExportsResolver,
 } from '@pkgs/vite-workspace-resolver';
+import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, type PluginOption } from 'vite';
 import solid from 'vite-plugin-solid';
-import tailwindcss from '@tailwindcss/vite';
 
 const consoleDir = import.meta.dirname;
 const repoRoot = resolve(consoleDir, '../..');

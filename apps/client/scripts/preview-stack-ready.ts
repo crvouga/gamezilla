@@ -2,7 +2,7 @@
 import { resolveLocalPreviewApiOriginSync } from '@libs/client-config/public/resolve-local-preview-api-origin';
 
 /**
- * Readiness probe for Playwright / `turbo preview`: the static export on
+ * Readiness probe for `turbo preview`: the static export on
  * `PREVIEW_PORT` becomes reachable before wrangler finishes booting, so probing
  * `/` alone starts browser tests while the API is still down.
  */

@@ -6,6 +6,7 @@
  * which must stay out of the initial chunk.
  */
 
+import { AuthModalsProvider } from '@libs/auth/public/auth-modals-provider';
 import { MutationClientProvider } from '@libs/auth/public/mutation-client-provider';
 import { AuthSyncBridge } from '@libs/auth/root/client/auth-sync-bridge';
 import { SqlClientProvider } from '@pkgs/sql-client/solid';
@@ -16,6 +17,8 @@ import {
 } from '@pkgs/sync-engine/solid';
 import { type JSX, untrack } from 'solid-js';
 import { AppClientConfig } from '../providers/app-client-config';
+import { AppSignInCapabilities } from '../providers/app-sign-in-capabilities';
+import { AppUiProvider } from '../providers/app-ui-provider';
 
 import type { ReadySyncEngine } from './create-sync-engine-boot-state';
 import { SyncStatusProvider } from './sync-status-context';
@@ -51,7 +54,16 @@ export default function ReadyEngineTree(
           <SqlClientProvider value={ready.engine.db}>
             <AuthSyncBridge>
               <MutationClientProvider registry={ready.registry}>
-                <AppClientConfig>{props.children}</AppClientConfig>
+                <AppSignInCapabilities>
+                  {/* UI hosts (surface stack, overlays, command palette) must
+                      wrap the sign-in modal: surfaces throw without
+                      SurfaceStackProvider. */}
+                  <AppUiProvider>
+                    <AuthModalsProvider>
+                      <AppClientConfig>{props.children}</AppClientConfig>
+                    </AuthModalsProvider>
+                  </AppUiProvider>
+                </AppSignInCapabilities>
               </MutationClientProvider>
             </AuthSyncBridge>
           </SqlClientProvider>

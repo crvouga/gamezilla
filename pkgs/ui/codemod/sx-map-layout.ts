@@ -74,7 +74,11 @@ const DIRECT: Readonly<Record<string, Readonly<Record<string, string>>>> = {
     'space-around': 'justify-around',
     'space-evenly': 'justify-evenly',
   },
-  overflow: { visible: 'overflow-visible', hidden: 'overflow-hidden', scroll: 'overflow-scroll' },
+  overflow: {
+    visible: 'overflow-visible',
+    hidden: 'overflow-hidden',
+    scroll: 'overflow-scroll',
+  },
   overflowX: {
     visible: 'overflow-x-visible',
     hidden: 'overflow-x-hidden',
@@ -126,7 +130,7 @@ export function mapDirectLayoutStatic(
 
 export function mapDirectLayoutDynamic(prop: string): DynamicStyle {
   const cssProp = DIRECT_CSS_PROP[prop] ?? prop;
-  return { kind: 'style', cssProp, wrap: 'raw' };
+  return { kind: 'style', cssProps: [cssProp], wrap: 'raw' };
 }
 
 const RAW_LENGTH: Readonly<Record<string, string>> = {
@@ -170,7 +174,10 @@ export function mapRawLengthStatic(
   }
   if (typeof value === 'string') {
     if (value === 'auto' && (prop === 'width' || prop === 'height')) {
-      return { kind: 'classes', classes: [prop === 'width' ? 'w-auto' : 'h-auto'] };
+      return {
+        kind: 'classes',
+        classes: [prop === 'width' ? 'w-auto' : 'h-auto'],
+      };
     }
     return { kind: 'classes', classes: [`${prefix}-[${arbitrary(value)}]`] };
   }

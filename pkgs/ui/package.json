@@ -16,6 +16,7 @@
     ]
   },
   "scripts": {
+    "codemod": "bun run ./codemod/cli-io.ts",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "vitest run",
     "tokens:check": "bun run ./scripts/generate-tokens-css.ts --check",
@@ -26,6 +27,7 @@
     "@dicebear/core": "catalog:",
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",
+    "@pkgs/assert": "workspace:*",
     "@pkgs/async": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/colors": "workspace:*",
@@ -44,6 +46,7 @@
     "@testing-library/jest-dom": "catalog:",
     "@testing-library/user-event": "catalog:",
     "@types/bun": "catalog:",
+    "fast-check": "catalog:",
     "happy-dom": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",

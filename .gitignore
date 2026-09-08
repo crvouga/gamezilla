@@ -92,7 +92,7 @@ apps/client/android/
 .turbo
 
 
-# Check / Playwright artifacts (reports, traces, videos)
+# Check artifacts (reports, traces, videos)
 /check/
 **/test-results/
 **/blob-report/

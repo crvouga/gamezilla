@@ -35,7 +35,8 @@ export function mapGrowShrinkStatic(
   value: string | number | boolean | null
 ): StaticMapping {
   const base = prop === 'flexGrow' ? 'grow' : 'shrink';
-  if (value === 0 || value === '0') return { kind: 'classes', classes: [`${base}-0`] };
+  if (value === 0 || value === '0')
+    return { kind: 'classes', classes: [`${base}-0`] };
   if (value === 1 || value === '1') return { kind: 'classes', classes: [base] };
   if (typeof value === 'number' && Number.isFinite(value)) {
     const css = prop === 'flexGrow' ? 'flex-grow' : 'flex-shrink';
@@ -56,7 +57,10 @@ export function isBorderWidthProp(prop: string): boolean {
   return prop in BORDER_WIDTH_CSS;
 }
 
-/** Numbers: 0 → `-0`, 1/`hairline` → bare; else exact arbitrary property. */
+/** Numbers: 0 → `-0`, 1 → bare. `hairline` is 1px only on the bottom edge
+ * (the runtime special-cases `borderBottomWidth`); elsewhere it passes
+ * through verbatim — invalid CSS the browser drops, so the codemod emits
+ * the identical invalid declaration rather than a visible 1px border. */
 export function mapBorderWidthStatic(
   prop: string,
   value: string | number | boolean | null
@@ -73,8 +77,11 @@ export function mapBorderWidthStatic(
             : 'border-l';
   const css = BORDER_WIDTH_CSS[prop] ?? 'border-width';
   if (value === 0) return { kind: 'classes', classes: [`${prefix}-0`] };
-  if (value === 1 || value === 'hairline') {
-    return { kind: 'classes', classes: [prefix] };
+  if (value === 1) return { kind: 'classes', classes: [prefix] };
+  if (value === 'hairline') {
+    if (prop === 'borderBottomWidth')
+      return { kind: 'classes', classes: [prefix] };
+    return { kind: 'classes', classes: [`[${css}:hairline]`] };
   }
   if (typeof value === 'number' && Number.isFinite(value)) {
     return { kind: 'classes', classes: [`[${css}:${px(value)}]`] };
@@ -89,8 +96,10 @@ export function mapBorderStyleStatic(
   value: string | number | boolean | null
 ): StaticMapping {
   if (value === 'solid') return { kind: 'classes', classes: ['border-solid'] };
-  if (value === 'dotted') return { kind: 'classes', classes: ['border-dotted'] };
-  if (value === 'dashed') return { kind: 'classes', classes: ['border-dashed'] };
+  if (value === 'dotted')
+    return { kind: 'classes', classes: ['border-dotted'] };
+  if (value === 'dashed')
+    return { kind: 'classes', classes: ['border-dashed'] };
   return { kind: 'bail', reason: 'borderStyle is not static' };
 }
 
@@ -233,5 +242,5 @@ export function mapLayoutDynamic(prop: string): DynamicStyle {
           : prop === 'zIndex'
             ? 'z-index'
             : prop;
-  return { kind: 'style', cssProp, wrap: 'raw' };
+  return { kind: 'style', cssProps: [cssProp], wrap: 'raw' };
 }

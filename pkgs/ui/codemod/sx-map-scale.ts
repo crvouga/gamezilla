@@ -8,9 +8,11 @@
  */
 
 import type { DynamicStyle, StaticMapping } from './mapping-types';
+import { invariant } from './tiger';
 
 /** Format a px number exactly like `sx-to-css` (`0` stays `0`). */
 export function px(n: number): string {
+  invariant(Number.isFinite(n), `px() got non-finite ${String(n)}`);
   return n === 0 ? '0' : `${n}px`;
 }
 
@@ -88,11 +90,11 @@ export function mapScaledStatic(
   };
 }
 
-/** Dynamic scaled values stay exact via `` `${(e) * 4}px` ``. */
+/** Dynamic scaled values stay exact via `` `${(e) * 4}px` `` (pairs fan out). */
 export function mapScaledDynamic(prop: string): DynamicStyle {
   const decls = SCALED_DECLARATIONS[prop] ?? [];
-  if (decls.length === 1) {
-    return { kind: 'style', cssProp: decls[0] ?? prop, wrap: 'scaled' };
+  if (decls.length > 0) {
+    return { kind: 'style', cssProps: decls, wrap: 'scaled' };
   }
-  return { kind: 'bail', reason: `${prop} pair needs two declarations` };
+  return { kind: 'bail', reason: `${prop} has no declarations` };
 }

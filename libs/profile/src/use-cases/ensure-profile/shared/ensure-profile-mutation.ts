@@ -75,6 +75,69 @@ async function seedProfile(
   `);
 }
 
+type LinkedSubjectRow = {
+  readonly subject: string | null;
+};
+
+/**
+ * IdP subject linked to an internal account (`dev` OAuth subject doubles as
+ * the sim actor username). Server-side only: `idp_accounts` lives in the
+ * server database, never in local SQLite.
+ */
+async function linkedSignupSubject(
+  tx: MutationDb,
+  profileId: string
+): Promise<string | null> {
+  const rows = await tx.query<LinkedSubjectRow>(sql`
+    SELECT a.provider_user_id AS subject
+    FROM auth_external_accounts AS e
+    INNER JOIN idp_accounts AS a ON a.user_id = e.external_id
+    WHERE e.user_id = ${profileId}
+    ORDER BY a.provider_user_id ASC
+    LIMIT 1
+  `);
+  const subject = rows[0]?.subject;
+  return typeof subject === 'string' && subject.length > 0 ? subject : null;
+}
+
+/**
+ * Resolve the preferred username for server replay. The client handoff is
+ * process-global, so in multi-actor hosts (sims, multi-app playground) one
+ * actor's ensure can observe another actor's pending value. Server replay is
+ * authoritative and deterministic instead:
+ * - anonymous bootstraps never consume it (their rows keep the auto name);
+ * - when this account has a linked IdP subject, that subject wins over any
+ *   passed value (a foreign pending value is ignored);
+ * - otherwise (email/create-account flow, no linked subject) the passed value
+ *   stands, preserving legacy behavior.
+ *
+ * Local apply keeps the passed value (legacy behavior); sync converges the
+ * row to the replayed state.
+ */
+async function resolveReplayUsername(
+  tx: MutationDb,
+  profileId: string,
+  passed: string | undefined
+): Promise<string | undefined> {
+  const anon = await tx.query<{ is_anon: boolean | number | string | null }>(sql`
+    SELECT is_anon
+    FROM auth_users
+    WHERE id = ${profileId}
+    LIMIT 1
+  `);
+  const flag = anon[0]?.is_anon;
+  if (flag === true || flag === 1 || flag === '1' || flag === 't') {
+    return undefined;
+  }
+  const subject = await linkedSignupSubject(tx, profileId);
+  console.log(
+    'TEMP_RESOLVE_REPLAY',
+    JSON.stringify({ profileId, passed, subject, anonFlag: flag ?? null })
+  );
+  if (subject !== null) return subject;
+  return passed;
+}
+
 export const ensureProfileMutation = defineMutation({
   name: 'ensureProfile',
   args: z.object({
@@ -91,6 +154,20 @@ export const ensureProfileMutation = defineMutation({
         : avatarConfigJson(avatarConfig)
     );
     await assignUniqueUsernameIfEmpty(tx, env.actorId);
-    await applyPreferredUsernameIfAvailable(tx, env.actorId, username);
+    const preferred =
+      env.serverNow === undefined
+        ? username
+        : await resolveReplayUsername(tx, env.actorId, username);
+    console.log(
+      'TEMP_ENSURE_REPLAY',
+      JSON.stringify({
+        actorId: env.actorId,
+        isAnon: env.isAnon,
+        hasServerNow: env.serverNow !== undefined,
+        passed: username ?? null,
+        preferred: preferred ?? null,
+      })
+    );
+    await applyPreferredUsernameIfAvailable(tx, env.actorId, preferred);
   },
 });

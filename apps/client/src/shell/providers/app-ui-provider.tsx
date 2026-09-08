@@ -1,7 +1,10 @@
 /** @jsxImportSource solid-js */
 /**
- * Overlays, surfaces, banners, command palette. Must render after
- * `AppLocalDatabaseProvider` (commands read the sync engine).
+ * Overlays, surfaces, banners, command palette. Mounts inside the
+ * identity-scoped sync engine tree (`sync-engine-ready-tree.tsx`), after
+ * `AppLocalDatabaseProvider` (commands read the sync engine) and above the
+ * sign-in modal (`AppSignInCapabilities` + `AuthModalsProvider`, which needs
+ * both the engine for `useClientConfig` and this stack for surfaces).
  *
  * `OverlayPortalProvider` wraps `SurfaceStackProvider`: surface chrome renders
  * in the stack host (sibling of `children`), so overlay context must be
@@ -9,8 +12,7 @@
  * web default (no provider needed).
  *
  * Deferred lib providers (each with its screen port): `EndSpaceModalProvider`
- * / `LeaveSpaceModalProvider` / `ReconcileEndedOpenSessions` (Spaces),
- * `AppSignInCapabilities` + `AuthModalsProvider` (sign-in modal).
+ * / `LeaveSpaceModalProvider` / `ReconcileEndedOpenSessions` (Spaces).
  */
 
 import {

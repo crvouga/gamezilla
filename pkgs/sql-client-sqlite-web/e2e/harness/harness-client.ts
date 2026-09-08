@@ -1,4 +1,4 @@
-// @io-wall-ok — Playwright harness: wall timers + self-contained multi-tab client
+// @io-wall-ok — Bun WebView e2e harness: wall timers + self-contained multi-tab client
 
 import type { Timers } from '@pkgs/clock';
 import { wallTimers } from '@pkgs/clock';

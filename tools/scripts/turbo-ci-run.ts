@@ -15,7 +15,7 @@
  *   `--filter=...[<base>] --filter=//` so PR runs skip unchanged
  *   packages but still execute named root tasks (`ci:depcruise`).
  * - Concurrency: honor `TURBO_CONCURRENCY`; otherwise
- *   `min(32, max(cpus * 2, 10))` locally. In CI the floor is 2 so a 2-core /
+ *   `min(8, max(cpus, 4))` locally. In CI the floor is 2 so a 2-core /
  *   7GB GitHub-hosted runner does not launch 10 Node heaps.
  * - Log order: `auto` locally; `stream` in CI (not `grouped` — grouped holds
  *   task stdout until completion, which looks like a hang). Override with
@@ -60,8 +60,8 @@ const TURBO_CACHE_RE = /^(local|remote):(r|rw|w)?(,(local|remote):(r|rw|w)?)?$/;
 const TURBO_UI_VALUES = new Set(['tui', 'stream']);
 const DEFAULT_CACHE = 'local:rw,remote:rw';
 const LOCAL_ONLY_CACHE = 'local:rw';
-const MAX_CHECK_CONCURRENCY = 32;
-const MIN_CHECK_CONCURRENCY = 10;
+const MAX_CHECK_CONCURRENCY = 8;
+const MIN_CHECK_CONCURRENCY = 4;
 const CACHE_WORKERS = 16;
 
 type TurboTasks = Record<string, { dependsOn?: unknown }>;
@@ -112,7 +112,7 @@ function resolveConcurrency(): string {
   if (fromEnv !== undefined && fromEnv.length > 0) return fromEnv;
   const cpus = availableParallelism();
   const min = inCi() ? 2 : MIN_CHECK_CONCURRENCY;
-  return String(Math.min(MAX_CHECK_CONCURRENCY, Math.max(cpus * 2, min)));
+  return String(Math.min(MAX_CHECK_CONCURRENCY, Math.max(cpus, min)));
 }
 
 function resolveUi(): string | undefined {

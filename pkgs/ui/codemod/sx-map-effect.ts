@@ -35,14 +35,15 @@ export function mapRadiusStatic(
   value: string | number | boolean | null
 ): StaticMapping {
   const prefix = RADIUS_SIDE[prop] ?? 'rounded';
-  if (value === 'none') return { kind: 'classes', classes: ['rounded-none'] };
+  const none = prop === 'borderRadius' ? 'rounded-none' : `${prefix}-none`;
+  if (value === 'none') return { kind: 'classes', classes: [none] };
   if (typeof value === 'number' && Number.isFinite(value)) {
-    if (value === 0) return { kind: 'classes', classes: ['rounded-none'] };
+    if (value === 0) return { kind: 'classes', classes: [none] };
     return { kind: 'classes', classes: [`${prefix}-[${px(value)}]`] };
   }
   if (typeof value === 'string' && value in borderRadius) {
     const n = borderRadius[value as keyof typeof borderRadius];
-    if (n === 0) return { kind: 'classes', classes: ['rounded-none'] };
+    if (n === 0) return { kind: 'classes', classes: [none] };
     return { kind: 'classes', classes: [`${prefix}-[${px(n)}]`] };
   }
   return { kind: 'bail', reason: `${prop} ${String(value)} is not static` };
@@ -51,13 +52,7 @@ export function mapRadiusStatic(
 export function mapElevationStatic(
   value: string | number | boolean | null
 ): StaticMapping {
-  if (
-    value === 1 ||
-    value === 2 ||
-    value === 3 ||
-    value === 4 ||
-    value === 5
-  ) {
+  if (value === 1 || value === 2 || value === 3 || value === 4 || value === 5) {
     return { kind: 'classes', classes: [`bg-elevation-${value}`] };
   }
   if (value === 0) return { kind: 'omit' };
@@ -138,7 +133,10 @@ export function mapGridStatic(
     return { kind: 'bail', reason: `${prop} is not a static string` };
   }
   const prefix = GRID_UTILITY[prop] ?? 'grid-cols';
-  return { kind: 'classes', classes: [`${prefix}-[${value.replace(/ /g, '_')}]`] };
+  return {
+    kind: 'classes',
+    classes: [`${prefix}-[${value.replace(/ /g, '_')}]`],
+  };
 }
 
 const ARBITRARY_PROP: Readonly<Record<string, string>> = {
@@ -162,6 +160,18 @@ export function isArbitraryProp(prop: string): boolean {
   return prop in ARBITRARY_PROP;
 }
 
+/** Mirror `quoteCssFontFamily`: quote non-alphanumeric stacks, join tight. */
+function canonicalFontFamily(value: string): string | undefined {
+  const parts = value.split(',');
+  const quoted: string[] = [];
+  for (const part of parts) {
+    const name = part.trim();
+    if (name === '') return undefined;
+    quoted.push(/^[A-Za-z0-9-]+$/.test(name) ? name : `"${name}"`);
+  }
+  return quoted.join(',').replace(/ /g, '_');
+}
+
 export function mapArbitraryStatic(
   prop: string,
   value: string | number | boolean | null
@@ -171,7 +181,20 @@ export function mapArbitraryStatic(
     if (prop === 'fontFamily' && value.includes('"')) {
       return { kind: 'bail', reason: 'fontFamily quoting is not reversible' };
     }
-    return { kind: 'classes', classes: [`[${css}:${value.replace(/ /g, '_')}]`] };
+    if (prop === 'fontFamily' && value.includes('_')) {
+      return {
+        kind: 'bail',
+        reason: 'fontFamily underscores collide with escaping',
+      };
+    }
+    const canonical =
+      prop === 'fontFamily'
+        ? canonicalFontFamily(value)
+        : value.replace(/ /g, '_');
+    if (canonical === undefined) {
+      return { kind: 'bail', reason: 'fontFamily quoting is not reversible' };
+    }
+    return { kind: 'classes', classes: [`[${css}:${canonical}]`] };
   }
   if (typeof value === 'number' && Number.isFinite(value)) {
     return { kind: 'classes', classes: [`[${css}:${value}]`] };
@@ -199,7 +222,10 @@ export function mapLogicalInsetStatic(
     return { kind: 'classes', classes: [`${prefix}-[${px(value)}]`] };
   }
   if (typeof value === 'string') {
-    return { kind: 'classes', classes: [`[${css}:${value.replace(/ /g, '_')}]`] };
+    return {
+      kind: 'classes',
+      classes: [`[${css}:${value.replace(/ /g, '_')}]`],
+    };
   }
   return { kind: 'bail', reason: `${prop} value is not static` };
 }
@@ -217,20 +243,24 @@ export function mapAbsoluteFillStatic(
 /** Dynamics: verbatim-safe props splice raw; lookups/transforms bail. */
 export function mapEffectDynamic(prop: string): DynamicStyle {
   if (prop === 'pointerEvents') {
-    return { kind: 'style', cssProp: 'pointer-events', wrap: 'raw' };
+    return { kind: 'style', cssProps: ['pointer-events'], wrap: 'raw' };
   }
   if (prop === 'outlineWidth' || prop === 'outlineOffset') {
     return {
       kind: 'style',
-      cssProp: ARBITRARY_PROP[prop] ?? prop,
+      cssProps: [ARBITRARY_PROP[prop] ?? prop],
       wrap: 'px-number-or-string',
     };
   }
   if (prop in ARBITRARY_PROP) {
-    return { kind: 'style', cssProp: ARBITRARY_PROP[prop] ?? prop, wrap: 'raw' };
+    return {
+      kind: 'style',
+      cssProps: [ARBITRARY_PROP[prop] ?? prop],
+      wrap: 'raw',
+    };
   }
   if (prop === 'boxShadow' || prop in GRID_UTILITY) {
-    return { kind: 'style', cssProp: gridCssProp(prop), wrap: 'raw' };
+    return { kind: 'style', cssProps: [gridCssProp(prop)], wrap: 'raw' };
   }
   return { kind: 'bail', reason: `${prop} dynamic is not mappable` };
 }

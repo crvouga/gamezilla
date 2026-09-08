@@ -205,5 +205,5 @@ export function createBearerTokenStore(options?: {
   };
 }
 
-/** Storage key used by Playwright E2E token injection (web localStorage). */
+/** Storage key used by Bun WebView E2E token injection (web localStorage). */
 export const AUTH_BEARER_STORAGE_KEY = BEARER_STORAGE_KEY;

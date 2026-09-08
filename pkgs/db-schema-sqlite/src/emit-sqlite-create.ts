@@ -5,7 +5,7 @@ import { emitClientOperation } from './emit';
 
 /**
  * Emit SQLite CREATE/INDEX DDL strings for a fresh schema (empty catalog).
- * For hosts that only accept SQL text (Playwright iframe), not for product migrate.
+ * For hosts that only accept SQL text (Bun WebView sql-host iframe), not for product migrate.
  */
 export function emitSqliteCreateStatements(schema: Schema): readonly string[] {
   const emptyCatalog: IntrospectedCatalog = {

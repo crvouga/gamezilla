@@ -3,7 +3,7 @@ import type { RunResult } from '@pkgs/sql-client/interface';
 
 type Row = Record<string, Value>;
 
-/** Tiny SQL subset for the Playwright memory owner. */
+/** Tiny SQL subset for the Bun WebView e2e memory owner. */
 export function execMemorySql(
   tables: Map<string, Row[]>,
   sqlText: string,

@@ -211,7 +211,8 @@
     "pkgs/llm-openai/src/**/*.tsx",
     "pkgs/tts-elevenlabs/src/**/*.ts",
     "pkgs/tts-elevenlabs/src/**/*.tsx",
-    "tools/**/*.ts"
+    "tools/**/*.ts",
+    "pkgs/ui/codemod/**/*.ts"
   ],
   "exclude": ["node_modules", "dist", "web-build"]
 }

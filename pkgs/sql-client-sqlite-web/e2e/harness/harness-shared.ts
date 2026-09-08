@@ -1,4 +1,4 @@
-// @io-wall-ok — Playwright harness helpers
+// @io-wall-ok — Bun WebView e2e harness helpers
 import type { Timers } from '@pkgs/clock';
 import {
   awaitRpcResponse,

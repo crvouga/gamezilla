@@ -106,7 +106,7 @@ if (
   mode === 'gates' &&
   (process.env['TURBO_CONCURRENCY']?.trim() ?? '') === ''
 ) {
-  process.env['TURBO_CONCURRENCY'] = '32';
+  process.env['TURBO_CONCURRENCY'] = '8';
 }
 await ensureSecretsFingerprint(main);
 process.exit(turboCiRun(main));

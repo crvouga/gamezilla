@@ -15,7 +15,7 @@
  *   quoting of comma-separated stacks is not exactly reversible.
  */
 
-import { fontSize, lineHeight } from '../src/theme/scale';
+import { lineHeight } from '../src/theme/scale';
 import type { DynamicStyle, StaticMapping } from './mapping-types';
 import { px } from './sx-map-scale';
 
@@ -44,7 +44,9 @@ const FONT_WEIGHT_UTILITY: Readonly<Record<string, string>> = {
   bold: 'font-bold',
 };
 
-const KEYWORD_UTILITY: Readonly<Record<string, Readonly<Record<string, string>>>> = {
+const KEYWORD_UTILITY: Readonly<
+  Record<string, Readonly<Record<string, string>>>
+> = {
   fontStyle: { normal: 'not-italic', italic: 'italic' },
   textAlign: {
     left: 'text-left',
@@ -78,7 +80,9 @@ const TEXT_DECORATION: Readonly<Record<string, readonly string[]>> = {
   none: ['no-underline'],
   underline: ['underline'],
   'line-through': ['line-through'],
-  'underline line-through': ['underline', 'line-through'],
+  // One declaration, one class: two utilities would cascade (last stylesheet
+  // rule wins) instead of painting both decorations.
+  'underline line-through': ['[text-decoration-line:underline_line-through]'],
 };
 
 export function mapFontSizeStatic(
@@ -171,7 +175,7 @@ export function mapTextDynamic(prop: string): DynamicStyle {
   }
   if (prop in KEYWORD_UTILITY) {
     const cssProp = textKeywordCssProp(prop);
-    return { kind: 'style', cssProp, wrap: 'raw' };
+    return { kind: 'style', cssProps: [cssProp], wrap: 'raw' };
   }
   return { kind: 'bail', reason: `${prop} dynamic is not mappable` };
 }
@@ -183,8 +187,4 @@ function textKeywordCssProp(prop: string): string {
   if (prop === 'userSelect') return 'user-select';
   if (prop === 'whiteSpace') return 'white-space';
   return 'text-overflow';
-}
-
-export function isFontSizeProp(prop: string): boolean {
-  return prop === 'fontSize';
 }

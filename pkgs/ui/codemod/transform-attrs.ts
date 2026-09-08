@@ -8,6 +8,7 @@
 
 import ts from 'typescript';
 import type { StaticValue } from './mapping-types';
+import { invariant } from './tiger';
 
 export type ValueRef =
   | { readonly kind: 'static'; readonly value: StaticValue }
@@ -27,6 +28,7 @@ export function getJsxAttr(
   element: ts.JsxOpeningLikeElement,
   name: string
 ): ts.JsxAttribute | undefined {
+  invariant(name.length > 0, 'attribute name is empty');
   for (const attr of element.attributes.properties) {
     if (ts.isJsxAttribute(attr) && attr.name.getText() === name) return attr;
   }
@@ -34,7 +36,10 @@ export function getJsxAttr(
 }
 
 /** Classify an expression as a static literal, a dynamic splice, or other. */
-export function classifyValue(node: ts.Expression, source: ts.SourceFile): ValueRef {
+export function classifyValue(
+  node: ts.Expression,
+  source: ts.SourceFile
+): ValueRef {
   if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) {
     return { kind: 'static', value: node.text };
   }
@@ -81,7 +86,8 @@ export function classifyTransform(
     }
     const key = propName(prop.name);
     const value = classifyValue(prop.initializer, source);
-    if (key === undefined || value.kind !== 'static') return { kind: 'dynamic' };
+    if (key === undefined || value.kind !== 'static')
+      return { kind: 'dynamic' };
     if (typeof value.value !== 'string' && typeof value.value !== 'number') {
       return { kind: 'dynamic' };
     }
@@ -125,8 +131,7 @@ export function readObjectEntries(
 
 /** Attribute expression text (for `attr={expr}`), or undefined. */
 export function attrExpression(
-  attr: ts.JsxAttribute,
-  source: ts.SourceFile
+  attr: ts.JsxAttribute
 ): ts.Expression | undefined {
   const init = attr.initializer;
   if (init === undefined || !ts.isJsxExpression(init)) return undefined;

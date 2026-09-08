@@ -190,7 +190,7 @@ class MemoryOwnerRuntime implements OwnerRuntime {
   }
 }
 
-/** Tiny in-memory store for Playwright multi-tab protocol tests (not SQLite). */
+/** Tiny in-memory store for Bun WebView multi-tab protocol tests (not SQLite). */
 export function createMemoryOwnerRuntime(args: {
   readonly dbName: string;
   readonly timers: Timers;

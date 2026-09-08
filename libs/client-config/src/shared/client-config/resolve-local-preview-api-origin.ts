@@ -28,7 +28,7 @@ export async function resolveLocalPreviewApiOrigin(): Promise<string> {
 
 /**
  * Synchronous mirror of {@link resolveLocalPreviewApiOrigin} for callers that
- * cannot use top-level `await` — notably Playwright's config loader.
+ * cannot use top-level `await` — notably the turbo preview readiness probe.
  */
 export function resolveLocalPreviewApiOriginSync(): string {
   const fromEnv = trimStringOrNull(process.env['LOCAL_PREVIEW_API_ORIGIN']);

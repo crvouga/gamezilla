@@ -24,7 +24,7 @@ export type DynamicStyle =
   /** `style={{ [cssProp]: <expr> }}` with the expression transformation. */
   | {
       readonly kind: 'style';
-      readonly cssProp: string;
+      readonly cssProps: readonly string[];
       readonly wrap: DynamicWrap;
     }
   | { readonly kind: 'bail'; readonly reason: string };
