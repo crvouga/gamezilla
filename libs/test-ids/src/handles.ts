@@ -21,6 +21,7 @@ export const Handles = {
   /** Lobby card for a host's live space (scoped by host username). */
   spaceCard: (hostUsername: string) => `space-card-${hostUsername}`,
   spaceJoin: 'space-join',
+  spaceEnded: 'space-ended',
   spaceClose: 'space-close',
   spaceLeave: 'space-leave',
   spaceEnd: 'space-end',
@@ -56,6 +57,7 @@ export const Handles = {
   profileAvatarSave: 'profile-avatar-save',
   profileAvatarCancel: 'profile-avatar-cancel',
   profileAvatarStyle: 'profile-avatar-style',
+  profileAvatarStyleSearch: 'profile-avatar-style-search',
   profileAvatarStyleBottts: 'profile-avatar-style-bottts',
   profileAvatarTrait: 'profile-avatar-trait',
   profileFriendsStats: 'profile-friends-stats',

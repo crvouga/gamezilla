@@ -8,6 +8,7 @@
 import { useLingui } from '@lingui/solid/macro';
 import type { LocalizedString } from '@pkgs/i18n/localized-string';
 import { type JSX, Show } from 'solid-js';
+import type { ComponentDataSet } from '../../component-id';
 import { Box } from '../box';
 import { ErrorState } from '../error-state';
 import { LoadingState } from '../loading-state';
@@ -37,6 +38,7 @@ export type ComboboxBodyProps<T extends ComboboxValue> = {
   onPick: (next: T) => void;
   onDone: () => void;
   onSearchKeyDown: (event: ComboboxKeyEvent) => void;
+  searchDataSet: ComponentDataSet | undefined;
   renderOption: ComboboxRenderOption<T> | undefined;
   loading: boolean;
   error: JSX.Element | undefined;
@@ -118,6 +120,7 @@ export function ComboboxBody<T extends ComboboxValue>(
         listboxId={props.listboxId}
         activeDescendantId={activeDescendantId()}
         onKeyDown={props.onSearchKeyDown}
+        dataSet={props.searchDataSet}
       />
       <ComboboxOptions {...props} />
       <Show when={props.multiple}>

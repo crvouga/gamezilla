@@ -5,7 +5,6 @@ import {
   confirmSpaceMutation,
   leaveToLobby,
   reenterSpace,
-  SCREEN_SPACE_ENDED,
   SPACE_HIDDEN_MS,
   SPACE_WAIT_MS,
   showSpacesTab,
@@ -74,7 +73,7 @@ export const endSpace = scenarioAction({
     await tapChromeAction(s, actorId, Handles.spaceEnd);
     await confirmSpaceMutation(s, actorId, Handles.spaceEndConfirm);
     const ui = await actorUi(s, actorId);
-    await ui.get(SCREEN_SPACE_ENDED).expect.visible({
+    await ui.get(Handles.spaceEnded).expect.visible({
       timeoutMs: SPACE_WAIT_MS,
     });
   },

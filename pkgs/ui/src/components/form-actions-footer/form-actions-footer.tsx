@@ -24,7 +24,7 @@
  * ```
  */
 
-import { type JSX, Show } from 'solid-js';
+import { type JSX, Show, untrack } from 'solid-js';
 import type { ComponentDataSet } from '../../component-id';
 import { Box } from '../box';
 import { Button, type ButtonIntent, useMutationButton } from '../button';
@@ -65,29 +65,33 @@ export type FormActionsFooterProps = {
 };
 
 export function FormActionsFooter(props: FormActionsFooterProps): JSX.Element {
+  const { submit, cancel } = untrack(() => ({
+    submit: props.submit,
+    cancel: props.cancel,
+  }));
   const mutation = useMutationButton({
-    operation: () => props.submit.operation(),
+    operation: () => submit.operation(),
     labels: {
       get idle() {
-        return props.submit.label;
+        return submit.label;
       },
       get loading() {
-        return props.submit.loadingLabel;
+        return submit.loadingLabel;
       },
       get success() {
-        return props.submit.successLabel;
+        return submit.successLabel;
       },
       get error() {
-        return props.submit.errorLabel;
+        return submit.errorLabel;
       },
     },
-    onSuccess: () => props.submit.onSuccess?.(),
-    onError: (error) => props.submit.onError?.(error),
+    onSuccess: () => submit.onSuccess?.(),
+    onError: (error) => submit.onError?.(error),
     get successHoldMs() {
-      return props.submit.successHoldMs;
+      return submit.successHoldMs;
     },
     get disabled() {
-      return props.submit.disabled;
+      return submit.disabled;
     },
   });
 
@@ -96,7 +100,7 @@ export function FormActionsFooter(props: FormActionsFooterProps): JSX.Element {
       sx={{ flexDirection: 'row', gap: 2 }}
       dataSet={{ component: 'FormActionsFooter', ...props.dataSet }}
     >
-      <Show when={props.cancel}>
+      <Show when={cancel}>
         {(cancel) => (
           <Button
             title={cancel().label}
@@ -112,9 +116,9 @@ export function FormActionsFooter(props: FormActionsFooterProps): JSX.Element {
       <Button
         {...mutation.buttonProps}
         type="submit"
-        intent={props.submit.intent ?? 'primary'}
+        intent={submit.intent ?? 'primary'}
         flex={1}
-        dataSet={{ component: 'FormSubmitButton', ...props.submit.dataSet }}
+        dataSet={{ component: 'FormSubmitButton', ...submit.dataSet }}
       />
     </Box>
   );

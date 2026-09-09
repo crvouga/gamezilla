@@ -7,6 +7,7 @@
 
 import type { LocalizedString } from '@pkgs/i18n/localized-string';
 import { type JSX, onMount } from 'solid-js';
+import type { ComponentDataSet } from '../../component-id';
 import { Box } from '../box';
 import { SearchIcon } from '../icons';
 import { TextInput } from '../text-input';
@@ -19,6 +20,7 @@ export type ComboboxSearchProps = {
   listboxId: string;
   activeDescendantId: string | undefined;
   onKeyDown: (event: ComboboxKeyEvent) => void;
+  dataSet?: ComponentDataSet | undefined;
   /** Move focus into the field on mount. Default `true`. */
   /** Focus the field on mount. Default `true`. */
   focusOnMount?: boolean | undefined;
@@ -47,7 +49,7 @@ export function ComboboxSearch(props: ComboboxSearchProps): JSX.Element {
         autocapitalize="none"
         startAdornment={<SearchIcon size={18} />}
         onKeyDown={(ev) => props.onKeyDown(ev)}
-        dataSet={{ component: 'ComboboxSearch' }}
+        dataSet={{ component: 'ComboboxSearch', ...props.dataSet }}
       />
     </Box>
   );

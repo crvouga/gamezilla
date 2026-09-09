@@ -181,6 +181,21 @@ function mutateCaughtResult(
   return null;
 }
 
+function snapshotMutationEnv(env: MutationEnv): MutationEnv {
+  const snapshot: MutationEnv = {
+    actorId: env.actorId,
+    deviceId: env.deviceId,
+    accountId: env.accountId,
+    isAnon: env.isAnon,
+    now: env.now,
+    createId: env.createId,
+  };
+  if (env.serverNow === undefined) {
+    return snapshot;
+  }
+  return { ...snapshot, serverNow: env.serverNow };
+}
+
 /**
  * THE client write API. Exposes read-only `query` and `mutate` only —
  * never a writable transaction outside a mutation's `run`.
@@ -194,8 +209,10 @@ export function createMutationClient(
     query: db.query.bind(db) as SqlClient['query'],
 
     async mutate<A>(m: Mutation<A>, args: A): Promise<MutateResult> {
+      const mutationEnv = snapshotMutationEnv(env);
+      const online = connectivity.isOnline();
       const run = mutationTail.then(async () => {
-        if (m.requiresOnline === true && !connectivity.isOnline()) {
+        if (m.requiresOnline === true && !online) {
           return {
             ok: false as const,
             failures: [
@@ -221,7 +238,7 @@ export function createMutationClient(
             db,
             mutation: m,
             value: parsed.value,
-            env,
+            env: mutationEnv,
             clientId: ids.clientId,
             createId: options.createId,
           });

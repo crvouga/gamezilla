@@ -19,7 +19,10 @@ export const setUsername = scenarioAction({
     const ui = await actorUi(s, actorId);
     await s.session.waitForIdle();
     await ui.get(Handles.profileEditUsername).tap();
-    await ui.get(Handles.profileUsernameInput).input(username);
+    const input = ui.get(Handles.profileUsernameInput);
+    await input.expect.visible();
+    await input.clear();
+    await input.input(username);
     await ui.get(Handles.profileUsernameSave).tap();
     await ui.get(Handles.profileUsernameSave).expect.text('Saved');
     await ui.get(Handles.profileUsernameCancel).tap();
@@ -51,16 +54,25 @@ export const setAvatarSeed = scenarioAction({
   name: 'setAvatarSeed',
   act: async (s, actorId: string, seed: string) => {
     const ui = await actorUi(s, actorId);
-    await ui.get(Handles.profileAvatarSeed).input(seed);
+    const input = ui.get(Handles.profileAvatarSeed);
+    await input.expect.visible();
+    await input.clear();
+    await input.input(seed);
   },
 });
 
 export const setAvatarStyle = scenarioAction({
   name: 'setAvatarStyle',
-  act: async (s, actorId: string, styleOptionHandle: string) => {
+  act: async (
+    s,
+    actorId: string,
+    styleSearch: string,
+    styleOptionHandle: string
+  ) => {
     const ui = await actorUi(s, actorId);
     await s.session.waitForIdle();
     await ui.get(Handles.profileAvatarStyle).tap();
+    await ui.get(Handles.profileAvatarStyleSearch).input(styleSearch);
     await ui.get(styleOptionHandle).tap();
     await ui.get(Handles.profileAvatarStyle).expect.visible();
   },

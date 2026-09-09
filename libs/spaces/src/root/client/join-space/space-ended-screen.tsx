@@ -1,3 +1,4 @@
+import { Handles } from '@libs/test-ids';
 import { Trans } from '@lingui/solid/macro';
 import { Box, ScreenBase, useBreadcrumbNav } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
@@ -24,7 +25,7 @@ export function SpaceEndedScreen(props: SpaceEndedScreenProps): JSX.Element {
         },
       ]}
       content={({ sx }) => (
-        <Box sx={sx}>
+        <Box sx={sx} dataSet={{ testid: Handles.spaceEnded }}>
           <SpaceJoinEndedState spaceId={props.spaceId} />
         </Box>
       )}

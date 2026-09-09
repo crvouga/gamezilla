@@ -3,10 +3,6 @@ import { Handles } from '@libs/test-ids';
 import { actorUi, pollUntil } from './actor-ui';
 import type { ProductSim } from './sim';
 
-export const SCREEN_SPACES = 'screen-spaces';
-export const SCREEN_SPACE_JOIN = 'screen-space-join';
-export const SCREEN_SPACE_ENDED = 'screen-space-ended';
-
 export const SPACE_WAIT_MS = 10_000;
 export const SPACE_HIDDEN_MS = 5_000;
 
@@ -15,8 +11,19 @@ export async function showSpacesTab(
   actorId: string
 ): Promise<void> {
   const ui = await actorUi(s, actorId);
+  await ui.get(Handles.statusCurrentUser).expect.visible({
+    timeoutMs: SPACE_WAIT_MS,
+  });
+  if (
+    !(await ui.get(Handles.tabSpaces).isVisible()) &&
+    (await ui.get(Handles.navBack).isVisible())
+  ) {
+    await ui.get(Handles.navBack).tap();
+  }
   await ui.get(Handles.tabSpaces).tap({ timeoutMs: SPACE_WAIT_MS });
-  await ui.get(SCREEN_SPACES).expect.visible({ timeoutMs: SPACE_WAIT_MS });
+  await ui
+    .get(Handles.spaceCreate)
+    .expect.visible({ timeoutMs: SPACE_WAIT_MS });
 }
 
 export async function waitActiveSpace(
@@ -60,7 +67,7 @@ export async function tapLobbyCard(
   const ui = await actorUi(s, actorId);
   await ui.get(handle).tap({ timeoutMs: SPACE_WAIT_MS });
   if (expectJoinPrompt) {
-    await ui.get(SCREEN_SPACE_JOIN).expect.visible({
+    await ui.get(Handles.spaceJoin).expect.visible({
       timeoutMs: SPACE_WAIT_MS,
     });
   }
@@ -72,7 +79,9 @@ export async function leaveToLobby(
 ): Promise<void> {
   const ui = await actorUi(s, actorId);
   await ui.get(Handles.spaceClose).tap({ timeoutMs: SPACE_WAIT_MS });
-  await ui.get(SCREEN_SPACES).expect.visible({ timeoutMs: SPACE_WAIT_MS });
+  await ui
+    .get(Handles.spaceCreate)
+    .expect.visible({ timeoutMs: SPACE_WAIT_MS });
 }
 
 export async function reenterSpace(
@@ -81,6 +90,9 @@ export async function reenterSpace(
   hostUsername: string
 ): Promise<void> {
   const ui = await actorUi(s, actorId);
+  await ui.get(Handles.statusCurrentUser).expect.visible({
+    timeoutMs: SPACE_WAIT_MS,
+  });
   if (await ui.get(Handles.spaceClose).isVisible()) {
     await waitActiveSpace(s, actorId);
     return;

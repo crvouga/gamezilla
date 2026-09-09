@@ -30,7 +30,12 @@ describe('profile edit', () => {
     await s.apply(openProfileEdit, 'alice');
     await s.apply(openAvatarEditor, 'alice');
     await s.apply(setAvatarSeed, 'alice', 'sim-seed-guest');
-    await s.apply(setAvatarStyle, 'alice', Handles.profileAvatarStyleBottts);
+    await s.apply(
+      setAvatarStyle,
+      'alice',
+      'Bottts',
+      Handles.profileAvatarStyleBottts
+    );
     await s.apply(expectAvatarStyleLabel, 'alice', 'Bottts');
     await s.apply(expectAvatarTraitVisible, 'alice');
     await s.apply(saveAvatar, 'alice');
@@ -56,7 +61,12 @@ describe('profile edit', () => {
     await s.apply(openProfileEdit, 'alice');
     await s.apply(openAvatarEditor, 'alice');
     await s.apply(setAvatarSeed, 'alice', 'sim-seed-signed');
-    await s.apply(setAvatarStyle, 'alice', Handles.profileAvatarStyleBottts);
+    await s.apply(
+      setAvatarStyle,
+      'alice',
+      'Bottts',
+      Handles.profileAvatarStyleBottts
+    );
     await s.apply(expectAvatarStyleLabel, 'alice', 'Bottts');
     await s.apply(expectAvatarTraitVisible, 'alice');
     await s.apply(saveAvatar, 'alice');

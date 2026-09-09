@@ -1,13 +1,14 @@
 // @io-wall-ok
-import './polyfill-entry';
+import { assert } from '@pkgs/assert';
 import '@pkgs/tailwind/tailwind.css';
 import '@pkgs/ui/tokens.css';
-import './styles.css';
 import { render } from 'solid-js/web';
+import './polyfill-entry';
 import { RootApp } from './root-app';
+import './styles.css';
 import { wallConsoleEnv } from './wall-console-env';
 
 const root = document.getElementById('root');
-if (root === null) throw new Error('Console root element is missing');
-const dispose = render(() => <RootApp env={wallConsoleEnv()} />, root);
-import.meta.hot?.dispose(dispose);
+assert.ok(root !== null, 'console root element is missing');
+const env = wallConsoleEnv();
+render(() => <RootApp env={env} />, root);

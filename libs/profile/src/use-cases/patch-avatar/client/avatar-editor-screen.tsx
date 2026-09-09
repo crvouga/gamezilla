@@ -109,6 +109,9 @@ function StyleCombobox(props: {
         value: key,
         label: styleLabel(key),
         searchText: styleLabel(key),
+        ...(key === 'bottts'
+          ? { dataSet: { testid: Handles.profileAvatarStyleBottts } }
+          : {}),
         preview: (
           <ProfileDiceBearAvatar
             config={{ style: key, seed: props.seed, options: {} }}
@@ -117,9 +120,6 @@ function StyleCombobox(props: {
           />
         ),
       };
-      if (key === 'bottts') {
-        option.dataSet = { testid: Handles.profileAvatarStyleBottts };
-      }
       return option;
     })
   );
@@ -137,6 +137,7 @@ function StyleCombobox(props: {
       emptyMessage={t`No matching styles`}
       surfaceTitle={<Trans>Style</Trans>}
       triggerDataSet={{ testid: Handles.profileAvatarStyle }}
+      searchDataSet={{ testid: Handles.profileAvatarStyleSearch }}
     />
   );
 }
