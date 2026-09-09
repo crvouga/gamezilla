@@ -3,4 +3,5 @@ export {
   type ComponentDataAttrs,
   type ComponentDataSet,
   componentDataAttrs,
+  dataAttrs,
 } from './component-id';

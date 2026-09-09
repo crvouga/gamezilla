@@ -24,7 +24,7 @@ describe('Box Tier A', () => {
       { line: 2, component: 'Box', tier: 'A' },
     ]);
     expect(result.text).toBe(
-      `export const A = () => <div class="box p-4 bg-surface" data-component="Box">x</div>;`
+      `export const A = () => <div class="box p-4 bg-surface">x</div>;`
     );
   });
 
@@ -43,6 +43,14 @@ describe('Box Tier A', () => {
     expect(result.text).toContain('data-component="Card"');
     expect(result.text).toContain('data-src="x"');
     expect(result.text).not.toContain('dataSet');
+  });
+
+  test('does not inject host data-component on migrated nodes', () => {
+    const result = run(
+      `export const A = () => <Box sx={{ p: 1 }} dataSet={{ testid: 'x' }} />;`
+    );
+    expect(result.text).toContain('data-testid="x"');
+    expect(result.text).not.toContain('data-component');
   });
 
   test('existing literal class merges after generated classes', () => {
@@ -65,9 +73,8 @@ describe('Box Tier A', () => {
   test('Box without sx still converts (keeps the base class)', () => {
     const result = run(`export const A = () => <Box id="a" />;`);
     expect(result.converted.length).toBe(1);
-    expect(result.text).toContain(
-      '<div class="box" data-component="Box" id="a" />'
-    );
+    expect(result.text).toContain('<div class="box" id="a" />');
+    expect(result.text).not.toContain('data-component');
   });
 
   test('solo backgroundColor becomes bg-* (not dropped)', () => {
@@ -166,12 +173,13 @@ describe('Box conversion edge cases', () => {
     expect(result.text).toContain('<div class="box"');
   });
 
-  test('dynamic dataSet uses componentDataAttrs', () => {
+  test('dynamic dataSet uses dataAttrs without host component', () => {
     const result = run(
       `export const A = (p: { d: never }) => <Box sx={{ p: 1 }} dataSet={p.d} />;`
     );
     expect(result.manual).toEqual([]);
-    expect(result.text).toContain('componentDataAttrs("Box", p.d)');
+    expect(result.text).toContain('{...dataAttrs(p.d)}');
+    expect(result.text).not.toContain('componentDataAttrs');
     expect(result.text).not.toContain('dataSet=');
   });
   test('non-intrinsic as falls back to div', () => {
@@ -182,12 +190,13 @@ describe('Box conversion edge cases', () => {
     expect(result.text).toContain('<div class="box p-1"');
     expect(result.text).not.toContain('as=');
   });
-  test('dataSet keys that are not data-attribute names use componentDataAttrs', () => {
+  test('dataSet keys that are not data-attribute names use dataAttrs', () => {
     const result = run(
       `export const A = () => <Box sx={{ p: 1 }} dataSet={{ 'a b': 'x' }} />;`
     );
     expect(result.manual).toEqual([]);
-    expect(result.text).toContain('componentDataAttrs');
+    expect(result.text).toContain('dataAttrs');
+    expect(result.text).not.toContain('componentDataAttrs');
   });
 });
 
@@ -329,7 +338,7 @@ describe('Stack / Center / Spacer', () => {
     expect(result.text).toContain(
       '<div class="box flex-row gap-2 items-center"'
     );
-    expect(result.text).toContain('data-component="Stack"');
+    expect(result.text).not.toContain('data-component');
   });
   test('Stack with dynamic layout converts via style', () => {
     const result = transformFile(

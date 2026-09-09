@@ -123,7 +123,7 @@ export function readSxConversion(
 
 export function dataSetFields(
   element: ts.JsxOpeningLikeElement,
-  defaultComponent: string,
+  hostComponent: string,
   source: ts.SourceFile,
   peeledDataSetExpr: string | undefined
 ): {
@@ -132,7 +132,7 @@ export function dataSetFields(
   dataAttrsSpread?: string | undefined;
 } {
   return emitDataSetAttrs(
-    convertDataSet(element, defaultComponent, source, peeledDataSetExpr)
+    convertDataSet(element, hostComponent, source, peeledDataSetExpr)
   );
 }
 

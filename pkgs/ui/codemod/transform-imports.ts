@@ -1,6 +1,6 @@
 /**
  * File-level text utilities for the codemod: parse, span edits, import
- * pruning, and `componentDataAttrs` import injection.
+ * pruning, and `dataAttrs` import injection.
  *
  * Pure (string in, string out). Split from `transform.ts` so neither file
  * trips the structural size caps.
@@ -106,16 +106,16 @@ function stillUsed(
   return used;
 }
 
-/** Add `componentDataAttrs` when the output calls it. */
+/** Add `dataAttrs` when the output calls it. */
 export function ensureRuntimeImports(text: string, filePath = ''): string {
-  const needsDataAttrs = /\bcomponentDataAttrs\(/.test(text);
+  const needsDataAttrs = /\bdataAttrs\(/.test(text);
   if (!needsDataAttrs) return text;
   if (isPkgsUiSrc(filePath)) {
     return ensureNamedImport(text, relModule(filePath, 'component-id'), [
-      'componentDataAttrs',
+      'dataAttrs',
     ]);
   }
-  return ensureNamedImport(text, '@pkgs/ui', ['componentDataAttrs']);
+  return ensureNamedImport(text, '@pkgs/ui', ['dataAttrs']);
 }
 
 function isPkgsUiSrc(filePath: string): boolean {

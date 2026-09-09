@@ -46,7 +46,7 @@ export type NodeConversion = {
   readonly dataAttrs: Readonly<Record<string, string>>;
   /** Dynamic `data-*={expr}` attribute texts. */
   readonly dataAttrExprs: readonly string[];
-  /** `{...componentDataAttrs(...)}` when dataSet is not fully static. */
+  /** `{...dataAttrs(...)}` when dataSet is not fully static. */
   readonly dataAttrsSpread?: string | undefined;
   /** Exact spread texts peeled into the conversion (omit from passthrough). */
   readonly dropSpreadTexts: readonly string[];

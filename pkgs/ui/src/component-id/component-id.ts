@@ -25,6 +25,9 @@ export const COMPONENT_IDS_ENABLED: boolean =
  * `data-*` attribute fragment with `component: name` merged under any
  * incoming keys. Returns `{}` when identifiers are disabled so callers can
  * safely spread the result.
+ *
+ * For design-system hosts only. Migrated plain elements use {@link dataAttrs}
+ * so they do not get a synthetic `data-component`.
  */
 export function componentDataAttrs(
   name: string,
@@ -36,6 +39,21 @@ export function componentDataAttrs(
     for (const [key, value] of Object.entries(incoming)) {
       out[`data-${key}`] = value;
     }
+  }
+  return out;
+}
+
+/**
+ * Map a `dataSet` bag to `data-*` attrs without injecting `data-component`.
+ * Used by the sx→Tailwind migration for plain HTML hosts.
+ */
+export function dataAttrs(
+  incoming: ComponentDataSet | undefined
+): ComponentDataAttrs {
+  if (incoming === undefined) return {};
+  const out: ComponentDataAttrs = {};
+  for (const [key, value] of Object.entries(incoming)) {
+    out[`data-${key}`] = value;
   }
   return out;
 }
