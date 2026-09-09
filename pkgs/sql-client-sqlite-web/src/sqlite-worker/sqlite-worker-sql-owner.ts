@@ -2,6 +2,7 @@ import type { Timers } from '@pkgs/clock';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { withOpenTimeout } from '../open-retry';
 import type { SqlOwner } from '../sql-owner';
+import { workerScriptLoadError } from '../worker-script-load-error';
 import type { SqliteWorkerOpenResult, SqliteWorkerPort } from './protocol';
 import {
   createSqliteWorkerRpc,
@@ -12,6 +13,8 @@ import {
 /** A spawned dedicated worker: message port plus hard teardown. */
 export type SqliteWorkerHandle = SqliteWorkerPort & {
   terminate: () => void;
+  /** Browser `Worker.onerror` — script parse/load failures (HTML-as-JS). */
+  onerror?: ((event: ErrorEvent) => void) | null;
 };
 
 export type SqliteWorkerSqlOwner = SqlOwner & {
@@ -36,11 +39,17 @@ class SqliteWorkerSqlOwnerImpl implements SqliteWorkerSqlOwner {
 
   private spawn(): LiveWorker {
     const handle = this.spawnWorker(this.dbName);
-    return { handle, rpc: createSqliteWorkerRpc(handle) };
+    const rpc = createSqliteWorkerRpc(handle);
+    const live: LiveWorker = { handle, rpc };
+    handle.onerror = (event) => {
+      rpc.abortAll(workerScriptLoadError(event));
+    };
+    return live;
   }
 
   private terminate(live: LiveWorker): void {
     live.handle.onmessage = null;
+    live.handle.onerror = null;
     live.handle.terminate();
     live.rpc.abortAll(new Error('SQLite worker terminated'));
   }

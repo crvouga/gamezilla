@@ -21,7 +21,7 @@ function screenNode(screenId: string): Element | null {
 
 function bootChromeNode(): Element | null {
   return document.querySelector(
-    '[data-component="BlankShell"], [data-component="BootPaintGate"]'
+    '[data-component="BootLoadingShell"], [data-component="BootPaintGate"], [data-component="LocalDatabaseBootErrorScreen"]'
   );
 }
 

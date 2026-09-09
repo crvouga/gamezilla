@@ -1,0 +1,27 @@
+/** @jsxImportSource solid-js */
+import { useLingui } from '@lingui/solid/macro';
+import { Box, LoadingState } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+
+/**
+ * Full-bleed themed loading canvas while identity binds or local SQLite opens.
+ * Replaces the old blank shell so a hung OPFS / worker open is never a white
+ * void with no feedback.
+ */
+export function BootLoadingShell(): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <Box
+      sx={{
+        flex: 1,
+        minHeight: 0,
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'background',
+      }}
+      dataSet={{ component: 'BootLoadingShell' }}
+    >
+      <LoadingState size="large" caption={t`Starting…`} />
+    </Box>
+  );
+}

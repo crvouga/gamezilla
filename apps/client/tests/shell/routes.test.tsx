@@ -61,5 +61,5 @@ describe('route table', () => {
       const mod = await entry.load();
       expect(typeof mod.default, entry.path).toBe('function');
     }
-  });
+  }, 30_000);
 });

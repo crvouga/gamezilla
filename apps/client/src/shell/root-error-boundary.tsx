@@ -10,6 +10,8 @@
 import { useTimers } from '@pkgs/clock/solid';
 import { createSignal, ErrorBoundary, type JSX } from 'solid-js';
 
+import { reloadApp } from './boot/reload-app';
+
 const CRASH_TITLE = 'App crashed!';
 const COPIED_RESET_MS = 2000;
 
@@ -72,6 +74,9 @@ function CrashScreen(props: {
         <CopyErrorButton error={props.error} />
         <button type="button" class="crash-copy" onClick={() => props.reset()}>
           Try again
+        </button>
+        <button type="button" class="crash-copy" onClick={() => reloadApp()}>
+          Reload app
         </button>
       </div>
     </div>

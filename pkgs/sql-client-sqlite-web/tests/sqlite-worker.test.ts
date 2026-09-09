@@ -34,6 +34,7 @@ function createFakeWorker(
   const callerPort = channel.port1;
   callerPort.start();
   channel.port2.start();
+  let onerror: ((event: ErrorEvent) => void) | null = null;
   return {
     postMessage: (message) => callerPort.postMessage(message),
     get onmessage() {
@@ -41,6 +42,12 @@ function createFakeWorker(
     },
     set onmessage(handler) {
       callerPort.onmessage = handler as typeof callerPort.onmessage;
+    },
+    get onerror() {
+      return onerror;
+    },
+    set onerror(handler) {
+      onerror = handler;
     },
     terminate: () => {
       detach();
@@ -308,6 +315,35 @@ describe('createSqliteWorkerSqlOwner', () => {
     const failed = await rejectionOf(owner.open());
     expect(failed.message).toBe('cannot create file');
     expect(events).toEqual(['spawn:user_a', 'terminate']);
+    expect(owner.getOpenInfo()).toBeNull();
+  });
+
+  test('worker onerror rejects open promptly', async () => {
+    let captured: SqliteWorkerHandle | undefined;
+    const backend: SqliteWorkerBackend = {
+      open: () => new Promise(() => {}),
+      wipe: () => Promise.resolve(),
+    };
+    const owner = createSqliteWorkerSqlOwner({
+      dbName: 'user_a',
+      timers: wallTimers,
+      spawnWorker: () => {
+        const handle = createFakeWorker(backend);
+        captured = handle;
+        allHandles.push(handle);
+        return handle;
+      },
+    });
+    const openPromise = owner.open();
+    await Promise.resolve();
+    const handle = captured;
+    expect(handle).toBeDefined();
+    handle?.onerror?.({
+      message: "Unexpected token '<'",
+    } as ErrorEvent);
+    const failed = await rejectionOf(openPromise);
+    expect(failed.message).toContain('SQLite worker failed to load');
+    expect(failed.message).toContain("Unexpected token '<'");
     expect(owner.getOpenInfo()).toBeNull();
   });
 });

@@ -9,6 +9,16 @@ import {
 import { Center, ErrorState } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 
+import { reloadApp } from '../boot/reload-app';
+
+/** Synthetic error when open hangs past the UI watchdog (stale worker / SW). */
+export const BOOT_STUCK_MESSAGE =
+  'Local database did not become ready in time. This can happen after an app update when cached worker scripts are stale.';
+
+export function isBootStuckError(error: Error): boolean {
+  return error.message.includes('did not become ready in time');
+}
+
 function isMultiTabOwnerLostError(error: Error): boolean {
   return (
     isLeaderLostError(error) ||
@@ -18,6 +28,14 @@ function isMultiTabOwnerLostError(error: Error): boolean {
 }
 
 function bootErrorBody(error: Error): JSX.Element {
+  if (isBootStuckError(error)) {
+    return (
+      <Trans>
+        Local database did not become ready. Reload the app. If this keeps
+        happening after an update, clear site data for this origin.
+      </Trans>
+    );
+  }
   if (isMultiTabOwnerLostError(error)) {
     return (
       <Trans>
@@ -27,11 +45,6 @@ function bootErrorBody(error: Error): JSX.Element {
     );
   }
   return error.message;
-}
-
-function reloadWindow(): void {
-  const loc = (globalThis as { location?: { reload(): void } }).location;
-  loc?.reload();
 }
 
 export function LocalDatabaseBootErrorScreen(props: {
@@ -44,7 +57,7 @@ export function LocalDatabaseBootErrorScreen(props: {
 
   const onRetry = (): void => {
     if (!canResetLocalData()) {
-      reloadWindow();
+      reloadApp();
       return;
     }
     void runWebOpfsRecoveryAndReload({ timers }).catch((wipeError: unknown) => {
@@ -64,6 +77,8 @@ export function LocalDatabaseBootErrorScreen(props: {
         title={
           canResetLocalData() ? (
             <Trans>Gamezilla is open in another tab</Trans>
+          ) : isBootStuckError(props.error) ? (
+            <Trans>App failed to start</Trans>
           ) : (
             <Trans>Could not start local database</Trans>
           )
@@ -72,7 +87,7 @@ export function LocalDatabaseBootErrorScreen(props: {
         retry={{
           label: canResetLocalData()
             ? t`Reset local data and reload`
-            : t`Try again`,
+            : t`Reload app`,
           onClick: onRetry,
         }}
       />

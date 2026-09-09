@@ -238,6 +238,10 @@ msgstr "API origin (no helper)"
 msgid "App"
 msgstr "App"
 
+#: apps/client/src/shell/sync/boot-error-screen.tsx
+msgid "App failed to start"
+msgstr "App failed to start"
+
 #: apps/client/src/screens/more/settings-screen.tsx
 #: apps/client/src/screens/more/theme-screen.tsx
 #: apps/client/src/shell/commands/app-commands.tsx
@@ -1069,6 +1073,10 @@ msgstr "Loading…"
 msgid "Local database and sync state"
 msgstr "Local database and sync state"
 
+#: apps/client/src/shell/sync/boot-error-screen.tsx
+msgid "Local database did not become ready. Reload the app. If this keeps happening after an update, clear site data for this origin."
+msgstr "Local database did not become ready. Reload the app. If this keeps happening after an update, clear site data for this origin."
+
 #: apps/client/src/screens/more/performance-screen.tsx
 msgid "Long tasks"
 msgstr "Long tasks"
@@ -1504,6 +1512,10 @@ msgstr "Reconnecting…"
 msgid "Reload"
 msgstr "Reload"
 
+#: apps/client/src/shell/sync/boot-error-screen.tsx
+msgid "Reload app"
+msgstr "Reload app"
+
 #: libs/friends/src/root/client/friend-user-danger-modals.tsx
 #: libs/spaces/src/root/client/space-users/space-share-people-list.tsx
 msgid "Remove"
@@ -1908,6 +1920,10 @@ msgstr "Start a space"
 msgid "Start a space to play with friends. Spaces you join show up here."
 msgstr "Start a space to play with friends. Spaces you join show up here."
 
+#: apps/client/src/shell/boot/boot-loading-shell.tsx
+msgid "Starting…"
+msgstr "Starting…"
+
 #: apps/client/src/screens/more/sync-screen.tsx
 msgid "State"
 msgstr "State"
@@ -2051,7 +2067,6 @@ msgstr "Transparent"
 msgid "Try a different search term."
 msgstr "Try a different search term."
 
-#: apps/client/src/shell/sync/boot-error-screen.tsx
 #: libs/auth/src/public/sign-in-modal.tsx
 #: pkgs/ui/src/components/mutation-modal/mutation-modal-parts.tsx
 msgid "Try again"

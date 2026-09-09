@@ -1,4 +1,5 @@
 import type { Timers } from '@pkgs/clock';
+import { OPEN_DATABASE_TIMEOUT_MS } from './open-retry';
 import type { createOwnerRuntime, OwnerRuntime } from './owner-runtime';
 import {
   awaitRpcResponse,
@@ -17,6 +18,7 @@ import {
   SQL_DB_HOST_PROTOCOL_VERSION,
   sqlDbHostSharedWorkerName,
 } from './sql-db-host-protocol';
+import { workerScriptLoadError } from './worker-script-load-error';
 
 export type WebSqlTransport = {
   connect: () => Promise<ConnectResult>;
@@ -149,12 +151,23 @@ class SharedWorkerTransport implements WebSqlTransport {
     this.post(await this.ownerRuntime.handleRequest(request));
   }
 
+  private rejectAllPending(error: Error): void {
+    for (const [, entry] of this.pending) {
+      this.timers.clearTimeout(entry.timerId);
+      entry.reject(error);
+    }
+    this.pending.clear();
+  }
+
   async connect(): Promise<ConnectResult> {
     if (this.connected && this.role !== null) return { role: this.role };
     this.worker = new SharedWorker(this.workerUrl, {
       name: sqlDbHostSharedWorkerName(this.protocolVersion),
       type: 'module',
     });
+    this.worker.onerror = (event) => {
+      this.rejectAllPending(workerScriptLoadError(event));
+    };
     this.port = this.worker.port;
     this.port.onmessage = (event: MessageEvent<BrokerToTabMessage>) => {
       void this.onMessage(event.data);
@@ -166,6 +179,7 @@ class SharedWorkerTransport implements WebSqlTransport {
       op: 'connect',
       pending: this.pending,
       timers: this.timers,
+      timeoutMs: OPEN_DATABASE_TIMEOUT_MS,
       send: () => {
         this.post({ id, dbName: this.dbName, op: 'connect', payload: {} });
       },
@@ -219,6 +233,9 @@ class SharedWorkerTransport implements WebSqlTransport {
     }
     this.port?.close();
     this.port = null;
+    if (this.worker !== null) {
+      this.worker.onerror = null;
+    }
     this.worker = null;
     this.role = null;
   }
