@@ -72,7 +72,7 @@ describe('turbo deploy graph invariants', () => {
     expect(list).toContain('@libs/billing#billing:check');
     expect(list).toContain('@tools#check:static');
     expect(list).toContain('@apps/server#check:api');
-    expect(list).toContain('@apps/client#check:bundle-budget');
+    expect(list).not.toContain('@apps/client#check:bundle-budget');
   });
 
   test('bun check invokes turbo-ci-run with check aggregator only', () => {
@@ -108,6 +108,20 @@ describe('turbo deploy graph invariants', () => {
     expect(full).not.toContain('build');
     expect(full).not.toContain('@apps/client#build');
     expect(full).not.toContain('@apps/product#build');
+  });
+
+  test('deploy still gates client bundle budget (not check:full)', () => {
+    const turbo = loadTurboJson();
+    const deployDeps = turbo.tasks?.deploy?.dependsOn;
+    expect(Array.isArray(deployDeps)).toBe(true);
+    expect(deployDeps as string[]).toContain(
+      '@apps/client#check:bundle-budget'
+    );
+    const fullDeps = turbo.tasks?.['//#check:full']?.dependsOn;
+    expect(Array.isArray(fullDeps)).toBe(true);
+    expect(fullDeps as string[]).not.toContain(
+      '@apps/client#check:bundle-budget'
+    );
   });
 
   test('smoke depends on @apps/product#deploy', () => {

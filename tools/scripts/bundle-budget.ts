@@ -35,6 +35,7 @@ export function collectInitialChunks(manifest: Manifest): string[] {
 }
 
 function gzipBytes(abs: string): number {
+  // Match historical budget calibration (max compression).
   return gzipSync(readFileSync(abs), { level: 9 }).byteLength;
 }
 
@@ -64,18 +65,27 @@ function main(): void {
   const files = collectInitialChunks(manifest).filter((f) => f.endsWith('.js'));
 
   let total = 0;
-  const rows: string[] = [];
+  const rows: { file: string; kb: number }[] = [];
   for (const file of files) {
     const bytes = gzipBytes(join(distDir, file));
     total += bytes;
-    rows.push(`  ${(bytes / 1024).toFixed(1).padStart(8)} KB  ${file}`);
+    rows.push({ file, kb: bytes / 1024 });
   }
+  rows.sort((a, b) => b.kb - a.kb);
   const totalKb = total / 1024;
-  const verdict = totalKb <= budgetKb ? 'OK' : 'OVER BUDGET';
+  const over = totalKb > budgetKb;
+  const verdict = over ? 'OVER BUDGET' : 'OK';
   console.log(
-    `[bundle-budget] initial JS gzip ${totalKb.toFixed(1)} KB / ${String(budgetKb)} KB — ${verdict}\n${rows.join('\n')}`
+    `[bundle-budget] initial JS gzip ${totalKb.toFixed(1)} KB / ${String(budgetKb)} KB — ${verdict} (${String(files.length)} chunks)`
   );
-  if (totalKb > budgetKb) process.exit(1);
+  const show = over ? rows : rows.slice(0, 8);
+  for (const row of show) {
+    console.log(`  ${row.kb.toFixed(1).padStart(8)} KB  ${row.file}`);
+  }
+  if (!over && rows.length > show.length) {
+    console.log(`  … ${String(rows.length - show.length)} more (omit on OK)`);
+  }
+  if (over) process.exit(1);
 }
 
 if (import.meta.main) main();

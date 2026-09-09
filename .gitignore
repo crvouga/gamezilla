@@ -33,6 +33,9 @@ yarn-error.*
 .turbo/
 /out
 
+# ESLint FS cache (lint:eslint --cache)
+.eslintcache
+
 # Jest transform cache (pinned under package `.cache/jest`, not OS /tmp)
 **/.jest-cache/
 product/test/.cache/
