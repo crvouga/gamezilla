@@ -7,7 +7,7 @@
  * shorter than 44px (`minHeight`) so the target stays legal.
  */
 
-import type { JSX } from 'solid-js';
+import { type JSX, untrack } from 'solid-js';
 import type { ComponentDataSet } from '../../component-id';
 import { Box } from '../box';
 import { Clickable } from '../clickable';
@@ -55,9 +55,12 @@ export type ActionBarLabeledControlProps = {
 export function ActionBarLabeledControl(
   props: ActionBarLabeledControlProps
 ): JSX.Element {
+  const onClick = (): void => {
+    untrack(() => props.onClick)();
+  };
   return (
     <Clickable
-      onClick={() => props.onClick()}
+      onClick={onClick}
       disabled={props.disabled === true}
       aria-label={resolveActionA11yLabel(props.label, props['aria-label'])}
       dataSet={{ component: 'ActionBarLabeledControl', ...props.dataSet }}

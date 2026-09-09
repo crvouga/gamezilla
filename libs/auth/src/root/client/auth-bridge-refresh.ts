@@ -110,16 +110,18 @@ export class AuthBridgeRefresh {
         externalUserId,
       });
     } catch (e) {
-      this.deps.log.error('auth/refresh failed', {
-        error: e instanceof Error ? e.message : String(e),
-      });
-      // Dead bearer + cold BA null skips signed-out clear
-      // (`shouldClearCapabilityOnBaSignedOut`). Without this fallthrough,
-      // `lastLocalAccountId` never binds and SyncEngineBoot never paints.
+      // Dead bearer → clear + anon rebind is expected recovery (cold storage /
+      // expired JWT). Keep non-auth failures as errors.
       if (isUnauthorizedRefreshError(e)) {
+        this.deps.log.warn('auth/refresh unauthorized; rotating to anon', {
+          error: e instanceof Error ? e.message : String(e),
+        });
         await this.handleSignedOut({ rotateAccount: true });
         return;
       }
+      this.deps.log.error('auth/refresh failed', {
+        error: e instanceof Error ? e.message : String(e),
+      });
     } finally {
       this.deps.inFlightRef.current = false;
       await this.retryPendingRefresh({ expiresAt, externalUserId });

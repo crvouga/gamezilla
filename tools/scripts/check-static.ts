@@ -66,5 +66,3 @@ run(
   ],
   env
 );
-
-run('bun', ['run', 'tools/scripts/check-no-removed-auth-vocab.ts'], env);

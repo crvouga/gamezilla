@@ -14,7 +14,7 @@
  * Builds use package-scoped entrypoints (`@apps/server#build` etc.) so
  * `@apps/client` still gets `tc`/`test` without the web `build`, in one
  * `turbo run` (no second filtered pass).
- * Live-server checks (`check:api`) stay on `check:full` / deploy.
+ * Live-server checks (`check:api`) stay on deploy.
  */
 import { spawnSync } from 'node:child_process';
 

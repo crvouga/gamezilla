@@ -6,7 +6,7 @@
  */
 
 import { useTimers } from '@pkgs/clock/solid';
-import { createSignal, type JSX, onCleanup, Show } from 'solid-js';
+import { createSignal, type JSX, onCleanup, Show, untrack } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import { IconButton } from '../icon-button';
 import { CircleCheckIcon, type IconComponent } from '../icons';
@@ -62,9 +62,12 @@ export function ActionBarIconButton(
     resolveIconPresentation(props.item, success());
 
   const onClick = (): void => {
-    if (disabled()) return;
-    props.item.onClick();
-    const feedback = props.item.pressFeedback;
+    // Event handlers have no Solid owner — untrack so `<For>` item accessors
+    // do not mint orphaned memos (same pattern as IconButtonFace).
+    const item = untrack(() => props.item);
+    if (item.disabled === true || item.loading === true) return;
+    item.onClick();
+    const feedback = item.pressFeedback;
     if (feedback === undefined) return;
     setSuccess(true);
     clearReset();

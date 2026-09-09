@@ -114,7 +114,15 @@
     },
     "test": {
       "dependsOn": ["tc"],
-      "inputs": ["**/*.ts", "**/*.tsx", "tests/**", "package.json", "*.cjs"],
+      "inputs": [
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "tests/**",
+        "package.json",
+        "*.cjs",
+        "bun-*.ts",
+        "tsconfig*.json"
+      ],
       "outputLogs": "new-only",
       "outputs": []
     },
@@ -260,26 +268,33 @@
       "dependsOn": ["tc"]
     },
     "test:contract": {
-      "inputs": ["**/*.ts", "**/*.tsx", "package.json", "*.cjs"],
+      "inputs": [
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "tests/**/*.contract.test.ts",
+        "package.json",
+        "*.cjs",
+        "tsconfig*.json"
+      ],
       "outputLogs": "new-only",
       "outputs": [],
       "dependsOn": ["tc"]
     },
     "test:e2e": {
       "inputs": [
-        "**/*.ts",
-        "**/*.tsx",
-        "**/*.mjs",
-        "package.json",
+        "src/**",
         "e2e/**",
-        "*.cjs"
+        "scripts/**",
+        "package.json",
+        "*.cjs",
+        "tsconfig*.json"
       ],
       "outputLogs": "new-only",
       "outputs": [],
       "dependsOn": ["tc"]
     },
     "billing:check": {
-      "inputs": ["**/*.ts", "**/*.tsx", "package.json", "scripts/**"],
+      "inputs": ["src/**", "scripts/**", "package.json", "tsconfig*.json"],
       "outputLogs": "new-only",
       "outputs": [],
       "dependsOn": ["tc"]
@@ -294,6 +309,23 @@
         "../../biome.json",
         "../../tools/biome-plugins/**",
         "tools/biome-plugins/**"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#lint:biome": {
+      "inputs": [
+        "biome.json",
+        "tools/biome-plugins/**",
+        "apps/**/*.{ts,tsx,js,jsx,cjs,mjs}",
+        "libs/**/*.{ts,tsx,js,jsx,cjs,mjs}",
+        "pkgs/**/*.{ts,tsx,js,jsx,cjs,mjs}",
+        "tools/**/*.{ts,tsx,js,jsx,cjs,mjs}",
+        "package.json",
+        "apps/*/package.json",
+        "libs/*/package.json",
+        "pkgs/*/package.json",
+        "tools/package.json"
       ],
       "outputs": [],
       "outputLogs": "new-only"
@@ -372,13 +404,14 @@
       "outputLogs": "new-only"
     },
     "//#check": {
-      "dependsOn": ["lint", "//#lint:vocab", "//#lint:eslint", "tc", "test"],
+      "dependsOn": ["//#lint:biome", "//#lint:vocab", "tc", "test"],
       "outputs": [],
       "outputLogs": "new-only"
     },
     "//#check:full": {
       "dependsOn": [
         "//#check",
+        "//#lint:eslint",
         "//#ci:syncpack",
         "//#ci:depcruise",
         "//#ci:audit",
@@ -389,8 +422,7 @@
         "test:contract",
         "test:e2e",
         "@libs/billing#billing:check",
-        "@tools#check:static",
-        "@apps/server#check:api"
+        "@tools#check:static"
       ],
       "outputs": [],
       "outputLogs": "new-only"
@@ -400,7 +432,20 @@
       "outputLogs": "new-only"
     },
     "@tools#check:static": {
-      "cache": false,
+      "env": [
+        "GH_EVENT",
+        "GITHUB_EVENT_NAME",
+        "PR_BASE",
+        "PR_HEAD",
+        "GITLEAKS_VERSION"
+      ],
+      "inputs": [
+        "tools/scripts/check-static.ts",
+        "tools/scripts/cli-deps/**",
+        ".gitleaks.toml",
+        ".github/workflows/**"
+      ],
+      "outputs": [],
       "outputLogs": "new-only"
     },
     "@apps/server#check:api": {
@@ -471,8 +516,9 @@
     "deploy": {
       "cache": false,
       "dependsOn": [
-        "lint",
+        "//#lint:biome",
         "//#lint:vocab",
+        "//#lint:eslint",
         "tc",
         "test",
         "@apps/server#build",
@@ -487,7 +533,6 @@
         "@tools#check:static",
         "@apps/server#check:api",
         "@apps/client#check:bundle-budget",
-        "//#lint:eslint",
         "@libs/secrets#check",
         "@tools#install:cli",
         "@libs/billing#billing:sync"
@@ -521,7 +566,7 @@
       "outputLogs": "new-only"
     },
     "//#ci:audit": {
-      "inputs": ["bun.lock", "tools/scripts/ci-audit.ts"],
+      "inputs": ["bun.lock", "tools/scripts/ci-audit.ts", "package.json"],
       "outputs": [],
       "outputLogs": "new-only"
     },
@@ -529,22 +574,15 @@
       "inputs": [
         "lingui.config.ts",
         "lingui.solid.config.ts",
-        "apps/**/*.ts",
-        "apps/**/*.tsx",
-        "libs/**/*.ts",
-        "libs/**/*.tsx",
-        "pkgs/**/*.ts",
-        "pkgs/**/*.tsx",
+        "apps/*/src/**/*.{ts,tsx}",
+        "libs/*/src/**/*.{ts,tsx}",
+        "pkgs/*/src/**/*.{ts,tsx}",
         "apps/client/src/i18n/locales/**",
         "apps/client/babel.config.js",
         "apps/product/babel.test.config.cjs",
         "tools/scripts/ci-i18n.ts"
       ],
       "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#check:static": {
-      "cache": false,
       "outputLogs": "new-only"
     }
   }

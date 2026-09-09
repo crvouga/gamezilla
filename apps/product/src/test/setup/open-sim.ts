@@ -37,7 +37,10 @@ import {
   writeKeysIndex,
 } from './launch-actor';
 import { type OpenSimOptions, resolveSimMode, type SimMode } from './mode';
-import { ensureNodeLocalStoragePolyfill } from './node-local-storage-polyfill';
+import {
+  clearNodeLocalStoragePolyfill,
+  ensureNodeLocalStoragePolyfill,
+} from './node-local-storage-polyfill';
 import { simNodeTimers } from './sim-actor-overrides';
 import { readSimSystemSnapshot } from './sim-snapshot-fixture';
 
@@ -115,6 +118,7 @@ async function disposeProduct(
     }
   }
   await sim.dispose();
+  clearNodeLocalStoragePolyfill();
   await new Promise<void>((resolve) => {
     simNodeTimers.setTimeout(resolve, 50);
   });

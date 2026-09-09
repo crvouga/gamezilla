@@ -102,6 +102,7 @@ export type Sim = {
 
 let clientDurableEpoch = 0;
 
+/** Bump the process-wide client durable epoch (namespace isolation). */
 export function bumpSimClientEpoch(): number {
   clientDurableEpoch += 1;
   return clientDurableEpoch;
@@ -443,11 +444,17 @@ function createSimHandle(kernel: SimKernel): Sim {
 /**
  * Playground + openSim fabric. Production never calls this.
  * Caller opens a {@link Session} (`virtualTimeRuntime` / `realTimeRuntime` / product host).
+ *
+ * Bumps the client durable epoch so each sim gets a fresh
+ * `sim_client_${id}_eN` secure-storage / auth namespace. Without this, a prior
+ * openSim that signed in leaves `sessionToken` under `e0` and the next guest
+ * boot POSTs `/identity/refresh` against a dead JWT (fresh postgres-mem).
  */
 export async function createSim(
   session: Session,
   opts?: CreateSimOptions
 ): Promise<Sim> {
+  bumpSimClientEpoch();
   const kernel = await bootSimKernel(session, opts);
   return createSimHandle(kernel);
 }

@@ -22,10 +22,10 @@ import {
   useContentEdgePadding,
 } from '../content-edge-padding';
 import styles from '../hosts.module.css';
+import { useTestViewport } from './test-viewport';
 import type { VirtualListViewport } from './virtual-list-types';
 
 export type { VirtualListViewport };
-import { useTestViewport } from './test-viewport';
 
 export type VirtualListProps<ItemT> = Omit<
   JSX.HTMLAttributes<HTMLDivElement>,

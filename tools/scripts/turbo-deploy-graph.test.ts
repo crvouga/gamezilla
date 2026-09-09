@@ -28,7 +28,7 @@ function turboCiRunTaskArgs(checkScript: string): string[] {
     .split(/\s+/);
 }
 
-const FAST_TIER = ['lint', '//#lint:vocab', '//#lint:eslint', 'tc', 'test'];
+const FAST_TIER = ['//#lint:biome', '//#lint:vocab', 'tc', 'test'];
 
 describe('turbo deploy graph invariants', () => {
   test('deploy.dependsOn never includes //#check or //#check:full', () => {
@@ -37,6 +37,8 @@ describe('turbo deploy graph invariants', () => {
     expect(Array.isArray(deps)).toBe(true);
     expect(deps as string[]).not.toContain('//#check');
     expect(deps as string[]).not.toContain('//#check:full');
+    expect(deps as string[]).toContain('//#lint:biome');
+    expect(deps as string[]).toContain('//#lint:eslint');
     expect(deps as string[]).toContain('//#ci:syncpack');
     expect(deps as string[]).toContain('//#ci:depcruise');
     expect(deps as string[]).toContain('//#ci:audit');
@@ -44,13 +46,15 @@ describe('turbo deploy graph invariants', () => {
     expect(deps as string[]).toContain('test:contract');
     expect(deps as string[]).toContain('test:e2e');
     expect(deps as string[]).toContain('@libs/billing#billing:check');
+    expect(deps as string[]).toContain('@apps/server#check:api');
   });
 
-  test('//#check is the fast tier (lint + tc + test)', () => {
+  test('//#check is the fast tier (biome + vocab + tc + test)', () => {
     const turbo = loadTurboJson();
     const deps = turbo.tasks?.['//#check']?.dependsOn;
     expect(Array.isArray(deps)).toBe(true);
     expect(deps as string[]).toEqual(FAST_TIER);
+    expect(deps as string[]).not.toContain('//#lint:eslint');
     expect(deps as string[]).not.toContain('//#ci:i18n');
   });
 
@@ -60,6 +64,7 @@ describe('turbo deploy graph invariants', () => {
     expect(Array.isArray(deps)).toBe(true);
     const list = deps as string[];
     expect(list[0]).toBe('//#check');
+    expect(list).toContain('//#lint:eslint');
     expect(list).toContain('//#ci:syncpack');
     expect(list).toContain('//#ci:depcruise');
     expect(list).toContain('//#ci:audit');
@@ -71,7 +76,7 @@ describe('turbo deploy graph invariants', () => {
     expect(list).toContain('test:e2e');
     expect(list).toContain('@libs/billing#billing:check');
     expect(list).toContain('@tools#check:static');
-    expect(list).toContain('@apps/server#check:api');
+    expect(list).not.toContain('@apps/server#check:api');
     expect(list).not.toContain('@apps/client#check:bundle-budget');
   });
 
@@ -110,18 +115,20 @@ describe('turbo deploy graph invariants', () => {
     expect(full).not.toContain('@apps/product#build');
   });
 
-  test('deploy still gates client bundle budget (not check:full)', () => {
+  test('deploy gates live API probe and bundle budget (not check:full)', () => {
     const turbo = loadTurboJson();
     const deployDeps = turbo.tasks?.deploy?.dependsOn;
     expect(Array.isArray(deployDeps)).toBe(true);
     expect(deployDeps as string[]).toContain(
       '@apps/client#check:bundle-budget'
     );
+    expect(deployDeps as string[]).toContain('@apps/server#check:api');
     const fullDeps = turbo.tasks?.['//#check:full']?.dependsOn;
     expect(Array.isArray(fullDeps)).toBe(true);
     expect(fullDeps as string[]).not.toContain(
       '@apps/client#check:bundle-budget'
     );
+    expect(fullDeps as string[]).not.toContain('@apps/server#check:api');
   });
 
   test('smoke depends on @apps/product#deploy', () => {

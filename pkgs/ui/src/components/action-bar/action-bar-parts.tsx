@@ -5,7 +5,7 @@
  */
 
 import { useLingui } from '@lingui/solid/macro';
-import { For, type JSX, Match, Show, Switch } from 'solid-js';
+import { For, type JSX, Match, Show, Switch, untrack } from 'solid-js';
 import { Box } from '../box';
 import { Button } from '../button';
 import { IconButton } from '../icon-button';
@@ -36,6 +36,11 @@ function ActionBarAvatarItemButton(props: {
 }): JSX.Element {
   const disabled = (): boolean =>
     props.item.disabled === true || props.item.loading === true;
+  const onClick = (): void => {
+    // Event handlers have no Solid owner — untrack so `<For>` item accessors
+    // do not mint orphaned memos (same pattern as IconButtonFace).
+    untrack(() => props.item).onClick();
+  };
   return (
     <Show
       when={props.showInlineLabel}
@@ -44,7 +49,7 @@ function ActionBarAvatarItemButton(props: {
           variant="avatar"
           size={props.buttonSize}
           label={props.item.label}
-          onClick={() => props.item.onClick()}
+          onClick={onClick}
           tooltip="hover"
           disabled={disabled()}
           dataSet={props.item.dataSet}
@@ -59,7 +64,7 @@ function ActionBarAvatarItemButton(props: {
         buttonSize={props.buttonSize}
         slotWidth={props.slotWidth}
         disabled={disabled()}
-        onClick={() => props.item.onClick()}
+        onClick={onClick}
         dataSet={props.item.dataSet}
       >
         {props.item.children}
