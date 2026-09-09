@@ -14,6 +14,7 @@ const harness = Bun.spawn(['bun', './e2e/serve-harness.ts'], {
   stderr: 'inherit',
 });
 
+let code = 1;
 try {
   await waitForHttp(ORIGIN);
   const test = Bun.spawn(['bun', 'test', '--timeout', '60000', './e2e/tests'], {
@@ -21,8 +22,17 @@ try {
     stdout: 'inherit',
     stderr: 'inherit',
   });
-  const code = await test.exited;
-  process.exit(code ?? 1);
+  code = (await test.exited) ?? 1;
 } finally {
-  harness.kill();
+  // Must tear down before process.exit — otherwise turbo waits forever on the
+  // task log pipe held open by the lingering harness listen socket.
+  harness.kill('SIGKILL');
+  try {
+    await Promise.race([harness.exited, Bun.sleep(2_000)]);
+  } catch {
+    // already gone
+  }
+  killListenersOnPort(PORT);
 }
+
+process.exit(code);

@@ -99,18 +99,22 @@ describe('web SQLite OPFS via sql-host iframe', () => {
               open: (n) => host.open(n),
               run: (s, v) => host.run(s, v),
               query: (s) => host.query(s),
-              destroy: () => { frame.remove(); },
+              destroy: async () => {
+                await host.close();
+                frame.remove();
+              },
             };
           }
           const first = await mount();
           await first.open('user_recycle00001');
           for (const stmt of ddl) await first.run(stmt);
+          await first.run('DELETE FROM kv');
           await first.run('INSERT INTO kv (id, k) VALUES (?, ?)', ['1', '1']);
-          first.destroy();
+          await first.destroy();
           const second = await mount();
           await second.open('user_recycle00001');
           const rows = await second.query('SELECT k FROM kv');
-          second.destroy();
+          await second.destroy();
           return rows;
         }`,
         kvDdl

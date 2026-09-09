@@ -40,13 +40,3 @@ export const openFriendsList = scenarioAction({
     await ui.get(Handles.profileFriendsStats).tap();
   },
 });
-
-export const expectFriend = scenarioAction({
-  name: 'expectFriend',
-  act: async (s, actorId: string, username: string) => {
-    const ui = await actorUi(s, actorId);
-    await ui.get(Handles.friendsListRow(username)).expect.visible({
-      timeoutMs: WAIT_MS,
-    });
-  },
-});

@@ -96,6 +96,8 @@ export const Handles = {
   chessPuzzleBoardElo: 'chess-puzzle-board-elo',
   chessPuzzleExpectedUci: 'chess-puzzle-expected-uci',
   chessPuzzleE2eDebug: 'chess-puzzle-e2e-debug',
+  /** Hidden probe: `active=<id>`, `pick=<nextId>`, `loading=0|1` pick status. */
+  chessPuzzlePickStatus: 'chess-puzzle-pick-status',
   chessPuzzleSummary: 'chess-puzzle-summary',
   chessPuzzleMoveHistory: 'chess-puzzle-move-history',
   chessPuzzleActionHint: 'chess-puzzle-action-hint',

@@ -5,13 +5,11 @@ import {
   confirmSpaceMutation,
   leaveToLobby,
   reenterSpace,
-  SPACE_HIDDEN_MS,
   SPACE_WAIT_MS,
   showSpacesTab,
   tapChromeAction,
   tapLobbyCard,
   waitActiveSpace,
-  waitForLobbyCard,
 } from './space-ui';
 
 export const openSpacesTab = scenarioAction({
@@ -34,13 +32,6 @@ export const returnToLobby = scenarioAction({
   act: leaveToLobby,
 });
 
-export const expectLobbyCard = scenarioAction({
-  name: 'expectLobbyCard',
-  act: async (s, actorId: string, hostUsername: string) => {
-    await waitForLobbyCard(s, actorId, hostUsername);
-  },
-});
-
 export const openLobbyCard = scenarioAction({
   name: 'openLobbyCard',
   act: async (s, actorId: string, hostUsername: string) => {
@@ -57,11 +48,6 @@ export const joinFromPrompt = scenarioAction({
   },
 });
 
-export const expectActiveSpace = scenarioAction({
-  name: 'expectActiveSpace',
-  act: waitActiveSpace,
-});
-
 export const reenterActiveSpace = scenarioAction({
   name: 'reenterActiveSpace',
   act: reenterSpace,
@@ -75,17 +61,6 @@ export const endSpace = scenarioAction({
     const ui = await actorUi(s, actorId);
     await ui.get(Handles.spaceEnded).expect.visible({
       timeoutMs: SPACE_WAIT_MS,
-    });
-  },
-});
-
-export const expectLobbyCardGone = scenarioAction({
-  name: 'expectLobbyCardGone',
-  act: async (s, actorId: string, hostUsername: string) => {
-    await showSpacesTab(s, actorId);
-    const ui = await actorUi(s, actorId);
-    await ui.get(Handles.spaceCard(hostUsername)).expect.hidden({
-      timeoutMs: SPACE_HIDDEN_MS,
     });
   },
 });

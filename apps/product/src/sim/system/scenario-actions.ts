@@ -5,20 +5,12 @@
 
 import { returnToTabs, signInWithDev, signOut } from './auth-actions';
 import {
-  expectPuzzleSolved,
   openPuzzleFromSpace,
   playUntilSolved,
+  pressPuzzleNext,
 } from './chess-actions';
+import { acceptFriendRequest, openFriendsList } from './friends-actions';
 import {
-  acceptFriendRequest,
-  expectFriend,
-  openFriendsList,
-} from './friends-actions';
-import {
-  expectAvatarSeed,
-  expectAvatarStyleLabel,
-  expectAvatarTraitVisible,
-  expectUsername,
   leaveAvatarEditor,
   openAvatarEditor,
   openProfileEdit,
@@ -28,13 +20,10 @@ import {
   setUsername,
 } from './profile-actions';
 import { addFriend, searchUsername } from './search-actions';
-import { expectTabsVisible, focusActor, openSettings } from './shell-actions';
+import { focusActor, openSettings } from './shell-actions';
 import {
   createSpace,
   endSpace,
-  expectActiveSpace,
-  expectLobbyCard,
-  expectLobbyCardGone,
   joinFromPrompt,
   openLobbyCard,
   openSpacesTab,
@@ -47,16 +36,6 @@ export {
   addFriend,
   createSpace,
   endSpace,
-  expectActiveSpace,
-  expectAvatarSeed,
-  expectAvatarStyleLabel,
-  expectAvatarTraitVisible,
-  expectFriend,
-  expectLobbyCard,
-  expectLobbyCardGone,
-  expectPuzzleSolved,
-  expectTabsVisible,
-  expectUsername,
   focusActor,
   joinFromPrompt,
   leaveAvatarEditor,
@@ -68,6 +47,7 @@ export {
   openSettings,
   openSpacesTab,
   playUntilSolved,
+  pressPuzzleNext,
   reenterActiveSpace,
   returnToLobby,
   returnToTabs,
@@ -81,7 +61,6 @@ export {
 };
 
 export const productScenarioActions = [
-  expectTabsVisible,
   openSettings,
   focusActor,
   signInWithDev,
@@ -90,30 +69,22 @@ export const productScenarioActions = [
   openSpacesTab,
   createSpace,
   returnToLobby,
-  expectLobbyCard,
   openLobbyCard,
   joinFromPrompt,
-  expectActiveSpace,
   reenterActiveSpace,
   endSpace,
-  expectLobbyCardGone,
   openPuzzleFromSpace,
   playUntilSolved,
-  expectPuzzleSolved,
+  pressPuzzleNext,
   openProfileEdit,
   setUsername,
-  expectUsername,
   openAvatarEditor,
   setAvatarSeed,
   setAvatarStyle,
-  expectAvatarStyleLabel,
-  expectAvatarTraitVisible,
   saveAvatar,
   leaveAvatarEditor,
-  expectAvatarSeed,
   searchUsername,
   addFriend,
   acceptFriendRequest,
   openFriendsList,
-  expectFriend,
 ];

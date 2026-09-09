@@ -591,6 +591,7 @@
         "!**/e2e/harness/harness-client.ts",
         "!**/e2e/webview.ts",
         "!**/bun-webview-driver-node.ts",
+        "!**/sql-host-entry.ts",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
         "!**/src/sim/**"

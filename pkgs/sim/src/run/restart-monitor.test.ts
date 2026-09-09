@@ -9,12 +9,12 @@ import {
 
 type S = { n: number };
 
-type Ctx = { seen: number };
+type Model = { seen: number };
 
 let setups = 0;
 let checks = 0;
-let closes = 0;
 let lastSeen = -1;
+let lastActionName: string | null = null;
 
 const bump = defineAction({
   name: 'bump',
@@ -39,46 +39,49 @@ const sys = defineSystem({
   properties: [
     defineProperty({
       name: 'nNonNeg',
-      setup: (s): Ctx => {
+      setup: (s): Model => {
         setups += 1;
         return { seen: s.n };
       },
-      check: (s, ctx) => {
+      check: (s, model, action) => {
         checks += 1;
+        lastActionName = action?.name ?? null;
         if (s.n < 0) throw new Error('neg');
-        return { seen: ctx.seen + 1 };
-      },
-      close: (ctx) => {
-        closes += 1;
-        lastSeen = ctx.seen;
+        lastSeen = model.seen + 1;
+        return { seen: lastSeen };
       },
     }),
   ],
 });
 
-describe('property setup / check / close', () => {
-  test('setup once, check each checkpoint, close on dispose', async () => {
+describe('property setup / check / dispose', () => {
+  test('setup once, check each checkpoint with action, dispose check on dispose', async () => {
     setups = 0;
     checks = 0;
-    closes = 0;
     lastSeen = -1;
+    lastActionName = null;
 
     const steps = 20;
     {
       await using s = await sys.run({ seed: 1 });
       expect(setups).toBe(1);
+      // Boot check with action === null
       expect(checks).toBe(1);
-      expect(closes).toBe(0);
+      expect(lastActionName).toBe(null);
 
       for (let i = 0; i < steps; i++) {
         await s.apply(bump);
       }
       expect(setups).toBe(1);
       expect(checks).toBe(1 + steps);
-      expect(closes).toBe(0);
+      expect(lastActionName === 'bump').toBe(true);
+      expect(bump.is({ name: 'bump', args: [] })).toBe(true);
+      expect(bump.is(null)).toBe(false);
     }
 
-    expect(closes).toBe(1);
-    expect(lastSeen).toBe(1 + steps);
+    // Dispose runs one final check(null); model return is ignored.
+    expect(checks).toBe(1 + steps + 1);
+    expect(lastActionName).toBe(null);
+    expect(lastSeen).toBe(1 + steps + 1);
   });
 });

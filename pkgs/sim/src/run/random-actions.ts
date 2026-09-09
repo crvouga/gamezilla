@@ -1,5 +1,6 @@
 import { fingerprint } from '../internals/fingerprint';
 import type { Rng } from '../internals/rng';
+import type { AppliedAction } from '../system/effect';
 import { ACTION_TAG, type Action, type CatalogAction } from '../system/effect';
 import { type ActionSlice, resolveActions } from '../system/registry';
 import { checkpoint } from './checkpoint';
@@ -75,6 +76,8 @@ function collectEnabled<S>(
       act: async () => {
         await advanceTime(ms);
       },
+      is: (action): action is AppliedAction<unknown[]> =>
+        action !== null && action.name === 'elapse',
     } as Action<S, unknown[]>,
     weight: time.weight,
     kind: 'elapse',

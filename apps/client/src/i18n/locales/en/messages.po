@@ -370,6 +370,18 @@ msgstr "Clear"
 msgid "Client config"
 msgstr "Client config"
 
+#: apps/client/src/routes/stubs/client-events.tsx
+msgid "Client events"
+msgstr "Client events"
+
+#: apps/client/src/routes/stubs/client-events.tsx
+msgid "Client events are available in the embedded playground."
+msgstr "Client events are available in the embedded playground."
+
+#: apps/client/src/routes/stubs/client-sql.tsx
+msgid "Client SQL"
+msgstr "Client SQL"
+
 #: libs/auth/src/public/sign-in-idle-content.tsx
 #: libs/auth/src/public/sign-in-modal.tsx
 #: libs/spaces/src/root/client/active-space/space-chrome-action-bar.tsx

@@ -32,14 +32,6 @@ export const setUsername = scenarioAction({
   },
 });
 
-export const expectUsername = scenarioAction({
-  name: 'expectUsername',
-  act: async (s, actorId: string, username: string) => {
-    const ui = await actorUi(s, actorId);
-    await ui.get(Handles.profileDisplayUsername).expect.text(`@${username}`);
-  },
-});
-
 export const openAvatarEditor = scenarioAction({
   name: 'openAvatarEditor',
   act: async (s, actorId: string) => {
@@ -78,24 +70,6 @@ export const setAvatarStyle = scenarioAction({
   },
 });
 
-export const expectAvatarStyleLabel = scenarioAction({
-  name: 'expectAvatarStyleLabel',
-  act: async (s, actorId: string, label: string) => {
-    const ui = await actorUi(s, actorId);
-    await ui.get(Handles.profileAvatarStyle).expect.text(label, {
-      exact: false,
-    });
-  },
-});
-
-export const expectAvatarTraitVisible = scenarioAction({
-  name: 'expectAvatarTraitVisible',
-  act: async (s, actorId: string) => {
-    const ui = await actorUi(s, actorId);
-    await ui.get(Handles.profileAvatarTrait).expect.visible();
-  },
-});
-
 export const saveAvatar = scenarioAction({
   name: 'saveAvatar',
   act: async (s, actorId: string) => {
@@ -111,13 +85,5 @@ export const leaveAvatarEditor = scenarioAction({
     const ui = await actorUi(s, actorId);
     await ui.get(Handles.profileAvatarCancel).tap();
     await ui.get(Handles.profileEditAvatar).expect.visible();
-  },
-});
-
-export const expectAvatarSeed = scenarioAction({
-  name: 'expectAvatarSeed',
-  act: async (s, actorId: string, seed: string) => {
-    const ui = await actorUi(s, actorId);
-    await ui.get(Handles.profileAvatarSeed).expect.text(seed);
   },
 });

@@ -1,7 +1,6 @@
 import { Handles } from '@libs/test-ids';
 import type { Square } from '@pkgs/chess-board/chess-board-types';
 import { ChessBoardFlows } from '@pkgs/chess-board-core/flows';
-import type { DriverNode } from '@pkgs/ui-testing';
 
 import { actorUi, pollUntil } from './actor-ui';
 import type { ProductSim } from './sim';
@@ -87,18 +86,18 @@ export async function expectPlayReady(
   await ui.get(Handles.chessPuzzlePlayScreen).expect.visible({
     timeoutMs: WAIT_MS,
   });
-  const frame = ui.get(Handles.chessPuzzleBoardFrame);
-  await waitBoardReady(s, actorId, frame);
-  await waitBoardReady(s, actorId, frame);
+  await waitBoardReady(s, actorId);
   await waitUntilInteractiveOrSolved(s, actorId);
 }
 
-async function waitBoardReady(
-  s: ProductSim,
-  actorId: string,
-  frame: DriverNode
-): Promise<void> {
+/**
+ * Synthesize layout on the board frame (and board once mounted). happy-dom
+ * reports 0×0 rects, so {@link ChessPuzzleBoardFrame} stays gated on size=0
+ * until `layout()` installs a measurable box and fires the layout event.
+ */
+async function waitBoardReady(s: ProductSim, actorId: string): Promise<void> {
   const ui = await actorUi(s, actorId);
+  const frame = ui.get(Handles.chessPuzzleBoardFrame);
   const boardNode = ui.get(Handles.chessPuzzleBoard);
   const board = await puzzleBoard(s, actorId);
   await pollUntil(
@@ -106,6 +105,7 @@ async function waitBoardReady(
     async () => {
       await frame.layout();
       if (!(await boardNode.isVisible())) return null;
+      await boardNode.layout();
       try {
         const probe = await board.readProbe();
         return probe.size > 0 ? true : null;
@@ -204,4 +204,65 @@ export async function waitPuzzleSolved(
   await ui.get(Handles.chessPuzzleSummary).expect.visible({
     timeoutMs: WAIT_MS,
   });
+}
+
+async function readPickStatusField(
+  s: ProductSim,
+  actorId: string,
+  key: string
+): Promise<string | undefined> {
+  try {
+    const ui = await actorUi(s, actorId);
+    const raw = stripProbe(await ui.get(Handles.chessPuzzlePickStatus).text());
+    for (const token of raw.split(/\s+/)) {
+      if (token.startsWith(`${key}=`)) return token.slice(key.length + 1);
+    }
+    return undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+export async function readActivePuzzleId(
+  s: ProductSim,
+  actorId: string
+): Promise<string | null> {
+  const value = await readPickStatusField(s, actorId, 'active');
+  if (value === undefined || value === 'null' || value.length === 0) {
+    return null;
+  }
+  return value;
+}
+
+export async function pressPuzzleNext(
+  s: ProductSim,
+  actorId: string
+): Promise<void> {
+  const ui = await actorUi(s, actorId);
+  await ui.get(Handles.chessPuzzleActionNext).tap({ timeoutMs: WAIT_MS });
+}
+
+/**
+ * Wait until pick-status reports a non-null active id with loading cleared.
+ * Does not assert difference — that is the standing property's job.
+ */
+export async function settleAfterPuzzleNext(
+  s: ProductSim,
+  actorId: string
+): Promise<void> {
+  await pollUntil(
+    s,
+    async () => {
+      const active = await readActivePuzzleId(s, actorId);
+      if (active === null) return null;
+      const loading = await readPickStatusField(s, actorId, 'loading');
+      return loading === '0' ? true : null;
+    },
+    {
+      maxMs: WAIT_MS,
+      stepMs: POLL_MS,
+      description: 'puzzle pick settled after Next',
+    }
+  );
+  await expectPlayReady(s, actorId);
 }

@@ -1,7 +1,7 @@
 import {
   createSpace,
-  expectLobbyCard,
   joinFromPrompt,
+  lobbyCardVisible,
   openLobbyCard,
   openSpacesTab,
 } from '../../../sim';
@@ -14,7 +14,7 @@ export async function buildBothInSpace(sim: OpenSim): Promise<void> {
   await buildFriendsPair(sim);
   await sim.apply(createSpace, 'alice');
   await sim.apply(openSpacesTab, 'bob');
-  await sim.apply(expectLobbyCard, 'bob', aliceUsername);
+  await sim.until((s) => lobbyCardVisible(s, 'bob', aliceUsername));
   await sim.apply(openLobbyCard, 'bob', aliceUsername);
   await sim.apply(joinFromPrompt, 'bob');
 }

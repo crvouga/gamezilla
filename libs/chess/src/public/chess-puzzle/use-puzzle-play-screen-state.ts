@@ -10,6 +10,7 @@ import {
   createSignal,
 } from 'solid-js';
 
+import { shouldDeferPuzzleAttemptPlacement } from '../../shared/puzzle-session/session-start-policy';
 import { CHESS_SCREEN, SetChessMainMenuScreen } from '../chess-main-menu';
 import {
   ChessPuzzlePlayAttr,
@@ -53,8 +54,8 @@ export function usePuzzlePlayScreenState(): PuzzlePlayScreenModel {
   };
 
   const next = useNextPuzzleId({
-    currentPuzzleId: activePuzzleId() ?? roomPuzzleId(),
-    seed: `${myId()}-${attemptSeed()}`,
+    currentPuzzleId: () => activePuzzleId() ?? roomPuzzleId(),
+    seed: () => `${myId()}-${attemptSeed()}`,
   });
 
   createEffect(() => {
@@ -79,8 +80,13 @@ export function usePuzzlePlayScreenState(): PuzzlePlayScreenModel {
       return;
     }
     if (seed === placedAttemptRef.current) return;
-    if (room !== null) {
-      commitAttempt(seed, false);
+    if (
+      shouldDeferPuzzleAttemptPlacement({
+        attemptSeed: seed,
+        placedAttemptSeed: placedAttemptRef.current,
+        roomPuzzleId: room,
+      })
+    ) {
       return;
     }
     if (nextId === null || nextId === active) return;

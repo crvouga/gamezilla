@@ -1,11 +1,11 @@
-import type { Property } from '../system/effect';
+import type { CheckpointAction, Property } from '../system/effect';
 import type { Step } from '../system/recording';
 import { memoRead, popMemoFrame, pushMemoFrame, snapshotMemo } from './memo';
 
 export class PropertyViolation extends Error {
   readonly property: string;
-  readonly at: number | 'end';
-  constructor(property: string, at: number | 'end', cause: unknown) {
+  readonly at: number | 'dispose';
+  constructor(property: string, at: number | 'dispose', cause: unknown) {
     const msg = cause instanceof Error ? cause.message : String(cause);
     super(`PropertyViolation: ${property} at ${String(at)}: ${msg}`);
     this.name = 'PropertyViolation';
@@ -17,7 +17,7 @@ export class PropertyViolation extends Error {
 
 export type MonitorState = {
   readonly property: Property<unknown>;
-  ctx: unknown;
+  model: unknown;
   closed: boolean;
 };
 
@@ -40,9 +40,9 @@ export async function bootMonitors(
 ): Promise<MonitorState[]> {
   const monitors: MonitorState[] = [];
   for (const property of properties) {
-    const ctx =
+    const model =
       property.setup !== undefined ? await property.setup(surface) : undefined;
-    monitors.push({ property, ctx, closed: false });
+    monitors.push({ property, model, closed: false });
   }
   return monitors;
 }
@@ -50,15 +50,17 @@ export async function bootMonitors(
 export async function resumeMonitors(
   monitors: MonitorState[],
   surface: unknown,
-  at: number
+  at: number,
+  action: CheckpointAction = null
 ): Promise<PropertyViolation[]> {
   const violations: PropertyViolation[] = [];
   for (const m of monitors) {
     if (m.closed) continue;
     try {
-      const next = await m.property.check(surface, m.ctx);
-      if (next !== undefined) m.ctx = next;
+      const next = await m.property.check(surface, m.model, action);
+      if (next !== undefined) m.model = next;
     } catch (e) {
+      // A throwing check leaves the stored model untouched.
       m.closed = true;
       violations.push(
         e instanceof PropertyViolation
@@ -70,21 +72,22 @@ export async function resumeMonitors(
   return violations;
 }
 
-export async function closeMonitors(
-  monitors: MonitorState[]
+/** Dispose check (`action: null`); the returned model is ignored. */
+export async function disposeMonitors(
+  monitors: MonitorState[],
+  surface: unknown
 ): Promise<PropertyViolation[]> {
   const violations: PropertyViolation[] = [];
   for (const m of monitors) {
     if (m.closed) continue;
     m.closed = true;
-    if (m.property.close === undefined) continue;
     try {
-      await Promise.resolve(m.property.close(m.ctx));
+      await Promise.resolve(m.property.check(surface, m.model, null));
     } catch (e) {
       violations.push(
         e instanceof PropertyViolation
           ? e
-          : new PropertyViolation(m.property.name, 'end', e)
+          : new PropertyViolation(m.property.name, 'dispose', e)
       );
     }
   }
@@ -108,7 +111,8 @@ export async function checkpoint<S>(args: {
     const violations = await resumeMonitors(
       args.monitors,
       args.surface,
-      args.t
+      args.t,
+      { name: args.actionName, args: args.applyArgs }
     );
     const after = snapshotMemo();
     return {
@@ -133,9 +137,9 @@ export async function assertProperty<S>(
 ): Promise<void> {
   pushMemoFrame();
   try {
-    const ctx =
+    const model =
       p.setup !== undefined ? await p.setup(surface) : (undefined as never);
-    await p.check(surface, ctx);
+    await p.check(surface, model, null);
   } catch (e) {
     if (e instanceof PropertyViolation) throw e;
     throw new PropertyViolation(p.name, step, e);

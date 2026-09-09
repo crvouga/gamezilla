@@ -1,5 +1,5 @@
 export {
-  closeMonitors,
+  disposeMonitors,
   type MonitorState,
   type Transition,
 } from './checkpoint';

@@ -1,9 +1,9 @@
-import { describe, test } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import {
+  activeSpaceVisible,
   createSpace,
-  expectActiveSpace,
-  expectLobbyCard,
   joinFromPrompt,
+  lobbyCardVisible,
   openLobbyCard,
   openSpacesTab,
 } from '../src/sim';
@@ -18,9 +18,9 @@ describe('space friend join', () => {
 
     await s.apply(createSpace, 'alice');
     await s.apply(openSpacesTab, 'bob');
-    await s.apply(expectLobbyCard, 'bob', aliceUsername);
+    await s.until((surf) => lobbyCardVisible(surf, 'bob', aliceUsername));
     await s.apply(openLobbyCard, 'bob', aliceUsername);
     await s.apply(joinFromPrompt, 'bob');
-    await s.apply(expectActiveSpace, 'bob');
+    expect(await s.read(activeSpaceVisible, 'bob')).toBe(true);
   });
 });

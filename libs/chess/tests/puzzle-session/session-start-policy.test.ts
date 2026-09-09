@@ -3,6 +3,7 @@ import { describe, expect, test } from 'bun:test';
 import {
   decidePuzzleSessionStart,
   type PuzzleSessionStartInput,
+  shouldDeferPuzzleAttemptPlacement,
   shouldReclaimPuzzleHost,
 } from '@libs/chess/public/puzzle-session';
 
@@ -76,6 +77,38 @@ describe('decidePuzzleSessionStart', () => {
     expect(
       decidePuzzleSessionStart({ ...READY, roomPuzzleId: 'p-prev' })
     ).toEqual({ kind: 'acknowledge' });
+  });
+});
+
+describe('shouldDeferPuzzleAttemptPlacement', () => {
+  test('keeps a pending next attempt until the old room puzzle clears', () => {
+    const pendingAttempt = {
+      attemptSeed: 2,
+      placedAttemptSeed: 1,
+    };
+
+    expect(
+      shouldDeferPuzzleAttemptPlacement({
+        ...pendingAttempt,
+        roomPuzzleId: 'old-puzzle',
+      })
+    ).toBe(true);
+    expect(
+      shouldDeferPuzzleAttemptPlacement({
+        ...pendingAttempt,
+        roomPuzzleId: null,
+      })
+    ).toBe(false);
+  });
+
+  test('does not defer an attempt that was already placed', () => {
+    expect(
+      shouldDeferPuzzleAttemptPlacement({
+        attemptSeed: 2,
+        placedAttemptSeed: 2,
+        roomPuzzleId: 'active-puzzle',
+      })
+    ).toBe(false);
   });
 });
 

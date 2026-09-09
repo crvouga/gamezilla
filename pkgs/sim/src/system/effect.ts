@@ -26,6 +26,16 @@ export type ActionDef<S, A extends unknown[] = []> = {
   readonly act: (s: S, ...args: A) => Awaitable<void>;
 };
 
+export type CheckpointAction = {
+  readonly name: string;
+  readonly args: readonly unknown[];
+} | null;
+
+export type AppliedAction<A extends unknown[] = unknown[]> = {
+  readonly name: string;
+  readonly args: A;
+};
+
 export type Action<S, A extends unknown[] = []> = {
   readonly [ACTION_TAG]: true;
   readonly name: string;
@@ -35,6 +45,7 @@ export type Action<S, A extends unknown[] = []> = {
   readonly sample: ((s: S) => Awaitable<ArgsSampler<A>>) | undefined;
   readonly pool: boolean;
   readonly act: (s: S, ...args: A) => Awaitable<void>;
+  readonly is: (action: CheckpointAction) => action is AppliedAction<A>;
 };
 
 /** Bivariant function slot — catalogs accept any Action / Property args/ctx. */
@@ -55,21 +66,34 @@ export type CatalogAction<S> = {
   readonly sample: ((s: S) => Awaitable<Gen<unknown>>) | undefined;
   readonly pool: boolean;
   readonly act: BivariantFn<(s: S, ...args: unknown[]) => Awaitable<void>>;
+  readonly is: (action: CheckpointAction) => action is AppliedAction<unknown[]>;
 };
 
-export type PropertyDef<S, C = void> = {
+export type PropertyDef<S, M = void> = {
   readonly name: string;
-  readonly setup?: (s: S) => Awaitable<C>;
-  readonly check: (s: S, ctx: C) => Awaitable<C | void>;
-  readonly close?: (ctx: C) => Awaitable<void>;
+  /** Initial model for this property (defaults to `undefined`). */
+  readonly setup?: (s: S) => Awaitable<M>;
+  /**
+   * Assert with the pre-update model + SoT, then return the next model
+   * (or `void` to keep the current one). The framework never stores a
+   * return value from a throwing check.
+   */
+  readonly check: (
+    s: S,
+    model: M,
+    action: CheckpointAction
+  ) => Awaitable<M | void>;
 };
 
-export type Property<S, C = unknown> = {
+export type Property<S, M = unknown> = {
   readonly [PROPERTY_TAG]: true;
   readonly name: string;
-  readonly setup: ((s: S) => Awaitable<C>) | undefined;
-  readonly check: (s: S, ctx: C) => Awaitable<C | void>;
-  readonly close: ((ctx: C) => Awaitable<void>) | undefined;
+  readonly setup: ((s: S) => Awaitable<M>) | undefined;
+  readonly check: (
+    s: S,
+    model: M,
+    action: CheckpointAction
+  ) => Awaitable<M | void>;
 };
 
 /**
@@ -80,8 +104,9 @@ export type CatalogProperty<S> = {
   readonly [PROPERTY_TAG]: true;
   readonly name: string;
   readonly setup: ((s: S) => Awaitable<unknown>) | undefined;
-  readonly check: BivariantFn<(s: S, ctx: unknown) => Awaitable<unknown>>;
-  readonly close: BivariantFn<(ctx: unknown) => Awaitable<void>> | undefined;
+  readonly check: BivariantFn<
+    (s: S, model: unknown, action: CheckpointAction) => Awaitable<unknown>
+  >;
 };
 
 /** Zero-arg or parameterized pure read of `S`. */

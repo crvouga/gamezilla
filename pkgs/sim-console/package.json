@@ -5,6 +5,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./client": "./src/client/index.ts",
+    "./client/sql-notebook": "./src/client/sql-notebook/index.ts",
     "./server": "./src/server/index.ts",
     "./server/bun-sqlite-dump-to-sqlm": "./src/server/bun-sqlite-dump-to-sqlm.ts",
     "./*": [
@@ -31,6 +32,7 @@
     "@pkgs/sql-client-sqlite": "workspace:*",
     "@pkgs/ui": "workspace:*",
     "@pkgs/ui-testing": "workspace:*",
+    "@pkgs/ui-testing-solid-dom": "workspace:*",
     "@pkgs/uuid": "workspace:*",
     "hono": "catalog:",
     "solid-js": "catalog:"

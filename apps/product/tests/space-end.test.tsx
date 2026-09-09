@@ -1,10 +1,9 @@
-import { describe, test } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import {
   createSpace,
   endSpace,
-  expectLobbyCard,
-  expectLobbyCardGone,
   joinFromPrompt,
+  lobbyCardVisible,
   openLobbyCard,
   openSpacesTab,
   reenterActiveSpace,
@@ -19,7 +18,7 @@ async function setupBothInActiveSpace(
   await setupFriendsPair(s);
   await s.apply(createSpace, 'alice');
   await s.apply(openSpacesTab, 'bob');
-  await s.apply(expectLobbyCard, 'bob', aliceUsername);
+  await s.until((surf) => lobbyCardVisible(surf, 'bob', aliceUsername));
   await s.apply(openLobbyCard, 'bob', aliceUsername);
   await s.apply(joinFromPrompt, 'bob');
 }
@@ -31,6 +30,11 @@ describe('space end', () => {
 
     await s.apply(reenterActiveSpace, 'alice', aliceUsername);
     await s.apply(endSpace, 'alice');
-    await s.apply(expectLobbyCardGone, 'bob', aliceUsername);
+    await s.apply(openSpacesTab, 'bob');
+    await s.until((surf) => lobbyCardVisible(surf, 'bob', aliceUsername), {
+      pred: (v) => !v,
+      maxMs: 10_000,
+    });
+    expect(await s.read(lobbyCardVisible, 'bob', aliceUsername)).toBe(false);
   });
 });

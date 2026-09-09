@@ -1,13 +1,13 @@
-import { describe, test } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import { Handles } from '@libs/test-ids';
 import {
-  expectAvatarSeed,
-  expectAvatarStyleLabel,
-  expectAvatarTraitVisible,
-  expectUsername,
+  avatarTraitVisible,
   leaveAvatarEditor,
   openAvatarEditor,
   openProfileEdit,
+  readAvatarSeed,
+  readAvatarStyleLabel,
+  readUsername,
   returnToTabs,
   saveAvatar,
   setAvatarSeed,
@@ -22,7 +22,7 @@ describe('profile edit', () => {
     await using s = await openSim('profile-edit-guest-username');
     await s.apply(openProfileEdit, 'alice');
     await s.apply(setUsername, 'alice', 'guest_user_1');
-    await s.apply(expectUsername, 'alice', 'guest_user_1');
+    expect(await s.read(readUsername, 'alice')).toBe('guest_user_1');
   });
 
   test('guest updates avatar', async () => {
@@ -36,13 +36,13 @@ describe('profile edit', () => {
       'Bottts',
       Handles.profileAvatarStyleBottts
     );
-    await s.apply(expectAvatarStyleLabel, 'alice', 'Bottts');
-    await s.apply(expectAvatarTraitVisible, 'alice');
+    expect(await s.read(readAvatarStyleLabel, 'alice')).toContain('Bottts');
+    expect(await s.read(avatarTraitVisible, 'alice')).toBe(true);
     await s.apply(saveAvatar, 'alice');
     await s.apply(leaveAvatarEditor, 'alice');
     await s.apply(openAvatarEditor, 'alice');
-    await s.apply(expectAvatarSeed, 'alice', 'sim-seed-guest');
-    await s.apply(expectAvatarStyleLabel, 'alice', 'Bottts');
+    expect(await s.read(readAvatarSeed, 'alice')).toBe('sim-seed-guest');
+    expect(await s.read(readAvatarStyleLabel, 'alice')).toContain('Bottts');
   });
 
   test('signed-in updates username', async () => {
@@ -51,7 +51,7 @@ describe('profile edit', () => {
     await s.apply(returnToTabs, 'alice');
     await s.apply(openProfileEdit, 'alice');
     await s.apply(setUsername, 'alice', 'signed_alice_1');
-    await s.apply(expectUsername, 'alice', 'signed_alice_1');
+    expect(await s.read(readUsername, 'alice')).toBe('signed_alice_1');
   });
 
   test('signed-in updates avatar', async () => {
@@ -67,12 +67,12 @@ describe('profile edit', () => {
       'Bottts',
       Handles.profileAvatarStyleBottts
     );
-    await s.apply(expectAvatarStyleLabel, 'alice', 'Bottts');
-    await s.apply(expectAvatarTraitVisible, 'alice');
+    expect(await s.read(readAvatarStyleLabel, 'alice')).toContain('Bottts');
+    expect(await s.read(avatarTraitVisible, 'alice')).toBe(true);
     await s.apply(saveAvatar, 'alice');
     await s.apply(leaveAvatarEditor, 'alice');
     await s.apply(openAvatarEditor, 'alice');
-    await s.apply(expectAvatarSeed, 'alice', 'sim-seed-signed');
-    await s.apply(expectAvatarStyleLabel, 'alice', 'Bottts');
+    expect(await s.read(readAvatarSeed, 'alice')).toBe('sim-seed-signed');
+    expect(await s.read(readAvatarStyleLabel, 'alice')).toContain('Bottts');
   });
 });

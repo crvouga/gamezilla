@@ -1,7 +1,7 @@
 import {
   acceptFriendRequest,
   addFriend,
-  expectFriend,
+  friendRowVisible,
   openFriendsList,
   returnToTabs,
   searchUsername,
@@ -24,9 +24,9 @@ export async function setupFriendsPair(sim: OpenSimResult): Promise<void> {
   await sim.apply(acceptFriendRequest, 'bob', aliceUsername);
 
   await sim.apply(openFriendsList, 'alice');
-  await sim.apply(expectFriend, 'alice', bobUsername);
+  await sim.until((s) => friendRowVisible(s, 'alice', bobUsername));
   await sim.apply(returnToTabs, 'alice');
   await sim.apply(openFriendsList, 'bob');
-  await sim.apply(expectFriend, 'bob', aliceUsername);
+  await sim.until((s) => friendRowVisible(s, 'bob', aliceUsername));
   await sim.apply(returnToTabs, 'bob');
 }

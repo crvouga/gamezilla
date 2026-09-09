@@ -27,7 +27,7 @@ export const SIM_NODE_KIND_ALIASES: Readonly<Record<string, SimNodeKind>> = {
 export const SIM_NODE_LABELS: Readonly<Record<SimNodeKind, string>> = {
   client: 'Client',
   server: 'Server',
-  events: 'Events',
+  events: 'PubSub',
   room: 'Room server',
   db: 'DB',
 };

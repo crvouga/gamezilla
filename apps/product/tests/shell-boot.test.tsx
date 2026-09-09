@@ -8,10 +8,10 @@ import { describe, expect, test } from 'bun:test';
 import {
   actorHtml,
   actorIds,
-  expectTabsVisible,
   focusActor,
   openSettings,
   spawnActor,
+  tabsVisible,
 } from '../src/sim';
 import { openSim } from '../src/test/setup/open-sim';
 
@@ -20,9 +20,9 @@ describe('shell boot', () => {
     await using s = await openSim('shell-boot');
 
     await s.apply(spawnActor, 'alice');
-    await s.apply(expectTabsVisible, 'alice');
+    await s.until((surf) => tabsVisible(surf, 'alice'));
     await s.apply(spawnActor, 'bob');
-    await s.apply(expectTabsVisible, 'bob');
+    await s.until((surf) => tabsVisible(surf, 'bob'));
     expect(await s.read(actorIds)).toEqual(['alice', 'bob']);
 
     await s.apply(openSettings, 'bob');
@@ -30,7 +30,7 @@ describe('shell boot', () => {
     expect(bobHtml ?? '').toContain('data-screen="more"');
 
     await s.apply(focusActor, 'alice');
-    await s.apply(expectTabsVisible, 'alice');
+    await s.until((surf) => tabsVisible(surf, 'alice'));
     const aliceHtml = await s.read(actorHtml, 'alice');
     expect(aliceHtml ?? '').toContain('data-screen="spaces"');
     expect(aliceHtml ?? '').not.toContain('data-screen="more"');

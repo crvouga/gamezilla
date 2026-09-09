@@ -5,6 +5,14 @@ import type {
 import { MULTI_APP_ACTOR_FRAME } from './snapshot-frame';
 
 /**
+ * Dispatched on an element after {@link ensureElementLayout} installs a
+ * synthesized `getBoundingClientRect`. Components that measure themselves
+ * via ResizeObserver / an initial rect read (which stays 0 in happy-dom)
+ * should re-measure on this event so probe size / fit layout can advance.
+ */
+export const ELEMENT_LAYOUT_EVENT = 'ui-testing:element-layout';
+
+/**
  * Resolve an element's box when the host cannot lay out (happy-dom rects are
  * all zero). Return `null` to fall back to the built-in synthesis.
  */
@@ -59,6 +67,7 @@ function installRect(element: Element, layout: ElementLayout): void {
     configurable: true,
     value: () => rect,
   });
+  element.dispatchEvent(new Event(ELEMENT_LAYOUT_EVENT));
 }
 
 /**

@@ -78,7 +78,7 @@ export function BottomActionBarButton(props: {
 }): JSX.Element {
   return (
     <Box
-      dataSet={{ component: 'BottomActionBarButton', ...props.item.dataSet }}
+      dataSet={{ component: 'BottomActionBarButton' }}
       sx={{
         flex: props.item.flex ?? 1,
         alignItems: 'stretch',
@@ -96,6 +96,9 @@ export function BottomActionBarButton(props: {
         loading={props.item.loading}
         startIcon={props.item.startIcon}
         endIcon={props.item.endIcon}
+        // testids must live on the clickable control — driver `tap` targets
+        // the matched node, and a wrapper Box would swallow the click.
+        dataSet={props.item.dataSet}
       />
     </Box>
   );

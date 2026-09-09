@@ -15,11 +15,8 @@ export type ChessPuzzleE2ELoadingStatusProps = {
   loading: boolean;
 };
 
-export function ChessPuzzleE2ELoadingStatus(
-  props: ChessPuzzleE2ELoadingStatusProps
-): JSX.Element {
-  if (!E2E_ENABLED) return <></>;
-  const label = [
+function pickStatusLabel(props: ChessPuzzleE2ELoadingStatusProps): string {
+  return [
     `myId=${props.myId.length > 0 ? 'set' : 'empty'}`,
     `pick=${props.nextId ?? 'null'}`,
     `active=${props.activePuzzleId ?? 'null'}`,
@@ -28,11 +25,17 @@ export function ChessPuzzleE2ELoadingStatus(
     `replay=${String(props.replayCount)}`,
     `loading=${props.loading ? '1' : '0'}`,
   ].join(' ');
+}
+
+export function ChessPuzzleE2ELoadingStatus(
+  props: ChessPuzzleE2ELoadingStatusProps
+): JSX.Element {
+  if (!E2E_ENABLED) return <></>;
   return (
     <Text
       dataSet={{ testid: 'chess-puzzle-pick-status' }}
       sx={{ position: 'absolute', width: 1, height: 1, opacity: 0 }}
-      label={label}
+      label={pickStatusLabel(props)}
     />
   );
 }

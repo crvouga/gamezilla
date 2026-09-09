@@ -6,19 +6,19 @@ import {
   CONTENT_EDGE_PADDING_STEP,
   Columns2Icon,
   IconButton,
-  MutationModal,
+  ResponsiveSurface,
   RotateCcwIcon,
   SaveIcon,
   SearchIcon,
   SegmentedControl,
   Select,
+  SlidersHorizontalIcon,
   SquareStackIcon,
   Text,
   Trash2Icon,
   useCommandPalette,
 } from '@pkgs/ui';
-import { Show } from 'solid-js';
-
+import { createSignal, Show } from 'solid-js';
 import type {
   PlaygroundSession,
   PlaygroundSnapshotInfo,
@@ -33,6 +33,7 @@ import {
   formatSnapshotBytes,
   formatSnapshotTitle,
 } from './playground-snapshot-format';
+import { SnapshotChromeModals } from './playground-snapshot-modals';
 import { usePlaygroundSnapshots } from './use-playground-snapshots';
 import {
   type SortKey,
@@ -42,9 +43,7 @@ import {
 const ICON_SIZE = 32;
 const GLYPH_SIZE = 16;
 const SELECT_WIDTH = 150;
-
 type SnapshotListApi = ReturnType<typeof usePlaygroundSnapshots>;
-
 function SnapshotRowMeta(props: {
   readonly snap: PlaygroundSnapshotInfo;
   readonly nowMs: number;
@@ -74,7 +73,6 @@ function SnapshotRowMeta(props: {
     </Box>
   );
 }
-
 function SnapshotOptionRow(props: {
   readonly snap: PlaygroundSnapshotInfo;
   readonly nowMs: number;
@@ -136,7 +134,6 @@ function SnapshotOptionRow(props: {
     </Box>
   );
 }
-
 function SnapshotSurfaceExtra(props: {
   readonly sort: SortKey;
   readonly onSort: (sort: SortKey) => void;
@@ -186,7 +183,6 @@ function SnapshotSurfaceExtra(props: {
     </Box>
   );
 }
-
 function SnapshotSelect(props: {
   readonly list: SnapshotListApi;
   readonly sortedSnaps: readonly PlaygroundSnapshotInfo[];
@@ -258,7 +254,6 @@ function SnapshotSelect(props: {
     </Box>
   );
 }
-
 function SnapshotSelectOption(props: {
   readonly snap: PlaygroundSnapshotInfo | undefined;
   readonly nowMs: number;
@@ -285,20 +280,17 @@ function SnapshotSelectOption(props: {
     </Show>
   );
 }
-
 const selectCompactSx = {
   flex: 1,
   minWidth: 0,
   alignSelf: 'center',
 } as const;
-
 const selectDesktopSx = {
   width: SELECT_WIDTH,
   flexShrink: 0,
   minWidth: 0,
   alignSelf: 'center',
 } as const;
-
 const chromeRowCompactSx = {
   flexDirection: 'row',
   alignItems: 'center',
@@ -309,7 +301,6 @@ const chromeRowCompactSx = {
   minWidth: 0,
   alignSelf: 'stretch',
 } as const;
-
 const chromeRowDesktopSx = {
   flexDirection: 'row',
   alignItems: 'center',
@@ -319,7 +310,6 @@ const chromeRowDesktopSx = {
   minWidth: 0,
   alignSelf: 'stretch',
 } as const;
-
 function SnapshotChromeActions(props: {
   readonly list: SnapshotListApi;
   readonly hasCompatibleSelection: boolean;
@@ -377,7 +367,6 @@ function SnapshotChromeActions(props: {
     </>
   );
 }
-
 function ClientLayoutToggle(props: {
   readonly preference: ClientLayoutMode;
   readonly onSelect: (mode: ClientLayoutMode) => void;
@@ -409,14 +398,12 @@ function ClientLayoutToggle(props: {
     </Box>
   );
 }
-
 const layoutToggleSx = {
   flexDirection: 'row',
   alignItems: 'center',
   gap: 0.25,
   flexShrink: 0,
 } as const;
-
 /** Snapshot Select + save / reload / palette icon buttons. */
 export function PlaygroundSnapshotChrome(props: {
   readonly session: PlaygroundSession;
@@ -426,85 +413,122 @@ export function PlaygroundSnapshotChrome(props: {
   const list = usePlaygroundSnapshots(() => props.session);
   const state = useSnapshotChromeState(list);
   const palette = useCommandPalette();
+  const [compactOpen, setCompactOpen] = createSignal(false);
   const nowMs = () => {
     list.snaps;
     list.busy;
     return props.session.clock.now();
   };
-
   return (
     <Box sx={layout.compactChrome ? chromeRowCompactSx : chromeRowDesktopSx}>
-      {layout.compactChrome ? null : (
+      {layout.compactChrome ? (
+        <IconButton
+          label="Open playground controls"
+          size={ICON_SIZE}
+          onClick={() => setCompactOpen(true)}
+        >
+          <SlidersHorizontalIcon size={GLYPH_SIZE} />
+        </IconButton>
+      ) : (
         <ClientLayoutToggle
           preference={preference.preference}
           onSelect={preference.setPreference}
         />
       )}
-      <SnapshotSelect
-        list={list}
-        sortedSnaps={state.sortedSnaps}
-        snapById={state.snapById}
-        selectValue={state.selectedId ?? ''}
-        sort={state.sort}
-        nowMs={nowMs()}
-        checkedIds={state.checkedIds}
-        compact={layout.compactChrome}
-        onSelectId={state.setSelectedId}
-        onSort={state.setSort}
-        onToggleChecked={state.onToggleChecked}
-        onToggleAll={state.onToggleAll}
-        onDeleteChecked={() => state.setPendingDeleteIds([...state.checkedIds])}
-      />
-      <SnapshotChromeActions
-        list={list}
-        hasCompatibleSelection={state.hasCompatibleSelection}
-        selectedId={state.selectedId}
-        hasIncompatible={state.hasIncompatible}
-        onSaved={state.setSelectedId}
-        onPurge={() => state.setPurgeOpen(true)}
-        openPalette={palette.open}
-      />
+      {layout.compactChrome ? null : (
+        <SnapshotSelect
+          list={list}
+          sortedSnaps={state.sortedSnaps}
+          snapById={state.snapById}
+          selectValue={state.selectedId ?? ''}
+          sort={state.sort}
+          nowMs={nowMs()}
+          checkedIds={state.checkedIds}
+          compact={layout.compactChrome}
+          onSelectId={state.setSelectedId}
+          onSort={state.setSort}
+          onToggleChecked={state.onToggleChecked}
+          onToggleAll={state.onToggleAll}
+          onDeleteChecked={() =>
+            state.setPendingDeleteIds([...state.checkedIds])
+          }
+        />
+      )}
+      {layout.compactChrome ? (
+        <CompactSnapshotSurface
+          open={compactOpen}
+          setOpen={setCompactOpen}
+          preference={preference}
+          list={list}
+          state={state}
+          palette={palette}
+          nowMs={nowMs}
+        />
+      ) : (
+        <SnapshotChromeActions
+          list={list}
+          hasCompatibleSelection={state.hasCompatibleSelection}
+          selectedId={state.selectedId}
+          hasIncompatible={state.hasIncompatible}
+          onSaved={state.setSelectedId}
+          onPurge={() => state.setPurgeOpen(true)}
+          openPalette={palette.open}
+        />
+      )}
       <SnapshotChromeModals state={state} />
     </Box>
   );
 }
-
-function SnapshotChromeModals(props: {
+function CompactSnapshotSurface(props: {
+  readonly open: () => boolean;
+  readonly setOpen: (value: boolean) => void;
+  readonly preference: ReturnType<typeof useClientLayoutPreference>;
+  readonly list: SnapshotListApi;
   readonly state: ReturnType<typeof useSnapshotChromeState>;
+  readonly palette: ReturnType<typeof useCommandPalette>;
+  readonly nowMs: () => number;
 }) {
-  const deleteCount = () => props.state.pendingDeleteIds?.length ?? 0;
   return (
-    <>
-      <MutationModal
-        visible={props.state.pendingDeleteIds !== null}
-        onClose={props.state.closeDelete}
-        title={
-          deleteCount() === 1
-            ? 'Delete snapshot?'
-            : `Delete ${String(deleteCount())} snapshots?`
-        }
-        message="Permanently remove the selected snapshots from ObjectStore. This cannot be undone."
-        submitLabel="Delete"
-        variant="destructive"
-        operation={props.state.runDelete}
-        successTitle="Deleted"
-        successBody="Selected snapshots were removed."
-        onSuccess={props.state.closeDelete}
-        stackId="playground-snapshot-chrome-delete"
-      />
-      <MutationModal
-        visible={props.state.purgeOpen}
-        onClose={props.state.closePurge}
-        title="Purge incompatible?"
-        message="Delete every snapshot whose schema no longer matches this app. Compatible snapshots are kept."
-        submitLabel="Purge incompatible"
-        variant="destructive"
-        operation={props.state.runPurge}
-        successTitle="Purged"
-        successBody="Outdated snapshots were removed."
-        onSuccess={props.state.closePurge}
-        stackId="playground-snapshot-chrome-purge"
-      />
-    </>
+    <ResponsiveSurface
+      visible={props.open()}
+      onClose={() => props.setOpen(false)}
+      title="Playground controls"
+      label="Playground controls"
+      size="small"
+      stackId="playground-snapshot-controls"
+    >
+      <Box sx={{ gap: 3 }}>
+        <ClientLayoutToggle
+          preference={props.preference.preference}
+          onSelect={props.preference.setPreference}
+        />
+        <SnapshotSelect
+          list={props.list}
+          sortedSnaps={props.state.sortedSnaps}
+          snapById={props.state.snapById}
+          selectValue={props.state.selectedId ?? ''}
+          sort={props.state.sort}
+          nowMs={props.nowMs()}
+          checkedIds={props.state.checkedIds}
+          compact
+          onSelectId={props.state.setSelectedId}
+          onSort={props.state.setSort}
+          onToggleChecked={props.state.onToggleChecked}
+          onToggleAll={props.state.onToggleAll}
+          onDeleteChecked={() =>
+            props.state.setPendingDeleteIds([...props.state.checkedIds])
+          }
+        />
+        <SnapshotChromeActions
+          list={props.list}
+          hasCompatibleSelection={props.state.hasCompatibleSelection}
+          selectedId={props.state.selectedId}
+          hasIncompatible={props.state.hasIncompatible}
+          onSaved={props.state.setSelectedId}
+          onPurge={() => props.state.setPurgeOpen(true)}
+          openPalette={props.palette.open}
+        />
+      </Box>
+    </ResponsiveSurface>
   );
 }

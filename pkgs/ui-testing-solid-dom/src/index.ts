@@ -7,6 +7,7 @@
  */
 
 export {
+  ELEMENT_LAYOUT_EVENT,
   ensureElementLayout,
   type LayoutProvider,
   readInlineSize,

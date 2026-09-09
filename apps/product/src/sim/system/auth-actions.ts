@@ -23,14 +23,20 @@ export const signInWithDev = scenarioAction({
   },
 });
 
-/** Confirm sign-out from the account screen. */
+/**
+ * Confirm sign-out from the account screen.
+ *
+ * Clearing session capability swaps account chrome to the signed-out "Sign in"
+ * row and tears down the MutationModal before its success face can paint, so
+ * we assert signed-out chrome instead of `authSignedOut`.
+ */
 export const signOut = scenarioAction({
   name: 'signOut',
   act: async (s, actorId: string) => {
     const ui = await actorUi(s, actorId);
     await ui.get(Handles.accountSignOut).tap();
     await ui.get(Handles.authSignOutConfirm).tap();
-    await ui.get(Handles.authSignedOut).expect.visible({ timeoutMs: WAIT_MS });
+    await ui.get(Handles.accountSignIn).expect.visible({ timeoutMs: WAIT_MS });
   },
 });
 

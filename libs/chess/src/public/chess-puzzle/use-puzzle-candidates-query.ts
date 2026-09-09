@@ -10,7 +10,7 @@ import type { ChessPuzzleFeedHistoryFilter } from '../chess-puzzle-feed-config';
 export type PuzzleCandidatesQueryArgs = {
   readonly rating: Accessor<number>;
   readonly ownerId: Accessor<string>;
-  readonly currentPuzzleId: string | null;
+  readonly currentPuzzleId: Accessor<string | null>;
   readonly historyFilter: Accessor<ChessPuzzleFeedHistoryFilter>;
   readonly themes: Accessor<readonly string[]>;
   readonly halfWindow?: number | null;
@@ -26,7 +26,7 @@ export function usePuzzleCandidatesQuery(args: PuzzleCandidatesQueryArgs) {
       ownerId: args.ownerId(),
       historyFilter: args.historyFilter(),
       themes: args.themes(),
-      currentPuzzleId: args.currentPuzzleId,
+      currentPuzzleId: args.currentPuzzleId(),
       pickOffset: args.pickOffset?.() ?? 0,
     })
   );

@@ -28,6 +28,10 @@ export type DebuggerShellProps = {
    * to hide the strip — trailing chrome still renders.
    */
   readonly kindTabs?: readonly TabStripItem[];
+  /** Optional unified node strip (clients plus server/PubSub/Room). */
+  readonly unifiedNodes?: readonly TabStripItem[];
+  readonly selectedNode?: string;
+  readonly onNodeChange?: (id: string) => void;
   /** When false, hide the frame player (playground). Default true. */
   readonly showPlayer?: boolean;
   /** Fires on pointer-down on player / tab chrome (not the pane body). */
@@ -70,27 +74,43 @@ export function DebuggerShell(input: DebuggerShellProps): JSX.Element {
             onSelect={props.onSelectFrame}
           />
         ) : null}
-        {layout.compactChrome && props.kindTrailing !== undefined ? (
+        {layout.compactChrome &&
+        props.kindTrailing !== undefined &&
+        props.unifiedNodes === undefined ? (
           <Box sx={trailingOnlySx}>{props.kindTrailing}</Box>
         ) : null}
-        <KindChrome
-          showStrip={props.kindTabs.length > 1}
-          kindTabs={props.kindTabs}
-          kind={props.kind}
-          onKindChange={props.onKindChange}
-          kindTrailing={!layout.compactChrome ? props.kindTrailing : undefined}
-        />
-        {showInstances() ? (
+        {props.unifiedNodes !== undefined ? (
           <TabStrip
-            aria-label="Node instances"
-            items={props.instances.map((n) =>
-              debuggerInstanceTabItem({ id: n.id, kind: n.kind })
-            )}
-            selectedId={props.instanceId}
-            onSelect={props.onInstanceChange}
+            aria-label="Playground nodes"
+            items={[...props.unifiedNodes]}
+            selectedId={props.selectedNode ?? null}
+            onSelect={(id) => props.onNodeChange?.(id)}
+            trailing={!layout.compactChrome ? props.kindTrailing : undefined}
           />
-        ) : null}
-        {props.views.length > 1 ? (
+        ) : (
+          <>
+            <KindChrome
+              showStrip={props.kindTabs.length > 1}
+              kindTabs={props.kindTabs}
+              kind={props.kind}
+              onKindChange={props.onKindChange}
+              kindTrailing={
+                !layout.compactChrome ? props.kindTrailing : undefined
+              }
+            />
+            {showInstances() ? (
+              <TabStrip
+                aria-label="Node instances"
+                items={props.instances.map((n) =>
+                  debuggerInstanceTabItem({ id: n.id, kind: n.kind })
+                )}
+                selectedId={props.instanceId}
+                onSelect={props.onInstanceChange}
+              />
+            ) : null}
+          </>
+        )}
+        {props.unifiedNodes === undefined && props.views.length > 1 ? (
           <TabStrip
             aria-label="Views"
             items={props.views.map((v) => debuggerViewTabItem(v))}

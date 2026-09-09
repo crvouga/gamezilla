@@ -51,17 +51,31 @@ export type BoardController = BoardHandlers & {
   >;
 };
 
+/** Matches `@pkgs/ui-testing-solid-dom` `ELEMENT_LAYOUT_EVENT` (no dep edge). */
+const ELEMENT_LAYOUT_EVENT = 'ui-testing:element-layout';
+
 function useBoardPx(el: Accessor<HTMLElement | undefined>): Accessor<number> {
   const [px, setPx] = createSignal(0);
   createEffect(() => {
     const node = el();
     if (node === undefined) return;
+    const read = (): void => {
+      const width = node.getBoundingClientRect().width;
+      if (width > 0) setPx(width);
+    };
     const ro = new ResizeObserver((entries) => {
-      setPx(entries[0]?.contentRect.width ?? 0);
+      const width = entries[0]?.contentRect.width ?? 0;
+      if (width > 0) setPx(width);
+      else read();
     });
     ro.observe(node);
-    setPx(node.getBoundingClientRect().width);
-    onCleanup(() => ro.disconnect());
+    read();
+    // Headless drivers synthesize getBoundingClientRect after mount; re-read.
+    node.addEventListener(ELEMENT_LAYOUT_EVENT, read);
+    onCleanup(() => {
+      ro.disconnect();
+      node.removeEventListener(ELEMENT_LAYOUT_EVENT, read);
+    });
   });
   return px;
 }

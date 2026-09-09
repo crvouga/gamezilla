@@ -6,7 +6,7 @@ import {
   isBlankSnapshotHtml,
   type SolidDomDriver,
 } from '@pkgs/ui-testing-solid-dom';
-import { createSignal, type JSX } from 'solid-js';
+import { createSignal, type JSX, onMount } from 'solid-js';
 import { afterEach, describe, expect, test } from 'vitest';
 import { createDemoClock, DemoApp, DemoProviders } from './support/demo-app';
 
@@ -136,6 +136,34 @@ describe('SolidDomDriver', () => {
     expect(scroller?.scrollTop).toBe(40);
     await driver.get('login-form').scroll('up', 100);
     expect(scroller?.scrollTop).toBe(0);
+  });
+
+  test('layout dispatches ELEMENT_LAYOUT_EVENT so size listeners remeasure', async () => {
+    const sizes: number[] = [];
+    driver = customDriver(() => {
+      let host: HTMLElement | undefined;
+      onMount(() => {
+        host?.addEventListener('ui-testing:element-layout', () => {
+          if (host === undefined) return;
+          sizes.push(host.getBoundingClientRect().width);
+        });
+      });
+      return (
+        <Box
+          ref={(el) => {
+            host = el;
+          }}
+          sx={{ width: '100%', height: '100%' }}
+          dataSet={{ testid: 'frame' }}
+        />
+      );
+    });
+    await driver.launch();
+    expect(await driver.get('frame').layout()).toMatchObject({
+      width: 390,
+      height: 390,
+    });
+    expect(sizes).toEqual([390]);
   });
 
   test('layout synthesizes a box from inline size and tapAt/drag hit it', async () => {

@@ -48,7 +48,7 @@ function useEffectivePuzzleRating(): Accessor<number> {
 function usePuzzleCandidateQueries(args: {
   rating: Accessor<number>;
   myId: Accessor<string>;
-  currentPuzzleId: string | null;
+  currentPuzzleId: Accessor<string | null>;
   pickOffset: Accessor<number>;
   historyFilter: Accessor<ChessPuzzleFeedHistoryFilter>;
   themes: Accessor<readonly string[]>;
@@ -87,8 +87,8 @@ function useLocalPuzzleTotal(): Accessor<number> {
 }
 
 export function useNextPuzzleId(args: {
-  currentPuzzleId: string | null;
-  seed: string;
+  currentPuzzleId: Accessor<string | null>;
+  seed: Accessor<string>;
 }): {
   puzzleId: Accessor<string | null>;
   rating: Accessor<number>;
@@ -102,7 +102,7 @@ export function useNextPuzzleId(args: {
   const rating = useEffectivePuzzleRating();
   const localPuzzleTotal = useLocalPuzzleTotal();
   const pickOffset = createMemo(() =>
-    resolvePuzzlePickOffset(args.seed, localPuzzleTotal())
+    resolvePuzzlePickOffset(args.seed(), localPuzzleTotal())
   );
   const { banded, fallback } = usePuzzleCandidateQueries({
     rating,
@@ -118,7 +118,7 @@ export function useNextPuzzleId(args: {
       rows: puzzleResult.rows,
       rating: rating(),
       preferredBand: PUZZLE_PREFERRED_BAND,
-      seed: args.seed,
+      seed: args.seed(),
     })
   );
   const loading = createMemo(() =>

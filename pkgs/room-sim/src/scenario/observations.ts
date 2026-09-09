@@ -179,9 +179,9 @@ async function healthyButDiverged(s: RoomSim): Promise<boolean> {
 export const staysInSync = defineProperty({
   name: 'staysInSync',
   setup: () => ({ strikes: 0 }),
-  check: async (s: RoomSim, ctx: { strikes: number }) => {
+  check: async (s: RoomSim, model: { strikes: number }) => {
     if (!(await healthyButDiverged(s))) return { strikes: 0 };
-    const strikes = ctx.strikes + 1;
+    const strikes = model.strikes + 1;
     if (strikes > CONVERGE_GRACE_CHECKPOINTS) {
       throw new Error('quiet but diverged');
     }

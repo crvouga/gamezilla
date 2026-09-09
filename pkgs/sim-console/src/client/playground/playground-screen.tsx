@@ -27,10 +27,11 @@ import type {
 import type { SimChromeKind } from '../../shared/sim-node';
 import { DebuggerColumn } from '../debugger/debugger-columns';
 import { DebuggerShell } from '../debugger/debugger-shell';
-import type {
-  DebuggerChromeNav,
-  PaneNavPatch,
-  PaneNavValue,
+import {
+  type DebuggerChromeNav,
+  debuggerInstanceTabItem,
+  type PaneNavPatch,
+  type PaneNavValue,
 } from '../debugger-chrome';
 import { PlaygroundAppearanceCommands } from './playground-appearance-commands';
 import {
@@ -171,6 +172,22 @@ function ReadyPlaygroundScreen(props: {
   const instanceId = createMemo(() =>
     resolvePlaygroundInstanceId(props.chrome.instance, instances())
   );
+  const unifiedNodes = createMemo(() => {
+    const clientNodes = instances().map((node) =>
+      debuggerInstanceTabItem({ id: node.id, kind: node.kind })
+    );
+    const fixed = [
+      { id: 'server', kind: 'server' },
+      { id: 'events', kind: 'events' },
+      ...(props.session.rooms.size > 0
+        ? [{ id: [...props.session.rooms.keys()][0]!, kind: 'room' }]
+        : []),
+    ];
+    return [...clientNodes, ...fixed.map(debuggerInstanceTabItem)];
+  });
+  const selectedNode = createMemo(() =>
+    kind() === 'client' ? instanceId() : kind() === 'events' ? 'events' : kind()
+  );
   const shellPaneKey = createMemo(() =>
     playgroundPaneKey(kind(), instanceId())
   );
@@ -189,7 +206,6 @@ function ReadyPlaygroundScreen(props: {
   const clearClientFocus = () => {
     props.onFocusedClientIdChange(null);
   };
-
   return (
     <Box
       sx={{
@@ -200,42 +216,108 @@ function ReadyPlaygroundScreen(props: {
       }}
     >
       <PlaygroundPaletteRegistrations commands={paletteCommands()} />
-      <DebuggerShell
-        showPlayer={false}
-        frames={[]}
-        selectedFrameIndex={0}
-        onSelectFrame={() => undefined}
-        onChromePointerDown={clearClientFocus}
-        kindTrailing={<PlaygroundSnapshotChrome session={props.session} />}
-        kind={kind()}
-        onKindChange={props.chrome.onKindChange}
-        instances={instances()}
-        instanceId={instanceId()}
-        onInstanceChange={(id) => {
-          props.chrome.onInstanceChange(id);
-          if (kind() === 'client') props.onFocusedClientIdChange(id);
-        }}
-        views={views()}
-        view={shellPane().view}
-        onViewChange={(next) =>
-          props.chrome.onPanePatch(shellPaneKey(), { view: next })
-        }
-      >
-        <PlaygroundKindPane
-          session={props.session}
-          kind={kind()}
-          panes={props.chrome.panes}
-          instanceId={instanceId()}
-          clients={clients()}
-          snapshotEpoch={snapshotEpoch()}
-          focusedClientId={props.focusedClientId}
-          onFocusedClientIdChange={props.onFocusedClientIdChange}
-          onPanePatch={props.chrome.onPanePatch}
-          onClientColumnsOutsidePointerDown={clearClientFocus}
-          clientColumnShell={playgroundClientColumnShell}
-        />
-      </DebuggerShell>
+      <PlaygroundDebuggerShell
+        session={props.session}
+        chrome={props.chrome}
+        clients={clients()}
+        kind={kind}
+        instances={instances}
+        instanceId={instanceId}
+        unifiedNodes={unifiedNodes}
+        selectedNode={selectedNode}
+        onUnifiedNodeChange={(id) => selectUnifiedNode(props, instances(), id)}
+        views={views}
+        shellPane={shellPane}
+        shellPaneKey={shellPaneKey}
+        snapshotEpoch={snapshotEpoch}
+        focusedClientId={props.focusedClientId}
+        onFocusedClientIdChange={props.onFocusedClientIdChange}
+        clearClientFocus={clearClientFocus}
+      />
     </Box>
+  );
+}
+
+function selectUnifiedNode(
+  props: {
+    readonly chrome: DebuggerChromeNav;
+    readonly onFocusedClientIdChange: (id: string | null) => void;
+  },
+  instances: readonly { readonly id: string; readonly kind: string }[],
+  id: string
+): void {
+  const node = instances.find((entry) => entry.id === id);
+  if (node?.kind === 'client') {
+    props.chrome.onKindChange('client');
+    props.chrome.onInstanceChange(id);
+    props.onFocusedClientIdChange(id);
+  } else if (id === 'server') {
+    props.chrome.onKindChange('server');
+  } else if (id === 'events') {
+    props.chrome.onKindChange('events');
+  } else {
+    props.chrome.onKindChange('room');
+    props.chrome.onInstanceChange(id);
+  }
+}
+
+function PlaygroundDebuggerShell(props: {
+  readonly session: PlaygroundSession;
+  readonly chrome: DebuggerChromeNav;
+  readonly clients: readonly PlaygroundActor[];
+  readonly kind: () => SimChromeKind;
+  readonly instances: () => readonly {
+    readonly id: string;
+    readonly kind: string;
+  }[];
+  readonly instanceId: () => string | null;
+  readonly unifiedNodes: () => readonly import('@pkgs/ui').TabStripItem[];
+  readonly selectedNode: () => string | null;
+  readonly onUnifiedNodeChange: (id: string) => void;
+  readonly views: () => readonly import('../../shared/debugger-views').DebuggerViewId[];
+  readonly shellPane: () => PaneNavValue;
+  readonly shellPaneKey: () => string;
+  readonly snapshotEpoch: () => number;
+  readonly focusedClientId: string | null;
+  readonly onFocusedClientIdChange: (id: string | null) => void;
+  readonly clearClientFocus: () => void;
+}) {
+  return (
+    <DebuggerShell
+      showPlayer={false}
+      frames={[]}
+      selectedFrameIndex={0}
+      onSelectFrame={() => undefined}
+      onChromePointerDown={props.clearClientFocus}
+      kindTrailing={<PlaygroundSnapshotChrome session={props.session} />}
+      kind={props.kind()}
+      onKindChange={props.chrome.onKindChange}
+      unifiedNodes={props.unifiedNodes()}
+      selectedNode={props.selectedNode() ?? ''}
+      onNodeChange={props.onUnifiedNodeChange}
+      instances={props.instances()}
+      instanceId={props.instanceId()}
+      onInstanceChange={props.chrome.onInstanceChange}
+      views={props.views()}
+      view={props.shellPane().view}
+      onViewChange={(next) =>
+        props.chrome.onPanePatch(props.shellPaneKey(), { view: next })
+      }
+    >
+      <PlaygroundKindPane
+        session={props.session}
+        kind={props.kind()}
+        panes={props.chrome.panes}
+        instanceId={props.instanceId()}
+        clients={props.clients}
+        snapshotEpoch={props.snapshotEpoch()}
+        focusedClientId={props.focusedClientId}
+        onFocusedClientIdChange={props.onFocusedClientIdChange}
+        onPanePatch={props.chrome.onPanePatch}
+        onClientColumnsOutsidePointerDown={props.clearClientFocus}
+        clientColumnShell={playgroundClientColumnShell}
+      />
+    </DebuggerShell>
   );
 }
 

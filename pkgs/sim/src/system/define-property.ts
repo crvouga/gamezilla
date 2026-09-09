@@ -1,22 +1,24 @@
 import type { Awaitable } from './awaitable';
-import { PROPERTY_TAG, type Property } from './effect';
+import { type CheckpointAction, PROPERTY_TAG, type Property } from './effect';
 
 /**
- * `C` is inferred from `setup`'s return (or `void` when omitted).
- * `check` / `close` must agree on that ctx type.
+ * `M` is inferred from `setup`'s return (`void` when omitted); `check`
+ * asserts with that model and may return the next one.
  */
-export function defineProperty<S, C = void>(def: {
+export function defineProperty<S, M = void>(def: {
   readonly name: string;
-  readonly setup?: (s: S) => Awaitable<C>;
-  readonly check: (s: S, ctx: C) => Awaitable<C | void>;
-  readonly close?: (ctx: C) => Awaitable<void>;
-}): Property<S, C> {
+  readonly setup?: (s: S) => Awaitable<M>;
+  readonly check: (
+    s: S,
+    model: M,
+    action: CheckpointAction
+  ) => Awaitable<M | void>;
+}): Property<S, M> {
   if (!def.name) throw new Error('defineProperty: name is required');
   return {
     [PROPERTY_TAG]: true,
     name: def.name,
     setup: def.setup,
     check: def.check,
-    close: def.close,
   };
 }

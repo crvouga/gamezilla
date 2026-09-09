@@ -30,15 +30,14 @@ describe('parseConsoleNav', () => {
   });
 
   test('cv becomes full per-node pane map', () => {
+    // Legacy client `db`/`logs` panes coerce to client's only view (`ui`),
+    // drop out of the pane map as defaults, and no longer seed the instance.
     expect(parseConsoleNav('?kind=client&cv=alice:db,bob:logs')).toEqual({
       section: 'reports',
       playground: {
         kind: 'client',
-        instance: 'alice',
-        panes: {
-          alice: { view: 'db' },
-          bob: { view: 'events' },
-        },
+        instance: '',
+        panes: {},
       },
       reports: DEFAULT_CONSOLE_NAV.reports,
     });
@@ -48,8 +47,9 @@ describe('parseConsoleNav', () => {
     const state = parseConsoleNav(
       '?section=playground&cv=alice:db:auth_devices,bob:ui'
     );
-    expect(state.playground.panes['alice']).toEqual({ view: 'db' });
-    expect(state.playground.panes['bob']).toEqual({ view: 'ui' });
+    // Chrome kind defaults to client: both entries coerce to client's only
+    // view (`ui`) and drop out of the pane map as defaults.
+    expect(state.playground.panes).toEqual({});
   });
 
   test('instance query wins over first cv id', () => {
@@ -58,9 +58,9 @@ describe('parseConsoleNav', () => {
       playground: {
         kind: 'client',
         instance: 'bob',
-        panes: {
-          alice: { view: 'db' },
-        },
+        // Legacy client `db` pane coerces to `ui` (client's only view) and
+        // drops out of the pane map as a default.
+        panes: {},
       },
       reports: DEFAULT_CONSOLE_NAV.reports,
     });
@@ -83,6 +83,18 @@ describe('parseConsoleNav', () => {
         'events'
       ).view
     ).toBe('events');
+  });
+
+  test('legacy client db/events panes drop out of cv', () => {
+    // Client nodes only have a `ui` view now: legacy `alice:db` / `bob:logs`
+    // coerce to `ui` and are omitted as defaults.
+    const client = parseConsoleNav('?kind=client&cv=alice:db,bob:logs');
+    expect(client.playground.panes).toEqual({});
+    // Under room chrome the implied kind for non-singleton panes is room, so
+    // a legal non-default room view survives; instance seeds from first id.
+    const room = parseConsoleNav('?kind=room&cv=alice:events');
+    expect(room.playground.panes['alice']).toEqual({ view: 'events' });
+    expect(room.playground.instance).toBe('alice');
   });
 
   test('ignores unknown enum values', () => {
@@ -140,9 +152,9 @@ describe('parseConsoleNav', () => {
     const state = parseConsoleNav(
       '?kind=client&instance=bob&cv=bob:events,alice:db:auth_users'
     );
-    expect(buildConsoleSearch(state)).toBe(
-      '?instance=bob&cv=alice%3Adb%2Cbob%3Aevents'
-    );
+    // Stale client panes coerce to `ui` (client's only view) and drop out of
+    // the pane map; the instance query is preserved.
+    expect(buildConsoleSearch(state)).toBe('?instance=bob');
   });
 
   test('ignores legacy host query', () => {
@@ -182,9 +194,9 @@ describe('buildConsoleSearch', () => {
     const state = applyConsoleNavPatch(DEFAULT_CONSOLE_NAV, {
       section: 'reports',
       playground: {
-        kind: 'client',
-        instance: 'alice',
-        panes: { alice: { view: 'db' } },
+        kind: 'server',
+        instance: '',
+        panes: { server: { view: 'commands' } },
       },
       reports: {
         bucketId: 'local',
@@ -282,27 +294,30 @@ describe('coerceView / applyConsoleNavPatch', () => {
       {
         section: 'playground',
         playground: {
-          kind: 'client',
-          instance: 'alice',
-          panes: {
-            alice: { view: 'ui' },
-            bob: { view: 'ui' },
-          },
+          kind: 'server',
+          instance: '',
+          panes: {},
         },
         reports: DEFAULT_CONSOLE_NAV.reports,
       },
       {
         playground: {
-          pane: { id: 'bob', patch: { view: 'db' } },
+          pane: { id: 'server', patch: { view: 'db' } },
         },
       }
     );
-    expect(next.playground.panes['alice']).toEqual({
-      view: 'ui',
-    });
-    expect(next.playground.panes['bob']).toEqual({
-      view: 'db',
-    });
+    expect(resolvePaneNav(next.playground, 'server').view).toBe('db');
+  });
+
+  test('client panes coerce to the ui default (no db/events tabs)', () => {
+    // Resolve-time coercion: a stale client pane coerces to client's only
+    // legal view (`ui`), which is also the default — no db/events tabs.
+    expect(
+      resolvePaneNav(
+        { kind: 'client', instance: 'alice', panes: { alice: { view: 'db' } } },
+        'alice'
+      ).view
+    ).toBe('ui');
   });
 
   test('section change leaves playground and reports intact', () => {

@@ -1,6 +1,7 @@
 # Web build smoke-test outputs
 .check-dist-dev/
 public/sql-workers/**/*.js
+public/sql-workers/**/*.html
 
 test-results/
 .check-dist-prodcheck

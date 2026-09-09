@@ -34,6 +34,21 @@ export type PuzzleSessionStartInput = {
 };
 
 /**
+ * A locally requested next puzzle cannot be placed until the room has
+ * processed the preceding clear command. Consuming the attempt while the old
+ * puzzle is still present loses the transition when that clear arrives.
+ */
+export function shouldDeferPuzzleAttemptPlacement(input: {
+  readonly attemptSeed: number;
+  readonly placedAttemptSeed: number;
+  readonly roomPuzzleId: string | null;
+}): boolean {
+  return (
+    input.attemptSeed !== input.placedAttemptSeed && input.roomPuzzleId !== null
+  );
+}
+
+/**
  * Only Start when the screen arms a new placement (`startNonce` changed),
  * the parent has caught up (`playGeneration === readyGeneration`), the room
  * is idle with no puzzle loaded, and entity data is hydrated.

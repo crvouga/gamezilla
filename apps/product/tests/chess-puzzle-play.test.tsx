@@ -1,9 +1,10 @@
-import { describe, test } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import {
   createSpace,
-  expectPuzzleSolved,
+  isPuzzleSolved,
   openPuzzleFromSpace,
   playUntilSolved,
+  pressPuzzleNext,
   returnToTabs,
   signInWithDev,
 } from '../src/sim';
@@ -18,6 +19,21 @@ describe('chess puzzle play', () => {
     await s.apply(createSpace, 'alice');
     await s.apply(openPuzzleFromSpace, 'alice');
     await s.apply(playUntilSolved, 'alice');
-    await s.apply(expectPuzzleSolved, 'alice');
+    expect(await s.read(isPuzzleSolved, 'alice')).toBe(true);
+  });
+
+  test('next never repeats the active puzzle', async () => {
+    await using s = await openSim('chess-puzzle-next-different');
+
+    await s.apply(signInWithDev, 'alice');
+    await s.apply(returnToTabs, 'alice');
+    await s.apply(createSpace, 'alice');
+    await s.apply(openPuzzleFromSpace, 'alice');
+    // Pass 1: solve, then Next — standing nextPuzzleDifferent asserts change.
+    await s.apply(playUntilSolved, 'alice');
+    await s.apply(pressPuzzleNext, 'alice');
+    // Pass 2: repeat — never the same puzzle twice in a row.
+    await s.apply(playUntilSolved, 'alice');
+    await s.apply(pressPuzzleNext, 'alice');
   });
 });

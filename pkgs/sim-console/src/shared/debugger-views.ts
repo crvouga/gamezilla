@@ -26,7 +26,7 @@ const VIEW_ALIASES: Readonly<Record<string, DebuggerViewId>> = {
 export const VIEWS_BY_KIND: Readonly<
   Record<SimChromeKind, readonly DebuggerViewId[]>
 > = {
-  client: ['ui', 'db', 'events'],
+  client: ['ui'],
   server: ['db', 'events', 'commands'],
   events: ['events', 'topics'],
   room: ['db', 'events'],

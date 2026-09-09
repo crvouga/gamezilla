@@ -340,7 +340,7 @@ function normalizeInstance(kind: ConsoleKind, raw: string): string {
 function viewsAllowedForKind(kind: ConsoleKind): readonly ConsoleView[] {
   switch (kind) {
     case 'client':
-      return ['ui', 'db', 'events'];
+      return ['ui'];
     case 'server':
       return ['db', 'events', 'commands'];
     case 'events':
@@ -348,6 +348,11 @@ function viewsAllowedForKind(kind: ConsoleKind): readonly ConsoleView[] {
     case 'room':
       return ['db', 'events'];
   }
+}
+
+function impliedPaneKind(paneId: string, chromeKind: ConsoleKind): ConsoleKind {
+  if (paneId === 'server' || paneId === 'events') return paneId;
+  return chromeKind === 'room' ? 'room' : 'client';
 }
 
 function parsePaneMap(
@@ -365,9 +370,11 @@ function parsePaneMap(
     const viewRaw = decodeURIComponent(segments[1] ?? '').trim();
     // Legacy `id:view:table` — discard trailing table segment.
     if (id.length === 0 || viewRaw.length === 0) continue;
-    out[id] = {
-      view: coerceLooseView(viewRaw, kind, id),
-    };
+    const view = coerceLooseView(viewRaw, kind, id);
+    // Symmetric with buildPaneMap: drop entries whose coerced view equals
+    // the node's implied-kind default (e.g. legacy client db/events panes).
+    if (view === defaultViewForKind(impliedPaneKind(id, kind))) continue;
+    out[id] = { view };
   }
   return out;
 }
@@ -382,11 +389,10 @@ function coerceLooseView(
   chromeKind: ConsoleKind,
   paneId: string
 ): ConsoleView {
-  if (paneId === 'server') return coerceView('server', viewRaw);
-  if (paneId === 'events') return coerceView('events', viewRaw);
-  const aliased = VIEW_ALIASES[viewRaw] ?? viewRaw;
-  if (ALL_VIEWS.has(aliased)) return aliased as ConsoleView;
-  return coerceView(chromeKind, viewRaw);
+  // Client panes no longer carry db/events tabs: a non-singleton node's
+  // implied kind is `client` (unless the chrome kind is room), so coerce
+  // within that kind's legal views instead of any view id.
+  return coerceView(impliedPaneKind(paneId, chromeKind), viewRaw);
 }
 
 function buildPaneMap(playground: PlaygroundNav): string {
@@ -394,13 +400,10 @@ function buildPaneMap(playground: PlaygroundNav): string {
   const keys = Object.keys(playground.panes).sort();
   for (const id of keys) {
     const pane = playground.panes[id]!;
-    const defaultView =
-      id === 'server'
-        ? defaultViewForKind('server')
-        : id === 'events'
-          ? defaultViewForKind('events')
-          : defaultViewForKind(playground.kind === 'room' ? 'room' : 'client');
-    if (pane.view === defaultView) continue;
+    // Mirror parse coercion: a pane whose view equals its implied-kind
+    // default is dropped on parse, so omit it here too.
+    if (pane.view === defaultViewForKind(impliedPaneKind(id, playground.kind)))
+      continue;
     entries.push(`${encodeURIComponent(id)}:${encodeURIComponent(pane.view)}`);
   }
   return entries.join(',');

@@ -15,7 +15,7 @@ import {
   assertProperty,
   bootMonitors,
   checkpoint,
-  closeMonitors,
+  disposeMonitors,
   type MonitorState,
   observeRead,
   PropertyViolation,
@@ -179,10 +179,11 @@ async function applyAction<S>(
 
 async function disposeRun(
   monitors: MonitorState[],
+  surface: unknown,
   reporter: RunReporter | null,
   session: Session
 ): Promise<void> {
-  const endViolations = await closeMonitors(monitors);
+  const endViolations = await disposeMonitors(monitors, surface);
   if (reporter !== null) {
     await reporter.flush();
   }
@@ -222,7 +223,7 @@ function buildRun<S>(args: {
       applyAction(
         internal,
         args.surface,
-        action as Action<S, unknown[]>,
+        action as unknown as Action<S, unknown[]>,
         applyArgs as unknown[]
       ),
     async read(readFn, ...readArgs) {
@@ -265,7 +266,7 @@ function buildRun<S>(args: {
       return internal.reporter?.toReport() ?? null;
     },
     [Symbol.asyncDispose]: () =>
-      disposeRun(args.monitors, internal.reporter, args.session),
+      disposeRun(args.monitors, args.surface, internal.reporter, args.session),
   };
   setRunInternal(s, internal);
   return s;

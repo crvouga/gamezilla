@@ -259,21 +259,21 @@ function frozenPlayerModel(args: {
 export type PuzzlePlayerChromeModel = ReturnType<typeof frozenPlayerModel>;
 
 export function usePuzzlePlayerState(args: {
-  puzzleId: string;
-  playGeneration: number;
-  readyGeneration: number;
-  startNonce: number;
+  puzzleId: Accessor<string>;
+  playGeneration: Accessor<number>;
+  readyGeneration: Accessor<number>;
+  startNonce: Accessor<number>;
   onRequestNext: () => void;
 }): PuzzlePlayerChromeModel {
-  const puzzleId = createMemo(() => args.puzzleId);
-  const playGeneration = createMemo(() => args.playGeneration);
-  const readyGeneration = createMemo(() => args.readyGeneration);
-  const startNonce = createMemo(() => args.startNonce);
   const m = usePuzzlePlayerModel({
-    puzzleId,
-    playGeneration,
-    readyGeneration,
-    startNonce,
+    puzzleId: args.puzzleId,
+    playGeneration: args.playGeneration,
+    readyGeneration: args.readyGeneration,
+    startNonce: args.startNonce,
   });
-  return usePuzzlePlayerUi({ puzzleId, onRequestNext: args.onRequestNext, m });
+  return usePuzzlePlayerUi({
+    puzzleId: args.puzzleId,
+    onRequestNext: args.onRequestNext,
+    m,
+  });
 }

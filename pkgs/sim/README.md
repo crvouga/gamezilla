@@ -17,8 +17,8 @@ Runtime supplies those. Root policy: [`DETERMINISM.md`](../../DETERMINISM.md).
 | **Session** | Kernel + ports for one node (`clock`, `timers`, `createId`, `random`, `network`, `fork`, `waitForIdle`, `advanceTime`). Harness-only. |
 | **System** | `defineSystem({ name, create, runtimes, actions?, properties?, snapshots?, args?, sample? })` — recipe → `S` with catalogs declared upfront. |
 | **sim `S`** | Typed surface returned by `create(session, args)`. Data only — no wait/drain methods. |
-| **Action** | Named stimulus `{ enabled, weight, args?, sample?, pool?, act }` from `defineAction`, listed in `defineSystem({ actions })`. |
-| **Property** | Checkpoint predicate `{ setup?, check, close? }` from `defineProperty`, listed in `defineSystem({ properties })`. |
+| **Action** | Named stimulus `{ enabled, weight, args?, sample?, pool?, act, is }` from `defineAction`, listed in `defineSystem({ actions })`. `action.is(checkpoint)` narrows the applied stimulus inside a property. |
+| **Property** | Model-based checkpoint check `{ setup?, check(s, model, action) }` from `defineProperty`, listed in `defineSystem({ properties })`. Assert with the pre-update model; optionally return the next model. `action` is null on boot / `s.assert` / dispose. |
 | **Snapshot** | Named capture `{ media?, capture }` from `defineSnapshot`, listed in `defineSystem({ snapshots })`. Value may be any type; `media` (`json` / `html` / `png` / `text` / `bytes`) controls encoding and UI. |
 | **Run** | Opened by `system.run({ seed, runtime?, args?, report? })`. Drive with `apply` / `read` / `assert` / `advanceTime` / `until` / `never` / `randomActions` / `record` / `snapshot`. |
 | **RunReport** | Timeline of report steps + frames for one test. Built when `report` is enabled; optionally persisted to an ObjectStore. |

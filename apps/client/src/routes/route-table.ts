@@ -59,6 +59,8 @@ export const APP_ROUTE_TABLE: readonly AppRouteEntry[] = [
     path: '/more/account/device/:deviceId',
     load: () => import('./stubs/account-device'),
   },
+  { path: '/client/sql', load: () => import('./stubs/client-sql') },
+  { path: '/client/events', load: () => import('./stubs/client-events') },
   { path: '/ui', load: () => import('./stubs/ui-explorer') },
   { path: '/ui/:component', load: () => import('./stubs/ui-explorer-detail') },
   { path: '/sso-callback', load: () => import('./stubs/sso-callback') },

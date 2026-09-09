@@ -1,7 +1,7 @@
-import { describe, test } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import {
   createSpace,
-  expectLobbyCard,
+  lobbyCardVisible,
   returnToLobby,
   returnToTabs,
   signInWithDev,
@@ -17,6 +17,7 @@ describe('space create', () => {
     await s.apply(returnToTabs, 'alice');
     await s.apply(createSpace, 'alice');
     await s.apply(returnToLobby, 'alice');
-    await s.apply(expectLobbyCard, 'alice', aliceUsername);
+    await s.until((surf) => lobbyCardVisible(surf, 'alice', aliceUsername));
+    expect(await s.read(lobbyCardVisible, 'alice', aliceUsername)).toBe(true);
   });
 });

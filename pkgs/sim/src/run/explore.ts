@@ -11,7 +11,7 @@ import {
   resolveActions,
   type SystemCore as System,
 } from '../system/registry';
-import { closeMonitors } from './checkpoint';
+import { disposeMonitors } from './checkpoint';
 import { type RandomActionsReport, randomActions } from './random-actions';
 import { getRunInternal, run } from './run';
 
@@ -132,7 +132,7 @@ function recordEndViolations(args: {
   readonly acc: EpisodeAcc;
   readonly endViolations: readonly {
     property: string;
-    at: number | 'end';
+    at: number | 'dispose';
     message: string;
   }[];
   readonly epSeed: number;
@@ -141,13 +141,6 @@ function recordEndViolations(args: {
   readonly runtimeName: string;
 }): void {
   for (const v of args.endViolations) {
-    if (v.at === 'end') {
-      args.acc.obligationMisses.set(
-        v.property,
-        (args.acc.obligationMisses.get(v.property) ?? 0) + 1
-      );
-      continue;
-    }
     args.acc.failures.push({
       seed: args.epSeed,
       repro: {
@@ -195,7 +188,10 @@ async function scriptEpisode<S, Args>(args: {
     });
 
     mergeCoverage(acc, w);
-    const endViolations = await closeMonitors(getRunInternal(s).monitors);
+    const endViolations = await disposeMonitors(
+      getRunInternal(s).monitors,
+      getRunInternal(s).surface
+    );
     await s[Symbol.asyncDispose]().catch(() => {});
     recordEndViolations({
       acc,

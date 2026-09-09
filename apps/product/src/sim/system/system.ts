@@ -20,10 +20,13 @@ import {
   spawnActor,
   uiOp,
 } from './actions';
+import { nextPuzzleDifferent } from './chess-properties';
 import { anyActor } from './observations';
 import { captureSnapshot, devOauthSignIn } from './probes';
 import { productScenarioActions } from './scenario-actions';
 import { createProductSim, type ProductSim, productExtra } from './sim';
+
+export { nextPuzzleDifferent } from './chess-properties';
 
 const FRAME_STYLESHEET_HREF = '../../snapshot-shell.css';
 
@@ -152,6 +155,7 @@ export const product = defineSystem<ProductSim>({
     noErrorBoundaryAnyActor,
     globalActionMenuAlwaysVisible,
     searchDoesNotHang,
+    nextPuzzleDifferent,
   ],
   actions: [
     spawnActor,

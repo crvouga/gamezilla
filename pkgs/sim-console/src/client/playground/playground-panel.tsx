@@ -1,10 +1,9 @@
-import { Box, TabStrip } from '@pkgs/ui';
+import { Box } from '@pkgs/ui';
 import { Match, Show, Switch } from 'solid-js';
 import {
   coerceDebuggerView,
   type DebuggerViewId,
   defaultViewForKind,
-  viewsForKind,
 } from '../../shared/debugger-views';
 import type {
   PlaygroundActor,
@@ -14,7 +13,6 @@ import type {
   PlaygroundSqlNode,
 } from '../../shared/ports';
 import type { PaneNavPatch, PaneNavValue } from '../debugger-chrome';
-import { debuggerViewTabItem } from '../debugger-chrome';
 import { SqlNotebookPane } from '../sql-notebook/sql-notebook-pane';
 import { ActorUrlFrame } from './actor-url-frame';
 import { PlaygroundCommandsPane } from './playground-commands-pane';
@@ -46,6 +44,14 @@ const fillSx = {
   minWidth: 0,
 } as const;
 
+function hiddenWhen(active: boolean) {
+  return {
+    ...fillSx,
+    display: active ? ('flex' as const) : ('none' as const),
+    pointerEvents: active ? ('auto' as const) : ('none' as const),
+  };
+}
+
 function ActorView(props: { readonly actor: PlaygroundActor }) {
   return (
     <Switch>
@@ -69,14 +75,6 @@ function ActorView(props: { readonly actor: PlaygroundActor }) {
   );
 }
 
-function hiddenWhen(active: boolean) {
-  return {
-    ...fillSx,
-    display: active ? ('flex' as const) : ('none' as const),
-    pointerEvents: active ? ('auto' as const) : ('none' as const),
-  };
-}
-
 function resolvePane(
   pane: PaneNavValue | undefined,
   kind: 'client' | 'server' | 'events' | 'room'
@@ -98,45 +96,19 @@ export function ClientPlaygroundPanel(props: {
     mode?: 'push' | 'replace'
   ) => void;
 }) {
-  const pane = () => resolvePane(props.pane, 'client');
-  const tab = () => pane().view;
+  void props.session;
+  void props.reloadToken;
+  void props.pane;
+  void props.onPanePatch;
   const productKey = () => `${props.actor.id}:${props.snapshotEpoch ?? 0}`;
-  const views = viewsForKind('client');
+  void props.reloadToken;
 
   return (
     <Box sx={panelSx} dataSet={{ debuggerClient: props.actor.address }}>
-      <TabStrip
-        aria-label="Client views"
-        items={views.map((v) => debuggerViewTabItem(v))}
-        selectedId={tab()}
-        onSelect={(id) => props.onPanePatch({ view: id })}
-      />
-      <Box
-        sx={{
-          ...uiBodySx,
-          display: tab() === 'ui' ? 'flex' : 'none',
-          pointerEvents: tab() === 'ui' ? 'auto' : 'none',
-        }}
-      >
+      <Box sx={uiBodySx}>
         <Show when={productKey()} keyed>
           {(_key: string) => <ActorView actor={props.actor} />}
         </Show>
-      </Box>
-      <Box sx={hiddenWhen(tab() === 'db')}>
-        <SqlNotebookPane
-          sqlClient={props.actor.sqlClient}
-          nodeId={props.actor.id}
-          active={tab() === 'db'}
-          subscribeDomainWake={(listener) =>
-            props.session.subscribeDomainWake(listener)
-          }
-          {...(props.reloadToken !== undefined
-            ? { reloadToken: props.reloadToken }
-            : {})}
-        />
-      </Box>
-      <Box sx={hiddenWhen(tab() === 'events')}>
-        <PlaygroundLogsPane logs={props.actor.logs} />
       </Box>
     </Box>
   );

@@ -16,15 +16,15 @@ import { authzApp } from './app';
 const ownerStable = defineProperty<RoomSim, { owner: string | null }>({
   name: 'ownerStable',
   setup: () => ({ owner: null }),
-  check: async (s, ctx) => {
-    if (serverCrashed(s)) return ctx;
+  check: async (s, model) => {
+    if (serverCrashed(s)) return model;
     const owner = authzOwner(await s.kit.serverSnapshot());
-    if (ctx.owner !== null && owner !== ctx.owner) {
+    if (model.owner !== null && owner !== model.owner) {
       throw new Error(
-        `owner moved from ${ctx.owner} to ${String(owner)} after claim`
+        `owner moved from ${model.owner} to ${String(owner)} after claim`
       );
     }
-    return { owner: owner ?? ctx.owner };
+    return { owner: owner ?? model.owner };
   },
 });
 

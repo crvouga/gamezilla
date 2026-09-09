@@ -57,6 +57,7 @@ export {
   type UiOp,
   uiOp,
 } from './system/actions';
+export { isPuzzleSolved, readActivePuzzleId } from './system/chess-puzzle-ui';
 export {
   actor,
   actorHtml,
@@ -77,16 +78,6 @@ export {
   addFriend,
   createSpace,
   endSpace,
-  expectActiveSpace,
-  expectAvatarSeed,
-  expectAvatarStyleLabel,
-  expectAvatarTraitVisible,
-  expectFriend,
-  expectLobbyCard,
-  expectLobbyCardGone,
-  expectPuzzleSolved,
-  expectTabsVisible,
-  expectUsername,
   focusActor,
   joinFromPrompt,
   leaveAvatarEditor,
@@ -98,6 +89,7 @@ export {
   openSettings,
   openSpacesTab,
   playUntilSolved,
+  pressPuzzleNext,
   reenterActiveSpace,
   returnToLobby,
   returnToTabs,
@@ -118,8 +110,19 @@ export {
 } from './system/sim';
 export {
   globalActionMenuAlwaysVisible,
+  nextPuzzleDifferent,
   noErrorBoundaryAnyActor,
   type ProductSim,
   product,
   searchDoesNotHang,
 } from './system/system';
+export {
+  activeSpaceVisible,
+  avatarTraitVisible,
+  friendRowVisible,
+  lobbyCardVisible,
+  readAvatarSeed,
+  readAvatarStyleLabel,
+  readUsername,
+  tabsVisible,
+} from './system/ui-reads';

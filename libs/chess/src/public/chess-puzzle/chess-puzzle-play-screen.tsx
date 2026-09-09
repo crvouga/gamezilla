@@ -138,10 +138,10 @@ type PuzzlePlayerProps = {
 
 function PuzzlePlayer(props: PuzzlePlayerProps): JSX.Element {
   const p = usePuzzlePlayerState({
-    puzzleId: props.puzzleId,
-    playGeneration: props.playGeneration,
-    readyGeneration: props.readyGeneration,
-    startNonce: props.startNonce,
+    puzzleId: () => props.puzzleId,
+    playGeneration: () => props.playGeneration,
+    readyGeneration: () => props.readyGeneration,
+    startNonce: () => props.startNonce,
     onRequestNext: props.onRequestNext,
   });
   return (

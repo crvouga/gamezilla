@@ -37,6 +37,7 @@ import { createSecureStorageStore } from '@pkgs/secure-storage/secure-storage-st
 import { createNamespacedWebSecureStorage } from '@pkgs/secure-storage-web';
 import type { Session } from '@pkgs/sim';
 import { InMemoryTtsProvider } from '@pkgs/tts/server';
+import { createSeededCreateId, createSeededRng } from '@pkgs/uuid';
 import { serializeFetch } from './sim-fetch';
 import { createSimNet } from './sim-net';
 import {
@@ -271,7 +272,9 @@ function makeSimClientEnv(
   return {
     clock: session.ports.clock,
     timers,
-    createId: session.ports.createId,
+    createId: createSeededCreateId(
+      createSeededRng(`${seed.toString()}:client:${ns}`).random
+    ),
     random: session.ports.random,
     seed,
     server: net.wrapServerHttp(id, serverFetch),

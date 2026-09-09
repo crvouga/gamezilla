@@ -7,6 +7,9 @@ import {
   Show,
 } from 'solid-js';
 
+/** Matches `@pkgs/ui-testing-solid-dom` `ELEMENT_LAYOUT_EVENT` (no dep edge). */
+const ELEMENT_LAYOUT_EVENT = 'ui-testing:element-layout';
+
 function squareFitSize(
   width: number,
   height: number,
@@ -42,7 +45,13 @@ export function ChessPuzzleBoardFrame(
     const ro = new ResizeObserver(measure);
     ro.observe(el);
     measure();
-    onCleanup(() => ro.disconnect());
+    // Headless drivers synthesize getBoundingClientRect after mount; re-measure
+    // so `<Show when={size() > 0}>` can mount the board.
+    el.addEventListener(ELEMENT_LAYOUT_EVENT, measure);
+    onCleanup(() => {
+      ro.disconnect();
+      el.removeEventListener(ELEMENT_LAYOUT_EVENT, measure);
+    });
   });
 
   return (
