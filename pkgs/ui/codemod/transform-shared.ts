@@ -7,6 +7,7 @@ import type { StaticValue } from './mapping-types';
 import type { ObjectEntry } from './transform-attrs';
 import { convertDataSet, emitDataSetAttrs } from './transform-dataset';
 import {
+  type ClassListEntry,
   convertSxEntries,
   convertSxParts,
   type ExistingClass,
@@ -47,27 +48,30 @@ export function finish(args: {
   dropSpreadTexts: readonly string[];
   labelAsChildren?: string | undefined;
   existingClass: ExistingClass;
-  cnExtras?: readonly string[] | undefined;
-  classExtras?: readonly string[] | undefined;
+  styleExtras?: readonly string[] | undefined;
+  classListExtras?: readonly ClassListEntry[] | undefined;
 }): ComponentConversion {
-  const cnExprs = [...args.conversion.cnExprs, ...(args.cnExtras ?? [])];
-  const classExprs = [
-    ...args.conversion.classExprs,
-    ...(args.classExtras ?? []),
+  const styleExprs = [
+    ...args.conversion.styleExprs,
+    ...(args.styleExtras ?? []),
+  ];
+  const classList = [
+    ...args.conversion.classList,
+    ...(args.classListExtras ?? []),
   ];
   return {
     kind: 'converted',
     tier:
       args.conversion.tier === 'B' ||
-      cnExprs.length > 0 ||
-      classExprs.length > 0
+      styleExprs.length > 0 ||
+      classList.length > 0
         ? 'B'
         : 'A',
     element: args.element,
     classes: [args.baseClass, ...args.extraClasses, ...args.conversion.classes],
     styles: args.conversion.styles,
-    cnExprs,
-    classExprs,
+    styleExprs,
+    classList,
     dataAttrs: args.dataAttrs,
     dataAttrExprs: args.dataAttrExprs,
     dataAttrsSpread: args.dataAttrsSpread,
@@ -91,7 +95,8 @@ export function withExtra(
     tier: extra.tier === 'B' || conversion.tier === 'B' ? 'B' : 'A',
     classes: [...extra.classes, ...conversion.classes],
     styles: [...extra.styles, ...conversion.styles],
-    cnExprs: [...extra.cnExprs, ...conversion.cnExprs],
+    styleExprs: [...extra.styleExprs, ...conversion.styleExprs],
+    classList: [...extra.classList, ...conversion.classList],
   };
 }
 
@@ -112,7 +117,7 @@ export function readSxConversion(
   return {
     ...conversion,
     tier: 'B',
-    cnExprs: [...conversion.cnExprs, ...peeledSx],
+    styleExprs: [...conversion.styleExprs, ...peeledSx],
   };
 }
 
@@ -140,7 +145,8 @@ export function convertBoxLike(args: {
   extras: readonly ExtraEntry[];
   extraAttrs: readonly string[];
   drops: readonly string[];
-  cnExtras?: readonly string[] | undefined;
+  styleExtras?: readonly string[] | undefined;
+  classListExtras?: readonly ClassListEntry[] | undefined;
 }): ComponentConversion {
   const { element, source } = args;
   const peeled = peelPropSpreads(element, source);
@@ -168,6 +174,7 @@ export function convertBoxLike(args: {
     dataAttrsSpread: data.dataAttrsSpread,
     dropSpreadTexts: peeled.dropSpreadTexts,
     existingClass: readExistingClass(element, source),
-    cnExtras: args.cnExtras,
+    styleExtras: args.styleExtras,
+    classListExtras: args.classListExtras,
   });
 }

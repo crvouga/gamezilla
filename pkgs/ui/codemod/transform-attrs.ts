@@ -107,7 +107,7 @@ export type ObjectEntry = {
   readonly raw: ts.Expression;
 };
 
-/** Ordered sx content: static chunks map via tables, exprs ride `cn`. */
+/** Ordered sx content: static chunks map via tables, exprs → classList/style. */
 export type SplicePart =
   | { readonly kind: 'static'; readonly entries: readonly ObjectEntry[] }
   | { readonly kind: 'expr'; readonly exprText: string };
@@ -136,7 +136,7 @@ export function readObjectEntries(
 
 /**
  * Read an object literal as ordered splices: static runs map via tables,
- * spreads ride `cn`/`cnStyle` in place (original order preserved).
+ * spreads become runtime style exprs (Solid `style` path).
  * Shorthand becomes a dynamic entry (Tier B style path). Computed keys and
  * methods fall back to the whole object as one runtime expr.
  */

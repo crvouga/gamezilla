@@ -65,9 +65,9 @@ function quoteAttr(value: string): string {
 
 function styleBinding(
   styles: readonly { cssProp: string; exprText: string; wrap: string }[],
-  cnExprs: readonly string[]
+  styleExprs: readonly string[]
 ): string | undefined {
-  if (styles.length === 0 && cnExprs.length === 0) return undefined;
+  if (styles.length === 0 && styleExprs.length === 0) return undefined;
   const parts = styles.map((s) => {
     if (s.wrap === 'raw') return `${JSON.stringify(s.cssProp)}: ${s.exprText}`;
     if (s.wrap === 'scaled') {
@@ -78,36 +78,63 @@ function styleBinding(
       `? \`${'${'}(${s.exprText})}px\` : (${s.exprText}))`
     );
   });
-  if (cnExprs.length === 0) {
-    invariant(parts.length > 0, 'styleBinding needs at least one entry');
-    return `style={{ ${parts.join(', ')} }}`;
+  // Opaque exprs become Solid `style` only — no cn/sxStyle helpers.
+  if (
+    parts.length === 0 &&
+    styleExprs.length === 1 &&
+    !styleExprs[0]?.trim().startsWith('{')
+  ) {
+    return `style={${styleExprs[0]}}`;
   }
-  const spread = `...cnStyle(${cnExprs.join(', ')})`;
-  return `style={{ ${[spread, ...parts].join(', ')} }}`;
+  const merges = styleExprs
+    .map((e) => solidStyleMerge(e))
+    .filter((m) => m.length > 0);
+  invariant(
+    parts.length > 0 || merges.length > 0,
+    'styleBinding needs at least one entry'
+  );
+  return `style={{ ${[...merges, ...parts].join(', ')} }}`;
 }
 
-function classAttr(
+/** Object-literal expr → property list; otherwise spread into the style object. */
+function solidStyleMerge(expr: string): string {
+  const trimmed = expr.trim();
+  if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+    const inner = trimmed.slice(1, -1).trim();
+    return inner.length > 0 ? inner : '';
+  }
+  return `...((${expr}) ?? {})`;
+}
+
+/**
+ * Solid `class` (static) + optional `classList` (conditional / dynamic).
+ * See https://docs.solidjs.com/concepts/components/class-style
+ */
+function classAttrs(
   classes: readonly string[],
   existing: ExistingClass,
-  cnExprs: readonly string[],
-  classExprs: readonly string[]
-): string {
+  classList: readonly import('./transform-node').ClassListEntry[]
+): string[] {
   const merged = [...classes];
   if (existing.kind === 'literal' && existing.value !== '') {
     merged.push(existing.value);
   }
   const deduped = merged.filter((c, i) => merged.indexOf(c) === i);
-  const staticPart = deduped.join(' ');
-  if (
-    cnExprs.length === 0 &&
-    classExprs.length === 0 &&
-    existing.kind !== 'expr'
-  ) {
-    return `class=${quoteAttr(staticPart)}`;
+  const out = [`class=${quoteAttr(deduped.join(' '))}`];
+  const entries = [...classList];
+  if (existing.kind === 'expr') {
+    entries.push({
+      keyExpr: existing.exprText,
+      when: `!!(${existing.exprText})`,
+    });
   }
-  const args = [JSON.stringify(staticPart), ...classExprs, ...cnExprs];
-  if (existing.kind === 'expr') args.push(existing.exprText);
-  return `class={cn(${args.join(', ')})}`;
+  if (entries.length === 0) return out;
+  const parts = entries.map((e) => {
+    if ('keyExpr' in e) return `[${e.keyExpr}]: ${e.when}`;
+    return `${JSON.stringify(e.className)}: ${e.when}`;
+  });
+  out.push(`classList={{ ${parts.join(', ')} }}`);
+  return out;
 }
 
 /** Passthrough attribute slices in original order (drops excluded). */
@@ -143,15 +170,8 @@ function buildOpeningTag(args: {
   const existing: ExistingClass = conversion.existingClass ?? {
     kind: 'absent',
   };
-  parts.push(
-    classAttr(
-      conversion.classes,
-      existing,
-      conversion.cnExprs,
-      conversion.classExprs
-    )
-  );
-  const style = styleBinding(conversion.styles, conversion.cnExprs);
+  parts.push(...classAttrs(conversion.classes, existing, conversion.classList));
+  const style = styleBinding(conversion.styles, conversion.styleExprs);
   if (style !== undefined) parts.push(style);
   for (const key of Object.keys(conversion.dataAttrs)) {
     parts.push(`${key}=${quoteAttr(conversion.dataAttrs[key] ?? '')}`);
@@ -187,6 +207,8 @@ function checkConvertedTag(tag: string, element: string): void {
   nonEmptyString(element, 'converted element name');
   invariant(/^[a-z][a-z0-9-]*$/.test(element), `bad element name ${element}`);
   invariant(tag.includes('class='), 'converted tag lost its class');
+  invariant(!/\bcn\b/.test(tag), 'converted tag must not use cn');
+  invariant(!/\bsxStyle\b/.test(tag), 'converted tag must not use sxStyle');
   invariant(!/[\s{]sx=\{/.test(tag), 'converted tag leaks sx');
   invariant(!/[\s{]sx="/.test(tag), 'converted tag leaks sx string');
   invariant(!/frameSx=/.test(tag), 'converted tag leaks frameSx');

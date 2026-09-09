@@ -2,7 +2,8 @@
  * Component dispatch: Box / Clickable / Text / Stack / Center / Spacer.
  *
  * Every convertible always converts (Tier A/B). Non-convertibles are skipped
- * by `transform.ts` — never TODO markers, never Tier C.
+ * by `transform.ts` — never TODO markers. Dynamic classes use Solid
+ * `classList`; opaque sx uses Solid `style` only (no cn / sxStyle helpers).
  */
 
 import type ts from 'typescript';
@@ -12,7 +13,7 @@ import {
   attrStringLiteral,
   getJsxAttr,
 } from './transform-attrs';
-import { readExistingClass } from './transform-node';
+import { type ClassListEntry, readExistingClass } from './transform-node';
 import { peelPropSpreads } from './transform-peel';
 import {
   type ComponentConversion,
@@ -63,41 +64,47 @@ function convertClickable(
     dataAttrsSpread: data.dataAttrsSpread,
     dropSpreadTexts: peeled.dropSpreadTexts,
     existingClass: readExistingClass(element, source),
-    classExtras: feedback.classExtras,
+    classListExtras: feedback.classList,
   });
 }
 
 function readFeedback(
   element: ts.JsxOpeningLikeElement,
   peeledExpr: string | undefined
-): { classes: readonly string[]; classExtras: readonly string[] } {
+): {
+  classes: readonly string[];
+  classList: readonly ClassListEntry[];
+} {
   if (peeledExpr !== undefined) {
-    return { classes: [], classExtras: [feedbackCnExpr(peeledExpr)] };
+    return { classes: [], classList: feedbackClassList(peeledExpr) };
   }
   const attr = getJsxAttr(element, 'feedback');
   if (attr === undefined) {
-    return { classes: ['clickableTint'], classExtras: [] };
+    return { classes: ['clickableTint'], classList: [] };
   }
   const literal = attrStringLiteral(attr);
   if (literal === 'opacity') {
-    return { classes: ['clickableOpacity'], classExtras: [] };
+    return { classes: ['clickableOpacity'], classList: [] };
   }
-  if (literal === 'none') return { classes: [], classExtras: [] };
+  if (literal === 'none') return { classes: [], classList: [] };
   if (literal !== undefined) {
-    return { classes: ['clickableTint'], classExtras: [] };
+    return { classes: ['clickableTint'], classList: [] };
   }
   const expr = attrExpression(attr);
   if (expr !== undefined) {
-    return { classes: [], classExtras: [feedbackCnExpr(expr.getText())] };
+    return { classes: [], classList: feedbackClassList(expr.getText()) };
   }
-  return { classes: ['clickableTint'], classExtras: [] };
+  return { classes: ['clickableTint'], classList: [] };
 }
 
-function feedbackCnExpr(expr: string): string {
-  return (
-    `(${expr}) === "opacity" ? "clickableOpacity" : ` +
-    `(${expr}) === "none" ? undefined : "clickableTint"`
-  );
+function feedbackClassList(expr: string): readonly ClassListEntry[] {
+  return [
+    { className: 'clickableOpacity', when: `(${expr}) === "opacity"` },
+    {
+      className: 'clickableTint',
+      when: `(${expr}) !== "opacity" && (${expr}) !== "none"`,
+    },
+  ];
 }
 
 function convertCenter(

@@ -28,16 +28,21 @@ export type StyleEntry = {
   readonly wrap: DynamicWrap;
 };
 
+/** Solid `classList` entry: literal class name or dynamic `[expr]` key. */
+export type ClassListEntry =
+  | { readonly className: string; readonly when: string }
+  | { readonly keyExpr: string; readonly when: string };
+
 export type NodeConversion = {
   readonly kind: 'converted';
   readonly tier: 'A' | 'B';
   readonly element: string;
   readonly classes: readonly string[];
   readonly styles: readonly StyleEntry[];
-  /** Runtime `SxProps` texts — spliced into `cn(...)` + `cnStyle(...)`. */
-  readonly cnExprs: readonly string[];
-  /** Class-only exprs (`TEXT_VARIANT_CLASS[…]`, feedback ternaries) for `cn`. */
-  readonly classExprs: readonly string[];
+  /** Opaque sx expression texts merged into Solid `style={{...}}`. */
+  readonly styleExprs: readonly string[];
+  /** Conditional / dynamic classes for Solid `classList`. */
+  readonly classList: readonly ClassListEntry[];
   readonly dataAttrs: Readonly<Record<string, string>>;
   /** Dynamic `data-*={expr}` attribute texts. */
   readonly dataAttrExprs: readonly string[];
@@ -118,7 +123,7 @@ function readSxArrayParts(
   return parts;
 }
 
-/** Runtime drops this static prop too — omit instead of emitting `cn`. */
+/** Runtime drops this static prop too — omit instead of emitting style. */
 function dropsLikeRuntime(prop: string, value: StaticValue): boolean {
   const css = sxToCss({ [prop]: value } as Record<string, StaticValue>, {
     colors: CSS_VAR_COLORS,
@@ -155,7 +160,7 @@ type EntryAccum = {
   readonly record: Record<string, StaticValue>;
   readonly raws: Record<string, string>;
   readonly styles: StyleEntry[];
-  readonly cnExprs: string[];
+  readonly styleExprs: string[];
   transformClass: string | undefined;
   hasDynamic: boolean;
 };
@@ -167,7 +172,7 @@ function applyTransformEntry(
 ): void {
   const compiled = convertTransformEntry(entry, source);
   if (compiled === undefined) {
-    accum.cnExprs.push(runtimeObj('transform', entryRawText(entry, source)));
+    accum.styleExprs.push(runtimeObj('transform', entryRawText(entry, source)));
     accum.hasDynamic = true;
     return;
   }
@@ -183,9 +188,8 @@ function applyValueEntry(accum: EntryAccum, entry: ObjectEntry): void {
   if (entry.prop === 'fontVariant') return;
   const mapped = mapDynamicProp(entry.prop);
   if (mapped.kind === 'bail') {
-    // Unknown or unmappable dynamic props must ride `cn`/`cnStyle` — never
-    // silently drop (static unknowns go through applyBailedProps the same way).
-    accum.cnExprs.push(runtimeObj(entry.prop, entry.value.exprText));
+    // Unknown / unmappable dynamic props become Solid `style` object entries.
+    accum.styleExprs.push(runtimeObj(entry.prop, entry.value.exprText));
     accum.hasDynamic = true;
     return;
   }
@@ -204,7 +208,7 @@ function applyBailedProps(accum: EntryAccum, bailed: readonly string[]): void {
     const value = accum.record[prop];
     if (value !== undefined && dropsLikeRuntime(prop, value)) continue;
     const raw = accum.raws[prop] ?? JSON.stringify(value ?? null);
-    accum.cnExprs.push(runtimeObj(prop, raw));
+    accum.styleExprs.push(runtimeObj(prop, raw));
     accum.hasDynamic = true;
   }
 }
@@ -218,7 +222,7 @@ export function convertSxEntries(
     record: {},
     raws: {},
     styles: [],
-    cnExprs: [],
+    styleExprs: [],
     transformClass: undefined,
     hasDynamic: false,
   };
@@ -236,15 +240,15 @@ export function convertSxEntries(
   }
   const mapped = mapSxRecord(accum.record, accum.transformClass);
   applyBailedProps(accum, mapped.bailed);
-  const dynamic = accum.hasDynamic || accum.cnExprs.length > 0;
+  const dynamic = accum.hasDynamic || accum.styleExprs.length > 0;
   return {
     kind: 'converted',
     tier: dynamic ? 'B' : 'A',
     element: '',
     classes: mapped.classes,
     styles: accum.styles,
-    cnExprs: accum.cnExprs,
-    classExprs: [],
+    styleExprs: accum.styleExprs,
+    classList: [],
     dataAttrs: {},
     dataAttrExprs: [],
     dropSpreadTexts: [],
@@ -253,42 +257,159 @@ export function convertSxEntries(
   };
 }
 
-/** Convert ordered splices: static chunks via tables, exprs via `cn`. */
+/** Convert ordered splices: static chunks via tables; exprs → classList or style. */
 export function convertSxParts(
   parts: readonly SplicePart[],
   source: ts.SourceFile
 ): NodeConversion {
   const classes: string[] = [];
   const styles: StyleEntry[] = [];
-  const cnExprs: string[] = [];
+  const styleExprs: string[] = [];
+  const classList: ClassListEntry[] = [];
   let tier: 'A' | 'B' = 'A';
   for (const part of parts) {
     if (part.kind === 'expr') {
-      cnExprs.push(part.exprText);
+      const peeled = peelConditionalSxClasses(part.exprText);
+      if (peeled !== undefined) {
+        for (const cls of peeled.classes) {
+          classList.push({ className: cls, when: peeled.when });
+        }
+        tier = 'B';
+        continue;
+      }
+      styleExprs.push(part.exprText);
       tier = 'B';
       continue;
     }
     const converted = convertSxEntries(part.entries, source);
     classes.push(...converted.classes);
     styles.push(...converted.styles);
-    cnExprs.push(...converted.cnExprs);
+    styleExprs.push(...converted.styleExprs);
+    classList.push(...converted.classList);
     if (converted.tier === 'B') tier = 'B';
   }
-  if (cnExprs.length > 0) tier = 'B';
+  if (styleExprs.length > 0 || classList.length > 0) tier = 'B';
   return {
     kind: 'converted',
     tier,
     element: '',
     classes,
     styles,
-    cnExprs,
-    classExprs: [],
+    styleExprs,
+    classList,
     dataAttrs: {},
     dataAttrExprs: [],
     dropSpreadTexts: [],
     dropAttrs: ['sx'],
     extraAttrs: [],
   };
+}
+
+/**
+ * `cond ? { m: 1 } : null` → classList entries. Only static object true-branch
+ * with empty/null/undefined/false false-branch.
+ */
+function peelConditionalSxClasses(
+  exprText: string
+): { readonly when: string; readonly classes: readonly string[] } | undefined {
+  const wrapped = `(${exprText})`;
+  const file = ts.createSourceFile(
+    'peel.tsx',
+    wrapped,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TSX
+  );
+  const stmt = file.statements[0];
+  if (stmt === undefined || !ts.isExpressionStatement(stmt)) return undefined;
+  let expr = stmt.expression;
+  if (ts.isParenthesizedExpression(expr)) expr = expr.expression;
+  if (!ts.isConditionalExpression(expr)) return undefined;
+  if (!isEmptySxBranch(expr.whenFalse)) return undefined;
+  if (!ts.isObjectLiteralExpression(expr.whenTrue)) return undefined;
+  const entries = readObjectEntriesFromLiteral(expr.whenTrue);
+  if (entries === undefined) return undefined;
+  const converted = convertSxEntries(entries, file);
+  if (converted.styleExprs.length > 0 || converted.styles.length > 0) {
+    return undefined;
+  }
+  if (converted.classes.length === 0) return undefined;
+  return {
+    when: expr.condition.getText(file),
+    classes: converted.classes,
+  };
+}
+
+function isEmptySxBranch(expr: ts.Expression): boolean {
+  if (expr.kind === ts.SyntaxKind.NullKeyword) return true;
+  if (expr.kind === ts.SyntaxKind.FalseKeyword) return true;
+  if (
+    ts.isIdentifier(expr) &&
+    (expr.text === 'undefined' || expr.text === 'null')
+  ) {
+    return true;
+  }
+  if (ts.isObjectLiteralExpression(expr) && expr.properties.length === 0) {
+    return true;
+  }
+  return false;
+}
+
+function readObjectEntriesFromLiteral(
+  node: ts.ObjectLiteralExpression
+): ObjectEntry[] | undefined {
+  const out: ObjectEntry[] = [];
+  for (const member of node.properties) {
+    if (!ts.isPropertyAssignment(member)) return undefined;
+    const key =
+      ts.isIdentifier(member.name) || ts.isStringLiteral(member.name)
+        ? member.name.text
+        : undefined;
+    if (key === undefined) return undefined;
+    const init = member.initializer;
+    if (ts.isStringLiteral(init)) {
+      out.push({
+        prop: key,
+        value: { kind: 'static', value: init.text },
+        raw: init,
+      });
+      continue;
+    }
+    if (ts.isNumericLiteral(init)) {
+      out.push({
+        prop: key,
+        value: { kind: 'static', value: Number(init.text) },
+        raw: init,
+      });
+      continue;
+    }
+    if (init.kind === ts.SyntaxKind.TrueKeyword) {
+      out.push({
+        prop: key,
+        value: { kind: 'static', value: true },
+        raw: init,
+      });
+      continue;
+    }
+    if (init.kind === ts.SyntaxKind.FalseKeyword) {
+      out.push({
+        prop: key,
+        value: { kind: 'static', value: false },
+        raw: init,
+      });
+      continue;
+    }
+    if (init.kind === ts.SyntaxKind.NullKeyword) {
+      out.push({
+        prop: key,
+        value: { kind: 'static', value: null },
+        raw: init,
+      });
+      continue;
+    }
+    return undefined;
+  }
+  return out;
 }
 
 function convertTransformEntry(

@@ -97,11 +97,13 @@ describe('Box Tier B', () => {
     expect(result.text).toContain('"display": p.d');
   });
 
-  test('dynamic class expression merges via template', () => {
+  test('dynamic class expression uses classList', () => {
     const result = run(
       `export const A = (p: { c: string }) => <Box sx={{ p: 1 }} class={p.c} />;`
     );
-    expect(result.text).toContain('class={cn("box p-1", p.c)}');
+    expect(result.text).toContain('class="box p-1"');
+    expect(result.text).toContain('classList={{ [p.c]: !!(p.c) }}');
+    expect(result.text).not.toContain('cn(');
   });
   test('dynamic px pair fans out to two exact declarations', () => {
     const result = run(
@@ -114,7 +116,7 @@ describe('Box Tier B', () => {
 });
 
 describe('Box conversion edge cases', () => {
-  test('identifier sx converts via runtime cn', () => {
+  test('identifier sx becomes Solid style passthrough', () => {
     const result = run(
       `export const A = (p: { sx: never }) => <Box sx={p.sx} />;`
     );
@@ -122,8 +124,10 @@ describe('Box conversion edge cases', () => {
       { line: 2, component: 'Box', tier: 'B' },
     ]);
     expect(result.manual).toEqual([]);
-    expect(result.text).toContain('class={cn("box", p.sx)}');
-    expect(result.text).toContain('...cnStyle(p.sx)');
+    expect(result.text).toContain('class="box"');
+    expect(result.text).toContain('style={p.sx}');
+    expect(result.text).not.toContain('cn');
+    expect(result.text).not.toContain('sxStyle');
     expect(result.text).not.toContain('TODO(sx-codemod)');
     expect(result.text).not.toContain('<Box');
   });
@@ -139,7 +143,7 @@ describe('Box conversion edge cases', () => {
     expect(result.text).not.toContain('TODO(sx-codemod)');
   });
 
-  test('sx arrays with dynamic entries convert via runtime cn', () => {
+  test('sx arrays with conditional static objects use classList', () => {
     const result = run(
       `export const A = (p: { c: boolean }) => <Box sx={[{ p: 1 }, p.c ? { m: 1 } : null]} />;`
     );
@@ -147,7 +151,11 @@ describe('Box conversion edge cases', () => {
     expect(result.converted).toEqual([
       { line: 2, component: 'Box', tier: 'B' },
     ]);
-    expect(result.text).toContain('cn("box p-1", p.c ? { m: 1 } : null)');
+    expect(result.text).toContain('class="box p-1"');
+    expect(result.text).toContain('classList={{');
+    expect(result.text).toContain('"m-1"');
+    expect(result.text).not.toContain('cn');
+    expect(result.text).not.toContain('sxStyle');
   });
 
   test('runtime-dropped props omit instead of approximating', () => {
@@ -214,14 +222,17 @@ describe('Clickable', () => {
     );
     expect(result.text).toContain('type="submit"');
   });
-  test('dynamic feedback maps via cn ternary', () => {
+  test('dynamic feedback maps via classList', () => {
     const result = transformFile(
       't.tsx',
       `${clickable}export const A = (p: { f: 'tint' }) => <Clickable feedback={p.f} />;`
     );
     expect(result.manual).toEqual([]);
-    expect(result.text).toContain('clickableOpacity');
-    expect(result.text).toContain('clickableTint');
+    expect(result.text).toContain('class="clickable"');
+    expect(result.text).toContain('classList={{');
+    expect(result.text).toContain('"clickableOpacity"');
+    expect(result.text).toContain('"clickableTint"');
+    expect(result.text).not.toContain('cn(');
   });
   test('unknown feedback defaults to tint', () => {
     const result = transformFile(
@@ -294,14 +305,17 @@ describe('Text', () => {
       ).text
     ).toContain('<code class="text textMono"');
   });
-  test('dynamic variant uses TEXT_VARIANT_CLASS via cn', () => {
+  test('dynamic variant uses classList for each text* class', () => {
     const result = transformFile(
       't.tsx',
       `${text}export const A = (p: { v: 'heading' }) => <Text variant={p.v} label="x" />;`
     );
     expect(result.manual).toEqual([]);
-    expect(result.text).toContain('TEXT_VARIANT_CLASS');
-    expect(result.text).toContain('<p class={cn("text"');
+    expect(result.text).toContain('<p class="text"');
+    expect(result.text).toContain('classList={{');
+    expect(result.text).toContain('"textHeading"');
+    expect(result.text).not.toContain('cn(');
+    expect(result.text).not.toContain('TEXT_VARIANT_CLASS');
     expect(result.text).not.toContain('TODO(sx-codemod)');
   });
 });
@@ -317,7 +331,7 @@ describe('Stack / Center / Spacer', () => {
     );
     expect(result.text).toContain('data-component="Stack"');
   });
-  test('Stack with dynamic layout converts via cn', () => {
+  test('Stack with dynamic layout converts via style', () => {
     const result = transformFile(
       't.tsx',
       `import { Stack } from '@pkgs/ui';\nexport const A = (p: { d: 'horizontal' }) => <Stack direction={p.d} />;`
@@ -458,13 +472,15 @@ export const A = () => <Box sx={{ p: 2 }} />;`
     expect(result.text).toContain('<div class="box p-2"');
     expect(result.text).not.toContain('../box');
   });
-  test('unknown dynamic sx prop rides cn (never dropped)', () => {
+  test('unknown dynamic sx prop becomes Solid style entry (never dropped)', () => {
     const result = run(
       `export const A = (p: { x: number }) => <Box sx={{ notARealProp: p.x }} />;`
     );
     expect(result.converted[0]?.tier).toBe('B');
-    expect(result.text).toContain('cn(');
     expect(result.text).toContain('notARealProp');
+    expect(result.text).toContain('style={{');
+    expect(result.text).not.toContain('cn');
+    expect(result.text).not.toContain('sxStyle');
   });
   test('transform failures become parseError (never throw)', () => {
     const result = transformFile(

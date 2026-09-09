@@ -1,6 +1,6 @@
 /**
  * File-level text utilities for the codemod: parse, span edits, import
- * pruning, and `cn`/`cnStyle` import injection.
+ * pruning, and `componentDataAttrs` import injection.
  *
  * Pure (string in, string out). Split from `transform.ts` so neither file
  * trips the structural size caps.
@@ -106,62 +106,20 @@ function stillUsed(
   return used;
 }
 
-/** Add runtime helpers when the output calls them. */
+/** Add `componentDataAttrs` when the output calls it. */
 export function ensureRuntimeImports(text: string, filePath = ''): string {
-  const needs = {
-    cn: /\bcn\(/.test(text),
-    cnStyle: /\bcnStyle\(/.test(text),
-    dataAttrs: /\bcomponentDataAttrs\(/.test(text),
-    variantClass: /\bTEXT_VARIANT_CLASS\b/.test(text),
-  };
-  if (!needs.cn && !needs.cnStyle && !needs.dataAttrs && !needs.variantClass) {
-    return text;
-  }
+  const needsDataAttrs = /\bcomponentDataAttrs\(/.test(text);
+  if (!needsDataAttrs) return text;
   if (isPkgsUiSrc(filePath)) {
-    return ensurePkgsUiRelativeImports(text, filePath, needs);
+    return ensureNamedImport(text, relModule(filePath, 'component-id'), [
+      'componentDataAttrs',
+    ]);
   }
-  const wanted = [
-    ...(needs.cn ? ['cn'] : []),
-    ...(needs.cnStyle ? ['cnStyle'] : []),
-    ...(needs.dataAttrs ? ['componentDataAttrs'] : []),
-    ...(needs.variantClass ? ['TEXT_VARIANT_CLASS'] : []),
-  ];
-  return ensureNamedImport(text, '@pkgs/ui', wanted);
+  return ensureNamedImport(text, '@pkgs/ui', ['componentDataAttrs']);
 }
 
 function isPkgsUiSrc(filePath: string): boolean {
   return filePath.replace(/\\/g, '/').includes('/pkgs/ui/src/');
-}
-
-function ensurePkgsUiRelativeImports(
-  text: string,
-  filePath: string,
-  needs: {
-    cn: boolean;
-    cnStyle: boolean;
-    dataAttrs: boolean;
-    variantClass: boolean;
-  }
-): string {
-  let next = text;
-  if (needs.cn || needs.cnStyle) {
-    const names = [
-      ...(needs.cn ? ['cn'] : []),
-      ...(needs.cnStyle ? ['cnStyle'] : []),
-    ];
-    next = ensureNamedImport(next, relModule(filePath, 'theme/cn'), names);
-  }
-  if (needs.dataAttrs) {
-    next = ensureNamedImport(next, relModule(filePath, 'component-id'), [
-      'componentDataAttrs',
-    ]);
-  }
-  if (needs.variantClass) {
-    next = ensureNamedImport(next, relModule(filePath, 'components/text'), [
-      'TEXT_VARIANT_CLASS',
-    ]);
-  }
-  return next;
 }
 
 function relModule(filePath: string, targetFromSrc: string): string {

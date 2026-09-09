@@ -1,5 +1,5 @@
 /**
- * Text → semantic host + `.text*` global classes (or TEXT_VARIANT_CLASS).
+ * Text → semantic host + `.text*` global classes (or classList for dynamics).
  */
 
 import ts from 'typescript';
@@ -8,7 +8,11 @@ import {
   attrStringLiteral,
   getJsxAttr,
 } from './transform-attrs';
-import { readAsElement, readExistingClass } from './transform-node';
+import {
+  type ClassListEntry,
+  readAsElement,
+  readExistingClass,
+} from './transform-node';
 import { peelPropSpreads } from './transform-peel';
 import {
   type ComponentConversion,
@@ -58,8 +62,8 @@ export function convertText(
     dropSpreadTexts: peeled.dropSpreadTexts,
     labelAsChildren: readLabelAsChildren(element, source),
     existingClass: readExistingClass(element, source),
-    classExtras: variant.classExtras,
-    cnExtras: lines.cnExtras,
+    classListExtras: variant.classList,
+    styleExtras: lines.styleExtras,
   });
 }
 
@@ -69,18 +73,18 @@ function resolveTextVariant(
 ): {
   element: string;
   extraClasses: readonly string[];
-  classExtras: readonly string[];
+  classList: readonly ClassListEntry[];
 } {
   if (peeledExpr !== undefined) {
     return {
       element: 'p',
       extraClasses: [],
-      classExtras: [`TEXT_VARIANT_CLASS[(${peeledExpr}) ?? "body"]`],
+      classList: variantClassList(peeledExpr),
     };
   }
   const attr = getJsxAttr(element, 'variant');
   if (attr === undefined) {
-    return { element: 'p', extraClasses: [], classExtras: [] };
+    return { element: 'p', extraClasses: [], classList: [] };
   }
   let name = attrStringLiteral(attr);
   if (name === undefined) {
@@ -90,43 +94,63 @@ function resolveTextVariant(
       return {
         element: 'p',
         extraClasses: [],
-        classExtras: [`TEXT_VARIANT_CLASS[(${expr.getText()}) ?? "body"]`],
+        classList: variantClassList(expr.getText()),
       };
     }
   }
   if (name === undefined) {
-    return { element: 'p', extraClasses: [], classExtras: [] };
+    return { element: 'p', extraClasses: [], classList: [] };
   }
   const host = TEXT_VARIANT_HOST[name];
   if (host === undefined) {
-    return { element: 'p', extraClasses: [], classExtras: [] };
+    return { element: 'p', extraClasses: [], classList: [] };
   }
   return {
     element: host.element,
     extraClasses: host.className === undefined ? [] : [host.className],
-    classExtras: [],
+    classList: [],
   };
+}
+
+/** Every non-body variant class toggled from a dynamic variant expression. */
+function variantClassList(expr: string): readonly ClassListEntry[] {
+  const out: ClassListEntry[] = [];
+  for (const name of Object.keys(TEXT_VARIANT_HOST)) {
+    const host = TEXT_VARIANT_HOST[name];
+    if (host?.className === undefined) continue;
+    out.push({
+      className: host.className,
+      when: `(${expr} ?? "body") === ${JSON.stringify(name)}`,
+    });
+  }
+  return out;
 }
 
 function readNumberOfLines(
   element: ts.JsxOpeningLikeElement,
   peeledExpr: string | undefined
-): { extras: readonly ExtraEntry[]; cnExtras: readonly string[] } {
+): { extras: readonly ExtraEntry[]; styleExtras: readonly string[] } {
   if (peeledExpr !== undefined) {
-    return { extras: [], cnExtras: [`{ lineClamp: ${peeledExpr} }`] };
+    return {
+      extras: [],
+      styleExtras: [`{ lineClamp: ${peeledExpr} }`],
+    };
   }
   const attr = getJsxAttr(element, 'numberOfLines');
-  if (attr === undefined) return { extras: [], cnExtras: [] };
+  if (attr === undefined) return { extras: [], styleExtras: [] };
   const literal = attrStringLiteral(attr);
-  if (literal !== undefined) return { extras: [], cnExtras: [] };
+  if (literal !== undefined) return { extras: [], styleExtras: [] };
   const expr = attrExpression(attr);
-  if (expr === undefined) return { extras: [], cnExtras: [] };
+  if (expr === undefined) return { extras: [], styleExtras: [] };
   if (ts.isNumericLiteral(expr)) {
     const n = Number(expr.text);
-    if (!Number.isInteger(n) || n < 0) return { extras: [], cnExtras: [] };
-    return { extras: [{ prop: 'lineClamp', value: n }], cnExtras: [] };
+    if (!Number.isInteger(n) || n < 0) return { extras: [], styleExtras: [] };
+    return { extras: [{ prop: 'lineClamp', value: n }], styleExtras: [] };
   }
-  return { extras: [], cnExtras: [`{ lineClamp: ${expr.getText()} }`] };
+  return {
+    extras: [],
+    styleExtras: [`{ lineClamp: ${expr.getText()} }`],
+  };
 }
 
 function readLabelAsChildren(

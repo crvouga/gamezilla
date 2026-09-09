@@ -1,5 +1,5 @@
 /**
- * Stack layout props → Box-like conversion (static extras or dynamic cn).
+ * Stack layout props → Box-like conversion (static extras or dynamic style).
  */
 
 import ts from 'typescript';
@@ -44,16 +44,16 @@ export function convertStack(
     extras: layout.extras,
     extraAttrs: [],
     drops: ['direction', 'spacing', 'align', 'justify', 'wrap'],
-    cnExtras: layout.cnExtras,
+    styleExtras: layout.styleExtras,
   });
 }
 
 function readStackLayout(
   element: ts.JsxOpeningLikeElement,
   source: ts.SourceFile
-): { extras: readonly ExtraEntry[]; cnExtras: readonly string[] } {
+): { extras: readonly ExtraEntry[]; styleExtras: readonly string[] } {
   const extras: ExtraEntry[] = [];
-  const cnExtras: string[] = [];
+  const styleExtras: string[] = [];
   const direction = readLayoutString(element, 'direction', source);
   if (direction.kind === 'absent') {
     extras.push({ prop: 'flexDirection', value: 'column' });
@@ -63,7 +63,7 @@ function readStackLayout(
       value: direction.value === 'horizontal' ? 'row' : 'column',
     });
   } else {
-    cnExtras.push(
+    styleExtras.push(
       `{ flexDirection: (${direction.expr}) === "horizontal" ? "row" : "column" }`
     );
   }
@@ -71,27 +71,27 @@ function readStackLayout(
   if (spacing.kind === 'static') {
     extras.push({ prop: 'gap', value: spacing.value });
   } else if (spacing.kind === 'dynamic') {
-    cnExtras.push(`{ gap: ${spacing.expr} }`);
+    styleExtras.push(`{ gap: ${spacing.expr} }`);
   }
   const align = readLayoutString(element, 'align', source);
   if (align.kind === 'static') {
     extras.push({ prop: 'alignItems', value: align.value });
   } else if (align.kind === 'dynamic') {
-    cnExtras.push(`{ alignItems: ${align.expr} }`);
+    styleExtras.push(`{ alignItems: ${align.expr} }`);
   }
   const justify = readLayoutString(element, 'justify', source);
   if (justify.kind === 'static') {
     extras.push({ prop: 'justifyContent', value: justify.value });
   } else if (justify.kind === 'dynamic') {
-    cnExtras.push(`{ justifyContent: ${justify.expr} }`);
+    styleExtras.push(`{ justifyContent: ${justify.expr} }`);
   }
   const wrap = readLayoutWrap(element, source);
   if (wrap.kind === 'static' && wrap.value) {
     extras.push({ prop: 'flexWrap', value: 'wrap' });
   } else if (wrap.kind === 'dynamic') {
-    cnExtras.push(`{ flexWrap: (${wrap.expr}) ? "wrap" : undefined }`);
+    styleExtras.push(`{ flexWrap: (${wrap.expr}) ? "wrap" : undefined }`);
   }
-  return { extras, cnExtras };
+  return { extras, styleExtras };
 }
 
 function readLayoutString(
