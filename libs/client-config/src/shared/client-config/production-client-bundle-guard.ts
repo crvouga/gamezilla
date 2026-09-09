@@ -13,17 +13,16 @@ export function productionClientApiOrigin(): string {
 export const INLINED_API_URL_SENTINEL = 'VITE_API_URL is required';
 
 /**
- * Minified production bundles assign the inlined env read to a `const` immediately
- * before the `assert.nonEmptyString` guard in `getServerBaseUrl()`.
+ * Vite/rolldown inlines `import.meta.env` as an object literal; the API URL
+ * lands as a backtick string on `VITE_API_URL` in that same chunk.
  */
-export const INLINED_API_URL_RE =
-  /const (\w+)="(https?:\/\/[^"]+)";\w+\.assert\.nonEmptyString\(\1,'VITE_API_URL is required/;
+export const INLINED_API_URL_RE = /VITE_API_URL:`(https?:\/\/[^`]+)`/;
 
 export function extractInlinedApiUrlFromBundleSource(
   source: string
 ): string | null {
   const match = source.match(INLINED_API_URL_RE);
-  if (match?.[2] !== undefined) return match[2];
+  if (match?.[1] !== undefined) return match[1];
   return null;
 }
 
