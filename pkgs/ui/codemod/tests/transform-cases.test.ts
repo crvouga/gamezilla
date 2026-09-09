@@ -69,6 +69,13 @@ describe('Box Tier A', () => {
       '<div class="box" data-component="Box" id="a" />'
     );
   });
+
+  test('solo backgroundColor becomes bg-* (not dropped)', () => {
+    const result = run(
+      `export const A = () => <Box sx={{ backgroundColor: 'surface' }} />;`
+    );
+    expect(result.text).toContain('class="box bg-surface"');
+  });
 });
 
 describe('Box Tier B', () => {
@@ -221,20 +228,20 @@ describe('Clickable', () => {
 
 describe('Text', () => {
   const text = `import { Text } from '@pkgs/ui';\n`;
-  test('defaults to p with the text base class', () => {
+  test('defaults to span with the text base class', () => {
     const result = transformFile(
       't.tsx',
       `${text}export const A = () => <Text sx={{ color: 'tint' }} label="hi" />;`
     );
-    expect(result.text).toContain('<p class="text text-tint"');
-    expect(result.text).toContain('>{"hi"}</p>');
+    expect(result.text).toContain('<span class="text text-tint"');
+    expect(result.text).toContain('>{"hi"}</span>');
   });
   test('as is respected', () => {
     const result = transformFile(
       't.tsx',
-      `${text}export const A = () => <Text as="span" label="hi" />;`
+      `${text}export const A = () => <Text as="p" label="hi" />;`
     );
-    expect(result.text).toContain('<span class="text"');
+    expect(result.text).toContain('<p class="text"');
   });
   test('label merges with existing children via ??', () => {
     const result = transformFile(
@@ -360,8 +367,69 @@ describe('behavior hosts and safety', () => {
   test('shadowed locals are never touched', () => {
     const result = transformFile(
       't.tsx',
-      `${IMPORT}function Box(p: { x: number }) { return p.x; }\nexport const A = Box({ x: 1 });`
+      `${IMPORT}function Box(p: { x: number }) { return p.x; }
+export const A = Box({ x: 1 });`
     );
     expect(result.changed).toBe(false);
+  });
+  test('unrelated nested const Box does not block outer JSX', () => {
+    const result = transformFile(
+      't.tsx',
+      `${IMPORT}export const A = () => <Box sx={{ p: 1 }} />;
+function inner() { const Box = 1; return Box; }`
+    );
+    expect(result.converted.length).toBe(1);
+    expect(result.text).toContain('<div class="box p-1"');
+  });
+  test('parameter named Box shadows the import at that site', () => {
+    const result = transformFile(
+      't.tsx',
+      `${IMPORT}export const A = (Box: number) => <Box sx={{ p: 1 }} />;`
+    );
+    expect(result.converted).toEqual([]);
+    expect(result.changed).toBe(false);
+  });
+  test('Text label with nested Box converts leaf-first without throw', () => {
+    const result = transformFile(
+      't.tsx',
+      `import { Box, Text } from '@pkgs/ui';
+export const A = (p: { t: string }) => <Text label={p.t}><Box sx={{ p: 1 }}>x</Box></Text>;`
+    );
+    expect(result.parseError).toBe(undefined);
+    expect(result.converted.length).toBe(2);
+    expect(result.text).toContain('<span class="text"');
+    expect(result.text).toContain('<div class="box p-1"');
+    expect(result.text).toContain('{(p.t) ??');
+    const again = transformFile('t.tsx', result.text);
+    expect(again.text).toBe(result.text);
+    expect(again.converted).toEqual([]);
+  });
+  test('relative ../box import converts and prunes', () => {
+    const result = transformFile(
+      't.tsx',
+      `import { Box } from '../box';
+export const A = () => <Box sx={{ p: 2 }} />;`
+    );
+    expect(result.converted).toEqual([
+      { line: 2, component: 'Box', tier: 'A' },
+    ]);
+    expect(result.text).toContain('<div class="box p-2"');
+    expect(result.text).not.toContain('../box');
+  });
+  test('unknown dynamic sx prop rides cn (never dropped)', () => {
+    const result = run(
+      `export const A = (p: { x: number }) => <Box sx={{ notARealProp: p.x }} />;`
+    );
+    expect(result.converted[0]?.tier).toBe('B');
+    expect(result.text).toContain('cn(');
+    expect(result.text).toContain('notARealProp');
+  });
+  test('transform failures become parseError (never throw)', () => {
+    const result = transformFile(
+      't.tsx',
+      `${IMPORT}export const A = () => <Box sx={{ p: 1 }} />;`
+    );
+    expect(result.parseError).toBe(undefined);
+    expect(() => transformFile('t.tsx', result.text)).not.toThrow();
   });
 });

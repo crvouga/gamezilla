@@ -8,6 +8,7 @@
 
 import ts from 'typescript';
 import { invariant, nonEmptyString } from './tiger';
+import { isPrunableModule } from './transform-collect';
 
 export type SpanEdit = {
   readonly start: number;
@@ -62,7 +63,7 @@ export function pruneImports(text: string, removed: readonly string[]): string {
   for (const stmt of source.statements) {
     if (!ts.isImportDeclaration(stmt)) continue;
     const module = stmt.moduleSpecifier;
-    if (!ts.isStringLiteral(module) || module.text !== '@pkgs/ui') continue;
+    if (!ts.isStringLiteral(module) || !isPrunableModule(module.text)) continue;
     const clause = stmt.importClause;
     if (clause?.namedBindings === undefined) continue;
     if (!ts.isNamedImports(clause.namedBindings)) continue;

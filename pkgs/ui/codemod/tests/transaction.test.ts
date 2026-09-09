@@ -37,6 +37,21 @@ describe('all-or-nothing commit', () => {
     expect(result.outputs[0]?.changed).toBe(false);
   });
 
+  test('one file failure does not throw; other files still process', () => {
+    const result = runCodemod(
+      {
+        'ok.tsx': `${IMPORT}export const A = () => <Box sx={{ p: 1 }} />;`,
+        'bad.tsx': `${IMPORT}export const A = <Box sx={{ p: ;`,
+      },
+      { dryRun: true }
+    );
+    expect(result.summary.parseFailures).toBe(1);
+    expect(result.outputs.find((o) => o.path === 'ok.tsx')?.changed).toBe(true);
+    expect(result.outputs.find((o) => o.path === 'bad.tsx')?.changed).toBe(
+      false
+    );
+  });
+
   test('report formats one line per file plus totals', () => {
     const result = runCodemod(
       { 'a.tsx': `${IMPORT}export const A = () => <Box sx={{ p: 1 }} />;` },

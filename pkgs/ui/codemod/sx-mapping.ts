@@ -3,8 +3,10 @@
  * Tailwind classes + style declarations out.
  *
  * Node-level rules mirrored from `sx-to-css`:
- * - `background` beats `backgroundColor` (the latter is dropped).
- * - `elevation`'s background is dropped when an explicit background is set.
+ * - `background` beats `backgroundColor` (skip the latter only when
+ *   `background` is set; solo `backgroundColor` still maps).
+ * - `elevation`'s background is dropped when `background` or
+ *   `backgroundColor` is set.
  * - `boxShadow` beats `elevation`'s shadow (elevation only carries a
  *   background today, so both may coexist — kept for parity).
  *
@@ -160,34 +162,40 @@ export function mapSxRecord(
 ): MappedSx {
   const classes: string[] = [];
   const bailed: string[] = [];
-  const background = hasRecordBackground(record);
+  const flags = backgroundFlags(record);
   for (const prop of Object.keys(record)) {
-    accumulateProp(record, prop, {
-      classes,
-      bailed,
-      hasBackground: background,
-    });
+    accumulateProp(record, prop, { classes, bailed, ...flags });
   }
   if (transformClass !== undefined) classes.push(transformClass);
   assertSingleTokens(classes);
   return { classes, styleDecls: [], bailed };
 }
 
-function hasRecordBackground(
-  record: Readonly<Record<string, StaticValue>>
+function present(
+  record: Readonly<Record<string, StaticValue>>,
+  key: string
 ): boolean {
-  const bg = record['background'];
-  const bgColor = record['backgroundColor'];
-  return (
-    (bg !== undefined && bg !== null) ||
-    (bgColor !== undefined && bgColor !== null)
-  );
+  const value = record[key];
+  return value !== undefined && value !== null;
+}
+
+function backgroundFlags(record: Readonly<Record<string, StaticValue>>): {
+  readonly hasExplicitBackground: boolean;
+  readonly hasAnyBackground: boolean;
+} {
+  const hasExplicitBackground = present(record, 'background');
+  return {
+    hasExplicitBackground,
+    hasAnyBackground:
+      hasExplicitBackground || present(record, 'backgroundColor'),
+  };
 }
 
 type RecordAccum = {
   readonly classes: string[];
   readonly bailed: string[];
-  readonly hasBackground: boolean;
+  readonly hasExplicitBackground: boolean;
+  readonly hasAnyBackground: boolean;
 };
 
 /** Map one record entry; background/elevation precedence handled here. */
@@ -196,9 +204,9 @@ function accumulateProp(
   prop: string,
   accum: RecordAccum
 ): void {
-  if (prop === 'backgroundColor' && accum.hasBackground) return;
+  if (prop === 'backgroundColor' && accum.hasExplicitBackground) return;
   if (prop === 'transform') return;
-  if (prop === 'elevation' && accum.hasBackground) return;
+  if (prop === 'elevation' && accum.hasAnyBackground) return;
   const raw = record[prop] ?? null;
   if (typeof raw === 'string' && raw.includes('_')) {
     accum.bailed.push(prop);

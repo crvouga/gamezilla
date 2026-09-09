@@ -5,10 +5,24 @@
  * Pure (string in, string out). Spread attributes (`{...rest}`) force Tier C:
  * a spread may carry `sx`/`dataSet` invisibly, and converting would leak
  * those props onto a plain element.
+ *
+ * Nested JSX is converted leaf-first across passes so parent label/children
+ * edits never overlap descendant tag edits (which would throw in applyEdits).
+ * Invariant failures become file-level `parseError` results — never throws.
  */
 
 import ts from 'typescript';
 import { invariant, nonEmptyString } from './tiger';
+import {
+  carriesSx,
+  collectNodes,
+  hasSpread,
+  isLeafNode,
+  lineOf,
+  type PendingNode,
+  resolveBindings,
+  tagName,
+} from './transform-collect';
 import {
   CONVERTIBLE,
   type ComponentConversion,
@@ -45,100 +59,7 @@ export type FileResult = {
 };
 
 const TODO_MARKER = 'TODO(sx-codemod)';
-
-/** Local JSX names bound to `@pkgs/ui` primitive exports. */
-function resolveBindings(source: ts.SourceFile): Map<string, string> {
-  const bindings = new Map<string, string>();
-  for (const stmt of source.statements) {
-    if (!ts.isImportDeclaration(stmt)) continue;
-    const module = stmt.moduleSpecifier;
-    if (!ts.isStringLiteral(module) || module.text !== '@pkgs/ui') continue;
-    const clause = stmt.importClause;
-    if (clause === undefined || clause.namedBindings === undefined) continue;
-    if (!ts.isNamedImports(clause.namedBindings)) continue;
-    for (const el of clause.namedBindings.elements) {
-      if (el.propertyName !== undefined) {
-        bindings.set(el.name.text, el.propertyName.text);
-      } else {
-        bindings.set(el.name.text, el.name.text);
-      }
-    }
-  }
-  return bindings;
-}
-
-/** True when the local name is redeclared (shadowing the import). */
-function isShadowed(source: ts.SourceFile, name: string): boolean {
-  let shadowed = false;
-  function visit(node: ts.Node): void {
-    if (
-      (ts.isFunctionDeclaration(node) ||
-        ts.isClassDeclaration(node) ||
-        ts.isInterfaceDeclaration(node) ||
-        ts.isTypeAliasDeclaration(node) ||
-        ts.isVariableDeclaration(node)) &&
-      node.name !== undefined &&
-      ts.isIdentifier(node.name) &&
-      node.name.text === name
-    ) {
-      shadowed = true;
-    }
-    if (!shadowed) ts.forEachChild(node, visit);
-  }
-  ts.forEachChild(source, visit);
-  return shadowed;
-}
-
-function hasSpread(element: ts.JsxOpeningLikeElement): boolean {
-  return element.attributes.properties.some((p) => ts.isJsxSpreadAttribute(p));
-}
-
-function tagName(element: ts.JsxOpeningLikeElement): string | undefined {
-  const tag = element.tagName;
-  if (ts.isIdentifier(tag)) return tag.text;
-  return undefined;
-}
-
-function lineOf(source: ts.SourceFile, pos: number): number {
-  return source.getLineAndCharacterOfPosition(pos).line + 1;
-}
-
-type PendingNode = {
-  readonly element: ts.JsxOpeningLikeElement;
-  readonly isSelfClosing: boolean;
-  readonly closeTag?: ts.JsxClosingElement | undefined;
-  readonly exportName: string;
-};
-
-function collectNodes(
-  source: ts.SourceFile,
-  bindings: Map<string, string>
-): PendingNode[] {
-  const out: PendingNode[] = [];
-  function visit(node: ts.Node): void {
-    if (ts.isJsxSelfClosingElement(node)) {
-      const name = tagName(node);
-      const exportName = name === undefined ? undefined : bindings.get(name);
-      if (exportName !== undefined && !isShadowed(source, name ?? '')) {
-        out.push({ element: node, isSelfClosing: true, exportName });
-      }
-    } else if (ts.isJsxElement(node)) {
-      const name = tagName(node.openingElement);
-      const exportName = name === undefined ? undefined : bindings.get(name);
-      if (exportName !== undefined && !isShadowed(source, name ?? '')) {
-        out.push({
-          element: node.openingElement,
-          isSelfClosing: false,
-          closeTag: node.closingElement,
-          exportName,
-        });
-      }
-    }
-    ts.forEachChild(node, visit);
-  }
-  visit(source);
-  return out;
-}
+const MAX_CONVERT_PASSES = 64;
 
 /** Escape a static string into a double-quoted JSX attribute value. */
 function quoteAttr(value: string): string {
@@ -432,9 +353,75 @@ function finalizeFile(args: {
   return { text: pruned, changed: pruned !== text, converted, manual };
 }
 
+type PassAccum = {
+  text: string;
+  converted: ConvertedNode[];
+  removedLocals: string[];
+};
+
+/** Convert leaf nodes only; returns whether any conversion edits applied. */
+function convertLeavesPass(accum: PassAccum): boolean {
+  const source = parse(accum.text);
+  if (syntaxErrors(source) > 0) return false;
+  const nodes = collectNodes(source, resolveBindings(source));
+  const leaves = nodes.filter((n) => isLeafNode(n, nodes));
+  const edits: SpanEdit[] = [];
+  for (const node of leaves) {
+    const outcome = convertNode(node, source, accum.text);
+    if (outcome.converted === undefined) continue;
+    edits.push(...outcome.edits);
+    accum.converted.push(outcome.converted);
+    if (outcome.removedLocal !== undefined && outcome.removedLocal !== '') {
+      accum.removedLocals.push(outcome.removedLocal);
+    }
+  }
+  if (edits.length === 0) return false;
+  accum.text = applyEdits(accum.text, edits);
+  return true;
+}
+
+/** Mark remaining Tier C nodes with TODOs after conversions fixpoint. */
+function manualPass(text: string): {
+  readonly text: string;
+  readonly manual: readonly ManualNode[];
+} {
+  const source = parse(text);
+  if (syntaxErrors(source) > 0) return { text, manual: [] };
+  const nodes = collectNodes(source, resolveBindings(source));
+  const edits: SpanEdit[] = [];
+  const manual: ManualNode[] = [];
+  for (const node of nodes) {
+    const outcome = convertNode(node, source, text);
+    if (outcome.manual === undefined) continue;
+    manual.push(outcome.manual);
+    edits.push(...outcome.edits);
+  }
+  if (edits.length === 0) return { text, manual };
+  return { text: applyEdits(text, edits), manual };
+}
+
+function errorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  return String(error);
+}
+
 /** Main entry: transform one file's text. Never throws on bad input. */
 export function transformFile(path: string, text: string): FileResult {
   void path;
+  try {
+    return transformFileInner(text);
+  } catch (error) {
+    return {
+      text,
+      changed: false,
+      converted: [],
+      manual: [],
+      parseError: `transform failed: ${errorMessage(error)}`,
+    };
+  }
+}
+
+function transformFileInner(text: string): FileResult {
   const source = parse(text);
   if (syntaxErrors(source) > 0) {
     return {
@@ -445,37 +432,62 @@ export function transformFile(path: string, text: string): FileResult {
       parseError: 'input does not parse',
     };
   }
-  const nodes = collectNodes(source, resolveBindings(source));
-  const edits: SpanEdit[] = [];
-  const converted: ConvertedNode[] = [];
-  const manual: ManualNode[] = [];
-  const removedLocals: string[] = [];
-  for (const node of nodes) {
-    const outcome = convertNode(node, source, text);
-    edits.push(...outcome.edits);
-    if (outcome.converted !== undefined) converted.push(outcome.converted);
-    if (outcome.manual !== undefined) manual.push(outcome.manual);
-    if (outcome.removedLocal !== undefined && outcome.removedLocal !== '') {
-      removedLocals.push(outcome.removedLocal);
+  const accum: PassAccum = {
+    text,
+    converted: [],
+    removedLocals: [],
+  };
+  for (let pass = 0; pass < MAX_CONVERT_PASSES; pass++) {
+    if (!convertLeavesPass(accum)) break;
+    if (syntaxErrors(parse(accum.text)) > 0) {
+      return {
+        text,
+        changed: false,
+        converted: [],
+        manual: [],
+        parseError: 'output does not parse — left untouched',
+      };
     }
   }
-  if (edits.length === 0) {
-    return { text, changed: false, converted, manual };
+  const afterConvert = parse(accum.text);
+  if (syntaxErrors(afterConvert) > 0) {
+    return {
+      text,
+      changed: false,
+      converted: [],
+      manual: [],
+      parseError: 'output does not parse — left untouched',
+    };
+  }
+  if (hasConvertibleLeftovers(afterConvert, accum.text)) {
+    return {
+      text,
+      changed: false,
+      converted: [],
+      manual: [],
+      parseError: 'nested conversion did not fixpoint — left untouched',
+    };
+  }
+  const marked = manualPass(accum.text);
+  if (accum.converted.length === 0 && marked.text === text) {
+    return { text, changed: false, converted: [], manual: marked.manual };
   }
   return finalizeFile({
     text,
-    next: applyEdits(text, edits),
-    converted,
-    manual,
-    removedLocals,
+    next: marked.text,
+    converted: accum.converted,
+    manual: marked.manual,
+    removedLocals: accum.removedLocals,
   });
 }
 
-function carriesSx(element: ts.JsxOpeningLikeElement): boolean {
-  return element.attributes.properties.some(
-    (p) =>
-      ts.isJsxAttribute(p) &&
-      ts.isIdentifier(p.name) &&
-      (p.name.text === 'sx' || p.name.text === 'frameSx')
-  );
+/** True when a convertible leaf would still convert (pass cap exhausted). */
+function hasConvertibleLeftovers(source: ts.SourceFile, text: string): boolean {
+  const nodes = collectNodes(source, resolveBindings(source));
+  const leaves = nodes.filter((n) => isLeafNode(n, nodes));
+  for (const node of leaves) {
+    if (!CONVERTIBLE.has(node.exportName)) continue;
+    if (convertNode(node, source, text).converted !== undefined) return true;
+  }
+  return false;
 }

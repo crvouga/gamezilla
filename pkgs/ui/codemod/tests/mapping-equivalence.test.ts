@@ -73,6 +73,7 @@ const arbRecord: fc.Arbitrary<Record<string, string | number | boolean>> = fc
       fc.record({
         prop: fc.constantFrom(
           'background',
+          'backgroundColor',
           'color',
           'borderColor',
           'borderTopColor'

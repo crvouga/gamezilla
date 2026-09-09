@@ -7,7 +7,8 @@
  */
 
 import ts from 'typescript';
-import { CSS_VAR_COLORS, cssVarElevation, sxToCss } from '../src/theme';
+import { CSS_VAR_COLORS, cssVarElevation } from '../src/theme/css-vars';
+import { sxToCss } from '../src/theme/sx-to-css';
 import type { DynamicWrap, StaticValue } from './mapping-types';
 import { compileStaticTransform } from './sx-map-effect';
 import { mapDynamicProp, mapSxRecord } from './sx-mapping';
@@ -177,7 +178,8 @@ function applyValueEntry(accum: EntryAccum, entry: ObjectEntry): void {
   if (entry.prop === 'fontVariant') return;
   const mapped = mapDynamicProp(entry.prop);
   if (mapped.kind === 'bail') {
-    if (mapped.reason.startsWith('unknown sx prop')) return;
+    // Unknown or unmappable dynamic props must ride `cn`/`cnStyle` — never
+    // silently drop (static unknowns go through applyBailedProps the same way).
     accum.cnExprs.push(runtimeObj(entry.prop, entry.value.exprText));
     accum.hasDynamic = true;
     return;

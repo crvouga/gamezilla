@@ -46,22 +46,25 @@ describe('corpus round-trip', () => {
       inputs[path] = text;
     }
     expect(Object.keys(inputs).length).toBeGreaterThan(100);
-    const result = runCodemod(inputs, { dryRun: true });
-    expect(result.summary.parseFailures).toBe(0);
-    expect(result.unstable).toEqual([]);
+    let result: ReturnType<typeof runCodemod>;
+    expect(() => {
+      result = runCodemod(inputs, { dryRun: true });
+    }).not.toThrow();
+    expect(result!.summary.parseFailures).toBe(0);
+    expect(result!.unstable).toEqual([]);
     let manual = 0;
-    for (const output of result.outputs) {
-      const report = result.files.find((f) => f.path === output.path);
+    for (const output of result!.outputs) {
+      const report = result!.files.find((f) => f.path === output.path);
       manual += report?.manual.length ?? 0;
       if ((report?.manual.length ?? 0) > 0) {
         const markers = output.nextText.match(/TODO\(sx-codemod\)/g) ?? [];
         expect(markers.length).toBe(report?.manual.length ?? 0);
       }
     }
-    expect(manual).toBe(result.summary.totalManual);
+    expect(manual).toBe(result!.summary.totalManual);
     process.stdout.write(
       `corpus: scanned=${paths.length} candidates=${Object.keys(inputs).length} ` +
-        `A=${result.summary.totalConvertedA} B=${result.summary.totalConvertedB} manual=${manual}\n`
+        `A=${result!.summary.totalConvertedA} B=${result!.summary.totalConvertedB} manual=${manual}\n`
     );
   }, 120000);
 });

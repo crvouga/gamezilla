@@ -69,6 +69,9 @@ describe('colors', () => {
     expect(classes({ color: '#fff' })).toEqual(['text-[#fff]']);
     expect(classes({ background: 'transparent' })).toEqual(['bg-transparent']);
   });
+  test('solo backgroundColor maps (not silently dropped)', () => {
+    expect(classes({ backgroundColor: 'surface' })).toEqual(['bg-surface']);
+  });
   test('background beats backgroundColor', () => {
     expect(classes({ background: 'surface', backgroundColor: 'tint' })).toEqual(
       ['bg-surface']
@@ -196,6 +199,11 @@ describe('effects', () => {
   });
   test('elevation background drops when explicit', () => {
     expect(classes({ elevation: 2, background: 'surface' })).toEqual([
+      'bg-surface',
+    ]);
+  });
+  test('elevation background drops when backgroundColor is set', () => {
+    expect(classes({ elevation: 2, backgroundColor: 'surface' })).toEqual([
       'bg-surface',
     ]);
   });

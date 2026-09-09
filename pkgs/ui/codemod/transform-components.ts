@@ -4,7 +4,7 @@
  * - `Box` → `as` element (default `div`), base class `box`.
  * - `Clickable` → `<button>` + `clickable` + feedback class. Every
  *   clickable/pressable maps to a real button (never a bare div).
- * - `Text` → `as` element (default `p` per design-system direction) + `text`
+ * - `Text` → `as` element (default `span` matching runtime) + `text`
  *   class. `variant` bails (presets + on-color/casing are context-dependent);
  *   `label` moves into children; static `numberOfLines` → `line-clamp-N`.
  * - `Stack`/`Center` desugar layout props to sx entries, then follow the Box
@@ -216,7 +216,7 @@ function convertText(
   if (getJsxAttr(element, 'variant') !== undefined) {
     return { kind: 'manual', reason: 'Text variant needs context expansion' };
   }
-  const asElement = readAsElement(element, 'p');
+  const asElement = readAsElement(element, 'span');
   if (asElement === undefined) {
     return { kind: 'manual', reason: 'as is not a string literal' };
   }
