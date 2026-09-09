@@ -53,7 +53,7 @@
     "lint:biome": "biome check --error-on-warnings .",
     "lint:eslint": "eslint --cache --cache-location .eslintcache --cache-strategy content --max-warnings 0 .",
     "lint:vocab": "bun run tools/scripts/check-no-removed-auth-vocab.ts",
-    "migrate-to-tailwind": "bun run --filter @pkgs/ui codemod",
+    "migrate-to-tailwind": "bun run --filter @pkgs/ui codemod -- --write",
     "pg:monitoring": "bun run tools/scripts/enable-pg-monitoring.ts",
     "preview": "bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/boot-embedded-postgres.ts",
     "psql": "bun ./pkgs/postgres-embedded/scripts/psql.ts",
