@@ -104,6 +104,20 @@ export const TEXT_VARIANT_STYLES: Record<TextVariant, SxProps> = {
   mono: { fontSize: 'sm', lineHeight: 22, color: 'text' },
 };
 
+/** Global class names emitted by the sx-codemod for each Text variant. */
+export const TEXT_VARIANT_CLASS: Record<TextVariant, string | undefined> = {
+  body: undefined,
+  bodyBold: 'textBodyBold',
+  caption: 'textCaption',
+  label: 'textLabel',
+  title: 'textTitle',
+  subtitle: 'textSubtitle',
+  heading: 'textHeading',
+  navigationTitle: 'textNavigationTitle',
+  link: 'textLink',
+  mono: 'textMono',
+};
+
 const ROUNDED_VARIANTS = new Set<TextVariant>([
   'title',
   'subtitle',

@@ -101,7 +101,7 @@ describe('Box Tier B', () => {
     const result = run(
       `export const A = (p: { c: string }) => <Box sx={{ p: 1 }} class={p.c} />;`
     );
-    expect(result.text).toContain('class={`box p-1 ${p.c}`}');
+    expect(result.text).toContain('class={cn("box p-1", p.c)}');
   });
   test('dynamic px pair fans out to two exact declarations', () => {
     const result = run(
@@ -113,7 +113,7 @@ describe('Box Tier B', () => {
   });
 });
 
-describe('Box Tier C', () => {
+describe('Box conversion edge cases', () => {
   test('identifier sx converts via runtime cn', () => {
     const result = run(
       `export const A = (p: { sx: never }) => <Box sx={p.sx} />;`
@@ -128,11 +128,15 @@ describe('Box Tier C', () => {
     expect(result.text).not.toContain('<Box');
   });
 
-  test('spread attributes bail (may hide sx)', () => {
+  test('spread attributes convert and keep the rest spread', () => {
     const result = run(
       `export const A = (p: { rest: never }) => <Box sx={{ p: 1 }} {...p.rest} />;`
     );
-    expect(result.manual[0]?.reason).toBe('spread attributes may carry sx');
+    expect(result.manual).toEqual([]);
+    expect(result.converted[0]?.tier).toBe('A');
+    expect(result.text).toContain('class="box p-1"');
+    expect(result.text).toContain('{...p.rest}');
+    expect(result.text).not.toContain('TODO(sx-codemod)');
   });
 
   test('sx arrays with dynamic entries convert via runtime cn', () => {
@@ -154,26 +158,28 @@ describe('Box Tier C', () => {
     expect(result.text).toContain('<div class="box"');
   });
 
-  test('dynamic dataSet bails', () => {
+  test('dynamic dataSet uses componentDataAttrs', () => {
     const result = run(
       `export const A = (p: { d: never }) => <Box sx={{ p: 1 }} dataSet={p.d} />;`
     );
-    expect(result.manual.length).toBe(1);
+    expect(result.manual).toEqual([]);
+    expect(result.text).toContain('componentDataAttrs("Box", p.d)');
+    expect(result.text).not.toContain('dataSet=');
   });
-  test('non-intrinsic as bails instead of emitting a component reference', () => {
+  test('non-intrinsic as falls back to div', () => {
     const result = run(
       `export const A = () => <Box as="DIV" sx={{ p: 1 }} />;`
     );
-    expect(result.converted).toEqual([]);
-    expect(result.manual.length).toBe(1);
-    expect(result.text).toContain('<Box as="DIV"');
+    expect(result.manual).toEqual([]);
+    expect(result.text).toContain('<div class="box p-1"');
+    expect(result.text).not.toContain('as=');
   });
-  test('dataSet keys that are not data-attribute names bail', () => {
+  test('dataSet keys that are not data-attribute names use componentDataAttrs', () => {
     const result = run(
       `export const A = () => <Box sx={{ p: 1 }} dataSet={{ 'a b': 'x' }} />;`
     );
-    expect(result.converted).toEqual([]);
-    expect(result.manual.length).toBe(1);
+    expect(result.manual).toEqual([]);
+    expect(result.text).toContain('componentDataAttrs');
   });
 });
 
@@ -208,40 +214,41 @@ describe('Clickable', () => {
     );
     expect(result.text).toContain('type="submit"');
   });
-  test('dynamic feedback bails', () => {
+  test('dynamic feedback maps via cn ternary', () => {
     const result = transformFile(
       't.tsx',
       `${clickable}export const A = (p: { f: 'tint' }) => <Clickable feedback={p.f} />;`
     );
-    expect(result.manual.length).toBe(1);
+    expect(result.manual).toEqual([]);
+    expect(result.text).toContain('clickableOpacity');
+    expect(result.text).toContain('clickableTint');
   });
-  test('unknown feedback bails instead of inventing a class', () => {
+  test('unknown feedback defaults to tint', () => {
     const result = transformFile(
       't.tsx',
       `${clickable}export const A = () => <Clickable feedback="bogus" />;`
     );
-    expect(result.converted).toEqual([]);
-    expect(result.manual.length).toBe(1);
-    expect(result.manual[0]?.reason).toContain('bogus');
+    expect(result.manual).toEqual([]);
+    expect(result.text).toContain('class="clickable clickableTint"');
   });
 });
 
 describe('Text', () => {
   const text = `import { Text } from '@pkgs/ui';\n`;
-  test('defaults to span with the text base class', () => {
+  test('defaults to p with the text base class', () => {
     const result = transformFile(
       't.tsx',
       `${text}export const A = () => <Text sx={{ color: 'tint' }} label="hi" />;`
     );
-    expect(result.text).toContain('<span class="text text-tint"');
-    expect(result.text).toContain('>{"hi"}</span>');
+    expect(result.text).toContain('<p class="text text-tint"');
+    expect(result.text).toContain('>{"hi"}</p>');
   });
-  test('as is respected', () => {
+  test('as is respected over the variant host', () => {
     const result = transformFile(
       't.tsx',
-      `${text}export const A = () => <Text as="p" label="hi" />;`
+      `${text}export const A = () => <Text as="span" label="hi" />;`
     );
-    expect(result.text).toContain('<p class="text"');
+    expect(result.text).toContain('<span class="text"');
   });
   test('label merges with existing children via ??', () => {
     const result = transformFile(
@@ -257,13 +264,45 @@ describe('Text', () => {
     );
     expect(result.text).toContain('line-clamp-2');
   });
-  test('variant bails (context-dependent)', () => {
+  test('static variant maps to a semantic host + global class', () => {
     const result = transformFile(
       't.tsx',
       `${text}export const A = () => <Text variant="heading" label="x" />;`
     );
-    expect(result.manual.length).toBe(1);
-    expect(result.manual[0]?.reason).toContain('variant');
+    expect(result.manual).toEqual([]);
+    expect(result.text).toContain('<h3 class="text textHeading"');
+    expect(result.text).toContain('>{"x"}</h3>');
+    expect(result.text).not.toContain('variant=');
+  });
+  test('title / label / mono pick their semantic elements', () => {
+    expect(
+      transformFile(
+        't.tsx',
+        `${text}export const A = () => <Text variant="title" label="t" />;`
+      ).text
+    ).toContain('<h1 class="text textTitle"');
+    expect(
+      transformFile(
+        't.tsx',
+        `${text}export const A = () => <Text variant="label" label="l" />;`
+      ).text
+    ).toContain('<label class="text textLabel"');
+    expect(
+      transformFile(
+        't.tsx',
+        `${text}export const A = () => <Text variant="mono" label="m" />;`
+      ).text
+    ).toContain('<code class="text textMono"');
+  });
+  test('dynamic variant uses TEXT_VARIANT_CLASS via cn', () => {
+    const result = transformFile(
+      't.tsx',
+      `${text}export const A = (p: { v: 'heading' }) => <Text variant={p.v} label="x" />;`
+    );
+    expect(result.manual).toEqual([]);
+    expect(result.text).toContain('TEXT_VARIANT_CLASS');
+    expect(result.text).toContain('<p class={cn("text"');
+    expect(result.text).not.toContain('TODO(sx-codemod)');
   });
 });
 
@@ -278,12 +317,14 @@ describe('Stack / Center / Spacer', () => {
     );
     expect(result.text).toContain('data-component="Stack"');
   });
-  test('Stack with dynamic layout bails', () => {
+  test('Stack with dynamic layout converts via cn', () => {
     const result = transformFile(
       't.tsx',
       `import { Stack } from '@pkgs/ui';\nexport const A = (p: { d: 'horizontal' }) => <Stack direction={p.d} />;`
     );
-    expect(result.manual.length).toBe(1);
+    expect(result.manual).toEqual([]);
+    expect(result.text).toContain('flexDirection');
+    expect(result.text).toContain('horizontal');
   });
   test('Center pins both axes', () => {
     const result = transformFile(
@@ -303,14 +344,15 @@ describe('Stack / Center / Spacer', () => {
 });
 
 describe('behavior hosts and safety', () => {
-  test('ScrollView with frameSx is Tier C with TODO', () => {
+  test('ScrollView with frameSx is left untouched (no TODO)', () => {
     const result = transformFile(
       't.tsx',
       `import { ScrollView } from '@pkgs/ui';\nexport const A = () => <ScrollView frameSx={{ flex: 1 }}>x</ScrollView>;`
     );
     expect(result.converted).toEqual([]);
-    expect(result.manual.length).toBe(1);
-    expect(result.text).toContain('// TODO(sx-codemod): manual');
+    expect(result.manual).toEqual([]);
+    expect(result.text).toContain('<ScrollView frameSx={{ flex: 1 }}>');
+    expect(result.text).not.toContain('TODO(sx-codemod)');
   });
   test('ScrollView without sx is silently untouched', () => {
     const result = transformFile(
@@ -397,7 +439,7 @@ export const A = (p: { t: string }) => <Text label={p.t}><Box sx={{ p: 1 }}>x</B
     );
     expect(result.parseError).toBe(undefined);
     expect(result.converted.length).toBe(2);
-    expect(result.text).toContain('<span class="text"');
+    expect(result.text).toContain('<p class="text"');
     expect(result.text).toContain('<div class="box p-1"');
     expect(result.text).toContain('{(p.t) ??');
     const again = transformFile('t.tsx', result.text);

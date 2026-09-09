@@ -128,31 +128,30 @@ describe('preservation property', () => {
         ]) {
           if (source.includes(kept)) expect(result.text).toContain(kept);
         }
-        if (result.manual.length > 0) {
-          expect(result.text).toContain('// TODO(sx-codemod): manual');
-        }
+        expect(result.manual).toEqual([]);
+        expect(result.text).not.toContain('TODO(sx-codemod)');
       }),
       { numRuns: 250 }
     );
   });
 
-  test('Tier C nodes keep their JSX text (modulo the TODO line)', async () => {
+  test('former Tier C inputs convert or stay silent — never TODO', async () => {
     const cases: readonly string[] = [
       `import { Box } from '@pkgs/ui';\nexport const A = (p: { rest: never }) => <Box sx={{ p: 1 }} {...p.rest} />;`,
-      `import { Text } from '@pkgs/ui';\nexport const A = () => <Text variant="heading" label="x" />;`,
+      `import { Text } from '@pkgs/ui';\nexport const A = (p: { v: 'heading' }) => <Text variant={p.v} label="x" />;`,
       `import { ScrollView } from '@pkgs/ui';\nexport const A = () => <ScrollView frameSx={{ flex: 1 }} />;`,
     ];
     for (const source of cases) {
       const result = transformFile('tierc.tsx', source);
-      expect(result.converted).toEqual([]);
-      expect(result.manual.length).toBe(1);
-      expect(result.text).toContain('// TODO(sx-codemod): manual');
+      expect(result.manual).toEqual([]);
+      expect(result.text).not.toContain('TODO(sx-codemod)');
     }
     await fc.assert(
       fc.property(fc.constantFrom(...cases), (source) => {
         const first = transformFile('tierc.tsx', source);
         const second = transformFile('tierc.tsx', first.text);
         expect(second.text).toBe(first.text);
+        expect(second.manual).toEqual([]);
       }),
       { numRuns: 20 }
     );

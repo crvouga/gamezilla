@@ -25,15 +25,89 @@
 }
 
 .text {
-  display: inline;
   box-sizing: border-box;
   margin: 0;
   padding: 0;
   white-space: pre-wrap;
   overflow-wrap: break-word;
   text-decoration: none;
-  color: inherit;
-  font: inherit;
+  font-family:
+    system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+  font-size: var(--ui-font-size-base);
+  line-height: 26px;
+  font-weight: 400;
+  color: var(--ui-color-text);
+}
+
+.textBodyBold {
+  font-weight: 600;
+}
+
+.textCaption {
+  font-size: var(--ui-font-size-xs);
+  line-height: 18px;
+  color: var(--ui-color-text-secondary);
+}
+
+.textLabel {
+  font-family:
+    "SF Pro Rounded", "Hiragino Maru Gothic ProN", Meiryo, "MS PGothic",
+    sans-serif;
+  font-size: var(--ui-font-size-sm);
+  line-height: 22px;
+  font-weight: 500;
+}
+
+.textTitle {
+  font-family:
+    "SF Pro Rounded", "Hiragino Maru Gothic ProN", Meiryo, "MS PGothic",
+    sans-serif;
+  font-size: var(--ui-font-size-4xl);
+  line-height: 44px;
+  font-weight: 800;
+}
+
+.textSubtitle {
+  font-family:
+    "SF Pro Rounded", "Hiragino Maru Gothic ProN", Meiryo, "MS PGothic",
+    sans-serif;
+  font-size: var(--ui-font-size-xl);
+  line-height: 28px;
+  font-weight: 800;
+}
+
+.textHeading {
+  font-family:
+    "SF Pro Rounded", "Hiragino Maru Gothic ProN", Meiryo, "MS PGothic",
+    sans-serif;
+  font-size: var(--ui-font-size-2xl);
+  line-height: 34px;
+  font-weight: 800;
+}
+
+.textNavigationTitle {
+  font-family:
+    "SF Pro Rounded", "Hiragino Maru Gothic ProN", Meiryo, "MS PGothic",
+    sans-serif;
+  font-size: var(--ui-font-size-lg);
+  line-height: 24px;
+  font-weight: 600;
+}
+
+.textLink {
+  font-family:
+    "SF Pro Rounded", "Hiragino Maru Gothic ProN", Meiryo, "MS PGothic",
+    sans-serif;
+  color: var(--ui-color-tint);
+}
+
+.textMono {
+  font-family:
+    SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+    monospace;
+  font-size: var(--ui-font-size-sm);
+  line-height: 22px;
 }
 
 .clickable {

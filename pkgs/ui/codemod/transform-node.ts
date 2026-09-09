@@ -12,7 +12,6 @@ import { sxToCss } from '../src/theme/sx-to-css';
 import type { DynamicWrap, StaticValue } from './mapping-types';
 import { compileStaticTransform } from './sx-map-effect';
 import { mapDynamicProp, mapSxRecord } from './sx-mapping';
-import { invariant } from './tiger';
 import {
   attrExpression,
   attrStringLiteral,
@@ -29,24 +28,30 @@ export type StyleEntry = {
   readonly wrap: DynamicWrap;
 };
 
-export type NodeConversion =
-  | {
-      readonly kind: 'converted';
-      readonly tier: 'A' | 'B';
-      readonly element: string;
-      readonly classes: readonly string[];
-      readonly styles: readonly StyleEntry[];
-      /** Runtime `SxProps` texts — spliced into `cn(...)` + `cnStyle(...)`. */
-      readonly cnExprs: readonly string[];
-      readonly dataAttrs: Readonly<Record<string, string>>;
-      /** Attributes to drop (sx, as, dataSet, feedback, label, …). */
-      readonly dropAttrs: readonly string[];
-      /** Literal attributes to inject (e.g. Clickable's default type). */
-      readonly extraAttrs: readonly string[];
-      /** Text `label` becomes children (expression text). */
-      readonly labelAsChildren?: string | undefined;
-    }
-  | { readonly kind: 'manual'; readonly reason: string };
+export type NodeConversion = {
+  readonly kind: 'converted';
+  readonly tier: 'A' | 'B';
+  readonly element: string;
+  readonly classes: readonly string[];
+  readonly styles: readonly StyleEntry[];
+  /** Runtime `SxProps` texts — spliced into `cn(...)` + `cnStyle(...)`. */
+  readonly cnExprs: readonly string[];
+  /** Class-only exprs (`TEXT_VARIANT_CLASS[…]`, feedback ternaries) for `cn`. */
+  readonly classExprs: readonly string[];
+  readonly dataAttrs: Readonly<Record<string, string>>;
+  /** Dynamic `data-*={expr}` attribute texts. */
+  readonly dataAttrExprs: readonly string[];
+  /** `{...componentDataAttrs(...)}` when dataSet is not fully static. */
+  readonly dataAttrsSpread?: string | undefined;
+  /** Exact spread texts peeled into the conversion (omit from passthrough). */
+  readonly dropSpreadTexts: readonly string[];
+  /** Attributes to drop (sx, as, dataSet, feedback, label, …). */
+  readonly dropAttrs: readonly string[];
+  /** Literal attributes to inject (e.g. Clickable's default type). */
+  readonly extraAttrs: readonly string[];
+  /** Text `label` becomes children (expression text). */
+  readonly labelAsChildren?: string | undefined;
+};
 
 export type ExistingClass =
   | { readonly kind: 'absent' }
@@ -239,7 +244,10 @@ export function convertSxEntries(
     classes: mapped.classes,
     styles: accum.styles,
     cnExprs: accum.cnExprs,
+    classExprs: [],
     dataAttrs: {},
+    dataAttrExprs: [],
+    dropSpreadTexts: [],
     dropAttrs: ['sx'],
     extraAttrs: [],
   };
@@ -261,7 +269,6 @@ export function convertSxParts(
       continue;
     }
     const converted = convertSxEntries(part.entries, source);
-    if (converted.kind === 'manual') return converted;
     classes.push(...converted.classes);
     styles.push(...converted.styles);
     cnExprs.push(...converted.cnExprs);
@@ -275,7 +282,10 @@ export function convertSxParts(
     classes,
     styles,
     cnExprs,
+    classExprs: [],
     dataAttrs: {},
+    dataAttrExprs: [],
+    dropSpreadTexts: [],
     dropAttrs: ['sx'],
     extraAttrs: [],
   };
@@ -296,78 +306,29 @@ function convertTransformEntry(
   return compileStaticTransform(ref.pieces) ?? '';
 }
 
-export type DataSetRead =
-  | { readonly kind: 'attrs'; readonly attrs: Readonly<Record<string, string>> }
-  | { readonly kind: 'manual'; readonly reason: string };
-
-/** Materialize `dataSet` to exact `data-*` attributes (dev/E2E parity). */
-export function readDataSet(
-  element: ts.JsxOpeningLikeElement,
-  defaultComponent: string
-): DataSetRead {
-  const merged: Record<string, string> = { component: defaultComponent };
-  const attr = getJsxAttr(element, 'dataSet');
-  if (attr === undefined) return { kind: 'attrs', attrs: merged };
-  const expr = attrExpression(attr);
-  if (expr === undefined || !ts.isObjectLiteralExpression(expr)) {
-    return { kind: 'manual', reason: 'dataSet is not an object literal' };
-  }
-  for (const member of expr.properties) {
-    if (!ts.isPropertyAssignment(member)) {
-      return { kind: 'manual', reason: 'dataSet has a spread entry' };
-    }
-    const key = member.name;
-    const keyText =
-      ts.isIdentifier(key) || ts.isStringLiteral(key) ? key.text : undefined;
-    const value = member.initializer;
-    if (
-      keyText === undefined ||
-      !/^[A-Za-z][\w:.-]*$/.test(keyText) ||
-      !ts.isStringLiteral(value)
-    ) {
-      return { kind: 'manual', reason: 'dataSet entry is not static' };
-    }
-    merged[keyText] = value.text;
-  }
-  return { kind: 'attrs', attrs: merged };
-}
-
-/** `data-*` attribute map from a merged dataSet record. */
-export function toDataAttrs(
-  attrs: Readonly<Record<string, string>>
-): Record<string, string> {
-  const out: Record<string, string> = {};
-  for (const key of Object.keys(attrs)) {
-    invariant(/^[A-Za-z][\w:.-]*$/.test(key), `bad dataSet key ${key}`);
-    out[`data-${key}`] = attrs[key] ?? '';
-  }
-  return out;
-}
-
-/** Read `as="x"`; dynamic markers and non-intrinsics bail via `undefined`. */
+/** Read `as="x"`; dynamic / non-intrinsic falls back to the default host. */
 export function readAsElement(
   element: ts.JsxOpeningLikeElement,
   fallback: string
-): string | undefined {
+): string {
   const attr = getJsxAttr(element, 'as');
   if (attr === undefined) return fallback;
   const literal = attrStringLiteral(attr);
   if (literal !== undefined && /^[a-z][\w-]*$/.test(literal)) return literal;
-  return undefined;
+  return fallback;
 }
 
-/** Read `class`; template literals with substitutions bail via `undefined`. */
+/** Read `class` — literals, templates, and expressions all convert. */
 export function readExistingClass(
   element: ts.JsxOpeningLikeElement,
   source: ts.SourceFile
-): ExistingClass | undefined {
+): ExistingClass {
   const attr = getJsxAttr(element, 'class');
   if (attr === undefined) return { kind: 'absent' };
   const literal = attrStringLiteral(attr);
   if (literal !== undefined) return { kind: 'literal', value: literal };
   const expr = attrExpression(attr);
-  if (expr === undefined) return undefined;
-  if (ts.isTemplateExpression(expr)) return undefined;
+  if (expr === undefined) return { kind: 'absent' };
   if (ts.isNoSubstitutionTemplateLiteral(expr)) {
     return { kind: 'literal', value: expr.text };
   }

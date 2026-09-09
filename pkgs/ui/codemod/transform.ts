@@ -2,9 +2,8 @@
  * File-level transform: parse → convert each primitive usage via span edits
  * → re-parse to prove validity → prune unused primitive imports.
  *
- * Pure (string in, string out). Spread attributes (`{...rest}`) force Tier C:
- * a spread may carry `sx`/`dataSet` invisibly, and converting would leak
- * those props onto a plain element.
+ * Pure (string in, string out). Every convertible always converts (Tier A/B).
+ * Non-convertibles and unrecognized hosts are left untouched — never TODO.
  *
  * Nested JSX is converted leaf-first across passes so parent label/children
  * edits never overlap descendant tag edits (which would throw in applyEdits).
@@ -14,9 +13,7 @@
 import ts from 'typescript';
 import { invariant, nonEmptyString } from './tiger';
 import {
-  carriesSx,
   collectNodes,
-  hasSpread,
   isLeafNode,
   lineOf,
   type PendingNode,
@@ -54,11 +51,11 @@ export type FileResult = {
   readonly text: string;
   readonly changed: boolean;
   readonly converted: readonly ConvertedNode[];
+  /** Always empty — the transform never leaves manual TODOs. */
   readonly manual: readonly ManualNode[];
   readonly parseError?: string | undefined;
 };
 
-const TODO_MARKER = 'TODO(sx-codemod)';
 const MAX_CONVERT_PASSES = 64;
 
 /** Escape a static string into a double-quoted JSX attribute value. */
@@ -92,7 +89,8 @@ function styleBinding(
 function classAttr(
   classes: readonly string[],
   existing: ExistingClass,
-  cnExprs: readonly string[]
+  cnExprs: readonly string[],
+  classExprs: readonly string[]
 ): string {
   const merged = [...classes];
   if (existing.kind === 'literal' && existing.value !== '') {
@@ -100,13 +98,14 @@ function classAttr(
   }
   const deduped = merged.filter((c, i) => merged.indexOf(c) === i);
   const staticPart = deduped.join(' ');
-  if (cnExprs.length === 0) {
-    if (existing.kind === 'expr') {
-      return `class={\`${staticPart} \${${existing.exprText}}\`}`;
-    }
+  if (
+    cnExprs.length === 0 &&
+    classExprs.length === 0 &&
+    existing.kind !== 'expr'
+  ) {
     return `class=${quoteAttr(staticPart)}`;
   }
-  const args = [JSON.stringify(staticPart), ...cnExprs];
+  const args = [JSON.stringify(staticPart), ...classExprs, ...cnExprs];
   if (existing.kind === 'expr') args.push(existing.exprText);
   return `class={cn(${args.join(', ')})}`;
 }
@@ -115,12 +114,15 @@ function classAttr(
 function passthroughAttrs(
   element: ts.JsxOpeningLikeElement,
   source: ts.SourceFile,
-  dropAttrs: readonly string[]
+  dropAttrs: readonly string[],
+  dropSpreads: readonly string[]
 ): string[] {
   const out: string[] = [];
   for (const prop of element.attributes.properties) {
     if (ts.isJsxSpreadAttribute(prop)) {
-      out.push(prop.getText(source));
+      const text = prop.getText(source);
+      if (dropSpreads.includes(text)) continue;
+      out.push(text);
       continue;
     }
     if (dropAttrs.includes(prop.name.getText())) continue;
@@ -136,28 +138,43 @@ function buildOpeningTag(args: {
   isSelfClosing: boolean;
 }): string {
   const { conversion, element, source, isSelfClosing } = args;
-  if (conversion.kind === 'manual') return element.getText(source);
   invariant(conversion.classes.length > 0, 'converted node lost its classes');
   const parts = [`<${conversion.element}`];
   const existing: ExistingClass = conversion.existingClass ?? {
     kind: 'absent',
   };
-  parts.push(classAttr(conversion.classes, existing, conversion.cnExprs));
+  parts.push(
+    classAttr(
+      conversion.classes,
+      existing,
+      conversion.cnExprs,
+      conversion.classExprs
+    )
+  );
   const style = styleBinding(conversion.styles, conversion.cnExprs);
   if (style !== undefined) parts.push(style);
   for (const key of Object.keys(conversion.dataAttrs)) {
     parts.push(`${key}=${quoteAttr(conversion.dataAttrs[key] ?? '')}`);
   }
+  parts.push(...conversion.dataAttrExprs);
+  if (conversion.dataAttrsSpread !== undefined) {
+    parts.push(conversion.dataAttrsSpread);
+  }
   parts.push(...conversion.extraAttrs);
-  parts.push(...passthroughAttrs(element, source, conversion.dropAttrs));
+  parts.push(
+    ...passthroughAttrs(
+      element,
+      source,
+      conversion.dropAttrs,
+      conversion.dropSpreadTexts
+    )
+  );
   const label = conversion.labelAsChildren;
   if (label !== undefined && isSelfClosing) {
     return `${parts.join(' ')}>{${label}}</${conversion.element}>`;
   }
   const tag = `${parts.join(' ')}${isSelfClosing ? ' />' : '>'}`;
-  if (conversion.kind === 'converted') {
-    checkConvertedTag(tag, conversion.element);
-  }
+  checkConvertedTag(tag, conversion.element);
   return tag;
 }
 
@@ -173,7 +190,7 @@ function checkConvertedTag(tag: string, element: string): void {
   invariant(!/[\s{]sx=\{/.test(tag), 'converted tag leaks sx');
   invariant(!/[\s{]sx="/.test(tag), 'converted tag leaks sx string');
   invariant(!/frameSx=/.test(tag), 'converted tag leaks frameSx');
-  invariant(!/dataSet=/.test(tag), 'converted tag leaks dataSet');
+  invariant(!/[\s{]dataSet=/.test(tag), 'converted tag leaks dataSet');
 }
 
 function childrenSlice(
@@ -195,7 +212,6 @@ function applyLabelEdit(args: {
   text: string;
 }): SpanEdit | undefined {
   const { conversion, node, text } = args;
-  if (conversion.kind === 'manual') return undefined;
   const label = conversion.labelAsChildren;
   if (label === undefined || node.isSelfClosing) return undefined;
   const slice = childrenSlice(node, text);
@@ -209,29 +225,9 @@ function applyLabelEdit(args: {
   };
 }
 
-function todoEdit(
-  node: PendingNode,
-  text: string,
-  reason: string
-): SpanEdit | undefined {
-  nonEmptyString(reason, 'Tier C reason');
-  const start = node.element.getStart();
-  const lineStart = text.lastIndexOf('\n', start - 1) + 1;
-  const indent = text.slice(lineStart, start).match(/^\s*/)?.[0] ?? '';
-  const prevLineStart = text.lastIndexOf('\n', lineStart - 2) + 1;
-  const prevLine = text.slice(prevLineStart, lineStart);
-  if (prevLine.includes(TODO_MARKER)) return undefined;
-  return {
-    start: lineStart,
-    end: lineStart,
-    text: `${indent}// ${TODO_MARKER}: manual — ${reason}\n`,
-  };
-}
-
 type NodeOutcome = {
   readonly edits: readonly SpanEdit[];
   readonly converted?: ConvertedNode | undefined;
-  readonly manual?: ManualNode | undefined;
   readonly removedLocal?: string | undefined;
 };
 
@@ -240,44 +236,10 @@ function convertNode(
   source: ts.SourceFile,
   text: string
 ): NodeOutcome {
+  if (!CONVERTIBLE.has(node.exportName)) return { edits: [] };
   const at = lineOf(source, node.element.getStart());
-  if (hasSpread(node.element)) {
-    return spreadOutcome(node, text, at);
-  }
   const conversion = convertComponent(node.exportName, node.element, source);
-  if (conversion.kind === 'manual') {
-    return manualOutcome(node, text, at, conversion.reason);
-  }
   return convertedOutcome({ node, source, text, line: at, conversion });
-}
-
-function spreadOutcome(
-  node: PendingNode,
-  text: string,
-  line: number
-): NodeOutcome {
-  const reason = 'spread attributes may carry sx';
-  const edit = todoEdit(node, text, reason);
-  return {
-    edits: edit === undefined ? [] : [edit],
-    manual: { line, component: node.exportName, reason },
-  };
-}
-
-function manualOutcome(
-  node: PendingNode,
-  text: string,
-  line: number,
-  reason: string
-): NodeOutcome {
-  if (!CONVERTIBLE.has(node.exportName) && !carriesSx(node.element)) {
-    return { edits: [] };
-  }
-  const edit = todoEdit(node, text, reason);
-  return {
-    edits: edit === undefined ? [] : [edit],
-    manual: { line, component: node.exportName, reason },
-  };
 }
 
 function convertedOutcome(args: {
@@ -288,7 +250,6 @@ function convertedOutcome(args: {
   conversion: ComponentConversion;
 }): NodeOutcome {
   const { node, source, text, line, conversion } = args;
-  if (conversion.kind === 'manual') return { edits: [] };
   const edits: SpanEdit[] = [
     {
       start: node.element.getStart(),
@@ -319,30 +280,30 @@ function convertedOutcome(args: {
 
 /** Validate + prune the edited text. Returns original on any failure. */
 function finalizeFile(args: {
+  path: string;
   text: string;
   next: string;
   converted: readonly ConvertedNode[];
-  manual: readonly ManualNode[];
   removedLocals: readonly string[];
 }): FileResult {
-  const { text, next, converted, manual, removedLocals } = args;
+  const { path, text, next, converted, removedLocals } = args;
   if (syntaxErrors(parse(next)) > 0) {
     return {
       text,
       changed: false,
       converted: [],
-      manual,
+      manual: [],
       parseError: 'output does not parse — left untouched',
     };
   }
-  const withRuntime = ensureRuntimeImports(next);
+  const withRuntime = ensureRuntimeImports(next, path);
   const pruned = pruneImports(withRuntime, removedLocals);
   if (syntaxErrors(parse(pruned)) > 0) {
     return {
       text,
       changed: false,
       converted: [],
-      manual,
+      manual: [],
       parseError: 'import pruning broke the output — left untouched',
     };
   }
@@ -350,7 +311,12 @@ function finalizeFile(args: {
     converted.length === 0 || pruned !== text,
     'conversions applied but output is identical'
   );
-  return { text: pruned, changed: pruned !== text, converted, manual };
+  return {
+    text: pruned,
+    changed: pruned !== text,
+    converted,
+    manual: [],
+  };
 }
 
 type PassAccum = {
@@ -380,26 +346,6 @@ function convertLeavesPass(accum: PassAccum): boolean {
   return true;
 }
 
-/** Mark remaining Tier C nodes with TODOs after conversions fixpoint. */
-function manualPass(text: string): {
-  readonly text: string;
-  readonly manual: readonly ManualNode[];
-} {
-  const source = parse(text);
-  if (syntaxErrors(source) > 0) return { text, manual: [] };
-  const nodes = collectNodes(source, resolveBindings(source));
-  const edits: SpanEdit[] = [];
-  const manual: ManualNode[] = [];
-  for (const node of nodes) {
-    const outcome = convertNode(node, source, text);
-    if (outcome.manual === undefined) continue;
-    manual.push(outcome.manual);
-    edits.push(...outcome.edits);
-  }
-  if (edits.length === 0) return { text, manual };
-  return { text: applyEdits(text, edits), manual };
-}
-
 function errorMessage(error: unknown): string {
   if (error instanceof Error) return error.message;
   return String(error);
@@ -407,9 +353,8 @@ function errorMessage(error: unknown): string {
 
 /** Main entry: transform one file's text. Never throws on bad input. */
 export function transformFile(path: string, text: string): FileResult {
-  void path;
   try {
-    return transformFileInner(text);
+    return transformFileInner(path, text);
   } catch (error) {
     return {
       text,
@@ -421,7 +366,7 @@ export function transformFile(path: string, text: string): FileResult {
   }
 }
 
-function transformFileInner(text: string): FileResult {
+function transformFileInner(path: string, text: string): FileResult {
   const source = parse(text);
   if (syntaxErrors(source) > 0) {
     return {
@@ -468,15 +413,14 @@ function transformFileInner(text: string): FileResult {
       parseError: 'nested conversion did not fixpoint — left untouched',
     };
   }
-  const marked = manualPass(accum.text);
-  if (accum.converted.length === 0 && marked.text === text) {
-    return { text, changed: false, converted: [], manual: marked.manual };
+  if (accum.converted.length === 0) {
+    return { text, changed: false, converted: [], manual: [] };
   }
   return finalizeFile({
+    path,
     text,
-    next: marked.text,
+    next: accum.text,
     converted: accum.converted,
-    manual: marked.manual,
     removedLocals: accum.removedLocals,
   });
 }

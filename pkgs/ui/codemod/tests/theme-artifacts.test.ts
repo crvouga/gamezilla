@@ -48,7 +48,9 @@ describe('base.css coverage', () => {
     const css = await readArtifact('base.css');
     const required: Readonly<Record<string, readonly string[]>> = {
       '.box': ['display: flex', 'flex-direction: column', 'min-width: 0'],
-      '.text': ['display: inline', 'white-space: pre-wrap'],
+      '.text': ['white-space: pre-wrap', 'font-size: var(--ui-font-size-base)'],
+      '.textHeading': ['font-weight: 800'],
+      '.textMono': ['SFMono-Regular'],
       '.clickable': ['cursor: pointer', 'appearance: none'],
       '.clickableTint::after': ['pointer-events: none'],
       '.scroll': ['overflow-y: auto'],
@@ -68,7 +70,9 @@ describe('base.css coverage', () => {
       join(PKG_ROOT, 'src', 'components', 'hosts.module.css'),
       'utf8'
     );
-    for (const selector of ['.box {', '.text {', '.clickable {', '.scroll {']) {
+    // `.text` diverges: migrated hosts are semantic `p`/`h*` with variant
+    // globals, while the runtime CSS Module still forces inline span reset.
+    for (const selector of ['.box {', '.clickable {', '.scroll {']) {
       const block = hosts.slice(
         hosts.indexOf(selector),
         hosts.indexOf('}', hosts.indexOf(selector))

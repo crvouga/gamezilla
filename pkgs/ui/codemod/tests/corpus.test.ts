@@ -1,10 +1,7 @@
 /**
  * Round-trip on the real corpus: dry-run the codemod over every `.tsx`
- * file under the migrated tiers and prove zero parse failures.
- *
- * Also asserts the Tiger gates hold on real code: every Tier C node carries
- * its TODO marker, and tier counts are reported (coverage signal, not a
- * threshold — the counts document how much converts automatically).
+ * file under the migrated tiers and prove zero parse failures and zero
+ * manual TODOs. Tier counts are reported as a coverage signal.
  */
 
 import { readdir, readFile } from 'node:fs/promises';
@@ -36,7 +33,7 @@ const MENTIONS_PRIMITIVE =
   /<(Box|Clickable|Text|Stack|Center|Spacer|ScrollView|GradientBox|Island)\b|sx=\{|frameSx=\{/;
 
 describe('corpus round-trip', () => {
-  test('zero parse failures; every manual node marked; report adds up', async () => {
+  test('zero parse failures; zero manuals; report adds up', async () => {
     const paths = await collectTsx();
     expect(paths.length).toBeGreaterThan(100);
     const inputs: Record<string, string> = {};
@@ -52,19 +49,13 @@ describe('corpus round-trip', () => {
     }).not.toThrow();
     expect(result!.summary.parseFailures).toBe(0);
     expect(result!.unstable).toEqual([]);
-    let manual = 0;
+    expect(result!.summary.totalManual).toBe(0);
     for (const output of result!.outputs) {
-      const report = result!.files.find((f) => f.path === output.path);
-      manual += report?.manual.length ?? 0;
-      if ((report?.manual.length ?? 0) > 0) {
-        const markers = output.nextText.match(/TODO\(sx-codemod\)/g) ?? [];
-        expect(markers.length).toBe(report?.manual.length ?? 0);
-      }
+      expect(output.nextText).not.toContain('TODO(sx-codemod)');
     }
-    expect(manual).toBe(result!.summary.totalManual);
     process.stdout.write(
       `corpus: scanned=${paths.length} candidates=${Object.keys(inputs).length} ` +
-        `A=${result!.summary.totalConvertedA} B=${result!.summary.totalConvertedB} manual=${manual}\n`
+        `A=${result!.summary.totalConvertedA} B=${result!.summary.totalConvertedB} manual=0\n`
     );
   }, 120000);
 });

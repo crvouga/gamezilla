@@ -106,20 +106,86 @@ function stillUsed(
   return used;
 }
 
-/** Add `cn`/`cnStyle` to the `@pkgs/ui` import when the output calls them. */
-export function ensureRuntimeImports(text: string): string {
-  const needsCn = /\bcn\(/.test(text);
-  const needsCnStyle = /\bcnStyle\(/.test(text);
-  if (!needsCn && !needsCnStyle) return text;
+/** Add runtime helpers when the output calls them. */
+export function ensureRuntimeImports(text: string, filePath = ''): string {
+  const needs = {
+    cn: /\bcn\(/.test(text),
+    cnStyle: /\bcnStyle\(/.test(text),
+    dataAttrs: /\bcomponentDataAttrs\(/.test(text),
+    variantClass: /\bTEXT_VARIANT_CLASS\b/.test(text),
+  };
+  if (!needs.cn && !needs.cnStyle && !needs.dataAttrs && !needs.variantClass) {
+    return text;
+  }
+  if (isPkgsUiSrc(filePath)) {
+    return ensurePkgsUiRelativeImports(text, filePath, needs);
+  }
   const wanted = [
-    ...(needsCn ? ['cn'] : []),
-    ...(needsCnStyle ? ['cnStyle'] : []),
+    ...(needs.cn ? ['cn'] : []),
+    ...(needs.cnStyle ? ['cnStyle'] : []),
+    ...(needs.dataAttrs ? ['componentDataAttrs'] : []),
+    ...(needs.variantClass ? ['TEXT_VARIANT_CLASS'] : []),
   ];
+  return ensureNamedImport(text, '@pkgs/ui', wanted);
+}
+
+function isPkgsUiSrc(filePath: string): boolean {
+  return filePath.replace(/\\/g, '/').includes('/pkgs/ui/src/');
+}
+
+function ensurePkgsUiRelativeImports(
+  text: string,
+  filePath: string,
+  needs: {
+    cn: boolean;
+    cnStyle: boolean;
+    dataAttrs: boolean;
+    variantClass: boolean;
+  }
+): string {
+  let next = text;
+  if (needs.cn || needs.cnStyle) {
+    const names = [
+      ...(needs.cn ? ['cn'] : []),
+      ...(needs.cnStyle ? ['cnStyle'] : []),
+    ];
+    next = ensureNamedImport(next, relModule(filePath, 'theme/cn'), names);
+  }
+  if (needs.dataAttrs) {
+    next = ensureNamedImport(next, relModule(filePath, 'component-id'), [
+      'componentDataAttrs',
+    ]);
+  }
+  if (needs.variantClass) {
+    next = ensureNamedImport(next, relModule(filePath, 'components/text'), [
+      'TEXT_VARIANT_CLASS',
+    ]);
+  }
+  return next;
+}
+
+function relModule(filePath: string, targetFromSrc: string): string {
+  const normalized = filePath.replace(/\\/g, '/');
+  const marker = '/pkgs/ui/src/';
+  const idx = normalized.indexOf(marker);
+  invariant(idx >= 0, 'relModule requires pkgs/ui/src path');
+  const fromFile = normalized.slice(idx + marker.length);
+  const depth = fromFile.split('/').length - 1;
+  const prefix = depth === 0 ? './' : '../'.repeat(depth);
+  return `${prefix}${targetFromSrc}`;
+}
+
+function ensureNamedImport(
+  text: string,
+  modulePath: string,
+  wanted: readonly string[]
+): string {
+  if (wanted.length === 0) return text;
   const source = parse(text);
   for (const stmt of source.statements) {
     if (!ts.isImportDeclaration(stmt)) continue;
     const module = stmt.moduleSpecifier;
-    if (!ts.isStringLiteral(module) || module.text !== '@pkgs/ui') continue;
+    if (!ts.isStringLiteral(module) || module.text !== modulePath) continue;
     const clause = stmt.importClause;
     if (clause?.namedBindings === undefined) continue;
     if (!ts.isNamedImports(clause.namedBindings)) continue;
@@ -136,15 +202,16 @@ export function ensureRuntimeImports(text: string): string {
       ),
       ...missing,
     ];
-    const edit: SpanEdit = {
-      start: clause.namedBindings.getStart(),
-      end: clause.namedBindings.end,
-      text: `{ ${names.join(', ')} }`,
-    };
-    return applyEdits(text, [edit]);
+    return applyEdits(text, [
+      {
+        start: clause.namedBindings.getStart(),
+        end: clause.namedBindings.end,
+        text: `{ ${names.join(', ')} }`,
+      },
+    ]);
   }
   const anchor = lastImportEnd(source);
-  const line = `import { ${wanted.join(', ')} } from '@pkgs/ui';\n`;
+  const line = `import { ${wanted.join(', ')} } from '${modulePath}';\n`;
   if (anchor === 0) return line + text;
   return `${text.slice(0, anchor)}\n${line}${text.slice(anchor)}`;
 }
