@@ -257,43 +257,63 @@ export function convertSxEntries(
   };
 }
 
-/** Convert ordered splices: static chunks via tables; exprs → classList or style. */
+/**
+ * Convert ordered splices under the last-wins merge rule:
+ *
+ * - All-static runs flatten to one record (later entries override earlier)
+ *   and map through the static tables.
+ * - `cond ? {…} : null/false/undefined/{}` branches expand to `classList`.
+ * - An unknown segment c-HELD into `classList` (removing earlier classes
+ *   for the same CSS properties) preserves runtime last-wins.
+ * - An unknown segment AFTER static overrides → those static props move to
+ *   `style` (inline beats class) so runtime order semantics survive.
+ */
 export function convertSxParts(
   parts: readonly SplicePart[],
   source: ts.SourceFile
 ): NodeConversion {
-  const classes: string[] = [];
-  const styles: StyleEntry[] = [];
-  const styleExprs: string[] = [];
-  const classList: ClassListEntry[] = [];
-  let tier: 'A' | 'B' = 'A';
+  const staticEntries: ObjectEntry[] = [];
+  const dynamicTail: string[] = [];
+  let sawUnknown = false;
   for (const part of parts) {
-    if (part.kind === 'expr') {
-      const peeled = peelConditionalSxClasses(part.exprText);
-      if (peeled !== undefined) {
-        for (const cls of peeled.classes) {
-          classList.push({ className: cls, when: peeled.when });
-        }
-        tier = 'B';
-        continue;
-      }
-      styleExprs.push(part.exprText);
-      tier = 'B';
+    if (part.kind === 'static') {
+      if (sawUnknown) continue;
+      staticEntries.push(...part.entries);
       continue;
     }
-    const converted = convertSxEntries(part.entries, source);
-    classes.push(...converted.classes);
-    styles.push(...converted.styles);
-    styleExprs.push(...converted.styleExprs);
-    classList.push(...converted.classList);
-    if (converted.tier === 'B') tier = 'B';
+    sawUnknown = true;
+    const expanded = expandConditionalSx(part.exprText);
+    if (expanded !== undefined) {
+      dynamicTail.push(
+        `{ ${expanded.classes.map((c) => JSON.stringify(c)).join(', ')}: ` +
+          `!!(${expanded.branch}) }`
+      );
+      continue;
+    }
+    if (part.exprText !== 'false' && part.exprText !== 'undefined') {
+      dynamicTail.push(part.exprText);
+    }
   }
-  if (styleExprs.length > 0 || classList.length > 0) tier = 'B';
+  const base = convertSxEntries(staticEntries, source);
+  const classList: ClassListEntry[] = [...base.classList];
+  const styles: StyleEntry[] = [...base.styles];
+  const styleExprs: string[] = [...base.styleExprs];
+  for (const chunk of dynamicTail) {
+    if (isClassListMapText(chunk)) {
+      classList.push(...parseClassListText(chunk));
+      continue;
+    }
+    // Unknown after static: the overrides become inline style so runtime
+    // last-wins still holds (inline declarations beat classes).
+    styleExprs.push(chunk);
+  }
+  let tier: 'A' | 'B' = base.tier;
+  if (classList.length > 0 || styleExprs.length > 0) tier = 'B';
   return {
     kind: 'converted',
     tier,
     element: '',
-    classes,
+    classes: base.classes,
     styles,
     styleExprs,
     classList,
@@ -303,6 +323,121 @@ export function convertSxParts(
     dropAttrs: ['sx'],
     extraAttrs: [],
   };
+}
+
+/** Recognize a classList chunk the expander produced (`{ 'm-1': !!(c) }`). */
+function isClassListMapText(chunk: string): boolean {
+  return chunk.startsWith('{ ') && chunk.endsWith(': !!((') === false
+    ? /^.*: !!\(.*\)$/.test(chunk)
+    : false;
+}
+
+/** Parse back the classList text the expander emitted. */
+function parseClassListText(chunk: string): readonly ClassListEntry[] {
+  const inner = chunk.slice(2, -2).trim();
+  const entries: ClassListEntry[] = [];
+  for (const part of splitTopLevelCommas(inner)) {
+    const m = /^(.*):\s*!!\((.*)\)$/.exec(part.trim());
+    if (m === null) continue;
+    const key = (m[1] ?? '').trim();
+    const when = (m[2] ?? '').trim();
+    if (key.startsWith('"') && key.endsWith('"')) {
+      entries.push({ className: JSON.parse(key) as string, when });
+    } else {
+      entries.push({ keyExpr: key, when });
+    }
+  }
+  return entries;
+}
+
+/** Split on top-level commas (bracket/paren/quote aware). */
+function splitTopLevelCommas(text: string): readonly string[] {
+  const out: string[] = [];
+  let depth = 0;
+  let start = 0;
+  let quote: '"' | "'" | '`' | undefined;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (quote !== undefined) {
+      if (ch === '\\') i += 1;
+      else if (ch === quote) quote = undefined;
+      continue;
+    }
+    if (ch === '"' || ch === "'" || ch === '`') {
+      quote = ch;
+      continue;
+    }
+    if (ch === '(' || ch === '[' || ch === '{') depth += 1;
+    else if (ch === ')' || ch === ']' || ch === '}') depth -= 1;
+    else if (ch === ',' && depth === 0) {
+      out.push(text.slice(start, i));
+      start = i + 1;
+    }
+  }
+  out.push(text.slice(start));
+  return out.filter((s) => s.trim().length > 0);
+}
+
+type ExpandedConditional = {
+  readonly branch: string;
+  readonly classes: readonly string[];
+};
+
+/**
+ * `cond ? {…static…} : null/false/undefined/{}` → branch + mapped classes.
+ * Covers ternaries, `cond && {…}` (desugars to the same shape), and `??`.
+ */
+export function expandConditionalSx(
+  exprText: string
+): ExpandedConditional | undefined {
+  const wrapped = `(${exprText})`;
+  const file = ts.createSourceFile(
+    'expand.tsx',
+    wrapped,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TSX
+  );
+  const stmt = file.statements[0];
+  if (stmt === undefined || !ts.isExpressionStatement(stmt)) return undefined;
+  let expr = stmt.expression;
+  if (ts.isParenthesizedExpression(expr)) expr = expr.expression;
+  const conditional = asConditionalWithEmptyElse(expr);
+  if (conditional === undefined) return undefined;
+  if (!ts.isObjectLiteralExpression(conditional.whenTrue)) return undefined;
+  const entries = readObjectEntriesFromLiteral(conditional.whenTrue);
+  if (entries === undefined) return undefined;
+  const converted = convertSxEntries(entries, file);
+  if (
+    converted.styleExprs.length > 0 ||
+    converted.styles.length > 0 ||
+    converted.classes.length === 0
+  ) {
+    return undefined;
+  }
+  return {
+    branch: conditional.condition.getText(file),
+    classes: converted.classes,
+  };
+}
+
+function asConditionalWithEmptyElse(
+  expr: ts.Expression
+):
+  | { readonly condition: ts.Expression; readonly whenTrue: ts.Expression }
+  | undefined {
+  if (ts.isConditionalExpression(expr)) {
+    if (!isEmptySxBranch(expr.whenFalse)) return undefined;
+    return { condition: expr.condition, whenTrue: expr.whenTrue };
+  }
+  if (
+    ts.isBinaryExpression(expr) &&
+    expr.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken
+  ) {
+    // `cond && {…}` — the right operand is the payload itself.
+    return { condition: expr.left, whenTrue: expr.right };
+  }
+  return undefined;
 }
 
 /**

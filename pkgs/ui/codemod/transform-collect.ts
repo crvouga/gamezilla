@@ -4,6 +4,7 @@
  */
 
 import ts from 'typescript';
+import { isConvertibleExport } from './transform-kinds';
 
 /** Module-tail → export name for relative imports inside `@pkgs/ui`. */
 export const PRIMITIVE_MODULE_EXPORT: Readonly<Record<string, string>> = {
@@ -13,6 +14,13 @@ export const PRIMITIVE_MODULE_EXPORT: Readonly<Record<string, string>> = {
   spacer: 'Spacer',
   clickable: 'Clickable',
   text: 'Text',
+  card: 'Card',
+  divider: 'Divider',
+  'scroll-view': 'ScrollView',
+  'virtual-list': 'VirtualList',
+  motion: 'Motion',
+  island: 'Island',
+  'gradient-box': 'GradientBox',
 };
 
 export type PendingNode = {
@@ -45,7 +53,6 @@ function addImportBindings(
   if (clause === undefined || clause.namedBindings === undefined) return;
   if (!ts.isNamedImports(clause.namedBindings)) return;
   const expected = expectedExportForModule(module.text);
-  if (expected === undefined) return;
   for (const el of clause.namedBindings.elements) {
     addNamedBinding(el, expected, bindings);
   }
@@ -53,12 +60,16 @@ function addImportBindings(
 
 function addNamedBinding(
   el: ts.ImportSpecifier,
-  expected: string,
+  expected: string | undefined,
   bindings: Map<string, string>
 ): void {
   const exportName =
     el.propertyName !== undefined ? el.propertyName.text : el.name.text;
-  if (expected === '*' || exportName === expected) {
+  if (
+    expected === '*' ||
+    (expected !== undefined && exportName === expected) ||
+    isConvertibleExport(exportName)
+  ) {
     bindings.set(el.name.text, exportName);
   }
 }
@@ -185,7 +196,11 @@ export function carriesSx(element: ts.JsxOpeningLikeElement): boolean {
     (p) =>
       ts.isJsxAttribute(p) &&
       ts.isIdentifier(p.name) &&
-      (p.name.text === 'sx' || p.name.text === 'frameSx')
+      (p.name.text === 'sx' ||
+        p.name.text === 'frameSx' ||
+        p.name.text === 'enterSx' ||
+        p.name.text === 'exitSx' ||
+        p.name.text === 'fieldSx')
   );
 }
 

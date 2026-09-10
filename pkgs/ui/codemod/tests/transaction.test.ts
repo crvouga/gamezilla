@@ -27,6 +27,7 @@ describe('all-or-nothing commit', () => {
     expect(result.summary.totalManual).toBe(0);
     const changed = result.outputs.filter((o) => o.changed);
     expect(changed.length).toBe(2);
+    expect(result.gateHits).toEqual([]);
   });
 
   test('parse failure is reported, output untouched', () => {
@@ -80,7 +81,17 @@ describe('all-or-nothing commit', () => {
 describe('cli arg guards', () => {
   test('dry-run by default with standard globs', () => {
     expect(parseArgs([])).toEqual({
-      globs: ['apps/client/src', 'libs', 'pkgs/ui/src'],
+      globs: [
+        'apps/client/src',
+        'apps/product',
+        'libs',
+        'pkgs/ui/src',
+        'pkgs/ui/tests',
+        'pkgs/sim-console',
+        'pkgs/collab-ui',
+        'pkgs/chess-board',
+        'pkgs/ui-testing-solid-dom',
+      ],
       write: false,
     });
   });

@@ -1,5 +1,5 @@
 /**
- * Component dispatch: Box / Clickable / Text / Stack / Center / Spacer.
+ * Component dispatch: peel primitives + host call sites.
  *
  * Every convertible always converts (Tier A/B). Non-convertibles are skipped
  * by `transform.ts` — never TODO markers. Dynamic classes use Solid
@@ -13,6 +13,8 @@ import {
   attrStringLiteral,
   getJsxAttr,
 } from './transform-attrs';
+import { convertHost } from './transform-host';
+import { isHostConvertible } from './transform-kinds';
 import { type ClassListEntry, readExistingClass } from './transform-node';
 import { peelPropSpreads } from './transform-peel';
 import {
@@ -26,6 +28,13 @@ import { convertStack } from './transform-stack';
 import { convertText } from './transform-text';
 
 export type { ComponentConversion } from './transform-shared';
+export {
+  CONVERTIBLE,
+  HOST_CONVERTIBLE,
+  isConvertibleExport,
+  isHostConvertible,
+  isPeelConvertible,
+} from './transform-kinds';
 
 export function convertBox(
   element: ts.JsxOpeningLikeElement,
@@ -142,43 +151,59 @@ function convertSpacer(
   });
 }
 
-/** Dispatch on the resolved export name. */
+/** Card → div + `.card` (elevation / border defaults live in base.css later). */
+function convertCard(
+  element: ts.JsxOpeningLikeElement,
+  source: ts.SourceFile
+): ComponentConversion {
+  return convertBoxLike({
+    element,
+    source,
+    defaultElement: 'div',
+    defaultComponent: 'Card',
+    baseClass: 'card',
+    extras: [],
+    extraAttrs: [],
+    drops: ['elevation'],
+  });
+}
+
+/** Divider → div + `.divider` (hairline / orientation CSS later). */
+function convertDivider(
+  element: ts.JsxOpeningLikeElement,
+  source: ts.SourceFile
+): ComponentConversion {
+  return convertBoxLike({
+    element,
+    source,
+    defaultElement: 'div',
+    defaultComponent: 'Divider',
+    baseClass: 'divider',
+    extras: [],
+    extraAttrs: ['role="separator"'],
+    drops: ['orientation'],
+  });
+}
+
+/**
+ * Dispatch on the resolved export name.
+ * Hosts may return `undefined` when there is no sx-family prop to rewrite.
+ */
 export function convertComponent(
   exportName: string,
   element: ts.JsxOpeningLikeElement,
   source: ts.SourceFile
-): ComponentConversion {
+): ComponentConversion | undefined {
   if (exportName === 'Box') return convertBox(element, source);
   if (exportName === 'Clickable') return convertClickable(element, source);
   if (exportName === 'Text') return convertText(element, source);
   if (exportName === 'Stack') return convertStack(element, source);
   if (exportName === 'Center') return convertCenter(element, source);
   if (exportName === 'Spacer') return convertSpacer(element, source);
+  if (exportName === 'Card') return convertCard(element, source);
+  if (exportName === 'Divider') return convertDivider(element, source);
+  if (isHostConvertible(exportName)) {
+    return convertHost(exportName, element, source);
+  }
   invariant(false, `convertComponent called for non-convertible ${exportName}`);
 }
-
-export const CONVERTIBLE = new Set([
-  'Box',
-  'Clickable',
-  'Text',
-  'Stack',
-  'Center',
-  'Spacer',
-]);
-
-export const BEHAVIOR_HOSTS = new Set([
-  'ScrollView',
-  'GradientBox',
-  'Island',
-  'TextInput',
-  'FocusTrap',
-  'JsonView',
-  'RelativeTime',
-  'BrandIcon',
-  'SpinnerBox',
-  'MenuList',
-  'VirtualList',
-  'SpeakingAvatar',
-  'CopyToClipboardField',
-  'ExampleRoot',
-]);

@@ -18,8 +18,23 @@ import {
 } from './transform-node';
 import { peelPropSpreads } from './transform-peel';
 
+/** Prefixed style slot (`frame` → frameClass / frameClassList / frameStyle). */
+export type PrefixedSlot = {
+  readonly prefix: string;
+  readonly classes: readonly string[];
+  readonly styles: readonly import('./transform-node').StyleEntry[];
+  readonly styleExprs: readonly string[];
+  readonly classList: readonly ClassListEntry[];
+};
+
 export type ComponentConversion = NodeConversion & {
   readonly existingClass?: ExistingClass | undefined;
+  /** Extra sx-family slots beyond the main `sx` → class/style. */
+  readonly prefixedSlots?: readonly PrefixedSlot[] | undefined;
+  /** Hosts keep their import; peel targets prune. */
+  readonly keepImport?: boolean | undefined;
+  /** Hosts may emit only frameClass (no empty class=""). */
+  readonly allowEmptyClass?: boolean | undefined;
 };
 
 export type ExtraEntry = {
@@ -59,6 +74,11 @@ export function finish(args: {
     ...args.conversion.classList,
     ...(args.classListExtras ?? []),
   ];
+  const classes = [
+    args.baseClass,
+    ...args.extraClasses,
+    ...args.conversion.classes,
+  ].filter((c) => c.length > 0);
   return {
     kind: 'converted',
     tier:
@@ -68,7 +88,7 @@ export function finish(args: {
         ? 'B'
         : 'A',
     element: args.element,
-    classes: [args.baseClass, ...args.extraClasses, ...args.conversion.classes],
+    classes,
     styles: args.conversion.styles,
     styleExprs,
     classList,

@@ -1,4 +1,4 @@
-// @io-wall-ok — codemod CLI (composition root); reads/writes .tsx files.
+// @io-wall-ok — codemod CLI (composition root); reads/writes .ts/.tsx files.
 /**
  * sx-codemod CLI.
  *
@@ -16,7 +16,8 @@
  *   6. Everything transforms in memory first; files with parse failures
  *      abort the whole commit — zero files are written.
  *   7. Idempotence gate: every changed output must re-transform to itself.
- *   8. Post-write verify: each written file is re-read and byte-compared;
+ *   8. Completeness gate: leftover sx / purged tags / class helpers abort.
+ *   9. Post-write verify: each written file is re-read and byte-compared;
  *      any mismatch exits non-zero with the one-command recovery.
  *
  * File IO lives in this entry module only; everything else in `codemod/`
@@ -25,6 +26,7 @@
 
 import { existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
+import type { GateHit } from './completeness-gate';
 import { formatReport } from './report';
 import { runCodemod } from './run-codemod';
 import { invariant } from './tiger';
@@ -35,6 +37,19 @@ export type CliArgs = {
 };
 
 const CONFLICT = 'sx-codemod: --write and --dry-run conflict — pick one';
+
+/** Default scan roots (every tree with sx usage, incl. .ts const files). */
+export const DEFAULT_GLOBS: readonly string[] = [
+  'apps/client/src',
+  'apps/product',
+  'libs',
+  'pkgs/ui/src',
+  'pkgs/ui/tests',
+  'pkgs/sim-console',
+  'pkgs/collab-ui',
+  'pkgs/chess-board',
+  'pkgs/ui-testing-solid-dom',
+];
 
 /** Parse argv. Pure; throws on ambiguous or unknown flags. */
 export function parseArgs(argv: readonly string[]): CliArgs {
@@ -49,14 +64,19 @@ export function parseArgs(argv: readonly string[]): CliArgs {
     } else globs.push(arg);
   }
   if (write && dryRun) throw new Error(CONFLICT);
-  if (globs.length === 0) {
-    globs.push('apps/client/src', 'libs', 'pkgs/ui/src');
-  }
+  if (globs.length === 0) globs.push(...DEFAULT_GLOBS);
   return { globs, write };
 }
 
 function logPhase(message: string): void {
   process.stdout.write(`sx-codemod: ${message}\n`);
+}
+
+function formatGateHits(hits: readonly GateHit[]): string {
+  return hits
+    .slice(0, 40)
+    .map((h) => `  gate ${h.kind} ${h.path}: ${h.detail}`)
+    .join('\n');
 }
 
 async function gitIsClean(): Promise<boolean> {
@@ -83,17 +103,24 @@ async function collectFiles(
 ): Promise<string[]> {
   const found = new Set<string>();
   for (const glob of globs) {
-    const pattern = glob.endsWith('.tsx')
-      ? glob
-      : `${glob.replace(/\/$/, '')}/**/*.tsx`;
-    const scanner = new Bun.Glob(pattern);
-    for await (const relative of scanner.scan({ cwd: root, dot: false })) {
-      const absolute = resolve(root, relative);
-      invariant(
-        absolute === root || absolute.startsWith(`${root}/`),
-        `glob escaped the repo root: ${relative}`
-      );
-      found.add(absolute);
+    const patterns =
+      glob.endsWith('.tsx') || glob.endsWith('.ts')
+        ? [glob]
+        : [
+            `${glob.replace(/\/$/, '')}/**/*.tsx`,
+            `${glob.replace(/\/$/, '')}/**/*.ts`,
+          ];
+    for (const pattern of patterns) {
+      const scanner = new Bun.Glob(pattern);
+      for await (const relative of scanner.scan({ cwd: root, dot: false })) {
+        if (relative.endsWith('.d.ts')) continue;
+        const absolute = resolve(root, relative);
+        invariant(
+          absolute === root || absolute.startsWith(`${root}/`),
+          `glob escaped the repo root: ${relative}`
+        );
+        found.add(absolute);
+      }
     }
   }
   return [...found].sort();
@@ -127,11 +154,11 @@ async function main(): Promise<number> {
     );
     return 1;
   }
-  logPhase('scanning for .tsx files…');
+  logPhase('scanning for .ts/.tsx files…');
   const root = findRepoRoot();
   const paths = await collectFiles(root, args.globs);
   if (paths.length === 0) {
-    logPhase('no .tsx files matched — check your globs');
+    logPhase('no .ts/.tsx files matched — check your globs');
     return 1;
   }
   logPhase(`transforming ${paths.length} files in memory…`);
@@ -153,6 +180,14 @@ async function main(): Promise<number> {
       process.stdout.write(`${formatReport(result.summary)}\n`);
       return 3;
     }
+    if (result.gateHits.length > 0) {
+      logPhase(
+        `all-or-nothing: completeness gate — wrote zero files (${result.gateHits.length} hits)`
+      );
+      process.stdout.write(`${formatGateHits(result.gateHits)}\n`);
+      process.stdout.write(`${formatReport(result.summary)}\n`);
+      return 5;
+    }
     const writes = result.outputs.filter((o) => o.changed);
     logPhase(`all gates passed — writing ${writes.length} files…`);
     for (const output of writes) {
@@ -171,6 +206,11 @@ async function main(): Promise<number> {
   process.stdout.write(`${formatReport(result.summary)}\n`);
   if (result.summary.parseFailures > 0) return 2;
   if (result.unstable.length > 0) return 3;
+  if (result.gateHits.length > 0) {
+    logPhase(`completeness gate failed (${result.gateHits.length} hits)`);
+    process.stdout.write(`${formatGateHits(result.gateHits)}\n`);
+    return 5;
+  }
   return 0;
 }
 

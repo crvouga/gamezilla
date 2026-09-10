@@ -21,9 +21,9 @@ import {
   tagName,
 } from './transform-collect';
 import {
-  CONVERTIBLE,
   type ComponentConversion,
   convertComponent,
+  isConvertibleExport,
 } from './transform-components';
 import {
   applyEdits,
@@ -33,7 +33,12 @@ import {
   type SpanEdit,
   syntaxErrors,
 } from './transform-imports';
+import {
+  CLASS_HELPER_NAMES,
+  classAttrs,
+} from './transform-class-peel';
 import type { ExistingClass } from './transform-node';
+import type { PrefixedSlot } from './transform-shared';
 
 export type ConvertedNode = {
   readonly line: number;
@@ -78,14 +83,6 @@ function styleBinding(
       `? \`${'${'}(${s.exprText})}px\` : (${s.exprText}))`
     );
   });
-  // Opaque exprs become Solid `style` only — no cn/sxStyle helpers.
-  if (
-    parts.length === 0 &&
-    styleExprs.length === 1 &&
-    !styleExprs[0]?.trim().startsWith('{')
-  ) {
-    return `style={${styleExprs[0]}}`;
-  }
   const merges = styleExprs
     .map((e) => solidStyleMerge(e))
     .filter((m) => m.length > 0);
@@ -93,7 +90,52 @@ function styleBinding(
     parts.length > 0 || merges.length > 0,
     'styleBinding needs at least one entry'
   );
-  return `style={{ ${[...merges, ...parts].join(', ')} }}`;
+  const binding = `style={{ ${[...merges, ...parts].join(', ')} }}`;
+  checkStyleBinding(binding);
+  return binding;
+}
+
+/** Emission gate: style objects are dash-case; no class helpers ride along. */
+function checkStyleBinding(binding: string): void {
+  const inner = binding.slice('style={{ '.length, -' }}'.length);
+  for (const part of splitTopLevelCommas(inner)) {
+    const m = /^\s*(?:"([^"]+)"|\.\.\.)/.exec(part);
+    if (m === null) continue;
+    const key = m[1];
+    if (key === undefined) continue;
+    invariant(
+      /^[a-z-]+[a-z]$/.test(key) || key.startsWith('-'),
+      `style key must be dash-case CSS: ${key}`
+    );
+  }
+}
+
+/** Split on top-level commas (bracket/paren/quote aware). */
+function splitTopLevelCommas(text: string): readonly string[] {
+  const out: string[] = [];
+  let depth = 0;
+  let start = 0;
+  let quote: '"' | "'" | '`' | undefined;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (quote !== undefined) {
+      if (ch === '\\') i += 1;
+      else if (ch === quote) quote = undefined;
+      continue;
+    }
+    if (ch === '"' || ch === "'" || ch === '`') {
+      quote = ch;
+      continue;
+    }
+    if (ch === '(' || ch === '[' || ch === '{') depth += 1;
+    else if (ch === ')' || ch === ']' || ch === '}') depth -= 1;
+    else if (ch === ',' && depth === 0) {
+      out.push(text.slice(start, i));
+      start = i + 1;
+    }
+  }
+  out.push(text.slice(start));
+  return out;
 }
 
 /** Object-literal expr → property list; otherwise spread into the style object. */
@@ -107,33 +149,31 @@ function solidStyleMerge(expr: string): string {
 }
 
 /**
- * Solid `class` (static) + optional `classList` (conditional / dynamic).
- * See https://docs.solidjs.com/concepts/components/class-style
+ * Solid `class` / `classList` emission lives in `transform-class-peel.ts`
+ * (peels joinClass/cn/… so banned helpers never appear in output).
  */
-function classAttrs(
-  classes: readonly string[],
-  existing: ExistingClass,
-  classList: readonly import('./transform-node').ClassListEntry[]
-): string[] {
-  const merged = [...classes];
-  if (existing.kind === 'literal' && existing.value !== '') {
-    merged.push(existing.value);
+
+/** Emit frameClass / enterClass / … (+ ClassList / Style) for one prefixed slot. */
+function prefixedSlotAttrs(slot: PrefixedSlot): string[] {
+  const classAttr = `${slot.prefix}Class`;
+  const classListAttr = `${slot.prefix}ClassList`;
+  const styleAttr = `${slot.prefix}Style`;
+  const out: string[] = [];
+  if (slot.classes.length > 0) {
+    const deduped = slot.classes.filter((c, i) => slot.classes.indexOf(c) === i);
+    out.push(`${classAttr}=${quoteAttr(deduped.join(' '))}`);
   }
-  const deduped = merged.filter((c, i) => merged.indexOf(c) === i);
-  const out = [`class=${quoteAttr(deduped.join(' '))}`];
-  const entries = [...classList];
-  if (existing.kind === 'expr') {
-    entries.push({
-      keyExpr: existing.exprText,
-      when: `!!(${existing.exprText})`,
+  if (slot.classList.length > 0) {
+    const parts = slot.classList.map((e) => {
+      if ('keyExpr' in e) return `[${e.keyExpr}]: ${e.when}`;
+      return `${JSON.stringify(e.className)}: ${e.when}`;
     });
+    out.push(`${classListAttr}={{ ${parts.join(', ')} }}`);
   }
-  if (entries.length === 0) return out;
-  const parts = entries.map((e) => {
-    if ('keyExpr' in e) return `[${e.keyExpr}]: ${e.when}`;
-    return `${JSON.stringify(e.className)}: ${e.when}`;
-  });
-  out.push(`classList={{ ${parts.join(', ')} }}`);
+  const style = styleBinding(slot.styles, slot.styleExprs);
+  if (style !== undefined) {
+    out.push(style.replace(/^style=/, `${styleAttr}=`));
+  }
   return out;
 }
 
@@ -165,14 +205,24 @@ function buildOpeningTag(args: {
   isSelfClosing: boolean;
 }): string {
   const { conversion, element, source, isSelfClosing } = args;
-  invariant(conversion.classes.length > 0, 'converted node lost its classes');
+  const allowEmpty = conversion.allowEmptyClass === true;
+  if (!allowEmpty) {
+    invariant(conversion.classes.length > 0, 'converted node lost its classes');
+  }
   const parts = [`<${conversion.element}`];
   const existing: ExistingClass = conversion.existingClass ?? {
     kind: 'absent',
   };
-  parts.push(...classAttrs(conversion.classes, existing, conversion.classList));
+  parts.push(
+    ...classAttrs(conversion.classes, existing, conversion.classList, {
+      allowEmpty,
+    })
+  );
   const style = styleBinding(conversion.styles, conversion.styleExprs);
   if (style !== undefined) parts.push(style);
+  for (const slot of conversion.prefixedSlots ?? []) {
+    parts.push(...prefixedSlotAttrs(slot));
+  }
   for (const key of Object.keys(conversion.dataAttrs)) {
     parts.push(`${key}=${quoteAttr(conversion.dataAttrs[key] ?? '')}`);
   }
@@ -194,24 +244,45 @@ function buildOpeningTag(args: {
     return `${parts.join(' ')}>{${label}}</${conversion.element}>`;
   }
   const tag = `${parts.join(' ')}${isSelfClosing ? ' />' : '>'}`;
-  checkConvertedTag(tag, conversion.element);
+  checkConvertedTag(tag, conversion.element, allowEmpty);
   return tag;
 }
 
 /**
- * Tiger gate on every emitted tag: a class is always present (base styles
- * are never dropped) and no `sx`/`frameSx`/`dataSet` leaks onto the plain
- * element. A violation throws instead of writing a subtly broken file.
+ * Tiger gate on every emitted tag: peeled intrinsics always keep `class`;
+ * hosts may use frameClass / enterClass / … instead. No sx-family leaks.
  */
-function checkConvertedTag(tag: string, element: string): void {
+function checkConvertedTag(
+  tag: string,
+  element: string,
+  allowEmptyClass: boolean
+): void {
   nonEmptyString(element, 'converted element name');
-  invariant(/^[a-z][a-z0-9-]*$/.test(element), `bad element name ${element}`);
-  invariant(tag.includes('class='), 'converted tag lost its class');
-  invariant(!/\bcn\b/.test(tag), 'converted tag must not use cn');
-  invariant(!/\bsxStyle\b/.test(tag), 'converted tag must not use sxStyle');
+  const intrinsic = /^[a-z][a-z0-9-]*$/.test(element);
+  const host = /^[A-Z][A-Za-z0-9]*$/.test(element);
+  invariant(intrinsic || host, `bad element name ${element}`);
+  if (allowEmptyClass) {
+    const hasStyleSurface =
+      tag.includes('class=') ||
+      /[A-Za-z]Class=/.test(tag) ||
+      /[A-Za-z]Style=/.test(tag) ||
+      tag.includes('style=');
+    invariant(hasStyleSurface, 'converted host lost style attrs');
+  } else {
+    invariant(tag.includes('class='), 'converted tag lost its class');
+  }
+  invariant(
+    !/\b(?:cn|clsx|classnames|twMerge|twJoin|cx|cva|joinClass|sxStyle)\b/.test(
+      tag
+    ),
+    'converted tag must not use class helpers or sxStyle'
+  );
   invariant(!/[\s{]sx=\{/.test(tag), 'converted tag leaks sx');
   invariant(!/[\s{]sx="/.test(tag), 'converted tag leaks sx string');
   invariant(!/frameSx=/.test(tag), 'converted tag leaks frameSx');
+  invariant(!/enterSx=/.test(tag), 'converted tag leaks enterSx');
+  invariant(!/exitSx=/.test(tag), 'converted tag leaks exitSx');
+  invariant(!/fieldSx=/.test(tag), 'converted tag leaks fieldSx');
   invariant(!/[\s{]dataSet=/.test(tag), 'converted tag leaks dataSet');
 }
 
@@ -258,9 +329,10 @@ function convertNode(
   source: ts.SourceFile,
   text: string
 ): NodeOutcome {
-  if (!CONVERTIBLE.has(node.exportName)) return { edits: [] };
+  if (!isConvertibleExport(node.exportName)) return { edits: [] };
   const at = lineOf(source, node.element.getStart());
   const conversion = convertComponent(node.exportName, node.element, source);
+  if (conversion === undefined) return { edits: [] };
   return convertedOutcome({ node, source, text, line: at, conversion });
 }
 
@@ -293,10 +365,11 @@ function convertedOutcome(args: {
   }
   const labelEdit = applyLabelEdit({ conversion, node, text });
   if (labelEdit !== undefined) edits.push(labelEdit);
+  const local = tagName(node.element) ?? '';
   return {
     edits,
     converted: { line, component: node.exportName, tier: conversion.tier },
-    removedLocal: tagName(node.element) ?? '',
+    removedLocal: conversion.keepImport === true ? undefined : local,
   };
 }
 
@@ -319,7 +392,10 @@ function finalizeFile(args: {
     };
   }
   const withRuntime = ensureRuntimeImports(next, path);
-  const pruned = pruneImports(withRuntime, removedLocals);
+  const pruned = pruneImports(withRuntime, [
+    ...removedLocals,
+    ...CLASS_HELPER_NAMES,
+  ]);
   if (syntaxErrors(parse(pruned)) > 0) {
     return {
       text,
@@ -452,7 +528,7 @@ function hasConvertibleLeftovers(source: ts.SourceFile, text: string): boolean {
   const nodes = collectNodes(source, resolveBindings(source));
   const leaves = nodes.filter((n) => isLeafNode(n, nodes));
   for (const node of leaves) {
-    if (!CONVERTIBLE.has(node.exportName)) continue;
+    if (!isConvertibleExport(node.exportName)) continue;
     if (convertNode(node, source, text).converted !== undefined) return true;
   }
   return false;

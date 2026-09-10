@@ -123,7 +123,22 @@ describe('Box Tier B', () => {
 });
 
 describe('Box conversion edge cases', () => {
-  test('identifier sx becomes Solid style passthrough', () => {
+  test.fails(
+    'identifier sx must not emit style={sx-typed} (type-aware rewrite pending)',
+    () => {
+      const result = run(
+        `export const A = (p: { sx: never }) => <Box sx={p.sx} />;`
+      );
+      expect(result.parseError).toBe(undefined);
+      expect(result.text).not.toContain('style={p.sx}');
+      expect(result.text).not.toContain('cn');
+      expect(result.text).not.toContain('sxStyle');
+      expect(result.text).not.toContain('TODO(sx-codemod)');
+      expect(result.text).not.toContain('<Box');
+    }
+  );
+
+  test('identifier sx currently still emits Solid style passthrough', () => {
     const result = run(
       `export const A = (p: { sx: never }) => <Box sx={p.sx} />;`
     );
@@ -366,17 +381,82 @@ describe('Stack / Center / Spacer', () => {
   });
 });
 
+describe('Card / Divider peel', () => {
+  test('Card peels to div with card base class', () => {
+    const result = transformFile(
+      't.tsx',
+      `import { Card } from '@pkgs/ui';\nexport const A = () => <Card sx={{ p: 2 }}>x</Card>;`
+    );
+    expect(result.parseError).toBe(undefined);
+    expect(result.converted).toEqual([
+      { line: 2, component: 'Card', tier: 'A' },
+    ]);
+    expect(result.text).toContain('<div class="card p-2"');
+    expect(result.text).not.toContain('<Card');
+    expect(result.text).not.toContain('Card }');
+  });
+
+  test('Divider peels to div with divider base class', () => {
+    const result = transformFile(
+      't.tsx',
+      `import { Divider } from '@pkgs/ui';\nexport const A = () => <Divider sx={{ my: 2 }} />;`
+    );
+    expect(result.parseError).toBe(undefined);
+    expect(result.converted).toEqual([
+      { line: 2, component: 'Divider', tier: 'A' },
+    ]);
+    expect(result.text).toContain('<div class="divider my-2"');
+    expect(result.text).toContain('role="separator"');
+    expect(result.text).not.toContain('<Divider');
+  });
+});
+
 describe('behavior hosts and safety', () => {
-  test('ScrollView with frameSx is left untouched (no TODO)', () => {
+  test('ScrollView frameSx becomes frameClass', () => {
     const result = transformFile(
       't.tsx',
       `import { ScrollView } from '@pkgs/ui';\nexport const A = () => <ScrollView frameSx={{ flex: 1 }}>x</ScrollView>;`
     );
-    expect(result.converted).toEqual([]);
-    expect(result.manual).toEqual([]);
-    expect(result.text).toContain('<ScrollView frameSx={{ flex: 1 }}>');
+    expect(result.parseError).toBe(undefined);
+    expect(result.converted).toEqual([
+      { line: 2, component: 'ScrollView', tier: 'A' },
+    ]);
+    expect(result.text).toContain('<ScrollView frameClass="flex-1">');
+    expect(result.text).toContain('</ScrollView>');
+    expect(result.text).not.toContain('frameSx');
+    expect(result.text).toContain(`import { ScrollView } from '@pkgs/ui';`);
     expect(result.text).not.toContain('TODO(sx-codemod)');
   });
+
+  test('ScrollView sx + frameSx both convert; import kept', () => {
+    const result = transformFile(
+      't.tsx',
+      `import { ScrollView } from '@pkgs/ui';\nexport const A = () => <ScrollView sx={{ p: 2 }} frameSx={{ flex: 1 }}>x</ScrollView>;`
+    );
+    expect(result.parseError).toBe(undefined);
+    expect(result.converted[0]?.component).toBe('ScrollView');
+    expect(result.text).toContain('class="p-2"');
+    expect(result.text).toContain('frameClass="flex-1"');
+    expect(result.text).toContain('<ScrollView');
+    expect(result.text).toContain(`import { ScrollView } from '@pkgs/ui';`);
+    expect(result.text).not.toContain('sx=');
+    expect(result.text).not.toContain('frameSx');
+  });
+
+  test('Motion enterSx becomes enterClass', () => {
+    const result = transformFile(
+      't.tsx',
+      `import { Motion } from '@pkgs/ui';\nexport const A = () => <Motion enterSx={{ opacity: 0 }} sx={{ p: 1 }}>x</Motion>;`
+    );
+    expect(result.parseError).toBe(undefined);
+    expect(result.converted[0]?.component).toBe('Motion');
+    expect(result.text).toContain('<Motion');
+    expect(result.text).toContain('class="p-1"');
+    expect(result.text).toContain('enterClass="opacity-0"');
+    expect(result.text).not.toContain('enterSx');
+    expect(result.text).toContain(`import { Motion } from '@pkgs/ui';`);
+  });
+
   test('ScrollView without sx is silently untouched', () => {
     const result = transformFile(
       't.tsx',
@@ -498,5 +578,17 @@ export const A = () => <Box sx={{ p: 2 }} />;`
     );
     expect(result.parseError).toBe(undefined);
     expect(() => transformFile('t.tsx', result.text)).not.toThrow();
+  });
+  test('peels joinClass class expr into classList (no helper in output)', () => {
+    const result = transformFile(
+      't.tsx',
+      `import { Box, joinClass } from '@pkgs/ui';
+export const A = (p: { open: boolean }) => <Box class={joinClass('a', p.open && 'b')} sx={{ p: 1 }} />;`
+    );
+    expect(result.parseError).toBe(undefined);
+    expect(result.text).toContain('classList={{');
+    expect(result.text).toContain("['a']");
+    expect(result.text).not.toContain('joinClass');
+    expect(result.text).not.toContain('cn(');
   });
 });

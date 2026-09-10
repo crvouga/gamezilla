@@ -9,6 +9,10 @@
  * every file parsed — a failed run leaves the tree byte-identical.
  */
 
+import {
+  checkCompleteness,
+  type GateHit,
+} from './completeness-gate';
 import { type FileReport, summarize, toFileReport } from './report';
 import { invariant } from './tiger';
 import { transformFile } from './transform';
@@ -29,6 +33,8 @@ export type RunResult = {
   readonly summary: ReturnType<typeof summarize>;
   /** Changed outputs whose re-transform is not a fixpoint. Empty = committable. */
   readonly unstable: readonly string[];
+  /** Completeness leftovers in transformed outputs. Empty = gate pass. */
+  readonly gateHits: readonly GateHit[];
 };
 
 /** Run the codemod over in-memory files. Deterministic, no IO. */
@@ -55,7 +61,13 @@ export function runCodemod(
       reports.reduce((n, f) => n + f.convertedA + f.convertedB, 0),
     'report counts do not add up'
   );
-  return { outputs, files: reports, summary, unstable: verifyStable(outputs) };
+  return {
+    outputs,
+    files: reports,
+    summary,
+    unstable: verifyStable(outputs),
+    gateHits: checkCompleteness(outputs),
+  };
 }
 
 /**

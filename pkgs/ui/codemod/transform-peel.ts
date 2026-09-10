@@ -7,6 +7,10 @@ import ts from 'typescript';
 
 export type PeeledSpreads = {
   readonly sxExprs: readonly string[];
+  readonly frameSxExprs: readonly string[];
+  readonly enterSxExprs: readonly string[];
+  readonly exitSxExprs: readonly string[];
+  readonly fieldSxExprs: readonly string[];
   readonly dataSetExpr?: string | undefined;
   readonly variantExpr?: string | undefined;
   readonly numberOfLinesExpr?: string | undefined;
@@ -17,6 +21,10 @@ export type PeeledSpreads = {
 
 const PEELABLE = new Set([
   'sx',
+  'frameSx',
+  'enterSx',
+  'exitSx',
+  'fieldSx',
   'dataSet',
   'variant',
   'numberOfLines',
@@ -29,6 +37,10 @@ export function peelPropSpreads(
   source: ts.SourceFile
 ): PeeledSpreads {
   const sxExprs: string[] = [];
+  const frameSxExprs: string[] = [];
+  const enterSxExprs: string[] = [];
+  const exitSxExprs: string[] = [];
+  const fieldSxExprs: string[] = [];
   const dropSpreadTexts: string[] = [];
   let dataSetExpr: string | undefined;
   let variantExpr: string | undefined;
@@ -40,6 +52,10 @@ export function peelPropSpreads(
     if (peeled === undefined) continue;
     dropSpreadTexts.push(prop.getText(source));
     if (peeled.prop === 'sx') sxExprs.push(peeled.expr);
+    else if (peeled.prop === 'frameSx') frameSxExprs.push(peeled.expr);
+    else if (peeled.prop === 'enterSx') enterSxExprs.push(peeled.expr);
+    else if (peeled.prop === 'exitSx') exitSxExprs.push(peeled.expr);
+    else if (peeled.prop === 'fieldSx') fieldSxExprs.push(peeled.expr);
     else if (peeled.prop === 'dataSet') dataSetExpr = peeled.expr;
     else if (peeled.prop === 'variant') variantExpr = peeled.expr;
     else if (peeled.prop === 'numberOfLines') numberOfLinesExpr = peeled.expr;
@@ -47,6 +63,10 @@ export function peelPropSpreads(
   }
   return {
     sxExprs,
+    frameSxExprs,
+    enterSxExprs,
+    exitSxExprs,
+    fieldSxExprs,
     dataSetExpr,
     variantExpr,
     numberOfLinesExpr,
