@@ -51,8 +51,8 @@ const LOCAL_POSTGRES_DATABASE_URL = LOCAL_DATABASE_URL;
 
 /** Loopback MinIO when CI boots `@pkgs/minio-server`. */
 const LOCAL_MINIO_S3_SECRETS: Readonly<Record<string, string>> = {
-  B2_APP_KEY_ID: MINIO_ROOT_USER,
-  B2_APP_KEY: MINIO_ROOT_PASSWORD,
+  S3_ACCESS_KEY_ID: MINIO_ROOT_USER,
+  S3_SECRET_ACCESS_KEY: MINIO_ROOT_PASSWORD,
   S3_BUCKET: MINIO_BUCKET,
   S3_ENDPOINT: MINIO_ENDPOINT,
   S3_REGION: MINIO_REGION,
@@ -169,7 +169,7 @@ async function main(): Promise<void> {
     written.add(name);
   }
   process.stdout.write(
-    '[setup-dev-vars] S3/B2_APP_* → loopback MinIO (Infisical ignored).\n'
+    '[setup-dev-vars] S3_* → loopback MinIO (Infisical ignored).\n'
   );
 
   for (const [name, value] of Object.entries(LOCAL_EMQX_DEV_SECRETS)) {
@@ -185,7 +185,7 @@ async function main(): Promise<void> {
   written.add('AUTH_SECRET');
 
   // Only Worker-bound secrets belong in `.dev.vars`. Infra-only keys
-  // (CLOUDFLARE_*, TURBO_*, B2_MASTER_*, …) are skipped.
+  // (CLOUDFLARE_*, TURBO_*, …) are skipped.
   for (const entry of getApiWorkerSecrets()) {
     if (written.has(entry.name)) continue;
     const value = (process.env[entry.name] ?? '').trim();

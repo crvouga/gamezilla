@@ -352,13 +352,13 @@ function main(): void {
   }
 
   for (const v of soft) {
-    const over = reportGate({
+    const result = reportGate({
       tag: 'critical-path',
       mode,
       over: true,
       message: `eager dynamic import of ${v.specifier} at ${v.fromRel} (mode=${mode}) — ${v.reason}`,
     });
-    if (over) failed = true;
+    if (result === 'fail') failed = true;
   }
 
   if (hard.length === 0 && soft.length === 0) {

@@ -10,7 +10,6 @@ import {
   WEB_CLIENT_GOOGLE_CLIENT_ID,
   WEB_CLIENT_GOOGLE_CLIENT_SECRET,
 } from './auth-secrets';
-import { B2_MASTER_KEY, B2_MASTER_KEY_ID } from './b2-credentials';
 import {
   BILLING_VENDOR_PUBLISHABLE_KEY,
   BILLING_VENDOR_SECRET_KEY,
@@ -36,8 +35,6 @@ import {
 } from './pubsub-emqx-secrets';
 import { RAILWAY_TOKEN } from './railway-token';
 import {
-  B2_APP_KEY,
-  B2_APP_KEY_ID,
   S3_ACCESS_KEY_ID,
   S3_BUCKET,
   S3_ENDPOINT,
@@ -46,6 +43,7 @@ import {
 } from './s3-credentials';
 import type { Secret } from './secret';
 import {
+  TURBO_API,
   TURBO_CACHE,
   TURBO_LOG_ORDER,
   TURBO_TEAM,
@@ -66,15 +64,12 @@ export const SECRETS: readonly Secret[] = [
   WEB_CLIENT_GOOGLE_CLIENT_SECRET,
   BILLING_VENDOR_SECRET_KEY,
   BILLING_VENDOR_PUBLISHABLE_KEY,
+  TURBO_API,
   TURBO_TOKEN,
   TURBO_TEAM,
   TURBO_CACHE,
   TURBO_LOG_ORDER,
   TURBO_TELEMETRY_DISABLED,
-  B2_MASTER_KEY_ID,
-  B2_MASTER_KEY,
-  B2_APP_KEY_ID,
-  B2_APP_KEY,
   S3_ACCESS_KEY_ID,
   S3_SECRET_ACCESS_KEY,
   S3_BUCKET,

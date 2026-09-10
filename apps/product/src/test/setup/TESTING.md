@@ -96,7 +96,7 @@ Catalog: `signed-in-alice`, `signed-in-pair`, `friends-pair`, `both-in-space`.
 
 View captured timelines in **`bun run dev`** (`@apps/product` → Reports).
 Production browsing of reports stays on the API Worker `/sim-console` mount
-(B2).
+(R2).
 
 Mem-engine wishlist:
 [`docs/sim-mem-engine-wishlist.md`](../../../docs/sim-mem-engine-wishlist.md).

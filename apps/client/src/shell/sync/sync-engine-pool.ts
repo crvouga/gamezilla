@@ -7,13 +7,16 @@
 
 import type { SyncEngine } from '@pkgs/sync-engine/client';
 import type { MutationRegistry } from '@pkgs/sync-engine/shared';
-import type { CreateAppLocalSyncEngineArgs } from './create-local-sync-engine';
+import type {
+  CreateAppLocalSyncEngineArgs,
+  CreateAppLocalSyncEnginePoolArgs,
+} from './create-local-sync-engine';
 
-export type { CreateAppLocalSyncEngineArgs };
+export type { CreateAppLocalSyncEngineArgs, CreateAppLocalSyncEnginePoolArgs };
 
 export type AppSyncEnginePool = {
   readonly getOrCreate: (
-    args: CreateAppLocalSyncEngineArgs
+    args: CreateAppLocalSyncEnginePoolArgs
   ) => Promise<SyncEngine>;
   /** Product mutation registry (loaded with the first engine). */
   readonly mutationRegistry: () => Promise<MutationRegistry>;
@@ -69,8 +72,14 @@ export function createAppSyncEnginePool(options?: {
     getOrCreate: async (args) => {
       const pool = await loadPool();
       return pool.getOrCreate(args.databaseName, async () => {
-        const mod = await loadEngineModule();
-        return mod.createAppLocalSyncEngine(args);
+        const [mod, mutations] = await Promise.all([
+          loadEngineModule(),
+          loadMutations(),
+        ]);
+        return mod.createAppLocalSyncEngine({
+          ...args,
+          mutationRegistry: mutations.APP_MUTATIONS,
+        });
       });
     },
     mutationRegistry: async () => (await loadMutations()).APP_MUTATIONS,

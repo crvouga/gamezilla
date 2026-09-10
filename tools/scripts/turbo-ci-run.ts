@@ -1,16 +1,17 @@
 /**
  * Shared Turbo flags for CI / `check:ci*` / local `check` / `deploy`.
  *
- * - Cache is `local:rw,remote:rw` (Vercel Remote Cache) when `TURBO_TOKEN` +
- *   `TURBO_TEAM` are present. Local disk under `.turbo` is also persisted in
- *   CI via per-job `actions/cache`. `TURBO_CACHE` may tighten local/remote
- *   modes but cannot drop `remote:` when creds are present.
+ * - Cache is `local:rw,remote:rw` (self-hosted remote at
+ *   `https://turborepo.chrisvouga.dev`) when `TURBO_TOKEN` + `TURBO_TEAM` are
+ *   present. Local disk under `.turbo` is also persisted in CI via per-job
+ *   `actions/cache`. `TURBO_CACHE` may tighten local/remote modes but cannot
+ *   drop `remote:` when creds are present.
  * - CI requires `TURBO_TOKEN` + `TURBO_TEAM`. Locally, missing creds (Infisical
  *   login/network fallback) use `local:rw` so `bun check` still runs.
  * - Disables framework inference so only explicit `turbo.json` `env` /
  *   `globalEnv` enter the hash (avoids `VITE_*` skew).
- * - Unsets orphan `TURBO_API` so a leftover self-hosted origin cannot
- *   override Vercel's default cache endpoint.
+ * - Ensures `TURBO_API` points at the self-hosted cache origin (defaults when
+ *   remote creds are present but the secret is unset).
  * - Optional `TURBO_AFFECTED_BASE` (git ref/SHA) adds
  *   `--filter=...[<base>] --filter=//` so PR runs skip unchanged
  *   packages but still execute named root tasks (`ci:depcruise`).
@@ -39,6 +40,7 @@ import {
   CHECK_SECRETS_FINGERPRINT_ENV,
   computeCheckSecretsFingerprint,
 } from '../../libs/secrets/src/shared/secrets/check-secrets-fingerprint';
+import { DEFAULT_TURBO_API } from '../../libs/secrets/src/shared/secrets/turbo-token';
 
 const REPO_ROOT = join(import.meta.dirname, '../..');
 const CHECK_AGGREGATOR = '//#check';
@@ -127,15 +129,19 @@ function resolveUi(): string | undefined {
   return undefined;
 }
 
-function turboChildEnv(): NodeJS.ProcessEnv {
-  const env: NodeJS.ProcessEnv = { ...process.env };
-  const orphan = env['TURBO_API'];
-  if (typeof orphan === 'string' && orphan.trim().length > 0) {
-    console.warn(
-      'turbo-ci-run: ignoring orphan TURBO_API (Vercel Remote Cache is the default)'
-    );
+/** Pass through / default `TURBO_API` for self-hosted remote cache. */
+export function turboChildEnv(
+  source: NodeJS.ProcessEnv = process.env
+): NodeJS.ProcessEnv {
+  const env: NodeJS.ProcessEnv = { ...source };
+  const api = env['TURBO_API']?.trim();
+  if (api !== undefined && api.length > 0) {
+    env['TURBO_API'] = api.replace(/\/+$/, '');
+    return env;
   }
-  delete env['TURBO_API'];
+  if (hasRemoteCreds(env)) {
+    env['TURBO_API'] = DEFAULT_TURBO_API;
+  }
   return env;
 }
 
@@ -228,7 +234,7 @@ async function ensureSecretsFingerprint(
 function requireRemoteCredsInCi(hasRemote: boolean): void {
   if (hasRemote || !inCi()) return;
   console.error(
-    'turbo-ci-run: TURBO_TOKEN and TURBO_TEAM are required for Vercel Remote Cache. ' +
+    'turbo-ci-run: TURBO_TOKEN and TURBO_TEAM are required for self-hosted Turbo remote cache. ' +
       'Run via secrets-run / secrets-auth (Infisical) so local warms upload and CI reuses them.'
   );
   process.exit(1);
@@ -238,7 +244,7 @@ function warnLocalCacheOnly(hasRemote: boolean): void {
   if (hasRemote) return;
   console.warn(
     'turbo-ci-run: TURBO_TOKEN and TURBO_TEAM missing; using local cache only. ' +
-      'Run `infisical login` so local warms upload to Vercel Remote Cache.'
+      'Run `infisical login` so local warms upload to the self-hosted Turbo remote cache.'
   );
 }
 
@@ -328,7 +334,9 @@ async function main(): Promise<void> {
   console.log(
     `turbo-ci-run: cache=${cache} concurrency=${concurrency} log-order=${TURBO_LOG_ORDER}` +
       (ui !== undefined ? ` ui=${ui}` : '') +
-      (remote ? ' (remote creds present)' : ' (local cache only)')
+      (remote
+        ? ` (remote creds present; api=${env['TURBO_API'] ?? DEFAULT_TURBO_API})`
+        : ' (local cache only)')
   );
 
   const result = spawnSync(

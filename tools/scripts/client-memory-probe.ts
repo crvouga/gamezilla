@@ -98,23 +98,33 @@ async function main(): Promise<void> {
 
   let failed = false;
   const shellOver = samples.shell.jsHeapUsedMb > budget.memory.shellJsHeapMb;
-  failed =
+  if (
     reportGate({
       tag: 'memory-probe',
       mode: budget.memory.mode,
       over: shellOver,
-      message: `shell JS heap ${samples.shell.jsHeapUsedMb.toFixed(1)} MB > memory.shellJsHeapMb ${String(budget.memory.shellJsHeapMb)}`,
-    }) || failed;
+      message: shellOver
+        ? `shell JS heap ${samples.shell.jsHeapUsedMb.toFixed(1)} MB exceeds memory.shellJsHeapMb ${String(budget.memory.shellJsHeapMb)}`
+        : `shell JS heap ${samples.shell.jsHeapUsedMb.toFixed(1)} MB within memory.shellJsHeapMb ${String(budget.memory.shellJsHeapMb)}`,
+    }) === 'fail'
+  ) {
+    failed = true;
+  }
 
   const navOver =
     samples.afterNav.jsHeapUsedMb > budget.memory.afterNavJsHeapMb;
-  failed =
+  if (
     reportGate({
       tag: 'memory-probe',
       mode: budget.memory.mode,
       over: navOver,
-      message: `after /more+/profile JS heap ${samples.afterNav.jsHeapUsedMb.toFixed(1)} MB > memory.afterNavJsHeapMb ${String(budget.memory.afterNavJsHeapMb)}`,
-    }) || failed;
+      message: navOver
+        ? `after /more+/profile JS heap ${samples.afterNav.jsHeapUsedMb.toFixed(1)} MB exceeds memory.afterNavJsHeapMb ${String(budget.memory.afterNavJsHeapMb)}`
+        : `after /more+/profile JS heap ${samples.afterNav.jsHeapUsedMb.toFixed(1)} MB within memory.afterNavJsHeapMb ${String(budget.memory.afterNavJsHeapMb)}`,
+    }) === 'fail'
+  ) {
+    failed = true;
+  }
 
   if (failed) process.exit(1);
 }

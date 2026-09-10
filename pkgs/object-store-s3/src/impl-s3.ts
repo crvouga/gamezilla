@@ -146,7 +146,7 @@ class ObjectStoreImplS3 implements ObjectStore {
       // MinIO / older S3-compat reject default flexible checksums (501).
       requestChecksumCalculation: 'WHEN_REQUIRED',
       responseChecksumValidation: 'WHEN_REQUIRED',
-      // Directory-bucket session auth is AWS-only; keep SigV4 for MinIO/B2.
+      // Directory-bucket session auth is AWS-only; keep SigV4 for MinIO/R2.
       disableS3ExpressSessionAuth: true,
     });
   }

@@ -1,20 +1,22 @@
 import { describe, expect, test } from 'bun:test';
 
+import { DEFAULT_TURBO_API } from '../../libs/secrets/src/shared/secrets/turbo-token';
 import {
   flattenCheckAggregators,
   hasRemoteCreds,
   resolveCacheFlag,
+  turboChildEnv,
 } from './turbo-ci-run';
 
 describe('turbo-ci-run cache flags', () => {
   test('hasRemoteCreds requires both token and team', () => {
     expect(hasRemoteCreds({})).toBe(false);
     expect(hasRemoteCreds({ TURBO_TOKEN: 'tok' })).toBe(false);
-    expect(hasRemoteCreds({ TURBO_TEAM: 'crvouga' })).toBe(false);
-    expect(hasRemoteCreds({ TURBO_TOKEN: '  ', TURBO_TEAM: 'crvouga' })).toBe(
+    expect(hasRemoteCreds({ TURBO_TEAM: 'local' })).toBe(false);
+    expect(hasRemoteCreds({ TURBO_TOKEN: '  ', TURBO_TEAM: 'local' })).toBe(
       false
     );
-    expect(hasRemoteCreds({ TURBO_TOKEN: 'tok', TURBO_TEAM: 'crvouga' })).toBe(
+    expect(hasRemoteCreds({ TURBO_TOKEN: 'tok', TURBO_TEAM: 'local' })).toBe(
       true
     );
   });
@@ -34,6 +36,30 @@ describe('turbo-ci-run cache flags', () => {
     expect(resolveCacheFlag({ TURBO_CACHE: 'remote:rw' }, true)).toBe(
       'local:rw,remote:rw'
     );
+  });
+});
+
+describe('turbo-ci-run TURBO_API', () => {
+  test('defaults TURBO_API when remote creds present and API unset', () => {
+    const env = turboChildEnv({
+      TURBO_TOKEN: 'tok',
+      TURBO_TEAM: 'local',
+    });
+    expect(env['TURBO_API']).toBe(DEFAULT_TURBO_API);
+  });
+
+  test('passes through and strips trailing slash on TURBO_API', () => {
+    const env = turboChildEnv({
+      TURBO_TOKEN: 'tok',
+      TURBO_TEAM: 'local',
+      TURBO_API: 'https://turborepo.chrisvouga.dev/',
+    });
+    expect(env['TURBO_API']).toBe(DEFAULT_TURBO_API);
+  });
+
+  test('does not invent TURBO_API without remote creds', () => {
+    const env = turboChildEnv({});
+    expect(env['TURBO_API']).toBeUndefined();
   });
 });
 

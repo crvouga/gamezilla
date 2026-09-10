@@ -26,27 +26,25 @@ import {
  */
 const BOOT_STUCK_MS = 15_000;
 
-export type SyncEngineBootViews = {
-  readonly bootError: Accessor<Error | null>;
-  readonly stuckError: Accessor<Error | null>;
-  readonly ready: Accessor<ReadySyncEngine | null>;
-};
-
 /**
- * Identity-scoped sync engine boot + stuck watchdog. Callers render loading /
- * error / ready from the accessors (never a blank shell on hang).
+ * Open SQLite once fonts have released the paint latch. No extra delay: with
+ * the shell entry kept free of mutation/WASM graphs, first paint settles
+ * before worker fetches without waiting here (sims + LHCI).
  */
-export function useSyncEngineBootViews(args: {
+function useMayOpenDbAfterPaint(): Accessor<boolean> {
+  const latch = useLocalPaintLatch();
+  return () => latch.bootReady();
+}
+
+function useSyncBootPromise(args: {
   readonly userId: Accessor<string>;
+  readonly mayOpenDb: Accessor<boolean>;
   readonly preloadReadyTree: () => Promise<unknown>;
-}): SyncEngineBootViews {
+}): Accessor<Promise<ReadySyncEngine>> {
   const env = useClientEnv();
   const pool = useSyncEnginePool();
   const identity = useLocalIdentity();
   const observability = useObservability();
-  const timers = useTimers();
-  const log = useLogger('sync-engine-boot');
-  const latch = useLocalPaintLatch();
   const fetchFn: SyncApiFetch = instrumentFetch(observability, env.server);
   const availability = originAvailabilityFor(env);
   const auth: SyncClientAuth = {
@@ -54,12 +52,16 @@ export function useSyncEngineBootViews(args: {
     getDeviceId: () => identity.deviceId(),
     getSessionToken: () => identity.sessionToken(),
   };
-
   const databaseName = createMemo(() =>
     env.resolveDatabaseName({ userId: args.userId() })
   );
 
-  const bootPromise = createMemo<Promise<ReadySyncEngine>>(() => {
+  return createMemo<Promise<ReadySyncEngine>>(() => {
+    if (!args.mayOpenDb()) {
+      return new Promise<ReadySyncEngine>(() => {
+        /* pending until post-paint unlock */
+      });
+    }
     const engine = pool.getOrCreate({
       openSqlClient: (openArgs) => env.openSqlClient(openArgs),
       createPubSub: () => env.createPubSub(),
@@ -88,6 +90,31 @@ export function useSyncEngineBootViews(args: {
       await resolved.connect();
       return { engine: resolved, registry };
     });
+  });
+}
+
+export type SyncEngineBootViews = {
+  readonly bootError: Accessor<Error | null>;
+  readonly ready: Accessor<ReadySyncEngine | null>;
+  readonly stuckError: Accessor<Error | null>;
+};
+
+/**
+ * Identity-scoped sync engine boot + stuck watchdog. Callers render loading /
+ * error / ready from the accessors (never a blank shell on hang).
+ */
+export function useSyncEngineBootViews(args: {
+  readonly userId: Accessor<string>;
+  readonly preloadReadyTree: () => Promise<unknown>;
+}): SyncEngineBootViews {
+  const timers = useTimers();
+  const log = useLogger('sync-engine-boot');
+  const latch = useLocalPaintLatch();
+  const mayOpenDb = useMayOpenDbAfterPaint();
+  const bootPromise = useSyncBootPromise({
+    userId: args.userId,
+    mayOpenDb,
+    preloadReadyTree: args.preloadReadyTree,
   });
 
   const boot = createSyncEngineBootState({

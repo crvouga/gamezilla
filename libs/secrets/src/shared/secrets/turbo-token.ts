@@ -3,60 +3,92 @@ import { requireNonEmpty, Secret, type SecretInput } from './secret';
 
 const TEAM_SLUG_RE = /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i;
 
-/**
- * Vercel Remote Cache origin is baked into the turbo CLI, so there is no
- * `TURBO_API` secret — only the scoped access token and the team it belongs to.
- */
-const ARTIFACTS_STATUS_URL = 'https://vercel.com/api/v8/artifacts/status';
+/** Self-hosted Turborepo remote cache origin (no trailing slash). */
+export const DEFAULT_TURBO_API = 'https://turborepo.chrisvouga.dev';
 
-/** Turbo passes `teamId` for `team_…` ids and `slug` for team slugs. */
-function buildArtifactsStatusUrl(team: string): string {
-  const key = team.startsWith('team_') ? 'teamId' : 'slug';
-  return `${ARTIFACTS_STATUS_URL}?${key}=${encodeURIComponent(team)}`;
+function normalizeTurboApiOrigin(value: string, label: string): string {
+  requireNonEmpty(value, label);
+  const trimmed = value.trim().replace(/\/+$/, '');
+  let url: URL;
+  try {
+    url = new URL(trimmed);
+  } catch {
+    throw new Error(`${label} must be a valid URL`);
+  }
+  if (url.protocol !== 'https:') {
+    throw new Error(`${label} must start with https://`);
+  }
+  if (url.pathname !== '' && url.pathname !== '/') {
+    throw new Error(`${label} must be an origin only (no path)`);
+  }
+  if (url.search !== '' || url.hash !== '') {
+    throw new Error(`${label} must be an origin only (no query or hash)`);
+  }
+  return trimmed;
+}
+
+function resolveTurboApiForValidation(input: SecretInput): string {
+  const fromSecrets = (input.secrets.get('TURBO_API') ?? '').trim();
+  if (fromSecrets.length > 0) {
+    return normalizeTurboApiOrigin(fromSecrets, 'TURBO_API');
+  }
+  return DEFAULT_TURBO_API;
+}
+
+async function validateTurboApi(input: SecretInput): Promise<void> {
+  normalizeTurboApiOrigin(input.secretValue, 'TURBO_API');
 }
 
 async function validateTurboToken(input: SecretInput): Promise<void> {
   const value = input.secretValue.trim();
   requireNonEmpty(value, 'TURBO_TOKEN');
-  const team = (input.secrets.get('TURBO_TEAM') ?? '').trim();
-  if (team === '') return;
+  const api = resolveTurboApiForValidation(input);
   try {
-    const res = await cliHttp.fetch(buildArtifactsStatusUrl(team), {
+    const res = await cliHttp.fetch(`${api}/v8/artifacts/status`, {
       headers: { Authorization: `Bearer ${value}` },
     });
     if (res.status === 401 || res.status === 403) {
       throw new Error(
-        `Vercel rejected TURBO_TOKEN for team "${team}" — HTTP ${String(res.status)}. ` +
-          'Mint a scoped access token at https://vercel.com/account/settings/tokens ' +
-          'and make sure its scope covers TURBO_TEAM.'
+        `Self-hosted Turbo cache rejected TURBO_TOKEN — HTTP ${String(res.status)}. ` +
+          `Set TURBO_TOKEN to the shared Bearer token for ${api} ` +
+          '(Vault / Infisical; never commit).'
       );
     }
   } catch (e) {
-    if (e instanceof Error && e.message.startsWith('Vercel')) throw e;
+    if (e instanceof Error && e.message.startsWith('Self-hosted')) throw e;
     if (e instanceof Error && e.message.startsWith('TURBO_TOKEN')) throw e;
     // Network blip — don't fail secret validation on transient errors.
   }
 }
 
+export const TURBO_API = new Secret({
+  name: 'TURBO_API',
+  hint: `Self-hosted Turborepo remote cache origin (${DEFAULT_TURBO_API})`,
+  mirrorToDev: true,
+  validate: validateTurboApi,
+  seed: async () => DEFAULT_TURBO_API,
+});
+
 export const TURBO_TOKEN = new Secret({
   name: 'TURBO_TOKEN',
-  hint: 'Vercel scoped access token (https://vercel.com/account/settings/tokens) for Remote Cache',
+  hint: `Shared Bearer token for self-hosted Turbo remote cache (${DEFAULT_TURBO_API})`,
   mirrorToDev: true,
   validate: validateTurboToken,
 });
 
 export const TURBO_TEAM = new Secret({
   name: 'TURBO_TEAM',
-  hint: 'Vercel team slug that owns the Remote Cache (we use `crvouga`)',
+  hint: 'Team slug required by Turbo CLI (we use `local`)',
   mirrorToDev: true,
   validate: async (input) => {
     const value = input.secretValue.trim();
     if (!TEAM_SLUG_RE.test(value)) {
       throw new Error(
-        `Invalid TURBO_TEAM "${value}" — expected a Vercel team slug (lowercase letters, digits, dashes)`
+        `Invalid TURBO_TEAM "${value}" — expected a team slug (lowercase letters, digits, dashes)`
       );
     }
   },
+  seed: async () => 'local',
 });
 
 export const TURBO_LOG_ORDER = new Secret({
@@ -70,7 +102,7 @@ export const TURBO_LOG_ORDER = new Secret({
 
 export const TURBO_CACHE = new Secret({
   name: 'TURBO_CACHE',
-  hint: 'Always includes Vercel Remote Cache, e.g. local:rw,remote:rw. Remote cannot be disabled.',
+  hint: 'Always includes remote cache, e.g. local:rw,remote:rw. Remote cannot be disabled.',
   optional: true,
   mirrorToDev: true,
   validate: async (input) => {

@@ -64,6 +64,32 @@ async function migrateTurboCacheInAllEnvs(): Promise<void> {
   }
 }
 
+/** Vercel team slug → self-hosted Turbo team slug. */
+async function migrateTurboTeamToLocalInAllEnvs(): Promise<void> {
+  const active = activeSecretsEnv();
+  const next = 'local';
+
+  for (const env of SECRETS_ENVS) {
+    const stored = await exportSecretsMap(env);
+    const current = (stored.get('TURBO_TEAM') ?? '').trim();
+    if (current.length === 0 || current === next) continue;
+    // Only rewrite the known Vercel slug; leave other custom slugs alone.
+    if (current !== 'crvouga') continue;
+
+    try {
+      await setSecretIn(env, 'TURBO_TEAM', next);
+      if (env === active) {
+        process.env['TURBO_TEAM'] = next;
+      }
+      ok('TURBO_TEAM', `migrated secrets env ${env}: crvouga → ${next}`);
+    } catch (e) {
+      console.warn(
+        `TURBO_TEAM migrate (${env}) failed: ${e instanceof Error ? e.message : String(e)}`
+      );
+    }
+  }
+}
+
 /**
  * IdP rename: BETTER_AUTH_SECRET → AUTH_SECRET.
  * Allowlisted for better-auth vocabulary (legacy secret name only).
@@ -123,10 +149,10 @@ async function seedSecrets(): Promise<void> {
 
   try {
     await ensureObjectStoreBuckets();
-    ok('B2 buckets', 'ensured (dev + prd)');
+    ok('R2 buckets', 'ensured (dev + prd)');
   } catch (e) {
     console.warn(
-      `B2 bucket ensure failed: ${e instanceof Error ? e.message : String(e)}`
+      `R2 bucket ensure failed: ${e instanceof Error ? e.message : String(e)}`
     );
   }
 
@@ -159,10 +185,11 @@ async function seedSecrets(): Promise<void> {
   }
 
   await migrateTurboCacheInAllEnvs();
+  await migrateTurboTeamToLocalInAllEnvs();
 
   const storedActive = new Map(await exportSecretsMap(active));
   for (const entry of getSeedableSecrets()) {
-    if (entry.name.startsWith('S3_') || entry.name.startsWith('B2_APP_')) {
+    if (entry.name.startsWith('S3_')) {
       continue;
     }
     if (entry.seedInAllEnvs) {

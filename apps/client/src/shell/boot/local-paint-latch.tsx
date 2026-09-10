@@ -1,12 +1,11 @@
 /** @jsxImportSource solid-js */
 /**
- * Boot paint latch: the product navigator paints only once fonts (system stack
- * / `document.fonts.ready`) and the identity-scoped local SQLite engine are
- * ready. Never waits on network first-sync. Prefer no webfonts on the critical
- * path (see docs/low-end-android-perf.md).
+ * Boot paint latch: the product navigator paints once fonts are ready
+ * (system stack / `document.fonts.ready`). Local SQLite may still be opening
+ * in the background — do **not** block first paint on WASM (low-end Android
+ * bar; see docs/low-end-android-perf.md).
  *
- * The RN latch also waited on the Skia chess canvas warm-up; the chess board
- * port owns that preload when its screen lands.
+ * `markEngineReady` remains for sync boot bookkeeping; it does not gate paint.
  */
 
 import {
@@ -22,8 +21,10 @@ import {
 export type LocalPaintLatchValue = {
   readonly markFontsReady: () => void;
   readonly markEngineReady: () => void;
-  /** True when fonts and the local engine are ready. */
+  /** True when fonts are ready (first paint). Engine readiness is separate. */
   readonly bootReady: Accessor<boolean>;
+  /** True when the local sync engine finished opening (or stuck). */
+  readonly engineReady: Accessor<boolean>;
 };
 
 const LocalPaintLatchContext = createContext<LocalPaintLatchValue>();
@@ -71,7 +72,8 @@ export function LocalPaintLatchProvider(props: {
   const value: LocalPaintLatchValue = {
     markFontsReady: () => setFontsReady(true),
     markEngineReady: () => setEngineReady(true),
-    bootReady: () => fontsReady() && engineReady(),
+    bootReady: () => fontsReady(),
+    engineReady: () => engineReady(),
   };
 
   return (

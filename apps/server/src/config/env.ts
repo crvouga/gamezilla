@@ -25,8 +25,8 @@ export type ApiWorkerEnv = {
   ELEVEN_LABS_API_KEY?: string;
   OPENAI_API_KEY?: string;
   OPENAI_BASE_URL?: string;
-  B2_APP_KEY_ID?: string;
-  B2_APP_KEY?: string;
+  S3_ACCESS_KEY_ID?: string;
+  S3_SECRET_ACCESS_KEY?: string;
   S3_BUCKET?: string;
   S3_ENDPOINT?: string;
   S3_REGION?: string;

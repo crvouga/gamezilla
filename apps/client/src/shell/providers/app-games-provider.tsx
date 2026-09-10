@@ -1,26 +1,64 @@
 /** @jsxImportSource solid-js */
 /**
- * Lazy-loads game plugins so chess UI stays off the low-end Android critical
- * path (see docs/low-end-android-perf.md).
+ * Always mounts {@link GamesBootstrapFromPlugins} so shell chrome that opens
+ * space rooms (`SpaceOpenRoomsProvider`, miniplayer) has `SpaceModuleProvider`.
+ *
+ * Heavy `@libs/games/game-plugins.client` still loads only under `/space/*`
+ * (see docs/low-end-android-perf.md). Empty registries cover non-space routes.
  */
-import { GamesBootstrapFromPlugins } from '@libs/spaces/root/client/module/games-bootstrap-from-plugins';
-import { createResource, type JSX, Show } from 'solid-js';
-import { BootLoadingShell } from '../boot/boot-loading-shell';
+import {
+  GamesBootstrapFromPlugins,
+  type GamesBootstrapFromPluginsProps,
+} from '@libs/spaces/root/client/module/games-bootstrap-from-plugins';
+import { useLocation } from '@solidjs/router';
+import {
+  createEffect,
+  createMemo,
+  createResource,
+  createSignal,
+  type JSX,
+  Show,
+} from 'solid-js';
+
+type GameRegistry = Pick<GamesBootstrapFromPluginsProps, 'games' | 'clients'>;
+
+const EMPTY_REGISTRY: GameRegistry = {
+  games: [],
+  clients: [],
+};
 
 export function AppGamesProvider(props: {
   readonly children: JSX.Element;
 }): JSX.Element {
-  const [plugins] = createResource(
-    () => import('@libs/games/game-plugins.client')
+  const location = useLocation();
+  const onSpaceRoute = createMemo(() =>
+    location.pathname.startsWith('/space/')
   );
+  const [plugins] = createResource(onSpaceRoute, async (load) => {
+    if (!load) return null;
+    const mod = await import('@libs/games/game-plugins.client');
+    return {
+      games: mod.GAME_DEFINITIONS,
+      clients: mod.GAME_CLIENT_DEFINITIONS,
+    } satisfies GameRegistry;
+  });
 
+  // Retain the last successful registry across navigations away from `/space/*`
+  // (`createResource` clears when the source goes falsy).
+  const [held, setHeld] = createSignal<GameRegistry | null>(null);
+  createEffect(() => {
+    const current = plugins();
+    if (current != null) setHeld(current);
+  });
+
+  const registry = createMemo((): GameRegistry => held() ?? EMPTY_REGISTRY);
+
+  // `GamesBootstrapFromPlugins` reads games/clients once (untrack). Key so
+  // empty → loaded remounts with the real registry.
   return (
-    <Show when={plugins()} fallback={<BootLoadingShell />} keyed>
-      {(mod) => (
-        <GamesBootstrapFromPlugins
-          games={mod.GAME_DEFINITIONS}
-          clients={mod.GAME_CLIENT_DEFINITIONS}
-        >
+    <Show when={registry()} keyed>
+      {(reg) => (
+        <GamesBootstrapFromPlugins games={reg.games} clients={reg.clients}>
           {props.children}
         </GamesBootstrapFromPlugins>
       )}

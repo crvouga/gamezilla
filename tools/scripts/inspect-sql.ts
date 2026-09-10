@@ -62,16 +62,8 @@ export function toDuckdbS3Endpoint(endpoint: string): string {
 export function readS3FromMap(
   map: ReadonlyMap<string, string>
 ): S3Config | null {
-  const accessKeyId = (
-    map.get('S3_ACCESS_KEY_ID') ??
-    map.get('B2_APP_KEY_ID') ??
-    ''
-  ).trim();
-  const secretAccessKey = (
-    map.get('S3_SECRET_ACCESS_KEY') ??
-    map.get('B2_APP_KEY') ??
-    ''
-  ).trim();
+  const accessKeyId = (map.get('S3_ACCESS_KEY_ID') ?? '').trim();
+  const secretAccessKey = (map.get('S3_SECRET_ACCESS_KEY') ?? '').trim();
   const region = (map.get('S3_REGION') ?? '').trim();
   if (
     accessKeyId.length === 0 ||

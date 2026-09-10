@@ -34,7 +34,7 @@ export type SynthesizeWithCacheDeps = {
 /**
  * Cache-then-generate orchestration. Pure function over the {@link TtsProvider}
  * port and the {@link ObjectStore} interface — never imports a concrete
- * adapter, so the same code runs against B2 in production and an in-memory
+ * adapter, so the same code runs against R2 in production and an in-memory
  * store in tests.
  *
  * Algorithm:

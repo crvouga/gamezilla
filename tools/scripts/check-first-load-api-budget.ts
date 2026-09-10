@@ -4,8 +4,6 @@
  * Sum first-load API response bodies observed by the perf API stub
  * (or a real origin) during a Playwright/Chrome cold load.
  *
- * For the stub harness, instruments the stub itself via a shared counter file.
- *
  * usage: check-first-load-api-budget.ts --budget=<perf-budget.json> [--bytes=<n>]
  */
 import { join } from 'node:path';
@@ -21,13 +19,16 @@ export function assertFirstLoadApiBytes(args: {
   readonly totalBytes: number;
   readonly budgetKb: number;
   readonly mode: 'warn' | 'error';
-}): boolean {
+}): 'ok' | 'warn' | 'fail' {
   const totalKb = kb(args.totalBytes);
+  const over = totalKb > args.budgetKb;
   return reportGate({
     tag: 'first-load-api',
     mode: args.mode,
-    over: totalKb > args.budgetKb,
-    message: `boot API transfer ${totalKb.toFixed(1)} KB > firstLoadApi.totalGzipKb ${String(args.budgetKb)}`,
+    over,
+    message: over
+      ? `boot API transfer ${totalKb.toFixed(1)} KB exceeds firstLoadApi.totalGzipKb ${String(args.budgetKb)}`
+      : `boot API transfer ${totalKb.toFixed(1)} KB within firstLoadApi.totalGzipKb ${String(args.budgetKb)}`,
   });
 }
 
@@ -51,12 +52,12 @@ function main(): void {
     console.error('[first-load-api] bad --bytes');
     process.exit(2);
   }
-  const failed = assertFirstLoadApiBytes({
+  const result = assertFirstLoadApiBytes({
     totalBytes,
     budgetKb: budget.firstLoadApi.totalGzipKb,
     mode: budget.firstLoadApi.mode,
   });
-  if (failed) process.exit(1);
+  if (result === 'fail') process.exit(1);
 }
 
 if (import.meta.main) main();

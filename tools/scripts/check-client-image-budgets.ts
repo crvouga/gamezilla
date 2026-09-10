@@ -57,13 +57,16 @@ function main(): void {
       const sizeKb = kb(statSync(abs).size);
       const rel = relative(REPO_ROOT, abs);
       if (sizeKb > budget.images.assetHardMaxRawKb) {
-        failed =
+        if (
           reportGate({
             tag: 'image-budget',
             mode: budget.images.mode,
             over: true,
             message: `${rel} ${sizeKb.toFixed(1)} KB > images.assetHardMaxRawKb ${String(budget.images.assetHardMaxRawKb)}`,
-          }) || failed;
+          }) === 'fail'
+        ) {
+          failed = true;
+        }
         continue;
       }
       if (
@@ -71,13 +74,16 @@ function main(): void {
         sizeKb > budget.images.assetPngJpegMaxRawKb &&
         !hasModernSibling(abs)
       ) {
-        failed =
+        if (
           reportGate({
             tag: 'image-budget',
             mode: budget.images.mode,
             over: true,
             message: `${rel} ${sizeKb.toFixed(1)} KB PNG/JPEG > images.assetPngJpegMaxRawKb ${String(budget.images.assetPngJpegMaxRawKb)} without sibling .webp/.avif`,
-          }) || failed;
+          }) === 'fail'
+        ) {
+          failed = true;
+        }
       }
     }
   }

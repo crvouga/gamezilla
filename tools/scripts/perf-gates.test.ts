@@ -17,6 +17,7 @@ import {
   findBannedFetches,
   median,
   mediansFromLhrs,
+  urlMatchesBannedPattern,
 } from './lighthouse-report';
 
 const MANIFEST: Manifest = {
@@ -103,23 +104,51 @@ describe('lighthouse-report', () => {
     expect(overs.some((m) => m.includes('LCP'))).toBe(true);
   });
 
-  test('findBannedFetches matches patterns', () => {
+  test('findBannedFetches matches patterns before LCP only', () => {
     const hits = findBannedFetches({
       lhr: {
         audits: {
+          'largest-contentful-paint': { numericValue: 1000 },
           'network-requests': {
             details: {
               items: [
-                { url: 'https://x/assets/game-plugins-abc.js' },
-                { url: 'https://x/assets/ok.js' },
+                {
+                  url: 'https://x/assets/game-plugins-abc.js',
+                  networkRequestTime: 100,
+                },
+                {
+                  url: 'https://x/assets/chess-sound-urls.js',
+                  networkRequestTime: 100,
+                },
+                {
+                  url: 'https://x/sql-workers/sqlite3.wasm',
+                  networkRequestTime: 5000,
+                },
+                {
+                  url: 'https://x/sql-workers/sqlite-worker.js',
+                  // no timing → ignored
+                },
+                { url: 'https://x/assets/ok.js', networkRequestTime: 50 },
               ],
             },
           },
         },
       },
-      patterns: ['game-plugins', '.wasm'],
+      patterns: ['game-plugins', 'sql-workers', '.wasm', 'sqlite3'],
     });
     expect(hits).toEqual(['https://x/assets/game-plugins-abc.js']);
+  });
+
+  test('urlMatchesBannedPattern segment rules', () => {
+    expect(
+      urlMatchesBannedPattern(
+        'http://x/assets/game-plugins-abc.js',
+        'game-plugins'
+      )
+    ).toBe(true);
+    expect(
+      urlMatchesBannedPattern('http://x/sql-workers/sqlite3.wasm', '.wasm')
+    ).toBe(true);
   });
 });
 
@@ -155,6 +184,7 @@ function f(): import('./types').Foo { return null as never; }
     expect(hits.some((h) => h.specifier === './types')).toBe(false);
   });
 });
+
 describe('index-html scripts + first-load api', () => {
   test('collectExternalScriptSrcs ignores module entry', () => {
     const html = `<script type="module" src="/src/main.tsx"></script>
@@ -165,11 +195,11 @@ describe('index-html scripts + first-load api', () => {
   });
 
   test('assertFirstLoadApiBytes warn does not hard-fail', () => {
-    const failed = assertFirstLoadApiBytes({
+    const result = assertFirstLoadApiBytes({
       totalBytes: 200_000,
       budgetKb: 50,
       mode: 'warn',
     });
-    expect(failed).toBe(false);
+    expect(result).toBe('warn');
   });
 });

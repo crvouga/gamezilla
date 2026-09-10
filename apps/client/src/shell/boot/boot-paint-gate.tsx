@@ -1,9 +1,8 @@
 /** @jsxImportSource solid-js */
 /**
- * Blocks the product navigator until fonts and local SQLite are ready.
- * Providers above this gate still mount so they can mark the latch. The
- * global action menu stays on a `TopBar` during the gate so chrome is never
- * absent once `AppFrameChromeProvider` is mounted.
+ * Blocks the product navigator until fonts are ready. Local SQLite may still
+ * be opening underneath — providers above this gate still mount so they can
+ * mark the latch. The global action menu stays on a `TopBar` during the gate.
  */
 
 import { useLingui } from '@lingui/solid/macro';

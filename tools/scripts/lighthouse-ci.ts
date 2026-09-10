@@ -27,6 +27,7 @@ import {
   loadPerfBudget,
   type PerfBudget,
   parseBudgetPath,
+  printCheckVerdict,
   reportGate,
 } from './perf-budget';
 
@@ -149,8 +150,17 @@ async function runLhci(configPath: string): Promise<number> {
   });
 }
 
-function assertAll(budget: PerfBudget, lhrs: readonly LhrLike[]): boolean {
-  let failed = false;
+function assertAll(
+  budget: PerfBudget,
+  lhrs: readonly LhrLike[]
+): { warnCount: number; failCount: number } {
+  let warnCount = 0;
+  let failCount = 0;
+  const tally = (r: 'ok' | 'warn' | 'fail'): void => {
+    if (r === 'warn') warnCount += 1;
+    if (r === 'fail') failCount += 1;
+  };
+
   const byPath = new Map<string, LhrLike[]>();
   for (const lhr of lhrs) {
     const url = lhr.finalUrl ?? lhr.requestedUrl ?? '';
@@ -163,13 +173,14 @@ function assertAll(budget: PerfBudget, lhrs: readonly LhrLike[]): boolean {
   for (const route of budget.lighthouse.routes) {
     const group = byPath.get(route.path) ?? [];
     if (group.length === 0) {
-      const over = reportGate({
-        tag: 'lighthouse',
-        mode: budget.lighthouse.mode,
-        over: true,
-        message: `no LHR for route ${route.path}`,
-      });
-      if (over) failed = true;
+      tally(
+        reportGate({
+          tag: 'lighthouse',
+          mode: budget.lighthouse.mode,
+          over: true,
+          message: `no LHR for route ${route.path}`,
+        })
+      );
       continue;
     }
     const medians = mediansFromLhrs(group);
@@ -183,13 +194,14 @@ function assertAll(budget: PerfBudget, lhrs: readonly LhrLike[]): boolean {
       medians,
       budget: metrics,
     })) {
-      const over = reportGate({
-        tag: 'lighthouse',
-        mode: budget.lighthouse.mode,
-        over: true,
-        message: msg,
-      });
-      if (over) failed = true;
+      tally(
+        reportGate({
+          tag: 'lighthouse',
+          mode: budget.lighthouse.mode,
+          over: true,
+          message: msg,
+        })
+      );
     }
 
     if (route.id === 'shell') {
@@ -198,17 +210,18 @@ function assertAll(budget: PerfBudget, lhrs: readonly LhrLike[]): boolean {
         patterns: budget.lighthouse.bannedFetchBeforeInteraction,
       });
       for (const url of banned) {
-        const over = reportGate({
-          tag: 'lighthouse',
-          mode: budget.lighthouse.mode,
-          over: true,
-          message: `banned fetch before interaction on /: ${url}`,
-        });
-        if (over) failed = true;
+        tally(
+          reportGate({
+            tag: 'lighthouse',
+            mode: budget.lighthouse.mode,
+            over: true,
+            message: `banned fetch before LCP on /: ${url}`,
+          })
+        );
       }
     }
   }
-  return failed;
+  return { warnCount, failCount };
 }
 
 async function ensureClientBuild(
@@ -264,20 +277,31 @@ async function main(): Promise<void> {
     writeLighthouserc({ budget, urls, outPath: configPath, skipUpload });
     const code = await runLhci(configPath);
     const lhrs = loadLhrs(LHCI_OUT);
-    let assertFailed = assertAll(budget, lhrs);
-    assertFailed =
-      assertFirstLoadApiBytes({
-        totalBytes: api.totalResponseBytes(),
-        budgetKb: budget.firstLoadApi.totalGzipKb,
-        mode: budget.firstLoadApi.mode,
-      }) || assertFailed;
-    if (budget.lighthouse.mode === 'warn') {
-      console.log(
-        `[lighthouse] mode=warn — lhci exit ${String(code)}; assert overs do not fail CI`
+    const asserted = assertAll(budget, lhrs);
+    const apiResult = assertFirstLoadApiBytes({
+      totalBytes: api.totalResponseBytes(),
+      budgetKb: budget.firstLoadApi.totalGzipKb,
+      mode: budget.firstLoadApi.mode,
+    });
+    let warnCount = asserted.warnCount;
+    let failCount = asserted.failCount;
+    if (apiResult === 'warn') warnCount += 1;
+    if (apiResult === 'fail') failCount += 1;
+    if (code !== 0 && budget.lighthouse.mode === 'error') {
+      failCount += 1;
+    } else if (code !== 0) {
+      warnCount += 1;
+      console.warn(
+        `[lighthouse] WARN: lhci autorun exited ${String(code)} (mode=warn)`
       );
-      process.exit(0);
     }
-    if (assertFailed || code !== 0) process.exit(1);
+    printCheckVerdict({
+      tag: 'lighthouse',
+      mode: budget.lighthouse.mode,
+      warnCount,
+      failCount,
+      extra: `${String(lhrs.length)} LHR(s)`,
+    });
   } finally {
     preview.stop();
     api.stop();

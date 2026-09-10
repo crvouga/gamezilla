@@ -328,19 +328,46 @@ export function reportGate(args: {
   readonly mode: GateMode;
   readonly over: boolean;
   readonly message: string;
-}): boolean {
+}): 'ok' | 'warn' | 'fail' {
   if (!args.over) {
     console.log(`[${args.tag}] OK: ${args.message}`);
-    return false;
+    return 'ok';
   }
-  const line = `[${args.tag}] ${args.mode === 'warn' ? 'WARN' : 'OVER'}: ${args.message}`;
+  const line = `[${args.tag}] ${args.mode === 'warn' ? 'WARN' : 'FAIL'}: ${args.message}`;
   if (args.mode === 'warn') {
     console.warn(line);
     if (process.env['GITHUB_ACTIONS'] === 'true') {
       console.warn(`::warning::${args.message}`);
     }
-    return false;
+    return 'warn';
   }
   console.error(line);
-  return true;
+  return 'fail';
+}
+
+export function printCheckVerdict(args: {
+  readonly tag: string;
+  readonly mode: GateMode;
+  readonly warnCount: number;
+  readonly failCount: number;
+  readonly extra?: string | undefined;
+}): never {
+  const extra = args.extra !== undefined ? ` — ${args.extra}` : '';
+  const bar = '═'.repeat(56);
+  if (args.failCount > 0) {
+    console.error(
+      `\n${bar}\n[${args.tag}] RESULT: FAILED\n  failures=${String(args.failCount)}  warnings=${String(args.warnCount)}  mode=${args.mode}${extra}\n${bar}\n`
+    );
+    process.exit(1);
+  }
+  if (args.warnCount > 0) {
+    console.warn(
+      `\n${bar}\n[${args.tag}] RESULT: PASSED WITH WARNINGS\n  warnings=${String(args.warnCount)}  mode=${args.mode}${extra}\n${bar}\n`
+    );
+    process.exit(0);
+  }
+  console.log(
+    `\n${bar}\n[${args.tag}] RESULT: PASSED\n  mode=${args.mode}${extra}\n${bar}\n`
+  );
+  process.exit(0);
 }

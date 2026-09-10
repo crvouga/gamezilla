@@ -4,7 +4,6 @@
  * watch snapshots notify synchronously (no transition scheduling).
  */
 
-import { APP_MUTATIONS } from '@apps/client/sync/app-mutations';
 import { APP_QUERIES } from '@apps/client/sync/app-queries';
 import {
   createClientPubSub,
@@ -38,6 +37,7 @@ import {
   createLocalSyncEngine,
   type SyncEngine,
 } from '@pkgs/sync-engine/client';
+import type { MutationRegistry } from '@pkgs/sync-engine/shared';
 import type { CreateId, Random } from '@pkgs/uuid/create-id';
 import { openMainSqlClient } from '../storage/open-main-sql-client';
 import { createAppSyncLifecycle } from './app-sync-lifecycle';
@@ -73,6 +73,8 @@ export type CreateAppLocalSyncEngineArgs = {
   readonly timers: Timers;
   readonly createId: CreateId;
   readonly random: Random;
+  /** Product mutation registry (loaded by the pool with this module). */
+  readonly mutationRegistry: MutationRegistry;
   /** Sim override; defaults to the OPFS broker client. */
   readonly openSqlClient?: OpenSqlClient | undefined;
   /** Sim override; defaults to EMQX from client_config URL. */
@@ -81,6 +83,12 @@ export type CreateAppLocalSyncEngineArgs = {
     | ((signal?: AbortSignal | null) => Promise<void>)
     | undefined;
 };
+
+/** Pool callers omit `mutationRegistry` — the pool loads it with the engine. */
+export type CreateAppLocalSyncEnginePoolArgs = Omit<
+  CreateAppLocalSyncEngineArgs,
+  'mutationRegistry'
+>;
 
 function mutationEnv(args: CreateAppLocalSyncEngineArgs) {
   const actorId = args.auth.getAccountId() ?? args.userId;
@@ -213,7 +221,7 @@ function buildEngine(
       domainSchema: appSchema,
       cacheTableNames: LOCAL_DOMAIN_TABLE_NAMES,
     },
-    mutationRegistry: APP_MUTATIONS,
+    mutationRegistry: args.mutationRegistry,
     getMutationEnv: () => mutationEnv(args),
     getClientId: () => args.auth.getDeviceId() ?? args.databaseName,
     sessionQueries: sessionQuerySpecs(),

@@ -4,6 +4,10 @@
  * Rendered as the router `root`, so `props.children` is the route outlet.
  * Production and sims mount the same component; embedded hosts (multi-App
  * product-simulator) get a `MemoryRouter` from `createClient` instead of the URL.
+ *
+ * Paint order (low-end Android): fonts gate → AppFrame chrome → session/SQLite.
+ * Sync boot may still show {@link BootLoadingShell} inside the frame; it must
+ * not block the frame itself (see docs/low-end-android-perf.md).
  */
 
 import { OriginAvailabilityProvider } from '@pkgs/http-client/solid';
@@ -12,12 +16,15 @@ import { type JSX, onCleanup, onMount } from 'solid-js';
 
 import { AppHeaderGlobalMenu } from '../chrome/app-header-global-menu';
 import { AppHeaderIslandHost } from '../chrome/app-header-island';
-import { OfflineIndicator } from '../chrome/offline-indicator';
 import { BootPaintGate } from './boot/boot-paint-gate';
 import { useClientEnv } from './client-env-context';
 import { originAvailabilityFor } from './origin-availability-for-env';
-import { AppProviders } from './providers/app-providers';
+import {
+  AppProvidersOuter,
+  AppProvidersSession,
+} from './providers/app-providers';
 import { RootErrorBoundary } from './root-error-boundary';
+import { SyncStatusRoot } from './sync/sync-status-context';
 
 export type ProductAppProps = {
   /** Multi-App product-simulator: in-memory router, no document-level shortcuts. */
@@ -37,16 +44,17 @@ export function ProductApp(props: ProductAppProps): JSX.Element {
     <OriginAvailabilityProvider value={availability}>
       <RootErrorBoundary>
         <AppRouterProvider>
-          <AppProviders embedded={props.embedded}>
-            <AppFrameChromeProvider globalTrailing={<AppHeaderGlobalMenu />}>
-              <BootPaintGate>
-                <AppFrame header={<AppHeaderIslandHost />}>
-                  <OfflineIndicator />
-                  {props.children}
-                </AppFrame>
-              </BootPaintGate>
-            </AppFrameChromeProvider>
-          </AppProviders>
+          <AppProvidersOuter embedded={props.embedded}>
+            <SyncStatusRoot>
+              <AppFrameChromeProvider globalTrailing={<AppHeaderGlobalMenu />}>
+                <BootPaintGate>
+                  <AppFrame header={<AppHeaderIslandHost />}>
+                    <AppProvidersSession>{props.children}</AppProvidersSession>
+                  </AppFrame>
+                </BootPaintGate>
+              </AppFrameChromeProvider>
+            </SyncStatusRoot>
+          </AppProvidersOuter>
         </AppRouterProvider>
       </RootErrorBoundary>
     </OriginAvailabilityProvider>

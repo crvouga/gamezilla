@@ -16,6 +16,7 @@ export type LhrLike = {
         items?: readonly {
           url?: string;
           networkRequestTime?: number;
+          rendererStartTime?: number;
           startTime?: number;
         }[];
       };
@@ -78,30 +79,61 @@ export function assertRouteMetrics(args: {
     ['totalByteWeightKb', 'totalByteWeightKb', 'total-byte-weight'],
     ['cls', 'cls', 'CLS'],
   ];
+  const metricKey = args.routeId === 'shell' ? 'shell' : 'default';
   for (const [medKey, budKey, label] of checks) {
     const actual = args.medians[medKey];
     const limit = args.budget[budKey];
     if (!Number.isFinite(actual)) continue;
     if (actual > limit) {
       overs.push(
-        `route ${args.path} (${args.routeId}) median ${label} ${actual.toFixed(1)} > lighthouse.metrics.${args.routeId === 'shell' ? 'shell' : 'default'}.${budKey} ${String(limit)}`
+        `route ${args.path} (${args.routeId}) median ${label} ${actual.toFixed(1)} > lighthouse.metrics.${metricKey}.${budKey} ${String(limit)}`
       );
     }
   }
   return overs;
 }
 
+/** True when `url` matches a banned pattern as a path segment / extension. */
+export function urlMatchesBannedPattern(url: string, pattern: string): boolean {
+  const norm = url.toLowerCase();
+  const p = pattern.toLowerCase();
+  if (p.startsWith('.') && !p.includes('/')) {
+    return norm.includes(p);
+  }
+  if (p.includes('/') || p.includes('.')) {
+    return norm.includes(p);
+  }
+  // Word-ish segment: `/pattern`, `-pattern-`, `pattern.`, or ends with pattern
+  const re = new RegExp(
+    `(?:^|[/._-])${p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:[/._-]|$)`,
+    'i'
+  );
+  return re.test(norm);
+}
+
+/**
+ * Banned URLs that started at or before first paint (LCP), approximating
+ * "before first interaction" on a cold load without a synthetic click.
+ */
 export function findBannedFetches(args: {
   readonly lhr: LhrLike;
   readonly patterns: readonly string[];
 }): string[] {
+  const lcp = metricValue(args.lhr, 'largest-contentful-paint');
+  const cutoffMs =
+    lcp !== null && Number.isFinite(lcp) ? lcp : Number.POSITIVE_INFINITY;
   const items = args.lhr.audits?.['network-requests']?.details?.items ?? [];
   const hits: string[] = [];
   for (const item of items) {
     const url = item.url ?? '';
-    const norm = url.toLowerCase();
+    if (url.length === 0) continue;
+    const start =
+      item.networkRequestTime ?? item.startTime ?? item.rendererStartTime;
+    // Missing timing → skip (do not treat as pre-LCP).
+    if (typeof start !== 'number' || !Number.isFinite(start)) continue;
+    if (start > cutoffMs) continue;
     for (const p of args.patterns) {
-      if (norm.includes(p.toLowerCase())) {
+      if (urlMatchesBannedPattern(url, p)) {
         hits.push(url);
         break;
       }

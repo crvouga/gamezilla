@@ -20,4 +20,4 @@ if (!isProductionSecretsEnv()) {
 }
 
 await ensureObjectStoreBuckets();
-ok('B2 buckets', 'ensured (dev + prd)');
+ok('R2 buckets', 'ensured (dev + prd)');

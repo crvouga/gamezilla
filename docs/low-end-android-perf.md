@@ -12,7 +12,7 @@ Config: [`apps/client/perf-budget.json`](../apps/client/perf-budget.json) (schem
 | --- | --- |
 | Assets | HTML + initial CSS/JS/fonts/images on the Vite **static** entry graph |
 | Boot API | `/api/health`, identity ensure/refresh, first `POST /api/query` session batch — compressed transfer budgeted under `firstLoadApi` |
-| Must not fetch before first interaction | `sqlite` / `.wasm` / `sql-workers` / `chess` / `game-plugins` (Lighthouse network backstop) |
+| Must not fetch before LCP | `sql-workers` / `.wasm` / `sqlite3` / `game-plugins` (Lighthouse network backstop; SQLite open is deferred until after first paint) |
 
 **Do not “fix” a red static gate by converting a static import into an eager `import()`** (module top-level or shell `createResource` / `useEffect` on mount). The critical-path walker flags denylisted dynamic imports in the initial closure; Lighthouse asserts they are not fetched on `/` before interaction.
 
@@ -85,7 +85,16 @@ In-app perf HUD (`apps/client/src/shell/perf/`) remains diagnostic-only (shows `
 
 ## Known product hot spot
 
-[`AppGamesProvider`](../apps/client/src/shell/providers/app-games-provider.tsx) eagerly `import()`s `@libs/games/game-plugins.client` on mount. Static analysis warns; runtime banned-fetch should catch network cost. Follow-up: defer games until Spaces needs plugins (separate PR).
+Shell cold load keeps mutation hubs, DiceBear, SQLite WASM, and game-plugins **off** the entry graph:
+
+- Vite `build.modulePreload` does not inject HTML preloads for dynamic-import targets
+- [`ProductApp`](../apps/client/src/shell/product-app.tsx) paints `AppFrame` outside SQLite boot
+- [`TabsLayout`](../apps/client/src/routes/tabs-layout.tsx) lazy-loads `SpaceMiniplayer`
+- [`AppGamesProvider`](../apps/client/src/shell/providers/app-games-provider.tsx) wraps the sync ready tree (empty bootstrap always; game-plugins only under `/space/*`) so open-room slots see `SpaceModuleProvider`
+- Sync-engine Solid bridges + leave/end modals live in `sync-engine-ready-tree.tsx` (lazy with the engine)
+- [`DeviceAvatar`](../libs/profile/src/public/device-avatar.tsx) lazy-loads DiceBear only when a config exists
+
+Post-paint SQLite open is delayed after fonts so LCP is not blocked on `sql-workers`.
 
 ## How to run locally
 

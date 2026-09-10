@@ -28,8 +28,8 @@ function applyEnv(): void {
   process.env['S3_ENDPOINT'] = MINIO_ENDPOINT;
   process.env['S3_BUCKET'] = MINIO_BUCKET;
   process.env['S3_REGION'] = MINIO_REGION;
-  process.env['B2_APP_KEY_ID'] = MINIO_ROOT_USER;
-  process.env['B2_APP_KEY'] = MINIO_ROOT_PASSWORD;
+  process.env['S3_ACCESS_KEY_ID'] = MINIO_ROOT_USER;
+  process.env['S3_SECRET_ACCESS_KEY'] = MINIO_ROOT_PASSWORD;
   process.env['EMQX_JWT_SECRET'] = EMQX_JWT_SECRET;
   process.env['EMQX_API_KEY'] = EMQX_API_KEY;
   process.env['EMQX_API_SECRET'] = EMQX_API_SECRET;

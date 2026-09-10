@@ -5,7 +5,7 @@ export const MINIO_CONSOLE_PORT = 9001;
 
 export const MINIO_LOCAL_PORTS = [MINIO_API_PORT, MINIO_CONSOLE_PORT] as const;
 
-/** Root credentials — written into `@apps/server` `.dev.vars` as B2_APP_* / S3_*. */
+/** Root credentials — written into `@apps/server` `.dev.vars` as S3_*. */
 export const MINIO_ROOT_USER = 'minioadmin';
 export const MINIO_ROOT_PASSWORD = 'minioadmin';
 

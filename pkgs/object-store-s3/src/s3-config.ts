@@ -1,7 +1,7 @@
 /** Secret names for S3-compatible object storage. */
 export const S3SecretName = {
-  accessKeyId: 'B2_APP_KEY_ID',
-  secretAccessKey: 'B2_APP_KEY',
+  accessKeyId: 'S3_ACCESS_KEY_ID',
+  secretAccessKey: 'S3_SECRET_ACCESS_KEY',
   bucket: 'S3_BUCKET',
   endpoint: 'S3_ENDPOINT',
   region: 'S3_REGION',

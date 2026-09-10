@@ -112,7 +112,7 @@ export function DebuggerShell(input: DebuggerShellProps): JSX.Element {
             ) : null}
           </>
         )}
-        {props.unifiedNodes === undefined && props.views.length > 1 ? (
+        {props.views.length > 1 ? (
           <TabStrip
             aria-label="Views"
             items={props.views.map((v) => debuggerViewTabItem(v))}

@@ -1,5 +1,5 @@
 /**
- * Memoized per-env object-store secret seed: ensure B2 bucket + mint app key
+ * Memoized per-env object-store secret seed: ensure R2 bucket + mint S3 token
  * once, then each Secret.seed() picks its field.
  */
 
@@ -9,14 +9,12 @@ import {
   PRODUCTION_SECRETS_ENV,
 } from '@pkgs/database-url-policy';
 import {
-  authorizeB2FromEnv,
-  type B2Auth,
-  type B2S3Credentials,
-  b2S3Region,
-  clearB2AuthCache,
-  ensureB2Bucket,
-  mintB2S3Credentials,
-} from '@pkgs/object-store-s3/b2-api';
+  ensureR2Bucket,
+  mintR2S3Credentials,
+  R2_S3_REGION,
+  r2S3Endpoint,
+  resolveR2ProvisionAuth,
+} from '@pkgs/object-store-s3/r2-api';
 import type { SecretsEnv } from './secrets/secret';
 import { setSecretIn } from './secrets/secrets-io';
 
@@ -44,8 +42,8 @@ function matchesTarget(
     (stored.get('S3_BUCKET') ?? '').trim() === target.bucket &&
     (stored.get('S3_ENDPOINT') ?? '').trim() === target.endpoint &&
     (stored.get('S3_REGION') ?? '').trim() === target.region &&
-    (stored.get('B2_APP_KEY_ID') ?? '').trim().length > 0 &&
-    (stored.get('B2_APP_KEY') ?? '').trim().length > 0
+    (stored.get('S3_ACCESS_KEY_ID') ?? '').trim().length > 0 &&
+    (stored.get('S3_SECRET_ACCESS_KEY') ?? '').trim().length > 0
   );
 }
 
@@ -56,46 +54,29 @@ async function writeSeeded(
   await setSecretIn(env, 'S3_BUCKET', seeded.bucket);
   await setSecretIn(env, 'S3_ENDPOINT', seeded.endpoint);
   await setSecretIn(env, 'S3_REGION', seeded.region);
-  await setSecretIn(env, 'B2_APP_KEY_ID', seeded.accessKeyId);
-  await setSecretIn(env, 'B2_APP_KEY', seeded.secretAccessKey);
-  // AWS-style aliases for DuckDB / tools that expect S3_* key names.
   await setSecretIn(env, 'S3_ACCESS_KEY_ID', seeded.accessKeyId);
   await setSecretIn(env, 'S3_SECRET_ACCESS_KEY', seeded.secretAccessKey);
 }
 
-/** Copy B2 app keys into S3_* aliases when missing or stale (no remint). */
-async function ensureAwsStyleAliases(
-  env: SecretsEnv,
-  seeded: SeededObjectStoreS3,
-  stored: ReadonlyMap<string, string>
-): Promise<void> {
-  const accessKeyId = (stored.get('S3_ACCESS_KEY_ID') ?? '').trim();
-  const secretAccessKey = (stored.get('S3_SECRET_ACCESS_KEY') ?? '').trim();
-  if (accessKeyId !== seeded.accessKeyId) {
-    await setSecretIn(env, 'S3_ACCESS_KEY_ID', seeded.accessKeyId);
-  }
-  if (secretAccessKey !== seeded.secretAccessKey) {
-    await setSecretIn(env, 'S3_SECRET_ACCESS_KEY', seeded.secretAccessKey);
-  }
-}
-
 async function mintAndWrite(
   env: SecretsEnv,
-  auth: B2Auth
+  accountId: string,
+  apiToken: string
 ): Promise<SeededObjectStoreS3> {
   const bucket = bucketForEnv(env);
-  const bucketId = await ensureB2Bucket(auth, bucket);
-  const credentials: B2S3Credentials = await mintB2S3Credentials({
-    auth,
-    bucketId,
-    keyName: `gamezilla-s3-${env}`,
+  await ensureR2Bucket(accountId, apiToken, bucket);
+  const credentials = await mintR2S3Credentials({
+    accountId,
+    apiToken,
+    bucket,
+    tokenName: `gamezilla-s3-${env}`,
   });
   const seeded: SeededObjectStoreS3 = {
     accessKeyId: credentials.accessKeyId,
     secretAccessKey: credentials.secretAccessKey,
     bucket,
-    endpoint: auth.s3ApiUrl,
-    region: b2S3Region(auth.s3ApiUrl),
+    endpoint: r2S3Endpoint(accountId),
+    region: R2_S3_REGION,
   };
   await writeSeeded(env, seeded);
   return seeded;
@@ -109,20 +90,19 @@ export function seedObjectStoreS3ForEnv(
   if (existing !== undefined) return existing;
 
   const promise = (async (): Promise<SeededObjectStoreS3> => {
-    const auth = await authorizeB2FromEnv(secrets);
+    const { accountId, apiToken } = resolveR2ProvisionAuth(secrets);
     const targetBase: SeededObjectStoreS3 = {
-      accessKeyId: (secrets.get('B2_APP_KEY_ID') ?? '').trim(),
-      secretAccessKey: (secrets.get('B2_APP_KEY') ?? '').trim(),
+      accessKeyId: (secrets.get('S3_ACCESS_KEY_ID') ?? '').trim(),
+      secretAccessKey: (secrets.get('S3_SECRET_ACCESS_KEY') ?? '').trim(),
       bucket: bucketForEnv(env),
-      endpoint: auth.s3ApiUrl,
-      region: b2S3Region(auth.s3ApiUrl),
+      endpoint: r2S3Endpoint(accountId),
+      region: R2_S3_REGION,
     };
 
     if (matchesTarget(secrets, targetBase)) {
-      await ensureAwsStyleAliases(env, targetBase, secrets);
       return targetBase;
     }
-    return mintAndWrite(env, auth);
+    return mintAndWrite(env, accountId, apiToken);
   })();
 
   cache.set(env, promise);
@@ -131,15 +111,12 @@ export function seedObjectStoreS3ForEnv(
 
 export function clearS3SecretSeedCache(): void {
   cache.clear();
-  clearB2AuthCache();
 }
 
 export function applySeededS3ToEnv(seeded: SeededObjectStoreS3): void {
   process.env['S3_BUCKET'] = seeded.bucket;
   process.env['S3_ENDPOINT'] = seeded.endpoint;
   process.env['S3_REGION'] = seeded.region;
-  process.env['B2_APP_KEY_ID'] = seeded.accessKeyId;
-  process.env['B2_APP_KEY'] = seeded.secretAccessKey;
   process.env['S3_ACCESS_KEY_ID'] = seeded.accessKeyId;
   process.env['S3_SECRET_ACCESS_KEY'] = seeded.secretAccessKey;
 }

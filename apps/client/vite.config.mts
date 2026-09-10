@@ -80,6 +80,14 @@ export default defineConfig(({ mode }) => {
       sourcemap: false,
       cssCodeSplit: true,
       assetsInlineLimit: 0,
+      // Do not inject <link rel="modulepreload"> for dynamic-import targets into
+      // index.html. Vite's default preloads the sync-engine / mutations /
+      // dicebear / games graphs on every cold load and blew Slow-4G LCP (~35s).
+      // Chunks still load when actually imported; JS hosts may still preload.
+      modulePreload: {
+        resolveDependencies: (_filename, deps, { hostType }) =>
+          hostType === 'html' ? [] : deps,
+      },
     },
   };
 });
