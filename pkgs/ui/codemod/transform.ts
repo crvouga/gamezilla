@@ -471,7 +471,9 @@ export function transformFile(path: string, text: string): FileResult {
 }
 
 function transformFileInner(path: string, text: string): FileResult {
-  const fileName = fileNameOf(path);
+  const fileName = path.endsWith('.tsx') || path.endsWith('.ts')
+    ? fileNameOf(path)
+    : 'file.tsx';
   const source = parse(text, fileName);
   if (syntaxErrors(source) > 0) {
     return {

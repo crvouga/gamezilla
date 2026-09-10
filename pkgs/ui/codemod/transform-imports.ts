@@ -27,7 +27,9 @@ export function parse(text: string, fileName = 'file.tsx'): ts.SourceFile {
     text,
     ts.ScriptTarget.Latest,
     true,
-    fileName.endsWith('.ts') && !fileName.endsWith('.d.ts')
+    fileName.endsWith('.ts') &&
+    !fileName.endsWith('.tsx') &&
+    !fileName.endsWith('.d.ts')
       ? ts.ScriptKind.TS
       : ts.ScriptKind.TSX
   );
@@ -153,7 +155,6 @@ export function fileNameOf(filePath: string): string {
   if (filePath === '') return 'file.tsx';
   return filePath.replace(/\\/g, '/').split('/').pop() ?? 'file.tsx';
 }
-
 function ensureNamedImport(
   text: string,
   modulePath: string,

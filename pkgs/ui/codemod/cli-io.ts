@@ -155,6 +155,9 @@ async function main(): Promise<number> {
     );
     return 1;
   }
+  if (args.write) {
+    logPhase('preflight gates enabled: typecheck and lint before commit');
+  }
   logPhase('scanning for .ts/.tsx files…');
   const root = findRepoRoot();
   const paths = await collectFiles(root, args.globs);
