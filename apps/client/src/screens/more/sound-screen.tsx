@@ -29,7 +29,7 @@ export function SoundSettingsScreen(): JSX.Element {
         { name: <Trans>Sound</Trans> },
       ]}
       content={({ bodyClass }) => (
-        <div class={`box ${`${bodyClass}`} gap-5`}>
+        <div class={`box ${bodyClass} gap-5`}>
           <MenuSection
             footer={
               <Trans>

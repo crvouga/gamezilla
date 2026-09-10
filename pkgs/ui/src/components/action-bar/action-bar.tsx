@@ -179,13 +179,14 @@ export function ActionBar(props: ActionBarProps): JSX.Element {
         class="box flex-row items-center"
         {...dataAttrs({ component: 'ActionBar', ...props.dataSet })}
         style={{
-          ...((bar.measures() && {
-            flex: 1,
-            'min-width': 0,
-            alignSelf: 'stretch',
-            width: '100%',
-          }) ??
-            {}),
+          ...(bar.measures()
+            ? {
+                flex: 1,
+                'min-width': 0,
+                alignSelf: 'stretch',
+                width: '100%',
+              }
+            : {}),
           'justify-content':
             bar.resolved().align === 'start' ? 'flex-start' : 'flex-end',
           gap: `${(bar.resolved().gap / 4) * 4}px`,

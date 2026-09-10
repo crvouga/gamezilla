@@ -1,5 +1,4 @@
 /** @jsxImportSource solid-js */
-import { Box, Text } from '@pkgs/ui';
 import {
   createMultiAppSolidDomSession,
   createSolidDomDriver,
@@ -84,16 +83,16 @@ describe('createMultiAppSolidDomSession', () => {
     const sim = createDemoClock();
     session.mountActor('alice', () => (
       <DemoProviders sim={sim}>
-        <Box dataSet={{ testid: 'a' }}>
-          <Text label="Alice was here with plenty of copy" />
-        </Box>
+        <div class="box" data-testid="a">
+          <p class="text">{'Alice was here with plenty of copy'}</p>
+        </div>
       </DemoProviders>
     ));
     session.mountActor('bob', () => (
       <DemoProviders sim={sim}>
-        <Box dataSet={{ testid: 'b' }}>
-          <Text label="Bob was here with plenty of copy" />
-        </Box>
+        <div class="box" data-testid="b">
+          <p class="text">{'Bob was here with plenty of copy'}</p>
+        </div>
       </DemoProviders>
     ));
     const snapshots = await session.snapshotAllActors({
@@ -120,7 +119,7 @@ describe('createMultiAppSolidDomSession', () => {
     const [copy, setCopy] = createSignal('');
     session.mountActor('alice', () => (
       <DemoProviders sim={sim}>
-        <Text label={copy()} />
+        <p class="text">{copy()}</p>
       </DemoProviders>
     ));
     // Blank shell at blur time: nothing is cached.

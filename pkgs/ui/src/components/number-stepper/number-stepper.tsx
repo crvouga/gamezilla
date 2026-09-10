@@ -59,6 +59,9 @@ export function NumberStepper(props: NumberStepperProps): JSX.Element {
     const next = stepValue(props.value, delta, props.min, props.max);
     if (next !== props.value) props.onChange(next);
   };
+  const changeTo = (target: number): void => {
+    if (target !== props.value) props.onChange(target);
+  };
   return (
     <div
       class="box flex-row items-center justify-between gap-3 py-1"
@@ -72,7 +75,7 @@ export function NumberStepper(props: NumberStepperProps): JSX.Element {
           aria-label={t`Decrease ${props.label}`}
           glyph="−"
         />
-        <p
+        <div
           class="text min-w-[48px] text-center text-text"
           role="spinbutton"
           tabIndex={props.disabled === true ? -1 : 0}
@@ -89,11 +92,17 @@ export function NumberStepper(props: NumberStepperProps): JSX.Element {
             } else if (ev.key === 'ArrowDown' || ev.key === 'ArrowLeft') {
               ev.preventDefault();
               change(-step());
+            } else if (ev.key === 'Home') {
+              ev.preventDefault();
+              changeTo(props.min);
+            } else if (ev.key === 'End') {
+              ev.preventDefault();
+              changeTo(props.max);
             }
           }}
         >
           {String(props.value)}
-        </p>
+        </div>
         <StepperButton
           onClick={() => change(step())}
           disabled={props.disabled === true || props.value >= props.max}

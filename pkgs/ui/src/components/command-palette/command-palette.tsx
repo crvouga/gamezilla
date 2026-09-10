@@ -121,7 +121,6 @@ function PaletteCard(props: {
     <div
       class="box rounded-[20px] border border-border overflow-hidden bg-surface-overlay"
       data-component="CommandPaletteCard"
-      onKeyDown={model.onKeyDown}
     >
       <Show when={running()} fallback={<div class="box h-[2px]" />}>
         <ProgressBar indeterminate height={2} color="tint" />
@@ -130,6 +129,7 @@ function PaletteCard(props: {
         <CommandPaletteInput
           value={reg.query()}
           onChangeText={reg.setQuery}
+          onKeyDown={model.onKeyDown}
           editable={!running()}
           listboxId={props.listboxId}
           activeDescendantId={model.activeId()}

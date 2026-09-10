@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/solid/macro';
-import { Text } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { SpaceCardGradientBox } from '../../../root/client/card/space-card-gradient';
 import { SpaceSummaryHeader } from '../../../root/client/card/space-summary-header';
@@ -17,9 +16,9 @@ export function SpaceJoinLiveBody(props: SpaceJoinLiveBodyProps): JSX.Element {
         <SpaceSummaryHeader spaceId={props.spaceId} />
         <SpaceGuestSection spaceId={props.spaceId} />
       </SpaceCardGradientBox>
-      <Text class="text-text-secondary">
+      <p class="text text-text-secondary">
         <Trans>Join to see who is here and hang out.</Trans>
-      </Text>
+      </p>
     </div>
   );
 }

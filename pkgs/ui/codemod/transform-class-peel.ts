@@ -36,7 +36,11 @@ type ClassArg =
       readonly whenFalse: string;
       readonly condition: string;
     }
-  | { readonly kind: 'toggle'; readonly className: string; readonly condition: string }
+  | {
+      readonly kind: 'toggle';
+      readonly className: string;
+      readonly condition: string;
+    }
   /** Any other string-ish expression; emitted as `[String(expr)]: true`. */
   | { readonly kind: 'dynamic'; readonly expr: string };
 

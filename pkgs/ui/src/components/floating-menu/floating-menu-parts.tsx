@@ -89,7 +89,7 @@ export function FloatingMenuItem(props: {
       {...dataAttrs({ component: 'FloatingMenuItem', ...props.row.dataSet })}
       type="button"
       style={{
-        ...((props.row.disabled === true && { opacity: 0.45 }) ?? {}),
+        ...(props.row.disabled === true ? { opacity: 0.45 } : {}),
         'min-height': cssPx(FLOATING_MENU_ITEM_MIN_HEIGHT),
       }}
       role="menuitem"

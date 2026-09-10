@@ -174,7 +174,7 @@ function mergeStyle(
   if (a === undefined || a === '') return b;
   if (b === undefined || b === '') return a;
   if (typeof a === 'string' || typeof b === 'string') {
-    return [a, b].filter(Boolean).join(';');
+    return [a, b].filter((x): x is string => typeof x === 'string').join(';');
   }
   return { ...a, ...b };
 }

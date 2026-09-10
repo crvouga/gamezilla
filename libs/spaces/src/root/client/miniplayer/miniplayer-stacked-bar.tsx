@@ -1,5 +1,5 @@
 import { useLingui } from '@lingui/solid/macro';
-import { AvatarGroup, Text } from '@pkgs/ui';
+import { AvatarGroup } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { createMemo, For } from 'solid-js';
 
@@ -93,9 +93,9 @@ export function MiniplayerStackedBar(
           >
             <StackedHostAvatars spaceIds={props.spaceIds} />
             <div class="box flex-1 min-w-[0]">
-              <Text variant="bodyBold" class="line-clamp-1 text-on-primary">
+              <p class="text textBodyBold line-clamp-1 text-on-primary">
                 {t`${count()} live spaces`}
-              </Text>
+              </p>
             </div>
             <MiniplayerLiveBadge />
           </SpaceCardGradientBox>

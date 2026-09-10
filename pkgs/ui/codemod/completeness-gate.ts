@@ -53,7 +53,8 @@ const THEME_PATH = /(?:^|[/\\])pkgs[/\\]ui[/\\]src[/\\]theme(?:[/\\]|$)/;
  * test suite asserts on those primitives. Only *consumer* call sites carry
  * `sx=`, so the transform and the gate both leave these trees untouched.
  */
-const DESIGN_SYSTEM_PATH = /(?:^|[/\\])pkgs[/\\]ui[/\\](?:src|tests)(?:[/\\]|$)/;
+const DESIGN_SYSTEM_PATH =
+  /(?:^|[/\\])pkgs[/\\]ui[/\\](?:src|tests)(?:[/\\]|$)/;
 
 /** True for `@pkgs/ui` implementation + test trees (never migrated). */
 export function isDesignSystemPath(path: string): boolean {
@@ -68,7 +69,8 @@ export function isDesignSystemPath(path: string): boolean {
  */
 const UI_INTERNALS = /(?:^|[/\\])pkgs[/\\]ui[/\\]src[/\\]components(?:[/\\]|$)/;
 
-const SX_ATTR = /\b(?:sx|frameSx|fieldSx|enterSx|exitSx)\s*=/;const PURGED_TAG = /<(?:Box|Stack|Center|Spacer|Card|Divider|Clickable|Text)\b/;
+const SX_ATTR = /\b(?:sx|frameSx|fieldSx|enterSx|exitSx)\s*=/;
+const PURGED_TAG = /<(?:Box|Stack|Center|Spacer|Card|Divider|Clickable|Text)\b/;
 
 const PURGED_IMPORT_NAMES =
   /\b(?:Box|Stack|Center|Spacer|Card|Divider|Clickable|Text)\b/;

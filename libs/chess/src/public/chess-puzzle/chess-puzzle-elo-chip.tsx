@@ -1,5 +1,5 @@
 import { useTimers } from '@pkgs/clock/solid';
-import { dataAttrs, motion, Text } from '@pkgs/ui';
+import { dataAttrs, motion } from '@pkgs/ui';
 import { createEffect, createSignal, type JSX, onCleanup } from 'solid-js';
 
 const PULSE_SCALE = 1.14;
@@ -39,12 +39,29 @@ export function ChessPuzzleEloChip(
           props.testID !== undefined ? { testid: props.testID } : undefined
         )}
       >
-        <Text
-          variant={isPrimary() ? 'bodyBold' : 'caption'}
+        <p
+          class="text"
+          classList={{
+            textBodyBold:
+              String(isPrimary() ? 'bodyBold' : 'caption') === 'bodyBold',
+            textCaption:
+              String(isPrimary() ? 'bodyBold' : 'caption') === 'caption',
+            textLabel: String(isPrimary() ? 'bodyBold' : 'caption') === 'label',
+            textTitle: String(isPrimary() ? 'bodyBold' : 'caption') === 'title',
+            textSubtitle:
+              String(isPrimary() ? 'bodyBold' : 'caption') === 'subtitle',
+            textHeading:
+              String(isPrimary() ? 'bodyBold' : 'caption') === 'heading',
+            textNavigationTitle:
+              String(isPrimary() ? 'bodyBold' : 'caption') ===
+              'navigationTitle',
+            textLink: String(isPrimary() ? 'bodyBold' : 'caption') === 'link',
+            textMono: String(isPrimary() ? 'bodyBold' : 'caption') === 'mono',
+          }}
           style={{ color: isPrimary() ? 'tint' : 'textSecondary' }}
         >
           {String(props.elo)}
-        </Text>
+        </p>
       </div>
     </div>
   );

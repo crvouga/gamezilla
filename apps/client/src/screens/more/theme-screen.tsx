@@ -98,7 +98,7 @@ export function ThemeSettingsScreen(): JSX.Element {
         { name: <Trans>Appearance</Trans> },
       ]}
       content={({ bodyClass }) => (
-        <div class={`box ${`${bodyClass}`} gap-5`}>
+        <div class={`box ${bodyClass} gap-5`}>
           <MenuSection title={<Trans>Theme</Trans>}>
             <For each={options()}>
               {(option) => (

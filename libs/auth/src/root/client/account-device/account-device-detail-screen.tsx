@@ -34,7 +34,7 @@ export function AccountDeviceDetailScreen(): JSX.Element {
       ]}
       scroll
       content={({ bodyClass }) => (
-        <div class={`box ${`${bodyClass}`} gap-5`}>
+        <div class={`box ${bodyClass} gap-5`}>
           <Show
             when={deviceId()}
             fallback={

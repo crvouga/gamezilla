@@ -11,14 +11,15 @@ export type DividerProps = BoxProps & {
 
 export function Divider(props: DividerProps): JSX.Element {
   const [local, rest] = splitProps(props, ['orientation', 'class', 'dataSet']);
-  const horizontal = (local.orientation ?? 'horizontal') === 'horizontal';
+  const orientation = (): 'horizontal' | 'vertical' =>
+    local.orientation ?? 'horizontal';
   return (
     <Box
       role="separator"
-      aria-orientation={local.orientation ?? 'horizontal'}
+      aria-orientation={orientation()}
       class={joinClass(
         'border-border border-solid',
-        horizontal ? 'w-full border-b' : 'h-full border-l',
+        orientation() === 'horizontal' ? 'w-full border-b' : 'h-full border-l',
         local.class
       )}
       dataSet={{ component: 'Divider', ...local.dataSet }}

@@ -25,15 +25,15 @@ export default function TextExample(): JSX.Element {
             <p
               class="text"
               classList={{
-                textBodyBold: (v ?? 'body') === 'bodyBold',
-                textCaption: (v ?? 'body') === 'caption',
-                textLabel: (v ?? 'body') === 'label',
-                textTitle: (v ?? 'body') === 'title',
-                textSubtitle: (v ?? 'body') === 'subtitle',
-                textHeading: (v ?? 'body') === 'heading',
-                textNavigationTitle: (v ?? 'body') === 'navigationTitle',
-                textLink: (v ?? 'body') === 'link',
-                textMono: (v ?? 'body') === 'mono',
+                textBodyBold: v === 'bodyBold',
+                textCaption: v === 'caption',
+                textLabel: v === 'label',
+                textTitle: v === 'title',
+                textSubtitle: v === 'subtitle',
+                textHeading: v === 'heading',
+                textNavigationTitle: v === 'navigationTitle',
+                textLink: v === 'link',
+                textMono: v === 'mono',
               }}
             >
               {'The quick brown fox jumps over the lazy dog'}

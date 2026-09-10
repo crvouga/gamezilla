@@ -175,7 +175,7 @@ export function Motion(props: MotionProps): JSX.Element {
         class={joinClass('box', local.class)}
         {...dataAttrs({ component: 'Motion', ...local.dataSet })}
         style={mergeStyles(transitionStyle(), local.style, phaseStyle())}
-        ref={mount}
+        ref={(el) => mount(el)}
         onTransitionEnd={presence.onTransitionEnd}
         {...rest}
       />

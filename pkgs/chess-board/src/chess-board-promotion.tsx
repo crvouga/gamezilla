@@ -62,12 +62,16 @@ function PromotionStack(props: {
   return (
     <div
       class="box absolute flex-col"
+      role="presentation"
       style={{
         left: `${props.layout.left}px`,
         top: `${props.layout.top}px`,
         width: `${props.layout.cell}px`,
       }}
       onClick={(e) => e.stopPropagation()}
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') props.onCancel();
+      }}
     >
       <For each={[...props.layout.kinds]}>
         {(kind) => (
@@ -125,7 +129,11 @@ export function ChessBoardPromotion(
       class="box absolute inset-[0]"
       style={{ 'background-color': props.theme.promotion.backdrop }}
       data-component="ChessBoardPromotion"
+      role="presentation"
       onClick={() => props.onCancel()}
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') props.onCancel();
+      }}
     >
       <PromotionStack
         layout={layout()}

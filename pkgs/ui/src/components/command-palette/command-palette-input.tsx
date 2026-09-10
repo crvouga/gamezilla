@@ -14,6 +14,7 @@ import { TextInput } from '../text-input';
 export type CommandPaletteInputProps = {
   value: string;
   onChangeText: (text: string) => void;
+  onKeyDown: (event: KeyboardEvent) => void;
   editable: boolean;
   listboxId: string;
   activeDescendantId: string | undefined;
@@ -37,6 +38,7 @@ export function CommandPaletteInput(
       }}
       value={props.value}
       onChangeText={props.onChangeText}
+      onKeyDown={props.onKeyDown}
       disabled={!props.editable}
       placeholder={props.placeholder ?? t`Type a command or search…`}
       aria-label={props.placeholder ?? t`Type a command or search…`}

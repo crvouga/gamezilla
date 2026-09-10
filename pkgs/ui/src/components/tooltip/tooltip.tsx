@@ -75,14 +75,15 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     <TooltipContext.Provider value={controller}>
       <div
         class={joinClass('box', styles['anchor'])}
+        role="presentation"
         onMouseEnter={() => {
           if (hoverCapable()) show();
         }}
         onMouseLeave={() => {
           if (hoverCapable()) hide();
         }}
-        onFocusIn={show}
-        onFocusOut={hide}
+        onFocusIn={() => show()}
+        onFocusOut={() => hide()}
         onKeyDown={(event) => {
           if (event.key === 'Escape') hide();
         }}

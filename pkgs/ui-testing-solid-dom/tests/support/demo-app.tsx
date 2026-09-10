@@ -10,7 +10,6 @@ import { I18nProvider } from '@lingui/solid';
 import { createSimClock, type SimClockBundle } from '@pkgs/clock/sim-clock';
 import { ClockProvider } from '@pkgs/clock/solid';
 import {
-  Box,
   Button,
   ModalBackdrop,
   ModalBody,
@@ -21,7 +20,6 @@ import {
   ModalRoot,
   ScreenBase,
   SurfaceStackProvider,
-  Text,
   TextInput,
   ThemeProvider,
 } from '@pkgs/ui';
@@ -87,7 +85,7 @@ function LoginScreen(props: { onLogin: (email: string) => void }): JSX.Element {
       breadcrumbs={[{ name: 'Sign in' }]}
       scroll
       content={() => (
-        <Box class="gap-3" dataSet={{ testid: 'login-form' }}>
+        <div class="box gap-3" data-testid="login-form">
           <TextInput
             label="Email"
             value={email()}
@@ -107,7 +105,9 @@ function LoginScreen(props: { onLogin: (email: string) => void }): JSX.Element {
             onClick={submit}
             dataSet={{ testid: 'submit' }}
           />
-          <Text label={String(count())} dataSet={{ testid: 'count' }} />
+          <p class="text" data-testid="count">
+            {String(count())}
+          </p>
           <Button
             title="Increment"
             onClick={() => setCount((c) => c + 1)}
@@ -118,11 +118,11 @@ function LoginScreen(props: { onLogin: (email: string) => void }): JSX.Element {
             onClick={() => setHelp(true)}
             dataSet={{ testid: 'open-help' }}
           />
-          <Box hidden dataSet={{ testid: 'hidden-note' }}>
-            <Text label="never shown" />
-          </Box>
+          <div class="box" data-testid="hidden-note" hidden>
+            <p class="text">{'never shown'}</p>
+          </div>
           <HelpDialog open={help()} onClose={() => setHelp(false)} />
-        </Box>
+        </div>
       )}
     />
   );
@@ -137,17 +137,14 @@ function HomeScreen(props: {
       screenId="home"
       breadcrumbs={[{ name: 'Home' }]}
       content={() => (
-        <Box dataSet={{ testid: 'home' }}>
-          <Text
-            label={`Welcome ${props.email}`}
-            dataSet={{ testid: 'welcome' }}
-          />
+        <div class="box" data-testid="home">
+          <p class="text" data-testid="welcome">{`Welcome ${props.email}`}</p>
           <Button
             title="Log out"
             onClick={props.onLogout}
             dataSet={{ testid: 'logout' }}
           />
-        </Box>
+        </div>
       )}
     />
   );

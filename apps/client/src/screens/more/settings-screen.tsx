@@ -209,7 +209,7 @@ export function SettingsScreen(): JSX.Element {
       ]}
       scroll
       content={({ bodyClass }) => (
-        <div class={`box ${`${bodyClass}`} gap-5`}>
+        <div class={`box ${bodyClass} gap-5`}>
           <For each={groups()}>
             {(group) => (
               <MenuSection title={group.title}>

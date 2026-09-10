@@ -70,6 +70,7 @@ export function JsonViewNode(props: JsonViewNodeProps): JSX.Element {
     <div
       class="box"
       role="treeitem"
+      aria-selected="false"
       aria-expanded={expandable() ? expanded() : undefined}
     >
       <NodeRow

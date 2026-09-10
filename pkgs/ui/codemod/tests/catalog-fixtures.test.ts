@@ -7,11 +7,8 @@ import { describe, expect, test } from 'vitest';
 import { checkCompleteness } from '../completeness-gate';
 import { mapSxRecord } from '../sx-mapping';
 import { transformFile } from '../transform';
-import {
-  type CatalogFixture,
-  CATALOG_FIXTURES,
-} from './catalog-fixtures-data';
 import { COVERED_IDS } from './catalog-coverage';
+import { CATALOG_FIXTURES, type CatalogFixture } from './catalog-fixtures-data';
 
 const CLASS_HELPER_RE =
   /\b(?:cn|clsx|classnames|twMerge|twJoin|cx|cva|joinClass|sxStyle)\s*\(/;

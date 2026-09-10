@@ -203,7 +203,7 @@ function TriggerFace(props: {
         class="clickable clickableTint rounded-[9999px] overflow-hidden"
         {...dataAttrs(props.dataSet)}
         type="button"
-        onClick={props.onOpen}
+        onClick={() => props.onOpen()}
         aria-label={props['aria-label']}
         aria-haspopup="menu"
         aria-expanded={props.menu.open()}

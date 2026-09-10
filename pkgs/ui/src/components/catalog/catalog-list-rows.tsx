@@ -51,7 +51,7 @@ function CatalogGroupBlock(props: {
       <Show when={props.category !== null}>
         <h3 class="text textLabel text-text-secondary">{props.category}</h3>
       </Show>
-      <ul class="box gap-1" role="list">
+      <ul class="box gap-1">
         <For each={props.items}>
           {(item) => (
             <li class="box">

@@ -81,29 +81,38 @@ export function ChessBoardView(args: {
 }): JSX.Element {
   const boardTestId = () =>
     args.props.dataSet?.['testid'] ?? DEFAULT_CHESS_BOARD_TEST_ID;
-  const sizeSx = () =>
-    args.props.size === undefined
-      ? { width: '100%' as const, 'aspect-ratio': 1 as const }
-      : {
-          width: `${args.props.size}px`,
-          height: `${args.props.size}px`,
-        };
+  const hostStyle = () => {
+    const size =
+      args.props.size === undefined
+        ? { width: '100%' as const, 'aspect-ratio': 1 as const }
+        : {
+            width: `${args.props.size}px`,
+            height: `${args.props.size}px`,
+          };
+    return { ...size, 'border-color': args.ctrl.theme().border };
+  };
   return (
+    // The board is a keyboard-managed game surface (`role="application"`):
+    // arrow keys move the cursor and pointer events drive drags. jsx-a11y
+    // classifies `application` as non-interactive, so the standard
+    // WAI-ARIA pattern for a keyboard game board trips these two rules.
+    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
     <div
       class={`box relative [border-width:2px] border-solid overflow-hidden ${styles['root']}`}
-      style={{ ...(sizeSx() ?? {}), 'border-color': args.ctrl.theme().border }}
+      style={hostStyle()}
       {...dataAttrs({
         component: 'ChessBoard',
         testid: boardTestId(),
         ...args.props.dataSet,
       })}
       ref={args.ctrl.setHost}
-      onPointerDown={args.ctrl.onPointerDown}
-      onPointerMove={args.ctrl.onPointerMove}
-      onPointerUp={args.ctrl.onPointerUp}
-      onPointerCancel={args.ctrl.onPointerCancel}
-      onKeyDown={args.ctrl.onKeyDown}
-      onContextMenu={args.ctrl.onContextMenu}
+      onPointerDown={(e) => args.ctrl.onPointerDown(e)}
+      onPointerMove={(e) => args.ctrl.onPointerMove(e)}
+      onPointerUp={(e) => args.ctrl.onPointerUp(e)}
+      onPointerCancel={() => args.ctrl.onPointerCancel()}
+      onKeyDown={(e) => args.ctrl.onKeyDown(e)}
+      onContextMenu={(e) => args.ctrl.onContextMenu(e)}
+      // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
       tabIndex={0}
       role="application"
       aria-label="Chess board"

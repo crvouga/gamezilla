@@ -9,7 +9,6 @@ import {
   CircleCheckIcon,
   dataAttrs,
   type MutationStateTransition,
-  Text,
   Trash2Icon,
   UserIcon,
   useMutationButton,
@@ -155,12 +154,38 @@ function InteractionRowText(props: {
   );
   return (
     <div class="box flex-1 min-w-[0] gap-1">
-      <Text
-        variant={props.interaction.isUnread ? 'bodyBold' : 'body'}
-        class="line-clamp-3"
+      <p
+        class="text line-clamp-3"
+        classList={{
+          textBodyBold:
+            String(props.interaction.isUnread ? 'bodyBold' : 'body') ===
+            'bodyBold',
+          textCaption:
+            String(props.interaction.isUnread ? 'bodyBold' : 'body') ===
+            'caption',
+          textLabel:
+            String(props.interaction.isUnread ? 'bodyBold' : 'body') ===
+            'label',
+          textTitle:
+            String(props.interaction.isUnread ? 'bodyBold' : 'body') ===
+            'title',
+          textSubtitle:
+            String(props.interaction.isUnread ? 'bodyBold' : 'body') ===
+            'subtitle',
+          textHeading:
+            String(props.interaction.isUnread ? 'bodyBold' : 'body') ===
+            'heading',
+          textNavigationTitle:
+            String(props.interaction.isUnread ? 'bodyBold' : 'body') ===
+            'navigationTitle',
+          textLink:
+            String(props.interaction.isUnread ? 'bodyBold' : 'body') === 'link',
+          textMono:
+            String(props.interaction.isUnread ? 'bodyBold' : 'body') === 'mono',
+        }}
       >
         {props.interaction.title}
-      </Text>
+      </p>
       <p class="text textCaption text-text-secondary">{relative()}</p>
       <Show when={detailParts().length > 0}>
         <p class="text textCaption line-clamp-2 text-text-secondary">

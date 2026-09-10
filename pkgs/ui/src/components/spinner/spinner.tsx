@@ -94,7 +94,7 @@ export function Spinner(props: SpinnerProps): JSX.Element {
       {...dataAttrs({ component: 'Spinner', ...props.dataSet })}
       style={{
         color: stroke(),
-        ...((delay !== undefined && { 'animation-delay': delay }) ?? {}),
+        ...(delay !== undefined ? { 'animation-delay': delay } : {}),
         width: cssPx(geo().diameter),
         height: cssPx(geo().diameter),
       }}

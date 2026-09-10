@@ -87,7 +87,7 @@ export function AboutScreen(): JSX.Element {
       ]}
       scroll
       content={({ bodyClass }) => (
-        <div class={`box ${`${bodyClass}`} gap-5`}>
+        <div class={`box ${bodyClass} gap-5`}>
           <MenuSection title={<Trans>App</Trans>}>
             <MenuRow title={t`Name`} value={APP_NAME} />
             <MenuRow title={t`Version`} value={APP_VERSION} />

@@ -35,7 +35,7 @@ export function StateBlock(props: StateBlockProps): JSX.Element {
       class="box items-center justify-center gap-3 px-5"
       {...dataAttrs({ component: 'StateBlock', ...props.dataSet })}
       style={{
-        ...((isFill() && { flex: 1 }) ?? {}),
+        ...(isFill() ? { flex: 1 } : {}),
         'padding-top': `${(isFill() ? 8 : 6) * 4}px`,
         'padding-bottom': `${(isFill() ? 8 : 6) * 4}px`,
       }}

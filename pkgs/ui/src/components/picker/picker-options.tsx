@@ -199,6 +199,7 @@ export function PickerOptions<T extends PickerValue>(
         }}
         role="listbox"
         id={props.id}
+        tabIndex={-1}
         aria-label={props.label}
         onKeyDown={(ev) => onKeyDown(ev.currentTarget, ev)}
       >

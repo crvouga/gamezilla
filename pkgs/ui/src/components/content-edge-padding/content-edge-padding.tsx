@@ -81,7 +81,7 @@ export function resolveFlushEdgeStyles(
     contentStyle: {
       '--ui-flush-edge-x': `${spacingScale(horizontalStep)}px`,
       '--ui-flush-edge-b': `${spacingScale(bottomStep)}px`,
-    } as JSX.CSSProperties,
+    },
     wrapperClass: styles['wrapper'],
   };
 }

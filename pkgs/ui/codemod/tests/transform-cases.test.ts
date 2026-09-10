@@ -367,9 +367,9 @@ describe('Text', () => {
     );
     expect(result.manual).toEqual([]);
     expect(result.text).toContain(
-      'String(p.f ? \'subtitle\' : \'bodyBold\') === "subtitle"'
+      "String(p.f ? 'subtitle' : 'bodyBold') === \"subtitle\""
     );
-    expect(result.text).not.toContain('p.f ? \'subtitle\' : \'bodyBold\' ??');
+    expect(result.text).not.toContain("p.f ? 'subtitle' : 'bodyBold' ??");
   });
 });
 

@@ -11,10 +11,10 @@
  */
 
 import ts from 'typescript';
+import { isDesignSystemPath } from './completeness-gate';
 import { splitTopLevel } from './split-top-level';
 import { invariant, nonEmptyString } from './tiger';
 import { CLASS_HELPER_NAMES, classAttrs } from './transform-class-peel';
-import { isDesignSystemPath } from './completeness-gate';
 import {
   collectNodes,
   isLeafNode,

@@ -1,5 +1,4 @@
 /** @jsxImportSource solid-js */
-import { Box, Text } from '@pkgs/ui';
 import { TimeoutError, UiTestError } from '@pkgs/ui-testing/core/errors';
 import {
   createSolidDomDriver,
@@ -112,12 +111,16 @@ describe('SolidDomDriver', () => {
   test('scopes nested get to the parent subtree', async () => {
     driver = customDriver(() => (
       <>
-        <Box dataSet={{ testid: 'parent-a' }}>
-          <Text label="A" dataSet={{ testid: 'label' }} />
-        </Box>
-        <Box dataSet={{ testid: 'parent-b' }}>
-          <Text label="B" dataSet={{ testid: 'label' }} />
-        </Box>
+        <div class="box" data-testid="parent-a">
+          <p class="text" data-testid="label">
+            {'A'}
+          </p>
+        </div>
+        <div class="box" data-testid="parent-b">
+          <p class="text" data-testid="label">
+            {'B'}
+          </p>
+        </div>
       </>
     ));
     await driver.launch();
@@ -149,12 +152,12 @@ describe('SolidDomDriver', () => {
         });
       });
       return (
-        <Box
+        <div
+          class="box w-full h-full"
+          data-testid="frame"
           ref={(el) => {
             host = el;
           }}
-          class="w-full h-full"
-          dataSet={{ testid: 'frame' }}
         />
       );
     });
@@ -169,9 +172,10 @@ describe('SolidDomDriver', () => {
   test('layout synthesizes a box from inline size and tapAt/drag hit it', async () => {
     const points: string[] = [];
     driver = customDriver(() => (
-      <Box
+      <div
+        class="box"
+        data-testid="board"
         style={{ width: '200px', height: '100px' }}
-        dataSet={{ testid: 'board' }}
         onPointerDown={(e) => points.push(`down:${e.clientX},${e.clientY}`)}
         onPointerUp={(e) => points.push(`up:${e.clientX},${e.clientY}`)}
       />
@@ -204,7 +208,9 @@ describe('SolidDomDriver', () => {
       harness: {
         createRoot: () => () => (
           <DemoProviders sim={sim}>
-            <Text label={label()} dataSet={{ testid: 'label' }} />
+            <p class="text" data-testid="label">
+              {label()}
+            </p>
           </DemoProviders>
         ),
       },

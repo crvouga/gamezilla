@@ -1,5 +1,5 @@
 import { useLingui } from '@lingui/solid/macro';
-import { Text, type TextVariant } from '@pkgs/ui';
+import type { TextVariant } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { createMemo } from 'solid-js';
 
@@ -21,5 +21,23 @@ export function SpaceGuestCountText(
     const count = ids().length;
     return count === 1 ? t`1 guest` : t`${count} guests`;
   });
-  return <Text variant={props.variant} class={props.class} label={label()} />;
+  return (
+    <p
+      class="text"
+      classList={{
+        textBodyBold: String(props.variant) === 'bodyBold',
+        textCaption: String(props.variant) === 'caption',
+        textLabel: String(props.variant) === 'label',
+        textTitle: String(props.variant) === 'title',
+        textSubtitle: String(props.variant) === 'subtitle',
+        textHeading: String(props.variant) === 'heading',
+        textNavigationTitle: String(props.variant) === 'navigationTitle',
+        textLink: String(props.variant) === 'link',
+        textMono: String(props.variant) === 'mono',
+        [String(props.class)]: true,
+      }}
+    >
+      {label()}
+    </p>
+  );
 }

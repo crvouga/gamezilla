@@ -31,7 +31,7 @@ export function AccountScreen(props: AccountScreenProps): JSX.Element {
       ]}
       scroll
       content={({ bodyClass }) => (
-        <div class={`box ${`${bodyClass}`} gap-5`}>
+        <div class={`box ${bodyClass} gap-5`}>
           {props.identity}
           <MenuSection title={<Trans>Security</Trans>}>
             <MenuRow
