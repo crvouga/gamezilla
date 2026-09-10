@@ -11,7 +11,9 @@
  */
 
 import ts from 'typescript';
+import { splitTopLevel } from './split-top-level';
 import { invariant, nonEmptyString } from './tiger';
+import { CLASS_HELPER_NAMES, classAttrs } from './transform-class-peel';
 import {
   collectNodes,
   isLeafNode,
@@ -34,10 +36,6 @@ import {
   type SpanEdit,
   syntaxErrors,
 } from './transform-imports';
-import {
-  CLASS_HELPER_NAMES,
-  classAttrs,
-} from './transform-class-peel';
 import type { ExistingClass } from './transform-node';
 import type { PrefixedSlot } from './transform-shared';
 
@@ -99,7 +97,7 @@ function styleBinding(
 /** Emission gate: style objects are dash-case; no class helpers ride along. */
 function checkStyleBinding(binding: string): void {
   const inner = binding.slice('style={{ '.length, -' }}'.length);
-  for (const part of splitTopLevelCommas(inner)) {
+  for (const part of splitTopLevel(inner)) {
     const m = /^\s*(?:"([^"]+)"|\.\.\.)/.exec(part);
     if (m === null) continue;
     const key = m[1];
@@ -109,34 +107,6 @@ function checkStyleBinding(binding: string): void {
       `style key must be dash-case CSS: ${key}`
     );
   }
-}
-
-/** Split on top-level commas (bracket/paren/quote aware). */
-function splitTopLevelCommas(text: string): readonly string[] {
-  const out: string[] = [];
-  let depth = 0;
-  let start = 0;
-  let quote: '"' | "'" | '`' | undefined;
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i];
-    if (quote !== undefined) {
-      if (ch === '\\') i += 1;
-      else if (ch === quote) quote = undefined;
-      continue;
-    }
-    if (ch === '"' || ch === "'" || ch === '`') {
-      quote = ch;
-      continue;
-    }
-    if (ch === '(' || ch === '[' || ch === '{') depth += 1;
-    else if (ch === ')' || ch === ']' || ch === '}') depth -= 1;
-    else if (ch === ',' && depth === 0) {
-      out.push(text.slice(start, i));
-      start = i + 1;
-    }
-  }
-  out.push(text.slice(start));
-  return out;
 }
 
 /** Object-literal expr → property list; otherwise spread into the style object. */
@@ -161,7 +131,9 @@ function prefixedSlotAttrs(slot: PrefixedSlot): string[] {
   const styleAttr = `${slot.prefix}Style`;
   const out: string[] = [];
   if (slot.classes.length > 0) {
-    const deduped = slot.classes.filter((c, i) => slot.classes.indexOf(c) === i);
+    const deduped = slot.classes.filter(
+      (c, i) => slot.classes.indexOf(c) === i
+    );
     out.push(`${classAttr}=${quoteAttr(deduped.join(' '))}`);
   }
   if (slot.classList.length > 0) {
@@ -471,9 +443,10 @@ export function transformFile(path: string, text: string): FileResult {
 }
 
 function transformFileInner(path: string, text: string): FileResult {
-  const fileName = path.endsWith('.tsx') || path.endsWith('.ts')
-    ? fileNameOf(path)
-    : 'file.tsx';
+  const fileName =
+    path.endsWith('.tsx') || path.endsWith('.ts')
+      ? fileNameOf(path)
+      : 'file.tsx';
   const source = parse(text, fileName);
   if (syntaxErrors(source) > 0) {
     return {

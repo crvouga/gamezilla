@@ -22,7 +22,8 @@ async function collect(root: string): Promise<string[]> {
       if (entry.name === 'node_modules' || entry.name === '.turbo') continue;
       const path = join(dir, entry.name);
       if (entry.isDirectory()) await walk(path);
-      else if (TEXT_EXTENSIONS.has(path.slice(path.lastIndexOf('.')))) out.push(path);
+      else if (TEXT_EXTENSIONS.has(path.slice(path.lastIndexOf('.'))))
+        out.push(path);
     }
   }
   await walk(root);
@@ -52,7 +53,9 @@ describe('strict migration gates', () => {
       expect(output.nextText).not.toContain('TODO(sx-codemod)');
       expect(output.nextText).not.toMatch(/<Text\b/);
       const jsxAttrs = output.nextText.match(/<[A-Za-z][^>]*>/g) ?? [];
-      const forbiddenAttrs = jsxAttrs.filter((tag) => /\b(?:sx|frameSx|fieldSx|enterSx|exitSx)\s*=/.test(tag));
+      const forbiddenAttrs = jsxAttrs.filter((tag) =>
+        /\b(?:sx|frameSx|fieldSx|enterSx|exitSx)\s*=/.test(tag)
+      );
       expect(forbiddenAttrs, output.path).toEqual([]);
       expect(output.nextText).not.toMatch(/\bSx(?:Input|Props)\b/);
     }

@@ -6,10 +6,9 @@
 
 import { readdir, readFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
-import { checkCompleteness } from '../completeness-gate';
 import { DEFAULT_GLOBS } from '../cli-io';
+import { checkCompleteness } from '../completeness-gate';
 import { runCodemod } from '../run-codemod';
-import { transformFile } from '../transform';
 
 const REPO_ROOT = resolve(process.cwd(), '..', '..');
 const ROOTS = DEFAULT_GLOBS.map((r) => join(REPO_ROOT, r));
@@ -69,7 +68,8 @@ const PATTERNS: Readonly<Record<string, RegExp>> = {
   'sx-attr': /\b(?:sx|frameSx|fieldSx|enterSx|exitSx)\s*=/,
   'purged-tag': /<(?:Box|Stack|Center|Spacer|Card|Divider|Clickable|Text)\b/,
   'sx-type': /\b(?:SxInput|SxProps|flattenSx|sxToCss)\b|tokens\.css\s*\(/,
-  'class-helper': /\b(?:cn|clsx|classnames|twMerge|twJoin|cx|cva|joinClass)\s*\(/,
+  'class-helper':
+    /\b(?:cn|clsx|classnames|twMerge|twJoin|cx|cva|joinClass)\s*\(/,
 };
 
 for (const { path, nextText } of result.outputs) {
@@ -85,13 +85,19 @@ for (const { path, nextText } of result.outputs) {
     for (const [kind, re] of Object.entries(PATTERNS)) {
       if (!kinds.has(kind)) continue;
       if (!re.test(line)) continue;
-      if (kind === 'sx-attr' && /(?:sx|frameSx|fieldSx|enterSx|exitSx)\?:/.test(line)) {
+      if (
+        kind === 'sx-attr' &&
+        /(?:sx|frameSx|fieldSx|enterSx|exitSx)\?:/.test(line)
+      ) {
         continue;
       }
       shown.push(`${kind} L${i + 1}: ${t.slice(0, 150)}`);
     }
   }
-  process.stdout.write(`\n== ${rel(path)} (${hits.map((h) => h.kind).join(',')})\n`);
+  process.stdout.write(
+    `\n== ${rel(path)} (${hits.map((h) => h.kind).join(',')})\n`
+  );
   for (const s of shown.slice(0, 12)) process.stdout.write(`  ${s}\n`);
-  if (shown.length > 12) process.stdout.write(`  … +${shown.length - 12} more\n`);
+  if (shown.length > 12)
+    process.stdout.write(`  … +${shown.length - 12} more\n`);
 }

@@ -3,6 +3,7 @@
  * `classList` entries so converted tags never retain helper calls.
  */
 
+import { splitTopLevel } from './split-top-level';
 import type { ClassListEntry, ExistingClass } from './transform-node';
 
 const CLASS_HELPER_CALL =
@@ -79,35 +80,7 @@ export function peelClassHelperCall(
   const open = trimmed.indexOf('(');
   const inner = trimmed.slice(open + 1, -1).trim();
   if (inner.length === 0) return [];
-  return splitTopLevelArgs(inner);
-}
-
-function splitTopLevelArgs(inner: string): readonly string[] {
-  const args: string[] = [];
-  let depth = 0;
-  let start = 0;
-  let quote: '"' | "'" | '`' | undefined;
-  for (let i = 0; i < inner.length; i++) {
-    const ch = inner[i];
-    if (quote !== undefined) {
-      if (ch === '\\') {
-        i += 1;
-        continue;
-      }
-      if (ch === quote) quote = undefined;
-      continue;
-    }
-    if (ch === '"' || ch === "'" || ch === '`') {
-      quote = ch;
-      continue;
-    }
-    if (ch === '(' || ch === '[' || ch === '{') depth += 1;
-    else if (ch === ')' || ch === ']' || ch === '}') depth -= 1;
-    else if (ch === ',' && depth === 0) {
-      args.push(inner.slice(start, i).trim());
-      start = i + 1;
-    }
-  }
-  args.push(inner.slice(start).trim());
-  return args.filter((a) => a.length > 0);
+  return splitTopLevel(inner)
+    .map((a) => a.trim())
+    .filter((a) => a.length > 0);
 }

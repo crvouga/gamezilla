@@ -28,8 +28,8 @@ export function parse(text: string, fileName = 'file.tsx'): ts.SourceFile {
     ts.ScriptTarget.Latest,
     true,
     fileName.endsWith('.ts') &&
-    !fileName.endsWith('.tsx') &&
-    !fileName.endsWith('.d.ts')
+      !fileName.endsWith('.tsx') &&
+      !fileName.endsWith('.d.ts')
       ? ts.ScriptKind.TS
       : ts.ScriptKind.TSX
   );

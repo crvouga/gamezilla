@@ -4,8 +4,11 @@
  */
 
 import { readFileSync } from 'node:fs';
-import ts from 'typescript';
-import { collectNodes, isLeafNode, resolveBindings } from '../transform-collect';
+import {
+  collectNodes,
+  isLeafNode,
+  resolveBindings,
+} from '../transform-collect';
 import { convertComponent, isConvertibleExport } from '../transform-components';
 import { parse } from '../transform-imports';
 
@@ -14,7 +17,7 @@ for (const path of files) {
   const text = readFileSync(path, 'utf8');
   const source = parse(text, path.split('/').pop() ?? 'file.tsx');
   const nodes = collectNodes(source, resolveBindings(source));
-  console.log(`== ${path}`);
+  process.stdout.write(`== ${path}\n`);
   for (const node of nodes) {
     const convertible = isConvertibleExport(node.exportName);
     let conversion: string | undefined;
@@ -26,10 +29,12 @@ for (const path of files) {
         conversion = `THREW: ${error instanceof Error ? error.message : String(error)}`;
       }
     }
-    console.log(
-      `   ${node.exportName} convertible=${convertible} conversion=${conversion ?? '-'}`
+    process.stdout.write(
+      `   ${node.exportName} convertible=${convertible} conversion=${conversion ?? '-'}\n`
     );
   }
   const leaves = nodes.filter((n) => isLeafNode(n, nodes));
-  console.log(`   leaves=${leaves.map((n) => n.exportName).join(',')}`);
+  process.stdout.write(
+    `   leaves=${leaves.map((n) => n.exportName).join(',')}\n`
+  );
 }

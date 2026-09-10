@@ -27,7 +27,6 @@ import {
 import { convertStack } from './transform-stack';
 import { convertText } from './transform-text';
 
-export type { ComponentConversion } from './transform-shared';
 export {
   CONVERTIBLE,
   HOST_CONVERTIBLE,
@@ -35,6 +34,7 @@ export {
   isHostConvertible,
   isPeelConvertible,
 } from './transform-kinds';
+export type { ComponentConversion } from './transform-shared';
 
 export function convertBox(
   element: ts.JsxOpeningLikeElement,

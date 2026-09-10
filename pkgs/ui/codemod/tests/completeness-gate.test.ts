@@ -9,7 +9,10 @@ describe('checkCompleteness', () => {
   test('clean converted output is empty', () => {
     expect(
       checkCompleteness([
-        { path: 'libs/x.tsx', nextText: 'export const A = () => <div class="box p-1" />;' },
+        {
+          path: 'libs/x.tsx',
+          nextText: 'export const A = () => <div class="box p-1" />;',
+        },
       ])
     ).toEqual([]);
   });
@@ -47,7 +50,8 @@ export const A = () => <Box sx={{ p: 1 }} class={cn('a')} />;
     const hits = checkCompleteness([
       {
         path: 'libs/chess/x.ts',
-        nextText: 'import type { SxProps } from "@pkgs/ui"; export const x: SxProps = {};',
+        nextText:
+          'import type { SxProps } from "@pkgs/ui"; export const x: SxProps = {};',
       },
     ]);
     expect(hits.some((h) => h.kind === 'sx-type')).toBe(true);

@@ -28,6 +28,7 @@ import { existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import type { GateHit } from './completeness-gate';
 import { formatReport } from './report';
+import type { RunResult } from './run-codemod';
 import { runCodemod } from './run-codemod';
 import { invariant } from './tiger';
 
@@ -138,6 +139,57 @@ async function verifyWrites(
   return bad;
 }
 
+/** All-or-nothing preflight: any gate failure writes zero files. */
+function gateExitCode(
+  result: RunResult
+): { code: number; message: string } | undefined {
+  if (result.summary.parseFailures > 0) {
+    return {
+      code: 2,
+      message: 'all-or-nothing: parse failures — wrote zero files',
+    };
+  }
+  if (result.unstable.length > 0) {
+    return {
+      code: 3,
+      message: `all-or-nothing: unstable outputs — wrote zero files: ${result.unstable.join(',')}`,
+    };
+  }
+  if (result.gateHits.length > 0) {
+    return {
+      code: 5,
+      message: `all-or-nothing: completeness gate — wrote zero files (${result.gateHits.length} hits)`,
+    };
+  }
+  return undefined;
+}
+
+async function commitWrites(result: RunResult): Promise<number> {
+  const gate = gateExitCode(result);
+  if (gate !== undefined) {
+    logPhase(gate.message);
+    process.stdout.write(`${formatReport(result.summary)}\n`);
+    if (gate.code === 5)
+      process.stdout.write(`${formatGateHits(result.gateHits)}\n`);
+    return gate.code;
+  }
+  const writes = result.outputs.filter((o) => o.changed);
+  logPhase(`all gates passed — writing ${writes.length} files…`);
+  for (const output of writes) {
+    await Bun.write(output.path, output.nextText);
+  }
+  logPhase('verifying written bytes…');
+  const bad = await verifyWrites(writes);
+  if (bad.length > 0) {
+    logPhase(
+      `post-write mismatch in ${bad.join(',')} — recover with: git checkout -- ${bad.join(' ')}`
+    );
+    return 4;
+  }
+  logPhase('commit complete — tree is converted and verified');
+  return 0;
+}
+
 async function main(): Promise<number> {
   let args: CliArgs;
   try {
@@ -171,42 +223,7 @@ async function main(): Promise<number> {
     inputs[path] = await Bun.file(path).text();
   }
   const result = runCodemod(inputs, { dryRun: !args.write });
-  if (args.write) {
-    if (result.summary.parseFailures > 0) {
-      logPhase('all-or-nothing: parse failures — wrote zero files');
-      process.stdout.write(`${formatReport(result.summary)}\n`);
-      return 2;
-    }
-    if (result.unstable.length > 0) {
-      logPhase(
-        `all-or-nothing: unstable outputs — wrote zero files: ${result.unstable.join(',')}`
-      );
-      process.stdout.write(`${formatReport(result.summary)}\n`);
-      return 3;
-    }
-    if (result.gateHits.length > 0) {
-      logPhase(
-        `all-or-nothing: completeness gate — wrote zero files (${result.gateHits.length} hits)`
-      );
-      process.stdout.write(`${formatGateHits(result.gateHits)}\n`);
-      process.stdout.write(`${formatReport(result.summary)}\n`);
-      return 5;
-    }
-    const writes = result.outputs.filter((o) => o.changed);
-    logPhase(`all gates passed — writing ${writes.length} files…`);
-    for (const output of writes) {
-      await Bun.write(output.path, output.nextText);
-    }
-    logPhase('verifying written bytes…');
-    const bad = await verifyWrites(writes);
-    if (bad.length > 0) {
-      logPhase(
-        `post-write mismatch in ${bad.join(',')} — recover with: git checkout -- ${bad.join(' ')}`
-      );
-      return 4;
-    }
-    logPhase('commit complete — tree is converted and verified');
-  }
+  if (args.write) return commitWrites(result);
   process.stdout.write(`${formatReport(result.summary)}\n`);
   if (result.summary.parseFailures > 0) return 2;
   if (result.unstable.length > 0) return 3;

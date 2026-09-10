@@ -12,11 +12,9 @@ export type GateHit = {
 
 const THEME_PATH = /(?:^|[/\\])pkgs[/\\]ui[/\\]src[/\\]theme(?:[/\\]|$)/;
 
-const SX_ATTR =
-  /\b(?:sx|frameSx|fieldSx|enterSx|exitSx)\s*=/;
+const SX_ATTR = /\b(?:sx|frameSx|fieldSx|enterSx|exitSx)\s*=/;
 
-const PURGED_TAG =
-  /<(?:Box|Stack|Center|Spacer|Card|Divider|Clickable|Text)\b/;
+const PURGED_TAG = /<(?:Box|Stack|Center|Spacer|Card|Divider|Clickable|Text)\b/;
 
 const PURGED_IMPORT_NAMES =
   /\b(?:Box|Stack|Center|Spacer|Card|Divider|Clickable|Text)\b/;
@@ -53,7 +51,11 @@ function scanImportLines(path: string, text: string, out: GateHit[]): void {
     const named = trimmed.match(/\{([^}]+)\}/);
     if (named?.[1] === undefined) continue;
     for (const part of named[1].split(',')) {
-      const id = part.trim().split(/\s+as\s+/i)[0]?.trim() ?? '';
+      const id =
+        part
+          .trim()
+          .split(/\s+as\s+/i)[0]
+          ?.trim() ?? '';
       if (
         PURGED_IMPORT_NAMES.test(id) &&
         id === id.match(PURGED_IMPORT_NAMES)?.[0]
@@ -61,7 +63,10 @@ function scanImportLines(path: string, text: string, out: GateHit[]): void {
         out.push(hit(path, 'purged-import', trimmed.slice(0, 120)));
         break;
       }
-      if (CLASS_HELPER_IMPORT.test(id) && id === id.match(CLASS_HELPER_IMPORT)?.[0]) {
+      if (
+        CLASS_HELPER_IMPORT.test(id) &&
+        id === id.match(CLASS_HELPER_IMPORT)?.[0]
+      ) {
         out.push(hit(path, 'class-helper-import', trimmed.slice(0, 120)));
         break;
       }
@@ -80,7 +85,13 @@ export function checkCompleteness(
       hits.push(hit(path, 'sx-attr', 'sx=/frameSx=/fieldSx=/enterSx=/exitSx='));
     }
     if (PURGED_TAG.test(nextText)) {
-      hits.push(hit(path, 'purged-tag', '<Box|Stack|Center|Spacer|Card|Divider|Clickable|Text'));
+      hits.push(
+        hit(
+          path,
+          'purged-tag',
+          '<Box|Stack|Center|Spacer|Card|Divider|Clickable|Text'
+        )
+      );
     }
     scanImportLines(path, nextText, hits);
     if (!allowTheme && SX_TYPE_OR_HELPER.test(nextText)) {
@@ -90,7 +101,11 @@ export function checkCompleteness(
     }
     if (CLASS_HELPER.test(nextText)) {
       hits.push(
-        hit(path, 'class-helper', 'cn|clsx|classnames|twMerge|twJoin|cx|cva|joinClass')
+        hit(
+          path,
+          'class-helper',
+          'cn|clsx|classnames|twMerge|twJoin|cx|cva|joinClass'
+        )
       );
     }
     if (TODO_MARKER.test(nextText)) {

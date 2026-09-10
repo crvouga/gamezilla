@@ -271,10 +271,18 @@ function rawDynamicStyle(prop: string): DynamicStyle {
     };
   }
   if (isRawPairProp(prop)) {
-    return { kind: 'style', cssProps: rawPairCssProps(prop), wrap: 'px-number-or-string' };
+    return {
+      kind: 'style',
+      cssProps: rawPairCssProps(prop),
+      wrap: 'px-number-or-string',
+    };
   }
   if (isLogicalInsetProp(prop)) {
-    return { kind: 'style', cssProps: [logicalInsetCssProp(prop)], wrap: 'px-number-or-string' };
+    return {
+      kind: 'style',
+      cssProps: [logicalInsetCssProp(prop)],
+      wrap: 'px-number-or-string',
+    };
   }
   return {
     kind: 'style',

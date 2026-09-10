@@ -36,41 +36,41 @@ export function peelPropSpreads(
   element: ts.JsxOpeningLikeElement,
   source: ts.SourceFile
 ): PeeledSpreads {
-  const sxExprs: string[] = [];
-  const frameSxExprs: string[] = [];
-  const enterSxExprs: string[] = [];
-  const exitSxExprs: string[] = [];
-  const fieldSxExprs: string[] = [];
+  const lists: Record<
+    'sx' | 'frameSx' | 'enterSx' | 'exitSx' | 'fieldSx',
+    string[]
+  > = {
+    sx: [],
+    frameSx: [],
+    enterSx: [],
+    exitSx: [],
+    fieldSx: [],
+  };
+  const singles: Partial<
+    Record<'dataSet' | 'variant' | 'numberOfLines' | 'feedback', string>
+  > = {};
   const dropSpreadTexts: string[] = [];
-  let dataSetExpr: string | undefined;
-  let variantExpr: string | undefined;
-  let numberOfLinesExpr: string | undefined;
-  let feedbackExpr: string | undefined;
   for (const prop of element.attributes.properties) {
     if (!ts.isJsxSpreadAttribute(prop)) continue;
     const peeled = peelOne(prop.expression, source);
     if (peeled === undefined) continue;
     dropSpreadTexts.push(prop.getText(source));
-    if (peeled.prop === 'sx') sxExprs.push(peeled.expr);
-    else if (peeled.prop === 'frameSx') frameSxExprs.push(peeled.expr);
-    else if (peeled.prop === 'enterSx') enterSxExprs.push(peeled.expr);
-    else if (peeled.prop === 'exitSx') exitSxExprs.push(peeled.expr);
-    else if (peeled.prop === 'fieldSx') fieldSxExprs.push(peeled.expr);
-    else if (peeled.prop === 'dataSet') dataSetExpr = peeled.expr;
-    else if (peeled.prop === 'variant') variantExpr = peeled.expr;
-    else if (peeled.prop === 'numberOfLines') numberOfLinesExpr = peeled.expr;
-    else if (peeled.prop === 'feedback') feedbackExpr = peeled.expr;
+    if (peeled.prop in lists) {
+      lists[peeled.prop as keyof typeof lists].push(peeled.expr);
+    } else {
+      singles[peeled.prop as keyof typeof singles] = peeled.expr;
+    }
   }
   return {
-    sxExprs,
-    frameSxExprs,
-    enterSxExprs,
-    exitSxExprs,
-    fieldSxExprs,
-    dataSetExpr,
-    variantExpr,
-    numberOfLinesExpr,
-    feedbackExpr,
+    sxExprs: lists.sx,
+    frameSxExprs: lists.frameSx,
+    enterSxExprs: lists.enterSx,
+    exitSxExprs: lists.exitSx,
+    fieldSxExprs: lists.fieldSx,
+    dataSetExpr: singles.dataSet,
+    variantExpr: singles.variant,
+    numberOfLinesExpr: singles.numberOfLines,
+    feedbackExpr: singles.feedback,
     dropSpreadTexts,
   };
 }

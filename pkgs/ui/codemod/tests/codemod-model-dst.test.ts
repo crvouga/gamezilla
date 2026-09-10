@@ -9,8 +9,8 @@
 import * as fc from 'fast-check';
 import ts from 'typescript';
 import { describe, expect, test } from 'vitest';
-import { checkCompleteness } from '../completeness-gate';
 import { parseArgs } from '../cli-io';
+import { checkCompleteness } from '../completeness-gate';
 import { runCodemod } from '../run-codemod';
 import { transformFile } from '../transform';
 
@@ -104,18 +104,26 @@ describe('property-based transform invariants', () => {
 
   test('runCodemod preserves one output per input and stable counts', async () => {
     await fc.assert(
-      fc.property(fc.array(sourceArb, { minLength: 1, maxLength: 20 }), (cases) => {
-        const inputs = Object.fromEntries(
-          cases.map((item, index) => [`file-${index}.tsx`, item.source])
-        );
-        const result = runCodemod(inputs, { dryRun: true });
-        expect(result.outputs).toHaveLength(Object.keys(inputs).length);
-        expect(result.files).toHaveLength(Object.keys(inputs).length);
-        expect(result.unstable).toEqual([]);
-        expect(result.summary.totalConvertedA + result.summary.totalConvertedB).toBe(
-          result.files.reduce((sum, file) => sum + file.convertedA + file.convertedB, 0)
-        );
-      }),
+      fc.property(
+        fc.array(sourceArb, { minLength: 1, maxLength: 20 }),
+        (cases) => {
+          const inputs = Object.fromEntries(
+            cases.map((item, index) => [`file-${index}.tsx`, item.source])
+          );
+          const result = runCodemod(inputs, { dryRun: true });
+          expect(result.outputs).toHaveLength(Object.keys(inputs).length);
+          expect(result.files).toHaveLength(Object.keys(inputs).length);
+          expect(result.unstable).toEqual([]);
+          expect(
+            result.summary.totalConvertedA + result.summary.totalConvertedB
+          ).toBe(
+            result.files.reduce(
+              (sum, file) => sum + file.convertedA + file.convertedB,
+              0
+            )
+          );
+        }
+      ),
       { numRuns: 100 }
     );
   });
@@ -137,7 +145,9 @@ function modelPipeline(source: string, write: boolean): PipelineState {
     transformed: result.text,
     write,
     stable: again.text === result.text && again.converted.length === 0,
-    gatePassed: checkCompleteness([{ path: 'model.tsx', nextText: result.text }]).length === 0,
+    gatePassed:
+      checkCompleteness([{ path: 'model.tsx', nextText: result.text }])
+        .length === 0,
   };
 }
 
@@ -164,8 +174,14 @@ describe('model-based migration pipeline', () => {
   test('CLI model rejects ambiguous or unknown transitions', () => {
     expect(() => parseArgs(['--write', '--dry-run'])).toThrow();
     expect(() => parseArgs(['--unknown'])).toThrow();
-    expect(parseArgs(['--dry-run'])).toMatchObject({ write: false, dryRun: true });
-    expect(parseArgs(['--write'])).toMatchObject({ write: true, dryRun: false });
+    expect(parseArgs(['--dry-run'])).toMatchObject({
+      write: false,
+      dryRun: true,
+    });
+    expect(parseArgs(['--write'])).toMatchObject({
+      write: true,
+      dryRun: false,
+    });
   });
 });
 

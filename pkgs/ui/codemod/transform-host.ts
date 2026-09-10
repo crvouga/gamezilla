@@ -124,9 +124,7 @@ export function convertHost(
     mainStyleExprs.length > 0 ||
     mainClassList.length > 0 ||
     existingClass.kind === 'expr' ||
-    prefixedSlots.some(
-      (s) => s.styleExprs.length > 0 || s.classList.length > 0
-    )
+    prefixedSlots.some((s) => s.styleExprs.length > 0 || s.classList.length > 0)
   ) {
     tier = 'B';
   }

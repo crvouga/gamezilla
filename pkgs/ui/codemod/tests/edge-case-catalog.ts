@@ -11,11 +11,7 @@ export type CatalogEntry = {
   readonly title: string;
 };
 
-function e(
-  id: string,
-  family: CatalogFamily,
-  title: string
-): CatalogEntry {
+function e(id: string, family: CatalogFamily, title: string): CatalogEntry {
   return { id, family, title };
 }
 
@@ -45,12 +41,28 @@ export const EDGE_CASE_CATALOG: readonly CatalogEntry[] = [
   e('A.spacer', 'A', 'Spacer flex-1 + aria-hidden'),
   e('A.card', 'A', 'Card elevation ?? 1 + base-first sx merge → div'),
   e('A.divider', 'A', 'Divider hairline + orientation → div'),
-  e('A.class-literal-merge', 'A', 'existing literal class merges after generated'),
-  e('A.class-expr-classlist', 'A', 'expression class → classList; static class first'),
-  e('A.passthrough-handlers', 'A', 'handlers / ARIA / ref / rest spreads survive'),
+  e(
+    'A.class-literal-merge',
+    'A',
+    'existing literal class merges after generated'
+  ),
+  e(
+    'A.class-expr-classlist',
+    'A',
+    'expression class → classList; static class first'
+  ),
+  e(
+    'A.passthrough-handlers',
+    'A',
+    'handlers / ARIA / ref / rest spreads survive'
+  ),
   e('A.shadowed-local-box', 'A', 'shadowed local named Box is never touched'),
   e('A.shadowed-param-box', 'A', 'parameter named Box shadows the import'),
-  e('A.shadowed-nested-const', 'A', 'nested const Box does not block outer JSX'),
+  e(
+    'A.shadowed-nested-const',
+    'A',
+    'nested const Box does not block outer JSX'
+  ),
   e('A.aliased-import', 'A', 'aliased imports resolve to the export'),
   e('A.relative-box-import', 'A', 'relative ../box import converts and prunes'),
 
@@ -96,7 +108,11 @@ export const EDGE_CASE_CATALOG: readonly CatalogEntry[] = [
   e('B.spread-conditional', 'B', 'conditional spread ...(cond ? {…} : {})'),
   e('B.spread-accessor', 'B', 'spread ...accessor()'),
   e('B.spread-attr-sx', 'B', 'spread attrs carrying sx'),
-  e('B.spread-props-onto-primitive', 'B', 'generic {...props} onto purged primitive'),
+  e(
+    'B.spread-props-onto-primitive',
+    'B',
+    'generic {...props} onto purged primitive'
+  ),
 
   // --- C. Key × value domain ---
   e('C.scaled-fractional', 'C', 'scaled shorthands fractional 0.5/1.5/2.5'),
@@ -150,11 +166,19 @@ export const EDGE_CASE_CATALOG: readonly CatalogEntry[] = [
   e('C.font-style', 'C', 'fontStyle'),
   e('C.line-clamp', 'C', 'lineClamp'),
   e('C.transition-property-concat', 'C', 'transitionProperty string concat'),
-  e('C.transition-duration-var', 'C', 'transitionDuration/TimingFunction var()'),
+  e(
+    'C.transition-duration-var',
+    'C',
+    'transitionDuration/TimingFunction var()'
+  ),
   e('C.animation-delay-dyn', 'C', 'animationDelay dynamic'),
   e('C.scroll-snap-framesx', 'C', 'scrollSnapType/Align on frameSx'),
   e('C.aspect-ratio', 'C', 'aspectRatio in helpers'),
-  e('C.underscore-arbitrary', 'C', 'underscore strings never become bad classes'),
+  e(
+    'C.underscore-arbitrary',
+    'C',
+    'underscore strings never become bad classes'
+  ),
   e('C.every-sxprops-key', 'C', 'every SxProps key has static mapper'),
 
   // --- D. Clickable / Text ---
@@ -177,7 +201,11 @@ export const EDGE_CASE_CATALOG: readonly CatalogEntry[] = [
   e('E.scrollview-framesx-only', 'E', 'ScrollView frameSx only'),
   e('E.scrollview-both', 'E', 'ScrollView sx + frameSx'),
   e('E.scrollview-neither', 'E', 'ScrollView neither sx nor frameSx'),
-  e('E.scrollview-framesx-array', 'E', 'ScrollView frameSx={[{ flex: 1 }, local.frameSx]}'),
+  e(
+    'E.scrollview-framesx-array',
+    'E',
+    'ScrollView frameSx={[{ flex: 1 }, local.frameSx]}'
+  ),
   e('E.scrollview-flex-detect', 'E', 'frame flex/flexGrow → detectable class'),
   e('E.virtuallist', 'E', 'VirtualList sx/frameSx'),
   e('E.screen-body-scroll', 'E', 'ScreenBodyScrollView sx/frameSx'),
@@ -200,7 +228,11 @@ export const EDGE_CASE_CATALOG: readonly CatalogEntry[] = [
   e('E.wrapper-guest-host', 'E', 'guest/host name texts'),
   e('E.wrapper-account-device', 'E', 'AccountDeviceList*Text'),
   e('E.wrapper-friend-screen', 'E', 'FriendUserScreenContent'),
-  e('E.wrapper-profile-handle', 'E', "ProfileHandleScreenBody BodyContentProps['sx']"),
+  e(
+    'E.wrapper-profile-handle',
+    'E',
+    "ProfileHandleScreenBody BodyContentProps['sx']"
+  ),
   e('E.forwarder-decl', 'E', 'forwarder prop declaration rewrite'),
   e('E.forwarder-callsite', 'E', 'forwarder call sites cross-file'),
   e('E.screenbase-render-prop', 'E', 'ScreenBase content={({ sx }) => …}'),
@@ -235,7 +267,11 @@ export const EDGE_CASE_CATALOG: readonly CatalogEntry[] = [
   e('H.no-helper-import', 'H', 'no class-helper import injected'),
   e('H.only-dataattrs-inject', 'H', 'only dataAttrs may be injected'),
   e('H.style-dash-case', 'H', 'style objects use dash-case keys'),
-  e('H.style-string-preexisting', 'H', 'string style only for pre-existing strings'),
+  e(
+    'H.style-string-preexisting',
+    'H',
+    'string style only for pre-existing strings'
+  ),
   e('H.class-before-classlist', 'H', 'static class before classList'),
   e('H.no-reactive-class-with-list', 'H', 'never reactive class + classList'),
 
@@ -250,4 +286,6 @@ export const EDGE_CASE_CATALOG: readonly CatalogEntry[] = [
   e('I.completeness-gate', 'I', 'completeness gate asserted in corpus'),
 ];
 
-export const CATALOG_IDS: readonly string[] = EDGE_CASE_CATALOG.map((c) => c.id);
+export const CATALOG_IDS: readonly string[] = EDGE_CASE_CATALOG.map(
+  (c) => c.id
+);

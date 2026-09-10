@@ -61,20 +61,19 @@ export function isBorderWidthProp(prop: string): boolean {
  * (the runtime special-cases `borderBottomWidth`); elsewhere it passes
  * through verbatim — invalid CSS the browser drops, so the codemod emits
  * the identical invalid declaration rather than a visible 1px border. */
+/** Prop → Tailwind class prefix for width utilities (defaults to `border-l`). */
+const BORDER_WIDTH_PREFIX: Readonly<Record<string, string>> = {
+  borderWidth: 'border',
+  borderTopWidth: 'border-t',
+  borderRightWidth: 'border-r',
+  borderBottomWidth: 'border-b',
+};
+
 export function mapBorderWidthStatic(
   prop: string,
   value: string | number | boolean | null
 ): StaticMapping {
-  const prefix =
-    prop === 'borderWidth'
-      ? 'border'
-      : prop === 'borderTopWidth'
-        ? 'border-t'
-        : prop === 'borderRightWidth'
-          ? 'border-r'
-          : prop === 'borderBottomWidth'
-            ? 'border-b'
-            : 'border-l';
+  const prefix = BORDER_WIDTH_PREFIX[prop] ?? 'border-l';
   const css = BORDER_WIDTH_CSS[prop] ?? 'border-width';
   if (value === 0) return { kind: 'classes', classes: [`${prefix}-0`] };
   if (value === 1) return { kind: 'classes', classes: [prefix] };
@@ -205,18 +204,18 @@ export function mapLogicalInsetStatic(
   return { kind: 'bail', reason: `${prop} value is not static` };
 }
 
+/** Prop → CSS property for outline utilities (defaults to `outline-color`). */
+const OUTLINE_CSS: Readonly<Record<string, string>> = {
+  outlineStyle: 'outline-style',
+  outlineWidth: 'outline-width',
+  outlineOffset: 'outline-offset',
+};
+
 export function mapOutlineStatic(
   prop: string,
   value: string | number | boolean | null
 ): StaticMapping {
-  const css =
-    prop === 'outlineStyle'
-      ? 'outline-style'
-      : prop === 'outlineWidth'
-        ? 'outline-width'
-        : prop === 'outlineOffset'
-          ? 'outline-offset'
-          : 'outline-color';
+  const css = OUTLINE_CSS[prop] ?? 'outline-color';
   if (typeof value === 'number' && Number.isFinite(value)) {
     return { kind: 'classes', classes: [`[${css}:${px(value)}]`] };
   }
@@ -227,24 +226,21 @@ export function mapOutlineStatic(
 }
 
 /** Dynamics for exact-safe props splice verbatim. `flex` bails: the Yoga
-   * `0 → 0 1 auto` rule cannot be reproduced with a verbatim splice. */
+ * `0 → 0 1 auto` rule cannot be reproduced with a verbatim splice. */
+/** Prop → CSS property for dynamic verbatim splices (defaults to itself). */
+const LAYOUT_DYNAMIC_CSS: Readonly<Record<string, string>> = {
+  flexGrow: 'flex-grow',
+  flexShrink: 'flex-shrink',
+  opacity: 'opacity',
+  zIndex: 'z-index',
+  cursor: 'cursor',
+  aspectRatio: 'aspect-ratio',
+};
+
 export function mapLayoutDynamic(prop: string): DynamicStyle {
   if (prop === 'flex') {
     return { kind: 'bail', reason: 'flex dynamic needs the Yoga rule' };
   }
-  const cssProp =
-    prop === 'flexGrow'
-      ? 'flex-grow'
-      : prop === 'flexShrink'
-        ? 'flex-shrink'
-        : prop === 'opacity'
-          ? 'opacity'
-          : prop === 'zIndex'
-            ? 'z-index'
-            : prop === 'cursor'
-              ? 'cursor'
-              : prop === 'aspectRatio'
-                ? 'aspect-ratio'
-                : prop;
+  const cssProp = LAYOUT_DYNAMIC_CSS[prop] ?? prop;
   return { kind: 'style', cssProps: [cssProp], wrap: 'raw' };
 }
