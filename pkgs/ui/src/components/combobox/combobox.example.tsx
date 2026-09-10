@@ -2,8 +2,6 @@
 import { useLingui } from '@lingui/solid/macro';
 import { createSignal, type JSX } from 'solid-js';
 import { ExampleRoot } from '../explorer/example-root';
-import { Stack } from '../stack';
-import { Text } from '../text';
 import { Combobox } from './combobox';
 
 const FRUITS = [
@@ -21,7 +19,7 @@ export default function ComboboxExample(): JSX.Element {
 
   return (
     <ExampleRoot>
-      <Stack spacing={3}>
+      <div class="box flex-col gap-3">
         <Combobox
           label="Favorite fruit"
           options={FRUITS}
@@ -42,14 +40,11 @@ export default function ComboboxExample(): JSX.Element {
           searchPlaceholder={t`Filter fruits…`}
           emptyMessage="No matching fruits"
         />
-        <Text
-          variant="caption"
-          label={
-            fruits().length === 0
-              ? 'No fruits selected'
-              : `Selected: ${fruits().join(', ')}`
-          }
-        />
+        <p class="text textCaption">
+          {fruits().length === 0
+            ? 'No fruits selected'
+            : `Selected: ${fruits().join(', ')}`}
+        </p>
 
         <Combobox
           label="Disabled"
@@ -59,11 +54,9 @@ export default function ComboboxExample(): JSX.Element {
           disabled
         />
 
-        <Text
-          variant="caption"
-          sx={{ color: 'textSecondary' }}
-          label="Open these to see in-surface status (trigger stays enabled):"
-        />
+        <p class="text textCaption text-text-secondary">
+          {'Open these to see in-surface status (trigger stays enabled):'}
+        </p>
 
         <Combobox
           label="Loading"
@@ -82,7 +75,7 @@ export default function ComboboxExample(): JSX.Element {
           error="User search failed (503): Service Unavailable"
           emptyMessage="No matching fruits"
         />
-      </Stack>
+      </div>
     </ExampleRoot>
   );
 }

@@ -1,4 +1,3 @@
-import { Box } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { AccountDeviceCurrentBadge } from './account-device-current-badge';
 import { AccountDeviceListTitleText } from './account-device-list-title-text';
@@ -12,20 +11,13 @@ export function AccountDeviceDetailHeader(
   props: AccountDeviceDetailHeaderProps
 ): JSX.Element {
   return (
-    <Box
-      sx={{
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-        gap: 2,
-      }}
-    >
+    <div class="box flex-row flex-wrap items-center gap-2">
       <AccountDeviceListTitleText
         deviceId={props.deviceId}
         variant="heading"
         numberOfLines={2}
       />
       <AccountDeviceCurrentBadge deviceId={props.deviceId} />
-    </Box>
+    </div>
   );
 }

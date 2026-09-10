@@ -7,7 +7,6 @@
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { useSoundsPreference } from '@pkgs/sounds/solid';
 import {
-  Box,
   GaugeIcon,
   type Href,
   type IconComponent,
@@ -209,8 +208,8 @@ export function SettingsScreen(): JSX.Element {
         { name: <Trans>Settings</Trans> },
       ]}
       scroll
-      content={({ sx }) => (
-        <Box sx={[sx, { gap: 5 }]}>
+      content={({ bodyClass }) => (
+        <div class={`box ${`${bodyClass}`} gap-5`}>
           <For each={groups()}>
             {(group) => (
               <MenuSection title={group.title}>
@@ -220,7 +219,7 @@ export function SettingsScreen(): JSX.Element {
               </MenuSection>
             )}
           </For>
-        </Box>
+        </div>
       )}
     />
   );

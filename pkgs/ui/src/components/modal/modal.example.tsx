@@ -2,7 +2,6 @@
 import { createSignal, type JSX } from 'solid-js';
 import { Button } from '../button';
 import { ExampleRoot } from '../explorer/example-root';
-import { Stack } from '../stack';
 import { ConfirmationModal } from './confirmation-modal';
 
 export default function ModalExample(): JSX.Element {
@@ -11,7 +10,7 @@ export default function ModalExample(): JSX.Element {
 
   return (
     <ExampleRoot>
-      <Stack spacing={2}>
+      <div class="box flex-col gap-2">
         <Button
           title="Open Default Modal"
           onClick={() => setDefaultOpen(true)}
@@ -21,7 +20,7 @@ export default function ModalExample(): JSX.Element {
           intent="danger"
           onClick={() => setDestructiveOpen(true)}
         />
-      </Stack>
+      </div>
 
       <ConfirmationModal
         visible={defaultOpen()}

@@ -1,7 +1,6 @@
 import { Handles } from '@libs/test-ids';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import {
-  Box,
   Button,
   Island,
   IslandGrid,
@@ -28,15 +27,15 @@ export function ProfileScreen(props: ProfileScreenProps): JSX.Element {
       screenId="profile"
       surface="canvas"
       breadcrumbs={[{ name: <Trans>Profile</Trans> }]}
-      content={({ sx }) => (
+      content={({ bodyClass }) => (
         <ScreenBodyScrollView
-          frameSx={sx}
-          sx={[
-            { flexGrow: 1 },
+          class={bodyClass}
+          contentClass="grow"
+          contentStyle={
             props.bottomInset !== undefined && props.bottomInset > 0
-              ? { paddingBottom: props.bottomInset }
-              : false,
-          ]}
+              ? { 'padding-bottom': `${props.bottomInset}px` }
+              : undefined
+          }
         >
           <ProfileScreenContent
             friendsStats={props.friendsStats}
@@ -58,31 +57,16 @@ function ProfileScreenContent(props: {
   return (
     <IslandGrid columns={3}>
       <Island span={1}>
-        <Box
-          sx={{
-            alignItems: 'center',
-            gap: 3,
-            pt: 2,
-          }}
-        >
+        <div class="box items-center gap-3 pt-2">
           <MyProfileAvatar size={96} />
-          <Box
-            sx={{
-              alignItems: 'center',
-              gap: 1,
-              alignSelf: 'stretch',
-              minWidth: 0,
-            }}
-          >
+          <div class="box items-center gap-1 self-stretch min-w-[0]">
             <MyUsername
               variant="heading"
               numberOfLines={1}
-              sx={{ textAlign: 'center' }}
+              class="text-center"
             />
-          </Box>
-          <Box
-            sx={{ flexDirection: 'row', gap: 2, alignSelf: 'stretch', mt: 2 }}
-          >
+          </div>
+          <div class="box flex-row gap-2 self-stretch mt-2">
             <Button
               title={t`Edit profile`}
               intent="neutral"
@@ -91,21 +75,19 @@ function ProfileScreenContent(props: {
               onClick={() => router.push('/profile/edit')}
               dataSet={{ testid: Handles.profileEdit }}
             />
-          </Box>
-        </Box>
+          </div>
+        </div>
       </Island>
       <Island span={2} title={<Trans>Friends</Trans>}>
-        <Box sx={{ gap: 3, alignSelf: 'stretch' }}>
+        <div class="box gap-3 self-stretch">
           {props.friendsStats !== undefined && props.friendsStats !== null
             ? props.friendsStats
             : null}
           {props.friendsActions !== undefined &&
           props.friendsActions !== null ? (
-            <Box sx={{ flexDirection: 'row', gap: 2 }}>
-              {props.friendsActions}
-            </Box>
+            <div class="box flex-row gap-2">{props.friendsActions}</div>
           ) : null}
-        </Box>
+        </div>
       </Island>
     </IslandGrid>
   );

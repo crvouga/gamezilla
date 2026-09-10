@@ -1,8 +1,6 @@
 /** @jsxImportSource solid-js */
 import { type JSX, Show } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
-import { Text } from '../text';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 
 export type MainMenuScreenHeaderProps = {
   title?: JSX.Element | undefined;
@@ -19,26 +17,19 @@ export function MainMenuScreenHeader(
   const hasSubtitle = (): boolean => props.subtitle !== undefined;
   return (
     <Show when={hasTitle() || hasSubtitle()}>
-      <Box
-        dataSet={{ component: 'MainMenuScreenHeader', ...props.dataSet }}
-        sx={{ gap: 1, alignItems: 'center', py: 2 }}
+      <div
+        class="box gap-1 items-center py-2"
+        {...dataAttrs({ component: 'MainMenuScreenHeader', ...props.dataSet })}
       >
         <Show when={hasTitle()}>
-          <Text
-            as="h1"
-            variant="heading"
-            sx={{ textAlign: 'center' }}
-            label={props.title}
-          />
+          <h1 class="text textHeading text-center">{props.title}</h1>
         </Show>
         <Show when={hasSubtitle()}>
-          <Text
-            variant="body"
-            sx={{ color: 'textSecondary', textAlign: 'center', opacity: 0.75 }}
-            label={props.subtitle}
-          />
+          <p class="text text-text-secondary text-center opacity-75">
+            {props.subtitle}
+          </p>
         </Show>
-      </Box>
+      </div>
     </Show>
   );
 }

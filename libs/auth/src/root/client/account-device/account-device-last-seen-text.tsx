@@ -1,4 +1,3 @@
-import { Text } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { createMemo } from 'solid-js';
 import { formatTimestamp } from '../device-parsers';
@@ -14,5 +13,5 @@ export function AccountDeviceLastSeenText(
 ): JSX.Element {
   const lastSeenAt = useDeviceColumn(props.deviceId, 'lastSeenAt');
   const label = createMemo(() => formatTimestamp(lastSeenAt()));
-  return <Text variant="body" numberOfLines={4} label={label()} />;
+  return <p class="text line-clamp-4">{label()}</p>;
 }

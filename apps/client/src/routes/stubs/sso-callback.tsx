@@ -6,7 +6,7 @@ import {
 } from '@libs/auth/public/sign-in-pending';
 import { Trans } from '@lingui/solid/macro';
 import { useClock, useTimers } from '@pkgs/clock/solid';
-import { Center, LoadingState, useRouter } from '@pkgs/ui';
+import { LoadingState, useRouter } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { onMount } from 'solid-js';
 
@@ -46,8 +46,8 @@ export default function SsoCallbackRoute(): JSX.Element {
   });
 
   return (
-    <Center sx={{ flex: 1, background: 'background' }}>
+    <div class="box items-center justify-center flex-1 bg-background">
       <LoadingState size="large" caption={<Trans>Signing in…</Trans>} />
-    </Center>
+    </div>
   );
 }

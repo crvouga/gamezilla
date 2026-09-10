@@ -1,8 +1,6 @@
 /** @jsxImportSource solid-js */
 import type { JSX } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
-import { Text } from '../text';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { useScreenTitleContext } from './screen-title-context';
 
 export type ScreenLargeTitleProps = {
@@ -22,13 +20,11 @@ export function ScreenLargeTitle(props: ScreenLargeTitleProps): JSX.Element {
     return value;
   };
   return (
-    <Box
-      sx={{ pt: 3, mb: 4 }}
-      dataSet={{ component: 'ScreenLargeTitle', ...props.dataSet }}
+    <div
+      class="box pt-3 mb-4"
+      {...dataAttrs({ component: 'ScreenLargeTitle', ...props.dataSet })}
     >
-      <Text as="h1" variant="title">
-        {resolved()}
-      </Text>
-    </Box>
+      <h1 class="text textTitle">{resolved()}</h1>
+    </div>
   );
 }

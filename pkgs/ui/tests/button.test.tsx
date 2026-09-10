@@ -74,7 +74,7 @@ describe('Button', () => {
   test('fullWidth stretches and icon renders inline', () => {
     renderUi(() => <Button title="Add" icon={PlusIcon} fullWidth />);
     const el = screen.getByRole('button', { name: 'Add' });
-    expect(cssOf(el)).toContain('width:100%');
+    expect(el.className).toMatch(/w-full/);
     expect(el.querySelector('svg')).not.toBeNull();
   });
 });

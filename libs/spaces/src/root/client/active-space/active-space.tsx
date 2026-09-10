@@ -1,4 +1,4 @@
-import { Box, useRouter } from '@pkgs/ui';
+import { useRouter } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { createSignal } from 'solid-js';
 import { closeSpaceDetail } from '../../../public/space-routes';
@@ -29,8 +29,8 @@ export function ActiveSpace(props: ActiveSpaceProps): JSX.Element {
   };
 
   return (
-    <Box sx={{ flex: 1, background: 'background' }}>
-      <Box sx={{ flex: 1, minHeight: 0 }}>
+    <div class="box flex-1 bg-background">
+      <div class="box flex-1 min-h-[0]">
         <ActiveSpaceBody
           spaceId={props.spaceId}
           onRequestEnd={() => requestEndSpace(props.spaceId)}
@@ -43,7 +43,7 @@ export function ActiveSpace(props: ActiveSpaceProps): JSX.Element {
           visible={renameOpen()}
           onClose={() => setRenameOpen(false)}
         />
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }

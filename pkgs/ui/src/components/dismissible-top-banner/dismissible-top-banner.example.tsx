@@ -3,7 +3,6 @@ import { createSignal, type JSX } from 'solid-js';
 import { Button } from '../button';
 import { ExampleRoot } from '../explorer/example-root';
 import { SegmentedControl } from '../segmented-control';
-import { Text } from '../text';
 import {
   DismissibleBanner,
   DismissibleBannerPortalProvider,
@@ -22,11 +21,12 @@ export default function DismissibleBannerExample(): JSX.Element {
 
   return (
     <DismissibleBannerPortalProvider>
-      <ExampleRoot sx={{ flex: 1, minHeight: 360 }}>
-        <Text
-          variant="caption"
-          label="Banner UI portals to DismissibleBannerPortalProvider (mount once at the app root). This example mounts its own provider so the banner stays inside the preview. Position is a prop — like a toaster region."
-        />
+      <ExampleRoot class="flex-1 min-h-[360px]">
+        <p class="text textCaption">
+          {
+            'Banner UI portals to DismissibleBannerPortalProvider (mount once at the app root). This example mounts its own provider so the banner stays inside the preview. Position is a prop — like a toaster region.'
+          }
+        </p>
         <SegmentedControl<DismissibleBannerPosition>
           segments={POSITION_SEGMENTS}
           selected={position()}

@@ -2,13 +2,9 @@ import type { LogLine, ParticipantColor } from '@pkgs/collab';
 import type { LocalizedString } from '@pkgs/i18n';
 import type { RoomActor } from '@pkgs/room';
 import {
-  Box,
-  Clickable,
   type ComponentDataSet,
   componentDataAttrs,
   FadeSwitch,
-  Stack,
-  Text,
 } from '@pkgs/ui';
 import { type JSX, Show } from 'solid-js';
 import { EventLogIcon } from '../event-log-icon';
@@ -91,52 +87,40 @@ export function EventLogBar(props: EventLogBarProps): JSX.Element {
       : null;
   };
   return (
-    <Clickable
+    <button
+      class="clickable clickableTint"
+      type="button"
       {...componentDataAttrs('EventLogBar', props.dataSet)}
       onClick={props.onPress}
       disabled={props.onPress === undefined}
     >
-      <Box sx={{ minWidth: 0, py: 0.5 }}>
-        <Stack
-          direction="horizontal"
-          spacing={1.5}
-          align="center"
-          sx={{ minHeight: 20 }}
-        >
+      <div class="box min-w-[0] py-0.5">
+        <div class="box flex-row gap-1.5 items-center min-h-[20px]">
           <Show when={line()}>
             {(latest) => <EventLogBarIdentity line={latest()} bar={props} />}
           </Show>
-          <Box sx={{ flex: 1, minWidth: 0 }}>
+          <div class="box flex-1 min-w-[0]">
             <FadeSwitch stateKey={stateKey()}>
-              <Stack direction="horizontal" spacing={1} align="center">
+              <div class="box flex-row gap-1 items-center">
                 {line()?.actor ? props.renderActorLabel?.(line()!.actor) : null}
-                <Text
-                  variant="caption"
-                  numberOfLines={1}
-                  label={body()}
-                  sx={{ color: 'textSecondary', flexShrink: 1 }}
-                />
-              </Stack>
+                <p class="text textCaption line-clamp-1 text-text-secondary shrink">
+                  {body()}
+                </p>
+              </div>
             </FadeSwitch>
-          </Box>
+          </div>
           <Show when={timeLabel()}>
             {(label) => (
-              <Text
-                variant="caption"
-                label={label()}
-                sx={{ color: 'textSecondary' }}
-              />
+              <p class="text textCaption text-text-secondary">{label()}</p>
             )}
           </Show>
           <Show when={(props.unreadCount ?? 0) > 0}>
-            <Text
-              variant="caption"
-              label={props.copy.unreadLabel(props.unreadCount ?? 0)}
-              sx={{ color: 'tint' }}
-            />
+            <p class="text textCaption text-tint">
+              {props.copy.unreadLabel(props.unreadCount ?? 0)}
+            </p>
           </Show>
-        </Stack>
-      </Box>
-    </Clickable>
+        </div>
+      </div>
+    </button>
   );
 }

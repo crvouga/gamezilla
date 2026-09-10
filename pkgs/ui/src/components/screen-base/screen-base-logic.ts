@@ -124,9 +124,9 @@ export function buildBodyContentProps(
   scroll: boolean,
   titleScroll: ScreenTitleScrollProps | undefined
 ): BodyContentProps {
-  const sx = scroll ? {} : { flex: 1 as const, minHeight: 0 as const };
-  if (titleScroll === undefined) return { sx };
-  return { sx, titleScroll };
+  const bodyClass = scroll ? '' : 'flex-1 min-h-0';
+  if (titleScroll === undefined) return { bodyClass };
+  return { bodyClass, titleScroll };
 }
 
 /**

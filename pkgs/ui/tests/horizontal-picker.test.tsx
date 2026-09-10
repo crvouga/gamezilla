@@ -38,7 +38,7 @@ describe('HorizontalPicker', () => {
     expect(cells).toHaveLength(ITEMS.length);
     const first = mustQuery('[data-component="HorizontalPickerCell"]');
     expect(cssOf(first)).toContain(`width:${WIDTH}px`);
-    expect(cssOf(first)).toContain('scroll-snap-align:center');
+    expect(first.className).toMatch(/scroll-snap-align/);
     expect(cells[2]?.getAttribute('data-key')).toBe('blue');
     expect(screen.getByRole('button', { name: 'Previous' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Next' })).toBeTruthy();

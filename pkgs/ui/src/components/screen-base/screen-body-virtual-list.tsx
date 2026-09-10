@@ -9,7 +9,7 @@
  */
 
 import { type JSX, splitProps } from 'solid-js';
-import { Box } from '../box';
+import { joinClass } from '../box/box';
 import { VirtualList, type VirtualListProps } from '../virtual-list';
 
 export type ScreenBodyVirtualListProps<ItemT> = VirtualListProps<ItemT>;
@@ -17,14 +17,14 @@ export type ScreenBodyVirtualListProps<ItemT> = VirtualListProps<ItemT>;
 export function ScreenBodyVirtualList<ItemT>(
   props: ScreenBodyVirtualListProps<ItemT>
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['frameSx', 'dataSet']);
+  const [local, rest] = splitProps(props, ['class', 'dataSet']);
   return (
-    <Box sx={{ flex: 1, minHeight: 0 }}>
+    <div class="flex-1 min-h-0">
       <VirtualList
-        frameSx={[{ flex: 1 }, local.frameSx]}
+        class={joinClass('flex-1', local.class)}
         dataSet={{ component: 'ScreenBodyVirtualList', ...local.dataSet }}
         {...rest}
       />
-    </Box>
+    </div>
   );
 }

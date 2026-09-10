@@ -9,7 +9,6 @@ import type {
   PieceColor,
   Square,
 } from '@pkgs/chess-board-core/types';
-import { Box, Clickable } from '@pkgs/ui';
 import { For, type JSX } from 'solid-js';
 
 import { pieceImageUri } from './piece-images';
@@ -61,27 +60,27 @@ function PromotionStack(props: {
   readonly onCancel: () => void;
 }): JSX.Element {
   return (
-    <Box
-      sx={{
-        position: 'absolute',
-        left: props.layout.left,
-        top: props.layout.top,
-        width: props.layout.cell,
-        flexDirection: 'column',
+    <div
+      class="box absolute flex-col"
+      style={{
+        left: `${props.layout.left}px`,
+        top: `${props.layout.top}px`,
+        width: `${props.layout.cell}px`,
       }}
       onClick={(e) => e.stopPropagation()}
     >
       <For each={[...props.layout.kinds]}>
         {(kind) => (
-          <Clickable
+          <button
+            class="clickable clickableTint p-0"
+            style={{
+              'background-color': props.theme.promotion.surface,
+              width: `${props.layout.cell}px`,
+              height: `${props.layout.cell}px`,
+            }}
+            type="button"
             aria-label={kind}
             onClick={() => props.onPick(kind)}
-            sx={{
-              width: props.layout.cell,
-              height: props.layout.cell,
-              p: 0,
-              backgroundColor: props.theme.promotion.surface,
-            }}
           >
             <img
               src={pieceImageUri(props.color, kind)}
@@ -90,25 +89,24 @@ function PromotionStack(props: {
               height={props.layout.cell}
               draggable={false}
             />
-          </Clickable>
+          </button>
         )}
       </For>
-      <Clickable
+      <button
+        class="clickable clickableTint items-center justify-center font-bold"
+        style={{
+          'background-color': props.theme.promotion.cancel,
+          color: props.theme.promotion.ink,
+          width: `${props.layout.cell}px`,
+          height: `${props.layout.cell * 0.45}px`,
+        }}
+        type="button"
         aria-label="Cancel promotion"
         onClick={() => props.onCancel()}
-        sx={{
-          width: props.layout.cell,
-          height: props.layout.cell * 0.45,
-          backgroundColor: props.theme.promotion.cancel,
-          color: props.theme.promotion.ink,
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontWeight: 700,
-        }}
       >
         <Trans>✕</Trans>
-      </Clickable>
-    </Box>
+      </button>
+    </div>
   );
 }
 
@@ -123,14 +121,11 @@ export function ChessBoardPromotion(
       boardPx: props.boardPx,
     });
   return (
-    <Box
-      sx={{
-        position: 'absolute',
-        inset: 0,
-        backgroundColor: props.theme.promotion.backdrop,
-      }}
+    <div
+      class="box absolute inset-[0]"
+      style={{ 'background-color': props.theme.promotion.backdrop }}
+      data-component="ChessBoardPromotion"
       onClick={() => props.onCancel()}
-      dataSet={{ component: 'ChessBoardPromotion' }}
     >
       <PromotionStack
         layout={layout()}
@@ -139,6 +134,6 @@ export function ChessBoardPromotion(
         onPick={props.onPick}
         onCancel={props.onCancel}
       />
-    </Box>
+    </div>
   );
 }

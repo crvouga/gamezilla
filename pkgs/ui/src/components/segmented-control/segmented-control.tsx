@@ -1,4 +1,5 @@
 /** @jsxImportSource solid-js */
+import { cssPx } from '../../css/css-px';
 /**
  * `SegmentedControl` -- horizontal tab-like mode switcher.
  *
@@ -21,10 +22,9 @@
  */
 
 import { For, type JSX, Show } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
+import { joinClass } from '../box';
 import { Clickable } from '../clickable';
-import { Text } from '../text';
 
 export type Segment<K extends string = string> = {
   key: K;
@@ -64,32 +64,27 @@ function SegmentButton<K extends string>(props: {
 }): JSX.Element {
   return (
     <Clickable
+      feedback={props.isActive ? 'none' : 'tint'}
+      class={joinClass(
+        'rounded-[6px] flex-1 items-center [padding-top:8px;padding-bottom:8px] [padding-left:14px;padding-right:14px] bg-transparent relative z-1'
+      )}
+      dataSet={{ component: 'Segment' }}
+      data-key={props.segment.key}
+      type="button"
       role="radio"
       aria-checked={props.isActive}
       onClick={() => props.onSelect(props.segment.key)}
       disabled={props.disabled}
-      feedback={props.isActive ? 'none' : 'tint'}
-      dataSet={{ component: 'Segment', key: props.segment.key }}
-      sx={{
-        borderRadius: 'sm',
-        flex: 1,
-        alignItems: 'center',
-        paddingVertical: 8,
-        paddingHorizontal: 14,
-        backgroundColor: 'transparent',
-        position: 'relative',
-        zIndex: 1,
-      }}
     >
-      <Text
-        variant="label"
-        sx={{
+      <label
+        class="text textLabel whitespace-nowrap"
+        style={{
           color: props.isActive ? 'text' : 'textSecondary',
-          fontWeight: props.isActive ? '600' : '500',
-          whiteSpace: 'nowrap',
+          'font-weight': props.isActive ? '600' : '500',
         }}
-        label={props.segment.label}
-      />
+      >
+        {props.segment.label}
+      </label>
     </Clickable>
   );
 }
@@ -105,40 +100,27 @@ export function SegmentedControl<K extends string = string>(
   const indicator = () =>
     segmentIndicatorCss(selectedIndex(), props.segments.length);
   return (
-    <Box
+    <div
+      class="box flex-row bg-surface-muted rounded-[10px] border border-border relative"
+      {...dataAttrs({ component: 'SegmentedControl', ...props.dataSet })}
+      style={{
+        padding: cssPx(CONTAINER_PADDING),
+        gap: `${(SEGMENT_GAP / 4) * 4}px`,
+      }}
       role="radiogroup"
       aria-label={props['aria-label']}
-      dataSet={{ component: 'SegmentedControl', ...props.dataSet }}
-      sx={{
-        flexDirection: 'row',
-        backgroundColor: 'surfaceMuted',
-        borderRadius: 'md',
-        borderWidth: 1,
-        borderColor: 'border',
-        padding: CONTAINER_PADDING,
-        gap: SEGMENT_GAP / 4,
-        position: 'relative',
-      }}
     >
       <Show when={props.segments.length > 0}>
-        <Box
-          aria-hidden="true"
-          dataSet={{ component: 'SegmentIndicator' }}
-          sx={{
-            position: 'absolute',
-            top: CONTAINER_PADDING,
-            bottom: CONTAINER_PADDING,
-            left: indicator().left,
-            width: indicator().width,
-            borderRadius: 'sm',
-            backgroundColor: 'surfaceElevated',
-            borderWidth: 1,
-            borderColor: 'border',
-            pointerEvents: 'none',
-            transitionProperty: 'left, width',
-            transitionDuration: 'var(--ui-duration-normal)',
-            transitionTimingFunction: 'var(--ui-easing-standard)',
+        <div
+          class="box absolute rounded-[6px] bg-surface-elevated border border-border pointer-events-none [transition-property:left,_width] [transition-duration:var(--ui-duration-normal)] [transition-timing-function:var(--ui-easing-standard)]"
+          data-component="SegmentIndicator"
+          style={{
+            top: cssPx(CONTAINER_PADDING),
+            bottom: cssPx(CONTAINER_PADDING),
+            left: cssPx(indicator().left),
+            width: cssPx(indicator().width),
           }}
+          aria-hidden="true"
         />
       </Show>
       <For each={props.segments}>
@@ -151,6 +133,6 @@ export function SegmentedControl<K extends string = string>(
           />
         )}
       </For>
-    </Box>
+    </div>
   );
 }

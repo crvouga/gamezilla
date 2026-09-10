@@ -1,6 +1,5 @@
-/* Semantic <table> skeleton for DataTable. Cell content is styled with `sx`
-   on Box / Text hosts; this module only owns the table-specific structure
-   that `sx` (a flex-oriented shorthand) cannot express. */
+/* Semantic <table> skeleton for DataTable. Cell content is styled with
+   class / style on hosts; this module only owns the table-specific structure. */
 
 .scroller {
   flex: 1 1 auto;

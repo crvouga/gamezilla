@@ -3,7 +3,6 @@ import { useTimers } from '@pkgs/clock/solid';
 import type { JSX } from 'solid-js';
 import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
-import { Text } from '../text';
 import { FormActionsFooter } from './form-actions-footer';
 
 const SAVE_DEMO_MS = 900;
@@ -28,19 +27,19 @@ export default function FormActionsFooterExample(): JSX.Element {
   };
   return (
     <ExampleRoot>
-      <Text
-        variant="caption"
-        sx={{ color: 'textSecondary' }}
-        label="Save runs through useMutationButton: Saving… -> Saved (or retryable error). On mobile, pin this to the bottom via ScreenBase's footer slot."
-      />
-      <Text variant="label" sx={{ color: 'textSecondary' }} label="Succeeds" />
+      <p class="text textCaption text-text-secondary">
+        {
+          "Save runs through useMutationButton: Saving… -> Saved (or retryable error). On mobile, pin this to the bottom via ScreenBase's footer slot."
+        }
+      </p>
+      <label class="text textLabel text-text-secondary">{'Succeeds'}</label>
       <SchemePreview>
         <FormActionsFooter
           cancel={{ label: 'Cancel', onClick: () => undefined }}
           submit={{ ...SUBMIT_LABELS, operation: save }}
         />
       </SchemePreview>
-      <Text variant="label" sx={{ color: 'textSecondary' }} label="Fails" />
+      <label class="text textLabel text-text-secondary">{'Fails'}</label>
       <SchemePreview>
         <FormActionsFooter
           cancel={{ label: 'Cancel', onClick: () => undefined }}

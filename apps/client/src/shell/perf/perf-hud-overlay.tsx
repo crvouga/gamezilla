@@ -4,7 +4,6 @@
  * expand the secondary metrics; "Hide" turns the preference off.
  */
 
-import { Box, Clickable, Text } from '@pkgs/ui';
 import { createSignal, type JSX, Show } from 'solid-js';
 
 import { usePerfHudPreference } from './perf-hud-preference';
@@ -28,25 +27,17 @@ function MetricLine(props: {
   readonly color?: string | undefined;
 }): JSX.Element {
   return (
-    <Box sx={{ flexDirection: 'row', gap: 1, alignItems: 'baseline' }}>
-      <Text
-        sx={{
-          fontSize: 10,
-          color: 'rgba(255,255,255,0.65)',
-          fontWeight: '600',
-        }}
-        label={props.label}
-      />
-      <Text
-        sx={{
-          fontSize: 11,
-          fontWeight: '700',
-          color: props.color ?? '#fff',
-          fontVariant: ['tabular-nums'],
-        }}
-        label={props.value}
-      />
-    </Box>
+    <div class="box flex-row gap-1 items-baseline">
+      <p class="text text-[10px] text-[rgba(255,255,255,0.65)] font-semibold">
+        {props.label}
+      </p>
+      <p
+        class="text text-[11px] font-bold"
+        style={{ color: props.color ?? '#fff' }}
+      >
+        {props.value}
+      </p>
+    </div>
   );
 }
 
@@ -57,40 +48,34 @@ function ExpandedMetrics(props: {
   const heapLabel = () =>
     props.snap.heapMb === null ? '—' : `${String(props.snap.heapMb)}MB`;
   return (
-    <Box sx={{ gap: 0.5, mt: 1 }}>
+    <div class="box gap-0.5 mt-1">
       <MetricLine label="slow%" value={String(props.snap.slowFramePct)} />
       <MetricLine label="LTn" value={String(props.snap.longTaskCount)} />
       <MetricLine label="heap" value={heapLabel()} />
       <Show when={props.snap.longestScript}>
         {(script) => (
-          <Text
-            sx={{ fontSize: 9, color: 'rgba(255,255,255,0.8)', mt: 0.5 }}
-            numberOfLines={3}
-            label={script()}
-          />
+          <p class="text line-clamp-3 text-[9px] text-[rgba(255,255,255,0.8)] mt-0.5">
+            {script()}
+          </p>
         )}
       </Show>
       <Show when={props.snap.inpTarget}>
         {(target) => (
-          <Text
-            sx={{ fontSize: 9, color: 'rgba(255,255,255,0.55)' }}
-            numberOfLines={2}
-            label={target()}
-          />
+          <p class="text line-clamp-2 text-[9px] text-[rgba(255,255,255,0.55)]">
+            {target()}
+          </p>
         )}
       </Show>
-      <Clickable
+      <button
+        class="clickable clickableTint mt-1 py-0.5"
+        data-testid="perf-hud-hide"
+        type="button"
         onClick={() => props.onHide()}
         aria-label="Hide performance monitor"
-        sx={{ mt: 1, py: 0.5 }}
-        dataSet={{ testid: 'perf-hud-hide' }}
       >
-        <Text
-          sx={{ fontSize: 10, color: '#93c5fd', fontWeight: '600' }}
-          label="Hide"
-        />
-      </Clickable>
-    </Box>
+        <p class="text text-[10px] text-[#93c5fd] font-semibold">{'Hide'}</p>
+      </button>
+    </div>
   );
 }
 
@@ -106,33 +91,24 @@ export function PerfHudOverlay(): JSX.Element {
 
   return (
     <Show when={enabled()}>
-      <Box
-        sx={{
-          position: 'absolute',
-          top: HUD_TOP,
-          right: HUD_RIGHT,
-          zIndex: HUD_Z_INDEX,
-          maxWidth: HUD_MAX_WIDTH,
+      <div
+        class="box absolute"
+        style={{
+          top: `${HUD_TOP}px`,
+          right: `${HUD_RIGHT}px`,
+          'z-index': HUD_Z_INDEX,
+          'max-width': `${HUD_MAX_WIDTH}px`,
         }}
-        dataSet={{ component: 'PerfHudOverlay', testid: 'perf-hud' }}
+        data-component="PerfHudOverlay"
+        data-testid="perf-hud"
       >
-        <Box
-          sx={{
-            backgroundColor: 'rgba(0,0,0,0.78)',
-            borderRadius: 8,
-            px: 2,
-            py: 1.5,
-            gap: 0.5,
-            borderWidth: 1,
-            borderColor: 'rgba(255,255,255,0.15)',
-          }}
-        >
-          <Clickable
+        <div class="box bg-[rgba(0,0,0,0.78)] rounded-[8px] px-2 py-1.5 gap-0.5 border border-[rgba(255,255,255,0.15)]">
+          <button
+            class="clickable gap-0.5 items-stretch"
+            type="button"
             onClick={() => setExpanded((v) => !v)}
             aria-label="Performance monitor"
             aria-expanded={expanded()}
-            feedback="none"
-            sx={{ gap: 0.5, alignItems: 'stretch' }}
           >
             <MetricLine
               label="FPS"
@@ -141,12 +117,12 @@ export function PerfHudOverlay(): JSX.Element {
             />
             <MetricLine label="INP" value={inpLabel()} />
             <MetricLine label="maxLT" value={maxLtLabel()} />
-          </Clickable>
+          </button>
           <Show when={expanded()}>
             <ExpandedMetrics snap={snap()} onHide={() => setEnabled(false)} />
           </Show>
-        </Box>
-      </Box>
+        </div>
+      </div>
     </Show>
   );
 }

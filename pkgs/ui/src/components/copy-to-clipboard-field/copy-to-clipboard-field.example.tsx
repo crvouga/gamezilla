@@ -6,7 +6,6 @@
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { createSignal, type JSX, Show } from 'solid-js';
 import { ExampleRoot } from '../explorer/example-root';
-import { Text } from '../text';
 import { CopyToClipboardField } from './copy-to-clipboard-field';
 
 export default function CopyToClipboardFieldExample(): JSX.Element {
@@ -17,7 +16,7 @@ export default function CopyToClipboardFieldExample(): JSX.Element {
     return Promise.resolve();
   };
   return (
-    <ExampleRoot sx={{ gap: 6 }}>
+    <ExampleRoot class="gap-6">
       <CopyToClipboardField
         label={<Trans>Commit hash</Trans>}
         helperText={t`Tap the field or icon to copy`}
@@ -35,11 +34,7 @@ export default function CopyToClipboardFieldExample(): JSX.Element {
 
       <Show when={lastCopied()}>
         {(text) => (
-          <Text
-            variant="caption"
-            sx={{ color: 'textSecondary' }}
-            label={`Last copied: ${text()}`}
-          />
+          <p class="text textCaption text-text-secondary">{`Last copied: ${text()}`}</p>
         )}
       </Show>
     </ExampleRoot>

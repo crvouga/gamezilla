@@ -2,8 +2,6 @@
 import type { JSX } from 'solid-js';
 import { ExampleRoot } from '../explorer/example-root';
 import { UserIcon } from '../icons';
-import { Stack } from '../stack';
-import { Text } from '../text';
 import { Avatar } from './avatar';
 
 const SAMPLE_SVG = `
@@ -23,30 +21,30 @@ const SAMPLE_SVG = `
 export default function AvatarExample(): JSX.Element {
   return (
     <ExampleRoot>
-      <Text variant="caption" label="Initials" />
-      <Stack direction="horizontal" spacing={3} align="center">
+      <p class="text textCaption">{'Initials'}</p>
+      <div class="box flex-row gap-3 items-center">
         <Avatar initials="JD" size={32} />
         <Avatar initials="AB" size={40} background="success" />
         <Avatar initials="XY" size={48} background="warning" />
         <Avatar initials="ZZ" size={56} background="destructive" />
-      </Stack>
+      </div>
 
-      <Text variant="caption" label="Image (uri)" />
-      <Stack direction="horizontal" spacing={3} align="center">
+      <p class="text textCaption">{'Image (uri)'}</p>
+      <div class="box flex-row gap-3 items-center">
         <Avatar uri="https://i.pravatar.cc/100?u=1" size={40} />
         <Avatar uri="https://i.pravatar.cc/100?u=2" size={48} />
         <Avatar uri="https://i.pravatar.cc/100?u=3" size={56} />
-      </Stack>
+      </div>
 
-      <Text variant="caption" label="SVG (e.g. DiceBear)" />
-      <Stack direction="horizontal" spacing={3} align="center">
+      <p class="text textCaption">{'SVG (e.g. DiceBear)'}</p>
+      <div class="box flex-row gap-3 items-center">
         <Avatar svg={SAMPLE_SVG} size={40} />
         <Avatar svg={SAMPLE_SVG} size={56} />
         <Avatar svg={SAMPLE_SVG} size={72} />
-      </Stack>
+      </div>
 
-      <Text variant="caption" label="Icon placeholder" />
-      <Stack direction="horizontal" spacing={3} align="center">
+      <p class="text textCaption">{'Icon placeholder'}</p>
+      <div class="box flex-row gap-3 items-center">
         <Avatar
           icon={UserIcon}
           size={40}
@@ -65,14 +63,14 @@ export default function AvatarExample(): JSX.Element {
           background="rgba(255,255,255,0.22)"
           foreground="rgba(255,255,255,0.92)"
         />
-      </Stack>
+      </div>
 
-      <Text variant="caption" label="Empty plate (loading)" />
-      <Stack direction="horizontal" spacing={3} align="center">
+      <p class="text textCaption">{'Empty plate (loading)'}</p>
+      <div class="box flex-row gap-3 items-center">
         <Avatar size={40} background="surface" />
         <Avatar size={56} background="surface" />
         <Avatar size={72} background="surface" />
-      </Stack>
+      </div>
     </ExampleRoot>
   );
 }

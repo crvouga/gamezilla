@@ -12,13 +12,10 @@
 import { useLingui } from '@lingui/solid/macro';
 import { type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-import type { SxProps } from '../../theme';
-import { Box } from '../box';
-import { joinClass } from '../box/box';
+import { Box, joinClass } from '../box';
 import { Clickable } from '../clickable';
 import { XIcon } from '../icons';
 import { Text } from '../text';
-import styles from './tab-strip.module.css';
 import type { TabStripItem } from './tab-strip-types';
 
 export const TAB_MIN_HEIGHT = 32;
@@ -37,116 +34,62 @@ export type TabStripTabProps = {
   readonly tabId?: string | undefined;
 };
 
-function shellChromeSx(closable: boolean, active: boolean): SxProps {
-  return {
-    position: 'relative',
-    flexShrink: 0,
-    flexDirection: 'row',
-    alignItems: 'center',
-    height: TAB_MIN_HEIGHT,
-    minWidth: TAB_MIN_WIDTH,
-    maxWidth: TAB_MAX_WIDTH,
-    paddingRight: closable ? 2 : 0,
-    borderTopLeftRadius: 'md',
-    borderTopRightRadius: 'md',
-    borderTopWidth: 1,
-    borderLeftWidth: 1,
-    borderRightWidth: 1,
-    borderBottomWidth: 1,
-    borderBottomColor: 'transparent',
-    borderColor: active ? 'border' : 'transparent',
-    backgroundColor: active ? 'background' : 'transparent',
-    zIndex: active ? 1 : 0,
-  };
+function shellChromeClass(active: boolean): string {
+  return joinClass(
+    'relative shrink-0 flex-row items-center rounded-tl-[10px] rounded-tr-[10px] border border-solid border-b-transparent',
+    active ? 'border-border bg-background z-[1]' : 'border-transparent z-0'
+  );
 }
 
-const separatorSx: SxProps = {
-  width: 1,
-  height: 14,
-  marginHorizontal: 2,
-  backgroundColor: 'border',
-  flexShrink: 0,
-};
-
-const iconSlotSx: SxProps = {
-  width: 14,
-  height: 14,
-  alignItems: 'center',
-  justifyContent: 'center',
-  flexShrink: 0,
-};
-
-const closeSx: SxProps = {
-  borderRadius: 'sm',
-  alignItems: 'center',
-  justifyContent: 'center',
-  flexShrink: 0,
-  width: 22,
-  height: 22,
-};
-
-const hairlineCoverSx: SxProps = {
-  position: 'absolute',
-  left: 1,
-  right: 1,
-  bottom: -1,
-  height: 2,
-  backgroundColor: 'background',
-  zIndex: 2,
-  pointerEvents: 'none',
-};
+function shellChromeStyle(closable: boolean): JSX.CSSProperties {
+  return {
+    height: `${TAB_MIN_HEIGHT}px`,
+    'min-width': `${TAB_MIN_WIDTH}px`,
+    'max-width': `${TAB_MAX_WIDTH}px`,
+    'padding-right': closable ? '2px' : '0',
+  };
+}
 
 export function TabStripTab(props: TabStripTabProps): JSX.Element {
   const { t } = useLingui();
   const closable = (): boolean => props.item.onClose !== undefined;
-  const fg = (): string => (props.active ? 'text' : 'textSecondary');
+  const fgClass = (): string =>
+    props.active ? 'text-text' : 'text-text-secondary';
   return (
     <Box
-      ref={props.ref}
-      sx={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        flexShrink: 0,
-        height: TAB_MIN_HEIGHT,
-      }}
+      class="flex-row items-center shrink-0"
       dataSet={{ component: 'TabStripCell', id: props.item.id }}
+      style={{ height: `${TAB_MIN_HEIGHT}px` }}
+      ref={props.ref}
     >
       <Show when={props.reserveSeparatorBefore}>
         <Box
+          class="w-px h-[14px] mx-0.5 shrink-0 bg-border"
+          style={{ opacity: props.separatorVisible ? 1 : 0 }}
           aria-hidden="true"
-          sx={[separatorSx, { opacity: props.separatorVisible ? 1 : 0 }]}
         />
       </Show>
       <Box
-        class={joinClass(styles['shell'], props.active && styles['active'])}
-        sx={shellChromeSx(closable(), props.active)}
+        class={shellChromeClass(props.active)}
+        style={shellChromeStyle(closable())}
       >
         <Clickable
+          feedback={props.active ? 'none' : 'tint'}
+          class="flex-1 min-w-0 flex-row items-center gap-1.5 pl-[5px] rounded-tl-[10px] rounded-tr-[10px] overflow-hidden bg-transparent"
+          style={{
+            height: `${TAB_MIN_HEIGHT - 2}px`,
+            'padding-right': `${closable() ? 2 : 5}px`,
+          }}
+          dataSet={{ component: 'TabStripTab', id: props.item.id }}
           id={props.tabId}
           role="tab"
           aria-selected={props.active}
           tabIndex={props.active ? 0 : -1}
-          feedback={props.active ? 'none' : 'tint'}
           onClick={() => props.onSelect(props.item.id)}
-          dataSet={{ component: 'TabStripTab', id: props.item.id }}
-          sx={{
-            flex: 1,
-            minWidth: 0,
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 1.5,
-            height: TAB_MIN_HEIGHT - 2,
-            paddingLeft: 5,
-            paddingRight: closable() ? 2 : 5,
-            borderTopLeftRadius: 'md',
-            borderTopRightRadius: 'md',
-            overflow: 'hidden',
-            backgroundColor: 'transparent',
-          }}
         >
           <Show when={props.item.icon}>
             {(icon) => (
-              <Box sx={iconSlotSx}>
+              <Box class="w-[14px] h-[14px] items-center justify-center shrink-0">
                 <Dynamic
                   component={icon()}
                   size={14}
@@ -157,30 +100,27 @@ export function TabStripTab(props: TabStripTabProps): JSX.Element {
           </Show>
           <Text
             variant="label"
-            label={props.item.label}
+            class={joinClass('shrink font-semibold leading-[18px]', fgClass())}
             numberOfLines={1}
-            sx={{
-              flexShrink: 1,
-              color: fg(),
-              fontWeight: '600',
-              lineHeight: 18,
-            }}
+            label={props.item.label}
           />
         </Clickable>
         <Show when={closable()}>
           <Clickable
-            class={styles['close']}
+            class="rounded-[6px] items-center justify-center shrink-0 w-[22px] h-[22px]"
+            dataSet={{ component: 'TabStripClose', id: props.item.id }}
             aria-label={t`Close`}
             tabIndex={-1}
             onClick={() => props.item.onClose?.()}
-            dataSet={{ component: 'TabStripClose', id: props.item.id }}
-            sx={closeSx}
           >
             <XIcon size={12} color="textSecondary" />
           </Clickable>
         </Show>
         <Show when={props.active}>
-          <Box aria-hidden="true" sx={hairlineCoverSx} />
+          <Box
+            class="absolute left-px right-px -bottom-px h-0.5 bg-background z-[2] pointer-events-none"
+            aria-hidden="true"
+          />
         </Show>
       </Box>
     </Box>

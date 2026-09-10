@@ -80,7 +80,15 @@ describe('all-or-nothing commit', () => {
 describe('cli arg guards', () => {
   test('dry-run by default with standard globs', () => {
     expect(parseArgs([])).toEqual({
-      globs: ['apps/client/src', 'libs', 'pkgs/ui/src'],
+      globs: [
+        'apps/client/src',
+        'apps/product',
+        'libs',
+        'pkgs/ui/src',
+        'pkgs/sim-console',
+        'pkgs/collab-ui',
+        'pkgs/chess-board',
+      ],
       write: false,
     });
   });

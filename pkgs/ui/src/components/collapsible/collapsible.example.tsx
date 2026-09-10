@@ -1,45 +1,36 @@
 /** @jsxImportSource solid-js */
 import type { JSX } from 'solid-js';
-import { Box } from '../box';
 import { ExampleRoot } from '../explorer/example-root';
-import { Text } from '../text';
 import { Collapsible } from './collapsible';
 
 export default function CollapsibleExample(): JSX.Element {
   return (
-    <ExampleRoot sx={{ gap: 2 }}>
+    <ExampleRoot class="gap-2">
       <Collapsible title="Default (closed)">
-        <Text
-          variant="body"
-          label="This content is hidden by default and revealed when the header is clicked."
-        />
+        <p class="text">
+          {
+            'This content is hidden by default and revealed when the header is clicked.'
+          }
+        </p>
       </Collapsible>
 
       <Collapsible title="Starts open" defaultOpen>
-        <Text
-          variant="body"
-          label="This section starts in the expanded state."
-        />
+        <p class="text">{'This section starts in the expanded state.'}</p>
       </Collapsible>
 
       <Collapsible title="Multiple items">
-        <Box sx={{ gap: 2 }}>
-          <Text variant="body" label="Item 1" />
-          <Text variant="body" label="Item 2" />
-          <Text variant="body" label="Item 3" />
-        </Box>
+        <div class="box gap-2">
+          <p class="text">{'Item 1'}</p>
+          <p class="text">{'Item 2'}</p>
+          <p class="text">{'Item 3'}</p>
+        </div>
       </Collapsible>
 
       <Collapsible
         title="Custom icon"
-        renderIcon={(isOpen) => (
-          <Text variant="body" label={isOpen ? '▼' : '▶'} />
-        )}
+        renderIcon={(isOpen) => <p class="text">{isOpen ? '▼' : '▶'}</p>}
       >
-        <Text
-          variant="body"
-          label="Custom chevron icons via renderIcon prop."
-        />
+        <p class="text">{'Custom chevron icons via renderIcon prop.'}</p>
       </Collapsible>
     </ExampleRoot>
   );

@@ -11,7 +11,6 @@ import {
   EmptyState,
   ResponsiveSurface,
   ScrollView,
-  Text,
 } from '@pkgs/ui';
 import { createMemo, For, type JSX } from 'solid-js';
 
@@ -56,11 +55,9 @@ function resolveColor(
 function renderRow(item: EventLogRow, props: RowRenderProps): JSX.Element {
   if (item.kind === 'day') {
     return (
-      <Text
-        variant="caption"
-        label={item.label ?? asLocalized('')}
-        sx={{ color: 'textSecondary', py: 2 }}
-      />
+      <p class="text textCaption text-text-secondary py-2">
+        {item.label ?? asLocalized('')}
+      </p>
     );
   }
   const line = item.line!;
@@ -98,7 +95,7 @@ export function EventLogSurface(props: EventLogSurfaceProps): JSX.Element {
             : {})}
         />
       ) : (
-        <ScrollView frameSx={{ maxHeight: EVENT_LOG_LIST_MAX_HEIGHT }}>
+        <ScrollView style={{ 'max-height': `${EVENT_LOG_LIST_MAX_HEIGHT}px` }}>
           <For each={[...rows()]}>{(item) => renderRow(item, props)}</For>
         </ScrollView>
       )}

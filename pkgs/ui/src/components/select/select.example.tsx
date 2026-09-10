@@ -1,8 +1,6 @@
 /** @jsxImportSource solid-js */
 import { createSignal, type JSX } from 'solid-js';
 import { ExampleRoot } from '../explorer/example-root';
-import { Stack } from '../stack';
-import { Text } from '../text';
 import { Select } from './select';
 
 const FRUITS = [
@@ -25,7 +23,7 @@ export default function SelectExample(): JSX.Element {
 
   return (
     <ExampleRoot>
-      <Stack spacing={3}>
+      <div class="box flex-col gap-3">
         <Select
           label="Favorite fruit"
           options={FRUITS}
@@ -40,11 +38,9 @@ export default function SelectExample(): JSX.Element {
           onValueChange={setDelay}
         />
 
-        <Text
-          variant="caption"
-          sx={{ color: 'textSecondary' }}
-          label="Open these to see in-surface status (trigger stays enabled):"
-        />
+        <p class="text textCaption text-text-secondary">
+          {'Open these to see in-surface status (trigger stays enabled):'}
+        </p>
 
         <Select
           label="Loading"
@@ -69,7 +65,7 @@ export default function SelectExample(): JSX.Element {
           onValueChange={setFruit}
           disabled
         />
-      </Stack>
+      </div>
     </ExampleRoot>
   );
 }

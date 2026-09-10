@@ -7,8 +7,8 @@
  *
  * @example
  * ```tsx
- * <SpinnerBox sx={{ flex: 1 }} />
- * <SpinnerBox sx={{ p: 6 }} size="large">
+ * <SpinnerBox class="flex-1" />
+ * <SpinnerBox class="p-6" size="large">
  *   <Text variant="caption" label="Loading entity…" />
  * </SpinnerBox>
  * ```
@@ -16,13 +16,14 @@
 
 import type { JSX } from 'solid-js';
 import type { ComponentDataSet } from '../../component-id';
-import type { SxInput } from '../../theme';
-import { Center } from '../center';
+import { Box, joinClass } from '../box';
 import { Spinner, type SpinnerProps } from './spinner';
 
 export type SpinnerBoxProps = {
-  /** Utility-first style shorthand applied to the centering wrapper. */
-  sx?: SxInput | undefined;
+  /** Extra classes on the centering wrapper. */
+  class?: string | undefined;
+  /** Inline styles on the centering wrapper. */
+  style?: JSX.CSSProperties | undefined;
   /** Spinner size; defaults to `"medium"` (matches `Spinner`). */
   size?: SpinnerProps['size'];
   /** Spinner color token or raw color; defaults to `"tint"`. */
@@ -37,8 +38,9 @@ export type SpinnerBoxProps = {
 
 export function SpinnerBox(props: SpinnerBoxProps): JSX.Element {
   return (
-    <Center
-      sx={[{ gap: 2 }, props.sx]}
+    <Box
+      class={joinClass('items-center justify-center gap-2', props.class)}
+      style={props.style}
       dataSet={{ component: 'SpinnerBox', ...props.dataSet }}
     >
       <Spinner
@@ -47,6 +49,6 @@ export function SpinnerBox(props: SpinnerBoxProps): JSX.Element {
         strokeWidth={props.strokeWidth}
       />
       {props.children}
-    </Center>
+    </Box>
   );
 }

@@ -1,4 +1,4 @@
-import { type SxProps, Text, type TextVariant } from '@pkgs/ui';
+import { Text, type TextVariant } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { createMemo } from 'solid-js';
 import { formatDeviceListCaption } from '../device-parsers';
@@ -8,7 +8,7 @@ export type AccountDeviceListCaptionTextProps = {
   deviceId: string;
   variant?: TextVariant | undefined;
   numberOfLines?: number | undefined;
-  sx?: SxProps | undefined;
+  class?: string | undefined;
 };
 
 /** Secondary line for device list rows (OS + last seen). */
@@ -30,8 +30,8 @@ export function AccountDeviceListCaptionText(
   return (
     <Text
       variant={props.variant}
+      class={props.class}
       numberOfLines={props.numberOfLines}
-      sx={props.sx}
       label={label()}
     />
   );

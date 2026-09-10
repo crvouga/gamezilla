@@ -39,10 +39,10 @@ export type ScreenBaseAction = {
 
 export type BodyContentProps = {
   /**
-   * Non-scroll bodies get `flex: 1` + `minHeight: 0` so nested
+   * Non-scroll bodies get `flex-1 min-h-0` so nested
    * {@link ScreenBodyScrollView} can shrink and scroll. Empty when `scroll`.
    */
-  sx: { flex?: 1; minHeight?: 0 };
+  bodyClass: string;
   /**
    * Present when {@link ScreenBaseProps.largeTitle} is enabled. Spread onto a
    * nested scroller (`ScreenBodyScrollView` / `ScrollView`) so the TopBar

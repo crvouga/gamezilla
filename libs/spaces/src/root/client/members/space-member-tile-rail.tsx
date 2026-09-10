@@ -1,6 +1,5 @@
 import { UserProfileAvatar } from '@libs/profile/public/user-profile-avatar';
 import { UserUsername } from '@libs/profile/public/user-username';
-import { Box, Text } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
 
@@ -31,24 +30,16 @@ export function SpaceMemberTileRail(
       profileId={props.deviceId}
       borderRadius={RAIL_RADIUS}
     >
-      <Box
-        sx={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 2,
-          px: 2,
-          py: 2,
-        }}
-      >
-        <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 1 }}>
+      <div class="box flex-row items-center gap-2 px-2 py-2">
+        <div class="box flex-row items-center gap-1">
           <MemberPresenceDot
             spaceId={props.spaceId}
             profileId={props.deviceId}
             size={ONLINE_DOT_SIZE}
           />
           <UserProfileAvatar profileId={props.profileId} size={AVATAR_SIZE} />
-        </Box>
-        <Box sx={{ flex: 1, minWidth: 0, gap: 1 }}>
+        </div>
+        <div class="box flex-1 min-w-[0] gap-1">
           <UserUsername
             profileId={props.profileId}
             withAt={false}
@@ -56,19 +47,16 @@ export function SpaceMemberTileRail(
             numberOfLines={1}
           />
           <Show when={(props.deviceLabel ?? '').length > 0}>
-            <Text
-              variant="caption"
-              sx={{ color: 'textSecondary' }}
-              numberOfLines={1}
-              label={props.deviceLabel ?? ''}
-            />
+            <p class="text textCaption line-clamp-1 text-text-secondary">
+              {props.deviceLabel ?? ''}
+            </p>
           </Show>
           <MemberPresenceBadgesRow
             spaceId={props.spaceId}
             profileId={props.deviceId}
           />
-        </Box>
-      </Box>
+        </div>
+      </div>
     </MemberThisTabHighlight>
   );
 }

@@ -79,9 +79,9 @@ export function ActionBarIconButton(
 
   const glyph = (): JSX.Element => (
     <Motion
+      style={{ transform: `scale(${success() ? 1.1 : 1})` }}
       duration="fast"
       property="transform, color"
-      sx={{ transform: [{ scale: success() ? 1.1 : 1 }] }}
     >
       <Dynamic
         component={presentation().icon}

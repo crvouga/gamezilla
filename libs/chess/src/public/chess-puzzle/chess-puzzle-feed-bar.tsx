@@ -1,7 +1,6 @@
 import { useMyId } from '@libs/auth/public/use-current-user';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
-import { Box, Clickable, Text } from '@pkgs/ui';
 import { createMemo, type JSX, Show } from 'solid-js';
 
 import {
@@ -45,7 +44,7 @@ function themesSummary(themes: readonly string[]): string {
 }
 
 function FeedBarSep(): JSX.Element {
-  return <Text variant="caption" sx={{ color: 'textSecondary' }} label="·" />;
+  return <p class="text textCaption text-text-secondary">{'·'}</p>;
 }
 
 export function ChessPuzzleFeedBar(
@@ -75,26 +74,20 @@ export function ChessPuzzleFeedBar(
   const muted = { color: 'textSecondary' } as const;
 
   return (
-    <Clickable
+    <button
+      class="clickable clickableTint self-stretch"
+      data-testid="chess-puzzle-feed-summary"
+      type="button"
       onClick={props.onOpenFeedSettings}
       role="button"
-      dataSet={{ testid: 'chess-puzzle-feed-summary' }}
-      sx={{ alignSelf: 'stretch' }}
     >
-      <Box
-        dataSet={{ testid: 'chess-puzzle-board-elo-bar' }}
-        sx={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'flex-start',
-          gap: 2,
-          px: 3,
-          py: 2,
-          alignSelf: 'stretch',
-          flexWrap: 'wrap',
-        }}
+      <div
+        class="box flex-row items-center justify-start gap-2 px-3 py-2 self-stretch flex-wrap"
+        data-testid="chess-puzzle-board-elo-bar"
       >
-        <Text variant="caption" sx={muted} label={idLabel} />
+        <p class="text textCaption" style={muted}>
+          {idLabel}
+        </p>
         <Show when={showPuzzleRating()}>
           <FeedBarSep />
           <ChessPuzzleEloChip
@@ -104,30 +97,26 @@ export function ChessPuzzleFeedBar(
           />
         </Show>
         <FeedBarSep />
-        <Text variant="caption" sx={muted} label={feedLabel()} />
+        <p class="text textCaption" style={muted}>
+          {feedLabel()}
+        </p>
         <FeedBarSep />
-        <Text
-          variant="caption"
-          sx={muted}
-          label={historyFilterLabel(config().historyFilter)}
-        />
+        <p class="text textCaption" style={muted}>
+          {historyFilterLabel(config().historyFilter)}
+        </p>
         <FeedBarSep />
-        <Text
-          variant="caption"
-          sx={muted}
-          label={themesSummary(config().themes)}
-        />
+        <p class="text textCaption" style={muted}>
+          {themesSummary(config().themes)}
+        </p>
         <FeedBarSep />
-        <Text
-          variant="caption"
-          sx={muted}
-          label={
+        <p class="text textCaption" style={muted}>
+          {
             <Trans>
               {pool.matched} / {pool.total}
             </Trans>
           }
-        />
-      </Box>
-    </Clickable>
+        </p>
+      </div>
+    </button>
   );
 }

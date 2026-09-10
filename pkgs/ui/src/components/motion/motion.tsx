@@ -1,10 +1,10 @@
 /** @jsxImportSource solid-js */
 /**
- * `Motion` -- a `Box` whose `sx` changes animate with a CSS transition.
+ * `Motion` -- a `Box` whose styles animate with a CSS transition.
  *
- * Replaces JS-driven animated views: set reactive `sx` (opacity, transform,
- * colors, sizes) and the browser interpolates on the compositor. Pass
- * `present={false}` to play `exitSx` and unmount after the transition.
+ * Replaces JS-driven animated views: set reactive `style` / `class` (opacity,
+ * transform, colors, sizes) and the browser interpolates on the compositor.
+ * Pass `present={false}` to play `exitStyle` and unmount after the transition.
  * Unmount timing uses the injected `Timers` (via `ClockProvider`) so the
  * exit is deterministic under simulation.
  */
@@ -20,15 +20,11 @@ import {
   Show,
   splitProps,
 } from 'solid-js';
-import {
-  type DurationKey,
-  type EasingKey,
-  type SxInput,
-  useThemeTokens,
-} from '../../theme';
-import { Box, type BoxProps } from '../box';
+import { dataAttrs } from '../../component-id';
+import { type DurationKey, type EasingKey, useThemeTokens } from '../../theme';
+import { type DivBoxProps, joinClass } from '../box';
 
-export type MotionProps = BoxProps & {
+export type MotionProps = DivBoxProps & {
   /** Duration token. Defaults to `normal`. */
   duration?: DurationKey | undefined;
   /** Easing token. Defaults to `standard`. */
@@ -36,18 +32,21 @@ export type MotionProps = BoxProps & {
   /** CSS `transition-property`. Defaults to `all`. */
   property?: string | undefined;
   /**
-   * Presence: when it flips to `false` the box plays `exitSx` and unmounts
-   * after the transition; when `true` it mounts and plays from `enterSx`.
+   * Presence: when it flips to `false` the box plays `exitStyle` and unmounts
+   * after the transition; when `true` it mounts and plays from `enterStyle`.
    * Omit for an always-mounted transitioning box.
    */
   present?: boolean | undefined;
-  /** Starting style for the enter transition. Defaults to a fade + 4px lift. */
-  enterSx?: SxInput | undefined;
-  /** Ending style for the exit transition. Defaults to `enterSx`. */
-  exitSx?: SxInput | undefined;
+  /** Starting style for the enter transition. Defaults to a fade + 16px lift. */
+  enterStyle?: JSX.CSSProperties | undefined;
+  /** Ending style for the exit transition. Defaults to `enterStyle`. */
+  exitStyle?: JSX.CSSProperties | undefined;
 };
 
-const DEFAULT_ENTER: SxInput = { opacity: 0, transform: [{ translateY: 4 }] };
+const DEFAULT_ENTER: JSX.CSSProperties = {
+  opacity: 0,
+  transform: 'translateY(16px)',
+};
 
 export type MotionPhase = 'entering' | 'shown' | 'exiting' | 'gone';
 
@@ -103,6 +102,29 @@ function createPresence(
   };
 }
 
+function mergeStyles(
+  ...parts: (JSX.CSSProperties | string | undefined | false)[]
+): JSX.CSSProperties | string | undefined {
+  const objects: JSX.CSSProperties[] = [];
+  const strings: string[] = [];
+  for (const part of parts) {
+    if (part === undefined || part === false) continue;
+    if (typeof part === 'string') strings.push(part);
+    else objects.push(part);
+  }
+  if (objects.length === 0 && strings.length === 0) return undefined;
+  if (objects.length === 0) return strings.join(';');
+  const merged = Object.assign({}, ...objects) as JSX.CSSProperties;
+  if (strings.length === 0) return merged;
+  return `${strings.join(';')};${Object.entries(merged)
+    .filter(([, v]) => v !== undefined && v !== null && v !== false)
+    .map(([k, v]) => {
+      const prop = k.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
+      return `${prop}:${String(v)}`;
+    })
+    .join(';')}`;
+}
+
 export function Motion(props: MotionProps): JSX.Element {
   const tokens = useThemeTokens();
   const timers = useTimers();
@@ -111,10 +133,12 @@ export function Motion(props: MotionProps): JSX.Element {
     'easing',
     'property',
     'present',
-    'enterSx',
-    'exitSx',
-    'sx',
+    'enterStyle',
+    'exitStyle',
+    'class',
+    'style',
     'ref',
+    'dataSet',
   ]);
   const durationKey = () => local.duration ?? 'normal';
   const presence = createPresence(
@@ -122,19 +146,22 @@ export function Motion(props: MotionProps): JSX.Element {
     () => tokens.motion.duration[durationKey()],
     timers
   );
-  const transitionSx = (): SxInput => ({
-    transitionProperty: local.property ?? 'all',
-    transitionDuration: `var(--ui-duration-${durationKey()})`,
-    transitionTimingFunction: `var(--ui-easing-${local.easing ?? 'standard'})`,
+  const transitionStyle = (): JSX.CSSProperties => ({
+    'transition-property': local.property ?? 'all',
+    'transition-duration': `var(--ui-duration-${durationKey()})`,
+    'transition-timing-function': `var(--ui-easing-${local.easing ?? 'standard'})`,
   });
-  const phaseSx = (): SxInput => {
+  const phaseStyle = (): JSX.CSSProperties | undefined => {
     const p = presence.phase();
-    if (p === 'entering') return local.enterSx ?? DEFAULT_ENTER;
-    if (p === 'exiting') return local.exitSx ?? local.enterSx ?? DEFAULT_ENTER;
-    return false;
+    if (p === 'entering') return local.enterStyle ?? DEFAULT_ENTER;
+    if (p === 'exiting')
+      return local.exitStyle ?? local.enterStyle ?? DEFAULT_ENTER;
+    return undefined;
   };
-  const mount = (el: HTMLElement): void => {
-    local.ref?.(el);
+  const mount = (el: HTMLDivElement): void => {
+    if (typeof local.ref === 'function') {
+      local.ref(el);
+    }
     // After the synchronous render commits the node, flush the `entering`
     // styles so the switch to `shown` runs as a transition.
     queueMicrotask(() => {
@@ -144,11 +171,12 @@ export function Motion(props: MotionProps): JSX.Element {
   };
   return (
     <Show when={presence.phase() !== 'gone'}>
-      <Box
+      <div
+        class={joinClass('box', local.class)}
+        {...dataAttrs({ component: 'Motion', ...local.dataSet })}
+        style={mergeStyles(transitionStyle(), local.style, phaseStyle())}
         ref={mount}
-        sx={[transitionSx(), local.sx, phaseSx()]}
         onTransitionEnd={presence.onTransitionEnd}
-        dataSet={{ component: 'Motion', ...rest.dataSet }}
         {...rest}
       />
     </Show>

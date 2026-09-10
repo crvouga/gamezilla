@@ -166,19 +166,4 @@ export const CONVERTIBLE = new Set([
   'Spacer',
 ]);
 
-export const BEHAVIOR_HOSTS = new Set([
-  'ScrollView',
-  'GradientBox',
-  'Island',
-  'TextInput',
-  'FocusTrap',
-  'JsonView',
-  'RelativeTime',
-  'BrandIcon',
-  'SpinnerBox',
-  'MenuList',
-  'VirtualList',
-  'SpeakingAvatar',
-  'CopyToClipboardField',
-  'ExampleRoot',
-]);
+export { ATTR_HOSTS as BEHAVIOR_HOSTS } from './transform-attr-host';

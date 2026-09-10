@@ -2,6 +2,7 @@
 import { assert } from '@pkgs/assert';
 import '@pkgs/tailwind/tailwind.css';
 import '@pkgs/ui/tokens.css';
+import '@pkgs/ui/base.css';
 import { render } from 'solid-js/web';
 import './polyfill-entry';
 import { RootApp } from './root-app';

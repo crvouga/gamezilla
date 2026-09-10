@@ -1,4 +1,5 @@
 /** @jsxImportSource solid-js */
+import { cssPx } from '../../css/css-px';
 /**
  * `CatalogDetailNav` -- slim prev / next controls for a catalog detail screen.
  *
@@ -10,15 +11,12 @@
 import { useLingui } from '@lingui/solid/macro';
 import { createMemo, type JSX } from 'solid-js';
 
-import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
-import { Clickable } from '../clickable';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
   type IconComponent,
 } from '../icons';
-import { Text } from '../text';
 import { type CatalogItem, resolveCatalogNeighbor } from './catalog-item';
 
 const NAV_VISUAL_SIZE = 36;
@@ -39,33 +37,30 @@ function NavButton(props: {
   onNavigate: (id: string) => void;
 }): JSX.Element {
   return (
-    <Clickable
+    <button
+      class="clickable clickableOpacity items-center justify-center"
+      type="button"
+      style={{
+        width: cssPx(NAV_HIT_SIZE),
+        height: cssPx(NAV_HIT_SIZE),
+        opacity: props.target === null ? 0.4 : 1,
+      }}
       aria-label={props.label}
       disabled={props.target === null}
       onClick={() => {
         if (props.target !== null) props.onNavigate(props.target.id);
       }}
-      feedback="opacity"
-      sx={{
-        width: NAV_HIT_SIZE,
-        height: NAV_HIT_SIZE,
-        alignItems: 'center',
-        justifyContent: 'center',
-        opacity: props.target === null ? 0.4 : 1,
-      }}
     >
-      <Box
-        sx={{
-          width: NAV_VISUAL_SIZE,
-          height: NAV_VISUAL_SIZE,
-          borderRadius: 'full',
-          alignItems: 'center',
-          justifyContent: 'center',
+      <div
+        class="box rounded-[9999px] items-center justify-center"
+        style={{
+          width: cssPx(NAV_VISUAL_SIZE),
+          height: cssPx(NAV_VISUAL_SIZE),
         }}
       >
         <props.icon size={18} />
-      </Box>
-    </Clickable>
+      </div>
+    </button>
   );
 }
 
@@ -84,16 +79,9 @@ export function CatalogDetailNav(props: CatalogDetailNavProps): JSX.Element {
   };
 
   return (
-    <Box
-      as="nav"
-      sx={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 2,
-        py: 1,
-      }}
-      dataSet={{ component: 'CatalogDetailNav', ...props.dataSet }}
+    <nav
+      class="box flex-row items-center justify-between gap-2 py-1"
+      {...dataAttrs({ component: 'CatalogDetailNav', ...props.dataSet })}
     >
       <NavButton
         label={t`Previous`}
@@ -101,20 +89,16 @@ export function CatalogDetailNav(props: CatalogDetailNavProps): JSX.Element {
         target={neighbor().prev}
         onNavigate={props.onNavigate}
       />
-      <Box sx={{ flex: 1, alignItems: 'center', gap: 0.5 }}>
-        <Text variant="label" label={label()} />
-        <Text
-          variant="caption"
-          sx={{ color: 'textSecondary' }}
-          label={position()}
-        />
-      </Box>
+      <div class="box flex-1 items-center gap-0.5">
+        <label class="text textLabel">{label()}</label>
+        <p class="text textCaption text-text-secondary">{position()}</p>
+      </div>
       <NavButton
         label={t`Next`}
         icon={ChevronRightIcon}
         target={neighbor().next}
         onNavigate={props.onNavigate}
       />
-    </Box>
+    </nav>
   );
 }

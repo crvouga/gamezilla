@@ -13,10 +13,9 @@
  */
 
 import type { JSX } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
+import { cssGap } from '../../css/css-px';
 import { MODAL_CONTENT_MARGIN_STEP } from '../../theme/modal-size';
-import { Box } from '../box';
-import styles from '../hosts.module.css';
 
 export type ModalBackdropProps = {
   /** Fired on click outside the content (when `dismissOnBackdrop`). */
@@ -33,29 +32,22 @@ export function ModalBackdrop(props: ModalBackdropProps): JSX.Element {
     if (props.dismissOnBackdrop ?? true) props.onClick();
   };
   return (
-    <Box
-      sx={{ flex: 1, width: '100%', height: '100%' }}
-      dataSet={{ component: 'ModalBackdrop', ...props.dataSet }}
+    <div
+      class="box flex-1 w-[100%] h-[100%]"
+      {...dataAttrs({ component: 'ModalBackdrop', ...props.dataSet })}
     >
-      <Box
+      <div
+        class="box absolute inset-0 bg-scrim"
+        data-component="ModalScrim"
         aria-hidden="true"
         onClick={onScrimClick}
-        sx={{ absoluteFill: true, backgroundColor: 'scrim' }}
-        dataSet={{ component: 'ModalScrim' }}
       />
-      <Box
-        class={styles['boxNone']}
-        sx={{
-          flex: 1,
-          width: '100%',
-          height: '100%',
-          justifyContent: 'center',
-          alignItems: 'center',
-          p: MODAL_CONTENT_MARGIN_STEP,
-        }}
+      <div
+        class="box flex-1 w-[100%] h-[100%] justify-center items-center"
+        style={{ padding: cssGap(MODAL_CONTENT_MARGIN_STEP) }}
       >
         {props.children}
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }

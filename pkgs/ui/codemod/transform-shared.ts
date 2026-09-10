@@ -20,6 +20,8 @@ import { peelPropSpreads } from './transform-peel';
 
 export type ComponentConversion = NodeConversion & {
   readonly existingClass?: ExistingClass | undefined;
+  /** Keep PascalCase host tag (attr rewrite) instead of desugaring to HTML. */
+  readonly preserveTag?: boolean | undefined;
 };
 
 export type ExtraEntry = {
@@ -59,6 +61,11 @@ export function finish(args: {
     ...args.conversion.classList,
     ...(args.classListExtras ?? []),
   ];
+  const classes = [
+    args.baseClass,
+    ...args.extraClasses,
+    ...args.conversion.classes,
+  ].filter((c) => c.length > 0);
   return {
     kind: 'converted',
     tier:
@@ -68,7 +75,7 @@ export function finish(args: {
         ? 'B'
         : 'A',
     element: args.element,
-    classes: [args.baseClass, ...args.extraClasses, ...args.conversion.classes],
+    classes,
     styles: args.conversion.styles,
     styleExprs,
     classList,

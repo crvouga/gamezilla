@@ -2,8 +2,6 @@
 import { useTimers } from '@pkgs/clock/solid';
 import { createSignal, type JSX } from 'solid-js';
 import { ExampleRoot } from '../explorer/example-root';
-import { Stack } from '../stack';
-import { Text } from '../text';
 import { SocialSignInButton } from './social-sign-in-button';
 
 const LOADING_DEMO_MS = 1500;
@@ -39,20 +37,22 @@ function GoogleExamples(props: {
 }): JSX.Element {
   return (
     <>
-      <Stack spacing={3}>
-        <Text variant="label" label="Google · Light · Rectangular (default)" />
+      <div class="box flex-col gap-3">
+        <label class="text textLabel">
+          {'Google · Light · Rectangular (default)'}
+        </label>
         <SocialSignInButton provider="google" onClick={props.onClick} />
-      </Stack>
-      <Stack spacing={3}>
-        <Text variant="label" label="Google · Light · Pill" />
+      </div>
+      <div class="box flex-col gap-3">
+        <label class="text textLabel">{'Google · Light · Pill'}</label>
         <SocialSignInButton
           provider="google"
           shape="pill"
           onClick={props.onClick}
         />
-      </Stack>
-      <Stack spacing={3}>
-        <Text variant="label" label="Google · Dark · Pill · Sign in" />
+      </div>
+      <div class="box flex-col gap-3">
+        <label class="text textLabel">{'Google · Dark · Pill · Sign in'}</label>
         <SocialSignInButton
           provider="google"
           theme="dark"
@@ -60,35 +60,34 @@ function GoogleExamples(props: {
           action="signIn"
           onClick={props.onClick}
         />
-      </Stack>
-      <Stack spacing={3}>
-        <Text
-          variant="label"
-          label="Google · Neutral · Rectangular · Sign up"
-        />
+      </div>
+      <div class="box flex-col gap-3">
+        <label class="text textLabel">
+          {'Google · Neutral · Rectangular · Sign up'}
+        </label>
         <SocialSignInButton
           provider="google"
           theme="neutral"
           action="signUp"
           onClick={props.onClick}
         />
-      </Stack>
-      <Stack spacing={3}>
-        <Text variant="label" label="Loading state" />
+      </div>
+      <div class="box flex-col gap-3">
+        <label class="text textLabel">{'Loading state'}</label>
         <SocialSignInButton
           provider="google"
           loading={props.loading}
           onClick={props.onClick}
         />
-      </Stack>
-      <Stack spacing={3}>
-        <Text variant="label" label="Disabled" />
+      </div>
+      <div class="box flex-col gap-3">
+        <label class="text textLabel">{'Disabled'}</label>
         <SocialSignInButton
           provider="google"
           disabled
           onClick={props.onClick}
         />
-      </Stack>
+      </div>
     </>
   );
 }
@@ -96,12 +95,14 @@ function GoogleExamples(props: {
 function DevExamples(props: { onClick: () => void }): JSX.Element {
   return (
     <>
-      <Stack spacing={3}>
-        <Text variant="label" label="Dev IdP · Light · Rectangular" />
+      <div class="box flex-col gap-3">
+        <label class="text textLabel">{'Dev IdP · Light · Rectangular'}</label>
         <SocialSignInButton provider="dev" onClick={props.onClick} />
-      </Stack>
-      <Stack spacing={3}>
-        <Text variant="label" label="Dev IdP · Dark · Pill · Sign in" />
+      </div>
+      <div class="box flex-col gap-3">
+        <label class="text textLabel">
+          {'Dev IdP · Dark · Pill · Sign in'}
+        </label>
         <SocialSignInButton
           provider="dev"
           theme="dark"
@@ -109,15 +110,17 @@ function DevExamples(props: { onClick: () => void }): JSX.Element {
           action="signIn"
           onClick={props.onClick}
         />
-      </Stack>
-      <Stack spacing={3}>
-        <Text variant="label" label="Dev IdP · Neutral · Rectangular" />
+      </div>
+      <div class="box flex-col gap-3">
+        <label class="text textLabel">
+          {'Dev IdP · Neutral · Rectangular'}
+        </label>
         <SocialSignInButton
           provider="dev"
           theme="neutral"
           onClick={props.onClick}
         />
-      </Stack>
+      </div>
     </>
   );
 }

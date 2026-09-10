@@ -6,7 +6,7 @@ import {
 } from '@libs/user-search/public/use-user-search';
 import { USER_SEARCH_MIN_LENGTH } from '@libs/user-search/public/user-search-types';
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { Box, Combobox, type ComboboxOption, Text } from '@pkgs/ui';
+import { Combobox, type ComboboxOption } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { createMemo, createSignal, Show } from 'solid-js';
 
@@ -53,13 +53,13 @@ export function SpaceShareAddPeople(props: {
     <Show
       when={search.signedIn}
       fallback={
-        <Box sx={{ gap: 2 }}>
-          <Text variant="label" label={<Trans>Add people</Trans>} />
+        <div class="box gap-2">
+          <label class="text textLabel">{<Trans>Add people</Trans>}</label>
           <UserSearchSignInPrompt />
-        </Box>
+        </div>
       }
     >
-      <Box sx={{ gap: 2 }}>
+      <div class="box gap-2">
         <Combobox
           label={<Trans>Add people</Trans>}
           surfaceTitle={<Trans>Add people</Trans>}
@@ -74,7 +74,7 @@ export function SpaceShareAddPeople(props: {
           emptyMessage={emptyMessage()}
         />
         <UserSearchQueryHint query={query()} signedIn={search.signedIn} />
-      </Box>
+      </div>
     </Show>
   );
 }

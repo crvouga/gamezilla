@@ -37,11 +37,9 @@ import {
   splitProps,
   untrack,
 } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
-import type { SxInput } from '../../theme';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { svgToDataUri } from '../avatar';
-import { Box } from '../box';
-import { Clickable } from '../clickable';
+import { joinClass } from '../box/box';
 import { SoundIndicator, type SoundIndicatorState } from '../sound-indicator';
 import styles from './speaking-avatar.module.css';
 import { speakingAvatarSvg } from './speaking-avatar-svg';
@@ -72,7 +70,10 @@ export type SpeakingAvatarSpeaker = (
   args: Accessor<SpeakingAvatarSpeechArgs>
 ) => SpeakingAvatarSpeech;
 
-export type SpeakingAvatarProps = {
+export type SpeakingAvatarProps = Omit<
+  JSX.HTMLAttributes<HTMLDivElement>,
+  'children'
+> & {
   message: string;
   /** Rendered above the bubble text (see `SpeechBubble`). */
   header?: JSX.Element | undefined;
@@ -96,7 +97,6 @@ export type SpeakingAvatarProps = {
   speak?: boolean | undefined;
   /** Lines reserved inside the speech bubble. Defaults to `2`. */
   numberOfLines?: number | undefined;
-  sx?: SxInput | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
 };
@@ -137,15 +137,15 @@ function AvatarHead(props: {
 }): JSX.Element {
   const { t } = useLingui();
   return (
-    <Clickable
+    <button
+      class="clickable relative self-center"
+      type="button"
       onClick={() => props.onToggle()}
       aria-pressed={props.muted}
       aria-label={props.muted ? t`Unmute coach` : t`Mute coach`}
-      feedback="none"
-      sx={{ position: 'relative', alignSelf: 'center' }}
     >
       <HeadImage svg={props.svg} size={props.size} />
-      <Box sx={{ position: 'absolute', right: 0, bottom: 0 }}>
+      <div class="box absolute right-0 bottom-0">
         <SoundIndicator
           state={props.indicator}
           size={14}
@@ -153,21 +153,32 @@ function AvatarHead(props: {
           color="text"
           mutedColor="textSecondary"
         />
-      </Box>
-    </Clickable>
+      </div>
+    </button>
   );
 }
 
 export function SpeakingAvatar(props: SpeakingAvatarProps): JSX.Element {
-  const [local] = splitProps(props, ['sx', 'dataSet']);
+  const [local, rest] = splitProps(props, [
+    'message',
+    'header',
+    'bubbleResolving',
+    'speaker',
+    'avatarSize',
+    'seed',
+    'speak',
+    'numberOfLines',
+    'class',
+    'dataSet',
+  ]);
   // Audio wiring is composition-level configuration: read once.
   // Named `create*` so the injected primitive is treated as a tracked scope.
   const createSpeech = untrack(() =>
-    props.speak === false ? undefined : props.speaker
+    local.speak === false ? undefined : local.speaker
   );
-  const size = () => props.avatarSize ?? DEFAULT_AVATAR_SIZE;
+  const size = () => local.avatarSize ?? DEFAULT_AVATAR_SIZE;
   const svg = createMemo(() =>
-    speakingAvatarSvg(props.seed ?? DEFAULT_SEED, size())
+    speakingAvatarSvg(local.seed ?? DEFAULT_SEED, size())
   );
 
   const [muted, setMuted] = createKvState<boolean>({
@@ -176,29 +187,27 @@ export function SpeakingAvatar(props: SpeakingAvatarProps): JSX.Element {
     codec: MUTED_CODEC,
   });
   const speechArgs = createMemo<SpeakingAvatarSpeechArgs>(() => ({
-    text: props.message,
+    text: local.message,
     enabled:
       !muted() &&
-      props.bubbleResolving !== true &&
-      props.message.trim().length > 0,
+      local.bubbleResolving !== true &&
+      local.message.trim().length > 0,
   }));
   const speech = createSpeech === undefined ? SILENT : createSpeech(speechArgs);
   const indicator = () => resolveIndicatorState(muted(), speech.isSpeaking());
 
   return (
-    <Box
-      dataSet={{ component: 'SpeakingAvatar', ...local.dataSet }}
-      sx={[
-        { flexDirection: 'row', alignItems: 'center', px: 4, gap: 1 },
-        local.sx,
-      ]}
+    <div
+      class={joinClass('box flex-row items-center px-4 gap-1', local.class)}
+      {...dataAttrs({ component: 'SpeakingAvatar', ...local.dataSet })}
+      {...rest}
     >
       <Show
         when={createSpeech !== undefined}
         fallback={
-          <Box sx={{ alignSelf: 'center' }}>
+          <div class="box self-center">
             <HeadImage svg={svg()} size={size()} />
-          </Box>
+          </div>
         }
       >
         <AvatarHead
@@ -210,11 +219,11 @@ export function SpeakingAvatar(props: SpeakingAvatarProps): JSX.Element {
         />
       </Show>
       <SpeechBubble
-        text={props.message}
-        loading={speech.isLoading() || props.bubbleResolving === true}
-        header={props.header}
-        numberOfLines={props.numberOfLines}
+        text={local.message}
+        loading={speech.isLoading() || local.bubbleResolving === true}
+        header={local.header}
+        numberOfLines={local.numberOfLines}
       />
-    </Box>
+    </div>
   );
 }

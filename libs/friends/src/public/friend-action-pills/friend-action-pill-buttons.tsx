@@ -2,7 +2,6 @@ import { Trans, useLingui } from '@lingui/solid/macro';
 import { type SoundId, Sounds } from '@pkgs/sounds';
 import { useOptionalSoundEngine } from '@pkgs/sounds/solid';
 import {
-  Box,
   Button,
   type MutationStateTransition,
   useMutationButton,
@@ -55,8 +54,8 @@ export function ConfirmDeletePills({
     successHoldMs: 0,
   });
   return (
-    <Box sx={{ flexDirection: 'row', gap: 2, alignSelf: 'stretch' }}>
-      <Box sx={{ flex: 1 }}>
+    <div class="box flex-row gap-2 self-stretch">
+      <div class="box flex-1">
         <Button
           variant="solid"
           {...confirm.buttonProps}
@@ -64,11 +63,11 @@ export function ConfirmDeletePills({
             ? { dataSet: { testid: confirmTestID } }
             : {})}
         />
-      </Box>
-      <Box sx={{ flex: 1 }}>
+      </div>
+      <div class="box flex-1">
         <Button variant="outline" {...del.buttonProps} />
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }
 

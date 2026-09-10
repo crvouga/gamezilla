@@ -7,8 +7,7 @@
  */
 
 import { createEffect, type JSX, onCleanup, untrack } from 'solid-js';
-import type { SxInput } from '../../theme';
-import { Box } from '../box';
+import { Box, joinClass } from '../box';
 import { pushEscapeDismissHandler } from './escape-dismiss-stack';
 import { collectTabbable, nextTabStop } from './focus-trap-logic';
 
@@ -30,13 +29,14 @@ export type FocusTrapProps = {
    * - `sheet`: in-flow stretch for bottom sheets.
    */
   layout?: 'cover' | 'sheet' | undefined;
-  /** Extra `sx` on the host (merged after layout defaults). */
-  sx?: SxInput | undefined;
+  /** Extra classes on the host (merged after layout defaults). */
+  class?: string | undefined;
+  style?: JSX.CSSProperties | undefined;
   children?: JSX.Element | undefined;
 };
 
-const COVER_HOST_SX = { absoluteFill: true, flex: 1 } as const;
-const SHEET_HOST_SX = { width: '100%', flexGrow: 1 } as const;
+const COVER_HOST_CLASS = 'absolute inset-0 flex-1';
+const SHEET_HOST_CLASS = 'w-full grow';
 
 function focusInto(host: HTMLElement): void {
   const first = collectTabbable(host)[0];
@@ -98,7 +98,11 @@ export function FocusTrap(props: FocusTrapProps): JSX.Element {
       aria-label={props.label}
       aria-labelledby={props.labelledBy}
       tabIndex={-1}
-      sx={[props.layout === 'sheet' ? SHEET_HOST_SX : COVER_HOST_SX, props.sx]}
+      class={joinClass(
+        props.layout === 'sheet' ? SHEET_HOST_CLASS : COVER_HOST_CLASS,
+        props.class
+      )}
+      style={props.style}
       dataSet={{ component: 'FocusTrap' }}
     >
       {props.children}

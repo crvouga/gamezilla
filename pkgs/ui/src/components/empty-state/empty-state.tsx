@@ -1,4 +1,5 @@
 /** @jsxImportSource solid-js */
+import { cssPx } from '../../css/css-px';
 /**
  * `EmptyState` -- canonical "no data" block.
  *
@@ -22,7 +23,6 @@
 import { type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
 import { Button } from '../button';
 import type { IconComponent } from '../icons';
 import { StateBlock, type StateBlockVariant } from '../state-block';
@@ -67,23 +67,16 @@ function EmptyStateIcon(props: {
         />
       }
     >
-      <Box
-        sx={{
-          width: FILL_ICON_DISC,
-          height: FILL_ICON_DISC,
-          borderRadius: 'full',
-          backgroundColor: 'surfaceMuted',
-          alignItems: 'center',
-          justifyContent: 'center',
-          mb: 1,
-        }}
+      <div
+        class="box rounded-[9999px] bg-surface-muted items-center justify-center mb-1"
+        style={{ width: cssPx(FILL_ICON_DISC), height: cssPx(FILL_ICON_DISC) }}
       >
         <Dynamic
           component={props.icon}
           size={FILL_ICON_SIZE}
           color="textSecondary"
         />
-      </Box>
+      </div>
     </Show>
   );
 }
@@ -100,31 +93,32 @@ export function EmptyState(props: EmptyStateProps): JSX.Element {
         {(icon) => <EmptyStateIcon icon={icon()} variant={variant()} />}
       </Show>
       <Text
+        as="p"
         variant={isFill() ? 'subtitle' : 'bodyBold'}
-        sx={{ color: 'text', textAlign: 'center' }}
-        label={props.title}
-      />
+        class="text-center"
+      >
+        {props.title}
+      </Text>
       <Show when={props.body !== undefined && props.body !== null}>
         <Text
+          as="p"
           variant={isFill() ? 'body' : 'caption'}
-          sx={{
-            color: 'textSecondary',
-            textAlign: 'center',
-            maxWidth: BODY_MAX_WIDTH,
-          }}
-          label={props.body}
-        />
+          class="text-text-secondary text-center"
+          style={{ 'max-width': cssPx(BODY_MAX_WIDTH) }}
+        >
+          {props.body}
+        </Text>
       </Show>
       <Show when={props.action}>
         {(action) => (
-          <Box sx={{ mt: 2 }}>
+          <div class="box mt-2">
             <Button
               title={action().label}
               intent="primary"
               size={isFill() ? 'md' : 'sm'}
               onClick={() => action().onClick()}
             />
-          </Box>
+          </div>
         )}
       </Show>
     </StateBlock>

@@ -1,10 +1,10 @@
 import { Trans } from '@lingui/solid/macro';
-import { type SxProps, Text, type TextVariant } from '@pkgs/ui';
+import { Text, type TextVariant } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 
 export type NoGuestsTextProps = {
   variant?: TextVariant;
-  sx?: SxProps;
+  class?: string;
   numberOfLines?: number;
 };
 
@@ -13,9 +13,10 @@ export function NoGuestsText(props: NoGuestsTextProps): JSX.Element {
   return (
     <Text
       variant={props.variant}
-      sx={props.sx}
+      class={props.class}
       numberOfLines={props.numberOfLines}
-      label={<Trans>No guests yet</Trans>}
-    />
+    >
+      <Trans>No guests yet</Trans>
+    </Text>
   );
 }

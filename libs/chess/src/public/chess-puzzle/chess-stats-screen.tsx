@@ -2,11 +2,9 @@ import { DefineBackButton } from '@libs/spaces/public/nav/spaces-nav-context';
 import { useSpaceRoomDispatch } from '@libs/spaces/public/room/use-space-room-selector';
 import { Trans } from '@lingui/solid/macro';
 import {
-  Box,
   MAIN_MENU_SCREEN_MAX_WIDTH,
   MainMenuScreenHeader,
   ScrollView,
-  Text,
 } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 
@@ -44,21 +42,15 @@ export function ChessStatsScreen(): JSX.Element {
     <>
       <DefineBackButton onPress={backToRoot} />
       <ScrollView
-        sx={{ flex: 1, alignSelf: 'stretch' }}
+        contentClass="flex-1 self-stretch"
         dataSet={{ screen: 'chess-stats' }}
       >
-        <Box
-          sx={{
-            gap: 4,
-            p: 4,
-            pb: 8,
-            alignSelf: 'center',
-            width: '100%',
-            maxWidth: MAIN_MENU_SCREEN_MAX_WIDTH,
-          }}
+        <div
+          class="box gap-4 p-4 pb-8 self-center w-[100%]"
+          style={{ 'max-width': `${MAIN_MENU_SCREEN_MAX_WIDTH}px` }}
         >
           <MainMenuScreenHeader title={<Trans>Puzzle stats</Trans>} />
-          <Box sx={{ alignItems: 'center', gap: 2 }}>
+          <div class="box items-center gap-2">
             <ChessPuzzleEloChip
               elo={history.stats.currentElo}
               variant="primary"
@@ -68,15 +60,11 @@ export function ChessStatsScreen(): JSX.Element {
               series={history.stats.eloSeries}
               testID="chess-stats-sparkline"
             />
-          </Box>
+          </div>
           <ChessPuzzleStatsCards stats={history.stats} />
-          <Text
-            variant="heading"
-            sx={{ color: 'text' }}
-            label={<Trans>Game log</Trans>}
-          />
+          <h3 class="text textHeading text-text">{<Trans>Game log</Trans>}</h3>
           <ChessGameLog entries={history.gameLog} onSelectEntry={openReview} />
-        </Box>
+        </div>
       </ScrollView>
     </>
   );

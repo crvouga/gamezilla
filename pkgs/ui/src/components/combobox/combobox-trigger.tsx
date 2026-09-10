@@ -1,4 +1,5 @@
 /** @jsxImportSource solid-js */
+import { cssPx } from '../../css/css-px';
 /**
  * Field row for {@link Combobox}: selected chips (multi), the opener button
  * (`role="combobox"`, `aria-expanded`, `aria-controls`), and a clear
@@ -8,12 +9,9 @@
 import { useLingui } from '@lingui/solid/macro';
 import type { LocalizedString } from '@pkgs/i18n/localized-string';
 import { type JSX, Show } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
-import { Clickable } from '../clickable';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { IconButton } from '../icon-button';
 import { ChevronDownIcon, XIcon } from '../icons';
-import { Text } from '../text';
 import { ComboboxChips } from './combobox-chips';
 import type { ComboboxOption, ComboboxValue } from './combobox-types';
 
@@ -22,11 +20,7 @@ export const COMBOBOX_TRIGGER_MIN_HEIGHT = 44;
 
 export function ComboboxLabel(props: { label: JSX.Element }): JSX.Element {
   return (
-    <Text
-      variant="caption"
-      sx={{ mb: 0.5, color: 'textSecondary' }}
-      label={props.label}
-    />
+    <p class="text textCaption mb-0.5 text-text-secondary">{props.label}</p>
   );
 }
 
@@ -53,18 +47,16 @@ function SingleSummary<T extends ComboboxValue>(props: {
   return (
     <>
       <Show when={props.selected?.preview !== undefined}>
-        <Box sx={{ flexShrink: 0 }}>{props.selected?.preview}</Box>
+        <div class="box shrink-0">{props.selected?.preview}</div>
       </Show>
-      <Text
-        variant="label"
-        numberOfLines={1}
-        sx={{
-          flex: 1,
-          minWidth: 0,
+      <label
+        class="text textLabel line-clamp-1 flex-1 min-w-[0]"
+        style={{
           color: props.selected !== undefined ? 'text' : 'textSecondary',
         }}
-        label={props.selected?.label ?? props.placeholder}
-      />
+      >
+        {props.selected?.label ?? props.placeholder}
+      </label>
     </>
   );
 }
@@ -77,17 +69,11 @@ export function ComboboxTrigger<T extends ComboboxValue>(
     props.multiple && props.selectedOptions.length > 0;
   const showClear = (): boolean => props.onClear !== undefined && hasChips();
   return (
-    <Box
-      dataSet={{ component: 'ComboboxField' }}
-      sx={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 2,
-        paddingLeft: hasChips() ? 8 : 0,
-        borderRadius: 'md',
-        borderWidth: 1,
-        borderColor: 'outline',
-        backgroundColor: 'surfaceMuted',
+    <div
+      class="box flex-row items-center gap-2 rounded-[10px] border border-outline bg-surface-muted"
+      data-component="ComboboxField"
+      style={{
+        'padding-left': cssPx(hasChips() ? 8 : 0),
         opacity: props.disabled ? 0.4 : 1,
       }}
     >
@@ -98,7 +84,11 @@ export function ComboboxTrigger<T extends ComboboxValue>(
           disabled={props.disabled}
         />
       </Show>
-      <Clickable
+      <button
+        class="clickable clickableTint flex-1 min-w-[0] flex-row items-center gap-2.5 [padding-left:12px;padding-right:12px] [padding-top:10px;padding-bottom:10px] rounded-[10px] text-left"
+        {...dataAttrs({ component: 'ComboboxTrigger', ...props.dataSet })}
+        type="button"
+        style={{ 'min-height': cssPx(COMBOBOX_TRIGGER_MIN_HEIGHT) }}
         role="combobox"
         aria-expanded={props.open}
         aria-controls={props.listboxId}
@@ -106,19 +96,6 @@ export function ComboboxTrigger<T extends ComboboxValue>(
         aria-label={props['aria-label']}
         disabled={props.disabled}
         onClick={() => props.onOpen()}
-        dataSet={{ component: 'ComboboxTrigger', ...props.dataSet }}
-        sx={{
-          flex: 1,
-          minWidth: 0,
-          minHeight: COMBOBOX_TRIGGER_MIN_HEIGHT,
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 2.5,
-          paddingHorizontal: 12,
-          paddingVertical: 10,
-          borderRadius: 'md',
-          textAlign: 'left',
-        }}
       >
         <Show
           when={props.multiple}
@@ -129,17 +106,14 @@ export function ComboboxTrigger<T extends ComboboxValue>(
             />
           }
         >
-          <Text
-            variant="label"
-            numberOfLines={1}
-            sx={{ flex: 1, minWidth: 0, color: 'textSecondary' }}
-            label={hasChips() ? t`Add…` : props.placeholder}
-          />
+          <label class="text textLabel line-clamp-1 flex-1 min-w-[0] text-text-secondary">
+            {hasChips() ? t`Add…` : props.placeholder}
+          </label>
         </Show>
         <ChevronDownIcon size={18} color="textSecondary" />
-      </Clickable>
+      </button>
       <Show when={showClear()}>
-        <Box sx={{ pr: 1 }}>
+        <div class="box pr-1">
           <IconButton
             label={t`Clear`}
             size={32}
@@ -150,8 +124,8 @@ export function ComboboxTrigger<T extends ComboboxValue>(
           >
             <XIcon size={16} color="textSecondary" />
           </IconButton>
-        </Box>
+        </div>
       </Show>
-    </Box>
+    </div>
   );
 }

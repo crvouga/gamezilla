@@ -2,7 +2,6 @@
 import { createSignal, type JSX } from 'solid-js';
 import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
-import { Stack } from '../stack';
 import { Checkbox } from './checkbox';
 
 export default function CheckboxExample(): JSX.Element {
@@ -13,7 +12,7 @@ export default function CheckboxExample(): JSX.Element {
   return (
     <ExampleRoot>
       <SchemePreview>
-        <Stack spacing={3}>
+        <div class="box flex-col gap-3">
           <Checkbox label="Accept terms" checked={a()} onToggle={setA} />
           <Checkbox
             label="Subscribe to newsletter"
@@ -27,7 +26,7 @@ export default function CheckboxExample(): JSX.Element {
             indeterminate
             onToggle={() => undefined}
           />
-        </Stack>
+        </div>
       </SchemePreview>
     </ExampleRoot>
   );

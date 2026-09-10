@@ -6,7 +6,6 @@
  */
 
 import { For, type JSX } from 'solid-js';
-import { Box } from '../box';
 import { Chip } from '../chip';
 import type { ComboboxOption, ComboboxValue } from './combobox-types';
 
@@ -20,21 +19,14 @@ export function ComboboxChips<T extends ComboboxValue>(
   props: ComboboxChipsProps<T>
 ): JSX.Element {
   return (
-    <Box
+    <div
+      class="box flex-row flex-wrap gap-1.5 items-center min-w-[0] shrink"
+      data-component="ComboboxChips"
       role="list"
-      sx={{
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 1.5,
-        alignItems: 'center',
-        minWidth: 0,
-        flexShrink: 1,
-      }}
-      dataSet={{ component: 'ComboboxChips' }}
     >
       <For each={props.selected}>
         {(option) => (
-          <Box as="li">
+          <li class="box">
             <Chip
               label={option.label}
               selected
@@ -42,9 +34,9 @@ export function ComboboxChips<T extends ComboboxValue>(
               onClick={() => props.onRemove(option.value)}
               dataSet={{ component: 'ComboboxChip', ...option.dataSet }}
             />
-          </Box>
+          </li>
         )}
       </For>
-    </Box>
+    </div>
   );
 }

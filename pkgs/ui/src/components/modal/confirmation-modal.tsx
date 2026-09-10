@@ -21,9 +21,7 @@
 import { useLingui } from '@lingui/solid/macro';
 import { type JSX, Show } from 'solid-js';
 import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
 import { ResponsiveSurface } from '../responsive-surface/responsive-surface';
-import { Text } from '../text';
 import { ModalBody, ModalButton, ModalFooter } from './modal-parts';
 
 export type ConfirmationModalProps = {
@@ -54,14 +52,10 @@ function ConfirmationModalBody(props: {
   return (
     <Show when={hasError()} fallback={<ModalBody message={props.message} />}>
       <ModalBody>
-        <Box sx={{ gap: 2 }}>
-          <Text variant="body" label={props.message} />
-          <Text
-            variant="caption"
-            sx={{ color: 'destructive' }}
-            label={props.confirmError}
-          />
-        </Box>
+        <div class="box gap-2">
+          <p class="text">{props.message}</p>
+          <p class="text textCaption text-destructive">{props.confirmError}</p>
+        </div>
       </ModalBody>
     </Show>
   );

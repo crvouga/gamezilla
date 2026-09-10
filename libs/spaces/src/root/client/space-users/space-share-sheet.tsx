@@ -27,7 +27,7 @@ export function SpaceShareSheet(props: SpaceShareSheetProps): JSX.Element {
       title={<Trans>Share space</Trans>}
       size="medium"
     >
-      <ScrollView frameSx={{ maxHeight: 480 }} sx={{ px: 0, gap: 3 }}>
+      <ScrollView class="max-h-[480px]" contentClass="px-0 gap-3">
         <SpaceShareLinkSection spaceId={props.spaceId} />
         <Show when={isHost()}>
           <SpaceShareAddPeople

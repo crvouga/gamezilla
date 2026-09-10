@@ -6,29 +6,26 @@
  */
 
 import { type JSX, splitProps } from 'solid-js';
+import { dataAttrs } from '../../component-id';
 import type { ElevationLevel } from '../../theme';
-import { Box, type BoxProps } from '../box';
+import { type DivBoxProps, joinClass } from '../box';
 
-export type CardProps = BoxProps & {
+export type CardProps = DivBoxProps & {
   /** Elevation 0-5. Defaults to 1. */
   elevation?: ElevationLevel | undefined;
 };
 
 export function Card(props: CardProps): JSX.Element {
-  const [local, rest] = splitProps(props, ['elevation', 'sx', 'dataSet']);
+  const [local, rest] = splitProps(props, ['elevation', 'class', 'dataSet']);
+  const level = () => local.elevation ?? 1;
   return (
-    <Box
-      sx={[
-        local.sx,
-        {
-          borderRadius: 'lg',
-          borderWidth: 1,
-          borderStyle: 'solid',
-          borderColor: 'border',
-          elevation: local.elevation ?? 1,
-        },
-      ]}
-      dataSet={{ component: 'Card', ...local.dataSet }}
+    <div
+      class={joinClass(
+        'box rounded-[14px] border border-solid border-border',
+        `bg-elevation-${level()}`,
+        local.class
+      )}
+      {...dataAttrs({ component: 'Card', ...local.dataSet })}
       {...rest}
     />
   );

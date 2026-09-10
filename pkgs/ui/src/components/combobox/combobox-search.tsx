@@ -8,7 +8,6 @@
 import type { LocalizedString } from '@pkgs/i18n/localized-string';
 import { type JSX, onMount } from 'solid-js';
 import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
 import { SearchIcon } from '../icons';
 import { TextInput } from '../text-input';
 import type { ComboboxKeyEvent } from './combobox-key-nav';
@@ -32,7 +31,7 @@ export function ComboboxSearch(props: ComboboxSearchProps): JSX.Element {
     if (props.focusOnMount ?? true) inputEl?.focus();
   });
   return (
-    <Box sx={{ pb: 2 }}>
+    <div class="box pb-2">
       <TextInput
         ref={(el) => {
           inputEl = el;
@@ -51,6 +50,6 @@ export function ComboboxSearch(props: ComboboxSearchProps): JSX.Element {
         onKeyDown={(ev) => props.onKeyDown(ev)}
         dataSet={{ component: 'ComboboxSearch', ...props.dataSet }}
       />
-    </Box>
+    </div>
   );
 }

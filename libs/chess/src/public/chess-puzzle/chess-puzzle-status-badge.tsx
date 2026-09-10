@@ -1,4 +1,3 @@
-import { Box, Text } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 
 export function ChessPuzzleStatusBadge(props: {
@@ -7,25 +6,16 @@ export function ChessPuzzleStatusBadge(props: {
   mark: JSX.Element;
 }): JSX.Element {
   return (
-    <Box
-      sx={{
-        width: 20,
-        height: 20,
-        borderRadius: 10,
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: props.bg,
-      }}
+    <div
+      class="box w-[20px] h-[20px] rounded-[10px] items-center justify-center"
+      style={{ 'background-color': props.bg }}
     >
-      <Text
-        sx={{
-          fontSize: 12,
-          fontWeight: '700',
-          lineHeight: 14,
-          color: props.fg,
-        }}
-        label={props.mark}
-      />
-    </Box>
+      <p
+        class="text text-[12px] font-bold leading-[14px]"
+        style={{ color: props.fg }}
+      >
+        {props.mark}
+      </p>
+    </div>
   );
 }

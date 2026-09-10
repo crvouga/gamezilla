@@ -10,15 +10,15 @@
  */
 
 import { createMemo, type JSX } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import {
   bestOnColor,
   type ColorTokenName,
+  colorVar,
   resolveColor,
   useThemeTokens,
 } from '../../theme';
-import { Box } from '../box';
-import { Text } from '../text';
+import { joinClass } from '../box/box';
 
 export type BadgeIntent =
   | 'neutral'
@@ -90,41 +90,47 @@ export function Badge(props: BadgeProps): JSX.Element {
   const colors = createMemo((): { bg: string; fg: string } => {
     if (props.color !== undefined) {
       const raw = resolveColor(props.color, tokens.palette()) ?? props.color;
-      return { bg: props.color, fg: bestOnColor(raw).fg };
+      return {
+        bg: resolveColor(props.color, tokens.colors) ?? props.color,
+        fg: bestOnColor(raw).fg,
+      };
     }
     const t = INTENT_TO_TOKENS[props.intent ?? 'brand'][props.tone ?? 'subtle'];
-    return { bg: t.bg, fg: t.fg };
+    return { bg: colorVar(t.bg), fg: colorVar(t.fg) };
   });
   const isSmall = () => (props.size ?? 'md') === 'sm';
   const fontSize = () => (isSmall() ? 11 : 12);
+  const padX = () => (isSmall() ? 6 : 8);
+  const padY = () => (isSmall() ? 2 : 3);
 
   return (
-    <Box
-      as="span"
-      dataSet={{ component: 'Badge', ...props.dataSet }}
-      sx={{
-        display: 'inline-flex',
-        alignSelf: 'flex-start',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: colors().bg,
-        borderRadius: 'full',
-        paddingHorizontal: isSmall() ? 6 : 8,
-        paddingVertical: isSmall() ? 2 : 3,
+    <span
+      class="box inline-flex self-start items-center justify-center rounded-[9999px]"
+      {...dataAttrs({ component: 'Badge', ...props.dataSet })}
+      style={{
+        'background-color': colors().bg,
+        'padding-left': `${padX()}px`,
+        'padding-right': `${padX()}px`,
+        'padding-top': `${padY()}px`,
+        'padding-bottom': `${padY()}px`,
         ...(isSmall()
-          ? { minWidth: SM_MIN_SIZE, minHeight: SM_MIN_SIZE }
-          : undefined),
+          ? {
+              'min-width': `${SM_MIN_SIZE}px`,
+              'min-height': `${SM_MIN_SIZE}px`,
+            }
+          : {}),
       }}
     >
-      <Text
-        sx={{
+      <p
+        class={joinClass('text', 'font-bold')}
+        style={{
           color: colors().fg,
-          fontSize: fontSize(),
-          lineHeight: fontSize() + 2,
-          fontWeight: '700',
+          'font-size': `${fontSize()}px`,
+          'line-height': `${fontSize() + 2}px`,
         }}
-        label={props.label}
-      />
-    </Box>
+      >
+        {props.label}
+      </p>
+    </span>
   );
 }

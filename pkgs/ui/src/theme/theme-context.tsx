@@ -29,8 +29,6 @@ import { type FontStacks, fonts } from './fonts';
 import { createMediaQuery } from './media-query';
 import { type MotionTokens, motion } from './motion';
 import type { ElevationLevel, ElevationStyle } from './scale';
-import type { SxInput } from './sx-props';
-import { sxToCss } from './sx-to-css';
 import { defaultTextCasing, type TextCasing } from './text-casing';
 
 export type ThemeLayout = {
@@ -40,8 +38,6 @@ export type ThemeLayout = {
 
 /** Stable design tokens — never change on resize; only `palette` / `colorScheme` track the scheme. */
 export type ThemeTokens = {
-  /** `sx` → CSS declaration list. Only hosts and tests should call this. */
-  css: (input: SxInput) => string;
   /** Palette-shaped map of `var(--ui-color-*)` references. */
   colors: ColorTokens;
   /** Raw resolved scheme colors (for contrast math / canvas / SVG). Reactive. */
@@ -49,7 +45,7 @@ export type ThemeTokens = {
   /** Resolved scheme. Reactive. */
   colorScheme: Accessor<ColorScheme>;
   fonts: FontStacks;
-  /** Global casing for `Text` (overridable per node via `sx`). */
+  /** Global casing for UI-chrome `Text` variants. */
   textCasing: TextCasing;
   motion: MotionTokens;
   /** Scheme-agnostic elevation: dark mode lifts onto `var(--ui-elevation-N)`. */
@@ -139,8 +135,6 @@ export function ThemeProvider(props: ThemeProviderProps): JSX.Element {
   const textCasing = props.textCasing ?? defaultTextCasing;
 
   const tokens: ThemeTokens = {
-    css: (input) =>
-      sxToCss(input, { colors: CSS_VAR_COLORS, elevation: cssVarElevation }),
     colors: CSS_VAR_COLORS,
     palette,
     colorScheme,

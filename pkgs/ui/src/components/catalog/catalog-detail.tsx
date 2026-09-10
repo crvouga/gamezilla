@@ -14,8 +14,7 @@
 import { useLingui } from '@lingui/solid/macro';
 import { type JSX, Show } from 'solid-js';
 
-import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import {
   CONTENT_EDGE_PADDING_STEP,
   useContentEdgePadding,
@@ -58,9 +57,9 @@ export function CatalogDetail(props: CatalogDetailProps): JSX.Element {
   };
 
   return (
-    <Box
-      sx={{ flex: 1, minHeight: 0 }}
-      dataSet={{ component: 'CatalogDetail', ...props.dataSet }}
+    <div
+      class="box flex-1 min-h-[0]"
+      {...dataAttrs({ component: 'CatalogDetail', ...props.dataSet })}
     >
       <Show
         when={known()}
@@ -69,13 +68,20 @@ export function CatalogDetail(props: CatalogDetailProps): JSX.Element {
         }
       >
         <ScrollView
-          frameSx={{ flex: 1 }}
+          class="flex-1"
           flushEdge={bleed()}
-          sx={[
-            { pb: 16 },
-            !bleed() && { px: 4 },
-            !bleed() && props.largeTitleLabel === undefined && { pt: 4 },
-          ]}
+          contentStyle={{
+            'padding-bottom': 'var(--ui-space-16)',
+            ...(!bleed()
+              ? {
+                  'padding-left': 'var(--ui-space-4)',
+                  'padding-right': 'var(--ui-space-4)',
+                }
+              : {}),
+            ...(!bleed() && props.largeTitleLabel === undefined
+              ? { 'padding-top': 'var(--ui-space-4)' }
+              : {}),
+          }}
           onScroll={props.titleScroll?.onScroll}
         >
           <Show when={props.largeTitleLabel !== undefined}>
@@ -94,7 +100,7 @@ export function CatalogDetail(props: CatalogDetailProps): JSX.Element {
           )}
         </Show>
       </Show>
-    </Box>
+    </div>
   );
 }
 
@@ -112,23 +118,24 @@ function CatalogDetailBottomBar(props: {
   const flush = () => props.screenBodyBleed && edge !== null && step() !== 0;
 
   return (
-    <Box
-      sx={[
-        {
-          background: 'surface',
-          borderColor: 'border',
-          borderTopWidth: 'hairline',
-          px: step(),
-          py: 1,
-        },
-        flush() && { mx: -step() },
-      ]}
+    <div
+      class="box bg-surface border-border [border-top-width:hairline] py-1"
+      style={{
+        ...(flush()
+          ? {
+              'margin-left': `${-step() * 4}px`,
+              'margin-right': `${-step() * 4}px`,
+            }
+          : {}),
+        'padding-left': `${step() * 4}px`,
+        'padding-right': `${step() * 4}px`,
+      }}
     >
       <CatalogDetailNav
         items={props.items}
         currentId={props.currentId}
         onNavigate={props.onNavigate}
       />
-    </Box>
+    </div>
   );
 }

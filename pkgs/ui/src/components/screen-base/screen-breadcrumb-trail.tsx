@@ -10,11 +10,8 @@
 
 import { useLingui } from '@lingui/solid/macro';
 import { createMemo, For, type JSX, Show } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
-import { Clickable } from '../clickable';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { ChevronRightIcon } from '../icons';
-import { Text } from '../text';
 import { splitBreadcrumbTrail } from './screen-base-logic';
 import type { ScreenBaseBreadcrumb } from './screen-base-types';
 import { useBreadcrumbClick } from './use-breadcrumb-click';
@@ -31,24 +28,22 @@ function AncestorCrumb(props: {
   onClick: (() => void) | undefined;
 }): JSX.Element {
   const text = (): JSX.Element => (
-    <Text
-      variant="label"
-      numberOfLines={1}
-      sx={{ color: 'textSecondary' }}
-      label={props.crumb.name}
-    />
+    <label class="text textLabel line-clamp-1 text-text-secondary">
+      {props.crumb.name}
+    </label>
   );
   return (
     <Show when={props.onClick} fallback={text()}>
       {(onClick) => (
-        <Clickable
+        <button
+          class="clickable clickableTint rounded-[6px] px-1 [margin-left:-4px;margin-right:-4px] min-h-[32px]"
+          data-component="ScreenBreadcrumbLink"
+          type="button"
           role="link"
           onClick={() => onClick()()}
-          sx={{ borderRadius: 'sm', px: 1, mx: -1, minHeight: 32 }}
-          dataSet={{ component: 'ScreenBreadcrumbLink' }}
         >
           {text()}
-        </Clickable>
+        </button>
       )}
     </Show>
   );
@@ -62,26 +57,16 @@ export function ScreenBreadcrumbTrail(
   const trail = createMemo(() => splitBreadcrumbTrail(props.breadcrumbs));
   return (
     <Show when={props.breadcrumbs.length > 0}>
-      <Box
-        as="nav"
+      <nav
+        class="box flex-1 min-w-[0] gap-0.5"
+        {...dataAttrs({ component: 'ScreenBreadcrumbTrail', ...props.dataSet })}
         aria-label={t`Breadcrumb`}
-        sx={{ flex: 1, minWidth: 0, gap: 0.5 }}
-        dataSet={{ component: 'ScreenBreadcrumbTrail', ...props.dataSet }}
       >
         <Show when={trail().ancestors.length > 0}>
-          <Box
-            sx={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              flexWrap: 'wrap',
-              gap: 1,
-            }}
-          >
+          <div class="box flex-row items-center flex-wrap gap-1">
             <For each={trail().ancestors}>
               {(crumb, index) => (
-                <Box
-                  sx={{ flexDirection: 'row', alignItems: 'center', gap: 1 }}
-                >
+                <div class="box flex-row items-center gap-1">
                   <AncestorCrumb crumb={crumb} onClick={resolveClick(crumb)} />
                   <Show when={index() < trail().ancestors.length - 1}>
                     <ChevronRightIcon
@@ -89,22 +74,17 @@ export function ScreenBreadcrumbTrail(
                       color="textSecondary"
                     />
                   </Show>
-                </Box>
+                </div>
               )}
             </For>
-          </Box>
+          </div>
         </Show>
         <Show when={trail().current}>
           {(current) => (
-            <Text
-              as="h1"
-              variant="title"
-              numberOfLines={1}
-              label={current().name}
-            />
+            <h1 class="text textTitle line-clamp-1">{current().name}</h1>
           )}
         </Show>
-      </Box>
+      </nav>
     </Show>
   );
 }

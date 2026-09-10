@@ -2,15 +2,15 @@
  * Token resolution for the `sx` → CSS compiler.
  */
 
-import type { ColorTokenName, ColorTokens } from './colors';
+import type { ColorTokenName, ColorTokens } from '../src/theme/colors';
 import {
   borderRadius,
   fontSize,
   lineHeight,
   spacing,
   spacingScale,
-} from './scale';
-import type { SxRadius } from './sx-props';
+} from '../src/theme/scale';
+import type { SxRadius } from './legacy-sx-props';
 
 export function resolveSpacing(n: number): number {
   const known = (spacing as Record<number, number | undefined>)[n];

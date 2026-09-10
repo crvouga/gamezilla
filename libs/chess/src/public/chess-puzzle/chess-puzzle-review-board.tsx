@@ -1,5 +1,4 @@
 import { ChessBoard } from '@pkgs/chess-board/chess-board';
-import { Box } from '@pkgs/ui';
 import { type JSX, Show } from 'solid-js';
 
 import { ChessPuzzleBoardFrame } from './chess-puzzle-board-frame';
@@ -13,7 +12,7 @@ export function ChessPuzzleReviewBoard(props: {
 }): JSX.Element {
   const model = usePuzzleReviewBoard(props.fen, props.moves);
   return (
-    <Box sx={{ flex: 1, minHeight: 0, alignSelf: 'stretch', gap: 2 }}>
+    <div class="box flex-1 min-h-[0] self-stretch gap-2">
       <ChessPuzzleBoardFrame>
         {(size) => (
           <Show
@@ -40,6 +39,6 @@ export function ChessPuzzleReviewBoard(props: {
         interactive={model.ready()}
         onSeek={model.onSeek}
       />
-    </Box>
+    </div>
   );
 }

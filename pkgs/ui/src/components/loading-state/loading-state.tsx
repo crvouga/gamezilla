@@ -22,7 +22,6 @@ import { type JSX, Show } from 'solid-js';
 import type { ComponentDataSet } from '../../component-id';
 import { Spinner, type SpinnerProps } from '../spinner';
 import { StateBlock, type StateBlockVariant } from '../state-block';
-import { Text } from '../text';
 
 export type LoadingStateProps = {
   /** Optional caption rendered under the spinner. */
@@ -43,11 +42,9 @@ export function LoadingState(props: LoadingStateProps): JSX.Element {
     >
       <Spinner size={props.size ?? 'medium'} />
       <Show when={props.caption !== undefined && props.caption !== null}>
-        <Text
-          variant="caption"
-          sx={{ color: 'textSecondary', textAlign: 'center' }}
-          label={props.caption}
-        />
+        <p class="text textCaption text-text-secondary text-center">
+          {props.caption}
+        </p>
       </Show>
     </StateBlock>
   );

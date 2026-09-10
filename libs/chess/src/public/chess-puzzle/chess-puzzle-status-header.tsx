@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/solid/macro';
-import { Box, Text } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 
 import {
@@ -38,21 +37,14 @@ export function ChessPuzzleStatusHeader(
   props: ChessPuzzleStatusHeaderProps
 ): JSX.Element {
   return (
-    <Box
-      sx={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 2,
-        height: HEADER_ROW_HEIGHT,
-        alignSelf: 'stretch',
-      }}
+    <div
+      class="box flex-row items-center gap-2 self-stretch"
+      style={{ height: `${HEADER_ROW_HEIGHT}px` }}
     >
       <ChessPuzzleStatusIcon kind={props.kind} />
-      <Text
-        variant="bodyBold"
-        sx={{ flex: 1, color: 'text' }}
-        label={statusLabel(props.kind)}
-      />
-    </Box>
+      <p class="text textBodyBold flex-1 text-text">
+        {statusLabel(props.kind)}
+      </p>
+    </div>
   );
 }

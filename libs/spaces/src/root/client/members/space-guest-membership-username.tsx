@@ -1,12 +1,12 @@
 import { UserUsername } from '@libs/profile/public/user-username';
-import type { SxProps, TextVariant } from '@pkgs/ui';
+import type { TextVariant } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 
 export type SpaceGuestMembershipUsernameProps = {
   /** Guest member / account id (also the profile id). */
   membershipId: string;
   variant?: TextVariant;
-  sx?: SxProps;
+  class?: string;
   numberOfLines?: number;
 };
 
@@ -18,7 +18,7 @@ export function SpaceGuestMembershipUsername(
       profileId={props.membershipId}
       withAt={false}
       variant={props.variant}
-      sx={props.sx}
+      class={props.class}
       numberOfLines={props.numberOfLines}
     />
   );

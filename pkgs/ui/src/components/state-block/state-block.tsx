@@ -15,8 +15,7 @@
  */
 
 import type { JSX } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 
 export type StateBlockVariant = 'fill' | 'compact';
 
@@ -32,23 +31,17 @@ export type StateBlockProps = {
 export function StateBlock(props: StateBlockProps): JSX.Element {
   const isFill = (): boolean => (props.variant ?? 'fill') === 'fill';
   return (
-    <Box
+    <div
+      class="box items-center justify-center gap-3 px-5"
+      {...dataAttrs({ component: 'StateBlock', ...props.dataSet })}
+      style={{
+        ...((isFill() && { flex: 1 }) ?? {}),
+        'padding-top': `${(isFill() ? 8 : 6) * 4}px`,
+        'padding-bottom': `${(isFill() ? 8 : 6) * 4}px`,
+      }}
       role={props.role}
-      dataSet={{ component: 'StateBlock', ...props.dataSet }}
-      sx={[
-        isFill() && { flex: 1 },
-        {
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 3,
-          px: 5,
-          py: isFill() ? 8 : 6,
-        },
-      ]}
     >
-      <Box sx={{ alignItems: 'center', justifyContent: 'center', gap: 2 }}>
-        {props.children}
-      </Box>
-    </Box>
+      <div class="box items-center justify-center gap-2">{props.children}</div>
+    </div>
   );
 }

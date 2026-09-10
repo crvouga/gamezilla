@@ -7,7 +7,7 @@
  */
 
 import { useLingui } from '@lingui/solid/macro';
-import { Box, LoadingState, TopBar, useAppFrameGlobalTrailing } from '@pkgs/ui';
+import { LoadingState, TopBar, useAppFrameGlobalTrailing } from '@pkgs/ui';
 import { type JSX, Show } from 'solid-js';
 
 import { useLocalPaintLatch } from './local-paint-latch';
@@ -16,23 +16,12 @@ function BootPaintGateFallback(): JSX.Element {
   const { t } = useLingui();
   const globalTrailing = useAppFrameGlobalTrailing();
   return (
-    <Box
-      sx={{ flex: 1, minHeight: 0 }}
-      dataSet={{ component: 'BootPaintGate' }}
-    >
+    <div class="box flex-1 min-h-[0]" data-component="BootPaintGate">
       <TopBar trailing={globalTrailing()} />
-      <Box
-        sx={{
-          flex: 1,
-          minHeight: 0,
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: 'background',
-        }}
-      >
+      <div class="box flex-1 min-h-[0] items-center justify-center bg-background">
         <LoadingState size="large" caption={t`Downloading…`} />
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }
 

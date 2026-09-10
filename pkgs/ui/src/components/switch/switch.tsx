@@ -4,11 +4,9 @@
  */
 
 import { type JSX, Show } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
-import { Clickable } from '../clickable';
-import styles from '../hosts.module.css';
-import { Text } from '../text';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
+import { colorVar } from '../../theme';
+import { joinClass } from '../box/box';
 
 export type SwitchProps = {
   value: boolean;
@@ -28,53 +26,51 @@ const THUMB_TRAVEL = TRACK_WIDTH - THUMB - 4;
 
 export function Switch(props: SwitchProps): JSX.Element {
   return (
-    <Box
-      dataSet={{ component: 'Switch', ...props.dataSet }}
-      sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}
+    <div
+      class="box flex-row items-center gap-2"
+      {...dataAttrs({ component: 'Switch', ...props.dataSet })}
     >
-      <Clickable
+      <button
+        class="clickable min-h-[44px] justify-center"
+        type="button"
+        style={{
+          width: `${TRACK_WIDTH}px`,
+          height: `${TRACK_HEIGHT}px`,
+          opacity: props.disabled ? 0.5 : 1,
+        }}
         role="switch"
         aria-checked={props.value}
         aria-label={props['aria-label']}
         disabled={props.disabled}
-        feedback="none"
-        class={styles['switchTrack']}
         onClick={() => props.onValueChange(!props.value)}
-        sx={{
-          width: TRACK_WIDTH,
-          height: TRACK_HEIGHT,
-          minHeight: 44,
-          justifyContent: 'center',
-          opacity: props.disabled ? 0.5 : 1,
-        }}
       >
-        <Box
-          sx={{
-            width: TRACK_WIDTH,
-            height: TRACK_HEIGHT,
-            borderRadius: 'full',
-            backgroundColor: props.value ? 'tint' : 'outline',
-            justifyContent: 'center',
-            transitionProperty: 'background-color',
-            transitionDuration: 'var(--ui-duration-fast)',
+        <div
+          class="box rounded-[9999px] justify-center [transition-property:background-color] [transition-duration:var(--ui-duration-fast)]"
+          style={{
+            'background-color': props.value
+              ? colorVar('tint')
+              : colorVar('outline'),
+            width: `${TRACK_WIDTH}px`,
+            height: `${TRACK_HEIGHT}px`,
           }}
         >
-          <Box
-            class={styles['switchThumb']}
-            sx={{
-              width: THUMB,
-              height: THUMB,
-              borderRadius: 'full',
-              backgroundColor: 'onPrimary',
-              ml: 0.5,
-              transform: [{ translateX: props.value ? THUMB_TRAVEL : 0 }],
+          <div
+            class={joinClass(
+              'box rounded-[9999px] bg-on-primary ml-0.5',
+              '[transition-property:transform]',
+              '[transition-duration:var(--ui-duration-fast)]'
+            )}
+            style={{
+              width: `${THUMB}px`,
+              height: `${THUMB}px`,
+              transform: `translateX(${props.value ? THUMB_TRAVEL : 0}px)`,
             }}
           />
-        </Box>
-      </Clickable>
+        </div>
+      </button>
       <Show when={props.label !== undefined}>
-        <Text variant="body" label={props.label} />
+        <p class="text">{props.label}</p>
       </Show>
-    </Box>
+    </div>
   );
 }

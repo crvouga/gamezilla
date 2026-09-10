@@ -1,36 +1,32 @@
 /** @jsxImportSource solid-js */
 import type { JSX } from 'solid-js';
-import { Box } from '../box';
 import { Card } from '../card';
 import { Divider } from '../divider';
 import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
 import { HouseIcon } from '../icons';
-import { Text } from '../text';
 import { EmptyState } from './empty-state';
 
 export default function EmptyStateExample(): JSX.Element {
   return (
     <ExampleRoot>
-      <Text variant="label" sx={{ color: 'textSecondary' }} label="Fill" />
+      <label class="text textLabel text-text-secondary">{'Fill'}</label>
       <SchemePreview>
-        <Box sx={{ height: 280 }}>
+        <div class="box h-[280px]">
           <EmptyState
             icon={HouseIcon}
             title="No live spaces"
             body="Tap + New space to start one."
             action={{ label: '+ New space', onClick: () => undefined }}
           />
-        </Box>
+        </div>
       </SchemePreview>
 
       <Divider />
 
-      <Text
-        variant="label"
-        sx={{ color: 'textSecondary' }}
-        label="Compact, no icon"
-      />
+      <label class="text textLabel text-text-secondary">
+        {'Compact, no icon'}
+      </label>
       <SchemePreview>
         <Card elevation={0}>
           <EmptyState
@@ -43,11 +39,9 @@ export default function EmptyStateExample(): JSX.Element {
 
       <Divider />
 
-      <Text
-        variant="label"
-        sx={{ color: 'textSecondary' }}
-        label="Title only (list footer)"
-      />
+      <label class="text textLabel text-text-secondary">
+        {'Title only (list footer)'}
+      </label>
       <SchemePreview>
         <Card elevation={0}>
           <EmptyState variant="compact" title="No rows match filter." />

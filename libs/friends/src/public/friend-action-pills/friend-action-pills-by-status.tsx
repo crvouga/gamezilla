@@ -1,5 +1,4 @@
 import { useLingui } from '@lingui/solid/macro';
-import { Box } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
 
@@ -28,7 +27,7 @@ export function FriendActionPillsForStatus(props: {
 
   return (
     <Show when={props.status === 'blocked_by_them'} fallback={pills}>
-      <Box sx={{ alignSelf: 'stretch' }}>{pills}</Box>
+      <div class="box self-stretch">{pills}</div>
     </Show>
   );
 }

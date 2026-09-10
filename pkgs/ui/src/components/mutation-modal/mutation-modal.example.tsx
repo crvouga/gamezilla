@@ -4,8 +4,6 @@ import { useTimers } from '@pkgs/clock/solid';
 import { createSignal, type JSX } from 'solid-js';
 import { Button } from '../button';
 import { ExampleRoot } from '../explorer/example-root';
-import { Stack } from '../stack';
-import { Text } from '../text';
 import { TextInput } from '../text-input';
 import { MutationModal } from './mutation-modal';
 
@@ -102,16 +100,16 @@ function FormExample(): JSX.Element {
 export default function MutationModalExample(): JSX.Element {
   return (
     <ExampleRoot>
-      <Text
-        variant="caption"
-        sx={{ color: 'textSecondary' }}
-        label="Submit transitions through loading -> success / error in place. Success is dismissible; errors are retryable."
-      />
-      <Stack spacing={2}>
+      <p class="text textCaption text-text-secondary">
+        {
+          'Submit transitions through loading -> success / error in place. Success is dismissible; errors are retryable.'
+        }
+      </p>
+      <div class="box flex-col gap-2">
         <ConfirmExample />
         <ErrorExample />
         <FormExample />
-      </Stack>
+      </div>
     </ExampleRoot>
   );
 }

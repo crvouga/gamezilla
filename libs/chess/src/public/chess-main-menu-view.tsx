@@ -4,7 +4,7 @@ import {
   useSpaceRoomSelector,
 } from '@libs/spaces/public/room/use-space-room-selector';
 import { Trans } from '@lingui/solid/macro';
-import { Box, FadeSwitch, type MainMenuItem, MainMenuScreen } from '@pkgs/ui';
+import { FadeSwitch, type MainMenuItem, MainMenuScreen } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { Match, Switch } from 'solid-js';
 
@@ -74,9 +74,9 @@ function ChessScreenSwitch(props: ChessMainMenuProps): JSX.Element {
 export function ChessMainMenu(props: ChessMainMenuProps): JSX.Element {
   useChessPuzzleFeedSubscription();
   return (
-    <Box sx={{ flex: 1, minHeight: 0, alignSelf: 'stretch' }}>
+    <div class="box flex-1 min-h-[0] self-stretch">
       <ChessScreenSwitch onBackToGames={props.onBackToGames} />
-    </Box>
+    </div>
   );
 }
 

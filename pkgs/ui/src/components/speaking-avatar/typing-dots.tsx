@@ -1,11 +1,12 @@
 /** @jsxImportSource solid-js */
+import { cssPx } from '../../css/css-px';
 /**
  * `TypingDots` -- chat "..." indicator. The three dots pulse in sequence via
  * CSS keyframes (static under `prefers-reduced-motion`).
  */
 
 import { For, type JSX } from 'solid-js';
-import { Box } from '../box';
+import { joinClass } from '../box';
 import styles from './speaking-avatar.module.css';
 
 const DOT_SIZE = 6;
@@ -23,30 +24,28 @@ const DOT_CLASSES = [styles['dot1'], styles['dot2'], styles['dot3']];
 
 export function TypingDots(props: TypingDotsProps): JSX.Element {
   return (
-    <Box
+    <div
+      class="box flex-row items-center"
+      style={{
+        gap: `${DOT_GAP_STEP * 4}px`,
+        height: cssPx(props.height ?? DEFAULT_HEIGHT),
+      }}
       role="status"
       aria-busy="true"
       data-component="TypingDots"
-      sx={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: DOT_GAP_STEP,
-        height: props.height ?? DEFAULT_HEIGHT,
-      }}
     >
       <For each={DOT_CLASSES}>
         {(dotClass) => (
-          <Box
-            class={`${styles['dot']} ${dotClass}`}
-            sx={{
-              width: DOT_SIZE,
-              height: DOT_SIZE,
-              borderRadius: 'full',
-              backgroundColor: props.color,
+          <div
+            class={joinClass('box rounded-[9999px]', styles['dot'], dotClass)}
+            style={{
+              'background-color': props.color,
+              width: cssPx(DOT_SIZE),
+              height: cssPx(DOT_SIZE),
             }}
           />
         )}
       </For>
-    </Box>
+    </div>
   );
 }

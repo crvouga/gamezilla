@@ -24,8 +24,7 @@ import {
   Show,
 } from 'solid-js';
 import type { ComponentDataSet } from '../../component-id';
-import type { SxProps } from '../../theme';
-import { Box } from '../box';
+import { Box, joinClass } from '../box';
 import { Clickable } from '../clickable';
 import { Text } from '../text';
 
@@ -35,12 +34,6 @@ export type ListProps = {
   separator?: boolean | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
-};
-
-const SEPARATOR_SX: SxProps = {
-  borderBottomWidth: 'hairline',
-  borderColor: 'border',
-  marginLeft: 16,
 };
 
 export function List(props: ListProps): JSX.Element {
@@ -58,7 +51,7 @@ export function List(props: ListProps): JSX.Element {
           <Box as="li">
             {child}
             <Show when={separator() && index() < items().length - 1}>
-              <Box aria-hidden="true" sx={SEPARATOR_SX} />
+              <Box aria-hidden="true" class="border-b border-border ml-4" />
             </Show>
           </Box>
         )}
@@ -88,19 +81,10 @@ function ListItemContent(props: {
   trailing: JSX.Element | undefined;
 }): JSX.Element {
   return (
-    <Box
-      sx={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        gap: 3,
-        minHeight: 44,
-      }}
-    >
+    <Box class="flex-row items-center py-3 px-4 gap-3 min-h-[44px]">
       {props.leading}
-      <Box sx={{ flex: 1, minWidth: 0, alignItems: 'flex-start' }}>
-        <Text variant="body" label={props.title} />
+      <Box class="flex-1 min-w-0 items-start">
+        <Text label={props.title} />
         <Show when={props.subtitle}>
           <Text variant="caption" label={props.subtitle} />
         </Show>
@@ -110,11 +94,11 @@ function ListItemContent(props: {
   );
 }
 
+function selectedClass(selected: boolean): string | undefined {
+  return selected ? 'bg-tint-subtle rounded-[10px]' : undefined;
+}
+
 export function ListItem(props: ListItemProps): JSX.Element {
-  const selectedSx = (): SxProps | false =>
-    props.selected === true
-      ? { backgroundColor: 'tintSubtle', borderRadius: 'md' }
-      : false;
   const content = (): JSX.Element => (
     <ListItemContent
       title={props.title}
@@ -129,7 +113,7 @@ export function ListItem(props: ListItemProps): JSX.Element {
       fallback={
         <Box
           aria-selected={props.selected === true ? true : undefined}
-          sx={selectedSx()}
+          class={selectedClass(props.selected === true)}
           dataSet={{ component: 'ListItem', ...props.dataSet }}
         >
           {content()}
@@ -140,7 +124,10 @@ export function ListItem(props: ListItemProps): JSX.Element {
         <Clickable
           onClick={() => onClick()()}
           aria-pressed={props.selected === true ? true : undefined}
-          sx={[{ alignItems: 'stretch', width: '100%' }, selectedSx()]}
+          class={joinClass(
+            'items-stretch w-full',
+            selectedClass(props.selected === true)
+          )}
           dataSet={{ component: 'ListItem', ...props.dataSet }}
         >
           {content()}

@@ -14,11 +14,8 @@ import {
   children as resolveChildren,
   Show,
 } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
-import type { SxProps } from '../../theme';
-import { Box } from '../box';
-import { Clickable } from '../clickable';
-import { Text } from '../text';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
+import { colorVar, resolveColor, useThemeTokens } from '../../theme';
 
 export type AvatarGroupProps = {
   /** Avatar diameter in px; used for slot size and default overlap. */
@@ -52,18 +49,19 @@ type RingMetrics = {
   ringColor: string;
 };
 
-function slotSx(metrics: RingMetrics, index: number): SxProps {
+function slotStyle(metrics: RingMetrics, index: number): JSX.CSSProperties {
   return {
-    marginLeft: index === 0 ? 0 : -metrics.overlap,
-    zIndex: index + 1,
-    width: metrics.size,
-    height: metrics.size,
-    borderRadius: 'full',
-    borderWidth: metrics.ringBorderWidth,
-    borderColor: metrics.ringColor,
+    'margin-left': index === 0 ? '0' : `-${metrics.overlap}px`,
+    'z-index': index + 1,
+    width: `${metrics.size}px`,
+    height: `${metrics.size}px`,
+    'border-radius': '9999px',
+    'border-width': `${metrics.ringBorderWidth}px`,
+    'border-style': 'solid',
+    'border-color': metrics.ringColor,
     overflow: 'hidden',
-    alignItems: 'center',
-    justifyContent: 'center',
+    'align-items': 'center',
+    'justify-content': 'center',
   };
 }
 
@@ -72,29 +70,23 @@ function DefaultOverflowPill(props: {
   metrics: RingMetrics;
 }): JSX.Element {
   return (
-    <Box
-      sx={{
-        width: props.metrics.size,
-        height: props.metrics.size,
-        borderRadius: 'full',
-        borderWidth: props.metrics.ringBorderWidth,
-        borderColor: props.metrics.ringColor,
-        alignItems: 'center',
-        justifyContent: 'center',
-        overflow: 'hidden',
-        background: 'outline',
+    <div
+      class="box rounded-[9999px] items-center justify-center overflow-hidden bg-outline"
+      style={{
+        'border-color': props.metrics.ringColor,
+        width: `${props.metrics.size}px`,
+        height: `${props.metrics.size}px`,
+        'border-width': `${props.metrics.ringBorderWidth}px`,
+        'border-style': 'solid',
       }}
     >
-      <Text
-        variant="caption"
-        label={`+${String(props.count)}`}
-        sx={{ color: 'text' }}
-      />
-    </Box>
+      <p class="text textCaption text-text">{`+${String(props.count)}`}</p>
+    </div>
   );
 }
 
 export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
+  const tokens = useThemeTokens();
   const resolved = resolveChildren(() => props.children);
   const items = createMemo(() =>
     resolved
@@ -103,11 +95,12 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
   );
   const metrics = createMemo((): RingMetrics => {
     const size = props.size ?? DEFAULT_SIZE;
+    const ringToken = props.ringColor ?? DEFAULT_RING_COLOR;
     return {
       size,
       overlap: props.overlap ?? Math.round(size * 0.4),
       ringBorderWidth: props.ringBorderWidth ?? DEFAULT_RING_WIDTH,
-      ringColor: props.ringColor ?? DEFAULT_RING_COLOR,
+      ringColor: resolveColor(ringToken, tokens.colors) ?? colorVar('surface'),
     };
   });
   const visible = createMemo(() =>
@@ -116,22 +109,28 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
   const hiddenCount = () => Math.max(0, items().length - visible().length);
 
   const strip = (): JSX.Element => (
-    <Box
-      dataSet={
+    <div
+      class="box flex-row items-center"
+      {...dataAttrs(
         props.onClick === undefined
           ? { component: 'AvatarGroup', ...props.dataSet }
           : undefined
-      }
-      sx={{ flexDirection: 'row', alignItems: 'center' }}
+      )}
     >
       <For each={visible()}>
-        {(child, index) => <Box sx={slotSx(metrics(), index())}>{child}</Box>}
+        {(child, index) => (
+          <div class="box" style={slotStyle(metrics(), index())}>
+            {child}
+          </div>
+        )}
       </For>
       <Show when={hiddenCount() > 0}>
-        <Box
-          sx={{
-            marginLeft: visible().length === 0 ? 0 : -metrics().overlap,
-            zIndex: visible().length + 2,
+        <div
+          class="box"
+          style={{
+            'margin-left':
+              visible().length === 0 ? '0' : `-${metrics().overlap}px`,
+            'z-index': visible().length + 2,
           }}
         >
           <Show
@@ -142,22 +141,23 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
           >
             {(render) => render()(hiddenCount())}
           </Show>
-        </Box>
+        </div>
       </Show>
-    </Box>
+    </div>
   );
 
   return (
     <Show when={props.onClick} fallback={strip()}>
       {(onClick) => (
-        <Clickable
+        <button
+          class="clickable clickableTint self-start rounded-[9999px]"
+          {...dataAttrs({ component: 'AvatarGroup', ...props.dataSet })}
+          type="button"
           onClick={() => onClick()()}
           aria-label={props['aria-label']}
-          sx={{ alignSelf: 'flex-start', borderRadius: 'full' }}
-          dataSet={{ component: 'AvatarGroup', ...props.dataSet }}
         >
           {strip()}
-        </Clickable>
+        </button>
       )}
     </Show>
   );

@@ -3,8 +3,6 @@ import type { JSX } from 'solid-js';
 import { Avatar } from '../avatar';
 import { ExampleRoot } from '../explorer/example-root';
 import { UserIcon } from '../icons';
-import { Stack } from '../stack';
-import { Text } from '../text';
 import { AvatarGroup } from './avatar-group';
 
 const SAMPLE_SVG = `
@@ -16,8 +14,8 @@ const SAMPLE_SVG = `
 
 export default function AvatarGroupExample(): JSX.Element {
   return (
-    <ExampleRoot sx={{ gap: 6 }}>
-      <Text variant="caption" label="Default overlap (40% of size), size 36" />
+    <ExampleRoot class="gap-6">
+      <p class="text textCaption">{'Default overlap (40% of size), size 36'}</p>
       <AvatarGroup size={36}>
         <Avatar initials="A" size={36} background="tint" />
         <Avatar initials="B" size={36} background="success" />
@@ -25,7 +23,7 @@ export default function AvatarGroupExample(): JSX.Element {
         <Avatar svg={SAMPLE_SVG} size={36} />
       </AvatarGroup>
 
-      <Text variant="caption" label="maxVisible={3} shows +N overflow pill" />
+      <p class="text textCaption">{'maxVisible={3} shows +N overflow pill'}</p>
       <AvatarGroup size={40} maxVisible={3}>
         <Avatar initials="JD" size={40} />
         <Avatar initials="AB" size={40} background="success" />
@@ -34,19 +32,18 @@ export default function AvatarGroupExample(): JSX.Element {
         <Avatar uri="https://i.pravatar.cc/100?u=9" size={40} />
       </AvatarGroup>
 
-      <Text variant="caption" label="Tighter overlap (10px), size 48" />
-      <Stack direction="horizontal" spacing={4} align="center">
+      <p class="text textCaption">{'Tighter overlap (10px), size 48'}</p>
+      <div class="box flex-row gap-4 items-center">
         <AvatarGroup size={48} overlap={10}>
           <Avatar icon={UserIcon} size={48} background="outline" />
           <Avatar initials="M" size={48} background="tint" />
           <Avatar initials="K" size={48} background="info" />
         </AvatarGroup>
-      </Stack>
+      </div>
 
-      <Text
-        variant="caption"
-        label="onClick wraps stack (accessibility button)"
-      />
+      <p class="text textCaption">
+        {'onClick wraps stack (accessibility button)'}
+      </p>
       <AvatarGroup
         size={32}
         maxVisible={4}

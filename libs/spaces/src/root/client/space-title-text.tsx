@@ -1,4 +1,4 @@
-import { type SxProps, Text, type TextVariant } from '@pkgs/ui';
+import { Text, type TextVariant } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
 import { SpaceField, useSpaceColumn } from '../../public/use-space-column';
@@ -7,7 +7,7 @@ import { SpaceHostFallbackTitle } from './members/space-host-fallback-title';
 export type SpaceTitleTextProps = {
   spaceId: string;
   variant?: TextVariant;
-  sx?: SxProps;
+  class?: string;
   numberOfLines?: number;
 };
 
@@ -24,7 +24,7 @@ export function SpaceTitleText(props: SpaceTitleTextProps): JSX.Element {
         <SpaceHostFallbackTitle
           spaceId={props.spaceId}
           {...(props.variant !== undefined ? { variant: props.variant } : {})}
-          {...(props.sx !== undefined ? { sx: props.sx } : {})}
+          {...(props.class !== undefined ? { class: props.class } : {})}
           {...(props.numberOfLines !== undefined
             ? { numberOfLines: props.numberOfLines }
             : {})}
@@ -32,11 +32,9 @@ export function SpaceTitleText(props: SpaceTitleTextProps): JSX.Element {
       }
     >
       <Text
-        {...(props.variant !== undefined ? { variant: props.variant } : {})}
-        {...(props.sx !== undefined ? { sx: props.sx } : {})}
-        {...(props.numberOfLines !== undefined
-          ? { numberOfLines: props.numberOfLines }
-          : {})}
+        variant={props.variant}
+        class={props.class}
+        numberOfLines={props.numberOfLines}
         label={customTitle() ?? ''}
       />
     </Show>

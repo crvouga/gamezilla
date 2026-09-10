@@ -1,4 +1,5 @@
 /** @jsxImportSource solid-js */
+import { cssPx } from '../../css/css-px';
 /**
  * `StatusDot` -- small colored circle indicating a status.
  *
@@ -10,9 +11,8 @@
  */
 
 import type { JSX } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
-import type { ColorTokenName } from '../../theme';
-import { Box } from '../box';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
+import { type ColorTokenName, colorVar } from '../../theme';
 
 export type StatusDotStatus = 'online' | 'offline' | 'warning' | 'pending';
 
@@ -38,19 +38,17 @@ const DEFAULT_SIZE = 10;
 export function StatusDot(props: StatusDotProps): JSX.Element {
   const size = () => props.size ?? DEFAULT_SIZE;
   return (
-    <Box
-      as="span"
+    <span
+      class="box inline-flex rounded-[9999px]"
+      {...dataAttrs({ component: 'StatusDot', ...props.dataSet })}
+      style={{
+        'background-color': colorVar(STATUS_COLOR[props.status]),
+        width: cssPx(size()),
+        height: cssPx(size()),
+      }}
       role={props.label === undefined ? undefined : 'img'}
       aria-label={props.label}
       aria-hidden={props.label === undefined ? true : undefined}
-      dataSet={{ component: 'StatusDot', ...props.dataSet }}
-      sx={{
-        display: 'inline-flex',
-        width: size(),
-        height: size(),
-        borderRadius: 'full',
-        backgroundColor: STATUS_COLOR[props.status],
-      }}
     />
   );
 }

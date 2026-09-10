@@ -21,8 +21,8 @@ export function ProfileEditScreen(): JSX.Element {
         { name: <Trans>Profile</Trans>, onClick: nav('/profile') },
         { name: <Trans>Edit profile</Trans> },
       ]}
-      content={({ sx }) => (
-        <MenuList sx={sx}>
+      content={({ bodyClass }) => (
+        <MenuList class={bodyClass}>
           <MenuRow
             title={t`Username`}
             caption={t`Unique handle for search and invites`}

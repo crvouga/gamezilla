@@ -1,4 +1,4 @@
-import { Box, Spinner } from '@pkgs/ui';
+import { Spinner } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 
 export type ChessPuzzleBoardLoadingStateProps = {
@@ -10,21 +10,14 @@ export function ChessPuzzleBoardLoadingState(
 ): JSX.Element {
   const dimensionSx =
     props.size !== undefined
-      ? { width: props.size, height: props.size }
-      : { width: '100%' as const, aspectRatio: 1 };
+      ? { width: `${props.size}px`, height: `${props.size}px` }
+      : { width: '100%' as const, 'aspect-ratio': '1' };
   return (
-    <Box
-      sx={[
-        {
-          alignSelf: 'center',
-          background: 'surface',
-          alignItems: 'center',
-          justifyContent: 'center',
-        },
-        dimensionSx,
-      ]}
+    <div
+      class="box self-center bg-surface items-center justify-center"
+      style={dimensionSx}
     >
       <Spinner size="large" />
-    </Box>
+    </div>
   );
 }

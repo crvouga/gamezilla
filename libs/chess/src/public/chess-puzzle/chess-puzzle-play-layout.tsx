@@ -1,6 +1,6 @@
 import { DefineBackButton } from '@libs/spaces/public/nav/spaces-nav-context';
 import { SpaceSideRailExtras } from '@libs/spaces/public/space-event-log-placement';
-import { Box, Island, useLayoutMode } from '@pkgs/ui';
+import { Island, useLayoutMode } from '@pkgs/ui';
 import { type Accessor, createSignal, type JSX, Show } from 'solid-js';
 
 import type { HintStage } from '../../shared/puzzle-session/hint-stage';
@@ -98,15 +98,15 @@ function buildSlots(
 
 function PuzzlePlayCompact(props: { slots: PuzzlePlaySlots }): JSX.Element {
   return (
-    <Box sx={{ flex: 1, minHeight: 0, gap: 4, pt: 4 }}>
+    <div class="box flex-1 min-h-[0] gap-4 pt-4">
       {props.slots.feedBar}
       {props.slots.assistant}
       {props.slots.board}
-      <Box sx={{ alignSelf: 'stretch', gap: 2 }}>
+      <div class="box self-stretch gap-2">
         {props.slots.timeline}
         {props.slots.actions}
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }
 
@@ -114,18 +114,16 @@ function PuzzlePlayWide(props: { slots: PuzzlePlaySlots }): JSX.Element {
   return (
     <>
       <SpaceSideRailExtras>
-        <Box sx={{ flex: 1, minHeight: 0 }}>
+        <div class="box flex-1 min-h-[0]">
           {props.slots.feedBar}
-          <Box sx={{ px: 3, pb: 3 }}>{props.slots.assistant}</Box>
-          <Box sx={{ flex: 1, minHeight: 0, px: 3, pb: 3 }}>
+          <div class="box px-3 pb-3">{props.slots.assistant}</div>
+          <div class="box flex-1 min-h-[0] px-3 pb-3">
             {props.slots.timeline}
-          </Box>
+          </div>
           {props.slots.actions}
-        </Box>
+        </div>
       </SpaceSideRailExtras>
-      <Island sx={{ flex: 1, minWidth: 0, minHeight: 0 }}>
-        {props.slots.board}
-      </Island>
+      <Island class="flex-1 min-w-[0] min-h-[0]">{props.slots.board}</Island>
     </>
   );
 }
@@ -141,12 +139,10 @@ export function PuzzlePlayLayout(p: PuzzlePlayLayoutProps): JSX.Element {
   const mode = useLayoutMode();
   const slots = buildSlots(p, openFeedSettings);
   return (
-    <Box
-      sx={{ flex: 1, minHeight: 0, alignSelf: 'stretch' }}
-      dataSet={{
-        testid: 'chess-puzzle-play-screen',
-        screen: 'chess-puzzle-play',
-      }}
+    <div
+      class="box flex-1 min-h-[0] self-stretch"
+      data-testid="chess-puzzle-play-screen"
+      data-screen="chess-puzzle-play"
     >
       <DefineBackButton onPress={p.backToRoot} />
       {p.e2eLoadingStatus}
@@ -161,6 +157,6 @@ export function PuzzlePlayLayout(p: PuzzlePlayLayoutProps): JSX.Element {
         onClose={closeFeedSettings}
         onFeedConfigApplied={p.onFeedConfigApplied}
       />
-    </Box>
+    </div>
   );
 }

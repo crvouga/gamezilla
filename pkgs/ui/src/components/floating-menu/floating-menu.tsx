@@ -22,9 +22,8 @@ import {
   onCleanup,
   Show,
 } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { useThemeLayout } from '../../theme';
-import { Box } from '../box';
 import { pushEscapeDismissHandler } from '../focus-trap';
 import { Motion } from '../motion';
 import {
@@ -57,7 +56,10 @@ import {
 export const FLOATING_MENU_DEFAULT_WIDTH = 260;
 
 const NO_INSETS: FloatingMenuInsets = { top: 0, bottom: 0 };
-const ENTER_SX = { opacity: 0, transform: [{ translateY: -4 }] } as const;
+const ENTER_STYLE: JSX.CSSProperties = {
+  opacity: 0,
+  transform: 'translateY(-4px)',
+};
 
 /** Window-space rect, or the trigger element (measured when the menu opens). */
 export type FloatingMenuAnchor = LayoutRect | HTMLElement | null;
@@ -145,17 +147,18 @@ function FloatingMenuPanel(props: {
   };
   return (
     <Motion
-      duration="fast"
-      enterSx={ENTER_SX}
-      sx={{
-        position: 'absolute',
-        top: props.position.top,
-        left: props.position.left,
-        width: props.width,
+      class="absolute"
+      style={{
+        top: `${props.position.top}px`,
+        left: `${props.position.left}px`,
+        width: `${props.width}px`,
       }}
+      duration="fast"
+      enterStyle={ENTER_STYLE}
       dataSet={{ component: 'FloatingMenuPanel' }}
     >
-      <Box
+      <div
+        class="box rounded-[14px] border border-border py-2 bg-surface-overlay"
         ref={(el) => {
           hostEl = el;
         }}
@@ -163,14 +166,6 @@ function FloatingMenuPanel(props: {
         aria-label={props.label}
         tabIndex={-1}
         onKeyDown={(ev) => onMenuKeyDown(ev.currentTarget, ev)}
-        sx={{
-          borderRadius: 'lg',
-          borderWidth: 1,
-          borderColor: 'border',
-          py: 2,
-          backgroundColor: 'surfaceOverlay',
-          elevation: 3,
-        }}
       >
         <Show when={props.content.header}>
           {(header) => <FloatingMenuHeader header={header()} />}
@@ -185,7 +180,7 @@ function FloatingMenuPanel(props: {
             </Show>
           )}
         </For>
-      </Box>
+      </div>
     </Motion>
   );
 }
@@ -220,15 +215,15 @@ export function FloatingMenu(props: FloatingMenuProps): JSX.Element {
     <Show when={localAnchor()}>
       {(anchor) => (
         <SurfaceStackSlot id={surfaceId()} visible>
-          <Box
-            sx={{ absoluteFill: true, flex: 1 }}
-            dataSet={{ component: 'FloatingMenu', ...props.dataSet }}
+          <div
+            class="box absolute inset-0 flex-1"
+            {...dataAttrs({ component: 'FloatingMenu', ...props.dataSet })}
           >
-            <Box
+            <div
+              class="box absolute inset-0 bg-scrim"
+              data-component="FloatingMenuBackdrop"
               aria-hidden="true"
               onClick={() => props.onClose()}
-              sx={{ absoluteFill: true, backgroundColor: 'scrim' }}
-              dataSet={{ component: 'FloatingMenuBackdrop' }}
             />
             <FloatingMenuPanel
               position={position(anchor())}
@@ -238,7 +233,7 @@ export function FloatingMenu(props: FloatingMenuProps): JSX.Element {
               active={isTop()}
               onClose={props.onClose}
             />
-          </Box>
+          </div>
         </SurfaceStackSlot>
       )}
     </Show>

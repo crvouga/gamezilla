@@ -84,7 +84,7 @@ describe('ResponsiveSurface', () => {
     const dialog = screen.getByRole('dialog', { name: 'Filters' });
     expect(dialog).toHaveAttribute('aria-modal', 'true');
     const sheet = mustQuery('[data-surface="sheet"]');
-    expect(cssOf(sheet)).toContain('bottom:0px');
+    expect(sheet.className).toMatch(/bottom-0/);
     // Content-hug capped at 90% of the layout height.
     expect(cssOf(sheet)).toContain('max-height:720px');
     expect(mustQuery('[data-component="BottomSheetHandle"]')).toHaveAttribute(

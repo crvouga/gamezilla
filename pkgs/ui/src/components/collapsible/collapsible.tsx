@@ -2,11 +2,8 @@
 /** `Collapsible` -- disclosure row that toggles its body (`aria-expanded`). */
 
 import { createSignal, type JSX, Show, untrack } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
-import { Clickable } from '../clickable';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { ChevronRightIcon } from '../icons';
-import { Text } from '../text';
 
 export type CollapsibleProps = {
   title: string;
@@ -21,32 +18,38 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     untrack(() => props.defaultOpen ?? false)
   );
   return (
-    <Box dataSet={{ component: 'Collapsible', ...props.dataSet }}>
-      <Clickable
+    <div
+      class="box"
+      {...dataAttrs({ component: 'Collapsible', ...props.dataSet })}
+    >
+      <button
+        class="clickable clickableTint flex-row items-center gap-2 py-2"
+        type="button"
         aria-expanded={isOpen()}
         onClick={() => setIsOpen((v) => !v)}
-        sx={{ flexDirection: 'row', alignItems: 'center', gap: 2, py: 2 }}
       >
         <Show
           when={props.renderIcon}
           fallback={
-            <ChevronRightIcon
-              size={16}
-              sx={{
-                transform: [{ rotate: isOpen() ? '90deg' : '0deg' }],
-                transitionProperty: 'transform',
-                transitionDuration: 'var(--ui-duration-fast)',
+            <span
+              class="box inline-flex"
+              style={{
+                transform: isOpen() ? 'rotate(90deg)' : 'rotate(0deg)',
+                'transition-property': 'transform',
+                'transition-duration': 'var(--ui-duration-fast)',
               }}
-            />
+            >
+              <ChevronRightIcon size={16} />
+            </span>
           }
         >
           {(render) => render()(isOpen())}
         </Show>
-        <Text variant="bodyBold" label={props.title} />
-      </Clickable>
+        <p class="text textBodyBold">{props.title}</p>
+      </button>
       <Show when={isOpen()}>
-        <Box sx={{ ml: 6, mb: 2 }}>{props.children}</Box>
+        <div class="box ml-6 mb-2">{props.children}</div>
       </Show>
-    </Box>
+    </div>
   );
 }

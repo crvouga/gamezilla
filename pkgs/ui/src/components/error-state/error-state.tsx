@@ -31,12 +31,10 @@ import {
   Show,
 } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { Button } from '../button';
 import { type IconComponent, XIcon } from '../icons';
 import { StateBlock, type StateBlockVariant } from '../state-block';
-import { Text } from '../text';
 
 export type ErrorStateRetry = {
   label?: JSX.Element | undefined;
@@ -130,14 +128,11 @@ function ErrorActions(props: {
     props.copyText !== null && props.copy !== undefined;
   return (
     <Show when={showCopy() || props.retry !== undefined}>
-      <Box
-        sx={{
-          mt: props.align === 'start' ? 1 : 0,
-          flexDirection: 'row',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: props.align === 'center' ? 'center' : 'flex-start',
-          gap: 2,
+      <div
+        class="box flex-row flex-wrap items-center gap-2"
+        style={{
+          'margin-top': `${(props.align === 'start' ? 1 : 0) * 4}px`,
+          'justify-content': props.align === 'center' ? 'center' : 'flex-start',
         }}
       >
         <Show when={showCopy()}>
@@ -157,7 +152,7 @@ function ErrorActions(props: {
             />
           )}
         </Show>
-      </Box>
+      </div>
     </Show>
   );
 }
@@ -174,17 +169,13 @@ function ErrorStateFill(props: ErrorStateProps): JSX.Element {
         size={ICON_SIZE_FILL}
         color="destructive"
       />
-      <Text
-        variant="bodyBold"
-        sx={{ color: 'destructive', textAlign: 'center' }}
-        label={props.title}
-      />
+      <p class="text textBodyBold text-destructive text-center">
+        {props.title}
+      </p>
       <Show when={props.body !== undefined && props.body !== null}>
-        <Text
-          variant="caption"
-          sx={{ color: 'textSecondary', textAlign: 'center' }}
-          label={props.body}
-        />
+        <p class="text textCaption text-text-secondary text-center">
+          {props.body}
+        </p>
       </Show>
       <ErrorActions
         copyText={errorCopyText(props.title, props.body)}
@@ -198,39 +189,22 @@ function ErrorStateFill(props: ErrorStateProps): JSX.Element {
 
 function ErrorStateCompact(props: ErrorStateProps): JSX.Element {
   return (
-    <Box
+    <div
+      class="box flex-row items-start gap-3 p-3 border border-destructive bg-destructive-surface rounded-[10px]"
+      {...dataAttrs({ component: 'ErrorState', ...props.dataSet })}
       role="alert"
-      dataSet={{ component: 'ErrorState', ...props.dataSet }}
-      sx={{
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-        gap: 3,
-        p: 3,
-        borderWidth: 1,
-        borderColor: 'destructive',
-        backgroundColor: 'destructiveSurface',
-        borderRadius: 'md',
-      }}
     >
-      <Box sx={{ pt: 0.5 }}>
+      <div class="box pt-0.5">
         <Dynamic
           component={props.icon ?? XIcon}
           size={ICON_SIZE_COMPACT}
           color="destructive"
         />
-      </Box>
-      <Box sx={{ flex: 1, gap: 1 }}>
-        <Text
-          variant="bodyBold"
-          sx={{ color: 'destructive' }}
-          label={props.title}
-        />
+      </div>
+      <div class="box flex-1 gap-1">
+        <p class="text textBodyBold text-destructive">{props.title}</p>
         <Show when={props.body !== undefined && props.body !== null}>
-          <Text
-            variant="caption"
-            sx={{ color: 'destructive' }}
-            label={props.body}
-          />
+          <p class="text textCaption text-destructive">{props.body}</p>
         </Show>
         <ErrorActions
           copyText={errorCopyText(props.title, props.body)}
@@ -238,8 +212,8 @@ function ErrorStateCompact(props: ErrorStateProps): JSX.Element {
           retry={props.retry}
           align="start"
         />
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }
 

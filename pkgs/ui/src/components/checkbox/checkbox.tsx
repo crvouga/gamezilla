@@ -1,61 +1,51 @@
 /** @jsxImportSource solid-js */
 /**
- * `Checkbox` -- tri-state checkbox rendered as `<button role="checkbox">`.
+ * `Checkbox` -- checked / unchecked / indeterminate control.
  */
 
 import { type JSX, Show } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
-import { useThemeTokens } from '../../theme';
-import { Box } from '../box';
-import { Clickable } from '../clickable';
-import { Text } from '../text';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
+import { colorVar, useThemeTokens } from '../../theme';
 
 export type CheckboxProps = {
   checked: boolean;
   onToggle: (next: boolean) => void;
-  /** Renders a dash instead of a checkmark; toggling resolves to `true`. */
-  indeterminate?: boolean | undefined;
+  /** Optional label displayed next to the checkbox. */
   label?: JSX.Element | undefined;
+  /** When true, shows the indeterminate (dash) glyph. */
+  indeterminate?: boolean | undefined;
   disabled?: boolean | undefined;
   'aria-label'?: string | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
 };
 
-const BOX_SIZE = 18;
+const BOX_SIZE = 20;
 
 export function Checkbox(props: CheckboxProps): JSX.Element {
   const tokens = useThemeTokens();
   const indeterminate = () => props.indeterminate ?? false;
   const filled = () => props.checked || indeterminate();
   return (
-    <Clickable
+    <button
+      class="clickable clickableTint rounded-[4px] flex-row items-center gap-2 min-h-[44px]"
+      {...dataAttrs({ component: 'Checkbox', ...props.dataSet })}
+      type="button"
+      style={{ opacity: props.disabled ? 0.5 : 1 }}
       role="checkbox"
       aria-checked={indeterminate() ? 'mixed' : props.checked}
       aria-label={props['aria-label']}
       disabled={props.disabled}
       onClick={() => props.onToggle(indeterminate() ? true : !props.checked)}
-      dataSet={{ component: 'Checkbox', ...props.dataSet }}
-      sx={{
-        borderRadius: 'xs',
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 2,
-        minHeight: 44,
-        opacity: props.disabled ? 0.5 : 1,
-      }}
     >
-      <Box
-        sx={{
-          width: BOX_SIZE,
-          height: BOX_SIZE,
-          borderRadius: 'xs',
-          borderWidth: 1.5,
-          borderStyle: 'solid',
-          borderColor: filled() ? 'tint' : 'outline',
-          backgroundColor: filled() ? 'tint' : 'surface',
-          alignItems: 'center',
-          justifyContent: 'center',
+      <div
+        class="box rounded-[4px] border-solid items-center justify-center"
+        style={{
+          width: `${BOX_SIZE}px`,
+          height: `${BOX_SIZE}px`,
+          'border-width': '1.5px',
+          'border-color': filled() ? colorVar('tint') : colorVar('outline'),
+          'background-color': filled() ? colorVar('tint') : colorVar('surface'),
         }}
       >
         <Show when={filled()}>
@@ -65,20 +55,34 @@ export function Checkbox(props: CheckboxProps): JSX.Element {
             viewBox="0 0 16 16"
             aria-hidden="true"
           >
-            <path
-              d={indeterminate() ? 'M3.5 8 H12.5' : 'M3.5 8.5 L7 12 L13 4.5'}
-              fill="none"
-              stroke={tokens.colors.onPrimary}
-              stroke-width={2.25}
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
+            <Show
+              when={!indeterminate()}
+              fallback={
+                <rect
+                  x="3"
+                  y="7"
+                  width="10"
+                  height="2"
+                  rx="1"
+                  fill={tokens.colors.onPrimary}
+                />
+              }
+            >
+              <path
+                d="M3.5 8.5 L6.5 11.5 L12.5 4.5"
+                fill="none"
+                stroke={tokens.colors.onPrimary}
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </Show>
           </svg>
         </Show>
-      </Box>
+      </div>
       <Show when={props.label !== undefined}>
-        <Text variant="body" label={props.label} />
+        <p class="text">{props.label}</p>
       </Show>
-    </Clickable>
+    </button>
   );
 }

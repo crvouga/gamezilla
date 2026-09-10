@@ -3,50 +3,44 @@ import type { JSX } from 'solid-js';
 import { Divider } from '../divider';
 import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
-import { Stack } from '../stack';
-import { Text } from '../text';
 import { AppLogo } from './app-logo';
 
 export default function AppLogoExample(): JSX.Element {
   return (
     <ExampleRoot>
-      <Text
-        variant="label"
-        sx={{ color: 'textSecondary' }}
-        label="Mark + wordmark (default)"
-      />
+      <label class="text textLabel text-text-secondary">
+        {'Mark + wordmark (default)'}
+      </label>
       <SchemePreview>
-        <Stack spacing={4}>
+        <div class="box flex-col gap-4">
           <AppLogo />
           <AppLogo size={36} />
           <AppLogo size={48} />
-        </Stack>
+        </div>
       </SchemePreview>
 
       <Divider />
 
-      <Text variant="label" sx={{ color: 'textSecondary' }} label="Mark only" />
+      <label class="text textLabel text-text-secondary">{'Mark only'}</label>
       <SchemePreview>
-        <Stack direction="horizontal" spacing={4} align="center">
+        <div class="box flex-row gap-4 items-center">
           <AppLogo size={20} wordmark={false} />
           <AppLogo size={28} wordmark={false} />
           <AppLogo size={48} wordmark={false} />
-        </Stack>
+        </div>
       </SchemePreview>
 
       <Divider />
 
-      <Text
-        variant="label"
-        sx={{ color: 'textSecondary' }}
-        label="Tinted overrides"
-      />
+      <label class="text textLabel text-text-secondary">
+        {'Tinted overrides'}
+      </label>
       <SchemePreview>
-        <Stack spacing={3}>
+        <div class="box flex-col gap-3">
           <AppLogo color="text" />
           <AppLogo color="destructive" />
           <AppLogo color="success" />
-        </Stack>
+        </div>
       </SchemePreview>
     </ExampleRoot>
   );

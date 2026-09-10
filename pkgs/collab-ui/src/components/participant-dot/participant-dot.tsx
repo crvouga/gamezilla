@@ -2,7 +2,7 @@
  * Small filled circle in a participant's color (e.g. log-bar leading mark).
  */
 
-import { Box, type ComponentDataSet, componentDataAttrs } from '@pkgs/ui';
+import { type ComponentDataSet, componentDataAttrs } from '@pkgs/ui';
 
 export type ParticipantDotProps = {
   color: string;
@@ -13,14 +13,15 @@ export type ParticipantDotProps = {
 
 export function ParticipantDot(props: ParticipantDotProps) {
   return (
-    <Box
-      {...componentDataAttrs('ParticipantDot', props.dataSet)}
-      sx={{
-        width: props.size ?? 8,
-        height: props.size ?? 8,
-        borderRadius: (props.size ?? 8) / 2,
-        backgroundColor: props.color,
+    <div
+      class="box"
+      style={{
+        'border-radius': `${(props.size ?? 8) / 2}px`,
+        'background-color': props.color,
+        width: `${props.size ?? 8}px`,
+        height: `${props.size ?? 8}px`,
       }}
+      {...componentDataAttrs('ParticipantDot', props.dataSet)}
     />
   );
 }

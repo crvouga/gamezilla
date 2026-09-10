@@ -1,4 +1,4 @@
-import { type SxProps, Text, type TextVariant } from '@pkgs/ui';
+import { Text, type TextVariant } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { createMemo } from 'solid-js';
 import { formatDeviceListTitle } from '../device-parsers';
@@ -8,7 +8,7 @@ export type AccountDeviceListTitleTextProps = {
   deviceId: string;
   variant?: TextVariant | undefined;
   numberOfLines?: number | undefined;
-  sx?: SxProps | undefined;
+  class?: string | undefined;
 };
 
 /** Primary label for a device row — name → model → "Device <id…>" fallback. */
@@ -29,8 +29,8 @@ export function AccountDeviceListTitleText(
   return (
     <Text
       variant={props.variant}
+      class={props.class}
       numberOfLines={props.numberOfLines}
-      sx={props.sx}
       label={label()}
     />
   );

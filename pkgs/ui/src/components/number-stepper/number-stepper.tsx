@@ -7,10 +7,7 @@
 
 import { useLingui } from '@lingui/solid/macro';
 import type { JSX } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
-import { Clickable } from '../clickable';
-import { Text } from '../text';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 
 export type NumberStepperProps = {
   label: string;
@@ -41,23 +38,17 @@ function StepperButton(props: {
   glyph: string;
 }): JSX.Element {
   return (
-    <Clickable
+    <button
+      class="clickable clickableTint min-w-[40px] min-h-[40px] items-center justify-center py-2 rounded-[6px]"
+      type="button"
+      style={{ opacity: props.disabled ? 0.4 : 1 }}
       onClick={() => props.onClick()}
       disabled={props.disabled}
       aria-label={props['aria-label']}
       tabIndex={-1}
-      sx={{
-        minWidth: 40,
-        minHeight: 40,
-        alignItems: 'center',
-        justifyContent: 'center',
-        py: 2,
-        borderRadius: 'sm',
-        opacity: props.disabled ? 0.4 : 1,
-      }}
     >
-      <Text variant="title" label={props.glyph} />
-    </Clickable>
+      <h1 class="text textTitle">{props.glyph}</h1>
+    </button>
   );
 }
 
@@ -69,25 +60,20 @@ export function NumberStepper(props: NumberStepperProps): JSX.Element {
     if (next !== props.value) props.onChange(next);
   };
   return (
-    <Box
-      dataSet={{ component: 'NumberStepper', ...props.dataSet }}
-      sx={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 3,
-        py: 1,
-      }}
+    <div
+      class="box flex-row items-center justify-between gap-3 py-1"
+      {...dataAttrs({ component: 'NumberStepper', ...props.dataSet })}
     >
-      <Text variant="label" sx={{ flex: 1 }} label={props.label} />
-      <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+      <label class="text textLabel flex-1">{props.label}</label>
+      <div class="box flex-row items-center gap-2">
         <StepperButton
           onClick={() => change(-step())}
           disabled={props.disabled === true || props.value <= props.min}
           aria-label={t`Decrease ${props.label}`}
           glyph="−"
         />
-        <Text
+        <p
+          class="text min-w-[48px] text-center text-text"
           role="spinbutton"
           tabIndex={props.disabled === true ? -1 : 0}
           aria-label={props.label}
@@ -105,22 +91,16 @@ export function NumberStepper(props: NumberStepperProps): JSX.Element {
               change(-step());
             }
           }}
-          variant="body"
-          sx={{
-            fontVariant: ['tabular-nums'],
-            minWidth: 48,
-            textAlign: 'center',
-            color: 'text',
-          }}
-          label={String(props.value)}
-        />
+        >
+          {String(props.value)}
+        </p>
         <StepperButton
           onClick={() => change(step())}
           disabled={props.disabled === true || props.value >= props.max}
           aria-label={t`Increase ${props.label}`}
           glyph="+"
         />
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }

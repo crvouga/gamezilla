@@ -1,12 +1,5 @@
 import { Trans, useLingui } from '@lingui/solid/macro';
-import {
-  Box,
-  Button,
-  EmptyState,
-  LoadingState,
-  Text,
-  useMutationButton,
-} from '@pkgs/ui';
+import { Button, EmptyState, LoadingState, useMutationButton } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { createMemo, For, Show } from 'solid-js';
 
@@ -27,13 +20,11 @@ export function SpaceSharePeopleList(props: {
   const hostProfileId = createMemo(() => host()?.profileId ?? null);
 
   return (
-    <Box sx={{ gap: 2 }}>
-      <Text variant="label" label={<Trans>People with access</Trans>} />
-      <Text
-        variant="caption"
-        sx={{ color: 'textSecondary' }}
-        label={<Trans>Private spaces only sync for people you add here.</Trans>}
-      />
+    <div class="box gap-2">
+      <label class="text textLabel">{<Trans>People with access</Trans>}</label>
+      <p class="text textCaption text-text-secondary">
+        {<Trans>Private spaces only sync for people you add here.</Trans>}
+      </p>
       <Show when={isLoading()}>
         <LoadingState size="small" />
       </Show>
@@ -50,7 +41,7 @@ export function SpaceSharePeopleList(props: {
           />
         )}
       </For>
-    </Box>
+    </div>
   );
 }
 
@@ -80,11 +71,9 @@ function PeopleAccessRow(props: {
       <SpaceShareUserRow
         userId={props.entry.userId}
         trailing={
-          <Text
-            variant="caption"
-            sx={{ color: 'textSecondary' }}
-            label={<Trans>Host</Trans>}
-          />
+          <p class="text textCaption text-text-secondary">
+            {<Trans>Host</Trans>}
+          </p>
         }
       />
     </Show>

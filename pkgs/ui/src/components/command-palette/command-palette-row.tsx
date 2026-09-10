@@ -1,4 +1,5 @@
 /** @jsxImportSource solid-js */
+import { cssPx } from '../../css/css-px';
 /**
  * `CommandPaletteRow` -- one command inside the palette listbox: icon,
  * fuzzy-highlighted title, subtitle, shortcut chips (or a spinner while
@@ -7,11 +8,8 @@
  */
 
 import { createMemo, type JSX, Show } from 'solid-js';
-import { Box } from '../box';
-import { Clickable } from '../clickable';
 import type { IconComponent } from '../icons';
 import { Spinner } from '../spinner';
-import { Text } from '../text';
 import { CommandPaletteKbd } from './command-palette-kbd';
 import { fuzzyMatch, type MatchRange } from './fuzzy-match';
 import { HighlightedText } from './highlighted-text';
@@ -38,7 +36,7 @@ export type CommandPaletteRowProps = {
 
 function RowIcon(props: { icon: IconComponent | undefined }): JSX.Element {
   return (
-    <Show when={props.icon} fallback={<Box sx={{ width: 18 }} />}>
+    <Show when={props.icon} fallback={<div class="box w-[18px]" />}>
       {(icon) => {
         const Icon = icon();
         return <Icon size={18} color="icon" />;
@@ -70,7 +68,16 @@ export function CommandPaletteRow(props: CommandPaletteRowProps): JSX.Element {
   const shortcut = (): string | undefined =>
     normalizeShortcut(props.command.shortcut)?.keys;
   return (
-    <Clickable
+    <button
+      class="clickable clickableTint py-2 px-3 gap-1 text-left [border-left-width:3px]"
+      data-component="CommandPaletteRow"
+      type="button"
+      style={{
+        'background-color': props.selected ? 'tintSubtle' : 'transparent',
+        'border-left-color': props.selected ? 'tint' : 'transparent',
+        'min-height': cssPx(COMMAND_PALETTE_ROW_MIN_HEIGHT),
+        opacity: enabled() ? 1 : 0.45,
+      }}
       id={props.id}
       role="option"
       aria-selected={props.selected}
@@ -79,24 +86,10 @@ export function CommandPaletteRow(props: CommandPaletteRowProps): JSX.Element {
       disabled={disabled()}
       onClick={() => props.onSelect()}
       onMouseEnter={() => props.onHover?.()}
-      dataSet={{ component: 'CommandPaletteRow' }}
-      sx={{
-        minHeight: COMMAND_PALETTE_ROW_MIN_HEIGHT,
-        py: 2,
-        px: 3,
-        gap: 1,
-        textAlign: 'left',
-        backgroundColor: props.selected ? 'tintSubtle' : 'transparent',
-        borderLeftWidth: 3,
-        borderLeftColor: props.selected ? 'tint' : 'transparent',
-        opacity: enabled() ? 1 : 0.45,
-      }}
     >
-      <Box
-        sx={{ flexDirection: 'row', alignItems: 'center', gap: 2, minWidth: 0 }}
-      >
+      <div class="box flex-row items-center gap-2 min-w-[0]">
         <RowIcon icon={props.command.icon} />
-        <Box sx={{ flex: 1, minWidth: 0 }}>
+        <div class="box flex-1 min-w-[0]">
           <HighlightedText
             text={props.command.title}
             ranges={ranges()}
@@ -104,27 +97,21 @@ export function CommandPaletteRow(props: CommandPaletteRowProps): JSX.Element {
           />
           <Show when={props.command.subtitle}>
             {(subtitle) => (
-              <Text
-                variant="caption"
-                numberOfLines={1}
-                sx={{ color: 'textSecondary' }}
-                label={subtitle()}
-              />
+              <p class="text textCaption line-clamp-1 text-text-secondary">
+                {subtitle()}
+              </p>
             )}
           </Show>
-        </Box>
+        </div>
         <RowTrailing running={props.running} shortcut={shortcut()} />
-      </Box>
+      </div>
       <Show when={props.error}>
         {(error) => (
-          <Text
-            role="alert"
-            variant="caption"
-            sx={{ color: 'destructive', pl: 7 }}
-            label={error()}
-          />
+          <p class="text textCaption text-destructive pl-7" role="alert">
+            {error()}
+          </p>
         )}
       </Show>
-    </Clickable>
+    </button>
   );
 }

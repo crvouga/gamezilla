@@ -20,8 +20,6 @@ import {
 } from 'solid-js';
 import type { ComponentDataSet } from '../../component-id';
 import { MODAL_CONTENT_MARGIN_STEP } from '../../theme/modal-size';
-import { Box } from '../box';
-import styles from '../hosts.module.css';
 import { ModalContent } from '../modal/modal-content';
 import { ModalRoot } from '../modal/modal-root';
 import { ProgressBar } from '../progress-bar';
@@ -120,22 +118,15 @@ function PaletteCard(props: {
   const model = untrack(() => props.model);
   const running = (): boolean => reg.runningId() !== null;
   return (
-    <Box
+    <div
+      class="box rounded-[20px] border border-border overflow-hidden bg-surface-overlay"
+      data-component="CommandPaletteCard"
       onKeyDown={model.onKeyDown}
-      sx={{
-        borderRadius: 'xl',
-        borderWidth: 1,
-        borderColor: 'border',
-        overflow: 'hidden',
-        backgroundColor: 'surfaceOverlay',
-        elevation: 5,
-      }}
-      dataSet={{ component: 'CommandPaletteCard' }}
     >
-      <Show when={running()} fallback={<Box sx={{ height: 2 }} />}>
+      <Show when={running()} fallback={<div class="box h-[2px]" />}>
         <ProgressBar indeterminate height={2} color="tint" />
       </Show>
-      <Box sx={{ px: 3, py: 2 }}>
+      <div class="box px-3 py-2">
         <CommandPaletteInput
           value={reg.query()}
           onChangeText={reg.setQuery}
@@ -143,7 +134,7 @@ function PaletteCard(props: {
           listboxId={props.listboxId}
           activeDescendantId={model.activeId()}
         />
-      </Box>
+      </div>
       <Show
         when={model.rows().rows.length > 0}
         fallback={<CommandPaletteEmpty />}
@@ -162,7 +153,7 @@ function PaletteCard(props: {
         />
       </Show>
       <CommandPaletteHint legend={props.footerLegend} />
-    </Box>
+    </div>
   );
 }
 
@@ -178,21 +169,29 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
       label={t`Command palette`}
       dataSet={{ component: 'CommandPalette', ...props.dataSet }}
     >
-      <Box sx={{ flex: 1, width: '100%', height: '100%' }}>
-        <Box
+      <div class="box flex-1 w-[100%] h-[100%]">
+        <div
+          class="box absolute inset-0 bg-scrim"
+          data-component="ModalScrim"
           aria-hidden="true"
           onClick={() => reg.close()}
-          sx={{ absoluteFill: true, backgroundColor: 'scrim' }}
-          dataSet={{ component: 'ModalScrim' }}
         />
-        <Box
-          class={styles['boxNone']}
-          sx={{
-            absoluteFill: true,
-            alignItems: 'center',
-            justifyContent: 'flex-start',
-            pt: TOP_INSET_STEP,
-            px: MODAL_CONTENT_MARGIN_STEP,
+        <div
+          class="box"
+          classList={{
+            [['absolute inset-0 items-center justify-start', undefined]
+              .filter(Boolean)
+              .join(' ')]: !![
+              'absolute inset-0 items-center justify-start',
+              undefined,
+            ]
+              .filter(Boolean)
+              .join(' '),
+          }}
+          style={{
+            'padding-top': `${TOP_INSET_STEP * 4}px`,
+            'padding-left': `${MODAL_CONTENT_MARGIN_STEP * 4}px`,
+            'padding-right': `${MODAL_CONTENT_MARGIN_STEP * 4}px`,
           }}
         >
           <ModalContent size="medium" padded={false}>
@@ -203,8 +202,8 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
               footerLegend={props.footerLegend}
             />
           </ModalContent>
-        </Box>
-      </Box>
+        </div>
+      </div>
     </ModalRoot>
   );
 }

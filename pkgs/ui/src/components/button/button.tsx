@@ -25,10 +25,10 @@ import type { ComponentDataSet } from '../../component-id';
 import {
   OnColorProvider,
   type OnColorSet,
-  type SxProps,
+  spacingScale,
   useThemeTokens,
 } from '../../theme';
-import { Box } from '../box';
+import { Box, joinClass } from '../box';
 import { Clickable } from '../clickable';
 import type { IconComponent } from '../icons';
 import {
@@ -77,30 +77,39 @@ export type ButtonProps = {
   dataSet?: ComponentDataSet | undefined;
 };
 
-function buttonSx(args: {
+function buttonClass(args: {
   flex: number | undefined;
   fullWidth: boolean;
+}): string {
+  return joinClass(
+    'flex-row items-center justify-center overflow-hidden select-none',
+    args.fullWidth && 'self-stretch w-full',
+    args.flex === 1 && 'flex-1'
+  );
+}
+
+function buttonStyle(args: {
+  flex: number | undefined;
   s: ButtonSizeSpec;
   face: ButtonFace;
-}): SxProps {
+}): JSX.CSSProperties {
   return {
-    userSelect: 'none',
-    ...(args.flex !== undefined ? { flex: args.flex } : {}),
-    ...(args.fullWidth ? { alignSelf: 'stretch', width: '100%' } : {}),
-    backgroundColor: args.face.backgroundColor,
-    borderColor: args.face.borderColor,
-    borderWidth: args.face.borderWidth,
-    borderRadius: args.s.borderRadius,
-    px: args.s.px,
-    py: args.s.py,
-    minHeight: args.s.minHeight,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: args.s.iconGap,
-    overflow: 'hidden',
-    transitionProperty: 'background-color, border-color, color',
-    transitionDuration: 'var(--ui-duration-fast)',
+    ...(args.flex !== undefined && args.flex !== 1
+      ? { flex: String(args.flex) }
+      : {}),
+    'background-color': args.face.backgroundColor,
+    'border-color': args.face.borderColor,
+    'border-width': `${args.face.borderWidth}px`,
+    'border-style': 'solid',
+    'border-radius': `${args.s.borderRadius}px`,
+    'padding-left': `${spacingScale(args.s.px)}px`,
+    'padding-right': `${spacingScale(args.s.px)}px`,
+    'padding-top': `${spacingScale(args.s.py)}px`,
+    'padding-bottom': `${spacingScale(args.s.py)}px`,
+    'min-height': `${args.s.minHeight}px`,
+    gap: `${spacingScale(args.s.iconGap)}px`,
+    'transition-property': 'background-color, border-color, color',
+    'transition-duration': 'var(--ui-duration-fast)',
   };
 }
 
@@ -138,9 +147,12 @@ export function Button(props: ButtonProps): JSX.Element {
       disabled={render().nonInteractive}
       aria-busy={render().phase === 'loading' ? true : undefined}
       aria-label={props['aria-label']}
-      sx={buttonSx({
+      class={buttonClass({
         flex: props.flex,
         fullWidth: props.fullWidth === true,
+      })}
+      style={buttonStyle({
+        flex: props.flex,
         s: size(),
         face: render().face,
       })}
@@ -154,13 +166,8 @@ export function Button(props: ButtonProps): JSX.Element {
     >
       <OnColorProvider value={onColor}>
         <Box
-          sx={{
-            position: 'relative',
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: size().iconGap,
-          }}
+          class="relative flex-row items-center justify-center"
+          style={{ gap: `${spacingScale(size().iconGap)}px` }}
         >
           <ButtonContent
             labels={{

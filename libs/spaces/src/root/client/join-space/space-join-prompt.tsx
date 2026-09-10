@@ -1,6 +1,5 @@
 import { Trans, useLingui } from '@lingui/solid/macro';
 import {
-  Box,
   EmptyState,
   Gamepad2Icon,
   LoadingState,
@@ -43,19 +42,19 @@ export function SpaceJoinPrompt(props: SpaceJoinPromptProps): JSX.Element {
         ]}
         footer={
           <Show when={snapshot().status === 'live'}>
-            <Box sx={{ flexDirection: 'row' }}>
+            <div class="box flex-row">
               <SpaceJoinButton
                 spaceId={props.spaceId}
                 joinable={snapshot().joinable}
                 flex={1}
               />
-            </Box>
+            </div>
           </Show>
         }
-        content={({ sx }) => (
-          <Box sx={sx}>
+        content={({ bodyClass }) => (
+          <div class={`box ${bodyClass}`}>
             <JoinPromptBody spaceId={props.spaceId} snapshot={snapshot} />
-          </Box>
+          </div>
         )}
       />
     </Show>

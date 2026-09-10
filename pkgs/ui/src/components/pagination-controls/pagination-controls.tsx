@@ -11,10 +11,8 @@
 import { useLingui } from '@lingui/solid/macro';
 import { For, type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-import type { ComponentDataSet } from '../../component-id';
-import type { SxProps } from '../../theme';
-import { Box } from '../box';
-import { Clickable } from '../clickable';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
+import { colorVar } from '../../theme';
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -22,7 +20,6 @@ import {
   ChevronsRightIcon,
   type IconComponent,
 } from '../icons';
-import { Text } from '../text';
 import {
   buildPaginationWindow,
   type PaginationWindowItem,
@@ -48,22 +45,22 @@ export type PaginationControlsProps = {
   readonly dataSet?: ComponentDataSet | undefined;
 };
 
-const HIT_SX: SxProps = {
-  minWidth: HIT_TARGET,
-  minHeight: HIT_TARGET,
-  alignItems: 'center',
-  justifyContent: 'center',
-  borderRadius: 'full',
+const HIT_STYLE: JSX.CSSProperties = {
+  'min-width': `${HIT_TARGET}px`,
+  'min-height': `${HIT_TARGET}px`,
+  'align-items': 'center',
+  'justify-content': 'center',
+  'border-radius': '9999px',
 };
 
-function circleSx(size: number, active: boolean): SxProps {
+function circleStyle(size: number, active: boolean): JSX.CSSProperties {
   return {
-    width: size,
-    height: size,
-    borderRadius: 'full',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: active ? 'tintMuted' : 'surface',
+    width: `${size}px`,
+    height: `${size}px`,
+    'border-radius': '9999px',
+    'align-items': 'center',
+    'justify-content': 'center',
+    'background-color': active ? colorVar('tintMuted') : colorVar('surface'),
   };
 }
 
@@ -75,17 +72,19 @@ function NavButton(props: {
   readonly icon: IconComponent;
 }): JSX.Element {
   return (
-    <Clickable
+    <button
+      class="clickable clickableTint"
+      type="button"
+      style={{ ...HIT_STYLE, opacity: props.disabled ? 0.4 : 1 }}
       aria-label={props.label}
       title={props.label}
       disabled={props.disabled}
       onClick={() => props.onClick()}
-      sx={[HIT_SX, { opacity: props.disabled ? 0.4 : 1 }]}
     >
-      <Box sx={circleSx(props.size, false)}>
+      <div class="box" style={circleStyle(props.size, false)}>
         <Dynamic component={props.icon} size={ICON_SIZE} color="icon" />
-      </Box>
-    </Clickable>
+      </div>
+    </button>
   );
 }
 
@@ -105,36 +104,46 @@ function PageSlot(props: {
     <Show
       when={props.item.type === 'page' ? props.item : undefined}
       fallback={
-        <Box
+        <div
+          class="box"
+          style={{
+            ...HIT_STYLE,
+            width: `${props.size}px`,
+            height: `${props.size}px`,
+          }}
           aria-hidden="true"
-          sx={{ width: props.size, height: props.size, ...HIT_SX }}
         >
-          <Text sx={{ color: 'textSecondary', fontSize: 12 }} label="…" />
-        </Box>
+          <p class="text text-text-secondary text-[12px]">…</p>
+        </div>
       }
     >
       {(page) => {
         const active = () => page().pageIndex === props.pageIndex;
         const label = () => String(page().pageIndex + 1);
         return (
-          <Clickable
+          <button
+            class="clickable clickableTint"
+            type="button"
+            style={HIT_STYLE}
             aria-label={pageLabel(page().pageIndex)}
             aria-current={active() ? 'page' : undefined}
             disabled={props.disabled}
             onClick={() => props.onGo(page().pageIndex)}
-            sx={HIT_SX}
           >
-            <Box sx={circleSx(props.size, active())}>
-              <Text
-                sx={{
-                  color: active() ? 'tint' : 'textSecondary',
-                  fontSize: 11,
-                  fontWeight: active() ? '600' : '400',
+            <div class="box" style={circleStyle(props.size, active())}>
+              <p
+                class="text text-[11px]"
+                style={{
+                  color: active()
+                    ? colorVar('tint')
+                    : colorVar('textSecondary'),
+                  'font-weight': active() ? '600' : '400',
                 }}
-                label={label()}
-              />
-            </Box>
-          </Clickable>
+              >
+                {label()}
+              </p>
+            </div>
+          </button>
         );
       }}
     </Show>
@@ -164,11 +173,10 @@ export function PaginationControls(
   };
 
   return (
-    <Box
-      as="nav"
+    <nav
+      class="box flex-row items-center"
+      {...dataAttrs({ component: 'PaginationControls', ...props.dataSet })}
       aria-label={t`Pagination`}
-      dataSet={{ component: 'PaginationControls', ...props.dataSet }}
-      sx={{ flexDirection: 'row', alignItems: 'center' }}
     >
       <NavButton
         label={t`Start`}
@@ -209,6 +217,6 @@ export function PaginationControls(
         onClick={() => go(lastIndex())}
         icon={ChevronsRightIcon}
       />
-    </Box>
+    </nav>
   );
 }

@@ -1,7 +1,6 @@
 /** @jsxImportSource solid-js */
 import { createSignal, type JSX } from 'solid-js';
 import { ExampleRoot } from '../explorer/example-root';
-import { Text } from '../text';
 import { MultiSelectSwatchGrid } from './multi-select-swatch-grid';
 
 const PALETTE: readonly string[] = [
@@ -26,11 +25,7 @@ export default function MultiSelectSwatchGridExample(): JSX.Element {
         allowTransparent
         defaultPalette={PALETTE}
       />
-      <Text
-        variant="caption"
-        sx={{ opacity: 0.75 }}
-        label={`Selected (${value().length}): ${value().join(', ')}`}
-      />
+      <p class="text textCaption opacity-75">{`Selected (${value().length}): ${value().join(', ')}`}</p>
     </ExampleRoot>
   );
 }

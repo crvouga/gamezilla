@@ -10,7 +10,6 @@ import {
   componentDataAttrs,
   List,
   ListItem,
-  Stack,
   StatusDot,
 } from '@pkgs/ui';
 import { For, type JSX } from 'solid-js';
@@ -53,7 +52,7 @@ export function PresenceRosterList(
             title={row.title}
             {...(row.subtitle !== undefined ? { subtitle: row.subtitle } : {})}
             leading={
-              <Stack direction="horizontal" spacing={2} align="center">
+              <div class="box flex-row gap-2 items-center">
                 <ParticipantColorRing
                   color={resolveColor(props.colorForParticipant, row.client.id)}
                   size={40}
@@ -62,7 +61,7 @@ export function PresenceRosterList(
                   {props.renderAvatar(row.client, 36)}
                 </ParticipantColorRing>
                 <StatusDot status="online" size={8} />
-              </Stack>
+              </div>
             }
             trailing={row.badges}
           />

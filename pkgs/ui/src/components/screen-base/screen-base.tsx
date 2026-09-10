@@ -11,7 +11,7 @@
  *   breadcrumbs={[{ name: 'Home', href: '/' }, { name: 'Settings' }]}
  *   actions={[{ type: 'submit', label: 'Save', onClick: save }]}
  *   scroll
- *   content={({ sx }) => <Box sx={sx}>…</Box>}
+ *   content={({ bodyClass }) => <Box class={bodyClass}>…</Box>}
  * />
  * ```
  */

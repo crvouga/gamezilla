@@ -50,7 +50,15 @@ export function parseArgs(argv: readonly string[]): CliArgs {
   }
   if (write && dryRun) throw new Error(CONFLICT);
   if (globs.length === 0) {
-    globs.push('apps/client/src', 'libs', 'pkgs/ui/src');
+    globs.push(
+      'apps/client/src',
+      'apps/product',
+      'libs',
+      'pkgs/ui/src',
+      'pkgs/sim-console',
+      'pkgs/collab-ui',
+      'pkgs/chess-board'
+    );
   }
   return { globs, write };
 }

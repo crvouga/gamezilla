@@ -18,7 +18,7 @@ import {
   onMount,
   Show,
 } from 'solid-js';
-import { Box } from '../box';
+import { dataAttrs } from '../../component-id';
 import { ErrorState } from '../error-state';
 import { SearchIcon } from '../icons';
 import { LoadingState } from '../loading-state';
@@ -69,7 +69,7 @@ function PickerSurfaceBody<T extends PickerValue>(
       when={!props.loading}
       fallback={<LoadingState size="small" variant="compact" />}
     >
-      <Box sx={{ gap: 2 }}>
+      <div class="box gap-2">
         <Show when={searchable()}>
           <TextInput
             ref={(el) => {
@@ -104,7 +104,7 @@ function PickerSurfaceBody<T extends PickerValue>(
           renderOption={props.renderOption}
           focusOnMount={!searchable()}
         />
-      </Box>
+      </div>
     </Show>
   );
 }
@@ -127,7 +127,7 @@ export function Picker<T extends PickerValue = string>(
     setOpen(false);
   };
   return (
-    <Box dataSet={{ component: 'Picker', ...props.dataSet }}>
+    <div class="box" {...dataAttrs({ component: 'Picker', ...props.dataSet })}>
       <Show when={props.label !== undefined}>
         <PickerLabel label={props.label} />
       </Show>
@@ -149,7 +149,7 @@ export function Picker<T extends PickerValue = string>(
         <Show
           when={props.surfaceExtra !== undefined && props.surfaceExtra !== null}
         >
-          <Box sx={{ mb: 2 }}>{props.surfaceExtra}</Box>
+          <div class="box mb-2">{props.surfaceExtra}</div>
         </Show>
         <PickerSurfaceBody
           {...props}
@@ -158,6 +158,6 @@ export function Picker<T extends PickerValue = string>(
           listboxLabel={name()}
         />
       </ResponsiveSurface>
-    </Box>
+    </div>
   );
 }

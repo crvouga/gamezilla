@@ -2,29 +2,13 @@
 import { useLingui } from '@lingui/solid/macro';
 import type { JSX } from 'solid-js';
 
-import type { SxInput } from '../../theme';
-import { Box } from '../box';
 import { EmptyState } from '../empty-state';
 import { ErrorState } from '../error-state';
 import { LoadingState } from '../loading-state';
 import type { PageView } from './data-table-page-load';
 
-export function dataTableShellSx(sx: SxInput | undefined): SxInput {
-  return [
-    {
-      flex: 1,
-      minHeight: 0,
-      minWidth: 0,
-      alignSelf: 'stretch',
-      backgroundColor: 'surface',
-      borderWidth: 1,
-      borderColor: 'border',
-      borderRadius: 'lg',
-      overflow: 'hidden',
-    },
-    sx,
-  ];
-}
+export const DATA_TABLE_SHELL_CLASS =
+  'flex-1 min-h-0 min-w-0 self-stretch bg-surface border border-border rounded-[14px] overflow-hidden';
 
 export function DataTableStatusBody<T>(props: {
   readonly view: PageView<T>;
@@ -57,17 +41,8 @@ export function DataTableStatusBody<T>(props: {
     );
   };
   return (
-    <Box
-      sx={{
-        flexGrow: 1,
-        minHeight: 0,
-        minWidth: 0,
-        alignSelf: 'stretch',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
+    <div class="box grow min-h-0 min-w-0 self-stretch items-center justify-center">
       {content()}
-    </Box>
+    </div>
   );
 }

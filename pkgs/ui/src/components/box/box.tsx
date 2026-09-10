@@ -2,12 +2,12 @@
 /**
  * `Box` -- the foundational layout primitive.
  *
- * A flex-column `<div>` (or any element via `as`) that accepts an `sx` prop
- * for utility-first styling. Color tokens compile to `var(--ui-color-*)`.
+ * A flex-column `<div>` (or any element via `as`) that accepts Solid
+ * `class` / `classList` / `style` for layout and theming.
  *
  * @example
  * ```tsx
- * <Box sx={{ p: 4, background: 'surface', borderRadius: 8 }}>
+ * <Box class="p-4 bg-surface rounded-lg">
  *   <Text label="Hello" />
  * </Box>
  * ```
@@ -16,7 +16,6 @@
 import { type JSX, splitProps } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import { type ComponentDataSet, componentDataAttrs } from '../../component-id';
-import { type SxInput, useThemeTokens } from '../../theme';
 import styles from '../hosts.module.css';
 
 export type BoxElement =
@@ -34,21 +33,17 @@ export type BoxElement =
   | 'label'
   | 'span';
 
-export type BoxProps = Omit<
-  JSX.HTMLAttributes<HTMLElement>,
-  'style' | 'children'
-> & {
+export type BoxProps = Omit<JSX.HTMLAttributes<HTMLElement>, 'children'> & {
   /** Host element. Defaults to `div`. */
   as?: BoxElement | undefined;
-  /** Utility-first style shorthand resolved against the current theme. */
-  sx?: SxInput | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
-  /** Extra class names (component-internal CSS Modules). */
-  class?: string | undefined;
-  ref?: ((el: HTMLElement) => void) | undefined;
   children?: JSX.Element | undefined;
 };
+
+/** Box props for components that always render a `<div>`. */
+export type DivBoxProps = Omit<BoxProps, 'ref'> &
+  Pick<JSX.HTMLAttributes<HTMLDivElement>, 'ref'>;
 
 export function joinClass(...parts: (string | false | undefined)[]): string {
   let out = '';
@@ -59,19 +54,18 @@ export function joinClass(...parts: (string | false | undefined)[]): string {
 }
 
 export function Box(props: BoxProps): JSX.Element {
-  const tokens = useThemeTokens();
   const [local, rest] = splitProps(props, [
     'as',
-    'sx',
     'dataSet',
     'class',
+    'style',
     'children',
   ]);
   return (
     <Dynamic
       component={local.as ?? 'div'}
       class={joinClass(styles['box'], local.class)}
-      style={tokens.css(local.sx) || undefined}
+      style={local.style}
       {...componentDataAttrs('Box', local.dataSet)}
       {...rest}
     >

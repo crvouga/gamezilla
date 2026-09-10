@@ -1,4 +1,5 @@
 /** @jsxImportSource solid-js */
+import { cssPx } from '../../css/css-px';
 /**
  * `HorizontalPicker` -- flat Cover Flow–style centered carousel.
  *
@@ -30,9 +31,7 @@ import {
   Show,
   untrack,
 } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
-import { Clickable } from '../clickable';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { ScrollView } from '../scroll-view';
 import { HorizontalPickerArrow } from './horizontal-picker-arrows';
 import {
@@ -136,21 +135,16 @@ function PickerCell(props: {
   children: JSX.Element;
 }): JSX.Element {
   return (
-    <Clickable
-      feedback="none"
+    <button
+      class="clickable shrink-0 items-center justify-center [scroll-snap-align:center]"
+      data-component="HorizontalPickerCell"
+      type="button"
+      style={{ width: cssPx(props.itemWidth) }}
       onClick={() => props.onClick()}
       data-key={props.key}
-      dataSet={{ component: 'HorizontalPickerCell' }}
-      sx={{
-        width: props.itemWidth,
-        flexShrink: 0,
-        alignItems: 'center',
-        justifyContent: 'center',
-        scrollSnapAlign: 'center',
-      }}
     >
       {props.children}
-    </Clickable>
+    </button>
   );
 }
 
@@ -168,9 +162,9 @@ export function HorizontalPicker<T>(
 
   return (
     <Show when={props.items.length > 0}>
-      <Box
-        dataSet={{ component: 'HorizontalPicker', ...props.dataSet }}
-        sx={{ flexDirection: 'row', alignItems: 'center', gap: 1 }}
+      <div
+        class="box flex-row items-center gap-1"
+        {...dataAttrs({ component: 'HorizontalPicker', ...props.dataSet })}
       >
         <Show when={showArrows()}>
           <HorizontalPickerArrow
@@ -185,10 +179,11 @@ export function HorizontalPicker<T>(
           hideScrollbar
           flushEdge={false}
           onScroll={scroll.onScroll}
-          frameSx={{ flex: 1, minWidth: 0, scrollSnapType: 'x mandatory' }}
-          sx={{
-            paddingLeft: centeringPadding(itemWidth()),
-            paddingRight: centeringPadding(itemWidth()),
+          class="flex-1 min-w-0"
+          style={{ 'scroll-snap-type': 'x mandatory' }}
+          contentStyle={{
+            'padding-left': centeringPadding(itemWidth()),
+            'padding-right': centeringPadding(itemWidth()),
           }}
           dataSet={{ component: 'HorizontalPickerScroller' }}
         >
@@ -211,7 +206,7 @@ export function HorizontalPicker<T>(
             onClick={() => scroll.select(clamped() + 1)}
           />
         </Show>
-      </Box>
+      </div>
     </Show>
   );
 }

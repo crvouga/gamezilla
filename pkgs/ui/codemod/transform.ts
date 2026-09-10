@@ -12,6 +12,7 @@
 
 import ts from 'typescript';
 import { invariant, nonEmptyString } from './tiger';
+import { ATTR_HOSTS, convertAttrHost } from './transform-attr-host';
 import {
   collectNodes,
   isLeafNode,
@@ -34,6 +35,7 @@ import {
   syntaxErrors,
 } from './transform-imports';
 import type { ExistingClass } from './transform-node';
+import { rewriteScreenBodyBag } from './transform-screen-body';
 
 export type ConvertedNode = {
   readonly line: number;
@@ -119,14 +121,20 @@ function classAttrs(
   if (existing.kind === 'literal' && existing.value !== '') {
     merged.push(existing.value);
   }
-  const deduped = merged.filter((c, i) => merged.indexOf(c) === i);
-  const out = [`class=${quoteAttr(deduped.join(' '))}`];
+  const deduped = merged.filter(
+    (c, i) => c.length > 0 && merged.indexOf(c) === i
+  );
   const entries = [...classList];
   if (existing.kind === 'expr') {
     entries.push({
       keyExpr: existing.exprText,
       when: `!!(${existing.exprText})`,
     });
+  }
+  if (deduped.length === 0 && entries.length === 0) return [];
+  const out: string[] = [];
+  if (deduped.length > 0) {
+    out.push(`class=${quoteAttr(deduped.join(' '))}`);
   }
   if (entries.length === 0) return out;
   const parts = entries.map((e) => {
@@ -165,12 +173,23 @@ function buildOpeningTag(args: {
   isSelfClosing: boolean;
 }): string {
   const { conversion, element, source, isSelfClosing } = args;
-  invariant(conversion.classes.length > 0, 'converted node lost its classes');
   const parts = [`<${conversion.element}`];
   const existing: ExistingClass = conversion.existingClass ?? {
     kind: 'absent',
   };
-  parts.push(...classAttrs(conversion.classes, existing, conversion.classList));
+  const classParts = classAttrs(
+    conversion.classes,
+    existing,
+    conversion.classList
+  );
+  // Attr hosts may only rewrite contentClass/fieldClass — class= is optional.
+  parts.push(...classParts);
+  if (!conversion.preserveTag) {
+    invariant(
+      classParts.some((p) => p.startsWith('class=')),
+      'converted node lost its class'
+    );
+  }
   const style = styleBinding(conversion.styles, conversion.styleExprs);
   if (style !== undefined) parts.push(style);
   for (const key of Object.keys(conversion.dataAttrs)) {
@@ -194,25 +213,33 @@ function buildOpeningTag(args: {
     return `${parts.join(' ')}>{${label}}</${conversion.element}>`;
   }
   const tag = `${parts.join(' ')}${isSelfClosing ? ' />' : '>'}`;
-  checkConvertedTag(tag, conversion.element);
+  checkConvertedTag(tag, conversion);
   return tag;
 }
 
 /**
- * Tiger gate on every emitted tag: a class is always present (base styles
- * are never dropped) and no `sx`/`frameSx`/`dataSet` leaks onto the plain
- * element. A violation throws instead of writing a subtly broken file.
+ * Tiger gate on every emitted tag: desugared hosts always keep a class;
+ * attr hosts must not leak sx/frameSx/fieldSx/dataSet.
  */
-function checkConvertedTag(tag: string, element: string): void {
+function checkConvertedTag(tag: string, conversion: ComponentConversion): void {
+  const element = conversion.element;
   nonEmptyString(element, 'converted element name');
-  invariant(/^[a-z][a-z0-9-]*$/.test(element), `bad element name ${element}`);
-  invariant(tag.includes('class='), 'converted tag lost its class');
+  if (conversion.preserveTag) {
+    invariant(/^[A-Z][A-Za-z0-9]*$/.test(element), `bad host name ${element}`);
+  } else {
+    invariant(/^[a-z][a-z0-9-]*$/.test(element), `bad element name ${element}`);
+    invariant(tag.includes('class='), 'converted tag lost its class');
+  }
   invariant(!/\bcn\b/.test(tag), 'converted tag must not use cn');
   invariant(!/\bsxStyle\b/.test(tag), 'converted tag must not use sxStyle');
   invariant(!/[\s{]sx=\{/.test(tag), 'converted tag leaks sx');
   invariant(!/[\s{]sx="/.test(tag), 'converted tag leaks sx string');
   invariant(!/frameSx=/.test(tag), 'converted tag leaks frameSx');
-  invariant(!/[\s{]dataSet=/.test(tag), 'converted tag leaks dataSet');
+  invariant(!/fieldSx=/.test(tag), 'converted tag leaks fieldSx');
+  // dataSet stays on kept hosts (ScrollView etc. still accept it).
+  if (!conversion.preserveTag) {
+    invariant(!/[\s{]dataSet=/.test(tag), 'converted tag leaks dataSet');
+  }
 }
 
 function childrenSlice(
@@ -258,10 +285,24 @@ function convertNode(
   source: ts.SourceFile,
   text: string
 ): NodeOutcome {
-  if (!CONVERTIBLE.has(node.exportName)) return { edits: [] };
   const at = lineOf(source, node.element.getStart());
-  const conversion = convertComponent(node.exportName, node.element, source);
-  return convertedOutcome({ node, source, text, line: at, conversion });
+  if (CONVERTIBLE.has(node.exportName)) {
+    const conversion = convertComponent(node.exportName, node.element, source);
+    return convertedOutcome({ node, source, text, line: at, conversion });
+  }
+  if (ATTR_HOSTS.has(node.exportName)) {
+    const conversion = convertAttrHost(node.exportName, node.element, source);
+    if (conversion === undefined) return { edits: [] };
+    return convertedOutcome({
+      node,
+      source,
+      text,
+      line: at,
+      conversion,
+      keepImport: true,
+    });
+  }
+  return { edits: [] };
 }
 
 function convertedOutcome(args: {
@@ -270,6 +311,7 @@ function convertedOutcome(args: {
   text: string;
   line: number;
   conversion: ComponentConversion;
+  keepImport?: boolean | undefined;
 }): NodeOutcome {
   const { node, source, text, line, conversion } = args;
   const edits: SpanEdit[] = [
@@ -296,7 +338,7 @@ function convertedOutcome(args: {
   return {
     edits,
     converted: { line, component: node.exportName, tier: conversion.tier },
-    removedLocal: tagName(node.element) ?? '',
+    removedLocal: args.keepImport ? undefined : (tagName(node.element) ?? ''),
   };
 }
 
@@ -435,13 +477,14 @@ function transformFileInner(path: string, text: string): FileResult {
       parseError: 'nested conversion did not fixpoint — left untouched',
     };
   }
-  if (accum.converted.length === 0) {
+  const withBody = rewriteScreenBodyBag(accum.text);
+  if (accum.converted.length === 0 && withBody === text) {
     return { text, changed: false, converted: [], manual: [] };
   }
   return finalizeFile({
     path,
     text,
-    next: accum.text,
+    next: withBody,
     converted: accum.converted,
     removedLocals: accum.removedLocals,
   });
@@ -452,7 +495,9 @@ function hasConvertibleLeftovers(source: ts.SourceFile, text: string): boolean {
   const nodes = collectNodes(source, resolveBindings(source));
   const leaves = nodes.filter((n) => isLeafNode(n, nodes));
   for (const node of leaves) {
-    if (!CONVERTIBLE.has(node.exportName)) continue;
+    if (!CONVERTIBLE.has(node.exportName) && !ATTR_HOSTS.has(node.exportName)) {
+      continue;
+    }
     if (convertNode(node, source, text).converted !== undefined) return true;
   }
   return false;

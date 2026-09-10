@@ -5,8 +5,7 @@
  */
 
 import type { JSX } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 
 export type FadeSwitchProps = {
   stateKey: string;
@@ -16,15 +15,15 @@ export type FadeSwitchProps = {
 
 export function FadeSwitch(props: FadeSwitchProps): JSX.Element {
   return (
-    <Box
-      sx={{ flex: 1, minHeight: 0 }}
-      dataSet={{
+    <div
+      class="box flex-1 min-h-[0]"
+      {...dataAttrs({
         component: 'FadeSwitch',
         'state-key': props.stateKey,
         ...props.dataSet,
-      }}
+      })}
     >
       {props.children}
-    </Box>
+    </div>
   );
 }

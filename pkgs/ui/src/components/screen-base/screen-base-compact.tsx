@@ -13,8 +13,8 @@
  */
 
 import { type JSX, Show } from 'solid-js';
+import { dataAttrs } from '../../component-id';
 import { useAppFrameGlobalTrailing } from '../app-frame';
-import { Box } from '../box';
 import {
   ScreenTitleProvider,
   type ScreenTitleScrollProps,
@@ -37,14 +37,14 @@ type ShellProps = ScreenBaseProps & {
 function CompactShell(props: ShellProps): JSX.Element {
   const globalTrailing = useAppFrameGlobalTrailing();
   return (
-    <Box
-      sx={{ flex: 1, minHeight: 0 }}
-      dataSet={{
+    <div
+      class="box flex-1 min-h-[0]"
+      {...dataAttrs({
         component: 'ScreenBase',
         mode: 'compact',
         ...props.dataSet,
         screen: props.screenId,
-      }}
+      })}
     >
       <ScreenBaseHeader
         breadcrumbs={props.breadcrumbs}
@@ -64,7 +64,7 @@ function CompactShell(props: ShellProps): JSX.Element {
         primaryActionBottomInset={props.primaryActionBottomInset ?? 0}
         titleScroll={props.titleScroll}
       />
-    </Box>
+    </div>
   );
 }
 

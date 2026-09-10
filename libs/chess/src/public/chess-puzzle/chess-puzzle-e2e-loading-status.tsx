@@ -1,4 +1,3 @@
-import { Text } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 
 const E2E_ENABLED =
@@ -32,10 +31,11 @@ export function ChessPuzzleE2ELoadingStatus(
 ): JSX.Element {
   if (!E2E_ENABLED) return <></>;
   return (
-    <Text
-      dataSet={{ testid: 'chess-puzzle-pick-status' }}
-      sx={{ position: 'absolute', width: 1, height: 1, opacity: 0 }}
-      label={pickStatusLabel(props)}
-    />
+    <p
+      class="text absolute w-[1px] h-[1px] opacity-0"
+      data-testid="chess-puzzle-pick-status"
+    >
+      {pickStatusLabel(props)}
+    </p>
   );
 }

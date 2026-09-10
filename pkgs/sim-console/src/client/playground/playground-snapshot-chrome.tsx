@@ -1,8 +1,6 @@
 import {
-  Box,
   Button,
   Checkbox,
-  Clickable,
   CONTENT_EDGE_PADDING_STEP,
   Columns2Icon,
   IconButton,
@@ -14,7 +12,6 @@ import {
   Select,
   SlidersHorizontalIcon,
   SquareStackIcon,
-  Text,
   Trash2Icon,
   useCommandPalette,
 } from '@pkgs/ui';
@@ -49,28 +46,17 @@ function SnapshotRowMeta(props: {
   readonly nowMs: number;
 }) {
   return (
-    <Box
-      sx={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 1,
-        flexWrap: 'wrap',
-      }}
-    >
-      <Text
-        variant="caption"
-        label={formatSnapshotAge(props.snap.createdAtMs, props.nowMs)}
-      />
+    <div class="box flex-row items-center gap-1 flex-wrap">
+      <p class="text textCaption">
+        {formatSnapshotAge(props.snap.createdAtMs, props.nowMs)}
+      </p>
       {props.snap.totalBytes !== undefined ? (
-        <Text
-          variant="caption"
-          label={`· ${formatSnapshotBytes(props.snap.totalBytes)}`}
-        />
+        <p class="text textCaption">{`· ${formatSnapshotBytes(props.snap.totalBytes)}`}</p>
       ) : null}
       {props.snap.compatible ? null : (
-        <Text variant="caption" sx={{ color: 'warning' }} label="· outdated" />
+        <p class="text textCaption text-warning">{'· outdated'}</p>
       )}
-    </Box>
+    </div>
   );
 }
 function SnapshotOptionRow(props: {
@@ -84,54 +70,51 @@ function SnapshotOptionRow(props: {
   readonly onPick: () => void;
 }) {
   const body = (
-    <Box
-      sx={{
-        flex: 1,
-        minWidth: 0,
-        paddingVertical: 12,
-        gap: 0.5,
-      }}
-    >
-      <Text
-        variant="body"
-        label={formatSnapshotTitle(props.snap.createdAtMs)}
-      />
+    <div class="box flex-1 min-w-[0] [padding-top:12px;padding-bottom:12px] gap-0.5">
+      <p class="text">{formatSnapshotTitle(props.snap.createdAtMs)}</p>
       <SnapshotRowMeta snap={props.snap} nowMs={props.nowMs} />
-    </Box>
+    </div>
   );
   return (
-    <Box
-      sx={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 3,
-        minWidth: 0,
-        opacity: props.outdated ? 0.55 : 1,
+    <div
+      class="box flex-row items-center gap-3 min-w-[0]"
+      style={{
         ...(props.selected && !props.outdated
           ? {}
-          : { pr: CONTENT_EDGE_PADDING_STEP }),
+          : { 'padding-right': `${CONTENT_EDGE_PADDING_STEP * 4}px` }),
+        opacity: props.outdated ? 0.55 : 1,
       }}
     >
-      <Box sx={{ pl: CONTENT_EDGE_PADDING_STEP }}>
+      <div
+        class="box"
+        style={{ 'padding-left': `${CONTENT_EDGE_PADDING_STEP * 4}px` }}
+      >
         <Checkbox
           checked={props.checked}
           onToggle={props.onToggleChecked}
           disabled={props.busy}
         />
-      </Box>
+      </div>
       {props.outdated ? (
         body
       ) : (
-        <Clickable sx={{ flex: 1, minWidth: 0 }} onClick={props.onPick}>
+        <button
+          class="clickable clickableTint flex-1 min-w-[0]"
+          type="button"
+          onClick={props.onPick}
+        >
           {body}
-        </Clickable>
+        </button>
       )}
       {props.selected && !props.outdated ? (
-        <Box sx={{ pr: CONTENT_EDGE_PADDING_STEP }}>
-          <Text variant="label" sx={{ color: 'tint' }} label="✓" />
-        </Box>
+        <div
+          class="box"
+          style={{ 'padding-right': `${CONTENT_EDGE_PADDING_STEP * 4}px` }}
+        >
+          <label class="text textLabel text-tint">{'✓'}</label>
+        </div>
       ) : null}
-    </Box>
+    </div>
   );
 }
 function SnapshotSurfaceExtra(props: {
@@ -145,7 +128,7 @@ function SnapshotSurfaceExtra(props: {
   readonly onDeleteChecked: () => void;
 }) {
   return (
-    <Box sx={{ gap: 1.5 }}>
+    <div class="box gap-1.5">
       <SegmentedControl
         segments={[
           { key: 'newest', label: 'Newest' },
@@ -154,14 +137,7 @@ function SnapshotSurfaceExtra(props: {
         selected={props.sort}
         onSelect={props.onSort}
       />
-      <Box
-        sx={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 1,
-        }}
-      >
+      <div class="box flex-row items-center justify-between gap-1">
         <Checkbox
           label={props.allChecked ? 'Clear' : 'Select all'}
           checked={props.allChecked || props.someChecked}
@@ -179,8 +155,8 @@ function SnapshotSurfaceExtra(props: {
           disabled={props.busy || props.checkedCount === 0}
           onClick={props.onDeleteChecked}
         />
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }
 function SnapshotSelect(props: {
@@ -204,7 +180,7 @@ function SnapshotSelect(props: {
   const someChecked = () =>
     props.sortedSnaps.some((s) => props.checkedIds.has(s.id));
   return (
-    <Box sx={props.compact ? selectCompactSx : selectDesktopSx}>
+    <div class="box" style={props.compact ? selectCompactSx : selectDesktopSx}>
       <Select
         size="sm"
         options={props.sortedSnaps.map((s) => ({
@@ -251,7 +227,7 @@ function SnapshotSelect(props: {
           />
         )}
       />
-    </Box>
+    </div>
   );
 }
 function SnapshotSelectOption(props: {
@@ -282,33 +258,33 @@ function SnapshotSelectOption(props: {
 }
 const selectCompactSx = {
   flex: 1,
-  minWidth: 0,
-  alignSelf: 'center',
+  'min-width': 0,
+  'align-self': 'center',
 } as const;
 const selectDesktopSx = {
-  width: SELECT_WIDTH,
-  flexShrink: 0,
-  minWidth: 0,
-  alignSelf: 'center',
+  width: `${SELECT_WIDTH}px`,
+  'flex-shrink': 0,
+  'min-width': 0,
+  'align-self': 'center',
 } as const;
 const chromeRowCompactSx = {
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'flex-start',
-  gap: 0.5,
-  flexShrink: 1,
+  'flex-direction': 'row',
+  'align-items': 'center',
+  'justify-content': 'flex-start',
+  gap: '2px',
+  'flex-shrink': 1,
   flex: 1,
-  minWidth: 0,
-  alignSelf: 'stretch',
+  'min-width': 0,
+  'align-self': 'stretch',
 } as const;
 const chromeRowDesktopSx = {
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'flex-end',
-  gap: 0.5,
-  flexShrink: 0,
-  minWidth: 0,
-  alignSelf: 'stretch',
+  'flex-direction': 'row',
+  'align-items': 'center',
+  'justify-content': 'flex-end',
+  gap: '2px',
+  'flex-shrink': 0,
+  'min-width': 0,
+  'align-self': 'stretch',
 } as const;
 function SnapshotChromeActions(props: {
   readonly list: SnapshotListApi;
@@ -372,7 +348,7 @@ function ClientLayoutToggle(props: {
   readonly onSelect: (mode: ClientLayoutMode) => void;
 }) {
   return (
-    <Box sx={layoutToggleSx}>
+    <div class="box" style={layoutToggleSx}>
       <IconButton
         label="Tab clients"
         size={ICON_SIZE}
@@ -395,14 +371,14 @@ function ClientLayoutToggle(props: {
       >
         <Columns2Icon size={GLYPH_SIZE} />
       </IconButton>
-    </Box>
+    </div>
   );
 }
 const layoutToggleSx = {
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: 0.25,
-  flexShrink: 0,
+  'flex-direction': 'row',
+  'align-items': 'center',
+  gap: '1px',
+  'flex-shrink': 0,
 } as const;
 /** Snapshot Select + save / reload / palette icon buttons. */
 export function PlaygroundSnapshotChrome(props: {
@@ -420,7 +396,10 @@ export function PlaygroundSnapshotChrome(props: {
     return props.session.clock.now();
   };
   return (
-    <Box sx={layout.compactChrome ? chromeRowCompactSx : chromeRowDesktopSx}>
+    <div
+      class="box"
+      style={layout.compactChrome ? chromeRowCompactSx : chromeRowDesktopSx}
+    >
       {layout.compactChrome ? (
         <IconButton
           label="Open playground controls"
@@ -476,7 +455,7 @@ export function PlaygroundSnapshotChrome(props: {
         />
       )}
       <SnapshotChromeModals state={state} />
-    </Box>
+    </div>
   );
 }
 function CompactSnapshotSurface(props: {
@@ -497,7 +476,7 @@ function CompactSnapshotSurface(props: {
       size="small"
       stackId="playground-snapshot-controls"
     >
-      <Box sx={{ gap: 3 }}>
+      <div class="box gap-3">
         <ClientLayoutToggle
           preference={props.preference.preference}
           onSelect={props.preference.setPreference}
@@ -528,7 +507,7 @@ function CompactSnapshotSurface(props: {
           onPurge={() => props.state.setPurgeOpen(true)}
           openPalette={props.palette.open}
         />
-      </Box>
+      </div>
     </ResponsiveSurface>
   );
 }

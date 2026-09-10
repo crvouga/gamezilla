@@ -6,8 +6,8 @@
  * properties) and dispatch — never scan the full style table.
  */
 
-import type { ColorTokens } from './colors';
-import type { ElevationLevel } from './scale';
+import type { ColorTokens } from '../src/theme/colors';
+import type { ElevationLevel } from '../src/theme/scale';
 import {
   flattenSx,
   type SxCompileOptions,
@@ -15,14 +15,14 @@ import {
   type SxProps,
   type SxRadius,
   type SxTransform,
-} from './sx-props';
+} from './legacy-sx-props';
 import {
   resolveColor,
   resolveFontSize,
   resolveLineHeight,
   resolveRadius,
   resolveSpacing,
-} from './sx-resolve';
+} from './legacy-sx-resolve';
 
 type Ctx = {
   d: string[];

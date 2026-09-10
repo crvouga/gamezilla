@@ -2,9 +2,7 @@
 import { useLingui } from '@lingui/solid/macro';
 import { type JSX, Show } from 'solid-js';
 
-import { Box } from '../box';
 import { PaginationControls } from '../pagination-controls';
-import { Text } from '../text';
 
 export function DataTablePagination(props: {
   readonly pageIndex: number;
@@ -20,29 +18,14 @@ export function DataTablePagination(props: {
   };
   return (
     <Show when={props.totalCount > 0}>
-      <Box
-        sx={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 2,
-          py: 2,
-          px: 3,
-          borderTopWidth: 'hairline',
-          borderColor: 'border',
-          backgroundColor: 'surface',
-        }}
-      >
-        <Text
-          sx={{ color: 'textSecondary', fontSize: 12 }}
-          label={pageLabel()}
-        />
+      <div class="box flex-row items-center justify-between gap-2 py-2 px-3 [border-top-width:hairline] border-border bg-surface">
+        <p class="text text-text-secondary text-[12px]">{pageLabel()}</p>
         <PaginationControls
           pageIndex={props.pageIndex}
           pageCount={props.pageCount}
           onPageChange={props.onPageChange}
         />
-      </Box>
+      </div>
     </Show>
   );
 }

@@ -1,5 +1,5 @@
 import { useTimers } from '@pkgs/clock/solid';
-import { Box, EmptyState, JsonView, ScrollView, Text } from '@pkgs/ui';
+import { EmptyState, JsonView, ScrollView } from '@pkgs/ui';
 import {
   createEffect,
   createSignal,
@@ -36,30 +36,23 @@ export function PlaygroundRoomDbPane(props: {
     <Show
       when={snap()}
       fallback={
-        <Box sx={{ flex: 1, minHeight: 0, padding: 8 }}>
+        <div class="box flex-1 min-h-[0] p-[8px]">
           <EmptyState
             variant="compact"
             title="Room gone"
             body="This room topic is no longer live."
           />
-        </Box>
+        </div>
       }
     >
       {(current) => (
-        <ScrollView
-          frameSx={{ flex: 1, minHeight: 0 }}
-          sx={{ padding: 6, gap: 3 }}
-        >
+        <ScrollView class="flex-1 min-h-[0]" contentClass="p-[6px] gap-3">
           <Section title="Topic" body={current().topic} />
           <Section title={`Roster (${current().roster.length})`}>
             <Show
               when={current().roster.length > 0}
               fallback={
-                <Text
-                  variant="caption"
-                  label="Empty"
-                  sx={{ color: 'textSecondary' }}
-                />
+                <p class="text textCaption text-text-secondary">{'Empty'}</p>
               }
             >
               <JsonView value={current().roster} initialExpandDepth={1} />
@@ -71,11 +64,9 @@ export function PlaygroundRoomDbPane(props: {
             <Show
               when={current().entries.length > 0}
               fallback={
-                <Text
-                  variant="caption"
-                  label="No events"
-                  sx={{ color: 'textSecondary' }}
-                />
+                <p class="text textCaption text-text-secondary">
+                  {'No events'}
+                </p>
               }
             >
               <JsonView value={current().entries} initialExpandDepth={2} />
@@ -96,18 +87,16 @@ function Section(props: {
   readonly children?: JSX.Element;
 }) {
   return (
-    <Box sx={{ gap: 1 }}>
-      <Text
-        sx={{ color: 'textSecondary', fontSize: 11, fontWeight: '600' }}
-        label={props.title}
-      />
+    <div class="box gap-1">
+      <p class="text text-text-secondary text-[11px] font-semibold">
+        {props.title}
+      </p>
       {props.body !== undefined ? (
-        <Text
-          sx={{ color: 'text', fontSize: 12, fontFamily: 'mono' }}
-          label={props.body}
-        />
+        <p class="text text-text text-[12px] [font-family:mono]">
+          {props.body}
+        </p>
       ) : null}
       {props.children}
-    </Box>
+    </div>
   );
 }

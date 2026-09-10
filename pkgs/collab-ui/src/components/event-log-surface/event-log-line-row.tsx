@@ -1,7 +1,6 @@
 import type { LogLine } from '@pkgs/collab';
 import type { LocalizedString } from '@pkgs/i18n';
 import type { RoomActor } from '@pkgs/room';
-import { Stack, Text } from '@pkgs/ui';
 import { type JSX, Show } from 'solid-js';
 import { EventLogIcon } from '../event-log-icon';
 import { ParticipantColorRing } from '../participant-color-ring';
@@ -18,7 +17,7 @@ export function EventLogLineRow(props: EventLogLineRowProps): JSX.Element {
   const time = () =>
     props.line.ts > 0 ? props.formatTime?.(props.line.ts) : null;
   return (
-    <Stack direction="horizontal" spacing={2} align="center" sx={{ py: 2 }}>
+    <div class="box flex-row gap-2 items-center py-2">
       <Show
         when={props.color}
         fallback={props.renderAvatar(props.line.actor, 32)}
@@ -29,29 +28,20 @@ export function EventLogLineRow(props: EventLogLineRowProps): JSX.Element {
           </ParticipantColorRing>
         )}
       </Show>
-      <Stack spacing={0.5} sx={{ flex: 1, minWidth: 0 }}>
-        <Stack direction="horizontal" spacing={1} align="center">
+      <div class="box flex-col gap-0.5 flex-1 min-w-[0]">
+        <div class="box flex-row gap-1 items-center">
           <EventLogIcon name={props.line.icon} size={16} />
           {props.line.actor !== null
             ? props.renderActorLabel?.(props.line.actor)
             : null}
-          <Text
-            variant="body"
-            label={props.line.text}
-            numberOfLines={3}
-            sx={{ flexShrink: 1 }}
-          />
-        </Stack>
+          <p class="text line-clamp-3 shrink">{props.line.text}</p>
+        </div>
         <Show when={time()}>
           {(label) => (
-            <Text
-              variant="caption"
-              label={label()}
-              sx={{ color: 'textSecondary' }}
-            />
+            <p class="text textCaption text-text-secondary">{label()}</p>
           )}
         </Show>
-      </Stack>
-    </Stack>
+      </div>
+    </div>
   );
 }

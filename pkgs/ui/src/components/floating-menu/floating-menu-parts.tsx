@@ -1,4 +1,5 @@
 /** @jsxImportSource solid-js */
+import { cssPx } from '../../css/css-px';
 /**
  * Rows inside {@link FloatingMenu}: header block, tappable item, divider.
  * Internal to the menu; only the content spec types are public.
@@ -6,8 +7,8 @@
 
 import { type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-import { Box } from '../box';
-import { Clickable } from '../clickable';
+import { dataAttrs } from '../../component-id';
+import { joinClass } from '../box';
 import { Text, type TextVariant } from '../text';
 import type {
   FloatingMenuHeaderSpec,
@@ -32,11 +33,16 @@ function HeaderLine(props: {
   return (
     <Show when={isTexty(props.value)} fallback={props.value}>
       <Text
+        as="p"
         variant={props.variant}
+        class={joinClass(
+          'line-clamp-1',
+          props.muted === true ? 'text-text-secondary' : undefined
+        )}
         numberOfLines={1}
-        sx={props.muted === true ? { color: 'textSecondary' } : undefined}
-        label={props.value}
-      />
+      >
+        {props.value}
+      </Text>
     </Show>
   );
 }
@@ -45,36 +51,30 @@ export function FloatingMenuHeader(props: {
   header: FloatingMenuHeaderSpec;
 }): JSX.Element {
   return (
-    <Box
+    <div
+      class="box px-3 pb-2 border-b border-border gap-0.5"
+      data-component="FloatingMenuHeader"
       role="presentation"
-      dataSet={{ component: 'FloatingMenuHeader' }}
-      sx={{
-        px: 3,
-        pb: 2,
-        borderBottomWidth: 1,
-        borderColor: 'border',
-        gap: 0.5,
-      }}
     >
-      <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+      <div class="box flex-row items-center gap-2">
         {props.header.avatar}
-        <Box sx={{ flex: 1, minWidth: 0, gap: 0.5 }}>
+        <div class="box flex-1 min-w-[0] gap-0.5">
           <HeaderLine value={props.header.title} variant="bodyBold" />
           <Show when={props.header.subtitle !== undefined}>
             <HeaderLine value={props.header.subtitle} variant="caption" muted />
           </Show>
-        </Box>
-      </Box>
-    </Box>
+        </div>
+      </div>
+    </div>
   );
 }
 
 export function FloatingMenuDivider(): JSX.Element {
   return (
-    <Box
+    <div
+      class="box h-[1px] bg-border my-1"
+      data-component="FloatingMenuDivider"
       role="separator"
-      sx={{ height: 1, background: 'border', my: 1 }}
-      dataSet={{ component: 'FloatingMenuDivider' }}
     />
   );
 }
@@ -84,24 +84,18 @@ export function FloatingMenuItem(props: {
   onSelect: (row: FloatingMenuItemRow) => void;
 }): JSX.Element {
   return (
-    <Clickable
+    <button
+      class="clickable clickableTint py-3 px-3 flex-row items-center gap-2 text-left"
+      {...dataAttrs({ component: 'FloatingMenuItem', ...props.row.dataSet })}
+      type="button"
+      style={{
+        ...((props.row.disabled === true && { opacity: 0.45 }) ?? {}),
+        'min-height': cssPx(FLOATING_MENU_ITEM_MIN_HEIGHT),
+      }}
       role="menuitem"
       aria-label={props.row['aria-label']}
       disabled={props.row.disabled ?? false}
       onClick={() => props.onSelect(props.row)}
-      dataSet={{ component: 'FloatingMenuItem', ...props.row.dataSet }}
-      sx={[
-        {
-          py: 3,
-          px: 3,
-          minHeight: FLOATING_MENU_ITEM_MIN_HEIGHT,
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 2,
-          textAlign: 'left',
-        },
-        props.row.disabled === true && { opacity: 0.45 },
-      ]}
     >
       <Show
         when={props.row.leading !== undefined}
@@ -115,18 +109,15 @@ export function FloatingMenuItem(props: {
       >
         {props.row.leading}
       </Show>
-      <Box sx={{ flex: 1, minWidth: 0, gap: 0.5 }}>
-        <Text variant="body" label={props.row.label} numberOfLines={1} />
+      <div class="box flex-1 min-w-[0] gap-0.5">
+        <p class="text line-clamp-1">{props.row.label}</p>
         <Show when={props.row.subtitle !== undefined}>
-          <Text
-            variant="caption"
-            sx={{ color: 'textSecondary' }}
-            label={props.row.subtitle}
-            numberOfLines={1}
-          />
+          <p class="text textCaption line-clamp-1 text-text-secondary">
+            {props.row.subtitle}
+          </p>
         </Show>
-      </Box>
+      </div>
       {props.row.trailing}
-    </Clickable>
+    </button>
   );
 }

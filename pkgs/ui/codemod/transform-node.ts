@@ -8,7 +8,7 @@
 
 import ts from 'typescript';
 import { CSS_VAR_COLORS, cssVarElevation } from '../src/theme/css-vars';
-import { sxToCss } from '../src/theme/sx-to-css';
+import { sxToCss } from './legacy-sx-to-css';
 import type { DynamicWrap, StaticValue } from './mapping-types';
 import { compileStaticTransform } from './sx-map-effect';
 import { mapDynamicProp, mapSxRecord } from './sx-mapping';

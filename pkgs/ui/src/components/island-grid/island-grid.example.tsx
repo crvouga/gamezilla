@@ -2,7 +2,6 @@
 import type { JSX } from 'solid-js';
 import { ExampleRoot } from '../explorer/example-root';
 import { Island } from '../island';
-import { Text } from '../text';
 import { IslandGrid } from './island-grid';
 
 export default function IslandGridExample(): JSX.Element {
@@ -10,10 +9,10 @@ export default function IslandGridExample(): JSX.Element {
     <ExampleRoot>
       <IslandGrid columns={3}>
         <Island span={1} title="Identity">
-          <Text variant="body" label="Avatar + username" />
+          <p class="text">{'Avatar + username'}</p>
         </Island>
         <Island span={2} title="Friends">
-          <Text variant="body" label="Friends stats and actions" />
+          <p class="text">{'Friends stats and actions'}</p>
         </Island>
       </IslandGrid>
     </ExampleRoot>

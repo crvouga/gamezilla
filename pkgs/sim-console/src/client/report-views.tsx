@@ -1,4 +1,4 @@
-import { Box, ScrollView, Text } from '@pkgs/ui';
+import { ScrollView } from '@pkgs/ui';
 import { createEffect, createSignal, Match, Show, Switch } from 'solid-js';
 import { isLatestRunId, LATEST_RUN_ID } from '../types';
 import type { ReportApiClient } from './api-client';
@@ -18,8 +18,8 @@ const LOCAL_BUCKET = 'local';
 
 const fillSx = {
   flex: 1,
-  minHeight: 0,
-  minWidth: 0,
+  'min-height': 0,
+  'min-width': 0,
 } as const;
 
 function visibilitySx(active: boolean) {
@@ -84,29 +84,29 @@ export function ReportViews(props: {
   return (
     <Switch>
       <Match when={waiting()}>
-        <Box sx={appShellSx}>
-          <Box sx={appBodyFrameSx}>
-            <Text sx={emptySx}>
+        <div class="box" style={appShellSx}>
+          <div class="box" style={appBodyFrameSx}>
+            <p class="text" style={emptySx}>
               {props.data.buckets.length === 0
                 ? 'Waiting for report bucket…'
                 : 'Opening latest reports…'}
-            </Text>
-          </Box>
-        </Box>
+            </p>
+          </div>
+        </div>
       </Match>
       <Match when={emptySuite()}>
-        <Box sx={appShellSx}>
-          <Box sx={appBodyFrameSx}>
-            <Text sx={emptySx}>
+        <div class="box" style={appShellSx}>
+          <div class="box" style={appBodyFrameSx}>
+            <p class="text" style={emptySx}>
               No report dump yet. Run `@apps/product` to write the latest
               results into `apps/product/public/reports`.
-            </Text>
-          </Box>
-        </Box>
+            </p>
+          </div>
+        </div>
       </Match>
       <Match when={true}>
-        <Box sx={fillSx}>
-          <Box sx={visibilitySx(!showTest())}>
+        <div class="box" style={fillSx}>
+          <div class="box" style={visibilitySx(!showTest())}>
             <SuitePage
               bucketId={props.nav.bucketId ?? ''}
               runId={runLabel() ?? ''}
@@ -118,9 +118,9 @@ export function ReportViews(props: {
                 );
               }}
             />
-          </Box>
+          </div>
           <Show when={testVisited()}>
-            <Box sx={visibilitySx(showTest())}>
+            <div class="box" style={visibilitySx(showTest())}>
               <TestOrLoading
                 nav={props.nav}
                 data={props.data}
@@ -128,9 +128,9 @@ export function ReportViews(props: {
                 onNav={props.onNav}
                 api={props.api}
               />
-            </Box>
+            </div>
           </Show>
-        </Box>
+        </div>
       </Match>
     </Switch>
   );
@@ -147,20 +147,20 @@ function TestOrLoading(props: {
   return (
     <Switch>
       <Match when={props.nav.testId == null}>
-        <Box sx={fillSx} />
+        <div class="box" style={fillSx} />
       </Match>
       <Match when={!props.concreteRunId}>
-        <Box sx={appShellSx}>
-          <ScrollView frameSx={appBodyFrameSx} sx={bodySx}>
-            <Text sx={emptySx}>
+        <div class="box" style={appShellSx}>
+          <ScrollView style={appBodyFrameSx} contentStyle={bodySx}>
+            <p class="text" style={emptySx}>
               {props.data.runs.length === 0
                 ? 'No report dump yet. Run `@apps/product` to generate reports.'
                 : props.data.error
                   ? `Failed to resolve run: ${props.data.error}`
                   : 'Loading run…'}
-            </Text>
+            </p>
           </ScrollView>
-        </Box>
+        </div>
       </Match>
       <Match when={props.data.testData}>
         {(testData) => (
@@ -176,15 +176,15 @@ function TestOrLoading(props: {
         )}
       </Match>
       <Match when={true}>
-        <Box sx={appShellSx}>
-          <ScrollView frameSx={appBodyFrameSx} sx={bodySx}>
-            <Text sx={emptySx}>
+        <div class="box" style={appShellSx}>
+          <ScrollView style={appBodyFrameSx} contentStyle={bodySx}>
+            <p class="text" style={emptySx}>
               {props.data.error
                 ? `Failed to load test: ${props.data.error}`
                 : 'Loading test…'}
-            </Text>
+            </p>
           </ScrollView>
-        </Box>
+        </div>
       </Match>
     </Switch>
   );

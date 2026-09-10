@@ -1,6 +1,6 @@
 /** @jsxImportSource solid-js */
 /**
- * `Clickable` -- themed `<button>` host with `sx` prop and press feedback.
+ * `Clickable` -- themed `<button>` host with press feedback.
  *
  * The default `feedback="tint"` mode layers a translucent overlay (theme
  * `interactiveHover` / `interactivePress` tokens) above the children on
@@ -11,7 +11,6 @@
 
 import { type JSX, splitProps } from 'solid-js';
 import { type ComponentDataSet, componentDataAttrs } from '../../component-id';
-import { type SxInput, useThemeTokens } from '../../theme';
 import { joinClass } from '../box/box';
 import styles from '../hosts.module.css';
 
@@ -19,18 +18,14 @@ export type ClickableFeedback = 'tint' | 'opacity' | 'none';
 
 export type ClickableProps = Omit<
   JSX.ButtonHTMLAttributes<HTMLButtonElement>,
-  'style' | 'children' | 'type'
+  'children' | 'type'
 > & {
-  /** Utility-first style shorthand resolved against the current theme. */
-  sx?: SxInput | undefined;
   /** Visual press feedback. Defaults to `'tint'`. */
   feedback?: ClickableFeedback | undefined;
   /** Button type. Defaults to `button` so forms are never submitted by accident. */
   type?: 'button' | 'submit' | 'reset' | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
-  class?: string | undefined;
-  ref?: ((el: HTMLButtonElement) => void) | undefined;
   children?: JSX.Element | undefined;
 };
 
@@ -41,13 +36,12 @@ const FEEDBACK_CLASS: Record<ClickableFeedback, string | undefined> = {
 };
 
 export function Clickable(props: ClickableProps): JSX.Element {
-  const tokens = useThemeTokens();
   const [local, rest] = splitProps(props, [
-    'sx',
     'feedback',
     'type',
     'dataSet',
     'class',
+    'style',
     'children',
   ]);
   return (
@@ -58,7 +52,7 @@ export function Clickable(props: ClickableProps): JSX.Element {
         FEEDBACK_CLASS[local.feedback ?? 'tint'],
         local.class
       )}
-      style={tokens.css(local.sx) || undefined}
+      style={local.style}
       {...componentDataAttrs('Clickable', local.dataSet)}
       {...rest}
     >

@@ -1,12 +1,10 @@
 import {
   Badge,
-  Box,
   createMemoryPageLoader,
   DataTable,
   type DataTableColumn,
   type DataTableOrderDir,
   ScrollView,
-  Text,
 } from '@pkgs/ui';
 import { createMemo } from 'solid-js';
 
@@ -41,7 +39,11 @@ const TEST_COLUMNS: DataTableColumn<SuiteTestSummary>[] = [
     header: 'Test',
     width: 200,
     sortable: true,
-    cell: (tt) => <Text sx={testIdSx} label={tt.testId} />,
+    cell: (tt) => (
+      <p class="text" style={testIdSx}>
+        {tt.testId}
+      </p>
+    ),
   },
   {
     id: 'status',
@@ -107,10 +109,10 @@ export function SuitePage(props: {
   );
 
   return (
-    <Box sx={appShellSx}>
+    <div class="box" style={appShellSx}>
       <ReportHeader meta={meta()} />
-      <ScrollView frameSx={appBodyFrameSx} sx={bodySx}>
-        <Box sx={{ flex: 1, minHeight: 280, alignSelf: 'stretch' }}>
+      <ScrollView style={appBodyFrameSx} contentStyle={bodySx}>
+        <div class="box flex-1 min-h-[280px] self-stretch">
           <DataTable
             columns={TEST_COLUMNS}
             loadPage={loadPage()}
@@ -122,8 +124,8 @@ export function SuitePage(props: {
             density="compact"
             onRowClick={(tt) => props.onOpenTest(tt.testId)}
           />
-        </Box>
+        </div>
       </ScrollView>
-    </Box>
+    </div>
   );
 }

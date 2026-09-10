@@ -1,5 +1,4 @@
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { borderRadius, Clickable, Text } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { createMemo, Show } from 'solid-js';
 import type { RequestEndSpaceOptions } from '../end-space/end-space-modal-provider';
@@ -36,26 +35,20 @@ export function SpaceEndOrLeaveButton(
   };
 
   return (
-    <Clickable
+    <button
+      class="clickable clickableTint py-2 px-4 bg-on-tint-scrim rounded-full"
+      type="button"
       onClick={onPress}
       role="button"
       aria-label={isHost() ? t`End space` : t`Leave space`}
-      sx={{
-        py: 2,
-        px: 4,
-        borderRadius: borderRadius.full,
-        backgroundColor: 'onTintScrim',
-      }}
     >
-      <Text
-        variant="caption"
-        sx={{ color: 'onPrimary', fontWeight: '600' }}
-        label={
+      <p class="text textCaption text-on-primary font-semibold">
+        {
           <Show when={isHost()} fallback={<Trans>Leave</Trans>}>
             <Trans>End</Trans>
           </Show>
         }
-      />
-    </Clickable>
+      </p>
+    </button>
   );
 }

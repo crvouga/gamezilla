@@ -1,80 +1,87 @@
-import type { BadgeIntent, SxProps } from '@pkgs/ui';
+import type { BadgeIntent } from '@pkgs/ui';
 import { useTheme } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 
 /** Full-height shell: fill parent, product background. */
-export const appShellSx: SxProps = {
+export const appShellSx: JSX.CSSProperties = {
   flex: 1,
-  flexDirection: 'column',
-  minHeight: 0,
-  background: 'background',
+  'flex-direction': 'column',
+  'min-height': 0,
+  background: 'var(--ui-color-background)',
 };
 
 /** Compact top bar for report screens. */
-export const appHeaderSx: SxProps = {
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: 2.5,
-  paddingHorizontal: 12,
-  paddingVertical: 6,
-  borderBottomWidth: 1,
-  borderColor: 'border',
-  background: 'surface',
-  flexGrow: 0,
-  flexShrink: 0,
+export const appHeaderSx: JSX.CSSProperties = {
+  'flex-direction': 'row',
+  'align-items': 'center',
+  gap: '10px',
+  'padding-left': '12px',
+  'padding-right': '12px',
+  'padding-top': '6px',
+  'padding-bottom': '6px',
+  'border-bottom-width': '1px',
+  'border-bottom-style': 'solid',
+  'border-bottom-color': 'var(--ui-color-border)',
+  background: 'var(--ui-color-surface)',
+  'flex-grow': 0,
+  'flex-shrink': 0,
 };
 
-export const appHeaderMiddleSx: SxProps = {
+export const appHeaderMiddleSx: JSX.CSSProperties = {
   flex: 1,
-  minWidth: 0,
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: 2,
+  'min-width': 0,
+  'flex-direction': 'row',
+  'align-items': 'center',
+  gap: '8px',
 };
 
-export const appHeaderTrailingSx: SxProps = {
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: 1,
+export const appHeaderTrailingSx: JSX.CSSProperties = {
+  'flex-direction': 'row',
+  'align-items': 'center',
+  gap: '4px',
 };
 
 /** Scroll frame for list/table screens. */
-export const appBodyFrameSx: SxProps = {
+export const appBodyFrameSx: JSX.CSSProperties = {
   flex: 1,
-  minHeight: 0,
-  background: 'background',
+  'min-height': 0,
+  background: 'var(--ui-color-background)',
 };
 
 /** Responsive body padding — call from components under ThemeProvider. */
-export function useAppBodyContentSx(): SxProps {
+export function useAppBodyContentSx(): JSX.CSSProperties {
   const theme = useTheme();
   const mobile = () => theme.breakpoint() === 'mobile';
   return {
-    get paddingHorizontal() {
-      return mobile() ? 12 : 28;
+    get 'padding-left'() {
+      return mobile() ? '12px' : '28px';
     },
-    get paddingTop() {
-      return mobile() ? 16 : 24;
+    get 'padding-right'() {
+      return mobile() ? '12px' : '28px';
     },
-    paddingBottom: 40,
+    get 'padding-top'() {
+      return mobile() ? '16px' : '24px';
+    },
+    'padding-bottom': '40px',
     get gap() {
-      return mobile() ? 3 : 4;
+      return mobile() ? '12px' : '16px';
     },
   };
 }
 
-export const emptySx: SxProps = {
-  color: 'textSecondary',
-  padding: 6,
+export const emptySx: JSX.CSSProperties = {
+  color: 'var(--ui-color-text-secondary)',
+  padding: '24px',
 };
 
-export const metaSx: SxProps = {
-  color: 'textSecondary',
-  fontSize: 12,
+export const metaSx: JSX.CSSProperties = {
+  color: 'var(--ui-color-text-secondary)',
+  'font-size': '12px',
 };
 
-export const testIdSx: SxProps = {
-  fontWeight: '600',
-  color: 'tint',
+export const testIdSx: JSX.CSSProperties = {
+  'font-weight': 600,
+  color: 'var(--ui-color-tint)',
 };
 
 /** Map report / session status strings to Badge intent. */
@@ -85,9 +92,9 @@ export function statusBadgeIntent(status: string): BadgeIntent {
 }
 
 /** Detail/preview panes. */
-export const paneSx: SxProps = {
+export const paneSx: JSX.CSSProperties = {
   flex: 1,
-  flexDirection: 'column',
-  minHeight: 0,
-  background: 'background',
+  'flex-direction': 'column',
+  'min-height': 0,
+  background: 'var(--ui-color-background)',
 };

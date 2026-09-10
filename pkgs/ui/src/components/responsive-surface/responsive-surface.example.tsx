@@ -3,8 +3,6 @@ import { createSignal, For, type JSX } from 'solid-js';
 import type { ModalSize } from '../../theme/modal-size';
 import { Button } from '../button';
 import { ExampleRoot } from '../explorer/example-root';
-import { Stack } from '../stack';
-import { Text } from '../text';
 import { ResponsiveSurface } from './responsive-surface';
 
 const SIZES: readonly ModalSize[] = ['small', 'medium', 'large', 'fullWidth'];
@@ -16,12 +14,12 @@ export default function ResponsiveSurfaceExample(): JSX.Element {
 
   return (
     <ExampleRoot>
-      <Text
-        variant="caption"
-        sx={{ opacity: 0.75 }}
-        label="On mobile: bottom sheet. On tablet/desktop: centered modal with a width bucket. Every surface shows a top-right close control."
-      />
-      <Stack spacing={2}>
+      <p class="text textCaption opacity-75">
+        {
+          'On mobile: bottom sheet. On tablet/desktop: centered modal with a width bucket. Every surface shows a top-right close control.'
+        }
+      </p>
+      <div class="box flex-col gap-2">
         <For each={SIZES}>
           {(size) => (
             <Button
@@ -34,7 +32,7 @@ export default function ResponsiveSurfaceExample(): JSX.Element {
           title="Open — untitled (close only)"
           onClick={() => setOpenSize('untitled')}
         />
-      </Stack>
+      </div>
       <For each={SIZES}>
         {(size) => (
           <ResponsiveSurface
@@ -43,10 +41,11 @@ export default function ResponsiveSurfaceExample(): JSX.Element {
             title={`Size: ${size}`}
             size={size}
           >
-            <Text
-              variant="body"
-              label="Surface body. Close via X, backdrop click, or swipe down (mobile)."
-            />
+            <p class="text">
+              {
+                'Surface body. Close via X, backdrop click, or swipe down (mobile).'
+              }
+            </p>
           </ResponsiveSurface>
         )}
       </For>
@@ -55,10 +54,9 @@ export default function ResponsiveSurfaceExample(): JSX.Element {
         onClose={() => setOpenSize(null)}
         size="medium"
       >
-        <Text
-          variant="body"
-          label="Untitled surface — close control only in the header."
-        />
+        <p class="text">
+          {'Untitled surface — close control only in the header.'}
+        </p>
       </ResponsiveSurface>
     </ExampleRoot>
   );

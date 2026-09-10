@@ -1,5 +1,5 @@
 /** @jsxImportSource solid-js */
-import { Box, LoadingState, ScreenBodyVirtualList, Text } from '@pkgs/ui';
+import { LoadingState, ScreenBodyVirtualList } from '@pkgs/ui';
 import { createMemo, type JSX, Show } from 'solid-js';
 
 import type {
@@ -59,15 +59,9 @@ export function NotificationsList(props: NotificationsListProps): JSX.Element {
   const renderItem = (row: ListRow): JSX.Element => {
     if (row.kind === 'header') {
       return (
-        <Text
-          variant="label"
-          label={row.title}
-          sx={{
-            color: 'textSecondary',
-            pb: 1,
-            pt: 3,
-          }}
-        />
+        <label class="text textLabel text-text-secondary pb-1 pt-3">
+          {row.title}
+        </label>
       );
     }
     if (row.kind === 'loading') {
@@ -82,9 +76,9 @@ export function NotificationsList(props: NotificationsListProps): JSX.Element {
     <Show
       when={!empty()}
       fallback={
-        <Box sx={{ flex: 1 }}>
+        <div class="box flex-1">
           <NotificationsEmptyState filter={props.filter} />
-        </Box>
+        </div>
       }
     >
       <ScreenBodyVirtualList

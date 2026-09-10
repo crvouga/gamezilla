@@ -1,4 +1,4 @@
-import { Box, MenuRow } from '@pkgs/ui';
+import { MenuRow } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 
 export type AccountDeviceMetaPairProps = {
@@ -18,9 +18,12 @@ export function AccountDeviceMetaPair(
     <MenuRow
       title={props.label}
       trailing={
-        <Box sx={{ maxWidth: VALUE_MAX_WIDTH, alignItems: 'flex-end' }}>
+        <div
+          class="box items-end"
+          style={{ 'max-width': `${VALUE_MAX_WIDTH}px` }}
+        >
           {props.valueAtom}
-        </Box>
+        </div>
       }
     />
   );

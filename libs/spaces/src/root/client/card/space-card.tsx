@@ -22,11 +22,14 @@ export function SpaceCard(props: SpaceCardProps): JSX.Element {
     <Show when={endedAt() === null}>
       <SpaceCardOpenLink spaceId={props.spaceId}>
         <SpaceCardGradientBox
-          sx={{
-            borderRadius: SPACE_CARD_BORDER_RADIUS,
-            p: 4,
-            borderWidth: current() ? 2 : 0,
-            ...(current() ? { borderColor: 'onPrimary' as const } : {}),
+          class="p-4"
+          style={{
+            'border-radius': `${SPACE_CARD_BORDER_RADIUS}px`,
+            'border-width': current() ? '2px' : '0',
+            'border-style': 'solid',
+            ...(current()
+              ? { 'border-color': 'var(--ui-color-on-primary)' }
+              : {}),
           }}
         >
           <SpaceSummaryHeader spaceId={props.spaceId} />

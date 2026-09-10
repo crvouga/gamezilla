@@ -1,12 +1,10 @@
 import { useTimers } from '@pkgs/clock/solid';
 import {
-  Box,
   ChevronLeftIcon,
   ChevronRightIcon,
   IconButton,
   PauseIcon,
   PlayIcon,
-  Text,
 } from '@pkgs/ui';
 import { createEffect, createSignal, onCleanup } from 'solid-js';
 
@@ -32,7 +30,7 @@ export function PlayerStrip(props: {
   const playback = usePlayback(props);
   const layout = useSimConsoleLayout();
   return (
-    <Box sx={stripSx}>
+    <div class="box" style={stripSx}>
       <Transport
         compact={layout.compactChrome}
         playing={playback.playing}
@@ -52,7 +50,7 @@ export function PlayerStrip(props: {
         selectedIndex={Math.max(0, props.selectedIndex)}
         onSelect={playback.onPickFrame}
       />
-    </Box>
+    </div>
   );
 }
 
@@ -226,14 +224,9 @@ function Transport(props: {
   const size = () => (props.compact ? TRANSPORT_SIZE_COMPACT : TRANSPORT_SIZE);
   const icon = () => (props.compact ? TRANSPORT_ICON_COMPACT : TRANSPORT_ICON);
   return (
-    <Box
-      sx={{
-        flexDirection: 'row',
-        flexWrap: 'nowrap',
-        alignItems: 'center',
-        gap: props.compact ? 1.5 : 3,
-        minWidth: 0,
-      }}
+    <div
+      class="box flex-row flex-nowrap items-center min-w-[0]"
+      style={{ gap: `${(props.compact ? 1.5 : 3) * 4}px` }}
     >
       <TransportButtons
         size={size()}
@@ -246,15 +239,15 @@ function Transport(props: {
         onNext={props.onNext}
       />
       {props.compact ? null : (
-        <Box sx={{ flexDirection: 'row', alignItems: 'baseline', gap: 0.5 }}>
-          <Text sx={{ color: 'textSecondary', fontSize: 12 }}>
+        <div class="box flex-row items-baseline gap-0.5">
+          <p class="text text-text-secondary text-[12px]">
             {formatMsStable(props.elapsedMs)}
-          </Text>
-          <Text sx={{ color: 'textSecondary', fontSize: 12 }}>/</Text>
-          <Text sx={{ color: 'textSecondary', fontSize: 12 }}>
+          </p>
+          <p class="text text-text-secondary text-[12px]">/</p>
+          <p class="text text-text-secondary text-[12px]">
             {formatMs(props.totalMs)}
-          </Text>
-        </Box>
+          </p>
+        </div>
       )}
       <IconButton
         label="Playback speed"
@@ -262,9 +255,9 @@ function Transport(props: {
         onClick={props.onCycleSpeed}
         background="surface"
       >
-        <Text sx={{ fontSize: 12, color: 'text' }}>{`${props.speed}x`}</Text>
+        <p class="text text-[12px] text-text">{`${props.speed}x`}</p>
       </IconButton>
-    </Box>
+    </div>
   );
 }
 
@@ -279,7 +272,7 @@ function TransportButtons(props: {
   readonly onNext: () => void;
 }) {
   return (
-    <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 1.5 }}>
+    <div class="box flex-row items-center gap-1.5">
       <IconButton
         label="Previous frame"
         size={props.size}
@@ -310,7 +303,7 @@ function TransportButtons(props: {
       >
         <ChevronRightIcon size={props.icon} />
       </IconButton>
-    </Box>
+    </div>
   );
 }
 
@@ -328,12 +321,13 @@ function elapsedBefore(frames: readonly FlatFrame[], index: number): number {
 }
 
 const stripSx = {
-  flexDirection: 'column',
-  borderBottomWidth: 1,
-  borderColor: 'border',
+  'flex-direction': 'column',
+  'border-bottom-width': '1px',
+  'border-color': 'border',
   background: 'surface',
-  paddingTop: 8,
-  paddingHorizontal: 12,
-  flexGrow: 0,
-  flexShrink: 0,
+  'padding-top': '32px',
+  'padding-left': '48px',
+  'padding-right': '48px',
+  'flex-grow': 0,
+  'flex-shrink': 0,
 } as const;

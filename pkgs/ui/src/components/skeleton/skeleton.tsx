@@ -1,4 +1,5 @@
 /** @jsxImportSource solid-js */
+import { cssPx } from '../../css/css-px';
 /**
  * `Skeleton` -- static loading placeholder (no shimmer loop by design).
  *
@@ -9,8 +10,7 @@
  */
 
 import type { JSX } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 
 export type SkeletonProps = {
   width?: number | `${number}%` | undefined;
@@ -22,16 +22,15 @@ export type SkeletonProps = {
 
 export function Skeleton(props: SkeletonProps): JSX.Element {
   return (
-    <Box
-      aria-hidden="true"
-      dataSet={{ component: 'Skeleton', ...props.dataSet }}
-      sx={{
-        width: props.width ?? '100%',
-        height: props.height ?? 16,
-        borderRadius: props.borderRadius ?? 4,
-        overflow: 'hidden',
-        backgroundColor: 'surfaceMuted',
+    <div
+      class="box overflow-hidden bg-surface-muted"
+      {...dataAttrs({ component: 'Skeleton', ...props.dataSet })}
+      style={{
+        'border-radius': cssPx(props.borderRadius ?? 4),
+        width: cssPx(props.width ?? '100%'),
+        height: cssPx(props.height ?? 16),
       }}
+      aria-hidden="true"
     />
   );
 }

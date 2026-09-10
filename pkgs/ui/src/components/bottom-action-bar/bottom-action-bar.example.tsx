@@ -9,7 +9,6 @@ import {
   SettingsIcon,
   ShareIcon,
 } from '../icons';
-import { Text } from '../text';
 import { BottomActionBar } from './bottom-action-bar';
 import type { BottomActionBarItem } from './bottom-action-bar-types';
 
@@ -88,7 +87,7 @@ const BUTTONS_ONLY: readonly BottomActionBarItem[] = [
 
 function SectionLabel(props: { label: string }): JSX.Element {
   return (
-    <Text variant="label" sx={{ color: 'textSecondary' }} label={props.label} />
+    <label class="text textLabel text-text-secondary">{props.label}</label>
   );
 }
 
@@ -96,11 +95,11 @@ export default function BottomActionBarExample(): JSX.Element {
   const mixed = mixedItems();
   return (
     <ExampleRoot>
-      <Text
-        variant="caption"
-        sx={{ color: 'textSecondary' }}
-        label="Chess.com-style play chrome. Mix labeled icon tabs with solid buttons."
-      />
+      <p class="text textCaption text-text-secondary">
+        {
+          'Chess.com-style play chrome. Mix labeled icon tabs with solid buttons.'
+        }
+      </p>
       <SectionLabel label="Actions only" />
       <SchemePreview>
         <BottomActionBar items={ACTIONS_ONLY} />

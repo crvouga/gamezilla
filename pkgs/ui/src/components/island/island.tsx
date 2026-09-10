@@ -4,15 +4,15 @@
  * transparent pass-through so screens keep their mobile spacing.
  */
 
-import { type JSX, Show } from 'solid-js';
+import { type JSX, Show, splitProps } from 'solid-js';
 import type { ComponentDataSet } from '../../component-id';
 import {
   ISLAND_PADDING_STEP,
   ISLAND_RADIUS,
-  type SxInput,
+  spacingScale,
   useLayoutMode,
 } from '../../theme';
-import { Box } from '../box';
+import { Box, joinClass } from '../box';
 import { ContentEdgePaddingProvider } from '../content-edge-padding';
 import { Text } from '../text';
 
@@ -25,7 +25,8 @@ export type IslandProps = {
   actions?: JSX.Element | undefined;
   /** Columns spanned inside an `IslandGrid` (wide only). Defaults to 1. */
   span?: IslandSpan | undefined;
-  sx?: SxInput | undefined;
+  class?: string | undefined;
+  style?: JSX.CSSProperties | undefined;
   children?: JSX.Element | undefined;
   dataSet?: ComponentDataSet | undefined;
 };
@@ -36,13 +37,13 @@ function IslandTitleRow(props: {
   actions: JSX.Element | undefined;
 }): JSX.Element {
   return (
-    <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2, mb: 3 }}>
-      <Box sx={{ flex: 1, minWidth: 0, gap: 0.5 }}>
+    <Box class="flex-row items-center gap-2 mb-3">
+      <Box class="flex-1 min-w-0 gap-0.5">
         <Text variant="subtitle" as="h2" label={props.title} />
         <Show when={props.caption !== undefined && props.caption !== null}>
           <Text
             variant="caption"
-            sx={{ color: 'textSecondary' }}
+            class="text-text-secondary"
             label={props.caption}
           />
         </Show>
@@ -57,20 +58,16 @@ function IslandWide(props: IslandProps): JSX.Element {
   return (
     <Box
       as="section"
-      sx={[
-        {
-          backgroundColor: 'surfaceElevated',
-          borderRadius: ISLAND_RADIUS,
-          borderWidth: 1,
-          borderStyle: 'solid',
-          borderColor: 'border',
-          elevation: 1,
-          overflow: 'hidden',
-          p: ISLAND_PADDING_STEP,
-          gridColumn: `span ${props.span ?? 1}`,
-        },
-        props.sx,
-      ]}
+      class={joinClass(
+        'bg-surface-elevated border border-solid border-border overflow-hidden',
+        props.class
+      )}
+      style={{
+        'border-radius': `${ISLAND_RADIUS}px`,
+        padding: `${spacingScale(ISLAND_PADDING_STEP)}px`,
+        'grid-column': `span ${props.span ?? 1}`,
+        ...props.style,
+      }}
       dataSet={{ component: 'Island', ...props.dataSet }}
     >
       <ContentEdgePaddingProvider step={ISLAND_PADDING_STEP}>
@@ -89,16 +86,30 @@ function IslandWide(props: IslandProps): JSX.Element {
 
 export function Island(props: IslandProps): JSX.Element {
   const mode = useLayoutMode();
+  const [local, rest] = splitProps(props, [
+    'title',
+    'caption',
+    'actions',
+    'span',
+    'class',
+    'style',
+    'children',
+    'dataSet',
+  ]);
   return (
     <Show
       when={mode() === 'wide'}
       fallback={
-        <Box sx={props.sx} dataSet={{ component: 'Island', ...props.dataSet }}>
-          {props.children}
+        <Box
+          class={local.class}
+          style={local.style}
+          dataSet={{ component: 'Island', ...local.dataSet }}
+        >
+          {local.children}
         </Box>
       }
     >
-      <IslandWide {...props} />
+      <IslandWide {...local} {...rest} />
     </Show>
   );
 }

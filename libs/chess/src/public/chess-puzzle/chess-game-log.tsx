@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/solid/macro';
-import { Box, Text } from '@pkgs/ui';
 import { For, type JSX, Show } from 'solid-js';
 
 import type { ChessPuzzleGameLogEntry } from '../chess-puzzle-stats';
@@ -15,14 +14,12 @@ export function ChessGameLog(props: ChessGameLogProps): JSX.Element {
     <Show
       when={props.entries.length > 0}
       fallback={
-        <Text
-          variant="body"
-          sx={{ color: 'textSecondary' }}
-          label={<Trans>No puzzles played yet.</Trans>}
-        />
+        <p class="text text-text-secondary">
+          {<Trans>No puzzles played yet.</Trans>}
+        </p>
       }
     >
-      <Box sx={{ gap: 2, alignSelf: 'stretch' }}>
+      <div class="box gap-2 self-stretch">
         <For each={props.entries}>
           {(entry) => (
             <ChessGameLogRow
@@ -31,7 +28,7 @@ export function ChessGameLog(props: ChessGameLogProps): JSX.Element {
             />
           )}
         </For>
-      </Box>
+      </div>
     </Show>
   );
 }

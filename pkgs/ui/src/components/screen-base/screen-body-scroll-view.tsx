@@ -10,7 +10,7 @@
  */
 
 import { type JSX, splitProps } from 'solid-js';
-import { Box } from '../box';
+import { joinClass } from '../box/box';
 import { ScrollView, type ScrollViewProps } from '../scroll-view';
 
 export type ScreenBodyScrollViewProps = ScrollViewProps;
@@ -18,14 +18,14 @@ export type ScreenBodyScrollViewProps = ScrollViewProps;
 export function ScreenBodyScrollView(
   props: ScreenBodyScrollViewProps
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['frameSx', 'dataSet']);
+  const [local, rest] = splitProps(props, ['class', 'dataSet']);
   return (
-    <Box sx={{ flex: 1, minHeight: 0 }}>
+    <div class="flex-1 min-h-0">
       <ScrollView
-        frameSx={[{ flex: 1 }, local.frameSx]}
+        class={joinClass('flex-1', local.class)}
         dataSet={{ component: 'ScreenBodyScrollView', ...local.dataSet }}
         {...rest}
       />
-    </Box>
+    </div>
   );
 }

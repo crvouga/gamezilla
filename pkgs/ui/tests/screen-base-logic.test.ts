@@ -101,13 +101,13 @@ describe('breadcrumb helpers', () => {
 
 describe('body helpers', () => {
   test('buildBodyContentProps flexes non-scroll bodies and forwards titleScroll', () => {
-    expect(buildBodyContentProps(true, undefined)).toEqual({ sx: {} });
+    expect(buildBodyContentProps(true, undefined)).toEqual({ bodyClass: '' });
     expect(buildBodyContentProps(false, undefined)).toEqual({
-      sx: { flex: 1, minHeight: 0 },
+      bodyClass: 'flex-1 min-h-0',
     });
     const titleScroll = { onScroll: noop };
     expect(buildBodyContentProps(false, titleScroll)).toEqual({
-      sx: { flex: 1, minHeight: 0 },
+      bodyClass: 'flex-1 min-h-0',
       titleScroll,
     });
   });

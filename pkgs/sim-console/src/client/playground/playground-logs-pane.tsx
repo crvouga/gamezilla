@@ -1,4 +1,4 @@
-import { Box, EmptyState, ScrollView, Text } from '@pkgs/ui';
+import { EmptyState, ScrollView } from '@pkgs/ui';
 import { createEffect, createSignal, For, onCleanup, Show } from 'solid-js';
 
 import type {
@@ -27,19 +27,16 @@ export function PlaygroundLogsPane(props: {
     <Show
       when={entries().length > 0}
       fallback={
-        <Box sx={{ flex: 1, minHeight: 0, padding: 8 }}>
+        <div class="box flex-1 min-h-[0] p-[8px]">
           <EmptyState
             variant="compact"
             title="No logs yet"
             body="HTTP traffic for this node will appear here."
           />
-        </Box>
+        </div>
       }
     >
-      <ScrollView
-        frameSx={{ flex: 1, minHeight: 0 }}
-        sx={{ padding: 6, gap: 1 }}
-      >
+      <ScrollView class="flex-1 min-h-[0]" contentClass="p-[6px] gap-1">
         <For each={newestFirst()}>{(entry) => <LogRow entry={entry} />}</For>
       </ScrollView>
     </Show>
@@ -49,39 +46,18 @@ export function PlaygroundLogsPane(props: {
 function LogRow(props: { readonly entry: PlaygroundLogEntry }) {
   const { entry } = props;
   return (
-    <Box
-      sx={{
-        flexDirection: 'row',
-        gap: 2,
-        paddingVertical: 3,
-        borderBottomWidth: 1,
-        borderColor: 'border',
-        alignItems: 'flex-start',
-      }}
-    >
-      <Text
-        sx={{
-          color: levelColor(entry.level),
-          fontSize: 10,
-          fontWeight: '600',
-          width: 40,
-          flexShrink: 0,
-        }}
+    <div class="box flex-row gap-2 [padding-top:3px;padding-bottom:3px] border-b border-border items-start">
+      <p
+        class="text text-[10px] font-semibold w-[40px] shrink-0"
+        style={{ color: levelColor(entry.level) }}
       >
         {entry.level.toUpperCase()}
-      </Text>
-      <Text
-        sx={{
-          color: 'textSecondary',
-          fontSize: 10,
-          width: 72,
-          flexShrink: 0,
-        }}
-      >
+      </p>
+      <p class="text text-text-secondary text-[10px] w-[72px] shrink-0">
         {formatTime(entry.at)}
-      </Text>
-      <Text sx={{ color: 'text', fontSize: 11, flex: 1 }}>{entry.msg}</Text>
-    </Box>
+      </p>
+      <p class="text text-text text-[11px] flex-1">{entry.msg}</p>
+    </div>
   );
 }
 

@@ -12,8 +12,7 @@ import { useLingui } from '@lingui/solid/macro';
 import type { LocalizedString } from '@pkgs/i18n/localized-string';
 import { createMemo, createSignal, type JSX } from 'solid-js';
 
-import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { ScrollView } from '../scroll-view';
 import { type CatalogItem, filterCatalogItems } from './catalog-item';
 import { CatalogListRows } from './catalog-list-rows';
@@ -39,9 +38,10 @@ export function CatalogList(props: CatalogListProps): JSX.Element {
   const bleed = () => props.screenBodyBleed === true;
 
   return (
-    <Box
-      sx={[{ flex: 1, minHeight: 0, gap: 3 }, !bleed() && { p: 4 }]}
-      dataSet={{ component: 'CatalogList', ...props.dataSet }}
+    <div
+      class="box flex-1 min-h-[0] gap-3"
+      {...dataAttrs({ component: 'CatalogList', ...props.dataSet })}
+      style={bleed() ? undefined : { padding: '16px' }}
     >
       <CatalogListSearch
         value={query()}
@@ -49,12 +49,15 @@ export function CatalogList(props: CatalogListProps): JSX.Element {
         placeholder={props.searchPlaceholder ?? t`Search…`}
       />
       <ScrollView
-        frameSx={{ flex: 1 }}
+        class="flex-1"
         flushEdge={bleed()}
-        sx={{ gap: 6, pb: 16 }}
+        contentStyle={{
+          gap: 'var(--ui-space-6)',
+          'padding-bottom': 'var(--ui-space-16)',
+        }}
       >
         <CatalogListRows items={filtered()} onSelect={props.onSelect} />
       </ScrollView>
-    </Box>
+    </div>
   );
 }

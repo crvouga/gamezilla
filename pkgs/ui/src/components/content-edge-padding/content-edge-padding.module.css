@@ -1,0 +1,13 @@
+/* Flush-edge bleed: CSS vars set on the wrapper so content inherits them. */
+.wrapper {
+  min-height: 0;
+  margin-left: calc(-1 * var(--ui-flush-edge-x, 0px));
+  margin-right: calc(-1 * var(--ui-flush-edge-x, 0px));
+  margin-bottom: calc(-1 * var(--ui-flush-edge-b, 0px));
+}
+
+.content {
+  padding-left: var(--ui-flush-edge-x, 0px);
+  padding-right: var(--ui-flush-edge-x, 0px);
+  padding-bottom: var(--ui-flush-edge-b, 0px);
+}

@@ -5,10 +5,8 @@
  */
 
 import { For, type JSX, Show } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { Chip } from '../chip';
-import { Text } from '../text';
 
 export type ChipGroupOption<K extends string = string> = {
   key: K;
@@ -32,20 +30,17 @@ export function ChipGroup<K extends string = string>(
   props: ChipGroupProps<K>
 ): JSX.Element {
   return (
-    <Box
-      sx={{ gap: 2, py: 1 }}
-      dataSet={{ component: 'ChipGroup', ...props.dataSet }}
+    <div
+      class="box gap-2 py-1"
+      {...dataAttrs({ component: 'ChipGroup', ...props.dataSet })}
     >
       <Show when={props.label !== undefined}>
-        <Text variant="label" label={props.label} />
+        <label class="text textLabel">{props.label}</label>
       </Show>
-      <Box
-        role="radiogroup"
-        sx={{ flexDirection: 'row', flexWrap: 'wrap', gap: 2 }}
-      >
+      <div class="box flex-row flex-wrap gap-2" role="radiogroup">
         <For each={props.options}>
           {(opt) => (
-            <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 1 }}>
+            <div class="box flex-row items-center gap-1">
               {opt.icon}
               <Chip
                 role="radio"
@@ -55,10 +50,10 @@ export function ChipGroup<K extends string = string>(
                 onClick={() => props.onSelect(opt.key)}
                 dataSet={{ key: opt.key }}
               />
-            </Box>
+            </div>
           )}
         </For>
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }

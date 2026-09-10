@@ -1,4 +1,5 @@
 /** @jsxImportSource solid-js */
+import { cssPx } from '../../css/css-px';
 /**
  * `AppFrame` -- root shell. Compact: full-bleed column. Wide: sunken canvas
  * with a max-width, gutters, and an optional header island above the body.
@@ -12,7 +13,6 @@ import {
   ISLAND_GAP_STEP,
   useLayoutMode,
 } from '../../theme';
-import { Box } from '../box';
 import { ContentEdgePaddingProvider } from '../content-edge-padding';
 import { useAppFrameHeader } from './app-frame-chrome';
 
@@ -25,32 +25,28 @@ export type AppFrameProps = {
 function AppFrameWide(props: AppFrameProps): JSX.Element {
   const header = useAppFrameHeader(() => props.header ?? null);
   return (
-    <Box
-      as="main"
-      sx={{ flex: 1, minHeight: 0, background: 'surfaceSunken' }}
-      dataSet={{ component: 'AppFrame', mode: 'wide' }}
+    <main
+      class="box flex-1 min-h-[0] bg-surface-sunken"
+      data-component="AppFrame"
+      data-mode="wide"
     >
       <ContentEdgePaddingProvider step={0}>
-        <Box
-          sx={{
-            flex: 1,
-            minHeight: 0,
-            width: '100%',
-            maxWidth: APP_MAX_WIDTH,
-            alignSelf: 'center',
-            px: APP_FRAME_GUTTER_STEP,
-            pt: APP_FRAME_GUTTER_STEP,
-            pb: APP_FRAME_GUTTER_STEP,
-            gap: ISLAND_GAP_STEP,
+        <div
+          class="box flex-1 min-h-[0] w-[100%] self-center"
+          style={{
+            'max-width': cssPx(APP_MAX_WIDTH),
+            'padding-left': `${APP_FRAME_GUTTER_STEP * 4}px`,
+            'padding-right': `${APP_FRAME_GUTTER_STEP * 4}px`,
+            'padding-top': `${APP_FRAME_GUTTER_STEP * 4}px`,
+            'padding-bottom': `${APP_FRAME_GUTTER_STEP * 4}px`,
+            gap: `${ISLAND_GAP_STEP * 4}px`,
           }}
         >
           {header()}
-          <Box sx={{ flex: 1, minHeight: 0, minWidth: 0 }}>
-            {props.children}
-          </Box>
-        </Box>
+          <div class="box flex-1 min-h-[0] min-w-[0]">{props.children}</div>
+        </div>
       </ContentEdgePaddingProvider>
-    </Box>
+    </main>
   );
 }
 
@@ -60,13 +56,13 @@ export function AppFrame(props: AppFrameProps): JSX.Element {
     <Show
       when={mode() === 'wide'}
       fallback={
-        <Box
-          as="main"
-          sx={{ flex: 1, minHeight: 0 }}
-          dataSet={{ component: 'AppFrame', mode: 'compact' }}
+        <main
+          class="box flex-1 min-h-[0]"
+          data-component="AppFrame"
+          data-mode="compact"
         >
           {props.children}
-        </Box>
+        </main>
       }
     >
       <AppFrameWide {...props} />

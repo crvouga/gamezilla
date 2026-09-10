@@ -8,7 +8,6 @@ import { Trans, useLingui } from '@lingui/solid/macro';
 import type { SyncEngineStatus } from '@pkgs/sync-engine/client';
 import { useSyncEngine } from '@pkgs/sync-engine/solid';
 import {
-  Box,
   Button,
   MenuRow,
   MenuSection,
@@ -16,7 +15,6 @@ import {
   ScreenBase,
   StatusDot,
   type StatusDotStatus,
-  Text,
 } from '@pkgs/ui';
 import { type Accessor, type JSX, Show } from 'solid-js';
 
@@ -66,12 +64,12 @@ function StateSection(props: {
       footer={
         <Show when={lastError()}>
           {(err) => (
-            <Text
-              variant="caption"
-              sx={{ color: 'destructive', userSelect: 'text' }}
-              label={err()}
-              dataSet={{ testid: 'sync-last-error' }}
-            />
+            <p
+              class="text textCaption text-destructive select-text"
+              data-testid="sync-last-error"
+            >
+              {err()}
+            </p>
           )}
         </Show>
       }
@@ -116,8 +114,8 @@ export function SyncScreen(): JSX.Element {
         { name: <Trans>Sync</Trans> },
       ]}
       scroll
-      content={({ sx }) => (
-        <Box sx={[sx, { gap: 5 }]}>
+      content={({ bodyClass }) => (
+        <div class={`box ${`${bodyClass}`} gap-5`}>
           <MenuSection>
             <MenuRow
               title={t`Connection`}
@@ -135,7 +133,7 @@ export function SyncScreen(): JSX.Element {
             />
           </MenuSection>
           <StateSection status={status()} />
-          <Box sx={{ alignSelf: 'stretch' }}>
+          <div class="box self-stretch">
             <Button
               title={t`Retry sync`}
               intent="neutral"
@@ -144,8 +142,8 @@ export function SyncScreen(): JSX.Element {
               onClick={onRetry}
               dataSet={{ testid: 'sync-retry' }}
             />
-          </Box>
-        </Box>
+          </div>
+        </div>
       )}
     />
   );

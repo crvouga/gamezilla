@@ -1,4 +1,3 @@
-import { Box } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
 
@@ -23,7 +22,7 @@ export function SpaceGuestSection(props: SpaceGuestSectionProps): JSX.Element {
   const membershipIds = useSpaceGuestMembershipIds(props.spaceId);
   return (
     <Show when={membershipIds().length > 0}>
-      <Box sx={{ mt: 3, gap: 1.5 }}>
+      <div class="box mt-3 gap-1.5">
         <SpaceGuestCountText spaceId={props.spaceId} variant="caption" />
         <SpaceGuestAvatarGroup
           spaceId={props.spaceId}
@@ -36,7 +35,7 @@ export function SpaceGuestSection(props: SpaceGuestSectionProps): JSX.Element {
           variant="caption"
           numberOfLines={1}
         />
-      </Box>
+      </div>
     </Show>
   );
 }

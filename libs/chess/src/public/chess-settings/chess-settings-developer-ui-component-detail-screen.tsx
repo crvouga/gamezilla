@@ -4,7 +4,7 @@ import {
   useSpaceRoomSelector,
 } from '@libs/spaces/public/room/use-space-room-selector';
 import { Trans } from '@lingui/solid/macro';
-import { Box, EmptyState, ExplorerDetail } from '@pkgs/ui';
+import { EmptyState, ExplorerDetail } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 
 import {
@@ -33,7 +33,7 @@ export function ChessSettingsDeveloperUiComponentDetailScreen(): JSX.Element {
   };
 
   return (
-    <Box sx={{ alignSelf: 'stretch', flex: 1, minHeight: 0 }}>
+    <div class="box self-stretch flex-1 min-h-[0]">
       <DefineBackButton onPress={back} />
       {selectedName() === null ? (
         <EmptyState
@@ -47,6 +47,6 @@ export function ChessSettingsDeveloperUiComponentDetailScreen(): JSX.Element {
           onNavigate={onNavigate}
         />
       )}
-    </Box>
+    </div>
   );
 }

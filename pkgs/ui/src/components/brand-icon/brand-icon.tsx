@@ -12,8 +12,7 @@
 import type { JSX } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import type { ComponentDataSet } from '../../component-id';
-import type { SxInput } from '../../theme';
-import { Box } from '../box';
+import { Box, joinClass } from '../box';
 import { BRAND_ICON_REGISTRY, type BrandIconName } from './brand-icon-registry';
 
 export type { BrandIconName };
@@ -22,7 +21,8 @@ export type BrandIconProps = {
   name: BrandIconName;
   /** Square size in pixels. Defaults to 20. */
   size?: number | undefined;
-  sx?: SxInput | undefined;
+  class?: string | undefined;
+  style?: JSX.CSSProperties | undefined;
   dataSet?: ComponentDataSet | undefined;
 };
 
@@ -30,15 +30,9 @@ export function BrandIcon(props: BrandIconProps): JSX.Element {
   return (
     <Box
       as="span"
+      class={joinClass('inline-flex items-center justify-center', props.class)}
+      style={props.style}
       dataSet={{ component: 'BrandIcon', brand: props.name, ...props.dataSet }}
-      sx={[
-        {
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        },
-        props.sx,
-      ]}
     >
       <Dynamic
         component={BRAND_ICON_REGISTRY[props.name]}

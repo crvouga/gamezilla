@@ -1,8 +1,6 @@
 /** @jsxImportSource solid-js */
 import { For, type JSX } from 'solid-js';
-import { Box } from '../box';
 import { ExampleRoot } from '../explorer/example-root';
-import { Text } from '../text';
 import { ScrollView } from './scroll-view';
 
 const ITEMS = Array.from({ length: 20 }, (_, i) => i + 1);
@@ -10,25 +8,22 @@ const ITEMS = Array.from({ length: 20 }, (_, i) => i + 1);
 export default function ScrollViewExample(): JSX.Element {
   return (
     <ExampleRoot>
-      <Box
-        sx={{
-          height: 200,
-          borderWidth: 1,
-          borderStyle: 'solid',
-          borderColor: 'border',
-          borderRadius: 8,
-        }}
-      >
-        <ScrollView sx={{ p: 3, gap: 2 }}>
+      <div class="box h-[200px] border border-solid border-border rounded-[8px]">
+        <ScrollView
+          contentStyle={{
+            padding: 'var(--ui-space-3)',
+            gap: 'var(--ui-space-2)',
+          }}
+        >
           <For each={ITEMS}>
             {(n) => (
-              <Box sx={{ p: 3, background: 'surface', borderRadius: 6 }}>
-                <Text variant="body" label={`Item ${n}`} />
-              </Box>
+              <div class="box p-3 bg-surface rounded-[6px]">
+                <p class="text">{`Item ${n}`}</p>
+              </div>
             )}
           </For>
         </ScrollView>
-      </Box>
+      </div>
     </ExampleRoot>
   );
 }

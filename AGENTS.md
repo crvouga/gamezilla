@@ -33,7 +33,7 @@
 
 - **Domain rows are soft-delete only.** Removals set managed `deleted_at` (never `DELETE FROM` domain tables). `defineQuery` snapshots **include** soft-deleted rows (tombstones on the wire, with `deleted_at` selected); UI / live client reads filter `deleted_at IS NULL`. Sync-engine merge upserts snapshot rows verbatim (including `deleted_at`) and rebases pending `sync_engine_mutations` on top — no absence GC, no `_row_scopes`. Unsubscribe / denied only clears `sync_engine_scope_meta`. Mutation `tx` rejects domain hard deletes at apply/replay (`NO_HARD_DELETE`). Framework tables (`sync_engine_mutations`, `sync_engine_scope_meta`, `sync_engine_write_rejections`, `sync_engine_mutations_applied`) may still hard-delete.
 
-- **Style only through `@pkgs/ui` `sx`.** Do not pass `style` / `contentContainerStyle` props directly in product or composed UI. Layout primitives (`Box`, `Text`, `Stack`, `ScrollView`) take `sx` (and scroll/list hosts use `frameSx` for the scroller). Only `@pkgs/ui` host adapters compile `sx` onto the native `style` prop. Crash UI (`root-error-boundary.tsx`) is the sole product exception. CI: Biome plugin `no-inline-style-prop.grit` (via `bun run lint`).
+- **Style with Solid builtins via `@pkgs/ui`.** Prefer `class` / `classList` for layout and tokens; use `style` only for dynamic values hosts cannot express as classes. Do **not** use `sx` / `frameSx` / `fieldSx` (removed). Scroll/list hosts take frame `class`/`style` and content `contentClass`/`contentStyle`. Crash UI (`root-error-boundary.tsx`) may still need exceptional inline styles. CI: Biome plugin `no-inline-style-prop.grit` (via `bun run lint`) bans `sx` / `frameSx` / `fieldSx`.
 
 - **Three-layer DI (primitives / use cases / transaction-scoped).** Only `SqlClient` + `Io` are long-lived. Use-case classes take `(db, io)` and open transactions for writes (reads pass `db` as `SqlTx` without a write tx). Repositories/services/publishers/handlers take `SqlTx` (`Pick` of `query`/`run` from `SqlClient`) + `Io`, constructed on demand inside the use case — never eagerly on a container. Factory **functions** `(tx, io) => …` are the wiring escape hatch; no `*Container` / registry classes. Do not convert `defineMutation` / `defineQuery` `run` handlers or Solid hooks. Details: [`docs/dependency-injection.md`](docs/dependency-injection.md). CI: Biome plugin `no-di-container.grit` (via `bun run lint`).
 
@@ -58,7 +58,7 @@ pkgs/ui/src/
 
 1. Implement it under `pkgs/ui/src/components/<name>/<name>.tsx` (and an `index.ts` re-export inside the folder).
 2. Add the public export to `pkgs/ui/src/components/index.ts`.
-3. Style with `sx` on `Box` / `Text` / `Stack` — never `style` / `StyleSheet`. Runtime adapters call `useHostSx('<PascalName>', sx, dataSet)`; composed components set `dataSet={{ component: '<PascalName>', ...dataSet }}` on the root Box (see `pkgs/ui/src/component-id/`).
+3. Style with `class` / `classList` / `style` on `Box` / `Text` / `Stack` — never `sx`. Composed components set `dataSet={{ component: '<PascalName>', ...dataSet }}` on the root (see `pkgs/ui/src/component-id/`).
 4. `bun run --filter @pkgs/ui tc` and root `bun run lint` verify it wires up.
 
 **DOM identifiers (dev + E2E only):** On web, every `@pkgs/ui` host exposes `data-component="<Name>"`. `ScreenBase` requires `screenId` and renders `data-screen`. These are stripped from production web bundles (`VITE_E2E` keeps them on for browser E2E).
@@ -74,7 +74,7 @@ Every mutation should make its outcome obvious. Pick the surface by weight, not 
 
 `useMutationButton` and `MutationModal` both build on `useMutationLifecycle`, so the phase semantics stay identical across modal and inline surfaces.
 
-Centered modals (`ModalContent`, `ResponsiveSurface`, `ConfirmationModal`, `MutationModal`) use width buckets only: `size="small" | "medium" | "large" | "fullWidth"` (default `medium`). Confirm dialogs stay on `medium`; wide inspectors use `large`; near-edge layouts use `fullWidth`. Do not pass custom width via `sx`.
+Centered modals (`ModalContent`, `ResponsiveSurface`, `ConfirmationModal`, `MutationModal`) use width buckets only: `size="small" | "medium" | "large" | "fullWidth"` (default `medium`). Confirm dialogs stay on `medium`; wide inspectors use `large`; near-edge layouts use `fullWidth`. Do not pass custom width via ad-hoc style when a size bucket fits.
 
 ## CI / Turbo cache
 

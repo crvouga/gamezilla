@@ -16,14 +16,12 @@ import {
   type JSX,
   onCleanup,
   Show,
+  splitProps,
 } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
-import type { SxInput } from '../../theme';
-import { Box } from '../box';
-import { Clickable } from '../clickable';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
+import { type DivBoxProps, joinClass } from '../box';
 import { CircleCheckIcon, CopyIcon } from '../icons';
 import { Motion } from '../motion';
-import { Text } from '../text';
 
 export const DEFAULT_COPIED_RESET_MS = 2000;
 const ICON_SIZE = 22;
@@ -31,7 +29,7 @@ const ICON_SIZE = 22;
 /** Injected clipboard sink. */
 export type ClipboardCopy = (text: string) => Promise<void>;
 
-export type CopyToClipboardFieldProps = {
+export type CopyToClipboardFieldProps = Omit<DivBoxProps, 'children'> & {
   /** String written to the clipboard on click. */
   value: string;
   /** Clipboard sink (injected from the composition root). */
@@ -46,7 +44,6 @@ export type CopyToClipboardFieldProps = {
   copiedResetMs?: number | undefined;
   /** When true, the value is user-selectable as well as copy-on-click. */
   selectable?: boolean | undefined;
-  sx?: SxInput | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
 };
@@ -56,22 +53,33 @@ export function CopyToClipboardField(
 ): JSX.Element {
   const { t } = useLingui();
   const timers = useTimers();
+  const [local, rest] = splitProps(props, [
+    'value',
+    'copy',
+    'label',
+    'helperText',
+    'copiedLabel',
+    'copiedResetMs',
+    'selectable',
+    'class',
+    'dataSet',
+  ]);
   const [copied, setCopied] = createSignal(false);
   const copiedLabel = (): LocalizedString =>
-    props.copiedLabel ?? t`Copied to clipboard`;
+    local.copiedLabel ?? t`Copied to clipboard`;
 
   createEffect(() => {
     if (!copied()) return;
     const id = timers.setTimeout(
       () => setCopied(false),
-      props.copiedResetMs ?? DEFAULT_COPIED_RESET_MS
+      local.copiedResetMs ?? DEFAULT_COPIED_RESET_MS
     );
     onCleanup(() => timers.clearTimeout(id));
   });
 
   const onCopy = async (): Promise<void> => {
     try {
-      await props.copy(props.value);
+      await local.copy(local.value);
     } catch {
       return;
     }
@@ -79,51 +87,41 @@ export function CopyToClipboardField(
   };
 
   return (
-    <Box
-      sx={[{ gap: 1 }, props.sx]}
-      dataSet={{ component: 'CopyToClipboardField', ...props.dataSet }}
+    <div
+      class={joinClass('box gap-1', local.class)}
+      {...dataAttrs({ component: 'CopyToClipboardField', ...local.dataSet })}
+      {...rest}
     >
-      <Show when={props.label !== undefined}>
-        <Text variant="label" label={props.label} />
+      <Show when={local.label !== undefined}>
+        <label class="text textLabel">{local.label}</label>
       </Show>
-      <Clickable
+      <button
+        class="clickable clickableOpacity flex-row items-center gap-2 border border-outline rounded-[10px] bg-surface-muted py-2.5 px-3 text-left"
+        data-component="CopyToClipboardTrigger"
+        data-copied={String(copied())}
+        type="button"
         aria-label={copied() ? copiedLabel() : t`Copy to clipboard`}
         onClick={() => {
           void onCopy();
         }}
-        feedback="opacity"
-        dataSet={{
-          component: 'CopyToClipboardTrigger',
-          copied: String(copied()),
-        }}
-        sx={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 2,
-          borderWidth: 1,
-          borderColor: 'outline',
-          borderRadius: 'md',
-          backgroundColor: 'surfaceMuted',
-          paddingVertical: 10,
-          paddingHorizontal: 12,
-          textAlign: 'left',
-        }}
       >
-        <Box sx={{ flex: 1, minWidth: 0 }}>
-          <Text
-            variant="body"
-            sx={{ userSelect: props.selectable === false ? 'none' : 'text' }}
-            label={props.value}
-          />
-        </Box>
+        <div class="box flex-1 min-w-0">
+          <p
+            class="text"
+            style={{
+              'user-select': local.selectable === false ? 'none' : 'text',
+            }}
+          >
+            {local.value}
+          </p>
+        </div>
         <Motion
+          class="items-center justify-center"
+          style={{
+            transform: `scale(${copied() ? 1.1 : 1})`,
+          }}
           duration="fast"
           property="transform, color"
-          sx={{
-            alignItems: 'center',
-            justifyContent: 'center',
-            transform: [{ scale: copied() ? 1.1 : 1 }],
-          }}
         >
           <Show
             when={copied()}
@@ -132,19 +130,19 @@ export function CopyToClipboardField(
             <CircleCheckIcon size={ICON_SIZE} color="tint" />
           </Show>
         </Motion>
-      </Clickable>
-      <Box role="status" aria-live="polite" sx={{ minHeight: 18 }}>
+      </button>
+      <div class="box min-h-[18px]" role="status" aria-live="polite">
         <Show
           when={copied()}
           fallback={
-            <Show when={props.helperText !== undefined}>
-              <Text variant="caption" label={props.helperText} />
+            <Show when={local.helperText !== undefined}>
+              <p class="text textCaption">{local.helperText}</p>
             </Show>
           }
         >
-          <Text variant="caption" label={copiedLabel()} />
+          <p class="text textCaption">{copiedLabel()}</p>
         </Show>
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }

@@ -5,14 +5,7 @@
  */
 
 import { Trans, useLingui } from '@lingui/solid/macro';
-import {
-  Box,
-  GaugeIcon,
-  MenuRow,
-  MenuSection,
-  ScreenBase,
-  Switch,
-} from '@pkgs/ui';
+import { GaugeIcon, MenuRow, MenuSection, ScreenBase, Switch } from '@pkgs/ui';
 import { type JSX, Show } from 'solid-js';
 
 import { usePerfHudPreference } from '../../shell/perf/perf-hud-preference';
@@ -57,8 +50,8 @@ export function PerformanceSettingsScreen(): JSX.Element {
         { name: <Trans>Performance</Trans> },
       ]}
       scroll
-      content={({ sx }) => (
-        <Box sx={[sx, { gap: 5 }]}>
+      content={({ bodyClass }) => (
+        <div class={`box ${`${bodyClass}`} gap-5`}>
           <MenuSection
             footer={
               <Trans>
@@ -84,7 +77,7 @@ export function PerformanceSettingsScreen(): JSX.Element {
           <Show when={enabled()}>
             <LiveMetrics />
           </Show>
-        </Box>
+        </div>
       )}
     />
   );

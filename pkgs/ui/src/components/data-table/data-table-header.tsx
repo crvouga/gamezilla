@@ -1,11 +1,10 @@
 /** @jsxImportSource solid-js */
+
 import { useLingui } from '@lingui/solid/macro';
 import { For, type JSX, Show } from 'solid-js';
+import { cssPx } from '../../css/css-px';
 
-import { Box } from '../box';
 import { Checkbox } from '../checkbox';
-import { Clickable } from '../clickable';
-import { Text } from '../text';
 import styles from './data-table.module.css';
 import { DATA_TABLE_SELECTION_COL_WIDTH } from './data-table-metrics';
 import type { DataTableColumn, DataTableOrderDir } from './data-table-types';
@@ -39,12 +38,9 @@ export function DataTableHeader<T>(props: {
               class={`${styles['cell']} ${styles['selectionCell']}`}
               scope="col"
             >
-              <Box
-                sx={{
-                  width: DATA_TABLE_SELECTION_COL_WIDTH,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
+              <div
+                class="box items-center justify-center"
+                style={{ width: cssPx(DATA_TABLE_SELECTION_COL_WIDTH) }}
               >
                 <Checkbox
                   checked={selection().checked}
@@ -52,7 +48,7 @@ export function DataTableHeader<T>(props: {
                   onToggle={selection().onToggle}
                   aria-label={t`Select all rows on this page`}
                 />
-              </Box>
+              </div>
             </th>
           )}
         </Show>
@@ -95,17 +91,9 @@ function HeaderCell<T>(props: {
   const label = () => `${props.column.header}${marker()}`;
   const justify = () => ALIGN_TO_JUSTIFY[props.column.align ?? 'start'];
   const text = () => (
-    <Text
-      sx={{
-        color: 'textSecondary',
-        fontWeight: '500',
-        textTransform: 'uppercase',
-        letterSpacing: 1,
-        fontSize: 10,
-      }}
-      numberOfLines={1}
-      label={label()}
-    />
+    <p class="text line-clamp-1 text-text-secondary font-medium uppercase tracking-[1px] text-[10px]">
+      {label()}
+    </p>
   );
   return (
     <th
@@ -116,33 +104,28 @@ function HeaderCell<T>(props: {
       <Show
         when={sortable()}
         fallback={
-          <Box
-            sx={{
-              minWidth: props.column.width,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: justify(),
-              height: '100%',
+          <div
+            class="box flex-row items-center h-[100%]"
+            style={{
+              'min-width': cssPx(props.column.width),
+              'justify-content': justify(),
             }}
           >
             {text()}
-          </Box>
+          </div>
         }
       >
-        <Clickable
-          onClick={() => props.onToggleSort(props.column.id)}
-          feedback="none"
-          sx={{
-            minWidth: props.column.width,
-            minHeight: 40,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: justify(),
-            width: '100%',
+        <button
+          class="clickable min-h-[40px] flex-row items-center w-[100%]"
+          type="button"
+          style={{
+            'min-width': cssPx(props.column.width),
+            'justify-content': justify(),
           }}
+          onClick={() => props.onToggleSort(props.column.id)}
         >
           {text()}
-        </Clickable>
+        </button>
       </Show>
     </th>
   );

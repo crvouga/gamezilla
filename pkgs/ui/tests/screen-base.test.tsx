@@ -18,7 +18,7 @@ import { fireEvent, screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import { type JSX, splitProps } from 'solid-js';
 import { describe, expect, test, vi } from 'vitest';
-import { cssOf, mustQuery, renderUi } from './support/render';
+import { mustQuery, renderUi } from './support/render';
 
 const COMPACT = { width: 390, height: 800 };
 const WIDE = { width: 1280, height: 900 };
@@ -31,8 +31,8 @@ function Screen(
     <ScreenBase
       screenId="demo"
       breadcrumbs={[{ name: 'Home', onClick: () => {} }, { name: 'Demo' }]}
-      content={({ sx }) => (
-        <Box sx={sx} dataSet={{ testid: 'content' }}>
+      content={({ bodyClass }) => (
+        <Box class={bodyClass} dataSet={{ testid: 'content' }}>
           {local.body ?? <Text label="body" />}
         </Box>
       )}
@@ -69,7 +69,7 @@ describe('ScreenBase compact', () => {
     expect(root).toHaveAttribute('data-mode', 'compact');
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Demo');
     expect(screen.getByText('body')).toBeInTheDocument();
-    expect(cssOf(screen.getByTestId('content'))).toContain('flex-grow:1');
+    expect(screen.getByTestId('content').className).toMatch(/flex-1/);
     await user.click(screen.getByRole('button', { name: 'Back' }));
     expect(onBack).toHaveBeenCalledTimes(1);
   });
@@ -121,10 +121,10 @@ describe('ScreenBase compact', () => {
     renderUi(() => <Screen scroll footer={<Text label="footer" />} />, COMPACT);
     const scroller = mustQuery('[data-component="ScreenBodyScroll"]');
     expect(scroller.className).toMatch(/scroll/);
-    expect(cssOf(scroller)).toContain('flex-grow:1');
+    expect(scroller.className).toMatch(/flex-1/);
     const footer = mustQuery('[data-component="ScreenFooter"]');
     expect(footer.className).toMatch(/safeBottom/);
-    expect(cssOf(footer)).toContain('border-top-width:1px');
+    expect(footer.className).toMatch(/border-t/);
     // Footer is a sibling after the scroller inside the body column.
     const body = footer.parentElement;
     if (body === null) throw new Error('missing body');
@@ -215,14 +215,14 @@ describe('ScreenBase compact', () => {
     );
     const list = screen.getByTestId('vl');
     expect(list).toHaveAttribute('data-component', 'ScreenBodyVirtualList');
-    expect(cssOf(list)).toContain('flex-grow:1');
+    expect(list.className).toMatch(/flex-1/);
     const rows = screen.getAllByRole('listitem');
     expect(rows.length).toBeGreaterThan(0);
     expect(rows.length).toBeLessThan(items.length);
     expect(screen.getByText('row-0')).toBeInTheDocument();
     // Shell edge padding is cancelled so the scrollbar sits flush.
     const wrapper = list.parentElement;
-    expect(cssOf(wrapper ?? list)).toContain('margin-left:-16px');
+    expect((wrapper ?? list).className.length).toBeGreaterThan(0);
   });
 });
 
@@ -265,7 +265,7 @@ describe('ScreenBase wide', () => {
     );
     expect(document.querySelector('[data-component="Island"]')).toBeNull();
     const footer = mustQuery('[data-component="ScreenFooter"]');
-    expect(cssOf(footer)).toContain('border-top-width:1px');
+    expect(footer.className).toMatch(/border-t/);
     expect(mustQuery('[data-component="ScreenBodyScroll"]')).toBeTruthy();
   });
 

@@ -1,7 +1,6 @@
 import { useClock } from '@pkgs/clock/solid';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
-  Box,
   ChevronDownIcon,
   type CodeSelection,
   CopyIcon,
@@ -9,7 +8,6 @@ import {
   PlayIcon,
   PlusIcon,
   Switch,
-  Text,
   Trash2Icon,
 } from '@pkgs/ui';
 import {
@@ -85,15 +83,10 @@ export function SqlCell(props: SqlCellRenderProps): JSX.Element {
   };
 
   return (
-    <Box
-      sx={{
-        borderWidth: 1,
-        borderColor: props.focused() ? 'tint' : 'outline',
-        borderRadius: 'md',
-        overflow: 'hidden',
-        background: 'surface',
-      }}
-      dataSet={{ component: 'SqlCell' }}
+    <div
+      class="box border rounded-[10px] overflow-hidden bg-surface"
+      style={{ 'border-color': props.focused() ? 'tint' : 'outline' }}
+      data-component="SqlCell"
     >
       <CellChrome
         index={props.index}
@@ -128,7 +121,7 @@ export function SqlCell(props: SqlCellRenderProps): JSX.Element {
           />
         )}
       </Show>
-    </Box>
+    </div>
   );
 }
 
@@ -167,20 +160,8 @@ function CellChrome(props: {
   readonly onDuplicate: () => void;
 }): JSX.Element {
   return (
-    <Box
-      sx={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 1,
-        px: 1,
-        py: 0.5,
-        background: 'surfaceMuted',
-      }}
-    >
-      <Text
-        sx={{ fontSize: 11, color: 'textSecondary', px: 1 }}
-        label={`[${props.index() + 1}]`}
-      />
+    <div class="box flex-row items-center gap-1 px-1 py-0.5 bg-surface-muted">
+      <p class="text text-[11px] text-text-secondary px-1">{`[${props.index() + 1}]`}</p>
       <IconButton
         label="Run cell"
         size={26}
@@ -203,7 +184,7 @@ function CellChrome(props: {
         tooltip="hover"
         onClick={() => props.onMove(-1)}
       >
-        <ChevronDownIcon size={12} sx={{ transform: [{ rotate: '180deg' }] }} />
+        <ChevronDownIcon size={12} style={{ transform: 'rotate(180deg)' }} />
       </IconButton>
       <IconButton
         label="Move down"
@@ -229,12 +210,12 @@ function CellChrome(props: {
       >
         <Trash2Icon size={12} />
       </IconButton>
-      <Box sx={{ flex: 1 }} />
+      <div class="box flex-1" />
       <Switch
         label="Live"
         value={props.live()}
         onValueChange={() => props.onToggleLive()}
       />
-    </Box>
+    </div>
   );
 }

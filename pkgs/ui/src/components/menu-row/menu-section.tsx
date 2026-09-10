@@ -16,9 +16,7 @@
  */
 
 import { type JSX, Show } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
-import { Text } from '../text';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { MenuList } from './menu-list';
 
 export type MenuSectionProps = {
@@ -35,24 +33,19 @@ export type MenuSectionProps = {
 
 export function MenuSection(props: MenuSectionProps): JSX.Element {
   return (
-    <Box
-      as="section"
-      sx={{ gap: 1 }}
-      dataSet={{ component: 'MenuSection', ...props.dataSet }}
+    <section
+      class="box gap-1"
+      {...dataAttrs({ component: 'MenuSection', ...props.dataSet })}
     >
       <Show when={props.title !== undefined && props.title !== null}>
-        <Text
-          variant="label"
-          as="h3"
-          numberOfLines={1}
-          sx={{ color: 'textSecondary' }}
-          label={props.title}
-        />
+        <h3 class="text textLabel line-clamp-1 text-text-secondary">
+          {props.title}
+        </h3>
       </Show>
       <MenuList separator={props.separator}>{props.children}</MenuList>
       <Show when={props.footer !== undefined && props.footer !== null}>
-        <Text variant="caption" label={props.footer} />
+        <p class="text textCaption">{props.footer}</p>
       </Show>
-    </Box>
+    </section>
   );
 }

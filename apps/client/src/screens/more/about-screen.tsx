@@ -7,7 +7,6 @@
 import { useLingui as useLinguiRuntime } from '@lingui/solid';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import {
-  Box,
   CopyToClipboardField,
   MenuRow,
   MenuSection,
@@ -87,8 +86,8 @@ export function AboutScreen(): JSX.Element {
         { name: <Trans>About</Trans> },
       ]}
       scroll
-      content={({ sx }) => (
-        <Box sx={[sx, { gap: 5 }]}>
+      content={({ bodyClass }) => (
+        <div class={`box ${`${bodyClass}`} gap-5`}>
           <MenuSection title={<Trans>App</Trans>}>
             <MenuRow title={t`Name`} value={APP_NAME} />
             <MenuRow title={t`Version`} value={APP_VERSION} />
@@ -110,7 +109,7 @@ export function AboutScreen(): JSX.Element {
               />
             )}
           </Show>
-        </Box>
+        </div>
       )}
     />
   );

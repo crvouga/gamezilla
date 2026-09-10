@@ -1,4 +1,5 @@
 /** @jsxImportSource solid-js */
+import { cssPx } from '../../css/css-px';
 /**
  * Phase bodies for {@link MutationModal}: idle (confirm / form), loading,
  * success (dismissible), error (retryable). Loading / success / error share
@@ -8,7 +9,6 @@
 import { useLingui } from '@lingui/solid/macro';
 import { type JSX, Show } from 'solid-js';
 import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
 import { ErrorState } from '../error-state';
 import { LoadingState } from '../loading-state';
 import { ModalBody, ModalButton, ModalFooter } from '../modal/modal-parts';
@@ -38,15 +38,12 @@ export type MutationModalIds = {
 
 function StateArea(props: { children: JSX.Element }): JSX.Element {
   return (
-    <Box
-      sx={{
-        justifyContent: 'center',
-        height: MUTATION_STATE_AREA_HEIGHT,
-        overflow: 'hidden',
-      }}
+    <div
+      class="box justify-center overflow-hidden"
+      style={{ height: cssPx(MUTATION_STATE_AREA_HEIGHT) }}
     >
       {props.children}
-    </Box>
+    </div>
   );
 }
 
@@ -58,7 +55,12 @@ function FooterSlot(props: {
     <ModalFooter>
       <Show
         when={props.children !== undefined}
-        fallback={<Box sx={{ minHeight: FOOTER_ACTION_MIN_HEIGHT }} />}
+        fallback={
+          <div
+            class="box"
+            style={{ 'min-height': cssPx(FOOTER_ACTION_MIN_HEIGHT) }}
+          />
+        }
       >
         {props.children}
       </Show>
@@ -155,7 +157,7 @@ export function MutationIdle(props: {
         when={props.children !== undefined}
         fallback={<ModalBody message={props.message} />}
       >
-        <Box sx={{ mb: 4 }}>{props.children}</Box>
+        <div class="box mb-4">{props.children}</div>
       </Show>
       <ModalFooter>
         <ModalButton

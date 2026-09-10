@@ -10,19 +10,11 @@
  *
  * Hover/press is delegated to {@link Clickable}'s tint overlay. Exposes
  * `aria-pressed` so the selected state is announced.
- *
- * @example
- * ```tsx
- * <Chip label="Solid" selected={sel()} onClick={() => setSel(!sel())} />
- * <Chip label="With icon" startIcon={<PlusIcon size={16} />} />
- * ```
  */
 
 import { type JSX, Show } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
-import { Clickable } from '../clickable';
-import { Text } from '../text';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
+import { colorVar } from '../../theme';
 
 export type ChipProps = {
   label: JSX.Element;
@@ -47,53 +39,41 @@ export function Chip(props: ChipProps): JSX.Element {
   const selected = (): boolean => props.selected === true;
   const role = (): 'button' | 'radio' => props.role ?? 'button';
   return (
-    <Clickable
+    <button
+      class="clickable clickableTint self-start flex-row items-center justify-center gap-1.5 px-3 rounded-[9999px] border border-solid [transition-property:background-color,_border-color,_color] [transition-duration:var(--ui-duration-fast)]"
+      {...dataAttrs({ component: 'Chip', ...props.dataSet })}
+      type="button"
+      style={{
+        'border-color': selected() ? colorVar('tint') : colorVar('border'),
+        'background-color': selected()
+          ? colorVar('tintHighlight')
+          : colorVar('surface'),
+        height: `${CHIP_HEIGHT}px`,
+        'min-width': `${CHIP_MIN_WIDTH}px`,
+        opacity: props.disabled === true ? 0.5 : 1,
+      }}
       role={role()}
       aria-pressed={role() === 'button' ? selected() : undefined}
       aria-checked={role() === 'radio' ? selected() : undefined}
       onClick={() => props.onClick?.()}
       disabled={props.disabled === true}
-      dataSet={{ component: 'Chip', ...props.dataSet }}
-      sx={{
-        alignSelf: 'flex-start',
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 1.5,
-        px: 3,
-        height: CHIP_HEIGHT,
-        minWidth: CHIP_MIN_WIDTH,
-        borderRadius: 'full',
-        borderWidth: 1,
-        borderColor: selected() ? 'tint' : 'border',
-        backgroundColor: selected() ? 'tintHighlight' : 'surface',
-        opacity: props.disabled === true ? 0.5 : 1,
-        transitionProperty: 'background-color, border-color, color',
-        transitionDuration: 'var(--ui-duration-fast)',
-      }}
     >
       <Show when={props.startIcon !== undefined}>
-        <Box
-          sx={{
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: CHIP_ICON_SIZE,
-          }}
+        <div
+          class="box items-center justify-center"
+          style={{ height: `${CHIP_ICON_SIZE}px` }}
         >
           {props.startIcon}
-        </Box>
+        </div>
       </Show>
-      <Text
-        variant="label"
-        numberOfLines={1}
-        sx={{
-          color: selected() ? 'tint' : 'text',
-          fontSize: 13,
-          lineHeight: 18,
-          fontWeight: '600',
+      <span
+        class="text textLabel line-clamp-1 text-[13px] leading-[18px] font-semibold"
+        style={{
+          color: selected() ? colorVar('tint') : colorVar('text'),
         }}
-        label={props.label}
-      />
-    </Clickable>
+      >
+        {props.label}
+      </span>
+    </button>
   );
 }

@@ -3,8 +3,6 @@ import { useLingui } from '@lingui/solid/macro';
 import { createSignal, type JSX } from 'solid-js';
 import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
-import { Stack } from '../stack';
-import { Text } from '../text';
 import { CodeEditor } from './code-editor';
 import type { CodeToken, CodeTokenKind } from './code-editor-types';
 
@@ -41,8 +39,8 @@ export default function CodeEditorExample(): JSX.Element {
   return (
     <ExampleRoot>
       <SchemePreview>
-        <Stack spacing={3}>
-          <Text variant="label" label="SQL-ish editor" />
+        <div class="box flex-col gap-3">
+          <label class="text textLabel">{'SQL-ish editor'}</label>
           <CodeEditor
             value={value()}
             onChangeText={setValue}
@@ -50,7 +48,7 @@ export default function CodeEditorExample(): JSX.Element {
             minLines={5}
             aria-label={t`Demo code editor`}
           />
-        </Stack>
+        </div>
       </SchemePreview>
     </ExampleRoot>
   );

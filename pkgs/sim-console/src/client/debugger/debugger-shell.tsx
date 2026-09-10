@@ -1,4 +1,4 @@
-import { Box, TabStrip, type TabStripItem } from '@pkgs/ui';
+import { TabStrip, type TabStripItem } from '@pkgs/ui';
 import { type JSX, mergeProps } from 'solid-js';
 import type { DebuggerViewId } from '../../shared/debugger-views';
 import { coerceSimChromeKind, type SimChromeKind } from '../../shared/sim-node';
@@ -64,9 +64,9 @@ export function DebuggerShell(input: DebuggerShellProps): JSX.Element {
     });
 
   return (
-    <Box sx={shellSx}>
+    <div class="box" style={shellSx}>
       {props.header}
-      <Box onPointerDown={() => props.onChromePointerDown?.()}>
+      <div class="box" onPointerDown={() => props.onChromePointerDown?.()}>
         {props.showPlayer ? (
           <PlayerStrip
             frames={props.frames}
@@ -77,7 +77,9 @@ export function DebuggerShell(input: DebuggerShellProps): JSX.Element {
         {layout.compactChrome &&
         props.kindTrailing !== undefined &&
         props.unifiedNodes === undefined ? (
-          <Box sx={trailingOnlySx}>{props.kindTrailing}</Box>
+          <div class="box" style={trailingOnlySx}>
+            {props.kindTrailing}
+          </div>
         ) : null}
         {props.unifiedNodes !== undefined ? (
           <TabStrip
@@ -118,9 +120,11 @@ export function DebuggerShell(input: DebuggerShellProps): JSX.Element {
             onSelect={(id) => props.onViewChange(id as DebuggerViewId)}
           />
         ) : null}
-      </Box>
-      <Box sx={paneSx}>{props.children}</Box>
-    </Box>
+      </div>
+      <div class="box" style={paneSx}>
+        {props.children}
+      </div>
+    </div>
   );
 }
 
@@ -143,7 +147,9 @@ function KindChrome(props: {
           trailing={props.kindTrailing}
         />
       ) : props.kindTrailing === undefined ? null : (
-        <Box sx={trailingOnlySx}>{props.kindTrailing}</Box>
+        <div class="box" style={trailingOnlySx}>
+          {props.kindTrailing}
+        </div>
       )}
     </>
   );
@@ -151,25 +157,25 @@ function KindChrome(props: {
 
 const shellSx = {
   flex: 1,
-  flexDirection: 'column',
-  minHeight: 0,
+  'flex-direction': 'column',
+  'min-height': 0,
 } as const;
 
 const paneSx = {
   flex: 1,
-  minHeight: 0,
+  'min-height': 0,
   background: 'background',
 } as const;
 
 const trailingOnlySx = {
-  flexDirection: 'row',
-  alignItems: 'center',
-  paddingLeft: 4,
-  paddingRight: 4,
-  paddingTop: 2,
-  paddingBottom: 2,
-  borderBottomWidth: 1,
-  borderColor: 'border',
+  'flex-direction': 'row',
+  'align-items': 'center',
+  'padding-left': '16px',
+  'padding-right': '16px',
+  'padding-top': '8px',
+  'padding-bottom': '8px',
+  'border-bottom-width': '1px',
+  'border-color': 'border',
   background: 'surfaceMuted',
-  minWidth: 0,
+  'min-width': 0,
 } as const;

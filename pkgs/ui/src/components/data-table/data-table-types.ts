@@ -1,7 +1,6 @@
 import type { JSX } from 'solid-js';
 
 import type { ComponentDataSet } from '../../component-id';
-import type { SxInput } from '../../theme';
 
 export type DataTableOrderDir = 'asc' | 'desc';
 
@@ -68,7 +67,8 @@ export type DataTableProps<T> = {
   readonly onSelectedKeysChange?:
     | ((keys: readonly string[]) => void)
     | undefined;
-  readonly sx?: SxInput | undefined;
+  readonly class?: string | undefined;
+  readonly style?: JSX.CSSProperties | string | undefined;
   readonly dataSet?: ComponentDataSet | undefined;
 };
 

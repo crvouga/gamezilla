@@ -7,7 +7,6 @@
 import { useTimers } from '@pkgs/clock/solid';
 import { createSignal, type JSX, onCleanup } from 'solid-js';
 import { ExampleRoot } from '../explorer/example-root';
-import { Text } from '../text';
 import { SpeakingAvatar } from './speaking-avatar';
 
 const ROTATING_LINES = [
@@ -33,21 +32,21 @@ function RotatingMessage(): JSX.Element {
 
 export default function SpeakingAvatarExample(): JSX.Element {
   return (
-    <ExampleRoot sx={{ gap: 6 }}>
-      <Text variant="caption" label="Static message" />
+    <ExampleRoot class="gap-6">
+      <p class="text textCaption">{'Static message'}</p>
       <SpeakingAvatar message="Hello! I'm your puzzle coach." speak={false} />
 
-      <Text variant="caption" label="Rotating message (re-types on change)" />
+      <p class="text textCaption">{'Rotating message (re-types on change)'}</p>
       <RotatingMessage />
 
-      <Text variant="caption" label="Custom seed (different face)" />
+      <p class="text textCaption">{'Custom seed (different face)'}</p>
       <SpeakingAvatar
         message="Different seed, different face."
         seed="bishop"
         speak={false}
       />
 
-      <Text variant="caption" label="Smaller avatar (compact layout)" />
+      <p class="text textCaption">{'Smaller avatar (compact layout)'}</p>
       <SpeakingAvatar
         message="Tighter layout for compact screens."
         avatarSize={40}

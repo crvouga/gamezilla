@@ -29,7 +29,6 @@
 
 import { createEffect, type JSX, Match, on, Switch } from 'solid-js';
 import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
 import {
   type MutationPhase,
   type MutationStateTransition,
@@ -186,11 +185,10 @@ export function MutationModal(props: MutationModalProps): JSX.Element {
       stackId={props.stackId}
       dataSet={{ component: 'MutationModal', ...props.dataSet }}
     >
-      <Box
-        dataSet={{
-          component: 'MutationStateTransition',
-          phase: lifecycle.phase(),
-        }}
+      <div
+        class="box"
+        data-component="MutationStateTransition"
+        data-phase={lifecycle.phase()}
       >
         <Switch
           fallback={
@@ -226,7 +224,7 @@ export function MutationModal(props: MutationModalProps): JSX.Element {
             />
           </Match>
         </Switch>
-      </Box>
+      </div>
     </ResponsiveSurface>
   );
 }

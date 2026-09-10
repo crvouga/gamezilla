@@ -3,7 +3,6 @@ import { useIsSignedIn } from '@libs/auth/public/use-current-user';
 import { Handles } from '@libs/test-ids';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import {
-  Box,
   EmptyState,
   Gamepad2Icon,
   PlusIcon,
@@ -84,13 +83,10 @@ function SpacesList(props: {
       fallback={<SpacesEmptyState onCreateSpace={props.onCreateSpace} />}
     >
       <ScreenBodyScrollView
-        sx={{
-          display: 'grid',
-          alignItems: 'flex-start',
-          gridTemplateColumns:
+        contentClass="grid items-start gap-3 pb-[24px]"
+        contentStyle={{
+          'grid-template-columns':
             mode() === 'wide' ? 'repeat(2, minmax(0, 1fr))' : 'minmax(0, 1fr)',
-          gap: 3,
-          paddingBottom: 24,
         }}
       >
         <For each={orderedIds()}>
@@ -139,11 +135,11 @@ export function SpacesScreen(): JSX.Element {
       surface="canvas"
       breadcrumbs={[{ name: <Trans>Spaces</Trans> }]}
       primaryAction={primaryAction()}
-      content={({ sx }) => (
+      content={({ bodyClass }) => (
         // Lobby cards are cards already — never nest them inside an Island.
-        <Box sx={sx}>
+        <div class={`box ${bodyClass}`}>
           <SpacesList onCreateSpace={onCreateSpace} />
-        </Box>
+        </div>
       )}
     />
   );

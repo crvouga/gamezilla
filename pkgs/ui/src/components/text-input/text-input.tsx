@@ -10,7 +10,7 @@ import type { LocalizedString } from '@pkgs/i18n';
 import { type JSX, Show, splitProps } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import { type ComponentDataSet, componentDataAttrs } from '../../component-id';
-import { type SxInput, spacingScale, useThemeTokens } from '../../theme';
+import { spacingScale } from '../../theme';
 import { Box, joinClass } from '../box/box';
 import styles from '../hosts.module.css';
 import { Text } from '../text';
@@ -43,10 +43,14 @@ export type TextInputProps = Omit<
    * non-interactive; the text inset grows to make room.
    */
   startAdornment?: JSX.Element | undefined;
-  /** Utility-first style shorthand for the outer wrapper. */
-  sx?: SxInput | undefined;
-  /** Style the field itself (height, font). */
-  fieldSx?: SxInput | undefined;
+  /** Extra classes on the outer wrapper. */
+  class?: string | undefined;
+  /** Inline styles on the outer wrapper. */
+  style?: JSX.CSSProperties | undefined;
+  /** Extra classes on the field itself. */
+  fieldClass?: string | undefined;
+  /** Inline styles on the field itself. */
+  fieldStyle?: JSX.CSSProperties | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
   ref?: ((el: HTMLInputElement | HTMLTextAreaElement) => void) | undefined;
@@ -75,7 +79,7 @@ function FieldFooter(props: {
         <Text
           variant="caption"
           role="alert"
-          sx={{ color: 'destructive' }}
+          class="text-destructive"
           label={error()}
         />
       )}
@@ -93,9 +97,9 @@ type FieldLocal = Pick<
   | 'multiline'
   | 'rows'
   | 'secureTextEntry'
-  | 'fieldSx'
+  | 'fieldClass'
+  | 'fieldStyle'
   | 'ref'
-  | 'class'
   | 'type'
   | 'onKeyDown'
 > & { hasError: boolean; hasAdornment: boolean };
@@ -109,19 +113,16 @@ function fieldType(local: FieldLocal): string | undefined {
 function Field(
   props: FieldLocal & { rest: Record<string, unknown> }
 ): JSX.Element {
-  const tokens = useThemeTokens();
-  const fieldStyle = () =>
-    tokens.css([
-      {
-        minHeight: FIELD_MIN_HEIGHT,
-        py: 2,
-        pl: props.hasAdornment ? ADORNMENT_WIDTH_STEP : FIELD_PX_STEP,
-        pr: FIELD_PX_STEP,
-        fontSize: 'base',
-        lineHeight: 24,
-      },
-      props.fieldSx,
-    ]);
+  const fieldStyle = (): JSX.CSSProperties => ({
+    'min-height': `${FIELD_MIN_HEIGHT}px`,
+    'padding-top': `${spacingScale(2)}px`,
+    'padding-bottom': `${spacingScale(2)}px`,
+    'padding-left': `${spacingScale(props.hasAdornment ? ADORNMENT_WIDTH_STEP : FIELD_PX_STEP)}px`,
+    'padding-right': `${spacingScale(FIELD_PX_STEP)}px`,
+    'font-size': 'var(--ui-font-size-base)',
+    'line-height': '24px',
+    ...props.fieldStyle,
+  });
   const onKeyDown = (event: KeyboardEvent): void => {
     const handler = props.onKeyDown;
     if (typeof handler === 'function') {
@@ -140,7 +141,7 @@ function Field(
         styles['input'],
         props.hasError && styles['inputError'],
         props.multiline && styles['inputTextarea'],
-        props.class
+        props.fieldClass
       )}
       style={fieldStyle()}
       type={fieldType(props)}
@@ -163,15 +164,8 @@ function StartAdornment(props: { children: JSX.Element }): JSX.Element {
   return (
     <Box
       aria-hidden="true"
-      sx={{
-        position: 'absolute',
-        left: 0,
-        top: 0,
-        bottom: 0,
-        pl: FIELD_PX_STEP,
-        justifyContent: 'center',
-        pointerEvents: 'none',
-      }}
+      class="absolute inset-y-0 left-0 justify-center pointer-events-none"
+      style={{ 'padding-left': `${spacingScale(FIELD_PX_STEP)}px` }}
     >
       {props.children}
     </Box>
@@ -181,7 +175,15 @@ function StartAdornment(props: { children: JSX.Element }): JSX.Element {
 export function TextInput(props: TextInputProps): JSX.Element {
   const [local, field, rest] = splitProps(
     props,
-    ['label', 'error', 'helperText', 'startAdornment', 'sx', 'dataSet'],
+    [
+      'label',
+      'error',
+      'helperText',
+      'startAdornment',
+      'class',
+      'style',
+      'dataSet',
+    ],
     [
       'value',
       'onChangeText',
@@ -191,9 +193,9 @@ export function TextInput(props: TextInputProps): JSX.Element {
       'multiline',
       'rows',
       'secureTextEntry',
-      'fieldSx',
+      'fieldClass',
+      'fieldStyle',
       'ref',
-      'class',
       'type',
       'onKeyDown',
     ]
@@ -202,13 +204,14 @@ export function TextInput(props: TextInputProps): JSX.Element {
     local.startAdornment !== undefined && local.startAdornment !== null;
   return (
     <Box
-      sx={[{ gap: 1 }, local.sx]}
+      class={joinClass('gap-1', local.class)}
+      style={local.style}
       dataSet={{ component: 'TextInput', ...local.dataSet }}
     >
       <Show when={local.label !== undefined}>
         <Text variant="label" as="label" label={local.label} />
       </Show>
-      <Box sx={{ position: 'relative' }}>
+      <Box class="relative">
         <Field
           {...field}
           hasError={local.error !== undefined}

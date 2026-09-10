@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/solid/macro';
-import { Box, ScreenBase, useRouter } from '@pkgs/ui';
+import { ScreenBase, useRouter } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { useMyAccountId } from '../../../public/use-current-user';
 import { AccountDevicesCard } from './account-devices-card';
@@ -24,13 +24,13 @@ export function AccountDevicesScreen(): JSX.Element {
         { name: <Trans>Devices</Trans> },
       ]}
       scroll
-      content={({ sx }) => (
-        <Box sx={[sx, { gap: 5 }]}>
+      content={({ bodyClass }) => (
+        <div class={`box gap-5 ${bodyClass}`}>
           <AccountDevicesCard
             accountId={accountId()}
             onOpenDevice={onOpenDevice}
           />
-        </Box>
+        </div>
       )}
     />
   );

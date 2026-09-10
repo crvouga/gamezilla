@@ -6,7 +6,6 @@
 
 import { Trans, useLingui } from '@lingui/solid/macro';
 import {
-  Box,
   CheckIcon,
   type IconComponent,
   MenuRow,
@@ -75,7 +74,7 @@ function ThemeOptionRow(props: {
       trailing={
         <Show
           when={props.selected}
-          fallback={<Box sx={{ width: CHECK_SIZE }} />}
+          fallback={<div class="box" style={{ width: `${CHECK_SIZE}px` }} />}
         >
           <CheckIcon size={CHECK_SIZE} color="tint" />
         </Show>
@@ -98,8 +97,8 @@ export function ThemeSettingsScreen(): JSX.Element {
         { name: <Trans>Settings</Trans>, href: '/more' },
         { name: <Trans>Appearance</Trans> },
       ]}
-      content={({ sx }) => (
-        <Box sx={[sx, { gap: 5 }]}>
+      content={({ bodyClass }) => (
+        <div class={`box ${`${bodyClass}`} gap-5`}>
           <MenuSection title={<Trans>Theme</Trans>}>
             <For each={options()}>
               {(option) => (
@@ -111,7 +110,7 @@ export function ThemeSettingsScreen(): JSX.Element {
               )}
             </For>
           </MenuSection>
-        </Box>
+        </div>
       )}
     />
   );

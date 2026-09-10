@@ -4,11 +4,10 @@ import { isSoundId, type SoundId, Sounds } from '@pkgs/sounds';
 import { useOptionalSoundEngine } from '@pkgs/sounds/solid';
 import {
   Avatar,
-  Box,
   Button,
   ChevronRightIcon,
   CircleCheckIcon,
-  Clickable,
+  dataAttrs,
   type MutationStateTransition,
   Text,
   Trash2Icon,
@@ -155,26 +154,20 @@ function InteractionRowText(props: {
     )
   );
   return (
-    <Box sx={{ flex: 1, minWidth: 0, gap: 1 }}>
+    <div class="box flex-1 min-w-[0] gap-1">
       <Text
         variant={props.interaction.isUnread ? 'bodyBold' : 'body'}
-        numberOfLines={3}
-        label={props.interaction.title}
-      />
-      <Text
-        variant="caption"
-        sx={{ color: 'textSecondary' }}
-        label={relative()}
-      />
+        class="line-clamp-3"
+      >
+        {props.interaction.title}
+      </Text>
+      <p class="text textCaption text-text-secondary">{relative()}</p>
       <Show when={detailParts().length > 0}>
-        <Text
-          variant="caption"
-          sx={{ color: 'textSecondary' }}
-          label={detailParts().join(' · ')}
-          numberOfLines={2}
-        />
+        <p class="text textCaption line-clamp-2 text-text-secondary">
+          {detailParts().join(' · ')}
+        </p>
       </Show>
-    </Box>
+    </div>
   );
 }
 
@@ -193,7 +186,7 @@ function InteractionRowTrailing(props: {
       <Match
         when={props.showInlineActions && props.interaction.actions.length > 0}
       >
-        <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 0.5 }}>
+        <div class="box flex-row items-center gap-0.5">
           <For each={props.interaction.actions}>
             {(action) => (
               <NotificationActionButton
@@ -204,7 +197,7 @@ function InteractionRowTrailing(props: {
               />
             )}
           </For>
-        </Box>
+        </div>
       </Match>
       <Match when={props.showChevron}>
         <ChevronRightIcon size={18} color={theme.colors.icon} />
@@ -258,12 +251,11 @@ export function NotificationCardDefault(
   );
 
   const main = (): JSX.Element => (
-    <Box
-      sx={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 3,
-        py: ROW_VERTICAL_PADDING,
+    <div
+      class="box flex-row items-center gap-3"
+      style={{
+        'padding-top': `${ROW_VERTICAL_PADDING * 4}px`,
+        'padding-bottom': `${ROW_VERTICAL_PADDING * 4}px`,
       }}
     >
       {props.leading ?? <DefaultLeading interaction={props.interaction} />}
@@ -273,9 +265,13 @@ export function NotificationCardDefault(
         fallback={<InteractionRowText interaction={props.interaction} />}
       >
         {(press) => (
-          <Clickable onClick={press} sx={{ flex: 1, minWidth: 0 }}>
+          <button
+            class="clickable clickableTint flex-1 min-w-[0]"
+            type="button"
+            onClick={press}
+          >
             <InteractionRowText interaction={props.interaction} />
-          </Clickable>
+          </button>
         )}
       </Show>
       <InteractionRowTrailing
@@ -285,23 +281,29 @@ export function NotificationCardDefault(
         showChevron={rowPress() !== undefined}
         actionTestID={props.actionTestID}
       />
-    </Box>
+    </div>
   );
 
   return (
     <Switch>
       <Match when={rowPress() !== undefined}>
-        <Clickable
-          onClick={() => rowPress()?.()}
-          dataSet={
+        <button
+          class="clickable clickableTint"
+          {...dataAttrs(
             props.testID !== undefined ? { testid: props.testID } : undefined
-          }
+          )}
+          type="button"
+          onClick={() => rowPress()?.()}
         >
           {main()}
-        </Clickable>
+        </button>
       </Match>
       <Match when={props.testID} keyed>
-        {(testID) => <Box dataSet={{ testid: testID }}>{main()}</Box>}
+        {(testID) => (
+          <div class="box" data-testid={testID}>
+            {main()}
+          </div>
+        )}
       </Match>
       <Match when={true}>{main()}</Match>
     </Switch>

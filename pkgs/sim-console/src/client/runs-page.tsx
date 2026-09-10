@@ -1,14 +1,11 @@
 import {
   Badge,
-  Box,
-  Clickable,
   createMemoryPageLoader,
   DataTable,
   type DataTableColumn,
   type DataTableOrderDir,
   IconButton,
   ScrollView,
-  Text,
   Trash2Icon,
   useTheme,
 } from '@pkgs/ui';
@@ -50,12 +47,12 @@ export function RunsPage(props: {
   const state = useRunsPageState(props);
 
   return (
-    <Box sx={appShellSx}>
+    <div class="box" style={appShellSx}>
       <ReportHeader
         meta={`${props.bucketId} · ${props.runs.length} run${props.runs.length === 1 ? '' : 's'} · gen ${props.generation}`}
       />
-      <ScrollView frameSx={appBodyFrameSx} sx={bodySx}>
-        <Box sx={{ flex: 1, minHeight: 280, alignSelf: 'stretch' }}>
+      <ScrollView style={appBodyFrameSx} contentStyle={bodySx}>
+        <div class="box flex-1 min-h-[280px] self-stretch">
           <DataTable
             columns={state.columns}
             loadPage={state.loadPage}
@@ -71,9 +68,9 @@ export function RunsPage(props: {
             selectedKeys={state.selectedKeys}
             onSelectedKeysChange={state.setSelectedKeys}
           />
-        </Box>
+        </div>
       </ScrollView>
-    </Box>
+    </div>
   );
 }
 
@@ -135,9 +132,15 @@ function buildRunColumns(args: {
       width: 160,
       sortable: true,
       cell: (r) => (
-        <Clickable onClick={() => onOpenRun(r.id)}>
-          <Text sx={testIdSx} label={r.id} />
-        </Clickable>
+        <button
+          class="clickable clickableTint"
+          type="button"
+          onClick={() => onOpenRun(r.id)}
+        >
+          <p class="text" style={testIdSx}>
+            {r.id}
+          </p>
+        </button>
       ),
     },
     {

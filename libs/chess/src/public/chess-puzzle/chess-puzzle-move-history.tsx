@@ -1,4 +1,4 @@
-import { Box, ScrollView } from '@pkgs/ui';
+import { ScrollView } from '@pkgs/ui';
 import { createEffect, createSignal, For, type JSX, Show } from 'solid-js';
 
 import type { PuzzleHistoryPly } from '../chess-puzzle-move-history';
@@ -38,28 +38,17 @@ function MoveHistoryScroll(props: {
   };
 
   return (
-    <Box
-      dataSet={{ testid: 'chess-puzzle-move-history' }}
-      sx={{
-        alignSelf: 'stretch',
-        height: ROW_HEIGHT,
-        background: 'surfaceMuted',
-        borderRadius: 8,
-        justifyContent: 'center',
-      }}
+    <div
+      class="box self-stretch bg-surface-muted rounded-[8px] justify-center"
+      style={{ height: `${ROW_HEIGHT}px` }}
+      data-testid="chess-puzzle-move-history"
     >
       <ScrollView
+        class="flex-1 min-w-[0]"
+        contentClass="flex-row flex-nowrap items-center px-3 gap-2"
+        contentStyle={{ 'min-height': `${ROW_HEIGHT}px` }}
         horizontal
         hideScrollbar
-        frameSx={{ flex: 1, minWidth: 0 }}
-        sx={{
-          flexDirection: 'row',
-          flexWrap: 'nowrap',
-          alignItems: 'center',
-          px: 3,
-          gap: 2,
-          minHeight: ROW_HEIGHT,
-        }}
       >
         <For each={props.plies}>
           {(ply) => (
@@ -73,7 +62,7 @@ function MoveHistoryScroll(props: {
           )}
         </For>
       </ScrollView>
-    </Box>
+    </div>
   );
 }
 
@@ -84,14 +73,10 @@ export function ChessPuzzleMoveHistory(
     <Show
       when={props.plies.length > 0}
       fallback={
-        <Box
-          dataSet={{ testid: 'chess-puzzle-move-history' }}
-          sx={{
-            alignSelf: 'stretch',
-            height: ROW_HEIGHT,
-            background: 'surfaceMuted',
-            borderRadius: 8,
-          }}
+        <div
+          class="box self-stretch bg-surface-muted rounded-[8px]"
+          style={{ height: `${ROW_HEIGHT}px` }}
+          data-testid="chess-puzzle-move-history"
         />
       }
     >

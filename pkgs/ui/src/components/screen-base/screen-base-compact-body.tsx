@@ -6,7 +6,6 @@
  */
 
 import { type JSX, Show } from 'solid-js';
-import { Box } from '../box';
 import { ContentEdgePaddingProvider } from '../content-edge-padding';
 import styles from '../hosts.module.css';
 import { ScreenLargeTitle, type ScreenTitleScrollProps } from '../screen-title';
@@ -28,6 +27,7 @@ import { SCREEN_BODY_PADDING_STEP } from './screen-body-padding';
 const BODY_GAP_STEP = 3;
 const FLOATING_ACTION_MARGIN = 16;
 const FLOATING_ACTION_Z_INDEX = 10;
+const BODY_PAD_PX = SCREEN_BODY_PADDING_STEP * 4;
 
 export type ScreenBaseCompactBodyProps = {
   scroll: boolean;
@@ -50,20 +50,23 @@ function BodyInner(props: {
       step={SCREEN_BODY_PADDING_STEP}
       bottomStep={SCREEN_BODY_PADDING_STEP}
     >
-      <Box
-        dataSet={{ component: 'ScreenBody' }}
-        sx={[
-          props.scroll ? false : { flex: 1, minHeight: 0 },
-          // Large title sits flush under the TopBar; horizontal/bottom
-          // padding lives on scroll content (flush-edge cancel).
-          props.largeTitle
-            ? { px: SCREEN_BODY_PADDING_STEP, pb: SCREEN_BODY_PADDING_STEP }
-            : { p: SCREEN_BODY_PADDING_STEP },
-          { gap: BODY_GAP_STEP },
-        ]}
+      <div
+        class="box"
+        data-component="ScreenBody"
+        classList={{ 'flex-1 min-h-0': !props.scroll }}
+        style={{
+          gap: `${BODY_GAP_STEP * 4}px`,
+          ...(props.largeTitle
+            ? {
+                'padding-left': `${BODY_PAD_PX}px`,
+                'padding-right': `${BODY_PAD_PX}px`,
+                'padding-bottom': `${BODY_PAD_PX}px`,
+              }
+            : { padding: `${BODY_PAD_PX}px` }),
+        }}
       >
         {props.children}
-      </Box>
+      </div>
     </ContentEdgePaddingProvider>
   );
 }
@@ -74,26 +77,23 @@ function PinnedFooter(props: {
   safeBottom: boolean;
 }): JSX.Element {
   return (
-    <Box
-      class={props.safeBottom ? styles['safeBottom'] : undefined}
-      dataSet={{ component: 'ScreenFooter' }}
-      sx={{
-        background: 'surface',
-        borderColor: 'border',
-        borderTopWidth: 1,
-        borderStyle: 'solid',
-      }}
+    <div
+      class="box bg-surface border-border border-t border-solid"
+      classList={{ [styles['safeBottom'] ?? '']: props.safeBottom }}
+      data-component="ScreenFooter"
     >
-      <Box
-        sx={{
-          px: SCREEN_BODY_PADDING_STEP,
-          pt: BODY_GAP_STEP,
-          pb: BODY_GAP_STEP,
+      <div
+        class="box"
+        style={{
+          'padding-left': `${BODY_PAD_PX}px`,
+          'padding-right': `${BODY_PAD_PX}px`,
+          'padding-top': `${BODY_GAP_STEP * 4}px`,
+          'padding-bottom': `${BODY_GAP_STEP * 4}px`,
         }}
       >
         {props.children}
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }
 
@@ -102,22 +102,28 @@ function FloatingActionHost(props: {
   children: JSX.Element;
 }): JSX.Element {
   return (
-    <Box
-      sx={{
-        position: 'absolute',
-        right: FLOATING_ACTION_MARGIN,
-        bottom: FLOATING_ACTION_MARGIN + props.extraBottomInset,
-        zIndex: FLOATING_ACTION_Z_INDEX,
+    <div
+      class="box absolute"
+      style={{
+        right: `${FLOATING_ACTION_MARGIN}px`,
+        bottom: `${FLOATING_ACTION_MARGIN + props.extraBottomInset}px`,
+        'z-index': FLOATING_ACTION_Z_INDEX,
       }}
     >
       {props.children}
-    </Box>
+    </div>
   );
 }
 
 /** Zero-height spacer that pads scroll content by the bottom safe-area inset. */
 function SafeBottomSpacer(): JSX.Element {
-  return <Box aria-hidden="true" class={styles['safeBottom']} />;
+  return (
+    <div
+      class="box"
+      classList={{ [styles['safeBottom'] ?? '']: true }}
+      aria-hidden="true"
+    />
+  );
 }
 
 function ScrollableBody(props: ScreenBaseCompactBodyProps): JSX.Element {
@@ -143,17 +149,20 @@ function ScrollableBody(props: ScreenBaseCompactBodyProps): JSX.Element {
     <Show
       when={props.scroll}
       fallback={
-        <Box
-          sx={{ flex: 1, minHeight: 0 }}
-          class={needsSafeBottom() ? styles['safeBottom'] : undefined}
+        <div
+          class="box flex-1 min-h-0"
+          classList={{ [styles['safeBottom'] ?? '']: needsSafeBottom() }}
         >
           {inner}
-        </Box>
+        </div>
       }
     >
       <ScrollView
-        frameSx={{ flex: 1 }}
-        sx={{ flexGrow: 1, paddingBottom: SCREEN_SCROLL_BOTTOM_PADDING }}
+        class="flex-1"
+        contentStyle={{
+          'flex-grow': 1,
+          'padding-bottom': `${SCREEN_SCROLL_BOTTOM_PADDING}px`,
+        }}
         onScroll={props.titleScroll?.onScroll}
         dataSet={{ component: 'ScreenBodyScroll' }}
       >
@@ -170,7 +179,7 @@ export function ScreenBaseCompactBody(
   props: ScreenBaseCompactBodyProps
 ): JSX.Element {
   return (
-    <Box sx={{ flex: 1, minHeight: 0, position: 'relative' }}>
+    <div class="box flex-1 min-h-0 relative">
       <ScrollableBody {...props} />
       <Show when={props.footer}>
         {(footer) => (
@@ -181,13 +190,13 @@ export function ScreenBaseCompactBody(
       </Show>
       <Show when={props.bottomBar}>
         {(bottomBar) => (
-          <Box
-            class={styles['safeBottom']}
-            sx={{ background: 'surface' }}
-            dataSet={{ component: 'ScreenBottomBar' }}
+          <div
+            class="box bg-surface"
+            classList={{ [styles['safeBottom'] ?? '']: true }}
+            data-component="ScreenBottomBar"
           >
             {bottomBar()}
-          </Box>
+          </div>
         )}
       </Show>
       <Show when={primaryActionVisible(props.primary) ? props.primary : null}>
@@ -197,6 +206,6 @@ export function ScreenBaseCompactBody(
           </FloatingActionHost>
         )}
       </Show>
-    </Box>
+    </div>
   );
 }

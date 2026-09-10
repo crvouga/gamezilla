@@ -16,8 +16,8 @@
  */
 import { useLingui } from '@lingui/solid/macro';
 import { createMemo, For, type JSX, Show } from 'solid-js';
-
-import { Box } from '../box';
+import { dataAttrs } from '../../component-id';
+import { joinClass } from '../box';
 import { createDataTablePageCache } from './create-data-table-page-cache';
 import styles from './data-table.module.css';
 import {
@@ -31,7 +31,10 @@ import {
   setPageKeysSelected,
   toggleSelectedKey,
 } from './data-table-selection';
-import { DataTableStatusBody, dataTableShellSx } from './data-table-status';
+import {
+  DATA_TABLE_SHELL_CLASS,
+  DataTableStatusBody,
+} from './data-table-status';
 import type { DataTableProps } from './data-table-types';
 
 const DEFAULT_PAGE_SIZE = 50;
@@ -98,9 +101,10 @@ export function DataTable<T>(props: DataTableProps<T>): JSX.Element {
   const selection = createPageSelection(props, rows);
 
   return (
-    <Box
-      sx={dataTableShellSx(props.sx)}
-      dataSet={{ component: 'DataTable', ...props.dataSet }}
+    <div
+      class={joinClass('box', DATA_TABLE_SHELL_CLASS, props.class)}
+      style={props.style}
+      {...dataAttrs({ component: 'DataTable', ...props.dataSet })}
     >
       <div class={styles['scroller']}>
         <table class={styles['table']}>
@@ -158,6 +162,6 @@ export function DataTable<T>(props: DataTableProps<T>): JSX.Element {
         totalCount={totalCount()}
         onPageChange={cache.setPageIndex}
       />
-    </Box>
+    </div>
   );
 }

@@ -6,7 +6,7 @@
 
 import { useLingui } from '@lingui/solid/macro';
 import { For, type JSX, Match, Show, Switch, untrack } from 'solid-js';
-import { Box } from '../box';
+import { dataAttrs } from '../../component-id';
 import { Button } from '../button';
 import { IconButton } from '../icon-button';
 import { MenuIcon } from '../icons';
@@ -91,9 +91,13 @@ export function ActionBarOverflowTrigger(props: {
     <MenuIcon size={iconSize()} color="icon" />
   );
   return (
-    <Box
+    <div
+      class="box"
+      {...dataAttrs({
+        component: 'ActionBarOverflowTrigger',
+        ...props.dataSet,
+      })}
       ref={props.setTrigger}
-      dataSet={{ component: 'ActionBarOverflowTrigger', ...props.dataSet }}
     >
       <Switch
         fallback={
@@ -138,7 +142,7 @@ export function ActionBarOverflowTrigger(props: {
           </ActionBarLabeledControl>
         </Match>
       </Switch>
-    </Box>
+    </div>
   );
 }
 

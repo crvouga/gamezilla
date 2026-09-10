@@ -2,7 +2,7 @@ import { useMyId } from '@libs/auth/public/use-current-user';
 import { UserProfileAvatar } from '@libs/profile/public/user-profile-avatar';
 import { UserUsername } from '@libs/profile/public/user-username';
 import { Trans } from '@lingui/solid/macro';
-import { Box, CONTENT_EDGE_PADDING_STEP, Text } from '@pkgs/ui';
+import { CONTENT_EDGE_PADDING_STEP } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { For, Show } from 'solid-js';
 
@@ -23,7 +23,7 @@ export function SpaceMembersList(props: SpaceMembersListProps): JSX.Element {
   const host = useSpaceHostMembershipDisplay(props.spaceId);
   const guestIds = useSpaceGuestMembershipIds(props.spaceId);
   return (
-    <Box sx={{ gap: 0 }}>
+    <div class="box gap-0">
       <Show when={host()} keyed>
         {(current) => (
           <SpaceMembersSeatRow
@@ -31,11 +31,9 @@ export function SpaceMembersList(props: SpaceMembersListProps): JSX.Element {
             memberId={current.deviceId}
             deviceLabel={current.deviceLabel}
             trailing={
-              <Text
-                variant="caption"
-                sx={{ color: 'textSecondary' }}
-                label={<Trans>Host</Trans>}
-              />
+              <p class="text textCaption text-text-secondary">
+                {<Trans>Host</Trans>}
+              </p>
             }
           />
         )}
@@ -49,7 +47,7 @@ export function SpaceMembersList(props: SpaceMembersListProps): JSX.Element {
           />
         )}
       </For>
-    </Box>
+    </div>
   );
 }
 
@@ -61,17 +59,15 @@ function SpaceMembersSeatRow(props: {
 }): JSX.Element {
   const myId = useMyId();
   return (
-    <Box
-      sx={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 2,
-        py: 2,
-        px: CONTENT_EDGE_PADDING_STEP,
+    <div
+      class="box flex-row items-center gap-2 py-2"
+      style={{
+        'padding-left': `${CONTENT_EDGE_PADDING_STEP * 4}px`,
+        'padding-right': `${CONTENT_EDGE_PADDING_STEP * 4}px`,
       }}
     >
       <UserProfileAvatar profileId={props.profileId} size={ROW_AVATAR_SIZE} />
-      <Box sx={{ flex: 1, minWidth: 0, gap: 0 }}>
+      <div class="box flex-1 min-w-[0] gap-0">
         <UserUsername
           profileId={props.profileId}
           withAt={false}
@@ -79,22 +75,15 @@ function SpaceMembersSeatRow(props: {
           numberOfLines={1}
         />
         <Show when={props.deviceLabel !== null && props.deviceLabel.length > 0}>
-          <Text
-            variant="caption"
-            sx={{ color: 'textSecondary' }}
-            numberOfLines={1}
-            label={props.deviceLabel ?? ''}
-          />
+          <p class="text textCaption line-clamp-1 text-text-secondary">
+            {props.deviceLabel ?? ''}
+          </p>
         </Show>
-      </Box>
+      </div>
       <Show when={props.memberId === myId()}>
-        <Text
-          variant="caption"
-          sx={{ color: 'textSecondary' }}
-          label={<Trans>You</Trans>}
-        />
+        <p class="text textCaption text-text-secondary">{<Trans>You</Trans>}</p>
       </Show>
       {props.trailing}
-    </Box>
+    </div>
   );
 }

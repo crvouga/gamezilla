@@ -2,11 +2,9 @@
 import { createSignal, type JSX, Show } from 'solid-js';
 import { Avatar } from '../avatar';
 import { Badge } from '../badge';
-import { Box } from '../box';
 import { Card } from '../card';
 import { ExampleRoot } from '../explorer/example-root';
 import { SettingsIcon, UserIcon } from '../icons';
-import { Text } from '../text';
 import { MenuList } from './menu-list';
 import { MenuRow } from './menu-row';
 
@@ -14,7 +12,7 @@ const noop = (): void => undefined;
 
 function CardGroup(props: { children: JSX.Element }): JSX.Element {
   return (
-    <Card elevation={0} sx={{ overflow: 'hidden', px: 3 }}>
+    <Card class="overflow-hidden px-3" elevation={0}>
       {props.children}
     </Card>
   );
@@ -22,15 +20,13 @@ function CardGroup(props: { children: JSX.Element }): JSX.Element {
 
 /** Simulates ScreenBase body padding so MenuList's negative bleed is visible. */
 function ScreenBodySim(props: { children: JSX.Element }): JSX.Element {
-  return <Box sx={{ p: 4, background: 'surface' }}>{props.children}</Box>;
+  return <div class="box p-4 bg-surface">{props.children}</div>;
 }
 
 function LastTapped(props: { tapped: string | null }): JSX.Element {
   return (
     <Show when={props.tapped}>
-      {(tapped) => (
-        <Text variant="caption" label={`Last tapped: ${tapped()}`} />
-      )}
+      {(tapped) => <p class="text textCaption">{`Last tapped: ${tapped()}`}</p>}
     </Show>
   );
 }
@@ -39,10 +35,9 @@ function FullBleedListSection(): JSX.Element {
   const [tapped, setTapped] = createSignal<string | null>(null);
   return (
     <>
-      <Text
-        variant="label"
-        label="MenuList — full-bleed ScreenBase menu screen"
-      />
+      <label class="text textLabel">
+        {'MenuList — full-bleed ScreenBase menu screen'}
+      </label>
       <ScreenBodySim>
         <MenuList>
           <MenuRow
@@ -71,7 +66,9 @@ function DefaultRowsSection(): JSX.Element {
   const [tapped, setTapped] = createSignal<string | null>(null);
   return (
     <>
-      <Text variant="label" label="Default — title + caption + chevron" />
+      <label class="text textLabel">
+        {'Default — title + caption + chevron'}
+      </label>
       <CardGroup>
         <MenuRow
           title="Appearance"
@@ -97,7 +94,7 @@ function DefaultRowsSection(): JSX.Element {
 function TitleOnlySection(): JSX.Element {
   return (
     <>
-      <Text variant="label" label="Title only (no caption)" />
+      <label class="text textLabel">{'Title only (no caption)'}</label>
       <CardGroup>
         <MenuRow title="Profile" onClick={noop} />
         <MenuRow title="Privacy" onClick={noop} />
@@ -110,7 +107,7 @@ function TitleOnlySection(): JSX.Element {
 function LeadingIconSection(): JSX.Element {
   return (
     <>
-      <Text variant="label" label="With leading icon" />
+      <label class="text textLabel">{'With leading icon'}</label>
       <CardGroup>
         <MenuRow
           title="Account"
@@ -132,7 +129,7 @@ function LeadingIconSection(): JSX.Element {
 function VariantsSection(): JSX.Element {
   return (
     <>
-      <Text variant="label" label="With leading avatar" />
+      <label class="text textLabel">{'With leading avatar'}</label>
       <CardGroup>
         <MenuRow
           title="Jane Doe"
@@ -142,7 +139,7 @@ function VariantsSection(): JSX.Element {
         />
       </CardGroup>
 
-      <Text variant="label" label="Custom trailing (badge)" />
+      <label class="text textLabel">{'Custom trailing (badge)'}</label>
       <CardGroup>
         <MenuRow
           title="Inbox"
@@ -152,7 +149,7 @@ function VariantsSection(): JSX.Element {
         />
       </CardGroup>
 
-      <Text variant="label" label="Selected state" />
+      <label class="text textLabel">{'Selected state'}</label>
       <CardGroup>
         <MenuRow
           title="Light"
@@ -165,7 +162,7 @@ function VariantsSection(): JSX.Element {
         <MenuRow title="System" hideChevron onClick={noop} />
       </CardGroup>
 
-      <Text variant="label" label="No chevron" />
+      <label class="text textLabel">{'No chevron'}</label>
       <CardGroup>
         <MenuRow
           title="Static info"
@@ -174,7 +171,7 @@ function VariantsSection(): JSX.Element {
         />
       </CardGroup>
 
-      <Text variant="label" label="Disabled" />
+      <label class="text textLabel">{'Disabled'}</label>
       <CardGroup>
         <MenuRow
           title="Coming soon"

@@ -1,11 +1,11 @@
 /** @jsxImportSource solid-js */
+
 import { createSignal, type JSX } from 'solid-js';
+import { cssPx } from '../../css/css-px';
 import { useActionBarChrome } from '../../theme';
-import { Box } from '../box';
 import { ExampleRoot } from '../explorer/example-root';
 import { CodeIcon, SettingsIcon, UserIcon } from '../icons';
 import { SegmentedControl } from '../segmented-control';
-import { Text } from '../text';
 import { ActionBar } from './action-bar';
 import type { ActionBarItem } from './action-bar-logic';
 
@@ -51,27 +51,20 @@ export default function ActionBarExample(): JSX.Element {
 
   return (
     <ExampleRoot>
-      <Text
-        variant="caption"
-        sx={{ color: 'textSecondary' }}
-        label="Shrink the bar and watch actions overflow. Dev tools stay in the menu."
-      />
+      <p class="text textCaption text-text-secondary">
+        {
+          'Shrink the bar and watch actions overflow. Dev tools stay in the menu.'
+        }
+      </p>
       <SegmentedControl<WidthKey>
         segments={WIDTH_SEGMENTS}
         selected={widthKey()}
         onSelect={setWidthKey}
         aria-label="Bar width"
       />
-      <Box
-        sx={{
-          alignSelf: 'flex-start',
-          borderColor: 'border',
-          borderStyle: 'solid',
-          p: 2,
-          alignItems: 'flex-end',
-          borderWidth: 1,
-          width: width(),
-        }}
+      <div
+        class="box self-start border-border border-solid p-2 items-end border"
+        style={{ width: cssPx(width()) }}
       >
         <ActionBar
           items={BASE_ITEMS}
@@ -80,8 +73,8 @@ export default function ActionBarExample(): JSX.Element {
           slotWidth={chrome().slotWidth}
           showInlineLabels={chrome().showInlineLabels}
         />
-      </Box>
-      <Text variant="caption" label={`Width: ${width()}px`} />
+      </div>
+      <p class="text textCaption">{`Width: ${width()}px`}</p>
     </ExampleRoot>
   );
 }

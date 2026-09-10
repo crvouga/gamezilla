@@ -5,6 +5,8 @@
 
 import ts from 'typescript';
 
+import { ATTR_HOST_MODULE_EXPORT } from './transform-attr-host';
+
 /** Module-tail → export name for relative imports inside `@pkgs/ui`. */
 export const PRIMITIVE_MODULE_EXPORT: Readonly<Record<string, string>> = {
   box: 'Box',
@@ -13,6 +15,7 @@ export const PRIMITIVE_MODULE_EXPORT: Readonly<Record<string, string>> = {
   spacer: 'Spacer',
   clickable: 'Clickable',
   text: 'Text',
+  ...ATTR_HOST_MODULE_EXPORT,
 };
 
 export type PendingNode = {
@@ -185,8 +188,18 @@ export function carriesSx(element: ts.JsxOpeningLikeElement): boolean {
     (p) =>
       ts.isJsxAttribute(p) &&
       ts.isIdentifier(p.name) &&
-      (p.name.text === 'sx' || p.name.text === 'frameSx')
+      (p.name.text === 'sx' ||
+        p.name.text === 'frameSx' ||
+        p.name.text === 'fieldSx')
   );
+}
+
+/**
+ * True when a spread may inject sx-shaped props (`{...(c ? { sx } : {})}`).
+ * Those hosts still need collection even without a direct sx attr.
+ */
+export function carriesPeeledSx(element: ts.JsxOpeningLikeElement): boolean {
+  return element.attributes.properties.some((p) => ts.isJsxSpreadAttribute(p));
 }
 
 export function collectNodes(
@@ -216,7 +229,8 @@ function pushSelfClosing(
   if (
     exportName === undefined ||
     name === undefined ||
-    isShadowedAt(node, name)
+    isShadowedAt(node, name) ||
+    !shouldCollectHost(exportName, node)
   ) {
     return;
   }
@@ -239,7 +253,8 @@ function pushElement(
   if (
     exportName === undefined ||
     name === undefined ||
-    isShadowedAt(node, name)
+    isShadowedAt(node, name) ||
+    !shouldCollectHost(exportName, node.openingElement)
   ) {
     return;
   }
@@ -252,6 +267,53 @@ function pushElement(
     spanEnd: node.end,
   });
 }
+
+/**
+ * Convertible primitives always collect. Attr hosts only when they still
+ * carry sx-shaped attrs — otherwise they block leaf-first parent conversion.
+ */
+function shouldCollectHost(
+  exportName: string,
+  element: ts.JsxOpeningLikeElement
+): boolean {
+  if (CONVERTIBLE_EXPORTS.has(exportName)) return true;
+  if (ATTR_HOST_EXPORTS.has(exportName)) return carriesSx(element);
+  return false;
+}
+
+/** Lazy sets avoid a circular import with transform-components at load time. */
+const CONVERTIBLE_EXPORTS = new Set([
+  'Box',
+  'Clickable',
+  'Text',
+  'Stack',
+  'Center',
+  'Spacer',
+]);
+
+const ATTR_HOST_EXPORTS = new Set([
+  'ScrollView',
+  'ScreenBodyScrollView',
+  'ScreenBodyVirtualList',
+  'VirtualList',
+  'TextInput',
+  'GradientBox',
+  'Island',
+  'FocusTrap',
+  'JsonView',
+  'RelativeTime',
+  'BrandIcon',
+  'SpinnerBox',
+  'MenuList',
+  'SpeakingAvatar',
+  'CopyToClipboardField',
+  'ExampleRoot',
+  'Card',
+  'Divider',
+  'Motion',
+  'DataTable',
+  'CodeEditor',
+]);
 
 /** A node is a leaf when no other pending node is strictly nested inside it. */
 export function isLeafNode(

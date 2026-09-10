@@ -1,4 +1,3 @@
-import { Text } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { createMemo } from 'solid-js';
 import { EM_DASH } from '../device-parsers';
@@ -14,5 +13,5 @@ export function AccountDeviceModelText(
 ): JSX.Element {
   const model = useDeviceColumn(props.deviceId, 'deviceModelName');
   const label = createMemo(() => model() ?? EM_DASH);
-  return <Text variant="body" numberOfLines={4} label={label()} />;
+  return <p class="text line-clamp-4">{label()}</p>;
 }

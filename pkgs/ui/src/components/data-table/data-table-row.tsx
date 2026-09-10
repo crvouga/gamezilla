@@ -1,11 +1,10 @@
 /** @jsxImportSource solid-js */
+
 import { useLingui } from '@lingui/solid/macro';
 import { For, type JSX, Show } from 'solid-js';
+import { cssPx } from '../../css/css-px';
 
-import { Box } from '../box';
 import { Checkbox } from '../checkbox';
-import { Clickable } from '../clickable';
-import { Text } from '../text';
 import styles from './data-table.module.css';
 import {
   DATA_TABLE_ROW_HEIGHT,
@@ -48,11 +47,9 @@ export function DataTableCellContent<T>(props: {
     <Show
       when={props.column.cell}
       fallback={
-        <Text
-          sx={{ color: 'text', fontSize: 12 }}
-          numberOfLines={1}
-          label={String(props.column.getValue?.(props.row) ?? '')}
-        />
+        <p class="text line-clamp-1 text-text text-[12px]">
+          {String(props.column.getValue?.(props.row) ?? '')}
+        </p>
       }
     >
       {(cell) => cell()(props.row)}
@@ -69,11 +66,11 @@ function DataTableCell<T>(props: {
   readonly tabbable: boolean;
 }): JSX.Element {
   const inner = () => ({
-    minWidth: props.column.width,
-    minHeight: DATA_TABLE_ROW_HEIGHT[props.density],
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    justifyContent: ALIGN_TO_JUSTIFY[props.column.align ?? 'start'],
+    'min-width': cssPx(props.column.width),
+    'min-height': cssPx(DATA_TABLE_ROW_HEIGHT[props.density]),
+    'flex-direction': 'row' as const,
+    'align-items': 'center' as const,
+    'justify-content': ALIGN_TO_JUSTIFY[props.column.align ?? 'start'],
     overflow: 'hidden' as const,
     width: '100%',
   });
@@ -82,20 +79,21 @@ function DataTableCell<T>(props: {
       <Show
         when={props.onClick}
         fallback={
-          <Box sx={inner()}>
+          <div class="box" style={inner()}>
             <DataTableCellContent column={props.column} row={props.row} />
-          </Box>
+          </div>
         }
       >
         {(onClick) => (
-          <Clickable
+          <button
+            class="clickable"
+            type="button"
+            style={inner()}
             onClick={() => onClick()()}
-            feedback="none"
             tabIndex={props.tabbable ? 0 : -1}
-            sx={inner()}
           >
             <DataTableCellContent column={props.column} row={props.row} />
-          </Clickable>
+          </button>
         )}
       </Show>
     </td>
@@ -118,19 +116,16 @@ export function DataTableRow<T>(props: DataTableRowProps<T>): JSX.Element {
       <Show when={props.selection}>
         {(selection) => (
           <td class={`${styles['cell']} ${styles['selectionCell']}`}>
-            <Box
-              sx={{
-                width: DATA_TABLE_SELECTION_COL_WIDTH,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
+            <div
+              class="box items-center justify-center"
+              style={{ width: cssPx(DATA_TABLE_SELECTION_COL_WIDTH) }}
             >
               <Checkbox
                 checked={selection().selected}
                 onToggle={selection().onToggle}
                 aria-label={t`Select row`}
               />
-            </Box>
+            </div>
           </td>
         )}
       </Show>

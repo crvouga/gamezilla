@@ -1,4 +1,4 @@
-import { Box, ScrollView, Text } from '@pkgs/ui';
+import { ScrollView } from '@pkgs/ui';
 import {
   createEffect,
   createMemo,
@@ -46,29 +46,35 @@ export function EventsList(props: {
   return (
     <Switch>
       <Match when={props.nodeId == null}>
-        <Box sx={paneSx}>
-          <Text sx={emptySx}>Select a node to view events.</Text>
-        </Box>
+        <div class="box" style={paneSx}>
+          <p class="text" style={emptySx}>
+            Select a node to view events.
+          </p>
+        </div>
       </Match>
       <Match when={props.error != null}>
-        <Box sx={paneSx}>
-          <Text sx={emptySx}>Failed to load events: {props.error}</Text>
-        </Box>
+        <div class="box" style={paneSx}>
+          <p class="text" style={emptySx}>
+            Failed to load events: {props.error}
+          </p>
+        </div>
       </Match>
       <Match when={props.events == null}>
-        <Box sx={paneSx}>
-          <Text sx={emptySx}>Loading events…</Text>
-        </Box>
+        <div class="box" style={paneSx}>
+          <p class="text" style={emptySx}>
+            Loading events…
+          </p>
+        </div>
       </Match>
       <Match when={rows().length === 0}>
-        <Box sx={paneSx}>
-          <Text sx={emptySx}>
+        <div class="box" style={paneSx}>
+          <p class="text" style={emptySx}>
             No events for node `{props.nodeId}` on this frame.
-          </Text>
-        </Box>
+          </p>
+        </div>
       </Match>
       <Match when={true}>
-        <ScrollView frameSx={paneSx} sx={{ gap: 1, padding: 3 }}>
+        <ScrollView style={paneSx} contentClass="gap-1 p-[3px]">
           <For each={rows()}>{(row) => <EventRow row={row} />}</For>
         </ScrollView>
       </Match>
@@ -81,47 +87,21 @@ function EventRow(props: {
 }) {
   const { event, dir } = props.row;
   return (
-    <Box
-      sx={{
-        flexDirection: 'row',
-        alignItems: 'baseline',
-        gap: 2.5,
-        paddingVertical: 6,
-        paddingHorizontal: 8,
-        borderWidth: 1,
-        borderColor: 'border',
-        borderRadius: 'md',
-        background: 'surface',
-        flexWrap: 'wrap',
-      }}
-    >
-      <Text sx={{ color: 'textSecondary', minWidth: 56, fontSize: 12 }}>
+    <div class="box flex-row items-baseline gap-2.5 [padding-top:6px;padding-bottom:6px] [padding-left:8px;padding-right:8px] border border-border rounded-[10px] bg-surface flex-wrap">
+      <p class="text text-text-secondary min-w-[56px] text-[12px]">
         {formatMs(event.atMs)}
-      </Text>
-      <Text
-        sx={{
-          fontSize: 10,
-          textTransform: 'uppercase',
-          letterSpacing: 0.4,
-          color: 'tint',
-          minWidth: 52,
-        }}
-      >
+      </p>
+      <p class="text text-[10px] uppercase tracking-[0.4px] text-tint min-w-[52px]">
         {dir}
-      </Text>
-      <Text sx={{ fontWeight: '600', color: 'text', fontSize: 12 }}>
-        {event.kind}
-      </Text>
-      <Text
-        sx={{ color: 'textSecondary', flex: 1, fontSize: 12, minWidth: 80 }}
-        numberOfLines={1}
-      >
+      </p>
+      <p class="text font-semibold text-text text-[12px]">{event.kind}</p>
+      <p class="text line-clamp-1 text-text-secondary flex-1 text-[12px] min-w-[80px]">
         {event.title ?? event.detail ?? '—'}
-      </Text>
-      <Text sx={{ color: 'textSecondary', fontSize: 11 }}>
+      </p>
+      <p class="text text-text-secondary text-[11px]">
         {[event.from, event.to].filter(Boolean).join(' → ') || event.nodeId}
-      </Text>
-    </Box>
+      </p>
+    </div>
   );
 }
 

@@ -1,5 +1,5 @@
 import { useClock } from '@pkgs/clock/solid';
-import { Box, useTheme } from '@pkgs/ui';
+import { useTheme } from '@pkgs/ui';
 import { type Accessor, createEffect, type JSX } from 'solid-js';
 
 import { shouldPlayEloTick } from '../../shared/puzzle-session/elo-tick';
@@ -82,55 +82,32 @@ export function ChessPuzzleCelebrationOverlay(
   });
 
   return (
-    <Box
-      sx={{
-        position: 'absolute',
-        inset: 0,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingHorizontal: 12,
-      }}
-    >
-      <Box
-        sx={{
-          position: 'absolute',
-          inset: 0,
-          backgroundColor: 'rgba(0,0,0,0.55)',
-          opacity: overlayAnim.scrimOpacity(),
-          transitionProperty: 'opacity',
-          transitionDuration: 'var(--ui-duration-fast)',
-          pointerEvents: 'none',
-        }}
+    <div class="box absolute inset-[0] justify-center items-center [padding-left:12px;padding-right:12px]">
+      <div
+        class="box absolute inset-[0] bg-[rgba(0,0,0,0.55)] [transition-property:opacity] [transition-duration:var(--ui-duration-fast)] pointer-events-none"
+        style={{ opacity: overlayAnim.scrimOpacity() }}
       />
-      <Box
-        sx={{
-          position: 'absolute',
-          inset: 0,
-          backgroundColor: theme.colors.successSurface,
+      <div
+        class="box absolute inset-[0] [transition-property:opacity] [transition-duration:var(--ui-duration-slower)] [transition-timing-function:var(--ui-easing-inOut)] pointer-events-none"
+        style={{
+          'background-color': theme.colors.successSurface,
           opacity: overlayAnim.vignetteOpacity(),
-          transitionProperty: 'opacity',
-          transitionDuration: 'var(--ui-duration-slower)',
-          transitionTimingFunction: 'var(--ui-easing-inOut)',
-          pointerEvents: 'none',
         }}
       />
-      <Box
-        dataSet={{ testid: 'chess-puzzle-summary' }}
-        sx={{
-          alignSelf: 'stretch',
+      <div
+        class="box self-stretch [transition-property:opacity,_transform] [transition-duration:var(--ui-duration-slow)] [transition-timing-function:var(--ui-easing-decelerate)]"
+        style={{
+          transform: `scale(${overlayAnim.cardScale()})`,
           opacity: overlayAnim.cardOpacity(),
-          transform: [{ scale: overlayAnim.cardScale() }],
-          transitionProperty: 'opacity, transform',
-          transitionDuration: 'var(--ui-duration-slow)',
-          transitionTimingFunction: 'var(--ui-easing-decelerate)',
         }}
+        data-testid="chess-puzzle-summary"
       >
         <ChessPuzzleSummaryCard
           completion={props.completion}
           displayRating={eloAnim.displayRating()}
           deltaPulse={eloAnim.completePulse}
         />
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }

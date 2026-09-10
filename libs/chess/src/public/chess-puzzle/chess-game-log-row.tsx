@@ -1,10 +1,7 @@
 import { Trans } from '@lingui/solid/macro';
 import {
-  Box,
   ChevronRightIcon,
   CircleCheckIcon,
-  Clickable,
-  Text,
   useRelativeTimeLabel,
   useTheme,
   XIcon,
@@ -56,46 +53,33 @@ export function ChessGameLogRow(props: ChessGameLogRowProps): JSX.Element {
   const Icon = solved ? CircleCheckIcon : XIcon;
 
   return (
-    <Clickable
+    <button
+      class="clickable clickableTint"
+      data-testid={`chess-game-log-row-${props.entry.puzzleId}`}
+      type="button"
       onClick={props.onClick}
       role="button"
-      dataSet={{ testid: `chess-game-log-row-${props.entry.puzzleId}` }}
     >
-      <Box
-        sx={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 2,
-          p: 3,
-          borderRadius: 8,
-          background: 'surfaceMuted',
-        }}
-      >
+      <div class="box flex-row items-center gap-2 p-3 rounded-[8px] bg-surface-muted">
         <Icon size={18} color={solved ? 'success' : 'destructive'} />
-        <Box sx={{ flex: 1, gap: 1 }}>
-          <Text
-            variant="bodyBold"
-            sx={{ color: 'text' }}
-            label={<GameLogTitle solved={solved} puzzleRating={puzzleRating} />}
-          />
-          <Text
-            variant="caption"
-            sx={{ color: 'textSecondary' }}
-            label={
+        <div class="box flex-1 gap-1">
+          <p class="text textBodyBold text-text">
+            {<GameLogTitle solved={solved} puzzleRating={puzzleRating} />}
+          </p>
+          <p class="text textCaption text-text-secondary">
+            {
               <GameLogCaption
                 puzzleId={props.entry.puzzleId}
                 timeLabel={timeLabel()}
               />
             }
-          />
-        </Box>
-        <Text
-          variant="bodyBold"
-          sx={{ color: deltaColor }}
-          label={formatSignedDelta(props.entry.delta)}
-        />
+          </p>
+        </div>
+        <p class="text textBodyBold" style={{ color: deltaColor }}>
+          {formatSignedDelta(props.entry.delta)}
+        </p>
         <ChevronRightIcon size={20} color="icon" />
-      </Box>
-    </Clickable>
+      </div>
+    </button>
   );
 }

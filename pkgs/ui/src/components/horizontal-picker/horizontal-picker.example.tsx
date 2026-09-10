@@ -1,8 +1,8 @@
 /** @jsxImportSource solid-js */
+
 import { createSignal, type JSX } from 'solid-js';
-import { Box } from '../box';
+import { cssPx } from '../../css/css-px';
 import { ExampleRoot } from '../explorer/example-root';
-import { Text } from '../text';
 import { HorizontalPicker } from './horizontal-picker';
 
 type ColorCard = { id: string; label: string; color: string };
@@ -33,11 +33,9 @@ export default function HorizontalPickerExample(): JSX.Element {
 
   return (
     <ExampleRoot>
-      <Text
-        variant="body"
-        sx={{ opacity: 0.75 }}
-        label="Centered carousel with snap, scale/opacity, and arrow navigation."
-      />
+      <p class="text opacity-75">
+        {'Centered carousel with snap, scale/opacity, and arrow navigation.'}
+      </p>
       <HorizontalPicker<ColorCard>
         items={CARDS}
         selectedIndex={index()}
@@ -45,25 +43,19 @@ export default function HorizontalPickerExample(): JSX.Element {
         itemWidth={ITEM_WIDTH}
         keyExtractor={(item) => item.id}
         renderItem={(item) => (
-          <Box
-            sx={{
-              width: CARD_SIZE,
-              height: CARD_SIZE,
-              borderRadius: 12,
-              backgroundColor: item.color,
-              alignItems: 'center',
-              justifyContent: 'center',
+          <div
+            class="box rounded-[12px] items-center justify-center"
+            style={{
+              'background-color': item.color,
+              width: cssPx(CARD_SIZE),
+              height: cssPx(CARD_SIZE),
             }}
           >
-            <Text
-              variant="caption"
-              sx={{ color: '#fff', fontWeight: '700' }}
-              label={item.label}
-            />
-          </Box>
+            <p class="text textCaption text-[#fff] font-bold">{item.label}</p>
+          </div>
         )}
       />
-      <Text variant="caption" sx={{ opacity: 0.75 }} label={summary()} />
+      <p class="text textCaption opacity-75">{summary()}</p>
     </ExampleRoot>
   );
 }

@@ -2,7 +2,6 @@
 import type { JSX } from 'solid-js';
 import { AppLogo } from '../app-logo';
 import { ExampleRoot } from '../explorer/example-root';
-import { Text } from '../text';
 import { AppFrame } from './app-frame';
 import {
   AppFrameChromeProvider,
@@ -11,22 +10,21 @@ import {
 
 function OverrideDemo(): JSX.Element {
   useSetAppFrameHeader(
-    <Text variant="label" label="Header override (space chrome slot)" />
+    <label class="text textLabel">
+      {'Header override (space chrome slot)'}
+    </label>
   );
-  return <Text variant="body" label="Body under overridden AppFrame header." />;
+  return <p class="text">{'Body under overridden AppFrame header.'}</p>;
 }
 
 export default function AppFrameExample(): JSX.Element {
   return (
-    <ExampleRoot sx={{ flex: 1, minHeight: 320, gap: 4 }}>
+    <ExampleRoot class="flex-1 min-h-[320px] gap-4">
       <AppFrameChromeProvider
-        globalTrailing={<Text variant="caption" label="Avatar" />}
+        globalTrailing={<p class="text textCaption">{'Avatar'}</p>}
       >
         <AppFrame header={<AppLogo size={24} />}>
-          <Text
-            variant="body"
-            label="AppFrame body (wide: centered max-width)."
-          />
+          <p class="text">{'AppFrame body (wide: centered max-width).'}</p>
         </AppFrame>
       </AppFrameChromeProvider>
       <AppFrameChromeProvider>

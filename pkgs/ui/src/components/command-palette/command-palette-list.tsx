@@ -6,7 +6,6 @@
  */
 
 import { createEffect, For, type JSX, on, Show } from 'solid-js';
-import { Box } from '../box';
 import { ScrollView } from '../scroll-view';
 import type { PaletteRow } from './command-palette-filter';
 import { CommandPaletteRow } from './command-palette-row';
@@ -64,14 +63,17 @@ export function CommandPaletteList(
     })
   );
   return (
-    <ScrollView frameSx={{ maxHeight: COMMAND_PALETTE_LIST_MAX_HEIGHT }}>
-      <Box
+    <ScrollView
+      style={{ 'max-height': `${COMMAND_PALETTE_LIST_MAX_HEIGHT}px` }}
+    >
+      <div
+        class="box"
+        data-component="CommandPaletteList"
         ref={(el) => {
           hostEl = el;
         }}
         id={props.listboxId}
         role="listbox"
-        dataSet={{ component: 'CommandPaletteList' }}
       >
         <For each={props.rows}>
           {(row, index) => (
@@ -98,7 +100,7 @@ export function CommandPaletteList(
             </Show>
           )}
         </For>
-      </Box>
+      </div>
     </ScrollView>
   );
 }

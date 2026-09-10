@@ -5,13 +5,7 @@
  * `.safe-bottom` class in `styles/base.css` (never inline `env()`).
  */
 
-import {
-  Box,
-  Clickable,
-  getTopBarContentHeight,
-  Text,
-  useThemeLayout,
-} from '@pkgs/ui';
+import { getTopBarContentHeight, useThemeLayout } from '@pkgs/ui';
 import { For, type JSX } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 
@@ -37,34 +31,33 @@ function AppTabButton(props: {
   const color = (): 'tint' | 'tabIconDefault' =>
     props.active ? 'tint' : 'tabIconDefault';
   return (
-    <Clickable
+    <button
+      class="clickable clickableTint flex-1 min-w-[0] items-center justify-center gap-1"
+      style={{
+        height: `${Math.max(props.height, TAB_MIN_HEIGHT)}px`,
+        'min-height': `${TAB_MIN_HEIGHT}px`,
+        'padding-top': `${TAB_VERTICAL_PADDING}px`,
+        'padding-bottom': `${TAB_VERTICAL_PADDING}px`,
+      }}
+      data-component="AppTabButton"
+      data-testid={props.tab.testID}
+      type="button"
       aria-label={props.tab.label}
       aria-current={props.active ? 'page' : undefined}
       onClick={() => props.onClick()}
-      dataSet={{ component: 'AppTabButton', testid: props.tab.testID }}
-      sx={{
-        flex: 1,
-        minWidth: 0,
-        height: Math.max(props.height, TAB_MIN_HEIGHT),
-        minHeight: TAB_MIN_HEIGHT,
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: TAB_VERTICAL_PADDING,
-        gap: 1,
-      }}
     >
       <Dynamic
         component={props.tab.Icon}
         size={TAB_ICON_SIZE}
         color={color()}
       />
-      <Text
-        variant="caption"
-        numberOfLines={1}
-        sx={{ fontSize: TAB_LABEL_FONT_SIZE, color: color() }}
-        label={props.tab.label}
-      />
-    </Clickable>
+      <p
+        class="text textCaption line-clamp-1"
+        style={{ 'font-size': `${TAB_LABEL_FONT_SIZE}px`, color: color() }}
+      >
+        {props.tab.label}
+      </p>
+    </button>
   );
 }
 
@@ -73,15 +66,14 @@ export function AppTabBar(props: AppTabBarProps): JSX.Element {
   const tabs = useAppTabs();
   const height = () => getTopBarContentHeight(layout.breakpoint());
   return (
-    <Box
-      as="nav"
-      class="safe-bottom"
-      dataSet={{ component: 'AppTabBar' }}
-      sx={{ background: 'surface', borderTopWidth: 1, borderColor: 'border' }}
+    <nav
+      class="box bg-surface border-t border-border safe-bottom"
+      data-component="AppTabBar"
     >
-      <Box
+      <div
+        class="box flex-row"
+        style={{ height: `${height()}px`, 'min-height': `${height()}px` }}
         role="tablist"
-        sx={{ flexDirection: 'row', height: height(), minHeight: height() }}
       >
         <For each={tabs()}>
           {(tab) => (
@@ -93,7 +85,7 @@ export function AppTabBar(props: AppTabBarProps): JSX.Element {
             />
           )}
         </For>
-      </Box>
-    </Box>
+      </div>
+    </nav>
   );
 }

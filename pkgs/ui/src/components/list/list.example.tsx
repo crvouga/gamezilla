@@ -4,7 +4,6 @@ import { Avatar } from '../avatar';
 import { Badge } from '../badge';
 import { Card } from '../card';
 import { ExampleRoot } from '../explorer/example-root';
-import { Text } from '../text';
 import { List, ListItem } from './list';
 
 const noop = (): void => undefined;
@@ -12,13 +11,13 @@ const noop = (): void => undefined;
 export default function ListExample(): JSX.Element {
   return (
     <ExampleRoot>
-      <Card elevation={0} sx={{ overflow: 'hidden' }}>
+      <Card class="overflow-hidden" elevation={0}>
         <List>
           <ListItem
             title="Profile"
             subtitle="Edit your personal info"
             leading={<Avatar initials="JD" size={36} />}
-            trailing={<Text variant="caption" label="›" />}
+            trailing={<p class="text textCaption">{'›'}</p>}
             onClick={noop}
           />
           <ListItem
@@ -32,21 +31,21 @@ export default function ListExample(): JSX.Element {
             title="Selected row"
             subtitle="Highlights with tintSubtle background"
             leading={<Avatar initials="⭐" size={36} background="tint" />}
-            trailing={<Text variant="caption" label="›" />}
+            trailing={<p class="text textCaption">{'›'}</p>}
             selected
             onClick={noop}
           />
           <ListItem
             title="Privacy"
             leading={<Avatar initials="🔒" size={36} background="info" />}
-            trailing={<Text variant="caption" label="›" />}
+            trailing={<p class="text textCaption">{'›'}</p>}
             onClick={noop}
           />
         </List>
       </Card>
 
-      <Text variant="label" label="Without separators" />
-      <Card elevation={0} sx={{ overflow: 'hidden' }}>
+      <label class="text textLabel">{'Without separators'}</label>
+      <Card class="overflow-hidden" elevation={0}>
         <List separator={false}>
           <ListItem title="Item A" />
           <ListItem title="Item B" />

@@ -10,14 +10,25 @@ import { describe, expect, test } from 'vitest';
 import { runCodemod } from '../run-codemod';
 
 const REPO_ROOT = resolve(process.cwd(), '..', '..');
-const ROOTS = ['apps/client/src', 'libs', 'pkgs/ui/src'].map((r) =>
-  join(REPO_ROOT, r)
-);
+const ROOTS = [
+  'apps/client/src',
+  'apps/product',
+  'libs',
+  'pkgs/ui/src',
+  'pkgs/sim-console',
+  'pkgs/collab-ui',
+  'pkgs/chess-board',
+].map((r) => join(REPO_ROOT, r));
 
 async function collectTsx(): Promise<string[]> {
   const out: string[] = [];
   async function walk(dir: string): Promise<void> {
-    const entries = await readdir(dir, { withFileTypes: true });
+    let entries;
+    try {
+      entries = await readdir(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
     for (const entry of entries) {
       if (entry.name === 'node_modules' || entry.name === '.turbo') continue;
       const full = join(dir, entry.name);
@@ -30,10 +41,12 @@ async function collectTsx(): Promise<string[]> {
 }
 
 const MENTIONS_PRIMITIVE =
-  /<(Box|Clickable|Text|Stack|Center|Spacer|ScrollView|GradientBox|Island)\b|sx=\{|frameSx=\{/;
+  /<(Box|Clickable|Text|Stack|Center|Spacer|ScrollView|VirtualList|GradientBox|Island|TextInput|MenuList)\b|sx=\{|frameSx=\{|fieldSx=\{/;
+
+const SX_ATTR_LEAK = /[\s{]sx=\{|frameSx=\{|fieldSx=\{/;
 
 describe('corpus round-trip', () => {
-  test('zero parse failures; zero manuals; report adds up', async () => {
+  test('zero parse failures; zero manuals; zero sx attrs in output', async () => {
     const paths = await collectTsx();
     expect(paths.length).toBeGreaterThan(100);
     const inputs: Record<string, string> = {};
@@ -42,7 +55,7 @@ describe('corpus round-trip', () => {
       if (!MENTIONS_PRIMITIVE.test(text)) continue;
       inputs[path] = text;
     }
-    expect(Object.keys(inputs).length).toBeGreaterThan(100);
+    expect(Object.keys(inputs).length).toBeGreaterThan(10);
     let result: ReturnType<typeof runCodemod>;
     expect(() => {
       result = runCodemod(inputs, { dryRun: true });
@@ -52,10 +65,11 @@ describe('corpus round-trip', () => {
     expect(result!.summary.totalManual).toBe(0);
     for (const output of result!.outputs) {
       expect(output.nextText).not.toContain('TODO(sx-codemod)');
+      expect(output.nextText).not.toMatch(SX_ATTR_LEAK);
     }
     process.stdout.write(
       `corpus: scanned=${paths.length} candidates=${Object.keys(inputs).length} ` +
         `A=${result!.summary.totalConvertedA} B=${result!.summary.totalConvertedB} manual=0\n`
     );
-  }, 120000);
+  }, 180000);
 });

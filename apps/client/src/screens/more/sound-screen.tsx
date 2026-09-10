@@ -4,7 +4,6 @@
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { useSoundsPreference } from '@pkgs/sounds/solid';
 import {
-  Box,
   MenuRow,
   MenuSection,
   ScreenBase,
@@ -29,8 +28,8 @@ export function SoundSettingsScreen(): JSX.Element {
         { name: <Trans>Settings</Trans>, href: '/more' },
         { name: <Trans>Sound</Trans> },
       ]}
-      content={({ sx }) => (
-        <Box sx={[sx, { gap: 5 }]}>
+      content={({ bodyClass }) => (
+        <div class={`box ${`${bodyClass}`} gap-5`}>
           <MenuSection
             footer={
               <Trans>
@@ -59,7 +58,7 @@ export function SoundSettingsScreen(): JSX.Element {
               }
             />
           </MenuSection>
-        </Box>
+        </div>
       )}
     />
   );

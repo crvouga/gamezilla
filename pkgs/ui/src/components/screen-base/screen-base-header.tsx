@@ -13,7 +13,6 @@ import { createMemo, type JSX, Show } from 'solid-js';
 import { useActionBarChrome } from '../../theme';
 import { ActionBar } from '../action-bar';
 import { BackIconButton } from '../back-icon-button';
-import { Box } from '../box';
 import { useScreenTitleContext } from '../screen-title';
 import { TopBar, TopBarTitle } from '../top-bar';
 import {
@@ -30,7 +29,7 @@ function HeaderTrailing(props: ScreenBaseHeaderProps): JSX.Element {
     partitionScreenBaseActions(props.actions ?? [])
   );
   return (
-    <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 1 }}>
+    <div class="box flex-row items-center gap-1">
       <Show when={hasScreenBaseActions(partition())}>
         <ActionBar
           items={partition().iconItems}
@@ -44,7 +43,7 @@ function HeaderTrailing(props: ScreenBaseHeaderProps): JSX.Element {
         />
       </Show>
       {props.globalTrailing}
-    </Box>
+    </div>
   );
 }
 

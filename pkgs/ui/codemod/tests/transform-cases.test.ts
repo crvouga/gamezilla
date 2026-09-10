@@ -367,15 +367,17 @@ describe('Stack / Center / Spacer', () => {
 });
 
 describe('behavior hosts and safety', () => {
-  test('ScrollView with frameSx is left untouched (no TODO)', () => {
+  test('ScrollView frameSx becomes class; content sx becomes contentClass', () => {
     const result = transformFile(
       't.tsx',
-      `import { ScrollView } from '@pkgs/ui';\nexport const A = () => <ScrollView frameSx={{ flex: 1 }}>x</ScrollView>;`
+      `import { ScrollView } from '@pkgs/ui';\nexport const A = () => <ScrollView frameSx={{ flex: 1 }} sx={{ p: 2 }}>x</ScrollView>;`
     );
-    expect(result.converted).toEqual([]);
     expect(result.manual).toEqual([]);
-    expect(result.text).toContain('<ScrollView frameSx={{ flex: 1 }}>');
-    expect(result.text).not.toContain('TODO(sx-codemod)');
+    expect(result.text).toContain('class="flex-1"');
+    expect(result.text).toContain('contentClass="p-2"');
+    expect(result.text).not.toContain('frameSx');
+    expect(result.text).not.toMatch(/[\s{]sx=/);
+    expect(result.text).toContain('<ScrollView');
   });
   test('ScrollView without sx is silently untouched', () => {
     const result = transformFile(

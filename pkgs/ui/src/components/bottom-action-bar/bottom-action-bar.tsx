@@ -4,20 +4,11 @@
  *
  * Equal-flex row that mixes labeled icon-tab actions with solid contained
  * buttons. Distinct from top `ActionBar` (icon overflow chrome).
- *
- * @example
- * ```tsx
- * <BottomActionBar
- *   items={[
- *     { type: 'action', id: 'hint', label: 'Hint', icon: LightbulbIcon, onClick },
- *     { type: 'button', id: 'next', title: 'Next', onClick },
- *   ]}
- * />
- * ```
  */
 
 import { For, type JSX, Match, Switch } from 'solid-js';
-import { Box } from '../box';
+import { dataAttrs } from '../../component-id';
+import { joinClass } from '../box/box';
 import {
   BottomActionBarAction,
   BottomActionBarButton,
@@ -47,27 +38,17 @@ function BottomActionBarSlot(props: {
 export function BottomActionBar(props: BottomActionBarProps): JSX.Element {
   const elevated = (): boolean => props.elevated !== false;
   return (
-    <Box
-      dataSet={{ component: 'BottomActionBar', ...props.dataSet }}
-      sx={[
-        {
-          flexDirection: 'row',
-          alignItems: 'center',
-          alignSelf: 'stretch',
-          gap: 2,
-          px: 3,
-          minHeight: BOTTOM_ACTION_BAR_MIN_HEIGHT,
-        },
-        elevated() && {
-          backgroundColor: 'surface',
-          borderColor: 'border',
-          borderTopWidth: 1,
-        },
-      ]}
+    <div
+      class={joinClass(
+        'box flex-row items-center self-stretch gap-2 px-3',
+        elevated() && 'bg-surface border-t border-solid border-border'
+      )}
+      {...dataAttrs({ component: 'BottomActionBar', ...props.dataSet })}
+      style={{ 'min-height': `${BOTTOM_ACTION_BAR_MIN_HEIGHT}px` }}
     >
       <For each={props.items}>
         {(item) => <BottomActionBarSlot item={item} />}
       </For>
-    </Box>
+    </div>
   );
 }

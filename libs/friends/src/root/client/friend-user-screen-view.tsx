@@ -69,9 +69,9 @@ function FriendUserScreenBody(props: { userId: string }): JSX.Element {
       screenId="friend-user"
       breadcrumbs={breadcrumbs()}
       actions={headerActions()}
-      content={({ sx }) => (
+      content={({ bodyClass }) => (
         <FriendUserScreenContent
-          sx={sx}
+          class={bodyClass}
           profile={userProfile.profile}
           userId={props.userId}
           status={status()}

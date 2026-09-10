@@ -1,4 +1,3 @@
-import { Box } from '@pkgs/ui';
 import {
   createEffect,
   createSignal,
@@ -55,28 +54,27 @@ export function ChessPuzzleBoardFrame(
   });
 
   return (
-    <Box
+    <div
+      class="box flex-1 min-h-[0] self-stretch items-center justify-center"
+      data-testid="chess-puzzle-board-frame"
       ref={setHostEl}
-      dataSet={{ testid: 'chess-puzzle-board-frame' }}
-      sx={{
-        flex: 1,
-        minHeight: 0,
-        alignSelf: 'stretch',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
     >
       <Show when={size() > 0}>
-        <Box sx={{ width: size() }}>
+        <div class="box" style={{ width: `${size()}px` }}>
           <Show when={reserveTop() > 0} fallback={props.topAccessory}>
-            <Box sx={{ height: reserveTop() }}>{props.topAccessory}</Box>
+            <div class="box" style={{ height: `${reserveTop()}px` }}>
+              {props.topAccessory}
+            </div>
           </Show>
-          <Box sx={{ width: size(), height: size(), position: 'relative' }}>
+          <div
+            class="box relative"
+            style={{ width: `${size()}px`, height: `${size()}px` }}
+          >
             {props.children(size())}
             {props.overlay}
-          </Box>
-        </Box>
+          </div>
+        </div>
       </Show>
-    </Box>
+    </div>
   );
 }

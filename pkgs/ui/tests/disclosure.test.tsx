@@ -37,9 +37,7 @@ describe('Collapsible / SectionCard', () => {
       </SectionCard>
     ));
     expect(screen.getByText('content')).toBeInTheDocument();
-    expect(screen.getByTestId('sc').getAttribute('style')).toContain(
-      'var(--ui-color-border)'
-    );
+    expect(screen.getByTestId('sc').className).toMatch(/border-border/);
   });
 });
 

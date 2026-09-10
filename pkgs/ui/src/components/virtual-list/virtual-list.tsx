@@ -15,9 +15,9 @@ import {
 } from '@tanstack/solid-virtual';
 import { createMemo, For, type JSX, Show, splitProps, untrack } from 'solid-js';
 import { type ComponentDataSet, componentDataAttrs } from '../../component-id';
-import { flattenSx, type SxInput, useThemeTokens } from '../../theme';
-import { Box, joinClass } from '../box/box';
+import { joinClass } from '../box/box';
 import {
+  requestsFlexFill,
   resolveFlushEdgeStyles,
   useContentEdgePadding,
 } from '../content-edge-padding';
@@ -29,7 +29,7 @@ export type { VirtualListViewport };
 
 export type VirtualListProps<ItemT> = Omit<
   JSX.HTMLAttributes<HTMLDivElement>,
-  'style' | 'children'
+  'children' | 'ref'
 > & {
   items: readonly ItemT[];
   /** Stable key per item (used for row identity + measurement cache). */
@@ -47,10 +47,12 @@ export type VirtualListProps<ItemT> = Omit<
   footer?: JSX.Element | undefined;
   /** Rendered instead of rows when `items` is empty. */
   empty?: JSX.Element | undefined;
-  /** Utility-first style shorthand applied to the content container. */
-  sx?: SxInput | undefined;
-  /** Style the scroller frame (flex, maxHeight, …). */
-  frameSx?: SxInput | undefined;
+  /** Extra classes on the content container. */
+  contentClass?: string | undefined;
+  /** Solid `classList` on the content container. */
+  contentClassList?: Record<string, boolean | undefined> | undefined;
+  /** Inline styles on the content container. */
+  contentStyle?: JSX.CSSProperties | undefined;
   /** Cancel shell edge padding so the scrollbar is flush. Default `true`. */
   flushEdge?: boolean | undefined;
   /**
@@ -60,16 +62,10 @@ export type VirtualListProps<ItemT> = Omit<
   fixedViewport?: VirtualListViewport | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
-  class?: string | undefined;
   ref?: ((el: HTMLDivElement) => void) | undefined;
 };
 
 const DEFAULT_ESTIMATE = 56;
-
-function requestsFlexFill(frameSx: SxInput): boolean {
-  const flat = flattenSx(frameSx);
-  return flat?.flex === 1 || flat?.flexGrow === 1;
-}
 
 type RowsProps<ItemT> = {
   virtualizer: Virtualizer<HTMLDivElement, HTMLDivElement>;
@@ -171,10 +167,29 @@ function createListVirtualizer<ItemT>(
   });
 }
 
+function mergeStyle(
+  a: JSX.CSSProperties | string | undefined,
+  b: JSX.CSSProperties | string | undefined
+): JSX.CSSProperties | string | undefined {
+  if (a === undefined || a === '') return b;
+  if (b === undefined || b === '') return a;
+  if (typeof a === 'string' || typeof b === 'string') {
+    return [a, b].filter(Boolean).join(';');
+  }
+  return { ...a, ...b };
+}
+
+function fixedScrollerStyle(
+  fixedHeight: number | undefined,
+  style: JSX.CSSProperties | string | undefined
+): JSX.CSSProperties | string | undefined {
+  if (fixedHeight === undefined) return style;
+  return mergeStyle({ height: `${fixedHeight}px` }, style);
+}
+
 export function VirtualList<ItemT>(
   props: VirtualListProps<ItemT>
 ): JSX.Element {
-  const tokens = useThemeTokens();
   const edge = useContentEdgePadding();
   const [local, rest] = splitProps(props, [
     'items',
@@ -186,12 +201,15 @@ export function VirtualList<ItemT>(
     'header',
     'footer',
     'empty',
-    'sx',
-    'frameSx',
+    'contentClass',
+    'contentClassList',
+    'contentStyle',
     'flushEdge',
     'fixedViewport',
     'dataSet',
     'class',
+    'classList',
+    'style',
     'ref',
   ]);
   let scroller: HTMLDivElement | undefined;
@@ -202,6 +220,7 @@ export function VirtualList<ItemT>(
     testViewport
   );
   const flush = () => resolveFlushEdgeStyles(edge, local.flushEdge ?? true);
+  const flexFill = () => requestsFlexFill(local.class, local.classList);
   const fixedHeight = untrack(() => local.fixedViewport?.height);
 
   const list = (
@@ -211,18 +230,19 @@ export function VirtualList<ItemT>(
         local.ref?.(el);
       }}
       class={joinClass(styles['scroll'], local.class)}
-      style={
-        tokens.css([
-          fixedHeight === undefined ? false : { height: fixedHeight },
-          local.frameSx,
-        ]) || undefined
-      }
+      classList={local.classList}
+      style={fixedScrollerStyle(fixedHeight, local.style)}
       {...componentDataAttrs('VirtualList', local.dataSet)}
       {...rest}
     >
       <div
-        class={styles['scrollContent']}
-        style={tokens.css([flush().contentSx, local.sx]) || undefined}
+        class={joinClass(
+          styles['scrollContent'],
+          flush().contentClass,
+          local.contentClass
+        )}
+        classList={local.contentClassList}
+        style={local.contentStyle}
         data-component="VirtualListContent"
       >
         {local.header}
@@ -239,17 +259,14 @@ export function VirtualList<ItemT>(
   );
 
   return (
-    <Show when={flush().wrapperSx} fallback={list}>
-      {(wrapperSx) => (
-        <Box
-          sx={
-            requestsFlexFill(local.frameSx)
-              ? { ...wrapperSx(), flex: 1 }
-              : wrapperSx()
-          }
+    <Show when={flush().wrapperClass} fallback={list}>
+      {(wrapperClass) => (
+        <div
+          class={joinClass(wrapperClass(), flexFill() && 'flex-1')}
+          style={flush().contentStyle}
         >
           {list}
-        </Box>
+        </div>
       )}
     </Show>
   );

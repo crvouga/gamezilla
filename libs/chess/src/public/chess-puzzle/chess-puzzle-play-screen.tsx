@@ -1,6 +1,6 @@
 import { SpeakingAvatarAssistant } from '@pkgs/assistant/client';
 import { ChessBoard } from '@pkgs/chess-board/chess-board';
-import { Box, SpeakingAvatar } from '@pkgs/ui';
+import { SpeakingAvatar } from '@pkgs/ui';
 import { type Accessor, type JSX, Show } from 'solid-js';
 
 import type { HintStage } from '../../shared/puzzle-session/hint-stage';
@@ -201,9 +201,9 @@ export function PuzzlePlayScreen(): JSX.Element {
   const e2ePickStatus = <ChessPuzzleE2ELoadingStatus {...e2eLoadingStatus()} />;
 
   return (
-    <Box
-      dataSet={{ testid: 'chess-puzzle-play-screen' }}
-      sx={{ flex: 1, minHeight: 0, alignSelf: 'stretch' }}
+    <div
+      class="box flex-1 min-h-[0] self-stretch"
+      data-testid="chess-puzzle-play-screen"
     >
       <Show
         when={activePuzzleId() !== null}
@@ -225,6 +225,6 @@ export function PuzzlePlayScreen(): JSX.Element {
           onFeedConfigApplied={reselectActivePuzzleFromFeed}
         />
       </Show>
-    </Box>
+    </div>
   );
 }

@@ -1,6 +1,6 @@
 import { Handles } from '@libs/test-ids';
 import { useLingui } from '@lingui/solid/macro';
-import { Clickable, useRouter } from '@pkgs/ui';
+import { dataAttrs, useRouter } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { createMemo } from 'solid-js';
 import { openSpaceDetail } from '../../../public/space-routes';
@@ -28,16 +28,18 @@ export function SpaceCardOpenLink(props: SpaceCardOpenLinkProps): JSX.Element {
       : t`Open space ${resolvedTitle()}`;
   });
   return (
-    <Clickable
-      onClick={() => openSpaceDetail(router, props.spaceId)}
-      aria-label={accessibilityLabel()}
-      dataSet={
+    <button
+      class="clickable clickableTint"
+      {...dataAttrs(
         hostUsername() !== null
           ? { testid: Handles.spaceCard(hostUsername() ?? '') }
           : undefined
-      }
+      )}
+      type="button"
+      onClick={() => openSpaceDetail(router, props.spaceId)}
+      aria-label={accessibilityLabel()}
     >
       {props.children}
-    </Clickable>
+    </button>
   );
 }
