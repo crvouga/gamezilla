@@ -1,4 +1,4 @@
-import { useMutationClient } from '@libs/auth/public/mutation-client-provider';
+import { useMutationClient } from '@libs/auth/public/use-mutation-client';
 import { Handles } from '@libs/test-ids';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import {

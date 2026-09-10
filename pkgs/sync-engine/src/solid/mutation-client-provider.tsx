@@ -1,18 +1,16 @@
 /** @jsxImportSource solid-js */
 import type { CreateId } from '@pkgs/uuid';
-import { createContext, type ParentProps, untrack, useContext } from 'solid-js';
+import { type ParentProps, untrack } from 'solid-js';
 
 import {
   createMutationClient,
-  type MutationClient,
   type MutationClientIds,
   type MutationConnectivity,
 } from '../mutations/client/create-mutation-client';
 import type { MutationEnv, MutationRegistry } from '../mutations/core/types';
 import { withFrameworkMutations } from '../mutations/shared/with-framework-mutations';
+import { MutationClientContext } from './mutation-client-context';
 import { useSyncEngineInstance } from './sync-engine-context';
-
-const MutationClientContext = createContext<MutationClient>();
 
 export type MutationClientProviderProps = {
   readonly registry: MutationRegistry;
@@ -27,6 +25,10 @@ export type MutationClientProviderProps = {
  * mutation env / client ids. The client is created once per provider mount
  * (props are configuration, not reactive inputs) so bootstrap `ensure*`
  * effects never re-fire on status churn.
+ *
+ * Imports `createMutationClient` (SQL AST / node-sql-parser). Keep this module
+ * out of lightweight route graphs — consumers of {@link useMutationClient}
+ * must import from `mutation-client-context`, not this file.
  */
 export function MutationClientProvider(
   props: ParentProps<MutationClientProviderProps>
@@ -59,14 +61,4 @@ export function MutationClientProvider(
       {props.children}
     </MutationClientContext.Provider>
   );
-}
-
-export function useMutationClient(): MutationClient {
-  const client = useContext(MutationClientContext);
-  if (client === undefined) {
-    throw new Error(
-      'useMutationClient: provider missing — mount inside MutationClientProvider'
-    );
-  }
-  return client;
 }

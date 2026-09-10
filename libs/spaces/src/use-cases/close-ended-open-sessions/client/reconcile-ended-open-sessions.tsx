@@ -1,5 +1,5 @@
-import { useMutationClient } from '@libs/auth/public/mutation-client-provider';
 import { useDeviceId } from '@libs/auth/public/use-device-id';
+import { useMutationClient } from '@libs/auth/public/use-mutation-client';
 import { useTimers } from '@pkgs/clock/solid';
 import { sql } from '@pkgs/sql';
 import { createQuery, useSyncEngine } from '@pkgs/sync-engine/solid';

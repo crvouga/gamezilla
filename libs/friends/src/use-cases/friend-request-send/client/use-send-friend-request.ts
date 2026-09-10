@@ -1,4 +1,4 @@
-import { useMutationClient } from '@libs/auth/public/mutation-client-provider';
+import { useMutationClient } from '@libs/auth/public/use-mutation-client';
 import { useCreateId } from '@pkgs/uuid/solid';
 
 import { sendFriendRequestMutation } from '../shared/send-friend-request-mutation';

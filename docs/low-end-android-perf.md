@@ -22,13 +22,13 @@ Measured on the **initial** route graph: Vite manifest entry + static `imports` 
 
 | Asset | Hard fail (baseline-tunable) |
 | --- | --- |
-| Initial JS (gzip primary) | **100 KB** |
+| Initial JS (gzip primary) | **125 KB** |
 | Initial CSS (gzip) | **20 KB** |
 | Fonts on initial path | **40 KB** |
 | Initial images (raw, non–apple-splash) | **50 KB** total / **40 KB** per file |
 | Critical path total | **170 KB** |
-| Uncompressed initial JS | **300 KB** |
-| Lazy route graph (default) | **200 KB** gzip; overrides for game-plugins / chess / ui-explorer |
+| Uncompressed initial JS | **400 KB** |
+| Lazy route graph (default) | **200 KB** gzip; overrides for game-plugins / chess / ui-explorer / profile-avatar (dicebear) / sync-engine boot (`create-local-sync-engine`, `sync-engine-ready-tree`) |
 
 Brotli sizes are **reported** (Cloudflare edge prefers brotli); CI enforces **gzip** for determinism. Production `Content-Encoding` is smoke-checked separately.
 

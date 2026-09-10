@@ -1,4 +1,4 @@
-import { useMutationClient } from '@libs/auth/public/mutation-client-provider';
+import { useMutationClient } from '@libs/auth/public/use-mutation-client';
 import { useSpaceRoomDispatch } from '../../../public/room/use-space-room-selector';
 import { AnnounceRenamed } from '../../../shared/space/space-log/space-log-messages';
 import { renameSpaceMutation } from '../../mutations';

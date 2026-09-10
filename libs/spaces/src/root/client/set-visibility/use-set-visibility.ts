@@ -1,4 +1,4 @@
-import { useMutationClient } from '@libs/auth/public/mutation-client-provider';
+import { useMutationClient } from '@libs/auth/public/use-mutation-client';
 import { useSpaceRoomDispatch } from '../../../public/room/use-space-room-selector';
 import { AnnounceVisibilityChanged } from '../../../shared/space/space-log/space-log-messages';
 import type { SpaceVisibility } from '../../../shared/space/space-visibility';

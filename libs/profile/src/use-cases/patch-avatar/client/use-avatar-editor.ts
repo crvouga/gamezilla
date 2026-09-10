@@ -1,5 +1,5 @@
-import { useMutationClient } from '@libs/auth/public/mutation-client-provider';
 import { useDeviceId } from '@libs/auth/public/use-device-id';
+import { useMutationClient } from '@libs/auth/public/use-mutation-client';
 import { useRouter } from '@pkgs/ui';
 import type { Random } from '@pkgs/uuid';
 import { useRandom } from '@pkgs/uuid/solid';

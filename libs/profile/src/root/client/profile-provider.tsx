@@ -1,6 +1,6 @@
 import { SESSION_EXTERNAL_USER_ID_KEY } from '@libs/auth/public/auth-storage-keys';
-import { useMutationClient } from '@libs/auth/public/mutation-client-provider';
 import { useMyId } from '@libs/auth/public/use-current-user';
+import { useMutationClient } from '@libs/auth/public/use-mutation-client';
 import { createSecureStorageItemOptional } from '@pkgs/secure-storage/solid';
 import type { JSX, ParentProps } from 'solid-js';
 import { createEffect } from 'solid-js';

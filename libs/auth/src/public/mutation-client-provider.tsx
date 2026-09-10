@@ -1,15 +1,10 @@
 import { useClock } from '@pkgs/clock/solid';
 import type { MutationEnv, MutationRegistry } from '@pkgs/sync-engine/shared';
-import {
-  MutationClientProvider as SyncMutationClientProvider,
-  useMutationClient,
-} from '@pkgs/sync-engine/solid';
+import { MutationClientProvider as SyncMutationClientProvider } from '@pkgs/sync-engine/solid';
 import { useCreateId } from '@pkgs/uuid/solid';
 import { type JSX, type ParentProps, untrack } from 'solid-js';
 
 import { useRulesAuth } from './use-rules-auth';
-
-export { useMutationClient };
 
 /** Product wrapper: injects rules auth into the sync-engine mutation client. */
 export function MutationClientProvider(

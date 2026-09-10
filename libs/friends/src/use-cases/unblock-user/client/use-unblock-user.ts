@@ -1,4 +1,4 @@
-import { useMutationClient } from '@libs/auth/public/mutation-client-provider';
+import { useMutationClient } from '@libs/auth/public/use-mutation-client';
 
 import { unblockUserMutation } from '../shared/unblock-user-mutation';
 

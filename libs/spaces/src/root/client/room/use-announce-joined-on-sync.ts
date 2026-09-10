@@ -1,5 +1,5 @@
-import { useMutationClient } from '@libs/auth/public/mutation-client-provider';
 import { useMyId } from '@libs/auth/public/use-current-user';
+import { useMutationClient } from '@libs/auth/public/use-mutation-client';
 import { RoomMetaAttr } from '@pkgs/room';
 import { createEffect } from 'solid-js';
 import {

@@ -2,12 +2,14 @@
   "name": "@pkgs/sync-engine",
   "version": "0.0.0",
   "private": true,
+  "sideEffects": false,
   "exports": {
     "./client": "./src/client/index.ts",
     "./server": "./src/server/index.ts",
     "./shared": "./src/shared/index.ts",
     "./sim": "./src/sim/index.ts",
-    "./solid": "./src/solid/index.ts"
+    "./solid": "./src/solid/index.ts",
+    "./solid/mutation-client": "./src/solid/mutation-client-context.tsx"
   },
   "scripts": {
     "lint": "bunx biome check --error-on-warnings .",
