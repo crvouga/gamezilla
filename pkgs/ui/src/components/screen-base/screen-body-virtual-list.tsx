@@ -9,7 +9,6 @@
  */
 
 import { type JSX, splitProps } from 'solid-js';
-import { joinClass } from '../box/box';
 import { VirtualList, type VirtualListProps } from '../virtual-list';
 
 export type ScreenBodyVirtualListProps<ItemT> = VirtualListProps<ItemT>;
@@ -21,7 +20,8 @@ export function ScreenBodyVirtualList<ItemT>(
   return (
     <div class="flex-1 min-h-0">
       <VirtualList
-        class={joinClass('flex-1', local.class)}
+        class="flex-1"
+        classList={{ [String(local.class)]: true }}
         dataSet={{ component: 'ScreenBodyVirtualList', ...local.dataSet }}
         {...rest}
       />

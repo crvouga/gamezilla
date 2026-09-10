@@ -1,5 +1,5 @@
 /** @jsxImportSource solid-js */
-import { AppFrame, AppFrameChromeProvider, Text } from '@pkgs/ui';
+import { AppFrame, AppFrameChromeProvider } from '@pkgs/ui';
 import { AppHeaderIsland } from '@pkgs/ui/components/app-header-island';
 import { HouseIcon, SettingsIcon } from '@pkgs/ui/components/icons';
 import { screen } from '@solidjs/testing-library';
@@ -17,7 +17,7 @@ describe('AppHeaderIsland', () => {
     renderUi(
       () => (
         <AppHeaderIsland
-          leading={<Text label="Logo" />}
+          leading={<p class="text">{'Logo'}</p>}
           items={[
             {
               id: 'home',
@@ -34,7 +34,7 @@ describe('AppHeaderIsland', () => {
               onClick: onSettings,
             },
           ]}
-          trailing={<Text label="Avatar" />}
+          trailing={<p class="text">{'Avatar'}</p>}
         />
       ),
       WIDE
@@ -56,11 +56,11 @@ describe('AppHeaderIsland', () => {
   test('omits the tablist without items and falls back to AppFrame global trailing', () => {
     renderUi(
       () => (
-        <AppFrameChromeProvider globalTrailing={<Text label="Global" />}>
+        <AppFrameChromeProvider globalTrailing={<p class="text">{'Global'}</p>}>
           <AppFrame
-            header={<AppHeaderIsland leading={<Text label="Logo" />} />}
+            header={<AppHeaderIsland leading={<p class="text">{'Logo'}</p>} />}
           >
-            <Text label="body" />
+            <p class="text">{'body'}</p>
           </AppFrame>
         </AppFrameChromeProvider>
       ),

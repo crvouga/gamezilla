@@ -3,11 +3,11 @@
  * On-color context -- propagates a contrast-safe foreground set down the tree.
  *
  * Colored surfaces (gradients, brand fills, avatars, solid buttons) wrap their
- * children in an {@link OnColorProvider}; `Text` and icons then read
- * {@link useOnColor} to pick a legible default color automatically.
+ * children in an {@link OnColorProvider}; text/CSS (`--ui-on-fg*`) and icons
+ * (`useOnColor`) then pick a legible default color automatically.
  *
- * When no provider is present, {@link useOnColor} resolves to the theme's
- * normal `text` / `textSecondary` / `icon` variables.
+ * When no provider is present, colors fall back to the theme's normal
+ * `text` / `textSecondary` / `icon` variables.
  */
 
 import {
@@ -35,6 +35,23 @@ export function useOnColor(): Accessor<OnColorSet> {
   return () => ctx() ?? fallback;
 }
 
+function onColorCssVars(set: OnColorSet | null): JSX.CSSProperties {
+  if (set === null) {
+    return {
+      display: 'contents',
+      '--ui-on-fg': 'var(--ui-color-text)',
+      '--ui-on-fg-muted': 'var(--ui-color-text-secondary)',
+      '--ui-on-icon': 'var(--ui-color-icon)',
+    } as JSX.CSSProperties;
+  }
+  return {
+    display: 'contents',
+    '--ui-on-fg': set.fg,
+    '--ui-on-fg-muted': set.fgMuted,
+    '--ui-on-icon': set.icon,
+  } as JSX.CSSProperties;
+}
+
 /**
  * Break out of a parent {@link OnColorProvider} so neutral surfaces (modals,
  * sheets, menus) pick up the theme's standard foreground.
@@ -42,7 +59,7 @@ export function useOnColor(): Accessor<OnColorSet> {
 export function OnColorReset(props: { children: JSX.Element }): JSX.Element {
   return (
     <OnColorContext.Provider value={() => null}>
-      {props.children}
+      <div style={onColorCssVars(null)}>{props.children}</div>
     </OnColorContext.Provider>
   );
 }
@@ -74,7 +91,7 @@ export function OnColorProvider(props: OnColorProviderProps): JSX.Element {
   });
   return (
     <OnColorContext.Provider value={resolved}>
-      {props.children}
+      <div style={onColorCssVars(resolved())}>{props.children}</div>
     </OnColorContext.Provider>
   );
 }

@@ -20,9 +20,7 @@ import {
   on,
   Show,
 } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
-import { Clickable } from '../clickable';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { PlusIcon } from '../icons';
 import { useDocumentShortcuts } from '../keyboard-shortcuts';
 import { ScrollView } from '../scroll-view';
@@ -106,13 +104,13 @@ export function TabStrip(props: TabStripProps): JSX.Element {
     (props.trailing === undefined || props.trailing === null);
 
   return (
-    <Box
-      class="grow-0 shrink-0 flex-row items-center gap-2 px-1 pt-0.5 pb-0 border-b border-border bg-surface-muted"
+    <div
+      class="box grow-0 shrink-0 flex-row items-center gap-2 px-1 pt-0.5 pb-0 border-b border-border bg-surface-muted"
+      {...dataAttrs({ component: 'TabStrip', ...props.dataSet })}
       style={{ 'min-height': `${TAB_MIN_HEIGHT + 4}px` }}
-      dataSet={{ component: 'TabStrip', ...props.dataSet }}
     >
       <Show when={props.leading !== undefined && props.leading !== null}>
-        <Box class="shrink-0 px-0.5 self-center">{props.leading}</Box>
+        <div class="box shrink-0 px-0.5 self-center">{props.leading}</div>
       </Show>
       <ScrollView
         horizontal
@@ -149,21 +147,22 @@ export function TabStrip(props: TabStripProps): JSX.Element {
         </Index>
       </ScrollView>
       <Show when={props.trailing !== undefined && props.trailing !== null}>
-        <Box class="shrink-0 self-stretch -mt-0.5 justify-center pl-1">
+        <div class="box shrink-0 self-stretch -mt-0.5 justify-center pl-1">
           {props.trailing}
-        </Box>
+        </div>
       </Show>
       <Show when={showStandaloneAdd()}>
-        <Clickable
-          class="px-1 py-0.5 items-center justify-center rounded-tl-[10px] rounded-tr-[10px] overflow-hidden self-center"
+        <button
+          class="clickable clickableTint px-1 py-0.5 items-center justify-center rounded-tl-[10px] rounded-tr-[10px] overflow-hidden self-center"
+          data-component="TabStripAdd"
+          type="button"
           style={{ height: `${TAB_MIN_HEIGHT}px` }}
           aria-label={t`Add tab`}
-          dataSet={{ component: 'TabStripAdd' }}
           onClick={() => props.onAdd?.()}
         >
           <PlusIcon size={16} color="textSecondary" />
-        </Clickable>
+        </button>
       </Show>
-    </Box>
+    </div>
   );
 }

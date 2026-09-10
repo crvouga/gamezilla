@@ -4,9 +4,10 @@
  *
  * Uses {@link Clickable} so hover / press feedback come from the
  * `interactiveHover` / `interactivePress` overlay tokens. By default every
- * button shows a {@link Tooltip} with its `label` (hover + keyboard focus).
- * Pass `tooltip="hover"` for pointer-hover only, or `tooltip="none"` when a
- * visible caption already labels the control.
+ * button shows a {@link Tooltip} with its `label` on pointer hover only
+ * (programmatic focus / modal autofocus never pops a bubble). Pass
+ * `tooltip="default"` for hover + keyboard `:focus-visible`, or
+ * `tooltip="none"` when a visible caption already labels the control.
  *
  * The `<button>` is the hit target and is never smaller than
  * {@link ICON_BUTTON_MIN_HIT_TARGET} (44px); the visual disc inside is exactly
@@ -28,10 +29,8 @@
 
 import { useTimers } from '@pkgs/clock/solid';
 import { type JSX, Show, untrack } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { OnColorProvider, resolveColor, useThemeTokens } from '../../theme';
-import { Box } from '../box';
-import { Clickable } from '../clickable';
 import { Tooltip, useTooltipTrigger } from '../tooltip';
 
 export type IconButtonVariant = 'icon' | 'avatar';
@@ -61,8 +60,9 @@ export type IconButtonProps = {
   /** When true, shows the tooltip briefly after `onClick` (touch feedback). */
   flashTooltipOnClick?: boolean | undefined;
   /**
-   * Tooltip behavior. `'default'` = hover + focus; `'hover'` = pointer hover
-   * only; `'none'` = no tooltip (label still used for a11y).
+   * Tooltip behavior. Defaults to `'hover'` (pointer only) so programmatic
+   * focus never pops a bubble. `'default'` = hover + keyboard `:focus-visible`;
+   * `'none'` = no tooltip (label still used for a11y).
    */
   tooltip?: IconButtonTooltipMode | undefined;
   /** Visual disc diameter in pixels. Defaults to 40. */
@@ -160,7 +160,14 @@ function IconButtonFace(
   };
 
   return (
-    <Clickable
+    <button
+      class={`clickable clickableTint ${hitBoxClass()}`}
+      {...dataAttrs({
+        component: 'IconButton',
+        variant: props.variant ?? 'icon',
+        ...props.dataSet,
+      })}
+      type="button"
       onClick={handleClick}
       disabled={props.disabled === true}
       aria-label={resolveAriaLabel(props.label, props['aria-label'])}
@@ -171,17 +178,11 @@ function IconButtonFace(
           ? tooltip.id
           : undefined
       }
-      class={hitBoxClass()}
       style={hitBoxStyle(size(), props.disabled === true)}
-      dataSet={{
-        component: 'IconButton',
-        variant: props.variant ?? 'icon',
-        ...props.dataSet,
-      }}
     >
-      <Box
-        dataSet={{ component: 'IconButtonDisc' }}
-        class={discClass()}
+      <div
+        class={`box ${discClass()}`}
+        data-component="IconButtonDisc"
         style={discStyle({
           size: size(),
           bg: bg(),
@@ -192,19 +193,19 @@ function IconButtonFace(
         <Show when={hasBackground() && !isAvatar()} fallback={props.children}>
           <OnColorProvider background={bg()}>{props.children}</OnColorProvider>
         </Show>
-      </Box>
-    </Clickable>
+      </div>
+    </button>
   );
 }
 
 export function IconButton(props: IconButtonProps): JSX.Element {
-  const tooltipMode = (): IconButtonTooltipMode => props.tooltip ?? 'default';
+  const tooltipMode = (): IconButtonTooltipMode => props.tooltip ?? 'hover';
   return (
     <Show
       when={tooltipMode() !== 'none'}
       fallback={<IconButtonFace {...props} tooltipMode="none" />}
     >
-      <Tooltip label={props.label}>
+      <Tooltip label={props.label} enableFocus={tooltipMode() === 'default'}>
         <IconButtonFace {...props} tooltipMode={tooltipMode()} />
       </Tooltip>
     </Show>

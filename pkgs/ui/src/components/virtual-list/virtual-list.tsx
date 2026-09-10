@@ -15,7 +15,6 @@ import {
 } from '@tanstack/solid-virtual';
 import { createMemo, For, type JSX, Show, splitProps, untrack } from 'solid-js';
 import { type ComponentDataSet, componentDataAttrs } from '../../component-id';
-import { joinClass } from '../box/box';
 import {
   requestsFlexFill,
   resolveFlushEdgeStyles,
@@ -229,18 +228,20 @@ export function VirtualList<ItemT>(
         scroller = el;
         local.ref?.(el);
       }}
-      class={joinClass(styles['scroll'], local.class)}
+      class={[styles['scroll'], local.class].filter(Boolean).join(' ')}
       classList={local.classList}
       style={fixedScrollerStyle(fixedHeight, local.style)}
       {...componentDataAttrs('VirtualList', local.dataSet)}
       {...rest}
     >
       <div
-        class={joinClass(
+        class={[
           styles['scrollContent'],
           flush().contentClass,
-          local.contentClass
-        )}
+          local.contentClass,
+        ]
+          .filter(Boolean)
+          .join(' ')}
         classList={local.contentClassList}
         style={local.contentStyle}
         data-component="VirtualListContent"
@@ -262,7 +263,9 @@ export function VirtualList<ItemT>(
     <Show when={flush().wrapperClass} fallback={list}>
       {(wrapperClass) => (
         <div
-          class={joinClass(wrapperClass(), flexFill() && 'flex-1')}
+          class={[wrapperClass(), flexFill() ? 'flex-1' : undefined]
+            .filter(Boolean)
+            .join(' ')}
           style={flush().contentStyle}
         >
           {list}

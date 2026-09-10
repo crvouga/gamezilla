@@ -138,12 +138,16 @@ export function ensureRuntimeImports(text: string, filePath = ''): string {
 }
 
 function isPkgsUiSrc(filePath: string): boolean {
-  return filePath.replace(/\\/g, '/').includes('/pkgs/ui/src/');
+  const normalized = filePath.replace(/\\/g, '/');
+  return (
+    normalized.includes('/pkgs/ui/src/') ||
+    normalized.startsWith('pkgs/ui/src/')
+  );
 }
 
 function relModule(filePath: string, targetFromSrc: string): string {
   const normalized = filePath.replace(/\\/g, '/');
-  const marker = '/pkgs/ui/src/';
+  const marker = 'pkgs/ui/src/';
   const idx = normalized.indexOf(marker);
   invariant(idx >= 0, 'relModule requires pkgs/ui/src path');
   const fromFile = normalized.slice(idx + marker.length);

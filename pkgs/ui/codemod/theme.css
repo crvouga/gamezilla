@@ -1,21 +1,10 @@
-/* sx-codemod Tailwind v4 theme — emitted by `pkgs/ui/codemod`.
+/* Token → Tailwind v4 `@theme` colors for migrated utilities (`bg-surface`, …).
  *
- * Token utilities used by converted code (`bg-surface`, `text-text`,
- * `border-outline`, `bg-elevation-1`, …). Every entry references the same
- * `var(--ui-color-*)` / `var(--ui-elevation-*)` variables the runtime `sx`
- * compiler emits, so light/dark scheme switching keeps working unchanged.
- * This is the Tailwind v4 idiom for CSS-variable-backed themes.
- *
- * Spacing, font-size, and line-height need no entries: v4 derives spacing
- * utilities from `--spacing` (same 4px grid) and the default `text-*`
- * scale is byte-identical to ours (12/14/16/18/20/24/30/36).
- *
- * Import once alongside `@pkgs/ui/tokens.css` (or from the app entry that
- * already imports `@pkgs/tailwind/tailwind.css`, whose `@source` scan
- * covers this file's consumers).
+ * Pulled in from `@pkgs/tailwind/tailwind.css` via `@import` so the Tailwind
+ * compiler emits utilities. Do not import this file alone from app entries —
+ * Vite would inject raw `@theme` into the browser and skip generation.
+ * Values point at the same `--ui-color-*` vars as `tokens.css`.
  */
-
-@import "tailwindcss";
 
 @theme {
   --color-background: var(--ui-color-background);

@@ -42,6 +42,7 @@ export function CloseIconButton(props: CloseIconButtonProps): JSX.Element {
       onClick={() => props.onClick()}
       label={label()}
       aria-label={label()}
+      tooltip="none"
       dataSet={{ component: 'CloseIconButton', ...props.dataSet }}
     >
       <XIcon size={Math.round(size() * ICON_SIZE_RATIO)} color="text" />

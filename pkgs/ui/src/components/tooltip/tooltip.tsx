@@ -19,7 +19,6 @@ import {
 } from 'solid-js';
 import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { useHoverCapable } from '../../theme';
-import { joinClass } from '../box/box';
 import styles from './tooltip.module.css';
 import {
   claimActiveTooltip,
@@ -34,6 +33,11 @@ export type TooltipProps = {
   label: JSX.Element;
   children: JSX.Element;
   placement?: TooltipPlacement | undefined;
+  /**
+   * When true, keyboard `:focus-visible` also shows the bubble. Defaults to
+   * true for standalone tooltips; IconButton hover-mode passes false.
+   */
+  enableFocus?: boolean | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
 };
@@ -74,7 +78,8 @@ export function Tooltip(props: TooltipProps): JSX.Element {
   return (
     <TooltipContext.Provider value={controller}>
       <div
-        class={joinClass('box', styles['anchor'])}
+        class="box"
+        classList={{ [styles['anchor'] ?? '']: true }}
         role="presentation"
         onMouseEnter={() => {
           if (hoverCapable()) show();
@@ -82,21 +87,35 @@ export function Tooltip(props: TooltipProps): JSX.Element {
         onMouseLeave={() => {
           if (hoverCapable()) hide();
         }}
-        onFocusIn={() => show()}
-        onFocusOut={() => hide()}
+        onFocusIn={(event) => {
+          if (props.enableFocus === false) return;
+          // Only keyboard :focus-visible — programmatic focus (modal open)
+          // must not pop the tooltip.
+          const target = event.target;
+          if (
+            target instanceof HTMLElement &&
+            target.matches(':focus-visible')
+          ) {
+            show();
+          }
+        }}
+        onFocusOut={() => {
+          if (props.enableFocus === false) return;
+          hide();
+        }}
         onKeyDown={(event) => {
           if (event.key === 'Escape') hide();
         }}
       >
         {props.children}
         <div
-          class={joinClass(
-            'box',
-            styles['bubble'],
-            placement() === 'top' ? styles['top'] : styles['bottom'],
-            visible() && styles['open'],
-            'bg-surface-elevated rounded-[6px] px-2 py-1 w-max'
-          )}
+          class="box bg-surface-elevated rounded-[6px] px-2 py-1 w-max"
+          classList={{
+            [styles['bubble'] ?? '']: true,
+            [styles['top'] ?? '']: placement() === 'top',
+            [styles['bottom'] ?? '']: placement() !== 'top',
+            [styles['open'] ?? '']: visible(),
+          }}
           {...dataAttrs({ component: 'Tooltip', ...props.dataSet })}
           style={{ 'max-width': `${TOOLTIP_MAX_WIDTH}px` }}
           id={id}

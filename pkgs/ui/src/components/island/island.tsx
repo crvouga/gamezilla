@@ -5,16 +5,14 @@
  */
 
 import { type JSX, Show, splitProps } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import {
   ISLAND_PADDING_STEP,
   ISLAND_RADIUS,
   spacingScale,
   useLayoutMode,
 } from '../../theme';
-import { Box, joinClass } from '../box';
 import { ContentEdgePaddingProvider } from '../content-edge-padding';
-import { Text } from '../text';
 
 export type IslandSpan = 1 | 2 | 3;
 
@@ -37,38 +35,31 @@ function IslandTitleRow(props: {
   actions: JSX.Element | undefined;
 }): JSX.Element {
   return (
-    <Box class="flex-row items-center gap-2 mb-3">
-      <Box class="flex-1 min-w-0 gap-0.5">
-        <Text variant="subtitle" as="h2" label={props.title} />
+    <div class="box flex-row items-center gap-2 mb-3">
+      <div class="box flex-1 min-w-0 gap-0.5">
+        <h2 class="text textSubtitle">{props.title}</h2>
         <Show when={props.caption !== undefined && props.caption !== null}>
-          <Text
-            variant="caption"
-            class="text-text-secondary"
-            label={props.caption}
-          />
+          <p class="text textCaption text-text-secondary">{props.caption}</p>
         </Show>
-      </Box>
+      </div>
       {props.actions}
-    </Box>
+    </div>
   );
 }
 
 function IslandWide(props: IslandProps): JSX.Element {
   const hasTitle = () => props.title !== undefined && props.title !== null;
   return (
-    <Box
-      as="section"
-      class={joinClass(
-        'bg-surface-elevated border border-solid border-border overflow-hidden',
-        props.class
-      )}
+    <section
+      class="box bg-surface-elevated border border-solid border-border overflow-hidden"
+      classList={{ [String(props.class)]: true }}
+      {...dataAttrs({ component: 'Island', ...props.dataSet })}
       style={{
         'border-radius': `${ISLAND_RADIUS}px`,
         padding: `${spacingScale(ISLAND_PADDING_STEP)}px`,
         'grid-column': `span ${props.span ?? 1}`,
         ...props.style,
       }}
-      dataSet={{ component: 'Island', ...props.dataSet }}
     >
       <ContentEdgePaddingProvider step={ISLAND_PADDING_STEP}>
         <Show when={hasTitle()}>
@@ -80,7 +71,7 @@ function IslandWide(props: IslandProps): JSX.Element {
         </Show>
         {props.children}
       </ContentEdgePaddingProvider>
-    </Box>
+    </section>
   );
 }
 
@@ -100,13 +91,14 @@ export function Island(props: IslandProps): JSX.Element {
     <Show
       when={mode() === 'wide'}
       fallback={
-        <Box
-          class={local.class}
+        <div
+          class="box"
+          classList={{ [String(local.class)]: true }}
+          {...dataAttrs({ component: 'Island', ...local.dataSet })}
           style={local.style}
-          dataSet={{ component: 'Island', ...local.dataSet }}
         >
           {local.children}
-        </Box>
+        </div>
       }
     >
       <IslandWide {...local} {...rest} />

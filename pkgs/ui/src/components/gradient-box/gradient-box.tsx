@@ -13,7 +13,6 @@ import {
   type OnColorSet,
   useThemeTokens,
 } from '../../theme';
-import { joinClass } from '../box/box';
 import styles from '../hosts.module.css';
 import { type GradientPoint, linearGradientCss } from './gradient-css';
 
@@ -82,7 +81,7 @@ export function GradientBox(props: GradientBoxProps): JSX.Element {
   );
   return (
     <div
-      class={joinClass(styles['box'], local.class)}
+      class={[styles['box'], local.class].filter(Boolean).join(' ')}
       style={style()}
       {...componentDataAttrs('GradientBox', local.dataSet)}
       {...rest}

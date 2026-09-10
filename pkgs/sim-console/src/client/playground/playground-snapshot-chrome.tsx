@@ -310,7 +310,7 @@ function SnapshotChromeActions(props: {
             .catch(() => undefined);
         }}
       >
-        <SaveIcon size={GLYPH_SIZE} />
+        <SaveIcon size={GLYPH_SIZE} color="icon" />
       </IconButton>
       <IconButton
         label="Reload current snapshot"
@@ -321,7 +321,7 @@ function SnapshotChromeActions(props: {
           void props.list.onLoad(props.selectedId);
         }}
       >
-        <RotateCcwIcon size={GLYPH_SIZE} />
+        <RotateCcwIcon size={GLYPH_SIZE} color="icon" />
       </IconButton>
       {props.hasIncompatible ? (
         <IconButton
@@ -330,7 +330,7 @@ function SnapshotChromeActions(props: {
           disabled={props.list.busy}
           onClick={props.onPurge}
         >
-          <Trash2Icon size={GLYPH_SIZE} />
+          <Trash2Icon size={GLYPH_SIZE} color="icon" />
         </IconButton>
       ) : null}
       <IconButton
@@ -338,7 +338,7 @@ function SnapshotChromeActions(props: {
         size={ICON_SIZE}
         onClick={props.openPalette}
       >
-        <SearchIcon size={GLYPH_SIZE} />
+        <SearchIcon size={GLYPH_SIZE} color="icon" />
       </IconButton>
     </>
   );
@@ -348,38 +348,34 @@ function ClientLayoutToggle(props: {
   readonly onSelect: (mode: ClientLayoutMode) => void;
 }) {
   return (
-    <div class="box" style={layoutToggleSx}>
+    <div class="box flex-row items-center gap-px shrink-0">
       <IconButton
         label="Tab clients"
         size={ICON_SIZE}
-        {...(props.preference === 'tabs' ? { background: 'surfaceMuted' } : {})}
+        {...(props.preference === 'tabs'
+          ? { background: 'tintSubtle' }
+          : {})}
         onClick={() => {
           props.onSelect('tabs');
         }}
       >
-        <SquareStackIcon size={GLYPH_SIZE} />
+        <SquareStackIcon size={GLYPH_SIZE} color="icon" />
       </IconButton>
       <IconButton
         label="Column clients"
         size={ICON_SIZE}
         {...(props.preference === 'columns'
-          ? { background: 'surfaceMuted' }
+          ? { background: 'tintSubtle' }
           : {})}
         onClick={() => {
           props.onSelect('columns');
         }}
       >
-        <Columns2Icon size={GLYPH_SIZE} />
+        <Columns2Icon size={GLYPH_SIZE} color="icon" />
       </IconButton>
     </div>
   );
 }
-const layoutToggleSx = {
-  'flex-direction': 'row',
-  'align-items': 'center',
-  gap: '1px',
-  'flex-shrink': 0,
-} as const;
 /** Snapshot Select + save / reload / palette icon buttons. */
 export function PlaygroundSnapshotChrome(props: {
   readonly session: PlaygroundSession;
@@ -406,7 +402,7 @@ export function PlaygroundSnapshotChrome(props: {
           size={ICON_SIZE}
           onClick={() => setCompactOpen(true)}
         >
-          <SlidersHorizontalIcon size={GLYPH_SIZE} />
+          <SlidersHorizontalIcon size={GLYPH_SIZE} color="icon" />
         </IconButton>
       ) : (
         <ClientLayoutToggle

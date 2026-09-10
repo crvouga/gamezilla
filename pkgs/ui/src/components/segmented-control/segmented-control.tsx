@@ -23,8 +23,6 @@ import { cssPx } from '../../css/css-px';
 
 import { For, type JSX, Show } from 'solid-js';
 import { type ComponentDataSet, dataAttrs } from '../../component-id';
-import { joinClass } from '../box';
-import { Clickable } from '../clickable';
 
 export type Segment<K extends string = string> = {
   key: K;
@@ -63,12 +61,16 @@ function SegmentButton<K extends string>(props: {
   onSelect: (key: K) => void;
 }): JSX.Element {
   return (
-    <Clickable
-      feedback={props.isActive ? 'none' : 'tint'}
-      class={joinClass(
-        'rounded-[6px] flex-1 items-center [padding-top:8px;padding-bottom:8px] [padding-left:14px;padding-right:14px] bg-transparent relative z-1'
-      )}
-      dataSet={{ component: 'Segment' }}
+    <button
+      class="clickable rounded-[6px] flex-1 items-center [padding-top:8px;padding-bottom:8px] [padding-left:14px;padding-right:14px] bg-transparent relative z-1"
+      classList={{
+        clickableOpacity:
+          String(props.isActive ? 'none' : 'tint') === 'opacity',
+        clickableTint:
+          String(props.isActive ? 'none' : 'tint') !== 'opacity' &&
+          String(props.isActive ? 'none' : 'tint') !== 'none',
+      }}
+      data-component="Segment"
       data-key={props.segment.key}
       type="button"
       role="radio"
@@ -85,7 +87,7 @@ function SegmentButton<K extends string>(props: {
       >
         {props.segment.label}
       </label>
-    </Clickable>
+    </button>
   );
 }
 

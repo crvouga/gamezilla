@@ -3,6 +3,7 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
   ChevronDownIcon,
   type CodeSelection,
+  colorVar,
   CopyIcon,
   IconButton,
   PlayIcon,
@@ -85,7 +86,9 @@ export function SqlCell(props: SqlCellRenderProps): JSX.Element {
   return (
     <div
       class="box border rounded-[10px] overflow-hidden bg-surface"
-      style={{ 'border-color': props.focused() ? 'tint' : 'outline' }}
+      style={{
+        'border-color': props.focused() ? colorVar('tint') : colorVar('outline'),
+      }}
       data-component="SqlCell"
     >
       <CellChrome
@@ -161,14 +164,14 @@ function CellChrome(props: {
 }): JSX.Element {
   return (
     <div class="box flex-row items-center gap-1 px-1 py-0.5 bg-surface-muted">
-      <p class="text text-[11px] text-text-secondary px-1">{`[${props.index() + 1}]`}</p>
+      <p class="text textCaption text-text-secondary px-1">{`[${props.index() + 1}]`}</p>
       <IconButton
         label="Run cell"
         size={26}
         tooltip="hover"
         onClick={props.onRun}
       >
-        <PlayIcon size={12} />
+        <PlayIcon size={12} color="icon" />
       </IconButton>
       <IconButton
         label="Add below"
@@ -176,7 +179,7 @@ function CellChrome(props: {
         tooltip="hover"
         onClick={props.onAddBelow}
       >
-        <PlusIcon size={12} />
+        <PlusIcon size={12} color="icon" />
       </IconButton>
       <IconButton
         label="Move up"
@@ -184,7 +187,11 @@ function CellChrome(props: {
         tooltip="hover"
         onClick={() => props.onMove(-1)}
       >
-        <ChevronDownIcon size={12} style={{ transform: 'rotate(180deg)' }} />
+        <ChevronDownIcon
+          size={12}
+          color="icon"
+          style={{ transform: 'rotate(180deg)' }}
+        />
       </IconButton>
       <IconButton
         label="Move down"
@@ -192,7 +199,7 @@ function CellChrome(props: {
         tooltip="hover"
         onClick={() => props.onMove(1)}
       >
-        <ChevronDownIcon size={12} />
+        <ChevronDownIcon size={12} color="icon" />
       </IconButton>
       <IconButton
         label="Duplicate"
@@ -200,7 +207,7 @@ function CellChrome(props: {
         tooltip="hover"
         onClick={props.onDuplicate}
       >
-        <CopyIcon size={12} />
+        <CopyIcon size={12} color="icon" />
       </IconButton>
       <IconButton
         label="Delete cell"
@@ -208,7 +215,7 @@ function CellChrome(props: {
         tooltip="hover"
         onClick={props.onRemove}
       >
-        <Trash2Icon size={12} />
+        <Trash2Icon size={12} color="icon" />
       </IconButton>
       <div class="box flex-1" />
       <Switch

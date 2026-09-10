@@ -1,8 +1,10 @@
 /** @jsxImportSource solid-js */
 /**
  * Dismissible banner anchored to the top or bottom edge. Renders into
- * {@link DismissibleBannerPortalProvider}'s host via `solid-js/web` `Portal`
- * (mount the provider once at app root, inside the theme root).
+ * {@link DismissibleBannerPortalProvider}'s in-flow host slots via
+ * `solid-js/web` `Portal` (mount the provider once at app root, inside the
+ * theme root). Banners participate in layout — they push app content rather
+ * than covering it.
  *
  * Enter is instant (matches RN: snap in); dismiss slides the banner off its
  * edge with a CSS transition (`Motion`) and then calls `onDismiss`. Timing
@@ -24,7 +26,6 @@ import {
 import { Portal } from 'solid-js/web';
 import type { ComponentDataSet } from '../../component-id';
 import { useThemeTokens } from '../../theme';
-import { joinClass } from '../box/box';
 import { Button } from '../button';
 import { IconButton } from '../icon-button';
 import { XIcon } from '../icons';
@@ -32,11 +33,14 @@ import { Motion } from '../motion';
 
 export type DismissibleBannerPosition = 'top' | 'bottom';
 
+/** Surface tint for the banner sheet. */
+export type DismissibleBannerTone = 'paper' | 'warning' | 'info';
+
 /** Slide distance when the banner's own height is unknown. */
 export const DISMISSIBLE_BANNER_SLIDE_PX = 120;
 
 type PortalApi = {
-  host: () => HTMLElement | null;
+  host: (position: DismissibleBannerPosition) => HTMLElement | null;
 };
 
 const DismissibleBannerPortalContext = createContext<PortalApi | null>(null);
@@ -48,16 +52,29 @@ export type DismissibleBannerPortalProviderProps = {
 export function DismissibleBannerPortalProvider(
   props: DismissibleBannerPortalProviderProps
 ): JSX.Element {
-  const [host, setHost] = createSignal<HTMLElement | null>(null);
+  const [topHost, setTopHost] = createSignal<HTMLElement | null>(null);
+  const [bottomHost, setBottomHost] = createSignal<HTMLElement | null>(null);
+  const api: PortalApi = {
+    host: (position) => (position === 'top' ? topHost() : bottomHost()),
+  };
   return (
-    <DismissibleBannerPortalContext.Provider value={{ host }}>
-      <div class="box flex-1 relative">
-        {props.children}
+    <DismissibleBannerPortalContext.Provider value={api}>
+      <div
+        class="box flex-1 min-h-0 min-w-0"
+        data-component="DismissibleBannerPortalRoot"
+      >
         <div
-          class="box absolute inset-0 pointer-events-none"
-          style={{ 'z-index': 999_999 }}
+          class="box shrink-0 w-full"
           data-component="DismissibleBannerPortalHost"
-          ref={setHost}
+          data-position="top"
+          ref={setTopHost}
+        />
+        <div class="box flex-1 min-h-0 min-w-0 relative">{props.children}</div>
+        <div
+          class="box shrink-0 w-full"
+          data-component="DismissibleBannerPortalHost"
+          data-position="bottom"
+          ref={setBottomHost}
         />
       </div>
     </DismissibleBannerPortalContext.Provider>
@@ -81,6 +98,8 @@ export type DismissibleBannerProps = {
   onActionClick?: (() => void) | undefined;
   /** Edge the banner attaches to; also controls slide direction and safe-area padding. */
   position?: DismissibleBannerPosition | undefined;
+  /** Sheet background. Defaults to elevated paper (`surface-overlay`). */
+  tone?: DismissibleBannerTone | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
 };
@@ -115,10 +134,21 @@ function DismissibleBannerPromptBody(props: {
   );
 }
 
-function edgeClass(position: DismissibleBannerPosition): string {
-  return position === 'top'
-    ? 'pb-3 border-b border-solid border-border'
-    : 'pt-3 border-t border-solid border-border';
+const TONE_BG: Record<DismissibleBannerTone, string> = {
+  paper: 'bg-surface-overlay',
+  warning: 'bg-warning-surface',
+  info: 'bg-info-surface',
+};
+
+function frameClass(
+  position: DismissibleBannerPosition,
+  tone: DismissibleBannerTone
+): string {
+  const edge =
+    position === 'top'
+      ? 'pb-3 border-b border-solid border-border'
+      : 'pt-3 border-t border-solid border-border';
+  return `box w-full px-4 ${TONE_BG[tone]} flex-row items-center gap-3 ${edge}`;
 }
 
 function edgeStyle(position: DismissibleBannerPosition): JSX.CSSProperties {
@@ -130,16 +160,14 @@ function edgeStyle(position: DismissibleBannerPosition): JSX.CSSProperties {
 function DismissibleBannerFrame(
   props: DismissibleBannerProps & {
     position: DismissibleBannerPosition;
+    tone: DismissibleBannerTone;
     dismiss: () => void;
   }
 ): JSX.Element {
   const { t } = useLingui();
   return (
     <div
-      class={joinClass(
-        'box px-4 bg-surface flex-row items-center gap-3 pointer-events-auto',
-        edgeClass(props.position)
-      )}
+      class={frameClass(props.position, props.tone)}
       style={edgeStyle(props.position)}
     >
       <DismissibleBannerPromptBody
@@ -207,6 +235,7 @@ export function DismissibleBanner(props: DismissibleBannerProps): JSX.Element {
   const portal = useContext(DismissibleBannerPortalContext);
   const tokens = useThemeTokens();
   const position = (): DismissibleBannerPosition => props.position ?? 'top';
+  const tone = (): DismissibleBannerTone => props.tone ?? 'paper';
   const sign = (): number => (position() === 'top' ? -1 : 1);
   const presence = useBannerPresence(props, () => tokens.motion.duration.fast);
 
@@ -221,12 +250,11 @@ export function DismissibleBanner(props: DismissibleBannerProps): JSX.Element {
   });
 
   return (
-    <Show when={portal?.host()}>
+    <Show when={portal?.host(position())}>
       {(host) => (
         <Portal mount={host()}>
           <Motion
-            class="absolute z-[9999] left-0 right-0"
-            style={position() === 'top' ? { top: 0 } : { bottom: 0 }}
+            class="w-full overflow-hidden"
             present={presence.present()}
             duration="fast"
             easing="accelerate"
@@ -243,6 +271,7 @@ export function DismissibleBanner(props: DismissibleBannerProps): JSX.Element {
             <DismissibleBannerFrame
               {...props}
               position={position()}
+              tone={tone()}
               dismiss={presence.dismiss}
             />
           </Motion>

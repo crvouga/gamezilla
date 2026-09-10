@@ -6,7 +6,6 @@ import AvatarExample from '../avatar/avatar.example';
 import AvatarGroupExample from '../avatar-group/avatar-group.example';
 import AvatarHeroExample from '../avatar-hero/avatar-hero.example';
 import BadgeExample from '../badge/badge.example';
-import CardExample from '../card/card.example';
 import ChipExample from '../chip/chip.example';
 import CollapsibleExample from '../collapsible/collapsible.example';
 import CommandPaletteExample from '../command-palette/command-palette.example';
@@ -38,7 +37,6 @@ const DISCLOSURE = 'Disclosure';
 const OVERLAY = 'Overlay';
 
 export const DISPLAY_ENTRIES: readonly ComponentEntry[] = [
-  entry('card', 'Card', DATA_DISPLAY, CardExample),
   entry('data-table', 'DataTable', DATA_DISPLAY, DataTableExample),
   entry(
     'pagination-controls',

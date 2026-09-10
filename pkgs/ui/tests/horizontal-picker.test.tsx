@@ -1,5 +1,4 @@
 /** @jsxImportSource solid-js */
-import { Text } from '@pkgs/ui';
 import { HorizontalPicker } from '@pkgs/ui/components/horizontal-picker';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
@@ -25,7 +24,7 @@ describe('HorizontalPicker', () => {
         onSelect={() => {}}
         itemWidth={WIDTH}
         keyExtractor={(item) => item}
-        renderItem={(item) => <Text label={item} />}
+        renderItem={(item) => <p class="text">{item}</p>}
       />
     ));
     expect(mustQuery('[data-component="HorizontalPicker"]')).toBeTruthy();
@@ -54,7 +53,7 @@ describe('HorizontalPicker', () => {
         onSelect={onSelect}
         onSettle={onSettle}
         itemWidth={WIDTH}
-        renderItem={(item) => <Text label={item} />}
+        renderItem={(item) => <p class="text">{item}</p>}
       />
     ));
     const el = scroller();
@@ -86,7 +85,7 @@ describe('HorizontalPicker', () => {
           onSettle(i);
         }}
         itemWidth={WIDTH}
-        renderItem={(item) => <Text label={item} />}
+        renderItem={(item) => <p class="text">{item}</p>}
       />
     ));
     const prev = screen.getByRole('button', { name: 'Previous' });
@@ -109,7 +108,7 @@ describe('HorizontalPicker', () => {
         selectedIndex={1}
         onSelect={() => {}}
         showArrows={false}
-        renderItem={(item) => <Text label={item} />}
+        renderItem={(item) => <p class="text">{item}</p>}
       />
     ));
     expect(screen.queryByRole('button', { name: 'Previous' })).toBeNull();
@@ -119,7 +118,7 @@ describe('HorizontalPicker', () => {
         items={[] as string[]}
         selectedIndex={0}
         onSelect={() => {}}
-        renderItem={(item) => <Text label={item} />}
+        renderItem={(item) => <p class="text">{item}</p>}
       />
     ));
     expect(document.querySelector('[data-component="HorizontalPicker"]')).toBe(

@@ -323,8 +323,9 @@ function elapsedBefore(frames: readonly FlatFrame[], index: number): number {
 const stripSx = {
   'flex-direction': 'column',
   'border-bottom-width': '1px',
-  'border-color': 'border',
-  background: 'surface',
+  'border-bottom-style': 'solid',
+  'border-bottom-color': 'var(--ui-color-border)',
+  background: 'var(--ui-color-surface)',
   'padding-top': '32px',
   'padding-left': '48px',
   'padding-right': '48px',

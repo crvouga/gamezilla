@@ -2,7 +2,6 @@
 import { createSignal, type JSX, Show } from 'solid-js';
 import { Avatar } from '../avatar';
 import { Badge } from '../badge';
-import { Card } from '../card';
 import { ExampleRoot } from '../explorer/example-root';
 import { SettingsIcon, UserIcon } from '../icons';
 import { MenuList } from './menu-list';
@@ -11,11 +10,7 @@ import { MenuRow } from './menu-row';
 const noop = (): void => undefined;
 
 function CardGroup(props: { children: JSX.Element }): JSX.Element {
-  return (
-    <Card class="overflow-hidden px-3" elevation={0}>
-      {props.children}
-    </Card>
-  );
+  return <div class="card overflow-hidden px-3">{props.children}</div>;
 }
 
 /** Simulates ScreenBase body padding so MenuList's negative bleed is visible. */

@@ -359,6 +359,9 @@ async function disposeSim(args: {
 function createSimHandle(kernel: SimKernel): Sim {
   const { session, net, pubSubBus, serverSql, roomNode, serverEnv } = kernel;
   const clientSql = new Map<string, SimSql>();
+  /** One env per id for the sim lifetime — seeded `createId` must not reset
+   * while `clientSql` still holds mutation rows from the prior stream. */
+  const clientEnvs = new Map<string, ClientEnv>();
   const liveClients = new Map<string, Client>();
   const disposed = { value: false };
   let rawServerFetch: ReturnType<typeof serveFetch> | null = null;
@@ -370,8 +373,13 @@ function createSimHandle(kernel: SimKernel): Sim {
     return rawServerFetch(input, init);
   });
   const serverFetch: ClientEnv['server'] = serialized.fetch;
-  const client = (id: string): ClientEnv =>
-    makeSimClientEnv(kernel, { id, serverFetch, clientSql });
+  const client = (id: string): ClientEnv => {
+    const cached = clientEnvs.get(id);
+    if (cached !== undefined) return cached;
+    const env = makeSimClientEnv(kernel, { id, serverFetch, clientSql });
+    clientEnvs.set(id, env);
+    return env;
+  };
   return {
     session,
     server: serverEnv,
@@ -422,6 +430,7 @@ function createSimHandle(kernel: SimKernel): Sim {
     },
     drainServerFetch: () => serialized.drain(),
     dispose: async () => {
+      clientEnvs.clear();
       await disposeSim({
         disposed,
         liveClients,

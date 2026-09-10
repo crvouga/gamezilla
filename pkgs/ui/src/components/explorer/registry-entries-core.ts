@@ -7,18 +7,14 @@ import AppFrameExample from '../app-frame/app-frame.example';
 import AppHeaderIslandExample from '../app-header-island/app-header-island.example';
 import AppLogoExample from '../app-logo/app-logo.example';
 import BottomActionBarExample from '../bottom-action-bar/bottom-action-bar.example';
-import BoxExample from '../box/box.example';
 import BrandIconExample from '../brand-icon/brand-icon.example';
 import ButtonExample from '../button/button.example';
 import CatalogExample from '../catalog/catalog.example';
-import CenterExample from '../center/center.example';
 import CheckboxExample from '../checkbox/checkbox.example';
 import ChipGroupExample from '../chip-group/chip-group.example';
-import ClickableExample from '../clickable/clickable.example';
 import CodeEditorExample from '../code-editor/code-editor.example';
 import ComboboxExample from '../combobox/combobox.example';
 import CopyToClipboardFieldExample from '../copy-to-clipboard-field/copy-to-clipboard-field.example';
-import DividerExample from '../divider/divider.example';
 import FloatingActionButtonExample from '../floating-action-button/floating-action-button.example';
 import FormActionsFooterExample from '../form-actions-footer/form-actions-footer.example';
 import GradientBoxExample from '../gradient-box/gradient-box.example';
@@ -37,11 +33,8 @@ import ScrollViewExample from '../scroll-view/scroll-view.example';
 import SegmentedControlExample from '../segmented-control/segmented-control.example';
 import SelectExample from '../select/select.example';
 import SocialSignInButtonExample from '../social-sign-in-button/social-sign-in-button.example';
-import SpacerExample from '../spacer/spacer.example';
-import StackExample from '../stack/stack.example';
 import SwitchExample from '../switch/switch.example';
 import TabStripExample from '../tab-strip/tab-strip.example';
-import TextExample from '../text/text.example';
 import TextInputExample from '../text-input/text-input.example';
 import ThemeTokensExample from '../theme-tokens/theme-tokens.example';
 import TooltipExample from '../tooltip/tooltip.example';
@@ -53,17 +46,10 @@ const INPUTS = 'Inputs';
 
 export const CORE_ENTRIES: readonly ComponentEntry[] = [
   entry('theme-tokens', 'Theme Tokens', FOUNDATION, ThemeTokensExample),
-  entry('box', 'Box', FOUNDATION, BoxExample),
   entry('gradient-box', 'GradientBox', FOUNDATION, GradientBoxExample),
-  entry('text', 'Text', FOUNDATION, TextExample),
-  entry('clickable', 'Clickable', FOUNDATION, ClickableExample),
 
   entry('app-logo', 'AppLogo', 'Brand', AppLogoExample),
 
-  entry('stack', 'Stack', LAYOUT, StackExample),
-  entry('center', 'Center', LAYOUT, CenterExample),
-  entry('divider', 'Divider', LAYOUT, DividerExample),
-  entry('spacer', 'Spacer', LAYOUT, SpacerExample),
   entry('scroll-view', 'ScrollView', LAYOUT, ScrollViewExample),
   entry('screen-base', 'ScreenBase', LAYOUT, ScreenBaseExample),
   entry('screen-title', 'ScreenLargeTitle', LAYOUT, ScreenTitleExample),

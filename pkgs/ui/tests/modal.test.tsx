@@ -1,5 +1,5 @@
 /** @jsxImportSource solid-js */
-import { Clickable, SurfaceStackProvider, Text } from '@pkgs/ui';
+import { SurfaceStackProvider } from '@pkgs/ui';
 import { Button } from '@pkgs/ui/components/button';
 import {
   ConfirmationModal,
@@ -53,12 +53,14 @@ describe('ModalRoot', () => {
     const [open, setOpen] = createSignal(false);
     renderUi(() => (
       <SurfaceStackProvider>
-        <Clickable
-          dataSet={{ testid: 'trigger' }}
+        <button
+          class="clickable clickableTint"
+          data-testid="trigger"
+          type="button"
           onClick={() => setOpen(true)}
         >
-          <Text label="Open" />
-        </Clickable>
+          <p class="text">{'Open'}</p>
+        </button>
         <Dialog
           visible={open()}
           onRequestClose={() => setOpen(false)}

@@ -3,10 +3,8 @@ import {
   AppFrame,
   AppFrameChromeProvider,
   type AppRouter,
-  Box,
   hrefToPath,
   StaticAppRouterProvider,
-  Text,
 } from '@pkgs/ui';
 import { SettingsIcon } from '@pkgs/ui/components/icons';
 import {
@@ -32,9 +30,13 @@ function Screen(
       screenId="demo"
       breadcrumbs={[{ name: 'Home', onClick: () => {} }, { name: 'Demo' }]}
       content={({ bodyClass }) => (
-        <Box class={bodyClass} dataSet={{ testid: 'content' }}>
-          {local.body ?? <Text label="body" />}
-        </Box>
+        <div
+          class="box"
+          classList={{ [String(bodyClass)]: true }}
+          data-testid="content"
+        >
+          {local.body ?? <p class="text">{'body'}</p>}
+        </div>
       )}
       {...rest}
     />
@@ -118,7 +120,10 @@ describe('ScreenBase compact', () => {
   });
 
   test('scroll body wraps content in a scroller and pins the footer below it', () => {
-    renderUi(() => <Screen scroll footer={<Text label="footer" />} />, COMPACT);
+    renderUi(
+      () => <Screen scroll footer={<p class="text">{'footer'}</p>} />,
+      COMPACT
+    );
     const scroller = mustQuery('[data-component="ScreenBodyScroll"]');
     expect(scroller.className).toMatch(/scroll/);
     expect(scroller.className).toMatch(/flex-1/);
@@ -147,8 +152,8 @@ describe('ScreenBase compact', () => {
     renderUi(
       () => (
         <Screen
-          footer={<Text label="footer" />}
-          bottomBar={<Text label="bar" />}
+          footer={<p class="text">{'footer'}</p>}
+          bottomBar={<p class="text">{'bar'}</p>}
         />
       ),
       COMPACT
@@ -203,7 +208,7 @@ describe('ScreenBase compact', () => {
             <ScreenBodyVirtualList
               items={items}
               keyExtractor={(item) => item}
-              renderItem={(item) => <Text label={item} />}
+              renderItem={(item) => <p class="text">{item}</p>}
               estimateSize={40}
               fixedViewport={{ width: 390, height: 200 }}
               dataSet={{ testid: 'vl' }}
@@ -260,7 +265,13 @@ describe('ScreenBase wide', () => {
 
   test('canvas surface leaves the body unwrapped; footer gets a divider', () => {
     renderUi(
-      () => <Screen surface="canvas" scroll footer={<Text label="footer" />} />,
+      () => (
+        <Screen
+          surface="canvas"
+          scroll
+          footer={<p class="text">{'footer'}</p>}
+        />
+      ),
       WIDE
     );
     expect(document.querySelector('[data-component="Island"]')).toBeNull();

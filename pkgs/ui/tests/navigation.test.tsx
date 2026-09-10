@@ -4,11 +4,9 @@ import {
   type AppRouter,
   AppRouterProvider,
   BrandIcon,
-  Clickable,
   ComposeProviders,
   hrefToPath,
   StaticAppRouterProvider,
-  Text,
   useBreadcrumbNav,
   useLocalSearchParams,
   usePathname,
@@ -45,10 +43,12 @@ describe('AppRouterProvider over @solidjs/router', () => {
     const params = useLocalSearchParams();
     return (
       <>
-        <Text label={`path:${pathname()}`} />
-        <Text label={`id:${params()['id'] ?? '-'} q:${params()['q'] ?? '-'}`} />
-        <Text label={`back:${router.canGoBack() ? 'yes' : 'no'}`} />
-        <Clickable
+        <p class="text">{`path:${pathname()}`}</p>
+        <p class="text">{`id:${params()['id'] ?? '-'} q:${params()['q'] ?? '-'}`}</p>
+        <p class="text">{`back:${router.canGoBack() ? 'yes' : 'no'}`}</p>
+        <button
+          class="clickable clickableTint"
+          type="button"
           onClick={() =>
             router.push({
               pathname: '/space/[id]',
@@ -57,8 +57,14 @@ describe('AppRouterProvider over @solidjs/router', () => {
           }
         >
           go
-        </Clickable>
-        <Clickable onClick={() => router.back()}>back</Clickable>
+        </button>
+        <button
+          class="clickable clickableTint"
+          type="button"
+          onClick={() => router.back()}
+        >
+          back
+        </button>
       </>
     );
   }
@@ -101,7 +107,15 @@ describe('useBreadcrumbNav', () => {
 
   function Crumb(): JSX.Element {
     const nav = useBreadcrumbNav();
-    return <Clickable onClick={nav('/home')}>crumb</Clickable>;
+    return (
+      <button
+        class="clickable clickableTint"
+        type="button"
+        onClick={nav('/home')}
+      >
+        crumb
+      </button>
+    );
   }
 
   test('pops when possible, otherwise replaces to the fallback', async () => {
@@ -151,7 +165,7 @@ describe('brand + providers', () => {
       return <Ctx.Provider value={[...outer, name]}>{p.children}</Ctx.Provider>;
     };
     function Leaf(): JSX.Element {
-      return <Text label={useContext(Ctx).join('>')} />;
+      return <p class="text">{useContext(Ctx).join('>')}</p>;
     }
     renderUi(() => (
       <ComposeProviders providers={[tag('a'), tag('b'), tag('c')]}>

@@ -1,6 +1,5 @@
 /** @jsxImportSource solid-js */
 import type { JSX } from 'solid-js';
-import { Divider } from '../divider';
 import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
 import { SuccessState } from './success-state';
@@ -21,7 +20,7 @@ export default function SuccessStateExample(): JSX.Element {
         </div>
       </SchemePreview>
 
-      <Divider />
+      <div class="divider" role="separator" />
 
       <label class="text textLabel text-text-secondary">
         {'Compact (inline confirmation)'}
@@ -34,7 +33,7 @@ export default function SuccessStateExample(): JSX.Element {
         />
       </SchemePreview>
 
-      <Divider />
+      <div class="divider" role="separator" />
 
       <label class="text textLabel text-text-secondary">{'Title only'}</label>
       <SchemePreview>

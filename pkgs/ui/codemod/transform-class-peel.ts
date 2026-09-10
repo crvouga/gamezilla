@@ -41,7 +41,7 @@ type ClassArg =
       readonly className: string;
       readonly condition: string;
     }
-  /** Any other string-ish expression; emitted as `[String(expr)]: true`. */
+  /** Any other string-ish expression; emitted into `class={…}` (not classList). */
   | { readonly kind: 'dynamic'; readonly expr: string };
 
 /** Parse one arg text (helper arg / `class` expression) into a ClassArg. */
@@ -105,17 +105,15 @@ function stringLiteralOf(expr: ts.Expression): string | undefined {
 }
 
 /**
- * Solid `class` (static) + optional `classList` (conditional / dynamic).
+ * Solid `class` (static + dynamic exprs) + optional `classList` (toggles).
  * Existing `class={joinClass(...)}` / `cn(...)` / … calls are peeled into
  * static classes / per-arg `classList` entries so banned helpers never appear.
  *
- * Emission rules (Solid's `classList` only accepts string keys + boolean
- * values):
+ * Emission rules:
  * - string literals fold into the static `class` attribute (deduped);
  * - `cond && 'x'` / `cond ? 'x' : 'y'` become `'x': !!cond` toggles;
- * - any other string-valued expression becomes a computed key
- *   `[String(expr)]: true` (Solid skips empty keys), which keeps
- *   type-checking valid for `string | undefined | false` unions.
+ * - any other string-valued expression is concatenated into `class={…}`
+ *   (never `[String(expr)]: true` — multi-token strings are invalid classList keys).
  */
 export function classAttrs(
   classes: readonly string[],
@@ -128,6 +126,7 @@ export function classAttrs(
     merged.push(existing.value);
   }
   const entries = [...classList];
+  const dynamicExprs: string[] = [];
   if (existing.kind === 'expr') {
     const peeled = peelClassHelperCall(existing.exprText);
     const args = peeled ?? [existing.exprText];
@@ -155,15 +154,25 @@ export function classAttrs(
         });
         continue;
       }
-      entries.push({ keyExpr: `String(${classified.expr})`, when: 'true' });
+      dynamicExprs.push(classified.expr);
     }
   }
   const deduped = merged.filter(
     (c, i) => c.trim() !== '' && merged.indexOf(c) === i
   );
   const out: string[] = [];
-  if (deduped.length > 0 || options?.allowEmpty !== true) {
-    out.push(`class=${quoteAttr(deduped.join(' '))}`);
+  if (dynamicExprs.length === 0) {
+    if (deduped.length > 0 || options?.allowEmpty !== true) {
+      out.push(`class=${quoteAttr(deduped.join(' '))}`);
+    }
+  } else if (deduped.length === 0 && dynamicExprs.length === 1) {
+    out.push(`class={${dynamicExprs[0]}}`);
+  } else {
+    const parts = [
+      ...(deduped.length > 0 ? [JSON.stringify(deduped.join(' '))] : []),
+      ...dynamicExprs,
+    ];
+    out.push(`class={[${parts.join(', ')}].filter(Boolean).join(' ')}`);
   }
   if (entries.length === 0) return out;
   const parts = entries.map((e) => {

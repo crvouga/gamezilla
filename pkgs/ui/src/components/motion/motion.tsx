@@ -22,7 +22,7 @@ import {
 } from 'solid-js';
 import { dataAttrs } from '../../component-id';
 import { type DurationKey, type EasingKey, useThemeTokens } from '../../theme';
-import { type DivBoxProps, joinClass } from '../box';
+import type { DivBoxProps } from '../box';
 
 export type MotionProps = DivBoxProps & {
   /** Duration token. Defaults to `normal`. */
@@ -172,7 +172,7 @@ export function Motion(props: MotionProps): JSX.Element {
   return (
     <Show when={presence.phase() !== 'gone'}>
       <div
-        class={joinClass('box', local.class)}
+        class={local.class ? `box ${local.class}` : 'box'}
         {...dataAttrs({ component: 'Motion', ...local.dataSet })}
         style={mergeStyles(transitionStyle(), local.style, phaseStyle())}
         ref={(el) => mount(el)}

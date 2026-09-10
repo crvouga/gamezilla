@@ -1,6 +1,6 @@
 /** @jsxImportSource solid-js */
 import { asLocalized } from '@pkgs/i18n';
-import { SurfaceStackProvider, Text } from '@pkgs/ui';
+import { SurfaceStackProvider } from '@pkgs/ui';
 import {
   filterPickerOptions,
   isTypeAheadKey,
@@ -100,7 +100,7 @@ describe('PickerSection', () => {
   test('renders label, description and children in a section', () => {
     renderUi(() => (
       <PickerSection label="Theme" description="Pick a look">
-        <Text label="child" />
+        <p class="text">{'child'}</p>
       </PickerSection>
     ));
     const section = mustQuery('[data-component="PickerSection"]');

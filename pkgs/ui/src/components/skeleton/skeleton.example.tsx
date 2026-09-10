@@ -1,6 +1,5 @@
 /** @jsxImportSource solid-js */
 import type { JSX } from 'solid-js';
-import { Card } from '../card';
 import { ExampleRoot } from '../explorer/example-root';
 import { Skeleton } from './skeleton';
 
@@ -15,7 +14,7 @@ export default function SkeletonExample(): JSX.Element {
       </div>
 
       <label class="text textLabel">{'Card placeholder'}</label>
-      <Card class="p-4" elevation={1}>
+      <div class="card p-4">
         <div class="box flex-row gap-3 items-center">
           <Skeleton width={48} height={48} borderRadius={24} />
           <div class="box flex-col gap-2 flex-1">
@@ -23,7 +22,7 @@ export default function SkeletonExample(): JSX.Element {
             <Skeleton width="80%" height={12} />
           </div>
         </div>
-      </Card>
+      </div>
     </ExampleRoot>
   );
 }

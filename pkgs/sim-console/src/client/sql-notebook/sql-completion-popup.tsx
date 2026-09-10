@@ -1,4 +1,4 @@
-import { Badge } from '@pkgs/ui';
+import { Badge, colorVar } from '@pkgs/ui';
 import type { Accessor } from 'solid-js';
 import { For, type JSX } from 'solid-js';
 
@@ -39,7 +39,9 @@ function CompletionRow(props: {
   return (
     <button
       class="clickable clickableTint flex-row items-center gap-2 px-2 py-1"
-      style={{ background: selected ? 'tintSubtle' : 'transparent' }}
+      style={{
+        'background-color': selected ? colorVar('tintSubtle') : 'transparent',
+      }}
       type="button"
       onClick={onPress}
       onMouseEnter={onHover}

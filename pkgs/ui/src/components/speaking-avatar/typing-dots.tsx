@@ -6,7 +6,6 @@ import { cssPx } from '../../css/css-px';
  */
 
 import { For, type JSX } from 'solid-js';
-import { joinClass } from '../box';
 import styles from './speaking-avatar.module.css';
 
 const DOT_SIZE = 6;
@@ -37,7 +36,11 @@ export function TypingDots(props: TypingDotsProps): JSX.Element {
       <For each={DOT_CLASSES}>
         {(dotClass) => (
           <div
-            class={joinClass('box rounded-[9999px]', styles['dot'], dotClass)}
+            class="box rounded-[9999px]"
+            classList={{
+              [String(styles['dot'])]: true,
+              [String(dotClass)]: true,
+            }}
             style={{
               'background-color': props.color,
               width: cssPx(DOT_SIZE),

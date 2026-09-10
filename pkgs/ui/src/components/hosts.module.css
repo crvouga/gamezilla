@@ -1,265 +1,267 @@
-/* Host resets shared by the primitives. Flex-column defaults mirror the
-   layout contract the rest of the design system assumes. */
-
-.box {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  flex-shrink: 0;
-  position: relative;
-  box-sizing: border-box;
-  min-width: 0;
-  min-height: 0;
-  margin: 0;
-  padding: 0;
-  border: 0 solid transparent;
-}
-
-.text {
-  display: inline;
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  white-space: pre-wrap;
-  overflow-wrap: break-word;
-  text-decoration: none;
-  font-family:
-    system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
-    Arial, sans-serif;
-  font-size: var(--ui-font-size-base);
-  line-height: 26px;
-  font-weight: 400;
-  color: var(--ui-color-text);
-}
-
-.textBodyBold {
-  font-weight: 600;
-}
-
-.textCaption {
-  font-size: var(--ui-font-size-xs);
-  line-height: 18px;
-  color: var(--ui-color-text-secondary);
-}
-
-.textLabel {
-  font-family:
-    "SF Pro Rounded", "Hiragino Maru Gothic ProN", Meiryo, "MS PGothic",
-    sans-serif;
-  font-size: var(--ui-font-size-sm);
-  line-height: 22px;
-  font-weight: 500;
-}
-
-.textTitle {
-  font-family:
-    "SF Pro Rounded", "Hiragino Maru Gothic ProN", Meiryo, "MS PGothic",
-    sans-serif;
-  font-size: var(--ui-font-size-4xl);
-  line-height: 44px;
-  font-weight: 800;
-}
-
-.textSubtitle {
-  font-family:
-    "SF Pro Rounded", "Hiragino Maru Gothic ProN", Meiryo, "MS PGothic",
-    sans-serif;
-  font-size: var(--ui-font-size-xl);
-  line-height: 28px;
-  font-weight: 800;
-}
-
-.textHeading {
-  font-family:
-    "SF Pro Rounded", "Hiragino Maru Gothic ProN", Meiryo, "MS PGothic",
-    sans-serif;
-  font-size: var(--ui-font-size-2xl);
-  line-height: 34px;
-  font-weight: 800;
-}
-
-.textNavigationTitle {
-  font-family:
-    "SF Pro Rounded", "Hiragino Maru Gothic ProN", Meiryo, "MS PGothic",
-    sans-serif;
-  font-size: var(--ui-font-size-lg);
-  line-height: 24px;
-  font-weight: 600;
-}
-
-.textLink {
-  font-family:
-    "SF Pro Rounded", "Hiragino Maru Gothic ProN", Meiryo, "MS PGothic",
-    sans-serif;
-  color: var(--ui-color-tint);
-}
-
-.textMono {
-  font-family:
-    SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
-    monospace;
-  font-size: var(--ui-font-size-sm);
-  line-height: 22px;
-}
-
-.clickable {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  flex-shrink: 0;
-  position: relative;
-  box-sizing: border-box;
-  min-width: 0;
-  min-height: 0;
-  margin: 0;
-  padding: 0;
-  border: 0 solid transparent;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  text-align: inherit;
-  appearance: none;
-  cursor: pointer;
-  user-select: none;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
-  outline: none;
-}
-
-.clickable:disabled {
-  cursor: default;
-}
-
-.clickable:focus-visible {
-  outline: 2px solid var(--ui-color-tint);
-  outline-offset: 2px;
-}
-
-/* Tint feedback: overlay layered above children. */
-.clickableTint::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  background: transparent;
-  transition: background-color var(--ui-duration-fast) var(--ui-easing-standard);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .clickableTint:not(:disabled):hover::after {
-    background: var(--ui-color-interactive-hover);
+/* Host resets — @layer components so Tailwind utilities (flex-row, p-4, …) can override. Unlayered rules beat @layer utilities in the cascade. */
+@layer components {
+  .box {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    flex-shrink: 0;
+    position: relative;
+    box-sizing: border-box;
+    min-width: 0;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    border: 0 solid transparent;
   }
-}
 
-.clickableTint:not(:disabled):active::after {
-  background: var(--ui-color-interactive-press);
-}
+  .text {
+    display: block;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    text-decoration: none;
+    font-family:
+      system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      Helvetica, Arial, sans-serif;
+    font-size: var(--ui-font-size-base);
+    line-height: 26px;
+    font-weight: 400;
+    color: var(--ui-on-fg, var(--ui-color-text));
+  }
 
-.clickableOpacity {
-  transition: opacity var(--ui-duration-fast) var(--ui-easing-standard);
-}
+  .textBodyBold {
+    font-weight: 600;
+  }
 
-.clickableOpacity:not(:disabled):active {
-  opacity: 0.7;
-}
+  .textCaption {
+    font-size: var(--ui-font-size-xs);
+    line-height: 18px;
+    color: var(--ui-on-fg-muted, var(--ui-color-text-secondary));
+  }
 
-.scroll {
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-  min-width: 0;
-  min-height: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-gutter: auto;
-}
+  .textLabel {
+    font-family:
+      "SF Pro Rounded", "Hiragino Maru Gothic ProN", Meiryo, "MS PGothic",
+      sans-serif;
+    font-size: var(--ui-font-size-sm);
+    line-height: 22px;
+    font-weight: 500;
+  }
 
-.scrollHorizontal {
-  overflow-x: auto;
-  overflow-y: hidden;
-}
+  .textTitle {
+    font-family:
+      "SF Pro Rounded", "Hiragino Maru Gothic ProN", Meiryo, "MS PGothic",
+      sans-serif;
+    font-size: var(--ui-font-size-4xl);
+    line-height: 44px;
+    font-weight: 800;
+  }
 
-.scrollHideBar {
-  scrollbar-width: none;
-}
+  .textSubtitle {
+    font-family:
+      "SF Pro Rounded", "Hiragino Maru Gothic ProN", Meiryo, "MS PGothic",
+      sans-serif;
+    font-size: var(--ui-font-size-xl);
+    line-height: 28px;
+    font-weight: 800;
+  }
 
-.scrollHideBar::-webkit-scrollbar {
-  display: none;
-}
+  .textHeading {
+    font-family:
+      "SF Pro Rounded", "Hiragino Maru Gothic ProN", Meiryo, "MS PGothic",
+      sans-serif;
+    font-size: var(--ui-font-size-2xl);
+    line-height: 34px;
+    font-weight: 800;
+  }
 
-.scrollContent {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  flex-shrink: 0;
-  box-sizing: border-box;
-  min-width: 0;
-}
+  .textNavigationTitle {
+    font-family:
+      "SF Pro Rounded", "Hiragino Maru Gothic ProN", Meiryo, "MS PGothic",
+      sans-serif;
+    font-size: var(--ui-font-size-lg);
+    line-height: 24px;
+    font-weight: 600;
+  }
 
-.scrollContentHorizontal {
-  flex-direction: row;
-}
+  .textLink {
+    font-family:
+      "SF Pro Rounded", "Hiragino Maru Gothic ProN", Meiryo, "MS PGothic",
+      sans-serif;
+    color: var(--ui-color-tint);
+  }
 
-.input {
-  box-sizing: border-box;
-  width: 100%;
-  margin: 0;
-  appearance: none;
-  outline: none;
-  font: inherit;
-  color: var(--ui-color-text);
-  background: var(--ui-color-surface);
-  border: 1px solid var(--ui-color-outline);
-  border-radius: var(--ui-radius-md);
-  transition: border-color var(--ui-duration-fast) var(--ui-easing-standard);
-}
+  .textMono {
+    font-family:
+      SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+      monospace;
+    font-size: var(--ui-font-size-sm);
+    line-height: 22px;
+  }
 
-.input::placeholder {
-  color: var(--ui-color-text-secondary);
-}
+  .clickable {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    flex-shrink: 0;
+    position: relative;
+    box-sizing: border-box;
+    min-width: 0;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    border: 0 solid transparent;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: inherit;
+    appearance: none;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    outline: none;
+  }
 
-.input:focus-visible {
-  border-color: var(--ui-color-tint);
-  box-shadow: 0 0 0 1px var(--ui-color-tint);
-}
+  .clickable:disabled {
+    cursor: default;
+  }
 
-.inputError,
-.inputError:focus-visible {
-  border-color: var(--ui-color-destructive);
-  box-shadow: none;
-}
+  .clickable:focus-visible {
+    outline: 2px solid var(--ui-color-tint);
+    outline-offset: 2px;
+  }
 
-.inputTextarea {
-  resize: vertical;
-}
+  /* Tint feedback: overlay layered above children. */
+  .clickableTint::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: transparent;
+    transition: background-color var(--ui-duration-fast)
+      var(--ui-easing-standard);
+  }
 
-.switchTrack {
-  transition: background-color var(--ui-duration-fast) var(--ui-easing-standard);
-}
+  @media (hover: hover) and (pointer: fine) {
+    .clickableTint:not(:disabled):hover::after {
+      background: var(--ui-color-interactive-hover);
+    }
+  }
 
-.switchThumb {
-  transition: transform var(--ui-duration-fast) var(--ui-easing-standard);
-}
+  .clickableTint:not(:disabled):active::after {
+    background: var(--ui-color-interactive-press);
+  }
 
-/* Safe-area insets (notch / home indicator). Classes because happy-dom and
-   some inline-style sanitizers drop `env()` values. */
-.safeTop {
-  padding-top: env(safe-area-inset-top, 0px);
-}
+  .clickableOpacity {
+    transition: opacity var(--ui-duration-fast) var(--ui-easing-standard);
+  }
 
-.safeBottom {
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-}
+  .clickableOpacity:not(:disabled):active {
+    opacity: 0.7;
+  }
 
-/* RN `pointerEvents="box-none"`: the layer is transparent to the pointer but
-   its direct children are interactive again. */
-.boxNone {
-  pointer-events: none;
-}
+  .scroll {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    min-width: 0;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-gutter: auto;
+  }
 
-.boxNone > * {
-  pointer-events: auto;
+  .scrollHorizontal {
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .scrollHideBar {
+    scrollbar-width: none;
+  }
+
+  .scrollHideBar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scrollContent {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    min-width: 0;
+  }
+
+  .scrollContentHorizontal {
+    flex-direction: row;
+  }
+
+  .input {
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0;
+    appearance: none;
+    outline: none;
+    font: inherit;
+    color: var(--ui-color-text);
+    background: var(--ui-color-surface);
+    border: 1px solid var(--ui-color-outline);
+    border-radius: var(--ui-radius-md);
+    transition: border-color var(--ui-duration-fast) var(--ui-easing-standard);
+  }
+
+  .input::placeholder {
+    color: var(--ui-color-text-secondary);
+  }
+
+  .input:focus-visible {
+    border-color: var(--ui-color-tint);
+    box-shadow: 0 0 0 1px var(--ui-color-tint);
+  }
+
+  .inputError,
+  .inputError:focus-visible {
+    border-color: var(--ui-color-destructive);
+    box-shadow: none;
+  }
+
+  .inputTextarea {
+    resize: vertical;
+  }
+
+  .switchTrack {
+    transition: background-color var(--ui-duration-fast)
+      var(--ui-easing-standard);
+  }
+
+  .switchThumb {
+    transition: transform var(--ui-duration-fast) var(--ui-easing-standard);
+  }
+
+  /* Safe-area insets (notch / home indicator). Classes because happy-dom and
+     some inline-style sanitizers drop `env()` values. */
+  .safeTop {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  .safeBottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* RN `pointerEvents="box-none"`: the layer is transparent to the pointer but
+     its direct children are interactive again. */
+  .boxNone {
+    pointer-events: none;
+  }
+
+  .boxNone > * {
+    pointer-events: auto;
+  }
 }

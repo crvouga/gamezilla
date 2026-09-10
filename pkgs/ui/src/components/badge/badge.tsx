@@ -18,7 +18,6 @@ import {
   resolveColor,
   useThemeTokens,
 } from '../../theme';
-import { joinClass } from '../box/box';
 
 export type BadgeIntent =
   | 'neutral'
@@ -122,7 +121,7 @@ export function Badge(props: BadgeProps): JSX.Element {
       }}
     >
       <p
-        class={joinClass('text', 'font-bold')}
+        class="text font-bold"
         style={{
           color: colors().fg,
           'font-size': `${fontSize()}px`,

@@ -20,35 +20,8 @@ import { PlaygroundPubSubTopicsPane } from './playground-pubsub-topics-pane';
 import { PlaygroundRoomDbPane } from './playground-room-db-pane';
 import { SolidActorHost } from './solid-actor-host';
 
-const panelSx = {
-  flex: 1,
-  'min-width': 0,
-  'min-height': 0,
-  overflow: 'hidden',
-  background: 'surface',
-  'flex-direction': 'column',
-} as const;
-
-const uiBodySx = {
-  flex: 1,
-  'min-height': 0,
-  overflow: 'hidden',
-  position: 'relative',
-  background: 'surface',
-} as const;
-
-const fillSx = {
-  flex: 1,
-  'min-height': 0,
-  'min-width': 0,
-} as const;
-
-function hiddenWhen(active: boolean) {
-  return {
-    ...fillSx,
-    display: active ? ('flex' as const) : ('none' as const),
-    pointerEvents: active ? ('auto' as const) : ('none' as const),
-  };
+function hiddenWhen(active: boolean): string {
+  return active ? 'flex' : 'none';
 }
 
 function ActorView(props: { readonly actor: PlaygroundActor }) {
@@ -103,8 +76,11 @@ export function ClientPlaygroundPanel(props: {
   void props.reloadToken;
 
   return (
-    <div class="box" style={panelSx} data-debuggerClient={props.actor.address}>
-      <div class="box" style={uiBodySx}>
+    <div
+      class="box flex-1 min-w-[0] min-h-[0] overflow-hidden flex-col bg-surface"
+      data-debuggerClient={props.actor.address}
+    >
+      <div class="box flex-1 min-h-[0] overflow-hidden relative bg-surface">
         <Show when={productKey()} keyed>
           {(_key: string) => <ActorView actor={props.actor} />}
         </Show>
@@ -125,8 +101,11 @@ export function ServerPlaygroundPanel(props: {
   const pane = () => resolvePane(props.pane, 'server');
   const tab = () => pane().view;
   return (
-    <div class="box" style={panelSx}>
-      <div class="box" style={hiddenWhen(tab() === 'db')}>
+    <div class="box flex-1 min-w-[0] min-h-[0] overflow-hidden flex-col bg-background">
+      <div
+        class="box flex-1 min-h-[0] min-w-[0] bg-background"
+        style={{ display: hiddenWhen(tab() === 'db') }}
+      >
         <SqlNotebookPane
           sqlClient={props.node.sqlClient}
           nodeId={props.node.id}
@@ -137,10 +116,16 @@ export function ServerPlaygroundPanel(props: {
           }
         />
       </div>
-      <div class="box" style={hiddenWhen(tab() === 'events')}>
+      <div
+        class="box flex-1 min-h-[0] min-w-[0] bg-background"
+        style={{ display: hiddenWhen(tab() === 'events') }}
+      >
         <PlaygroundLogsPane logs={props.node.logs} />
       </div>
-      <div class="box" style={hiddenWhen(tab() === 'commands')}>
+      <div
+        class="box flex-1 min-h-[0] min-w-[0] bg-background"
+        style={{ display: hiddenWhen(tab() === 'commands') }}
+      >
         <PlaygroundCommandsPane session={props.session} />
       </div>
     </div>
@@ -155,11 +140,17 @@ export function PubSubPlaygroundPanel(props: {
   const pane = () => resolvePane(props.pane, 'events');
   const tab = () => pane().view;
   return (
-    <div class="box" style={panelSx}>
-      <div class="box" style={hiddenWhen(tab() === 'events')}>
+    <div class="box flex-1 min-w-[0] min-h-[0] overflow-hidden flex-col bg-background">
+      <div
+        class="box flex-1 min-h-[0] min-w-[0] bg-background"
+        style={{ display: hiddenWhen(tab() === 'events') }}
+      >
         <PlaygroundLogsPane logs={props.pubsub.logs} />
       </div>
-      <div class="box" style={hiddenWhen(tab() === 'topics')}>
+      <div
+        class="box flex-1 min-h-[0] min-w-[0] bg-background"
+        style={{ display: hiddenWhen(tab() === 'topics') }}
+      >
         <PlaygroundPubSubTopicsPane
           pubsub={props.pubsub}
           subscribe={props.session.subscribe}
@@ -177,14 +168,20 @@ export function RoomPlaygroundPanel(props: {
   const pane = () => resolvePane(props.pane, 'room');
   const tab = () => pane().view;
   return (
-    <div class="box" style={panelSx}>
-      <div class="box" style={hiddenWhen(tab() === 'db')}>
+    <div class="box flex-1 min-w-[0] min-h-[0] overflow-hidden flex-col bg-background">
+      <div
+        class="box flex-1 min-h-[0] min-w-[0] bg-background"
+        style={{ display: hiddenWhen(tab() === 'db') }}
+      >
         <PlaygroundRoomDbPane
           room={props.room}
           subscribe={props.session.subscribe}
         />
       </div>
-      <div class="box" style={hiddenWhen(tab() === 'events')}>
+      <div
+        class="box flex-1 min-h-[0] min-w-[0] bg-background"
+        style={{ display: hiddenWhen(tab() === 'events') }}
+      >
         <PlaygroundLogsPane logs={props.room.logs} />
       </div>
     </div>

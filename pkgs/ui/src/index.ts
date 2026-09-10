@@ -2,7 +2,7 @@
  * @pkgs/ui -- application-agnostic Solid design system.
  *
  * Usage:
- *   import { Box, Text, Stack, Button } from '@pkgs/ui';
+ *   import { Button, dataAttrs } from '@pkgs/ui';
  *   import '@pkgs/ui/tokens.css';
  */
 

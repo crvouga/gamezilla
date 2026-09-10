@@ -20,6 +20,7 @@ import {
   useContext,
 } from 'solid-js';
 import { Portal } from 'solid-js/web';
+import styles from '../hosts.module.css';
 import {
   createHostFrame,
   type PortalHostFrame,
@@ -36,9 +37,9 @@ export type OverlayPortalApi = {
 const OverlayPortalContext = createContext<OverlayPortalApi | null>(null);
 
 /**
- * Sits above the banner portal (`999_999`) so drag previews float above
- * banners as well. Absolute (not viewport-fixed) so hosts clip inside nested
- * roots (playground panels).
+ * Absolute fill above app chrome (not viewport-fixed) so hosts clip inside
+ * nested roots (playground panels). Banners are in-flow layout slots, not
+ * stacked above this host.
  */
 export const OVERLAY_PORTAL_Z_INDEX = 1_000_000;
 
@@ -62,6 +63,7 @@ export function OverlayPortalProvider(
         {props.children}
         <div
           class="box absolute inset-0"
+          classList={{ [styles['boxNone'] ?? '']: true }}
           data-component="OverlayPortalHost"
           style={{ 'z-index': OVERLAY_PORTAL_Z_INDEX }}
           ref={setHost}

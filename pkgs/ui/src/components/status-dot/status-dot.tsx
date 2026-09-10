@@ -39,7 +39,7 @@ export function StatusDot(props: StatusDotProps): JSX.Element {
   const size = () => props.size ?? DEFAULT_SIZE;
   return (
     <span
-      class="box inline-flex rounded-[9999px]"
+      class="inline-block shrink-0 rounded-[9999px]"
       {...dataAttrs({ component: 'StatusDot', ...props.dataSet })}
       style={{
         'background-color': colorVar(STATUS_COLOR[props.status]),

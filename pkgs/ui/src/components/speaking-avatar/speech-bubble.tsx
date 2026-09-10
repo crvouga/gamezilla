@@ -21,7 +21,6 @@
 
 import { type JSX, Show } from 'solid-js';
 import { useThemeTokens } from '../../theme';
-import { joinClass } from '../box/box';
 import { TypingDots } from './typing-dots';
 
 const TAIL_SIZE = 12;
@@ -61,7 +60,7 @@ export function SpeechBubble(props: SpeechBubbleProps): JSX.Element {
     <Show when={{ text: props.text }} keyed>
       {(_keyed) => (
         <div
-          class={joinClass('box', 'flex-1 flex-row items-center')}
+          class="box flex-1 flex-row items-center"
           data-component="SpeechBubble"
         >
           <div

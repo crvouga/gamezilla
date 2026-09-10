@@ -10,7 +10,6 @@
 
 import { type JSX, Show, splitProps } from 'solid-js';
 import { type ComponentDataSet, componentDataAttrs } from '../../component-id';
-import { joinClass } from '../box/box';
 import {
   requestsFlexFill,
   resolveFlushEdgeStyles,
@@ -60,25 +59,33 @@ export function ScrollView(props: ScrollViewProps): JSX.Element {
   ]);
   const flush = () => resolveFlushEdgeStyles(edge, local.flushEdge ?? true);
   const flexFill = () => requestsFlexFill(local.class, local.classList);
+  const scrollerClass = () =>
+    [
+      styles['scroll'],
+      local.horizontal ? styles['scrollHorizontal'] : undefined,
+      local.hideScrollbar ? styles['scrollHideBar'] : undefined,
+      local.class,
+    ]
+      .filter(Boolean)
+      .join(' ');
+  const contentClass = () =>
+    [
+      styles['scrollContent'],
+      local.horizontal ? styles['scrollContentHorizontal'] : undefined,
+      flush().contentClass,
+      local.contentClass,
+    ]
+      .filter(Boolean)
+      .join(' ');
   const scroller = (
     <div
-      class={joinClass(
-        styles['scroll'],
-        local.horizontal && styles['scrollHorizontal'],
-        local.hideScrollbar && styles['scrollHideBar'],
-        local.class
-      )}
+      class={scrollerClass()}
       classList={local.classList}
       {...componentDataAttrs('ScrollView', local.dataSet)}
       {...rest}
     >
       <div
-        class={joinClass(
-          styles['scrollContent'],
-          local.horizontal && styles['scrollContentHorizontal'],
-          flush().contentClass,
-          local.contentClass
-        )}
+        class={contentClass()}
         classList={local.contentClassList}
         style={local.contentStyle}
         data-component="ScrollViewContent"
@@ -91,7 +98,9 @@ export function ScrollView(props: ScrollViewProps): JSX.Element {
     <Show when={flush().wrapperClass} fallback={scroller}>
       {(wrapperClass) => (
         <div
-          class={joinClass(wrapperClass(), flexFill() && 'flex-1')}
+          class={[wrapperClass(), flexFill() ? 'flex-1' : undefined]
+            .filter(Boolean)
+            .join(' ')}
           style={flush().contentStyle}
         >
           {scroller}

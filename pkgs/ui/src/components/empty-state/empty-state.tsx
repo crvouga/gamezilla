@@ -1,5 +1,4 @@
 /** @jsxImportSource solid-js */
-import { cssPx } from '../../css/css-px';
 /**
  * `EmptyState` -- canonical "no data" block.
  *
@@ -23,10 +22,10 @@ import { cssPx } from '../../css/css-px';
 import { type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import type { ComponentDataSet } from '../../component-id';
+import { cssPx } from '../../css/css-px';
 import { Button } from '../button';
 import type { IconComponent } from '../icons';
 import { StateBlock, type StateBlockVariant } from '../state-block';
-import { Text } from '../text';
 
 export type EmptyStateAction = {
   label: JSX.Element;
@@ -92,26 +91,30 @@ export function EmptyState(props: EmptyStateProps): JSX.Element {
       <Show when={props.icon}>
         {(icon) => <EmptyStateIcon icon={icon()} variant={variant()} />}
       </Show>
-      <Text
-        as="p"
-        variant={isFill() ? 'subtitle' : 'bodyBold'}
-        class="text-center"
+      <p
+        class={
+          isFill()
+            ? 'text textSubtitle text-center w-full'
+            : 'text textBodyBold text-center w-full'
+        }
       >
         {props.title}
-      </Text>
+      </p>
       <Show when={props.body !== undefined && props.body !== null}>
-        <Text
-          as="p"
-          variant={isFill() ? 'body' : 'caption'}
-          class="text-text-secondary text-center"
+        <p
+          class={
+            isFill()
+              ? 'text text-text-secondary text-center w-full'
+              : 'text textCaption text-text-secondary text-center w-full'
+          }
           style={{ 'max-width': cssPx(BODY_MAX_WIDTH) }}
         >
           {props.body}
-        </Text>
+        </p>
       </Show>
       <Show when={props.action}>
         {(action) => (
-          <div class="box mt-2">
+          <div class="box mt-2 items-center">
             <Button
               title={action().label}
               intent="primary"

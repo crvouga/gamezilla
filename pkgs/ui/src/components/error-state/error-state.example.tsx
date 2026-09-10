@@ -1,6 +1,5 @@
 /** @jsxImportSource solid-js */
 import type { JSX } from 'solid-js';
-import { Divider } from '../divider';
 import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
 import { ErrorState } from './error-state';
@@ -25,7 +24,7 @@ export default function ErrorStateExample(): JSX.Element {
         </div>
       </SchemePreview>
 
-      <Divider />
+      <div class="divider" role="separator" />
 
       <SectionLabel label="Compact (inline card)" />
       <SchemePreview>
@@ -36,7 +35,7 @@ export default function ErrorStateExample(): JSX.Element {
         />
       </SchemePreview>
 
-      <Divider />
+      <div class="divider" role="separator" />
 
       <SectionLabel label="Fill with copy (body present)" />
       <SchemePreview>
@@ -49,7 +48,7 @@ export default function ErrorStateExample(): JSX.Element {
         </div>
       </SchemePreview>
 
-      <Divider />
+      <div class="divider" role="separator" />
 
       <SectionLabel label="Compact with retry" />
       <SchemePreview>

@@ -19,7 +19,7 @@ import {
   splitProps,
 } from 'solid-js';
 import { type ComponentDataSet, dataAttrs } from '../../component-id';
-import { type DivBoxProps, joinClass } from '../box';
+import type { DivBoxProps } from '../box';
 import { CircleCheckIcon, CopyIcon } from '../icons';
 import { Motion } from '../motion';
 
@@ -88,7 +88,8 @@ export function CopyToClipboardField(
 
   return (
     <div
-      class={joinClass('box gap-1', local.class)}
+      class="box gap-1"
+      classList={{ [String(local.class)]: true }}
       {...dataAttrs({ component: 'CopyToClipboardField', ...local.dataSet })}
       {...rest}
     >

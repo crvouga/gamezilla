@@ -22,12 +22,9 @@
 
 import { useLingui } from '@lingui/solid/macro';
 import { type JSX, Show } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { BrandIcon } from '../brand-icon';
-import { Clickable } from '../clickable';
 import { Spinner } from '../spinner';
-import { Text } from '../text';
 import {
   SOCIAL_PROVIDER_SPECS,
   type SocialProviderSpec,
@@ -118,8 +115,8 @@ function LeadingSlot(props: {
   loading: boolean;
 }): JSX.Element {
   return (
-    <Box
-      class="items-center justify-center"
+    <div
+      class="box items-center justify-center"
       style={{
         width: `${ICON_SIZE}px`,
         height: `${ICON_SIZE}px`,
@@ -132,7 +129,7 @@ function LeadingSlot(props: {
       >
         <Spinner decorative size={ICON_SIZE} color={props.palette.font} />
       </Show>
-    </Box>
+    </div>
   );
 }
 
@@ -153,28 +150,28 @@ export function SocialSignInButton(
       : (props.label ?? defaultLabel());
 
   return (
-    <Clickable
-      feedback="opacity"
+    <button
+      class={`clickable clickableOpacity ${buttonClass()}`}
+      {...dataAttrs({
+        component: 'SocialSignInButton',
+        provider: props.provider,
+        ...props.dataSet,
+      })}
+      type="button"
       onClick={() => props.onClick()}
       disabled={isDisabled()}
       aria-label={defaultLabel()}
       aria-busy={loading() ? true : undefined}
       aria-describedby={props['aria-describedby']}
-      class={buttonClass()}
       style={buttonStyle({
         palette: palette(),
         shape: props.shape ?? 'rectangular',
         isDisabled: isDisabled(),
       })}
-      dataSet={{
-        component: 'SocialSignInButton',
-        provider: props.provider,
-        ...props.dataSet,
-      }}
     >
       <LeadingSlot spec={spec()} palette={palette()} loading={loading()} />
-      <Text
-        class="whitespace-nowrap"
+      <p
+        class="text whitespace-nowrap"
         style={{
           'font-size': `${FONT_SIZE}px`,
           'line-height': `${LINE_HEIGHT}px`,
@@ -182,8 +179,9 @@ export function SocialSignInButton(
           color: palette().font,
           'font-family': FONT_FAMILY,
         }}
-        label={visibleLabel()}
-      />
-    </Clickable>
+      >
+        {visibleLabel()}
+      </p>
+    </button>
   );
 }

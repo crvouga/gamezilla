@@ -7,7 +7,6 @@
  */
 
 import { createEffect, type JSX, onCleanup, untrack } from 'solid-js';
-import { Box, joinClass } from '../box';
 import { pushEscapeDismissHandler } from './escape-dismiss-stack';
 import { collectTabbable, nextTabStop } from './focus-trap-logic';
 
@@ -88,8 +87,12 @@ export function FocusTrap(props: FocusTrapProps): JSX.Element {
     return hostEl;
   };
   useTrapLifecycle(props, host);
+  const layoutClass =
+    props.layout === 'sheet' ? SHEET_HOST_CLASS : COVER_HOST_CLASS;
   return (
-    <Box
+    <div
+      class={`box ${layoutClass}${props.class ? ` ${props.class}` : ''}`}
+      data-component="FocusTrap"
       ref={(el) => {
         hostEl = el;
       }}
@@ -98,14 +101,9 @@ export function FocusTrap(props: FocusTrapProps): JSX.Element {
       aria-label={props.label}
       aria-labelledby={props.labelledBy}
       tabIndex={-1}
-      class={joinClass(
-        props.layout === 'sheet' ? SHEET_HOST_CLASS : COVER_HOST_CLASS,
-        props.class
-      )}
       style={props.style}
-      dataSet={{ component: 'FocusTrap' }}
     >
       {props.children}
-    </Box>
+    </div>
   );
 }

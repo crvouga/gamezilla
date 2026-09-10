@@ -15,8 +15,7 @@
  */
 
 import type { JSX } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
-import { Box, joinClass } from '../box';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { Spinner, type SpinnerProps } from './spinner';
 
 export type SpinnerBoxProps = {
@@ -38,10 +37,11 @@ export type SpinnerBoxProps = {
 
 export function SpinnerBox(props: SpinnerBoxProps): JSX.Element {
   return (
-    <Box
-      class={joinClass('items-center justify-center gap-2', props.class)}
+    <div
+      class="box items-center justify-center gap-2"
+      classList={{ [String(props.class)]: true }}
+      {...dataAttrs({ component: 'SpinnerBox', ...props.dataSet })}
       style={props.style}
-      dataSet={{ component: 'SpinnerBox', ...props.dataSet }}
     >
       <Spinner
         size={props.size}
@@ -49,6 +49,6 @@ export function SpinnerBox(props: SpinnerBoxProps): JSX.Element {
         strokeWidth={props.strokeWidth}
       />
       {props.children}
-    </Box>
+    </div>
   );
 }

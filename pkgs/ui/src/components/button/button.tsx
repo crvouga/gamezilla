@@ -21,15 +21,13 @@
  */
 
 import { createMemo, type JSX } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import {
   OnColorProvider,
   type OnColorSet,
   spacingScale,
   useThemeTokens,
 } from '../../theme';
-import { Box, joinClass } from '../box';
-import { Clickable } from '../clickable';
 import type { IconComponent } from '../icons';
 import {
   type ButtonFace,
@@ -81,11 +79,13 @@ function buttonClass(args: {
   flex: number | undefined;
   fullWidth: boolean;
 }): string {
-  return joinClass(
+  return [
     'flex-row items-center justify-center overflow-hidden select-none',
     args.fullWidth && 'self-stretch w-full',
-    args.flex === 1 && 'flex-1'
-  );
+    args.flex === 1 && 'flex-1',
+  ]
+    .filter(Boolean)
+    .join(' ');
 }
 
 function buttonStyle(args: {
@@ -141,32 +141,32 @@ export function Button(props: ButtonProps): JSX.Element {
     },
   };
   return (
-    <Clickable
-      type={props.type}
-      onClick={() => render().handleClick?.()}
-      disabled={render().nonInteractive}
-      aria-busy={render().phase === 'loading' ? true : undefined}
-      aria-label={props['aria-label']}
-      class={buttonClass({
+    <button
+      class={`clickable clickableTint ${buttonClass({
         flex: props.flex,
         fullWidth: props.fullWidth === true,
-      })}
-      style={buttonStyle({
-        flex: props.flex,
-        s: size(),
-        face: render().face,
-      })}
-      dataSet={{
+      })}`}
+      {...dataAttrs({
         component: 'Button',
         intent: props.intent ?? 'primary',
         variant: props.variant ?? 'solid',
         phase: render().phase,
         ...props.dataSet,
-      }}
+      })}
+      type={props.type}
+      onClick={() => render().handleClick?.()}
+      disabled={render().nonInteractive}
+      aria-busy={render().phase === 'loading' ? true : undefined}
+      aria-label={props['aria-label']}
+      style={buttonStyle({
+        flex: props.flex,
+        s: size(),
+        face: render().face,
+      })}
     >
       <OnColorProvider value={onColor}>
-        <Box
-          class="relative flex-row items-center justify-center"
+        <div
+          class="box relative flex-row items-center justify-center"
           style={{ gap: `${spacingScale(size().iconGap)}px` }}
         >
           <ButtonContent
@@ -191,8 +191,8 @@ export function Button(props: ButtonProps): JSX.Element {
             startIcon={props.startIcon}
             endIcon={props.endIcon}
           />
-        </Box>
+        </div>
       </OnColorProvider>
-    </Clickable>
+    </button>
   );
 }

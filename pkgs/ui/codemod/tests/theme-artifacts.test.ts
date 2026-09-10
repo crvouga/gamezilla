@@ -64,27 +64,13 @@ describe('base.css coverage', () => {
     }
   });
 
-  test('base.css matches hosts.module.css declaration for declaration', async () => {
-    const base = await readArtifact('base.css');
-    const hosts = await readFile(
-      join(PKG_ROOT, 'src', 'components', 'hosts.module.css'),
-      'utf8'
-    );
-    // `.text` diverges: migrated hosts are semantic `p`/`h*` with variant
-    // globals, while the runtime CSS Module still forces inline span reset.
-    for (const selector of ['.box {', '.clickable {', '.scroll {']) {
-      const block = hosts.slice(
-        hosts.indexOf(selector),
-        hosts.indexOf('}', hosts.indexOf(selector))
-      );
-      const decls = block
-        .slice(block.indexOf('{') + 1)
-        .split(';')
-        .map((d) => d.trim())
-        .filter((d) => d.length > 0);
-      for (const decl of decls) {
-        expect(base).toContain(decl);
-      }
-    }
+  test('base.css is layered so Tailwind utilities can override defaults', async () => {
+    const css = await readArtifact('base.css');
+    expect(css).toContain('@layer components');
+    // Unlayered `.box { padding: 0 }` would beat `@layer utilities` `.p-4`.
+    const layerIdx = css.indexOf('@layer components');
+    const boxIdx = css.indexOf('.box {');
+    expect(layerIdx).toBeGreaterThanOrEqual(0);
+    expect(boxIdx).toBeGreaterThan(layerIdx);
   });
 });

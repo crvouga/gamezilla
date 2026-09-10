@@ -26,17 +26,12 @@ const SECTIONS = [
 const DEFAULT_BASE_PATH = '/sim-console';
 const DEFAULT_REPORTS_PUBLIC_BASE = '/reports';
 
-const sectionFillSx = {
-  flex: 1,
-  'min-height': 0,
-  background: 'background',
-} as const;
+const sectionFillClass = 'box flex-1 min-h-[0] bg-background';
 
-function sectionVisibilitySx(active: boolean) {
+function sectionVisibilityStyle(active: boolean): JSX.CSSProperties {
   return {
-    ...sectionFillSx,
-    display: active ? ('flex' as const) : ('none' as const),
-    pointerEvents: active ? ('auto' as const) : ('none' as const),
+    display: active ? 'flex' : 'none',
+    'pointer-events': active ? 'auto' : 'none',
   };
 }
 
@@ -118,8 +113,8 @@ export function SimConsoleApp(props: {
           <div class="box flex-1 min-h-[0] bg-background">
             {reportsVisited() ? (
               <div
-                class="box"
-                style={sectionVisibilitySx(props.section === 'reports')}
+                class={sectionFillClass}
+                style={sectionVisibilityStyle(props.section === 'reports')}
               >
                 <ReportsSection
                   api={api()}
@@ -130,8 +125,8 @@ export function SimConsoleApp(props: {
             ) : null}
             {playgroundPinned() ? (
               <div
-                class="box"
-                style={sectionVisibilitySx(props.section === 'playground')}
+                class={sectionFillClass}
+                style={sectionVisibilityStyle(props.section === 'playground')}
               >
                 <PlaygroundScreen
                   state={session.state}

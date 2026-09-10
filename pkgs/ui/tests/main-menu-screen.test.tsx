@@ -1,5 +1,4 @@
 /** @jsxImportSource solid-js */
-import { Text } from '@pkgs/ui';
 import {
   MAIN_MENU_SCREEN_MAX_WIDTH,
   MainMenuScreen,
@@ -22,7 +21,7 @@ describe('MainMenuScreen', () => {
           { key: 'chess', title: 'Chess', caption: 'Puzzles & play' },
           { key: 'c4', title: 'Connect Four', selected: true },
         ]}
-        footer={<Text label="footer" />}
+        footer={<p class="text">{'footer'}</p>}
       />
     ));
     const root = mustQuery('[data-component="MainMenuScreen"]');
@@ -65,7 +64,9 @@ describe('MainMenuScreen', () => {
   test('renders custom trailing slot', () => {
     renderUi(() => (
       <MainMenuScreen
-        items={[{ key: 'a', title: 'A', trailing: <Text label="NEW" /> }]}
+        items={[
+          { key: 'a', title: 'A', trailing: <p class="text">{'NEW'}</p> },
+        ]}
       />
     ));
     expect(screen.getByText('NEW')).toBeTruthy();

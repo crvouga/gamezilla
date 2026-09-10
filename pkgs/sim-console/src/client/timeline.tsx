@@ -173,9 +173,9 @@ function FrameChip(props: {
   return (
     <button
       class="clickable clickableTint flex-row items-center gap-1 [padding-top:4px;padding-bottom:4px] [padding-left:8px;padding-right:8px] border rounded-[10px]"
-      style={{
-        background: props.selected ? 'tintSubtle' : 'background',
-        'border-color': props.selected ? 'tint' : 'border',
+      classList={{
+        'bg-tint-subtle border-tint': props.selected,
+        'bg-background border-border': !props.selected,
       }}
       type="button"
       aria-selected={props.selected}
@@ -188,13 +188,19 @@ function FrameChip(props: {
     >
       <p
         class="text font-semibold text-[11px]"
-        style={{ color: props.selected ? 'tint' : 'textSecondary' }}
+        classList={{
+          'text-tint': props.selected,
+          'text-text-secondary': !props.selected,
+        }}
       >
         {String(props.index + 1)}
       </p>
       <p
         class="text line-clamp-1 text-[11px] max-w-[160px]"
-        style={{ color: props.selected ? 'text' : 'textSecondary' }}
+        classList={{
+          'text-text': props.selected,
+          'text-text-secondary': !props.selected,
+        }}
       >
         {props.title}
       </p>
@@ -271,14 +277,14 @@ const scrubHitSx = {
 const scrubTrackSx = {
   height: '4px',
   'border-radius': '2px',
-  background: 'outline',
+  background: 'var(--ui-color-outline)',
   overflow: 'hidden',
 } as const;
 
 const scrubFillSx = {
   height: '4px',
   'border-radius': '2px',
-  background: 'tint',
+  background: 'var(--ui-color-tint)',
 } as const;
 
 const scrubThumbSx = {
@@ -287,9 +293,10 @@ const scrubThumbSx = {
   width: `${THUMB_SIZE}px`,
   height: `${THUMB_SIZE}px`,
   'border-radius': `${THUMB_SIZE / 2}px`,
-  background: 'tint',
+  background: 'var(--ui-color-tint)',
   'border-width': '2px',
-  'border-color': 'surface',
+  'border-style': 'solid',
+  'border-color': 'var(--ui-color-surface)',
 } as const;
 
 const ticksLayerSx = {
@@ -306,13 +313,13 @@ const scrubTickSx = {
   width: `${TICK_WIDTH}px`,
   height: `${TICK_HEIGHT}px`,
   'border-radius': '1px',
-  background: 'border',
+  background: 'var(--ui-color-border)',
 } as const;
 
 const railSx = {
   'padding-top': '24px',
   'padding-bottom': '32px',
-  background: 'surface',
+  background: 'var(--ui-color-surface)',
   'min-height': '36px',
   'flex-grow': 0,
 } as const;

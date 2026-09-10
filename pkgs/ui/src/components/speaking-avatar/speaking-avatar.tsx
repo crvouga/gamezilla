@@ -39,7 +39,6 @@ import {
 } from 'solid-js';
 import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { svgToDataUri } from '../avatar';
-import { joinClass } from '../box/box';
 import { SoundIndicator, type SoundIndicatorState } from '../sound-indicator';
 import styles from './speaking-avatar.module.css';
 import { speakingAvatarSvg } from './speaking-avatar-svg';
@@ -198,7 +197,8 @@ export function SpeakingAvatar(props: SpeakingAvatarProps): JSX.Element {
 
   return (
     <div
-      class={joinClass('box flex-row items-center px-4 gap-1', local.class)}
+      class="box flex-row items-center px-4 gap-1"
+      classList={{ [String(local.class)]: true }}
       {...dataAttrs({ component: 'SpeakingAvatar', ...local.dataSet })}
       {...rest}
     >

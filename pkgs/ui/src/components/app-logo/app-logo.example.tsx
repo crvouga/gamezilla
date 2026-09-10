@@ -1,6 +1,5 @@
 /** @jsxImportSource solid-js */
 import type { JSX } from 'solid-js';
-import { Divider } from '../divider';
 import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
 import { AppLogo } from './app-logo';
@@ -19,7 +18,7 @@ export default function AppLogoExample(): JSX.Element {
         </div>
       </SchemePreview>
 
-      <Divider />
+      <div class="divider" role="separator" />
 
       <label class="text textLabel text-text-secondary">{'Mark only'}</label>
       <SchemePreview>
@@ -30,7 +29,7 @@ export default function AppLogoExample(): JSX.Element {
         </div>
       </SchemePreview>
 
-      <Divider />
+      <div class="divider" role="separator" />
 
       <label class="text textLabel text-text-secondary">
         {'Tinted overrides'}

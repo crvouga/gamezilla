@@ -1,6 +1,5 @@
 /** @jsxImportSource solid-js */
 import {
-  Clickable,
   FadeSwitch,
   FocusTrap,
   KeyboardShortcutScope,
@@ -10,7 +9,6 @@ import {
   SURFACE_STACK_STEP,
   SurfaceStackProvider,
   SurfaceStackSlot,
-  Text,
   useDocumentShortcuts,
   useIsTopSurface,
 } from '@pkgs/ui';
@@ -27,10 +25,20 @@ describe('FocusTrap', () => {
     const [open, setOpen] = createSignal(true);
     renderUi(() => (
       <>
-        <Clickable dataSet={{ testid: 'outside' }}>out</Clickable>
+        <button
+          class="clickable clickableTint"
+          data-testid="outside"
+          type="button"
+        >
+          out
+        </button>
         <FocusTrap active={open()} onEscape={onEscape} label="Dialog">
-          <Clickable dataSet={{ testid: 'a' }}>a</Clickable>
-          <Clickable dataSet={{ testid: 'b' }}>b</Clickable>
+          <button class="clickable clickableTint" data-testid="a" type="button">
+            a
+          </button>
+          <button class="clickable clickableTint" data-testid="b" type="button">
+            b
+          </button>
         </FocusTrap>
       </>
     ));
@@ -66,7 +74,7 @@ describe('keyboard shortcuts', () => {
         return undefined;
       },
     });
-    return <Text label="l" />;
+    return <p class="text">{'l'}</p>;
   }
 
   test('document listener respects scope gate', async () => {
@@ -90,9 +98,11 @@ describe('OverlayPortal', () => {
   test('teleports children into the host layer', () => {
     renderUi(() => (
       <OverlayPortalProvider>
-        <Text label="page" />
+        <p class="text">{'page'}</p>
         <OverlayPortal>
-          <Text label="floating" dataSet={{ testid: 'f' }} />
+          <p class="text" data-testid="f">
+            {'floating'}
+          </p>
         </OverlayPortal>
       </OverlayPortalProvider>
     ));
@@ -101,12 +111,15 @@ describe('OverlayPortal', () => {
       .closest('[data-component="OverlayPortalHost"]');
     if (host === null) throw new Error('not portaled into the overlay host');
     expect(cssOf(host)).toContain('z-index:1000000');
+    // Host must carry `.boxNone` (pointer-events: none + children auto) so the
+    // absolute fill never blocks the app underneath when empty.
+    expect([...host.classList].some((c) => c.includes('boxNone'))).toBe(true);
   });
 
   test('renders inline without a provider', () => {
     renderUi(() => (
       <OverlayPortal>
-        <Text label="inline" />
+        <p class="text">{'inline'}</p>
       </OverlayPortal>
     ));
     expect(screen.getByText('inline')).toBeInTheDocument();
@@ -116,7 +129,7 @@ describe('OverlayPortal', () => {
 describe('SurfaceStack', () => {
   function Top(props: { id: string }): JSX.Element {
     const isTop = useIsTopSurface(() => props.id);
-    return <Text label={`${props.id}:${isTop() ? 'top' : 'under'}`} />;
+    return <p class="text">{`${props.id}:${isTop() ? 'top' : 'under'}`}</p>;
   }
 
   test('z-index follows open order and isTop tracks the last surface', () => {
@@ -126,10 +139,10 @@ describe('SurfaceStack', () => {
         <Top id="one" />
         <Top id="two" />
         <SurfaceStackSlot id="one" visible>
-          <Text label="one" />
+          <p class="text">{'one'}</p>
         </SurfaceStackSlot>
         <SurfaceStackSlot id="two" visible={second()}>
-          <Text label="two" />
+          <p class="text">{'two'}</p>
         </SurfaceStackSlot>
       </SurfaceStackProvider>
     ));
@@ -153,7 +166,7 @@ describe('SurfaceStack', () => {
   test('FadeSwitch exposes the state key', () => {
     renderUi(() => (
       <FadeSwitch stateKey="ready" dataSet={{ testid: 'fs' }}>
-        <Text label="x" />
+        <p class="text">{'x'}</p>
       </FadeSwitch>
     ));
     expect(screen.getByTestId('fs')).toHaveAttribute('data-state-key', 'ready');

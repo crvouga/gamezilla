@@ -13,7 +13,6 @@
 import { createUniqueId, type JSX, Show } from 'solid-js';
 import { cssPx } from '../../css/css-px';
 import { OnColorReset, useThemeLayout } from '../../theme';
-import { joinClass } from '../box/box';
 import { FocusTrap } from '../focus-trap';
 import { ModalTitleIdProvider } from '../modal/modal-title-id';
 import { Motion } from '../motion';
@@ -63,10 +62,7 @@ export function WebBottomSheet(props: BottomSheetHostSheetProps): JSX.Element {
           dataSet={{ component: 'BottomSheetScrim' }}
         />
         <Motion
-          class={joinClass(
-            'absolute left-0 right-0 bottom-0 bg-surface',
-            'rounded-tl-[20px] rounded-tr-[20px] border border-border overflow-hidden'
-          )}
+          class="absolute left-0 right-0 bottom-0 bg-surface rounded-tl-[20px] rounded-tr-[20px] border border-border overflow-hidden"
           style={{
             ...(props.height !== undefined
               ? { height: cssPx(props.height) }

@@ -3,9 +3,9 @@
  * `List` / `ListItem` -- structured list with leading, trailing, and separator support.
  *
  * `List` renders a `<ul>`; every resolved child is wrapped in an `<li>` with
- * an optional hairline separator. `ListItem` becomes a `Clickable` when
- * `onClick` is set so hover / press feedback and keyboard focus come for free.
- * Pass `selected` to render the row with a `tintSubtle` fill.
+ * an optional hairline separator. `ListItem` becomes a clickable `<button>`
+ * when `onClick` is set so hover / press feedback and keyboard focus come for
+ * free. Pass `selected` to render the row with a `tintSubtle` fill.
  *
  * @example
  * ```tsx
@@ -23,10 +23,7 @@ import {
   children as resolveChildren,
   Show,
 } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
-import { Box, joinClass } from '../box';
-import { Clickable } from '../clickable';
-import { Text } from '../text';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 
 export type ListProps = {
   children: JSX.Element;
@@ -45,18 +42,18 @@ export function List(props: ListProps): JSX.Element {
   );
   const separator = () => props.separator ?? true;
   return (
-    <Box as="ul" dataSet={{ component: 'List', ...props.dataSet }}>
+    <ul class="box" {...dataAttrs({ component: 'List', ...props.dataSet })}>
       <For each={items()}>
         {(child, index) => (
-          <Box as="li">
+          <li class="box">
             {child}
             <Show when={separator() && index() < items().length - 1}>
-              <Box aria-hidden="true" class="border-b border-border ml-4" />
+              <div class="box border-b border-border ml-4" aria-hidden="true" />
             </Show>
-          </Box>
+          </li>
         )}
       </For>
-    </Box>
+    </ul>
   );
 }
 
@@ -81,21 +78,21 @@ function ListItemContent(props: {
   trailing: JSX.Element | undefined;
 }): JSX.Element {
   return (
-    <Box class="flex-row items-center py-3 px-4 gap-3 min-h-[44px]">
+    <div class="box flex-row items-center py-3 px-4 gap-3 min-h-[44px]">
       {props.leading}
-      <Box class="flex-1 min-w-0 items-start">
-        <Text label={props.title} />
+      <div class="box flex-1 min-w-0 items-start">
+        <p class="text">{props.title}</p>
         <Show when={props.subtitle}>
-          <Text variant="caption" label={props.subtitle} />
+          <p class="text textCaption">{props.subtitle}</p>
         </Show>
-      </Box>
+      </div>
       {props.trailing}
-    </Box>
+    </div>
   );
 }
 
-function selectedClass(selected: boolean): string | undefined {
-  return selected ? 'bg-tint-subtle rounded-[10px]' : undefined;
+function selectedClass(selected: boolean): string {
+  return selected ? 'bg-tint-subtle rounded-[10px]' : '';
 }
 
 export function ListItem(props: ListItemProps): JSX.Element {
@@ -111,27 +108,25 @@ export function ListItem(props: ListItemProps): JSX.Element {
     <Show
       when={props.onClick}
       fallback={
-        <Box
+        <div
+          class={`box ${selectedClass(props.selected === true)}`}
+          {...dataAttrs({ component: 'ListItem', ...props.dataSet })}
           aria-selected={props.selected === true ? true : undefined}
-          class={selectedClass(props.selected === true)}
-          dataSet={{ component: 'ListItem', ...props.dataSet }}
         >
           {content()}
-        </Box>
+        </div>
       }
     >
       {(onClick) => (
-        <Clickable
+        <button
+          class={`clickable clickableTint items-stretch w-full ${selectedClass(props.selected === true)}`}
+          {...dataAttrs({ component: 'ListItem', ...props.dataSet })}
+          type="button"
           onClick={() => onClick()()}
           aria-pressed={props.selected === true ? true : undefined}
-          class={joinClass(
-            'items-stretch w-full',
-            selectedClass(props.selected === true)
-          )}
-          dataSet={{ component: 'ListItem', ...props.dataSet }}
         >
           {content()}
-        </Clickable>
+        </button>
       )}
     </Show>
   );

@@ -2,7 +2,6 @@
 import type { JSX } from 'solid-js';
 import { Avatar } from '../avatar';
 import { Badge } from '../badge';
-import { Card } from '../card';
 import { ExampleRoot } from '../explorer/example-root';
 import { List, ListItem } from './list';
 
@@ -11,7 +10,7 @@ const noop = (): void => undefined;
 export default function ListExample(): JSX.Element {
   return (
     <ExampleRoot>
-      <Card class="overflow-hidden" elevation={0}>
+      <div class="card overflow-hidden">
         <List>
           <ListItem
             title="Profile"
@@ -42,16 +41,16 @@ export default function ListExample(): JSX.Element {
             onClick={noop}
           />
         </List>
-      </Card>
+      </div>
 
       <label class="text textLabel">{'Without separators'}</label>
-      <Card class="overflow-hidden" elevation={0}>
+      <div class="card overflow-hidden">
         <List separator={false}>
           <ListItem title="Item A" />
           <ListItem title="Item B" />
           <ListItem title="Item C" />
         </List>
-      </Card>
+      </div>
     </ExampleRoot>
   );
 }

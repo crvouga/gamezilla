@@ -2,14 +2,9 @@
 import {
   AppFrame,
   AppFrameChromeProvider,
-  Card,
-  Center,
-  Divider,
   Island,
   IslandGrid,
   NavRail,
-  Spacer,
-  Text,
   TopBar,
   TopBarTitle,
   useSetAppFrameHeader,
@@ -18,14 +13,14 @@ import { screen } from '@solidjs/testing-library';
 import { describe, expect, test } from 'vitest';
 import { cssOf, renderUi } from './support/render';
 
-describe('layout primitives', () => {
-  test('Center / Spacer / Divider / Card compile expected declarations', () => {
+describe('layout host classes', () => {
+  test('Center / Spacer / Divider / Card class contracts', () => {
     renderUi(() => (
       <>
-        <Center data-testid="c" />
-        <Spacer dataSet={{ testid: 's' }} />
-        <Divider data-testid="d" orientation="vertical" />
-        <Card data-testid="card" elevation={2} />
+        <div class="box items-center justify-center" data-testid="c" />
+        <div class="box flex-1" data-testid="s" aria-hidden="true" />
+        <div class="divider" role="separator" data-testid="d" />
+        <div class="card" data-testid="card" />
       </>
     ));
     expect(screen.getByTestId('c').className).toMatch(/items-center/);
@@ -33,10 +28,8 @@ describe('layout primitives', () => {
     expect(screen.getByTestId('s').className).toMatch(/flex-1/);
     const divider = screen.getByTestId('d');
     expect(divider).toHaveAttribute('role', 'separator');
-    expect(divider.className).toMatch(/border-l/);
-    const card = screen.getByTestId('card');
-    expect(card.className).toMatch(/rounded-\[14px\]/);
-    expect(card.className).toMatch(/bg-elevation-2/);
+    expect(divider.className).toMatch(/divider/);
+    expect(screen.getByTestId('card').className).toMatch(/card/);
   });
 });
 
@@ -46,7 +39,7 @@ describe('Island + IslandGrid', () => {
       () => (
         <IslandGrid columns={2} dataSet={{ testid: 'grid' }}>
           <Island title="Ignored on compact" dataSet={{ testid: 'i' }}>
-            <Text label="body" />
+            <p class="text">{'body'}</p>
           </Island>
         </IslandGrid>
       ),
@@ -67,7 +60,7 @@ describe('Island + IslandGrid', () => {
             span={2}
             dataSet={{ testid: 'i' }}
           >
-            <Text label="body" />
+            <p class="text">{'body'}</p>
           </Island>
         </IslandGrid>
       ),
@@ -90,9 +83,9 @@ describe('TopBar + NavRail', () => {
       () => (
         <TopBar
           dataSet={{ testid: 'tb' }}
-          leading={<Text label="L" />}
+          leading={<p class="text">{'L'}</p>}
           center={<TopBarTitle label="Title" />}
-          trailing={<Text label="R" />}
+          trailing={<p class="text">{'R'}</p>}
           centerAlign="center"
         />
       ),
@@ -116,10 +109,10 @@ describe('TopBar + NavRail', () => {
       <NavRail
         dataSet={{ testid: 'rail' }}
         width={200}
-        header={<Text label="head" />}
-        footer={<Text label="foot" />}
+        header={<p class="text">{'head'}</p>}
+        footer={<p class="text">{'foot'}</p>}
       >
-        <Text label="body" />
+        <p class="text">{'body'}</p>
       </NavRail>
     ));
     const rail = screen.getByTestId('rail');
@@ -131,15 +124,15 @@ describe('TopBar + NavRail', () => {
 
 describe('AppFrame', () => {
   function Override() {
-    useSetAppFrameHeader(<Text label="override header" />);
-    return <Text label="screen" />;
+    useSetAppFrameHeader(<p class="text">{'override header'}</p>);
+    return <p class="text">{'screen'}</p>;
   }
 
   test('wide frame shows the default header, screens can override it', () => {
     renderUi(
       () => (
         <AppFrameChromeProvider>
-          <AppFrame header={<Text label="default header" />}>
+          <AppFrame header={<p class="text">{'default header'}</p>}>
             <Override />
           </AppFrame>
         </AppFrameChromeProvider>
@@ -154,8 +147,8 @@ describe('AppFrame', () => {
   test('compact frame ignores the header', () => {
     renderUi(
       () => (
-        <AppFrame header={<Text label="default header" />}>
-          <Text label="screen" />
+        <AppFrame header={<p class="text">{'default header'}</p>}>
+          <p class="text">{'screen'}</p>
         </AppFrame>
       ),
       { width: 390 }

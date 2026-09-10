@@ -22,9 +22,8 @@ import {
   children as resolveChildren,
   Show,
 } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { spacingScale } from '../../theme';
-import { Box } from '../box';
 import {
   CONTENT_EDGE_PADDING_STEP,
   useContentEdgePaddingStep,
@@ -61,29 +60,30 @@ export function MenuList(props: MenuListProps): JSX.Element {
     return { 'margin-left': mx, 'margin-right': mx };
   };
   return (
-    <Box
+    <div
+      class="box"
+      classList={{ [String(props.class)]: true }}
+      {...dataAttrs({ component: 'MenuList', ...props.dataSet })}
       role="menu"
-      class={props.class}
       style={{ ...edgeBleed(), ...props.style }}
-      dataSet={{ component: 'MenuList', ...props.dataSet }}
     >
       <For each={rows()}>
         {(child, index) => (
-          <Box>
+          <div class="box">
             {child}
             <Show when={separator() && index() < rows().length - 1}>
-              <Box
+              <div
+                class="box border-b border-border"
                 aria-hidden="true"
-                class="border-b border-border"
                 style={{
                   'margin-left': `${spacingScale(SEPARATOR_INSET_STEP)}px`,
                   'margin-right': `${spacingScale(SEPARATOR_INSET_STEP)}px`,
                 }}
               />
             </Show>
-          </Box>
+          </div>
         )}
       </For>
-    </Box>
+    </div>
   );
 }

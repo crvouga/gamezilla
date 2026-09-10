@@ -23,7 +23,7 @@ import {
   Show,
 } from 'solid-js';
 import { type ComponentDataSet, dataAttrs } from '../../component-id';
-import { useThemeLayout } from '../../theme';
+import { OnColorReset, useThemeLayout } from '../../theme';
 import { pushEscapeDismissHandler } from '../focus-trap';
 import { Motion } from '../motion';
 import {
@@ -147,7 +147,7 @@ function FloatingMenuPanel(props: {
   };
   return (
     <Motion
-      class="absolute"
+      class="absolute z-[1]"
       style={{
         top: `${props.position.top}px`,
         left: `${props.position.left}px`,
@@ -157,30 +157,37 @@ function FloatingMenuPanel(props: {
       enterStyle={ENTER_STYLE}
       dataSet={{ component: 'FloatingMenuPanel' }}
     >
-      <div
-        class="box rounded-[14px] border border-border py-2 bg-surface-overlay"
-        ref={(el) => {
-          hostEl = el;
-        }}
-        role="menu"
-        aria-label={props.label}
-        tabIndex={-1}
-        onKeyDown={(ev) => onMenuKeyDown(ev.currentTarget, ev)}
-      >
-        <Show when={props.content.header}>
-          {(header) => <FloatingMenuHeader header={header()} />}
-        </Show>
-        <For each={props.content.rows}>
-          {(row) => (
-            <Show
-              when={row.type === 'item' ? row : undefined}
-              fallback={<FloatingMenuDivider />}
-            >
-              {(item) => <FloatingMenuItem row={item()} onSelect={onSelect} />}
-            </Show>
-          )}
-        </For>
-      </div>
+      <OnColorReset>
+        <div
+          class="box rounded-[14px] border border-border py-2 bg-surface-overlay"
+          style={{
+            'box-shadow': '0 12px 40px var(--ui-color-shadow-color)',
+          }}
+          ref={(el) => {
+            hostEl = el;
+          }}
+          role="menu"
+          aria-label={props.label}
+          tabIndex={-1}
+          onKeyDown={(ev) => onMenuKeyDown(ev.currentTarget, ev)}
+        >
+          <Show when={props.content.header}>
+            {(header) => <FloatingMenuHeader header={header()} />}
+          </Show>
+          <For each={props.content.rows}>
+            {(row) => (
+              <Show
+                when={row.type === 'item' ? row : undefined}
+                fallback={<FloatingMenuDivider />}
+              >
+                {(item) => (
+                  <FloatingMenuItem row={item()} onSelect={onSelect} />
+                )}
+              </Show>
+            )}
+          </For>
+        </div>
+      </OnColorReset>
     </Motion>
   );
 }

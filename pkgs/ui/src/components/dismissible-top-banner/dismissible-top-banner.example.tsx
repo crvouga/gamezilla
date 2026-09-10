@@ -24,7 +24,7 @@ export default function DismissibleBannerExample(): JSX.Element {
       <ExampleRoot class="flex-1 min-h-[360px]">
         <p class="text textCaption">
           {
-            'Banner UI portals to DismissibleBannerPortalProvider (mount once at the app root). This example mounts its own provider so the banner stays inside the preview. Position is a prop — like a toaster region.'
+            'Banner UI portals into in-flow top/bottom slots on DismissibleBannerPortalProvider (mount once at the app root). This example mounts its own provider so the banner stays inside the preview and pushes content rather than covering it.'
           }
         </p>
         <SegmentedControl<DismissibleBannerPosition>
@@ -36,6 +36,7 @@ export default function DismissibleBannerExample(): JSX.Element {
         <DismissibleBanner
           visible={visible()}
           position={position()}
+          tone="paper"
           onDismiss={() => setVisible(false)}
           title="Something needs your attention"
           subtitle="Optional supporting line."

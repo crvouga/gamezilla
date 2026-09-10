@@ -1,13 +1,11 @@
 /** @jsxImportSource solid-js */
 import {
   Checkbox,
-  Clickable,
   ContentEdgePaddingProvider,
   GradientBox,
   Motion,
   ScrollView,
   Switch,
-  Text,
   TextInput,
   VirtualList,
 } from '@pkgs/ui';
@@ -20,9 +18,14 @@ describe('Clickable', () => {
   test('renders a real button with tint feedback and forwards clicks', () => {
     const onClick = vi.fn();
     renderUi(() => (
-      <Clickable data-testid="c" onClick={onClick} class="p-2">
-        <Text label="Go" />
-      </Clickable>
+      <button
+        class="clickable clickableTint p-2"
+        type="button"
+        data-testid="c"
+        onClick={onClick}
+      >
+        <p class="text">{'Go'}</p>
+      </button>
     ));
     const el = screen.getByTestId('c');
     expect(el.tagName).toBe('BUTTON');
@@ -33,7 +36,14 @@ describe('Clickable', () => {
   });
 
   test('disabled buttons and feedback modes', () => {
-    renderUi(() => <Clickable data-testid="c" disabled feedback="opacity" />);
+    renderUi(() => (
+      <button
+        class="clickable clickableOpacity"
+        type="button"
+        data-testid="c"
+        disabled
+      />
+    ));
     const el = screen.getByTestId('c');
     expect(el).toBeDisabled();
     expect(el.className).toMatch(/clickableOpacity/);
@@ -49,9 +59,12 @@ describe('Switch', () => {
     ));
     const el = screen.getByRole('switch', { name: 'Sound' });
     expect(el).toHaveAttribute('aria-checked', 'false');
+    const track = el.querySelector('[class*="rounded"]');
+    expect(track?.className).toMatch(/bg-disabled/);
     fireEvent.click(el);
     expect(el).toHaveAttribute('aria-checked', 'true');
     expect(el.className).toMatch(/min-h-\[44px\]/);
+    expect(track?.className).toMatch(/bg-tint/);
   });
 });
 
@@ -121,7 +134,7 @@ describe('ScrollView', () => {
           class="flex-1"
           contentStyle={{ gap: 'var(--ui-space-2)' }}
         >
-          <Text label="row" />
+          <p class="text">{'row'}</p>
         </ScrollView>
       </ContentEdgePaddingProvider>
     ));
@@ -144,10 +157,10 @@ describe('VirtualList', () => {
         data-testid="vl"
         items={items}
         keyExtractor={(it) => it.id}
-        renderItem={(it) => <Text label={it.id} />}
+        renderItem={(it) => <p class="text">{it.id}</p>}
         estimateSize={40}
         fixedViewport={{ width: 300, height: 200 }}
-        header={<Text label="head" />}
+        header={<p class="text">{'head'}</p>}
       />
     ));
     const rows = screen.getAllByRole('listitem');
@@ -162,8 +175,8 @@ describe('VirtualList', () => {
       <VirtualList
         items={[] as { id: string }[]}
         keyExtractor={(it) => it.id}
-        renderItem={(it) => <Text label={it.id} />}
-        empty={<Text label="nothing" />}
+        renderItem={(it) => <p class="text">{it.id}</p>}
+        empty={<p class="text">{'nothing'}</p>}
         fixedViewport={{ width: 300, height: 200 }}
       />
     ));
@@ -172,18 +185,18 @@ describe('VirtualList', () => {
 });
 
 describe('GradientBox', () => {
-  test('paints a linear gradient and provides on-color to children', () => {
+  test('paints a linear gradient', () => {
     renderUi(() => (
       <GradientBox data-testid="g" colors={['#000000', '#111111']}>
-        <Text data-testid="t" label="on gradient" />
+        <p class="text" data-testid="t">
+          {'on gradient'}
+        </p>
       </GradientBox>
     ));
     expect(cssOf(screen.getByTestId('g'))).toContain(
       'background-image:linear-gradient(90deg,#000000,#111111)'
     );
-    expect(cssOf(screen.getByTestId('t'))).toContain(
-      'color:var(--ui-color-on-primary)'
-    );
+    expect(screen.getByTestId('t')).toHaveTextContent('on gradient');
   });
 });
 

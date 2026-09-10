@@ -12,7 +12,6 @@
 
 import type { JSX } from 'solid-js';
 import { type ComponentDataSet, dataAttrs } from '../../component-id';
-import { joinClass } from '../box';
 
 export type ExampleRootProps = {
   children: JSX.Element;
@@ -25,7 +24,8 @@ export type ExampleRootProps = {
 export function ExampleRoot(props: ExampleRootProps): JSX.Element {
   return (
     <div
-      class={joinClass('box gap-4', props.class)}
+      class="box gap-4"
+      classList={{ [String(props.class)]: true }}
       {...dataAttrs({ component: 'ExampleRoot', ...props.dataSet })}
     >
       {props.children}

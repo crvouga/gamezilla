@@ -1,5 +1,5 @@
 /** @jsxImportSource solid-js */
-import { Clickable, SurfaceStackProvider, Text } from '@pkgs/ui';
+import { SurfaceStackProvider } from '@pkgs/ui';
 import { ActionBar } from '@pkgs/ui/components/action-bar';
 import {
   FLOATING_MENU_DEFAULT_WIDTH,
@@ -53,9 +53,14 @@ function Harness(props: {
   };
   return (
     <SurfaceStackProvider>
-      <Clickable dataSet={{ testid: 'trigger' }} onClick={() => setOpen(true)}>
-        <Text label="Open" />
-      </Clickable>
+      <button
+        class="clickable clickableTint"
+        data-testid="trigger"
+        type="button"
+        onClick={() => setOpen(true)}
+      >
+        <p class="text">{'Open'}</p>
+      </button>
       <FloatingMenu
         open={open()}
         onClose={() => {
@@ -98,6 +103,44 @@ describe('FloatingMenu', () => {
     expect(css).toContain('top:66px');
     expect(css).toContain(`left:${540 - FLOATING_MENU_DEFAULT_WIDTH}px`);
     expect(css).toContain(`width:${FLOATING_MENU_DEFAULT_WIDTH}px`);
+  });
+
+  test('empty label falls back to aria-label / id; subtitle stays on one line', () => {
+    renderUi(() => (
+      <SurfaceStackProvider>
+        <FloatingMenu
+          open
+          onClose={() => undefined}
+          anchor={ANCHOR}
+          label="Fallback"
+          content={{
+            rows: [
+              {
+                type: 'item',
+                id: 'blank',
+                label: '   ',
+                'aria-label': 'Online',
+                icon: SettingsIcon,
+              },
+              {
+                type: 'item',
+                id: 'theme',
+                label: 'Theme',
+                subtitle: 'Dark',
+                icon: SettingsIcon,
+              },
+            ],
+          }}
+        />
+      </SurfaceStackProvider>
+    ));
+    expect(screen.getByRole('menuitem', { name: 'Online' }).textContent).toBe(
+      'Online'
+    );
+    const theme = screen.getByRole('menuitem', { name: 'Theme' });
+    expect(theme.textContent).toContain('Theme');
+    expect(theme.textContent).toContain('Dark');
+    expect(theme.querySelectorAll('p')).toHaveLength(2);
   });
 
   test('focuses the first item, arrows skip disabled rows, select closes', async () => {

@@ -65,9 +65,21 @@ async function nextUniqueMutationId(
   tx: SqlClient,
   createId: CreateId
 ): Promise<string> {
-  for (let attempt = 0; attempt < 64; attempt += 1) {
+  // Seeded sim streams can reset while `sync_engine_mutations` still holds
+  // earlier mints (env remount). Skip forward past collisions; fail fast if
+  // `createId` itself is stuck returning the same value.
+  const seen = new Set<string>();
+  for (let attempt = 0; attempt < 4096; attempt += 1) {
     const mutationId = createId();
     assertUuid(mutationId, 'sync_engine_mutations id must be a UUID');
+    if (seen.has(mutationId)) {
+      assert.fail('sync_engine createId returned a duplicate', {
+        table: 'sync_engine_mutations',
+        mutationId,
+        attempt,
+      });
+    }
+    seen.add(mutationId);
     const existing = await tx.query(sql<{ id: string }>`
       SELECT id FROM sync_engine_mutations WHERE id = ${mutationId} LIMIT 1
     `);
@@ -75,7 +87,8 @@ async function nextUniqueMutationId(
   }
   assert.fail('sync_engine mutation ID allocator produced collisions', {
     table: 'sync_engine_mutations',
-    attempts: 64,
+    attempts: 4096,
+    uniqueGenerated: seen.size,
   });
 }
 

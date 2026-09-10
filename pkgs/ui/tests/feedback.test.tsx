@@ -18,6 +18,7 @@ import { StateBlock } from '@pkgs/ui/components/state-block';
 import { SuccessState } from '@pkgs/ui/components/success-state';
 import { Tooltip } from '@pkgs/ui/components/tooltip';
 import { fireEvent, screen } from '@solidjs/testing-library';
+import userEvent from '@testing-library/user-event';
 import { createSignal, Show } from 'solid-js';
 import { describe, expect, test, vi } from 'vitest';
 import { cssOf, mustQuery, renderUi } from './support/render';
@@ -183,27 +184,31 @@ describe('Tooltip', () => {
     expect(bubble).toHaveAttribute('aria-hidden', 'true');
   });
 
-  test('shows on focus within the anchor', () => {
+  test('shows on keyboard focus-visible when enableFocus is on', async () => {
+    const user = userEvent.setup();
     renderUi(() => (
-      <Tooltip label="Help">
+      <Tooltip label="Help" enableFocus>
         <button type="button">?</button>
       </Tooltip>
     ));
     const bubble = screen.getByRole('tooltip', { hidden: true });
-    const anchor = mustParent(bubble);
-    fireEvent.focusIn(anchor);
+    await user.tab();
+    expect(document.activeElement).toBe(
+      screen.getByRole('button', { name: '?' })
+    );
     expect(bubble).not.toHaveAttribute('aria-hidden');
-    fireEvent.focusOut(anchor);
+    fireEvent.focusOut(screen.getByRole('button', { name: '?' }));
     expect(bubble).toHaveAttribute('aria-hidden', 'true');
   });
 });
 
 describe('DismissibleBanner', () => {
-  test('renders into the portal host, dismisses, and fires the action', () => {
+  test('renders into the in-flow portal host, dismisses, and fires the action', () => {
     const onDismiss = vi.fn();
     const onAction = vi.fn();
     const { clock } = renderUi(() => (
       <DismissibleBannerPortalProvider>
+        <p data-testid="body">{'body'}</p>
         <DismissibleBanner
           visible
           onDismiss={onDismiss}
@@ -213,7 +218,20 @@ describe('DismissibleBanner', () => {
         />
       </DismissibleBannerPortalProvider>
     ));
-    expect(screen.getByRole('status')).toHaveTextContent('Update available');
+    const banner = screen.getByRole('status');
+    expect(banner).toHaveTextContent('Update available');
+    // Default tone is paper (`bg-surface-overlay`) on the sheet frame.
+    expect(banner.innerHTML).toMatch(/bg-surface-overlay/);
+    const host = banner.closest(
+      '[data-component="DismissibleBannerPortalHost"]'
+    );
+    if (host === null) throw new Error('banner not in portal host');
+    expect(host.getAttribute('data-position')).toBe('top');
+    // In-flow: host is a prior sibling of the app body, not an absolute overlay.
+    expect(host.compareDocumentPosition(screen.getByTestId('body'))).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING
+    );
+    expect(banner.className).not.toMatch(/\babsolute\b/);
     fireEvent.click(screen.getByRole('button', { name: 'Reload' }));
     expect(onAction).toHaveBeenCalledTimes(1);
     fireEvent.click(screen.getByRole('button', { name: 'Dismiss' }));

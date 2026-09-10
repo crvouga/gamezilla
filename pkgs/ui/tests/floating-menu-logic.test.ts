@@ -60,7 +60,7 @@ describe('computeFloatingMenuPosition', () => {
 });
 
 describe('estimateFloatingMenuHeight', () => {
-  test('sums panel inset, header, items (with subtitles) and dividers', () => {
+  test('sums panel inset, header, items and dividers (subtitle is trailing)', () => {
     const rows: FloatingMenuContent['rows'] = [
       { type: 'item', id: 'a', label: 'A', icon: SettingsIcon },
       { type: 'divider', id: 'd' },
@@ -72,9 +72,10 @@ describe('estimateFloatingMenuHeight', () => {
         icon: SettingsIcon,
       },
     ];
-    expect(estimateFloatingMenuHeight({ rows })).toBe(16 + 48 + 10 + 64);
+    // Subtitle no longer adds height — same single-line row as plain items.
+    expect(estimateFloatingMenuHeight({ rows })).toBe(16 + 44 + 10 + 44);
     expect(estimateFloatingMenuHeight({ header: { title: 'T' }, rows })).toBe(
-      16 + 64 + 48 + 10 + 64
+      16 + 64 + 44 + 10 + 44
     );
     expect(
       estimateFloatingMenuHeight({

@@ -19,7 +19,6 @@ import { createMemo, createSignal, type JSX, Show, splitProps } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 
 import { type ComponentDataSet, dataAttrs } from '../../component-id';
-import { joinClass } from '../box/box';
 import { ChevronRightIcon, CopyIcon, type IconComponent } from '../icons';
 import { ScrollView } from '../scroll-view';
 import styles from './json-view.module.css';
@@ -131,10 +130,8 @@ export function JsonView(props: JsonViewProps): JSX.Element {
 
   return (
     <div
-      class={joinClass(
-        'box bg-surface-muted border border-border rounded-[10px]',
-        local.class
-      )}
+      class="box bg-surface-muted border border-border rounded-[10px]"
+      classList={{ [String(local.class)]: true }}
       style={local.style}
       {...dataAttrs({ component: 'JsonView', ...local.dataSet })}
     >

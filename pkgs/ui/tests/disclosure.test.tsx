@@ -4,7 +4,6 @@ import {
   ScreenLargeTitle,
   ScreenTitleProvider,
   SectionCard,
-  Text,
   useRequiredScreenTitleContext,
   useScreenTitleScroll,
 } from '@pkgs/ui';
@@ -19,7 +18,7 @@ describe('Collapsible / SectionCard', () => {
     const user = userEvent.setup();
     renderUi(() => (
       <Collapsible title="More">
-        <Text label="hidden body" />
+        <p class="text">{'hidden body'}</p>
       </Collapsible>
     ));
     const toggle = screen.getByRole('button', { name: 'More' });
@@ -33,7 +32,7 @@ describe('Collapsible / SectionCard', () => {
   test('SectionCard opens by default when asked', () => {
     renderUi(() => (
       <SectionCard title="Section" defaultOpen dataSet={{ testid: 'sc' }}>
-        <Text label="content" />
+        <p class="text">{'content'}</p>
       </SectionCard>
     ));
     expect(screen.getByText('content')).toBeInTheDocument();
@@ -48,7 +47,7 @@ describe('ScreenTitle', () => {
     return (
       <>
         <div data-testid="scroller" onScroll={scroll.onScroll} />
-        <Text label={ctx.showInTopBar() ? 'top:yes' : 'top:no'} />
+        <p class="text">{ctx.showInTopBar() ? 'top:yes' : 'top:no'}</p>
       </>
     );
   }

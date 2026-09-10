@@ -104,20 +104,24 @@ describe('Box Tier B', () => {
     expect(result.text).toContain('"display": p.d');
   });
 
-  test('dynamic class expression uses classList', () => {
+  test('dynamic class expression concatenates into class', () => {
     const result = run(
       `export const A = (p: { c: string }) => <Box sx={{ p: 1 }} class={p.c} />;`
     );
-    expect(result.text).toContain('class="box p-1"');
-    expect(result.text).toContain('classList={{ [String(p.c)]: true }}');
+    expect(result.text).toContain(
+      `class={["box p-1", p.c].filter(Boolean).join(' ')}`
+    );
+    expect(result.text).not.toContain('classList={{ [String(p.c)]: true }}');
     expect(result.text).not.toContain('cn(');
   });
-  test('optional dynamic class expression compiles (no TS2872/2464)', () => {
+  test('optional dynamic class expression concatenates into class', () => {
     const result = run(
       `export const A = (p: { c?: string }) => <Box sx={{ p: 1 }} class={p.c} />;`
     );
-    expect(result.text).toContain('classList={{ [String(p.c)]: true }}');
-    expect(result.text).not.toContain('!!(p.c)');
+    expect(result.text).toContain(
+      `class={["box p-1", p.c].filter(Boolean).join(' ')}`
+    );
+    expect(result.text).not.toContain('classList={{ [String(p.c)]: true }}');
   });
   test('dynamic px pair fans out to two exact declarations', () => {
     const result = run(
@@ -664,7 +668,7 @@ export const A = (p: { on: boolean }) => <Box class={joinClass('base', p.on ? 'o
     expect(result.text).not.toContain("[p.on ? 'on' : 'off']");
   });
 
-  test('helper returning a class string uses an empty-safe computed key', () => {
+  test('helper returning a class string concatenates into class', () => {
     const result = transformFile(
       't.tsx',
       `import { Box, joinClass } from '@pkgs/ui';
@@ -672,9 +676,108 @@ declare function rowClass(): string;
 export const A = () => <Box class={joinClass(rowClass())} sx={{ p: 1 }} />;`
     );
     expect(result.parseError).toBe(undefined);
-    // `[String(expr)]: true` is the only shape that type-checks for a
-    // possibly-empty string and still toggles the runtime class.
-    expect(result.text).toContain('classList={{ [String(rowClass())]: true }}');
+    expect(result.text).toContain(
+      `class={["box p-1", rowClass()].filter(Boolean).join(' ')}`
+    );
+    expect(result.text).not.toContain(
+      'classList={{ [String(rowClass())]: true }}'
+    );
     expect(result.text).not.toContain('!!(rowClass())');
+  });
+});
+
+describe('design-system internals (pkgs/ui paths)', () => {
+  test('Box as="ul" peels to <ul> with dataAttrs (list.tsx shape)', () => {
+    const result = transformFile(
+      'pkgs/ui/src/components/list/list.tsx',
+      `import { Box, joinClass } from '../box';
+import { Clickable } from '../clickable';
+export function List(props: { dataSet?: never; class?: string }) {
+  return (
+    <Box as="ul" dataSet={{ component: 'List', ...props.dataSet }}>
+      <Box as="li" class={joinClass('row', props.class)} />
+    </Box>
+  );
+}
+`
+    );
+    expect(result.parseError).toBe(undefined);
+    expect(result.text).toContain('<ul class="box"');
+    expect(result.text).toContain(
+      `class={["box row", props.class].filter(Boolean).join(' ')}`
+    );
+    expect(result.text).toContain('{...dataAttrs(');
+    expect(result.text).toContain("from '../../component-id'");
+    expect(result.text).not.toContain('<Box');
+    expect(result.text).not.toContain('joinClass');
+    expect(result.text).not.toContain("from '../box'");
+  });
+
+  test('joinClass on intrinsic peels to class + classList (no helper)', () => {
+    const result = transformFile(
+      'pkgs/ui/src/components/island/island.tsx',
+      `import { joinClass } from '../box';
+export function Island(props: { class?: string; open: boolean }) {
+  return (
+    <section
+      class={joinClass(
+        'bg-surface border overflow-hidden',
+        props.open && 'shadow-md',
+        props.class
+      )}
+    />
+  );
+}
+`
+    );
+    expect(result.parseError).toBe(undefined);
+    expect(result.text).toContain(
+      `class={["bg-surface border overflow-hidden", props.class].filter(Boolean).join(' ')}`
+    );
+    expect(result.text).toContain('"shadow-md": !!(props.open)');
+    expect(result.text).not.toContain('[String(props.class)]: true');
+    expect(result.text).not.toContain('joinClass');
+  });
+
+  test('non-attr joinClass body rewrites and definition is deleted', () => {
+    const result = transformFile(
+      'pkgs/ui/src/components/box/box.tsx',
+      `import styles from '../hosts.module.css';
+export function joinClass(...parts: (string | false | undefined)[]): string {
+  let out = '';
+  for (const part of parts) {
+    if (part) out = out === '' ? part : out + ' ' + part;
+  }
+  return out;
+}
+export function Box(props: { class?: string }) {
+  return <div class={joinClass(styles['box'], props.class)} />;
+}
+`
+    );
+    expect(result.parseError).toBe(undefined);
+    expect(result.text).not.toContain('function joinClass');
+    expect(result.text).not.toContain('joinClass(');
+    expect(result.text).toContain(
+      `class={[styles['box'], props.class].filter(Boolean).join(' ')}`
+    );
+  });
+
+  test('return joinClass(...) in a local helper becomes filter+join', () => {
+    const result = transformFile(
+      'pkgs/ui/src/components/menu-row/menu-row.tsx',
+      `import { joinClass } from '../box';
+function rowClass(selected: boolean): string {
+  return joinClass('rounded-[10px]', selected && 'bg-tint-subtle');
+}
+export function Row(props: { selected: boolean }) {
+  return <div class={rowClass(props.selected)} />;
+}
+`
+    );
+    expect(result.parseError).toBe(undefined);
+    expect(result.text).not.toContain('joinClass');
+    expect(result.text).toContain('.filter(Boolean).join(');
+    expect(result.text).toContain("'rounded-[10px]'");
   });
 });

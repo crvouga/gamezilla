@@ -9,11 +9,13 @@
 import type { LocalizedString } from '@pkgs/i18n';
 import { type JSX, Show, splitProps } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-import { type ComponentDataSet, componentDataAttrs } from '../../component-id';
+import {
+  type ComponentDataSet,
+  componentDataAttrs,
+  dataAttrs,
+} from '../../component-id';
 import { spacingScale } from '../../theme';
-import { Box, joinClass } from '../box/box';
 import styles from '../hosts.module.css';
-import { Text } from '../text';
 
 export type TextInputProps = Omit<
   JSX.InputHTMLAttributes<HTMLInputElement>,
@@ -71,17 +73,14 @@ function FieldFooter(props: {
       when={props.error}
       fallback={
         <Show when={props.helperText}>
-          {(text) => <Text variant="caption" label={text()} />}
+          {(text) => <p class="text textCaption">{text()}</p>}
         </Show>
       }
     >
       {(error) => (
-        <Text
-          variant="caption"
-          role="alert"
-          class="text-destructive"
-          label={error()}
-        />
+        <p class="text textCaption text-destructive" role="alert">
+          {error()}
+        </p>
       )}
     </Show>
   );
@@ -137,12 +136,14 @@ function Field(
     <Dynamic
       component={props.multiline ? 'textarea' : 'input'}
       ref={props.ref}
-      class={joinClass(
+      class={[
         styles['input'],
-        props.hasError && styles['inputError'],
-        props.multiline && styles['inputTextarea'],
-        props.fieldClass
-      )}
+        props.hasError ? styles['inputError'] : undefined,
+        props.multiline ? styles['inputTextarea'] : undefined,
+        props.fieldClass,
+      ]
+        .filter(Boolean)
+        .join(' ')}
       style={fieldStyle()}
       type={fieldType(props)}
       rows={props.multiline ? (props.rows ?? 3) : undefined}
@@ -162,13 +163,13 @@ function Field(
 
 function StartAdornment(props: { children: JSX.Element }): JSX.Element {
   return (
-    <Box
+    <div
+      class="box absolute inset-y-0 left-0 items-center justify-center pointer-events-none"
       aria-hidden="true"
-      class="absolute inset-y-0 left-0 justify-center pointer-events-none"
       style={{ 'padding-left': `${spacingScale(FIELD_PX_STEP)}px` }}
     >
       {props.children}
-    </Box>
+    </div>
   );
 }
 
@@ -203,15 +204,15 @@ export function TextInput(props: TextInputProps): JSX.Element {
   const hasAdornment = () =>
     local.startAdornment !== undefined && local.startAdornment !== null;
   return (
-    <Box
-      class={joinClass('gap-1', local.class)}
+    <div
+      class={['box gap-1', local.class].filter(Boolean).join(' ')}
+      {...dataAttrs({ component: 'TextInput', ...local.dataSet })}
       style={local.style}
-      dataSet={{ component: 'TextInput', ...local.dataSet }}
     >
       <Show when={local.label !== undefined}>
-        <Text variant="label" as="label" label={local.label} />
+        <label class="text textLabel">{local.label}</label>
       </Show>
-      <Box class="relative">
+      <div class="box relative">
         <Field
           {...field}
           hasError={local.error !== undefined}
@@ -221,9 +222,9 @@ export function TextInput(props: TextInputProps): JSX.Element {
         <Show when={hasAdornment()}>
           <StartAdornment>{local.startAdornment}</StartAdornment>
         </Show>
-      </Box>
+      </div>
       <FieldFooter error={local.error} helperText={local.helperText} />
-    </Box>
+    </div>
   );
 }
 

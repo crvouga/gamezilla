@@ -81,7 +81,7 @@ export function MiniplayerStackedBar(
           )}
         </For>
         <button
-          class="clickable clickableTint relative z-1"
+          class="clickable clickableTint relative z-1 flex-row items-stretch w-full"
           type="button"
           onClick={props.onPressOpenPicker}
           role="button"

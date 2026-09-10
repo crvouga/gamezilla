@@ -12,7 +12,6 @@ import { useLingui } from '@lingui/solid/macro';
 import { createMemo, For, type JSX, Show } from 'solid-js';
 
 import { type ColorTokenName, colorVar } from '../../theme';
-import { joinClass } from '../box/box';
 import { ChevronRightIcon, CopyIcon } from '../icons';
 import {
   classifyValue,
@@ -210,10 +209,8 @@ function Chevron(props: {
   return (
     <Show when={props.expandable} fallback={<div class="box w-[14px]" />}>
       <div
-        class={joinClass(
-          'box w-[14px] h-[18px] items-center justify-center',
-          props.expanded && '[transform:rotate(90deg)]'
-        )}
+        class="box w-[14px] h-[18px] items-center justify-center"
+        classList={{ '[transform:rotate(90deg)]': !!props.expanded }}
         data-expanded={props.expanded ? 'true' : 'false'}
       >
         <ChevronRightIcon size={10} />

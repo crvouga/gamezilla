@@ -22,9 +22,9 @@ export function SqlNotebookToolbar(props: {
   } = props;
   return (
     <div class="box flex-row items-center gap-1 px-2 py-1 border-b border-outline bg-surface">
-      <p class="text text-[11px] text-text-secondary flex-1">{`SQL notebook · ${dialect()} · debug writes bypass sync mutations`}</p>
+      <p class="text textCaption text-text-secondary flex-1">{`SQL notebook · ${dialect()} · debug writes bypass sync mutations`}</p>
       <IconButton label="Run all" size={28} tooltip="hover" onClick={onRunAll}>
-        <PlayIcon size={14} />
+        <PlayIcon size={14} color="icon" />
       </IconButton>
       <IconButton
         label="Add cell"
@@ -32,7 +32,7 @@ export function SqlNotebookToolbar(props: {
         tooltip="hover"
         onClick={onAddCell}
       >
-        <PlusIcon size={14} />
+        <PlusIcon size={14} color="icon" />
       </IconButton>
       <OverflowMenuButton
         size={28}

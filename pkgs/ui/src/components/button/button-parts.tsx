@@ -8,10 +8,8 @@
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import { spacingScale } from '../../theme';
-import { Box, joinClass } from '../box';
 import { type IconComponent, XIcon } from '../icons';
 import { Spinner } from '../spinner';
-import { Text } from '../text';
 import { type ButtonFeedback, MUTATION_FEEDBACK_ICONS } from './button-face';
 
 export type ButtonSize = 'sm' | 'md' | 'lg';
@@ -106,28 +104,28 @@ export function ButtonLabelText(props: {
   foregroundColor: string;
 }): JSX.Element {
   return (
-    <Text
-      variant="bodyBold"
-      class="tracking-[0.1px] whitespace-nowrap"
+    <p
+      class="text textBodyBold tracking-[0.1px] whitespace-nowrap"
       style={{
         color: props.foregroundColor,
         'font-size': `${props.size.text.fontSize}px`,
         'line-height': `${props.size.text.lineHeight}px`,
         'font-weight': props.size.text.fontWeight,
       }}
-      label={props.label}
-    />
+    >
+      {props.label}
+    </p>
   );
 }
 
 function IconSlot(props: { size: ButtonSizeSpec; children: JSX.Element }) {
   return (
-    <Box
-      class="items-center justify-center"
+    <div
+      class="box items-center justify-center"
       style={{ height: `${props.size.iconSize}px` }}
     >
       {props.children}
-    </Box>
+    </div>
   );
 }
 
@@ -237,22 +235,23 @@ function ButtonFeedbackFace(props: ButtonContentProps): JSX.Element {
  * shorter — otherwise success collapses to an icon-only square.
  */
 function ButtonFeedbackWidthLock(props: ButtonContentProps): JSX.Element {
+  const row = (): string => `box ${rowClass()}`;
   return (
-    <Box class={joinClass('relative', rowClass())} style={rowStyle(props.size)}>
-      <Box
-        class={joinClass(rowClass(), 'opacity-0 pointer-events-none')}
+    <div class={`relative ${row()}`} style={rowStyle(props.size)}>
+      <div
+        class={`opacity-0 pointer-events-none ${row()}`}
         style={rowStyle(props.size)}
         aria-hidden="true"
       >
         <ButtonIdleContent {...props} />
-      </Box>
-      <Box
-        class={joinClass('absolute inset-0', rowClass())}
+      </div>
+      <div
+        class={`absolute inset-0 ${row()}`}
         style={rowStyle(props.size)}
       >
         <ButtonFeedbackFace {...props} />
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }
 

@@ -5,6 +5,9 @@
  *
  * Scans *code only*: comments and string bodies are blanked first so a JSDoc
  * example (`<Text sx={…}>`) never reads as a live call site.
+ *
+ * Applies to every tree including `@pkgs/ui` itself — Box/Stack/… and
+ * joinClass/cn must not survive anywhere after migration.
  */
 
 import ts from 'typescript';
@@ -47,28 +50,6 @@ export function stripComments(text: string): string {
 
 const THEME_PATH = /(?:^|[/\\])pkgs[/\\]ui[/\\]src[/\\]theme(?:[/\\]|$)/;
 
-/**
- * `@pkgs/ui`'s own sources are the design system: its components legitimately
- * compose `Box` / `Text` / `Stack` and use `joinClass` internally, and its
- * test suite asserts on those primitives. Only *consumer* call sites carry
- * `sx=`, so the transform and the gate both leave these trees untouched.
- */
-const DESIGN_SYSTEM_PATH =
-  /(?:^|[/\\])pkgs[/\\]ui[/\\](?:src|tests)(?:[/\\]|$)/;
-
-/** True for `@pkgs/ui` implementation + test trees (never migrated). */
-export function isDesignSystemPath(path: string): boolean {
-  return DESIGN_SYSTEM_PATH.test(path);
-}
-
-/**
- * `@pkgs/ui`'s own component sources are the design system itself: they
- * legitimately compose `Box` / `Text` / `Stack` and use internal helpers like
- * `joinClass`. Primitive-usage checks skip them (they are the definition of
- * the primitives); `sx-attr` / `sx-type` / `todo` still apply everywhere.
- */
-const UI_INTERNALS = /(?:^|[/\\])pkgs[/\\]ui[/\\]src[/\\]components(?:[/\\]|$)/;
-
 const SX_ATTR = /\b(?:sx|frameSx|fieldSx|enterSx|exitSx)\s*=/;
 const PURGED_TAG = /<(?:Box|Stack|Center|Spacer|Card|Divider|Clickable|Text)\b/;
 
@@ -79,9 +60,9 @@ const SX_TYPE_OR_HELPER =
   /\b(?:SxInput|SxProps|flattenSx|sxToCss)\b|tokens\.css\s*\(/;
 
 /**
- * Class-merge helpers as *calls*. `cx` is intentionally excluded: it is an
- * SVG geometry prop / local accessor throughout the codebase; the `cx`
- * helper proper is still caught by the import scan.
+ * Class-merge helpers as *calls* or *definitions*. `cx` is intentionally
+ * excluded from the call scan (SVG geometry prop); the `cx` helper proper is
+ * still caught by the import scan.
  */
 const CLASS_HELPER =
   /\b(?:cn|clsx|classnames|twMerge|twJoin|cva|joinClass)\s*\(/;
@@ -93,10 +74,6 @@ const TODO_MARKER = /TODO\(sx-codemod\)/;
 
 function isThemePath(path: string): boolean {
   return THEME_PATH.test(path);
-}
-
-function isUiInternalsPath(path: string): boolean {
-  return UI_INTERNALS.test(path) || isDesignSystemPath(path);
 }
 
 function hit(path: string, kind: string, detail: string): GateHit {
@@ -146,12 +123,11 @@ export function checkCompleteness(
   const hits: GateHit[] = [];
   for (const { path, nextText } of outputs) {
     const allowTheme = isThemePath(path);
-    const isUiInternals = isUiInternalsPath(path);
     const code = stripComments(nextText);
     if (SX_ATTR.test(code)) {
       hits.push(hit(path, 'sx-attr', 'sx=/frameSx=/fieldSx=/enterSx=/exitSx='));
     }
-    if (!isUiInternals && PURGED_TAG.test(code)) {
+    if (PURGED_TAG.test(code)) {
       hits.push(
         hit(
           path,
@@ -160,18 +136,18 @@ export function checkCompleteness(
         )
       );
     }
-    if (!isUiInternals) scanImportLines(path, nextText, hits);
+    scanImportLines(path, nextText, hits);
     if (!allowTheme && SX_TYPE_OR_HELPER.test(code)) {
       hits.push(
         hit(path, 'sx-type', 'SxInput/SxProps/flattenSx/sxToCss/tokens.css(')
       );
     }
-    if (!isUiInternals && CLASS_HELPER.test(code)) {
+    if (CLASS_HELPER.test(code)) {
       hits.push(
         hit(
           path,
           'class-helper',
-          'cn|clsx|classnames|twMerge|twJoin|cx|cva|joinClass'
+          'cn|clsx|classnames|twMerge|twJoin|cva|joinClass'
         )
       );
     }

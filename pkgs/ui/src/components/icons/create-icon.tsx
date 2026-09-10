@@ -8,7 +8,6 @@
 import type { Component, JSX } from 'solid-js';
 import { type ComponentDataSet, componentDataAttrs } from '../../component-id';
 import { resolveColor, useOnColor, useThemeTokens } from '../../theme';
-import { Box, joinClass } from '../box';
 
 export type IconProps = {
   size?: number | undefined;
@@ -43,15 +42,12 @@ export function createIcon(LucideIcon: LucideIconLike): IconComponent {
         ? resolveColor(props.color, tokens.colors)
         : undefined) ?? onColor().icon;
     return (
-      <Box
-        as="span"
+      <span
+        class="box inline-flex items-center justify-center shrink-0"
+        classList={{ [String(props.class)]: true }}
         role={props.label === undefined ? undefined : 'img'}
         aria-label={props.label}
         aria-hidden={props.label === undefined ? true : undefined}
-        class={joinClass(
-          'inline-flex items-center justify-center shrink-0',
-          props.class
-        )}
         style={props.style}
         {...componentDataAttrs('Icon', props.dataSet)}
       >
@@ -60,7 +56,7 @@ export function createIcon(LucideIcon: LucideIconLike): IconComponent {
           color={color()}
           stroke-width={props.strokeWidth ?? DEFAULT_STROKE_WIDTH}
         />
-      </Box>
+      </span>
     );
   };
 }

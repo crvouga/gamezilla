@@ -1,6 +1,5 @@
 /** @jsxImportSource solid-js */
 import type { LocalizedString } from '@pkgs/i18n';
-import { Text } from '@pkgs/ui';
 import {
   CODE_EDITOR_LINE_HEIGHT,
   CodeEditor,
@@ -120,7 +119,7 @@ describe('CodeEditor', () => {
         tokenize={tokenize}
         onKeyDown={onKeyDown}
         aria-label={label}
-        trailing={<Text label="hint" />}
+        trailing={<p class="text">{'hint'}</p>}
       />
     ));
     expect(screen.getByText('hint')).toBeTruthy();

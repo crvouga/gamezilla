@@ -16,6 +16,7 @@ import type { JSX } from 'solid-js';
 import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { cssGap } from '../../css/css-px';
 import { MODAL_CONTENT_MARGIN_STEP } from '../../theme/modal-size';
+import styles from '../hosts.module.css';
 
 export type ModalBackdropProps = {
   /** Fired on click outside the content (when `dismissOnBackdrop`). */
@@ -44,6 +45,7 @@ export function ModalBackdrop(props: ModalBackdropProps): JSX.Element {
       />
       <div
         class="box flex-1 w-[100%] h-[100%] justify-center items-center"
+        classList={{ [styles['boxNone'] ?? '']: true }}
         style={{ padding: cssGap(MODAL_CONTENT_MARGIN_STEP) }}
       >
         {props.children}

@@ -74,10 +74,31 @@ export function formatSimNodeLabel(args: {
   readonly kind?: string;
 }): string {
   const fromId = parseSimNodeAddress(args.id);
-  if (fromId.instanceId !== null) return fromId.instanceId;
   const kind = coerceSimNodeKind(args.kind) ?? coerceSimNodeKind(fromId.kind);
-  if (kind !== null) return SIM_NODE_LABELS[kind];
+  if (fromId.instanceId !== null) {
+    // Room topics are UUIDs — show a short chip, not the full id.
+    if (kind === 'room' || looksLikeUuid(fromId.instanceId)) {
+      return shortId(fromId.instanceId);
+    }
+    return fromId.instanceId;
+  }
+  // Bare room topic UUID tab ids (unified strip uses topic as id).
+  if (looksLikeUuid(args.id)) return shortId(args.id);
+  // Bare kind tokens (server / events / …) keep the chrome label.
+  const bareKind = coerceSimNodeKind(args.id);
+  if (bareKind !== null) return SIM_NODE_LABELS[bareKind];
+  // Instance ids with a kind hint (client-1, alice, …) keep the id.
   return args.id;
+}
+
+function looksLikeUuid(value: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+    value
+  );
+}
+
+function shortId(value: string): string {
+  return value.length <= 10 ? value : `${value.slice(0, 8)}…`;
 }
 
 export type FallbackReportNode = {

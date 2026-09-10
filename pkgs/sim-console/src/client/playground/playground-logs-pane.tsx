@@ -27,7 +27,7 @@ export function PlaygroundLogsPane(props: {
     <Show
       when={entries().length > 0}
       fallback={
-        <div class="box flex-1 min-h-[0] p-[8px]">
+        <div class="box flex-1 min-h-[0] p-[8px] bg-background">
           <EmptyState
             variant="compact"
             title="No logs yet"
@@ -36,7 +36,10 @@ export function PlaygroundLogsPane(props: {
         </div>
       }
     >
-      <ScrollView class="flex-1 min-h-[0]" contentClass="p-[6px] gap-1">
+      <ScrollView
+        class="flex-1 min-h-[0] bg-background"
+        contentClass="p-[6px] gap-1"
+      >
         <For each={newestFirst()}>{(entry) => <LogRow entry={entry} />}</For>
       </ScrollView>
     </Show>
@@ -45,11 +48,16 @@ export function PlaygroundLogsPane(props: {
 
 function LogRow(props: { readonly entry: PlaygroundLogEntry }) {
   const { entry } = props;
+  const levelClass = (): string => {
+    if (entry.level === 'error') return 'text-destructive';
+    if (entry.level === 'warn') return 'text-warning';
+    if (entry.level === 'info') return 'text-tint';
+    return 'text-text-secondary';
+  };
   return (
     <div class="box flex-row gap-2 [padding-top:3px;padding-bottom:3px] border-b border-border items-start">
       <p
-        class="text text-[10px] font-semibold w-[40px] shrink-0"
-        style={{ color: levelColor(entry.level) }}
+        class={`text text-[10px] font-semibold w-[40px] shrink-0 ${levelClass()}`}
       >
         {entry.level.toUpperCase()}
       </p>
@@ -59,15 +67,6 @@ function LogRow(props: { readonly entry: PlaygroundLogEntry }) {
       <p class="text text-text text-[11px] flex-1">{entry.msg}</p>
     </div>
   );
-}
-
-function levelColor(
-  level: PlaygroundLogEntry['level']
-): 'textSecondary' | 'tint' | 'warning' | 'destructive' {
-  if (level === 'error') return 'destructive';
-  if (level === 'warn') return 'warning';
-  if (level === 'info') return 'tint';
-  return 'textSecondary';
 }
 
 function formatTime(at: number): string {

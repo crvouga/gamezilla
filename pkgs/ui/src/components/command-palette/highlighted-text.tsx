@@ -5,7 +5,7 @@
  */
 
 import { createMemo, For, type JSX, Show } from 'solid-js';
-import { Text, type TextVariant } from '../text';
+import type { TextVariant } from '../text';
 import { type MatchRange, mergeRanges } from './fuzzy-match';
 
 export type HighlightedTextProps = {
@@ -53,20 +53,75 @@ export function HighlightedText(props: HighlightedTextProps): JSX.Element {
     <Show
       when={props.ranges.length > 0}
       fallback={
-        <Text variant={variant()} {...lineProps()}>
+        <p
+          class="text"
+          classList={{
+            textBodyBold: String(variant()) === 'bodyBold',
+            textCaption: String(variant()) === 'caption',
+            textLabel: String(variant()) === 'label',
+            textTitle: String(variant()) === 'title',
+            textSubtitle: String(variant()) === 'subtitle',
+            textHeading: String(variant()) === 'heading',
+            textNavigationTitle: String(variant()) === 'navigationTitle',
+            textLink: String(variant()) === 'link',
+            textMono: String(variant()) === 'mono',
+          }}
+          {...lineProps()}
+        >
           {props.text}
-        </Text>
+        </p>
       }
     >
-      <Text variant={variant()} class="shrink" {...lineProps()}>
+      <p
+        class="text shrink"
+        classList={{
+          textBodyBold: String(variant()) === 'bodyBold',
+          textCaption: String(variant()) === 'caption',
+          textLabel: String(variant()) === 'label',
+          textTitle: String(variant()) === 'title',
+          textSubtitle: String(variant()) === 'subtitle',
+          textHeading: String(variant()) === 'heading',
+          textNavigationTitle: String(variant()) === 'navigationTitle',
+          textLink: String(variant()) === 'link',
+          textMono: String(variant()) === 'mono',
+        }}
+        {...lineProps()}
+      >
         <For each={segments()}>
           {(segment) => (
-            <Text variant={segment.bold ? boldVariant() : variant()}>
+            <p
+              class="text"
+              classList={{
+                textBodyBold:
+                  String(segment.bold ? boldVariant() : variant()) ===
+                  'bodyBold',
+                textCaption:
+                  String(segment.bold ? boldVariant() : variant()) ===
+                  'caption',
+                textLabel:
+                  String(segment.bold ? boldVariant() : variant()) === 'label',
+                textTitle:
+                  String(segment.bold ? boldVariant() : variant()) === 'title',
+                textSubtitle:
+                  String(segment.bold ? boldVariant() : variant()) ===
+                  'subtitle',
+                textHeading:
+                  String(segment.bold ? boldVariant() : variant()) ===
+                  'heading',
+                textNavigationTitle:
+                  String(segment.bold ? boldVariant() : variant()) ===
+                  'navigationTitle',
+                textLink:
+                  String(segment.bold ? boldVariant() : variant()) === 'link',
+                textMono:
+                  String(segment.bold ? boldVariant() : variant()) === 'mono',
+              }}
+            >
               {segment.text}
-            </Text>
+            </p>
           )}
         </For>
-      </Text>
+      </p>
     </Show>
   );
 }

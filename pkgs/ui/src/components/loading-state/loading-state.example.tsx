@@ -1,7 +1,5 @@
 /** @jsxImportSource solid-js */
 import type { JSX } from 'solid-js';
-import { Card } from '../card';
-import { Divider } from '../divider';
 import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
 import { LoadingState } from './loading-state';
@@ -18,7 +16,7 @@ export default function LoadingStateExample(): JSX.Element {
         </div>
       </SchemePreview>
 
-      <Divider />
+      <div class="divider" role="separator" />
 
       <label class="text textLabel text-text-secondary">{'With caption'}</label>
       <SchemePreview>
@@ -27,18 +25,18 @@ export default function LoadingStateExample(): JSX.Element {
         </div>
       </SchemePreview>
 
-      <Divider />
+      <div class="divider" role="separator" />
 
       <label class="text textLabel text-text-secondary">
         {'Compact (inside a card)'}
       </label>
       <SchemePreview>
-        <Card elevation={1}>
+        <div class="card">
           <LoadingState
             variant="compact"
             caption="Waiting for metrics from server…"
           />
-        </Card>
+        </div>
       </SchemePreview>
     </ExampleRoot>
   );

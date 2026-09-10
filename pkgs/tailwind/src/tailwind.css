@@ -1,6 +1,12 @@
 /* Shared Tailwind entry — import from `@pkgs/tailwind/tailwind.css`. */
 @import "tailwindcss";
 
+/* Design-token colors (`bg-surface`, `text-text-secondary`, …). MUST be
+   imported here so the Tailwind compiler sees `@theme` — a separate Vite
+   `import '@pkgs/ui/theme.css'` injects raw `@theme` into the browser (no-op)
+   and never generates the utilities. */
+@import "../../ui/codemod/theme.css";
+
 /* Scan every workspace tier. Paths are relative to this stylesheet. */
 @source "../../../apps";
 @source "../../../libs";

@@ -8,8 +8,7 @@ import { cssPx } from '../../css/css-px';
 import { type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import { dataAttrs } from '../../component-id';
-import { joinClass } from '../box';
-import { Text, type TextVariant } from '../text';
+import type { TextVariant } from '../text';
 import type {
   FloatingMenuHeaderSpec,
   FloatingMenuItemRow,
@@ -24,7 +23,32 @@ function isTexty(node: JSX.Element): node is string | number {
   return typeof node === 'string' || typeof node === 'number';
 }
 
-/** Strings go through {@link Text}; component titles render as-is. */
+/** Prefer the authored label; never render a blank row. */
+function resolveItemLabel(row: FloatingMenuItemRow): JSX.Element {
+  const label = row.label;
+  if (typeof label === 'string') {
+    const trimmed = label.trim();
+    if (trimmed.length > 0) return trimmed;
+  } else if (typeof label === 'number') {
+    return label;
+  } else if (label !== null && label !== undefined && label !== false) {
+    return label;
+  }
+  const aria = row['aria-label']?.trim();
+  if (aria !== undefined && aria.length > 0) return aria;
+  return row.id;
+}
+
+function resolveItemAriaLabel(row: FloatingMenuItemRow): string {
+  const aria = row['aria-label']?.trim();
+  if (aria !== undefined && aria.length > 0) return aria;
+  const label = row.label;
+  if (typeof label === 'string' && label.trim().length > 0) return label.trim();
+  if (typeof label === 'number') return String(label);
+  return row.id;
+}
+
+/** Strings go through host text classes; component titles render as-is. */
 function HeaderLine(props: {
   value: JSX.Element;
   variant: TextVariant;
@@ -32,17 +56,23 @@ function HeaderLine(props: {
 }): JSX.Element {
   return (
     <Show when={isTexty(props.value)} fallback={props.value}>
-      <Text
-        as="p"
-        variant={props.variant}
-        class={joinClass(
-          'line-clamp-1',
-          props.muted === true ? 'text-text-secondary' : undefined
-        )}
-        numberOfLines={1}
+      <p
+        class="text line-clamp-1"
+        classList={{
+          textBodyBold: String(props.variant) === 'bodyBold',
+          textCaption: String(props.variant) === 'caption',
+          textLabel: String(props.variant) === 'label',
+          textTitle: String(props.variant) === 'title',
+          textSubtitle: String(props.variant) === 'subtitle',
+          textHeading: String(props.variant) === 'heading',
+          textNavigationTitle: String(props.variant) === 'navigationTitle',
+          textLink: String(props.variant) === 'link',
+          textMono: String(props.variant) === 'mono',
+          'text-text-secondary': props.muted === true,
+        }}
       >
         {props.value}
-      </Text>
+      </p>
     </Show>
   );
 }
@@ -85,7 +115,7 @@ export function FloatingMenuItem(props: {
 }): JSX.Element {
   return (
     <button
-      class="clickable clickableTint py-3 px-3 flex-row items-center gap-2 text-left"
+      class="clickable clickableTint py-2 px-3 flex-row items-center gap-2 text-left"
       {...dataAttrs({ component: 'FloatingMenuItem', ...props.row.dataSet })}
       type="button"
       style={{
@@ -93,7 +123,7 @@ export function FloatingMenuItem(props: {
         'min-height': cssPx(FLOATING_MENU_ITEM_MIN_HEIGHT),
       }}
       role="menuitem"
-      aria-label={props.row['aria-label']}
+      aria-label={resolveItemAriaLabel(props.row)}
       disabled={props.row.disabled ?? false}
       onClick={() => props.onSelect(props.row)}
     >
@@ -107,16 +137,18 @@ export function FloatingMenuItem(props: {
           />
         }
       >
-        {props.row.leading}
+        <div class="box shrink-0 items-center justify-center w-[18px] h-[18px]">
+          {props.row.leading}
+        </div>
       </Show>
-      <div class="box flex-1 min-w-[0] gap-0.5">
-        <p class="text line-clamp-1">{props.row.label}</p>
-        <Show when={props.row.subtitle !== undefined}>
-          <p class="text textCaption line-clamp-1 text-text-secondary">
-            {props.row.subtitle}
-          </p>
-        </Show>
-      </div>
+      <p class="text textLabel line-clamp-1 flex-1 min-w-0">
+        {resolveItemLabel(props.row)}
+      </p>
+      <Show when={props.row.subtitle !== undefined}>
+        <p class="text textCaption line-clamp-1 text-text-secondary shrink-0 max-w-[45%] text-right">
+          {props.row.subtitle}
+        </p>
+      </Show>
       {props.row.trailing}
     </button>
   );

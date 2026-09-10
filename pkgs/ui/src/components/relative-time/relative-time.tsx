@@ -20,7 +20,6 @@ import {
   splitProps,
 } from 'solid-js';
 import { type ComponentDataSet, dataAttrs } from '../../component-id';
-import { joinClass } from '../box/box';
 import type { TextVariant } from '../text';
 import {
   RELATIVE_TIME_TICK_MS,
@@ -115,11 +114,11 @@ export function RelativeTime(props: RelativeTimeProps): JSX.Element {
   });
   return (
     <time
-      class={joinClass(
-        'text',
-        VARIANT_CLASS[local.variant ?? 'caption'],
-        local.class
-      )}
+      class="text"
+      classList={{
+        [String(VARIANT_CLASS[local.variant ?? 'caption'])]: true,
+        [String(local.class)]: true,
+      }}
       {...dataAttrs({ component: 'RelativeTime', ...local.dataSet })}
       ref={(el) => {
         host = el;

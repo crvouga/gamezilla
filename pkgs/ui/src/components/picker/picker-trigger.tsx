@@ -8,7 +8,6 @@
 import type { LocalizedString } from '@pkgs/i18n/localized-string';
 import { type JSX, Show } from 'solid-js';
 import { colorVar } from '../../theme';
-import { joinClass } from '../box/box';
 import { ChevronDownIcon } from '../icons';
 import type { PickerOption, PickerSize, PickerValue } from './picker-types';
 
@@ -34,11 +33,13 @@ export function PickerLabel(props: { label: JSX.Element }): JSX.Element {
 }
 
 function triggerClass(compact: boolean): string {
-  return joinClass(
+  return [
     'clickable clickableTint flex-row items-center min-w-0 w-full text-left',
     'rounded-[10px] border border-solid border-outline bg-surface-muted',
-    compact ? 'h-8 gap-1.5 px-2' : 'min-h-11 gap-2.5 px-3 py-2.5'
-  );
+    compact ? 'h-8 gap-1.5 px-2' : 'min-h-11 gap-2.5 px-3 py-2.5',
+  ]
+    .filter(Boolean)
+    .join(' ');
 }
 
 export function PickerTrigger<T extends PickerValue>(
@@ -62,10 +63,8 @@ export function PickerTrigger<T extends PickerValue>(
         <div class="box shrink-0">{props.selected?.preview}</div>
       </Show>
       <p
-        class={joinClass(
-          'text line-clamp-1 flex-1 min-w-0 shrink',
-          compact() ? 'textCaption' : 'textLabel'
-        )}
+        class="text line-clamp-1 flex-1 min-w-0 shrink"
+        classList={{ textCaption: !!compact(), textLabel: !compact() }}
         style={{
           color: hasSelection() ? colorVar('text') : colorVar('textSecondary'),
           ...(compact()

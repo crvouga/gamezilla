@@ -75,6 +75,7 @@ function useGlobalMenuActions(): () => readonly OverflowMenuAction[] {
     {
       id: 'connectivity',
       label: connectivityTitle(t, connectivity.status()),
+      'aria-label': connectivityTitle(t, connectivity.status()),
       leading: (
         <StatusDot
           status={connectivity.status()}

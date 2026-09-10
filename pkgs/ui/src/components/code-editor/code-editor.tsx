@@ -22,7 +22,6 @@ import {
 } from 'solid-js';
 import { dataAttrs } from '../../component-id';
 import { colorVar, spacingScale, useThemeTokens } from '../../theme';
-import { joinClass } from '../box/box';
 import { useDocumentShortcuts } from '../keyboard-shortcuts';
 import styles from './code-editor.module.css';
 import {
@@ -165,7 +164,8 @@ export function CodeEditor(props: CodeEditorProps): JSX.Element {
 
   return (
     <div
-      class={joinClass('box gap-1', props.class)}
+      class="box gap-1"
+      classList={{ [String(props.class)]: true }}
       {...dataAttrs({ component: 'CodeEditor', ...props.dataSet })}
       style={props.style}
     >

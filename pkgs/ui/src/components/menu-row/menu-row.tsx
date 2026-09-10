@@ -21,12 +21,9 @@
 
 import type { LocalizedString } from '@pkgs/i18n';
 import { type JSX, Show } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { spacingScale } from '../../theme';
-import { Box, joinClass } from '../box';
-import { Clickable } from '../clickable';
 import { ChevronRightIcon } from '../icons';
-import { Text } from '../text';
 
 export type MenuRowProps = {
   title: JSX.Element;
@@ -89,17 +86,15 @@ function MenuRowTrailing(props: {
       when={props.value !== undefined && props.value !== null}
       fallback={end()}
     >
-      <Box
-        class="flex-row items-center gap-2"
+      <div
+        class="box flex-row items-center gap-2"
         style={{ 'max-width': MENU_ROW_VALUE_MAX_WIDTH }}
       >
-        <Text
-          class="text-text-secondary text-right shrink"
-          numberOfLines={1}
-          label={props.value}
-        />
+        <p class="text line-clamp-1 text-text-secondary text-right shrink">
+          {props.value}
+        </p>
         {end()}
-      </Box>
+      </div>
     </Show>
   );
 }
@@ -109,8 +104,8 @@ function MenuRowBody(
 ): JSX.Element {
   const selected = () => props.selected === true;
   return (
-    <Box
-      class="flex-row items-center py-3 gap-3"
+    <div
+      class="box flex-row items-center py-3 gap-3"
       style={{
         'padding-left': `${spacingScale(MENU_ROW_PX_STEP)}px`,
         'padding-right': `${spacingScale(MENU_ROW_PX_STEP)}px`,
@@ -118,35 +113,36 @@ function MenuRowBody(
       }}
     >
       <Show when={props.leading !== undefined}>
-        <Box
-          class="items-center"
+        <div
+          class="box items-center"
           style={{ 'min-width': `${MENU_ROW_LEADING_WIDTH}px` }}
         >
           {props.leading}
-        </Box>
+        </div>
       </Show>
-      <Box class="flex-1 min-w-0 gap-0.5 items-start">
-        <Text
-          variant="bodyBold"
-          class={selected() ? 'text-tint' : undefined}
-          label={props.title}
-        />
+      <div class="box flex-1 min-w-0 gap-0.5 items-start">
+        <p
+          class="text textBodyBold"
+          classList={{ 'text-tint': selected() }}
+        >
+          {props.title}
+        </p>
         <Show when={props.caption}>
-          <Text variant="caption" label={props.caption} />
+          <p class="text textCaption">{props.caption}</p>
         </Show>
-      </Box>
+      </div>
       <MenuRowTrailing
         value={props.value}
         trailing={props.trailing}
         hideChevron={props.hideChevron === true || !props.interactive}
         selected={selected()}
       />
-    </Box>
+    </div>
   );
 }
 
 function rowClass(selected: boolean): string {
-  return joinClass('rounded-[10px]', selected && 'bg-tint-subtle');
+  return selected ? 'rounded-[10px] bg-tint-subtle' : 'rounded-[10px]';
 }
 
 export function MenuRow(props: MenuRowProps): JSX.Element {
@@ -155,28 +151,29 @@ export function MenuRow(props: MenuRowProps): JSX.Element {
     <Show
       when={props.onClick}
       fallback={
-        <Box
-          class={rowClass(selected())}
+        <div
+          class={`box ${rowClass(selected())}`}
+          {...dataAttrs({ component: 'MenuRow', ...props.dataSet })}
           aria-label={props['aria-label']}
-          dataSet={{ component: 'MenuRow', ...props.dataSet }}
         >
           <MenuRowBody {...props} interactive={false} />
-        </Box>
+        </div>
       }
     >
       {(onClick) => (
-        <Clickable
+        <button
+          class={`clickable clickableTint ${rowClass(selected())}`}
+          {...dataAttrs({ component: 'MenuRow', ...props.dataSet })}
+          type="button"
           role="menuitem"
           onClick={() => onClick()()}
           disabled={props.disabled === true}
           aria-label={props['aria-label']}
           aria-current={props.selected === true ? true : undefined}
-          class={rowClass(selected())}
           style={{ opacity: props.disabled === true ? 0.5 : 1 }}
-          dataSet={{ component: 'MenuRow', ...props.dataSet }}
         >
           <MenuRowBody {...props} interactive />
-        </Clickable>
+        </button>
       )}
     </Show>
   );

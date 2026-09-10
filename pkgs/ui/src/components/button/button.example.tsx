@@ -2,7 +2,6 @@
 import { useTimers } from '@pkgs/clock/solid';
 import { createSignal, type JSX } from 'solid-js';
 import { useThemeTokens } from '../../theme';
-import { Divider } from '../divider';
 import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
 import { ChevronRightIcon } from '../icons';
@@ -136,9 +135,9 @@ export default function ButtonExample(): JSX.Element {
   return (
     <ExampleRoot>
       <SizesBlock />
-      <Divider />
+      <div class="divider" role="separator" />
       <FeedbackBlock />
-      <Divider />
+      <div class="divider" role="separator" />
       <VariantBlock intent="primary" label="Primary" />
       <VariantBlock
         intent="primary"
@@ -146,21 +145,21 @@ export default function ButtonExample(): JSX.Element {
         label="Primary · outline"
       />
       <VariantBlock intent="primary" variant="ghost" label="Primary · ghost" />
-      <Divider />
+      <div class="divider" role="separator" />
       <VariantBlock intent="danger" label="Danger" />
       <VariantBlock
         intent="danger"
         variant="outline"
         label="Danger · outline"
       />
-      <Divider />
+      <div class="divider" role="separator" />
       <VariantBlock intent="success" label="Success" />
       <VariantBlock
         intent="success"
         variant="outline"
         label="Success · outline"
       />
-      <Divider />
+      <div class="divider" role="separator" />
       <VariantBlock intent="neutral" label="Neutral" />
       <VariantBlock intent="neutral" variant="ghost" label="Neutral · ghost" />
     </ExampleRoot>

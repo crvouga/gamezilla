@@ -29,8 +29,12 @@ export function DebuggerColumn(props: {
 }): JSX.Element {
   return (
     <div
-      class="box"
-      style={props.focused ? colFocusedSx : colSx}
+      class="box flex-1 min-w-[0] min-h-[0] overflow-hidden border border-solid"
+      classList={{
+        'border-border': props.focused !== true,
+        'border-tint': props.focused === true,
+      }}
+      style={{ 'flex-basis': '0' }}
       {...dataAttrs({ debuggerColumnFocused: '1' })}
       {...(props.onActivate !== undefined
         ? { onPointerDown: props.onActivate }
@@ -69,26 +73,4 @@ const rowSx = {
   'flex-direction': 'row',
   'align-items': 'stretch',
   overflow: 'hidden',
-} as const;
-
-const colBaseSx = {
-  flex: 1,
-  flexBasis: 0,
-  'min-width': 0,
-  'min-height': 0,
-  overflow: 'hidden',
-  borderTopWidth: 'hairline',
-  borderRightWidth: 'hairline',
-  'border-bottom-width': '1px',
-  borderLeftWidth: 'hairline',
-} as const;
-
-const colSx = {
-  ...colBaseSx,
-  'border-color': 'border',
-} as const;
-
-const colFocusedSx = {
-  ...colBaseSx,
-  'border-color': 'tint',
 } as const;

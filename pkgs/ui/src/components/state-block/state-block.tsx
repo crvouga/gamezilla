@@ -32,7 +32,7 @@ export function StateBlock(props: StateBlockProps): JSX.Element {
   const isFill = (): boolean => (props.variant ?? 'fill') === 'fill';
   return (
     <div
-      class="box items-center justify-center gap-3 px-5"
+      class="box w-full items-center justify-center gap-3 px-5"
       {...dataAttrs({ component: 'StateBlock', ...props.dataSet })}
       style={{
         ...(isFill() ? { flex: 1 } : {}),
@@ -41,7 +41,9 @@ export function StateBlock(props: StateBlockProps): JSX.Element {
       }}
       role={props.role}
     >
-      <div class="box items-center justify-center gap-2">{props.children}</div>
+      <div class="box w-full max-w-[420px] items-center justify-center gap-2">
+        {props.children}
+      </div>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 /** @jsxImportSource solid-js */
-import { SurfaceStackProvider, Text } from '@pkgs/ui';
+import { SurfaceStackProvider } from '@pkgs/ui';
 import {
   BottomSheetHostProvider,
   createPassthroughBottomSheetHost,
@@ -28,7 +28,7 @@ function Surface(props: {
       presentation={props.presentation}
       closeDataSet={{ testid: 'close' }}
     >
-      <Text label="Surface body" />
+      <p class="text">{'Surface body'}</p>
     </ResponsiveSurface>
   );
 }

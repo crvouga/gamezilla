@@ -42,6 +42,7 @@ import {
   resolvePlaygroundPane,
 } from './playground-kind-pane';
 import { PlaygroundSnapshotChrome } from './playground-snapshot-chrome';
+import { selectUnifiedNode } from './select-unified-node';
 import type { PlaygroundSessionState } from './use-playground-session';
 
 export type { SimChromeKind as PlaygroundKindId } from '../../shared/sim-node';
@@ -171,22 +172,31 @@ function ReadyPlaygroundScreen(props: {
   const instanceId = createMemo(() =>
     resolvePlaygroundInstanceId(props.chrome.instance, instances())
   );
+  // Unified strip must list clients always — not kind-scoped `instances`,
+  // or Client tabs vanish on Server/PubSub/Room and clicks mis-route as room.
   const unifiedNodes = createMemo(() => {
-    const clientNodes = instances().map((node) =>
-      debuggerInstanceTabItem({ id: node.id, kind: node.kind })
+    const clientNodes = clients().map((actor) =>
+      debuggerInstanceTabItem({ id: actor.id, kind: 'client' })
     );
     const fixed = [
       { id: 'server', kind: 'server' },
       { id: 'events', kind: 'events' },
-      ...(props.session.rooms.size > 0
-        ? [{ id: [...props.session.rooms.keys()][0]!, kind: 'room' }]
-        : []),
+      ...[...props.session.rooms.values()].map((room) => ({
+        id: room.id,
+        kind: 'room' as const,
+      })),
     ];
     return [...clientNodes, ...fixed.map(debuggerInstanceTabItem)];
   });
-  const selectedNode = createMemo(() =>
-    kind() === 'client' ? instanceId() : kind() === 'events' ? 'events' : kind()
-  );
+  const selectedNode = createMemo(() => {
+    const current = kind();
+    if (current === 'client') return instanceId();
+    if (current === 'events') return 'events';
+    if (current === 'server') return 'server';
+    // Room tab id is the topic UUID (not the bare kind).
+    if (current === 'room') return instanceId();
+    return current;
+  });
   const shellPaneKey = createMemo(() =>
     playgroundPaneKey(kind(), instanceId())
   );
@@ -217,7 +227,9 @@ function ReadyPlaygroundScreen(props: {
         instanceId={instanceId}
         unifiedNodes={unifiedNodes}
         selectedNode={selectedNode}
-        onUnifiedNodeChange={(id) => selectUnifiedNode(props, instances(), id)}
+        onUnifiedNodeChange={(id) =>
+          selectUnifiedNode(props, clients(), id)
+        }
         views={views}
         shellPane={shellPane}
         shellPaneKey={shellPaneKey}
@@ -228,29 +240,6 @@ function ReadyPlaygroundScreen(props: {
       />
     </div>
   );
-}
-
-function selectUnifiedNode(
-  props: {
-    readonly chrome: DebuggerChromeNav;
-    readonly onFocusedClientIdChange: (id: string | null) => void;
-  },
-  instances: readonly { readonly id: string; readonly kind: string }[],
-  id: string
-): void {
-  const node = instances.find((entry) => entry.id === id);
-  if (node?.kind === 'client') {
-    props.chrome.onKindChange('client');
-    props.chrome.onInstanceChange(id);
-    props.onFocusedClientIdChange(id);
-  } else if (id === 'server') {
-    props.chrome.onKindChange('server');
-  } else if (id === 'events') {
-    props.chrome.onKindChange('events');
-  } else {
-    props.chrome.onKindChange('room');
-    props.chrome.onInstanceChange(id);
-  }
 }
 
 function PlaygroundDebuggerShell(props: {
@@ -338,6 +327,6 @@ const centerSx = {
   flex: 1,
   'align-items': 'center',
   'justify-content': 'center',
-  background: 'background',
+  background: 'var(--ui-color-background)',
   padding: '16px',
 } as const;

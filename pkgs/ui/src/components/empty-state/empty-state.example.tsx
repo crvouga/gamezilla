@@ -1,7 +1,5 @@
 /** @jsxImportSource solid-js */
 import type { JSX } from 'solid-js';
-import { Card } from '../card';
-import { Divider } from '../divider';
 import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
 import { HouseIcon } from '../icons';
@@ -22,30 +20,30 @@ export default function EmptyStateExample(): JSX.Element {
         </div>
       </SchemePreview>
 
-      <Divider />
+      <div class="divider" role="separator" />
 
       <label class="text textLabel text-text-secondary">
         {'Compact, no icon'}
       </label>
       <SchemePreview>
-        <Card elevation={0}>
+        <div class="card">
           <EmptyState
             variant="compact"
             title="No matching commands"
             body="Try a different search term."
           />
-        </Card>
+        </div>
       </SchemePreview>
 
-      <Divider />
+      <div class="divider" role="separator" />
 
       <label class="text textLabel text-text-secondary">
         {'Title only (list footer)'}
       </label>
       <SchemePreview>
-        <Card elevation={0}>
+        <div class="card">
           <EmptyState variant="compact" title="No rows match filter." />
-        </Card>
+        </div>
       </SchemePreview>
     </ExampleRoot>
   );

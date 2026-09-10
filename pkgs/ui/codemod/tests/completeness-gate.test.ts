@@ -56,6 +56,21 @@ export const A = () => <Box sx={{ p: 1 }} class={cn('a')} />;
     expect(kinds.has('todo')).toBe(true);
   });
 
+  test('flags purged tags and joinClass inside pkgs/ui too', () => {
+    const hits = checkCompleteness([
+      {
+        path: 'pkgs/ui/src/components/list/list.tsx',
+        nextText: `import { Box, joinClass } from '../box';
+export const A = () => <Box as="ul" class={joinClass('a')} />;
+`,
+      },
+    ]);
+    const kinds = new Set(hits.map((h) => h.kind));
+    expect(kinds.has('purged-tag')).toBe(true);
+    expect(kinds.has('purged-import')).toBe(true);
+    expect(kinds.has('class-helper')).toBe(true);
+  });
+
   test('allows SxProps in theme paths', () => {
     expect(
       checkCompleteness([

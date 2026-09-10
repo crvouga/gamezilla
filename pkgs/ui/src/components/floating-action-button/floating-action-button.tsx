@@ -9,14 +9,13 @@
 
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-import type { ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import {
   OnColorProvider,
   type OnColorSet,
   spacingScale,
   useThemeTokens,
 } from '../../theme';
-import { Box, joinClass } from '../box';
 import {
   type ButtonFace,
   type ButtonFeedback,
@@ -24,10 +23,8 @@ import {
   MUTATION_FEEDBACK_ICONS,
   resolveButtonRender,
 } from '../button';
-import { Clickable } from '../clickable';
 import { type IconComponent, PlusIcon } from '../icons';
 import { Spinner } from '../spinner';
-import { Text } from '../text';
 
 export const FAB_SIZE = 56;
 const FAB_ICON_SIZE = 24;
@@ -79,12 +76,12 @@ function FabLabelText(props: {
   foregroundColor: string;
 }): JSX.Element {
   return (
-    <Text
-      variant="bodyBold"
-      class="text-[15px] leading-[20px] font-semibold whitespace-nowrap"
+    <p
+      class="text textBodyBold text-[15px] leading-[20px] font-semibold whitespace-nowrap"
       style={{ color: props.foregroundColor }}
-      label={props.label}
-    />
+    >
+      {props.label}
+    </p>
   );
 }
 
@@ -135,10 +132,12 @@ function FabContent(props: {
 }
 
 function fabContainerClass(extended: boolean): string {
-  return joinClass(
+  return [
     'items-center justify-center flex-row overflow-hidden rounded-[9999px]',
-    !extended && 'w-[56px]'
-  );
+    !extended && 'w-[56px]',
+  ]
+    .filter(Boolean)
+    .join(' ');
 }
 
 function fabContainerStyle(
@@ -191,22 +190,23 @@ export function FloatingActionButton(
     },
   };
   return (
-    <Clickable
+    <button
+      class={`clickable clickableTint ${fabContainerClass(extended())}`}
+      {...dataAttrs({
+        component: 'FloatingActionButton',
+        phase: render().phase,
+        ...props.dataSet,
+      })}
+      type="button"
       onClick={() => render().handleClick?.()}
       disabled={render().nonInteractive}
       aria-busy={render().phase === 'loading' ? true : undefined}
       aria-label={props['aria-label']}
-      class={fabContainerClass(extended())}
       style={fabContainerStyle(extended(), render().face)}
-      dataSet={{
-        component: 'FloatingActionButton',
-        phase: render().phase,
-        ...props.dataSet,
-      }}
     >
       <OnColorProvider value={onColor}>
-        <Box
-          class="relative z-[1] flex-row items-center"
+        <div
+          class="box relative z-[1] flex-row items-center"
           style={{ gap: `${spacingScale(FAB_CONTENT_GAP)}px` }}
         >
           <FabContent
@@ -228,8 +228,8 @@ export function FloatingActionButton(
               },
             }}
           />
-        </Box>
+        </div>
       </OnColorProvider>
-    </Clickable>
+    </button>
   );
 }

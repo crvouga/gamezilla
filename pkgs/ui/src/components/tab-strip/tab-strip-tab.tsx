@@ -12,10 +12,7 @@
 import { useLingui } from '@lingui/solid/macro';
 import { type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-import { Box, joinClass } from '../box';
-import { Clickable } from '../clickable';
 import { XIcon } from '../icons';
-import { Text } from '../text';
 import type { TabStripItem } from './tab-strip-types';
 
 export const TAB_MIN_HEIGHT = 32;
@@ -35,10 +32,12 @@ export type TabStripTabProps = {
 };
 
 function shellChromeClass(active: boolean): string {
-  return joinClass(
+  return [
     'relative shrink-0 flex-row items-center rounded-tl-[10px] rounded-tr-[10px] border border-solid border-b-transparent',
-    active ? 'border-border bg-background z-[1]' : 'border-transparent z-0'
-  );
+    active ? 'border-border bg-background z-[1]' : 'border-transparent z-0',
+  ]
+    .filter(Boolean)
+    .join(' ');
 }
 
 function shellChromeStyle(closable: boolean): JSX.CSSProperties {
@@ -56,31 +55,40 @@ export function TabStripTab(props: TabStripTabProps): JSX.Element {
   const fgClass = (): string =>
     props.active ? 'text-text' : 'text-text-secondary';
   return (
-    <Box
-      class="flex-row items-center shrink-0"
-      dataSet={{ component: 'TabStripCell', id: props.item.id }}
+    <div
+      class="box flex-row items-center shrink-0"
+      data-component="TabStripCell"
+      data-id={props.item.id}
       style={{ height: `${TAB_MIN_HEIGHT}px` }}
       ref={props.ref}
     >
       <Show when={props.reserveSeparatorBefore}>
-        <Box
-          class="w-px h-[14px] mx-0.5 shrink-0 bg-border"
+        <div
+          class="box w-px h-[14px] mx-0.5 shrink-0 bg-border"
           style={{ opacity: props.separatorVisible ? 1 : 0 }}
           aria-hidden="true"
         />
       </Show>
-      <Box
-        class={shellChromeClass(props.active)}
+      <div
+        class={`box ${shellChromeClass(props.active)}`}
         style={shellChromeStyle(closable())}
       >
-        <Clickable
-          feedback={props.active ? 'none' : 'tint'}
-          class="flex-1 min-w-0 flex-row items-center gap-1.5 pl-[5px] rounded-tl-[10px] rounded-tr-[10px] overflow-hidden bg-transparent"
+        <button
+          class="clickable flex-1 min-w-0 flex-row items-center gap-1.5 pl-[5px] rounded-tl-[10px] rounded-tr-[10px] overflow-hidden bg-transparent"
+          classList={{
+            clickableOpacity:
+              String(props.active ? 'none' : 'tint') === 'opacity',
+            clickableTint:
+              String(props.active ? 'none' : 'tint') !== 'opacity' &&
+              String(props.active ? 'none' : 'tint') !== 'none',
+          }}
+          data-component="TabStripTab"
+          data-id={props.item.id}
+          type="button"
           style={{
             height: `${TAB_MIN_HEIGHT - 2}px`,
             'padding-right': `${closable() ? 2 : 5}px`,
           }}
-          dataSet={{ component: 'TabStripTab', id: props.item.id }}
           id={props.tabId}
           role="tab"
           aria-selected={props.active}
@@ -89,40 +97,41 @@ export function TabStripTab(props: TabStripTabProps): JSX.Element {
         >
           <Show when={props.item.icon}>
             {(icon) => (
-              <Box class="w-[14px] h-[14px] items-center justify-center shrink-0">
+              <div class="box w-[14px] h-[14px] items-center justify-center shrink-0">
                 <Dynamic
                   component={icon()}
                   size={14}
                   color={props.active ? 'tint' : 'textSecondary'}
                 />
-              </Box>
+              </div>
             )}
           </Show>
-          <Text
-            variant="label"
-            class={joinClass('shrink font-semibold leading-[18px]', fgClass())}
-            numberOfLines={1}
-            label={props.item.label}
-          />
-        </Clickable>
+          <label
+            class={`text textLabel line-clamp-1 shrink font-semibold leading-[18px] ${fgClass()}`}
+          >
+            {props.item.label}
+          </label>
+        </button>
         <Show when={closable()}>
-          <Clickable
-            class="rounded-[6px] items-center justify-center shrink-0 w-[22px] h-[22px]"
-            dataSet={{ component: 'TabStripClose', id: props.item.id }}
+          <button
+            class="clickable clickableTint rounded-[6px] items-center justify-center shrink-0 w-[22px] h-[22px]"
+            data-component="TabStripClose"
+            data-id={props.item.id}
+            type="button"
             aria-label={t`Close`}
             tabIndex={-1}
             onClick={() => props.item.onClose?.()}
           >
             <XIcon size={12} color="textSecondary" />
-          </Clickable>
+          </button>
         </Show>
         <Show when={props.active}>
-          <Box
-            class="absolute left-px right-px -bottom-px h-0.5 bg-background z-[2] pointer-events-none"
+          <div
+            class="box absolute left-px right-px -bottom-px h-0.5 bg-background z-[2] pointer-events-none"
             aria-hidden="true"
           />
         </Show>
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }

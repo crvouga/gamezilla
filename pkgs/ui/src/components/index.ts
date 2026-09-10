@@ -19,17 +19,14 @@ export * from './badge';
 export * from './bottom-action-bar';
 // Overlay
 export * from './bottom-sheet-host';
-// Hosts
+// Host prop types (former Box primitive — call sites are HTML now)
 export * from './box';
 export * from './brand-icon';
 export * from './button';
-export * from './card';
 export * from './catalog';
-export * from './center';
 export * from './checkbox';
 export * from './chip';
 export * from './chip-group';
-export * from './clickable';
 export * from './close-icon-button';
 export * from './code-editor';
 // Disclosure / screen title
@@ -43,7 +40,6 @@ export * from './copy-to-clipboard-field';
 export * from './data-table';
 // Feedback
 export * from './dismissible-top-banner';
-export * from './divider';
 export * from './empty-state';
 export * from './error-state';
 // Overlay infrastructure
@@ -88,10 +84,8 @@ export * from './select';
 export * from './skeleton';
 export * from './social-sign-in-button';
 export * from './sound-indicator';
-export * from './spacer';
 export * from './speaking-avatar';
 export * from './spinner';
-export * from './stack';
 export * from './state-block';
 export * from './status-dot';
 export * from './success-state';

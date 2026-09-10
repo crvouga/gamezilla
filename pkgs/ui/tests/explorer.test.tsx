@@ -10,7 +10,6 @@ import {
   registryGroups,
   SchemePreview,
   SurfaceStackProvider,
-  Text,
   toCatalogItems,
 } from '@pkgs/ui';
 import { fireEvent, screen } from '@solidjs/testing-library';
@@ -35,19 +34,19 @@ const DEMO_ENTRIES: readonly ComponentEntry[] = [
     id: 'alpha',
     title: 'Alpha',
     group: 'Group A',
-    Example: () => <Text label="alpha example body" />,
+    Example: () => <p class="text">{'alpha example body'}</p>,
   },
   {
     id: 'beta',
     title: 'Beta',
     group: 'Group A',
-    Example: () => <Text label="beta example body" />,
+    Example: () => <p class="text">{'beta example body'}</p>,
   },
   {
     id: 'gamma',
     title: 'Gamma',
     group: 'Group B',
-    Example: () => <Text label="gamma example body" />,
+    Example: () => <p class="text">{'gamma example body'}</p>,
   },
 ];
 
@@ -131,7 +130,7 @@ describe('SchemePreview', () => {
   test('renders children under both light and dark data-theme panes', () => {
     renderUi(() => (
       <SchemePreview>
-        <Text label="preview child" />
+        <p class="text">{'preview child'}</p>
       </SchemePreview>
     ));
     const light = document.querySelector('[data-theme="light"]');

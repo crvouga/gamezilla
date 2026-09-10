@@ -199,7 +199,8 @@ const columnLabelSx = {
   'padding-bottom': '24px',
   'font-size': '12px',
   'font-weight': '600',
-  color: 'textSecondary',
+  color: 'var(--ui-color-text-secondary)',
   'border-bottom-width': '1px',
-  'border-bottom-color': 'border',
+  'border-bottom-style': 'solid',
+  'border-bottom-color': 'var(--ui-color-border)',
 } as const;

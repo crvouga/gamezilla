@@ -17,7 +17,6 @@
 import { useLingui } from '@lingui/solid/macro';
 import { createMemo, For, type JSX, Show } from 'solid-js';
 import { dataAttrs } from '../../component-id';
-import { joinClass } from '../box';
 import { createDataTablePageCache } from './create-data-table-page-cache';
 import styles from './data-table.module.css';
 import {
@@ -102,7 +101,7 @@ export function DataTable<T>(props: DataTableProps<T>): JSX.Element {
 
   return (
     <div
-      class={joinClass('box', DATA_TABLE_SHELL_CLASS, props.class)}
+      class={`box ${DATA_TABLE_SHELL_CLASS}${props.class ? ` ${props.class}` : ''}`}
       style={props.style}
       {...dataAttrs({ component: 'DataTable', ...props.dataSet })}
     >

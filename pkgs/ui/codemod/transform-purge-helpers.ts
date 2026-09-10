@@ -8,6 +8,7 @@
  */
 
 import ts from 'typescript';
+import { getJsxAttr } from './transform-attrs';
 import {
   CLASS_HELPER_NAMES,
   classAttrs,
@@ -20,7 +21,6 @@ import {
   type SpanEdit,
   syntaxErrors,
 } from './transform-imports';
-import { getJsxAttr } from './transform-attrs';
 import type { ExistingClass } from './transform-node';
 
 const HELPER_NAME = new Set(CLASS_HELPER_NAMES);
@@ -107,10 +107,7 @@ function mergeWithExistingClassList(args: {
       },
     ];
   }
-  const peeledInner = listPart.slice(
-    'classList={{ '.length,
-    -' }}'.length
-  );
+  const peeledInner = listPart.slice('classList={{ '.length, -' }}'.length);
   const mergedList = `classList={{ ${peeledInner}, ...(${merge.exprText}) }}`;
   const replacement =
     classPart === undefined ? mergedList : `${classPart} ${mergedList}`;
@@ -124,9 +121,7 @@ function mergeWithExistingClassList(args: {
   ];
 }
 
-function collectClassAttrEdits(
-  source: ts.SourceFile
-): readonly SpanEdit[] {
+function collectClassAttrEdits(source: ts.SourceFile): readonly SpanEdit[] {
   const edits: SpanEdit[] = [];
   function visit(node: ts.Node): void {
     if (ts.isJsxSelfClosingElement(node) || ts.isJsxOpeningElement(node)) {
@@ -163,9 +158,7 @@ function rewriteHelperCallExpr(
   };
 }
 
-function collectHelperCallEdits(
-  source: ts.SourceFile
-): readonly SpanEdit[] {
+function collectHelperCallEdits(source: ts.SourceFile): readonly SpanEdit[] {
   const edits: SpanEdit[] = [];
   function visit(node: ts.Node): void {
     // Skip the function *declaration* `function joinClass(...)` itself.
@@ -201,12 +194,14 @@ function isJsxClassAttrValue(call: ts.CallExpression): boolean {
 
 /**
  * Purge banned helpers from a file: peel JSX class attrs, rewrite leftover
- * calls, prune imports. Returns original text when nothing changes / parse fails.
+ * calls, drop helper function declarations, prune imports. Returns original
+ * text when nothing changes / parse fails.
  */
 export function purgeClassHelpers(path: string, text: string): string {
-  const fileName = path.endsWith('.ts') && !path.endsWith('.tsx')
-    ? path.split('/').pop() ?? 'file.ts'
-    : path.split('/').pop() ?? 'file.tsx';
+  const fileName =
+    path.endsWith('.ts') && !path.endsWith('.tsx')
+      ? (path.split('/').pop() ?? 'file.ts')
+      : (path.split('/').pop() ?? 'file.tsx');
   let next = text;
   const source1 = parse(next, fileName);
   if (syntaxErrors(source1) > 0) return text;
@@ -216,10 +211,64 @@ export function purgeClassHelpers(path: string, text: string): string {
   if (syntaxErrors(source2) > 0) return text;
   const callEdits = collectHelperCallEdits(source2);
   if (callEdits.length > 0) next = applyEdits(next, callEdits);
+  const source3 = parse(next, fileName);
+  if (syntaxErrors(source3) > 0) return text;
+  const declEdits = collectHelperDeclEdits(source3, next);
+  if (declEdits.length > 0) next = applyEdits(next, declEdits);
   if (next === text) return text;
   const pruned = pruneImports(next, [...CLASS_HELPER_NAMES], fileName);
   if (syntaxErrors(parse(pruned, fileName)) > 0) return text;
   return pruned;
+}
+
+/**
+ * Delete `function joinClass` / `export function joinClass` declarations once
+ * every call site in the file has been rewritten.
+ */
+function collectHelperDeclEdits(
+  source: ts.SourceFile,
+  text: string
+): readonly SpanEdit[] {
+  const edits: SpanEdit[] = [];
+  for (const stmt of source.statements) {
+    const fn = asHelperFunction(stmt);
+    if (fn === undefined || fn.name === undefined) continue;
+    if (helperStillCalled(source, fn, fn.name.text)) continue;
+    const end = text[stmt.end] === '\n' ? stmt.end + 1 : stmt.end;
+    edits.push({ start: stmt.getStart(), end, text: '' });
+  }
+  return edits;
+}
+
+function asHelperFunction(
+  stmt: ts.Statement
+): ts.FunctionDeclaration | undefined {
+  if (ts.isFunctionDeclaration(stmt) && stmt.name !== undefined) {
+    return HELPER_NAME.has(stmt.name.text) ? stmt : undefined;
+  }
+  return undefined;
+}
+
+function helperStillCalled(
+  source: ts.SourceFile,
+  decl: ts.FunctionDeclaration,
+  name: string
+): boolean {
+  let used = false;
+  function visit(node: ts.Node): void {
+    if (node === decl) return;
+    if (
+      ts.isCallExpression(node) &&
+      ts.isIdentifier(node.expression) &&
+      node.expression.text === name
+    ) {
+      used = true;
+      return;
+    }
+    if (!used) ts.forEachChild(node, visit);
+  }
+  ts.forEachChild(source, visit);
+  return used;
 }
 
 /** Re-export for tests that want to assert peel shapes without a full file. */

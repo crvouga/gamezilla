@@ -1,6 +1,5 @@
 /** @jsxImportSource solid-js */
 import { createSignal, type JSX } from 'solid-js';
-import { Card } from '../card';
 import { ExampleRoot } from '../explorer/example-root';
 import { IconButton } from '../icon-button';
 import { Trash2Icon } from '../icons';
@@ -100,7 +99,7 @@ export default function DataTableExample(): JSX.Element {
         {'Loader-driven table (120 rows, multi-select, quiet row actions)'}
       </label>
       <p class="text textCaption opacity-75">{summary()}</p>
-      <Card class="h-[360px] overflow-hidden p-0" elevation={0}>
+      <div class="card h-[360px] overflow-hidden p-0">
         <DataTable<DemoRow>
           columns={columns}
           loadPage={loadPage}
@@ -114,7 +113,7 @@ export default function DataTableExample(): JSX.Element {
           selectedKeys={selectedKeys()}
           onSelectedKeysChange={setSelectedKeys}
         />
-      </Card>
+      </div>
     </ExampleRoot>
   );
 }

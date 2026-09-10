@@ -77,7 +77,7 @@ export function DebuggerShell(input: DebuggerShellProps): JSX.Element {
         {layout.compactChrome &&
         props.kindTrailing !== undefined &&
         props.unifiedNodes === undefined ? (
-          <div class="box" style={trailingOnlySx}>
+          <div class="box flex-row items-center px-4 py-2 border-b border-border bg-surface-muted min-w-[0]">
             {props.kindTrailing}
           </div>
         ) : null}
@@ -121,9 +121,7 @@ export function DebuggerShell(input: DebuggerShellProps): JSX.Element {
           />
         ) : null}
       </div>
-      <div class="box" style={paneSx}>
-        {props.children}
-      </div>
+      <div class="box flex-1 min-h-[0] bg-background">{props.children}</div>
     </div>
   );
 }
@@ -147,7 +145,7 @@ function KindChrome(props: {
           trailing={props.kindTrailing}
         />
       ) : props.kindTrailing === undefined ? null : (
-        <div class="box" style={trailingOnlySx}>
+        <div class="box flex-row items-center px-4 py-2 border-b border-border bg-surface-muted min-w-[0]">
           {props.kindTrailing}
         </div>
       )}
@@ -159,23 +157,4 @@ const shellSx = {
   flex: 1,
   'flex-direction': 'column',
   'min-height': 0,
-} as const;
-
-const paneSx = {
-  flex: 1,
-  'min-height': 0,
-  background: 'background',
-} as const;
-
-const trailingOnlySx = {
-  'flex-direction': 'row',
-  'align-items': 'center',
-  'padding-left': '16px',
-  'padding-right': '16px',
-  'padding-top': '8px',
-  'padding-bottom': '8px',
-  'border-bottom-width': '1px',
-  'border-color': 'border',
-  background: 'surfaceMuted',
-  'min-width': 0,
 } as const;
